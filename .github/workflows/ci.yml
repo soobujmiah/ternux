@@ -26,7 +26,7 @@ jobs:
     name: ShellCheck lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Run ShellCheck
         uses: ludeeus/action-shellcheck@master
         with:
@@ -48,7 +48,7 @@ jobs:
     name: Bash syntax check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Check shell syntax
         run: |
           errors=0
@@ -68,7 +68,7 @@ jobs:
     name: Smoke tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Run smoke tests
         run: |
           errors=0
@@ -112,7 +112,7 @@ jobs:
     name: Documentation link check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Check internal doc links
         run: |
           errors=0
