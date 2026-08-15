@@ -1,533 +1,104 @@
 #!/usr/bin/env bash
-# shellcheck shell=bash
 # =============================================================================
 #  ternux — GPU-accelerated Linux desktop CLI for Android
-#
-#  Usage:
-#    ternux <command> [options]
-#
-#  Commands:
-#    install     Install or reinstall ternux (full desktop + GPU)
-#    start       Start the desktop session
-#    stop        Stop the desktop session
-#    restart     Restart the desktop session
-#    doctor      Run system diagnostics
-#    repair      Auto-fix common issues
-#    verify      Verify installation completeness
-#    benchmark   Run GPU benchmarks (glmark2, vkmark)
-#    profile     Show or save device hardware profile
-#    backend     View or change GPU backend
-#    update      Self-update ternux CLI
-#    logs        View and manage log files
-#    info        Show system information summary
-#    state       Show installation state
-#    uninstall   Remove ternux components
-#
-#  Global options:
-#    --help, -h  Show help for any command
-#    --json      Output machine-readable JSON (AI-native)
-#    --verbose   Show detailed output
-#    --quiet     Suppress non-critical output
 #
 #  Copyright (c) 2026 Sobuj Miah (@soobujmiah) — MIT License
 #  https://github.com/soobujmiah/ternux
 # =============================================================================
-
 set -u
 
-# ---------------------------------------------------------------------------
-# Bootstrap: locate libraries relative to this script
-# ---------------------------------------------------------------------------
-TNX_BIN_DIR="$(cd "$(dirname "$(realpath "$0" 2>/dev/null || readlink -f "$0" 2>/dev/null || echo "$0")")" && pwd)"
-TNX_ROOT="$(cd "$TNX_BIN_DIR/.." && pwd)"
+# --- Locate libraries -------------------------------------------------------
+_TNX_ROOT=""
+for _try in \
+  "$(cd "$(dirname "$(realpath "$0" 2>/dev/null || echo "$0")")/.." && pwd 2>/dev/null)" \
+  "/data/data/com.termux/files/usr/lib/ternux" \
+  "$HOME/.local/share/ternux/lib"; do
+  [ -f "$_try/lib/core.sh" ] && { _TNX_ROOT="$_try"; break; }
+done
 
-# Source core library first (it sets up everything else)
-if [ -f "$TNX_ROOT/lib/core.sh" ]; then
-  . "$TNX_ROOT/lib/core.sh"
-else
-  # Fallback: try installed location
-  for _tnx_lib in \
-    "/data/data/com.termux/files/usr/lib/ternux/core.sh" \
-    "$HOME/.local/share/ternux/lib/core.sh" \
-    "$HOME/.ternux/lib/core.sh"; do
-    if [ -f "$_tnx_lib" ]; then
-      . "$_tnx_lib"
-      TNX_ROOT="$(dirname "$(dirname "$_tnx_lib")")"
-      break
-    fi
-  done
-  if [ -z "${TERNUX_VERSION:-}" ]; then
-    echo "[FATAL] Cannot locate ternux libraries. Reinstall with: bash install.sh" >&2
-    exit 1
-  fi
+if [ -z "$_TNX_ROOT" ]; then
+  echo "[FATAL] Cannot locate ternux libraries. Reinstall: bash install.sh" >&2
+  exit 1
 fi
 
-# ---------------------------------------------------------------------------
-# Help text
-# ---------------------------------------------------------------------------
-tnx_usage() {
-  local cmd="${1:-}"
-  if [ -n "$cmd" ]; then
-    # Command-specific help
-    tnx_help_"${cmd}" 2>/dev/null || echo "No help available for '$cmd'."
-    return 0
-  fi
+. "$_TNX_ROOT/lib/core.sh"
 
-  cat <<EOF
-${TNX_CG}ternux${TNX_C0} — ${TERNUX_DESC}
-${TNX_CD}v${TERNUX_VERSION} · ${TERNUX_REPO}${TNX_C0}
-
-${TNX_CW}Usage:${TNX_C0}
-  ternux <command> [options]
-
-${TNX_CW}Commands:${TNX_C0}
-  ${TNX_CG}install${TNX_C0}     Install full desktop environment
-  ${TNX_CG}start${TNX_C0}       Start the desktop session
-  ${TNX_CG}stop${TNX_C0}        Stop the desktop session
-  ${TNX_CG}restart${TNX_C0}     Restart the desktop session
-  ${TNX_CG}doctor${TNX_C0}      Run system diagnostics
-  ${TNX_CG}repair${TNX_C0}      Auto-fix common issues
-  ${TNX_CG}verify${TNX_C0}      Verify installation completeness
-  ${TNX_CG}benchmark${TNX_C0}   Run GPU benchmarks
-  ${TNX_CG}profile${TNX_C0}     Show or save device hardware profile
-  ${TNX_CG}backend${TNX_C0}     View or change GPU backend
-  ${TNX_CG}update${TNX_C0}      Self-update ternux CLI
-  ${TNX_CG}logs${TNX_C0}        View and manage log files
-  ${TNX_CG}info${TNX_C0}        Show system information summary
-  ${TNX_CG}state${TNX_C0}       Show installation state
-  ${TNX_CG}uninstall${TNX_C0}   Remove ternux components
-
-${TNX_CW}Global options:${TNX_C0}
-  --help, -h    Show help for any command
-  --json        Machine-readable JSON output (AI-native)
-  --verbose     Show detailed output
-  --quiet       Suppress non-critical output
-
-${TNX_CW}Examples:${TNX_C0}
-  ternux install           ${TNX_CD}Interactive installation${TNX_C0}
-  ternux doctor --json     ${TNX_CD}AI-readable diagnostics${TNX_C0}
-  ternux start             ${TNX_CD}Launch the desktop${TNX_C0}
-  ternux backend set zink  ${TNX_CD}Switch to Zink/Turnip${TNX_C0}
-  ternux profile save      ${TNX_CD}Snapshot device config${TNX_C0}
-
-${TNX_CD}Run 'ternux <command> --help' for command-specific help.${TNX_C0}
-EOF
-}
-
-# ---------------------------------------------------------------------------
-# Command-specific help
-# ---------------------------------------------------------------------------
-tnx_help_install()   { echo "Install the full ternux desktop. Usage: ternux install [--yes] [--user NAME] [--backend zink|virgl|auto] [--with-llm] [--with-dev] ..."; }
-tnx_help_start()     { echo "Start the Xfce4 desktop. Usage: ternux start"; }
-tnx_help_stop()      { echo "Stop the desktop session. Usage: ternux stop"; }
-tnx_help_restart()   { echo "Restart the desktop session. Usage: ternux restart"; }
-tnx_help_doctor()    { echo "Run comprehensive system diagnostics. Usage: ternux doctor [--json]"; }
-tnx_help_repair()    { echo "Auto-fix common issues. Usage: ternux repair"; }
-tnx_help_verify()    { echo "Verify installation completeness. Usage: ternux verify [--json]"; }
-tnx_help_benchmark() { echo "Run GPU benchmarks (glmark2, vkmark). Usage: ternux benchmark [--json]"; }
-tnx_help_profile()   { echo "Device profiling. Usage: ternux profile [show|save|list|load|compare] [name]"; }
-tnx_help_backend()   { echo "GPU backend management. Usage: ternux backend [show|set|detect] [zink|virgl|auto]"; }
-tnx_help_update()    { echo "Self-update. Usage: ternux update [--check]"; }
-tnx_help_logs()      { echo "Log management. Usage: ternux logs [show|tail|clear|list]"; }
-tnx_help_info()      { echo "System information summary. Usage: ternux info [--json]"; }
-tnx_help_state()     { echo "Show installation state. Usage: ternux state [--json]"; }
-tnx_help_uninstall() { echo "Remove ternux components. Usage: ternux uninstall"; }
-
-# ---------------------------------------------------------------------------
-# Source all library modules (lazy-loaded on first use)
-# ---------------------------------------------------------------------------
-tnx_load_lib() {
+# --- Lazy-load a library module by name ------------------------------------
+_tnx_use() {
   local lib="$1"
-  local lib_file="$TNX_ROOT/lib/${lib}.sh"
-  if [ -f "$lib_file" ]; then
-    . "$lib_file"
+  [ -n "${_TNX_LOADED[$lib]:-}" ] && return 0
+  local f="$_TNX_ROOT/lib/${lib}.sh"
+  if [ -f "$f" ]; then
+    . "$f"
+    _TNX_LOADED["$lib"]=1
     return 0
   fi
+  tnx_die "Internal error: library '$lib' not found at $f" 99
+}
+declare -A _TNX_LOADED
+
+# --- Command registry (extensible: add a function tnx_cmd_<name>) ----------
+_tnx_dispatch() {
+  local cmd="$1"; shift
+
+  # Check if function already defined
+  if declare -F "tnx_cmd_${cmd}" >/dev/null 2>&1; then
+    "tnx_cmd_${cmd}" "$@"
+    return $?
+  fi
+
+  # Lazy-load: try lib/<cmd>.sh
+  local lib_map=""
+  case "$cmd" in
+    start|stop|restart|status) lib_map="desktop" ;;
+    verify)                    lib_map="doctor" ;;
+    install)                   lib_map="phases" ;;
+    *)                         lib_map="$cmd" ;;
+  esac
+
+  if [ -f "$_TNX_ROOT/lib/${lib_map}.sh" ]; then
+    _tnx_use "$lib_map" 2>/dev/null || true
+  fi
+
+  if declare -F "tnx_cmd_${cmd}" >/dev/null 2>&1; then
+    "tnx_cmd_${cmd}" "$@"
+    return $?
+  fi
+
+  tnx_fail "Unknown command: $cmd"
+  echo "Run 'ternux --help' for usage." >&2
   return 1
 }
 
-# ---------------------------------------------------------------------------
-# Command: install — delegates to the installer script
-# ---------------------------------------------------------------------------
-tnx_cmd_install() {
-  local installer="$TNX_ROOT/install.sh"
-  if [ ! -f "$installer" ]; then
-    tnx_fail "Installer not found at $installer"
-    exit 1
-  fi
-
-  # Pass through relevant arguments to the installer
-  local install_args=()
-  local arg_yes=0
-  while [ $# -gt 0 ]; do
-    case "$1" in
-      --help|-h) tnx_help_install; exit 0 ;;
-      --yes|--resume|--status|--no-anim) install_args+=("$1") ;;
-      --user|--locale|--backend) install_args+=("$1" "${2:-}"); shift ;;
-      --with-dev|--with-llm|--with-network|--with-media|--with-blender|--all|--zsh) install_args+=("$1") ;;
-      --json) TERNUX_JSON=1 ;;
-      --verbose) TERNUX_VERBOSE=1 ;;
-      --quiet) TERNUX_QUIET=1 ;;
-      *) install_args+=("$1") ;;
-    esac
-    shift
-  done
-
-  # If JSON output is requested, we capture the installer output and wrap it
-  if [ "$TERNUX_JSON" -eq 1 ]; then
-    tnx_info "Running installer (output captured for JSON)..."
-    # Run installer, capture exit code
-    bash "$installer" "${install_args[@]}"
-    local rc=$?
-    tnx_json_object "install" "$([ $rc -eq 0 ] && echo 'complete' || echo 'failed')" \
-      "version" "$TERNUX_VERSION" \
-      "backend" "$(tnx_detect_backend)" \
-      "android_version" "$(tnx_detect_android_version)" \
-      "gpu" "$(tnx_detect_gpu)"
-    exit "$rc"
-  fi
-
-  # Normal mode — just run the installer
-  exec bash "$installer" "${install_args[@]}"
-}
-
-# ---------------------------------------------------------------------------
-# Command: start / stop / restart / status (desktop lifecycle)
-# ---------------------------------------------------------------------------
-tnx_cmd_start() {
-  tnx_load_lib "desktop" || tnx_die "Failed to load desktop library"
-  tnx_desktop_start
-}
-
-tnx_cmd_stop() {
-  tnx_load_lib "desktop" || tnx_die "Failed to load desktop library"
-  tnx_desktop_stop
-}
-
-tnx_cmd_restart() {
-  tnx_load_lib "desktop" || tnx_die "Failed to load desktop library"
-  tnx_desktop_restart
-}
-
-# ---------------------------------------------------------------------------
-# Command: doctor
-# ---------------------------------------------------------------------------
-tnx_cmd_doctor() {
-  tnx_load_lib "doctor" || tnx_die "Failed to load doctor library"
-  tnx_load_lib "detect" || tnx_die "Failed to load detect library"
-  tnx_require_termux
-  tnx_doctor_run
-}
-
-# ---------------------------------------------------------------------------
-# Command: repair
-# ---------------------------------------------------------------------------
-tnx_cmd_repair() {
-  tnx_load_lib "repair" || tnx_die "Failed to load repair library"
-  tnx_require_termux
-  tnx_repair_run
-}
-
-# ---------------------------------------------------------------------------
-# Command: verify
-# ---------------------------------------------------------------------------
-tnx_cmd_verify() {
-  tnx_load_lib "doctor" || tnx_die "Failed to load doctor library"
-  tnx_load_lib "detect" || tnx_die "Failed to load detect library"
-  tnx_require_termux
-  tnx_verify_run
-}
-
-# ---------------------------------------------------------------------------
-# Command: benchmark
-# ---------------------------------------------------------------------------
-tnx_cmd_benchmark() {
-  tnx_load_lib "benchmark" || tnx_die "Failed to load benchmark library"
-  tnx_require_termux
-  tnx_benchmark_run
-}
-
-# ---------------------------------------------------------------------------
-# Command: profile
-# ---------------------------------------------------------------------------
-tnx_cmd_profile() {
-  tnx_load_lib "profile" || tnx_die "Failed to load profile library"
-  tnx_load_lib "detect" || tnx_die "Failed to load detect library"
-
-  local subcmd="${1:-show}"
-  shift 2>/dev/null || true
-
-  case "$subcmd" in
-    show|--show)
-      tnx_profile_show
-      ;;
-    save|--save)
-      tnx_profile_save "${1:-default}"
-      ;;
-    load|--load)
-      tnx_profile_load "${1:-default}"
-      ;;
-    list|--list)
-      tnx_profile_list
-      ;;
-    compare|--compare)
-      tnx_profile_compare "${1:-default}" "${2:-current}"
-      ;;
-    --help|-h)
-      tnx_help_profile; exit 0 ;;
-    *)
-      tnx_fail "Unknown profile subcommand: $subcmd"
-      echo "Usage: ternux profile [show|save|list|load|compare] [name]"
-      exit 1
-      ;;
-  esac
-}
-
-# ---------------------------------------------------------------------------
-# Command: backend
-# ---------------------------------------------------------------------------
-tnx_cmd_backend() {
-  tnx_load_lib "backend" || tnx_die "Failed to load backend library"
-  tnx_load_lib "detect" || tnx_die "Failed to load detect library"
-
-  local subcmd="${1:-show}"
-  shift 2>/dev/null || true
-
-  case "$subcmd" in
-    show|--show)
-      tnx_backend_show
-      ;;
-    set|--set)
-      tnx_backend_set "${1:-}"
-      ;;
-    detect|--detect)
-      tnx_backend_detect
-      ;;
-    --help|-h)
-      tnx_help_backend; exit 0 ;;
-    *)
-      tnx_fail "Unknown backend subcommand: $subcmd"
-      echo "Usage: ternux backend [show|set|detect]"
-      exit 1
-      ;;
-  esac
-}
-
-# ---------------------------------------------------------------------------
-# Command: update
-# ---------------------------------------------------------------------------
-tnx_cmd_update() {
-  tnx_load_lib "update" || tnx_die "Failed to load update library"
-
-  local subcmd="${1:-run}"
-  shift 2>/dev/null || true
-
-  case "$subcmd" in
-    run|--run)
-      tnx_update_run
-      ;;
-    check|--check)
-      tnx_update_check
-      ;;
-    --help|-h)
-      tnx_help_update; exit 0 ;;
-    *)
-      tnx_fail "Unknown update subcommand: $subcmd"
-      echo "Usage: ternux update [check]"
-      exit 1
-      ;;
-  esac
-}
-
-# ---------------------------------------------------------------------------
-# Command: logs
-# ---------------------------------------------------------------------------
-tnx_cmd_logs() {
-  tnx_load_lib "logs" || tnx_die "Failed to load logs library"
-
-  local subcmd="${1:-show}"
-  shift 2>/dev/null || true
-
-  case "$subcmd" in
-    show|--show)
-      tnx_logs_show "$TERNUX_LOG_FILE" "${1:-50}"
-      ;;
-    tail|--tail)
-      tnx_logs_tail "$TERNUX_LOG_FILE"
-      ;;
-    clear|--clear)
-      tnx_logs_clear "$TERNUX_LOG_FILE"
-      ;;
-    list|--list)
-      tnx_logs_list
-      ;;
-    --help|-h)
-      tnx_help_logs; exit 0 ;;
-    *)
-      tnx_fail "Unknown logs subcommand: $subcmd"
-      echo "Usage: ternux logs [show|tail|clear|list]"
-      exit 1
-      ;;
-  esac
-}
-
-# ---------------------------------------------------------------------------
-# Command: info — system information summary (AI-native)
-# ---------------------------------------------------------------------------
-tnx_cmd_info() {
-  tnx_load_lib "detect" || tnx_die "Failed to load detect library"
-
-  tnx_require_termux
-
-  local android_ver arch model manufacturer ram storage termux_ver gpu vulkan backend phantom renderer
-
-  android_ver="$(tnx_detect_android_version)"
-  arch="$(tnx_detect_arch)"
-  model="$(tnx_detect_model)"
-  manufacturer="$(tnx_detect_manufacturer)"
-  ram="$(tnx_detect_ram_gb)"
-  storage="$(tnx_detect_storage_gb)"
-  termux_ver="$(tnx_detect_termux_version)"
-  gpu="$(tnx_detect_gpu)"
-  vulkan="$(tnx_detect_vulkan)"
-  backend="$(tnx_state_get "backend" || tnx_detect_backend)"
-  phantom="$(tnx_detect_phantom_killer)"
-  renderer="$(tnx_detect_renderer)"
-
-  if [ "$TERNUX_JSON" -eq 1 ]; then
-    tnx_json_object "info" "ok" \
-      "version" "$TERNUX_VERSION" \
-      "android_version" "$android_ver" \
-      "architecture" "$arch" \
-      "model" "$model" \
-      "manufacturer" "$manufacturer" \
-      "ram_gb" "$ram" \
-      "storage_gb" "$storage" \
-      "termux_version" "$termux_ver" \
-      "gpu" "$gpu" \
-      "vulkan" "$vulkan" \
-      "backend" "$backend" \
-      "renderer" "${renderer:-unknown}" \
-      "phantom_process_killer" "$phantom"
-    return 0
-  fi
-
-  tnx_header "Ternux System Information"
-  printf "  ${TNX_CW}%-22s${TNX_C0} v${TERNUX_VERSION}\n" "ternux:"
-  printf "  ${TNX_CW}%-22s${TNX_C0} %s\n" "Android:" "$android_ver"
-  printf "  ${TNX_CW}%-22s${TNX_C0} %s\n" "Architecture:" "$arch"
-  printf "  ${TNX_CW}%-22s${TNX_C0} %s\n" "Device:" "$manufacturer $model"
-  printf "  ${TNX_CW}%-22s${TNX_C0} %s GB\n" "RAM:" "$ram"
-  printf "  ${TNX_CW}%-22s${TNX_C0} %s GB free\n" "Storage:" "$storage"
-  printf "  ${TNX_CW}%-22s${TNX_C0} %s\n" "Termux version:" "$termux_ver"
-  printf "  ${TNX_CW}%-22s${TNX_C0} %s\n" "GPU:" "$gpu"
-  printf "  ${TNX_CW}%-22s${TNX_C0} %s\n" "Vulkan:" "$vulkan"
-  printf "  ${TNX_CW}%-22s${TNX_C0} %s\n" "GPU Backend:" "$backend"
-  printf "  ${TNX_CW}%-22s${TNX_C0} %s\n" "Renderer:" "${renderer:-unknown}"
-  printf "  ${TNX_CW}%-22s${TNX_C0} %s\n" "Phantom killer:" "$phantom"
-  echo ""
-}
-
-# ---------------------------------------------------------------------------
-# Command: state
-# ---------------------------------------------------------------------------
-tnx_cmd_state() {
-  tnx_load_lib "state" || tnx_die "Failed to load state library"
-
-  if [ "$TERNUX_JSON" -eq 1 ]; then
-    tnx_state_export_json
-    return 0
-  fi
-  tnx_state_show
-}
-
-# ---------------------------------------------------------------------------
-# Command: uninstall
-# ---------------------------------------------------------------------------
-tnx_cmd_uninstall() {
-  local uninstaller="$TNX_ROOT/uninstall.sh"
-  if [ -f "$uninstaller" ]; then
-    exec bash "$uninstaller" "$@"
-  fi
-  # Fallback: use install.sh --uninstall
-  local installer="$TNX_ROOT/install.sh"
-  if [ -f "$installer" ]; then
-    exec bash "$installer" --uninstall "$@"
-  fi
-  tnx_die "Uninstall script not found."
-}
-
-# ---------------------------------------------------------------------------
-# Argument parsing
-# ---------------------------------------------------------------------------
-GLOBAL_ARGS=()
-COMMAND=""
-COMMAND_ARGS=()
-
+# --- Parse global flags ----------------------------------------------------
+declare -a _TNX_ARGS=()
+_HELP_REQUESTED=0
 while [ $# -gt 0 ]; do
   case "$1" in
-    --help|-h)
-      if [ -z "$COMMAND" ]; then
-        tnx_usage; exit 0
-      fi
-      COMMAND_ARGS+=("--help")
-      shift
-      ;;
     --json)      TERNUX_JSON=1; shift ;;
     --verbose)   TERNUX_VERBOSE=1; shift ;;
     --quiet)     TERNUX_QUIET=1; shift ;;
-    --version|-V)
-      echo "ternux v${TERNUX_VERSION}"
-      echo "${TERNUX_REPO}"
-      exit 0
-      ;;
-    install|start|stop|restart|doctor|repair|verify|benchmark|profile|backend|update|logs|info|state|uninstall)
-      COMMAND="$1"
-      shift
-      # Collect remaining args for the command
-      COMMAND_ARGS=("$@")
-      break
-      ;;
-    *)
-      tnx_fail "Unknown option or command: $1"
-      echo ""
-      tnx_usage
-      exit 1
-      ;;
+    --help|-h)   _HELP_REQUESTED=1; shift ;;
+    --version|-V) echo "ternux v${TERNUX_VERSION}"; echo "${TERNUX_REPO}"; exit 0 ;;
+    *) _TNX_ARGS+=("$1"); shift ;;
   esac
 done
 
-# ---------------------------------------------------------------------------
-# Dispatch
-# ---------------------------------------------------------------------------
-if [ -z "$COMMAND" ]; then
-  tnx_usage
-  exit 0
+set -- "${_TNX_ARGS[@]}"
+
+# --- Handle --help (with or without a command) -----------------------------
+if [ "$_HELP_REQUESTED" -eq 1 ]; then
+  if [ $# -eq 0 ]; then
+    _tnx_use "help" && tnx_help ""; exit 0
+  fi
+  _tnx_use "help" && tnx_help "$1"; exit 0
+fi
+unset _HELP_REQUESTED
+
+# --- Dispatch --------------------------------------------------------------
+if [ $# -eq 0 ]; then
+  _tnx_use "help" && tnx_help ""; exit 0
 fi
 
-# JSON output is handled within each command function.
-# The --json flag is already captured in TERNUX_JSON global.
-
-# Dispatch to command handler
-case "$COMMAND" in
-  install)   tnx_cmd_install "${COMMAND_ARGS[@]}" ;;
-  start)     tnx_cmd_start "${COMMAND_ARGS[@]}" ;;
-  stop)      tnx_cmd_stop "${COMMAND_ARGS[@]}" ;;
-  restart)   tnx_cmd_restart "${COMMAND_ARGS[@]}" ;;
-  doctor)    tnx_cmd_doctor "${COMMAND_ARGS[@]}" ;;
-  repair)    tnx_cmd_repair "${COMMAND_ARGS[@]}" ;;
-  verify)    tnx_cmd_verify "${COMMAND_ARGS[@]}" ;;
-  benchmark) tnx_cmd_benchmark "${COMMAND_ARGS[@]}" ;;
-  profile)   tnx_cmd_profile "${COMMAND_ARGS[@]}" ;;
-  backend)   tnx_cmd_backend "${COMMAND_ARGS[@]}" ;;
-  update)    tnx_cmd_update "${COMMAND_ARGS[@]}" ;;
-  logs)      tnx_cmd_logs "${COMMAND_ARGS[@]}" ;;
-  info)      tnx_cmd_info "${COMMAND_ARGS[@]}" ;;
-  state)     tnx_cmd_state "${COMMAND_ARGS[@]}" ;;
-  uninstall) tnx_cmd_uninstall "${COMMAND_ARGS[@]}" ;;
-  *)
-    tnx_fail "Unknown command: $COMMAND"
-    tnx_usage
-    exit 1
-    ;;
-esac
+COMMAND="$1"; shift
+_tnx_dispatch "$COMMAND" "$@"

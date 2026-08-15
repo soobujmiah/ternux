@@ -1,0 +1,78 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Create release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_OUTPUT
+
+      - name: Extract release notes from CHANGELOG
+        id: notes
+        run: |
+          version="${{ steps.version.outputs.VERSION }}"
+          # Extract the section for this version from CHANGELOG.md
+          awk -v ver="$version" '
+            /^## \['"$version"'\]/ { found=1; next }
+            /^## \[/ && found { exit }
+            found { print }
+          ' CHANGELOG.md > /tmp/release-notes.md
+          echo "--- Release notes preview ---"
+          head -30 /tmp/release-notes.md
+          # Escape for GitHub output
+          {
+            echo 'NOTES<<EOF'
+            cat /tmp/release-notes.md
+            echo 'EOF'
+          } >> $GITHUB_OUTPUT
+
+      - name: Create release archive
+        run: |
+          mkdir -p /tmp/ternux-${{ steps.version.outputs.VERSION }}
+          cp -r \
+            bin/ternux \
+            lib/ \
+            install.sh \
+            uninstall.sh \
+            share/ \
+            docs/ \
+            README.md \
+            LICENSE \
+            CHANGELOG.md \
+            /tmp/ternux-${{ steps.version.outputs.VERSION }}/
+          cd /tmp
+          tar czf ternux-${{ steps.version.outputs.VERSION }}.tar.gz ternux-${{ steps.version.outputs.VERSION }}/
+
+      - name: Create checksums
+        run: |
+          cd /tmp
+          sha256sum ternux-${{ steps.version.outputs.VERSION }}.tar.gz > ternux-${{ steps.version.outputs.VERSION }}.sha256
+          sha256sum ternux-${{ steps.version.outputs.VERSION }}/install.sh > install-${{ steps.version.outputs.VERSION }}.sha256
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ternux v${{ steps.version.outputs.VERSION }}
+          body_path: /tmp/release-notes.md
+          draft: false
+          prerelease: false
+          files: |
+            /tmp/ternux-${{ steps.version.outputs.VERSION }}.tar.gz
+            /tmp/ternux-${{ steps.version.outputs.VERSION }}.sha256
+            /tmp/install-${{ steps.version.outputs.VERSION }}.sha256
+            install.sh
+            uninstall.sh

@@ -59,7 +59,7 @@ Android নিঃশব্দে SIGKILL করে। PRoot ডেস্কট�
 *কেন এটি ডিভাইস-স্তরের সিদ্ধান্ত:* এই সীমা Android-কে সাধারণভাবে অসভ্য
 ব্যাকগ্রাউন্ড অ্যাপ থেকে বাঁচায়। এটি বন্ধ করাই Termux কমিউনিটির এই
 ওয়ার্কলোডের জন্য প্রস্তাবিত পথ; বেশিরভাগ মানুষের কোনো ক্ষতি দেখা যায় না।
-`bash install.sh --doctor` যেকোনো সময় আবার চেক করে দেয়।
+`ternux doctor` যেকোনো সময় আবার চেক করে দেয়।
 
 ---
 
@@ -83,7 +83,7 @@ killx
 x
 ```
 
-তবু ব্যর্থ হলে `bash install.sh --doctor --fix` চালান — এটি ডিসপ্লে প্যাকেজ,
+তবু ব্যর্থ হলে `ternux repair` চালান — এটি ডিসপ্লে প্যাকেজ,
 লঞ্চার ও কন্টেইনার কোর আবার পরীক্ষা করে।
 
 ---
@@ -122,7 +122,7 @@ killx && x
 ```
 
 ডাউনলোড ব্যর্থ হলে (আপনার নেটওয়ার্ক থেকে GitHub অগম্য) ইচ্ছা করে ফলব্যাকে
-যান: `bash install.sh --backend virgl --resume`।
+যান: `ternux backend set virgl` তারপর `ternux repair` (বা `bash install.sh --backend virgl --resume`)।
 
 ---
 
@@ -262,7 +262,7 @@ dpkg --configure -a --force-confold --force-confdef
 dpkg --configure -a --force-confold --force-confdef
 
 # ৩. ইনস্টলার আবার চালু করুন:
-bash install.sh --resume
+ternux repair   # বা: bash install.sh --resume
 ```
 
 *কেন এমনটা ঘটে:* Android শেলে প্রায়ই পাইপ/নন-ইন্টারঅ্যাক্টিভ চলে, তাই
@@ -301,7 +301,7 @@ sudo apt update && sudo apt install -y rar unrar p7zip-full
 **কারণ:** হোল্ড করা Mesa প্যাকেজ আনহোল্ড হয়ে গেছে (বা হোল্ডটি এমন একটি
 আপগ্রেডের পরে বসেছে যা আগেই প্যাকেজ বদলে দিয়েছে)।
 
-**সমাধান:** `bash install.sh --resume` চালান (ড্রাইভার ও হোল্ড পুনঃপ্রয়োগ
+**সমাধান:** `ternux repair` চালান (ড্রাইভার ও হোল্ড পুনঃপ্রয়োগ
 হয়), তারপর `glxinfo` দিয়ে যাচাই করুন। অ্যাক্সিলারেশন রেখে ইচ্ছা করে Mesa
 আপগ্রেড করতে চাইলে [কনফিগারেশন](CONFIGURATION.html#held-mesa-packages-zink-route)-এর
 আনহোল্ড → আপগ্রেড → রি-হোল্ড → যাচাই ক্রমটি অনুসরণ করুন।
@@ -311,9 +311,9 @@ sudo apt update && sudo apt install -y rar unrar p7zip-full
 ## চূড়ান্ত অস্ত্র: পরিষ্কার রি-ইনস্টল
 
 ```bash
-bash install.sh --uninstall     # অপশন ৪: কন্টেইনার ডিলিট
+ternux uninstall                 # অপশন ৪: কন্টেইনার ডিলিট (বা: bash install.sh --uninstall)
 rm -f ~/x.sh ~/.ternux-state
-bash install.sh                 # নতুন ইনস্টল
+bash install.sh                  # নতুন ইনস্টল
 ```
 
 কন্টেইনার ডিলিট করলে **ভেতরের সব ডেটা** যায় — আগে দামি জিনিস বের করে নিন
@@ -330,7 +330,8 @@ bash install.sh                 # নতুন ইনস্টল
 uname -m
 getprop ro.product.manufacturer; getprop ro.product.model
 getprop ro.build.version.release
-bash install.sh --doctor
+ternux doctor --json           # AI-পাঠযোগ্য ডায়াগনস্টিক
+ternux info --json             # সম্পূর্ণ ডিভাইস প্রোফাইল
 db -c 'glxinfo | grep "renderer string"; vulkaninfo --summary | grep -i driverName'
 ```
 

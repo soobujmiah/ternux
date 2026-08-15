@@ -1,5 +1,5 @@
 # =============================================================================
-#  ternux — state management library
+#  ternux — installation state query
 #
 #  Copyright (c) 2026 Sobuj Miah (@soobujmiah) — MIT License
 #  https://github.com/soobujmiah/ternux
@@ -9,79 +9,62 @@
 . "$(dirname "${BASH_SOURCE[0]}")/core.sh"
 
 # ---------------------------------------------------------------------------
-# State commands
+# tnx_cmd_state
 # ---------------------------------------------------------------------------
+tnx_cmd_state() {
+  if [ "${TERNUX_JSON:-0}" = "1" ]; then
+    _tnx_state_export_json
+    return 0
+  fi
+  _tnx_state_show
+}
 
-tnx_state_show() {
-  tnx_header "Ternux State"
-  printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "State directory:" "$TERNUX_STATE_DIR"
+_tnx_state_show() {
+  [ "${TERNUX_QUIET:-0}" = "1" ] && return 0
+  tnx_header "Installation State"
+  printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "State dir:" "$TERNUX_STATE_DIR"
   printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "Version:" "$TERNUX_VERSION"
   echo ""
 
-  # Show completed phases
   if [ -f "$TERNUX_STATE_DIR/phases" ]; then
     tnx_info "Completed phases:"
-    while IFS= read -r phase; do
-      printf "  ${TNX_CG}✓${TNX_C0}  %s\n" "$phase"
-    done < "$TERNUX_STATE_DIR/phases"
+    while IFS= read -r phase; do printf "  ${TNX_CG}✓${TNX_C0}  %s\n" "$phase"; done < "$TERNUX_STATE_DIR/phases"
     echo ""
   else
-    tnx_info "No phases completed."
+    tnx_info "No phases completed. Run 'ternux install'."
     echo ""
   fi
 
-  # Show state key-values
   if [ -f "$TERNUX_STATE_DIR/state" ]; then
     tnx_info "Configuration:"
     while IFS='=' read -r key val; do
-      case "$key" in
-        backend|renderer|driver_version|install_phase) ;;
-        *) continue ;;
+      case "$key" in backend|renderer|version|updated_at)
+        printf "  ${TNX_CD}%-20s${TNX_C0} %s\n" "$key:" "$val" ;;
       esac
-      printf "  ${TNX_CD}%-20s${TNX_C0} %s\n" "$key:" "$val"
     done < "$TERNUX_STATE_DIR/state"
     echo ""
   fi
 
-  # Show benchmark history
-  if [ -f "$TERNUX_STATE_DIR/benchmarks" ]; then
-    tnx_info "Benchmark history:"
-    while IFS= read -r line; do
-      printf "  ${TNX_CD}%s${TNX_C0}\n" "$line"
-    done < "$TERNUX_STATE_DIR/benchmarks"
-    echo ""
-  fi
-
-  # Show repair history
-  if [ -f "$TERNUX_STATE_DIR/repairs" ]; then
-    tnx_info "Repair history:"
-    while IFS= read -r line; do
-      printf "  ${TNX_CD}%s${TNX_C0}\n" "$line"
-    done < "$TERNUX_STATE_DIR/repairs"
-    echo ""
-  fi
+  for hist in benchmarks repairs; do
+    [ -f "$TERNUX_STATE_DIR/$hist" ] && {
+      tnx_info "${hist} history:"
+      tail -5 "$TERNUX_STATE_DIR/$hist" | while IFS= read -r line; do printf "  ${TNX_CD}%s${TNX_C0}\n" "$line"; done
+      echo ""
+    }
+  done
 }
 
-tnx_state_export_json() {
+_tnx_state_export_json() {
   tnx_json_init
   tnx_json_add "command" "state"
   tnx_json_add "status" "ok"
   tnx_json_add "version" "$TERNUX_VERSION"
   tnx_json_add "state_dir" "$TERNUX_STATE_DIR"
 
-  # Phases
   local phases=""
-  if [ -f "$TERNUX_STATE_DIR/phases" ]; then
-    phases=$(tr '\n' ',' < "$TERNUX_STATE_DIR/phases" | sed 's/,$//')
-  fi
+  [ -f "$TERNUX_STATE_DIR/phases" ] && phases="$(tr '\n' ',' < "$TERNUX_STATE_DIR/phases" | sed 's/,$//')"
   tnx_json_add "completed_phases" "$phases"
-
-  # Backend
-  local backend renderer
-  backend=$(tnx_state_get "backend")
-  renderer=$(tnx_state_get "renderer")
-  tnx_json_add "backend" "${backend:-unknown}"
-  tnx_json_add "renderer" "${renderer:-unknown}"
-
+  tnx_json_add "backend" "$(tnx_state_get "backend" || echo "unknown")"
+  tnx_json_add "renderer" "$(tnx_state_get "renderer" || echo "unknown")"
   tnx_json_end
 }

@@ -37,14 +37,20 @@ fi
 # ---------------------------------------------------------------------------
 # I/O: info, ok, warn, fail, die, step, progress
 # ---------------------------------------------------------------------------
-tnx_info() { printf "${TNX_CB}[INFO]${TNX_C0}  %s\n" "$1"; }
-tnx_ok()   { printf "${TNX_CG}[ OK ]${TNX_C0}  %s\n" "$1"; }
-tnx_warn() { printf "${TNX_CY}[WARN]${TNX_C0}  %s\n" "$1"; }
-tnx_fail() { printf "${TNX_CR}[FAIL]${TNX_C0}  %s\n" "$1"; }
-tnx_die()  { tnx_fail "$1"; exit "${2:-1}"; }
+tnx_info() { [ "${TERNUX_QUIET:-0}" != "1" ] && printf "${TNX_CB}[INFO]${TNX_C0}  %s\n" "$1"; }
+tnx_ok()   { [ "${TERNUX_QUIET:-0}" != "1" ] && printf "${TNX_CG}[ OK ]${TNX_C0}  %s\n" "$1"; }
+tnx_warn() { [ "${TERNUX_QUIET:-0}" != "1" ] && printf "${TNX_CY}[WARN]${TNX_C0}  %s\n" "$1"; }
+tnx_fail() { [ "${TERNUX_QUIET:-0}" != "1" ] && printf "${TNX_CR}[FAIL]${TNX_C0}  %s\n" "$1"; }
+tnx_die()  {
+  tnx_fail "$1"
+  if [ "${TERNUX_JSON:-0}" = "1" ]; then
+    tnx_json_object "error" "fatal" "message" "$1"
+  fi
+  exit "${2:-1}"
+}
 tnx_step() { printf "\n${TNX_CM}==>${TNX_C0} ${TNX_CW}%s${TNX_C0}\n" "$1"; }
 tnx_debug(){ [ "${TERNUX_VERBOSE:-0}" = "1" ] && printf "${TNX_CD}[DEBUG]${TNX_C0} %s\n" "$1"; }
-tnx_header(){ printf "\n${TNX_CD}━━━ %s ━━━${TNX_C0}\n" "$1"; }
+tnx_header(){ [ "${TERNUX_QUIET:-0}" != "1" ] && printf "\n${TNX_CD}━━━ %s ━━━${TNX_C0}\n" "$1"; }
 
 # ---------------------------------------------------------------------------
 # JSON output builder — assemble an AI-native JSON record
@@ -115,28 +121,11 @@ tnx_json_object() {
 }
 
 # ---------------------------------------------------------------------------
-# Global CLI flags (parsed by the main entry point)
+# Global CLI flags (set by bin/ternux before loading libraries)
 # ---------------------------------------------------------------------------
-TERNUX_JSON=0
-TERNUX_VERBOSE=0
-TERNUX_QUIET=0
-
-# ---------------------------------------------------------------------------
-# Progress — spinner for long-running tasks
-# ---------------------------------------------------------------------------
-TNX_SPIN=('⠋' '⠙' '⠹' '⠸' '⠼' '⠴' '⠦' '⠧' '⠇' '⠏')
-TNX_SPIN_IDX=0
-
-tnx_spin() {
-  [ "$TERNUX_QUIET" = "1" ] && return
-  printf "\r${TNX_CC}%s${TNX_C0} %s" "${TNX_SPIN[$((TNX_SPIN_IDX % 10))]}" "$1"
-  TNX_SPIN_IDX=$((TNX_SPIN_IDX + 1))
-}
-
-tnx_spin_clear() {
-  [ "$TERNUX_QUIET" = "1" ] && return
-  printf "\r\033[K"
-}
+[ -z "${TERNUX_JSON:-}" ]    && TERNUX_JSON=0
+[ -z "${TERNUX_VERBOSE:-}" ] && TERNUX_VERBOSE=0
+[ -z "${TERNUX_QUIET:-}" ]   && TERNUX_QUIET=0
 
 # ---------------------------------------------------------------------------
 # Platform detection helpers
@@ -148,6 +137,10 @@ tnx_is_termux() {
 
 tnx_require_termux() {
   tnx_is_termux && return 0
+  if [ "${TERNUX_JSON:-0}" = "1" ]; then
+    tnx_json_object "error" "fatal" "message" "Not running in Termux environment"
+    exit 1
+  fi
   tnx_die "This does not look like a Termux environment.\nInstall Termux from F-Droid or GitHub releases, then run this inside Termux.\nThe Play Store build is unsupported." 1
 }
 

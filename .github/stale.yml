@@ -1,0 +1,25 @@
+# ternux stale bot config
+# Marks inactive issues and PRs after 90 days
+
+daysUntilStale: 90
+daysUntilClose: 14
+
+staleLabel: stale
+
+markComment: >
+  This issue has been automatically marked as stale because it has not had
+  recent activity. It will be closed in 14 days if no further activity occurs.
+  Thank you for your contribution.
+
+closeComment: >
+  This issue has been automatically closed due to inactivity.
+  Feel free to reopen if the issue persists.
+
+only: issues
+
+exemptLabels:
+  - pinned
+  - security
+  - enhancement
+  - good first issue
+  - help wanted

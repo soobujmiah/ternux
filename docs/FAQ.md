@@ -112,7 +112,7 @@ sudo dpkg-reconfigure locales
 ## What happens when I update Android or the Termux apps?
 
 - **Android OS updates:** the container is files — it survives. Re-check the
-  phantom-killer setting afterwards (`bash install.sh --doctor`).
+  phantom-killer setting afterwards (`ternux doctor`).
 - **Termux app updates:** fine; the installer is re-runnable (`--resume`
   skips completed work).
 - **Debian updates:** safe, except see the held-Mesa note in

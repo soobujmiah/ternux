@@ -93,6 +93,34 @@ bash install.sh
 
 ---
 
+## ternux CLI — ব্যবস্থাপনা ইন্টারফেস
+
+ইনস্টলের পর `ternux` CLI আপনার একমাত্র প্রবেশপথ ডায়াগনস্টিক, মেরামত,
+ডেস্কটপ ব্যবস্থাপনা ও আপডেটের জন্য:
+
+```bash
+ternux doctor           # সিস্টেম ডায়াগনস্টিক
+ternux doctor --json    # AI-পাঠযোগ্য আউটপুট
+ternux start            # ডেস্কটপ চালু
+ternux stop             # ডেস্কটপ বন্ধ
+ternux restart          # ডেস্কটপ পুনরায় চালু
+ternux repair           # সাধারণ সমস্যা সমাধান
+ternux verify           # ইনস্টলেশন যাচাই
+ternux benchmark        # GPU বেঞ্চমার্ক
+ternux profile          # ডিভাইস প্রোফাইল
+ternux backend          # GPU ব্যাকএন্ড ব্যবস্থাপনা
+ternux info             # সিস্টেম তথ্য
+ternux info --json      # AI-পাঠযোগ্য তথ্য
+ternux logs             # লগ দেখা
+ternux state            # ইনস্টলেশন অবস্থা
+ternux update           # CLI আপডেট
+ternux uninstall        # কম্পোনেন্ট অপসারণ
+```
+
+প্রত্যেক কমান্ড `--help`, `--json`, `--verbose` ও `--quiet` সমর্থন করে।
+
+---
+
 ## ইনস্টলার যা করে (এবং কেন, ধাপে ধাপে) {#what-the-installer-does-and-why-phase-by-phase}
 
 ইনস্টলার **নয়টি যাচাইকৃত ধাপে** সাজানো। প্রতিটি ধাপ পরেরটি শুরুর আগে নিজের
@@ -130,12 +158,18 @@ bash install.sh --with-network      # nmap, tmux (শুধু অনুমো�
 bash install.sh --with-media        # ffmpeg, GIMP, Audacity, ImageMagick
 bash install.sh --with-blender      # Blender (হালকা সিন)
 bash install.sh --all               # সব ঐচ্ছিক প্রোফাইল
-bash install.sh --doctor            # চলমান ইনস্টল পরীক্ষা
-bash install.sh --doctor --fix      # পরীক্ষা ও মেরামত
 bash install.sh --resume            # বিঘ্নের পর আবার চালু
-bash install.sh --status            # কী হয়েছে, কী বাকি
-bash install.sh --uninstall         # ইন্টারঅ্যাক্টিভ অপসারণ
 bash install.sh --version | --help
+```
+
+ইনস্টলের পর `ternux` CLI ব্যবহার করুন ডায়াগনস্টিক ও ব্যবস্থাপনার জন্য:
+
+```bash
+ternux doctor           # ডায়াগনস্টিক (bash install.sh --doctor এর বদলে)
+ternux repair           # ডায়াগনস্টিক ও মেরামত (--doctor --fix এর বদলে)
+ternux state            # কী হয়েছে, কী বাকি (--status এর বদলে)
+ternux uninstall        # অপসারণ (--uninstall এর বদলে)
+ternux update           # CLI আপডেট
 ```
 
 ### GPU ব্যাকএন্ড বাছাই
@@ -159,6 +193,13 @@ bash install.sh --version | --help
 3. x                 ← ডেস্কটপ চালু হয়
 ```
 
+সম্পূর্ণ ডায়াগনস্টিক চালান:
+
+```bash
+ternux doctor
+ternux doctor --json    # AI-পাঠযোগ্য আউটপুট
+```
+
 তারপর ডেস্কটপের টার্মিনাল থেকে গ্রাফিক্স পথ যাচাই করুন:
 
 ```bash
@@ -176,6 +217,7 @@ proot-distro backup debian --output ~/debian-backup.tar.gz
 
 ## আপডেট
 
+- **ternux CLI:** `ternux update` GitHub থেকে সর্বশেষ ভার্সন নিয়ে আসে।
 - **ইনস্টলার নিজে:** আবার ডাউনলোড করে চালান। প্রতিটি ধাপ আইডেমপোটেন্ট, আর
   `--resume` শেষ ধাপগুলো বাদ দেয়। কন্টেইনার ও ফাইল অক্ষত থাকে।
 - **Debian প্যাকেজ:** ডেস্কটপে `sudo apt update && sudo apt upgrade`।
@@ -188,8 +230,10 @@ proot-distro backup debian --output ~/debian-backup.tar.gz
 ## আনইনস্টল
 
 ```bash
+ternux uninstall                    # প্রস্তাবিত — ইন্টারঅ্যাক্টিভ অপসারণ
+# বা
 curl -fsSL https://soobujmiah.github.io/ternux/uninstall.sh | bash
-# বা, হাতে থাকা install.sh দিয়েই:
+# বা
 bash install.sh --uninstall
 ```
 

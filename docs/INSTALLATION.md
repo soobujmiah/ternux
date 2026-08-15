@@ -95,6 +95,34 @@ same steps for you.
 
 ---
 
+## Ternux CLI — the management interface
+
+After installation, the `ternux` CLI becomes your single entry point for
+diagnostics, repair, benchmarking, desktop management, and updates:
+
+```bash
+ternux doctor           # system diagnostics
+ternux doctor --json    # AI-readable structured output
+ternux start            # start the desktop
+ternux stop             # stop the desktop
+ternux restart          # restart the desktop
+ternux repair           # auto-fix common issues
+ternux verify           # verify installation
+ternux benchmark        # GPU benchmarks (glmark2, vkmark)
+ternux profile          # device hardware profile
+ternux backend          # GPU backend management
+ternux info             # system information
+ternux info --json      # AI-readable system info
+ternux logs             # view and manage logs
+ternux state            # installation state
+ternux update           # self-update ternux CLI
+ternux uninstall        # remove ternux components
+```
+
+Every command supports `--help`, `--json`, `--verbose`, and `--quiet`.
+
+---
+
 ## What the installer does (and why, phase by phase)
 
 The installer is organised as **nine verified phases**. Each phase checks its
@@ -132,12 +160,18 @@ bash install.sh --with-network      # nmap, tmux (authorised testing only)
 bash install.sh --with-media        # ffmpeg, GIMP, Audacity, ImageMagick
 bash install.sh --with-blender      # Blender (lightweight scenes)
 bash install.sh --all               # every optional profile
-bash install.sh --doctor            # diagnose an existing install
-bash install.sh --doctor --fix      # diagnose and repair
 bash install.sh --resume            # continue after an interruption
-bash install.sh --status            # what is done, what is pending
-bash install.sh --uninstall         # interactive removal
 bash install.sh --version | --help
+```
+
+After installation, use the `ternux` CLI for diagnostics and management:
+
+```bash
+ternux doctor           # diagnose (replaces bash install.sh --doctor)
+ternux repair           # diagnose and fix (replaces bash install.sh --doctor --fix)
+ternux state            # what is done, what is pending (replaces --status)
+ternux uninstall        # interactive removal (replaces --uninstall)
+ternux update           # self-update the CLI
 ```
 
 ### Choosing a GPU backend
@@ -161,6 +195,13 @@ producing a silently-software desktop. That failure is intentional.
 3. x                 ← starts the desktop
 ```
 
+Run a full diagnostic:
+
+```bash
+ternux doctor
+ternux doctor --json    # AI-readable output
+```
+
 Then verify the graphics path from a desktop terminal:
 
 ```bash
@@ -179,6 +220,7 @@ proot-distro backup debian --output ~/debian-backup.tar.gz
 
 ## Updating
 
+- **The ternux CLI:** `ternux update` fetches the latest version from GitHub.
 - **The installer itself:** re-download and re-run. Every phase is idempotent,
   and `--resume` skips completed phases. Your container and files are kept.
 - **Debian packages:** `sudo apt update && sudo apt upgrade` inside the
@@ -192,8 +234,10 @@ proot-distro backup debian --output ~/debian-backup.tar.gz
 ## Uninstalling
 
 ```bash
+ternux uninstall                    # preferred — interactive removal
+# or
 curl -fsSL https://soobujmiah.github.io/ternux/uninstall.sh | bash
-# or, from the same install.sh you already have:
+# or
 bash install.sh --uninstall
 ```
 

@@ -8,6 +8,52 @@ alt_url: "/docs/USAGE.html"
 
 # ব্যবহার
 
+## ternux CLI — স্থায়ী ইন্টারফেস
+
+
+ternux ইনস্টল হলে `ternux` কমান্ডই আপনার একমাত্র প্রবেশপথ — ইনস্টল,
+ডায়াগনস্টিক, মেরামত, বেঞ্চমার্ক ও দৈনিক ডেস্কটপ ব্যবস্থাপনার জন্য।
+
+```bash
+ternux install          # সম্পূর্ণ ইনস্টলেশন
+ternux start            # ডেস্কটপ চালু
+ternux stop             # ডেস্কটপ বন্ধ
+ternux restart          # ডেস্কটপ পুনরায় চালু
+ternux doctor           # সিস্টেম ডায়াগনস্টিক
+ternux doctor --json    # AI-পাঠযোগ্য আউটপুট
+ternux repair           # সাধারণ সমস্যা সমাধান
+ternux verify           # ইনস্টলেশন যাচাই
+ternux benchmark        # GPU বেঞ্চমার্ক
+ternux profile          # ডিভাইস প্রোফাইল
+ternux profile save     # বর্তমান কনফিগ সেভ
+ternux backend          # GPU ব্যাকএন্ড দেখা/বদলানো
+ternux backend set virgl    # VirGL-এ স্যুইচ
+ternux update           # ternux CLI আপডেট
+ternux logs             # লগ ফাইল দেখা
+ternux info             # সিস্টেম তথ্য
+ternux info --json      # AI-পাঠযোগ্য তথ্য
+ternux state            # ইনস্টলেশন অবস্থা
+ternux uninstall        # কম্পোনেন্ট অপসারণ
+```
+
+প্রত্যেক কমান্ড `--help`, `--json`, `--verbose` ও `--quiet` সমর্থন করে।
+
+
+### AI-নেটিভ JSON আউটপুট
+
+
+গুরুত্বপূর্ণ কমান্ডগুলো AI অ্যাসিস্ট্যান্ট ও অটোমেশনের জন্য JSON আউটপুট দেয়:
+
+
+```bash
+ternux doctor --json | jq '.issues[]'
+ternux info --json | jq '.gpu, .backend, .renderer'
+ternux benchmark --json | jq '.glmark2_score, .vkmark_score'
+```
+
+
+---
+
 পকেটে Linux ডেস্কটপ নিয়ে দৈনন্দিন জীবনযাপনের সবকিছু।
 
 ---

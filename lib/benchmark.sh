@@ -1,6 +1,5 @@
 # =============================================================================
-#  ternux — benchmarking library
-#  Run glmark2, vkmark, and renderer verification.
+#  ternux — GPU benchmarking (glmark2, vkmark)
 #
 #  Copyright (c) 2026 Sobuj Miah (@soobujmiah) — MIT License
 #  https://github.com/soobujmiah/ternux
@@ -12,154 +11,134 @@
 . "$(dirname "${BASH_SOURCE[0]}")/detect.sh"
 
 # ---------------------------------------------------------------------------
-# Benchmark runner
+# tnx_cmd_benchmark
 # ---------------------------------------------------------------------------
-
-tnx_benchmark_run() {
+tnx_cmd_benchmark() {
   tnx_step "Running benchmarks..."
+  tnx_require_termux
 
   local glmark2_score="" vkmark_score="" renderer="" backend
-  local -a bench_results=()
+  local -a results=()
   local rc=0
 
   backend="$(tnx_state_get "backend" || tnx_detect_backend)"
 
   if [ "${TERNUX_JSON:-0}" != "1" ]; then
-    tnx_header "Benchmark Configuration"
+    tnx_header "Configuration"
     printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "GPU:" "$(tnx_detect_gpu)"
     printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "Backend:" "$backend"
     printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "Vulkan:" "$(tnx_detect_vulkan)"
     echo ""
-    tnx_info "Note: Benchmarks run inside the Debian container."
-    tnx_info "The desktop must be running for GL/VK benchmarks."
+    tnx_info "Benchmarks run inside the Debian container (desktop must be active)."
     echo ""
   fi
 
-  # --- glmark2 (OpenGL 2.0 benchmark) ---
+  # --- glmark2 ---
   tnx_header "1/3  glmark2 (OpenGL 2.0)"
-  if tnx_has_cmd proot-distro; then
-    if proot-distro login debian --shared-tmp --user "${TERNUX_USER:-ternux}" -- bash -c '
-      if command -v glmark2 >/dev/null 2>&1; then
-        glmark2 --fullscreen --annotate 2>/dev/null || glmark2 2>/dev/null
-      elif command -v glmark2-es2 >/dev/null 2>&1; then
-        glmark2-es2 2>/dev/null
-      else
-        echo "NOT_INSTALLED"
-      fi
-    ' 2>/dev/null > /tmp/ternux-glmark2.out; then
-      glmark2_score="$(grep -oP 'glmark2 Score: \K[0-9]+' /tmp/ternux-glmark2.out 2>/dev/null || echo "unknown")"
-      if [ "$glmark2_score" != "unknown" ] && [ -n "$glmark2_score" ]; then
-        tnx_ok "glmark2 Score: $glmark2_score"
-        bench_results+=("glmark2:${glmark2_score}")
-      else
-        tnx_warn "glmark2 ran but score not detected"
-        cat /tmp/ternux-glmark2.out | tail -5 | while IFS= read -r line; do printf "  ${TNX_CD}%s${TNX_C0}\n" "$line"; done
-      fi
-    else
-      if grep -q "NOT_INSTALLED" /tmp/ternux-glmark2.out 2>/dev/null; then
-        tnx_warn "glmark2 not installed in Debian container"
-        tnx_info "Install: sudo apt install glmark2 -y"
-      else
-        # Check if display is available
-        tnx_info "glmark2 needs a running X display. The desktop may not be active."
-      fi
-    fi
-  else
-    tnx_warn "PRoot Debian not available; cannot run GL benchmarks"
-    rc=1
-  fi
-  rm -f /tmp/ternux-glmark2.out
+  _tnx_bench_run_glmark2
+  glmark2_score="$_TNX_BENCH_GLMARK2"
+  [ -n "$glmark2_score" ] && [ "$glmark2_score" != "unknown" ] && results+=("glmark2:${glmark2_score}")
 
-  # --- vkmark (Vulkan benchmark) ---
+  # --- vkmark ---
   tnx_header "2/3  vkmark (Vulkan)"
-  if tnx_has_cmd proot-distro; then
-    if proot-distro login debian --shared-tmp --user "${TERNUX_USER:-ternux}" -- bash -c '
-      if command -v vkmark >/dev/null 2>&1; then
-        vkmark 2>/dev/null
-      elif [ -f /usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so ]; then
-        echo "VULKAN_DRIVER_PRESENT_NO_VKMARK"
-      else
-        echo "NO_VULKAN"
-      fi
-    ' 2>/dev/null > /tmp/ternux-vkmark.out; then
-      if grep -q "VULKAN_DRIVER_PRESENT_NO_VKMARK" /tmp/ternux-vkmark.out; then
-        tnx_info "Vulkan driver present but vkmark not installed"
-        tnx_info "Install: sudo apt install vkmark -y"
-        bench_results+=("vkmark:not_installed")
-      elif grep -q "NO_VULKAN" /tmp/ternux-vkmark.out; then
-        tnx_warn "No Vulkan support detected"
-        bench_results+=("vkmark:no_vulkan")
-      else
-        vkmark_score="$(grep -oP 'Score: \K[0-9.]+' /tmp/ternux-vkmark.out 2>/dev/null || \
-                        grep -oP 'average framerate: \K[0-9.]+' /tmp/ternux-vkmark.out 2>/dev/null || \
-                        echo "unknown")"
-        tnx_ok "vkmark Score: $vkmark_score"
-        bench_results+=("vkmark:${vkmark_score}")
-      fi
-    else
-      tnx_warn "vkmark failed to run (display may not be available)"
-    fi
-  fi
-  rm -f /tmp/ternux-vkmark.out
+  _tnx_bench_run_vkmark
+  vkmark_score="$_TNX_BENCH_VKMARK"
+  [ -n "$vkmark_score" ] && [ "$vkmark_score" != "unknown" ] && results+=("vkmark:${vkmark_score}")
 
-  # --- Renderer Verification ---
+  # --- Renderer verification ---
   tnx_header "3/3  Renderer verification"
   renderer="$(tnx_detect_renderer)"
   if [ -n "$renderer" ] && [ "$renderer" != "unknown" ]; then
     tnx_ok "Current renderer: $renderer"
-    bench_results+=("renderer:${renderer}")
-
-    # Check for software rendering
+    results+=("renderer:${renderer}")
     case "$renderer" in
-      *llvmpipe*)
-        tnx_warn "Software rendering detected (llvmpipe)"
-        bench_results+=("warning:software_rendering")
-        ;;
-      *zink*)
-        tnx_ok "Hardware-accelerated rendering via Zink"
-        bench_results+=("status:hardware_accelerated")
-        ;;
-      *virgl*)
-        tnx_ok "Hardware-backed rendering via VirGL"
-        bench_results+=("status:hardware_accelerated_virgl")
-        ;;
+      *llvmpipe*) results+=("status:software_rendering"); tnx_warn "Software rendering detected" ;;
+      *zink*)     results+=("status:hardware_accelerated"); tnx_ok "Hardware-accelerated (Zink)" ;;
+      *virgl*)    results+=("status:hardware_accelerated"); tnx_ok "Hardware-backed (VirGL)" ;;
     esac
-  else
-    tnx_warn "Could not determine renderer"
   fi
 
   echo ""
+  _tnx_bench_save_results "$glmark2_score" "$vkmark_score" "$renderer"
 
-  # Log benchmark results
-  mkdir -p "$TERNUX_STATE_DIR"
-  {
-    echo "$(__tnx_ts) glmark2=${glmark2_score:-unknown} vkmark=${vkmark_score:-unknown} renderer=${renderer:-unknown}"
-  } >> "$TERNUX_STATE_DIR/benchmarks"
-
-  # Output
+  # JSON output
   if [ "${TERNUX_JSON:-0}" = "1" ]; then
-    local bench_str=""
-    for b in "${bench_results[@]}"; do
-      [ -n "$bench_str" ] && bench_str+=","
-      bench_str+="$b"
+    local results_str=""
+    for r in "${results[@]}"; do
+      [ -n "$results_str" ] && results_str+=","
+      results_str+="$r"
     done
-    tnx_json_object "benchmark" "$([ $rc -eq 0 ] && echo "complete" || echo "partial")" \
+    tnx_json_object "benchmark" "complete" \
       "glmark2_score" "${glmark2_score:-unknown}" \
       "vkmark_score" "${vkmark_score:-unknown}" \
       "renderer" "${renderer:-unknown}" \
       "gpu" "$(tnx_detect_gpu)" \
       "backend" "$backend" \
       "vulkan" "$(tnx_detect_vulkan)" \
-      "results" "$bench_str"
+      "results" "$results_str"
     return 0
   fi
 
   tnx_header "Benchmark Summary"
-  printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "glmark2 score:" "${glmark2_score:-N/A}"
-  printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "vkmark score:" "${vkmark_score:-N/A}"
+  printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "glmark2:" "${glmark2_score:-N/A}"
+  printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "vkmark:" "${vkmark_score:-N/A}"
   printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "Renderer:" "${renderer:-unknown}"
   printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "GPU:" "$(tnx_detect_gpu)"
-  printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "Backend:" "$backend"
-  printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "Vulkan:" "$(tnx_detect_vulkan)"
   echo ""
+}
+
+# --- Internal helpers ---
+_TNX_BENCH_GLMARK2=""
+_TNX_BENCH_VKMARK=""
+
+_tnx_bench_run_glmark2() {
+  _TNX_BENCH_GLMARK2=""
+  tnx_has_cmd proot-distro || return
+  local out
+  out="$(proot-distro login debian --shared-tmp --user "${TERNUX_USER:-ternux}" -- bash -c '
+    if command -v glmark2 >/dev/null 2>&1; then
+      timeout 60 glmark2 --fullscreen --annotate 2>/dev/null || timeout 60 glmark2 2>/dev/null
+    elif command -v glmark2-es2 >/dev/null 2>&1; then
+      timeout 60 glmark2-es2 2>/dev/null
+    else
+      echo "NOT_INSTALLED"
+    fi
+  ' 2>/dev/null)" || true
+
+  if echo "$out" | grep -q "NOT_INSTALLED"; then
+    tnx_warn "glmark2 not installed. Install: sudo apt install glmark2 -y"
+    return
+  fi
+  _TNX_BENCH_GLMARK2="$(echo "$out" | grep -oP 'glmark2 Score: \K[0-9]+' | head -1 || echo "unknown")"
+  [ "$_TNX_BENCH_GLMARK2" = "unknown" ] && tnx_info "glmark2 ran but score not parsed (display may not be active)" || tnx_ok "glmark2 Score: $_TNX_BENCH_GLMARK2"
+}
+
+_tnx_bench_run_vkmark() {
+  _TNX_BENCH_VKMARK=""
+  tnx_has_cmd proot-distro || return
+  local out
+  out="$(proot-distro login debian --shared-tmp --user "${TERNUX_USER:-ternux}" -- bash -c '
+    if command -v vkmark >/dev/null 2>&1; then
+      timeout 60 vkmark 2>/dev/null
+    elif [ -f /usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so ]; then
+      echo "DRIVER_PRESENT"
+    else
+      echo "NO_VULKAN"
+    fi
+  ' 2>/dev/null)" || true
+
+  case "$out" in
+    *NO_VULKAN*) tnx_warn "No Vulkan support detected" ;;
+    *DRIVER_PRESENT*) tnx_info "Vulkan driver present, vkmark not installed (sudo apt install vkmark)" ;;
+    *)
+      _TNX_BENCH_VKMARK="$(echo "$out" | grep -oP 'Score: \K[0-9.]+' | head -1 || echo "unknown")"
+      [ "$_TNX_BENCH_VKMARK" = "unknown" ] && tnx_info "vkmark ran but score not parsed" || tnx_ok "vkmark: $_TNX_BENCH_VKMARK"
+      ;;
+  esac
+}
+
+_tnx_bench_save_results() {
+  local gl="$1" vk="$2" renderer="$3"
+  mkdir -p "$TERNUX_STATE_DIR"
+  echo "$(__tnx_ts) glmark2=${gl:-unknown} vkmark=${vk:-unknown} renderer=${renderer:-unknown}" >> "$TERNUX_STATE_DIR/benchmarks"
 }

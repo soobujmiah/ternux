@@ -703,3 +703,9 @@ tnx_install() {
 
   return "$rc"
 }
+# ---------------------------------------------------------------------------
+# tnx_cmd_install — CLI command that delegates to tnx_install
+# ---------------------------------------------------------------------------
+tnx_cmd_install() {
+  tnx_install "$@"
+}

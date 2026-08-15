@@ -1,0 +1,137 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'bin/**'
+      - 'lib/**'
+      - 'install.sh'
+      - 'uninstall.sh'
+      - 'tests/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'bin/**'
+      - 'lib/**'
+      - 'install.sh'
+      - 'uninstall.sh'
+      - 'tests/**'
+
+permissions:
+  contents: read
+
+jobs:
+  shellcheck:
+    name: ShellCheck lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run ShellCheck
+        uses: ludeeus/action-shellcheck@master
+        with:
+          scandir: './'
+          severity: style
+          ignore: |
+            assets/
+            bn/
+            docs/
+            share/
+            _config.yml
+            _layouts/
+            _data/
+            tests/
+        env:
+          SHELLCHECK_OPTS: -e SC1091 -e SC2154 -e SC2086
+
+  syntax:
+    name: Bash syntax check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check shell syntax
+        run: |
+          errors=0
+          for f in bin/ternux lib/*.sh install.sh uninstall.sh; do
+            if [ -f "$f" ]; then
+              if bash -n "$f" 2>/dev/null; then
+                echo "  ✓ $f"
+              else
+                echo "  ✗ $f"
+                errors=$((errors + 1))
+              fi
+            fi
+          done
+          exit $errors
+
+  smoke-tests:
+    name: Smoke tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run smoke tests
+        run: |
+          errors=0
+          total=0
+
+          # All commands dispatch
+          for cmd in install start stop restart doctor repair verify benchmark profile backend info state logs update uninstall; do
+            total=$((total + 1))
+            bash bin/ternux "$cmd" --help >/dev/null 2>&1 && echo "  ✓ $cmd" || { echo "  ✗ $cmd"; errors=$((errors + 1)); }
+          done
+
+          # JSON output
+          for cmd in info state backend profile; do
+            total=$((total + 1))
+            out=$(bash bin/ternux --json "$cmd" 2>&1)
+            echo "$out" | grep -q '"command"' && echo "  ✓ $cmd --json" || { echo "  ✗ $cmd --json"; errors=$((errors + 1)); }
+          done
+
+          # Error handling
+          total=$((total + 1))
+          bash bin/ternux nonexistent 2>&1 | grep -q "Unknown command" && echo "  ✓ unknown command" || { echo "  ✗ unknown command"; errors=$((errors + 1)); }
+
+          total=$((total + 1))
+          bash bin/ternux backend set 2>&1 | grep -q "Usage" && echo "  ✓ backend set (no args)" || { echo "  ✗ backend set (no args)"; errors=$((errors + 1)); }
+
+          # Help
+          for cmd in install start stop restart doctor repair verify benchmark profile backend info state logs update uninstall; do
+            total=$((total + 1))
+            bash bin/ternux "$cmd" --help 2>&1 | grep -qi "Usage" && echo "  ✓ $cmd --help" || { echo "  ✗ $cmd --help"; errors=$((errors + 1)); }
+          done
+
+          # Version
+          total=$((total + 1))
+          bash bin/ternux --version 2>&1 | grep -q "ternux v" && echo "  ✓ --version" || { echo "  ✗ --version"; errors=$((errors + 1)); }
+
+          echo ""
+          echo "Results: $total tests, $errors failures"
+          exit $errors
+
+  doc-links:
+    name: Documentation link check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check internal doc links
+        run: |
+          errors=0
+          # Check that referenced .md files exist
+          for doc in docs/*.md bn/docs/*.md; do
+            if [ -f "$doc" ]; then
+              # Find all internal markdown links (not external URLs)
+              for link in $(grep -oP '\]\([^)]+\.md[^)]*\)' "$doc" | sed 's/](/(/' | cut -d'(' -f2 | cut -d')' -f1 | sed 's/\.html/.md/' | grep -v '^http'); do
+                target="$link"
+                # Handle relative paths
+                case "$target" in
+                  ../*) target="$(dirname "$doc")/${target#../}" ;;
+                esac
+                if [ ! -f "$target" ]; then
+                  echo "  BROKEN: $doc -> $link ($target)"
+                  errors=$((errors + 1))
+                fi
+              done
+            fi
+          done
+          [ "$errors" -eq 0 ] && echo "All links OK" || echo "$errors broken links found"
+          exit $errors

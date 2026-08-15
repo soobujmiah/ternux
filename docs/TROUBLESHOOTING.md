@@ -60,7 +60,7 @@ processes (Xfce4 + dbus + PulseAudio + proot), so it trips the limit easily.
 *Why this is a device-level trade-off:* the limit protects Android from
 runaway background apps generally. Disabling it is what the Termux community
 recommends for exactly this workload; most people notice no downside.
-`bash install.sh --doctor` re-checks this for you anytime.
+`ternux doctor` re-checks this for you anytime.
 
 ---
 
@@ -84,7 +84,7 @@ killx
 x
 ```
 
-If it still fails, run `bash install.sh --doctor --fix` — it re-checks the
+If it still fails, run `ternux repair` — it re-checks the
 display package, the launcher and the container core.
 
 ---
@@ -109,7 +109,7 @@ missing or was replaced:
 
 ```bash
 # 1. Re-run the GPU phase (this re-resolves, re-downloads, re-verifies):
-bash install.sh --resume
+ternux repair   # or: bash install.sh --resume
 
 # 2. If on Zink, confirm the files exist and packages are held:
 db
@@ -123,7 +123,7 @@ killx && x
 ```
 
 If the download fails (GitHub unreachable from your network), fall back
-deliberately: `bash install.sh --backend virgl --resume`.
+deliberately: `ternux backend set virgl` then `ternux repair` (or `bash install.sh --backend virgl --resume`).
 
 ---
 
@@ -266,7 +266,7 @@ dpkg --configure -a --force-confold --force-confdef
 dpkg --configure -a --force-confold --force-confdef
 
 # 3. Resume the installer:
-bash install.sh --resume
+ternux repair   # or: bash install.sh --resume
 ```
 
 *Why this happens at all:* Android shells are often piped/non-interactive, so
@@ -305,7 +305,7 @@ sudo apt update && sudo apt install -y rar unrar p7zip-full
 **Cause:** the held Mesa packages were unheld (or the hold was applied after
 an upgrade had already replaced them).
 
-**Fix:** re-run `bash install.sh --resume` (re-applies the driver and the
+**Fix:** re-run `ternux repair` (re-applies the driver and the
 holds), then verify with `glxinfo`. To upgrade Mesa deliberately and keep
 acceleration, follow the unhold → upgrade → rehold → verify sequence in
 [Configuration](CONFIGURATION.html#held-mesa-packages-zink-route).
@@ -315,9 +315,10 @@ acceleration, follow the unhold → upgrade → rehold → verify sequence in
 ## Nuclear option: clean reinstall
 
 ```bash
-bash install.sh --uninstall     # choose 4: delete the container
+ternux uninstall                 # choose 4: delete the container
+# or: bash install.sh --uninstall
 rm -f ~/x.sh ~/.ternux-state
-bash install.sh                 # fresh install
+bash install.sh                  # fresh install
 ```
 
 Deleting the container destroys **all data inside it** — pull anything
@@ -334,7 +335,8 @@ read-only evidence — never paste licence keys, tokens, or private files:
 uname -m
 getprop ro.product.manufacturer; getprop ro.product.model
 getprop ro.build.version.release
-bash install.sh --doctor
+ternux doctor --json           # AI-readable diagnostics
+ternux info --json             # full device profile
 db -c 'glxinfo | grep "renderer string"; vulkaninfo --summary | grep -i driverName'
 ```
 

@@ -16,71 +16,66 @@ Notable changes to ternux. Dates are ISO 8601.
 
 ### ternux CLI v1.3.0 — production modular CLI with AI-native JSON
 
-**The ternux CLI is born.** The monolithic `install.sh` is now accompanied by a
-production-quality `ternux` command-line interface with modular shell libraries,
-AI-native JSON output, and a consistent command structure for every operation.
+**Complete CLI redesign.** The CLI has been rebuilt from the ground up as a
+thin dispatcher with self-contained command modules, proper help system,
+consistent UX, and AI-native JSON everywhere.
 
-**New CLI (`bin/ternux`):**
-- `ternux install` — full installation (delegates to `install.sh`)
-- `ternux start` / `stop` / `restart` — desktop lifecycle
-- `ternux doctor` — comprehensive diagnostics
-- `ternux repair` — auto-fix common issues
-- `ternux verify` — installation completeness check
-- `ternux benchmark` — GPU benchmarks (glmark2, vkmark)
-- `ternux profile` — device profiling (show, save, load, list, compare)
-- `ternux backend` — GPU backend management (show, set, detect)
-- `ternux update` — self-update via git
-- `ternux logs` — log management (show, tail, clear, list)
-- `ternux info` — system information summary
-- `ternux state` — installation state
-- `ternux uninstall` — component removal
+**New architecture:**
+- `bin/ternux` is now a **thin dispatcher** (~80 lines): discovers commands
+  via `tnx_cmd_*` function naming convention, lazy-loads libraries, handles
+  global flags properly
+- Every command function lives in its own library file (`lib/<name>.sh`)
+- New `lib/help.sh` — centralized help system with per-command help functions
+- New `lib/info.sh` — dedicated system information command module
+- Command dispatch is **extensible**: adding a new command = add a
+  `tnx_cmd_<name>()` function in a new `lib/<name>.sh` file
 
-**AI-native JSON output (critical requirement):**
-Every major command supports `--json` for machine-readable output:
-- `ternux doctor --json` — structured diagnostics with issues and actions
-- `ternux info --json` — full device profile
-- `ternux benchmark --json` — benchmark scores and renderer
-- `ternux profile --json` — device hardware snapshot
-- `ternux verify --json` — check results
-- `ternux backend --json` — GPU and backend information
+**Fixed UX bugs:**
+- `ternux doctor --help` now shows doctor-specific help (was showing main help)
+- `ternux profile --help` now shows profile subcommands properly
+- `--help` after any command correctly dispatches to `tnx_help_<command>`
+- Unknown commands now produce clear error messages with correct exit codes
+
+**Standardized subcommand pattern:**
+- Every command that takes subcommands validates them and shows usage on error
+- Consistent `--help` handling at every level
+- All commands return proper exit codes (0=success, 1=error)
+
+**JSON output improvements:**
+- `tnx_json_add_array()` with proper item escaping
+- All JSON output uses consistent field naming (`snake_case`)
+- Error JSON objects include `command`, `status: "error"`, and `reason` field
 - JSON schemas documented in `share/templates/json-schema.md`
 
-**Modular library architecture:**
-- `lib/core.sh` — shared I/O, JSON builder, state, logging, CLI framework
-- `lib/detect.sh` — device detection and profiling (GPU, Vulkan, Android, etc.)
-- `lib/backend.sh` — GPU backend management (zink-turnip, virgl)
-- `lib/profile.sh` — profile save/load/compare
-- `lib/doctor.sh` — diagnostics and verification
-- `lib/repair.sh` — auto-fix for common issues
-- `lib/benchmark.sh` — glmark2 and vkmark benchmarking
-- `lib/update.sh` — self-update via git
-- `lib/desktop.sh` — desktop lifecycle management
-- `lib/logs.sh` — log viewing and management
-- `lib/state.sh` — installation state queries
+**New features added:**
+- `ternux backend detect` — auto-detect the correct GPU backend
+- `ternux update check` — check for updates without installing
+- Proper `--version` flag on all command paths
+- `TERNUX_QUIET` suppresses non-critical messages everywhere
+- `TERNUX_VERBOSE` enables debug output consistently
 
-**Every command supports:**
-- `--help` — command-specific help
-- `--json` — AI-native structured output
-- `--verbose` — detailed output
-- `--quiet` — suppressed non-critical output
+**Refactored libraries:**
+| Library | Lines | Status |
+|---------|-------|--------|
+| `bin/ternux` | ~80 | Thin dispatcher (was 532) |
+| `lib/core.sh` | 239 | Shared foundation |
+| `lib/help.sh` | 130 | **New** — centralized help |
+| `lib/desktop.sh` | 168 | Self-contained lifecycle |
+| `lib/doctor.sh` | 250 | Clean diagnostics + verify |
+| `lib/backend.sh` | 95 | Backend management |
+| `lib/benchmark.sh` | 164 | GPU benchmarks |
+| `lib/info.sh` | 86 | **New** — system info |
+| `lib/profile.sh` | 180 | Profile management |
+| `lib/repair.sh` | 184 | Auto-fix engine |
+| `lib/logs.sh` | 97 | Log management |
+| `lib/update.sh` | 150 | Self-update |
+| `lib/state.sh` | 86 | State queries |
+| `lib/phases.sh` | 704 | Installation phases |
 
-**Thin bootstrapper:**
-- `install.sh` now detects the CLI and delegates doctor/status/help commands
-- Full standalone functionality preserved (backward compatible)
-- All 9 installation phases remain self-contained in `install.sh`
-
-**Directory structure:**
-```
-bin/ternux          # Main CLI entry point
-lib/*.sh            # 11 modular shell libraries
-share/templates/    # JSON schema documentation
-docs/               # Documentation (unchanged)
-```
-
-**State management:**
-- State directory: `~/.local/share/ternux/`
-- Tracks: version, backend, renderer, driver version, install phases,
-  benchmark history, repair history
+**Extensibility (plugin readiness):**
+- Add a new command: create `lib/mycommand.sh` with `tnx_cmd_mycommand()`
+- Add help: create `tnx_help_mycommand()` in `lib/help.sh`
+- Command functions are auto-discovered via `declare -F`
 
 ---
 
