@@ -1,0 +1,15 @@
+# Editor and OS cruft
+.DS_Store
+*.swp
+*~
+
+# Python cache from extras/
+__pycache__/
+*.pyc
+
+# Logs
+*.log
+
+# ternux state directory
+.local/share/ternux/
+.ternux-state
