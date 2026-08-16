@@ -1,0 +1,25 @@
+# ternux code owners
+# Each line is a file pattern followed by the owner(s).
+# Learn more: https://docs.github.com/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Default owners for everything
+* @soobujmiah
+
+# CLI and libraries
+/bin/ternux @soobujmiah
+/lib/*.sh @soobujmiah
+
+# Installer
+/install.sh @soobujmiah
+/uninstall.sh @soobujmiah
+
+# Documentation
+/docs/*.md @soobujmiah
+/bn/docs/*.md @soobujmiah
+/README.md @soobujmiah
+
+# CI/CD
+/.github/workflows/*.yml @soobujmiah
+
+# Tests
+/tests/*.bats @soobujmiah

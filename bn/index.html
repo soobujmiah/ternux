@@ -1,0 +1,642 @@
+---
+layout: null
+lang: "bn"
+title: ternux
+description: একটি কমান্ডেই আপনার Android ফোনে GPU-accelerated Linux ডেস্কটপ — Termux + PRoot Debian + Xfce4, Zink/Turnip দিয়ে Vulkan। root লাগে না। সম্পূর্ণ ফ্রি ও MIT লাইসেন্স।
+---
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ternux — Android ফোনে GPU-accelerated Linux ডেস্কটপ</title>
+<meta name="description" content="একটি কমান্ডেই আপনার Android ফোনে GPU-accelerated Linux ডেস্কটপ — Termux + PRoot Debian + Xfce4, Zink/Turnip দিয়ে Vulkan। root লাগে না। সম্পূর্ণ ফ্রি ও MIT লাইসেন্স।">
+<meta name="author" content="Sobuj Miah">
+<meta name="theme-color" content="#04140a">
+<meta name="robots" content="index, follow">
+<meta property="og:site_name" content="ternux">
+<meta property="og:title" content="ternux — Android ফোনে GPU-accelerated Linux ডেস্কটপ">
+<meta property="og:description" content="একটি কমান্ড। আপনার ফোনেই পূর্ণাঙ্গ Linux ডেস্কটপ, আসল GPU অ্যাক্সিলারেশনসহ। root লাগে না। ফ্রি ও ওপেন সোর্স।">
+<meta property="og:type" content="website">
+<meta property="og:url" content="{{ '/bn/' | absolute_url }}">
+<meta property="og:image" content="{{ '/assets/img/og-card.png' | absolute_url }}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="ternux — আপনার Android ফোনে একটি GPU-accelerated Linux workstation। root ছাড়াই।">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="ternux — Android ফোনে GPU-accelerated Linux ডেস্কটপ">
+<meta name="twitter:description" content="একটি কমান্ড। আপনার ফোনেই পূর্ণাঙ্গ Linux ডেস্কটপ, আসল GPU অ্যাক্সিলারেশনসহ। root লাগে না। ফ্রি ও ওপেন সোর্স।">
+<meta name="twitter:image" content="{{ '/assets/img/og-card.png' | absolute_url }}">
+<link rel="canonical" href="{{ '/bn/' | absolute_url }}">
+<link rel="alternate" hreflang="bn" href="{{ '/bn/' | absolute_url }}">
+<link rel="alternate" hreflang="en" href="{{ '/' | absolute_url }}">
+<link rel="alternate" hreflang="x-default" href="{{ '/' | absolute_url }}">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2304140a'/%3E%3Ctext x='16' y='23' font-family='monospace' font-size='20' font-weight='bold' fill='%2300ff41' text-anchor='middle'%3E%26gt;%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="{{ '/assets/css/ternux.css' | relative_url }}">
+<link rel="preload" as="font" type="font/woff2" crossorigin
+      href="{{ '/assets/fonts/noto-bengali.woff2' | relative_url }}">
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org","@type":"SoftwareSourceCode",
+  "name":"ternux",
+  "description":"Android ফোনে GPU-accelerated Debian Xfce4 ডেস্কটপ ইনস্টল করার এক-কমান্ড ইনস্টলার — Termux, PRoot ও Termux:X11 দিয়ে, Zink ও Turnip-এর মাধ্যমে Vulkan অ্যাক্সিলারেশন। root লাগে না।",
+  "codeRepository":"https://github.com/soobujmiah/ternux",
+  "url":{{ '/bn/' | absolute_url | jsonify }},
+  "image":{{ '/assets/img/og-card.png' | absolute_url | jsonify }},
+  "license":"https://opensource.org/licenses/MIT",
+  "author":{"@type":"Person","name":"Sobuj Miah","url":"https://github.com/soobujmiah"},
+  "programmingLanguage":"Shell",
+  "operatingSystem":"Android 10+ (aarch64)",
+  "keywords":"termux, android, linux, debian, xfce4, gpu acceleration, vulkan, zink, turnip, adreno, proot, no root"
+}
+</script>
+<style>
+/* ---------- landing-page-only styles ---------- */
+.hero{padding:clamp(3rem,10vw,6rem) 0 2rem;text-align:center;position:relative}
+.hero h1{font-size:clamp(2.8rem,12vw,5.5rem);line-height:.95;margin:0 0 .4rem;
+  font-weight:700;letter-spacing:-.03em;color:var(--grn);
+  text-shadow:0 0 24px rgba(0,255,65,.35),0 0 60px rgba(0,255,65,.12)}
+.hero h1 .cur{animation:blink 1.1s step-end infinite}
+@keyframes blink{50%{opacity:0}}
+.hero .tag{font-size:clamp(1rem,3.4vw,1.35rem);color:var(--ink);
+  max-width:38ch;margin:0 auto 1.1rem;line-height:1.5}
+.hero .sub{color:var(--dim);font-size:.95rem;margin-bottom:2rem}
+.hero .sub b{color:var(--amber);font-weight:600}
+
+.pills{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin-bottom:2.2rem}
+.pill{border:1px solid var(--line);background:var(--panel);color:var(--dim);
+  padding:.34rem .8rem;border-radius:999px;font-size:.78rem;letter-spacing:.04em}
+.pill b{color:var(--grn);font-weight:600}
+
+.cta-row{display:flex;flex-wrap:wrap;gap:.75rem;justify-content:center;margin:0 0 1rem}
+.btn{display:inline-block;padding:.8rem 1.5rem;border-radius:6px;font-weight:600;
+  font-size:.95rem;text-decoration:none;transition:transform .15s,box-shadow .15s;
+  border:1px solid var(--grn-d)}
+.btn-primary{background:var(--grn);color:#04140a;
+  box-shadow:0 0 22px rgba(0,255,65,.3)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 0 34px rgba(0,255,65,.5)}
+.btn-ghost{background:transparent;color:var(--grn);border-color:var(--line)}
+.btn-ghost:hover{border-color:var(--grn);transform:translateY(-2px)}
+
+/* terminal */
+.term{max-width:760px;margin:2.5rem auto 0;text-align:left;
+  border:1px solid var(--line);border-radius:10px;overflow:hidden;
+  background:var(--panel-s);box-shadow:0 18px 60px rgba(0,0,0,.6)}
+.term-bar{display:flex;align-items:center;gap:.45rem;padding:.6rem .85rem;
+  border-bottom:1px solid var(--line);background:rgba(0,0,0,.35)}
+.dot{width:11px;height:11px;border-radius:50%;display:inline-block}
+.term-title{margin-left:.5rem;font-size:.75rem;color:var(--dim);letter-spacing:.05em}
+.term-body{padding:1rem 1.1rem;font-size:.85rem;line-height:1.75;overflow-x:auto}
+.term-body .l{white-space:pre;display:block}
+.p1{color:var(--grn)}.p2{color:var(--cyan)}
+.ok{color:var(--grn)}.wr{color:var(--amber)}.dm{color:var(--dim)}.rd{color:var(--red)}
+.hl{color:#fff;font-weight:600}
+
+/* install command box — animated centrepiece */
+.install{position:relative;max-width:760px;margin:0 auto;text-align:left;
+  border-radius:12px;padding:1.5px;background:transparent;
+  animation:install-breathe 3.4s ease-in-out infinite;
+  transition:transform .25s ease}
+.install:hover{transform:translateY(-1px)}
+@property --ang{syntax:'<angle>';initial-value:0deg;inherits:false}
+.install::before{content:"";position:absolute;inset:-1.5px;border-radius:13px;padding:1.5px;
+  background:conic-gradient(from var(--ang),
+    rgba(0,255,65,.95),rgba(0,229,255,.6) 22%,rgba(0,255,65,.12) 48%,
+    rgba(255,176,0,.5) 72%,rgba(0,255,65,.95));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;
+  mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  mask-composite:exclude;
+  animation:install-spin 5s linear infinite;pointer-events:none}
+@keyframes install-spin{to{--ang:360deg}}
+.install::after{content:"";position:absolute;inset:0;border-radius:12px;pointer-events:none;
+  background:linear-gradient(115deg,transparent 32%,rgba(0,255,65,.10) 46%,
+    rgba(0,229,255,.12) 54%,transparent 68%);
+  background-size:230% 100%;animation:install-shine 4.2s ease-in-out infinite}
+@keyframes install-shine{0%{background-position:130% 0}60%,100%{background-position:-130% 0}}
+@keyframes install-breathe{
+  0%,100%{box-shadow:0 0 20px rgba(0,255,65,.12),0 0 46px rgba(0,255,65,.05)}
+  50%{box-shadow:0 0 36px rgba(0,255,65,.32),0 0 74px rgba(0,255,65,.14)}}
+.install-inner{position:relative;background:var(--panel-s);border-radius:11px;overflow:hidden;z-index:1}
+.install-bar{display:flex;align-items:center;justify-content:space-between;gap:.6rem;
+  padding:.55rem .85rem;border-bottom:1px solid var(--line);background:rgba(0,0,0,.35)}
+.install-bar .t{font-size:.72rem;color:var(--dim);letter-spacing:.08em;text-transform:uppercase;
+  display:flex;align-items:center;gap:.45rem}
+.pulse-dot{width:8px;height:8px;border-radius:50%;background:var(--grn);
+  position:relative;flex:0 0 auto;animation:pulse-ring 1.8s ease-out infinite}
+.pulse-dot::after{content:"";position:absolute;inset:-3px;border-radius:50%;
+  border:1px solid var(--grn);animation:pulse-ring 1.8s ease-out infinite}
+@keyframes pulse-ring{0%{transform:scale(.6);opacity:1}100%{transform:scale(2.4);opacity:0}}
+.instag{font-family:var(--mono);font-size:.62rem;color:var(--grn-d);
+  border:1px solid var(--line);border-radius:999px;padding:.14rem .5rem;
+  letter-spacing:.06em;white-space:nowrap}
+.copy-btn{background:transparent;border:1px solid var(--grn-d);color:var(--grn);
+  font-family:var(--mono);font-size:.68rem;padding:.22rem .6rem;border-radius:4px;cursor:pointer;
+  transition:.16s}
+.copy-btn:hover{background:rgba(0,255,65,.12);box-shadow:0 0 12px rgba(0,255,65,.3)}
+.install-cmd{padding:.85rem 1rem;font-family:var(--mono);font-size:.82rem;
+  color:var(--ink);overflow-x:auto;white-space:nowrap;cursor:copy;user-select:all}
+.install-cmd:hover{background:rgba(0,255,65,.05)}
+/* The prompt and cursor are pseudo-elements: they can never be selected or
+   copied, so selecting the line always yields exactly the command. */
+.install-cmd::before{content:"$ ";color:var(--grn);font-weight:600}
+.install-cmd::after{content:"█";color:var(--grn);animation:blink 1.1s step-end infinite;margin-left:2px;user-select:none}
+
+/* backend switch */
+.switch{max-width:760px;margin:3.5rem auto 0}
+.switch-head{display:flex;gap:.4rem;border-bottom:1px solid var(--line);margin-bottom:0}
+.sw-btn{flex:1;padding:.7rem .5rem;background:transparent;border:1px solid var(--line);
+  border-bottom:none;border-radius:6px 6px 0 0;color:var(--dim);cursor:pointer;
+  font-family:inherit;font-size:.85rem;transition:.15s}
+.sw-btn[aria-selected="true"]{background:var(--panel-s);color:var(--grn);
+  border-color:var(--grn-d);box-shadow:inset 0 2px 0 var(--grn)}
+.sw-panel{border:1px solid var(--line);border-top:none;border-radius:0 0 8px 8px;
+  background:var(--panel);padding:1.2rem 1.3rem}
+.sw-panel[hidden]{display:none}
+.sw-panel h3{margin:0 0 .5rem;color:var(--ink);font-size:1rem}
+.sw-panel p{margin:0 0 .7rem;color:var(--dim);font-size:.88rem;line-height:1.6}
+.sw-panel code{color:var(--cyan)}
+.bar{height:8px;border-radius:4px;background:rgba(0,255,65,.1);overflow:hidden;margin:.3rem 0 .2rem}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--grn-d),var(--grn))}
+.bar-l{display:flex;justify-content:space-between;font-size:.76rem;color:var(--dim)}
+
+/* sections */
+.sec{margin:4.5rem 0}
+.sec-h{font-size:.78rem;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--grn-d);margin-bottom:.4rem}
+.sec-t{font-size:clamp(1.5rem,5vw,2rem);color:var(--ink);margin:0 0 1.6rem;font-weight:600}
+.sec-t::before{content:none!important}
+.hero h1::before,.route h3::before,.card h3::before,.sw-panel h3::before{content:none!important}
+.switch,.sec{max-width:1040px;margin-left:auto;margin-right:auto}
+.switch{margin-top:4.5rem}
+
+.grid{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr))}
+.card{border:1px solid var(--line);border-radius:9px;background:var(--panel);
+  padding:1.15rem 1.2rem;transition:.18s;position:relative;overflow:hidden}
+.card:hover{border-color:var(--grn-d);transform:translateY(-3px);
+  box-shadow:0 10px 34px rgba(0,0,0,.5)}
+.card .n{font-size:.72rem;color:var(--grn-d);letter-spacing:.14em}
+.card h3{margin:.35rem 0 .45rem;font-size:1.02rem;color:var(--ink)}
+.card p{margin:0;font-size:.86rem;color:var(--dim);line-height:1.6}
+a.card{text-decoration:none;display:block}
+a.card h3{color:var(--grn)}
+
+/* stages */
+.stages{counter-reset:st;display:grid;gap:.5rem;grid-template-columns:minmax(0,1fr)}
+.stage{display:flex;gap:.9rem;align-items:baseline;border:1px solid var(--line);
+  border-radius:7px;padding:.7rem .95rem;background:var(--panel)}
+.stage .num{color:var(--grn);font-weight:700;min-width:1.6rem;font-size:.9rem}
+.stage .txt{color:var(--ink);font-size:.9rem}
+.stage .txt span{color:var(--dim);display:block;font-size:.8rem;margin-top:.15rem}
+
+/* why cards */
+.why{border:1px solid var(--line);border-radius:10px;padding:1.3rem 1.4rem;background:var(--panel)}
+.why h3{margin:0 0 .45rem;font-size:1.05rem;color:var(--grn)}
+.why p{margin:0;font-size:.87rem;color:var(--dim);line-height:1.65}
+
+/* full installation guide on the landing page */
+.steps{max-width:760px;margin:0 auto;display:grid;gap:1rem;text-align:left;
+  grid-template-columns:minmax(0,1fr)}
+.step{border:1px solid var(--line);border-radius:10px;padding:1.1rem 1.3rem;background:var(--panel)}
+.step-h{display:flex;align-items:baseline;gap:.7rem;margin-bottom:.35rem}
+.step-n{color:var(--grn);font-weight:700;font-family:var(--mono);font-size:.9rem}
+.step-h h3{font-size:1.02rem;color:var(--ink);margin:0}
+.step p{color:var(--dim);font-size:.86rem;line-height:1.6;margin:.3rem 0 .6rem}
+.step p a{color:var(--cyan)}
+.cmd{background:var(--panel-s);border:1px solid var(--line);border-radius:7px;
+  padding:.7rem .9rem;font-family:var(--mono);font-size:.8rem;color:var(--ink);
+  overflow-x:auto;margin:.5rem 0;white-space:pre}
+.cmd .p1{color:var(--grn);font-weight:600}
+.note{font-size:.8rem;color:var(--amber);line-height:1.55;margin-top:.55rem}
+.note b{font-weight:600}
+/* manual guide reference banner */
+.manual-ref{max-width:760px;margin:0 auto 1.8rem;display:flex;gap:.85rem;align-items:center;
+  text-align:left;border:1px dashed var(--grn-d);border-radius:8px;padding:.95rem 1.15rem;
+  background:rgba(0,255,65,.05);font-size:.88rem;color:var(--ink);transition:.2s}
+.manual-ref:hover{border-color:var(--grn);box-shadow:0 0 24px rgba(0,255,65,.18);transform:translateY(-1px)}
+.manual-ref b{color:#eaffef}
+.manual-ref a{color:var(--grn);font-weight:700}
+.mr-ic{font-size:1.35rem;color:var(--grn);flex:0 0 auto}
+
+footer{border-top:1px solid var(--line);margin-top:5rem;padding:2rem 0 3rem;
+  text-align:center;color:var(--dim);font-size:.82rem;line-height:1.9}
+footer a{color:var(--grn)}
+/* ---------- mobile polish ---------- */
+@media (max-width:600px){
+  .hero{padding:2.6rem 0 1.2rem}
+  .hero h1{font-size:clamp(2.3rem,13vw,3rem)}
+  .hero .tag{font-size:.98rem}
+  .hero .sub{font-size:.85rem;margin-bottom:1.5rem}
+  .pills{gap:.4rem;margin-bottom:1.6rem}
+  .pill{font-size:.7rem;padding:.26rem .62rem}
+  .install-bar .t{font-size:.66rem}
+  .install-cmd{font-size:.72rem;padding:.7rem .75rem}
+  .cta-row .btn{width:100%;max-width:440px}
+  .term{margin-top:1.8rem}
+  .term-body{font-size:.73rem;line-height:1.7;padding:.85rem .8rem}
+  .term-title{font-size:.66rem}
+  .steps{gap:.8rem}
+  .step{padding:.9rem 1rem}
+  .step-h{flex-wrap:wrap;gap:.25rem .6rem}
+  .cmd{font-size:.72rem;padding:.6rem .75rem}
+  .sw-btn{font-size:.74rem;padding:.55rem .25rem}
+  .sw-panel{padding:1rem .9rem}
+  .stage{padding:.55rem .75rem}
+  .stage .txt{font-size:.84rem}
+  .stage .num{min-width:1.4rem;font-size:.85rem}
+  .sec{margin:3rem 0}
+  .sec-t{font-size:1.35rem}
+  .why{padding:1.05rem 1.1rem}
+
+  .instag{font-size:.56rem;padding:.1rem .4rem}
+  .manual-ref{flex-direction:column;align-items:flex-start;gap:.5rem;font-size:.82rem}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body class="home">
+
+<a class="skip" href="#content">কনটেন্টে যান</a>
+<canvas id="matrix" aria-hidden="true"></canvas>
+<div class="vignette" aria-hidden="true"></div>
+<div class="scan" aria-hidden="true"></div>
+
+<nav>
+  <div class="nav-in">
+    <a class="brand" href="{{ '/bn/' | relative_url }}">&gt;_ ternux<span class="c">█</span></a>
+    <div class="nav-links">
+      <a href="{{ '/bn/docs/QUICK-START.html' | relative_url }}">দ্রুত শুরু</a>
+      <a href="{{ '/bn/docs/INSTALLATION.html' | relative_url }}">ইনস্টল</a>
+      <a href="{{ '/bn/docs/TROUBLESHOOTING.html' | relative_url }}">সহায়তা</a>
+      <a href="https://github.com/soobujmiah/ternux">github</a>
+      <a class="lang-switch" href="{{ '/' | relative_url }}" hreflang="en" title="Read this page in English">EN</a>
+    </div>
+  </div>
+</nav>
+
+<div class="wrap" id="content">
+
+  <!-- ================= HERO ================= -->
+  <header class="hero">
+    <h1>ternux<span class="cur">█</span></h1>
+    <p class="tag">আপনার পকেটের ফোনেই GPU-accelerated Linux ডেস্কটপ।</p>
+    <p class="sub">Termux + PRoot Debian + Xfce4, Zink&nbsp;/&nbsp;Turnip দিয়ে আসল Vulkan। <b>root লাগে না। ফ্রি। মাত্র একটি কমান্ড।</b></p>
+
+    <div class="pills">
+      <span class="pill"><b>root ছাড়া</b></span>
+      <span class="pill"><b>এক কমান্ডে</b> ইনস্টল</span>
+      <span class="pill"><b>~১২ GB</b> বেস</span>
+      <span class="pill"><b>Android 10+</b></span>
+      <span class="pill"><b>aarch64</b></span>
+      <span class="pill"><b>MIT</b> ওপেন সোর্স</span>
+    </div>
+
+    <div class="install">
+      <div class="install-inner">
+        <div class="install-bar">
+          <span class="t"><span class="pulse-dot" aria-hidden="true"></span> ইনস্টল — Termux-এ পেস্ট করুন</span>
+          <span class="instag">v1.3.0 · ফ্রি</span>
+          <button class="copy-btn" type="button" id="copyBtn" data-cmd="curl -fsSL https://soobujmiah.github.io/ternux/install.sh | bash">কপি</button>
+        </div>
+        <div class="install-cmd" id="installCmd" title="ক্লিক করলেই কপি">curl -fsSL https://soobujmiah.github.io/ternux/install.sh | bash</div>
+      </div>
+    </div>
+    <p class="sub" style="margin-top:.7rem;font-size:.78rem">
+      আগে পড়ে নিতে চান? <code>curl -fsSL …/install.sh -o install.sh && less install.sh</code> — এটি একটি পরীক্ষাযোগ্য ফাইল।<br>
+      আপগ্রেডের পর curl ভেঙে গেছে? <code>wget -qO- https://soobujmiah.github.io/ternux/install.sh | bash</code>
+    </p>
+
+    <div class="cta-row" style="margin-top:1.6rem">
+      <a class="btn btn-primary" href="{{ '/bn/docs/QUICK-START.html' | relative_url }}">দ্রুত শুরু — ১০ মিনিট</a>
+      <a class="btn btn-ghost" href="{{ '/bn/docs/MANUAL.html' | relative_url }}">সম্পূর্ণ ইনস্টলেশন গাইড →</a>
+      <a class="btn btn-ghost" href="https://github.com/soobujmiah/ternux">GitHub</a>
+    </div>
+
+    <div class="term">
+      <div class="term-bar">
+        <span class="dot" style="background:#ff5f56"></span>
+        <span class="dot" style="background:#ffbd2e"></span>
+        <span class="dot" style="background:#27c93f"></span>
+        <span class="term-title">termux — ডেস্কটপ যাচাই চলছে</span>
+      </div>
+      <div class="term-body">
+<span class="l"><span class="p1">~ $</span> <span class="hl">x</span></span>
+<span class="l"><span class="dm">Termux-X11 display সকেটের অপেক্ষায়...</span></span>
+<span class="l"><span class="ok">[ OK ]</span> display :0 সাড়া দিচ্ছে</span>
+<span class="l"><span class="ok">[ OK ]</span> pulseaudio ব্রিজ: tcp:127.0.0.1:4713</span>
+<span class="l"></span>
+<span class="l"><span class="p2">ternux@debian:~$</span> <span class="hl">glxinfo | grep "renderer string"</span></span>
+<span class="l">OpenGL renderer string: <span class="ok">zink Vulkan (Adreno (TM)</span></span>
+<span class="l">                        <span class="ok">(MESA_TURNIP))</span></span>
+<span class="l"></span>
+<span class="l"><span class="p2">ternux@debian:~$</span> <span class="hl">vulkaninfo --summary | grep driverName</span></span>
+<span class="l">driverName: <span class="ok">Turnip</span></span>
+<span class="l"><span class="ok">[যাচাইকৃত]</span> হার্ডওয়্যার-ব্যাকড গ্রাফিক্স পাথ</span>
+      </div>
+    </div>
+
+    <!-- ================= TERNUX CLI ================= -->
+    <div class="term" style="margin-top:3rem">
+      <div class="term-bar">
+        <span class="dot" style="background:#ff5f56"></span>
+        <span class="dot" style="background:#ffbd2e"></span>
+        <span class="dot" style="background:#27c93f"></span>
+        <span class="term-title">termux — ternux CLI</span>
+      </div>
+      <div class="term-body">
+<span class="l"><span class="p1">~ $</span> <span class="hl">ternux doctor --json</span></span>
+<span class="l">{</span>
+<span class="l">  "command": "doctor",</span>
+<span class="l">  "status": "warning",</span>
+<span class="l">  "gpu": "Adreno (730)",</span>
+<span class="l">  "backend": "zink-turnip",</span>
+<span class="l">  "vulkan": "yes",</span>
+<span class="l">  "issues": ["phantom_process_killer_enabled"],</span>
+<span class="l">  "recommended_actions": ["disable phantom process killer"]</span>
+<span class="l">}</span>
+<span class="l"><span class="dm">AI-native JSON output for every major command.</span></span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= FULL INSTALLATION GUIDE ================= -->
+  <section class="sec" id="guide">
+    <p class="sec-h">ইনস্টলারের পাশাপাশিই</p>
+    <h2 class="sec-t">সম্পূর্ণ ইনস্টলেশন গাইড</h2>
+    <p style="text-align:center;color:var(--dim);font-size:.9rem;margin:-1rem 0 1.8rem">
+      এক কমান্ড যা করে, সেই একই কাজ ধাপে ধাপে লেখা — সাথে সাথে অনুসরণ করতে পারেন।
+    </p>
+
+    <div class="manual-ref">
+      <span class="mr-ic" aria-hidden="true">▤</span>
+      <div><b>প্রতিটি কমান্ড লেখা দেখতে চান?</b> সম্পূর্ণ কমান্ডে-কমান্ডে নির্দেশিকা — দুই GPU পথ, পুরো লঞ্চার ফাইলসহ — আছে <a href="{{ '/bn/docs/MANUAL.html' | relative_url }}">ম্যানুয়াল ইনস্টলেশন</a> পাতায়।</div>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-h"><span class="step-n">ধাপ ১</span><h3>দুটি অ্যাপ ইনস্টল করুন</h3></div>
+        <p><b style="color:var(--ink)">Termux</b> — হোস্ট টার্মিনাল। <a href="https://github.com/termux/termux-app/releases">GitHub releases</a> বা <a href="https://f-droid.org/en/packages/com.termux/">F-Droid</a> থেকে। <b>Play Store নয়</b> — সেই বিল্ডটি পরিত্যক্ত, এর রিপোজিটরি মৃত।<br>
+           <b style="color:var(--ink)">Termux:X11</b> — ডেস্কটপ দেখানোর অ্যাপ। <a href="https://github.com/termux/termux-x11/releases">GitHub releases</a> থেকে। একবার খুলুন, তারপর রেখে দিন।</p>
+      </div>
+
+      <div class="step">
+        <div class="step-h"><span class="step-n">ধাপ ২</span><h3>এক-কমান্ড ইনস্টলার চালান</h3></div>
+        <p>Termux খুলে পেস্ট করুন। ইনস্টলার GPU শনাক্ত করে, বেস প্যাকেজ ইনস্টল করে, Debian + Xfce4 তৈরি করে, গ্রাফিক্স পথ সাজায়, লঞ্চার লেখে এবং সব যাচাই করে (৯টি ধাপ)।</p>
+        <div class="cmd"><span class="p1">$</span> curl -fsSL https://soobujmiah.github.io/ternux/install.sh | bash</div>
+        <p>চালানোর আগে পড়ে নিতে চান? একই ইনস্টলার, আরও দুটি কমান্ড:</p>
+        <div class="cmd"><span class="p1">$</span> curl -fsSL https://soobujmiah.github.io/ternux/install.sh -o install.sh
+<span class="p1">$</span> less install.sh   <span class="dm"># চোখ বুলিয়ে নিন — একটি ফাইল, ধাপে সাজানো</span>
+<span class="p1">$</span> bash install.sh</div>
+        <p>বিঘ্নিত হলে? আবার চালান — প্রতিটি ধাপ আইডেমপোটেন্ট, আর <code>--resume</code> শেষ হওয়া কাজ বাদ দেয়।<br>
+           প্রতিটি ধাপ হাতে-কলমে করতে চান? → <a href="{{ '/bn/docs/MANUAL.html' | relative_url }}">ম্যানুয়াল ইনস্টলেশন</a></p>
+      </div>
+
+      <div class="step">
+        <div class="step-h"><span class="step-n">ধাপ ৩</span><h3>ডেস্কটপ চালু করুন</h3></div>
+        <div class="cmd"><span class="p1">$</span> source ~/.bashrc
+<span class="p1">$</span> x</div>
+        <p><code>x</code> চালু করে: অডিও ব্রিজ → ডিসপ্লে → Debian → <b>Xfce4</b>। Termux:X11 অ্যাপে যান — আপনার ডেস্কটপ সেখানেই।</p>
+      </div>
+
+      <div class="step">
+        <div class="step-h"><span class="step-n">ধাপ ৪</span><h3>প্রমাণ করুন GPU আসল</h3></div>
+        <p>ডেস্কটপের ভেতরে টার্মিনাল খুলুন (রাইট-ক্লিক → <em>Open Terminal Here</em>):</p>
+        <div class="cmd"><span class="p1">$</span> glxinfo | grep "renderer string"</div>
+        <p>✅ <code>zink Vulkan (Adreno (TM) … (MESA_TURNIP))</code> বা <code>virgl</code> = হার্ডওয়্যার GPU পথ।<br>
+           ❌ <code>llvmpipe</code> = সফটওয়্যার রেন্ডারিং — ঠিক করুন, মেনে নেবেন না।</p>
+      </div>
+
+      <div class="step">
+        <div class="step-h"><span class="step-n">নোট</span><h3>Android 12+ ব্যবহারকারীরা</h3></div>
+        <p>Android-এর "ফ্যান্টম প্রসেস কিলার" নিঃশব্দে ব্যাকগ্রাউন্ড প্রসেস মেরে ফেলে — কোনো এরর ছাড়া ডেস্কটপ বন্ধ হওয়ার এক নম্বর কারণ। ইনস্টলার এটি শনাক্ত করে সঠিক সমাধান দেখায়: Android 14+-এ একটি ডেভেলপার-অপশন টগল (<b>Disable child process restrictions</b>); 12–13-এ একটি ADB কমান্ড।</p>
+      </div>
+
+      <div class="step">
+        <div class="step-h"><span class="step-n">অপশন</span><h3>ইনস্টলার ফ্ল্যাগ ও ওয়ার্কলোড</h3></div>
+        <div class="cmd"><span class="p1">$</span> bash install.sh --yes              <span class="dm"># ডিফল্টে, প্রশ্ন নেই</span>
+<span class="p1">$</span> bash install.sh --with-llm --with-dev <span class="dm"># লোকাল AI + ডেভ টুলস</span>
+<span class="p1">$</span> bash install.sh --resume            <span class="dm"># বিঘ্নিত ইনস্টল আবার চালু</span></div>
+        <p>আরও: <code>--user</code>, <code>--locale</code>, <code>--backend zink|virgl</code>, <code>--zsh</code>, <code>--with-network</code>, <code>--with-media</code>, <code>--with-blender</code>, <code>--all</code>।</p>
+      </div>
+
+      <div class="step">
+        <div class="step-h"><span class="step-n">পরিচালনা</span><h3>ternux CLI — স্থায়ী ব্যবস্থাপনা ইন্টারফেস</h3></div>
+        <p>ইনস্টলের পর <code>ternux</code> CLI ব্যবহার করুন সবকিছুর জন্য:</p>
+        <div class="cmd"><span class="p1">$</span> ternux doctor           <span class="dm"># সিস্টেম ডায়াগনস্টিক</span>
+<span class="p1">$</span> ternux doctor --json    <span class="dm"># AI-পাঠযোগ্য আউটপুট</span>
+<span class="p1">$</span> ternux start            <span class="dm"># ডেস্কটপ চালু</span>
+<span class="p1">$</span> ternux stop             <span class="dm"># ডেস্কটপ বন্ধ</span>
+<span class="p1">$</span> ternux repair           <span class="dm"># সাধারণ সমস্যা সমাধান</span>
+<span class="p1">$</span> ternux verify           <span class="dm"># ইনস্টলেশন যাচাই</span>
+<span class="p1">$</span> ternux backend set virgl <span class="dm"># GPU ব্যাকএন্ড পরিবর্তন</span>
+<span class="p1">$</span> ternux update           <span class="dm"># CLI আপডেট</span>
+<span class="p1">$</span> ternux info --json      <span class="dm"># মেশিন-পাঠযোগ্য তথ্য</span>
+<span class="p1">$</span> ternux uninstall        <span class="dm"># কম্পোনেন্ট অপসারণ</span></div>
+        <p>প্রত্যেক কমান্ড <code>--help</code>, <code>--json</code>, <code>--verbose</code> ও <code>--quiet</code> সমর্থন করে।</p>
+      </div>
+
+      <div class="step">
+        <div class="step-h"><span class="step-n">আনইনস্টল</span><h3>পরিষ্কার অপসারণ</h3></div>
+        <div class="cmd"><span class="p1">$</span> curl -fsSL https://soobujmiah.github.io/ternux/uninstall.sh | bash</div>
+        <p>সবকিছু Termux-এর ভেতরে থাকে — Termux-এর ডেটা মুছলেই ternux পুরোপুরি চলে যায়। Android-এর ফাইল কখনো ছোঁয়া হয় না।</p>
+      </div>
+    </div>
+
+    <div class="cta-row" style="margin-top:1.4rem">
+      <a class="btn btn-ghost" href="{{ '/bn/docs/MANUAL.html' | relative_url }}">ম্যানুয়াল ইনস্টলেশন — প্রতিটি কমান্ড →</a>
+      <a class="btn btn-ghost" href="{{ '/bn/docs/INSTALLATION.html' | relative_url }}">গভীরে যান: প্রতিটি ধাপ, এবং কেন →</a>
+    </div>
+  </section>
+
+  <!-- ================= CAPABILITIES ================= -->
+  <section class="sec">
+    <p class="sec-h">ডেস্কটপের বাইরেও প্রমাণিত</p>
+    <h2 class="sec-t">একটি পকেট ওয়ার্কস্টেশন, সত্যিকারের কাজের জন্য</h2>
+    <div class="grid">
+      <a class="card" href="{{ '/bn/docs/USAGE.html#lightweight-blender' | relative_url }}">
+        <div class="n">ক্রিয়েটিভ</div><h3>হালকা Blender</h3>
+        <p>লো-পলি মডেলিং, সাধারণ ম্যাটেরিয়াল ও ছোট সিন — Zink পাথে GPU অ্যাক্সিলারেটেড।</p></a>
+      <a class="card" href="{{ '/bn/docs/USAGE.html#local-ai-with-vulkan' | relative_url }}">
+        <div class="n">অন-ডিভাইস AI</div><h3>Vulkan লোকাল মডেল</h3>
+        <p>llama.cpp-তে ১–২B Q4 GGUF মডেল — প্রাইভেট, অফলাইন চ্যাট; ai অ্যালায়াস বাকিটা সামলায়।</p></a>
+      <a class="card" href="{{ '/bn/docs/USAGE.html#development' | relative_url }}">
+        <div class="n">ডেভেলপমেন্ট</div><h3>টার্মিনাল থেকেই কোড</h3>
+        <p>Git, Node.js, Python ও টার্মিনাল-ভিত্তিক কোডিং অ্যাসিস্ট্যান্ট — একটি ফ্ল্যাগেই ইনস্টল।</p></a>
+      <a class="card" href="{{ '/bn/docs/USAGE.html#authorised-security-lab' | relative_url }}">
+        <div class="n">ডিফেন্সিভ ল্যাব</div><h3>পোর্টেবল সিকিউরিটি টুলকিট</h3>
+        <p>নেটওয়ার্ক আবিষ্কার ও বিশ্লেষণের টুল — শুধুমাত্র আপনার নিজের বা অনুমোদিত সিস্টেমে।</p></a>
+    </div>
+    <p style="text-align:center;color:var(--dim);font-size:.82rem;margin-top:1rem">
+      Blender-এর পারফরম্যান্স লেখকের নিজের ডিভাইসের ফলাফল, সব ডিভাইসে একই গ্যারান্টি নয়। ভারী রেন্ডার, বড় মডেল ও দীর্ঘ মাইনিং ফোনের জন্য উপযুক্ত নয়।
+    </p>
+  </section>
+
+  <!-- ================= WHICH PATH ================= -->
+  <section class="switch">
+    <p class="sec-h">প্রথম ধাপ</p>
+    <h2 class="sec-t">আপনার ফোন কোন গ্রাফিক্স পাথে চলবে?</h2>
+    <div class="switch-head" role="tablist" aria-label="গ্রাফিক্স ব্যাকএন্ড">
+      <button class="sw-btn" id="tab-zink" role="tab" aria-selected="true"
+              aria-controls="p-zink" data-panel="p-zink">Adreno → Zink + Turnip</button>
+      <button class="sw-btn" id="tab-virgl" role="tab" aria-selected="false"
+              aria-controls="p-virgl" data-panel="p-virgl">Mali / অন্যান্য → VirGL</button>
+    </div>
+
+    <div class="sw-panel" id="p-zink" role="tabpanel" aria-labelledby="tab-zink">
+      <h3>Qualcomm Adreno — দ্রুততম পথ</h3>
+      <p><code>ls /dev/kgsl-3d0</code> চালালে ফাইলটি পেলে আপনার GPU Adreno।
+         ইনস্টলার স্বয়ংক্রিয়ভাবে Zink বেছে নেয়: OpenGL → Vulkan → Turnip → হার্ডওয়্যার।</p>
+      <div class="bar"><i style="width:92%"></i></div>
+      <div class="bar-l"><span>পছন্দের পথ</span><span>হার্ডওয়্যার অ্যাক্সিলারেটেড</span></div>
+      <p style="margin-top:.9rem"><b style="color:var(--amber)">যে ফাঁদে পড়ার ভয়:</b> Turnip প্যাকেজে Vulkan
+         লোডার থাকে না। <code>libvulkan1</code> না থাকলে Zink নিঃশব্দে CPU রেন্ডারিংয়ে নেমে যায় —
+         কোনো এরর মেসেজ ছাড়াই। ইনস্টলার লোডার, ICD ও ড্রাইভার তিনটিই ইনস্টল করে যাচাই করে।</p>
+    </div>
+
+    <div class="sw-panel" id="p-virgl" role="tabpanel" aria-labelledby="tab-virgl" hidden>
+      <h3>Mali, Xclipse, PowerVR — সামঞ্জস্যপূর্ণ পথ</h3>
+      <p><code>/dev/kgsl-3d0</code> না থাকলে Turnip চলবে না। ইনস্টলার VirGL বেছে নেয় —
+         GL কমান্ড Termux পাশের একটি হেল্পার প্রসেসে পাইপ হয়। একটু ধীর, কিন্তু এই পথেই কাজ হয়।</p>
+      <div class="bar"><i style="width:42%"></i></div>
+      <div class="bar-l"><span>গতির চেয়ে সামঞ্জস্য</span><span>হার্ডওয়্যার-সহায়ক</span></div>
+      <p style="margin-top:.9rem"><b style="color:var(--amber)">মনে রাখুন:</b> Mali GPU-কে Turnip পথে
+         নেওয়া অসম্ভব। সঠিকভাবে VirGL বেছে নেওয়াই এখানে আসল জয়।</p>
+    </div>
+  </section>
+
+  <!-- ================= STAGES ================= -->
+  <section class="sec">
+    <p class="sec-h">ইনস্টলার যা যাচাই করে</p>
+    <h2 class="sec-t">নয়টি ধাপ — প্রতিটি পরেরটির আগে যাচাইকৃত</h2>
+    <div class="stages">
+      <div class="stage"><span class="num">০১</span><span class="txt">ডিভাইস প্রিফ্লাইট<span>আর্কিটেকচার, Android, স্টোরেজ, নেটওয়ার্ক ও অ্যাপ প্রস্তুতি</span></span></div>
+      <div class="stage"><span class="num">০২</span><span class="txt">Termux ফাউন্ডেশন<span>X11, PulseAudio, PRoot ও টুলস — ইনস্টলের পর বাইনারি যাচাই</span></span></div>
+      <div class="stage"><span class="num">০৩</span><span class="txt">CLI ইনস্টলেশন<span><code>ternux</code> কমান্ডটি PATH-এ ইনস্টল করে স্থায়ী ব্যবস্থাপনার জন্য</span></span></div>
+      <div class="stage"><span class="num">০৪</span><span class="txt">Debian ওয়ার্কস্পেস<span>কন্টেইনার, Xfce4 ও যাচাইকৃত sudo সহ ডেস্কটপ ইউজার</span></span></div>
+      <div class="stage"><span class="num">০৫</span><span class="txt">গ্রাফিক্স নির্বাচন<span>সমর্থিত Adreno-তে Turnip, নয়তো VirGL সামঞ্জস্য পথ</span></span></div>
+      <div class="stage"><span class="num">০৬</span><span class="txt">ডেস্কটপ ইন্টিগ্রেশন<span>ডিসপ্লে, লুপব্যাক অডিও, লোকেল, ফন্ট ও শেয়ার্ড স্টোরেজ</span></span></div>
+      <div class="stage"><span class="num">০৭</span><span class="txt">নির্ভরযোগ্য নিয়ন্ত্রণ<span>x, killx, db, droot, xgo — শুরু, থামা, রিকভারি ও শেল অ্যাক্সেস</span></span></div>
+      <div class="stage"><span class="num">০৮</span><span class="txt">ঐচ্ছিক ওয়ার্কলোড<span>ডেভ টুলস, llama.cpp, Blender ও মিডিয়া — শুধু যা চান</span></span></div>
+      <div class="stage"><span class="num">০৯</span><span class="txt">Android সুরক্ষা<span>ফ্যান্টম-প্রসেস-কিলার শনাক্তকরণ, ভার্সন অনুযায়ী সঠিক সমাধান</span></span></div>
+      <div class="stage"><span class="num">১০</span><span class="txt">যাচাইকরণ<span>প্রতিটি গুরুত্বপূর্ণ ফাইল, বাইনারি ও অনুমতি নিশ্চিত করা হয়</span></span></div>
+    </div>
+    <p style="text-align:center;margin-top:1.2rem">
+      <a class="btn btn-ghost" href="{{ '/bn/docs/CLI.html' | relative_url }}">CLI রেফারেন্স →</a>
+      <a class="btn btn-ghost" href="{{ '/bn/docs/INSTALLATION.html#what-the-installer-does-and-why-phase-by-phase' | relative_url }}">প্রতিটি ধাপ কী করে ও কেন — বিস্তারিত পড়ুন</a>
+    </p>
+  </section>
+
+  <!-- ================= WHY ================= -->
+  <section class="sec">
+    <p class="sec-h">ডিজাইন সিদ্ধান্ত</p>
+    <h2 class="sec-t">ternux যেভাবে কাজ করে, তার কারণ</h2>
+    <div class="grid">
+      <div class="why">
+        <h3>কেন root নয়?</h3>
+        <p>রুট করলে ওয়ারেন্টি যায় এবং পুরো ডিভাইস ঝুঁকিতে পড়ে। PRoot ইউজারস্পেসেই একটি
+        রুট ফাইলসিস্টেম বানিয়ে দেয় — কন্টেইনার মনে করে সে সিস্টেমের মালিক, আর Android-এর
+        স্যান্ডবক্স অক্ষত থাকে। আনইনস্টল মানে একটি ফোল্ডার মুছে ফেলা।</p>
+      </div>
+      <div class="why">
+        <h3>কেন Zink + Turnip?</h3>
+        <p>Adreno ফোনে Vulkan ড্রাইভার আছে, কিন্তু ডেস্কটপ OpenGL ড্রাইভার নেই। Zink GL-কে
+        Vulkan-এ অনুবাদ করে; Turnip হার্ডওয়্যার চালায়। ফল: ডেস্কটপ অ্যাপে আসল GPU অ্যাক্সিলারেশন —
+        CPU-নির্ভর <code>llvmpipe</code> নয়।</p>
+      </div>
+      <div class="why">
+        <h3>কেন যাচাইকৃত ধাপ?</h3>
+        <p>দৃশ্যমান ডেস্কটপ সফলতার প্রমাণ নয় — সফটওয়্যার রেন্ডারিং Blender চালানো পর্যন্ত
+        ঠিকই দেখায়। প্রতিটি ধাপ পরেরটির আগে নিজের কাজ যাচাই করে, তাই ব্যর্থতা জোরে, শুরুতেই
+        এবং মেরামতযোগ্যভাবে আসে (<code>--resume</code>, <code>--doctor</code>)।</p>
+      </div>
+      <div class="why">
+        <h3>কেন একটি পরীক্ষাযোগ্য স্ক্রিপ্ট?</h3>
+        <p>ইনস্টলার একটি মাত্র MIT-লাইসেন্সকৃত ফাইল — চালানোর আগে পড়ে নিতে পারেন।
+        কোনো বাইনারি নেই, কোনো গোপন এন্ডপয়েন্ট নেই। স্বচ্ছতায় আস্থা, এক কমান্ডে সুবিধা।</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= DOCS ================= -->
+  <section class="sec">
+    <p class="sec-h">ডকুমেন্টেশন — English ও বাংলা</p>
+    <h2 class="sec-t">প্রতিটি পৃষ্ঠা দুই ভাষায়: EN ও BN</h2>
+    <div class="grid">
+      <a class="card" href="{{ '/bn/docs/QUICK-START.html' | relative_url }}">
+        <div class="n">০১ — শুরু</div><h3>দ্রুত শুরু</h3>
+        <p>দুটি অ্যাপ, একটি কমান্ড, একটি যাচাইকৃত ডেস্কটপ। মোটামুটি দশ মিনিট।</p></a>
+      <a class="card" href="{{ '/bn/docs/INSTALLATION.html' | relative_url }}">
+        <div class="n">০২ — ইনস্টল</div><h3>ইনস্টলেশন</h3>
+        <p>প্রয়োজনীয়তা, এক-কমান্ড ইনস্টলার, প্রতিটি ধাপ ও তার কারণ, সব অপশন, আনইনস্টল।</p></a>
+      <a class="card" href="{{ '/bn/docs/MANUAL.html' | relative_url }}">
+        <div class="n">০৩ — হাতে-কলমে</div><h3>ম্যানুয়াল ইনস্টল</h3>
+        <p>প্রতিটি কমান্ড খোলাসা করে — পুরো যাত্রা হাতে-কলমে, ধাপে ধাপে।</p></a>
+      <a class="card" href="{{ '/bn/docs/USAGE.html' | relative_url }}">
+        <div class="n">০৪ — দৈনন্দিন</div><h3>ব্যবহার</h3>
+        <p>দৈনিক নিয়ন্ত্রণ, হালকা Blender, লোকাল AI, ডেভেলপমেন্ট ও অনুমোদিত সিকিউরিটি ল্যাব।</p></a>
+      <a class="card" href="{{ '/bn/docs/TROUBLESHOOTING.html' | relative_url }}">
+        <div class="n">০৫ — সহায়তা</div><h3>সমস্যা সমাধান</h3>
+        <p>লক্ষণ → কারণ → সমাধান। ফ্যান্টম কিলার, llvmpipe, অডিও, নেটওয়ার্ক, পরিষ্কার রি-ইনস্টল।</p></a>
+      <a class="card" href="{{ '/bn/docs/CONFIGURATION.html' | relative_url }}">
+        <div class="n">০৬ — কনফিগ</div><h3>কনফিগারেশন</h3>
+        <p>GPU পথ, লঞ্চার এনভায়রনমেন্ট, অডিও ব্রিজ, লোকেল, ফন্ট, হোল্ড করা প্যাকেজ।</p></a>
+      <a class="card" href="{{ '/bn/docs/ARCHITECTURE.html' | relative_url }}">
+        <div class="n">০৭ — নকশা</div><h3>আর্কিটেকচার</h3>
+        <p>Termux, PRoot, X11 ও Mesa আসলে কীভাবে একসাথে কাজ করে — এবং কোথায় ভাঙে।</p></a>
+      <a class="card" href="{{ '/bn/docs/FAQ.html' | relative_url }}">
+        <div class="n">০৮ — উত্তর</div><h3>সাধারণ প্রশ্ন</h3>
+        <p>root, নিরাপত্তা, Play Store Termux, স্টোরেজ, ব্যাটারি, গেমিং, প্রাইভেসি।</p></a>
+      <a class="card" href="https://github.com/soobujmiah/ternux">
+        <div class="n">০৯ — সোর্স</div><h3>GitHub</h3>
+        <p>ইস্যু, কনট্রিবিউশন ও ডকুমেন্টেশনের উৎস।</p></a>
+    </div>
+  </section>
+
+  <footer>
+    নির্মাতা: <a href="https://github.com/soobujmiah">Sobuj Miah (@soobujmiah)</a><br>
+    Copyright © 2026 Sobuj Miah · MIT লাইসেন্স<br>
+    <span style="color:var(--grn-d)">&gt;_</span> Termux, Debian, Xfce, Blender, Qualcomm বা উল্লেখিত কোনো তৃতীয় পক্ষের টুলের সাথে সম্পর্কিত নয়
+  </footer>
+</div>
+
+<script src="{{ '/assets/js/codecopy.js' | relative_url }}" defer></script>
+<script>
+document.querySelectorAll('.sw-btn').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    document.querySelectorAll('.sw-btn').forEach(function(b){
+      b.setAttribute('aria-selected','false');
+      document.getElementById(b.dataset.panel).hidden = true;
+    });
+    btn.setAttribute('aria-selected','true');
+    document.getElementById(btn.dataset.panel).hidden = false;
+  });
+});
+var copyBtn = document.getElementById('copyBtn');
+var installCmd = document.getElementById('installCmd');
+function fallbackCopy(text){
+  var ta = document.createElement('textarea');
+  ta.value = text; ta.setAttribute('readonly','');
+  ta.style.position='fixed'; ta.style.left='-9999px';
+  document.body.appendChild(ta);
+  ta.select();
+  var ok = false;
+  try { ok = document.execCommand('copy'); } catch(e){}
+  document.body.removeChild(ta);
+  return ok;
+}
+function doInstallCopy(){
+  var cmd = copyBtn.dataset.cmd;
+  function done(ok){
+    copyBtn.textContent = ok ? 'কপি হয়েছে ✓' : 'ব্যর্থ';
+    copyBtn.classList.add('copied');
+    setTimeout(function(){ copyBtn.textContent = 'কপি'; copyBtn.classList.remove('copied'); }, 1600);
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(cmd).then(function(){ done(true); }, function(){ done(fallbackCopy(cmd)); });
+  } else { done(fallbackCopy(cmd)); }
+}
+if (copyBtn) copyBtn.addEventListener('click', doInstallCopy);
+if (installCmd) installCmd.addEventListener('click', doInstallCopy);
+</script>
+</body>
+</html>

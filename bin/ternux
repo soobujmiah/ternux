@@ -1,0 +1,104 @@
+#!/usr/bin/env bash
+# =============================================================================
+#  ternux — GPU-accelerated Linux desktop CLI for Android
+#
+#  Copyright (c) 2026 Sobuj Miah (@soobujmiah) — MIT License
+#  https://github.com/soobujmiah/ternux
+# =============================================================================
+set -u
+
+# --- Locate libraries -------------------------------------------------------
+_TNX_ROOT=""
+for _try in \
+  "$(cd "$(dirname "$(realpath "$0" 2>/dev/null || echo "$0")")/.." && pwd 2>/dev/null)" \
+  "/data/data/com.termux/files/usr/lib/ternux" \
+  "$HOME/.local/share/ternux/lib"; do
+  [ -f "$_try/lib/core.sh" ] && { _TNX_ROOT="$_try"; break; }
+done
+
+if [ -z "$_TNX_ROOT" ]; then
+  echo "[FATAL] Cannot locate ternux libraries. Reinstall: bash install.sh" >&2
+  exit 1
+fi
+
+. "$_TNX_ROOT/lib/core.sh"
+
+# --- Lazy-load a library module by name ------------------------------------
+_tnx_use() {
+  local lib="$1"
+  [ -n "${_TNX_LOADED[$lib]:-}" ] && return 0
+  local f="$_TNX_ROOT/lib/${lib}.sh"
+  if [ -f "$f" ]; then
+    . "$f"
+    _TNX_LOADED["$lib"]=1
+    return 0
+  fi
+  tnx_die "Internal error: library '$lib' not found at $f" 99
+}
+declare -A _TNX_LOADED
+
+# --- Command registry (extensible: add a function tnx_cmd_<name>) ----------
+_tnx_dispatch() {
+  local cmd="$1"; shift
+
+  # Check if function already defined
+  if declare -F "tnx_cmd_${cmd}" >/dev/null 2>&1; then
+    "tnx_cmd_${cmd}" "$@"
+    return $?
+  fi
+
+  # Lazy-load: try lib/<cmd>.sh
+  local lib_map=""
+  case "$cmd" in
+    start|stop|restart|status) lib_map="desktop" ;;
+    verify)                    lib_map="doctor" ;;
+    install)                   lib_map="phases" ;;
+    *)                         lib_map="$cmd" ;;
+  esac
+
+  if [ -f "$_TNX_ROOT/lib/${lib_map}.sh" ]; then
+    _tnx_use "$lib_map" 2>/dev/null || true
+  fi
+
+  if declare -F "tnx_cmd_${cmd}" >/dev/null 2>&1; then
+    "tnx_cmd_${cmd}" "$@"
+    return $?
+  fi
+
+  tnx_fail "Unknown command: $cmd"
+  echo "Run 'ternux --help' for usage." >&2
+  return 1
+}
+
+# --- Parse global flags ----------------------------------------------------
+declare -a _TNX_ARGS=()
+_HELP_REQUESTED=0
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --json)      TERNUX_JSON=1; shift ;;
+    --verbose)   TERNUX_VERBOSE=1; shift ;;
+    --quiet)     TERNUX_QUIET=1; shift ;;
+    --help|-h)   _HELP_REQUESTED=1; shift ;;
+    --version|-V) echo "ternux v${TERNUX_VERSION}"; echo "${TERNUX_REPO}"; exit 0 ;;
+    *) _TNX_ARGS+=("$1"); shift ;;
+  esac
+done
+
+set -- "${_TNX_ARGS[@]}"
+
+# --- Handle --help (with or without a command) -----------------------------
+if [ "$_HELP_REQUESTED" -eq 1 ]; then
+  if [ $# -eq 0 ]; then
+    _tnx_use "help" && tnx_help ""; exit 0
+  fi
+  _tnx_use "help" && tnx_help "$1"; exit 0
+fi
+unset _HELP_REQUESTED
+
+# --- Dispatch --------------------------------------------------------------
+if [ $# -eq 0 ]; then
+  _tnx_use "help" && tnx_help ""; exit 0
+fi
+
+COMMAND="$1"; shift
+_tnx_dispatch "$COMMAND" "$@"

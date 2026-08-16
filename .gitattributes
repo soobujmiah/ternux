@@ -1,0 +1,20 @@
+# ternux — git attributes
+# Normalize line endings
+* text=auto
+
+# Shell scripts
+*.sh text eol=lf
+
+# Documentation
+*.md text eol=lf
+*.html text eol=lf
+
+# Binary files
+*.png binary
+*.woff2 binary
+*.ico binary
+
+# GitHub assets
+*.yml text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf

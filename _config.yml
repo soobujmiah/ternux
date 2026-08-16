@@ -1,0 +1,35 @@
+# ternux — GitHub Pages configuration
+# https://github.com/soobujmiah/ternux
+
+title: ternux
+description: GPU-accelerated Linux desktop for Android — one command, no root
+url: https://soobujmiah.github.io/ternux
+baseurl: /ternux
+
+theme: jekyll-theme-hacker
+
+# Site settings
+lang: en
+timezone: Asia/Dhaka
+copyright: 2026 Sobuj Miah
+
+# Navigation
+nav:
+  - title: Home
+    url: /
+  - title: Installation
+    url: /docs/INSTALLATION.html
+  - title: Quick start
+    url: /docs/QUICK-START.html
+  - title: Usage
+    url: /docs/USAGE.html
+  - title: FAQ
+    url: /docs/FAQ.html
+  - title: বাংলা
+    url: /bn/
+
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: default
