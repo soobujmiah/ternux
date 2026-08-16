@@ -20,6 +20,8 @@
   --grn:#00ff41; --grn-d:#00b32d; --amber:#ffb000; --cyan:#00e5ff; --red:#ff4d4d;
   --line:rgba(0,255,65,.22); --panel:rgba(0,20,8,.78); --panel-s:rgba(0,26,11,.92);
   --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,"DejaVu Sans Mono",monospace;
+  --radius:6px;
+  --shadow-soft:0 8px 30px rgba(0,0,0,.45);
 }
 
 /* -- 2. Base + effects ---------------------------------------------------- */
@@ -236,16 +238,30 @@ body.doc .wrap{max-width:900px}
 .prose div.highlight,.prose figure.highlight{margin:0 0 18px}
 .prose div.highlight pre,.prose figure.highlight pre{margin:0}
 
+/* slim scrollbars for code blocks */
+.prose pre::-webkit-scrollbar,.term-body::-webkit-scrollbar,.cb .cmd::-webkit-scrollbar,
+.step .cmd::-webkit-scrollbar{height:8px}
+.prose pre::-webkit-scrollbar-track,.term-body::-webkit-scrollbar-track,
+.cb .cmd::-webkit-scrollbar-track,.step .cmd::-webkit-scrollbar-track{background:rgba(0,255,65,.06);border-radius:4px}
+.prose pre::-webkit-scrollbar-thumb,.term-body::-webkit-scrollbar-thumb,
+.cb .cmd::-webkit-scrollbar-thumb,.step .cmd::-webkit-scrollbar-thumb{
+  background:rgba(0,255,65,.35);border-radius:4px}
+.prose pre::-webkit-scrollbar-thumb:hover,.term-body::-webkit-scrollbar-thumb:hover,
+.cb .cmd::-webkit-scrollbar-thumb:hover,.step .cmd::-webkit-scrollbar-thumb:hover{
+  background:rgba(0,255,65,.6)}
+.prose pre{scrollbar-width:thin;scrollbar-color:rgba(0,255,65,.35) rgba(0,255,65,.06)}
+
 .prose table{width:100%;border-collapse:collapse;font-size:13.5px;margin:0 0 20px;
   display:table;white-space:normal}
 .prose th,.prose td{padding:10px 14px;text-align:left;vertical-align:top;
-  border-bottom:1px solid rgba(0,255,65,.12)}
+  border-bottom:1px solid rgba(0,255,65,.12);transition:background .15s}
 .prose th{color:var(--grn);font-weight:700;background:rgba(0,255,65,.07);
   text-transform:uppercase;font-size:11px;letter-spacing:.9px;white-space:nowrap}
 .prose td{color:var(--dim);overflow-wrap:anywhere}
 .prose td:first-child{color:#eaffef}
 .prose tr:last-child td{border-bottom:none}
 .prose table code{white-space:nowrap}
+.prose tbody tr:hover td{background:rgba(0,255,65,.03)}
 
 .prose img{max-width:100%;height:auto}
 

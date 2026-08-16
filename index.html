@@ -378,7 +378,7 @@ footer a{color:var(--grn)}
 
       <div class="step">
         <div class="step-h"><span class="step-n">STEP 2</span><h3>Run the one-command installer</h3></div>
-        <p>Open Termux and paste. The installer detects your GPU, installs the base packages, builds Debian + Xfce4, configures the graphics path, writes the launcher and verifies everything (9 phases).</p>
+        <p>Open Termux and paste. The installer detects your GPU, installs the base packages, builds Debian + Xfce4, configures the graphics path, writes the launcher and verifies everything (11 phases).</p>
         <div class="cmd"><span class="p1">$</span> curl -fsSL https://soobujmiah.github.io/ternux/install.sh | bash</div>
         <p>Prefer to read a script before running it? Same installer, two extra commands:</p>
         <div class="cmd"><span class="p1">$</span> curl -fsSL https://soobujmiah.github.io/ternux/install.sh -o install.sh
@@ -506,18 +506,19 @@ footer a{color:var(--grn)}
   <!-- ================= STAGES ================= -->
   <section class="sec">
     <p class="sec-h">What the installer verifies</p>
-    <h2 class="sec-t">Eleven phases, each verified before the next</h2>
+    <h2 class="sec-t">11 phases, each verified before the next</h2>
     <div class="stages">
       <div class="stage"><span class="num">01</span><span class="txt">Device preflight<span>Architecture, Android, storage, network and app readiness</span></span></div>
       <div class="stage"><span class="num">02</span><span class="txt">Termux foundation<span>X11, PulseAudio, PRoot and tools — binaries verified after install</span></span></div>
       <div class="stage"><span class="num">03</span><span class="txt">CLI installation<span>Installs the <code>ternux</code> command to PATH for ongoing management</span></span></div>
       <div class="stage"><span class="num">04</span><span class="txt">Debian workspace<span>Container, Xfce4 and a desktop user with validated sudo</span></span></div>
       <div class="stage"><span class="num">05</span><span class="txt">Graphics selection<span>Turnip for supported Adreno hardware or the VirGL compatibility path</span></span></div>
-      <div class="stage"><span class="num">06</span><span class="txt">Desktop integration<span>Display, loopback audio, locale, fonts and shared storage</span></span></div>
-      <div class="stage"><span class="num">07</span><span class="txt">Reliable controls<span>x, killx, db, droot, xgo — start, stop, recovery and shell access</span></span></div>
-      <div class="stage"><span class="num">08</span><span class="txt">Optional workloads<span>Dev tools, llama.cpp, Blender and media — only what you ask for</span></span></div>
-      <div class="stage"><span class="num">09</span><span class="txt">Android safeguards<span>Phantom-process-killer detection with the exact per-version fix</span></span></div>
-      <div class="stage"><span class="num">10</span><span class="txt">Verification<span>Every critical file, binary and permission is confirmed present</span></span></div>
+      <div class="stage"><span class="num">06</span><span class="txt">Audio, locale &amp; fonts<span>Loopback-only audio bridge, your locale, emoji + Nerd font coverage</span></span></div>
+      <div class="stage"><span class="num">07</span><span class="txt">Desktop launcher<span>Writes <code>~/x.sh</code> tuned to your GPU route, syntax-checked</span></span></div>
+      <div class="stage"><span class="num">08</span><span class="txt">Reliable controls<span>x, killx, db, droot, xgo — start, stop, recovery and shell access</span></span></div>
+      <div class="stage"><span class="num">09</span><span class="txt">Optional workloads<span>Dev tools, llama.cpp, Blender and media — only what you ask for</span></span></div>
+      <div class="stage"><span class="num">10</span><span class="txt">Android safeguards<span>Phantom-process-killer detection with the exact per-version fix</span></span></div>
+      <div class="stage"><span class="num">11</span><span class="txt">Verification<span>Every critical file, binary and permission is confirmed present</span></span></div>
     </div>
     <p style="text-align:center;margin-top:1.2rem">
       <a class="btn btn-ghost" href="{{ '/docs/CLI.html' | relative_url }}">CLI reference →</a>

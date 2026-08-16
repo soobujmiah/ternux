@@ -3,13 +3,12 @@ title: "Troubleshooting"
 description: "Every common ternux failure, classified by symptom, with the cause and the exact fix — renderer falls back to software, sessions die, audio, network."
 lang: "en"
 alt_url: "/bn/docs/TROUBLESHOOTING.html"
-
 ---
 
 # Troubleshooting
 
-Every symptom below has been seen in the wild. Work top to bottom: the table
-maps symptom → likely cause → fix, and the sections give the full picture.
+Every symptom below has been seen in the wild. The table maps
+symptom → likely cause → fix; the sections give the full picture.
 
 | Symptom | Likely cause | Fix |
 |---|---|---|
@@ -19,6 +18,7 @@ maps symptom → likely cause → fix, and the sections give the full picture.
 | No sound in the desktop | PulseAudio bridge not running | [No audio](#no-audio) |
 | No internet inside Debian | DNS not inherited over PRoot | [No network in the container](#no-network-in-the-container) |
 | `Waiting for Termux-X11 display socket…` forever | Display :0 never appeared | [Display never appears](#display-never-appears) |
+| `Error: unrecognized option: '-c'` when starting | Old launcher against newer proot-distro | [proot-distro says option -c is unrecognized](#proot-distro-says-option--c-is-unrecognized) |
 | `apt` install fails on some packages | Debian non-free not enabled | [apt failures](#apt-failures) |
 | `pkg upgrade` errors on `openssl.cnf`, then **every** install fails | dpkg conffile prompt with closed stdin | [openssl.cnf conffile cascade](#opensslcnf-conffile-cascade) |
 | `No command $ found` after pasting the install command | copied text included the display-only `$` prompt | [Pasted command starts with $](#pasted-command-starts-with) |
@@ -84,8 +84,8 @@ killx
 x
 ```
 
-If it still fails, run `ternux repair` — it re-checks the
-display package, the launcher and the container core.
+If it still fails, run `ternux repair` — it re-checks the display package,
+the launcher and the container core.
 
 ---
 
@@ -108,7 +108,7 @@ missing or was replaced:
 **Fix:**
 
 ```bash
-# 1. Re-run the GPU phase (this re-resolves, re-downloads, re-verifies):
+# 1. Re-run the GPU phase (re-resolves, re-downloads, re-verifies):
 ternux repair   # or: bash install.sh --resume
 
 # 2. If on Zink, confirm the files exist and packages are held:
@@ -123,7 +123,8 @@ killx && x
 ```
 
 If the download fails (GitHub unreachable from your network), fall back
-deliberately: `ternux backend set virgl` then `ternux repair` (or `bash install.sh --backend virgl --resume`).
+deliberately: `ternux backend set virgl` then `ternux repair` (or
+`bash install.sh --backend virgl --resume`).
 
 ---
 
@@ -187,7 +188,41 @@ by Android.
 1. Open the Termux:X11 app, let it sit for a second, switch back to Termux.
 2. `killx && x`
 3. Still stuck? Reinstall the display package:
-   `pkg reinstall termux-x11-nightly -y`
+   `pkg reinstall termux-x11 -y`
+
+---
+
+## proot-distro says option -c is unrecognized
+
+**Symptom:** running `x` prints `Error: unrecognized option: '-c'.` followed
+by the proot-distro usage screen.
+
+**Cause:** proot-distro **5.x requires a `--` separator** between the
+container name and the command it should run inside. The `~/x.sh` launcher
+from **older ternux installs** runs `proot-distro login debian … bash -c '…'`
+without that `--`, so proot-distro tries to read `-c` as its own flag.
+
+**Fix — regenerate the launcher with the current, fixed installer:**
+
+```bash
+# If the `ternux` CLI is installed, regenerate the launcher:
+ternux repair        # re-writes ~/x.sh with the correct command
+# or re-run the installer's launcher phase:
+bash install.sh --resume
+```
+
+If you only want to patch the existing file quickly:
+
+```bash
+sed -i "s/^  bash -c '/  -- bash -c '/" ~/x.sh
+bash -n ~/x.sh && echo "launcher OK"
+```
+
+Then start the desktop again:
+
+```bash
+x
+```
 
 ---
 
@@ -197,13 +232,13 @@ by Android.
 `No command $ found, did you mean: …` — the paste begins with a `$`.
 
 **Cause:** the `$` on the site is a *display* prompt. If you select the
-command line by hand, the selection used to include it (and the blinking
-cursor block). The shell then tries to run a command literally named `$`.
+command line by hand, the selection can include it (and the blinking cursor
+block). The shell then tries to run a command literally named `$`.
 
-**Fix:** use the **copy button** (or tap the command line) — since v1.1.3
-the site copies exactly the command, with the prompt drawn by CSS so it can
-never be selected. If you still paste a `$`, just delete it — only the first
-character — and press Enter again.
+**Fix:** use the **copy button** (or tap the command line) — the site copies
+exactly the command, with the prompt drawn by CSS so it can never be
+selected. If you still paste a `$`, just delete it — only the first character
+— and press Enter again.
 
 ---
 
@@ -234,12 +269,11 @@ wget -qO- https://soobujmiah.github.io/ternux/install.sh | bash
 > exported by **openssl**, not curl — a newer curl against an older openssl
 > keeps failing no matter how many times curl is reinstalled. The whole
 > chain must move together: the `pkg reinstall` line above (or a full
-> `pkg upgrade -y` to completion — you may have other interrupted upgrades)
-> is the deterministic fix.
+> `pkg upgrade -y` to completion) is the deterministic fix.
 
-The installer (v1.1.4+) detects a broken curl during preflight and upgrades
-the entire chain (`curl openssl openssl-tool libngtcp2 libnghttp3`) on its
-own, so Option B alone is enough to get going.
+The installer detects a broken curl during preflight and upgrades the entire
+chain (`curl openssl openssl-tool libngtcp2 libnghttp3`) on its own, so
+Option B alone is enough to get going.
 
 ---
 
@@ -253,7 +287,7 @@ install` fails with the same error — even for unrelated packages.
 **Cause:** dpkg hit a conffile prompt while stdin was closed, so it could not
 answer. The package was left unconfigured and the package system stayed
 **broken**; every later apt/dpkg operation re-attempts the pending configure
-and fails the same way. (`termux-x11-nightly: unable to locate` right after is
+and fails the same way. (`termux-x11: unable to locate` right after is
 usually the same cascade: the x11-repo package never actually installed.)
 
 **Fix:**
@@ -270,7 +304,7 @@ ternux repair   # or: bash install.sh --resume
 ```
 
 *Why this happens at all:* Android shells are often piped/non-interactive, so
-dpkg has no terminal to ask on. The ternux installer (v1.1.0+) now passes
+dpkg has no terminal to ask on. The ternux installer passes
 `--force-confold --force-confdef` to every apt operation and repairs broken
 state automatically, so this cascade no longer occurs — the fix above is for
 manual installs or older versions.
@@ -305,9 +339,9 @@ sudo apt update && sudo apt install -y rar unrar p7zip-full
 **Cause:** the held Mesa packages were unheld (or the hold was applied after
 an upgrade had already replaced them).
 
-**Fix:** re-run `ternux repair` (re-applies the driver and the
-holds), then verify with `glxinfo`. To upgrade Mesa deliberately and keep
-acceleration, follow the unhold → upgrade → rehold → verify sequence in
+**Fix:** re-run `ternux repair` (re-applies the driver and the holds), then
+verify with `glxinfo`. To upgrade Mesa deliberately and keep acceleration,
+follow the unhold → upgrade → rehold → verify sequence in
 [Configuration](CONFIGURATION.html#held-mesa-packages-zink-route).
 
 ---

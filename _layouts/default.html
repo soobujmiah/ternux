@@ -118,16 +118,6 @@
     </div>
   </div>
 
-  {%- assign key = page.name | replace: '.md', '' -%}
-  {%- if page.lang == 'bn' -%}{%- assign key = key | append: '_bn' -%}{%- endif -%}
-  {%- assign q = site.data.quotes[key] -%}
-  {%- if q -%}
-  <figure class="quote" id="quote">
-    <blockquote class="q-text" data-quote="{{ q.text | escape }}">{{ q.text }}</blockquote>
-    <figcaption>&mdash; {{ q.attr }}</figcaption>
-  </figure>
-  {%- endif -%}
-
   <main class="prose" id="content">
     {{ content }}
   </main>
@@ -152,8 +142,6 @@
 
 </div>
 
-<!-- matrix.js removed in v1.3.0 -->
 <script src="{{ '/assets/js/codecopy.js' | relative_url }}" defer></script>
-<script src="{{ '/assets/js/quote.js' | relative_url }}" defer></script>
 </body>
 </html>

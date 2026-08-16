@@ -1,20 +1,19 @@
 ---
 title: "Installation"
-description: "The complete ternux installation guide: requirements, the one-command installer, what every phase does and why, all options, and clean removal."
+description: "The complete ternux installation guide: requirements, the one-command installer, what each of the 11 phases does, every option, and clean removal."
 lang: "en"
 alt_url: "/bn/docs/INSTALLATION.html"
-
 ---
 
 # Installation
 
-This is the complete guide. If you want the ten-minute version, start with
+The complete guide. For the ten-minute version, see
 [Quick start](QUICK-START.html).
 
-> **Prefer to run every command yourself?** The complete by-hand walkthrough —
-> every command, both GPU routes, the full launcher file — is the
-> [Manual installation](MANUAL.html) page. The one-command installer below is
-> that same page, scripted.
+> **Prefer to run every command yourself?** The command-by-command
+> walkthrough — both GPU routes, the full launcher file — is the
+> [Manual installation](MANUAL.html) page. The one-command installer below
+> is that same page, scripted.
 
 ---
 
@@ -29,7 +28,7 @@ This is the complete guide. If you want the ten-minute version, start with
 | **Graphics** | Adreno (best) or any GPU | Adreno gets Zink/Turnip; everything else uses VirGL |
 | **Apps** | Termux (F-Droid/GitHub) + Termux:X11 | The Play Store Termux build is abandoned |
 
-Check your device before starting (read-only, changes nothing):
+Check your device first (read-only, changes nothing):
 
 ```bash
 uname -m                              # expect: aarch64
@@ -40,8 +39,8 @@ df -h "$HOME"                         # free space
 ls -l /dev/kgsl-3d0 2>&1              # exists → Adreno → Zink/Turnip path
 ```
 
-`/dev/kgsl-3d0` present means the installer will pick the fast Zink/Turnip
-route. Missing means VirGL — still hardware-backed, just a different route.
+`/dev/kgsl-3d0` present means the installer picks the fast Zink/Turnip route.
+Missing means VirGL — still hardware-backed, just a different route.
 
 ---
 
@@ -54,9 +53,9 @@ curl -fsSL https://soobujmiah.github.io/ternux/install.sh | bash
 This downloads the installer over HTTPS and runs it. It is the same script
 that lives in this repository — nothing hidden, nothing compiled.
 
-**curl broken after an upgrade?** (`CANNOT LINK … SSL_set_quic_tls_transport_params`)
-A partial upgrade left curl and openssl out of sync. Use wget instead — same
-installer, and the script will repair curl for you:
+**curl broken after an upgrade?** A partial upgrade can leave curl and
+openssl out of sync. Use wget — same installer, and the script repairs curl
+for you:
 
 ```bash
 wget -qO- https://soobujmiah.github.io/ternux/install.sh | bash
@@ -64,9 +63,9 @@ wget -qO- https://soobujmiah.github.io/ternux/install.sh | bash
 
 ### Why we also document Method 2
 
-Piping `curl` into `bash` is convenient, but the good practice for any script
-that will touch your device is to **read it first**. Method 2 takes ten
-seconds longer:
+Piping `curl` into `bash` is convenient, but for a script that touches your
+device it's good practice to **read it first**. Method 2 takes ten seconds
+longer:
 
 ```bash
 curl -fsSL https://soobujmiah.github.io/ternux/install.sh -o install.sh
@@ -74,74 +73,38 @@ less install.sh     # skim it — it is one file, organised in phases
 bash install.sh
 ```
 
-or with wget, if curl cannot run:
+Both methods behave identically. If the download is interrupted, run it again
+— every phase is idempotent, and `--resume` skips completed work.
 
-```bash
-wget -q https://soobujmiah.github.io/ternux/install.sh -O install.sh
-less install.sh
-bash install.sh
-```
+### Method 3 — fully manual
 
-Both methods behave identically. If the download is interrupted, simply run
-it again — every phase is idempotent, and `--resume` skips completed work.
-
-### Method 3 — fully manual, command by command
-
-If you want total control — or need to debug the installer itself — the
+For total control — or to debug the installer itself — the
 [Manual installation](MANUAL.html) page walks through every single command:
 base packages, the container, the GPU driver for both routes, the complete
-`~/x.sh` launcher file, and verification. Methods 1 and 2 simply run those
-same steps for you.
-
----
-
-## Ternux CLI — the management interface
-
-After installation, the `ternux` CLI becomes your single entry point for
-diagnostics, repair, benchmarking, desktop management, and updates:
-
-```bash
-ternux doctor           # system diagnostics
-ternux doctor --json    # AI-readable structured output
-ternux start            # start the desktop
-ternux stop             # stop the desktop
-ternux restart          # restart the desktop
-ternux repair           # auto-fix common issues
-ternux verify           # verify installation
-ternux benchmark        # GPU benchmarks (glmark2, vkmark)
-ternux profile          # device hardware profile
-ternux backend          # GPU backend management
-ternux info             # system information
-ternux info --json      # AI-readable system info
-ternux logs             # view and manage logs
-ternux state            # installation state
-ternux update           # self-update ternux CLI
-ternux uninstall        # remove ternux components
-```
-
-Every command supports `--help`, `--json`, `--verbose`, and `--quiet`.
+`~/x.sh` launcher file, and verification. Methods 1 and 2 run those same
+steps for you.
 
 ---
 
 ## What the installer does (and why, phase by phase)
 
-The installer is organised as **nine verified phases**. Each phase checks its
-own work before the next one starts — a failed phase stops the install with a
-clear message instead of producing a half-broken desktop that "almost works".
+The installer runs as **11 verified phases**. Each phase checks its own work
+before the next one starts — a failed phase stops the install with a clear
+message instead of producing a half-broken desktop.
 
 | # | Phase | What it does | Why |
 |---|---|---|---|
-| 0 | **Preflight** | Checks Termux, architecture, Android version, storage, network | Fail here and you waste no downloads; every later phase depends on these facts |
-| 1 | **Base packages** | Installs `x11-repo`, `termux-x11-nightly`, `pulseaudio`, `proot-distro`, `virglrenderer-android`, tools; requests storage permission | These are the host-side services the container needs: display, sound, and the container engine itself |
-| 2 | **CLI installation** | Downloads `bin/ternux` + `lib/*.sh` from GitHub, installs to `$PREFIX/bin/` | The `ternux` command becomes available for diagnostics, repair, and desktop management |
-| 3 | **Debian + Xfce4** | Installs the Debian rootfs, desktop packages, creates your user with passwordless sudo | The desktop you will actually use; sudo is validated via `visudo` so a typo can never lock the container |
-| 4 | **GPU driver** | Adreno: downloads the Turnip driver, validates the archive, installs it, pins Mesa packages. Other: confirms VirGL host renderer | Without this, every GL app renders on the CPU (`llvmpipe`). Pinning prevents a routine `apt upgrade` from silently reverting the GPU path |
-| 5 | **Audio, locale, fonts** | Bridges PulseAudio loopback-only, generates your locale, installs emoji/powerline/Nerd fonts | Sound crosses the container boundary over TCP — loopback only, never exposed to the network; fonts avoid tofu boxes in the terminal |
-| 6 | **Launcher** | Writes `~/x.sh` tuned to your GPU route, syntax-checks it | One command (`x`) must reliably start audio → display → desktop in the right order |
-| 7 | **Shortcuts** | Installs `x`, `killx`, `db`, `droot`, `xgo`, `ai`, `sysmon`, `clean-mesa` | Daily operation should be muscle memory, not archaeology |
-| 8 | **Optional extras** | Dev tools, llama.cpp, network tools, media tools, Blender — only what you asked for | Keep the base install lean; each profile has different storage/thermal costs |
-| 9 | **Phantom-killer check** | Detects Android 12+ background-process restrictions, prints the exact fix | The #1 silent killer of long desktop sessions — know it exists *before* it eats your build |
-| 10 | **Verification** | Confirms every critical binary, file and permission actually landed | Trust, but verify — `apt` succeeding is not proof the desktop will launch |
+| 1 | **Preflight** | Checks Termux, architecture, Android version, storage, network | Fail here and you waste no downloads; every later phase depends on these facts |
+| 2 | **Base packages** | Installs `x11-repo`, `termux-x11`, `pulseaudio`, `proot-distro`, `virglrenderer-android`, tools; requests storage permission | These are the host-side services the container needs: display, sound, and the container engine |
+| 3 | **CLI installation** | Installs the `ternux` command and libraries to `$PREFIX/bin/` | The `ternux` command becomes available for diagnostics, repair, and desktop management |
+| 4 | **Debian + Xfce4** | Installs the Debian rootfs, desktop packages, creates your user with passwordless sudo | The desktop you actually use; sudo is validated so a typo can never lock the container |
+| 5 | **GPU driver** | Adreno: downloads the Turnip driver, validates the archive, installs it, pins Mesa packages. Other: confirms the VirGL host renderer | Without this every GL app renders on the CPU (`llvmpipe`). Pinning prevents a routine `apt upgrade` from silently reverting the GPU path |
+| 6 | **Audio, locale, fonts** | Bridges PulseAudio loopback-only, generates your locale, installs emoji/powerline/Nerd fonts | Sound crosses the container boundary over TCP — loopback only. Fonts avoid tofu boxes in the terminal |
+| 7 | **Launcher** | Writes `~/x.sh` tuned to your GPU route, syntax-checks it | One command (`x`) must reliably start audio → display → desktop in the right order |
+| 8 | **Shortcuts** | Installs `x`, `killx`, `db`, `droot`, `xgo`, `ai`, `sysmon`, `clean-mesa` | Daily operation should be muscle memory, not archaeology |
+| 9 | **Optional extras** | Dev tools, llama.cpp, network tools, media tools, Blender — only what you asked for | Keep the base install lean; each profile has different storage/thermal costs |
+| 10 | **Phantom-killer check** | Detects Android 12+ background-process restrictions, prints the exact fix | The #1 silent killer of long desktop sessions — know it exists *before* it eats your build |
+| 11 | **Verification** | Confirms every critical binary, file and permission actually landed | Trust, but verify — `apt` succeeding is not proof the desktop will launch |
 
 ---
 
@@ -162,16 +125,17 @@ bash install.sh --with-media        # ffmpeg, GIMP, Audacity, ImageMagick
 bash install.sh --with-blender      # Blender (lightweight scenes)
 bash install.sh --all               # every optional profile
 bash install.sh --resume            # continue after an interruption
-bash install.sh --version | --help
+bash install.sh --version           # show version
+bash install.sh --help              # show help
 ```
 
 After installation, use the `ternux` CLI for diagnostics and management:
 
 ```bash
-ternux doctor           # diagnose (replaces bash install.sh --doctor)
-ternux repair           # diagnose and fix (replaces bash install.sh --doctor --fix)
-ternux state            # what is done, what is pending (replaces --status)
-ternux uninstall        # interactive removal (replaces --uninstall)
+ternux doctor           # diagnose
+ternux repair           # diagnose and fix
+ternux state            # what is done, what is pending
+ternux uninstall        # interactive removal
 ternux update           # self-update the CLI
 ```
 

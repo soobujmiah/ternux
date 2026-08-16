@@ -3,7 +3,6 @@ title: "Usage"
 description: "Daily ternux operation: launch controls, storage layout, real workloads (Blender, local AI, development, security lab) and backups."
 lang: "en"
 alt_url: "/bn/docs/USAGE.html"
-
 ---
 
 # Usage
@@ -12,11 +11,38 @@ Everything you need for day-to-day life with a Linux desktop in your pocket.
 
 ---
 
+## Daily controls
+
+| Command | What it does |
+|---|---|
+| `x` | Start the desktop (audio → display → Debian → Xfce4) |
+| `xgo` | Open the Termux:X11 app automatically, then start the desktop |
+| `killx` | Stop the session cleanly and clear stale sockets |
+| `db` | Shell inside Debian as your user |
+| `droot` | Shell inside Debian as root — careful in there |
+| `ai` | Chat with a local model (needs `--with-llm` and a model file) |
+| `sysmon` | Quick CPU/RAM/GPU-node overview |
+| `clean-mesa` | Clear the shader cache (after driver changes) |
+
+**A healthy start/stop routine:**
+
+1. Start with `xgo` (or open Termux:X11 first, then `x`).
+2. Close apps normally inside the desktop.
+3. When done: log out of Xfce4 (Applications → Log Out), or run `killx` from
+   the Termux side. This clears sockets so the next start is clean.
+
+*Why bother?* A leftover X11 socket or zombie PulseAudio process makes the
+next session "start" against a dead service — the desktop appears but audio
+or display behaves oddly. `x` cleans these up at every start, so a clean stop
+mainly saves battery.
+
+---
+
 ## Ternux CLI — the permanent interface
 
-When ternux is installed, the `ternux` command becomes your single entry
-point for everything — install, diagnostics, repair, benchmarking, and
-daily desktop management.
+When ternux is installed, the `ternux` command is your single entry point for
+everything — install, diagnostics, repair, benchmarking, and daily desktop
+management:
 
 ```bash
 ternux install          # Full installation (delegates to install.sh)
@@ -29,12 +55,9 @@ ternux repair           # Auto-fix common issues
 ternux verify           # Verify installation completeness
 ternux benchmark        # Run GPU benchmarks (glmark2, vkmark)
 ternux profile          # Show or save device hardware profile
-ternux profile save     # Snapshot current device config
-ternux backend          # View or change GPU backend
 ternux backend set virgl    # Switch to VirGL backend
 ternux update           # Self-update ternux CLI
 ternux logs             # View and manage log files
-ternux info             # Show system information summary
 ternux info --json      # AI-readable system info
 ternux state            # Show installation state
 ternux uninstall        # Remove ternux components
@@ -54,33 +77,6 @@ ternux benchmark --json | jq '.glmark2_score, .vkmark_score'
 ```
 
 See `share/templates/json-schema.md` for complete schemas.
-
----
-
-## Daily controls (classic aliases)
-
-| Command | What it does |
-|---|---|
-| `x` | Start the desktop (audio → display → Debian → Xfce4) |
-| `xgo` | Open the Termux:X11 app automatically, then start the desktop |
-| `killx` | Stop the session cleanly and clear stale sockets |
-| `db` | Shell inside Debian as your user |
-| `droot` | Shell inside Debian as root — careful in there |
-| `ai` | Chat with a local model (needs `--with-llm` and a model file) |
-| `sysmon` | Quick CPU/RAM/GPU-node overview |
-| `clean-mesa` | Clear the shader cache (after driver changes) |
-
-**Start/stop routine that keeps things healthy:**
-
-1. Start with `xgo` (or open Termux:X11 first, then `x`).
-2. Close apps normally inside the desktop.
-3. When done: log out of Xfce4 (Applications → Log Out), or run `killx` from
-   the Termux side. This clears sockets so the next start is clean.
-
-*Why bother?* A leftover X11 socket or zombie PulseAudio process makes the
-next session "start" against a dead service — the desktop appears but audio
-or display behaves oddly. `x` cleans these up at every start, so a clean stop
-mainly saves battery.
 
 ---
 
@@ -113,7 +109,8 @@ Browser, file manager, terminal, editors, archives, office docs — the default
 Xfce4 install covers all of it. Install more with `sudo apt install <pkg>`.
 
 *Tip:* in Xfce4 → Settings → Appearance, pick a dark theme and set the panel
-to auto-hide — the phone screen is small, and battery-friendly (AMOLED dark).
+to auto-hide — the phone screen is small, and dark is battery-friendly on
+AMOLED.
 
 ### Lightweight Blender
 
@@ -144,7 +141,7 @@ container. Then:
 
 *Why compact models?* Vulkan offload shares the phone's physical memory and
 thermal budget with Android and the desktop. A 7B model on a phone is a
-freezer-and-prayer situation; 1–2B is the practical sweet spot. And the model
+freezer-and-prayer situation; 1–2B is the practical sweet spot. The model
 server stays on **loopback** — keep it that way unless you deliberately add
 authentication.
 
