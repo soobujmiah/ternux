@@ -75,6 +75,11 @@
     if (node.dataset && node.dataset.cb === "1") return;
     if (node.closest(".term-body") || node.closest(".install") || node.closest(".cb")) return;
 
+    /* Code and command blocks can scroll horizontally on narrow screens.
+       Put the scroll container in the keyboard tab order so non-pointer
+       users can reach it and pan with the arrow keys. */
+    node.setAttribute("tabindex", "0");
+
     var isCmd = node.classList && node.classList.contains("cmd");
 
     /* Wrap the outermost wrapper (kramdown nests pre inside .highlight). */
