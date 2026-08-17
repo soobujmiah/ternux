@@ -944,8 +944,8 @@ if env TERM=dumb NO_COLOR=1 TERNUX_STATE_DIR="$TMP/state-frame" \
     tnx_frame_close failed
   ' _ "$ROOT" > "$frame_out" &&
   grep -q "Sobuj Miah" "$frame_out" &&
-  grep -q "base ~3–4 GB" "$frame_out" &&
-  grep -q "complete ~10–12 GB" "$frame_out" &&
+  grep -q "base ~3-4 GB" "$frame_out" &&
+  grep -q "complete ~10-12 GB" "$frame_out" &&
   grep -q "Get: package-one" "$frame_out" &&
   grep -q "ERROR: sample failure" "$TMP/log-frame/ternux.log"; then
   ok "persistent install frame has a readable line-stream fallback"
