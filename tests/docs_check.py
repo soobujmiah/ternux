@@ -282,6 +282,18 @@ for path in (ROOT / "index.html", ROOT / "bn/index.html"):
     text = read(path)
     cards = set(re.findall(r'<a class="workload-card" href="([^"]+)"', text))
     check(cards == upstream, f"{path.relative_to(ROOT)}: workload cards must match upstream repositories")
+    accents = re.findall(r'<section class="landing-section" data-accent="([^"]+)"', text)
+    check(accents == ["green", "cyan", "amber", "purple", "cyan", "green"], f"{path.relative_to(ROOT)}: landing accent sequence changed")
+    check("/assets/js/effects.js" in text, f"{path.relative_to(ROOT)}: missing progressive effects script")
+    check("data-scroll-progress" in text, f"{path.relative_to(ROOT)}: missing scroll progress feedback")
+
+layout_text = read(ROOT / "_layouts/default.html")
+check("/assets/js/effects.js" in layout_text, "_layouts/default.html: missing progressive effects script")
+check("data-scroll-progress" in layout_text, "_layouts/default.html: missing scroll progress feedback")
+effects_text = read(ROOT / "assets/js/effects.js")
+check("prefers-reduced-motion: reduce" in effects_text, "assets/js/effects.js: reduced-motion gate missing")
+check("IntersectionObserver" in effects_text, "assets/js/effects.js: viewport reveal observer missing")
+check("requestAnimationFrame" in effects_text, "assets/js/effects.js: frame-throttled effects missing")
 
 # Social previews must retain explicit dimensions and accessible localized labels.
 social_sources = (ROOT / "_layouts/default.html", ROOT / "index.html", ROOT / "bn/index.html")

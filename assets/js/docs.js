@@ -167,14 +167,6 @@
       }
     }
 
-    /* Header elevation is useful feedback without an animated scroll effect. */
-    var header = document.querySelector("[data-site-header]");
-    function updateHeader() {
-      if (header) header.classList.toggle("is-scrolled", window.scrollY > 8);
-    }
-    updateHeader();
-    window.addEventListener("scroll", updateHeader, { passive: true });
-
     /* Desktop sidebars are always available to assistive technology. */
     function updateSidebarA11y() {
       if (!sidebar) return;

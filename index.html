@@ -53,7 +53,7 @@ alt_url: "/bn/"
 <body class="landing-page">
   <a class="skip-link" href="#main">Skip to content</a>
 
-  <header class="site-header">
+  <header class="site-header" data-site-header>
     <div class="site-header__inner landing-container">
       <a class="brand" href="{{ '/' | relative_url }}" aria-label="ternux home">
         <span class="brand__mark" aria-hidden="true"><span>&gt;</span><i>_</i></span>
@@ -71,6 +71,7 @@ alt_url: "/bn/"
         <a class="language-link" href="{{ '/bn/' | relative_url }}" hreflang="bn" lang="bn">বাংলা</a>
       </div>
     </div>
+    <span class="scroll-progress" aria-hidden="true"><span data-scroll-progress></span></span>
   </header>
 
   <main id="main" class="landing-shell">
@@ -129,7 +130,7 @@ alt_url: "/bn/"
       </div>
     </section>
 
-    <section class="landing-section" id="install">
+    <section class="landing-section" data-accent="green" id="install">
       <div class="landing-container">
         <div class="section-heading">
           <div><span class="section-kicker">01 · Choose your route</span><h2>Fast when you want it. Auditable when you need it.</h2></div>
@@ -159,12 +160,12 @@ alt_url: "/bn/"
 
         <div class="command-panel" aria-label="One-command installer">
           <code id="install-command">curl -fsSL https://soobujmiah.github.io/ternux/install.sh | bash</code>
-          <button class="copy-command" type="button" data-copy-command aria-label="Copy installer command">copy</button>
+          <button class="copy-command" type="button" data-copy-command data-copy-default="copy" data-copy-success="copied ✓" data-copy-error="copy failed" aria-label="Copy installer command">copy</button>
         </div>
       </div>
     </section>
 
-    <section class="landing-section">
+    <section class="landing-section" data-accent="cyan">
       <div class="landing-container">
         <div class="section-heading">
           <div><span class="section-kicker">02 · Architecture</span><h2>Clear boundaries. Explicit data paths.</h2></div>
@@ -192,7 +193,7 @@ alt_url: "/bn/"
       </div>
     </section>
 
-    <section class="landing-section">
+    <section class="landing-section" data-accent="amber">
       <div class="landing-container">
         <div class="section-heading">
           <div><span class="section-kicker">03 · Device evidence</span><h2>Measured, observed, reported, or untested. Never blended.</h2></div>
@@ -227,7 +228,7 @@ alt_url: "/bn/"
       </div>
     </section>
 
-    <section class="landing-section">
+    <section class="landing-section" data-accent="purple">
       <div class="landing-container">
         <div class="section-heading">
           <div><span class="section-kicker">04 · Upstream workloads</span><h2>Use the real projects, not imitation demos.</h2></div>
@@ -250,7 +251,7 @@ alt_url: "/bn/"
       </div>
     </section>
 
-    <section class="landing-section" id="documentation">
+    <section class="landing-section" data-accent="cyan" id="documentation">
       <div class="landing-container">
         <div class="section-heading">
           <div><span class="section-kicker">05 · Documentation</span><h2>One system. A path for every depth.</h2></div>
@@ -285,7 +286,7 @@ alt_url: "/bn/"
       </div>
     </section>
 
-    <section class="landing-section">
+    <section class="landing-section" data-accent="green">
       <div class="landing-container">
         <div class="safety-banner">
           <span class="safety-banner__mark" aria-hidden="true">✓</span>
@@ -312,26 +313,6 @@ alt_url: "/bn/"
     </div>
   </footer>
 
-  <script>
-  (function () {
-    var button = document.querySelector("[data-copy-command]");
-    var command = document.getElementById("install-command");
-    if (!button || !command) return;
-    button.addEventListener("click", function () {
-      var text = command.textContent;
-      var finish = function (ok) {
-        button.textContent = ok ? "copied ✓" : "copy failed";
-        window.setTimeout(function () { button.textContent = "copy"; }, 1500);
-      };
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text).then(function () { finish(true); }, function () { finish(false); });
-      } else {
-        var area = document.createElement("textarea"); area.value = text; document.body.appendChild(area); area.select();
-        try { finish(document.execCommand("copy")); } catch (e) { finish(false); }
-        document.body.removeChild(area);
-      }
-    });
-  })();
-  </script>
+  <script src="{{ '/assets/js/effects.js' | relative_url }}" defer></script>
 </body>
 </html>
