@@ -5,8 +5,6 @@ lang: "en"
 alt_url: "/bn/docs/QUICK-START.html"
 ---
 
-# Quick start
-
 Four steps from Android apps to an installed desktop and renderer check. Download time varies with the device, mirrors and network.
 
 ---

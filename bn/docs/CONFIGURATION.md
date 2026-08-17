@@ -6,8 +6,6 @@ alt_url: "/docs/CONFIGURATION.html"
 
 ---
 
-# কনফিগারেশন
-
 ternux যুক্তিসঙ্গত ডিফল্ট নিয়ে ইনস্টল হয়, আর সবকিছু টিউন করা যায়। এই
 পাতায় প্রতিটি নব, তার অবস্থান, এবং *কেন* সেটি সেভাবে সেট করা — সব ব্যাখ্যা
 আছে।
@@ -124,8 +122,7 @@ installer route বেছে নিন এবং আগে backup রাখু�
 
 ---
 
-<a id="held-mesa-packages-zink-route"></a>
-## হোল্ড করা Mesa প্যাকেজ (Zink পথ)
+<h2 id="held-mesa-packages-zink-route">হোল্ড করা Mesa প্যাকেজ (Zink পথ)</h2>
 
 ```bash
 db

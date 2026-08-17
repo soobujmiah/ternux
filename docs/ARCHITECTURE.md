@@ -6,8 +6,6 @@ alt_url: "/bn/docs/ARCHITECTURE.html"
 
 ---
 
-# Architecture
-
 Understanding the stack makes every symptom in
 [Troubleshooting](TROUBLESHOOTING.html) obvious. This page explains how the
 pieces cooperate, and where they fail when they don't.

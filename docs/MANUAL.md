@@ -6,8 +6,6 @@ alt_url: "/bn/docs/MANUAL.html"
 
 ---
 
-# Manual installation
-
 The one-command installer is this page, scripted. Here is the same journey
 done **by hand, command by command** — for people who want to see and control
 every step, work around a failing network, or simply learn what the installer
@@ -175,8 +173,7 @@ ls -l /dev/kgsl-3d0
 - **File exists** → Adreno → continue with *6a — Zink/Turnip*.
 - **Missing** → Mali/Xclipse/PowerVR → skip to *6b — VirGL*.
 
-<a id="zink-turnip-adreno"></a>
-### 6a — Zink + Turnip (Adreno)
+<h3 id="zink-turnip-adreno">6a — Zink + Turnip (Adreno)</h3>
 
 Download the Debian/arm64 driver asset from
 [lfdevs/mesa-for-android-container → Releases](https://github.com/lfdevs/mesa-for-android-container/releases/latest).
@@ -383,8 +380,7 @@ exit
 
 ---
 
-<a id="create-launcher"></a>
-## Step 8 — The launcher (`~/x.sh`)
+<h2 id="create-launcher">Step 8 — The launcher (<code>~/x.sh</code>)</h2>
 
 This is the file the installer generates. Create it by hand:
 

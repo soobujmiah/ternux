@@ -5,8 +5,6 @@ lang: "en"
 alt_url: "/bn/docs/CLI.html"
 ---
 
-# Ternux CLI Reference
-
 The `ternux` CLI is the permanent management interface for installation,
 diagnostics, repair, benchmarking, desktop lifecycle, and system information.
 

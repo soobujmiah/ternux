@@ -5,8 +5,6 @@ lang: "en"
 alt_url: "/bn/docs/TROUBLESHOOTING.html"
 ---
 
-# Troubleshooting
-
 The table maps common symptoms to likely causes and checks. A symptom can have
 more than one cause, so collect the named evidence before applying a repair.
 
@@ -224,8 +222,7 @@ by Android.
 
 ---
 
-<a id="proot-distro-says-option--c-is-unrecognized"></a>
-## proot-distro says option -c is unrecognized
+<h2 id="proot-distro-says-option--c-is-unrecognized">proot-distro says option -c is unrecognized</h2>
 
 **Symptom:** running `x` prints `Error: unrecognized option: '-c'.` followed
 by the proot-distro usage screen.
@@ -255,8 +252,7 @@ x
 
 ---
 
-<a id="pasted-command-starts-with"></a>
-## Pasted command starts with $
+<h2 id="pasted-command-starts-with">Pasted command starts with $</h2>
 
 **Symptom:** you paste the install command and the shell answers
 `No command $ found, did you mean: …` — the paste begins with a `$`.
@@ -307,8 +303,7 @@ Option B alone is enough to get going.
 
 ---
 
-<a id="opensslcnf-conffile-cascade"></a>
-## openssl.cnf conffile cascade
+<h2 id="opensslcnf-conffile-cascade">openssl.cnf conffile cascade</h2>
 
 **Symptom:** during `pkg upgrade` (or a piped install) you see
 `*** openssl.cnf (Y/I/N/O/D/Z) [default=N] ?` followed by

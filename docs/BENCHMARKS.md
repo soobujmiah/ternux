@@ -2,9 +2,8 @@
 title: "Benchmarks and device evidence"
 description: "Measured glmark2 FPS, Blender renderer evidence, workload boundaries and a reproducible Ternux benchmark protocol."
 lang: "en"
+alt_url: "/bn/docs/BENCHMARKS.html"
 ---
-
-# Benchmarks and device evidence
 
 This page records what has actually been measured on a real ternux setup, what was
 only observed, and what remains unverified. It exists to prevent build success,

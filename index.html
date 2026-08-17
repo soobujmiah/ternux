@@ -1,469 +1,337 @@
 ---
 layout: null
-title: ternux
-description: One command installs Debian Xfce4 on Android, with measured Zink/Turnip acceleration on the tested Adreno setup and a device-dependent VirGL fallback. No root.
+title: "ternux — Linux workspace for Android"
+description: "Install a Debian and Xfce workspace on Android with Termux:X11, evidence-led Zink/Turnip graphics on supported Adreno devices, and no Android root."
+lang: "en"
+alt_url: "/bn/"
 ---
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>ternux — Zink/Turnip Linux desktop on Android</title>
-<meta name="description" content="One command installs Debian Xfce4 on Android, with measured Zink/Turnip acceleration on the tested Adreno setup and a device-dependent VirGL fallback. No root.">
-<meta name="author" content="Sobuj Miah">
-<meta name="theme-color" content="#06080d">
-<meta name="robots" content="index, follow">
-<meta property="og:site_name" content="ternux">
-<meta property="og:title" content="ternux — Zink/Turnip Linux desktop on Android">
-<meta property="og:description" content="Debian Xfce4 on Android: measured Zink/Turnip acceleration on the tested Adreno setup; VirGL fallback varies by device. No root.">
-<meta property="og:type" content="website">
-<meta property="og:url" content="{{ '/' | absolute_url }}">
-<meta property="og:image" content="{{ '/assets/img/og-card.png' | absolute_url }}">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="ternux — Debian Xfce4 on Android with a tested Adreno Zink/Turnip route. No root.">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="ternux — Zink/Turnip Linux desktop on Android">
-<meta name="twitter:description" content="Debian Xfce4 on Android: measured Zink/Turnip acceleration on the tested Adreno setup; VirGL fallback varies by device. No root.">
-<meta name="twitter:image" content="{{ '/assets/img/og-card.png' | absolute_url }}">
-<link rel="canonical" href="{{ '/' | absolute_url }}">
-<link rel="alternate" hreflang="en" href="{{ '/' | absolute_url }}">
-<link rel="alternate" hreflang="bn" href="{{ '/bn/' | absolute_url }}">
-<link rel="alternate" hreflang="x-default" href="{{ '/' | absolute_url }}">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2306080d'/%3E%3Ctext x='16' y='23' font-family='monospace' font-size='20' font-weight='bold' fill='%2339ee88' text-anchor='middle'%3E%26gt;%3C/text%3E%3C/svg%3E">
-<link rel="preload" as="font" type="font/woff2" crossorigin
-      href="{{ '/assets/fonts/space-grotesk-latin.woff2' | relative_url }}">
-<link rel="preload" as="font" type="font/woff2" crossorigin
-      href="{{ '/assets/fonts/jetbrains-mono-latin.woff2' | relative_url }}">
-<link rel="stylesheet" href="{{ '/assets/css/ternux.css' | relative_url }}">
-<script type="application/ld+json">
-{
-  "@context":"https://schema.org","@type":"SoftwareSourceCode",
-  "name":"ternux",
-  "description":"One-command Debian Xfce4 installer for Android. Zink and Turnip acceleration is measured on the tested Adreno setup; the VirGL fallback is device-dependent. No root required.",
-  "codeRepository":"https://github.com/soobujmiah/ternux",
-  "url":{{ '/' | absolute_url | jsonify }},
-  "image":{{ '/assets/img/og-card.png' | absolute_url | jsonify }},
-  "license":"https://opensource.org/licenses/MIT",
-  "author":{"@type":"Person","name":"Sobuj Miah","url":"https://github.com/soobujmiah"},
-  "programmingLanguage":"Shell",
-  "operatingSystem":"Android 10+ (aarch64)",
-  "keywords":"termux, android, linux, debian, xfce4, gpu acceleration, vulkan, zink, turnip, adreno, proot, no root"
-}
-</script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#07110f">
+  <meta name="color-scheme" content="dark">
+  <title>ternux — Linux workspace for Android</title>
+  <meta name="description" content="Install a Debian and Xfce workspace on Android with Termux:X11, evidence-led Zink/Turnip graphics on supported Adreno devices, and no Android root.">
+  <meta name="author" content="Sobuj Miah">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="{{ '/' | absolute_url }}">
+  <link rel="alternate" hreflang="en" href="{{ '/' | absolute_url }}">
+  <link rel="alternate" hreflang="bn" href="{{ '/bn/' | absolute_url }}">
+  <link rel="alternate" hreflang="x-default" href="{{ '/' | absolute_url }}">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="ternux">
+  <meta property="og:title" content="ternux — Linux workspace for Android">
+  <meta property="og:description" content="Debian, Xfce, Termux:X11, and an evidence-led graphics route. One command, no Android root.">
+  <meta property="og:url" content="{{ '/' | absolute_url }}">
+  <meta property="og:image" content="{{ '/assets/img/og-card.png' | absolute_url }}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="ternux terminal interface illustrating its auditable Android workspace setup">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="ternux — Linux workspace for Android">
+  <meta name="twitter:description" content="Debian, Xfce, Termux:X11, and an evidence-led graphics route. One command, no Android root.">
+  <meta name="twitter:image" content="{{ '/assets/img/og-card.png' | absolute_url }}">
+  <meta name="twitter:image:alt" content="ternux terminal interface illustrating its auditable Android workspace setup">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22><rect width=%2264%22 height=%2264%22 rx=%2212%22 fill=%22%2307110f%22/><path d=%22M14 18l14 14-14 14M34 46h16%22 fill=%22none%22 stroke=%22%2329e6a7%22 stroke-width=%226%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/></svg>">
+  <link rel="stylesheet" href="{{ '/assets/css/ternux.css' | relative_url }}">
+  <script type="application/ld+json">{
+    "@context":"https://schema.org",
+    "@type":"SoftwareApplication",
+    "name":"ternux",
+    "applicationCategory":"DeveloperApplication",
+    "operatingSystem":"Android 10+ on arm64",
+    "description":"A Debian and Xfce workspace for Android using Termux, PRoot Distro, Termux:X11, and explicit graphics backends.",
+    "url":{{ '/' | absolute_url | jsonify }},
+    "codeRepository":"https://github.com/soobujmiah/ternux",
+    "softwareVersion":"1.3.0",
+    "license":"https://opensource.org/licenses/MIT",
+    "author":{"@type":"Person","name":"Sobuj Miah","url":"https://github.com/soobujmiah"}
+  }</script>
 </head>
-<body class="home">
+<body class="landing-page">
+  <a class="skip-link" href="#main">Skip to content</a>
 
-<a class="skip" href="#content">Skip to content</a>
-<canvas id="matrix" aria-hidden="true"></canvas>
-<div class="vignette" aria-hidden="true"></div>
-<div class="scan" aria-hidden="true"></div>
-
-<nav>
-  <div class="nav-in">
-    <a class="brand" href="{{ '/' | relative_url }}">&gt;_ ternux<span class="c">█</span></a>
-    <div class="nav-links">
-      <a href="{{ '/docs/QUICK-START.html' | relative_url }}">quick start</a>
-      <a href="{{ '/docs/INSTALLATION.html' | relative_url }}">install</a>
-      <a href="{{ '/docs/TROUBLESHOOTING.html' | relative_url }}">support</a>
-      <a href="https://github.com/soobujmiah/ternux">github</a>
-      <a class="lang-switch" href="{{ '/bn/' | relative_url }}" hreflang="bn" title="এই পাতাটি বাংলায় পড়ুন">বাংলা</a>
-    </div>
-  </div>
-</nav>
-
-<div class="wrap" id="content">
-
-  <!-- ================= HERO ================= -->
-  <header class="hero">
-    <div class="distro-ribbon" aria-label="Visual palette inspired by Termux and major Linux distributions">
-      <span class="distro distro-termux"><i aria-hidden="true"></i>Termux</span>
-      <span class="distro distro-debian"><i aria-hidden="true"></i>Debian</span>
-      <span class="distro distro-kali"><i aria-hidden="true"></i>Kali</span>
-      <span class="distro distro-arch"><i aria-hidden="true"></i>Arch</span>
-      <span class="distro distro-fedora"><i aria-hidden="true"></i>Fedora</span>
-    </div>
-
-    <div class="hero-grid">
-      <div class="hero-copy">
-        <p class="eyebrow">Android → Linux / no root</p>
-        <h1>ternux<span class="cur">█</span></h1>
-        <p class="tag">A Linux desktop with a measured Zink/Turnip GPU route on tested Adreno hardware.</p>
-        <p class="sub">Termux + PRoot Debian + Xfce4, with Zink&nbsp;/&nbsp;Turnip on supported Adreno devices and a device-dependent VirGL fallback. <b>No root. Free. One command.</b></p>
-
-        <div class="pills">
-          <span class="pill"><b>No root</b></span>
-          <span class="pill"><b>One command</b> install</span>
-          <span class="pill"><b>~12 GB</b> base</span>
-          <span class="pill"><b>Android 10+</b></span>
-          <span class="pill"><b>aarch64</b></span>
-          <span class="pill"><b>MIT</b> open source</span>
-        </div>
-
-        <div class="cta-row">
-          <a class="btn btn-primary" href="{{ '/docs/QUICK-START.html' | relative_url }}">Quick start</a>
-          <a class="btn btn-ghost" href="{{ '/docs/MANUAL.html' | relative_url }}">Installation guide →</a>
-          <a class="btn btn-ghost" href="https://github.com/soobujmiah/ternux">GitHub ↗</a>
-        </div>
-      </div>
-
-      <div class="hero-console">
-        <div class="install">
-          <div class="install-inner">
-            <div class="install-bar">
-              <span class="t"><span class="pulse-dot" aria-hidden="true"></span> install — paste into Termux</span>
-              <span class="instag">v1.3.0 · free</span>
-              <button class="copy-btn" type="button" id="copyBtn" data-cmd="curl -fsSL https://soobujmiah.github.io/ternux/install.sh | bash">copy</button>
-            </div>
-            <div class="install-cmd" id="installCmd" role="button" tabindex="0" aria-label="Copy install command" title="Click to copy">curl -fsSL https://soobujmiah.github.io/ternux/install.sh | bash</div>
-          </div>
-        </div>
-        <p class="install-note">
-          Audit every module: <code>git clone https://github.com/soobujmiah/ternux.git</code> — see the review route below.<br>
-          curl broken? <code>wget -qO- https://soobujmiah.github.io/ternux/install.sh | bash</code>
-        </p>
-
-        <div class="term">
-          <div class="term-bar">
-            <span class="dot" style="background:#ff657a"></span>
-            <span class="dot" style="background:#f6bd55"></span>
-            <span class="dot" style="background:#39ee88"></span>
-            <span class="term-title">termux — verified graphics path</span>
-          </div>
-          <div class="term-body">
-<span class="l"><span class="p1">~ $</span> <span class="hl">x</span></span>
-<span class="l"><span class="dm">Waiting for Termux-X11 display socket...</span></span>
-<span class="l"><span class="ok">[ OK ]</span> display :0 responding</span>
-<span class="l"><span class="ok">[ OK ]</span> pulseaudio bridged on tcp:127.0.0.1:4713</span>
-<span class="l"></span>
-<span class="l"><span class="p2">ternux@debian:~$</span> <span class="hl">glxinfo | grep "renderer string"</span></span>
-<span class="l">OpenGL renderer: <span class="ok">zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP))</span></span>
-<span class="l"><span class="p2">ternux@debian:~$</span> <span class="hl">vulkaninfo --summary | grep driverName</span></span>
-<span class="l">driverName: <span class="ok">Turnip</span></span>
-<span class="l"><span class="ok">[VERIFIED]</span> Zink/Turnip GPU route on the tested Adreno setup</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ================= TERNUX CLI ================= -->
-    <div class="term cli-term">
-      <div class="term-bar">
-        <span class="dot" style="background:#ff657a"></span>
-        <span class="dot" style="background:#f6bd55"></span>
-        <span class="dot" style="background:#39ee88"></span>
-        <span class="term-title">ternux — machine-readable system diagnostics</span>
-      </div>
-      <div class="term-body">
-<span class="l"><span class="p1">~ $</span> <span class="hl">ternux doctor --json</span></span>
-<span class="l">{ "command": "doctor", "status": "warning",</span>
-<span class="l">  "timestamp": "2026-08-17T00:00:00Z", "version": "1.3.0",</span>
-<span class="l">  "android_version": "14", "sdk": "34", "architecture": "aarch64",</span>
-<span class="l">  "gpu": "Adreno (730)", "backend": "zink", "vulkan": "yes",</span>
-<span class="l">  "issues": "phantom_process_killer_enabled",</span>
-<span class="l">  "actions": "Review Android process restrictions and other Signal 9 causes (see docs)" }</span>
-<span class="l"><span class="dm">Structured JSON for documented diagnostics and information commands.</span></span>
+  <header class="site-header">
+    <div class="site-header__inner landing-container">
+      <a class="brand" href="{{ '/' | relative_url }}" aria-label="ternux home">
+        <span class="brand__mark" aria-hidden="true"><span>&gt;</span><i>_</i></span>
+        <span class="brand__name">ternux</span>
+        <span class="brand__version">v1.3</span>
+      </a>
+      <nav class="top-nav" aria-label="Primary navigation">
+        <a class="top-nav__link" href="#install">Install</a>
+        <a class="top-nav__link" href="{{ '/docs/' | relative_url }}">Docs</a>
+        <a class="top-nav__link" href="{{ '/docs/BENCHMARKS.html' | relative_url }}">Evidence</a>
+        <a class="top-nav__link" href="{{ '/CONTRIBUTING.html' | relative_url }}">Contribute</a>
+        <a class="top-nav__link top-nav__github" href="https://github.com/soobujmiah/ternux">GitHub <span aria-hidden="true">↗</span></a>
+      </nav>
+      <div class="header-actions">
+        <a class="language-link" href="{{ '/bn/' | relative_url }}" hreflang="bn" lang="bn">বাংলা</a>
       </div>
     </div>
   </header>
 
-  <!-- ================= FULL INSTALLATION GUIDE ================= -->
-  <section class="sec" id="guide">
-    <p class="sec-h">Right next to the installer</p>
-    <h2 class="sec-t">Full installation guide</h2>
-    <p style="text-align:center;color:var(--dim);font-size:.9rem;margin:-1rem 0 1.8rem">
-      The same thing the one command does — written out step by step, so you can follow along right here.
-    </p>
+  <main id="main" class="landing-shell">
+    <section class="hero">
+      <div class="landing-container hero__grid">
+        <div class="hero__copy">
+          <p class="eyebrow">Linux workspace · Android hardware</p>
+          <h1>Desktop Linux.<em>Pocket scale.</em></h1>
+          <p class="hero__lead">ternux assembles Debian ARM64, Xfce4, Termux:X11, audio, and explicit graphics routes into one reviewable workspace—without Android root or a bootloader change.</p>
+          <div class="hero__actions">
+            <a class="button" href="#install">Install ternux <span aria-hidden="true">↓</span></a>
+            <a class="button button--secondary" href="{{ '/docs/QUICK-START.html' | relative_url }}">Read quick start <span aria-hidden="true">→</span></a>
+          </div>
+          <ul class="hero__facts" aria-label="Project facts">
+            <li>Android 10+ arm64</li>
+            <li>No Android root</li>
+            <li>MIT licensed</li>
+            <li>Auditable Bash</li>
+          </ul>
+        </div>
 
-    <div class="manual-ref">
-      <span class="mr-ic" aria-hidden="true">▤</span>
-      <div><b>Prefer every command written out?</b> The complete command-by-command walkthrough — both GPU routes, the full launcher file — lives in the <a href="{{ '/docs/MANUAL.html' | relative_url }}">Manual installation</a> page.</div>
+        <div class="terminal-card" aria-label="A representative ternux verification session">
+          <div class="terminal-card__top">
+            <span class="terminal-card__dots" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span>ternux · verify</span>
+            <span>arm64</span>
+          </div>
+          <div class="terminal-card__body">
+            <div class="term-line"><span class="term-prompt">$</span><span>ternux status</span></div>
+            <div class="term-line"><span class="term-ok">●</span><span>session <span class="term-dim">running on :0</span></span></div>
+            <div class="term-line"><span class="term-ok">●</span><span>audio <span class="term-dim">loopback bridge ready</span></span></div>
+            <div class="term-rule"></div>
+            <div class="term-line"><span class="term-prompt">$</span><span>ternux verify</span></div>
+            <div class="term-stack">
+              <span>guest</span><span>Debian GNU/Linux · arm64</span>
+              <span>desktop</span><span>Xfce4 · Termux:X11</span>
+              <span>backend</span><span class="term-info">zink → turnip → KGSL</span>
+              <span>renderer</span><span>Adreno 825 · Vulkan 1.4</span>
+              <span>fallback</span><span>virgl available</span>
+            </div>
+            <div class="term-rule"></div>
+            <div class="term-line"><span class="term-ok">✓</span><span>hardware route observed</span></div>
+            <div class="term-line"><span class="term-warn">!</span><span class="term-dim">device results vary; inspect evidence</span></div>
+          </div>
+          <div class="terminal-card__caption"><span class="status-dot" aria-hidden="true"></span> measured renderer evidence</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="trust-strip" aria-label="Evidence summary">
+      <div class="landing-container trust-strip__grid">
+        <div class="trust-stat trust-stat--green"><strong>140</strong><span>Measured OpenGL score</span></div>
+        <div class="trust-stat trust-stat--green"><strong>364</strong><span>Measured GLES score</span></div>
+        <div class="trust-stat"><strong>66 scenes</strong><span>Captured FPS values</span></div>
+        <div class="trust-stat"><strong>1 device</strong><span>Evidence, not a guarantee</span></div>
+      </div>
+    </section>
+
+    <section class="landing-section" id="install">
+      <div class="landing-container">
+        <div class="section-heading">
+          <div><span class="section-kicker">01 · Choose your route</span><h2>Fast when you want it. Auditable when you need it.</h2></div>
+          <p>The one-command path is convenient. The clone-first and manual paths expose every module and every guest command before you run them.</p>
+        </div>
+
+        <div class="route-grid">
+          <article class="route-card route-card--featured">
+            <span class="route-card__number">01</span>
+            <h3>Quick installation</h3>
+            <p>Use the hosted entry point, let ternux detect the supported route, and follow the printed Termux:X11 handoff.</p>
+            <a href="{{ '/docs/QUICK-START.html' | relative_url }}">Quick start <span aria-hidden="true">→</span></a>
+          </article>
+          <article class="route-card">
+            <span class="route-card__number">02</span>
+            <h3>Clone and review</h3>
+            <p>Pin the repository state, syntax-check the shell files, inspect the installer and libraries, then run locally.</p>
+            <a href="{{ '/docs/INSTALLATION.html' | relative_url }}#review-first-installation">Review-first guide <span aria-hidden="true">→</span></a>
+          </article>
+          <article class="route-card">
+            <span class="route-card__number">03</span>
+            <h3>Manual setup</h3>
+            <p>Perform the host, guest, desktop, audio, graphics, launcher, and verification steps command by command.</p>
+            <a href="{{ '/docs/MANUAL.html' | relative_url }}">Manual installation <span aria-hidden="true">→</span></a>
+          </article>
+        </div>
+
+        <div class="command-panel" aria-label="One-command installer">
+          <code id="install-command">curl -fsSL https://soobujmiah.github.io/ternux/install.sh | bash</code>
+          <button class="copy-command" type="button" data-copy-command aria-label="Copy installer command">copy</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="landing-section">
+      <div class="landing-container">
+        <div class="section-heading">
+          <div><span class="section-kicker">02 · Architecture</span><h2>Clear boundaries. Explicit data paths.</h2></div>
+          <p>ternux does not replace Android. It composes a userspace Linux environment around Android services and exposes the selected backend instead of hiding it.</p>
+        </div>
+
+        <div class="arch-grid">
+          <div class="arch-flow">
+            <div class="arch-flow__row" aria-label="ternux stack from Android to desktop applications">
+              <div class="arch-node"><strong>Android</strong><span>kernel · KGSL</span></div><span class="arch-arrow" aria-hidden="true">→</span>
+              <div class="arch-node"><strong>Termux</strong><span>host services</span></div><span class="arch-arrow" aria-hidden="true">→</span>
+              <div class="arch-node arch-node--accent"><strong>PRoot Debian</strong><span>arm64 userspace</span></div><span class="arch-arrow" aria-hidden="true">→</span>
+              <div class="arch-node"><strong>Mesa</strong><span>zink / virgl</span></div><span class="arch-arrow" aria-hidden="true">→</span>
+              <div class="arch-node"><strong>Xfce4</strong><span>Termux:X11</span></div>
+            </div>
+            <div class="arch-legend"><span><i></i> managed by ternux</span><span><i style="background:var(--cyan)"></i> Android companion service</span><span><i style="background:var(--amber)"></i> capability varies by device</span></div>
+          </div>
+          <aside class="arch-note">
+            <code>zink → Vulkan → turnip → KGSL</code>
+            <h3>Adreno route, with a fallback</h3>
+            <p>Supported Adreno devices can use Zink/Turnip. VirGL remains the public compatibility route. A working desktop alone is not proof that hardware rendering is active.</p>
+            <a href="{{ '/docs/ARCHITECTURE.html' | relative_url }}">Explore the architecture <span aria-hidden="true">→</span></a>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="landing-section">
+      <div class="landing-container">
+        <div class="section-heading">
+          <div><span class="section-kicker">03 · Device evidence</span><h2>Measured, observed, reported, or untested. Never blended.</h2></div>
+          <p>The published snapshot comes from one Redmi Turbo 4 Pro. It shows that this route worked there; it does not promise the same result on every phone.</p>
+        </div>
+
+        <div class="evidence-layout">
+          <article class="score-card">
+            <span class="score-card__label">Measured · glmark2 OpenGL</span>
+            <div class="score-card__value">140 <small>score</small></div>
+            <p class="score-card__range">45–164 FPS across 33 scenes</p>
+            <dl>
+              <dt>OpenGL ES</dt><dd>364 · 53–465 FPS</dd>
+              <dt>Surface</dt><dd>800 × 600</dd>
+              <dt>Captured</dt><dd>August 2026</dd>
+            </dl>
+          </article>
+          <article class="evidence-card">
+            <h3>What the snapshot establishes</h3>
+            <ul class="evidence-list">
+              <li><b>Measured</b><span>All 33 OpenGL and 33 OpenGL ES scene values are archived.</span></li>
+              <li><b>Observed</b><span>Blender reported the same Zink/Turnip renderer for its OpenGL viewport.</span></li>
+              <li><b>Reported build</b><span>llama.cpp and stable-diffusion.cpp have documented Vulkan build paths.</span></li>
+              <li><b>Untested</b><span>No affirmative or numeric performance claim is made for those two AI workloads.</span></li>
+            </ul>
+            <p class="evidence-card__note">Renderer string: <code>zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP))</code>. Matching renderer, version, resolution, thermal state, and test mode matters when comparing results.</p>
+          </article>
+        </div>
+        <div class="hero__actions">
+          <a class="button button--secondary" href="{{ '/docs/BENCHMARKS.html' | relative_url }}">Inspect all evidence <span aria-hidden="true">→</span></a>
+        </div>
+      </div>
+    </section>
+
+    <section class="landing-section">
+      <div class="landing-container">
+        <div class="section-heading">
+          <div><span class="section-kicker">04 · Upstream workloads</span><h2>Use the real projects, not imitation demos.</h2></div>
+          <p>Every card opens the upstream repository. ternux supplies an environment and optional build paths; each project remains governed by its own support matrix and documentation.</p>
+        </div>
+        <div class="workload-grid">
+          <a class="workload-card" href="https://projects.blender.org/blender/blender" rel="external">
+            <span class="workload-card__icon">3D</span><h3>Blender</h3><p>OpenGL viewport renderer observed. Cycles GPU rendering is not established by that evidence.</p><span>upstream repository ↗</span>
+          </a>
+          <a class="workload-card" href="https://github.com/ggml-org/llama.cpp" rel="external">
+            <span class="workload-card__icon">LLM</span><h3>llama.cpp</h3><p>Optional Vulkan build route documented; no ternux performance result is claimed.</p><span>upstream repository ↗</span>
+          </a>
+          <a class="workload-card" href="https://github.com/leejet/stable-diffusion.cpp" rel="external">
+            <span class="workload-card__icon">SD</span><h3>stable-diffusion.cpp</h3><p>Optional Vulkan build route documented; model performance remains untested here.</p><span>upstream repository ↗</span>
+          </a>
+          <a class="workload-card" href="https://github.com/glmark2/glmark2" rel="external">
+            <span class="workload-card__icon">FPS</span><h3>glmark2</h3><p>The upstream benchmark used for the archived OpenGL and OpenGL ES scene output.</p><span>upstream repository ↗</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section class="landing-section" id="documentation">
+      <div class="landing-container">
+        <div class="section-heading">
+          <div><span class="section-kicker">05 · Documentation</span><h2>One system. A path for every depth.</h2></div>
+          <p>Start with a guided route, operate the workspace with task-focused guides, then inspect architecture, evidence, and exact command behavior.</p>
+        </div>
+        <div class="docs-map">
+          <section class="docs-map__group">
+            <h3>Start here</h3><ul>
+              <li><a href="{{ '/docs/' | relative_url }}">Documentation overview</a></li>
+              <li><a href="{{ '/docs/QUICK-START.html' | relative_url }}">Quick start</a></li>
+              <li><a href="{{ '/docs/INSTALLATION.html' | relative_url }}">Installation</a></li>
+              <li><a href="{{ '/docs/MANUAL.html' | relative_url }}">Manual installation</a></li>
+            </ul>
+          </section>
+          <section class="docs-map__group">
+            <h3>Operate</h3><ul>
+              <li><a href="{{ '/docs/USAGE.html' | relative_url }}">Daily usage</a></li>
+              <li><a href="{{ '/docs/CONFIGURATION.html' | relative_url }}">Configuration</a></li>
+              <li><a href="{{ '/docs/TROUBLESHOOTING.html' | relative_url }}">Troubleshooting</a></li>
+              <li><a href="{{ '/docs/CLI.html' | relative_url }}">CLI reference</a></li>
+            </ul>
+          </section>
+          <section class="docs-map__group">
+            <h3>Understand & contribute</h3><ul>
+              <li><a href="{{ '/docs/ARCHITECTURE.html' | relative_url }}">Architecture</a></li>
+              <li><a href="{{ '/docs/BENCHMARKS.html' | relative_url }}">Evidence & benchmarks</a></li>
+              <li><a href="{{ '/docs/FAQ.html' | relative_url }}">FAQ</a></li>
+              <li><a href="{{ '/CONTRIBUTING.html' | relative_url }}">Contributing</a></li>
+            </ul>
+          </section>
+        </div>
+      </div>
+    </section>
+
+    <section class="landing-section">
+      <div class="landing-container">
+        <div class="safety-banner">
+          <span class="safety-banner__mark" aria-hidden="true">✓</span>
+          <div><h2>No Android root. No hidden boundary.</h2><p>ternux does not modify the Android system partition. Guest root exists inside PRoot and is not a security boundary; shared storage and services you expose remain your responsibility.</p></div>
+          <a class="button button--secondary" href="{{ '/docs/FAQ.html' | relative_url }}#does-ternux-need-root">Read safety notes <span aria-hidden="true">→</span></a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="landing-footer">
+    <div class="landing-container landing-footer__grid">
+      <div>
+        <div class="landing-footer__brand"><span class="brand__mark" aria-hidden="true"><span>&gt;</span><i>_</i></span> ternux</div>
+        <p>An evidence-led, MIT-licensed Linux workspace for Android. Built by Sobuj Miah.</p>
+      </div>
+      <nav class="landing-footer__links" aria-label="Footer navigation">
+        <a href="{{ '/docs/' | relative_url }}">Documentation</a>
+        <a href="{{ '/CHANGELOG.html' | relative_url }}">Changelog</a>
+        <a href="https://github.com/soobujmiah/ternux/security/policy">Security</a>
+        <a href="https://github.com/soobujmiah/ternux/blob/main/LICENSE">MIT License</a>
+        <a href="{{ '/bn/' | relative_url }}" lang="bn">বাংলা</a>
+      </nav>
     </div>
-
-    <div class="steps">
-      <div class="step">
-        <div class="step-h"><span class="step-n">STEP 1</span><h3>Install two apps</h3></div>
-        <p><b style="color:var(--ink)">Termux</b> — the host terminal. Use the main release from <a href="https://github.com/termux/termux-app/releases">GitHub</a> or <a href="https://f-droid.org/en/packages/com.termux/">F-Droid</a>, and keep every plugin from the same source. The Google Play line is separate and experimental.<br>
-           <b style="color:var(--ink)">Termux:X11</b> — the app that displays the desktop. From <a href="https://github.com/termux/termux-x11/releases">GitHub releases</a>. Open it once, then leave it.</p>
-      </div>
-
-      <div class="step">
-        <div class="step-h"><span class="step-n">STEP 2</span><h3>Run the one-command installer</h3></div>
-        <p>Open Termux and paste. The installer detects your GPU, installs the base packages, builds Debian + Xfce4, configures the graphics path, writes the launcher and verifies everything (11 phases).</p>
-        <div class="cmd"><span class="p1">$</span> curl -fsSL https://soobujmiah.github.io/ternux/install.sh | bash</div>
-        <p>Prefer to review everything before running it? Clone the source so the entry script and every module it uses are local:</p>
-        <div class="cmd"><span class="p1">$</span> pkg install git -y
-<span class="p1">$</span> git clone https://github.com/soobujmiah/ternux.git && cd ternux
-<span class="p1">$</span> git log -1 --oneline
-<span class="p1">$</span> (set -e; for f in install.sh uninstall.sh bin/ternux lib/*.sh; do bash -n "$f"; done)
-<span class="p1">$</span> less install.sh bin/ternux lib/*.sh
-<span class="p1">$</span> bash install.sh</div>
-        <p>Interrupted? Run with <code>--resume</code>; only phases recorded as successful are skipped. A local run asks once before changes, while the piped route is unattended.<br>
-           Want to do every step by hand instead? → <a href="{{ '/docs/MANUAL.html' | relative_url }}">Manual installation</a></p>
-      </div>
-
-      <div class="step">
-        <div class="step-h"><span class="step-n">STEP 3</span><h3>Start the desktop</h3></div>
-        <div class="cmd"><span class="p1">$</span> source ~/.bashrc
-<span class="p1">$</span> x</div>
-        <p><code>x</code> launches: audio bridge → display → Debian → <b>Xfce4</b>. Switch to the Termux:X11 app — your desktop is there.</p>
-      </div>
-
-      <div class="step">
-        <div class="step-h"><span class="step-n">STEP 4</span><h3>Prove the GPU is real</h3></div>
-        <p>Inside the desktop, open a terminal (right-click → <em>Open Terminal Here</em>):</p>
-        <div class="cmd"><span class="p1">$</span> glxinfo | grep "renderer string"</div>
-        <p>✅ <code>zink Vulkan (Adreno (TM) … (MESA_TURNIP))</code> confirms the captured direct Adreno path. <code>virgl</code>/<code>virpipe</code> confirms the fallback route is selected, but support and speed vary.<br>
-           ❌ <code>llvmpipe</code> = CPU software rendering — troubleshoot before benchmarking.</p>
-      </div>
-
-      <div class="step">
-        <div class="step-h"><span class="step-n">NOTE</span><h3>Android 12+ users</h3></div>
-        <p>Android 12+ may terminate PRoot child processes, while memory pressure and OEM battery policy can look similar. The installer reports readable settings and points to version-aware troubleshooting; review the system-wide trade-off before changing Android safeguards.</p>
-      </div>
-
-      <div class="step">
-        <div class="step-h"><span class="step-n">OPTIONS</span><h3>Installer flags and workloads</h3></div>
-        <div class="cmd"><span class="p1">$</span> bash install.sh --yes              <span class="dm"># defaults, no questions</span>
-<span class="p1">$</span> bash install.sh --with-llm --with-dev <span class="dm"># local AI + dev tools</span>
-<span class="p1">$</span> bash install.sh --resume            <span class="dm"># continue an interrupted install</span></div>
-        <p>More: <code>--user</code>, <code>--locale</code>, <code>--backend zink|virgl</code>, <code>--zsh</code>, <code>--with-network</code>, <code>--with-media</code>, <code>--with-blender</code>, <code>--all</code>.</p>
-      </div>
-
-      <div class="step">
-        <div class="step-h"><span class="step-n">MANAGE</span><h3>Ternux CLI — permanent management interface</h3></div>
-        <p>After installation, use the <code>ternux</code> CLI for everything:</p>
-        <div class="cmd"><span class="p1">$</span> ternux doctor           <span class="dm"># system diagnostics</span>
-<span class="p1">$</span> ternux doctor --json    <span class="dm"># machine-readable structured output</span>
-<span class="p1">$</span> ternux start            <span class="dm"># start the desktop</span>
-<span class="p1">$</span> ternux stop             <span class="dm"># stop the desktop</span>
-<span class="p1">$</span> ternux repair           <span class="dm"># auto-fix common issues</span>
-<span class="p1">$</span> ternux verify           <span class="dm"># verify installation</span>
-<span class="p1">$</span> ternux backend set virgl <span class="dm"># switch GPU backend</span>
-<span class="p1">$</span> ternux update           <span class="dm"># self-update ternux CLI</span>
-<span class="p1">$</span> ternux info --json      <span class="dm"># machine-readable system info</span>
-<span class="p1">$</span> ternux uninstall        <span class="dm"># component removal</span></div>
-        <p>Global flags are recognized by the dispatcher; JSON output is command-specific. See the CLI reference for supported schemas.</p>
-      </div>
-
-      <div class="step">
-        <div class="step-h"><span class="step-n">UNINSTALL</span><h3>Clean removal</h3></div>
-        <div class="cmd"><span class="p1">$</span> curl -fsSL https://soobujmiah.github.io/ternux/uninstall.sh | bash</div>
-        <p>The managed container, launcher and state live inside Termux; clearing app data removes them, but shared-storage projects and external backups remain. The scoped uninstaller does not delete files outside Termux.</p>
-      </div>
-    </div>
-
-    <div class="cta-row" style="margin-top:1.4rem">
-      <a class="btn btn-ghost" href="{{ '/docs/MANUAL.html' | relative_url }}">Manual installation — every command →</a>
-      <a class="btn btn-ghost" href="{{ '/docs/INSTALLATION.html' | relative_url }}">Deep dive: every phase, and why →</a>
-    </div>
-  </section>
-
-  <!-- ================= CAPABILITIES ================= -->
-  <section class="sec">
-    <p class="sec-h">Measured, observed and reported separately</p>
-    <h2 class="sec-t">Practical workloads with explicit evidence limits</h2>
-    <div class="grid">
-      <a class="card" href="https://projects.blender.org/blender/blender">
-        <div class="n">CREATIVE</div><h3>Blender viewport</h3>
-        <p>The captured Blender report detected Zink/Turnip for its OpenGL viewport; it did not show a Cycles GPU device.</p></a>
-      <a class="card" href="https://github.com/ggml-org/llama.cpp">
-        <div class="n">ON-DEVICE AI</div><h3>llama.cpp Vulkan build</h3>
-        <p>The Vulkan build/use was reported; run llama-bench with your exact model before making a speed claim.</p></a>
-      <a class="card" href="https://github.com/leejet/stable-diffusion.cpp">
-        <div class="n">IMAGE GENERATION</div><h3>stable-diffusion.cpp Vulkan build</h3>
-        <p>A Vulkan-enabled build was reported; no completed-image runtime or seconds/image measurement was supplied.</p></a>
-      <a class="card" href="https://github.com/glmark2/glmark2">
-        <div class="n">MEASURED GRAPHICS</div><h3>glmark2 evidence</h3>
-        <p>The archived device run measured scores 140 and 364, with all scene FPS values and caveats preserved.</p></a>
-    </div>
-    <p style="text-align:center;color:var(--dim);font-size:.82rem;margin-top:1rem">
-      glmark2 is measured; Blender is an observed viewport route; both AI entries are reported builds without published speed. Heavy renders, large models and sustained compute remain poor phone workloads.
-    </p>
-  </section>
-
-  <!-- ================= WHICH PATH ================= -->
-  <section class="switch">
-    <p class="sec-h">Step zero</p>
-    <h2 class="sec-t">Which graphics path is your phone on?</h2>
-    <div class="switch-head" role="tablist" aria-label="Graphics backend">
-      <button class="sw-btn" id="tab-zink" role="tab" aria-selected="true"
-              aria-controls="p-zink" data-panel="p-zink">Adreno → Zink + Turnip</button>
-      <button class="sw-btn" id="tab-virgl" role="tab" aria-selected="false"
-              aria-controls="p-virgl" data-panel="p-virgl">Mali / other → VirGL</button>
-    </div>
-
-    <div class="sw-panel" id="p-zink" role="tabpanel" aria-labelledby="tab-zink">
-      <h3>Qualcomm Adreno — the direct path</h3>
-      <p>If <code>ls /dev/kgsl-3d0</code> finds the device, you have an Adreno GPU.
-         The installer picks Zink automatically: OpenGL → Vulkan → Turnip → hardware when the driver supports that device; verify the renderer rather than assuming.</p>
-      <div class="bar"><i style="width:92%"></i></div>
-      <div class="bar-l"><span>tested Adreno route</span><span>verify the renderer</span></div>
-      <p style="margin-top:.9rem"><b style="color:var(--amber)">The trap:</b> the Turnip package ships
-         no Vulkan loader. Miss <code>libvulkan1</code> and Zink silently falls back to
-         CPU rendering — with no error message at all. The installer installs the loader,
-         the ICD and the driver, then verifies all three.</p>
-    </div>
-
-    <div class="sw-panel" id="p-virgl" role="tabpanel" aria-labelledby="tab-virgl" hidden>
-      <h3>Mali, Xclipse, PowerVR — the compatible path</h3>
-      <p>No <code>/dev/kgsl-3d0</code> means no Turnip. The installer selects VirGL,
-         which pipes GL commands to a helper process on the Termux side. Feature coverage,
-         acceleration and speed vary by device, so verify the renderer and workload.</p>
-      <div class="bar"><i style="width:42%"></i></div>
-      <div class="bar-l"><span>compatibility candidate</span><span>device-dependent</span></div>
-      <p style="margin-top:.9rem"><b style="color:var(--amber)">Note:</b> nothing can make a Mali GPU
-         take the Turnip path. Choosing VirGL correctly is the win here.</p>
-    </div>
-  </section>
-
-  <!-- ================= STAGES ================= -->
-  <section class="sec">
-    <p class="sec-h">What the installer verifies</p>
-    <h2 class="sec-t">11 phases, each verified before the next</h2>
-    <div class="stages">
-      <div class="stage"><span class="num">01</span><span class="txt">Device preflight<span>Architecture, Android, storage, network and app readiness</span></span></div>
-      <div class="stage"><span class="num">02</span><span class="txt">Termux foundation<span>X11, PulseAudio, PRoot and tools — binaries verified after install</span></span></div>
-      <div class="stage"><span class="num">03</span><span class="txt">CLI installation<span>Installs the <code>ternux</code> command to PATH for ongoing management</span></span></div>
-      <div class="stage"><span class="num">04</span><span class="txt">Debian workspace<span>Container, Xfce4 and a desktop user with validated sudo</span></span></div>
-      <div class="stage"><span class="num">05</span><span class="txt">Graphics selection<span>Turnip for supported Adreno hardware or the VirGL compatibility path</span></span></div>
-      <div class="stage"><span class="num">06</span><span class="txt">Audio, locale &amp; fonts<span>Loopback-only audio bridge, your locale, emoji + Nerd font coverage</span></span></div>
-      <div class="stage"><span class="num">07</span><span class="txt">Desktop launcher<span>Writes <code>~/x.sh</code> tuned to your GPU route, syntax-checked</span></span></div>
-      <div class="stage"><span class="num">08</span><span class="txt">Reliable controls<span>x, killx, db, droot, xgo — start, stop, recovery and shell access</span></span></div>
-      <div class="stage"><span class="num">09</span><span class="txt">Optional workloads<span>Dev tools, llama.cpp, Blender and media — only what you ask for</span></span></div>
-      <div class="stage"><span class="num">10</span><span class="txt">Android safeguards<span>Phantom-process setting checks with version-aware guidance</span></span></div>
-      <div class="stage"><span class="num">11</span><span class="txt">Verification<span>Selected critical binaries, launcher and backend artifacts are checked</span></span></div>
-    </div>
-    <p style="text-align:center;margin-top:1.2rem">
-      <a class="btn btn-ghost" href="{{ '/docs/CLI.html' | relative_url }}">CLI reference →</a>
-      <a class="btn btn-ghost" href="{{ '/docs/INSTALLATION.html#what-the-installer-does-and-why-phase-by-phase' | relative_url }}">Read what each phase does — and why</a>
-    </p>
-  </section>
-
-  <!-- ================= WHY ================= -->
-  <section class="sec">
-    <p class="sec-h">Design decisions</p>
-    <h2 class="sec-t">Why ternux works the way it does</h2>
-    <div class="grid">
-      <div class="why">
-        <h3>Why no root?</h3>
-        <p>Root-based changes can affect verified boot and enlarge the blast radius.
-        PRoot emulates a root-like filesystem without Android root, but it is not
-        a security boundary: Termux-accessible paths remain reachable. Use the
-        scoped uninstaller and back up the Debian container first.</p>
-      </div>
-      <div class="why">
-        <h3>Why Zink + Turnip?</h3>
-        <p>On supported Adreno devices, Android exposes Vulkan/KGSL rather than a
-        normal desktop OpenGL stack. Zink translates GL to Vulkan and Turnip drives
-        the GPU; confirm the route with renderer evidence instead of assuming that a
-        successful launch means acceleration.</p>
-      </div>
-      <div class="why">
-        <h3>Why verified phases?</h3>
-        <p>A visible desktop is not proof of success — software rendering looks fine
-        until you run Blender. Every phase checks its work before the next starts,
-        so failures are loud and early. Resume continues interrupted installs;
-        <code>ternux repair</code> applies supported targeted fixes.</p>
-      </div>
-      <div class="why">
-        <h3>Why auditable source?</h3>
-        <p>The MIT-licensed bootstrap and library modules can be downloaded and
-        reviewed before execution. The documentation identifies the GitHub,
-        Termux/Debian and Mesa sources used for code, packages and driver assets;
-        the one-command route trades some reviewability for convenience.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- ================= DOCS ================= -->
-  <section class="sec">
-    <p class="sec-h">Documentation — English &amp; বাংলা</p>
-    <h2 class="sec-t">Core guides in English and বাংলা; evidence archive in English</h2>
-    <div class="grid">
-      <a class="card" href="{{ '/docs/QUICK-START.html' | relative_url }}">
-        <div class="n">01 — START</div><h3>Quick start</h3>
-        <p>Two Android apps, one installer command, first launch and renderer checks.</p></a>
-      <a class="card" href="{{ '/docs/INSTALLATION.html' | relative_url }}">
-        <div class="n">02 — INSTALL</div><h3>Installation</h3>
-        <p>Requirements, the one-command installer, every phase and why, all options, uninstall.</p></a>
-      <a class="card" href="{{ '/docs/MANUAL.html' | relative_url }}">
-        <div class="n">03 — BY HAND</div><h3>Manual install</h3>
-        <p>Every command spelled out — the whole journey by hand, step by step.</p></a>
-      <a class="card" href="{{ '/docs/USAGE.html' | relative_url }}">
-        <div class="n">04 — DAILY</div><h3>Usage</h3>
-        <p>Daily controls, lightweight Blender, local AI, development and authorised security labs.</p></a>
-      <a class="card" href="{{ '/docs/TROUBLESHOOTING.html' | relative_url }}">
-        <div class="n">05 — SUPPORT</div><h3>Troubleshooting</h3>
-        <p>Symptom → cause → fix. Phantom killer, llvmpipe, audio, network, clean reinstall.</p></a>
-      <a class="card" href="{{ '/docs/CONFIGURATION.html' | relative_url }}">
-        <div class="n">06 — TUNING</div><h3>Configuration</h3>
-        <p>GPU routes, launcher environment, audio bridge, locales, fonts, held packages.</p></a>
-      <a class="card" href="{{ '/docs/ARCHITECTURE.html' | relative_url }}">
-        <div class="n">07 — DESIGN</div><h3>Architecture</h3>
-        <p>How Termux, PRoot, X11 and Mesa actually fit together — and fail modes.</p></a>
-      <a class="card" href="{{ '/docs/FAQ.html' | relative_url }}">
-        <div class="n">08 — ANSWERS</div><h3>FAQ</h3>
-        <p>Root, safety, Play Store Termux, storage, battery, gaming, privacy.</p></a>
-      <a class="card" href="https://github.com/soobujmiah/ternux">
-        <div class="n">09 — SOURCE</div><h3>GitHub</h3>
-        <p>Issues, contributions and the documentation source itself.</p></a>
-    </div>
-  </section>
-
-  <footer>
-    Built by <a href="https://github.com/soobujmiah">Sobuj Miah (@soobujmiah)</a><br>
-    Copyright © 2026 Sobuj Miah · MIT licensed<br>
-    <span style="color:var(--grn-d)">&gt;_</span> not affiliated with Termux, Debian, Xfce, Blender, Qualcomm or named third-party tools
   </footer>
-</div>
 
-<script src="{{ '/assets/js/codecopy.js' | relative_url }}" defer></script>
-<script>
-document.querySelectorAll('.sw-btn').forEach(function(btn){
-  btn.addEventListener('click', function(){
-    document.querySelectorAll('.sw-btn').forEach(function(b){
-      b.setAttribute('aria-selected','false');
-      document.getElementById(b.dataset.panel).hidden = true;
+  <script>
+  (function () {
+    var button = document.querySelector("[data-copy-command]");
+    var command = document.getElementById("install-command");
+    if (!button || !command) return;
+    button.addEventListener("click", function () {
+      var text = command.textContent;
+      var finish = function (ok) {
+        button.textContent = ok ? "copied ✓" : "copy failed";
+        window.setTimeout(function () { button.textContent = "copy"; }, 1500);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function () { finish(true); }, function () { finish(false); });
+      } else {
+        var area = document.createElement("textarea"); area.value = text; document.body.appendChild(area); area.select();
+        try { finish(document.execCommand("copy")); } catch (e) { finish(false); }
+        document.body.removeChild(area);
+      }
     });
-    btn.setAttribute('aria-selected','true');
-    document.getElementById(btn.dataset.panel).hidden = false;
-  });
-});
-var copyBtn = document.getElementById('copyBtn');
-var installCmd = document.getElementById('installCmd');
-function fallbackCopy(text){
-  var ta = document.createElement('textarea');
-  ta.value = text; ta.setAttribute('readonly','');
-  ta.style.position='fixed'; ta.style.left='-9999px';
-  document.body.appendChild(ta);
-  ta.select();
-  var ok = false;
-  try { ok = document.execCommand('copy'); } catch(e){}
-  document.body.removeChild(ta);
-  return ok;
-}
-function doInstallCopy(){
-  var cmd = copyBtn.dataset.cmd;
-  function done(ok){
-    copyBtn.textContent = ok ? 'copied ✓' : 'failed';
-    copyBtn.classList.add('copied');
-    setTimeout(function(){ copyBtn.textContent = 'copy'; copyBtn.classList.remove('copied'); }, 1600);
-  }
-  if (navigator.clipboard && navigator.clipboard.writeText){
-    navigator.clipboard.writeText(cmd).then(function(){ done(true); }, function(){ done(fallbackCopy(cmd)); });
-  } else { done(fallbackCopy(cmd)); }
-}
-if (copyBtn) copyBtn.addEventListener('click', doInstallCopy);
-if (installCmd) {
-  installCmd.addEventListener('click', doInstallCopy);
-  installCmd.addEventListener('keydown', function(event){
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault();
-      doInstallCopy();
-    }
-  });
-}
-</script>
+  })();
+  </script>
 </body>
 </html>

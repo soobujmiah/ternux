@@ -6,8 +6,6 @@ alt_url: "/docs/TROUBLESHOOTING.html"
 
 ---
 
-# সমস্যা সমাধান
-
 টেবিলটি সাধারণ symptom-কে সম্ভাব্য cause ও check-এর সঙ্গে মিলিয়েছে। একই
 symptom-এর একাধিক কারণ হতে পারে, তাই repair-এর আগে নাম দেওয়া evidence নিন।
 
@@ -28,8 +26,7 @@ symptom-এর একাধিক কারণ হতে পারে, তাই
 
 ---
 
-<a id="the-desktop-dies-silently"></a>
-## ডেস্কটপ নিঃশব্দে মরে যায়
+<h2 id="the-desktop-dies-silently">ডেস্কটপ নিঃশব্দে মরে যায়</h2>
 
 **লক্ষণ:** Xfce4 বা দীর্ঘ build কোনো error message ছাড়া বন্ধ হয়। Termux-এ
 `[Process completed (signal 9) - press Enter]` আসতে পারে।
@@ -69,8 +66,7 @@ battery drain হলে reverse করুন। `ternux doctor` readable setting
 
 ---
 
-<a id="black-screen-in-termuxx11"></a>
-## Termux:X11-এ কালো স্ক্রিন
+<h2 id="black-screen-in-termuxx11">Termux:X11-এ কালো স্ক্রিন</h2>
 
 **লক্ষণ:** `x` কমান্ড চলে, কিন্তু Termux:X11-এ কালো বা খালি উইন্ডো।
 
@@ -95,8 +91,7 @@ x
 
 ---
 
-<a id="renderer-says-llvmpipe"></a>
-## রেন্ডারার llvmpipe বলে
+<h2 id="renderer-says-llvmpipe">রেন্ডারার llvmpipe বলে</h2>
 
 **লক্ষণ:** desktop চলে, কিন্তু `glxinfo -B`-তে renderer `llvmpipe`। এটি Mesa
 software fallback; শুধু visible desktop GPU route প্রমাণ করে না।
@@ -132,8 +127,7 @@ asset unreachable/incompatible হলে সচেতনভাবে
 
 ---
 
-<a id="no-audio"></a>
-## অডিও নেই
+<h2 id="no-audio">অডিও নেই</h2>
 
 **লক্ষণ:** ডেস্কটপ চলে, কিন্তু শব্দ নেই। (বা: আপডেটের পর শব্দ বন্ধ।)
 
@@ -159,8 +153,7 @@ PulseAudio মরে গেলে (কিল হয়েছে, বা ক্�
 
 ---
 
-<a id="no-network-in-the-container"></a>
-## কন্টেইনারে নেটওয়ার্ক নেই
+<h2 id="no-network-in-the-container">কন্টেইনারে নেটওয়ার্ক নেই</h2>
 
 **লক্ষণ:** Termux-এ network চলে, Debian guest-এ name resolution ব্যর্থ।
 PRoot host network নিলেও resolver config সব সময় ঠিকমতো আসে না। Config
@@ -193,8 +186,7 @@ File পরে regenerate হতে পারে। Public resolver ব্যব
 
 ---
 
-<a id="display-never-appears"></a>
-## ডিসপ্লে আসছে না
+<h2 id="display-never-appears">ডিসপ্লে আসছে না</h2>
 
 **লক্ষণ:** লঞ্চার `Waiting for Termux-X11 display socket…` দেখিয়ে ৩০
 সেকেন্ডে টাইমআউট করে।
@@ -211,8 +203,7 @@ File পরে regenerate হতে পারে। Public resolver ব্যব
 
 ---
 
-<a id="proot-distro-says-option--c-is-unrecognized"></a>
-## proot-distro `-c` option চেনে না
+<h2 id="proot-distro-says-option--c-is-unrecognized">proot-distro <code>-c</code> option চেনে না</h2>
 
 **লক্ষণ:** `x` চালালে `Error: unrecognized option: '-c'.` ও proot-distro usage।
 
@@ -230,8 +221,7 @@ replacement mechanism নয়।
 
 ---
 
-<a id="pasted-command-starts-with"></a>
-## পেস্ট করা কমান্ড $ দিয়ে শুরু
+<h2 id="pasted-command-starts-with">পেস্ট করা কমান্ড $ দিয়ে শুরু</h2>
 
 **লক্ষণ:** ইনস্টল কমান্ড পেস্ট করলে শেল বলে
 `No command $ found, did you mean: …` — পেস্টের শুরুতে একটি `$` আছে।
@@ -247,8 +237,7 @@ replacement mechanism নয়।
 
 ---
 
-<a id="curl-cannot-link-after-an-upgrade"></a>
-## আপগ্রেডের পর curl লিংক হতে পারে না
+<h2 id="curl-cannot-link-after-an-upgrade">আপগ্রেডের পর curl লিংক হতে পারে না</h2>
 
 **লক্ষণ:** curl চালালে আসে
 `CANNOT LINK EXECUTABLE "curl": cannot locate symbol "SSL_set_quic_tls_transport_params" referenced by …/libngtcp2_crypto_ossl.so`।
@@ -282,8 +271,7 @@ wget -qO- https://soobujmiah.github.io/ternux/install.sh | bash
 
 ---
 
-<a id="opensslcnf-conffile-cascade"></a>
-## openssl.cnf conffile ক্যাসকেড
+<h2 id="opensslcnf-conffile-cascade">openssl.cnf conffile ক্যাসকেড</h2>
 
 **লক্ষণ:** `pkg upgrade`-এর (বা পাইপ করা ইনস্টলের) সময় দেখবেন
 `*** openssl.cnf (Y/I/N/O/D/Z) [default=N] ?` তারপর
@@ -320,8 +308,7 @@ apt অপারেশনে `--force-confold --force-confdef` দেয় এ�
 
 ---
 
-<a id="apt-failures"></a>
-## apt ব্যর্থতা
+<h2 id="apt-failures">apt ব্যর্থতা</h2>
 
 **লক্ষণ:** guest Debian release-এ একটি package name unavailable হওয়ায় install
 group ব্যর্থ। Package name ও repository component release-ভেদে বদলায়; deb822
@@ -341,8 +328,7 @@ guidance দেখে `/etc/apt/sources.list*` review করুন। obsolete p
 
 ---
 
-<a id="after-an-upgrade-the-gpu-path-is-gone"></a>
-## আপগ্রেডের পর GPU পথ হারিয়ে গেছে
+<h2 id="after-an-upgrade-the-gpu-path-is-gone">আপগ্রেডের পর GPU পথ হারিয়ে গেছে</h2>
 
 **লক্ষণ:** রেন্ডারার ছিল `zink … Turnip`, `apt upgrade`-এর পর এখন
 `llvmpipe`।

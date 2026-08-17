@@ -22,9 +22,10 @@ Termux + PRoot Debian + Xfce4 — Adreno ডিভাইসে Zink/Turnip দ�
 **বাংলা** · [English](https://soobujmiah.github.io/ternux/) · [English README](../README.md)
 
 [ওয়েবসাইট](https://soobujmiah.github.io/ternux/bn/) ·
-[ইনস্টলেশন](docs/INSTALLATION.md) ·
+[ডকুমেন্টেশন](https://soobujmiah.github.io/ternux/bn/docs/) ·
 [দ্রুত শুরু](docs/QUICK-START.md) ·
-[সাধারণ প্রশ্ন](docs/FAQ.md)
+[ম্যানুয়াল ইনস্টল](docs/MANUAL.md) ·
+[প্রমাণ](docs/BENCHMARKS.md)
 
 </div>
 
@@ -124,6 +125,24 @@ partition পরিবর্তন না করে।
 - ✅ ডেভেলপমেন্ট: Node.js, Python, কোডিং অ্যাসিস্ট্যান্ট
 - ⚠️ ভারী রেন্ডার, বড় সিমুলেশন, বিশাল মডেল, মাইনিং — এসবের জন্য নয়
 
+### মাপা device snapshot
+
+নিচের August 2026 evidence একটি **Redmi Turbo 4 Pro** (Snapdragon 8s Gen 4 /
+Adreno 825) থেকে। এটি একটি device-এর result—সব ফোনের compatibility বা performance
+guarantee নয়।
+
+| Result | Captured value |
+|---|---:|
+| Windowed OpenGL glmark2 | **140 score**, 33 scene-এ **45–164 FPS** |
+| OpenGL ES command | **364 score**, 33 scene-এ **53–465 FPS**; DRI3 caveat-সহ |
+| Renderer | `zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP))` |
+| Blender | একই OpenGL renderer **observed**; viewport FPS ও Cycles GPU unmeasured |
+| llama.cpp / stable-diffusion.cpp | Vulkan build path reported; numeric performance **untested** |
+
+ternux **measured**, **observed**, **reported build** ও **untested** result আলাদা
+রাখে। সব 66 scene value, caveat ও reproduction command দেখুন
+[বেঞ্চমার্ক ও ডিভাইস প্রমাণ](docs/BENCHMARKS.md)-এ।
+
 ---
 
 ## প্রয়োজনীয়তা
@@ -173,19 +192,23 @@ Vulkan) · `--with-network` (nmap, tmux — শুধু অনুমোদি�
 
 ## ডকুমেন্টেশন
 
-মূল guide-গুলোর English ও বাংলা সংস্করণ আছে; পূর্ণ benchmark evidence archive
-বর্তমানে English-এ। ভাষা switch বা নিচের link ব্যবহার করুন।
+English ও বাংলা guide-এ একই navigation, organization ও core technical coverage
+আছে। Task-based map থেকে শুরু করুন অথবা নিচের source guide খুলুন।
 
 | ডকুমেন্ট | উদ্দেশ্য |
 |---|---|
-| [দ্রুত শুরু](docs/QUICK-START.md) | অ্যাপ ইনস্টল থেকে যাচাইকৃত ডেস্কটপ পর্যন্ত দ্রুততম পথ |
-| [ইনস্টলেশন](docs/INSTALLATION.md) | প্রয়োজনীয়তা, এক-কমান্ড ইনস্টল, প্রতিটি ধাপ কী করে *ও কেন*, ফ্ল্যাগ, আনইনস্টল |
-| [ম্যানুয়াল ইনস্টলেশন](docs/MANUAL.md) | প্রতিটি ধাপ ও কমান্ড হাতে চালানো — পূর্ণ নিয়ন্ত্রণ বা ইনস্টলার ডিবাগিং |
-| [ব্যবহার](docs/USAGE.md) | দৈনিক নিয়ন্ত্রণ, স্টোরেজ বিন্যাস, Blender, লোকাল AI, ডেভেলপমেন্ট, ব্যাকআপ |
-| [কনফিগারেশন](docs/CONFIGURATION.md) | প্রতিটি সেটিং: লঞ্চার এনভায়রনমেন্ট, GPU পথ, অডিও, লোকেল, ফন্ট |
-| [সমস্যা সমাধান](docs/TROUBLESHOOTING.md) | লক্ষণ → কারণ → সমাধান, ফ্যান্টম কিলার, `llvmpipe`, অডিও, নেটওয়ার্ক |
-| [আর্কিটেকচার](docs/ARCHITECTURE.md) | স্ট্যাক কীভাবে জোড়া লাগে এবং কোথায় নিঃশব্দে ভাঙতে পারে |
-| [সাধারণ প্রশ্ন](docs/FAQ.md) | root, নিরাপত্তা, Play Store Termux, স্টোরেজ, ব্যাটারি, গেমিং, প্রাইভেসি |
+| [ডকুমেন্টেশন পরিচিতি](https://soobujmiah.github.io/ternux/bn/docs/) | Task-based map, installation chooser ও evidence vocabulary |
+| [দ্রুত শুরু](docs/QUICK-START.md) | অ্যাপ ইনস্টল থেকে যাচাইকৃত desktop পর্যন্ত দ্রুততম পথ |
+| [ইনস্টলেশন](docs/INSTALLATION.md) | প্রয়োজনীয়তা, এক-কমান্ড install, phase, flag, update ও removal |
+| [ম্যানুয়াল ইনস্টলেশন](docs/MANUAL.md) | পূর্ণ নিয়ন্ত্রণ বা installer debugging-এর command-by-command setup |
+| [ব্যবহার](docs/USAGE.md) | দৈনিক নিয়ন্ত্রণ, storage, workload, backup ও তাপ |
+| [কনফিগারেশন](docs/CONFIGURATION.md) | Launch environment, GPU route, audio, locale, font ও file |
+| [সমস্যা সমাধান](docs/TROUBLESHOOTING.md) | লক্ষণ → diagnosis → নিরাপদ repair |
+| [আর্কিটেকচার](docs/ARCHITECTURE.md) | X11, audio, PRoot ও GPU data path |
+| [বেঞ্চমার্ক](docs/BENCHMARKS.md) | Device evidence, সব FPS value, caveat ও reproduction |
+| [সাধারণ প্রশ্ন](docs/FAQ.md) | Root, নিরাপত্তা, Termux source, storage, battery ও privacy |
+| [CLI রেফারেন্স](docs/CLI.md) | Command, flag ও structured-output coverage |
+| [কনট্রিবিউটিং](CONTRIBUTING.md) | Code, translation, patch ও classified device evidence |
 
 ---
 

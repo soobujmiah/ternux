@@ -6,8 +6,6 @@ alt_url: "/docs/QUICK-START.html"
 
 ---
 
-# দ্রুত শুরু
-
 চার ধাপে Android app থেকে installed desktop ও renderer check। সময় device,
 mirror এবং network অনুযায়ী বদলাবে।
 

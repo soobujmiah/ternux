@@ -1,37 +1,51 @@
-# ternux — GitHub Pages configuration
+# ternux — GitHub Pages / Jekyll configuration
 # https://github.com/soobujmiah/ternux
 
 title: ternux
-description: GPU-accelerated Linux desktop for Android — one command, no root
-url: https://soobujmiah.github.io/ternux
+description: >-
+  An evidence-led Debian and Xfce workspace for Android using Termux,
+  PRoot Distro, Termux:X11, and explicit graphics backends.
+url: https://soobujmiah.github.io
 baseurl: /ternux
+repository: soobujmiah/ternux
 
-theme: jekyll-theme-hacker
-
-# Site settings
 lang: en
 timezone: Asia/Dhaka
 copyright: 2026 Sobuj Miah
+version: 1.3.0
 
-# Navigation
-nav:
-  - title: Home
-    url: /
-  - title: Installation
-    url: /docs/INSTALLATION.html
-  - title: Quick start
-    url: /docs/QUICK-START.html
-  - title: Usage
-    url: /docs/USAGE.html
-  - title: Benchmarks
-    url: /docs/BENCHMARKS.html
-  - title: FAQ
-    url: /docs/FAQ.html
-  - title: বাংলা
-    url: /bn/
+# GitHub Pages supports these settings without third-party plugins.
+markdown: kramdown
+kramdown:
+  input: GFM
+  hard_wrap: false
+  syntax_highlighter: rouge
+highlighter: rouge
+strict_front_matter: true
 
+# Every rendered Markdown page receives the professional documentation shell.
+# The two landing pages explicitly use `layout: null`.
 defaults:
   - scope:
       path: ""
     values:
       layout: default
+  - scope:
+      path: "docs"
+    values:
+      lang: en
+  - scope:
+      path: "bn/docs"
+    values:
+      lang: bn
+
+exclude:
+  - tests
+  - vendor
+  - docs/README.md
+  - bn/docs/README.md
+  - Gemfile
+  - Gemfile.lock
+  - CLAUDE.md
+  - REPO_AUDIT.md
+  - "*.bats"

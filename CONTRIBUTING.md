@@ -1,87 +1,176 @@
-# Contributing to ternux
+---
+title: "Contributing"
+description: "Contribute code, documentation, Bengali translations, reproducible bug reports, or carefully classified device evidence to ternux."
+lang: "en"
+alt_url: "/bn/CONTRIBUTING.html"
+---
 
-Thank you for considering contributing to ternux! This project aims to be a
-world-class open-source Linux-on-Android platform, and every contribution helps.
+Thank you for improving ternux. Useful contributions include code, tests,
+documentation, Bengali translation, reproducible bug reports, and device evidence.
+Small, focused changes are easier to review than unrelated changes bundled together.
 
-## Code of conduct
+## Before you start
 
-This project follows the [Contributor Covenant](CODE_OF_CONDUCT.md).
-By participating, you agree to uphold its standards.
+- Follow the [Contributor Covenant](https://github.com/soobujmiah/ternux/blob/main/CODE_OF_CONDUCT.md).
+- Search [open issues](https://github.com/soobujmiah/ternux/issues) and pull
+  requests before duplicating work.
+- Use the [security policy](https://github.com/soobujmiah/ternux/security/policy)
+  for suspected vulnerabilities. Do not publish exploit details in an issue.
+- Read the [documentation overview](https://soobujmiah.github.io/ternux/docs/)
+  and [architecture guide](https://soobujmiah.github.io/ternux/docs/ARCHITECTURE.html)
+  before changing installer boundaries or graphics behavior.
 
-## How to contribute
+## Ways to contribute
 
-### Reporting bugs
+### Report a reproducible bug
 
-1. Check the [FAQ](docs/FAQ.md) and [Troubleshooting](docs/TROUBLESHOOTING.md) guide
-2. Search [existing issues](https://github.com/soobujmiah/ternux/issues)
-3. Use the **Bug report** template — include device info, terminal output, and
-   steps to reproduce
+Use the [bug report template](https://github.com/soobujmiah/ternux/issues/new/choose).
+Include:
 
-### Requesting features
+1. phone model, Android version, architecture, and Termux source;
+2. ternux version or exact commit;
+3. selected profile and public backend (`zink` or `virgl`);
+4. the command you ran and the complete relevant output;
+5. `ternux doctor` output, with private paths or tokens redacted;
+6. the smallest repeatable sequence that triggers the problem.
 
-Open an issue using the **Feature request** template. Explain the problem you
-are solving, not just the solution you want.
+Check [Troubleshooting](https://soobujmiah.github.io/ternux/docs/TROUBLESHOOTING.html)
+first. Screenshots can supplement text output, but should not replace it.
 
-### Device reports
+### Submit device evidence
 
-If ternux works on your phone, share your device configuration! Use the
-**Device report** template. This helps us track compatibility.
+Use the device report template and classify each result correctly:
 
-### Pull requests
+- **Measured** — captured numeric output such as score, FPS, time, memory, or tokens/s.
+- **Observed** — direct non-numeric output such as an application-reported renderer.
+- **Reported build** — a build completed, but runtime performance is not established.
+- **Untested** — no affirmative result is available.
 
-1. Fork the repository
-2. Create a branch: `git checkout -b feature/my-feature`
-3. Make your changes
-4. Run `bash -n` on any shell scripts to verify syntax
-5. Update documentation and CHANGELOG
-6. Open a pull request with the **PR template**
+For benchmark submissions, record the command, commit/version, renderer and backend,
+resolution or model, thermal/power conditions, all repetitions, and raw output. Never
+submit only the best run. Follow the
+[evidence protocol](https://soobujmiah.github.io/ternux/docs/BENCHMARKS.html).
 
-### Development setup
+### Contribute code or tests
+
+Changes to `install.sh`, `bin/ternux`, or `lib/*.sh` should:
+
+- remain safe to rerun where the phase is intended to be idempotent;
+- quote expansions and avoid evaluating untrusted input;
+- preserve explicit backend names and state-file compatibility;
+- keep human-readable output and documented JSON output truthful;
+- include a focused regression for every corrected failure mode;
+- avoid modifying Android system partitions or unrelated Termux state.
+
+### Improve documentation or translation
+
+English and Bengali have the same navigation and core technical coverage. A change
+that affects user behavior is incomplete until both language paths are reconciled.
+Translations should preserve commands, backend names, evidence values, warning
+severity, and technical meaning; they do not need to imitate English sentence order.
+
+## Development workflow
 
 ```bash
 git clone https://github.com/soobujmiah/ternux.git
 cd ternux
-bash -n bin/ternux          # syntax check CLI
-(set -e; for f in lib/*.sh; do bash -n "$f"; done)  # check each library
-bash -n install.sh          # syntax check installer
+git checkout -b fix/short-description
 ```
 
-### Coding standards
+Then:
 
-- **Bash scripts**: use `set -u`, `local` variables, avoid backtick execution
-- **Documentation**: write in English (Bangla translations welcome too)
-- **JSON output**: every major CLI command must support `--json`
-- **Tests**: test idempotency — running a phase twice should be safe
-- **Commits**: use conventional commits (`feat:`, `fix:`, `docs:`, `refactor:`)
+1. make one coherent change;
+2. add or update a focused test;
+3. update English and Bengali documentation where behavior changes;
+4. update `_data/docs.yml` if a documentation page or label changes;
+5. run the validation commands below;
+6. inspect `git diff` for generated files, secrets, and unrelated edits;
+7. open a pull request using the repository template.
 
-### Documentation
+Write a clear commit subject in imperative form, such as
+`Harden archive member validation`. Conventional prefixes are welcome but not
+required; clarity matters more than a specific prefix scheme.
 
-All documentation lives in `docs/` (English) and `bn/docs/` (Bangla).
-Both must stay synchronized. When adding a feature:
+## Engineering standards
 
-1. Update the English doc
-2. Update the Bangla mirror
-3. Reference the doc from README.md and the nav
+- **Shell:** use Bash deliberately, `local` variables inside functions, quoted
+  expansions, explicit failure handling, and no backtick command substitution.
+- **Input:** validate paths, archive members, identifiers, flags, and external data
+  before use.
+- **State:** write atomically where practical and keep repair/update paths compatible
+  with documented state.
+- **JSON:** emit valid JSON to stdout; keep progress, warnings, and diagnostics out
+  of the JSON stream.
+- **Cleanup:** uninstall only owned and documented targets. Do not remove broad
+  package sets, repositories, user projects, or unrelated configuration.
+- **Claims:** do not convert a successful build into a runtime or performance claim.
+- **Dependencies:** justify additions and prefer existing Termux/Debian tools.
 
-The JSON output schema is documented in `share/templates/json-schema.md`.
+## Documentation standards
 
-## Project structure
+The site navigation source is `_data/docs.yml`. English and Bengali lists must stay
+in the same order and expose matching destinations. Core pages live in `docs/` and
+`bn/docs/`; landing pages are `index.html` and `bn/index.html`.
 
+When changing a user-facing behavior:
+
+1. update the relevant English guide;
+2. update its Bengali counterpart;
+3. update CLI examples and structured-output notes;
+4. keep `alt_url` front matter reciprocal;
+5. update navigation, landing links, README maps, and sitemap if destinations change;
+6. preserve explicit headings or fragments referenced from other pages.
+
+Workload/tool cards must link to the upstream project repositories. Performance
+language must retain the measured, observed, reported-build, and untested boundary.
+
+## Validation
+
+Run from the repository root:
+
+```bash
+bash tests/focused.sh
+bats tests/smoke.bats
+python3 tests/docs_check.py
+
+set -e
+for file in install.sh uninstall.sh bin/ternux lib/*.sh; do
+  bash -n "$file"
+done
+
+node --check assets/js/docs.js
+node --check assets/js/codecopy.js
+git diff --check
 ```
-bin/ternux        CLI entry point
-lib/*.sh          Modular shell libraries
-install.sh        Thin bootstrapper (standalone install)
-uninstall.sh      Clean removal script
-docs/             English documentation
-bn/               Bangla documentation
-share/templates/  Schemas and templates
-.github/          Issue and PR templates
+
+Install [bats-core](https://github.com/bats-core/bats-core) first if `bats` is not
+on `PATH`. For site work, also inspect keyboard navigation, narrow screens, reduced
+motion, and print output; `tests/docs_check.py` covers the deterministic link,
+front-matter, language-parity, and content-integrity checks.
+
+Do not run destructive uninstall scenarios against your real environment. Use an
+isolated test home/container or the existing mocked regressions.
+
+## Repository map
+
+```text
+bin/ternux             public CLI entry point
+lib/*.sh               installer and runtime modules
+install.sh             hosted bootstrap entry point
+uninstall.sh           scoped removal entry point
+tests/                  focused and Bats regressions
+docs/                   English technical documentation
+bn/docs/                Bengali technical documentation
+_data/docs.yml          mirrored site navigation model
+_layouts/default.html   documentation application shell
+assets/                 local CSS, JavaScript, fonts, and social image
+share/templates/        schemas and managed templates
+.github/                issue, pull-request, ownership, and automation policy
 ```
 
-## Getting help
+## Review, conduct, and license
 
-- Open a GitHub issue for bugs and questions
-- Read the [Architecture](docs/ARCHITECTURE.md) document to understand the stack
-- Read the [Manual installation](docs/MANUAL.md) for step-by-step setup
-
-Thank you for making ternux better!
+Maintainers may ask for a smaller scope, raw evidence, a regression, or language
+parity before merging. Review comments address the change, not the contributor.
+By participating, you agree to follow the [Code of Conduct](https://github.com/soobujmiah/ternux/blob/main/CODE_OF_CONDUCT.md).
+Contributions are accepted under the repository's [MIT License](https://github.com/soobujmiah/ternux/blob/main/LICENSE).

@@ -1,0 +1,98 @@
+# Canonical documentation navigation.
+# Keep the English and Bengali lists structurally identical and in the same order.
+en:
+  - label: Start here
+    items:
+      - title: Documentation overview
+        url: /docs/
+        summary: Choose the right path and understand the evidence labels.
+      - title: Quick start
+        url: /docs/QUICK-START.html
+        summary: Install, launch, and verify the renderer.
+      - title: Installation
+        url: /docs/INSTALLATION.html
+        summary: Requirements, installer phases, options, updates, and removal.
+      - title: Manual installation
+        url: /docs/MANUAL.html
+        summary: Audit and perform each setup step yourself.
+  - label: Operate
+    items:
+      - title: Daily usage
+        url: /docs/USAGE.html
+        summary: Sessions, storage, workloads, backups, and heat.
+      - title: Configuration
+        url: /docs/CONFIGURATION.html
+        summary: Launch variables, graphics routes, audio, locale, and fonts.
+      - title: Troubleshooting
+        url: /docs/TROUBLESHOOTING.html
+        summary: Symptom-led diagnosis and safe recovery.
+  - label: Understand
+    items:
+      - title: Architecture
+        url: /docs/ARCHITECTURE.html
+        summary: Android, Termux, PRoot, X11, audio, and GPU data paths.
+      - title: Evidence & benchmarks
+        url: /docs/BENCHMARKS.html
+        summary: Measured results, boundaries, and the reproduction protocol.
+      - title: FAQ
+        url: /docs/FAQ.html
+        summary: Direct answers about support, safety, privacy, and limits.
+  - label: Reference
+    items:
+      - title: CLI reference
+        url: /docs/CLI.html
+        summary: Commands, flags, exit behavior, and structured output.
+      - title: Changelog
+        url: /CHANGELOG.html
+        summary: Published project history.
+      - title: Contributing
+        url: /CONTRIBUTING.html
+        summary: Code, documentation, translation, and device evidence.
+bn:
+  - label: শুরু করুন
+    items:
+      - title: ডকুমেন্টেশন পরিচিতি
+        url: /bn/docs/
+        summary: সঠিক পথ বেছে নিন এবং evidence label বুঝুন।
+      - title: দ্রুত শুরু
+        url: /bn/docs/QUICK-START.html
+        summary: ইনস্টল, launch এবং renderer যাচাই করুন।
+      - title: ইনস্টলেশন
+        url: /bn/docs/INSTALLATION.html
+        summary: প্রয়োজনীয়তা, installer phase, option, update ও removal।
+      - title: ম্যানুয়াল ইনস্টলেশন
+        url: /bn/docs/MANUAL.html
+        summary: প্রতিটি setup ধাপ audit করে নিজে সম্পন্ন করুন।
+  - label: পরিচালনা
+    items:
+      - title: দৈনন্দিন ব্যবহার
+        url: /bn/docs/USAGE.html
+        summary: Session, storage, workload, backup ও তাপ।
+      - title: কনফিগারেশন
+        url: /bn/docs/CONFIGURATION.html
+        summary: Launch variable, graphics route, audio, locale ও font।
+      - title: সমস্যা সমাধান
+        url: /bn/docs/TROUBLESHOOTING.html
+        summary: লক্ষণভিত্তিক diagnosis ও নিরাপদ recovery।
+  - label: বুঝে নিন
+    items:
+      - title: আর্কিটেকচার
+        url: /bn/docs/ARCHITECTURE.html
+        summary: Android, Termux, PRoot, X11, audio ও GPU data path।
+      - title: প্রমাণ ও বেঞ্চমার্ক
+        url: /bn/docs/BENCHMARKS.html
+        summary: Measured result, সীমা ও reproduction protocol।
+      - title: সাধারণ প্রশ্ন
+        url: /bn/docs/FAQ.html
+        summary: Support, নিরাপত্তা, privacy ও সীমা নিয়ে সরাসরি উত্তর।
+  - label: রেফারেন্স
+    items:
+      - title: CLI রেফারেন্স
+        url: /bn/docs/CLI.html
+        summary: Command, flag, exit behavior ও structured output।
+      - title: পরিবর্তনলগ
+        url: /bn/CHANGELOG.html
+        summary: প্রকাশিত project history।
+      - title: কনট্রিবিউটিং
+        url: /bn/CONTRIBUTING.html
+        summary: Code, documentation, translation ও device evidence।

@@ -1,0 +1,54 @@
+name: Validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Shell, behavior, and documentation
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install Bats
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes bats
+
+      - name: Check Bash syntax independently
+        shell: bash
+        run: |
+          set -euo pipefail
+          for file in install.sh uninstall.sh bin/ternux lib/*.sh; do
+            bash -n "$file"
+          done
+
+      - name: Run focused regressions
+        run: bash tests/focused.sh
+
+      - name: Run Bats smoke suite
+        run: bats tests/smoke.bats
+
+      - name: Validate documentation and bilingual site structure
+        run: python3 tests/docs_check.py
+
+      - name: Check JavaScript syntax
+        run: |
+          node --check assets/js/docs.js
+          node --check assets/js/codecopy.js
+
+      - name: Reject whitespace errors in the committed change
+        run: git show --check --format= HEAD

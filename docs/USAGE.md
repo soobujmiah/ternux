@@ -5,8 +5,6 @@ lang: "en"
 alt_url: "/bn/docs/USAGE.html"
 ---
 
-# Usage
-
 Everything you need for day-to-day life with a Linux desktop in your pocket.
 
 ---

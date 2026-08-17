@@ -6,8 +6,6 @@ alt_url: "/docs/INSTALLATION.html"
 
 ---
 
-# ইনস্টলেশন
-
 এটি সম্পূর্ণ গাইড। সংক্ষিপ্ত পথ চাইলে শুরু করুন
 [দ্রুত শুরু](QUICK-START.html) থেকে।
 
@@ -18,8 +16,7 @@ alt_url: "/docs/INSTALLATION.html"
 
 ---
 
-<a id="requirements"></a>
-## প্রয়োজনীয়তা
+<h2 id="requirements">প্রয়োজনীয়তা</h2>
 
 | | প্রস্তাবিত বেসলাইন | কেন জরুরি |
 |---|---|---|
@@ -123,8 +120,7 @@ Structured output শুধু [CLI reference](CLI.html)-এ নথিভুক�
 
 ---
 
-<a id="what-the-installer-does-and-why-phase-by-phase"></a>
-## ইনস্টলার যা করে (এবং কেন, ধাপে ধাপে)
+<h2 id="what-the-installer-does-and-why-phase-by-phase">ইনস্টলার যা করে (এবং কেন, ধাপে ধাপে)</h2>
 
 ইনস্টলার **এগারোটি যাচাইকৃত ধাপে** সাজানো। প্রতিটি ধাপ পরেরটি শুরুর আগে নিজের
 কাজ যাচাই করে — ব্যর্থ ধাপ স্পষ্ট বার্তায় ইনস্টল থামিয়ে দেয়, "প্রায় চলে"

@@ -6,8 +6,6 @@ alt_url: "/bn/docs/CONFIGURATION.html"
 
 ---
 
-# Configuration
-
 ternux installs with sensible defaults, and everything can be tuned. This page
 explains every knob, where it lives, and *why* it is set the way it is.
 

@@ -6,10 +6,37 @@ alt_url: "/docs/USAGE.html"
 
 ---
 
-# ব্যবহার
+পকেটে Linux ডেস্কটপ নিয়ে দৈনন্দিন জীবনযাপনের সবকিছু।
+
+---
+
+## দৈনিক নিয়ন্ত্রণ
+
+| কমান্ড | কী করে |
+|---|---|
+| `x` | ডেস্কটপ শুরু (অডিও → ডিসপ্লে → Debian → Xfce4) |
+| `xgo` | Termux:X11 অ্যাপ স্বয়ংক্রিয় খুলে ডেস্কটপ শুরু |
+| `killx` | সেশন পরিষ্কারভাবে বন্ধ + পুরনো সকেট মুছে ফেলা |
+| `db` | আপনার ইউজার হিসেবে Debian শেল |
+| `droot` | রুট হিসেবে Debian শেল — সাবধানে |
+| `sysmon` | CPU/RAM/GPU-নোডের দ্রুত চিত্র |
+| `clean-mesa` | শেডার ক্যাশ পরিষ্কার (ড্রাইভার বদলের পর) |
+
+**স্বাস্থ্যকর শুরু-শেষ রুটিন:**
+
+1. `xgo` দিয়ে শুরু করুন (বা আগে Termux:X11 খুলে তারপর `x`)।
+2. ডেস্কটপে অ্যাপগুলো স্বাভাবিকভাবে বন্ধ করুন।
+3. শেষে: Xfce4 থেকে লগ আউট করুন (Applications → Log Out), বা Termux পাশ
+   থেকে `killx` চালান। এতে সকেট পরিষ্কার হয়, পরের শুরু নিখুঁত হয়।
+
+*কেন এত কসরত?* পড়ে থাকা X11 সকেট বা জম্বি PulseAudio প্রসেস পরের সেশনকে
+মৃত সার্ভিসের ওপর "শুরু" করিয়ে দেয় — ডেস্কটপ আসে, কিন্তু অডিও বা ডিসপ্লে
+অদ্ভুত আচরণ করে। `x` প্রতিটি শুরুতে এগুলো পরিষ্কার করে, তাই পরিষ্কার শেষ
+করার আসল লাভ ব্যাটারি বাঁচানো।
+
+---
 
 ## ternux CLI — স্থায়ী ইন্টারফেস
-
 
 ternux ইনস্টল হলে `ternux` কমান্ডই আপনার একমাত্র প্রবেশপথ — ইনস্টল,
 ডায়াগনস্টিক, মেরামত, বেঞ্চমার্ক ও দৈনিক ডেস্কটপ ব্যবস্থাপনার জন্য।
@@ -39,49 +66,15 @@ ternux uninstall        # কম্পোনেন্ট অপসারণ
 ডিসপ্যাচার global flag শনাক্ত করে, তবে সব command JSON output দেয় না।
 নথিভুক্ত schema-এর জন্য [CLI reference](CLI.html) দেখুন।
 
-
 ### Structured JSON output
 
-
 গুরুত্বপূর্ণ কমান্ডগুলো AI অ্যাসিস্ট্যান্ট ও অটোমেশনের জন্য JSON আউটপুট দেয়:
-
 
 ```bash
 ternux doctor --json | jq '.issues[]'
 ternux info --json | jq '.gpu, .backend, .renderer'
 ternux benchmark --json | jq '.glmark2_score, .vkmark_score'
 ```
-
-
----
-
-পকেটে Linux ডেস্কটপ নিয়ে দৈনন্দিন জীবনযাপনের সবকিছু।
-
----
-
-## দৈনিক নিয়ন্ত্রণ
-
-| কমান্ড | কী করে |
-|---|---|
-| `x` | ডেস্কটপ শুরু (অডিও → ডিসপ্লে → Debian → Xfce4) |
-| `xgo` | Termux:X11 অ্যাপ স্বয়ংক্রিয় খুলে ডেস্কটপ শুরু |
-| `killx` | সেশন পরিষ্কারভাবে বন্ধ + পুরনো সকেট মুছে ফেলা |
-| `db` | আপনার ইউজার হিসেবে Debian শেল |
-| `droot` | রুট হিসেবে Debian শেল — সাবধানে |
-| `sysmon` | CPU/RAM/GPU-নোডের দ্রুত চিত্র |
-| `clean-mesa` | শেডার ক্যাশ পরিষ্কার (ড্রাইভার বদলের পর) |
-
-**স্বাস্থ্যকর শুরু-শেষ রুটিন:**
-
-1. `xgo` দিয়ে শুরু করুন (বা আগে Termux:X11 খুলে তারপর `x`)।
-2. ডেস্কটপে অ্যাপগুলো স্বাভাবিকভাবে বন্ধ করুন।
-3. শেষে: Xfce4 থেকে লগ আউট করুন (Applications → Log Out), বা Termux পাশ
-   থেকে `killx` চালান। এতে সকেট পরিষ্কার হয়, পরের শুরু নিখুঁত হয়।
-
-*কেন এত কসরত?* পড়ে থাকা X11 সকেট বা জম্বি PulseAudio প্রসেস পরের সেশনকে
-মৃত সার্ভিসের ওপর "শুরু" করিয়ে দেয় — ডেস্কটপ আসে, কিন্তু অডিও বা ডিসপ্লে
-অদ্ভুত আচরণ করে। `x` প্রতিটি শুরুতে এগুলো পরিষ্কার করে, তাই পরিষ্কার শেষ
-করার আসল লাভ ব্যাটারি বাঁচানো।
 
 ---
 
@@ -116,8 +109,7 @@ Xfce4-তে সবই আছে। আরও চাইলে `sudo apt install 
 *টিপস:* Xfce4 → Settings → Appearance-এ ডার্ক থিম আর প্যানেল অটো-হাইড করুন —
 ফোনের স্ক্রিন ছোট, আর (AMOLED-এ) ডার্ক থিম ব্যাটারি বাঁচায়।
 
-<a id="lightweight-blender"></a>
-### Blender viewport কাজ
+<h3 id="lightweight-blender">Blender viewport কাজ</h3>
 
 `bash install.sh --with-blender` দিয়ে install, desktop start, তারপর Debian
 terminal-এ:
@@ -139,8 +131,7 @@ glxinfo -B | tee ~/blender-gl-baseline.txt
 blender --version | tee ~/blender-version.txt
 ```
 
-<a id="local-ai-with-vulkan"></a>
-### Vulkan-সহ llama.cpp
+<h3 id="local-ai-with-vulkan">Vulkan-সহ llama.cpp</h3>
 
 `--with-llm` Debian-এর ভেতরে llama.cpp Vulkan backend build করে। ব্যবহার করার
 অধিকার আছে এমন GGUF model দিন, তারপর binary/device ও performance আলাদা করুন:
@@ -184,8 +175,7 @@ Successful build image generation বা speed প্রমাণ করে ন�
 peak memory, temperature ও output image record করুন। Low resolution ও এক image
 দিয়ে শুরু করুন; অস্বস্তিকর তাপ বা Android process reclaim হলে থামুন।
 
-<a id="development"></a>
-### ডেভেলপমেন্ট
+<h3 id="development">ডেভেলপমেন্ট</h3>
 
 `--with-dev` Git, Node.js, Python (`venv` সহ) ও বিল্ড টুলস ইনস্টল করে।
 কন্টেইনারে টার্মিনাল-ভিত্তিক কোডিং অ্যাসিস্ট্যান্ট চলে; অ্যাকাউন্ট ও
@@ -194,8 +184,7 @@ peak memory, temperature ও output image record করুন। Low resolution 
 *টিপস:* কন্টেইনারে (`db`) `git` চালান, তবে যেখান থেকে সুবিধা সেখানে পুশ
 করুন — `/sdcard`-এ ক্লোন করলে দুই পাশই একই ফাইল দেখে।
 
-<a id="authorised-security-lab"></a>
-### অনুমোদিত সিকিউরিটি ল্যাব
+<h3 id="authorised-security-lab">অনুমোদিত সিকিউরিটি ল্যাব</h3>
 
 `--with-network` nmap ও tmux যোগ করে। **শুধু নিজের মালিকানাধীন বা লিখিত
 অনুমতিপ্রাপ্ত সিস্টেম, অ্যাপ ও নেটওয়ার্কে ব্যবহার করুন।**
@@ -206,8 +195,7 @@ peak memory, temperature ও output image record করুন। Low resolution 
 
 ---
 
-<a id="backups"></a>
-## ব্যাকআপ
+<h2 id="backups">ব্যাকআপ</h2>
 
 ```bash
 # Termux-এ — পুরো কন্টেইনারের স্ন্যাপশট:

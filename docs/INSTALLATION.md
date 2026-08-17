@@ -5,8 +5,6 @@ lang: "en"
 alt_url: "/bn/docs/INSTALLATION.html"
 ---
 
-# Installation
-
 The complete guide. For the concise path, see
 [Quick start](QUICK-START.html).
 
@@ -96,6 +94,36 @@ For total control — or to debug the installer itself — the
 base packages, the container, the GPU driver for both routes, the complete
 `~/x.sh` launcher file, and verification. Methods 1 and 2 run those same
 steps for you.
+
+---
+
+## ternux CLI — the management interface
+
+After installation, the `ternux` CLI is the single entry point for diagnostics,
+repair, desktop management, profiles, backends, and updates:
+
+```bash
+ternux doctor           # system diagnostics
+ternux doctor --json    # machine-readable diagnostics
+ternux start            # start the desktop
+ternux stop             # stop the desktop
+ternux restart          # restart the desktop
+ternux repair           # repair common problems
+ternux verify           # verify the installation
+ternux benchmark        # installation health and renderer check
+ternux profile          # manage the device profile
+ternux backend          # inspect or change the graphics backend
+ternux info             # system information
+ternux info --json      # machine-readable information
+ternux logs             # inspect logs
+ternux state            # installation state
+ternux update           # update the CLI
+ternux uninstall        # remove selected components
+```
+
+The dispatcher recognizes global flags, but not every command implements a JSON
+schema. Use structured output only for commands documented in the
+[CLI reference](CLI.html).
 
 ---
 

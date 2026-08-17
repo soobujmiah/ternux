@@ -9,7 +9,7 @@
 [![Shell](https://img.shields.io/badge/shell-Bash-8b5cf6?style=flat-square)](https://github.com/soobujmiah/ternux)
 [![License](https://img.shields.io/badge/license-MIT-22c55e?style=flat-square)](LICENSE)
 
-[Website](https://soobujmiah.github.io/ternux/) · [Quick start](docs/QUICK-START.md) · [Manual install](docs/MANUAL.md) · [Benchmarks](docs/BENCHMARKS.md) · [বাংলা](bn/README.md)
+[Website](https://soobujmiah.github.io/ternux/) · [Documentation](https://soobujmiah.github.io/ternux/docs/) · [Quick start](docs/QUICK-START.md) · [Manual install](docs/MANUAL.md) · [Evidence](docs/BENCHMARKS.md) · [বাংলা](bn/README.md)
 
 </div>
 
@@ -24,6 +24,15 @@ CLI for starting, stopping, diagnosing, repairing and benchmarking the environme
 > Redmi Turbo 4 Pro setup. They are not a promise for every phone. Measured,
 > observed and not-yet-tested results are kept separate so a successful build is
 > never presented as a performance benchmark.
+
+| If you want to… | Start here |
+|---|---|
+| Install and verify the shortest safe path | [Quick start](docs/QUICK-START.md) |
+| Review every module before running it | [Installation → download, review, then run](docs/INSTALLATION.md#method-2--download-review-then-run) |
+| Perform every setup step yourself | [Manual installation](docs/MANUAL.md) |
+| Diagnose an existing installation | [Troubleshooting](docs/TROUBLESHOOTING.md) |
+| Inspect raw results and claim boundaries | [Benchmarks and device evidence](docs/BENCHMARKS.md) |
+| Navigate the complete guide set | [Documentation overview](https://soobujmiah.github.io/ternux/docs/) |
 
 ## Contents
 
@@ -782,17 +791,19 @@ Full symptom-by-symptom repair guide: [docs/TROUBLESHOOTING.md](docs/TROUBLESHOO
 
 | Guide | Contents |
 |---|---|
-| [Quick start](docs/QUICK-START.md) | Fast install and first launch |
+| [Documentation overview](https://soobujmiah.github.io/ternux/docs/) | Task-based map, installation chooser and evidence vocabulary |
+| [Quick start](docs/QUICK-START.md) | Fast install, first launch and renderer verification |
 | [Installation](docs/INSTALLATION.md) | Automatic installer, phases, profiles, update and removal |
 | [Manual installation](docs/MANUAL.md) | Auditable command-by-command setup and full launchers |
-| [Benchmarks](docs/BENCHMARKS.md) | Device evidence, FPS tables, caveats and reproduction |
 | [Usage](docs/USAGE.md) | Daily controls, storage, workloads, backups and heat |
+| [Configuration](docs/CONFIGURATION.md) | Graphics routes, launch variables, audio, locale and files |
+| [Troubleshooting](docs/TROUBLESHOOTING.md) | Symptom → diagnosis → safe repair |
 | [Architecture](docs/ARCHITECTURE.md) | X11, audio, PRoot and GPU data paths |
-| [CLI reference](docs/CLI.md) | `ternux` commands, flags, and explicit structured-output coverage |
-| [Troubleshooting](docs/TROUBLESHOOTING.md) | Symptom → diagnosis → repair |
+| [Benchmarks](docs/BENCHMARKS.md) | Device evidence, all FPS values, caveats and reproduction |
 | [FAQ](docs/FAQ.md) | Common installation, graphics and benchmark questions |
-| [Contributing](CONTRIBUTING.md) | Patches and device-result submissions |
-| [Security](SECURITY.md) | Reporting vulnerabilities |
+| [CLI reference](docs/CLI.md) | Commands, flags and explicit structured-output coverage |
+| [Contributing](CONTRIBUTING.md) | Code, translation, patches and classified device evidence |
+| [Security](SECURITY.md) | Private vulnerability reporting |
 
 ### Upstream technical references
 

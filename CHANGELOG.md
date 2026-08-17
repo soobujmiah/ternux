@@ -6,13 +6,28 @@ alt_url: "/bn/CHANGELOG.html"
 
 ---
 
-# Changelog
-
 Notable changes to ternux. Dates are ISO 8601.
 
 ---
 
 ## [Unreleased]
+
+### Professional bilingual documentation experience
+
+- Rebuilt both landing pages in a refined terminal design with clearer hierarchy,
+  responsive layouts, local fonts, stronger accessibility, concise installation
+  choices, evidence boundaries, and workload cards that open upstream repositories.
+- Replaced the flat documentation-chip shell with grouped sidebar navigation,
+  filterable page index, breadcrumbs, generated local tables of contents,
+  previous/next navigation, edit and feedback paths, mobile drawer behavior, print
+  styles, and a consistent project footer.
+- Added mirrored English/Bengali documentation hubs and the complete Bengali
+  benchmark/evidence archive, including all 66 captured scene values and caveats.
+- Centralized the bilingual information architecture in `_data/docs.yml`; added
+  repository authoring maps, reciprocal language metadata, a complete sitemap,
+  corrected canonical URL configuration, and professional contribution guidance.
+- Preserved measured, observed, reported-build, and untested distinctions across
+  both languages and all redesigned surfaces.
 
 ### Archival real-device guide and installer hardening
 

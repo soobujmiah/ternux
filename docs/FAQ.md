@@ -6,8 +6,6 @@ alt_url: "/bn/docs/FAQ.html"
 
 ---
 
-# FAQ
-
 ---
 
 ## Is root required? Why not just root my phone?

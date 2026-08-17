@@ -6,13 +6,27 @@ alt_url: "/CHANGELOG.html"
 
 ---
 
-# পরিবর্তনলগ
-
 ternux-এর উল্লেখযোগ্য পরিবর্তনগুলো। তারিখ ISO 8601 ফরম্যাটে।
 
 ---
 
 ## [Unreleased]
+
+### Professional bilingual documentation experience
+
+- Refined terminal design-এ দুই landing page পুনর্গঠন: পরিষ্কার hierarchy,
+  responsive layout, local font, উন্নত accessibility, সংক্ষিপ্ত installation choice,
+  evidence boundary এবং upstream repository-তে যাওয়া workload card।
+- Flat documentation chip shell-এর বদলে grouped sidebar navigation, filterable page
+  index, breadcrumb, generated local table of contents, previous/next navigation,
+  edit/feedback path, mobile drawer, print style ও consistent project footer যোগ।
+- Mirrored English/বাংলা documentation hub ও সম্পূর্ণ বাংলা benchmark/evidence
+  archive যোগ; captured 66 scene value ও caveat-সহ।
+- `_data/docs.yml`-এ bilingual information architecture কেন্দ্রীভূত; repository
+  authoring map, reciprocal language metadata, complete sitemap, corrected canonical
+  URL config ও professional contribution guidance যোগ।
+- দুই ভাষা ও redesigned surface-এ measured, observed, reported-build এবং untested
+  পার্থক্য সংরক্ষিত।
 
 ### বাস্তব-device evidence archive ও installer hardening
 
@@ -32,6 +46,95 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 - English/Bengali troubleshooting, configuration, architecture ও CLI reference
   বিস্তৃত; workload card সরাসরি Blender, llama.cpp ও stable-diffusion.cpp upstream
   repository-তে যায়।
+
+---
+
+## [1.3.0] — 2026-08-15
+
+### ternux CLI v1.3.0 — নথিভুক্ত JSON output-সহ production modular CLI
+
+**সম্পূর্ণ CLI পুনর্গঠন।** CLI-টি শুরু থেকে নতুন করে তৈরি করা হয়েছে: ছোট
+dispatcher, স্বয়ংসম্পূর্ণ command module, যথাযথ help system এবং consistent UX।
+যেসব reporting command-এর schema নথিভুক্ত, সেগুলো machine-readable JSON দেয়;
+interactive ও lifecycle command human-oriented থাকে।
+
+**নতুন architecture:**
+- `bin/ternux` এখন **thin dispatcher** (~৮০ লাইন): `tnx_cmd_*` function naming
+  convention দিয়ে command খুঁজে পায়, library lazy-load করে এবং global flag
+  সঠিকভাবে পরিচালনা করে।
+- প্রতিটি command function নিজস্ব library file-এ (`lib/<name>.sh`) থাকে।
+- নতুন `lib/help.sh` — per-command help function-সহ কেন্দ্রীয় help system।
+- নতুন `lib/info.sh` — system information command-এর dedicated module।
+- Command dispatch **extensible**: নতুন command যোগ করতে নতুন `lib/<name>.sh`
+  file-এ একটি `tnx_cmd_<name>()` function যোগ করলেই হয়।
+
+**UX bug সমাধান:**
+- `ternux doctor --help` এখন doctor-specific help দেখায় (আগে main help দেখাত)।
+- `ternux profile --help` এখন profile subcommand সঠিকভাবে দেখায়।
+- যেকোনো command-এর পর `--help` সঠিক `tnx_help_<command>` function-এ dispatch হয়।
+- অজানা command এখন সঠিক exit code-সহ পরিষ্কার error message দেয়।
+
+**Standardized subcommand pattern:**
+- Subcommand নেওয়া প্রতিটি command তা validate করে এবং error হলে usage দেখায়।
+- প্রতিটি স্তরে consistent `--help` handling।
+- সব command সঠিক exit code দেয় (০=success, ১=error)।
+
+**JSON output উন্নতি:**
+- Item escaping-সহ `tnx_json_add_array()`।
+- সব JSON output-এ consistent field naming (`snake_case`)।
+- Error JSON object-এ `command`, `status: "error"`, ও `reason` field।
+- JSON schema `share/templates/json-schema.md`-এ নথিভুক্ত।
+
+**নতুন feature:**
+- `ternux backend detect` — সঠিক GPU backend স্বয়ংক্রিয়ভাবে শনাক্ত।
+- `ternux update check` — install না করে update পরীক্ষা।
+- প্রতিটি command path-এ যথাযথ `--version` flag।
+- `TERNUX_QUIET` সর্বত্র non-critical message বন্ধ করে।
+- `TERNUX_VERBOSE` consistentভাবে debug output চালু করে।
+
+**Refactored library:**
+| Library | লাইন | অবস্থা |
+|---------|------:|--------|
+| `bin/ternux` | ~৮০ | Thin dispatcher (আগে ৫৩২) |
+| `lib/core.sh` | ২৩৯ | Shared foundation |
+| `lib/help.sh` | ১৩০ | **নতুন** — centralized help |
+| `lib/desktop.sh` | ১৬৮ | Self-contained lifecycle |
+| `lib/doctor.sh` | ২৫০ | Clean diagnostics + verify |
+| `lib/backend.sh` | ৯৫ | Backend management |
+| `lib/benchmark.sh` | ১৬৪ | GPU benchmark |
+| `lib/info.sh` | ৮৬ | **নতুন** — system info |
+| `lib/profile.sh` | ১৮০ | Profile management |
+| `lib/repair.sh` | ১৮৪ | Auto-fix engine |
+| `lib/logs.sh` | ৯৭ | Log management |
+| `lib/update.sh` | ১৫০ | Self-update |
+| `lib/state.sh` | ৮৬ | State query |
+| `lib/phases.sh` | ৭০৪ | Installation phase |
+
+**Extensibility (plugin readiness):**
+- নতুন command: `tnx_cmd_mycommand()`-সহ `lib/mycommand.sh` তৈরি করুন।
+- Help যোগ: `lib/help.sh`-এ `tnx_help_mycommand()` তৈরি করুন।
+- Command function `declare -F` দিয়ে স্বয়ংক্রিয়ভাবে খুঁজে পাওয়া যায়।
+
+**নতুন documentation:**
+- `docs/CLI.md` — প্রতিটি command, flag ও JSON schema-সহ সম্পূর্ণ CLI reference।
+- `share/ternux-completion.bash` — সব command-এর Bash tab completion।
+
+**নতুন CI/CD pipeline:**
+- `.github/workflows/ci.yml` — ShellCheck, syntax check, ৪৩টি smoke test ও doc link check।
+- `.github/workflows/release.yml` — `v*` tag-এ স্বয়ংক্রিয় GitHub Release।
+- `.github/dependabot.yml` — সাপ্তাহিক GitHub Actions dependency update।
+
+**নতুন contributor tooling:**
+- `.github/stale.yml` — ৯০ দিন পর stale issue স্বয়ংক্রিয় ব্যবস্থাপনা।
+- `.github/FUNDING.yml` — GitHub Sponsors support।
+- Repository-তে ১৪টি discoverable topic সেট করা হয়েছে।
+
+**Repository metadata:**
+- GitHub topic: `termux`, `android`, `linux-desktop`, `gpu-acceleration`, `vulkan`,
+  `zink`, `turnip`, `adreno`, `proot`, `xfce4`, `debian`, `no-root`, `cli`,
+  `shell-script`।
+- README badge update: CI status, release version ও GitHub star।
+- সঠিক line-ending rule-সহ `.gitattributes`।
 
 ---
 
