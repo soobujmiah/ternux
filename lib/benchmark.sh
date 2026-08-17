@@ -21,7 +21,7 @@ tnx_cmd_benchmark() {
   local -a results=()
   local rc=0
 
-  backend="$(tnx_state_get "backend" || tnx_detect_backend)"
+  backend="$(tnx_canonical_backend "$(tnx_state_get "backend" || tnx_detect_backend)")"
 
   if [ "${TERNUX_JSON:-0}" != "1" ]; then
     tnx_header "Configuration"
@@ -52,13 +52,26 @@ tnx_cmd_benchmark() {
     tnx_ok "Current renderer: $renderer"
     results+=("renderer:${renderer}")
     case "$renderer" in
-      *llvmpipe*) results+=("status:software_rendering"); tnx_warn "Software rendering detected" ;;
-      *zink*)     results+=("status:hardware_accelerated"); tnx_ok "Hardware-accelerated (Zink)" ;;
-      *virgl*)    results+=("status:hardware_accelerated"); tnx_ok "Hardware-backed (VirGL)" ;;
+      *llvmpipe*)
+        results+=("status:software_rendering")
+        tnx_warn "Software rendering detected"
+        ;;
+      *zink*Turnip*|*zink*MESA_TURNIP*)
+        results+=("status:zink_turnip_route_detected")
+        tnx_ok "Zink/Turnip GPU route detected"
+        ;;
+      *zink*)
+        results+=("status:zink_renderer_detected")
+        tnx_warn "Zink detected; verify the Vulkan device/driver before claiming acceleration"
+        ;;
+      *virgl*|*virpipe*)
+        results+=("status:virgl_route_detected")
+        tnx_warn "VirGL/virpipe detected; host acceleration and performance are device-dependent"
+        ;;
     esac
   fi
 
-  echo ""
+  [ "${TERNUX_JSON:-0}" != "1" ] && echo ""
   _tnx_bench_save_results "$glmark2_score" "$vkmark_score" "$renderer"
 
   # JSON output

@@ -12,46 +12,52 @@ alt_url: "/bn/docs/FAQ.html"
 
 ## Is root required? Why not just root my phone?
 
-No — and deliberately not. Rooting unlocks the bootloader and voids
-warranties, trips banking and DRM apps, and exposes the whole device to
-anything that runs on it.
+No — and deliberately not. Root-based setups may require bootloader/device
+changes, can affect verified-boot, banking or DRM behavior, and grant a much
+larger blast radius to mistakes or untrusted code. The exact consequences vary
+by device and vendor.
 
-ternux uses **PRoot**, which fakes a root filesystem *in userspace*. The
-container thinks it is root; Android never notices. The entire risk of
-ternux is one folder in Termux's storage. That is the design point.
+ternux uses **PRoot**, which emulates a root-like filesystem and identity in
+userspace without granting Android root. This limits privileged-system impact,
+but PRoot is not a security boundary: code can access paths available to Termux
+or explicitly bound into Debian. Review commands and back up valuable data.
 
 ## Will this damage or "brick" my phone?
 
-No. ternux never touches the bootloader, system partitions or Android
-settings. It writes files inside Termux's private storage and installs
-ordinary apps. The worst realistic outcome of a broken install is deleting
-the container and starting over.
+The installer does not modify the bootloader or Android system partitions and
+does not require root, so a normal install failure is not expected to brick the
+phone. It does change Termux packages/configuration, shell files and the Debian
+container; bugs, untrusted commands or manual system-setting changes can still
+cause data loss or disruption. Back up the container and important shared files.
 
 ## Why can't I use the Termux from the Play Store?
 
-That build was abandoned by its maintainers years ago. Its package
-repositories are dead, so `pkg install` fails on everything, and it is full
-of known bugs that were fixed long ago in the maintained builds. Always use
+Google Play currently carries a separate experimental Android 11+ branch with
+known missing functionality and bugs. This guide follows the main releases from
 [F-Droid](https://f-droid.org/en/packages/com.termux/) or
-[GitHub releases](https://github.com/termux/termux-app/releases).
+[GitHub](https://github.com/termux/termux-app/releases). Whichever source you
+choose, install Termux and every plugin from that same source so the signing
+keys match.
 
 ## How much storage will it really use?
 
-~6 GB for the base Debian rootfs plus packages, so the installer asks for
-**12 GB free** to leave working room. Each extra profile adds:
+Plan for **about 12 GB free** for the base installation and working room. The
+actual result varies with Debian package versions, package caches and your
+filesystem. Development build trees, Blender, media tools and especially model
+files can add several more gigabytes. Check rather than guessing:
 
-| Profile | Rough cost |
-|---|---|
-| `--with-dev` | +1–2 GB |
-| `--with-llm` | +2–3 GB (build tree) + models (0.5–2 GB each) |
-| `--with-blender` | +1 GB |
-| `--with-media` | +1 GB |
+```bash
+df -h "$HOME"
+du -sh "$PREFIX/var/lib/proot-distro/installed-rootfs/debian" 2>/dev/null
+```
 
 ## Does it work on non-Qualcomm phones?
 
-Yes. Mali, Xclipse and PowerVR devices get the **VirGL** route — hardware
-backed, but slower than Adreno's Zink/Turnip. Only the *speed* differs; the
-desktop and tooling are identical.
+They can use the **VirGL** compatibility route, but support, features and speed
+vary by GPU, Android build and renderer package. Do not assume that an open
+desktop is accelerated: run `glxinfo -B`. `llvmpipe` means CPU rendering.
+Ternux's submitted measurements cover one Adreno/Zink/Turnip device, not all
+non-Qualcomm devices.
 
 ## Why is my renderer `llvmpipe`? Is that bad?
 
@@ -75,24 +81,25 @@ in Android — they are not "inside" the desktop.
 
 ## Why does my desktop die when the screen locks or after a while?
 
-Two usual causes:
-
-1. **Phantom process killer** (Android 12+) — the #1 cause. Fix in
-   [Troubleshooting](TROUBLESHOOTING.html#the-desktop-dies-silently).
-2. **Aggressive OEM battery optimisation** killing Termux in the background.
-   In Android settings, set Termux's battery usage to *Unrestricted* and
-   disable its background restrictions.
+Common causes include Android child-process policy, memory pressure, and OEM
+battery management. Set Termux and Termux:X11 battery use to *Unrestricted*,
+reduce excessive build parallelism, and follow the evidence-led checks in
+[Troubleshooting](TROUBLESHOOTING.html#the-desktop-dies-silently) before
+changing any system-wide Android safeguard.
 
 ## Is this safe from a security/privacy point of view?
 
 The design choices that matter:
 
-- **No root** — the sandbox Android ships with stays intact.
-- **Loopback-only services** — audio and model servers bind to `127.0.0.1`,
-  unreachable from the network.
-- **Validated downloads** — the Turnip driver archive is checked for unsafe
-  paths and links before extraction, and only two whitelisted files are
-  installed.
+- **No root** — no privileged Android access is requested; PRoot remains within
+  Termux's app permissions and is not a separate security boundary.
+- **Loopback-only defaults/examples** — the audio bridge and documented model
+  servers use `127.0.0.1`, keeping them off the LAN. Other same-device clients
+  may still reach loopback listeners, so do not treat anonymous services as authenticated.
+- **Validated driver extraction** — the Turnip archive is checked for unsafe
+  paths, the two selected members must be regular files, and only those two
+  members are staged and installed. Other legitimate archive symlinks are not
+  extracted.
 - **Auditable installer** — one plain-text file, MIT licensed; read it before
   you run it.
 
@@ -101,7 +108,7 @@ container, and never paste credentials into issues or logs.
 
 ## How do I make everything bilingual?
 
-The site and docs exist in English and Bangla (header switch on every page).
+Core guides exist in English and Bangla; the full benchmark evidence archive is currently in English.
 Inside the desktop:
 
 ```bash
@@ -113,8 +120,9 @@ sudo dpkg-reconfigure locales
 
 - **Android OS updates:** the container is files — it survives. Re-check the
   phantom-killer setting afterwards (`ternux doctor`).
-- **Termux app updates:** fine; the installer is re-runnable (`--resume`
-  skips completed work).
+- **Termux app updates:** normally fine. Use `ternux doctor`/`ternux verify`
+  afterwards; `--resume` only skips phases already recorded as successful and
+  is not a general repair mechanism.
 - **Debian updates:** safe, except see the held-Mesa note in
   [Configuration](CONFIGURATION.html#held-mesa-packages-zink-route).
 
@@ -125,13 +133,16 @@ Yes. MIT licensed — code and documentation. Built and maintained by
 
 ## What is it NOT for?
 
-- Heavy 3D rendering or large simulations
-- Mining (thermal suicide on a phone)
-- Huge local models (7B+ without serious RAM is a fantasy)
-- Anything that needs `systemd`, kernel modules or real USB/radio access
+- Sustained heavy 3D rendering, mining or large simulations
+- Models whose weights, context and runtime allocations do not fit available
+  shared memory
+- Anything that requires `systemd`, kernel modules, monitor mode or unrestricted
+  USB/radio access
 
-It *is* for: a real Linux desktop, in your pocket, that costs nothing,
-risks nothing, and keeps your phone a phone.
+It is for an ARM64 Linux desktop and selected development/graphics workloads in
+Android's app sandbox. No-root substantially limits blast radius; it does not
+make arbitrary downloaded code risk-free or eliminate heat, battery wear and
+data-loss risks.
 
 ---
 

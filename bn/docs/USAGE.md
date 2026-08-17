@@ -20,10 +20,10 @@ ternux start            # ডেস্কটপ চালু
 ternux stop             # ডেস্কটপ বন্ধ
 ternux restart          # ডেস্কটপ পুনরায় চালু
 ternux doctor           # সিস্টেম ডায়াগনস্টিক
-ternux doctor --json    # AI-পাঠযোগ্য আউটপুট
+ternux doctor --json    # machine-readable diagnostic
 ternux repair           # সাধারণ সমস্যা সমাধান
 ternux verify           # ইনস্টলেশন যাচাই
-ternux benchmark        # GPU বেঞ্চমার্ক
+ternux benchmark        # সংক্ষিপ্ত installation health/renderer check
 ternux profile          # ডিভাইস প্রোফাইল
 ternux profile save     # বর্তমান কনফিগ সেভ
 ternux backend          # GPU ব্যাকএন্ড দেখা/বদলানো
@@ -31,15 +31,16 @@ ternux backend set virgl    # VirGL-এ স্যুইচ
 ternux update           # ternux CLI আপডেট
 ternux logs             # লগ ফাইল দেখা
 ternux info             # সিস্টেম তথ্য
-ternux info --json      # AI-পাঠযোগ্য তথ্য
+ternux info --json      # machine-readable তথ্য
 ternux state            # ইনস্টলেশন অবস্থা
 ternux uninstall        # কম্পোনেন্ট অপসারণ
 ```
 
-প্রত্যেক কমান্ড `--help`, `--json`, `--verbose` ও `--quiet` সমর্থন করে।
+ডিসপ্যাচার global flag শনাক্ত করে, তবে সব command JSON output দেয় না।
+নথিভুক্ত schema-এর জন্য [CLI reference](CLI.html) দেখুন।
 
 
-### AI-নেটিভ JSON আউটপুট
+### Structured JSON output
 
 
 গুরুত্বপূর্ণ কমান্ডগুলো AI অ্যাসিস্ট্যান্ট ও অটোমেশনের জন্য JSON আউটপুট দেয়:
@@ -67,7 +68,6 @@ ternux benchmark --json | jq '.glmark2_score, .vkmark_score'
 | `killx` | সেশন পরিষ্কারভাবে বন্ধ + পুরনো সকেট মুছে ফেলা |
 | `db` | আপনার ইউজার হিসেবে Debian শেল |
 | `droot` | রুট হিসেবে Debian শেল — সাবধানে |
-| `ai` | লোকাল মডেলে চ্যাট (`--with-llm` ও মডেল ফাইল লাগবে) |
 | `sysmon` | CPU/RAM/GPU-নোডের দ্রুত চিত্র |
 | `clean-mesa` | শেডার ক্যাশ পরিষ্কার (ড্রাইভার বদলের পর) |
 
@@ -116,38 +116,76 @@ Xfce4-তে সবই আছে। আরও চাইলে `sudo apt install 
 *টিপস:* Xfce4 → Settings → Appearance-এ ডার্ক থিম আর প্যানেল অটো-হাইড করুন —
 ফোনের স্ক্রিন ছোট, আর (AMOLED-এ) ডার্ক থিম ব্যাটারি বাঁচায়।
 
-### হালকা Blender {#lightweight-blender}
+<a id="lightweight-blender"></a>
+### Blender viewport কাজ
 
-Zink পথে Blender GPU অ্যাক্সিলারেশনসহ চলে। **লো-পলি মডেলিং, সাধারণ
-ম্যাটেরিয়াল ও ছোট সিনের** জন্য এটি সত্যিকারের, কাজে লাগা Blender —
-লেখকের Turnip-চালিত ডিভাইসে মসৃণ বলে রিপোর্ট করা।
+`bash install.sh --with-blender` দিয়ে install, desktop start, তারপর Debian
+terminal-এ:
 
-*বাস্তবতা:* ভারী রেন্ডার, স্মোক/ফ্লুইড সিমুলেশন বা 4K সিন ফোনের জন্য নয়।
-সিন ছোট রাখুন, ভিউপোর্ট স্যাম্পল কম রাখুন, ঘন ঘন সেভ করুন।
-ইনস্টল: `bash install.sh --with-blender`।
+```bash
+blender
+```
 
-### Vulkan-এ লোকাল AI {#local-ai-with-vulkan}
+Captured Blender 4.3.2 system report renderer হিসেবে
+`zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP))` দেখেছে। এটি X11 **OpenGL
+viewport route**-এর evidence; Cycles GPU result নয়। একই report-এ device type
+`SOFTWARE` এবং কোনো Cycles GPU device ছিল না। Scene modest রাখুন, ঘনঘন save
+করুন, archived glmark2 score থেকে render speed অনুমান করবেন না।
 
-`--with-llm` কন্টেইনারে **Vulkan ব্যাকএন্ডসহ llama.cpp** বিল্ড করে। তারপর:
+নিজের baseline record করুন:
 
-1. কমপ্যাক্ট GGUF মডেল নামান (৬–৮ GB ফোনে ১–২B Q4 আরামে চলে):
+```bash
+glxinfo -B | tee ~/blender-gl-baseline.txt
+blender --version | tee ~/blender-version.txt
+```
 
-   ```bash
-   db
-   cd ~/llama.cpp/models
-   wget https://huggingface.co/ggml-org/gemma-2-2b-it-GGUF/resolve/main/gemma-2-2b-it-Q4_K_M.gguf
-   exit
-   ```
+<a id="local-ai-with-vulkan"></a>
+### Vulkan-সহ llama.cpp
 
-2. Termux থেকে `ai` অ্যালায়াসে চ্যাট করুন — প্রথম `.gguf` মডেলটিই পূর্ণ GPU
-   অফলোডে (`-ngl 99`) চালু হয়।
+`--with-llm` Debian-এর ভেতরে llama.cpp Vulkan backend build করে। ব্যবহার করার
+অধিকার আছে এমন GGUF model দিন, তারপর binary/device ও performance আলাদা করুন:
 
-*কেন কমপ্যাক্ট মডেল?* Vulkan অফলোড ফোনের ফিজিক্যাল মেমরি ও তাপ-বাজেট
-Android আর ডেস্কটপের সাথে ভাগ করে। ফোনে 7B মডেল মানে ফ্রিজ-ও-প্রার্থনা;
-১–২B-ই বাস্তবসম্মত মিষ্টি জায়গা। আর মডেল সার্ভার **লুপব্যাকেই** থাকে —
-ইচ্ছা করে অথেনটিকেশন না যোগালে সেটা বদলাবেন না।
+```bash
+db
+cd ~/llama.cpp
+./build/bin/llama-cli --list-devices
+./build/bin/llama-cli -m /path/to/model.gguf -ngl 99 \
+  -p "Zink দুই বাক্যে ব্যাখ্যা করুন।" -n 128
+./build/bin/llama-bench -m /path/to/model.gguf -ngl 99
+```
 
-### ডেভেলপমেন্ট {#development}
+Submitted note সফল Vulkan build/use report করে, reproducible token-rate table
+নয়। `--list-devices` capability evidence; `llama-bench` performance evidence।
+Exact model/quantisation, context, GPU layer, commit, prompt/prefill ও generation
+rate, memory এবং temperature সংরক্ষণ করুন। কোনো model size সব ৬–৮ GB ফোনে
+চলার guarantee নেই—Android, desktop, model weight, KV cache ও Vulkan allocation
+একই RAM ভাগ করে।
+
+### Vulkan-সহ stable-diffusion.cpp
+
+এটি installer profile নয়, manual developer workload। Submitted note শুধু
+Vulkan-enabled build সম্পন্ন হওয়া report করে:
+
+```bash
+db
+sudo apt update
+sudo apt install -y git cmake build-essential libvulkan-dev \
+  glslang-tools glslang-dev
+
+git clone --recursive https://github.com/leejet/stable-diffusion.cpp.git
+cd stable-diffusion.cpp
+cmake -S . -B build -DSD_VULKAN=ON -DCMAKE_BUILD_TYPE=Release
+cmake --build build --config Release -j2
+./build/bin/sd-cli --help
+```
+
+Successful build image generation বা speed প্রমাণ করে না। Defensible result-এর
+জন্য exact model/commit, resolution, step, sampler, seed, command, elapsed time,
+peak memory, temperature ও output image record করুন। Low resolution ও এক image
+দিয়ে শুরু করুন; অস্বস্তিকর তাপ বা Android process reclaim হলে থামুন।
+
+<a id="development"></a>
+### ডেভেলপমেন্ট
 
 `--with-dev` Git, Node.js, Python (`venv` সহ) ও বিল্ড টুলস ইনস্টল করে।
 কন্টেইনারে টার্মিনাল-ভিত্তিক কোডিং অ্যাসিস্ট্যান্ট চলে; অ্যাকাউন্ট ও
@@ -156,7 +194,8 @@ Android আর ডেস্কটপের সাথে ভাগ করে। �
 *টিপস:* কন্টেইনারে (`db`) `git` চালান, তবে যেখান থেকে সুবিধা সেখানে পুশ
 করুন — `/sdcard`-এ ক্লোন করলে দুই পাশই একই ফাইল দেখে।
 
-### অনুমোদিত সিকিউরিটি ল্যাব {#authorised-security-lab}
+<a id="authorised-security-lab"></a>
+### অনুমোদিত সিকিউরিটি ল্যাব
 
 `--with-network` nmap ও tmux যোগ করে। **শুধু নিজের মালিকানাধীন বা লিখিত
 অনুমতিপ্রাপ্ত সিস্টেম, অ্যাপ ও নেটওয়ার্কে ব্যবহার করুন।**
@@ -167,7 +206,8 @@ Android আর ডেস্কটপের সাথে ভাগ করে। �
 
 ---
 
-## ব্যাকআপ {#backups}
+<a id="backups"></a>
+## ব্যাকআপ
 
 ```bash
 # Termux-এ — পুরো কন্টেইনারের স্ন্যাপশট:
@@ -187,13 +227,23 @@ tar -czf ~/storage-backup.tar.gz -C ~/storage/shared .
 
 ## পাওয়ার, তাপ ও দীর্ঘায়ু
 
-- টানা কাজের সময় চার্জে রাখুন; তাপ আটকে রাখে এমন কেস খুলে নিন।
-- Android 12+-এ ফ্যান্টম-কিলার সমাধানটি প্রয়োগ করুন —
-  [সমস্যা সমাধান](TROUBLESHOOTING.html#the-desktop-dies-silently) — না হলে
-  দীর্ঘ বিল্ড অকারণে মরতে পারে।
-- ডেস্কটপ চলাকালীন লঞ্চার ওয়েক-লক ধরে রাখে, শেষে ছেড়ে দেয়; বন্ধ করবেন না।
-- ভারী কম্পিউট (বড় রেন্ডার, বড় বিল্ড) ফোন যা থ্রটল করে ঠিক তাই। ছোট
-  বিস্ফোরণ: ঠিক আছে। টানা মাইনিং/রেন্ডার: ভুল টুল।
+- Sustained compute-এর সঙ্গে fast charging দুইটি heat source যোগ করে। Charged
+  battery দিয়ে শুরু করুন; দ্রুত গরম হলে charger খুলুন, heat-trapping case
+  সরান, brightness কমান এবং খোলা বাতাসে ঠান্ডা হতে দিন। freezer/ice বা
+  condensation-prone cooling ব্যবহার করবেন না।
+- Bounded work বেছে নিন: `cmake --build build -j2`, একবারে এক image, modest
+  Blender scene এবং benchmark repetition-এর মাঝে বিরতি। বেশি thread সময়
+  কমাতে পারে, কিন্তু peak heat ও memory pressure বাড়ায়।
+- Termux:API app/package থাকলে `termux-battery-status` battery-temperature field
+  দেখাতে পারে; এটি SoC junction temperature নয়, শুধু একটি sensor। Android
+  thermal warning, sudden clock/FPS drop, charging pause, instability বা ধরতে
+  অস্বস্তিকর case—যেকোনোটি হলে workload থামিয়ে ঠান্ডা করুন।
+- Android 12+-এ killed build মানেই phantom policy নয়। Memory pressure ও OEM
+  battery restriction আগে দেখুন, তারপর [evidence-led troubleshooting](TROUBLESHOOTING.html#the-desktop-dies-silently)।
+- Launcher desktop চলাকালে wake-lock ধরে ও exit-এ ছাড়ে। Idle হলে session শেষ
+  করুন; wake-lock sleep আটকায় এবং battery খরচ করে।
+- দীর্ঘ render/generation, বড় build এবং বিশেষত mining ফোনের খারাপ workload।
+  Archived result sustained performance বা universally safe runtime প্রমাণ করে না।
 
 ---
 

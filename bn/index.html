@@ -2,30 +2,30 @@
 layout: null
 lang: "bn"
 title: ternux
-description: একটি কমান্ডেই আপনার Android ফোনে GPU-accelerated Linux ডেস্কটপ — Termux + PRoot Debian + Xfce4, Zink/Turnip দিয়ে Vulkan। root লাগে না। সম্পূর্ণ ফ্রি ও MIT লাইসেন্স।
+description: এক কমান্ডে Android-এ Debian Xfce4; পরীক্ষিত Adreno সেটআপে মাপা Zink/Turnip acceleration এবং device-dependent VirGL fallback। root লাগে না।
 ---
 <!DOCTYPE html>
 <html lang="bn">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>ternux — Android ফোনে GPU-accelerated Linux ডেস্কটপ</title>
-<meta name="description" content="একটি কমান্ডেই আপনার Android ফোনে GPU-accelerated Linux ডেস্কটপ — Termux + PRoot Debian + Xfce4, Zink/Turnip দিয়ে Vulkan। root লাগে না। সম্পূর্ণ ফ্রি ও MIT লাইসেন্স।">
+<title>ternux — Android-এ Zink/Turnip Linux ডেস্কটপ</title>
+<meta name="description" content="এক কমান্ডে Android-এ Debian Xfce4; পরীক্ষিত Adreno সেটআপে মাপা Zink/Turnip acceleration এবং device-dependent VirGL fallback। root লাগে না।">
 <meta name="author" content="Sobuj Miah">
 <meta name="theme-color" content="#06080d">
 <meta name="robots" content="index, follow">
 <meta property="og:site_name" content="ternux">
-<meta property="og:title" content="ternux — Android ফোনে GPU-accelerated Linux ডেস্কটপ">
-<meta property="og:description" content="একটি কমান্ড। আপনার ফোনেই পূর্ণাঙ্গ Linux ডেস্কটপ, আসল GPU অ্যাক্সিলারেশনসহ। root লাগে না। ফ্রি ও ওপেন সোর্স।">
+<meta property="og:title" content="ternux — Android-এ Zink/Turnip Linux ডেস্কটপ">
+<meta property="og:description" content="Android-এ Debian Xfce4: পরীক্ষিত Adreno সেটআপে মাপা Zink/Turnip acceleration; VirGL fallback ডিভাইসভেদে বদলায়। root লাগে না।">
 <meta property="og:type" content="website">
 <meta property="og:url" content="{{ '/bn/' | absolute_url }}">
 <meta property="og:image" content="{{ '/assets/img/og-card.png' | absolute_url }}">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="ternux — আপনার Android ফোনে একটি GPU-accelerated Linux workstation। root ছাড়াই।">
+<meta property="og:image:alt" content="ternux — পরীক্ষিত Adreno Zink/Turnip পথসহ Android-এ Debian Xfce4। root ছাড়াই।">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="ternux — Android ফোনে GPU-accelerated Linux ডেস্কটপ">
-<meta name="twitter:description" content="একটি কমান্ড। আপনার ফোনেই পূর্ণাঙ্গ Linux ডেস্কটপ, আসল GPU অ্যাক্সিলারেশনসহ। root লাগে না। ফ্রি ও ওপেন সোর্স।">
+<meta name="twitter:title" content="ternux — Android-এ Zink/Turnip Linux ডেস্কটপ">
+<meta name="twitter:description" content="Android-এ Debian Xfce4: পরীক্ষিত Adreno সেটআপে মাপা Zink/Turnip acceleration; VirGL fallback ডিভাইসভেদে বদলায়। root লাগে না।">
 <meta name="twitter:image" content="{{ '/assets/img/og-card.png' | absolute_url }}">
 <link rel="canonical" href="{{ '/bn/' | absolute_url }}">
 <link rel="alternate" hreflang="bn" href="{{ '/bn/' | absolute_url }}">
@@ -43,7 +43,7 @@ description: একটি কমান্ডেই আপনার Android ফ�
 {
   "@context":"https://schema.org","@type":"SoftwareSourceCode",
   "name":"ternux",
-  "description":"Android ফোনে GPU-accelerated Debian Xfce4 ডেস্কটপ ইনস্টল করার এক-কমান্ড ইনস্টলার — Termux, PRoot ও Termux:X11 দিয়ে, Zink ও Turnip-এর মাধ্যমে Vulkan অ্যাক্সিলারেশন। root লাগে না।",
+  "description":"Android-এ Debian Xfce4 ইনস্টলার। পরীক্ষিত Adreno সেটআপে Zink ও Turnip acceleration মাপা; VirGL fallback ডিভাইসভেদে বদলায়। root লাগে না।",
   "codeRepository":"https://github.com/soobujmiah/ternux",
   "url":{{ '/bn/' | absolute_url | jsonify }},
   "image":{{ '/assets/img/og-card.png' | absolute_url | jsonify }},
@@ -91,8 +91,8 @@ description: একটি কমান্ডেই আপনার Android ফ�
       <div class="hero-copy">
         <p class="eyebrow">Android → Linux / root ছাড়াই</p>
         <h1>ternux<span class="cur">█</span></h1>
-        <p class="tag">আপনার পকেটের ফোনেই GPU-accelerated Linux ডেস্কটপ।</p>
-        <p class="sub">Termux + PRoot Debian + Xfce4, Zink&nbsp;/&nbsp;Turnip দিয়ে আসল Vulkan। <b>root লাগে না। ফ্রি। মাত্র একটি কমান্ড।</b></p>
+        <p class="tag">পরীক্ষিত Adreno hardware-এ মাপা Zink/Turnip GPU পথসহ Linux ডেস্কটপ।</p>
+        <p class="sub">Termux + PRoot Debian + Xfce4; সমর্থিত Adreno-তে Zink&nbsp;/&nbsp;Turnip এবং device-dependent VirGL fallback। <b>root লাগে না। ফ্রি। মাত্র একটি কমান্ড।</b></p>
 
         <div class="pills">
           <span class="pill"><b>root ছাড়া</b></span>
@@ -104,7 +104,7 @@ description: একটি কমান্ডেই আপনার Android ফ�
         </div>
 
         <div class="cta-row">
-          <a class="btn btn-primary" href="{{ '/bn/docs/QUICK-START.html' | relative_url }}">দ্রুত শুরু — ১০ মিনিট</a>
+          <a class="btn btn-primary" href="{{ '/bn/docs/QUICK-START.html' | relative_url }}">দ্রুত শুরু</a>
           <a class="btn btn-ghost" href="{{ '/bn/docs/MANUAL.html' | relative_url }}">ইনস্টলেশন গাইড →</a>
           <a class="btn btn-ghost" href="https://github.com/soobujmiah/ternux">GitHub ↗</a>
         </div>
@@ -122,7 +122,7 @@ description: একটি কমান্ডেই আপনার Android ফ�
           </div>
         </div>
         <p class="install-note">
-          আগে যাচাই করুন: <code>curl -fsSL …/install.sh -o install.sh &amp;&amp; less install.sh</code><br>
+          সব module যাচাই করুন: <code>git clone https://github.com/soobujmiah/ternux.git</code> — নিচের review route দেখুন।<br>
           curl কাজ না করলে: <code>wget -qO- https://soobujmiah.github.io/ternux/install.sh | bash</code>
         </p>
 
@@ -140,10 +140,10 @@ description: একটি কমান্ডেই আপনার Android ফ�
 <span class="l"><span class="ok">[ OK ]</span> pulseaudio ব্রিজ: tcp:127.0.0.1:4713</span>
 <span class="l"></span>
 <span class="l"><span class="p2">ternux@debian:~$</span> <span class="hl">glxinfo | grep "renderer string"</span></span>
-<span class="l">OpenGL renderer: <span class="ok">zink Vulkan / MESA_TURNIP</span></span>
+<span class="l">OpenGL renderer: <span class="ok">zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP))</span></span>
 <span class="l"><span class="p2">ternux@debian:~$</span> <span class="hl">vulkaninfo --summary | grep driverName</span></span>
 <span class="l">driverName: <span class="ok">Turnip</span></span>
-<span class="l"><span class="ok">[যাচাইকৃত]</span> হার্ডওয়্যার-ব্যাকড গ্রাফিক্স পাথ</span>
+<span class="l"><span class="ok">[যাচাইকৃত]</span> পরীক্ষিত Adreno সেটআপে Zink/Turnip GPU পথ</span>
           </div>
         </div>
       </div>
@@ -155,14 +155,17 @@ description: একটি কমান্ডেই আপনার Android ফ�
         <span class="dot" style="background:#ff657a"></span>
         <span class="dot" style="background:#f6bd55"></span>
         <span class="dot" style="background:#39ee88"></span>
-        <span class="term-title">ternux — AI-readable system diagnostics</span>
+        <span class="term-title">ternux — machine-readable system diagnostics</span>
       </div>
       <div class="term-body">
 <span class="l"><span class="p1">~ $</span> <span class="hl">ternux doctor --json</span></span>
-<span class="l">{ "status": "warning", "gpu": "Adreno (730)", "backend": "zink-turnip",</span>
-<span class="l">  "vulkan": "yes", "issues": ["phantom_process_killer_enabled"],</span>
-<span class="l">  "recommended_actions": ["disable phantom process killer"] }</span>
-<span class="l"><span class="dm">AI-native JSON output for every major command.</span></span>
+<span class="l">{ "command": "doctor", "status": "warning",</span>
+<span class="l">  "timestamp": "2026-08-17T00:00:00Z", "version": "1.3.0",</span>
+<span class="l">  "android_version": "14", "sdk": "34", "architecture": "aarch64",</span>
+<span class="l">  "gpu": "Adreno (730)", "backend": "zink", "vulkan": "yes",</span>
+<span class="l">  "issues": "phantom_process_killer_enabled",</span>
+<span class="l">  "actions": "Review Android process restrictions and other Signal 9 causes (see docs)" }</span>
+<span class="l"><span class="dm">নথিভুক্ত ডায়াগনস্টিক ও তথ্য কমান্ডে structured JSON।</span></span>
       </div>
     </div>
   </header>
@@ -183,19 +186,22 @@ description: একটি কমান্ডেই আপনার Android ফ�
     <div class="steps">
       <div class="step">
         <div class="step-h"><span class="step-n">ধাপ ১</span><h3>দুটি অ্যাপ ইনস্টল করুন</h3></div>
-        <p><b style="color:var(--ink)">Termux</b> — হোস্ট টার্মিনাল। <a href="https://github.com/termux/termux-app/releases">GitHub releases</a> বা <a href="https://f-droid.org/en/packages/com.termux/">F-Droid</a> থেকে। <b>Play Store নয়</b> — সেই বিল্ডটি পরিত্যক্ত, এর রিপোজিটরি মৃত।<br>
+        <p><b style="color:var(--ink)">Termux</b> — হোস্ট টার্মিনাল। মূল রিলিজ <a href="https://github.com/termux/termux-app/releases">GitHub</a> বা <a href="https://f-droid.org/en/packages/com.termux/">F-Droid</a> থেকে নিন এবং সব প্লাগইন একই উৎস থেকে রাখুন। Google Play লাইনটি আলাদা ও পরীক্ষামূলক।<br>
            <b style="color:var(--ink)">Termux:X11</b> — ডেস্কটপ দেখানোর অ্যাপ। <a href="https://github.com/termux/termux-x11/releases">GitHub releases</a> থেকে। একবার খুলুন, তারপর রেখে দিন।</p>
       </div>
 
       <div class="step">
         <div class="step-h"><span class="step-n">ধাপ ২</span><h3>এক-কমান্ড ইনস্টলার চালান</h3></div>
-        <p>Termux খুলে পেস্ট করুন। ইনস্টলার GPU শনাক্ত করে, বেস প্যাকেজ ইনস্টল করে, Debian + Xfce4 তৈরি করে, গ্রাফিক্স পথ সাজায়, লঞ্চার লেখে এবং সব যাচাই করে (৯টি ধাপ)।</p>
+        <p>Termux খুলে পেস্ট করুন। ইনস্টলার GPU শনাক্ত করে, বেস প্যাকেজ ইনস্টল করে, Debian + Xfce4 তৈরি করে, গ্রাফিক্স পথ সাজায়, লঞ্চার লেখে এবং সব যাচাই করে (১১টি ধাপ)।</p>
         <div class="cmd"><span class="p1">$</span> curl -fsSL https://soobujmiah.github.io/ternux/install.sh | bash</div>
-        <p>চালানোর আগে পড়ে নিতে চান? একই ইনস্টলার, আরও দুটি কমান্ড:</p>
-        <div class="cmd"><span class="p1">$</span> curl -fsSL https://soobujmiah.github.io/ternux/install.sh -o install.sh
-<span class="p1">$</span> less install.sh   <span class="dm"># চোখ বুলিয়ে নিন — একটি ফাইল, ধাপে সাজানো</span>
+        <p>চালানোর আগে সব source দেখতে চান? Repository clone করুন, যাতে entry script ও তার ব্যবহৃত সব module স্থানীয় থাকে:</p>
+        <div class="cmd"><span class="p1">$</span> pkg install git -y
+<span class="p1">$</span> git clone https://github.com/soobujmiah/ternux.git && cd ternux
+<span class="p1">$</span> git log -1 --oneline
+<span class="p1">$</span> (set -e; for f in install.sh uninstall.sh bin/ternux lib/*.sh; do bash -n "$f"; done)
+<span class="p1">$</span> less install.sh bin/ternux lib/*.sh
 <span class="p1">$</span> bash install.sh</div>
-        <p>বিঘ্নিত হলে? আবার চালান — প্রতিটি ধাপ আইডেমপোটেন্ট, আর <code>--resume</code> শেষ হওয়া কাজ বাদ দেয়।<br>
+        <p>বিঘ্নিত হলে <code>--resume</code> দিয়ে চালান; শুধু সফল হিসেবে রেকর্ড হওয়া ধাপগুলো বাদ যাবে। স্থানীয়ভাবে চালালে পরিবর্তনের আগে একবার নিশ্চিত করতে বলে, পাইপ করা রুটটি অনুপস্থিতিতে চলে।<br>
            প্রতিটি ধাপ হাতে-কলমে করতে চান? → <a href="{{ '/bn/docs/MANUAL.html' | relative_url }}">ম্যানুয়াল ইনস্টলেশন</a></p>
       </div>
 
@@ -210,13 +216,13 @@ description: একটি কমান্ডেই আপনার Android ফ�
         <div class="step-h"><span class="step-n">ধাপ ৪</span><h3>প্রমাণ করুন GPU আসল</h3></div>
         <p>ডেস্কটপের ভেতরে টার্মিনাল খুলুন (রাইট-ক্লিক → <em>Open Terminal Here</em>):</p>
         <div class="cmd"><span class="p1">$</span> glxinfo | grep "renderer string"</div>
-        <p>✅ <code>zink Vulkan (Adreno (TM) … (MESA_TURNIP))</code> বা <code>virgl</code> = হার্ডওয়্যার GPU পথ।<br>
-           ❌ <code>llvmpipe</code> = সফটওয়্যার রেন্ডারিং — ঠিক করুন, মেনে নেবেন না।</p>
+        <p>✅ <code>zink Vulkan (Adreno (TM) … (MESA_TURNIP))</code> পরীক্ষিত Adreno পথ নিশ্চিত করে। <code>virgl</code>/<code>virpipe</code> ফলব্যাক পথ দেখায়, তবে সমর্থন ও গতি ডিভাইসভেদে বদলায়।<br>
+           ❌ <code>llvmpipe</code> = CPU সফটওয়্যার রেন্ডারিং — বেঞ্চমার্কের আগে সমাধান করুন।</p>
       </div>
 
       <div class="step">
         <div class="step-h"><span class="step-n">নোট</span><h3>Android 12+ ব্যবহারকারীরা</h3></div>
-        <p>Android-এর "ফ্যান্টম প্রসেস কিলার" নিঃশব্দে ব্যাকগ্রাউন্ড প্রসেস মেরে ফেলে — কোনো এরর ছাড়া ডেস্কটপ বন্ধ হওয়ার এক নম্বর কারণ। ইনস্টলার এটি শনাক্ত করে সঠিক সমাধান দেখায়: Android 14+-এ একটি ডেভেলপার-অপশন টগল (<b>Disable child process restrictions</b>); 12–13-এ একটি ADB কমান্ড।</p>
+        <p>Android 12+ PRoot child process বন্ধ করতে পারে; memory pressure ও OEM battery policy-তেও একই লক্ষণ দেখা যায়। ইনস্টলার পড়তে-পারা setting জানায় ও version-aware troubleshooting দেখায়; system-wide safeguard বদলানোর আগে trade-off পড়ুন।</p>
       </div>
 
       <div class="step">
@@ -231,7 +237,7 @@ description: একটি কমান্ডেই আপনার Android ফ�
         <div class="step-h"><span class="step-n">পরিচালনা</span><h3>ternux CLI — স্থায়ী ব্যবস্থাপনা ইন্টারফেস</h3></div>
         <p>ইনস্টলের পর <code>ternux</code> CLI ব্যবহার করুন সবকিছুর জন্য:</p>
         <div class="cmd"><span class="p1">$</span> ternux doctor           <span class="dm"># সিস্টেম ডায়াগনস্টিক</span>
-<span class="p1">$</span> ternux doctor --json    <span class="dm"># AI-পাঠযোগ্য আউটপুট</span>
+<span class="p1">$</span> ternux doctor --json    <span class="dm"># machine-readable output</span>
 <span class="p1">$</span> ternux start            <span class="dm"># ডেস্কটপ চালু</span>
 <span class="p1">$</span> ternux stop             <span class="dm"># ডেস্কটপ বন্ধ</span>
 <span class="p1">$</span> ternux repair           <span class="dm"># সাধারণ সমস্যা সমাধান</span>
@@ -240,13 +246,13 @@ description: একটি কমান্ডেই আপনার Android ফ�
 <span class="p1">$</span> ternux update           <span class="dm"># CLI আপডেট</span>
 <span class="p1">$</span> ternux info --json      <span class="dm"># মেশিন-পাঠযোগ্য তথ্য</span>
 <span class="p1">$</span> ternux uninstall        <span class="dm"># কম্পোনেন্ট অপসারণ</span></div>
-        <p>প্রত্যেক কমান্ড <code>--help</code>, <code>--json</code>, <code>--verbose</code> ও <code>--quiet</code> সমর্থন করে।</p>
+        <p>ডিসপ্যাচার global flag শনাক্ত করে; JSON output কমান্ডভেদে আলাদা। সমর্থিত schema-এর জন্য CLI রেফারেন্স দেখুন।</p>
       </div>
 
       <div class="step">
         <div class="step-h"><span class="step-n">আনইনস্টল</span><h3>পরিষ্কার অপসারণ</h3></div>
         <div class="cmd"><span class="p1">$</span> curl -fsSL https://soobujmiah.github.io/ternux/uninstall.sh | bash</div>
-        <p>সবকিছু Termux-এর ভেতরে থাকে — Termux-এর ডেটা মুছলেই ternux পুরোপুরি চলে যায়। Android-এর ফাইল কখনো ছোঁয়া হয় না।</p>
+        <p>Managed container, launcher ও state Termux-এর ভেতরে থাকে; app data মুছলে সেগুলো চলে যায়, কিন্তু shared-storage project ও বাইরের backup থেকে যায়। Scoped uninstaller Termux-এর বাইরের file delete করে না।</p>
       </div>
     </div>
 
@@ -261,21 +267,21 @@ description: একটি কমান্ডেই আপনার Android ফ�
     <p class="sec-h">ডেস্কটপের বাইরেও প্রমাণিত</p>
     <h2 class="sec-t">একটি পকেট ওয়ার্কস্টেশন, সত্যিকারের কাজের জন্য</h2>
     <div class="grid">
-      <a class="card" href="{{ '/bn/docs/USAGE.html#lightweight-blender' | relative_url }}">
-        <div class="n">ক্রিয়েটিভ</div><h3>হালকা Blender</h3>
-        <p>লো-পলি মডেলিং, সাধারণ ম্যাটেরিয়াল ও ছোট সিন — Zink পাথে GPU অ্যাক্সিলারেটেড।</p></a>
-      <a class="card" href="{{ '/bn/docs/USAGE.html#local-ai-with-vulkan' | relative_url }}">
-        <div class="n">অন-ডিভাইস AI</div><h3>Vulkan লোকাল মডেল</h3>
-        <p>llama.cpp-তে ১–২B Q4 GGUF মডেল — প্রাইভেট, অফলাইন চ্যাট; ai অ্যালায়াস বাকিটা সামলায়।</p></a>
-      <a class="card" href="{{ '/bn/docs/USAGE.html#development' | relative_url }}">
-        <div class="n">ডেভেলপমেন্ট</div><h3>টার্মিনাল থেকেই কোড</h3>
-        <p>Git, Node.js, Python ও টার্মিনাল-ভিত্তিক কোডিং অ্যাসিস্ট্যান্ট — একটি ফ্ল্যাগেই ইনস্টল।</p></a>
-      <a class="card" href="{{ '/bn/docs/USAGE.html#authorised-security-lab' | relative_url }}">
-        <div class="n">ডিফেন্সিভ ল্যাব</div><h3>পোর্টেবল সিকিউরিটি টুলকিট</h3>
-        <p>নেটওয়ার্ক আবিষ্কার ও বিশ্লেষণের টুল — শুধুমাত্র আপনার নিজের বা অনুমোদিত সিস্টেমে।</p></a>
+      <a class="card" href="https://projects.blender.org/blender/blender">
+        <div class="n">ক্রিয়েটিভ</div><h3>Blender ভিউপোর্ট</h3>
+        <p>সংরক্ষিত রিপোর্টে OpenGL ভিউপোর্টে Zink/Turnip দেখা গেছে; Cycles GPU ডিভাইস দেখা যায়নি।</p></a>
+      <a class="card" href="https://github.com/ggml-org/llama.cpp">
+        <div class="n">অন-ডিভাইস AI</div><h3>llama.cpp Vulkan বিল্ড</h3>
+        <p>Vulkan বিল্ড/ব্যবহার রিপোর্ট হয়েছে; গতির দাবি করার আগে নিজের মডেলে llama-bench চালান।</p></a>
+      <a class="card" href="https://github.com/leejet/stable-diffusion.cpp">
+        <div class="n">ইমেজ জেনারেশন</div><h3>stable-diffusion.cpp Vulkan বিল্ড</h3>
+        <p>Vulkan-সমর্থিত বিল্ড রিপোর্ট হয়েছে; সম্পন্ন ছবির রানটাইম বা সেকেন্ড/ইমেজ মাপা হয়নি।</p></a>
+      <a class="card" href="https://github.com/glmark2/glmark2">
+        <div class="n">মাপা গ্রাফিক্স</div><h3>glmark2 প্রমাণ</h3>
+        <p>সংরক্ষিত ডিভাইস রানে ১৪০ ও ৩৬৪ স্কোর মাপা হয়েছে; সব scene FPS ও সীমাবদ্ধতা রাখা আছে।</p></a>
     </div>
     <p style="text-align:center;color:var(--dim);font-size:.82rem;margin-top:1rem">
-      Blender-এর পারফরম্যান্স লেখকের নিজের ডিভাইসের ফলাফল, সব ডিভাইসে একই গ্যারান্টি নয়। ভারী রেন্ডার, বড় মডেল ও দীর্ঘ মাইনিং ফোনের জন্য উপযুক্ত নয়।
+      Blender evidence শুধু পরীক্ষিত ডিভাইসের X11 OpenGL viewport route দেখায়; Cycles GPU বা render speed নয়। ভারী render, বড় model ও দীর্ঘ mining ফোনের উপযুক্ত workload নয়।
     </p>
   </section>
 
@@ -291,11 +297,11 @@ description: একটি কমান্ডেই আপনার Android ফ�
     </div>
 
     <div class="sw-panel" id="p-zink" role="tabpanel" aria-labelledby="tab-zink">
-      <h3>Qualcomm Adreno — দ্রুততম পথ</h3>
+      <h3>Qualcomm Adreno — সরাসরি পথ</h3>
       <p><code>ls /dev/kgsl-3d0</code> চালালে ফাইলটি পেলে আপনার GPU Adreno।
-         ইনস্টলার স্বয়ংক্রিয়ভাবে Zink বেছে নেয়: OpenGL → Vulkan → Turnip → হার্ডওয়্যার।</p>
+         ইনস্টলার স্বয়ংক্রিয়ভাবে Zink বেছে নেয়: OpenGL → Vulkan → Turnip → driver ওই device সমর্থন করলে hardware; অনুমান না করে renderer যাচাই করুন।</p>
       <div class="bar"><i style="width:92%"></i></div>
-      <div class="bar-l"><span>পছন্দের পথ</span><span>হার্ডওয়্যার অ্যাক্সিলারেটেড</span></div>
+      <div class="bar-l"><span>পরীক্ষিত Adreno পথ</span><span>renderer দিয়ে যাচাই করুন</span></div>
       <p style="margin-top:.9rem"><b style="color:var(--amber)">যে ফাঁদে পড়ার ভয়:</b> Turnip প্যাকেজে Vulkan
          লোডার থাকে না। <code>libvulkan1</code> না থাকলে Zink নিঃশব্দে CPU রেন্ডারিংয়ে নেমে যায় —
          কোনো এরর মেসেজ ছাড়াই। ইনস্টলার লোডার, ICD ও ড্রাইভার তিনটিই ইনস্টল করে যাচাই করে।</p>
@@ -304,9 +310,9 @@ description: একটি কমান্ডেই আপনার Android ফ�
     <div class="sw-panel" id="p-virgl" role="tabpanel" aria-labelledby="tab-virgl" hidden>
       <h3>Mali, Xclipse, PowerVR — সামঞ্জস্যপূর্ণ পথ</h3>
       <p><code>/dev/kgsl-3d0</code> না থাকলে Turnip চলবে না। ইনস্টলার VirGL বেছে নেয় —
-         GL কমান্ড Termux পাশের একটি হেল্পার প্রসেসে পাইপ হয়। একটু ধীর, কিন্তু এই পথেই কাজ হয়।</p>
+         GL কমান্ড Termux পাশের একটি helper process-এ যায়। Feature coverage, acceleration ও গতি ডিভাইসভেদে বদলায়; renderer ও workload যাচাই করুন।</p>
       <div class="bar"><i style="width:42%"></i></div>
-      <div class="bar-l"><span>গতির চেয়ে সামঞ্জস্য</span><span>হার্ডওয়্যার-সহায়ক</span></div>
+      <div class="bar-l"><span>সামঞ্জস্যের সম্ভাব্য পথ</span><span>ডিভাইসভেদে আলাদা</span></div>
       <p style="margin-top:.9rem"><b style="color:var(--amber)">মনে রাখুন:</b> Mali GPU-কে Turnip পথে
          নেওয়া অসম্ভব। সঠিকভাবে VirGL বেছে নেওয়াই এখানে আসল জয়।</p>
     </div>
@@ -326,8 +332,8 @@ description: একটি কমান্ডেই আপনার Android ফ�
       <div class="stage"><span class="num">০৭</span><span class="txt">ডেস্কটপ লঞ্চার<span>আপনার GPU রুট অনুযায়ী <code>~/x.sh</code> লেখে, সিনট্যাক্স-চেক করা</span></span></div>
       <div class="stage"><span class="num">০৮</span><span class="txt">নির্ভরযোগ্য নিয়ন্ত্রণ<span>x, killx, db, droot, xgo — শুরু, থামা, রিকভারি ও শেল অ্যাক্সেস</span></span></div>
       <div class="stage"><span class="num">০৯</span><span class="txt">ঐচ্ছিক ওয়ার্কলোড<span>ডেভ টুলস, llama.cpp, Blender ও মিডিয়া — শুধু যা চান</span></span></div>
-      <div class="stage"><span class="num">১০</span><span class="txt">Android সুরক্ষা<span>ফ্যান্টম-প্রসেস-কিলার শনাক্তকরণ, ভার্সন অনুযায়ী সঠিক সমাধান</span></span></div>
-      <div class="stage"><span class="num">১১</span><span class="txt">যাচাইকরণ<span>প্রতিটি গুরুত্বপূর্ণ ফাইল, বাইনারি ও অনুমতি নিশ্চিত করা হয়</span></span></div>
+      <div class="stage"><span class="num">১০</span><span class="txt">Android সুরক্ষা<span>পড়তে-পারা process setting পরীক্ষা ও version-aware নির্দেশনা</span></span></div>
+      <div class="stage"><span class="num">১১</span><span class="txt">যাচাইকরণ<span>নির্বাচিত জরুরি binary, launcher ও backend artifact পরীক্ষা করা হয়</span></span></div>
     </div>
     <p style="text-align:center;margin-top:1.2rem">
       <a class="btn btn-ghost" href="{{ '/bn/docs/CLI.html' | relative_url }}">CLI রেফারেন্স →</a>
@@ -342,26 +348,29 @@ description: একটি কমান্ডেই আপনার Android ফ�
     <div class="grid">
       <div class="why">
         <h3>কেন root নয়?</h3>
-        <p>রুট করলে ওয়ারেন্টি যায় এবং পুরো ডিভাইস ঝুঁকিতে পড়ে। PRoot ইউজারস্পেসেই একটি
-        রুট ফাইলসিস্টেম বানিয়ে দেয় — কন্টেইনার মনে করে সে সিস্টেমের মালিক, আর Android-এর
-        স্যান্ডবক্স অক্ষত থাকে। আনইনস্টল মানে একটি ফোল্ডার মুছে ফেলা।</p>
+        <p>Root-based change verified boot-এ প্রভাব ফেলতে ও blast radius বাড়াতে পারে।
+        PRoot Android root ছাড়াই root-like filesystem emulate করে, তবে এটি security
+        boundary নয়—Termux-accessible path reachable থাকে। Scoped uninstaller ব্যবহার
+        করুন এবং আগে Debian container backup নিন।</p>
       </div>
       <div class="why">
         <h3>কেন Zink + Turnip?</h3>
-        <p>Adreno ফোনে Vulkan ড্রাইভার আছে, কিন্তু ডেস্কটপ OpenGL ড্রাইভার নেই। Zink GL-কে
-        Vulkan-এ অনুবাদ করে; Turnip হার্ডওয়্যার চালায়। ফল: ডেস্কটপ অ্যাপে আসল GPU অ্যাক্সিলারেশন —
-        CPU-নির্ভর <code>llvmpipe</code> নয়।</p>
+        <p>সমর্থিত Adreno ডিভাইসে Android সাধারণ desktop OpenGL stack-এর বদলে
+        Vulkan/KGSL দেয়। Zink GL-কে Vulkan-এ অনুবাদ করে এবং Turnip GPU চালায়;
+        সফল launch দেখেই acceleration ধরে না নিয়ে renderer evidence দিয়ে route
+        নিশ্চিত করুন।</p>
       </div>
       <div class="why">
         <h3>কেন যাচাইকৃত ধাপ?</h3>
         <p>দৃশ্যমান ডেস্কটপ সফলতার প্রমাণ নয় — সফটওয়্যার রেন্ডারিং Blender চালানো পর্যন্ত
         ঠিকই দেখায়। প্রতিটি ধাপ পরেরটির আগে নিজের কাজ যাচাই করে, তাই ব্যর্থতা জোরে, শুরুতেই
-        এবং মেরামতযোগ্যভাবে আসে (<code>--resume</code>, <code>--doctor</code>)।</p>
+        আসে। Resume বিঘ্নিত install চালায়; <code>ternux repair</code> সমর্থিত targeted fix প্রয়োগ করে।</p>
       </div>
       <div class="why">
-        <h3>কেন একটি পরীক্ষাযোগ্য স্ক্রিপ্ট?</h3>
-        <p>ইনস্টলার একটি মাত্র MIT-লাইসেন্সকৃত ফাইল — চালানোর আগে পড়ে নিতে পারেন।
-        কোনো বাইনারি নেই, কোনো গোপন এন্ডপয়েন্ট নেই। স্বচ্ছতায় আস্থা, এক কমান্ডে সুবিধা।</p>
+        <h3>কেন পর্যালোচনাযোগ্য source?</h3>
+        <p>MIT-লাইসেন্সকৃত bootstrap ও library module চালানোর আগে download করে পড়া যায়।
+        Code, package ও driver asset-এর GitHub, Termux/Debian এবং Mesa source নথিতে
+        চিহ্নিত; one-command route সুবিধার বিনিময়ে কিছু review সুযোগ কমায়।</p>
       </div>
     </div>
   </section>
@@ -369,11 +378,11 @@ description: একটি কমান্ডেই আপনার Android ফ�
   <!-- ================= DOCS ================= -->
   <section class="sec">
     <p class="sec-h">ডকুমেন্টেশন — English ও বাংলা</p>
-    <h2 class="sec-t">প্রতিটি পৃষ্ঠা দুই ভাষায়: EN ও BN</h2>
+    <h2 class="sec-t">মূল গাইড English ও বাংলা; evidence archive English-এ</h2>
     <div class="grid">
       <a class="card" href="{{ '/bn/docs/QUICK-START.html' | relative_url }}">
         <div class="n">০১ — শুরু</div><h3>দ্রুত শুরু</h3>
-        <p>দুটি অ্যাপ, একটি কমান্ড, একটি যাচাইকৃত ডেস্কটপ। মোটামুটি দশ মিনিট।</p></a>
+        <p>দুটি Android app, একটি installer command, প্রথম launch ও renderer check।</p></a>
       <a class="card" href="{{ '/bn/docs/INSTALLATION.html' | relative_url }}">
         <div class="n">০২ — ইনস্টল</div><h3>ইনস্টলেশন</h3>
         <p>প্রয়োজনীয়তা, এক-কমান্ড ইনস্টলার, প্রতিটি ধাপ ও তার কারণ, সব অপশন, আনইনস্টল।</p></a>

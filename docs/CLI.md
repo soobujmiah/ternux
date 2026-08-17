@@ -1,6 +1,6 @@
 ---
 title: "CLI Reference"
-description: "Complete reference for the ternux command-line interface — every command, subcommand, flag, and JSON output schema."
+description: "Reference for ternux commands, subcommands, flags, and the commands that emit structured JSON."
 lang: "en"
 alt_url: "/bn/docs/CLI.html"
 ---
@@ -21,10 +21,19 @@ ternux <command> [options] [subcommand]
 | Flag | Description |
 |------|-------------|
 | `--help`, `-h` | Show help for any command |
-| `--json` | Machine-readable JSON output (AI-native) |
-| `--verbose` | Show detailed debug output |
-| `--quiet` | Suppress non-critical messages |
+| `--json` | Request structured output; only commands documented with JSON below promise a JSON object |
+| `--verbose` | Enable debug messages where a command provides them |
+| `--quiet` | Suppress shared informational/status messages; child-program output may remain |
 | `--version`, `-V` | Show version information |
+
+The dispatcher recognizes these flags before loading a command, so they may
+appear before or after the command name. Recognition is not a promise that
+every command has a machine-readable implementation. Do not pass `--json` to
+`install`, the live `logs tail` stream, or `uninstall` and expect a JSON schema;
+use it only where this page explicitly shows structured output. Shared
+dispatch/environment failures use `command: "error"`, `status: "fatal"`, and a
+`message` field; an unknown command also includes `requested_command`. A failure
+before `lib/core.sh` can load is necessarily plain stderr, not JSON.
 
 ## Commands
 
@@ -49,7 +58,7 @@ ternux install [options]
 | `--with-media` | Install media tools |
 | `--with-blender` | Install Blender |
 | `--all` | Install all optional workloads |
-| `--resume` | Continue an interrupted install |
+| `--resume` | Skip only phases recorded successful in an interrupted install |
 
 ### `ternux start`
 
@@ -88,7 +97,7 @@ ternux restart
 
 Run comprehensive system diagnostics. Checks 11 categories:
 Termux environment, storage, PRoot/Debian, Termux:X11, PulseAudio,
-Vulkan, GPU/backend, renderer, phantom process killer, launcher, VirGL.
+Vulkan, GPU/backend, renderer, Android child-process setting, launcher, VirGL.
 
 ```bash
 ternux doctor [--json]
@@ -100,23 +109,28 @@ ternux doctor [--json]
   "command": "doctor",
   "status": "warning",
   "gpu": "Adreno (730)",
-  "backend": "zink-turnip",
+  "backend": "zink",
   "renderer": "zink Vulkan (Adreno ... (MESA_TURNIP))",
   "vulkan": "yes",
   "issues": ["phantom_process_killer_enabled"],
-  "recommended_actions": ["disable phantom process killer"]
+  "recommended_actions": ["review Android process restrictions and other Signal 9 causes"]
 }
 ```
 
 ### `ternux repair`
 
-Auto-fix common issues in 6 steps:
-1. Broken curl/OpenSSL toolchain
-2. Missing Termux:X11 package
-3. Incorrect GPU backend
-4. Missing or broken launcher
-5. Stale Mesa shader cache
-6. Missing PulseAudio TCP bridge
+Inspect and repair common issues in 6 steps:
+1. Repair a broken curl/OpenSSL toolchain
+2. Install a missing `termux-x11-nightly` host package
+3. Validate/apply the configured GPU backend, reinstall missing validated
+   Turnip targets when needed, and align the launcher with that backend
+4. Regenerate a still-missing or syntactically broken launcher
+5. Clear a populated Mesa shader cache
+6. Add a missing PulseAudio TCP bridge
+
+A successful health check is not counted as a performed repair. A partial
+failure returns non-zero; restart the desktop and verify the renderer after a
+backend or launcher repair.
 
 ```bash
 ternux repair
@@ -125,7 +139,8 @@ ternux repair
 ### `ternux verify`
 
 Verify installation completeness. Checks binaries, launcher, Debian
-container, and GPU driver files.
+container, and GPU driver files. A failed verification returns a nonzero exit
+status in both human and `--json` modes.
 
 ```bash
 ternux verify [--json]
@@ -142,7 +157,8 @@ ternux benchmark [--json]
 Benchmarks:
 - **glmark2** — OpenGL 2.0 performance score
 - **vkmark** — Vulkan performance score
-- **Renderer verification** — confirms hardware acceleration
+- **Renderer inspection** — identifies Zink/Turnip, VirGL/virpipe, or software
+  rendering; a VirGL name alone does not prove a hardware-backed path
 
 ### `ternux profile`
 
@@ -168,7 +184,7 @@ ternux profile <subcommand> [name]
   "android_version": "14",
   "architecture": "aarch64",
   "gpu": "Adreno (730)",
-  "backend": "zink-turnip",
+  "backend": "zink",
   "vulkan": "yes (Adreno)"
 }
 ```
@@ -193,17 +209,17 @@ ternux backend <subcommand> [backend]
   "command": "backend",
   "status": "ok",
   "gpu": "Adreno (730)",
-  "backend": "zink-turnip",
+  "backend": "zink",
   "renderer": "zink Vulkan (Adreno ... (MESA_TURNIP))",
   "vulkan": "yes (Adreno)",
-  "available_backends": "zink-turnip,virgl"
+  "available_backends": "zink,virgl"
 }
 ```
 
 ### `ternux info`
 
 Show system information summary: device model, Android version, GPU,
-backend, renderer, Vulkan status, phantom killer state.
+backend, renderer, Vulkan status, and the readable Android child-process setting.
 
 ```bash
 ternux info [--json]
@@ -248,18 +264,25 @@ ternux update [check]
 
 ### `ternux uninstall`
 
-Interactive removal of ternux components (launcher, state, container).
+Scoped removal of ternux components. With no action, an interactive menu is
+shown. In a non-interactive shell, name the action explicitly.
 
 ```bash
-ternux uninstall
+ternux uninstall [session|launcher|state|container|all] [--yes]
 ```
 
 Options menu:
-- 1 — Stop running desktop session
-- 2 — Remove launcher + shell aliases
-- 3 — Remove installer state
-- 4 — Delete Debian container (all data inside)
-- 0 — Cancel
+- 1 / `session` — stop the desktop and remove stale sockets
+- 2 / `launcher` — remove `~/x.sh` and the delimited shell-alias blocks
+- 3 / `state` — remove ternux state and logs (not the container)
+- 4 / `container` — delete the Debian container and everything inside it
+- 5 / `all` — perform all four actions above
+- 0 — cancel
+
+`all` does not uninstall Termux packages or the ternux CLI/libraries, revoke
+storage access, reset mirrors, or revert the Termux PulseAudio configuration.
+Container deletion requires confirmation. `--yes` is intended only for a
+caller that deliberately accepts irreversible data loss.
 
 ## Shell completion
 
@@ -275,7 +298,7 @@ and saved profile names.
 ## Architecture
 
 ```
-bin/ternux          ← Thin dispatcher (82 lines)
+bin/ternux          ← Thin command/flag dispatcher
 lib/core.sh         ← Shared I/O, JSON builder, state, logging
 lib/help.sh         ← Central help system
 lib/detect.sh       ← Device detection (GPU, Vulkan, Android, etc.)
@@ -284,12 +307,13 @@ lib/doctor.sh       ← Diagnostics + verification
 lib/info.sh         ← System information
 lib/backend.sh      ← GPU backend management
 lib/profile.sh      ← Device profiling
-lib/benchmark.sh    ← GPU benchmarks
-lib/repair.sh       ← Auto-fix engine
+lib/benchmark.sh    ← GPU benchmarks and renderer classification
+lib/repair.sh       ← Repair engine using validated phase implementations
 lib/logs.sh         ← Log management
 lib/update.sh       ← Self-update
 lib/state.sh        ← Installation state
-lib/phases.sh       ← Installation phases (9 verified phases)
+lib/uninstall.sh    ← Scoped, confirmed component removal
+lib/phases.sh       ← 11-phase installation implementation
 ```
 
 Adding a new command:

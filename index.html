@@ -1,30 +1,30 @@
 ---
 layout: null
 title: ternux
-description: One command installs a GPU-accelerated Linux desktop on your Android phone — Termux + PRoot Debian + Xfce4 with Vulkan via Zink/Turnip. No root. Free and MIT licensed.
+description: One command installs Debian Xfce4 on Android, with measured Zink/Turnip acceleration on the tested Adreno setup and a device-dependent VirGL fallback. No root.
 ---
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>ternux — GPU-accelerated Linux desktop on Android</title>
-<meta name="description" content="One command installs a GPU-accelerated Linux desktop on your Android phone — Termux + PRoot Debian + Xfce4 with Vulkan via Zink/Turnip. No root. Free and MIT licensed.">
+<title>ternux — Zink/Turnip Linux desktop on Android</title>
+<meta name="description" content="One command installs Debian Xfce4 on Android, with measured Zink/Turnip acceleration on the tested Adreno setup and a device-dependent VirGL fallback. No root.">
 <meta name="author" content="Sobuj Miah">
 <meta name="theme-color" content="#06080d">
 <meta name="robots" content="index, follow">
 <meta property="og:site_name" content="ternux">
-<meta property="og:title" content="ternux — GPU-accelerated Linux desktop on Android">
-<meta property="og:description" content="One command. A full Linux desktop with real GPU acceleration on your phone. No root. Free and open source.">
+<meta property="og:title" content="ternux — Zink/Turnip Linux desktop on Android">
+<meta property="og:description" content="Debian Xfce4 on Android: measured Zink/Turnip acceleration on the tested Adreno setup; VirGL fallback varies by device. No root.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="{{ '/' | absolute_url }}">
 <meta property="og:image" content="{{ '/assets/img/og-card.png' | absolute_url }}">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="ternux — a GPU-accelerated Linux workstation on your Android phone. No root.">
+<meta property="og:image:alt" content="ternux — Debian Xfce4 on Android with a tested Adreno Zink/Turnip route. No root.">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="ternux — GPU-accelerated Linux desktop on Android">
-<meta name="twitter:description" content="One command. A full Linux desktop with real GPU acceleration on your phone. No root. Free and open source.">
+<meta name="twitter:title" content="ternux — Zink/Turnip Linux desktop on Android">
+<meta name="twitter:description" content="Debian Xfce4 on Android: measured Zink/Turnip acceleration on the tested Adreno setup; VirGL fallback varies by device. No root.">
 <meta name="twitter:image" content="{{ '/assets/img/og-card.png' | absolute_url }}">
 <link rel="canonical" href="{{ '/' | absolute_url }}">
 <link rel="alternate" hreflang="en" href="{{ '/' | absolute_url }}">
@@ -40,7 +40,7 @@ description: One command installs a GPU-accelerated Linux desktop on your Androi
 {
   "@context":"https://schema.org","@type":"SoftwareSourceCode",
   "name":"ternux",
-  "description":"One-command installer for a GPU-accelerated Debian Xfce4 desktop on Android using Termux, PRoot and Termux:X11, with Vulkan acceleration via Zink and Turnip. No root required.",
+  "description":"One-command Debian Xfce4 installer for Android. Zink and Turnip acceleration is measured on the tested Adreno setup; the VirGL fallback is device-dependent. No root required.",
   "codeRepository":"https://github.com/soobujmiah/ternux",
   "url":{{ '/' | absolute_url | jsonify }},
   "image":{{ '/assets/img/og-card.png' | absolute_url | jsonify }},
@@ -88,8 +88,8 @@ description: One command installs a GPU-accelerated Linux desktop on your Androi
       <div class="hero-copy">
         <p class="eyebrow">Android → Linux / no root</p>
         <h1>ternux<span class="cur">█</span></h1>
-        <p class="tag">A GPU-accelerated Linux desktop on the phone already in your pocket.</p>
-        <p class="sub">Termux + PRoot Debian + Xfce4, with real Vulkan through Zink&nbsp;/&nbsp;Turnip. <b>No root. Free. One command.</b></p>
+        <p class="tag">A Linux desktop with a measured Zink/Turnip GPU route on tested Adreno hardware.</p>
+        <p class="sub">Termux + PRoot Debian + Xfce4, with Zink&nbsp;/&nbsp;Turnip on supported Adreno devices and a device-dependent VirGL fallback. <b>No root. Free. One command.</b></p>
 
         <div class="pills">
           <span class="pill"><b>No root</b></span>
@@ -101,7 +101,7 @@ description: One command installs a GPU-accelerated Linux desktop on your Androi
         </div>
 
         <div class="cta-row">
-          <a class="btn btn-primary" href="{{ '/docs/QUICK-START.html' | relative_url }}">Quick start — 10 minutes</a>
+          <a class="btn btn-primary" href="{{ '/docs/QUICK-START.html' | relative_url }}">Quick start</a>
           <a class="btn btn-ghost" href="{{ '/docs/MANUAL.html' | relative_url }}">Installation guide →</a>
           <a class="btn btn-ghost" href="https://github.com/soobujmiah/ternux">GitHub ↗</a>
         </div>
@@ -119,7 +119,7 @@ description: One command installs a GPU-accelerated Linux desktop on your Androi
           </div>
         </div>
         <p class="install-note">
-          Audit first: <code>curl -fsSL …/install.sh -o install.sh &amp;&amp; less install.sh</code><br>
+          Audit every module: <code>git clone https://github.com/soobujmiah/ternux.git</code> — see the review route below.<br>
           curl broken? <code>wget -qO- https://soobujmiah.github.io/ternux/install.sh | bash</code>
         </p>
 
@@ -137,10 +137,10 @@ description: One command installs a GPU-accelerated Linux desktop on your Androi
 <span class="l"><span class="ok">[ OK ]</span> pulseaudio bridged on tcp:127.0.0.1:4713</span>
 <span class="l"></span>
 <span class="l"><span class="p2">ternux@debian:~$</span> <span class="hl">glxinfo | grep "renderer string"</span></span>
-<span class="l">OpenGL renderer: <span class="ok">zink Vulkan / MESA_TURNIP</span></span>
+<span class="l">OpenGL renderer: <span class="ok">zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP))</span></span>
 <span class="l"><span class="p2">ternux@debian:~$</span> <span class="hl">vulkaninfo --summary | grep driverName</span></span>
 <span class="l">driverName: <span class="ok">Turnip</span></span>
-<span class="l"><span class="ok">[VERIFIED]</span> hardware-backed graphics path</span>
+<span class="l"><span class="ok">[VERIFIED]</span> Zink/Turnip GPU route on the tested Adreno setup</span>
           </div>
         </div>
       </div>
@@ -152,14 +152,17 @@ description: One command installs a GPU-accelerated Linux desktop on your Androi
         <span class="dot" style="background:#ff657a"></span>
         <span class="dot" style="background:#f6bd55"></span>
         <span class="dot" style="background:#39ee88"></span>
-        <span class="term-title">ternux — AI-readable system diagnostics</span>
+        <span class="term-title">ternux — machine-readable system diagnostics</span>
       </div>
       <div class="term-body">
 <span class="l"><span class="p1">~ $</span> <span class="hl">ternux doctor --json</span></span>
-<span class="l">{ "status": "warning", "gpu": "Adreno (730)", "backend": "zink-turnip",</span>
-<span class="l">  "vulkan": "yes", "issues": ["phantom_process_killer_enabled"],</span>
-<span class="l">  "recommended_actions": ["disable phantom process killer"] }</span>
-<span class="l"><span class="dm">AI-native JSON output for every major command.</span></span>
+<span class="l">{ "command": "doctor", "status": "warning",</span>
+<span class="l">  "timestamp": "2026-08-17T00:00:00Z", "version": "1.3.0",</span>
+<span class="l">  "android_version": "14", "sdk": "34", "architecture": "aarch64",</span>
+<span class="l">  "gpu": "Adreno (730)", "backend": "zink", "vulkan": "yes",</span>
+<span class="l">  "issues": "phantom_process_killer_enabled",</span>
+<span class="l">  "actions": "Review Android process restrictions and other Signal 9 causes (see docs)" }</span>
+<span class="l"><span class="dm">Structured JSON for documented diagnostics and information commands.</span></span>
       </div>
     </div>
   </header>
@@ -180,7 +183,7 @@ description: One command installs a GPU-accelerated Linux desktop on your Androi
     <div class="steps">
       <div class="step">
         <div class="step-h"><span class="step-n">STEP 1</span><h3>Install two apps</h3></div>
-        <p><b style="color:var(--ink)">Termux</b> — the host terminal. From <a href="https://github.com/termux/termux-app/releases">GitHub releases</a> or <a href="https://f-droid.org/en/packages/com.termux/">F-Droid</a>. <b>Not the Play Store</b> — that build is abandoned and its repositories are dead.<br>
+        <p><b style="color:var(--ink)">Termux</b> — the host terminal. Use the main release from <a href="https://github.com/termux/termux-app/releases">GitHub</a> or <a href="https://f-droid.org/en/packages/com.termux/">F-Droid</a>, and keep every plugin from the same source. The Google Play line is separate and experimental.<br>
            <b style="color:var(--ink)">Termux:X11</b> — the app that displays the desktop. From <a href="https://github.com/termux/termux-x11/releases">GitHub releases</a>. Open it once, then leave it.</p>
       </div>
 
@@ -188,11 +191,14 @@ description: One command installs a GPU-accelerated Linux desktop on your Androi
         <div class="step-h"><span class="step-n">STEP 2</span><h3>Run the one-command installer</h3></div>
         <p>Open Termux and paste. The installer detects your GPU, installs the base packages, builds Debian + Xfce4, configures the graphics path, writes the launcher and verifies everything (11 phases).</p>
         <div class="cmd"><span class="p1">$</span> curl -fsSL https://soobujmiah.github.io/ternux/install.sh | bash</div>
-        <p>Prefer to read a script before running it? Same installer, two extra commands:</p>
-        <div class="cmd"><span class="p1">$</span> curl -fsSL https://soobujmiah.github.io/ternux/install.sh -o install.sh
-<span class="p1">$</span> less install.sh   <span class="dm"># skim it — one file, organised in phases</span>
+        <p>Prefer to review everything before running it? Clone the source so the entry script and every module it uses are local:</p>
+        <div class="cmd"><span class="p1">$</span> pkg install git -y
+<span class="p1">$</span> git clone https://github.com/soobujmiah/ternux.git && cd ternux
+<span class="p1">$</span> git log -1 --oneline
+<span class="p1">$</span> (set -e; for f in install.sh uninstall.sh bin/ternux lib/*.sh; do bash -n "$f"; done)
+<span class="p1">$</span> less install.sh bin/ternux lib/*.sh
 <span class="p1">$</span> bash install.sh</div>
-        <p>Interrupted? Run it again — every phase is idempotent, and <code>--resume</code> skips completed work.<br>
+        <p>Interrupted? Run with <code>--resume</code>; only phases recorded as successful are skipped. A local run asks once before changes, while the piped route is unattended.<br>
            Want to do every step by hand instead? → <a href="{{ '/docs/MANUAL.html' | relative_url }}">Manual installation</a></p>
       </div>
 
@@ -207,13 +213,13 @@ description: One command installs a GPU-accelerated Linux desktop on your Androi
         <div class="step-h"><span class="step-n">STEP 4</span><h3>Prove the GPU is real</h3></div>
         <p>Inside the desktop, open a terminal (right-click → <em>Open Terminal Here</em>):</p>
         <div class="cmd"><span class="p1">$</span> glxinfo | grep "renderer string"</div>
-        <p>✅ <code>zink Vulkan (Adreno (TM) … (MESA_TURNIP))</code> or <code>virgl</code> = hardware GPU path.<br>
-           ❌ <code>llvmpipe</code> = software rendering — fix it, don't live with it.</p>
+        <p>✅ <code>zink Vulkan (Adreno (TM) … (MESA_TURNIP))</code> confirms the captured direct Adreno path. <code>virgl</code>/<code>virpipe</code> confirms the fallback route is selected, but support and speed vary.<br>
+           ❌ <code>llvmpipe</code> = CPU software rendering — troubleshoot before benchmarking.</p>
       </div>
 
       <div class="step">
         <div class="step-h"><span class="step-n">NOTE</span><h3>Android 12+ users</h3></div>
-        <p>Android's "phantom process killer" silently kills background processes — the #1 cause of a desktop dying with no error. The installer detects it and prints the exact fix: on Android 14+ it's one Developer-Options toggle (<b>Disable child process restrictions</b>); on 12–13 it's one ADB command.</p>
+        <p>Android 12+ may terminate PRoot child processes, while memory pressure and OEM battery policy can look similar. The installer reports readable settings and points to version-aware troubleshooting; review the system-wide trade-off before changing Android safeguards.</p>
       </div>
 
       <div class="step">
@@ -228,7 +234,7 @@ description: One command installs a GPU-accelerated Linux desktop on your Androi
         <div class="step-h"><span class="step-n">MANAGE</span><h3>Ternux CLI — permanent management interface</h3></div>
         <p>After installation, use the <code>ternux</code> CLI for everything:</p>
         <div class="cmd"><span class="p1">$</span> ternux doctor           <span class="dm"># system diagnostics</span>
-<span class="p1">$</span> ternux doctor --json    <span class="dm"># AI-readable structured output</span>
+<span class="p1">$</span> ternux doctor --json    <span class="dm"># machine-readable structured output</span>
 <span class="p1">$</span> ternux start            <span class="dm"># start the desktop</span>
 <span class="p1">$</span> ternux stop             <span class="dm"># stop the desktop</span>
 <span class="p1">$</span> ternux repair           <span class="dm"># auto-fix common issues</span>
@@ -237,13 +243,13 @@ description: One command installs a GPU-accelerated Linux desktop on your Androi
 <span class="p1">$</span> ternux update           <span class="dm"># self-update ternux CLI</span>
 <span class="p1">$</span> ternux info --json      <span class="dm"># machine-readable system info</span>
 <span class="p1">$</span> ternux uninstall        <span class="dm"># component removal</span></div>
-        <p>Every command supports <code>--help</code>, <code>--json</code>, <code>--verbose</code>, and <code>--quiet</code>.</p>
+        <p>Global flags are recognized by the dispatcher; JSON output is command-specific. See the CLI reference for supported schemas.</p>
       </div>
 
       <div class="step">
         <div class="step-h"><span class="step-n">UNINSTALL</span><h3>Clean removal</h3></div>
         <div class="cmd"><span class="p1">$</span> curl -fsSL https://soobujmiah.github.io/ternux/uninstall.sh | bash</div>
-        <p>Everything lives inside Termux — deleting Termux's data removes ternux completely. Android's files are never touched.</p>
+        <p>The managed container, launcher and state live inside Termux; clearing app data removes them, but shared-storage projects and external backups remain. The scoped uninstaller does not delete files outside Termux.</p>
       </div>
     </div>
 
@@ -255,24 +261,24 @@ description: One command installs a GPU-accelerated Linux desktop on your Androi
 
   <!-- ================= CAPABILITIES ================= -->
   <section class="sec">
-    <p class="sec-h">Proven beyond the desktop</p>
-    <h2 class="sec-t">A pocket workstation with real jobs to do</h2>
+    <p class="sec-h">Measured, observed and reported separately</p>
+    <h2 class="sec-t">Practical workloads with explicit evidence limits</h2>
     <div class="grid">
-      <a class="card" href="{{ '/docs/USAGE.html#lightweight-blender' | relative_url }}">
-        <div class="n">CREATIVE</div><h3>Lightweight Blender</h3>
-        <p>Low-poly modelling, simple materials and modest scenes — GPU-accelerated on the Zink route.</p></a>
-      <a class="card" href="{{ '/docs/USAGE.html#local-ai-with-vulkan' | relative_url }}">
-        <div class="n">ON-DEVICE AI</div><h3>Vulkan local models</h3>
-        <p>llama.cpp with compact 1–2B Q4 GGUF models for private, offline chat — the ai alias does the rest.</p></a>
-      <a class="card" href="{{ '/docs/USAGE.html#development' | relative_url }}">
-        <div class="n">DEVELOPMENT</div><h3>Code from the terminal</h3>
-        <p>Git, Node.js, Python and terminal-based coding assistants, installed with one flag.</p></a>
-      <a class="card" href="{{ '/docs/USAGE.html#authorised-security-lab' | relative_url }}">
-        <div class="n">DEFENSIVE LAB</div><h3>Portable security toolkit</h3>
-        <p>Network discovery, packet analysis and assessment tools for systems you own or are authorised to test.</p></a>
+      <a class="card" href="https://projects.blender.org/blender/blender">
+        <div class="n">CREATIVE</div><h3>Blender viewport</h3>
+        <p>The captured Blender report detected Zink/Turnip for its OpenGL viewport; it did not show a Cycles GPU device.</p></a>
+      <a class="card" href="https://github.com/ggml-org/llama.cpp">
+        <div class="n">ON-DEVICE AI</div><h3>llama.cpp Vulkan build</h3>
+        <p>The Vulkan build/use was reported; run llama-bench with your exact model before making a speed claim.</p></a>
+      <a class="card" href="https://github.com/leejet/stable-diffusion.cpp">
+        <div class="n">IMAGE GENERATION</div><h3>stable-diffusion.cpp Vulkan build</h3>
+        <p>A Vulkan-enabled build was reported; no completed-image runtime or seconds/image measurement was supplied.</p></a>
+      <a class="card" href="https://github.com/glmark2/glmark2">
+        <div class="n">MEASURED GRAPHICS</div><h3>glmark2 evidence</h3>
+        <p>The archived device run measured scores 140 and 364, with all scene FPS values and caveats preserved.</p></a>
     </div>
     <p style="text-align:center;color:var(--dim);font-size:.82rem;margin-top:1rem">
-      Blender performance is an author-reported workload result, not a cross-device guarantee. Heavy renders, large models and sustained mining remain poor phone workloads.
+      glmark2 is measured; Blender is an observed viewport route; both AI entries are reported builds without published speed. Heavy renders, large models and sustained compute remain poor phone workloads.
     </p>
   </section>
 
@@ -288,11 +294,11 @@ description: One command installs a GPU-accelerated Linux desktop on your Androi
     </div>
 
     <div class="sw-panel" id="p-zink" role="tabpanel" aria-labelledby="tab-zink">
-      <h3>Qualcomm Adreno — the fast path</h3>
+      <h3>Qualcomm Adreno — the direct path</h3>
       <p>If <code>ls /dev/kgsl-3d0</code> finds the device, you have an Adreno GPU.
-         The installer picks Zink automatically: OpenGL → Vulkan → Turnip → hardware.</p>
+         The installer picks Zink automatically: OpenGL → Vulkan → Turnip → hardware when the driver supports that device; verify the renderer rather than assuming.</p>
       <div class="bar"><i style="width:92%"></i></div>
-      <div class="bar-l"><span>preferred supported route</span><span>hardware accelerated</span></div>
+      <div class="bar-l"><span>tested Adreno route</span><span>verify the renderer</span></div>
       <p style="margin-top:.9rem"><b style="color:var(--amber)">The trap:</b> the Turnip package ships
          no Vulkan loader. Miss <code>libvulkan1</code> and Zink silently falls back to
          CPU rendering — with no error message at all. The installer installs the loader,
@@ -302,10 +308,10 @@ description: One command installs a GPU-accelerated Linux desktop on your Androi
     <div class="sw-panel" id="p-virgl" role="tabpanel" aria-labelledby="tab-virgl" hidden>
       <h3>Mali, Xclipse, PowerVR — the compatible path</h3>
       <p>No <code>/dev/kgsl-3d0</code> means no Turnip. The installer selects VirGL,
-         which pipes GL commands to a helper process on the Termux side. Slower,
-         but it is the path that works.</p>
+         which pipes GL commands to a helper process on the Termux side. Feature coverage,
+         acceleration and speed vary by device, so verify the renderer and workload.</p>
       <div class="bar"><i style="width:42%"></i></div>
-      <div class="bar-l"><span>compatibility over peak speed</span><span>hardware-assisted</span></div>
+      <div class="bar-l"><span>compatibility candidate</span><span>device-dependent</span></div>
       <p style="margin-top:.9rem"><b style="color:var(--amber)">Note:</b> nothing can make a Mali GPU
          take the Turnip path. Choosing VirGL correctly is the win here.</p>
     </div>
@@ -325,8 +331,8 @@ description: One command installs a GPU-accelerated Linux desktop on your Androi
       <div class="stage"><span class="num">07</span><span class="txt">Desktop launcher<span>Writes <code>~/x.sh</code> tuned to your GPU route, syntax-checked</span></span></div>
       <div class="stage"><span class="num">08</span><span class="txt">Reliable controls<span>x, killx, db, droot, xgo — start, stop, recovery and shell access</span></span></div>
       <div class="stage"><span class="num">09</span><span class="txt">Optional workloads<span>Dev tools, llama.cpp, Blender and media — only what you ask for</span></span></div>
-      <div class="stage"><span class="num">10</span><span class="txt">Android safeguards<span>Phantom-process-killer detection with the exact per-version fix</span></span></div>
-      <div class="stage"><span class="num">11</span><span class="txt">Verification<span>Every critical file, binary and permission is confirmed present</span></span></div>
+      <div class="stage"><span class="num">10</span><span class="txt">Android safeguards<span>Phantom-process setting checks with version-aware guidance</span></span></div>
+      <div class="stage"><span class="num">11</span><span class="txt">Verification<span>Selected critical binaries, launcher and backend artifacts are checked</span></span></div>
     </div>
     <p style="text-align:center;margin-top:1.2rem">
       <a class="btn btn-ghost" href="{{ '/docs/CLI.html' | relative_url }}">CLI reference →</a>
@@ -341,28 +347,31 @@ description: One command installs a GPU-accelerated Linux desktop on your Androi
     <div class="grid">
       <div class="why">
         <h3>Why no root?</h3>
-        <p>Rooting voids warranties and exposes the whole device. PRoot fakes a root
-        filesystem in userspace — the container believes it owns the system while
-        Android's sandbox stays intact. Uninstalling ternux = deleting one folder.</p>
+        <p>Root-based changes can affect verified boot and enlarge the blast radius.
+        PRoot emulates a root-like filesystem without Android root, but it is not
+        a security boundary: Termux-accessible paths remain reachable. Use the
+        scoped uninstaller and back up the Debian container first.</p>
       </div>
       <div class="why">
         <h3>Why Zink + Turnip?</h3>
-        <p>Adreno phones have a Vulkan driver but no desktop OpenGL driver. Zink
-        translates GL to Vulkan; Turnip drives the hardware. Together: real GPU
-        acceleration for desktop apps — not CPU-bound <code>llvmpipe</code>.</p>
+        <p>On supported Adreno devices, Android exposes Vulkan/KGSL rather than a
+        normal desktop OpenGL stack. Zink translates GL to Vulkan and Turnip drives
+        the GPU; confirm the route with renderer evidence instead of assuming that a
+        successful launch means acceleration.</p>
       </div>
       <div class="why">
         <h3>Why verified phases?</h3>
         <p>A visible desktop is not proof of success — software rendering looks fine
         until you run Blender. Every phase checks its work before the next starts,
-        so failures are loud, early and repairable (<code>--resume</code>,
-        <code>--doctor</code>).</p>
+        so failures are loud and early. Resume continues interrupted installs;
+        <code>ternux repair</code> applies supported targeted fixes.</p>
       </div>
       <div class="why">
-        <h3>Why one auditable script?</h3>
-        <p>The installer is a single MIT-licensed file you can read before running.
-        No binaries, no hidden endpoints. Trust through transparency, convenience
-        through one command.</p>
+        <h3>Why auditable source?</h3>
+        <p>The MIT-licensed bootstrap and library modules can be downloaded and
+        reviewed before execution. The documentation identifies the GitHub,
+        Termux/Debian and Mesa sources used for code, packages and driver assets;
+        the one-command route trades some reviewability for convenience.</p>
       </div>
     </div>
   </section>
@@ -370,11 +379,11 @@ description: One command installs a GPU-accelerated Linux desktop on your Androi
   <!-- ================= DOCS ================= -->
   <section class="sec">
     <p class="sec-h">Documentation — English &amp; বাংলা</p>
-    <h2 class="sec-t">Everything is documented twice: EN and BN</h2>
+    <h2 class="sec-t">Core guides in English and বাংলা; evidence archive in English</h2>
     <div class="grid">
       <a class="card" href="{{ '/docs/QUICK-START.html' | relative_url }}">
         <div class="n">01 — START</div><h3>Quick start</h3>
-        <p>Two apps, one command, one verified desktop. About ten minutes.</p></a>
+        <p>Two Android apps, one installer command, first launch and renderer checks.</p></a>
       <a class="card" href="{{ '/docs/INSTALLATION.html' | relative_url }}">
         <div class="n">02 — INSTALL</div><h3>Installation</h3>
         <p>Requirements, the one-command installer, every phase and why, all options, uninstall.</p></a>

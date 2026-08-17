@@ -118,6 +118,12 @@ teardown() {
 
 # ===== JSON OUTPUT =========================================================
 
+@test "json: unknown command uses the generic fatal envelope" {
+  run bash "$TNX_CLI" frobnicate --json
+  [ "$status" -eq 1 ]
+  echo "$output" | python3 -c 'import json,sys; o=json.load(sys.stdin); assert o["command"] == "error"; assert o["status"] == "fatal"; assert o["requested_command"] == "frobnicate"'
+}
+
 @test "json: info --json produces valid JSON" {
   run bash "$TNX_CLI" info --json
   [ "$status" -eq 0 ]
@@ -303,6 +309,13 @@ teardown() {
   run bash "$TNX_CLI" state --json
   [ "$status" -eq 0 ]
   echo "$output" | grep -q '"command":"state"'
+}
+
+@test "state: a missing key fails cleanly when another key exists" {
+  printf '%s\n' 'unrelated=value' > "$TERNUX_STATE_DIR/state"
+  run bash "$TNX_CLI" state --json
+  [ "$status" -eq 0 ]
+  echo "$output" | python3 -c 'import json,sys; assert json.load(sys.stdin)["backend"] == "unknown"'
 }
 
 @test "state: works with custom TERNUX_STATE_DIR" {

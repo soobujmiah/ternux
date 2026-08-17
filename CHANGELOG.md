@@ -12,13 +12,41 @@ Notable changes to ternux. Dates are ISO 8601.
 
 ---
 
+## [Unreleased]
+
+### Archival real-device guide and installer hardening
+
+- Rebuilt the README as an evidence-led, archival guide: exact renderer,
+  measured glmark2 scores and all observed FPS ranges, architecture and backend
+  interpretation, verification/benchmark protocols, workloads, FAQ, thermal
+  guidance, limitations, and explicit separation of measured, observed,
+  build-only and untested claims.
+- Added `docs/BENCHMARKS.md`, preserving all 66 captured OpenGL/OpenGL ES scene
+  results, test conditions, anomalies, evidence matrix and reproduction steps.
+- Added one-command and full download-review-run installation routes plus
+  English and Bengali manual procedures. Review instructions now cover every
+  executable installer component, not just the entry script.
+- Hardened backend normalization/detection, Turnip archive selection and staged
+  extraction, launcher argument/env handling, PulseAudio loopback configuration,
+  locale/user persistence, repair aggregation, verification, resumability and
+  scoped uninstall documentation.
+- Standardized supported command JSON and shared fatal envelopes while
+  documenting which lifecycle commands remain human-oriented.
+- Expanded English/Bengali troubleshooting, configuration, architecture and CLI
+  references; workload cards link directly to Blender, llama.cpp and
+  stable-diffusion.cpp upstream repositories.
+
+---
+
 ## [1.3.0] — 2026-08-15
 
-### ternux CLI v1.3.0 — production modular CLI with AI-native JSON
+### ternux CLI v1.3.0 — production modular CLI with documented JSON output
 
 **Complete CLI redesign.** The CLI has been rebuilt from the ground up as a
-thin dispatcher with self-contained command modules, proper help system,
-consistent UX, and AI-native JSON everywhere.
+thin dispatcher with self-contained command modules, proper help system and
+consistent UX. Machine-readable JSON is available for the reporting commands
+whose schemas are documented; interactive/lifecycle commands remain
+human-oriented.
 
 **New architecture:**
 - `bin/ternux` is now a **thin dispatcher** (~80 lines): discovers commands

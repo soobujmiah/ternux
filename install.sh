@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/bash
 # =============================================================================
 #  ternux — standalone bootstrapper
-#  GPU-accelerated Linux desktop for Android. No root required.
+#  Linux desktop for Android with Zink and VirGL graphics routes. No root required.
 #
 #  Two modes:
 #    1. Repository:  bash install.sh        (lib/*.sh are local)
@@ -58,6 +58,15 @@ _tnx_load_remote() {
     fi
   done
 
+  local downloaded_lib
+  for downloaded_lib in "$tmpdir/"*.sh; do
+    if ! bash -n "$downloaded_lib" 2>/dev/null; then
+      echo "[FATAL] Downloaded ternux library failed shell syntax validation: $(basename "$downloaded_lib")" >&2
+      rm -rf "$tmpdir"
+      exit 1
+    fi
+  done
+
   . "$tmpdir/core.sh" && . "$tmpdir/phases.sh" && . "$tmpdir/detect.sh" && . "$tmpdir/ui.sh" || {
     echo "[FATAL] Failed to load downloaded libraries." >&2; rm -rf "$tmpdir"; exit 1; }
   rm -rf "$tmpdir"
@@ -103,10 +112,25 @@ FIX="no"
 while [ $# -gt 0 ]; do
   case "$1" in
     --yes) YES=1; export TERNUX_YES=1 ;;
-    --user) USER_NAME="${2:?--user needs a value}"; shift ;;
-    --locale) LOCALE="${2:?--locale needs a value}"; shift ;;
+    --user|--locale)
+      opt="$1"
+      if [ $# -lt 2 ] || [ -z "$2" ] || [[ "$2" == --* ]]; then
+        echo "[FAIL] $opt needs a value" >&2
+        exit 2
+      fi
+      if [ "$opt" = "--user" ]; then USER_NAME="$2"; else LOCALE="$2"; fi
+      shift
+      ;;
     --backend)
-      case "${2:-}" in auto|zink|virgl) BACKEND="$2"; shift ;; *) echo "[FAIL] --backend must be auto, zink or virgl"; exit 1 ;; esac ;;
+      if [ $# -lt 2 ] || [ -z "$2" ] || [[ "$2" == --* ]]; then
+        echo "[FAIL] --backend needs a value" >&2
+        exit 2
+      fi
+      case "$2" in
+        auto|zink|virgl) BACKEND="$2"; shift ;;
+        *) echo "[FAIL] --backend must be auto, zink or virgl" >&2; exit 2 ;;
+      esac
+      ;;
     --zsh) SHELL_CHOICE="zsh" ;;
     --with-dev) WITH_DEV=1 ;;
     --with-llm) WITH_LLM=1 ;;
@@ -122,28 +146,62 @@ while [ $# -gt 0 ]; do
     --uninstall) ACTION="uninstall" ;;
     --version) echo "ternux installer v${TERNUX_VERSION:-1.3.0} — https://github.com/soobujmiah/ternux"; exit 0 ;;
     -h|--help) sed -n '/^#  Usage/,/^# =====/p' "$0" | sed 's/^# \?//p' | head -n -1; exit 0 ;;
-    *) echo "[FAIL] Unknown option: $1"; exit 1 ;;
+    *) echo "[FAIL] Unknown option: $1" >&2; exit 2 ;;
   esac
   shift
 done
 
-case "$USER_NAME" in ""|*[!a-z0-9_-]*) echo "[FAIL] --user may contain only a-z, 0-9, _ and -."; exit 1 ;; esac
+if [[ ! "$USER_NAME" =~ ^[a-z_][a-z0-9_-]{0,31}$ ]]; then
+  echo "[FAIL] --user must start with a-z or _, use only a-z, 0-9, _ or -, and be at most 32 characters."
+  exit 1
+fi
+if [[ ! "$LOCALE" =~ ^[A-Za-z0-9_.@-]+$ ]]; then
+  echo "[FAIL] --locale contains unsupported characters."
+  exit 1
+fi
 
 # ---------------------------------------------------------------------------
 # Action dispatch
 # ---------------------------------------------------------------------------
 case "${ACTION}" in
   doctor)
+    DOCTOR_BACKEND="$BACKEND"
+    if [ "$DOCTOR_BACKEND" = "auto" ]; then
+      DOCTOR_BACKEND="$(detect_backend)"
+    fi
     if [ "$FIX" = "yes" ]; then
       tnx_info "Running diagnosis + repair..."
-      tnx_phase_preflight || true
+      preflight_rc=0
+      tnx_phase_preflight || preflight_rc=$?
+      if [ "$preflight_rc" -ne 0 ]; then
+        tnx_fail "Preflight failed; repair phases were not run."
+        exit "$preflight_rc"
+      fi
+      repair_rc=0
       for pkg in packages debian gpu audio_fonts launcher aliases; do
         if ! tnx_state_done "phase_$pkg"; then
           tnx_warn "Phase '$pkg' not completed — re-running..."
-          "tnx_phase_$pkg" && tnx_state_mark "phase_$pkg"
+          phase_rc=0
+          case "$pkg" in
+            packages)    tnx_phase_packages "$DOCTOR_BACKEND" || phase_rc=$? ;;
+            debian)      tnx_phase_debian "$USER_NAME" || phase_rc=$? ;;
+            gpu)         tnx_phase_gpu "$DOCTOR_BACKEND" || phase_rc=$? ;;
+            audio_fonts) tnx_phase_audio_fonts "$USER_NAME" "$LOCALE" || phase_rc=$? ;;
+            launcher)    tnx_phase_launcher "$USER_NAME" "$DOCTOR_BACKEND" "$LOCALE" || phase_rc=$? ;;
+            aliases)     tnx_phase_aliases "$USER_NAME" "$SHELL_CHOICE" || phase_rc=$? ;;
+          esac
+          if [ "$phase_rc" -eq 0 ]; then
+            tnx_state_mark "phase_$pkg"
+          else
+            repair_rc="$phase_rc"
+            break
+          fi
         fi
       done
-      tnx_phase_verify "$USER_NAME" "$BACKEND"
+      verify_rc=0
+      tnx_phase_verify "$USER_NAME" "$DOCTOR_BACKEND" || verify_rc=$?
+      [ "$repair_rc" -ne 0 ] && exit "$repair_rc"
+      exit "$verify_rc"
     else
       tnx_info "Running diagnosis..."
       tnx_require_termux
@@ -152,7 +210,7 @@ case "${ACTION}" in
         if tnx_state_done "phase_$pkg"; then tnx_ok "phase '$pkg' completed"
         else tnx_warn "phase '$pkg' not completed"; fi
       done
-      tnx_phase_verify "$USER_NAME" "$BACKEND"
+      tnx_phase_verify "$USER_NAME" "$DOCTOR_BACKEND"
     fi
     ;;
   status)
@@ -171,19 +229,20 @@ case "${ACTION}" in
     fi
     echo "See: ternux uninstall  or  bash uninstall.sh"
     ;;
-  resume)
-    tnx_install --yes --user "$USER_NAME" --locale "$LOCALE" --backend "$BACKEND" --resume
-    ;;
-  *)
-    # Build extras list
-    EXTRAS=""
-    [ "$WITH_DEV" = "1" ] && EXTRAS="$EXTRAS --with-dev"
-    [ "$WITH_LLM" = "1" ] && EXTRAS="$EXTRAS --with-llm"
-    [ "$WITH_NETWORK" = "1" ] && EXTRAS="$EXTRAS --with-network"
-    [ "$WITH_MEDIA" = "1" ] && EXTRAS="$EXTRAS --with-media"
-    [ "$WITH_BLENDER" = "1" ] && EXTRAS="$EXTRAS --with-blender"
-    [ "$SHELL_CHOICE" = "zsh" ] && EXTRAS="$EXTRAS --zsh"
+  resume|install)
+    # Preserve argument boundaries and pass --yes only when the caller asked
+    # for it. A local TTY run gets one confirmation; a curl|bash run has no
+    # TTY and proceeds with the documented defaults.
+    INSTALL_ARGS=(--user "$USER_NAME" --locale "$LOCALE" --backend "$BACKEND")
+    [ "$YES" = "1" ] && INSTALL_ARGS+=(--yes)
+    [ "$ACTION" = "resume" ] && INSTALL_ARGS+=(--resume)
+    [ "$WITH_DEV" = "1" ] && INSTALL_ARGS+=(--with-dev)
+    [ "$WITH_LLM" = "1" ] && INSTALL_ARGS+=(--with-llm)
+    [ "$WITH_NETWORK" = "1" ] && INSTALL_ARGS+=(--with-network)
+    [ "$WITH_MEDIA" = "1" ] && INSTALL_ARGS+=(--with-media)
+    [ "$WITH_BLENDER" = "1" ] && INSTALL_ARGS+=(--with-blender)
+    [ "$SHELL_CHOICE" = "zsh" ] && INSTALL_ARGS+=(--zsh)
 
-    tnx_install --yes --user "$USER_NAME" --locale "$LOCALE" --backend "$BACKEND" $EXTRAS
+    tnx_install "${INSTALL_ARGS[@]}"
     ;;
 esac

@@ -42,7 +42,7 @@ If ternux works on your phone, share your device configuration! Use the
 git clone https://github.com/soobujmiah/ternux.git
 cd ternux
 bash -n bin/ternux          # syntax check CLI
-bash -n lib/*.sh            # syntax check all libraries
+(set -e; for f in lib/*.sh; do bash -n "$f"; done)  # check each library
 bash -n install.sh          # syntax check installer
 ```
 

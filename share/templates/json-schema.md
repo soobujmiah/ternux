@@ -1,6 +1,8 @@
 # ternux JSON output schemas
 
-All JSON output from `ternux <command> --json` follows this structure:
+Commands documented below emit one JSON object when called with `--json`.
+The dispatcher recognizes `--json` globally, but commands not listed here do
+not promise a machine-readable schema.
 
 ## Common fields
 
@@ -24,12 +26,12 @@ All JSON output from `ternux <command> --json` follows this structure:
   "android_version": "14",
   "architecture": "aarch64",
   "gpu": "Adreno (730)",
-  "backend": "zink-turnip",
+  "backend": "zink",
   "renderer": "zink Vulkan (Adreno (TM) ... (MESA_TURNIP))",
   "vulkan": "yes",
   "issues": ["phantom_process_killer_enabled", "virgl_missing"],
   "recommended_actions": [
-    "disable phantom process killer",
+    "review Android process restrictions and other Signal 9 causes",
     "install VirGL renderer: pkg install virglrenderer-android -y"
   ]
 }
@@ -52,7 +54,7 @@ All JSON output from `ternux <command> --json` follows this structure:
   "termux_version": "0.118.1",
   "gpu": "Adreno (730)",
   "vulkan": "yes",
-  "backend": "zink-turnip",
+  "backend": "zink",
   "renderer": "zink Vulkan (Adreno (TM) ... (MESA_TURNIP))",
   "phantom_process_killer": "enabled"
 }
@@ -70,9 +72,9 @@ All JSON output from `ternux <command> --json` follows this structure:
   "vkmark_score": "850",
   "renderer": "zink Vulkan (Adreno (TM) ... (MESA_TURNIP))",
   "gpu": "Adreno (730)",
-  "backend": "zink-turnip",
+  "backend": "zink",
   "vulkan": "yes",
-  "results": "glmark2:1425,vkmark:850,renderer:zink Vulkan (Adreno (TM) ... (MESA_TURNIP)),status:hardware_accelerated"
+  "results": "glmark2:1425,vkmark:850,renderer:zink Vulkan (Adreno (TM) ... (MESA_TURNIP)),status:zink_turnip_route_detected"
 }
 ```
 
@@ -93,7 +95,7 @@ All JSON output from `ternux <command> --json` follows this structure:
   "termux_version": "0.118.1",
   "gpu": "Adreno (730)",
   "vulkan": "yes (Adreno)",
-  "backend": "zink-turnip",
+  "backend": "zink",
   "phantom_process_killer": "enabled"
 }
 ```
@@ -106,7 +108,7 @@ All JSON output from `ternux <command> --json` follows this structure:
   "status": "passed",
   "timestamp": "2026-08-15T14:30:00Z",
   "version": "1.3.0",
-  "checks": "termux-x11:installed,proot-distro:installed,pulseaudio:installed,launcher:present,debian:installed,debian_services:ok,turnip_driver:present",
+  "checks": "termux-x11:installed,proot-distro:installed,pulseaudio:installed,launcher:present,debian:installed,debian_services:ok,turnip:present",
   "android_version": "14",
   "gpu": "Adreno (730)"
 }
@@ -121,24 +123,46 @@ All JSON output from `ternux <command> --json` follows this structure:
   "timestamp": "2026-08-15T14:30:00Z",
   "version": "1.3.0",
   "gpu": "Adreno (730)",
-  "backend": "zink-turnip",
+  "backend": "zink",
   "renderer": "zink Vulkan (Adreno (TM) ... (MESA_TURNIP))",
   "vulkan": "yes (Adreno)",
-  "available_backends": "zink-turnip,virgl"
+  "available_backends": "zink,virgl"
 }
 ```
 
-## Error response (any command)
+## Generic fatal response
+
+Failures raised by the shared dispatcher or environment guard use a generic
+error envelope rather than pretending that a command-specific result was
+produced. `message` is always present; `requested_command` is included when the
+failure concerns an unknown command.
 
 ```json
 {
-  "command": "doctor",
-  "status": "error",
+  "command": "error",
+  "status": "fatal",
   "timestamp": "2026-08-15T14:30:00Z",
   "version": "1.3.0",
-  "error": "Not running inside Termux environment"
+  "message": "Not running in Termux environment"
 }
 ```
+
+An unknown-command response additionally resembles:
+
+```json
+{
+  "command": "error",
+  "status": "fatal",
+  "timestamp": "2026-08-15T14:30:00Z",
+  "version": "1.3.0",
+  "message": "Unknown command: frobnicate",
+  "requested_command": "frobnicate"
+}
+```
+
+A failure that occurs before the core library can be loaded (for example, a
+corrupt installation with no `lib/core.sh`) is written as plain text to stderr;
+no JSON runtime is available at that point.
 
 ---
 

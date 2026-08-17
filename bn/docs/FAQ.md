@@ -12,26 +12,27 @@ alt_url: "/docs/FAQ.html"
 
 ## root কি লাগবে? root করলেই বা কী ক্ষতি?
 
-না — আর ইচ্ছা করেই না। রুট করলে বুটলোডার খোলে, ওয়ারেন্টি যায়, ব্যাংকিং ও
-DRM অ্যাপ ভাঙে, আর পুরো ডিভাইস যা-ই চলবে তার সামনে উন্মুক্ত হয়।
+না। Root-based setup-এ bootloader/device change লাগতে পারে, verified boot,
+banking/DRM behavior বদলাতে পারে এবং ভুল বা untrusted code-এর blast radius
+বাড়ে; exact ফল device/vendor ভেদে আলাদা।
 
-ternux **PRoot** ব্যবহার করে, যা *ইউজারস্পেসে* রুট ফাইলসিস্টেম নকল করে।
-কন্টেইনার মনে করে সে রুট; Android টেরই পায় না। ternux-এর পুরো ঝুঁকি হলো
-Termux-এর স্টোরেজের একটি ফোল্ডার। এটিই নকশার মূল কথা।
+ternux **PRoot** দিয়ে userspace-এ root-like filesystem/identity emulate করে;
+Android root দেয় না। এতে privileged-system impact কমে, কিন্তু PRoot security
+boundary নয়—Termux-accessible বা Debian-এ bound path code পড়তে/বদলাতে পারে।
 
 ## এটি কি ফোন নষ্ট বা "ব্রিক" করবে?
 
-না। ternux কখনোই বুটলোডার, সিস্টেম পার্টিশন বা Android সেটিং স্পর্শ করে না।
-এটি Termux-এর প্রাইভেট স্টোরেজে ফাইল লেখে আর সাধারণ অ্যাপ ইনস্টল করে। ভাঙা
-ইনস্টলের সবচেয়ে খারাপ পরিণতি: কন্টেইনার ডিলিট করে নতুন করে শুরু করা।
+Installer bootloader বা Android system partition বদলায় না এবং root চায় না;
+স্বাভাবিক install failure-এ phone brick হওয়ার কথা নয়। তবে এটি Termux package/
+config, shell file ও Debian container বদলায়। Bug, untrusted command বা manual
+system-setting change data loss/disruption করতে পারে—আগে backup নিন।
 
-## Play Store-এর Termux ব্যবহার করা যায় না কেন?
+## কোন Termux release line ব্যবহার করব?
 
-সেই বিল্ডটি রক্ষণাবেক্ষণকারীরা বছর আগে পরিত্যাগ করেছে। এর প্যাকেজ
-রিপোজিটরি মৃত, তাই `pkg install` সবকিছুতে ব্যর্থ হয়, আর এতে অনেক পরিচিত বাগ
-আছে যা রক্ষণাবেক্ষিত বিল্ডে বহু আগেই ঠিক হয়েছে। সবসময় ব্যবহার করুন
-[F-Droid](https://f-droid.org/en/packages/com.termux/) বা
-[GitHub releases](https://github.com/termux/termux-app/releases)।
+এই guide মূল [F-Droid](https://f-droid.org/en/packages/com.termux/) বা
+[GitHub releases](https://github.com/termux/termux-app/releases) line ধরে লেখা।
+Google Play-এ আলাদা পরীক্ষামূলক Android 11+ branch আছে; feature ও bug-এর
+পার্থক্য থাকতে পারে। Termux ও সব plugin একই source থেকে ইনস্টল করুন।
 
 ## আসলে কত স্টোরেজ লাগবে?
 
@@ -47,9 +48,10 @@ Termux-এর স্টোরেজের একটি ফোল্ডার। 
 
 ## নন-Qualcomm ফোনে কি চলবে?
 
-হ্যাঁ। Mali, Xclipse ও PowerVR ডিভাইস **VirGL** পথ পায় — হার্ডওয়্যার-ব্যাকড,
-কিন্তু Adreno-র Zink/Turnip-এর চেয়ে ধীর। পার্থক্য শুধু গতিতে; ডেস্কটপ আর
-টুলিং একই রকম।
+সম্ভাব্যভাবে। Mali, Xclipse ও PowerVR-এ installer **VirGL** সামঞ্জস্য পথ
+বেছে নেয়, কিন্তু renderer name একাই hardware-backed acceleration প্রমাণ করে
+না। Feature coverage ও গতি ডিভাইসভেদে বদলায়; `glxinfo -B` ও বাস্তব workload
+দিয়ে যাচাই করুন।
 
 ## আমার রেন্ডারার `llvmpipe` কেন? এটা কি খারাপ?
 
@@ -72,23 +74,23 @@ Termux-এর স্টোরেজের একটি ফোল্ডার। 
 
 ## স্ক্রিন লক হলে বা কিছুক্ষণ পর ডেস্কটপ মরে যায় কেন?
 
-দুটি সাধারণ কারণ:
-
-1. **ফ্যান্টম প্রসেস কিলার** (Android 12+) — এক নম্বর কারণ। সমাধান
-   [সমস্যা সমাধানে](TROUBLESHOOTING.html#the-desktop-dies-silently)।
-2. **আগ্রাসী OEM ব্যাটারি অপটিমাইজেশন** ব্যাকগ্রাউন্ডে Termux-কে মেরে ফেলা।
-   Android সেটিংসে Termux-এর ব্যাটারি ইউসেজ *Unrestricted* করুন আর ব্যাকগ্রাউন্ড
-   সীমাবদ্ধতা বন্ধ করুন।
+সাধারণ কারণের মধ্যে Android child-process policy, memory pressure এবং OEM
+battery management আছে। Termux ও Termux:X11 battery use *Unrestricted* করুন,
+অতিরিক্ত build parallelism কমান এবং system-wide Android safeguard বদলানোর আগে
+[evidence-led troubleshooting](TROUBLESHOOTING.html#the-desktop-dies-silently) অনুসরণ করুন।
 
 ## নিরাপত্তা/প্রাইভেসির দিক থেকে এটি কি নিরাপদ?
 
 যে নকশা সিদ্ধান্তগুলো গুরুত্বপূর্ণ:
 
-- **root নেই** — Android-এর স্যান্ডবক্স যেমন আছে তেমনই থাকে।
-- **শুধু লুপব্যাক সার্ভিস** — অডিও ও মডেল সার্ভার `127.0.0.1`-এ বাঁধা,
-  নেটওয়ার্ক থেকে অগম্য।
-- **যাচাইকৃত ডাউনলোড** — Turnip ড্রাইভার আর্কাইভে অনিরাপদ পাথ বা লিংক নেই
-  কিনা পরীক্ষা হয়, আর শুধু দুটি অনুমোদিত ফাইলই ইনস্টল হয়।
+- **root নেই** — privileged Android access চাওয়া হয় না; PRoot Termux app
+  permission-এর মধ্যেই থাকে, কিন্তু নিজে আলাদা security boundary নয়।
+- **Loopback default/example** — audio bridge ও documented model server
+  `127.0.0.1` ব্যবহার করে, তাই LAN-এ expose হয় না। একই ফোনের অন্য client
+  loopback listener-এ পৌঁছাতে পারে; anonymous service-কে authenticated ভাববেন না।
+- **যাচাইকৃত extraction** — unsafe path প্রত্যাখ্যান হয়, নির্বাচিত driver/ICD
+  member দুটি regular file কিনা পরীক্ষা হয়, এবং শুধু সেগুলোই install হয়।
+  Archive-এর অন্য বৈধ symlink extract করা হয় না।
 - **পরীক্ষাযোগ্য ইনস্টলার** — একটি প্লেইন-টেক্সট ফাইল, MIT লাইসেন্স; চালানোর
   আগে পড়ে নিন।
 
@@ -97,7 +99,7 @@ Termux-এর স্টোরেজের একটি ফোল্ডার। 
 
 ## সবকিছু দ্বিভাষিক করব কীভাবে?
 
-সাইট ও ডকুমেন্টেশন ইংরেজি ও বাংলায় আছে (প্রতিটি পাতায় হেডার সুইচ)।
+মূল guide English ও বাংলায় আছে; পূর্ণ benchmark evidence archive বর্তমানে English-এ।
 ডেস্কটপের ভেতরে:
 
 ```bash
@@ -109,8 +111,9 @@ sudo dpkg-reconfigure locales
 
 - **Android OS আপডেট:** কন্টেইনার তো ফাইল — টিকে যায়। পরে ফ্যান্টম-কিলার
   সেটিং আবার চেক করুন (`ternux doctor`)।
-- **Termux অ্যাপ আপডেট:** সমস্যা নেই; ইনস্টলার আবার চালানো যায় (`--resume`
-  শেষ কাজ বাদ দেয়)।
+- **Termux app update:** সাধারণত ঠিক থাকে। পরে `ternux doctor`/`ternux verify`
+  চালান; `--resume` শুধু successful হিসেবে recorded phase বাদ দেয়, general
+  repair নয়।
 - **Debian আপডেট:** নিরাপদ, তবে হোল্ড করা Mesa-র নোট দেখুন
   [কনফিগারেশনে](CONFIGURATION.html#held-mesa-packages-zink-route)।
 
@@ -124,11 +127,12 @@ sudo dpkg-reconfigure locales
 
 - ভারী 3D রেন্ডার বা বড় সিমুলেশন
 - মাইনিং (ফোনের জন্য তাপীয় আত্মহত্যা)
-- বিশাল লোকাল মডেল (যথেষ্ট RAM ছাড়া 7B+ কল্পনা মাত্র)
+- model weight, context ও runtime allocation available shared memory-তে না আঁটা workload
 - `systemd`, কার্নেল মডিউল বা আসল USB/রেডিও অ্যাক্সেস লাগে এমন কিছু
 
-এটি *যার জন্য*: একটি সত্যিকারের Linux ডেস্কটপ, আপনার পকেটে, যা বিনামূল্যে,
-ঝুঁকিহীন, আর আপনার ফোনকে ফোনই থাকতে দেয়।
+এটি Android app sandbox-এর ভেতরে ARM64 Linux desktop ও নির্বাচিত development/
+graphics workload-এর জন্য। No-root ঝুঁকির পরিধি কমায়; arbitrary downloaded
+code, heat, battery wear বা data loss-এর ঝুঁকি শূন্য করে না।
 
 ---
 

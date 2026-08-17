@@ -28,7 +28,7 @@ tnx_cmd_backend() {
 
 _tnx_backend_show() {
   local current_backend renderer gpu
-  current_backend="$(tnx_state_get "backend")"
+  current_backend="$(tnx_canonical_backend "$(tnx_state_get "backend")")"
   gpu="$(tnx_detect_gpu)"
   renderer=""
 
@@ -43,7 +43,7 @@ _tnx_backend_show() {
       "backend" "${current_backend:-$(tnx_detect_backend)}" \
       "renderer" "${renderer:-unknown}" \
       "vulkan" "$(tnx_detect_vulkan)" \
-      "available_backends" "zink-turnip,virgl"
+      "available_backends" "zink,virgl"
     return 0
   fi
 
@@ -53,7 +53,7 @@ _tnx_backend_show() {
   printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "Renderer:" "${renderer:-unknown}"
   printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "Vulkan:" "$(tnx_detect_vulkan)"
   echo ""
-  printf "  Available: zink-turnip (Adreno), virgl (any GPU)\n"
+  printf "  Available: zink (Zink/Turnip on Adreno), virgl (compatibility route)\n"
   echo ""
 }
 
@@ -63,7 +63,9 @@ _tnx_backend_set() {
 
   case "$backend" in
     zink|zink-turnip)
-      backend="zink-turnip"
+      # Accept the older descriptive spelling at the CLI boundary, then store
+      # the canonical value used by install.sh and lib/phases.sh.
+      backend="zink"
       [ ! -e /dev/kgsl-3d0 ] && {
         [ "${TERNUX_JSON:-0}" = "1" ] && { tnx_json_object "backend" "error" "reason" "no_kgsl_device"; return 1; }
         tnx_fail "Zink/Turnip requires Adreno GPU (/dev/kgsl-3d0). Use 'ternux backend set virgl' instead."
@@ -76,7 +78,7 @@ _tnx_backend_set() {
     auto)
       backend="$(tnx_detect_backend)"
       tnx_info "Auto-detected: $backend" ;;
-    *) tnx_fail "Unknown backend '$backend'. Valid: zink-turnip, virgl, auto"; return 1 ;;
+    *) tnx_fail "Unknown backend '$backend'. Valid: zink, virgl, auto"; return 1 ;;
   esac
 
   tnx_state_set "backend" "$backend"
@@ -84,6 +86,7 @@ _tnx_backend_set() {
   tnx_info "Run 'ternux repair' to apply the new configuration."
 
   [ "${TERNUX_JSON:-0}" = "1" ] && tnx_json_object "backend" "updated" "backend" "$backend"
+  return 0
 }
 
 _tnx_backend_detect() {
@@ -92,4 +95,5 @@ _tnx_backend_detect() {
   tnx_state_set "backend" "$backend"
   tnx_ok "Detected backend: $backend"
   [ "${TERNUX_JSON:-0}" = "1" ] && tnx_json_object "backend" "detected" "gpu" "$(tnx_detect_gpu)" "backend" "$backend"
+  return 0
 }

@@ -35,13 +35,15 @@ tnx_cmd_start() {
     fi
   fi
 
-  tnx_info "Starting desktop (backend: $(tnx_state_get "backend" || echo "auto"))..."
+  local configured_backend
+  configured_backend="$(tnx_canonical_backend "$(tnx_state_get "backend" || echo "auto")")"
+  tnx_info "Starting desktop (backend: $configured_backend)..."
   bash "$HOME/x.sh"
   local rc=$?
 
   if [ "${TERNUX_JSON:-0}" = "1" ]; then
     tnx_json_object "start" "$([ $rc -eq 0 ] && echo "ok" || echo "error")" \
-      "backend" "$(tnx_state_get "backend" || echo "auto")"
+      "backend" "$configured_backend"
     return "$rc"
   fi
   [ "$rc" -eq 0 ] && tnx_ok "Desktop session ended." || tnx_warn "Desktop exited with code $rc"
@@ -57,17 +59,25 @@ tnx_cmd_stop() {
   fi
 
   local found=0
-  for svc in termux-x11 pulseaudio virgl_test_server dbus-daemon dbus-launch; do
-    if pgrep -f "$svc" >/dev/null 2>&1; then
-      pkill -9 -f "$svc" 2>/dev/null || true
-      found=1
-    fi
-  done
+  if pgrep -f "termux-x11" >/dev/null 2>&1; then
+    pkill -f "termux-x11" 2>/dev/null || true
+    found=1
+  fi
+  if pgrep -f "virgl_test_server" >/dev/null 2>&1; then
+    pkill -f "virgl_test_server" 2>/dev/null || true
+    found=1
+  fi
+  if pgrep -x pulseaudio >/dev/null 2>&1; then
+    pulseaudio --kill 2>/dev/null || pkill -KILL -x pulseaudio 2>/dev/null || true
+    found=1
+  fi
 
-  pulseaudio --kill 2>/dev/null || true
-
+  # Do not kill every D-Bus daemon owned by the Termux app. Closing the display
+  # lets the launcher's guest dbus-run-session unwind without disrupting other
+  # independent Termux sessions.
   local TMP="${TMPDIR:-/data/data/com.termux/files/usr/tmp}"
-  rm -f "$TMP/.X11-unix/X"* "$TMP/.X"*"-lock" "$TMP/pulse-socket" 2>/dev/null || true
+  rm -f "$TMP/.X11-unix/X"* "$TMP/.X"*"-lock" \
+    "$TMP/pulse-socket" "$TMP"/.pulse-*/native 2>/dev/null || true
   tnx_has_cmd termux-wake-unlock && termux-wake-unlock 2>/dev/null || true
 
   if [ "${TERNUX_JSON:-0}" = "1" ]; then
@@ -92,7 +102,7 @@ tnx_cmd_restart() {
 tnx_cmd_status() {
   local x11=0 pa=0 virgl=0
   pgrep -f "termux-x11" >/dev/null 2>&1 && x11=1
-  pgrep -f "pulseaudio" >/dev/null 2>&1 && pa=1
+  pgrep -x pulseaudio >/dev/null 2>&1 && pa=1
   pgrep -f "virgl_test_server" >/dev/null 2>&1 && virgl=1
 
   local overall="stopped"

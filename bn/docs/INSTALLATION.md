@@ -8,7 +8,7 @@ alt_url: "/docs/INSTALLATION.html"
 
 # ইনস্টলেশন
 
-এটি সম্পূর্ণ গাইড। দশ মিনিটের সংস্করণ চাইলে শুরু করুন
+এটি সম্পূর্ণ গাইড। সংক্ষিপ্ত পথ চাইলে শুরু করুন
 [দ্রুত শুরু](QUICK-START.html) থেকে।
 
 > **প্রতিটি কমান্ড নিজ হাতে চালাতে চান?** সম্পূর্ণ হাতে-কলমে নির্দেশিকা —
@@ -18,7 +18,8 @@ alt_url: "/docs/INSTALLATION.html"
 
 ---
 
-## প্রয়োজনীয়তা {#requirements}
+<a id="requirements"></a>
+## প্রয়োজনীয়তা
 
 | | প্রস্তাবিত বেসলাইন | কেন জরুরি |
 |---|---|---|
@@ -26,8 +27,8 @@ alt_url: "/docs/INSTALLATION.html"
 | **CPU** | `aarch64` (৬৪-বিট ARM) | PRoot নেটিভ বাইনারি চালায়; ৩২-বিট ARM আপস্ট্রিমে অসমর্থিত |
 | **স্টোরেজ** | ~১২ GB ফাঁকা | ~৬ GB বেস রুটফস + প্যাকেজ; মডেল-প্রজেক্টে আরও |
 | **RAM** | ন্যূনতম ৪ GB, ৬–৮ GB ভালো | ডেস্কটপ আর Android একই মেমরি ভাগ করে; কম RAM = বেশি প্রসেস-কিল |
-| **গ্রাফিক্স** | Adreno (সেরা) বা যেকোনো GPU | Adreno-তে Zink/Turnip; বাকিতে VirGL |
-| **অ্যাপ** | Termux (F-Droid/GitHub) + Termux:X11 | Play Store-এর Termux বিল্ড পরিত্যক্ত |
+| **গ্রাফিক্স** | Adreno হলে Zink/Turnip; অন্য ক্ষেত্রে VirGL candidate | Adreno route-টি মাপা; VirGL compatibility ও গতি device/Android build অনুযায়ী যাচাই করতে হবে |
+| **অ্যাপ** | Termux (F-Droid/GitHub) + Termux:X11 | মূল release line ব্যবহার করুন, Termux/plugin একই source-এ রাখুন; Google Play line আলাদা ও পরীক্ষামূলক |
 
 শুরু করার আগে ডিভাইস পরীক্ষা করুন (শুধু পড়ে, কিছুই বদলায় না):
 
@@ -41,7 +42,7 @@ ls -l /dev/kgsl-3d0 2>&1              # থাকলে → Adreno → Zink/Turn
 ```
 
 `/dev/kgsl-3d0` থাকলে ইনস্টলার দ্রুত Zink/Turnip পথ বেছে নেবে। না থাকলে
-VirGL — হার্ডওয়্যার-ব্যাকডই, শুধু ভিন্ন পথ।
+VirGL সামঞ্জস্য পথ। এর acceleration, feature coverage ও গতি ডিভাইসভেদে যাচাই করতে হবে।
 
 ---
 
@@ -62,27 +63,27 @@ curl -fsSL https://soobujmiah.github.io/ternux/install.sh | bash
 wget -qO- https://soobujmiah.github.io/ternux/install.sh | bash
 ```
 
-### কেন পদ্ধতি ২-ও দেখানো হলো
+### পদ্ধতি ২ — সব executable অংশ পড়ুন, তারপর চালান
 
-`curl`-এর আউটপুট সরাসরি `bash`-এ পাঠানো সুবিধাজনক, কিন্তু ডিভাইসে চলবে এমন
-যেকোনো স্ক্রিপ্টের ভালো অভ্যাস হলো **আগে পড়া**। পদ্ধতি ২-তে দশ সেকেন্ড বেশি লাগে:
+শুধু standalone `install.sh` পড়া পূর্ণ review নয়—চালু হলে সেটি আরও library
+module নামায়। তাই entry point ও source-করা library-গুলো একসঙ্গে clone করে দেখুন:
 
 ```bash
-curl -fsSL https://soobujmiah.github.io/ternux/install.sh -o install.sh
-less install.sh     # চোখ বুলিয়ে নিন — একটি ফাইল, ধাপে ধাপে সাজানো
+pkg update -y && pkg install git -y
+git clone https://github.com/soobujmiah/ternux.git
+cd ternux
+git log -1 --oneline                 # exact commit লিখে রাখুন
+(set -e; for f in install.sh uninstall.sh bin/ternux lib/*.sh; do bash -n "$f"; done)
+less install.sh lib/core.sh lib/phases.sh lib/detect.sh lib/ui.sh
+# less-এ :n দিলে পরের file, q দিলে review শেষ হবে।
 bash install.sh
 ```
 
-curl চালুই না হলে wget দিয়ে:
-
-```bash
-wget -q https://soobujmiah.github.io/ternux/install.sh -O install.sh
-less install.sh
-bash install.sh
-```
-
-দুটো পদ্ধতিই একই আচরণ করে। ডাউনলোড বিঘ্নিত হলে আবার চালান — প্রতিটি ধাপ
-আইডেমপোটেন্ট, আর `--resume` শেষ হওয়া কাজ বাদ দিয়ে বাকিটা চালায়।
+Reproducible review-এর জন্য `git fetch --tags` চালিয়ে release tag checkout করুন
+এবং inspection-এর আগে `git status --short` ফাঁকা আছে কি না দেখুন। Installed result
+একই হওয়ার কথা; local review route একবার confirmation চাইতে পারে। Review-এর পর
+prompt না চাইলে সচেতনভাবে `--yes` দিন। বিঘ্নিত হলে `bash install.sh --resume`
+চালান; শুধু successful হিসেবে recorded phase বাদ যাবে।
 
 ### পদ্ধতি ৩ — সম্পূর্ণ ম্যানুয়াল, কমান্ডে কমান্ডে
 
@@ -100,7 +101,7 @@ bash install.sh
 
 ```bash
 ternux doctor           # সিস্টেম ডায়াগনস্টিক
-ternux doctor --json    # AI-পাঠযোগ্য আউটপুট
+ternux doctor --json    # machine-readable output
 ternux start            # ডেস্কটপ চালু
 ternux stop             # ডেস্কটপ বন্ধ
 ternux restart          # ডেস্কটপ পুনরায় চালু
@@ -110,18 +111,20 @@ ternux benchmark        # GPU বেঞ্চমার্ক
 ternux profile          # ডিভাইস প্রোফাইল
 ternux backend          # GPU ব্যাকএন্ড ব্যবস্থাপনা
 ternux info             # সিস্টেম তথ্য
-ternux info --json      # AI-পাঠযোগ্য তথ্য
+ternux info --json      # machine-readable তথ্য
 ternux logs             # লগ দেখা
 ternux state            # ইনস্টলেশন অবস্থা
 ternux update           # CLI আপডেট
 ternux uninstall        # কম্পোনেন্ট অপসারণ
 ```
 
-প্রত্যেক কমান্ড `--help`, `--json`, `--verbose` ও `--quiet` সমর্থন করে।
+ডিসপ্যাচার global flag শনাক্ত করে, কিন্তু সব command JSON schema দেয় না।
+Structured output শুধু [CLI reference](CLI.html)-এ নথিভুক্ত command-এ ব্যবহার করুন।
 
 ---
 
-## ইনস্টলার যা করে (এবং কেন, ধাপে ধাপে) {#what-the-installer-does-and-why-phase-by-phase}
+<a id="what-the-installer-does-and-why-phase-by-phase"></a>
+## ইনস্টলার যা করে (এবং কেন, ধাপে ধাপে)
 
 ইনস্টলার **এগারোটি যাচাইকৃত ধাপে** সাজানো। প্রতিটি ধাপ পরেরটি শুরুর আগে নিজের
 কাজ যাচাই করে — ব্যর্থ ধাপ স্পষ্ট বার্তায় ইনস্টল থামিয়ে দেয়, "প্রায় চলে"
@@ -129,17 +132,17 @@ ternux uninstall        # কম্পোনেন্ট অপসারণ
 
 | # | ধাপ | কী করে | কেন |
 |---|---|---|---|
-| ০ | **প্রিফ্লাইট** | Termux, আর্কিটেকচার, Android ভার্সন, স্টোরেজ, নেটওয়ার্ক পরীক্ষা | এখানে ব্যর্থ হলে ডাউনলোডও নষ্ট হয় না; পরের সব ধাপ এই তথ্যের ওপর নির্ভর করে |
-| ১ | **বেস প্যাকেজ** | `x11-repo`, `termux-x11-nightly`, `pulseaudio`, `proot-distro`, `virglrenderer-android`, টুলস ইনস্টল; স্টোরেজ অনুমতি | কন্টেইনারের দরকারি হোস্ট-সাইড সার্ভিস: ডিসপ্লে, শব্দ ও কন্টেইনার ইঞ্জিন |
-| ২ | **CLI ইনস্টলেশন** | GitHub থেকে `bin/ternux` + `lib/*.sh` ডাউনলোড করে `$PREFIX/bin/`-এ ইনস্টল | `ternux` কমান্ড ডায়াগনস্টিক, মেরামত ও ডেস্কটপ ব্যবস্থাপনার জন্য উপলব্ধ হয় |
-| ৩ | **Debian + Xfce4** | Debian রুটফস, ডেস্কটপ প্যাকেজ, পাসওয়ার্ডবিহীন sudo সহ আপনার ইউজার | আপনি যে ডেস্কটপ ব্যবহার করবেন; `visudo` দিয়ে sudo যাচাই, যাতে টাইপো কখনো কন্টেইনার লক না করে |
-| ৪ | **GPU ড্রাইভার** | Adreno: Turnip ড্রাইভার ডাউনলোড, আর্কাইভ যাচাই, ইনস্টল, Mesa প্যাকেজ পিন। অন্যান্য: VirGL হোস্ট রেন্ডারার নিশ্চিত | এটি ছাড়া সব GL অ্যাপ CPU-তে চলে (`llvmpipe`)। পিন করা থাকলে সাধারণ `apt upgrade` নিঃশব্দে GPU পথ বদলে দিতে পারে না |
-| ৫ | **অডিও, লোকেল, ফন্ট** | PulseAudio ব্রিজ (শুধু লুপব্যাক), লোকেল তৈরি, ইমোজি/পাওয়ারলাইন/নার্ড ফন্ট | শব্দ TCP দিয়ে কন্টেইনার সীমানা পাড়ি দেয় — লুপব্যাকেই সীমাবদ্ধ, নেটওয়ার্কে খোলা নয়; ফন্ট টার্মিনালে "টোফু বক্স" ঠেকায় |
-| ৬ | **লঞ্চার** | GPU পথ অনুযায়ী `~/x.sh` লেখা ও সিনট্যাক্স-চেক | এক কমান্ডে (`x`) অডিও → ডিসপ্লে → ডেস্কটপ নির্ভরযোগ্য ক্রমে শুরু হতেই হবে |
-| ৭ | **শর্টকাট** | `x`, `killx`, `db`, `droot`, `xgo`, `ai`, `sysmon`, `clean-mesa` | দৈনিক কাজ হওয়া উচিত অভ্যাস, প্রত্নতত্ত্ব নয় |
-| ৮ | **ঐচ্ছিক এক্সট্রা** | ডেভ টুলস, llama.cpp, নেটওয়ার্ক টুলস, মিডিয়া টুলস, Blender — শুধু যা চেয়েছেন | বেস ইনস্টল হালকা থাকুক; প্রতিটি প্রোফাইলের স্টোরেজ/তাপের খরচ আলাদা |
-| ৯ | **ফ্যান্টম-কিলার চেক** | Android 12+-এর ব্যাকগ্রাউন্ড সীমাবদ্ধতা শনাক্ত ও সঠিক সমাধান দেখানো | দীর্ঘ ডেস্কটপ সেশনের এক নম্বর নিঃশব্দ হত্যাকারী — বিল্ড খাওয়ার *আগে* জেনে রাখুন |
-| ৯ | **যাচাইকরণ** | প্রতিটি গুরুত্বপূর্ণ বাইনারি, ফাইল ও অনুমতি সত্যিই আছে কিনা নিশ্চিত করা | বিশ্বাস নয়, যাচাই — `apt` সফল হওয়া প্রমাণ নয় যে ডেস্কটপ চালু হবে |
+| ১ | **প্রিফ্লাইট** | Termux, আর্কিটেকচার, Android ভার্সন, স্টোরেজ, নেটওয়ার্ক পরীক্ষা | এখানে ব্যর্থ হলে ডাউনলোডও নষ্ট হয় না; পরের সব ধাপ এই তথ্যের ওপর নির্ভর করে |
+| ২ | **বেস প্যাকেজ** | `x11-repo`, `termux-x11-nightly`, `pulseaudio`, `proot-distro`, `virglrenderer-android`, টুলস ইনস্টল; স্টোরেজ অনুমতি | কন্টেইনারের দরকারি হোস্ট-সাইড সার্ভিস: ডিসপ্লে, শব্দ ও কন্টেইনার ইঞ্জিন |
+| ৩ | **CLI ইনস্টলেশন** | GitHub থেকে `bin/ternux` + `lib/*.sh` ডাউনলোড করে `$PREFIX/bin/`-এ ইনস্টল | `ternux` কমান্ড ডায়াগনস্টিক, মেরামত ও ডেস্কটপ ব্যবস্থাপনার জন্য উপলব্ধ হয় |
+| ৪ | **Debian + Xfce4** | Debian রুটফস, ডেস্কটপ প্যাকেজ, পাসওয়ার্ডবিহীন sudo সহ আপনার ইউজার | আপনি যে ডেস্কটপ ব্যবহার করবেন; `visudo` দিয়ে sudo যাচাই, যাতে টাইপো কখনো কন্টেইনার লক না করে |
+| ৫ | **GPU ড্রাইভার** | Adreno: Turnip ড্রাইভার ডাউনলোড, আর্কাইভ যাচাই, ইনস্টল, Mesa প্যাকেজ পিন। অন্যান্য: VirGL হোস্ট রেন্ডারার নিশ্চিত | এটি ছাড়া সব GL অ্যাপ CPU-তে চলে (`llvmpipe`)। পিন করা থাকলে সাধারণ `apt upgrade` নিঃশব্দে GPU পথ বদলে দিতে পারে না |
+| ৬ | **অডিও, লোকেল, ফন্ট** | PulseAudio ব্রিজ (শুধু লুপব্যাক), লোকেল তৈরি, ইমোজি/পাওয়ারলাইন/নার্ড ফন্ট | শব্দ TCP দিয়ে কন্টেইনার সীমানা পাড়ি দেয় — লুপব্যাকেই সীমাবদ্ধ, নেটওয়ার্কে খোলা নয়; ফন্ট টার্মিনালে "টোফু বক্স" ঠেকায় |
+| ৭ | **লঞ্চার** | GPU পথ অনুযায়ী `~/x.sh` লেখা ও সিনট্যাক্স-চেক | এক কমান্ডে (`x`) অডিও → ডিসপ্লে → ডেস্কটপ নির্ভরযোগ্য ক্রমে শুরু হতেই হবে |
+| ৮ | **শর্টকাট** | `x`, `killx`, `db`, `droot`, `xgo`, `sysmon`, `clean-mesa` | দৈনিক কাজ হওয়া উচিত অভ্যাস, প্রত্নতত্ত্ব নয় |
+| ৯ | **ঐচ্ছিক এক্সট্রা** | ডেভ টুলস, llama.cpp, নেটওয়ার্ক টুলস, মিডিয়া টুলস, Blender — শুধু যা চেয়েছেন | বেস ইনস্টল হালকা থাকুক; প্রতিটি প্রোফাইলের স্টোরেজ/তাপের খরচ আলাদা |
+| ১০ | **Android safeguard check** | readable child-process setting পরীক্ষা ও version-aware guidance | signal 9 memory pressure বা OEM battery policy-ও হতে পারে; system-wide safeguard বদলানোর আগে evidence নিন |
+| ১১ | **যাচাইকরণ** | প্রতিটি গুরুত্বপূর্ণ বাইনারি, ফাইল ও অনুমতি সত্যিই আছে কিনা নিশ্চিত করা | বিশ্বাস নয়, যাচাই — `apt` সফল হওয়া প্রমাণ নয় যে ডেস্কটপ চালু হবে |
 
 ---
 
@@ -151,7 +154,7 @@ bash install.sh --yes               # সব ডিফল্ট মেনে ন
 bash install.sh --user soobuj       # Debian ইউজারনাম (ডিফল্ট: ternux)
 bash install.sh --locale bn_BD.UTF-8
 bash install.sh --backend zink      # Zink/Turnip বাধ্যতামূলক (শুধু Adreno)
-bash install.sh --backend virgl     # সর্বজনীন সামঞ্জস্য পথ বাধ্যতামূলক
+bash install.sh --backend virgl     # VirGL সামঞ্জস্য পথ বাধ্যতামূলক
 bash install.sh --zsh               # Termux শেলও zsh-এ বদলান
 bash install.sh --with-dev          # Git, Node.js, Python, বিল্ড টুলস
 bash install.sh --with-llm          # llama.cpp + Vulkan (লোকাল AI)
@@ -177,12 +180,13 @@ ternux update           # CLI আপডেট
 
 | আপনার GPU | ব্যাকএন্ড | প্রত্যাশা |
 |---|---|---|
-| Qualcomm Adreno | `auto` → **zink** | দ্রুততম — OpenGL অ্যাপ Zink → Vulkan → Turnip দিয়ে চলে |
-| Mali / Xclipse / PowerVR / অন্যান্য | `auto` → **virgl** | হোস্ট রেন্ডারারের মাধ্যমে হার্ডওয়্যার-ব্যাকড; Turnip-এর চেয়ে ধীর |
-| Adreno, কিন্তু ড্রাইভার ডাউনলোড ব্যর্থ | `--backend virgl` | নির্ভরযোগ্য বিকল্প |
+| Qualcomm Adreno | `auto` → **zink** | Supplied Adreno setup-এ মাপা route: OpenGL → Zink → Vulkan → Turnip; নিজের renderer/workload যাচাই করুন |
+| Mali / Xclipse / PowerVR / অন্যান্য | `auto` → **virgl** | সামঞ্জস্যের সম্ভাব্য পথ; renderer, acceleration ও workload ডিভাইসে যাচাই করুন |
+| Adreno, কিন্তু driver route ব্যর্থ | `--backend virgl` | পরীক্ষা করার বিকল্প route; `llvmpipe` fallback হয়নি নিশ্চিত করুন |
 
-নন-Adreno ডিভাইসে `zink` জোর করলে প্রিফ্লাইট জোরে ব্যর্থ হয় — নিঃশব্দে
-সফটওয়্যার ডেস্কটপ বানায় না। এই ব্যর্থতা ইচ্ছাকৃত।
+`/dev/kgsl-3d0`-বিহীন ডিভাইসে `zink` জোর করলে GPU phase-এ launcher তৈরির
+আগেই স্পষ্টভাবে ব্যর্থ হয়—নিঃশব্দে software desktop বানায় না। এই ব্যর্থতা
+ইচ্ছাকৃত।
 
 ---
 
@@ -198,7 +202,7 @@ ternux update           # CLI আপডেট
 
 ```bash
 ternux doctor
-ternux doctor --json    # AI-পাঠযোগ্য আউটপুট
+ternux doctor --json    # machine-readable output
 ```
 
 তারপর ডেস্কটপের টার্মিনাল থেকে গ্রাফিক্স পথ যাচাই করুন:
@@ -219,8 +223,10 @@ proot-distro backup debian --output ~/debian-backup.tar.gz
 ## আপডেট
 
 - **ternux CLI:** `ternux update` GitHub থেকে সর্বশেষ ভার্সন নিয়ে আসে।
-- **ইনস্টলার নিজে:** আবার ডাউনলোড করে চালান। প্রতিটি ধাপ আইডেমপোটেন্ট, আর
-  `--resume` শেষ ধাপগুলো বাদ দেয়। কন্টেইনার ও ফাইল অক্ষত থাকে।
+- **Interrupted installer run:** একই reviewed script আবার download করে
+  `--resume` দিন; শুধু successful হিসেবে recorded phase বাদ যাবে। এটি completed
+  phase update/repair করে না—CLI-এর জন্য `ternux update`, managed artifact-এর
+  জন্য `ternux repair` ব্যবহার করুন। গুরুত্বপূর্ণ data আগে backup নিন।
 - **Debian প্যাকেজ:** ডেস্কটপে `sudo apt update && sudo apt upgrade`।
   Zink পথে Mesa প্যাকেজ ইচ্ছাকৃতভাবে হোল্ড করা (`apt-mark hold`) — আপগ্রেডে
   নিঃশব্দে সফটওয়্যার রেন্ডারিংয়ে ফিরে যাওয়া ঠেকাতে। ইচ্ছা করে আনহোল্ড করুন:
@@ -238,9 +244,13 @@ curl -fsSL https://soobujmiah.github.io/ternux/uninstall.sh | bash
 bash install.sh --uninstall
 ```
 
-অপশনে আছে সেশন থামানো, লঞ্চার/শর্টকাট মুছে ফেলা, কন্টেইনার ডিলিট করা।
-**ternux-এর সবকিছু Termux-এর স্টোরেজের ভেতরে থাকে** — Android-এর ফাইল কখনোই
-ছোঁয়া হয় না। Termux-এর অ্যাপ ডেটা মুছলে সবকিছু একসাথে চলে যায়।
+`all` মানে command-এ দেখানো চার scoped target: session বন্ধ, `~/x.sh` ও ternux
+alias block অপসারণ, state/log অপসারণ এবং Debian container delete। এটি Termux
+package বা installed `ternux` CLI/library uninstall করে না, shared-storage access
+revocation বা repository/mirror choice restore করে না, এবং Termux `default.pa`-এর
+loopback PulseAudio line ফিরিয়ে দেয় না—এগুলো আগে থেকেই থাকতে পারে বলে ইচ্ছাকৃতভাবে
+রেখে দেওয়া হয়। Termux storage-এর বাইরের Android file delete হয় না। Termux app
+data clear করা আলাদা nuclear option; তাতেই অবশিষ্ট Termux installation-ও মুছে যায়।
 
 ---
 

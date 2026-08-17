@@ -23,9 +23,10 @@ explains every knob, where it lives, and *why* it is set the way it is.
 | `--zsh` | off | Switch the Termux shell to zsh as well |
 | `--with-*` | none | Optional workload profiles |
 
-Changing the user or locale after install is possible but fiddly — easiest
-path is `bash install.sh --user X --resume`, which re-applies phases without
-re-downloading the container.
+To change the user or locale after installation, run the installer with the new
+value **without `--resume`**, because resume skips phases already recorded as
+complete: `bash install.sh --user X --locale bn_BD.UTF-8 --yes`. Back up first;
+creating a new account does not migrate the old account's home automatically.
 
 ### Bangla locale
 
@@ -88,10 +89,9 @@ Three cooperating pieces:
 | Debian `~/.config/pulse/client.conf` | `default-server = tcp:127.0.0.1:4713` |
 
 *Why loopback-only?* The bridge crosses the container boundary over TCP, so
-an anonymous ACL is needed — restricting it to `127.0.0.1` means only
-processes on the phone itself can reach it. Never change this to `0.0.0.0`
-"to make audio work over the network" — that is how you broadcast your
-microphone to the LAN.
+an anonymous ACL is needed — an explicit `listen=127.0.0.1` keeps it off the LAN. Other same-device clients
+can still reach a loopback listener. Never change the listener to `0.0.0.0`
+without replacing anonymous access with deliberate authentication and firewalling.
 
 To pick a different sink (Bluetooth, headphones), change the
 `set-default-sink` line in `default.pa` and restart the session (`killx`,
@@ -121,8 +121,9 @@ Add more fonts any time: drop the files in `~/.local/share/fonts` and run
 | `~/.ternux-state` also records | The SHA-256 of the downloaded Turnip driver |
 | `$TMPDIR/ternux-install.log` | Full log of the last installer run |
 
-Delete `~/.ternux-state` only if you want the installer to redo everything
-from scratch (`--resume` will otherwise skip completed phases).
+Deleting `~/.ternux-state` discards completion records. Do not use `--resume`
+to reapply a completed phase; use the relevant `ternux repair` path or rerun
+the installer without `--resume`, with a backup first.
 
 ---
 

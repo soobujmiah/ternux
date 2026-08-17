@@ -28,6 +28,17 @@ tnx_cmd_profile() {
   esac
 }
 
+# Profile names become filenames below. Keep every operation inside the
+# profiles directory and reject separators, dot-paths and control characters.
+_tnx_profile_path() {
+  local name="$1"
+  if [[ ! "$name" =~ ^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$ ]]; then
+    tnx_fail "Invalid profile name. Use 1-64 letters, numbers, dots, underscores or hyphens; start with a letter or number."
+    return 2
+  fi
+  _TNX_PROFILE_PATH="$TERNUX_STATE_DIR/profiles/$name"
+}
+
 _tnx_profile_show() {
   # Gather all device info
   local android_ver arch model manuf ram storage termux_ver gpu vulkan backend phantom
@@ -73,11 +84,12 @@ _tnx_profile_show() {
 }
 
 _tnx_profile_save() {
-  local name="${1:-default}"
-  local dir="$TERNUX_STATE_DIR/profiles"
-  mkdir -p "$dir"
+  local name="${1:-default}" f
+  _tnx_profile_path "$name" || return $?
+  f="$_TNX_PROFILE_PATH"
+  mkdir -p "$(dirname "$f")"
 
-  cat > "$dir/$name" << PROFILEEOF
+  cat > "$f" << PROFILEEOF
 # ternux profile: ${name}
 # Saved: $(__tnx_ts)
 android_version=$(tnx_detect_android_version)
@@ -98,15 +110,14 @@ PROFILEEOF
 }
 
 _tnx_profile_load() {
-  local name="${1:-default}"
-  local f="$TERNUX_STATE_DIR/profiles/$name"
+  local name="${1:-default}" f
+  _tnx_profile_path "$name" || return $?
+  f="$_TNX_PROFILE_PATH"
   [ ! -f "$f" ] && { tnx_fail "Profile not found: $name"; _tnx_profile_list; return 1; }
 
   [ "${TERNUX_JSON:-0}" = "1" ] && {
     local content
     content="$(cat "$f" | head -c 2000)"
-    content="${content//\"/\\\"}"
-    content="${content//$'\n'/\\n}"
     tnx_json_object "profile" "loaded" "name" "$name" "content" "$content"
     return 0
   }
@@ -147,8 +158,9 @@ _tnx_profile_list() {
 }
 
 _tnx_profile_compare() {
-  local name1="${1:-default}" name2="${2:-current}"
-  local f1="$TERNUX_STATE_DIR/profiles/$name1"
+  local name1="${1:-default}" name2="${2:-current}" f1
+  _tnx_profile_path "$name1" || return $?
+  f1="$_TNX_PROFILE_PATH"
   [ ! -f "$f1" ] && { tnx_fail "Profile not found: $name1"; return 1; }
 
   [ "${TERNUX_JSON:-0}" = "1" ] && { tnx_json_object "profile" "compared" "profile1" "$name1" "profile2" "$name2"; return 0; }

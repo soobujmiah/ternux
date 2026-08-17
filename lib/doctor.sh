@@ -59,15 +59,15 @@ tnx_cmd_doctor() {
   # 7. GPU + backend
   local gpu backend configured_backend
   gpu="$(tnx_detect_gpu)"
-  configured_backend="$(tnx_state_get "backend")"
+  configured_backend="$(tnx_canonical_backend "$(tnx_state_get "backend")")"
   backend="$(tnx_detect_backend)"
   tnx_ok "GPU: $gpu"
   tnx_ok "Recommended backend: $backend"
   if [ -n "$configured_backend" ]; then
     tnx_ok "Configured: $configured_backend"
-    [ "$configured_backend" != "$backend" ] && { issues+=("backend_mismatch"); actions+=("Run: ternux backend detect"); [ "$status" = "ok" ] && status="warning"; }
+    [ "$configured_backend" != "$backend" ] && { issues+=("backend_mismatch"); actions+=("If unintended: ternux backend set auto && ternux repair"); [ "$status" = "ok" ] && status="warning"; }
   else
-    issues+=("backend_not_configured"); actions+=("Run: ternux backend detect"); [ "$status" = "ok" ] && status="warning"
+    issues+=("backend_not_configured"); actions+=("Run: ternux backend set auto && ternux repair"); [ "$status" = "ok" ] && status="warning"
   fi
 
   # 8. Renderer
@@ -85,8 +85,8 @@ tnx_cmd_doctor() {
   local phantom
   phantom="$(tnx_detect_phantom_killer)"
   case "$phantom" in
-    enabled) tnx_warn "Phantom process killer ENABLED" ; issues+=("phantom_process_killer_enabled"); actions+=("Disable phantom killer (see docs)"); [ "$status" = "ok" ] && status="warning" ;;
-    disabled) tnx_ok "Phantom killer disabled" ;;
+    enabled) tnx_warn "Android child-process monitoring appears ENABLED" ; issues+=("phantom_process_killer_enabled"); actions+=("Review Android process restrictions and other Signal 9 causes (see docs)"); [ "$status" = "ok" ] && status="warning" ;;
+    disabled) tnx_ok "Android child-process monitoring appears disabled" ;;
   esac
 
   # 10. Launcher
@@ -94,12 +94,12 @@ tnx_cmd_doctor() {
 
   # 11. VirGL check
   local current_backend
-  current_backend="$(tnx_state_get "backend")"
+  current_backend="$(tnx_canonical_backend "$(tnx_state_get "backend")")"
   if [ "$current_backend" = "virgl" ] || [ -z "$current_backend" ]; then
     tnx_has_cmd virgl_test_server_android && tnx_ok "VirGL present" || { tnx_warn "VirGL not installed"; issues+=("virgl_missing"); actions+=("pkg install virglrenderer-android"); [ "$status" = "ok" ] && status="warning"; }
   fi
 
-  echo ""
+  [ "${TERNUX_JSON:-0}" != "1" ] && echo ""
 
   # --- JSON output ---
   if [ "${TERNUX_JSON:-0}" = "1" ]; then
@@ -141,8 +141,10 @@ tnx_cmd_doctor() {
 # ---------------------------------------------------------------------------
 tnx_cmd_verify() {
   tnx_step "Verifying installation..."
-  tnx_require_termux
 
+  # Verification is safe to run anywhere: outside Termux the normal checks
+  # report missing components instead of replacing structured output with a
+  # fatal environment error.
   local rc=0
   local -a checks=()
   clear_line() { printf "\r\033[K"; }
@@ -174,23 +176,35 @@ tnx_cmd_verify() {
     if proot-distro login debian --user "${TERNUX_USER:-ternux}" -- bash -c 'command -v startxfce4 >/dev/null && command -v pactl >/dev/null && sudo -n true >/dev/null' 2>/dev/null; then
       checks+=("debian_services:ok")
       [ "${TERNUX_JSON:-0}" != "1" ] && tnx_ok "Debian services verified"
+    else
+      checks+=("debian_services:failed"); rc=1
+      [ "${TERNUX_JSON:-0}" != "1" ] && tnx_fail "Debian desktop services or passwordless sudo are incomplete"
     fi
   else
-    checks+=("debian:not_installed")
+    checks+=("debian:not_installed"); rc=1
     [ "${TERNUX_JSON:-0}" != "1" ] && tnx_warn "Debian not installed"
   fi
 
   # GPU driver
   local backend
-  backend="$(tnx_state_get "backend")"
-  if [ "$backend" = "zink-turnip" ] && tnx_has_cmd proot-distro; then
-    if proot-distro login debian -- bash -c 'test -f /usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so && test -f /usr/share/vulkan/icd.d/freedreno_icd.aarch64.json' 2>/dev/null; then
+  backend="$(tnx_canonical_backend "$(tnx_state_get "backend")")"
+  if [ "$backend" = "zink" ]; then
+    if tnx_has_cmd proot-distro && proot-distro login debian -- bash -c 'test -f /usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so && test -f /usr/share/vulkan/icd.d/freedreno_icd.aarch64.json' 2>/dev/null; then
       checks+=("turnip:present"); [ "${TERNUX_JSON:-0}" != "1" ] && tnx_ok "Turnip driver present"
     else
-      checks+=("turnip:missing"); [ "${TERNUX_JSON:-0}" != "1" ] && tnx_warn "Turnip files missing"
+      checks+=("turnip:missing"); rc=1
+      [ "${TERNUX_JSON:-0}" != "1" ] && tnx_warn "Turnip files missing"
     fi
   elif [ "$backend" = "virgl" ]; then
-    tnx_has_cmd virgl_test_server_android && checks+=("virgl:present") || checks+=("virgl:missing")
+    if tnx_has_cmd virgl_test_server_android; then
+      checks+=("virgl:present")
+    else
+      checks+=("virgl:missing"); rc=1
+      [ "${TERNUX_JSON:-0}" != "1" ] && tnx_warn "VirGL host renderer missing"
+    fi
+  else
+    checks+=("backend:not_configured"); rc=1
+    [ "${TERNUX_JSON:-0}" != "1" ] && tnx_warn "GPU backend is not configured"
   fi
 
   # JSON output
@@ -204,7 +218,7 @@ tnx_cmd_verify() {
       "android_version" "$(tnx_detect_android_version)" \
       "gpu" "$(tnx_detect_gpu)" \
       "checks" "$all_checks"
-    return 0
+    return "$rc"
   fi
 
   echo ""

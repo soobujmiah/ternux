@@ -1,6 +1,6 @@
 # =============================================================================
 #  ternux — installation phases library
-#  All 9 installation phases, modular and self-contained.
+#  All 11 installation phases, modular and self-contained.
 #
 #  Copyright (c) 2026 Sobuj Miah (@soobujmiah) — MIT License
 #  https://github.com/soobujmiah/ternux
@@ -48,7 +48,11 @@ tnx_phase_preflight() {
   fi
 
   if [ "$sdk" -ge 31 ] 2>/dev/null; then
-    tnx_warn "Android 12+ detected: the 'phantom process killer' is active by default."
+    case "$(tnx_detect_phantom_killer)" in
+      enabled)  tnx_warn "Android child-process monitoring is reported as enabled." ;;
+      disabled) tnx_ok "Android child-process monitoring is reported as disabled." ;;
+      *)        tnx_warn "Android 12+ detected; the child-process setting could not be read on this device." ;;
+    esac
   fi
 
   local free
@@ -116,7 +120,7 @@ tnx_phase_packages() {
 }
 
 # ---------------------------------------------------------------------------
-# Phase 3 — Debian container + Xfce4 + user
+# Phase 4 — Debian container + Xfce4 + user
 # ---------------------------------------------------------------------------
 tnx_phase_debian() {
   local user_name="${1:-ternux}"
@@ -160,10 +164,45 @@ tnx_phase_debian() {
 }
 
 # ---------------------------------------------------------------------------
-# Phase 4 — GPU driver (Zink/Turnip or VirGL)
+# Phase 5 — GPU driver (Zink/Turnip or VirGL)
 # ---------------------------------------------------------------------------
+tnx_validate_turnip_archive() {
+  local tarball="$1"
+
+  tar -tzf "$tarball" >/dev/null 2>&1 || return 1
+  if tar -tzf "$tarball" | grep -qE '^/|(^|/)\.\.(/|$)'; then
+    return 1
+  fi
+
+  # Upstream legitimately ships Mesa symlinks. They are safe to leave in the
+  # archive because extraction selects only the two targets below; those two
+  # must each occur exactly once and must each be a regular file.
+  tar -tvzf "$tarball" 2>/dev/null | awk '
+    /\/usr\/lib\/aarch64-linux-gnu\/libvulkan_freedreno[.]so$/ {
+      if (substr($1,1,1) != "-") bad=1
+      driver++
+    }
+    /\/usr\/share\/vulkan\/icd[.]d\/freedreno_icd[.]aarch64[.]json$/ {
+      if (substr($1,1,1) != "-") bad=1
+      icd++
+    }
+    END { if (bad || driver != 1 || icd != 1) exit 1 }
+  '
+}
+
 tnx_phase_gpu() {
   local backend="${1:-auto}"
+
+  # Keep the phase safe when called directly (for example by the legacy
+  # install.sh doctor route), not only through the main orchestrator.
+  [ "$backend" = "zink-turnip" ] && backend="zink"
+  if [ "$backend" = "auto" ]; then
+    [ -e /dev/kgsl-3d0 ] && backend="zink" || backend="virgl"
+  fi
+  case "$backend" in
+    zink|virgl) ;;
+    *) tnx_fail "GPU backend must be auto, zink or virgl."; return 2 ;;
+  esac
 
   if [ "$backend" = "virgl" ]; then
     tnx_has_cmd virgl_test_server_android || { tnx_fail "VirGL selected but virgl_test_server_android missing."; return 1; }
@@ -173,6 +212,13 @@ tnx_phase_gpu() {
 
   [ -e /dev/kgsl-3d0 ] || { tnx_fail "Zink needs /dev/kgsl-3d0 (Adreno GPU)."; return 1; }
 
+  local guest_codename
+  guest_codename="$(proot-distro login debian -- bash -c '. /etc/os-release; printf "%s" "${VERSION_CODENAME:-}"' 2>/dev/null || true)"
+  [ "$guest_codename" = "trixie" ] || {
+    tnx_fail "The validated Turnip asset targets Debian Trixie; guest reports '${guest_codename:-unknown}'."
+    return 1
+  }
+
   local url
   url="$(tnx_resolve_freedreno_asset)"
   [ -n "$url" ] || { tnx_fail "Could not resolve Freedreno driver asset."; return 1; }
@@ -181,26 +227,32 @@ tnx_phase_gpu() {
   rm -f "$tarball"
   tnx_download "$url" "$tarball" || { tnx_fail "Failed to download Freedreno driver."; return 1; }
 
-  tar -tzf "$tarball" >/dev/null 2>&1 || { tnx_fail "Download is not a valid gzip tarball."; rm -f "$tarball"; return 1; }
-  if tar -tzf "$tarball" | grep -qE '^/|(^|/)\.\.(/|$)'; then
-    tnx_fail "Archive contains unsafe paths."; rm -f "$tarball"; return 1
+  if ! tnx_validate_turnip_archive "$tarball"; then
+    tnx_fail "Archive must have safe paths and exactly one regular driver and ICD target."
+    rm -f "$tarball"
+    return 1
   fi
 
   local sha
   sha="$(sha256sum "$tarball" | cut -d' ' -f1)"
   tnx_state_set "freedreno_sha" "$sha"
+  tnx_state_set "freedreno_url" "$url"
 
   proot-distro login debian --shared-tmp -- bash -c "
     set -e
     stage=/tmp/ternux-driver-stage; rm -rf \"\$stage\"; mkdir -p \"\$stage\"
-    trap 'rm -rf \$stage' EXIT
+    trap 'rm -rf \"\$stage\"' EXIT
     export DEBIAN_FRONTEND=noninteractive
     apt install -y libvulkan1 >/dev/null 2>&1 || true
-    tar -xzf /tmp/mesa-freedreno.tar.gz -C \"\$stage\" --wildcards \"*/usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so\" \"*/usr/share/vulkan/icd.d/freedreno_icd.aarch64.json\"
-    base=\"\$(find \"\$stage\" -mindepth 1 -maxdepth 1 -type d | head -n1)\"
-    [ -n \"\$base\" ] || exit 1
-    cp -a \"\$base/usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so\" /usr/lib/aarch64-linux-gnu/
-    mkdir -p /usr/share/vulkan/icd.d; cp -a \"\$base/usr/share/vulkan/icd.d/freedreno_icd.aarch64.json\" /usr/share/vulkan/icd.d/
+    tar -xzf /tmp/mesa-freedreno.tar.gz -C \"\$stage\" --wildcards \
+      \"*/usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so\" \
+      \"*/usr/share/vulkan/icd.d/freedreno_icd.aarch64.json\"
+    driver=\"\$(find \"\$stage\" -type f -path '*/usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so' -print -quit)\"
+    icd=\"\$(find \"\$stage\" -type f -path '*/usr/share/vulkan/icd.d/freedreno_icd.aarch64.json' -print -quit)\"
+    [ -n \"\$driver\" ] && [ -n \"\$icd\" ] || exit 1
+    install -m 0755 \"\$driver\" /usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so
+    mkdir -p /usr/share/vulkan/icd.d
+    install -m 0644 \"\$icd\" /usr/share/vulkan/icd.d/freedreno_icd.aarch64.json
     ldconfig
     apt-mark hold mesa-vulkan-drivers libgl1-mesa-dri libglx-mesa0 libgbm1 libegl-mesa0 >/dev/null 2>&1 || true
   " 2>/dev/null || { tnx_fail "Driver installation failed."; rm -f "$tarball"; return 1; }
@@ -210,7 +262,12 @@ tnx_phase_gpu() {
     [ -f /usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so ] &&
     [ -f /usr/share/vulkan/icd.d/freedreno_icd.aarch64.json ]
   ' >/dev/null 2>&1; then
-    tnx_ok "Turnip driver + ICD installed and pinned."
+    local driver_sha icd_sha
+    driver_sha="$(proot-distro login debian -- sha256sum /usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so 2>/dev/null | awk '{print $1}')"
+    icd_sha="$(proot-distro login debian -- sha256sum /usr/share/vulkan/icd.d/freedreno_icd.aarch64.json 2>/dev/null | awk '{print $1}')"
+    [ -n "$driver_sha" ] && tnx_state_set "freedreno_driver_sha" "$driver_sha"
+    [ -n "$icd_sha" ] && tnx_state_set "freedreno_icd_sha" "$icd_sha"
+    tnx_ok "Turnip driver + ICD installed, hashed and pinned."
   else
     tnx_fail "Turnip driver files missing after extraction."; return 1
   fi
@@ -221,32 +278,83 @@ tnx_resolve_freedreno_asset() {
   local body=""
   tnx_has_cmd curl && body="$(curl -fsSL --max-time 30 "$api" 2>/dev/null)"
   [ -z "$body" ] && tnx_has_cmd wget && body="$(wget -q --timeout=30 -O- "$api" 2>/dev/null)"
-  printf '%s' "$body" | grep -o '"browser_download_url": *"[^"]*debian[^"]*arm64\.tar\.gz"' | head -1 | sed 's/.*"browser_download_url": *"//; s/"$//'
+  printf '%s' "$body" | grep -o '"browser_download_url": *"[^"]*debian[^"]*trixie[^"]*arm64\.tar\.gz"' | head -1 | sed 's/.*"browser_download_url": *"//; s/"$//'
 }
 
 # ---------------------------------------------------------------------------
-# Phase 5 — audio, locale, fonts
+# Phase 6 — audio, locale, fonts
 # ---------------------------------------------------------------------------
+_TNX_PULSE_CHANGED=0
+_tnx_configure_pulse_bridge() {
+  local pa_conf="$1" tmp="" input=/dev/null
+  local legacy_line="load-module module-native-protocol-tcp auth-ip-acl=127.0.0.1 auth-anonymous=1 port=4713"
+  local bridge_line="load-module module-native-protocol-tcp listen=127.0.0.1 auth-ip-acl=127.0.0.1 auth-anonymous=1 port=4713"
+  local sink_line="load-module module-opensles-sink sink_name=Speaker"
+  local default_line="set-default-sink Speaker"
+  _TNX_PULSE_CHANGED=0
+
+  mkdir -p "$(dirname "$pa_conf")" || return 1
+  # Do not follow a pre-existing symlink or replace a non-regular object.
+  [ ! -L "$pa_conf" ] || return 1
+  [ ! -e "$pa_conf" ] || [ -f "$pa_conf" ] || return 1
+  [ -f "$pa_conf" ] && input="$pa_conf"
+
+  # Only the exact old ternux line and the exact secure line are owned by this
+  # helper. Refuse to merge with any other active TCP listener, including an
+  # indented one or one placed beside a recognized ternux line.
+  if grep -E '^[[:space:]]*load-module[[:space:]]+module-native-protocol-tcp([[:space:]]|$)' "$input" 2>/dev/null |
+     grep -Fvx -e "$legacy_line" -e "$bridge_line" | grep -q .; then
+    tnx_fail "Custom PulseAudio TCP module found; review it instead of overwriting it."
+    return 1
+  fi
+
+  # Build the complete replacement before touching the original. This also
+  # collapses duplicate legacy/secure ternux lines to one canonical listener.
+  # mktemp creates the staging file in the destination directory, so the final
+  # rename is both unpredictable and confined to one filesystem.
+  tmp="$(mktemp "${pa_conf}.ternux.XXXXXX")" || return 1
+  awk -v old="$legacy_line" -v new="$bridge_line" '
+    $0 == old || $0 == new {
+      if (!seen) print new
+      seen=1
+      next
+    }
+    { print }
+    END { if (!seen) print new }
+  ' "$input" > "$tmp" || { rm -f "$tmp"; return 1; }
+
+  grep -qxF "$sink_line" "$tmp" || printf '%s\n' "$sink_line" >> "$tmp" || {
+    rm -f "$tmp"; return 1;
+  }
+  grep -qxF "$default_line" "$tmp" || printf '%s\n' "$default_line" >> "$tmp" || {
+    rm -f "$tmp"; return 1;
+  }
+
+  if [ -f "$pa_conf" ] && cmp -s "$pa_conf" "$tmp"; then
+    rm -f "$tmp"
+    return 0
+  fi
+
+  [ ! -f "$pa_conf" ] || chmod --reference="$pa_conf" "$tmp" 2>/dev/null || true
+  mv -f "$tmp" "$pa_conf" || { rm -f "$tmp"; return 1; }
+  _TNX_PULSE_CHANGED=1
+  return 0
+}
+
 tnx_phase_audio_fonts() {
   local user_name="${1:-ternux}" locale="${2:-en_US.UTF-8}"
 
   local PA_CONF="${PREFIX:-/data/data/com.termux/files/usr}/etc/pulse/default.pa"
-  if ! grep -q "module-native-protocol-tcp" "$PA_CONF" 2>/dev/null; then
-    {
-      echo "load-module module-native-protocol-tcp auth-ip-acl=127.0.0.1 auth-anonymous=1 port=4713"
-      echo "load-module module-opensles-sink sink_name=Speaker"
-      echo "set-default-sink Speaker"
-    } >> "$PA_CONF"
-    tnx_ok "PulseAudio TCP bridge configured (loopback only)."
-  fi
+  _tnx_configure_pulse_bridge "$PA_CONF" || return 1
+  [ "$_TNX_PULSE_CHANGED" = "1" ] && tnx_ok "PulseAudio TCP bridge bound to loopback."
 
   proot-distro login debian --shared-tmp --user "$user_name" -- bash -c "
     set -e
     DPKG_FORCE=\"-o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef\"
     sudo apt update
     sudo DEBIAN_FRONTEND=noninteractive apt install -y \$DPKG_FORCE locales
-    grep -qxF \"'${locale}' UTF-8\" /etc/locale.gen 2>/dev/null || echo \"'${locale}' UTF-8\" | sudo tee -a /etc/locale.gen >/dev/null
-    sudo locale-gen \"${locale}\" || true
+    grep -qxF \"${locale} UTF-8\" /etc/locale.gen 2>/dev/null || echo \"${locale} UTF-8\" | sudo tee -a /etc/locale.gen >/dev/null
+    sudo locale-gen \"${locale}\"
     grep -q \"export LANG='${locale}'\" ~/.bashrc 2>/dev/null || echo \"export LANG='${locale}'\" >> ~/.bashrc
     grep -q \"export LC_ALL='${locale}'\" ~/.bashrc 2>/dev/null || echo \"export LC_ALL='${locale}'\" >> ~/.bashrc
     sudo apt install -y \$DPKG_FORCE fonts-symbola fonts-noto-color-emoji fonts-font-awesome fonts-powerline
@@ -264,33 +372,52 @@ tnx_phase_audio_fonts() {
 }
 
 # ---------------------------------------------------------------------------
-# Phase 6 — desktop launcher ~/x.sh
+# Phase 7 — desktop launcher ~/x.sh
 # ---------------------------------------------------------------------------
 tnx_phase_launcher() {
   local user_name="${1:-ternux}" backend="${2:-auto}" locale="${3:-en_US.UTF-8}"
   local LAUNCHER="$HOME/x.sh"
 
+  [[ "$user_name" =~ ^[a-z_][a-z0-9_-]{0,31}$ ]] || {
+    tnx_fail "Launcher user name is invalid."; return 2;
+  }
+  [[ "$locale" =~ ^[A-Za-z0-9_.@-]+$ ]] || {
+    tnx_fail "Launcher locale is invalid."; return 2;
+  }
+
   # Resolve backend
-  if [ "$backend" = "zink" ] || { [ "$backend" = "auto" ] && [ -e /dev/kgsl-3d0 ]; }; then
-    backend="zink"
-  else
-    backend="virgl"
-  fi
+  case "$backend" in
+    zink|zink-turnip) backend="zink" ;;
+    virgl) backend="virgl" ;;
+    auto) [ -e /dev/kgsl-3d0 ] && backend="zink" || backend="virgl" ;;
+    *) tnx_fail "Launcher backend must be auto, zink or virgl."; return 2 ;;
+  esac
 
   # Write launcher
   cat > "$LAUNCHER" << 'LAUNCHEOF'
 #!/data/data/com.termux/files/usr/bin/bash
 set -u
 TMPDIR="${TMPDIR:-/data/data/com.termux/files/usr/tmp}"
-# Cleanup
-pkill -9 -f termux-x11 2>/dev/null || true; pkill -9 -f pulseaudio 2>/dev/null || true
-pkill -9 -f virgl_test_server 2>/dev/null || true; pkill -9 -f dbus 2>/dev/null || true
-rm -f "$TMPDIR"/.X11-unix/X* "$TMPDIR"/.X*-lock "$TMPDIR"/pulse-socket 2>/dev/null || true
+cleanup() {
+  pkill -9 -f termux-x11 2>/dev/null || true
+  pkill -9 -f virgl_test_server 2>/dev/null || true
+  pulseaudio --kill 2>/dev/null || pkill -KILL -x pulseaudio 2>/dev/null || true
+  rm -f "$TMPDIR"/.X11-unix/X* "$TMPDIR"/.X*-lock "$TMPDIR"/pulse-socket "$TMPDIR"/.pulse-*/native 2>/dev/null || true
+  termux-wake-unlock 2>/dev/null || true
+}
+trap cleanup EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
+# Cleanup any previous session
+pkill -9 -f termux-x11 2>/dev/null || true
+pkill -9 -f virgl_test_server 2>/dev/null || true
+pulseaudio --kill 2>/dev/null || pkill -KILL -x pulseaudio 2>/dev/null || true
+rm -f "$TMPDIR"/.X11-unix/X* "$TMPDIR"/.X*-lock "$TMPDIR"/pulse-socket "$TMPDIR"/.pulse-*/native 2>/dev/null || true
 # Wake lock
 termux-wake-lock 2>/dev/null || true
 # Audio
 unset PULSE_SERVER; pulseaudio --start --exit-idle-time=-1 --daemonize 2>/dev/null || true
-sleep 0.3; pactl load-module module-native-protocol-tcp auth-ip-acl=127.0.0.1 auth-anonymous=1 port=4713 >/dev/null 2>&1 || true
+sleep 0.3; pactl load-module module-native-protocol-tcp listen=127.0.0.1 auth-ip-acl=127.0.0.1 auth-anonymous=1 port=4713 >/dev/null 2>&1 || true
 # Display
 termux-x11 :0 -ac &
 X11_PID=$!
@@ -306,21 +433,22 @@ LAUNCHEOF
 
   # Backend-specific launcher additions
   if [ "$backend" = "zink" ]; then
-    cat >> "$LAUNCHER" << 'ZINKEOF'
-virgl_test_server_android >/dev/null 2>&1 &
-ZINKEOF
+    # Zink talks to Turnip/KGSL directly; the VirGL host server belongs only
+    # to the fallback route below.
     cat >> "$LAUNCHER" << EOF
-proot-distro login debian --shared-tmp --bind /dev/kgsl-3d0:/dev/kgsl --bind /dev/dri --user $user_name --env \\
-  DISPLAY=:0 PULSE_SERVER=tcp:127.0.0.1:4713 \\
-  MESA_LOADER_DRIVER_OVERRIDE=zink GALLIUM_DRIVER=zink \\
-  TU_DEBUG=sysmem,noconform MESA_VK_WSI_DEBUG=sw \\
-  MESA_DISK_CACHE_SINGLE_FILE=1 MESA_SHADER_CACHE_MAX_SIZE=2048M \\
-  QT_X11_NO_MITSHM=1 XDG_RUNTIME_DIR=/home/$user_name/.runtime \\
-  LANG=$locale LC_ALL=$locale \\
+proot-distro login debian --shared-tmp --bind /dev/kgsl-3d0:/dev/kgsl --bind /dev/dri --user $user_name \\
+  --env DISPLAY=:0 --env PULSE_SERVER=tcp:127.0.0.1:4713 \\
+  --env MESA_LOADER_DRIVER_OVERRIDE=zink --env GALLIUM_DRIVER=zink \\
+  --env TU_DEBUG=sysmem,noconform --env MESA_VK_WSI_DEBUG=sw \\
+  --env MESA_DISK_CACHE_SINGLE_FILE=1 --env MESA_SHADER_CACHE_MAX_SIZE=2048M \\
+  --env QT_X11_NO_MITSHM=1 --env XDG_RUNTIME_DIR=/home/$user_name/.runtime \\
+  --env LANG=$locale --env LC_ALL=$locale \\
   -- bash -c '
-    set -u; mkdir -p ~/.runtime /tmp/mesa_cache
+    set -u
+    mkdir -p ~/.runtime /tmp/mesa_cache
+    chmod 700 ~/.runtime /tmp/mesa_cache
     until xdpyinfo -display :0 >/dev/null 2>&1; do sleep 0.1; done
-    sudo -n mkdir -p /var/run/dbus /run/dbus /run/user/$(id -u) 2>/dev/null || true
+    sudo -n mkdir -p /var/run/dbus /run/dbus /run/user/\$(id -u) 2>/dev/null || true
     sudo -n dbus-uuidgen --ensure >/dev/null 2>&1 || true
     sudo -n rm -f /etc/xdg/autostart/light-locker.desktop 2>/dev/null || true
     xfconf-query -c xfwm4 -p /general/use_compositing -s false >/dev/null 2>&1 || true
@@ -330,18 +458,24 @@ EOF
   else
     cat >> "$LAUNCHER" << 'VIRGLEOF'
 virgl_test_server_android >/dev/null 2>&1 &
+VIRGL_PID=$!
 sleep 1
+if ! kill -0 "$VIRGL_PID" 2>/dev/null; then
+  echo "WARNING: virgl_test_server_android failed to start; check for llvmpipe."
+fi
 VIRGLEOF
     cat >> "$LAUNCHER" << EOF
-proot-distro login debian --shared-tmp --user $user_name --env \\
-  DISPLAY=:0 PULSE_SERVER=tcp:127.0.0.1:4713 \\
-  GALLIUM_DRIVER=virpipe MESA_GL_VERSION_OVERRIDE=4.3COMPAT \\
-  QT_X11_NO_MITSHM=1 XDG_RUNTIME_DIR=/home/$user_name/.runtime \\
-  LANG=$locale LC_ALL=$locale \\
+proot-distro login debian --shared-tmp --user $user_name \\
+  --env DISPLAY=:0 --env PULSE_SERVER=tcp:127.0.0.1:4713 \\
+  --env GALLIUM_DRIVER=virpipe --env MESA_GL_VERSION_OVERRIDE=4.3COMPAT \\
+  --env QT_X11_NO_MITSHM=1 --env XDG_RUNTIME_DIR=/home/$user_name/.runtime \\
+  --env LANG=$locale --env LC_ALL=$locale \\
   -- bash -c '
-    set -u; mkdir -p ~/.runtime /tmp/mesa_cache
+    set -u
+    mkdir -p ~/.runtime /tmp/mesa_cache
+    chmod 700 ~/.runtime /tmp/mesa_cache
     until xdpyinfo -display :0 >/dev/null 2>&1; do sleep 0.1; done
-    sudo -n mkdir -p /var/run/dbus /run/dbus /run/user/$(id -u) 2>/dev/null || true
+    sudo -n mkdir -p /var/run/dbus /run/dbus /run/user/\$(id -u) 2>/dev/null || true
     sudo -n dbus-uuidgen --ensure >/dev/null 2>&1 || true
     xfconf-query -c xfwm4 -p /general/use_compositing -s false >/dev/null 2>&1 || true
     exec dbus-launch --exit-with-session startxfce4
@@ -349,12 +483,8 @@ proot-distro login debian --shared-tmp --user $user_name --env \\
 EOF
   fi
 
-  # Teardown
-  cat >> "$LAUNCHER" << 'TEARDOWNEOF'
-pkill -9 -f termux-x11 2>/dev/null || true
-pkill -9 -f virgl_test_server 2>/dev/null || true
-termux-wake-unlock 2>/dev/null || true
-TEARDOWNEOF
+  # The EXIT trap defined near the top performs teardown on success, failure,
+  # Ctrl+C, or termination.
 
   chmod +x "$LAUNCHER"
   if bash -n "$LAUNCHER" 2>/dev/null; then
@@ -366,10 +496,10 @@ TEARDOWNEOF
 }
 
 # ---------------------------------------------------------------------------
-# Phase 7 — shell aliases
+# Phase 8 — shell aliases
 # ---------------------------------------------------------------------------
 tnx_phase_aliases() {
-  local shell_choice="${2:-bash}"
+  local user_name="${1:-ternux}" shell_choice="${2:-bash}"
   local RC_FILE="$HOME/.bashrc"
   if [ "$shell_choice" = "zsh" ]; then
     tnx_has_cmd zsh || pkg install zsh -y 2>/dev/null || true
@@ -379,23 +509,23 @@ tnx_phase_aliases() {
 
   grep -q "TERNUX ALIASES" "$RC_FILE" 2>/dev/null && { tnx_warn "Aliases already present."; return 0; }
 
-  cat >> "$RC_FILE" << 'ALIASEOF'
+  cat >> "$RC_FILE" << ALIASEOF
 
 # ==== TERNUX ALIASES ====
 alias x='~/x.sh'
-alias killx='pkill -f termux-x11; pkill -f pulseaudio; pkill -f dbus; rm -rf $TMPDIR/.X11-unix/X* $TMPDIR/.X*-lock'
-alias db='proot-distro login debian --user ternux'
-alias droot='proot-distro login debian'
+alias killx='pkill -f termux-x11 || true; pulseaudio --kill 2>/dev/null || pkill -KILL -x pulseaudio 2>/dev/null || true; rm -f \$TMPDIR/.X11-unix/X* \$TMPDIR/.X*-lock \$TMPDIR/.pulse-*/native'
+alias db='proot-distro login debian --shared-tmp --user $user_name'
+alias droot='proot-distro login debian --shared-tmp'
 alias xgo='am start -n com.termux.x11/com.termux.x11.MainActivity 2>/dev/null; sleep 1; ~/x.sh'
-clean-mesa() { proot-distro login debian --user ternux -- bash -c 'rm -rf ~/.cache/mesa/*'; echo "Mesa cache cleared."; }
+clean-mesa() { proot-distro login debian --user $user_name -- bash -c 'rm -rf ~/.cache/mesa/*'; echo "Mesa cache cleared."; }
 sysmon() { echo "--- CPU & Memory ---"; free -h; echo ""; echo "--- GPU / KGSL ---"; ls -l /dev/kgsl-3d0 /dev/dri 2>/dev/null || echo "No GPU nodes."; }
 # ==== END TERNUX ALIASES ====
 ALIASEOF
-  tnx_ok "Aliases installed: x, killx, db, droot, xgo, clean-mesa, sysmon"
+  tnx_ok "Aliases installed for Debian user '$user_name': x, killx, db, droot, xgo, clean-mesa, sysmon"
 }
 
 # ---------------------------------------------------------------------------
-# Phase 8 — optional workloads
+# Phase 9 — optional workloads
 # ---------------------------------------------------------------------------
 tnx_phase_extras() {
   local user_name="${1:-ternux}"; shift
@@ -404,36 +534,97 @@ tnx_phase_extras() {
 
   for opt in "$@"; do
     case "$opt" in
-      dev)  proot-distro login debian --shared-tmp --user "$user_name" -- bash -c "$APT git curl wget nodejs npm python3 python3-pip python3-venv build-essential ca-certificates" 2>/dev/null || { tnx_warn "Dev tools failed."; rc=1; }; tnx_ok "Dev tools installed" ;;
-      llm)  local cores=$(nproc 2>/dev/null || echo 4); local jobs=$((cores/2)); [ "$jobs" -lt 1 ] && jobs=1; [ "$jobs" -gt 4 ] && jobs=4
-            proot-distro login debian --shared-tmp --user "$user_name" -- bash -c "
-              sudo apt update; sudo DEBIAN_FRONTEND=noninteractive apt install -y build-essential cmake git pkg-config libvulkan-dev vulkan-tools clinfo glslang-dev glslang-tools libshaderc-dev glslc
-              if [ ! -d ~/llama.cpp/.git ]; then rm -rf ~/llama.cpp; git clone --depth 1 https://github.com/ggml-org/llama.cpp.git ~/llama.cpp; fi
-              cd ~/llama.cpp; cmake -S . -B build -DGGML_VULKAN=ON -DCMAKE_BUILD_TYPE=Release; cmake --build build --config Release -j$jobs; mkdir -p models
-            " 2>/dev/null || { tnx_warn "llama.cpp build failed."; rc=1; }; tnx_ok "llama.cpp built with Vulkan" ;;
-      network) proot-distro login debian --shared-tmp --user "$user_name" -- bash -c "$APT nmap tmux" 2>/dev/null || { tnx_warn "Network tools failed."; rc=1; }; tnx_ok "Network tools installed" ;;
-      media) proot-distro login debian --shared-tmp --user "$user_name" -- bash -c "$APT ffmpeg gimp audacity imagemagick" 2>/dev/null || { tnx_warn "Media tools failed."; rc=1; }; tnx_ok "Media tools installed" ;;
-      blender) proot-distro login debian --shared-tmp --user "$user_name" -- bash -c "$APT blender" 2>/dev/null || { tnx_warn "Blender install failed."; rc=1; }; tnx_ok "Blender installed" ;;
+      dev)
+        if proot-distro login debian --shared-tmp --user "$user_name" -- bash -c "$APT git curl wget nodejs npm python3 python3-pip python3-venv build-essential ca-certificates" 2>/dev/null; then
+          tnx_ok "Dev tools installed"
+        else
+          tnx_warn "Dev tools failed."
+          rc=1
+        fi
+        ;;
+      llm)
+        local cores jobs
+        cores="$(nproc 2>/dev/null || echo 4)"
+        jobs=$((cores / 2)); [ "$jobs" -lt 1 ] && jobs=1; [ "$jobs" -gt 4 ] && jobs=4
+        if proot-distro login debian --shared-tmp --user "$user_name" -- bash -c "
+          sudo apt update
+          sudo DEBIAN_FRONTEND=noninteractive apt install -y build-essential cmake git pkg-config libvulkan-dev vulkan-tools clinfo glslang-dev glslang-tools libshaderc-dev glslc
+          if [ ! -d ~/llama.cpp/.git ]; then rm -rf ~/llama.cpp; git clone --depth 1 https://github.com/ggml-org/llama.cpp.git ~/llama.cpp; fi
+          cd ~/llama.cpp
+          cmake -S . -B build -DGGML_VULKAN=ON -DCMAKE_BUILD_TYPE=Release
+          cmake --build build --config Release -j$jobs
+          mkdir -p models
+        " 2>/dev/null; then
+          tnx_ok "llama.cpp built with Vulkan"
+        else
+          tnx_warn "llama.cpp build failed."
+          rc=1
+        fi
+        ;;
+      network)
+        if proot-distro login debian --shared-tmp --user "$user_name" -- bash -c "$APT nmap tmux" 2>/dev/null; then
+          tnx_ok "Network tools installed"
+        else
+          tnx_warn "Network tools failed."
+          rc=1
+        fi
+        ;;
+      media)
+        if proot-distro login debian --shared-tmp --user "$user_name" -- bash -c "$APT ffmpeg gimp audacity imagemagick" 2>/dev/null; then
+          tnx_ok "Media tools installed"
+        else
+          tnx_warn "Media tools failed."
+          rc=1
+        fi
+        ;;
+      blender)
+        if proot-distro login debian --shared-tmp --user "$user_name" -- bash -c "$APT blender" 2>/dev/null; then
+          tnx_ok "Blender installed"
+        else
+          tnx_warn "Blender install failed."
+          rc=1
+        fi
+        ;;
     esac
   done
   return "$rc"
 }
 
 # ---------------------------------------------------------------------------
-# Phase 9 — phantom process killer advisory
+# Phase 10 — phantom process killer advisory
 # ---------------------------------------------------------------------------
 tnx_phase_phantom() {
-  local sdk; sdk="$(getprop ro.build.version.sdk 2>/dev/null || echo 0)"
-  [ "$sdk" -lt 31 ] 2>/dev/null && { tnx_ok "Pre-Android 12 — no phantom killer."; return 0; }
+  local sdk state
+  sdk="$(getprop ro.build.version.sdk 2>/dev/null || echo 0)"
+  [ "$sdk" -lt 31 ] 2>/dev/null && { tnx_ok "Pre-Android 12 — no phantom-process setting applies."; return 0; }
 
-  local cur="unknown"
-  tnx_has_cmd settings && cur="$(settings get global settings_enable_monitor_phantom_procs 2>/dev/null || echo unknown)"
-  tnx_warn "Android 12+ phantom process killer active ($cur)."
-  echo ""; echo "  Fix: Android 14+ → Developer options → 'Disable child process restrictions'"; echo "       Android 12-13 → adb shell settings put global settings_enable_monitor_phantom_procs false"; echo ""
+  state="$(tnx_detect_phantom_killer)"
+  case "$state" in
+    disabled)
+      tnx_ok "Android child-process monitoring is reported as disabled."
+      return 0
+      ;;
+    enabled)
+      tnx_warn "Android child-process monitoring is reported as enabled."
+      ;;
+    *)
+      tnx_warn "Could not read Android's child-process setting; do not assume it is enabled or disabled."
+      ;;
+  esac
+
+  echo ""
+  case "$sdk" in
+    31) echo "  Android 12 controls can require both global and device_config settings; see troubleshooting." ;;
+    32|33) echo "  Android 12L/13: review the documented ADB setting and its system-wide trade-off." ;;
+    *) echo "  Android 14+: Developer options may expose 'Disable child process restrictions'." ;;
+  esac
+  echo "  Signal 9 can also mean memory pressure or OEM battery management."
+  echo "  Guide: docs/TROUBLESHOOTING.md#the-desktop-dies-silently"
+  echo ""
 }
 
 # ---------------------------------------------------------------------------
-# Phase 10 — verification
+# Phase 11 — verification
 # ---------------------------------------------------------------------------
 tnx_phase_verify() {
   local user_name="${1:-ternux}" backend="${2:-auto}"
@@ -460,7 +651,7 @@ tnx_phase_verify() {
 }
 
 # ---------------------------------------------------------------------------
-# CLI installation
+# Phase 3 — CLI installation
 # ---------------------------------------------------------------------------
 tnx_phase_cli() {
   local prefix="${PREFIX:-/data/data/com.termux/files/usr}"
@@ -475,25 +666,64 @@ tnx_phase_cli() {
   if [ -z "$cli_src" ]; then
     tnx_info "Downloading ternux CLI from GitHub..."
     local base="https://raw.githubusercontent.com/soobujmiah/ternux/main"
-    local tmp_dir="${TMPDIR:-/tmp}/ternux-cli-install.$$"
-    mkdir -p "$tmp_dir" "$lib_dir"
+    local tmp_dir="${TMPDIR:-/tmp}/ternux-cli-install.$$" lib=""
+    local libs="core.sh help.sh detect.sh desktop.sh doctor.sh info.sh backend.sh profile.sh benchmark.sh repair.sh logs.sh update.sh state.sh uninstall.sh phases.sh ui.sh"
+    mkdir -p "$tmp_dir/lib" "$bin_dir" "$lib_dir" || return 1
     if tnx_has_cmd curl; then
-      curl -fsSL --max-time 15 "$base/bin/ternux" -o "$tmp_dir/ternux" 2>/dev/null || { tnx_fail "Download failed"; rm -rf "$tmp_dir"; return 1; }
-      for lib in core.sh help.sh detect.sh desktop.sh doctor.sh info.sh backend.sh profile.sh benchmark.sh repair.sh logs.sh update.sh state.sh phases.sh ui.sh; do
-        curl -fsSL --max-time 15 "$base/lib/$lib" -o "$lib_dir/$lib" 2>/dev/null || tnx_warn "Failed to download $lib"
+      curl -fsSL --max-time 15 "$base/bin/ternux" -o "$tmp_dir/ternux" 2>/dev/null || { tnx_fail "CLI download failed"; rm -rf "$tmp_dir"; return 1; }
+      for lib in $libs; do
+        curl -fsSL --max-time 15 "$base/lib/$lib" -o "$tmp_dir/lib/$lib" 2>/dev/null || {
+          tnx_fail "Failed to download $lib"; rm -rf "$tmp_dir"; return 1;
+        }
       done
     elif tnx_has_cmd wget; then
-      wget -q --timeout=15 "$base/bin/ternux" -O "$tmp_dir/ternux" 2>/dev/null || { tnx_fail "Download failed"; rm -rf "$tmp_dir"; return 1; }
-      for lib in core.sh help.sh detect.sh desktop.sh doctor.sh info.sh backend.sh profile.sh benchmark.sh repair.sh logs.sh update.sh state.sh phases.sh ui.sh; do
-        wget -q --timeout=15 "$base/lib/$lib" -O "$lib_dir/$lib" 2>/dev/null || tnx_warn "Failed to download $lib"
+      wget -q --timeout=15 "$base/bin/ternux" -O "$tmp_dir/ternux" 2>/dev/null || { tnx_fail "CLI download failed"; rm -rf "$tmp_dir"; return 1; }
+      for lib in $libs; do
+        wget -q --timeout=15 "$base/lib/$lib" -O "$tmp_dir/lib/$lib" 2>/dev/null || {
+          tnx_fail "Failed to download $lib"; rm -rf "$tmp_dir"; return 1;
+        }
       done
+    else
+      tnx_fail "Neither curl nor wget is available."
+      rm -rf "$tmp_dir"
+      return 1
     fi
+
+    if ! bash -n "$tmp_dir/ternux" 2>/dev/null; then
+      tnx_fail "Downloaded CLI failed shell syntax validation."
+      rm -rf "$tmp_dir"
+      return 1
+    fi
+    for lib in $libs; do
+      if ! bash -n "$tmp_dir/lib/$lib" 2>/dev/null; then
+        tnx_fail "Downloaded library failed shell syntax validation: $lib"
+        rm -rf "$tmp_dir"
+        return 1
+      fi
+    done
+    for lib in $libs; do
+      install -m 644 "$tmp_dir/lib/$lib" "$lib_dir/$lib" 2>/dev/null || {
+        tnx_fail "Could not install $lib"; rm -rf "$tmp_dir"; return 1;
+      }
+    done
     install -m 755 "$tmp_dir/ternux" "$bin_dir/ternux" 2>/dev/null || { tnx_fail "Install failed"; rm -rf "$tmp_dir"; return 1; }
     rm -rf "$tmp_dir"
   else
+    local local_lib
     mkdir -p "$bin_dir" "$lib_dir"
+    bash -n "$cli_src" 2>/dev/null || {
+      tnx_fail "Local CLI failed shell syntax validation."; return 1;
+    }
+    for local_lib in "$(dirname "$cli_src")/../lib/"*.sh; do
+      bash -n "$local_lib" 2>/dev/null || {
+        tnx_fail "Local library failed shell syntax validation: $(basename "$local_lib")"
+        return 1
+      }
+    done
+    cp "$(dirname "$cli_src")/../lib/"*.sh "$lib_dir/" 2>/dev/null || {
+      tnx_fail "Failed to copy CLI libraries"; return 1;
+    }
     install -m 755 "$cli_src" "$bin_dir/ternux" 2>/dev/null || { tnx_fail "Install failed"; return 1; }
-    cp "$(dirname "$cli_src")/../lib/"*.sh "$lib_dir/" 2>/dev/null || tnx_warn "Failed to copy libs"
   fi
 
   if command -v ternux >/dev/null 2>&1 || [ -x "$bin_dir/ternux" ]; then
@@ -514,9 +744,16 @@ tnx_install() {
   while [ $# -gt 0 ]; do
     case "$1" in
       --yes) yes=1 ;;
-      --user) user_name="${2:-ternux}"; shift ;;
-      --locale) locale="${2:-en_US.UTF-8}"; shift ;;
-      --backend) backend="${2:-auto}"; shift ;;
+      --user|--locale|--backend)
+        local option="$1"
+        [ $# -ge 2 ] || { tnx_fail "$option needs a value."; return 2; }
+        case "$option" in
+          --user) user_name="$2" ;;
+          --locale) locale="$2" ;;
+          --backend) backend="$2" ;;
+        esac
+        shift
+        ;;
       --zsh) shell_choice="zsh" ;;
       --with-dev) extras+=("dev") ;;
       --with-llm) extras+=("llm") ;;
@@ -525,9 +762,18 @@ tnx_install() {
       --with-blender) extras+=("blender") ;;
       --all) extras+=("dev" "llm" "network" "media" "blender") ;;
       --resume) resume=1 ;;
+      *) tnx_fail "Unknown install option: $1"; return 2 ;;
     esac; shift
   done
 
+  [[ "$user_name" =~ ^[a-z_][a-z0-9_-]{0,31}$ ]] || {
+    tnx_fail "--user must start with a-z or _, use only a-z, 0-9, _ or -, and be at most 32 characters."
+    return 2
+  }
+  [[ "$locale" =~ ^[A-Za-z0-9_.@-]+$ ]] || { tnx_fail "--locale contains unsupported characters."; return 2; }
+  case "$backend" in auto|zink|virgl) ;; *) tnx_fail "--backend must be auto, zink or virgl."; return 2 ;; esac
+
+  [ "$yes" -eq 1 ] && export TERNUX_YES=1
   tnx_require_termux
 
   # Load UI library if available
@@ -540,8 +786,16 @@ tnx_install() {
 
   tnx_banner
 
+  if ! tnx_confirm "Install ternux with backend '$backend' and Debian user '$user_name'?"; then
+    tnx_info "Installation cancelled; no phase was started."
+    return 0
+  fi
+
+  tnx_state_set "user" "$user_name"
+  tnx_state_set "locale" "$locale"
+
   local phases="preflight packages cli debian gpu audio_fonts launcher aliases extras phantom verify"
-  local total=11 rc=0 current=0
+  local total=11 rc=0 current=0 phase_rc=0 failed_phase=""
 
   for phase in $phases; do
     current=$((current + 1))
@@ -549,24 +803,44 @@ tnx_install() {
 
     tnx_phase_header "$current" "$total" "$(tnx_phase_title "$phase")"
     export _TNX_PHASE_CUR=$current _TNX_PHASE_TOT=$total
+    phase_rc=0
 
     case "$phase" in
-      preflight)   tnx_phase_preflight || rc=1 ;;
-      packages)    tnx_phase_packages "$backend" || rc=1 ;;
-      cli)         tnx_phase_cli || rc=1 ;;
-      debian)      tnx_phase_debian "$user_name" || rc=1 ;;
-      gpu)         tnx_phase_gpu "$backend" || rc=1 ;;
-      audio_fonts) tnx_phase_audio_fonts "$user_name" "$locale" || rc=1 ;;
-      launcher)    tnx_phase_launcher "$user_name" "$backend" "$locale" || rc=1 ;;
-      aliases)     tnx_phase_aliases "$user_name" "$shell_choice" || rc=1 ;;
-      extras)      [ ${#extras[@]} -gt 0 ] && tnx_phase_extras "$user_name" "${extras[@]}" || tnx_info "No optional profiles." ;;
-      phantom)     tnx_phase_phantom || true ;;
-      verify)      tnx_phase_verify "$user_name" "$backend" || rc=1 ;;
+      preflight)   tnx_phase_preflight || phase_rc=$? ;;
+      packages)    tnx_phase_packages "$backend" || phase_rc=$? ;;
+      cli)         tnx_phase_cli || phase_rc=$? ;;
+      debian)      tnx_phase_debian "$user_name" || phase_rc=$? ;;
+      gpu)         tnx_phase_gpu "$backend" || phase_rc=$? ;;
+      audio_fonts) tnx_phase_audio_fonts "$user_name" "$locale" || phase_rc=$? ;;
+      launcher)    tnx_phase_launcher "$user_name" "$backend" "$locale" || phase_rc=$? ;;
+      aliases)     tnx_phase_aliases "$user_name" "$shell_choice" || phase_rc=$? ;;
+      extras)
+        if [ ${#extras[@]} -gt 0 ]; then
+          tnx_phase_extras "$user_name" "${extras[@]}" || phase_rc=$?
+        else
+          tnx_info "No optional profiles."
+        fi
+        ;;
+      phantom)     tnx_phase_phantom || phase_rc=$? ;;
+      verify)      tnx_phase_verify "$user_name" "$backend" || phase_rc=$? ;;
     esac
 
-    if [ "$phase" != "extras" ] && [ "$phase" != "phantom" ]; then
-      [ "$rc" -eq 0 ] || [ "$phase" = "preflight" ] && tnx_state_mark "phase_${phase}"
+    if [ "$phase_rc" -eq 0 ]; then
+      tnx_state_mark "phase_${phase}"
+      continue
     fi
+
+    rc="$phase_rc"
+    failed_phase="$phase"
+    tnx_log_error "Installation phase '$phase' failed with status $phase_rc"
+
+    if [ "$phase" = "extras" ] || [ "$phase" = "phantom" ]; then
+      tnx_warn "Optional/advisory phase '$phase' had issues; continuing to verification."
+      continue
+    fi
+
+    tnx_fail "Required phase '$phase' failed; stopping before dependent phases."
+    break
   done
 
   echo ""
@@ -583,7 +857,12 @@ tnx_install() {
       "Verify the GPU:     glxinfo | grep 'renderer string'" \
       "Run diagnostics:    ternux doctor"
   else
-    tnx_warn "Installation finished with issues. Run 'ternux doctor' for details."
+    if [ -n "$failed_phase" ]; then
+      tnx_warn "Installation did not complete cleanly (phase: $failed_phase)."
+    else
+      tnx_warn "Installation did not complete cleanly."
+    fi
+    tnx_info "Fix the reported error, then run 'bash install.sh --resume' or 'ternux doctor'."
   fi
   return "$rc"
 }

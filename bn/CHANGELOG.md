@@ -12,6 +12,29 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 
 ---
 
+## [Unreleased]
+
+### বাস্তব-device evidence archive ও installer hardening
+
+- README-কে archival, evidence-led guide হিসেবে পুনর্গঠন করা হয়েছে: exact
+  renderer, measured glmark2 score/FPS range, architecture/backend ব্যাখ্যা,
+  verification ও reproduction command, workload, FAQ, thermal guidance এবং
+  measured/observed/build-only/untested দাবির স্পষ্ট পার্থক্য।
+- `docs/BENCHMARKS.md`-এ captured OpenGL ও OpenGL ES-এর সব ৬৬টি scene result,
+  test condition, anomaly, evidence matrix ও reproduction protocol সংরক্ষিত।
+- One-command, সব executable component review-করা automatic route এবং English/
+  Bengali manual procedure যোগ/সংশোধন করা হয়েছে।
+- Backend detection/normalization, Turnip archive validation ও staged extraction,
+  launcher env/argument/cleanup, loopback PulseAudio config, persisted user/locale,
+  repair, verification, resume এবং scoped uninstall documentation harden করা হয়েছে।
+- যেসব reporting command-এর schema documented শুধু সেগুলোর JSON standardized;
+  interactive/lifecycle command human-oriented—এই সীমা এখন স্পষ্ট।
+- English/Bengali troubleshooting, configuration, architecture ও CLI reference
+  বিস্তৃত; workload card সরাসরি Blender, llama.cpp ও stable-diffusion.cpp upstream
+  repository-তে যায়।
+
+---
+
 ## [1.0.10] — 2026-08-15
 
 ### ইনস্টলার v1.2.2 — নিখুঁতভাবে সারিবদ্ধ লাইভ ড্যাশবোর্ড, পূর্ণ বিবরণসহ

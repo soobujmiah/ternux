@@ -1,25 +1,25 @@
 ---
 title: "Troubleshooting"
-description: "Every common ternux failure, classified by symptom, with the cause and the exact fix — renderer falls back to software, sessions die, audio, network."
+description: "Common ternux failures classified by symptom, with evidence-led checks and safe repair paths for rendering, sessions, audio and networking."
 lang: "en"
 alt_url: "/bn/docs/TROUBLESHOOTING.html"
 ---
 
 # Troubleshooting
 
-Every symptom below has been seen in the wild. The table maps
-symptom → likely cause → fix; the sections give the full picture.
+The table maps common symptoms to likely causes and checks. A symptom can have
+more than one cause, so collect the named evidence before applying a repair.
 
 | Symptom | Likely cause | Fix |
 |---|---|---|
-| Desktop dies silently, or `[Process completed (signal 9)]` | Android phantom process killer | [The desktop dies silently](#the-desktop-dies-silently) |
+| Desktop dies silently, or `[Process completed (signal 9)]` | Android process policy, memory pressure, or OEM battery management | [The desktop dies silently](#the-desktop-dies-silently) |
 | Black/empty Termux:X11 window | X11 app not opened, or stale socket | [Black screen in Termux:X11](#black-screen-in-termuxx11) |
 | `renderer string: llvmpipe` | Software fallback — GPU route not active | [Renderer says llvmpipe](#renderer-says-llvmpipe) |
 | No sound in the desktop | PulseAudio bridge not running | [No audio](#no-audio) |
 | No internet inside Debian | DNS not inherited over PRoot | [No network in the container](#no-network-in-the-container) |
 | `Waiting for Termux-X11 display socket…` forever | Display :0 never appeared | [Display never appears](#display-never-appears) |
 | `Error: unrecognized option: '-c'` when starting | Old launcher against newer proot-distro | [proot-distro says option -c is unrecognized](#proot-distro-says-option--c-is-unrecognized) |
-| `apt` install fails on some packages | Debian non-free not enabled | [apt failures](#apt-failures) |
+| `apt` install fails on some packages | package/repository mismatch for the Debian release | [apt failures](#apt-failures) |
 | `pkg upgrade` errors on `openssl.cnf`, then **every** install fails | dpkg conffile prompt with closed stdin | [openssl.cnf conffile cascade](#opensslcnf-conffile-cascade) |
 | `No command $ found` after pasting the install command | copied text included the display-only `$` prompt | [Pasted command starts with $](#pasted-command-starts-with) |
 | `curl: CANNOT LINK … SSL_set_quic_tls_transport_params` | partial upgrade — curl/libngtcp2 newer than openssl | [curl cannot link after an upgrade](#curl-cannot-link-after-an-upgrade) |
@@ -33,12 +33,16 @@ symptom → likely cause → fix; the sections give the full picture.
 with no error message. Termux may print
 `[Process completed (signal 9) - press Enter]`.
 
-**Cause:** Android 12+ enforces the **phantom process killer**: once ~32
-background child processes exist system-wide — or one process uses excessive
-CPU — Android silently SIGKILLs them. A PRoot desktop runs dozens of
-processes (Xfce4 + dbus + PulseAudio + proot), so it trips the limit easily.
+**Cause:** Android 12+ monitors and limits app-spawned child processes. A PRoot
+desktop can create many such processes (Xfce4, D-Bus, build workers and PRoot),
+so Android may terminate part of the session. Exact thresholds and settings vary
+by Android release and OEM; signal 9 can also come from memory pressure or vendor
+battery management.
 
-**Fix — pick the one that matches your Android version:**
+First set Termux and Termux:X11 battery use to **Unrestricted**, keep Termux in the
+foreground while testing, avoid extreme build parallelism, and retry after a
+cool reboot. If the termination persists and diagnostics point to child-process
+restrictions, use the control available on your Android release:
 
 - **Android 14+ (no PC needed):**
   Settings → About phone → tap *Build number* 7× → Developer options →
@@ -57,10 +61,11 @@ processes (Xfce4 + dbus + PulseAudio + proot), so it trips the limit easily.
   adb shell "/system/bin/device_config put activity_manager max_phantom_processes 2147483647"
   ```
 
-*Why this is a device-level trade-off:* the limit protects Android from
-runaway background apps generally. Disabling it is what the Termux community
-recommends for exactly this workload; most people notice no downside.
-`ternux doctor` re-checks this for you anytime.
+These controls are advanced, may be renamed/blocked by an OEM, and change a
+system-wide protection against runaway background work. Record the original
+setting, change only what your OS exposes, reboot, and reverse the change if it
+causes instability or abnormal battery drain. `ternux doctor` reports the
+settings it can read, but it cannot distinguish every OEM process killer.
 
 ---
 
@@ -84,8 +89,9 @@ killx
 x
 ```
 
-If it still fails, run `ternux repair` — it re-checks the display package,
-the launcher and the container core.
+If it still fails, run `ternux repair` — it checks the Termux-side display
+package and regenerates a missing, broken or backend-mismatched launcher. Then
+use `ternux verify` to inspect the Debian-side desktop prerequisites.
 
 ---
 
@@ -108,23 +114,31 @@ missing or was replaced:
 **Fix:**
 
 ```bash
-# 1. Re-run the GPU phase (re-resolves, re-downloads, re-verifies):
-ternux repair   # or: bash install.sh --resume
+# 1. Select the intended route. "auto" uses /dev/kgsl-3d0 detection.
+ternux backend set auto
+# or: ternux backend set zink    # Adreno with /dev/kgsl-3d0 only
+# or: ternux backend set virgl
 
-# 2. If on Zink, confirm the files exist and packages are held:
+# 2. Apply it. Repair restores missing validated Turnip targets when needed
+#    and regenerates a launcher that is missing, broken, or for another route.
+ternux repair
+
+# 3. If on Zink, inspect the installed targets and package holds:
 db
 ls -l /usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so
 sudo apt-mark showhold
 exit
 
-# 3. Restart the session and re-check:
-killx && x
-#    inside desktop:  glxinfo | grep "renderer string"
+# 4. Restart the session and re-check:
+ternux stop && ternux start
+#    inside desktop:  glxinfo -B
 ```
 
-If the download fails (GitHub unreachable from your network), fall back
-deliberately: `ternux backend set virgl` then `ternux repair` (or
-`bash install.sh --backend virgl --resume`).
+Do not use `bash install.sh --resume` to replace these artifacts: resume skips
+GPU and launcher phases already recorded as complete. If the validated Turnip
+download is unreachable or incompatible, fall back deliberately with
+`ternux backend set virgl && ternux repair`, then verify what VirGL actually
+provides on that device.
 
 ---
 
@@ -161,16 +175,34 @@ the container keeps a config pointing at a port nobody listens on.
 **Cause:** PRoot inherits the host's network but not always its resolver
 configuration — DNS is the usual casualty.
 
-**Fix inside the container:**
+First confirm the host can resolve names, then inspect the guest rather than
+immediately replacing its configuration:
 
 ```bash
+# Termux host
+getent hosts deb.debian.org
+getprop | grep -i '\[net\..*dns'
+
+# Debian guest
 db
-echo "nameserver 1.1.1.1" | sudo tee /etc/resolv.conf >/dev/null
+cat /etc/resolv.conf
+getent hosts deb.debian.org
+```
+
+If Android resolves names but the guest file is empty or invalid, stop and
+restart the PRoot session first. As a temporary diagnostic only, set
+`DNS_SERVER` to a resolver you trust (for example, one supplied by your
+router/provider) and retry:
+
+```bash
+DNS_SERVER='REPLACE_WITH_A_TRUSTED_IP'
+printf 'nameserver %s\n' "$DNS_SERVER" | sudo tee /etc/resolv.conf
+getent hosts deb.debian.org
 sudo apt update
 ```
 
-If you prefer DHCP/Android's resolver, use your router's IP
-(usually `192.168.0.1` / `192.168.1.1`) instead of `1.1.1.1`.
+The file may later be regenerated. A public resolver changes who receives
+your DNS queries, so ternux does not silently force one.
 
 ---
 
@@ -187,11 +219,12 @@ by Android.
 
 1. Open the Termux:X11 app, let it sit for a second, switch back to Termux.
 2. `killx && x`
-3. Still stuck? Reinstall the display package:
-   `pkg reinstall termux-x11 -y`
+3. Still stuck? Reinstall the maintained Termux-side package:
+   `pkg install x11-repo -y && pkg reinstall termux-x11-nightly -y`
 
 ---
 
+<a id="proot-distro-says-option--c-is-unrecognized"></a>
 ## proot-distro says option -c is unrecognized
 
 **Symptom:** running `x` prints `Error: unrecognized option: '-c'.` followed
@@ -205,20 +238,16 @@ without that `--`, so proot-distro tries to read `-c` as its own flag.
 **Fix — regenerate the launcher with the current, fixed installer:**
 
 ```bash
-# If the `ternux` CLI is installed, regenerate the launcher:
-ternux repair        # re-writes ~/x.sh with the correct command
-# or re-run the installer's launcher phase:
-bash install.sh --resume
+# Regenerate the launcher with the persisted user, locale and backend:
+ternux repair
 ```
 
-If you only want to patch the existing file quickly:
+`bash install.sh --resume` is not a launcher replacement mechanism when the
+launcher phase is already recorded as complete.
 
-```bash
-sed -i "s/^  bash -c '/  -- bash -c '/" ~/x.sh
-bash -n ~/x.sh && echo "launcher OK"
-```
-
-Then start the desktop again:
+Do not patch only the visible `-c`: current launchers also repeat each
+`proot-distro --env VAR=VALUE` argument correctly. Regenerate the complete file,
+then start the desktop again:
 
 ```bash
 x
@@ -226,6 +255,7 @@ x
 
 ---
 
+<a id="pasted-command-starts-with"></a>
 ## Pasted command starts with $
 
 **Symptom:** you paste the install command and the shell answers
@@ -277,6 +307,7 @@ Option B alone is enough to get going.
 
 ---
 
+<a id="opensslcnf-conffile-cascade"></a>
 ## openssl.cnf conffile cascade
 
 **Symptom:** during `pkg upgrade` (or a piped install) you see
@@ -299,8 +330,11 @@ dpkg --configure -a --force-confold --force-confdef
 # 2. Verify it is clean (should print nothing):
 dpkg --configure -a --force-confold --force-confdef
 
-# 3. Resume the installer:
-ternux repair   # or: bash install.sh --resume
+# 3. Continue the interrupted installer; recorded successful phases are skipped:
+bash install.sh --resume
+
+# For an installation that had already completed, repair managed artifacts instead:
+ternux repair
 ```
 
 *Why this happens at all:* Android shells are often piped/non-interactive, so
@@ -313,21 +347,28 @@ manual installs or older versions.
 
 ## apt failures
 
-**Symptom:** `apt install` fails on `rar`, `p7zip-rar`, `policykit-1` or a
-whole group of packages.
+**Symptom:** an `apt install` group fails because one package name is missing
+or unavailable for the guest's Debian release.
 
-**Cause:** those packages live in Debian's **non-free** component, which the
-default PRoot Debian rootfs does not enable. `polkitd` vs `policykit-1` is a
-naming difference between Debian releases.
+**Cause:** package names and repository components change across Debian
+releases. Adding a component to `/etc/apt/sources.list` with a blind `sed` is
+also unreliable on systems that use deb822 `.sources` files.
 
-**Fix:** the ternux installer already treats these as best-effort. If *you*
-need them:
+**Fix:** identify the package that actually failed, inspect policy, and install
+the maintained base alternatives used by ternux:
 
 ```bash
 db
-sudo sed -i 's/ main$/ main contrib non-free non-free-firmware/' /etc/apt/sources.list
-sudo apt update && sudo apt install -y rar unrar p7zip-full
+. /etc/os-release; printf '%s %s\n' "$ID" "$VERSION_CODENAME"
+sudo apt update
+apt-cache policy unrar-free 7zip polkitd
+sudo apt install -y unrar-free 7zip polkitd
 ```
+
+If a separate application specifically requires non-free software, review the
+guest's files under `/etc/apt/sources.list*` and Debian's repository guidance
+for that exact release before changing components. Do not replace sources just
+to make an obsolete package name resolve.
 
 ---
 
@@ -349,10 +390,9 @@ follow the unhold → upgrade → rehold → verify sequence in
 ## Nuclear option: clean reinstall
 
 ```bash
-ternux uninstall                 # choose 4: delete the container
-# or: bash install.sh --uninstall
-rm -f ~/x.sh ~/.ternux-state
-bash install.sh                  # fresh install
+ternux uninstall all             # review and confirm irreversible deletion
+# or interactively: ternux uninstall, then choose 5
+bash install.sh                  # fresh install from a reviewed checkout
 ```
 
 Deleting the container destroys **all data inside it** — pull anything
@@ -369,7 +409,7 @@ read-only evidence — never paste licence keys, tokens, or private files:
 uname -m
 getprop ro.product.manufacturer; getprop ro.product.model
 getprop ro.build.version.release
-ternux doctor --json           # AI-readable diagnostics
+ternux doctor --json           # machine-readable diagnostics
 ternux info --json             # full device profile
 db -c 'glxinfo | grep "renderer string"; vulkaninfo --summary | grep -i driverName'
 ```

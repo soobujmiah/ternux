@@ -39,7 +39,7 @@ _ternux_completions() {
       if [ "$COMP_CWORD" -eq 2 ]; then
         COMPREPLY=($(compgen -W "show set detect --json --help" -- "$cur"))
       elif [ "$COMP_CWORD" -eq 3 ] && [ "${COMP_WORDS[2]}" = "set" ]; then
-        COMPREPLY=($(compgen -W "auto zink zink-turnip virgl" -- "$cur"))
+        COMPREPLY=($(compgen -W "auto zink virgl" -- "$cur"))
       fi
       ;;
     logs)

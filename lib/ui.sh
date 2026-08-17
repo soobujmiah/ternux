@@ -32,7 +32,7 @@ tnx_banner() {
   [ "${TERNUX_QUIET:-0}" = "1" ] && return 0
   if [ ! -t 1 ] || [ -z "$TNX_C0" ]; then
     # Plain text fallback
-    echo "ternux v${TERNUX_VERSION} — GPU-accelerated Linux desktop for Android"
+    echo "ternux v${TERNUX_VERSION} — Linux desktop for Android with Zink and VirGL graphics routes"
     echo "${TERNUX_REPO}"
     echo ""
     return 0
@@ -66,7 +66,7 @@ tnx_banner() {
   sleep 0.05
 
   # Tagline
-  printf "  ${TNX_CG}GPU-accelerated Linux desktop for Android${TNX_C0}\n"
+  printf "  ${TNX_CG}Linux desktop for Android with Zink and VirGL graphics routes${TNX_C0}\n"
 
   # Animated signature line
   local t2=0

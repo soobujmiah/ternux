@@ -1,6 +1,6 @@
 ---
 title: "CLI রেফারেন্স"
-description: "ternux কমান্ড-লাইন ইন্টারফেসের সম্পূর্ণ রেফারেন্স — প্রতিটি কমান্ড, সাবকমান্ড, ফ্ল্যাগ ও JSON আউটপুট স্কিমা।"
+description: "ternux কমান্ড-লাইন ইন্টারফেসের রেফারেন্স — command, subcommand, global flag ও নথিভুক্ত JSON output।"
 lang: "bn"
 alt_url: "/docs/CLI.html"
 ---
@@ -21,10 +21,20 @@ ternux <command> [options] [subcommand]
 | ফ্ল্যাগ | বিবরণ |
 |---------|--------|
 | `--help`, `-h` | যেকোনো কমান্ডের জন্য সাহায্য |
-| `--json` | মেশিন-পাঠযোগ্য JSON আউটপুট (AI-নেটিভ) |
+| `--json` | structured output অনুরোধ; নিচে JSON-সহ নথিভুক্ত command-ই schema নিশ্চিত করে |
 | `--verbose` | বিস্তারিত আউটপুট |
 | `--quiet` | অ-গুরুত্বপূর্ণ বার্তা বন্ধ |
 | `--version`, `-V` | ভার্সন তথ্য |
+
+Dispatcher command load করার আগে global flag চিনে, তাই command-এর আগে বা পরে
+দেওয়া যায়। কিন্তু সব command JSON schema দেয় না। `install`, live `logs tail`
+বা `uninstall`-এ `--json` দিয়ে structured output আশা করবেন না; নিচে JSON
+উদাহরণ আছে এমন command-এই ব্যবহার করুন। ওই path-গুলোর stdout একটি parseable
+JSON object, এবং backend value canonical `zink` বা `virgl`; পুরোনো
+`zink-turnip` শুধু compatibility input/state হিসেবে accepted। Shared
+dispatch/environment failure-এ `command: "error"`, `status: "fatal"` ও
+`message` থাকে; unknown command-এ `requested_command`-ও থাকে। `lib/core.sh`
+load হওয়ার আগের failure JSON বানাতে পারে না, তাই সেটি plain stderr।
 
 ## কমান্ডসমূহ
 
@@ -49,7 +59,7 @@ ternux install [options]
 | `--with-media` | মিডিয়া টুলস ইনস্টল |
 | `--with-blender` | Blender ইনস্টল |
 | `--all` | সব ঐচ্ছিক ওয়ার্কলোড |
-| `--resume` | বিঘ্নিত ইনস্টল চালিয়ে যান |
+| `--resume` | interrupted install-এ শুধু recorded-successful phase skip |
 
 ### `ternux start`
 
@@ -85,7 +95,19 @@ ternux doctor [--json]
 
 ### `ternux repair`
 
-সাধারণ সমস্যা অটো-ফিক্স করে।
+ছয় ধাপে common issue inspect/repair করে:
+
+1. broken curl/OpenSSL host toolchain;
+2. missing `termux-x11-nightly`;
+3. configured backend apply, stored SHA-256 অনুযায়ী missing/changed Turnip
+   target reinstall, এবং launcher backend alignment;
+4. missing বা syntax-broken launcher regeneration;
+5. populated Mesa shader cache clear;
+6. missing PulseAudio TCP bridge add।
+
+Healthy check repair count-এ যোগ হয় না। যেকোনো step fail হলে অন্য step চলতে
+পারে, কিন্তু শেষ status non-zero হয়। Backend/launcher repair-এর পর desktop
+restart করে renderer আবার verify করুন।
 
 ```bash
 ternux repair
@@ -93,7 +115,8 @@ ternux repair
 
 ### `ternux verify`
 
-ইনস্টলেশন সম্পূর্ণতা যাচাই করে।
+ইনস্টলেশন সম্পূর্ণতা যাচাই করে। যাচাই ব্যর্থ হলে human এবং `--json`—দুই
+mode-এই nonzero exit status দেয়।
 
 ```bash
 ternux verify [--json]
@@ -101,7 +124,10 @@ ternux verify [--json]
 
 ### `ternux benchmark`
 
-GPU বেঞ্চমার্ক চালায় (glmark2, vkmark)।
+Active desktop-এ Debian container-এর ভেতর glmark2/vkmark health benchmark এবং
+renderer inspection চালায়। Renderer classification `llvmpipe`, Zink/Turnip,
+plain Zink, বা VirGL/virpipe route আলাদা করে; শুধু VirGL নাম hardware-backed
+route প্রমাণ করে না। এটি archived evidence run-এর identical protocol নয়।
 
 ```bash
 ternux benchmark [--json]
@@ -183,11 +209,24 @@ ternux update [check]
 
 ### `ternux uninstall`
 
-ternux কম্পোনেন্ট অপসারণ (ইন্টারঅ্যাক্টিভ)।
+Scoped component removal। Action না দিলে interactive menu; non-interactive
+shell-এ action অবশ্যই explicit দিন।
 
 ```bash
-ternux uninstall
+ternux uninstall [session|launcher|state|container|all] [--yes]
 ```
+
+- `session` / `1` — desktop service stop ও stale socket cleanup
+- `launcher` / `2` — `~/x.sh` এবং delimited shell-alias block remove
+- `state` / `3` — ternux state/log remove; Debian অক্ষত
+- `container` / `4` — Debian ও তার ভেতরের সব data delete
+- `all` / `5` — উপরের চারটি action
+- `0` — cancel
+
+`all` Termux package বা ternux CLI/library uninstall, storage access revoke,
+mirror reset বা Termux PulseAudio configuration revert করে না। Container deletion
+confirmation চায়। Automation-এ irreversible data loss ইচ্ছাকৃতভাবে accept
+করলেই শুধু `--yes` দিন।
 
 ## শেল কমপ্লিশন
 
@@ -200,7 +239,7 @@ source share/ternux-completion.bash
 ## আর্কিটেকচার
 
 ```
-bin/ternux          ← থিন ডিসপ্যাচার (৮২ লাইন)
+bin/ternux          ← thin command/flag dispatcher
 lib/core.sh         ← শেয়ার্ড I/O, JSON বিল্ডার, স্টেট, লগিং
 lib/help.sh         ← সেন্ট্রালাইজড হেল্প
 lib/detect.sh       ← ডিভাইস ডিটেকশন
@@ -209,12 +248,13 @@ lib/doctor.sh       ← ডায়াগনস্টিক + ভেরিফ�
 lib/info.sh         ← সিস্টেম তথ্য
 lib/backend.sh      ← GPU ব্যাকএন্ড
 lib/profile.sh      ← ডিভাইস প্রোফাইলিং
-lib/benchmark.sh    ← GPU বেঞ্চমার্ক
-lib/repair.sh       ← অটো-ফিক্স
+lib/benchmark.sh    ← GPU benchmark ও renderer classification
+lib/repair.sh       ← validated phase দিয়ে repair engine
 lib/logs.sh         ← লগ ব্যবস্থাপনা
 lib/update.sh       ← সেলফ-আপডেট
-lib/state.sh        ← ইনস্টলেশন স্টেট
-lib/phases.sh       ← ইনস্টলেশন ফেজ (৯টি যাচাইকৃত ধাপ)
+lib/state.sh        ← installation state
+lib/uninstall.sh    ← scoped, confirmed component removal
+lib/phases.sh       ← ইনস্টলেশন implementation (১১টি ধাপ)
 ```
 
 নতুন কমান্ড যোগ করা:

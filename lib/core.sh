@@ -9,7 +9,7 @@
 
 TERNUX_VERSION="1.3.0"
 TERNUX_NAME="ternux"
-TERNUX_DESC="GPU-accelerated Linux desktop for Android"
+TERNUX_DESC="Linux desktop for Android with Zink and VirGL graphics routes"
 TERNUX_REPO="https://github.com/soobujmiah/ternux"
 TERNUX_STATE_DIR="${TERNUX_STATE_DIR:-$HOME/.local/share/ternux}"
 TERNUX_LOG_DIR="${TERNUX_LOG_DIR:-${TMPDIR:-/data/data/com.termux/files/usr/tmp}/ternux}"
@@ -37,10 +37,10 @@ fi
 # ---------------------------------------------------------------------------
 # I/O: info, ok, warn, fail, die, step, progress
 # ---------------------------------------------------------------------------
-tnx_info() { [ "${TERNUX_QUIET:-0}" != "1" ] && printf "${TNX_CB}[INFO]${TNX_C0}  %s\n" "$1"; }
-tnx_ok()   { [ "${TERNUX_QUIET:-0}" != "1" ] && printf "${TNX_CG}[ OK ]${TNX_C0}  %s\n" "$1"; }
-tnx_warn() { [ "${TERNUX_QUIET:-0}" != "1" ] && printf "${TNX_CY}[WARN]${TNX_C0}  %s\n" "$1"; }
-tnx_fail() { [ "${TERNUX_QUIET:-0}" != "1" ] && printf "${TNX_CR}[FAIL]${TNX_C0}  %s\n" "$1"; }
+tnx_info() { [ "${TERNUX_QUIET:-0}" != "1" ] && [ "${TERNUX_JSON:-0}" != "1" ] && printf "${TNX_CB}[INFO]${TNX_C0}  %s\n" "$1"; }
+tnx_ok()   { [ "${TERNUX_QUIET:-0}" != "1" ] && [ "${TERNUX_JSON:-0}" != "1" ] && printf "${TNX_CG}[ OK ]${TNX_C0}  %s\n" "$1"; }
+tnx_warn() { [ "${TERNUX_QUIET:-0}" != "1" ] && [ "${TERNUX_JSON:-0}" != "1" ] && printf "${TNX_CY}[WARN]${TNX_C0}  %s\n" "$1"; }
+tnx_fail() { [ "${TERNUX_QUIET:-0}" != "1" ] && [ "${TERNUX_JSON:-0}" != "1" ] && printf "${TNX_CR}[FAIL]${TNX_C0}  %s\n" "$1"; }
 tnx_die()  {
   tnx_fail "$1"
   if [ "${TERNUX_JSON:-0}" = "1" ]; then
@@ -48,12 +48,12 @@ tnx_die()  {
   fi
   exit "${2:-1}"
 }
-tnx_step() { printf "\n${TNX_CM}==>${TNX_C0} ${TNX_CW}%s${TNX_C0}\n" "$1"; }
-tnx_debug(){ [ "${TERNUX_VERBOSE:-0}" = "1" ] && printf "${TNX_CD}[DEBUG]${TNX_C0} %s\n" "$1"; }
-tnx_header(){ [ "${TERNUX_QUIET:-0}" != "1" ] && printf "\n${TNX_CD}━━━ %s ━━━${TNX_C0}\n" "$1"; }
+tnx_step() { [ "${TERNUX_JSON:-0}" != "1" ] && printf "\n${TNX_CM}==>${TNX_C0} ${TNX_CW}%s${TNX_C0}\n" "$1"; }
+tnx_debug(){ [ "${TERNUX_VERBOSE:-0}" = "1" ] && [ "${TERNUX_JSON:-0}" != "1" ] && printf "${TNX_CD}[DEBUG]${TNX_C0} %s\n" "$1"; }
+tnx_header(){ [ "${TERNUX_QUIET:-0}" != "1" ] && [ "${TERNUX_JSON:-0}" != "1" ] && printf "\n${TNX_CD}━━━ %s ━━━${TNX_C0}\n" "$1"; }
 
 # ---------------------------------------------------------------------------
-# JSON output builder — assemble an AI-native JSON record
+# JSON output builder — assemble a machine-readable JSON record
 # ---------------------------------------------------------------------------
 # Usage: tnx_json_start; tnx_json_add "key" "val"; tnx_json_end
 #        tnx_json_object <cmd> <status> <extra_keyvals...>
@@ -88,11 +88,16 @@ tnx_json_add_raw() {
 
 tnx_json_add_array() {
   local key="$1"; shift
-  local items="["
+  local items="[" item escaped
   local first=1
   for item in "$@"; do
+    escaped="${item//\\/\\\\}"
+    escaped="${escaped//\"/\\\"}"
+    escaped="${escaped//$'\n'/\\n}"
+    escaped="${escaped//$'\t'/\\t}"
+    escaped="${escaped//$'\r'/\\r}"
     [ "$first" -eq 0 ] && items+=","
-    items+="\"${item//\"/\\\"}\""
+    items+="\"${escaped}\""
     first=0
   done
   items+="]"
@@ -141,10 +146,19 @@ tnx_require_termux() {
     tnx_json_object "error" "fatal" "message" "Not running in Termux environment"
     exit 1
   fi
-  tnx_die "This does not look like a Termux environment.\nInstall Termux from F-Droid or GitHub releases, then run this inside Termux.\nThe Play Store build is unsupported." 1
+  tnx_die "This does not look like a Termux environment.\nInstall the main Termux release from F-Droid or GitHub, then run this inside Termux.\nKeep Termux and plugins from one source; the Google Play line is separate and experimental." 1
 }
 
 tnx_has_cmd() { command -v "$1" >/dev/null 2>&1; }
+
+# Preserve compatibility with state written before the backend names were
+# simplified, but never expose or persist the legacy spelling in new output.
+tnx_canonical_backend() {
+  case "${1:-}" in
+    zink-turnip) printf '%s' "zink" ;;
+    *) printf '%s' "${1:-}" ;;
+  esac
+}
 
 # ---------------------------------------------------------------------------
 # Download helper with fallback
@@ -173,8 +187,10 @@ tnx_state_init() {
 }
 
 tnx_state_get() {
-  local key="$1"
-  [ -f "$TERNUX_STATE_DIR/state" ] && grep -s "^${key}=" "$TERNUX_STATE_DIR/state" | cut -d= -f2-
+  local key="$1" line=""
+  [ -f "$TERNUX_STATE_DIR/state" ] || return 1
+  line="$(grep -sm1 "^${key}=" "$TERNUX_STATE_DIR/state")" || return 1
+  printf '%s\n' "${line#*=}"
 }
 
 tnx_state_set() {
@@ -231,3 +247,11 @@ tnx_confirm() {
 # Initialise environment on source
 # ---------------------------------------------------------------------------
 tnx_state_init
+
+# Persist the Debian account selected by `--user` so every later CLI command
+# (doctor, verify, benchmark, repair) targets the same account.
+if [ -z "${TERNUX_USER:-}" ]; then
+  TERNUX_USER="$(tnx_state_get "user" 2>/dev/null || true)"
+fi
+TERNUX_USER="${TERNUX_USER:-ternux}"
+export TERNUX_USER

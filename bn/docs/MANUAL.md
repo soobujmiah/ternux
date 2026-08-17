@@ -14,18 +14,21 @@ alt_url: "/docs/MANUAL.html"
 চান, তাদের জন্য। প্রতিটি ব্লক Termux-এ চালান, যতক্ষণ না ধাপে বলা হয় ভিন্ন
 কোথাও।
 
-**মাঝপথে কোনো ধাপ ব্যর্থ হলে:** নিচের প্রতিটি ধাপ স্বাধীন ও বারবার চালানো
-নিরাপদ। হাতে করলে কোনো ধাপ স্বয়ংক্রিয়ভাবে বাদ পড়ে না — এটাই হাতে করার
-উদ্দেশ্য — তবে কোনো ধাপ দুবার চালালে কিছুই ভাঙে না।
+**মাঝপথে কোনো ধাপ ব্যর্থ হলে:** থামুন, কারণ নির্ণয় করুন, তারপর এগোন।
+প্রতিটি block আবার চালানোর আগে পড়ুন: যেখানে সম্ভব guard/check দেওয়া হয়েছে,
+কিন্তু manual package, user ও file operation সর্বজনীনভাবে idempotent নয়। এই
+guide-এ `ternux` Debian account ধরা হয়েছে; অন্য বৈধ lowercase নাম নিলে পরের
+সব literal `ternux` একই নামে বদলান।
 
 ---
 
 ## ধাপ ১ — দুটি অ্যাপ ইনস্টল করুন
 
 - **Termux** — [GitHub releases](https://github.com/termux/termux-app/releases)
-  বা [F-Droid](https://f-droid.org/en/packages/com.termux/) থেকে।
-  *কেন Play Store নয়?* সেই বিল্ডটি পরিত্যক্ত; এর প্যাকেজ রিপোজিটরি মৃত,
-  তাই `pkg install` সবকিছুতে ব্যর্থ হয়।
+  বা [F-Droid](https://f-droid.org/en/packages/com.termux/) থেকে। Google Play
+  build আলাদা পরীক্ষামূলক Android 11+ line, যেখানে feature/bug-এর পার্থক্য
+  আছে; এই guide মূল F-Droid/GitHub release line ধরে। Termux:API ও অন্য plugin
+  **Termux-এর একই source** থেকে নিন, যাতে signing key মেলে।
 - **Termux:X11** — [GitHub releases](https://github.com/termux/termux-x11/releases)
   থেকে। **একবার** খুলুন, তারপর রেখে দিন — প্রথম লঞ্চের পরই Android ডিসপ্লে
   সার্ভিসের অনুমতি দেয়।
@@ -83,9 +86,9 @@ command -v proot-distro && command -v termux-x11 && command -v pulseaudio
 proot-distro install debian
 ```
 
-*কেন PRoot?* এটি ইউজারস্পেসে রুট-সদৃশ Debian ইউজারল্যান্ড দেয় — বুটলোডার
-আনলক নেই, root নেই, Android-এর জন্য ঝুঁকি নেই। "কন্টেইনার" আসলে Termux-এর
-স্টোরেজের একটি ফোল্ডার।
+*কেন PRoot?* এটি userspace-এ root-like Debian userland দেয়—bootloader
+unlock বা Android root লাগে না। তবে PRoot security boundary নয়; Termux-accessible
+বা explicitly bound path reachable থাকে। Destructive কাজের আগে backup নিন।
 
 ---
 
@@ -129,8 +132,9 @@ proot-distro login debian
 ```bash
 USER_NAME=ternux
 
-# ইউজার তৈরি (প্রম্পট এড়িয়ে — ডেস্কটপে পাসওয়ার্ড লাগে না)।
-adduser --disabled-password --gecos "" "$USER_NAME"
+# ইউজার অনুপস্থিত থাকলে তৈরি করুন (ডেস্কটপ অ্যাকাউন্টে লগইন পাসওয়ার্ড লাগে না)।
+id -u "$USER_NAME" >/dev/null 2>&1 \
+  || adduser --disabled-password --gecos "" "$USER_NAME"
 
 # গ্রাফিক্স ও অডিও গ্রুপ।
 usermod -aG sudo "$USER_NAME"
@@ -139,8 +143,8 @@ usermod -aG render "$USER_NAME"
 usermod -aG audio "$USER_NAME"
 
 # যাচাইকৃত ড্রপ-ইন ফাইলে পাসওয়ার্ডবিহীন sudo। /etc/sudoers-এ সরাসরি জুড়বেন
-# না: একটি টাইপোই sudo চিরতরে লক করতে পারে — এমন কন্টেইনারে যার রুটে যাওয়ার
-# আর কোনো পথ নেই।
+# না: একটি টাইপো এই অ্যাকাউন্টের sudo ভেঙে দিতে পারে। PRoot Distro দিয়ে
+# guest-root recovery shell খোলা যায়; সেটি Android root নয়।
 TMP_SUDOERS="$(mktemp)"
 printf '%s ALL=(ALL) NOPASSWD: ALL\n' "$USER_NAME" > "$TMP_SUDOERS"
 visudo -cf "$TMP_SUDOERS" \
@@ -172,46 +176,71 @@ ls -l /dev/kgsl-3d0
 
 ### ৬ক — Zink + Turnip (Adreno)
 
-[lhfdevs/mesa-for-android-container → Releases](https://github.com/lfdevs/mesa-for-android-container/releases/latest)
-থেকে Debian/arm64 ড্রাইভার অ্যাসেট নামান। রিলিজ পাতায় সেই অ্যাসেটের URL
-কপি করুন যার নামে `debian` ও `arm64.tar.gz` আছে — Fedora বা Alpine টারবল
-কখনোই নয়।
+[lfdevs/mesa-for-android-container → Releases](https://github.com/lfdevs/mesa-for-android-container/releases/latest)
+থেকে বর্তমান **Debian Trixie ARM64** asset resolve করুন। Fedora, Ubuntu,
+Alpine বা Arch archive বদলি করবেন না। আগে guest distribution মিলিয়ে নিন:
 
 ```bash
-cd ~
-curl -fLO "https://github.com/lfdevs/mesa-for-android-container/releases/latest/download/<ASSET-NAME>.tar.gz"
+proot-distro login debian -- bash -c '. /etc/os-release; echo "$VERSION_CODENAME"'
+# এই documented asset route-এ প্রত্যাশিত ফল: trixie
 ```
 
-আপগ্রেডের পর curl লিংক না হলে wget দিয়েও একই কাজ:
+`trixie` না এলে থামুন; অন্য distribution-এর Mesa file overwrite করবেন না।
 
 ```bash
-wget -q "https://github.com/lfdevs/mesa-for-android-container/releases/latest/download/<ASSET-NAME>.tar.gz"
+DRIVER_API=https://api.github.com/repos/lfdevs/mesa-for-android-container/releases/latest
+DRIVER_TARBALL="$TMPDIR/mesa-freedreno.tar.gz"
+
+DRIVER_URL="$(curl -fsSL "$DRIVER_API" \
+  | grep -o '"browser_download_url": *"[^"]*debian[^"]*trixie[^"]*arm64\.tar\.gz"' \
+  | head -n 1 \
+  | sed 's/.*"browser_download_url": *"//; s/"$//')"
+
+[ -n "$DRIVER_URL" ] || { echo "No Debian Trixie ARM64 release asset found"; exit 1; }
+printf 'Resolved: %s\n' "$DRIVER_URL"
+curl -fL --retry 3 "$DRIVER_URL" -o "$DRIVER_TARBALL"
 ```
 
-> চাইলে API দিয়েও রিজলভ করা যায়:
-> `curl -fsSL https://api.github.com/repos/lfdevs/mesa-for-android-container/releases/latest`
-> — সেখানে `debian…arm64.tar.gz` `browser_download_url` খুঁজুন।
-
-এক্সট্র্যাক্টের আগে যাচাই করুন — অর্ধেক ডাউনলোড বা HTML এরর পেজ রুট হিসেবে
-আনপ্যাক করা চলবে না:
+Partial upgrade-এর পরে curl link না হলে শেষ line-এর বদলে চালান:
 
 ```bash
-# ১. এটি সত্যিকারের gzip টারবল হতে হবে:
-tar -tzf mesa-freedreno.tar.gz >/dev/null && echo "valid tarball"
-
-# ২. কোনো অ্যাবসোলিউট পাথ বা পাথ-ট্রাভার্সাল নয়:
-tar -tzf mesa-freedreno.tar.gz | grep -E '^/|(^|/)\.\.(/|$)' && echo "UNSAFE - STOP" || echo "paths ok"
-
-# ৩. কোনো লিংক বা স্পেশাল ফাইল নয় (প্রথম কলাম - বা d হতে হবে):
-tar -tvzf mesa-freedreno.tar.gz | awk '{t=substr($1,1,1); if (t!="-" && t!="d") exit 1}' && echo "entries ok"
-
-# ৪. নিজের রেকর্ডের জন্য SHA-256 লিখে রাখুন:
-sha256sum mesa-freedreno.tar.gz
+wget -O "$DRIVER_TARBALL" "$DRIVER_URL"
 ```
 
-ternux-এর দরকারি **শুধু দুটি ফাইল** এক্সট্র্যাক্ট করুন — Turnip ড্রাইভার ও
-তার ICD ম্যানিফেস্ট — তারপর ইনস্টল করে Mesa হোল্ড করুন, যাতে সাধারণ `apt
-upgrade` নিঃশব্দে GPU পথ বদলে দিতে না পারে:
+Extract করার আগে validate করুন—truncated download বা HTML error page root
+হিসেবে unpack করা যাবে না:
+
+```bash
+# ১. আসল gzip tarball:
+tar -tzf "$DRIVER_TARBALL" >/dev/null && echo "valid tarball"
+
+# ২. absolute path বা path traversal নয়:
+tar -tzf "$DRIVER_TARBALL" \
+  | grep -E '^/|(^|/)\.\.(/|$)' \
+  && { echo "UNSAFE - STOP"; exit 1; } \
+  || echo "paths ok"
+
+# ৩. যে target দুটি extract হবে, প্রতিটি ঠিক একবার regular file হতে হবে।
+#    অন্য Mesa member বৈধ symlink হতে পারে; সেগুলো extract হবে না।
+tar -tvzf "$DRIVER_TARBALL" | awk '
+  /\/usr\/lib\/aarch64-linux-gnu\/libvulkan_freedreno[.]so$/ {
+    if (substr($1,1,1) != "-") bad=1
+    driver++
+  }
+  /\/usr\/share\/vulkan\/icd[.]d\/freedreno_icd[.]aarch64[.]json$/ {
+    if (substr($1,1,1) != "-") bad=1
+    icd++
+  }
+  END { if (bad || driver != 1 || icd != 1) exit 1 }
+' && echo "one regular driver and one regular ICD found" \
+  || { echo "unexpected archive layout"; exit 1; }
+
+# ৪. troubleshooting/reproduction record:
+sha256sum "$DRIVER_TARBALL"
+```
+
+ternux-এর দরকারি **শুধু দুটি file**—Turnip driver ও ICD manifest—staging
+folder-এ extract করুন, তারপর mode-সহ install ও Mesa package hold করুন:
 
 ```bash
 proot-distro login debian --shared-tmp
@@ -225,33 +254,34 @@ trap 'rm -rf "$stage"' EXIT
 
 tar -xzf /tmp/mesa-freedreno.tar.gz -C "$stage" \
   --wildcards "*/usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so" \
-               "*/usr/share/vulkan/icd.d/freedreno_icd.aarch64.json"
+              "*/usr/share/vulkan/icd.d/freedreno_icd.aarch64.json"
 
-base="$(find "$stage" -mindepth 1 -maxdepth 1 -type d | head -n1)"
-[ -f "$base/usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so" ] \
-  || { echo "driver missing from archive"; exit 1; }
+driver="$(find "$stage" -type f \
+  -path '*/usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so' -print -quit)"
+icd="$(find "$stage" -type f \
+  -path '*/usr/share/vulkan/icd.d/freedreno_icd.aarch64.json' -print -quit)"
+[ -n "$driver" ] && [ -n "$icd" ] \
+  || { echo "Turnip target files missing after staged extraction"; exit 1; }
 
-cp -a "$base/usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so" \
-      /usr/lib/aarch64-linux-gnu/
+install -m 0755 "$driver" /usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so
 mkdir -p /usr/share/vulkan/icd.d
-cp -a "$base/usr/share/vulkan/icd.d/freedreno_icd.aarch64.json" \
-      /usr/share/vulkan/icd.d/
+install -m 0644 "$icd" \
+  /usr/share/vulkan/icd.d/freedreno_icd.aarch64.json
 ldconfig
 
-# Mesa পিন করুন: "রেন্ডারার llvmpipe-তে ফিরে গেল" সমস্যার এক নম্বর কারণ আপগ্রেড।
 apt-mark hold mesa-vulkan-drivers libgl1-mesa-dri libglx-mesa0 \
              libgbm1 libegl-mesa0
 
 exit
 ```
 
-ফাইল সত্যিই বসেছে কিনা নিশ্চিত হোন:
+Target ও hold যাচাই করুন:
 
 ```bash
 proot-distro login debian -- bash -c '
   test -f /usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so &&
   test -f /usr/share/vulkan/icd.d/freedreno_icd.aarch64.json &&
-  echo "Turnip installed"'
+  apt-mark showhold && echo "Turnip targets installed"'
 ```
 
 ### ৬খ — VirGL (অন্যান্য GPU)
@@ -271,15 +301,42 @@ command -v virgl_test_server_android && echo "VirGL ready"
 PulseAudio-র কনফিগে লুপব্যাক-শুধু TCP ব্রিজ জুড়ে দিন:
 
 ```bash
-cat >> "$PREFIX/etc/pulse/default.pa" << 'EOF'
-load-module module-native-protocol-tcp auth-ip-acl=127.0.0.1 auth-anonymous=1 port=4713
-load-module module-opensles-sink sink_name=Speaker
-set-default-sink Speaker
-EOF
+PA_CONF="$PREFIX/etc/pulse/default.pa"
+OLD='load-module module-native-protocol-tcp auth-ip-acl=127.0.0.1 auth-anonymous=1 port=4713'
+NEW='load-module module-native-protocol-tcp listen=127.0.0.1 auth-ip-acl=127.0.0.1 auth-anonymous=1 port=4713'
+SINK='load-module module-opensles-sink sink_name=Speaker'
+DEFAULT='set-default-sink Speaker'
+mkdir -p "$(dirname "$PA_CONF")"
+if [ -L "$PA_CONF" ] || { [ -e "$PA_CONF" ] && [ ! -f "$PA_CONF" ]; }; then
+  echo "PulseAudio config path is not a regular, non-symlink file: $PA_CONF" >&2
+  false
+else
+  INPUT=/dev/null
+  [ ! -f "$PA_CONF" ] || INPUT="$PA_CONF"
+  if grep -E '^[[:space:]]*load-module[[:space:]]+module-native-protocol-tcp([[:space:]]|$)' "$INPUT" \
+     | grep -Fvx -e "$OLD" -e "$NEW" | grep -q .; then
+    echo "Custom PulseAudio TCP module আছে; overwrite না করে review করুন।" >&2
+    false
+  elif TMP="$(mktemp "${PA_CONF}.ternux.XXXXXX")"; then
+    awk -v old="$OLD" -v new="$NEW" '
+      $0 == old || $0 == new { if (!seen) print new; seen=1; next }
+      { print }
+      END { if (!seen) print new }
+    ' "$INPUT" > "$TMP" &&
+    { grep -qxF "$SINK" "$TMP" || printf '%s\n' "$SINK" >> "$TMP"; } &&
+    { grep -qxF "$DEFAULT" "$TMP" || printf '%s\n' "$DEFAULT" >> "$TMP"; } &&
+    { [ ! -f "$PA_CONF" ] || chmod --reference="$PA_CONF" "$TMP" 2>/dev/null || true; } &&
+    mv -f "$TMP" "$PA_CONF" || { rm -f "$TMP"; false; }
+  else
+    echo "Could not create a PulseAudio staging file." >&2
+    false
+  fi
+fi
 ```
 
-*কেন শুধু লুপব্যাক?* শব্দ TCP দিয়ে কন্টেইনার সীমানা পাড়ি দেয়, তাই
-অ্যানোনিমাস ACL দরকার — `127.0.0.1` মাইক্রোফোনকে নেটওয়ার্ক থেকে দূরে রাখে।
+*কেন শুধু loopback?* Audio TCP দিয়ে container boundary পার হয়।
+`listen=127.0.0.1` service-টিকে LAN থেকে দূরে রাখে; anonymous same-device
+client তবুও পৌঁছাতে পারে, তাই bind address সরাবেন না।
 
 ### ৭খ — লোকেল ও ফন্ট (Debian-এর ভেতরে)
 
@@ -338,26 +395,34 @@ set -u
 
 TMPDIR="${TMPDIR:-/data/data/com.termux/files/usr/tmp}"
 
-# আগের সেশন পরিষ্কার
+cleanup() {
+  pkill -9 -f termux-x11 2>/dev/null || true
+  pkill -9 -f virgl_test_server 2>/dev/null || true
+  pulseaudio --kill 2>/dev/null || pkill -KILL -x pulseaudio 2>/dev/null || true
+  rm -f "$TMPDIR"/.X11-unix/X* "$TMPDIR"/.X*-lock "$TMPDIR"/pulse-socket "$TMPDIR"/.pulse-*/native 2>/dev/null || true
+  termux-wake-unlock 2>/dev/null || true
+}
+trap cleanup EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
+
+# Clean up any previous session
 pkill -9 -f termux-x11 2>/dev/null || true
 pkill -9 -f virgl_test_server 2>/dev/null || true
-pkill -9 -f dbus-daemon 2>/dev/null || true
-pkill -9 -f dbus-launch 2>/dev/null || true
-pulseaudio --kill 2>/dev/null || true
-pkill -9 -f pulseaudio 2>/dev/null || true
-rm -rf $TMPDIR/.X11-unix/X* $TMPDIR/.X*-lock $TMPDIR/pulse-socket 2>/dev/null || true
+pulseaudio --kill 2>/dev/null || pkill -KILL -x pulseaudio 2>/dev/null || true
+rm -f "$TMPDIR"/.X11-unix/X* "$TMPDIR"/.X*-lock "$TMPDIR"/pulse-socket "$TMPDIR"/.pulse-*/native 2>/dev/null || true
 
-# Android যেন সেশন সাসপেন্ড না করে
+# Keep Android from suspending the session
 termux-wake-lock 2>/dev/null || true
 
-# অডিও
+# Audio
 unset PULSE_SERVER
 pulseaudio --start --exit-idle-time=-1 --daemonize 2>/dev/null || true
 sleep 0.3
-pactl load-module module-native-protocol-tcp auth-ip-acl=127.0.0.1 auth-anonymous=1 port=4713 \
+pactl load-module module-native-protocol-tcp listen=127.0.0.1 auth-ip-acl=127.0.0.1 auth-anonymous=1 port=4713 \
   >/dev/null 2>&1 || true
 
-# ডিসপ্লে
+# Display
 termux-x11 :0 -ac &
 X11_PID=$!
 echo "Waiting for Termux-X11 display socket..."
@@ -377,50 +442,39 @@ while [ ! -e "$TMPDIR/.X11-unix/X0" ]; do
 done
 echo "Display :0 ready."
 
-# ডেস্কটপ
+# Desktop
 proot-distro login debian --shared-tmp \
   --bind /dev/kgsl-3d0:/dev/kgsl \
   --bind /dev/dri \
-  --user ternux -- env \
-  DISPLAY=:0 \
-  PULSE_SERVER=tcp:127.0.0.1:4713 \
-  AUDIODRIVER=pulse \
-  MESA_LOADER_DRIVER_OVERRIDE=zink \
-  GALLIUM_DRIVER=zink \
-  TU_DEBUG=sysmem,noconform \
-  MESA_VK_WSI_DEBUG=sw \
-  MESA_DISK_CACHE_SINGLE_FILE=1 \
-  MESA_SHADER_CACHE_MAX_SIZE=2048M \
-  MESA_SHADER_CACHE_DIR=/tmp/mesa_cache \
-  QT_X11_NO_MITSHM=1 \
-  _X11_NO_MITSHM=1 \
-  XDG_RUNTIME_DIR=/home/ternux/.runtime \
-  LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 \
-  bash -c '
+  --user ternux \
+  --env DISPLAY=:0 \
+  --env PULSE_SERVER=tcp:127.0.0.1:4713 \
+  --env MESA_LOADER_DRIVER_OVERRIDE=zink \
+  --env GALLIUM_DRIVER=zink \
+  --env TU_DEBUG=sysmem,noconform \
+  --env MESA_VK_WSI_DEBUG=sw \
+  --env MESA_DISK_CACHE_SINGLE_FILE=1 \
+  --env MESA_SHADER_CACHE_MAX_SIZE=2048M \
+  --env QT_X11_NO_MITSHM=1 \
+  --env XDG_RUNTIME_DIR=/home/ternux/.runtime \
+  --env LANG=en_US.UTF-8 \
+  --env LC_ALL=en_US.UTF-8 \
+  -- bash -c '
     set -u
-    mkdir -p ~/.runtime && chmod 700 ~/.runtime
-    mkdir -p /tmp/mesa_cache && chmod 700 /tmp/mesa_cache
+    mkdir -p ~/.runtime /tmp/mesa_cache
+    chmod 700 ~/.runtime /tmp/mesa_cache
 
     until xdpyinfo -display :0 >/dev/null 2>&1; do sleep 0.1; done
 
-    sudo -n mkdir -p /var/run/dbus /run/dbus 2>/dev/null || true
+    sudo -n mkdir -p /var/run/dbus /run/dbus /run/user/$(id -u) 2>/dev/null || true
     sudo -n dbus-uuidgen --ensure >/dev/null 2>&1 || true
-    sudo -n dbus-daemon --system --fork >/dev/null 2>&1 || true
     sudo -n rm -f /etc/xdg/autostart/light-locker.desktop 2>/dev/null || true
 
-    mkdir -p ~/.config/pulse
-    echo "default-server = tcp:127.0.0.1:4713" > ~/.config/pulse/client.conf
-
     xfconf-query -c xfwm4 -p /general/use_compositing -s false >/dev/null 2>&1 || true
-    xfconf-query -c xfwm4 -p /general/vblank_mode -s off      >/dev/null 2>&1 || true
-
     exec dbus-launch --exit-with-session startxfce4
   '
 
-# টিয়ারডাউন
-pkill -9 -f termux-x11 2>/dev/null || true
-pkill -9 -f virgl_test_server 2>/dev/null || true
-termux-wake-unlock 2>/dev/null || true
+# The EXIT trap performs teardown on success, failure, Ctrl+C or termination.
 ```
 
 ### ৮খ — VirGL সংস্করণ: মাত্র দুটি বদল
@@ -439,22 +493,24 @@ if ! kill -0 "$VIRGL_PID" 2>/dev/null; then
 fi
 ```
 
-2. পুরো `--bind … LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8` আর্গুমেন্ট ব্লকের
-বদলে দিন:
+2. দুটি `--bind` line সরান এবং argument block থেকে `-- bash -c` separator
+পর্যন্ত নিচের অংশ দিয়ে বদলান:
 
 ```bash
-  --user ternux -- env \
-  DISPLAY=:0 \
-  PULSE_SERVER=tcp:127.0.0.1:4713 \
-  AUDIODRIVER=pulse \
-  GALLIUM_DRIVER=virpipe \
-  MESA_GL_VERSION_OVERRIDE=4.3COMPAT \
-  MESA_GLES_VERSION_OVERRIDE=3.2 \
-  QT_X11_NO_MITSHM=1 \
-  _X11_NO_MITSHM=1 \
-  XDG_RUNTIME_DIR=/home/ternux/.runtime \
-  LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 \
+  --user ternux \
+  --env DISPLAY=:0 \
+  --env PULSE_SERVER=tcp:127.0.0.1:4713 \
+  --env GALLIUM_DRIVER=virpipe \
+  --env MESA_GL_VERSION_OVERRIDE=4.3COMPAT \
+  --env QT_X11_NO_MITSHM=1 \
+  --env XDG_RUNTIME_DIR=/home/ternux/.runtime \
+  --env LANG=en_US.UTF-8 \
+  --env LC_ALL=en_US.UTF-8 \
+  -- bash -c '
 ```
+
+`--env` ইচ্ছাকৃতভাবে প্রতিটি variable-এর জন্য repeat করা হয়েছে: PRoot-Distro
+এটিকে repeatable single `VAR=VALUE` option হিসেবে define করে।
 
 শেষ ফাইলটি সিনট্যাক্স-চেক করুন:
 
@@ -471,10 +527,11 @@ cat >> ~/.bashrc << 'EOF'
 
 # ==== TERNUX ALIASES ====
 alias x='~/x.sh'
-alias killx='pkill -f termux-x11; pkill -f pulseaudio; pkill -f dbus; \
-  rm -rf $TMPDIR/.X11-unix/X* $TMPDIR/.X*-lock'
-alias db='proot-distro login debian --user ternux'
-alias droot='proot-distro login debian'
+alias killx='pkill -f termux-x11 || true; pulseaudio --kill 2>/dev/null || \
+  pkill -KILL -x pulseaudio || true; rm -f $TMPDIR/.X11-unix/X* \
+  $TMPDIR/.X*-lock $TMPDIR/.pulse-*/native'
+alias db='proot-distro login debian --shared-tmp --user ternux'
+alias droot='proot-distro login debian --shared-tmp'
 alias xgo='am start -n com.termux.x11/com.termux.x11.MainActivity 2>/dev/null; sleep 1; ~/x.sh'
 clean-mesa() {
   proot-distro login debian --user ternux -- bash -c 'rm -rf ~/.cache/mesa/*'
@@ -498,20 +555,26 @@ x
 
 ---
 
-## ধাপ ১০ — Android 12+ ফ্যান্টম-কিলার চেক
+## ধাপ ১০ — Android 12+ child-process setting check
 
 ```bash
 getprop ro.build.version.sdk
 settings get global settings_enable_monitor_phantom_procs
 ```
 
-SDK **৩১ বা তার বেশি** এবং সেটিংটি `false` না হলে Android নিঃশব্দে ডেস্কটপ
-SIGKILL করতে পারে। ভার্সন অনুযায়ী সমাধান:
+SDK ৩১+-এ `false`/`0` readable global monitor disabled, `true`/`1` enabled,
+আর blank/unknown inconclusive। Signal 9 memory pressure বা OEM battery
+management থেকেও আসতে পারে। প্রথমে Termux/Termux:X11 battery use Unrestricted
+করুন ও build parallelism কমান। Evidence child-process restriction দেখালে
+system-wide trade-off পড়ে release-এ exposed control ব্যবহার করুন:
 
-- **Android 14+:** Settings → Developer options → **Disable child process
-  restrictions** → রিবুট।
+- **Android 14+:** Developer options-এ **Disable child process restrictions**
+  থাকতে পারে; OEM wording/availability বদলায়। Change-এর পর reboot।
 - **Android 12L/13:** `adb shell settings put global settings_enable_monitor_phantom_procs false`
-- **রুটেড:** `su -c "settings put global settings_enable_monitor_phantom_procs false"`
+- **Android 12 exactly:** [Troubleshooting](TROUBLESHOOTING.html#the-desktop-dies-silently)-এর `device_config` control review করুন।
+- **Rooted:** `su -c "settings put global settings_enable_monitor_phantom_procs false"`
+
+Original value record করুন; abnormal battery drain বা instability হলে reverse করুন।
 
 ---
 
@@ -534,21 +597,28 @@ proot-distro login debian --user ternux -- bash -c '
 glxinfo | grep "renderer string"
 ```
 
-| ভালো | খারাপ |
+| Observation | ব্যাখ্যা |
 |---|---|
-| `zink Vulkan (Adreno (TM) … (MESA_TURNIP))` | `llvmpipe` — সফটওয়্যার রেন্ডারিং |
-| `virgl` (সামঞ্জস্য পথ) | ফাঁকা উত্তর |
+| `zink … (MESA_TURNIP)` | পরীক্ষিত Adreno Zink/Turnip route detected |
+| `virgl` / `virpipe` | compatibility route detected; host acceleration/workload আলাদা যাচাই করুন |
+| `llvmpipe` | CPU software rendering |
+| blank/error | display বা GL stack আগে diagnose করুন |
 
 ---
 
-## হাতে-কলমে আনইনস্টল
+## আনইনস্টল
+
+Scoped route ব্যবহার করুন, যাতে prompt ও target স্পষ্ট থাকে:
 
 ```bash
-killx
-rm -f ~/x.sh ~/.ternux-state
-sed -i '/# ==== TERNUX ALIASES/,/# ==== END TERNUX ALIASES/d' ~/.bashrc
-proot-distro remove debian        # কন্টেইনারের ভেতরের সব ডেটা ধ্বংস হয়
+ternux uninstall                 # interactive component choice
+ternux uninstall container       # Debian data delete করার আগে confirm
+ternux uninstall all             # চার scoped target; আগে backup
 ```
+
+`container`/`all` Debian-এর ভেতরের সব data ধ্বংস করে। `all` চালালেও Termux
+package, ternux CLI/library, repository/storage choice ও Termux PulseAudio config
+থেকে যায়। Automation-এ `--yes` শুধু explicit irreversible confirmation হিসেবে দিন।
 
 ---
 

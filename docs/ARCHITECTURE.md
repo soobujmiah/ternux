@@ -40,8 +40,8 @@ pieces cooperate, and where they fail when they don't.
 
 Android owns the kernel, hardware drivers, the app sandbox, power policy and
 process limits. ternux never replaces Android, unlocks the bootloader or asks
-for root. That is why it is safe — and also why PRoot cannot grant hardware
-capabilities Android does not expose.
+for root. This reduces privileged-system risk, but does not make downloaded
+code harmless. It also means PRoot cannot grant capabilities Android does not expose.
 
 ### Termux
 
@@ -53,8 +53,9 @@ visible.
 ### PRoot Debian
 
 PRoot provides a Debian userland **without a privileged chroot**. It rewrites
-paths and selected system calls in userspace, so the container believes it is
-root while Android's sandbox stays intact.
+paths and selected system calls in userspace. Its root identity is emulated and
+does not cross Android's Termux app sandbox. PRoot itself is not an additional
+security boundary: Termux-accessible and explicitly bound paths remain reachable.
 
 *What that means in practice:*
 
@@ -112,11 +113,12 @@ OpenGL application
  Android graphics stack
 ```
 
-VirGL is the universal route for Mali, Xclipse, PowerVR and anything else
-without Turnip. GL commands cross the container boundary to a host-side
-renderer. It is slower than Turnip; that is the honest trade-off for
-compatibility. Choosing VirGL is not a failed Adreno setup — pretending
-non-Adreno hardware can use Turnip *would* be the failure.
+VirGL is ternux's compatibility route when the direct Adreno/Turnip path is
+unavailable. GL commands cross the container boundary to a host-side renderer.
+Compatibility, features and speed vary by GPU and Android build, and a software
+fallback can still occur; verify with `glxinfo -B`. Choosing VirGL is not by
+itself a failed setup, but calling it accelerated without renderer evidence
+would be.
 
 ---
 
@@ -148,7 +150,7 @@ remote — not only inside the container.
 | **Mesa replaced by an update** | Stock Mesa still renders a desktop | Compare renderer string with known-good baseline |
 | **Wrong backend selected** | A compatible but slower route still works | GPU evidence and chosen route must agree |
 | **VirGL host service missing** | Software fallback hides the missing service | Launcher warns; renderer says `llvmpipe` |
-| **Android process policy intervenes** | Session works, then loses processes | `[Process completed (signal 9)]` — phantom killer |
+| **Android process policy or memory pressure intervenes** | Session works, then loses processes | Correlate Signal 9 with memory, OEM battery policy and readable Android settings |
 
 **A visible Xfce4 desktop is not the definition of success.** The renderer
 string, service health and a clean second launch are stronger evidence. That
@@ -161,8 +163,8 @@ is why the installer verifies each phase instead of assuming.
 - **Blender:** viewport usefulness depends on the graphics route, scene
   complexity, memory and thermals. A smooth low-poly scene does not predict a
   large render.
-- **Local AI:** Vulkan offload shares the same physical memory and thermal
-  budget as Android and the desktop — hence the 1–2B model guidance.
+- **Local AI:** Vulkan offload shares physical memory and thermal budget with
+  Android and the desktop. No fixed model size is guaranteed across 6–8 GB phones.
 - **Development agents:** tool execution happens inside your environment;
   provider credentials and command approval remain your boundaries.
 - **Security tools:** PRoot gives Debian userspace, not monitor mode, USB
@@ -180,7 +182,7 @@ state*:
 
 - **Idempotency** — a completed phase can be checked or re-entered without
   duplicating configuration.
-- **Recorded resume** — completed phases are skipped on `--resume`.
+- **Recorded resume** — `--resume` skips phases recorded as successful; it is not repair.
 - **Targeted repair** — `--doctor` maps a failure to its phase.
 - **Verification before progression** — every critical file and binary is
   confirmed present before the next phase runs.

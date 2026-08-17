@@ -27,7 +27,7 @@ tnx_cmd_logs() {
 
 _tnx_logs_show() {
   local lines="${1:-50}"
-  [ ! -f "$TERNUX_LOG_FILE" ] && { tnx_fail "No log file found: $TERNUX_LOG_FILE"; return 1; }
+  [ ! -f "$TERNUX_LOG_FILE" ] && { tnx_info "No log file found: $TERNUX_LOG_FILE"; return 0; }
 
   if [ "${TERNUX_JSON:-0}" = "1" ]; then
     local content

@@ -1,6 +1,6 @@
 ---
 title: "দ্রুত শুরু"
-description: "একটি খালি Android ফোন থেকে যাচাইকৃত, GPU-accelerated ternux ডেস্কটপ পর্যন্ত দ্রুততম পথ — মোটামুটি দশ মিনিট।"
+description: "একটি Android ফোন থেকে ternux desktop, প্রথম launch ও renderer verification পর্যন্ত সংক্ষিপ্ত পথ।"
 lang: "bn"
 alt_url: "/docs/QUICK-START.html"
 
@@ -8,24 +8,24 @@ alt_url: "/docs/QUICK-START.html"
 
 # দ্রুত শুরু
 
-দশ মিনিট, তিনটি ধাপ, একটি ডেস্কটপ। এই পাতাটি ধরে নেয় আপনার কাছে একটি
-চালু Android ফোন ছাড়া আর কিছুই নেই।
+চার ধাপে Android app থেকে installed desktop ও renderer check। সময় device,
+mirror এবং network অনুযায়ী বদলাবে।
 
 ---
 
-## ধাপ ০ — দুটি অ্যাপ ইনস্টল করুন (২ মিনিট)
+## ধাপ ১ — দুটি অ্যাপ ইনস্টল করুন
 
 1. **Termux** — হোস্ট টার্মিনাল।
    [GitHub releases](https://github.com/termux/termux-app/releases) থেকে APK
    নামান বা [F-Droid](https://f-droid.org/en/packages/com.termux/) দিয়ে
    ইনস্টল করুন।
-   *কেন Play Store নয়? সেই বিল্ডটি বছর আগে পরিত্যক্ত — এর প্যাকেজ
-   রিপোজিটরি মৃত, কিছুই ইনস্টল হয় না।*
+   *এই গাইড মূল F-Droid/GitHub release line ব্যবহার করে। Google Play line
+   আলাদা পরীক্ষামূলক Android 11+ branch; Termux ও plugin একই source থেকে রাখুন।*
 2. **Termux:X11** — ডেস্কটপ দেখানো অ্যাপটি।
    [GitHub releases](https://github.com/termux/termux-x11/releases) থেকে
    নামান। **একবার** খুলুন যাতে Android এটি নিবন্ধন করে, তারপর রেখে দিন।
 
-## ধাপ ১ — একটি কমান্ড চালান (৫–১৫ মিনিট)
+## ধাপ ২ — একটি কমান্ড চালান
 
 Termux খুলে পেস্ট করুন:
 
@@ -50,15 +50,22 @@ wget -qO- https://soobujmiah.github.io/ternux/install.sh | bash
 6. লঞ্চার ও শেল শর্টকাট লিখে দেয়;
 7. সবকিছু ঠিকমতো বসেছে কিনা যাচাই করে।
 
-নন-ইন্টারঅ্যাক্টিভ মোডে এটি নিজেই যুক্তিসঙ্গত ডিফল্টে প্রশ্নের উত্তর দেয়;
-স্পষ্টভাবে ডিফল্ট চাইলে `--yes` যোগ করুন। আগে পড়ে নিতে চান?
+নন-ইন্টারঅ্যাক্টিভ মোডে এটি নিজেই নথিভুক্ত default ব্যবহার করে; local clone
+থেকে একই default স্পষ্টভাবে নিতে `--yes` যোগ করুন। চালানোর আগে সব code দেখতে
+চাইলে repository clone করুন—শুধু bootstrap পড়া যথেষ্ট নয়, কারণ standalone
+route runtime-এ library module download করে।
 
 ```bash
-curl -fsSL https://soobujmiah.github.io/ternux/install.sh -o install.sh && less install.sh
+pkg install git -y
+git clone https://github.com/soobujmiah/ternux.git
+cd ternux
+git log -1 --oneline
+(set -e; for f in install.sh uninstall.sh bin/ternux lib/*.sh; do bash -n "$f"; done)
+less install.sh bin/ternux lib/*.sh
 bash install.sh
 ```
 
-## ধাপ ২ — ডেস্কটপ চালু করুন (৩০ সেকেন্ড)
+## ধাপ ৩ — ডেস্কটপ চালু করুন
 
 ```bash
 source ~/.bashrc
@@ -68,7 +75,7 @@ x
 `x` শর্টকাট ধারাবাহিকভাবে চালু করে: অডিও ব্রিজ → ডিসপ্লে (`Termux:X11`) →
 Debian → **Xfce4**। Termux:X11 অ্যাপে যান — আপনার ডেস্কটপ সেখানেই।
 
-## ধাপ ৩ — প্রমাণ করুন GPU আসল (৩০ সেকেন্ড)
+## ধাপ ৪ — renderer যাচাই করুন
 
 ডেস্কটপের ভেতরে একটি টার্মিনাল খুলুন (রাইট-ক্লিক → *Open Terminal Here*)
 এবং চালান:
@@ -80,7 +87,7 @@ glxinfo | grep "renderer string"
 | যা দেখবেন | অর্থ |
 |---|---|
 | `zink Vulkan (Adreno (TM) … (MESA_TURNIP))` | ✅ হার্ডওয়্যার GPU পথ (Adreno) |
-| `virgl` | ✅ হার্ডওয়্যার GPU পথ (সামঞ্জস্য) |
+| `virgl` / `virpipe` | ⚠️ VirGL সামঞ্জস্য পথ; host acceleration আলাদাভাবে যাচাই করুন |
 | `llvmpipe` | ❌ সফটওয়্যার রেন্ডারিং — ঠিক করুন, মেনে নেবেন না |
 
 `llvmpipe` দেখলে ডেস্কটপ চলবেই, কিন্তু গ্রাফিক্স শুধুই সফটওয়্যার।
@@ -95,7 +102,7 @@ glxinfo | grep "renderer string"
 ```text
 x        ডেস্কটপ চালু          killx  সব পরিষ্কারভাবে বন্ধ
 db       Debian শেল (ইউজার)    droot  রুট শেল
-xgo      Termux:X11 + x একসাথে  ai     লোকাল মডেলে চ্যাট
+xgo      Termux:X11 + x একসাথে
 sysmon   ডিভাইসের সারসংক্ষেপ   clean-mesa  শেডার ক্যাশ পরিষ্কার
 ```
 
@@ -105,7 +112,7 @@ sysmon   ডিভাইসের সারসংক্ষেপ   clean-mesa  �
 
 ```bash
 ternux doctor           # সিস্টেম ডায়াগনস্টিক
-ternux doctor --json    # AI-পাঠযোগ্য আউটপুট
+ternux doctor --json    # machine-readable output
 ternux start            # ডেস্কটপ চালু
 ternux stop             # ডেস্কটপ বন্ধ
 ternux repair           # সাধারণ সমস্যা সমাধান
@@ -119,21 +126,20 @@ ternux update           # আপডেট
 ternux uninstall        # কম্পোনেন্ট অপসারণ
 ```
 
-প্রত্যেক কমান্ড `--help`, `--json`, `--verbose` ও `--quiet` সমর্থন করে।
-সম্পূর্ণ রেফারেন্স: [CLI রেফারেন্স](CLI.md)।
+ডিসপ্যাচার global flag শনাক্ত করে; JSON output শুধু নথিভুক্ত command-এ নিশ্চিত।
+সম্পূর্ণ রেফারেন্স: [CLI রেফারেন্স](CLI.html)।
 
 - কন্টেইনারে একটি পূর্ণাঙ্গ **Debian ডেস্কটপ** — এমুলেটেড নয়, ইনস্টলড।
-- OpenGL অ্যাপে **হার্ডওয়্যার-অ্যাক্সিলারেটেড গ্রাফিক্স** (Blender, GL টুলস)।
+- নির্বাচিত **OpenGL route** যাচাইয়ের tool; tested Adreno evidence Zink/Turnip দেখায়।
 - ফোনের স্পিকার/হেডফোনে **শব্দ** ব্রিজড।
 - Android ও Debian-এর মধ্যে **শেয়ার্ড স্টোরেজ** (Termux-এ `~/storage` ↔
   কন্টেইনারে `/sdcard`)।
 
 ## Android 12+? একটি জরুরি নোট
 
-Android-এর **ফ্যান্টম প্রসেস কিলার** নিঃশব্দে ব্যাকগ্রাউন্ড প্রসেস মেরে
-ফেলে — কোনো এরর ছাড়াই ডেস্কটপ সেশন শেষ হয়ে যেতে পারে। ইনস্টলার শেষে
-সঠিক সমাধান দেখায় — Android 14+-এ একটি ডেভেলপার-অপশন টগল
-(*Disable child process restrictions*)। বিস্তারিত:
+Android 12+ child-process policy PRoot process বন্ধ করতে পারে; memory pressure
+ও OEM battery policy-তেও একই লক্ষণ হয়। ইনস্টলার readable setting ও
+version-aware guidance দেখায়; safeguard বদলানোর আগে trade-off পড়ুন। বিস্তারিত:
 [সমস্যা সমাধান](TROUBLESHOOTING.html#the-desktop-dies-silently)।
 
 ## এরপর

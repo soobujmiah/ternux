@@ -24,9 +24,10 @@ ternux যুক্তিসঙ্গত ডিফল্ট নিয়ে ই�
 | `--zsh` | বন্ধ | Termux শেলও zsh-এ বদলায় |
 | `--with-*` | কিছুই না | ঐচ্ছিক ওয়ার্কলোড প্রোফাইল |
 
-ইনস্টলের পর ইউজার বা লোকেল বদলানো সম্ভব তবে ঝামেলার — সহজ পথ
-`bash install.sh --user X --resume`: কন্টেইনার আবার ডাউনলোড না করেই ধাপগুলো
-পুনরায় প্রয়োগ করে।
+ইনস্টলের পর user বা locale বদলাতে নতুন মান দিয়ে installer **`--resume` ছাড়া**
+চালান, কারণ resume state-এ সফল phase বাদ দেয়:
+`bash install.sh --user X --locale bn_BD.UTF-8 --yes`। আগে backup নিন; নতুন
+user তৈরি হলেও পুরনো user-এর home স্বয়ংক্রিয় migrate হয় না।
 
 ### বাংলা লোকেল
 
@@ -86,9 +87,9 @@ MESA_GLES_VERSION_OVERRIDE=3.2
 | Debian `~/.config/pulse/client.conf` | `default-server = tcp:127.0.0.1:4713` |
 
 *কেন শুধু লুপব্যাক?* ব্রিজটি TCP দিয়ে কন্টেইনার সীমানা পাড়ি দেয়, তাই
-অ্যানোনিমাস ACL দরকার — `127.0.0.1`-এ সীমাবদ্ধ রাখলে শুধু ফোনের নিজস্ব
-প্রসেসই পৌঁছাতে পারে। "নেটওয়ার্কে অডিও চালাতে" এটাকে `0.0.0.0` করবেন না —
-তাতে আপনার মাইক্রোফোন LAN-এ সম্প্রচার হয়।
+অ্যানোনিমাস ACL দরকার — explicit `listen=127.0.0.1` service-টিকে LAN থেকে দূরে রাখে। একই ফোনের অন্য
+client loopback listener-এ পৌঁছাতে পারে। Authentication ও firewall ছাড়া
+listener `0.0.0.0` করবেন না।
 
 ভিন্ন সিঙ্ক (Bluetooth, হেডফোন) চাইলে `default.pa`-র `set-default-sink`
 লাইন বদলে সেশন রিস্টার্ট করুন (`killx`, তারপর `x`)।
@@ -117,12 +118,14 @@ Debian-এর ভেতরে ইনস্টল হয়:
 | `~/.ternux-state`-এই আরও আছে | ডাউনলোড করা Turnip ড্রাইভারের SHA-256 |
 | `$TMPDIR/ternux-install.log` | শেষ ইনস্টলার রানের পূর্ণ লগ |
 
-`~/.ternux-state` মুছবেন শুধু যদি ইনস্টলারকে শুরু থেকে সব করতে চান
-(না থাকলে `--resume` শেষ ধাপগুলো বাদ দেয়)।
+`~/.ternux-state` মুছলে completion record হারায়। শুধু phase আবার চালাতে
+`--resume` ব্যবহার করবেন না; সংশ্লিষ্ট `ternux repair` বা `--resume`-ছাড়া
+installer route বেছে নিন এবং আগে backup রাখুন।
 
 ---
 
-## হোল্ড করা Mesa প্যাকেজ (Zink পথ) {#held-mesa-packages-zink-route}
+<a id="held-mesa-packages-zink-route"></a>
+## হোল্ড করা Mesa প্যাকেজ (Zink পথ)
 
 ```bash
 db

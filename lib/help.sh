@@ -52,12 +52,12 @@ ${TNX_CW}Commands:${TNX_C0}
 
 ${TNX_CW}Global options:${TNX_C0}
   --help, -h    Show help for any command
-  --json        Machine-readable JSON output (AI-native)
+  --json        Machine-readable JSON output
   --verbose     Show detailed debug output
   --quiet       Suppress non-critical messages
 
 ${TNX_CW}Examples:${TNX_C0}
-  ternux doctor --json     ${TNX_CD}AI-readable diagnostics${TNX_C0}
+  ternux doctor --json     ${TNX_CD}machine-readable diagnostics${TNX_C0}
   ternux start             ${TNX_CD}Launch the desktop${TNX_C0}
   ternux backend set zink  ${TNX_CD}Switch GPU backend${TNX_C0}
   ternux profile save      ${TNX_CD}Snapshot device config${TNX_C0}
@@ -92,7 +92,7 @@ HELP
 tnx_help_start()     { echo "Usage: ternux start"; echo "Start the Xfce4 desktop session."; }
 tnx_help_stop()      { echo "Usage: ternux stop"; echo "Stop the desktop session and clean up."; }
 tnx_help_restart()   { echo "Usage: ternux restart"; echo "Restart the desktop session."; }
-tnx_help_doctor()    { echo "Usage: ternux doctor [--json]"; echo "Run comprehensive system diagnostics. Supports --json for AI-readable output."; }
+tnx_help_doctor()    { echo "Usage: ternux doctor [--json]"; echo "Run comprehensive system diagnostics. Supports --json for machine-readable output."; }
 tnx_help_repair()    { echo "Usage: ternux repair"; echo "Auto-fix common issues: broken curl, missing X11, backend mismatch, stale cache."; }
 tnx_help_verify()    { echo "Usage: ternux verify [--json]"; echo "Verify installation completeness. Checks binaries, launcher, container, GPU driver."; }
 tnx_help_benchmark() { echo "Usage: ternux benchmark [--json]"; echo "Run GPU benchmarks (glmark2, vkmark) and renderer verification."; }
@@ -141,4 +141,7 @@ HELP
 }
 
 tnx_help_update()    { echo "Usage: ternux update [check]"; echo "check — check for updates without installing. Otherwise, self-update ternux CLI from GitHub."; }
-tnx_help_uninstall() { echo "Usage: ternux uninstall"; echo "Interactive removal of ternux components (launcher, state, container)."; }
+tnx_help_uninstall() {
+  echo "Usage: ternux uninstall [session|launcher|state|container|all] [--yes]"
+  echo "Interactive by default; destructive container removal requires confirmation."
+}

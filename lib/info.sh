@@ -1,5 +1,5 @@
 # =============================================================================
-#  ternux — system information command (AI-native)
+#  ternux — system information command (machine-readable output supported)
 #
 #  Copyright (c) 2026 Sobuj Miah (@soobujmiah) — MIT License
 #  https://github.com/soobujmiah/ternux
@@ -14,11 +14,7 @@
 # tnx_cmd_info — structured device + software summary
 # ---------------------------------------------------------------------------
 tnx_cmd_info() {
-  if ! tnx_is_termux; then
-    if [ "${TERNUX_JSON:-0}" = "1" ]; then
-      tnx_json_object "info" "ok" "version" "$TERNUX_VERSION" "note" "Not running in Termux — limited information"
-      return 0
-    fi
+  if ! tnx_is_termux && [ "${TERNUX_JSON:-0}" != "1" ]; then
     tnx_warn "Not running in Termux — limited information."
   fi
 
@@ -33,14 +29,13 @@ tnx_cmd_info() {
   termux_ver="$(tnx_detect_termux_version)"
   gpu="$(tnx_detect_gpu)"
   vulkan="$(tnx_detect_vulkan)"
-  backend="$(tnx_state_get "backend" || tnx_detect_backend)"
+  backend="$(tnx_canonical_backend "$(tnx_state_get "backend" || tnx_detect_backend)")"
   phantom="$(tnx_detect_phantom_killer)"
   renderer="$(tnx_detect_renderer)"
 
-  # JSON output (AI-native)
+  # JSON output
   if [ "${TERNUX_JSON:-0}" = "1" ]; then
     tnx_json_object "info" "ok" \
-      "version" "$TERNUX_VERSION" \
       "android_version" "$android_ver" \
       "architecture" "$arch" \
       "model" "$model" \

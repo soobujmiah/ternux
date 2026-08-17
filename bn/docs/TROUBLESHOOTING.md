@@ -1,6 +1,6 @@
 ---
 title: "সমস্যা সমাধান"
-description: "ternux-এর প্রতিটি সাধারণ সমস্যা, লক্ষণ অনুযায়ী সাজানো, কারণ ও সঠিক সমাধানসহ — সফটওয়্যার রেন্ডারিং, সেশন মরে যাওয়া, অডিও, নেটওয়ার্ক।"
+description: "ternux failure-এর evidence-led diagnosis ও নিরাপদ repair path — rendering, session, audio, network ও clean reinstall।"
 lang: "bn"
 alt_url: "/docs/TROUBLESHOOTING.html"
 
@@ -8,17 +8,18 @@ alt_url: "/docs/TROUBLESHOOTING.html"
 
 # সমস্যা সমাধান
 
-নিচের প্রতিটি লক্ষণ বাস্তবে দেখা গেছে। ওপর থেকে নিচে কাজ করুন: টেবিলে
-লক্ষণ → সম্ভাব্য কারণ → সমাধান, আর সেকশনগুলোতে পূর্ণাঙ্গ চিত্র।
+টেবিলটি সাধারণ symptom-কে সম্ভাব্য cause ও check-এর সঙ্গে মিলিয়েছে। একই
+symptom-এর একাধিক কারণ হতে পারে, তাই repair-এর আগে নাম দেওয়া evidence নিন।
 
 | লক্ষণ | সম্ভাব্য কারণ | সমাধান |
 |---|---|---|
-| ডেস্কটপ নিঃশব্দে মরে যায়, বা `[Process completed (signal 9)]` | Android ফ্যান্টম প্রসেস কিলার | [ডেস্কটপ নিঃশব্দে মরে যায়](#the-desktop-dies-silently) |
+| ডেস্কটপ নিঃশব্দে মরে যায়, বা `[Process completed (signal 9)]` | Android process policy, memory pressure, বা OEM battery management | [ডেস্কটপ নিঃশব্দে মরে যায়](#the-desktop-dies-silently) |
 | Termux:X11-এ কালো/খালি উইন্ডো | X11 অ্যাপ খোলা হয়নি, বা পুরনো সকেট | [Termux:X11-এ কালো স্ক্রিন](#black-screen-in-termuxx11) |
 | `renderer string: llvmpipe` | সফটওয়্যার ফলব্যাক — GPU পথ সক্রিয় নয় | [রেন্ডারার llvmpipe বলে](#renderer-says-llvmpipe) |
 | ডেস্কটপে শব্দ নেই | PulseAudio ব্রিজ চলছে না | [অডিও নেই](#no-audio) |
 | Debian-এ ইন্টারনেট নেই | PRoot-এ DNS আসেনি | [কন্টেইনারে নেটওয়ার্ক নেই](#no-network-in-the-container) |
 | `Waiting for Termux-X11 display socket…` থেমে থাকে | Display :0 আসেনি | [ডিসপ্লে আসছে না](#display-never-appears) |
+| `Error: unrecognized option: '-c'` | নতুন proot-distro-এর সঙ্গে পুরনো launcher | [proot-distro -c চেনে না](#proot-distro-says-option--c-is-unrecognized) |
 | কিছু প্যাকেজে `apt` ব্যর্থ | Debian non-free চালু নেই | [apt ব্যর্থতা](#apt-failures) |
 | `pkg upgrade`-এ `openssl.cnf` এরর, তারপর **প্রতিটি** ইনস্টল ব্যর্থ | বন্ধ stdin-এ dpkg conffile প্রম্পট | [openssl.cnf conffile ক্যাসকেড](#opensslcnf-conffile-cascade) |
 | ইনস্টল কমান্ড পেস্ট করলে `No command $ found` | কপি করা টেক্সটে ডিসপ্লে-শুধু `$` প্রম্পট ঢুকে গেছে | [পেস্ট করা কমান্ড $ দিয়ে শুরু](#pasted-command-starts-with) |
@@ -27,43 +28,49 @@ alt_url: "/docs/TROUBLESHOOTING.html"
 
 ---
 
-## ডেস্কটপ নিঃশব্দে মরে যায় {#the-desktop-dies-silently}
+<a id="the-desktop-dies-silently"></a>
+## ডেস্কটপ নিঃশব্দে মরে যায়
 
-**লক্ষণ:** Xfce4 ঠিকই চলছিল, তারপর সেশন (বা দীর্ঘ বিল্ড) কোনো এরর মেসেজ ছাড়াই
-মরে যায়। Termux-এ আসতে পারে `[Process completed (signal 9) - press Enter]`।
+**লক্ষণ:** Xfce4 বা দীর্ঘ build কোনো error message ছাড়া বন্ধ হয়। Termux-এ
+`[Process completed (signal 9) - press Enter]` আসতে পারে।
 
-**কারণ:** Android 12+ **ফ্যান্টম প্রসেস কিলার** চালু রাখে: সিস্টেমজুড়ে ~৩২টি
-ব্যাকগ্রাউন্ড চাইল্ড প্রসেস হলেই — বা কোনো একটি প্রসেস অতিরিক্ত CPU খেলেই —
-Android নিঃশব্দে SIGKILL করে। PRoot ডেস্কটপে ডজনখানেক প্রসেস চলে
-(Xfce4 + dbus + PulseAudio + proot), তাই সীমা সহজেই ছাড়িয়ে যায়।
+**সম্ভাব্য কারণ:** Android 12+ app-spawned child process monitor/limit করে।
+PRoot desktop-এ Xfce4, D-Bus, build worker ও PRoot মিলে অনেক process হয়, তাই
+Android session-এর অংশ terminate করতে পারে। কিন্তু exact threshold ও setting
+Android release/OEM-ভেদে বদলায়; signal 9 memory pressure বা vendor battery
+management থেকেও হতে পারে।
 
-**সমাধান — আপনার Android ভার্সন অনুযায়ী বেছে নিন:**
+প্রথমে Termux ও Termux:X11 battery use **Unrestricted** করুন, test-এর সময়
+Termux foreground-এ রাখুন, অতিরিক্ত build parallelism কমান এবং cool reboot-এর
+পরে retry করুন। এরপরও termination হলে এবং diagnostics child-process
+restriction দেখালে আপনার Android release-এ থাকা control বিবেচনা করুন:
 
-- **Android 14+ (PC লাগবে না):**
-  Settings → About phone → *Build number*-এ ৭ বার ট্যাপ → Developer options →
-  চালু করুন **"Disable child process restrictions"** → রিবুট।
-- **Android 12L/13 (PC বা root লাগবে):**
+- **Android 14+ (PC লাগে না):** Developer options-এ exposed থাকলে
+  **Disable child process restrictions** চালু করে reboot।
+- **Android 12L/13 (PC বা root):**
   ```bash
   adb shell settings put global settings_enable_monitor_phantom_procs false
   ```
-- **রুটেড:**
+- **Rooted:**
   ```bash
   su -c "settings put global settings_enable_monitor_phantom_procs false"
   ```
-- **ঠিক Android 12**-এ আরও দরকার:
+- **Android 12 exactly**-এ প্রয়োজন হতে পারে:
   ```bash
   adb shell "/system/bin/device_config set_sync_disabled_for_tests persistent"
   adb shell "/system/bin/device_config put activity_manager max_phantom_processes 2147483647"
   ```
 
-*কেন এটি ডিভাইস-স্তরের সিদ্ধান্ত:* এই সীমা Android-কে সাধারণভাবে অসভ্য
-ব্যাকগ্রাউন্ড অ্যাপ থেকে বাঁচায়। এটি বন্ধ করাই Termux কমিউনিটির এই
-ওয়ার্কলোডের জন্য প্রস্তাবিত পথ; বেশিরভাগ মানুষের কোনো ক্ষতি দেখা যায় না।
-`ternux doctor` যেকোনো সময় আবার চেক করে দেয়।
+এই advanced control OEM block/rename করতে পারে এবং runaway background work-এর
+বিরুদ্ধে system-wide protection বদলায়। original value লিখে রাখুন, OS যে
+control expose করে শুধু সেটিই বদলান, reboot করুন, instability বা অস্বাভাবিক
+battery drain হলে reverse করুন। `ternux doctor` readable setting report করে;
+সব OEM process killer আলাদা করতে পারে না।
 
 ---
 
-## Termux:X11-এ কালো স্ক্রিন {#black-screen-in-termuxx11}
+<a id="black-screen-in-termuxx11"></a>
+## Termux:X11-এ কালো স্ক্রিন
 
 **লক্ষণ:** `x` কমান্ড চলে, কিন্তু Termux:X11-এ কালো বা খালি উইন্ডো।
 
@@ -88,45 +95,45 @@ x
 
 ---
 
-## রেন্ডারার llvmpipe বলে {#renderer-says-llvmpipe}
+<a id="renderer-says-llvmpipe"></a>
+## রেন্ডারার llvmpipe বলে
 
-**লক্ষণ:** ডেস্কটপ চলে, কিন্তু `glxinfo | grep "renderer string"`-এ আসে
-`llvmpipe`।
+**লক্ষণ:** desktop চলে, কিন্তু `glxinfo -B`-তে renderer `llvmpipe`। এটি Mesa
+software fallback; শুধু visible desktop GPU route প্রমাণ করে না।
 
-**কারণ:** Mesa সফটওয়্যার রেন্ডারিংয়ে নেমে গেছে। অ্যাক্সিলারেটেড পথ নেই
-বা বদলে গেছে:
-
-1. **Zink পথ:** Turnip ড্রাইভার ফাইল ইনস্টলই হয়নি, মুছে গেছে, বা কোনো
-   `apt upgrade` হোল্ড করা Mesa প্যাকেজ বদলে দিয়েছে।
-2. **VirGL পথ:** `virgl_test_server_android` শুরু হয়নি (লঞ্চার ঠিক এই
-   বিষয়টিতেই সতর্ক করে)।
-3. `/dev/kgsl-3d0` নেই এমন ডিভাইসে জোর করা `--backend zink` — প্রিফ্লাইট এটি
-   প্রত্যাখ্যান করে, তাই এতদূর এলে দেখুন ইনস্টল স্টেট হার্ডওয়্যারের সাথে
-   মিলছে কিনা।
-
-**সমাধান:**
+**সম্ভাব্য কারণ:** Zink target missing/replaced, VirGL host service start হয়নি,
+অথবা configured backend hardware-এর সঙ্গে মেলে না।
 
 ```bash
-# ১. GPU ধাপ আবার চালান (আবার রিজলভ, ডাউনলোড, যাচাই):
-bash install.sh --resume
+# ১. intended route নির্বাচন করুন; auto /dev/kgsl-3d0 দেখে।
+ternux backend set auto
+# অথবা: ternux backend set zink    # শুধু /dev/kgsl-3d0-সহ Adreno
+# অথবা: ternux backend set virgl
 
-# ২. Zink পথে ফাইল ও হোল্ড নিশ্চিত করুন:
+# ২. backend artifact ও launcher প্রয়োগ/মেরামত করুন।
+ternux repair
+
+# ৩. Zink হলে target ও package hold দেখুন:
 db
 ls -l /usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so
 sudo apt-mark showhold
 exit
 
-# ৩. সেশন রিস্টার্ট করে আবার দেখুন:
-killx && x
-#    ডেস্কটপে:  glxinfo | grep "renderer string"
+# ৪. restart ও evidence নিন:
+ternux stop && ternux start
+# desktop terminal-এ: glxinfo -B
 ```
 
-ডাউনলোড ব্যর্থ হলে (আপনার নেটওয়ার্ক থেকে GitHub অগম্য) ইচ্ছা করে ফলব্যাকে
-যান: `ternux backend set virgl` তারপর `ternux repair` (বা `bash install.sh --backend virgl --resume`)।
+Completed GPU/launcher phase আবার প্রয়োগ করতে `bash install.sh --resume`
+ব্যবহার করবেন না—resume সফল হিসেবে recorded phase বাদ দেয়। Validated Turnip
+asset unreachable/incompatible হলে সচেতনভাবে
+`ternux backend set virgl && ternux repair` চালিয়ে device-এ VirGL কী দেয়
+`glxinfo -B` ও workload দিয়ে যাচাই করুন।
 
 ---
 
-## অডিও নেই {#no-audio}
+<a id="no-audio"></a>
+## অডিও নেই
 
 **লক্ষণ:** ডেস্কটপ চলে, কিন্তু শব্দ নেই। (বা: আপডেটের পর শব্দ বন্ধ।)
 
@@ -152,27 +159,42 @@ PulseAudio মরে গেলে (কিল হয়েছে, বা ক্�
 
 ---
 
-## কন্টেইনারে নেটওয়ার্ক নেই {#no-network-in-the-container}
+<a id="no-network-in-the-container"></a>
+## কন্টেইনারে নেটওয়ার্ক নেই
 
-**লক্ষণ:** Termux-এ `apt update` চলে, কিন্তু Debian-এর ভেতরে ব্যর্থ।
-
-**কারণ:** PRoot হোস্টের নেটওয়ার্ক নেয়, তবে রিজলভার কনফিগ সবসময় নয় —
-DNS-ই সাধারণ বলি।
-
-**সমাধান (কন্টেইনারের ভেতরে):**
+**লক্ষণ:** Termux-এ network চলে, Debian guest-এ name resolution ব্যর্থ।
+PRoot host network নিলেও resolver config সব সময় ঠিকমতো আসে না। Config
+তাৎক্ষণিক overwrite না করে host ও guest evidence নিন:
 
 ```bash
+# Termux host
+getent hosts deb.debian.org
+getprop | grep -i '\[net\..*dns'
+
+# Debian guest
 db
-echo "nameserver 1.1.1.1" | sudo tee /etc/resolv.conf >/dev/null
+cat /etc/resolv.conf
+getent hosts deb.debian.org
+```
+
+Host resolve করলেও guest file empty/invalid হলে আগে PRoot session stop/start
+করুন। শুধু diagnostic হিসেবে `DNS_SERVER`-এ আপনার router/provider-এর trusted
+resolver IP দিয়ে retry করুন:
+
+```bash
+DNS_SERVER='REPLACE_WITH_A_TRUSTED_IP'
+printf 'nameserver %s\n' "$DNS_SERVER" | sudo tee /etc/resolv.conf
+getent hosts deb.debian.org
 sudo apt update
 ```
 
-DHCP/Android-এর রিজলভার চাইলে `1.1.1.1`-এর বদলে আপনার রাউটারের IP দিন
-(সাধারণত `192.168.0.1` / `192.168.1.1`)।
+File পরে regenerate হতে পারে। Public resolver ব্যবহার করলে DNS query কে পায়
+তা বদলে যায়, তাই ternux নীরবে নির্দিষ্ট resolver force করে না।
 
 ---
 
-## ডিসপ্লে আসছে না {#display-never-appears}
+<a id="display-never-appears"></a>
+## ডিসপ্লে আসছে না
 
 **লক্ষণ:** লঞ্চার `Waiting for Termux-X11 display socket…` দেখিয়ে ৩০
 সেকেন্ডে টাইমআউট করে।
@@ -189,7 +211,27 @@ DHCP/Android-এর রিজলভার চাইলে `1.1.1.1`-এর ব�
 
 ---
 
-## পেস্ট করা কমান্ড $ দিয়ে শুরু {#pasted-command-starts-with}
+<a id="proot-distro-says-option--c-is-unrecognized"></a>
+## proot-distro `-c` option চেনে না
+
+**লক্ষণ:** `x` চালালে `Error: unrecognized option: '-c'.` ও proot-distro usage।
+
+**কারণ:** proot-distro 5.x container name ও guest command-এর মাঝে `--` চায়;
+পুরনো launcher separator ছাড়া `bash -c` পাঠায়। শুধু visible `-c` patch করবেন
+না—বর্তমান launcher প্রতিটি `--env VAR=VALUE`-ও আলাদা করে পাঠায়।
+
+```bash
+ternux repair   # saved user, locale ও backend দিয়ে launcher regenerate
+x
+```
+
+Launcher phase complete হিসেবে recorded থাকলে `bash install.sh --resume`
+replacement mechanism নয়।
+
+---
+
+<a id="pasted-command-starts-with"></a>
+## পেস্ট করা কমান্ড $ দিয়ে শুরু
 
 **লক্ষণ:** ইনস্টল কমান্ড পেস্ট করলে শেল বলে
 `No command $ found, did you mean: …` — পেস্টের শুরুতে একটি `$` আছে।
@@ -205,7 +247,8 @@ DHCP/Android-এর রিজলভার চাইলে `1.1.1.1`-এর ব�
 
 ---
 
-## আপগ্রেডের পর curl লিংক হতে পারে না {#curl-cannot-link-after-an-upgrade}
+<a id="curl-cannot-link-after-an-upgrade"></a>
+## আপগ্রেডের পর curl লিংক হতে পারে না
 
 **লক্ষণ:** curl চালালে আসে
 `CANNOT LINK EXECUTABLE "curl": cannot locate symbol "SSL_set_quic_tls_transport_params" referenced by …/libngtcp2_crypto_ossl.so`।
@@ -233,12 +276,13 @@ wget -qO- https://soobujmiah.github.io/ternux/install.sh | bash
 > শেষ পর্যন্ত `pkg upgrade -y` — আপনার আরও বিঘ্নিত আপগ্রেড থাকতে পারে) হলো
 > নিশ্চিত সমাধান।
 
-ইনস্টলার (v1.1.4+) প্রিফ্লাইটেই ভাঙা curl শনাক্ত করে পুরো চেইন
+বর্তমান ইনস্টলার preflight-এই ভাঙা curl শনাক্ত করে পুরো chain
 (`curl openssl openssl-tool libngtcp2 libnghttp3`) আপগ্রেড করে, তাই পথ খ-ই
 শুরু করার জন্য যথেষ্ট।
 
 ---
 
+<a id="opensslcnf-conffile-cascade"></a>
 ## openssl.cnf conffile ক্যাসকেড
 
 **লক্ষণ:** `pkg upgrade`-এর (বা পাইপ করা ইনস্টলের) সময় দেখবেন
@@ -261,39 +305,44 @@ dpkg --configure -a --force-confold --force-confdef
 # ২. পরিষ্কার কিনা যাচাই করুন (কিছু প্রিন্ট করা উচিত নয়):
 dpkg --configure -a --force-confold --force-confdef
 
-# ৩. ইনস্টলার আবার চালু করুন:
-ternux repair   # বা: bash install.sh --resume
+# ৩. বিঘ্নিত ইনস্টলার চালিয়ে যান; সফল হিসেবে রেকর্ড হওয়া phase বাদ যাবে:
+bash install.sh --resume
+
+# আগে সম্পূর্ণ হওয়া installation-এর managed artifact মেরামত করতে:
+ternux repair
 ```
 
 *কেন এমনটা ঘটে:* Android শেলে প্রায়ই পাইপ/নন-ইন্টারঅ্যাক্টিভ চলে, তাই
-dpkg-র জিজ্ঞেস করার কোনো টার্মিনাল থাকে না। ternux ইনস্টলার (v1.1.0+) এখন
-প্রতিটি apt অপারেশনে `--force-confold --force-confdef` দেয় এবং ভাঙা অবস্থা
-স্বয়ংক্রিয় মেরামত করে — ম্যানুয়াল ইনস্টল বা পুরনো ভার্সনের জন্যই ওপরের
+dpkg-র জিজ্ঞেস করার কোনো টার্মিনাল থাকে না। বর্তমান ternux ইনস্টলার প্রতিটি
+apt অপারেশনে `--force-confold --force-confdef` দেয় এবং ভাঙা অবস্থা
+স্বয়ংক্রিয় মেরামত করে — manual install বা পুরনো version-এর জন্যই ওপরের
 সমাধানটি।
 
 ---
 
-## apt ব্যর্থতা {#apt-failures}
+<a id="apt-failures"></a>
+## apt ব্যর্থতা
 
-**লক্ষণ:** `rar`, `p7zip-rar`, `policykit-1` বা একগুচ্ছ প্যাকেজে `apt
-install` ব্যর্থ।
-
-**কারণ:** এগুলো Debian-এর **non-free** কম্পোনেন্টে থাকে, যা ডিফল্ট PRoot
-Debian রুটফসে চালু থাকে না। `polkitd` বনাম `policykit-1` হলো Debian
-রিলিজভেদে নামের পার্থক্য।
-
-**সমাধান:** ternux ইনস্টলার এগুলোকে আগে থেকেই বেস্ট-এফোর্ট ধরে। *আপনার* যদি
-দরকার হয়:
+**লক্ষণ:** guest Debian release-এ একটি package name unavailable হওয়ায় install
+group ব্যর্থ। Package name ও repository component release-ভেদে বদলায়; deb822
+`.sources` ব্যবহার করা system-এ blind `sed`-ও নির্ভরযোগ্য নয়।
 
 ```bash
 db
-sudo sed -i 's/ main$/ main contrib non-free non-free-firmware/' /etc/apt/sources.list
-sudo apt update && sudo apt install -y rar unrar p7zip-full
+. /etc/os-release; printf '%s %s\n' "$ID" "$VERSION_CODENAME"
+sudo apt update
+apt-cache policy unrar-free 7zip polkitd
+sudo apt install -y unrar-free 7zip polkitd
 ```
+
+কোনো app বিশেষভাবে non-free software চাইলে exact Debian release-এর repository
+guidance দেখে `/etc/apt/sources.list*` review করুন। obsolete package name resolve
+করতে পুরো source blind replace করবেন না।
 
 ---
 
-## আপগ্রেডের পর GPU পথ হারিয়ে গেছে {#after-an-upgrade-the-gpu-path-is-gone}
+<a id="after-an-upgrade-the-gpu-path-is-gone"></a>
+## আপগ্রেডের পর GPU পথ হারিয়ে গেছে
 
 **লক্ষণ:** রেন্ডারার ছিল `zink … Turnip`, `apt upgrade`-এর পর এখন
 `llvmpipe`।
@@ -311,13 +360,14 @@ sudo apt update && sudo apt install -y rar unrar p7zip-full
 ## চূড়ান্ত অস্ত্র: পরিষ্কার রি-ইনস্টল
 
 ```bash
-ternux uninstall                 # অপশন ৪: কন্টেইনার ডিলিট (বা: bash install.sh --uninstall)
-rm -f ~/x.sh ~/.ternux-state
-bash install.sh                  # নতুন ইনস্টল
+ternux uninstall all             # irreversible deletion review ও confirm করুন
+# অথবা interactively: ternux uninstall, তারপর ৫
+bash install.sh                  # reviewed checkout থেকে fresh install
 ```
 
-কন্টেইনার ডিলিট করলে **ভেতরের সব ডেটা** যায় — আগে দামি জিনিস বের করে নিন
-(দেখুন [ব্যবহার → ব্যাকআপ](USAGE.html#backups))।
+Container delete করলে **ভেতরের সব data** যায়। আগে valuable file বের করুন
+([ব্যবহার → backup](USAGE.html#backups))। Uninstall target scoped; তবু prompt
+ও path পড়ে confirm করুন।
 
 ---
 
@@ -330,7 +380,7 @@ bash install.sh                  # নতুন ইনস্টল
 uname -m
 getprop ro.product.manufacturer; getprop ro.product.model
 getprop ro.build.version.release
-ternux doctor --json           # AI-পাঠযোগ্য ডায়াগনস্টিক
+ternux doctor --json           # machine-readable diagnostic
 ternux info --json             # সম্পূর্ণ ডিভাইস প্রোফাইল
 db -c 'glxinfo | grep "renderer string"; vulkaninfo --summary | grep -i driverName'
 ```

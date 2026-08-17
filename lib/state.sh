@@ -38,8 +38,11 @@ _tnx_state_show() {
   if [ -f "$TERNUX_STATE_DIR/state" ]; then
     tnx_info "Configuration:"
     while IFS='=' read -r key val; do
-      case "$key" in backend|renderer|version|updated_at)
-        printf "  ${TNX_CD}%-20s${TNX_C0} %s\n" "$key:" "$val" ;;
+      case "$key" in
+        backend)
+          printf "  ${TNX_CD}%-20s${TNX_C0} %s\n" "$key:" "$(tnx_canonical_backend "$val")" ;;
+        renderer|version|updated_at)
+          printf "  ${TNX_CD}%-20s${TNX_C0} %s\n" "$key:" "$val" ;;
       esac
     done < "$TERNUX_STATE_DIR/state"
     echo ""
@@ -52,19 +55,21 @@ _tnx_state_show() {
       echo ""
     }
   done
+  return 0
 }
 
 _tnx_state_export_json() {
   tnx_json_init
   tnx_json_add "command" "state"
   tnx_json_add "status" "ok"
+  tnx_json_add "timestamp" "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
   tnx_json_add "version" "$TERNUX_VERSION"
   tnx_json_add "state_dir" "$TERNUX_STATE_DIR"
 
   local phases=""
   [ -f "$TERNUX_STATE_DIR/phases" ] && phases="$(tr '\n' ',' < "$TERNUX_STATE_DIR/phases" | sed 's/,$//')"
   tnx_json_add "completed_phases" "$phases"
-  tnx_json_add "backend" "$(tnx_state_get "backend" || echo "unknown")"
+  tnx_json_add "backend" "$(tnx_canonical_backend "$(tnx_state_get "backend" || echo "unknown")")"
   tnx_json_add "renderer" "$(tnx_state_get "renderer" || echo "unknown")"
   tnx_json_end
 }

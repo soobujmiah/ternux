@@ -78,8 +78,11 @@ tnx_detect_gpu() {
 }
 
 tnx_detect_vulkan() {
-  # Check if a Vulkan ICD is present in Termux
-  if ls /data/data/com.termux/files/usr/lib/libvulkan* 2>/dev/null | head -1 >/dev/null; then
+  # Check for an actual Vulkan loader/library in the active Termux prefix.
+  # Do not use `ls ... | head`: without pipefail, head can make a missing glob
+  # look successful.
+  local prefix="${PREFIX:-/data/data/com.termux/files/usr}"
+  if compgen -G "$prefix/lib/libvulkan*.so*" >/dev/null; then
     echo "yes"
     return 0
   fi
@@ -102,8 +105,10 @@ tnx_detect_backend() {
   local gpu
   gpu="$(tnx_detect_gpu)"
   case "$gpu" in
-    Adreno*) echo "zink-turnip" ;;
-    *) echo "virgl" ;;
+    # Keep the state/CLI name aligned with install.sh and lib/phases.sh.
+    # "zink-turnip" is accepted as a legacy input alias by the backend command.
+    Adreno*) echo "zink" ;;
+    *)       echo "virgl" ;;
   esac
 }
 
