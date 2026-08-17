@@ -39,15 +39,31 @@ keys match.
 
 ## How much storage will it really use?
 
-Plan for **about 12 GB free** for the base installation and working room. The
-actual result varies with Debian package versions, package caches and your
-filesystem. Development build trees, Blender, media tools and especially model
-files can add several more gigabytes. Check rather than guessing:
+The corrected approximate **installed footprint** is **3–4 GB for the base
+installation** and **10–12 GB for a complete `--all` installation**. Actual use
+varies with Debian package versions, filesystem accounting, optional tools and
+cache retention. Models and your own projects are additional.
+
+Installed size is not the same as free space needed while installing. Downloads,
+package caches, extraction and build trees temporarily coexist, so start with
+roughly **6 GB free for base** or **14 GB free for `--all`** when possible. Check
+rather than guessing:
 
 ```bash
 df -h "$HOME"
 du -sh "$PREFIX/var/lib/proot-distro/installed-rootfs/debian" 2>/dev/null
 ```
+
+## Why does `ternux` exist in both Termux and the Debian desktop?
+
+They are environment-aware entry points. In Termux, `$PREFIX/bin/ternux` is the
+full host control plane and can start, stop, repair, update or uninstall ternux.
+In an Xfce/Debian terminal, `/usr/local/bin/ternux` provides safe guest-local
+`status`, `info`, `doctor` and `env` commands. It rejects host lifecycle commands
+to avoid starting a nested PRoot session; run those commands back in Termux.
+
+The installer executes both installed entry points and checks their version
+responses. A file merely existing at either path is not treated as success.
 
 ## Does it work on non-Qualcomm phones?
 
@@ -119,8 +135,8 @@ sudo dpkg-reconfigure locales
 - **Android OS updates:** the container is files — it survives. Re-check the
   phantom-killer setting afterwards (`ternux doctor`).
 - **Termux app updates:** normally fine. Use `ternux doctor`/`ternux verify`
-  afterwards; `--resume` only skips phases already recorded as successful and
-  is not a general repair mechanism.
+  afterwards; `--resume` skips recorded-successful phases and restores the saved
+  optional workload set, but it is not a general repair mechanism.
 - **Debian updates:** safe, except see the held-Mesa note in
   [Configuration](CONFIGURATION.html#held-mesa-packages-zink-route).
 

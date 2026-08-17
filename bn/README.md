@@ -67,8 +67,8 @@ pkg install git -y
 git clone https://github.com/soobujmiah/ternux.git
 cd ternux
 git log -1 --oneline
-(set -e; for f in install.sh uninstall.sh bin/ternux lib/*.sh; do bash -n "$f"; done)
-less install.sh bin/ternux lib/*.sh
+(set -e; for f in install.sh uninstall.sh bin/ternux bin/ternux-guest lib/*.sh; do bash -n "$f"; done)
+less install.sh bin/ternux bin/ternux-guest lib/*.sh
 bash install.sh
 ```
 
@@ -151,7 +151,7 @@ ternux **measured**, **observed**, **reported build** ও **untested** result �
 |---|---|
 | **OS** | Android 10 বা তার নতুন |
 | **CPU** | `aarch64` (৬৪-বিট ARM) |
-| **স্টোরেজ** | বেস ইনস্টলের জন্য ~১২ GB ফাঁকা; মডেল/প্রজেক্টে আরও |
+| **স্টোরেজ** | ইনস্টল হওয়া বেস ~৩–৪ GB; `--all`-সহ সম্পূর্ণ ইনস্টল ~১০–১২ GB; download/cache/model-এর জন্য অতিরিক্ত ফাঁকা জায়গা রাখুন |
 | **RAM** | বাস্তবে ন্যূনতম ৪ GB; ৬–৮ GB আরামদায়ক |
 | **গ্রাফিক্স** | Adreno → Zink + Turnip (সেরা) · Mali/Xclipse/PowerVR → VirGL |
 | **অ্যাপ** | [Termux](https://github.com/termux/termux-app/releases) (F-Droid/GitHub) + [Termux:X11](https://github.com/termux/termux-x11) |
@@ -180,7 +180,39 @@ bash install.sh --uninstall         # ইন্টারঅ্যাক্টি
 
 ঐচ্ছিক ওয়ার্কলোড: `--with-dev` (Git/Node/Python) · `--with-llm` (llama.cpp,
 Vulkan) · `--with-network` (nmap, tmux — শুধু অনুমোদিত পরীক্ষায়) ·
-`--with-media` (ffmpeg, GIMP, Audacity) · `--with-blender` — বা `--all`।
+`--with-media` (ffmpeg, GIMP, Audacity) · `--with-blender` — বা `--all`। Bare
+`--resume` completed phase বাদ দেওয়ার পাশাপাশি interrupted run-এর saved optional
+workload set-ও ফিরিয়ে আনে।
+
+ইনস্টলের শুরু থেকে শেষ পর্যন্ত custom frame দেখা যায়, identity header-এ
+**Sobuj Miah** থাকে, আর package-manager output spinner-এর আড়ালে না রেখে এক
+লাইন করে দেখায়। Non-TTY বা সীমিত terminal-এ একই exit status/resume behavior-সহ
+plain readable frame দেখায়।
+
+### দুই terminal-এ `ternux`
+
+Installer শুধু executable file আছে কি না দেখে সফল বলে না—দুটি entry point-এর
+installed library load ও `--version` execution যাচাই করে:
+
+| কোথায় | Command path | কাজ |
+|---|---|---|
+| **Termux host terminal** | `$PREFIX/bin/ternux` | পূর্ণ control plane: `start`, `stop`, `repair`, `update`, `uninstall`, diagnostics |
+| **Debian/Xfce terminal** | `/usr/local/bin/ternux` | Guest-local `status`, `info`, `doctor`, `env`; nested PRoot ঠেকাতে host lifecycle command প্রত্যাখ্যান করে |
+
+```bash
+# Termux-এ
+command -v ternux
+ternux --version
+ternux doctor
+
+# Debian/Xfce terminal-এ
+command -v ternux
+ternux --version
+ternux status
+```
+
+Desktop lifecycle ও installation command **Termux**-এ চালান। Guest companion
+host-only বললে nested `proot-distro` না চালিয়ে Termux terminal-এ ফিরে যান।
 
 > **Android 12+ নোট:** child-process policy PRoot process বন্ধ করতে পারে; memory
 > pressure ও OEM battery policy-তেও একই লক্ষণ হয়। ইনস্টলার readable setting

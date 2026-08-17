@@ -34,15 +34,30 @@ Google Play-এ আলাদা পরীক্ষামূলক Android 11+ br
 
 ## আসলে কত স্টোরেজ লাগবে?
 
-বেস Debian রুটফস + প্যাকেজ মিলে ~৬ GB, তাই ইনস্টলার কাজের জায়গা রেখে
-**১২ GB ফাঁকা** চায়। প্রতিটি অতিরিক্ত প্রোফাইলের খরচ:
+সংশোধিত আনুমানিক **installed footprint** হলো **বেস ইনস্টলে ৩–৪ GB** এবং সব
+repository tool-সহ সম্পূর্ণ `--all` ইনস্টলে **১০–১২ GB**। Debian package version,
+filesystem accounting, optional tool ও cache retention অনুযায়ী actual use বদলায়।
+Model ও নিজের project এই হিসাবের বাইরে।
 
-| প্রোফাইল | মোটামুটি খরচ |
-|---|---|
-| `--with-dev` | +১–২ GB |
-| `--with-llm` | +২–৩ GB (বিল্ড ট্রি) + মডেল (প্রতি ০.৫–২ GB) |
-| `--with-blender` | +১ GB |
-| `--with-media` | +১ GB |
+Installed size আর install চলাকালীন free-space requirement এক নয়। Download,
+package cache, extraction ও build tree কিছু সময় একসঙ্গে থাকে; তাই সম্ভব হলে
+base-এর আগে প্রায় **৬ GB free**, আর `--all`-এর আগে **১৪ GB free** রাখুন:
+
+```bash
+df -h "$HOME"
+du -sh "$PREFIX/var/lib/proot-distro/installed-rootfs/debian" 2>/dev/null
+```
+
+## Termux ও Debian desktop—দুই জায়গায় `ternux` কেন?
+
+এগুলো environment-aware entry point। Termux-এ `$PREFIX/bin/ternux` পূর্ণ host
+control plane—start, stop, repair, update ও uninstall করতে পারে। Xfce/Debian
+terminal-এ `/usr/local/bin/ternux` safe guest-local `status`, `info`, `doctor` ও
+`env` দেয়। Nested PRoot এড়াতে এটি host lifecycle command প্রত্যাখ্যান করে;
+সেগুলো Termux terminal-এ চালান।
+
+Installer installed entry point দুটি execute করে version response যাচাই করে।
+শুধু কোনো path-এ file থাকাকে success ধরা হয় না।
 
 ## নন-Qualcomm ফোনে কি চলবে?
 
@@ -110,8 +125,8 @@ sudo dpkg-reconfigure locales
 - **Android OS আপডেট:** কন্টেইনার তো ফাইল — টিকে যায়। পরে ফ্যান্টম-কিলার
   সেটিং আবার চেক করুন (`ternux doctor`)।
 - **Termux app update:** সাধারণত ঠিক থাকে। পরে `ternux doctor`/`ternux verify`
-  চালান; `--resume` শুধু successful হিসেবে recorded phase বাদ দেয়, general
-  repair নয়।
+  চালান; `--resume` recorded-successful phase বাদ দিয়ে saved optional workload
+  set restore করে, কিন্তু general repair নয়।
 - **Debian আপডেট:** নিরাপদ, তবে হোল্ড করা Mesa-র নোট দেখুন
   [কনফিগারেশনে](CONFIGURATION.html#held-mesa-packages-zink-route)।
 

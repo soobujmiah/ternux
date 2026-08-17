@@ -194,7 +194,7 @@ mode magically provided by Debian, and some sandbox/container overhead.
 | Architecture | **ARM64** (`aarch64` / `arm64`) |
 | Android | ternux baseline: **Android 10+**; Termux:X11 itself requires Android 8+ |
 | RAM | 4 GB minimum; 6–8 GB recommended for desktop + development or small local models |
-| Free storage | About 12 GB for the base install; more for Blender, build trees and models |
+| Storage | Installed footprint: about **3–4 GB** for base, **10–12 GB** with `--all`; keep extra free space for downloads, caches, projects and models |
 | Root | **Not required** |
 | Network | Stable connection during installation |
 | Best GPU route | Qualcomm Adreno with accessible `/dev/kgsl-3d0` |
@@ -228,7 +228,11 @@ curl -fsSL https://soobujmiah.github.io/ternux/install.sh | bash
 
 The default is unattended: user `ternux`, locale `en_US.UTF-8`, and automatic
 backend selection (`zink` when the Adreno KGSL node is available, otherwise
-`virgl`). Do not close Termux while package installation is running.
+`virgl`). Do not close Termux while package installation is running. The custom
+installer frame stays visible from start to finish, keeps **Sobuj Miah** in its
+identity header, and streams package-manager output one line at a time instead of
+hiding it behind a spinner. Non-TTY and reduced-capability terminals receive a
+plain, readable framed log with the same exit status and resumability.
 
 > Piping a network script to Bash is convenient, but it executes the current
 > remote version immediately. Use the auditable path below if you want to inspect
@@ -244,7 +248,7 @@ pkg update -y && pkg install git -y
 git clone https://github.com/soobujmiah/ternux.git
 cd ternux
 git log -1 --oneline                 # record the exact commit
-(set -e; for f in install.sh uninstall.sh bin/ternux lib/*.sh; do bash -n "$f"; done)
+(set -e; for f in install.sh uninstall.sh bin/ternux bin/ternux-guest lib/*.sh; do bash -n "$f"; done)
 less install.sh lib/core.sh lib/phases.sh lib/detect.sh lib/ui.sh
 # In less, use :n for the next file and q when finished.
 bash install.sh
@@ -256,7 +260,7 @@ To pin an exact release, check out its tag **before** inspection and execution:
 git fetch --tags
 git checkout <release-tag>
 git status --short                   # should be empty
-(set -e; for f in install.sh uninstall.sh bin/ternux lib/*.sh; do bash -n "$f"; done)
+(set -e; for f in install.sh uninstall.sh bin/ternux bin/ternux-guest lib/*.sh; do bash -n "$f"; done)
 bash install.sh
 ```
 
@@ -286,7 +290,7 @@ bash install.sh --resume
 | `--with-media` | Install FFmpeg, GIMP, Audacity and ImageMagick |
 | `--with-blender` | Install Debian's Blender package |
 | `--all` | Install every optional profile above |
-| `--resume` | Re-run while skipping phases already recorded as complete |
+| `--resume` | Re-run while skipping completed phases and restoring the interrupted run’s saved optional workload set |
 | `--no-anim` | Disable installer animations |
 
 ### What the automatic installer does
@@ -308,6 +312,32 @@ bash install.sh --resume
 If the install is interrupted, return to the repository and run
 `bash install.sh --resume`. For diagnosis, use `ternux doctor`; for common repairs,
 use `ternux repair`.
+
+### The `ternux` command in both terminals
+
+Installation creates two environment-aware entry points and executes each one as
+part of verification—not merely checks whether a file exists:
+
+| Where you type | Resolved command | Intended behavior |
+|---|---|---|
+| **Termux host terminal** | `$PREFIX/bin/ternux` | Full control plane: `start`, `stop`, `repair`, `update`, `uninstall`, and diagnostics |
+| **Debian/Xfce terminal** | `/usr/local/bin/ternux` | Guest-local `status`, `info`, `doctor`, and `env`; host lifecycle commands are rejected so Debian never starts a nested PRoot session |
+
+```bash
+# In Termux
+command -v ternux
+ternux --version
+ternux doctor
+
+# In the Debian/Xfce terminal
+command -v ternux
+ternux --version
+ternux status
+```
+
+Run desktop lifecycle and installation commands from **Termux**. If the guest
+companion tells you a command is host-only, switch to the Termux terminal rather
+than calling `proot-distro` recursively.
 
 ---
 

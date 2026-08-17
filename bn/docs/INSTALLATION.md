@@ -22,7 +22,7 @@ alt_url: "/docs/INSTALLATION.html"
 |---|---|---|
 | **Android** | ১০ বা নতুন | পুরনো বিল্ডে Termux/X11-এর দরকারি API নেই |
 | **CPU** | `aarch64` (৬৪-বিট ARM) | PRoot নেটিভ বাইনারি চালায়; ৩২-বিট ARM আপস্ট্রিমে অসমর্থিত |
-| **স্টোরেজ** | ~১২ GB ফাঁকা | ~৬ GB বেস রুটফস + প্যাকেজ; মডেল-প্রজেক্টে আরও |
+| **স্টোরেজ** | Installed footprint: বেস ~৩–৪ GB; `--all`-সহ ~১০–১২ GB | Download, package cache, build tree, model ও project-এর জন্য অতিরিক্ত ফাঁকা জায়গা দিয়ে শুরু করুন |
 | **RAM** | ন্যূনতম ৪ GB, ৬–৮ GB ভালো | ডেস্কটপ আর Android একই মেমরি ভাগ করে; কম RAM = বেশি প্রসেস-কিল |
 | **গ্রাফিক্স** | Adreno হলে Zink/Turnip; অন্য ক্ষেত্রে VirGL candidate | Adreno route-টি মাপা; VirGL compatibility ও গতি device/Android build অনুযায়ী যাচাই করতে হবে |
 | **অ্যাপ** | Termux (F-Droid/GitHub) + Termux:X11 | মূল release line ব্যবহার করুন, Termux/plugin একই source-এ রাখুন; Google Play line আলাদা ও পরীক্ষামূলক |
@@ -41,6 +41,12 @@ ls -l /dev/kgsl-3d0 2>&1              # থাকলে → Adreno → Zink/Turn
 `/dev/kgsl-3d0` থাকলে ইনস্টলার দ্রুত Zink/Turnip পথ বেছে নেবে। না থাকলে
 VirGL সামঞ্জস্য পথ। এর acceleration, feature coverage ও গতি ডিভাইসভেদে যাচাই করতে হবে।
 
+উপরের storage সংখ্যা আনুমানিক **installed footprint**, temporary headroom-এর
+minimum নয়। Package version ও filesystem accounting বদলায়। Clean run-এর জন্য
+installer base-এ প্রায় **৬ GB free** এবং `--all`-এ **১৪ GB free** target করে,
+যাতে download, cache, extraction ও build-এর জায়গা থাকে; finished installation
+যথাক্রমে প্রায় **৩–৪ GB** ও **১০–১২ GB**।
+
 ---
 
 ## পদ্ধতি ১ — এক কমান্ড (প্রস্তাবিত)
@@ -51,6 +57,12 @@ curl -fsSL https://soobujmiah.github.io/ternux/install.sh | bash
 
 এটি HTTPS-এ ইনস্টলার নামিয়ে চালায়। এই রিপোজিটরির সেই একই স্ক্রিপ্ট —
 লুকানো কিছু নেই, কম্পাইলড কিছু নেই।
+
+Custom installation frame শুরু থেকে final summary পর্যন্ত screen-এ থাকে,
+identity header-এ **Sobuj Miah** দৃশ্যমান রাখে এবং আসল package output spinner-এর
+আড়ালে না রেখে এক লাইন করে দেখায়। Capable TTY-তে persistent dashboard; redirected
+output, `TERM=dumb` বা সীমিত color terminal-এ static readable frame। দুই mode-ই
+logging, phase exit status, noninteractive operation ও `--resume` state অক্ষুণ্ণ রাখে।
 
 **আপগ্রেডের পর curl ভেঙে গেছে?** (`CANNOT LINK … SSL_set_quic_tls_transport_params`)
 আংশিক আপগ্রেডে curl ও openssl সামঞ্জস্য হারিয়েছে। wget ব্যবহার করুন — একই
@@ -70,7 +82,7 @@ pkg update -y && pkg install git -y
 git clone https://github.com/soobujmiah/ternux.git
 cd ternux
 git log -1 --oneline                 # exact commit লিখে রাখুন
-(set -e; for f in install.sh uninstall.sh bin/ternux lib/*.sh; do bash -n "$f"; done)
+(set -e; for f in install.sh uninstall.sh bin/ternux bin/ternux-guest lib/*.sh; do bash -n "$f"; done)
 less install.sh lib/core.sh lib/phases.sh lib/detect.sh lib/ui.sh
 # less-এ :n দিলে পরের file, q দিলে review শেষ হবে।
 bash install.sh
@@ -80,7 +92,8 @@ Reproducible review-এর জন্য `git fetch --tags` চালিয়ে
 এবং inspection-এর আগে `git status --short` ফাঁকা আছে কি না দেখুন। Installed result
 একই হওয়ার কথা; local review route একবার confirmation চাইতে পারে। Review-এর পর
 prompt না চাইলে সচেতনভাবে `--yes` দিন। বিঘ্নিত হলে `bash install.sh --resume`
-চালান; শুধু successful হিসেবে recorded phase বাদ যাবে।
+চালান; successful হিসেবে recorded phase বাদ যাবে এবং interrupted run-এর saved
+optional workload set restore হবে।
 
 ### পদ্ধতি ৩ — সম্পূর্ণ ম্যানুয়াল, কমান্ডে কমান্ডে
 
@@ -91,12 +104,21 @@ prompt না চাইলে সচেতনভাবে `--yes` দিন। �
 
 ---
 
-## ternux CLI — ব্যবস্থাপনা ইন্টারফেস
+## ternux CLI — host control ও guest diagnostics
 
-ইনস্টলের পর `ternux` CLI আপনার একমাত্র প্রবেশপথ ডায়াগনস্টিক, মেরামত,
-ডেস্কটপ ব্যবস্থাপনা ও আপডেটের জন্য:
+ইনস্টলের পর দুই terminal environment-এই `ternux` পাওয়া যায়, তবে entry point
+দুটির দায়িত্ব ইচ্ছাকৃতভাবে আলাদা:
+
+| Environment | Installed entry point | ভূমিকা |
+|---|---|---|
+| **Termux host** | `$PREFIX/bin/ternux`; module `$PREFIX/lib/ternux/`-এ | পূর্ণ diagnostics, repair, desktop lifecycle, profile, backend, update ও uninstall |
+| **Debian/Xfce guest** | `/usr/local/bin/ternux` | আরেকটি PRoot না খুলে guest-local `status`, `info`, `doctor` ও `env` |
+
+পূর্ণ control plane **Termux host terminal**-এ ব্যবহার করুন:
 
 ```bash
+command -v ternux       # $PREFIX/bin/ternux
+ternux --version        # ternux vX.Y.Z
 ternux doctor           # সিস্টেম ডায়াগনস্টিক
 ternux doctor --json    # machine-readable output
 ternux start            # ডেস্কটপ চালু
@@ -115,7 +137,23 @@ ternux update           # CLI আপডেট
 ternux uninstall        # কম্পোনেন্ট অপসারণ
 ```
 
-ডিসপ্যাচার global flag শনাক্ত করে, কিন্তু সব command JSON schema দেয় না।
+**Debian-এর Xfce terminal** থেকে guest-local inspection চালান:
+
+```bash
+command -v ternux       # /usr/local/bin/ternux
+ternux --version        # ternux guest vX.Y.Z
+ternux status
+ternux info
+ternux doctor
+ternux env
+```
+
+Guest companion `start`, `stop`, `repair`, `update`, `uninstall`-এর মতো host-only
+lifecycle command-এ usage error দিয়ে Termux-এ চালাতে বলে; এতে accidental nested
+PRoot session হয় না। Installer exact installed host ও guest command execute করে
+version response যাচাই করে—শুধু executable file থাকা success নয়।
+
+Host dispatcher global flag শনাক্ত করে, কিন্তু সব command JSON schema দেয় না।
 Structured output শুধু [CLI reference](CLI.html)-এ নথিভুক্ত command-এ ব্যবহার করুন।
 
 ---
@@ -130,8 +168,8 @@ Structured output শুধু [CLI reference](CLI.html)-এ নথিভুক�
 |---|---|---|---|
 | ১ | **প্রিফ্লাইট** | Termux, আর্কিটেকচার, Android ভার্সন, স্টোরেজ, নেটওয়ার্ক পরীক্ষা | এখানে ব্যর্থ হলে ডাউনলোডও নষ্ট হয় না; পরের সব ধাপ এই তথ্যের ওপর নির্ভর করে |
 | ২ | **বেস প্যাকেজ** | `x11-repo`, `termux-x11-nightly`, `pulseaudio`, `proot-distro`, `virglrenderer-android`, টুলস ইনস্টল; স্টোরেজ অনুমতি | কন্টেইনারের দরকারি হোস্ট-সাইড সার্ভিস: ডিসপ্লে, শব্দ ও কন্টেইনার ইঞ্জিন |
-| ৩ | **CLI ইনস্টলেশন** | GitHub থেকে `bin/ternux` + `lib/*.sh` ডাউনলোড করে `$PREFIX/bin/`-এ ইনস্টল | `ternux` কমান্ড ডায়াগনস্টিক, মেরামত ও ডেস্কটপ ব্যবস্থাপনার জন্য উপলব্ধ হয় |
-| ৪ | **Debian + Xfce4** | Debian রুটফস, ডেস্কটপ প্যাকেজ, পাসওয়ার্ডবিহীন sudo সহ আপনার ইউজার | আপনি যে ডেস্কটপ ব্যবহার করবেন; `visudo` দিয়ে sudo যাচাই, যাতে টাইপো কখনো কন্টেইনার লক না করে |
+| ৩ | **Host CLI ইনস্টলেশন** | `$PREFIX/bin/ternux` ও `$PREFIX/lib/ternux/`-এর module install করে, তারপর exact path execute করে version যাচাই | Library missing থাকলেও file থাকতে পারে; সফল execution-ই আসল host-side check |
+| ৪ | **Debian + Xfce4** | Debian rootfs/desktop package ও passwordless sudo-সহ user তৈরি, `/usr/local/bin/ternux` install ও guest companion execute | Nested PRoot ছাড়াই desktop-এ safe local diagnostics; sudo ও guest command দুটোই যাচাই হয় |
 | ৫ | **GPU ড্রাইভার** | Adreno: Turnip ড্রাইভার ডাউনলোড, আর্কাইভ যাচাই, ইনস্টল, Mesa প্যাকেজ পিন। অন্যান্য: VirGL হোস্ট রেন্ডারার নিশ্চিত | এটি ছাড়া সব GL অ্যাপ CPU-তে চলে (`llvmpipe`)। পিন করা থাকলে সাধারণ `apt upgrade` নিঃশব্দে GPU পথ বদলে দিতে পারে না |
 | ৬ | **অডিও, লোকেল, ফন্ট** | PulseAudio ব্রিজ (শুধু লুপব্যাক), লোকেল তৈরি, ইমোজি/পাওয়ারলাইন/নার্ড ফন্ট | শব্দ TCP দিয়ে কন্টেইনার সীমানা পাড়ি দেয় — লুপব্যাকেই সীমাবদ্ধ, নেটওয়ার্কে খোলা নয়; ফন্ট টার্মিনালে "টোফু বক্স" ঠেকায় |
 | ৭ | **লঞ্চার** | GPU পথ অনুযায়ী `~/x.sh` লেখা ও সিনট্যাক্স-চেক | এক কমান্ডে (`x`) অডিও → ডিসপ্লে → ডেস্কটপ নির্ভরযোগ্য ক্রমে শুরু হতেই হবে |

@@ -21,7 +21,7 @@ The complete guide. For the concise path, see
 |---|---|---|
 | **Android** | 10 or newer | Older builds lack the APIs Termux/X11 rely on |
 | **CPU** | `aarch64` (64-bit ARM) | PRoot runs native binaries; 32-bit ARM is unsupported upstream |
-| **Storage** | ~12 GB free | ~6 GB base rootfs + packages; models and projects add more |
+| **Storage** | Installed: ~3–4 GB base; ~10–12 GB with `--all` | Begin with additional free space for downloads, package caches, build trees, models and projects |
 | **RAM** | 4 GB min, 6–8 GB preferred | The desktop + Android share memory; less RAM = more killing |
 | **Graphics** | Adreno preferred; VirGL fallback otherwise | Zink/Turnip requires the Qualcomm KGSL path; VirGL compatibility varies by device/Android build |
 | **Apps** | Termux (F-Droid/GitHub) + Termux:X11 | Keep Termux and all plugins from the same source; the Google Play line is experimental and differs from the main releases |
@@ -42,6 +42,12 @@ route. Missing means it selects VirGL, a compatibility path through a
 host-side renderer. Verify either route with `glxinfo -B`; a desktop that opens
 with `llvmpipe` is using CPU rendering, not proof of GPU acceleration.
 
+The storage figures above are the approximate **installed footprint**, not the
+minimum temporary headroom. Package versions and filesystem accounting vary.
+For a clean run, the installer targets roughly **6 GB free** for base and
+**14 GB free** for `--all`, allowing downloads, caches, extraction, and builds;
+the finished installation itself is approximately **3–4 GB** or **10–12 GB**.
+
 ---
 
 ## Method 1 — One command (recommended)
@@ -54,6 +60,13 @@ This downloads the installer over HTTPS and runs it. Because piped standard
 input is not a terminal, this route runs unattended with the documented
 defaults. Read the output: a required-phase failure stops its dependants, while
 an optional/advisory failure is reported and leaves a nonzero final status.
+
+The installation frame remains on screen from startup through the final summary,
+keeps **Sobuj Miah** visible in its identity header, and streams real package
+output one line at a time. It does not replace logs with a spinner. A capable TTY
+gets the persistent dashboard; redirected output, `TERM=dumb`, and reduced-color
+terminals get a static readable frame. Both modes preserve logging, phase exit
+statuses, noninteractive operation, and `--resume` state.
 
 **curl broken after an upgrade?** A partial upgrade can leave curl and
 openssl out of sync. Use wget — same installer, and the script repairs curl
@@ -75,7 +88,7 @@ pkg update -y && pkg install git -y
 git clone https://github.com/soobujmiah/ternux.git
 cd ternux
 git log -1 --oneline                 # record the exact commit
-(set -e; for f in install.sh uninstall.sh bin/ternux lib/*.sh; do bash -n "$f"; done)
+(set -e; for f in install.sh uninstall.sh bin/ternux bin/ternux-guest lib/*.sh; do bash -n "$f"; done)
 less install.sh lib/core.sh lib/phases.sh lib/detect.sh lib/ui.sh
 # In less, use :n for the next file and q when finished.
 bash install.sh
@@ -85,7 +98,8 @@ For a reproducible review, run `git fetch --tags`, check out a release tag, and
 confirm `git status --short` is empty before inspection. The installed result is
 intended to be the same, but this local-terminal route asks for one confirmation.
 Add `--yes` only after review when you deliberately want no prompt. If interrupted,
-use `bash install.sh --resume`; only phases recorded as successful are skipped.
+use `bash install.sh --resume`; successful phases are skipped and the interrupted
+run’s saved optional workload set is restored.
 
 ### Method 3 — fully manual
 
@@ -97,12 +111,21 @@ steps for you.
 
 ---
 
-## ternux CLI — the management interface
+## ternux CLI — host control and guest diagnostics
 
-After installation, the `ternux` CLI is the single entry point for diagnostics,
-repair, desktop management, profiles, backends, and updates:
+Installation makes `ternux` discoverable in both terminal environments, but the
+two entry points deliberately have different responsibilities:
+
+| Environment | Installed entry point | Supported role |
+|---|---|---|
+| **Termux host** | `$PREFIX/bin/ternux` with modules in `$PREFIX/lib/ternux/` | Full diagnostics, repair, desktop lifecycle, profiles, backends, update, and uninstall |
+| **Debian/Xfce guest** | `/usr/local/bin/ternux` | Guest-local `status`, `info`, `doctor`, and `env` without launching another PRoot session |
+
+Use the full control plane from the **Termux host terminal**:
 
 ```bash
+command -v ternux       # $PREFIX/bin/ternux
+ternux --version        # ternux vX.Y.Z
 ternux doctor           # system diagnostics
 ternux doctor --json    # machine-readable diagnostics
 ternux start            # start the desktop
@@ -121,8 +144,25 @@ ternux update           # update the CLI
 ternux uninstall        # remove selected components
 ```
 
-The dispatcher recognizes global flags, but not every command implements a JSON
-schema. Use structured output only for commands documented in the
+From an **Xfce terminal inside Debian**, use guest-local inspection commands:
+
+```bash
+command -v ternux       # /usr/local/bin/ternux
+ternux --version        # ternux guest vX.Y.Z
+ternux status
+ternux info
+ternux doctor
+ternux env
+```
+
+The guest companion returns a usage error for host-only lifecycle commands such
+as `start`, `stop`, `repair`, `update`, and `uninstall`, and tells you to run them
+in Termux. This prevents accidental nested PRoot sessions. During installation,
+ternux executes the exact installed host and guest commands and validates their
+version responses; executable-file presence alone does not count as success.
+
+The host dispatcher recognizes global flags, but not every command implements a
+JSON schema. Use structured output only for commands documented in the
 [CLI reference](CLI.html).
 
 ---
@@ -137,8 +177,8 @@ message instead of producing a half-broken desktop.
 |---|---|---|---|
 | 1 | **Preflight** | Checks Termux, architecture, Android version, storage, network | Fail here and you waste no downloads; every later phase depends on these facts |
 | 2 | **Base packages** | Installs `x11-repo`, `termux-x11`, `pulseaudio`, `proot-distro`, `virglrenderer-android`, tools; requests storage permission | These are the host-side services the container needs: display, sound, and the container engine |
-| 3 | **CLI installation** | Installs the `ternux` command and libraries to `$PREFIX/bin/` | The `ternux` command becomes available for diagnostics, repair, and desktop management |
-| 4 | **Debian + Xfce4** | Installs the Debian rootfs, desktop packages, creates your user with passwordless sudo | The desktop you actually use; sudo is validated so a typo can never lock the container |
+| 3 | **Host CLI installation** | Installs `$PREFIX/bin/ternux` plus modules in `$PREFIX/lib/ternux/`, then executes its exact path and checks its version | A file can exist while its libraries are missing; successful execution is the real host-side check |
+| 4 | **Debian + Xfce4** | Installs the Debian rootfs and desktop packages, creates your user with passwordless sudo, installs `/usr/local/bin/ternux`, and executes the guest companion | The desktop gets safe local diagnostics without nesting PRoot; sudo and the guest command are both validated |
 | 5 | **GPU driver** | Adreno: resolves the current Debian ARM64 Turnip asset, rejects unsafe paths, validates the two target members as regular files, records URL/SHA-256, and installs only those members. Other: confirms the VirGL host renderer | Target-only extraction avoids executing archive layout assumptions. Pinning paired Mesa packages reduces the chance of a routine upgrade replacing the tested path |
 | 6 | **Audio, locale, fonts** | Bridges PulseAudio loopback-only, generates your locale, installs emoji/powerline/Nerd fonts | Sound crosses the container boundary over TCP — loopback only. Fonts avoid tofu boxes in the terminal |
 | 7 | **Launcher** | Writes `~/x.sh` tuned to your GPU route, syntax-checks it | One command (`x`) must reliably start audio → display → desktop in the right order |

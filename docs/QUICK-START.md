@@ -45,6 +45,11 @@ The installer:
 6. writes the `x` launcher and shell shortcuts;
 7. verifies everything landed.
 
+Expect about **3–4 GB installed** for base or **10–12 GB** with `--all`; keep
+additional temporary space for downloads and caches. The Sobuj Miah installation
+frame stays visible and streams package output line by line through completion,
+with a static readable fallback when a persistent TTY dashboard is unavailable.
+
 Prefer to review all code before it runs? Clone the repository; reviewing only the bootstrap is incomplete because it otherwise downloads library modules at runtime.
 
 ```bash
@@ -52,8 +57,8 @@ pkg install git -y
 git clone https://github.com/soobujmiah/ternux.git
 cd ternux
 git log -1 --oneline
-(set -e; for f in install.sh uninstall.sh bin/ternux lib/*.sh; do bash -n "$f"; done)
-less install.sh bin/ternux lib/*.sh
+(set -e; for f in install.sh uninstall.sh bin/ternux bin/ternux-guest lib/*.sh; do bash -n "$f"; done)
+less install.sh bin/ternux bin/ternux-guest lib/*.sh
 bash install.sh
 ```
 
@@ -99,7 +104,8 @@ clean-mesa clear the Mesa shader cache
 
 ### Ternux CLI — the management interface
 
-After installation, the `ternux` command is your permanent control centre:
+After installation, the `ternux` command is your permanent control centre. Run
+the full commands below in **Termux** (`$PREFIX/bin/ternux`):
 
 ```bash
 ternux doctor           # system diagnostics
@@ -112,6 +118,10 @@ ternux info             # system information
 ternux update           # self-update
 ternux uninstall        # remove components
 ```
+
+Inside the Debian/Xfce terminal, `/usr/local/bin/ternux` provides guest-local
+`status`, `info`, `doctor`, and `env`. It rejects host lifecycle commands to
+prevent nested PRoot; return to Termux for `start`, `stop`, `repair`, or `update`.
 
 The dispatcher recognizes global flags including `--help`, `--json`, `--verbose`,
 and `--quiet`, but structured output is command-specific. Use `--json` only where

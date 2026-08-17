@@ -1,0 +1,128 @@
+#!/usr/bin/env bash
+# =============================================================================
+#  ternux guest companion — safe commands for the Debian/Xfce terminal
+#
+#  Android-side lifecycle operations belong to the Termux host CLI. This
+#  companion intentionally does not try to start a nested PRoot session.
+# =============================================================================
+set -u
+
+TERNUX_GUEST_VERSION="1.3.0"
+
+_guest_help() {
+  cat <<'EOF'
+ternux — Debian/Xfce guest companion
+
+Usage:
+  ternux status       check the live display, sound bridge and renderer
+  ternux doctor       verify Debian desktop commands and passwordless sudo
+  ternux verify       alias for doctor
+  ternux info         show guest/session information
+  ternux env          show the guest display, audio and session variables
+  ternux --version    show the companion version
+
+The full lifecycle CLI runs in the Termux host terminal. Use Termux for:
+  ternux start | stop | restart | repair | install | update
+
+This split is deliberate: running those commands from inside Debian would
+create a nested PRoot session and target the wrong HOME/PATH.
+EOF
+}
+
+_guest_renderer() {
+  command -v glxinfo >/dev/null 2>&1 || { printf '%s' "unavailable (glxinfo missing)"; return 1; }
+  glxinfo -B 2>/dev/null | awk -F': ' '/OpenGL renderer string/{print $2; found=1; exit} END{if(!found) exit 1}'
+}
+
+_guest_status() {
+  local rc=0 renderer=""
+  printf 'ternux Debian guest status\n'
+  printf '  %-12s %s\n' "Display:" "${DISPLAY:-not set}"
+
+  if command -v xdpyinfo >/dev/null 2>&1 && xdpyinfo -display "${DISPLAY:-:0}" >/dev/null 2>&1; then
+    printf '  %-12s %s\n' "X11:" "reachable"
+  else
+    printf '  %-12s %s\n' "X11:" "not reachable"
+    rc=1
+  fi
+
+  if command -v pactl >/dev/null 2>&1 && pactl info >/dev/null 2>&1; then
+    printf '  %-12s %s\n' "Audio:" "PulseAudio reachable"
+  else
+    printf '  %-12s %s\n' "Audio:" "PulseAudio not reachable"
+    rc=1
+  fi
+
+  renderer="$(_guest_renderer 2>/dev/null)" || true
+  if [ -n "$renderer" ]; then
+    printf '  %-12s %s\n' "Renderer:" "$renderer"
+    case "$renderer" in
+      *llvmpipe*|*softpipe*) rc=1 ;;
+    esac
+  else
+    printf '  %-12s %s\n' "Renderer:" "unavailable"
+    rc=1
+  fi
+  return "$rc"
+}
+
+_guest_verify() {
+  local rc=0 command_name=""
+  printf 'Verifying Debian guest tools...\n'
+  for command_name in startxfce4 glxinfo xdpyinfo pactl; do
+    if command -v "$command_name" >/dev/null 2>&1; then
+      printf '  [ OK ] %s\n' "$command_name"
+    else
+      printf '  [FAIL] %s is missing\n' "$command_name"
+      rc=1
+    fi
+  done
+  if sudo -n true >/dev/null 2>&1; then
+    printf '  [ OK ] passwordless sudo\n'
+  else
+    printf '  [FAIL] passwordless sudo\n'
+    rc=1
+  fi
+  return "$rc"
+}
+
+_guest_info() {
+  local renderer=""
+  renderer="$(_guest_renderer 2>/dev/null)" || renderer="unavailable"
+  printf 'ternux Debian guest companion v%s\n' "$TERNUX_GUEST_VERSION"
+  printf '  %-12s %s\n' "User:" "$(id -un 2>/dev/null || echo unknown)"
+  printf '  %-12s %s\n' "Kernel:" "$(uname -m 2>/dev/null || echo unknown)"
+  printf '  %-12s %s\n' "Display:" "${DISPLAY:-not set}"
+  printf '  %-12s %s\n' "Pulse:" "${PULSE_SERVER:-default}"
+  printf '  %-12s %s\n' "Renderer:" "$renderer"
+}
+
+_guest_env() {
+  printf 'DISPLAY=%s\n' "${DISPLAY:-}"
+  printf 'PULSE_SERVER=%s\n' "${PULSE_SERVER:-}"
+  printf 'XDG_RUNTIME_DIR=%s\n' "${XDG_RUNTIME_DIR:-}"
+  printf 'XDG_SESSION_TYPE=%s\n' "${XDG_SESSION_TYPE:-}"
+  printf 'DESKTOP_SESSION=%s\n' "${DESKTOP_SESSION:-}"
+}
+
+case "${1:-help}" in
+  help|--help|-h) _guest_help ;;
+  --version|-V|version)
+    printf 'ternux guest v%s\n' "$TERNUX_GUEST_VERSION"
+    printf '%s\n' 'https://github.com/soobujmiah/ternux'
+    ;;
+  status) _guest_status ;;
+  doctor|verify) _guest_verify ;;
+  info) _guest_info ;;
+  env) _guest_env ;;
+  start|stop|restart|repair|install|update|uninstall|backend|profile|logs|state|benchmark)
+    printf "ternux: '%s' is a Termux-host command.\n" "$1" >&2
+    printf 'Open the Termux app and run it there; the Debian companion will not start a nested PRoot session.\n' >&2
+    exit 64
+    ;;
+  *)
+    printf "ternux: unknown Debian guest command: %s\n" "$1" >&2
+    _guest_help >&2
+    exit 2
+    ;;
+esac

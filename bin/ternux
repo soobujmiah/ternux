@@ -8,26 +8,40 @@
 set -u
 
 # --- Locate libraries -------------------------------------------------------
-_TNX_ROOT=""
+# The repository and installed command deliberately use different layouts:
+#   checkout:  bin/ternux + lib/core.sh
+#   installed: $PREFIX/bin/ternux + $PREFIX/lib/ternux/core.sh
+# Resolve the module directory itself so both layouts remain first-class.
+_TNX_LIB_DIR=""
+_TNX_BIN_DIR="$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]:-$0}")" 2>/dev/null && pwd -P)"
+
 for _try in \
-  "$(cd "$(dirname "$(realpath "$0" 2>/dev/null || echo "$0")")/.." && pwd 2>/dev/null)" \
+  "${TERNUX_LIB_DIR:-}" \
+  "${_TNX_BIN_DIR}/../lib/ternux" \
+  "${_TNX_BIN_DIR}/../lib" \
+  "${PREFIX:-/data/data/com.termux/files/usr}/lib/ternux" \
   "/data/data/com.termux/files/usr/lib/ternux" \
   "$HOME/.local/share/ternux/lib"; do
-  [ -f "$_try/lib/core.sh" ] && { _TNX_ROOT="$_try"; break; }
+  [ -n "$_try" ] || continue
+  if [ -f "$_try/core.sh" ]; then
+    _TNX_LIB_DIR="$(CDPATH= cd -- "$_try" 2>/dev/null && pwd -P)"
+    break
+  fi
 done
+unset _try _TNX_BIN_DIR
 
-if [ -z "$_TNX_ROOT" ]; then
+if [ -z "$_TNX_LIB_DIR" ]; then
   echo "[FATAL] Cannot locate ternux libraries. Reinstall: bash install.sh" >&2
   exit 1
 fi
 
-. "$_TNX_ROOT/lib/core.sh"
+. "$_TNX_LIB_DIR/core.sh"
 
 # --- Lazy-load a library module by name ------------------------------------
 _tnx_use() {
   local lib="$1"
   [ -n "${_TNX_LOADED[$lib]:-}" ] && return 0
-  local f="$_TNX_ROOT/lib/${lib}.sh"
+  local f="$_TNX_LIB_DIR/${lib}.sh"
   if [ -f "$f" ]; then
     . "$f"
     _TNX_LOADED["$lib"]=1
@@ -47,7 +61,7 @@ _tnx_dispatch() {
     return $?
   fi
 
-  # Lazy-load: try lib/<cmd>.sh
+  # Lazy-load: try <module-dir>/<command>.sh
   local lib_map=""
   case "$cmd" in
     start|stop|restart|status) lib_map="desktop" ;;
@@ -56,7 +70,7 @@ _tnx_dispatch() {
     *)                         lib_map="$cmd" ;;
   esac
 
-  if [ -f "$_TNX_ROOT/lib/${lib_map}.sh" ]; then
+  if [ -f "$_TNX_LIB_DIR/${lib_map}.sh" ]; then
     _tnx_use "$lib_map" 2>/dev/null || true
   fi
 

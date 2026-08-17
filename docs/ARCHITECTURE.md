@@ -180,7 +180,7 @@ state*:
 
 - **Idempotency** — a completed phase can be checked or re-entered without
   duplicating configuration.
-- **Recorded resume** — `--resume` skips phases recorded as successful; it is not repair.
+- **Recorded resume** — `--resume` skips successful phases and restores the interrupted run’s saved optional workload set; it is not repair.
 - **Targeted repair** — `--doctor` maps a failure to its phase.
 - **Verification before progression** — every critical file and binary is
   confirmed present before the next phase runs.

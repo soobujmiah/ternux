@@ -8,6 +8,14 @@ alt_url: "/docs/CLI.html"
 `ternux` CLI হলো স্থায়ী ব্যবস্থাপনা ইন্টারফেস — ইনস্টল, ডায়াগনস্টিক,
 মেরামত, বেঞ্চমার্ক, ডেস্কটপ লাইফসাইকেল ও সিস্টেম তথ্যের জন্য।
 
+এই reference `$PREFIX/bin/ternux`-এ installed পূর্ণ **Termux host** command-এর।
+Debian/Xfce terminal-এ আলাদা guest-aware `/usr/local/bin/ternux` companion আছে;
+এটি শুধু `status`, `info`, `doctor` (`verify` একই কাজের alias), `env`, `--version`
+ও help দেয়। Nested PRoot না খুলে host lifecycle command প্রত্যাখ্যান করে। নিচের
+host commandগুলো Termux-এ
+চালান। Installer command দুটি execute ও version-check করে; শুধু file presence-কে
+successful CLI installation ধরা হয় না।
+
 ## ব্যবহার
 
 ```bash
@@ -57,7 +65,7 @@ ternux install [options]
 | `--with-media` | মিডিয়া টুলস ইনস্টল |
 | `--with-blender` | Blender ইনস্টল |
 | `--all` | সব ঐচ্ছিক ওয়ার্কলোড |
-| `--resume` | interrupted install-এ শুধু recorded-successful phase skip |
+| `--resume` | completed phase skip এবং interrupted run-এর saved optional workload set restore |
 
 ### `ternux start`
 

@@ -48,6 +48,11 @@ wget -qO- https://soobujmiah.github.io/ternux/install.sh | bash
 6. লঞ্চার ও শেল শর্টকাট লিখে দেয়;
 7. সবকিছু ঠিকমতো বসেছে কিনা যাচাই করে।
 
+Installed size base-এ প্রায় **৩–৪ GB**, আর `--all`-এ **১০–১২ GB**; download ও
+cache-এর জন্য অতিরিক্ত temporary space রাখুন। Sobuj Miah installation frame শেষ
+পর্যন্ত দৃশ্যমান থাকে ও package output এক লাইন করে দেখায়; persistent TTY dashboard
+সম্ভব না হলে static readable fallback ব্যবহার করে।
+
 নন-ইন্টারঅ্যাক্টিভ মোডে এটি নিজেই নথিভুক্ত default ব্যবহার করে; local clone
 থেকে একই default স্পষ্টভাবে নিতে `--yes` যোগ করুন। চালানোর আগে সব code দেখতে
 চাইলে repository clone করুন—শুধু bootstrap পড়া যথেষ্ট নয়, কারণ standalone
@@ -58,8 +63,8 @@ pkg install git -y
 git clone https://github.com/soobujmiah/ternux.git
 cd ternux
 git log -1 --oneline
-(set -e; for f in install.sh uninstall.sh bin/ternux lib/*.sh; do bash -n "$f"; done)
-less install.sh bin/ternux lib/*.sh
+(set -e; for f in install.sh uninstall.sh bin/ternux bin/ternux-guest lib/*.sh; do bash -n "$f"; done)
+less install.sh bin/ternux bin/ternux-guest lib/*.sh
 bash install.sh
 ```
 
@@ -106,7 +111,8 @@ sysmon   ডিভাইসের সারসংক্ষেপ   clean-mesa  �
 
 ### ternux CLI — ব্যবস্থাপনা ইন্টারফেস
 
-ইনস্টলের পর `ternux` কমান্ড আপনার স্থায়ী নিয়ন্ত্রণ কেন্দ্র:
+ইনস্টলের পর `ternux` কমান্ড আপনার স্থায়ী নিয়ন্ত্রণ কেন্দ্র। নিচের পূর্ণ command
+**Termux**-এ (`$PREFIX/bin/ternux`) চালান:
 
 ```bash
 ternux doctor           # সিস্টেম ডায়াগনস্টিক
@@ -123,6 +129,10 @@ ternux logs             # লগ ফাইল দেখা
 ternux update           # আপডেট
 ternux uninstall        # কম্পোনেন্ট অপসারণ
 ```
+
+Debian/Xfce terminal-এ `/usr/local/bin/ternux` guest-local `status`, `info`,
+`doctor` ও `env` দেয়। Nested PRoot ঠেকাতে host lifecycle command প্রত্যাখ্যান
+করে; `start`, `stop`, `repair` বা `update`-এর জন্য Termux-এ ফিরে যান।
 
 ডিসপ্যাচার global flag শনাক্ত করে; JSON output শুধু নথিভুক্ত command-এ নিশ্চিত।
 সম্পূর্ণ রেফারেন্স: [CLI রেফারেন্স](CLI.html)।

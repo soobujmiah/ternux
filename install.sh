@@ -106,7 +106,8 @@ USER_NAME="ternux"
 LOCALE="en_US.UTF-8"
 BACKEND="auto"
 SHELL_CHOICE="bash"
-WITH_DEV=0; WITH_LLM=0; WITH_NETWORK=0; WITH_MEDIA=0; WITH_BLENDER=0
+USER_SET=0; LOCALE_SET=0; BACKEND_SET=0; SHELL_SET=0
+WITH_DEV=0; WITH_LLM=0; WITH_NETWORK=0; WITH_MEDIA=0; WITH_BLENDER=0; WITH_ALL=0
 FIX="no"
 
 while [ $# -gt 0 ]; do
@@ -118,7 +119,11 @@ while [ $# -gt 0 ]; do
         echo "[FAIL] $opt needs a value" >&2
         exit 2
       fi
-      if [ "$opt" = "--user" ]; then USER_NAME="$2"; else LOCALE="$2"; fi
+      if [ "$opt" = "--user" ]; then
+        USER_NAME="$2"; USER_SET=1
+      else
+        LOCALE="$2"; LOCALE_SET=1
+      fi
       shift
       ;;
     --backend)
@@ -127,17 +132,17 @@ while [ $# -gt 0 ]; do
         exit 2
       fi
       case "$2" in
-        auto|zink|virgl) BACKEND="$2"; shift ;;
+        auto|zink|virgl) BACKEND="$2"; BACKEND_SET=1; shift ;;
         *) echo "[FAIL] --backend must be auto, zink or virgl" >&2; exit 2 ;;
       esac
       ;;
-    --zsh) SHELL_CHOICE="zsh" ;;
+    --zsh) SHELL_CHOICE="zsh"; SHELL_SET=1 ;;
     --with-dev) WITH_DEV=1 ;;
     --with-llm) WITH_LLM=1 ;;
     --with-network) WITH_NETWORK=1 ;;
     --with-media) WITH_MEDIA=1 ;;
     --with-blender) WITH_BLENDER=1 ;;
-    --all) WITH_DEV=1; WITH_LLM=1; WITH_NETWORK=1; WITH_MEDIA=1; WITH_BLENDER=1 ;;
+    --all) WITH_ALL=1; WITH_DEV=1; WITH_LLM=1; WITH_NETWORK=1; WITH_MEDIA=1; WITH_BLENDER=1 ;;
     --doctor) ACTION="doctor"; [ "${2:-}" = "--fix" ] && { FIX="yes"; shift; } ;;
     --fix) FIX="yes" ;;
     --no-anim) export TERNUX_NO_ANIM=1 ;;
@@ -233,14 +238,21 @@ case "${ACTION}" in
     # Preserve argument boundaries and pass --yes only when the caller asked
     # for it. A local TTY run gets one confirmation; a curl|bash run has no
     # TTY and proceeds with the documented defaults.
-    INSTALL_ARGS=(--user "$USER_NAME" --locale "$LOCALE" --backend "$BACKEND")
+    INSTALL_ARGS=()
+    [ "$USER_SET" = "1" ] && INSTALL_ARGS+=(--user "$USER_NAME")
+    [ "$LOCALE_SET" = "1" ] && INSTALL_ARGS+=(--locale "$LOCALE")
+    [ "$BACKEND_SET" = "1" ] && INSTALL_ARGS+=(--backend "$BACKEND")
     [ "$YES" = "1" ] && INSTALL_ARGS+=(--yes)
     [ "$ACTION" = "resume" ] && INSTALL_ARGS+=(--resume)
-    [ "$WITH_DEV" = "1" ] && INSTALL_ARGS+=(--with-dev)
-    [ "$WITH_LLM" = "1" ] && INSTALL_ARGS+=(--with-llm)
-    [ "$WITH_NETWORK" = "1" ] && INSTALL_ARGS+=(--with-network)
-    [ "$WITH_MEDIA" = "1" ] && INSTALL_ARGS+=(--with-media)
-    [ "$WITH_BLENDER" = "1" ] && INSTALL_ARGS+=(--with-blender)
+    if [ "$WITH_ALL" = "1" ]; then
+      INSTALL_ARGS+=(--all)
+    else
+      [ "$WITH_DEV" = "1" ] && INSTALL_ARGS+=(--with-dev)
+      [ "$WITH_LLM" = "1" ] && INSTALL_ARGS+=(--with-llm)
+      [ "$WITH_NETWORK" = "1" ] && INSTALL_ARGS+=(--with-network)
+      [ "$WITH_MEDIA" = "1" ] && INSTALL_ARGS+=(--with-media)
+      [ "$WITH_BLENDER" = "1" ] && INSTALL_ARGS+=(--with-blender)
+    fi
     [ "$SHELL_CHOICE" = "zsh" ] && INSTALL_ARGS+=(--zsh)
 
     tnx_install "${INSTALL_ARGS[@]}"

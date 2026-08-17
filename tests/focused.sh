@@ -720,6 +720,247 @@ else
   not_ok "Vulkan detection does not accept a missing library glob"
 fi
 
+# The host CLI installer must prove that the exact PREFIX command can load the
+# flat installed module directory; merely creating an executable is not enough.
+if env TERNUX_STATE_DIR="$TMP/state-cli-layout" HOME="$TMP/home-cli-layout" \
+  PREFIX="$TMP/prefix-cli-layout" bash -c '
+    mkdir -p "$HOME"
+    . "$1/lib/phases.sh"
+    tnx_phase_cli >/dev/null &&
+    [ -x "$PREFIX/bin/ternux" ] &&
+    [ -f "$PREFIX/lib/ternux/core.sh" ] &&
+    "$PREFIX/bin/ternux" --version | grep -q "^ternux v"
+  ' _ "$ROOT"; then
+  ok "CLI phase executes the installed flat-module layout"
+else
+  not_ok "CLI phase executes the installed flat-module layout"
+fi
+
+# A stale executable response must not pass merely because the host path exists.
+if env TERNUX_STATE_DIR="$TMP/state-cli-stale" HOME="$TMP/home-cli-stale" \
+  PREFIX="$TMP/prefix-cli-stale" bash -c '
+    mkdir -p "$HOME"
+    . "$1/lib/phases.sh"
+    install(){
+      local dest="${!#}"
+      if [ "$dest" = "$PREFIX/bin/ternux" ]; then
+        cat > "$dest" <<MOCK
+#!/usr/bin/env bash
+printf "ternux v${TERNUX_VERSION}0\\n"
+MOCK
+        chmod 0755 "$dest"
+      else
+        command install "$@"
+      fi
+    }
+    set +e; tnx_phase_cli >/dev/null 2>&1; rc=$?; set -e
+    [ "$rc" -ne 0 ] && [ -x "$PREFIX/bin/ternux" ] &&
+      [ "$(tnx_state_get cli_installed 2>/dev/null || true)" != yes ]
+  ' _ "$ROOT"; then
+  ok "CLI phase rejects an executable with a stale version response"
+else
+  not_ok "CLI phase rejects an executable with a stale version response"
+fi
+
+# The Debian entry point is a guest-aware companion, not a nested invocation of
+# the Android lifecycle CLI. Mock proot-distro while preserving stdin copying.
+if env TERNUX_STATE_DIR="$TMP/state-guest-cli" HOME="$TMP/home-guest-cli" \
+  MOCK_GUEST="$TMP/mock-guest-cli" bash -c '
+    mkdir -p "$HOME"
+    . "$1/lib/phases.sh"
+    proot-distro(){
+      if [[ "$*" == *"bash -c"* ]]; then
+        cat > "$MOCK_GUEST"; chmod +x "$MOCK_GUEST"
+      else
+        "$MOCK_GUEST" --version
+      fi
+    }
+    tnx_install_guest_cli alice >/dev/null &&
+    "$MOCK_GUEST" --version | grep -q "ternux guest v" &&
+    set +e; "$MOCK_GUEST" start >/dev/null 2>&1; rc=$?; set -e
+    [ "$rc" -eq 64 ] && [ "$(tnx_state_get guest_cli_installed)" = yes ]
+  ' _ "$ROOT"; then
+  ok "Debian companion installs, executes and rejects nested host lifecycle"
+else
+  not_ok "Debian companion installs, executes and rejects nested host lifecycle"
+fi
+
+# Writing the guest file is insufficient when the command resolves to a stale
+# or otherwise unexpected companion version.
+if env TERNUX_STATE_DIR="$TMP/state-guest-stale" HOME="$TMP/home-guest-stale" \
+  MOCK_GUEST="$TMP/mock-guest-stale" bash -c '
+    mkdir -p "$HOME"
+    . "$1/lib/phases.sh"
+    proot-distro(){
+      if [[ "$*" == *"bash -c"* ]]; then
+        cat > "$MOCK_GUEST"; chmod +x "$MOCK_GUEST"
+      else
+        printf "ternux guest v%s0\n" "$TERNUX_VERSION"
+      fi
+    }
+    set +e; tnx_install_guest_cli alice >/dev/null 2>&1; rc=$?; set -e
+    [ "$rc" -ne 0 ] && [ -x "$MOCK_GUEST" ] &&
+      [ "$(tnx_state_get guest_cli_installed 2>/dev/null || true)" != yes ]
+  ' _ "$ROOT"; then
+  ok "Debian companion installation rejects a stale version response"
+else
+  not_ok "Debian companion installation rejects a stale version response"
+fi
+
+# Reduced-capability terminals receive the same persistent identity, storage
+# guidance and line-at-a-time log feed without cursor-control dependencies.
+frame_out="$TMP/frame-output"
+if env TERM=dumb NO_COLOR=1 TERNUX_STATE_DIR="$TMP/state-frame" \
+  TERNUX_LOG_DIR="$TMP/log-frame" HOME="$TMP/home-frame" bash -c '
+    mkdir -p "$HOME"
+    . "$1/lib/ui.sh"
+    tnx_frame_open 2 virgl ternux base
+    tnx_frame_phase 1 2 "Core package installation"
+    printf "Get: package-one\nSetting up package-one\nERROR: sample failure\n" | tnx_frame_stream
+    tnx_frame_close failed
+  ' _ "$ROOT" > "$frame_out" &&
+  grep -q "Sobuj Miah" "$frame_out" &&
+  grep -q "base ~3–4 GB" "$frame_out" &&
+  grep -q "complete ~10–12 GB" "$frame_out" &&
+  grep -q "Get: package-one" "$frame_out" &&
+  grep -q "ERROR: sample failure" "$TMP/log-frame/ternux.log"; then
+  ok "persistent install frame has a readable line-stream fallback"
+else
+  not_ok "persistent install frame has a readable line-stream fallback"
+fi
+
+# Storage copy must distinguish installed size from temporary free-space
+# headroom and must not restore the old 12 GB base-install claim.
+if grep -q "base desktop ~3–4 GB; complete --all profile ~10–12 GB" "$ROOT/lib/phases.sh" &&
+   ! grep -q "base install wants ~12 GB" "$ROOT/lib/phases.sh"; then
+  ok "preflight reports corrected base and complete storage estimates"
+else
+  not_ok "preflight reports corrected base and complete storage estimates"
+fi
+
+# The public bootstrap must preserve literal --all so the installer selects the
+# full profile instead of reducing it to a custom list of individual extras.
+mock_boot="$TMP/mock-bootstrap"
+mkdir -p "$mock_boot/lib"
+cp "$ROOT/install.sh" "$mock_boot/install.sh"
+cat > "$mock_boot/lib/core.sh" <<'EOF'
+TERNUX_VERSION=1.3.0
+tnx_info(){ :; }; tnx_ok(){ :; }; tnx_warn(){ :; }; tnx_fail(){ :; }
+tnx_step(){ :; }; tnx_confirm(){ :; }; tnx_debug(){ :; }
+tnx_state_done(){ return 1; }; tnx_state_mark(){ :; }; tnx_state_clear(){ :; }
+tnx_require_termux(){ :; }
+EOF
+cat > "$mock_boot/lib/phases.sh" <<'EOF'
+tnx_install(){ printf 'ARG=[%s]\n' "$@"; }
+EOF
+: > "$mock_boot/lib/ui.sh"
+boot_out="$(bash "$mock_boot/install.sh" --yes --all)"
+resume_boot_out="$(bash "$mock_boot/install.sh" --yes --resume)"
+if [ "$(printf '%s\n' "$boot_out" | grep -cxF 'ARG=[--all]')" -eq 1 ] &&
+   ! printf '%s\n' "$boot_out" | grep -q 'ARG=\[--with-' &&
+   [ "$(printf '%s\n' "$resume_boot_out" | grep -cxF 'ARG=[--resume]')" -eq 1 ] &&
+   ! printf '%s\n' "$resume_boot_out" | grep -Eq 'ARG=\[--(user|locale|backend)\]'; then
+  ok "bootstrap preserves --all and leaves bare resume choices implicit"
+else
+  not_ok "bootstrap preserves --all and leaves bare resume choices implicit"
+fi
+
+# A bare resume restores the interrupted run's optional workload set instead of
+# silently reducing a full installation to the base profile.
+if env TERNUX_STATE_DIR="$TMP/state-resume-profile" HOME="$TMP/home-resume-profile" \
+  PREFIX="$TMP/prefix-resume-profile" TERNUX_QUIET=1 bash -c '
+    mkdir -p "$HOME"
+    . "$1/lib/phases.sh"
+    tnx_state_set user alice
+    tnx_state_set locale bn_BD.UTF-8
+    tnx_state_set install_backend virgl
+    tnx_state_set install_shell zsh
+    tnx_state_set install_profile full
+    tnx_state_set install_extras dev,llm,network,media,blender
+    tnx_require_termux(){ :; }
+    tnx_confirm(){ return 0; }
+    _tnx_execute_install_phase(){
+      local phase="$1"; shift 5
+      [ "$phase" != extras ] || printf "%s\n" "$*" > "$TERNUX_STATE_DIR/resumed-extras"
+    }
+    tnx_install --yes --resume >/dev/null &&
+      [ "$(cat "$TERNUX_STATE_DIR/resumed-extras")" = "dev llm network media blender" ] &&
+      [ "$(tnx_state_get user)" = alice ] &&
+      [ "$(tnx_state_get locale)" = bn_BD.UTF-8 ] &&
+      [ "$(tnx_state_get install_backend)" = virgl ] &&
+      [ "$(tnx_state_get install_shell)" = zsh ] &&
+      [ "$(tnx_state_get install_profile)" = full ]
+  ' _ "$ROOT"; then
+  ok "bare resume restores the saved full-profile workload set"
+else
+  not_ok "bare resume restores the saved full-profile workload set"
+fi
+
+# A forced update installs the same PREFIX/bin + PREFIX/lib/ternux structure as
+# a fresh install and executes that installed dispatcher before recording state.
+if env TERNUX_STATE_DIR="$TMP/state-update-layout" HOME="$TMP/home-update-layout" \
+  PREFIX="$TMP/prefix-update-layout" TMPDIR="$TMP/tmp-update-layout" bash -c '
+    mkdir -p "$HOME"
+    . "$1/lib/core.sh"
+    TNX_ROOT="$1"
+    . "$1/lib/update.sh"
+    git(){
+      local dest="${!#}"
+      mkdir -p "$dest"
+      cp -R "$TNX_ROOT/bin" "$TNX_ROOT/lib" "$dest/"
+      cp "$TNX_ROOT/install.sh" "$dest/install.sh"
+    }
+    tnx_has_cmd(){ [ "$1" != proot-distro ] && command -v "$1" >/dev/null 2>&1; }
+    tnx_cmd_update >/dev/null &&
+    [ -x "$PREFIX/bin/ternux" ] &&
+    [ -f "$PREFIX/lib/ternux/core.sh" ] &&
+    "$PREFIX/bin/ternux" --version | grep -q "^ternux v$TERNUX_VERSION" &&
+    [ "$(tnx_state_get version)" = "$TERNUX_VERSION" ]
+  ' _ "$ROOT"; then
+  ok "updater installs and executes the PREFIX module layout"
+else
+  not_ok "updater installs and executes the PREFIX module layout"
+fi
+
+# Guest refresh remains best-effort, but a stale response must be reported as
+# unverified rather than silently accepted by the updater.
+if env TERNUX_STATE_DIR="$TMP/state-update-guest" HOME="$TMP/home-update-guest" \
+  PREFIX="$TMP/prefix-update-guest" TMPDIR="$TMP/tmp-update-guest" \
+  MOCK_GUEST="$TMP/mock-update-guest" WARN_FILE="$TMP/update-guest-warning" bash -c '
+    mkdir -p "$HOME"
+    . "$1/lib/core.sh"
+    TNX_ROOT="$1"
+    . "$1/lib/update.sh"
+    git(){
+      local dest="${!#}"
+      mkdir -p "$dest"
+      cp -R "$TNX_ROOT/bin" "$TNX_ROOT/lib" "$dest/"
+      cp "$TNX_ROOT/install.sh" "$dest/install.sh"
+    }
+    tnx_has_cmd(){
+      [ "$1" = proot-distro ] && return 0
+      command -v "$1" >/dev/null 2>&1
+    }
+    proot-distro(){
+      if [ "${1:-}" = list ]; then
+        printf "debian installed\n"
+      elif [[ "$*" == *"bash -c"* ]]; then
+        cat > "$MOCK_GUEST"; chmod +x "$MOCK_GUEST"
+      else
+        printf "ternux guest v%s0\n" "$TERNUX_VERSION"
+      fi
+    }
+    tnx_warn(){ printf "%s\n" "$1" >> "$WARN_FILE"; }
+    tnx_cmd_update >/dev/null &&
+      [ -x "$MOCK_GUEST" ] &&
+      grep -q "could not be version-verified" "$WARN_FILE" &&
+      [ "$(tnx_state_get version)" = "$TERNUX_VERSION" ]
+  ' _ "$ROOT"; then
+  ok "updater warns when the refreshed Debian companion version is stale"
+else
+  not_ok "updater warns when the refreshed Debian companion version is stale"
+fi
+
 printf '1..%d\n' "$((pass + fail))"
 printf '# pass %d\n# fail %d\n' "$pass" "$fail"
 [ "$fail" -eq 0 ]

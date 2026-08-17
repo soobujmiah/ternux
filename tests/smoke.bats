@@ -96,6 +96,53 @@ teardown() {
   echo "$output" | grep -qE '^ternux v[0-9]+\.[0-9]+\.[0-9]+'
 }
 
+@test "layout: installed PREFIX module directory loads without nested lib" {
+  local root="$(mktemp -d)"
+  mkdir -p "$root/bin" "$root/lib/ternux" "$root/home"
+  cp "$TNX_CLI" "$root/bin/ternux"
+  cp "$(dirname "$TNX_CLI")/../lib/core.sh" "$root/lib/ternux/core.sh"
+  chmod +x "$root/bin/ternux"
+
+  run env HOME="$root/home" PREFIX="$root" bash "$root/bin/ternux" --version
+  [ "$status" -eq 0 ]
+  echo "$output" | grep -qE '^ternux v[0-9]+\.[0-9]+\.[0-9]+'
+  rm -rf "$root"
+}
+
+@test "layout: explicit module directory override works" {
+  local root="$(mktemp -d)"
+  mkdir -p "$root/bin" "$root/modules" "$root/home"
+  cp "$TNX_CLI" "$root/bin/ternux"
+  cp "$(dirname "$TNX_CLI")/../lib/core.sh" "$root/modules/core.sh"
+
+  run env HOME="$root/home" PREFIX="$root/missing" TERNUX_LIB_DIR="$root/modules" \
+    bash "$root/bin/ternux" --version
+  [ "$status" -eq 0 ]
+  echo "$output" | grep -q "ternux v"
+  rm -rf "$root"
+}
+
+@test "guest companion: exposes safe guest commands and rejects host lifecycle" {
+  local guest="$(dirname "$TNX_CLI")/ternux-guest"
+  run bash "$guest" --version
+  [ "$status" -eq 0 ]
+  echo "$output" | grep -q "ternux guest v"
+
+  run env DISPLAY=:9 PULSE_SERVER=tcp:127.0.0.1 bash "$guest" env
+  [ "$status" -eq 0 ]
+  echo "$output" | grep -qx "DISPLAY=:9"
+  echo "$output" | grep -qx "PULSE_SERVER=tcp:127.0.0.1"
+
+  run bash "$guest" doctor
+  [ "$status" -ne 64 ]
+  echo "$output" | grep -q "Verifying Debian guest tools"
+
+  run bash "$guest" start
+  [ "$status" -eq 64 ]
+  echo "$output" | grep -q "Termux-host command"
+  echo "$output" | grep -q "nested PRoot"
+}
+
 # ===== UNKNOWN / EMPTY COMMANDS ============================================
 
 @test "error: unknown command returns exit 1" {

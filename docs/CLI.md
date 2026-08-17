@@ -8,6 +8,15 @@ alt_url: "/bn/docs/CLI.html"
 The `ternux` CLI is the permanent management interface for installation,
 diagnostics, repair, benchmarking, desktop lifecycle, and system information.
 
+This reference describes the full **Termux host** command installed at
+`$PREFIX/bin/ternux`. The Debian/Xfce terminal has a separate guest-aware
+`/usr/local/bin/ternux` companion with only `status`, `info`, `doctor` (`verify`
+is an alias), `env`, `--version`, and help. It rejects host lifecycle commands instead of nesting a
+second PRoot session. Switch to Termux for every host command documented below.
+
+Both commands are executed and version-checked during installation; file
+presence by itself is not considered a successful CLI installation.
+
 ## Usage
 
 ```bash
@@ -56,7 +65,7 @@ ternux install [options]
 | `--with-media` | Install media tools |
 | `--with-blender` | Install Blender |
 | `--all` | Install all optional workloads |
-| `--resume` | Skip only phases recorded successful in an interrupted install |
+| `--resume` | Skip completed phases and restore the interrupted run’s saved optional workload set |
 
 ### `ternux start`
 
