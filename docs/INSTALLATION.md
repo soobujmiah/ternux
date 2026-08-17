@@ -61,10 +61,12 @@ input is not a terminal, this route runs unattended with the documented
 defaults. Read the output: a required-phase failure stops its dependants, while
 an optional/advisory failure is reported and leaves a nonzero final status.
 
-The installation frame remains on screen from startup through the final summary,
-keeps **Sobuj Miah** visible in its identity header, and streams real package
-output one line at a time. It does not replace logs with a spinner. A capable TTY
-gets the persistent dashboard; redirected output, `TERM=dumb`, and reduced-color
+The installation dashboard remains on screen from startup through the final
+summary: a live device panel, a fixed step progress bar, a framed scrolling log,
+and an animated **Sobuj Miah** footer. Real package output streams one line at a
+time — it never replaces logs with a spinner. The frame auto-fits the terminal
+and repaints on font/zoom changes and the on-screen keyboard. A capable TTY gets
+the persistent dashboard; redirected output, `TERM=dumb`, and reduced-color
 terminals get a static readable frame. Both modes preserve logging, phase exit
 statuses, noninteractive operation, and `--resume` state. The standalone loader
 fetches one validated source snapshot with bounded retries, then reuses it for the

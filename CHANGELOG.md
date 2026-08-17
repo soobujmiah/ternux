@@ -53,6 +53,20 @@ Notable changes to ternux. Dates are ISO 8601.
 
 ---
 
+## [1.4.0] — 2026-08-17
+
+### Animated installer dashboard
+
+- Rebuilt the one-command installer frame as a persistent dashboard: a live
+  device panel (model, Android, GPU, backend, memory), a fixed step progress
+  bar, a framed scrolling log, and an animated copyright footer with a spinner.
+- Borders now auto-fit the terminal and repaint on resize — including font or
+  zoom changes and the on-screen keyboard — so log lines never wrap past the
+  frame.
+- Replaced the thin single-line frame with thicker double-line borders and
+  clipped, color-coded log lines; the identity, progress and footer text is
+  ellipsized instead of overflowing on narrow viewports.
+
 ## [1.3.1] — 2026-08-17
 
 ### Real-device installer recovery

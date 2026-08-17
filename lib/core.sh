@@ -7,7 +7,7 @@
 #  https://github.com/soobujmiah/ternux
 # =============================================================================
 
-TERNUX_VERSION="1.3.1"
+TERNUX_VERSION="1.4.0"
 TERNUX_NAME="ternux"
 TERNUX_DESC="Linux desktop for Android with Zink and VirGL graphics routes"
 TERNUX_REPO="https://github.com/soobujmiah/ternux"

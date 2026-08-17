@@ -184,10 +184,12 @@ Vulkan) · `--with-network` (nmap, tmux — শুধু অনুমোদি�
 `--resume` completed phase বাদ দেওয়ার পাশাপাশি interrupted run-এর saved optional
 workload set-ও ফিরিয়ে আনে।
 
-ইনস্টলের শুরু থেকে শেষ পর্যন্ত custom frame দেখা যায়, identity header-এ
-**Sobuj Miah** থাকে, আর package-manager output spinner-এর আড়ালে না রেখে এক
-লাইন করে দেখায়। Non-TTY বা সীমিত terminal-এ একই exit status/resume behavior-সহ
-plain readable frame দেখায়।
+ইনস্টল শুরু হলে একটি স্থায়ী dashboard দেখা যায় যা শুরু থেকে শেষ পর্যন্ত থাকে:
+live device panel, fixed step progress bar, framed scrolling log এবং animated
+**Sobuj Miah** copyright footer। package-manager output spinner-এর আড়ালে না রেখে
+এক লাইন করে দেখায়, আর frame terminal-এ auto-fit হয় — font/zoom পরিবর্তন ও
+on-screen keyboard-এ আবার আঁকা হয়। Non-TTY বা সীমিত terminal-এ একই exit
+status/resume behavior-সহ plain readable frame দেখায়।
 
 ### দুই terminal-এ `ternux`
 

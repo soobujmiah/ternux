@@ -202,7 +202,7 @@ while [ $# -gt 0 ]; do
     --resume) ACTION="resume" ;;
     --status) ACTION="status" ;;
     --uninstall) ACTION="uninstall" ;;
-    --version) echo "ternux installer v${TERNUX_VERSION:-1.3.1} — https://github.com/soobujmiah/ternux"; exit 0 ;;
+    --version) echo "ternux installer v${TERNUX_VERSION:-1.4.0} — https://github.com/soobujmiah/ternux"; exit 0 ;;
     -h|--help) sed -n '/^#  Usage/,/^# =====/p' "$0" | sed 's/^# \?//p' | head -n -1; exit 0 ;;
     *) echo "[FAIL] Unknown option: $1" >&2; exit 2 ;;
   esac

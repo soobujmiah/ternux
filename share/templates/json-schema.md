@@ -22,7 +22,7 @@ not promise a machine-readable schema.
   "command": "doctor",
   "status": "warning",
   "timestamp": "2026-08-15T14:30:00Z",
-  "version": "1.3.1",
+  "version": "1.4.0",
   "android_version": "14",
   "architecture": "aarch64",
   "gpu": "Adreno (730)",
@@ -44,7 +44,7 @@ not promise a machine-readable schema.
   "command": "info",
   "status": "ok",
   "timestamp": "2026-08-15T14:30:00Z",
-  "version": "1.3.1",
+  "version": "1.4.0",
   "android_version": "14",
   "architecture": "aarch64",
   "model": "SM-S908E",
@@ -67,7 +67,7 @@ not promise a machine-readable schema.
   "command": "benchmark",
   "status": "complete",
   "timestamp": "2026-08-15T14:30:00Z",
-  "version": "1.3.1",
+  "version": "1.4.0",
   "glmark2_score": "1425",
   "vkmark_score": "850",
   "renderer": "zink Vulkan (Adreno (TM) ... (MESA_TURNIP))",
@@ -85,7 +85,7 @@ not promise a machine-readable schema.
   "command": "profile",
   "status": "complete",
   "timestamp": "2026-08-15T14:30:00Z",
-  "version": "1.3.1",
+  "version": "1.4.0",
   "android_version": "14",
   "architecture": "aarch64",
   "model": "SM-S908E",
@@ -107,7 +107,7 @@ not promise a machine-readable schema.
   "command": "verify",
   "status": "passed",
   "timestamp": "2026-08-15T14:30:00Z",
-  "version": "1.3.1",
+  "version": "1.4.0",
   "checks": "termux-x11:installed,proot-distro:installed,pulseaudio:installed,launcher:present,debian:installed,debian_services:ok,turnip:present",
   "android_version": "14",
   "gpu": "Adreno (730)"
@@ -121,7 +121,7 @@ not promise a machine-readable schema.
   "command": "backend",
   "status": "ok",
   "timestamp": "2026-08-15T14:30:00Z",
-  "version": "1.3.1",
+  "version": "1.4.0",
   "gpu": "Adreno (730)",
   "backend": "zink",
   "renderer": "zink Vulkan (Adreno (TM) ... (MESA_TURNIP))",
@@ -142,7 +142,7 @@ failure concerns an unknown command.
   "command": "error",
   "status": "fatal",
   "timestamp": "2026-08-15T14:30:00Z",
-  "version": "1.3.1",
+  "version": "1.4.0",
   "message": "Not running in Termux environment"
 }
 ```
@@ -154,7 +154,7 @@ An unknown-command response additionally resembles:
   "command": "error",
   "status": "fatal",
   "timestamp": "2026-08-15T14:30:00Z",
-  "version": "1.3.1",
+  "version": "1.4.0",
   "message": "Unknown command: frobnicate",
   "requested_command": "frobnicate"
 }

@@ -47,8 +47,10 @@ The installer:
 
 Expect about **3–4 GB installed** for base or **10–12 GB** with `--all`; keep
 additional temporary space for downloads and caches. The Sobuj Miah installation
-frame stays visible and streams package output line by line through completion,
-with a static readable fallback when a persistent TTY dashboard is unavailable.
+dashboard stays visible and streams package output line by line through
+completion — a live device panel, a fixed step progress bar, a framed log and an
+animated footer that auto-fits the terminal — with a static readable fallback
+when a persistent TTY dashboard is unavailable.
 
 Prefer to review all code before it runs? Clone the repository; reviewing only the bootstrap is incomplete because it otherwise downloads library modules at runtime.
 

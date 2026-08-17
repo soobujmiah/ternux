@@ -49,6 +49,19 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 
 ---
 
+## [1.4.0] — 2026-08-17
+
+### অ্যানিমেটেড installer dashboard
+
+- এক-কমান্ড installer frame এখন স্থায়ী dashboard: live device panel (model,
+  Android, GPU, backend, memory), fixed step progress bar, framed scrolling log
+  এবং spinner-সহ animated copyright footer।
+- Border এখন terminal-এ auto-fit হয় এবং resize-এ আবার আঁকা হয় — font/zoom
+  পরিবর্তন ও on-screen keyboard সহ — তাই log line কখনো frame-এর বাইরে যায় না।
+- পাতলা single-line frame-এর বদলে thick double-line border ও color-coded, clipped
+  log line; narrow viewport-এ identity, progress ও footer টেক্সট overflow-এর
+  বদলে ellipsized হয়।
+
 ## [1.3.1] — 2026-08-17
 
 ### বাস্তব ডিভাইসের installer recovery

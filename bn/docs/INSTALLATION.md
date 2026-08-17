@@ -58,11 +58,13 @@ curl -fsSL https://soobujmiah.github.io/ternux/install.sh | bash
 এটি HTTPS-এ ইনস্টলার নামিয়ে চালায়। এই রিপোজিটরির সেই একই স্ক্রিপ্ট —
 লুকানো কিছু নেই, কম্পাইলড কিছু নেই।
 
-Custom installation frame শুরু থেকে final summary পর্যন্ত screen-এ থাকে,
-identity header-এ **Sobuj Miah** দৃশ্যমান রাখে এবং আসল package output spinner-এর
-আড়ালে না রেখে এক লাইন করে দেখায়। Capable TTY-তে persistent dashboard; redirected
-output, `TERM=dumb` বা সীমিত color terminal-এ static readable frame। দুই mode-ই
-logging, phase exit status, noninteractive operation ও `--resume` state অক্ষুণ্ণ রাখে।
+Custom installation dashboard শুরু থেকে final summary পর্যন্ত screen-এ থাকে:
+live device panel, fixed step progress bar, framed scrolling log এবং animated
+**Sobuj Miah** footer। আসল package output spinner-এর আড়ালে না রেখে এক লাইন করে
+দেখায়, আর frame terminal-এ auto-fit হয় — font/zoom পরিবর্তন ও on-screen
+keyboard-এ আবার আঁকা হয়। Capable TTY-তে persistent dashboard; redirected output,
+`TERM=dumb` বা সীমিত color terminal-এ static readable frame। দুই mode-ই logging,
+phase exit status, noninteractive operation ও `--resume` state অক্ষুণ্ণ রাখে।
 Standalone loader bounded retry-সহ একটি validated source snapshot নামায়, তারপর
 আলাদা করে প্রতিটি module request না করে bootstrap library, Termux host CLI ও
 Debian guest companion-এর জন্য একই snapshot reuse করে। Package setup বর্তমান apt

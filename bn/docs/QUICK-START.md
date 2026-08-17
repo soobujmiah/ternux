@@ -49,9 +49,10 @@ wget -qO- https://soobujmiah.github.io/ternux/install.sh | bash
 7. সবকিছু ঠিকমতো বসেছে কিনা যাচাই করে।
 
 Installed size base-এ প্রায় **৩–৪ GB**, আর `--all`-এ **১০–১২ GB**; download ও
-cache-এর জন্য অতিরিক্ত temporary space রাখুন। Sobuj Miah installation frame শেষ
-পর্যন্ত দৃশ্যমান থাকে ও package output এক লাইন করে দেখায়; persistent TTY dashboard
-সম্ভব না হলে static readable fallback ব্যবহার করে।
+cache-এর জন্য অতিরিক্ত temporary space রাখুন। Sobuj Miah installation dashboard
+শেষ পর্যন্ত দৃশ্যমান থাকে ও package output এক লাইন করে দেখায় — live device panel,
+fixed step progress bar, framed log এবং terminal-এ auto-fit হওয়া animated footer;
+persistent TTY dashboard সম্ভব না হলে static readable fallback ব্যবহার করে।
 
 নন-ইন্টারঅ্যাক্টিভ মোডে এটি নিজেই নথিভুক্ত default ব্যবহার করে; local clone
 থেকে একই default স্পষ্টভাবে নিতে `--yes` যোগ করুন। চালানোর আগে সব code দেখতে

@@ -4,7 +4,7 @@
 
 ### Debian + Xfce4 on Android with a measured Adreno GPU route — one command, no root
 
-[![Version](https://img.shields.io/badge/version-1.3.1-00e5a0?style=flat-square)](https://github.com/soobujmiah/ternux/releases)
+[![Version](https://img.shields.io/badge/version-1.4.0-00e5a0?style=flat-square)](https://github.com/soobujmiah/ternux/releases)
 [![Platform](https://img.shields.io/badge/platform-Android%20arm64-38bdf8?style=flat-square)](https://github.com/soobujmiah/ternux)
 [![Shell](https://img.shields.io/badge/shell-Bash-8b5cf6?style=flat-square)](https://github.com/soobujmiah/ternux)
 [![License](https://img.shields.io/badge/license-MIT-22c55e?style=flat-square)](LICENSE)
@@ -229,10 +229,13 @@ curl -fsSL https://soobujmiah.github.io/ternux/install.sh | bash
 The default is unattended: user `ternux`, locale `en_US.UTF-8`, and automatic
 backend selection (`zink` when the Adreno KGSL node is available, otherwise
 `virgl`). Do not close Termux while package installation is running. The custom
-installer frame stays visible from start to finish, keeps **Sobuj Miah** in its
-identity header, and streams package-manager output one line at a time instead of
-hiding it behind a spinner. Non-TTY and reduced-capability terminals receive a
-plain, readable framed log with the same exit status and resumability.
+installer opens a persistent dashboard that stays visible from start to finish:
+a live device panel, a fixed step progress bar, a framed scrolling log, and an
+animated **Sobuj Miah** copyright footer. Package-manager output streams one line
+at a time instead of hiding behind a spinner, and the frame auto-fits the
+terminal — repainting on font/zoom changes and the on-screen keyboard. Non-TTY
+and reduced-capability terminals receive a plain, readable framed log with the
+same exit status and resumability.
 
 > Piping a network script to Bash is convenient, but it executes the current
 > remote version immediately. Use the auditable path below if you want to inspect
