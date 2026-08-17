@@ -115,7 +115,7 @@ _tnx_uninstall_container() {
     tnx_info "proot-distro is not installed; no Debian container was removed"
     return 0
   fi
-  if ! proot-distro list 2>/dev/null | grep -q "debian.*installed"; then
+  if ! tnx_debian_installed; then
     tnx_info "No installed Debian container found"
     return 0
   fi

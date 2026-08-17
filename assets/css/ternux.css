@@ -912,6 +912,39 @@ a:hover { color: #b1ffe3; }
   align-items: center;
   gap: 78px;
 }
+.release-pill {
+  width: fit-content;
+  max-width: 100%;
+  margin: 0 0 18px;
+  padding: 5px 9px 5px 5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--text-soft);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgb(11 29 24 / 74%);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 1.35;
+  text-decoration: none;
+  transition: color 180ms ease, border-color 180ms ease, background 180ms ease, transform 180ms ease;
+}
+.release-pill strong {
+  padding: 3px 7px;
+  color: #03110d;
+  border-radius: 999px;
+  background: linear-gradient(110deg, var(--green), var(--cyan));
+  font-size: 9px;
+  letter-spacing: 0.04em;
+}
+.release-pill i { color: var(--green); font-style: normal; }
+.release-pill:hover {
+  color: var(--text);
+  border-color: var(--line-strong);
+  background: var(--panel-raised);
+  transform: translateY(-1px);
+}
 .eyebrow {
   margin: 0 0 19px;
   display: flex;
@@ -1144,6 +1177,7 @@ a:hover { color: #b1ffe3; }
 .lang-bn .doc-intro__meta,
 .lang-bn .page-toc,
 .lang-bn .site-footer,
+.lang-bn .release-pill,
 .lang-bn .eyebrow,
 .lang-bn .section-kicker,
 .lang-bn .button,

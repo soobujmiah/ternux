@@ -7,7 +7,7 @@
 #  https://github.com/soobujmiah/ternux
 # =============================================================================
 
-TERNUX_VERSION="1.3.0"
+TERNUX_VERSION="1.3.1"
 TERNUX_NAME="ternux"
 TERNUX_DESC="Linux desktop for Android with Zink and VirGL graphics routes"
 TERNUX_REPO="https://github.com/soobujmiah/ternux"
@@ -151,6 +151,45 @@ tnx_require_termux() {
 
 tnx_has_cmd() { command -v "$1" >/dev/null 2>&1; }
 
+# Probe an installed PRoot-Distro container without depending on the human
+# `list` layout. PRoot-Distro 5 prints installed names with `list --quiet`,
+# while older Termux releases used a multi-line Alias/Status display and stored
+# root files under installed-rootfs/. Check the machine-readable interface and
+# both known layouts, then retain a conservative legacy-output fallback.
+tnx_proot_container_installed() {
+  local name="${1:-debian}" prefix="${PREFIX:-/data/data/com.termux/files/usr}"
+  local runtime="$prefix/var/lib/proot-distro" listing=""
+
+  tnx_has_cmd proot-distro || return 1
+
+  if [ -d "$runtime/containers/$name/rootfs" ] ||
+     [ -d "$runtime/installed-rootfs/$name" ]; then
+    return 0
+  fi
+
+  listing="$(proot-distro list --quiet 2>/dev/null || true)"
+  if printf '%s\n' "$listing" | grep -Fqx -- "$name"; then
+    return 0
+  fi
+
+  # Compatibility with pre-v5 output and simple test doubles. Match either a
+  # same-line "debian ... installed" record or an Alias followed by Status.
+  listing="$(proot-distro list 2>/dev/null || true)"
+  printf '%s\n' "$listing" | awk -v wanted="$name" '
+    BEGIN { wanted=tolower(wanted); candidate=0; found=0 }
+    {
+      line=tolower($0)
+      if (line ~ "(^|[^[:alnum:]_])" wanted "([^[:alnum:]_]|$).*installed") found=1
+      if (line ~ "alias[[:space:]]*:[[:space:]]*" wanted "([[:space:]]|$)") candidate=1
+      else if (candidate && line ~ "status[[:space:]]*:[[:space:]]*installed") found=1
+      else if (candidate && line ~ "alias[[:space:]]*:") candidate=0
+    }
+    END { exit(found ? 0 : 1) }
+  '
+}
+
+tnx_debian_installed() { tnx_proot_container_installed debian; }
+
 # Preserve compatibility with state written before the backend names were
 # simplified, but never expose or persist the legacy spelling in new output.
 tnx_canonical_backend() {
@@ -164,12 +203,24 @@ tnx_canonical_backend() {
 # Download helper with fallback
 # ---------------------------------------------------------------------------
 tnx_download() {
-  local url="$1" dest="$2"
+  local url="$1" dest="$2" attempt=1
   if tnx_has_cmd curl; then
-    curl -fL --retry 3 --max-time 900 -o "$dest" "$url" 2>/dev/null && return 0
+    while [ "$attempt" -le 3 ]; do
+      curl -fL --retry 3 --retry-delay 2 --connect-timeout 15 --max-time 900 \
+        -o "$dest" "$url" 2>/dev/null && return 0
+      rm -f "$dest"
+      attempt=$((attempt + 1))
+      [ "$attempt" -le 3 ] && sleep "$attempt"
+    done
   fi
+  attempt=1
   if tnx_has_cmd wget; then
-    wget -q --timeout=900 -O "$dest" "$url" 2>/dev/null && return 0
+    while [ "$attempt" -le 3 ]; do
+      wget -q --timeout=900 --tries=3 -O "$dest" "$url" 2>/dev/null && return 0
+      rm -f "$dest"
+      attempt=$((attempt + 1))
+      [ "$attempt" -le 3 ] && sleep "$attempt"
+    done
   fi
   return 1
 }
@@ -224,8 +275,9 @@ tnx_state_clear() {
 # ---------------------------------------------------------------------------
 tnx_log() {
   local level="$1" msg="$2"
-  mkdir -p "$TERNUX_LOG_DIR" 2>/dev/null || true
-  echo "$(__tnx_ts) [$level] $msg" >> "$TERNUX_LOG_FILE"
+  if mkdir -p "$TERNUX_LOG_DIR" 2>/dev/null; then
+    printf '%s [%s] %s\n' "$(__tnx_ts)" "$level" "$msg" >> "$TERNUX_LOG_FILE" 2>/dev/null || true
+  fi
 }
 
 tnx_log_info()  { tnx_log "INFO" "$1"; }

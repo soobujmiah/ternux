@@ -164,8 +164,7 @@ _tnx_update_run() {
 
   # Keep the Debian/Xfce companion aligned when a guest already exists. It is
   # safe to skip this on hosts without an installed Debian container.
-  if [ -f "$clone_dir/bin/ternux-guest" ] && tnx_has_cmd proot-distro &&
-     proot-distro list 2>/dev/null | grep -q "debian.*installed"; then
+  if [ -f "$clone_dir/bin/ternux-guest" ] && tnx_debian_installed; then
     local guest_user="${TERNUX_USER:-ternux}" guest_version="" guest_ok=1
     if ! proot-distro login debian -- bash -c '
       set -e

@@ -25,6 +25,78 @@ check "core loads persisted Debian user" env -u TERNUX_USER \
   TERNUX_STATE_DIR="$state" HOME="$TMP/home-user" bash -c \
   '. "$1/lib/core.sh"; test "$TERNUX_USER" = alice' _ "$ROOT"
 
+# Container detection must support PRoot-Distro 5's machine-readable list,
+# older Alias/Status output, and both known on-disk rootfs layouts.
+if env TERNUX_STATE_DIR="$TMP/state-proot-list" HOME="$TMP/home-proot-list" \
+  PREFIX="$TMP/prefix-proot-list" bash -c '
+    . "$1/lib/core.sh"
+    tnx_has_cmd(){ [ "$1" = proot-distro ]; }
+    mode=v5
+    proot-distro(){
+      case "$mode:$*" in
+        "v5:list --quiet") printf "ubuntu\ndebian\n" ;;
+        "legacy:list --quiet") return 2 ;;
+        "legacy:list") cat <<"EOF"
+Installed distributions:
+  * Debian GNU/Linux
+    Alias: debian
+    Status: installed
+EOF
+          ;;
+      esac
+    }
+    tnx_debian_installed || exit
+    mode=legacy
+    tnx_debian_installed || exit
+    mode=absent
+    ! tnx_debian_installed || exit
+    mkdir -p "$PREFIX/var/lib/proot-distro/containers/debian/rootfs"
+    tnx_debian_installed || exit
+    rm -rf "$PREFIX/var/lib/proot-distro/containers"
+    mkdir -p "$PREFIX/var/lib/proot-distro/installed-rootfs/debian"
+    tnx_debian_installed
+  ' _ "$ROOT"; then
+  ok "Debian probe supports current, legacy and on-disk PRoot layouts"
+else
+  not_ok "Debian probe supports current, legacy and on-disk PRoot layouts"
+fi
+
+# An existing v5 Debian container must be reused, never passed to install again.
+if env TERNUX_STATE_DIR="$TMP/state-debian-reuse" HOME="$TMP/home-debian-reuse" \
+  PREFIX="$TMP/prefix-debian-reuse" MARKER="$TMP/debian-install-called" bash -c '
+    . "$1/lib/phases.sh"
+    tnx_has_cmd(){ [ "$1" = proot-distro ]; }
+    tnx_install_guest_cli(){ :; }
+    proot-distro(){
+      case "$1" in
+        list) [ "${2:-}" = --quiet ] && echo debian ;;
+        install) : > "$MARKER"; return 9 ;;
+        login) return 0 ;;
+      esac
+    }
+    tnx_phase_debian alice >/dev/null && [ ! -e "$MARKER" ]
+  ' _ "$ROOT"; then
+  ok "Debian phase reuses a PRoot-Distro 5 container"
+else
+  not_ok "Debian phase reuses a PRoot-Distro 5 container"
+fi
+
+# Package setup keeps the current mirror and suppresses pkg's all-mirror sweep;
+# it must not open the full-screen termux-change-repo dialog inside the frame.
+if env TERNUX_STATE_DIR="$TMP/state-repos" HOME="$TMP/home-repos" \
+  PREFIX="$TMP/prefix-repos" MARKER="$TMP/change-repo-called" bash -c '
+    . "$1/lib/phases.sh"
+    termux-change-repo(){ : > "$MARKER"; return 1; }
+    termux-setup-storage(){ :; }
+    proot-distro(){ :; }; termux-x11(){ :; }; pulseaudio(){ :; }
+    tnx_spin_run(){ [ "${TERMUX_PKG_NO_MIRROR_SELECT:-}" = 1 ]; }
+    tnx_phase_packages virgl >/dev/null && [ ! -e "$MARKER" ]
+  ' _ "$ROOT"; then
+  ok "package phase avoids repository dialogs and mirror sweeps"
+else
+  not_ok "package phase avoids repository dialogs and mirror sweeps"
+fi
+
 # Build archives that exercise target-only validation. An unrelated symlink is
 # legitimate; a symlink at either selected target is not.
 fixture="$TMP/archive"
@@ -720,6 +792,52 @@ else
   not_ok "Vulkan detection does not accept a missing library glob"
 fi
 
+# The standalone one-click path downloads one complete snapshot, retries a
+# transient transfer, and reuses the extracted files instead of fetching raw
+# modules independently.
+bundle_tree="$TMP/source-bundle/ternux-main"
+mkdir -p "$bundle_tree"
+cp -R "$ROOT/bin" "$ROOT/lib" "$bundle_tree/"
+tar -czf "$TMP/source-bundle.tar.gz" -C "$TMP/source-bundle" ternux-main
+mkdir -p "$TMP/standalone-bundle" "$TMP/mock-bundle-bin" "$TMP/remote-bundle-tmp"
+cp "$ROOT/install.sh" "$TMP/standalone-bundle/install.sh"
+cat > "$TMP/mock-bundle-bin/curl" <<'EOF'
+#!/usr/bin/env bash
+set -u
+url=""; dest=""
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -o) dest="$2"; shift 2 ;;
+    http*) url="$1"; shift ;;
+    *) shift ;;
+  esac
+done
+count=0
+[ ! -f "$MOCK_COUNT" ] || count="$(cat "$MOCK_COUNT")"
+count=$((count + 1)); printf '%s\n' "$count" > "$MOCK_COUNT"
+printf '%s\n' "$url" >> "$MOCK_URLS"
+[ "$count" -gt 1 ] || exit 22
+cp "$MOCK_ARCHIVE" "$dest"
+EOF
+cat > "$TMP/mock-bundle-bin/sleep" <<'EOF'
+#!/usr/bin/env bash
+exit 0
+EOF
+chmod +x "$TMP/mock-bundle-bin/curl" "$TMP/mock-bundle-bin/sleep"
+if env HOME="$TMP/home-standalone-bundle" PREFIX="$TMP/prefix-standalone-bundle" \
+  TMPDIR="$TMP/remote-bundle-tmp" MOCK_ARCHIVE="$TMP/source-bundle.tar.gz" \
+  MOCK_COUNT="$TMP/bundle-count" MOCK_URLS="$TMP/bundle-urls" \
+  PATH="$TMP/mock-bundle-bin:$PATH" \
+  bash "$TMP/standalone-bundle/install.sh" --status >/dev/null &&
+  [ "$(cat "$TMP/bundle-count")" -eq 2 ] &&
+  [ "$(sort -u "$TMP/bundle-urls" | wc -l)" -eq 1 ] &&
+  grep -q '^https://codeload.github.com/soobujmiah/ternux/tar.gz/refs/heads/main$' "$TMP/bundle-urls" &&
+  ! compgen -G "$TMP/remote-bundle-tmp/ternux-bootstrap.*" >/dev/null; then
+  ok "standalone bootstrap retries and reuses one source bundle"
+else
+  not_ok "standalone bootstrap retries and reuses one source bundle"
+fi
+
 # The host CLI installer must prove that the exact PREFIX command can load the
 # flat installed module directory; merely creating an executable is not enough.
 if env TERNUX_STATE_DIR="$TMP/state-cli-layout" HOME="$TMP/home-cli-layout" \
@@ -763,11 +881,16 @@ else
 fi
 
 # The Debian entry point is a guest-aware companion, not a nested invocation of
-# the Android lifecycle CLI. Mock proot-distro while preserving stdin copying.
+# the Android lifecycle CLI. Load phases from an isolated installed-style module
+# directory to prove _TNX_SRC supplies the guest file without another request.
+mkdir -p "$TMP/guest-modules"
+cp "$ROOT/lib/core.sh" "$ROOT/lib/phases.sh" "$TMP/guest-modules/"
 if env TERNUX_STATE_DIR="$TMP/state-guest-cli" HOME="$TMP/home-guest-cli" \
-  MOCK_GUEST="$TMP/mock-guest-cli" bash -c '
+  MOCK_GUEST="$TMP/mock-guest-cli" DOWNLOAD_MARKER="$TMP/guest-download-called" bash -c '
     mkdir -p "$HOME"
-    . "$1/lib/phases.sh"
+    . "$2/phases.sh"
+    _TNX_SRC="$1"
+    tnx_download(){ : > "$DOWNLOAD_MARKER"; return 1; }
     proot-distro(){
       if [[ "$*" == *"bash -c"* ]]; then
         cat > "$MOCK_GUEST"; chmod +x "$MOCK_GUEST"
@@ -778,11 +901,12 @@ if env TERNUX_STATE_DIR="$TMP/state-guest-cli" HOME="$TMP/home-guest-cli" \
     tnx_install_guest_cli alice >/dev/null &&
     "$MOCK_GUEST" --version | grep -q "ternux guest v" &&
     set +e; "$MOCK_GUEST" start >/dev/null 2>&1; rc=$?; set -e
-    [ "$rc" -eq 64 ] && [ "$(tnx_state_get guest_cli_installed)" = yes ]
-  ' _ "$ROOT"; then
-  ok "Debian companion installs, executes and rejects nested host lifecycle"
+    [ "$rc" -eq 64 ] && [ "$(tnx_state_get guest_cli_installed)" = yes ] &&
+      [ ! -e "$DOWNLOAD_MARKER" ]
+  ' _ "$ROOT" "$TMP/guest-modules"; then
+  ok "Debian companion reuses the bootstrap snapshot and rejects nested host lifecycle"
 else
-  not_ok "Debian companion installs, executes and rejects nested host lifecycle"
+  not_ok "Debian companion reuses the bootstrap snapshot and rejects nested host lifecycle"
 fi
 
 # Writing the guest file is insufficient when the command resolves to a stale
@@ -827,6 +951,31 @@ if env TERM=dumb NO_COLOR=1 TERNUX_STATE_DIR="$TMP/state-frame" \
   ok "persistent install frame has a readable line-stream fallback"
 else
   not_ok "persistent install frame has a readable line-stream fallback"
+fi
+
+# Closing a failed dashboard must retain the reported failure's phase index;
+# only a successful close is allowed to advance the counter to the total.
+failed_frame_out="$(env NO_COLOR=1 TERNUX_STATE_DIR="$TMP/state-frame-failed" \
+  TERNUX_LOG_DIR="$TMP/log-frame-failed" HOME="$TMP/home-frame-failed" bash -c '
+    mkdir -p "$HOME"
+    . "$1/lib/ui.sh"
+    _TNX_FRAME_MODE=dashboard
+    _TNX_FRAME_ACTIVE=1
+    _TNX_FRAME_CUR=4
+    _TNX_FRAME_TOTAL=11
+    _TNX_FRAME_ROWS=24
+    _TNX_FRAME_TITLE="Debian container + Xfce4"
+    _tnx_frame_draw_dashboard(){
+      printf "%s|%s|%s|%s\n" "$1" "$_TNX_FRAME_CUR" "$_TNX_FRAME_TOTAL" "$_TNX_FRAME_TITLE"
+    }
+    tnx_frame_restore_terminal(){ :; }
+    tnx_frame_close failed 4 "Debian container + Xfce4"
+  ' _ "$ROOT")"
+if printf '%s\n' "$failed_frame_out" | grep -q '^FAILED|4|11|Failed: Debian container + Xfce4$' &&
+   ! printf '%s\n' "$failed_frame_out" | grep -q '^FAILED|11|11|'; then
+  ok "failed dashboard retains the actual failed phase index"
+else
+  not_ok "failed dashboard retains the actual failed phase index"
 fi
 
 # Storage copy must distinguish installed size from temporary free-space

@@ -33,7 +33,7 @@ _tnx_backend_show() {
   renderer=""
 
   # Try to get renderer if Debian is available
-  if tnx_has_cmd proot-distro && proot-distro list 2>/dev/null | grep -q "debian.*installed"; then
+  if tnx_debian_installed; then
     renderer="$(tnx_detect_renderer)"
   fi
 

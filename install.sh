@@ -38,38 +38,91 @@ _tnx_load_local() {
   . "$_TNX_SRC/lib/core.sh" && . "$_TNX_SRC/lib/phases.sh" && . "$_TNX_SRC/lib/ui.sh"
 }
 
+_tnx_bootstrap_cleanup() {
+  if [ -n "${_TNX_REMOTE_DIR:-}" ]; then
+    rm -rf "$_TNX_REMOTE_DIR"
+    _TNX_REMOTE_DIR=""
+  fi
+}
+
 _tnx_load_remote() {
-  local base="https://raw.githubusercontent.com/soobujmiah/ternux/main"
-  local libs="core.sh phases.sh detect.sh ui.sh"
-  local tmpdir="${TMPDIR:-/tmp}/ternux-libs.$$"
-  mkdir -p "$tmpdir"
+  local url="https://codeload.github.com/soobujmiah/ternux/tar.gz/refs/heads/main"
+  local tmpdir="${TMPDIR:-/tmp}/ternux-bootstrap.$$" archive="" listing=""
+  local root_name="" root="" lib="" attempt=1 fetched=0
 
-  for lib in $libs; do
-    if ! command -v curl >/dev/null 2>&1 && ! command -v wget >/dev/null 2>&1; then
-      echo "[FATAL] Neither curl nor wget available. Cannot download ternux libraries." >&2
-      exit 1
-    fi
+  if ! command -v tar >/dev/null 2>&1; then
+    echo "[FATAL] tar is required to unpack the ternux source bundle." >&2
+    exit 1
+  fi
+  if ! command -v curl >/dev/null 2>&1 && ! command -v wget >/dev/null 2>&1; then
+    echo "[FATAL] Neither curl nor wget is available. Cannot download ternux." >&2
+    exit 1
+  fi
+
+  mkdir -p "$tmpdir" || exit 1
+  archive="$tmpdir/ternux.tar.gz"
+  listing="$tmpdir/archive.list"
+
+  # One retryable, atomic source snapshot replaces four bootstrap requests and
+  # the later per-module CLI requests. The extracted bin/ and lib/ files remain
+  # available to every install phase and are removed by the EXIT cleanup.
+  while [ "$attempt" -le 3 ]; do
+    echo "[INFO] Downloading ternux source bundle (attempt $attempt/3)..."
     if command -v curl >/dev/null 2>&1; then
-      curl -fsSL --max-time 15 "$base/lib/$lib" -o "$tmpdir/$lib" 2>/dev/null || {
-        echo "[FATAL] Failed to download $lib from GitHub." >&2; rm -rf "$tmpdir"; exit 1; }
+      curl -fL --retry 3 --retry-delay 2 --connect-timeout 15 --max-time 900 \
+        "$url" -o "$archive" 2>/dev/null && fetched=1
     else
-      wget -q --timeout=15 "$base/lib/$lib" -O "$tmpdir/$lib" 2>/dev/null || {
-        echo "[FATAL] Failed to download $lib from GitHub." >&2; rm -rf "$tmpdir"; exit 1; }
+      wget -q --timeout=900 --tries=3 "$url" -O "$archive" 2>/dev/null && fetched=1
     fi
+    [ "$fetched" -eq 1 ] && break
+    rm -f "$archive"
+    attempt=$((attempt + 1))
+    [ "$attempt" -le 3 ] && sleep "$attempt"
   done
+  if [ "$fetched" -ne 1 ]; then
+    echo "[FATAL] Failed to download the ternux source bundle after 3 attempts." >&2
+    rm -rf "$tmpdir"
+    exit 1
+  fi
 
-  local downloaded_lib
-  for downloaded_lib in "$tmpdir/"*.sh; do
-    if ! bash -n "$downloaded_lib" 2>/dev/null; then
-      echo "[FATAL] Downloaded ternux library failed shell syntax validation: $(basename "$downloaded_lib")" >&2
+  if ! tar -tzf "$archive" > "$listing" 2>/dev/null ||
+     grep -qE '^/|(^|/)\.\.(/|$)' "$listing"; then
+    echo "[FATAL] Downloaded ternux source bundle is invalid or unsafe." >&2
+    rm -rf "$tmpdir"
+    exit 1
+  fi
+  root_name="$(sed -n '1{s#/.*##;p;}' "$listing")"
+  case "$root_name" in ternux-*) ;; *) root_name="" ;; esac
+  if [ -z "$root_name" ] || grep -qv "^${root_name}/" "$listing" ||
+     ! tar -xzf "$archive" -C "$tmpdir"; then
+    echo "[FATAL] Could not validate or unpack the ternux source bundle." >&2
+    rm -rf "$tmpdir"
+    exit 1
+  fi
+  root="$tmpdir/$root_name"
+
+  for lib in core.sh phases.sh detect.sh ui.sh; do
+    if [ ! -f "$root/lib/$lib" ] || ! bash -n "$root/lib/$lib" 2>/dev/null; then
+      echo "[FATAL] Bundled ternux library failed validation: $lib" >&2
       rm -rf "$tmpdir"
       exit 1
     fi
   done
+  if [ ! -f "$root/bin/ternux" ] || [ ! -f "$root/bin/ternux-guest" ]; then
+    echo "[FATAL] Bundled ternux command files are incomplete." >&2
+    rm -rf "$tmpdir"
+    exit 1
+  fi
 
-  . "$tmpdir/core.sh" && . "$tmpdir/phases.sh" && . "$tmpdir/detect.sh" && . "$tmpdir/ui.sh" || {
-    echo "[FATAL] Failed to load downloaded libraries." >&2; rm -rf "$tmpdir"; exit 1; }
-  rm -rf "$tmpdir"
+  _TNX_REMOTE_DIR="$tmpdir"
+  _TNX_SRC="$root"
+  export _TNX_REMOTE_DIR _TNX_SRC
+  trap '_tnx_bootstrap_cleanup' EXIT
+  . "$root/lib/core.sh" && . "$root/lib/phases.sh" && . "$root/lib/detect.sh" && . "$root/lib/ui.sh" || {
+    echo "[FATAL] Failed to load bundled ternux libraries." >&2
+    _tnx_bootstrap_cleanup
+    exit 1
+  }
   return 0
 }
 
@@ -149,7 +202,7 @@ while [ $# -gt 0 ]; do
     --resume) ACTION="resume" ;;
     --status) ACTION="status" ;;
     --uninstall) ACTION="uninstall" ;;
-    --version) echo "ternux installer v${TERNUX_VERSION:-1.3.0} — https://github.com/soobujmiah/ternux"; exit 0 ;;
+    --version) echo "ternux installer v${TERNUX_VERSION:-1.3.1} — https://github.com/soobujmiah/ternux"; exit 0 ;;
     -h|--help) sed -n '/^#  Usage/,/^# =====/p' "$0" | sed 's/^# \?//p' | head -n -1; exit 0 ;;
     *) echo "[FAIL] Unknown option: $1" >&2; exit 2 ;;
   esac

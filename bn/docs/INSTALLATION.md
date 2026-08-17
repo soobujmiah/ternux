@@ -63,6 +63,11 @@ identity header-এ **Sobuj Miah** দৃশ্যমান রাখে এব�
 আড়ালে না রেখে এক লাইন করে দেখায়। Capable TTY-তে persistent dashboard; redirected
 output, `TERM=dumb` বা সীমিত color terminal-এ static readable frame। দুই mode-ই
 logging, phase exit status, noninteractive operation ও `--resume` state অক্ষুণ্ণ রাখে।
+Standalone loader bounded retry-সহ একটি validated source snapshot নামায়, তারপর
+আলাদা করে প্রতিটি module request না করে bootstrap library, Termux host CLI ও
+Debian guest companion-এর জন্য একই snapshot reuse করে। Package setup বর্তমান apt
+source-ই রাখে এবং frame-এর ভেতর `termux-change-repo` খোলে না; source unreachable
+হলে নিজে mirror বেছে `--resume` দিয়ে আবার চালান।
 
 **আপগ্রেডের পর curl ভেঙে গেছে?** (`CANNOT LINK … SSL_set_quic_tls_transport_params`)
 আংশিক আপগ্রেডে curl ও openssl সামঞ্জস্য হারিয়েছে। wget ব্যবহার করুন — একই
@@ -74,8 +79,9 @@ wget -qO- https://soobujmiah.github.io/ternux/install.sh | bash
 
 ### পদ্ধতি ২ — সব executable অংশ পড়ুন, তারপর চালান
 
-শুধু standalone `install.sh` পড়া পূর্ণ review নয়—চালু হলে সেটি আরও library
-module নামায়। তাই entry point ও source-করা library-গুলো একসঙ্গে clone করে দেখুন:
+শুধু standalone `install.sh` পড়া পূর্ণ review নয়—চালু হলে সেটি সম্পূর্ণ repository
+snapshot নামিয়ে source করে। তাই entry point ও source-করা library-গুলো একসঙ্গে
+clone করে দেখুন:
 
 ```bash
 pkg update -y && pkg install git -y

@@ -66,7 +66,12 @@ keeps **Sobuj Miah** visible in its identity header, and streams real package
 output one line at a time. It does not replace logs with a spinner. A capable TTY
 gets the persistent dashboard; redirected output, `TERM=dumb`, and reduced-color
 terminals get a static readable frame. Both modes preserve logging, phase exit
-statuses, noninteractive operation, and `--resume` state.
+statuses, noninteractive operation, and `--resume` state. The standalone loader
+fetches one validated source snapshot with bounded retries, then reuses it for the
+bootstrap libraries, Termux host CLI and Debian guest companion instead of
+requesting every module separately. Package setup also keeps the current apt
+source and does not open `termux-change-repo` inside the frame; if that source is
+unreachable, choose a mirror manually and run with `--resume`.
 
 **curl broken after an upgrade?** A partial upgrade can leave curl and
 openssl out of sync. Use wget — same installer, and the script repairs curl
@@ -81,7 +86,7 @@ wget -qO- https://soobujmiah.github.io/ternux/install.sh | bash
 Piping `curl` into `bash` is convenient, but for a script that changes your
 device it is better to review **the entry point and the libraries it sources**.
 Clone the repository instead of inspecting only a standalone `install.sh`, which
-would still download library modules when it starts:
+would still download and source one complete repository snapshot when it starts:
 
 ```bash
 pkg update -y && pkg install git -y

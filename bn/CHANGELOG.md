@@ -49,6 +49,33 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 
 ---
 
+## [1.3.1] — 2026-08-17
+
+### বাস্তব ডিভাইসের installer recovery
+
+- মানুষের জন্য সাজানো output-এর fragile matching বাদ দিয়ে একটি shared Debian
+  container probe যোগ করা হয়েছে। এটি PRoot-Distro 5-এর `list --quiet`, current ও
+  legacy rootfs layout এবং পুরোনো Alias/Status output বোঝে; তাই আগে থেকে থাকা
+  Debian container-কে আবার `proot-distro install`-এ পাঠায় না, reuse করে।
+- Standalone bootstrap ও fallback host-CLI download-এ অনেক independent raw file
+  request-এর বদলে bounded retry-সহ একটি validated source archive ব্যবহার করা
+  হয়েছে। One-click route bootstrap, host CLI ও Debian guest companion-এর জন্য
+  একই extracted snapshot reuse করে।
+- Persistent installation frame-এর ভেতর থেকে full-screen `termux-change-repo`
+  dialog সরানো হয়েছে। Package setup ব্যবহারকারীর বর্তমান apt source রাখে এবং
+  সাময়িকভাবে `pkg`-এর all-mirror sweep বন্ধ করে; source unreachable হলে স্বাভাবিক
+  failure দেখায়, তারপর mirror নিজে বদলে `--resume` চালানো যায়।
+- Failed dashboard closure এখন error-কে `FAILED [11/11]` বানিয়ে না দিয়ে আসল
+  failed phase ও title ধরে রাখে; শুধু success-এই counter total-এ যায়।
+- Line-streamed log, required-phase failure propagation, resumability, host/guest
+  CLI verification, base ৩–৪ GB ও complete ১০–১২ GB estimate এবং দৃশ্যমান
+  Sobuj Miah installer identity অক্ষুণ্ণ রাখা হয়েছে।
+- Current/legacy PRoot-Distro layout, existing Debian reuse, noninteractive
+  repository handling এবং প্রথমবার ব্যর্থ হলেও retry-তে সফল standalone source
+  bundle download-এর regression coverage যোগ করা হয়েছে।
+
+---
+
 ## [1.3.0] — 2026-08-15
 
 ### ternux CLI v1.3.0 — নথিভুক্ত JSON output-সহ production modular CLI

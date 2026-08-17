@@ -4,7 +4,7 @@
 
 ### Debian + Xfce4 on Android with a measured Adreno GPU route — one command, no root
 
-[![Version](https://img.shields.io/badge/version-1.3.0-00e5a0?style=flat-square)](https://github.com/soobujmiah/ternux/releases)
+[![Version](https://img.shields.io/badge/version-1.3.1-00e5a0?style=flat-square)](https://github.com/soobujmiah/ternux/releases)
 [![Platform](https://img.shields.io/badge/platform-Android%20arm64-38bdf8?style=flat-square)](https://github.com/soobujmiah/ternux)
 [![Shell](https://img.shields.io/badge/shell-Bash-8b5cf6?style=flat-square)](https://github.com/soobujmiah/ternux)
 [![License](https://img.shields.io/badge/license-MIT-22c55e?style=flat-square)](LICENSE)

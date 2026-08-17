@@ -53,6 +53,34 @@ Notable changes to ternux. Dates are ISO 8601.
 
 ---
 
+## [1.3.1] — 2026-08-17
+
+### Real-device installer recovery
+
+- Replaced fragile human-output matching with one shared Debian-container probe.
+  It understands PRoot-Distro 5's `list --quiet` interface, both current and
+  legacy rootfs layouts, and older Alias/Status output, so an existing Debian
+  container is reused instead of passed to `proot-distro install` again.
+- Changed standalone bootstrap and fallback host-CLI acquisition from many
+  independent raw-file requests to one validated source archive with bounded
+  retries. The one-click route reuses that same extracted snapshot for bootstrap,
+  host CLI and Debian guest companion installation.
+- Removed the full-screen `termux-change-repo` dialog from the persistent install
+  frame. Package setup keeps the user's current apt source and temporarily
+  disables `pkg`'s all-mirror sweep; an unreachable source fails normally and can
+  be changed manually before `--resume`.
+- Fixed failed dashboard closure so it retains the actual failed phase and title
+  instead of rewriting every error as `FAILED [11/11]`; only success advances
+  the counter to the total.
+- Preserved line-streamed logs, required-phase failure propagation, resumability,
+  host/guest CLI verification, the 3–4 GB base and 10–12 GB complete estimates,
+  and the visible Sobuj Miah installer identity.
+- Added regression coverage for current/legacy PRoot-Distro layouts, existing
+  Debian reuse, noninteractive repository handling, and a transiently failed but
+  successfully retried standalone source-bundle download.
+
+---
+
 ## [1.3.0] — 2026-08-15
 
 ### ternux CLI v1.3.0 — production modular CLI with documented JSON output

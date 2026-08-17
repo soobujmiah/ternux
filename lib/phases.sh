@@ -102,14 +102,14 @@ tnx_phase_preflight() {
 tnx_phase_packages() {
   local rc=0
   local APT_FORCE="-o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -o APT::Color=1 -o Dpkg::Progress-Fancy=1"
+  local TERMUX_PKG_NO_MIRROR_SELECT=1
 
-  # Auto-select mirror if none configured. The selector itself is interactive
-  # terminal UI, so keep only that UI out of the line-oriented install feed.
-  if [ ! -f "${PREFIX:-/data/data/com.termux/files/usr}/etc/termux/chosen_mirrors" ]; then
-    tnx_info "Selecting the Termux repository mirror..."
-    yes "" | termux-change-repo 2>/dev/null || true
-    sleep 1
-  fi
+  # Never launch termux-change-repo inside the persistent frame: it owns the
+  # full terminal, clears the screen, and an "all mirrors" choice can trigger a
+  # large availability sweep. Keep the user's current apt source for this phase;
+  # if it is unreachable, the normal failure tells them to change it and resume.
+  export TERMUX_PKG_NO_MIRROR_SELECT=1
+  tnx_info "Using the currently configured Termux repository (automatic mirror sweep disabled)."
 
   termux-setup-storage 2>/dev/null || tnx_warn "termux-setup-storage: continuing."
   sleep 1
@@ -152,10 +152,14 @@ tnx_phase_packages() {
 # status/verification and explicitly redirects host-only operations to Termux.
 tnx_install_guest_cli() {
   local user_name="${1:-ternux}" guest_src="" cleanup=0 try=""
-  for try in "$(dirname "${BASH_SOURCE[0]}")/../bin/ternux-guest" \
-             "$(dirname "$0")/bin/ternux-guest"; do
-    [ -f "$try" ] && { guest_src="$try"; break; }
-  done
+  if [ -n "${_TNX_SRC:-}" ] && [ -f "$_TNX_SRC/bin/ternux-guest" ]; then
+    guest_src="$_TNX_SRC/bin/ternux-guest"
+  else
+    for try in "$(dirname "${BASH_SOURCE[0]}")/../bin/ternux-guest" \
+               "$(dirname "$0")/bin/ternux-guest"; do
+      [ -f "$try" ] && { guest_src="$try"; break; }
+    done
+  fi
 
   if [ -z "$guest_src" ]; then
     guest_src="${TMPDIR:-/tmp}/ternux-guest.$$"
@@ -212,8 +216,8 @@ tnx_install_guest_cli() {
 tnx_phase_debian() {
   local user_name="${1:-ternux}"
 
-  if proot-distro list 2>/dev/null | grep -q "debian.*installed"; then
-    tnx_warn "Debian already installed; reusing."
+  if tnx_debian_installed; then
+    tnx_warn "Debian container already installed; reusing it."
   else
     proot-distro install debian || { tnx_fail "Debian install failed."; return 1; }
   fi
@@ -762,75 +766,86 @@ tnx_phase_verify() {
 tnx_phase_cli() {
   local prefix="${PREFIX:-/data/data/com.termux/files/usr}"
   local bin_dir="$prefix/bin" lib_dir="$prefix/lib/ternux"
-  local cli_src=""
+  local cli_src="" try="" cleanup_dir="" archive="" listing=""
+  local root_name="" source_root="" source_lib_dir="" local_lib=""
 
-  for try in "$(dirname "${BASH_SOURCE[0]}")/../bin/ternux" \
-              "$(dirname "$0")/bin/ternux"; do
-    [ -f "$try" ] && { cli_src="$try"; break; }
-  done
-
-  if [ -z "$cli_src" ]; then
-    tnx_info "Downloading ternux CLI from GitHub..."
-    local base="https://raw.githubusercontent.com/soobujmiah/ternux/main"
-    local tmp_dir="${TMPDIR:-/tmp}/ternux-cli-install.$$" lib=""
-    local libs="core.sh help.sh detect.sh desktop.sh doctor.sh info.sh backend.sh profile.sh benchmark.sh repair.sh logs.sh update.sh state.sh uninstall.sh phases.sh ui.sh"
-    mkdir -p "$tmp_dir/lib" "$bin_dir" "$lib_dir" || return 1
-    if tnx_has_cmd curl; then
-      curl -fsSL --max-time 15 "$base/bin/ternux" -o "$tmp_dir/ternux" 2>/dev/null || { tnx_fail "CLI download failed"; rm -rf "$tmp_dir"; return 1; }
-      for lib in $libs; do
-        curl -fsSL --max-time 15 "$base/lib/$lib" -o "$tmp_dir/lib/$lib" 2>/dev/null || {
-          tnx_fail "Failed to download $lib"; rm -rf "$tmp_dir"; return 1;
-        }
-      done
-    elif tnx_has_cmd wget; then
-      wget -q --timeout=15 "$base/bin/ternux" -O "$tmp_dir/ternux" 2>/dev/null || { tnx_fail "CLI download failed"; rm -rf "$tmp_dir"; return 1; }
-      for lib in $libs; do
-        wget -q --timeout=15 "$base/lib/$lib" -O "$tmp_dir/lib/$lib" 2>/dev/null || {
-          tnx_fail "Failed to download $lib"; rm -rf "$tmp_dir"; return 1;
-        }
-      done
-    else
-      tnx_fail "Neither curl nor wget is available."
-      rm -rf "$tmp_dir"
-      return 1
-    fi
-
-    if ! bash -n "$tmp_dir/ternux" 2>/dev/null; then
-      tnx_fail "Downloaded CLI failed shell syntax validation."
-      rm -rf "$tmp_dir"
-      return 1
-    fi
-    for lib in $libs; do
-      if ! bash -n "$tmp_dir/lib/$lib" 2>/dev/null; then
-        tnx_fail "Downloaded library failed shell syntax validation: $lib"
-        rm -rf "$tmp_dir"
-        return 1
-      fi
-    done
-    for lib in $libs; do
-      install -m 644 "$tmp_dir/lib/$lib" "$lib_dir/$lib" 2>/dev/null || {
-        tnx_fail "Could not install $lib"; rm -rf "$tmp_dir"; return 1;
-      }
-    done
-    install -m 755 "$tmp_dir/ternux" "$bin_dir/ternux" 2>/dev/null || { tnx_fail "Install failed"; rm -rf "$tmp_dir"; return 1; }
-    rm -rf "$tmp_dir"
+  if [ -n "${_TNX_SRC:-}" ] && [ -f "$_TNX_SRC/bin/ternux" ]; then
+    cli_src="$_TNX_SRC/bin/ternux"
   else
-    local local_lib
-    mkdir -p "$bin_dir" "$lib_dir"
-    bash -n "$cli_src" 2>/dev/null || {
-      tnx_fail "Local CLI failed shell syntax validation."; return 1;
-    }
-    for local_lib in "$(dirname "$cli_src")/../lib/"*.sh; do
-      bash -n "$local_lib" 2>/dev/null || {
-        tnx_fail "Local library failed shell syntax validation: $(basename "$local_lib")"
-        return 1
-      }
+    for try in "$(dirname "${BASH_SOURCE[0]}")/../bin/ternux" \
+                "$(dirname "$0")/bin/ternux"; do
+      [ -f "$try" ] && { cli_src="$try"; break; }
     done
-    cp "$(dirname "$cli_src")/../lib/"*.sh "$lib_dir/" 2>/dev/null || {
-      tnx_fail "Failed to copy CLI libraries"; return 1;
-    }
-    install -m 755 "$cli_src" "$bin_dir/ternux" 2>/dev/null || { tnx_fail "Install failed"; return 1; }
   fi
+
+  # A normal one-click run reaches this branch with the already-extracted
+  # bootstrap snapshot beside phases.sh, so phase 3 performs no network work.
+  # If the module is invoked without that snapshot, fetch one retryable archive
+  # rather than 18 independent raw-GitHub files.
+  if [ -z "$cli_src" ]; then
+    cleanup_dir="${TMPDIR:-/tmp}/ternux-cli-install.$$"
+    archive="$cleanup_dir/ternux.tar.gz"
+    listing="$cleanup_dir/archive.list"
+    mkdir -p "$cleanup_dir" || return 1
+    tnx_info "Downloading one retryable ternux CLI source bundle..."
+    if ! tnx_download \
+      "https://codeload.github.com/soobujmiah/ternux/tar.gz/refs/heads/main" \
+      "$archive"; then
+      tnx_fail "CLI source bundle download failed after retries."
+      rm -rf "$cleanup_dir"
+      return 1
+    fi
+    if ! tar -tzf "$archive" > "$listing" 2>/dev/null ||
+       grep -qE '^/|(^|/)\.\.(/|$)' "$listing"; then
+      tnx_fail "Downloaded CLI source bundle is invalid or unsafe."
+      rm -rf "$cleanup_dir"
+      return 1
+    fi
+    root_name="$(sed -n '1{s#/.*##;p;}' "$listing")"
+    case "$root_name" in ternux-*) ;; *) root_name="" ;; esac
+    if [ -z "$root_name" ] || grep -qv "^${root_name}/" "$listing" ||
+       ! tar -xzf "$archive" -C "$cleanup_dir"; then
+      tnx_fail "Could not validate or unpack the CLI source bundle."
+      rm -rf "$cleanup_dir"
+      return 1
+    fi
+    source_root="$cleanup_dir/$root_name"
+    cli_src="$source_root/bin/ternux"
+  fi
+
+  source_lib_dir="$(dirname "$cli_src")/../lib"
+  local source_libs=("$source_lib_dir/"*.sh)
+  mkdir -p "$bin_dir" "$lib_dir" || {
+    tnx_fail "Could not create the host CLI directories."
+    [ -n "$cleanup_dir" ] && rm -rf "$cleanup_dir"
+    return 1
+  }
+  if [ ! -f "$cli_src" ] || [ ! -e "${source_libs[0]}" ] ||
+     ! bash -n "$cli_src" 2>/dev/null; then
+    tnx_fail "CLI source snapshot is incomplete or failed shell syntax validation."
+    [ -n "$cleanup_dir" ] && rm -rf "$cleanup_dir"
+    return 1
+  fi
+  for local_lib in "${source_libs[@]}"; do
+    if ! bash -n "$local_lib" 2>/dev/null; then
+      tnx_fail "CLI library failed shell syntax validation: $(basename "$local_lib")"
+      [ -n "$cleanup_dir" ] && rm -rf "$cleanup_dir"
+      return 1
+    fi
+  done
+  for local_lib in "${source_libs[@]}"; do
+    if ! install -m 644 "$local_lib" "$lib_dir/$(basename "$local_lib")" 2>/dev/null; then
+      tnx_fail "Could not install CLI library: $(basename "$local_lib")"
+      [ -n "$cleanup_dir" ] && rm -rf "$cleanup_dir"
+      return 1
+    fi
+  done
+  if ! install -m 755 "$cli_src" "$bin_dir/ternux" 2>/dev/null; then
+    tnx_fail "Could not install the host CLI."
+    [ -n "$cleanup_dir" ] && rm -rf "$cleanup_dir"
+    return 1
+  fi
+  [ -n "$cleanup_dir" ] && rm -rf "$cleanup_dir"
 
   # File existence is not enough: execute the exact installed path so the
   # dispatcher must discover and load the installed flat module directory.
@@ -979,10 +994,12 @@ tnx_install() {
   fi
 
   local phases="preflight packages cli debian gpu audio_fonts launcher aliases extras phantom verify"
-  local total=11 rc=0 current=0 phase_rc=0 failed_phase="" phase="" title=""
+  local total=11 rc=0 current=0 phase_rc=0 failed_phase="" failed_current=0 phase="" title=""
 
   tnx_frame_open "$total" "$backend" "$user_name" "$profile"
-  trap 'tnx_frame_restore_terminal' EXIT
+  # The standalone loader may own one extracted source snapshot. Preserve its
+  # cleanup when this installer installs frame/signal traps of its own.
+  trap 'tnx_frame_restore_terminal; if type _tnx_bootstrap_cleanup >/dev/null 2>&1; then _tnx_bootstrap_cleanup; fi' EXIT
   trap 'tnx_frame_restore_terminal; exit 130' INT
   trap 'tnx_frame_restore_terminal; exit 143' TERM
 
@@ -1028,6 +1045,7 @@ tnx_install() {
 
     rc="$phase_rc"
     failed_phase="$phase"
+    failed_current="$current"
     tnx_log_error "Installation phase '$phase' failed with status $phase_rc"
 
     if [ "$phase" = "extras" ] || [ "$phase" = "phantom" ]; then
@@ -1088,7 +1106,7 @@ tnx_install() {
         tnx_info "Full log: $TERNUX_LOG_FILE"
         tnx_info "Fix the reported error, then run 'bash install.sh --resume' or the Termux-host 'ternux doctor'."
       } 2>&1 | tnx_frame_stream
-      tnx_frame_close failed
+      tnx_frame_close failed "$failed_current" "$(tnx_phase_title "$failed_phase")"
     else
       if [ -n "$failed_phase" ]; then
         tnx_warn "Installation did not complete cleanly (phase: $failed_phase)."

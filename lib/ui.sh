@@ -180,13 +180,19 @@ tnx_frame_restore_terminal() {
 }
 
 tnx_frame_close() {
-  local status="${1:-failed}" state="FAILED"
+  local status="${1:-failed}" failed_cur="${2:-${_TNX_FRAME_CUR:-0}}"
+  local failed_title="${3:-${_TNX_FRAME_TITLE:-installation phase}}" state="FAILED"
   [ "$status" = "success" ] && state="COMPLETE"
   tnx_log_info "Installation frame closed: $status"
 
   if [ "${_TNX_FRAME_MODE:-off}" = "dashboard" ]; then
-    _TNX_FRAME_TITLE="Installation ${status}"
-    _TNX_FRAME_CUR="$_TNX_FRAME_TOTAL"
+    if [ "$status" = "success" ]; then
+      _TNX_FRAME_TITLE="Installation complete"
+      _TNX_FRAME_CUR="$_TNX_FRAME_TOTAL"
+    else
+      _TNX_FRAME_TITLE="Failed: $failed_title"
+      _TNX_FRAME_CUR="$failed_cur"
+    fi
     export _TNX_FRAME_TITLE _TNX_FRAME_CUR
     _tnx_frame_draw_dashboard "$state"
     tnx_frame_restore_terminal

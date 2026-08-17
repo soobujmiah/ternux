@@ -34,7 +34,7 @@ tnx_cmd_doctor() {
   # 3. PRoot + Debian
   if tnx_has_cmd proot-distro; then
     tnx_ok "proot-distro installed"
-    if proot-distro list 2>/dev/null | grep -q "debian.*installed"; then
+    if tnx_debian_installed; then
       tnx_ok "Debian container installed"
     else
       issues+=("debian_not_installed"); actions+=("Run: ternux install"); [ "$status" = "ok" ] && status="warning"
@@ -72,7 +72,7 @@ tnx_cmd_doctor() {
 
   # 8. Renderer
   local renderer=""
-  if tnx_has_cmd proot-distro && proot-distro list 2>/dev/null | grep -q "debian.*installed"; then
+  if tnx_debian_installed; then
     renderer="$(tnx_detect_renderer)"
     if [ -n "$renderer" ] && [ "$renderer" != "unknown" ]; then
       tnx_ok "Renderer: $renderer"
@@ -171,7 +171,7 @@ tnx_cmd_verify() {
   fi
 
   # Debian container
-  if tnx_has_cmd proot-distro && proot-distro list 2>/dev/null | grep -q "debian.*installed"; then
+  if tnx_debian_installed; then
     checks+=("debian:installed")
     if proot-distro login debian --user "${TERNUX_USER:-ternux}" -- bash -c 'command -v startxfce4 >/dev/null && command -v pactl >/dev/null && sudo -n true >/dev/null' 2>/dev/null; then
       checks+=("debian_services:ok")
