@@ -24,9 +24,18 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install Bats
+        timeout-minutes: 5
         run: |
-          sudo apt-get update
-          sudo apt-get install --yes bats
+          set -u
+          for attempt in 1 2 3; do
+            if sudo apt-get update -o Acquire::Retries=3 &&
+               sudo apt-get install --yes --no-install-recommends bats; then
+              exit 0
+            fi
+            echo "apt attempt ${attempt} failed; retrying..."
+            sleep $((attempt * 10))
+          done
+          exit 1
 
       - name: Check Bash syntax independently
         shell: bash
