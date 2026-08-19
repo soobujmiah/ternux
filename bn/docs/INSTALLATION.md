@@ -58,13 +58,12 @@ curl -fsSL https://soobujmiah.github.io/ternux/install.sh | bash
 এটি HTTPS-এ ইনস্টলার নামিয়ে চালায়। এই রিপোজিটরির সেই একই স্ক্রিপ্ট —
 লুকানো কিছু নেই, কম্পাইলড কিছু নেই।
 
-Custom installation dashboard শুরু থেকে final summary পর্যন্ত screen-এ থাকে:
-live device panel, fixed step progress bar, framed scrolling log এবং animated
-**Sobuj Miah** footer। আসল package output spinner-এর আড়ালে না রেখে এক লাইন করে
-দেখায়, আর frame terminal-এ auto-fit হয় — font/zoom পরিবর্তন ও on-screen
-keyboard-এ আবার আঁকা হয়। Capable TTY-তে persistent dashboard; redirected output,
-`TERM=dumb` বা সীমিত color terminal-এ static readable frame। দুই mode-ই logging,
-phase exit status, noninteractive operation ও `--resume` state অক্ষুণ্ণ রাখে।
+ইনস্টলার একটিমাত্র স্থায়ী স্ক্রিন আঁকে — device panel, step progress, live log
+window ও অতিবাহিত সময় — এবং শেষ status পর্যন্ত সেটিই রাখে। Package output
+spinner-এর আড়ালে না রেখে যেমন আসে তেমন দেখানো হয়, আর terminal যা-ই আঁকতে পারুক,
+প্রতিটি লাইন লগ ফাইলে লেখা হয়। রেন্ডারার mode ও সেগুলো বদলানোর উপায়
+[ইনস্টলার স্ক্রিন](#the-installer-screen)-এ আছে।
+
 Standalone loader bounded retry-সহ একটি validated source snapshot নামায়, তারপর
 আলাদা করে প্রতিটি module request না করে bootstrap library, Termux host CLI ও
 Debian guest companion-এর জন্য একই snapshot reuse করে। Package setup বর্তমান apt
@@ -229,6 +228,75 @@ ternux update           # CLI আপডেট
 `/dev/kgsl-3d0`-বিহীন ডিভাইসে `zink` জোর করলে GPU phase-এ launcher তৈরির
 আগেই স্পষ্টভাবে ব্যর্থ হয়—নিঃশব্দে software desktop বানায় না। এই ব্যর্থতা
 ইচ্ছাকৃত।
+
+---
+
+<h2 id="the-installer-screen">ইনস্টলার স্ক্রিন</h2>
+
+পুরো ইনস্টলের জন্য একটিই স্ক্রিন। Log window-তে চলমান ফেজের live tail থাকে; পুরো
+স্ট্রিম সবসময় লগ ফাইলে যোগ হয়।
+
+```text
++=========================================================+
+|           ternux v1.4.0 - ONE-CLICK INSTALLER           |
+| by Sobuj Miah  -  base ~3-4 GB  -  complete ~10-12 GB   |
++=========================================================+
+| Device    Redmi Turbo 4 Pro - Android 15 (SDK 35)       |
+| Graphics  Adreno 825 - backend zink - Vulkan 1.4        |
+| Memory    12 GB RAM - 84 GB free - aarch64              |
+| STEPS 4/11  ######------------  Debian container        |
++=========================================================+
+| Get:14 http://deb.debian.org bookworm/main arm64        |
+| Unpacking xfce4-session (4.18.3-1) ...                  |
+|     ... +201 more lines (full log: ternux.log)          |
+| [ OK ] Base packages installed                          |
++=========================================================+
+| (c) 2026 Sobuj Miah - github.com/soobujmiah  03:12 /    |
++=========================================================+
+```
+
+| অংশ | যা দেখায় |
+|---|---|
+| Device panel | মডেল, Android রিলিজ ও SDK, GPU, নির্বাচিত backend, Vulkan, RAM, খালি জায়গা, architecture |
+| Step bar | ফেজ নম্বর, মোট ফেজ, এবং চলমান ফেজের নাম |
+| Log window | চলমান ফেজের live tail, গুরুত্ব অনুযায়ী রঙ করা |
+| Footer | অতিবাহিত সময় ও একটি স্পিনার, যা ফেজ চুপচাপ থাকলেও চলতে থাকে |
+
+<h3 id="renderer-modes">রেন্ডারার mode</h3>
+
+| Mode | কখন বেছে নেওয়া হয় | আচরণ |
+|---|---|---|
+| `dashboard` | রঙসহ ইন্টারেক্টিভ terminal, অন্তত ৩৯ ব্যবহারযোগ্য কলাম ও ১৩ সারি | উপরের স্থায়ী স্ক্রিন |
+| `plain` | বাকি সব: pipe, TTY ছাড়া `curl \| bash`, `TERM=dumb`, `NO_COLOR`, খুব ছোট উইন্ডো | ক্রম অনুযায়ী ফ্রেম করা লাইন, cursor control নেই |
+| `off` | `--ui off`, `--quiet` বা `--json` | ফ্রেম ছাড়া সরাসরি কমান্ড আউটপুট |
+
+নির্বাচন স্বয়ংক্রিয়; অন্য ফল চাইলে নিজে ঠিক করে দিন:
+
+```bash
+bash install.sh --plain          # স্ক্রলিং লগ, ফুল-স্ক্রিন ড্যাশবোর্ড নয়
+bash install.sh --no-anim        # ড্যাশবোর্ড, কিন্তু স্পিনার বা রঙ বদল ছাড়া
+TERNUX_UI=off bash install.sh    # সরাসরি আউটপুট, যেমন transcript রাখতে
+```
+
+<h3 id="reading-the-log-window">লগ উইন্ডো পড়া</h3>
+
+- apt, dpkg, proot-distro ও curl-এর carriage-return প্রগ্রেস একটি সারিতেই হালনাগাদ
+  হয়, উইন্ডো ভাসিয়ে নিয়ে যায় না।
+- কোনো ফেজ পড়ার চেয়ে দ্রুত লিখলে নতুন লাইনগুলো রাখা হয় আর বাকিগুলোর সংখ্যা
+  `... +201 more lines` হিসেবে জানানো হয়। Error, warning ও phase চিহ্ন কখনো
+  সংক্ষেপ করা হয় না।
+- ফন্টের মাপ বদলালে, ডিভাইস ঘোরালে বা অন-স্ক্রিন কীবোর্ড খুললে ফ্রেম একবার নতুন
+  মাপে বসে এবং দৃশ্যমান লগ আবার আঁকা হয়।
+- `Ctrl-C` terminal ফিরিয়ে দেয় এবং রেকর্ড করা state রেখে যায়, তাই
+  `bash install.sh --resume` শেষ সম্পন্ন ফেজ থেকে চলতে থাকে।
+
+কী রেকর্ড হবে তা রেন্ডারার ঠিক করে না:
+
+```bash
+ternux logs tail     # চলমান ইনস্টল লগ দেখুন
+ternux logs show     # পুরো লগ পড়ুন
+ternux logs list     # লগ ফাইল ও আকার
+```
 
 ---
 

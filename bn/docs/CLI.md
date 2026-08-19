@@ -242,6 +242,26 @@ Bash কমপ্লিশন উপলব্ধ `share/ternux-completion.bash`-
 source share/ternux-completion.bash
 ```
 
+<h2 id="environment-variables">এনভায়রনমেন্ট ভেরিয়েবল</h2>
+
+নিচের প্রতিটি ভেরিয়েবল শুরুতেই পড়া হয়; কমান্ড-লাইন ফ্ল্যাগ সবসময় অগ্রাধিকার পায়।
+
+| ভেরিয়েবল | কোথায় কাজ করে | কাজ |
+|---|---|---|
+| `TERNUX_UI` | `install` | রেন্ডারার নির্বাচন: `auto`, `dashboard`, `plain`, `off` |
+| `TERNUX_NO_ANIM` | `install` | `1` দিলে স্পিনার ও রঙ বদল থেমে যায় |
+| `TERNUX_YES` | `install` | `1` দিলে নথিভুক্ত default প্রশ্ন ছাড়াই নেওয়া হয় |
+| `TERNUX_QUIET` | সব | সাধারণ তথ্যমূলক বার্তা বন্ধ করে |
+| `TERNUX_JSON` | নথিভুক্ত কমান্ড | structured output চায় |
+| `TERNUX_VERBOSE` | সব | যেসব কমান্ডে আছে সেখানে debug বার্তা চালু করে |
+| `TERNUX_USER` | সব | CLI যে Debian অ্যাকাউন্ট ধরে কাজ করে; সাধারণত saved state থেকে আসে |
+| `TERNUX_STATE_DIR` | সব | ফেজ state ও সংরক্ষিত পছন্দ (ডিফল্ট `~/.local/share/ternux`) |
+| `TERNUX_LOG_DIR` | সব | লগ ডিরেক্টরি (ডিফল্ট `$TMPDIR/ternux`) |
+
+পূর্ণ বিবরণ: [কনফিগারেশন → ইনস্টলার আউটপুট](CONFIGURATION.html#installer-output)।
+
+---
+
 ## আর্কিটেকচার
 
 ```
@@ -261,6 +281,7 @@ lib/update.sh       ← সেলফ-আপডেট
 lib/state.sh        ← installation state
 lib/uninstall.sh    ← scoped, confirmed component removal
 lib/phases.sh       ← ইনস্টলেশন implementation (১১টি ধাপ)
+lib/ui.sh           ← ইনস্টলার রেন্ডারার: dashboard, plain frame, log stream
 ```
 
 নতুন কমান্ড যোগ করা:

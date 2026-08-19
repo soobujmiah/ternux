@@ -12,39 +12,61 @@ Notable changes to ternux. Dates are ISO 8601.
 
 ## [Unreleased]
 
-### Installer renderer rebuilt: stable frame, readable log
+### Installer renderer rebuilt — stable frame, readable log
 
-- Fixed the broken installation frame. The dashboard no longer writes into the
-  terminal's last column, so the pending-wrap state is never armed and log lines
-  can no longer wrap through the borders or shift every following row.
-- Stopped the constant full-screen repaints. The resize check now compares raw
-  terminal measurements against the previous raw measurement instead of against
-  the clamped drawing size, and it is polled at most once per second (a SIGWINCH
-  short-circuits the poll). The screen is cleared only on open, on a real resize
-  and on close.
-- Terminal size is read from the kernel through `stty`/`tput` with three
-  descriptor fallbacks, so a pipeline phase can still measure the window; when
-  no measurement is possible the frame stays fixed instead of thrashing.
-- Carriage-return progress from apt, dpkg, proot-distro and curl now updates one
-  in-place row instead of scrolling thousands of lines through the log window.
-- Bursts of output are coalesced to a readable rate with an explicit
-  `... +N more lines` marker; errors, warnings and phase markers are never
+The installation dashboard is rendered by a new engine. On real devices the
+previous one could wrap log lines through its own borders, repaint the whole
+screen several times per second, and expand package-manager progress into
+thousands of scrolling lines.
+
+**Fixed**
+
+- **Frame integrity.** The frame no longer writes into the terminal's last
+  column, so the pending-wrap state is never armed and a log line can no longer
+  shift every row that follows it.
+- **Repaint storms.** The screen is cleared only when it opens, when the
+  terminal genuinely changes size, and when it closes. Resize detection compares
+  raw terminal measurements with the previous raw measurement — never with the
+  clamped drawing size — and is polled at most once per second, with `SIGWINCH`
+  short-circuiting the poll.
+- **Size detection.** The window size is read from the kernel through
+  `stty`/`tput` with descriptor fallbacks, so a phase running inside a pipeline
+  can still measure the terminal. When no measurement is possible the frame
+  stays fixed instead of thrashing.
+- **Progress floods.** Carriage-return output from apt, dpkg, proot-distro and
+  curl updates one row in place instead of scrolling the log window away.
+- **Split lines.** Partial reads are buffered, so a slowly produced line is
+  reassembled rather than printed in fragments.
+- **Log window content.** The window is redrawn from a dedicated stream log, so
+  timestamped diagnostic entries no longer appear between package lines.
+- **Terminal state.** The scroll region and cursor are restored on every exit
+  path, including `SIGINT` and `SIGTERM`.
+
+**Changed**
+
+- Output bursts are coalesced to a readable rate and the remainder is reported
+  as `... +N more lines`. Errors, warnings and phase markers are never
   coalesced, and the complete stream is always written to the log file.
-- Partial reads are buffered, so a slowly produced line is reassembled instead
-  of being split across rows.
-- The per-line render path no longer forks: clipping, padding, colouring and the
-  animated signature are computed with shell builtins only.
-- A resize now re-fits the frame exactly once, and a terminal that becomes too
-  small drops cleanly to plain scrolling output instead of drawing a broken box.
-- Closing the installer reserves three rows for a scrollback-friendly recap with
-  the outcome and the log path, and always restores the scroll region and the
-  cursor, including on SIGINT/SIGTERM.
-- New renderer controls: `--ui auto|dashboard|plain|off`, `--plain`, and
-  `TERNUX_UI`; `--no-anim` now only freezes the animation instead of affecting
-  layout. `TERNUX_COLS`/`TERNUX_ROWS` force a geometry for testing.
-- Added `tests/ui_render.py`: the installer is rendered inside a real pseudo
-  terminal and replayed through a VT100 emulator that asserts border integrity,
-  bounded repaints, progress collapsing and correct re-fitting after a resize.
+- Closing the installer reserves rows for a short recap — outcome, phase and log
+  path — as ordinary scrollback text.
+- A terminal that becomes too small drops cleanly to plain scrolling output
+  instead of drawing a broken frame.
+- The per-line render path no longer forks a subprocess; clipping, padding,
+  colouring and the animated signature use shell builtins only.
+
+**Added**
+
+- `--ui auto|dashboard|plain|off`, `--plain`, and the `TERNUX_UI` environment
+  variable. `--no-anim` now only freezes the animation instead of affecting
+  layout, and `TERNUX_COLS`/`TERNUX_ROWS` force a geometry for reproducible
+  transcripts.
+- `tests/ui_render.py`, run in CI: the installer is executed inside a real
+  pseudo-terminal and replayed through a VT100 emulator that asserts border
+  integrity, bounded repaints, progress collapsing, and correct re-fitting after
+  a resize.
+- Documentation for the installer screen, its renderer modes and its logs in the
+  installation guide, the CLI reference, the configuration reference and
+  troubleshooting, in both languages.
 
 ### Professional bilingual documentation experience
 

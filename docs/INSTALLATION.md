@@ -61,19 +61,19 @@ input is not a terminal, this route runs unattended with the documented
 defaults. Read the output: a required-phase failure stops its dependants, while
 an optional/advisory failure is reported and leaves a nonzero final status.
 
-The installation dashboard remains on screen from startup through the final
-summary: a live device panel, a fixed step progress bar, a framed scrolling log,
-and an animated **Sobuj Miah** footer. Real package output streams one line at a
-time — it never replaces logs with a spinner. The frame auto-fits the terminal
-and repaints on font/zoom changes and the on-screen keyboard. A capable TTY gets
-the persistent dashboard; redirected output, `TERM=dumb`, and reduced-color
-terminals get a static readable frame. Both modes preserve logging, phase exit
-statuses, noninteractive operation, and `--resume` state. The standalone loader
-fetches one validated source snapshot with bounded retries, then reuses it for the
-bootstrap libraries, Termux host CLI and Debian guest companion instead of
-requesting every module separately. Package setup also keeps the current apt
-source and does not open `termux-change-repo` inside the frame; if that source is
-unreachable, choose a mirror manually and run with `--resume`.
+The installer draws one persistent screen — device panel, step progress, live
+log window, elapsed time — and keeps it until the final status. Package output
+is shown as it happens rather than hidden behind a spinner, and every line is
+written to the log file whatever the terminal can render. See
+[The installer screen](#the-installer-screen) for the renderer modes and how to
+override them.
+
+The standalone loader fetches one validated source snapshot with bounded
+retries, then reuses it for the bootstrap libraries, the Termux host CLI and the
+Debian guest companion instead of requesting every module separately. Package
+setup keeps the current apt source and never opens `termux-change-repo` inside
+the frame; if that source is unreachable, select a mirror manually and re-run
+with `--resume`.
 
 **curl broken after an upgrade?** A partial upgrade can leave curl and
 openssl out of sync. Use wget — same installer, and the script repairs curl
@@ -238,6 +238,75 @@ ternux update           # self-update the CLI
 Forcing `zink` on a device without `/dev/kgsl-3d0` fails loudly at the GPU phase
 before the launcher is created, rather than producing a silently-software
 desktop. That failure is intentional.
+
+---
+
+## The installer screen
+
+One screen serves the whole run. The log window holds the live tail of the
+current phase; the complete stream is always appended to the log file.
+
+```text
++=========================================================+
+|           ternux v1.4.0 - ONE-CLICK INSTALLER           |
+| by Sobuj Miah  -  base ~3-4 GB  -  complete ~10-12 GB   |
++=========================================================+
+| Device    Redmi Turbo 4 Pro - Android 15 (SDK 35)       |
+| Graphics  Adreno 825 - backend zink - Vulkan 1.4        |
+| Memory    12 GB RAM - 84 GB free - aarch64              |
+| STEPS 4/11  ######------------  Debian container        |
++=========================================================+
+| Get:14 http://deb.debian.org bookworm/main arm64        |
+| Unpacking xfce4-session (4.18.3-1) ...                  |
+|     ... +201 more lines (full log: ternux.log)          |
+| [ OK ] Base packages installed                          |
++=========================================================+
+| (c) 2026 Sobuj Miah - github.com/soobujmiah  03:12 /    |
++=========================================================+
+```
+
+| Region | What it reports |
+|---|---|
+| Device panel | Model, Android release and SDK, GPU, selected backend, Vulkan, RAM, free storage, architecture |
+| Step bar | Phase number, total phases, and the title of the running phase |
+| Log window | Live tail of the running phase, coloured by severity |
+| Footer | Elapsed time and a spinner that keeps moving while a phase is quiet |
+
+### Renderer modes
+
+| Mode | Chosen when | Behaviour |
+|---|---|---|
+| `dashboard` | Interactive terminal with colour, at least 39 usable columns and 13 rows | The persistent screen shown above |
+| `plain` | Everything else: pipes, `curl \| bash` without a TTY, `TERM=dumb`, `NO_COLOR`, a very small window | Framed lines appended in order, no cursor control |
+| `off` | `--ui off`, `--quiet`, or `--json` | Raw command output with no framing |
+
+Selection is automatic; override it when you prefer a different result:
+
+```bash
+bash install.sh --plain          # scrolling log, no full-screen dashboard
+bash install.sh --no-anim        # dashboard without spinner or colour cycling
+TERNUX_UI=off bash install.sh    # raw output, e.g. to capture a transcript
+```
+
+### Reading the log window
+
+- Carriage-return progress from apt, dpkg, proot-distro and curl updates a single
+  row in place instead of scrolling the window away.
+- When a phase prints faster than the screen can be read, the newest lines are
+  kept and the count of the rest is stated as `... +201 more lines`. Errors,
+  warnings and phase markers are never summarised.
+- Changing font size, rotating the device, or opening the on-screen keyboard
+  re-fits the frame once and redraws the visible log.
+- `Ctrl-C` restores the terminal and preserves recorded state, so
+  `bash install.sh --resume` continues from the last completed phase.
+
+The renderer never decides what is recorded:
+
+```bash
+ternux logs tail     # follow the live install log
+ternux logs show     # read the whole log
+ternux logs list     # log files and sizes
+```
 
 ---
 

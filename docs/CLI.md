@@ -305,6 +305,26 @@ source share/ternux-completion.bash
 This provides tab-completion for all commands, subcommands, flags,
 and saved profile names.
 
+## Environment variables
+
+Every variable below is read at startup; command-line flags always win.
+
+| Variable | Used by | Effect |
+|---|---|---|
+| `TERNUX_UI` | `install` | Renderer selection: `auto`, `dashboard`, `plain`, `off` |
+| `TERNUX_NO_ANIM` | `install` | `1` freezes the spinner and colour cycling |
+| `TERNUX_YES` | `install` | `1` accepts the documented defaults without prompting |
+| `TERNUX_QUIET` | all | Suppresses shared informational messages |
+| `TERNUX_JSON` | documented commands | Requests structured output |
+| `TERNUX_VERBOSE` | all | Enables debug messages where a command provides them |
+| `TERNUX_USER` | all | Debian account the CLI targets; normally read from saved state |
+| `TERNUX_STATE_DIR` | all | Phase state and saved choices (default `~/.local/share/ternux`) |
+| `TERNUX_LOG_DIR` | all | Log directory (default `$TMPDIR/ternux`) |
+
+Full descriptions: [Configuration → Installer output](CONFIGURATION.html#installer-output).
+
+---
+
 ## Architecture
 
 ```
@@ -324,6 +344,7 @@ lib/update.sh       ← Self-update
 lib/state.sh        ← Installation state
 lib/uninstall.sh    ← Scoped, confirmed component removal
 lib/phases.sh       ← 11-phase installation implementation
+lib/ui.sh           ← Installer renderer: dashboard, plain frame, log stream
 ```
 
 Adding a new command:

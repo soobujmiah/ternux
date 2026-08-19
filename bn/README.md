@@ -184,12 +184,14 @@ Vulkan) · `--with-network` (nmap, tmux — শুধু অনুমোদি�
 `--resume` completed phase বাদ দেওয়ার পাশাপাশি interrupted run-এর saved optional
 workload set-ও ফিরিয়ে আনে।
 
-ইনস্টল শুরু হলে একটি স্থায়ী dashboard দেখা যায় যা শুরু থেকে শেষ পর্যন্ত থাকে:
-live device panel, fixed step progress bar, framed scrolling log এবং animated
-**Sobuj Miah** copyright footer। package-manager output spinner-এর আড়ালে না রেখে
-এক লাইন করে দেখায়, আর frame terminal-এ auto-fit হয় — font/zoom পরিবর্তন ও
-on-screen keyboard-এ আবার আঁকা হয়। Non-TTY বা সীমিত terminal-এ একই exit
-status/resume behavior-সহ plain readable frame দেখায়।
+ইনস্টলার একটিমাত্র স্থায়ী স্ক্রিন আঁকে এবং শেষ status পর্যন্ত সেটিই রাখে: device
+panel, fixed step progress bar, live log window ও অতিবাহিত সময়ের footer। Package
+output spinner-এর আড়ালে না রেখে যেমন আসে তেমন দেখানো হয়; apt ও dpkg-এর
+carriage-return প্রগ্রেস একটি সারিতেই হালনাগাদ হয়; terminal resize হলে ফ্রেম একবার
+নতুন মাপে বসে। যেসব terminal ড্যাশবোর্ড চালাতে পারে না — pipe, `TERM=dumb`, খুব ছোট
+উইন্ডো — সেখানে একই exit status, logging ও `--resume` আচরণসহ plain framed log
+দেখানো হয়। পূর্ণ বিবরণ:
+[ইনস্টলার স্ক্রিন](docs/INSTALLATION.md#the-installer-screen)।
 
 ### দুই terminal-এ `ternux`
 

@@ -22,7 +22,7 @@ more than one cause, so collect the named evidence before applying a repair.
 | `No command $ found` after pasting the install command | copied text included the display-only `$` prompt | [Pasted command starts with $](#pasted-command-starts-with) |
 | `curl: CANNOT LINK … SSL_set_quic_tls_transport_params` | partial upgrade — curl/libngtcp2 newer than openssl | [curl cannot link after an upgrade](#curl-cannot-link-after-an-upgrade) |
 | Everything was fine, now it's broken after an upgrade | Mesa packages got replaced | [After an upgrade the GPU path is gone](#after-an-upgrade-the-gpu-path-is-gone) |
-| Installer dashboard flickers, log lines overlap the frame | Terminal size could not be measured, or a pre-1.4.1 renderer | [The installer screen flickers or the frame is broken](#the-installer-screen-flickers-or-the-frame-is-broken) |
+| Installer dashboard flickers, log lines overlap the frame | An installer older than the current renderer, or a terminal whose size cannot be measured | [The installer screen flickers or the frame is broken](#the-installer-screen-flickers-or-the-frame-is-broken) |
 
 ---
 
@@ -413,7 +413,8 @@ TERNUX_UI=off bash install.sh   # no framing at all, raw command output
 The renderer selects itself: the dashboard needs an interactive terminal with
 colour, at least 39 usable columns and at least 13 rows. Pipes, `curl | bash`
 without a TTY, `TERM=dumb`, `--quiet` and `--json` all fall back to plain
-scrolling output automatically.
+scrolling output automatically. The complete reference is
+[Installation → The installer screen](INSTALLATION.html#the-installer-screen).
 
 Nothing is ever lost to the screen. Every line the phases produce is appended to
 the log file, including the lines a burst summarises on screen as

@@ -78,7 +78,7 @@ alt_url: "/bn/"
     <section class="hero">
       <div class="landing-container hero__grid">
         <div class="hero__copy">
-          <a class="release-pill" href="{{ '/CHANGELOG.html' | relative_url }}#140--2026-08-17"><strong>v1.4.0</strong><span>animated installer dashboard</span><i aria-hidden="true">→</i></a>
+          <a class="release-pill" href="{{ '/CHANGELOG.html' | relative_url }}#unreleased"><strong>v1.4.0</strong><span>rebuilt installer renderer</span><i aria-hidden="true">→</i></a>
           <p class="eyebrow">Linux workspace · Android hardware</p>
           <h1>Desktop Linux.<em>Pocket scale.</em></h1>
           <p class="hero__lead">ternux assembles Debian ARM64, Xfce4, Termux:X11, audio, and explicit graphics routes into one reviewable workspace—without Android root or a bootloader change.</p>
@@ -162,6 +162,40 @@ alt_url: "/bn/"
         <div class="command-panel" aria-label="One-command installer">
           <code id="install-command">curl -fsSL https://soobujmiah.github.io/ternux/install.sh | bash</code>
           <button class="copy-command" type="button" data-copy-command data-copy-default="copy" data-copy-success="copied ✓" data-copy-error="copy failed" aria-label="Copy installer command">copy</button>
+        </div>
+
+        <div class="terminal-card" style="max-width:640px;margin:34px auto 0" aria-label="The ternux installer screen during phase 4 of 11">
+          <div class="terminal-card__top">
+            <span class="terminal-card__dots" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span>ternux · install</span>
+          </div>
+          <div class="terminal-card__body" style="min-height:0">
+<pre style="margin:0;font:inherit;white-space:pre;overflow-x:auto"><span class="term-dim">+=======================================================+</span>
+<span class="term-ok">|          ternux v1.4.0 - ONE-CLICK INSTALLER          |</span>
+<span class="term-dim">| by Sobuj Miah  -  base ~3-4 GB  -  full ~10-12 GB     |</span>
+<span class="term-dim">+=======================================================+</span>
+<span class="term-info">| Device    Redmi Turbo 4 Pro - Android 15 (SDK 35)     |</span>
+<span class="term-info">| Graphics  Adreno 825 - backend zink - Vulkan 1.4      |</span>
+<span class="term-info">| Memory    12 GB RAM - 84 GB free - aarch64            |</span>
+<span class="term-ok">| STEPS 4/11  ######------------  Debian + Xfce4        |</span>
+<span class="term-dim">+=======================================================+</span>
+| Get:14 deb.debian.org bookworm/main arm64 ...         |
+| Unpacking xfce4-session (4.18.3-1) ...                |
+<span class="term-dim">|     ... +201 more lines (full log: ternux.log)        |</span>
+<span class="term-ok">| [ OK ] Base packages installed                        |</span>
+<span class="term-dim">+=======================================================+</span>
+<span class="term-dim">| (c) 2026 Sobuj Miah - MIT              03:12 /        |</span>
+<span class="term-dim">+=======================================================+</span></pre>
+          </div>
+          <div class="terminal-card__caption"><span class="status-dot" aria-hidden="true"></span> what the installer shows while it runs</div>
+        </div>
+
+        <div class="section-heading" style="margin-top:34px">
+          <div><span class="section-kicker">While it installs</span><h2 style="font-size:clamp(20px,2.4vw,26px)">One screen. Every line kept.</h2></div>
+          <p>The dashboard reports the detected device, the current phase and a live log. Package progress updates in place instead of flooding the window, and the full stream is written to <code>ternux.log</code> whatever your terminal can draw. Pipes, tiny windows and <code>TERM=dumb</code> fall back to a plain framed log with identical logging, exit status and <code>--resume</code> behaviour — or choose one yourself with <code>--plain</code>, <code>--no-anim</code> or <code>TERNUX_UI=off</code>.</p>
+        </div>
+        <div class="hero__actions">
+          <a class="button button--secondary" href="{{ '/docs/INSTALLATION.html' | relative_url }}#the-installer-screen">The installer screen <span aria-hidden="true">→</span></a>
         </div>
       </div>
     </section>

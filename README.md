@@ -228,14 +228,16 @@ curl -fsSL https://soobujmiah.github.io/ternux/install.sh | bash
 
 The default is unattended: user `ternux`, locale `en_US.UTF-8`, and automatic
 backend selection (`zink` when the Adreno KGSL node is available, otherwise
-`virgl`). Do not close Termux while package installation is running. The custom
-installer opens a persistent dashboard that stays visible from start to finish:
-a live device panel, a fixed step progress bar, a framed scrolling log, and an
-animated **Sobuj Miah** copyright footer. Package-manager output streams one line
-at a time instead of hiding behind a spinner, and the frame auto-fits the
-terminal — repainting on font/zoom changes and the on-screen keyboard. Non-TTY
-and reduced-capability terminals receive a plain, readable framed log with the
-same exit status and resumability.
+`virgl`). Do not close Termux while package installation is running.
+
+The installer draws one persistent screen and keeps it until the final status:
+a device panel, a fixed step progress bar, a live log window, and a footer with
+elapsed time. Package output is shown as it happens instead of hiding behind a
+spinner; carriage-return progress from apt and dpkg updates one row in place; a
+terminal resize re-fits the frame once. Terminals that cannot host the dashboard
+— pipes, `TERM=dumb`, very small windows — get a plain framed log with the same
+exit status, logging and `--resume` behaviour. Full reference:
+[The installer screen](docs/INSTALLATION.md#the-installer-screen).
 
 > Piping a network script to Bash is convenient, but it executes the current
 > remote version immediately. Use the auditable path below if you want to inspect

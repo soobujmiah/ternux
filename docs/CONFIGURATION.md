@@ -38,6 +38,27 @@ terminal and apps.
 
 ---
 
+## Installer output
+
+The installer's renderer is a display choice only. Whatever the screen can show,
+the complete output of every phase is appended to `$TERNUX_LOG_DIR/ternux.log`.
+
+| Variable | Default | Effect |
+|---|---|---|
+| `TERNUX_UI` | `auto` | `auto`, `dashboard`, `plain` or `off` — the same values as `--ui` |
+| `TERNUX_NO_ANIM` | unset | `1` freezes the spinner and colour cycling; the dashboard still updates |
+| `TERNUX_QUIET` | `0` | Suppresses shared status messages and disables the frame |
+| `TERNUX_JSON` | `0` | Requests structured output where a command documents it; disables the frame |
+| `TERNUX_YES` | unset | `1` accepts the documented defaults without prompting, like `--yes` |
+| `TERNUX_LOG_DIR` | `$TMPDIR/ternux` | Directory for `ternux.log` and the install stream log |
+| `TERNUX_STATE_DIR` | `~/.local/share/ternux` | Phase state, saved install choices, saved profiles |
+| `TERNUX_COLS`, `TERNUX_ROWS` | unset | Force a frame geometry; intended for tests and reproducible transcripts |
+
+Renderer selection is explained in
+[Installation → The installer screen](INSTALLATION.html#the-installer-screen).
+
+---
+
 ## The launcher — `~/x.sh`
 
 Generated for your GPU route and syntax-checked at install time. Edit it

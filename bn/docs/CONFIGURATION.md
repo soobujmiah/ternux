@@ -38,6 +38,27 @@ bash install.sh --locale bn_BD.UTF-8
 
 ---
 
+<h2 id="installer-output">ইনস্টলার আউটপুট</h2>
+
+ইনস্টলারের রেন্ডারার কেবল প্রদর্শনের পছন্দ। স্ক্রিন যা-ই দেখাতে পারুক, প্রতিটি
+ফেজের পুরো আউটপুট `$TERNUX_LOG_DIR/ternux.log`-এ যোগ হয়।
+
+| ভেরিয়েবল | ডিফল্ট | কাজ |
+|---|---|---|
+| `TERNUX_UI` | `auto` | `auto`, `dashboard`, `plain` বা `off` — `--ui`-এর মতোই মান |
+| `TERNUX_NO_ANIM` | নেই | `1` দিলে স্পিনার ও রঙ বদল থেমে যায়; ড্যাশবোর্ড তবু হালনাগাদ হয় |
+| `TERNUX_QUIET` | `0` | সাধারণ status বার্তা বন্ধ করে এবং ফ্রেম নিষ্ক্রিয় করে |
+| `TERNUX_JSON` | `0` | যেসব কমান্ডে নথিভুক্ত, সেখানে structured output চায়; ফ্রেম নিষ্ক্রিয় করে |
+| `TERNUX_YES` | নেই | `1` দিলে `--yes`-এর মতো নথিভুক্ত default প্রশ্ন ছাড়াই নেওয়া হয় |
+| `TERNUX_LOG_DIR` | `$TMPDIR/ternux` | `ternux.log` ও install stream log-এর ডিরেক্টরি |
+| `TERNUX_STATE_DIR` | `~/.local/share/ternux` | ফেজ state, সংরক্ষিত install পছন্দ ও profile |
+| `TERNUX_COLS`, `TERNUX_ROWS` | নেই | ফ্রেমের geometry ঠিক করে দেয়; পরীক্ষা ও পুনরুৎপাদনযোগ্য transcript-এর জন্য |
+
+রেন্ডারার কীভাবে বেছে নেওয়া হয় তা আছে
+[ইনস্টলেশন → ইনস্টলার স্ক্রিন](INSTALLATION.html#the-installer-screen)-এ।
+
+---
+
 ## লঞ্চার — `~/x.sh`
 
 আপনার GPU পথ অনুযায়ী তৈরি হয় এবং ইনস্টলের সময় সিনট্যাক্স-চেক হয়। ইচ্ছামতো

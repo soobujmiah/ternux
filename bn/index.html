@@ -78,7 +78,7 @@ alt_url: "/"
     <section class="hero">
       <div class="landing-container hero__grid">
         <div class="hero__copy">
-          <a class="release-pill" href="{{ '/bn/CHANGELOG.html' | relative_url }}#140--2026-08-17"><strong>v1.4.0</strong><span>অ্যানিমেটেড installer dashboard</span><i aria-hidden="true">→</i></a>
+          <a class="release-pill" href="{{ '/bn/CHANGELOG.html' | relative_url }}#unreleased"><strong>v1.4.0</strong><span>নতুন করে তৈরি installer renderer</span><i aria-hidden="true">→</i></a>
           <p class="eyebrow">Linux workspace · Android hardware</p>
           <h1>Desktop Linux.<em>পকেটের ভেতর।</em></h1>
           <p class="hero__lead">ternux একসাথে সাজায় Debian ARM64, Xfce4, Termux:X11, audio এবং স্পষ্ট graphics route—Android root বা bootloader পরিবর্তন ছাড়াই, পর্যালোচনা করা যায় এমন এক workspace-এ।</p>
@@ -162,6 +162,40 @@ alt_url: "/"
         <div class="command-panel" aria-label="এক-কমান্ড installer">
           <code id="install-command">curl -fsSL https://soobujmiah.github.io/ternux/install.sh | bash</code>
           <button class="copy-command" type="button" data-copy-command data-copy-default="কপি" data-copy-success="কপি হয়েছে ✓" data-copy-error="কপি ব্যর্থ" aria-label="Installer command copy করুন">কপি</button>
+        </div>
+
+        <div class="terminal-card" style="max-width:640px;margin:34px auto 0" aria-label="১১টির মধ্যে ৪ নম্বর ফেজে ternux ইনস্টলার স্ক্রিন">
+          <div class="terminal-card__top">
+            <span class="terminal-card__dots" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span>ternux · install</span>
+          </div>
+          <div class="terminal-card__body" style="min-height:0">
+<pre style="margin:0;font:inherit;white-space:pre;overflow-x:auto"><span class="term-dim">+=======================================================+</span>
+<span class="term-ok">|          ternux v1.4.0 - ONE-CLICK INSTALLER          |</span>
+<span class="term-dim">| by Sobuj Miah  -  base ~3-4 GB  -  full ~10-12 GB     |</span>
+<span class="term-dim">+=======================================================+</span>
+<span class="term-info">| Device    Redmi Turbo 4 Pro - Android 15 (SDK 35)     |</span>
+<span class="term-info">| Graphics  Adreno 825 - backend zink - Vulkan 1.4      |</span>
+<span class="term-info">| Memory    12 GB RAM - 84 GB free - aarch64            |</span>
+<span class="term-ok">| STEPS 4/11  ######------------  Debian + Xfce4        |</span>
+<span class="term-dim">+=======================================================+</span>
+| Get:14 deb.debian.org bookworm/main arm64 ...         |
+| Unpacking xfce4-session (4.18.3-1) ...                |
+<span class="term-dim">|     ... +201 more lines (full log: ternux.log)        |</span>
+<span class="term-ok">| [ OK ] Base packages installed                        |</span>
+<span class="term-dim">+=======================================================+</span>
+<span class="term-dim">| (c) 2026 Sobuj Miah - MIT              03:12 /        |</span>
+<span class="term-dim">+=======================================================+</span></pre>
+          </div>
+          <div class="terminal-card__caption"><span class="status-dot" aria-hidden="true"></span> ইনস্টল চলাকালীন যা দেখা যায়</div>
+        </div>
+
+        <div class="section-heading" style="margin-top:34px">
+          <div><span class="section-kicker">ইনস্টল চলাকালীন</span><h2 style="font-size:clamp(20px,2.4vw,26px)">একটিই স্ক্রিন। প্রতিটি লাইন সংরক্ষিত।</h2></div>
+          <p>ড্যাশবোর্ড শনাক্ত করা ডিভাইস, চলমান ফেজ ও live log দেখায়। Package প্রগ্রেস উইন্ডো ভাসিয়ে না দিয়ে একই জায়গায় হালনাগাদ হয়, আর আপনার terminal যা-ই আঁকতে পারুক পুরো স্ট্রিম <code>ternux.log</code>-এ লেখা হয়। Pipe, খুব ছোট উইন্ডো ও <code>TERM=dumb</code>-এ একই logging, exit status ও <code>--resume</code> আচরণসহ plain framed log আসে — অথবা <code>--plain</code>, <code>--no-anim</code> বা <code>TERNUX_UI=off</code> দিয়ে নিজেই বেছে নিন।</p>
+        </div>
+        <div class="hero__actions">
+          <a class="button button--secondary" href="{{ '/bn/docs/INSTALLATION.html' | relative_url }}#the-installer-screen">ইনস্টলার স্ক্রিন <span aria-hidden="true">→</span></a>
         </div>
       </div>
     </section>
