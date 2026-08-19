@@ -86,6 +86,9 @@ Options:
   --with-blender       Install Blender
   --all                Install all optional workloads
   --resume             Continue an interrupted install
+  --ui MODE            Renderer: auto, dashboard, plain or off (default: auto)
+  --plain              Plain scrolling output instead of the dashboard
+  --no-anim            Freeze the spinner and colour cycling
 HELP
 }
 

@@ -42,6 +42,9 @@ jobs:
       - name: Run Bats smoke suite
         run: bats tests/smoke.bats
 
+      - name: Render the installer UI in a pseudo terminal
+        run: python3 tests/ui_render.py
+
       - name: Validate documentation and bilingual site structure
         run: python3 tests/docs_check.py
 

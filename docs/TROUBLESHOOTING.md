@@ -22,6 +22,7 @@ more than one cause, so collect the named evidence before applying a repair.
 | `No command $ found` after pasting the install command | copied text included the display-only `$` prompt | [Pasted command starts with $](#pasted-command-starts-with) |
 | `curl: CANNOT LINK … SSL_set_quic_tls_transport_params` | partial upgrade — curl/libngtcp2 newer than openssl | [curl cannot link after an upgrade](#curl-cannot-link-after-an-upgrade) |
 | Everything was fine, now it's broken after an upgrade | Mesa packages got replaced | [After an upgrade the GPU path is gone](#after-an-upgrade-the-gpu-path-is-gone) |
+| Installer dashboard flickers, log lines overlap the frame | Terminal size could not be measured, or a pre-1.4.1 renderer | [The installer screen flickers or the frame is broken](#the-installer-screen-flickers-or-the-frame-is-broken) |
 
 ---
 
@@ -379,6 +380,49 @@ an upgrade had already replaced them).
 verify with `glxinfo`. To upgrade Mesa deliberately and keep acceleration,
 follow the unhold → upgrade → rehold → verify sequence in
 [Configuration](CONFIGURATION.html#held-mesa-packages-zink-route).
+
+---
+
+## The installer screen flickers or the frame is broken
+
+**Symptom:** during `install.sh` the framed dashboard repaints over and over,
+log lines overlap or wrap through the borders, and the window scrolls so fast
+that nothing can be read.
+
+**Cause:** three separate renderer faults, all fixed in the current installer.
+The frame used the full terminal width, so writing the last column armed the
+terminal's pending-wrap state and the following newline pushed every row one
+cell out of place. Carriage-return progress output (`apt`, `dpkg`,
+`proot-distro`, `curl`) was expanded into one new log line per update. And when
+the terminal size could not be measured, the resize check compared a clamped
+value against a raw one, decided the terminal had changed, and repainted the
+whole screen several times per second.
+
+**Fix — update, then pick a renderer if you still want a quieter screen:**
+
+```bash
+# 1. Re-run the current installer (completed phases are skipped).
+bash install.sh --resume
+
+# 2. Or choose the renderer explicitly.
+bash install.sh --plain      # plain scrolling log, no full-screen dashboard
+bash install.sh --no-anim    # keep the dashboard, freeze the spinner
+TERNUX_UI=off bash install.sh   # no framing at all, raw command output
+```
+
+The renderer selects itself: the dashboard needs an interactive terminal with
+colour, at least 39 usable columns and at least 13 rows. Pipes, `curl | bash`
+without a TTY, `TERM=dumb`, `--quiet` and `--json` all fall back to plain
+scrolling output automatically.
+
+Nothing is ever lost to the screen. Every line the phases produce is appended to
+the log file, including the lines a burst summarises on screen as
+`... +N more lines`:
+
+```bash
+ternux logs tail          # follow the live install log
+ternux logs show          # read the whole log
+```
 
 ---
 

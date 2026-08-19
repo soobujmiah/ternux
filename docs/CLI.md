@@ -66,6 +66,9 @@ ternux install [options]
 | `--with-blender` | Install Blender |
 | `--all` | Install all optional workloads |
 | `--resume` | Skip completed phases and restore the interrupted run’s saved optional workload set |
+| `--ui MODE` | Installer renderer: `auto` (default), `dashboard`, `plain` or `off` |
+| `--plain` | Shorthand for `--ui plain`: plain scrolling output instead of the dashboard |
+| `--no-anim` | Freeze the spinner and colour cycling |
 
 ### `ternux start`
 

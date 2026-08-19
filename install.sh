@@ -23,7 +23,9 @@
 #    --all                           all optional workloads
 #    --zsh                           use zsh instead of bash
 #    --resume                        continue an interrupted install
-#    --no-anim                       disable animations
+#    --ui auto|dashboard|plain|off   installer renderer (default: auto)
+#    --plain                         plain scrolling output, no dashboard
+#    --no-anim                       freeze the spinner and colour cycling
 #    --version | --help
 # =============================================================================
 set -u
@@ -198,6 +200,17 @@ while [ $# -gt 0 ]; do
     --all) WITH_ALL=1; WITH_DEV=1; WITH_LLM=1; WITH_NETWORK=1; WITH_MEDIA=1; WITH_BLENDER=1 ;;
     --doctor) ACTION="doctor"; [ "${2:-}" = "--fix" ] && { FIX="yes"; shift; } ;;
     --fix) FIX="yes" ;;
+    --ui)
+      if [ $# -lt 2 ] || [ -z "$2" ] || [[ "$2" == --* ]]; then
+        echo "[FAIL] --ui needs a value" >&2
+        exit 2
+      fi
+      case "$2" in
+        auto|dashboard|plain|off) export TERNUX_UI="$2"; shift ;;
+        *) echo "[FAIL] --ui must be auto, dashboard, plain or off" >&2; exit 2 ;;
+      esac
+      ;;
+    --plain) export TERNUX_UI=plain ;;
     --no-anim) export TERNUX_NO_ANIM=1 ;;
     --resume) ACTION="resume" ;;
     --status) ACTION="status" ;;

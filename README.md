@@ -294,7 +294,9 @@ bash install.sh --resume
 | `--with-blender` | Install Debian's Blender package |
 | `--all` | Install every optional profile above |
 | `--resume` | Re-run while skipping completed phases and restoring the interrupted run’s saved optional workload set |
-| `--no-anim` | Disable installer animations |
+| `--ui auto\|dashboard\|plain\|off` | Choose the installer renderer. `auto` uses the live dashboard on a capable terminal and falls back to plain scrolling output everywhere else |
+| `--plain` | Force plain scrolling output (no full-screen dashboard) |
+| `--no-anim` | Freeze the spinner and colour cycling; the dashboard still updates |
 
 ### What the automatic installer does
 

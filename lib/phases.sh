@@ -929,6 +929,16 @@ tnx_install() {
       --with-blender) extras+=("blender") ;;
       --all) extras+=("dev" "llm" "network" "media" "blender"); full=1 ;;
       --resume) resume=1 ;;
+      --ui)
+        [ $# -ge 2 ] || { tnx_fail "--ui needs a value."; return 2; }
+        case "$2" in
+          auto|dashboard|plain|off) export TERNUX_UI="$2" ;;
+          *) tnx_fail "--ui must be auto, dashboard, plain or off."; return 2 ;;
+        esac
+        shift
+        ;;
+      --plain) export TERNUX_UI=plain ;;
+      --no-anim) export TERNUX_NO_ANIM=1 ;;
       *) tnx_fail "Unknown install option: $1"; return 2 ;;
     esac; shift
   done
