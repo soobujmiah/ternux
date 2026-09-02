@@ -161,7 +161,7 @@
   }
 
   function initSpotlights() {
-    if (!window.matchMedia("(pointer: fine)").matches) return;
+    if (!window.matchMedia || !window.matchMedia("(pointer: fine)").matches) return;
     var selector = [
       ".terminal-card",
       ".route-card",
@@ -195,7 +195,9 @@
   }
 
   ready(function () {
-    var motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    var motionQuery = window.matchMedia
+      ? window.matchMedia("(prefers-reduced-motion: reduce)")
+      : { matches: false, addEventListener: function () {} };
     initScrollFeedback();
     initCommandCopy();
 

@@ -57,7 +57,7 @@
       }
       if (event.key === "/" && filter && !/input|textarea|select/i.test(document.activeElement.tagName)) {
         event.preventDefault();
-        if (window.matchMedia("(max-width: 960px)").matches && !body.classList.contains("menu-open")) {
+        if (window.matchMedia && window.matchMedia("(max-width: 960px)").matches && !body.classList.contains("menu-open")) {
           setMenu(true);
         } else {
           filter.focus();
@@ -170,7 +170,7 @@
     /* Desktop sidebars are always available to assistive technology. */
     function updateSidebarA11y() {
       if (!sidebar) return;
-      if (window.matchMedia("(min-width: 961px)").matches) {
+      if (window.matchMedia && window.matchMedia("(min-width: 961px)").matches) {
         body.classList.remove("menu-open");
         if (menuButton) menuButton.setAttribute("aria-expanded", "false");
         sidebar.removeAttribute("aria-hidden");
