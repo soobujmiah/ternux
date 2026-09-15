@@ -1,7 +1,7 @@
 ---
 layout: null
-title: "ternux — Android-এর জন্য Linux workspace"
-description: "Termux:X11 দিয়ে Android-এ Debian ও Xfce workspace ইনস্টল করুন; সমর্থিত Adreno ডিভাইসে evidence-led Zink/Turnip graphics, Android root ছাড়াই।"
+title: "টারনাক্স — অ্যান্ড্রয়েডে লিনাক্স এআরএম৬৪ ডেস্কটপ"
+description: "পিআরুট ও টার্মাক্স:এক্স১১-এর মাধ্যমে অ্যান্ড্রয়েডে নো-রুট ডেবিয়ান এআরএম৬৪ + এক্সএফসই৪ ডেস্কটপ, সমর্থিত অ্যাড্রিনো ডিভাইসে পরিমাপকৃত জিঙ্ক/টার্নিপ জিপিইউ ত্বরণসহ।"
 lang: "bn"
 alt_url: "/"
 ---
@@ -10,344 +10,433 @@ alt_url: "/"
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#07110f">
+  <meta name="theme-color" content="#050507">
   <meta name="color-scheme" content="dark">
-  <title>ternux — Android-এর জন্য Linux workspace</title>
-  <meta name="description" content="Termux:X11 দিয়ে Android-এ Debian ও Xfce workspace ইনস্টল করুন; সমর্থিত Adreno ডিভাইসে evidence-led Zink/Turnip graphics, Android root ছাড়াই।">
+  <title>টারনাক্স — অ্যান্ড্রয়েডে লিনাক্স এআরএম৬৪ ডেস্কটপ</title>
+  <meta name="description" content="অ্যান্ড্রয়েডে একটি বাস্তব ডেবিয়ান এআরএম৬৪ + এক্সএফসই৪ ডেস্কটপ ইনস্টল করুন — রুট ছাড়াই। সমর্থিত অ্যাড্রিনো ডিভাইসে পরিমাপকৃত জিঙ্ক/টার্নিপ জিপিইউ ত্বরণ, বাকি সব ডিভাইসে ভার্জিএল ফলব্যাক। এক কমান্ড, নিরীক্ষণযোগ্য ব্যাশ।">
   <meta name="author" content="Sobuj Miah">
   <meta name="robots" content="index,follow">
-  <link rel="canonical" href="{{ '/bn/' | absolute_url }}">
-  <link rel="alternate" hreflang="en" href="{{ '/' | absolute_url }}">
-  <link rel="alternate" hreflang="bn" href="{{ '/bn/' | absolute_url }}">
-  <link rel="alternate" hreflang="x-default" href="{{ '/' | absolute_url }}">
+  <link rel="canonical" href="https://soobujmiah.github.io/ternux/bn/">
+  <link rel="alternate" hreflang="en" href="https://soobujmiah.github.io/ternux/">
+  <link rel="alternate" hreflang="bn" href="https://soobujmiah.github.io/ternux/bn/">
+  <link rel="alternate" hreflang="x-default" href="https://soobujmiah.github.io/ternux/">
   <meta property="og:type" content="website">
-  <meta property="og:site_name" content="ternux">
-  <meta property="og:title" content="ternux — Android-এর জন্য Linux workspace">
-  <meta property="og:description" content="Debian, Xfce, Termux:X11 এবং evidence-led graphics route। এক কমান্ড, Android root ছাড়া।">
-  <meta property="og:url" content="{{ '/bn/' | absolute_url }}">
-  <meta property="og:image" content="{{ '/assets/img/og-card.png' | absolute_url }}">
+  <meta property="og:site_name" content="Sobuj Miah project ecosystem">
+  <meta property="og:title" content="টারনাক্স — অ্যান্ড্রয়েডে লিনাক্স এআরএম৬৪ ডেস্কটপ">
+  <meta property="og:description" content="অ্যান্ড্রয়েডে ডেবিয়ান + এক্সএফসই৪, রুট ছাড়াই। অ্যাড্রিনোতে পরিমাপকৃত জিঙ্ক/টার্নিপ জিপিইউ পথ, ভার্জিএল ফলব্যাক। এক কমান্ড, নিরীক্ষণযোগ্য ব্যাশ।">
+  <meta property="og:url" content="https://soobujmiah.github.io/ternux/bn/">
+  <meta property="og:image" content="https://soobujmiah.github.io/ternux/assets/img/og-card.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="ternux terminal interface-এ auditable Android workspace setup দেখানো হয়েছে">
+  <meta property="og:image:alt" content="Ternux verification session: Debian guest, Xfce4 desktop, Zink to Turnip to KGSL graphics route">
+  <meta property="og:locale" content="bn_BD">
+  <meta property="og:locale:alternate" content="en_US">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="ternux — Android-এর জন্য Linux workspace">
-  <meta name="twitter:description" content="Debian, Xfce, Termux:X11 এবং evidence-led graphics route। এক কমান্ড, Android root ছাড়া।">
-  <meta name="twitter:image" content="{{ '/assets/img/og-card.png' | absolute_url }}">
-  <meta name="twitter:image:alt" content="ternux terminal interface-এ auditable Android workspace setup দেখানো হয়েছে">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22><rect width=%2264%22 height=%2264%22 rx=%2212%22 fill=%22%2307110f%22/><path d=%22M14 18l14 14-14 14M34 46h16%22 fill=%22none%22 stroke=%22%2322c55e%22 stroke-width=%226%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/></svg>">
-  <link rel="stylesheet" href="{{ '/assets/css/ternux.css' | relative_url }}">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22><rect width=%2264%22 height=%2264%22 rx=%2212%22 fill=%22%23050507%22/><path d=%22M14 18l14 14-14 14M34 46h16%22 fill=%22none%22 stroke=%22%2322c55e%22 stroke-width=%226%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/></svg>">
   <script type="application/ld+json">{
     "@context":"https://schema.org",
-    "@type":"SoftwareApplication",
-    "name":"ternux",
-    "applicationCategory":"DeveloperApplication",
-    "operatingSystem":"Android 10+ on arm64",
-    "description":"Termux, PRoot Distro, Termux:X11 ও নির্দিষ্ট graphics backend ব্যবহার করা Android-এর Debian এবং Xfce workspace।",
-    "url":{{ '/bn/' | absolute_url | jsonify }},
-    "codeRepository":"https://github.com/soobujmiah/ternux",
-    "softwareVersion":"1.4.0",
-    "license":"https://opensource.org/licenses/MIT",
-    "author":{"@type":"Person","name":"Sobuj Miah","url":"https://github.com/soobujmiah"}
+    "@graph":[
+      {"@type":"SoftwareApplication",
+       "name":"Ternux",
+       "applicationCategory":"DesktopEnhancement",
+       "operatingSystem":"Android 10+ on arm64",
+       "description":"A no-root Debian ARM64 + Xfce4 desktop on Android via PRoot and Termux:X11, with measured Zink/Turnip GPU acceleration on supported Adreno devices.",
+       "url":"https://soobujmiah.github.io/ternux/",
+       "codeRepository":"https://github.com/soobujmiah/ternux",
+       "softwareVersion":"1.4.0",
+       "license":"https://opensource.org/licenses/MIT",
+       "author":{"@type":"Person","name":"Sobuj Miah","url":"https://soobujmiah.github.io/"}},
+      {"@type":"BreadcrumbList",
+       "itemListElement":[
+         {"@type":"ListItem","position":1,"name":"Portfolio","item":"https://soobujmiah.github.io/"},
+         {"@type":"ListItem","position":2,"name":"Ternux","item":"https://soobujmiah.github.io/ternux/"}]}
+    ]
   }</script>
+  <style>
+  /* ── Ternux landing — shared ecosystem design system (portfolio / ADT
+        tokens) with Ternux's own identity: cyan GPU signal, terminal
+        evidence cards, the Android → Linux → Debian → Xfce4 → GPU motif. ── */
+  :root{--bg:#050507;--bg2:#060807;--fg:#e4e2df;--muted:rgba(228,226,223,.45);--faint:rgba(228,226,223,.30);--border:rgba(228,226,223,.07);--border2:rgba(228,226,223,.13);--accent:#22c55e;--accent-b:#4ade80;--accent-s:rgba(34,197,94,.14);--cyan:#22d3ee;--cyan-s:rgba(34,211,238,.10);--amber:#f59e0b;--card:rgba(6,7,6,.66);--code:rgba(10,14,11,.85);--mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;--disp:'Space Grotesk',system-ui,sans-serif;--body:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;--ease:cubic-bezier(.16,1,.3,1);--r:14px}
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--fg);font-family:'Noto Sans Bengali',var(--body);font-size:15px;line-height:1.85;-webkit-font-smoothing:antialiased}
+  ::selection{background:rgba(34,197,94,.35)}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+  a{color:var(--accent-b);text-decoration:none}
+  a:hover{text-decoration:underline;text-underline-offset:3px}
+  :focus-visible{outline:2px solid rgba(34,197,94,.8);outline-offset:3px;border-radius:4px}
+  .skip{position:absolute;left:-9999px;z-index:100;background:var(--bg2);border:1px solid var(--border2);border-radius:8px;padding:8px 14px;font-size:13px}
+  .skip:focus{left:16px;top:12px}
+  @font-face{font-family:'Space Grotesk';src:url('/ternux/assets/fonts/space-grotesk-latin.woff2') format('woff2');font-weight:400 700;font-display:swap}
+  @font-face{font-family:'JetBrains Mono';src:url('/ternux/assets/fonts/jetbrains-mono-latin.woff2') format('woff2');font-weight:400 700;font-display:swap}
+  @font-face{font-family:'Noto Sans Bengali';src:url('/ternux/assets/fonts/noto-bengali.woff2') format('woff2');font-weight:400 600;font-display:swap;unicode-range:U+0951-0952,U+0964-0965,U+0980-09FE,U+200C-200D,U+20B9,U+25CC}
+  /* header */
+  .site-header{position:sticky;top:0;z-index:20;background:rgba(5,5,7,.82);backdrop-filter:blur(10px);border-bottom:1px solid var(--border)}
+  .site-header .wrap{display:flex;align-items:center;gap:18px;height:56px}
+  .brand{display:inline-flex;align-items:center;gap:9px;font-family:var(--disp);font-weight:700;font-size:16px;letter-spacing:.04em;color:var(--fg)}
+  .brand:hover{text-decoration:none}
+  .brand .tag{font-family:var(--mono);font-size:10px;font-weight:400;letter-spacing:.16em;text-transform:uppercase;color:var(--cyan);border:1px solid rgba(34,211,238,.4);border-radius:999px;padding:2px 8px}
+  .site-nav{margin-left:auto;display:flex;align-items:center;gap:16px;overflow-x:auto;scrollbar-width:none}
+  .site-nav::-webkit-scrollbar{display:none}
+  .site-nav a{color:var(--muted);font-size:13px;white-space:nowrap;padding:4px 2px}
+  .site-nav a:hover{color:var(--fg);text-decoration:none}
+  /* hero */
+  .hero{position:relative;padding:84px 0 40px;overflow:hidden}
+  .hero::before{content:'';position:absolute;inset:0;pointer-events:none;background:radial-gradient(58% 46% at 76% 6%,rgba(34,211,238,.06),transparent 70%),radial-gradient(46% 40% at 12% 88%,rgba(34,197,94,.05),transparent 70%),repeating-linear-gradient(90deg,rgba(228,226,223,.02) 0 1px,transparent 1px 96px)}
+  .hero-grid{display:grid;grid-template-columns:1.15fr .95fr;gap:44px;align-items:center;position:relative}
+  .eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--accent);margin:0 0 18px}
+  h1{font-family:'Noto Sans Bengali',var(--disp);font-size:clamp(1.9rem,5.2vw,3rem);line-height:1.3;letter-spacing:0;margin:0 0 20px}
+  .lede{color:var(--muted);max-width:72ch;margin:0 0 26px;font-size:15.5px}
+  .actions{display:flex;flex-wrap:wrap;gap:10px}
+  .btn{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--border2);border-radius:10px;padding:9px 16px;font-size:13.5px;color:var(--fg);background:transparent;transition:border-color .25s var(--ease),background .25s var(--ease)}
+  .btn:hover{text-decoration:none;border-color:rgba(34,197,94,.5);background:rgba(34,197,94,.06)}
+  .btn.primary{background:rgba(34,197,94,.16);border-color:rgba(34,197,94,.45);color:var(--accent-b)}
+  .facts{list-style:none;margin:30px 0 0;padding:16px 0 0;border-top:1px solid var(--border);display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px 26px}
+  .facts li{display:flex;gap:12px;align-items:baseline;font-size:13px}
+  .facts .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);flex:none;min-width:78px}
+  .facts .v{color:rgba(228,226,223,.82)}
+  code{font-family:var(--mono);font-size:.9em;color:#a7f3d0;background:rgba(34,197,94,.08);border-radius:5px;padding:1px 5px}
+  /* terminal card */
+  .term{border:1px solid var(--border2);border-radius:var(--r);background:var(--code);overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.4)}
+  .term-top{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:11px;color:var(--muted)}
+  .term-top .dots{display:flex;gap:5px;margin-right:6px}
+  .term-top .dots i{width:8px;height:8px;border-radius:50%;background:rgba(228,226,223,.14)}
+  .term-body{padding:16px;font-family:var(--mono);font-size:12.4px;line-height:1.85;overflow-x:auto}
+  .tl{display:flex;gap:10px}
+  .tp{color:var(--accent-b);flex:none}
+  .ok{color:var(--accent-b)} .inf{color:var(--cyan)} .dim{color:var(--faint)} .wrn{color:var(--amber)}
+  .tstack{display:grid;grid-template-columns:86px 1fr;gap:2px 12px;margin:6px 0;padding:8px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+  .tstack .k{color:var(--faint)}
+  .term-cap{padding:9px 14px;border-top:1px solid var(--border);font-size:11.5px;color:var(--faint);display:flex;align-items:center;gap:8px}
+  .term-cap .dot{width:6px;height:6px;border-radius:50%;background:var(--accent)}
+  /* trust strip */
+  .strip{border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:var(--bg2)}
+  .strip .wrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;padding:22px 24px}
+  .stat strong{display:block;font-family:var(--disp);font-size:26px;color:var(--accent-b);letter-spacing:-.01em}
+  .stat.cyan strong{color:var(--cyan)}
+  .stat span{font-size:12.5px;color:var(--muted)}
+  /* sections */
+  section{padding:56px 0 8px}
+  h2{font-family:'Noto Sans Bengali',var(--disp);font-size:clamp(1.3rem,3vw,1.7rem);letter-spacing:0;margin:0 0 8px;display:flex;align-items:center;gap:14px}
+  h2 .n{font-family:var(--mono);font-size:11px;font-weight:400;color:var(--accent);border:1px solid rgba(34,197,94,.3);border-radius:8px;padding:3px 8px;flex:none}
+  .note{color:var(--muted);max-width:76ch;margin:0 0 24px}
+  h3{font-family:'Noto Sans Bengali',var(--disp);font-size:15px;margin:0 0 8px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:18px}
+  .card{border:1px solid var(--border);border-radius:var(--r);background:var(--card);padding:20px}
+  .card p{margin:0;color:var(--muted);font-size:13.5px}
+  .card .n{font-family:var(--mono);font-size:10.5px;color:var(--cyan);margin-right:8px}
+  .card .more{display:inline-block;margin-top:10px;font-size:13px}
+  /* stack flow */
+  .flow{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch;margin:26px 0 10px}
+  .stage{flex:1 1 150px;border:1px solid var(--border);border-radius:12px;background:var(--card);padding:14px 16px;position:relative}
+  .stage.hot{border-color:rgba(34,211,238,.4);background:var(--cyan-s)}
+  .stage .t{font-family:var(--disp);font-weight:600;font-size:14px;margin-bottom:4px}
+  .stage .d{font-size:12.5px;color:var(--muted);line-height:1.55}
+  .stage::after{content:'→';position:absolute;right:-13px;top:50%;transform:translateY(-50%);color:var(--accent);font-size:13px;z-index:1}
+  .stage:last-child::after{content:none}
+  /* commands */
+  pre.cmd{background:var(--code);border:1px solid var(--border);border-radius:var(--r);padding:18px 20px;overflow-x:auto;font-family:var(--mono);font-size:12.8px;line-height:1.75;margin:0 0 18px;color:#d1fae5}
+  pre.cmd .c{color:rgba(228,226,223,.35)}
+  /* tables */
+  .tbl-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--r);margin-bottom:18px}
+  table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:560px}
+  th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--border);vertical-align:top}
+  th{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);font-weight:400}
+  tr:last-child td{border-bottom:0}
+  td{color:rgba(228,226,223,.8)}
+  /* evidence chips */
+  .ev{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;border-radius:999px;padding:3px 10px;border:1px solid;white-space:nowrap}
+  .ev::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor}
+  .ev-v{color:#4ade80;border-color:rgba(74,222,128,.4);background:rgba(34,197,94,.08)}
+  .ev-m{color:#2dd4bf;border-color:rgba(45,212,191,.4);background:rgba(45,212,191,.07)}
+  .ev-o{color:#93c5fd;border-color:rgba(147,197,253,.4);background:rgba(147,197,253,.06)}
+  .ev-x{color:#fbbf24;border-color:rgba(251,191,36,.4);background:rgba(251,191,36,.06)}
+  .ev-u{color:var(--muted);border-color:var(--border2);background:transparent}
+  .ev-n{color:#fda4af;border-color:rgba(253,164,175,.35);background:rgba(253,164,175,.05)}
+  /* gpu */
+  .gpu-card{border:1px solid rgba(34,211,238,.3);background:var(--cyan-s);border-radius:var(--r);padding:20px;margin-bottom:14px}
+  .gpu-card h3{color:var(--cyan)}
+  .renderer{font-family:var(--mono);font-size:12.5px;color:var(--cyan);background:rgba(34,211,238,.08);border:1px solid rgba(34,211,238,.25);border-radius:10px;padding:10px 14px;margin:0 0 18px;overflow-x:auto;white-space:nowrap}
+  /* diagram */
+  .eco-diagram{border:1px solid var(--border);background:var(--card);border-radius:var(--r);padding:22px;font-family:var(--mono);font-size:12.5px;line-height:1.9;color:rgba(228,226,223,.75);overflow-x:auto;white-space:pre;margin:0 0 18px}
+  .eco-diagram b{color:var(--accent-b);font-weight:600}
+  /* honesty note */
+  .note-amber{border:1px solid rgba(245,158,11,.28);background:rgba(245,158,11,.12);border-radius:var(--r);padding:16px 18px;font-size:13.5px;color:rgba(228,226,223,.8);margin:0 0 18px}
+  /* footer */
+  .site-footer{margin-top:72px;border-top:1px solid var(--border);padding:34px 0 42px;background:var(--bg2)}
+  .eco{list-style:none;margin:0 0 18px;padding:0;display:flex;flex-wrap:wrap;gap:8px 22px;font-size:13.5px}
+  .eco a{color:var(--muted)} .eco a:hover{color:var(--fg)}
+  .site-footer .row{display:flex;flex-wrap:wrap;gap:8px 24px;justify-content:space-between;color:var(--faint);font-size:12.5px}
+  .reveal{opacity:0;transform:translateY(14px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
+  .reveal.in{opacity:1;transform:none}
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.reveal{opacity:1;transform:none;transition:none}*{animation:none!important;transition:none!important}}
+  @media (max-width:860px){.hero-grid{grid-template-columns:1fr}}
+  @media (max-width:700px){.stage::after{content:none}}
+  @media (max-width:640px){body{font-size:14.5px}.hero{padding:60px 0 26px}section{padding:44px 0 6px}}
+  </style>
 </head>
-<body class="landing-page lang-bn">
-  <a class="skip-link" href="#main">মূল কনটেন্টে যান</a>
-
-  <header class="site-header" data-site-header>
-    <div class="site-header__inner landing-container">
-      <a class="brand" href="{{ '/bn/' | relative_url }}" aria-label="ternux হোম">
-        <span class="brand__mark" aria-hidden="true"><span>&gt;</span><i>_</i></span>
-        <span class="brand__name">ternux</span>
-        <span class="brand__version">v1.4.0</span>
+<body>
+  <a class="skip" href="#main">মূল বিষয়বস্তুতে যান</a>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="/ternux/">
+        <svg width="18" height="18" viewBox="0 0 64 64" aria-hidden="true">
+          <path d="M14 18l14 14-14 14M34 46h16" fill="none" stroke="#22c55e" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>ternux</span>
+        <span class="tag">arm64 · gpu</span>
       </a>
-      <nav class="top-nav" aria-label="প্রধান নেভিগেশন">
-        <a class="top-nav__link" href="#install">ইনস্টল</a>
-        <a class="top-nav__link" href="{{ '/bn/docs/' | relative_url }}">ডকস</a>
-        <a class="top-nav__link" href="{{ '/bn/docs/BENCHMARKS.html' | relative_url }}">প্রমাণ</a>
-        <a class="top-nav__link" href="{{ '/bn/CONTRIBUTING.html' | relative_url }}">অবদান</a>
-        <a class="top-nav__link top-nav__github" href="https://github.com/soobujmiah/ternux">GitHub <span aria-hidden="true">↗</span></a>
+      <nav class="site-nav" aria-label="Sections">
+        <a href="#what">টারনাক্স কী</a>
+        <a href="#install">ইনস্টল</a>
+        <a href="#gpu">জিপিইউ</a>
+        <a href="#evidence">প্রমাণ</a>
+        <a href="#adt">এডিটি</a>
+        <a href="/ternux/docs/">ডকস</a>
+        <a href="https://github.com/soobujmiah/ternux">গিটহাব</a>
+        <a href="/ternux/" hreflang="en" lang="en">EN</a>
       </nav>
-      <div class="header-actions">
-        <a class="language-link" href="{{ '/' | relative_url }}" hreflang="en" lang="en">EN</a>
-      </div>
     </div>
-    <span class="scroll-progress" aria-hidden="true"><span data-scroll-progress></span></span>
   </header>
 
-  <main id="main" class="landing-shell">
-    <section class="hero">
-      <div class="landing-container hero__grid">
-        <div class="hero__copy">
-          <a class="release-pill" href="{{ '/bn/CHANGELOG.html' | relative_url }}#unreleased"><strong>v1.4.0</strong><span>নতুন করে তৈরি installer renderer</span><i aria-hidden="true">→</i></a>
-          <p class="eyebrow">Linux workspace · Android hardware</p>
-          <h1>Desktop Linux.<em>পকেটের ভেতর।</em></h1>
-          <p class="hero__lead">ternux একসাথে সাজায় Debian ARM64, Xfce4, Termux:X11, audio এবং স্পষ্ট graphics route—Android root বা bootloader পরিবর্তন ছাড়াই, পর্যালোচনা করা যায় এমন এক workspace-এ।</p>
-          <div class="hero__actions">
-            <a class="button" href="#install">ternux ইনস্টল করুন <span aria-hidden="true">↓</span></a>
-            <a class="button button--secondary" href="{{ '/bn/docs/QUICK-START.html' | relative_url }}">দ্রুত শুরু পড়ুন <span aria-hidden="true">→</span></a>
+  <main id="main" class="wrap">
+
+    <section class="hero" aria-labelledby="h">
+      <div class="hero-grid">
+        <div>
+          <p class="eyebrow">লিনাক্স ওয়ার্কস্পেস · অ্যান্ড্রয়েড হার্ডওয়্যার</p>
+          <h1 id="h">অ্যান্ড্রয়েডে বাস্তব লিনাক্স ডেস্কটপ। রুট ছাড়াই।</h1>
+          <p class="lede">টারনাক্স ইনস্টল করে একটি ডেবিয়ান এআরএম৬৪ ইউজারস্পেস, একটি এক্সএফসই৪ ডেস্কটপ, টার্মাক্স:এক্স১১ ডিসপ্লে, অডিও এবং একটি সুস্পষ্ট গ্রাফিক্স পথ — সমর্থিত অ্যাড্রিনো ডিভাইসে জিঙ্ক/টার্নিপ, বাকি সব জায়গায় ভার্জিএল। এক কমান্ড, নিরীক্ষণযোগ্য ব্যাশ, বুটলোডার পরিবর্তন নেই।</p>
+          <div class="actions">
+            <a class="btn primary" href="#install">টারনাক্স ইনস্টল করুন ↓</a>
+            <a class="btn" href="/ternux/docs/QUICK-START.html">কুইক স্টার্ট পড়ুন →</a>
           </div>
-          <ul class="hero__facts" aria-label="প্রজেক্টের তথ্য">
-            <li>Android 10+ arm64</li>
-            <li>Android root লাগে না</li>
-            <li>MIT licensed</li>
-            <li>Audit করা যায় এমন Bash</li>
+          <ul class="facts" aria-label="Project facts">
+            <li><span class="k">প্ল্যাটফর্ম</span><span class="v">অ্যান্ড্রয়েড ১০+ · আর্ম৬৪</span></li>
+            <li><span class="k">রুট</span><span class="v">প্রয়োজন নেই</span></li>
+            <li><span class="k">ডিভাইস</span><span class="v">রেডমি টার্বো ৪ প্রো প্রমাণ</span></li>
+            <li><span class="k">লাইসেন্স</span><span class="v">এমআইটি · নিরীক্ষণযোগ্য ব্যাশ</span></li>
           </ul>
         </div>
-
-        <div class="terminal-card" aria-label="একটি প্রতিনিধিত্বমূলক ternux verification session">
-          <div class="terminal-card__top">
-            <span class="terminal-card__dots" aria-hidden="true"><i></i><i></i><i></i></span>
-            <span>ternux · verify</span>
-            <span>arm64</span>
-          </div>
-          <div class="terminal-card__body">
-            <div class="term-line"><span class="term-prompt">$</span><span>ternux status</span></div>
-            <div class="term-line"><span class="term-ok">●</span><span>session <span class="term-dim">:0-তে চলছে</span></span></div>
-            <div class="term-line"><span class="term-ok">●</span><span>audio <span class="term-dim">loopback bridge প্রস্তুত</span></span></div>
-            <div class="term-rule"></div>
-            <div class="term-line"><span class="term-prompt">$</span><span>ternux verify</span></div>
-            <div class="term-stack">
-              <span>guest</span><span>Debian GNU/Linux · arm64</span>
-              <span>desktop</span><span>Xfce4 · Termux:X11</span>
-              <span>backend</span><span class="term-info">zink → turnip → KGSL</span>
-              <span>renderer</span><span>Adreno 825 · Vulkan 1.4</span>
-              <span>fallback</span><span>virgl available</span>
+        <div class="term" role="img" aria-label="অ্যাড্রিনো ৮২৫ জিপিইউতে জিঙ্ক থেকে টার্নিপ গ্রাফিক্স পথ দেখানো একটি প্রতিনিধিত্বমূলক টারনাক্স যাচাই সেশন">
+          <div class="term-top"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span>ternux · verify</span><span style="margin-left:auto">arm64</span></div>
+          <div class="term-body">
+            <div class="tl"><span class="tp">$</span><span>ternux status</span></div>
+            <div class="tl"><span class="ok">●</span><span>সেশন <span class="dim">:0-এ চলছে</span></span></div>
+            <div class="tl"><span class="ok">●</span><span>অডিও <span class="dim">লুপব্যাক ব্রিজ প্রস্তুত</span></span></div>
+            <div class="tl"><span class="tp">$</span><span>ternux verify</span></div>
+            <div class="tstack">
+              <span class="k">guest</span><span>Debian GNU/Linux · arm64</span>
+              <span class="k">desktop</span><span>Xfce4 · Termux:X11</span>
+              <span class="k">backend</span><span class="inf">zink → turnip → KGSL</span>
+              <span class="k">renderer</span><span>Adreno 825 · Vulkan 1.4</span>
+              <span class="k">fallback</span><span>virgl available</span>
             </div>
-            <div class="term-rule"></div>
-            <div class="term-line"><span class="term-ok">✓</span><span>hardware route observed</span></div>
-            <div class="term-line"><span class="term-warn">!</span><span class="term-dim">device অনুযায়ী result বদলায়</span></div>
+            <div class="tl"><span class="ok">✓</span><span>হার্ডওয়্যার পথ পর্যবেক্ষিত</span></div>
+            <div class="tl"><span class="wrn">!</span><span class="dim">ডিভাইসভেদে ফলাফল ভিন্ন; প্রমাণ দেখুন</span></div>
           </div>
-          <div class="terminal-card__caption"><span class="status-dot" aria-hidden="true"></span> measured renderer evidence</div>
+          <div class="term-cap"><span class="dot" aria-hidden="true"></span> পরিমাপকৃত রেন্ডারার প্রমাণ</div>
         </div>
       </div>
     </section>
 
-    <section class="trust-strip" aria-label="Evidence summary">
-      <div class="landing-container trust-strip__grid">
-        <div class="trust-stat trust-stat--green"><strong>140</strong><span>Measured OpenGL score</span></div>
-        <div class="trust-stat trust-stat--green"><strong>364</strong><span>Measured GLES score</span></div>
-        <div class="trust-stat"><strong>66 scenes</strong><span>সংরক্ষিত FPS value</span></div>
-        <div class="trust-stat"><strong>1 device</strong><span>প্রমাণ, নিশ্চয়তা নয়</span></div>
+    <div class="strip" aria-label="Evidence summary">
+      <div class="wrap" style="padding-left:24px;padding-right:24px">
+        <div class="stat"><strong>140</strong><span>পরিমাপকৃত জিএলমার্ক২ ওপেনজিএল স্কোর</span></div>
+        <div class="stat cyan"><strong>364</strong><span>পরিমাপকৃত ওপেনজিএল ইএস স্কোর</span></div>
+        <div class="stat"><strong>66 scenes</strong><span>সংগৃহীত এফপিএস মান</span></div>
+        <div class="stat"><strong>1 device</strong><span>প্রমাণ, গ্যারান্টি নয়</span></div>
+      </div>
+    </div>
+
+    <!-- WHAT IS TERNUX -->
+    <section id="what" aria-labelledby="what-h" class="reveal">
+      <h2 id="what-h"><span class="n">০১</span>টারনাক্স কী?</h2>
+      <p class="note">টারনাক্স অ্যান্ড্রয়েড সার্ভিসের চারপাশে একটি ইউজারস্পেস লিনাক্স পরিবেশ গড়ে তোলে — এটি কখনো অ্যান্ড্রয়েডকে প্রতিস্থাপন করে না। প্রতিটি স্তর সুস্পষ্ট ও পর্যালোচনাযোগ্য।</p>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>স্তর</th><th>কম্পোনেন্ট</th><th>উদ্দেশ্য</th></tr></thead>
+          <tbody>
+            <tr><td>অ্যান্ড্রয়েড অ্যাপ</td><td><strong>টার্মাক্স:এক্স১১</strong></td><td>অ্যান্ড্রয়েডে লিনাক্স এক্স১১ ডেস্কটপ দেখায়</td></tr>
+            <tr><td>টার্মাক্স হোস্ট</td><td><code>termux-x11</code>, পালসঅডিও, পিআরুট ডিস্ট্রো</td><td>ডিসপ্লে সকেট, অ্যান্ড্রয়েড অডিও, কনটেইনার লাইফসাইকেল</td></tr>
+            <tr><td>লিনাক্স গেস্ট</td><td><strong>ডেবিয়ান এআরএম৬৪</strong></td><td>আদর্শ apt-ব্যবস্থাপিত গ্নু/লিনাক্স ইউজারস্পেস</td></tr>
+            <tr><td>ডেস্কটপ</td><td><strong>এক্সএফসই৪</strong></td><td>হালকা ডেস্কটপ, টার্মিনাল, ফাইল ম্যানেজার</td></tr>
+            <tr><td>অ্যাড্রিনো গ্রাফিক্স</td><td>মেসা <strong>জিঙ্ক → টার্নিপ → কেজিএসএল</strong></td><td>ওপেনজিএল ভালকানে রূপান্তরিত হয়ে কোয়ালকম জিপিইউতে যায়</td></tr>
+            <tr><td>ফলব্যাক গ্রাফিক্স</td><td><strong>ভার্জিএল</strong></td><td>অন্যান্য ডিভাইসের জন্য বহনযোগ্য ভার্চুয়াল ওপেনজিএল পথ</td></tr>
+            <tr><td>কন্ট্রোল প্লেন</td><td><code>ternux</code> সিএলআই + <code>~/x.sh</code></td><td>ইনস্টল, লঞ্চ, স্টপ, যাচাই, ডায়াগনোসিস, রিপেয়ার, বেঞ্চমার্ক</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="grid">
+        <article class="card"><h3><span class="n">০১</span>রুট নেই, বুটলোডার পরিবর্তন নেই</h3><p>শুধু পিআরুট ইউজারস্পেস। অ্যান্ড্রয়েড সিস্টেম পার্টিশন কখনো পরিবর্তিত হয় না; পিআরুটের ভেতরের গেস্ট রুট কোনো নিরাপত্তা সীমানা নয়।</p></article>
+        <article class="card"><h3><span class="n">০২</span>সুস্পষ্ট গ্রাফিক্স পথ</h3><p>যেখানে অ্যাড্রিনো ড্রাইভার পথ সমর্থিত সেখানে জিঙ্ক/টার্নিপ; সার্বজনীন সামঞ্জস্য পথ হিসেবে ভার্জিএল। শুধু একটি কাজ করা ডেস্কটপকে কখনো হার্ডওয়্যার রেন্ডারিংয়ের প্রমাণ হিসেবে দেখানো হয় না।</p></article>
+        <article class="card"><h3><span class="n">০৩</span>সবকিছু নিরীক্ষণযোগ্য</h3><p>সহজ ব্যাশ যা চালানোর আগেই পড়া যায়: ক্লোন-ফার্স্ট রিভিউ পথ, সিনট্যাক্স পরীক্ষা এবং টারনাক্স.লগ-এ সম্পূর্ণ ইনস্টলার লগ।</p></article>
+        <article class="card"><h3><span class="n">০৪</span>বাস্তব অ্যাপ্লিকেশন</h3><p>এক্সএফসই টার্মিনাল, ভিএলসি, মেসা ও ভালকান ইউটিলিটি অন্তর্ভুক্ত; ডেভেলপমেন্ট টুল, লামা.সিপিপি, মিডিয়া টুল ও ব্লেন্ডার ঐচ্ছিক।</p></article>
       </div>
     </section>
 
-    <section class="landing-section" data-accent="green" id="install">
-      <div class="landing-container">
-        <div class="section-heading">
-          <div><span class="section-kicker">01 · আপনার পথ বেছে নিন</span><h2>ইচ্ছা করলে দ্রুত। প্রয়োজনে পুরোপুরি audit করা যায়।</h2></div>
-          <p>এক-কমান্ডের পথটি সুবিধাজনক। Clone-first ও manual পথে চালানোর আগে প্রতিটি module এবং guest command দেখা যায়।</p>
-        </div>
+    <!-- HOW IT WORKS -->
+    <section id="how" aria-labelledby="how-h" class="reveal">
+      <h2 id="how-h"><span class="n">০২</span>কীভাবে কাজ করে</h2>
+      <p class="note">অ্যান্ড্রয়েড → লিনাক্স → ডেবিয়ান → এক্সএফসই৪ → জিপিইউ। প্রতিটি ধাপ একটি বাস্তব, নামযুক্ত কম্পোনেন্ট।</p>
+      <div class="flow" role="list" aria-label="The Ternux stack">
+        <div class="stage" role="listitem"><div class="t">অ্যান্ড্রয়েড</div><div class="d">কার্নেল · কেজিএসএল ড্রাইভার</div></div>
+        <div class="stage" role="listitem"><div class="t">টার্মাক্স</div><div class="d">হোস্ট সার্ভিস · ডিসপ্লে সকেট</div></div>
+        <div class="stage hot" role="listitem"><div class="t">পিআরুট ডেবিয়ান</div><div class="d">আর্ম৬৪ ইউজারস্পেস</div></div>
+        <div class="stage" role="listitem"><div class="t">মেসা</div><div class="d">জিঙ্ক · টার্নিপ · ভার্জিএল</div></div>
+        <div class="stage" role="listitem"><div class="t">এক্সএফসই৪</div><div class="d">টার্মাক্স:এক্স১১ ডেস্কটপ</div></div>
+      </div>
+      <p class="note">রেন্ডারার প্রমাণ একটি স্ট্রিং, স্ক্রিনশট নয়: জিএলমার্ক২ ও ব্লেন্ডারে <code>zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP))</code> নিশ্চিত করে যে ওপেনজিএল অ্যাপ্লিকেশনগুলো এলএলভিএমপাইপ সফটওয়্যার র‍্যাস্টারাইজেশনের বদলে জিঙ্ক/টার্নিপ পথে পৌঁছেছে।</p>
+    </section>
 
-        <div class="route-grid">
-          <article class="route-card route-card--featured">
-            <span class="route-card__number">01</span>
-            <h3>দ্রুত ইনস্টলেশন</h3>
-            <p>Hosted entry point ব্যবহার করুন, ternux-কে সমর্থিত route শনাক্ত করতে দিন, তারপর দেখানো Termux:X11 handoff অনুসরণ করুন।</p>
-            <a href="{{ '/bn/docs/QUICK-START.html' | relative_url }}">দ্রুত শুরু <span aria-hidden="true">→</span></a>
-          </article>
-          <article class="route-card">
-            <span class="route-card__number">02</span>
-            <h3>Clone করে পর্যালোচনা</h3>
-            <p>Repository state pin করুন, shell file syntax-check করুন, installer ও library দেখুন, তারপর local copy চালান।</p>
-            <a href="{{ '/bn/docs/INSTALLATION.html' | relative_url }}#পদ্ধতি-২--download-review-তারপর-run">Review-first গাইড <span aria-hidden="true">→</span></a>
-          </article>
-          <article class="route-card">
-            <span class="route-card__number">03</span>
-            <h3>ম্যানুয়াল setup</h3>
-            <p>Host, guest, desktop, audio, graphics, launcher ও verification—প্রতিটি ধাপ নিজে কমান্ডে কমান্ডে সম্পন্ন করুন।</p>
-            <a href="{{ '/bn/docs/MANUAL.html' | relative_url }}">ম্যানুয়াল ইনস্টলেশন <span aria-hidden="true">→</span></a>
-          </article>
-        </div>
+    <!-- INSTALL -->
+    <section id="install" aria-labelledby="install-h" class="reveal">
+      <h2 id="install-h"><span class="n">০৩</span>ইনস্টলেশন</h2>
+      <p class="note">এক-কমান্ড পথটি সুবিধাজনক; ক্লোন-ফার্স্ট ও ম্যানুয়াল পথ চালানোর আগে প্রতিটি মডিউল ও প্রতিটি গেস্ট কমান্ড প্রকাশ করে। আগে এফ-ড্রয়েড থেকে টার্মাক্স ও টার্মাক্স:এক্স১১ অ্যাপ ইনস্টল করুন।</p>
+      <div class="grid">
+        <article class="card"><h3><span class="n">০১</span>দ্রুত ইনস্টলেশন</h3><p>হোস্ট করা এন্ট্রি পয়েন্ট ব্যবহার করুন, টারনাক্সকে সমর্থিত পথ শনাক্ত করতে দিন এবং মুদ্রিত টার্মাক্স:এক্স১১ হ্যান্ডঅফ অনুসরণ করুন।</p><a class="more" href="/ternux/docs/QUICK-START.html">কুইক স্টার্ট →</a></article>
+        <article class="card"><h3><span class="n">০২</span>ক্লোন করে রিভিউ</h3><p>রিপোজিটরির অবস্থা পিন করুন, শেল ফাইলের সিনট্যাক্স পরীক্ষা করুন, ইনস্টলার ও লাইব্রেরি পরিদর্শন করুন, তারপর লোকালি চালান।</p><a class="more" href="/ternux/docs/INSTALLATION.html">রিভিউ-ফার্স্ট গাইড →</a></article>
+        <article class="card"><h3><span class="n">০৩</span>ম্যানুয়াল সেটআপ</h3><p>হোস্ট, গেস্ট, ডেস্কটপ, অডিও, গ্রাফিক্স, লঞ্চার ও যাচাইয়ের ধাপগুলো কমান্ডে কমান্ডে সম্পন্ন করুন।</p><a class="more" href="/ternux/docs/MANUAL.html">ম্যানুয়াল ইনস্টলেশন →</a></article>
+      </div>
+      <pre class="cmd"><span class="c"># এক কমান্ড — হোস্ট ইনস্টলার</span>
+curl -fsSL https://soobujmiah.github.io/ternux/install.sh | bash
 
-        <div class="command-panel" aria-label="এক-কমান্ড installer">
-          <code id="install-command">curl -fsSL https://soobujmiah.github.io/ternux/install.sh | bash</code>
-          <button class="copy-command" type="button" data-copy-command data-copy-default="কপি" data-copy-success="কপি হয়েছে ✓" data-copy-error="কপি ব্যর্থ" aria-label="Installer command copy করুন">কপি</button>
-        </div>
+<span class="c"># এরপর, টার্মাক্সে</span>
+ternux start     <span class="c"># ডেস্কটপ সেশন চালু করুন</span>
+ternux verify    <span class="c"># গ্রাফিক্স পথ পরিদর্শন করুন</span>
+ternux doctor    <span class="c"># কাঠামোগত ডায়াগনস্টিক</span></pre>
+    </section>
 
-        <div class="terminal-card" style="max-width:640px;margin:34px auto 0" aria-label="১১টির মধ্যে ৪ নম্বর ফেজে ternux ইনস্টলার স্ক্রিন">
-          <div class="terminal-card__top">
-            <span class="terminal-card__dots" aria-hidden="true"><i></i><i></i><i></i></span>
-            <span>ternux · install</span>
-          </div>
-          <div class="terminal-card__body" style="min-height:0">
-<pre style="margin:0;font:inherit;white-space:pre;overflow-x:auto"><span class="term-dim">+=======================================================+</span>
-<span class="term-ok">|          ternux v1.4.0 - ONE-CLICK INSTALLER          |</span>
-<span class="term-dim">| by Sobuj Miah  -  base ~3-4 GB  -  full ~10-12 GB     |</span>
-<span class="term-dim">+=======================================================+</span>
-<span class="term-info">| Device    Redmi Turbo 4 Pro - Android 15 (SDK 35)     |</span>
-<span class="term-info">| Graphics  Adreno 825 - backend zink - Vulkan 1.4      |</span>
-<span class="term-info">| Memory    12 GB RAM - 84 GB free - aarch64            |</span>
-<span class="term-ok">| STEPS 4/11  ######------------  Debian + Xfce4        |</span>
-<span class="term-dim">+=======================================================+</span>
-| Get:14 deb.debian.org bookworm/main arm64 ...         |
-| Unpacking xfce4-session (4.18.3-1) ...                |
-<span class="term-dim">|     ... +201 more lines (full log: ternux.log)        |</span>
-<span class="term-ok">| [ OK ] Base packages installed                        |</span>
-<span class="term-dim">+=======================================================+</span>
-<span class="term-dim">| (c) 2026 Sobuj Miah - MIT              03:12 /        |</span>
-<span class="term-dim">+=======================================================+</span></pre>
-          </div>
-          <div class="terminal-card__caption"><span class="status-dot" aria-hidden="true"></span> ইনস্টল চলাকালীন যা দেখা যায়</div>
-        </div>
-
-        <div class="section-heading" style="margin-top:34px">
-          <div><span class="section-kicker">ইনস্টল চলাকালীন</span><h2 style="font-size:clamp(20px,2.4vw,26px)">একটিই স্ক্রিন। প্রতিটি লাইন সংরক্ষিত।</h2></div>
-          <p>ড্যাশবোর্ড শনাক্ত করা ডিভাইস, চলমান ফেজ ও live log দেখায়। Package প্রগ্রেস উইন্ডো ভাসিয়ে না দিয়ে একই জায়গায় হালনাগাদ হয়, আর আপনার terminal যা-ই আঁকতে পারুক পুরো স্ট্রিম <code>ternux.log</code>-এ লেখা হয়। Pipe, খুব ছোট উইন্ডো ও <code>TERM=dumb</code>-এ একই logging, exit status ও <code>--resume</code> আচরণসহ plain framed log আসে — অথবা <code>--plain</code>, <code>--no-anim</code> বা <code>TERNUX_UI=off</code> দিয়ে নিজেই বেছে নিন।</p>
-        </div>
-        <div class="hero__actions">
-          <a class="button button--secondary" href="{{ '/bn/docs/INSTALLATION.html' | relative_url }}#the-installer-screen">ইনস্টলার স্ক্রিন <span aria-hidden="true">→</span></a>
-        </div>
+    <!-- GPU -->
+    <section id="gpu" aria-labelledby="gpu-h" class="reveal">
+      <h2 id="gpu-h"><span class="n">০৪</span>জিপিইউ ত্বরণ</h2>
+      <p class="note">দুটি সুস্পষ্ট পথ। কোনটি পাবেন তা আপনার জিপিইউ-এর উপর নির্ভর করে — টারনাক্স শনাক্ত করে, রিপোর্ট করে এবং পছন্দ কখনো লুকায় না।</p>
+      <div class="gpu-card">
+        <h3>অ্যাড্রিনো পথ — টার্নিপের উপর জিঙ্ক</h3>
+        <p style="color:var(--muted);font-size:13.5px;margin:0 0 10px">সমর্থিত অ্যাড্রিনো ডিভাইসে ওপেনজিএল ভালকানে রূপান্তরিত হয়ে সরাসরি কোয়ালকম ড্রাইভারে (কেজিএসএল) যায়। এটিই পরিমাপকৃত পথ: জিএলমার্ক২ ওপেনজিএল ৪.৬ কম্প্যাটিবিলিটি প্রোফাইল, ওপেনজিএল ইএস ৩.২ এবং ব্লেন্ডারের ভিউপোর্টে দেখা একই রেন্ডারার স্ট্রিং।</p>
+        <div class="renderer">zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP))</div>
+        <span class="ev ev-m">পরিমাপকৃত</span>
+      </div>
+      <div class="card" style="margin-bottom:14px">
+        <h3>ভার্জিএল পথ — সামঞ্জস্য ফলব্যাক</h3>
+        <p>অ্যাড্রিনো পথবিহীন ডিভাইসের জন্য ভার্জিএল একটি বহনযোগ্য ভার্চুয়াল ওপেনজিএল পথ দেয়। ভার্জিএলে কাজ করা ডেস্কটপ ঠিক তা হিসেবেই রিপোর্ট হয় — কখনো হার্ডওয়্যার ত্বরণ হিসেবে নয়।</p>
+        <div style="margin-top:10px"><span class="ev ev-o">পর্যবেক্ষিত</span></div>
       </div>
     </section>
 
-    <section class="landing-section" data-accent="cyan">
-      <div class="landing-container">
-        <div class="section-heading">
-          <div><span class="section-kicker">02 · আর্কিটেকচার</span><h2>স্পষ্ট সীমানা। দৃশ্যমান data path।</h2></div>
-          <p>ternux Android প্রতিস্থাপন করে না। এটি Android service-এর চারপাশে userspace Linux environment গড়ে এবং নির্বাচিত backend লুকিয়ে না রেখে প্রকাশ করে।</p>
-        </div>
-
-        <div class="arch-grid">
-          <div class="arch-flow">
-            <div class="arch-flow__row" aria-label="Android থেকে desktop application পর্যন্ত ternux stack">
-              <div class="arch-node"><strong>Android</strong><span>kernel · KGSL</span></div><span class="arch-arrow" aria-hidden="true">→</span>
-              <div class="arch-node"><strong>Termux</strong><span>host services</span></div><span class="arch-arrow" aria-hidden="true">→</span>
-              <div class="arch-node arch-node--accent"><strong>PRoot Debian</strong><span>arm64 userspace</span></div><span class="arch-arrow" aria-hidden="true">→</span>
-              <div class="arch-node"><strong>Mesa</strong><span>zink / virgl</span></div><span class="arch-arrow" aria-hidden="true">→</span>
-              <div class="arch-node"><strong>Xfce4</strong><span>Termux:X11</span></div>
-            </div>
-            <div class="arch-legend"><span><i></i> ternux পরিচালিত</span><span><i style="background:var(--cyan)"></i> Android companion service</span><span><i style="background:var(--amber)"></i> device অনুযায়ী capability</span></div>
-          </div>
-          <aside class="arch-note">
-            <code>zink → Vulkan → turnip → KGSL</code>
-            <h3>Adreno route, সঙ্গে fallback</h3>
-            <p>সমর্থিত Adreno device Zink/Turnip ব্যবহার করতে পারে। VirGL public compatibility route। শুধু desktop চলা hardware rendering-এর প্রমাণ নয়।</p>
-            <a href="{{ '/bn/docs/ARCHITECTURE.html' | relative_url }}">আর্কিটেকচার বুঝুন <span aria-hidden="true">→</span></a>
-          </aside>
-        </div>
+    <!-- EVIDENCE -->
+    <section id="evidence" aria-labelledby="evidence-h" class="reveal">
+      <h2 id="evidence-h"><span class="n">০৫</span>প্রমাণ — পরিমাপকৃত, কখনো মেশানো নয়</h2>
+      <p class="note">প্রকাশিত স্ন্যাপশটটি একটি রেডমি টার্বো ৪ প্রো থেকে এসেছে (স্ন্যাপড্রাগন ৮এস জেন ৪ / অ্যাড্রিনো ৮২৫, আগস্ট ২০২৬)। এটি দেখায় যে সেই ডিভাইসে এই পথ কাজ করেছিল; প্রতিটি ফোনে একই ফলাফলের প্রতিশ্রুতি দেয় না।</p>
+      <div class="grid">
+        <article class="card">
+          <h3>জিএলমার্ক২ — ওপেনজিএল</h3>
+          <p><strong style="color:var(--accent-b);font-size:22px">১৪০</strong> স্কোর · ৮০০×৬০০ উইন্ডোড · ৩৩টি সিনে ৪৫–১৬৪ এফপিএস। স্যুট সমষ্টি, ডেস্কটপের ধ্রুবক এফপিএস নয়।</p>
+          <div style="margin-top:10px"><span class="ev ev-m">পরিমাপকৃত</span></div>
+        </article>
+        <article class="card">
+          <h3>জিএলমার্ক২-ইএস২ — ওপেনজিএল ইএস</h3>
+          <p><strong style="color:var(--cyan);font-size:22px">৩৬৪</strong> স্কোর · ইএস ৩.২ · ৩৩টি সিনে ৫৩–৪৬৫ এফপিএস। ওপেনজিএল সারি থেকে ভিন্ন এপিআই ও মোড — কখনো সরাসরি তুলনা করবেন না।</p>
+          <div style="margin-top:10px"><span class="ev ev-m">পরিমাপকৃত</span></div>
+        </article>
+        <article class="card">
+          <h3>ব্লেন্ডার ৪.৩.২</h3>
+          <p>এর ওপেনজিএল ভিউপোর্টের (৪.৬ কোর প্রোফাইল) জন্য একই জিঙ্ক/টার্নিপ রেন্ডারার রিপোর্ট করেছে। সেই প্রমাণ দ্বারা সাইকেল জিপিইউ রেন্ডারিং প্রতিষ্ঠিত নয়।</p>
+          <div style="margin-top:10px"><span class="ev ev-o">পর্যবেক্ষিত</span></div>
+        </article>
+        <article class="card">
+          <h3>লামা.সিপিপি · স্টেবল-ডিফিউশন.সিপিপি</h3>
+          <p>ডকুমেন্টেশনে ভালকান বিল্ড পাথ লিপিবদ্ধ আছে। কোনো পারফরম্যান্স ফলাফল দাবি করা হয় না — সেই ওয়ার্কলোডগুলো এখানে অপরীক্ষিত থেকে যায়।</p>
+          <div style="margin-top:10px"><span class="ev ev-u">এখনো পরীক্ষিত নয়</span></div>
+        </article>
+      </div>
+      <p class="note">এই ইকোসিস্টেমে যৌথ প্রমাণ শব্দভাণ্ডার — যাচাইকৃত · পরিমাপকৃত · পর্যবেক্ষিত · পরীক্ষামূলক · এখনো পরীক্ষিত নয় · সমর্থিত নয়:</p>
+      <p style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px">
+        <span class="ev ev-v">যাচাইকৃত</span><span class="ev ev-m">পরিমাপকৃত</span><span class="ev ev-o">পর্যবেক্ষিত</span><span class="ev ev-x">পরীক্ষামূলক</span><span class="ev ev-u">এখনো পরীক্ষিত নয়</span><span class="ev ev-n">সমর্থিত নয়</span>
+      </p>
+      <div class="actions">
+        <a class="btn" href="/ternux/docs/BENCHMARKS.html">সব প্রমাণ দেখুন →</a>
+        <a class="btn" href="/ternux/docs/TROUBLESHOOTING.html">ট্রাবলশুটিং →</a>
       </div>
     </section>
 
-    <section class="landing-section" data-accent="amber">
-      <div class="landing-container">
-        <div class="section-heading">
-          <div><span class="section-kicker">03 · Device evidence</span><h2>Measured, observed, reported বা untested—কখনো এক করে দেখানো হয় না।</h2></div>
-          <p>প্রকাশিত snapshot একটি Redmi Turbo 4 Pro থেকে। সেখানে route-টি কাজ করেছে—প্রতিটি ফোনে একই ফল হবে, এমন প্রতিশ্রুতি এটি নয়।</p>
-        </div>
-
-        <div class="evidence-layout">
-          <article class="score-card">
-            <span class="score-card__label">Measured · glmark2 OpenGL</span>
-            <div class="score-card__value">140 <small>score</small></div>
-            <p class="score-card__range">33 scene-এ 45–164 FPS</p>
-            <dl>
-              <dt>OpenGL ES</dt><dd>364 · 53–465 FPS</dd>
-              <dt>Surface</dt><dd>800 × 600</dd>
-              <dt>Captured</dt><dd>August 2026</dd>
-            </dl>
-          </article>
-          <article class="evidence-card">
-            <h3>Snapshot যা প্রতিষ্ঠা করে</h3>
-            <ul class="evidence-list">
-              <li><b>Measured</b><span>33টি OpenGL ও 33টি OpenGL ES scene-এর প্রতিটি value সংরক্ষিত।</span></li>
-              <li><b>Observed</b><span>Blender তার OpenGL viewport-এর জন্য একই Zink/Turnip renderer দেখিয়েছে।</span></li>
-              <li><b>Reported build</b><span>llama.cpp ও stable-diffusion.cpp-এর নথিভুক্ত Vulkan build path আছে।</span></li>
-              <li><b>Untested</b><span>এই দুই AI workload-এর জন্য affirmative বা numeric performance claim নেই।</span></li>
-            </ul>
-            <p class="evidence-card__note">Renderer string: <code>zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP))</code>। Result তুলনায় renderer, version, resolution, thermal state ও test mode মেলানো জরুরি।</p>
-          </article>
-        </div>
-        <div class="hero__actions">
-          <a class="button button--secondary" href="{{ '/bn/docs/BENCHMARKS.html' | relative_url }}">সব evidence দেখুন <span aria-hidden="true">→</span></a>
-        </div>
+    <!-- ADT -->
+    <section id="adt" aria-labelledby="adt-h" class="reveal">
+      <h2 id="adt-h"><span class="n">০৬</span>টারনাক্স ও এডিটি — একটি এআরএম৬৪ গল্পের দুটি স্তর</h2>
+      <div class="eco-diagram" aria-hidden="true">                 <b>Android Device</b>
+                       │
+          ┌────────────┴────────────┐
+          │                         │
+        <b>ADT</b>                      <b>Ternux</b>
+          │                         │
+ Android development        Linux ARM64 desktop
+ Build / Sign / ADB         Debian / Xfce4 / GPU</div>
+      <div class="grid">
+        <article class="card">
+          <h3>টারনাক্স — এই প্রজেক্ট</h3>
+          <p>লিনাক্স ডেস্কটপ স্তর: পিআরুট ও টার্মাক্স:এক্স১১-এর মাধ্যমে অ্যান্ড্রয়েডে নো-রুট ডেবিয়ান + এক্সএফসই৪, সমর্থিত অ্যাড্রিনো ডিভাইসে পরিমাপকৃত জিপিইউ ত্বরণসহ।</p>
+        </article>
+        <article class="card">
+          <h3>এডিটি — টুলচেইন স্তর</h3>
+          <p>নেটিভ এআরএম৬৪ অ্যান্ড্রয়েড এসডিকে বিল্ড-টুলস, প্ল্যাটফর্ম-টুলস, স্বাক্ষর ও এডিবি ওয়ার্কফ্লো — লিনাক্স এআরএম৬৪-এর জন্য এওএসপি সোর্স থেকে বিল্ড করা, বাস্তব ডিভাইসে এন্ড-টু-এন্ড যাচাইকৃত। এই ধরনের হার্ডওয়্যারে অ্যান্ড্রয়েড অ্যাপ ডেভেলপ করলে এডিটিই সঙ্গী প্রজেক্ট।</p>
+          <a class="more" href="https://soobujmiah.github.io/adt/">এডিটি ওয়েবসাইট →</a>
+        </article>
+        <article class="card">
+          <h3>যাচাইকৃত বনাম পরীক্ষামূলক</h3>
+          <p>দুটি প্রজেক্টই একই টার্মাক্স + পিআরুট ডেবিয়ান ভিত্তির উপর আলাদাভাবে যাচাইকৃত (রেডমি টার্বো ৪ প্রো)। ক্রস-প্রজেক্ট ওয়ার্কফ্লো — যেমন টারনাক্স ডেস্কটপ সেশনের ভেতরে এডিটি টুল চালানো — বাস্তবে একসাথে চলে কিন্তু এখনো আনুষ্ঠানিকভাবে পরীক্ষিত নয়; সেগুলো পরীক্ষামূলক থেকে যায়।</p>
+        </article>
+      </div>
+      <div class="actions">
+        <a class="btn" href="https://soobujmiah.github.io/adt/">এডিটি ওয়েবসাইট</a>
+        <a class="btn" href="https://github.com/soobujmiah/adt">এডিটি রিপোজিটরি</a>
       </div>
     </section>
 
-    <section class="landing-section" data-accent="purple">
-      <div class="landing-container">
-        <div class="section-heading">
-          <div><span class="section-kicker">04 · Upstream workload</span><h2>Imitation demo নয়—মূল project ব্যবহার করুন।</h2></div>
-          <p>প্রতিটি card upstream repository খুলবে। ternux environment ও optional build path দেয়; প্রতিটি project-এর নিজস্ব support matrix ও documentation প্রযোজ্য।</p>
-        </div>
-        <div class="workload-grid">
-          <a class="workload-card" href="https://projects.blender.org/blender/blender" rel="external">
-            <span class="workload-card__icon">3D</span><h3>Blender</h3><p>OpenGL viewport renderer observed। এই evidence Cycles GPU rendering প্রতিষ্ঠা করে না।</p><span>upstream repository ↗</span>
-          </a>
-          <a class="workload-card" href="https://github.com/ggml-org/llama.cpp" rel="external">
-            <span class="workload-card__icon">LLM</span><h3>llama.cpp</h3><p>Optional Vulkan build route নথিভুক্ত; ternux performance result দাবি করা হয়নি।</p><span>upstream repository ↗</span>
-          </a>
-          <a class="workload-card" href="https://github.com/leejet/stable-diffusion.cpp" rel="external">
-            <span class="workload-card__icon">SD</span><h3>stable-diffusion.cpp</h3><p>Optional Vulkan build route নথিভুক্ত; এখানে model performance untested।</p><span>upstream repository ↗</span>
-          </a>
-          <a class="workload-card" href="https://github.com/glmark2/glmark2" rel="external">
-            <span class="workload-card__icon">FPS</span><h3>glmark2</h3><p>সংরক্ষিত OpenGL ও OpenGL ES scene output-এর জন্য ব্যবহৃত upstream benchmark।</p><span>upstream repository ↗</span>
-          </a>
-        </div>
+    <!-- DOCS -->
+    <section id="docs" aria-labelledby="docs-h" class="reveal">
+      <h2 id="docs-h"><span class="n">০৭</span>ডকুমেন্টেশন</h2>
+      <p class="note">একটি সিস্টেম, প্রতিটি গভীরতার জন্য পথ — আগে নির্দেশিত রুট, তারপর কাজকেন্দ্রিক পরিচালনা গাইড, এরপর আর্কিটেকচার, প্রমাণ ও নির্দিষ্ট সিএলআই আচরণ।</p>
+      <div class="grid">
+        <article class="card"><h3>এখান থেকে শুরু</h3><p>ডকুমেন্টেশন ওভারভিউ · কুইক স্টার্ট · ইনস্টলেশন · ম্যানুয়াল ইনস্টলেশন।</p><a class="more" href="/ternux/docs/">ডকস খুলুন →</a></article>
+        <article class="card"><h3>পরিচালনা</h3><p>দৈনন্দিন ব্যবহার · কনফিগারেশন · ট্রাবলশুটিং · সিএলআই রেফারেন্স।</p><a class="more" href="/ternux/docs/USAGE.html">গাইড খুলুন →</a></article>
+        <article class="card"><h3>বুঝুন ও অবদান রাখুন</h3><p>আর্কিটেকচার · প্রমাণ ও বেঞ্চমার্ক · এফএকিউ · কনট্রিবিউটিং।</p><a class="more" href="/ternux/docs/ARCHITECTURE.html">রেফারেন্স খুলুন →</a></article>
       </div>
+      <p class="note-amber">অ্যান্ড্রয়েড রুট নেই, লুকানো সীমানা নেই: টারনাক্স কখনো অ্যান্ড্রয়েড সিস্টেম পার্টিশন পরিবর্তন করে না। গেস্ট রুট পিআরুটের ভেতরে থাকে এবং তা কোনো নিরাপত্তা সীমানা নয় — শেয়ার করা স্টোরেজ ও আপনার উন্মুক্ত করা সার্ভিসের দায়িত্ব আপনারই।</p>
     </section>
 
-    <section class="landing-section" data-accent="cyan" id="documentation">
-      <div class="landing-container">
-        <div class="section-heading">
-          <div><span class="section-kicker">05 · ডকুমেন্টেশন</span><h2>একটি system। প্রতিটি গভীরতার জন্য আলাদা পথ।</h2></div>
-          <p>Guided route দিয়ে শুরু করুন, task-focused guide দিয়ে workspace চালান, তারপর architecture, evidence ও সুনির্দিষ্ট command behavior দেখুন।</p>
-        </div>
-        <div class="docs-map">
-          <section class="docs-map__group">
-            <h3>শুরু করুন</h3><ul>
-              <li><a href="{{ '/bn/docs/' | relative_url }}">ডকুমেন্টেশন পরিচিতি</a></li>
-              <li><a href="{{ '/bn/docs/QUICK-START.html' | relative_url }}">দ্রুত শুরু</a></li>
-              <li><a href="{{ '/bn/docs/INSTALLATION.html' | relative_url }}">ইনস্টলেশন</a></li>
-              <li><a href="{{ '/bn/docs/MANUAL.html' | relative_url }}">ম্যানুয়াল ইনস্টলেশন</a></li>
-            </ul>
-          </section>
-          <section class="docs-map__group">
-            <h3>পরিচালনা</h3><ul>
-              <li><a href="{{ '/bn/docs/USAGE.html' | relative_url }}">দৈনন্দিন ব্যবহার</a></li>
-              <li><a href="{{ '/bn/docs/CONFIGURATION.html' | relative_url }}">কনফিগারেশন</a></li>
-              <li><a href="{{ '/bn/docs/TROUBLESHOOTING.html' | relative_url }}">সমস্যা সমাধান</a></li>
-              <li><a href="{{ '/bn/docs/CLI.html' | relative_url }}">CLI রেফারেন্স</a></li>
-            </ul>
-          </section>
-          <section class="docs-map__group">
-            <h3>বুঝুন ও অবদান রাখুন</h3><ul>
-              <li><a href="{{ '/bn/docs/ARCHITECTURE.html' | relative_url }}">আর্কিটেকচার</a></li>
-              <li><a href="{{ '/bn/docs/BENCHMARKS.html' | relative_url }}">প্রমাণ ও বেঞ্চমার্ক</a></li>
-              <li><a href="{{ '/bn/docs/FAQ.html' | relative_url }}">সাধারণ প্রশ্ন</a></li>
-              <li><a href="{{ '/bn/CONTRIBUTING.html' | relative_url }}">কনট্রিবিউটিং</a></li>
-            </ul>
-          </section>
-        </div>
-      </div>
-    </section>
-
-    <section class="landing-section" data-accent="green">
-      <div class="landing-container">
-        <div class="safety-banner">
-          <span class="safety-banner__mark" aria-hidden="true">✓</span>
-          <div><h2>Android root নয়। লুকানো boundary-ও নয়।</h2><p>ternux Android system partition বদলায় না। Guest root PRoot-এর ভেতরে থাকে এবং এটি security boundary নয়; shared storage ও আপনার expose করা service-এর দায়িত্ব আপনার।</p></div>
-          <a class="button button--secondary" href="{{ '/bn/docs/FAQ.html' | relative_url }}#root-কি-লাগে-তাহলে-ফোন-root-করে-নিলেই-হয়-না">নিরাপত্তা নোট পড়ুন <span aria-hidden="true">→</span></a>
-        </div>
-      </div>
-    </section>
   </main>
 
-  <footer class="landing-footer">
-    <div class="landing-container landing-footer__grid">
-      <div>
-        <div class="landing-footer__brand"><span class="brand__mark" aria-hidden="true"><span>&gt;</span><i>_</i></span> ternux</div>
-        <p>Android-এর জন্য evidence-led, MIT-licensed Linux workspace। নির্মাতা Sobuj Miah।</p>
+  <footer class="site-footer">
+    <div class="wrap">
+      <ul class="eco">
+        <li><a href="https://soobujmiah.github.io/">পোর্টফোলিও</a></li>
+        <li><a href="https://soobujmiah.github.io/adt/">এডিটি</a></li>
+        <li><a href="https://github.com/soobujmiah/ternux">রিপোজিটরি</a></li>
+        <li><a href="/ternux/docs/">ডকুমেন্টেশন</a></li>
+        <li><a href="/ternux/CHANGELOG.html">চেঞ্জলগ</a></li>
+        <li><a href="https://github.com/soobujmiah/ternux/blob/main/LICENSE">এমআইটি লাইসেন্স</a></li>
+        <li><a href="/ternux/" hreflang="en" lang="en">EN</a></li>
+      </ul>
+      <div class="row">
+        <span>© ২০২৬ সবুজ মিয়া — টারনাক্স</span>
+        <span><a href="https://soobujmiah.github.io/">সবুজ মিয়া প্রজেক্ট ইকোসিস্টেমের</a> অংশ। প্রমাণ শব্দভাণ্ডার: যাচাইকৃত · পরিমাপকৃত · পর্যবেক্ষিত · পরীক্ষামূলক · এখনো পরীক্ষিত নয় · সমর্থিত নয়।</span>
       </div>
-      <nav class="landing-footer__links" aria-label="ফুটার নেভিগেশন">
-        <a href="{{ '/bn/docs/' | relative_url }}">ডকুমেন্টেশন</a>
-        <a href="{{ '/bn/CHANGELOG.html' | relative_url }}">পরিবর্তনলগ</a>
-        <a href="https://github.com/soobujmiah/ternux/security/policy">নিরাপত্তা</a>
-        <a href="https://github.com/soobujmiah/ternux/blob/main/LICENSE">MIT License</a>
-        <a href="{{ '/' | relative_url }}" lang="en">English</a>
-      </nav>
     </div>
   </footer>
 
-  <script src="{{ '/assets/js/effects.js' | relative_url }}" defer></script>
+  <script>
+  (function () {
+    if ('IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (en) {
+          if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); }
+        });
+      }, { threshold: 0.08 });
+      document.querySelectorAll('.reveal').forEach(function (el) { io.observe(el); });
+    } else {
+      document.querySelectorAll('.reveal').forEach(function (el) { el.classList.add('in'); });
+    }
+  })();
+  </script>
 </body>
 </html>

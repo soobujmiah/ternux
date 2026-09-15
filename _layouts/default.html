@@ -63,6 +63,8 @@
         <a class="top-nav__link is-active" href="{% if is_bn %}{{ '/bn/docs/' | relative_url }}{% else %}{{ '/docs/' | relative_url }}{% endif %}">{% if is_bn %}ডকস{% else %}Docs{% endif %}</a>
         <a class="top-nav__link" href="{% if is_bn %}{{ '/bn/docs/BENCHMARKS.html' | relative_url }}{% else %}{{ '/docs/BENCHMARKS.html' | relative_url }}{% endif %}">{% if is_bn %}প্রমাণ{% else %}Evidence{% endif %}</a>
         <a class="top-nav__link" href="{% if is_bn %}{{ '/bn/CONTRIBUTING.html' | relative_url }}{% else %}{{ '/CONTRIBUTING.html' | relative_url }}{% endif %}">{% if is_bn %}অবদান{% else %}Contribute{% endif %}</a>
+        <a class="top-nav__link" href="https://soobujmiah.github.io/adt/" rel="external">{% if is_bn %}এডিটি{% else %}ADT{% endif %} <span aria-hidden="true">↗</span></a>
+        <a class="top-nav__link" href="https://soobujmiah.github.io/" rel="external">{% if is_bn %}পোর্টফোলিও{% else %}Portfolio{% endif %} <span aria-hidden="true">↗</span></a>
         <a class="top-nav__link top-nav__github" href="https://github.com/soobujmiah/ternux" rel="external">GitHub <span aria-hidden="true">↗</span></a>
       </nav>
 
@@ -177,6 +179,8 @@
       <nav aria-label="{% if is_bn %}ফুটার নেভিগেশন{% else %}Footer navigation{% endif %}">
         <a href="https://github.com/soobujmiah/ternux/blob/main/LICENSE">MIT</a>
         <a href="https://github.com/soobujmiah/ternux/security/policy">{% if is_bn %}নিরাপত্তা{% else %}Security{% endif %}</a>
+        <a href="https://soobujmiah.github.io/adt/" rel="external">{% if is_bn %}এডিটি{% else %}ADT{% endif %}</a>
+        <a href="https://soobujmiah.github.io/" rel="external">{% if is_bn %}পোর্টফোলিও{% else %}Portfolio{% endif %}</a>
         <a href="https://github.com/soobujmiah/ternux">GitHub</a>
       </nav>
       <span>© 2026 Sobuj Miah</span>
