@@ -17,6 +17,13 @@ TEXT_SUFFIXES = {".md", ".html", ".yml", ".yaml", ".css", ".js", ".xml", ".txt"}
 errors: list[str] = []
 checks = 0
 
+# The site is published under a baseurl (GitHub Pages project sites), so a
+# site-absolute href carries that prefix while the file it points at lives at
+# the repository root. Read the prefix from the site configuration instead of
+# hardcoding it, so the links are checked as the deployed site will serve them.
+_config = (ROOT / "_config.yml").read_text(encoding="utf-8") if (ROOT / "_config.yml").exists() else ""
+BASEURL = ((re.search(r"^baseurl:\s*(\S+)\s*$", _config, re.M) or [None, ""])[1] or "").rstrip("/")
+
 
 def check(condition: bool, message: str) -> None:
     global checks
@@ -139,7 +146,10 @@ def anchors(path: Path) -> set[str]:
 
 def resolve_target(source: Path, raw_path: str) -> Path | None:
     if raw_path.startswith("/"):
-        candidate = ROOT / raw_path.lstrip("/")
+        site_path = raw_path
+        if BASEURL and (site_path == BASEURL or site_path.startswith(BASEURL + "/")):
+            site_path = site_path[len(BASEURL) :] or "/"
+        candidate = ROOT / site_path.lstrip("/")
     else:
         candidate = (source.parent / raw_path).resolve()
     candidates = [candidate]
@@ -238,7 +248,16 @@ for source in [p for p in ROOT.rglob("*") if p.is_file() and ".git" not in p.par
     links.extend(re.findall(r"\bhref=[\"']([^\"']+)", text, re.I))
     for raw in links:
         raw = html.unescape(raw)
-        if raw.startswith(("http://", "https://", "mailto:", "tel:", "data:", "{{", "{%")) or "{{" in raw or "{%" in raw:
+        if raw.startswith(("http://", "https://", "mailto:", "tel:", "data:")):
+            continue
+        # `{{ '/docs/x.html' | relative_url }}` is how the pages address each
+        # other under the site baseurl, so the path inside the filter IS the
+        # link — extracting it keeps those links under validation instead of
+        # skipping every one of them.
+        liquid = re.search(r"\{\{\s*'([^']+)'\s*\|\s*(?:relative_url|absolute_url)\s*\}\}", raw)
+        if liquid:
+            raw = liquid.group(1)
+        elif "{{" in raw or "{%" in raw:
             continue
         target, _, fragment = raw.partition("#")
         target, fragment = unquote(target), unquote(fragment)
@@ -271,21 +290,33 @@ for path in (ROOT / "index.html", ROOT / "bn/index.html", ROOT / "_layouts/defau
     check(parser.empty_links == 0, f"{path.relative_to(ROOT)}: contains empty href")
     check(parser.images_without_alt == 0, f"{path.relative_to(ROOT)}: image missing alt")
 
-# Workload cards must point to upstream repositories in both landing pages.
+# The landing pages carry an information architecture and an evidence
+# provenance, and both are contracts: the same sections in the same order in
+# both languages, and a link to every upstream project whose behaviour the
+# published benchmarks measure. (This replaces the earlier assertion, which
+# described the superseded landing's markup — inert class names and a
+# decorative accent sequence — rather than the page's actual structure.)
 upstream = {
     "https://projects.blender.org/blender/blender",
     "https://github.com/ggml-org/llama.cpp",
     "https://github.com/leejet/stable-diffusion.cpp",
     "https://github.com/glmark2/glmark2",
 }
+LANDING_SECTIONS = ["what", "how", "install", "gpu", "evidence", "adt", "docs"]
+landing_sections: dict[str, list[str]] = {}
 for path in (ROOT / "index.html", ROOT / "bn/index.html"):
     text = read(path)
-    cards = set(re.findall(r'<a class="workload-card" href="([^"]+)"', text))
-    check(cards == upstream, f"{path.relative_to(ROOT)}: workload cards must match upstream repositories")
-    accents = re.findall(r'<section class="landing-section" data-accent="([^"]+)"', text)
-    check(accents == ["green", "cyan", "amber", "purple", "cyan", "green"], f"{path.relative_to(ROOT)}: landing accent sequence changed")
+    ids = re.findall(r'<section[^>]*\bid="([^"]+)"', text)
+    landing_sections[str(path.relative_to(ROOT))] = ids
+    check(ids == LANDING_SECTIONS, f"{path.relative_to(ROOT)}: landing section order changed ({ids})")
+    cards = set(re.findall(r'<a class="upstream-link" href="([^"]+)"', text))
+    check(cards == upstream, f"{path.relative_to(ROOT)}: upstream project links must match the measured workloads")
     check("/assets/js/effects.js" in text, f"{path.relative_to(ROOT)}: missing progressive effects script")
     check("data-scroll-progress" in text, f"{path.relative_to(ROOT)}: missing scroll progress feedback")
+check(
+    landing_sections.get("index.html") == landing_sections.get("bn/index.html"),
+    "English and Bengali landings must present the same sections in the same order",
+)
 
 layout_text = read(ROOT / "_layouts/default.html")
 check("/assets/js/effects.js" in layout_text, "_layouts/default.html: missing progressive effects script")
