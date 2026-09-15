@@ -37,6 +37,7 @@ CLI for starting, stopping, diagnosing, repairing and benchmarking the environme
 ## Contents
 
 - [What gets installed](#what-gets-installed)
+- [Ternux and ADT](#ternux-and-adt)
 - [Measured device results](#measured-device-results)
 - [How the graphics stack works](#how-the-graphics-stack-works)
 - [Requirements](#requirements)
@@ -67,6 +68,38 @@ CLI for starting, stopping, diagnosing, repairing and benchmarking the environme
 
 Base applications include Xfce Terminal, VLC, archive tools, Mesa utilities and Vulkan
 tools. Development tools, llama.cpp, media tools, network tools and Blender are opt-in.
+
+---
+
+## Ternux and ADT
+
+Ternux and [ADT](https://github.com/soobujmiah/adt) are two layers of one ARM64 story:
+
+```
+Android (arm64 device)
+   │
+   ├── ADT ──── Android SDK toolchain built for Linux ARM64:
+   │            build-tools, platform-tools, ADB, APK signing.
+   │            Builds and installs Android apps natively from the shell.
+   │
+   └── Ternux ─ no-root Debian + Xfce4 desktop on Android:
+                Termux + PRoot, Termux:X11 display, audio,
+                and a measured Zink/Turnip GPU route on supported Adreno devices.
+```
+
+- **Ternux** is the Linux desktop layer. It does not build Android apps; it gives
+  Android hardware a real Debian workspace with hardware-accelerated graphics where supported.
+- **ADT** is the toolchain layer. It builds, signs and installs Android apps from
+  AOSP-derived build-tools compiled for Linux ARM64, with a real-device build chain
+  verified end-to-end.
+
+Both projects are verified separately on the same Termux + PRoot Debian foundation
+(Redmi Turbo 4 Pro, Snapdragon 8s Gen 4). Cross-project workflows — for example
+running ADT tooling inside a Ternux desktop session — coexist in practice but are
+**not yet formally tested**; they remain experimental until measured.
+
+See the [ADT repository](https://github.com/soobujmiah/adt) and the
+[ADT website](https://soobujmiah.github.io/adt/) for the Android side of the stack.
 
 ---
 
