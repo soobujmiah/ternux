@@ -680,14 +680,14 @@ a:hover { color: #b1ffe3; }
 
 /* Documentation overview components used by docs/index.md. */
 .doc-grid {
-  margin: 28px 0 40px;
+  margin: 22px 0 32px;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 13px;
+  gap: 12px;
 }
 .doc-card {
   min-width: 0;
-  padding: 19px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
   color: var(--text-soft) !important;
@@ -716,7 +716,7 @@ a:hover { color: #b1ffe3; }
 .doc-card span:last-child { color: var(--muted); font-size: 12px; line-height: 1.55; }
 
 .path-chooser {
-  margin: 26px 0 38px;
+  margin: 20px 0 28px;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
@@ -1067,7 +1067,7 @@ a:hover { color: #b1ffe3; }
 .trust-stat--green strong { color: var(--green); }
 
 .landing-section { padding: 108px 0; border-bottom: 1px solid var(--line); }
-.section-heading { margin-bottom: 48px; display: grid; grid-template-columns: minmax(0, 0.7fr) minmax(300px, 0.55fr); align-items: end; justify-content: space-between; gap: 50px; }
+.section-heading { margin-bottom: 36px; display: grid; grid-template-columns: minmax(0, 0.7fr) minmax(300px, 0.55fr); align-items: end; justify-content: space-between; gap: 50px; }
 .section-heading h2 { max-width: 640px; margin: 0; color: var(--text); font-size: clamp(2.2rem, 4.7vw, 4rem); letter-spacing: -0.055em; line-height: 1; }
 .section-heading p { margin: 0; color: var(--muted); font-size: 15px; line-height: 1.7; }
 .section-kicker { margin-bottom: 12px; display: block; color: var(--green); font-family: var(--font-mono); font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; }

@@ -32,6 +32,8 @@ alt_url: "/"
   <meta property="og:locale" content="bn_BD">
   <meta property="og:locale:alternate" content="en_US">
   <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://soobujmiah.github.io/ternux/assets/img/og-card.png">
+  <meta name="twitter:image:alt" content="ternux terminal interface-এ auditable Android workspace setup দেখানো হয়েছে">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22><rect width=%2264%22 height=%2264%22 rx=%2212%22 fill=%22%23050507%22/><path d=%22M14 18l14 14-14 14M34 46h16%22 fill=%22none%22 stroke=%22%2322c55e%22 stroke-width=%226%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/></svg>">
   <script type="application/ld+json">{
     "@context":"https://schema.org",
@@ -52,6 +54,7 @@ alt_url: "/"
          {"@type":"ListItem","position":2,"name":"Ternux","item":"https://soobujmiah.github.io/ternux/"}]}
     ]
   }</script>
+  <noscript><style>.reveal{opacity:1;transform:none}</style></noscript>
   <style>
   /* ── Ternux landing — shared ecosystem design system (portfolio / ADT
         tokens) with Ternux's own identity: cyan GPU signal, terminal
@@ -81,7 +84,7 @@ alt_url: "/"
   .site-nav a{color:var(--muted);font-size:13px;white-space:nowrap;padding:4px 2px}
   .site-nav a:hover{color:var(--fg);text-decoration:none}
   /* hero */
-  .hero{position:relative;padding:84px 0 40px;overflow:hidden}
+  .hero{position:relative;padding:72px 0 32px;overflow:hidden}
   .hero::before{content:'';position:absolute;inset:0;pointer-events:none;background:radial-gradient(58% 46% at 76% 6%,rgba(34,211,238,.06),transparent 70%),radial-gradient(46% 40% at 12% 88%,rgba(34,197,94,.05),transparent 70%),repeating-linear-gradient(90deg,rgba(228,226,223,.02) 0 1px,transparent 1px 96px)}
   .hero-grid{display:grid;grid-template-columns:1.15fr .95fr;gap:44px;align-items:center;position:relative}
   .eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.3em;text-transform:uppercase;color:var(--accent);margin:0 0 18px}
@@ -91,7 +94,7 @@ alt_url: "/"
   .btn{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--border2);border-radius:10px;padding:9px 16px;font-size:13.5px;color:var(--fg);background:transparent;transition:border-color .25s var(--ease),background .25s var(--ease)}
   .btn:hover{text-decoration:none;border-color:rgba(34,197,94,.5);background:rgba(34,197,94,.06)}
   .btn.primary{background:rgba(34,197,94,.16);border-color:rgba(34,197,94,.45);color:var(--accent-b)}
-  .facts{list-style:none;margin:30px 0 0;padding:16px 0 0;border-top:1px solid var(--border);display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px 26px}
+  .facts{list-style:none;margin:24px 0 0;padding:12px 0 0;border-top:1px solid var(--border);display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px 26px}
   .facts li{display:flex;gap:12px;align-items:baseline;font-size:13px}
   .facts .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);flex:none;min-width:78px}
   .facts .v{color:rgba(228,226,223,.82)}
@@ -116,16 +119,16 @@ alt_url: "/"
   .stat.cyan strong{color:var(--cyan)}
   .stat span{font-size:12.5px;color:var(--muted)}
   /* sections */
-  section{padding:56px 0 8px}
+  section{padding:44px 0 8px}
   h2{font-family:'Noto Sans Bengali',var(--disp);font-size:clamp(1.3rem,3vw,1.7rem);letter-spacing:0;margin:0 0 8px;display:flex;align-items:center;gap:14px}
   h2 .n{font-family:var(--mono);font-size:11px;font-weight:400;color:var(--accent);border:1px solid rgba(34,197,94,.3);border-radius:8px;padding:3px 8px;flex:none}
-  .note{color:var(--muted);max-width:76ch;margin:0 0 24px}
+  .note{color:var(--muted);max-width:76ch;margin:0 0 18px}
   h3{font-family:'Noto Sans Bengali',var(--disp);font-size:15px;margin:0 0 8px}
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:18px}
-  .card{border:1px solid var(--border);border-radius:var(--r);background:var(--card);padding:20px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-bottom:14px}
+  .card{border:1px solid var(--border);border-radius:var(--r);background:var(--card);padding:16px}
   .card p{margin:0;color:var(--muted);font-size:13.5px}
   .card .n{font-family:var(--mono);font-size:10.5px;color:var(--cyan);margin-right:8px}
-  .card .more{display:inline-block;margin-top:10px;font-size:13px}
+  .card .more{display:inline-block;margin-top:8px;font-size:13px}
   /* stack flow */
   .flow{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch;margin:26px 0 10px}
   .stage{flex:1 1 150px;border:1px solid var(--border);border-radius:12px;background:var(--card);padding:14px 16px;position:relative}
@@ -138,7 +141,7 @@ alt_url: "/"
   pre.cmd{background:var(--code);border:1px solid var(--border);border-radius:var(--r);padding:18px 20px;overflow-x:auto;font-family:var(--mono);font-size:12.8px;line-height:1.75;margin:0 0 18px;color:#d1fae5}
   pre.cmd .c{color:rgba(228,226,223,.35)}
   /* tables */
-  .tbl-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--r);margin-bottom:18px}
+  .tbl-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--r);margin-bottom:14px}
   table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:560px}
   th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--border);vertical-align:top}
   th{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);font-weight:400}
@@ -168,6 +171,14 @@ alt_url: "/"
   .eco a{color:var(--muted)} .eco a:hover{color:var(--fg)}
   .site-footer .row{display:flex;flex-wrap:wrap;gap:8px 24px;justify-content:space-between;color:var(--faint);font-size:12.5px}
   .reveal{opacity:0;transform:translateY(14px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
+  /* scroll progress — the shared effects script drives it, the palette is this page's */
+  .scroll-progress{position:absolute;z-index:3;right:0;bottom:-1px;left:0;height:2px;overflow:hidden;pointer-events:none}
+  .scroll-progress>span{width:100%;height:100%;display:block;background:linear-gradient(90deg,var(--accent),var(--cyan) 48%,var(--accent-b));box-shadow:0 0 12px rgba(34,211,238,.42);transform:scaleX(0);transform-origin:left center;will-change:transform}
+  /* upstream provenance — one compact row, never cards inside cards */
+  .upstream{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:14px 0 0;font-size:12.5px}
+  .upstream-label{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);margin-right:2px}
+  .upstream-link{border:1px solid var(--border);border-radius:999px;padding:3px 10px;color:var(--muted)}
+  .upstream-link:hover{border-color:var(--border2);color:var(--fg)}
   .reveal.in{opacity:1;transform:none}
   @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.reveal{opacity:1;transform:none;transition:none}*{animation:none!important;transition:none!important}}
   @media (max-width:860px){.hero-grid{grid-template-columns:1fr}}
@@ -178,8 +189,9 @@ alt_url: "/"
 <body>
   <a class="skip" href="#main">মূল বিষয়বস্তুতে যান</a>
   <header class="site-header">
+    <span class="scroll-progress" aria-hidden="true"><span data-scroll-progress></span></span>
     <div class="wrap">
-      <a class="brand" href="/ternux/">
+      <a class="brand" href="{{ '/' | relative_url }}">
         <svg width="18" height="18" viewBox="0 0 64 64" aria-hidden="true">
           <path d="M14 18l14 14-14 14M34 46h16" fill="none" stroke="#22c55e" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
@@ -192,9 +204,9 @@ alt_url: "/"
         <a href="#gpu">জিপিইউ</a>
         <a href="#evidence">প্রমাণ</a>
         <a href="#adt">এডিটি</a>
-        <a href="/ternux/docs/">ডকস</a>
+        <a href="{{ '/docs/' | relative_url }}">ডকস</a>
         <a href="https://github.com/soobujmiah/ternux">গিটহাব</a>
-        <a href="/ternux/" hreflang="en" lang="en">EN</a>
+        <a href="{{ '/' | relative_url }}" hreflang="en" lang="en">EN</a>
       </nav>
     </div>
   </header>
@@ -209,7 +221,7 @@ alt_url: "/"
           <p class="lede">টারনাক্স ইনস্টল করে একটি ডেবিয়ান এআরএম৬৪ ইউজারস্পেস, একটি এক্সএফসই৪ ডেস্কটপ, টার্মাক্স:এক্স১১ ডিসপ্লে, অডিও এবং একটি সুস্পষ্ট গ্রাফিক্স পথ — সমর্থিত অ্যাড্রিনো ডিভাইসে জিঙ্ক/টার্নিপ, বাকি সব জায়গায় ভার্জিএল। এক কমান্ড, নিরীক্ষণযোগ্য ব্যাশ, বুটলোডার পরিবর্তন নেই।</p>
           <div class="actions">
             <a class="btn primary" href="#install">টারনাক্স ইনস্টল করুন ↓</a>
-            <a class="btn" href="/ternux/docs/QUICK-START.html">কুইক স্টার্ট পড়ুন →</a>
+            <a class="btn" href="{{ '/docs/QUICK-START.html' | relative_url }}">কুইক স্টার্ট পড়ুন →</a>
           </div>
           <ul class="facts" aria-label="Project facts">
             <li><span class="k">প্ল্যাটফর্ম</span><span class="v">অ্যান্ড্রয়েড ১০+ · আর্ম৬৪</span></li>
@@ -294,9 +306,9 @@ alt_url: "/"
       <h2 id="install-h"><span class="n">০৩</span>ইনস্টলেশন</h2>
       <p class="note">এক-কমান্ড পথটি সুবিধাজনক; ক্লোন-ফার্স্ট ও ম্যানুয়াল পথ চালানোর আগে প্রতিটি মডিউল ও প্রতিটি গেস্ট কমান্ড প্রকাশ করে। আগে এফ-ড্রয়েড থেকে টার্মাক্স ও টার্মাক্স:এক্স১১ অ্যাপ ইনস্টল করুন।</p>
       <div class="grid">
-        <article class="card"><h3><span class="n">০১</span>দ্রুত ইনস্টলেশন</h3><p>হোস্ট করা এন্ট্রি পয়েন্ট ব্যবহার করুন, টারনাক্সকে সমর্থিত পথ শনাক্ত করতে দিন এবং মুদ্রিত টার্মাক্স:এক্স১১ হ্যান্ডঅফ অনুসরণ করুন।</p><a class="more" href="/ternux/docs/QUICK-START.html">কুইক স্টার্ট →</a></article>
-        <article class="card"><h3><span class="n">০২</span>ক্লোন করে রিভিউ</h3><p>রিপোজিটরির অবস্থা পিন করুন, শেল ফাইলের সিনট্যাক্স পরীক্ষা করুন, ইনস্টলার ও লাইব্রেরি পরিদর্শন করুন, তারপর লোকালি চালান।</p><a class="more" href="/ternux/docs/INSTALLATION.html">রিভিউ-ফার্স্ট গাইড →</a></article>
-        <article class="card"><h3><span class="n">০৩</span>ম্যানুয়াল সেটআপ</h3><p>হোস্ট, গেস্ট, ডেস্কটপ, অডিও, গ্রাফিক্স, লঞ্চার ও যাচাইয়ের ধাপগুলো কমান্ডে কমান্ডে সম্পন্ন করুন।</p><a class="more" href="/ternux/docs/MANUAL.html">ম্যানুয়াল ইনস্টলেশন →</a></article>
+        <article class="card"><h3><span class="n">০১</span>দ্রুত ইনস্টলেশন</h3><p>হোস্ট করা এন্ট্রি পয়েন্ট ব্যবহার করুন, টারনাক্সকে সমর্থিত পথ শনাক্ত করতে দিন এবং মুদ্রিত টার্মাক্স:এক্স১১ হ্যান্ডঅফ অনুসরণ করুন।</p><a class="more" href="{{ '/docs/QUICK-START.html' | relative_url }}">কুইক স্টার্ট →</a></article>
+        <article class="card"><h3><span class="n">০২</span>ক্লোন করে রিভিউ</h3><p>রিপোজিটরির অবস্থা পিন করুন, শেল ফাইলের সিনট্যাক্স পরীক্ষা করুন, ইনস্টলার ও লাইব্রেরি পরিদর্শন করুন, তারপর লোকালি চালান।</p><a class="more" href="{{ '/docs/INSTALLATION.html' | relative_url }}">রিভিউ-ফার্স্ট গাইড →</a></article>
+        <article class="card"><h3><span class="n">০৩</span>ম্যানুয়াল সেটআপ</h3><p>হোস্ট, গেস্ট, ডেস্কটপ, অডিও, গ্রাফিক্স, লঞ্চার ও যাচাইয়ের ধাপগুলো কমান্ডে কমান্ডে সম্পন্ন করুন।</p><a class="more" href="{{ '/docs/MANUAL.html' | relative_url }}">ম্যানুয়াল ইনস্টলেশন →</a></article>
       </div>
       <pre class="cmd"><span class="c"># এক কমান্ড — হোস্ট ইনস্টলার</span>
 curl -fsSL https://soobujmiah.github.io/ternux/install.sh | bash
@@ -355,8 +367,15 @@ ternux doctor    <span class="c"># কাঠামোগত ডায়াগ�
         <span class="ev ev-v">যাচাইকৃত</span><span class="ev ev-m">পরিমাপকৃত</span><span class="ev ev-o">পর্যবেক্ষিত</span><span class="ev ev-x">পরীক্ষামূলক</span><span class="ev ev-u">এখনো পরীক্ষিত নয়</span><span class="ev ev-n">সমর্থিত নয়</span>
       </p>
       <div class="actions">
-        <a class="btn" href="/ternux/docs/BENCHMARKS.html">সব প্রমাণ দেখুন →</a>
-        <a class="btn" href="/ternux/docs/TROUBLESHOOTING.html">ট্রাবলশুটিং →</a>
+        <a class="btn" href="{{ '/docs/BENCHMARKS.html' | relative_url }}">সব প্রমাণ দেখুন →</a>
+        <a class="btn" href="{{ '/docs/TROUBLESHOOTING.html' | relative_url }}">ট্রাবলশুটিং →</a>
+      </div>
+      <div class="upstream" aria-label="পরিমাপ করা আপস্ট্রিম প্রকল্পসমূহ">
+        <span class="upstream-label">পরিমাপ করা আপস্ট্রিম প্রকল্প</span>
+        <a class="upstream-link" href="https://projects.blender.org/blender/blender">Blender</a>
+        <a class="upstream-link" href="https://github.com/ggml-org/llama.cpp">llama.cpp</a>
+        <a class="upstream-link" href="https://github.com/leejet/stable-diffusion.cpp">stable-diffusion.cpp</a>
+        <a class="upstream-link" href="https://github.com/glmark2/glmark2">glmark2</a>
       </div>
     </section>
 
@@ -397,9 +416,9 @@ ternux doctor    <span class="c"># কাঠামোগত ডায়াগ�
       <h2 id="docs-h"><span class="n">০৭</span>ডকুমেন্টেশন</h2>
       <p class="note">একটি সিস্টেম, প্রতিটি গভীরতার জন্য পথ — আগে নির্দেশিত রুট, তারপর কাজকেন্দ্রিক পরিচালনা গাইড, এরপর আর্কিটেকচার, প্রমাণ ও নির্দিষ্ট সিএলআই আচরণ।</p>
       <div class="grid">
-        <article class="card"><h3>এখান থেকে শুরু</h3><p>ডকুমেন্টেশন ওভারভিউ · কুইক স্টার্ট · ইনস্টলেশন · ম্যানুয়াল ইনস্টলেশন।</p><a class="more" href="/ternux/docs/">ডকস খুলুন →</a></article>
-        <article class="card"><h3>পরিচালনা</h3><p>দৈনন্দিন ব্যবহার · কনফিগারেশন · ট্রাবলশুটিং · সিএলআই রেফারেন্স।</p><a class="more" href="/ternux/docs/USAGE.html">গাইড খুলুন →</a></article>
-        <article class="card"><h3>বুঝুন ও অবদান রাখুন</h3><p>আর্কিটেকচার · প্রমাণ ও বেঞ্চমার্ক · এফএকিউ · কনট্রিবিউটিং।</p><a class="more" href="/ternux/docs/ARCHITECTURE.html">রেফারেন্স খুলুন →</a></article>
+        <article class="card"><h3>এখান থেকে শুরু</h3><p>ডকুমেন্টেশন ওভারভিউ · কুইক স্টার্ট · ইনস্টলেশন · ম্যানুয়াল ইনস্টলেশন।</p><a class="more" href="{{ '/docs/' | relative_url }}">ডকস খুলুন →</a></article>
+        <article class="card"><h3>পরিচালনা</h3><p>দৈনন্দিন ব্যবহার · কনফিগারেশন · ট্রাবলশুটিং · সিএলআই রেফারেন্স।</p><a class="more" href="{{ '/docs/USAGE.html' | relative_url }}">গাইড খুলুন →</a></article>
+        <article class="card"><h3>বুঝুন ও অবদান রাখুন</h3><p>আর্কিটেকচার · প্রমাণ ও বেঞ্চমার্ক · এফএকিউ · কনট্রিবিউটিং।</p><a class="more" href="{{ '/docs/ARCHITECTURE.html' | relative_url }}">রেফারেন্স খুলুন →</a></article>
       </div>
       <p class="note-amber">অ্যান্ড্রয়েড রুট নেই, লুকানো সীমানা নেই: টারনাক্স কখনো অ্যান্ড্রয়েড সিস্টেম পার্টিশন পরিবর্তন করে না। গেস্ট রুট পিআরুটের ভেতরে থাকে এবং তা কোনো নিরাপত্তা সীমানা নয় — শেয়ার করা স্টোরেজ ও আপনার উন্মুক্ত করা সার্ভিসের দায়িত্ব আপনারই।</p>
     </section>
@@ -412,10 +431,10 @@ ternux doctor    <span class="c"># কাঠামোগত ডায়াগ�
         <li><a href="https://soobujmiah.github.io/">পোর্টফোলিও</a></li>
         <li><a href="https://soobujmiah.github.io/adt/">এডিটি</a></li>
         <li><a href="https://github.com/soobujmiah/ternux">রিপোজিটরি</a></li>
-        <li><a href="/ternux/docs/">ডকুমেন্টেশন</a></li>
-        <li><a href="/ternux/CHANGELOG.html">চেঞ্জলগ</a></li>
+        <li><a href="{{ '/docs/' | relative_url }}">ডকুমেন্টেশন</a></li>
+        <li><a href="{{ '/CHANGELOG.html' | relative_url }}">চেঞ্জলগ</a></li>
         <li><a href="https://github.com/soobujmiah/ternux/blob/main/LICENSE">এমআইটি লাইসেন্স</a></li>
-        <li><a href="/ternux/" hreflang="en" lang="en">EN</a></li>
+        <li><a href="{{ '/' | relative_url }}" hreflang="en" lang="en">EN</a></li>
       </ul>
       <div class="row">
         <span>© ২০২৬ সবুজ মিয়া — টারনাক্স</span>
@@ -438,5 +457,6 @@ ternux doctor    <span class="c"># কাঠামোগত ডায়াগ�
     }
   })();
   </script>
+  <script src="{{ '/assets/js/effects.js' | relative_url }}" defer></script>
 </body>
 </html>
