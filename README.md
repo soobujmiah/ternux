@@ -8,6 +8,7 @@
 [![Platform](https://img.shields.io/badge/platform-Android%20arm64-38bdf8?style=flat-square)](https://github.com/soobujmiah/ternux)
 [![Shell](https://img.shields.io/badge/shell-Bash-8b5cf6?style=flat-square)](https://github.com/soobujmiah/ternux)
 [![License](https://img.shields.io/badge/license-MIT-22c55e?style=flat-square)](LICENSE)
+[![SEO audited](https://img.shields.io/badge/SEO-audited%202026--09--16-22c55e?style=flat-square)](docs/SEO.md)
 
 [Website](https://soobujmiah.github.io/ternux/) · [Documentation](https://soobujmiah.github.io/ternux/docs/) · [Quick start](docs/QUICK-START.md) · [Manual install](docs/MANUAL.md) · [Evidence](docs/BENCHMARKS.md) · [বাংলা](bn/README.md)
 
@@ -19,6 +20,13 @@
 PulseAudio bridge, a Zink/Turnip GPU route on supported Adreno devices, and a
 VirGL compatibility route for other cases. It also installs a permanent `ternux`
 CLI for starting, stopping, diagnosing, repairing and benchmarking the environment.
+
+In search terms: a **Linux desktop on Android** — a Termux Linux desktop running
+Debian on Android as a no-root, ARM64 Linux environment, with GPU-accelerated
+graphics where the device supports it. Ternux is built and maintained by
+[Sobuj Miah](https://soobujmiah.github.io/) ([@soobujmiah](https://github.com/soobujmiah));
+its sibling project [ADT](https://github.com/soobujmiah/adt) provides the native ARM64
+Android toolchain that runs inside it.
 
 > **Evidence policy:** the numbers below come from output supplied from one real
 > Redmi Turbo 4 Pro setup. They are not a promise for every phone. Measured,
