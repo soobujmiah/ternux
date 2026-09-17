@@ -104,7 +104,10 @@ alt_url: "/bn/"
   .term{border:1px solid var(--border2);border-radius:var(--r);background:var(--code);overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.4)}
   .term-top{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:11px;color:var(--muted)}
   .term-top .dots{display:flex;gap:5px;margin-right:6px}
-  .term-top .dots i{width:8px;height:8px;border-radius:50%;background:rgba(228,226,223,.14)}
+  .term-top .dots i{width:7px;height:7px;border-radius:50%;display:inline-block}
+  .term-top .dots i:first-child{background:#ef4444}
+  .term-top .dots i:nth-child(2){background:#f59e0b}
+  .term-top .dots i:nth-child(3){background:#22c55e}
   .term-body{padding:16px;font-family:var(--mono);font-size:12.4px;line-height:1.85;overflow-x:auto}
   .tl{display:flex;gap:10px}
   .tp{color:var(--accent-b);flex:none}
@@ -146,10 +149,10 @@ alt_url: "/bn/"
   .cb pre.cmd{margin:0;border:0;border-radius:0}
   .cb-top{height:34px;padding:0 8px 0 12px;display:flex;align-items:center;gap:10px;color:var(--muted);border-bottom:1px solid var(--border);background:rgba(255,255,255,.02);font-family:var(--mono);font-size:9px;letter-spacing:.06em;text-transform:uppercase}
   .cb-dots{display:flex;gap:5px}
-  .cb-dots i{width:6px;height:6px;display:block;border-radius:50%;background:#375049}
-  .cb-dots i:first-child{background:#d16c71}
-  .cb-dots i:nth-child(2){background:#c99b50}
-  .cb-dots i:nth-child(3){background:#4ca87f}
+  .cb-dots i{width:6px;height:6px;display:block;border-radius:50%}
+  .cb-dots i:first-child{background:#ef4444}
+  .cb-dots i:nth-child(2){background:#f59e0b}
+  .cb-dots i:nth-child(3){background:#22c55e}
   .cb-lang{margin-right:auto}
   .cb-copy{padding:4px 8px;color:var(--muted);border:1px solid transparent;border-radius:5px;background:transparent;font-family:var(--mono);font-size:9px;cursor:pointer}
   .cb-copy:hover,.cb-copy:focus-visible{color:var(--accent-b);border-color:var(--border2);background:var(--accent-s)}

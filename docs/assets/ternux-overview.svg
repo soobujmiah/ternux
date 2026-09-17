@@ -1,41 +1,41 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 420" role="img" aria-labelledby="title desc">
   <title id="title">Ternux architecture overview</title>
   <desc id="desc">Android hosts Termux, which runs Debian through PRoot, Xfce4 through Termux X11, audio through PulseAudio, and graphics through Zink Turnip on supported Adreno devices or VirGL as a fallback.</desc>
-  <rect width="1200" height="420" rx="28" fill="#0b1020"/>
-  <text x="60" y="58" fill="#f8fafc" font-family="sans-serif" font-size="30" font-weight="700">Ternux</text>
-  <text x="60" y="88" fill="#94a3b8" font-family="sans-serif" font-size="17">Linux desktop workspace on Android — no root</text>
-  <g font-family="sans-serif">
-    <rect x="60" y="135" width="210" height="190" rx="18" fill="#111827" stroke="#38bdf8" stroke-width="2"/>
-    <text x="85" y="172" fill="#38bdf8" font-size="20" font-weight="700">Android</text>
-    <text x="85" y="205" fill="#e2e8f0" font-size="16">Native ARM64 hardware</text>
-    <text x="85" y="232" fill="#94a3b8" font-size="15">CPU • memory • GPU</text>
-    <text x="85" y="272" fill="#94a3b8" font-size="15">Existing Android kernel</text>
-    <text x="85" y="299" fill="#94a3b8" font-size="15">No system root required</text>
+  <rect width="1200" height="420" rx="20" fill="#050507" stroke="rgba(228,226,223,0.08)" stroke-width="1"/>
+  <text x="60" y="58" fill="#e4e2df" font-family="'Space Grotesk', system-ui, sans-serif" font-size="28" font-weight="700" letter-spacing="-0.02em">ternux</text>
+  <text x="60" y="88" fill="rgba(228,226,223,0.5)" font-family="'JetBrains Mono', monospace" font-size="14" letter-spacing="0.04em">Linux desktop workspace on Android — no root · ARM64</text>
+  <g font-family="system-ui, -apple-system, sans-serif">
+    <rect x="60" y="135" width="210" height="190" rx="14" fill="#090d0b" stroke="rgba(34,211,238,0.4)" stroke-width="1.5"/>
+    <text x="85" y="172" fill="#22d3ee" font-size="18" font-weight="700" font-family="'Space Grotesk', sans-serif">Android</text>
+    <text x="85" y="205" fill="#e4e2df" font-size="15">Native ARM64 hardware</text>
+    <text x="85" y="232" fill="rgba(228,226,223,0.5)" font-size="14">CPU • memory • GPU</text>
+    <text x="85" y="272" fill="rgba(228,226,223,0.5)" font-size="14">Existing Android kernel</text>
+    <text x="85" y="299" fill="rgba(228,226,223,0.5)" font-size="14">No system root required</text>
 
-    <rect x="335" y="135" width="210" height="190" rx="18" fill="#111827" stroke="#a78bfa" stroke-width="2"/>
-    <text x="360" y="172" fill="#a78bfa" font-size="20" font-weight="700">Termux + PRoot</text>
-    <text x="360" y="205" fill="#e2e8f0" font-size="16">Linux host layer</text>
-    <text x="360" y="232" fill="#94a3b8" font-size="15">Packages • lifecycle</text>
-    <text x="360" y="272" fill="#94a3b8" font-size="15">Debian ARM64 userspace</text>
-    <text x="360" y="299" fill="#94a3b8" font-size="15">Userspace isolation</text>
+    <rect x="335" y="135" width="210" height="190" rx="14" fill="#090d0b" stroke="rgba(168,85,247,0.4)" stroke-width="1.5"/>
+    <text x="360" y="172" fill="#a855f7" font-size="18" font-weight="700" font-family="'Space Grotesk', sans-serif">Termux + PRoot</text>
+    <text x="360" y="205" fill="#e4e2df" font-size="15">Linux host layer</text>
+    <text x="360" y="232" fill="rgba(228,226,223,0.5)" font-size="14">Packages • lifecycle</text>
+    <text x="360" y="272" fill="rgba(228,226,223,0.5)" font-size="14">Debian ARM64 userspace</text>
+    <text x="360" y="299" fill="rgba(228,226,223,0.5)" font-size="14">Userspace isolation</text>
 
-    <rect x="610" y="135" width="210" height="190" rx="18" fill="#111827" stroke="#22c55e" stroke-width="2"/>
-    <text x="635" y="172" fill="#22c55e" font-size="20" font-weight="700">Debian + Xfce4</text>
-    <text x="635" y="205" fill="#e2e8f0" font-size="16">Desktop workspace</text>
-    <text x="635" y="232" fill="#94a3b8" font-size="15">Terminal • files • apps</text>
-    <text x="635" y="272" fill="#94a3b8" font-size="15">APT-managed userspace</text>
-    <text x="635" y="299" fill="#94a3b8" font-size="15">Development workloads</text>
+    <rect x="610" y="135" width="210" height="190" rx="14" fill="#090d0b" stroke="rgba(34,197,94,0.45)" stroke-width="1.5"/>
+    <text x="635" y="172" fill="#4ade80" font-size="18" font-weight="700" font-family="'Space Grotesk', sans-serif">Debian + Xfce4</text>
+    <text x="635" y="205" fill="#e4e2df" font-size="15">Desktop workspace</text>
+    <text x="635" y="232" fill="rgba(228,226,223,0.5)" font-size="14">Terminal • files • apps</text>
+    <text x="635" y="272" fill="rgba(228,226,223,0.5)" font-size="14">APT-managed userspace</text>
+    <text x="635" y="299" fill="rgba(228,226,223,0.5)" font-size="14">Development workloads</text>
 
-    <rect x="885" y="135" width="255" height="190" rx="18" fill="#111827" stroke="#f59e0b" stroke-width="2"/>
-    <text x="910" y="172" fill="#f59e0b" font-size="20" font-weight="700">Display + Graphics</text>
-    <text x="910" y="205" fill="#e2e8f0" font-size="16">Termux:X11 + PulseAudio</text>
-    <text x="910" y="232" fill="#94a3b8" font-size="15">Adreno → Zink → Turnip</text>
-    <text x="910" y="259" fill="#94a3b8" font-size="15">Fallback → VirGL</text>
-    <text x="910" y="299" fill="#94a3b8" font-size="15">Verify renderer before claims</text>
+    <rect x="885" y="135" width="255" height="190" rx="14" fill="#090d0b" stroke="rgba(245,158,11,0.4)" stroke-width="1.5"/>
+    <text x="910" y="172" fill="#f59e0b" font-size="18" font-weight="700" font-family="'Space Grotesk', sans-serif">Display + Graphics</text>
+    <text x="910" y="205" fill="#e4e2df" font-size="15">Termux:X11 + PulseAudio</text>
+    <text x="910" y="232" fill="rgba(228,226,223,0.5)" font-size="14">Adreno → Zink → Turnip</text>
+    <text x="910" y="259" fill="rgba(228,226,223,0.5)" font-size="14">Fallback → VirGL</text>
+    <text x="910" y="299" fill="rgba(228,226,223,0.5)" font-size="14">Verify renderer before claims</text>
   </g>
-  <g stroke="#64748b" stroke-width="2" fill="none">
+  <g stroke="rgba(228,226,223,0.2)" stroke-width="1.5" fill="none">
     <path d="M270 230h65"/><path d="M545 230h65"/><path d="M820 230h65"/>
   </g>
-  <g fill="#94a3b8"><path d="M330 223l10 7-10 7z"/><path d="M605 223l10 7-10 7z"/><path d="M880 223l10 7-10 7z"/></g>
-  <text x="60" y="375" fill="#64748b" font-family="sans-serif" font-size="14">Measured ≠ observed ≠ untested • See docs/BENCHMARKS.md for evidence and limitations</text>
+  <g fill="rgba(228,226,223,0.4)"><path d="M330 224l8 6-8 6z"/><path d="M605 224l8 6-8 6z"/><path d="M880 224l8 6-8 6z"/></g>
+  <text x="60" y="375" fill="rgba(228,226,223,0.4)" font-family="'JetBrains Mono', monospace" font-size="12">Measured ≠ observed ≠ untested • See docs/BENCHMARKS.md for evidence and limitations</text>
 </svg>
