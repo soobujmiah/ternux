@@ -21,7 +21,7 @@ alt_url: "/bn/"
   <link rel="alternate" hreflang="bn" href="https://soobujmiah.github.io/ternux/bn/">
   <link rel="alternate" hreflang="x-default" href="https://soobujmiah.github.io/ternux/">
   <meta property="og:type" content="website">
-  <meta property="og:site_name" content="Sobuj Miah project ecosystem">
+  <meta property="og:site_name" content="Ternux">
   <meta property="og:title" content="Ternux — Linux ARM64 desktop on Android">
   <meta property="og:description" content="Debian + Xfce4 on Android, no root. Measured Zink/Turnip GPU route on Adreno, VirGL fallback. One command, auditable Bash.">
   <meta property="og:url" content="https://soobujmiah.github.io/ternux/">
@@ -141,6 +141,21 @@ alt_url: "/bn/"
   /* commands */
   pre.cmd{background:var(--code);border:1px solid var(--border);border-radius:var(--r);padding:18px 20px;overflow-x:auto;font-family:var(--mono);font-size:12.8px;line-height:1.75;margin:0 0 18px;color:#d1fae5}
   pre.cmd .c{color:rgba(228,226,223,.35)}
+  /* code-copy affordance — same treatment as the docs pages, landing-page tokens */
+  .cb{position:relative;width:100%;margin:0 0 18px;overflow:hidden;border:1px solid var(--border2);border-radius:var(--r);background:var(--code)}
+  .cb pre.cmd{margin:0;border:0;border-radius:0}
+  .cb-top{height:34px;padding:0 8px 0 12px;display:flex;align-items:center;gap:10px;color:var(--muted);border-bottom:1px solid var(--border);background:rgba(255,255,255,.02);font-family:var(--mono);font-size:9px;letter-spacing:.06em;text-transform:uppercase}
+  .cb-dots{display:flex;gap:5px}
+  .cb-dots i{width:6px;height:6px;display:block;border-radius:50%;background:#375049}
+  .cb-dots i:first-child{background:#d16c71}
+  .cb-dots i:nth-child(2){background:#c99b50}
+  .cb-dots i:nth-child(3){background:#4ca87f}
+  .cb-lang{margin-right:auto}
+  .cb-copy{padding:4px 8px;color:var(--muted);border:1px solid transparent;border-radius:5px;background:transparent;font-family:var(--mono);font-size:9px;cursor:pointer}
+  .cb-copy:hover,.cb-copy:focus-visible{color:var(--accent-b);border-color:var(--border2);background:var(--accent-s)}
+  .cb-copy.copied{color:var(--accent)}
+  .cb-copy:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  @media print{.cb-top{display:none}}
   /* tables */
   .tbl-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--r);margin-bottom:14px}
   table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:560px}
@@ -363,7 +378,7 @@ ternux doctor    <span class="c"># structured diagnostics</span></pre>
           <div style="margin-top:10px"><span class="ev ev-u">Not yet tested</span></div>
         </article>
       </div>
-      <p class="note">Shared evidence vocabulary across this ecosystem — Verified · Measured · Observed · Experimental · Not yet tested · Not supported:</p>
+      <p class="note">Shared evidence vocabulary — Verified · Measured · Observed · Experimental · Not yet tested · Not supported:</p>
       <p style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px">
         <span class="ev ev-v">Verified</span><span class="ev ev-m">Measured</span><span class="ev ev-o">Observed</span><span class="ev ev-x">Experimental</span><span class="ev ev-u">Not yet tested</span><span class="ev ev-n">Not supported</span>
       </p>
@@ -439,7 +454,7 @@ ternux doctor    <span class="c"># structured diagnostics</span></pre>
       </ul>
       <div class="row">
         <span>© 2026 Sobuj Miah — Ternux</span>
-        <span>Part of the <a href="https://soobujmiah.github.io/">Sobuj Miah project ecosystem</a>. Evidence vocabulary: Verified · Measured · Observed · Experimental · Not yet tested · Not supported.</span>
+        <span>Evidence vocabulary: Verified · Measured · Observed · Experimental · Not yet tested · Not supported. <a href="https://soobujmiah.github.io/">soobujmiah.github.io</a></span>
       </div>
     </div>
   </footer>
@@ -458,6 +473,7 @@ ternux doctor    <span class="c"># structured diagnostics</span></pre>
     }
   })();
   </script>
+  <script src="{{ '/assets/js/codecopy.js' | relative_url }}" defer></script>
   <script src="{{ '/assets/js/effects.js' | relative_url }}" defer></script>
 </body>
 </html>

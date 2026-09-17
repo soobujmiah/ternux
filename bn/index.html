@@ -1,7 +1,7 @@
 ---
 layout: null
 title: "টারনাক্স — অ্যান্ড্রয়েডে লিনাক্স এআরএম৬৪ ডেস্কটপ"
-description: "পিআরুট ও টার্মাক্স:এক্স১১-এর মাধ্যমে অ্যান্ড্রয়েডে নো-রুট ডেবিয়ান এআরএম৬৪ + এক্সএফসই৪ ডেস্কটপ, সমর্থিত অ্যাড্রিনো ডিভাইসে পরিমাপকৃত জিঙ্ক/টার্নিপ জিপিইউ ত্বরণসহ।"
+description: "পি-রুট ও টার্মাক্স:এক্স১১-এর মাধ্যমে অ্যান্ড্রয়েডে নো-রুট ডেবিয়ান এআরএম৬৪ + এক্সএফসই৪ ডেস্কটপ, সমর্থিত অ্যাড্রিনো ডিভাইসে পরিমাপকৃত জিঙ্ক/টার্নিপ জিপিইউ ত্বরণসহ।"
 lang: "bn"
 alt_url: "/"
 ---
@@ -21,7 +21,7 @@ alt_url: "/"
   <link rel="alternate" hreflang="bn" href="https://soobujmiah.github.io/ternux/bn/">
   <link rel="alternate" hreflang="x-default" href="https://soobujmiah.github.io/ternux/">
   <meta property="og:type" content="website">
-  <meta property="og:site_name" content="Sobuj Miah project ecosystem">
+  <meta property="og:site_name" content="Ternux">
   <meta property="og:title" content="টারনাক্স — অ্যান্ড্রয়েডে লিনাক্স এআরএম৬৪ ডেস্কটপ">
   <meta property="og:description" content="অ্যান্ড্রয়েডে ডেবিয়ান + এক্সএফসই৪, রুট ছাড়াই। অ্যাড্রিনোতে পরিমাপকৃত জিঙ্ক/টার্নিপ জিপিইউ পথ, ভার্জিএল ফলব্যাক। এক কমান্ড, নিরীক্ষণযোগ্য ব্যাশ।">
   <meta property="og:url" content="https://soobujmiah.github.io/ternux/bn/">
@@ -140,6 +140,21 @@ alt_url: "/"
   /* commands */
   pre.cmd{background:var(--code);border:1px solid var(--border);border-radius:var(--r);padding:18px 20px;overflow-x:auto;font-family:var(--mono);font-size:12.8px;line-height:1.75;margin:0 0 18px;color:#d1fae5}
   pre.cmd .c{color:rgba(228,226,223,.35)}
+  /* code-copy affordance — same treatment as the docs pages, landing-page tokens */
+  .cb{position:relative;width:100%;margin:0 0 18px;overflow:hidden;border:1px solid var(--border2);border-radius:var(--r);background:var(--code)}
+  .cb pre.cmd{margin:0;border:0;border-radius:0}
+  .cb-top{height:34px;padding:0 8px 0 12px;display:flex;align-items:center;gap:10px;color:var(--muted);border-bottom:1px solid var(--border);background:rgba(255,255,255,.02);font-family:var(--mono);font-size:9px;letter-spacing:.06em;text-transform:uppercase}
+  .cb-dots{display:flex;gap:5px}
+  .cb-dots i{width:6px;height:6px;display:block;border-radius:50%;background:#375049}
+  .cb-dots i:first-child{background:#d16c71}
+  .cb-dots i:nth-child(2){background:#c99b50}
+  .cb-dots i:nth-child(3){background:#4ca87f}
+  .cb-lang{margin-right:auto}
+  .cb-copy{padding:4px 8px;color:var(--muted);border:1px solid transparent;border-radius:5px;background:transparent;font-family:var(--mono);font-size:9px;cursor:pointer}
+  .cb-copy:hover,.cb-copy:focus-visible{color:var(--accent-b);border-color:var(--border2);background:var(--accent-s)}
+  .cb-copy.copied{color:var(--accent)}
+  .cb-copy:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  @media print{.cb-top{display:none}}
   /* tables */
   .tbl-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--r);margin-bottom:14px}
   table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:560px}
@@ -270,7 +285,7 @@ alt_url: "/"
           <thead><tr><th>স্তর</th><th>কম্পোনেন্ট</th><th>উদ্দেশ্য</th></tr></thead>
           <tbody>
             <tr><td>অ্যান্ড্রয়েড অ্যাপ</td><td><strong>টার্মাক্স:এক্স১১</strong></td><td>অ্যান্ড্রয়েডে লিনাক্স এক্স১১ ডেস্কটপ দেখায়</td></tr>
-            <tr><td>টার্মাক্স হোস্ট</td><td><code>termux-x11</code>, পালসঅডিও, পিআরুট ডিস্ট্রো</td><td>ডিসপ্লে সকেট, অ্যান্ড্রয়েড অডিও, কনটেইনার লাইফসাইকেল</td></tr>
+            <tr><td>টার্মাক্স হোস্ট</td><td><code>termux-x11</code>, পালসঅডিও, পি-রুট ডিস্ট্রো</td><td>ডিসপ্লে সকেট, অ্যান্ড্রয়েড অডিও, কনটেইনার লাইফসাইকেল</td></tr>
             <tr><td>লিনাক্স গেস্ট</td><td><strong>ডেবিয়ান এআরএম৬৪</strong></td><td>আদর্শ apt-ব্যবস্থাপিত গ্নু/লিনাক্স ইউজারস্পেস</td></tr>
             <tr><td>ডেস্কটপ</td><td><strong>এক্সএফসই৪</strong></td><td>হালকা ডেস্কটপ, টার্মিনাল, ফাইল ম্যানেজার</td></tr>
             <tr><td>অ্যাড্রিনো গ্রাফিক্স</td><td>মেসা <strong>জিঙ্ক → টার্নিপ → কেজিএসএল</strong></td><td>ওপেনজিএল ভালকানে রূপান্তরিত হয়ে কোয়ালকম জিপিইউতে যায়</td></tr>
@@ -280,7 +295,7 @@ alt_url: "/"
         </table>
       </div>
       <div class="grid">
-        <article class="card"><h3><span class="n">০১</span>রুট নেই, বুটলোডার পরিবর্তন নেই</h3><p>শুধু পিআরুট ইউজারস্পেস। অ্যান্ড্রয়েড সিস্টেম পার্টিশন কখনো পরিবর্তিত হয় না; পিআরুটের ভেতরের গেস্ট রুট কোনো নিরাপত্তা সীমানা নয়।</p></article>
+        <article class="card"><h3><span class="n">০১</span>রুট নেই, বুটলোডার পরিবর্তন নেই</h3><p>শুধু পি-রুট ইউজারস্পেস। অ্যান্ড্রয়েড সিস্টেম পার্টিশন কখনো পরিবর্তিত হয় না; পি-রুটের ভেতরের গেস্ট রুট কোনো নিরাপত্তা সীমানা নয়।</p></article>
         <article class="card"><h3><span class="n">০২</span>সুস্পষ্ট গ্রাফিক্স পথ</h3><p>যেখানে অ্যাড্রিনো ড্রাইভার পথ সমর্থিত সেখানে জিঙ্ক/টার্নিপ; সার্বজনীন সামঞ্জস্য পথ হিসেবে ভার্জিএল। শুধু একটি কাজ করা ডেস্কটপকে কখনো হার্ডওয়্যার রেন্ডারিংয়ের প্রমাণ হিসেবে দেখানো হয় না।</p></article>
         <article class="card"><h3><span class="n">০৩</span>সবকিছু নিরীক্ষণযোগ্য</h3><p>সহজ ব্যাশ যা চালানোর আগেই পড়া যায়: ক্লোন-ফার্স্ট রিভিউ পথ, সিনট্যাক্স পরীক্ষা এবং টারনাক্স.লগ-এ সম্পূর্ণ ইনস্টলার লগ।</p></article>
         <article class="card"><h3><span class="n">০৪</span>বাস্তব অ্যাপ্লিকেশন</h3><p>এক্সএফসই টার্মিনাল, ভিএলসি, মেসা ও ভালকান ইউটিলিটি অন্তর্ভুক্ত; ডেভেলপমেন্ট টুল, লামা.সিপিপি, মিডিয়া টুল ও ব্লেন্ডার ঐচ্ছিক।</p></article>
@@ -294,7 +309,7 @@ alt_url: "/"
       <div class="flow" role="list" aria-label="The Ternux stack">
         <div class="stage" role="listitem"><div class="t">অ্যান্ড্রয়েড</div><div class="d">কার্নেল · কেজিএসএল ড্রাইভার</div></div>
         <div class="stage" role="listitem"><div class="t">টার্মাক্স</div><div class="d">হোস্ট সার্ভিস · ডিসপ্লে সকেট</div></div>
-        <div class="stage hot" role="listitem"><div class="t">পিআরুট ডেবিয়ান</div><div class="d">আর্ম৬৪ ইউজারস্পেস</div></div>
+        <div class="stage hot" role="listitem"><div class="t">পি-রুট ডেবিয়ান</div><div class="d">আর্ম৬৪ ইউজারস্পেস</div></div>
         <div class="stage" role="listitem"><div class="t">মেসা</div><div class="d">জিঙ্ক · টার্নিপ · ভার্জিএল</div></div>
         <div class="stage" role="listitem"><div class="t">এক্সএফসই৪</div><div class="d">টার্মাক্স:এক্স১১ ডেস্কটপ</div></div>
       </div>
@@ -362,7 +377,7 @@ ternux doctor    <span class="c"># কাঠামোগত ডায়াগ�
           <div style="margin-top:10px"><span class="ev ev-u">এখনো পরীক্ষিত নয়</span></div>
         </article>
       </div>
-      <p class="note">এই ইকোসিস্টেমে যৌথ প্রমাণ শব্দভাণ্ডার — যাচাইকৃত · পরিমাপকৃত · পর্যবেক্ষিত · পরীক্ষামূলক · এখনো পরীক্ষিত নয় · সমর্থিত নয়:</p>
+      <p class="note">যৌথ প্রমাণ শব্দভাণ্ডার — যাচাইকৃত · পরিমাপকৃত · পর্যবেক্ষিত · পরীক্ষামূলক · এখনো পরীক্ষিত নয় · সমর্থিত নয়:</p>
       <p style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px">
         <span class="ev ev-v">যাচাইকৃত</span><span class="ev ev-m">পরিমাপকৃত</span><span class="ev ev-o">পর্যবেক্ষিত</span><span class="ev ev-x">পরীক্ষামূলক</span><span class="ev ev-u">এখনো পরীক্ষিত নয়</span><span class="ev ev-n">সমর্থিত নয়</span>
       </p>
@@ -393,7 +408,7 @@ ternux doctor    <span class="c"># কাঠামোগত ডায়াগ�
       <div class="grid">
         <article class="card">
           <h3>টারনাক্স — এই প্রজেক্ট</h3>
-          <p>লিনাক্স ডেস্কটপ স্তর: পিআরুট ও টার্মাক্স:এক্স১১-এর মাধ্যমে অ্যান্ড্রয়েডে নো-রুট ডেবিয়ান + এক্সএফসই৪, সমর্থিত অ্যাড্রিনো ডিভাইসে পরিমাপকৃত জিপিইউ ত্বরণসহ।</p>
+          <p>লিনাক্স ডেস্কটপ স্তর: পি-রুট ও টার্মাক্স:এক্স১১-এর মাধ্যমে অ্যান্ড্রয়েডে নো-রুট ডেবিয়ান + এক্সএফসই৪, সমর্থিত অ্যাড্রিনো ডিভাইসে পরিমাপকৃত জিপিইউ ত্বরণসহ।</p>
         </article>
         <article class="card">
           <h3>এডিটি — টুলচেইন স্তর</h3>
@@ -402,7 +417,7 @@ ternux doctor    <span class="c"># কাঠামোগত ডায়াগ�
         </article>
         <article class="card">
           <h3>যাচাইকৃত বনাম পরীক্ষামূলক</h3>
-          <p>দুটি প্রজেক্টই একই টার্মাক্স + পিআরুট ডেবিয়ান ভিত্তির উপর আলাদাভাবে যাচাইকৃত (রেডমি টার্বো ৪ প্রো)। ক্রস-প্রজেক্ট ওয়ার্কফ্লো — যেমন টারনাক্স ডেস্কটপ সেশনের ভেতরে এডিটি টুল চালানো — বাস্তবে একসাথে চলে কিন্তু এখনো আনুষ্ঠানিকভাবে পরীক্ষিত নয়; সেগুলো পরীক্ষামূলক থেকে যায়।</p>
+          <p>দুটি প্রজেক্টই একই টার্মাক্স + পি-রুট ডেবিয়ান ভিত্তির উপর আলাদাভাবে যাচাইকৃত (রেডমি টার্বো ৪ প্রো)। ক্রস-প্রজেক্ট ওয়ার্কফ্লো — যেমন টারনাক্স ডেস্কটপ সেশনের ভেতরে এডিটি টুল চালানো — বাস্তবে একসাথে চলে কিন্তু এখনো আনুষ্ঠানিকভাবে পরীক্ষিত নয়; সেগুলো পরীক্ষামূলক থেকে যায়।</p>
         </article>
       </div>
       <div class="actions">
@@ -420,7 +435,7 @@ ternux doctor    <span class="c"># কাঠামোগত ডায়াগ�
         <article class="card"><h3>পরিচালনা</h3><p>দৈনন্দিন ব্যবহার · কনফিগারেশন · ট্রাবলশুটিং · সিএলআই রেফারেন্স।</p><a class="more" href="{{ '/docs/USAGE.html' | relative_url }}">গাইড খুলুন →</a></article>
         <article class="card"><h3>বুঝুন ও অবদান রাখুন</h3><p>আর্কিটেকচার · প্রমাণ ও বেঞ্চমার্ক · এফএকিউ · কনট্রিবিউটিং।</p><a class="more" href="{{ '/docs/ARCHITECTURE.html' | relative_url }}">রেফারেন্স খুলুন →</a></article>
       </div>
-      <p class="note-amber">অ্যান্ড্রয়েড রুট নেই, লুকানো সীমানা নেই: টারনাক্স কখনো অ্যান্ড্রয়েড সিস্টেম পার্টিশন পরিবর্তন করে না। গেস্ট রুট পিআরুটের ভেতরে থাকে এবং তা কোনো নিরাপত্তা সীমানা নয় — শেয়ার করা স্টোরেজ ও আপনার উন্মুক্ত করা সার্ভিসের দায়িত্ব আপনারই।</p>
+      <p class="note-amber">অ্যান্ড্রয়েড রুট নেই, লুকানো সীমানা নেই: টারনাক্স কখনো অ্যান্ড্রয়েড সিস্টেম পার্টিশন পরিবর্তন করে না। গেস্ট রুট পি-রুটের ভেতরে থাকে এবং তা কোনো নিরাপত্তা সীমানা নয় — শেয়ার করা স্টোরেজ ও আপনার উন্মুক্ত করা সার্ভিসের দায়িত্ব আপনারই।</p>
     </section>
 
   </main>
@@ -438,7 +453,7 @@ ternux doctor    <span class="c"># কাঠামোগত ডায়াগ�
       </ul>
       <div class="row">
         <span>© ২০২৬ সবুজ মিয়া — টারনাক্স</span>
-        <span><a href="https://soobujmiah.github.io/">সবুজ মিয়া প্রজেক্ট ইকোসিস্টেমের</a> অংশ। প্রমাণ শব্দভাণ্ডার: যাচাইকৃত · পরিমাপকৃত · পর্যবেক্ষিত · পরীক্ষামূলক · এখনো পরীক্ষিত নয় · সমর্থিত নয়।</span>
+        <span>প্রমাণ শব্দভাণ্ডার: যাচাইকৃত · পরিমাপকৃত · পর্যবেক্ষিত · পরীক্ষামূলক · এখনো পরীক্ষিত নয় · সমর্থিত নয়। <a href="https://soobujmiah.github.io/">soobujmiah.github.io</a></span>
       </div>
     </div>
   </footer>
@@ -457,6 +472,7 @@ ternux doctor    <span class="c"># কাঠামোগত ডায়াগ�
     }
   })();
   </script>
+  <script src="{{ '/assets/js/codecopy.js' | relative_url }}" defer></script>
   <script src="{{ '/assets/js/effects.js' | relative_url }}" defer></script>
 </body>
 </html>
