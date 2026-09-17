@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 420" role="img" aria-labelledby="title desc">
+  <title id="title">Ternux architecture overview</title>
+  <desc id="desc">Android hosts Termux, which runs Debian through PRoot, Xfce4 through Termux X11, audio through PulseAudio, and graphics through Zink Turnip on supported Adreno devices or VirGL as a fallback.</desc>
+  <rect width="1200" height="420" rx="28" fill="#0b1020"/>
+  <text x="60" y="58" fill="#f8fafc" font-family="sans-serif" font-size="30" font-weight="700">Ternux</text>
+  <text x="60" y="88" fill="#94a3b8" font-family="sans-serif" font-size="17">Linux desktop workspace on Android — no root</text>
+  <g font-family="sans-serif">
+    <rect x="60" y="135" width="210" height="190" rx="18" fill="#111827" stroke="#38bdf8" stroke-width="2"/>
+    <text x="85" y="172" fill="#38bdf8" font-size="20" font-weight="700">Android</text>
+    <text x="85" y="205" fill="#e2e8f0" font-size="16">Native ARM64 hardware</text>
+    <text x="85" y="232" fill="#94a3b8" font-size="15">CPU • memory • GPU</text>
+    <text x="85" y="272" fill="#94a3b8" font-size="15">Existing Android kernel</text>
+    <text x="85" y="299" fill="#94a3b8" font-size="15">No system root required</text>
+
+    <rect x="335" y="135" width="210" height="190" rx="18" fill="#111827" stroke="#a78bfa" stroke-width="2"/>
+    <text x="360" y="172" fill="#a78bfa" font-size="20" font-weight="700">Termux + PRoot</text>
+    <text x="360" y="205" fill="#e2e8f0" font-size="16">Linux host layer</text>
+    <text x="360" y="232" fill="#94a3b8" font-size="15">Packages • lifecycle</text>
+    <text x="360" y="272" fill="#94a3b8" font-size="15">Debian ARM64 userspace</text>
+    <text x="360" y="299" fill="#94a3b8" font-size="15">Userspace isolation</text>
+
+    <rect x="610" y="135" width="210" height="190" rx="18" fill="#111827" stroke="#22c55e" stroke-width="2"/>
+    <text x="635" y="172" fill="#22c55e" font-size="20" font-weight="700">Debian + Xfce4</text>
+    <text x="635" y="205" fill="#e2e8f0" font-size="16">Desktop workspace</text>
+    <text x="635" y="232" fill="#94a3b8" font-size="15">Terminal • files • apps</text>
+    <text x="635" y="272" fill="#94a3b8" font-size="15">APT-managed userspace</text>
+    <text x="635" y="299" fill="#94a3b8" font-size="15">Development workloads</text>
+
+    <rect x="885" y="135" width="255" height="190" rx="18" fill="#111827" stroke="#f59e0b" stroke-width="2"/>
+    <text x="910" y="172" fill="#f59e0b" font-size="20" font-weight="700">Display + Graphics</text>
+    <text x="910" y="205" fill="#e2e8f0" font-size="16">Termux:X11 + PulseAudio</text>
+    <text x="910" y="232" fill="#94a3b8" font-size="15">Adreno → Zink → Turnip</text>
+    <text x="910" y="259" fill="#94a3b8" font-size="15">Fallback → VirGL</text>
+    <text x="910" y="299" fill="#94a3b8" font-size="15">Verify renderer before claims</text>
+  </g>
+  <g stroke="#64748b" stroke-width="2" fill="none">
+    <path d="M270 230h65"/><path d="M545 230h65"/><path d="M820 230h65"/>
+  </g>
+  <g fill="#94a3b8"><path d="M330 223l10 7-10 7z"/><path d="M605 223l10 7-10 7z"/><path d="M880 223l10 7-10 7z"/></g>
+  <text x="60" y="375" fill="#64748b" font-family="sans-serif" font-size="14">Measured ≠ observed ≠ untested • See docs/BENCHMARKS.md for evidence and limitations</text>
+</svg>
