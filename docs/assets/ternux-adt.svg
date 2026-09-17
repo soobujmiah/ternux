@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 500" role="img" aria-labelledby="title desc">
+  <title id="title">Ternux and ADT combined workflow</title>
+  <desc id="desc">Ternux provides the Debian desktop workspace on Android, while ADT provides the native ARM64 Android build and signing toolchain. They can coexist on the same Termux and PRoot foundation; the combined workflow is experimental until formally measured.</desc>
+  <rect width="1200" height="500" rx="28" fill="#0b1020"/>
+  <text x="60" y="58" fill="#f8fafc" font-family="sans-serif" font-size="30" font-weight="700">Ternux + ADT</text>
+  <text x="60" y="88" fill="#94a3b8" font-family="sans-serif" font-size="17">Two layers of one ARM64 Android development workspace</text>
+  <rect x="60" y="135" width="1080" height="90" rx="18" fill="#111827" stroke="#38bdf8" stroke-width="2"/>
+  <text x="90" y="173" fill="#38bdf8" font-family="sans-serif" font-size="20" font-weight="700">Android ARM64 device</text>
+  <text x="90" y="202" fill="#cbd5e1" font-family="sans-serif" font-size="15">Native CPU • memory • Android kernel • device hardware</text>
+  <g font-family="sans-serif">
+    <rect x="60" y="270" width="500" height="155" rx="18" fill="#111827" stroke="#22c55e" stroke-width="2"/>
+    <text x="90" y="310" fill="#22c55e" font-size="24" font-weight="700">TERNux</text>
+    <text x="90" y="341" fill="#e2e8f0" font-size="16">Debian + Xfce4 desktop workspace</text>
+    <text x="90" y="370" fill="#94a3b8" font-size="15">Termux + PRoot • X11 • audio</text>
+    <text x="90" y="397" fill="#94a3b8" font-size="15">Zink/Turnip on supported Adreno • VirGL fallback</text>
+
+    <rect x="640" y="270" width="500" height="155" rx="18" fill="#111827" stroke="#a78bfa" stroke-width="2"/>
+    <text x="670" y="310" fill="#a78bfa" font-size="24" font-weight="700">ADT</text>
+    <text x="670" y="341" fill="#e2e8f0" font-size="16">Native Linux ARM64 Android toolchain</text>
+    <text x="670" y="370" fill="#94a3b8" font-size="15">Build-tools • platform-tools • ADB</text>
+    <text x="670" y="397" fill="#94a3b8" font-size="15">APK build • signing • device installation</text>
+  </g>
+  <path d="M600 225v35M310 225v45M890 225v45" stroke="#64748b" stroke-width="2" fill="none"/>
+  <path d="M600 260l-8-12h16zM310 270l-8-12h16zM890 270l-8-12h16z" fill="#64748b"/>
+  <text x="60" y="463" fill="#64748b" font-family="sans-serif" font-size="14">Coexistence is practical; the cross-project workflow remains experimental until formally tested and measured.</text>
+</svg>
