@@ -558,6 +558,9 @@ Reload and start:
 
 ```bash
 source ~/.bashrc
+```
+
+```bash
 x
 ```
 

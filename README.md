@@ -125,6 +125,9 @@ Then follow the maintained guide for the **complete Zink/Turnip or VirGL setup, 
 
 ```bash
 source ~/.bashrc
+```
+
+```bash
 x
 ```
 
@@ -138,7 +141,13 @@ Open the Termux:X11 app, then verify the actual renderer:
 
 ```bash
 glxinfo -B
+```
+
+```bash
 vulkaninfo --summary
+```
+
+```bash
 pactl info
 ```
 

@@ -548,6 +548,9 @@ EOF
 
 ```bash
 source ~/.bashrc
+```
+
+```bash
 x
 ```
 

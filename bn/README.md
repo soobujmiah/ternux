@@ -177,6 +177,9 @@ exit
 
 ```bash
 source ~/.bashrc
+```
+
+```bash
 x
 ```
 
@@ -190,7 +193,13 @@ Termux:X11 অ্যাপ খুলুন, তারপর প্রকৃত r
 
 ```bash
 glxinfo -B
+```
+
+```bash
 vulkaninfo --summary
+```
+
+```bash
 pactl info
 ```
 

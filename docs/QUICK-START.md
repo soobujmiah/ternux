@@ -68,6 +68,9 @@ bash install.sh
 
 ```bash
 source ~/.bashrc
+```
+
+```bash
 x
 ```
 
