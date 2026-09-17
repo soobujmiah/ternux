@@ -114,7 +114,7 @@ The design choices that matter:
   paths, the two selected members must be regular files, and only those two
   members are staged and installed. Other legitimate archive symlinks are not
   extracted.
-- **Auditable installer** — one plain-text file, MIT licensed; read it before
+- **Auditable installer** — one plain-text file, Apache-2.0 licensed; read it before
   you run it.
 
 The usual rules still apply: don't run untrusted binaries as root inside the
@@ -142,8 +142,8 @@ sudo dpkg-reconfigure locales
 
 ## Is ternux really free?
 
-Yes. MIT licensed — code and documentation. Built and maintained by
-[Sobuj Miah](https://github.com/soobujmiah). Contributions welcome.
+Yes. Apache-2.0 licensed — code and documentation. Built and maintained by
+[Sobuj Miah (@soobujmiah)](https://github.com/soobujmiah). Contributions welcome.
 
 ## What is it NOT for?
 
@@ -160,4 +160,4 @@ data-loss risks.
 
 ---
 
-*ternux — Copyright (c) 2026 Sobuj Miah ([@soobujmiah](https://github.com/soobujmiah)) · MIT*
+*ternux — Copyright (c) 2026 Sobuj Miah ([@soobujmiah](https://github.com/soobujmiah)) · Apache-2.0*

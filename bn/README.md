@@ -1,6 +1,6 @@
 ---
 title: "ternux"
-description: "একটি কমান্ডে Android ফোনে Debian ডেস্কটপ ও যাচাইযোগ্য গ্রাফিক্স পথ। root ছাড়া, ARM64, MIT লাইসেন্স।"
+description: "একটি কমান্ডে Android ফোনে Debian ডেস্কটপ ও যাচাইযোগ্য গ্রাফিক্স পথ। root ছাড়া, ARM64, Apache-2.0 লাইসেন্স।"
 lang: "bn"
 alt_url: "/README.html"
 ---
@@ -13,7 +13,7 @@ alt_url: "/README.html"
 
 [![সংস্করণ](https://img.shields.io/badge/version-1.4.0-00e5a0?style=flat-square)](https://github.com/soobujmiah/ternux/releases)
 [![প্ল্যাটফর্ম](https://img.shields.io/badge/platform-Android%20arm64-38bdf8?style=flat-square)](https://github.com/soobujmiah/ternux)
-[![লাইসেন্স](https://img.shields.io/badge/license-MIT-22c55e?style=flat-square)](../LICENSE)
+[![লাইসেন্স](https://img.shields.io/badge/license-Apache--2.0-22c55e?style=flat-square)](../LICENSE)
 
 [ডকুমেন্টেশন](../docs/README.md) · [দ্রুত শুরু](../docs/QUICK-START.md) · [ম্যানুয়াল ইনস্টল](../docs/MANUAL.md) · [বেঞ্চমার্ক](../docs/BENCHMARKS.md) · [সমস্যা সমাধান](../docs/TROUBLESHOOTING.md) · [কমান্ড নির্দেশিকা](../docs/CLI.md) · [ইংরেজি](../README.md)
 
@@ -324,4 +324,4 @@ Termux, Termux:X11, PRoot, Mesa/Zink, glmark2, Blender, llama.cpp ও stable-dif
 
 ## লাইসেন্স
 
-[MIT](../LICENSE) © 2026 [Sobuj Miah](https://github.com/soobujmiah)
+[Apache-2.0](../LICENSE) © 2026 [Sobuj Miah (@soobujmiah)](https://github.com/soobujmiah)

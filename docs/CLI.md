@@ -105,7 +105,7 @@ ternux restart
 
 ### `ternux doctor`
 
-Run comprehensive system diagnostics. Checks 11 categories:
+Run system diagnostics. Checks 11 categories:
 Termux environment, storage, PRoot/Debian, Termux:X11, PulseAudio,
 Vulkan, GPU/backend, renderer, Android child-process setting, launcher, VirGL.
 
@@ -354,4 +354,4 @@ Adding a new command:
 
 ---
 
-*ternux — Copyright (c) 2026 Sobuj Miah ([@soobujmiah](https://github.com/soobujmiah)) · MIT*
+*ternux — Copyright (c) 2026 Sobuj Miah ([@soobujmiah](https://github.com/soobujmiah)) · Apache-2.0*

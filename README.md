@@ -6,7 +6,7 @@
 
 [![Version](https://img.shields.io/badge/version-1.4.0-00e5a0?style=flat-square)](https://github.com/soobujmiah/ternux/releases)
 [![Platform](https://img.shields.io/badge/platform-Android%20arm64-38bdf8?style=flat-square)](https://github.com/soobujmiah/ternux)
-[![License](https://img.shields.io/badge/license-MIT-22c55e?style=flat-square)](LICENSE)
+[![License](https://img.shields.io/badge/license-Apache--2.0-22c55e?style=flat-square)](LICENSE)
 
 [Documentation](docs/README.md) · [Quick start](docs/QUICK-START.md) · [Manual install](docs/MANUAL.md) · [Benchmarks](docs/BENCHMARKS.md) · [Troubleshooting](docs/TROUBLESHOOTING.md) · [CLI](docs/CLI.md) · [বাংলা](bn/README.md)
 
@@ -294,4 +294,4 @@ Deep technical references for Termux, Termux:X11, PRoot, Mesa/Zink, glmark2, Ble
 
 ## License
 
-[MIT](LICENSE) © 2026 [Sobuj Miah](https://github.com/soobujmiah)
+[Apache-2.0](LICENSE) © 2026 [Sobuj Miah (@soobujmiah)](https://github.com/soobujmiah)

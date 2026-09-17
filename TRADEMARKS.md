@@ -1,11 +1,21 @@
-# ternux name and brand
+# ternux name and brand policy
 
 Copyright (c) 2026 Sobuj Miah (@soobujmiah)
 
-The `ternux` name, project identity, logos, artwork, badges, screenshots presented as project branding, and other marks used to identify the ternux project are not granted under the software license unless a separate notice says otherwise.
+The `ternux` name, project identity, logos, artwork, badges, and project branding are distinct from the software license. While the software source code is licensed under the Apache License, Version 2.0, the `ternux` name and project marks are not granted as an open brand.
 
-You may refer to ternux truthfully when describing compatibility, use, testing, forks, or derivative software. Do not present a modified or redistributed project as the official ternux project, and do not use the ternux name, logo, or other project branding in a way that suggests endorsement, sponsorship, authorship, or official support by Sobuj Miah without permission.
+### Permitted truthful references
 
-A fork or derivative may use its own project name and branding while preserving the required copyright and license notices for the code it contains.
+You may refer to ternux truthfully when describing compatibility, use, testing, forks, or derivative software. Examples of permitted nominative references include:
+- "compatible with ternux"
+- "fork of ternux"
+- "based on ternux"
 
-This file describes project-brand usage only. It does not replace or change the license that applies to the source code or to third-party components.
+### Restrictions on modified distributions
+
+If you modify or redistribute the software:
+- Do not present a modified or redistributed project as the official ternux project.
+- Do not use the ternux name, logo, or brand in any manner that falsely implies official TERNUX status, endorsement, sponsorship, official support, or authorship by Sobuj Miah.
+- Forks and derivative works must use their own project name and distinct branding, while preserving required copyright and license notices for the code they contain.
+
+This document covers project-brand and mark usage only. It does not alter the Apache License 2.0 terms governing the software source code or the terms governing third-party components.

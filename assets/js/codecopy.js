@@ -4,7 +4,8 @@
    (docs <pre> and landing-page .cmd blocks), and makes inline <code>
    click-to-copy. Skips decorative terminals. No dependencies.
 
-   Copyright (c) 2026 Sobuj Miah (@soobujmiah) — MIT
+   Copyright (c) 2026 Sobuj Miah (@soobujmiah)
+   Licensed under the Apache License, Version 2.0.
    ========================================================================== */
 (function () {
   "use strict";

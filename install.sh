@@ -7,7 +7,8 @@
 #    1. Repository:  bash install.sh        (lib/*.sh are local)
 #    2. Standalone:  curl ... | bash         (libs downloaded from GitHub)
 #
-#  Copyright (c) 2026 Sobuj Miah (@soobujmiah) — MIT License
+#  Copyright (c) 2026 Sobuj Miah (@soobujmiah)
+#  Licensed under the Apache License, Version 2.0.
 #  https://github.com/soobujmiah/ternux
 #
 #  Usage

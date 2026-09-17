@@ -1,7 +1,8 @@
 # =============================================================================
 #  ternux — help system and command registry
 #
-#  Copyright (c) 2026 Sobuj Miah (@soobujmiah) — MIT License
+#  Copyright (c) 2026 Sobuj Miah (@soobujmiah)
+#  Licensed under the Apache License, Version 2.0.
 #  https://github.com/soobujmiah/ternux
 # =============================================================================
 
@@ -95,7 +96,7 @@ HELP
 tnx_help_start()     { echo "Usage: ternux start"; echo "Start the Xfce4 desktop session."; }
 tnx_help_stop()      { echo "Usage: ternux stop"; echo "Stop the desktop session and clean up."; }
 tnx_help_restart()   { echo "Usage: ternux restart"; echo "Restart the desktop session."; }
-tnx_help_doctor()    { echo "Usage: ternux doctor [--json]"; echo "Run comprehensive system diagnostics. Supports --json for machine-readable output."; }
+tnx_help_doctor()    { echo "Usage: ternux doctor [--json]"; echo "Run system diagnostics. Supports --json for machine-readable output."; }
 tnx_help_repair()    { echo "Usage: ternux repair"; echo "Auto-fix common issues: broken curl, missing X11, backend mismatch, stale cache."; }
 tnx_help_verify()    { echo "Usage: ternux verify [--json]"; echo "Verify installation completeness. Checks binaries, launcher, container, GPU driver."; }
 tnx_help_benchmark() { echo "Usage: ternux benchmark [--json]"; echo "Run GPU benchmarks (glmark2, vkmark) and renderer verification."; }

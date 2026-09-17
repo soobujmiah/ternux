@@ -2,6 +2,10 @@
 # =============================================================================
 #  ternux guest companion — safe commands for the Debian/Xfce terminal
 #
+#  Copyright (c) 2026 Sobuj Miah (@soobujmiah)
+#  Licensed under the Apache License, Version 2.0.
+#  https://github.com/soobujmiah/ternux
+#
 #  Android-side lifecycle operations belong to the Termux host CLI. This
 #  companion intentionally does not try to start a nested PRoot session.
 # =============================================================================

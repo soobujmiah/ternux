@@ -104,7 +104,7 @@ battery management আছে। Termux ও Termux:X11 battery use *Unrestricted*
 - **যাচাইকৃত extraction** — unsafe path প্রত্যাখ্যান হয়, নির্বাচিত driver/ICD
   member দুটি regular file কিনা পরীক্ষা হয়, এবং শুধু সেগুলোই install হয়।
   Archive-এর অন্য বৈধ symlink extract করা হয় না।
-- **পরীক্ষাযোগ্য ইনস্টলার** — একটি প্লেইন-টেক্সট ফাইল, MIT লাইসেন্স; চালানোর
+- **পরীক্ষাযোগ্য ইনস্টলার** — একটি প্লেইন-টেক্সট ফাইল, Apache-2.0 লাইসেন্স; চালানোর
   আগে পড়ে নিন।
 
 সাধারণ নিয়ম তো আছেই: কন্টেইনারে অপরিচিত বাইনারি রুট হিসেবে চালাবেন না, আর
@@ -132,8 +132,8 @@ sudo dpkg-reconfigure locales
 
 ## ternux কি সত্যিই ফ্রি?
 
-হ্যাঁ। কোড ও ডকুমেন্টেশন MIT লাইসেন্সকৃত।
-নির্মাতা ও রক্ষণাবেক্ষণকারী: [Sobuj Miah](https://github.com/soobujmiah)।
+হ্যাঁ। কোড ও ডকুমেন্টেশন Apache-2.0 লাইসেন্সকৃত।
+নির্মাতা ও রক্ষণাবেক্ষণকারী: [Sobuj Miah (@soobujmiah)](https://github.com/soobujmiah)।
 কনট্রিবিউশন স্বাগত।
 
 ## এটি কীসের জন্য নয়?
@@ -149,4 +149,4 @@ code, heat, battery wear বা data loss-এর ঝুঁকি শূন্য
 
 ---
 
-*ternux — Copyright (c) 2026 Sobuj Miah ([@soobujmiah](https://github.com/soobujmiah)) · MIT*
+*ternux — Copyright (c) 2026 Sobuj Miah ([@soobujmiah](https://github.com/soobujmiah)) · Apache-2.0*

@@ -173,4 +173,4 @@ share/templates/        schemas and managed templates
 Maintainers may ask for a smaller scope, raw evidence, a regression, or language
 parity before merging. Review comments address the change, not the contributor.
 By participating, you agree to follow the [Code of Conduct](https://github.com/soobujmiah/ternux/blob/main/CODE_OF_CONDUCT.md).
-Contributions are accepted under the repository's [MIT License](https://github.com/soobujmiah/ternux/blob/main/LICENSE).
+Contributions are accepted under the repository's [Apache License 2.0](https://github.com/soobujmiah/ternux/blob/main/LICENSE).

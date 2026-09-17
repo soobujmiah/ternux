@@ -75,7 +75,7 @@ MESA_DISK_CACHE_SINGLE_FILE=1      Shader cache as one file, faster warm starts
 MESA_SHADER_CACHE_MAX_SIZE=2048M   Cap so the cache can't eat all storage
 MESA_SHADER_CACHE_DIR=/tmp/mesa_cache  Cache in the shared tmp (RAM-backed)
 QT_X11_NO_MITSHM=1 / _X11_NO_MITSHM=1  Disable MIT-SHM (broken over X11 here)
-XDG_RUNTIME_DIR=~/.runtime         Required by modern dbus/GTK apps
+XDG_RUNTIME_DIR=~/.runtime         Required by dbus/GTK apps
 --bind /dev/kgsl-3d0               Expose the Adreno kernel node to the container
 ```
 
@@ -87,7 +87,7 @@ consume gigabytes.
 
 ```text
 GALLIUM_DRIVER=virpipe              Route GL over the VirGL pipe
-MESA_GL_VERSION_OVERRIDE=4.3COMPAT  Advertise a modern GL version to apps
+MESA_GL_VERSION_OVERRIDE=4.3COMPAT  Advertise OpenGL 4.3 compatibility to apps
 MESA_GLES_VERSION_OVERRIDE=3.2
 ```
 
@@ -167,4 +167,4 @@ sudo apt-mark hold mesa-vulkan-drivers libgl1-mesa-dri libglx-mesa0 libgbm1 libe
 
 ---
 
-*ternux — Copyright (c) 2026 Sobuj Miah ([@soobujmiah](https://github.com/soobujmiah)) · MIT*
+*ternux — Copyright (c) 2026 Sobuj Miah ([@soobujmiah](https://github.com/soobujmiah)) · Apache-2.0*

@@ -176,4 +176,4 @@ Merge করার আগে maintainer ছোট scope, raw evidence, regressio
 চাইতে পারেন। Review comment change নিয়ে—contributor নিয়ে নয়। অংশগ্রহণ করে আপনি
 [আচরণবিধি](https://github.com/soobujmiah/ternux/blob/main/CODE_OF_CONDUCT.md)
 মানতে সম্মত হন। Contribution repository-এর
-[MIT License](https://github.com/soobujmiah/ternux/blob/main/LICENSE)-এর অধীনে গৃহীত হয়।
+[Apache License 2.0](https://github.com/soobujmiah/ternux/blob/main/LICENSE)-এর অধীনে গৃহীত হয়।

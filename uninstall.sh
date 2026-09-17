@@ -7,7 +7,8 @@
 #    bash uninstall.sh [session|launcher|state|container|all] [--yes]
 #    bash uninstall.sh [1|2|3|4|5] [--yes]
 #
-#  Copyright (c) 2026 Sobuj Miah (@soobujmiah) — MIT License
+#  Copyright (c) 2026 Sobuj Miah (@soobujmiah)
+#  Licensed under the Apache License, Version 2.0.
 #  https://github.com/soobujmiah/ternux
 # =============================================================================
 set -u

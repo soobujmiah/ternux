@@ -1,7 +1,8 @@
 # =============================================================================
 #  ternux — desktop lifecycle (start / stop / restart / status)
 #
-#  Copyright (c) 2026 Sobuj Miah (@soobujmiah) — MIT License
+#  Copyright (c) 2026 Sobuj Miah (@soobujmiah)
+#  Licensed under the Apache License, Version 2.0.
 #  https://github.com/soobujmiah/ternux
 # =============================================================================
 

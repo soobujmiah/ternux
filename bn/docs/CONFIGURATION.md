@@ -75,7 +75,7 @@ MESA_DISK_CACHE_SINGLE_FILE=1      শেডার ক্যাশ এক ফা
 MESA_SHADER_CACHE_MAX_SIZE=2048M   ক্যাপ — ক্যাশ যেন সব স্টোরেজ খেয়ে না নেয়
 MESA_SHADER_CACHE_DIR=/tmp/mesa_cache  শেয়ার্ড tmp-তে ক্যাশ (RAM-ব্যাকড)
 QT_X11_NO_MITSHM=1 / _X11_NO_MITSHM=1  MIT-SHM বন্ধ (এখানে X11-এ ভাঙা)
-XDG_RUNTIME_DIR=~/.runtime         আধুনিক dbus/GTK অ্যাপের জন্য দরকারি
+XDG_RUNTIME_DIR=~/.runtime         dbus/GTK অ্যাপের জন্য দরকারি
 --bind /dev/kgsl-3d0               Adreno কার্নেল নোড কন্টেইনারে উন্মুক্ত
 ```
 
@@ -86,7 +86,7 @@ XDG_RUNTIME_DIR=~/.runtime         আধুনিক dbus/GTK অ্যাপ�
 
 ```text
 GALLIUM_DRIVER=virpipe              GL VirGL পাইপে রুট
-MESA_GL_VERSION_OVERRIDE=4.3COMPAT  অ্যাপকে আধুনিক GL ভার্সন দেখানো
+MESA_GL_VERSION_OVERRIDE=4.3COMPAT  অ্যাপকে OpenGL 4.3 compatibility দেখানো
 MESA_GLES_VERSION_OVERRIDE=3.2
 ```
 
@@ -163,4 +163,4 @@ sudo apt-mark hold mesa-vulkan-drivers libgl1-mesa-dri libglx-mesa0 libgbm1 libe
 
 ---
 
-*ternux — Copyright (c) 2026 Sobuj Miah ([@soobujmiah](https://github.com/soobujmiah)) · MIT*
+*ternux — Copyright (c) 2026 Sobuj Miah ([@soobujmiah](https://github.com/soobujmiah)) · Apache-2.0*
