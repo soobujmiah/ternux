@@ -123,7 +123,9 @@ tnx_phase_packages() {
   tnx_spin_run "Enable X11 and TUR repositories" pkg install -y $APT_FORCE x11-repo tur-repo || rc=1
   tnx_spin_run "Install the Termux:X11 client" bash -c "pkg install -y $APT_FORCE termux-x11-nightly || pkg install -y $APT_FORCE termux-x11" || rc=1
   tnx_spin_run "Install PulseAudio, PRoot, VirGL and core tools" \
-    pkg install -y $APT_FORCE pulseaudio proot-distro virglrenderer-android zsh git curl wget nano tar termux-api || rc=1
+    bash -c "pkg install -y $APT_FORCE pulseaudio proot-distro virglrenderer-android zsh git curl wget nano tar termux-api || {
+      apt-get update -y && pkg install -y --fix-missing $APT_FORCE pulseaudio proot-distro virglrenderer-android zsh git curl wget nano tar termux-api
+    }" || rc=1
 
   local backend="${1:-auto}"
   if [ "$backend" = "zink" ] || { [ "$backend" = "auto" ] && [ -e /dev/kgsl-3d0 ]; }; then

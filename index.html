@@ -420,8 +420,12 @@ ternux doctor    <span class="c"># structured diagnostics</span></pre>
           <a class="more" href="https://soobujmiah.github.io/adt/">ADT website →</a>
         </article>
         <article class="card">
+          <h3>Host-device workflow</h3>
+          <p>Development and execution occur on the same physical Android hardware: Ternux builds the artifact in Debian userspace, while ADT installs and debugs it directly on the host device via ADB without external emulators.</p>
+        </article>
+        <article class="card">
           <h3>Verified vs experimental</h3>
-          <p>Both projects are verified separately on the same Termux + PRoot Debian foundation (Redmi Turbo 4 Pro). Cross-project workflows — for example running ADT tooling inside a Ternux desktop session — coexist in practice but are not yet formally tested; they remain experimental.</p>
+          <p>Both projects are verified separately on the same Termux + PRoot Debian foundation (Redmi Turbo 4 Pro). Cross-project workflows and closed-loop agent automation coexist architecturally but remain experimental until formally measured.</p>
         </article>
       </div>
       <div class="actions">
