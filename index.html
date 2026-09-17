@@ -330,12 +330,14 @@ alt_url: "/bn/"
         <article class="card"><h3><span class="n">03</span>Manual setup</h3><p>Perform the host, guest, desktop, audio, graphics, launcher, and verification steps command by command.</p><a class="more" href="{{ '/docs/MANUAL.html' | relative_url }}">Manual installation →</a></article>
       </div>
       <pre class="cmd"><span class="c"># one command — host installer</span>
-curl -fsSL https://soobujmiah.github.io/ternux/install.sh | bash
+curl -fsSL https://soobujmiah.github.io/ternux/install.sh | bash</pre>
 
-<span class="c"># afterwards, in Termux</span>
-ternux start     <span class="c"># launch the desktop session</span>
-ternux verify    <span class="c"># inspect the graphics route</span>
-ternux doctor    <span class="c"># structured diagnostics</span></pre>
+      <pre class="cmd"><span class="c"># afterwards, in Termux</span>
+ternux start     <span class="c"># launch the desktop session</span></pre>
+
+      <pre class="cmd">ternux verify    <span class="c"># inspect the graphics route</span></pre>
+
+      <pre class="cmd">ternux doctor    <span class="c"># structured diagnostics</span></pre>
     </section>
 
     <!-- GPU -->
