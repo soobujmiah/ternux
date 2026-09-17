@@ -1,69 +1,107 @@
 ---
 title: "ternux"
-description: "ternux-এর বাংলা README — এক কমান্ডে Android ফোনে Linux ডেস্কটপ ও যাচাইযোগ্য গ্রাফিক্স পথ। root ছাড়া, ফ্রি, MIT লাইসেন্স।"
+description: "একটি কমান্ডে Android ফোনে Debian ডেস্কটপ ও যাচাইযোগ্য গ্রাফিক্স পথ। root ছাড়া, ARM64, MIT লাইসেন্স।"
 lang: "bn"
 alt_url: "/README.html"
-
 ---
 
 <div align="center">
 
 # ternux
 
-**একটি কমান্ড। আপনার পকেটের ফোনেই Linux ডেস্কটপ ও যাচাইযোগ্য গ্রাফিক্স পথ।**
+### Android-এ Debian + Xfce4 — root ছাড়া, ARM64, যাচাইযোগ্য গ্রাফিক্স পথ
 
-Termux + PRoot Debian + Xfce4 — Adreno ডিভাইসে Zink/Turnip দিয়ে Vulkan,
-আর অন্যান্য GPU-তে পরীক্ষাযোগ্য VirGL সামঞ্জস্য পথ। **root লাগে না; মূল ইনস্টলের জন্য PC লাগে না।**
+[![সংস্করণ](https://img.shields.io/badge/version-1.4.0-00e5a0?style=flat-square)](https://github.com/soobujmiah/ternux/releases)
+[![প্ল্যাটফর্ম](https://img.shields.io/badge/platform-Android%20arm64-38bdf8?style=flat-square)](https://github.com/soobujmiah/ternux)
+[![লাইসেন্স](https://img.shields.io/badge/license-MIT-22c55e?style=flat-square)](../LICENSE)
 
-[![site](https://img.shields.io/badge/site-live-00ff41?style=flat-square)](https://soobujmiah.github.io/ternux/)
-[![licence](https://img.shields.io/badge/licence-MIT-00b32d?style=flat-square)](LICENSE)
-[![platform](https://img.shields.io/badge/Android-10%2B%20aarch64-ffb000?style=flat-square)](docs/INSTALLATION.md#requirements)
-
-**বাংলা** · [English](https://soobujmiah.github.io/ternux/) · [English README](../README.md)
-
-[ওয়েবসাইট](https://soobujmiah.github.io/ternux/bn/) ·
-[ডকুমেন্টেশন](https://soobujmiah.github.io/ternux/bn/docs/) ·
-[দ্রুত শুরু](docs/QUICK-START.md) ·
-[ম্যানুয়াল ইনস্টল](docs/MANUAL.md) ·
-[প্রমাণ](docs/BENCHMARKS.md)
+[ডকুমেন্টেশন](../docs/README.md) · [দ্রুত শুরু](../docs/QUICK-START.md) · [ম্যানুয়াল ইনস্টল](../docs/MANUAL.md) · [বেঞ্চমার্ক](../docs/BENCHMARKS.md) · [সমস্যা সমাধান](../docs/TROUBLESHOOTING.md) · [কমান্ড নির্দেশিকা](../docs/CLI.md) · [ইংরেজি](../README.md)
 
 </div>
 
 ---
 
+**ternux** Termux ও PRoot-এর মাধ্যমে একটি ARM64 Android ফোনকে Debian + Xfce4 Linux কর্মপরিবেশে রূপান্তর করে। এতে Termux:X11 প্রদর্শন, PulseAudio, স্থায়ী `ternux` নিয়ন্ত্রণ কমান্ড এবং সমর্থিত Adreno ডিভাইসে **Zink → Turnip**, অথবা বিকল্প হিসেবে **VirGL** গ্রাফিক্স পথ থাকে।
+
+**Android root প্রয়োজন নেই।** Debian বিদ্যমান Android kernel ব্যবহার করে; PRoot ব্যবহারকারীর স্তরে Linux পরিবেশ তৈরি করে। এটি Android-এর দ্বিতীয় kernel বা প্রচলিত ভার্চুয়াল মেশিন নয়।
+
+![ternux স্থাপত্য](../docs/assets/ternux-overview.svg)
+
+## শুরু করুন
+
+| আপনার প্রয়োজন | কোথা থেকে শুরু করবেন |
+|---|---|
+| দ্রুত ইনস্টল | [দ্রুত শুরু](../docs/QUICK-START.md) |
+| সব ধাপ নিজের নিয়ন্ত্রণে | [ম্যানুয়াল ইনস্টল](../docs/MANUAL.md) |
+| ইনস্টলার কীভাবে কাজ করে | [ইনস্টলেশন](../docs/INSTALLATION.md) |
+| সমস্যা সমাধান | [সমস্যা সমাধান](../docs/TROUBLESHOOTING.md) |
+| কমান্ডের পূর্ণ তালিকা | [কমান্ড নির্দেশিকা](../docs/CLI.md) |
+| গ্রাফিক্সের ফলাফল | [বেঞ্চমার্ক](../docs/BENCHMARKS.md) |
+
+## কী পাবেন
+
+- Android-এ পূর্ণাঙ্গ Debian + Xfce4 ডেস্কটপ
+- Termux:X11-এর মাধ্যমে প্রদর্শন
+- PulseAudio-এর মাধ্যমে অডিও
+- Adreno-তে Zink → Turnip গ্রাফিক্স পথ
+- অন্যান্য সমর্থিত GPU-তে VirGL সামঞ্জস্য পথ
+- `ternux` CLI দিয়ে শুরু, বন্ধ, যাচাই, মেরামত, তথ্য ও লগ ব্যবস্থাপনা
+- উন্নয়ন, স্থানীয় AI, মিডিয়া, নেটওয়ার্ক ও Blender-এর ঐচ্ছিক কর্মপরিবেশ
+
+সম্পূর্ণ স্থাপত্য, তথ্যপ্রবাহ ও প্যাকেজ আচরণ [স্থাপত্য](../docs/ARCHITECTURE.md) ও [ইনস্টলেশন](../docs/INSTALLATION.md)-এ রাখা আছে।
+
+---
+
+## ternux + ADT
+
+ternux হলো **Linux ডেস্কটপ/কর্মপরিবেশ স্তর**। [ADT](https://github.com/soobujmiah/adt) হলো **Android বিল্ড ও টুলচেইন স্তর**—Linux ARM64-এর জন্য বিল্ড-টুলস, প্ল্যাটফর্ম-টুলস, ADB, APK স্বাক্ষর ও ডিভাইসে ইনস্টলেশনের সরঞ্জাম।
+
+![ternux ও ADT](../docs/assets/ternux-adt.svg)
+
+দুটিই একই Termux + PRoot Debian ভিত্তির সঙ্গে পাশাপাশি ব্যবহার করা যায়। তবে দুই প্রকল্পের সমন্বিত কর্মপ্রবাহ আনুষ্ঠানিকভাবে পরীক্ষা ও পরিমাপ না হওয়া পর্যন্ত **পরীক্ষামূলক**।
+
+---
+
+## প্রয়োজনীয়তা
+
+- ARM64 / aarch64 Android ডিভাইস
+- ternux-এর জন্য Android 10 বা পরবর্তী সংস্করণ
+- ন্যূনতম ৪ GB RAM; ডেস্কটপ + উন্নয়ন/ছোট স্থানীয় মডেলের জন্য ৬–৮ GB সুপারিশ করা হয়
+- বেস ইনস্টলের জন্য প্রায় ৩–৪ GB; `--all` ব্যবহার করলে প্রায় ১০–১২ GB, এর বাইরে কাজের অতিরিক্ত স্থান
+- root প্রয়োজন নেই
+- ইনস্টলের সময় স্থিতিশীল নেটওয়ার্ক
+- সমর্থিত Adreno ডিভাইসে নির্ধারিত Zink/Turnip পথের জন্য `/dev/kgsl-3d0` ব্যবহারযোগ্য থাকা প্রয়োজন
+
+---
+
 ## ইনস্টল
 
-Android 10+ ফোনে [Termux](https://github.com/termux/termux-app/releases)
-(F-Droid বা GitHub বিল্ড) খুলে এই কমান্ডটি চালান:
+### ১. Android অ্যাপ ইনস্টল করুন
+
+প্রথমে **Termux** ও **Termux:X11** ইনস্টল করুন। Termux ও এর প্লাগইনের জন্য একই বিশ্বস্ত উৎস ব্যবহার করুন। বিস্তারিত উৎস ও সংস্করণ নির্দেশনা [দ্রুত শুরু](../docs/QUICK-START.md)-এ আছে।
+
+### ২. স্বয়ংক্রিয় ইনস্টল — সবচেয়ে দ্রুত
+
+Termux-এর ভেতরে চালান:
 
 ```bash
 curl -fsSL https://soobujmiah.github.io/ternux/install.sh | bash
 ```
 
-> **আপগ্রেডের পর curl ভেঙে গেছে?** আংশিক আপগ্রেডে curl লিংকই হতে পারে না
-> (`SSL_set_quic_tls_transport_params`)। wget সরাসরি openssl-এর সাথে লিংক হয়,
-> সাধারণত টিকে যায় — একই ইনস্টলার:
->
-> ```bash
-> wget -qO- https://soobujmiah.github.io/ternux/install.sh | bash
-> ```
-> ইনস্টলার এখন ভাঙা curl নিজেই শনাক্ত করে মেরামত করে (`curl`+`openssl`)।
-
-ব্যস, শেষ। ইনস্টলার আপনার GPU শনাক্ত করে, বেস প্যাকেজ ইনস্টল করে,
-Debian + Xfce4 পরিবেশ তৈরি করে, নির্বাচিত গ্রাফিক্স পথ সাজিয়ে দেয়,
-লঞ্চার লিখে দেয় — তারপর বলে দেয় পরের ধাপ কী:
-
-```text
-1. Termux:X11 অ্যাপটি একবার খুলে চালু রাখুন।
-2. source ~/.bashrc
-3. x
-```
-
-`x` চালালেই ডেস্কটপ শুরু। চালানোর আগে entry script ও তার ব্যবহৃত সব module
-পর্যালোচনা করতে repository clone করুন:
+`curl` না থাকলে বা আংশিক আপগ্রেডের পর নষ্ট হলে:
 
 ```bash
-pkg install git -y
+wget -qO- https://soobujmiah.github.io/ternux/install.sh | bash
+```
+
+ডিফল্টভাবে ইনস্টলারটি ব্যবহারকারীর অতিরিক্ত প্রশ্ন ছাড়াই চলে: Debian ব্যবহারকারী `ternux`, লোকেল `en_US.UTF-8` এবং স্বয়ংক্রিয় ব্যাকএন্ড নির্বাচন করে। এটি ডিভাইস পরীক্ষা করে, হোস্ট ও Debian উপাদান ইনস্টল করে, গ্রাফিক্স/অডিও সাজায়, লঞ্চার তৈরি করে এবং ফলাফল যাচাই করে।
+
+### ৩. চালানোর আগে পর্যালোচনা করুন
+
+এক-কমান্ড পদ্ধতিটি বর্তমান দূরবর্তী সংস্করণ সরাসরি চালায়। সম্পূর্ণ পর্যালোচনার জন্য repository clone করুন, যাতে মূল entry script এবং ব্যবহৃত প্রতিটি module দেখা যায়:
+
+```bash
+pkg update -y && pkg install git -y
 git clone https://github.com/soobujmiah/ternux.git
 cd ternux
 git log -1 --oneline
@@ -72,279 +110,218 @@ less install.sh bin/ternux bin/ternux-guest lib/*.sh
 bash install.sh
 ```
 
-শুধু standalone `install.sh` পড়া সম্পূর্ণ audit নয়; সেটি runtime-এ library
-module download করে।
+নির্দিষ্ট release-এ আটকে রাখতে:
 
-প্রতিটি অপশনসহ সম্পূর্ণ গাইড: [docs/INSTALLATION.md](docs/INSTALLATION.md)।
-প্রতিটি কমান্ড হাতে-কলমে: [docs/MANUAL.md](docs/MANUAL.md)।
-সবচেয়ে দ্রুত পথ: [docs/QUICK-START.md](docs/QUICK-START.md)।
+```bash
+git fetch --tags
+git checkout <release-tag>
+git status --short
+(set -e; for f in install.sh uninstall.sh bin/ternux bin/ternux-guest lib/*.sh; do bash -n "$f"; done)
+bash install.sh
+```
+
+### ইনস্টলারের বিকল্প
+
+```bash
+bash install.sh --backend zink --user myuser --locale en_US.UTF-8
+bash install.sh --with-dev --with-llm --with-blender
+bash install.sh --with-network
+bash install.sh --with-media
+bash install.sh --all
+bash install.sh --resume
+```
+
+সমর্থিত বিকল্পের মধ্যে আরও আছে `--backend auto|zink|virgl`, `--user`, `--locale`, `--zsh`, `--with-dev`, `--with-llm`, `--with-network`, `--with-media`, `--with-blender`, `--all`, `--resume`, `--ui auto|dashboard|plain|off`, `--plain` এবং `--no-anim`।
+
+**ইনস্টলারের সম্পূর্ণ আচরণ, ধাপ, প্রোফাইল, ইন্টারফেস, resume, update ও removal:** [ইনস্টলেশন](../docs/INSTALLATION.md)।
 
 ---
 
-## এটি আসলে কী
+## ম্যানুয়াল ইনস্টল
 
-ternux একটি সাধারণ Android ফোনে **ব্যবহারযোগ্য Debian ডেস্কটপ ও যাচাইযোগ্য
-গ্রাফিক্স পথ** তৈরি করে—বুটলোডার আনলক বা root ছাড়া এবং Android system
-partition পরিবর্তন না করে।
+প্রতিটি ধাপ নিজের নিয়ন্ত্রণে রাখতে চাইলে:
+
+```bash
+# Termux
+termux-setup-storage
+pkg update -y && pkg upgrade -y
+pkg install x11-repo tur-repo -y
+pkg install termux-x11-nightly pulseaudio proot-distro virglrenderer-android \
+  zsh git curl wget nano tar termux-api -y
+pkg install mesa-vulkan-icd-freedreno -y
+proot-distro install debian
+
+# Debian
+proot-distro login debian --shared-tmp
+apt update
+DEBIAN_FRONTEND=noninteractive apt install -y \
+  sudo nano dbus-x11 pulseaudio pulseaudio-utils x11-utils mesa-utils \
+  libgl1-mesa-dri libvulkan1 vulkan-tools xfce4 xfce4-terminal \
+  vlc colord polkitd locales zip unzip xarchiver unrar-free 7zip
+
+adduser ternux
+for group in sudo video render audio; do
+  getent group "$group" >/dev/null && usermod -aG "$group" ternux
+done
+printf '%s\n' 'ternux ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/ternux
+chmod 0440 /etc/sudoers.d/ternux
+visudo -cf /etc/sudoers.d/ternux
+exit
+```
+
+সম্পূর্ণ Zink/Turnip বা VirGL সেটআপ, অডিও সেতু, লোকেল/ফন্ট, লঞ্চার, যাচাই ও বাকি সব কমান্ডের জন্য [পূর্ণ ম্যানুয়াল ইনস্টলেশন](../docs/MANUAL.md) দেখুন।
+
+---
+
+## প্রথম চালু ও যাচাই
+
+```bash
+source ~/.bashrc
+x
+```
+
+অথবা:
+
+```bash
+xgo
+```
+
+Termux:X11 অ্যাপ খুলুন, তারপর প্রকৃত renderer যাচাই করুন:
+
+```bash
+glxinfo -B
+vulkaninfo --summary
+pactl info
+```
+
+সম্ভাব্য গ্রাফিক্স ফলাফল:
 
 ```text
- Android
-  └─ Termux (হোস্ট শেল)
-      ├─ Termux:X11  ← পর্দা
-      ├─ PulseAudio  ← স্পিকার
-      └─ PRoot Debian (কন্টেইনার)
-          └─ Xfce4 ডেস্কটপ
-              └─ Mesa → Zink → Vulkan → Turnip (Adreno GPU)
-                        └─ বা VirGL → Android গ্রাফিক্স (অন্যান্য GPU)
+OpenGL renderer string: zink ... Adreno ... MESA_TURNIP
 ```
 
-### যেভাবে কাজ করে, তার কারণ
+অথবা:
 
-- **কেন PRoot, কেন root নয়?** PRoot *userspace-এ* root filesystem ও UID
-  mapping emulate করে; Android root লাগে না। তবে এটি strong security boundary
-  নয়—Termux-এর permission ও bind-mounted path container থেকেও reachable।
-  Untrusted command চালাবেন না, এবং uninstall-এর আগে container data backup নিন।
-- **কেন Zink + Turnip?** Adreno ফোনে Vulkan ড্রাইভার আছে, কিন্তু ডেস্কটপ
-  OpenGL ড্রাইভার নেই। Zink OpenGL কলকে Vulkan-এ অনুবাদ করে; Turnip হলো
-  Adreno-র জন্য Mesa-র Vulkan ড্রাইভার। দুজনে মিলে ডেস্কটপ অ্যাপকে সত্যিকারের
-  GPU পথ দেয় — সফটওয়্যার রেন্ডারিং (`llvmpipe`) নয়।
-- **কেন VirGL?** Mali, Xclipse ও PowerVR ডিভাইসে Turnip নেই। VirGL কন্টেইনারের
-  OpenGL কমান্ড হোস্ট পাশের একটি রেন্ডারারে পাঠায়। সমর্থন, acceleration ও গতি
-  ডিভাইসভেদে আলাদা; renderer string একাই hardware-backed পথ প্রমাণ করে না।
-- **কেন যাচাইকৃত ধাপ?** দৃশ্যমান ডেস্কটপ সাফল্যের প্রমাণ নয় — সফটওয়্যার
-  রেন্ডারিং *দেখতে* ঠিকই লাগে, যতক্ষণ না Blender চালান। ইনস্টলার প্রতিটি ধাপ
-  পরেরটির আগে যাচাই করে এবং ড্রাইভার ফাইল সত্যিই ইনস্টল হলো কি না নিশ্চিত করে।
-
-### সৎ সীমাবদ্ধতা
-
-এটি এখনও একটি ফোন। RAM, তাপ ও ব্যাটারিই আসল সীমা:
-
-- ✅ দৈনন্দিন ডেস্কটপ: Xfce4, টার্মিনাল, Git, এডিটর, ব্রাউজিং
-- ✅ Blender viewport: supplied run-এ Zink/Turnip OpenGL route observed; FPS unmeasured
-- ✅ Local AI build/use observed; feasible model size device, context ও free memory-এর উপর নির্ভরশীল
-- ✅ ডেভেলপমেন্ট: Node.js, Python, কোডিং অ্যাসিস্ট্যান্ট
-- ⚠️ ভারী রেন্ডার, বড় সিমুলেশন, বিশাল মডেল, মাইনিং — এসবের জন্য নয়
-
-### মাপা device snapshot
-
-নিচের August 2026 evidence একটি **Redmi Turbo 4 Pro** (Snapdragon 8s Gen 4 /
-Adreno 825) থেকে। এটি একটি device-এর result—সব ফোনের compatibility বা performance
-guarantee নয়।
-
-| Result | Captured value |
-|---|---:|
-| Windowed OpenGL glmark2 | **140 score**, 33 scene-এ **45–164 FPS** |
-| OpenGL ES command | **364 score**, 33 scene-এ **53–465 FPS**; DRI3 caveat-সহ |
-| Renderer | `zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP))` |
-| Blender | একই OpenGL renderer **observed**; viewport FPS ও Cycles GPU unmeasured |
-| llama.cpp / stable-diffusion.cpp | Vulkan build path reported; numeric performance **untested** |
-
-ternux **measured**, **observed**, **reported build** ও **untested** result আলাদা
-রাখে। সব 66 scene value, caveat ও reproduction command দেখুন
-[বেঞ্চমার্ক ও ডিভাইস প্রমাণ](docs/BENCHMARKS.md)-এ।
-
----
-
-## টারনাক্স ও এডিটি
-
-টারনাক্স এবং [এডিটি](https://github.com/soobujmiah/adt) — একটি এআরএম৬৪ গল্পের দুটি স্তর:
-
-```
-অ্যান্ড্রয়েড (arm64 ডিভাইস)
-   │
-   ├── এডিটি ── লিনাক্স এআরএম৬৪-এর জন্য বিল্ড করা অ্যান্ড্রয়েড এসডিকে টুলচেইন:
-   │            বিল্ড-টুলস, প্ল্যাটফর্ম-টুলস, এডিবি, এপিকে স্বাক্ষর।
-   │            শেল থেকে নেটিভভাবে অ্যান্ড্রয়েড অ্যাপ বিল্ড ও ইনস্টল করে।
-   │
-   └── টারনাক্স ─ অ্যান্ড্রয়েডে নো-রুট ডেবিয়ান + এক্সএফসই৪ ডেস্কটপ:
-                 টার্মাক্স + পিআরুট, টার্মাক্স:এক্স১১ ডিসপ্লে, অডিও এবং
-                 সমর্থিত অ্যাড্রিনো ডিভাইসে পরিমাপকৃত জিঙ্ক/টার্নিপ জিপিইউ পথ।
+```text
+virgl / virpipe
 ```
 
-- **টারনাক্স** হলো লিনাক্স ডেস্কটপ স্তর। এটি অ্যান্ড্রয়েড অ্যাপ বিল্ড করে না;
-  অ্যান্ড্রয়েড হার্ডওয়্যারকে একটি বাস্তব ডেবিয়ান ওয়ার্কস্পেস দেয়, সমর্থিত ডিভাইসে
-  হার্ডওয়্যার-ত্বরণযুক্ত গ্রাফিক্সসহ।
-- **এডিটি** হলো টুলচেইন স্তর। এওএসপি-উদ্ভূত বিল্ড-টুলস লিনাক্স এআরএম৬৪-এ কম্পাইল
-  করে অ্যান্ড্রয়েড অ্যাপ বিল্ড, স্বাক্ষর ও ইনস্টল করে — বাস্তব ডিভাইসে সম্পূর্ণ
-  বিল্ড চেইন এন্ড-টু-এন্ড যাচাইকৃত।
+`llvmpipe` মানে CPU-ভিত্তিক সফটওয়্যার রেন্ডারিং। বেঞ্চমার্কের আগে [সমস্যা সমাধান](../docs/TROUBLESHOOTING.md) দেখে কারণ নির্ণয় করুন।
 
-দুটি প্রজেক্টই একই টার্মাক্স + পিআরুট ডেবিয়ান ভিত্তির উপর আলাদাভাবে যাচাইকৃত
-(রেডমি টার্বো ৪ প্রো, স্ন্যাপড্রাগন ৮এস জেন ৪)। ক্রস-প্রজেক্ট ওয়ার্কফ্লো — যেমন
-টারনাক্স ডেস্কটপ সেশনের ভেতরে এডিটি টুল চালানো — বাস্তবে একসাথে চলে কিন্তু এখনো
-আনুষ্ঠানিকভাবে পরীক্ষিত নয়; পরিমাপ না হওয়া পর্যন্ত সেগুলো **পরীক্ষামূলক** থেকে যায়।
+দৈনন্দিন শর্টকাট:
 
-একই স্ট্যাকের অ্যান্ড্রয়েড দিকের জন্য [এডিটি রিপোজিটরি](https://github.com/soobujmiah/adt)
-ও [এডিটি ওয়েবসাইট](https://soobujmiah.github.io/adt/) দেখুন।
+```text
+x       ডেস্কটপ চালু
+xgo     Termux:X11 খুলে ডেস্কটপ চালু
+killx   ডিসপ্লে/অডিও বন্ধ ও পুরোনো session ফাইল পরিষ্কার
+db      নিয়মিত ব্যবহারকারী হিসেবে Debian শেল
+droot   root হিসেবে Debian শেল
+```
 
----
-
-## প্রয়োজনীয়তা
-
-| | প্রস্তাবিত বেসলাইন |
-|---|---|
-| **OS** | Android 10 বা তার নতুন |
-| **CPU** | `aarch64` (৬৪-বিট ARM) |
-| **স্টোরেজ** | ইনস্টল হওয়া বেস ~৩–৪ GB; `--all`-সহ সম্পূর্ণ ইনস্টল ~১০–১২ GB; download/cache/model-এর জন্য অতিরিক্ত ফাঁকা জায়গা রাখুন |
-| **RAM** | বাস্তবে ন্যূনতম ৪ GB; ৬–৮ GB আরামদায়ক |
-| **গ্রাফিক্স** | Adreno → Zink + Turnip (সেরা) · Mali/Xclipse/PowerVR → VirGL |
-| **অ্যাপ** | [Termux](https://github.com/termux/termux-app/releases) (F-Droid/GitHub) + [Termux:X11](https://github.com/termux/termux-x11) |
-
-> এই গাইড মূল F-Droid/GitHub release line ব্যবহার করে। Google Play line আলাদা,
-> পরীক্ষামূলক Android 11+ branch; এতে feature ও bug-এর পার্থক্য আছে। Termux ও
-> সব plugin একই source থেকে রাখুন।
-
----
-
-## এক কমান্ড, অনেক অপশন
-
-ইনস্টলার একটি পরীক্ষাযোগ্য ফাইল, যুক্তিসঙ্গত ডিফল্টসহ:
+প্রধান নিয়ন্ত্রণ কমান্ড:
 
 ```bash
-bash install.sh                     # ইন্টারঅ্যাক্টিভ
-bash install.sh --yes               # ডিফল্টে, কোনো প্রশ্ন নেই
-bash install.sh --user soobuj --locale en_US.UTF-8
-bash install.sh --backend virgl     # VirGL সামঞ্জস্য পথ বাধ্যতামূলক
-bash install.sh --with-llm --with-dev
-bash install.sh --doctor            # ইনস্টল পরীক্ষা
-bash install.sh --doctor --fix      # পরীক্ষা ও মেরামত
-bash install.sh --resume            # বিঘ্নিত ইনস্টল আবার চালু
-bash install.sh --uninstall         # ইন্টারঅ্যাক্টিভ অপসারণ
-```
-
-ঐচ্ছিক ওয়ার্কলোড: `--with-dev` (Git/Node/Python) · `--with-llm` (llama.cpp,
-Vulkan) · `--with-network` (nmap, tmux — শুধু অনুমোদিত পরীক্ষায়) ·
-`--with-media` (ffmpeg, GIMP, Audacity) · `--with-blender` — বা `--all`। Bare
-`--resume` completed phase বাদ দেওয়ার পাশাপাশি interrupted run-এর saved optional
-workload set-ও ফিরিয়ে আনে।
-
-ইনস্টলার একটিমাত্র স্থায়ী স্ক্রিন আঁকে এবং শেষ status পর্যন্ত সেটিই রাখে: device
-panel, fixed step progress bar, live log window ও অতিবাহিত সময়ের footer। Package
-output spinner-এর আড়ালে না রেখে যেমন আসে তেমন দেখানো হয়; apt ও dpkg-এর
-carriage-return প্রগ্রেস একটি সারিতেই হালনাগাদ হয়; terminal resize হলে ফ্রেম একবার
-নতুন মাপে বসে। যেসব terminal ড্যাশবোর্ড চালাতে পারে না — pipe, `TERM=dumb`, খুব ছোট
-উইন্ডো — সেখানে একই exit status, logging ও `--resume` আচরণসহ plain framed log
-দেখানো হয়। পূর্ণ বিবরণ:
-[ইনস্টলার স্ক্রিন](docs/INSTALLATION.md#the-installer-screen)।
-
-### দুই terminal-এ `ternux`
-
-Installer শুধু executable file আছে কি না দেখে সফল বলে না—দুটি entry point-এর
-installed library load ও `--version` execution যাচাই করে:
-
-| কোথায় | Command path | কাজ |
-|---|---|---|
-| **Termux host terminal** | `$PREFIX/bin/ternux` | পূর্ণ control plane: `start`, `stop`, `repair`, `update`, `uninstall`, diagnostics |
-| **Debian/Xfce terminal** | `/usr/local/bin/ternux` | Guest-local `status`, `info`, `doctor`, `env`; nested PRoot ঠেকাতে host lifecycle command প্রত্যাখ্যান করে |
-
-```bash
-# Termux-এ
-command -v ternux
-ternux --version
+ternux start
+ternux stop
+ternux restart
+ternux verify
 ternux doctor
-
-# Debian/Xfce terminal-এ
-command -v ternux
-ternux --version
-ternux status
+ternux repair
+ternux info
+ternux logs
 ```
 
-Desktop lifecycle ও installation command **Termux**-এ চালান। Guest companion
-host-only বললে nested `proot-distro` না চালিয়ে Termux terminal-এ ফিরে যান।
-
-> **Android 12+ নোট:** child-process policy PRoot process বন্ধ করতে পারে; memory
-> pressure ও OEM battery policy-তেও একই লক্ষণ হয়। ইনস্টলার readable setting
-> জানায় ও version-aware guidance দেখায়; system-wide safeguard বদলানোর আগে
-> trade-off পড়ুন।
-> বিস্তারিত: [সমস্যা সমাধান](docs/TROUBLESHOOTING.md#the-desktop-dies-silently)।
+Debian guest-এর companion command guest-এর ভেতরের কাজ দেয় এবং nested PRoot তৈরি করতে পারে এমন host lifecycle command প্রত্যাখ্যান করে। [কমান্ড নির্দেশিকা](../docs/CLI.md)-তে বিস্তারিত আছে।
 
 ---
 
-## ডকুমেন্টেশন
+## ভেতরে কী আছে?
 
-English ও বাংলা guide-এ একই navigation, organization ও core technical coverage
-আছে। Task-based map থেকে শুরু করুন অথবা নিচের source guide খুলুন।
-
-| ডকুমেন্ট | উদ্দেশ্য |
+| স্তর | কাজ |
 |---|---|
-| [ডকুমেন্টেশন পরিচিতি](https://soobujmiah.github.io/ternux/bn/docs/) | Task-based map, installation chooser ও evidence vocabulary |
-| [দ্রুত শুরু](docs/QUICK-START.md) | অ্যাপ ইনস্টল থেকে যাচাইকৃত desktop পর্যন্ত দ্রুততম পথ |
-| [ইনস্টলেশন](docs/INSTALLATION.md) | প্রয়োজনীয়তা, এক-কমান্ড install, phase, flag, update ও removal |
-| [ম্যানুয়াল ইনস্টলেশন](docs/MANUAL.md) | পূর্ণ নিয়ন্ত্রণ বা installer debugging-এর command-by-command setup |
-| [ব্যবহার](docs/USAGE.md) | দৈনিক নিয়ন্ত্রণ, storage, workload, backup ও তাপ |
-| [কনফিগারেশন](docs/CONFIGURATION.md) | Launch environment, GPU route, audio, locale, font ও file |
-| [সমস্যা সমাধান](docs/TROUBLESHOOTING.md) | লক্ষণ → diagnosis → নিরাপদ repair |
-| [আর্কিটেকচার](docs/ARCHITECTURE.md) | X11, audio, PRoot ও GPU data path |
-| [বেঞ্চমার্ক](docs/BENCHMARKS.md) | Device evidence, সব FPS value, caveat ও reproduction |
-| [সাধারণ প্রশ্ন](docs/FAQ.md) | Root, নিরাপত্তা, Termux source, storage, battery ও privacy |
-| [CLI রেফারেন্স](docs/CLI.md) | Command, flag ও structured-output coverage |
-| [কনট্রিবিউটিং](CONTRIBUTING.md) | Code, translation, patch ও classified device evidence |
+| Termux + PRoot | Android host ও Debian userspace |
+| Debian ARM64 | GNU/Linux ভিত্তি |
+| Xfce4 + Termux:X11 | ডেস্কটপ ও প্রদর্শন |
+| PulseAudio | Android অডিও সেতু |
+| Zink → Turnip → KGSL | Adreno OpenGL/Vulkan গ্রাফিক্স পথ |
+| VirGL | সামঞ্জস্যপূর্ণ গ্রাফিক্স পথ |
+| `ternux` CLI + `~/x.sh` | lifecycle, diagnostics, repair ও benchmark |
+
+ভিত্তিগত অ্যাপের মধ্যে Xfce Terminal, VLC, archive tools, Mesa utilities ও Vulkan tools রয়েছে। উন্নয়ন, LLM, media, network ও Blender কর্মপরিবেশ ঐচ্ছিক।
+
+সম্পূর্ণ স্থাপত্য ও প্যাকেজ আচরণের জন্য [স্থাপত্য](../docs/ARCHITECTURE.md) এবং [ইনস্টলেশন](../docs/INSTALLATION.md) দেখুন।
 
 ---
 
-## GPU আসল কিনা যাচাই করুন
+## প্রমাণ
 
-ডেস্কটপ চালু হওয়ার পর কন্টেইনারের টার্মিনালে চালান:
+প্রকাশিত August 2026 evidence snapshot একটি **Redmi Turbo 4 Pro / Snapdragon 8s Gen 4 / Adreno 825** ডিভাইস থেকে। পর্যবেক্ষিত renderer ছিল:
 
-```bash
-glxinfo | grep "renderer string"
+```text
+zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP))
 ```
 
-| যা চাই | যা কখনোই মেনে নেবেন না |
-|---|---|
-| `zink Vulkan (Adreno (TM) … (MESA_TURNIP))` | `llvmpipe` (সফটওয়্যার রেন্ডারিং) |
-| `virgl` (সামঞ্জস্য পথ) | ফাঁকা উত্তর |
+প্রাপ্ত ফলাফলের মধ্যে আছে:
 
-`llvmpipe` মানে GPU পথ সক্রিয় নয় — ডেস্কটপ চলে, কিন্তু ধীরে।
-দেখুন [সমস্যা সমাধান → llvmpipe](docs/TROUBLESHOOTING.md#renderer-says-llvmpipe)।
+- `glmark2`: **140** aggregate score; রিপোর্ট করা scene range **45–164 FPS**
+- `glmark2-es2 --off-screen`: **364** aggregate score; রিপোর্ট করা scene range **53–465 FPS**, DRI3 warning-সহ
+- Blender 4.3.2: Zink/Turnip OpenGL viewport পথ পর্যবেক্ষিত; Cycles GPU rendering প্রতিষ্ঠিত নয়
+- llama.cpp ও stable-diffusion.cpp: Vulkan build path রিপোর্ট করা হয়েছে; সংখ্যাগত runtime performance প্রতিষ্ঠিত নয়
+
+এগুলো নির্দিষ্ট ডিভাইসের প্রমাণ, সর্বজনীন performance guarantee নয়। দুই ধরনের glmark2 ফলাফলকে speed ratio হিসেবে তুলনা করা উচিত নয়। সম্পূর্ণ scene value, পদ্ধতি, caveat ও বাকি measurement [বেঞ্চমার্ক](../docs/BENCHMARKS.md)-এ আছে।
 
 ---
 
-## নিরাপত্তা
+## সীমাবদ্ধতা ও নিরাপত্তা
 
-- ternux-এর **Android root লাগে না**; এটি Android system partition বা
-  bootloader বদলানোর জন্য তৈরি নয়। guest-root শুধু Debian কন্টেইনারের ভেতরে
-  ক্ষমতাবান, এবং PRoot আলাদা নিরাপত্তা সীমানা নয়।
-- ternux-এর নিয়ন্ত্রিত কন্টেইনার, state ও launcher সাধারণত Termux app data-তে
-  থাকে; shared storage-এ রাখা আপনার project, export বা backup আলাদা।
-- ইনস্টলারের anonymous PulseAudio bridge স্পষ্টভাবে `127.0.0.1`-এ বাঁধা, তাই
-  LAN থেকে শোনা যায় না; তবে একই ডিভাইসের অন্য client পৌঁছাতে পারে। ternux
-  আপনার AI/development server কনফিগার করে না—সেগুলোও নিজে loopback-এ বাঁধুন
-  অথবা যথাযথ authentication/firewall দিন।
-- ইনস্টলার Turnip ড্রাইভার
-  [lfdevs/mesa-for-android-container](https://github.com/lfdevs/mesa-for-android-container/releases)
-  থেকে নামায়, unsafe path প্রত্যাখ্যান করে, নির্বাচিত driver/ICD target দুটি
-  regular file কিনা যাচাই করে এবং শুধু সেগুলোই ইনস্টল করে। SHA-256 install state-এ থাকে।
+- PRoot ভার্চুয়াল মেশিন নয়; Debian Android-এর kernel ভাগ করে ব্যবহার করে।
+- Guest root, Android root নয়; kernel module, বাস্তব systemd boot ও unrestricted hardware access পাওয়া যায় না।
+- GPU support ডিভাইসভেদে বদলায়; VirGL সমান performance-এর নিশ্চয়তা নয়।
+- OpenGL renderer দেখা গেলেই Blender Cycles, llama.cpp বা diffusion GPU offload প্রমাণ হয় না।
+- দীর্ঘ সময় build/inference/rendering করলে তাপ, throttling, battery drain বা Android process management হতে পারে।
+- ধ্বংসাত্মক কাজের আগে গুরুত্বপূর্ণ data backup নিন: `proot-distro backup debian --output ~/debian.tar.gz`।
+- প্রমাণিত authentication ছাড়া স্থানীয় development/AI service `127.0.0.1`-এর বাইরে প্রকাশ করবেন না।
+
+আরও বিস্তারিত নিরাপত্তা, গ্রাফিক্স, storage, heat ও troubleshooting নির্দেশনা [সাধারণ প্রশ্ন](../docs/FAQ.md), [কনফিগারেশন](../docs/CONFIGURATION.md), [স্থাপত্য](../docs/ARCHITECTURE.md) ও [সমস্যা সমাধান](../docs/TROUBLESHOOTING.md)-এ রয়েছে।
+
+---
 
 ## আনইনস্টল
 
 ```bash
-curl -fsSL https://soobujmiah.github.io/ternux/uninstall.sh | bash
-# বা
-bash install.sh --uninstall
+ternux uninstall
 ```
 
-প্রথমে `ternux uninstall` দিয়ে কোন scope মুছবেন তা বেছে নেওয়া নিরাপদ। Termux
-app data মুছলে ternux-এর managed container, launcher ও state চলে যায়, কিন্তু
-shared storage-এর project/export এবং বাইরে রাখা backup আলাদাভাবে পর্যালোচনা করুন।
+অথবা clone করা repository থেকে:
+
+```bash
+bash uninstall.sh
+```
+
+প্রথমে Debian backup নিন। নথিভুক্ত `all` removal ternux session/container, launcher/alias এবং ternux state/logs লক্ষ্য করে; সম্পর্কহীন Termux package, repository/storage নির্বাচন ও Termux PulseAudio configuration ইচ্ছাকৃতভাবে রেখে দেয়। সঠিক আচরণ ও বিকল্পের জন্য [ইনস্টলেশন নির্দেশিকা](../docs/INSTALLATION.md) এবং `uninstall.sh` দেখুন।
 
 ---
 
-## কনট্রিবিউশন
+## ডকুমেন্টেশন মানচিত্র
 
-ডিভাইস-নির্দিষ্ট তথ্য, রেন্ডারার প্রমাণ ও অনুবাদ স্বাগত।
-দেখুন [CONTRIBUTING.md](../CONTRIBUTING.md)।
+- [ডকুমেন্টেশন পরিচিতি](../docs/README.md)
+- [দ্রুত শুরু](../docs/QUICK-START.md)
+- [ইনস্টলেশন](../docs/INSTALLATION.md)
+- [ম্যানুয়াল ইনস্টলেশন](../docs/MANUAL.md)
+- [ব্যবহার](../docs/USAGE.md)
+- [কনফিগারেশন](../docs/CONFIGURATION.md)
+- [সমস্যা সমাধান](../docs/TROUBLESHOOTING.md)
+- [স্থাপত্য](../docs/ARCHITECTURE.md)
+- [বেঞ্চমার্ক](../docs/BENCHMARKS.md)
+- [সাধারণ প্রশ্ন](../docs/FAQ.md)
+- [কমান্ড নির্দেশিকা](../docs/CLI.md)
+- [অবদান](../CONTRIBUTING.md)
+- [নিরাপত্তা](../SECURITY.md)
+
+Termux, Termux:X11, PRoot, Mesa/Zink, glmark2, Blender, llama.cpp ও stable-diffusion.cpp-এর গভীর কারিগরি রেফারেন্সগুলো ডকুমেন্টেশন ও upstream-reference অংশে সংরক্ষিত আছে।
+
+---
 
 ## লাইসেন্স
 
-MIT — দেখুন [LICENSE](../LICENSE)। Termux, Debian, Xfce, Blender, Qualcomm
-বা এখানে উল্লেখিত কোনো তৃতীয় পক্ষের প্রকল্পের সাথে সম্পর্কিত নয়।
-
----
-
-<div align="center">
-
-নির্মাতা: **Sobuj Miah ([@soobujmiah](https://github.com/soobujmiah))**
-
-Copyright © 2026 Sobuj Miah · MIT লাইসেন্স
-
-</div>
+[MIT](../LICENSE) © 2026 [Sobuj Miah](https://github.com/soobujmiah)
