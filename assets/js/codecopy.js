@@ -121,15 +121,16 @@
     btn.addEventListener("click", function () {
       var text;
       if (isCmd) {
-        /* Normalise per-line indentation introduced by HTML source layout,
-           then strip the display-only "$ " prompt prefixes so the pasted
-           text is exactly what the shell should run. */
-        text = target.textContent
-          .replace(/\n[ \t]+/g, "\n")
-          .replace(/^\s+|\s+$/g, "")
-          .split("\n")
-          .map(function (l) { return l.replace(/^\$\s+/, ""); })
-          .join("\n");
+        /* Preserve code structure and indentation while stripping leading/trailing
+           blank lines and display-only "$ " or "> " prompts. */
+        var raw = (target.textContent || "").replace(/\r\n/g, "\n");
+        var lines = raw.split("\n");
+        while (lines.length > 0 && /^\s*$/.test(lines[0])) lines.shift();
+        while (lines.length > 0 && /^\s*$/.test(lines[lines.length - 1])) lines.pop();
+
+        text = lines.map(function (l) {
+          return l.replace(/^\s*[\$\>]\s+/, "");
+        }).join("\n");
       } else {
         text = target.textContent.replace(/\s+$/, "");
       }
