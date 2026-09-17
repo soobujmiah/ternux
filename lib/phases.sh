@@ -903,6 +903,67 @@ _tnx_execute_install_phase() {
   esac
 }
 
+# Prompt for a Debian username when none was explicitly supplied.
+# Falls back to 'ternux' if the prompt times out, input is empty, input is
+# invalid and not corrected before the deadline, or if running non-interactively.
+tnx_prompt_username() {
+  local default_user="${1:-ternux}"
+  local timeout="${2:-30}"
+  local tty_fd=""
+  local chosen=""
+  local start_time=0 now=0 elapsed=0 remaining=0
+
+  if { exec 3<>/dev/tty; } 2>/dev/null; then
+    tty_fd=3
+  elif [ -t 0 ]; then
+    tty_fd=0
+  fi
+
+  if [ -z "$tty_fd" ]; then
+    printf '%s\n' "$default_user"
+    return 0
+  fi
+
+  start_time=$SECONDS
+
+  while true; do
+    now=$SECONDS
+    elapsed=$(( now - start_time ))
+    remaining=$(( timeout - elapsed ))
+    if [ "$remaining" -le 0 ]; then
+      printf "\n${TNX_CY}[INFO]${TNX_C0} Username prompt timed out (${timeout}s); using default '%s'.\n" "$default_user" >&2
+      chosen="$default_user"
+      break
+    fi
+
+    printf "${TNX_CC}?${TNX_C0} Enter your TERNUX username [default: %s] (${remaining}s remaining): " "$default_user" >&2
+
+    local input=""
+    if ! IFS= read -r -t "$remaining" -u "$tty_fd" input; then
+      printf "\n${TNX_CY}[INFO]${TNX_C0} Username prompt timed out (${timeout}s); using default '%s'.\n" "$default_user" >&2
+      chosen="$default_user"
+      break
+    fi
+
+    input="$(printf '%s' "$input" | tr -d '\r\n')"
+    if [ -z "$input" ]; then
+      chosen="$default_user"
+      break
+    fi
+
+    if [[ "$input" =~ ^[a-z_][a-z0-9_-]{0,31}$ ]]; then
+      chosen="$input"
+      break
+    fi
+
+    printf "${TNX_CR}[WARN]${TNX_C0} Invalid username '%s'. Username must start with a-z or _, contain only a-z, 0-9, _, - and be at most 32 characters.\n" "$input" >&2
+  done
+
+  [ "$tty_fd" = "3" ] && exec 3>&-
+
+  printf '%s\n' "$chosen"
+}
+
 # ---------------------------------------------------------------------------
 # Full installation orchestrator
 # ---------------------------------------------------------------------------
@@ -967,6 +1028,10 @@ tnx_install() {
         IFS=',' read -r -a extras <<< "$saved_extras"
       fi
       [ "$saved_profile" = "full" ] && full=1
+    fi
+  else
+    if [ "$user_explicit" -eq 0 ]; then
+      user_name="$(tnx_prompt_username "$user_name" 30)"
     fi
   fi
 
