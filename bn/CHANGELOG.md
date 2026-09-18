@@ -12,6 +12,22 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 
 ## [Unreleased]
 
+---
+
+## [1.4.0] — 2026-08-17 · রিলিজটি 2026-09-19-এ v1.4.0 ট্যাগ করা হয়েছে
+
+### অ্যানিমেটেড installer dashboard
+
+- এক-কমান্ড installer frame এখন স্থায়ী dashboard: live device panel (model,
+  Android, GPU, backend, memory), fixed step progress bar, framed scrolling log
+  এবং spinner-সহ animated copyright footer।
+- Border এখন terminal-এ auto-fit হয় এবং resize-এ আবার আঁকা হয় — font/zoom
+  পরিবর্তন ও on-screen keyboard সহ — তাই log line কখনো frame-এর বাইরে যায় না।
+- পাতলা single-line frame-এর বদলে thick double-line border ও color-coded, clipped
+  log line; narrow viewport-এ identity, progress ও footer টেক্সট overflow-এর
+  বদলে ellipsized হয়।
+
+
 ### ইনস্টলার রেন্ডারার নতুন করে তৈরি — স্থিতিশীল ফ্রেম, পড়ার যোগ্য লগ
 
 ইনস্টলেশন ড্যাশবোর্ড এখন নতুন ইঞ্জিনে আঁকা হয়। বাস্তব ডিভাইসে আগেরটি লগ লাইনকে
@@ -96,21 +112,6 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 - English/Bengali troubleshooting, configuration, architecture ও CLI reference
   বিস্তৃত; workload card সরাসরি Blender, llama.cpp ও stable-diffusion.cpp upstream
   repository-তে যায়।
-
----
-
-## [1.4.0] — 2026-08-17
-
-### অ্যানিমেটেড installer dashboard
-
-- এক-কমান্ড installer frame এখন স্থায়ী dashboard: live device panel (model,
-  Android, GPU, backend, memory), fixed step progress bar, framed scrolling log
-  এবং spinner-সহ animated copyright footer।
-- Border এখন terminal-এ auto-fit হয় এবং resize-এ আবার আঁকা হয় — font/zoom
-  পরিবর্তন ও on-screen keyboard সহ — তাই log line কখনো frame-এর বাইরে যায় না।
-- পাতলা single-line frame-এর বদলে thick double-line border ও color-coded, clipped
-  log line; narrow viewport-এ identity, progress ও footer টেক্সট overflow-এর
-  বদলে ellipsized হয়।
 
 ## [1.3.1] — 2026-08-17
 
