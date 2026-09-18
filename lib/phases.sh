@@ -97,6 +97,50 @@ tnx_phase_preflight() {
   return 0
 }
 
+# Switch to an active, reliable fallback mirror if the user's current mirror
+# returns 404 or fails during package download.
+_tnx_switch_mirror() {
+  local sfile="${PREFIX:-/data/data/com.termux/files/usr}/etc/apt/sources.list"
+  [ -f "$sfile" ] || return 1
+
+  local mirrors=(
+    "https://packages.termux.dev/apt/termux-main"
+    "https://grimler.se/termux/termux-main"
+    "https://mirror.karneval.cz/pub/linux/termux/termux-main"
+  )
+
+  local current
+  current="$(grep -E '^deb[[:space:]]+https?://' "$sfile" 2>/dev/null | awk '{print $2}' || true)"
+
+  for m in "${mirrors[@]}"; do
+    if [ "$current" != "$m" ]; then
+      sed -i -E "s|^(deb[[:space:]]+)https?://[^[:space:]]+|\1$m|g" "$sfile"
+      return 0
+    fi
+  done
+  return 1
+}
+
+# Helper to install core Termux tools with automatic mirror fallback
+# if the current mirror yields 404 or missing package archives.
+_tnx_install_core_packages() {
+  local apt_force="$1"
+  local pkgs="pulseaudio proot-distro virglrenderer-android zsh git curl wget nano tar termux-api"
+
+  pkg install -y $apt_force $pkgs && return 0
+
+  # Retry with refresh and fix-missing on the current repository first
+  apt-get update -y && pkg install -y --fix-missing $apt_force $pkgs && return 0
+
+  # Automatic mirror fallback: switch to verified alternate mirrors if 404 occurs
+  if _tnx_switch_mirror; then
+    tnx_warn "Repository mirror failed; switched to an alternate mirror and retrying..."
+    pkg update -y $apt_force && pkg install -y $apt_force $pkgs && return 0
+  fi
+
+  return 1
+}
+
 # ---------------------------------------------------------------------------
 # Phase 2 — base Termux packages
 # ---------------------------------------------------------------------------
@@ -122,10 +166,7 @@ tnx_phase_packages() {
   }
   tnx_spin_run "Enable X11 and TUR repositories" pkg install -y $APT_FORCE x11-repo tur-repo || rc=1
   tnx_spin_run "Install the Termux:X11 client" bash -c "pkg install -y $APT_FORCE termux-x11-nightly || pkg install -y $APT_FORCE termux-x11" || rc=1
-  tnx_spin_run "Install PulseAudio, PRoot, VirGL and core tools" \
-    bash -c "pkg install -y $APT_FORCE pulseaudio proot-distro virglrenderer-android zsh git curl wget nano tar termux-api || {
-      apt-get update -y && pkg install -y --fix-missing $APT_FORCE pulseaudio proot-distro virglrenderer-android zsh git curl wget nano tar termux-api
-    }" || rc=1
+  tnx_spin_run "Install PulseAudio, PRoot, VirGL and core tools" _tnx_install_core_packages "$APT_FORCE" || rc=1
 
   local backend="${1:-auto}"
   if [ "$backend" = "zink" ] || { [ "$backend" = "auto" ] && [ -e /dev/kgsl-3d0 ]; }; then
