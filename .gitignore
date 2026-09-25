@@ -13,3 +13,4 @@ __pycache__/
 # ternux state directory
 .local/share/ternux/
 .ternux-state
+__pycache__/
