@@ -1,30 +1,33 @@
 schema_version: 1
 project_id: ternux
 repository: soobujmiah/ternux
-generated_at: '2026-09-25T14:56:47Z'
-generated_by: tools/repo_knowledge init
-version: v1.4.0
+generated_at: '2026-09-25T17:31:02Z'
+generated_by: tools/repo_knowledge collect
+version: v1.4.0-1-gfe1ea2b
 head:
-  commit: 3e6c07e2afcb5f1e65ecd57af19b0382a948835a
-  branch: chore/deterministic-repo-knowledge-sync
-  committed_at: '2026-09-18T22:52:15Z'
+  commit: fe1ea2bb42fa27e04055e0c7d3f0426370606e95
+  branch: main
+  committed_at: '2026-09-25T17:30:16Z'
 phases:
   source: not_configured
   completed: []
   active: null
   next: null
 build:
-  status: unknown
-  run_id: null
-  at: null
+  status: passed
+  run_id: '36167533591'
+  at: '2026-09-25T17:31:02Z'
 test:
-  status: unknown
+  status: passed
   run_id: null
-  at: null
-  summary: null
-last_successful_build: null
+  at: '2026-09-25T17:31:02Z'
+  summary: bash syntax + Bats smoke + docs (ci.yml)
+last_successful_build:
+  commit: fe1ea2bb42fa27e04055e0c7d3f0426370606e95
+  at: '2026-09-25T17:31:02Z'
+  run_id: '36167533591'
 last_failed_build: null
 sync:
-  status: pending
-  last_synced_at: '2026-09-25T14:56:47Z'
-  source: local
+  status: ok
+  last_synced_at: '2026-09-25T17:31:02Z'
+  source: ci
