@@ -1,0 +1,30 @@
+schema_version: 1
+project_id: ternux
+repository: soobujmiah/ternux
+generated_at: '2026-09-25T14:56:47Z'
+generated_by: tools/repo_knowledge init
+version: v1.4.0
+head:
+  commit: 3e6c07e2afcb5f1e65ecd57af19b0382a948835a
+  branch: chore/deterministic-repo-knowledge-sync
+  committed_at: '2026-09-18T22:52:15Z'
+phases:
+  source: not_configured
+  completed: []
+  active: null
+  next: null
+build:
+  status: unknown
+  run_id: null
+  at: null
+test:
+  status: unknown
+  run_id: null
+  at: null
+  summary: null
+last_successful_build: null
+last_failed_build: null
+sync:
+  status: pending
+  last_synced_at: '2026-09-25T14:56:47Z'
+  source: local
