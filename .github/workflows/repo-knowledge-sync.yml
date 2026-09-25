@@ -98,13 +98,13 @@ jobs:
         run: |
           build_status="${{ steps.build.outcome == 'success' && 'passed' || 'failed' }}"
           test_status="${{ steps.tests.outcome == 'success' && 'passed' || 'failed' }}"
-          python3 -m tools/repo_knowledge sync --ci \
+          python3 -m tools.repo_knowledge sync --ci \
             --build-status "$build_status" --build-run-id "${{ github.run_id }}" \
             --test-status "$test_status" --test-summary "bash syntax + Bats smoke + docs (ci.yml)"
 
       - name: Verify .repo/ against schemas
         if: always()
-        run: python3 -m tools/repo_knowledge verify
+        run: python3 -m tools.repo_knowledge verify
 
       - name: Commit updated .repo/ state
         if: always() && github.event_name == 'push'
