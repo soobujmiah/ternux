@@ -1,0 +1,9 @@
+event_id: test-5263bec1c65d-36274245923-1
+repository: soobujmiah/ternux
+commit: 5263bec1c65d41ae3e9f77c8125e79bcc5967f6b
+kind: test
+occurred_at: '2026-09-26T21:50:20Z'
+run_id: '36274245923'
+run_attempt: '1'
+status: passed
+summary: bash syntax + Bats smoke + docs (ci.yml)
