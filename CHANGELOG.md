@@ -479,7 +479,7 @@ fallback, pipe purity and regressions A–D all pass.
 
 ### First public release — free and open
 
-- **One-command installer released.** `install.sh` is now a public, MIT-licensed,
+- **One-command installer released.** `install.sh` is now a public Apache-2.0-licensed,
   single-file installer: preflight → base packages → Debian + Xfce4 → GPU driver
   (Zink/Turnip or VirGL) → audio/locale/fonts → launcher → shortcuts → optional
   workloads → phantom-killer advisory → verification.
