@@ -1,0 +1,8 @@
+event_id: commit-ced2cec7f3ec-3bad478db9d00474
+repository: soobujmiah/ternux
+commit: ced2cec7f3ecee09a0069406335807176d9b3b73
+kind: commit
+occurred_at: '2026-09-29T17:17:27Z'
+status: completed
+summary: 'feat(repo-knowledge): upgrade vendored tooling, schemas, and final-run sync
+  contract'
