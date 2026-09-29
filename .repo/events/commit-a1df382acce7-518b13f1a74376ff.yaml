@@ -1,0 +1,8 @@
+event_id: commit-a1df382acce7-518b13f1a74376ff
+repository: soobujmiah/ternux
+commit: a1df382acce74fa9d5df42d8f1874e7e0b58fd33
+kind: commit
+occurred_at: '2026-09-29T22:37:38Z'
+status: completed
+summary: Declare the repository's canonical type and add the documentation scaffold
+  (migration waves 2/3)
