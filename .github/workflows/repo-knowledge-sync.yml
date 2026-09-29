@@ -22,6 +22,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: repo-state-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -100,14 +104,22 @@ jobs:
           test_status="${{ steps.tests.outcome == 'success' && 'passed' || 'failed' }}"
           python3 -m tools.repo_knowledge sync --ci \
             --build-status "$build_status" --build-run-id "${{ github.run_id }}" \
-            --test-status "$test_status" --test-summary "bash syntax + Bats smoke + docs (ci.yml)"
+            --test-status "$test_status" --test-summary "bash syntax + Bats smoke + docs (ci.yml)" \
+            --test-run-id "${{ github.run_id }}" \
+            --run-attempt "${{ github.run_attempt }}" \
+            --workflow-name "${{ github.workflow }}" \
+            --event-type "${{ github.event_name }}" \
+            --actor "${{ github.actor }}" \
+            --run-url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
       - name: Verify .repo/ against schemas
         if: always()
         run: python3 -m tools.repo_knowledge verify
 
       - name: Commit updated .repo/ state
-        if: always() && github.event_name == 'push'
+        if: always() && (github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule') && github.ref == 'refs/heads/main'
+        env:
+          SKB_DISPATCH_TOKEN: ${{ secrets.SKB_DISPATCH_TOKEN || secrets.SKB_RETURN_TOKEN || '' }}
         run: |
           set -euo pipefail
           if git diff --quiet -- .repo; then
@@ -119,3 +131,10 @@ jobs:
           git add .repo
           git commit -m "chore(repo-knowledge): sync deterministic state for ${{ github.sha }}"
           git push origin HEAD:${{ github.ref_name }}
+          if [ -n "$SKB_DISPATCH_TOKEN" ]; then
+            curl -fsSL -X POST \
+              -H "Authorization: Bearer $SKB_DISPATCH_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              https://api.github.com/repos/soobujmiah/skb/dispatches \
+              -d "{\"event_type\":\"repo-state-updated\",\"client_payload\":{\"project_id\":\"ternux\",\"repository\":\"${{ github.repository }}\",\"run_id\":\"${{ github.run_id }}\",\"sha\":\"${{ github.sha }}\"}}" || true
+          fi
