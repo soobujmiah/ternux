@@ -574,6 +574,30 @@ in `/home/sbj/npu-probe-2026-10-13/`.
 - [llama.cpp Vulkan build](https://github.com/ggml-org/llama.cpp/blob/master/docs/build.md#vulkan)
 - [stable-diffusion.cpp Vulkan build](https://github.com/leejet/stable-diffusion.cpp/blob/master/docs/build.md#build-with-vulkan)
 
+## 2026-10-14 published Vulkan extension install and inference
+
+The public ARM64 prerelease was downloaded by `ternux extension install
+llama-vulkan` into a new isolated Debian guest home. SHA-256 verified; the
+manifest names the pinned llama.cpp commit and records device validation. The
+archive checksum is
+`3753fa3044ec258732cc52729eafc42c0cbf5b476f27fd247be3619617611d9e`; the
+package includes the upstream license, uses `$ORIGIN/../lib`, and has no missing
+dynamic dependencies in Debian PRoot. Sourcing `env.sh` exposed
+`llama-cli --version` and listed Vulkan0 as Adreno 825.
+
+Using the existing `/sdcard/LAI/models/qwen2.5-1.5b-instruct-q4-0.gguf` in
+place, the installed package returned `4` for the same greedy `2 + 2` prompt
+with `-ngl 0` and with `-dev Vulkan0 -ngl 99`. The verbose Vulkan trace names
+Adreno 825 and offloads 29/29 layers. An attempted reinstall preserved the
+existing binary hash and failed with the documented already-installed
+message. CPU and Vulkan logs are `extension-final-cpu-known-answer.log` and
+`extension-final-vulkan-known-answer.log` under
+`/home/sbj/npu-probe-2026-10-13/ternux-vulkan-device-test/`; installer output is
+in `/tmp/ternux-extension-final-install.log`.
+
+This verifies the published package path on the current configured device. It
+does not qualify a clean Mesa/Turnip install, HTP, or long-session behavior.
+
 ## 2026-10-13 standalone Android QNN VAE graph qualification
 
 The pinned Android NDK CI helper from [run 38406862573](https://github.com/soobujmiah/ternux/actions/runs/38406862573) was downloaded to isolated scratch after the owner's explicit authorization. Checksums, AArch64 ELF, Android dependencies (`libc.so`, `libdl.so`) and absent RUNPATH were checked. On Redmi Turbo 4 Pro / SM8735 / Android 16, it streamed the existing ZIP members from `/sdcard/Llms/` into sealed anonymous memfds; no model copy was written. The licensed Qualcomm QNN 2.29 V73 stub/skel stayed in scratch and is not a release asset.

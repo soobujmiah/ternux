@@ -527,6 +527,30 @@ workload এখনো মাপা হয়নি। Log: `/home/sbj/npu-probe-
 - [llama.cpp Vulkan build](https://github.com/ggml-org/llama.cpp/blob/master/docs/build.md#vulkan)
 - [stable-diffusion.cpp Vulkan build](https://github.com/leejet/stable-diffusion.cpp/blob/master/docs/build.md#build-with-vulkan)
 
+## 2026-10-14 প্রকাশিত Vulkan extension install ও inference
+
+Public ARM64 prerelease-টি নতুন isolated Debian guest home-এ
+`ternux extension install llama-vulkan` দিয়ে download ও install হয়েছে। SHA-256
+যাচাই হয়েছে; manifest-এ pinned llama.cpp commit ও device validation লেখা আছে।
+Archive checksum
+`3753fa3044ec258732cc52729eafc42c0cbf5b476f27fd247be3619617611d9e`; package-এ
+upstream license আছে, `$ORIGIN/../lib` ব্যবহার করে এবং Debian PRoot-এ missing
+dynamic dependency নেই। `env.sh` source করার পর `llama-cli --version` চলে এবং
+Vulkan0-তে Adreno 825 দেখা যায়।
+
+আগের জায়গায় রাখা
+`/sdcard/LAI/models/qwen2.5-1.5b-instruct-q4-0.gguf` দিয়ে installed package একই
+greedy `2 + 2` prompt-এ `-ngl 0` এবং `-dev Vulkan0 -ngl 99`—দুই ক্ষেত্রেই `4`
+দিয়েছে। Verbose Vulkan trace Adreno 825 দেখায় এবং 29/29 layer offload করে।
+Reinstall চেষ্টায় আগের binary hash অক্ষত ছিল এবং expected already-installed
+error এসেছে। CPU ও Vulkan log
+`/home/sbj/npu-probe-2026-10-13/ternux-vulkan-device-test/`-এর
+`extension-final-cpu-known-answer.log` ও `extension-final-vulkan-known-answer.log`;
+installer output `/tmp/ternux-extension-final-install.log`-এ আছে।
+
+এটি বর্তমান configured device-এ প্রকাশিত package path যাচাই করে। Clean Mesa/Turnip
+install, HTP বা দীর্ঘ সময়ের behavior এটি qualify করে না।
+
 ## 2026-10-13 standalone Android QNN VAE graph qualification
 
 The pinned Android NDK CI helper from [run 38406862573](https://github.com/soobujmiah/ternux/actions/runs/38406862573) was downloaded to isolated scratch after the owner's explicit authorization. Checksums, AArch64 ELF, Android dependencies (`libc.so`, `libdl.so`) and absent RUNPATH were checked. On Redmi Turbo 4 Pro / SM8735 / Android 16, it streamed the existing ZIP members from `/sdcard/Llms/` into sealed anonymous memfds; no model copy was written. The licensed Qualcomm QNN 2.29 V73 stub/skel stayed in scratch and is not a release asset.
