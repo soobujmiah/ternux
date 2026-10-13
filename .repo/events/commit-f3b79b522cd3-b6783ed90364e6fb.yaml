@@ -1,0 +1,7 @@
+event_id: commit-f3b79b522cd3-b6783ed90364e6fb
+repository: soobujmiah/ternux
+commit: f3b79b522cd3e4a6fa49c28dd004002ae4843e95
+kind: commit
+occurred_at: '2026-10-13T10:02:34Z'
+status: completed
+summary: 'ci: build reusable Snapdragon HTP package'
