@@ -35,6 +35,7 @@ jobs:
           mkdir -p dist/bin
           "$cc" -O2 -Wall -Wextra -Werror experiments/qnn-native/probe.c -ldl -o dist/bin/ternux-qnn-native-probe
           "$cc" -O2 -Wall -Wextra -Werror experiments/qnn-native/context_inspect.c -ldl -o dist/bin/ternux-qnn-context-inspect
+          "$cc" -O2 -Wall -Wextra -Werror experiments/qnn-native/known_add.c -ldl -o dist/bin/ternux-qnn-known-add
           cp experiments/qnn-native/archive_input.py dist/archive_input.py
           cp experiments/qnn-native/README.md dist/README.md
           for binary in dist/bin/*; do

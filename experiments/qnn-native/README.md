@@ -137,6 +137,14 @@ or image generation. Raw local log:
 
 ## Remaining inference gates
 
+An opt-in [`known_add.c`](known_add.c) diagnostic now builds in the same pinned
+Android NDK CI workflow. It attempts to construct a 64-element UFIXED_POINT_16
+`ElementWiseAdd` graph using the QNN HTP API and checks every result against
+the independently computed integer sum. It may need the matching QNN HTP
+Prepare library in licensed scratch runtime storage. Build success alone does
+not qualify graph creation, CDSP execution, or the intended VAE/UNet model;
+the device result must be recorded separately.
+
 1. Obtain an independent expected tensor for the exact fixed VAE input, verify
    output encoding/quantization, and compare numerical values. Then qualify
    decoder and UNet graph execution separately.
