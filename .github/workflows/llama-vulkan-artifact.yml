@@ -88,6 +88,7 @@ jobs:
           LLAMA_HOME="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
           export LLAMA_HOME
           export LD_LIBRARY_PATH="$LLAMA_HOME/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+          export PATH="$LLAMA_HOME/bin:$PATH"
           if [ -z "${VK_ICD_FILENAMES:-}" ]; then
             for _tnx_icd in \
               /usr/local/share/vulkan/icd.d/ternux_freedreno_icd.json \

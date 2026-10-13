@@ -36,6 +36,7 @@ ${TNX_CW}Usage:${TNX_C0}
 
 ${TNX_CW}Commands:${TNX_C0}
   ${TNX_CG}install${TNX_C0}    Install full desktop environment
+  ${TNX_CG}extension${TNX_C0}  Install checksum-verified guest extensions
   ${TNX_CG}guides${TNX_C0}     Installation and ecosystem help links
   ${TNX_CG}start${TNX_C0}      Start the desktop session
   ${TNX_CG}stop${TNX_C0}       Stop the desktop session
@@ -69,6 +70,22 @@ HELPEOF
 }
 
 # --- Command-specific help -------------------------------------------------
+tnx_help_extension() {
+  cat <<'HELP'
+Usage: ternux extension [list|install NAME]
+
+Install a checksum-verified Ternux Linux ARM64 extension release in your
+Debian user's ~/.local/opt/ternux-extensions directory.
+
+Available names:
+  llama-vulkan   llama.cpp CPU + Vulkan package (b11582)
+
+Run it from the Termux host CLI; installation is delegated to the selected
+Debian guest. Model files and system packages are not installed or changed.
+ADT has its own release-aware installer and remains managed by the ADT project.
+HELP
+}
+
 tnx_help_install() {
   cat << HELP
 Usage: ternux install [options]

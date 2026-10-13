@@ -7,16 +7,19 @@ alt_url: /docs/ACCELERATOR-RELEASE-PLAN.html
 
 ২০২৬-১০-১৩-এর owner direction: আগে নিজস্ব standalone QNN image path সম্পূর্ণ
 করব; তারপর Ternux NPU support-এর মূল কাজে ফিরব। পরবর্তী Ternux version release-এর
-আগে প্রতিটি gate শেষ করতে হবে। এটি pending কাজের plan, shipped capability নয়।
+২০২৬-১০-১৪-এর owner clarification: অন্য ডিভাইসে Ubuntu install এই release-এর
+blocker বা বাকি কাজ নয়; এটি স্থগিত। Ubuntu profile এখনো device-এ যাচাই করা হয়নি।
+পরবর্তী Ternux version-এর আগে scope-এর বাকি accelerator ও release gate শেষ করতে
+হবে। এটি pending কাজের plan, shipped capability নয়।
 
 | ক্রম | কাজ | বর্তমান status | Completion evidence |
 |---|---|---|---|
-| ১ | PRoot থেকে callable নিজস্ব Android/Bionic QNN helper | Runtime/provider, backend/device ও VAE context load/free and encoder graph execution VERIFIED; generic HTP Add known-answer VERIFIED; model output correctness UNVERIFIED | Matching execution headers, tensor metadata, request/response, known-output accelerator test |
-| ২ | Existing QNN picture model একই জায়গায় রেখে ব্যবহার | No-copy VAE/UNet fixed-input graph execution VERIFIED; prompt-to-image inference UNVERIFIED | CLIP/UNet/VAE pipeline, graph execution, stage attribution, fixed-seed image test ও reviewed output |
-| ৩ | মূল Debian llama.cpp CPU/GPU/HTP qualification | CPU/Vulkan known-answer pass; HTP known-answer FAILED | Q4 mismatch diagnosis, operator validation, intended backend-এ correct model answer reproduce |
-| ৪ | Repeat ও sustained device qualification | তিনটি short CPU/GPU benchmark; sustained test UNVERIFIED | Matched run, memory/thermal/power availability, stability, cancel/restart/cleanup, safe fallback |
-| ৫ | পুনর্ব্যবহারযোগ্য GitHub artifact | HTP experimental prerelease আছে; Vulkan package local; standalone helper NDK CI artifact device graph test pass; release install package pending | Pinned input, ABI/ELF check, checksum, license, manifest ও clean-device install verification |
-| ৬ | Extension install ও সম্পূর্ণ guide | বর্তমান LLM installer source থেকে build করে | Release-based selectable ADT/llama.cpp/extension, auto/manual step, model path, backend selection, upgrade/resume/error handling |
+| ১ | PRoot থেকে callable নিজস্ব Android/Bionic QNN helper | Runtime/provider, backend/device, VAE context load/free ও encoder graph execution VERIFIED; generic HTP Add known-answer VERIFIED; model output correctness UNVERIFIED | Matching execution headers, tensor metadata, request/response, known-output accelerator test |
+| ২ | Existing QNN picture model একই জায়গায় রেখে ব্যবহার | No-copy VAE/UNet fixed-input graph execution VERIFIED; 2026-10-14-এ fixed-prompt CLIP CPU input/output repeatability VERIFIED; CLIP-to-UNet ও prompt-to-image UNVERIFIED | CLIP/UNet/VAE pipeline, graph execution, stage attribution, fixed-seed image test ও reviewed output |
+| ৩ | মূল Debian llama.cpp CPU/GPU/HTP qualification | CPU/Vulkan known-answer pass; default HTP path FAILED; HVX matmul ও flash-attention-off-এ SM8735-এ Qwen2.5 1.5B ও Llama 3.2 3B-এর short answer pass (2026-10-14) | HMX/attention mismatch isolate, repeatability ও longer prompt qualify, তারপর pinned supported configuration qualify |
+| ৪ | Repeat ও sustained device qualification | SM8735-এ thermal status 0-সহ পরপর ৬০০টি 720p/16-sample EEVEE frame সম্পন্ন (2026-10-14); CPU/Vulkan same-model arithmetic known-answer pass; sustained CPU/NPU, cancel/restart ও fallback UNVERIFIED | Matched run, memory/thermal/power availability, stability, cancel/restart/cleanup, safe fallback |
+| ৫ | পুনর্ব্যবহারযোগ্য GitHub artifact | Vulkan ARM64 package native runner-এ build, checksum/ELF/RUNPATH/dependency check এবং isolated device scratch-এ install হয়েছে; CPU ও Adreno Vulkan known-answer pass. Draft candidate এখনো প্রকাশিত নয়. HTP experimental-ই আছে. | Pinned build input, ABI/ELF check, license review, release manifest, প্রকাশিত install path ও clean-device verification |
+| ৬ | Extension install ও সম্পূর্ণ guide | `ternux extension list/install llama-vulkan` pinned release নির্বাচন করে; Termux থেকে নির্বাচিত Debian guest-এ যায়, SHA-256 ও archive path যাচাই করে, তারপর guest user-এর home-এ atomic install করে। Artifact এখনো draft। ADT তার নিজস্ব installer-এ থাকে। | CLI দিয়ে release publish ও install test, fresh-install/update/resume/failure check, model path, backend selection এবং পূর্ণ auto/manual guide |
 | ৭ | CLI ও installation screen polish | Release phase-এ pending | পরিষ্কার mobile layout, অর্থপূর্ণ status/error, interactive/unattended path ও usability validation |
 | ৮ | Complete Ternux version release | HELD | সব আগের gate, accurate support matrix, required CI, installed-artifact device test ও final documentation |
 

@@ -164,6 +164,38 @@ BUILD_TOOLS_VERSION=37.0.0
 সমর্থিত version ও asset checksum-এর canonical source ADT repository। দেখুন
 [ADT command guide](https://github.com/soobujmiah/adt/blob/main/COMMANDS.md)।
 
+### CPU + Vulkan llama.cpp extension বসান
+
+Termux host থেকে প্রকাশিত ARM64 extension release-এর তালিকা দেখুন ও install
+করুন:
+
+```bash
+ternux extension list
+ternux extension install llama-vulkan
+```
+
+Installer নির্বাচিত Debian guest-এ ঢুকে release SHA-256 যাচাই করে, archive path ও
+package metadata পরীক্ষা করে, তারপর atomic ভাবে
+`~/.local/opt/ternux-extensions/llama-vulkan`-এ বসায়। Model weight কপি বা manage
+করে না। Release প্রকাশিত না হলে এই command দিয়ে extension নামানো যাবে না; draft
+candidate প্রকাশের আগে download-যোগ্য নয়।
+
+Debian-এর ভেতরে tool চালু করে backend নির্দিষ্ট করুন:
+
+```bash
+source "$HOME/.local/opt/ternux-extensions/llama-vulkan/env.sh"
+llama-cli --list-devices
+llama-cli -m /path/to/your/model.gguf -ngl 0 -p 'What is 2 + 2?' -n 8
+llama-cli -m /path/to/your/model.gguf -ngl 99 -p 'What is 2 + 2?' -n 8
+```
+
+CPU fallback হিসেবে ব্যবহার করা যায়। Vulkan-এর জন্য system Vulkan ICD কাজ করতে হবে
+এবং Adreno device তালিকায় থাকতে হবে; আগে `vulkaninfo --summary` যাচাই করুন। এই
+package-এ শুধু CPU ও Vulkan backend আছে। ADT আগের অংশের নিজস্ব release-aware command
+দিয়ে install ও update হবে।
+
+---
+
 ### পরীক্ষামূলক llama.cpp HTP artifact বসান
 
 এটি Debian guest-এর ভেতরে চালান। Artifact আপনার Debian user-এর home-এ বসবে;

@@ -20,6 +20,11 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 - Blender-এর একটি process-এ 1280x720, ১৬ sample-এ পরপর ৬০০টি EEVEE frame render হয়েছে।
   সব frame সম্পন্ন; median 1.49 সেকেন্ড, Android thermal status 0 এবং নমুনায় skin
   temperature সর্বোচ্চ 44.5 C। এটি প্রায় ১৫ মিনিটের run, multi-hour qualification নয়।
+- Pinned Linux ARM64 llama.cpp CPU + Vulkan build workflow এবং checksum-যাচাই করা
+  `ternux extension list/install llama-vulkan` পথ যোগ হয়েছে। Artifact এখনো draft
+  candidate; command নির্বাচিত Debian guest-এ install করে, model file ছোঁয় না।
+- অন্য ডিভাইসে Ubuntu installation স্থগিত; এটি এই release-এর blocker নয়। নথিতে
+  Ubuntu profile-কে এখনো device-এ unverified বলা আছে।
 - Turnip source download upstream release `mesa-26.3.0-devel-20260824`-এ pin করা;
   release manifest-এর SHA-256 না মিললে archive প্রত্যাখ্যান হয়। Clean-device install
   এবং বিস্তৃত ABI/license review এখনো বাকি।

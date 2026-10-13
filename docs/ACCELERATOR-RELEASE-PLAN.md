@@ -9,9 +9,12 @@ Owner direction, 2026-10-13: finish the standalone QNN image route first, then
 return to the main Ternux NPU support work. Owner clarification, 2026-10-14:
 the primary objective is Ternux CPU, GPU and NPU support; continue the main
 accelerator qualification while keeping the QNN image route as a separate
-pending gate. Complete every release gate before the next Ternux version is
-released. This plan tracks pending work explicitly; it does not describe
-shipped capabilities.
+pending gate. Owner clarification, 2026-10-14: Ubuntu installation on another
+device is deferred and is not a blocker or remaining task for this release;
+the existing Ubuntu profile remains explicitly unverified. Complete the
+remaining in-scope accelerator and release gates before the next Ternux
+version is released. This plan tracks pending work explicitly; it does not
+describe shipped capabilities.
 
 | Order | Work | Current status | Completion evidence |
 |---|---|---|---|
@@ -19,8 +22,8 @@ shipped capabilities.
 | 2 | Existing QNN picture model, kept in place | No-copy VAE/UNet fixed-input graph execution VERIFIED; fixed-prompt CLIP CPU input and output repeatability VERIFIED on 2026-10-14; CLIP-to-UNet and prompt-to-image UNVERIFIED | CLIP/UNet/VAE pipeline, graph execution, stage attribution, fixed-seed image test and reviewed output |
 | 3 | Main Debian llama.cpp CPU/GPU/HTP qualification | CPU/Vulkan known-answer pass; HTP default path FAILED; HVX matmul plus flash-attention-off passed short known-answer prompts on Qwen2.5 1.5B and Llama 3.2 3B on SM8735 (2026-10-14) | Isolate failing HMX/attention operators, qualify repeatability and longer prompts, then qualify a pinned supported configuration |
 | 4 | Repeat and sustained device qualification | 600 consecutive 720p/16-sample EEVEE frames completed on SM8735 with thermal status 0 (2026-10-14); CPU/Vulkan same-model arithmetic known-answer passed; sustained CPU/NPU, cancellation/restart and fallback remain UNVERIFIED | Matched runs, memory/thermal/power availability recorded, stability, cancellation/restart/cleanup, safe fallback |
-| 5 | Reusable GitHub artifacts | HTP experimental prerelease exists; Vulkan package local; standalone helper NDK CI artifact passed device graph test; no released install package | Pinned build inputs, ABI/ELF checks, checksums, licenses, release manifest and clean-device install verification |
-| 6 | Extension installation and complete guides | Current LLM installer builds from source | Release-based selectable ADT/llama.cpp/extensions, automatic/manual steps, model paths, backend selection, upgrade/resume/failure handling |
+| 5 | Reusable GitHub artifacts | Vulkan ARM64 package built on a native runner, checksum/ELF/RUNPATH/dependency checked, and installed in isolated device scratch; CPU and Adreno Vulkan known-answer pass; draft candidate not published. HTP remains experimental. | Pinned build inputs, ABI/ELF checks, reviewed licenses, release manifest, published install path and clean-device verification |
+| 6 | Extension installation and complete guides | `ternux extension list/install llama-vulkan` now selects a pinned release, delegates from Termux into the chosen Debian guest, verifies SHA-256 and archive paths, then installs atomically under the guest user's home. The artifact is still a draft. ADT remains managed by ADT. | Publish and test the selected release through the CLI, fresh-install/update/resume/failure checks, model paths, backend selection and complete automatic/manual guides |
 | 7 | CLI and installation screen polish | Pending release phase | Clear mobile layout, meaningful status/error text, interactive/unattended paths and usability validation |
 | 8 | Complete Ternux version release | HELD | All prior gates satisfied, accurate support matrix, required CI, installed-artifact device tests and final documentation |
 

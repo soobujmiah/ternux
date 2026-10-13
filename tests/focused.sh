@@ -866,7 +866,7 @@ if env TERNUX_STATE_DIR="$TMP/state-cli-stale" HOME="$TMP/home-cli-stale" \
       if [ "$dest" = "$PREFIX/bin/ternux" ]; then
         cat > "$dest" <<MOCK
 #!/usr/bin/env bash
-printf "ternux v${TERNUX_VERSION}0\\n"
+printf "ternux v${TERNUX_VERSION}0\n"
 MOCK
         chmod 0755 "$dest"
       else
@@ -1119,6 +1119,83 @@ check "optional llama workload pins a safe llama.cpp revision" bash -c '
   grep -Fq "Refusing to modify existing non-pinned source" "$1/lib/phases.sh" &&
   ! grep -Fq "rm -rf ~/llama.cpp" "$1/lib/phases.sh"
 ' _ "$ROOT"
+
+# The Termux host frontend streams the installer into the selected Debian guest.
+EXT_HOST_BIN="$TMP/extension-host-bin"
+mkdir -p "$EXT_HOST_BIN"
+cat > "$EXT_HOST_BIN/getconf" <<'EOF'
+#!/bin/sh
+exit 1
+EOF
+cat > "$EXT_HOST_BIN/proot-distro" <<'EOF'
+#!/bin/sh
+while [ "$#" -gt 0 ] && [ "$1" != -- ]; do shift; done
+[ "${1:-}" = -- ] && shift
+exec "$@"
+EOF
+chmod 0755 "$EXT_HOST_BIN/getconf" "$EXT_HOST_BIN/proot-distro"
+if env HOME="$TMP/ext-host-home" PATH="$EXT_HOST_BIN:$PATH" \
+  TERNUX_STATE_DIR="$TMP/ext-host-state" bash -c '
+    . "$1/lib/core.sh"
+    . "$1/lib/extension.sh"
+    tnx_state_set user sbj
+    tnx_state_set distro debian
+    tnx_cmd_extension list
+  ' _ "$ROOT" | grep -q 'llama-vulkan.*Linux ARM64'; then
+  ok "host extension command delegates its menu into the selected guest"
+else
+  not_ok "host extension command delegates its menu into the selected guest"
+fi
+
+# Release extensions install from checksummed, path-validated archives and do
+# not mutate an existing destination on failure.
+EXT_TAG=ternux-llama-vulkan-linux-arm64-b11582
+EXT_FIXTURE="$TMP/extension-fixture"
+EXT_BIN="$TMP/extension-bin"
+mkdir -p "$EXT_FIXTURE/$EXT_TAG/bin" "$EXT_BIN"
+printf '#!/bin/sh\necho llama.cpp b11582\n' > "$EXT_FIXTURE/$EXT_TAG/bin/llama-cli"
+chmod 0755 "$EXT_FIXTURE/$EXT_TAG/bin/llama-cli"
+printf 'LLAMA_HOME=fixture\n' > "$EXT_FIXTURE/$EXT_TAG/env.sh"
+printf '{"artifact": "ternux-llama-vulkan-linux-arm64-b11582"}\n' > "$EXT_FIXTURE/$EXT_TAG/build-manifest.json"
+tar -czf "$EXT_FIXTURE/$EXT_TAG.tar.gz" -C "$EXT_FIXTURE" "$EXT_TAG"
+(cd "$EXT_FIXTURE" && sha256sum "$EXT_TAG.tar.gz" > "$EXT_TAG.tar.gz.sha256")
+cat > "$EXT_BIN/uname" <<'EOF'
+#!/bin/sh
+case "${1:-}" in -s) echo Linux ;; -m) echo aarch64 ;; *) exit 1 ;; esac
+EOF
+cat > "$EXT_BIN/getconf" <<'EOF'
+#!/bin/sh
+echo 'glibc 2.36'
+EOF
+cat > "$EXT_BIN/curl" <<'EOF'
+#!/bin/sh
+out= url=
+while [ "$#" -gt 0 ]; do
+  if [ "$1" = -o ]; then shift; out="$1"; else url="$1"; fi
+  shift
+done
+cp "$EXT_FIXTURE/${url##*/}" "$out"
+EOF
+chmod 0755 "$EXT_BIN/uname" "$EXT_BIN/getconf" "$EXT_BIN/curl"
+if env HOME="$TMP/ext-home-ok" EXT_FIXTURE="$EXT_FIXTURE" PATH="$EXT_BIN:$PATH" \
+  TERNUX_STATE_DIR="$TMP/ext-state-ok" bash "$ROOT/bin/ternux" extension install llama-vulkan >/dev/null 2>&1 &&
+  [ -x "$TMP/ext-home-ok/.local/opt/ternux-extensions/llama-vulkan/bin/llama-cli" ] &&
+  [ -f "$TMP/ext-home-ok/.local/opt/ternux-extensions/llama-vulkan/env.sh" ] &&
+  grep -Fq '"artifact": "ternux-llama-vulkan-linux-arm64-b11582"' \
+    "$TMP/ext-home-ok/.local/opt/ternux-extensions/llama-vulkan/build-manifest.json"; then
+  ok "extension installer verifies and atomically installs the selected release"
+else
+  not_ok "extension installer verifies and atomically installs the selected release"
+fi
+printf '%064d  %s.tar.gz\n' 0 "$EXT_TAG" > "$EXT_FIXTURE/$EXT_TAG.tar.gz.sha256"
+if ! env HOME="$TMP/ext-home-bad" EXT_FIXTURE="$EXT_FIXTURE" PATH="$EXT_BIN:$PATH" \
+  TERNUX_STATE_DIR="$TMP/ext-state-bad" bash "$ROOT/bin/ternux" extension install llama-vulkan >/dev/null 2>&1 &&
+  [ ! -e "$TMP/ext-home-bad/.local/opt/ternux-extensions/llama-vulkan" ] &&
+  ! find "$TMP/ext-home-bad/.local/opt/ternux-extensions" -mindepth 1 -maxdepth 1 -name '.llama-vulkan.install.*' | grep -q .; then
+  ok "extension checksum failure leaves no installed files or staging directory"
+else
+  not_ok "extension checksum failure leaves no installed files or staging directory"
+fi
 
 # The GPU phase must install the Turnip driver where apt cannot reach it. A
 # driver written over a dpkg-owned path is reverted by any mesa package

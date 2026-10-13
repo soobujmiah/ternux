@@ -21,6 +21,12 @@ Notable changes to ternux. Dates are ISO 8601.
   process. All frames completed; the median was 1.49 seconds, Android thermal
   status remained 0 and sampled skin temperature peaked at 44.5 C. This is a
   roughly 15-minute sample, not multi-hour qualification.
+- Added a pinned Linux ARM64 llama.cpp CPU + Vulkan build workflow and a
+  checksum-verified `ternux extension list/install llama-vulkan` path. The
+  artifact is still a draft candidate; the command installs into the selected
+  Debian guest and leaves model files untouched.
+- Ubuntu installation on another device is deferred and does not block this
+  release; documentation continues to identify its profile as unverified.
 - Turnip source downloads are pinned to upstream release
   `mesa-26.3.0-devel-20260824` and rejected unless the archive SHA-256 matches
   the release manifest. Clean-device installation and broader ABI/license
