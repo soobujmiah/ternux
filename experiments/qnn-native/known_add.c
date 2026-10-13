@@ -113,7 +113,7 @@ static int run_known_add(qnn_api *api) {
         !api->device_free || !api->context_create || !api->context_free ||
         !api->graph_create || !api->graph_add_node || !api->graph_finalize ||
         !api->graph_execute || !api->tensor_create_graph) return 2;
-    if (api->log_create && !api->log_create(qnn_log, 3, &logger))
+    if (api->log_create && !api->log_create(qnn_log, 4, &logger))
         puts("{\"stage\":\"logger_create\",\"status\":0}");
     status = api->backend_create(logger, NULL, &backend);
     printf("{\"stage\":\"backend_create\",\"status\":%" PRIu64 "}\n", status);
