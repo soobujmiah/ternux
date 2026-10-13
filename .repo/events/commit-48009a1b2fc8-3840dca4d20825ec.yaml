@@ -1,0 +1,7 @@
+event_id: commit-48009a1b2fc8-3840dca4d20825ec
+repository: soobujmiah/ternux
+commit: 48009a1b2fc8ca02e0debfabf34a8884849d6416
+kind: commit
+occurred_at: '2026-10-13T16:42:10Z'
+status: completed
+summary: Allow a second guest distribution to be selected
