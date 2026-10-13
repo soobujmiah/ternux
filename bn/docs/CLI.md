@@ -47,7 +47,8 @@ load হওয়ার আগের failure JSON বানাতে পার�
 ### `ternux guides`
 
 Termux host অথবা Debian/Xfce guest-এ `ternux guides` চালালে installation,
-ecosystem tool এবং daily-use guide-এর link দেখা যায়। এটি কিছু install করে না।
+ecosystem tool, graphics-persistence এবং daily-use guide-এর link দেখা যায়। এটি কিছু
+install করে না।
 
 ### `ternux install`
 

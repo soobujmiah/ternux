@@ -190,12 +190,37 @@ tnx_cmd_verify() {
   local backend
   backend="$(tnx_canonical_backend "$(tnx_state_get "backend")")"
   if [ "$backend" = "zink" ]; then
-    if tnx_has_cmd proot-distro && proot-distro login debian -- bash -c 'test -f /usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so && test -f /usr/share/vulkan/icd.d/freedreno_icd.aarch64.json' 2>/dev/null; then
-      checks+=("turnip:present"); [ "${TERNUX_JSON:-0}" != "1" ] && tnx_ok "Turnip driver present"
-    else
-      checks+=("turnip:missing"); rc=1
-      [ "${TERNUX_JSON:-0}" != "1" ] && tnx_warn "Turnip files missing"
+    # A Turnip newer than Debian's is what makes the Adreno visible to Vulkan at
+    # all, so where it lives decides whether apt can take it away. The managed
+    # layout keeps it under /usr/local, outside dpkg's reach; the fragile layout
+    # overwrites a dpkg-owned path and is reverted by any mesa upgrade. See
+    # docs/GRAPHICS-PERSISTENCE.md.
+    local turnip_layout="unknown"
+    if tnx_has_cmd proot-distro; then
+      turnip_layout="$(proot-distro login debian -- bash -c '
+        if [ -f /usr/local/lib/aarch64-linux-gnu/libvulkan_freedreno.so ] \
+           && [ -f /usr/local/share/vulkan/icd.d/ternux_freedreno_icd.json ]; then
+          echo managed
+        elif [ -f /usr/share/vulkan/icd.d/freedreno_icd.aarch64.json ]; then
+          echo fragile
+        else
+          echo missing
+        fi' 2>/dev/null)"
     fi
+    case "$turnip_layout" in
+      managed)
+        checks+=("turnip:present")
+        [ "${TERNUX_JSON:-0}" != "1" ] && tnx_ok "Turnip driver present (apt-safe layout)"
+        ;;
+      fragile)
+        checks+=("turnip:fragile"); rc=1
+        [ "${TERNUX_JSON:-0}" != "1" ] && tnx_warn "Turnip driver is on a dpkg-owned path; a mesa upgrade will revert it. See docs/GRAPHICS-PERSISTENCE.md"
+        ;;
+      *)
+        checks+=("turnip:missing"); rc=1
+        [ "${TERNUX_JSON:-0}" != "1" ] && tnx_warn "Turnip files missing"
+        ;;
+    esac
   elif [ "$backend" = "virgl" ]; then
     if tnx_has_cmd virgl_test_server_android; then
       checks+=("virgl:present")

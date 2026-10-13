@@ -346,6 +346,12 @@ Forcing `zink` on a device without `/dev/kgsl-3d0` fails loudly at the GPU phase
 before the launcher is created, rather than producing a silently-software
 desktop. That failure is intentional.
 
+On the Zink route the Vulkan driver is the foundation the whole OpenGL path
+stands on, and on recent Adreno hardware it has to be newer than the one Debian
+ships. Read [Graphics persistence](GRAPHICS-PERSISTENCE.html) before your first
+`apt upgrade`: it explains where to keep that driver so a package update cannot
+remove it, and how to tell whether yours is already at risk.
+
 ---
 
 ## The installer screen

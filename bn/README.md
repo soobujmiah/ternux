@@ -1,6 +1,6 @@
 ---
 title: "ternux"
-description: "একটি কমান্ডে Android ফোনে Debian ডেস্কটপ ও যাচাইযোগ্য গ্রাফিক্স পথ। root ছাড়া, ARM64, Apache-2.0 লাইসেন্স।"
+description: "একটি কমান্ডে ARM64 ফোনেই সত্যিকারের Linux ওয়ার্কস্টেশন — Debian, Xfce4 ও যাচাইযোগ্য গ্রাফিক্স পথ। PC ছাড়া, root ছাড়া, Apache-2.0 লাইসেন্স।"
 lang: "bn"
 alt_url: "/README.html"
 ---
@@ -9,7 +9,7 @@ alt_url: "/README.html"
 
 # ternux
 
-### Android-এ Debian + Xfce4 — root ছাড়া, ARM64, যাচাইযোগ্য গ্রাফিক্স পথ
+### একটি ARM64 ফোনেই সত্যিকারের Linux ওয়ার্কস্টেশন — PC ছাড়া, root ছাড়া, যাচাইযোগ্য গ্রাফিক্স পথ
 
 [![সংস্করণ](https://img.shields.io/badge/version-1.4.0-00e5a0?style=flat-square)](https://github.com/soobujmiah/ternux/releases)
 [![প্ল্যাটফর্ম](https://img.shields.io/badge/platform-Android%20arm64-38bdf8?style=flat-square)](https://github.com/soobujmiah/ternux)

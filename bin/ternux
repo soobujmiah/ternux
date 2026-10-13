@@ -71,6 +71,7 @@ _tnx_dispatch() {
         '  Installation: https://soobujmiah.github.io/ternux/docs/INSTALLATION.html' \
         '  Manual setup: https://soobujmiah.github.io/ternux/docs/MANUAL.html' \
         '  Ecosystem tools: https://soobujmiah.github.io/ternux/docs/INSTALLATION.html#choose-the-right-project-release' \
+        '  Keep the GPU driver: https://soobujmiah.github.io/ternux/docs/GRAPHICS-PERSISTENCE.html' \
         '  Daily use: https://soobujmiah.github.io/ternux/docs/USAGE.html' \
         '' 'Open these links in a browser. This command does not install anything.'
       return 0 ;;

@@ -381,6 +381,13 @@ verify with `glxinfo`. To upgrade Mesa deliberately and keep acceleration,
 follow the unhold → upgrade → rehold → verify sequence in
 [Configuration](CONFIGURATION.html#held-mesa-packages-zink-route).
 
+A hold is not a permanent guarantee. `apt install --reinstall mesa-vulkan-drivers`
+resets that package's selection to `install`, which drops the hold without
+reporting it — measured on 2026-10-13, where the other four Mesa holds survived
+because they were never named on the command line. For a layout that keeps the
+driver even when the package is reinstalled, and needs no holds at all, see
+[Graphics persistence](GRAPHICS-PERSISTENCE.html).
+
 ---
 
 ## The installer screen flickers or the frame is broken

@@ -23,6 +23,9 @@ en:
       - title: Configuration
         url: /docs/CONFIGURATION.html
         summary: Launch variables, graphics routes, audio, locale, and fonts.
+      - title: Graphics persistence
+        url: /docs/GRAPHICS-PERSISTENCE.html
+        summary: Keep the GPU driver across package updates.
       - title: Troubleshooting
         url: /docs/TROUBLESHOOTING.html
         summary: Symptom-led diagnosis and safe recovery.
@@ -71,6 +74,9 @@ bn:
       - title: কনফিগারেশন
         url: /bn/docs/CONFIGURATION.html
         summary: Launch variable, graphics route, audio, locale ও font।
+      - title: গ্রাফিক্স স্থায়িত্ব
+        url: /bn/docs/GRAPHICS-PERSISTENCE.html
+        summary: Package update-এর পরেও GPU driver ধরে রাখুন।
       - title: সমস্যা সমাধান
         url: /bn/docs/TROUBLESHOOTING.html
         summary: লক্ষণভিত্তিক diagnosis ও নিরাপদ recovery।

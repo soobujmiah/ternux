@@ -12,6 +12,36 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 
 ## [Unreleased]
 
+### শুধু desktop নয়, একটি workstation
+
+- প্রকল্পটি যা হয়ে উঠেছে সেই অনুযায়ী নাম-পরিচয় বদলানো হলো: একটি ARM64 ফোনেই
+  সত্যিকারের Linux workstation, মাঝে কোনো PC নেই। Evidence-নির্ভর দৃষ্টিভঙ্গি অপরিবর্তিত।
+
+### Package update-এর পরেও GPU driver ধরে রাখা
+
+- নতুন গাইড, [গ্রাফিক্স স্থায়িত্ব](docs/GRAPHICS-PERSISTENCE.md): নতুন Adreno
+  hardware-এ Debian-এর দেওয়া Vulkan driver GPU-কে একেবারেই শনাক্ত করতে না-ও পারে,
+  তাই নতুন Turnip কোনো optimisation নয় — Zink route কাজ করার কারণই সেটি। Adreno 825-এ
+  মাপা: Debian-এর `mesa-vulkan-drivers 25.0.7-2+deb13u1` কোনো Adreno device পায়নি,
+  শুধু `llvmpipe`।
+- গাইডে আছে dpkg-এর আওতার বাইরে `/usr/local`-এ একটি apt-নিরাপদ layout, এবং GPU দুইবার
+  enumerate হওয়া আটকাতে একটি `dpkg-divert` ধাপ। নতুন layout বসানোর পর
+  `mesa-vulkan-drivers` রি-ইনস্টল করে যাচাই করা হয়েছে: driver টিকে ছিল এবং `dpkg -V`
+  চুপ থেকেছে।
+- আগের hold-নির্ভর সুরক্ষার একটি সীমা লিপিবদ্ধ হলো:
+  `apt install --reinstall mesa-vulkan-drivers` ওই package-এর selection `install`-এ
+  রিসেট করে, অর্থাৎ হোল্ড কিছু না জানিয়েই চলে যায়।
+- `ternux verify` এখন `turnip:present` (apt-নিরাপদ layout) ও `turnip:fragile`
+  (dpkg-মালিকানার path-এ driver, যা upgrade ফিরিয়ে দেবে) আলাদা করে — আগে কেবল
+  উপস্থিতি বা অনুপস্থিতি জানাত।
+- `ternux guides` ও installer-এর next-steps summary নতুন গাইডটির link দেয়।
+
+### সংশোধন
+
+- Install সম্পন্ন হওয়ার summary থেকে "Install tool help" লাইনটি বাদ পড়ত এবং সফল
+  install-এর শেষে `command not found` ছাপা হতো — framed ও plain, দুই output path-এই:
+  next-steps argument তালিকায় একটি line continuation অনুপস্থিত ছিল।
+
 ---
 
 ## [1.4.0] — 2026-08-17 · রিলিজটি 2026-09-19-এ v1.4.0 ট্যাগ করা হয়েছে

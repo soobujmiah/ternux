@@ -330,6 +330,12 @@ ternux update           # CLI আপডেট
 আগেই স্পষ্টভাবে ব্যর্থ হয়—নিঃশব্দে software desktop বানায় না। এই ব্যর্থতা
 ইচ্ছাকৃত।
 
+Zink route-এ পুরো OpenGL পথ যে ভিত্তির উপর দাঁড়ায় সেটি হলো Vulkan driver, এবং নতুন
+Adreno hardware-এ সেটি Debian-এর দেওয়া driver-এর চেয়ে নতুন হতেই হয়। প্রথম
+`apt upgrade`-এর আগে পড়ুন [গ্রাফিক্স স্থায়িত্ব](GRAPHICS-PERSISTENCE.html): সেখানে আছে
+ওই driver কোথায় রাখলে package update তা সরাতে পারবে না, এবং আপনার driver ইতিমধ্যেই
+ঝুঁকিতে আছে কি না তা কীভাবে বুঝবেন।
+
 ---
 
 <h2 id="the-installer-screen">ইনস্টলার স্ক্রিন</h2>

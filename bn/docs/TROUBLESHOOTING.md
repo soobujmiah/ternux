@@ -342,6 +342,13 @@ guidance দেখে `/etc/apt/sources.list*` review করুন। obsolete p
 আপগ্রেড করতে চাইলে [কনফিগারেশন](CONFIGURATION.html#held-mesa-packages-zink-route)-এর
 আনহোল্ড → আপগ্রেড → রি-হোল্ড → যাচাই ক্রমটি অনুসরণ করুন।
 
+হোল্ড কোনো স্থায়ী নিশ্চয়তা নয়। `apt install --reinstall mesa-vulkan-drivers` চালালে
+apt সেই package-এর selection `install`-এ রিসেট করে, অর্থাৎ হোল্ড কিছু না জানিয়েই চলে
+যায় — ২০২৬-১০-১৩-এ মাপা, যেখানে বাকি চারটি Mesa হোল্ড টিকে ছিল কারণ সেগুলোর নাম
+command line-এ ছিল না। Package রি-ইনস্টল হলেও driver যে layout-এ টেকে, এবং কোনো
+হোল্ডই লাগে না, তার জন্য দেখুন
+[গ্রাফিক্স স্থায়িত্ব](GRAPHICS-PERSISTENCE.html)।
+
 ---
 
 <h2 id="the-installer-screen-flickers-or-the-frame-is-broken">ইনস্টলার স্ক্রিন ঝিকমিক করে বা ফ্রেম ভেঙে যায়</h2>

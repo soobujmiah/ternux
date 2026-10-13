@@ -12,6 +12,37 @@ Notable changes to ternux. Dates are ISO 8601.
 
 ## [Unreleased]
 
+### A workstation, not just a desktop
+
+- Retitled the project around what it has become: a real Linux workstation on an
+  ARM64 phone, with no PC in the loop. The evidence-led framing is unchanged.
+
+### Keeping the GPU driver across package updates
+
+- New guide, [Graphics persistence](docs/GRAPHICS-PERSISTENCE.md): on recent
+  Adreno hardware the Vulkan driver Debian ships can fail to recognise the GPU at
+  all, so a newer Turnip is what makes the Zink route work rather than an
+  optimisation. Measured on an Adreno 825, Debian's `mesa-vulkan-drivers
+  25.0.7-2+deb13u1` enumerated no Adreno device — only `llvmpipe`.
+- The guide documents an apt-safe layout under `/usr/local`, outside dpkg's
+  reach, plus a `dpkg-divert` step that stops the GPU being enumerated twice.
+  Verified by reinstalling `mesa-vulkan-drivers` with the new layout in place:
+  the driver survived and `dpkg -V` stayed quiet.
+- Recorded a limit of the previous hold-based protection:
+  `apt install --reinstall mesa-vulkan-drivers` resets that package's selection
+  to `install`, dropping the hold without reporting it.
+- `ternux verify` now separates `turnip:present` (apt-safe layout) from
+  `turnip:fragile` (driver on a dpkg-owned path, which an upgrade will revert)
+  instead of only reporting presence or absence.
+- `ternux guides` and the installer's next-steps summary link the new guide.
+
+### Fixed
+
+- The install-complete summary dropped its "Install tool help" line and printed
+  `command not found` at the end of a successful install, in both the framed and
+  plain output paths: the next-steps argument list was missing a line
+  continuation.
+
 ---
 
 ## [1.4.0] — 2026-08-17 · release tagged v1.4.0 on 2026-09-19
