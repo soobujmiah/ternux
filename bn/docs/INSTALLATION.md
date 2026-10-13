@@ -178,7 +178,8 @@ Installer নির্বাচিত Debian guest-এ ঢুকে release SHA-
 package metadata পরীক্ষা করে, তারপর atomic ভাবে
 `~/.local/opt/ternux-extensions/llama-vulkan`-এ বসায়। Model weight কপি বা manage
 করে না। Pinned b11582 package-টি prerelease হিসেবে প্রকাশিত। গন্তব্য আগে থেকেই
-থাকলে সেটি বদলানো হয় না, error দেখায়; প্রতিস্থাপনের আগে নিজে পরীক্ষা করুন।
+থাকলে সেটি বদলানো হয় না, error দেখায়; in-place updater নেই। আবার বসানোর আগে
+পুরোনো install পরীক্ষা করে নিজে সরিয়ে নিন।
 
 Debian-এর ভেতরে tool চালু করে backend নির্দিষ্ট করুন:
 

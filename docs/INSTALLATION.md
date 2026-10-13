@@ -188,7 +188,8 @@ The installer enters the selected Debian guest, verifies the release SHA-256,
 checks archive paths and package metadata, then installs atomically under
 `~/.local/opt/ternux-extensions/llama-vulkan`. It does not copy or manage model
 weights. The pinned b11582 package is published as a prerelease. An existing
-destination is left untouched and reported; inspect it before replacing it.
+destination is left untouched and reported; there is no in-place updater.
+Inspect and deliberately remove an old install before installing again.
 
 Inside Debian, load the tools and select the backend explicitly:
 
