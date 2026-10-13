@@ -28,6 +28,7 @@ TERNUX_LEGACY_STATE="$HOME/.ternux-state"
 # Resolution order: explicit TERNUX_DISTRO, then recorded state, then debian.
 # ---------------------------------------------------------------------------
 TERNUX_DISTRO_VERIFIED="debian"
+TERNUX_DISTRO_KNOWN="debian ubuntu"
 
 tnx_distro() {
   if [ -z "${_TNX_DISTRO:-}" ]; then
@@ -46,6 +47,28 @@ tnx_distro_verified() {
     *" ${1:-$(tnx_distro)} "*) return 0 ;;
   esac
   return 1
+}
+
+# True when the name is one ternux has a profile for at all.
+tnx_distro_known() {
+  case " $TERNUX_DISTRO_KNOWN " in
+    *" ${1:-$(tnx_distro)} "*) return 0 ;;
+  esac
+  return 1
+}
+
+# Per-distribution facts, limited to what actually differs. Sets TNX_DP_*.
+# Both profiles are apt/dpkg, so the hold and divert mechanisms are shared;
+# Ubuntu additionally ships snapd, which cannot work without systemd inside a
+# PRoot container and must not be pulled in or upgraded.
+tnx_distro_profile() {
+  TNX_DP_FAMILY="apt"
+  TNX_DP_MESA_HOLD="mesa-vulkan-drivers libgl1-mesa-dri libglx-mesa0 libgbm1 libegl-mesa0"
+  TNX_DP_EXTRA_HOLD=""
+  case "${1:-$(tnx_distro)}" in
+    ubuntu) TNX_DP_EXTRA_HOLD="snapd" ;;
+    *)      : ;;
+  esac
 }
 
 # Run a command in the guest. Takes the same flags as `proot-distro login`.

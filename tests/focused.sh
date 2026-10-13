@@ -1217,6 +1217,32 @@ else
   not_ok "zsh selection installs an optional, non-fatal powerlevel10k theme"
 fi
 
+# Only Debian has a device-verified result, and nothing may claim otherwise.
+# Ubuntu has a profile because its differences are known — apt and dpkg are the
+# same, but snapd cannot work without systemd inside a PRoot container and must
+# not be pulled in or upgraded.
+check "distro profiles carry only the differences that exist" bash -c '
+  . "$1/lib/core.sh"
+  tnx_distro_profile debian
+  [ "$TNX_DP_FAMILY" = apt ] && [ -z "$TNX_DP_EXTRA_HOLD" ] || exit 1
+  tnx_distro_profile ubuntu
+  [ "$TNX_DP_FAMILY" = apt ] && [ "$TNX_DP_EXTRA_HOLD" = snapd ] || exit 1
+' _ "$ROOT"
+check "known and verified distributions are separate claims" bash -c '
+  . "$1/lib/core.sh"
+  tnx_distro_known debian && tnx_distro_known ubuntu || exit 1
+  tnx_distro_known arch && exit 1
+  tnx_distro_verified debian || exit 1
+  tnx_distro_verified ubuntu && exit 1
+  exit 0
+' _ "$ROOT"
+check "the GPU phase holds what the profile names, not a fixed list" bash -c '
+  phase="$(sed -n "/stage=\/tmp\/ternux-driver-stage/,/apt-mark hold/p" "$1/lib/phases.sh")"
+  printf "%s" "$phase" | grep -q "apt-mark hold \$TNX_DP_MESA_HOLD \$TNX_DP_EXTRA_HOLD" || exit 1
+  printf "%s" "$phase" | grep -q "apt-mark hold mesa-vulkan-drivers libgl1-mesa-dri" && exit 1
+  exit 0
+' _ "$ROOT"
+
 printf '1..%d\n' "$((pass + fail))"
 printf '# pass %d\n# fail %d\n' "$pass" "$fail"
 [ "$fail" -eq 0 ]

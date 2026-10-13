@@ -83,6 +83,7 @@ Options:
   --zsh                Use zsh instead of bash (installs powerlevel10k)
   --shell bash|zsh     Choose the Termux shell without being asked
   --no-theme           Skip powerlevel10k when zsh is chosen
+  --distro NAME        Guest distribution: debian (verified) or ubuntu
   --with-dev           Install development tools
   --with-llm           Build llama.cpp with Vulkan
   --with-network       Install network tools

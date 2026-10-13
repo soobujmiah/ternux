@@ -360,6 +360,7 @@ tnx_phase_gpu() {
   url="$(tnx_resolve_freedreno_asset)"
   [ -n "$url" ] || { tnx_fail "Could not resolve Freedreno driver asset."; return 1; }
 
+  tnx_distro_profile
   local tarball="${TMPDIR:-/data/data/com.termux/files/usr/tmp}/mesa-freedreno.tar.gz"
   rm -f "$tarball"
   tnx_download "$url" "$tarball" || { tnx_fail "Failed to download Freedreno driver."; return 1; }
@@ -399,7 +400,7 @@ tnx_phase_gpu() {
       /usr/share/vulkan/icd.d/freedreno_icd.json >/dev/null 2>&1 || true
     rm -f /usr/share/vulkan/icd.d/freedreno_icd.aarch64.json
     ldconfig
-    apt-mark hold mesa-vulkan-drivers libgl1-mesa-dri libglx-mesa0 libgbm1 libegl-mesa0 || true
+    apt-mark hold $TNX_DP_MESA_HOLD $TNX_DP_EXTRA_HOLD || true
   " || { tnx_fail "Driver installation failed."; rm -f "$tarball"; return 1; }
   rm -f "$tarball"
 
@@ -1097,6 +1098,7 @@ tnx_prompt_username() {
 # ---------------------------------------------------------------------------
 tnx_install() {
   local user_name="ternux" locale="en_US.UTF-8" backend="auto" shell_choice="bash"
+  local distro_choice="debian" distro_explicit=0
   local extras=() yes=0 resume=0 full=0 profile="base"
   local user_explicit=0 locale_explicit=0 backend_explicit=0 shell_explicit=0
 
@@ -1116,6 +1118,9 @@ tnx_install() {
       --zsh) shell_choice="zsh"; shell_explicit=1 ;;
       --shell) shell_choice="${2:-}"; shell_explicit=1; shift ;;
       --no-theme) export TERNUX_THEME=none ;;
+      --distro)
+        [ $# -ge 2 ] || { tnx_fail "--distro needs a value."; return 2; }
+        distro_choice="$2"; distro_explicit=1; shift ;;
       --with-dev) extras+=("dev") ;;
       --with-llm) extras+=("llm") ;;
       --with-network) extras+=("network") ;;
@@ -1140,7 +1145,7 @@ tnx_install() {
   # A bare `--resume` continues with the interrupted run’s saved choices.
   # Every explicitly supplied option takes precedence over its saved value.
   if [ "$resume" -eq 1 ]; then
-    local saved_user="" saved_locale="" saved_backend="" saved_shell=""
+    local saved_user="" saved_locale="" saved_backend="" saved_shell="" saved_distro=""
     local saved_extras="" saved_profile=""
     saved_user="$(tnx_state_get user 2>/dev/null || true)"
     saved_locale="$(tnx_state_get locale 2>/dev/null || true)"
@@ -1150,6 +1155,8 @@ tnx_install() {
     [ "$locale_explicit" -eq 1 ] || [ -z "$saved_locale" ] || locale="$saved_locale"
     [ "$backend_explicit" -eq 1 ] || [ -z "$saved_backend" ] || backend="$saved_backend"
     [ "$shell_explicit" -eq 1 ] || [ -z "$saved_shell" ] || shell_choice="$saved_shell"
+    saved_distro="$(tnx_state_get distro 2>/dev/null || true)"
+    [ "$distro_explicit" -eq 1 ] || [ -z "$saved_distro" ] || distro_choice="$saved_distro"
 
     if [ ${#extras[@]} -eq 0 ]; then
       saved_extras="$(tnx_state_get install_extras 2>/dev/null || true)"
@@ -1175,6 +1182,15 @@ tnx_install() {
   [[ "$locale" =~ ^[A-Za-z0-9_.@-]+$ ]] || { tnx_fail "--locale contains unsupported characters."; return 2; }
   case "$backend" in auto|zink|virgl) ;; *) tnx_fail "--backend must be auto, zink or virgl."; return 2 ;; esac
   case "$shell_choice" in bash|zsh) ;; *) tnx_fail "Saved shell choice must be bash or zsh."; return 2 ;; esac
+  tnx_distro_known "$distro_choice" || {
+    tnx_fail "--distro must be one of: $TERNUX_DISTRO_KNOWN."
+    return 2
+  }
+  # tnx_distro caches its answer, so clear it before changing the environment.
+  unset _TNX_DISTRO
+  export TERNUX_DISTRO="$distro_choice"
+  tnx_distro_verified "$distro_choice" || tnx_warn \
+    "Guest '$distro_choice' has no device-verified result on record; treat this install as unverified."
 
   [ "$yes" -eq 1 ] && export TERNUX_YES=1
   tnx_require_termux
@@ -1222,6 +1238,7 @@ tnx_install() {
   tnx_state_set "locale" "$locale"
   tnx_state_set "install_backend" "$backend"
   tnx_state_set "install_shell" "$shell_choice"
+  tnx_state_set "distro" "$distro_choice"
   tnx_state_set "install_profile" "$profile"
   tnx_state_set "install_extras" "$extras_csv"
 

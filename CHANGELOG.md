@@ -59,6 +59,21 @@ Notable changes to ternux. Dates are ISO 8601.
   CLI and call `uninstall state --yes` through it. Only the test's redirected
   `HOME` kept that away from a real installation.
 
+### A second guest distribution can be selected
+
+- `--distro debian|ubuntu` chooses the PRoot-Distro guest, and the choice is
+  recorded so `--resume` and `ternux repair` keep using it. Any other name is
+  refused rather than attempted.
+- Per-distribution facts live in `tnx_distro_profile` and cover only what
+  differs. Both are apt/dpkg, so the mesa holds and the ICD diversion work
+  identically; Ubuntu additionally holds `snapd`, which cannot work without
+  systemd inside a container.
+- The GPU phase holds what the profile names instead of a fixed package list.
+- **Ubuntu has a profile but no device-verified result.** `tnx_distro_known` and
+  `tnx_distro_verified` are deliberately separate, selecting an unverified guest
+  warns, and the documentation says so. Nothing claims a result that was never
+  measured on hardware.
+
 ### The Termux shell is a choice, and zsh arrives themed
 
 - An interactive install now asks for bash or zsh when neither a flag nor saved

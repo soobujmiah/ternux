@@ -57,6 +57,19 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
   করত এবং তার মধ্য দিয়ে `uninstall state --yes` চালাত। কেবল test-এর redirect করা
   `HOME` সেটিকে প্রকৃত installation থেকে দূরে রেখেছিল।
 
+### দ্বিতীয় একটি guest distribution বেছে নেওয়া যায়
+
+- `--distro debian|ubuntu` PRoot-Distro guest বেছে নেয়, এবং পছন্দটি লিপিবদ্ধ হয় যাতে
+  `--resume` ও `ternux repair` একই guest ব্যবহার করে। অন্য যে কোনো নাম চেষ্টা না করে
+  প্রত্যাখ্যান করা হয়।
+- প্রতি-distribution তথ্য `tnx_distro_profile`-এ থাকে এবং কেবল যা আলাদা তাই রাখে।
+  দুটোই apt/dpkg, তাই mesa hold ও ICD diversion একইভাবে কাজ করে; Ubuntu অতিরিক্তভাবে
+  `snapd` hold করে, যা container-এ systemd ছাড়া চলতে পারে না।
+- GPU phase এখন নির্দিষ্ট একটি package তালিকার বদলে profile যা বলে তাই hold করে।
+- **Ubuntu-র profile আছে, কিন্তু ডিভাইসে যাচাই করা ফল নেই।** `tnx_distro_known` ও
+  `tnx_distro_verified` ইচ্ছাকৃতভাবে আলাদা, যাচাই-না-করা guest বাছলে warning আসে, আর
+  ডকুমেন্টেশনেও তাই লেখা। hardware-এ কখনো মাপা হয়নি এমন ফল কোথাও দাবি করা হয় না।
+
 ### Termux শেল এখন একটি পছন্দ, আর zsh থিম নিয়েই আসে
 
 - Interactive install এখন bash না zsh জিজ্ঞেস করে, যখন কোনো flag বা লিপিবদ্ধ state

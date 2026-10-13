@@ -154,7 +154,7 @@ that no test can reach an actual installation. Production defaults are unchanged
 
 | Variable | Default | Effect |
 |---|---|---|
-| `TERNUX_DISTRO` | `debian` | The PRoot-Distro guest everything is installed into. **Only `debian` is verified on a device**; another value selects a guest ternux has not qualified, and the package, Mesa and hold handling it needs is not written yet. |
+| `TERNUX_DISTRO` | `debian` | The PRoot-Distro guest everything is installed into; `--distro` sets it. `debian` and `ubuntu` have profiles, but **only `debian` has a device-verified result**. Anything else is refused. |
 | `TERNUX_THEME` | `p10k` | `none` installs zsh without powerlevel10k. `--no-theme` sets it. |
 | `TERNUX_KGSL_DEVICE` | `/dev/kgsl-3d0` | The device node that GPU, Vulkan and backend detection probe. Pointing it at a path that does not exist makes `auto` resolve to VirGL — what a non-Adreno device sees. |
 | `TERNUX_HOST_PREFIX` | `/data/data/com.termux/files/usr` | Where `uninstall.sh` looks for an installed host CLI before falling back to a local checkout or a download. |

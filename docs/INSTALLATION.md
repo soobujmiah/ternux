@@ -315,6 +315,7 @@ bash install.sh --backend virgl     # force the compatibility fallback
 bash install.sh --zsh               # Termux shell -> zsh, with powerlevel10k
 bash install.sh --shell bash        # choose without being asked
 bash install.sh --no-theme          # zsh without powerlevel10k
+bash install.sh --distro ubuntu      # guest distribution (debian is the verified one)
 bash install.sh --with-dev          # Git, Node.js, Python, build tools
 bash install.sh --with-llm          # llama.cpp + Vulkan (local AI)
 bash install.sh --with-network      # nmap, tmux (authorised testing only)
@@ -335,6 +336,21 @@ ternux state            # what is done, what is pending
 ternux uninstall        # interactive removal
 ternux update           # self-update the CLI
 ```
+
+### Choosing a guest distribution
+
+Everything ternux installs lives inside one PRoot-Distro container. `--distro`
+selects it, and the choice is recorded so `--resume` and `ternux repair` keep
+using it.
+
+| Guest | Status | Notes |
+|---|---|---|
+| `debian` | **verified on a device** | The default, and the only one with measured results in [Evidence & benchmarks](BENCHMARKS.html) |
+| `ubuntu` | profile written, **not device-verified** | Same apt/dpkg tooling, so holds and diversions work identically. `snapd` is additionally held: it cannot work without systemd inside a container, and packages that exist only as snaps cannot be installed there at all |
+
+Any other name is refused rather than attempted. Selecting a guest without a
+verified result prints a warning and does not change what the installer claims:
+treat the result as unverified until it is measured on your own device.
 
 ### Choosing a GPU backend
 

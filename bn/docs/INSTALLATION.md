@@ -300,6 +300,7 @@ bash install.sh --backend virgl     # VirGL সামঞ্জস্য পথ �
 bash install.sh --zsh               # Termux শেল -> zsh, powerlevel10k সহ
 bash install.sh --shell bash        # প্রশ্ন ছাড়াই বেছে নিন
 bash install.sh --no-theme          # powerlevel10k ছাড়া zsh
+bash install.sh --distro ubuntu      # guest distribution (যাচাই করা হলো debian)
 bash install.sh --with-dev          # Git, Node.js, Python, বিল্ড টুলস
 bash install.sh --with-llm          # llama.cpp + Vulkan (লোকাল AI)
 bash install.sh --with-network      # nmap, tmux (শুধু অনুমোদিত পরীক্ষা)
@@ -319,6 +320,20 @@ ternux state            # কী হয়েছে, কী বাকি (--stat
 ternux uninstall        # অপসারণ (--uninstall এর বদলে)
 ternux update           # CLI আপডেট
 ```
+
+### Guest distribution বাছাই
+
+ternux যা বসায় সব একটি PRoot-Distro container-এর ভেতরে থাকে। `--distro` সেটি বেছে
+নেয়, এবং পছন্দটি লিপিবদ্ধ হয় যাতে `--resume` ও `ternux repair` একই guest ব্যবহার করে।
+
+| Guest | অবস্থা | নোট |
+|---|---|---|
+| `debian` | **ডিভাইসে যাচাই করা** | ডিফল্ট, এবং [প্রমাণ ও বেঞ্চমার্ক](BENCHMARKS.html)-এ মাপা ফলাফল আছে কেবল এটিরই |
+| `ubuntu` | profile লেখা, **ডিভাইসে যাচাই করা নয়** | একই apt/dpkg সরঞ্জাম, তাই hold ও diversion একইভাবে কাজ করে। অতিরিক্তভাবে `snapd` hold করা হয়: container-এ systemd ছাড়া সেটি চলতে পারে না, আর কেবল snap হিসেবে থাকা package সেখানে বসানোই যায় না |
+
+অন্য যে কোনো নাম চেষ্টা না করে প্রত্যাখ্যান করা হয়। যাচাই-না-করা guest বাছলে একটি
+warning আসে এবং installer-এর দাবি বদলায় না: নিজের ডিভাইসে মাপা না হওয়া পর্যন্ত
+ফলাফলকে unverified ধরুন।
 
 ### GPU ব্যাকএন্ড বাছাই
 
