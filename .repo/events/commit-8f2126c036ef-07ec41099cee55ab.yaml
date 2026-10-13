@@ -1,0 +1,7 @@
+event_id: commit-8f2126c036ef-07ec41099cee55ab
+repository: soobujmiah/ternux
+commit: 8f2126c036ef0756c64b3659156d0fa4a4d5be7a
+kind: commit
+occurred_at: '2026-10-13T14:09:25Z'
+status: completed
+summary: Build opt-in QNN HTP known-add correctness probe
