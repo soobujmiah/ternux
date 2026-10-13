@@ -1,13 +1,13 @@
 schema_version: 1
 project_id: ternux
 repository: soobujmiah/ternux
-generated_at: '2026-10-13T13:28:32Z'
+generated_at: '2026-10-13T13:29:43Z'
 generated_by: tools/repo_knowledge collect
-version: ternux-llama-htp-sm8735-b11582-24-gbbb9318
+version: ternux-llama-htp-sm8735-b11582-26-gddbece7
 head:
-  commit: bbb931880c4e63e6d178145ab2f23efdf2aecb36
+  commit: ddbece7009ab5d062d312da3999c1c6c70205a6e
   branch: main
-  committed_at: '2026-10-13T13:27:36Z'
+  committed_at: '2026-10-13T13:28:46Z'
 phases:
   source: not_configured
   completed: []
@@ -15,33 +15,33 @@ phases:
   next: null
 build:
   status: passed
-  run_id: '38405132954'
-  commit: bbb931880c4e63e6d178145ab2f23efdf2aecb36
+  run_id: '38405297574'
+  commit: ddbece7009ab5d062d312da3999c1c6c70205a6e
   run_attempt: '1'
-  at: '2026-10-13T13:28:32Z'
+  at: '2026-10-13T13:29:43Z'
   timestamp_source: observed
   workflow_name: Repo Knowledge Sync
   event_type: push
   actor: soobujmiah
-  run_url: https://github.com/soobujmiah/ternux/actions/runs/38405132954
+  run_url: https://github.com/soobujmiah/ternux/actions/runs/38405297574
 test:
   status: passed
-  run_id: '38405132954'
-  commit: bbb931880c4e63e6d178145ab2f23efdf2aecb36
+  run_id: '38405297574'
+  commit: ddbece7009ab5d062d312da3999c1c6c70205a6e
   run_attempt: '1'
-  at: '2026-10-13T13:28:32Z'
+  at: '2026-10-13T13:29:43Z'
   timestamp_source: observed
   workflow_name: Repo Knowledge Sync
   event_type: push
   actor: soobujmiah
-  run_url: https://github.com/soobujmiah/ternux/actions/runs/38405132954
+  run_url: https://github.com/soobujmiah/ternux/actions/runs/38405297574
   summary: bash syntax + Bats smoke + docs (ci.yml)
 last_successful_build:
-  commit: bbb931880c4e63e6d178145ab2f23efdf2aecb36
-  at: '2026-10-13T13:28:32Z'
-  run_id: '38405132954'
+  commit: ddbece7009ab5d062d312da3999c1c6c70205a6e
+  at: '2026-10-13T13:29:43Z'
+  run_id: '38405297574'
 last_failed_build: null
 sync:
   status: ok
-  last_synced_at: '2026-10-13T13:28:32Z'
+  last_synced_at: '2026-10-13T13:29:43Z'
   source: ci

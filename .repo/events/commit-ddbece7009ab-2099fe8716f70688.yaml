@@ -1,0 +1,7 @@
+event_id: commit-ddbece7009ab-2099fe8716f70688
+repository: soobujmiah/ternux
+commit: ddbece7009ab5d062d312da3999c1c6c70205a6e
+kind: commit
+occurred_at: '2026-10-13T13:28:46Z'
+status: completed
+summary: Use Android SDK setup v4 for probe CI
