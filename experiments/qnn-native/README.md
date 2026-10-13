@@ -137,13 +137,48 @@ or image generation. Raw local log:
 
 ## Remaining inference gates
 
-An opt-in [`known_add.c`](known_add.c) diagnostic now builds in the same pinned
-Android NDK CI workflow. It attempts to construct a 64-element UFIXED_POINT_16
-`ElementWiseAdd` graph using the QNN HTP API and checks every result against
-the independently computed integer sum. It may need the matching QNN HTP
-Prepare library in licensed scratch runtime storage. Build success alone does
-not qualify graph creation, CDSP execution, or the intended VAE/UNet model;
-the device result must be recorded separately.
+The opt-in [`known_add.c`](known_add.c) diagnostic was built by the pinned
+Android NDK workflow. [CI run 38411428947](https://github.com/soobujmiah/ternux/actions/runs/38411428947)
+passed and its checksum-verified AArch64 artifact ran on Redmi Turbo 4 Pro /
+SM8735 / Android 16 from Debian PRoot. It constructed a 64-element
+UFIXED_POINT_16 `ElementWiseAdd` graph. Backend, device, context, graph,
+three tensors, node, finalize, execute, and all handle cleanup returned 0.
+Every output matched an independently calculated integer sum: 0 mismatches
+of 64. Verbose QNN logs identify the V73 skeleton on `cdsp`, an active
+transport session and completed graph execution. This is **verified
+known-answer QNN HTP tensor computation through a PRoot-launched Bionic
+process**. It does not prove the VAE/UNet outputs are numerically correct.
+
+The first attempt returned QNN tensor status 7004 because the probe attached
+APP_WRITE client buffers during tensor registration. HTP requires those
+buffers to be null until graph execution. The corrected CI build registered
+tensors first and then attached buffers. A matching licensed QNN 2.29
+`libQnnHtpPrepare.so`, V73 stub and skel were used in isolated scratch,
+extracted from the official runtime AAR. The Prepare file SHA-256 was
+`3aff1dcffde399a41ac13ad6a933a49f67c0ef26df5acc876731884a7c735294`.
+Neither it nor any Qualcomm runtime is in the CI artifact or Ternux repo.
+
+After verifying the CI artifact with `sha256sum -c SHA256SUMS`, the bounded
+reproduction from Debian PRoot is:
+
+```bash
+env -u LD_PRELOAD \
+  LD_LIBRARY_PATH=/absolute/path/to/licensed/qnn-2.29-v73-runtime:/vendor/lib64:/vendor/lib64/egl:/system/lib64 \
+  ADSP_LIBRARY_PATH=/absolute/path/to/licensed/qnn-2.29-v73-runtime \
+  /system/bin/linker64 /absolute/path/to/ternux-qnn-known-add
+```
+
+A later CI artifact from [run 38410204285](https://github.com/soobujmiah/ternux/actions/runs/38410204285)
+also re-ran the encoder with a quantized **real-value zero** input. The input
+uses scale `3.05180438e-05`, offset `-32768`; raw code `32768` represents real
+zero, while the earlier raw code `0` represents approximately `-1`. Two
+real-zero executions matched bit-for-bit (`mean` FNV64
+`deb8b84b57841ffd`, `std` `c9f7be81df56cb75`). A third run with raw code
+zero reproduced the earlier `ae97b25a95bdac33` and `7fb11db45bb92b10`
+hashes. The outputs differed between these two inputs. This verifies input
+sensitivity and repeatability, not an independent VAE expected tensor. The
+metadata probe now reports per-tensor scales and offsets for encoder, decoder
+and UNet; see the device log for exact values.
 
 1. Obtain an independent expected tensor for the exact fixed VAE input, verify
    output encoding/quantization, and compare numerical values. Then qualify
