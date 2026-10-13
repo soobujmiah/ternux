@@ -1,0 +1,7 @@
+event_id: commit-154a97047e4c-e24c5540d3d1e777
+repository: soobujmiah/ternux
+commit: 154a97047e4cdbe3390dbdcc3bfd9874c518e048
+kind: commit
+occurred_at: '2026-10-13T13:31:58Z'
+status: completed
+summary: Record NDK probe build and device handoff gate
