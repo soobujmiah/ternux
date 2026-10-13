@@ -1,0 +1,7 @@
+event_id: commit-e54e888b7b5c-1feb07469b8a0393
+repository: soobujmiah/ternux
+commit: e54e888b7b5c28c6f50f4e0e9919a526e49bbff9
+kind: commit
+occurred_at: '2026-10-13T13:26:20Z'
+status: completed
+summary: Build QNN probe with pinned Android NDK on GitHub
