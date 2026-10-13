@@ -88,7 +88,7 @@ static void set_ptr(unsigned char *p, size_t offset, const void *value) {
 }
 
 static void init_tensor(unsigned char *tensor, const char *name, uint32_t type,
-                        uint32_t *dims, uint16_t *data, uint32_t count) {
+                        uint32_t *dims) {
     memset(tensor, 0, 144);
     set_u32(tensor, 0, 1);          /* QNN_TENSOR_VERSION_1 */
     set_ptr(tensor, 16, name);
@@ -101,8 +101,8 @@ static void init_tensor(unsigned char *tensor, const char *name, uint32_t type,
     set_u32(tensor, 80, 4);
     set_ptr(tensor, 88, dims);
     set_u32(tensor, 96, 0);         /* QNN_TENSORMEMTYPE_RAW */
-    set_ptr(tensor, 104, data);
-    set_u32(tensor, 112, count * sizeof(*data));
+    /* HTP requires APP_WRITE/APP_READ client buffers to be absent when the
+     * tensor is registered. Attach buffers only for graph execution. */
 }
 
 static int run_known_add(qnn_api *api) {
@@ -136,14 +136,18 @@ static int run_known_add(qnn_api *api) {
         rhs[i] = (uint16_t)(100 + i);
         output[i] = UINT16_MAX;
     }
-    init_tensor(tensors[0], "lhs", 0, dims, lhs, 64);
-    init_tensor(tensors[1], "rhs", 0, dims, rhs, 64);
-    init_tensor(tensors[2], "sum", 1, dims, output, 64);
+    init_tensor(tensors[0], "lhs", 0, dims);
+    init_tensor(tensors[1], "rhs", 0, dims);
+    init_tensor(tensors[2], "sum", 1, dims);
     for (uint32_t i = 0; i < 3; ++i) {
         status = api->tensor_create_graph(graph, tensors[i]);
         printf("{\"stage\":\"tensor_create\",\"index\":%u,\"status\":%" PRIu64 "}\n", i, status);
         if (status) goto cleanup;
     }
+    set_ptr(tensors[0], 104, lhs);
+    set_ptr(tensors[1], 104, rhs);
+    set_ptr(tensors[2], 104, output);
+    for (uint32_t i = 0; i < 3; ++i) set_u32(tensors[i], 112, 64 * sizeof(uint16_t));
     _Alignas(8) unsigned char inputs[2][144];
     memcpy(inputs, tensors, sizeof(inputs));
     op_config op = {.version = 1, .name = "known_add_node", .package_name = "qti.aisw",
