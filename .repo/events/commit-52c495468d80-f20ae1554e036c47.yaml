@@ -1,0 +1,7 @@
+event_id: commit-52c495468d80-f20ae1554e036c47
+repository: soobujmiah/ternux
+commit: 52c495468d801e0833afeff0885c57e5d83fa186
+kind: commit
+occurred_at: '2026-10-13T15:59:21Z'
+status: completed
+summary: Install the Turnip driver where apt cannot reach it
