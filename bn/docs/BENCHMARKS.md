@@ -624,6 +624,14 @@ fallback বা clean-device driver installation প্রমাণ হয় �
 `published-extension-vulkan-restart.log` এবং
 `published-extension-cancellation-repeat-20261014.md`।
 
+পরে scratch package ও একই model দিয়ে আলাদা counting prompt-এ CPU cancellation
+sample নেওয়া হয়েছে। Generated text আসার পর SIGINT পাঠালে process exit 0-তে
+বন্ধ হয়েছে এবং child process বাকি ছিল না। ছোট run-এর পর battery sensor 40.0 C
+এবং Android thermal status 0 দেখিয়েছে। এতে CPU cancellation-এর দ্বিতীয়
+observation যোগ হয়েছে; এই run-এর পরে restart known-answer করা হয়নি। এটি repeated
+stress বা দীর্ঘ thermal stability qualify করে না। Log একই scratch directory-তে
+`repeat-cancel-cpu-20261014.log`।
+
 ## 2026-10-13 standalone Android QNN VAE graph qualification
 
 The pinned Android NDK CI helper from [run 38406862573](https://github.com/soobujmiah/ternux/actions/runs/38406862573) was downloaded to isolated scratch after the owner's explicit authorization. Checksums, AArch64 ELF, Android dependencies (`libc.so`, `libdl.so`) and absent RUNPATH were checked. On Redmi Turbo 4 Pro / SM8735 / Android 16, it streamed the existing ZIP members from `/sdcard/Llms/` into sealed anonymous memfds; no model copy was written. The licensed Qualcomm QNN 2.29 V73 stub/skel stayed in scratch and is not a release asset.

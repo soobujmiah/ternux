@@ -70,6 +70,8 @@ _tnx_dispatch() {
         'Ternux guides:' \
         '  Installation: https://soobujmiah.github.io/ternux/docs/INSTALLATION.html' \
         '  Manual setup: https://soobujmiah.github.io/ternux/docs/MANUAL.html' \
+        '  CPU + Vulkan LLM quick start: https://soobujmiah.github.io/ternux/docs/QUICK-START.html#optional-local-cpu--vulkan-language-model' \
+        '  CPU + Vulkan LLM manual/release guide: https://github.com/soobujmiah/ternux/blob/main/guides/llama-vulkan-extension.md' \
         '  Ecosystem tools: https://soobujmiah.github.io/ternux/docs/INSTALLATION.html#choose-the-right-project-release' \
         '  Workloads (auto + manual): https://soobujmiah.github.io/ternux/docs/WORKLOADS.html' \
         '  Keep the GPU driver: https://soobujmiah.github.io/ternux/docs/GRAPHICS-PERSISTENCE.html' \
