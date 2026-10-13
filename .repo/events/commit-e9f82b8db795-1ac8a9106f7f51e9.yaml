@@ -1,0 +1,7 @@
+event_id: commit-e9f82b8db795-1ac8a9106f7f51e9
+repository: soobujmiah/ternux
+commit: e9f82b8db795bad068f441bc0e583e735d7caf4f
+kind: commit
+occurred_at: '2026-10-13T14:01:25Z'
+status: completed
+summary: Report QNN tensor quantization metadata
