@@ -118,7 +118,7 @@ tnx_detect_renderer() {
     proot-distro login debian -- bash -c '
       if command -v glxinfo >/dev/null 2>&1; then
         glxinfo 2>/dev/null | grep "renderer string" | head -1 | sed "s/.*: //"
-      elif [ -f /usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so ]; then
+      elif [ -f /usr/local/lib/aarch64-linux-gnu/libvulkan_freedreno.so ] || [ -f /usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so ]; then
         echo "zink Vulkan (Adreno via Turnip)"
       else
         echo "unknown"

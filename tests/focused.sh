@@ -1112,6 +1112,43 @@ else
   not_ok "updater warns when the refreshed Debian companion version is stale"
 fi
 
+# The GPU phase must install the Turnip driver where apt cannot reach it. A
+# driver written over a dpkg-owned path is reverted by any mesa package
+# operation, and on hardware Debian's own Mesa does not recognise that costs
+# GPU support entirely rather than only speed.
+gpu_phase="$(sed -n '/stage=\/tmp\/ternux-driver-stage/,/apt-mark hold/p' "$ROOT/lib/phases.sh")"
+check "GPU phase installs the driver outside dpkg's reach" bash -c '
+  printf "%s" "$1" | grep -q "install -D -m 0755 .* /usr/local/lib/aarch64-linux-gnu/libvulkan_freedreno.so" &&
+  ! printf "%s" "$1" | grep -qE "install -[Dm].* /usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so"
+' _ "$gpu_phase"
+check "GPU phase writes a managed ICD naming the managed driver" bash -c '
+  printf "%s" "$1" | grep -q "/usr/local/share/vulkan/icd.d/ternux_freedreno_icd.json" &&
+  printf "%s" "$1" | grep -q "library_path.*%s" &&
+  ! printf "%s" "$1" | grep -q "install -m 0644 .* /usr/share/vulkan/icd.d/freedreno_icd.aarch64.json"
+' _ "$gpu_phase"
+check "GPU phase retires the distro ICD so the GPU is listed once" bash -c '
+  printf "%s" "$1" | grep -q "dpkg-divert --add --rename" &&
+  printf "%s" "$1" | grep -q "freedreno_icd.json.distrib"
+' _ "$gpu_phase"
+
+# The ICD the phase generates must be valid JSON and must carry the archive's
+# own api_version rather than a guessed one.
+icd_src="$TMP/icd-src.json"
+printf '%s\n' '{"ICD":{"api_version":"1.4.359","library_path":"libvulkan_freedreno.so"},"file_format_version":"1.0.1"}' > "$icd_src"
+check "generated ICD is valid JSON with the source api_version" bash -c '
+  icd="$1"
+  api="$(sed -n '"'"'s/.*"api_version"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p'"'"' "$icd" | head -n1)"
+  [ -n "$api" ] || api=1.4.0
+  printf "{\n    \"ICD\": {\n        \"api_version\": \"%s\",\n        \"library_arch\": \"64\",\n        \"library_path\": \"%s\"\n    },\n    \"file_format_version\": \"1.0.1\"\n}\n" \
+    "$api" /usr/local/lib/aarch64-linux-gnu/libvulkan_freedreno.so > "$2"
+  python3 -c '"'"'
+import json, sys
+d = json.load(open(sys.argv[1]))
+assert d["ICD"]["api_version"] == "1.4.359", d
+assert d["ICD"]["library_path"].startswith("/usr/local/"), d
+'"'"' "$2"
+' _ "$icd_src" "$TMP/icd-out.json"
+
 printf '1..%d\n' "$((pass + fail))"
 printf '# pass %d\n# fail %d\n' "$pass" "$fail"
 [ "$fail" -eq 0 ]

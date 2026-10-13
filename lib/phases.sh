@@ -387,21 +387,29 @@ tnx_phase_gpu() {
     driver=\"\$(find \"\$stage\" -type f -path '*/usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so' -print -quit)\"
     icd=\"\$(find \"\$stage\" -type f -path '*/usr/share/vulkan/icd.d/freedreno_icd.aarch64.json' -print -quit)\"
     [ -n \"\$driver\" ] && [ -n \"\$icd\" ] || exit 1
-    install -m 0755 \"\$driver\" /usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so
-    mkdir -p /usr/share/vulkan/icd.d
-    install -m 0644 \"\$icd\" /usr/share/vulkan/icd.d/freedreno_icd.aarch64.json
+    install -D -m 0755 \"\$driver\" /usr/local/lib/aarch64-linux-gnu/libvulkan_freedreno.so
+    mkdir -p /usr/local/share/vulkan/icd.d
+    api=\"\$(sed -n 's/.*\"api_version\"[[:space:]]*:[[:space:]]*\"\\([^\"]*\\)\".*/\\1/p' \"\$icd\" | head -n1)\"
+    [ -n \"\$api\" ] || api=1.4.0
+    printf '{\\n    \"ICD\": {\\n        \"api_version\": \"%s\",\\n        \"library_arch\": \"64\",\\n        \"library_path\": \"%s\"\\n    },\\n    \"file_format_version\": \"1.0.1\"\\n}\\n' \
+      \"\$api\" /usr/local/lib/aarch64-linux-gnu/libvulkan_freedreno.so \
+      > /usr/local/share/vulkan/icd.d/ternux_freedreno_icd.json
+    dpkg-divert --add --rename \
+      --divert /usr/share/vulkan/icd.d/freedreno_icd.json.distrib \
+      /usr/share/vulkan/icd.d/freedreno_icd.json >/dev/null 2>&1 || true
+    rm -f /usr/share/vulkan/icd.d/freedreno_icd.aarch64.json
     ldconfig
     apt-mark hold mesa-vulkan-drivers libgl1-mesa-dri libglx-mesa0 libgbm1 libegl-mesa0 || true
   " || { tnx_fail "Driver installation failed."; rm -f "$tarball"; return 1; }
   rm -f "$tarball"
 
   if proot-distro login debian --shared-tmp -- bash -c '
-    [ -f /usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so ] &&
-    [ -f /usr/share/vulkan/icd.d/freedreno_icd.aarch64.json ]
+    [ -f /usr/local/lib/aarch64-linux-gnu/libvulkan_freedreno.so ] &&
+    [ -f /usr/local/share/vulkan/icd.d/ternux_freedreno_icd.json ]
   ' >/dev/null 2>&1; then
     local driver_sha icd_sha
-    driver_sha="$(proot-distro login debian -- sha256sum /usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so 2>/dev/null | awk '{print $1}')"
-    icd_sha="$(proot-distro login debian -- sha256sum /usr/share/vulkan/icd.d/freedreno_icd.aarch64.json 2>/dev/null | awk '{print $1}')"
+    driver_sha="$(proot-distro login debian -- sha256sum /usr/local/lib/aarch64-linux-gnu/libvulkan_freedreno.so 2>/dev/null | awk '{print $1}')"
+    icd_sha="$(proot-distro login debian -- sha256sum /usr/local/share/vulkan/icd.d/ternux_freedreno_icd.json 2>/dev/null | awk '{print $1}')"
     [ -n "$driver_sha" ] && tnx_state_set "freedreno_driver_sha" "$driver_sha"
     [ -n "$icd_sha" ] && tnx_state_set "freedreno_icd_sha" "$icd_sha"
     tnx_ok "Turnip driver + ICD installed, hashed and pinned."
@@ -795,7 +803,12 @@ tnx_phase_verify() {
   else tnx_fail "Debian core failed"; rc=1; fi
 
   if [ "$backend" = "zink" ]; then
-    if proot-distro login debian -- bash -c 'test -f /usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so && test -f /usr/share/vulkan/icd.d/freedreno_icd.aarch64.json' >/dev/null 2>&1; then
+    if proot-distro login debian -- bash -c '
+      { [ -f /usr/local/lib/aarch64-linux-gnu/libvulkan_freedreno.so ] &&
+        [ -f /usr/local/share/vulkan/icd.d/ternux_freedreno_icd.json ]; } ||
+      { [ -f /usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so ] &&
+        [ -f /usr/share/vulkan/icd.d/freedreno_icd.aarch64.json ]; }
+    ' >/dev/null 2>&1; then
       tnx_ok "Turnip driver present"
     else tnx_fail "Zink checks failed"; rc=1; fi
   else

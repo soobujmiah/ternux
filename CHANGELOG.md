@@ -35,6 +35,15 @@ Notable changes to ternux. Dates are ISO 8601.
   `turnip:fragile` (driver on a dpkg-owned path, which an upgrade will revert)
   instead of only reporting presence or absence.
 - `ternux guides` and the installer's next-steps summary link the new guide.
+- The GPU phase now installs the driver under `/usr/local` and generates its ICD
+  manifest there, carrying the archive's own `api_version`, then diverts Debian's
+  manifest. Until now the installer wrote over the dpkg-owned paths itself, so it
+  produced exactly the layout the guide warns about.
+- `ternux repair`, the install verification, renderer detection and the Vulkan
+  benchmark accept either layout, so an installation made before this keeps
+  validating instead of looking broken.
+- Four tests in `tests/focused.sh` hold the layout contract, including that the
+  generated ICD is valid JSON carrying the archive's `api_version`.
 
 ### The test suite now runs on the hardware it targets
 

@@ -35,6 +35,14 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
   (dpkg-মালিকানার path-এ driver, যা upgrade ফিরিয়ে দেবে) আলাদা করে — আগে কেবল
   উপস্থিতি বা অনুপস্থিতি জানাত।
 - `ternux guides` ও installer-এর next-steps summary নতুন গাইডটির link দেয়।
+- GPU phase এখন driver `/usr/local`-এ বসায় এবং সেখানেই তার ICD manifest তৈরি করে,
+  archive-এর নিজের `api_version` নিয়ে, তারপর Debian-এর manifest divert করে। এতদিন
+  installer নিজেই dpkg-মালিকানার path-এ লিখত, অর্থাৎ গাইড যে layout নিয়ে সতর্ক করে
+  installer সেটিই বানাত।
+- `ternux repair`, install verification, renderer detection ও Vulkan benchmark
+  দুই layout-ই মানে, তাই এর আগে করা install ভাঙা মনে না হয়ে যাচাই হতেই থাকে।
+- `tests/focused.sh`-এ চারটি test layout contract ধরে রাখে, যার মধ্যে আছে generated
+  ICD বৈধ JSON এবং archive-এর `api_version` বহন করে কি না।
 
 ### Test suite এখন তার target hardware-এই চলে
 

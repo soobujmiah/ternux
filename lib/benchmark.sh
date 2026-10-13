@@ -134,7 +134,7 @@ _tnx_bench_run_vkmark() {
   out="$(proot-distro login debian --shared-tmp --user "${TERNUX_USER:-ternux}" -- bash -c '
     if command -v vkmark >/dev/null 2>&1; then
       timeout 60 vkmark 2>/dev/null
-    elif [ -f /usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so ]; then
+    elif [ -f /usr/local/lib/aarch64-linux-gnu/libvulkan_freedreno.so ] || [ -f /usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so ]; then
       echo "DRIVER_PRESENT"
     else
       echo "NO_VULKAN"
