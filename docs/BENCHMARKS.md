@@ -153,6 +153,62 @@ Turnip archive and checks its SHA-256 before extraction. The device render
 evidence still depends on this device's graphics stack and does not qualify
 every Adreno generation.
 
+## Measured: a 648-frame animated short rendered headless, 2026-10-14
+
+I produced a complete 27-second animated film on this device — four shots, 648
+frames at 1280x720 and 16 samples, Blender 4.3.2 with EEVEE Next, one Blender
+process per shot. The scene is procedural: a character, a hero flower and a
+meadow built from primitives by a script, not a downloaded asset. The pipeline
+and the exact commands are in
+[`experiments/cartoon-pipeline/`](https://github.com/soobujmiah/ternux/tree/main/experiments/cartoon-pipeline).
+
+This run used **no X server app at all**. `Xvfb` on `:9` with
+`GALLIUM_DRIVER=zink` carried the whole render, and `glxinfo -B` on that display
+reported `zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP))`.
+
+| Shot | Frames | Blender render time | Mean | Wall clock |
+|---|---|---|---|---|
+| 1 | 144 | 164.5 s | 1.142 s | 209 s |
+| 2 | 144 | 160.3 s | 1.113 s | 205 s |
+| 3 | 168 | 192.4 s | 1.145 s | 244 s |
+| 4 | 192 | 212.4 s | 1.106 s | 270 s |
+| **All** | **648** | **729.6 s** | **1.126 s** | **928 s** |
+
+Wall clock exceeds render time by the per-process startup, shader compilation
+and PNG writing. The first frame of each shot cost 2.95-4.06 s against a 1.1 s
+steady state, which is the shader compilation a sequence pays once: rendering
+frame by frame in separate processes would have cost that 648 times.
+
+There is no slowdown across the run. The first 30 frames averaged 1.186 s and
+the last 30 averaged 1.149 s. Peak Blender memory was 86.6 MiB. Thermal samples
+over the final 6.3 minutes: GPU zone 52.3-63.4 C, `quiet_therm` 47.7-50.0 C,
+battery 43.5 C rising to 44.5 C. This is a roughly 15-minute sustained run; it
+does not establish multi-hour thermal behaviour.
+
+### Measured: display paths compared
+
+The same ten frames of the same scene, one Blender process each:
+
+| Path | Mean per frame | Result |
+|---|---|---|
+| `DISPLAY=:0`, Termux:X11 app open | 1.733 s | 10 frames |
+| `DISPLAY=:9` Xvfb + `GALLIUM_DRIVER=zink` | 1.697 s | 10 frames |
+| `DISPLAY=:9` Xvfb, Mesa's own driver choice | - | **0 frames, `Illegal instruction`** |
+| no `DISPLAY` set | - | **0 frames, `EGL_BAD_MATCH`** |
+
+Going headless costs nothing measurable, and the same frame rendered down both
+working paths differs in 5 channel samples out of 2,764,800, with a maximum
+difference of 3/255 — GPU nondeterminism, not a different renderer. Both halves
+of the headless rule are load-bearing: without the virtual display Blender falls
+back to EGL and renders nothing, and without the driver override Mesa selects
+`llvmpipe`, which dies with SIGILL on this device exactly as the software-GL
+control did on 2026-10-13.
+
+```bash
+Xvfb :9 -screen 0 1280x720x24 &
+DISPLAY=:9 GALLIUM_DRIVER=zink blender -b --factory-startup --python render.py -- --shot 1
+```
+
 ## Observed: Blender 4.3.2
 
 The supplied Blender system report contains:
@@ -597,6 +653,27 @@ in `/tmp/ternux-extension-final-install.log`.
 
 This verifies the published package path on the current configured device. It
 does not qualify a clean Mesa/Turnip install, HTP, or long-session behavior.
+
+## 2026-10-14 packaged CPU/Vulkan cancellation and restart
+
+Using the downloaded published package from scratch (without changing the
+workstation install) and the existing Qwen2.5 1.5B Q4_0 model at its original
+`/sdcard/LAI/models/` path, I ran a 500-token counting prompt on CPU and
+`Vulkan0`. A supervisor waited until generated text appeared, sent SIGINT during
+generation, and waited for the process to exit. Both runs stopped cleanly with
+exit code 0 and no remaining process. A fresh process on each backend then
+passed the greedy `2 + 2` known-answer check and returned `4`.
+
+This is one cancellation/restart cycle per backend on one configured SM8735
+device. It does not prove sustained thermal stability, repeated cancellation
+stress, NPU cancellation, system fallback, or clean-device driver installation.
+Reproduction logs and the full method are in
+`/home/sbj/npu-probe-2026-10-13/ternux-vulkan-device-test/`:
+`published-extension-cancel-cpu.log`,
+`published-extension-cancel-vulkan.log`,
+`published-extension-cpu-restart.log`,
+`published-extension-vulkan-restart.log`, and
+`published-extension-cancellation-repeat-20261014.md`.
 
 ## 2026-10-13 standalone Android QNN VAE graph qualification
 

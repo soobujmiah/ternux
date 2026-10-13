@@ -151,6 +151,59 @@ generation-এর qualification নয়।
 
 ---
 
+## পরিমাপ: screen ছাড়াই render করা ৬৪৮ ফ্রেমের animated short, 2026-10-14
+
+এই device-এই একটি সম্পূর্ণ ২৭ সেকেন্ডের animated film বানিয়েছি — চারটি shot, 1280x720
+ও ১৬ sample-এ ৬৪৮টি frame, Blender 4.3.2-এর EEVEE Next, প্রতি shot-এ একটি করে Blender
+process। scene-টি procedural: character, প্রধান ফুল আর মাঠ — সবই script-এ primitive
+থেকে তৈরি, কোনো download করা asset নয়। pipeline আর হুবহু command গুলো আছে
+[`experiments/cartoon-pipeline/`](https://github.com/soobujmiah/ternux/tree/main/experiments/cartoon-pipeline)-এ।
+
+এই run-এ **কোনো X server app চালু ছিল না**। `:9`-এ `Xvfb` আর `GALLIUM_DRIVER=zink`
+দিয়েই পুরো render হয়েছে, এবং ওই display-এ `glxinfo -B` দেখিয়েছে
+`zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP))`।
+
+| Shot | Frame | Blender-এর render সময় | গড় | Wall clock |
+|---|---|---|---|---|
+| 1 | 144 | 164.5 s | 1.142 s | 209 s |
+| 2 | 144 | 160.3 s | 1.113 s | 205 s |
+| 3 | 168 | 192.4 s | 1.145 s | 244 s |
+| 4 | 192 | 212.4 s | 1.106 s | 270 s |
+| **সব** | **648** | **729.6 s** | **1.126 s** | **928 s** |
+
+Wall clock render সময়ের চেয়ে বেশি — পার্থক্যটা process startup, shader compilation
+আর PNG লেখার। প্রতিটি shot-এর প্রথম frame-এ লেগেছে 2.95-4.06 সেকেন্ড, অথচ steady
+state 1.1 সেকেন্ড; এই shader compilation একটি sequence একবারই দেয়। frame ধরে ধরে
+আলাদা process-এ render করলে ওই খরচ ৬৪৮ বার দিতে হতো।
+
+run জুড়ে কোনো slowdown নেই। প্রথম ৩০টি frame-এর গড় 1.186 সেকেন্ড, শেষ ৩০টির 1.149
+সেকেন্ড। Blender-এর সর্বোচ্চ memory 86.6 MiB। শেষ 6.3 মিনিটের thermal নমুনা: GPU zone
+52.3-63.4 C, `quiet_therm` 47.7-50.0 C, battery 43.5 C থেকে 44.5 C। এটি প্রায় ১৫
+মিনিটের ধারাবাহিক run; multi-hour thermal behaviour প্রমাণ করে না।
+
+### পরিমাপ: display পথগুলোর তুলনা
+
+একই scene-এর একই দশটি frame, প্রতিটিতে একটি করে Blender process:
+
+| পথ | প্রতি frame গড় | ফল |
+|---|---|---|
+| `DISPLAY=:0`, Termux:X11 app চালু | 1.733 s | ১০টি frame |
+| `DISPLAY=:9` Xvfb + `GALLIUM_DRIVER=zink` | 1.697 s | ১০টি frame |
+| `DISPLAY=:9` Xvfb, Mesa-র নিজের driver পছন্দ | - | **০ frame, `Illegal instruction`** |
+| `DISPLAY` একেবারেই না দিলে | - | **০ frame, `EGL_BAD_MATCH`** |
+
+screen ছাড়া চালানোর মাপা খরচ শূন্য, আর দুই কার্যকর পথে render করা একই frame-এ
+2,764,800টি channel sample-এর মধ্যে মাত্র ৫টিতে পার্থক্য, সর্বোচ্চ পার্থক্য 3/255 — অর্থাৎ
+GPU-র nondeterminism, ভিন্ন renderer নয়। নিয়মের দুটি অংশই অপরিহার্য: virtual display
+না থাকলে Blender EGL-এ নেমে কিছুই render করে না, আর driver override না দিলে Mesa
+`llvmpipe` বেছে নেয়, যা এই device-এ SIGILL-এ মারা যায় — 2026-10-13-এর software-GL
+control-এ যেমনটা হয়েছিল।
+
+```bash
+Xvfb :9 -screen 0 1280x720x24 &
+DISPLAY=:9 GALLIUM_DRIVER=zink blender -b --factory-startup --python render.py -- --shot 1
+```
+
 ## Observed: Blender 4.3.2
 
 দেওয়া Blender system report-এ আছে:
@@ -550,6 +603,26 @@ installer output `/tmp/ternux-extension-final-install.log`-এ আছে।
 
 এটি বর্তমান configured device-এ প্রকাশিত package path যাচাই করে। Clean Mesa/Turnip
 install, HTP বা দীর্ঘ সময়ের behavior এটি qualify করে না।
+
+## ২০২৬-১০-১৪ packaged CPU/Vulkan cancellation ও restart
+
+Scratch-এ থাকা published package চালিয়ে (workstation install না বদলে) এবং
+আগের জায়গায় থাকা Qwen2.5 1.5B Q4_0 model ব্যবহার করে CPU ও `Vulkan0`-তে
+৫০০-token counting prompt চালানো হয়েছে। Supervisor generated text দেখা পর্যন্ত
+অপেক্ষা করে generation চলাকালীন SIGINT পাঠিয়েছে এবং process exit হওয়া পর্যন্ত
+অপেক্ষা করেছে। দুই backend-এই exit code 0-তে clean stop হয়েছে, কোনো process
+চালু ছিল না। এরপর প্রতিটি backend-এ নতুন process greedy `2 + 2` known-answer
+পরীক্ষায় `4` দিয়েছে।
+
+এটি একটি SM8735 device-এ প্রতি backend-এ একবার cancellation/restart cycle। এতে
+দীর্ঘ thermal stability, repeated cancellation stress, NPU cancellation, system
+fallback বা clean-device driver installation প্রমাণ হয় না। পূর্ণ পদ্ধতি ও log
+`/home/sbj/npu-probe-2026-10-13/ternux-vulkan-device-test/`-এ:
+`published-extension-cancel-cpu.log`,
+`published-extension-cancel-vulkan.log`,
+`published-extension-cpu-restart.log`,
+`published-extension-vulkan-restart.log` এবং
+`published-extension-cancellation-repeat-20261014.md`।
 
 ## 2026-10-13 standalone Android QNN VAE graph qualification
 
