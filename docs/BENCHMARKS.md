@@ -380,7 +380,7 @@ compare the published Redmi Turbo 4 Pro evidence.
 
 ## Current evidence matrix
 
-### Existing LAI model path comparison (Qwen2.5 1.5B Q4_0)
+### 2026-10-13 default-path comparison (Qwen2.5 1.5B Q4_0)
 
 I used `/sdcard/LAI/models/qwen2.5-1.5b-instruct-q4-0.gguf` directly; the model
 was not copied, moved, or converted. With the same packaged llama.cpp b11582
@@ -394,19 +394,61 @@ sampling, seed 0, and an eight-token limit:
 | Vulkan GPU | **Known-answer pass** on a separate local Vulkan-enabled build: `4.000000`; verbose trace assigned all 29/29 model layers to Vulkan0 (Adreno 825). | `llama-vulkan-qwen15-gpu.log` and `llama-vulkan-package-gpu-test.log` in `/home/sbj/npu-probe-2026-10-13/` |
 
 The HTP broker session and child process exited cleanly, and verbose per-op
-records confirm actual HTP work for this model. HTP inference nevertheless
-fails the known-answer check. The CPU and HTP token rates are short diagnostic
+records confirm actual HTP work for this model. The default HTP configuration
+failed this known-answer check on 2026-10-13. The CPU and HTP token rates are short diagnostic
 runs with different generation lengths and are not a controlled performance
 comparison. No sustained thermal or power measurement was taken. The existing
 `/sdcard/Llms/AbsoluteReality_qnn2.28_8gen2.zip` contains a Stable Diffusion
 QNN image-generation package (including CLIP, VAE, and UNet files), not a GGUF
-vision model; it was inspected by listing archive entries only and not extracted
-or run.
+vision model. At the time of this comparison it had been inspected by listing
+archive entries only. The later authorized CLIP input/CPU probe is recorded in
+the QNN experiment handoff.
 
-The model path comparison does not replace the next low-level diagnostic:
+### 2026-10-14 conditional Hexagon known-answer result
+
+I retested the checksum-verified pinned b11582 artifact with the same Qwen2.5
+1.5B Q4_0 model on SM8735. The existing broker passed its own CDSP descriptor
+to the glibc child process. With `GGML_HEXAGON_MM_SELECT=1` (HVX matmul) and
+`-fa off`, HTP returned `4` for `What is 2 + 2? Reply with only the number.`
+in three short runs. A second prompt, `The capital of France is`, returned
+` Paris, and the` on both CPU and HTP with the same four-token greedy settings.
+The verbose HTP log names `HTP0`, `q4_0 x f32` `MUL_MAT`, `hvx-tiled`, other
+HTP operators and an HTP compute buffer. The brokered child exited 0 and
+`closeSession` returned success. These observations establish actual HTP work
+and two short correct completions for this **specific** configuration.
+The same arithmetic prompt also returned `4` twice with the authorized
+Qwen2.5 1.5B Q4_K_M file under the HVX/`-fa off` setting. Its verbose profile
+identified `q4_K x f32` and `q6_K x f32` matmuls on `HTP0`. This adds a second
+quantization to the bounded pass, not a new model family.
+
+Two bounded controls kept `-fa off` and the same model/prompt: with
+`GGML_HEXAGON_MM_SELECT=2` (HMX preferred), the arithmetic prompt returned
+Arabic-script nonsense; with `MM_SELECT=1` but `-fa auto`, it returned `s,`.
+With `MM_SELECT=1`, `-fa off` and no `GGML_HEXAGON_OPFILTER`, it returned `4`.
+Thus both the default HMX path and the flash-attention setting are implicated
+by these controls; the exact failing operator and numerical mechanism remain
+unproven. A [separate upstream v73 report](https://github.com/ggml-org/llama.cpp/issues/29473)
+describes similar controls on a different SoC; its workaround was a diagnostic
+lead, not proof for this device.
+
+The earlier default HTP failure remains historical evidence. The isolated Q4_0
+matmul mismatch also remains unresolved. Two short prompts do not establish
+general model compatibility, sustained stability, release packaging, or a
+Ternux-supported NPU route. Local logs:
+`htp-qwen15-hvx-workaround-verbose-2026-10-14.log`,
+`htp-qwen15-hmx-control-2026-10-14.log`,
+`htp-qwen15-hvx-fa-auto-2026-10-14.log`,
+`htp-qwen15-hvx-only-2026-10-14.log`,
+`qwen15-q4km-htp-hvx-2026-10-14.log`,
+`qwen15-q4km-htp-hvx-verbose-2026-10-14.log`,
+`qwen15-cpu-france-2026-10-14.log`, and
+`qwen15-htp-hvx-france-2026-10-14.log` under
+`/home/sbj/npu-probe-2026-10-13/`.
+
+The conditional HTP result does not replace the next low-level diagnostic:
 reproduce the exact HTP Q8_0 activation quantizer to understand the Q4_0 kernel
-numeric mismatch. The Vulkan path has now passed a known-answer inference test;
-the HTP path remains failed pending diagnosis and a later known-answer pass.
+numeric mismatch. Vulkan has passed a known-answer inference test; HTP needs
+broader correctness and stability checks with the HVX/attention settings.
 
 ### Stable Diffusion evaluation (deferred: no compatible model/backend pair)
 

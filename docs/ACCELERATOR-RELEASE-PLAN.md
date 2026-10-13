@@ -13,8 +13,8 @@ it does not describe shipped capabilities.
 | Order | Work | Current status | Completion evidence |
 |---|---|---|---|
 | 1 | Our standalone Android/Bionic QNN helper, callable from PRoot | Runtime/provider, backend/device, VAE context load/free and encoder graph execution VERIFIED; generic HTP Add known-answer VERIFIED; model output correctness UNVERIFIED | Matching execution headers, tensor metadata, request/response, known-output accelerator test |
-| 2 | Existing QNN picture model, kept in place | No-copy VAE/UNet fixed-input graph execution VERIFIED; prompt-to-image inference UNVERIFIED | CLIP/UNet/VAE pipeline, graph execution, stage attribution, fixed-seed image test and reviewed output |
-| 3 | Main Debian llama.cpp CPU/GPU/HTP qualification | CPU/Vulkan known-answer pass; HTP known-answer FAILED | Diagnose Q4 mismatch, validate operators, reproduce correct model answers on intended backend |
+| 2 | Existing QNN picture model, kept in place | No-copy VAE/UNet fixed-input graph execution VERIFIED; fixed-prompt CLIP CPU input and output repeatability VERIFIED on 2026-10-14; CLIP-to-UNet and prompt-to-image UNVERIFIED | CLIP/UNet/VAE pipeline, graph execution, stage attribution, fixed-seed image test and reviewed output |
+| 3 | Main Debian llama.cpp CPU/GPU/HTP qualification | CPU/Vulkan known-answer pass; HTP default path FAILED; HVX matmul plus flash-attention-off passed two short known-answer prompts on SM8735 (2026-10-14) | Isolate failing HMX/attention operators, repeat across models and longer prompts, then qualify a pinned supported configuration |
 | 4 | Repeat and sustained device qualification | Three short CPU/GPU benchmarks; sustained testing UNVERIFIED | Matched runs, memory/thermal/power availability recorded, stability, cancellation/restart/cleanup, safe fallback |
 | 5 | Reusable GitHub artifacts | HTP experimental prerelease exists; Vulkan package local; standalone helper NDK CI artifact passed device graph test; no released install package | Pinned build inputs, ABI/ELF checks, checksums, licenses, release manifest and clean-device install verification |
 | 6 | Extension installation and complete guides | Current LLM installer builds from source | Release-based selectable ADT/llama.cpp/extensions, automatic/manual steps, model paths, backend selection, upgrade/resume/failure handling |
@@ -61,5 +61,5 @@ expected VAE/UNet tensor before qualifying the image pipeline. Preserve the
 existing QNN archive and the existing GGUF model paths.
 
 The [benchmark report](BENCHMARKS.md) preserves CPU/GPU results and the HTP
-failure. Existing LAI findings are recorded in LAI's native Android research
+failure plus the later conditional HVX result. Existing LAI findings are recorded in LAI's native Android research
 note for later work; this plan does not alter LAI's runtime or device gates.

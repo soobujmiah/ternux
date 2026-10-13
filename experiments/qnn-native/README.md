@@ -13,8 +13,8 @@ test checks row selection, padding, weight multiplication and position addition.
 
 This module does not tokenize prompt text or execute `clip_v2.mnn`. Its token ID
 contract comes from the pinned Local Dream reference, but actual compatibility
-with the archive's tokenizer, tables and MNN model is not yet verified. No
-model archive or Qualcomm runtime was accessed for this step.
+with the archive's MNN numerical output is not yet verified. No Qualcomm
+runtime was accessed for this step.
 
 ```bash
 python3 -m unittest discover -s experiments/qnn-native -p 'test_clip_conditioning.py' -v
@@ -28,6 +28,47 @@ python3 experiments/qnn-native/clip_conditioning.py \
 The output path must be new. The example paths are placeholders; model members
 must stay within the existing archive handling boundary and must not be
 committed or redistributed.
+
+After the owner authorized the four named archive members, I added
+[`clip_archive_probe.py`](clip_archive_probe.py). It loads the tokenizer JSON in
+memory, asks Hugging Face `tokenizers` for content IDs without its own special
+tokens, streams the token and position tables into anonymous memfds, verifies
+their sizes and SHA-256, and writes only the resulting FP32 input tensor to a
+new scratch file. On `a cat`, content IDs were `[320, 2368]` and the final
+`[1,77,768]` input SHA-256 was
+`c224f03dbd0fb9abed0dd6747f8607d1059da847e74bf6fab02c34c65c59ccb3`
+in repeated runs. The ZIP remains unchanged.
+
+```bash
+PYTHONPATH=/absolute/scratch/tokenizers-package \
+  python3 experiments/qnn-native/clip_archive_probe.py \
+  --archive /sdcard/Llms/AbsoluteReality_qnn2.28_8gen2.zip \
+  --prompt 'a cat' --output /absolute/scratch/new-input_embedding.f32
+```
+
+MNN 3.6.1 in scratch loaded the archive's `clip_v2.mnn` from an anonymous FD.
+It reported model version 3.2.1 and input `input_embedding` / output
+`last_hidden_state`, both `[1,77,768]`. My first probe used `fromNumpy`
+directly on the session input. A readback showed the input had **not** matched
+the source, and repeated outputs varied. This was a probe-input error, not a
+verified model defect. The corrected [`clip_mnn_probe.py`](clip_mnn_probe.py)
+creates a host tensor with the session input's dimension type, uses `copyFrom`,
+and checks exact input readback before every run. Three CPU runs returned the
+same finite FP32 output, SHA-256
+`8b8cd4617f22a0ad429d3bc6b6a48103c2beec9cc262d8677ea9c443191a6d88`.
+The derived tensor is in scratch; the model member was never extracted.
+
+```bash
+PYTHONPATH=/absolute/scratch/mnn-and-numpy-packages \
+  python3 experiments/qnn-native/clip_mnn_probe.py \
+  --archive /sdcard/Llms/AbsoluteReality_qnn2.28_8gen2.zip \
+  --input /absolute/scratch/input_embedding.f32 \
+  --output /absolute/scratch/new-last_hidden_state.f32
+```
+
+This verifies deterministic CLIP CPU execution for one fixed prompt/input. It
+does not establish independent numerical correctness or a connected UNet/VAE
+image pipeline.
 
 The [2026-10-13 engineering handoff](HANDOFF-2026-10-13.md) records the exact
 stop point, verified device evidence and the next work for another agent.
