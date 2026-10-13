@@ -156,6 +156,10 @@ it with:
 ternux extension install llama-vulkan
 ```
 
+The Debian guest needs glibc 2.38 or newer plus OpenSSL 3 (`libssl3` or
+`libssl3t64`), `libgomp1`, and `libvulkan1`; the installer checks these before
+downloading.
+
 Then open Debian with `db`, load the extension, and choose CPU or Vulkan:
 
 ```bash

@@ -24,7 +24,8 @@ jobs:
           sudo apt-get update
           sudo apt-get install --yes --no-install-recommends \
             cmake ninja-build git pkg-config libvulkan-dev glslc \
-            libshaderc-dev glslang-dev glslang-tools spirv-headers
+            libshaderc-dev glslang-dev glslang-tools spirv-headers \
+            libssl-dev libgomp1 libvulkan1
 
       - name: Check out pinned llama.cpp source
         uses: actions/checkout@v4
@@ -80,8 +81,10 @@ jobs:
           This package contains llama.cpp tools and libraries. It does not
           include model weights, Vulkan loader, Mesa/Turnip, Qualcomm runtime,
           firmware, or a FastRPC broker. A working system Vulkan ICD is required
-          for GPU offload. On Ternux, verify the renderer and device with
-          `vulkaninfo --summary` before selecting Vulkan.
+          for GPU offload. The package requires glibc 2.38 or newer and the
+          guest's system libssl3, libgomp1, and libvulkan1 runtime libraries.
+          On Ternux, verify the renderer and device with `vulkaninfo --summary`
+          before selecting Vulkan.
           EOF
           cat > "$package/env.sh" <<'EOF'
           # Source this file to use the packaged llama.cpp tools.
@@ -118,10 +121,15 @@ jobs:
               "LLAMA_BUILD_TESTS": "OFF"
             },
             "install_rpath": "\$ORIGIN/../lib",
+            "minimum_glibc": "2.38",
+            "system_runtime_dependencies": [
+              "libssl.so.3", "libcrypto.so.3", "libgomp.so.1", "libvulkan.so.1"
+            ],
             "license_file": "LLAMA-CPP-LICENSE",
             "device_validation": "CPU and Vulkan known-answer passed on SM8735/Adreno 825; see release notes"
           }
           EOF
+          python3 tests/llama_vulkan_abi_audit.py "$package"
           tar -C package -czf \
             ternux-llama-vulkan-linux-arm64-b11582.tar.gz \
             ternux-llama-vulkan-linux-arm64-b11582

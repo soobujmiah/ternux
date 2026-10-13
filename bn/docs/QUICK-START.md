@@ -162,6 +162,9 @@ version-aware guidance দেখায়; safeguard বদলানোর আ�
 ternux extension install llama-vulkan
 ```
 
+Debian guest-এ glibc 2.38 বা নতুন এবং OpenSSL 3 (`libssl3` বা `libssl3t64`),
+`libgomp1`, `libvulkan1` লাগবে; installer download-এর আগে এগুলো যাচাই করে।
+
 এরপর `db` দিয়ে Debian-এ যান, extension চালু করুন এবং CPU বা Vulkan বেছে নিন:
 
 ```bash

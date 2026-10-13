@@ -641,6 +641,15 @@ package includes the upstream license, uses `$ORIGIN/../lib`, and has no missing
 dynamic dependencies in Debian PRoot. Sourcing `env.sh` exposed
 `llama-cli --version` and listed Vulkan0 as Adreno 825.
 
+An offline ABI audit of the extracted published archive checked all 69 ELF
+files: every file is AArch64, uses `$ORIGIN/../lib`, resolves its package-local
+dependencies, and needs no GLIBC symbol newer than 2.38. The packaged upstream
+MIT license is present. This establishes a glibc 2.38 minimum and identifies
+system runtime libraries `libssl3`, `libgomp1`, and `libvulkan1`; the installer
+now checks these prerequisites before downloading. The release workflow now
+contains the same ABI audit for future builds, but it has not been rerun yet.
+The manual setup guide records the runtime package command.
+
 Using the existing `/sdcard/LAI/models/qwen2.5-1.5b-instruct-q4-0.gguf` in
 place, the installed package returned `4` for the same greedy `2 + 2` prompt
 with `-ngl 0` and with `-dev Vulkan0 -ngl 99`. The verbose Vulkan trace names

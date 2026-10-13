@@ -50,7 +50,7 @@ _tnx_extension_fail() { printf '[FAIL] %s\n' "$*" >&2; }
 _tnx_extension_ok() { printf '[ OK ] %s\n' "$*"; }
 
 _tnx_extension_install() {
-  local name="${1:-}" tag asset base tmp expected listed actual member top dest
+  local name="${1:-}" tag asset base tmp expected listed actual member top dest glibc version_major version_minor library missing_libraries=""
   [ -n "$name" ] || { _tnx_extension_fail "Choose an extension: ternux extension list"; return 2; }
   case "$name" in
     llama-vulkan)
@@ -65,9 +65,29 @@ _tnx_extension_install() {
     _tnx_extension_fail "Run this inside the Linux ARM64 glibc guest, not the Termux host."
     return 1
   fi
-  for cmd in curl sha256sum tar mktemp; do
+  glibc="$(getconf GNU_LIBC_VERSION 2>/dev/null)"
+  if [[ ! "$glibc" =~ ^glibc[[:space:]]+([0-9]+)\.([0-9]+)$ ]]; then
+    _tnx_extension_fail "Cannot determine the guest's glibc version; llama-vulkan requires glibc 2.38 or newer."
+    return 1
+  fi
+  version_major="${BASH_REMATCH[1]}"
+  version_minor="${BASH_REMATCH[2]}"
+  if (( version_major < 2 || (version_major == 2 && version_minor < 38) )); then
+    _tnx_extension_fail "llama-vulkan requires glibc 2.38 or newer; found $glibc. No files were installed."
+    return 1
+  fi
+  for cmd in curl sha256sum tar mktemp ldconfig; do
     command -v "$cmd" >/dev/null 2>&1 || { _tnx_extension_fail "Missing required command: $cmd"; return 1; }
   done
+  for library in libssl.so.3 libcrypto.so.3 libgomp.so.1 libvulkan.so.1; do
+    if ! ldconfig -p 2>/dev/null | awk '{print $1}' | grep -qxF "$library"; then
+      missing_libraries="${missing_libraries:+$missing_libraries, }$library"
+    fi
+  done
+  if [ -n "$missing_libraries" ]; then
+    _tnx_extension_fail "Missing runtime libraries: $missing_libraries. In Debian install libgomp1 and libvulkan1, plus the OpenSSL 3 runtime package (libssl3 or libssl3t64)."
+    return 1
+  fi
 
   base="$HOME/.local/opt/ternux-extensions"
   dest="$base/$name"

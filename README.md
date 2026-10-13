@@ -92,6 +92,9 @@ In **Termux**, install the published ARM64 prerelease:
 ternux extension install llama-vulkan
 ```
 
+The Debian guest needs glibc 2.38 or newer and OpenSSL 3 (`libssl3` or
+`libssl3t64`), `libgomp1`, and `libvulkan1` runtime libraries.
+
 In Debian, load it and run a GGUF model you already have (CPU example):
 
 ```bash

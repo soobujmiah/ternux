@@ -591,6 +591,15 @@ upstream license আছে, `$ORIGIN/../lib` ব্যবহার করে এ
 dynamic dependency নেই। `env.sh` source করার পর `llama-cli --version` চলে এবং
 Vulkan0-তে Adreno 825 দেখা যায়।
 
+Extract করা published archive-এ offline ABI audit করে ৬৯টি ELF file যাচাই
+হয়েছে: সবগুলো AArch64, `$ORIGIN/../lib` ব্যবহার করে, package-এর ভেতরের
+dependency resolve হয় এবং GLIBC 2.38-এর চেয়ে নতুন symbol লাগে না। Archive-এ
+upstream MIT license আছে। তাই glibc 2.38 সর্বনিম্ন দরকার; system runtime হিসেবে
+`libssl3`, `libgomp1`, `libvulkan1` লাগে। Installer এখন download-এর আগে এগুলো
+যাচাই করে। পরের build-গুলোর জন্য release workflow-তেও ABI audit যোগ হয়েছে,
+তবে workflow এখনো আবার চালানো হয়নি। Manual guide-এ runtime package-এর command
+আছে।
+
 আগের জায়গায় রাখা
 `/sdcard/LAI/models/qwen2.5-1.5b-instruct-q4-0.gguf` দিয়ে installed package একই
 greedy `2 + 2` prompt-এ `-ngl 0` এবং `-dev Vulkan0 -ngl 99`—দুই ক্ষেত্রেই `4`

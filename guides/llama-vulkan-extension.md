@@ -10,6 +10,11 @@ keeps only the shortest setup path; this page is the detailed reference.
   from llama.cpp commit `af50f2f248b475d9760f8e67503d01c0f194f5f4`.
 - Run it inside Ternux's Debian ARM64 glibc guest. The installer command itself
   runs in the Termux host; the manual route runs in Debian.
+- The published binaries require **glibc 2.38 or newer**. Ternux's tested
+  Debian PRoot currently has glibc 2.41. The guest also needs OpenSSL 3
+  (`libssl3` or `libssl3t64`), `libgomp1`, and `libvulkan1`; if they are
+  missing, install the matching runtime packages in Debian. The extension installer
+  refuses an older glibc before downloading or writing files.
 - The package provides llama.cpp CPU and Vulkan backends. It does not install
   model weights, a Vulkan driver/ICD, or HTP/QNN support. Keep GGUF files in
   their current location. Vulkan needs a functioning system Vulkan ICD; on the
@@ -73,6 +78,18 @@ Use this when you want to inspect and verify the release yourself or cannot use
 the host extension command. Run all commands in the **Debian guest**, as your
 normal user. This installs a versioned directory so it does not collide with
 the automatic install path.
+
+Check the ABI baseline and required system libraries first:
+
+```bash
+getconf GNU_LIBC_VERSION   # must report glibc 2.38 or newer
+if apt-cache show libssl3t64 >/dev/null 2>&1; then
+  SSL_PACKAGE=libssl3t64
+else
+  SSL_PACKAGE=libssl3
+fi
+sudo apt install libgomp1 libvulkan1 "$SSL_PACKAGE"
+```
 
 Download the archive and published checksum sidecar over HTTPS, then verify the
 archive digest:

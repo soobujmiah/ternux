@@ -9,6 +9,11 @@ manual install—দুই পদ্ধতি আছে। Website-এর [স�
   commit `af50f2f248b475d9760f8e67503d01c0f194f5f4` থেকে build করা।
 - Ternux-এর Debian ARM64 glibc guest-এর ভেতরে চালান। Installer command চলে
   Termux host-এ; manual পদ্ধতি চলে Debian-এ।
+- প্রকাশিত binary-র জন্য **glibc 2.38 বা নতুন** লাগবে। Ternux-এ পরীক্ষিত
+  Debian PRoot-এ glibc 2.41 আছে। Guest-এ OpenSSL 3 runtime
+  (`libssl3` বা `libssl3t64`), `libgomp1`, ও `libvulkan1`-ও লাগবে; কোনোটি না
+  থাকলে Debian-এর উপযুক্ত package install করুন। পুরোনো glibc হলে
+  installer download বা file write করার আগেই থেমে যাবে।
 - Package-এ llama.cpp CPU ও Vulkan backend আছে। এটি model weight, Vulkan
   driver/ICD বা HTP/QNN support install করে না। GGUF ফাইল আগের জায়গায় রাখুন।
   Vulkan-এর জন্য system Vulkan ICD কাজ করতে হবে; পরীক্ষিত Adreno setup-এ device
@@ -71,6 +76,18 @@ llama-cli -m /path/to/model.gguf -dev Vulkan0 -ngl 99 \
 করতে না পারলে এটি নিন। সব command **Debian guest**-এ স্বাভাবিক user হিসেবে
 চালান। Version-সহ আলাদা directory ব্যবহার হবে, তাই automatic install path-এর
 সাথে সংঘর্ষ হবে না।
+
+প্রথমে ABI minimum ও system runtime package যাচাই করুন:
+
+```bash
+getconf GNU_LIBC_VERSION   # glibc 2.38 বা নতুন হতে হবে
+if apt-cache show libssl3t64 >/dev/null 2>&1; then
+  SSL_PACKAGE=libssl3t64
+else
+  SSL_PACKAGE=libssl3
+fi
+sudo apt install libgomp1 libvulkan1 "$SSL_PACKAGE"
+```
 
 HTTPS দিয়ে archive ও প্রকাশিত checksum sidecar নামিয়ে digest যাচাই করুন:
 

@@ -1165,7 +1165,7 @@ case "${1:-}" in -s) echo Linux ;; -m) echo aarch64 ;; *) exit 1 ;; esac
 EOF
 cat > "$EXT_BIN/getconf" <<'EOF'
 #!/bin/sh
-echo 'glibc 2.36'
+echo "glibc ${EXT_GLIBC_VERSION:-2.38}"
 EOF
 cat > "$EXT_BIN/curl" <<'EOF'
 #!/bin/sh
@@ -1174,10 +1174,38 @@ while [ "$#" -gt 0 ]; do
   if [ "$1" = -o ]; then shift; out="$1"; else url="$1"; fi
   shift
 done
+printf '%s\n' "$url" >> "$EXT_CURL_LOG"
 cp "$EXT_FIXTURE/${url##*/}" "$out"
 EOF
-chmod 0755 "$EXT_BIN/uname" "$EXT_BIN/getconf" "$EXT_BIN/curl"
-if env HOME="$TMP/ext-home-ok" EXT_FIXTURE="$EXT_FIXTURE" PATH="$EXT_BIN:$PATH" \
+cat > "$EXT_BIN/ldconfig" <<'EOF'
+#!/bin/sh
+for library in libssl.so.3 libcrypto.so.3 libgomp.so.1 libvulkan.so.1; do
+  [ "$library" = "${EXT_MISSING_LIBRARY:-}" ] || printf '%s (libc6,AArch64) => /usr/lib/%s\n' "$library" "$library"
+done
+EOF
+chmod 0755 "$EXT_BIN/uname" "$EXT_BIN/getconf" "$EXT_BIN/curl" "$EXT_BIN/ldconfig"
+if ! env HOME="$TMP/ext-home-old-glibc" EXT_GLIBC_VERSION=2.37 \
+  EXT_CURL_LOG="$TMP/ext-old-glibc-downloads" EXT_FIXTURE="$EXT_FIXTURE" \
+  PATH="$EXT_BIN:$PATH" TERNUX_STATE_DIR="$TMP/ext-state-old-glibc" \
+  bash "$ROOT/bin/ternux" extension install llama-vulkan >/dev/null 2>&1 &&
+  [ ! -e "$TMP/ext-home-old-glibc/.local/opt/ternux-extensions" ] &&
+  [ ! -e "$TMP/ext-old-glibc-downloads" ]; then
+  ok "extension installer rejects glibc below the package ABI baseline before download"
+else
+  not_ok "extension installer rejects glibc below the package ABI baseline before download"
+fi
+if ! env HOME="$TMP/ext-home-missing-runtime" EXT_MISSING_LIBRARY=libgomp.so.1 \
+  EXT_CURL_LOG="$TMP/ext-missing-runtime-downloads" EXT_FIXTURE="$EXT_FIXTURE" \
+  PATH="$EXT_BIN:$PATH" TERNUX_STATE_DIR="$TMP/ext-state-missing-runtime" \
+  bash "$ROOT/bin/ternux" extension install llama-vulkan >/dev/null 2>&1 &&
+  [ ! -e "$TMP/ext-home-missing-runtime/.local/opt/ternux-extensions" ] &&
+  [ ! -e "$TMP/ext-missing-runtime-downloads" ]; then
+  ok "extension installer reports missing runtime libraries before download"
+else
+  not_ok "extension installer reports missing runtime libraries before download"
+fi
+if env HOME="$TMP/ext-home-ok" EXT_GLIBC_VERSION=2.38 EXT_CURL_LOG="$TMP/ext-downloads" \
+  EXT_FIXTURE="$EXT_FIXTURE" PATH="$EXT_BIN:$PATH" \
   TERNUX_STATE_DIR="$TMP/ext-state-ok" bash "$ROOT/bin/ternux" extension install llama-vulkan >/dev/null 2>&1 &&
   [ -x "$TMP/ext-home-ok/.local/opt/ternux-extensions/llama-vulkan/bin/llama-cli" ] &&
   [ -f "$TMP/ext-home-ok/.local/opt/ternux-extensions/llama-vulkan/env.sh" ] &&
@@ -1188,7 +1216,8 @@ else
   not_ok "extension installer verifies and atomically installs the selected release"
 fi
 printf '%064d  %s.tar.gz\n' 0 "$EXT_TAG" > "$EXT_FIXTURE/$EXT_TAG.tar.gz.sha256"
-if ! env HOME="$TMP/ext-home-bad" EXT_FIXTURE="$EXT_FIXTURE" PATH="$EXT_BIN:$PATH" \
+if ! env HOME="$TMP/ext-home-bad" EXT_GLIBC_VERSION=2.38 EXT_CURL_LOG="$TMP/ext-bad-downloads" \
+  EXT_FIXTURE="$EXT_FIXTURE" PATH="$EXT_BIN:$PATH" \
   TERNUX_STATE_DIR="$TMP/ext-state-bad" bash "$ROOT/bin/ternux" extension install llama-vulkan >/dev/null 2>&1 &&
   [ ! -e "$TMP/ext-home-bad/.local/opt/ternux-extensions/llama-vulkan" ] &&
   ! find "$TMP/ext-home-bad/.local/opt/ternux-extensions" -mindepth 1 -maxdepth 1 -name '.llama-vulkan.install.*' | grep -q .; then
