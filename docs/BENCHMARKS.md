@@ -408,6 +408,28 @@ reproduce the exact HTP Q8_0 activation quantizer to understand the Q4_0 kernel
 numeric mismatch. The Vulkan path has now passed a known-answer inference test;
 the HTP path remains failed pending diagnosis and a later known-answer pass.
 
+### Stable Diffusion evaluation (deferred: no compatible model/backend pair)
+
+The existing `/sdcard/Llms/AbsoluteReality_qnn2.28_8gen2.zip` is a QNN Android
+image-generation package, not an upstream `stable-diffusion.cpp` model bundle.
+Its archive entries were listed earlier, but the archive was not extracted or
+run. The official upstream `stable-diffusion.cpp` CMake options expose Vulkan
+and OpenCL backends and do not expose QNN or Hexagon HTP; the upstream build
+guide lists supported model files and backend build instructions. Therefore the
+existing QNN package cannot currently validate CPU, Adreno Vulkan, or HTP through
+that project. This is an evidence-based compatibility gap, not a failed inference
+test.
+
+No compatible Stable Diffusion checkpoint or GGUF was found in the already
+authorized scratch/repository locations, so no SD build or model download was
+started. CPU/GPU testing can resume if a compatible model is already available;
+HTP testing additionally needs a verified QNN/HTP execution route. Keep SD out of
+the accelerator pass matrix until a known-input/output image test runs and its
+actual backend is logged.
+
+References: [stable-diffusion.cpp build guide](https://github.com/leejet/stable-diffusion.cpp/blob/master/docs/build.md),
+[upstream CMake backend options](https://github.com/leejet/stable-diffusion.cpp/blob/master/CMakeLists.txt).
+
 ### Vulkan llama.cpp model test (local Debian PRoot build)
 
 The Vulkan-enabled build used the pinned llama.cpp source commit

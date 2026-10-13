@@ -400,6 +400,26 @@ mismatch বোঝার জন্য exact HTP Q8_0 activation quantizer reprod
 Vulkan path এখন known-answer inference test pass করেছে; diagnosis ও পরবর্তী
 known-answer pass না হওয়া পর্যন্ত HTP path fail অবস্থায় আছে।
 
+### Stable Diffusion মূল্যায়ন (deferred: compatible model/backend pair নেই)
+
+বিদ্যমান `/sdcard/Llms/AbsoluteReality_qnn2.28_8gen2.zip` হলো QNN Android
+image-generation package, upstream `stable-diffusion.cpp` model bundle নয়। এর
+archive entry আগে তালিকাভুক্ত করা হয়েছে, কিন্তু extract বা run করা হয়নি।
+Official upstream `stable-diffusion.cpp` CMake option-এ Vulkan ও OpenCL backend
+আছে, QNN বা Hexagon HTP নেই; upstream build guide-এ model file ও backend build
+নির্দেশনা আছে। তাই বর্তমান QNN package দিয়ে ওই project-এর মাধ্যমে CPU, Adreno
+Vulkan বা HTP validate করা যাচ্ছে না। এটি প্রমাণভিত্তিক compatibility gap, failed
+inference test নয়।
+
+ইতিমধ্যে অনুমোদিত scratch/repository path-এ compatible Stable Diffusion
+checkpoint বা GGUF পাওয়া যায়নি, তাই SD build বা model download শুরু করিনি।
+compatible model আগে থেকে থাকলে CPU/GPU test করা যাবে; HTP test-এর জন্য verified
+QNN/HTP execution path-ও লাগবে। Known-input/output image test ও actual backend log
+না হওয়া পর্যন্ত SD-কে accelerator pass matrix-এ ধরা হবে না।
+
+তথ্যসূত্র: [stable-diffusion.cpp build guide](https://github.com/leejet/stable-diffusion.cpp/blob/master/docs/build.md),
+[upstream CMake backend option](https://github.com/leejet/stable-diffusion.cpp/blob/master/CMakeLists.txt)।
+
 ### Vulkan llama.cpp model test (local Debian PRoot build)
 
 Vulkan-enabled build-টি pinned llama.cpp source commit
