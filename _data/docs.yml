@@ -20,6 +20,9 @@ en:
       - title: Daily usage
         url: /docs/USAGE.html
         summary: Sessions, storage, workloads, backups, and heat.
+      - title: Workloads
+        url: /docs/WORKLOADS.html
+        summary: What each option installs, automatically or by hand.
       - title: Configuration
         url: /docs/CONFIGURATION.html
         summary: Launch variables, graphics routes, audio, locale, and fonts.
@@ -71,6 +74,9 @@ bn:
       - title: দৈনন্দিন ব্যবহার
         url: /bn/docs/USAGE.html
         summary: Session, storage, workload, backup ও তাপ।
+      - title: ওয়ার্কলোড
+        url: /bn/docs/WORKLOADS.html
+        summary: প্রতিটি অপশন কী বসায় — স্বয়ংক্রিয়ভাবে বা হাতে।
       - title: কনফিগারেশন
         url: /bn/docs/CONFIGURATION.html
         summary: Launch variable, graphics route, audio, locale ও font।

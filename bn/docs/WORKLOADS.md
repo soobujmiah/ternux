@@ -1,0 +1,148 @@
+---
+title: "ওয়ার্কলোড — প্রতিটি অপশন কী বসায়, স্বয়ংক্রিয়ভাবে বা নিজের হাতে"
+description: "অপ্ট-ইন ওয়ার্কলোডগুলো, প্রতিটিতে ঠিক কোন package বসে, এক-কমান্ড পথ ও তার manual সমতুল্য, এবং resume ও failure কীভাবে সামলানো হয়।"
+lang: "bn"
+alt_url: "/docs/WORKLOADS.html"
+---
+
+একটি ternux install মানে একটি desktop, আর তার সঙ্গে আপনি যা যা চান। এই পৃষ্ঠার
+কোনো কিছুই না চাইলে বসে না, আর প্রতিটি অপশন একটি *workload*: নাম দেওয়া একটি
+package সেট, যা guest-এ বসে এবং state-এ লিপিবদ্ধ হয় — যাতে `--resume` ও
+`ternux repair` জানে কী কী ছিল।
+
+প্রতিটি workload দুইভাবে বসানো যায়, আর দুটোই সমান বৈধ। এক-কমান্ড পথ হলো
+installer-এর একটি flag। Manual পথ হলো একই command আপনি নিজে guest-এর ভেতরে
+চালাচ্ছেন — যাতে চালানোর আগে পড়ে নিতে পারেন, এবং ব্যর্থ একটি install গোড়া থেকে
+শুরু না করে হাতে শেষ করতে পারেন।
+
+<h2 id="the-workloads">ওয়ার্কলোডগুলো</h2>
+
+| Workload | Flag | কী বসায় |
+|---|---|---|
+| ডেভেলপমেন্ট | `--with-dev` | git, curl, wget, Node.js, npm, pip ও venv সহ Python 3, build-essential, ca-certificates |
+| লোকাল AI | `--with-llm` | Vulkan ও shader toolchain, তারপর `GGML_VULKAN=ON` দিয়ে llama.cpp **source থেকে build** |
+| নেটওয়ার্ক | `--with-network` | nmap, tmux |
+| মিডিয়া | `--with-media` | ffmpeg, GIMP, Audacity, ImageMagick |
+| Blender | `--with-blender` | Blender (`--no-install-recommends` দিয়ে প্রায় ৯৫ MB) |
+| সবকিছু | `--all` | পাঁচটিই |
+
+বেস desktop — Xfce4, terminal, VLC, archive tool, Mesa utility, Vulkan tool —
+সবসময় বসে এবং সেটি কোনো workload নয়।
+
+<h2 id="automatic">স্বয়ংক্রিয়</h2>
+
+```bash
+bash install.sh --with-dev --with-llm --with-blender
+bash install.sh --all
+```
+
+Flag একসঙ্গে দেওয়া যায়, আর সেটটি লিপিবদ্ধ হয়। পরে `bash install.sh --resume`
+একই সেট ফিরিয়ে আনে, command line-এ আবার লিখতে হয় না; আর `ternux repair` যা
+লিপিবদ্ধ ছিল তাই মেরামত করে, অনুমান করে না।
+
+<h2 id="manual">নিজের হাতে</h2>
+
+এগুলো guest-এর ভেতরে Debian user হিসেবে চালান — Xfce terminal থেকে, অথবা Termux
+থেকে `proot-distro login debian --user <আপনি>`। ঠিক এই কাজের জন্যই ternux `db`
+alias বসায়। প্রতিটি block installer যা চালায় তাই, তাই ফলাফল দুইভাবেই এক।
+
+প্রথমে, প্রতি session-এ একবার:
+
+```bash
+sudo apt update
+export DEBIAN_FRONTEND=noninteractive
+```
+
+**ডেভেলপমেন্ট**
+
+```bash
+sudo apt install -y git curl wget nodejs npm python3 python3-pip python3-venv \
+  build-essential ca-certificates
+```
+
+**নেটওয়ার্ক**
+
+```bash
+sudo apt install -y nmap tmux
+```
+
+কেবল অনুমোদিত পরীক্ষার জন্য। নিজের নয় এমন network-এ nmap চালাতে ternux আপনাকে
+বলছে না।
+
+**মিডিয়া**
+
+```bash
+sudo apt install -y ffmpeg gimp audacity imagemagick
+```
+
+**Blender**
+
+```bash
+sudo apt install -y --no-install-recommends blender
+```
+
+`--no-install-recommends` প্রায় ২৩ MB speech-synthesis package বাদ দেয়, যা
+Blender-এর লাগে না। Render করার আগে পড়ুন
+[গ্রাফিক্স স্থায়িত্ব](GRAPHICS-PERSISTENCE.html): নতুন Adreno hardware-এ GPU পথ
+Debian-এর চেয়ে নতুন একটি Mesa driver-এর উপর নির্ভর করে, আর একটি package update
+সেটি সরিয়ে দিতে পারে।
+
+**লোকাল AI (llama.cpp)**
+
+এটি compile করে। লম্বা build আর সত্যিকারের তাপ আশা করুন; চার্জে রেখে করুন, আর
+ফোন এটি দ্রুত শেষ করবে এমন আশা করবেন না।
+
+```bash
+sudo apt install -y build-essential cmake git pkg-config libvulkan-dev \
+  vulkan-tools clinfo glslang-dev glslang-tools libshaderc-dev glslc
+git clone --depth 1 https://github.com/ggml-org/llama.cpp.git ~/llama.cpp
+cd ~/llama.cpp
+cmake -S . -B build -DGGML_VULKAN=ON -DCMAKE_BUILD_TYPE=Release
+cmake --build build --config Release -j"$(nproc)"
+```
+
+Source থেকে build করা বর্তমান পথ, উদ্দিষ্ট পথ নয়। Pinned input, checksum ও
+license পর্যালোচনা সহ release-ভিত্তিক install একটি pending release gate — দেখুন
+[accelerator release plan](ACCELERATOR-RELEASE-PLAN.html)-এর ক্রম ৫ ও ক্রম ৬।
+সেটি আসার আগ পর্যন্ত local build-কে নিজের বলে ধরুন: commit আপনি বেছেছেন, তাই
+ফলাফলও আপনার।
+
+Model file কোনো workload বসায় না। যেখানে আছে সেখানেই রাখুন এবং llama.cpp-কে সেই
+path দেখান; ternux model weight কপিও করে না, ব্যবস্থাপনাও করে না।
+
+<h2 id="backend-selection-applies-to-workloads-too">Backend নির্বাচন workload-এও প্রযোজ্য</h2>
+
+GPU স্পর্শ করে এমন workload — Blender, এবং llama.cpp-র Vulkan build — install যে
+graphics route বেছেছে তার উপরেই চলে। Workload-কে দোষ দেওয়ার আগে সেটি দেখুন:
+
+```bash
+ternux info            # নির্বাচিত backend, GPU, Vulkan
+glxinfo -B             # desktop terminal-এ: আসলে যে renderer চলছে
+```
+
+ওই renderer string-এ `llvmpipe` মানে software rendering, আর কিছু ডিভাইসে software
+rendering শুধু ধীর চলে না — crash করে। Route-গুলোর জন্য দেখুন
+[কনফিগারেশন](CONFIGURATION.html), আর লক্ষণভিত্তিক diagnosis-এর জন্য
+[সমস্যা সমাধান](TROUBLESHOOTING.html)।
+
+<h2 id="when-a-workload-fails">কোনো workload ব্যর্থ হলে</h2>
+
+একটি workload-এর ব্যর্থতা পুরো install ব্যর্থ করে না। Phase ব্যর্থতাটি লিপিবদ্ধ
+করে, বাকি install চলতে থাকে, আর desktop তবুও ওঠে। এটি ইচ্ছাকৃত: Audacity না বসার
+দামে একটি চালু workstation হারানো উচিত নয়।
+
+```bash
+ternux logs show                    # আসলে কী ব্যর্থ হলো
+bash install.sh --resume            # লিপিবদ্ধ সেটটি আবার চেষ্টা
+ternux repair                       # লিপিবদ্ধ install মেরামত
+```
+
+একটি workload বারবার ব্যর্থ হলে বাকিগুলো স্বয়ংক্রিয়ভাবে বসান আর ওইটি উপরের block
+থেকে হাতে করুন — manual পথ এই কারণেই আছে।
+
+<h2 id="status">অবস্থা</h2>
+
+এই পৃষ্ঠার package সেটগুলো installer থেকেই পড়া, তাই এই সংস্করণের জন্য সেগুলো
+সঠিক। যা এখানে **দাবি করা হচ্ছে না**: প্রতিটি workload ডিভাইসে qualify করা হয়েছে।
+Sustained run, repeat run ও thermal আচরণ একটি pending release gate, আর আসলে কী
+মাপা হয়েছে তা কেবল [প্রমাণ ও বেঞ্চমার্ক](BENCHMARKS.html)-ই বলে।

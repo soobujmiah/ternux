@@ -327,6 +327,10 @@ bash install.sh --version           # show version
 bash install.sh --help              # show help
 ```
 
+[Workloads](WORKLOADS.html) lists exactly what each `--with-*` flag installs,
+and gives the manual equivalent of every one of them — useful before you let an
+installer run, and the way to finish a workload that failed.
+
 After installation, use the `ternux` CLI for diagnostics and management:
 
 ```bash

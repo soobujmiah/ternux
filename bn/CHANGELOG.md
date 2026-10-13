@@ -57,6 +57,21 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
   করত এবং তার মধ্য দিয়ে `uninstall state --yes` চালাত। কেবল test-এর redirect করা
   `HOME` সেটিকে প্রকৃত installation থেকে দূরে রেখেছিল।
 
+### প্রতিটি workload নথিভুক্ত — স্বয়ংক্রিয়ভাবে ও হাতে
+
+- নতুন গাইড, [ওয়ার্কলোড](docs/WORKLOADS.md): প্রতিটি `--with-*` flag ঠিক কোন
+  package সেট বসায় — installer থেকেই পড়া — এবং প্রত্যেকটির manual সমতুল্য। দুটি পথকেই
+  সমান বৈধ হিসেবে দেখানো হয়েছে, যাতে চালানোর আগে workload পড়ে নেওয়া যায় এবং ব্যর্থ
+  একটি গোড়া থেকে শুরু না করে হাতে শেষ করা যায়।
+- স্বয়ংক্রিয় পথ বসানো ছাড়া আর কী করে তাও লেখা আছে: সেটটি সংরক্ষিত হয়, `--resume`
+  flag আবার না লিখেই সেটি ফিরিয়ে আনে, আর একটি workload-এর ব্যর্থতা ইচ্ছাকৃতভাবেই
+  install-এর ব্যর্থতা নয়।
+- স্পষ্ট করে বলা আছে `--with-llm` llama.cpp source থেকে build করে, এটি বর্তমান পথ —
+  উদ্দিষ্ট পথ নয় — আর release-ভিত্তিক install একটি pending gate। Model weight কোনো
+  workload বসায়, কপি করে বা ব্যবস্থাপনা করে না।
+- Installer option, `ternux guides` ও documentation navigation থেকে link করা, আর
+  navigation-এ এখন প্রতি ভাষায় পনেরোটি destination।
+
 ### দ্বিতীয় একটি guest distribution বেছে নেওয়া যায়
 
 - `--distro debian|ubuntu` PRoot-Distro guest বেছে নেয়, এবং পছন্দটি লিপিবদ্ধ হয় যাতে

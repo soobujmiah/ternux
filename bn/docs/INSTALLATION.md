@@ -311,6 +311,10 @@ bash install.sh --resume            # বিঘ্নের পর আবার 
 bash install.sh --version | --help
 ```
 
+[ওয়ার্কলোড](WORKLOADS.html) পৃষ্ঠায় আছে প্রতিটি `--with-*` flag ঠিক কী বসায়, এবং
+প্রত্যেকটির manual সমতুল্য — installer চালাতে দেওয়ার আগে কাজে লাগে, আর ব্যর্থ একটি
+workload হাতে শেষ করার পথও এটিই।
+
 ইনস্টলের পর `ternux` CLI ব্যবহার করুন ডায়াগনস্টিক ও ব্যবস্থাপনার জন্য:
 
 ```bash

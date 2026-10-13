@@ -234,7 +234,7 @@ if len(nav_sections) == 2:
     en_urls = re.findall(r"^\s{8}url:\s*(\S+)\s*$", en_part, re.M)
     bn_urls = re.findall(r"^\s{8}url:\s*(\S+)\s*$", bn_part, re.M)
     check(len(en_groups) == len(bn_groups) == 4, "documentation navigation must have four mirrored groups")
-    check(len(en_urls) == len(bn_urls) == 14, "documentation navigation must have 14 destinations per language")
+    check(len(en_urls) == len(bn_urls) == 15, "documentation navigation must have 15 destinations per language")
     expected_bn = ["/bn" + url if url.startswith("/docs") else "/bn" + url for url in en_urls]
     check(expected_bn == bn_urls, "English/Bengali navigation destinations are not structural mirrors")
 

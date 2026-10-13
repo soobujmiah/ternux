@@ -59,6 +59,23 @@ Notable changes to ternux. Dates are ISO 8601.
   CLI and call `uninstall state --yes` through it. Only the test's redirected
   `HOME` kept that away from a real installation.
 
+### Every workload documented, automatically and by hand
+
+- New guide, [Workloads](docs/WORKLOADS.md): the exact package set each
+  `--with-*` flag installs, read from the installer itself, with the manual
+  equivalent of every one of them. Both routes are presented as first-class, so
+  a workload can be read before it runs and a failed one can be finished by
+  hand instead of starting over.
+- It also records what the automatic route does beyond installing: the set is
+  saved, `--resume` restores it without repeating the flags, and a workload
+  failure is deliberately not an install failure.
+- States plainly that `--with-llm` builds llama.cpp from source, that this is
+  the current route rather than the intended one, and that a release-based
+  install is a pending gate. Model weights are not installed, copied or managed
+  by any workload.
+- Linked from the installer options, `ternux guides` and the documentation
+  navigation, which now has fifteen destinations per language.
+
 ### A second guest distribution can be selected
 
 - `--distro debian|ubuntu` chooses the PRoot-Distro guest, and the choice is
