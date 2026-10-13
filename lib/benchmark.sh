@@ -109,7 +109,7 @@ _tnx_bench_run_glmark2() {
   _TNX_BENCH_GLMARK2=""
   tnx_has_cmd proot-distro || return
   local out
-  out="$(proot-distro login debian --shared-tmp --user "${TERNUX_USER:-ternux}" -- bash -c '
+  out="$(tnx_guest_login --shared-tmp --user "${TERNUX_USER:-ternux}" -- bash -c '
     if command -v glmark2 >/dev/null 2>&1; then
       timeout 60 glmark2 --fullscreen --annotate 2>/dev/null || timeout 60 glmark2 2>/dev/null
     elif command -v glmark2-es2 >/dev/null 2>&1; then
@@ -131,7 +131,7 @@ _tnx_bench_run_vkmark() {
   _TNX_BENCH_VKMARK=""
   tnx_has_cmd proot-distro || return
   local out
-  out="$(proot-distro login debian --shared-tmp --user "${TERNUX_USER:-ternux}" -- bash -c '
+  out="$(tnx_guest_login --shared-tmp --user "${TERNUX_USER:-ternux}" -- bash -c '
     if command -v vkmark >/dev/null 2>&1; then
       timeout 60 vkmark 2>/dev/null
     elif [ -f /usr/local/lib/aarch64-linux-gnu/libvulkan_freedreno.so ] || [ -f /usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so ]; then

@@ -1149,6 +1149,28 @@ assert d["ICD"]["library_path"].startswith("/usr/local/"), d
 '"'"' "$2"
 ' _ "$icd_src" "$TMP/icd-out.json"
 
+# The launcher and the shell aliases are standalone files that never source
+# ternux's libraries, so they must carry a literal `proot-distro login <distro>`
+# rather than any helper of ours. Generate them and read what came out.
+if env HOME="$TMP/home-launchgen" TERNUX_STATE_DIR="$TMP/state-launchgen" \
+  PREFIX="$TMP/prefix-launchgen" bash -c '
+    mkdir -p "$HOME" "$TERNUX_STATE_DIR" "$PREFIX/bin"
+    . "$1/lib/core.sh"; . "$1/lib/ui.sh"; . "$1/lib/state.sh"
+    . "$1/lib/phases.sh"
+    tnx_ok(){ :; }; tnx_warn(){ :; }; tnx_info(){ :; }; tnx_fail(){ :; }
+    tnx_state_set(){ :; }; tnx_state_mark(){ :; }
+    tnx_phase_launcher ternux zink en_US.UTF-8 >/dev/null 2>&1
+    : > "$HOME/.bashrc"
+    RC_FILE="$HOME/.bashrc" tnx_phase_aliases ternux bash >/dev/null 2>&1 || true
+    grep -q "proot-distro login debian" "$HOME/x.sh" &&
+    ! grep -q "tnx_guest_login" "$HOME/x.sh" &&
+    ! grep -rq "tnx_guest_login" "$HOME/.bashrc"
+  ' _ "$ROOT"; then
+  ok "generated launcher and aliases call proot-distro directly"
+else
+  not_ok "generated launcher and aliases call proot-distro directly"
+fi
+
 printf '1..%d\n' "$((pass + fail))"
 printf '# pass %d\n# fail %d\n' "$pass" "$fail"
 [ "$fail" -eq 0 ]

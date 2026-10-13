@@ -222,7 +222,7 @@ tnx_install_guest_cli() {
     return 1
   fi
 
-  if ! proot-distro login debian -- bash -c '
+  if ! tnx_guest_login -- bash -c '
     set -e
     tmp=/usr/local/bin/.ternux.new
     umask 022
@@ -237,7 +237,7 @@ tnx_install_guest_cli() {
   [ "$cleanup" -eq 1 ] && rm -f "$guest_src"
 
   local guest_version=""
-  guest_version="$(proot-distro login debian --user "$user_name" -- bash -lc \
+  guest_version="$(tnx_guest_login --user "$user_name" -- bash -lc \
     'command -v ternux >/dev/null && ternux --version' 2>&1)" || {
     tnx_fail "Debian guest companion was written but could not execute for '$user_name': ${guest_version:-unknown error}"
     return 1
@@ -263,10 +263,10 @@ tnx_phase_debian() {
   if tnx_debian_installed; then
     tnx_warn "Debian container already installed; reusing it."
   else
-    proot-distro install debian || { tnx_fail "Debian install failed."; return 1; }
+    proot-distro install "$(tnx_distro)" || { tnx_fail "Debian install failed."; return 1; }
   fi
 
-  proot-distro login debian --shared-tmp -- bash -c "
+  tnx_guest_login --shared-tmp -- bash -c "
     set -e
     export DEBIAN_FRONTEND=noninteractive
     DPKG_FORCE=\"-o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -o APT::Color=1 -o Dpkg::Progress-Fancy=1\"
@@ -279,7 +279,7 @@ tnx_phase_debian() {
     apt install -y \$DPKG_FORCE 7zip || apt install -y \$DPKG_FORCE p7zip-full || true
   " || { tnx_fail "Desktop package installation failed."; return 1; }
 
-  proot-distro login debian --shared-tmp -- bash -c "
+  tnx_guest_login --shared-tmp -- bash -c "
     set -e
     U='${user_name}'
     if ! id -u \"\$U\" >/dev/null 2>&1; then adduser --disabled-password --gecos '' \"\$U\"; fi
@@ -290,7 +290,7 @@ tnx_phase_debian() {
     rm -f \"\$T\"
   " || { tnx_fail "User setup failed."; return 1; }
 
-  if proot-distro login debian --shared-tmp --user "$user_name" -- sudo -n true >/dev/null 2>&1; then
+  if tnx_guest_login --shared-tmp --user "$user_name" -- sudo -n true >/dev/null 2>&1; then
     tnx_ok "Debian + Xfce4 + user '$user_name' ready (passwordless sudo)."
   else
     tnx_fail "Passwordless sudo not working for '$user_name'."
@@ -350,7 +350,7 @@ tnx_phase_gpu() {
   [ -e "${TERNUX_KGSL_DEVICE:-/dev/kgsl-3d0}" ] || { tnx_fail "Zink needs /dev/kgsl-3d0 (Adreno GPU)."; return 1; }
 
   local guest_codename
-  guest_codename="$(proot-distro login debian -- bash -c '. /etc/os-release; printf "%s" "${VERSION_CODENAME:-}"' 2>/dev/null || true)"
+  guest_codename="$(tnx_guest_login -- bash -c '. /etc/os-release; printf "%s" "${VERSION_CODENAME:-}"' 2>/dev/null || true)"
   [ "$guest_codename" = "trixie" ] || {
     tnx_fail "The validated Turnip asset targets Debian Trixie; guest reports '${guest_codename:-unknown}'."
     return 1
@@ -375,7 +375,7 @@ tnx_phase_gpu() {
   tnx_state_set "freedreno_sha" "$sha"
   tnx_state_set "freedreno_url" "$url"
 
-  proot-distro login debian --shared-tmp -- bash -c "
+  tnx_guest_login --shared-tmp -- bash -c "
     set -e
     stage=/tmp/ternux-driver-stage; rm -rf \"\$stage\"; mkdir -p \"\$stage\"
     trap 'rm -rf \"\$stage\"' EXIT
@@ -403,13 +403,13 @@ tnx_phase_gpu() {
   " || { tnx_fail "Driver installation failed."; rm -f "$tarball"; return 1; }
   rm -f "$tarball"
 
-  if proot-distro login debian --shared-tmp -- bash -c '
+  if tnx_guest_login --shared-tmp -- bash -c '
     [ -f /usr/local/lib/aarch64-linux-gnu/libvulkan_freedreno.so ] &&
     [ -f /usr/local/share/vulkan/icd.d/ternux_freedreno_icd.json ]
   ' >/dev/null 2>&1; then
     local driver_sha icd_sha
-    driver_sha="$(proot-distro login debian -- sha256sum /usr/local/lib/aarch64-linux-gnu/libvulkan_freedreno.so 2>/dev/null | awk '{print $1}')"
-    icd_sha="$(proot-distro login debian -- sha256sum /usr/local/share/vulkan/icd.d/ternux_freedreno_icd.json 2>/dev/null | awk '{print $1}')"
+    driver_sha="$(tnx_guest_login -- sha256sum /usr/local/lib/aarch64-linux-gnu/libvulkan_freedreno.so 2>/dev/null | awk '{print $1}')"
+    icd_sha="$(tnx_guest_login -- sha256sum /usr/local/share/vulkan/icd.d/ternux_freedreno_icd.json 2>/dev/null | awk '{print $1}')"
     [ -n "$driver_sha" ] && tnx_state_set "freedreno_driver_sha" "$driver_sha"
     [ -n "$icd_sha" ] && tnx_state_set "freedreno_icd_sha" "$icd_sha"
     tnx_ok "Turnip driver + ICD installed, hashed and pinned."
@@ -493,7 +493,7 @@ tnx_phase_audio_fonts() {
   _tnx_configure_pulse_bridge "$PA_CONF" || return 1
   [ "$_TNX_PULSE_CHANGED" = "1" ] && tnx_ok "PulseAudio TCP bridge bound to loopback."
 
-  proot-distro login debian --shared-tmp --user "$user_name" -- bash -c "
+  tnx_guest_login --shared-tmp --user "$user_name" -- bash -c "
     set -e
     DPKG_FORCE=\"-o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -o APT::Color=1 -o Dpkg::Progress-Fancy=1\"
     sudo apt update -o APT::Color=1
@@ -521,6 +521,7 @@ tnx_phase_audio_fonts() {
 # ---------------------------------------------------------------------------
 tnx_phase_launcher() {
   local user_name="${1:-ternux}" backend="${2:-auto}" locale="${3:-en_US.UTF-8}"
+  local distro; distro="$(tnx_distro)"
   local LAUNCHER="$HOME/x.sh"
 
   [[ "$user_name" =~ ^[a-z_][a-z0-9_-]{0,31}$ ]] || {
@@ -581,7 +582,7 @@ LAUNCHEOF
     # Zink talks to Turnip/KGSL directly; the VirGL host server belongs only
     # to the fallback route below.
     cat >> "$LAUNCHER" << EOF
-proot-distro login debian --shared-tmp --bind /dev/kgsl-3d0:/dev/kgsl --bind /dev/dri --user $user_name \\
+proot-distro login $distro --shared-tmp --bind /dev/kgsl-3d0:/dev/kgsl --bind /dev/dri --user $user_name \\
   --env DISPLAY=:0 --env PULSE_SERVER=tcp:127.0.0.1:4713 \\
   --env MESA_LOADER_DRIVER_OVERRIDE=zink --env GALLIUM_DRIVER=zink \\
   --env TU_DEBUG=sysmem,noconform --env MESA_VK_WSI_DEBUG=sw \\
@@ -610,7 +611,7 @@ if ! kill -0 "$VIRGL_PID" 2>/dev/null; then
 fi
 VIRGLEOF
     cat >> "$LAUNCHER" << EOF
-proot-distro login debian --shared-tmp --user $user_name \\
+proot-distro login $distro --shared-tmp --user $user_name \\
   --env DISPLAY=:0 --env PULSE_SERVER=tcp:127.0.0.1:4713 \\
   --env GALLIUM_DRIVER=virpipe --env MESA_GL_VERSION_OVERRIDE=4.3COMPAT \\
   --env QT_X11_NO_MITSHM=1 --env XDG_RUNTIME_DIR=/home/$user_name/.runtime \\
@@ -645,6 +646,7 @@ EOF
 # ---------------------------------------------------------------------------
 tnx_phase_aliases() {
   local user_name="${1:-ternux}" shell_choice="${2:-bash}"
+  local distro; distro="$(tnx_distro)"
   local RC_FILE="$HOME/.bashrc"
   if [ "$shell_choice" = "zsh" ]; then
     tnx_has_cmd zsh || tnx_spin_run "Install zsh" pkg install zsh -y \
@@ -660,10 +662,10 @@ tnx_phase_aliases() {
 # ==== TERNUX ALIASES ====
 alias x='~/x.sh'
 alias killx='pkill -f termux-x11 || true; pulseaudio --kill 2>/dev/null || pkill -KILL -x pulseaudio 2>/dev/null || true; rm -f \$TMPDIR/.X11-unix/X* \$TMPDIR/.X*-lock \$TMPDIR/.pulse-*/native'
-alias db='proot-distro login debian --shared-tmp --user $user_name'
-alias droot='proot-distro login debian --shared-tmp'
+alias db='proot-distro login $distro --shared-tmp --user $user_name'
+alias droot='proot-distro login $distro --shared-tmp'
 alias xgo='am start -n com.termux.x11/com.termux.x11.MainActivity 2>/dev/null; sleep 1; ~/x.sh'
-clean-mesa() { proot-distro login debian --user $user_name -- bash -c 'rm -rf ~/.cache/mesa/*'; echo "Mesa cache cleared."; }
+clean-mesa() { proot-distro login $distro --user $user_name -- bash -c 'rm -rf ~/.cache/mesa/*'; echo "Mesa cache cleared."; }
 sysmon() { echo "--- CPU & Memory ---"; free -h; echo ""; echo "--- GPU / KGSL ---"; ls -l /dev/kgsl-3d0 /dev/dri 2>/dev/null || echo "No GPU nodes."; }
 # ==== END TERNUX ALIASES ====
 ALIASEOF
@@ -681,7 +683,7 @@ tnx_phase_extras() {
   for opt in "$@"; do
     case "$opt" in
       dev)
-        if proot-distro login debian --shared-tmp --user "$user_name" -- bash -c "$APT git curl wget nodejs npm python3 python3-pip python3-venv build-essential ca-certificates"; then
+        if tnx_guest_login --shared-tmp --user "$user_name" -- bash -c "$APT git curl wget nodejs npm python3 python3-pip python3-venv build-essential ca-certificates"; then
           tnx_ok "Dev tools installed"
         else
           tnx_warn "Dev tools failed."
@@ -692,7 +694,7 @@ tnx_phase_extras() {
         local cores jobs
         cores="$(nproc 2>/dev/null || echo 4)"
         jobs=$((cores / 2)); [ "$jobs" -lt 1 ] && jobs=1; [ "$jobs" -gt 4 ] && jobs=4
-        if proot-distro login debian --shared-tmp --user "$user_name" -- bash -c "
+        if tnx_guest_login --shared-tmp --user "$user_name" -- bash -c "
           sudo apt update -o APT::Color=1
           sudo DEBIAN_FRONTEND=noninteractive apt install -y -o APT::Color=1 -o Dpkg::Progress-Fancy=1 build-essential cmake git pkg-config libvulkan-dev vulkan-tools clinfo glslang-dev glslang-tools libshaderc-dev glslc
           if [ ! -d ~/llama.cpp/.git ]; then rm -rf ~/llama.cpp; git clone --depth 1 https://github.com/ggml-org/llama.cpp.git ~/llama.cpp; fi
@@ -708,7 +710,7 @@ tnx_phase_extras() {
         fi
         ;;
       network)
-        if proot-distro login debian --shared-tmp --user "$user_name" -- bash -c "$APT nmap tmux"; then
+        if tnx_guest_login --shared-tmp --user "$user_name" -- bash -c "$APT nmap tmux"; then
           tnx_ok "Network tools installed"
         else
           tnx_warn "Network tools failed."
@@ -716,7 +718,7 @@ tnx_phase_extras() {
         fi
         ;;
       media)
-        if proot-distro login debian --shared-tmp --user "$user_name" -- bash -c "$APT ffmpeg gimp audacity imagemagick"; then
+        if tnx_guest_login --shared-tmp --user "$user_name" -- bash -c "$APT ffmpeg gimp audacity imagemagick"; then
           tnx_ok "Media tools installed"
         else
           tnx_warn "Media tools failed."
@@ -724,7 +726,7 @@ tnx_phase_extras() {
         fi
         ;;
       blender)
-        if proot-distro login debian --shared-tmp --user "$user_name" -- bash -c "$APT blender"; then
+        if tnx_guest_login --shared-tmp --user "$user_name" -- bash -c "$APT blender"; then
           tnx_ok "Blender installed"
         else
           tnx_warn "Blender install failed."
@@ -791,19 +793,19 @@ tnx_phase_verify() {
     *) tnx_fail "Termux host CLI is missing, cannot load its libraries, or returned an unexpected version"; rc=1 ;;
   esac
 
-  guest_version="$(proot-distro login debian --user "$user_name" -- bash -lc \
+  guest_version="$(tnx_guest_login --user "$user_name" -- bash -lc \
     'command -v ternux >/dev/null && ternux --version' 2>&1)" || true
   case "$guest_version" in
     "ternux guest v${TERNUX_VERSION}"|"ternux guest v${TERNUX_VERSION}"$'\n'*) tnx_ok "Debian/Xfce terminal companion is in PATH and version-verified" ;;
     *) tnx_fail "Debian/Xfce terminal companion is missing, cannot execute, or returned an unexpected version"; rc=1 ;;
   esac
 
-  if proot-distro login debian --user "$user_name" -- bash -c 'command -v startxfce4 && command -v glxinfo && command -v pactl && sudo -n true' >/dev/null 2>&1; then
+  if tnx_guest_login --user "$user_name" -- bash -c 'command -v startxfce4 && command -v glxinfo && command -v pactl && sudo -n true' >/dev/null 2>&1; then
     tnx_ok "Debian core OK"
   else tnx_fail "Debian core failed"; rc=1; fi
 
   if [ "$backend" = "zink" ]; then
-    if proot-distro login debian -- bash -c '
+    if tnx_guest_login -- bash -c '
       { [ -f /usr/local/lib/aarch64-linux-gnu/libvulkan_freedreno.so ] &&
         [ -f /usr/local/share/vulkan/icd.d/ternux_freedreno_icd.json ]; } ||
       { [ -f /usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so ] &&

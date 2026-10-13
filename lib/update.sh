@@ -167,7 +167,7 @@ _tnx_update_run() {
   # safe to skip this on hosts without an installed Debian container.
   if [ -f "$clone_dir/bin/ternux-guest" ] && tnx_debian_installed; then
     local guest_user="${TERNUX_USER:-ternux}" guest_version="" guest_ok=1
-    if ! proot-distro login debian -- bash -c '
+    if ! tnx_guest_login -- bash -c '
       set -e
       tmp=/usr/local/bin/.ternux.new
       cat > "$tmp"
@@ -176,7 +176,7 @@ _tnx_update_run() {
     ' < "$clone_dir/bin/ternux-guest"; then
       guest_ok=0
     else
-      guest_version="$(proot-distro login debian --user "$guest_user" -- bash -lc \
+      guest_version="$(tnx_guest_login --user "$guest_user" -- bash -lc \
         'command -v ternux >/dev/null && ternux --version' 2>&1)" || guest_ok=0
       case "$guest_version" in
         "ternux guest v${new_version}"|"ternux guest v${new_version}"$'\n'*) ;;

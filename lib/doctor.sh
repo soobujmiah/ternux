@@ -174,7 +174,7 @@ tnx_cmd_verify() {
   # Debian container
   if tnx_debian_installed; then
     checks+=("debian:installed")
-    if proot-distro login debian --user "${TERNUX_USER:-ternux}" -- bash -c 'command -v startxfce4 >/dev/null && command -v pactl >/dev/null && sudo -n true >/dev/null' 2>/dev/null; then
+    if tnx_guest_login --user "${TERNUX_USER:-ternux}" -- bash -c 'command -v startxfce4 >/dev/null && command -v pactl >/dev/null && sudo -n true >/dev/null' 2>/dev/null; then
       checks+=("debian_services:ok")
       [ "${TERNUX_JSON:-0}" != "1" ] && tnx_ok "Debian services verified"
     else
@@ -197,7 +197,7 @@ tnx_cmd_verify() {
     # docs/GRAPHICS-PERSISTENCE.md.
     local turnip_layout="unknown"
     if tnx_has_cmd proot-distro; then
-      turnip_layout="$(proot-distro login debian -- bash -c '
+      turnip_layout="$(tnx_guest_login -- bash -c '
         if [ -f /usr/local/lib/aarch64-linux-gnu/libvulkan_freedreno.so ] \
            && [ -f /usr/local/share/vulkan/icd.d/ternux_freedreno_icd.json ]; then
           echo managed

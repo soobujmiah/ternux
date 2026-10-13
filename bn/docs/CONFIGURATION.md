@@ -151,6 +151,7 @@ test একটি প্রকৃত installation-এ পৌঁছাতে ন�
 
 | ভেরিয়েবল | ডিফল্ট | প্রভাব |
 |---|---|---|
+| `TERNUX_DISTRO` | `debian` | সবকিছু যে PRoot-Distro guest-এ বসে। **ডিভাইসে কেবল `debian` যাচাই করা**; অন্য মান এমন একটি guest বেছে নেয় যা ternux qualify করেনি, এবং তার package, Mesa ও hold ব্যবস্থাপনা এখনো লেখা হয়নি। |
 | `TERNUX_KGSL_DEVICE` | `/dev/kgsl-3d0` | GPU, Vulkan ও backend detection যে device node পরীক্ষা করে। অনুপস্থিত একটি path-এ নির্দেশ করলে `auto` VirGL-এ নামে — যা একটি non-Adreno ডিভাইস দেখে। |
 | `TERNUX_HOST_PREFIX` | `/data/data/com.termux/files/usr` | Local checkout বা download-এ নামার আগে `uninstall.sh` কোথায় installed host CLI খোঁজে। |
 

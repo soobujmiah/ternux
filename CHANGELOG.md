@@ -59,6 +59,21 @@ Notable changes to ternux. Dates are ISO 8601.
   CLI and call `uninstall state --yes` through it. Only the test's redirected
   `HOME` kept that away from a real installation.
 
+### Groundwork for a second guest distribution
+
+- The guest container is resolved through `tnx_distro` and entered through
+  `tnx_guest_login` instead of 35 copies of `proot-distro login debian`, so
+  adding a distribution means writing its profile rather than making another
+  pass over every call site. Resolution order is `TERNUX_DISTRO`, then recorded
+  state, then `debian`.
+- **Only Debian is verified on a device.** `TERNUX_DISTRO_VERIFIED` records
+  that, and `tnx_distro_verified` reports it, so nothing claims support that was
+  never qualified on hardware.
+- The launcher and the shell aliases are standalone files that never source
+  ternux's libraries, so they keep a literal `proot-distro login <distro>`
+  resolved when they are generated. A test generates both and reads what came
+  out, which is how a regression in exactly that place was caught.
+
 ### Site
 
 - The landing page, its social metadata and the site description carry the

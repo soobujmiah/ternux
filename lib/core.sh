@@ -20,6 +20,38 @@ TERNUX_LOG_FILE="$TERNUX_LOG_DIR/ternux.log"
 TERNUX_LEGACY_STATE="$HOME/.ternux-state"
 
 # ---------------------------------------------------------------------------
+# Guest distribution
+#
+# Everything ternux installs lives inside one PRoot-Distro container. Debian is
+# the only verified guest today; this indirection exists so a second one can be
+# added with its own profile rather than another pass over every call site.
+# Resolution order: explicit TERNUX_DISTRO, then recorded state, then debian.
+# ---------------------------------------------------------------------------
+TERNUX_DISTRO_VERIFIED="debian"
+
+tnx_distro() {
+  if [ -z "${_TNX_DISTRO:-}" ]; then
+    _TNX_DISTRO="${TERNUX_DISTRO:-}"
+    if [ -z "$_TNX_DISTRO" ] && command -v tnx_state_get >/dev/null 2>&1; then
+      _TNX_DISTRO="$(tnx_state_get distro 2>/dev/null || true)"
+    fi
+    [ -n "$_TNX_DISTRO" ] || _TNX_DISTRO="debian"
+  fi
+  printf '%s' "$_TNX_DISTRO"
+}
+
+# True when the resolved guest is one ternux has verified on a device.
+tnx_distro_verified() {
+  case " $TERNUX_DISTRO_VERIFIED " in
+    *" ${1:-$(tnx_distro)} "*) return 0 ;;
+  esac
+  return 1
+}
+
+# Run a command in the guest. Takes the same flags as `proot-distro login`.
+tnx_guest_login() { proot-distro login "$(tnx_distro)" "$@"; }
+
+# ---------------------------------------------------------------------------
 # UTC timestamp (ISO 8601) — used for all log entries and JSON output
 # ---------------------------------------------------------------------------
 __tnx_ts() { date -u '+%Y-%m-%dT%H:%M:%SZ' 2>/dev/null || echo "unknown"; }
@@ -189,7 +221,7 @@ tnx_proot_container_installed() {
   '
 }
 
-tnx_debian_installed() { tnx_proot_container_installed debian; }
+tnx_debian_installed() { tnx_proot_container_installed "$(tnx_distro)"; }
 
 # Preserve compatibility with state written before the backend names were
 # simplified, but never expose or persist the legacy spelling in new output.

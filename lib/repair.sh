@@ -137,8 +137,8 @@ _tnx_repair_backend() {
       expected_icd_sha="$(tnx_state_get "freedreno_icd_sha")"
       if tnx_has_cmd proot-distro; then
         # Prefer the apt-safe layout, fall back to a pre-migration install.
-        current_driver_sha="$(proot-distro login debian -- bash -c 'for f in /usr/local/lib/aarch64-linux-gnu/libvulkan_freedreno.so /usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so; do [ -f "$f" ] && { sha256sum "$f"; break; }; done' 2>/dev/null | awk '{print $1}')"
-        current_icd_sha="$(proot-distro login debian -- bash -c 'for f in /usr/local/share/vulkan/icd.d/ternux_freedreno_icd.json /usr/share/vulkan/icd.d/freedreno_icd.aarch64.json; do [ -f "$f" ] && { sha256sum "$f"; break; }; done' 2>/dev/null | awk '{print $1}')"
+        current_driver_sha="$(tnx_guest_login -- bash -c 'for f in /usr/local/lib/aarch64-linux-gnu/libvulkan_freedreno.so /usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so; do [ -f "$f" ] && { sha256sum "$f"; break; }; done' 2>/dev/null | awk '{print $1}')"
+        current_icd_sha="$(tnx_guest_login -- bash -c 'for f in /usr/local/share/vulkan/icd.d/ternux_freedreno_icd.json /usr/share/vulkan/icd.d/freedreno_icd.aarch64.json; do [ -f "$f" ] && { sha256sum "$f"; break; }; done' 2>/dev/null | awk '{print $1}')"
       fi
       if [ -n "$expected_driver_sha" ] && [ -n "$expected_icd_sha" ] && \
          [ "$current_driver_sha" = "$expected_driver_sha" ] && \
@@ -212,7 +212,7 @@ _tnx_repair_launcher() {
 _tnx_repair_mesa_cache() {
   local out=""
   if tnx_has_cmd proot-distro; then
-    out="$(proot-distro login debian --user "${TERNUX_USER:-ternux}" -- bash -c '
+    out="$(tnx_guest_login --user "${TERNUX_USER:-ternux}" -- bash -c '
       if [ -d ~/.cache/mesa ] && [ "$(ls -A ~/.cache/mesa 2>/dev/null)" ]; then
         rm -rf ~/.cache/mesa/* 2>/dev/null && echo CLEARED
       fi

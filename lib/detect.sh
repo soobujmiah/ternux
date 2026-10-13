@@ -89,7 +89,7 @@ tnx_detect_vulkan() {
   fi
   # Check if proot-debian has Vulkan
   if tnx_has_cmd proot-distro; then
-    if proot-distro login debian -- bash -c 'ldconfig -p 2>/dev/null | grep -q libvulkan' 2>/dev/null; then
+    if tnx_guest_login -- bash -c 'ldconfig -p 2>/dev/null | grep -q libvulkan' 2>/dev/null; then
       echo "yes"
       return 0
     fi
@@ -115,7 +115,7 @@ tnx_detect_backend() {
 
 tnx_detect_renderer() {
   if tnx_has_cmd proot-distro; then
-    proot-distro login debian -- bash -c '
+    tnx_guest_login -- bash -c '
       if command -v glxinfo >/dev/null 2>&1; then
         glxinfo 2>/dev/null | grep "renderer string" | head -1 | sed "s/.*: //"
       elif [ -f /usr/local/lib/aarch64-linux-gnu/libvulkan_freedreno.so ] || [ -f /usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so ]; then

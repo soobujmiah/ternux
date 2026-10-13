@@ -124,7 +124,7 @@ _tnx_uninstall_container() {
     tnx_warn "Container removal cancelled"
     return 1
   fi
-  proot-distro remove debian || { tnx_fail "Could not remove the Debian container"; return 1; }
+  proot-distro remove "$(tnx_distro)" || { tnx_fail "Could not remove the Debian container"; return 1; }
   tnx_ok "Debian container removed"
 }
 

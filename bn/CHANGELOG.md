@@ -57,6 +57,19 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
   করত এবং তার মধ্য দিয়ে `uninstall state --yes` চালাত। কেবল test-এর redirect করা
   `HOME` সেটিকে প্রকৃত installation থেকে দূরে রেখেছিল।
 
+### দ্বিতীয় guest distribution-এর ভিত্তি
+
+- Guest container এখন `tnx_distro` দিয়ে নির্ধারিত হয় এবং `tnx_guest_login` দিয়ে
+  ব্যবহৃত হয়, `proot-distro login debian`-এর ৩৫টি কপির বদলে। তাই একটি distribution
+  যোগ করা মানে তার profile লেখা, প্রতিটি call site আবার ঘেঁটে দেখা নয়। নির্ধারণের ক্রম:
+  `TERNUX_DISTRO`, তারপর লিপিবদ্ধ state, তারপর `debian`।
+- **ডিভাইসে কেবল Debian যাচাই করা।** `TERNUX_DISTRO_VERIFIED` সেটি লিপিবদ্ধ রাখে ও
+  `tnx_distro_verified` জানায়, যাতে hardware-এ কখনো qualify না হওয়া support দাবি করা
+  না হয়।
+- Launcher ও shell alias standalone file, ternux-এর library কখনো source করে না, তাই
+  সেগুলোতে তৈরির সময়েই নির্ধারিত literal `proot-distro login <distro>` থাকে। একটি test
+  দুটোই generate করে পড়ে দেখে — ঠিক ওই জায়গার একটি regression এভাবেই ধরা পড়েছে।
+
 ### সাইট
 
 - Landing page, তার social metadata ও site description workstation দৃষ্টিভঙ্গি বহন
