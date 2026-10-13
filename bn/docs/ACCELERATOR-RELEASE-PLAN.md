@@ -26,6 +26,28 @@ CPU/GPU backend-এ নিজে থেকে portable নয়। Prerequisite
 না গেলে BLOCKED লিখব; unrun test-কে FAILED বা PASS বলব না। Optional 1.58-bit/Q8
 experiment current correctness gate-এর বাইরে থাকবে।
 
+## Vulkan প্রমাণের graphics নির্ভরতা
+
+ক্রম ৩-এ একটি Vulkan known-answer pass লিপিবদ্ধ আছে। সেই pass Debian-এর দেওয়া কোনো
+কিছুর উপর দাঁড়িয়ে নেই। ২০২৬-১০-১৩-এ Adreno 825 ডিভাইসে মাপা: Debian-এর
+`mesa-vulkan-drivers 25.0.7-2+deb13u1` **কোনো Adreno device-ই পায়নি** — শুধু
+`llvmpipe`, CPU-type Vulkan device হিসেবে — এবং একই ডিভাইসে জোর করে software GL
+চালালে ধীর render নয়, `SIGILL` হয়েছে। অর্থাৎ Vulkan row-টি স্থানীয়ভাবে build করা একটি
+Turnip-এর উপর নির্ভরশীল, যা ternux নিজে সরবরাহও করে না, pin-ও করে না; আর যে কোনো
+package operation ওই driver ফিরিয়ে দিলে row-এর প্রমাণ কিছু না জানিয়েই অকার্যকর হয়ে
+যায়। এই নির্ভরতা ফলাফলের সঙ্গেই লিপিবদ্ধ থাকবে, আলাদা করে নয়।
+
+এর একটি পরিণতি ক্রম ৫-এর উপর। যে driver দরকার সেটি clean device-এ না থাকলে Vulkan
+path-এর clean-device install verification পাস করতে পারে না। হয় Turnip build ক্রম ৫-এর
+নিজের শর্তেই একটি release artifact হবে — pinned input, ABI/ELF check, checksum,
+license পর্যালোচনা, release manifest — নয়তো Vulkan ফলাফলটিকে device-local হিসেবে
+লিপিবদ্ধ করে clean-device gate-এর বাইরে ঘোষণা করতে হবে। যেমন আছে তেমন থেকে একইসঙ্গে
+ক্রম ৫-এ গণ্য হতে পারবে না।
+
+[গ্রাফিক্স স্থায়িত্ব](GRAPHICS-PERSISTENCE.html) চালু একটি install-কে ওই driver হারানো
+থেকে বাঁচায় এবং package রি-ইনস্টলের বিপরীতে যাচাই করা, কিন্তু সেটি নিজে কোনো driver দেয়
+না এবং কোনো gate বন্ধ করে না।
+
 ## পরের কাজ
 
 [Standalone discovery experiment](../../experiments/qnn-native/README.md)-এ

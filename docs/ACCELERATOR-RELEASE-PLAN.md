@@ -28,6 +28,29 @@ BLOCKED when an actual prerequisite prevents a valid test; never manufacture a
 PASS or treat an unrun test as FAILED. Optional 1.58-bit/Q8 exploration remains
 outside the current correctness gate.
 
+## Graphics dependency of the Vulkan evidence
+
+Order 3 records a Vulkan known-answer pass. That pass does not rest on anything
+Debian ships. Measured on 2026-10-13 on the Adreno 825 device, Debian's
+`mesa-vulkan-drivers 25.0.7-2+deb13u1` enumerated **no Adreno device at all** —
+only `llvmpipe` as a CPU-type Vulkan device — and forcing software GL on the same
+device ended in `SIGILL` rather than a slow render. The Vulkan row therefore
+depends on a locally built Turnip that ternux neither provisions nor pins, and
+any package operation that reverts that driver invalidates the row's evidence
+without reporting anything. Record that dependency with the result, not
+separately from it.
+
+This has a consequence for order 5. Clean-device install verification of the
+Vulkan path cannot pass while the driver it needs is absent from a clean device.
+Either the Turnip build becomes a release artifact under order 5's own terms —
+pinned inputs, ABI/ELF checks, checksums, licence review, release manifest — or
+the Vulkan result is recorded as device-local and declared out of scope for the
+clean-device gate. It cannot stay as it is and also count toward order 5.
+
+[Graphics persistence](GRAPHICS-PERSISTENCE.html) keeps an existing install from
+losing that driver and is verified against a package reinstall, but it supplies
+no driver of its own and does not close either gate.
+
 ## Immediate handoff
 
 The [standalone discovery experiment](../experiments/qnn-native/README.md)
