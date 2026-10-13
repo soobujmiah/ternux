@@ -169,7 +169,7 @@ tnx_phase_packages() {
   tnx_spin_run "Install PulseAudio, PRoot, VirGL and core tools" _tnx_install_core_packages "$APT_FORCE" || rc=1
 
   local backend="${1:-auto}"
-  if [ "$backend" = "zink" ] || { [ "$backend" = "auto" ] && [ -e /dev/kgsl-3d0 ]; }; then
+  if [ "$backend" = "zink" ] || { [ "$backend" = "auto" ] && [ -e "${TERNUX_KGSL_DEVICE:-/dev/kgsl-3d0}" ]; }; then
     tnx_spin_run "Install the Freedreno Vulkan ICD" pkg install -y $APT_FORCE mesa-vulkan-icd-freedreno || \
       tnx_warn "Freedreno ICD unavailable"
   fi
@@ -334,7 +334,7 @@ tnx_phase_gpu() {
   # install.sh doctor route), not only through the main orchestrator.
   [ "$backend" = "zink-turnip" ] && backend="zink"
   if [ "$backend" = "auto" ]; then
-    [ -e /dev/kgsl-3d0 ] && backend="zink" || backend="virgl"
+    [ -e "${TERNUX_KGSL_DEVICE:-/dev/kgsl-3d0}" ] && backend="zink" || backend="virgl"
   fi
   case "$backend" in
     zink|virgl) ;;
@@ -347,7 +347,7 @@ tnx_phase_gpu() {
     return 0
   fi
 
-  [ -e /dev/kgsl-3d0 ] || { tnx_fail "Zink needs /dev/kgsl-3d0 (Adreno GPU)."; return 1; }
+  [ -e "${TERNUX_KGSL_DEVICE:-/dev/kgsl-3d0}" ] || { tnx_fail "Zink needs /dev/kgsl-3d0 (Adreno GPU)."; return 1; }
 
   local guest_codename
   guest_codename="$(proot-distro login debian -- bash -c '. /etc/os-release; printf "%s" "${VERSION_CODENAME:-}"' 2>/dev/null || true)"
@@ -526,7 +526,7 @@ tnx_phase_launcher() {
   case "$backend" in
     zink|zink-turnip) backend="zink" ;;
     virgl) backend="virgl" ;;
-    auto) [ -e /dev/kgsl-3d0 ] && backend="zink" || backend="virgl" ;;
+    auto) [ -e "${TERNUX_KGSL_DEVICE:-/dev/kgsl-3d0}" ] && backend="zink" || backend="virgl" ;;
     *) tnx_fail "Launcher backend must be auto, zink or virgl."; return 2 ;;
   esac
 
@@ -1094,7 +1094,7 @@ tnx_install() {
   fi
 
   if [ "$backend" = "auto" ]; then
-    [ -e /dev/kgsl-3d0 ] && backend="zink" || backend="virgl"
+    [ -e "${TERNUX_KGSL_DEVICE:-/dev/kgsl-3d0}" ] && backend="zink" || backend="virgl"
   fi
 
   if [ "$full" -eq 1 ]; then

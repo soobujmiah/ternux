@@ -143,6 +143,23 @@ installer route বেছে নিন এবং আগে backup রাখু�
 
 ---
 
+<h2 id="override-variables">ওভাররাইড ভেরিয়েবল</h2>
+
+Detection যে দুটি path পড়ে, সেগুলো ওভাররাইড করা যায়। এগুলো আছে যাতে test suite
+কেবল GPU-বিহীন CI host-এ নয়, সত্যিকারের Adreno hardware-এও চলতে পারে, এবং যাতে কোনো
+test একটি প্রকৃত installation-এ পৌঁছাতে না পারে। Production default অপরিবর্তিত।
+
+| ভেরিয়েবল | ডিফল্ট | প্রভাব |
+|---|---|---|
+| `TERNUX_KGSL_DEVICE` | `/dev/kgsl-3d0` | GPU, Vulkan ও backend detection যে device node পরীক্ষা করে। অনুপস্থিত একটি path-এ নির্দেশ করলে `auto` VirGL-এ নামে — যা একটি non-Adreno ডিভাইস দেখে। |
+| `TERNUX_HOST_PREFIX` | `/data/data/com.termux/files/usr` | Local checkout বা download-এ নামার আগে `uninstall.sh` কোথায় installed host CLI খোঁজে। |
+
+স্বাভাবিক ব্যবহারে কোনোটিরই জায়গা নেই। `TERNUX_KGSL_DEVICE` যদি KGSL node নয় এমন
+একটি বিদ্যমান file-এ নির্দেশ করে, তাহলে যে hardware Zink চালাতে পারে না সেখানেও Zink
+route নির্বাচিত হতে পারবে।
+
+---
+
 <h2 id="held-mesa-packages-zink-route">হোল্ড করা Mesa প্যাকেজ (Zink পথ)</h2>
 
 ```bash

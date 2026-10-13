@@ -19,7 +19,7 @@ _TNX_REPAIR_CHANGED=0
 
 # Kept as a helper so the hardware boundary can be isolated in tests without
 # creating anything under /dev.
-_tnx_repair_kgsl_available() { [ -e /dev/kgsl-3d0 ]; }
+_tnx_repair_kgsl_available() { [ -e "${TERNUX_KGSL_DEVICE:-/dev/kgsl-3d0}" ]; }
 
 # ---------------------------------------------------------------------------
 # tnx_cmd_repair

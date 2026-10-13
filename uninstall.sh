@@ -15,7 +15,7 @@ set -u
 
 # Detect and delegate to ternux CLI if available
 for _try in \
-  "/data/data/com.termux/files/usr/bin/ternux" \
+  "${TERNUX_HOST_PREFIX:-/data/data/com.termux/files/usr}/bin/ternux" \
   "${PREFIX:-}/bin/ternux" \
   "$HOME/.local/bin/ternux" \
   "$(cd "$(dirname "$0")" && pwd)/bin/ternux"; do

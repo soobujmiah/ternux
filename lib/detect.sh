@@ -52,7 +52,7 @@ tnx_detect_termux_version() {
 # ---------------------------------------------------------------------------
 tnx_detect_gpu() {
   # Check for Adreno via KGSL node
-  if [ -e /dev/kgsl-3d0 ]; then
+  if [ -e "${TERNUX_KGSL_DEVICE:-/dev/kgsl-3d0}" ]; then
     # Try to get the GPU name from the device
     local gpu_model
     gpu_model="$(cat /sys/class/kgsl/kgsl-3d0/gpu_model 2>/dev/null || true)"
@@ -95,7 +95,7 @@ tnx_detect_vulkan() {
     fi
   fi
   # Check /dev/kgsl which implies Vulkan support on Adreno
-  if [ -e /dev/kgsl-3d0 ]; then
+  if [ -e "${TERNUX_KGSL_DEVICE:-/dev/kgsl-3d0}" ]; then
     echo "yes (Adreno)"
     return 0
   fi

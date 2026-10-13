@@ -150,7 +150,7 @@ state_done()  { tnx_state_done "phase_$1"; }
 state_mark()  { tnx_state_mark "phase_$1"; }
 state_clear() { tnx_state_clear; }
 
-detect_backend() { [ -e /dev/kgsl-3d0 ] && echo "zink" || echo "virgl"; }
+detect_backend() { [ -e "${TERNUX_KGSL_DEVICE:-/dev/kgsl-3d0}" ] && echo "zink" || echo "virgl"; }
 require_termux() { tnx_require_termux; }
 
 # ---------------------------------------------------------------------------

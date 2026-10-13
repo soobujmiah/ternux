@@ -67,7 +67,7 @@ _tnx_backend_set() {
       # Accept the older descriptive spelling at the CLI boundary, then store
       # the canonical value used by install.sh and lib/phases.sh.
       backend="zink"
-      [ ! -e /dev/kgsl-3d0 ] && {
+      [ ! -e "${TERNUX_KGSL_DEVICE:-/dev/kgsl-3d0}" ] && {
         [ "${TERNUX_JSON:-0}" = "1" ] && { tnx_json_object "backend" "error" "reason" "no_kgsl_device"; return 1; }
         tnx_fail "Zink/Turnip requires Adreno GPU (/dev/kgsl-3d0). Use 'ternux backend set virgl' instead."
         return 1

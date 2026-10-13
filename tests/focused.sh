@@ -399,8 +399,8 @@ fi
 # The legacy doctor/repair route may call the GPU phase with `auto`. On a
 # non-KGSL device that must resolve to VirGL instead of entering the Turnip
 # download path.
-if env TERNUX_STATE_DIR="$TMP/state-auto-virgl" HOME="$TMP/home-auto-virgl" bash -c '
-  [ ! -e /dev/kgsl-3d0 ] || exit 77
+if env TERNUX_STATE_DIR="$TMP/state-auto-virgl" HOME="$TMP/home-auto-virgl" \
+  TERNUX_KGSL_DEVICE="$TMP/absent-kgsl" bash -c '
   . "$1/lib/phases.sh"
   marker="$2/turnip-auto-called"
   tnx_has_cmd(){ [ "$1" = virgl_test_server_android ]; }
@@ -434,7 +434,7 @@ tnx_phase_gpu(){ [ "${FAIL_GPU:-0}" != 1 ] || return 7; printf '%s\n' "$1" > "$D
 tnx_phase_verify(){ printf '%s\n' "$2" > "$DOCTOR_VERIFY"; }
 EOF
 : > "$doctor_wrapper/lib/ui.sh"
-if [ ! -e /dev/kgsl-3d0 ] && env DOCTOR_GPU="$TMP/doctor-gpu" \
+if env TERNUX_KGSL_DEVICE="$TMP/absent-kgsl" DOCTOR_GPU="$TMP/doctor-gpu" \
   DOCTOR_VERIFY="$TMP/doctor-verify" DOCTOR_MARKS="$TMP/doctor-marks" \
   HOME="$TMP/home-doctor-wrapper" bash "$doctor_wrapper/install.sh" --doctor --fix --backend auto >/dev/null &&
   grep -qx virgl "$TMP/doctor-gpu" && grep -qx virgl "$TMP/doctor-verify" &&
@@ -597,6 +597,7 @@ fi
 # implementation when neither a CLI nor a local checkout is available. Use a
 # mock downloader and temporary home; the state scope is non-destructive.
 if env HOME="$TMP/home-uninstall-remote" PREFIX="$TMP/empty-prefix" \
+       TERNUX_HOST_PREFIX="$TMP/empty-prefix" \
        MOCK_REPO="$ROOT" MOCK_LOG="$TMP/remote-downloads" bash -c '
   set -e
   mkdir -p "$HOME" "$2/mockbin" "$PREFIX/bin" "$2/standalone"
@@ -669,7 +670,8 @@ fi
 # Verification must fail—not merely warn—when Debian is absent or when its
 # desktop-service/passwordless-sudo probe fails. Both paths must still emit one
 # valid structured object.
-if env TERNUX_STATE_DIR="$TMP/state-verify-failures" HOME="$TMP/home-verify-failures" bash -c '
+if env TERNUX_STATE_DIR="$TMP/state-verify-failures" HOME="$TMP/home-verify-failures" \
+  TERNUX_KGSL_DEVICE="$TMP/absent-kgsl" PREFIX="$TMP/empty-prefix-verify" bash -c '
   mkdir -p "$HOME" "$TERNUX_STATE_DIR"
   : > "$HOME/x.sh"; chmod +x "$HOME/x.sh"
   . "$1/lib/doctor.sh"
@@ -781,7 +783,7 @@ fi
 
 # Vulkan detection must not turn a missing glob into a false positive.
 if env TERNUX_STATE_DIR="$TMP/state-vulkan" HOME="$TMP/home-vulkan" \
-  PREFIX="$TMP/empty-prefix" bash -c '
+  PREFIX="$TMP/empty-prefix" TERNUX_KGSL_DEVICE="$TMP/absent-kgsl" bash -c '
     mkdir -p "$PREFIX/lib"
     . "$1/lib/detect.sh"
     tnx_has_cmd(){ return 1; }

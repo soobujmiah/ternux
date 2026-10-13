@@ -146,6 +146,23 @@ the installer without `--resume`, with a backup first.
 
 ---
 
+## Override variables
+
+Two paths that detection reads can be overridden. They exist so the test suite
+can run on real Adreno hardware instead of only on a GPU-less CI host, and so
+that no test can reach an actual installation. Production defaults are unchanged.
+
+| Variable | Default | Effect |
+|---|---|---|
+| `TERNUX_KGSL_DEVICE` | `/dev/kgsl-3d0` | The device node that GPU, Vulkan and backend detection probe. Pointing it at a path that does not exist makes `auto` resolve to VirGL — what a non-Adreno device sees. |
+| `TERNUX_HOST_PREFIX` | `/data/data/com.termux/files/usr` | Where `uninstall.sh` looks for an installed host CLI before falling back to a local checkout or a download. |
+
+Neither belongs in normal use. `TERNUX_KGSL_DEVICE` pointed at an existing file
+that is not a KGSL node would let the Zink route be selected on hardware that
+cannot run it.
+
+---
+
 ## Held Mesa packages (Zink route)
 
 ```bash
