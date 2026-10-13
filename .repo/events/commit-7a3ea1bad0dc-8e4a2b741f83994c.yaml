@@ -1,0 +1,7 @@
+event_id: commit-7a3ea1bad0dc-8e4a2b741f83994c
+repository: soobujmiah/ternux
+commit: 7a3ea1bad0dc553b899274877723faa91b7986f6
+kind: commit
+occurred_at: '2026-10-13T10:48:40Z'
+status: completed
+summary: Document artifact installation and HTP probes
