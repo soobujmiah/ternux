@@ -230,6 +230,24 @@ HTP graph/operator record আছে; broker child clean exit এবং CDSP sess
 `gh-artifact-device-test.log`, `gh-artifact-htp-repeat.log` ও
 `gh-artifact-cpu-baseline.log` log file আছে।
 
+### আলাদা HTP operator পরীক্ষা
+
+একই release library-কে একই brokered CDSP descriptor দিয়ে standalone GGML
+graph-এ চালানো হয়েছে; CPU fallback বন্ধ ছিল:
+
+| Operation | Shape / data | Result |
+|---|---|---|
+| `ADD` | 256 F32 element | **Pass**; mismatch 0; সর্বোচ্চ absolute error `9.53674e-07` |
+| `MUL_MAT` | F32 × F32, K=16, M=8, N=4 | **Pass**; mismatch 0; সর্বোচ্চ absolute error `3.57628e-07` |
+| `MUL_MAT` | Q4_0 × F32, K=576, M=8, N=2 | probe-এর `1e-5` comparison threshold-এ একই build-এর CPU backend-এর সঙ্গে 16/16 output **mismatch**; HTP-CPU সর্বোচ্চ absolute difference `0.00947738`। Explicit dequantized Q4_0 reference-এর সঙ্গে সর্বোচ্চ absolute error `0.00601411` (সর্বোচ্চ relative error `1.56%`)। HTP profile-এ `q4_0 x f32`, `hvx-tiled` `MUL_MAT` দেখা গেছে; compute সফল এবং CDSP session cleanly close করেছে। |
+
+এই deterministic synthetic micro-test প্রমাণ করে না যে নির্দিষ্ট model layer-ই
+malformed output-এর একমাত্র কারণ। তবে পরের তদন্ত Q4_0 quantized matrix-multiply
+path এবং তার HTP repacking/precision আচরণে কেন্দ্রীভূত করা যায়। Probe log
+(`gh-artifact-htp-add-test.log`, `gh-artifact-htp-matmul-test.log`,
+`gh-artifact-htp-q4-matmul-k576-test.log`) একই local probe directory-তে আছে।
+Probe source ও binary scratch artifact; llama.cpp release-এ নেই।
+
 Workflow ও source pin: [llama-htp-artifact.yml](../../.github/workflows/llama-htp-artifact.yml)।
 Device test detail: [SKB investigation](https://github.com/soobujmiah/skb/blob/main/devices/redmi-turbo-4-pro/evidence/debian-proot-npu-investigation-2026-10-13.md)। Exact archive-er retest log local probe scratch-er `gh-artifact-device-test.log`।
 

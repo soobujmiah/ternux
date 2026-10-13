@@ -233,6 +233,25 @@ reported clean broker child exit and CDSP session close. The exact run logs are
 `gh-artifact-cpu-baseline.log` in `/home/sbj/npu-probe-2026-10-13/` on the
 test workspace.
 
+### Isolated HTP operator checks
+
+The same release libraries were tested in standalone GGML graphs through the
+same brokered CDSP descriptor, with CPU fallback disabled:
+
+| Operation | Shape / data | Result |
+|---|---|---|
+| `ADD` | 256 F32 elements | **Pass**; 0 mismatches; max absolute error `9.53674e-07` |
+| `MUL_MAT` | F32 × F32, K=16, M=8, N=4 | **Pass**; 0 mismatches; max absolute error `3.57628e-07` |
+| `MUL_MAT` | Q4_0 × F32, K=576, M=8, N=2 | **Mismatch** against the same-build CPU backend on 16/16 outputs at the probe's `1e-5` comparison threshold; maximum absolute HTP-vs-CPU difference `0.00947738`. Against the explicitly dequantized Q4_0 reference, max absolute error was `0.00601411` (max relative error `1.56%`). The HTP profile identified `MUL_MAT` with `q4_0 x f32`, `hvx-tiled`; compute status was success and the CDSP session closed cleanly. |
+
+These deterministic synthetic micro-tests do not prove that a particular
+model layer is the sole source of the malformed text. They narrow the next
+investigation to the quantized Q4_0 matrix-multiply path, including its HTP
+repacking and precision behavior. Probe logs (`gh-artifact-htp-add-test.log`,
+`gh-artifact-htp-matmul-test.log`, and `gh-artifact-htp-q4-matmul-k576-test.log`)
+are retained in the same local probe directory. Probe source and binaries are
+scratch artifacts, not shipped in the llama.cpp release.
+
 Workflow and source pin: [llama-htp-artifact.yml](../.github/workflows/llama-htp-artifact.yml).
 Device test details: [SKB investigation](https://github.com/soobujmiah/skb/blob/main/devices/redmi-turbo-4-pro/evidence/debian-proot-npu-investigation-2026-10-13.md); exact archive retest log: `gh-artifact-device-test.log` in the local probe scratch directory.
 

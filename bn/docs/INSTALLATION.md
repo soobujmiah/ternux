@@ -130,6 +130,84 @@ repo-তে থাকে। [ADT Releases](https://github.com/soobujmiah/adt/rel
 ভিত্তিতে দুটো পাশাপাশি থাকতে পারে, তবে একসাথে desktop workflow-টি এখনও
 পরীক্ষামূলক; দেখুন [ADT-এর Ternux সম্পর্কিত নোট](https://github.com/soobujmiah/adt/blob/main/docs/TERNUX_RELATIONSHIP.md)।
 
+Debian-এ download tool না থাকলে আগে বসান:
+
+```bash
+sudo apt update && sudo apt install -y ca-certificates curl tar gzip
+```
+
+### Ternux Debian guest-এ ADT tools বসান
+
+Termux host থেকে `db` চালিয়ে Debian-এ ঢুকুন (অথবা Xfce terminal খুলুন),
+তারপর সাধারণ Debian user হিসেবে ADT-এর installer চালান:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/soobujmiah/adt/main/install.sh | bash
+source ~/.bashrc
+cd ~/adt
+./setup.sh doctor
+```
+
+শুধু নির্দিষ্ট version বসাতে Ternux-এ asset কপি না করে ADT-এর release-aware
+command ব্যবহার করুন:
+
+```bash
+./setup.sh list-versions
+BUILD_TOOLS_VERSION=37.0.0
+./setup.sh install-build-tools "$BUILD_TOOLS_VERSION"
+./setup.sh install-platform-tools "$BUILD_TOOLS_VERSION"
+./setup.sh doctor
+```
+
+সমর্থিত version ও asset checksum-এর canonical source ADT repository। দেখুন
+[ADT command guide](https://github.com/soobujmiah/adt/blob/main/COMMANDS.md)।
+
+### পরীক্ষামূলক llama.cpp HTP artifact বসান
+
+এটি Debian guest-এর ভেতরে চালান। Artifact আপনার Debian user-এর home-এ বসবে;
+Termux host-এ পরিবর্তন বা `sudo` লাগবে না:
+
+```bash
+ARTIFACT_DIR="$HOME/.cache/ternux-artifacts"
+mkdir -p "$ARTIFACT_DIR" "$HOME/.local/opt"
+cd "$ARTIFACT_DIR"
+curl -fL --retry 3 \
+  -o ternux-llama-htp-sm8735-b11582.tar.gz \
+  https://github.com/soobujmiah/ternux/releases/download/ternux-llama-htp-sm8735-b11582/ternux-llama-htp-sm8735-b11582.tar.gz
+curl -fL --retry 3 \
+  -o ternux-llama-htp-sm8735-b11582.tar.gz.sha256 \
+  https://github.com/soobujmiah/ternux/releases/download/ternux-llama-htp-sm8735-b11582/ternux-llama-htp-sm8735-b11582.tar.gz.sha256
+sha256sum -c ternux-llama-htp-sm8735-b11582.tar.gz.sha256
+tar -xzf ternux-llama-htp-sm8735-b11582.tar.gz -C "$HOME/.local/opt"
+```
+
+Library path সেট করে আগে CPU baseline চালান। নিজের থাকা GGUF model-এর path
+ব্যবহার করুন:
+
+```bash
+export LLAMA_HTP_HOME="$HOME/.local/opt/ternux-llama-htp-sm8735-b11582"
+export LD_LIBRARY_PATH="$LLAMA_HTP_HOME/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+"$LLAMA_HTP_HOME/bin/llama-cli" \
+  -m "$HOME/models/model.gguf" -ngl 0 \
+  -p 'What is 2 + 2? Reply with only the number.' -n 8
+```
+
+এই Linux aarch64 archive-এ HTP V73 backend আছে, কিন্তু Qualcomm vendor
+runtime library, firmware বা Binder/FastRPC broker নেই। HTP চালাতে compatible
+`libcdsprpc.so` এবং Android-side broker থেকে অনুমোদিত CDSP file descriptor
+লাগবে। SM8735-এ দেখানো পদ্ধতিটি আলাদা experimental probe ব্যবহার করে; এই
+release-এ স্বয়ংসম্পূর্ণ HTP launcher নেই। `/dev/fastrpc-cdsp`-এর permission
+বদলাবেন না। Broker থাকলেও এই build-এর known-answer test ভুল text দিয়েছে।
+আলাদা `ADD` ও F32 `MUL_MAT` check pass করেছে, কিন্তু Q4_0×F32 matrix test একই
+build-এর CPU result-এর সঙ্গে মেলেনি; বিস্তারিত [benchmark record](BENCHMARKS.html)-এ।
+HTP চেষ্টা করার আগে সেটি পড়ুন; এটি সঠিক বা production-ready inference package নয়।
+
+Extract করা artifact সরাতে, আগে `llama.cpp` process বন্ধ করে চালান:
+
+```bash
+rm -rf "$HOME/.local/opt/ternux-llama-htp-sm8735-b11582"
+```
+
 ---
 
 ## ternux CLI — host control ও guest diagnostics

@@ -138,6 +138,89 @@ inside Debian. Ternux does not duplicate ADT release files. The two projects
 can coexist on the same Termux + PRoot Debian base, but the combined desktop
 workflow remains experimental; see [ADT's Ternux relationship notes](https://github.com/soobujmiah/adt/blob/main/docs/TERNUX_RELATIONSHIP.md).
 
+Install the download tools inside Debian first if they are missing:
+
+```bash
+sudo apt update && sudo apt install -y ca-certificates curl tar gzip
+```
+
+### Install ADT tools inside the Ternux Debian guest
+
+From the Termux host, enter Debian with `db` (or open an Xfce terminal), then
+run the ADT-owned installer as your normal Debian user:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/soobujmiah/adt/main/install.sh | bash
+source ~/.bashrc
+cd ~/adt
+./setup.sh doctor
+```
+
+To install only selected versions, use ADT's release-aware commands instead of
+copying assets into Ternux:
+
+```bash
+./setup.sh list-versions
+BUILD_TOOLS_VERSION=37.0.0
+./setup.sh install-build-tools "$BUILD_TOOLS_VERSION"
+./setup.sh install-platform-tools "$BUILD_TOOLS_VERSION"
+./setup.sh doctor
+```
+
+The ADT repository remains the source of truth for supported versions and
+asset checksums. See [ADT's command guide](https://github.com/soobujmiah/adt/blob/main/COMMANDS.md).
+
+The standalone llama.cpp steps below use the same download tools. The archive
+extracts into your Debian home; no `sudo` is needed for the extraction or run.
+
+### Install the experimental llama.cpp HTP artifact
+
+Do this inside the Debian guest. It installs under your Debian user's home and
+does not modify the Termux host or require `sudo`:
+
+```bash
+ARTIFACT_DIR="$HOME/.cache/ternux-artifacts"
+mkdir -p "$ARTIFACT_DIR" "$HOME/.local/opt"
+cd "$ARTIFACT_DIR"
+curl -fL --retry 3 \
+  -o ternux-llama-htp-sm8735-b11582.tar.gz \
+  https://github.com/soobujmiah/ternux/releases/download/ternux-llama-htp-sm8735-b11582/ternux-llama-htp-sm8735-b11582.tar.gz
+curl -fL --retry 3 \
+  -o ternux-llama-htp-sm8735-b11582.tar.gz.sha256 \
+  https://github.com/soobujmiah/ternux/releases/download/ternux-llama-htp-sm8735-b11582/ternux-llama-htp-sm8735-b11582.tar.gz.sha256
+sha256sum -c ternux-llama-htp-sm8735-b11582.tar.gz.sha256
+tar -xzf ternux-llama-htp-sm8735-b11582.tar.gz -C "$HOME/.local/opt"
+```
+
+Point llama.cpp at the extracted libraries and run a CPU baseline first. Replace
+the model path with a GGUF model you already have:
+
+```bash
+export LLAMA_HTP_HOME="$HOME/.local/opt/ternux-llama-htp-sm8735-b11582"
+export LD_LIBRARY_PATH="$LLAMA_HTP_HOME/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+"$LLAMA_HTP_HOME/bin/llama-cli" \
+  -m "$HOME/models/model.gguf" -ngl 0 \
+  -p 'What is 2 + 2? Reply with only the number.' -n 8
+```
+
+This archive is Linux aarch64 and includes the HTP V73 backend, but it does not
+include Qualcomm vendor runtime libraries, firmware or a Binder/FastRPC broker.
+HTP execution requires a compatible `libcdsprpc.so` and an authorized CDSP file
+descriptor supplied through an Android-side broker. The demonstrated SM8735
+setup currently uses a separate experimental probe; there is no self-contained
+HTP launcher in this release. Do not change `/dev/fastrpc-cdsp` permissions.
+Even with the broker, the known-answer test on this exact build returned
+incorrect text. Standalone `ADD` and F32 `MUL_MAT` checks passed, but a
+Q4_0×F32 matrix test differed from the same-build CPU result; details are in
+[the benchmark record](BENCHMARKS.html). Read it before attempting HTP; this is
+not a correct or production-ready inference package.
+
+To remove the extracted artifact, close any `llama.cpp` processes, then run:
+
+```bash
+rm -rf "$HOME/.local/opt/ternux-llama-htp-sm8735-b11582"
+```
+
 ---
 
 ## ternux CLI — host control and guest diagnostics
