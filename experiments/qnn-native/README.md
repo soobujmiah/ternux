@@ -124,6 +124,17 @@ was 59,945,848 bytes, SHA-256
 `42edf1474eea665f593b8c35daf64169da220b6e4095c860eaca494610579ccc`.
 No decoder graph execution was attempted. Neither VAE member was copied to disk.
 
+The same CI-built helper inspected and loaded `unet.bin` from the original ZIP
+through a sealed anonymous memfd. Its 880,827,736 bytes had SHA-256
+`32ab6474a0bf5150f484dc48d68a7db22d56bc9a908edb9620a839daf47c9f60`.
+The `model` graph has `sample` [1,4,64,64] UFIXED_POINT_16, `timestamp`
+[1] datatype 50, and `text_embedding` [1,77,768] UFIXED_POINT_16 inputs;
+`output` is [1,4,64,64] UFIXED_POINT_16. HTP backend/device/context create,
+CDSP graph retrieve, and all handle cleanup returned status 0. This verifies
+UNet context compatibility for this exact process/runtime, not UNet execution
+or image generation. Raw local log:
+`/home/sbj/npu-probe-2026-10-13/ci-qnn-unet-load-run-38406862573.log`.
+
 ## Remaining inference gates
 
 1. Obtain an independent expected tensor for the exact fixed VAE input, verify

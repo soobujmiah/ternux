@@ -12,7 +12,7 @@ alt_url: /docs/ACCELERATOR-RELEASE-PLAN.html
 | ক্রম | কাজ | বর্তমান status | Completion evidence |
 |---|---|---|---|
 | ১ | PRoot থেকে callable নিজস্ব Android/Bionic QNN helper | Runtime/provider, backend/device ও VAE context load/free and encoder graph execution VERIFIED; known-output correctness UNVERIFIED | Matching execution headers, tensor metadata, request/response, known-output accelerator test |
-| ২ | Existing QNN picture model একই জায়গায় রেখে ব্যবহার | No-copy memfd input and VAE context load and fixed-input encoder execution VERIFIED; image inference UNVERIFIED | CLIP/UNet/VAE pipeline, graph execution, stage attribution, fixed-seed image test ও reviewed output |
+| ২ | Existing QNN picture model একই জায়গায় রেখে ব্যবহার | No-copy VAE/UNet context load and fixed-input VAE encoder execution VERIFIED; image inference UNVERIFIED | CLIP/UNet/VAE pipeline, graph execution, stage attribution, fixed-seed image test ও reviewed output |
 | ৩ | মূল Debian llama.cpp CPU/GPU/HTP qualification | CPU/Vulkan known-answer pass; HTP known-answer FAILED | Q4 mismatch diagnosis, operator validation, intended backend-এ correct model answer reproduce |
 | ৪ | Repeat ও sustained device qualification | তিনটি short CPU/GPU benchmark; sustained test UNVERIFIED | Matched run, memory/thermal/power availability, stability, cancel/restart/cleanup, safe fallback |
 | ৫ | পুনর্ব্যবহারযোগ্য GitHub artifact | HTP experimental prerelease আছে; Vulkan package local; standalone helper NDK CI artifact device graph test pass; release install package pending | Pinned input, ABI/ELF check, checksum, license, manifest ও clean-device install verification |
