@@ -1,0 +1,7 @@
+event_id: commit-6be2077604ab-b277fc24099a993b
+repository: soobujmiah/ternux
+commit: 6be2077604abd7970502eccbb32b3cc0028f09fe
+kind: commit
+occurred_at: '2026-10-13T15:42:28Z'
+status: completed
+summary: Carry the workstation framing to the site and fix Bengali landing links
