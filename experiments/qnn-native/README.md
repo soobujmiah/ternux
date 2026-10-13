@@ -168,6 +168,23 @@ env -u LD_PRELOAD \
   /system/bin/linker64 /absolute/path/to/ternux-qnn-known-add
 ```
 
+An additional opt-in decoder preview accepts only the pinned VAE decoder
+SHA-256. It executes the decoder twice for a quantized real-zero latent,
+compares the raw tensors, returns the output through an anonymous FD, and
+converts NCHW UFIXED_POINT_16 output to a PNG in Debian scratch. The output
+file must be a new absolute path; the original ZIP stays in place. This
+preview is a graph/output-transport check, not a known image oracle or a
+Stable Diffusion text-to-image pipeline. Its physical-device result is pending.
+
+```bash
+python3 experiments/qnn-native/archive_input.py \
+  --archive /sdcard/Llms/AbsoluteReality_qnn2.28_8gen2.zip \
+  --member vae_decoder.bin \
+  --inspect-helper /absolute/path/to/ternux-qnn-context-inspect \
+  --execute-decoder --output-png /absolute/scratch/path/decoder-zero.png \
+  --runtime-dir /absolute/path/to/licensed/qnn-2.29-v73-runtime
+```
+
 A later CI artifact from [run 38410204285](https://github.com/soobujmiah/ternux/actions/runs/38410204285)
 also re-ran the encoder with a quantized **real-value zero** input. The input
 uses scale `3.05180438e-05`, offset `-32768`; raw code `32768` represents real

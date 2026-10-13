@@ -266,7 +266,80 @@ cleanup:
     return result;
 }
 
-static int load_htp(void *bytes, uint64_t size, const graph_v3_prefix *metadata, bool execute_graph) {
+static int execute_decoder_twice(graph_execute_fn execute, void *handle,
+                                 const graph_v3_prefix *metadata, int output_fd) {
+    const uint32_t input_dims[4] = {1, 4, 64, 64};
+    const uint32_t output_dims[4] = {1, 3, 512, 512};
+    const uint32_t input_bytes = 1 * 4 * 64 * 64 * sizeof(uint16_t);
+    const uint32_t output_bytes = 1 * 3 * 512 * 512 * sizeof(uint16_t);
+    if (!execute || !handle || !metadata || output_fd < 0 ||
+        metadata->input_count != 1 || metadata->output_count != 1 ||
+        !metadata->inputs || !metadata->outputs || !metadata->name ||
+        strcmp(metadata->name, "model")) return 2;
+    const unsigned char *input_template = (const unsigned char *)metadata->inputs;
+    const unsigned char *output_template = (const unsigned char *)metadata->outputs;
+    if (!tensor_matches(input_template, "input", 0, input_dims) ||
+        !tensor_matches(output_template, "output", 1, output_dims)) return 2;
+    uint32_t input_quant_def, input_quant_enc, output_quant_def, output_quant_enc;
+    float input_scale, output_scale;
+    int32_t input_offset, output_offset;
+    memcpy(&input_quant_def, input_template + 40, 4);
+    memcpy(&input_quant_enc, input_template + 44, 4);
+    memcpy(&input_scale, input_template + 48, 4);
+    memcpy(&input_offset, input_template + 52, 4);
+    memcpy(&output_quant_def, output_template + 40, 4);
+    memcpy(&output_quant_enc, output_template + 44, 4);
+    memcpy(&output_scale, output_template + 48, 4);
+    memcpy(&output_offset, output_template + 52, 4);
+    int64_t zero_code = -(int64_t)input_offset;
+    if (input_quant_def != 1 || input_quant_enc != 0 ||
+        output_quant_def != 1 || output_quant_enc != 0 ||
+        !(input_scale > 0.0f && input_scale < 1.0e8f) ||
+        !(output_scale > 0.0f && output_scale < 1.0e8f) ||
+        zero_code < 0 || zero_code > UINT16_MAX) return 2;
+    _Alignas(8) unsigned char input_tensor[144], output_tensor[144];
+    memcpy(input_tensor, input_template, sizeof(input_tensor));
+    memcpy(output_tensor, output_template, sizeof(output_tensor));
+    uint16_t *input_data = malloc(input_bytes);
+    unsigned char *output_data = malloc(output_bytes);
+    unsigned char *first = malloc(output_bytes);
+    int result = 2;
+    if (!input_data || !output_data || !first) goto cleanup;
+    for (size_t i = 0; i < input_bytes / sizeof(uint16_t); ++i)
+        input_data[i] = (uint16_t)zero_code;
+    set_client_buffer(input_tensor, input_data, input_bytes);
+    set_client_buffer(output_tensor, output_data, output_bytes);
+    printf("{\"stage\":\"decoder_preflight\",\"accepted\":true,\"input_pattern\":\"quantized_real_zero\",\"raw_code\":%" PRId64 ",\"output_scale\":%.9g,\"output_offset\":%" PRId32 "}\n",
+           zero_code, output_scale, output_offset);
+    for (int run = 1; run <= 2; ++run) {
+        memset(output_data, 0xa5, output_bytes);
+        uint64_t status = execute(handle, input_tensor, 1, output_tensor, 1, NULL, NULL);
+        size_t changed = 0;
+        for (size_t i = 0; i < output_bytes; ++i) changed += output_data[i] != 0xa5;
+        printf("{\"stage\":\"decoder_graph_execute\",\"run\":%d,\"status\":%" PRIu64 ",\"changed_bytes\":%zu,\"digest64\":\"%016" PRIx64 "\"}\n",
+               run, status, changed, digest64(output_data, output_bytes));
+        if (status || !changed) goto cleanup;
+        if (run == 1) memcpy(first, output_data, output_bytes);
+        else if (memcmp(first, output_data, output_bytes)) goto cleanup;
+    }
+    printf("{\"stage\":\"decoder_repeat_exact\",\"equal\":true,\"known_output\":false}\n");
+    size_t written_total = 0;
+    while (written_total < output_bytes) {
+        ssize_t n = write(output_fd, output_data + written_total, output_bytes - written_total);
+        if (n <= 0) goto cleanup;
+        written_total += (size_t)n;
+    }
+    printf("{\"stage\":\"decoder_output_fd\",\"bytes\":%zu}\n", written_total);
+    result = 0;
+cleanup:
+    free(input_data);
+    free(output_data);
+    free(first);
+    return result;
+}
+
+static int load_htp(void *bytes, uint64_t size, const graph_v3_prefix *metadata,
+                    int execute_mode, int output_fd) {
     void *lib = dlopen("/vendor/lib64/libQnnHtp.so", RTLD_NOW | RTLD_LOCAL);
     if (!lib) return 2;
     int result = 2;
@@ -306,8 +379,10 @@ static int load_htp(void *bytes, uint64_t size, const graph_v3_prefix *metadata,
             printf("{\"stage\":\"htp_graph_retrieve\",\"status\":%" PRIu64 ",\"handle_present\":%s}\n",
                    retrieved, graph ? "true" : "false");
             if (retrieved || !graph) result = 2;
-            if (!retrieved && graph && execute_graph) {
+            if (!retrieved && graph && execute_mode == 1) {
                 result = execute_vae_twice(api.graph_execute, graph, metadata);
+            } else if (!retrieved && graph && execute_mode == 2) {
+                result = execute_decoder_twice(api.graph_execute, graph, metadata, output_fd);
             }
             uint64_t freed = api.free_context(context, NULL);
             printf("{\"stage\":\"htp_context_free\",\"status\":%" PRIu64 "}\n", freed);
@@ -338,12 +413,22 @@ done:
 
 int main(int argc, char **argv) {
     setbuf(stdout, NULL);
-    if ((argc != 3 && argc != 4) || strcmp(argv[1], "--fd") ||
-        (argc == 4 && strcmp(argv[3], "--load-htp") && strcmp(argv[3], "--execute-htp"))) return 2;
+    if ((argc != 3 && argc != 4 && argc != 6) || strcmp(argv[1], "--fd") ||
+        (argc == 4 && strcmp(argv[3], "--load-htp") && strcmp(argv[3], "--execute-htp")) ||
+        (argc == 6 && (strcmp(argv[3], "--execute-decoder") || strcmp(argv[4], "--output-fd")))) return 2;
     char *end = NULL;
     long supplied = strtol(argv[2], &end, 10);
     if (!end || *end || supplied < 0 || supplied > INT32_MAX) return 2;
     int fd = (int)supplied;
+    int output_fd = -1;
+    if (argc == 6) {
+        end = NULL;
+        long output_supplied = strtol(argv[5], &end, 10);
+        if (!end || *end || output_supplied < 0 || output_supplied > INT32_MAX) return 2;
+        output_fd = (int)output_supplied;
+        struct stat output_st;
+        if (fstat(output_fd, &output_st)) return 2;
+    }
     struct stat st;
     if (fstat(fd, &st) || st.st_size <= 0 || st.st_size > (int64_t)1536 * 1024 * 1024) return 2;
     void *bytes = mmap(NULL, (size_t)st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
@@ -408,14 +493,14 @@ int main(int argc, char **argv) {
             }
         }
     }
-    if (!result && argc == 4) {
-        bool execute_graph = !strcmp(argv[3], "--execute-htp");
-        if (execute_graph && !graph_info_present) {
-            puts("{\"stage\":\"vae_execute_preflight\",\"accepted\":false,\"reason\":\"missing_graph_metadata\"}");
+    if (!result && argc >= 4) {
+        int execute_mode = argc == 6 ? 2 : !strcmp(argv[3], "--execute-htp");
+        if (execute_mode && !graph_info_present) {
+            puts("{\"stage\":\"graph_execute_preflight\",\"accepted\":false,\"reason\":\"missing_graph_metadata\"}");
             result = 2;
         } else {
             result = load_htp(bytes, (uint64_t)st.st_size,
-                              graph_info_present ? &graph_info : NULL, execute_graph);
+                              graph_info_present ? &graph_info : NULL, execute_mode, output_fd);
         }
     }
     if (context) {
