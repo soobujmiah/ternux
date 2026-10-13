@@ -22,9 +22,12 @@ Debian/glibc llama.cpp Hexagon experiment.
 
 ## Reproduce the bounded probe
 
-The source uses only a small public API prefix and checks the observed core API
-before invoking backend functions. It is scoped to the observed vendor runtime;
-model/tensor execution requires matching, properly licensed QNN headers.
+The source uses a bounded public API prefix and checks the observed core API
+before invoking backend functions. The read-only VAE metadata probe saw one
+`model` graph: input `input` [1,3,512,512] and outputs `mean` and `std`
+[1,4,64,64], all QNN UFIXED_POINT_16. These exploratory shapes were obtained
+with the old local diagnostic and require CI-artifact retesting. Full graph
+execution requires matching, properly licensed QNN headers.
 
 Build the Android/Bionic helper in GitHub Actions with the pinned NDK
 28.2.13676358 using [`qnn-native-probe.yml`](../../.github/workflows/qnn-native-probe.yml).
@@ -35,10 +38,15 @@ supported build. The earlier exploratory device result used Termux Clang and is
 kept as historical evidence only. It must be repeated with the CI-built ELF
 before treating the package as portable.
 
-After the GitHub workflow finishes, the owner retrieves its 14-day test
-artifact and hands it to this workstation. Verify `SHA256SUMS`, architecture,
-dynamic dependencies and RUNPATH before running. The workflow publishes a test
-artifact, not a release or any Qualcomm libraries.
+The pinned NDK build passed [run 38405297620](https://github.com/soobujmiah/ternux/actions/runs/38405297620)
+at commit `ddbece7009ab5d062d312da3999c1c6c70205a6e`. Its artifact is
+`ternux-qnn-native-probe-android-arm64` (expires 2026-10-27). The owner
+retrieves this 14-day **test artifact** from that Actions page and hands it to
+the PRoot workstation; the agent does not fetch the artifact under SKB's
+owner-mediated handoff rule. After unzipping to a scratch directory, run
+`sha256sum -c SHA256SUMS` from inside that directory. The workflow checked
+AArch64 ELF and rejected Termux-specific RUNPATHs. Physical-device execution
+of the CI-built ELF is still pending. No Qualcomm library or model is in it.
 
 ```bash
 # In PRoot, after the owner has supplied the CI artifact and checksums pass:
@@ -102,9 +110,9 @@ CI-built artifact must repeat the device test before release qualification.
 
 ## Remaining inference gates
 
-1. Obtain matching, properly licensed QNN execution headers and decode the
-   graph/tensor metadata. The small hand-written prefix is for bounded discovery
-   only; do not guess full graph/tensor ABI layouts.
+1. Re-run the metadata, graph-retrieve and context-load checks with the CI-built
+   Android ELF handed off by the owner. Confirm the tensor ABI and obtain matching,
+   properly licensed QNN execution headers before full graph execution.
 2. Run a fixed-input, known-output VAE graph test with explicit HTP attribution,
    numerical/output checks and repeat cleanup. Then qualify UNet separately.
 3. Implement our own SD1.5 pipeline: tokenizer/embedding input, scheduler, MNN

@@ -11,11 +11,11 @@ alt_url: /docs/ACCELERATOR-RELEASE-PLAN.html
 
 | ক্রম | কাজ | বর্তমান status | Completion evidence |
 |---|---|---|---|
-| ১ | PRoot থেকে callable নিজস্ব Android/Bionic QNN helper | Runtime/provider ও backend create/free VERIFIED; inference UNVERIFIED | Matching API, device/context load, request/response, known-output accelerator test |
-| ২ | Existing QNN picture model একই জায়গায় রেখে ব্যবহার | No-copy memfd input and VAE context load VERIFIED; compute UNVERIFIED | ZIP-member in-memory loader, CLIP/UNet/VAE pipeline, stage attribution, fixed-seed image test ও reviewed output |
+| ১ | PRoot থেকে callable নিজস্ব Android/Bionic QNN helper | Runtime/provider, backend/device ও VAE context load/free VERIFIED; graph execution UNVERIFIED | Matching execution headers, tensor metadata, request/response, known-output accelerator test |
+| ২ | Existing QNN picture model একই জায়গায় রেখে ব্যবহার | No-copy memfd input and VAE context load VERIFIED; compute UNVERIFIED | CLIP/UNet/VAE pipeline, graph execution, stage attribution, fixed-seed image test ও reviewed output |
 | ৩ | মূল Debian llama.cpp CPU/GPU/HTP qualification | CPU/Vulkan known-answer pass; HTP known-answer FAILED | Q4 mismatch diagnosis, operator validation, intended backend-এ correct model answer reproduce |
 | ৪ | Repeat ও sustained device qualification | তিনটি short CPU/GPU benchmark; sustained test UNVERIFIED | Matched run, memory/thermal/power availability, stability, cancel/restart/cleanup, safe fallback |
-| ৫ | পুনর্ব্যবহারযোগ্য GitHub artifact | HTP experimental prerelease আছে; Vulkan package ও standalone helper local | Pinned input, ABI/ELF check, checksum, license, manifest ও clean-device install verification |
+| ৫ | পুনর্ব্যবহারযোগ্য GitHub artifact | HTP experimental prerelease আছে; Vulkan package local; standalone helper NDK CI build pass, device retest pending | Pinned input, ABI/ELF check, checksum, license, manifest ও clean-device install verification |
 | ৬ | Extension install ও সম্পূর্ণ guide | বর্তমান LLM installer source থেকে build করে | Release-based selectable ADT/llama.cpp/extension, auto/manual step, model path, backend selection, upgrade/resume/error handling |
 | ৭ | CLI ও installation screen polish | Release phase-এ pending | পরিষ্কার mobile layout, অর্থপূর্ণ status/error, interactive/unattended path ও usability validation |
 | ৮ | Complete Ternux version release | HELD | সব আগের gate, accurate support matrix, required CI, installed-artifact device test ও final documentation |
