@@ -47,13 +47,13 @@ typedef struct {
 static void quoted(const char *text);
 
 static void tensor_summaries(const char *role, const void *array, uint32_t count) {
-    /* 2.36 public Qnn_Tensor_t layout gives 144-byte entries. Check every
-     * observed version/rank before interpreting the older 2.28 context. */
+    /* 2.36 Qnn_Tensor_t ABI gives 144-byte entries; v1 quantization fields
+     * begin at +40. Check version/rank before interpreting the 2.28 context. */
     if (!array || count > 8) return;
     const unsigned char *base = (const unsigned char *)array;
     for (uint32_t index = 0; index < count; ++index) {
         const unsigned char *entry = base + (size_t)index * 144;
-        uint32_t tensor_version, id, type, format, datatype, rank;
+        uint32_t tensor_version, id, type, format, datatype, rank, quant_definition, quant_encoding;
         const char *name;
         const uint32_t *dims;
         memcpy(&tensor_version, entry, 4);
@@ -62,6 +62,8 @@ static void tensor_summaries(const char *role, const void *array, uint32_t count
         memcpy(&type, entry + 24, 4);
         memcpy(&format, entry + 28, 4);
         memcpy(&datatype, entry + 32, 4);
+        memcpy(&quant_definition, entry + 40, 4);
+        memcpy(&quant_encoding, entry + 44, 4);
         memcpy(&rank, entry + 80, 4);
         memcpy(&dims, entry + 88, 8);
         if (tensor_version < 1 || tensor_version > 2 || rank > 8 || (rank && !dims)) break;
@@ -74,7 +76,16 @@ static void tensor_summaries(const char *role, const void *array, uint32_t count
             if (dimension) putchar(',');
             printf("%u", size);
         }
-        puts("]}");
+        printf("],\"quant_definition\":%u,\"quant_encoding\":%u", quant_definition, quant_encoding);
+        if (quant_definition == 1 && quant_encoding == 0) {
+            float scale;
+            int32_t offset;
+            memcpy(&scale, entry + 48, 4);
+            memcpy(&offset, entry + 52, 4);
+            if (scale > 0.0f && scale < 1.0e8f)
+                printf(",\"quant_scale\":%.9g,\"quant_offset\":%" PRId32, scale, offset);
+        }
+        puts("}");
     }
 }
 typedef struct { uint32_t id; const char *name; version core, backend; } htp_prefix;
