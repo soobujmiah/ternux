@@ -111,6 +111,27 @@ optional workload set restore হবে।
 
 ---
 
+## সঠিক project release বেছে নিন
+
+Ternux environment বসাতে [দ্রুত শুরু](QUICK-START.html) অথবা এই পূর্ণ
+[ইনস্টলেশন নির্দেশিকা](INSTALLATION.html) অনুসরণ করুন; প্রতিটি command হাতে
+চালানোর বিকল্প হলো [ম্যানুয়াল ইনস্টলেশন](MANUAL.html)। Ternux-এর মূল release
+ইতিহাস আছে [Ternux Releases page](https://github.com/soobujmiah/ternux/releases)-এ।
+
+পরীক্ষামূলক llama.cpp HTP release হলো ঐচ্ছিক Linux ARM64 artifact—Ternux
+installer বা Debian root filesystem নয়। আগে Ternux setup করুন। Artifact চালাতে
+আলাদা Android Binder/FastRPC broker-ও দরকার; archive-এ সেটি নেই। এর
+known-output test বর্তমানে fail করে; ফলাফল [Benchmarks](BENCHMARKS.html)-এ আছে।
+
+ADT-এর Android SDK tools-এর version, build record ও মূল download তাদের নিজস্ব
+repo-তে থাকে। [ADT Releases](https://github.com/soobujmiah/adt/releases) থেকে
+নিন এবং Debian-এর ভেতরে [ADT setup guide](https://github.com/soobujmiah/adt#quick-start)
+অনুসরণ করুন। Ternux ADT release file নকল করে না। একই Termux + PRoot Debian
+ভিত্তিতে দুটো পাশাপাশি থাকতে পারে, তবে একসাথে desktop workflow-টি এখনও
+পরীক্ষামূলক; দেখুন [ADT-এর Ternux সম্পর্কিত নোট](https://github.com/soobujmiah/adt/blob/main/docs/TERNUX_RELATIONSHIP.md)।
+
+---
+
 ## ternux CLI — host control ও guest diagnostics
 
 ইনস্টলের পর দুই terminal environment-এই `ternux` পাওয়া যায়, তবে entry point

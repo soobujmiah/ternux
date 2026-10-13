@@ -58,7 +58,9 @@ ternux হলো **Linux ডেস্কটপ/কর্মপরিবেশ �
 
 ![ternux ও ADT](../docs/assets/ternux-adt.svg)
 
-দুটিই একই Termux + PRoot Debian ভিত্তির সঙ্গে পাশাপাশি ব্যবহার করা যায়। তবে দুই প্রকল্পের সমন্বিত কর্মপ্রবাহ আনুষ্ঠানিকভাবে পরীক্ষা ও পরিমাপ না হওয়া পর্যন্ত **পরীক্ষামূলক**।
+Ternux ধীরে ধীরে mobile PRoot Linux ecosystem-এর workspace ও discovery point হচ্ছে। প্রতিটি প্রকল্পের release নিজস্ব repo-তেই রাখুন: [Ternux Releases](https://github.com/soobujmiah/ternux/releases)-এ desktop/environment ও Ternux-এর নিজস্ব artifact; [ADT Releases](https://github.com/soobujmiah/adt/releases)-এ SDK toolchain version ও তার build record। Ternux বসাতে [দ্রুত শুরু](../docs/QUICK-START.md) অথবা [পূর্ণ ইনস্টলেশন নির্দেশিকা](../docs/INSTALLATION.md) অনুসরণ করুন; ADT বসাতে Debian-এর ভেতরে তাদের [setup guide](https://github.com/soobujmiah/adt#quick-start) অনুসরণ করুন।
+
+দুটিই একই Termux + PRoot Debian ভিত্তির সঙ্গে পাশাপাশি ব্যবহার করা যায়। তবে দুই প্রকল্পের সমন্বিত কর্মপ্রবাহ আনুষ্ঠানিকভাবে পরীক্ষা ও পরিমাপ না হওয়া পর্যন্ত **পরীক্ষামূলক**। Ternux Releases-এর পরীক্ষামূলক HTP artifact environment installer নয়; prerequisite ও অবস্থা [ইনস্টলেশন নির্দেশিকা](../docs/INSTALLATION.md#choose-the-right-project-release)-তে আছে।
 
 ---
 

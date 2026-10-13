@@ -118,6 +118,28 @@ steps for you.
 
 ---
 
+## Choose the right project release
+
+Install the Ternux environment using the [Quick start](QUICK-START.html) or
+this full [Installation guide](INSTALLATION.html); the command-by-command
+alternative is [Manual installation](MANUAL.html). The canonical Ternux
+release history is on the [Ternux Releases page](https://github.com/soobujmiah/ternux/releases).
+
+The experimental llama.cpp HTP release is an optional Linux ARM64 artifact,
+not a Ternux installer or a Debian root filesystem. Set up Ternux first. The
+artifact also needs the separately established Android Binder/FastRPC broker;
+it is not included in the archive. Its known-output test currently fails, as
+recorded in [Benchmarks](BENCHMARKS.html#experimental-llamacpp-hexagon-htp-artifact-for-sm8735).
+
+ADT's Android SDK tools have their own versions, build records and canonical
+downloads. Get them from [ADT Releases](https://github.com/soobujmiah/adt/releases)
+and follow [ADT's setup guide](https://github.com/soobujmiah/adt#quick-start)
+inside Debian. Ternux does not duplicate ADT release files. The two projects
+can coexist on the same Termux + PRoot Debian base, but the combined desktop
+workflow remains experimental; see [ADT's Ternux relationship notes](https://github.com/soobujmiah/adt/blob/main/docs/TERNUX_RELATIONSHIP.md).
+
+---
+
 ## ternux CLI — host control and guest diagnostics
 
 Installation makes `ternux` discoverable in both terminal environments, but the

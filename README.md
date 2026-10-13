@@ -219,7 +219,9 @@ Ternux is the **Linux desktop/workspace layer**. [ADT](https://github.com/soobuj
 
 ![Ternux and ADT](docs/assets/ternux-adt.svg)
 
-They can coexist on the same Termux + PRoot Debian foundation, but the cross-project workflow remains **experimental until formally tested and measured**.
+Ternux is growing into a workspace and discovery point for the mobile PRoot Linux ecosystem. Keep each project's releases in its own repository: [Ternux Releases](https://github.com/soobujmiah/ternux/releases) owns the desktop/environment and Ternux-specific artifacts; [ADT Releases](https://github.com/soobujmiah/adt/releases) owns the SDK toolchain versions and their build records. Install the Ternux environment with the [Quick start](docs/QUICK-START.md) or [full Installation guide](docs/INSTALLATION.md); install ADT by following its [setup guide](https://github.com/soobujmiah/adt#quick-start) inside Debian.
+
+They can coexist on the same Termux + PRoot Debian foundation, but the cross-project workflow remains **experimental until formally tested and measured**. The experimental HTP artifact in Ternux Releases is not an environment installer; its setup prerequisites and status are in the [Installation guide](docs/INSTALLATION.md#choose-the-right-project-release).
 
 ---
 
