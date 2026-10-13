@@ -199,18 +199,39 @@ runtime backend/device, RAM ও temperature record করুন। তার আ
 `b11582` (commit `af50f2f248b475d9760f8e67503d01c0f194f5f4`) থেকে reusable
 Linux aarch64 package বানায়। এতে workflow-এ নথিভুক্ত pinned Snapdragon Linux
 toolchain image digest ব্যবহার হয়। Workflow `ternux-llama-htp-sm8735-b11582`
-নামে draft prerelease তৈরি করে; device retest নথিভুক্ত হলে package ও SHA-256
-[Ternux Releases page](https://github.com/soobujmiah/ternux/releases)-এ থাকবে।
+নামে prerelease তৈরি করে। প্রকাশিত 15,519,631-byte aarch64 archive-এর
+SHA-256 `dffcf83fa969f3ccfad238217b4ca7f3d47040e5e5b2fa834ebd3f123d144ea5`।
 
 এটি research artifact; `--with-llm`-এর অংশ বা supported installer feature নয়।
 আগের b11582 prebuilt Redmi Turbo 4 Pro / SM8735-এ brokered FastRPC path দিয়ে
-HTP operator চালিয়েছিল, কিন্তু একই deterministic prompt-এ CPU result-এর সঙ্গে
-known-output তুলনা মেলেনি। ওই test-এ সঠিক inference **fail** করেছে। Support বা
-performance দাবি করার আগে release package-টিও device-এ retest করতে হবে। এতে
-Qualcomm vendor runtime library, firmware বা Android Binder/FastRPC broker নেই।
+HTP operator চালিয়েছিল, কিন্তু deterministic known-output test fail করেছিল।
+GH-তে build করা exact archive-টিও PRoot Binder-brokered FastRPC path দিয়ে
+পরীক্ষা করা হয়েছে: model load, সব layer HTP-তে বসানো, HTP operator profile
+এবং session clean close সফল; কিন্তু `What is 2 + 2? Reply with only the
+number.` prompt-এ malformed text (`.\".ss\"sssid Su SVː`) এসেছে। তাই সঠিক
+inference **fail**। এটিকে supported inference build বা performance result
+বলা যাবে না। Package-এ Qualcomm vendor runtime library, firmware বা Android
+Binder/FastRPC broker নেই।
+
+[Build run](https://github.com/soobujmiah/ternux/actions/runs/38381879734)।
+একই packaged `llama-cli`-এর CPU baseline-ও সফল: একই model, prompt, seed ও
+batch setting-এ `-ngl 0` দিলে `2 + 2 = 4.` এসেছে, গতি 44.32 generated token/s।
+Brokered HTP-তে দুইবার একই malformed text এসেছে; দ্বিতীয় run-এ 28.63 generated
+token/s মাপা হয়েছে। এটি ছোট 135M Q4_0 model-এ একটি সংক্ষিপ্ত test; তাই এই সংখ্যা
+শুধু diagnostic, সাধারণ performance comparison নয়। Model SHA-256:
+`f68203bfb98b1b1e8c64fac75fab10c4e36acac081609573b4df0fcc19c90dd9`।
+
+Test setup: `--device HTP0 -ngl 99 --ctx-size 128 --batch-size 128
+--ubatch-size 128 -n 8 --seed 0 --temp 0 --no-warmup`; CPU-তে একই argument-এর
+সাথে `-ngl 0`। Android Binder DSP broker থেকে CDSP FastRPC descriptor দিয়ে HTP
+চালানো হয়েছে। Log-এ `MUL_MAT_NX`, `FLASH_ATTN_EXT`, `RMS_NORM`, `SWIGLU`-সহ
+HTP graph/operator record আছে; broker child clean exit এবং CDSP session close
+করেছে। Test workspace-এর `/home/sbj/npu-probe-2026-10-13/` directory-তে
+`gh-artifact-device-test.log`, `gh-artifact-htp-repeat.log` ও
+`gh-artifact-cpu-baseline.log` log file আছে।
 
 Workflow ও source pin: [llama-htp-artifact.yml](../../.github/workflows/llama-htp-artifact.yml)।
-Device test detail: [SKB investigation](https://github.com/soobujmiah/skb/blob/main/devices/redmi-turbo-4-pro/evidence/debian-proot-npu-investigation-2026-10-13.md)।
+Device test detail: [SKB investigation](https://github.com/soobujmiah/skb/blob/main/devices/redmi-turbo-4-pro/evidence/debian-proot-npu-investigation-2026-10-13.md)। Exact archive-er retest log local probe scratch-er `gh-artifact-device-test.log`।
 
 ---
 

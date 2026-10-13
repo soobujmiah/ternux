@@ -199,21 +199,42 @@ The separate `llama.cpp Hexagon HTP artifact` workflow builds a reusable Linux
 aarch64 package from upstream llama.cpp tag `b11582` (commit
 `af50f2f248b475d9760f8e67503d01c0f194f5f4`). It uses the pinned upstream
 Snapdragon Linux toolchain image digest recorded in the workflow. The workflow
-creates a draft prerelease named `ternux-llama-htp-sm8735-b11582`; once the
-device retest is recorded, the package and SHA-256 will be available from the
-[Ternux Releases page](https://github.com/soobujmiah/ternux/releases).
+creates the prerelease `ternux-llama-htp-sm8735-b11582`. The published
+15,519,631-byte aarch64 archive has SHA-256
+`dffcf83fa969f3ccfad238217b4ca7f3d47040e5e5b2fa834ebd3f123d144ea5`.
 
 This is a research artifact, not part of `--with-llm` and not a supported
 installer feature. The existing b11582 prebuilt ran HTP operators through the
 brokered FastRPC path on Redmi Turbo 4 Pro / SM8735, but a deterministic
-known-output comparison disagreed with the CPU result. Correct inference has
-therefore **failed** for that test. Retest the exact packaged build before
-making any support or performance claim. The package does not include
-Qualcomm vendor runtime libraries, firmware, or the Android Binder/FastRPC
-broker.
+known-output comparison failed. The exact GH-built archive was then tested
+through the existing PRoot Binder-brokered FastRPC path: model loading,
+full-layer HTP placement, profiled HTP operators and clean session close
+succeeded, but it generated malformed text (`.\".ss\"sssid Su SVː`). Known-output
+inference therefore **failed**. Do not treat this as a supported inference
+build or a performance claim. The package does not include Qualcomm vendor
+runtime libraries, firmware, or the Android Binder/FastRPC broker.
+
+[Build run](https://github.com/soobujmiah/ternux/actions/runs/38381879734).
+The same packaged `llama-cli` also passed a CPU baseline: with `-ngl 0` and
+the identical model, prompt, seed, and batch settings it returned `2 + 2 = 4.`
+at 44.32 generated tokens/s. Two brokered HTP runs returned the same malformed
+text; the second measured 28.63 generated tokens/s. This is one short run on a
+135M Q4_0 model, so the numbers are diagnostic only and do not establish a
+general performance comparison. Model SHA-256:
+`f68203bfb98b1b1e8c64fac75fab10c4e36acac081609573b4df0fcc19c90dd9`.
+
+Validation setup: `--device HTP0 -ngl 99 --ctx-size 128 --batch-size 128
+--ubatch-size 128 -n 8 --seed 0 --temp 0 --no-warmup`; CPU used the same
+arguments with `-ngl 0`. HTP was reached through Android's Binder DSP broker
+and a passed CDSP FastRPC descriptor. The logs show HTP graph/operator records
+including `MUL_MAT_NX`, `FLASH_ATTN_EXT`, `RMS_NORM` and `SWIGLU`; the host
+reported clean broker child exit and CDSP session close. The exact run logs are
+`gh-artifact-device-test.log`, `gh-artifact-htp-repeat.log`, and
+`gh-artifact-cpu-baseline.log` in `/home/sbj/npu-probe-2026-10-13/` on the
+test workspace.
 
 Workflow and source pin: [llama-htp-artifact.yml](../.github/workflows/llama-htp-artifact.yml).
-Device test details: [SKB investigation](https://github.com/soobujmiah/skb/blob/main/devices/redmi-turbo-4-pro/evidence/debian-proot-npu-investigation-2026-10-13.md).
+Device test details: [SKB investigation](https://github.com/soobujmiah/skb/blob/main/devices/redmi-turbo-4-pro/evidence/debian-proot-npu-investigation-2026-10-13.md); exact archive retest log: `gh-artifact-device-test.log` in the local probe scratch directory.
 
 ---
 
