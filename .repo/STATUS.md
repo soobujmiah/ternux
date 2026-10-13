@@ -2,15 +2,15 @@
 # ternux -- deterministic status
 
 - Repository: `soobujmiah/ternux`
-- Generated at: 2026-10-13T14:13:38Z (by `tools/repo_knowledge collect`)
-- Version: `ternux-llama-htp-sm8735-b11582-44-g2f7d67d`
-- Head: `2f7d67d1234a98c5619d10ed83dcfdf55bd0a738` on `main` (2026-10-13T14:12:48Z)
+- Generated at: 2026-10-13T14:16:43Z (by `tools/repo_knowledge collect`)
+- Version: `ternux-llama-htp-sm8735-b11582-46-g98e6c50`
+- Head: `98e6c50af2e1a4daef715dfdb06c3995a894d032` on `main` (2026-10-13T14:15:52Z)
 
 ## Build / test
 
-- Build: **passed** (run `38411428621`)
+- Build: **passed** (run `38411869666`)
 - Test: **passed** -- bash syntax + Bats smoke + docs (ci.yml)
-- Last successful build: `2f7d67d1234a98c5619d10ed83dcfdf55bd0a738` at 2026-10-13T14:13:38Z
+- Last successful build: `98e6c50af2e1a4daef715dfdb06c3995a894d032` at 2026-10-13T14:16:43Z
 
 ## Phases
 - Not configured (no `.repo/phases.yaml`).
@@ -19,4 +19,4 @@
 
 - Status: ok
 - Source: ci
-- Last synced at: 2026-10-13T14:13:38Z
+- Last synced at: 2026-10-13T14:16:43Z
