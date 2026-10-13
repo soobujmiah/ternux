@@ -365,6 +365,34 @@ compare the published Redmi Turbo 4 Pro evidence.
 
 ## Current evidence matrix
 
+### Existing LAI model path comparison (Qwen2.5 1.5B Q4_0)
+
+I used `/sdcard/LAI/models/qwen2.5-1.5b-instruct-q4-0.gguf` directly; the model
+was not copied, moved, or converted. With the same packaged llama.cpp b11582
+artifact, prompt (`What is 2 + 2? Reply with only the number.`), greedy
+sampling, seed 0, and an eight-token limit:
+
+| Path | Result | Evidence |
+|---|---|---|
+| CPU (`-ngl 0`) | **Known-answer pass**: `4.000000`; prompt 121.4 tok/s, generation 21.8 tok/s | `htp-qwen15-cpu-baseline.log` in `/home/sbj/npu-probe-2026-10-13/` |
+| Hexagon HTP (`-ngl 99`, brokered CDSP) | **Known-answer fail**: ` LENG, the, the,`; generation 24.3 tok/s in the initial eight-token run. Verbose repeat produced ` LENG, the,` and HTP profile records including `MUL_MAT`, `FLASH_ATTN_EXT`, and `SWIGLU`. | `htp-qwen15-htp-test.log` and `htp-qwen15-htp-verbose-test.log` in the same scratch directory |
+| Vulkan GPU | **Blocked for llama.cpp inference**. Vulkan enumeration independently verified Adreno 825 with Mesa Turnip, but the available published llama.cpp artifact is HTP-only, source build `af50f2f` has no Vulkan build here, and Vulkan development headers/linker symlink/compiler tools are absent. No GPU inference was claimed or measured. | `vulkaninfo --summary` identified `Adreno (TM) 825`, `DRIVER_ID_MESA_TURNIP`; llama.cpp Vulkan build prerequisite inspection |
+
+The HTP broker session and child process exited cleanly, and verbose per-op
+records confirm actual HTP work for this model. HTP inference nevertheless
+fails the known-answer check. The CPU and HTP token rates are short diagnostic
+runs with different generation lengths and are not a controlled performance
+comparison. No sustained thermal or power measurement was taken. The existing
+`/sdcard/Llms/AbsoluteReality_qnn2.28_8gen2.zip` contains a Stable Diffusion
+QNN image-generation package (including CLIP, VAE, and UNet files), not a GGUF
+vision model; it was inspected by listing archive entries only and not extracted
+or run.
+
+The model path comparison does not replace the next low-level diagnostic:
+reproduce the exact HTP Q8_0 activation quantizer to understand the Q4_0 kernel
+numeric mismatch. GPU validation can resume when the no-install Vulkan build
+prerequisites are available; until then, classify it as blocked.
+
 | Question | Status |
 |---|---|
 | Does glmark2 name Zink/Adreno/Turnip? | **Yes — observed** |

@@ -361,6 +361,32 @@ raw command ব্যবহার করুন।
 
 ## বর্তমান evidence matrix
 
+### বিদ্যমান LAI model path তুলনা (Qwen2.5 1.5B Q4_0)
+
+`/sdcard/LAI/models/qwen2.5-1.5b-instruct-q4-0.gguf` সরাসরি ব্যবহার করেছি;
+model copy, move বা convert করা হয়নি। একই packaged llama.cpp b11582 artifact,
+prompt (`What is 2 + 2? Reply with only the number.`), greedy sampling, seed 0
+এবং ৮-token limit দিয়ে:
+
+| Path | ফল | Evidence |
+|---|---|---|
+| CPU (`-ngl 0`) | **Known-answer pass**: `4.000000`; prompt 121.4 tok/s, generation 21.8 tok/s | `/home/sbj/npu-probe-2026-10-13/htp-qwen15-cpu-baseline.log` |
+| Hexagon HTP (`-ngl 99`, brokered CDSP) | **Known-answer fail**: ` LENG, the, the,`; প্রথম ৮-token run-এ generation 24.3 tok/s। Verbose repeat-এ ` LENG, the,` এবং `MUL_MAT`, `FLASH_ATTN_EXT`, `SWIGLU`-সহ HTP profile record ছিল। | একই scratch directory-র `htp-qwen15-htp-test.log` ও `htp-qwen15-htp-verbose-test.log` |
+| Vulkan GPU | llama.cpp inference-এর জন্য **blocked**। Vulkan enumeration-এ Adreno 825 ও Mesa Turnip verify হয়েছে; কিন্তু পাওয়া published llama.cpp artifact HTP-only, `af50f2f` source build-এ এখানে Vulkan নেই, আর Vulkan development header/linker symlink/compiler tool অনুপস্থিত। GPU inference দাবি বা measure করা হয়নি। | `vulkaninfo --summary`-এ `Adreno (TM) 825`, `DRIVER_ID_MESA_TURNIP`; llama.cpp Vulkan build prerequisite inspection |
+
+HTP broker session ও child process cleanly exit করেছে; verbose per-op record এই
+model-এর বাস্তব HTP কাজ নিশ্চিত করে। তবুও HTP known-answer check **fail**। CPU ও
+HTP token rate ছোট diagnostic run, generation length-ও আলাদা—তাই controlled
+performance comparison নয়। Sustained thermal/power মাপা হয়নি। বিদ্যমান
+`/sdcard/Llms/AbsoluteReality_qnn2.28_8gen2.zip`-এ CLIP, VAE ও UNet-সহ Stable
+Diffusion QNN image-generation package আছে; এটি GGUF vision model নয়। শুধু ZIP
+entry list দেখা হয়েছে; extract বা run করা হয়নি।
+
+এই model-path তুলনা পরের low-level diagnostic বদলায় না: Q4_0 kernel-এর numeric
+mismatch বোঝার জন্য exact HTP Q8_0 activation quantizer reproduce করতে হবে।
+No-install Vulkan build prerequisite পাওয়া গেলে GPU validation আবার করা যাবে;
+এখন status blocked।
+
 | প্রশ্ন | Status |
 |---|---|
 | glmark2 কি Zink/Adreno/Turnip নাম দেখায়? | **হ্যাঁ — observed** |
