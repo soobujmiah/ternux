@@ -193,6 +193,20 @@ static int execute_vae_twice(graph_execute_fn execute, void *handle, const graph
         return 2;
     }
     unsigned char input_tensor[144], output_tensors[2 * 144];
+    uint32_t quant_definition, quant_encoding;
+    float input_scale;
+    int32_t input_offset;
+    memcpy(&quant_definition, input_template + 40, 4);
+    memcpy(&quant_encoding, input_template + 44, 4);
+    memcpy(&input_scale, input_template + 48, 4);
+    memcpy(&input_offset, input_template + 52, 4);
+    int64_t real_zero_code = -(int64_t)input_offset;
+    if (quant_definition != 1 || quant_encoding != 0 ||
+        !(input_scale > 0.0f && input_scale < 1.0e8f) ||
+        real_zero_code < 0 || real_zero_code > UINT16_MAX) {
+        puts("{\"stage\":\"vae_execute_preflight\",\"accepted\":false,\"reason\":\"unsupported_input_quantization\"}");
+        return 2;
+    }
     memcpy(input_tensor, input_template, sizeof(input_tensor));
     memcpy(output_tensors, output_template, sizeof(output_tensors));
     unsigned char *input_data = calloc(1, input_bytes);
@@ -202,11 +216,14 @@ static int execute_vae_twice(graph_execute_fn execute, void *handle, const graph
     unsigned char *std_first = malloc(output_bytes);
     int result = 2;
     if (!input_data || !mean_data || !std_data || !mean_first || !std_first) goto cleanup;
+    for (size_t i = 0; i < input_bytes / sizeof(uint16_t); ++i)
+        ((uint16_t *)input_data)[i] = (uint16_t)real_zero_code;
     set_client_buffer(input_tensor, input_data, input_bytes);
     set_client_buffer(output_tensors, mean_data, output_bytes);
     set_client_buffer(output_tensors + 144, std_data, output_bytes);
-    puts("{\"stage\":\"vae_execute_preflight\",\"accepted\":true,\"input_pattern\":\"raw_uint16_zero\",\"oracle\":\"repeat_only\"}");
-    for (int run = 1; run <= 2; ++run) {
+    printf("{\"stage\":\"vae_execute_preflight\",\"accepted\":true,\"input_pattern\":\"quantized_real_zero\",\"raw_code\":%" PRId64 ",\"oracle\":\"repeat_and_sensitivity_only\"}\n", real_zero_code);
+    for (int run = 1; run <= 3; ++run) {
+        if (run == 3) memset(input_data, 0, input_bytes);
         memset(mean_data, 0xa5, output_bytes);
         memset(std_data, 0xa5, output_bytes);
         uint64_t status = execute(handle, input_tensor, 1, output_tensors, 2, NULL, NULL);
@@ -215,21 +232,28 @@ static int execute_vae_twice(graph_execute_fn execute, void *handle, const graph
             mean_changed += mean_data[i] != 0xa5;
             std_changed += std_data[i] != 0xa5;
         }
-        printf("{\"stage\":\"vae_graph_execute\",\"run\":%d,\"status\":%" PRIu64
+        printf("{\"stage\":\"vae_graph_execute\",\"run\":%d,\"input_pattern\":\"%s\",\"status\":%" PRIu64
                ",\"mean_changed_bytes\":%zu,\"std_changed_bytes\":%zu,"
                "\"mean_digest64\":\"%016" PRIx64 "\",\"std_digest64\":\"%016" PRIx64 "\"}\n",
-               run, status, mean_changed, std_changed,
+               run, run == 3 ? "raw_code_zero" : "quantized_real_zero",
+               status, mean_changed, std_changed,
                digest64(mean_data, output_bytes), digest64(std_data, output_bytes));
         if (status || !mean_changed || !std_changed) goto cleanup;
         if (run == 1) {
             memcpy(mean_first, mean_data, output_bytes);
             memcpy(std_first, std_data, output_bytes);
-        } else {
+        } else if (run == 2) {
             bool exact = !memcmp(mean_first, mean_data, output_bytes) &&
                          !memcmp(std_first, std_data, output_bytes);
             printf("{\"stage\":\"vae_repeat_exact\",\"equal\":%s,\"known_output\":false}\n",
                    exact ? "true" : "false");
             if (!exact) goto cleanup;
+        } else {
+            bool changed = memcmp(mean_first, mean_data, output_bytes) ||
+                           memcmp(std_first, std_data, output_bytes);
+            printf("{\"stage\":\"vae_input_sensitivity\",\"different_raw_inputs_changed_output\":%s,\"known_output\":false}\n",
+                   changed ? "true" : "false");
+            if (!changed) goto cleanup;
         }
     }
     result = 0;
