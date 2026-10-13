@@ -266,7 +266,18 @@ arithmetic আচরণ এখনও unresolved। Probe log
 একই local probe directory-তে আছে।
 
 Pinned HTP source Q4_0 weight-এর জন্য tiled Q8_0 activation quantizer নির্বাচন
-করে; দেখুন [`matmul-ops.c`](https://github.com/ggml-org/llama.cpp/blob/af50f2f248b475d9760f8e67503d01c0f194f5f4/ggml/src/ggml-hexagon/htp/matmul-ops.c#L743-L755)।
+করে; দেখুন [`matmul-ops.c`](https://github.com/ggml-org/llama.cpp/blob/af50f2f248b475d9760f8e67503d01c0f194f5f4/ggml/src/ggml-hexagon/htp/matmul-ops.c#L743-L755)। এই Q8_0 কাজ শুধু বর্তমান Q4_0 mismatch বোঝার diagnostic; এতে active NPU known-output inference gate Q8 model optimization-এ বদলাচ্ছে না।
+
+### ভবিষ্যতের ঐচ্ছিক প্রার্থী: ternary 1.58-bit model
+
+Microsoft BitNet-কে পরে Ternux-এর optional extension হিসেবে বিবেচনা করা যায়।
+[Upstream project](https://github.com/microsoft/BitNet) বর্তমানে CPU ও GPU support
+বলে এবং NPU support-কে forthcoming হিসেবে চিহ্নিত করে। এটি SM8735, Adreno,
+Hexagon HTP বা Debian PRoot compatibility-এর প্রমাণ নয়। বর্তমান Q4_0
+investigation শেষ না হওয়া পর্যন্ত এটি active test-এর বাইরে থাকবে। পরে পরীক্ষা
+করলে native 1.58-bit runtime/model-কে সাধারণ IQ1/TQ1 GGUF quantization থেকে
+আলাদা করে CPU, GPU ও NPU path স্বাধীনভাবে মাপতে হবে। Device-এ speed, heat ও
+output quality এখনও unverified।
 Probe source ও binary scratch artifact; llama.cpp release-এ নেই।
 
 Workflow ও source pin: [llama-htp-artifact.yml](../../.github/workflows/llama-htp-artifact.yml)।

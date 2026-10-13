@@ -271,7 +271,18 @@ path, with quantization and arithmetic behavior still unresolved. Probe logs
 artifacts, not shipped in the llama.cpp release.
 
 The pinned HTP source selects the tiled Q8_0 activation quantizer for Q4_0
-weights in [`matmul-ops.c`](https://github.com/ggml-org/llama.cpp/blob/af50f2f248b475d9760f8e67503d01c0f194f5f4/ggml/src/ggml-hexagon/htp/matmul-ops.c#L743-L755).
+weights in [`matmul-ops.c`](https://github.com/ggml-org/llama.cpp/blob/af50f2f248b475d9760f8e67503d01c0f194f5f4/ggml/src/ggml-hexagon/htp/matmul-ops.c#L743-L755). This Q8_0 work is only a diagnostic for that Q4_0 mismatch; it does not change the active NPU known-output inference gate into a Q8 model optimization task.
+
+### Optional future candidate: ternary 1.58-bit models
+
+Microsoft BitNet may be considered later as an optional Ternux extension. Its
+[upstream project](https://github.com/microsoft/BitNet) currently describes CPU
+and GPU support and lists NPU support as forthcoming. This is not evidence of
+SM8735, Adreno, Hexagon HTP, or Debian PRoot compatibility. Keep this candidate
+outside the active Q4_0 investigation; if evaluated later, test its native
+1.58-bit runtime/model separately from ordinary IQ1/TQ1 GGUF quantizations and
+measure CPU, GPU, and NPU paths independently. Device speed, heat, and output
+quality remain unverified.
 
 Workflow and source pin: [llama-htp-artifact.yml](../.github/workflows/llama-htp-artifact.yml).
 Device test details: [SKB investigation](https://github.com/soobujmiah/skb/blob/main/devices/redmi-turbo-4-pro/evidence/debian-proot-npu-investigation-2026-10-13.md); exact archive retest log: `gh-artifact-device-test.log` in the local probe scratch directory.
