@@ -1,0 +1,7 @@
+event_id: commit-ebb42fa8079f-ed03bc79e915928d
+repository: soobujmiah/ternux
+commit: ebb42fa8079ff697b7ad95b5cc16ef38604b74e9
+kind: commit
+occurred_at: '2026-10-13T13:17:25Z'
+status: completed
+summary: Document standalone QNN VAE context load from PRoot
