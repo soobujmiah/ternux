@@ -664,24 +664,23 @@ generation, and waited for the process to exit. Both runs stopped cleanly with
 exit code 0 and no remaining process. A fresh process on each backend then
 passed the greedy `2 + 2` known-answer check and returned `4`.
 
-This is one cancellation/restart cycle per backend on one configured SM8735
-device. It does not prove sustained thermal stability, repeated cancellation
-stress, NPU cancellation, system fallback, or clean-device driver installation.
-Reproduction logs and the full method are in
+This section first recorded one cancellation/restart cycle per backend. A
+follow-up repeat run later added three live-generation cancellation cycles per
+backend. Each stopped with exit 0. Fresh CPU and Vulkan known-answer processes
+after the series returned `4` and exited 0. The repeat-run supervisor also made
+intermediate restart attempts where it sent SIGINT immediately after reading `4`; these
+showed the answer but produced signal exits, so they are explicitly excluded
+from the clean-restart result. Their logs remain in scratch for audit. The
+series ended at battery 41.1 C, skin 44.1 C, hottest CPU 76.8 C, thermal status
+0. It does not prove long-duration stability, NPU cancellation, system fallback,
+or clean-device driver installation. Reproduction logs and full method are in
 `/home/sbj/npu-probe-2026-10-13/ternux-vulkan-device-test/`:
 `published-extension-cancel-cpu.log`,
 `published-extension-cancel-vulkan.log`,
 `published-extension-cpu-restart.log`,
 `published-extension-vulkan-restart.log`, and
-`published-extension-cancellation-repeat-20261014.md`.
-
-A follow-up CPU-only cancellation sample used a distinct counting prompt and
-the same scratch package/model. SIGINT was sent after generated text appeared;
-the process exited 0 and no child remained. Battery temperature read 40.0 C
-after the short run and Android thermal status remained 0. This adds a second
-CPU cancellation observation, but no restart known-answer was run after this
-sample; it does not qualify repeated stress or sustained thermals. Log:
-`repeat-cancel-cpu-20261014.log` in the same scratch directory.
+`published-extension-cancellation-repeat-20261014.md`, plus
+`repeat-cancellation-stress-20261014.md`.
 
 ## 2026-10-13 standalone Android QNN VAE graph qualification
 

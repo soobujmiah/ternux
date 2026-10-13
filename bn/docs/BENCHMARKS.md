@@ -614,23 +614,23 @@ Scratch-এ থাকা published package চালিয়ে (workstation in
 চালু ছিল না। এরপর প্রতিটি backend-এ নতুন process greedy `2 + 2` known-answer
 পরীক্ষায় `4` দিয়েছে।
 
-এটি একটি SM8735 device-এ প্রতি backend-এ একবার cancellation/restart cycle। এতে
-দীর্ঘ thermal stability, repeated cancellation stress, NPU cancellation, system
-fallback বা clean-device driver installation প্রমাণ হয় না। পূর্ণ পদ্ধতি ও log
+এই অংশে প্রথমে প্রতি backend-এ একবার cancellation/restart cycle ছিল। পরের
+repeat run-এ প্রতি backend-এ live generation চলাকালে তিনটি করে cancellation
+করা হয়েছে। প্রতিটি process exit 0-তে বন্ধ হয়েছে; সিরিজ শেষে নতুন CPU ও Vulkan
+known-answer process `4` দিয়েছে এবং exit 0 হয়েছে। Repeat supervisor `4` দেখেই
+SIGINT পাঠিয়ে কিছু intermediate restart attempt-ও করেছিল; answer দেখা গেলেও
+signal-এর কারণে সেগুলোর exit status nonzero, তাই clean-restart ফল হিসেবে গণ্য
+করা হয়নি। Audit-এর জন্য log scratch-এ রাখা হয়েছে। শেষ telemetry: battery
+41.1 C, skin 44.1 C, সর্বোচ্চ দেখা CPU 76.8 C, thermal status 0। এতে দীর্ঘস্থায়ী
+stability, NPU cancellation, system fallback বা clean-device driver installation
+প্রমাণ হয় না। পূর্ণ পদ্ধতি ও log
 `/home/sbj/npu-probe-2026-10-13/ternux-vulkan-device-test/`-এ:
 `published-extension-cancel-cpu.log`,
 `published-extension-cancel-vulkan.log`,
 `published-extension-cpu-restart.log`,
 `published-extension-vulkan-restart.log` এবং
-`published-extension-cancellation-repeat-20261014.md`।
-
-পরে scratch package ও একই model দিয়ে আলাদা counting prompt-এ CPU cancellation
-sample নেওয়া হয়েছে। Generated text আসার পর SIGINT পাঠালে process exit 0-তে
-বন্ধ হয়েছে এবং child process বাকি ছিল না। ছোট run-এর পর battery sensor 40.0 C
-এবং Android thermal status 0 দেখিয়েছে। এতে CPU cancellation-এর দ্বিতীয়
-observation যোগ হয়েছে; এই run-এর পরে restart known-answer করা হয়নি। এটি repeated
-stress বা দীর্ঘ thermal stability qualify করে না। Log একই scratch directory-তে
-`repeat-cancel-cpu-20261014.log`।
+`published-extension-cancellation-repeat-20261014.md`; repeat matrix:
+`repeat-cancellation-stress-20261014.md`।
 
 ## 2026-10-13 standalone Android QNN VAE graph qualification
 
