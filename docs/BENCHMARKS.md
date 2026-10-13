@@ -243,14 +243,22 @@ same brokered CDSP descriptor, with CPU fallback disabled:
 | `ADD` | 256 F32 elements | **Pass**; 0 mismatches; max absolute error `9.53674e-07` |
 | `MUL_MAT` | F32 × F32, K=16, M=8, N=4 | **Pass**; 0 mismatches; max absolute error `3.57628e-07` |
 | `MUL_MAT` | Q4_0 × F32, K=576, M=8, N=2 | **Mismatch** against the same-build CPU backend on 16/16 outputs at the probe's `1e-5` comparison threshold; maximum absolute HTP-vs-CPU difference `0.00947738`. Against the explicitly dequantized Q4_0 reference, max absolute error was `0.00601411` (max relative error `1.56%`). The HTP profile identified `MUL_MAT` with `q4_0 x f32`, `hvx-tiled`; compute status was success and the CDSP session closed cleanly. |
+| `MUL_MAT` | Q4_0 × sparse F32, K=576, M=8, N=2 | **Numeric mismatch** on 15/16 outputs at `1e-5`; max absolute error `0.000181094`, max relative error `0.0908%`. Inputs were nonzero at only one K position per column to reduce long accumulation. HTP verbose trace confirmed `q4_0 x f32`, `hvx-tiled` execution; graph compute succeeded and the CDSP session closed cleanly. |
+| Q4_0 tensor round-trip | 2,592 quantized weight bytes | **Pass**; backend set → get through the tiled host representation returned all bytes unchanged. This verifies host-side repack/de-repack data integrity for this tensor; it does not prove the DSP kernel's interpretation of the tile. |
 
 These deterministic synthetic micro-tests do not prove that a particular
-model layer is the sole source of the malformed text. They narrow the next
-investigation to the quantized Q4_0 matrix-multiply path, including its HTP
-repacking and precision behavior. Probe logs (`gh-artifact-htp-add-test.log`,
-`gh-artifact-htp-matmul-test.log`, and `gh-artifact-htp-q4-matmul-k576-test.log`)
-are retained in the same local probe directory. Probe source and binaries are
-scratch artifacts, not shipped in the llama.cpp release.
+model layer is the sole source of the malformed text. I ran a sparse-input
+follow-up to reduce accumulation effects; it still showed small per-output
+differences. I also read the same 2,592 Q4_0 bytes back through the backend's
+tiled repack/de-repack path and found zero changed bytes. This verifies the
+host-side tensor round-trip, while the DSP kernel's interpretation of the tile
+remains unverified. Accumulation precision, kernel arithmetic and expected
+tolerance remain unresolved. Probe logs (`gh-artifact-htp-add-test.log`,
+`gh-artifact-htp-matmul-test.log`, `gh-artifact-htp-q4-matmul-k576-test.log`,
+`gh-artifact-htp-q4-sparse-verbose-test.log`, and
+`gh-artifact-htp-q4-roundtrip-test.log`) are retained in
+`/home/sbj/npu-probe-2026-10-13/`. Probe source and binaries are scratch
+artifacts, not shipped in the llama.cpp release.
 
 Workflow and source pin: [llama-htp-artifact.yml](../.github/workflows/llama-htp-artifact.yml).
 Device test details: [SKB investigation](https://github.com/soobujmiah/skb/blob/main/devices/redmi-turbo-4-pro/evidence/debian-proot-npu-investigation-2026-10-13.md); exact archive retest log: `gh-artifact-device-test.log` in the local probe scratch directory.

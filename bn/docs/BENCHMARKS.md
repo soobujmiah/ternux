@@ -240,12 +240,21 @@ graph-এ চালানো হয়েছে; CPU fallback বন্ধ ছ�
 | `ADD` | 256 F32 element | **Pass**; mismatch 0; সর্বোচ্চ absolute error `9.53674e-07` |
 | `MUL_MAT` | F32 × F32, K=16, M=8, N=4 | **Pass**; mismatch 0; সর্বোচ্চ absolute error `3.57628e-07` |
 | `MUL_MAT` | Q4_0 × F32, K=576, M=8, N=2 | probe-এর `1e-5` comparison threshold-এ একই build-এর CPU backend-এর সঙ্গে 16/16 output **mismatch**; HTP-CPU সর্বোচ্চ absolute difference `0.00947738`। Explicit dequantized Q4_0 reference-এর সঙ্গে সর্বোচ্চ absolute error `0.00601411` (সর্বোচ্চ relative error `1.56%`)। HTP profile-এ `q4_0 x f32`, `hvx-tiled` `MUL_MAT` দেখা গেছে; compute সফল এবং CDSP session cleanly close করেছে। |
+| `MUL_MAT` | Q4_0 × sparse F32, K=576, M=8, N=2 | `1e-5` threshold-এ 16টির 15টি output-এ **numeric mismatch**; সর্বোচ্চ absolute error `0.000181094`, সর্বোচ্চ relative error `0.0908%`। Long accumulation কমাতে প্রতি column-এ একটিমাত্র K position nonzero ছিল। HTP verbose trace-এ `q4_0 x f32`, `hvx-tiled` execution নিশ্চিত; graph compute সফল এবং CDSP session cleanly close করেছে। |
+| Q4_0 tensor round-trip | 2,592 quantized weight byte | **Pass**; backend set → get-এর পর সব byte অপরিবর্তিত ছিল। এই tensor-এর host-side tiled repack/de-repack data integrity যাচাই হয়েছে; DSP kernel tile-টি কীভাবে interpret করে তা প্রমাণ হয়নি। |
 
 এই deterministic synthetic micro-test প্রমাণ করে না যে নির্দিষ্ট model layer-ই
-malformed output-এর একমাত্র কারণ। তবে পরের তদন্ত Q4_0 quantized matrix-multiply
-path এবং তার HTP repacking/precision আচরণে কেন্দ্রীভূত করা যায়। Probe log
+malformed output-এর একমাত্র কারণ। Long accumulation-এর প্রভাব কমাতে sparse-input
+follow-up করেছি; তাতেও ছোট per-output difference ছিল। একই 2,592 Q4_0 byte
+backend-এর tiled repack/de-repack path দিয়ে পড়ে দেখেছি; কোনো byte বদলায়নি। এতে
+host-side tensor round-trip যাচাই হয়েছে, তবে DSP kernel tile-টি কীভাবে interpret
+করে তা অমীমাংসিত। Accumulation precision, kernel arithmetic এবং প্রত্যাশিত
+tolerance এখনও unresolved। Probe log
 (`gh-artifact-htp-add-test.log`, `gh-artifact-htp-matmul-test.log`,
-`gh-artifact-htp-q4-matmul-k576-test.log`) একই local probe directory-তে আছে।
+`gh-artifact-htp-q4-matmul-k576-test.log`,
+`gh-artifact-htp-q4-sparse-verbose-test.log`,
+`gh-artifact-htp-q4-roundtrip-test.log`)
+একই local probe directory-তে আছে।
 Probe source ও binary scratch artifact; llama.cpp release-এ নেই।
 
 Workflow ও source pin: [llama-htp-artifact.yml](../../.github/workflows/llama-htp-artifact.yml)।
