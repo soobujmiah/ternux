@@ -13,7 +13,7 @@ it does not describe shipped capabilities.
 | Order | Work | Current status | Completion evidence |
 |---|---|---|---|
 | 1 | Our standalone Android/Bionic QNN helper, callable from PRoot | Runtime/provider, backend/device, VAE context load/free and encoder graph execution VERIFIED; generic HTP Add known-answer VERIFIED; model output correctness UNVERIFIED | Matching execution headers, tensor metadata, request/response, known-output accelerator test |
-| 2 | Existing QNN picture model, kept in place | No-copy VAE/UNet context load and fixed-input VAE encoder execution VERIFIED; image inference UNVERIFIED | CLIP/UNet/VAE pipeline, graph execution, stage attribution, fixed-seed image test and reviewed output |
+| 2 | Existing QNN picture model, kept in place | No-copy VAE/UNet fixed-input graph execution VERIFIED; prompt-to-image inference UNVERIFIED | CLIP/UNet/VAE pipeline, graph execution, stage attribution, fixed-seed image test and reviewed output |
 | 3 | Main Debian llama.cpp CPU/GPU/HTP qualification | CPU/Vulkan known-answer pass; HTP known-answer FAILED | Diagnose Q4 mismatch, validate operators, reproduce correct model answers on intended backend |
 | 4 | Repeat and sustained device qualification | Three short CPU/GPU benchmarks; sustained testing UNVERIFIED | Matched runs, memory/thermal/power availability recorded, stability, cancellation/restart/cleanup, safe fallback |
 | 5 | Reusable GitHub artifacts | HTP experimental prerelease exists; Vulkan package local; standalone helper NDK CI artifact passed device graph test; no released install package | Pinned build inputs, ABI/ELF checks, checksums, licenses, release manifest and clean-device install verification |

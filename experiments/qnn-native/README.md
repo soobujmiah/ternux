@@ -174,7 +174,15 @@ compares the raw tensors, returns the output through an anonymous FD, and
 converts NCHW UFIXED_POINT_16 output to a PNG in Debian scratch. The output
 file must be a new absolute path; the original ZIP stays in place. This
 preview is a graph/output-transport check, not a known image oracle or a
-Stable Diffusion text-to-image pipeline. Its physical-device result is pending.
+Stable Diffusion text-to-image pipeline. [CI run 38412413332](https://github.com/soobujmiah/ternux/actions/runs/38412413332)
+passed after a transient NDK-download unzip failure on its first attempt. The
+checksum-verified artifact ran on SM8735: two decoder executions returned 0
+and repeated exactly (raw FNV64 `d478b3703844afbe`). The anonymous output FD
+carried 1,572,864 bytes. Debian rendered a 512x512 RGB PNG, 62,004 bytes,
+SHA-256 `37e5cab392140b53b262bdbaf9c976adaee4e725789515115330eaa4424a54cf`.
+A visual check found a mostly uniform muted image with edge variation, expected
+for a zero-latent diagnostic but not independently checked against a reference.
+The PNG and raw log remain in local scratch; no model member was extracted.
 
 ```bash
 python3 experiments/qnn-native/archive_input.py \
@@ -188,8 +196,14 @@ python3 experiments/qnn-native/archive_input.py \
 An opt-in fixed-input UNet diagnostic uses only the pinned `unet.bin` member:
 quantized real-zero sample and text embedding, integer timestep `999`, two
 executions, and an exact repeat check. This is a bounded compute test; no
-text prompt, scheduler, expected tensor or final image is involved. Its
-physical-device result is pending.
+text prompt, scheduler, expected tensor or final image is involved.
+[CI run 38413205585](https://github.com/soobujmiah/ternux/actions/runs/38413205585)
+passed and its checksum-verified helper executed the UNet graph twice on the
+physical SM8735. Both calls returned 0 with V73/CDSP logs and exact repeated
+output FNV64 `43f9d6c70dc574c9`. Inputs were quantized real-zero sample
+(raw code `34900`), quantized real-zero text embedding (raw code `30105`) and
+INT32 timestep `999`. This verifies bounded UNet graph execution, not a
+known-output UNet result or a prompt-driven generation.
 
 ```bash
 python3 experiments/qnn-native/archive_input.py \
@@ -214,7 +228,8 @@ and UNet; see the device log for exact values.
 
 1. Obtain an independent expected tensor for the exact fixed VAE input, verify
    output encoding/quantization, and compare numerical values. Then qualify
-   decoder and UNet graph execution separately.
+   decoder and UNet outputs against suitable independent references. Their
+   fixed-input execution is already verified.
 2. Prove a fixed-input, known-output VAE graph result with explicit HTP
    attribution and repeat cleanup. The current repeated-output probe is an
    execution gate, not a numerical-correctness gate.
