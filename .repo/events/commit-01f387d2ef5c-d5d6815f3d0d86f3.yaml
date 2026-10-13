@@ -1,0 +1,7 @@
+event_id: commit-01f387d2ef5c-d5d6815f3d0d86f3
+repository: soobujmiah/ternux
+commit: 01f387d2ef5c9b0788371c4e1e188738a9fb540e
+kind: commit
+occurred_at: '2026-10-13T13:48:39Z'
+status: completed
+summary: Record CI QNN graph evidence and surface ecosystem guides
