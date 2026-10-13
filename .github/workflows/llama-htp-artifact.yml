@@ -1,0 +1,147 @@
+name: llama.cpp Hexagon HTP artifact
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: llama-htp-b11582-v73
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build pinned Snapdragon Linux package
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Check out Ternux release metadata
+        uses: actions/checkout@v4
+
+      - name: Check out pinned llama.cpp source
+        uses: actions/checkout@v4
+        with:
+          repository: ggml-org/llama.cpp
+          ref: af50f2f248b475d9760f8e67503d01c0f194f5f4
+          path: llama.cpp
+
+      - name: Verify source pin
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git -C llama.cpp rev-parse HEAD)" = "af50f2f248b475d9760f8e67503d01c0f194f5f4"
+
+      - name: Build for Snapdragon Linux with the pinned upstream toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp llama.cpp/docs/backend/snapdragon/CMakeUserPresets.json llama.cpp/CMakeUserPresets.json
+          docker run --rm \
+            --platform linux/amd64 \
+            -u "$(id -u):$(id -g)" \
+            --volume "$GITHUB_WORKSPACE/llama.cpp:/workspace" \
+            --workdir /workspace \
+            ghcr.io/snapdragon-toolchain/arm64-linux@sha256:41b710ee5f99d21f0fb9d83a1f815ecffb7708315b4218a11cd0baeb5ecf4c14 \
+            bash -lc '
+              cmake --preset arm64-linux-snapdragon-release -B build-ternux-htp-b11582 &&
+              cmake --build build-ternux-htp-b11582 -j 4 &&
+              cmake --install build-ternux-htp-b11582 --prefix pkg-ternux-htp-b11582/llama.cpp
+            '
+
+      - name: Package and inspect target files
+        shell: bash
+        run: |
+          set -euo pipefail
+          package="llama.cpp/pkg-ternux-htp-b11582/llama.cpp"
+          test -x "$package/bin/llama-cli"
+          test -f "$package/lib/libggml-hexagon.so"
+          test -f "$package/lib/libggml-htp-v73.so"
+          file "$package/bin/llama-cli" | tee llama-cli-file.txt
+          grep -q 'aarch64' llama-cli-file.txt
+          mkdir -p release/ternux-llama-htp-sm8735-b11582
+          cp -a "$package/." release/ternux-llama-htp-sm8735-b11582/
+          cp llama.cpp/LICENSE release/ternux-llama-htp-sm8735-b11582/LLAMA-CPP-LICENSE
+          cat > release/ternux-llama-htp-sm8735-b11582/README.txt <<'EOF'
+          Ternux experimental llama.cpp Hexagon HTP package
+
+          Target: Linux aarch64 / Qualcomm Hexagon HTP, with the V73 library
+          Source: ggml-org/llama.cpp tag b11582
+          Source commit: af50f2f248b475d9760f8e67503d01c0f194f5f4
+          Build: upstream scripts/snapdragon/build.py using the
+          ghcr.io/snapdragon-toolchain/arm64-linux:v0.7 toolchain image
+
+          This package is an experimental test artifact. The same upstream
+          b11582 release backend has been observed executing HTP operators on
+          Redmi Turbo 4 Pro / SM8735 through a brokered FastRPC descriptor, but
+          the known-output check returned incorrect text compared with CPU.
+          This package does not claim correct or production-ready inference.
+
+          The package does not include Qualcomm vendor libraries, firmware,
+          device permissions, or a Binder/FastRPC broker. Set LD_LIBRARY_PATH
+          and ADSP_LIBRARY_PATH to this package's lib directory and provide a
+          compatible libcdsprpc.so plus an authorized FastRPC descriptor path.
+          On this device the existing process-local Binder broker probe is
+          required; see the Ternux release notes and SKB device evidence.
+          EOF
+          cat > release/ternux-llama-htp-sm8735-b11582/build-manifest.json <<'EOF'
+          {
+            "artifact": "ternux-llama-htp-sm8735-b11582",
+            "target": "linux-aarch64",
+            "soc_test_target": "Qualcomm SM8735 / Hexagon HTP V73",
+            "upstream": "https://github.com/ggml-org/llama.cpp",
+            "upstream_tag": "b11582",
+            "upstream_commit": "af50f2f248b475d9760f8e67503d01c0f194f5f4",
+            "toolchain_image": "ghcr.io/snapdragon-toolchain/arm64-linux:v0.7",
+            "toolchain_image_digest": "sha256:41b710ee5f99d21f0fb9d83a1f815ecffb7708315b4218a11cd0baeb5ecf4c14",
+            "build_command": "cmake --preset arm64-linux-snapdragon-release -B build-ternux-htp-b11582; cmake --build build-ternux-htp-b11582 -j 4; cmake --install build-ternux-htp-b11582 --prefix pkg-ternux-htp-b11582/llama.cpp",
+            "htp_libraries": ["libggml-hexagon.so", "libggml-htp-v73.so"],
+            "device_validation": "pending"
+          }
+          EOF
+          tar -C release -czf ternux-llama-htp-sm8735-b11582.tar.gz ternux-llama-htp-sm8735-b11582
+          sha256sum ternux-llama-htp-sm8735-b11582.tar.gz > ternux-llama-htp-sm8735-b11582.tar.gz.sha256
+          tar -tzf ternux-llama-htp-sm8735-b11582.tar.gz | head -n 40
+
+      - name: Create or refresh draft experimental release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag=ternux-llama-htp-sm8735-b11582
+          cat > release-notes.md <<'EOF'
+          ## Experimental Snapdragon HTP package
+
+          Built from llama.cpp `b11582` commit `af50f2f248b475d9760f8e67503d01c0f194f5f4`
+          using Qualcomm's upstream Snapdragon Linux toolchain image `v0.7`.
+
+          Includes Linux aarch64 llama.cpp tools and Hexagon V73 backend/skeleton
+          libraries. Intended for experimental validation on Snapdragon 8s Gen 4
+          (SM8735) from Ternux/PRoot using the separately established brokered
+          FastRPC access path.
+
+          **Known limitation:** the same upstream b11582 backend produced
+          incorrect text in a deterministic CPU-vs-HTP known-output test on the
+          Redmi Turbo 4 Pro. HTP operator profile records were present, but
+          inference correctness failed. This release is a reproducible build
+          artifact, not a claim of correct or production-ready NPU inference.
+          Device retest of this exact archive is pending.
+
+          The archive does not bundle Qualcomm vendor runtime libraries,
+          firmware, permissions changes, or a Binder/FastRPC broker.
+          EOF
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release upload "$tag" \
+              ternux-llama-htp-sm8735-b11582.tar.gz \
+              ternux-llama-htp-sm8735-b11582.tar.gz.sha256 --clobber
+          else
+            gh release create "$tag" \
+              ternux-llama-htp-sm8735-b11582.tar.gz \
+              ternux-llama-htp-sm8735-b11582.tar.gz.sha256 \
+              --draft --prerelease \
+              --title 'Experimental llama.cpp HTP V73 for SM8735 (b11582)' \
+              --notes-file release-notes.md \
+              --target "$GITHUB_SHA"
+          fi
