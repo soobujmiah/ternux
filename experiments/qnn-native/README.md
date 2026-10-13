@@ -1,5 +1,34 @@
 # Standalone Android QNN discovery from Debian PRoot
 
+## SD1.5 CLIP input preparation (2026-10-14)
+
+I added [`clip_conditioning.py`](clip_conditioning.py) as an independent CPU-side
+preparation step. Given already-tokenized content IDs, `token_emb.bin` and
+`pos_emb.bin`, it emits 77 x 768 little-endian FP32 values for MNN's
+`input_embedding`. It uses BOS 49406, EOS/pad 49407 and at most 75 content
+tokens. It accepts either an FP16 token table or a legacy FP32 token table;
+FP32 token values are narrowed to FP16 before lookup, matching the reference's
+table handling. Position values remain FP32. A synthetic sparse-table unit
+test checks row selection, padding, weight multiplication and position addition.
+
+This module does not tokenize prompt text or execute `clip_v2.mnn`. Its token ID
+contract comes from the pinned Local Dream reference, but actual compatibility
+with the archive's tokenizer, tables and MNN model is not yet verified. No
+model archive or Qualcomm runtime was accessed for this step.
+
+```bash
+python3 -m unittest discover -s experiments/qnn-native -p 'test_clip_conditioning.py' -v
+python3 experiments/qnn-native/clip_conditioning.py \
+  --content-ids-json /absolute/scratch/content-ids.json \
+  --token-emb /absolute/scratch/token_emb.bin \
+  --pos-emb /absolute/scratch/pos_emb.bin \
+  --output /absolute/scratch/input_embedding.f32
+```
+
+The output path must be new. The example paths are placeholders; model members
+must stay within the existing archive handling boundary and must not be
+committed or redistributed.
+
 The [2026-10-13 engineering handoff](HANDOFF-2026-10-13.md) records the exact
 stop point, verified device evidence and the next work for another agent.
 
