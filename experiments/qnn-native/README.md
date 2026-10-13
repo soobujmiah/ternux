@@ -185,6 +185,21 @@ python3 experiments/qnn-native/archive_input.py \
   --runtime-dir /absolute/path/to/licensed/qnn-2.29-v73-runtime
 ```
 
+An opt-in fixed-input UNet diagnostic uses only the pinned `unet.bin` member:
+quantized real-zero sample and text embedding, integer timestep `999`, two
+executions, and an exact repeat check. This is a bounded compute test; no
+text prompt, scheduler, expected tensor or final image is involved. Its
+physical-device result is pending.
+
+```bash
+python3 experiments/qnn-native/archive_input.py \
+  --archive /sdcard/Llms/AbsoluteReality_qnn2.28_8gen2.zip \
+  --member unet.bin \
+  --inspect-helper /absolute/path/to/ternux-qnn-context-inspect \
+  --execute-unet \
+  --runtime-dir /absolute/path/to/licensed/qnn-2.29-v73-runtime
+```
+
 A later CI artifact from [run 38410204285](https://github.com/soobujmiah/ternux/actions/runs/38410204285)
 also re-ran the encoder with a quantized **real-value zero** input. The input
 uses scale `3.05180438e-05`, offset `-32768`; raw code `32768` represents real

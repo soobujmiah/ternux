@@ -158,6 +158,25 @@ static bool tensor_matches(const unsigned char *entry, const char *expected_name
            rank == 4 && dims && !memcmp(dims, expected_dims, 4 * sizeof(uint32_t));
 }
 
+static bool tensor_matches_short(const unsigned char *entry, const char *expected_name,
+                                 uint32_t expected_datatype, uint32_t expected_rank,
+                                 const uint32_t *expected_dims) {
+    uint32_t version, type, format, datatype, rank;
+    const char *name;
+    const uint32_t *dims;
+    memcpy(&version, entry, 4);
+    memcpy(&name, entry + 16, 8);
+    memcpy(&type, entry + 24, 4);
+    memcpy(&format, entry + 28, 4);
+    memcpy(&datatype, entry + 32, 4);
+    memcpy(&rank, entry + 80, 4);
+    memcpy(&dims, entry + 88, 8);
+    return version == 1 && name && !strcmp(name, expected_name) &&
+           type == 0 && format == 0 && datatype == expected_datatype &&
+           rank == expected_rank && dims &&
+           !memcmp(dims, expected_dims, expected_rank * sizeof(uint32_t));
+}
+
 static void set_client_buffer(unsigned char *tensor, void *data, uint32_t bytes) {
     /* Public Qnn_TensorV1_t layout: union starts at +8, memType +96,
      * clientBuf.data +104 and clientBuf.dataSize +112 on AArch64. */
@@ -338,6 +357,80 @@ cleanup:
     return result;
 }
 
+static int execute_unet_twice(graph_execute_fn execute, void *handle,
+                              const graph_v3_prefix *metadata) {
+    const uint32_t sample_dims[4] = {1, 4, 64, 64};
+    const uint32_t timestamp_dims[1] = {1};
+    const uint32_t embedding_dims[3] = {1, 77, 768};
+    const uint32_t output_dims[4] = {1, 4, 64, 64};
+    const uint32_t sample_bytes = 1 * 4 * 64 * 64 * sizeof(uint16_t);
+    const uint32_t embedding_bytes = 1 * 77 * 768 * sizeof(uint16_t);
+    const uint32_t output_bytes = sample_bytes;
+    if (!execute || !handle || !metadata || metadata->input_count != 3 ||
+        metadata->output_count != 1 || !metadata->inputs || !metadata->outputs ||
+        !metadata->name || strcmp(metadata->name, "model")) return 2;
+    const unsigned char *input_template = (const unsigned char *)metadata->inputs;
+    const unsigned char *output_template = (const unsigned char *)metadata->outputs;
+    if (!tensor_matches(input_template, "sample", 0, sample_dims) ||
+        !tensor_matches_short(input_template + 144, "timestamp", 0x0032, 1, timestamp_dims) ||
+        !tensor_matches_short(input_template + 288, "text_embedding", 0x0416, 3, embedding_dims) ||
+        !tensor_matches(output_template, "output", 1, output_dims)) return 2;
+    int32_t sample_offset, embedding_offset;
+    uint32_t sample_def, sample_encoding, embedding_def, embedding_encoding;
+    memcpy(&sample_def, input_template + 40, 4);
+    memcpy(&sample_encoding, input_template + 44, 4);
+    memcpy(&sample_offset, input_template + 52, 4);
+    memcpy(&embedding_def, input_template + 288 + 40, 4);
+    memcpy(&embedding_encoding, input_template + 288 + 44, 4);
+    memcpy(&embedding_offset, input_template + 288 + 52, 4);
+    int64_t sample_zero = -(int64_t)sample_offset;
+    int64_t embedding_zero = -(int64_t)embedding_offset;
+    if (sample_def != 1 || sample_encoding != 0 ||
+        embedding_def != 1 || embedding_encoding != 0 ||
+        sample_zero < 0 || sample_zero > UINT16_MAX ||
+        embedding_zero < 0 || embedding_zero > UINT16_MAX) return 2;
+    _Alignas(8) unsigned char input_tensors[3 * 144], output_tensor[144];
+    memcpy(input_tensors, input_template, sizeof(input_tensors));
+    memcpy(output_tensor, output_template, sizeof(output_tensor));
+    uint16_t *sample = malloc(sample_bytes);
+    uint16_t *embedding = malloc(embedding_bytes);
+    uint16_t *output = malloc(output_bytes);
+    uint16_t *first = malloc(output_bytes);
+    int32_t timestamp = 999;
+    int result = 2;
+    if (!sample || !embedding || !output || !first) goto cleanup;
+    for (size_t i = 0; i < sample_bytes / sizeof(uint16_t); ++i)
+        sample[i] = (uint16_t)sample_zero;
+    for (size_t i = 0; i < embedding_bytes / sizeof(uint16_t); ++i)
+        embedding[i] = (uint16_t)embedding_zero;
+    set_client_buffer(input_tensors, sample, sample_bytes);
+    set_client_buffer(input_tensors + 144, &timestamp, sizeof(timestamp));
+    set_client_buffer(input_tensors + 288, embedding, embedding_bytes);
+    set_client_buffer(output_tensor, output, output_bytes);
+    printf("{\"stage\":\"unet_preflight\",\"accepted\":true,\"sample_raw_zero\":%" PRId64 ",\"embedding_raw_zero\":%" PRId64 ",\"timestamp\":%" PRId32 ",\"known_output\":false}\n",
+           sample_zero, embedding_zero, timestamp);
+    for (int run = 1; run <= 2; ++run) {
+        memset(output, 0xa5, output_bytes);
+        uint64_t status = execute(handle, input_tensors, 3, output_tensor, 1, NULL, NULL);
+        size_t changed = 0;
+        const unsigned char *raw = (const unsigned char *)output;
+        for (size_t i = 0; i < output_bytes; ++i) changed += raw[i] != 0xa5;
+        printf("{\"stage\":\"unet_graph_execute\",\"run\":%d,\"status\":%" PRIu64 ",\"changed_bytes\":%zu,\"digest64\":\"%016" PRIx64 "\"}\n",
+               run, status, changed, digest64(raw, output_bytes));
+        if (status || !changed) goto cleanup;
+        if (run == 1) memcpy(first, output, output_bytes);
+        else if (memcmp(first, output, output_bytes)) goto cleanup;
+    }
+    puts("{\"stage\":\"unet_repeat_exact\",\"equal\":true,\"known_output\":false}");
+    result = 0;
+cleanup:
+    free(sample);
+    free(embedding);
+    free(output);
+    free(first);
+    return result;
+}
+
 static int load_htp(void *bytes, uint64_t size, const graph_v3_prefix *metadata,
                     int execute_mode, int output_fd) {
     void *lib = dlopen("/vendor/lib64/libQnnHtp.so", RTLD_NOW | RTLD_LOCAL);
@@ -383,6 +476,8 @@ static int load_htp(void *bytes, uint64_t size, const graph_v3_prefix *metadata,
                 result = execute_vae_twice(api.graph_execute, graph, metadata);
             } else if (!retrieved && graph && execute_mode == 2) {
                 result = execute_decoder_twice(api.graph_execute, graph, metadata, output_fd);
+            } else if (!retrieved && graph && execute_mode == 3) {
+                result = execute_unet_twice(api.graph_execute, graph, metadata);
             }
             uint64_t freed = api.free_context(context, NULL);
             printf("{\"stage\":\"htp_context_free\",\"status\":%" PRIu64 "}\n", freed);
@@ -414,7 +509,8 @@ done:
 int main(int argc, char **argv) {
     setbuf(stdout, NULL);
     if ((argc != 3 && argc != 4 && argc != 6) || strcmp(argv[1], "--fd") ||
-        (argc == 4 && strcmp(argv[3], "--load-htp") && strcmp(argv[3], "--execute-htp")) ||
+        (argc == 4 && strcmp(argv[3], "--load-htp") && strcmp(argv[3], "--execute-htp") &&
+         strcmp(argv[3], "--execute-unet")) ||
         (argc == 6 && (strcmp(argv[3], "--execute-decoder") || strcmp(argv[4], "--output-fd")))) return 2;
     char *end = NULL;
     long supplied = strtol(argv[2], &end, 10);
@@ -494,7 +590,8 @@ int main(int argc, char **argv) {
         }
     }
     if (!result && argc >= 4) {
-        int execute_mode = argc == 6 ? 2 : !strcmp(argv[3], "--execute-htp");
+        int execute_mode = argc == 6 ? 2 : !strcmp(argv[3], "--execute-htp") ? 1 :
+                           !strcmp(argv[3], "--execute-unet") ? 3 : 0;
         if (execute_mode && !graph_info_present) {
             puts("{\"stage\":\"graph_execute_preflight\",\"accepted\":false,\"reason\":\"missing_graph_metadata\"}");
             result = 2;

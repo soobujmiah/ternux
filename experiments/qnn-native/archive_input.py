@@ -25,6 +25,7 @@ MEMBERS = {
 PREFIX = 'output_512/qnn_models_8gen2/'
 MAX_MEMBER_BYTES = 1536 * 1024 * 1024
 DECODER_SHA256 = '42edf1474eea665f593b8c35daf64169da220b6e4095c860eaca494610579ccc'
+UNET_SHA256 = '32ab6474a0bf5150f484dc48d68a7db22d56bc9a908edb9620a839daf47c9f60'
 DECODER_OUTPUT_BYTES = 1 * 3 * 512 * 512 * 2
 
 
@@ -106,17 +107,20 @@ def main():
     parser.add_argument('--load-htp', action='store_true', help='also attempt HTP context load; no graph execution')
     parser.add_argument('--execute-htp', action='store_true', help='run bounded VAE encoder repeat and input-contrast check')
     parser.add_argument('--execute-decoder', action='store_true', help='run pinned VAE decoder with real-zero latent and write a preview PNG')
+    parser.add_argument('--execute-unet', action='store_true', help='run pinned UNet twice with fixed sample, timestep and embedding')
     parser.add_argument('--output-png', help='new scratch PNG path for --execute-decoder')
     parser.add_argument('--runtime-dir', help='absolute path to licensed Android QNN runtime libraries in scratch')
     args = parser.parse_args()
-    if (args.load_htp or args.execute_htp or args.execute_decoder) and not args.inspect_helper:
+    if (args.load_htp or args.execute_htp or args.execute_decoder or args.execute_unet) and not args.inspect_helper:
         parser.error('HTP operations require --inspect-helper')
-    if sum((args.load_htp, args.execute_htp, args.execute_decoder)) > 1:
+    if sum((args.load_htp, args.execute_htp, args.execute_decoder, args.execute_unet)) > 1:
         parser.error('choose one HTP operation')
     if args.execute_htp and args.member != 'vae_encoder.bin':
         parser.error('--execute-htp is only supported for vae_encoder.bin')
     if args.execute_decoder and args.member != 'vae_decoder.bin':
         parser.error('--execute-decoder is only supported for vae_decoder.bin')
+    if args.execute_unet and args.member != 'unet.bin':
+        parser.error('--execute-unet is only supported for unet.bin')
     if bool(args.output_png) != args.execute_decoder:
         parser.error('--output-png is required exactly with --execute-decoder')
     if args.output_png and (not Path(args.output_png).is_absolute() or Path(args.output_png).exists()):
@@ -129,6 +133,8 @@ def main():
                 raise ValueError('anonymous FD size mismatch')
             if args.execute_decoder and evidence['sha256'] != DECODER_SHA256:
                 raise ValueError('decoder context does not match the pinned SHA-256')
+            if args.execute_unet and evidence['sha256'] != UNET_SHA256:
+                raise ValueError('UNet context does not match the pinned SHA-256')
             evidence['stage'] = 'zip_member_anonymous_fd'
             print(json.dumps(evidence))
             if args.inspect_helper:
@@ -143,11 +149,13 @@ def main():
                 try:
                     if args.execute_decoder:
                         command.extend(('--execute-decoder', '--output-fd', str(output_fd)))
+                    elif args.execute_unet:
+                        command.append('--execute-unet')
                     elif args.load_htp or args.execute_htp:
                         command.append('--execute-htp' if args.execute_htp else '--load-htp')
                     result = subprocess.run(command,
                                             pass_fds=(fd, output_fd) if output_fd >= 0 else (fd,), env=env,
-                                            timeout=120 if args.execute_htp or args.execute_decoder else 30)
+                                            timeout=120 if args.execute_htp or args.execute_decoder or args.execute_unet else 30)
                     if result.returncode:
                         print(json.dumps({'stage': 'android_helper_exit', 'returncode': result.returncode}))
                         return 2
