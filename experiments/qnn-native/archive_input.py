@@ -70,10 +70,15 @@ def main():
     parser.add_argument('--member', choices=sorted(MEMBERS), required=True)
     parser.add_argument('--inspect-helper', help='existing Android/Bionic context inspector executable')
     parser.add_argument('--load-htp', action='store_true', help='also attempt HTP context load; no graph execution')
+    parser.add_argument('--execute-htp', action='store_true', help='run bounded VAE graph twice with fixed raw input')
     parser.add_argument('--runtime-dir', help='absolute path to licensed Android QNN runtime libraries in scratch')
     args = parser.parse_args()
-    if args.load_htp and not args.inspect_helper:
-        parser.error('--load-htp requires --inspect-helper')
+    if (args.load_htp or args.execute_htp) and not args.inspect_helper:
+        parser.error('HTP operations require --inspect-helper')
+    if args.load_htp and args.execute_htp:
+        parser.error('choose one HTP operation')
+    if args.execute_htp and args.member != 'vae_encoder.bin':
+        parser.error('--execute-htp is only supported for vae_encoder.bin')
     if args.runtime_dir and (not os.path.isabs(args.runtime_dir) or not os.path.isdir(args.runtime_dir)):
         parser.error('--runtime-dir must name an existing absolute directory')
     try:
@@ -90,10 +95,11 @@ def main():
                 if args.runtime_dir:
                     env['ADSP_LIBRARY_PATH'] = args.runtime_dir
                 command = ['/system/bin/linker64', args.inspect_helper, '--fd', str(fd)]
-                if args.load_htp:
-                    command.append('--load-htp')
+                if args.load_htp or args.execute_htp:
+                    command.append('--execute-htp' if args.execute_htp else '--load-htp')
                 result = subprocess.run(command,
-                                        pass_fds=(fd,), env=env, timeout=30)
+                                        pass_fds=(fd,), env=env,
+                                        timeout=120 if args.execute_htp else 30)
                 if result.returncode:
                     print(json.dumps({'stage': 'android_helper_exit', 'returncode': result.returncode}))
                     return 2

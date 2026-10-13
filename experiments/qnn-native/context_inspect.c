@@ -1,8 +1,10 @@
 /* Independently written adapter for public QNN System C API prefixes.
- * Reads a passed anonymous FD; never extracts a model or executes an HTP graph.
+ * Reads a passed anonymous FD; never extracts a model. Graph execution is
+ * opt-in and remains an experiment until an independent output oracle exists.
  */
 #include <dlfcn.h>
 #include <inttypes.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -83,6 +85,7 @@ typedef uint64_t (*version_fn)(combined_version *);
 typedef uint64_t (*from_binary_fn)(void *, void *, const void **, const void *, uint64_t, void **, void *);
 typedef uint64_t (*context_free_fn)(void *, void *);
 typedef uint64_t (*graph_retrieve_fn)(void *, const char *, void **);
+typedef uint64_t (*graph_execute_fn)(void *, const void *, uint32_t, void *, uint32_t, void *, void *);
 typedef void (*log_callback)(const char *, int32_t, uint64_t, va_list);
 typedef uint64_t (*log_create_fn)(log_callback, int32_t, void **);
 typedef struct {
@@ -97,7 +100,8 @@ typedef struct {
     context_free_fn free_context;
     void *graph_create, *graph_create_subgraph, *graph_set_config, *graph_add_node, *graph_finalize;
     graph_retrieve_fn graph_retrieve;
-    void *graph_execute, *graph_execute_async;
+    graph_execute_fn graph_execute;
+    void *graph_execute_async;
     void *tensor_create_context, *tensor_create_graph;
     log_create_fn log_create;
     void *log_set;
@@ -126,7 +130,108 @@ static void quoted(const char *text) {
     putchar('"');
 }
 
-static int load_htp(void *bytes, uint64_t size) {
+static bool tensor_matches(const unsigned char *entry, const char *expected_name,
+                           uint32_t expected_type, const uint32_t expected_dims[4]) {
+    uint32_t version, type, format, datatype, rank;
+    const char *name;
+    const uint32_t *dims;
+    memcpy(&version, entry, 4);
+    memcpy(&name, entry + 16, 8);
+    memcpy(&type, entry + 24, 4);
+    memcpy(&format, entry + 28, 4);
+    memcpy(&datatype, entry + 32, 4);
+    memcpy(&rank, entry + 80, 4);
+    memcpy(&dims, entry + 88, 8);
+    return version == 1 && name && !strcmp(name, expected_name) &&
+           type == expected_type && format == 0 && datatype == 0x0416 &&
+           rank == 4 && dims && !memcmp(dims, expected_dims, 4 * sizeof(uint32_t));
+}
+
+static void set_client_buffer(unsigned char *tensor, void *data, uint32_t bytes) {
+    /* Public Qnn_TensorV1_t layout: union starts at +8, memType +96,
+     * clientBuf.data +104 and clientBuf.dataSize +112 on AArch64. */
+    uint32_t raw = 0;
+    memcpy(tensor + 96, &raw, 4);
+    memcpy(tensor + 104, &data, 8);
+    memcpy(tensor + 112, &bytes, 4);
+}
+
+static uint64_t digest64(const unsigned char *data, size_t size) {
+    uint64_t hash = UINT64_C(14695981039346656037);
+    for (size_t i = 0; i < size; ++i) {
+        hash ^= data[i];
+        hash *= UINT64_C(1099511628211);
+    }
+    return hash;
+}
+
+static int execute_vae_twice(graph_execute_fn execute, void *handle, const graph_v3_prefix *metadata) {
+    const uint32_t input_dims[4] = {1, 3, 512, 512};
+    const uint32_t output_dims[4] = {1, 4, 64, 64};
+    const uint32_t input_bytes = 1 * 3 * 512 * 512 * sizeof(uint16_t);
+    const uint32_t output_bytes = 1 * 4 * 64 * 64 * sizeof(uint16_t);
+    if (!execute || !handle || !metadata || metadata->input_count != 1 ||
+        metadata->output_count != 2 || !metadata->inputs || !metadata->outputs ||
+        !metadata->name || strcmp(metadata->name, "model")) return 2;
+    const unsigned char *input_template = (const unsigned char *)metadata->inputs;
+    const unsigned char *output_template = (const unsigned char *)metadata->outputs;
+    if (!tensor_matches(input_template, "input", 0, input_dims) ||
+        !tensor_matches(output_template, "mean", 1, output_dims) ||
+        !tensor_matches(output_template + 144, "std", 1, output_dims)) {
+        puts("{\"stage\":\"vae_execute_preflight\",\"accepted\":false}");
+        return 2;
+    }
+    unsigned char input_tensor[144], output_tensors[2 * 144];
+    memcpy(input_tensor, input_template, sizeof(input_tensor));
+    memcpy(output_tensors, output_template, sizeof(output_tensors));
+    unsigned char *input_data = calloc(1, input_bytes);
+    unsigned char *mean_data = malloc(output_bytes);
+    unsigned char *std_data = malloc(output_bytes);
+    unsigned char *mean_first = malloc(output_bytes);
+    unsigned char *std_first = malloc(output_bytes);
+    int result = 2;
+    if (!input_data || !mean_data || !std_data || !mean_first || !std_first) goto cleanup;
+    set_client_buffer(input_tensor, input_data, input_bytes);
+    set_client_buffer(output_tensors, mean_data, output_bytes);
+    set_client_buffer(output_tensors + 144, std_data, output_bytes);
+    puts("{\"stage\":\"vae_execute_preflight\",\"accepted\":true,\"input_pattern\":\"raw_uint16_zero\",\"oracle\":\"repeat_only\"}");
+    for (int run = 1; run <= 2; ++run) {
+        memset(mean_data, 0xa5, output_bytes);
+        memset(std_data, 0xa5, output_bytes);
+        uint64_t status = execute(handle, input_tensor, 1, output_tensors, 2, NULL, NULL);
+        size_t mean_changed = 0, std_changed = 0;
+        for (size_t i = 0; i < output_bytes; ++i) {
+            mean_changed += mean_data[i] != 0xa5;
+            std_changed += std_data[i] != 0xa5;
+        }
+        printf("{\"stage\":\"vae_graph_execute\",\"run\":%d,\"status\":%" PRIu64
+               ",\"mean_changed_bytes\":%zu,\"std_changed_bytes\":%zu,"
+               "\"mean_digest64\":\"%016" PRIx64 "\",\"std_digest64\":\"%016" PRIx64 "\"}\n",
+               run, status, mean_changed, std_changed,
+               digest64(mean_data, output_bytes), digest64(std_data, output_bytes));
+        if (status || !mean_changed || !std_changed) goto cleanup;
+        if (run == 1) {
+            memcpy(mean_first, mean_data, output_bytes);
+            memcpy(std_first, std_data, output_bytes);
+        } else {
+            bool exact = !memcmp(mean_first, mean_data, output_bytes) &&
+                         !memcmp(std_first, std_data, output_bytes);
+            printf("{\"stage\":\"vae_repeat_exact\",\"equal\":%s,\"known_output\":false}\n",
+                   exact ? "true" : "false");
+            if (!exact) goto cleanup;
+        }
+    }
+    result = 0;
+cleanup:
+    free(input_data);
+    free(mean_data);
+    free(std_data);
+    free(mean_first);
+    free(std_first);
+    return result;
+}
+
+static int load_htp(void *bytes, uint64_t size, const graph_v3_prefix *metadata, bool execute_graph) {
     void *lib = dlopen("/vendor/lib64/libQnnHtp.so", RTLD_NOW | RTLD_LOCAL);
     if (!lib) return 2;
     int result = 2;
@@ -166,6 +271,9 @@ static int load_htp(void *bytes, uint64_t size) {
             printf("{\"stage\":\"htp_graph_retrieve\",\"status\":%" PRIu64 ",\"handle_present\":%s}\n",
                    retrieved, graph ? "true" : "false");
             if (retrieved || !graph) result = 2;
+            if (!retrieved && graph && execute_graph) {
+                result = execute_vae_twice(api.graph_execute, graph, metadata);
+            }
             uint64_t freed = api.free_context(context, NULL);
             printf("{\"stage\":\"htp_context_free\",\"status\":%" PRIu64 "}\n", freed);
             if (freed) result = 2;
@@ -196,7 +304,7 @@ done:
 int main(int argc, char **argv) {
     setbuf(stdout, NULL);
     if ((argc != 3 && argc != 4) || strcmp(argv[1], "--fd") ||
-        (argc == 4 && strcmp(argv[3], "--load-htp"))) return 2;
+        (argc == 4 && strcmp(argv[3], "--load-htp") && strcmp(argv[3], "--execute-htp"))) return 2;
     char *end = NULL;
     long supplied = strtol(argv[2], &end, 10);
     if (!end || *end || supplied < 0 || supplied > INT32_MAX) return 2;
@@ -220,6 +328,8 @@ int main(int argc, char **argv) {
     memcpy(&api, (const unsigned char *)providers[0] + sizeof(prefix), sizeof(api));
     if (!api.create || !api.info || !api.free) goto done;
     void *context = NULL;
+    graph_v3_prefix graph_info = {0};
+    bool graph_info_present = false;
     uint64_t created = api.create(&context);
     printf("{\"stage\":\"system_context_create\",\"status\":%" PRIu64 ",\"handle_present\":%s}\n", created, context ? "true" : "false");
     if (!created && context) {
@@ -251,6 +361,8 @@ int main(int argc, char **argv) {
                     graph_v3_prefix graph;
                     memcpy(&graph, full.info.graphs, sizeof(graph));
                     if (graph.tag == 3 && graph.input_count <= 32 && graph.output_count <= 32) {
+                        graph_info = graph;
+                        graph_info_present = true;
                         printf("{\"stage\":\"qnn_context_graph_io_counts\",\"index\":0,\"name\":");
                         quoted(graph.name);
                         printf(",\"inputs\":%u,\"outputs\":%u}\n", graph.input_count, graph.output_count);
@@ -261,12 +373,21 @@ int main(int argc, char **argv) {
             }
         }
     }
+    if (!result && argc == 4) {
+        bool execute_graph = !strcmp(argv[3], "--execute-htp");
+        if (execute_graph && !graph_info_present) {
+            puts("{\"stage\":\"vae_execute_preflight\",\"accepted\":false,\"reason\":\"missing_graph_metadata\"}");
+            result = 2;
+        } else {
+            result = load_htp(bytes, (uint64_t)st.st_size,
+                              graph_info_present ? &graph_info : NULL, execute_graph);
+        }
+    }
     if (context) {
         uint64_t freed = api.free(context);
         printf("{\"stage\":\"system_context_free\",\"status\":%" PRIu64 "}\n", freed);
         if (freed) result = 2;
     }
-    if (!result && argc == 4) result = load_htp(bytes, (uint64_t)st.st_size);
 done:
     if (lib) dlclose(lib);
     munmap(bytes, (size_t)st.st_size);
