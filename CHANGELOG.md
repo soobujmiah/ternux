@@ -23,8 +23,9 @@ Notable changes to ternux. Dates are ISO 8601.
   roughly 15-minute sample, not multi-hour qualification.
 - Added a pinned Linux ARM64 llama.cpp CPU + Vulkan build workflow and a
   checksum-verified `ternux extension list/install llama-vulkan` path. The
-  artifact is still a draft candidate; the command installs into the selected
-  Debian guest and leaves model files untouched.
+  b11582 artifact is published as a prerelease; the command installs into the
+  selected Debian guest and leaves model files untouched. Its installed build
+  passed a CPU and Adreno Vulkan known-answer check on SM8735.
 - Ubuntu installation on another device is deferred and does not block this
   release; documentation continues to identify its profile as unverified.
 - Turnip source downloads are pinned to upstream release

@@ -177,8 +177,8 @@ ternux extension install llama-vulkan
 Installer নির্বাচিত Debian guest-এ ঢুকে release SHA-256 যাচাই করে, archive path ও
 package metadata পরীক্ষা করে, তারপর atomic ভাবে
 `~/.local/opt/ternux-extensions/llama-vulkan`-এ বসায়। Model weight কপি বা manage
-করে না। Release প্রকাশিত না হলে এই command দিয়ে extension নামানো যাবে না; draft
-candidate প্রকাশের আগে download-যোগ্য নয়।
+করে না। Pinned b11582 package-টি prerelease হিসেবে প্রকাশিত। গন্তব্য আগে থেকেই
+থাকলে সেটি বদলানো হয় না, error দেখায়; প্রতিস্থাপনের আগে নিজে পরীক্ষা করুন।
 
 Debian-এর ভেতরে tool চালু করে backend নির্দিষ্ট করুন:
 

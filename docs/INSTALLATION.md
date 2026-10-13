@@ -187,8 +187,8 @@ ternux extension install llama-vulkan
 The installer enters the selected Debian guest, verifies the release SHA-256,
 checks archive paths and package metadata, then installs atomically under
 `~/.local/opt/ternux-extensions/llama-vulkan`. It does not copy or manage model
-weights. The extension release must be published before it can be installed;
-its draft candidate is not downloadable by this command.
+weights. The pinned b11582 package is published as a prerelease. An existing
+destination is left untouched and reported; inspect it before replacing it.
 
 Inside Debian, load the tools and select the backend explicitly:
 

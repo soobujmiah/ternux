@@ -119,7 +119,7 @@ jobs:
             },
             "install_rpath": "\$ORIGIN/../lib",
             "license_file": "LLAMA-CPP-LICENSE",
-            "device_validation": "pending"
+            "device_validation": "CPU and Vulkan known-answer passed on SM8735/Adreno 825; see release notes"
           }
           EOF
           tar -C package -czf \
@@ -139,21 +139,28 @@ jobs:
           set -euo pipefail
           tag=ternux-llama-vulkan-linux-arm64-b11582
           cat > release-notes.md <<'EOF'
-          ## CPU + Vulkan device-validation candidate
+          ## CPU + Vulkan prerelease
 
           Built from llama.cpp `b11582` commit
           `af50f2f248b475d9760f8e67503d01c0f194f5f4` on a native Linux ARM64
           GitHub-hosted runner. The package includes CPU and Vulkan backends;
           it does not bundle models or graphics/vendor runtimes.
 
-          This is a **draft candidate**. Device installation and known-answer
-          tests are required before it can be considered a Ternux release asset.
-          See the build manifest and checksum included in the archive.
+          Device validation on a Redmi Turbo 4 Pro (SM8735, Android 16, Debian
+          PRoot) passed after installation through `ternux extension install
+          llama-vulkan`: Qwen2.5 1.5B Q4_0 returned `4` on CPU and Vulkan, and
+          verbose Vulkan output identified Adreno 825 with all 29/29 layers
+          offloaded. This is an optional prerelease artifact, not a stable
+          Ternux version release. See the build manifest and checksum included
+          in the archive.
           EOF
           if gh release view "$tag" >/dev/null 2>&1; then
             gh release upload "$tag" \
               ternux-llama-vulkan-linux-arm64-b11582.tar.gz \
               ternux-llama-vulkan-linux-arm64-b11582.tar.gz.sha256 --clobber
+            gh release edit "$tag" \
+              --title 'Ternux llama.cpp CPU + Vulkan (ARM64, b11582)' \
+              --notes-file release-notes.md --prerelease
           else
             gh release create "$tag" \
               ternux-llama-vulkan-linux-arm64-b11582.tar.gz \
