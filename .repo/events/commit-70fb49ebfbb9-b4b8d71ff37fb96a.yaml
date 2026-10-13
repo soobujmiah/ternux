@@ -1,0 +1,7 @@
+event_id: commit-70fb49ebfbb9-b4b8d71ff37fb96a
+repository: soobujmiah/ternux
+commit: 70fb49ebfbb9ced1b7ef9ae3417f22f3540b8a95
+kind: commit
+occurred_at: '2026-10-13T13:51:15Z'
+status: completed
+summary: Record UNet context compatibility on SM8735
