@@ -1,0 +1,7 @@
+event_id: commit-ce32dfbb3798-f2fc940f6e48e456
+repository: soobujmiah/ternux
+commit: ce32dfbb3798a4ecb5f123caed0633e0d03a9717
+kind: commit
+occurred_at: '2026-10-13T15:19:38Z'
+status: completed
+summary: Document and verify an apt-safe layout for the Turnip driver
