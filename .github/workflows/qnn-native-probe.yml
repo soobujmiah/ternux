@@ -16,18 +16,21 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
+      - uses: android-actions/setup-android@v4
+        with:
+          packages: ''
       - name: Install pinned Android NDK
         shell: bash
         run: |
           set -euo pipefail
-          test -n "${ANDROID_HOME:-}"
-          command -v sdkmanager
           sdkmanager --install 'ndk;28.2.13676358'
       - name: Build Bionic ARM64 helpers
         shell: bash
         run: |
           set -euo pipefail
-          ndk="$ANDROID_HOME/ndk/28.2.13676358/toolchains/llvm/prebuilt/linux-x86_64"
+          sdk_root="${ANDROID_SDK_ROOT:-${ANDROID_HOME:-}}"
+          test -n "$sdk_root"
+          ndk="$sdk_root/ndk/28.2.13676358/toolchains/llvm/prebuilt/linux-x86_64"
           cc="$ndk/bin/aarch64-linux-android24-clang"
           mkdir -p dist/bin
           "$cc" -O2 -Wall -Wextra -Werror experiments/qnn-native/probe.c -ldl -o dist/bin/ternux-qnn-native-probe
