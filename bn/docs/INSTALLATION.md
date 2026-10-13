@@ -297,7 +297,9 @@ bash install.sh --user soobuj       # Debian ইউজারনাম (ডিফ
 bash install.sh --locale bn_BD.UTF-8
 bash install.sh --backend zink      # Zink/Turnip বাধ্যতামূলক (শুধু Adreno)
 bash install.sh --backend virgl     # VirGL সামঞ্জস্য পথ বাধ্যতামূলক
-bash install.sh --zsh               # Termux শেলও zsh-এ বদলান
+bash install.sh --zsh               # Termux শেল -> zsh, powerlevel10k সহ
+bash install.sh --shell bash        # প্রশ্ন ছাড়াই বেছে নিন
+bash install.sh --no-theme          # powerlevel10k ছাড়া zsh
 bash install.sh --with-dev          # Git, Node.js, Python, বিল্ড টুলস
 bash install.sh --with-llm          # llama.cpp + Vulkan (লোকাল AI)
 bash install.sh --with-network      # nmap, tmux (শুধু অনুমোদিত পরীক্ষা)

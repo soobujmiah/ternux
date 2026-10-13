@@ -312,7 +312,9 @@ bash install.sh --user soobuj       # Debian user name (default: ternux)
 bash install.sh --locale bn_BD.UTF-8
 bash install.sh --backend zink      # force Zink/Turnip (Adreno only)
 bash install.sh --backend virgl     # force the compatibility fallback
-bash install.sh --zsh               # also switch the Termux shell to zsh
+bash install.sh --zsh               # Termux shell -> zsh, with powerlevel10k
+bash install.sh --shell bash        # choose without being asked
+bash install.sh --no-theme          # zsh without powerlevel10k
 bash install.sh --with-dev          # Git, Node.js, Python, build tools
 bash install.sh --with-llm          # llama.cpp + Vulkan (local AI)
 bash install.sh --with-network      # nmap, tmux (authorised testing only)

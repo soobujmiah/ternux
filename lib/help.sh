@@ -80,7 +80,9 @@ Options:
   --user NAME          Debian user name (default: ternux)
   --locale LANG        Locale (default: en_US.UTF-8)
   --backend zink|virgl|auto  GPU backend (default: auto)
-  --zsh                Use zsh instead of bash
+  --zsh                Use zsh instead of bash (installs powerlevel10k)
+  --shell bash|zsh     Choose the Termux shell without being asked
+  --no-theme           Skip powerlevel10k when zsh is chosen
   --with-dev           Install development tools
   --with-llm           Build llama.cpp with Vulkan
   --with-network       Install network tools

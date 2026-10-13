@@ -1171,6 +1171,52 @@ else
   not_ok "generated launcher and aliases call proot-distro directly"
 fi
 
+# Choosing zsh must bring a theme with it, the theme must stay optional, and a
+# theme that cannot be fetched must not fail the phase or cost the aliases.
+# chsh is stubbed away: one that wants a password would stall a real install.
+if env HOME="$TMP/home-zsh-theme" TERNUX_STATE_DIR="$TMP/state-zsh-theme" \
+  PREFIX="$TMP/prefix-zsh-theme" bash -c '
+    root="$1"
+    rcpath() { printf "%s/.zshrc" "$1"; }
+    load() {
+      . "$root/lib/core.sh"; . "$root/lib/ui.sh"; . "$root/lib/state.sh"
+      . "$root/lib/phases.sh"
+      tnx_ok(){ :; }; tnx_warn(){ :; }; tnx_info(){ :; }
+      chsh(){ :; }
+    }
+
+    # 1. zsh with the theme already present: block written, wizard off, and the
+    #    path left for the shell to expand rather than baked in at install time.
+    export HOME="$2/with-theme"; export TERNUX_STATE_DIR="$2/st1"
+    mkdir -p "$HOME/.local/share/ternux/powerlevel10k" "$TERNUX_STATE_DIR"
+    : > "$HOME/.local/share/ternux/powerlevel10k/powerlevel10k.zsh-theme"
+    ( load; tnx_phase_aliases ternux zsh ) >/dev/null 2>&1
+    grep -q "TERNUX ZSH THEME" "$(rcpath "$HOME")" || exit 1
+    grep -q "POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD=true" "$(rcpath "$HOME")" || exit 1
+    grep -Fq "$HOME/.local/share" "$(rcpath "$HOME")" && exit 1   # must not be expanded
+    grep -Fq "\$HOME/.local/share/ternux/powerlevel10k" "$(rcpath "$HOME")" || exit 1
+
+    # 2. TERNUX_THEME=none keeps zsh and skips the theme.
+    export HOME="$2/no-theme"; export TERNUX_STATE_DIR="$2/st2"; export TERNUX_THEME=none
+    mkdir -p "$HOME" "$TERNUX_STATE_DIR"
+    ( load; tnx_phase_aliases ternux zsh ) >/dev/null 2>&1
+    grep -q "TERNUX ALIASES" "$(rcpath "$HOME")" || exit 1
+    grep -q "TERNUX ZSH THEME" "$(rcpath "$HOME")" && exit 1
+    unset TERNUX_THEME
+
+    # 3. No git and no theme on disk: the phase still installs the aliases.
+    export HOME="$2/no-git"; export TERNUX_STATE_DIR="$2/st3"
+    mkdir -p "$HOME" "$TERNUX_STATE_DIR"
+    ( load; tnx_has_cmd(){ [ "$1" != git ]; }; tnx_phase_aliases ternux zsh ) >/dev/null 2>&1
+    grep -q "TERNUX ALIASES" "$(rcpath "$HOME")" || exit 1
+    grep -q "TERNUX ZSH THEME" "$(rcpath "$HOME")" && exit 1
+    exit 0
+  ' _ "$ROOT" "$TMP/zsh-theme-cases"; then
+  ok "zsh selection installs an optional, non-fatal powerlevel10k theme"
+else
+  not_ok "zsh selection installs an optional, non-fatal powerlevel10k theme"
+fi
+
 printf '1..%d\n' "$((pass + fail))"
 printf '# pass %d\n# fail %d\n' "$pass" "$fail"
 [ "$fail" -eq 0 ]

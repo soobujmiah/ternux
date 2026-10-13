@@ -162,6 +162,7 @@ USER_NAME="ternux"
 LOCALE="en_US.UTF-8"
 BACKEND="auto"
 SHELL_CHOICE="bash"
+NO_THEME=0
 USER_SET=0; LOCALE_SET=0; BACKEND_SET=0; SHELL_SET=0
 WITH_DEV=0; WITH_LLM=0; WITH_NETWORK=0; WITH_MEDIA=0; WITH_BLENDER=0; WITH_ALL=0
 FIX="no"
@@ -193,6 +194,8 @@ while [ $# -gt 0 ]; do
       esac
       ;;
     --zsh) SHELL_CHOICE="zsh"; SHELL_SET=1 ;;
+    --shell) SHELL_CHOICE="${2:-}"; SHELL_SET=1; shift ;;
+    --no-theme) export TERNUX_THEME=none; NO_THEME=1 ;;
     --with-dev) WITH_DEV=1 ;;
     --with-llm) WITH_LLM=1 ;;
     --with-network) WITH_NETWORK=1 ;;
@@ -321,6 +324,7 @@ case "${ACTION}" in
       [ "$WITH_BLENDER" = "1" ] && INSTALL_ARGS+=(--with-blender)
     fi
     [ "$SHELL_CHOICE" = "zsh" ] && INSTALL_ARGS+=(--zsh)
+    [ "$NO_THEME" = "1" ] && INSTALL_ARGS+=(--no-theme)
 
     tnx_install "${INSTALL_ARGS[@]}"
     ;;

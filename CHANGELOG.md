@@ -59,6 +59,22 @@ Notable changes to ternux. Dates are ISO 8601.
   CLI and call `uninstall state --yes` through it. Only the test's redirected
   `HOME` kept that away from a real installation.
 
+### The Termux shell is a choice, and zsh arrives themed
+
+- An interactive install now asks for bash or zsh when neither a flag nor saved
+  state has chosen one, with the same deadline-and-default behaviour as the
+  username prompt. Unattended runs are unaffected.
+- `--shell bash|zsh` chooses without being asked; `--zsh` still works.
+- Choosing zsh installs **powerlevel10k**, which was never implemented before:
+  zsh was installed and left with no theme at all. The configuration wizard is
+  disabled so an unattended install cannot stop at a prompt — run
+  `p10k configure` when you want to restyle it. `--no-theme` or
+  `TERNUX_THEME=none` skips it.
+- A missing `git`, no network or an incomplete clone now warns and leaves zsh
+  working without the theme instead of failing the phase or losing the aliases.
+- `chsh` is called with stdin closed, so a `chsh` that wants a password cannot
+  stall an install.
+
 ### Groundwork for a second guest distribution
 
 - The guest container is resolved through `tnx_distro` and entered through

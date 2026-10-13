@@ -57,6 +57,21 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
   করত এবং তার মধ্য দিয়ে `uninstall state --yes` চালাত। কেবল test-এর redirect করা
   `HOME` সেটিকে প্রকৃত installation থেকে দূরে রেখেছিল।
 
+### Termux শেল এখন একটি পছন্দ, আর zsh থিম নিয়েই আসে
+
+- Interactive install এখন bash না zsh জিজ্ঞেস করে, যখন কোনো flag বা লিপিবদ্ধ state
+  বেছে দেয়নি — username prompt-এর মতোই deadline ও default আচরণ নিয়ে। Unattended
+  run-এ কোনো পরিবর্তন নেই।
+- `--shell bash|zsh` দিয়ে প্রশ্ন ছাড়াই বাছা যায়; `--zsh` আগের মতোই চলে।
+- zsh বাছলে **powerlevel10k** বসে, যা আগে কখনোই করা হয়নি: zsh বসত আর কোনো থিম
+  ছাড়াই পড়ে থাকত। Configuration wizard বন্ধ রাখা, যাতে unattended install কোনো
+  prompt-এ থেমে না যায় — restyle করতে চাইলে `p10k configure` চালান। `--no-theme`
+  বা `TERNUX_THEME=none` দিলে বাদ যায়।
+- `git` না থাকলে, network না থাকলে বা clone অসম্পূর্ণ হলে এখন warn করে এবং zsh
+  থিম ছাড়া কাজ করতে থাকে — phase fail করে না, alias-ও হারায় না।
+- `chsh` stdin বন্ধ করে চালানো হয়, যাতে password চাওয়া কোনো `chsh` install আটকে
+  দিতে না পারে।
+
 ### দ্বিতীয় guest distribution-এর ভিত্তি
 
 - Guest container এখন `tnx_distro` দিয়ে নির্ধারিত হয় এবং `tnx_guest_login` দিয়ে

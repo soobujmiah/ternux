@@ -644,6 +644,41 @@ EOF
 # ---------------------------------------------------------------------------
 # Phase 8 — shell aliases
 # ---------------------------------------------------------------------------
+# Powerlevel10k for the Termux host shell. The configuration wizard is disabled
+# so an unattended install never stops at a prompt — `p10k configure` runs it
+# later by choice. No network, no git or an incomplete clone leaves zsh working
+# without the theme rather than failing the phase.
+_tnx_setup_p10k() {
+  local dir="$HOME/.local/share/ternux/powerlevel10k"
+  if [ ! -r "$dir/powerlevel10k.zsh-theme" ]; then
+    tnx_has_cmd git || { tnx_warn "git is missing; zsh installed without a theme."; return 0; }
+    mkdir -p "$(dirname "$dir")"
+    tnx_spin_run "Fetch powerlevel10k" git clone --depth=1 --quiet \
+      https://github.com/romkatv/powerlevel10k "$dir" || {
+        tnx_warn "powerlevel10k could not be fetched; zsh installed without a theme."
+        return 0
+      }
+  fi
+  [ -r "$dir/powerlevel10k.zsh-theme" ] || {
+    tnx_warn "powerlevel10k files are incomplete; zsh installed without a theme."
+    return 0
+  }
+  if ! grep -q "TERNUX ZSH THEME" "$HOME/.zshrc" 2>/dev/null; then
+    cat >> "$HOME/.zshrc" << P10KEOF
+
+# ==== TERNUX ZSH THEME ====
+# Glyphs need a Nerd Font in the terminal; run 'p10k configure' to restyle.
+POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD=true
+_tnx_p10k="\$HOME/.local/share/ternux/powerlevel10k/powerlevel10k.zsh-theme"
+[ -r "\$_tnx_p10k" ] && source "\$_tnx_p10k"
+unset _tnx_p10k
+[ -r ~/.p10k.zsh ] && source ~/.p10k.zsh
+# ==== END TERNUX ZSH THEME ====
+P10KEOF
+  fi
+  tnx_ok "zsh theme installed (powerlevel10k)"
+}
+
 tnx_phase_aliases() {
   local user_name="${1:-ternux}" shell_choice="${2:-bash}"
   local distro; distro="$(tnx_distro)"
@@ -652,7 +687,9 @@ tnx_phase_aliases() {
     tnx_has_cmd zsh || tnx_spin_run "Install zsh" pkg install zsh -y \
       -o APT::Color=1 -o Dpkg::Progress-Fancy=1 || true
     RC_FILE="$HOME/.zshrc"; touch "$RC_FILE"
-    tnx_has_cmd chsh && chsh -s zsh 2>/dev/null || true
+    # </dev/null so a chsh that wants a password cannot stall the install.
+    tnx_has_cmd chsh && chsh -s zsh </dev/null >/dev/null 2>&1 || true
+    [ "${TERNUX_THEME:-p10k}" = "none" ] || _tnx_setup_p10k
   fi
 
   grep -q "TERNUX ALIASES" "$RC_FILE" 2>/dev/null && { tnx_warn "Aliases already present."; return 0; }
@@ -959,6 +996,41 @@ _tnx_execute_install_phase() {
   esac
 }
 
+# Prompt for the Termux host shell when neither a flag nor saved state chose
+# one. Mirrors tnx_prompt_username: a real tty, a deadline, and the default on
+# timeout, empty input or a non-interactive run.
+tnx_prompt_shell() {
+  local default_shell="${1:-bash}"
+  local timeout="${2:-20}"
+  local tty_fd="" input=""
+
+  if { exec 3<>/dev/tty; } 2>/dev/null; then
+    tty_fd=3
+  elif [ -t 0 ]; then
+    tty_fd=0
+  fi
+
+  if [ -z "$tty_fd" ]; then
+    printf '%s\n' "$default_shell"
+    return 0
+  fi
+
+  printf "${TNX_CC}?${TNX_C0} Termux shell — bash or zsh? [default: %s] (${timeout}s): " "$default_shell" >&2
+  if ! IFS= read -r -t "$timeout" -u "$tty_fd" input; then
+    printf "\n${TNX_CY}[INFO]${TNX_C0} Shell prompt timed out; using '%s'.\n" "$default_shell" >&2
+    printf '%s\n' "$default_shell"
+    return 0
+  fi
+
+  input="$(printf '%s' "$input" | tr -d '\r\n' | tr '[:upper:]' '[:lower:]')"
+  case "$input" in
+    bash|zsh) printf '%s\n' "$input" ;;
+    "")       printf '%s\n' "$default_shell" ;;
+    *)        printf "${TNX_CY}[INFO]${TNX_C0} '%s' is not bash or zsh; using '%s'.\n" "$input" "$default_shell" >&2
+              printf '%s\n' "$default_shell" ;;
+  esac
+}
+
 # Prompt for a Debian username when none was explicitly supplied.
 # Falls back to 'ternux' if the prompt times out, input is empty, input is
 # invalid and not corrected before the deadline, or if running non-interactively.
@@ -1042,6 +1114,8 @@ tnx_install() {
         shift
         ;;
       --zsh) shell_choice="zsh"; shell_explicit=1 ;;
+      --shell) shell_choice="${2:-}"; shell_explicit=1; shift ;;
+      --no-theme) export TERNUX_THEME=none ;;
       --with-dev) extras+=("dev") ;;
       --with-llm) extras+=("llm") ;;
       --with-network) extras+=("network") ;;
@@ -1088,6 +1162,9 @@ tnx_install() {
   else
     if [ "$user_explicit" -eq 0 ]; then
       user_name="$(tnx_prompt_username "$user_name" 30)"
+    fi
+    if [ "$shell_explicit" -eq 0 ]; then
+      shell_choice="$(tnx_prompt_shell "$shell_choice" 20)"
     fi
   fi
 
