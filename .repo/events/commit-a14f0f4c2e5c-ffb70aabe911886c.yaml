@@ -1,0 +1,7 @@
+event_id: commit-a14f0f4c2e5c-ffb70aabe911886c
+repository: soobujmiah/ternux
+commit: a14f0f4c2e5c38a3ae337a9526223ee6eb808e7f
+kind: commit
+occurred_at: '2026-10-13T17:58:45Z'
+status: completed
+summary: Ask which guest to use, and measure wide glyphs correctly
