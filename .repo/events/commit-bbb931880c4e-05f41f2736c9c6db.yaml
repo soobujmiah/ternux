@@ -1,0 +1,7 @@
+event_id: commit-bbb931880c4e-05f41f2736c9c6db
+repository: soobujmiah/ternux
+commit: bbb931880c4e63e6d178145ab2f23efdf2aecb36
+kind: commit
+occurred_at: '2026-10-13T13:27:36Z'
+status: completed
+summary: Use hosted Android SDK for pinned NDK build
