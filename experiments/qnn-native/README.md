@@ -26,23 +26,26 @@ The source uses only a small public API prefix and checks the observed core API
 before invoking backend functions. It is scoped to the observed vendor runtime;
 model/tensor execution requires matching, properly licensed QNN headers.
 
-Compile as **Android/Bionic**, using an Android compiler. My small local
-diagnostic used existing Termux Clang 21.1.8 targeting
-`aarch64-unknown-linux-android24`. This is intentional for this Android helper;
-the Debian llama.cpp build uses a separate glibc toolchain.
+Build the Android/Bionic helper in GitHub Actions with the pinned NDK
+28.2.13676358 using [`qnn-native-probe.yml`](../../.github/workflows/qnn-native-probe.yml).
+The PRoot Debian workstation runs `archive_input.py` and launches the Android
+helper through `/system/bin/linker64`; the Debian llama.cpp build uses a Linux
+ARM64/glibc toolchain. No native Termux include or compiler path is part of the
+supported build. The earlier exploratory device result used Termux Clang and is
+kept as historical evidence only. It must be repeated with the CI-built ELF
+before treating the package as portable.
+
+After the GitHub workflow finishes, the owner retrieves its 14-day test
+artifact and hands it to this workstation. Verify `SHA256SUMS`, architecture,
+dynamic dependencies and RUNPATH before running. The workflow publishes a test
+artifact, not a release or any Qualcomm libraries.
 
 ```bash
-# Debian PRoot, with the existing Android-target compiler visible
-/data/data/com.termux/files/usr/bin/clang -O2 -Wall -Wextra -Werror \
-  experiments/qnn-native/probe.c -ldl -o /tmp/ternux-qnn-native-probe
+# In PRoot, after the owner has supplied the CI artifact and checksums pass:
 env -u LD_PRELOAD \
   LD_LIBRARY_PATH=/vendor/lib64:/vendor/lib64/egl:/system/lib64 \
-  /system/bin/linker64 /tmp/ternux-qnn-native-probe
+  /system/bin/linker64 /absolute/path/to/ternux-qnn-native-probe
 ```
-
-The local diagnostic binary has a Termux-specific RUNPATH and is not a portable
-release asset. Release compilation must use a pinned Android NDK on GitHub and
-inspect the ELF, dependencies, runpaths, and actual device execution.
 
 ## VAE context load on the physical device
 
@@ -82,17 +85,20 @@ probe exited 0. Keep this lifecycle limitation when designing a persistent
 helper. Full raw logs are local scratch evidence under
 `/home/sbj/npu-probe-2026-10-13/qnn-context-vae-encoder-official-runtime-final.txt`.
 
-Reproduce with a licensed QNN 2.29.0 Android runtime directory containing the
-V73 stub/skel. The archive remains at its original path:
+Reproduce with the **CI-built** helper and a licensed QNN 2.29.0 Android
+runtime directory containing the V73 stub/skel. The archive remains at its
+original path:
 
 ```bash
-/data/data/com.termux/files/usr/bin/clang -O2 -Wall -Wextra -Werror \
-  experiments/qnn-native/context_inspect.c -ldl -o /tmp/ternux-qnn-context-inspect
 python3 experiments/qnn-native/archive_input.py \
   --archive /sdcard/Llms/AbsoluteReality_qnn2.28_8gen2.zip \
-  --member vae_encoder.bin --inspect-helper /tmp/ternux-qnn-context-inspect \
+  --member vae_encoder.bin \
+  --inspect-helper /absolute/path/to/ternux-qnn-context-inspect \
   --load-htp --runtime-dir /absolute/path/to/licensed/qnn-2.29-v73-runtime
 ```
+
+The original local evidence was collected with the exploratory helper; a
+CI-built artifact must repeat the device test before release qualification.
 
 ## Remaining inference gates
 

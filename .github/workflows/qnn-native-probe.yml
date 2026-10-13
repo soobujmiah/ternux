@@ -1,0 +1,47 @@
+name: Standalone Android QNN probe artifact
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/qnn-native-probe.yml
+      - experiments/qnn-native/**
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: android-actions/setup-android@v3
+      - name: Install pinned Android NDK
+        run: sdkmanager --install 'ndk;28.2.13676358'
+      - name: Build Bionic ARM64 helpers
+        shell: bash
+        run: |
+          set -euo pipefail
+          ndk="$ANDROID_HOME/ndk/28.2.13676358/toolchains/llvm/prebuilt/linux-x86_64"
+          cc="$ndk/bin/aarch64-linux-android24-clang"
+          mkdir -p dist/bin
+          "$cc" -O2 -Wall -Wextra -Werror experiments/qnn-native/probe.c -ldl -o dist/bin/ternux-qnn-native-probe
+          "$cc" -O2 -Wall -Wextra -Werror experiments/qnn-native/context_inspect.c -ldl -o dist/bin/ternux-qnn-context-inspect
+          cp experiments/qnn-native/archive_input.py dist/archive_input.py
+          cp experiments/qnn-native/README.md dist/README.md
+          for binary in dist/bin/*; do
+            "$ndk/bin/llvm-readelf" -h "$binary" | grep -q 'AArch64'
+            "$ndk/bin/llvm-readelf" -d "$binary" | tee "${binary}.dynamic.txt"
+            if "$ndk/bin/llvm-readelf" -d "$binary" | grep -E 'RUNPATH|RPATH' | grep -E 'termux|/data/data'; then
+              echo "Termux-specific runpath in $binary" >&2
+              exit 1
+            fi
+          done
+          (cd dist && sha256sum bin/* archive_input.py README.md > SHA256SUMS)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ternux-qnn-native-probe-android-arm64
+          path: dist/
+          if-no-files-found: error
+          retention-days: 14
