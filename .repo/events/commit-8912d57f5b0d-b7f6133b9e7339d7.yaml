@@ -1,0 +1,7 @@
+event_id: commit-8912d57f5b0d-b7f6133b9e7339d7
+repository: soobujmiah/ternux
+commit: 8912d57f5b0d243c0c2f7a902ada95bdfd453be0
+kind: commit
+occurred_at: '2026-10-13T16:31:00Z'
+status: completed
+summary: Ask which Termux shell to use, and theme zsh when it is chosen
