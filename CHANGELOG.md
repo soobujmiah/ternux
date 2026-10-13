@@ -12,6 +12,20 @@ Notable changes to ternux. Dates are ISO 8601.
 
 ## [Unreleased]
 
+### Accelerator qualification update
+
+- Repeated the Qwen2.5 1.5B Q4_0 arithmetic known-answer prompt on the pinned
+  llama.cpp b11582 package: CPU and Vulkan on Adreno 825 both returned `4`.
+  Vulkan device enumeration named Adreno 825.
+- Rendered 600 consecutive 1280x720, 16-sample EEVEE frames in one Blender
+  process. All frames completed; the median was 1.49 seconds, Android thermal
+  status remained 0 and sampled skin temperature peaked at 44.5 C. This is a
+  roughly 15-minute sample, not multi-hour qualification.
+- Turnip source downloads are pinned to upstream release
+  `mesa-26.3.0-devel-20260824` and rejected unless the archive SHA-256 matches
+  the release manifest. Clean-device installation and broader ABI/license
+  review remain pending.
+
 ### A workstation, not just a desktop
 
 - Retitled the project around what it has become: a real Linux workstation on an

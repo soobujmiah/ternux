@@ -6,16 +6,19 @@ alt_url: /bn/docs/ACCELERATOR-RELEASE-PLAN.html
 ---
 
 Owner direction, 2026-10-13: finish the standalone QNN image route first, then
-return to the main Ternux NPU support work. Complete every release gate before
-the next Ternux version is released. This plan tracks pending work explicitly;
-it does not describe shipped capabilities.
+return to the main Ternux NPU support work. Owner clarification, 2026-10-14:
+the primary objective is Ternux CPU, GPU and NPU support; continue the main
+accelerator qualification while keeping the QNN image route as a separate
+pending gate. Complete every release gate before the next Ternux version is
+released. This plan tracks pending work explicitly; it does not describe
+shipped capabilities.
 
 | Order | Work | Current status | Completion evidence |
 |---|---|---|---|
 | 1 | Our standalone Android/Bionic QNN helper, callable from PRoot | Runtime/provider, backend/device, VAE context load/free and encoder graph execution VERIFIED; generic HTP Add known-answer VERIFIED; model output correctness UNVERIFIED | Matching execution headers, tensor metadata, request/response, known-output accelerator test |
 | 2 | Existing QNN picture model, kept in place | No-copy VAE/UNet fixed-input graph execution VERIFIED; fixed-prompt CLIP CPU input and output repeatability VERIFIED on 2026-10-14; CLIP-to-UNet and prompt-to-image UNVERIFIED | CLIP/UNet/VAE pipeline, graph execution, stage attribution, fixed-seed image test and reviewed output |
-| 3 | Main Debian llama.cpp CPU/GPU/HTP qualification | CPU/Vulkan known-answer pass; HTP default path FAILED; HVX matmul plus flash-attention-off passed two short known-answer prompts on SM8735 (2026-10-14) | Isolate failing HMX/attention operators, repeat across models and longer prompts, then qualify a pinned supported configuration |
-| 4 | Repeat and sustained device qualification | Three short CPU/GPU benchmarks; sustained testing UNVERIFIED | Matched runs, memory/thermal/power availability recorded, stability, cancellation/restart/cleanup, safe fallback |
+| 3 | Main Debian llama.cpp CPU/GPU/HTP qualification | CPU/Vulkan known-answer pass; HTP default path FAILED; HVX matmul plus flash-attention-off passed short known-answer prompts on Qwen2.5 1.5B and Llama 3.2 3B on SM8735 (2026-10-14) | Isolate failing HMX/attention operators, qualify repeatability and longer prompts, then qualify a pinned supported configuration |
+| 4 | Repeat and sustained device qualification | 600 consecutive 720p/16-sample EEVEE frames completed on SM8735 with thermal status 0 (2026-10-14); CPU/Vulkan same-model arithmetic known-answer passed; sustained CPU/NPU, cancellation/restart and fallback remain UNVERIFIED | Matched runs, memory/thermal/power availability recorded, stability, cancellation/restart/cleanup, safe fallback |
 | 5 | Reusable GitHub artifacts | HTP experimental prerelease exists; Vulkan package local; standalone helper NDK CI artifact passed device graph test; no released install package | Pinned build inputs, ABI/ELF checks, checksums, licenses, release manifest and clean-device install verification |
 | 6 | Extension installation and complete guides | Current LLM installer builds from source | Release-based selectable ADT/llama.cpp/extensions, automatic/manual steps, model paths, backend selection, upgrade/resume/failure handling |
 | 7 | CLI and installation screen polish | Pending release phase | Clear mobile layout, meaningful status/error text, interactive/unattended paths and usability validation |
@@ -35,21 +38,24 @@ Debian ships. Measured on 2026-10-13 on the Adreno 825 device, Debian's
 `mesa-vulkan-drivers 25.0.7-2+deb13u1` enumerated **no Adreno device at all** —
 only `llvmpipe` as a CPU-type Vulkan device — and forcing software GL on the same
 device ended in `SIGILL` rather than a slow render. The Vulkan row therefore
-depends on a locally built Turnip that ternux neither provisions nor pins, and
-any package operation that reverts that driver invalidates the row's evidence
-without reporting anything. Record that dependency with the result, not
-separately from it.
+depends on Turnip. Ternux's GPU phase provisions the upstream Debian Trixie
+arm64 archive into `/usr/local`; it now pins upstream release
+`mesa-26.3.0-devel-20260824` and verifies archive SHA-256
+`c014cf66bdbff96417ee30d34f006cf51df64ae04893d599711b0b6b73b52ccf` before
+installation. The driver remains an upstream binary dependency rather than a
+Ternux-built artifact. Record that dependency with the result, not separately
+from it.
 
 This has a consequence for order 5. Clean-device install verification of the
 Vulkan path cannot pass while the driver it needs is absent from a clean device.
-Either the Turnip build becomes a release artifact under order 5's own terms —
-pinned inputs, ABI/ELF checks, checksums, licence review, release manifest — or
-the Vulkan result is recorded as device-local and declared out of scope for the
-clean-device gate. It cannot stay as it is and also count toward order 5.
+The pinned installer input closes the mutable-download gap, but clean-device
+install verification still needs to prove that the phase installs this exact
+archive and that its license and ABI are suitable. Order 5's Ternux release
+artifact and install-package gates remain open.
 
-[Graphics persistence](GRAPHICS-PERSISTENCE.html) keeps an existing install from
-losing that driver and is verified against a package reinstall, but it supplies
-no driver of its own and does not close either gate.
+[Graphics persistence](GRAPHICS-PERSISTENCE.html) documents the apt-safe install
+layout. It does not replace clean-device qualification or the reusable artifact
+gate.
 
 ## Immediate handoff
 

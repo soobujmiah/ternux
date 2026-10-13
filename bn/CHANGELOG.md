@@ -12,6 +12,18 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 
 ## [Unreleased]
 
+### Accelerator qualification update
+
+- Pinned llama.cpp b11582 package-এ Qwen2.5 1.5B Q4_0 arithmetic known-answer prompt
+  আবার চালানো হয়েছে: CPU ও Adreno 825 Vulkan—দুটোতেই `4` এসেছে। Vulkan device-ও
+  Adreno 825 নামে শনাক্ত হয়েছে।
+- Blender-এর একটি process-এ 1280x720, ১৬ sample-এ পরপর ৬০০টি EEVEE frame render হয়েছে।
+  সব frame সম্পন্ন; median 1.49 সেকেন্ড, Android thermal status 0 এবং নমুনায় skin
+  temperature সর্বোচ্চ 44.5 C। এটি প্রায় ১৫ মিনিটের run, multi-hour qualification নয়।
+- Turnip source download upstream release `mesa-26.3.0-devel-20260824`-এ pin করা;
+  release manifest-এর SHA-256 না মিললে archive প্রত্যাখ্যান হয়। Clean-device install
+  এবং বিস্তৃত ABI/license review এখনো বাকি।
+
 ### শুধু desktop নয়, একটি workstation
 
 - প্রকল্পটি যা হয়ে উঠেছে সেই অনুযায়ী নাম-পরিচয় বদলানো হলো: একটি ARM64 ফোনেই

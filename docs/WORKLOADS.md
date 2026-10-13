@@ -96,9 +96,13 @@ expect a phone to finish it quickly.
 ```bash
 sudo apt install -y build-essential cmake git pkg-config libvulkan-dev \
   vulkan-tools clinfo glslang-dev glslang-tools libshaderc-dev glslc
-git clone --depth 1 https://github.com/ggml-org/llama.cpp.git ~/llama.cpp
-cd ~/llama.cpp
-cmake -S . -B build -DGGML_VULKAN=ON -DCMAKE_BUILD_TYPE=Release
+git clone --depth 1 --branch b11582 https://github.com/ggml-org/llama.cpp.git \
+  ~/llama.cpp-b11582
+cd ~/llama.cpp-b11582
+# Verify the installer pin before building.
+test "$(git rev-parse HEAD)" = af50f2f248b475d9760f8e67503d01c0f194f5f4
+cmake -S . -B build -DGGML_VULKAN=ON -DGGML_HEXAGON=OFF \
+  -DCMAKE_BUILD_TYPE=Release
 cmake --build build --config Release -j"$(nproc)"
 ```
 

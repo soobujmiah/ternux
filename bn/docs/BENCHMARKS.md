@@ -129,6 +129,28 @@ activity—সবই result বদলায়।
 
 ---
 
+## পরিমাপ: EEVEE-তে ৬০০ ফ্রেমের ধারাবাহিক render, 2026-10-14
+
+একই 1280x720 Suzanne scene-এ Blender-এর একটি process-এ পরপর ৬০০টি frame render
+করেছি। Redmi Turbo 4 Pro-তে Debian PRoot, Blender 4.3.2, EEVEE Next, ১৬টি render
+sample, `--gpu-backend opengl` এবং `DISPLAY=:0` ব্যবহার করা হয়েছে। ওই session-এ
+`glxinfo -B` দেখিয়েছে `zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP))`; আর
+`vulkaninfo --summary` Adreno 825-এ Turnip 26.3.0-devel দেখিয়েছে।
+
+৬০০টি PNG-ই সংরক্ষিত হয়েছে। Blender-এর render/save সময়ের যোগফল 891.6 সেকেন্ড;
+প্রতি frame median 1.49 সেকেন্ড, গড়ও 1.49 সেকেন্ড। প্রথম ৩০টির গড় 1.58 সেকেন্ড,
+শেষ ৩০টির 1.46 সেকেন্ড—এই ব্যবধানে slowdown দেখা যায়নি। Blender-এর সর্বোচ্চ
+memory ছিল 77.59 MiB। Android thermal status 0 ছিল; নমুনায় skin temperature সর্বোচ্চ
+44.5 C, battery 41.8 C, আর charge 84% থেকে 80%-এ নেমেছে। এগুলো প্রায় ১৫ মিনিটের
+run-এর ফল; multi-hour thermal behavior প্রমাণ করে না। render log ও `.blend` file
+local scratch-এ `/home/sbj/npu-probe-2026-10-13/eevee-sustained/`-এ আছে।
+
+Ternux installer এখন upstream Turnip archive pin করে extraction-এর আগে SHA-256
+যাচাই করে। তবে device render-এর প্রমাণ এই device-এর graphics stack-নির্ভর; সব Adreno
+generation-এর qualification নয়।
+
+---
+
 ## Observed: Blender 4.3.2
 
 দেওয়া Blender system report-এ আছে:
@@ -399,6 +421,21 @@ entry list দেখা হয়েছে; extract বা run করা হয়ন�
 mismatch বোঝার জন্য exact HTP Q8_0 activation quantizer reproduce করতে হবে।
 Vulkan path এখন known-answer inference test pass করেছে; diagnosis ও পরবর্তী
 known-answer pass না হওয়া পর্যন্ত HTP path fail অবস্থায় আছে।
+
+### 2026-10-14 conditional Hexagon known-answer result
+
+Checksum-যাচাইকৃত pinned b11582 artifact-টি SM8735-এ একই Qwen2.5 1.5B Q4_0 model
+দিয়ে আবার পরীক্ষা করেছি। আগে থেকে চলা broker তার CDSP descriptor glibc child process-এ
+পাঠায়। `GGML_HEXAGON_MM_SELECT=1` (HVX matmul) এবং `-fa off` দিয়ে HTP তিনটি ছোট
+run-এ `What is 2 + 2? Reply with only the number.`-এর উত্তরে `4` দিয়েছে। দ্বিতীয়
+prompt `The capital of France is` একই চার-token greedy setting-এ CPU ও HTP দুটোতেই
+`Paris, and the` দিয়েছে। Verbose HTP log-এ `HTP0`, `q4_0 x f32` `MUL_MAT`,
+`hvx-tiled`, অন্যান্য HTP operator এবং HTP compute buffer দেখা গেছে। Broker-সহ child
+process 0 status-এ শেষ হয়েছে; `closeSession` সফল হয়েছে। এই নির্দিষ্ট configuration-এ
+প্রকৃত HTP কাজ এবং দুটি ছোট correct completion-এর প্রমাণ এটি।
+
+এটি default configuration, অন্য model/quantization, দীর্ঘ generation বা পূর্ণ release
+compatibility-এর প্রমাণ নয়।
 
 ### Stable Diffusion মূল্যায়ন (deferred: compatible model/backend pair নেই)
 

@@ -9,8 +9,8 @@ This page records what has actually been measured on a real ternux setup, what w
 only observed, and what remains unverified. It exists to prevent build success,
 renderer detection and benchmark performance from being mixed into one claim.
 
-> **Snapshot:** evidence supplied by the project author in August 2026. This is one
-> device/configuration, not a compatibility or performance guarantee.
+> **Snapshot:** evidence through 2026-10-14 on one Redmi Turbo 4 Pro / SM8735
+> configuration, not a compatibility or performance guarantee.
 
 ---
 
@@ -35,7 +35,8 @@ names the device/backend and completes a benchmark or workload.
 | SoC / GPU | Snapdragon 8s Gen 4 / Adreno 825 |
 | Guest | Debian ARM64 through PRoot Distro |
 | Display | X11 through Termux:X11 |
-| Mesa | 26.2.0-devel (`git-9452d1daec` in the supplied output) |
+| Vulkan / Turnip | 26.3.0-devel (`git-98f3d6229d`) |
+| OpenGL Mesa | Debian `25.0.7-2+deb13u1` |
 | Renderer | `zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP))` |
 | OpenGL | 4.6 compatibility profile in glmark2; 4.6 core profile in Blender |
 | OpenGL ES | 3.2 |
@@ -128,6 +129,29 @@ Only compare runs with the same:
 6. thermal and power conditions.
 
 ---
+
+## Measured: sustained EEVEE sequence, 2026-10-14
+
+I rendered 600 consecutive frames in one Blender process on the same 1280x720
+Suzanne scene. Blender 4.3.2, EEVEE Next, 16 render samples, `--gpu-backend
+opengl`, `DISPLAY=:0`, Debian PRoot on the Redmi Turbo 4 Pro. In this session
+`glxinfo -B` reported `zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP))` and
+`vulkaninfo --summary` reported Turnip 26.3.0-devel on Adreno 825.
+
+All 600 PNGs were saved. Summing Blender's per-frame render/save times gives
+891.6 seconds, with 1.49 seconds median and 1.49 seconds mean per frame. The
+first 30 averaged 1.58 seconds and the final 30 averaged 1.46 seconds; there is
+no slowdown in that interval. Peak Blender memory was 77.59 MiB. Android thermal
+status remained 0; sampled skin temperature peaked at 44.5 C, battery at 41.8 C,
+and battery charge moved from 84% to 80%. These measurements describe this
+roughly 15-minute run only; they do not establish multi-hour thermal behavior.
+The render log and `.blend` files are in local scratch under
+`/home/sbj/npu-probe-2026-10-13/eevee-sustained/`.
+
+The Ternux installer can now reproduce the GPU input: it pins the upstream
+Turnip archive and checks its SHA-256 before extraction. The device render
+evidence still depends on this device's graphics stack and does not qualify
+every Adreno generation.
 
 ## Observed: Blender 4.3.2
 
@@ -421,6 +445,13 @@ Qwen2.5 1.5B Q4_K_M file under the HVX/`-fa off` setting. Its verbose profile
 identified `q4_K x f32` and `q6_K x f32` matmuls on `HTP0`. This adds a second
 quantization to the bounded pass, not a new model family.
 
+I also used the existing Llama 3.2 3B Instruct Q4_K_M model with prompt
+`The capital of France is` and four greedy output tokens. HTP returned
+` Paris. The capital`; the verbose trace showed `q4_K x f32` and `q6_K x f32`
+matmuls through `hvx-tiled` on HTP0. Brokered child and CDSP session both
+closed successfully. This adds one model-family result; there is no matched
+CPU comparison for this prompt.
+
 Two bounded controls kept `-fa off` and the same model/prompt: with
 `GGML_HEXAGON_MM_SELECT=2` (HMX preferred), the arithmetic prompt returned
 Arabic-script nonsense; with `MM_SELECT=1` but `-fa auto`, it returned `s,`.
@@ -432,7 +463,7 @@ describes similar controls on a different SoC; its workaround was a diagnostic
 lead, not proof for this device.
 
 The earlier default HTP failure remains historical evidence. The isolated Q4_0
-matmul mismatch also remains unresolved. Two short prompts do not establish
+matmul mismatch also remains unresolved. These short prompts do not establish
 general model compatibility, sustained stability, release packaging, or a
 Ternux-supported NPU route. Local logs:
 `htp-qwen15-hvx-workaround-verbose-2026-10-14.log`,
@@ -441,6 +472,7 @@ Ternux-supported NPU route. Local logs:
 `htp-qwen15-hvx-only-2026-10-14.log`,
 `qwen15-q4km-htp-hvx-2026-10-14.log`,
 `qwen15-q4km-htp-hvx-verbose-2026-10-14.log`,
+`llama32-3b-hvx-france-2026-10-14.log`,
 `qwen15-cpu-france-2026-10-14.log`, and
 `qwen15-htp-hvx-france-2026-10-14.log` under
 `/home/sbj/npu-probe-2026-10-13/`.

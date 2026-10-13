@@ -305,7 +305,9 @@ def run(libdir: str, rows: int, cols: int, resize_to=None):
             "LANG": "en_US.UTF-8",
         }
     )
-    for stale in ("COLUMNS", "LINES"):
+    for stale in ("COLUMNS", "LINES", "NO_COLOR"):
+        # This test verifies the interactive colored dashboard; do not inherit
+        # the caller's global color opt-out into the isolated PTY fixture.
         env.pop(stale, None)
     os.makedirs(env["HOME"], exist_ok=True)
 

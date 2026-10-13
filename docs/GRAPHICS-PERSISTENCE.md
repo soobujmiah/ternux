@@ -39,6 +39,12 @@ The Vulkan loader searches `/usr/local/share/vulkan/icd.d` as well as
 `/usr/share/vulkan/icd.d`, so the managed layout needs no environment variable
 and no launcher changes.
 
+Ternux's GPU phase installs the upstream Debian Trixie arm64 Turnip archive in
+this managed layout. The source pins release `mesa-26.3.0-devel-20260824` and
+checks SHA-256 `c014cf66bdbff96417ee30d34f006cf51df64ae04893d599711b0b6b73b52ccf`
+before extraction. This makes the downloaded input reproducible; it does not
+mean Ternux builds or redistributes Mesa.
+
 ## Check which layout you have
 
 ```bash

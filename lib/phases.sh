@@ -371,8 +371,14 @@ tnx_phase_gpu() {
     return 1
   fi
 
-  local sha
+  local sha expected_sha
   sha="$(sha256sum "$tarball" | cut -d' ' -f1)"
+  expected_sha="$(tnx_expected_freedreno_sha)"
+  if [ "$sha" != "$expected_sha" ]; then
+    tnx_fail "Freedreno archive SHA-256 mismatch (expected pinned release)."
+    rm -f "$tarball"
+    return 1
+  fi
   tnx_state_set "freedreno_sha" "$sha"
   tnx_state_set "freedreno_url" "$url"
 
@@ -420,11 +426,11 @@ tnx_phase_gpu() {
 }
 
 tnx_resolve_freedreno_asset() {
-  local api="https://api.github.com/repos/lfdevs/mesa-for-android-container/releases/latest"
-  local body=""
-  tnx_has_cmd curl && body="$(curl -fsSL --max-time 30 "$api" 2>/dev/null)"
-  [ -z "$body" ] && tnx_has_cmd wget && body="$(wget -q --timeout=30 -O- "$api" 2>/dev/null)"
-  printf '%s' "$body" | grep -o '"browser_download_url": *"[^"]*debian[^"]*trixie[^"]*arm64\.tar\.gz"' | head -1 | sed 's/.*"browser_download_url": *"//; s/"$//'
+  printf '%s\n' 'https://github.com/lfdevs/mesa-for-android-container/releases/download/mesa-26.3.0-devel-20260824/mesa-for-android-container_26.3.0-devel-20260824_debian_trixie_arm64.tar.gz'
+}
+
+tnx_expected_freedreno_sha() {
+  printf '%s\n' 'c014cf66bdbff96417ee30d34f006cf51df64ae04893d599711b0b6b73b52ccf'
 }
 
 # ---------------------------------------------------------------------------
@@ -732,15 +738,26 @@ tnx_phase_extras() {
         local cores jobs
         cores="$(nproc 2>/dev/null || echo 4)"
         jobs=$((cores / 2)); [ "$jobs" -lt 1 ] && jobs=1; [ "$jobs" -gt 4 ] && jobs=4
-        if tnx_guest_login --shared-tmp --user "$user_name" -- bash -c "
+        if tnx_guest_login --shared-tmp --user "$user_name" -- bash -c '
+          set -e
           sudo apt update -o APT::Color=1
           sudo DEBIAN_FRONTEND=noninteractive apt install -y -o APT::Color=1 -o Dpkg::Progress-Fancy=1 build-essential cmake git pkg-config libvulkan-dev vulkan-tools clinfo glslang-dev glslang-tools libshaderc-dev glslc
-          if [ ! -d ~/llama.cpp/.git ]; then rm -rf ~/llama.cpp; git clone --depth 1 https://github.com/ggml-org/llama.cpp.git ~/llama.cpp; fi
-          cd ~/llama.cpp
-          cmake -S . -B build -DGGML_VULKAN=ON -DCMAKE_BUILD_TYPE=Release
-          cmake --build build --config Release -j$jobs
+          src="$HOME/llama.cpp-b11582"
+          pin=af50f2f248b475d9760f8e67503d01c0f194f5f4
+          if [ -e "$src" ]; then
+            if [ ! -d "$src/.git" ] || [ "$(git -C "$src" rev-parse HEAD 2>/dev/null)" != "$pin" ]; then
+              echo "Refusing to modify existing non-pinned source at $src" >&2
+              exit 1
+            fi
+          else
+            git clone --depth 1 --branch b11582 https://github.com/ggml-org/llama.cpp.git "$src"
+            test "$(git -C "$src" rev-parse HEAD)" = "$pin"
+          fi
+          cd "$src"
+          cmake -S . -B build -DGGML_VULKAN=ON -DGGML_HEXAGON=OFF -DCMAKE_BUILD_TYPE=Release
+          cmake --build build --config Release -j"$1"
           mkdir -p models
-        "; then
+        ' _ "$jobs"; then
           tnx_ok "llama.cpp built with Vulkan"
         else
           tnx_warn "llama.cpp build failed."

@@ -1,0 +1,164 @@
+name: llama.cpp CPU + Vulkan artifact
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: llama-vulkan-b11582
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build pinned Linux ARM64 CPU + Vulkan package
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 90
+    steps:
+      - name: Check out Ternux metadata
+        uses: actions/checkout@v4
+
+      - name: Install Vulkan build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends \
+            cmake ninja-build git pkg-config libvulkan-dev glslc \
+            libshaderc-dev glslang-dev glslang-tools spirv-headers
+
+      - name: Check out pinned llama.cpp source
+        uses: actions/checkout@v4
+        with:
+          repository: ggml-org/llama.cpp
+          ref: af50f2f248b475d9760f8e67503d01c0f194f5f4
+          path: llama.cpp
+
+      - name: Verify source pin and native target
+        run: |
+          set -euo pipefail
+          test "$(git -C llama.cpp rev-parse HEAD)" = \
+            af50f2f248b475d9760f8e67503d01c0f194f5f4
+          test "$(uname -m)" = aarch64
+
+      - name: Configure, build, install, and inspect
+        shell: bash
+        run: |
+          set -euo pipefail
+          package="$GITHUB_WORKSPACE/package/ternux-llama-vulkan-linux-arm64-b11582"
+          cmake -S llama.cpp -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX="$package" \
+            -DCMAKE_INSTALL_RPATH='$ORIGIN/../lib' \
+            -DGGML_NATIVE=OFF \
+            -DGGML_VULKAN=ON \
+            -DGGML_HEXAGON=OFF \
+            -DGGML_OPENCL=OFF \
+            -DLLAMA_BUILD_TESTS=OFF
+          cmake --build build --parallel 4
+          cmake --install build --prefix "$package"
+          install -m 0644 llama.cpp/LICENSE "$package/LLAMA-CPP-LICENSE"
+          file "$package/bin/llama-cli" | tee llama-cli-file.txt
+          grep -q 'ARM aarch64' llama-cli-file.txt
+          readelf -d "$package/bin/llama-cli" | grep -F '$ORIGIN/../lib'
+          if readelf -d "$package/bin/llama-cli" | grep -E '/home/runner|/workspace/'; then
+            echo 'Unexpected build-host path in executable dynamic section.' >&2
+            exit 1
+          fi
+          ldd "$package/bin/llama-cli" | tee llama-cli-ldd.txt
+          ! grep -q 'not found' llama-cli-ldd.txt
+          "$package/bin/llama-cli" --version
+          "$package/bin/llama-cli" --list-devices
+          package_commit="$(git -C llama.cpp rev-parse HEAD)"
+          cat > "$package/README.txt" <<'EOF'
+          Ternux llama.cpp CPU + Vulkan package
+
+          Target: Linux ARM64 / Debian-family glibc
+          Upstream: ggml-org/llama.cpp b11582
+          Upstream commit: af50f2f248b475d9760f8e67503d01c0f194f5f4
+          Backends: CPU and Vulkan (GGML_HEXAGON=OFF)
+
+          This package contains llama.cpp tools and libraries. It does not
+          include model weights, Vulkan loader, Mesa/Turnip, Qualcomm runtime,
+          firmware, or a FastRPC broker. A working system Vulkan ICD is required
+          for GPU offload. On Ternux, verify the renderer and device with
+          `vulkaninfo --summary` before selecting Vulkan.
+          EOF
+          cat > "$package/env.sh" <<'EOF'
+          # Source this file to use the packaged llama.cpp tools.
+          LLAMA_HOME="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+          export LLAMA_HOME
+          export LD_LIBRARY_PATH="$LLAMA_HOME/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+          if [ -z "${VK_ICD_FILENAMES:-}" ]; then
+            for _tnx_icd in \
+              /usr/local/share/vulkan/icd.d/ternux_freedreno_icd.json \
+              /usr/share/vulkan/icd.d/freedreno_icd.aarch64.json; do
+              if [ -f "$_tnx_icd" ]; then
+                export VK_ICD_FILENAMES="$_tnx_icd"
+                break
+              fi
+            done
+          fi
+          unset _tnx_icd
+          EOF
+          cat > "$package/build-manifest.json" <<EOF
+          {
+            "artifact": "ternux-llama-vulkan-linux-arm64-b11582",
+            "target": "linux-aarch64",
+            "upstream": "https://github.com/ggml-org/llama.cpp",
+            "upstream_tag": "b11582",
+            "upstream_commit": "$package_commit",
+            "build_runner": "GitHub-hosted ubuntu-24.04-arm",
+            "cmake_options": {
+              "CMAKE_BUILD_TYPE": "Release",
+              "GGML_NATIVE": "OFF",
+              "GGML_VULKAN": "ON",
+              "GGML_HEXAGON": "OFF",
+              "GGML_OPENCL": "OFF",
+              "LLAMA_BUILD_TESTS": "OFF"
+            },
+            "install_rpath": "\$ORIGIN/../lib",
+            "license_file": "LLAMA-CPP-LICENSE",
+            "device_validation": "pending"
+          }
+          EOF
+          tar -C package -czf \
+            ternux-llama-vulkan-linux-arm64-b11582.tar.gz \
+            ternux-llama-vulkan-linux-arm64-b11582
+          sha256sum ternux-llama-vulkan-linux-arm64-b11582.tar.gz \
+            > ternux-llama-vulkan-linux-arm64-b11582.tar.gz.sha256
+          tar -tzf ternux-llama-vulkan-linux-arm64-b11582.tar.gz \
+            > release-contents.txt
+
+      - name: Create or refresh the draft device-validation release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag=ternux-llama-vulkan-linux-arm64-b11582
+          cat > release-notes.md <<'EOF'
+          ## CPU + Vulkan device-validation candidate
+
+          Built from llama.cpp `b11582` commit
+          `af50f2f248b475d9760f8e67503d01c0f194f5f4` on a native Linux ARM64
+          GitHub-hosted runner. The package includes CPU and Vulkan backends;
+          it does not bundle models or graphics/vendor runtimes.
+
+          This is a **draft candidate**. Device installation and known-answer
+          tests are required before it can be considered a Ternux release asset.
+          See the build manifest and checksum included in the archive.
+          EOF
+          if gh release view "$tag" >/dev/null 2>&1; then
+            gh release upload "$tag" \
+              ternux-llama-vulkan-linux-arm64-b11582.tar.gz \
+              ternux-llama-vulkan-linux-arm64-b11582.tar.gz.sha256 --clobber
+          else
+            gh release create "$tag" \
+              ternux-llama-vulkan-linux-arm64-b11582.tar.gz \
+              ternux-llama-vulkan-linux-arm64-b11582.tar.gz.sha256 \
+              --draft --prerelease \
+              --title 'Ternux llama.cpp CPU + Vulkan (ARM64, b11582)' \
+              --notes-file release-notes.md \
+              --target "$GITHUB_SHA"
+          fi

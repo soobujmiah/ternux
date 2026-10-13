@@ -1112,11 +1112,24 @@ else
   not_ok "updater warns when the refreshed Debian companion version is stale"
 fi
 
+# Optional llama.cpp builds are pinned and isolated from an existing checkout.
+check "optional llama workload pins a safe llama.cpp revision" bash -c '
+  grep -Fq "llama.cpp-b11582" "$1/lib/phases.sh" &&
+  grep -Fq "af50f2f248b475d9760f8e67503d01c0f194f5f4" "$1/lib/phases.sh" &&
+  grep -Fq "Refusing to modify existing non-pinned source" "$1/lib/phases.sh" &&
+  ! grep -Fq "rm -rf ~/llama.cpp" "$1/lib/phases.sh"
+' _ "$ROOT"
+
 # The GPU phase must install the Turnip driver where apt cannot reach it. A
 # driver written over a dpkg-owned path is reverted by any mesa package
 # operation, and on hardware Debian's own Mesa does not recognise that costs
 # GPU support entirely rather than only speed.
 gpu_phase="$(sed -n '/stage=\/tmp\/ternux-driver-stage/,/apt-mark hold/p' "$ROOT/lib/phases.sh")"
+check "GPU phase pins the upstream release URL and archive checksum" bash -c '
+  grep -Fq "mesa-26.3.0-devel-20260824" "$1/lib/phases.sh" &&
+  grep -Fq "c014cf66bdbff96417ee30d34f006cf51df64ae04893d599711b0b6b73b52ccf" "$1/lib/phases.sh" &&
+  grep -Fq "Freedreno archive SHA-256 mismatch" "$1/lib/phases.sh"
+' _ "$ROOT"
 check "GPU phase installs the driver outside dpkg's reach" bash -c '
   printf "%s" "$1" | grep -q "install -D -m 0755 .* /usr/local/lib/aarch64-linux-gnu/libvulkan_freedreno.so" &&
   ! printf "%s" "$1" | grep -qE "install -[Dm].* /usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so"
