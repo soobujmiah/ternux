@@ -1,0 +1,8 @@
+{"helper":"ternux_qnn_native_probe","abi":"android-bionic-arm64","model_loading":"not_attempted"}
+{"stage":"native_qnn_discovery","library":"/vendor/lib64/libQnnHtp.so","loaded":true,"symbol_found":true,"provider_status":0,"provider_count":1,"provider_array_present":true,"inference":"unverified"}
+{"stage":"htp_provider_api_version","backend_id":6,"core_api":"2.22.0","backend_api":"5.29.0"}
+{"stage":"htp_api_crosscheck","status":0}
+{"stage":"htp_runtime_build","status":0,"build":"v2.29.0.241129103708_105762"}
+{"stage":"htp_backend_create","status":0,"handle_present":true}
+{"stage":"htp_backend_free","status":0}
+{"stage":"native_qnn_discovery","library":"/vendor/lib64/libQnnSystem.so","loaded":true,"symbol_found":true,"provider_status":0,"provider_count":1,"provider_array_present":true,"inference":"unverified"}

@@ -430,6 +430,16 @@ actual backend is logged.
 References: [stable-diffusion.cpp build guide](https://github.com/leejet/stable-diffusion.cpp/blob/master/docs/build.md),
 [upstream CMake backend options](https://github.com/leejet/stable-diffusion.cpp/blob/master/CMakeLists.txt).
 
+### Standalone QNN runtime discovery
+
+The later [standalone QNN discovery experiment](../experiments/qnn-native/README.md)
+loaded existing Android/Bionic HTP and System libraries from a PRoot-launched
+helper and created/freed an HTP backend with status 0. The measured runtime is
+`v2.29.0.241129103708_105762` (core API 2.22.0, backend API 5.29.0). That discovery precedes the VAE context-load result below; QNN graph
+execution and image inference remain unverified.
+The [completion plan](ACCELERATOR-RELEASE-PLAN.md) preserves the owner's order:
+standalone QNN image route, main Ternux NPU correctness, qualification and release.
+
 ### Vulkan llama.cpp model test (local Debian PRoot build)
 
 The Vulkan-enabled build used the pinned llama.cpp source commit
@@ -489,6 +499,22 @@ in `/home/sbj/npu-probe-2026-10-13/`.
 - [Blender 4.3 GPU rendering](https://docs.blender.org/manual/en/4.3/render/cycles/gpu_rendering.html)
 - [llama.cpp Vulkan build](https://github.com/ggml-org/llama.cpp/blob/master/docs/build.md#vulkan)
 - [stable-diffusion.cpp Vulkan build](https://github.com/leejet/stable-diffusion.cpp/blob/master/docs/build.md#build-with-vulkan)
+
+## 2026-10-13 standalone Android QNN VAE context qualification
+
+An independently written Android/Bionic helper launched from Debian PRoot on
+SM8735/Android 16. It streamed the existing `vae_encoder.bin` ZIP member into
+a sealed memfd without a model copy. QNN System parsed the context metadata:
+compiled QNN 2.28.0, core API 2.21.0/backend API 5.28.0. The device vendor
+runtime is QNN 2.29.0. With licensed Qualcomm 2.29 V73 stub/skel files in
+local scratch, backend/device/context create and all handle cleanup returned
+status 0. The first attempt without the accessible stub failed at device create
+(status 14001); a successful-load attempt then crashed on HTP `dlclose`, which
+the short-lived helper avoids by retaining the library until process exit.
+The repeated full probe exited 0. **VAE context load is verified; graph
+execution, output correctness and image inference remain unverified.** See
+[the experiment](../experiments/qnn-native/README.md) and SKB dated evidence.
+No proprietary runtime or model binary is in this repository.
 
 ---
 

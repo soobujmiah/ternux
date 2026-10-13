@@ -420,6 +420,16 @@ QNN/HTP execution path-ও লাগবে। Known-input/output image test ও 
 তথ্যসূত্র: [stable-diffusion.cpp build guide](https://github.com/leejet/stable-diffusion.cpp/blob/master/docs/build.md),
 [upstream CMake backend option](https://github.com/leejet/stable-diffusion.cpp/blob/master/CMakeLists.txt)।
 
+### Standalone QNN runtime discovery
+
+পরের [standalone QNN discovery experiment](../../experiments/qnn-native/README.md)-এ
+PRoot-launched Android/Bionic helper existing HTP ও System library load করেছে;
+HTP backend create/free-তে status 0 এসেছে। Runtime হলো
+`v2.29.0.241129103708_105762` (core API 2.22.0, backend API 5.29.0)। এটি runtime
+initialization evidence; QNN image model এখনো unverified।
+[Completion plan](ACCELERATOR-RELEASE-PLAN.md)-এ owner-এর order আছে: standalone
+QNN image route, মূল Ternux NPU correctness, qualification ও release।
+
 ### Vulkan llama.cpp model test (local Debian PRoot build)
 
 Vulkan-enabled build-টি pinned llama.cpp source commit
@@ -479,6 +489,22 @@ workload এখনো মাপা হয়নি। Log: `/home/sbj/npu-probe-
 - [Blender 4.3 GPU rendering](https://docs.blender.org/manual/en/4.3/render/cycles/gpu_rendering.html)
 - [llama.cpp Vulkan build](https://github.com/ggml-org/llama.cpp/blob/master/docs/build.md#vulkan)
 - [stable-diffusion.cpp Vulkan build](https://github.com/leejet/stable-diffusion.cpp/blob/master/docs/build.md#build-with-vulkan)
+
+## 2026-10-13 standalone Android QNN VAE context qualification
+
+An independently written Android/Bionic helper launched from Debian PRoot on
+SM8735/Android 16. It streamed the existing `vae_encoder.bin` ZIP member into
+a sealed memfd without a model copy. QNN System parsed the context metadata:
+compiled QNN 2.28.0, core API 2.21.0/backend API 5.28.0. The device vendor
+runtime is QNN 2.29.0. With licensed Qualcomm 2.29 V73 stub/skel files in
+local scratch, backend/device/context create and all handle cleanup returned
+status 0. The first attempt without the accessible stub failed at device create
+(status 14001); a successful-load attempt then crashed on HTP `dlclose`, which
+the short-lived helper avoids by retaining the library until process exit.
+The repeated full probe exited 0. **VAE context load is verified; graph
+execution, output correctness and image inference remain unverified.** See
+[the experiment](../../experiments/qnn-native/README.md) and SKB dated evidence.
+No proprietary runtime or model binary is in this repository.
 
 ---
 
