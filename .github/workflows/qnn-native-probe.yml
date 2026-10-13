@@ -16,9 +16,13 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
-      - uses: android-actions/setup-android@v3
       - name: Install pinned Android NDK
-        run: sdkmanager --install 'ndk;28.2.13676358'
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${ANDROID_HOME:-}"
+          command -v sdkmanager
+          sdkmanager --install 'ndk;28.2.13676358'
       - name: Build Bionic ARM64 helpers
         shell: bash
         run: |
