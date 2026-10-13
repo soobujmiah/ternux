@@ -241,6 +241,7 @@ graph-এ চালানো হয়েছে; CPU fallback বন্ধ ছ�
 | `MUL_MAT` | F32 × F32, K=16, M=8, N=4 | **Pass**; mismatch 0; সর্বোচ্চ absolute error `3.57628e-07` |
 | `MUL_MAT` | Q4_0 × F32, K=576, M=8, N=2 | probe-এর `1e-5` comparison threshold-এ একই build-এর CPU backend-এর সঙ্গে 16/16 output **mismatch**; HTP-CPU সর্বোচ্চ absolute difference `0.00947738`। Explicit dequantized Q4_0 reference-এর সঙ্গে সর্বোচ্চ absolute error `0.00601411` (সর্বোচ্চ relative error `1.56%`)। HTP profile-এ `q4_0 x f32`, `hvx-tiled` `MUL_MAT` দেখা গেছে; compute সফল এবং CDSP session cleanly close করেছে। |
 | `MUL_MAT` | Q4_0 × sparse F32, K=576, M=8, N=2 | `1e-5` threshold-এ 16টির 15টি output-এ **numeric mismatch**; সর্বোচ্চ absolute error `0.000181094`, সর্বোচ্চ relative error `0.0908%`। Long accumulation কমাতে প্রতি column-এ একটিমাত্র K position nonzero ছিল। HTP verbose trace-এ `q4_0 x f32`, `hvx-tiled` execution নিশ্চিত; graph compute সফল এবং CDSP session cleanly close করেছে। |
+| `MUL_MAT` | dequantized Q4_0 weight-কে F32 করে একই sparse F32 input, K=576, M=8, N=2 | **Pass**; একই explicit reference-এর তুলনায় HTP F32 path-এর সর্বোচ্চ absolute error `1.49012e-08`। একই graph-এর CPU Q4_0 ফল reference থেকে সর্বোচ্চ `1.21743e-05` আলাদা ছিল। এতে discrepancy Q4_0 HTP execution path-এ সীমাবদ্ধ হয়; নির্দিষ্ট kernel defect প্রমাণ হয় না। |
 | Q4_0 tensor round-trip | 2,592 quantized weight byte | **Pass**; backend set → get-এর পর সব byte অপরিবর্তিত ছিল। এই tensor-এর host-side tiled repack/de-repack data integrity যাচাই হয়েছে; DSP kernel tile-টি কীভাবে interpret করে তা প্রমাণ হয়নি। |
 
 এই deterministic synthetic micro-test প্রমাণ করে না যে নির্দিষ্ট model layer-ই
@@ -248,13 +249,24 @@ malformed output-এর একমাত্র কারণ। Long accumulation-
 follow-up করেছি; তাতেও ছোট per-output difference ছিল। একই 2,592 Q4_0 byte
 backend-এর tiled repack/de-repack path দিয়ে পড়ে দেখেছি; কোনো byte বদলায়নি। এতে
 host-side tensor round-trip যাচাই হয়েছে, তবে DSP kernel tile-টি কীভাবে interpret
-করে তা অমীমাংসিত। Accumulation precision, kernel arithmetic এবং প্রত্যাশিত
-tolerance এখনও unresolved। Probe log
+করে তা অমীমাংসিত। একই dequantized weight ও sparse input দিয়ে HTP F32 matmul
+reference-এর সাথে `1.49012e-08`-এর মধ্যে মিলে; CPU Q4_0 graph-এর পার্থক্য ছিল
+সর্বোচ্চ `1.21743e-05`। Pinned b11582 source দেখায় Q4_0 HTP path-এ F32
+activation-কে Q8_0 tile-এ quantize করা হয়। Generic GGML Q8_0 quantized activation
+reference দিয়েও HTP-এর সঙ্গে সর্বোচ্চ `0.000193268` difference ছিল; exact HTP
+activation quantizer ও rounding এখনও emulate করা হয়নি, তাই kernel defect
+প্রমাণ হয়নি। সমস্যাটি Q4_0 HTP execution path-এ সীমিত, তবে quantization ও
+arithmetic আচরণ এখনও unresolved। Probe log
 (`gh-artifact-htp-add-test.log`, `gh-artifact-htp-matmul-test.log`,
 `gh-artifact-htp-q4-matmul-k576-test.log`,
 `gh-artifact-htp-q4-sparse-verbose-test.log`,
-`gh-artifact-htp-q4-roundtrip-test.log`)
+`gh-artifact-htp-q4-roundtrip-test.log`,
+`gh-artifact-htp-q4-cpu-f32-ref-test.log`,
+`gh-artifact-htp-q4-q8-reference-test.log`)
 একই local probe directory-তে আছে।
+
+Pinned HTP source Q4_0 weight-এর জন্য tiled Q8_0 activation quantizer নির্বাচন
+করে; দেখুন [`matmul-ops.c`](https://github.com/ggml-org/llama.cpp/blob/af50f2f248b475d9760f8e67503d01c0f194f5f4/ggml/src/ggml-hexagon/htp/matmul-ops.c#L743-L755)।
 Probe source ও binary scratch artifact; llama.cpp release-এ নেই।
 
 Workflow ও source pin: [llama-htp-artifact.yml](../../.github/workflows/llama-htp-artifact.yml)।

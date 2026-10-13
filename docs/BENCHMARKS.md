@@ -244,6 +244,7 @@ same brokered CDSP descriptor, with CPU fallback disabled:
 | `MUL_MAT` | F32 × F32, K=16, M=8, N=4 | **Pass**; 0 mismatches; max absolute error `3.57628e-07` |
 | `MUL_MAT` | Q4_0 × F32, K=576, M=8, N=2 | **Mismatch** against the same-build CPU backend on 16/16 outputs at the probe's `1e-5` comparison threshold; maximum absolute HTP-vs-CPU difference `0.00947738`. Against the explicitly dequantized Q4_0 reference, max absolute error was `0.00601411` (max relative error `1.56%`). The HTP profile identified `MUL_MAT` with `q4_0 x f32`, `hvx-tiled`; compute status was success and the CDSP session closed cleanly. |
 | `MUL_MAT` | Q4_0 × sparse F32, K=576, M=8, N=2 | **Numeric mismatch** on 15/16 outputs at `1e-5`; max absolute error `0.000181094`, max relative error `0.0908%`. Inputs were nonzero at only one K position per column to reduce long accumulation. HTP verbose trace confirmed `q4_0 x f32`, `hvx-tiled` execution; graph compute succeeded and the CDSP session closed cleanly. |
+| `MUL_MAT` | dequantized Q4_0 weights as F32 × same sparse F32 input, K=576, M=8, N=2 | **Pass**; the HTP F32 path's max absolute error against the same explicit reference was `1.49012e-08`. The same graph's CPU Q4_0 result was within `1.21743e-05` max absolute error of that reference. This narrows the observed discrepancy to the Q4_0 HTP execution path; it does not identify a specific kernel defect. |
 | Q4_0 tensor round-trip | 2,592 quantized weight bytes | **Pass**; backend set → get through the tiled host representation returned all bytes unchanged. This verifies host-side repack/de-repack data integrity for this tensor; it does not prove the DSP kernel's interpretation of the tile. |
 
 These deterministic synthetic micro-tests do not prove that a particular
@@ -252,13 +253,25 @@ follow-up to reduce accumulation effects; it still showed small per-output
 differences. I also read the same 2,592 Q4_0 bytes back through the backend's
 tiled repack/de-repack path and found zero changed bytes. This verifies the
 host-side tensor round-trip, while the DSP kernel's interpretation of the tile
-remains unverified. Accumulation precision, kernel arithmetic and expected
-tolerance remain unresolved. Probe logs (`gh-artifact-htp-add-test.log`,
+remains unverified. With the exact same dequantized weights and sparse inputs,
+the HTP F32 matmul matched the reference within `1.49012e-08`; the CPU Q4_0
+graph was within `1.21743e-05`. The pinned b11582 source shows the Q4_0 HTP
+path quantizes F32 activations into Q8_0 tiles. A generic GGML Q8_0-quantized
+activation reference still differed from HTP by up to `0.000193268`; the exact
+HTP activation quantizer and rounding have not yet been emulated, so this does
+not establish a kernel defect. The issue is narrowed to the Q4_0 HTP execution
+path, with quantization and arithmetic behavior still unresolved. Probe logs
+(`gh-artifact-htp-add-test.log`,
 `gh-artifact-htp-matmul-test.log`, `gh-artifact-htp-q4-matmul-k576-test.log`,
-`gh-artifact-htp-q4-sparse-verbose-test.log`, and
-`gh-artifact-htp-q4-roundtrip-test.log`) are retained in
+`gh-artifact-htp-q4-sparse-verbose-test.log`,
+`gh-artifact-htp-q4-roundtrip-test.log`, and
+`gh-artifact-htp-q4-cpu-f32-ref-test.log`,
+`gh-artifact-htp-q4-q8-reference-test.log`) are retained in
 `/home/sbj/npu-probe-2026-10-13/`. Probe source and binaries are scratch
 artifacts, not shipped in the llama.cpp release.
+
+The pinned HTP source selects the tiled Q8_0 activation quantizer for Q4_0
+weights in [`matmul-ops.c`](https://github.com/ggml-org/llama.cpp/blob/af50f2f248b475d9760f8e67503d01c0f194f5f4/ggml/src/ggml-hexagon/htp/matmul-ops.c#L743-L755).
 
 Workflow and source pin: [llama-htp-artifact.yml](../.github/workflows/llama-htp-artifact.yml).
 Device test details: [SKB investigation](https://github.com/soobujmiah/skb/blob/main/devices/redmi-turbo-4-pro/evidence/debian-proot-npu-investigation-2026-10-13.md); exact archive retest log: `gh-artifact-device-test.log` in the local probe scratch directory.
