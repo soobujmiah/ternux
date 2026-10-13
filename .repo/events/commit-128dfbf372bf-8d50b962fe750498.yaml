@@ -1,0 +1,7 @@
+event_id: commit-128dfbf372bf-8d50b962fe750498
+repository: soobujmiah/ternux
+commit: 128dfbf372bf334486224ede24b22fac4a3f1018
+kind: commit
+occurred_at: '2026-10-13T17:35:27Z'
+status: completed
+summary: Give the installer frame a gutter on both sides
