@@ -1,0 +1,7 @@
+event_id: commit-4e4f71e426e4-0382d56255126174
+repository: soobujmiah/ternux
+commit: 4e4f71e426e40c3bf68e449af1d682ae22df3979
+kind: commit
+occurred_at: '2026-10-13T10:30:57Z'
+status: completed
+summary: Document Ternux and ADT release paths
