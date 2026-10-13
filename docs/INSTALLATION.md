@@ -120,6 +120,8 @@ steps for you.
 
 ## Choose the right project release
 
+During installation, the completion screen points to `ternux guides`. After installation, run `ternux guides` in either Termux or the Debian/Xfce terminal. It prints direct links for the environment installer, manual setup, ecosystem tool installs, and daily use. It opens no browser and installs nothing.
+
 Install the Ternux environment using the [Quick start](QUICK-START.html) or
 this full [Installation guide](INSTALLATION.html); the command-by-command
 alternative is [Manual installation](MANUAL.html). The canonical Ternux

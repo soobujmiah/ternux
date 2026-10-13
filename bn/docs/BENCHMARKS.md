@@ -490,21 +490,13 @@ workload এখনো মাপা হয়নি। Log: `/home/sbj/npu-probe-
 - [llama.cpp Vulkan build](https://github.com/ggml-org/llama.cpp/blob/master/docs/build.md#vulkan)
 - [stable-diffusion.cpp Vulkan build](https://github.com/leejet/stable-diffusion.cpp/blob/master/docs/build.md#build-with-vulkan)
 
-## 2026-10-13 standalone Android QNN VAE context qualification
+## 2026-10-13 standalone Android QNN VAE graph qualification
 
-An independently written Android/Bionic helper launched from Debian PRoot on
-SM8735/Android 16. It streamed the existing `vae_encoder.bin` ZIP member into
-a sealed memfd without a model copy. QNN System parsed the context metadata:
-compiled QNN 2.28.0, core API 2.21.0/backend API 5.28.0. The device vendor
-runtime is QNN 2.29.0. With licensed Qualcomm 2.29 V73 stub/skel files in
-local scratch, backend/device/context create and all handle cleanup returned
-status 0. The first attempt without the accessible stub failed at device create
-(status 14001); a successful-load attempt then crashed on HTP `dlclose`, which
-the short-lived helper avoids by retaining the library until process exit.
-The repeated full probe exited 0. **VAE context load is verified; graph
-execution, output correctness and image inference remain unverified.** See
-[the experiment](../../experiments/qnn-native/README.md) and SKB dated evidence.
-No proprietary runtime or model binary is in this repository.
+The pinned Android NDK CI helper from [run 38406862573](https://github.com/soobujmiah/ternux/actions/runs/38406862573) was downloaded to isolated scratch after the owner's explicit authorization. Checksums, AArch64 ELF, Android dependencies (`libc.so`, `libdl.so`) and absent RUNPATH were checked. On Redmi Turbo 4 Pro / SM8735 / Android 16, it streamed the existing ZIP members from `/sdcard/Llms/` into sealed anonymous memfds; no model copy was written. The licensed Qualcomm QNN 2.29 V73 stub/skel stayed in scratch and is not a release asset.
+
+QNN System read the QNN 2.28 encoder and decoder metadata. Encoder input: `input` [1,3,512,512]; outputs: `mean`, `std` [1,4,64,64]. Decoder input: `input` [1,4,64,64]; output: `output` [1,3,512,512]. All have datatype 1046 (UFIXED_POINT_16). For both contexts, HTP backend/device/context create, CDSP graph retrieve and cleanup returned status 0. Encoder and decoder SHA-256 were `c7bd0cf7cce2cda7b073379bef97f58f5c0ea850d8e3d86933a5939f80570faa` and `42edf1474eea665f593b8c35daf64169da220b6e4095c860eaca494610579ccc` respectively.
+
+A fixed raw-zero encoder input was executed twice on the QNN HTP/CDSP path. Both execute calls returned status 0, outputs changed from sentinel bytes and repeated exactly. FNV64 output hashes: `ae97b25a95bdac33` (`mean`), `7fb11db45bb92b10` (`std`). This verifies **graph execution and repeatability for that input**, but there is **no independent expected tensor**; numerical correctness and image generation remain unverified. Decoder execution and UNet/CLIP were not attempted. Earlier missing-stub status 14001 and direct HTP `dlclose` crash remain recorded in [the experiment](../../experiments/qnn-native/README.md) and SKB evidence. The short-lived helper retains the HTP library until process exit after explicit QNN handle cleanup.
 
 ---
 

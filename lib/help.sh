@@ -36,6 +36,7 @@ ${TNX_CW}Usage:${TNX_C0}
 
 ${TNX_CW}Commands:${TNX_C0}
   ${TNX_CG}install${TNX_C0}    Install full desktop environment
+  ${TNX_CG}guides${TNX_C0}     Installation and ecosystem help links
   ${TNX_CG}start${TNX_C0}      Start the desktop session
   ${TNX_CG}stop${TNX_C0}       Stop the desktop session
   ${TNX_CG}restart${TNX_C0}    Restart the desktop session
@@ -92,6 +93,8 @@ Options:
   --no-anim            Freeze the spinner and colour cycling
 HELP
 }
+
+tnx_help_guides() { echo "Usage: ternux guides"; echo "Show installation, ecosystem tool, and daily-use guide links."; }
 
 tnx_help_start()     { echo "Usage: ternux start"; echo "Start the Xfce4 desktop session."; }
 tnx_help_stop()      { echo "Usage: ternux stop"; echo "Stop the desktop session and clean up."; }

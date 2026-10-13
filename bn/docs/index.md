@@ -24,6 +24,8 @@ alt_url: "/docs/"
   <a class="doc-card" href="FAQ.html"><span class="doc-card__icon">?</span><strong>ইনস্টলের আগে</strong><span>Root, compatibility, storage, battery, privacy ও project limit।</span></a>
 </div>
 
+ঐচ্ছিক ecosystem tool-এর জন্য [installation ও release guide](INSTALLATION.html) দেখুন। ইনস্টলের পরে Termux বা Debian-এ `ternux guides` চালিয়েও link পাওয়া যায়।
+
 ## Workspace পরিচালনা করুন
 
 <div class="doc-grid">

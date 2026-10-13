@@ -65,6 +65,15 @@ _tnx_dispatch() {
   # Lazy-load: try <module-dir>/<command>.sh
   local lib_map=""
   case "$cmd" in
+    guides)
+      printf '%s\n' \
+        'Ternux guides:' \
+        '  Installation: https://soobujmiah.github.io/ternux/docs/INSTALLATION.html' \
+        '  Manual setup: https://soobujmiah.github.io/ternux/docs/MANUAL.html' \
+        '  Ecosystem tools: https://soobujmiah.github.io/ternux/docs/INSTALLATION.html#choose-the-right-project-release' \
+        '  Daily use: https://soobujmiah.github.io/ternux/docs/USAGE.html' \
+        '' 'Open these links in a browser. This command does not install anything.'
+      return 0 ;;
     start|stop|restart|status) lib_map="desktop" ;;
     verify)                    lib_map="doctor" ;;
     install)                   lib_map="phases" ;;

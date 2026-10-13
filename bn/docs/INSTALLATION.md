@@ -123,6 +123,8 @@ installer বা Debian root filesystem নয়। আগে Ternux setup ক�
 আলাদা Android Binder/FastRPC broker-ও দরকার; archive-এ সেটি নেই। এর
 known-output test বর্তমানে fail করে; ফলাফল [Benchmarks](BENCHMARKS.html)-এ আছে।
 
+ইনস্টলের শেষ পর্দায় `ternux guides` দেখানো হয়। ইনস্টলের পর Termux অথবা Debian/Xfce terminal-এ `ternux guides` চালালে environment, manual setup, ecosystem tool installation এবং daily-use guide-এর সরাসরি link দেখা যায়। কমান্ডটি কিছু install করে না।
+
 ADT-এর Android SDK tools-এর version, build record ও মূল download তাদের নিজস্ব
 repo-তে থাকে। [ADT Releases](https://github.com/soobujmiah/adt/releases) থেকে
 নিন এবং Debian-এর ভেতরে [ADT setup guide](https://github.com/soobujmiah/adt#quick-start)

@@ -107,6 +107,9 @@ def main():
     except (OSError, ValueError, zipfile.BadZipFile) as exc:
         print(json.dumps({'stage': 'archive_input_error', 'error': str(exc)}))
         return 2
+    except subprocess.TimeoutExpired as exc:
+        print(json.dumps({'stage': 'android_helper_timeout', 'seconds': exc.timeout}))
+        return 2
 
 
 if __name__ == '__main__':

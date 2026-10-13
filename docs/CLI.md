@@ -44,6 +44,10 @@ before `lib/core.sh` can load is necessarily plain stderr, not JSON.
 
 ## Commands
 
+### `ternux guides`
+
+Run `ternux guides` in the Termux host or Debian/Xfce guest to print direct installation, ecosystem tool, and daily-use links. It performs no install or browser action.
+
 ### `ternux install`
 
 Install or reinstall the full ternux desktop environment.

@@ -1200,6 +1200,7 @@ tnx_install() {
           "Start from Termux: ternux start  (or: x)" \
           "In Xfce Terminal:  ternux status" \
           "Host diagnostics: ternux doctor"
+          "Install tool help: ternux guides  (also inside Debian)"
       } 2>&1 | tnx_frame_stream
       tnx_frame_close success
     else
@@ -1213,6 +1214,7 @@ tnx_install() {
         "Start from Termux: ternux start  (or: x)" \
         "In Xfce Terminal:  ternux status" \
         "Host diagnostics: ternux doctor"
+        "Install tool help: ternux guides  (also inside Debian)"
     fi
   else
     if [ "${_TNX_FRAME_ACTIVE:-0}" = "1" ]; then

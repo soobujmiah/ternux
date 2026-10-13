@@ -23,6 +23,7 @@ Usage:
   ternux verify       alias for doctor
   ternux info         show guest/session information
   ternux env          show the guest display, audio and session variables
+  ternux guides       show installation and ecosystem help links
   ternux --version    show the companion version
 
 The full lifecycle CLI runs in the Termux host terminal. Use Termux for:
@@ -109,6 +110,18 @@ _guest_env() {
   printf 'DESKTOP_SESSION=%s\n' "${DESKTOP_SESSION:-}"
 }
 
+_guest_guides() {
+  cat <<'EOF'
+Ternux guides:
+  Installation: https://soobujmiah.github.io/ternux/docs/INSTALLATION.html
+  Manual setup: https://soobujmiah.github.io/ternux/docs/MANUAL.html
+  Ecosystem tools: https://soobujmiah.github.io/ternux/docs/INSTALLATION.html#choose-the-right-project-release
+  Daily use: https://soobujmiah.github.io/ternux/docs/USAGE.html
+
+Open these links in a browser. This command does not install anything.
+EOF
+}
+
 case "${1:-help}" in
   help|--help|-h) _guest_help ;;
   --version|-V|version)
@@ -119,6 +132,7 @@ case "${1:-help}" in
   doctor|verify) _guest_verify ;;
   info) _guest_info ;;
   env) _guest_env ;;
+  guides) _guest_guides ;;
   start|stop|restart|repair|install|update|uninstall|backend|profile|logs|state|benchmark)
     printf "ternux: '%s' is a Termux-host command.\n" "$1" >&2
     printf 'Open the Termux app and run it there; the Debian companion will not start a nested PRoot session.\n' >&2

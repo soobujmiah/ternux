@@ -24,6 +24,8 @@ something is already broken, go directly to [Troubleshooting](TROUBLESHOOTING.ht
   <a class="doc-card" href="FAQ.html"><span class="doc-card__icon">?</span><strong>Before you install</strong><span>Root, compatibility, storage, battery, privacy, and project limits.</span></a>
 </div>
 
+For optional ecosystem tools, use [installation and release guidance](INSTALLATION.html#choose-the-right-project-release), also available after installation with `ternux guides` in Termux or Debian.
+
 ## Operate the workspace
 
 <div class="doc-grid">

@@ -23,11 +23,12 @@ Debian/glibc llama.cpp Hexagon experiment.
 ## Reproduce the bounded probe
 
 The source uses a bounded public API prefix and checks the observed core API
-before invoking backend functions. The read-only VAE metadata probe saw one
+before invoking backend functions. The CI-built VAE metadata probe saw one
 `model` graph: input `input` [1,3,512,512] and outputs `mean` and `std`
-[1,4,64,64], all QNN UFIXED_POINT_16. These exploratory shapes were obtained
-with the old local diagnostic and require CI-artifact retesting. Full graph
-execution requires matching, properly licensed QNN headers.
+[1,4,64,64], all QNN UFIXED_POINT_16. The decoder has one `model` graph,
+input `input` [1,4,64,64] and output `output` [1,3,512,512], also
+UFIXED_POINT_16. These shapes were repeated on the physical device. Correct
+tensor numerics still need an independent oracle.
 
 Build the Android/Bionic helper in GitHub Actions with the pinned NDK
 28.2.13676358 using [`qnn-native-probe.yml`](../../.github/workflows/qnn-native-probe.yml).
@@ -35,21 +36,23 @@ The PRoot Debian workstation runs `archive_input.py` and launches the Android
 helper through `/system/bin/linker64`; the Debian llama.cpp build uses a Linux
 ARM64/glibc toolchain. No native Termux include or compiler path is part of the
 supported build. The earlier exploratory device result used Termux Clang and is
-kept as historical evidence only. It must be repeated with the CI-built ELF
-before treating the package as portable.
+kept as historical evidence only. The CI-built ELF subsequently repeated the
+device checks; the artifact is still experimental, not a release package.
 
 The pinned NDK build passed [run 38405297620](https://github.com/soobujmiah/ternux/actions/runs/38405297620)
 at commit `ddbece7009ab5d062d312da3999c1c6c70205a6e`. Its artifact is
 `ternux-qnn-native-probe-android-arm64` (expires 2026-10-27). The owner
-retrieves this 14-day **test artifact** from that Actions page and hands it to
-the PRoot workstation; the agent does not fetch the artifact under SKB's
-owner-mediated handoff rule. After unzipping to a scratch directory, run
+explicitly authorized downloading this **test artifact** in this session.
+It and the later graph probe artifact from
+[run 38406862573](https://github.com/soobujmiah/ternux/actions/runs/38406862573)
+were downloaded to isolated scratch. After unzipping, run
 `sha256sum -c SHA256SUMS` from inside that directory. The workflow checked
-AArch64 ELF and rejected Termux-specific RUNPATHs. Physical-device execution
-of the CI-built ELF is still pending. No Qualcomm library or model is in it.
+AArch64 ELF and rejected Termux-specific RUNPATHs. The downloaded CI ELF has
+only `libc.so` and `libdl.so` dependencies, no RUNPATH, and passed physical
+device checks on SM8735. No Qualcomm library or model is in it.
 
 ```bash
-# In PRoot, after the owner has supplied the CI artifact and checksums pass:
+# In PRoot, after the authorized artifact is in scratch and checksums pass:
 env -u LD_PRELOAD \
   LD_LIBRARY_PATH=/vendor/lib64:/vendor/lib64/egl:/system/lib64 \
   /system/bin/linker64 /absolute/path/to/ternux-qnn-native-probe
@@ -82,9 +85,10 @@ On Redmi Turbo 4 Pro / SM8735, Android 16, the retry returned **status 0** for
 HTP backend create, device create, VAE context create-from-binary, and all
 context/device/backend/logger free calls. The QNN log reported CDSP transport,
 SM8735 detection, one graph named `model`, weight transfer and successful
-context deserialization. This verifies **compatible VAE context loading** for
-this device/process/runtime combination. It does not verify graph execution,
-output tensors, a correct image, or the other context members.
+context deserialization. The CI-built helper repeated context and graph
+retrieval for both VAE encoder and decoder. This verifies **compatible VAE
+context loading** for this device/process/runtime combination. It does not
+verify a correct image, UNet, CLIP, or independent tensor numerics.
 
 The initial successful-load process then crashed during `dlclose` of HTP,
 after all QNN handle free calls returned 0. The short-lived helper now retains
@@ -105,16 +109,29 @@ python3 experiments/qnn-native/archive_input.py \
   --load-htp --runtime-dir /absolute/path/to/licensed/qnn-2.29-v73-runtime
 ```
 
-The original local evidence was collected with the exploratory helper; a
-CI-built artifact must repeat the device test before release qualification.
+For a bounded graph execute probe, replace `--load-htp` with `--execute-htp`.
+This option currently accepts only `vae_encoder.bin`. CI run `38406862573` on
+the physical device executed that graph twice with one fixed raw zero `uint16`
+input. Both QNN calls returned status 0, CDSP logs reported graph completion,
+both output buffers changed, and each output repeated bit-for-bit. The FNV64
+hashes were `ae97b25a95bdac33` (`mean`) and `7fb11db45bb92b10` (`std`)
+on both runs. This is **verified HTP graph execution and repeatability**, not a
+known-output correctness result. The raw log is local scratch evidence at
+`/home/sbj/npu-probe-2026-10-13/ci-qnn-vae-execute-run-38406862573.log`.
+
+The decoder context load and graph retrieve also returned status 0. Its member
+was 59,945,848 bytes, SHA-256
+`42edf1474eea665f593b8c35daf64169da220b6e4095c860eaca494610579ccc`.
+No decoder graph execution was attempted. Neither VAE member was copied to disk.
 
 ## Remaining inference gates
 
-1. Re-run the metadata, graph-retrieve and context-load checks with the CI-built
-   Android ELF handed off by the owner. Confirm the tensor ABI and obtain matching,
-   properly licensed QNN execution headers before full graph execution.
-2. Run a fixed-input, known-output VAE graph test with explicit HTP attribution,
-   numerical/output checks and repeat cleanup. Then qualify UNet separately.
+1. Obtain an independent expected tensor for the exact fixed VAE input, verify
+   output encoding/quantization, and compare numerical values. Then qualify
+   decoder and UNet graph execution separately.
+2. Prove a fixed-input, known-output VAE graph result with explicit HTP
+   attribution and repeat cleanup. The current repeated-output probe is an
+   execution gate, not a numerical-correctness gate.
 3. Implement our own SD1.5 pipeline: tokenizer/embedding input, scheduler, MNN
    CLIP execution on CPU and QNN UNet/VAE on HTP. A loaded QNN context alone
    cannot generate an image.

@@ -44,6 +44,11 @@ load হওয়ার আগের failure JSON বানাতে পার�
 
 ## কমান্ডসমূহ
 
+### `ternux guides`
+
+Termux host অথবা Debian/Xfce guest-এ `ternux guides` চালালে installation,
+ecosystem tool এবং daily-use guide-এর link দেখা যায়। এটি কিছু install করে না।
+
 ### `ternux install`
 
 সম্পূর্ণ ternux ডেস্কটপ ইনস্টল বা পুনরায় ইনস্টল।
