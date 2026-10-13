@@ -245,6 +245,8 @@ same brokered CDSP descriptor, with CPU fallback disabled:
 | `MUL_MAT` | Q4_0 × F32, K=576, M=8, N=2 | **Mismatch** against the same-build CPU backend on 16/16 outputs at the probe's `1e-5` comparison threshold; maximum absolute HTP-vs-CPU difference `0.00947738`. Against the explicitly dequantized Q4_0 reference, max absolute error was `0.00601411` (max relative error `1.56%`). The HTP profile identified `MUL_MAT` with `q4_0 x f32`, `hvx-tiled`; compute status was success and the CDSP session closed cleanly. |
 | `MUL_MAT` | Q4_0 × sparse F32, K=576, M=8, N=2 | **Numeric mismatch** on 15/16 outputs at `1e-5`; max absolute error `0.000181094`, max relative error `0.0908%`. Inputs were nonzero at only one K position per column to reduce long accumulation. HTP verbose trace confirmed `q4_0 x f32`, `hvx-tiled` execution; graph compute succeeded and the CDSP session closed cleanly. |
 | `MUL_MAT` | dequantized Q4_0 weights as F32 × same sparse F32 input, K=576, M=8, N=2 | **Pass**; the HTP F32 path's max absolute error against the same explicit reference was `1.49012e-08`. The same graph's CPU Q4_0 result was within `1.21743e-05` max absolute error of that reference. This narrows the observed discrepancy to the Q4_0 HTP execution path; it does not identify a specific kernel defect. |
+| `MUL_MAT` | Q4_0 one-hot weights × F32 input; 128 output rows exposed the corresponding HTP Q8 activation lanes | **HTP compute pass**; decoded output residual was at most `1.525879e-05`. 127/128 inferred Q8 integers matched a simple host round reference; one near-boundary lane decoded as `-74` versus host `-75`. This is not an exact HVX quantizer emulation. |
+| `MUL_MAT` | Exploratory dense Q4_0 reference extension, K=576, M=8 | **Failed diagnostic comparison**; HTP returned outputs up to magnitude `532544.875`, while the CPU control stayed near the manually dequantized reference (max CPU/reference error `≤0.0301`). The 2,592-byte random Q4_0 tensor passed backend set/get round-trip with 0 mismatches. A later 576-lane extension had 10 generic-Q8 integer differences and up to `0.0825` reconstruction residual, so its decoded-Q8 reference/layout remains unqualified. This is evidence of a failed HTP result for this probe, not a diagnosis of the kernel defect. |
 | Q4_0 tensor round-trip | 2,592 quantized weight bytes | **Pass**; backend set → get through the tiled host representation returned all bytes unchanged. This verifies host-side repack/de-repack data integrity for this tensor; it does not prove the DSP kernel's interpretation of the tile. |
 
 These deterministic synthetic micro-tests do not prove that a particular
@@ -259,14 +261,27 @@ graph was within `1.21743e-05`. The pinned b11582 source shows the Q4_0 HTP
 path quantizes F32 activations into Q8_0 tiles. A generic GGML Q8_0-quantized
 activation reference still differed from HTP by up to `0.000193268`; the exact
 HTP activation quantizer and rounding have not yet been emulated, so this does
-not establish a kernel defect. The issue is narrowed to the Q4_0 HTP execution
-path, with quantization and arithmetic behavior still unresolved. Probe logs
+not establish a kernel defect. A follow-up one-hot Q4_0 test inferred 128 HTP
+Q8 activation lanes from successful output; 127 matched a simple host rounding
+reference and one near-boundary value differed by one integer. The exact HVX
+reciprocal and rounding path is still not emulated. An exploratory dense
+reference extension returned values up to `532544.875`. The 2,592-byte random
+Q4_0 tensor passed backend set/get round-trip with no changed bytes. The CPU
+control stayed within `0.0301` of the direct dequantized F32 reference, while
+the HTP output was far outside that range. A later 576-lane decode extension had 10 simple-reference
+integer differences and a maximum reconstruction residual of `0.0825`; its
+lane mapping/reference is not yet qualified. Thus the HTP result for this
+diagnostic failed, but its exact cause remains unverified. The issue remains
+narrowed to the Q4_0 HTP execution path, with quantization and arithmetic behavior
+unresolved. Probe logs
 (`gh-artifact-htp-add-test.log`,
 `gh-artifact-htp-matmul-test.log`, `gh-artifact-htp-q4-matmul-k576-test.log`,
 `gh-artifact-htp-q4-sparse-verbose-test.log`,
 `gh-artifact-htp-q4-roundtrip-test.log`, and
 `gh-artifact-htp-q4-cpu-f32-ref-test.log`,
-`gh-artifact-htp-q4-q8-reference-test.log`) are retained in
+`gh-artifact-htp-q4-q8-reference-test.log`, and
+`htp-q8-activation-decode-child.log` and
+`htp-q8-activation-decode-full.log`) are retained in
 `/home/sbj/npu-probe-2026-10-13/`. Probe source and binaries are scratch
 artifacts, not shipped in the llama.cpp release.
 
@@ -376,7 +391,7 @@ sampling, seed 0, and an eight-token limit:
 |---|---|---|
 | CPU (`-ngl 0`) | **Known-answer pass**: `4.000000`; prompt 121.4 tok/s, generation 21.8 tok/s | `htp-qwen15-cpu-baseline.log` in `/home/sbj/npu-probe-2026-10-13/` |
 | Hexagon HTP (`-ngl 99`, brokered CDSP) | **Known-answer fail**: ` LENG, the, the,`; generation 24.3 tok/s in the initial eight-token run. Verbose repeat produced ` LENG, the,` and HTP profile records including `MUL_MAT`, `FLASH_ATTN_EXT`, and `SWIGLU`. | `htp-qwen15-htp-test.log` and `htp-qwen15-htp-verbose-test.log` in the same scratch directory |
-| Vulkan GPU | **Blocked for llama.cpp inference**. Vulkan enumeration independently verified Adreno 825 with Mesa Turnip, but the available published llama.cpp artifact is HTP-only, source build `af50f2f` has no Vulkan build here, and Vulkan development headers/linker symlink/compiler tools are absent. No GPU inference was claimed or measured. | `vulkaninfo --summary` identified `Adreno (TM) 825`, `DRIVER_ID_MESA_TURNIP`; llama.cpp Vulkan build prerequisite inspection |
+| Vulkan GPU | **Known-answer pass** on a separate local Vulkan-enabled build: `4.000000`; verbose trace assigned all 29/29 model layers to Vulkan0 (Adreno 825). | `llama-vulkan-qwen15-gpu.log` and `llama-vulkan-package-gpu-test.log` in `/home/sbj/npu-probe-2026-10-13/` |
 
 The HTP broker session and child process exited cleanly, and verbose per-op
 records confirm actual HTP work for this model. HTP inference nevertheless
@@ -390,8 +405,43 @@ or run.
 
 The model path comparison does not replace the next low-level diagnostic:
 reproduce the exact HTP Q8_0 activation quantizer to understand the Q4_0 kernel
-numeric mismatch. GPU validation can resume when the no-install Vulkan build
-prerequisites are available; until then, classify it as blocked.
+numeric mismatch. The Vulkan path has now passed a known-answer inference test;
+the HTP path remains failed pending diagnosis and a later known-answer pass.
+
+### Vulkan llama.cpp model test (local Debian PRoot build)
+
+The Vulkan-enabled build used the pinned llama.cpp source commit
+`af50f2f248b475d9760f8e67503d01c0f194f5f4` (tag `b11582`) and was compiled
+inside Debian ARM64 PRoot on the Redmi Turbo 4 Pro with GNU C++ 14.2.0,
+`GGML_NATIVE=ON`, `GGML_VULKAN=ON`, `GGML_HEXAGON=OFF`, and
+`GGML_OPENCL=OFF`. Vulkan development dependencies were unpacked under the
+scratch workspace; no system packages were installed. The build artifact is
+local scratch output and has not been published as a release asset.
+
+The test used the existing file
+`/sdcard/LAI/models/qwen2.5-1.5b-instruct-q4-0.gguf` in place (SHA-256
+`dcd819ff094852c38faba6873d8ff0c9d51eadb2844539e52042ae5d647bbfdb`). The
+prompt was `What is 2 + 2? Reply with only the number.` with seed 0, temperature
+0, top-k 1, and an eight-token generation limit. `llama-cli -dev Vulkan0 -ngl
+99` returned `4.000000`; verbose output showed `Vulkan0 (Adreno (TM) 825)` and
+all 29/29 layers offloaded. This verifies functional Vulkan inference for this
+model and prompt, not universal model compatibility.
+
+Three `llama-bench` repetitions (`pp16/tg16`, no warm-up, 8 threads) reported:
+
+| Backend | Prompt processing (`pp16`) | Token generation (`tg16`) |
+|---|---:|---:|
+| CPU (`-ngl 0`) | 25.38 ± 2.88 tok/s | 2.93 ± 0.35 tok/s |
+| Vulkan (`-dev Vulkan0 -ngl 99`) | 42.18 ± 5.91 tok/s | 20.92 ± 0.50 tok/s |
+
+This short run shows higher measured throughput on Vulkan for this model and
+configuration. It is not a long-session, multi-device, or thermal comparison;
+CPU thread-scaling runs varied substantially. Sustained thermals, power draw,
+and longer workloads remain unmeasured. Logs:
+`llama-vulkan-qwen15-gpu.log`, `llama-vulkan-qwen15-gpu-repeat3.md`,
+`llama-vulkan-qwen15-cpu-repeat3.md`, `llama-vulkan-qwen15-gpu-bench.md`,
+`llama-vulkan-qwen15-cpu-bench.md`, and `llama-vulkan-qwen15-cpu-scaling.md`
+in `/home/sbj/npu-probe-2026-10-13/`.
 
 | Question | Status |
 |---|---|
@@ -400,8 +450,9 @@ prerequisites are available; until then, classify it as blocked.
 | Is the ES command/output captured with its DRI3 warning? | **Yes — measured, caveated** |
 | Does Blender see the same OpenGL renderer? | **Yes — observed** |
 | Is Blender Cycles GPU rendering proven? | **No** |
-| Is llama.cpp Vulkan compile/use reported? | **Yes — observed** |
-| Is llama.cpp tokens/s measured? | **No** |
+| Is llama.cpp Vulkan compile and device execution verified? | **Yes — Adreno 825** |
+| Is llama.cpp Vulkan inference known-answer tested? | **Yes — pass, one model/prompt** |
+| Are llama.cpp Vulkan/CPU tokens/s measured? | **Yes — 3 repetitions, one short workload** |
 | Is stable-diffusion.cpp Vulkan build reported? | **Yes — observed** |
 | Is diffusion seconds/image measured? | **No** |
 | Are sustained thermals/power measured? | **No** |

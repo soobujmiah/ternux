@@ -242,6 +242,8 @@ graph-এ চালানো হয়েছে; CPU fallback বন্ধ ছ�
 | `MUL_MAT` | Q4_0 × F32, K=576, M=8, N=2 | probe-এর `1e-5` comparison threshold-এ একই build-এর CPU backend-এর সঙ্গে 16/16 output **mismatch**; HTP-CPU সর্বোচ্চ absolute difference `0.00947738`। Explicit dequantized Q4_0 reference-এর সঙ্গে সর্বোচ্চ absolute error `0.00601411` (সর্বোচ্চ relative error `1.56%`)। HTP profile-এ `q4_0 x f32`, `hvx-tiled` `MUL_MAT` দেখা গেছে; compute সফল এবং CDSP session cleanly close করেছে। |
 | `MUL_MAT` | Q4_0 × sparse F32, K=576, M=8, N=2 | `1e-5` threshold-এ 16টির 15টি output-এ **numeric mismatch**; সর্বোচ্চ absolute error `0.000181094`, সর্বোচ্চ relative error `0.0908%`। Long accumulation কমাতে প্রতি column-এ একটিমাত্র K position nonzero ছিল। HTP verbose trace-এ `q4_0 x f32`, `hvx-tiled` execution নিশ্চিত; graph compute সফল এবং CDSP session cleanly close করেছে। |
 | `MUL_MAT` | dequantized Q4_0 weight-কে F32 করে একই sparse F32 input, K=576, M=8, N=2 | **Pass**; একই explicit reference-এর তুলনায় HTP F32 path-এর সর্বোচ্চ absolute error `1.49012e-08`। একই graph-এর CPU Q4_0 ফল reference থেকে সর্বোচ্চ `1.21743e-05` আলাদা ছিল। এতে discrepancy Q4_0 HTP execution path-এ সীমাবদ্ধ হয়; নির্দিষ্ট kernel defect প্রমাণ হয় না। |
+| `MUL_MAT` | Q4_0 one-hot weight × F32 input; 128 output row দিয়ে HTP Q8 activation lane দেখা | **HTP compute pass**; decoded output residual সর্বোচ্চ `1.525879e-05`। 128টির 127টি inferred Q8 integer সাধারণ host rounding reference-এর সঙ্গে মিলে; একটি rounding boundary-র কাছে `-74` এসেছে, host reference `-75` দিয়েছে। এটি exact HVX quantizer emulation নয়। |
+| `MUL_MAT` | পরীক্ষামূলক dense Q4_0 reference extension, K=576, M=8 | **Diagnostic comparison fail**; HTP সর্বোচ্চ `532544.875` magnitude-এর output দিয়েছে, আর CPU control manually dequantized reference-এর কাছাকাছি ছিল (CPU/reference সর্বোচ্চ error `≤0.0301`)। 2,592-byte random Q4_0 tensor-এর backend set/get round-trip-এ mismatch ছিল 0। পরের 576-lane extension-এ simple Q8 integer-এর সঙ্গে 10টি difference ও সর্বোচ্চ `0.0825` reconstruction residual ছিল; decoded-Q8 reference/layout এখনো unverified। এই probe-এ HTP result fail করেছে, তবে kernel defect-এর কারণ নির্ণীত নয়। |
 | Q4_0 tensor round-trip | 2,592 quantized weight byte | **Pass**; backend set → get-এর পর সব byte অপরিবর্তিত ছিল। এই tensor-এর host-side tiled repack/de-repack data integrity যাচাই হয়েছে; DSP kernel tile-টি কীভাবে interpret করে তা প্রমাণ হয়নি। |
 
 এই deterministic synthetic micro-test প্রমাণ করে না যে নির্দিষ্ট model layer-ই
@@ -254,15 +256,26 @@ reference-এর সাথে `1.49012e-08`-এর মধ্যে মিলে;
 সর্বোচ্চ `1.21743e-05`। Pinned b11582 source দেখায় Q4_0 HTP path-এ F32
 activation-কে Q8_0 tile-এ quantize করা হয়। Generic GGML Q8_0 quantized activation
 reference দিয়েও HTP-এর সঙ্গে সর্বোচ্চ `0.000193268` difference ছিল; exact HTP
-activation quantizer ও rounding এখনও emulate করা হয়নি, তাই kernel defect
-প্রমাণ হয়নি। সমস্যাটি Q4_0 HTP execution path-এ সীমিত, তবে quantization ও
-arithmetic আচরণ এখনও unresolved। Probe log
+activation quantizer ও rounding এখনও emulate করা হয়নি। পরের one-hot Q4_0
+test-এ successful HTP output থেকে 128টি Q8 activation lane infer করা হয়েছে;
+127টি সাধারণ host rounding reference-এর সাথে মিলেছে, আর একটি boundary-র কাছে
+এক integer আলাদা ছিল। এটি full HVX quantizer emulation নয়। Dense reference
+extension-এ 2,592-byte random Q4_0 tensor backend round-trip-এ অপরিবর্তিত ছিল।
+CPU control manually dequantized F32 reference-এর `0.0301`-এর মধ্যে ছিল, কিন্তু
+HTP অস্বাভাবিক বড় output দিয়েছে। আরেক 576-lane decode extension-এ
+simple reference থেকে 10 integer difference এবং `0.0825` সর্বোচ্চ reconstruction
+residual ছিল; lane mapping/reference এখনো যাচাই হয়নি। তাই এই diagnostic-এ HTP
+result **fail**, তবে সুনির্দিষ্ট কারণ unverified। Q4_0 HTP path-এর quantization
+ও arithmetic এখনো unresolved। Probe log
 (`gh-artifact-htp-add-test.log`, `gh-artifact-htp-matmul-test.log`,
 `gh-artifact-htp-q4-matmul-k576-test.log`,
 `gh-artifact-htp-q4-sparse-verbose-test.log`,
 `gh-artifact-htp-q4-roundtrip-test.log`,
 `gh-artifact-htp-q4-cpu-f32-ref-test.log`,
-`gh-artifact-htp-q4-q8-reference-test.log`)
+`gh-artifact-htp-q4-q8-reference-test.log`,
+`htp-q8-activation-decode-child.log`,
+`htp-q8-activation-decode-full.log`,
+`htp-q8-activation-decode-child.log`)
 একই local probe directory-তে আছে।
 
 Pinned HTP source Q4_0 weight-এর জন্য tiled Q8_0 activation quantizer নির্বাচন
@@ -372,7 +385,7 @@ prompt (`What is 2 + 2? Reply with only the number.`), greedy sampling, seed 0
 |---|---|---|
 | CPU (`-ngl 0`) | **Known-answer pass**: `4.000000`; prompt 121.4 tok/s, generation 21.8 tok/s | `/home/sbj/npu-probe-2026-10-13/htp-qwen15-cpu-baseline.log` |
 | Hexagon HTP (`-ngl 99`, brokered CDSP) | **Known-answer fail**: ` LENG, the, the,`; প্রথম ৮-token run-এ generation 24.3 tok/s। Verbose repeat-এ ` LENG, the,` এবং `MUL_MAT`, `FLASH_ATTN_EXT`, `SWIGLU`-সহ HTP profile record ছিল। | একই scratch directory-র `htp-qwen15-htp-test.log` ও `htp-qwen15-htp-verbose-test.log` |
-| Vulkan GPU | llama.cpp inference-এর জন্য **blocked**। Vulkan enumeration-এ Adreno 825 ও Mesa Turnip verify হয়েছে; কিন্তু পাওয়া published llama.cpp artifact HTP-only, `af50f2f` source build-এ এখানে Vulkan নেই, আর Vulkan development header/linker symlink/compiler tool অনুপস্থিত। GPU inference দাবি বা measure করা হয়নি। | `vulkaninfo --summary`-এ `Adreno (TM) 825`, `DRIVER_ID_MESA_TURNIP`; llama.cpp Vulkan build prerequisite inspection |
+| Vulkan GPU | আলাদা local Vulkan-enabled build-এ **known-answer pass**: `4.000000`; verbose trace-এ ২৯/২৯ model layer Vulkan0 (Adreno 825)-তে assign হয়েছে। | `/home/sbj/npu-probe-2026-10-13/`-এর `llama-vulkan-qwen15-gpu.log` ও `llama-vulkan-package-gpu-test.log` |
 
 HTP broker session ও child process cleanly exit করেছে; verbose per-op record এই
 model-এর বাস্তব HTP কাজ নিশ্চিত করে। তবুও HTP known-answer check **fail**। CPU ও
@@ -384,8 +397,43 @@ entry list দেখা হয়েছে; extract বা run করা হয়ন�
 
 এই model-path তুলনা পরের low-level diagnostic বদলায় না: Q4_0 kernel-এর numeric
 mismatch বোঝার জন্য exact HTP Q8_0 activation quantizer reproduce করতে হবে।
-No-install Vulkan build prerequisite পাওয়া গেলে GPU validation আবার করা যাবে;
-এখন status blocked।
+Vulkan path এখন known-answer inference test pass করেছে; diagnosis ও পরবর্তী
+known-answer pass না হওয়া পর্যন্ত HTP path fail অবস্থায় আছে।
+
+### Vulkan llama.cpp model test (local Debian PRoot build)
+
+Vulkan-enabled build-টি pinned llama.cpp source commit
+`af50f2f248b475d9760f8e67503d01c0f194f5f4` (tag `b11582`) থেকে Redmi Turbo Pro-এর
+Debian ARM64 PRoot-এ compile করা হয়েছে। GNU C++ 14.2.0 এবং
+`GGML_NATIVE=ON`, `GGML_VULKAN=ON`, `GGML_HEXAGON=OFF`, `GGML_OPENCL=OFF`
+configuration ব্যবহার হয়েছে। Vulkan development dependency scratch workspace-এ
+unpack করা হয়েছিল; system package install করা হয়নি। Build artifact local
+scratch-এ আছে, release asset হিসেবে প্রকাশিত হয়নি।
+
+আগের model file-টিই সরাসরি ব্যবহার হয়েছে:
+`/sdcard/LAI/models/qwen2.5-1.5b-instruct-q4-0.gguf` (SHA-256
+`dcd819ff094852c38faba6873d8ff0c9d51eadb2844539e52042ae5d647bbfdb`)। Prompt ছিল
+`What is 2 + 2? Reply with only the number.`; seed 0, temperature 0, top-k 1,
+এবং সর্বোচ্চ ৮ token। `llama-cli -dev Vulkan0 -ngl 99` ফল দিয়েছে `4.000000`;
+verbose output-এ `Vulkan0 (Adreno (TM) 825)` এবং ২৯/২৯ layer offload দেখা গেছে।
+এটি এই model ও prompt-এ Vulkan inference কাজ করার প্রমাণ; সব model-এর
+compatibility প্রমাণ নয়।
+
+তিনটি `llama-bench` repetition (`pp16/tg16`, warm-up ছাড়া, ৮ thread) এই ফল
+দিয়েছে:
+
+| Backend | Prompt processing (`pp16`) | Token generation (`tg16`) |
+|---|---:|---:|
+| CPU (`-ngl 0`) | 25.38 ± 2.88 tok/s | 2.93 ± 0.35 tok/s |
+| Vulkan (`-dev Vulkan0 -ngl 99`) | 42.18 ± 5.91 tok/s | 20.92 ± 0.50 tok/s |
+
+এই সংক্ষিপ্ত run-এ এই model/configuration-এ Vulkan-এ বেশি measured throughput
+দেখা গেছে। এটি দীর্ঘ সময়, একাধিক device বা thermal comparison নয়; CPU
+thread-scaling run-এ যথেষ্ট variation ছিল। Sustained thermal, power draw ও বড়
+workload এখনো মাপা হয়নি। Log: `/home/sbj/npu-probe-2026-10-13/`-এর
+`llama-vulkan-qwen15-gpu.log`, `llama-vulkan-qwen15-gpu-repeat3.md`,
+`llama-vulkan-qwen15-cpu-repeat3.md`, `llama-vulkan-qwen15-gpu-bench.md`,
+`llama-vulkan-qwen15-cpu-bench.md`, ও `llama-vulkan-qwen15-cpu-scaling.md`।
 
 | প্রশ্ন | Status |
 |---|---|
@@ -394,8 +442,9 @@ No-install Vulkan build prerequisite পাওয়া গেলে GPU validation
 | ES command/output কি DRI3 warning-সহ captured? | **হ্যাঁ — measured, caveat-সহ** |
 | Blender কি একই OpenGL renderer দেখে? | **হ্যাঁ — observed** |
 | Blender Cycles GPU rendering কি প্রমাণিত? | **না** |
-| llama.cpp Vulkan compile/use কি reported? | **হ্যাঁ — observed** |
-| llama.cpp tokens/s কি measured? | **না** |
+| llama.cpp Vulkan compile ও device execution কি verified? | **হ্যাঁ — Adreno 825** |
+| llama.cpp Vulkan inference known-answer test কি হয়েছে? | **হ্যাঁ — pass, একটি model/prompt** |
+| llama.cpp Vulkan/CPU tokens/s কি measured? | **হ্যাঁ — ৩ repetition, একটি সংক্ষিপ্ত workload** |
 | stable-diffusion.cpp Vulkan build কি reported? | **হ্যাঁ — observed** |
 | Diffusion seconds/image কি measured? | **না** |
 | Sustained thermal/power কি measured? | **না** |
