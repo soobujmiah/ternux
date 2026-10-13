@@ -11,9 +11,11 @@
 #    2. Exactly one process writes to the terminal. The spinner and resize
 #       detection are driven inline from the stream loop (via `read -t`), never
 #       from a background subshell that races the main cursor.
-#    3. The frame never writes into the last terminal column. Touching it arms
-#       the pending-wrap state, and the next newline then wraps the row — which
-#       is what turned the log window into a shredded, overlapping frame.
+#    3. The frame keeps one gutter column on each side and never writes into
+#       the last terminal column. Touching that column arms the pending-wrap
+#       state, and the next newline then wraps the row — which is what turned
+#       the log window into a shredded, overlapping frame. The left gutter is
+#       cosmetic: flush against both edges reads as cramped on a phone.
 #    4. A full-screen repaint happens ONLY on open, on close, and on a real
 #       terminal resize. Everything else touches a single row. A repaint driven
 #       by a timer is what makes a log impossible to read.
@@ -53,6 +55,7 @@ _TNX_FRAME_MODE="off"
 
 # Frame geometry and animation state.
 _TNX_FRAME_COLS=80          # drawing width of the frame (< terminal columns)
+_TNX_FRAME_X=2              # 1-based column the frame starts at (left gutter)
 _TNX_FRAME_ROWS=24          # drawing height of the frame (<= terminal rows)
 _TNX_TERM_COLS=0            # last raw measurement, used for resize detection
 _TNX_TERM_ROWS=0
@@ -287,7 +290,10 @@ _tnx_measure() {
 # deliberately leaves the last terminal column unused (rule 3).
 _tnx_apply_size() {
   local c="$_TNX_TERM_COLS" r="$_TNX_TERM_ROWS"
-  c=$(( c - 1 ))
+  # One column of gutter on each side: flush against both edges reads as
+  # cramped on a phone, and the right-hand column also keeps the terminal out
+  # of pending-wrap when the last cell is written.
+  c=$(( c - 2 ))
   (( c > 120 )) && c=120
   (( c < 24 )) && c=24
   (( r > 200 )) && r=200
@@ -304,7 +310,7 @@ _tnx_term_size() { _tnx_measure; _tnx_apply_size; }
 _tnx_plain_cols() {
   local cols=80
   _tnx_measure >/dev/null 2>&1 || true
-  [ "$_TNX_SIZE_OK" = "1" ] && cols=$(( _TNX_TERM_COLS - 1 ))
+  [ "$_TNX_SIZE_OK" = "1" ] && cols=$(( _TNX_TERM_COLS - 2 ))
   (( cols > 80 )) && cols=80
   (( cols < 24 )) && cols=24
   _TNX_FRAME_COLS=$cols
@@ -371,7 +377,7 @@ _tnx_frame_gather_device() {
 # in the left/right borders and paint it at an absolute row.
 _tnx_frame_box_row() {
   local row="$1" content="$2"
-  printf '\0337\033[%d;1H\033[K%s|%s %s %s|%s\0338' "$row" "$TNX_CM" "$TNX_C0" "$content" "$TNX_CM" "$TNX_C0"
+  printf '\0337\033[%d;%dH\033[K%s|%s %s %s|%s\0338' "$row" "$_TNX_FRAME_X" "$TNX_CM" "$TNX_C0" "$content" "$TNX_CM" "$TNX_C0"
 }
 
 _tnx_frame_paint_header() {
@@ -478,7 +484,7 @@ _tnx_frame_paint_logline() {
   _tnx_pad $(( inner - _TNX_CLIPW ))
   _tnx_line_color "$clean"
   [ "${_TNX_NEED_NL:-0}" = "1" ] && printf '\n'
-  printf '\r\033[K%s|%s %s%s%s%s %s|%s\r' \
+  printf '\r\033[K%*s%s|%s %s%s%s%s %s|%s\r' "$(( _TNX_FRAME_X - 1 ))" "" \
     "$TNX_CM" "$TNX_C0" "$_TNX_LC" "$_TNX_CLIP" "$_TNX_SP" "$TNX_C0" "$TNX_CM" "$TNX_C0"
   if [ "$hold" = "1" ]; then _TNX_NEED_NL=0; else _TNX_NEED_NL=1; fi
 }
@@ -487,7 +493,7 @@ _tnx_frame_paint_logline() {
 # content. One `tail` per resize is acceptable; nothing here runs per line.
 _tnx_frame_repaint_log() {
   local n=$(( _TNX_LY_LOGBOT - _TNX_LY_LOGTOP + 1 )) ln
-  printf '\033[%d;1H' "$_TNX_LY_LOGTOP"
+  printf '\033[%d;%dH' "$_TNX_LY_LOGTOP" "$_TNX_FRAME_X"
   _TNX_NEED_NL=0
   [ -n "${_TNX_STREAM_LOG:-}" ] && [ -f "${_TNX_STREAM_LOG:-}" ] || return 0
   while IFS= read -r ln; do
@@ -506,17 +512,17 @@ _tnx_frame_draw_dashboard() {
   [ "$state" = "FAILED" ] && state_color="$TNX_CR"
 
   printf '\033[?25l\033[r\033[2J\033[H'
-  printf '\033[1;1H%s+%s+%s' "$TNX_CM" "$_TNX_RULE" "$TNX_C0"
+  printf '\033[1;%dH%s+%s+%s' "$_TNX_FRAME_X" "$TNX_CM" "$_TNX_RULE" "$TNX_C0"
   _tnx_frame_paint_header
-  printf '\033[4;1H%s+%s+%s' "$TNX_CM" "$_TNX_RULE" "$TNX_C0"
+  printf '\033[4;%dH%s+%s+%s' "$_TNX_FRAME_X" "$TNX_CM" "$_TNX_RULE" "$TNX_C0"
   if [ "$_TNX_LY_DEV_ON" = "1" ]; then
     _tnx_frame_paint_device
   fi
   _tnx_frame_paint_progress "$state_color"
-  printf '\033[%d;1H%s+%s+%s' "$_TNX_LY_DIV2" "$TNX_CM" "$_TNX_RULE" "$TNX_C0"
-  printf '\033[%d;1H%s+%s+%s' "$_TNX_LY_DIV3" "$TNX_CM" "$_TNX_RULE" "$TNX_C0"
+  printf '\033[%d;%dH%s+%s+%s' "$_TNX_LY_DIV2" "$_TNX_FRAME_X" "$TNX_CM" "$_TNX_RULE" "$TNX_C0"
+  printf '\033[%d;%dH%s+%s+%s' "$_TNX_LY_DIV3" "$_TNX_FRAME_X" "$TNX_CM" "$_TNX_RULE" "$TNX_C0"
   _tnx_frame_paint_footer "$_TNX_FRAME_TICK"
-  printf '\033[%d;1H%s+%s+%s' "$_TNX_LY_BOT" "$TNX_CM" "$_TNX_RULE" "$TNX_C0"
+  printf '\033[%d;%dH%s+%s+%s' "$_TNX_LY_BOT" "$_TNX_FRAME_X" "$TNX_CM" "$_TNX_RULE" "$TNX_C0"
 
   printf '\033[%d;%dr' "$_TNX_LY_LOGTOP" "$_TNX_LY_LOGBOT"
   _tnx_frame_repaint_log
@@ -744,7 +750,7 @@ _tnx_stream_transient() {
   else
     local inner=$(( _TNX_FRAME_COLS - 4 ))
     _tnx_clipv $(( inner - 1 )) "$_TNX_TXT"
-    printf '\r\033[K%s|%s %s%s%s\r' "$TNX_CM" "$TNX_C0" "$TNX_CD" "$_TNX_CLIP" "$TNX_C0"
+    printf '\r\033[K%*s%s|%s %s%s%s\r' "$(( _TNX_FRAME_X - 1 ))" "" "$TNX_CM" "$TNX_C0" "$TNX_CD" "$_TNX_CLIP" "$TNX_C0"
   fi
   _TNX_TRANSIENT=1
 }

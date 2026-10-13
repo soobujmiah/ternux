@@ -396,11 +396,17 @@ class Tap:
 
 
 def frame_columns(screen: Screen):
-    """Return (left, right) border columns of the drawn frame, or None."""
+    """Return (left, right) border columns of the drawn frame, or None.
+
+    The frame is inset by a gutter column on each side, so the rule does not
+    start at column 0.
+    """
     for r in range(screen.rows):
         row = screen.line(r)
-        if row.startswith("+") and row.endswith("+") and len(row) > 8:
-            return 0, len(row) - 1
+        rule = row.strip()
+        if rule.startswith("+") and rule.endswith("+") and len(rule) > 8:
+            left = len(row) - len(row.lstrip())
+            return left, left + len(rule) - 1
     return None
 
 
@@ -410,13 +416,13 @@ def analyse(tap: Tap, screen: Screen, log: str, raw: str, label: str, expect_cle
     tap.check(cols is not None, f"{label}: frame has a top rule", screen.text())
     if cols:
         left, right = cols
-        bottom = max(
-            (r for r in range(screen.rows) if screen.line(r).startswith("+")),
-            default=screen.rows - 1,
-        )
-        top_rule = min(
-            (r for r in range(screen.rows) if screen.line(r).startswith("+")),
-            default=0,
+        rule_rows = [r for r in range(screen.rows) if screen.line(r).lstrip().startswith("+")]
+        bottom = max(rule_rows, default=screen.rows - 1)
+        top_rule = min(rule_rows, default=0)
+        tap.check(
+            left >= 1 and right <= screen.cols - 2,
+            f"{label}: the frame keeps a gutter column on both sides",
+            f"left={left} right={right} cols={screen.cols}",
         )
         bad_rows = []
         for r in range(top_rule, bottom + 1):
@@ -433,7 +439,8 @@ def analyse(tap: Tap, screen: Screen, log: str, raw: str, label: str, expect_cle
         tap.check(not bad_rows, f"{label}: every framed row keeps its borders", "\n".join(bad_rows))
 
     if expect_width is not None:
-        widths = {len(screen.line(r)) for r in range(screen.rows) if screen.line(r).startswith("+")}
+        widths = {len(screen.line(r)) for r in range(screen.rows)
+                  if screen.line(r).lstrip().startswith("+")}
         tap.check(
             widths == {expect_width},
             f"{label}: the frame is redrawn at the current terminal width",

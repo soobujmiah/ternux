@@ -57,6 +57,14 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
   করত এবং তার মধ্য দিয়ে `uninstall state --yes` চালাত। কেবল test-এর redirect করা
   `HOME` সেটিকে প্রকৃত installation থেকে দূরে রেখেছিল।
 
+### Installer frame আর স্ক্রিনের কিনারায় চেপে থাকে না
+
+- Frame ডান দিকে একটি কলাম খালি রাখত আর বাম দিকে কিছুই না, ফলে দুই কিনারায় চেপে
+  বসত — ফোনে ঠাসা দেখায়, আর অসম। এখন দুই দিকেই এক কলাম gutter থাকে, আর drawing
+  origin বারোটি call site-এ hard-coded কলাম ১-এর বদলে `_TNX_FRAME_X`-এ।
+- `tests/ui_render.py` তিনটি geometry-তেই দুই দিকের gutter assert করে। তার frame
+  detection আর ধরে নেয় না যে rule কলাম ০ থেকে শুরু — সেটিই আগে encode করা ছিল।
+
 ### প্রতিটি workload নথিভুক্ত — স্বয়ংক্রিয়ভাবে ও হাতে
 
 - নতুন গাইড, [ওয়ার্কলোড](docs/WORKLOADS.md): প্রতিটি `--with-*` flag ঠিক কোন

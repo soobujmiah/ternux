@@ -59,6 +59,16 @@ Notable changes to ternux. Dates are ISO 8601.
   CLI and call `uninstall state --yes` through it. Only the test's redirected
   `HOME` kept that away from a real installation.
 
+### The installer frame is no longer flush against the screen edges
+
+- The frame kept a single unused column on the right and nothing on the left,
+  so it sat hard against both edges — cramped on a phone, and asymmetric. It now
+  keeps one gutter column on each side, with the drawing origin in
+  `_TNX_FRAME_X` rather than a hard-coded column 1 at twelve call sites.
+- `tests/ui_render.py` asserts the gutter on both sides, in all three geometries
+  it already exercised. Its frame detection no longer assumes the rule starts at
+  column 0, which is what it had encoded.
+
 ### Every workload documented, automatically and by hand
 
 - New guide, [Workloads](docs/WORKLOADS.md): the exact package set each
