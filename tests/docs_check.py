@@ -318,6 +318,13 @@ check(
     "English and Bengali landings must present the same sections in the same order",
 )
 
+# The Bengali landing page must send readers to the Bengali documentation. Every
+# page it links to has a Bengali mirror, so an English /docs/ or /CHANGELOG.html
+# target resolves to a real file and silently drops the reader into English.
+bn_landing_links = re.findall(r"'(/[A-Za-z0-9/._-]+\.html)'", read(ROOT / "bn/index.html"))
+bn_leaks = sorted({link for link in bn_landing_links if not link.startswith("/bn/")})
+check(not bn_leaks, f"bn/index.html must link to Bengali pages, not {bn_leaks}")
+
 layout_text = read(ROOT / "_layouts/default.html")
 check("/assets/js/effects.js" in layout_text, "_layouts/default.html: missing progressive effects script")
 check("data-scroll-progress" in layout_text, "_layouts/default.html: missing scroll progress feedback")

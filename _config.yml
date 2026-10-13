@@ -3,7 +3,7 @@
 
 title: ternux
 description: >-
-  An evidence-led Debian and Xfce workspace for Android using Termux,
+  An evidence-led Debian and Xfce workstation for ARM64 Android using Termux,
   PRoot Distro, Termux:X11, and explicit graphics backends.
 url: https://soobujmiah.github.io
 baseurl: /ternux

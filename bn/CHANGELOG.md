@@ -36,6 +36,27 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
   উপস্থিতি বা অনুপস্থিতি জানাত।
 - `ternux guides` ও installer-এর next-steps summary নতুন গাইডটির link দেয়।
 
+### Test suite এখন তার target hardware-এই চলে
+
+- `tests/focused.sh` CI-তে পাস করেও সত্যিকারের Adreno ডিভাইসে পাঁচটি failure জানাত।
+  চারটি test নির্ভর করত host-এ `/dev/kgsl-3d0` **না** থাকার উপর, আর একটি hard-coded
+  path দিয়ে installed host CLI-তে পৌঁছে যেত। এখন ডিভাইসেই সাতচল্লিশটি পাস করে।
+- GPU, Vulkan ও backend detection `TERNUX_KGSL_DEVICE` পড়ে; `uninstall.sh` পড়ে
+  `TERNUX_HOST_PREFIX`। দুটোরই default আগের path, তাই production behaviour
+  অপরিবর্তিত, আর test গুলো আসল device node-এর উপর guard না দিয়ে এগুলোই সেট করে।
+  নথিভুক্ত [কনফিগারেশন](docs/CONFIGURATION.md)-এ।
+- ওই test-গুলোর একটি আগে ডিভাইসে চললে ব্যবহারকারীর নিজের installed CLI-তে `exec`
+  করত এবং তার মধ্য দিয়ে `uninstall state --yes` চালাত। কেবল test-এর redirect করা
+  `HOME` সেটিকে প্রকৃত installation থেকে দূরে রেখেছিল।
+
+### সাইট
+
+- Landing page, তার social metadata ও site description workstation দৃষ্টিভঙ্গি বহন
+  করে, এবং graphics-persistence গাইডের link দেয়।
+- সংশোধন: বাংলা landing page-এর প্রতিটি documentation button ইংরেজি page-এ নির্দেশ
+  করত। নয়টিই এখন `/bn/`-এ যায়, আর কোনো বাংলা landing link আবার বাংলা tree ছেড়ে
+  গেলে `tests/docs_check.py` fail করবে।
+
 ### সংশোধন
 
 - Install সম্পন্ন হওয়ার summary থেকে "Install tool help" লাইনটি বাদ পড়ত এবং সফল

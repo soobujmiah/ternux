@@ -36,6 +36,28 @@ Notable changes to ternux. Dates are ISO 8601.
   instead of only reporting presence or absence.
 - `ternux guides` and the installer's next-steps summary link the new guide.
 
+### The test suite now runs on the hardware it targets
+
+- `tests/focused.sh` reported five failures on a real Adreno device while passing
+  in CI. Four tests depended on the host **not** having `/dev/kgsl-3d0`, and one
+  reached the installed host CLI through a hard-coded path. All forty-seven pass
+  on-device now.
+- GPU, Vulkan and backend detection read `TERNUX_KGSL_DEVICE`; `uninstall.sh`
+  reads `TERNUX_HOST_PREFIX`. Both default to the paths they replaced, so
+  production behaviour is unchanged, and the tests set them instead of guarding
+  on the real device node. Documented in [Configuration](docs/CONFIGURATION.md).
+- One of those tests previously made a device run `exec` the user's own installed
+  CLI and call `uninstall state --yes` through it. Only the test's redirected
+  `HOME` kept that away from a real installation.
+
+### Site
+
+- The landing page, its social metadata and the site description carry the
+  workstation framing, and link the graphics-persistence guide.
+- Fixed: every documentation button on the Bengali landing page pointed at the
+  English page. All nine now address `/bn/`, and `tests/docs_check.py` fails if a
+  Bengali landing link ever leaves the Bengali tree again.
+
 ### Fixed
 
 - The install-complete summary dropped its "Install tool help" line and printed
