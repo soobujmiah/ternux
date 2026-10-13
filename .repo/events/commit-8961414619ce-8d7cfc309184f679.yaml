@@ -1,0 +1,7 @@
+event_id: commit-8961414619ce-8d7cfc309184f679
+repository: soobujmiah/ternux
+commit: 8961414619ced5fa5fac261028e9b0bced176aad
+kind: commit
+occurred_at: '2026-10-13T14:11:12Z'
+status: completed
+summary: Register QNN tensors before attaching execution buffers
