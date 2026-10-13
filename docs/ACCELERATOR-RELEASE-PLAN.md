@@ -21,9 +21,9 @@ describe shipped capabilities.
 | 1 | Our standalone Android/Bionic QNN helper, callable from PRoot | Runtime/provider, backend/device, VAE context load/free and encoder graph execution VERIFIED; generic HTP Add known-answer VERIFIED; model output correctness UNVERIFIED | Matching execution headers, tensor metadata, request/response, known-output accelerator test |
 | 2 | Existing QNN picture model, kept in place | No-copy VAE/UNet fixed-input graph execution VERIFIED; fixed-prompt CLIP CPU input and output repeatability VERIFIED on 2026-10-14; CLIP-to-UNet and prompt-to-image UNVERIFIED | CLIP/UNet/VAE pipeline, graph execution, stage attribution, fixed-seed image test and reviewed output |
 | 3 | Main Debian llama.cpp CPU/GPU/HTP qualification | CPU/Vulkan known-answer pass; HTP default path FAILED; HVX matmul plus flash-attention-off passed short known-answer prompts on Qwen2.5 1.5B and Llama 3.2 3B on SM8735 (2026-10-14) | Isolate failing HMX/attention operators, qualify repeatability and longer prompts, then qualify a pinned supported configuration |
-| 4 | Repeat and sustained device qualification | 600 consecutive 720p/16-sample EEVEE frames completed on SM8735 with thermal status 0 (2026-10-14); CPU/Vulkan same-model arithmetic known-answer passed; sustained CPU/NPU, cancellation/restart and fallback remain UNVERIFIED | Matched runs, memory/thermal/power availability recorded, stability, cancellation/restart/cleanup, safe fallback |
+| 4 | Repeat and sustained device qualification | 600 consecutive 720p/16-sample EEVEE frames completed on SM8735 with thermal status 0 (2026-10-14); packaged extension CPU and Vulkan each passed one live-generation SIGINT/clean-exit/restart known-answer cycle (2026-10-14). Sustained CPU/NPU, repeated cancellation stress, NPU cancellation and fallback remain UNVERIFIED | Matched runs, memory/thermal/power availability recorded, sustained stability, cancellation/restart/cleanup under repeat and NPU load, safe fallback |
 | 5 | Reusable GitHub artifacts | Pinned Vulkan ARM64 package built on a native runner; checksum, ELF, RUNPATH, dependencies, and bundled license checked. Published as a prerelease; installed on SM8735; CPU and Adreno Vulkan known-answer pass. HTP remains experimental. | Clean-device Mesa/Turnip installation, broader license/ABI review, and repeated/sustained device qualification |
-| 6 | Extension installation and complete guides | Published prerelease installs through `ternux extension list/install llama-vulkan`; host delegation, guest install, SHA-256, archive paths, and atomic destination are verified. CPU and Vulkan known-answer both pass. Existing installs are preserved on reinstall; there is no in-place updater. ADT remains managed by ADT. | Complete model/backend and automatic/manual guides; document the no-overwrite/update policy |
+| 6 | Extension installation and complete guides | COMPLETE for the published CPU + Vulkan prerelease: `ternux extension list/install llama-vulkan` host delegation, guest install, SHA-256, archive paths, atomic destination, and no-overwrite behavior are verified; CPU and Vulkan known-answer pass. Website quick guide links to repository-only detailed automatic/manual guides; installation policy and ADT ownership are documented. | Future extensions need their own release and validation gates; this row does not qualify HTP or the next stable Ternux release. |
 | 7 | CLI and installation screen polish | Pending release phase | Clear mobile layout, meaningful status/error text, interactive/unattended paths and usability validation |
 | 8 | Complete Ternux version release | HELD | All prior gates satisfied, accurate support matrix, required CI, installed-artifact device tests and final documentation |
 
@@ -60,7 +60,7 @@ artifact and install-package gates remain open.
 layout. It does not replace clean-device qualification or the reusable artifact
 gate.
 
-## Immediate handoff
+## QNN experiment and next validation
 
 The [standalone discovery experiment](../experiments/qnn-native/README.md)
 contains independently written source, measured runtime identity, reproduction

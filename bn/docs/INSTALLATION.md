@@ -164,36 +164,13 @@ BUILD_TOOLS_VERSION=37.0.0
 সমর্থিত version ও asset checksum-এর canonical source ADT repository। দেখুন
 [ADT command guide](https://github.com/soobujmiah/adt/blob/main/COMMANDS.md)।
 
-### CPU + Vulkan llama.cpp extension বসান
+### ঐচ্ছিক CPU + Vulkan llama.cpp extension
 
-Termux host থেকে প্রকাশিত ARM64 extension release-এর তালিকা দেখুন ও install
-করুন:
-
-```bash
-ternux extension list
-ternux extension install llama-vulkan
-```
-
-Installer নির্বাচিত Debian guest-এ ঢুকে release SHA-256 যাচাই করে, archive path ও
-package metadata পরীক্ষা করে, তারপর atomic ভাবে
-`~/.local/opt/ternux-extensions/llama-vulkan`-এ বসায়। Model weight কপি বা manage
-করে না। Pinned b11582 package-টি prerelease হিসেবে প্রকাশিত। গন্তব্য আগে থেকেই
-থাকলে সেটি বদলানো হয় না, error দেখায়; in-place updater নেই। আবার বসানোর আগে
-পুরোনো install পরীক্ষা করে নিজে সরিয়ে নিন।
-
-Debian-এর ভেতরে tool চালু করে backend নির্দিষ্ট করুন:
-
-```bash
-source "$HOME/.local/opt/ternux-extensions/llama-vulkan/env.sh"
-llama-cli --list-devices
-llama-cli -m /path/to/your/model.gguf -ngl 0 -p 'What is 2 + 2?' -n 8
-llama-cli -m /path/to/your/model.gguf -ngl 99 -p 'What is 2 + 2?' -n 8
-```
-
-CPU fallback হিসেবে ব্যবহার করা যায়। Vulkan-এর জন্য system Vulkan ICD কাজ করতে হবে
-এবং Adreno device তালিকায় থাকতে হবে; আগে `vulkaninfo --summary` যাচাই করুন। এই
-package-এ শুধু CPU ও Vulkan backend আছে। ADT আগের অংশের নিজস্ব release-aware command
-দিয়ে install ও update হবে।
+সহজ install ও চালানোর ধাপ [দ্রুত শুরু](QUICK-START.html)-এ আছে।
+Release details এবং automatic ও manual—দুই install পদ্ধতির জন্য
+[repository extension guide](https://github.com/soobujmiah/ternux/blob/main/bn/guides/llama-vulkan-extension.md) দেখুন।
+Package-টি prerelease; ADT আগের মতো ADT-র release-aware command দিয়ে install ও
+update হবে।
 
 ---
 

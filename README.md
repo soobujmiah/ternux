@@ -84,43 +84,33 @@ Supported flags also include `--backend auto|zink|virgl`, `--user`, `--locale`, 
 
 **Full installer behavior, phases, profiles, UI, resume, update and removal:** [Installation](docs/INSTALLATION.md).
 
+### Optional: local CPU + Vulkan LLM
+
+In **Termux**, install the published ARM64 prerelease:
+
+```bash
+ternux extension install llama-vulkan
+```
+
+In Debian, load it and run a GGUF model you already have (CPU example):
+
+```bash
+source "$HOME/.local/opt/ternux-extensions/llama-vulkan/env.sh"
+llama-cli -m /path/to/model.gguf -ngl 0 -p 'What is 2 + 2?' -n 8
+```
+
+For the Vulkan command, checksum, manual install, and troubleshooting, see the
+[repository extension guide](https://github.com/soobujmiah/ternux/blob/main/guides/llama-vulkan-extension.md). The website's
+[quick guide](docs/QUICK-START.md#optional-local-cpu--vulkan-language-model)
+covers the short setup too.
+
 ---
 
 ## Manual installation
 
-For people who want every step under their own control:
-
-```bash
-# Termux
-termux-setup-storage
-pkg update -y && pkg upgrade -y
-pkg install x11-repo tur-repo -y
-pkg install termux-x11-nightly pulseaudio proot-distro virglrenderer-android \
-  zsh git curl wget nano tar termux-api -y
-pkg install mesa-vulkan-icd-freedreno -y   # Adreno/Zink; skip when unavailable
-proot-distro install debian
-
-# Debian
-proot-distro login debian --shared-tmp
-apt update
-DEBIAN_FRONTEND=noninteractive apt install -y \
-  sudo nano dbus-x11 pulseaudio pulseaudio-utils x11-utils mesa-utils \
-  libgl1-mesa-dri libvulkan1 vulkan-tools xfce4 xfce4-terminal \
-  vlc colord polkitd locales zip unzip xarchiver unrar-free 7zip
-
-adduser ternux
-for group in sudo video render audio; do
-  getent group "$group" >/dev/null && usermod -aG "$group" ternux
-done
-printf '%s\n' 'ternux ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/ternux
-chmod 0440 /etc/sudoers.d/ternux
-visudo -cf /etc/sudoers.d/ternux
-exit
-```
-
-Then follow the maintained guide for the **complete Zink/Turnip or VirGL setup, audio bridge, locale/fonts, launcher, validation and all remaining commands**:
-
-**[→ Full Manual Installation](docs/MANUAL.md)**
+Want to run each setup step yourself? The repository's maintained
+[manual installation guide](docs/MANUAL.md) covers Termux, Debian, both graphics
+routes, audio, locale/fonts, launchers, validation, and recovery in full.
 
 ---
 
@@ -239,7 +229,7 @@ They can coexist on the same Termux + PRoot Debian foundation, but the cross-pro
 
 ## Evidence
 
-The published August 2026 evidence snapshot is from a **Redmi Turbo 4 Pro / Snapdragon 8s Gen 4 / Adreno 825**. The observed renderer was:
+The graphics benchmark snapshot is from a **Redmi Turbo 4 Pro / Snapdragon 8s Gen 4 / Adreno 825**; the renderer was observed on that device:
 
 ```text
 zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP))
@@ -250,7 +240,8 @@ Supplied results include:
 - `glmark2`: **140** aggregate score; reported scene range **45–164 FPS**
 - `glmark2-es2 --off-screen`: **364** aggregate score; reported scene range **53–465 FPS**, with a recorded DRI3 warning
 - Blender 4.3.2: Zink/Turnip OpenGL viewport path observed; Cycles GPU rendering not established
-- llama.cpp and stable-diffusion.cpp: Vulkan build paths reported; numeric runtime performance not established
+- llama.cpp ARM64 b11582 prerelease: CPU and Adreno Vulkan known-answer passed on the same model/prompt; Vulkan assigned 29/29 layers. This does not establish HTP correctness, clean-device driver setup, or sustained performance. See the dated [accelerator release plan](docs/ACCELERATOR-RELEASE-PLAN.md).
+- stable-diffusion.cpp: Vulkan build path reported; prompt-to-image runtime remains unverified.
 
 These are device-specific evidence, not universal performance guarantees. The two glmark2 modes must not be compared as a speed ratio. Full scene values, methodology, caveats, and outstanding measurements are in [Benchmarks](docs/BENCHMARKS.md).
 

@@ -70,8 +70,9 @@ This verifies deterministic CLIP CPU execution for one fixed prompt/input. It
 does not establish independent numerical correctness or a connected UNet/VAE
 image pipeline.
 
-The [2026-10-13 engineering handoff](HANDOFF-2026-10-13.md) records the exact
-stop point, verified device evidence and the next work for another agent.
+This README is the maintained experiment record and continuation point. The
+main accelerator gates and current release status are tracked in
+[`docs/ACCELERATOR-RELEASE-PLAN.md`](../../docs/ACCELERATOR-RELEASE-PLAN.md).
 
 This is an experimental, independently written Android/Bionic helper, not an
 installed extension or a Stable Diffusion inference implementation. Local Dream

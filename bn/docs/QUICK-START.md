@@ -154,6 +154,27 @@ Android 12+ child-process policy PRoot process বন্ধ করতে পা�
 version-aware guidance দেখায়; safeguard বদলানোর আগে trade-off পড়ুন। বিস্তারিত:
 [সমস্যা সমাধান](TROUBLESHOOTING.html#the-desktop-dies-silently)।
 
+## ঐচ্ছিক: লোকাল CPU + Vulkan language model
+
+প্রকাশিত ARM64 llama.cpp extension-টি prerelease। **Termux**-এ install করুন:
+
+```bash
+ternux extension install llama-vulkan
+```
+
+এরপর `db` দিয়ে Debian-এ যান, extension চালু করুন এবং CPU বা Vulkan বেছে নিন:
+
+```bash
+source "$HOME/.local/opt/ternux-extensions/llama-vulkan/env.sh"
+llama-cli --list-devices
+llama-cli -m /path/to/model.gguf -ngl 0 -p 'What is 2 + 2?' -n 8
+llama-cli -m /path/to/model.gguf -dev Vulkan0 -ngl 99 -p 'What is 2 + 2?' -n 8
+```
+
+আপনার GGUF model আগের জায়গাতেই রাখুন। Vulkan-এর জন্য system Vulkan driver
+কাজ করতে হবে। হাতে install, checksum ও archive যাচাই, backend-এর বিস্তারিত এবং
+সমস্যা সমাধানের জন্য [repository extension guide](https://github.com/soobujmiah/ternux/blob/main/bn/guides/llama-vulkan-extension.md) দেখুন।
+
 ## এরপর
 
 - [ম্যানুয়াল ইনস্টলেশন](MANUAL.html) — প্রতিটি কমান্ড হাতে-কলমে, দুই GPU পথ

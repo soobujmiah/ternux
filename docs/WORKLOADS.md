@@ -106,11 +106,13 @@ cmake -S . -B build -DGGML_VULKAN=ON -DGGML_HEXAGON=OFF \
 cmake --build build --config Release -j"$(nproc)"
 ```
 
-Building from source is the current route, not the intended one. A release-based
-install with pinned inputs, checksums and a license review is a pending release
-gate — see [the accelerator release plan](ACCELERATOR-RELEASE-PLAN.html), order 5
-and order 6. Until that lands, treat a local build as yours: you chose the
-commit, so you own the result.
+`--with-llm` remains a source-build workload. It is separate from the published
+CPU + Vulkan prerelease, which can be installed as an extension. For the short
+setup, use [Quick start](QUICK-START.html#optional-local-cpu--vulkan-language-model);
+for automatic and manual release installation, use the
+[repository extension guide](https://github.com/soobujmiah/ternux/blob/main/guides/llama-vulkan-extension.md).
+The prerelease does not make the next stable Ternux release qualified; see the
+[accelerator release plan](ACCELERATOR-RELEASE-PLAN.html) for open gates.
 
 Model files are not installed by any workload. Keep them where you already have
 them and point llama.cpp at the path; ternux neither copies nor manages model

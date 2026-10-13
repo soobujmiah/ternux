@@ -98,6 +98,26 @@ wget -qO- https://soobujmiah.github.io/ternux/install.sh | bash
 
 ডিফল্টভাবে ইনস্টলারটি ব্যবহারকারীর অতিরিক্ত প্রশ্ন ছাড়াই চলে: Debian ব্যবহারকারী `ternux`, লোকেল `en_US.UTF-8` এবং স্বয়ংক্রিয় ব্যাকএন্ড নির্বাচন করে। এটি ডিভাইস পরীক্ষা করে, হোস্ট ও Debian উপাদান ইনস্টল করে, গ্রাফিক্স/অডিও সাজায়, লঞ্চার তৈরি করে এবং ফলাফল যাচাই করে।
 
+### ঐচ্ছিক: লোকাল CPU + Vulkan LLM
+
+**Termux**-এ প্রকাশিত ARM64 prerelease install করুন:
+
+```bash
+ternux extension install llama-vulkan
+```
+
+Debian-এ extension চালু করে আগে থেকে থাকা GGUF model চালান (CPU উদাহরণ):
+
+```bash
+source "$HOME/.local/opt/ternux-extensions/llama-vulkan/env.sh"
+llama-cli -m /path/to/model.gguf -ngl 0 -p 'What is 2 + 2?' -n 8
+```
+
+Vulkan command, checksum, manual install ও সমস্যা সমাধানের জন্য
+[repository extension guide](https://github.com/soobujmiah/ternux/blob/main/bn/guides/llama-vulkan-extension.md) দেখুন। Website-এর
+[সহজ guide](../docs/QUICK-START.md#optional-local-cpu--vulkan-language-model)-এও
+সংক্ষিপ্ত setup আছে।
+
 ### ৩. চালানোর আগে পর্যালোচনা করুন
 
 এক-কমান্ড পদ্ধতিটি বর্তমান দূরবর্তী সংস্করণ সরাসরি চালায়। সম্পূর্ণ পর্যালোচনার জন্য repository clone করুন, যাতে মূল entry script এবং ব্যবহৃত প্রতিটি module দেখা যায়:
@@ -141,37 +161,9 @@ bash install.sh --resume
 
 ## ম্যানুয়াল ইনস্টল
 
-প্রতিটি ধাপ নিজের নিয়ন্ত্রণে রাখতে চাইলে:
-
-```bash
-# Termux
-termux-setup-storage
-pkg update -y && pkg upgrade -y
-pkg install x11-repo tur-repo -y
-pkg install termux-x11-nightly pulseaudio proot-distro virglrenderer-android \
-  zsh git curl wget nano tar termux-api -y
-pkg install mesa-vulkan-icd-freedreno -y
-proot-distro install debian
-
-# Debian
-proot-distro login debian --shared-tmp
-apt update
-DEBIAN_FRONTEND=noninteractive apt install -y \
-  sudo nano dbus-x11 pulseaudio pulseaudio-utils x11-utils mesa-utils \
-  libgl1-mesa-dri libvulkan1 vulkan-tools xfce4 xfce4-terminal \
-  vlc colord polkitd locales zip unzip xarchiver unrar-free 7zip
-
-adduser ternux
-for group in sudo video render audio; do
-  getent group "$group" >/dev/null && usermod -aG "$group" ternux
-done
-printf '%s\n' 'ternux ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/ternux
-chmod 0440 /etc/sudoers.d/ternux
-visudo -cf /etc/sudoers.d/ternux
-exit
-```
-
-সম্পূর্ণ Zink/Turnip বা VirGL সেটআপ, অডিও সেতু, লোকেল/ফন্ট, লঞ্চার, যাচাই ও বাকি সব কমান্ডের জন্য [পূর্ণ ম্যানুয়াল ইনস্টলেশন](../docs/MANUAL.md) দেখুন।
+প্রতিটি setup ধাপ হাতে চালাতে চাইলে repository-র রক্ষণাবেক্ষণ করা
+[ম্যানুয়াল ইনস্টলেশন গাইড](../docs/MANUAL.md) দেখুন। এতে Termux, Debian, দুই
+graphics route, audio, locale/font, launcher, যাচাই ও recovery বিস্তারিত আছে।
 
 ---
 
@@ -266,7 +258,7 @@ Debian guest-এর companion command guest-এর ভেতরের কাজ 
 
 ## প্রমাণ
 
-প্রকাশিত August 2026 evidence snapshot একটি **Redmi Turbo 4 Pro / Snapdragon 8s Gen 4 / Adreno 825** ডিভাইস থেকে। পর্যবেক্ষিত renderer ছিল:
+গ্রাফিক্স benchmark snapshot একটি **Redmi Turbo 4 Pro / Snapdragon 8s Gen 4 / Adreno 825** ডিভাইসের; সেখানে renderer দেখা গিয়েছিল:
 
 ```text
 zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP))
@@ -277,7 +269,8 @@ zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP))
 - `glmark2`: **140** aggregate score; রিপোর্ট করা scene range **45–164 FPS**
 - `glmark2-es2 --off-screen`: **364** aggregate score; রিপোর্ট করা scene range **53–465 FPS**, DRI3 warning-সহ
 - Blender 4.3.2: Zink/Turnip OpenGL viewport পথ পর্যবেক্ষিত; Cycles GPU rendering প্রতিষ্ঠিত নয়
-- llama.cpp ও stable-diffusion.cpp: Vulkan build path রিপোর্ট করা হয়েছে; সংখ্যাগত runtime performance প্রতিষ্ঠিত নয়
+- llama.cpp ARM64 b11582 prerelease: একই model/prompt-এ CPU ও Adreno Vulkan known-answer pass; Vulkan-এ ২৯/২৯ layer assign হয়েছে। এতে HTP correctness, clean-device driver setup বা দীর্ঘ সময়ের performance প্রতিষ্ঠিত হয় না। তারিখসহ [accelerator release plan](../docs/ACCELERATOR-RELEASE-PLAN.md) দেখুন।
+- stable-diffusion.cpp: Vulkan build path রিপোর্ট করা হয়েছে; prompt-to-image runtime এখনও unverified।
 
 এগুলো নির্দিষ্ট ডিভাইসের প্রমাণ, সর্বজনীন performance guarantee নয়। দুই ধরনের glmark2 ফলাফলকে speed ratio হিসেবে তুলনা করা উচিত নয়। সম্পূর্ণ scene value, পদ্ধতি, caveat ও বাকি measurement [বেঞ্চমার্ক](../docs/BENCHMARKS.md)-এ আছে।
 

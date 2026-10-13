@@ -175,34 +175,12 @@ asset checksums. See [ADT's command guide](https://github.com/soobujmiah/adt/blo
 The standalone llama.cpp steps below use the same download tools. The archive
 extracts into your Debian home; no `sudo` is needed for the extraction or run.
 
-### Install the CPU + Vulkan llama.cpp extension
+### Optional CPU + Vulkan llama.cpp extension
 
-From the Termux host, list and install the published ARM64 extension release:
-
-```bash
-ternux extension list
-ternux extension install llama-vulkan
-```
-
-The installer enters the selected Debian guest, verifies the release SHA-256,
-checks archive paths and package metadata, then installs atomically under
-`~/.local/opt/ternux-extensions/llama-vulkan`. It does not copy or manage model
-weights. The pinned b11582 package is published as a prerelease. An existing
-destination is left untouched and reported; there is no in-place updater.
-Inspect and deliberately remove an old install before installing again.
-
-Inside Debian, load the tools and select the backend explicitly:
-
-```bash
-source "$HOME/.local/opt/ternux-extensions/llama-vulkan/env.sh"
-llama-cli --list-devices
-llama-cli -m /path/to/your/model.gguf -ngl 0 -p 'What is 2 + 2?' -n 8
-llama-cli -m /path/to/your/model.gguf -ngl 99 -p 'What is 2 + 2?' -n 8
-```
-
-CPU is the fallback. Vulkan requires a working system Vulkan ICD and a listed
-Adreno device; check `vulkaninfo --summary` first. This package contains CPU and
-Vulkan backends only. ADT remains installed and updated through ADT's own
+The short install and run path is in [Quick start](QUICK-START.html#optional-local-cpu--vulkan-language-model).
+For release details and both automatic and manual installation, use the
+[repository extension guide](https://github.com/soobujmiah/ternux/blob/main/guides/llama-vulkan-extension.md).
+The package is a prerelease; ADT remains installed and updated through ADT's own
 release-aware commands above.
 
 ---

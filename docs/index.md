@@ -24,7 +24,7 @@ something is already broken, go directly to [Troubleshooting](TROUBLESHOOTING.ht
   <a class="doc-card" href="FAQ.html"><span class="doc-card__icon">?</span><strong>Before you install</strong><span>Root, compatibility, storage, battery, privacy, and project limits.</span></a>
 </div>
 
-For optional ecosystem tools, use [installation and release guidance](INSTALLATION.html#choose-the-right-project-release), also available after installation with `ternux guides` in Termux or Debian.
+For the optional CPU + Vulkan llama.cpp extension, start with the [short guide](QUICK-START.html#optional-local-cpu--vulkan-language-model). Release and manual-install details live in the [repository guide](https://github.com/soobujmiah/ternux/blob/main/guides/llama-vulkan-extension.md). Other ecosystem tools are covered by [installation and release guidance](INSTALLATION.html), also available after installation with `ternux guides` in Termux or Debian.
 
 ## Operate the workspace
 

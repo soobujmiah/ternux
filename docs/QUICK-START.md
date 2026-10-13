@@ -147,6 +147,28 @@ readable settings and links version-aware guidance; review the system-wide
 trade-off before changing a safeguard. Full details in
 [Troubleshooting](TROUBLESHOOTING.html#the-desktop-dies-silently).
 
+## Optional: local CPU + Vulkan language model
+
+The published ARM64 llama.cpp extension is a prerelease. In **Termux**, install
+it with:
+
+```bash
+ternux extension install llama-vulkan
+```
+
+Then open Debian with `db`, load the extension, and choose CPU or Vulkan:
+
+```bash
+source "$HOME/.local/opt/ternux-extensions/llama-vulkan/env.sh"
+llama-cli --list-devices
+llama-cli -m /path/to/model.gguf -ngl 0 -p 'What is 2 + 2?' -n 8
+llama-cli -m /path/to/model.gguf -dev Vulkan0 -ngl 99 -p 'What is 2 + 2?' -n 8
+```
+
+Keep your GGUF model wherever it already is. Vulkan needs a working system
+Vulkan driver. For the manual install route, checksum and archive checks, backend
+details, and recovery steps, see the [repository extension guide](https://github.com/soobujmiah/ternux/blob/main/guides/llama-vulkan-extension.md).
+
 ## Next
 
 - [Installation](INSTALLATION.html) — every phase explained, all options, uninstall

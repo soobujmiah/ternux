@@ -110,7 +110,9 @@ required; clarity matters more than a specific prefix scheme.
 
 The site navigation source is `_data/docs.yml`. English and Bengali lists must stay
 in the same order and expose matching destinations. Core pages live in `docs/` and
-`bn/docs/`; landing pages are `index.html` and `bn/index.html`.
+`bn/docs/`; landing pages are `index.html` and `bn/index.html`. Repository-only
+technical guides may live in `guides/` and `bn/guides/`; exclude them from the
+website build and link them from the appropriate short web guide.
 
 When changing a user-facing behavior:
 

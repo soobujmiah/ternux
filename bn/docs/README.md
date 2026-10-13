@@ -11,11 +11,15 @@ command ও evidence boundary aligned রাখতে হবে।
 | Section | Page |
 |---|---|
 | শুরু করুন | `QUICK-START.md`, `INSTALLATION.md`, `MANUAL.md` |
+| Repository deep guide | `../guides/`, `../bn/guides/` (শুধু source repository-তে; website-এ প্রকাশিত নয়) |
 | পরিচালনা | `USAGE.md`, `CONFIGURATION.md`, `TROUBLESHOOTING.md` |
 | বুঝে নিন | `ARCHITECTURE.md`, `BENCHMARKS.md`, `FAQ.md` |
 | রেফারেন্স | `CLI.md`, root `CHANGELOG.md`, root `CONTRIBUTING.md` |
 
-`index.md` হলো task-based published hub। `_data/docs.yml` canonical sidebar ও page
+`QUICK-START.md` website-এ llama.cpp extension-এর সংক্ষিপ্ত পথ দেয়। Paired
+repository guide-এ release যাচাই ও automatic/manual install-এর বিস্তারিত আছে,
+তাই website-এ deep procedure পুনরাবৃত্তি হয় না। `index.md` হলো task-based published
+hub। `_data/docs.yml` canonical sidebar ও page
 order model; English ও বাংলা list structurally identical রাখতে হবে।
 
 ## Authoring contract

@@ -44,6 +44,8 @@ exclude:
   - vendor
   - docs/README.md
   - bn/docs/README.md
+  - guides
+  - bn/guides
   - Gemfile
   - Gemfile.lock
   - CLAUDE.md

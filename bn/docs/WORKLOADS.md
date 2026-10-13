@@ -105,11 +105,12 @@ cmake -S . -B build -DGGML_VULKAN=ON -DGGML_HEXAGON=OFF \
 cmake --build build --config Release -j"$(nproc)"
 ```
 
-Source থেকে build করা বর্তমান পথ, উদ্দিষ্ট পথ নয়। Pinned input, checksum ও
-license পর্যালোচনা সহ release-ভিত্তিক install একটি pending release gate — দেখুন
-[accelerator release plan](ACCELERATOR-RELEASE-PLAN.html)-এর ক্রম ৫ ও ক্রম ৬।
-সেটি আসার আগ পর্যন্ত local build-কে নিজের বলে ধরুন: commit আপনি বেছেছেন, তাই
-ফলাফলও আপনার।
+`--with-llm` এখনো source-build workload। এটি প্রকাশিত CPU + Vulkan prerelease-এর
+extension install থেকে আলাদা। সংক্ষিপ্ত setup-এর জন্য
+[দ্রুত শুরু](QUICK-START.html) দেখুন; automatic ও manual release install-এর জন্য
+[repository extension guide](https://github.com/soobujmiah/ternux/blob/main/bn/guides/llama-vulkan-extension.md) ব্যবহার করুন।
+এই prerelease পরের stable Ternux release-কে qualified করে না; খোলা gate-এর জন্য
+[accelerator release plan](ACCELERATOR-RELEASE-PLAN.html) দেখুন।
 
 Model file কোনো workload বসায় না। যেখানে আছে সেখানেই রাখুন এবং llama.cpp-কে সেই
 path দেখান; ternux model weight কপিও করে না, ব্যবস্থাপনাও করে না।

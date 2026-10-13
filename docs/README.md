@@ -11,10 +11,14 @@ navigation order, warnings, commands, and evidence boundaries must stay aligned.
 | Section | Pages |
 |---|---|
 | Start here | `QUICK-START.md`, `INSTALLATION.md`, `MANUAL.md` |
+| Repository deep guides | `../guides/`, `../bn/guides/` (source repository only; not rendered on the website) |
 | Operate | `USAGE.md`, `CONFIGURATION.md`, `TROUBLESHOOTING.md` |
 | Understand | `ARCHITECTURE.md`, `BENCHMARKS.md`, `FAQ.md` |
 | Reference | `CLI.md`, root `CHANGELOG.md`, root `CONTRIBUTING.md` |
 
+`QUICK-START.md` carries the website's short optional llama.cpp extension path.
+The paired repository guides carry release verification and automatic/manual
+installation detail, so the website does not duplicate the deep procedures.
 `index.md` is the task-based published hub. `_data/docs.yml` is the canonical
 sidebar and page-order model; English and Bengali lists must remain structurally
 identical.
