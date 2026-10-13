@@ -1199,7 +1199,7 @@ tnx_install() {
           "Open the Termux:X11 app once and leave it running" \
           "Start from Termux: ternux start  (or: x)" \
           "In Xfce Terminal:  ternux status" \
-          "Host diagnostics: ternux doctor"
+          "Host diagnostics: ternux doctor" \
           "Install tool help: ternux guides  (also inside Debian)"
       } 2>&1 | tnx_frame_stream
       tnx_frame_close success
@@ -1213,7 +1213,7 @@ tnx_install() {
         "Open the Termux:X11 app once and leave it running" \
         "Start from Termux: ternux start  (or: x)" \
         "In Xfce Terminal:  ternux status" \
-        "Host diagnostics: ternux doctor"
+        "Host diagnostics: ternux doctor" \
         "Install tool help: ternux guides  (also inside Debian)"
     fi
   else
