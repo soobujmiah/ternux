@@ -1,5 +1,8 @@
 # Standalone Android QNN discovery from Debian PRoot
 
+The [2026-10-13 engineering handoff](HANDOFF-2026-10-13.md) records the exact
+stop point, verified device evidence and the next work for another agent.
+
 This is an experimental, independently written Android/Bionic helper, not an
 installed extension or a Stable Diffusion inference implementation. Local Dream
 is a source reference only; it is not required or installed.
