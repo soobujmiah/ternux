@@ -101,7 +101,8 @@ jobs:
           EOF
           tar -C release -czf ternux-llama-htp-sm8735-b11582.tar.gz ternux-llama-htp-sm8735-b11582
           sha256sum ternux-llama-htp-sm8735-b11582.tar.gz > ternux-llama-htp-sm8735-b11582.tar.gz.sha256
-          tar -tzf ternux-llama-htp-sm8735-b11582.tar.gz | head -n 40
+          tar -tzf ternux-llama-htp-sm8735-b11582.tar.gz > archive-contents.txt
+          sed -n '1,40p' archive-contents.txt
 
       - name: Create or refresh draft experimental release
         env:

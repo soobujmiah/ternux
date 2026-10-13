@@ -193,6 +193,27 @@ runtime backend/device, RAM ও temperature record করুন। তার আ
 
 ---
 
+## পরীক্ষামূলক: SM8735-এর জন্য llama.cpp Hexagon HTP artifact
+
+আলাদা `llama.cpp Hexagon HTP artifact` workflow upstream llama.cpp tag
+`b11582` (commit `af50f2f248b475d9760f8e67503d01c0f194f5f4`) থেকে reusable
+Linux aarch64 package বানায়। এতে workflow-এ নথিভুক্ত pinned Snapdragon Linux
+toolchain image digest ব্যবহার হয়। Workflow `ternux-llama-htp-sm8735-b11582`
+নামে draft prerelease তৈরি করে; device retest নথিভুক্ত হলে package ও SHA-256
+[Ternux Releases page](https://github.com/soobujmiah/ternux/releases)-এ থাকবে।
+
+এটি research artifact; `--with-llm`-এর অংশ বা supported installer feature নয়।
+আগের b11582 prebuilt Redmi Turbo 4 Pro / SM8735-এ brokered FastRPC path দিয়ে
+HTP operator চালিয়েছিল, কিন্তু একই deterministic prompt-এ CPU result-এর সঙ্গে
+known-output তুলনা মেলেনি। ওই test-এ সঠিক inference **fail** করেছে। Support বা
+performance দাবি করার আগে release package-টিও device-এ retest করতে হবে। এতে
+Qualcomm vendor runtime library, firmware বা Android Binder/FastRPC broker নেই।
+
+Workflow ও source pin: [llama-htp-artifact.yml](../../.github/workflows/llama-htp-artifact.yml)।
+Device test detail: [SKB investigation](https://github.com/soobujmiah/skb/blob/main/devices/redmi-turbo-4-pro/evidence/debian-proot-npu-investigation-2026-10-13.md)।
+
+---
+
 ## Observed: stable-diffusion.cpp Vulkan build
 
 দেওয়া note-এ একই ফোনে সফল build report করা হয়েছে:

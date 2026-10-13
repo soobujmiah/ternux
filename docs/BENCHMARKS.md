@@ -193,6 +193,30 @@ llama.cpp tokens-per-second claim for the tested phone.
 
 ---
 
+## Experimental: llama.cpp Hexagon HTP artifact for SM8735
+
+The separate `llama.cpp Hexagon HTP artifact` workflow builds a reusable Linux
+aarch64 package from upstream llama.cpp tag `b11582` (commit
+`af50f2f248b475d9760f8e67503d01c0f194f5f4`). It uses the pinned upstream
+Snapdragon Linux toolchain image digest recorded in the workflow. The workflow
+creates a draft prerelease named `ternux-llama-htp-sm8735-b11582`; once the
+device retest is recorded, the package and SHA-256 will be available from the
+[Ternux Releases page](https://github.com/soobujmiah/ternux/releases).
+
+This is a research artifact, not part of `--with-llm` and not a supported
+installer feature. The existing b11582 prebuilt ran HTP operators through the
+brokered FastRPC path on Redmi Turbo 4 Pro / SM8735, but a deterministic
+known-output comparison disagreed with the CPU result. Correct inference has
+therefore **failed** for that test. Retest the exact packaged build before
+making any support or performance claim. The package does not include
+Qualcomm vendor runtime libraries, firmware, or the Android Binder/FastRPC
+broker.
+
+Workflow and source pin: [llama-htp-artifact.yml](../.github/workflows/llama-htp-artifact.yml).
+Device test details: [SKB investigation](https://github.com/soobujmiah/skb/blob/main/devices/redmi-turbo-4-pro/evidence/debian-proot-npu-investigation-2026-10-13.md).
+
+---
+
 ## Observed: stable-diffusion.cpp Vulkan build
 
 The supplied notes report a successful build on the same phone with:
