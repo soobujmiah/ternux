@@ -167,6 +167,28 @@ _tnx_stripv() {
 
 _tnx_strip_controls() { _tnx_stripv "$1"; printf '%s' "$_TNX_TXT"; }
 
+# _TNX_CW <- display cells for one code point, biased to 2 when in doubt.
+#
+# Invariant 1 is the reason this table exists: middle dot, bullet and braille
+# render two cells wide at normal zoom on many Android fonts, and all three sit
+# *below* the CJK range, so a single "> U+2E7F is wide" threshold counts them as
+# one and the right border is pushed out. Over-estimating only clips a log line
+# a cell early, which is cosmetic; under-estimating shreds the frame.
+#
+# ternux's own frame is pure ASCII (`= + |`), so nothing here can narrow it —
+# this only ever applies to text coming out of apt, dpkg, curl and friends.
+_tnx_cellwidth() {
+  local c="$1"
+  _TNX_CW=1
+  if (( c > 11903 )); then _TNX_CW=2                              # CJK onwards, emoji
+  elif (( c == 183 || c == 8226 )); then _TNX_CW=2                # middle dot, bullet
+  elif (( c >= 8592 && c <= 8959 )); then _TNX_CW=2               # arrows, math operators
+  elif (( c >= 9312 && c <= 9727 )); then _TNX_CW=2               # enclosed alnum, box drawing, shapes
+  elif (( c >= 9728 && c <= 10175 )); then _TNX_CW=2              # misc symbols, dingbats
+  elif (( c >= 10240 && c <= 10495 )); then _TNX_CW=2             # braille
+  fi
+}
+
 # _TNX_CLIP / _TNX_CLIPW <- $2 clipped to at most $1 display cells.
 # Pure-ASCII input takes a single-slice fast path; anything else is measured
 # per character so wide glyphs never push the right border out.
@@ -184,8 +206,7 @@ _tnx_clipv() {
   while (( i < n && w < max )); do
     ch="${s:i:1}"
     printf -v code '%d' "'$ch" 2>/dev/null || code=63
-    cw=1
-    (( code > 11903 )) && cw=2
+    _tnx_cellwidth "$code"; cw=$_TNX_CW
     (( w + cw > max )) && break
     out+="$ch"; w=$(( w + cw )); i=$(( i + 1 ))
   done
@@ -193,7 +214,7 @@ _tnx_clipv() {
     while (( w + 1 > max && ${#out} > 0 )); do
       ch="${out: -1}"; out="${out:0:${#out}-1}"
       printf -v code '%d' "'$ch" 2>/dev/null || code=63
-      if (( code > 11903 )); then w=$(( w - 2 )); else w=$(( w - 1 )); fi
+      _tnx_cellwidth "$code"; w=$(( w - _TNX_CW ))
     done
     out+='~'; w=$(( w + 1 ))
   fi

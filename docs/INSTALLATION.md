@@ -352,6 +352,10 @@ using it.
 | `debian` | **verified on a device** | The default, and the only one with measured results in [Evidence & benchmarks](BENCHMARKS.html) |
 | `ubuntu` | profile written, **not device-verified** | Same apt/dpkg tooling, so holds and diversions work identically. `snapd` is additionally held: it cannot work without systemd inside a container, and packages that exist only as snaps cannot be installed there at all |
 
+An interactive install asks which guest to use when `--distro` was not given,
+alongside the user name and shell prompts, and names which one is verified.
+Unattended runs take the default.
+
 Any other name is refused rather than attempted. Selecting a guest without a
 verified result prints a warning and does not change what the installer claims:
 treat the result as unverified until it is measured on your own device.

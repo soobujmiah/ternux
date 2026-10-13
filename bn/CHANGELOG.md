@@ -57,6 +57,20 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
   করত এবং তার মধ্য দিয়ে `uninstall state --yes` চালাত। কেবল test-এর redirect করা
   `HOME` সেটিকে প্রকৃত installation থেকে দূরে রেখেছিল।
 
+### Installer এখন কোন guest জিজ্ঞেস করে, আর চওড়া glyph ঠিকভাবে মাপে
+
+- Interactive install user name ও shell চাইত, কিন্তু guest distribution কখনো চাইত না —
+  `--distro` কেবল flag হিসেবেই পৌঁছানো যেত। এখন অন্য দুটোর পাশেই জিজ্ঞেস করে, এবং কোন
+  guest ডিভাইসে যাচাই করা তা জানায়। Unattended run অপরিবর্তিত।
+- Renderer-এর নিজের প্রথম invariant যে width-measurement bug বর্ণনা করে, সেটি সংশোধন
+  করা হলো: middle dot, bullet ও braille অনেক Android ফন্টে দুই cell চওড়া render হয়, আর
+  তিনটিই CJK পরিসরের **নিচে** — তাই একমাত্র "U+2E7F-এর উপরে চওড়া" threshold সেগুলোকে এক
+  cell গুনত এবং ডান border বাইরে ঠেলে দিত। এখন একটি সঠিক table arrow, mathematical
+  operator, enclosed alphanumeric, box drawing, shape, dingbat ও braille ধরে, সন্দেহ
+  হলে দুই cell ধরে: বেশি ধরলে log line এক cell আগে clip হয় — যা কেবল দেখার বিষয় — আর কম
+  ধরলে frame ছিন্নভিন্ন হয়। ternux-এর নিজের frame পুরোটা ASCII, তাই table-এর কিছুই সেটি
+  সরু করতে পারে না — এটি কেবল apt, dpkg ও curl-এর লেখায় প্রযোজ্য।
+
 ### Installer frame আর স্ক্রিনের কিনারায় চেপে থাকে না
 
 - Frame ডান দিকে একটি কলাম খালি রাখত আর বাম দিকে কিছুই না, ফলে দুই কিনারায় চেপে

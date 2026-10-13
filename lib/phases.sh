@@ -997,6 +997,45 @@ _tnx_execute_install_phase() {
   esac
 }
 
+# Prompt for the guest distribution when neither a flag nor saved state chose
+# one. Same tty/deadline/default handling as the other prompts. The prompt names
+# which guest is device-verified, because only one is.
+tnx_prompt_distro() {
+  local default_distro="${1:-debian}"
+  local timeout="${2:-20}"
+  local tty_fd="" input=""
+
+  if { exec 3<>/dev/tty; } 2>/dev/null; then
+    tty_fd=3
+  elif [ -t 0 ]; then
+    tty_fd=0
+  fi
+
+  if [ -z "$tty_fd" ]; then
+    printf '%s\n' "$default_distro"
+    return 0
+  fi
+
+  printf "${TNX_CC}?${TNX_C0} Guest distribution — %s? [default: %s, the verified one] (${timeout}s): " \
+    "$(printf '%s' "$TERNUX_DISTRO_KNOWN" | tr ' ' '/')" "$default_distro" >&2
+  if ! IFS= read -r -t "$timeout" -u "$tty_fd" input; then
+    printf "\n${TNX_CY}[INFO]${TNX_C0} Guest prompt timed out; using '%s'.\n" "$default_distro" >&2
+    printf '%s\n' "$default_distro"
+    return 0
+  fi
+
+  input="$(printf '%s' "$input" | tr -d '\r\n' | tr '[:upper:]' '[:lower:]')"
+  if [ -z "$input" ]; then
+    printf '%s\n' "$default_distro"
+  elif tnx_distro_known "$input"; then
+    printf '%s\n' "$input"
+  else
+    printf "${TNX_CY}[INFO]${TNX_C0} '%s' is not one of %s; using '%s'.\n" \
+      "$input" "$TERNUX_DISTRO_KNOWN" "$default_distro" >&2
+    printf '%s\n' "$default_distro"
+  fi
+}
+
 # Prompt for the Termux host shell when neither a flag nor saved state chose
 # one. Mirrors tnx_prompt_username: a real tty, a deadline, and the default on
 # timeout, empty input or a non-interactive run.
@@ -1172,6 +1211,9 @@ tnx_install() {
     fi
     if [ "$shell_explicit" -eq 0 ]; then
       shell_choice="$(tnx_prompt_shell "$shell_choice" 20)"
+    fi
+    if [ "$distro_explicit" -eq 0 ]; then
+      distro_choice="$(tnx_prompt_distro "$distro_choice" 20)"
     fi
   fi
 

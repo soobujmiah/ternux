@@ -59,6 +59,23 @@ Notable changes to ternux. Dates are ISO 8601.
   CLI and call `uninstall state --yes` through it. Only the test's redirected
   `HOME` kept that away from a real installation.
 
+### The installer asks which guest to use, and measures wide glyphs correctly
+
+- An interactive install asked for the user name and the shell but never for the
+  guest distribution, so `--distro` was reachable only as a flag. It now asks,
+  alongside the other two, naming which guest is device-verified. Unattended runs
+  are unaffected.
+- Fixed a width-measurement bug the renderer's own first invariant describes:
+  middle dot, bullet and braille render two cells wide on many Android fonts and
+  all three sit **below** the CJK range, so the single "wide above U+2E7F"
+  threshold counted them as one cell and the right border was pushed out. A
+  proper table now covers arrows, mathematical operators, enclosed alphanumerics,
+  box drawing, shapes, dingbats and braille, biased to two cells when in doubt:
+  over-estimating clips a log line a cell early, which is cosmetic, while
+  under-estimating shreds the frame. ternux's own frame is pure ASCII, so nothing
+  in the table can narrow it — it only applies to text coming out of apt, dpkg
+  and curl.
+
 ### The installer frame is no longer flush against the screen edges
 
 - The frame kept a single unused column on the right and nothing on the left,

@@ -335,6 +335,9 @@ ternux যা বসায় সব একটি PRoot-Distro container-এর 
 | `debian` | **ডিভাইসে যাচাই করা** | ডিফল্ট, এবং [প্রমাণ ও বেঞ্চমার্ক](BENCHMARKS.html)-এ মাপা ফলাফল আছে কেবল এটিরই |
 | `ubuntu` | profile লেখা, **ডিভাইসে যাচাই করা নয়** | একই apt/dpkg সরঞ্জাম, তাই hold ও diversion একইভাবে কাজ করে। অতিরিক্তভাবে `snapd` hold করা হয়: container-এ systemd ছাড়া সেটি চলতে পারে না, আর কেবল snap হিসেবে থাকা package সেখানে বসানোই যায় না |
 
+`--distro` না দিলে interactive install জিজ্ঞেস করে কোন guest ব্যবহার হবে — user name
+ও shell prompt-এর পাশেই — এবং কোনটি যাচাই করা তা জানায়। Unattended run ডিফল্ট নেয়।
+
 অন্য যে কোনো নাম চেষ্টা না করে প্রত্যাখ্যান করা হয়। যাচাই-না-করা guest বাছলে একটি
 warning আসে এবং installer-এর দাবি বদলায় না: নিজের ডিভাইসে মাপা না হওয়া পর্যন্ত
 ফলাফলকে unverified ধরুন।

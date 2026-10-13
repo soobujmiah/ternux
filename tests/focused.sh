@@ -1243,6 +1243,28 @@ check "the GPU phase holds what the profile names, not a fixed list" bash -c '
   exit 0
 ' _ "$ROOT"
 
+# Invariant 1 of lib/ui.sh: middle dot, bullet and braille render two cells wide
+# on many Android fonts and all three sit below the CJK range, so a single
+# "wide above U+2E7F" threshold counted them as one cell and the right border
+# was pushed out. Over-estimating is the safe direction.
+check "ambiguous-width glyphs are measured as two cells" bash -c '
+  . "$1/lib/ui.sh"
+  for pair in 183:2 8226:2 10303:2 8594:2 9608:2 28450:2 97:1 32:1; do
+    code="${pair%%:*}"; want="${pair##*:}"
+    _tnx_cellwidth "$code"
+    [ "$_TNX_CW" = "$want" ] || { echo "U+$code: got $_TNX_CW want $want" >&2; exit 1; }
+  done
+' _ "$ROOT"
+check "a clipped line never exceeds the slot it was given" bash -c '
+  . "$1/lib/ui.sh"
+  for text in "plain ascii line" "bullet • and dot · mixed" "⠿⠿⠿⠿⠿⠿⠿⠿⠿⠿" "漢字 mixed with latin"; do
+    for max in 8 12 20; do
+      _tnx_clipv "$max" "$text"
+      [ "$_TNX_CLIPW" -le "$max" ] || { echo "width $_TNX_CLIPW > max $max for: $text" >&2; exit 1; }
+    done
+  done
+' _ "$ROOT"
+
 printf '1..%d\n' "$((pass + fail))"
 printf '# pass %d\n# fail %d\n' "$pass" "$fail"
 [ "$fail" -eq 0 ]
