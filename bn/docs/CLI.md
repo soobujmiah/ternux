@@ -70,7 +70,7 @@ ternux install [options]
 | `--with-llm` | Vulkan-সহ llama.cpp বিল্ড |
 | `--with-network` | নেটওয়ার্ক টুলস ইনস্টল |
 | `--with-media` | মিডিয়া টুলস ইনস্টল |
-| `--with-blender` | Blender ইনস্টল |
+| `--with-blender` | Blender ও headless GPU render-এর জন্য Xvfb ইনস্টল |
 | `--all` | সব ঐচ্ছিক ওয়ার্কলোড |
 | `--resume` | completed phase skip এবং interrupted run-এর saved optional workload set restore |
 

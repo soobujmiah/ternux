@@ -1120,6 +1120,19 @@ check "optional llama workload pins a safe llama.cpp revision" bash -c '
   ! grep -Fq "rm -rf ~/llama.cpp" "$1/lib/phases.sh"
 ' _ "$ROOT"
 
+if env TERNUX_STATE_DIR="$TMP/state-blender-xvfb" HOME="$TMP/home-blender-xvfb" \
+  MARKER="$TMP/blender-xvfb-command" bash -c '
+    . "$1/lib/phases.sh"
+    tnx_guest_login(){ printf "%s\n" "$*" > "$MARKER"; }
+    tnx_ok(){ :; }
+    tnx_warn(){ :; }
+    tnx_phase_extras ternux blender && grep -Eq "apt install .*blender xvfb" "$MARKER"
+  ' _ "$ROOT"; then
+  ok "Blender workload installs Xvfb for headless GPU rendering"
+else
+  not_ok "Blender workload installs Xvfb for headless GPU rendering"
+fi
+
 # The Termux host frontend streams the installer into the selected Debian guest.
 EXT_HOST_BIN="$TMP/extension-host-bin"
 mkdir -p "$EXT_HOST_BIN"

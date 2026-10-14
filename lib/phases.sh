@@ -781,8 +781,8 @@ tnx_phase_extras() {
         fi
         ;;
       blender)
-        if tnx_guest_login --shared-tmp --user "$user_name" -- bash -c "$APT blender"; then
-          tnx_ok "Blender installed"
+        if tnx_guest_login --shared-tmp --user "$user_name" -- bash -c "$APT blender xvfb"; then
+          tnx_ok "Blender and headless Xvfb support installed"
         else
           tnx_warn "Blender install failed."
           rc=1

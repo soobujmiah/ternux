@@ -67,7 +67,7 @@ ternux install [options]
 | `--with-llm` | Build llama.cpp with Vulkan |
 | `--with-network` | Install network tools |
 | `--with-media` | Install media tools |
-| `--with-blender` | Install Blender |
+| `--with-blender` | Install Blender and Xvfb for headless GPU rendering |
 | `--all` | Install all optional workloads |
 | `--resume` | Skip completed phases and restore the interrupted run’s saved optional workload set |
 | `--ui MODE` | Installer renderer: `auto` (default), `dashboard`, `plain` or `off` |

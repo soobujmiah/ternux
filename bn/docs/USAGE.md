@@ -135,12 +135,11 @@ blender --version | tee ~/blender-version.txt
 
 প্রতিষ্ঠিত Termux/PRoot Redmi workstation-এ default render path হলো
 **Zink/Turnip দিয়ে GPU offload-সহ EEVEE Next**। এই device-এ Cycles GPU
-প্রমাণিত নয়। Headless render-এর জন্যও X11 GL context দরকার: একবার Xvfb
-install করে virtual display চালু করুন, তারপর Blender-এ দুইটি environment
-variable দিন:
+প্রমাণিত নয়। `--with-blender` Xvfb-ও install করে। Headless render-এ X11 GL
+context দরকার: virtual display চালু করে Blender-এ দুইটি environment variable
+দিন:
 
 ```bash
-sudo apt install -y xvfb
 Xvfb :9 -screen 0 1280x720x24 &
 DISPLAY=:9 GALLIUM_DRIVER=zink blender -b --factory-startup --python render.py
 ```

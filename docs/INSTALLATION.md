@@ -311,7 +311,7 @@ message instead of producing a half-broken desktop.
 | 6 | **Audio, locale, fonts** | Bridges PulseAudio loopback-only, generates your locale, installs emoji/powerline/Nerd fonts | Sound crosses the container boundary over TCP — loopback only. Fonts avoid tofu boxes in the terminal |
 | 7 | **Launcher** | Writes `~/x.sh` tuned to your GPU route, syntax-checks it | One command (`x`) must reliably start audio → display → desktop in the right order |
 | 8 | **Shortcuts** | Installs `x`, `killx`, `db`, `droot`, `xgo`, `sysmon`, `clean-mesa` for the selected Debian user | Sets up quick shortcuts so everyday operations need only a single command |
-| 9 | **Optional extras** | Dev tools, llama.cpp, network tools, media tools, Blender — only what you asked for | Keep the base install lean; each profile has different storage/thermal costs |
+| 9 | **Optional extras** | Dev tools, llama.cpp, network tools, media tools, Blender + Xvfb for headless EEVEE — only what you asked for | Keep the base install lean; each profile has different storage/thermal costs |
 | 10 | **Android safeguard check** | Reads the Android child-process setting when available and prints version-aware guidance | Signal 9 can also come from memory pressure or OEM battery policy; collect evidence before changing a system-wide safeguard |
 | 11 | **Verification** | Confirms every critical binary, file and permission actually landed | Confirms the environment is runnable — `apt` completing without errors does not guarantee the desktop will launch |
 
@@ -334,7 +334,7 @@ bash install.sh --with-dev          # Git, Node.js, Python, build tools
 bash install.sh --with-llm          # llama.cpp + Vulkan (local AI)
 bash install.sh --with-network      # nmap, tmux (authorised testing only)
 bash install.sh --with-media        # ffmpeg, GIMP, Audacity, ImageMagick
-bash install.sh --with-blender      # Blender (lightweight scenes)
+bash install.sh --with-blender      # Blender + Xvfb for headless EEVEE rendering
 bash install.sh --all               # every optional profile
 bash install.sh --resume            # continue after an interruption
 bash install.sh --version           # show version
@@ -345,11 +345,10 @@ bash install.sh --help              # show help
 and gives the manual equivalent of every one of them — useful before you let an
 installer run, and the way to finish a workload that failed.
 
-For headless Blender rendering on the established Adreno workstation, install
-Xvfb inside Debian with `sudo apt install -y xvfb`; Blender uses EEVEE Next with
-GPU offload through Zink/Turnip. The [Blender usage guide](USAGE.html) gives the
-required display variables and tested command. Xvfb is an optional rendering
-dependency; it is not installed by `--with-blender`.
+On the established Adreno workstation, `--with-blender` also installs Xvfb for
+headless EEVEE Next rendering with GPU offload through Zink/Turnip. The
+[Blender usage guide](USAGE.html) gives the required display variables and
+tested command.
 
 After installation, use the `ternux` CLI for diagnostics and management:
 

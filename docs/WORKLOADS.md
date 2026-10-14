@@ -23,7 +23,7 @@ and so a failed install can be finished by hand instead of started over.
 | Local AI | `--with-llm` | Vulkan and shader toolchain, then llama.cpp **built from source** with `GGML_VULKAN=ON` |
 | Network | `--with-network` | nmap, tmux |
 | Media | `--with-media` | ffmpeg, GIMP, Audacity, ImageMagick |
-| Blender | `--with-blender` | Blender (about 95 MB with `--no-install-recommends`) |
+| Blender | `--with-blender` | Blender and Xvfb for headless EEVEE rendering (about 95 MB for Blender with `--no-install-recommends`) |
 | Everything | `--all` | all five |
 
 The base desktop — Xfce4, terminal, VLC, archive tools, Mesa utilities, Vulkan
@@ -79,11 +79,12 @@ sudo apt install -y ffmpeg gimp audacity imagemagick
 **Blender**
 
 ```bash
-sudo apt install -y --no-install-recommends blender
+sudo apt install -y --no-install-recommends blender xvfb
 ```
 
 `--no-install-recommends` drops about 23 MB of speech-synthesis packages Blender
-does not need. Before rendering, read
+does not need. Xvfb supplies the virtual X11 context required by the tested
+headless Zink/Turnip route. Before rendering, read
 [Graphics persistence](GRAPHICS-PERSISTENCE.html): on recent Adreno hardware the
 GPU path depends on a Mesa driver newer than Debian's, and a package update can
 remove it.
