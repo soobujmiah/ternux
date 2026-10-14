@@ -46,10 +46,10 @@ configuration পরিবর্তন হয়নি।
 
 Default HMX matmul selection-এ `test-backend-ops -b HTP0 -o MUL_MAT` চালিয়ে ৫২৯টি
 failing case পাওয়া গেছে। সব numerical error `inf`; backend result **FAIL**। HTP
-hardware তথ্য v73, HMX উপস্থিত, 8 MB VTCM। একই operator suite-এ
-`GGML_HEXAGON_MM_SELECT=1` (HVX-only matmul) দিলে ১৮০ সেকেন্ড limit-এ ২,৩৮৯টি
-case output-এর পর থামানো হয়েছে। ওই অসম্পূর্ণ output-এ numerical failure দেখা
-যায়নি, তবে suite শেষ হয়নি—এটি pass নয়। দুই run-এ `closeSession [0, 0]` হয়েছে।
+hardware তথ্য v73, HMX উপস্থিত, 8 MB VTCM। পরে `GGML_HEXAGON_MM_SELECT=1` দিয়ে
+HVX-only suite চালিয়ে **1,389/1,389 HTP `MUL_MAT` test pass** হয়েছে। CPU backend
+skip হয়েছে; HTP backend OK এবং broker clean `closeSession [0, 0]` দিয়েছে। এটি
+শুধু এই operator suite-এর ফল, সব HTP operator নয়।
 
 এতে SM8735-এ HMX `MUL_MAT` correctness সমস্যা নিশ্চিত হয়, কিন্তু কারণ নিশ্চিত
 হয় না। Upstream-এ অন্য SM7750 v73 device-এর HMX FP16 support না থাকার সঙ্গে একই
@@ -57,13 +57,22 @@ case output-এর পর থামানো হয়েছে। ওই অস
 আছে। এগুলো অন্য device-এর diagnostic lead, SM8735-এর confirmed root cause নয়:
 [SM7750 HMX report](https://github.com/ggml-org/llama.cpp/issues/29473),
 [SM8650 flash-attention report](https://github.com/ggml-org/llama.cpp/issues/26759)।
-SM8735-এর HMX FP16 capability ও সম্পূর্ণ HVX operator coverage আলাদাভাবে যাচাই
+SM8735-এর HMX FP16 capability ও অন্য HVX operator coverage আলাদাভাবে যাচাই
 বাকি। `GGML_HEXAGON_MM_SELECT=1` দিয়ে `FLASH_ATTN_EXT` run ১২০ সেকেন্ডের সীমায়
 থেমেছে; ৪,৬৬০ output line-এর মধ্যে ১,৮৪৮টি infinite numerical-error case এবং
 ১১২টি pass ছিল (exit 124)। Suite অসম্পূর্ণ, pass নয়; child থামানো হয়েছে এবং
 broker CDSP session cleanly close করেছে। তাই flash-attention operator correctness
 এখনও unqualified। HTP launcher এখনও HVX matmul বেছে নিয়ে flash attention বন্ধ
 রাখে।
+
+Reduced queue setting (`GGML_HEXAGON_OPBATCH=128`,
+`GGML_HEXAGON_OPQUEUE=2`) দিয়ে broad HVX-selected
+`test-backend-ops -b HTP0` run-এ abort-এর আগে 3,520টি passing case line,
+`DIV`, `GET_ROWS`, `SWIGLU_CLAMP`, `ADD` ও `SUB`-এ ৪৫টি numerical-error failure,
+এবং ৪,৮৭৪টি unsupported case log হয়েছে। পরে
+`dspqueue_read failed: 0x0000002e`-এ child abort করেছে (exit -6); broker CDSP
+session cleanly close করেছে। এটি অসম্পূর্ণ, broad suite pass নয়। আলাদা
+`MUL_MAT_W4A4` check 1/1 pass; all-operator abort-এর কারণ এখনও অজানা।
 
 ## প্রয়োজনীয়তা
 

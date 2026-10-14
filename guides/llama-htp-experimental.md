@@ -47,11 +47,10 @@ package was installed and no Ternux runtime configuration was changed.
 With the default HMX matmul selection, `test-backend-ops -b HTP0 -o MUL_MAT`
 finished with 529 failing cases. Every reported numerical error was `inf` and
 the backend reported **FAIL**; HTP hardware information was v73, HMX present,
-and 8 MB VTCM. Repeating the same operator suite with
-`GGML_HEXAGON_MM_SELECT=1` (HVX-only matmul) was stopped at the 180-second
-bound after 2,389 case outputs. No numerical failures appeared in that partial
-output, but the suite did not finish and is not a pass. Both runs ended with
-`closeSession [0, 0]`.
+and 8 MB VTCM. The HVX-only rerun with `GGML_HEXAGON_MM_SELECT=1` completed
+**1,389/1,389 HTP `MUL_MAT` tests** successfully. The CPU backend was skipped,
+and the broker reported a clean `closeSession [0, 0]`. This result covers this
+operator suite only, not all HTP operators.
 
 This confirms an HMX `MUL_MAT` correctness problem on SM8735; it does not prove
 why it happens. Upstream has a similar v73 report for an SM7750 device whose
@@ -59,7 +58,7 @@ HMX does not support FP16, and a separate v75 report about a flash-attention
 queue race. These are related diagnostic leads from different devices, not a
 confirmed root cause for SM8735: [SM7750 HMX report](https://github.com/ggml-org/llama.cpp/issues/29473),
 [SM8650 flash-attention report](https://github.com/ggml-org/llama.cpp/issues/26759).
-The device's HMX FP16 capability and full HVX operator coverage still need
+The device's HMX FP16 capability and other HVX operator coverage still need
 separate checks. A `FLASH_ATTN_EXT` run with `GGML_HEXAGON_MM_SELECT=1` was
 bounded at 120 seconds and recorded 1,848 infinite numerical-error cases and
 112 passing cases among 4,660 output lines before timeout (exit 124). The suite
@@ -67,6 +66,14 @@ was incomplete, not a pass; the child stopped and the broker closed the CDSP
 session cleanly. Flash-attention operator correctness is therefore still
 unqualified. The HTP launcher continues to force HVX matmul with flash
 attention off.
+
+A broad HVX-selected `test-backend-ops -b HTP0` run used reduced queue settings
+(`GGML_HEXAGON_OPBATCH=128`, `GGML_HEXAGON_OPQUEUE=2`). Before abort it logged
+3,520 passing cases, 45 numerical-error failures in `DIV`, `GET_ROWS`,
+`SWIGLU_CLAMP`, `ADD`, and `SUB`, and 4,874 unsupported cases. The child then
+aborted on `dspqueue_read failed: 0x0000002e` (exit -6); the broker closed the
+CDSP session cleanly. This was incomplete, not a broad-suite pass. An isolated
+`MUL_MAT_W4A4` check passed 1/1; the all-operator abort cause remains unknown.
 
 ## Requirements
 
