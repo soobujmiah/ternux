@@ -218,237 +218,76 @@ alt_url: "/bn/"
         <span class="tag">arm64 · gpu</span>
       </a>
       <nav class="site-nav" aria-label="Sections">
-        <a href="#what">What is Ternux</a>
-        <a href="#install">Install</a>
-        <a href="#gpu">GPU</a>
-        <a href="#evidence">Evidence</a>
-        <a href="#adt">ADT</a>
-        <a href="{{ '/docs/' | relative_url }}">Docs</a>
-        <a href="https://github.com/soobujmiah/ternux">GitHub</a>
+        <a href="#install">Install</a><a href="#use">Usage</a><a href="#docs">More help</a>
+        <a href="https://github.com/soobujmiah/ternux">Repository</a>
         <a href="{{ '/bn/' | relative_url }}" hreflang="bn" lang="bn">বাংলা</a>
       </nav>
     </div>
   </header>
 
   <main id="main" class="wrap">
-
     <section class="hero" aria-labelledby="h">
       <div class="hero-grid">
         <div>
-          <p class="eyebrow">Linux workstation · Android hardware</p>
-          <h1 id="h">A real Linux workstation on your phone. No PC. No root.</h1>
-          <p class="lede">Ternux installs a Debian ARM64 userspace, an Xfce4 desktop, Termux:X11 display, audio, and an explicit graphics route — Zink/Turnip on supported Adreno devices, VirGL everywhere else. One command, auditable Bash, no bootloader change.</p>
+          <p class="eyebrow">Linux desktop · Android hardware</p>
+          <h1 id="h">Debian and Xfce on your Android phone.</h1>
+          <p class="lede">Ternux sets up a Linux desktop in Termux. No Android root required. Install once, then start it from Termux.</p>
           <div class="actions">
-            <a class="btn primary" href="#install">Install ternux ↓</a>
-            <a class="btn" href="{{ '/docs/QUICK-START.html' | relative_url }}">Read quick start →</a>
+            <a class="btn primary" href="#install">Install ↓</a>
+            <a class="btn" href="#use">How to use →</a>
           </div>
           <ul class="facts" aria-label="Project facts">
-            <li><span class="k">platform</span><span class="v">Android 10+ · arm64</span></li>
-            <li><span class="k">root</span><span class="v">none required</span></li>
-            <li><span class="k">device</span><span class="v">Redmi Turbo 4 Pro evidence</span></li>
-            <li><span class="k">license</span><span class="v">Apache-2.0 · auditable Bash</span></li>
+            <li><span class="k">platform</span><span class="v">Android · ARM64</span></li>
+            <li><span class="k">desktop</span><span class="v">Debian · Xfce4</span></li>
+            <li><span class="k">root</span><span class="v">not required</span></li>
           </ul>
         </div>
-        <div class="term" role="img" aria-label="A representative ternux verification session showing the Zink to Turnip graphics route on an Adreno 825 GPU">
-          <div class="term-top"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span>ternux · verify</span><span style="margin-left:auto">arm64</span></div>
+        <div class="term" role="img" aria-label="Ternux desktop startup command">
+          <div class="term-top"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span>Termux · ternux</span></div>
           <div class="term-body">
-            <div class="tl"><span class="tp">$</span><span>ternux status</span></div>
-            <div class="tl"><span class="ok">●</span><span>session <span class="dim">running on :0</span></span></div>
-            <div class="tl"><span class="ok">●</span><span>audio <span class="dim">loopback bridge ready</span></span></div>
+            <div class="tl"><span class="tp">$</span><span>ternux start</span></div>
+            <div class="tl"><span class="ok">✓</span><span>desktop session started</span></div>
             <div class="tl"><span class="tp">$</span><span>ternux verify</span></div>
-            <div class="tstack">
-              <span class="k">guest</span><span>Debian GNU/Linux · arm64</span>
-              <span class="k">desktop</span><span>Xfce4 · Termux:X11</span>
-              <span class="k">backend</span><span class="inf">zink → turnip → KGSL</span>
-              <span class="k">renderer</span><span>Adreno 825 · Vulkan 1.4</span>
-              <span class="k">fallback</span><span>virgl available</span>
-            </div>
-            <div class="tl"><span class="ok">✓</span><span>hardware route observed</span></div>
-            <div class="tl"><span class="wrn">!</span><span class="dim">device results vary; inspect evidence</span></div>
+            <div class="tl"><span class="ok">✓</span><span>installation checked</span></div>
           </div>
-          <div class="term-cap"><span class="dot" aria-hidden="true"></span> measured renderer evidence</div>
+          <div class="term-cap"><span class="dot" aria-hidden="true"></span> run commands in Termux</div>
         </div>
       </div>
     </section>
 
-    <div class="strip" aria-label="Evidence summary">
-      <div class="wrap" style="padding-left:24px;padding-right:24px">
-        <div class="stat"><strong>140</strong><span>Measured glmark2 OpenGL score</span></div>
-        <div class="stat cyan"><strong>364</strong><span>Measured OpenGL ES score</span></div>
-        <div class="stat"><strong>66 scenes</strong><span>Captured FPS values</span></div>
-        <div class="stat"><strong>1 device</strong><span>Evidence, not a guarantee</span></div>
-      </div>
-    </div>
-
-    <!-- WHAT IS TERNUX -->
-    <section id="what" aria-labelledby="what-h" class="reveal">
-      <h2 id="what-h"><span class="n">01</span>What is Ternux?</h2>
-      <p class="note">Ternux composes a userspace Linux environment around Android services — it never replaces Android. Every layer is explicit and reviewable.</p>
-      <div class="tbl-wrap">
-        <table>
-          <thead><tr><th>Layer</th><th>Component</th><th>Purpose</th></tr></thead>
-          <tbody>
-            <tr><td>Android app</td><td><strong>Termux:X11</strong></td><td>Displays the Linux X11 desktop on Android</td></tr>
-            <tr><td>Termux host</td><td><code>termux-x11</code>, PulseAudio, PRoot Distro</td><td>Display socket, Android audio, container lifecycle</td></tr>
-            <tr><td>Linux guest</td><td><strong>Debian ARM64</strong></td><td>Standard apt-managed GNU/Linux userspace</td></tr>
-            <tr><td>Desktop</td><td><strong>Xfce4</strong></td><td>Lightweight desktop, terminal, file manager</td></tr>
-            <tr><td>Adreno graphics</td><td>Mesa <strong>Zink → Turnip → KGSL</strong></td><td>OpenGL translated to Vulkan, sent to the Qualcomm GPU</td></tr>
-            <tr><td>Fallback graphics</td><td><strong>VirGL</strong></td><td>Portable virtual OpenGL route for other devices</td></tr>
-            <tr><td>Control plane</td><td><code>ternux</code> CLI + <code>~/x.sh</code></td><td>Install, launch, stop, verify, diagnose, repair, benchmark</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="grid">
-        <article class="card"><h3><span class="n">01</span>No root, no bootloader change</h3><p>PRoot userspace only. The Android system partition is never modified; guest root inside PRoot is not a security boundary.</p></article>
-        <article class="card"><h3><span class="n">02</span>Explicit graphics routes</h3><p>Zink/Turnip where the Adreno driver path is supported; VirGL as the public compatibility route. A working desktop alone is never presented as proof of hardware rendering.</p></article>
-        <article class="card"><h3><span class="n">03</span>Auditable everything</h3><p>Plain Bash you can read before running: clone-first review path, syntax checks, and a full installer log in ternux.log.</p></article>
-        <article class="card"><h3><span class="n">04</span>Real applications</h3><p>Xfce Terminal, VLC, Mesa and Vulkan utilities included; development tools, llama.cpp, media tools and Blender opt-in.</p></article>
-      </div>
-    </section>
-
-    <!-- HOW IT WORKS -->
-    <section id="how" aria-labelledby="how-h" class="reveal">
-      <h2 id="how-h"><span class="n">02</span>How it works</h2>
-      <p class="note">Android → Linux → Debian → Xfce4 → GPU. Each hop is a real, named component.</p>
-      <div class="flow" role="list" aria-label="The Ternux stack">
-        <div class="stage" role="listitem"><div class="t">Android</div><div class="d">kernel · KGSL driver</div></div>
-        <div class="stage" role="listitem"><div class="t">Termux</div><div class="d">host services · display socket</div></div>
-        <div class="stage hot" role="listitem"><div class="t">PRoot Debian</div><div class="d">arm64 userspace</div></div>
-        <div class="stage" role="listitem"><div class="t">Mesa</div><div class="d">zink · turnip · virgl</div></div>
-        <div class="stage" role="listitem"><div class="t">Xfce4</div><div class="d">Termux:X11 desktop</div></div>
-      </div>
-      <p class="note">Renderer proof is a string, not a screenshot: <code>zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP))</code> in glmark2 and Blender confirms the OpenGL applications reached the Zink/Turnip path instead of llvmpipe software rasterization.</p>
-    </section>
-
-    <!-- INSTALL -->
     <section id="install" aria-labelledby="install-h" class="reveal">
-      <h2 id="install-h"><span class="n">03</span>Installation</h2>
-      <p class="note">The one-command path is convenient; the clone-first and manual paths expose every module and every guest command before you run them. Install the Termux and Termux:X11 apps from F-Droid first.</p>
-      <div class="grid">
-        <article class="card"><h3><span class="n">01</span>Quick installation</h3><p>Use the hosted entry point, let ternux detect the supported route, and follow the printed Termux:X11 handoff.</p><a class="more" href="{{ '/docs/QUICK-START.html' | relative_url }}">Quick start →</a></article>
-        <article class="card"><h3><span class="n">02</span>Clone and review</h3><p>Pin the repository state, syntax-check the shell files, inspect the installer and libraries, then run locally.</p><a class="more" href="{{ '/docs/INSTALLATION.html' | relative_url }}">Review-first guide →</a></article>
-        <article class="card"><h3><span class="n">03</span>Manual setup</h3><p>Perform the host, guest, desktop, audio, graphics, launcher, and verification steps command by command.</p><a class="more" href="{{ '/docs/MANUAL.html' | relative_url }}">Manual installation →</a></article>
-      </div>
-      <pre class="cmd"><span class="c"># one command — host installer</span>
+      <h2 id="install-h"><span class="n">01</span>Install</h2>
+      <p class="note">Install Termux and Termux:X11 from compatible sources, open Termux:X11 once, then run the installer in Termux.</p>
+      <pre class="cmd"><span class="c"># in Termux</span>
 curl -fsSL https://soobujmiah.github.io/ternux/install.sh | bash</pre>
-
-      <pre class="cmd"><span class="c"># afterwards, in Termux</span>
-ternux start     <span class="c"># launch the desktop session</span></pre>
-
-      <pre class="cmd">ternux verify    <span class="c"># inspect the graphics route</span></pre>
-
-      <pre class="cmd">ternux doctor    <span class="c"># structured diagnostics</span></pre>
+      <p class="note">If curl is unavailable, use wget:</p>
+      <pre class="cmd">wget -qO- https://soobujmiah.github.io/ternux/install.sh | bash</pre>
+      <p class="note">The base install uses about 3–4 GB. Keep extra space for downloads and caches.</p>
     </section>
 
-    <!-- GPU -->
-    <section id="gpu" aria-labelledby="gpu-h" class="reveal">
-      <h2 id="gpu-h"><span class="n">04</span>GPU acceleration</h2>
-      <p class="note">Two explicit routes. Which one you get depends on your GPU — ternux detects, reports, and never hides the choice.</p>
-      <div class="gpu-card">
-        <h3>Adreno route — Zink over Turnip</h3>
-        <p style="color:var(--muted);font-size:13.5px;margin:0 0 10px">On supported Adreno devices, OpenGL is translated to Vulkan and sent straight to the Qualcomm driver (KGSL). This is the measured path: glmark2 OpenGL 4.6 compatibility profile, OpenGL ES 3.2, and the same renderer string observed in Blender's viewport.</p>
-        <div class="renderer">zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP))</div>
-        <span class="ev ev-m">Measured</span>
-      </div>
-      <div class="card" style="margin-bottom:14px">
-        <h3>VirGL route — the compatibility fallback</h3>
-        <p>For devices without the Adreno path, VirGL provides a portable virtual OpenGL route. A working desktop on VirGL is reported as exactly that — never as hardware acceleration.</p>
-        <div style="margin-top:10px"><span class="ev ev-o">Observed</span></div>
-      </div>
-    </section>
-
-    <!-- EVIDENCE -->
-    <section id="evidence" aria-labelledby="evidence-h" class="reveal">
-      <h2 id="evidence-h"><span class="n">05</span>Evidence — measured, never blended</h2>
-      <p class="note">The published snapshot comes from one Redmi Turbo 4 Pro (Snapdragon 8s Gen 4 / Adreno 825, August 2026). It shows this route worked there; it does not promise the same result on every phone.</p>
+    <section id="use" aria-labelledby="use-h" class="reveal">
+      <h2 id="use-h"><span class="n">02</span>Start and use</h2>
+      <p class="note">In Termux, start the desktop and switch to the Termux:X11 app.</p>
+      <pre class="cmd">source ~/.bashrc
+x</pre>
       <div class="grid">
-        <article class="card">
-          <h3>glmark2 — OpenGL</h3>
-          <p><strong style="color:var(--accent-b);font-size:22px">140</strong> score · 800×600 windowed · 45–164 FPS across 33 scenes. A suite aggregate, not constant desktop FPS.</p>
-          <div style="margin-top:10px"><span class="ev ev-m">Measured</span></div>
-        </article>
-        <article class="card">
-          <h3>glmark2-es2 — OpenGL ES</h3>
-          <p><strong style="color:var(--cyan);font-size:22px">364</strong> score · ES 3.2 · 53–465 FPS across 33 scenes. Different API and mode from the OpenGL row — never compare them directly.</p>
-          <div style="margin-top:10px"><span class="ev ev-m">Measured</span></div>
-        </article>
-        <article class="card">
-          <h3>Blender 4.3.2</h3>
-          <p>Reported the same Zink/Turnip renderer for its OpenGL viewport (4.6 core profile). Cycles GPU rendering is not established by that evidence.</p>
-          <div style="margin-top:10px"><span class="ev ev-o">Observed</span></div>
-        </article>
-        <article class="card">
-          <h3>llama.cpp · stable-diffusion.cpp</h3>
-          <p>Documented Vulkan build paths exist in the docs. No performance result is claimed — those workloads remain untested here.</p>
-          <div style="margin-top:10px"><span class="ev ev-u">Not yet tested</span></div>
-        </article>
+        <article class="card"><h3>Check or stop</h3><pre>ternux status
+ternux verify
+ternux doctor
+ternux stop</pre></article>
+        <article class="card"><h3>Check or diagnose</h3><pre>ternux verify
+ternux doctor</pre></article>
+        <article class="card"><h3>Open Debian shell</h3><pre>db</pre><p>Run `db` in Termux. Shared Android storage is available at `/sdcard` inside Debian.</p></article>
       </div>
-      <p class="note">Shared evidence vocabulary — Verified · Measured · Observed · Experimental · Not yet tested · Not supported:</p>
-      <p style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px">
-        <span class="ev ev-v">Verified</span><span class="ev ev-m">Measured</span><span class="ev ev-o">Observed</span><span class="ev ev-x">Experimental</span><span class="ev ev-u">Not yet tested</span><span class="ev ev-n">Not supported</span>
-      </p>
-      <div class="actions">
-        <a class="btn" href="{{ '/docs/BENCHMARKS.html' | relative_url }}">Inspect all evidence →</a>
-        <a class="btn" href="{{ '/docs/TROUBLESHOOTING.html' | relative_url }}">Troubleshooting →</a>
-        <a class="btn" href="{{ '/docs/GRAPHICS-PERSISTENCE.html' | relative_url }}">Keep the GPU driver →</a>
-      </div>
-      <div class="upstream" aria-label="Upstream projects measured">
-        <span class="upstream-label">Measured upstream projects</span>
-        <a class="upstream-link" href="https://projects.blender.org/blender/blender">Blender</a>
-        <a class="upstream-link" href="https://github.com/ggml-org/llama.cpp">llama.cpp</a>
-        <a class="upstream-link" href="https://github.com/leejet/stable-diffusion.cpp">stable-diffusion.cpp</a>
-        <a class="upstream-link" href="https://github.com/glmark2/glmark2">glmark2</a>
-      </div>
+      <p class="note">The `x` shortcut starts the desktop. `xgo` opens Termux:X11 and starts it.</p>
     </section>
 
-    <!-- ADT -->
-    <section id="adt" aria-labelledby="adt-h" class="reveal">
-      <h2 id="adt-h"><span class="n">06</span>Ternux and ADT — two layers of one ARM64 story</h2>
-      <div class="eco-diagram" aria-hidden="true">                 <b>Android Device</b>
-                       │
-          ┌────────────┴────────────┐
-          │                         │
-        <b>ADT</b>                      <b>Ternux</b>
-          │                         │
- Android development        Linux ARM64 desktop
- Build / Sign / ADB         Debian / Xfce4 / GPU</div>
-      <div class="grid">
-        <article class="card">
-          <h3>Ternux — this project</h3>
-          <p>The Linux workstation layer: no-root Debian + Xfce4 on an ARM64 Android phone via PRoot and Termux:X11, with measured GPU acceleration on supported Adreno devices.</p>
-        </article>
-        <article class="card">
-          <h3>ADT — the toolchain layer</h3>
-          <p>Native ARM64 Android SDK build-tools, platform-tools, signing and ADB workflows — built from AOSP source for Linux ARM64, verified end-to-end on a real device. If you develop Android apps on this kind of hardware, ADT is the companion project.</p>
-          <a class="more" href="https://soobujmiah.github.io/adt/">ADT website →</a>
-        </article>
-        <article class="card">
-          <h3>Host-device workflow</h3>
-          <p>Development and execution occur on the same physical Android hardware: Ternux builds the artifact in Debian userspace, while ADT installs and debugs it directly on the host device via ADB without external emulators.</p>
-        </article>
-        <article class="card">
-          <h3>Verified vs experimental</h3>
-          <p>Both projects are verified separately on the same Termux + PRoot Debian foundation (Redmi Turbo 4 Pro). Cross-project workflows and closed-loop agent automation coexist architecturally but remain experimental until formally measured.</p>
-        </article>
-      </div>
-      <div class="actions">
-        <a class="btn" href="https://soobujmiah.github.io/adt/">ADT website</a>
-        <a class="btn" href="https://github.com/soobujmiah/adt">ADT repository</a>
-      </div>
-    </section>
-
-    <!-- DOCS -->
     <section id="docs" aria-labelledby="docs-h" class="reveal">
-      <h2 id="docs-h"><span class="n">07</span>Documentation</h2>
-      <p class="note">One system, a path for every depth — guided routes first, task-focused operation guides next, then architecture, evidence and exact CLI behaviour.</p>
-      <div class="grid">
-        <article class="card"><h3>Start here</h3><p>Documentation overview · Quick start · Installation · Manual installation.</p><a class="more" href="{{ '/docs/' | relative_url }}">Open docs →</a></article>
-        <article class="card"><h3>Operate</h3><p>Daily usage · Configuration · Troubleshooting · CLI reference.</p><a class="more" href="{{ '/docs/USAGE.html' | relative_url }}">Open guides →</a></article>
-        <article class="card"><h3>Understand &amp; contribute</h3><p>Architecture · Evidence &amp; benchmarks · FAQ · Contributing.</p><a class="more" href="{{ '/docs/ARCHITECTURE.html' | relative_url }}">Open reference →</a></article>
-      </div>
-      <p class="note-amber">No Android root, no hidden boundary: ternux never modifies the Android system partition. Guest root exists inside PRoot and is not a security boundary — shared storage and services you expose remain your responsibility.</p>
+      <h2 id="docs-h"><span class="n">03</span>More help</h2>
+      <p class="note">Detailed setup options, CLI reference, architecture, benchmarks and troubleshooting live in the repository guides.</p>
+      <p><a class="btn" href="https://github.com/soobujmiah/ternux/blob/main/docs/README.md">Browse deep documentation →</a></p>
+      <p class="note-amber">Graphics route and performance depend on the device. Use `ternux verify` to inspect your setup.</p>
     </section>
-
   </main>
 
   <footer class="site-footer">
@@ -457,7 +296,7 @@ ternux start     <span class="c"># launch the desktop session</span></pre>
         <li><a href="https://soobujmiah.github.io/">Portfolio</a></li>
         <li><a href="https://soobujmiah.github.io/adt/">ADT</a></li>
         <li><a href="https://github.com/soobujmiah/ternux">Repository</a></li>
-        <li><a href="{{ '/docs/' | relative_url }}">Documentation</a></li>
+        <li><a href="https://github.com/soobujmiah/ternux/tree/main/docs">Deep documentation</a></li>
         <li><a href="{{ '/CHANGELOG.html' | relative_url }}">Changelog</a></li>
         <li><a href="https://github.com/soobujmiah/ternux/blob/main/LICENSE">Apache-2.0 License</a></li>
         <li><a href="{{ '/bn/' | relative_url }}" lang="bn">বাংলা</a></li>

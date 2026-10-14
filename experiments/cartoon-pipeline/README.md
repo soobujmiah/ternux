@@ -5,7 +5,7 @@
 > commands that produced it. It is kept here rather than in the installer
 > because nothing in ternux depends on it — it is evidence that the workstation
 > does real production work, and a starting point for doing it yourself. The
-> measured render numbers are in [Evidence & benchmarks](../../docs/BENCHMARKS.md).
+> measured render numbers are in the [repository-only device benchmark record](../../guides/device-benchmark-evidence.md).
 
 A complete 3D animated short produced on an Android phone: Redmi Turbo 4 Pro,
 Termux with PRoot Debian 13, Blender 4.3.2 rendering on the Adreno 825 through

@@ -19,7 +19,7 @@ manual install—দুই পদ্ধতি আছে। Website-এর [স�
   Vulkan-এর জন্য system Vulkan ICD কাজ করতে হবে; পরীক্ষিত Adreno setup-এ device
   ছিল `Vulkan0`।
 - এটি একটি device-এ যাচাই করা prerelease; clean-device driver qualification
-  বা দীর্ঘ সময় চালানোর দাবি নয়। [Benchmark evidence](https://soobujmiah.github.io/ternux/bn/docs/BENCHMARKS.html#2026-10-14-published-vulkan-extension-install-and-inference) দেখুন।
+  বা দীর্ঘ সময় চালানোর দাবি নয়। [Device qualification record](#device-qualification-record) দেখুন।
 
 ## পদ্ধতি A: automatic install (প্রস্তাবিত)
 
@@ -180,3 +180,39 @@ rm -rf -- "$HOME/.local/opt/ternux-extensions/llama-vulkan"
 
 Manual install-এর জন্য `llama-vulkan-b11582` path ব্যবহার করুন। এই command-এ
 model weight বা cached release archive মোছা হয় না।
+
+## Device qualification record
+
+2026-10-14-এ আমি প্রকাশিত archive-টি
+`ternux extension install llama-vulkan` দিয়ে নতুন isolated Debian guest
+home-এ install করি; workstation install ও আগে থেকে থাকা Qwen2.5 1.5B Q4_0
+model আগের জায়গায় ছিল। Archive checksum উপরে আছে। Package manifest-এ pinned
+llama.cpp commit ও device validation লেখা; package-এ upstream MIT license আছে,
+`$ORIGIN/../lib` ব্যবহার করে, এবং Debian PRoot-এ unresolved dynamic dependency
+ছিল না।
+
+Extract করা archive-এর ৬৯টি ELF file offline audit করি: সব AArch64, সব
+`$ORIGIN/../lib` ব্যবহার করে, এবং GLIBC 2.38-এর চেয়ে নতুন symbol লাগে না।
+Audit package-এর local dependency ও upstream license-ও যাচাই করেছে। System
+runtime-এ OpenSSL 3 (`libssl3` বা `libssl3t64`), `libgomp1`, ও `libvulkan1`
+লাগে; installer download-এর আগে shared library ও glibc minimum পরীক্ষা করে।
+বর্তমান release workflow-তে এই ABI audit আছে, তবে সর্বশেষ সফল artifact run-টি
+audit ধাপ যোগ হওয়ার আগের। [Run #3](https://github.com/soobujmiah/ternux/actions/runs/38457240250)
+2026-10-13-এ commit `b568b9f`-এ সফল হয়েছিল; এটি নতুন audit ধাপ পাশের প্রমাণ
+নয়। নতুন artifact build এখনো বাকি।
+
+আগের জায়গায় থাকা model দিয়ে install করা package CPU-তে (`-ngl 0`) এবং Vulkan-এ
+(`-dev Vulkan0 -ngl 99`) একই greedy `2 + 2` prompt-এর উত্তর `4` দেয়। Verbose
+Vulkan output Adreno 825 দেখায় এবং সব 29/29 layer assign করে। Reinstall
+চেষ্টায় আগের binary hash অক্ষত ছিল এবং expected already-installed error আসে।
+স্থানীয় log রাখা আছে
+`/home/sbj/npu-probe-2026-10-13/ternux-vulkan-device-test/`-এ।
+
+আলাদা bounded cancellation series-এ generation চলার সময় CPU ও Vulkan-এ তিনবার
+করে SIGINT পাঠাই। প্রতিটি process exit 0-তে থামে; দুই backend-এ fresh
+known-answer run `4` দেয়। `4` দেখার সঙ্গে সঙ্গে SIGINT পাঠানো মাঝের কিছু run-এ
+signal exit হয়েছিল, তাই clean-stop ফল হিসেবে ধরা হয়নি। শেষে battery
+temperature 41.1 C, sampled skin temperature 44.1 C, সর্বোচ্চ sampled CPU
+76.8 C, Android thermal status 0 ছিল। এতে দীর্ঘস্থায়ী stability, NPU
+cancellation, system fallback বা clean-device graphics setup প্রমাণ হয় না।
+বিস্তারিত log ও run method একই local scratch directory-তে আছে।

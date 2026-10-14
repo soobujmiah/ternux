@@ -209,9 +209,23 @@ UNet context compatibility for this exact process/runtime, not UNet execution
 or image generation. Raw local log:
 `/home/sbj/npu-probe-2026-10-13/ci-qnn-unet-load-run-38406862573.log`.
 
+## Current gate status
+
+The fixed-seed runner has been executed on SM8735. The first generated image
+was colorful noise. Diagnosis found that sigma-scaled latents were fed through
+VP-space DPM++ equations, and the model input was also scaled incorrectly. The
+runner now follows the reference scheduler's unit-Gaussian initialization,
+unscaled model input and VP-normalized sigma update. Two fixed-seed outputs
+match exactly (SHA-256 `1a13957f5cb65132d98fc212756bdcf8d8b959d69feba84902a9314036764fc3`);
+visual review found a coherent landscape and one small cyan artifact. This
+establishes bounded image generation and repeatability, not independent QNN
+tensor correctness. Current release status and the separate llama.cpp HTP gate are maintained only in the
+[accelerator release plan](../../docs/ACCELERATOR-RELEASE-PLAN.md). This file
+keeps the implementation and reproduction details.
+
 ## Remaining inference gates
 
-### In-progress end-to-end image runner (not yet device-verified)
+### End-to-end image runner (device execution complete; quality failed)
 
 `sd15_qnn_image.py` now independently connects the existing archive pieces:
 it streams CLIP, token/position tables, UNet and decoder from the original ZIP
@@ -222,19 +236,18 @@ implements fixed-seed SD1.5 DPM++ 2M denoising with scaled-linear betas and
 trailing timestep spacing, then emits a new PNG plus per-stage logs. Initial
 noise and UNet model input use the scheduler's sigma scaling. The trailing
 step formula follows the reference [Diffusers DPM solver implementation](https://github.com/huggingface/diffusers/blob/main/src/diffusers/schedulers/scheduling_dpmsolver_multistep.py#L2898-L2904).
-The requested realistic landscape prompt is only a test prompt; output quality
-and QNN tensor correctness are not established until a generated image is
-visually reviewed and suitable independent tensor checks exist.
+The corrected phone run completed 20 steps and emitted a 512×512 PNG in
+30.641 seconds; its same-seed repeat took 36.828 seconds and had an identical
+SHA-256. The scheduler correction resolved the noise-like output. Use
+independent stage values to qualify QNN numerical correctness and investigate
+the small cyan artifact before broader release claims.
 
-The current runner passed Python AST parsing, and the existing CLIP-conditioning
-unit tests pass. Its import/scheduler checks could not run in this Python
-environment because `numpy`, `tokenizers` and `MNN` are absent. The helper
-source passed host C syntax checks and the pinned NDK CI build. The runner has
-not run on the phone. Do not use the older helper artifact for this runner: it
-does not contain `--serve-unet` or `--serve-decoder`. The owner must manually
-retrieve the CI artifact and hand it off before device execution, per the
-repository's artifact-transfer policy. The original model ZIP must remain in
-place; no weight/model member may be extracted or copied.
+The run used the CI helper with `--serve-unet` and `--serve-decoder`, existing
+local runtime dependencies, and the original model ZIP. Model members were
+streamed to sealed anonymous memfds; no model copy was written. The saved run
+manifest and PNG are local under `artifacts/verified/` and are not release
+assets. Do not use the older helper artifact for this runner; it lacks the
+persistent server modes. The original model ZIP remains in place.
 
 The opt-in runner invocation after that handoff is:
 
@@ -248,8 +261,7 @@ PYTHONPATH=/absolute/scratch/tokenizers-package:/absolute/scratch/mnn-and-numpy-
 ```
 
 The output path is create-only. The runner reports seed, steps, scheduler,
-stage timings and hashes; repeatability and visual review still need to be
-recorded separately. This experimental QNN image path is not yet an installed
+stage timings and hashes. This experimental QNN image path is not an installed
 Ternux extension or a release capability.
 
 The opt-in [`known_add.c`](known_add.c) diagnostic was built by the pinned
@@ -348,15 +360,12 @@ and UNet; see the device log for exact values.
 2. Prove a fixed-input, known-output VAE graph result with explicit HTP
    attribution and repeat cleanup. The current repeated-output probe is an
    execution gate, not a numerical-correctness gate.
-3. The first independently written SD1.5 prompt-to-image runner and framed
-   PRoot IPC are now implemented in `sd15_qnn_image.py` and the persistent
-   modes in `context_inspect.c`; pinned NDK build and device execution remain
-   pending. This source status is not an image-generation PASS.
-4. Run fixed prompt/seed/size image tests with per-stage logs, image decoding,
-   repeatability and visual review. Keep CPU, GPU and HTP attribution explicit.
-5. Compare model-stage tensors with suitable independent references and verify
-   output encoding/quantization; repeatability alone is not correctness.
-6. Build portable pinned artifacts, inspect ABI/ELF/RUNPATH, validate licensing,
+3. Diagnose the noise-like image by comparing CLIP conditioning and each QNN
+   UNet/VAE boundary with independent expected tensors; record input/output
+   quantization and layout.
+4. Investigate the localized cyan artifact; keep CPU, GPU and HTP attribution
+   explicit in further fixed-prompt/seed/size runs.
+5. Build portable pinned artifacts, inspect ABI/ELF/RUNPATH, validate licensing,
    then perform installed-artifact tests before any Ternux release.
 
 ## Source references

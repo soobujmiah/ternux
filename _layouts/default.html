@@ -143,7 +143,10 @@
         <div class="doc-intro__meta">
           <span>{% if is_bn %}ternux ডকুমেন্টেশন{% else %}ternux documentation{% endif %}</span>
           <span aria-hidden="true">•</span>
-          <span>{% if is_bn %}আপডেট ১৭ আগস্ট ২০২৬{% else %}Updated 17 Aug 2026{% endif %}</span>
+          {% if page.evidence_through %}
+          <span aria-hidden="true">•</span>
+          <span>{% if is_bn %}প্রমাণের তারিখ {{ page.evidence_through | date: "%d %b %Y" }}{% else %}Evidence through {{ page.evidence_through | date: "%d %b %Y" }}{% endif %}</span>
+          {% endif %}
         </div>
         <h1>{{ page_title }}</h1>
         {% if page_description %}<p>{{ page_description }}</p>{% endif %}

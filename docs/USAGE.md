@@ -132,6 +132,25 @@ glxinfo -B | tee ~/blender-gl-baseline.txt
 blender --version | tee ~/blender-version.txt
 ```
 
+### Blender rendering on the Adreno GPU
+
+For the established Termux/PRoot Redmi workstation, use **EEVEE Next with GPU
+offload through Zink/Turnip** as the default render path. Cycles GPU is not
+established on this device. Headless rendering still needs an X11 GL context:
+install Xvfb once, start a virtual display, and pass both environment variables
+to Blender:
+
+```bash
+sudo apt install -y xvfb
+Xvfb :9 -screen 0 1280x720x24 &
+DISPLAY=:9 GALLIUM_DRIVER=zink blender -b --factory-startup --python render.py
+```
+
+Do not omit `DISPLAY` or `GALLIUM_DRIVER=zink`: on the measured setup those
+routes fail rather than rendering on the GPU. Check `glxinfo -B` for the Zink /
+Adreno / Turnip renderer before a long run. The complete reproducible workflow
+and its limits are in the [cartoon pipeline guide](https://github.com/soobujmiah/ternux/blob/main/experiments/cartoon-pipeline/README.md).
+
 ### llama.cpp with Vulkan
 
 `--with-llm` clones llama.cpp and builds its Vulkan backend inside Debian.

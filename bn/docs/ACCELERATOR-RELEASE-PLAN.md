@@ -57,6 +57,8 @@ prerequisite আছে। Image pipeline implement করার আগে verifi
 known-output tensor যাচাই করব। Existing QNN archive ও GGUF path অপরিবর্তিত
 রাখতে হবে।
 
-[Benchmark report](BENCHMARKS.md)-এ CPU/GPU ফল ও HTP failure আছে। LAI-এর জন্য
+[প্রকাশিত benchmark summary](BENCHMARKS.html)-তে সংক্ষিপ্ত CPU/GPU ফল আছে;
+[repository-only detailed device record](https://github.com/soobujmiah/ternux/blob/main/bn/guides/device-benchmark-evidence.md)-এ
+HTP failure matrix ও পরের conditional HVX result আছে। LAI-এর জন্য
 প্রযোজ্য finding তার native Android research note-এ থাকবে; এই plan LAI runtime
 বা device gate পরিবর্তন করে না।

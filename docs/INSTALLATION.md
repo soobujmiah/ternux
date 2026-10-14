@@ -130,8 +130,11 @@ release history is on the [Ternux Releases page](https://github.com/soobujmiah/t
 The experimental llama.cpp HTP release is an optional Linux ARM64 artifact,
 not a Ternux installer or a Debian root filesystem. Set up Ternux first. The
 artifact also needs the separately established Android Binder/FastRPC broker;
-it is not included in the archive. Its known-output test currently fails, as
-recorded in [Benchmarks](BENCHMARKS.html#experimental-llamacpp-hexagon-htp-artifact-for-sm8735).
+it is not included in the archive. The default/HMX and flash-attention paths
+returned wrong answers. HVX matmul with flash attention off passed bounded
+known-answer and long recall-key checks, but HTP remains experimental and
+unsupported. See the [current release gate](ACCELERATOR-RELEASE-PLAN.html) and
+[repository-only detailed evidence](https://github.com/soobujmiah/ternux/blob/main/guides/device-benchmark-evidence.md#experimental-llamacpp-hexagon-htp-artifact-for-sm8735).
 
 ADT's Android SDK tools have their own versions, build records and canonical
 downloads. Get them from [ADT Releases](https://github.com/soobujmiah/adt/releases)
@@ -223,9 +226,10 @@ setup currently uses a separate experimental probe; there is no self-contained
 HTP launcher in this release. Do not change `/dev/fastrpc-cdsp` permissions.
 Even with the broker, the known-answer test on this exact build returned
 incorrect text. Standalone `ADD` and F32 `MUL_MAT` checks passed, but a
-Q4_0×F32 matrix test differed from the same-build CPU result; details are in
-[the benchmark record](BENCHMARKS.html). Read it before attempting HTP; this is
-not a correct or production-ready inference package.
+Q4_0×F32 matrix test differed from the same-build CPU result. Later bounded
+HVX/flash-attention-off checks passed, but that does not qualify the package for
+supported use. See the [current release gate](ACCELERATOR-RELEASE-PLAN.html)
+and [repository-only detailed evidence](https://github.com/soobujmiah/ternux/blob/main/guides/device-benchmark-evidence.md).
 
 To remove the extracted artifact, close any `llama.cpp` processes, then run:
 
@@ -340,6 +344,12 @@ bash install.sh --help              # show help
 [Workloads](WORKLOADS.html) lists exactly what each `--with-*` flag installs,
 and gives the manual equivalent of every one of them — useful before you let an
 installer run, and the way to finish a workload that failed.
+
+For headless Blender rendering on the established Adreno workstation, install
+Xvfb inside Debian with `sudo apt install -y xvfb`; Blender uses EEVEE Next with
+GPU offload through Zink/Turnip. The [Blender usage guide](USAGE.html) gives the
+required display variables and tested command. Xvfb is an optional rendering
+dependency; it is not installed by `--with-blender`.
 
 After installation, use the `ternux` CLI for diagnostics and management:
 

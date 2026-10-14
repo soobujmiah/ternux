@@ -216,238 +216,77 @@ alt_url: "/"
         <span>ternux</span>
         <span class="tag">arm64 · gpu</span>
       </a>
-      <nav class="site-nav" aria-label="Sections">
-        <a href="#what">টারনাক্স কী</a>
-        <a href="#install">ইনস্টল</a>
-        <a href="#gpu">জিপিইউ</a>
-        <a href="#evidence">প্রমাণ</a>
-        <a href="#adt">এডিটি</a>
-        <a href="{{ '/docs/' | relative_url }}">ডকস</a>
-        <a href="https://github.com/soobujmiah/ternux">গিটহাব</a>
-        <a href="{{ '/' | relative_url }}" hreflang="en" lang="en">EN</a>
+      <nav class="site-nav" aria-label="বিভাগ">
+        <a href="#install">ইনস্টল</a><a href="#use">ব্যবহার</a><a href="#docs">আরও সহায়তা</a>
+        <a href="https://github.com/soobujmiah/ternux">Repository</a>
+        <a href="{{ '/' | relative_url }}" hreflang="en">English</a>
       </nav>
     </div>
   </header>
 
   <main id="main" class="wrap">
-
     <section class="hero" aria-labelledby="h">
       <div class="hero-grid">
         <div>
-          <p class="eyebrow">লিনাক্স ওয়ার্কস্পেস · অ্যান্ড্রয়েড হার্ডওয়্যার</p>
-          <h1 id="h">আপনার ফোনেই বাস্তব লিনাক্স ওয়ার্কস্টেশন। পিসি ছাড়াই। রুট ছাড়াই।</h1>
-          <p class="lede">টারনাক্স ইনস্টল করে একটি ডেবিয়ান এআরএম৬৪ ইউজারস্পেস, একটি এক্সএফসই৪ ডেস্কটপ, টার্মাক্স:এক্স১১ ডিসপ্লে, অডিও এবং একটি সুস্পষ্ট গ্রাফিক্স পথ — সমর্থিত অ্যাড্রিনো ডিভাইসে জিঙ্ক/টার্নিপ, বাকি সব জায়গায় ভার্জিএল। এক কমান্ড, নিরীক্ষণযোগ্য ব্যাশ, বুটলোডার পরিবর্তন নেই।</p>
+          <p class="eyebrow">Linux desktop · Android ফোন</p>
+          <h1 id="h">আপনার Android ফোনে Debian ও Xfce।</h1>
+          <p class="lede">Ternux, Termux-এর ভেতরে Linux desktop তৈরি করে। Android root লাগে না। একবার install করে Termux থেকেই চালান।</p>
           <div class="actions">
-            <a class="btn primary" href="#install">টারনাক্স ইনস্টল করুন ↓</a>
-            <a class="btn" href="{{ '/bn/docs/QUICK-START.html' | relative_url }}">কুইক স্টার্ট পড়ুন →</a>
+            <a class="btn primary" href="#install">ইনস্টল ↓</a>
+            <a class="btn" href="#use">ব্যবহার →</a>
           </div>
-          <ul class="facts" aria-label="Project facts">
-            <li><span class="k">প্ল্যাটফর্ম</span><span class="v">অ্যান্ড্রয়েড ১০+ · আর্ম৬৪</span></li>
-            <li><span class="k">রুট</span><span class="v">প্রয়োজন নেই</span></li>
-            <li><span class="k">ডিভাইস</span><span class="v">রেডমি টার্বো ৪ প্রো প্রমাণ</span></li>
-            <li><span class="k">লাইসেন্স</span><span class="v">Apache-2.0 · নিরীক্ষণযোগ্য ব্যাশ</span></li>
+          <ul class="facts" aria-label="প্রকল্পের তথ্য">
+            <li><span class="k">platform</span><span class="v">Android · ARM64</span></li>
+            <li><span class="k">desktop</span><span class="v">Debian · Xfce4</span></li>
+            <li><span class="k">root</span><span class="v">লাগে না</span></li>
           </ul>
         </div>
-        <div class="term" role="img" aria-label="অ্যাড্রিনো ৮২৫ জিপিইউতে জিঙ্ক থেকে টার্নিপ গ্রাফিক্স পথ দেখানো একটি প্রতিনিধিত্বমূলক টারনাক্স যাচাই সেশন">
-          <div class="term-top"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span>ternux · verify</span><span style="margin-left:auto">arm64</span></div>
+        <div class="term" role="img" aria-label="Ternux desktop চালুর command">
+          <div class="term-top"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span>Termux · ternux</span></div>
           <div class="term-body">
-            <div class="tl"><span class="tp">$</span><span>ternux status</span></div>
-            <div class="tl"><span class="ok">●</span><span>সেশন <span class="dim">:0-এ চলছে</span></span></div>
-            <div class="tl"><span class="ok">●</span><span>অডিও <span class="dim">লুপব্যাক ব্রিজ প্রস্তুত</span></span></div>
+            <div class="tl"><span class="tp">$</span><span>ternux start</span></div>
+            <div class="tl"><span class="ok">✓</span><span>desktop চালু হয়েছে</span></div>
             <div class="tl"><span class="tp">$</span><span>ternux verify</span></div>
-            <div class="tstack">
-              <span class="k">guest</span><span>Debian GNU/Linux · arm64</span>
-              <span class="k">desktop</span><span>Xfce4 · Termux:X11</span>
-              <span class="k">backend</span><span class="inf">zink → turnip → KGSL</span>
-              <span class="k">renderer</span><span>Adreno 825 · Vulkan 1.4</span>
-              <span class="k">fallback</span><span>virgl available</span>
-            </div>
-            <div class="tl"><span class="ok">✓</span><span>হার্ডওয়্যার পথ পর্যবেক্ষিত</span></div>
-            <div class="tl"><span class="wrn">!</span><span class="dim">ডিভাইসভেদে ফলাফল ভিন্ন; প্রমাণ দেখুন</span></div>
+            <div class="tl"><span class="ok">✓</span><span>installation পরীক্ষা হয়েছে</span></div>
           </div>
-          <div class="term-cap"><span class="dot" aria-hidden="true"></span> পরিমাপকৃত রেন্ডারার প্রমাণ</div>
+          <div class="term-cap"><span class="dot" aria-hidden="true"></span> command Termux-এ চালান</div>
         </div>
       </div>
     </section>
 
-    <div class="strip" aria-label="Evidence summary">
-      <div class="wrap" style="padding-left:24px;padding-right:24px">
-        <div class="stat"><strong>140</strong><span>পরিমাপকৃত জিএলমার্ক২ ওপেনজিএল স্কোর</span></div>
-        <div class="stat cyan"><strong>364</strong><span>পরিমাপকৃত ওপেনজিএল ইএস স্কোর</span></div>
-        <div class="stat"><strong>66 scenes</strong><span>সংগৃহীত এফপিএস মান</span></div>
-        <div class="stat"><strong>1 device</strong><span>প্রমাণ, গ্যারান্টি নয়</span></div>
-      </div>
-    </div>
-
-    <!-- WHAT IS TERNUX -->
-    <section id="what" aria-labelledby="what-h" class="reveal">
-      <h2 id="what-h"><span class="n">০১</span>টারনাক্স কী?</h2>
-      <p class="note">টারনাক্স অ্যান্ড্রয়েড সার্ভিসের চারপাশে একটি ইউজারস্পেস লিনাক্স পরিবেশ গড়ে তোলে — এটি কখনো অ্যান্ড্রয়েডকে প্রতিস্থাপন করে না। প্রতিটি স্তর সুস্পষ্ট ও পর্যালোচনাযোগ্য।</p>
-      <div class="tbl-wrap">
-        <table>
-          <thead><tr><th>স্তর</th><th>কম্পোনেন্ট</th><th>উদ্দেশ্য</th></tr></thead>
-          <tbody>
-            <tr><td>অ্যান্ড্রয়েড অ্যাপ</td><td><strong>টার্মাক্স:এক্স১১</strong></td><td>অ্যান্ড্রয়েডে লিনাক্স এক্স১১ ডেস্কটপ দেখায়</td></tr>
-            <tr><td>টার্মাক্স হোস্ট</td><td><code>termux-x11</code>, পালসঅডিও, পি-রুট ডিস্ট্রো</td><td>ডিসপ্লে সকেট, অ্যান্ড্রয়েড অডিও, কনটেইনার লাইফসাইকেল</td></tr>
-            <tr><td>লিনাক্স গেস্ট</td><td><strong>ডেবিয়ান এআরএম৬৪</strong></td><td>আদর্শ apt-ব্যবস্থাপিত গ্নু/লিনাক্স ইউজারস্পেস</td></tr>
-            <tr><td>ডেস্কটপ</td><td><strong>এক্সএফসই৪</strong></td><td>হালকা ডেস্কটপ, টার্মিনাল, ফাইল ম্যানেজার</td></tr>
-            <tr><td>অ্যাড্রিনো গ্রাফিক্স</td><td>মেসা <strong>জিঙ্ক → টার্নিপ → কেজিএসএল</strong></td><td>ওপেনজিএল ভালকানে রূপান্তরিত হয়ে কোয়ালকম জিপিইউতে যায়</td></tr>
-            <tr><td>ফলব্যাক গ্রাফিক্স</td><td><strong>ভার্জিএল</strong></td><td>অন্যান্য ডিভাইসের জন্য বহনযোগ্য ভার্চুয়াল ওপেনজিএল পথ</td></tr>
-            <tr><td>কন্ট্রোল প্লেন</td><td><code>ternux</code> সিএলআই + <code>~/x.sh</code></td><td>ইনস্টল, লঞ্চ, স্টপ, যাচাই, ডায়াগনোসিস, রিপেয়ার, বেঞ্চমার্ক</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="grid">
-        <article class="card"><h3><span class="n">০১</span>রুট নেই, বুটলোডার পরিবর্তন নেই</h3><p>শুধু পি-রুট ইউজারস্পেস। অ্যান্ড্রয়েড সিস্টেম পার্টিশন কখনো পরিবর্তিত হয় না; পি-রুটের ভেতরের গেস্ট রুট কোনো নিরাপত্তা সীমানা নয়।</p></article>
-        <article class="card"><h3><span class="n">০২</span>সুস্পষ্ট গ্রাফিক্স পথ</h3><p>যেখানে অ্যাড্রিনো ড্রাইভার পথ সমর্থিত সেখানে জিঙ্ক/টার্নিপ; সার্বজনীন সামঞ্জস্য পথ হিসেবে ভার্জিএল। শুধু একটি কাজ করা ডেস্কটপকে কখনো হার্ডওয়্যার রেন্ডারিংয়ের প্রমাণ হিসেবে দেখানো হয় না।</p></article>
-        <article class="card"><h3><span class="n">০৩</span>সবকিছু নিরীক্ষণযোগ্য</h3><p>সহজ ব্যাশ যা চালানোর আগেই পড়া যায়: ক্লোন-ফার্স্ট রিভিউ পথ, সিনট্যাক্স পরীক্ষা এবং টারনাক্স.লগ-এ সম্পূর্ণ ইনস্টলার লগ।</p></article>
-        <article class="card"><h3><span class="n">০৪</span>বাস্তব অ্যাপ্লিকেশন</h3><p>এক্সএফসই টার্মিনাল, ভিএলসি, মেসা ও ভালকান ইউটিলিটি অন্তর্ভুক্ত; ডেভেলপমেন্ট টুল, লামা.সিপিপি, মিডিয়া টুল ও ব্লেন্ডার ঐচ্ছিক।</p></article>
-      </div>
-    </section>
-
-    <!-- HOW IT WORKS -->
-    <section id="how" aria-labelledby="how-h" class="reveal">
-      <h2 id="how-h"><span class="n">০২</span>কীভাবে কাজ করে</h2>
-      <p class="note">অ্যান্ড্রয়েড → লিনাক্স → ডেবিয়ান → এক্সএফসই৪ → জিপিইউ। প্রতিটি ধাপ একটি বাস্তব, নামযুক্ত কম্পোনেন্ট।</p>
-      <div class="flow" role="list" aria-label="The Ternux stack">
-        <div class="stage" role="listitem"><div class="t">অ্যান্ড্রয়েড</div><div class="d">কার্নেল · কেজিএসএল ড্রাইভার</div></div>
-        <div class="stage" role="listitem"><div class="t">টার্মাক্স</div><div class="d">হোস্ট সার্ভিস · ডিসপ্লে সকেট</div></div>
-        <div class="stage hot" role="listitem"><div class="t">পি-রুট ডেবিয়ান</div><div class="d">আর্ম৬৪ ইউজারস্পেস</div></div>
-        <div class="stage" role="listitem"><div class="t">মেসা</div><div class="d">জিঙ্ক · টার্নিপ · ভার্জিএল</div></div>
-        <div class="stage" role="listitem"><div class="t">এক্সএফসই৪</div><div class="d">টার্মাক্স:এক্স১১ ডেস্কটপ</div></div>
-      </div>
-      <p class="note">রেন্ডারার প্রমাণ একটি স্ট্রিং, স্ক্রিনশট নয়: জিএলমার্ক২ ও ব্লেন্ডারে <code>zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP))</code> নিশ্চিত করে যে ওপেনজিএল অ্যাপ্লিকেশনগুলো এলএলভিএমপাইপ সফটওয়্যার র‍্যাস্টারাইজেশনের বদলে জিঙ্ক/টার্নিপ পথে পৌঁছেছে।</p>
-    </section>
-
-    <!-- INSTALL -->
     <section id="install" aria-labelledby="install-h" class="reveal">
-      <h2 id="install-h"><span class="n">০৩</span>ইনস্টলেশন</h2>
-      <p class="note">এক-কমান্ড পথটি সুবিধাজনক; ক্লোন-ফার্স্ট ও ম্যানুয়াল পথ চালানোর আগে প্রতিটি মডিউল ও প্রতিটি গেস্ট কমান্ড প্রকাশ করে। আগে এফ-ড্রয়েড থেকে টার্মাক্স ও টার্মাক্স:এক্স১১ অ্যাপ ইনস্টল করুন।</p>
-      <div class="grid">
-        <article class="card"><h3><span class="n">০১</span>দ্রুত ইনস্টলেশন</h3><p>হোস্ট করা এন্ট্রি পয়েন্ট ব্যবহার করুন, টারনাক্সকে সমর্থিত পথ শনাক্ত করতে দিন এবং মুদ্রিত টার্মাক্স:এক্স১১ হ্যান্ডঅফ অনুসরণ করুন।</p><a class="more" href="{{ '/bn/docs/QUICK-START.html' | relative_url }}">কুইক স্টার্ট →</a></article>
-        <article class="card"><h3><span class="n">০২</span>ক্লোন করে রিভিউ</h3><p>রিপোজিটরির অবস্থা পিন করুন, শেল ফাইলের সিনট্যাক্স পরীক্ষা করুন, ইনস্টলার ও লাইব্রেরি পরিদর্শন করুন, তারপর লোকালি চালান।</p><a class="more" href="{{ '/bn/docs/INSTALLATION.html' | relative_url }}">রিভিউ-ফার্স্ট গাইড →</a></article>
-        <article class="card"><h3><span class="n">০৩</span>ম্যানুয়াল সেটআপ</h3><p>হোস্ট, গেস্ট, ডেস্কটপ, অডিও, গ্রাফিক্স, লঞ্চার ও যাচাইয়ের ধাপগুলো কমান্ডে কমান্ডে সম্পন্ন করুন।</p><a class="more" href="{{ '/bn/docs/MANUAL.html' | relative_url }}">ম্যানুয়াল ইনস্টলেশন →</a></article>
-      </div>
-      <pre class="cmd"><span class="c"># এক কমান্ড — হোস্ট ইনস্টলার</span>
+      <h2 id="install-h"><span class="n">01</span>ইনস্টল</h2>
+      <p class="note">একই বিশ্বস্ত উৎস থেকে Termux ও Termux:X11 install করুন, Termux:X11 একবার খুলুন, তারপর Termux-এ installer চালান।</p>
+      <pre class="cmd"><span class="c"># Termux-এ</span>
 curl -fsSL https://soobujmiah.github.io/ternux/install.sh | bash</pre>
-
-      <pre class="cmd"><span class="c"># এরপর, টার্মাক্সে</span>
-ternux start     <span class="c"># ডেস্কটপ সেশন চালু করুন</span></pre>
-
-      <pre class="cmd">ternux verify    <span class="c"># গ্রাফিক্স পথ পরিদর্শন করুন</span></pre>
-
-      <pre class="cmd">ternux doctor    <span class="c"># কাঠামোগত ডায়াগনস্টিক</span></pre>
+      <p class="note">curl না থাকলে wget ব্যবহার করুন:</p>
+      <pre class="cmd">wget -qO- https://soobujmiah.github.io/ternux/install.sh | bash</pre>
+      <p class="note">বেস install-এ প্রায় ৩–৪ GB লাগে। Download ও cache-এর জন্য অতিরিক্ত জায়গা রাখুন।</p>
     </section>
 
-    <!-- GPU -->
-    <section id="gpu" aria-labelledby="gpu-h" class="reveal">
-      <h2 id="gpu-h"><span class="n">০৪</span>জিপিইউ ত্বরণ</h2>
-      <p class="note">দুটি সুস্পষ্ট পথ। কোনটি পাবেন তা আপনার জিপিইউ-এর উপর নির্ভর করে — টারনাক্স শনাক্ত করে, রিপোর্ট করে এবং পছন্দ কখনো লুকায় না।</p>
-      <div class="gpu-card">
-        <h3>অ্যাড্রিনো পথ — টার্নিপের উপর জিঙ্ক</h3>
-        <p style="color:var(--muted);font-size:13.5px;margin:0 0 10px">সমর্থিত অ্যাড্রিনো ডিভাইসে ওপেনজিএল ভালকানে রূপান্তরিত হয়ে সরাসরি কোয়ালকম ড্রাইভারে (কেজিএসএল) যায়। এটিই পরিমাপকৃত পথ: জিএলমার্ক২ ওপেনজিএল ৪.৬ কম্প্যাটিবিলিটি প্রোফাইল, ওপেনজিএল ইএস ৩.২ এবং ব্লেন্ডারের ভিউপোর্টে দেখা একই রেন্ডারার স্ট্রিং।</p>
-        <div class="renderer">zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP))</div>
-        <span class="ev ev-m">পরিমাপকৃত</span>
-      </div>
-      <div class="card" style="margin-bottom:14px">
-        <h3>ভার্জিএল পথ — সামঞ্জস্য ফলব্যাক</h3>
-        <p>অ্যাড্রিনো পথবিহীন ডিভাইসের জন্য ভার্জিএল একটি বহনযোগ্য ভার্চুয়াল ওপেনজিএল পথ দেয়। ভার্জিএলে কাজ করা ডেস্কটপ ঠিক তা হিসেবেই রিপোর্ট হয় — কখনো হার্ডওয়্যার ত্বরণ হিসেবে নয়।</p>
-        <div style="margin-top:10px"><span class="ev ev-o">পর্যবেক্ষিত</span></div>
-      </div>
-    </section>
-
-    <!-- EVIDENCE -->
-    <section id="evidence" aria-labelledby="evidence-h" class="reveal">
-      <h2 id="evidence-h"><span class="n">০৫</span>প্রমাণ — পরিমাপকৃত, কখনো মেশানো নয়</h2>
-      <p class="note">প্রকাশিত স্ন্যাপশটটি একটি রেডমি টার্বো ৪ প্রো থেকে এসেছে (স্ন্যাপড্রাগন ৮এস জেন ৪ / অ্যাড্রিনো ৮২৫, আগস্ট ২০২৬)। এটি দেখায় যে সেই ডিভাইসে এই পথ কাজ করেছিল; প্রতিটি ফোনে একই ফলাফলের প্রতিশ্রুতি দেয় না।</p>
+    <section id="use" aria-labelledby="use-h" class="reveal">
+      <h2 id="use-h"><span class="n">02</span>চালান ও ব্যবহার</h2>
+      <p class="note">Termux-এ desktop চালু করে Termux:X11 app-এ যান।</p>
+      <pre class="cmd">source ~/.bashrc
+x</pre>
       <div class="grid">
-        <article class="card">
-          <h3>জিএলমার্ক২ — ওপেনজিএল</h3>
-          <p><strong style="color:var(--accent-b);font-size:22px">১৪০</strong> স্কোর · ৮০০×৬০০ উইন্ডোড · ৩৩টি সিনে ৪৫–১৬৪ এফপিএস। স্যুট সমষ্টি, ডেস্কটপের ধ্রুবক এফপিএস নয়।</p>
-          <div style="margin-top:10px"><span class="ev ev-m">পরিমাপকৃত</span></div>
-        </article>
-        <article class="card">
-          <h3>জিএলমার্ক২-ইএস২ — ওপেনজিএল ইএস</h3>
-          <p><strong style="color:var(--cyan);font-size:22px">৩৬৪</strong> স্কোর · ইএস ৩.২ · ৩৩টি সিনে ৫৩–৪৬৫ এফপিএস। ওপেনজিএল সারি থেকে ভিন্ন এপিআই ও মোড — কখনো সরাসরি তুলনা করবেন না।</p>
-          <div style="margin-top:10px"><span class="ev ev-m">পরিমাপকৃত</span></div>
-        </article>
-        <article class="card">
-          <h3>ব্লেন্ডার ৪.৩.২</h3>
-          <p>এর ওপেনজিএল ভিউপোর্টের (৪.৬ কোর প্রোফাইল) জন্য একই জিঙ্ক/টার্নিপ রেন্ডারার রিপোর্ট করেছে। সেই প্রমাণ দ্বারা সাইকেল জিপিইউ রেন্ডারিং প্রতিষ্ঠিত নয়।</p>
-          <div style="margin-top:10px"><span class="ev ev-o">পর্যবেক্ষিত</span></div>
-        </article>
-        <article class="card">
-          <h3>লামা.সিপিপি · স্টেবল-ডিফিউশন.সিপিপি</h3>
-          <p>ডকুমেন্টেশনে ভালকান বিল্ড পাথ লিপিবদ্ধ আছে। কোনো পারফরম্যান্স ফলাফল দাবি করা হয় না — সেই ওয়ার্কলোডগুলো এখানে অপরীক্ষিত থেকে যায়।</p>
-          <div style="margin-top:10px"><span class="ev ev-u">এখনো পরীক্ষিত নয়</span></div>
-        </article>
+        <article class="card"><h3>পরীক্ষা বা বন্ধ</h3><pre>ternux status
+ternux verify
+ternux doctor
+ternux stop</pre></article>
+        <article class="card"><h3>যাচাই বা diagnosis</h3><pre>ternux verify
+ternux doctor</pre></article>
+        <article class="card"><h3>Debian shell</h3><pre>db</pre><p>Termux-এ `db` চালান। Debian-এর ভেতরে Android shared storage পাবেন `/sdcard`-এ।</p></article>
       </div>
-      <p class="note">যৌথ প্রমাণ শব্দভাণ্ডার — যাচাইকৃত · পরিমাপকৃত · পর্যবেক্ষিত · পরীক্ষামূলক · এখনো পরীক্ষিত নয় · সমর্থিত নয়:</p>
-      <p style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px">
-        <span class="ev ev-v">যাচাইকৃত</span><span class="ev ev-m">পরিমাপকৃত</span><span class="ev ev-o">পর্যবেক্ষিত</span><span class="ev ev-x">পরীক্ষামূলক</span><span class="ev ev-u">এখনো পরীক্ষিত নয়</span><span class="ev ev-n">সমর্থিত নয়</span>
-      </p>
-      <div class="actions">
-        <a class="btn" href="{{ '/bn/docs/BENCHMARKS.html' | relative_url }}">সব প্রমাণ দেখুন →</a>
-        <a class="btn" href="{{ '/bn/docs/TROUBLESHOOTING.html' | relative_url }}">ট্রাবলশুটিং →</a>
-        <a class="btn" href="{{ '/bn/docs/GRAPHICS-PERSISTENCE.html' | relative_url }}">GPU driver ধরে রাখুন →</a>
-      </div>
-      <div class="upstream" aria-label="পরিমাপ করা আপস্ট্রিম প্রকল্পসমূহ">
-        <span class="upstream-label">পরিমাপ করা আপস্ট্রিম প্রকল্প</span>
-        <a class="upstream-link" href="https://projects.blender.org/blender/blender">Blender</a>
-        <a class="upstream-link" href="https://github.com/ggml-org/llama.cpp">llama.cpp</a>
-        <a class="upstream-link" href="https://github.com/leejet/stable-diffusion.cpp">stable-diffusion.cpp</a>
-        <a class="upstream-link" href="https://github.com/glmark2/glmark2">glmark2</a>
-      </div>
+      <p class="note">`x` desktop চালায়। `xgo` Termux:X11 খুলে desktop চালায়।</p>
     </section>
 
-    <!-- ADT -->
-    <section id="adt" aria-labelledby="adt-h" class="reveal">
-      <h2 id="adt-h"><span class="n">০৬</span>টারনাক্স ও এডিটি — একটি এআরএম৬৪ গল্পের দুটি স্তর</h2>
-      <div class="eco-diagram" aria-hidden="true">                 <b>Android Device</b>
-                       │
-          ┌────────────┴────────────┐
-          │                         │
-        <b>ADT</b>                      <b>Ternux</b>
-          │                         │
- Android development        Linux ARM64 desktop
- Build / Sign / ADB         Debian / Xfce4 / GPU</div>
-      <div class="grid">
-        <article class="card">
-          <h3>টারনাক্স — এই প্রজেক্ট</h3>
-          <p>লিনাক্স ডেস্কটপ স্তর: পি-রুট ও টার্মাক্স:এক্স১১-এর মাধ্যমে অ্যান্ড্রয়েডে নো-রুট ডেবিয়ান + এক্সএফসই৪, সমর্থিত অ্যাড্রিনো ডিভাইসে পরিমাপকৃত জিপিইউ ত্বরণসহ।</p>
-        </article>
-        <article class="card">
-          <h3>এডিটি — টুলচেইন স্তর</h3>
-          <p>নেটিভ এআরএম৬৪ অ্যান্ড্রয়েড এসডিকে বিল্ড-টুলস, প্ল্যাটফর্ম-টুলস, স্বাক্ষর ও এডিবি ওয়ার্কফ্লো — লিনাক্স এআরএম৬৪-এর জন্য এওএসপি সোর্স থেকে বিল্ড করা, বাস্তব ডিভাইসে এন্ড-টু-এন্ড যাচাইকৃত। এই ধরনের হার্ডওয়্যারে অ্যান্ড্রয়েড অ্যাপ ডেভেলপ করলে এডিটিই সঙ্গী প্রজেক্ট।</p>
-          <a class="more" href="https://soobujmiah.github.io/adt/">এডিটি ওয়েবসাইট →</a>
-        </article>
-        <article class="card">
-          <h3>হোস্ট-ডিভাইস ওয়ার্কফ্লো</h3>
-          <p>একই ফিজিক্যাল অ্যান্ড্রয়েড হার্ডওয়্যারে ডেভেলপমেন্ট ও এক্সিকিউশন সম্পন্ন হয়: টারনাক্স ডেবিয়ান ইউজারস্পেসে আর্টিফ্যাক্ট তৈরি করে, আর এডিটি বাহ্যিক এমুলেটর ছাড়াই হোস্ট ডিভাইসে এডিবির মাধ্যমে তা ইনস্টল ও ডিবাগ করে।</p>
-        </article>
-        <article class="card">
-          <h3>যাচাইকৃত বনাম পরীক্ষামূলক</h3>
-          <p>দুটি প্রজেক্টই একই টার্মাক্স + পি-রুট ডেবিয়ান ভিত্তির উপর আলাদাভাবে যাচাইকৃত (রেডমি টার্বো ৪ প্রো)। ক্রস-প্রজেক্ট ওয়ার্কফ্লো ও ক্লোজড-লুপ এজেন্ট অটোমেশন ধারণাগতভাবে সম্ভব, তবে আনুষ্ঠানিকভাবে পরিমাপ না করা পর্যন্ত পরীক্ষামূলক।</p>
-        </article>
-      </div>
-      <div class="actions">
-        <a class="btn" href="https://soobujmiah.github.io/adt/">এডিটি ওয়েবসাইট</a>
-        <a class="btn" href="https://github.com/soobujmiah/adt">এডিটি রিপোজিটরি</a>
-      </div>
-    </section>
-
-    <!-- DOCS -->
     <section id="docs" aria-labelledby="docs-h" class="reveal">
-      <h2 id="docs-h"><span class="n">০৭</span>ডকুমেন্টেশন</h2>
-      <p class="note">একটি সিস্টেম, প্রতিটি গভীরতার জন্য পথ — আগে নির্দেশিত রুট, তারপর কাজকেন্দ্রিক পরিচালনা গাইড, এরপর আর্কিটেকচার, প্রমাণ ও নির্দিষ্ট সিএলআই আচরণ।</p>
-      <div class="grid">
-        <article class="card"><h3>এখান থেকে শুরু</h3><p>ডকুমেন্টেশন ওভারভিউ · কুইক স্টার্ট · ইনস্টলেশন · ম্যানুয়াল ইনস্টলেশন।</p><a class="more" href="{{ '/docs/' | relative_url }}">ডকস খুলুন →</a></article>
-        <article class="card"><h3>পরিচালনা</h3><p>দৈনন্দিন ব্যবহার · কনফিগারেশন · ট্রাবলশুটিং · সিএলআই রেফারেন্স।</p><a class="more" href="{{ '/bn/docs/USAGE.html' | relative_url }}">গাইড খুলুন →</a></article>
-        <article class="card"><h3>বুঝুন ও অবদান রাখুন</h3><p>আর্কিটেকচার · প্রমাণ ও বেঞ্চমার্ক · এফএকিউ · কনট্রিবিউটিং।</p><a class="more" href="{{ '/bn/docs/ARCHITECTURE.html' | relative_url }}">রেফারেন্স খুলুন →</a></article>
-      </div>
-      <p class="note-amber">অ্যান্ড্রয়েড রুট নেই, লুকানো সীমানা নেই: টারনাক্স কখনো অ্যান্ড্রয়েড সিস্টেম পার্টিশন পরিবর্তন করে না। গেস্ট রুট পি-রুটের ভেতরে থাকে এবং তা কোনো নিরাপত্তা সীমানা নয় — শেয়ার করা স্টোরেজ ও আপনার উন্মুক্ত করা সার্ভিসের দায়িত্ব আপনারই।</p>
+      <h2 id="docs-h"><span class="n">03</span>আরও সহায়তা</h2>
+      <p class="note">বিস্তারিত setup, CLI reference, architecture, benchmark ও troubleshooting repository guide-এ আছে।</p>
+      <p><a class="btn" href="https://github.com/soobujmiah/ternux/blob/main/bn/docs/README.md">বিস্তারিত ডকুমেন্টেশন →</a></p>
+      <p class="note-amber">Graphics route ও performance device অনুযায়ী বদলায়। নিজের setup দেখতে `ternux verify` চালান।</p>
     </section>
-
   </main>
 
   <footer class="site-footer">
@@ -456,7 +295,7 @@ ternux start     <span class="c"># ডেস্কটপ সেশন চাল�
         <li><a href="https://soobujmiah.github.io/">পোর্টফোলিও</a></li>
         <li><a href="https://soobujmiah.github.io/adt/">এডিটি</a></li>
         <li><a href="https://github.com/soobujmiah/ternux">রিপোজিটরি</a></li>
-        <li><a href="{{ '/docs/' | relative_url }}">ডকুমেন্টেশন</a></li>
+        <li><a href="https://github.com/soobujmiah/ternux/blob/main/bn/docs/README.md">বিস্তারিত ডকুমেন্টেশন</a></li>
         <li><a href="{{ '/bn/CHANGELOG.html' | relative_url }}">চেঞ্জলগ</a></li>
         <li><a href="https://github.com/soobujmiah/ternux/blob/main/LICENSE">Apache-2.0 লাইসেন্স</a></li>
         <li><a href="{{ '/' | relative_url }}" hreflang="en" lang="en">EN</a></li>

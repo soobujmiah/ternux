@@ -131,6 +131,26 @@ glxinfo -B | tee ~/blender-gl-baseline.txt
 blender --version | tee ~/blender-version.txt
 ```
 
+### Adreno GPU-তে Blender render
+
+প্রতিষ্ঠিত Termux/PRoot Redmi workstation-এ default render path হলো
+**Zink/Turnip দিয়ে GPU offload-সহ EEVEE Next**। এই device-এ Cycles GPU
+প্রমাণিত নয়। Headless render-এর জন্যও X11 GL context দরকার: একবার Xvfb
+install করে virtual display চালু করুন, তারপর Blender-এ দুইটি environment
+variable দিন:
+
+```bash
+sudo apt install -y xvfb
+Xvfb :9 -screen 0 1280x720x24 &
+DISPLAY=:9 GALLIUM_DRIVER=zink blender -b --factory-startup --python render.py
+```
+
+`DISPLAY` বা `GALLIUM_DRIVER=zink` বাদ দেবেন না: মাপা setup-এ এই path ছাড়া
+GPU render হয়নি। দীর্ঘ run-এর আগে `glxinfo -B`-তে Zink / Adreno / Turnip
+renderer যাচাই করুন। সম্পূর্ণ reproducible workflow ও সীমা [cartoon pipeline
+guide-এ](https://github.com/soobujmiah/ternux/blob/main/experiments/cartoon-pipeline/README.md)
+আছে।
+
 <h3 id="local-ai-with-vulkan">Vulkan-সহ llama.cpp</h3>
 
 `--with-llm` Debian-এর ভেতরে llama.cpp Vulkan backend build করে। ব্যবহার করার

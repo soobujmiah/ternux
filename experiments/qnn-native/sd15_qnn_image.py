@@ -75,21 +75,27 @@ def dpm_step(sample, epsilon, index, sigmas, prior_x0):
     sigma = float(sigmas[index])
     sigma_next = float(sigmas[index + 1])
     alpha = 1.0 / math.sqrt(1.0 + sigma * sigma)
-    sigma_t = sigma * alpha
-    x0 = (sample - sigma_t * epsilon) / alpha
+    sigma_vp = sigma * alpha
+    alpha_next = 1.0 / math.sqrt(1.0 + sigma_next * sigma_next)
+    sigma_vp_next = sigma_next * alpha_next
+    x0 = (sample - sigma_vp * epsilon) / alpha
     if sigma_next == 0.0:
         return x0, x0
-    alpha_next = 1.0 / math.sqrt(1.0 + sigma_next * sigma_next)
-    h = math.log(sigma / sigma_next)
+    lambda_current = math.log(alpha / sigma_vp)
+    lambda_next = math.log(alpha_next / sigma_vp_next)
+    h = lambda_next - lambda_current
     ratio = math.exp(-h) - 1.0
     if not prior_x0:
-        updated = (sigma_next / sigma) * sample - alpha_next * ratio * x0
+        updated = (sigma_vp_next / sigma_vp) * sample - alpha_next * ratio * x0
     else:
         sigma_previous = float(sigmas[index - 1])
-        h_previous = math.log(sigma_previous / sigma)
+        alpha_previous = 1.0 / math.sqrt(1.0 + sigma_previous * sigma_previous)
+        sigma_vp_previous = sigma_previous * alpha_previous
+        lambda_previous = math.log(alpha_previous / sigma_vp_previous)
+        h_previous = lambda_current - lambda_previous
         r0 = h_previous / h
         correction = (x0 - prior_x0[-1]) / r0
-        updated = ((sigma_next / sigma) * sample - alpha_next * ratio * x0
+        updated = ((sigma_vp_next / sigma_vp) * sample - alpha_next * ratio * x0
                    - 0.5 * alpha_next * ratio * correction)
     return updated.astype(np.float32, copy=False), x0.astype(np.float32, copy=False)
 
@@ -245,15 +251,14 @@ def run(args):
                 if ready.get("kind") != "unet":
                     raise RuntimeError("unexpected UNet helper handshake")
                 rng = np.random.default_rng(args.seed)
-                latent = rng.standard_normal((1, 4, 64, 64), dtype=np.float32) * np.float32(sigmas[0])
+                # DPMSolverMultistep uses a unit Gaussian initial latent and
+                # the model consumes that VP-space sample without rescaling.
+                latent = rng.standard_normal((1, 4, 64, 64), dtype=np.float32)
                 prior_x0 = []
                 try:
                     for index, timestep in enumerate(timesteps):
                         step_start = time.monotonic()
-                        # The denoiser consumes a sigma-scaled model input;
-                        # the DPM solver below keeps the unscaled sample.
-                        sigma = np.float32(sigmas[index])
-                        model_input = latent / np.sqrt(sigma * sigma + np.float32(1.0))
+                        model_input = latent
                         uncond = _qnn_run_unet(proc, ready, model_input, timestep, negative)
                         cond = _qnn_run_unet(proc, ready, model_input, timestep, positive)
                         epsilon = uncond + args.cfg * (cond - uncond)

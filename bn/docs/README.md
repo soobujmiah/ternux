@@ -11,7 +11,7 @@ command ও evidence boundary aligned রাখতে হবে।
 | Section | Page |
 |---|---|
 | শুরু করুন | `QUICK-START.md`, `INSTALLATION.md`, `MANUAL.md` |
-| Repository deep guide | `../guides/`, `../bn/guides/` (শুধু source repository-তে; website-এ প্রকাশিত নয়) |
+| Repository deep guide | [`../guides/device-benchmark-evidence.md`](../guides/device-benchmark-evidence.md), [`../guides/llama-vulkan-extension.md`](../guides/llama-vulkan-extension.md), matching English pages under `../guides/` (শুধু source repository-তে; website-এ প্রকাশিত নয়) |
 | পরিচালনা | `USAGE.md`, `CONFIGURATION.md`, `TROUBLESHOOTING.md` |
 | বুঝে নিন | `ARCHITECTURE.md`, `BENCHMARKS.md`, `FAQ.md` |
 | রেফারেন্স | `CLI.md`, root `CHANGELOG.md`, root `CONTRIBUTING.md` |
@@ -33,6 +33,9 @@ order model; English ও বাংলা list structurally identical রাখ�
 7. Workload/tool card upstream repository-তে link করুন।
 8. প্রযোজ্য হলে landing page, README map, navigation data ও sitemap দুই ভাষায় update করুন।
 9. [`CONTRIBUTING.md`](../CONTRIBUTING.md)-এ থাকা validation চালান।
+10. Published benchmark page সংক্ষিপ্ত রাখুন; full device procedure, audit detail,
+    raw-log location ও dated experiment history repository-only guide বা experiment
+    record-এ রাখুন। সেখানকার canonical detail link করুন, website page-এ কপি করবেন না।
 
 Site shell `_layouts/default.html`; shared presentation ও behavior আছে
 `assets/css/ternux.css`, `assets/js/docs.js` এবং `assets/js/codecopy.js`-এ। Local,

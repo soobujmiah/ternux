@@ -187,7 +187,12 @@ class IdParser(HTMLParser):
 
 
 # UTF-8 and replacement-character scan.
-text_files = [p for p in ROOT.rglob("*") if p.is_file() and ".git" not in p.parts and p.suffix.lower() in TEXT_SUFFIXES]
+def is_local_artifact(path: Path) -> bool:
+    """Ignore preserved, untracked workstation artifacts during source-doc checks."""
+    return "artifacts" in path.relative_to(ROOT).parts
+
+
+text_files = [p for p in ROOT.rglob("*") if p.is_file() and ".git" not in p.parts and not is_local_artifact(p) and p.suffix.lower() in TEXT_SUFFIXES]
 for path in text_files:
     text = read(path)
     check("\ufffd" not in text, f"{path.relative_to(ROOT)}: contains Unicode replacement character")
@@ -240,7 +245,7 @@ if len(nav_sections) == 2:
 
 # Internal links and fragments.
 links_checked = 0
-for source in [p for p in ROOT.rglob("*") if p.is_file() and ".git" not in p.parts and p.suffix.lower() in {".md", ".html"}]:
+for source in [p for p in ROOT.rglob("*") if p.is_file() and ".git" not in p.parts and not is_local_artifact(p) and p.suffix.lower() in {".md", ".html"}]:
     text = read(source)
     links: list[str] = []
     if source.suffix.lower() == ".md":
@@ -296,21 +301,16 @@ for path in (ROOT / "index.html", ROOT / "bn/index.html", ROOT / "_layouts/defau
 # published benchmarks measure. (This replaces the earlier assertion, which
 # described the superseded landing's markup — inert class names and a
 # decorative accent sequence — rather than the page's actual structure.)
-upstream = {
-    "https://projects.blender.org/blender/blender",
-    "https://github.com/ggml-org/llama.cpp",
-    "https://github.com/leejet/stable-diffusion.cpp",
-    "https://github.com/glmark2/glmark2",
-}
-LANDING_SECTIONS = ["what", "how", "install", "gpu", "evidence", "adt", "docs"]
+LANDING_SECTIONS = ["install", "use", "docs"]
 landing_sections: dict[str, list[str]] = {}
 for path in (ROOT / "index.html", ROOT / "bn/index.html"):
     text = read(path)
     ids = re.findall(r'<section[^>]*\bid="([^"]+)"', text)
     landing_sections[str(path.relative_to(ROOT))] = ids
     check(ids == LANDING_SECTIONS, f"{path.relative_to(ROOT)}: landing section order changed ({ids})")
-    cards = set(re.findall(r'<a class="upstream-link" href="([^"]+)"', text))
-    check(cards == upstream, f"{path.relative_to(ROOT)}: upstream project links must match the measured workloads")
+    deep_docs_path = "github.com/soobujmiah/ternux/blob/main/bn/docs/README.md" if path.parts[-2] == "bn" else "github.com/soobujmiah/ternux/blob/main/docs/README.md"
+    check(deep_docs_path in text,
+          f"{path.relative_to(ROOT)}: missing repository deep-documentation link")
     check("/assets/js/effects.js" in text, f"{path.relative_to(ROOT)}: missing progressive effects script")
     check("data-scroll-progress" in text, f"{path.relative_to(ROOT)}: missing scroll progress feedback")
 check(
@@ -377,11 +377,11 @@ def benchmark_rows(path: Path) -> list[tuple[str, str]]:
             rows.append((cells[2], cells[3]))
     return rows
 
-en_rows = benchmark_rows(ROOT / "docs/BENCHMARKS.md")
-bn_rows = benchmark_rows(ROOT / "bn/docs/BENCHMARKS.md")
-check(len(en_rows) == len(bn_rows) == 33, "benchmark archive must contain 33 GL/ES scene rows in each language")
+en_rows = benchmark_rows(ROOT / "guides/device-benchmark-evidence.md")
+bn_rows = benchmark_rows(ROOT / "bn/guides/device-benchmark-evidence.md")
+check(len(en_rows) == len(bn_rows) == 33, "repository benchmark archive must contain 33 GL/ES scene rows in each language")
 check(en_rows == bn_rows, "English/Bengali benchmark numeric rows differ")
-for path in (ROOT / "docs/BENCHMARKS.md", ROOT / "bn/docs/BENCHMARKS.md"):
+for path in (ROOT / "guides/device-benchmark-evidence.md", ROOT / "bn/guides/device-benchmark-evidence.md"):
     text = read(path)
     for required in ("**140**", "**364**", "zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP))", "45 FPS", "465 FPS"):
         check(required in text, f"{path.relative_to(ROOT)}: missing benchmark invariant {required}")
@@ -401,7 +401,7 @@ except (ET.ParseError, OSError) as exc:
     errors.append(f"sitemap.xml: parse failed: {exc}")
 
 # Markdown fence balance and rendered-ID uniqueness catch common documentation regressions.
-for path in [p for p in ROOT.rglob("*.md") if ".git" not in p.parts]:
+for path in [p for p in ROOT.rglob("*.md") if ".git" not in p.parts and not is_local_artifact(p)]:
     text = read(path)
     count = sum(1 for line in text.splitlines() if re.match(r"^\s*```", line))
     check(count % 2 == 0, f"{path.relative_to(ROOT)}: unbalanced fenced code blocks")
