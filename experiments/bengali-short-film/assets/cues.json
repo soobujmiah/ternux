@@ -1,0 +1,18 @@
+{
+ "scene_starts": [0.0, 10.0, 22.0, 35.0, 48.0],
+ "lines": [
+  {"id": "s1_pol",   "scene": 1, "local_frame": 110, "start": 4.542,  "speaker": "politician"},
+  {"id": "s2_pol",   "scene": 2, "local_frame": 36,  "start": 11.458, "speaker": "politician"},
+  {"id": "s3_jour",  "scene": 3, "local_frame": 116, "start": 26.792, "speaker": "journalist"},
+  {"id": "s3_pol",   "scene": 3, "local_frame": 197, "start": 30.167, "speaker": "politician"},
+  {"id": "s4_pol",   "scene": 4, "local_frame": 26,  "start": 36.042, "speaker": "politician"},
+  {"id": "s5_child", "scene": 5, "local_frame": 44,  "start": 49.792, "speaker": "child"}
+ ],
+ "events": [
+  {"id": "water_burst", "start": 22.875, "note": "pipe gives way, scene 3 frame 22"},
+  {"id": "mic_turn",    "start": 40.0,   "note": "microphone turned up, scene 4 frame 120"},
+  {"id": "banner_fall", "start": 45.125, "note": "banner swings over, scene 4 frame 244"}
+ ],
+ "card": {"start": 56.8, "end": 60.0,
+          "text": "মিথ্যা যত জোরে বলা হয়,\nসত্য তত স্পষ্ট হয়ে ওঠে।"}
+}

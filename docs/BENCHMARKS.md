@@ -209,6 +209,46 @@ Xvfb :9 -screen 0 1280x720x24 &
 DISPLAY=:9 GALLIUM_DRIVER=zink blender -b --factory-startup --python render.py -- --shot 1
 ```
 
+## Measured: a 1,440-frame narrative film with dialogue, 2026-10-14
+
+I produced a complete 60-second Bengali short on this device — five scenes cut
+into twelve shots, six speaking and standing characters, a crowd, Bengali
+dialogue from a local neural speech model, mouths driven by that dialogue, and
+burnt-in Bengali captions. The pipeline and the exact commands are in
+[`experiments/bengali-short-film/`](https://github.com/soobujmiah/ternux/tree/main/experiments/bengali-short-film).
+
+1280x720, 16 render samples, EEVEE Next, one Blender process per scene, rendered
+headless on `Xvfb :9` with `GALLIUM_DRIVER=zink` — no X11 application was open.
+
+| Scene | Frames | Blender render | Mean | First frame |
+|---|---|---|---|---|
+| 1 | 240 | 427.7 s | 1.782 s | 22.6 s |
+| 2 | 288 | 501.3 s | 1.741 s | 9.3 s |
+| 3 | 312 | 569.9 s | 1.826 s | 8.5 s |
+| 4 | 312 | 633.4 s | 2.030 s | 13.0 s |
+| 5 | 288 | 666.5 s | 2.314 s | 8.9 s |
+| **All** | **1,440** | **2,798.8 s** | **1.944 s** | |
+
+Peak Blender memory was 459.1 MB. Each scene's first frame is slow because
+shader compilation is paid once per process; the steady state is what the mean
+describes.
+
+An earlier pass of the same film measured **3.22 s/frame at 713.7 MB** with 24
+samples, two subdivision levels on every body, and a shadow-casting fill light.
+Dropping to 16 samples, one subdivision level below the neck, no shadow map on
+the sky fill, and depth of field only in the shots that use it gave 1.944 s/frame
+with no visible loss at these shot sizes — a 40% saving for a change the frame
+does not show.
+
+Speech is Meta's MMS-TTS Bengali (VITS) run through `onnxruntime` on the CPU:
+six lines totalling 27.5 s of audio, each generated in roughly 1.3x its own
+length. That model is **CC-BY-NC-4.0 and non-commercial**; the rest of the
+pipeline does not depend on it.
+
+The delivered file measures 60.000 s, 1280x720, 24 fps, 1,440 frames, H.264 with
+AAC stereo at 44.1 kHz. Captions are composited from pre-shaped PNGs, because
+neither Blender text objects nor ffmpeg's `drawtext` shape Bengali conjuncts.
+
 ## Observed: Blender 4.3.2
 
 The supplied Blender system report contains:

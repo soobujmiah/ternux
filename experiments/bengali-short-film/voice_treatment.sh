@@ -1,0 +1,6 @@
+ffmpeg -v error -y -i assets/audio/raw/s1_pol.wav -af "rubberband=pitch=0.88:tempo=0.97,highpass=f=170,lowpass=f=5400,aecho=0.85:0.75:55:0.22,acompressor=threshold=-18dB:ratio=3,aresample=44100" -ar 44100 -ac 1 assets/audio/voice/s1_pol.wav
+ffmpeg -v error -y -i assets/audio/raw/s2_pol.wav -af "rubberband=pitch=0.88:tempo=0.97,highpass=f=170,lowpass=f=5400,aecho=0.85:0.75:55:0.22,acompressor=threshold=-18dB:ratio=3,aresample=44100" -ar 44100 -ac 1 assets/audio/voice/s2_pol.wav
+ffmpeg -v error -y -i assets/audio/raw/s3_jour.wav -af "rubberband=pitch=1.06:tempo=1.0,highpass=f=140,acompressor=threshold=-20dB:ratio=2.5,aresample=44100" -ar 44100 -ac 1 assets/audio/voice/s3_jour.wav
+ffmpeg -v error -y -i assets/audio/raw/s3_pol.wav -af "rubberband=pitch=0.88:tempo=0.97,highpass=f=170,lowpass=f=5400,aecho=0.85:0.75:55:0.22,acompressor=threshold=-18dB:ratio=3,aresample=44100" -ar 44100 -ac 1 assets/audio/voice/s3_pol.wav
+ffmpeg -v error -y -i assets/audio/raw/s4_pol.wav -af "rubberband=pitch=0.88:tempo=0.97,highpass=f=170,lowpass=f=5400,aecho=0.85:0.75:55:0.22,acompressor=threshold=-18dB:ratio=3,aresample=44100" -ar 44100 -ac 1 assets/audio/voice/s4_pol.wav
+ffmpeg -v error -y -i assets/audio/raw/s5_child.wav -af "rubberband=pitch=1.34:tempo=1.06,highpass=f=200,acompressor=threshold=-20dB:ratio=2,aresample=44100" -ar 44100 -ac 1 assets/audio/voice/s5_child.wav

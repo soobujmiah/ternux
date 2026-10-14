@@ -204,6 +204,43 @@ Xvfb :9 -screen 0 1280x720x24 &
 DISPLAY=:9 GALLIUM_DRIVER=zink blender -b --factory-startup --python render.py -- --shot 1
 ```
 
+## পরিমাপ: সংলাপসহ ১,৪৪০ ফ্রেমের একটি কাহিনিচিত্র, 2026-10-14
+
+এই device-এই একটি সম্পূর্ণ ৬০ সেকেন্ডের বাংলা স্বল্পদৈর্ঘ্য বানিয়েছি — পাঁচটি দৃশ্য, বারোটি
+shot, ছয়জন সংলাপ ও উপস্থিতির চরিত্র, একটি জনতা, স্থানীয় neural speech model থেকে বাংলা
+সংলাপ, সেই সংলাপ দিয়েই চালানো ঠোঁট, আর ছবিতে বসানো বাংলা caption। pipeline আর হুবহু
+command গুলো আছে
+[`experiments/bengali-short-film/`](https://github.com/soobujmiah/ternux/tree/main/experiments/bengali-short-film)-এ।
+
+1280x720, ১৬টি render sample, EEVEE Next, প্রতি দৃশ্যে একটি করে Blender process,
+`Xvfb :9`-এ `GALLIUM_DRIVER=zink` দিয়ে screen ছাড়াই render — কোনো X11 app চালু ছিল না।
+
+| দৃশ্য | Frame | Blender-এর render | গড় | প্রথম frame |
+|---|---|---|---|---|
+| 1 | 240 | 427.7 s | 1.782 s | 22.6 s |
+| 2 | 288 | 501.3 s | 1.741 s | 9.3 s |
+| 3 | 312 | 569.9 s | 1.826 s | 8.5 s |
+| 4 | 312 | 633.4 s | 2.030 s | 13.0 s |
+| 5 | 288 | 666.5 s | 2.314 s | 8.9 s |
+| **সব** | **1,440** | **2,798.8 s** | **1.944 s** | |
+
+Blender-এর সর্বোচ্চ memory ছিল 459.1 MB। প্রতিটি দৃশ্যের প্রথম frame ধীর, কারণ shader
+compilation প্রতি process-এ একবারই দিতে হয়; গড়টি steady state-এর কথা বলে।
+
+একই ছবির আগের একটি pass-এ **3.22 s/frame ও 713.7 MB** মেপেছিলাম — ২৪ sample, প্রতিটি
+শরীরে দুই স্তরের subdivision, আর ছায়া-ফেলা fill light নিয়ে। ১৬ sample, গলার নিচে এক
+স্তরের subdivision, sky fill-এ shadow map বাদ, এবং যেসব shot-এ লাগে কেবল সেখানে depth
+of field — এতে 1.944 s/frame হয়েছে, অথচ এই shot-আকারে চোখে পড়ার মতো কিছু হারায়নি;
+অর্থাৎ frame যা দেখায় না, সেখানেই ৪০% সাশ্রয়।
+
+কণ্ঠ এসেছে Meta-র MMS-TTS Bengali (VITS) থেকে, CPU-তে `onnxruntime` দিয়ে চালানো:
+ছয়টি লাইনে মোট 27.5 সেকেন্ড audio, প্রতিটি নিজের দৈর্ঘ্যের প্রায় 1.3 গুণ সময়ে তৈরি। ওই
+model **CC-BY-NC-4.0, অর্থাৎ অবাণিজ্যিক**; pipeline-এর বাকি অংশ ওর উপর নির্ভর করে না।
+
+সরবরাহ করা file-টি 60.000 s, 1280x720, 24 fps, ১,৪৪০ frame, H.264 ও 44.1 kHz AAC
+stereo। caption আগে থেকে shape করা PNG থেকে বসানো, কারণ Blender-এর text object আর
+ffmpeg-এর `drawtext` কোনোটিই বাংলা যুক্তাক্ষর shape করে না।
+
 ## Observed: Blender 4.3.2
 
 দেওয়া Blender system report-এ আছে:
