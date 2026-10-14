@@ -288,6 +288,21 @@ manifest and PNG are local under `artifacts/verified/` and are not release
 assets. Do not use the older helper artifact for this runner; it lacks the
 persistent server modes. The original model ZIP remains in place.
 
+### Performance follow-up
+
+The same device has a separate Local Dream NPU observation at 512×512 and 20
+steps: 5.7 s, versus this runner's 29.758 s median (about 5.2× longer). Model
+and runtime differ, so this is a substantial optimization gap, not a controlled
+A/B benchmark. Per-image `runner_seconds - unet_20step_seconds` has a 13.848 s
+median; that includes CLIP, helper/context startup, VAE decode, and PNG output.
+The Python runner makes separate unconditional and conditional UNet graph
+requests per denoising step (40 serial requests per 20-step image) and starts
+fresh UNet/decoder helper processes for each image. These are concrete profiling
+targets, but the cause of the gap remains unknown. QNN HTP/DSP execution is
+recorded in the helper logs; the performance gap does not by itself show a GPU
+fallback. Profile startup, stage time, and CFG execution on-device before
+changing the model path or making performance claims.
+
 The opt-in runner invocation after that handoff is:
 
 ```bash

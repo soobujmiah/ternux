@@ -731,6 +731,14 @@ the models and runtimes differ, so it is not a controlled A/B comparison and
 does not contradict the Ternux runner's QNN DSP execution logs. See the [Local
 Dream device evidence](https://github.com/soobujmiah/skb/blob/main/devices/redmi-turbo-4-pro/accelerator-access-audit.md).
 
+Per image, the median `runner_seconds - unet_20step_seconds` residual is
+13.848 s. This includes CLIP, helper and QNN context startup, decoder execution,
+and PNG writing; it is not a pure startup measurement. Code inspection shows
+that each denoising step sends separate unconditional and conditional requests
+to the UNet helper, for 40 serial graph requests per 20-step image. Each image
+invocation also starts and tears down its UNet and decoder helpers. These are
+specific profiling targets, not yet-proven explanations of the gap.
+
 Thermal-zone samples peaked at 41.9°C battery, 47.9°C `quiet_therm`, and 64.2°C
 among GPU-labelled zones. No NPU-specific thermal sensor was identified. The
 archive remained in place with SHA-256

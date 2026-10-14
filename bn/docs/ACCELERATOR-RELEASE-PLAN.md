@@ -27,6 +27,9 @@ SD1.5 performance gap এখনো qualification item: Ternux QNN runner-এর 
 5.7 s। Ternux result প্রায় 5.2× দীর্ঘ; model ও runtime আলাদা, তাই এটি controlled
 A/B test নয়। Ternux run-এ QNN HTP/DSP graph execution record আছে। Practical NPU
 image-generation path হিসেবে উপস্থাপনের আগে gap তদন্ত ও optimize করতে হবে।
+UNet-এর বাইরের median 13.848 s-এ CLIP, helper/context startup, VAE decode ও PNG
+output আছে; ২০ CFG step-এ বর্তমানে ৪০টি serial UNet graph request হয়। Device-এ
+এই খরচ profile এবং helper/context reuse পরীক্ষা করতে হবে।
 [Local Dream device evidence](https://github.com/soobujmiah/skb/blob/main/devices/redmi-turbo-4-pro/accelerator-access-audit.md)।
 
 ### HTP operator diagnostic (২০২৬-১০-১৪)

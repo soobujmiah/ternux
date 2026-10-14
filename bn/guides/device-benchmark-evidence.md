@@ -666,6 +666,12 @@ bridge দিয়ে Android QNN ব্যবহার করে। GPU-লে
 প্রায় 5.2× বেশি। এটি তদন্ত করার মতো বড় performance gap; model ও runtime আলাদা,
 তাই এটি নিয়ন্ত্রিত A/B comparison নয় এবং Ternux runner-এর QNN DSP execution
 log-কে খণ্ডন করে না। [Local Dream device evidence](https://github.com/soobujmiah/skb/blob/main/devices/redmi-turbo-4-pro/accelerator-access-audit.md)।
+প্রতি image-এ `runner_seconds - unet_20step_seconds` residual-এর median
+13.848 s। এতে CLIP, helper ও QNN context startup, decoder execution এবং PNG লেখা
+আছে; এটি শুধু startup time নয়। Code অনুযায়ী প্রতি denoising step-এ UNet helper-এ
+unconditional ও conditional request আলাদা পাঠানো হয়—২০ step-এ ৪০টি serial graph
+request। প্রতিটি image invocation-এ UNet ও decoder helper নতুন করে চালু ও বন্ধও
+হয়। এগুলো নির্দিষ্ট profiling target; gap-এর প্রমাণিত কারণ এখনো নয়।
 
 Thermal-zone sample-এ battery সর্বোচ্চ 41.9°C, `quiet_therm` 47.9°C, এবং
 GPU-labelled zone 64.2°C ছিল। NPU-নির্দিষ্ট thermal sensor শনাক্ত হয়নি। Archive
