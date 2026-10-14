@@ -30,8 +30,10 @@ alt_url: "/docs/"
 
 <div class="doc-grid">
   <a class="doc-card" href="USAGE.html"><span class="doc-card__icon">$</span><strong>দৈনন্দিন ব্যবহার</strong><span>Session চালু-বন্ধ, file management, workload ও backup।</span></a>
+  <a class="doc-card" href="WORKLOADS.html"><span class="doc-card__icon">+</span><strong>ওয়ার্কলোড</strong><span>Optional workload-এ কী install হয় ও কীভাবে ব্যবহার করবেন।</span></a>
   <a class="doc-card" href="BLENDER-MCP.html"><span class="doc-card__icon">3D</span><strong>Blender GPU MCP</strong><span>Coding agent connect করে মাপা headless GPU route ব্যবহার করুন।</span></a>
   <a class="doc-card" href="CONFIGURATION.html"><span class="doc-card__icon">{ }</span><strong>কনফিগারেশন</strong><span>Graphics backend, launch variable, audio, locale, font ও file location।</span></a>
+  <a class="doc-card" href="GRAPHICS-PERSISTENCE.html"><span class="doc-card__icon">GPU</span><strong>Graphics persistence</strong><span>Package update-এর পরেও GPU driver সচল রাখুন।</span></a>
   <a class="doc-card" href="TROUBLESHOOTING.html"><span class="doc-card__icon">!</span><strong>সমস্যা সমাধান</strong><span>লক্ষণভিত্তিক check, `ternux doctor`, নিরাপদ repair ও clean reinstall।</span></a>
   <a class="doc-card" href="CLI.html"><span class="doc-card__icon">--</span><strong>CLI রেফারেন্স</strong><span>প্রতিটি public command, option, status behavior ও নথিভুক্ত JSON surface।</span></a>
 </div>
