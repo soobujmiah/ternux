@@ -80,6 +80,9 @@ jobs:
           grep -q 'aarch64' llama-cli-file.txt
           mkdir -p release/ternux-llama-htp-sm8735-b11582
           cp -a "$package/." release/ternux-llama-htp-sm8735-b11582/
+          mkdir -p release/ternux-llama-htp-sm8735-b11582/licenses
+          cp -a llama.cpp/licenses/. release/ternux-llama-htp-sm8735-b11582/licenses/
+          test -s release/ternux-llama-htp-sm8735-b11582/licenses/LICENSE-jsonhpp
           install -D -m 0755 tools/llama-htp/htp-run \
             release/ternux-llama-htp-sm8735-b11582/bin/htp-run
           install -D -m 0644 tools/llama-htp/htp-broker.py \
@@ -105,6 +108,8 @@ jobs:
           cancellation and fallback still require device qualification. This
           package does not claim supported or production-ready NPU inference.
 
+          Upstream third-party license notices are included under licenses/.
+
           The package does not include Qualcomm vendor libraries, firmware,
           or device permission changes. Install libgbinder1, libglibutil1, and
           libfastrpc1 in Debian before running bin/htp-run. Do not change device
@@ -124,12 +129,14 @@ jobs:
             "htp_libraries": ["libggml-hexagon.so", "libggml-htp-v73.so"],
             "device_validation": "experimental; existing HVX-only/flash-attention-off HTP known-answer observed on SM8735 before this packaged adapter; exact archive retest and cancellation qualification pending",
             "experimental_adapter": ["bin/htp-run", "libexec/htp-broker.py", "lib/libternux-htp-broker.so"],
-            "runtime_dependencies": ["libgbinder.so.1", "libglibutil.so.1", "libcdsprpc.so.1", "python3"]
+            "runtime_dependencies": ["libgbinder.so.1", "libglibutil.so.1", "libcdsprpc.so.1", "python3"],
+            "license_files": ["LLAMA-CPP-LICENSE", "licenses/LICENSE-jsonhpp", "TERNUX-LICENSE", "TERNUX-NOTICE"]
           }
           EOF
           tar -C release -czf ternux-llama-htp-sm8735-b11582.tar.gz ternux-llama-htp-sm8735-b11582
           sha256sum ternux-llama-htp-sm8735-b11582.tar.gz > ternux-llama-htp-sm8735-b11582.tar.gz.sha256
           tar -tzf ternux-llama-htp-sm8735-b11582.tar.gz > archive-contents.txt
+          grep -qx 'ternux-llama-htp-sm8735-b11582/licenses/LICENSE-jsonhpp' archive-contents.txt
           sed -n '1,40p' archive-contents.txt
 
       - name: Upload build artifact for review
