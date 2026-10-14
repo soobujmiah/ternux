@@ -93,6 +93,8 @@ jobs:
           ).stdout.split(b"\0")
           def is_license_file(raw_path: bytes) -> bool:
               name = Path(raw_path.decode("utf-8")).name.upper()
+              if name.endswith(".CMAKE"):
+                  return False
               return (name in {"LICENSE", "COPYING"} or
                       name.startswith(("LICENSE.", "LICENSE-", "COPYING.", "COPYING-")))
 
