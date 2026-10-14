@@ -6,7 +6,7 @@
 কী এখনো যাচাই হয়নি—তা রেকর্ড করা হয়েছে। Build success, renderer detection ও
 benchmark performance যেন এক claim-এ মিশে না যায়, সেটিই এর উদ্দেশ্য।
 
-> **Snapshot:** 2026-10-14 পর্যন্ত evidence। এটি একটি
+> **Snapshot:** 2026-10-15 পর্যন্ত evidence। এটি একটি
 > device/configuration; compatibility বা performance guarantee নয়।
 
 ---
@@ -237,6 +237,40 @@ model **CC-BY-NC-4.0, অর্থাৎ অবাণিজ্যিক**; pipel
 সরবরাহ করা file-টি 60.000 s, 1280x720, 24 fps, ১,৪৪০ frame, H.264 ও 44.1 kHz AAC
 stereo। caption আগে থেকে shape করা PNG থেকে বসানো, কারণ Blender-এর text object আর
 ffmpeg-এর `drawtext` কোনোটিই বাংলা যুক্তাক্ষর shape করে না।
+
+<a id="mpfb2-human-character-build"></a>
+
+## Measured: MPFB2 human-character build, 2026-10-14/15
+
+মালিকের দেওয়া device-run record অনুযায়ী, Redmi Turbo 4 Pro-তে PRoot Debian 13
+arm64-এ run-টি 2026-10-14 23:00 থেকে 2026-10-15 01:00 (+06) পর্যন্ত চলে। এতে
+Blender 4.3.2, MPFB2 2.0.18, EEVEE Next এবং Zink/Turnip দিয়ে Adreno 825 ব্যবহার
+হয়েছে। এটি উপরের cartoon-pipeline-এর procedural character থেকে আলাদা human-mesh
+workflow।
+
+| Operation | মাপা সময় / output |
+|---|---:|
+| `HumanService.create_human` | 0.4 s |
+| পুরো character rebuild (macro + ৬ target + skin + ৬ asset + rig + weight binding) | 3.9 s |
+| ৬টি asset load ও fit | প্রায় 2 s |
+| 460×800 still | প্রায় 4 s |
+| 540×960 animation frame | 3.8 s |
+| ১২০-frame, ৫ s shot | প্রায় ৭.৫ min; x264 CRF 18-এর পরে output 392 kB |
+
+রেকর্ড করা ৫-second output ছিল 540×960, 24 fps। সময়গুলো এই character, scene ও
+device configuration-এর একটি run-এর evidence; সাধারণ throughput guarantee বা
+বহু ঘণ্টার thermal test নয়। এই run-এর per-frame timing distribution, peak
+memory, power বা thermal measurement দেওয়া হয়নি।
+
+Extension load করার জন্য এই run-এ Blender-এর saved user preferences ব্যবহার
+হয়েছে। `--factory-startup` extension বন্ধ করে, আর `blender-gpu` MCP server এই
+flag ব্যবহার করে; তাই MPFB2 script-এর জন্য আলাদা Blender process দরকার।
+Headless run-এ `DISPLAY=:0` অথবা `GALLIUM_DRIVER=zink`-সহ Xvfb `:9` পরীক্ষা করা
+হয়েছে; আবার ব্যবহারের আগে active display যাচাই করুন। MPFB2 API setup,
+helper-group rigging caveat, fitting sequence, licence ও reproduction notes
+SKB-এর [MPFB2 workflow](https://github.com/soobujmiah/skb/blob/main/engineering/ANIMATION_PRODUCTION_PIPELINE.md#mpfb2-human-character-workflow)
+এবং [device environment record](https://github.com/soobujmiah/skb/blob/main/devices/redmi-turbo-4-pro/current-termux-environment.md#blender-mpfb2-human-generation)-এ
+আছে।
 
 ## Observed: Blender 4.3.2
 
@@ -738,6 +772,7 @@ workload এখনো মাপা হয়নি। Log: `/home/sbj/npu-probe-
 | ES command/output কি DRI3 warning-সহ captured? | **হ্যাঁ — measured, caveat-সহ** |
 | Blender viewport renderer শনাক্তকরণ | **Observed — Zink/Turnip; render performance নয়** |
 | Blender EEVEE render output | **Measured — ৬০০ + ৬৪৮ + ১,৪৪০ frame; আলাদা ১০-frame path comparison** |
+| MPFB2 human-character build ও render timing | **Measured — একটি device-এ rigged build ও ১২০-frame shot; thermal/power result নেই** |
 | Blender Cycles GPU rendering | **Untested / প্রমাণিত নয়** |
 | llama.cpp CPU + Vulkan inference | **Verified — দুই backend-এই known-answer pass** |
 | llama.cpp CPU + Vulkan throughput | **Measured — সীমাবদ্ধ repeated short ও long workload; একটি device/model** |

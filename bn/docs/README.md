@@ -10,18 +10,19 @@ command ও evidence boundary aligned রাখতে হবে।
 
 | Section | Page |
 |---|---|
-| শুরু করুন | `QUICK-START.md`, `INSTALLATION.md`, `MANUAL.md` |
+| শুরু করুন | `index.md`, `QUICK-START.md`, `INSTALLATION.md`, `MANUAL.md` |
 | Release অবস্থা ও roadmap | `ACCELERATOR-RELEASE-PLAN.md` (accelerator/release-এর একমাত্র canonical plan) |
 | Repository deep guide | [`../guides/device-benchmark-evidence.md`](../guides/device-benchmark-evidence.md), [`../guides/llama-vulkan-extension.md`](../guides/llama-vulkan-extension.md), matching English pages under `../guides/` (শুধু source repository-তে; website-এ প্রকাশিত নয়) |
-| পরিচালনা | `USAGE.md`, `WORKLOADS.md`, `BLENDER-MCP.md`, `CONFIGURATION.md`, `TROUBLESHOOTING.md` |
+| পরিচালনা | `USAGE.md`, `WORKLOADS.md`, `BLENDER-MCP.md`, `CONFIGURATION.md`, `GRAPHICS-PERSISTENCE.md`, `TROUBLESHOOTING.md` |
 | বুঝে নিন | `ARCHITECTURE.md`, `BENCHMARKS.md`, `FAQ.md` |
 | রেফারেন্স | `CLI.md`, root `CHANGELOG.md`, root `CONTRIBUTING.md` |
 
 `QUICK-START.md` website-এ llama.cpp extension-এর সংক্ষিপ্ত পথ দেয়। Paired
 repository guide-এ release যাচাই ও automatic/manual install-এর বিস্তারিত আছে,
-তাই website-এ deep procedure পুনরাবৃত্তি হয় না। `index.md` হলো task-based published
-hub। `_data/docs.yml` canonical sidebar ও page
-order model; English ও বাংলা list structurally identical রাখতে হবে।
+তাই website-এ deep procedure পুনরাবৃত্তি হয় না। `index.md` হলো task-based
+published hub। `src/pages/`-এর Astro route-গুলো source page-গুলোকে আগের `.html`
+URL-এ প্রকাশ করে; `src/data/navigation.ts` shared navigation model। English ও
+বাংলা page, section order ও navigation structurally paired রাখতে হবে।
 
 ## Authoring contract
 
@@ -38,6 +39,7 @@ order model; English ও বাংলা list structurally identical রাখ�
     raw-log location ও dated experiment history repository-only guide বা experiment
     record-এ রাখুন। সেখানকার canonical detail link করুন, website page-এ কপি করবেন না।
 
-Site shell `_layouts/default.html`; shared presentation ও behavior আছে
-`assets/css/ternux.css`, `assets/js/docs.js` এবং `assets/js/codecopy.js`-এ। Local,
-dependency-free implementation practical হলে external runtime asset যোগ করবেন না।
+Shared page shell `src/layouts/SiteLayout.astro`; style `src/styles/site.css`,
+আর content loading ও route-safe link rewrite `src/lib/content.ts`-এ। Astro build-এর
+`dist/` output `.github/workflows/deploy.yml` দিয়ে deploy হয়। Runtime হালকা রাখুন
+এবং reduced-motion preference মানুন।

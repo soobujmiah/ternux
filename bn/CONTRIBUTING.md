@@ -83,7 +83,7 @@ git checkout -b fix/short-description
 1. একটি coherent change করুন;
 2. focused test যোগ বা update করুন;
 3. behavior বদলালে English ও বাংলা documentation update করুন;
-4. documentation page বা label বদলালে `_data/docs.yml` update করুন;
+4. documentation page বা label বদলালে `src/data/navigation.ts` update করুন;
 5. নিচের validation command চালান;
 6. generated file, secret ও সম্পর্কহীন edit-এর জন্য `git diff` দেখুন;
 7. repository template ব্যবহার করে pull request খুলুন।
@@ -110,9 +110,11 @@ Imperative form-এ পরিষ্কার commit subject লিখুন, য
 
 ## Documentation standard
 
-Site navigation source হলো `_data/docs.yml`। English ও বাংলা list একই order-এ থাকবে
-এবং matching destination দেখাবে। Core page `docs/` ও `bn/docs/`-এ; landing page
-`index.html` ও `bn/index.html`।
+Website Astro দিয়ে build হয়। Navigation `src/data/navigation.ts`-এ; English ও
+বাংলা list একই order-এ এবং matching destination-সহ রাখুন। Content source `docs/`,
+`bn/docs/`, এবং root changelog/contribution pair-এ। Homepage `src/pages/index.astro`
+ও `src/pages/bn/index.astro`। Repository-only technical guide `guides/` ও `bn/guides/`-এ
+থাকবে; site build-এ রাখবেন না, প্রাসঙ্গিক web guide থেকে link করুন।
 
 User-facing behavior বদলালে:
 
@@ -140,8 +142,9 @@ for file in install.sh uninstall.sh bin/ternux lib/*.sh; do
   bash -n "$file"
 done
 
-node --check assets/js/docs.js
-node --check assets/js/codecopy.js
+npm ci
+npm run build
+node --check scripts/finalize-site.mjs
 git diff --check
 ```
 
@@ -163,9 +166,9 @@ uninstall.sh           scoped removal entry point
 tests/                  focused ও Bats regression
 docs/                   English technical documentation
 bn/docs/                বাংলা technical documentation
-_data/docs.yml          mirrored site navigation model
-_layouts/default.html   documentation application shell
-assets/                 local CSS, JavaScript, font ও social image
+src/                    Astro page, shared shell, style ও content loader
+package.json            site dependency ও build command
+assets/                 font ও social preview image
 share/templates/        schema ও managed template
 .github/                issue, pull-request, ownership ও automation policy
 ```

@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://soobujmiah.github.io/ternux/sitemap.xml

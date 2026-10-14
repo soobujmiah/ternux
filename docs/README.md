@@ -1,8 +1,8 @@
 # ternux documentation source
 
-The root README and English/Bengali website home pages are the short install
-and basic-usage entry points. This directory contains the repository's deep
-guides and the corresponding published documentation pages. The Bengali mirror
+The root README is the concise install and basic-usage entry point. The bilingual
+website homes introduce Ternux's device architecture and verified workloads.
+This directory contains the technical reference and published documentation pages. The Bengali mirror
 is [`bn/docs/`](../bn/docs/README.md); behavior, commands and warnings must stay
 aligned across the paired pages.
 
@@ -14,16 +14,17 @@ basic-usage path, then link here for details.
 
 | Section | Pages |
 |---|---|
-| Start here | `QUICK-START.md`, `INSTALLATION.md`, `MANUAL.md` |
+| Start here | `index.md`, `QUICK-START.md`, `INSTALLATION.md`, `MANUAL.md` |
 | Release status and roadmap | `ACCELERATOR-RELEASE-PLAN.md` (the canonical accelerator/release plan) |
 | Repository deep guides | [`../guides/device-benchmark-evidence.md`](../guides/device-benchmark-evidence.md), [`../guides/llama-vulkan-extension.md`](../guides/llama-vulkan-extension.md), [`../guides/llama-htp-experimental.md`](../guides/llama-htp-experimental.md), matching `../bn/guides/` pages (source repository only; not rendered on the website) |
-| Operate | `USAGE.md`, `WORKLOADS.md`, `BLENDER-MCP.md`, `CONFIGURATION.md`, `TROUBLESHOOTING.md` |
+| Operate | `USAGE.md`, `WORKLOADS.md`, `BLENDER-MCP.md`, `CONFIGURATION.md`, `GRAPHICS-PERSISTENCE.md`, `TROUBLESHOOTING.md` |
 | Understand | `ARCHITECTURE.md`, `BENCHMARKS.md`, `FAQ.md` |
 | Reference | `CLI.md`, root `CHANGELOG.md`, root `CONTRIBUTING.md` |
 
-`index.md` and `_data/docs.yml` support the published guide pages. Keep the
-English and Bengali guide sets structurally paired. The top-level website must
-stay a short install/use page and point here instead of restating these guides.
+`index.md` provides the documentation hub. Astro routes in `src/pages/` render
+these sources at the established `.html` URLs; `src/data/navigation.ts` is the
+shared navigation model. Keep the English and Bengali guide sets structurally
+paired. The landing page introduces the system and links here for detail.
 
 ## Authoring contract
 
@@ -49,6 +50,8 @@ runs validate and report state but do not commit generated updates. CI cannot
 infer human-authored explanations, decisions, limitations or reproduction
 steps: update those canonical docs in the same change that alters the behavior.
 
-The site shell is `_layouts/default.html`; shared presentation and behavior live in
-`assets/css/ternux.css`, `assets/js/docs.js`, and `assets/js/codecopy.js`. Do not add
-external runtime assets when a local, dependency-free implementation is practical.
+The shared page shell is `src/layouts/SiteLayout.astro`; shared styles live in
+`src/styles/site.css`, while content loading and route-safe link rewriting live in
+`src/lib/content.ts`. Astro builds the static site into `dist/` for deployment by
+`.github/workflows/deploy.yml`. Keep the runtime light and respect reduced-motion
+preferences.

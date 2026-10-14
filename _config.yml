@@ -1,4 +1,5 @@
-# ternux — GitHub Pages / Jekyll configuration
+# Ternux public site metadata. The website is built with Astro; GitHub Pages
+# receives the static output from .github/workflows/deploy.yml.
 # https://github.com/soobujmiah/ternux
 
 title: ternux
@@ -13,41 +14,3 @@ lang: en
 timezone: Asia/Dhaka
 copyright: 2026 Sobuj Miah
 version: 1.4.0
-
-# GitHub Pages supports these settings without third-party plugins.
-markdown: kramdown
-kramdown:
-  input: GFM
-  hard_wrap: false
-  syntax_highlighter: rouge
-highlighter: rouge
-strict_front_matter: true
-
-# Every rendered Markdown page receives the professional documentation shell.
-# The two landing pages explicitly use `layout: null`.
-defaults:
-  - scope:
-      path: ""
-    values:
-      layout: default
-  - scope:
-      path: "docs"
-    values:
-      lang: en
-  - scope:
-      path: "bn/docs"
-    values:
-      lang: bn
-
-exclude:
-  - tests
-  - vendor
-  - docs/README.md
-  - bn/docs/README.md
-  - guides
-  - bn/guides
-  - Gemfile
-  - Gemfile.lock
-  - CLAUDE.md
-  - REPO_AUDIT.md
-  - "*.bats"

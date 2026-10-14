@@ -146,7 +146,7 @@ Debian-এ download tool না থাকলে আগে বসান:
 sudo apt update && sudo apt install -y ca-certificates curl tar gzip
 ```
 
-<a id="install-adt-tools-inside-the-ternux-debian-guest"></a>
+<span id="install-adt-tools-inside-the-ternux-debian-guest"></span>
 
 ### Ternux Debian guest-এ ADT tools বসান
 

@@ -3,7 +3,7 @@ title: "বেঞ্চমার্ক ও ডিভাইস প্রমাণ
 description: "Ternux graphics ও accelerator workload-এর পরিমাপ করা সংক্ষিপ্ত ফল এবং স্পষ্ট evidence boundary।"
 lang: "bn"
 alt_url: "/docs/BENCHMARKS.html"
-evidence_through: "2026-10-14"
+evidence_through: "2026-10-15"
 ---
 
 এই পৃষ্ঠায় একটি configured Redmi Turbo 4 Pro / SM8735 / Adreno 825 device-এর
@@ -26,6 +26,7 @@ evidence_through: "2026-10-14"
 | `glmark2` OpenGL | **Measured:** score 140। | একটি 800×600 configured session; desktop বা game FPS নয়। |
 | `glmark2-es2 --off-screen` | **Measured:** score 364, caveat-সহ। | Off-screen command হলেও DRI3 warning ও windowed header এসেছিল। |
 | Blender EEVEE Next | **Measured:** ৬০০ frame, গড়ে 1.49 s/frame; ৬৪৮-frame short, 1.126 s/frame; ১,৪৪০-frame গল্প, 1.944 s/frame। | Zink/Turnip দিয়ে Adreno GPU offload, headless Xvfb-সহ। সীমাবদ্ধ render; বহু ঘণ্টার thermal claim নয়। |
+| MPFB2 human-character build | **Measured:** `create_human` 0.4 s; পুরো rigged rebuild 3.9 s; 540×960 frame 3.8 s; ১২০-frame, ৫ s shot প্রায় ৭.৫ min। | Adreno 825-তে Zink দিয়ে EEVEE Next; MPFB2 2.0.18 / Blender 4.3.2। একটি device run; sustained thermal claim নয়। |
 | Blender viewport | **Observed:** Adreno 825-তে Zink/Turnip। | Renderer শনাক্তকরণ EEVEE render time থেকে আলাদা। Cycles GPU **প্রমাণিত নয়**। |
 | llama.cpp CPU + Vulkan | **Verified:** দুটো backend-ই সীমাবদ্ধ known-answer prompt-এ `4` দিয়েছে; Vulkan Adreno 825-এ 29/29 layer assign করেছে। **Measured:** নিচে clean-idle long run। | একটি device ও workload-এ Qwen2.5 1.5B Q4_0। |
 | llama.cpp Hexagon HTP | **Experimental:** HVX matmul ও flash attention বন্ধ রেখে সীমাবদ্ধ known-answer ও long recall-key check pass করেছে। | HMX-selected matmul + flash attention off এবং HVX matmul + flash attention on-এ ভুল উত্তর এসেছে। HTP supported route নয়। |
@@ -91,6 +92,7 @@ Implementation ও বিস্তারিত evidence: [QNN runner record](htt
 
 - [সম্পূর্ণ device benchmark evidence, পুনরুৎপাদন ধাপ ও dated measurement](https://github.com/soobujmiah/ternux/blob/main/bn/guides/device-benchmark-evidence.md) — শুধু repository-তে।
 - [EEVEE GPU-offload render পদ্ধতি](https://github.com/soobujmiah/ternux/blob/main/experiments/cartoon-pipeline/README.md) — repository workflow ও পরীক্ষিত headless command।
+- [MPFB2 character-build measurement](https://github.com/soobujmiah/ternux/blob/main/guides/device-benchmark-evidence.md#mpfb2-human-character-build) — একটি device-side character build ও render run।
 - [CPU/Vulkan package install ও qualification](https://github.com/soobujmiah/ternux/blob/main/bn/guides/llama-vulkan-extension.md#device-qualification-record) — শুধু repository-তে।
 - [পরীক্ষামূলক HTP extension install ও সীমা](https://github.com/soobujmiah/ternux/blob/main/bn/guides/llama-htp-experimental.md) — শুধু repository-তে।
 - [বর্তমান accelerator gate](ACCELERATOR-RELEASE-PLAN.html)।

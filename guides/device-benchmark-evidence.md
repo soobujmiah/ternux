@@ -6,7 +6,7 @@ This page records what has actually been measured on a real ternux setup, what w
 only observed, and what remains unverified. It exists to prevent build success,
 renderer detection and benchmark performance from being mixed into one claim.
 
-> **Snapshot:** evidence through 2026-10-14 on one Redmi Turbo 4 Pro / SM8735
+> **Snapshot:** evidence through 2026-10-15 on one Redmi Turbo 4 Pro / SM8735
 > configuration, not a compatibility or performance guarantee.
 
 ---
@@ -245,6 +245,41 @@ pipeline does not depend on it.
 The delivered file measures 60.000 s, 1280x720, 24 fps, 1,440 frames, H.264 with
 AAC stereo at 44.1 kHz. Captions are composited from pre-shaped PNGs, because
 neither Blender text objects nor ffmpeg's `drawtext` shape Bengali conjuncts.
+
+<a id="mpfb2-human-character-build"></a>
+
+## Measured: MPFB2 human-character build, 2026-10-14/15
+
+The owner-reported device run completed on the Redmi Turbo 4 Pro in PRoot
+Debian 13 arm64, from 2026-10-14 23:00 to 2026-10-15 01:00 (+06). It used
+Blender 4.3.2, MPFB2 2.0.18, EEVEE Next, and the Adreno 825 through
+Zink/Turnip. This is a separate human-mesh workflow from the procedural
+character used in the cartoon-pipeline measurements above.
+
+| Operation | Measured time / output |
+|---|---:|
+| `HumanService.create_human` | 0.4 s |
+| Full character rebuild (macro + 6 targets + skin + 6 assets + rig + weight binding) | 3.9 s |
+| Load and fit all 6 assets | about 2 s |
+| 460×800 still | about 4 s |
+| 540×960 animation frame | 3.8 s |
+| 120-frame, 5 s shot | about 7.5 min; output 392 kB after x264 CRF 18 |
+
+The reported 5-second output was 540×960 at 24 fps. The timing is evidence for
+this one character, scene, and device configuration; it is not a general
+throughput promise or a multi-hour thermal test. The report did not provide
+per-frame timing distribution, peak memory, power, or thermal measurements for
+this run.
+
+This MPFB2 run used Blender's saved user preferences so the extension could
+load. `--factory-startup` disables extensions and the `blender-gpu` MCP server
+uses that flag, so MPFB2 scripts must use a separate Blender process. For
+headless work, the tested display paths were `DISPLAY=:0` or Xvfb `:9` with
+`GALLIUM_DRIVER=zink`; recheck the active display before reuse. The extension's
+API setup, helper-group rigging caveat, fitting sequence, licensing, and
+reproduction notes are in the SKB
+[MPFB2 workflow](https://github.com/soobujmiah/skb/blob/main/engineering/ANIMATION_PRODUCTION_PIPELINE.md#mpfb2-human-character-workflow)
+and [device environment record](https://github.com/soobujmiah/skb/blob/main/devices/redmi-turbo-4-pro/current-termux-environment.md#blender-mpfb2-human-generation).
 
 ## Observed: Blender 4.3.2
 
@@ -806,6 +841,7 @@ in `/home/sbj/npu-probe-2026-10-13/`.
 | Is the ES command/output captured with its DRI3 warning? | **Yes — measured, caveated** |
 | Blender viewport renderer identification | **Observed — Zink/Turnip; not a render-performance result** |
 | Blender EEVEE render output | **Measured — 600 + 648 + 1,440 frames; separate 10-frame path comparison** |
+| MPFB2 human-character build and render timing | **Measured — one rigged build and 120-frame shot on one device; no thermal/power result** |
 | Blender Cycles GPU rendering | **Untested / not established** |
 | llama.cpp CPU + Vulkan inference | **Verified — known-answer pass on both backends** |
 | llama.cpp CPU + Vulkan throughput | **Measured — bounded repeated short and long workloads; one device/model** |

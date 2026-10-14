@@ -3,7 +3,7 @@ title: "Benchmarks and device evidence"
 description: "A concise, measured snapshot of Ternux graphics and accelerator workloads, with explicit evidence boundaries."
 lang: "en"
 alt_url: "/bn/docs/BENCHMARKS.html"
-evidence_through: "2026-10-14"
+evidence_through: "2026-10-15"
 ---
 
 This page summarizes measured workloads and their limits on one configured
@@ -26,6 +26,7 @@ performance guarantee for other devices.
 | `glmark2` OpenGL | **Measured:** score 140. | One 800×600 configured session; not desktop or game FPS. |
 | `glmark2-es2 --off-screen` | **Measured:** score 364, caveated. | DRI3 warning and a windowed header appeared despite the off-screen command. |
 | Blender EEVEE Next | **Measured:** 600 frames at 1.49 s/frame mean; 648-frame short at 1.126 s/frame; 1,440-frame narrative at 1.944 s/frame. | Adreno GPU offload through Zink/Turnip, including headless Xvfb. Bounded renders; no multi-hour thermal claim. |
+| MPFB2 human-character build | **Measured:** `create_human` 0.4 s; full rigged rebuild 3.9 s; 540×960 frame 3.8 s; 120-frame, 5 s shot about 7.5 min. | MPFB2 2.0.18 / Blender 4.3.2, EEVEE Next on Adreno 825 through Zink. One device run; no sustained thermal claim. |
 | Blender viewport | **Observed:** Zink/Turnip on Adreno 825. | Renderer detection is separate from EEVEE render timing. Cycles GPU is **not established**. |
 | llama.cpp CPU + Vulkan | **Verified:** both returned `4` on the bounded known-answer prompt; Vulkan assigned 29/29 layers to Adreno 825. **Measured:** clean-idle long run below. | Qwen2.5 1.5B Q4_0, one device and one workload. |
 | llama.cpp Hexagon HTP | **Experimental:** HVX matmul with flash attention off passed bounded known-answer and long recall-key checks. | HMX-selected matmul + flash attention off and HVX matmul + flash attention on returned wrong answers. HTP is not a supported route. |
@@ -94,6 +95,7 @@ and [device benchmark log](https://github.com/soobujmiah/ternux/blob/main/guides
 
 - [Full device benchmark evidence, reproduction steps, and dated measurements](https://github.com/soobujmiah/ternux/blob/main/guides/device-benchmark-evidence.md) — repository-only.
 - [EEVEE GPU-offload render procedure](https://github.com/soobujmiah/ternux/blob/main/experiments/cartoon-pipeline/README.md) — repository workflow and tested headless command.
+- [MPFB2 character-build measurements](https://github.com/soobujmiah/ternux/blob/main/guides/device-benchmark-evidence.md#mpfb2-human-character-build) — one device-side character build and render run.
 - [CPU/Vulkan package installation and qualification](https://github.com/soobujmiah/ternux/blob/main/guides/llama-vulkan-extension.md#device-qualification-record) — repository-only.
 - [Experimental HTP extension installation and limits](https://github.com/soobujmiah/ternux/blob/main/guides/llama-htp-experimental.md) — repository-only.
 - [Current accelerator gates](ACCELERATOR-RELEASE-PLAN.html).

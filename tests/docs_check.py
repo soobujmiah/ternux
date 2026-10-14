@@ -188,8 +188,8 @@ class IdParser(HTMLParser):
 
 # UTF-8 and replacement-character scan.
 def is_local_artifact(path: Path) -> bool:
-    """Ignore preserved, untracked workstation artifacts during source-doc checks."""
-    return "artifacts" in path.relative_to(ROOT).parts
+    """Ignore preserved, generated, or vendored files during source-doc checks."""
+    return bool({"artifacts", "node_modules", "dist", ".superdesign"} & set(path.relative_to(ROOT).parts))
 
 
 text_files = [p for p in ROOT.rglob("*") if p.is_file() and ".git" not in p.parts and not is_local_artifact(p) and p.suffix.lower() in TEXT_SUFFIXES]
@@ -198,7 +198,7 @@ for path in text_files:
     check("\ufffd" not in text, f"{path.relative_to(ROOT)}: contains Unicode replacement character")
 
 # Paired published pages and reciprocal language metadata.
-pairs: list[tuple[Path, Path]] = [(ROOT / "index.html", ROOT / "bn/index.html")]
+pairs: list[tuple[Path, Path]] = []
 for english in sorted((ROOT / "docs").glob("*.md")):
     if english.name == "README.md":
         continue
@@ -229,18 +229,18 @@ for english, bengali in pairs:
             check(not body_h1s, f"{path.relative_to(ROOT)}: shell-rendered title must not be duplicated as a body H1")
 
 # Canonical navigation has the same grouping and destination order in both languages.
-nav_text = read(ROOT / "_data/docs.yml")
-nav_sections = re.split(r"^bn:\s*$", nav_text, maxsplit=1, flags=re.M)
-check(len(nav_sections) == 2, "_data/docs.yml: expected en and bn sections")
+nav_text = read(ROOT / "src/data/navigation.ts")
+nav_sections = re.split(r"^  bn:\s*\[", nav_text, maxsplit=1, flags=re.M)
+check(len(nav_sections) == 2, "src/data/navigation.ts: expected en and bn navigation arrays")
 if len(nav_sections) == 2:
     en_part, bn_part = nav_sections
-    en_groups = re.findall(r"^  - label:\s*(.+)$", en_part, re.M)
-    bn_groups = re.findall(r"^  - label:\s*(.+)$", bn_part, re.M)
-    en_urls = re.findall(r"^\s{8}url:\s*(\S+)\s*$", en_part, re.M)
-    bn_urls = re.findall(r"^\s{8}url:\s*(\S+)\s*$", bn_part, re.M)
+    en_groups = re.findall(r"^\s+label:", en_part, re.M)
+    bn_groups = re.findall(r"^\s+label:", bn_part, re.M)
+    en_urls = re.findall(r'\[\s*"[^"]+"\s*,\s*"([^"]+)"\s*\]', en_part)
+    bn_urls = re.findall(r'\[\s*"[^"]+"\s*,\s*"([^"]+)"\s*\]', bn_part)
     check(len(en_groups) == len(bn_groups) == 4, "documentation navigation must have four mirrored groups")
     check(len(en_urls) == len(bn_urls) == 16, "documentation navigation must have 16 destinations per language")
-    expected_bn = ["/bn" + url if url.startswith("/docs") else "/bn" + url for url in en_urls]
+    expected_bn = ["/bn" + url for url in en_urls]
     check(expected_bn == bn_urls, "English/Bengali navigation destinations are not structural mirrors")
 
 # Internal links and fragments.
@@ -275,92 +275,69 @@ for source in [p for p in ROOT.rglob("*") if p.is_file() and ".git" not in p.par
             errors.append(f"{source.relative_to(ROOT)}: missing #{fragment} in {destination.relative_to(ROOT)}")
 check(links_checked >= 170, f"unexpectedly few internal links checked: {links_checked}")
 
-# Static HTML template integrity after harmless Liquid-tag removal.
-for path in (ROOT / "index.html", ROOT / "bn/index.html", ROOT / "_layouts/default.html"):
+# Astro's build output is the public source of truth. It is checked by the
+# deployment build and by the generated-link audit below.
+site_pages = sorted((ROOT / "dist").rglob("*.html")) if (ROOT / "dist").exists() else []
+check(len(site_pages) >= 34, "Astro build output is missing: run npm run build before website checks")
+for path in site_pages:
     source = read(path)
-    source = re.sub(r"\A---\n.*?\n---\n", "", source, flags=re.S)
-    source = re.sub(r"\{%.*?%\}", "", source, flags=re.S)
-    source = re.sub(r"\{\{.*?\}\}", "/placeholder", source, flags=re.S)
     parser = IdParser()
     try:
         parser.feed(source)
         parser.close()
-    except Exception as exc:  # HTMLParser reports malformed declarations and entities.
+    except Exception as exc:
         errors.append(f"{path.relative_to(ROOT)}: HTML parse failed: {exc}")
         continue
     duplicates = sorted({value for value in parser.ids if parser.ids.count(value) > 1})
     check(not duplicates, f"{path.relative_to(ROOT)}: duplicate IDs: {duplicates}")
-    check(parser.tags.get("main", 0) == 1, f"{path.relative_to(ROOT)}: expected exactly one main element")
-    check(parser.tags.get("h1", 0) == 1, f"{path.relative_to(ROOT)}: expected exactly one shell/landing H1")
+    check(parser.tags.get("main", 0) == 1, f"{path.relative_to(ROOT)}: expected one main element")
+    check(parser.tags.get("h1", 0) == 1, f"{path.relative_to(ROOT)}: expected one H1")
     check(parser.empty_links == 0, f"{path.relative_to(ROOT)}: contains empty href")
     check(parser.images_without_alt == 0, f"{path.relative_to(ROOT)}: image missing alt")
+    for required in ('<title>', 'name="description"', 'rel="canonical"', 'property="og:image:alt"', 'name="twitter:image:alt"', 'application/ld+json'):
+        check(required in source, f"{path.relative_to(ROOT)}: missing SEO metadata {required}")
 
-# The landing pages carry an information architecture and an evidence
-# provenance, and both are contracts: the same sections in the same order in
-# both languages, and a link to every upstream project whose behaviour the
-# published benchmarks measure. (This replaces the earlier assertion, which
-# described the superseded landing's markup — inert class names and a
-# decorative accent sequence — rather than the page's actual structure.)
-LANDING_SECTIONS = ["install", "use", "capabilities", "docs"]
-landing_sections: dict[str, list[str]] = {}
-for path in (ROOT / "index.html", ROOT / "bn/index.html"):
-    text = read(path)
+LANDING_SECTIONS = ["system-map", "capabilities", "device-profile", "install", "benchmarks"]
+for rel in ("dist/index.html", "dist/bn/index.html"):
+    text = read(ROOT / rel)
     ids = re.findall(r'<section[^>]*\bid="([^"]+)"', text)
-    landing_sections[str(path.relative_to(ROOT))] = ids
-    check(ids == LANDING_SECTIONS, f"{path.relative_to(ROOT)}: landing section order changed ({ids})")
-    deep_docs_path = "github.com/soobujmiah/ternux/blob/main/bn/docs/README.md" if path.parts[-2] == "bn" else "github.com/soobujmiah/ternux/blob/main/docs/README.md"
-    check(deep_docs_path in text,
-          f"{path.relative_to(ROOT)}: missing repository deep-documentation link")
-    check("/assets/js/effects.js" in text, f"{path.relative_to(ROOT)}: missing progressive effects script")
-    check("data-scroll-progress" in text, f"{path.relative_to(ROOT)}: missing scroll progress feedback")
-check(
-    landing_sections.get("index.html") == landing_sections.get("bn/index.html"),
-    "English and Bengali landings must present the same sections in the same order",
-)
+    check(ids == LANDING_SECTIONS, f"{rel}: landing section order changed ({ids})")
+check(re.search(r"@media\s*\(prefers-reduced-motion:\s*reduce\)", read(ROOT / "src/styles/site.css")) is not None,
+      "site.css: reduced-motion support missing")
+check("data-copy" in read(ROOT / "src/layouts/SiteLayout.astro"), "site shell: command copy control missing")
 
-# The Bengali landing page must send readers to the Bengali documentation. Every
-# page it links to has a Bengali mirror, so an English /docs/ or /CHANGELOG.html
-# target resolves to a real file and silently drops the reader into English.
-bn_landing_links = re.findall(r"'(/[A-Za-z0-9/._-]+\.html)'", read(ROOT / "bn/index.html"))
-bn_leaks = sorted({link for link in bn_landing_links if not link.startswith("/bn/")})
-check(not bn_leaks, f"bn/index.html must link to Bengali pages, not {bn_leaks}")
-
-layout_text = read(ROOT / "_layouts/default.html")
-check("/assets/js/effects.js" in layout_text, "_layouts/default.html: missing progressive effects script")
-check("data-scroll-progress" in layout_text, "_layouts/default.html: missing scroll progress feedback")
-effects_text = read(ROOT / "assets/js/effects.js")
-check("prefers-reduced-motion: reduce" in effects_text, "assets/js/effects.js: reduced-motion gate missing")
-check("IntersectionObserver" in effects_text, "assets/js/effects.js: viewport reveal observer missing")
-check("requestAnimationFrame" in effects_text, "assets/js/effects.js: frame-throttled effects missing")
-
-# Social previews must retain explicit dimensions and accessible localized labels.
-social_sources = (ROOT / "_layouts/default.html", ROOT / "index.html", ROOT / "bn/index.html")
-for path in social_sources:
-    text = read(path)
-    for required in (
-        'property="og:image"',
-        'property="og:image:width" content="1200"',
-        'property="og:image:height" content="630"',
-        'property="og:image:alt"',
-        'name="twitter:card" content="summary_large_image"',
-        'name="twitter:image"',
-        'name="twitter:image:alt"',
-    ):
-        check(required in text, f"{path.relative_to(ROOT)}: missing social metadata {required}")
-check(
-    "ternux terminal interface illustrating its auditable Android workspace setup" in read(ROOT / "index.html"),
-    "index.html: missing English social-image description",
-)
-check(
-    "ternux terminal interface-এ auditable Android workspace setup দেখানো হয়েছে" in read(ROOT / "bn/index.html"),
-    "bn/index.html: missing Bengali social-image description",
-)
+social_source = read(ROOT / "src/layouts/SiteLayout.astro")
+for required in ('property="og:image"', 'property="og:image:width"', 'property="og:image:height"', 'property="og:image:alt"', 'name="twitter:card"', 'name="twitter:image"', 'name="twitter:image:alt"'):
+    check(required in social_source, f"SiteLayout.astro: missing social metadata {required}")
 card = (ROOT / "assets/img/og-card.png").read_bytes()
 check(card[:8] == b"\x89PNG\r\n\x1a\n" and card[12:16] == b"IHDR", "assets/img/og-card.png: invalid PNG header")
 if len(card) >= 26 and card[:8] == b"\x89PNG\r\n\x1a\n":
     card_size = (int.from_bytes(card[16:20], "big"), int.from_bytes(card[20:24], "big"))
     check(card_size == (1200, 630), f"assets/img/og-card.png: expected 1200x630, got {card_size}")
     check(card[24:26] == bytes((8, 2)), "assets/img/og-card.png: expected 8-bit RGB color")
+
+for source in site_pages:
+    for raw in re.findall(r"\bhref=[\"']([^\"']+)", read(source), re.I):
+        raw = html.unescape(raw)
+        if raw.startswith(("http://", "https://", "mailto:", "tel:", "data:", "javascript:")):
+            continue
+        target, _, fragment = raw.partition("#")
+        target = unquote(target.split("?", 1)[0])
+        if target.startswith("/ternux/"):
+            candidate = ROOT / "dist" / target[len("/ternux/"):]
+        elif target == "/ternux":
+            candidate = ROOT / "dist/index.html"
+        elif target.startswith("/"):
+            candidate = ROOT / "dist" / target.lstrip("/")
+        else:
+            candidate = (source.parent / target).resolve()
+        choices = [candidate]
+        if candidate.is_dir(): choices.append(candidate / "index.html")
+        elif not candidate.suffix: choices.extend((candidate.with_suffix(".html"), candidate / "index.html"))
+        resolved = next((item for item in choices if item.exists()), None)
+        check(resolved is not None, f"{source.relative_to(ROOT)}: missing generated target {raw}")
+        if resolved and fragment and resolved.suffix == ".html":
+            check(unquote(fragment) in anchors(resolved), f"{source.relative_to(ROOT)}: missing fragment #{fragment}")
 
 # Benchmark invariants: 33 combined rows and matching evidence in both languages.
 def benchmark_rows(path: Path) -> list[tuple[str, str]]:
@@ -391,14 +368,14 @@ config = read(ROOT / "_config.yml")
 check(re.search(r"^url:\s+https://soobujmiah\.github\.io\s*$", config, re.M) is not None, "_config.yml: url must not duplicate baseurl")
 check(re.search(r"^baseurl:\s+/ternux\s*$", config, re.M) is not None, "_config.yml: expected /ternux baseurl")
 try:
-    sitemap = ET.parse(ROOT / "sitemap.xml").getroot()
+    sitemap = ET.parse(ROOT / "dist/sitemap.xml").getroot()
     namespace = {"s": "http://www.sitemaps.org/schemas/sitemap/0.9", "x": "http://www.w3.org/1999/xhtml"}
     entries = sitemap.findall("s:url", namespace)
-    check(len(entries) == 30, "sitemap.xml: expected 30 bilingual URLs")
+    check(len(entries) == 34, "dist/sitemap.xml: expected 34 bilingual URLs")
     for entry in entries:
-        check(len(entry.findall("x:link", namespace)) == 3, "sitemap.xml: every URL needs en, bn, and x-default alternates")
+        check(len(entry.findall("x:link", namespace)) == 3, "dist/sitemap.xml: every URL needs en, bn, and x-default alternates")
 except (ET.ParseError, OSError) as exc:
-    errors.append(f"sitemap.xml: parse failed: {exc}")
+    errors.append(f"dist/sitemap.xml: parse failed: {exc}")
 
 # Markdown fence balance and rendered-ID uniqueness catch common documentation regressions.
 for path in [p for p in ROOT.rglob("*.md") if ".git" not in p.parts and not is_local_artifact(p)]:
