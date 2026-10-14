@@ -303,6 +303,20 @@ recorded in the helper logs; the performance gap does not by itself show a GPU
 fallback. Profile startup, stage time, and CFG execution on-device before
 changing the model path or making performance claims.
 
+An instrumented three-image follow-up on 2026-10-14 completed in 30.797–31.122
+s. The representative 30.797 s run separately measured 3.482 s for the complete
+CPU CLIP stage, 7.275 s to stream, hash, and seal the 880,827,736-byte UNet ZIP
+member into a memfd, 17.015 s across 40 serial HTP UNet requests, 1.209 s for
+both helper startups, 0.791 s for decoder execution, and 0.044 s for PNG output.
+The 59,945,848-byte decoder member took 0.477 s to acquire. Timings are from one
+instrumented run, so small residuals from surrounding Python work and timer
+boundaries are expected. This narrows the performance follow-up: repeated
+per-image UNet archive streaming and the serial UNet requests both cost several
+seconds. It does not establish why Local Dream is faster, and no optimization
+has yet been qualified. The original model archive remained unchanged. The
+instrumented outputs and raw log are local under `/sdcard/Llms/ternux-profile-20261014-*.png`
+and `/home/sbj/npu-probe-2026-10-13/sd15-profile-20261014-precise.log`.
+
 The opt-in runner invocation after that handoff is:
 
 ```bash
