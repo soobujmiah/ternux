@@ -74,6 +74,11 @@ ternux install [options]
 | `--all` | সব ঐচ্ছিক ওয়ার্কলোড |
 | `--resume` | completed phase skip এবং interrupted run-এর saved optional workload set restore |
 
+Workload flag না দিলে interactive install-এ সংখ্যার chooser আসে: 1 development,
+2 llama.cpp, 3 network, 4 media, 5 Blender, 6 সব, অথবা 0/Enter-এ শুধু base
+desktop। GPU route অনুযায়ী পরামর্শ দেয় এবং RAM/storage সীমা জানায়। `--yes`
+chooser বাদ দিয়ে base profile রাখে।
+
 ### `ternux start`
 
 Xfce4 ডেস্কটপ সেশন চালু করে।

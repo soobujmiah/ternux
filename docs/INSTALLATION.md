@@ -56,9 +56,11 @@ the finished installation itself is approximately **3–4 GB** or **10–12 GB**
 curl -fsSL https://soobujmiah.github.io/ternux/install.sh | bash
 ```
 
-This downloads the installer over HTTPS and runs it. Because piped standard
-input is not a terminal, this route runs unattended with the documented
-defaults. Read the output: a required-phase failure stops its dependants, while
+This downloads the installer over HTTPS and runs it. With an attached terminal,
+the installer reads prompts through `/dev/tty`, including the optional-workload
+chooser, even though the script itself is piped. If no controlling terminal is
+available, it installs the base profile. Add `--yes` for an explicitly
+unattended base install. Read the output: a required-phase failure stops its dependants, while
 an optional/advisory failure is reported and leaves a nonzero final status.
 
 The installer draws one persistent screen — device panel, step progress, live
@@ -82,6 +84,18 @@ for you:
 ```bash
 wget -qO- https://soobujmiah.github.io/ternux/install.sh | bash
 ```
+
+### Optional workload chooser
+
+On an interactive install without workload flags, the installer suggests a
+route from the detected GPU and asks for numbers. Enter one number or a comma
+separated list, for example `1,5`; press Enter or `0` for the base desktop, or
+choose `6` for all optional workloads. `--yes` skips the chooser and keeps the
+base profile; `--with-*` flags select workloads explicitly and `--all` selects
+every workload. Blender is suggested on the detected Adreno/Zink route; this is
+a fit suggestion, not a guarantee that every device supports GPU rendering.
+The chooser also reports the detected RAM and free storage; the full profile
+targets about 14 GB free for packages, downloads and build cache.
 
 ### Method 2 — download, review, then run
 

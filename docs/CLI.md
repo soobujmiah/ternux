@@ -74,6 +74,11 @@ ternux install [options]
 | `--plain` | Shorthand for `--ui plain`: plain scrolling output instead of the dashboard |
 | `--no-anim` | Freeze the spinner and colour cycling |
 
+With no workload flags, an interactive install uses the numbered chooser: 1
+ development, 2 llama.cpp, 3 network, 4 media, 5 Blender, 6 all, or 0/base for
+the desktop only. The suggestion uses the detected GPU route and reports RAM
+and free storage limits. `--yes` skips the chooser and keeps the base profile.
+
 ### `ternux start`
 
 Start the Xfce4 desktop session. Runs the launcher (`~/x.sh`) which:

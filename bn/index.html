@@ -217,7 +217,7 @@ alt_url: "/"
         <span class="tag">arm64 · gpu</span>
       </a>
       <nav class="site-nav" aria-label="বিভাগ">
-        <a href="#install">ইনস্টল</a><a href="#use">ব্যবহার</a><a href="#docs">আরও সহায়তা</a>
+        <a href="#install">ইনস্টল</a><a href="#use">ব্যবহার</a><a href="#capabilities">কী করা যাবে</a><a href="#docs">আরও সহায়তা</a>
         <a href="https://github.com/soobujmiah/ternux">Repository</a>
         <a href="{{ '/' | relative_url }}" hreflang="en">English</a>
       </nav>
@@ -261,7 +261,7 @@ alt_url: "/"
 curl -fsSL https://soobujmiah.github.io/ternux/install.sh | bash</pre>
       <p class="note">curl না থাকলে wget ব্যবহার করুন:</p>
       <pre class="cmd">wget -qO- https://soobujmiah.github.io/ternux/install.sh | bash</pre>
-      <p class="note">বেস install-এ প্রায় ৩–৪ GB লাগে। Download ও cache-এর জন্য অতিরিক্ত জায়গা রাখুন।</p>
+      <p class="note">বেস install-এ প্রায় ৩–৪ GB লাগে। Download ও cache-এর জন্য অতিরিক্ত জায়গা রাখুন। Interactive terminal-এ optional workload সংখ্যা দিয়ে বেছে নিন; শুধু বেস desktop চাইলে Enter চাপুন। Prompt ছাড়া base install-এর জন্য <code>--yes</code> দিন।</p>
     </section>
 
     <section id="use" aria-labelledby="use-h" class="reveal">
@@ -274,15 +274,27 @@ x</pre>
 ternux verify
 ternux doctor
 ternux stop</pre></article>
-        <article class="card"><h3>যাচাই বা diagnosis</h3><pre>ternux verify
-ternux doctor</pre></article>
+        <article class="card"><h3>সমস্যা মেরামত</h3><pre>ternux repair</pre><p>Driver বা package বদলালে সাধারণ setup সমস্যা আবার ঠিক করুন।</p></article>
         <article class="card"><h3>Debian shell</h3><pre>db</pre><p>Termux-এ `db` চালান। Debian-এর ভেতরে Android shared storage পাবেন `/sdcard`-এ।</p></article>
       </div>
       <p class="note">`x` desktop চালায়। `xgo` Termux:X11 খুলে desktop চালায়।</p>
     </section>
 
+    <section id="capabilities" aria-labelledby="capabilities-h" class="reveal">
+      <h2 id="capabilities-h"><span class="n">03</span>এই workstation-এ কী করা যায়</h2>
+      <p class="note">Ternux ARM64 ফোনকে বাস্তব project-এর Linux workspace করে। নিচের উদাহরণগুলো প্রতিষ্ঠিত Redmi workstation-এর; অন্য device-এ graphics ও গতি আলাদা হতে পারে।</p>
+      <div class="grid">
+        <article class="card"><h3>Linux-এ development</h3><p>Debian desktop, terminal, editor, Git, Python ও Node.js দিয়ে দৈনন্দিন কাজ করুন। Compiler ও build tool লাগলে setup-এর সময় development workload নিন।</p></article>
+        <article class="card"><h3>3D ও animation</h3><p>Blender-এর EEVEE Next ব্যবহার করা যায়। প্রতিষ্ঠিত Adreno setup-এ headless render-এর জন্য Xvfb এবং Zink/Turnip GPU offload লাগে। ওই workstation-এ EEVEE render মাপা হয়েছে; Cycles GPU এখনো qualified নয়। Local MCP দিয়ে coding agent GPU route যাচাই করে একই setup-এ script বা scene render করতে পারে।</p><a class="more" href="https://github.com/soobujmiah/ternux/blob/main/experiments/cartoon-pipeline/README.md">Blender workflow ও প্রমাণ →</a><br><a class="more" href="https://github.com/soobujmiah/ternux/blob/main/tools/blender-gpu-mcp/README.md">Agent render setup →</a></article>
+        <article class="card"><h3>লোকাল language model</h3><p>লক্ষ্য device-এ llama.cpp CPU + Vulkan package চালানো হয়েছে। Model আলাদা এবং shared memory যথেষ্ট হতে হবে। HTP পরীক্ষামূলক; Stable Diffusion.cpp inference এখনো পরীক্ষা করা হয়নি।</p><a class="more" href="https://soobujmiah.github.io/ternux/bn/docs/BENCHMARKS.html">মাপা ফল ও সীমা →</a></article>
+        <article class="card"><h3>Media তৈরি ও সম্পাদনা</h3><p>ভিডিও রূপান্তর, ছবি সম্পাদনা, audio কাজ ও batch processing-এর জন্য FFmpeg, GIMP, Audacity ও ImageMagick যোগ করুন। এগুলো install করা যায়; গতি device অনুযায়ী বদলায়।</p></article>
+        <article class="card"><h3>Android app development</h3><p>একই Termux + PRoot workstation-এ ADT-ও চলে। Flutter/Gradle build, APK install ও physical-device validation ADT workflow হিসেবে verified; Ternux desktop session-এর ভেতর থেকে ADT চালানো এখনো আনুষ্ঠানিকভাবে পরীক্ষা করা হয়নি।</p><a class="more" href="https://soobujmiah.github.io/adt/">ADT দেখুন →</a><br><a class="more" href="https://github.com/soobujmiah/ternux/blob/main/bn/docs/INSTALLATION.md">Debian guest-এ ADT ব্যবহার →</a></article>
+      </div>
+      <p class="note-amber">Interactive install-এর সময় সংখ্যা দিয়ে optional workload বেছে নিন। সবগুলো install-এ প্রায় ১০–১২ GB installed space-এর পাশাপাশি download ও build-এর অস্থায়ী জায়গা লাগবে; দরকারি workload-গুলোই নিন।</p>
+    </section>
+
     <section id="docs" aria-labelledby="docs-h" class="reveal">
-      <h2 id="docs-h"><span class="n">03</span>আরও সহায়তা</h2>
+      <h2 id="docs-h"><span class="n">04</span>আরও সহায়তা</h2>
       <p class="note">বিস্তারিত setup, CLI reference, architecture, benchmark ও troubleshooting repository guide-এ আছে।</p>
       <p><a class="btn" href="https://github.com/soobujmiah/ternux/blob/main/bn/docs/README.md">বিস্তারিত ডকুমেন্টেশন →</a></p>
       <p class="note-amber">Graphics route ও performance device অনুযায়ী বদলায়। নিজের setup দেখতে `ternux verify` চালান।</p>
