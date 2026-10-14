@@ -57,9 +57,13 @@ case output-এর পর থামানো হয়েছে। ওই অস
 আছে। এগুলো অন্য device-এর diagnostic lead, SM8735-এর confirmed root cause নয়:
 [SM7750 HMX report](https://github.com/ggml-org/llama.cpp/issues/29473),
 [SM8650 flash-attention report](https://github.com/ggml-org/llama.cpp/issues/26759)।
-SM8735-এর HMX FP16 capability, সম্পূর্ণ HVX operator coverage এবং flash-attention
-operator correctness আলাদাভাবে যাচাই বাকি। তাই HTP launcher এখনও HVX matmul ও
-flash attention off রাখে।
+SM8735-এর HMX FP16 capability ও সম্পূর্ণ HVX operator coverage আলাদাভাবে যাচাই
+বাকি। `GGML_HEXAGON_MM_SELECT=1` দিয়ে `FLASH_ATTN_EXT` run ১২০ সেকেন্ডের সীমায়
+থেমেছে; ৪,৬৬০ output line-এর মধ্যে ১,৮৪৮টি infinite numerical-error case এবং
+১১২টি pass ছিল (exit 124)। Suite অসম্পূর্ণ, pass নয়; child থামানো হয়েছে এবং
+broker CDSP session cleanly close করেছে। তাই flash-attention operator correctness
+এখনও unqualified। HTP launcher এখনও HVX matmul বেছে নিয়ে flash attention বন্ধ
+রাখে।
 
 ## প্রয়োজনীয়তা
 

@@ -50,6 +50,15 @@ operator run, and separate flash-attention operator checks. Full commands and
 artifact provenance are in the
 [experimental HTP guide](../guides/llama-htp-experimental.md#latest-operator-checks).
 
+A separate `FLASH_ATTN_EXT` operator run used `GGML_HEXAGON_MM_SELECT=1` to
+select HVX matmul. It ran for a 120-second bound, emitted 4,660 case-output
+lines, and recorded 1,848 numerical-error failures (`inf`) plus 112 passing
+cases before timeout (exit 124). The operator suite did not finish, so this is
+an observed failure signal and incomplete run, not a completed suite result.
+The brokered child was stopped and the CDSP session closed cleanly. Flash
+attention remains disabled in the launcher; its operator correctness is not
+qualified.
+
 For order 2, the existing QNN archive cannot establish CPU/GPU execution: those
 paths need compatible weights/backend pairs of their own. A `.bin` context
 compiled for HTP is not automatically portable to a CPU or GPU backend. Record
