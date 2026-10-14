@@ -163,8 +163,9 @@ def _clip_hidden(archive, prompts):
 def _start_server(helper, fd, mode, runtime_dir, log_file):
     env = os.environ.copy()
     env.pop("LD_PRELOAD", None)
-    env["LD_LIBRARY_PATH"] = "/vendor/lib64:/vendor/lib64/egl:/system/lib64"
-    env["ADSP_LIBRARY_PATH"] = str(runtime_dir)
+    runtime_path = str(runtime_dir.resolve())
+    env["LD_LIBRARY_PATH"] = runtime_path + ":/vendor/lib64:/vendor/lib64/egl:/system/lib64"
+    env["ADSP_LIBRARY_PATH"] = runtime_path
     proc = subprocess.Popen(["/system/bin/linker64", str(helper), "--fd", str(fd), mode],
                             stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                             stderr=log_file, env=env, pass_fds=(fd,))
