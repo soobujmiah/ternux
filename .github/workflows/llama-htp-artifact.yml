@@ -80,6 +80,35 @@ jobs:
           grep -q 'aarch64' llama-cli-file.txt
           mkdir -p release/ternux-llama-htp-sm8735-b11582
           cp -a "$package/." release/ternux-llama-htp-sm8735-b11582/
+          python3 - <<'PY_LICENSES'
+          from pathlib import Path
+          import shutil
+          import subprocess
+
+          package = Path("release/ternux-llama-htp-sm8735-b11582")
+          destination = package / "upstream-licenses"
+          paths = subprocess.run(
+              ["git", "-C", "llama.cpp", "ls-files", "-z"],
+              check=True, capture_output=True,
+          ).stdout.split(b"\0")
+          def is_license_file(raw_path: bytes) -> bool:
+              name = Path(raw_path.decode("utf-8")).name.upper()
+              if name.endswith(".CMAKE"):
+                  return False
+              return (name in {"LICENSE", "COPYING"} or
+                      name.startswith(("LICENSE.", "LICENSE-", "COPYING.", "COPYING-")))
+
+          licenses = sorted(path.decode("utf-8") for path in paths if path and is_license_file(path))
+          if not licenses:
+              raise SystemExit("pinned upstream source contains no tracked license files")
+          for relative in licenses:
+              target = destination / relative
+              target.parent.mkdir(parents=True, exist_ok=True)
+              shutil.copyfile(Path("llama.cpp") / relative, target)
+          (destination / "INDEX.txt").write_text("\n".join(licenses) + "\n", encoding="utf-8")
+          PY_LICENSES
+          test -s release/ternux-llama-htp-sm8735-b11582/upstream-licenses/licenses/LICENSE-jsonhpp
+          test -s release/ternux-llama-htp-sm8735-b11582/upstream-licenses/vendor/cpp-httplib/LICENSE
           install -D -m 0755 tools/llama-htp/htp-run \
             release/ternux-llama-htp-sm8735-b11582/bin/htp-run
           install -D -m 0644 tools/llama-htp/htp-broker.py \
@@ -105,6 +134,8 @@ jobs:
           cancellation and fallback still require device qualification. This
           package does not claim supported or production-ready NPU inference.
 
+          Upstream license texts and their source paths are indexed under upstream-licenses/.
+
           The package does not include Qualcomm vendor libraries, firmware,
           or device permission changes. Install libgbinder1, libglibutil1, and
           libfastrpc1 in Debian before running bin/htp-run. Do not change device
@@ -124,12 +155,16 @@ jobs:
             "htp_libraries": ["libggml-hexagon.so", "libggml-htp-v73.so"],
             "device_validation": "experimental; existing HVX-only/flash-attention-off HTP known-answer observed on SM8735 before this packaged adapter; exact archive retest and cancellation qualification pending",
             "experimental_adapter": ["bin/htp-run", "libexec/htp-broker.py", "lib/libternux-htp-broker.so"],
-            "runtime_dependencies": ["libgbinder.so.1", "libglibutil.so.1", "libcdsprpc.so.1", "python3"]
+            "runtime_dependencies": ["libgbinder.so.1", "libglibutil.so.1", "libcdsprpc.so.1", "python3"],
+            "license_files": ["LLAMA-CPP-LICENSE", "upstream-licenses/INDEX.txt", "TERNUX-LICENSE", "TERNUX-NOTICE"]
           }
           EOF
           tar -C release -czf ternux-llama-htp-sm8735-b11582.tar.gz ternux-llama-htp-sm8735-b11582
           sha256sum ternux-llama-htp-sm8735-b11582.tar.gz > ternux-llama-htp-sm8735-b11582.tar.gz.sha256
           tar -tzf ternux-llama-htp-sm8735-b11582.tar.gz > archive-contents.txt
+          while IFS= read -r license_path; do
+            grep -Fqx "ternux-llama-htp-sm8735-b11582/upstream-licenses/$license_path" archive-contents.txt
+          done < release/ternux-llama-htp-sm8735-b11582/upstream-licenses/INDEX.txt
           sed -n '1,40p' archive-contents.txt
 
       - name: Upload build artifact for review
