@@ -49,6 +49,8 @@ jobs:
         run: |
           set -euo pipefail
           cp llama.cpp/docs/backend/snapdragon/CMakeUserPresets.json llama.cpp/CMakeUserPresets.json
+          mkdir -p llama.cpp/tools/llama-htp
+          cp tools/llama-htp/broker_open.c llama.cpp/tools/llama-htp/broker_open.c
           docker run --rm \
             --platform linux/amd64 \
             -u "$(id -u):$(id -g)" \
@@ -56,20 +58,11 @@ jobs:
             --workdir /workspace \
             ghcr.io/snapdragon-toolchain/arm64-linux@sha256:41b710ee5f99d21f0fb9d83a1f815ecffb7708315b4218a11cd0baeb5ecf4c14 \
             bash -lc '
+            printf "\nadd_library(ternux-htp-broker SHARED tools/llama-htp/broker_open.c)\ntarget_link_libraries(ternux-htp-broker PRIVATE \${CMAKE_DL_LIBS})\ninstall(TARGETS ternux-htp-broker LIBRARY DESTINATION lib)\n" >> CMakeLists.txt &&
             cmake --preset arm64-linux-snapdragon-release -B build-ternux-htp-b11582 &&
             cmake --build build-ternux-htp-b11582 -j 4 &&
             cmake --install build-ternux-htp-b11582 --prefix pkg-ternux-htp-b11582/llama.cpp &&
-            compiler_entry=$(grep -m 1 "^CMAKE_C_COMPILER:" build-ternux-htp-b11582/CMakeCache.txt || true) &&
-            printf "CMake compiler cache entry: <%s>\n" "$compiler_entry" &&
-            compiler=${compiler_entry#*=} &&
-            printf "Extracted C compiler: <%s>\n" "$compiler" &&
-            test -n "$compiler" &&
-            if ! test -x "$compiler"; then compiler=$(command -v "$compiler" || true); fi &&
-            test -x "$compiler" &&
-            printf "Using C compiler: %s\n" "$compiler" &&
-            "$compiler" -shared -fPIC -O2 -Wall -Wextra \
-              /workspace/tools/llama-htp/broker_open.c \
-              -o pkg-ternux-htp-b11582/llama.cpp/lib/libternux-htp-broker.so -ldl
+            test -f pkg-ternux-htp-b11582/llama.cpp/lib/libternux-htp-broker.so
             '
 
       - name: Package and inspect target files
@@ -127,7 +120,7 @@ jobs:
             "upstream_commit": "af50f2f248b475d9760f8e67503d01c0f194f5f4",
             "toolchain_image": "ghcr.io/snapdragon-toolchain/arm64-linux:v0.7",
             "toolchain_image_digest": "sha256:41b710ee5f99d21f0fb9d83a1f815ecffb7708315b4218a11cd0baeb5ecf4c14",
-            "build_command": "cmake --preset arm64-linux-snapdragon-release -B build-ternux-htp-b11582; cmake --build build-ternux-htp-b11582 -j 4; cmake --install build-ternux-htp-b11582 --prefix pkg-ternux-htp-b11582/llama.cpp; compile broker_open.c as libternux-htp-broker.so with the pinned AArch64 compiler",
+            "build_command": "cmake --preset arm64-linux-snapdragon-release -B build-ternux-htp-b11582; cmake --build build-ternux-htp-b11582 -j 4; cmake --install build-ternux-htp-b11582 --prefix pkg-ternux-htp-b11582/llama.cpp; build ternux-htp-broker through the pinned AArch64 CMake toolchain",
             "htp_libraries": ["libggml-hexagon.so", "libggml-htp-v73.so"],
             "device_validation": "experimental; existing HVX-only/flash-attention-off HTP known-answer observed on SM8735 before this packaged adapter; exact archive retest and cancellation qualification pending",
             "experimental_adapter": ["bin/htp-run", "libexec/htp-broker.py", "lib/libternux-htp-broker.so"],
