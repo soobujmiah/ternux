@@ -253,6 +253,34 @@ SHA-256. The scheduler correction resolved the noise-like output. Use
 independent stage values to qualify QNN numerical correctness and investigate
 the small cyan artifact before broader release claims.
 
+### Repeated image-generation soak (2026-10-14)
+
+Using the checksum-verified helper from pinned-NDK workflow run
+`38563223426`, I generated 25 consecutive 512×512 images with 20 steps each
+from `/sdcard/Llms/AbsoluteReality_qnn2.28_8gen2.zip`. All 25 completed. The
+runner's exact `image_complete.total_seconds` was median 29.758 s, mean 31.116 s
+(28.233–55.803 s). Its UNet HTP 20-step sum was median 15.962 s, mean 17.027 s
+(15.869–41.594 s); one UNet step took 26.242 s, accounting for the slowest
+image. CLIP prompt encoding is CPU work; UNet denoising and VAE decoding use
+QNN HTP. These figures describe this mixed end-to-end route and cannot be
+compared directly with CPU/GPU runs of a different model. One image was
+visually reviewed and retained the coherent landscape plus the small cyan
+artifact; the other 24 were not individually reviewed.
+
+The batch monitor observed a 17m36s wall interval, including up to 10 s of
+polling delay between generation processes. It sampled battery up to 41.9°C,
+`quiet_therm` up to 47.9°C, and GPU-labelled thermal zones up to 64.2°C. No
+NPU-specific thermal sensor was identified. The archive stayed at its original
+path and its SHA-256 remained
+`f479f3221fb90d31de1e695577f5aec9a5afb5fb7e076cfac40f00e039b22977`; model
+members were streamed to sealed anonymous memfds and not copied to disk. All
+25 output PNGs, `sd15-npu-soak-report-2026-10-14.json`, the run manifest, and
+thermal samples are saved under `/sdcard/sdgen/`. Local raw runner logs and
+images are under
+`/home/sbj/npu-probe-2026-10-13/sd15-npu-soak-20261014-182316/`. This is a
+single-device repeated workload, not general NPU stability or an independent
+correctness qualification.
+
 The run used the CI helper with `--serve-unet` and `--serve-decoder`, existing
 local runtime dependencies, and the original model ZIP. Model members were
 streamed to sealed anonymous memfds; no model copy was written. The saved run

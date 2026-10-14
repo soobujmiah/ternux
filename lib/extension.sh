@@ -84,7 +84,7 @@ _tnx_extension_install() {
       asset="${tag}.tar.gz"
       min_glibc_minor=38
       package_kind=htp
-      runtime_libraries=(libgbinder.so.1 libglibutil.so.1 libcdsprpc.so.1)
+      runtime_libraries=(libgbinder.so.1 libglibutil.so.1 libcdsprpc.so.1 libcdsprpc.so)
       ;;
     *) _tnx_extension_fail "Unknown extension '$name'. Run: ternux extension list"; return 2 ;;
   esac
@@ -110,13 +110,29 @@ _tnx_extension_install() {
   done
   ldconfig_bin="$(_tnx_extension_find_ldconfig)" || { _tnx_extension_fail "Missing required command: ldconfig"; return 1; }
   for library in "${runtime_libraries[@]}"; do
-    if ! "$ldconfig_bin" -p 2>/dev/null | awk '{print $1}' | grep -qxF "$library"; then
+    available=false
+    if "$ldconfig_bin" -p 2>/dev/null | awk '{print $1}' | grep -qxF "$library"; then
+      available=true
+    else
+      local -a library_dirs
+      IFS=: read -r -a library_dirs <<< "${LD_LIBRARY_PATH:-}:${ADSP_LIBRARY_PATH:-}"
+      if [ "$library" = libcdsprpc.so ]; then
+        library_dirs+=(/lib/aarch64-linux-gnu /usr/lib/aarch64-linux-gnu)
+      fi
+      for dir in "${library_dirs[@]}"; do
+        if [ -n "$dir" ] && { [ -e "$dir/$library" ] || [ -L "$dir/$library" ]; }; then
+          available=true
+          break
+        fi
+      done
+    fi
+    if [ "$available" != true ]; then
       missing_libraries="${missing_libraries:+$missing_libraries, }$library"
     fi
   done
   if [ -n "$missing_libraries" ]; then
     if [ "$package_kind" = htp ]; then
-      _tnx_extension_fail "Missing HTP runtime libraries: $missing_libraries. Install libgbinder1, libglibutil1, and libfastrpc1 in Debian; enable trixie-backports main contrib if apt cannot find them."
+      _tnx_extension_fail "Missing HTP runtime libraries: $missing_libraries. Install libgbinder1, libglibutil1, libfastrpc1, and libfastrpc-dev in Debian; enable trixie-backports main contrib if apt cannot find them."
     else
       _tnx_extension_fail "Missing runtime libraries: $missing_libraries. In Debian install libgomp1 and libvulkan1, plus the OpenSSL 3 runtime package (libssl3 or libssl3t64)."
     fi

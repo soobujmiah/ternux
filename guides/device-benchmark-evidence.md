@@ -696,6 +696,36 @@ separate implementation and does not qualify `stable-diffusion.cpp`; see the
 [QNN experiment](../experiments/qnn-native/README.md) and
 [release plan](../docs/ACCELERATOR-RELEASE-PLAN.md).
 
+### Measured: repeated QNN SD1.5 image generation, 2026-10-14
+
+The same separate runner generated 25 consecutive 512×512 images, each with 20
+DPM++ steps, from the existing
+`/sdcard/Llms/AbsoluteReality_qnn2.28_8gen2.zip`. All 25 completed without a
+generation failure. Runner `image_complete.total_seconds` had a median of
+29.758 s, mean of 31.116 s, and range of 28.233–55.803 s. The sum of the 20
+UNet HTP denoising-step timings had a median of 15.962 s, mean of 17.027 s,
+and range of 15.869–41.594 s. A single UNet step took 26.242 s in the slowest
+image; that outlier was returned as a successful image, not a failed run.
+
+CLIP prompt encoding ran on CPU; UNet denoising and VAE decoding ran through
+Qualcomm QNN HTP. This reports an experimental mixed CPU/HTP image route. It is
+not a CPU/GPU comparison using the same model, not an HTP-only end-to-end time,
+and not proof of independent tensor correctness. One output was visually
+reviewed and showed a coherent landscape with the known small cyan artifact;
+the other 24 were not individually reviewed. The 17m36s batch wall interval
+includes monitoring poll delay and transitions between short-lived runner
+processes. Per-run times above exclude that outer polling overhead.
+
+Thermal-zone samples peaked at 41.9°C battery, 47.9°C `quiet_therm`, and 64.2°C
+among GPU-labelled zones. No NPU-specific thermal sensor was identified. The
+archive remained in place with SHA-256
+`f479f3221fb90d31de1e695577f5aec9a5afb5fb7e076cfac40f00e039b22977`; model
+members were passed via sealed anonymous memfds and were not extracted. The 25
+PNG outputs were copied to `/sdcard/sdgen/`, with each destination hash checked
+against the original. The machine-readable report, manifest and thermal samples
+are also in that directory. Local per-image logs and original generated files
+are under `/home/sbj/npu-probe-2026-10-13/sd15-npu-soak-20261014-182316/`.
+
 ### Vulkan llama.cpp model test (local Debian PRoot build)
 
 The Vulkan-enabled build used the pinned llama.cpp source commit

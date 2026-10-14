@@ -635,6 +635,33 @@ artifact দেখা গেছে। Independent expected stage tensor এখ�
 [QNN experiment](../../experiments/qnn-native/README.md) ও
 [release plan](../docs/ACCELERATOR-RELEASE-PLAN.md)-এ আছে।
 
+### পরিমাপ: ধারাবাহিক QNN SD1.5 image generation, 2026-10-14
+
+একই আলাদা runner বিদ্যমান
+`/sdcard/Llms/AbsoluteReality_qnn2.28_8gen2.zip` থেকে পরপর ২৫টি 512×512 image
+তৈরি করেছে; প্রতিটিতে DPM++-এর ২০টি step ছিল। ২৫টিই generation failure ছাড়া
+সম্পন্ন। Runner-এর `image_complete.total_seconds` median 29.758 s, mean 31.116 s,
+range 28.233–55.803 s। UNet HTP-এর ২০টি denoising-step-এর মোট সময় median
+15.962 s, mean 17.027 s, range 15.869–41.594 s। সবচেয়ে ধীর image-এ একটি UNet
+step 26.242 s লেগেছে; সেই image সফলভাবে তৈরি হয়েছে।
+
+CLIP prompt encoding CPU-তে; UNet denoising ও VAE decoding Qualcomm QNN HTP-তে
+চলেছে। ফলটি experimental mixed CPU/HTP image route-এর; একই model-এ CPU/GPU
+তুলনা নয়, HTP-only end-to-end time নয়, independent tensor correctness-এর
+প্রমাণও নয়। একটি output দেখে coherent landscape ও আগের ছোট cyan artifact
+নিশ্চিত হয়েছে; বাকি ২৪টি আলাদাভাবে review করা হয়নি। ১৭ মিনিট ৩৬ সেকেন্ডের
+batch wall interval-এ monitoring poll delay ও স্বল্পস্থায়ী runner process-এর
+মাঝের transition আছে; per-run timing-এ বাইরের poll overhead নেই।
+
+Thermal-zone sample-এ battery সর্বোচ্চ 41.9°C, `quiet_therm` 47.9°C, এবং
+GPU-labelled zone 64.2°C ছিল। NPU-নির্দিষ্ট thermal sensor শনাক্ত হয়নি। Archive
+আগের path-এই ছিল; SHA-256
+`f479f3221fb90d31de1e695577f5aec9a5afb5fb7e076cfac40f00e039b22977`। Model member
+sealed anonymous memfd দিয়ে গেছে; disk-এ extract হয়নি। ২৫টি PNG `/sdcard/sdgen/`-এ
+copy করে প্রতিটির hash source-এর সঙ্গে মিলিয়েছি। Machine-readable report,
+manifest ও thermal sample-ও ওই directory-তে আছে। Local per-image log ও source
+output `/home/sbj/npu-probe-2026-10-13/sd15-npu-soak-20261014-182316/`-এ আছে।
+
 ### Vulkan llama.cpp model test (local Debian PRoot build)
 
 Vulkan-enabled build-টি pinned llama.cpp source commit

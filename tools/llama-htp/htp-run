@@ -41,7 +41,7 @@ library_in_paths() {
   if "$ldconfig_bin" -p 2>/dev/null | awk '{print $1}' | grep -qxF "$wanted"; then
     return 0
   fi
-  paths="${LD_LIBRARY_PATH:-}:${ADSP_LIBRARY_PATH:-}:$home_dir/lib"
+  paths="${LD_LIBRARY_PATH:-}:${ADSP_LIBRARY_PATH:-}:$home_dir/lib:/lib/aarch64-linux-gnu:/usr/lib/aarch64-linux-gnu"
   IFS=: read -r -a library_dirs <<< "$paths"
   for dir in "${library_dirs[@]}"; do
     [ -n "$dir" ] && { [ -e "$dir/$wanted" ] || [ -L "$dir/$wanted" ]; } && return 0
@@ -49,21 +49,24 @@ library_in_paths() {
   return 1
 }
 missing=""
-for library in libgbinder.so.1 libglibutil.so.1 libcdsprpc.so.1; do
+for library in libgbinder.so.1 libglibutil.so.1 libcdsprpc.so.1 libcdsprpc.so; do
   if ! library_in_paths "$library"; then
     missing="${missing:+$missing, }$library"
   fi
 done
 if [ -n "$missing" ]; then
   printf '[FAIL] Missing HTP runtime libraries: %s\n' "$missing" >&2
-  printf '       Install Debian packages libgbinder1, libglibutil1, and libfastrpc1.\n' >&2
+  printf '       Install Debian packages libgbinder1, libglibutil1, libfastrpc1, and libfastrpc-dev.\n' >&2
   exit 1
 fi
 unset library_dirs
 
 export LD_LIBRARY_PATH="$home_dir/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
-export ADSP_LIBRARY_PATH="$home_dir/lib${ADSP_LIBRARY_PATH:+:$ADSP_LIBRARY_PATH}"
+# Keep the DSP skeleton search path scoped to this package. Appending unrelated
+# host-library directories (for example /vendor/lib64) can select an Android
+# binary in place of the packaged Linux HTP skeleton.
+export ADSP_LIBRARY_PATH="$home_dir/lib"
 export LD_PRELOAD="$shim${LD_PRELOAD:+:$LD_PRELOAD}"
 export GGML_HEXAGON_MM_SELECT=1
 printf '[EXPERIMENTAL] llama.cpp Hexagon HTP; HVX matmul, flash attention off.\n' >&2
-exec python3 "$broker" -- "$binary" "$@" -ngl 99 -fa off
+exec python3 "$broker" -- "$binary" "$@" -dev HTP0 -ngl 99 -fa off

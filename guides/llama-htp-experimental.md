@@ -14,14 +14,20 @@ expected recall key on this device; HTP was slower than Vulkan in the clean-idle
 comparison. HMX-selected matmul and flash attention enabled each produced wrong
 answers in separate checks. Those failures are not resolved by this package.
 
-The current launcher pins the observed HVX/flash-attention-off settings. The
-broker forwards SIGINT/SIGTERM/SIGHUP to the isolated inference process group,
-then escalates to TERM/KILL after bounded waits and reports the CDSP
-`closeSession` result. The packaged launcher has not completed exact-archive
-device retest yet. Cancellation, restart behavior, automatic fallback, other
-models/SoCs, optimized HTP configurations and sustained operation remain
-unqualified. There is no automatic CPU/Vulkan fallback; a failed HTP invocation
-returns an error.
+The current launcher forces HTP0, all eligible layers, the observed
+HVX/flash-attention-off settings. The broker forwards SIGINT/SIGTERM/SIGHUP to
+the isolated inference process group, then escalates to TERM/KILL after bounded
+waits and reports the CDSP `closeSession` result. Source-level device checks
+returned `4` and verified a broker SIGINT exit 130 with child shutdown and
+`closeSession [0, 0]`. The exact package archive from workflow run `38560288558` was installed into
+an isolated home: known-answer output was `4`, all 31 layers were assigned to
+HTP0, child exit was 0, and `closeSession` returned `[0, 0]`. Its bounded SIGINT
+check exited 130 after child shutdown and clean `closeSession`. A follow-up build
+`38562008524` corrects only package README/manifest dependency metadata; direct
+archive comparison confirmed every runtime file and symlink is identical.
+Restart behavior, other models/SoCs,
+optimized HTP configurations and sustained operation remain unqualified. There is no automatic CPU/Vulkan fallback; a
+failed HTP invocation returns an error.
 
 Current gates and dated device evidence stay in the single
 [accelerator release plan](../docs/ACCELERATOR-RELEASE-PLAN.md) and
@@ -32,23 +38,27 @@ Current gates and dated device evidence stay in the single
 - Ternux's Debian ARM64 glibc guest, glibc 2.38 or newer.
 - Qualcomm SM8735 with the vendor DSP service available to the current
   Termux/PRoot process. Other devices are not qualified.
-- Debian runtime packages `libgbinder1`, `libglibutil1` and `libfastrpc1`.
+- Debian packages `libgbinder1`, `libglibutil1`, `libfastrpc1` and
+  `libfastrpc-dev`. The development package supplies the unversioned
+  `libcdsprpc.so` linker name loaded by llama.cpp; `libfastrpc1` alone only
+  installs the versioned runtime name.
 - A GGUF model at a path the Debian guest can read. The extension does not
   download, copy or bundle model weights.
 
 Install the runtime packages in the Debian guest:
 
 ```bash
-sudo apt install libgbinder1 libglibutil1 libfastrpc1
+sudo apt install libgbinder1 libglibutil1 libfastrpc1 libfastrpc-dev
 ```
 
 On Debian 13, `libgbinder1` and `libglibutil1` are available from
-Trixie Backports, while `libfastrpc1` is in its `contrib` component. If apt
+Trixie Backports, while `libfastrpc1` and `libfastrpc-dev` are in its `contrib` component. If apt
 cannot find them, configure the official `trixie-backports` source with `main`
 and `contrib`, update package indexes, then retry. See Debian's package records
 for [`libgbinder1`](https://packages.debian.org/trixie-backports/arm64/libs/libgbinder1),
 [`libglibutil1`](https://packages.debian.org/trixie-backports/arm64/libs/libglibutil1),
-and [`libfastrpc1`](https://packages.debian.org/trixie-backports/arm64/contrib/libfastrpc1).
+[`libfastrpc1`](https://packages.debian.org/trixie-backports/arm64/contrib/libfastrpc1),
+and [`libfastrpc-dev`](https://packages.debian.org/trixie-backports/arm64/libdevel/libfastrpc-dev).
 
 The launcher never changes `/dev/fastrpc-cdsp` permissions and does not bundle
 Qualcomm vendor libraries or firmware.

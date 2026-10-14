@@ -14,11 +14,18 @@ key ফিরিয়েছে; clean-idle তুলনায় HTP Vulkan-এ
 HMX-selected matmul এবং flash attention চালু—দুটিই ভুল answer দিয়েছে। এই
 package-এ ওই failure ঠিক করা হয়নি।
 
-বর্তমান launcher পর্যবেক্ষিত HVX/flash-attention-off setting ব্যবহার করে। Broker
+বর্তমান launcher HTP0, সব eligible layer এবং পর্যবেক্ষিত
+HVX/flash-attention-off setting জোর করে ব্যবহার করে। Broker
 SIGINT/SIGTERM/SIGHUP আলাদা inference process group-এ পাঠায়; bounded wait-এর
-পর TERM/KILL দেয় এবং CDSP `closeSession` result জানায়। এই packaged launcher-এর
-exact-archive device retest এখনো সম্পন্ন হয়নি। Cancellation, restart, automatic
-fallback, অন্য model/SoC, optimized HTP configuration এবং sustained operation
+পর TERM/KILL দেয় এবং CDSP `closeSession` result জানায়। Source-level device
+check-এ ফল `4` এসেছে; broker-এ SIGINT দিলে child বন্ধ হয়েছে, broker exit 130
+এবং `closeSession [0, 0]` হয়েছে। এই check আগের b11582 binary ও local shim দিয়ে
+হয়েছে। Workflow run `38560288558`-এর exact archive isolated home-এ install
+করে test করা হয়েছে: answer `4`, 31/31 layer HTP0-তে, child exit 0 এবং
+`closeSession [0, 0]`। একই package-এ bounded SIGINT দিলে child বন্ধ, broker exit
+130 এবং clean session close হয়েছে। Follow-up build `38562008524` শুধু package
+README/manifest dependency metadata ঠিক করছে; runtime payload hash comparison
+bাকি। Restart, অন্য model/SoC, optimized HTP configuration ও sustained operation
 এখনো qualify করা হয়নি। Automatic CPU/Vulkan fallback নেই; HTP command ব্যর্থ
 হলে error return করে।
 
@@ -31,23 +38,27 @@ fallback, অন্য model/SoC, optimized HTP configuration এবং sustaine
 - Ternux Debian ARM64 glibc guest; glibc 2.38 বা নতুন।
 - Qualcomm SM8735 এবং বর্তমান Termux/PRoot process-এর জন্য vendor DSP service
   উপলভ্য থাকতে হবে। অন্য device qualify করা হয়নি।
-- Debian runtime package `libgbinder1`, `libglibutil1` ও `libfastrpc1`।
+- Debian package `libgbinder1`, `libglibutil1`, `libfastrpc1` ও
+  `libfastrpc-dev`। llama.cpp-এর dynamic loader `libcdsprpc.so` নামটি খোঁজে;
+  `libfastrpc1` একা শুধু versioned runtime নাম ইনস্টল করে, unversioned linker
+  নামটি `libfastrpc-dev` দেয়।
 - Debian guest থেকে পড়া যায় এমন path-এ GGUF model। Extension model weight
   download, copy বা bundle করে না।
 
 Debian guest-এ runtime package install করুন:
 
 ```bash
-sudo apt install libgbinder1 libglibutil1 libfastrpc1
+sudo apt install libgbinder1 libglibutil1 libfastrpc1 libfastrpc-dev
 ```
 
 Debian 13-এ `libgbinder1` ও `libglibutil1` Trixie Backports-এ, আর `libfastrpc1`
-এর জন্য `contrib` component দরকার। apt package না পেলে official
+ও `libfastrpc-dev`-এর জন্য `contrib` component দরকার। apt package না পেলে official
 `trixie-backports` source-এ `main` এবং `contrib` সক্রিয় করে package index update
 করুন, তারপর install আবার চালান। Debian package record:
 [`libgbinder1`](https://packages.debian.org/trixie-backports/arm64/libs/libgbinder1),
 [`libglibutil1`](https://packages.debian.org/trixie-backports/arm64/libs/libglibutil1),
-[`libfastrpc1`](https://packages.debian.org/trixie-backports/arm64/contrib/libfastrpc1)।
+[`libfastrpc1`](https://packages.debian.org/trixie-backports/arm64/contrib/libfastrpc1),
+এবং [`libfastrpc-dev`](https://packages.debian.org/trixie-backports/arm64/libdevel/libfastrpc-dev)।
 
 Launcher `/dev/fastrpc-cdsp` permission বদলায় না এবং Qualcomm vendor library
 বা firmware bundle করে না।

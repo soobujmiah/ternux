@@ -184,8 +184,8 @@ llama-cli -m /path/to/model.gguf -dev Vulkan0 -ngl 99 -p 'What is 2 + 2?' -n 8
 Ternux-এ Redmi Turbo 4 Pro / SM8735-এর জন্য আলাদা experimental HTP extension
 আছে; এটি supported release feature নয়। Termux থেকে
 `ternux extension install llama-htp-experimental` চালান। Debian guest-এ
-`libgbinder1`, `libglibutil1` ও `libfastrpc1` লাগবে। Known-answer-safe setting,
-বর্তমান failure ও device qualification-এর অবস্থা
+`libgbinder1`, `libglibutil1`, `libfastrpc1` ও `libfastrpc-dev` লাগবে।
+Known-answer-safe setting, বর্তমান failure ও device qualification-এর অবস্থা
 [repository HTP guide](https://github.com/soobujmiah/ternux/blob/main/bn/guides/llama-htp-experimental.md)-এ আছে。
 
 ## এরপর
