@@ -64,6 +64,16 @@ execution records. PRoot itself does not provide an accelerator: this path
 reaches the Android QNN runtime through the existing FastRPC/Binder bridge.
 GPU-labelled thermal readings are sensor measurements only and do not show
 that the GPU ran this workload. The run was not a same-model GPU comparison.
+For context, the device's separate Local Dream NPU route generated a 512×512
+image in 5.7 s at 20 steps. The Ternux runner's 29.76 s median is about 5.2×
+longer under the same device, resolution, and step count. The model and runtime
+differ, so this is a substantial optimization gap, not a controlled A/B result
+or evidence against the QNN DSP execution records. [Local Dream device evidence](https://github.com/soobujmiah/skb/blob/main/devices/redmi-turbo-4-pro/accelerator-access-audit.md).
+In the Ternux run, the per-image median outside the UNet timing was 13.85 s;
+that residual includes CLIP, helper/context startup, VAE decode, and PNG output.
+The runner also makes separate unconditional and conditional UNet graph calls
+for each step (40 calls for 20 steps), so context reuse and CFG execution are
+the next profiling targets.
 
 Battery temperature peaked at 41.9°C, `quiet_therm` at 47.9°C, and the sampled
 GPU zones at 64.2°C; no NPU-specific thermal sensor was identified. All 25

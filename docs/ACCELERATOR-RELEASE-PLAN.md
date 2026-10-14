@@ -27,6 +27,17 @@ describe shipped capabilities.
 | 7 | CLI and installation screen polish | Repository UI renderer suite passes 24/24 portrait, landscape and resize checks; generated CLI guide links now expose the CPU/Vulkan quick and deep guides. Human visual/usability validation on the phone remains pending. | Clear mobile layout, meaningful status/error text, interactive/unattended paths and owner visual/usability validation |
 | 8 | Complete Ternux version release | HELD | All prior gates satisfied, accurate support matrix, required CI, installed-artifact device tests and final documentation |
 
+The SD1.5 performance gap remains a qualification item: the Ternux QNN runner
+measured a 29.76 s/image median, while the separate Local Dream route measured
+5.7 s for 512×512 at 20 steps on this device. The Ternux result is about 5.2×
+longer; the models and runtimes differ, so this is not a controlled A/B test.
+The Ternux run does record QNN HTP/DSP graph execution. Investigate and optimize
+the gap before presenting the runner as a practical NPU image-generation path.
+The measured 13.848 s median outside UNet includes CLIP, helper/context startup,
+VAE decode, and PNG output; 20 CFG steps currently make 40 serial UNet graph
+requests. Profile these costs and test helper/context reuse on-device.
+See the [Local Dream device evidence](https://github.com/soobujmiah/skb/blob/main/devices/redmi-turbo-4-pro/accelerator-access-audit.md).
+
 ### HTP operator diagnostics (2026-10-14)
 
 The exact Linux ARM64 artifact from workflow run `38567329752` was tested

@@ -64,6 +64,15 @@ record। PRoot নিজে accelerator দেয় না; এই পথ exis
 দিয়ে Android QNN runtime-এ পৌঁছায়। GPU-লেবেলযুক্ত thermal reading শুধু sensor
 measurement, এই workload GPU-তে চলেছে তার প্রমাণ নয়। একই model-এ GPU comparison
 করা হয়নি।
+প্রসঙ্গ হিসেবে, একই device-এর আলাদা Local Dream NPU route-এ 512×512 image
+২০ step-এ 5.7 s-এ তৈরি হয়েছে। Ternux runner-এর 29.76 s median একই device,
+resolution ও step count-এ প্রায় 5.2× বেশি। Model ও runtime আলাদা, তাই এটি বড়
+optimization gap—নিয়ন্ত্রিত A/B comparison নয় এবং QNN DSP execution record-এর
+বিরোধী প্রমাণও নয়। [Local Dream device evidence](https://github.com/soobujmiah/skb/blob/main/devices/redmi-turbo-4-pro/accelerator-access-audit.md)।
+Ternux run-এ UNet timing-এর বাইরের per-image median 13.85 s; এতে CLIP, helper ও
+context startup, VAE decode এবং PNG output অন্তর্ভুক্ত। Runner প্রতি step-এ
+আলাদা unconditional ও conditional UNet graph call করে (২০ step-এ ৪০টি call),
+তাই context reuse ও CFG execution পরের profiling target।
 
 Battery temperature সর্বোচ্চ 41.9°C, `quiet_therm` 47.9°C, sampled GPU zone
 64.2°C ছিল; NPU-নির্দিষ্ট thermal sensor শনাক্ত হয়নি। ২৫টি image-ই visual
