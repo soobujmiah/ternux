@@ -15,7 +15,7 @@ shipped capability দাবি করে না।
 |---|---|---|---|
 | ১ | PRoot থেকে callable Android/Bionic QNN helper | Runtime/provider, backend/device, VAE context load/free ও encoder graph execution VERIFIED; generic HTP Add known-answer VERIFIED; model output correctness UNVERIFIED | Matching execution headers, tensor metadata, request/response ও known-output accelerator test |
 | ২ | বিদ্যমান QNN picture model | CLIP CPU, UNet/VAE HTP graph execution এবং fixed-seed SD1.5 generation SM8735-এ হয়েছে। একই seed-এর 20-step output repeat হয়েছে; 25-image soak 25/25 সফল। Runner median/mean 29.76/31.12 s/image; UNet median/mean 15.96/17.03 s/20 step। Thermal peak: battery 41.9°C, `quiet_therm` 47.9°C, sampled GPU zone 64.2°C; NPU sensor শনাক্ত হয়নি। ২৫টি image-ই visual screen হয়েছে: image 01 full resolution-এ, বাকি ২৪টি contact sheet-এ। সবগুলো coherent landscape variation; image 01-এ ছোট cyan/black artifact, অন্যগুলোতে contact-sheet size-এ অনুরূপ স্পষ্ট defect দেখা যায়নি। এটি detailed full-resolution review নয়। Independent QNN tensor correctness UNVERIFIED। | CLIP/UNet/VAE stage tensor স্বাধীন expected value-র সঙ্গে তুলনা এবং supported configuration qualify |
-| ৩ | Debian llama.cpp CPU/GPU/HTP | CPU/Vulkan known-answer pass। HVX-only `MUL_MAT` operator suite 1,389/1,389 pass; HMX-selected `MUL_MAT`-এ 529টি `inf` failure। HVX matmul-এ `FLASH_ATTN_EXT` run 120 s-এ timeout হওয়ার আগে 1,848 numerical error ও 112 pass দেখিয়েছে; suite incomplete। One-token test-এ HVX-only + flash attention off expected `4`; HMX matmul ও HVX + flash attention on ভুল token দিয়েছে। Exact-package known-answer, 31/31 layer assignment ও clean cancellation pass। 2,955-token prompt/511-token long test recall key `KITE-8042` রেখেছে, তবে HTP Vulkan-এর চেয়ে ধীর। এগুলো bounded GGUF/llama.cpp result; সব HTP operator qualify বা supported route নয়। | HMX ও flash-attention failure কারণ খোঁজা; অন্য HVX operator, fallback/restart ও sustained stability qualify |
+| ৩ | Debian llama.cpp CPU/GPU/HTP | CPU/Vulkan known-answer pass। HVX-only `MUL_MAT` operator suite 1,389/1,389 pass; HMX `MUL_MAT`-এ 529টি `inf` failure। আগের default attention selection-এ HVX matmul-সহ `FLASH_ATTN_EXT` 120 s-এ timeout হওয়ার আগে 1,848 `inf` failure ও 112 pass দেখায়। পরে `GGML_HEXAGON_MM_SELECT=1` ও `GGML_HEXAGON_FA_SELECT=1` দিয়ে suite সম্পন্ন: 5,332 unique case-এর 2,593 pass, 2,732 unsupported, 7 finite numerical-error failure; filtered rerun-এ সাতটিই reproduce হয়েছে। Flash attention launcher-এ বন্ধই আছে। One-token test-এ HVX-only + flash attention off expected `4`; default attention selection-সহ আগের test ভুল token দিয়েছে। Exact-package known-answer, 31/31 layer assignment ও clean cancellation pass। এগুলো bounded GGUF/llama.cpp result; সব HTP operator qualify বা supported route নয়। | HMX/attention numerical error তদন্ত; অন্য HTP operator, failure/restart ও sustained stability qualify |
 | ৪ | Repeat ও sustained device qualification | SM8735-এ thermal status 0-সহ 600টি 720p/16-sample EEVEE frame; packaged CPU/Vulkan-এ তিনটি করে live-generation SIGINT clean-exit ও restart check pass। Exact HTP artifact bounded SIGINT-এ child থেমে `closeSession [0, 0]` দিয়েছে। আলাদা QNN SD1.5 mixed CPU/HTP pipeline 25/25 image-এর 17m36s soak সম্পন্ন করেছে; এটি নির্দিষ্ট experimental workload, সাধারণ NPU stability প্রমাণ নয়। failure/restart ও বিস্তৃত sustained CPU/NPU qualification বাকি। Automatic CPU fallback নেই। | supported path জুড়ে failure/restart ও sustained CPU/NPU আচরণ qualify |
 | ৫ | পুনর্ব্যবহারযোগ্য GitHub artifact | CPU/Vulkan ARM64 build ও ABI audit run `38521164812`-এ pass; exact archive isolated install ও CPU/Adreno Vulkan known-answer-ও pass। HTP run `38560288558` checksum, safe-path, isolated install, HTP0 known-answer ও cancellation pass। Metadata-corrected HTP run `38562008524` pass; checksum-verified archive-এ tested runtime payload অপরিবর্তিত, শুধু README/manifest metadata বদলেছে এবং `libcdsprpc.so` / `libfastrpc-dev` dependency যুক্ত হয়েছে। HTP experimental। | clean-driver install ও transitive license review; correctness ও compatibility gate খোলা রাখা |
 | ৬ | Extension install ও guide | CPU + Vulkan prerelease-এর install, SHA-256, archive check, atomic/no-overwrite ও known-answer pass। HTP run `38560288558` exact package isolated HOME-এ installer fixture দিয়ে install; path/manifest/launcher check pass। Metadata-corrected `38562008524`-ও checksum ও isolated installer fixture pass করেছে; README/manifest বদলেছে, runtime file একই। HTP experimental ও unpublished। | Experimental HTP support ও release gate আলাদা রাখা |
@@ -53,13 +53,17 @@ capability নেই—তার প্রমাণ নয়। আলাদা
 flash attention ঠিক করে আবার পরীক্ষা। Command ও artifact provenance আছে
 [experimental HTP guide](../guides/llama-htp-experimental.md#সর্বশেষ-operator-check)-এ।
 
-`GGML_HEXAGON_MM_SELECT=1` দিয়ে HVX matmul বেছে নিয়ে আলাদা
-`FLASH_ATTN_EXT` operator run ১২০ সেকেন্ডের সীমায় থামানো হয়েছে। ৪,৬৬০টি
-case-output line-এর মধ্যে ১,৮৪৮টিতে numerical error (`inf`) এবং ১১২টি pass দেখা
-গেছে; timeout exit 124। Suite শেষ হয়নি, তাই এটি observed failure signal এবং
-অসম্পূর্ণ run—পূর্ণ suite result নয়। Brokered child থামানো হয়েছে এবং CDSP
-session cleanly close হয়েছে। Launcher-এ flash attention বন্ধই আছে; এই operator
-correctness এখনও qualify হয়নি।
+প্রথম `FLASH_ATTN_EXT` run-এ `GGML_HEXAGON_MM_SELECT=1` দিয়ে HVX matmul হলেও
+flash-attention selection default-এ ছিল। ১২০ সেকেন্ডে timeout হওয়ার আগে ৪,৬৬০টি
+output line-এ ১,৮৪৮টি `inf` error ও ১১২টি pass ছিল; run অসম্পূর্ণ। পরে
+`GGML_HEXAGON_MM_SELECT=1 GGML_HEXAGON_FA_SELECT=1` দিয়ে matmul ও attention
+দুটোই HVX নির্বাচন করে suite শেষ করা হয়েছে: ৫,৩৩২ unique case-এর ২,৫৯৩ pass,
+২,৭৩২ unsupported, এবং tolerance-এর বেশি finite numerical error-সহ ৭টি failure।
+Filtered rerun-এ সাতটি failed parameter case-ই আবার reproduce হয়েছে। ওই failure
+এর জন্য test exit 1 দিয়েছে; broker CDSP session cleanly close করেছে। এতে আগের
+error pattern সীমিত হয়েছে, কিন্তু flash attention qualify হয়নি; launcher-এ এটি
+এখনও বন্ধ। Raw log আছে
+`/home/sbj/npu-probe-2026-10-13/htp-op-qualification-38567329752/`-এ।
 
 HVX matmul ও ছোট queue setting (`OPBATCH=128`, `OPQUEUE=2`) দিয়ে broad
 `test-backend-ops -b HTP0` run চালিয়ে abort-এর আগে 3,520টি passing case line,
