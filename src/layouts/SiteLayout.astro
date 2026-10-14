@@ -33,7 +33,7 @@ const titleText = `${title} · Ternux`;
       name="viewport"
       content="width=device-width,initial-scale=1,viewport-fit=cover"
     />
-    <meta name="theme-color" content="#080d12" />
+    <meta name="theme-color" content="#070d09" />
     <meta name="color-scheme" content="dark" />
     <title>{titleText}</title>
     <meta name="description" content={description} />
@@ -87,7 +87,7 @@ const titleText = `${title} · Ternux`;
     />
     <link
       rel="icon"
-      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23080d12'/%3E%3Cpath d='M14 18l14 14-14 14M34 46h16' fill='none' stroke='%235eead4' stroke-width='7' stroke-linecap='round'/%3E%3C/svg%3E"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23070d09'/%3E%3Cpath d='M14 18l14 14-14 14M34 46h16' fill='none' stroke='%238bf5a6' stroke-width='7' stroke-linecap='round'/%3E%3C/svg%3E"
     />
     <script
       type="application/ld+json"
@@ -115,6 +115,16 @@ const titleText = `${title} · Ternux`;
     ></script>
   </head>
   <body class:list={[`lang-${lang}`, { "article-page": article }]}>
+    <div class="matrix-field" aria-hidden="true">
+      <span>010110010101100101011010011010010110101101001</span>
+      <span>101001101010011010110010010110101001101101010</span>
+      <span>011010010110100101101001101001011010110100101</span>
+      <span>110100101101001011010010110110100101101001011</span>
+      <span>010110100101101011010010110100101101001011010</span>
+      <span>101101001011010010110100110101001011010011010</span>
+      <span>001011010110100101101001011010110100101101010</span>
+      <span>110010101101001011010010110100101101101001010</span>
+    </div>
     <a class="skip" href="#main">
       {lang === "bn" ? "মূল বিষয়বস্তুতে যান" : "Skip to content"}
     </a>
@@ -127,7 +137,7 @@ const titleText = `${title} · Ternux`;
         <b>
           TERN<span>UX</span>
         </b>
-        <small>ARM64 / FIELD SYSTEMS</small>
+        <small>ARM64 / ON-DEVICE LINUX</small>
       </a>
       <nav
         class="toplinks"
@@ -145,6 +155,9 @@ const titleText = `${title} · Ternux`;
         >
           {lang === "bn" ? "প্রমাণ" : "Evidence"}
         </a>
+        <a class="portfolio-link" href="https://soobujmiah.github.io/">
+          {lang === "bn" ? "Portfolio ↗" : "Portfolio ↗"}
+        </a>
         <a href="https://github.com/soobujmiah/ternux">GitHub ↗</a>
         {altUrl && (
           <a
@@ -156,12 +169,58 @@ const titleText = `${title} · Ternux`;
           </a>
         )}
       </nav>
+      <div class="mobile-controls">
+        {altUrl && (
+          <a
+            class="mobile-language"
+            href={baseUrl(altUrl)}
+            hreflang={lang === "bn" ? "en" : "bn"}
+          >
+            {lang === "bn" ? "EN" : "বাংলা"}
+          </a>
+        )}
+        <details class="mobile-nav">
+          <summary>
+            {lang === "bn" ? "মেনু" : "MENU"}
+            <span aria-hidden="true">+</span>
+          </summary>
+          <nav
+            aria-label={lang === "bn" ? "মোবাইল নেভিগেশন" : "Mobile navigation"}
+          >
+            <a href={baseUrl(lang === "bn" ? "/bn/" : "/")}>
+              {lang === "bn" ? "হোম" : "Home"}
+            </a>
+            <a href={baseUrl(lang === "bn" ? "/bn/docs/" : "/docs/")}>
+              {lang === "bn" ? "ডকস" : "Docs"}
+            </a>
+            <a
+              href={baseUrl(
+                lang === "bn"
+                  ? "/bn/docs/BENCHMARKS.html"
+                  : "/docs/BENCHMARKS.html",
+              )}
+            >
+              {lang === "bn" ? "প্রমাণ" : "Evidence"}
+            </a>
+            <a href="https://soobujmiah.github.io/">Portfolio ↗</a>
+            <a href="https://github.com/soobujmiah/ternux">GitHub ↗</a>
+          </nav>
+        </details>
+      </div>
     </header>
     <slot />
     <footer class="footer">
       <span>© 2026 Sobuj Miah</span>
-      <span>Evidence-led Linux workspace · Android / ARM64</span>
-      <a href="https://github.com/soobujmiah/ternux">Source ↗</a>
+      <a
+        class="footer-evidence"
+        href={baseUrl(
+          lang === "bn" ? "/bn/docs/BENCHMARKS.html" : "/docs/BENCHMARKS.html",
+        )}
+      >
+        {lang === "bn"
+          ? "Evidence-led Linux · benchmark ↗"
+          : "Evidence-led Linux · benchmarks ↗"}
+      </a>
     </footer>
     <script>
       const bar = document.querySelector(".read-progress");
@@ -171,6 +230,296 @@ const titleText = `${title} · Ternux`;
       };
       addEventListener("scroll", update, { passive: true });
       update();
+      const matrixField = document.querySelector(".matrix-field");
+      if (
+        matrixField &&
+        !matchMedia("(prefers-reduced-motion: reduce)").matches
+      ) {
+        const fieldCanvas = document.createElement("canvas");
+        fieldCanvas.className = "matrix-depth-canvas";
+        fieldCanvas.setAttribute("aria-hidden", "true");
+        matrixField.append(fieldCanvas);
+        matrixField.classList.add("matrix-field-live");
+        const fieldContext = fieldCanvas.getContext("2d", { alpha: true });
+        const glyphSet = "01ABCDEFGHIJKLMNOPQRSTUVWXYZ<>/[]{}";
+        let streams = [];
+        let viewWidth = 0;
+        let viewHeight = 0;
+        let pixelRatio = 1;
+        let pointerX = 0.5;
+        let pointerY = 0.5;
+        let lastFrame = 0;
+        let animationFrame = 0;
+
+        const seedField = () => {
+          viewWidth = innerWidth;
+          viewHeight = matrixField.clientHeight || innerHeight;
+          pixelRatio = Math.min(devicePixelRatio || 1, 1.25);
+          fieldCanvas.width = Math.ceil(viewWidth * pixelRatio);
+          fieldCanvas.height = Math.ceil(viewHeight * pixelRatio);
+          fieldCanvas.style.width = `${viewWidth}px`;
+          fieldCanvas.style.height = `${viewHeight}px`;
+          const columnGap = viewWidth < 700 ? 36 : 31;
+          streams = [];
+          for (let x = -columnGap; x < viewWidth + columnGap; x += columnGap) {
+            const depth = Math.random();
+            streams.push({
+              x,
+              depth,
+              size: 7 + depth * 6,
+              speed: 13 + depth * 25,
+              length: 8 + Math.floor(Math.random() * 12),
+              head: Math.random() * viewHeight,
+              chars: Array.from(
+                { length: 24 },
+                () => glyphSet[Math.floor(Math.random() * glyphSet.length)],
+              ),
+              tick: 0,
+            });
+          }
+          for (let i = 0; i < Math.floor(viewWidth / 110); i++) {
+            const depth = 0.68 + Math.random() * 0.32;
+            streams.push({
+              x: Math.random() * viewWidth,
+              depth,
+              size: 8 + depth * 6,
+              speed: 18 + depth * 28,
+              length: 8 + Math.floor(Math.random() * 10),
+              head: Math.random() * viewHeight,
+              chars: Array.from(
+                { length: 24 },
+                () => glyphSet[Math.floor(Math.random() * glyphSet.length)],
+              ),
+              tick: 0,
+            });
+          }
+        };
+
+        const drawDepthField = (now) => {
+          if (!fieldContext) return;
+          if (lastFrame && now - lastFrame < 1000 / 30) {
+            animationFrame = requestAnimationFrame(drawDepthField);
+            return;
+          }
+          const elapsed = Math.min((now - (lastFrame || now)) / 1000, 0.05);
+          lastFrame = now;
+          fieldContext.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+          fieldContext.clearRect(0, 0, viewWidth, viewHeight);
+
+          // A receding floor gives the code field its own vanishing point.
+          const horizonY = viewHeight * 0.58;
+          const horizonX = viewWidth * (0.5 + (pointerX - 0.5) * 0.055);
+          fieldContext.lineWidth = 1;
+          fieldContext.strokeStyle = "rgba(79, 255, 112, 0.055)";
+          for (let ray = -8; ray <= 8; ray++) {
+            const footX = horizonX + ray * viewWidth * 0.14;
+            fieldContext.beginPath();
+            fieldContext.moveTo(horizonX, horizonY);
+            fieldContext.lineTo(footX, viewHeight);
+            fieldContext.stroke();
+          }
+          for (let line = 0; line < 9; line++) {
+            const t = (line + 1) / 9;
+            const y = horizonY + (viewHeight - horizonY) * t * t;
+            fieldContext.globalAlpha = 0.18 + t * 0.38;
+            fieldContext.beginPath();
+            fieldContext.moveTo(0, y);
+            fieldContext.lineTo(viewWidth, y);
+            fieldContext.stroke();
+          }
+
+          fieldContext.textAlign = "center";
+          fieldContext.textBaseline = "middle";
+          for (const stream of streams) {
+            stream.head += stream.speed * elapsed;
+            stream.tick += elapsed;
+            if (stream.tick > 0.19) {
+              stream.tick = 0;
+              stream.chars[Math.floor(Math.random() * stream.chars.length)] =
+                glyphSet[Math.floor(Math.random() * glyphSet.length)];
+            }
+            if (stream.head - stream.length * stream.size > viewHeight + 10) {
+              stream.head = -Math.random() * viewHeight * 0.5;
+              stream.x = Math.random() * viewWidth;
+            }
+            const perspective = 0.82 + stream.depth * 0.42;
+            const parallax = (pointerX - 0.5) * stream.depth * 16;
+            const x = horizonX + (stream.x - horizonX) * perspective + parallax;
+            fieldContext.font = `${stream.size}px ui-monospace, monospace`;
+            for (let row = 0; row < stream.length; row++) {
+              const y = stream.head - row * stream.size * 1.35;
+              if (y < 0 || y > viewHeight) continue;
+              const fade =
+                (1 - row / stream.length) * (0.16 + stream.depth * 0.38);
+              fieldContext.globalAlpha = fade;
+              fieldContext.fillStyle = row === 0 ? "#bdffc6" : "#42f76b";
+              fieldContext.shadowColor = "#31ff5b";
+              fieldContext.shadowBlur = row === 0 ? 7 : 0;
+              fieldContext.fillText(
+                stream.chars[row % stream.chars.length],
+                x,
+                y + (pointerY - 0.5) * stream.depth * 8,
+              );
+            }
+          }
+          fieldContext.globalAlpha = 1;
+          fieldContext.shadowBlur = 0;
+          animationFrame = requestAnimationFrame(drawDepthField);
+        };
+
+        const onPointer = (event) => {
+          pointerX = event.clientX / Math.max(1, innerWidth);
+          pointerY =
+            (event.clientY - matrixField.getBoundingClientRect().top) /
+            Math.max(1, viewHeight);
+        };
+        seedField();
+        addEventListener("resize", seedField, { passive: true });
+        addEventListener("pointermove", onPointer, { passive: true });
+        document.addEventListener("visibilitychange", () => {
+          if (document.hidden) cancelAnimationFrame(animationFrame);
+          else {
+            lastFrame = 0;
+            animationFrame = requestAnimationFrame(drawDepthField);
+          }
+        });
+        animationFrame = requestAnimationFrame(drawDepthField);
+      }
+      const matrixTitle = document.querySelector("[data-matrix-title]");
+      if (
+        matrixTitle &&
+        !matchMedia("(prefers-reduced-motion: reduce)").matches
+      ) {
+        const titleText =
+          matrixTitle
+            .querySelector(".matrix-title-text")
+            ?.textContent?.trim() || "LINUX";
+        const canvas = document.createElement("canvas");
+        canvas.className = "matrix-title-canvas";
+        canvas.setAttribute("aria-hidden", "true");
+        matrixTitle.append(canvas);
+        const ctx = canvas.getContext("2d");
+        const mask = document.createElement("canvas");
+        const maskCtx = mask.getContext("2d");
+        const rain = document.createElement("canvas");
+        const rainCtx = rain.getContext("2d");
+        const glyphs = "0123456789ABCDEF";
+        let streams = [];
+        let width = 0;
+        let height = 0;
+        let dpr = 1;
+        let titleVisible = true;
+        let lastTitleFrame = 0;
+        let font = "";
+        let baseline = 0;
+        let textWidth = 0;
+
+        const rebuild = () => {
+          const rect = matrixTitle.getBoundingClientRect();
+          if (!rect.width || !rect.height || !ctx || !maskCtx || !rainCtx)
+            return;
+          width = rect.width;
+          height = rect.height;
+          dpr = Math.min(devicePixelRatio || 1, 1.5);
+          canvas.width = mask.width = rain.width = Math.ceil(width * dpr);
+          canvas.height = mask.height = rain.height = Math.ceil(height * dpr);
+          canvas.style.width = `${width}px`;
+          canvas.style.height = `${height}px`;
+          const style = getComputedStyle(matrixTitle);
+          font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+          baseline = height * 0.78;
+          textWidth = width;
+          maskCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+          maskCtx.clearRect(0, 0, width, height);
+          maskCtx.font = font;
+          maskCtx.textBaseline = "alphabetic";
+          maskCtx.fillStyle = "white";
+          maskCtx.fillText(titleText, 0, baseline, textWidth);
+          streams = Array.from(
+            { length: Math.ceil(width / 10) + 1 },
+            (_, i) => ({
+              x: i * 10,
+              offset: Math.random() * (height + 140),
+              speed: 0.018 + Math.random() * 0.038,
+              seed: Math.floor(Math.random() * glyphs.length),
+            }),
+          );
+          matrixTitle.classList.add("is-code-live");
+        };
+
+        const draw = (now) => {
+          if (!titleVisible || document.hidden) {
+            setTimeout(() => requestAnimationFrame(draw), 300);
+            return;
+          }
+          if (!ctx || !width || !height) {
+            requestAnimationFrame(draw);
+            return;
+          }
+          if (now - lastTitleFrame < 34) {
+            requestAnimationFrame(draw);
+            return;
+          }
+          lastTitleFrame = now;
+          rainCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+          rainCtx.clearRect(0, 0, width, height);
+          rainCtx.font = "10px ui-monospace, monospace";
+          rainCtx.textBaseline = "middle";
+          for (const stream of streams) {
+            const head =
+              ((now * stream.speed + stream.offset) % (height + 140)) - 70;
+            for (let row = 0; row < 12; row++) {
+              const y = head - row * 11;
+              if (y < 0 || y > height) continue;
+              rainCtx.globalAlpha = (1 - row / 12) * (row === 0 ? 1 : 0.72);
+              rainCtx.fillStyle = row === 0 ? "#e9fff0" : "#47ee72";
+              rainCtx.fillText(
+                glyphs[
+                  (stream.seed + row + Math.floor(now / 260)) % glyphs.length
+                ],
+                stream.x,
+                y,
+              );
+            }
+          }
+          rainCtx.globalAlpha = 1;
+          rainCtx.globalCompositeOperation = "destination-in";
+          rainCtx.drawImage(mask, 0, 0, width, height);
+          rainCtx.globalCompositeOperation = "source-over";
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+          ctx.clearRect(0, 0, width, height);
+          ctx.font = font;
+          ctx.textBaseline = "alphabetic";
+          ctx.lineJoin = "round";
+          ctx.lineWidth = 1.1;
+          ctx.strokeStyle = "#1f7140";
+          for (let depth = 7; depth > 0; depth--) {
+            ctx.globalAlpha = 0.1 + (7 - depth) * 0.035;
+            ctx.strokeText(titleText, depth * 0.7, baseline + depth, textWidth);
+          }
+          ctx.globalAlpha = 0.58;
+          ctx.fillStyle = "#10331c";
+          ctx.fillText(titleText, 0, baseline, textWidth);
+          ctx.globalAlpha = 1;
+          ctx.drawImage(rain, 0, 0, width, height);
+          ctx.strokeStyle = "#c3fbd0";
+          ctx.lineWidth = 1.3;
+          ctx.shadowColor = "#53ec78";
+          ctx.shadowBlur = 9;
+          ctx.strokeText(titleText, 0, baseline, textWidth);
+          ctx.globalAlpha = 1;
+          ctx.shadowBlur = 0;
+          requestAnimationFrame(draw);
+        };
+
+        rebuild();
+        document.fonts?.ready.then(rebuild);
+        new ResizeObserver(rebuild).observe(matrixTitle);
+        new IntersectionObserver(([entry]) => {
+          titleVisible = entry.isIntersecting;
+        }).observe(matrixTitle);
+        requestAnimationFrame(draw);
+      }
       document.querySelectorAll("[data-reveal]").forEach((el) => {
         if (
           !("IntersectionObserver" in window) ||
@@ -190,20 +539,117 @@ const titleText = `${title} · Ternux`;
         );
         io.observe(el);
       });
-      document.querySelectorAll("[data-copy]").forEach((button) =>
+      const copyText = async (text) => {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+          return;
+        }
+        const field = document.createElement("textarea");
+        field.value = text;
+        field.setAttribute("readonly", "");
+        field.style.position = "fixed";
+        field.style.opacity = "0";
+        document.body.append(field);
+        field.select();
+        const copied = document.execCommand("copy");
+        field.remove();
+        if (!copied) throw new Error("Clipboard copy unavailable");
+      };
+      const wireCopy = (button, code, originalLabel) => {
+        if (!code) return;
         button.addEventListener("click", async () => {
-          const target = button
-            .closest(".command")
-            .querySelector("code").textContent;
           try {
-            await navigator.clipboard.writeText(target);
+            await copyText(code.textContent || "");
             button.textContent = "COPIED";
-            setTimeout(() => (button.textContent = "COPY"), 1600);
+            button.classList.add("is-copied");
+            button.setAttribute("aria-label", "Copied to clipboard");
+            setTimeout(() => {
+              button.textContent = originalLabel;
+              button.classList.remove("is-copied");
+              button.setAttribute("aria-label", "Copy code to clipboard");
+            }, 1800);
           } catch {
-            button.textContent = "SELECT COMMAND";
+            button.textContent = "COPY FAILED";
+            button.setAttribute(
+              "aria-label",
+              "Copy failed; select the code manually",
+            );
           }
-        }),
-      );
+        });
+      };
+      document.querySelectorAll(".command [data-copy]").forEach((button) => {
+        const label = button.textContent?.trim() || "COPY";
+        button.classList.add("copy-code");
+        button.setAttribute("aria-label", "Copy command to clipboard");
+        button.setAttribute("aria-live", "polite");
+        wireCopy(
+          button,
+          button.closest(".command")?.querySelector("code"),
+          label,
+        );
+      });
+      document.querySelectorAll(".article pre").forEach((pre) => {
+        const code = pre.querySelector("code");
+        if (!code || pre.querySelector(".copy-code")) return;
+        const button = document.createElement("button");
+        button.className = "copy-code";
+        button.type = "button";
+        button.textContent = "COPY";
+        button.setAttribute("aria-label", "Copy code to clipboard");
+        button.setAttribute("aria-live", "polite");
+        pre.append(button);
+        wireCopy(button, code, "COPY");
+      });
+      document.querySelectorAll("[data-compute-panel]").forEach((group) => {
+        const tabs = [...group.querySelectorAll("[data-engine-tab]")];
+        const panels = [...group.querySelectorAll("[data-engine-panel]")];
+        const activate = (tab, focus = false) => {
+          const key = tab.dataset.engineTab;
+          tabs.forEach((item) => {
+            const active = item === tab;
+            item.classList.toggle("is-active", active);
+            item.setAttribute("aria-selected", String(active));
+            item.tabIndex = active ? 0 : -1;
+          });
+          panels.forEach((panel) => {
+            panel.hidden = panel.dataset.enginePanel !== key;
+          });
+          if (focus) tab.focus();
+        };
+        tabs.forEach((tab, index) => {
+          tab.addEventListener("click", () => activate(tab));
+          tab.addEventListener("keydown", (event) => {
+            if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key))
+              return;
+            event.preventDefault();
+            const next =
+              event.key === "Home"
+                ? 0
+                : event.key === "End"
+                  ? tabs.length - 1
+                  : (index +
+                      (event.key === "ArrowRight" ? 1 : -1) +
+                      tabs.length) %
+                    tabs.length;
+            activate(tabs[next], true);
+          });
+        });
+      });
+      if (matchMedia("(pointer: fine)").matches) {
+        document.querySelectorAll("[data-tilt]").forEach((visual) => {
+          visual.addEventListener("pointermove", (event) => {
+            const rect = visual.getBoundingClientRect();
+            const x = (event.clientX - rect.left) / rect.width - 0.5;
+            const y = (event.clientY - rect.top) / rect.height - 0.5;
+            visual.style.setProperty("--tilt-x", `${5 - y * 10}deg`);
+            visual.style.setProperty("--tilt-y", `${-14 + x * 20}deg`);
+          });
+          visual.addEventListener("pointerleave", () => {
+            visual.style.removeProperty("--tilt-x");
+            visual.style.removeProperty("--tilt-y");
+          });
+        });
+      }
       const mobileSidebar = matchMedia("(max-width: 760px)");
       const setSidebarState = () =>
         document.querySelectorAll(".sidebar details").forEach((details) => {
@@ -211,6 +657,112 @@ const titleText = `${title} · Ternux`;
         });
       setSidebarState();
       mobileSidebar.addEventListener?.("change", setSidebarState);
+      const mobileNav = document.querySelector(".mobile-nav");
+      mobileNav
+        ?.querySelectorAll("a")
+        .forEach((link) =>
+          link.addEventListener("click", () => (mobileNav.open = false)),
+        );
+      document.addEventListener("pointerdown", (event) => {
+        if (mobileNav?.open && !mobileNav.contains(event.target))
+          mobileNav.open = false;
+      });
+
+      // Readouts decode once into the exact source text. Their DOM value is never changed.
+      const reduceMotion = matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      ).matches;
+      const readoutSelectors = [
+        "main",
+        ".brand small",
+        ".footer",
+        ".sidebar",
+        ".toc",
+      ];
+      const numericPattern =
+        /~?\d+(?:[.,]\d+)*(?:\s?(?:tok\/s|fps|FPS|seconds|minutes|s|min|MB|GB|px))?/g;
+      const readoutRoots = document.querySelectorAll(
+        readoutSelectors.join(","),
+      );
+      const numericNodes = new Set();
+      readoutRoots.forEach((root) => {
+        if (root.closest("pre, code")) return;
+        const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+        let node;
+        while ((node = walker.nextNode())) {
+          if (
+            node.parentElement?.closest(
+              "script, style, pre, code, .matrix-value",
+            )
+          )
+            continue;
+          if (numericPattern.test(node.textContent || ""))
+            numericNodes.add(node);
+          numericPattern.lastIndex = 0;
+        }
+      });
+      numericNodes.forEach((node) => {
+        const text = node.textContent || "";
+        const fragment = document.createDocumentFragment();
+        let last = 0;
+        for (const match of text.matchAll(numericPattern)) {
+          if (match.index > last)
+            fragment.append(
+              document.createTextNode(text.slice(last, match.index)),
+            );
+          const value = document.createElement("span");
+          value.className = "matrix-value";
+          value.textContent = match[0];
+          fragment.append(value);
+          last = match.index + match[0].length;
+        }
+        fragment.append(document.createTextNode(text.slice(last)));
+        node.replaceWith(fragment);
+      });
+      if (!reduceMotion && "IntersectionObserver" in window) {
+        const decode = (element) => {
+          const finalValue = element.textContent || "";
+          const digits = [...finalValue].filter((char) =>
+            /\d/.test(char),
+          ).length;
+          if (!digits) return;
+          let frame = 0;
+          element.classList.add("is-decoding");
+          const tick = () => {
+            frame++;
+            const progress = frame / 12;
+            let seen = 0;
+            element.dataset.signal = [...finalValue]
+              .map((char) => {
+                if (!/\d/.test(char)) return char;
+                seen++;
+                return seen / digits <= progress
+                  ? char
+                  : String(Math.floor(Math.random() * 2));
+              })
+              .join("");
+            if (frame < 12) setTimeout(tick, 48);
+            else {
+              element.classList.remove("is-decoding");
+              delete element.dataset.signal;
+            }
+          };
+          tick();
+        };
+        const valueObserver = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (!entry.isIntersecting) return;
+              valueObserver.unobserve(entry.target);
+              decode(entry.target);
+            });
+          },
+          { threshold: 0.1 },
+        );
+        document
+          .querySelectorAll(".matrix-value")
+          .forEach((value) => valueObserver.observe(value));
+      }
     </script>
   </body>
 </html>

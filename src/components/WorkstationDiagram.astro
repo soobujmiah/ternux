@@ -1,0 +1,105 @@
+---
+const { lang = "en" } = Astro.props;
+const bn = lang === "bn";
+---
+
+<div
+  class="system-visual"
+  data-tilt
+  role="img"
+  aria-label={
+    bn
+      ? "Android ফোনের ভেতরে Termux, Debian, ADT এবং Adreno GPU-সহ Ternux workstation-এর চিত্র"
+      : "Ternux workstation diagram: an Android phone running Termux, Debian, ADT and Adreno GPU workloads"
+  }
+>
+  <div class="orbit orbit-one" aria-hidden="true"></div>
+  <div class="orbit orbit-two" aria-hidden="true"></div>
+  <div class="orbit orbit-three" aria-hidden="true"></div>
+  <div class="device-platform" aria-hidden="true"></div>
+
+  <div class="signal-chip chip-cpu" aria-hidden="true">
+    <span class="chip-mark cpu-mark">C</span>
+    <span>
+      <b>CPU</b>
+      <small>ARM64 · llama.cpp</small>
+    </span>
+    <i></i>
+  </div>
+  <div class="signal-chip chip-gpu" aria-hidden="true">
+    <span class="chip-mark gpu-mark">G</span>
+    <span>
+      <b>ADRENO 825</b>
+      <small>VULKAN · ZINK</small>
+    </span>
+    <i></i>
+  </div>
+  <div class="signal-chip chip-htp" aria-hidden="true">
+    <span class="chip-mark htp-mark">H</span>
+    <span>
+      <b>HEXAGON HTP</b>
+      <small>EXPERIMENTAL</small>
+    </span>
+    <i></i>
+  </div>
+
+  <div class="phone-3d" aria-hidden="true">
+    <div class="phone-back"></div>
+    <div class="phone-side"></div>
+    <div class="phone-front">
+      <div class="phone-camera"></div>
+      <div class="phone-screen">
+        <div class="phone-status">
+          <span>LOCAL</span>
+          <span>ARM64</span>
+          <span>READY</span>
+        </div>
+        <div class="screen-brand">
+          <span>&gt;_</span> TERNUX <i>DEBIAN WORKSTATION</i>
+        </div>
+        <div class="terminal-window">
+          <div class="terminal-title">
+            <i></i>
+            <i></i>
+            <i></i>
+            <span>debian — zsh</span>
+          </div>
+          <code>
+            <span>sbj@redmi</span>:~$ fastfetch
+          </code>
+          <div class="terminal-rule"></div>
+          <div class="terminal-info">
+            <b>Debian 13</b>
+            <small>PRoot · aarch64</small>
+          </div>
+          <div class="terminal-info">
+            <b>XFCE 4</b>
+            <small>Termux:X11</small>
+          </div>
+          <div class="terminal-info">
+            <b>ADT toolchain</b>
+            <small>Android SDK · NDK</small>
+          </div>
+          <div class="terminal-prompt">
+            <span>●</span> system ready
+          </div>
+        </div>
+        <div class="screen-dock">
+          <span>⌘</span>
+          <span>▤</span>
+          <span>◉</span>
+          <span>▦</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="visual-caption">
+    <span class="live-dot"></span>
+    <span>
+      {bn
+        ? "একটি ফোন · সম্পূর্ণ ARM64 workstation"
+        : "ONE PHONE · FULL ARM64 WORKSTATION"}
+    </span>
+  </div>
+</div>

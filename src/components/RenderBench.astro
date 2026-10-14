@@ -1,0 +1,70 @@
+---
+const { lang = "en" } = Astro.props;
+const bn = lang === "bn";
+---
+
+<div
+  class="render-timeline"
+  aria-label={
+    bn
+      ? "MPFB2 character creation ও Blender render-এর measured workflow"
+      : "Measured MPFB2 character creation and Blender rendering workflow"
+  }
+>
+  <div class="timeline-beam" aria-hidden="true"></div>
+  <article class="render-stage" data-reveal>
+    <span class="render-orb mesh-orb" aria-hidden="true">
+      <i></i>
+    </span>
+    <small>01 / {bn ? "GENERATE" : "GENERATE"}</small>
+    <h3>{bn ? "Base mesh" : "Base mesh"}</h3>
+    <strong>
+      0.4 <em>s</em>
+    </strong>
+    <p>19,158 {bn ? "vertices" : "vertices"}</p>
+  </article>
+  <article class="render-stage" data-reveal>
+    <span class="render-orb build-orb" aria-hidden="true">
+      <i></i>
+    </span>
+    <small>02 / {bn ? "ASSEMBLE" : "ASSEMBLE"}</small>
+    <h3>{bn ? "চরিত্র তৈরি" : "Character build"}</h3>
+    <strong>
+      3.9 <em>s</em>
+    </strong>
+    <p>{bn ? "mesh · skin · assets · rig" : "mesh · skin · assets · rig"}</p>
+  </article>
+  <article class="render-stage" data-reveal>
+    <span class="render-orb still-orb" aria-hidden="true">
+      <i></i>
+    </span>
+    <small>03 / {bn ? "STILL" : "STILL"}</small>
+    <h3>{bn ? "স্থির ছবি" : "Still image"}</h3>
+    <strong>
+      ~4 <em>s</em>
+    </strong>
+    <p>460 × 800 · EEVEE Next</p>
+  </article>
+  <article class="render-stage" data-reveal>
+    <span class="render-orb frame-orb" aria-hidden="true">
+      <i></i>
+    </span>
+    <small>04 / {bn ? "ANIMATE" : "ANIMATE"}</small>
+    <h3>{bn ? "Animation frame" : "Animation frame"}</h3>
+    <strong>
+      3.8 <em>s</em>
+    </strong>
+    <p>540 × 960 · EEVEE Next</p>
+  </article>
+  <article class="render-stage render-finale" data-reveal>
+    <span class="render-orb movie-orb" aria-hidden="true">
+      <i></i>
+    </span>
+    <small>05 / {bn ? "SEQUENCE" : "SEQUENCE"}</small>
+    <h3>{bn ? "৫-সেকেন্ডের shot" : "Five-second shot"}</h3>
+    <strong>
+      ~7.5 <em>min</em>
+    </strong>
+    <p>120 frames · 24 fps</p>
+  </article>
+</div>

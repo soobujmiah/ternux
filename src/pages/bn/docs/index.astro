@@ -15,26 +15,28 @@ const page = getPage("bn/docs/index.md");
 >
   <div class="article-shell">
     <aside class="sidebar">
-      <b>গাইড ও রেফারেন্স</b>
-      <nav>
-        {nav.bn.map((group) => (
-          <section>
-            <h2>{group.label}</h2>
-            <ul>
-              {group.items.map(([label, href]) => (
-                <li>
-                  <a
-                    href={baseUrl(href)}
-                    aria-current={href === "/bn/docs/" ? "page" : undefined}
-                  >
-                    {label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </section>
-        ))}
-      </nav>
+      <details open>
+        <summary>গাইড ও রেফারেন্স</summary>
+        <nav>
+          {nav.bn.map((group) => (
+            <section>
+              <h2>{group.label}</h2>
+              <ul>
+                {group.items.map(([label, href]) => (
+                  <li>
+                    <a
+                      href={baseUrl(href)}
+                      aria-current={href === "/bn/docs/" ? "page" : undefined}
+                    >
+                      {label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ))}
+        </nav>
+      </details>
     </aside>
     <main class="article" id="main">
       <div class="crumb">হোম / ডকস</div>
