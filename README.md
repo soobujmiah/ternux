@@ -20,6 +20,8 @@ Ternux sets up Debian and Xfce4 in Termux using PRoot. Termux:X11 displays the
 desktop and PulseAudio connects sound. Graphics use Zink/Turnip on supported
 Adreno devices or VirGL as a compatibility route. Results vary by device.
 
+![Ternux workstation layers and verified CPU, GPU, and experimental NPU status](docs/assets/ternux-overview.svg)
+
 ## Install
 
 1. Install [Termux](https://github.com/termux/termux-app/releases) and

@@ -1,41 +1,76 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 420" role="img" aria-labelledby="title desc">
-  <title id="title">Ternux architecture overview</title>
-  <desc id="desc">Android hosts Termux, which runs Debian through PRoot, Xfce4 through Termux X11, audio through PulseAudio, and graphics through Zink Turnip on supported Adreno devices or VirGL as a fallback.</desc>
-  <rect width="1200" height="420" rx="20" fill="#050507" stroke="rgba(228,226,223,0.08)" stroke-width="1"/>
-  <text x="60" y="58" fill="#e4e2df" font-family="'Space Grotesk', system-ui, sans-serif" font-size="28" font-weight="700" letter-spacing="-0.02em">ternux</text>
-  <text x="60" y="88" fill="rgba(228,226,223,0.5)" font-family="'JetBrains Mono', monospace" font-size="14" letter-spacing="0.04em">Linux desktop workspace on Android — no root · ARM64</text>
-  <g font-family="system-ui, -apple-system, sans-serif">
-    <rect x="60" y="135" width="210" height="190" rx="14" fill="#090d0b" stroke="rgba(34,211,238,0.4)" stroke-width="1.5"/>
-    <text x="85" y="172" fill="#22d3ee" font-size="18" font-weight="700" font-family="'Space Grotesk', sans-serif">Android</text>
-    <text x="85" y="205" fill="#e4e2df" font-size="15">Native ARM64 hardware</text>
-    <text x="85" y="232" fill="rgba(228,226,223,0.5)" font-size="14">CPU • memory • GPU</text>
-    <text x="85" y="272" fill="rgba(228,226,223,0.5)" font-size="14">Existing Android kernel</text>
-    <text x="85" y="299" fill="rgba(228,226,223,0.5)" font-size="14">No system root required</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 690" role="img" aria-labelledby="title desc">
+  <title id="title">Ternux workstation and accelerator status</title>
+  <desc id="desc">A no-root Android ARM64 workstation runs Termux, Debian through PRoot, and Xfce through Termux X11. CPU inference and Adreno Vulkan inference are device verified. Hexagon HTP inference is experimental and is not yet a supported release feature.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#071014"/><stop offset="1" stop-color="#0b0b12"/></linearGradient>
+    <linearGradient id="line" x1="0" x2="1"><stop stop-color="#22d3ee"/><stop offset=".52" stop-color="#a78bfa"/><stop offset="1" stop-color="#4ade80"/></linearGradient>
+    <style>
+      .sans{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+      .mono{font-family:ui-monospace,"SFMono-Regular",Consolas,monospace}
+    </style>
+  </defs>
+  <rect width="1200" height="690" rx="24" fill="url(#bg)" stroke="#26333a"/>
+  <text class="sans" x="56" y="57" fill="#f4f7f8" font-size="28" font-weight="750">ternux <tspan fill="#84949d" font-size="16" font-weight="500">/ phone workstation</tspan></text>
+  <text class="mono" x="56" y="86" fill="#8fa1aa" font-size="13">ANDROID ARM64 · NO ROOT · TERMUX + PROOT DEBIAN</text>
 
-    <rect x="335" y="135" width="210" height="190" rx="14" fill="#090d0b" stroke="rgba(168,85,247,0.4)" stroke-width="1.5"/>
-    <text x="360" y="172" fill="#a855f7" font-size="18" font-weight="700" font-family="'Space Grotesk', sans-serif">Termux + PRoot</text>
-    <text x="360" y="205" fill="#e4e2df" font-size="15">Linux host layer</text>
-    <text x="360" y="232" fill="rgba(228,226,223,0.5)" font-size="14">Packages • lifecycle</text>
-    <text x="360" y="272" fill="rgba(228,226,223,0.5)" font-size="14">Debian ARM64 userspace</text>
-    <text x="360" y="299" fill="rgba(228,226,223,0.5)" font-size="14">Userspace isolation</text>
+  <g class="sans">
+    <rect x="56" y="116" width="326" height="116" rx="15" fill="#101a20" stroke="#23768a"/>
+    <circle cx="82" cy="147" r="7" fill="#22d3ee"/>
+    <text x="101" y="153" fill="#67e8f9" font-size="18" font-weight="700">Android device</text>
+    <text x="80" y="184" fill="#e3e8ea" font-size="14">ARM64 CPU · Adreno GPU · Hexagon NPU</text>
+    <text x="80" y="208" fill="#8799a1" font-size="13">Android kernel and hardware stay in control</text>
 
-    <rect x="610" y="135" width="210" height="190" rx="14" fill="#090d0b" stroke="rgba(34,197,94,0.45)" stroke-width="1.5"/>
-    <text x="635" y="172" fill="#4ade80" font-size="18" font-weight="700" font-family="'Space Grotesk', sans-serif">Debian + Xfce4</text>
-    <text x="635" y="205" fill="#e4e2df" font-size="15">Desktop workspace</text>
-    <text x="635" y="232" fill="rgba(228,226,223,0.5)" font-size="14">Terminal • files • apps</text>
-    <text x="635" y="272" fill="rgba(228,226,223,0.5)" font-size="14">APT-managed userspace</text>
-    <text x="635" y="299" fill="rgba(228,226,223,0.5)" font-size="14">Development workloads</text>
+    <rect x="437" y="116" width="326" height="116" rx="15" fill="#151222" stroke="#66509a"/>
+    <circle cx="463" cy="147" r="7" fill="#a78bfa"/>
+    <text x="482" y="153" fill="#c4b5fd" font-size="18" font-weight="700">Termux + PRoot</text>
+    <text x="461" y="184" fill="#e3e8ea" font-size="14">Android terminal · Debian ARM64 guest</text>
+    <text x="461" y="208" fill="#8799a1" font-size="13">Packages, CLI tools and isolated Linux userspace</text>
 
-    <rect x="885" y="135" width="255" height="190" rx="14" fill="#090d0b" stroke="rgba(245,158,11,0.4)" stroke-width="1.5"/>
-    <text x="910" y="172" fill="#f59e0b" font-size="18" font-weight="700" font-family="'Space Grotesk', sans-serif">Display + Graphics</text>
-    <text x="910" y="205" fill="#e4e2df" font-size="15">Termux:X11 + PulseAudio</text>
-    <text x="910" y="232" fill="rgba(228,226,223,0.5)" font-size="14">Adreno → Zink → Turnip</text>
-    <text x="910" y="259" fill="rgba(228,226,223,0.5)" font-size="14">Fallback → VirGL</text>
-    <text x="910" y="299" fill="rgba(228,226,223,0.5)" font-size="14">Verify renderer before claims</text>
+    <rect x="818" y="116" width="326" height="116" rx="15" fill="#101a15" stroke="#397b50"/>
+    <circle cx="844" cy="147" r="7" fill="#4ade80"/>
+    <text x="863" y="153" fill="#86efac" font-size="18" font-weight="700">Debian + Xfce</text>
+    <text x="842" y="184" fill="#e3e8ea" font-size="14">Linux apps · development · local AI</text>
+    <text x="842" y="208" fill="#8799a1" font-size="13">Termux:X11 display · PulseAudio sound</text>
   </g>
-  <g stroke="rgba(228,226,223,0.2)" stroke-width="1.5" fill="none">
-    <path d="M270 230h65"/><path d="M545 230h65"/><path d="M820 230h65"/>
+  <path d="M382 174h55M763 174h55" stroke="url(#line)" stroke-width="2"/>
+  <path d="m428 168 9 6-9 6m326-12 9 6-9 6" fill="none" stroke="#b8c8ce" stroke-width="2"/>
+
+  <path d="M56 272h1088" stroke="#26333a"/>
+  <text class="sans" x="56" y="310" fill="#f4f7f8" font-size="20" font-weight="700">Compute on the device</text>
+  <text class="mono" x="1144" y="309" fill="#71828a" text-anchor="end" font-size="12">MEASURED OR VERIFIED ON REDMI TURBO 4 PRO · 2026-10-14</text>
+
+  <g class="sans">
+    <rect x="56" y="340" width="340" height="245" rx="16" fill="#10191c" stroke="#287184"/>
+    <rect x="76" y="360" width="58" height="26" rx="13" fill="#123743"/>
+    <text class="mono" x="105" y="378" text-anchor="middle" fill="#67e8f9" font-size="12" font-weight="700">CPU</text>
+    <text x="76" y="423" fill="#eff7f8" font-size="19" font-weight="700">Linux ARM64 inference</text>
+    <text x="76" y="456" fill="#b8c6cb" font-size="14">llama.cpp CPU known-answer passed</text>
+    <text x="76" y="481" fill="#b8c6cb" font-size="14">on the physical SM8735 device.</text>
+    <path d="M76 505h300" stroke="#2a3a40"/>
+    <text x="76" y="540" fill="#86efac" font-size="13" font-weight="700">VERIFIED · reproducible release artifact</text>
+    <text class="mono" x="76" y="563" fill="#73878e" font-size="11">CPU baseline · existing GGUF model</text>
+
+    <rect x="430" y="340" width="340" height="245" rx="16" fill="#10191c" stroke="#287b55"/>
+    <rect x="450" y="360" width="58" height="26" rx="13" fill="#153b2c"/>
+    <text class="mono" x="479" y="378" text-anchor="middle" fill="#86efac" font-size="12" font-weight="700">GPU</text>
+    <text x="450" y="423" fill="#eff7f8" font-size="19" font-weight="700">Adreno 825 · Vulkan</text>
+    <text x="450" y="456" fill="#b8c6cb" font-size="14">Known-answer passed; 29/29 layers</text>
+    <text x="450" y="481" fill="#b8c6cb" font-size="14">offloaded in the measured inference.</text>
+    <path d="M450 505h300" stroke="#2a3a40"/>
+    <text x="450" y="540" fill="#86efac" font-size="13" font-weight="700">VERIFIED · Turnip/Vulkan dependency</text>
+    <text class="mono" x="450" y="563" fill="#73878e" font-size="11">CPU + Vulkan release artifact</text>
+
+    <rect x="804" y="340" width="340" height="245" rx="16" fill="#1b1711" stroke="#8c6632"/>
+    <rect x="824" y="360" width="58" height="26" rx="13" fill="#49351b"/>
+    <text class="mono" x="853" y="378" text-anchor="middle" fill="#fcd34d" font-size="12" font-weight="700">NPU</text>
+    <text x="824" y="423" fill="#fff8ed" font-size="19" font-weight="700">Hexagon HTP · V73</text>
+    <text x="824" y="456" fill="#c9beb0" font-size="14">A conservative test configuration passes;</text>
+    <text x="824" y="481" fill="#c9beb0" font-size="14">other tested settings return wrong answers.</text>
+    <path d="M824 505h300" stroke="#433629"/>
+    <text x="824" y="540" fill="#fcd34d" font-size="13" font-weight="700">EXPERIMENTAL · not release supported</text>
+    <text class="mono" x="824" y="563" fill="#968675" font-size="11">Correctness and brokered install gates open</text>
   </g>
-  <g fill="rgba(228,226,223,0.4)"><path d="M330 224l8 6-8 6z"/><path d="M605 224l8 6-8 6z"/><path d="M880 224l8 6-8 6z"/></g>
-  <text x="60" y="375" fill="rgba(228,226,223,0.4)" font-family="'JetBrains Mono', monospace" font-size="12">Measured ≠ observed ≠ untested • See docs/BENCHMARKS.md for evidence and limitations</text>
+
+  <rect x="56" y="613" width="1088" height="42" rx="10" fill="#0d1419" stroke="#202d33"/>
+  <text class="mono" x="76" y="639" fill="#93a4ab" font-size="12">VERIFIED ≠ MEASURED ≠ EXPERIMENTAL · Device-specific results; see docs/ACCELERATOR-RELEASE-PLAN.md</text>
 </svg>
