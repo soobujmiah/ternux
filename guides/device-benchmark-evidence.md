@@ -739,6 +739,21 @@ to the UNet helper, for 40 serial graph requests per 20-step image. Each image
 invocation also starts and tears down its UNet and decoder helpers. These are
 specific profiling targets, not yet-proven explanations of the gap.
 
+An instrumented follow-up on 2026-10-14 generated three more images in
+30.797–31.122 s each. In the representative 30.797 s run, CPU CLIP took
+3.482 s; streaming, hashing, and sealing the 880,827,736-byte UNet ZIP member
+into a memfd took 7.275 s; 40 serial HTP UNet graph requests took 17.015 s;
+both helper startups took 1.209 s; decoder execution took 0.791 s; and PNG
+output took 0.044 s. Acquiring the 59,945,848-byte decoder member took 0.477 s.
+This was a single instrumented timing profile; surrounding Python work and
+timer boundaries account for small residuals. It identifies repeated UNet
+archive streaming and serial graph requests as measured optimization targets,
+without establishing the cause of Local Dream's speed advantage. No optimized
+path has been qualified. The original archive remained unchanged. Local output
+images are `/sdcard/Llms/ternux-profile-20261014-01.png` through
+`ternux-profile-20261014-03.png`; the detailed timing log is
+`/home/sbj/npu-probe-2026-10-13/sd15-profile-20261014-precise.log`.
+
 Thermal-zone samples peaked at 41.9°C battery, 47.9°C `quiet_therm`, and 64.2°C
 among GPU-labelled zones. No NPU-specific thermal sensor was identified. The
 archive remained in place with SHA-256

@@ -673,6 +673,20 @@ unconditional ও conditional request আলাদা পাঠানো হয�
 request। প্রতিটি image invocation-এ UNet ও decoder helper নতুন করে চালু ও বন্ধও
 হয়। এগুলো নির্দিষ্ট profiling target; gap-এর প্রমাণিত কারণ এখনো নয়।
 
+২০২৬-১০-১৪ তারিখের instrumented follow-up-এ আরও তিনটি image তৈরি হয়েছে,
+প্রতিটির সময় 30.797–31.122 s। প্রতিনিধিত্বমূলক 30.797 s run-এ CPU CLIP নিয়েছে
+3.482 s; 880,827,736-byte UNet ZIP member memfd-এ stream, hash ও seal করতে
+7.275 s; ৪০টি serial HTP UNet graph request-এ 17.015 s; দুই helper startup-এ
+মোট 1.209 s; decoder execution-এ 0.791 s; PNG output-এ 0.044 s। 59,945,848-byte
+decoder member নেওয়ায় লেগেছে 0.477 s। এটি একটি instrumented timing profile;
+বাকি অল্প সময় Python কাজ ও timer boundary-র মধ্যে পড়ে। এতে প্রতি image-এ UNet
+archive stream এবং serial graph request মাপা optimization target হিসেবে ধরা পড়েছে,
+তবে Local Dream কেন দ্রুত তার কারণ প্রমাণ হয়নি। কোনো optimized path এখনো
+qualified নয়। মূল archive অপরিবর্তিত আছে। Local output image:
+`/sdcard/Llms/ternux-profile-20261014-01.png` থেকে
+`ternux-profile-20261014-03.png`; পূর্ণ timing log:
+`/home/sbj/npu-probe-2026-10-13/sd15-profile-20261014-precise.log`।
+
 Thermal-zone sample-এ battery সর্বোচ্চ 41.9°C, `quiet_therm` 47.9°C, এবং
 GPU-labelled zone 64.2°C ছিল। NPU-নির্দিষ্ট thermal sensor শনাক্ত হয়নি। Archive
 আগের path-এই ছিল; SHA-256
