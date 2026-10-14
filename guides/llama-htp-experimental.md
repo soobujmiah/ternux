@@ -59,9 +59,14 @@ HMX does not support FP16, and a separate v75 report about a flash-attention
 queue race. These are related diagnostic leads from different devices, not a
 confirmed root cause for SM8735: [SM7750 HMX report](https://github.com/ggml-org/llama.cpp/issues/29473),
 [SM8650 flash-attention report](https://github.com/ggml-org/llama.cpp/issues/26759).
-The device's HMX FP16 capability, full HVX operator coverage, and flash-attention
-operator correctness still need separate checks. The HTP launcher therefore
-continues to force HVX matmul with flash attention off.
+The device's HMX FP16 capability and full HVX operator coverage still need
+separate checks. A `FLASH_ATTN_EXT` run with `GGML_HEXAGON_MM_SELECT=1` was
+bounded at 120 seconds and recorded 1,848 infinite numerical-error cases and
+112 passing cases among 4,660 output lines before timeout (exit 124). The suite
+was incomplete, not a pass; the child stopped and the broker closed the CDSP
+session cleanly. Flash-attention operator correctness is therefore still
+unqualified. The HTP launcher continues to force HVX matmul with flash
+attention off.
 
 ## Requirements
 

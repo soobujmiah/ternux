@@ -43,6 +43,14 @@ capability নেই—তার প্রমাণ নয়। আলাদা
 আলাদা flash-attention operator check। Command ও artifact provenance আছে
 [experimental HTP guide](../guides/llama-htp-experimental.md#সর্বশেষ-operator-check)-এ।
 
+`GGML_HEXAGON_MM_SELECT=1` দিয়ে HVX matmul বেছে নিয়ে আলাদা
+`FLASH_ATTN_EXT` operator run ১২০ সেকেন্ডের সীমায় থামানো হয়েছে। ৪,৬৬০টি
+case-output line-এর মধ্যে ১,৮৪৮টিতে numerical error (`inf`) এবং ১১২টি pass দেখা
+গেছে; timeout exit 124। Suite শেষ হয়নি, তাই এটি observed failure signal এবং
+অসম্পূর্ণ run—পূর্ণ suite result নয়। Brokered child থামানো হয়েছে এবং CDSP
+session cleanly close হয়েছে। Launcher-এ flash attention বন্ধই আছে; এই operator
+correctness এখনও qualify হয়নি।
+
 QNN archive-এর graph CPU/GPU support প্রমাণ করে না; প্রতিটি backend-এর compatible
 weight/backend pair আলাদা। HTP-এর জন্য compiled `.bin` context CPU/GPU-তে নিজে
 থেকে portable নয়। Valid prerequisite না থাকলে BLOCKED লিখুন; না-চালানো test-কে
