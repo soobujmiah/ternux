@@ -620,11 +620,27 @@ glxinfo | grep "renderer string"
 | `llvmpipe` | CPU software rendering |
 | blank/error | diagnose the display or GL stack first |
 
+## Optional tools and release extensions
+
+This command-by-command route sets up the Termux/PRoot desktop; it does not
+install Ternux's managed host CLI. For Debian package workloads and their manual
+commands, see [Workloads](WORKLOADS.html). For ADT, follow the
+[ADT setup section](INSTALLATION.html#install-adt-tools-inside-the-ternux-debian-guest).
+
+The CPU + Vulkan prerelease has a separate
+[manual, checksum-verified installation guide](https://github.com/soobujmiah/ternux/blob/main/guides/llama-vulkan-extension.md).
+The experimental HTP package uses `ternux extension install` from the Termux
+host and is not part of this manual-only setup; read the
+[HTP limits and installation guide](https://github.com/soobujmiah/ternux/blob/main/guides/llama-htp-experimental.md)
+before using it. Stable Diffusion/QNN remains a standalone experiment, not an
+installable Ternux extension.
+
 ---
 
 ## Uninstalling
 
-Use the scoped route so the target and confirmation are explicit:
+If you used the one-command installer and have the Ternux CLI, use its scoped
+uninstaller:
 
 ```bash
 ternux uninstall                 # interactive component choice
@@ -636,6 +652,15 @@ ternux uninstall all             # four scoped targets; back up first
 Termux packages, the ternux CLI/libraries, repository/storage choices and the
 Termux PulseAudio configuration. In automation, pass `--yes` only as an explicit
 acknowledgement of irreversible container deletion.
+
+The manual-only steps above do not install that CLI. To remove a manual setup,
+run the scoped uninstaller from Termux:
+
+```bash
+curl -fsSL https://soobujmiah.github.io/ternux/uninstall.sh | bash
+```
+
+It prompts for the cleanup targets. Review each target before confirming.
 
 ---
 

@@ -145,9 +145,10 @@ The experimental llama.cpp HTP release is an optional Linux ARM64 artifact,
 not a Ternux installer or a Debian root filesystem. Set up Ternux first. The
 artifact also needs the separately established Android Binder/FastRPC broker;
 it is not included in the archive. The default/HMX and flash-attention paths
-returned wrong answers. HVX matmul with flash attention off passed bounded
-known-answer and long recall-key checks, but HTP remains experimental and
-unsupported. See the [current release gate](ACCELERATOR-RELEASE-PLAN.html) and
+returned wrong answers. HVX-only matmul with flash attention disabled passed
+bounded known-answer and long recall-key checks on the tested device. Explicit
+HVX flash attention still has seven reproducible numerical-error cases, so HTP
+remains experimental and unsupported. See the [current release gate](ACCELERATOR-RELEASE-PLAN.html) and
 [repository-only detailed evidence](https://github.com/soobujmiah/ternux/blob/main/guides/device-benchmark-evidence.md#experimental-llamacpp-hexagon-htp-artifact-for-sm8735).
 
 ADT's Android SDK tools have their own versions, build records and canonical

@@ -14,7 +14,7 @@ shipped capability দাবি করে না।
 | ক্রম | কাজ | বর্তমান অবস্থা | Completion evidence |
 |---|---|---|---|
 | ১ | PRoot থেকে callable Android/Bionic QNN helper | Runtime/provider, backend/device, VAE context load/free ও encoder graph execution VERIFIED; generic HTP Add known-answer VERIFIED; model output correctness UNVERIFIED | Matching execution headers, tensor metadata, request/response ও known-output accelerator test |
-| ২ | বিদ্যমান QNN picture model | CLIP CPU, UNet/VAE HTP graph execution এবং fixed-seed SD1.5 generation SM8735-এ হয়েছে। একই seed-এর 20-step output repeat হয়েছে; 25-image soak 25/25 সফল। Runner median/mean 29.76/31.12 s/image; UNet median/mean 15.96/17.03 s/20 step। Thermal peak: battery 41.9°C, `quiet_therm` 47.9°C, sampled GPU zone 64.2°C; NPU sensor শনাক্ত হয়নি। ২৫টি image-ই visual screen হয়েছে: image 01 full resolution-এ, বাকি ২৪টি contact sheet-এ। সবগুলো coherent landscape variation; image 01-এ ছোট cyan/black artifact, অন্যগুলোতে contact-sheet size-এ অনুরূপ স্পষ্ট defect দেখা যায়নি। এটি detailed full-resolution review নয়। Independent QNN tensor correctness UNVERIFIED। | CLIP/UNet/VAE stage tensor স্বাধীন expected value-র সঙ্গে তুলনা এবং supported configuration qualify |
+| ২ | বিদ্যমান QNN picture model | CLIP CPU, UNet/VAE HTP graph execution এবং fixed-seed SD1.5 generation SM8735-এ হয়েছে। 25-image soak 25/25 সফল; median/mean 29.76/31.12 s/image, UNet median/mean 15.96/17.03 s/20 step। তিনটি instrumented follow-up 30.797–31.122 s নিয়েছে। একটি profile-এ 880,827,736-byte UNet archive member memfd-এ stream/hash/seal করতে 7.275 s এবং ৪০টি serial HTP request-এ 17.015 s লেগেছে। একই seed repeat হয়েছে; ২৫টি image initial visual screen পেয়েছে, image 01-এ ছোট cyan/black artifact। বাকি ২৪টির full-resolution review ও independent stage-tensor correctness UNVERIFIED। | CLIP/UNet/VAE stage tensor স্বাধীন expected value-র সঙ্গে তুলনা, বাকি image review, measured performance gap তদন্ত ও optimize |
 | ৩ | Debian llama.cpp CPU/GPU/HTP | CPU/Vulkan known-answer pass। HVX-only `MUL_MAT` operator suite 1,389/1,389 pass; HMX `MUL_MAT`-এ 529টি `inf` failure। আগের default attention selection-এ HVX matmul-সহ `FLASH_ATTN_EXT` 120 s-এ timeout হওয়ার আগে 1,848 `inf` failure ও 112 pass দেখায়। পরে `GGML_HEXAGON_MM_SELECT=1` ও `GGML_HEXAGON_FA_SELECT=1` দিয়ে suite সম্পন্ন: 5,332 unique case-এর 2,593 pass, 2,732 unsupported, 7 finite numerical-error failure; filtered rerun-এ সাতটিই reproduce হয়েছে। Flash attention launcher-এ বন্ধই আছে। One-token test-এ HVX-only + flash attention off expected `4`; default attention selection-সহ আগের test ভুল token দিয়েছে। Exact-package known-answer, 31/31 layer assignment ও clean cancellation pass। এগুলো bounded GGUF/llama.cpp result; সব HTP operator qualify বা supported route নয়। | HMX/attention numerical error তদন্ত; অন্য HTP operator, failure/restart ও sustained stability qualify |
 | ৪ | Repeat ও sustained device qualification | SM8735-এ thermal status 0-সহ 600টি 720p/16-sample EEVEE frame; packaged CPU/Vulkan-এ তিনটি করে live-generation SIGINT clean-exit ও restart check pass। Exact HTP artifact bounded SIGINT-এ child থেমে `closeSession [0, 0]` দিয়েছে। আলাদা QNN SD1.5 mixed CPU/HTP pipeline 25/25 image-এর 17m36s soak সম্পন্ন করেছে; এটি নির্দিষ্ট experimental workload, সাধারণ NPU stability প্রমাণ নয়। failure/restart ও বিস্তৃত sustained CPU/NPU qualification বাকি। Automatic CPU fallback নেই। | supported path জুড়ে failure/restart ও sustained CPU/NPU আচরণ qualify |
 | ৫ | পুনর্ব্যবহারযোগ্য GitHub artifact | CPU/Vulkan ARM64 build ও ABI audit run `38521164812`-এ pass; exact archive isolated install ও CPU/Adreno Vulkan known-answer-ও pass। HTP run `38560288558` checksum, safe-path, isolated install, HTP0 known-answer ও cancellation pass। Metadata-corrected HTP run `38562008524` pass; checksum-verified archive-এ tested runtime payload অপরিবর্তিত, শুধু README/manifest metadata বদলেছে এবং `libcdsprpc.so` / `libfastrpc-dev` dependency যুক্ত হয়েছে। HTP experimental। | clean-driver install ও transitive license review; correctness ও compatibility gate খোলা রাখা |
@@ -25,11 +25,16 @@ shipped capability দাবি করে না।
 SD1.5 performance gap এখনো qualification item: Ternux QNN runner-এর median
 29.76 s/image; একই device-এর আলাদা Local Dream route-এ 512×512, ২০ step-এর মাপ
 5.7 s। Ternux result প্রায় 5.2× দীর্ঘ; model ও runtime আলাদা, তাই এটি controlled
-A/B test নয়। Ternux run-এ QNN HTP/DSP graph execution record আছে। Practical NPU
-image-generation path হিসেবে উপস্থাপনের আগে gap তদন্ত ও optimize করতে হবে।
-UNet-এর বাইরের median 13.848 s-এ CLIP, helper/context startup, VAE decode ও PNG
-output আছে; ২০ CFG step-এ বর্তমানে ৪০টি serial UNet graph request হয়। Device-এ
-এই খরচ profile এবং helper/context reuse পরীক্ষা করতে হবে।
+A/B test নয়। তিনটি instrumented follow-up image 30.797–31.122 s নিয়েছে। একটি
+30.797 s profile-এ 880,827,736-byte UNet member memfd-এ stream/hash/seal করতে
+7.275 s এবং ৪০টি serial HTP request-এ 17.015 s লেগেছে। Owner-এর প্রত্যাশা
+512×512 image প্রায় 3–5 s-এ তৈরি হওয়া; এটি তদন্তের target, প্রমাণিত capability
+বা guarantee নয়। Stable Diffusion এখনো Ternux extension নয়; owner extension
+packaging পরে করার সিদ্ধান্ত দিয়েছেন। [QNN performance handoff](../../handoffs/qnn-sd15-performance.md),
+[QNN correctness ও image review handoff](../../handoffs/qnn-sd15-correctness.md),
+এবং [HTP qualification handoff](../../handoffs/llama-htp-qualification.md) দেখুন।
+এই তিনটি repository-only continuation note; এটিই একমাত্র canonical
+accelerator/release roadmap, দ্বিতীয় roadmap তৈরি করবেন না।
 [Local Dream device evidence](https://github.com/soobujmiah/skb/blob/main/devices/redmi-turbo-4-pro/accelerator-access-audit.md)।
 
 ### HTP operator diagnostic (২০২৬-১০-১৪)

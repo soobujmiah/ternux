@@ -605,11 +605,28 @@ glxinfo | grep "renderer string"
 | `llvmpipe` | CPU software rendering |
 | blank/error | display বা GL stack আগে diagnose করুন |
 
+## ঐচ্ছিক tool ও release extension
+
+এই command-by-command পথ Termux/PRoot desktop তৈরি করে; এটি Ternux-এর managed
+host CLI install করে না। Debian package workload ও তার manual command-এর জন্য
+[ওয়ার্কলোড guide](WORKLOADS.html) দেখুন। ADT-এর জন্য
+[ADT setup অংশ](INSTALLATION.html#install-adt-tools-inside-the-ternux-debian-guest)
+অনুসরণ করুন।
+
+CPU + Vulkan prerelease-এর আলাদা
+[manual, checksum-verified install guide](https://github.com/soobujmiah/ternux/blob/main/bn/guides/llama-vulkan-extension.md)
+আছে। Experimental HTP package Termux host-এর `ternux extension install`
+ব্যবহার করে; এটি এই manual-only setup-এর অংশ নয়। ব্যবহারের আগে
+[HTP limit ও install guide](https://github.com/soobujmiah/ternux/blob/main/bn/guides/llama-htp-experimental.md)
+পড়ুন। Stable Diffusion/QNN এখনও standalone experiment; Ternux installable
+extension নয়।
+
 ---
 
 ## আনইনস্টল
 
-Scoped route ব্যবহার করুন, যাতে prompt ও target স্পষ্ট থাকে:
+One-command installer ব্যবহার করে Ternux CLI install করা থাকলে target ও
+confirmation স্পষ্ট রাখতে তার scoped uninstaller ব্যবহার করুন:
 
 ```bash
 ternux uninstall                 # interactive component choice
@@ -620,6 +637,15 @@ ternux uninstall all             # চার scoped target; আগে backup
 `container`/`all` Debian-এর ভেতরের সব data ধ্বংস করে। `all` চালালেও Termux
 package, ternux CLI/library, repository/storage choice ও Termux PulseAudio config
 থেকে যায়। Automation-এ `--yes` শুধু explicit irreversible confirmation হিসেবে দিন।
+
+উপরের manual-only ধাপগুলো CLI install করে না। Manual setup সরাতে Termux থেকে
+scoped uninstaller চালান:
+
+```bash
+curl -fsSL https://soobujmiah.github.io/ternux/uninstall.sh | bash
+```
+
+এটি কোন অংশ সরাবেন তা জিজ্ঞেস করবে। Confirm করার আগে প্রতিটি target দেখে নিন।
 
 ---
 
