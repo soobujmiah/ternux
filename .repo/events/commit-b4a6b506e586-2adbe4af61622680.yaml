@@ -1,0 +1,7 @@
+event_id: commit-b4a6b506e586-2adbe4af61622680
+repository: soobujmiah/ternux
+commit: b4a6b506e58665d543eb41a7ca7fa2940e74a666
+kind: commit
+occurred_at: '2026-10-14T14:22:17Z'
+status: completed
+summary: 'docs: record HTP operator and SD soak evidence (#22)'
