@@ -59,7 +59,8 @@ jobs:
             cmake --preset arm64-linux-snapdragon-release -B build-ternux-htp-b11582 &&
             cmake --build build-ternux-htp-b11582 -j 4 &&
             cmake --install build-ternux-htp-b11582 --prefix pkg-ternux-htp-b11582/llama.cpp &&
-            compiler=$(sed -n "s/^CMAKE_C_COMPILER:FILEPATH=//p" build-ternux-htp-b11582/CMakeCache.txt | head -n 1) &&
+            compiler=$(sed -n "s/^CMAKE_C_COMPILER:[^=]*=//p" build-ternux-htp-b11582/CMakeCache.txt | head -n 1) &&
+            test -n "$compiler" &&
             test -x "$compiler" &&
             "$compiler" -shared -fPIC -O2 -Wall -Wextra \
               /workspace/tools/llama-htp/broker_open.c \
