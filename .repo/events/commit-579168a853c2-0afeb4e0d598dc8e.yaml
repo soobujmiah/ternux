@@ -1,0 +1,7 @@
+event_id: commit-579168a853c2-0afeb4e0d598dc8e
+repository: soobujmiah/ternux
+commit: 579168a853c27b3e12201aac91a7ed1ad1a8b167
+kind: commit
+occurred_at: '2026-10-14T14:50:40Z'
+status: completed
+summary: 'docs: record explicit HVX flash attention results (#24)'
