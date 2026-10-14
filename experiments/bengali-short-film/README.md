@@ -13,8 +13,7 @@ the characters, the rally and every sound come out of these scripts.
 
 | Piece | Install | Why |
 |---|---|---|
-| Blender 4.3.2 | `--with-blender` | EEVEE Next is the only GPU engine on Adreno |
-| `xvfb` | `sudo apt install -y xvfb` | a GL context without an X11 app on screen |
+| Blender 4.3.2 + Xvfb | `--with-blender` | EEVEE Next is the only GPU engine on Adreno; Xvfb supplies the headless GL context |
 | `ffmpeg` | `sudo apt install -y ffmpeg` | encode, caption and mux |
 | Python `onnxruntime` + `numpy` | a venv, ~22 MB | runs the Bengali speech model on the CPU |
 | MMS-TTS Bengali ONNX | ~114 MB, see below | the voices |

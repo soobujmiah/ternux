@@ -105,7 +105,7 @@ Options:
   --with-llm           Build llama.cpp with Vulkan
   --with-network       Install network tools
   --with-media         Install media tools
-  --with-blender       Install Blender
+  --with-blender       Install Blender and headless Xvfb support
   --all                Install all optional workloads
   --resume             Continue an interrupted install
   --ui MODE            Renderer: auto, dashboard, plain or off (default: auto)

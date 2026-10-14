@@ -32,8 +32,9 @@ and knowledge-return baseline. This file defines only Ternux-specific rules.
   SD1.5 experiment.
 - **Blender render default on the established Termux/PRoot Redmi workstation:**
   use EEVEE Next with Adreno GPU offload through Zink/Turnip. For headless
-  rendering, ensure Xvfb is available and run Blender with `DISPLAY=:9`
-  `GALLIUM_DRIVER=zink` (see `experiments/cartoon-pipeline/README.md`). Do not
+  rendering, use `--with-blender` to install Blender and Xvfb, then run Blender
+  with `DISPLAY=:9` and `GALLIUM_DRIVER=zink` (see
+  `experiments/cartoon-pipeline/README.md`). Do not
   switch to Cycles or software rendering, or ask the owner to restate this
   preference. First verify the actual runtime and renderer; if this workstation
   path is unavailable, explain the limitation. Follow a different route only

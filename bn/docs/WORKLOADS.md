@@ -23,7 +23,7 @@ installer-এর একটি flag। Manual পথ হলো একই command 
 | লোকাল AI | `--with-llm` | Vulkan ও shader toolchain, তারপর `GGML_VULKAN=ON` দিয়ে llama.cpp **source থেকে build** |
 | নেটওয়ার্ক | `--with-network` | nmap, tmux |
 | মিডিয়া | `--with-media` | ffmpeg, GIMP, Audacity, ImageMagick |
-| Blender | `--with-blender` | Blender (`--no-install-recommends` দিয়ে প্রায় ৯৫ MB) |
+| Blender | `--with-blender` | headless EEVEE render-এর জন্য Blender ও Xvfb (Blender প্রায় ৯৫ MB, `--no-install-recommends` সহ) |
 | সবকিছু | `--all` | পাঁচটিই |
 
 বেস desktop — Xfce4, terminal, VLC, archive tool, Mesa utility, Vulkan tool —
@@ -78,11 +78,12 @@ sudo apt install -y ffmpeg gimp audacity imagemagick
 **Blender**
 
 ```bash
-sudo apt install -y --no-install-recommends blender
+sudo apt install -y --no-install-recommends blender xvfb
 ```
 
 `--no-install-recommends` প্রায় ২৩ MB speech-synthesis package বাদ দেয়, যা
-Blender-এর লাগে না। Render করার আগে পড়ুন
+Blender-এর লাগে না। Xvfb পরীক্ষিত headless Zink/Turnip route-এর virtual X11
+context দেয়। Render করার আগে পড়ুন
 [গ্রাফিক্স স্থায়িত্ব](GRAPHICS-PERSISTENCE.html): নতুন Adreno hardware-এ GPU পথ
 Debian-এর চেয়ে নতুন একটি Mesa driver-এর উপর নির্ভর করে, আর একটি package update
 সেটি সরিয়ে দিতে পারে।

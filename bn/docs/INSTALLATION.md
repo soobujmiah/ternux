@@ -297,7 +297,7 @@ Structured output শুধু [CLI reference](CLI.html)-এ নথিভুক�
 | ৬ | **অডিও, লোকেল, ফন্ট** | PulseAudio ব্রিজ (শুধু লুপব্যাক), লোকেল তৈরি, ইমোজি/পাওয়ারলাইন/নার্ড ফন্ট | শব্দ TCP দিয়ে কন্টেইনার সীমানা পাড়ি দেয় — লুপব্যাকেই সীমাবদ্ধ, নেটওয়ার্কে খোলা নয়; ফন্ট টার্মিনালে "টোফু বক্স" ঠেকায় |
 | ৭ | **লঞ্চার** | GPU পথ অনুযায়ী `~/x.sh` লেখা ও সিনট্যাক্স-চেক | এক কমান্ডে (`x`) অডিও → ডিসপ্লে → ডেস্কটপ নির্ভরযোগ্য ক্রমে শুরু হতেই হবে |
 | ৮ | **শর্টকাট** | `x`, `killx`, `db`, `droot`, `xgo`, `sysmon`, `clean-mesa` | প্রতিদিনের কাজের জন্য সহজ ও সরাসরি শর্টকাট তৈরি করে |
-| ৯ | **ঐচ্ছিক এক্সট্রা** | ডেভ টুলস, llama.cpp, নেটওয়ার্ক টুলস, মিডিয়া টুলস, Blender — শুধু যা চেয়েছেন | বেস ইনস্টল হালকা থাকুক; প্রতিটি প্রোফাইলের স্টোরেজ/তাপের খরচ আলাদা |
+| ৯ | **ঐচ্ছিক এক্সট্রা** | ডেভ টুলস, llama.cpp, নেটওয়ার্ক টুলস, মিডিয়া টুলস, headless EEVEE-র জন্য Blender + Xvfb — শুধু যা চেয়েছেন | বেস ইনস্টল হালকা থাকুক; প্রতিটি প্রোফাইলের স্টোরেজ/তাপের খরচ আলাদা |
 | ১০ | **Android safeguard check** | readable child-process setting পরীক্ষা ও version-aware guidance | signal 9 memory pressure বা OEM battery policy-ও হতে পারে; system-wide safeguard বদলানোর আগে evidence নিন |
 | ১১ | **যাচাইকরণ** | প্রতিটি গুরুত্বপূর্ণ বাইনারি, ফাইল ও অনুমতি সত্যিই আছে কিনা নিশ্চিত করা | পরিবেশটি চালু হওয়ার উপযোগী কিনা নিশ্চিত করে — `apt` শেষ হলেই ডেস্কটপ চালু হবে এমন নিশ্চয়তা থাকে না |
 
@@ -320,7 +320,7 @@ bash install.sh --with-dev          # Git, Node.js, Python, বিল্ড ট�
 bash install.sh --with-llm          # llama.cpp + Vulkan (লোকাল AI)
 bash install.sh --with-network      # nmap, tmux (শুধু অনুমোদিত পরীক্ষা)
 bash install.sh --with-media        # ffmpeg, GIMP, Audacity, ImageMagick
-bash install.sh --with-blender      # Blender (হালকা সিন)
+bash install.sh --with-blender      # headless EEVEE render-এর জন্য Blender + Xvfb
 bash install.sh --all               # সব ঐচ্ছিক প্রোফাইল
 bash install.sh --resume            # বিঘ্নের পর আবার চালু
 bash install.sh --version | --help
@@ -330,11 +330,9 @@ bash install.sh --version | --help
 প্রত্যেকটির manual সমতুল্য — installer চালাতে দেওয়ার আগে কাজে লাগে, আর ব্যর্থ একটি
 workload হাতে শেষ করার পথও এটিই।
 
-প্রতিষ্ঠিত Adreno workstation-এ headless Blender render-এর জন্য Debian-এর ভেতরে
-Xvfb install করুন: `sudo apt install -y xvfb`; Blender-এ Zink/Turnip GPU offload-সহ
-EEVEE Next ব্যবহার করুন। [Blender usage guide](USAGE.html)-এ দরকারি display
-variable ও পরীক্ষিত command আছে। Xvfb optional rendering dependency; এটি
-`--with-blender` install করে না।
+প্রতিষ্ঠিত Adreno workstation-এ `--with-blender` headless EEVEE Next render-এর
+জন্য Xvfb-ও install করে; GPU offload চলে Zink/Turnip দিয়ে। দরকারি display
+variable ও পরীক্ষিত command [Blender usage guide](USAGE.html)-এ আছে।
 
 ইনস্টলের পর `ternux` CLI ব্যবহার করুন ডায়াগনস্টিক ও ব্যবস্থাপনার জন্য:
 
