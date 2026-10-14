@@ -111,7 +111,10 @@ helper through `/system/bin/linker64`; the Debian llama.cpp build uses a Linux
 ARM64/glibc toolchain. No native Termux include or compiler path is part of the
 supported build. The earlier exploratory device result used Termux Clang and is
 kept as historical evidence only. The CI-built ELF subsequently repeated the
-device checks; the artifact is still experimental, not a release package.
+device checks. A verified copy is preserved as the
+[experimental QNN native probe prerelease](https://github.com/soobujmiah/ternux/releases/tag/ternux-qnn-native-probe-sm8735-2026-10-14).
+This is a test/reproducibility artifact, not a supported product release or an
+installable extension; it contains no model or Qualcomm runtime libraries.
 
 The pinned NDK build passed [run 38405297620](https://github.com/soobujmiah/ternux/actions/runs/38405297620)
 at commit `ddbece7009ab5d062d312da3999c1c6c70205a6e`. Its artifact is
@@ -124,6 +127,14 @@ were downloaded to isolated scratch. After unzipping, run
 AArch64 ELF and rejected Termux-specific RUNPATHs. The downloaded CI ELF has
 only `libc.so` and `libdl.so` dependencies, no RUNPATH, and passed physical
 device checks on SM8735. No Qualcomm library or model is in it.
+
+The post-merge reproducibility build, [run 38499747244](https://github.com/soobujmiah/ternux/actions/runs/38499747244),
+produced the same three AArch64 helper executables. Its verified package is
+preserved in the prerelease above because Actions artifacts expire after 14
+days. Archive SHA-256:
+`805a4a97fb17cb6e3e1795b9e14bc9ec1a9a0c973a2155a6bfbf0a6b744819c9`.
+This new build was not run on the physical device; device claims above remain
+based on the earlier, separately identified CI artifacts and device checks.
 
 ```bash
 # In PRoot, after the authorized artifact is in scratch and checksums pass:
