@@ -1,27 +1,28 @@
 # ternux documentation source
 
-This directory contains the English source for the published documentation.
-The Bengali mirror is [`bn/docs/`](../bn/docs/README.md); user-facing behavior,
-navigation order, warnings, commands, and evidence boundaries must stay aligned.
+The root README and English/Bengali website home pages are the short install
+and basic-usage entry points. This directory contains the repository's deep
+guides and the corresponding published documentation pages. The Bengali mirror
+is [`bn/docs/`](../bn/docs/README.md); behavior, commands and warnings must stay
+aligned across the paired pages.
 
-**Published hub:** <https://soobujmiah.github.io/ternux/docs/>
+The GitHub repository is the canonical home for deep technical documentation.
+The website landing page and root README provide the same compact install and
+basic-usage path, then link here for details.
 
 ## Information architecture
 
 | Section | Pages |
 |---|---|
 | Start here | `QUICK-START.md`, `INSTALLATION.md`, `MANUAL.md` |
-| Repository deep guides | `../guides/`, `../bn/guides/` (source repository only; not rendered on the website) |
+| Repository deep guides | [`../guides/device-benchmark-evidence.md`](../guides/device-benchmark-evidence.md), [`../guides/llama-vulkan-extension.md`](../guides/llama-vulkan-extension.md), matching `../bn/guides/` pages (source repository only; not rendered on the website) |
 | Operate | `USAGE.md`, `CONFIGURATION.md`, `TROUBLESHOOTING.md` |
 | Understand | `ARCHITECTURE.md`, `BENCHMARKS.md`, `FAQ.md` |
 | Reference | `CLI.md`, root `CHANGELOG.md`, root `CONTRIBUTING.md` |
 
-`QUICK-START.md` carries the website's short optional llama.cpp extension path.
-The paired repository guides carry release verification and automatic/manual
-installation detail, so the website does not duplicate the deep procedures.
-`index.md` is the task-based published hub. `_data/docs.yml` is the canonical
-sidebar and page-order model; English and Bengali lists must remain structurally
-identical.
+`index.md` and `_data/docs.yml` support the published guide pages. Keep the
+English and Bengali guide sets structurally paired. The top-level website must
+stay a short install/use page and point here instead of restating these guides.
 
 ## Authoring contract
 
@@ -34,6 +35,18 @@ identical.
 7. Link workload/tool cards to the upstream repositories.
 8. Update both landing pages, README maps, navigation data, and sitemap when relevant.
 9. Run the validation listed in [`CONTRIBUTING.md`](../CONTRIBUTING.md).
+10. Keep published benchmark pages to concise result summaries; put full device
+    procedures, audit details, raw-log locations and dated experiment history in
+    repository-only guides or experiment records, then link to that canonical
+    detail instead of copying it into the site page.
+
+## Build and documentation updates
+
+CI automatically refreshes the machine-generated operational state in `.repo/`
+after eligible builds on `main` (or a manual workflow dispatch). Pull-request
+runs validate and report state but do not commit generated updates. CI cannot
+infer human-authored explanations, decisions, limitations or reproduction
+steps: update those canonical docs in the same change that alters the behavior.
 
 The site shell is `_layouts/default.html`; shared presentation and behavior live in
 `assets/css/ternux.css`, `assets/js/docs.js`, and `assets/js/codecopy.js`. Do not add

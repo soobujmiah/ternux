@@ -14,3 +14,4 @@ __pycache__/
 .local/share/ternux/
 .ternux-state
 __pycache__/
+/artifacts/

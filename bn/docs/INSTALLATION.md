@@ -120,8 +120,12 @@ Ternux environment বসাতে [দ্রুত শুরু](QUICK-START.ht
 
 পরীক্ষামূলক llama.cpp HTP release হলো ঐচ্ছিক Linux ARM64 artifact—Ternux
 installer বা Debian root filesystem নয়। আগে Ternux setup করুন। Artifact চালাতে
-আলাদা Android Binder/FastRPC broker-ও দরকার; archive-এ সেটি নেই। এর
-known-output test বর্তমানে fail করে; ফলাফল [Benchmarks](BENCHMARKS.html)-এ আছে।
+আলাদা Android Binder/FastRPC broker-ও দরকার; archive-এ সেটি নেই। Default/HMX
+ও flash-attention path-এ ভুল উত্তর এসেছে। HVX matmul ও flash attention বন্ধ
+রেখে bounded known-answer এবং long recall-key check pass করেছে; তবু HTP
+experimental, supported নয়। [বর্তমান release gate](ACCELERATOR-RELEASE-PLAN.html)
+ও [repository-only বিস্তারিত evidence](https://github.com/soobujmiah/ternux/blob/main/bn/guides/device-benchmark-evidence.md#experimental-llamacpp-hexagon-htp-artifact-for-sm8735)
+দেখুন।
 
 ইনস্টলের শেষ পর্দায় `ternux guides` দেখানো হয়। ইনস্টলের পর Termux অথবা Debian/Xfce terminal-এ `ternux guides` চালালে environment, manual setup, ecosystem tool installation এবং daily-use guide-এর সরাসরি link দেখা যায়। কমান্ডটি কিছু install করে না।
 
@@ -209,10 +213,11 @@ runtime library, firmware বা Binder/FastRPC broker নেই। HTP চা�
 `libcdsprpc.so` এবং Android-side broker থেকে অনুমোদিত CDSP file descriptor
 লাগবে। SM8735-এ দেখানো পদ্ধতিটি আলাদা experimental probe ব্যবহার করে; এই
 release-এ স্বয়ংসম্পূর্ণ HTP launcher নেই। `/dev/fastrpc-cdsp`-এর permission
-বদলাবেন না। Broker থাকলেও এই build-এর known-answer test ভুল text দিয়েছে।
-আলাদা `ADD` ও F32 `MUL_MAT` check pass করেছে, কিন্তু Q4_0×F32 matrix test একই
-build-এর CPU result-এর সঙ্গে মেলেনি; বিস্তারিত [benchmark record](BENCHMARKS.html)-এ।
-HTP চেষ্টা করার আগে সেটি পড়ুন; এটি সঠিক বা production-ready inference package নয়।
+বদলাবেন না। Default/HMX ও flash-attention configuration-এ ভুল text
+এসেছে। HVX matmul ও flash attention বন্ধ রেখে bounded known-answer এবং long
+recall-key check pass করেছে, কিন্তু এতে package supported হয় না। [Release gate](ACCELERATOR-RELEASE-PLAN.html)
+ও [repository-only বিস্তারিত evidence](https://github.com/soobujmiah/ternux/blob/main/bn/guides/device-benchmark-evidence.md#experimental-llamacpp-hexagon-htp-artifact-for-sm8735)
+দেখুন।
 
 Extract করা artifact সরাতে, আগে `llama.cpp` process বন্ধ করে চালান:
 
@@ -324,6 +329,12 @@ bash install.sh --version | --help
 [ওয়ার্কলোড](WORKLOADS.html) পৃষ্ঠায় আছে প্রতিটি `--with-*` flag ঠিক কী বসায়, এবং
 প্রত্যেকটির manual সমতুল্য — installer চালাতে দেওয়ার আগে কাজে লাগে, আর ব্যর্থ একটি
 workload হাতে শেষ করার পথও এটিই।
+
+প্রতিষ্ঠিত Adreno workstation-এ headless Blender render-এর জন্য Debian-এর ভেতরে
+Xvfb install করুন: `sudo apt install -y xvfb`; Blender-এ Zink/Turnip GPU offload-সহ
+EEVEE Next ব্যবহার করুন। [Blender usage guide](USAGE.html)-এ দরকারি display
+variable ও পরীক্ষিত command আছে। Xvfb optional rendering dependency; এটি
+`--with-blender` install করে না।
 
 ইনস্টলের পর `ternux` CLI ব্যবহার করুন ডায়াগনস্টিক ও ব্যবস্থাপনার জন্য:
 

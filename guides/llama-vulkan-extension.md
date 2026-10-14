@@ -20,7 +20,7 @@ keeps only the shortest setup path; this page is the detailed reference.
   their current location. Vulkan needs a functioning system Vulkan ICD; on the
   tested Adreno setup, the device was `Vulkan0`.
 - This is a device-validated prerelease, not a claim of clean-device driver
-  qualification or long-session stability. See the [benchmark evidence](https://soobujmiah.github.io/ternux/docs/BENCHMARKS.html#2026-10-14-published-vulkan-extension-install-and-inference).
+  qualification or long-session stability. See the [device qualification record](#device-qualification-record).
 
 ## Route A: automatic install (recommended)
 
@@ -191,3 +191,40 @@ rm -rf -- "$HOME/.local/opt/ternux-extensions/llama-vulkan"
 For the manual route, substitute the versioned path
 `llama-vulkan-b11582`. Model weights and the cached release archive are separate
 and are not removed by these commands.
+
+## Device qualification record
+
+On 2026-10-14, I installed the published archive through
+`ternux extension install llama-vulkan` into a new isolated Debian guest home;
+my workstation install and the existing Qwen2.5 1.5B Q4_0 model were left in
+place. The archive checksum is recorded above. The package manifest identifies
+the pinned llama.cpp commit and device validation; the package contains its
+upstream MIT license, uses `$ORIGIN/../lib`, and had no unresolved dynamic
+dependencies in Debian PRoot.
+
+I audited all 69 ELF files in the extracted archive offline: all were AArch64,
+used `$ORIGIN/../lib`, and required no GLIBC symbol newer than 2.38. The audit
+confirmed the package-local dependencies and the upstream license. The system
+runtime needs OpenSSL 3 (`libssl3` or `libssl3t64`), `libgomp1`, and
+`libvulkan1`; the installer checks their shared libraries and the glibc minimum
+before downloading. The current release workflow includes this ABI audit, but
+its latest successful artifact run predates the audit step. [Run #3](https://github.com/soobujmiah/ternux/actions/runs/38457240250)
+succeeded on 2026-10-13 at commit `b568b9f`; it is not evidence that the new
+audit step has passed. A fresh artifact build remains open.
+
+Using the existing model in place, the installed package returned `4` for the
+same greedy `2 + 2` prompt on CPU (`-ngl 0`) and Vulkan
+(`-dev Vulkan0 -ngl 99`). Verbose Vulkan output identified Adreno 825 and
+assigned all 29/29 layers. A reinstall attempt preserved the existing binary
+hash and returned the expected already-installed error. Local logs are retained
+under `/home/sbj/npu-probe-2026-10-13/ternux-vulkan-device-test/`.
+
+In a separate bounded cancellation series, I sent SIGINT during live CPU and
+Vulkan generation three times per backend. Each process stopped with exit 0;
+fresh known-answer runs on both backends returned `4`. Intermediate attempts
+interrupted immediately after seeing `4` had signal exits and are excluded from
+the clean-stop result. At the end, battery temperature was 41.1 C, sampled skin
+temperature 44.1 C, hottest sampled CPU 76.8 C, and Android thermal status 0.
+This does not establish long-duration stability, NPU cancellation, system
+fallback, or clean-device graphics setup. Detailed logs and the run method are
+in the same local scratch directory.
