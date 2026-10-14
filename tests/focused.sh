@@ -1209,7 +1209,7 @@ cp "$EXT_FIXTURE/${url##*/}" "$out"
 EOF
 cat > "$EXT_BIN/ldconfig" <<'EOF'
 #!/bin/sh
-for library in libssl.so.3 libcrypto.so.3 libgomp.so.1 libvulkan.so.1 libgbinder.so.1 libglibutil.so.1 libcdsprpc.so.1; do
+for library in libssl.so.3 libcrypto.so.3 libgomp.so.1 libvulkan.so.1 libgbinder.so.1 libglibutil.so.1 libcdsprpc.so.1 libcdsprpc.so; do
   [ "$library" = "${EXT_MISSING_LIBRARY:-}" ] || printf '%s (libc6,AArch64) => /usr/lib/%s\n' "$library" "$library"
 done
 EOF
@@ -1255,8 +1255,20 @@ if ! env HOME="$TMP/ext-home-htp-missing" EXT_MISSING_LIBRARY=libcdsprpc.so.1 \
 else
   not_ok "HTP extension checks Binder/FastRPC runtime libraries before download"
 fi
+if ! env HOME="$TMP/ext-home-htp-missing-dev" EXT_MISSING_LIBRARY=libcdsprpc.so \
+  EXT_CURL_LOG="$TMP/ext-htp-missing-dev-downloads" EXT_FIXTURE="$EXT_FIXTURE" \
+  PATH="$EXT_BIN:$PATH" TERNUX_STATE_DIR="$TMP/ext-state-htp-missing-dev" \
+  bash "$ROOT/bin/ternux" extension install llama-htp-experimental >/dev/null 2>&1 &&
+  [ ! -e "$TMP/ext-home-htp-missing-dev/.local/opt/ternux-extensions" ] &&
+  [ ! -e "$TMP/ext-htp-missing-dev-downloads" ]; then
+  ok "HTP extension requires the unversioned FastRPC loader name before download"
+else
+  not_ok "HTP extension requires the unversioned FastRPC loader name before download"
+fi
+: > "$EXT_FIXTURE/libcdsprpc.so"
 if env HOME="$TMP/ext-home-htp" EXT_GLIBC_VERSION=2.38 EXT_CURL_LOG="$TMP/ext-htp-downloads" \
   EXT_FIXTURE="$EXT_FIXTURE" PATH="$EXT_BIN:$PATH" \
+  LD_LIBRARY_PATH="$EXT_FIXTURE" \
   TERNUX_STATE_DIR="$TMP/ext-state-htp" bash "$ROOT/bin/ternux" extension install llama-htp-experimental >/dev/null 2>&1 &&
   [ -x "$TMP/ext-home-htp/.local/opt/ternux-extensions/llama-htp-experimental/bin/htp-run" ] &&
   [ -f "$TMP/ext-home-htp/.local/opt/ternux-extensions/llama-htp-experimental/libexec/htp-broker.py" ] &&

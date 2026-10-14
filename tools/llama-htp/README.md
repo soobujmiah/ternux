@@ -7,11 +7,12 @@ passes that descriptor only to the launched llama.cpp process. The adapter
 never changes `/dev/fastrpc-cdsp` permissions.
 
 The route is device-specific and experimental. It pins the known-output-safe
-llama.cpp settings observed on SM8735: HVX matmul selected with
-`GGML_HEXAGON_MM_SELECT=1`, all model layers offered to HTP, and flash attention
-off. HMX and flash-attention combinations have returned wrong output. Other
-models, SoCs, cancellation, fallback, and sustained operation need independent
-qualification. Do not describe this extension as supported NPU inference.
+llama.cpp settings observed on SM8735: explicit `HTP0` device selection, HVX
+matmul selected with `GGML_HEXAGON_MM_SELECT=1`, all model layers offered to
+HTP, and flash attention off. HMX and flash-attention combinations have
+returned wrong output. Other models, SoCs, cancellation, fallback, and sustained
+operation need independent qualification. Do not describe this extension as
+supported NPU inference.
 
 The broker handles terminal SIGINT/SIGTERM/SIGHUP by forwarding the signal to
 the isolated inference process group, escalating to TERM/KILL after bounded
@@ -19,8 +20,14 @@ waits, closing the CDSP session, and returning a signal-style exit status. The
 device test must verify `closeSession` after cancellation before this behavior
 can be called qualified.
 
-Runtime dependencies are Debian's `libgbinder1`, `libglibutil1`, and
-`libfastrpc1` packages, plus Python 3. The archive includes only Ternux's
+The launcher keeps `ADSP_LIBRARY_PATH` scoped to its package library directory
+so unrelated host library directories cannot shadow the packaged Hexagon
+skeleton. It also requires the unversioned `libcdsprpc.so` loader name; on
+Debian this is supplied by `libfastrpc-dev` alongside `libfastrpc1`.
+
+Runtime dependencies are Debian's `libgbinder1`, `libglibutil1`, `libfastrpc1`,
+and `libfastrpc-dev` packages, plus Python 3. `libfastrpc-dev` supplies the
+unversioned `libcdsprpc.so` name that llama.cpp opens. The archive includes only Ternux's
 launcher, Binder client, and small FastRPC open interposer; it does not bundle
 Qualcomm libraries, firmware, models, or Android permissions.
 

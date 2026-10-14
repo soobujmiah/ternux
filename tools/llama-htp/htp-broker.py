@@ -52,7 +52,10 @@ def run_child(lib: C.CDLL, command: list[str]) -> int:
         if manager_client is None:
             return True
         req = new_request(manager_client)
-        append_int(req, 1)  # closeSession()
+        # closeSession(DSPDomain) takes the same non-null parcelable as
+        # openSession(DSPDomain): presence marker, parcelable size, CDSP ID.
+        for value in (1, 8, 3):
+            append_int(req, value)
         transport = C.c_int(-999)
         response = transact(manager_client, 1, req, C.byref(transport))
         values: list[int] = []
@@ -208,8 +211,8 @@ def run_child(lib: C.CDLL, command: list[str]) -> int:
             unref_request(request)
         if client:
             unref_client(client)
-        if service:
-            unref_object(service)
+        # get_service_sync() returns the service object owned by the service
+        # manager; releasing the manager below releases that borrowed object.
         if service_manager and unref_manager:
             unref_manager(service_manager)
         for sig, handler in previous_handlers.items():

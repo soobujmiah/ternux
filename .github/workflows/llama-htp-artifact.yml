@@ -131,15 +131,17 @@ jobs:
           Binder/FastRPC broker launcher configured for the constrained HVX
           matmul / flash-attention-off route. See HTP-EXPERIMENTAL-README.md.
           Some HMX and flash-attention combinations returned incorrect text;
-          cancellation and fallback still require device qualification. This
+          source-level cancellation passed a bounded device check, while
+          exact-artifact cancellation and fallback behavior still need
+          qualification. This
           package does not claim supported or production-ready NPU inference.
 
           Upstream license texts and their source paths are indexed under upstream-licenses/.
 
           The package does not include Qualcomm vendor libraries, firmware,
-          or device permission changes. Install libgbinder1, libglibutil1, and
-          libfastrpc1 in Debian before running bin/htp-run. Do not change device
-          node permissions. No model weights are bundled.
+          or device permission changes. Install libgbinder1, libglibutil1,
+          libfastrpc1, and libfastrpc-dev in Debian before running bin/htp-run.
+          Do not change device node permissions. No model weights are bundled.
           EOF
           cat > release/ternux-llama-htp-sm8735-b11582/build-manifest.json <<'EOF'
           {
@@ -211,7 +213,8 @@ jobs:
           libraries, plus the experimental Ternux Binder/FastRPC launcher.
           Intended for experimental validation on Snapdragon 8s Gen 4 (SM8735)
           from Ternux/PRoot. Install Debian runtime dependencies
-          `libgbinder1`, `libglibutil1`, and `libfastrpc1` first.
+          `libgbinder1`, `libglibutil1`, `libfastrpc1`, and `libfastrpc-dev`
+          first.
 
           **Known limitation:** the upstream b11582 backend returned wrong
           answers with HMX-selected matmul and with flash attention enabled.
