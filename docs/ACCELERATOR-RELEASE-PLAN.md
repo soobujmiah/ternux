@@ -27,6 +27,29 @@ describe shipped capabilities.
 | 7 | CLI and installation screen polish | Repository UI renderer suite passes 24/24 portrait, landscape and resize checks; generated CLI guide links now expose the CPU/Vulkan quick and deep guides. Human visual/usability validation on the phone remains pending. | Clear mobile layout, meaningful status/error text, interactive/unattended paths and owner visual/usability validation |
 | 8 | Complete Ternux version release | HELD | All prior gates satisfied, accurate support matrix, required CI, installed-artifact device tests and final documentation |
 
+### HTP operator diagnostics (2026-10-14)
+
+The exact Linux ARM64 artifact from workflow run `38567329752` was tested
+through the Ternux Binder/FastRPC broker on the SM8735 device. With default
+HMX selection, `test-backend-ops -b HTP0 -o MUL_MAT` completed with **529
+failing cases**, each reporting an infinite error; the device reported Hexagon
+v73, HMX present, and 8 MB VTCM. With `GGML_HEXAGON_MM_SELECT=1`, the HVX-only
+`MUL_MAT` suite ran for a bounded 180 seconds and recorded 2,389 case outputs
+without an error before the timeout. That partial run is **incomplete**, not a
+suite pass. Both broker sessions closed with `closeSession [0, 0]`.
+
+This isolates a real HMX `MUL_MAT` correctness failure on this device, but does
+not identify its hardware or kernel cause. An upstream v73 report documents a
+similar HMX failure on a different SM7750 device with no FP16 HMX; that is a
+diagnostic lead, not proof that SM8735 has the same capability. A separate
+upstream v75 report describes a race in HMX flash attention. See the
+[SM7750 HMX report](https://github.com/ggml-org/llama.cpp/issues/29473) and
+[SM8650 flash-attention report](https://github.com/ggml-org/llama.cpp/issues/26759).
+The next HTP gates are an SM8735 HMX FP16 capability probe, a complete HVX
+operator run, and separate flash-attention operator checks. Full commands and
+artifact provenance are in the
+[experimental HTP guide](../guides/llama-htp-experimental.md#latest-operator-checks).
+
 For order 2, the existing QNN archive cannot establish CPU/GPU execution: those
 paths need compatible weights/backend pairs of their own. A `.bin` context
 compiled for HTP is not automatically portable to a CPU or GPU backend. Record

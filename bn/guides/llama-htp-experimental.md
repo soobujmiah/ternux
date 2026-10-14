@@ -33,6 +33,34 @@ bাকি। Restart, অন্য model/SoC, optimized HTP configuration ও s
 [accelerator release plan](../../docs/ACCELERATOR-RELEASE-PLAN.md) এবং
 [device benchmark record](device-benchmark-evidence.md)-এ আছে।
 
+## সর্বশেষ operator check
+
+২০২৬-১০-১৪-এ workflow run `38567329752`-এর Linux ARM64 package
+(SHA-256 `7eb99a5532c2741fce2b84c757b9182bd69c891d907513c67f51e0c51e4c2211`)
+দিয়ে Redmi Turbo 4 Pro / SM8735-এ operator check হয়েছে। Broker CDSP
+descriptor পেয়েছে এবং দুই run-ই clean session close করেছে। Local Debian runtime-এ
+আগে থেকে extracted `libgbinder`, `libglibutil` ও FastRPC file ব্যবহার হয়েছে;
+আলাদা scratch symlink দিয়ে `libcdsprpc.so` unversioned নাম দেওয়া হয়েছে—সাধারণত
+এটি `libfastrpc-dev` package দেয়। কোনো package install বা Ternux runtime
+configuration পরিবর্তন হয়নি।
+
+Default HMX matmul selection-এ `test-backend-ops -b HTP0 -o MUL_MAT` চালিয়ে ৫২৯টি
+failing case পাওয়া গেছে। সব numerical error `inf`; backend result **FAIL**। HTP
+hardware তথ্য v73, HMX উপস্থিত, 8 MB VTCM। একই operator suite-এ
+`GGML_HEXAGON_MM_SELECT=1` (HVX-only matmul) দিলে ১৮০ সেকেন্ড limit-এ ২,৩৮৯টি
+case output-এর পর থামানো হয়েছে। ওই অসম্পূর্ণ output-এ numerical failure দেখা
+যায়নি, তবে suite শেষ হয়নি—এটি pass নয়। দুই run-এ `closeSession [0, 0]` হয়েছে।
+
+এতে SM8735-এ HMX `MUL_MAT` correctness সমস্যা নিশ্চিত হয়, কিন্তু কারণ নিশ্চিত
+হয় না। Upstream-এ অন্য SM7750 v73 device-এর HMX FP16 support না থাকার সঙ্গে একই
+ধরনের failure report আছে; আরেক SM8650 v75 report-এ flash-attention queue race
+আছে। এগুলো অন্য device-এর diagnostic lead, SM8735-এর confirmed root cause নয়:
+[SM7750 HMX report](https://github.com/ggml-org/llama.cpp/issues/29473),
+[SM8650 flash-attention report](https://github.com/ggml-org/llama.cpp/issues/26759)।
+SM8735-এর HMX FP16 capability, সম্পূর্ণ HVX operator coverage এবং flash-attention
+operator correctness আলাদাভাবে যাচাই বাকি। তাই HTP launcher এখনও HVX matmul ও
+flash attention off রাখে।
+
 ## প্রয়োজনীয়তা
 
 - Ternux Debian ARM64 glibc guest; glibc 2.38 বা নতুন।
