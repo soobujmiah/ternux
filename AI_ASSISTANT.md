@@ -39,6 +39,13 @@ and knowledge-return baseline. This file defines only Ternux-specific rules.
   preference. First verify the actual runtime and renderer; if this workstation
   path is unavailable, explain the limitation. Follow a different route only
   when the owner requests it.
+- **Driving that render from an agent:** `tools/blender-gpu-mcp/` wraps exactly the
+  command above as an MCP server (`gpu_check`, `render_script`, `render_blend`),
+  so the environment cannot be silently lost between calls. Prefer it over
+  re-deriving `DISPLAY`/`GALLIUM_DRIVER` per shell-out, and run `gpu_check`
+  before reporting a render failure: `EGL_BAD_MATCH` means no display and
+  `Illegal instruction` means llvmpipe was selected — neither is a scene problem.
+  It keeps `--factory-startup`, so it does not change the measured baseline.
 - Update the canonical docs in the same change as behavior or evidence changes.
   CI refreshes generated `.repo/` state after eligible `main` builds; it cannot
   author or infer human-written explanations and decisions.

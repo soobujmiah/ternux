@@ -12,6 +12,18 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 
 ## [Unreleased]
 
+### Rendering from an agent
+
+- `tools/blender-gpu-mcp/` যোগ হয়েছে — পরীক্ষিত headless পথের
+  (`DISPLAY=:9 GALLIUM_DRIVER=zink blender -b --factory-startup`) উপর একটি MCP
+  server, তিনটি tool সহ: `gpu_check`, `render_script` ও `render_blend`। কেবল
+  Python standard library, কেবল local stdio, আর `--factory-startup` রাখা হয়েছে
+  যাতে মাপা baseline বদলে না যায়। GPU পথের দুটো ব্যর্থতা এটি নাম ধরে জানায় —
+  display না থাকলে `EGL_BAD_MATCH`, llvmpipe বেছে নেওয়া হলে
+  `Illegal instruction` — scene-এর দোষ বলে ভুল বোঝার সুযোগ না রেখে। মাপা হয়েছে
+  ২০২৬-১০-১৪: renderer `zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP))`, একটি
+  ৩২০×১৮০ EEVEE Next frame ২.৪৯ সেকেন্ডে।
+
 ### Accelerator qualification update
 
 - Pinned llama.cpp b11582 package-এ Qwen2.5 1.5B Q4_0 arithmetic known-answer prompt
