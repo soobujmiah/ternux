@@ -4,6 +4,7 @@
  */
 #include <dlfcn.h>
 #include <inttypes.h>
+#include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -431,6 +432,149 @@ cleanup:
     return result;
 }
 
+static int read_exact(int fd, void *buffer, size_t bytes) {
+    unsigned char *cursor = buffer;
+    while (bytes) {
+        ssize_t n = read(fd, cursor, bytes);
+        if (n <= 0) return 0;
+        cursor += (size_t)n;
+        bytes -= (size_t)n;
+    }
+    return 1;
+}
+
+static int write_exact(int fd, const void *buffer, size_t bytes) {
+    const unsigned char *cursor = buffer;
+    while (bytes) {
+        ssize_t n = write(fd, cursor, bytes);
+        if (n <= 0) return 0;
+        cursor += (size_t)n;
+        bytes -= (size_t)n;
+    }
+    return 1;
+}
+
+static int quant_params(const unsigned char *tensor, float *scale, int32_t *offset) {
+    uint32_t definition, encoding;
+    memcpy(&definition, tensor + 40, 4);
+    memcpy(&encoding, tensor + 44, 4);
+    memcpy(scale, tensor + 48, 4);
+    memcpy(offset, tensor + 52, 4);
+    return definition == 1 && encoding == 0 && *scale > 0.0f && *scale < 1.0e8f;
+}
+
+static uint16_t quantize_u16(float value, float scale, int32_t offset) {
+    float encoded = nearbyintf(value / scale) - (float)offset;
+    if (!isfinite(encoded) || encoded <= 0.0f) return 0;
+    if (encoded >= 65535.0f) return UINT16_MAX;
+    return (uint16_t)encoded;
+}
+
+static int serve_graph(graph_execute_fn execute, void *handle,
+                       const graph_v3_prefix *metadata, int decoder) {
+    const uint32_t latent_dims[4] = {1, 4, 64, 64};
+    const uint32_t timestamp_dims[1] = {1};
+    const uint32_t embedding_dims[3] = {1, 77, 768};
+    const uint32_t image_dims[4] = {1, 3, 512, 512};
+    const size_t latent_count = 4u * 64u * 64u;
+    const size_t embed_count = 77u * 768u;
+    const size_t image_count = 3u * 512u * 512u;
+    if (!execute || !handle || !metadata || !metadata->name ||
+        strcmp(metadata->name, "model") || !metadata->inputs || !metadata->outputs)
+        return 2;
+
+    const unsigned char *inputs = (const unsigned char *)metadata->inputs;
+    const unsigned char *outputs = (const unsigned char *)metadata->outputs;
+    float in0_scale, in1_scale = 1.0f, out_scale;
+    int32_t in0_offset, in1_offset = 0, out_offset;
+    unsigned char input_tensors[3 * 144], output_tensor[144];
+    uint16_t *in0 = NULL, *in1 = NULL, *out = NULL;
+    float *raw0 = NULL, *raw1 = NULL;
+    int result = 2;
+
+    if (!decoder) {
+        if (metadata->input_count != 3 || metadata->output_count != 1 ||
+            !tensor_matches(inputs, "sample", 0, latent_dims) ||
+            !tensor_matches_short(inputs + 144, "timestamp", 0x0032, 1, timestamp_dims) ||
+            !tensor_matches_short(inputs + 288, "text_embedding", 0x0416, 3, embedding_dims) ||
+            !tensor_matches(outputs, "output", 1, latent_dims) ||
+            !quant_params(inputs, &in0_scale, &in0_offset) ||
+            !quant_params(inputs + 288, &in1_scale, &in1_offset) ||
+            !quant_params(outputs, &out_scale, &out_offset)) {
+            puts("{\"stage\":\"qnn_server_preflight\",\"accepted\":false,\"kind\":\"unet\"}");
+            return 2;
+        }
+        memcpy(input_tensors, inputs, sizeof(input_tensors));
+        memcpy(output_tensor, outputs, sizeof(output_tensor));
+        in0 = malloc(latent_count * sizeof(*in0));
+        in1 = malloc(embed_count * sizeof(*in1));
+        out = malloc(latent_count * sizeof(*out));
+        raw0 = malloc(latent_count * sizeof(*raw0));
+        raw1 = malloc(embed_count * sizeof(*raw1));
+        if (!in0 || !in1 || !out || !raw0 || !raw1) goto cleanup;
+        int32_t timestamp;
+        set_client_buffer(input_tensors, in0, (uint32_t)(latent_count * sizeof(*in0)));
+        set_client_buffer(input_tensors + 144, &timestamp, sizeof(timestamp));
+        set_client_buffer(input_tensors + 288, in1, (uint32_t)(embed_count * sizeof(*in1)));
+        set_client_buffer(output_tensor, out, (uint32_t)(latent_count * sizeof(*out)));
+        printf("{\"stage\":\"qnn_server_ready\",\"kind\":\"unet\",\"sample_scale\":%.9g,\"sample_offset\":%" PRId32
+               ",\"embedding_scale\":%.9g,\"embedding_offset\":%" PRId32
+               ",\"output_scale\":%.9g,\"output_offset\":%" PRId32 "}\n",
+               in0_scale, in0_offset, in1_scale, in1_offset, out_scale, out_offset);
+        for (;;) {
+            uint32_t command;
+            if (!read_exact(STDIN_FILENO, &command, sizeof(command))) { result = 0; break; }
+            if (command == 0) { result = 0; break; }
+            if (command != 1 || !read_exact(STDIN_FILENO, &timestamp, sizeof(timestamp)) ||
+                !read_exact(STDIN_FILENO, raw0, latent_count * sizeof(*raw0)) ||
+                !read_exact(STDIN_FILENO, raw1, embed_count * sizeof(*raw1))) goto cleanup;
+            for (size_t i = 0; i < latent_count; ++i) in0[i] = quantize_u16(raw0[i], in0_scale, in0_offset);
+            for (size_t i = 0; i < embed_count; ++i) in1[i] = quantize_u16(raw1[i], in1_scale, in1_offset);
+            uint64_t status = execute(handle, input_tensors, 3, output_tensor, 1, NULL, NULL);
+            int32_t reply = status ? -1 : 0;
+            if (!write_exact(STDOUT_FILENO, &reply, sizeof(reply))) goto cleanup;
+            if (status) goto cleanup;
+            if (!write_exact(STDOUT_FILENO, out, latent_count * sizeof(*out))) goto cleanup;
+        }
+    } else {
+        if (metadata->input_count != 1 || metadata->output_count != 1 ||
+            !tensor_matches(inputs, "input", 0, latent_dims) ||
+            !tensor_matches(outputs, "output", 1, image_dims) ||
+            !quant_params(inputs, &in0_scale, &in0_offset) ||
+            !quant_params(outputs, &out_scale, &out_offset)) {
+            puts("{\"stage\":\"qnn_server_preflight\",\"accepted\":false,\"kind\":\"decoder\"}");
+            return 2;
+        }
+        memcpy(input_tensors, inputs, 144);
+        memcpy(output_tensor, outputs, 144);
+        in0 = malloc(latent_count * sizeof(*in0));
+        out = malloc(image_count * sizeof(*out));
+        raw0 = malloc(latent_count * sizeof(*raw0));
+        if (!in0 || !out || !raw0) goto cleanup;
+        set_client_buffer(input_tensors, in0, (uint32_t)(latent_count * sizeof(*in0)));
+        set_client_buffer(output_tensor, out, (uint32_t)(image_count * sizeof(*out)));
+        printf("{\"stage\":\"qnn_server_ready\",\"kind\":\"decoder\",\"input_scale\":%.9g,\"input_offset\":%" PRId32
+               ",\"output_scale\":%.9g,\"output_offset\":%" PRId32 "}\n",
+               in0_scale, in0_offset, out_scale, out_offset);
+        for (;;) {
+            uint32_t command;
+            if (!read_exact(STDIN_FILENO, &command, sizeof(command))) { result = 0; break; }
+            if (command == 0) { result = 0; break; }
+            if (command != 2 || !read_exact(STDIN_FILENO, raw0, latent_count * sizeof(*raw0))) goto cleanup;
+            for (size_t i = 0; i < latent_count; ++i) in0[i] = quantize_u16(raw0[i], in0_scale, in0_offset);
+            uint64_t status = execute(handle, input_tensors, 1, output_tensor, 1, NULL, NULL);
+            int32_t reply = status ? -1 : 0;
+            if (!write_exact(STDOUT_FILENO, &reply, sizeof(reply))) goto cleanup;
+            if (status) goto cleanup;
+            if (!write_exact(STDOUT_FILENO, out, image_count * sizeof(*out))) goto cleanup;
+            result = 0;
+        }
+    }
+cleanup:
+    free(in0); free(in1); free(out); free(raw0); free(raw1);
+    return result;
+}
+
 static int load_htp(void *bytes, uint64_t size, const graph_v3_prefix *metadata,
                     int execute_mode, int output_fd) {
     void *lib = dlopen("/vendor/lib64/libQnnHtp.so", RTLD_NOW | RTLD_LOCAL);
@@ -478,6 +622,10 @@ static int load_htp(void *bytes, uint64_t size, const graph_v3_prefix *metadata,
                 result = execute_decoder_twice(api.graph_execute, graph, metadata, output_fd);
             } else if (!retrieved && graph && execute_mode == 3) {
                 result = execute_unet_twice(api.graph_execute, graph, metadata);
+            } else if (!retrieved && graph && execute_mode == 4) {
+                result = serve_graph(api.graph_execute, graph, metadata, 0);
+            } else if (!retrieved && graph && execute_mode == 5) {
+                result = serve_graph(api.graph_execute, graph, metadata, 1);
             }
             uint64_t freed = api.free_context(context, NULL);
             printf("{\"stage\":\"htp_context_free\",\"status\":%" PRIu64 "}\n", freed);
@@ -510,7 +658,8 @@ int main(int argc, char **argv) {
     setbuf(stdout, NULL);
     if ((argc != 3 && argc != 4 && argc != 6) || strcmp(argv[1], "--fd") ||
         (argc == 4 && strcmp(argv[3], "--load-htp") && strcmp(argv[3], "--execute-htp") &&
-         strcmp(argv[3], "--execute-unet")) ||
+         strcmp(argv[3], "--execute-unet") && strcmp(argv[3], "--serve-unet") &&
+         strcmp(argv[3], "--serve-decoder")) ||
         (argc == 6 && (strcmp(argv[3], "--execute-decoder") || strcmp(argv[4], "--output-fd")))) return 2;
     char *end = NULL;
     long supplied = strtol(argv[2], &end, 10);
@@ -591,7 +740,9 @@ int main(int argc, char **argv) {
     }
     if (!result && argc >= 4) {
         int execute_mode = argc == 6 ? 2 : !strcmp(argv[3], "--execute-htp") ? 1 :
-                           !strcmp(argv[3], "--execute-unet") ? 3 : 0;
+                           !strcmp(argv[3], "--execute-unet") ? 3 :
+                           !strcmp(argv[3], "--serve-unet") ? 4 :
+                           !strcmp(argv[3], "--serve-decoder") ? 5 : 0;
         if (execute_mode && !graph_info_present) {
             puts("{\"stage\":\"graph_execute_preflight\",\"accepted\":false,\"reason\":\"missing_graph_metadata\"}");
             result = 2;

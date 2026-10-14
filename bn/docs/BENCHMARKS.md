@@ -490,6 +490,76 @@ process 0 status-এ শেষ হয়েছে; `closeSession` সফল হ�
 এটি default configuration, অন্য model/quantization, দীর্ঘ generation বা পূর্ণ release
 compatibility-এর প্রমাণ নয়।
 
+### 2026-10-14 একই long workload-এ CPU/GPU/NPU তুলনা (Qwen2.5 1.5B Q4_0)
+
+একই greedy workload ক্রমানুসারে CPU, Adreno Vulkan, তারপর Hexagon HTP-তে চালানো হয়েছে।
+Model `/sdcard/LAI/models/qwen2.5-1.5b-instruct-q4-0.gguf` থেকে সরাসরি read হয়েছে;
+copy বা convert করা হয়নি। প্রতিটি run-এ context 4096, batch/ubatch 128, একবারের
+recall key `KITE-8042`-সহ 2,955-token project-ledger prompt, এবং EOS উপেক্ষা করে
+সর্বোচ্চ 512-token generation ছিল। তিনটি output-ই সঠিক key দিয়ে শুরু হয়েছে এবং
+cap-এ পৌঁছানোর আগে 511 token তৈরি করেছে; প্রতিটি process exit status 0। Vulkan-এ
+29/29 model layer Vulkan0-তে এবং HTP-তে `GGML_HEXAGON_MM_SELECT=1`, `-fa off`
+সহ 29/29 layer HTP0-তে offload হয়েছে। HTP brokered child exit status 0-তে শেষ
+হয়েছে; `closeSession`-এর transport ও reply status-ও 0।
+
+| Backend | Prompt processing | Generation | llama.cpp total | Evidence log |
+|---|---:|---:|---:|---|
+| CPU | 60.04 tok/s | 2.47 tok/s | 256.41 s | `cpu-qwen15-long-4096ctx-512gen-2026-10-14.log` |
+| Adreno 825 Vulkan | 91.61 tok/s | 13.26 tok/s | 71.53 s | `gpu-qwen15-long-4096ctx-512gen-2026-10-14.log` |
+| Hexagon HTP | 34.21 tok/s | 12.08 tok/s | 129.22 s | `npu-qwen15-long-4096ctx-512gen-2026-10-14.log` |
+
+এটি HTP-র সর্বোচ্চ throughput নয়। known-answer correctness রাখতে HTP run-এ
+`GGML_HEXAGON_MM_SELECT=1` (শুধু HVX matmul; HMX বন্ধ) এবং `-fa off` ব্যবহার করেছি;
+আগের default/HMX ও flash-attention control ছোট পরীক্ষায় ভুল উত্তর দিয়েছিল। তাই
+HTP-র সংখ্যাটি pass-করা conservative configuration-এর, accelerator-এর optimized
+সর্বোচ্চ ক্ষমতার নয়। অন্য SoC-এর উপর [SM7750 / HTP v73 upstream report](https://github.com/ggml-org/llama.cpp/issues/29473)-এ
+মিল-ধরনের HMX ও attention correctness failure আছে; সেটি SM8735-এর কারণের প্রমাণ
+নয়, শুধু তদন্তের সূত্র। বর্তমান evidence test-করা llama.cpp HTP path-এ correctness
+ও performance-এর সীমাবদ্ধতা দেখায়; kernel defect-এর কারণ বা fix এখনও প্রতিষ্ঠিত
+হয়নি।
+
+Log-গুলো `/home/sbj/npu-probe-2026-10-13/`-এ। Device battery-তে চলছিল; পর্যবেক্ষণের
+সময় thermal status 0 ছিল। CPU run-এর আগে battery প্রায় 37%, GPU-র পরে 36%; skin
+temperature প্রায় 43–44.5 C ছিল। test চলার সময় অন্য session-এ চারটি Blender
+background shell থাকার কথা জানানো হয়েছিল; সেগুলোর প্রকৃত resource use যাচাই করা
+হয়নি। তাই এগুলো long-workload functional run এবং পর্যবেক্ষিত timing, clean controlled
+benchmark বা sustained thermal/stability soak নয়। Performance claim-এর আগে device
+idle রেখে একই তুলনা আবার চালাতে হবে। HTP-র দীর্ঘ inference প্রমাণ বাড়লেও আগের default
+HVX correctness failure, অন্য model-এর compatibility, বা Ternux-এর end-user NPU route
+এখনও qualify হয়নি।
+
+### ২০২৬-১০-১৪ idle অবস্থায় CPU/GPU/NPU long inference repeat (Qwen2.5 1.5B Q4_0)
+
+Blender render, encoding, mux ও output validation শেষ হওয়ার পর একই model ও workload
+ক্রমে CPU, Adreno Vulkan এবং Hexagon HTP-তে চালানো হয়। Model-টি
+`/sdcard/LAI/models/qwen2.5-1.5b-instruct-q4-0.gguf` থেকে সরাসরি read হয়েছে;
+copy বা conversion হয়নি। প্রতিটি run-এ 2,955-token prompt, context 4096,
+batch/ubatch 128 এবং 512-token cap ছিল। প্রতিটি backend 511 token তৈরি করেছে,
+সঠিক প্রথম লাইন `Key: KITE-8042` দিয়েছে এবং exit 0 করেছে। Vulkan-এর 29/29 layer
+`Vulkan0`-তে এবং brokered llama.cpp Hexagon backend-এর সব 29 layer `HTP0`-তে ছিল;
+`closeSession` status 0।
+
+| Backend | Prompt processing | Generation | Total | Evidence log |
+|---|---:|---:|---:|---|
+| CPU | 59.04 tok/s | 2.38 tok/s | 264.39 s | `cpu-qwen15-idle-long-2026-10-14.log` |
+| Adreno 825 Vulkan | 92.19 tok/s | 13.27 tok/s | 71.30 s | `gpu-qwen15-idle-long-2026-10-14.log` |
+| Hexagon HTP | 34.20 tok/s | 12.02 tok/s | 129.46 s | `npu-qwen15-idle-long-2026-10-14.log` |
+
+HTP-তে `GGML_HEXAGON_MM_SELECT=1` (HVX matmul; HMX বন্ধ) এবং known-answer pass
+করা `-fa off` configuration ব্যবহার হয়েছে। এই workload-এ HTP CPU-র চেয়ে দ্রুত
+শেষ করেছে, কিন্তু Vulkan-এর চেয়ে ধীর; prompt processing ও generation—দুটোতেই
+Vulkan এগিয়ে। এটি দীর্ঘ HTP text-inference pass, QNN-এ compile করা text model নয়,
+এবং NPU GPU-র চেয়ে দ্রুত—এমন প্রমাণও নয়। `/sdcard/LAI/models/`-এর file-গুলো
+GGUF weight; `llama.cpp` এই Qwen-কে HTP-তে চালায়। আলাদা
+`/sdcard/Llms/AbsoluteReality_qnn2.28_8gen2.zip` হলো QNN picture model; এর full
+prompt-to-image pipeline এখনো যাচাই হয়নি।
+
+তুলনাটি sequential এবং অন্য কাজ বন্ধ থাকা অবস্থায় হয়েছে। Thermal status 0 ছিল;
+sequence-এ skin temperature সর্বোচ্চ 44.5 C এবং battery 31% থেকে 28%-এ নেমেছে।
+এটি এই device, model ও configuration-এর clean controlled comparison; multi-hour
+stability soak বা সব Snapdragon device-এর performance claim নয়। Log
+`/home/sbj/npu-probe-2026-10-13/`-এ আছে।
+
 ### Stable Diffusion মূল্যায়ন (deferred: compatible model/backend pair নেই)
 
 বিদ্যমান `/sdcard/Llms/AbsoluteReality_qnn2.28_8gen2.zip` হলো QNN Android

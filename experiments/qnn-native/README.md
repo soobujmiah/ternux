@@ -211,6 +211,44 @@ or image generation. Raw local log:
 
 ## Remaining inference gates
 
+### In-progress end-to-end image runner (not yet device-verified)
+
+`sd15_qnn_image.py` now independently connects the existing archive pieces:
+it streams CLIP, token/position tables, UNet and decoder from the original ZIP
+(model contexts/tables only enter sealed anonymous memfds), runs CLIP on CPU,
+and keeps QNN UNet and VAE decoder contexts alive in separate Bionic helper
+processes. The helper protocol uses framed stdin/stdout tensors; the runner
+implements fixed-seed SD1.5 DPM++ 2M denoising and emits a new PNG plus per-stage
+logs. Initial noise and UNet model input use the scheduler's sigma scaling.
+The requested realistic landscape prompt is only a test prompt; output quality
+and QNN tensor correctness are not established until a generated image is
+visually reviewed and suitable independent tensor checks exist.
+
+The initial runner revision passed Python syntax/scheduler checks; the helper
+source passed host C syntax checks. A later decoder-process cleanup edit has
+not been rechecked. Nothing here has **yet** been built by the pinned NDK
+workflow or run on the phone. Do not use the older helper artifact for
+this runner: it does not contain `--serve-unet` or `--serve-decoder`. After CI succeeds, the owner must
+retrieve the test artifact and hand it off before device execution, per the
+repository's artifact-transfer policy. The original model ZIP must remain in
+place; no weight/model member may be extracted or copied.
+
+The opt-in runner invocation after that handoff is:
+
+```bash
+PYTHONPATH=/absolute/scratch/tokenizers-package:/absolute/scratch/mnn-and-numpy-packages \
+  python3 experiments/qnn-native/sd15_qnn_image.py \
+  --archive /sdcard/Llms/AbsoluteReality_qnn2.28_8gen2.zip \
+  --helper /absolute/path/to/ternux-qnn-context-inspect \
+  --runtime-dir /absolute/path/to/licensed/qnn-2.29-v73-runtime \
+  --output /sdcard/Llms/ternux-npu-realistic-test-seed-20261014.png
+```
+
+The output path is create-only. The runner reports seed, steps, scheduler,
+stage timings and hashes; repeatability and visual review still need to be
+recorded separately. This experimental QNN image path is not yet an installed
+Ternux extension or a release capability.
+
 The opt-in [`known_add.c`](known_add.c) diagnostic was built by the pinned
 Android NDK workflow. [CI run 38411428947](https://github.com/soobujmiah/ternux/actions/runs/38411428947)
 passed and its checksum-verified AArch64 artifact ran on Redmi Turbo 4 Pro /
@@ -307,13 +345,14 @@ and UNet; see the device log for exact values.
 2. Prove a fixed-input, known-output VAE graph result with explicit HTP
    attribution and repeat cleanup. The current repeated-output probe is an
    execution gate, not a numerical-correctness gate.
-3. Implement our own SD1.5 pipeline: tokenizer/embedding input, scheduler, MNN
-   CLIP execution on CPU and QNN UNet/VAE on HTP. A loaded QNN context alone
-   cannot generate an image.
-4. Expose our own bounded request/response IPC to PRoot. A child process with
-   framed pipes is the first candidate; no installed Android app dependency.
-5. Run fixed prompt/seed/size image tests with per-stage logs, image decoding,
+3. The first independently written SD1.5 prompt-to-image runner and framed
+   PRoot IPC are now implemented in `sd15_qnn_image.py` and the persistent
+   modes in `context_inspect.c`; pinned NDK build and device execution remain
+   pending. This source status is not an image-generation PASS.
+4. Run fixed prompt/seed/size image tests with per-stage logs, image decoding,
    repeatability and visual review. Keep CPU, GPU and HTP attribution explicit.
+5. Compare model-stage tensors with suitable independent references and verify
+   output encoding/quantization; repeatability alone is not correctness.
 6. Build portable pinned artifacts, inspect ABI/ELF/RUNPATH, validate licensing,
    then perform installed-artifact tests before any Ternux release.
 

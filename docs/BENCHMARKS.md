@@ -538,6 +538,83 @@ reproduce the exact HTP Q8_0 activation quantizer to understand the Q4_0 kernel
 numeric mismatch. Vulkan has passed a known-answer inference test; HTP needs
 broader correctness and stability checks with the HVX/attention settings.
 
+### 2026-10-14 sequential long inference comparison (Qwen2.5 1.5B Q4_0)
+
+The same greedy workload ran sequentially on CPU, Adreno Vulkan, then
+Hexagon HTP, using the model directly at
+`/sdcard/LAI/models/qwen2.5-1.5b-instruct-q4-0.gguf` (no model copy or
+conversion). Each run used context 4096, batch/ubatch 128, a 2,955-token
+synthetic project-ledger prompt containing the one-time recall key
+`KITE-8042`, and a 512-token generation cap with EOS ignored. All three
+outputs began with the exact requested key; each produced 511 tokens before
+the cap. Process exit was 0 for all runs. The CPU was `-ngl 0`; Vulkan
+offloaded all 29/29 model layers to Vulkan0; HTP used `GGML_HEXAGON_MM_SELECT=1`,
+`-fa off`, and offloaded 29/29 layers to HTP0. HTP's brokered child exited 0
+and `closeSession` returned transport and reply status 0.
+
+| Backend | Prompt eval | Generation eval | llama.cpp total | Evidence log |
+|---|---:|---:|---:|---|
+| CPU | 60.04 tok/s | 2.47 tok/s | 256.41 s | `cpu-qwen15-long-4096ctx-512gen-2026-10-14.log` |
+| Adreno 825 Vulkan | 91.61 tok/s | 13.26 tok/s | 71.53 s | `gpu-qwen15-long-4096ctx-512gen-2026-10-14.log` |
+| Hexagon HTP | 34.21 tok/s | 12.08 tok/s | 129.22 s | `npu-qwen15-long-4096ctx-512gen-2026-10-14.log` |
+
+This is not peak HTP throughput. To preserve known-answer correctness, the HTP
+run forced `GGML_HEXAGON_MM_SELECT=1` (HVX matmul only; HMX is disabled) and
+`-fa off`; the default/HMX and flash-attention controls had already produced
+incorrect answers in short checks. The HTP number therefore describes the
+conservative configuration that passed, not the accelerator's optimized
+ceiling. An [upstream SM7750 / HTP v73 report](https://github.com/ggml-org/llama.cpp/issues/29473)
+describes related HMX and attention correctness failures on a different SoC;
+that report is an investigation lead, not proof of the cause on SM8735. The
+current evidence points to a correctness-versus-performance limitation in the
+tested llama.cpp HTP path; it does not yet identify or fix the kernel defect.
+
+Logs are in `/home/sbj/npu-probe-2026-10-13/`. The device was battery powered;
+thermal status stayed 0 during the observations. Battery was about 37% before
+the CPU run and 36% after GPU; skin readings were about 43–44.5 C. A separate
+session reported four Blender background shells while these runs were being
+performed. Their actual resource use was not established, so these are
+successful long-workload functional runs and observed timings, not a clean
+controlled benchmark or a sustained thermal/stability soak. Repeat the
+comparison with the device otherwise idle before publishing performance
+claims. This first long comparison is superseded for controlled timing by the
+idle repeat below. It still does not settle the earlier default/HMX correctness
+failure, validate other models, or qualify an end-user Ternux NPU route.
+
+### 2026-10-14 clean-idle long inference repeat (Qwen2.5 1.5B Q4_0)
+
+After the Blender render, encoding, mux and output-validation processes had
+ended, the same model and workload ran sequentially on CPU, Adreno Vulkan and
+Hexagon HTP. The model was read directly from
+`/sdcard/LAI/models/qwen2.5-1.5b-instruct-q4-0.gguf`; no model copy or
+conversion was made. Each run used a 2,955-token prompt, context 4096,
+batch/ubatch 128 and a 512-token cap. Every backend generated 511 tokens,
+returned the exact first line `Key: KITE-8042`, and exited 0. Vulkan assigned
+all 29 model layers to `Vulkan0`; HTP assigned all 29 to `HTP0` through the
+brokered llama.cpp Hexagon backend, and `closeSession` returned status 0.
+
+| Backend | Prompt processing | Generation | Total | Evidence log |
+|---|---:|---:|---:|---|
+| CPU | 59.04 tok/s | 2.38 tok/s | 264.39 s | `cpu-qwen15-idle-long-2026-10-14.log` |
+| Adreno 825 Vulkan | 92.19 tok/s | 13.27 tok/s | 71.30 s | `gpu-qwen15-idle-long-2026-10-14.log` |
+| Hexagon HTP | 34.20 tok/s | 12.02 tok/s | 129.46 s | `npu-qwen15-idle-long-2026-10-14.log` |
+
+The HTP run used `GGML_HEXAGON_MM_SELECT=1` (HVX matmul; HMX disabled) and
+`-fa off` to retain the configuration that passed known-answer checks. On this
+workload it completed faster than CPU overall, but slower than Vulkan; both
+prompt processing and generation were slower than Vulkan. This is a genuine
+long HTP text-inference pass, not a QNN-compiled text model and not evidence
+that NPU is faster than GPU. The files in `/sdcard/LAI/models/` are GGUF
+weights; `llama.cpp` routes this one to HTP. The separate
+`/sdcard/Llms/AbsoluteReality_qnn2.28_8gen2.zip` is the QNN image model, whose
+full prompt-to-image pipeline remains unverified.
+
+The comparison was sequential and otherwise idle. Thermal status stayed 0;
+skin temperature peaked at 44.5 C and battery declined from 31% to 28% over the
+sequence. This is a clean controlled comparison for this device, model and
+configuration, not a multi-hour stability soak or a claim for every Snapdragon
+device. Logs are in `/home/sbj/npu-probe-2026-10-13/`.
+
 ### Stable Diffusion evaluation (deferred: no compatible model/backend pair)
 
 The existing `/sdcard/Llms/AbsoluteReality_qnn2.28_8gen2.zip` is a QNN Android
