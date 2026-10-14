@@ -1,0 +1,33 @@
+{
+  "title": "মিথ্যার মাইক",
+  "title_roman": "Mithyar Mic",
+  "language": "bn",
+  "duration_seconds": 60,
+  "fps": 24,
+  "frames": 1440,
+  "resolution": [1280, 720],
+  "scenes": [
+    {"n": 1, "name": "জনসভা", "frames": 240, "start_s": 0.0},
+    {"n": 2, "name": "বড় দাবি", "frames": 288, "start_s": 10.0},
+    {"n": 3, "name": "বাস্তবতা সামনে", "frames": 312, "start_s": 22.0},
+    {"n": 4, "name": "মাইকের জোর", "frames": 312, "start_s": 35.0},
+    {"n": 5, "name": "শিশুর প্রশ্ন", "frames": 288, "start_s": 48.0}
+  ],
+  "render": {
+    "engine": "BLENDER_EEVEE_NEXT",
+    "samples": 24,
+    "display": "Xvfb :9 with GALLIUM_DRIVER=zink",
+    "gpu": "Adreno 825 via zink over Mesa Turnip"
+  },
+  "audio": {
+    "dialogue": "MMS-TTS Bengali (VITS) via onnxruntime on CPU, 16 kHz, resampled to 44.1 kHz",
+    "dialogue_license": "facebook/mms-tts-ben is CC-BY-NC-4.0 — non-commercial use only",
+    "effects": "synthesised in pure Python, deterministic",
+    "mix": "44.1 kHz stereo, AAC 192 kbps in the delivered file"
+  },
+  "subtitles": {
+    "engine": "Pillow with the raqm layout engine",
+    "font": "Lohit Bengali",
+    "note": "Blender text objects and ffmpeg drawtext do not shape Bengali conjuncts"
+  }
+}
