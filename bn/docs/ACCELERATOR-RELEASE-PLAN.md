@@ -22,6 +22,27 @@ shipped capability দাবি করে না।
 | ৭ | CLI ও installation screen polish | Renderer suite portrait/landscape/resize-এ 24/24 pass; human visual/usability check phone-এ বাকি। | পরিষ্কার mobile layout, অর্থপূর্ণ error/status, interactive ও unattended path, owner usability review |
 | ৮ | Ternux stable release | HELD | আগের gate, accurate support matrix, required CI, installed-artifact device test ও final docs শেষ |
 
+### HTP operator diagnostic (২০২৬-১০-১৪)
+
+Workflow run `38567329752`-এর exact Linux ARM64 artifact Ternux Binder/FastRPC
+broker দিয়ে SM8735 device-এ test করা হয়েছে। Default HMX selection-এ
+`test-backend-ops -b HTP0 -o MUL_MAT`-এ **৫২৯টি case fail** করেছে; প্রতিটিতে
+infinite error এসেছে। Device report-এ Hexagon v73, HMX উপস্থিতি এবং 8 MB VTCM
+দেখিয়েছে। `GGML_HEXAGON_MM_SELECT=1` দিয়ে HVX-only `MUL_MAT` suite ১৮০ সেকেন্ড
+চালিয়ে timeout-এর আগে ২,৩৮৯টি case output করেছে, কোনো error রেকর্ড হয়নি। এটি
+অসম্পূর্ণ run, suite pass নয়। দুই broker session-ই `closeSession [0, 0]` দিয়ে
+বন্ধ হয়েছে।
+
+এতে এই device-এ HMX `MUL_MAT` correctness failure আলাদা হয়েছে, তবে hardware বা
+kernel cause শনাক্ত হয়নি। Upstream-এর v73 report-এ ভিন্ন SM7750 device-এ FP16
+HMX না থাকার সঙ্গে একই ধরনের failure নথিভুক্ত; এটি diagnostic lead, SM8735-এ একই
+capability নেই—তার প্রমাণ নয়। আলাদা upstream v75 report HMX flash-attention race
+নথিভুক্ত করেছে। দেখুন [SM7750 HMX report](https://github.com/ggml-org/llama.cpp/issues/29473)
+এবং [SM8650 flash-attention report](https://github.com/ggml-org/llama.cpp/issues/26759)।
+পরের gate: SM8735-এ HMX FP16 capability probe, সম্পূর্ণ HVX operator run এবং
+আলাদা flash-attention operator check। Command ও artifact provenance আছে
+[experimental HTP guide](../guides/llama-htp-experimental.md#সর্বশেষ-operator-check)-এ।
+
 QNN archive-এর graph CPU/GPU support প্রমাণ করে না; প্রতিটি backend-এর compatible
 weight/backend pair আলাদা। HTP-এর জন্য compiled `.bin` context CPU/GPU-তে নিজে
 থেকে portable নয়। Valid prerequisite না থাকলে BLOCKED লিখুন; না-চালানো test-কে

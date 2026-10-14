@@ -33,6 +33,36 @@ Current gates and dated device evidence stay in the single
 [accelerator release plan](../docs/ACCELERATOR-RELEASE-PLAN.md) and
 [device benchmark record](device-benchmark-evidence.md).
 
+## Latest operator checks
+
+On 2026-10-14, the Linux ARM64 package from workflow run `38567329752`
+(SHA-256 `7eb99a5532c2741fce2b84c757b9182bd69c891d907513c67f51e0c51e4c2211`)
+was used for operator checks on the Redmi Turbo 4 Pro / SM8735.
+The broker acquired the CDSP descriptor and reported a clean session close for
+each run. The local Debian runtime used the already-extracted `libgbinder`,
+`libglibutil`, and FastRPC files; an isolated scratch symlink supplied the
+unversioned `libcdsprpc.so` name normally provided by `libfastrpc-dev`. No
+package was installed and no Ternux runtime configuration was changed.
+
+With the default HMX matmul selection, `test-backend-ops -b HTP0 -o MUL_MAT`
+finished with 529 failing cases. Every reported numerical error was `inf` and
+the backend reported **FAIL**; HTP hardware information was v73, HMX present,
+and 8 MB VTCM. Repeating the same operator suite with
+`GGML_HEXAGON_MM_SELECT=1` (HVX-only matmul) was stopped at the 180-second
+bound after 2,389 case outputs. No numerical failures appeared in that partial
+output, but the suite did not finish and is not a pass. Both runs ended with
+`closeSession [0, 0]`.
+
+This confirms an HMX `MUL_MAT` correctness problem on SM8735; it does not prove
+why it happens. Upstream has a similar v73 report for an SM7750 device whose
+HMX does not support FP16, and a separate v75 report about a flash-attention
+queue race. These are related diagnostic leads from different devices, not a
+confirmed root cause for SM8735: [SM7750 HMX report](https://github.com/ggml-org/llama.cpp/issues/29473),
+[SM8650 flash-attention report](https://github.com/ggml-org/llama.cpp/issues/26759).
+The device's HMX FP16 capability, full HVX operator coverage, and flash-attention
+operator correctness still need separate checks. The HTP launcher therefore
+continues to force HVX matmul with flash attention off.
+
 ## Requirements
 
 - Ternux's Debian ARM64 glibc guest, glibc 2.38 or newer.
