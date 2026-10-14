@@ -1,7 +1,7 @@
 # Handoff: SD1.5 QNN performance
 
-**Status:** open; profiling is complete, optimization is not qualified.  
-**Last updated:** 2026-10-14  
+**Status:** open; profiling is complete, optimization is not qualified.
+**Last updated:** 2026-10-14
 **Canonical status:** [`docs/ACCELERATOR-RELEASE-PLAN.md`](../docs/ACCELERATOR-RELEASE-PLAN.md)
 
 ## Goal

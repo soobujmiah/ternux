@@ -1,7 +1,7 @@
 # Handoff: llama.cpp Hexagon HTP qualification
 
-**Status:** open; experimental launcher keeps flash attention disabled.  
-**Last updated:** 2026-10-14  
+**Status:** open; experimental launcher keeps flash attention disabled.
+**Last updated:** 2026-10-14
 **Canonical status:** [`docs/ACCELERATOR-RELEASE-PLAN.md`](../docs/ACCELERATOR-RELEASE-PLAN.md)
 
 ## Goal

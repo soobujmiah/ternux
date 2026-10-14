@@ -1,7 +1,7 @@
 # Handoff: SD1.5 QNN correctness and image review
 
-**Status:** open; repeatable image generation is not independent numerical proof.  
-**Last updated:** 2026-10-14  
+**Status:** open; repeatable image generation is not independent numerical proof.
+**Last updated:** 2026-10-14
 **Canonical status:** [`docs/ACCELERATOR-RELEASE-PLAN.md`](../docs/ACCELERATOR-RELEASE-PLAN.md)
 
 ## Goal
