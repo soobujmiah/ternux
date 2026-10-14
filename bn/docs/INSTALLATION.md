@@ -124,9 +124,10 @@ Ternux environment বসাতে [দ্রুত শুরু](QUICK-START.ht
 পরীক্ষামূলক llama.cpp HTP release হলো ঐচ্ছিক Linux ARM64 artifact—Ternux
 installer বা Debian root filesystem নয়। আগে Ternux setup করুন। Artifact চালাতে
 আলাদা Android Binder/FastRPC broker-ও দরকার; archive-এ সেটি নেই। Default/HMX
-ও flash-attention path-এ ভুল উত্তর এসেছে। HVX matmul ও flash attention বন্ধ
-রেখে bounded known-answer এবং long recall-key check pass করেছে; তবু HTP
-experimental, supported নয়। [বর্তমান release gate](ACCELERATOR-RELEASE-PLAN.html)
+ও flash-attention path-এ ভুল উত্তর এসেছে। Flash attention বন্ধ রেখে HVX-only
+matmul-এ tested device-এ bounded known-answer ও long recall-key check pass
+করেছে। Explicit HVX flash attention-এ এখনও সাতটি reproduce করা numerical error
+আছে; তাই HTP experimental, supported নয়। [বর্তমান release gate](ACCELERATOR-RELEASE-PLAN.html)
 ও [repository-only বিস্তারিত evidence](https://github.com/soobujmiah/ternux/blob/main/bn/guides/device-benchmark-evidence.md#experimental-llamacpp-hexagon-htp-artifact-for-sm8735)
 দেখুন।
 
@@ -144,6 +145,8 @@ Debian-এ download tool না থাকলে আগে বসান:
 ```bash
 sudo apt update && sudo apt install -y ca-certificates curl tar gzip
 ```
+
+<a id="install-adt-tools-inside-the-ternux-debian-guest"></a>
 
 ### Ternux Debian guest-এ ADT tools বসান
 

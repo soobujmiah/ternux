@@ -42,6 +42,7 @@ For the optional CPU + Vulkan llama.cpp extension, start with the [short guide](
 
 <div class="doc-grid">
   <a class="doc-card" href="ARCHITECTURE.html"><span class="doc-card__icon">→</span><strong>Architecture</strong><span>Follow display, audio, filesystem, process, Zink/Turnip, and VirGL paths.</span></a>
+  <a class="doc-card" href="ACCELERATOR-RELEASE-PLAN.html"><span class="doc-card__icon">NPU</span><strong>Accelerator release plan</strong><span>Current CPU, GPU, HTP, and QNN release gates and deferred work.</span></a>
   <a class="doc-card" href="BENCHMARKS.html"><span class="doc-card__icon">∿</span><strong>Evidence &amp; benchmarks</strong><span>Inspect all captured scene values, caveats, boundaries, and reproduction steps.</span></a>
   <a class="doc-card" href="FAQ.html"><span class="doc-card__icon">?</span><strong>FAQ</strong><span>Direct answers about what ternux supports, protects, and deliberately does not do.</span></a>
   <a class="doc-card" href="../CONTRIBUTING.html"><span class="doc-card__icon">+</span><strong>Contributing</strong><span>Submit code, documentation, translations, issue reports, or new device evidence.</span></a>
