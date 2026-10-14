@@ -724,6 +724,13 @@ execution records. PRoot by itself does not expose an accelerator; this setup
 reaches Android QNN through the existing FastRPC/Binder bridge. The GPU-labelled
 thermal zones are sensor data, not evidence that GPU inference ran.
 
+The same device has a separate Local Dream NPU observation: 512×512 at 20 steps
+completed in 5.7 s. Ternux's 29.758 s median is about 5.2× longer at the same
+resolution and step count. This is a substantial performance gap to investigate;
+the models and runtimes differ, so it is not a controlled A/B comparison and
+does not contradict the Ternux runner's QNN DSP execution logs. See the [Local
+Dream device evidence](https://github.com/soobujmiah/skb/blob/main/devices/redmi-turbo-4-pro/accelerator-access-audit.md).
+
 Thermal-zone samples peaked at 41.9°C battery, 47.9°C `quiet_therm`, and 64.2°C
 among GPU-labelled zones. No NPU-specific thermal sensor was identified. The
 archive remained in place with SHA-256

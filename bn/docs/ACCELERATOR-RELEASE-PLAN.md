@@ -22,6 +22,13 @@ shipped capability দাবি করে না।
 | ৭ | CLI ও installation screen polish | Renderer suite portrait/landscape/resize-এ 24/24 pass; human visual/usability check phone-এ বাকি। | পরিষ্কার mobile layout, অর্থপূর্ণ error/status, interactive ও unattended path, owner usability review |
 | ৮ | Ternux stable release | HELD | আগের gate, accurate support matrix, required CI, installed-artifact device test ও final docs শেষ |
 
+SD1.5 performance gap এখনো qualification item: Ternux QNN runner-এর median
+29.76 s/image; একই device-এর আলাদা Local Dream route-এ 512×512, ২০ step-এর মাপ
+5.7 s। Ternux result প্রায় 5.2× দীর্ঘ; model ও runtime আলাদা, তাই এটি controlled
+A/B test নয়। Ternux run-এ QNN HTP/DSP graph execution record আছে। Practical NPU
+image-generation path হিসেবে উপস্থাপনের আগে gap তদন্ত ও optimize করতে হবে।
+[Local Dream device evidence](https://github.com/soobujmiah/skb/blob/main/devices/redmi-turbo-4-pro/accelerator-access-audit.md)।
+
 ### HTP operator diagnostic (২০২৬-১০-১৪)
 
 Workflow run `38567329752`-এর exact Linux ARM64 artifact Ternux Binder/FastRPC
