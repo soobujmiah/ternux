@@ -23,6 +23,9 @@ en:
       - title: Workloads
         url: /docs/WORKLOADS.html
         summary: What each option installs, automatically or by hand.
+      - title: Blender GPU MCP
+        url: /docs/BLENDER-MCP.html
+        summary: Connect an agent and render through the measured EEVEE GPU route.
       - title: Configuration
         url: /docs/CONFIGURATION.html
         summary: Launch variables, graphics routes, audio, locale, and fonts.
@@ -77,6 +80,9 @@ bn:
       - title: ওয়ার্কলোড
         url: /bn/docs/WORKLOADS.html
         summary: প্রতিটি অপশন কী বসায় — স্বয়ংক্রিয়ভাবে বা হাতে।
+      - title: Blender GPU MCP
+        url: /bn/docs/BLENDER-MCP.html
+        summary: Agent connect করে মাপা EEVEE GPU route-এ render করুন।
       - title: কনফিগারেশন
         url: /bn/docs/CONFIGURATION.html
         summary: Launch variable, graphics route, audio, locale ও font।

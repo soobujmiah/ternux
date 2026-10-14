@@ -98,6 +98,22 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://soobujmiah.github.io/ternux/docs/BLENDER-MCP.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://soobujmiah.github.io/ternux/docs/BLENDER-MCP.html"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://soobujmiah.github.io/ternux/bn/docs/BLENDER-MCP.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://soobujmiah.github.io/ternux/docs/BLENDER-MCP.html"/>
+    <lastmod>2026-10-14</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://soobujmiah.github.io/ternux/bn/docs/BLENDER-MCP.html</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://soobujmiah.github.io/ternux/docs/BLENDER-MCP.html"/>
+    <xhtml:link rel="alternate" hreflang="bn" href="https://soobujmiah.github.io/ternux/bn/docs/BLENDER-MCP.html"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://soobujmiah.github.io/ternux/docs/BLENDER-MCP.html"/>
+    <lastmod>2026-10-14</lastmod>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://soobujmiah.github.io/ternux/docs/CONFIGURATION.html</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://soobujmiah.github.io/ternux/docs/CONFIGURATION.html"/>
     <xhtml:link rel="alternate" hreflang="bn" href="https://soobujmiah.github.io/ternux/bn/docs/CONFIGURATION.html"/>

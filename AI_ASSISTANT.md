@@ -39,6 +39,13 @@ and knowledge-return baseline. This file defines only Ternux-specific rules.
   preference. First verify the actual runtime and renderer; if this workstation
   path is unavailable, explain the limitation. Follow a different route only
   when the owner requests it.
+- **When starting Blender work as an agent, check whether this session exposes
+  `blender-gpu.gpu_check`, `blender-gpu.render_script`, and
+  `blender-gpu.render_blend`.** If available, use the Ternux local MCP tools
+  and follow `docs/BLENDER-MCP.md`; run `gpu_check` before rendering. MCP
+  registration is client-specific: Claude Code's user registration does not
+  grant access to another agent client. If the tools are absent, say so and use
+  the documented direct Blender command or ask the owner to connect the client.
 - **Driving that render from an agent:** `tools/blender-gpu-mcp/` wraps exactly the
   command above as an MCP server (`gpu_check`, `render_script`, `render_blend`),
   so the environment cannot be silently lost between calls. Prefer it over

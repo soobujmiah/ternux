@@ -12,7 +12,7 @@ command ও evidence boundary aligned রাখতে হবে।
 |---|---|
 | শুরু করুন | `QUICK-START.md`, `INSTALLATION.md`, `MANUAL.md` |
 | Repository deep guide | [`../guides/device-benchmark-evidence.md`](../guides/device-benchmark-evidence.md), [`../guides/llama-vulkan-extension.md`](../guides/llama-vulkan-extension.md), matching English pages under `../guides/` (শুধু source repository-তে; website-এ প্রকাশিত নয়) |
-| পরিচালনা | `USAGE.md`, `CONFIGURATION.md`, `TROUBLESHOOTING.md` |
+| পরিচালনা | `USAGE.md`, `BLENDER-MCP.md`, `CONFIGURATION.md`, `TROUBLESHOOTING.md` |
 | বুঝে নিন | `ARCHITECTURE.md`, `BENCHMARKS.md`, `FAQ.md` |
 | রেফারেন্স | `CLI.md`, root `CHANGELOG.md`, root `CONTRIBUTING.md` |
 

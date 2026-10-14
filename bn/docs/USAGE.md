@@ -149,6 +149,7 @@ GPU render হয়নি। দীর্ঘ run-এর আগে `glxinfo -B`-
 renderer যাচাই করুন। সম্পূর্ণ reproducible workflow ও সীমা [cartoon pipeline
 guide-এ](https://github.com/soobujmiah/ternux/blob/main/experiments/cartoon-pipeline/README.md)
 আছে।
+Agent দিয়ে local MCP-তে render চালানোর জন্য [Blender GPU MCP guide](BLENDER-MCP.html) দেখুন।
 
 <h3 id="local-ai-with-vulkan">Vulkan-সহ llama.cpp</h3>
 
