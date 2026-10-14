@@ -1,0 +1,94 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+import { allPages, getPage, pageUrl, baseUrl } from "../../lib/content";
+import { nav } from "../../data/navigation";
+export function getStaticPaths() {
+  return allPages("en")
+    .filter((page) => !page.route.endsWith("/index.md"))
+    .map((page) => ({
+      params: { slug: page.route.split("/").pop()!.replace(/\.md$/, "") },
+      props: { page, lang: "en" },
+    }));
+}
+const { page, lang } = Astro.props;
+const path = pageUrl(page);
+const groups = nav[lang];
+const indexPath = baseUrl(lang === "bn" ? "/bn/docs/" : "/docs/");
+---
+
+<SiteLayout
+  title={page.title}
+  description={page.description}
+  lang={lang}
+  canonical={path.replace("/ternux", "")}
+  altUrl={page.alt_url}
+  article={true}
+  noIndex={page.route.endsWith("ACCELERATOR-RELEASE-PLAN.md")}
+>
+  <div class="article-shell">
+    <aside class="sidebar">
+      <details open>
+        <summary>
+          {lang === "bn" ? "ডকুমেন্টেশন নেভিগেশন" : "DOCUMENTATION NAVIGATION"}
+        </summary>
+        <nav>
+          {groups.map((group) => (
+            <section>
+              <h2>{group.label}</h2>
+              <ul>
+                {group.items.map(([label, href]) => (
+                  <li>
+                    <a
+                      href={baseUrl(href)}
+                      aria-current={
+                        baseUrl(href.replace(/\/$/, "/index.html")) === path
+                          ? "page"
+                          : undefined
+                      }
+                    >
+                      {label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ))}
+        </nav>
+      </details>
+    </aside>
+    <main class="article" id="main">
+      <div class="crumb">
+        <a href={baseUrl(lang === "bn" ? "/bn/" : "/")}>
+          {lang === "bn" ? "হোম" : "HOME"}
+        </a>
+        　/　<a href={indexPath}>{lang === "bn" ? "ডকস" : "DOCS"}</a>　/　
+        {page.title}
+      </div>
+      <h1>{page.title}</h1>
+      <p class="description">{page.description}</p>
+      <article set:html={page.html} />
+    </main>
+    <aside class="toc">
+      <b>{lang === "bn" ? "এই পৃষ্ঠায়" : "ON THIS PAGE"}</b>
+      <nav data-toc></nav>
+    </aside>
+  </div>
+  <footer class="doc-footer">
+    {lang === "bn"
+      ? "ভুল বা নতুন device evidence?"
+      : "Found an issue or have new device evidence?"}{" "}
+    <a href="https://github.com/soobujmiah/ternux/issues/new/choose">
+      {lang === "bn" ? "ইস্যু খুলুন ↗" : "Open an issue ↗"}
+    </a>
+  </footer>
+  <script>
+    const toc = document.querySelector("[data-toc]");
+    document.querySelectorAll(".article h2,.article h3").forEach((heading) => {
+      if (!heading.id || !toc) return;
+      const link = document.createElement("a");
+      link.href = `#${heading.id}`;
+      link.textContent = heading.textContent || "";
+      toc.append(link);
+    });
+  </script>
+</SiteLayout>

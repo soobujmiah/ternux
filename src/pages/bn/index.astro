@@ -1,0 +1,315 @@
+---
+import SiteLayout from "../../layouts/SiteLayout.astro";
+---
+
+<SiteLayout
+  title="পকেটেই Linux workstation"
+  description="Android ARM64 ফোনে no-root Debian workstation. Termux, PRoot, Xfce এবং evidence-led Adreno GPU acceleration."
+  lang="bn"
+  canonical="/bn/"
+  altUrl="/"
+>
+  <main id="main">
+    <section class="home-hero">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <span class="eyebrow">ANDROID × DEBIAN · FIELD SYSTEM 01</span>
+          <h1>
+            Linux,
+            <br />
+            <em>আপনার পকেটে।</em>
+          </h1>
+          <p>
+            Android ফোনেই সম্পূর্ণ ARM64 Linux workstation। Root বা remote
+            server দরকার নেই। সতর্কভাবে তৈরি stack-টি ফোনকে build, render ও
+            compute করার বাস্তব পরিবেশে রূপ দেয়।
+          </p>
+          <div class="hero-actions">
+            <a class="button primary" href="/ternux/bn/docs/QUICK-START.html">
+              WORKSTATION চালু করুন <span>↗</span>
+            </a>
+            <a class="button" href="/ternux/bn/docs/ARCHITECTURE.html">
+              STACK দেখুন <span>→</span>
+            </a>
+          </div>
+          <div class="hero-label">
+            ROOT লাগবে না　/　OPEN SOURCE　/　EVIDENCE LED
+          </div>
+        </div>
+        <div
+          class="system-visual"
+          aria-label="Animated system architecture diagram"
+        >
+          <span class="signal s1"></span>
+          <span class="signal s2"></span>
+          <div class="stack-cube">
+            <small>01 / HOST</small>
+            <strong>Android · Termux</strong>
+            <span>ARM64 userspace · storage bridge</span>
+          </div>
+          <div class="stack-cube">
+            <small>02 / GRAPHICS PATH</small>
+            <strong>Zink → Turnip → Adreno</strong>
+            <span>OpenGL · Vulkan · Qualcomm GPU</span>
+          </div>
+          <div class="stack-cube">
+            <small>03 / WORKSPACE</small>
+            <strong>Debian 13 · Xfce 4</strong>
+            <span>PRoot · Termux:X11 · native apps</span>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="metrics" aria-label="ডিভাইস প্রোফাইল">
+      <div class="metric">
+        <b>ARM64</b>
+        <span>ANDROID HOST ARCHITECTURE</span>
+      </div>
+      <div class="metric">
+        <b>0 root</b>
+        <span>ROOT PERMISSION লাগবে না</span>
+      </div>
+      <div class="metric">
+        <b>Adreno</b>
+        <span>QUALIFIED GPU ROUTE · DEVICE SPECIFIC</span>
+      </div>
+      <div class="metric">
+        <b>Debian 13</b>
+        <span>LINUX WORKSPACE BASE</span>
+      </div>
+    </section>
+    <section class="section" id="system-map">
+      <div class="container">
+        <header class="section-head">
+          <span class="eyebrow">01 / SYSTEM MAP</span>
+          <div>
+            <h2>
+              একটি ডিভাইস।
+              <br />
+              স্তরে সাজানো workstation.
+            </h2>
+            <p>
+              প্রতিটি অংশের কাজ নির্দিষ্ট। Ternux host, Linux environment,
+              display ও graphics route-কে এক যাচাইযোগ্য system-এ সাজায়।
+            </p>
+          </div>
+        </header>
+        <div class="architecture">
+          <article class="arch-node" data-index="HOST / 01">
+            <h3>Android</h3>
+            <p>
+              Phone hardware, kernel ও power policy Android-এর নিয়ন্ত্রণে থাকে।
+            </p>
+          </article>
+          <article class="arch-node" data-index="SHELL / 02">
+            <h3>Termux</h3>
+            <p>Native ARM64 tools, launcher ও shared storage.</p>
+          </article>
+          <article class="arch-node" data-index="LINUX / 03">
+            <h3>PRoot · Debian</h3>
+            <p>Xfce desktop ও Linux application-সহ Debian userspace.</p>
+          </article>
+          <article class="arch-node" data-index="DISPLAY / 04">
+            <h3>Termux:X11</h3>
+            <p>Android display server-এর সঙ্গে Linux desktop যুক্ত হয়।</p>
+          </article>
+          <article class="arch-node" data-index="GPU / 05">
+            <h3>Zink · Turnip</h3>
+            <p>
+              সমর্থিত ডিভাইসে Vulkan-এর উপর OpenGL; evidence আলাদাভাবে দেখানো।
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+    <section class="section" id="capabilities" style="padding-top:10px">
+      <div class="container">
+        <header class="section-head">
+          <span class="eyebrow">02 / CAPABILITIES</span>
+          <div>
+            <h2>বাস্তব কাজের জন্য।</h2>
+            <p>
+              পছন্দের workload নিন, কী install হয় বুঝুন এবং device আসলে কী করতে
+              পেরেছে তা দেখুন।
+            </p>
+          </div>
+        </header>
+        <div class="feature-grid">
+          <article class="feature">
+            <small>01 — GRAPHICS</small>
+            <h3>GPU accelerated desktop</h3>
+            <p>
+              যাচাইকৃত Adreno hardware-এ পরীক্ষিত Zink/Turnip পথ দিয়ে Xfce ও
+              সমর্থিত OpenGL application চালান।
+            </p>
+            <a href="/ternux/bn/docs/GRAPHICS-PERSISTENCE.html">
+              GRAPHICS ROUTE ↗
+            </a>
+          </article>
+          <article class="feature">
+            <small>02 — 3D CREATION</small>
+            <h3>ARM64-এ Blender</h3>
+            <p>
+              3D scene তৈরি, rig ও render করুন। Redmi Turbo 4 Pro evidence-এ
+              MPFB2 human generation pipeline অন্তর্ভুক্ত।
+            </p>
+            <a href="/ternux/bn/docs/BENCHMARKS.html">DEVICE ফলাফল ↗</a>
+          </article>
+          <article class="feature">
+            <small>03 — LOCAL AI</small>
+            <h3>Local inference</h3>
+            <p>
+              ঐচ্ছিক model workload; CPU, GPU ও experimental accelerator ফলাফল
+              আলাদা থাকে।
+            </p>
+            <a href="/ternux/bn/docs/WORKLOADS.html">WORKLOAD ↗</a>
+          </article>
+          <article class="feature">
+            <small>04 — DEVELOPMENT</small>
+            <h3>যেখানে আছেন সেখানেই code</h3>
+            <p>
+              একই pocket workstation-এ Linux CLI tools, language runtime ও
+              editor ব্যবহার করুন।
+            </p>
+            <a href="/ternux/bn/docs/USAGE.html">দৈনন্দিন ব্যবহার ↗</a>
+          </article>
+          <article class="feature">
+            <small>05 — CONTROL</small>
+            <h3>যাচাইযোগ্য install</h3>
+            <p>
+              Bash installer পড়ুন, প্রতিটি ধাপ দেখুন, workload বাছুন ও system
+              state যাচাই করুন।
+            </p>
+            <a href="/ternux/bn/docs/INSTALLATION.html">INSTALLATION ↗</a>
+          </article>
+          <article class="feature">
+            <small>06 — HONEST LIMITS</small>
+            <h3>দাবির আগে প্রমাণ</h3>
+            <p>
+              Measured, observed ও untested আলাদা অবস্থা। ফলাফল নির্দিষ্ট device
+              ও reproduction details-এর সঙ্গে থাকে।
+            </p>
+            <a href="/ternux/bn/docs/BENCHMARKS.html">EVIDENCE STANDARD ↗</a>
+          </article>
+        </div>
+      </div>
+    </section>
+    <section class="section" id="device-profile" style="padding-top:10px">
+      <div class="container">
+        <div class="device-panel">
+          <div class="device-copy">
+            <span class="eyebrow">FIELD PROFILE / 01</span>
+            <h2>Redmi Turbo 4 Pro</h2>
+            <p>
+              যাচাইকৃত workstation profile: Snapdragon 8s Gen 4 · Adreno 825 ·
+              PRoot-এ Debian 13 arm64. Blender 4.3.2 ও MPFB2 2.0.18 দিয়ে
+              character তৈরি, rig, পোশাক ও animation করা হয়েছে।
+            </p>
+            <p>
+              সময়গুলো এই device ও software session-এর মাপ; অন্য ফোনের নিশ্চয়তা
+              নয়।
+            </p>
+            <a class="button" href="/ternux/bn/docs/BENCHMARKS.html">
+              সম্পূর্ণ device evidence →
+            </a>
+          </div>
+          <div class="device-data">
+            <div>
+              <small>Character rebuild</small>
+              <strong>3.9 seconds</strong>
+            </div>
+            <div>
+              <small>Human base mesh</small>
+              <strong>0.4 seconds</strong>
+            </div>
+            <div>
+              <small>Still render</small>
+              <strong>~4 seconds</strong>
+            </div>
+            <div>
+              <small>5-second animation</small>
+              <strong>~7.5 minutes</strong>
+            </div>
+            <div>
+              <small>Blender</small>
+              <strong>4.3.2</strong>
+            </div>
+            <div>
+              <small>Character generator</small>
+              <strong>MPFB2 · 2.0.18</strong>
+            </div>
+          </div>
+        </div>
+        <p class="notice">
+          Character generation-এ anatomically correct base mesh তৈরি হয়।
+          Grooming, finished material, পোশাকের design, expressive pose ও
+          photoreal presentation-এর জন্য আরও কাজ দরকার।
+        </p>
+      </div>
+    </section>
+    <section class="section" id="install" style="padding-top:20px">
+      <div class="container">
+        <div class="install-panel">
+          <div>
+            <span class="eyebrow">03 / FIRST BOOT</span>
+            <h2>Linux workstation চালু করুন।</h2>
+            <p>
+              বিশ্বস্ত source থেকে Termux install করে quick-start অনুসরণ করুন।
+              Setup স্পষ্ট, inspect করা যায় এবং ফোনের বাস্তব সীমা মাথায় রেখে
+              তৈরি।
+            </p>
+            <a class="button primary" href="/ternux/bn/docs/QUICK-START.html">
+              QUICK START খুলুন ↗
+            </a>
+          </div>
+          <div class="command">
+            <small>TERMUX / SHELL</small>
+            <button type="button" data-copy>
+              COPY
+            </button>
+            <code>
+              curl -fsSL
+              https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh
+              | bash
+            </code>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="section" id="benchmarks" style="padding-top:0">
+      <div class="container">
+        <header class="section-head">
+          <span class="eyebrow">04 / VERIFIED OUTPUT</span>
+          <div>
+            <h2>প্রসঙ্গসহ সংখ্যা।</h2>
+            <p>
+              Redmi Turbo 4 Pro-তে Adreno 825, Zink/Turnip ও EEVEE Next দিয়ে
+              measured.
+            </p>
+          </div>
+        </header>
+        <div class="benchmark-strip">
+          <div class="bench">
+            <b>3.9 s</b>
+            <span>MPFB2 CHARACTER BUILD</span>
+          </div>
+          <div class="bench">
+            <b>4 s</b>
+            <span>460 × 800 STILL IMAGE</span>
+          </div>
+          <div class="bench">
+            <b>3.8 s</b>
+            <span>540 × 960 ANIMATION FRAME</span>
+          </div>
+          <div class="bench">
+            <b>7.5 min</b>
+            <span>120 FRAMES / 5-SECOND SHOT</span>
+          </div>
+        </div>
+        <a class="home-section-link" href="/ternux/bn/docs/BENCHMARKS.html">
+          সম্পূর্ণ benchmark log →
+        </a>
+      </div>
+    </section>
+  </main>
+</SiteLayout>

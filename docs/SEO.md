@@ -1,40 +1,14 @@
 ---
 title: "SEO record"
-description: "Ternux search-discoverability audit record: live-site status, verified metadata, changes made and deliberately not made."
+description: "Current Ternux metadata, bilingual indexing and deployment notes."
 lang: "en"
 alt_url: "/bn/docs/SEO.html"
 ---
 
+This is an internal source record and is not published in the documentation navigation or sitemap. The public site is built with Astro and hosted as a GitHub Pages project site at `https://soobujmiah.github.io/ternux/`.
 
-| Field | Value |
-|---|---|
-| **SEO standard** | [soobujmiah SEO Standard v1](https://github.com/soobujmiah/soobujmiah.github.io/blob/main/docs/SEO_STANDARD.md) |
-| **Last audit** | 2026-09-16 |
-| **Site status** | `LIVE_SITE` — https://soobujmiah.github.io/ternux/ (GitHub Pages, Jekyll) |
-| **Search intent** | Linux desktop on Android · Termux · Debian · no-root · ARM64 · Adreno / Zink / Turnip / Vulkan |
-| **Identity hub** | https://soobujmiah.github.io/ (author: Sobuj Miah) |
+The shared Astro page shell supplies a unique title and description, canonical URL, reciprocal English/Bengali `hreflang` links, Open Graph and Twitter card metadata, localized language, and SoftwareApplication or TechArticle JSON-LD. The build writes `robots.txt`, a sitemap with language alternates, and `.nojekyll` into the deployment artifact. Internal release-plan pages are marked `noindex` and omitted from the sitemap.
 
-## Audit result (2026-09-16)
+Google Search Console verification is not configured here because the owner confirmed this site is covered by the portfolio property's verification. Do not add a token without an explicit request.
 
-| Check | Result |
-|---|---|
-| `<title>`, description, canonical, `lang`, viewport, robots meta | PASS |
-| `robots.txt`, `sitemap.xml` (EN + BN pages) | PASS |
-| `hreflang` en / bn / x-default | PASS |
-| Open Graph (title, description, url, image 1200×630 + alt, locale, site_name) | PASS |
-| Twitter card | image present; **title/description were missing → added** |
-| JSON-LD | PASS — `SoftwareApplication` (author Person → portfolio), `BreadcrumbList` (Portfolio → Ternux) |
-| Backlink to portfolio / to GitHub source / to ADT | PASS |
-| Repository description, homepage, 14 topics | PASS (strong technical base) |
-| README author + portfolio link | **GAP → added** |
-| Intent phrases (Linux desktop on Android, Debian on Android, Termux Linux desktop, no-root, ARM64 Linux on Android, GPU-accelerated) | partial → one natural sentence added to README |
-
-## Changes made
-
-- `index.html`: `twitter:title`, `twitter:description` added (values mirror existing OG tags).
-- `README.md`: SEO badge; one search-intent paragraph; author → portfolio link; sibling link to ADT.
-- GitHub topics: added `linux-on-android`, `arm64`, `debian-on-android`, `termux-x11`.
-
-## Deliberately NOT changed
-
-Site layout, copy, animations, docs, bilingual pairs, sitemap, canonical, JSON-LD, repository description (already precise).
+Before switching GitHub Pages to GitHub Actions, confirm that the workflow build completes. The deployment workflow publishes only `dist/`; it does not publish repository source files.

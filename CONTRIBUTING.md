@@ -82,7 +82,7 @@ Then:
 1. make one coherent change;
 2. add or update a focused test;
 3. update English and Bengali documentation where behavior changes;
-4. update `_data/docs.yml` if a documentation page or label changes;
+4. update `src/data/navigation.ts` if a documentation page or label changes;
 5. run the validation commands below;
 6. inspect `git diff` for generated files, secrets, and unrelated edits;
 7. open a pull request using the repository template.
@@ -108,11 +108,12 @@ required; clarity matters more than a specific prefix scheme.
 
 ## Documentation standards
 
-The site navigation source is `_data/docs.yml`. English and Bengali lists must stay
-in the same order and expose matching destinations. Core pages live in `docs/` and
-`bn/docs/`; landing pages are `index.html` and `bn/index.html`. Repository-only
-technical guides may live in `guides/` and `bn/guides/`; exclude them from the
-website build and link them from the appropriate short web guide.
+The website is built with Astro. Navigation lives in `src/data/navigation.ts`; keep
+English and Bengali lists in the same order with matching destinations. Content
+sources live in `docs/`, `bn/docs/`, and the paired root changelog/contribution
+files. Homepages are `src/pages/index.astro` and `src/pages/bn/index.astro`.
+Repository-only technical guides live in `guides/` and `bn/guides/`; keep them out
+of the site build and link them from the appropriate web guide.
 
 When changing a user-facing behavior:
 
@@ -140,8 +141,9 @@ for file in install.sh uninstall.sh bin/ternux lib/*.sh; do
   bash -n "$file"
 done
 
-node --check assets/js/docs.js
-node --check assets/js/codecopy.js
+npm ci
+npm run build
+node --check scripts/finalize-site.mjs
 git diff --check
 ```
 
@@ -163,9 +165,9 @@ uninstall.sh           scoped removal entry point
 tests/                  focused and Bats regressions
 docs/                   English technical documentation
 bn/docs/                Bengali technical documentation
-_data/docs.yml          mirrored site navigation model
-_layouts/default.html   documentation application shell
-assets/                 local CSS, JavaScript, fonts, and social image
+src/                    Astro pages, shared shell, styles, and content loader
+package.json            pinned site dependencies and build commands
+assets/                 fonts and social preview image
 share/templates/        schemas and managed templates
 .github/                issue, pull-request, ownership, and automation policy
 ```

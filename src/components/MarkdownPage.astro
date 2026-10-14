@@ -1,0 +1,76 @@
+---
+import SiteLayout from "../layouts/SiteLayout.astro";
+import { getPage, baseUrl } from "../lib/content";
+import { nav } from "../data/navigation";
+const { source } = Astro.props;
+const page = getPage(source);
+const lang = page.lang;
+const pageNav = nav[lang === "bn" ? "bn" : "en"];
+const canonical = source.startsWith("bn/")
+  ? `/bn/${source.replace(/^bn\//, "").replace(".md", ".html")}`
+  : `/${source.replace(".md", ".html")}`;
+---
+
+<SiteLayout
+  title={page.title}
+  description={page.description}
+  lang={lang}
+  canonical={canonical}
+  altUrl={page.alt_url}
+  article
+>
+  <div class="article-shell">
+    <aside class="sidebar">
+      <b>{lang === "bn" ? "ডকুমেন্টেশন" : "DOCUMENTATION"}</b>
+      <nav>
+        {pageNav.map((group) => (
+          <section>
+            <h2>{group.label}</h2>
+            <ul>
+              {group.items.map(([label, href]) => (
+                <li>
+                  <a
+                    href={baseUrl(href)}
+                    aria-current={
+                      baseUrl(href.replace(/\/$/, "/index.html")) ===
+                      baseUrl(canonical)
+                        ? "page"
+                        : undefined
+                    }
+                  >
+                    {label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))}
+      </nav>
+    </aside>
+    <main class="article" id="main">
+      <div class="crumb">
+        <a href={baseUrl(lang === "bn" ? "/bn/" : "/")}>
+          {lang === "bn" ? "হোম" : "HOME"}
+        </a>
+        　/　{page.title}
+      </div>
+      <h1>{page.title}</h1>
+      <p class="description">{page.description}</p>
+      <article set:html={page.html} />
+    </main>
+    <aside class="toc">
+      <b>{lang === "bn" ? "এই পৃষ্ঠায়" : "ON THIS PAGE"}</b>
+      <nav data-toc></nav>
+    </aside>
+  </div>
+  <script>
+    const toc = document.querySelector("[data-toc]");
+    document.querySelectorAll(".article h2,.article h3").forEach((h) => {
+      if (!h.id || !toc) return;
+      const a = document.createElement("a");
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent || "";
+      toc.append(a);
+    });
+  </script>
+</SiteLayout>

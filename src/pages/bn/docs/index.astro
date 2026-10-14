@@ -1,0 +1,60 @@
+---
+import SiteLayout from "../../../layouts/SiteLayout.astro";
+import { getPage, baseUrl } from "../../../lib/content";
+import { nav } from "../../../data/navigation";
+const page = getPage("bn/docs/index.md");
+---
+
+<SiteLayout
+  title={page.title}
+  description={page.description}
+  lang="bn"
+  canonical="/bn/docs/"
+  altUrl="/docs/"
+  article
+>
+  <div class="article-shell">
+    <aside class="sidebar">
+      <b>গাইড ও রেফারেন্স</b>
+      <nav>
+        {nav.bn.map((group) => (
+          <section>
+            <h2>{group.label}</h2>
+            <ul>
+              {group.items.map(([label, href]) => (
+                <li>
+                  <a
+                    href={baseUrl(href)}
+                    aria-current={href === "/bn/docs/" ? "page" : undefined}
+                  >
+                    {label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))}
+      </nav>
+    </aside>
+    <main class="article" id="main">
+      <div class="crumb">হোম / ডকস</div>
+      <h1>{page.title}</h1>
+      <p class="description">{page.description}</p>
+      <article set:html={page.html} />
+    </main>
+    <aside class="toc">
+      <b>এই পৃষ্ঠায়</b>
+      <nav data-toc></nav>
+    </aside>
+  </div>
+  <script>
+    const toc = document.querySelector("[data-toc]");
+    document.querySelectorAll(".article h2,.article h3").forEach((h) => {
+      if (!h.id || !toc) return;
+      const a = document.createElement("a");
+      a.href = `#${h.id}`;
+      a.textContent = h.textContent || "";
+      toc.append(a);
+    });
+  </script>
+</SiteLayout>

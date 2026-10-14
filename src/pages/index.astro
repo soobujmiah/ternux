@@ -1,0 +1,313 @@
+---
+import SiteLayout from "../layouts/SiteLayout.astro";
+---
+
+<SiteLayout
+  title="Linux, beyond the desktop"
+  description="Turn an ARM64 Android phone into a no-root Debian workstation. Termux, PRoot, Xfce and evidence-led Adreno GPU acceleration."
+  canonical="/"
+  altUrl="/bn/"
+>
+  <main id="main">
+    <section class="home-hero">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <span class="eyebrow">ANDROID × DEBIAN · FIELD SYSTEM 01</span>
+          <h1>
+            Linux,
+            <br />
+            <em>in your pocket.</em>
+          </h1>
+          <p>
+            A complete ARM64 Linux workstation running on Android. No root. No
+            remote server. Just a carefully engineered stack that turns a phone
+            into a real place to build, render and compute.
+          </p>
+          <div class="hero-actions">
+            <a class="button primary" href="/ternux/docs/QUICK-START.html">
+              DEPLOY YOUR WORKSTATION <span>↗</span>
+            </a>
+            <a class="button" href="/ternux/docs/ARCHITECTURE.html">
+              EXPLORE THE STACK <span>→</span>
+            </a>
+          </div>
+          <div class="hero-label">
+            NO ROOT REQUIRED　/　OPEN SOURCE　/　EVIDENCE LED
+          </div>
+        </div>
+        <div
+          class="system-visual"
+          aria-label="Animated system architecture diagram"
+        >
+          <span class="signal s1"></span>
+          <span class="signal s2"></span>
+          <div class="stack-cube">
+            <small>01 / HOST</small>
+            <strong>Android · Termux</strong>
+            <span>ARM64 userspace · storage bridge</span>
+          </div>
+          <div class="stack-cube">
+            <small>02 / GRAPHICS PATH</small>
+            <strong>Zink → Turnip → Adreno</strong>
+            <span>OpenGL · Vulkan · Qualcomm GPU</span>
+          </div>
+          <div class="stack-cube">
+            <small>03 / WORKSPACE</small>
+            <strong>Debian 13 · Xfce 4</strong>
+            <span>PRoot · Termux:X11 · native apps</span>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="metrics" aria-label="Measured device profile">
+      <div class="metric">
+        <b>ARM64</b>
+        <span>ANDROID HOST ARCHITECTURE</span>
+      </div>
+      <div class="metric">
+        <b>0 root</b>
+        <span>PRIVILEGE ESCALATION REQUIRED</span>
+      </div>
+      <div class="metric">
+        <b>Adreno</b>
+        <span>QUALIFIED GPU ROUTE · DEVICE SPECIFIC</span>
+      </div>
+      <div class="metric">
+        <b>Debian 13</b>
+        <span>LINUX WORKSPACE BASE</span>
+      </div>
+    </section>
+    <section class="section" id="system-map">
+      <div class="container">
+        <header class="section-head">
+          <span class="eyebrow">01 / SYSTEM MAP</span>
+          <div>
+            <h2>
+              One device.
+              <br />A layered workstation.
+            </h2>
+            <p>
+              Each boundary has a clear job. Ternux assembles the host, Linux
+              environment, display and graphics route into one inspectable
+              system.
+            </p>
+          </div>
+        </header>
+        <div class="architecture">
+          <article class="arch-node" data-index="HOST / 01">
+            <h3>Android</h3>
+            <p>Phone hardware, kernel and power policy remain in control.</p>
+          </article>
+          <article class="arch-node" data-index="SHELL / 02">
+            <h3>Termux</h3>
+            <p>Native ARM64 tools, launcher and shared storage.</p>
+          </article>
+          <article class="arch-node" data-index="LINUX / 03">
+            <h3>PRoot · Debian</h3>
+            <p>Debian userspace with Xfce desktop and Linux applications.</p>
+          </article>
+          <article class="arch-node" data-index="DISPLAY / 04">
+            <h3>Termux:X11</h3>
+            <p>Native Android display server connected to the Linux desktop.</p>
+          </article>
+          <article class="arch-node" data-index="GPU / 05">
+            <h3>Zink · Turnip</h3>
+            <p>
+              Device-specific OpenGL over Vulkan, with evidence kept explicit.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+    <section class="section" id="capabilities" style="padding-top:10px">
+      <div class="container">
+        <header class="section-head">
+          <span class="eyebrow">02 / CAPABILITIES</span>
+          <div>
+            <h2>Built for actual work.</h2>
+            <p>
+              Choose focused workloads and understand what is installed, how it
+              runs and what the device has actually proven.
+            </p>
+          </div>
+        </header>
+        <div class="feature-grid">
+          <article class="feature">
+            <small>01 — GRAPHICS</small>
+            <h3>GPU accelerated desktop</h3>
+            <p>
+              Run Xfce and supported OpenGL applications through the tested
+              Zink/Turnip path on qualified Adreno hardware.
+            </p>
+            <a href="/ternux/docs/GRAPHICS-PERSISTENCE.html">
+              GRAPHICS ROUTES ↗
+            </a>
+          </article>
+          <article class="feature">
+            <small>02 — 3D CREATION</small>
+            <h3>Blender on ARM64</h3>
+            <p>
+              Build, rig and render 3D scenes. The Redmi Turbo 4 Pro evidence
+              includes the MPFB2 human generation pipeline.
+            </p>
+            <a href="/ternux/docs/BENCHMARKS.html">DEVICE RESULTS ↗</a>
+          </article>
+          <article class="feature">
+            <small>03 — LOCAL AI</small>
+            <h3>Local inference workloads</h3>
+            <p>
+              Opt-in model workloads, with CPU, GPU and experimental accelerator
+              results kept separate.
+            </p>
+            <a href="/ternux/docs/WORKLOADS.html">WORKLOADS ↗</a>
+          </article>
+          <article class="feature">
+            <small>04 — DEVELOPMENT</small>
+            <h3>Code where you are</h3>
+            <p>
+              Use Linux CLI tools, language runtimes and editors from the same
+              pocket-sized workstation.
+            </p>
+            <a href="/ternux/docs/USAGE.html">DAILY USE ↗</a>
+          </article>
+          <article class="feature">
+            <small>05 — CONTROL</small>
+            <h3>Auditable installation</h3>
+            <p>
+              Read the Bash installer, inspect each phase, select workloads and
+              verify system state.
+            </p>
+            <a href="/ternux/docs/INSTALLATION.html">INSTALLATION ↗</a>
+          </article>
+          <article class="feature">
+            <small>06 — HONEST LIMITS</small>
+            <h3>Evidence before claims</h3>
+            <p>
+              Measured, observed and untested are different states. Results are
+              tied to their device and reproduction details.
+            </p>
+            <a href="/ternux/docs/BENCHMARKS.html">EVIDENCE STANDARD ↗</a>
+          </article>
+        </div>
+      </div>
+    </section>
+    <section class="section" id="device-profile" style="padding-top:10px">
+      <div class="container">
+        <div class="device-panel">
+          <div class="device-copy">
+            <span class="eyebrow">FIELD PROFILE / 01</span>
+            <h2>Redmi Turbo 4 Pro</h2>
+            <p>
+              Current verified workstation profile: Snapdragon 8s Gen 4 · Adreno
+              825 · Debian 13 arm64 in PRoot. Blender 4.3.2 and MPFB2 2.0.18
+              were installed and used to generate, rig, dress and animate human
+              characters.
+            </p>
+            <p>
+              These timings describe this device and configured software
+              session. They are not a promise for other phones.
+            </p>
+            <a class="button" href="/ternux/docs/BENCHMARKS.html">
+              READ FULL DEVICE EVIDENCE →
+            </a>
+          </div>
+          <div class="device-data">
+            <div>
+              <small>Character rebuild</small>
+              <strong>3.9 seconds</strong>
+            </div>
+            <div>
+              <small>Human base mesh</small>
+              <strong>0.4 seconds</strong>
+            </div>
+            <div>
+              <small>Still render</small>
+              <strong>~4 seconds</strong>
+            </div>
+            <div>
+              <small>5-second animation</small>
+              <strong>~7.5 minutes</strong>
+            </div>
+            <div>
+              <small>Blender</small>
+              <strong>4.3.2</strong>
+            </div>
+            <div>
+              <small>Character generator</small>
+              <strong>MPFB2 · 2.0.18</strong>
+            </div>
+          </div>
+        </div>
+        <p class="notice">
+          Character generation produces an anatomically correct base mesh.
+          Grooming, finished materials, clothing design, expressive posing and
+          photoreal presentation need additional work.
+        </p>
+      </div>
+    </section>
+    <section class="section" id="install" style="padding-top:20px">
+      <div class="container">
+        <div class="install-panel">
+          <div>
+            <span class="eyebrow">03 / FIRST BOOT</span>
+            <h2>Bring your Linux workstation online.</h2>
+            <p>
+              Install Termux from a trusted source, then follow the quick-start
+              guide. The setup is explicit, inspectable and designed around the
+              phone's real boundaries.
+            </p>
+            <a class="button primary" href="/ternux/docs/QUICK-START.html">
+              OPEN QUICK START ↗
+            </a>
+          </div>
+          <div class="command">
+            <small>TERMUX / SHELL</small>
+            <button type="button" data-copy>
+              COPY
+            </button>
+            <code>
+              curl -fsSL
+              https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh
+              | bash
+            </code>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="section" id="benchmarks" style="padding-top:0">
+      <div class="container">
+        <header class="section-head">
+          <span class="eyebrow">04 / VERIFIED OUTPUT</span>
+          <div>
+            <h2>Numbers with their context.</h2>
+            <p>
+              Measured on the Redmi Turbo 4 Pro using Adreno 825, Zink/Turnip
+              and EEVEE Next.
+            </p>
+          </div>
+        </header>
+        <div class="benchmark-strip">
+          <div class="bench">
+            <b>3.9 s</b>
+            <span>MPFB2 CHARACTER BUILD</span>
+          </div>
+          <div class="bench">
+            <b>4 s</b>
+            <span>460 × 800 STILL IMAGE</span>
+          </div>
+          <div class="bench">
+            <b>3.8 s</b>
+            <span>540 × 960 ANIMATION FRAME</span>
+          </div>
+          <div class="bench">
+            <b>7.5 min</b>
+            <span>120 FRAMES / 5-SECOND SHOT</span>
+          </div>
+        </div>
+        <a class="home-section-link" href="/ternux/docs/BENCHMARKS.html">
+          OPEN COMPLETE BENCHMARK LOG →
+        </a>
+      </div>
+    </section>
+  </main>
+</SiteLayout>
