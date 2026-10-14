@@ -1,0 +1,7 @@
+event_id: commit-67d2fe491a72-6338038ea2a3f1b7
+repository: soobujmiah/ternux
+commit: 67d2fe491a728703ed2b6f933ed4ec7c6663563f
+kind: commit
+occurred_at: '2026-10-14T20:38:29Z'
+status: completed
+summary: 'feat(site): migrate Ternux to a futuristic bilingual Astro site (#27)'
