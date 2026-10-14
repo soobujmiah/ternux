@@ -55,8 +55,7 @@ installer base-এ প্রায় **৬ GB free** এবং `--all`-এ **�
 curl -fsSL https://soobujmiah.github.io/ternux/install.sh | bash
 ```
 
-এটি HTTPS-এ ইনস্টলার নামিয়ে চালায়। এই রিপোজিটরির সেই একই স্ক্রিপ্ট —
-লুকানো কিছু নেই, কম্পাইলড কিছু নেই।
+এটি HTTPS-এ ইনস্টলার নামিয়ে চালায়। সাথে terminal থাকলে script pipe হলেও installer `/dev/tty` দিয়ে prompt এবং optional workload chooser দেখায়। Controlling terminal না থাকলে base profile install হয়। Prompt ছাড়া base install চাইলে `--yes` দিন। এই রিপোজিটরির সেই একই স্ক্রিপ্ট — লুকানো কিছু নেই, compiled কিছু নেই।
 
 ইনস্টলার একটিমাত্র স্থায়ী স্ক্রিন আঁকে — device panel, step progress, live log
 window ও অতিবাহিত সময় — এবং শেষ status পর্যন্ত সেটিই রাখে। Package output
@@ -77,6 +76,10 @@ source-ই রাখে এবং frame-এর ভেতর `termux-change-repo`
 ```bash
 wget -qO- https://soobujmiah.github.io/ternux/install.sh | bash
 ```
+
+### Optional workload সংখ্যা দিয়ে বাছাই
+
+কোনো workload flag ছাড়া interactive install-এ installer GPU route দেখে পরামর্শ দেয়, তারপর সংখ্যা চায়। একটি সংখ্যা বা comma দিয়ে একাধিক দিন, যেমন `1,5`; শুধু base desktop-এর জন্য Enter বা `0`, সব optional workload-এর জন্য `6`। `--yes` chooser বাদ দিয়ে base profile রাখে; `--with-*` flag নির্দিষ্ট workload এবং `--all` সবগুলো বেছে নেয়। Detected Adreno/Zink route-এ Blender পরামর্শ দেখাবে—এটি উপযোগিতার পরামর্শ, সব device-এ GPU rendering সমর্থনের নিশ্চয়তা নয়।
 
 ### পদ্ধতি ২ — সব executable অংশ পড়ুন, তারপর চালান
 

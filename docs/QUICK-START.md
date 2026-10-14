@@ -34,6 +34,8 @@ curl -fsSL https://soobujmiah.github.io/ternux/install.sh | bash
 wget -qO- https://soobujmiah.github.io/ternux/install.sh | bash
 ```
 
+With a controlling terminal, the one-command installer also offers a numbered optional-workload chooser. Press Enter for the base desktop, enter a comma-separated selection such as `1,5`, or choose `6` for all optional workloads. In a non-interactive run, use `--yes` to keep the base profile.
+
 The installer:
 
 1. checks the device (architecture, Android version, storage, network);

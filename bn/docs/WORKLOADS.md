@@ -15,6 +15,12 @@ installer-এর একটি flag। Manual পথ হলো একই command 
 চালাচ্ছেন — যাতে চালানোর আগে পড়ে নিতে পারেন, এবং ব্যর্থ একটি install গোড়া থেকে
 শুরু না করে হাতে শেষ করতে পারেন।
 
+Interactive install-এ workload সংখ্যা দিয়ে বাছুন (`1` development, `2` local AI,
+`3` network, `4` media, `5` Blender; একাধিক হলে comma দিন)। `6` সবগুলো,
+Enter/`0` শুধু base desktop। Detected graphics route দেখে installer পরামর্শ দেয়
+এবং RAM/storage সীমা জানায়। `--yes` এবং non-interactive run-এ flag না থাকলে
+base profile-ই থাকে।
+
 <h2 id="the-workloads">ওয়ার্কলোডগুলো</h2>
 
 | Workload | Flag | কী বসায় |

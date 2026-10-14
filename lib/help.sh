@@ -111,6 +111,10 @@ Options:
   --ui MODE            Renderer: auto, dashboard, plain or off (default: auto)
   --plain              Plain scrolling output instead of the dashboard
   --no-anim            Freeze the spinner and colour cycling
+
+With no workload flags, an interactive install shows a numbered chooser:
+1 development, 2 llama.cpp, 3 network, 4 media, 5 Blender, 6 all, 0 base only.
+Run 'bash install.sh' for a fresh setup or 'ternux install' from the host CLI.
 HELP
 }
 

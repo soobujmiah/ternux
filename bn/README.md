@@ -62,6 +62,18 @@ ternux stop       # desktop বন্ধ
 `x` desktop চালায়; `xgo` Termux:X11 খুলে desktop চালায়। Debian shell-এর জন্য
 Termux-এ `db` চালান। Debian-এর ভেতরে Android shared storage `/sdcard`-এ পাবেন।
 
+## একই device-এ Android development
+
+Ternux Debian guest-এর ভেতরে ADT install করে Android app build, sign ও device-এ
+validate করতে পারবেন। Shared Termux + PRoot host-এ ADT build-to-device workflow
+verified; Ternux Xfce session থেকে চালানো এখনো formally tested নয়।
+[ADT installation steps](docs/INSTALLATION.md)
+এবং [ADT + Ternux relationship](https://github.com/soobujmiah/adt/blob/main/docs/TERNUX_RELATIONSHIP.md) দেখুন।
+
+Blender render-এর জন্য coding agent-কে local GPU MCP দিয়ে route পরীক্ষা ও
+script/scene render করানো যায়। [MCP guide](../tools/blender-gpu-mcp/README.md)
+এবং [render evidence](../experiments/cartoon-pipeline/README.md) দেখুন।
+
 ## আরও সহায়তা
 
 - [বিস্তারিত ডকুমেন্টেশন](../docs/README.md): install option, হাতে setup,

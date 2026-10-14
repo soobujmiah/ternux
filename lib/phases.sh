@@ -1149,6 +1149,86 @@ tnx_prompt_username() {
   printf '%s\n' "$chosen"
 }
 
+# Parse the numbered optional-workload menu. Keep this separate from the TTY
+# reader so selection rules stay small and can be checked independently.
+tnx_parse_workload_selection() {
+  local input="$1" item seen=""
+  input="$(printf '%s' "$input" | tr -d '[:space:]')"
+  case "$input" in
+    ""|0) printf '\n'; return 0 ;;
+    6) printf 'dev,llm,network,media,blender\n'; return 0 ;;
+  esac
+  [[ "$input" != *0* && "$input" != *6* ]] || return 2
+  local -a choices=()
+  IFS=',' read -r -a choices <<< "$input"
+  for item in "${choices[@]}"; do
+    case "$item" in
+      1) item=dev ;;
+      2) item=llm ;;
+      3) item=network ;;
+      4) item=media ;;
+      5) item=blender ;;
+      *) return 2 ;;
+    esac
+    case ",$seen," in *,"$item",*) continue ;; esac
+    seen="${seen:+$seen,}$item"
+  done
+  printf '%s\n' "$seen"
+}
+
+# Suggest workloads from the detected graphics route, then let a local user
+# select optional installs by number. Non-interactive and --yes installs keep
+# the base profile unless flags explicitly request more.
+tnx_prompt_workloads() {
+  local backend="${1:-virgl}" tty_fd="" input="" selected=""
+  local ram_gb="?" free_gb="?"
+  if { exec 3<>/dev/tty; } 2>/dev/null; then
+    tty_fd=3
+  elif [ -t 0 ]; then
+    tty_fd=0
+  else
+    printf '\n'
+    return 0
+  fi
+
+  printf '\n%sOptional workloads%s (base desktop is always installed)\n' "$TNX_CW" "$TNX_C0" >&2
+  if declare -F tnx_detect_ram_gb >/dev/null 2>&1; then ram_gb="$(tnx_detect_ram_gb)"; fi
+  if declare -F tnx_detect_storage_gb >/dev/null 2>&1; then free_gb="$(tnx_detect_storage_gb "$HOME")"; fi
+  printf '  Device resources: about %s GB RAM, %s GB free storage.\n' "$ram_gb" "$free_gb" >&2
+  if [ "$backend" = "zink" ]; then
+    printf '  %sSuggestion:%s Blender with EEVEE Next; GPU rendering depends on the active Zink/Turnip path.\n' "$TNX_CC" "$TNX_C0" >&2
+  else
+    printf '  %sSuggestion:%s development tools or media apps; this device selected the VirGL compatibility route.\n' "$TNX_CC" "$TNX_C0" >&2
+  fi
+  if [[ "$ram_gb" =~ ^[0-9]+$ ]] && [ "$ram_gb" -lt 6 ]; then
+    printf '  %sResource note:%s Android and Debian share RAM; local model builds/runs may be constrained.\n' "$TNX_CY" "$TNX_C0" >&2
+  fi
+  if [[ "$free_gb" =~ ^[0-9]+$ ]] && [ "$free_gb" -lt 14 ]; then
+    printf '  %sResource note:%s the full set targets about 14 GB free for install, downloads and build cache.\n' "$TNX_CY" "$TNX_C0" >&2
+  fi
+  printf '  1) Development   Git, Python, Node.js and compilers\n' >&2
+  printf '  2) llama.cpp     Vulkan build; model not included; needs extra RAM and storage\n' >&2
+  printf '  3) Network       nmap and tmux; for systems you are authorised to test\n' >&2
+  printf '  4) Media         FFmpeg, GIMP, Audacity and ImageMagick\n' >&2
+  printf '  5) Blender       Blender + Xvfb for desktop/headless EEVEE workflows\n' >&2
+  printf '  6) All optional workloads (about 10–12 GB installed; reserve extra download space)\n' >&2
+  printf '  0) Base desktop only\n' >&2
+
+  while true; do
+    printf 'Choose numbers separated by commas [default: 0]: ' >&2
+    if ! IFS= read -r -u "$tty_fd" input; then
+      printf '\n'
+      break
+    fi
+    if selected="$(tnx_parse_workload_selection "$input")"; then
+      printf '%s\n' "$selected"
+      break
+    fi
+    printf '%s[WARN]%s Use 1–5 separated by commas, 6 for all, or 0 for base only.\n' "$TNX_CY" "$TNX_C0" >&2
+  done
+  [ "$tty_fd" = "3" ] && exec 3>&-
+}
+
 # ---------------------------------------------------------------------------
 # Full installation orchestrator
 # ---------------------------------------------------------------------------
@@ -1264,6 +1344,15 @@ tnx_install() {
     [ -e "${TERNUX_KGSL_DEVICE:-/dev/kgsl-3d0}" ] && backend="zink" || backend="virgl"
   fi
 
+  if [ "$resume" -eq 0 ] && [ "$yes" -eq 0 ] && [ "${#extras[@]}" -eq 0 ]; then
+    local workload_selection=""
+    workload_selection="$(tnx_prompt_workloads "$backend")"
+    if [ -n "$workload_selection" ]; then
+      IFS=',' read -r -a extras <<< "$workload_selection"
+      [ "$workload_selection" = "dev,llm,network,media,blender" ] && full=1
+    fi
+  fi
+
   if [ "$full" -eq 1 ]; then
     profile="full"
   elif [ ${#extras[@]} -gt 0 ]; then
@@ -1273,6 +1362,26 @@ tnx_install() {
   export TERNUX_INSTALL_PROFILE
 
   tnx_banner
+
+  local -a plan_summary=("Desktop" "Debian + Xfce4" "GPU route" "$backend" "User" "$user_name" "Profile" "$profile")
+  local workload workload_label workload_number=0
+  if [ "${#extras[@]}" -eq 0 ]; then
+    plan_summary+=("Optional" "Base desktop only")
+  else
+    for workload in "${extras[@]}"; do
+      workload_number=$((workload_number + 1))
+      case "$workload" in
+        dev) workload_label="Development tools" ;;
+        llm) workload_label="llama.cpp + Vulkan" ;;
+        network) workload_label="Network tools" ;;
+        media) workload_label="Media tools" ;;
+        blender) workload_label="Blender + Xvfb" ;;
+        *) workload_label="$workload" ;;
+      esac
+      plan_summary+=("Workload $workload_number" "$workload_label")
+    done
+  fi
+  tnx_summary_box "Install Plan" "${plan_summary[@]}"
 
   if ! tnx_confirm "Install ternux with backend '$backend' and Debian user '$user_name'?"; then
     tnx_info "Installation cancelled; no phase was started."

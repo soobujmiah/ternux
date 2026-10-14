@@ -62,6 +62,16 @@ The `x` shortcut starts the desktop; `xgo` opens Termux:X11 and starts it.
 Inside Debian, use `db` from Termux to open a shell. Shared Android storage is
 available at `/sdcard` inside Debian.
 
+For Android app development on this same device, install ADT inside the Ternux
+Debian guest. The build-to-device workflow is validated on the shared Termux +
+PRoot host; use from inside the Ternux Xfce session is not formally tested yet.
+See the [ADT setup steps](docs/INSTALLATION.md#install-adt-tools-inside-the-ternux-debian-guest)
+and [ADT + Ternux notes](https://github.com/soobujmiah/adt/blob/main/docs/TERNUX_RELATIONSHIP.md).
+
+For Blender work, coding agents can use Ternux's local GPU MCP to check the
+render route and run scripts or scenes with the measured EEVEE setup. See the
+[MCP guide](tools/blender-gpu-mcp/README.md) and [render evidence](experiments/cartoon-pipeline/README.md).
+
 ## More help
 
 - [Deep documentation index](docs/README.md): installation options, manual
@@ -70,6 +80,7 @@ available at `/sdcard` inside Debian.
 - [Benchmarks](docs/BENCHMARKS.md): measured device results and their limits.
 - [Changelog](CHANGELOG.md)
 
-The website provides the same short install and usage path, with links to the
-deeper guides. Current experimental CPU/GPU/NPU release gates are tracked in
-[`docs/ACCELERATOR-RELEASE-PLAN.md`](docs/ACCELERATOR-RELEASE-PLAN.md).
+With a terminal attached, the one-command installer suggests optional workloads and lets you choose by number; Enter keeps the base desktop, while `--yes` skips prompts and installs the base profile. The website provides the same short install and usage path, explains the numbered
+choices and summarizes practical device workloads; deeper technical procedures
+remain in the repository guides. Current experimental CPU/GPU/NPU release gates
+are tracked in [`docs/ACCELERATOR-RELEASE-PLAN.md`](docs/ACCELERATOR-RELEASE-PLAN.md).

@@ -218,7 +218,7 @@ alt_url: "/bn/"
         <span class="tag">arm64 · gpu</span>
       </a>
       <nav class="site-nav" aria-label="Sections">
-        <a href="#install">Install</a><a href="#use">Usage</a><a href="#docs">More help</a>
+        <a href="#install">Install</a><a href="#use">Usage</a><a href="#capabilities">What you can do</a><a href="#docs">More help</a>
         <a href="https://github.com/soobujmiah/ternux">Repository</a>
         <a href="{{ '/bn/' | relative_url }}" hreflang="bn" lang="bn">বাংলা</a>
       </nav>
@@ -262,7 +262,7 @@ alt_url: "/bn/"
 curl -fsSL https://soobujmiah.github.io/ternux/install.sh | bash</pre>
       <p class="note">If curl is unavailable, use wget:</p>
       <pre class="cmd">wget -qO- https://soobujmiah.github.io/ternux/install.sh | bash</pre>
-      <p class="note">The base install uses about 3–4 GB. Keep extra space for downloads and caches.</p>
+      <p class="note">The base install uses about 3–4 GB. Keep extra space for downloads and caches. With a terminal attached, choose optional workloads by number: 1 development, 2 llama.cpp, 3 network, 4 media, 5 Blender, 6 all; press Enter or 0 for base only. Use <code>--yes</code> for unattended base install.</p>
     </section>
 
     <section id="use" aria-labelledby="use-h" class="reveal">
@@ -275,15 +275,27 @@ x</pre>
 ternux verify
 ternux doctor
 ternux stop</pre></article>
-        <article class="card"><h3>Check or diagnose</h3><pre>ternux verify
-ternux doctor</pre></article>
+        <article class="card"><h3>Repair setup</h3><pre>ternux repair</pre><p>Recheck the common setup problems after a driver or package change.</p></article>
         <article class="card"><h3>Open Debian shell</h3><pre>db</pre><p>Run `db` in Termux. Shared Android storage is available at `/sdcard` inside Debian.</p></article>
       </div>
       <p class="note">The `x` shortcut starts the desktop. `xgo` opens Termux:X11 and starts it.</p>
     </section>
 
+    <section id="capabilities" aria-labelledby="capabilities-h" class="reveal">
+      <h2 id="capabilities-h"><span class="n">03</span>What you can do here</h2>
+      <p class="note">Ternux turns this ARM64 phone into a Linux workspace for real projects. The examples below reflect the established Redmi workstation; graphics and performance still depend on your device.</p>
+      <div class="grid">
+        <article class="card"><h3>Build and work in Linux</h3><p>Use a Debian desktop, terminal, editors, Git, Python and Node.js for everyday development. Add the development workload during setup when you need compilers and build tools.</p></article>
+        <article class="card"><h3>Make 3D scenes and animation</h3><p>Blender is available with EEVEE Next. On the established Adreno setup, headless renders use Xvfb and GPU offload through Zink/Turnip. EEVEE rendering is measured on that workstation; Cycles GPU is not qualified. A local MCP lets coding agents check the GPU route and render scripts or scenes with the same setup.</p><a class="more" href="https://github.com/soobujmiah/ternux/blob/main/experiments/cartoon-pipeline/README.md">Blender workflow and evidence →</a><br><a class="more" href="https://github.com/soobujmiah/ternux/blob/main/tools/blender-gpu-mcp/README.md">Agent rendering setup →</a></article>
+        <article class="card"><h3>Run local language models</h3><p>The llama.cpp CPU + Vulkan package has been exercised on the target device. Model files are separate and need enough shared memory. HTP is experimental; Stable Diffusion.cpp inference is not yet tested.</p><a class="more" href="https://soobujmiah.github.io/ternux/docs/BENCHMARKS.html">Measured results and limits →</a></article>
+        <article class="card"><h3>Create and edit media</h3><p>Add FFmpeg, GIMP, Audacity and ImageMagick for video conversion, image work, audio editing and batch processing. These are installable Linux tools; speed varies by device.</p></article>
+        <article class="card"><h3>Develop Android apps</h3><p>The same Termux + PRoot workstation also hosts ADT. Its Flutter/Gradle build, APK install and physical-device validation are verified as an ADT workflow; using ADT directly inside a Ternux desktop session is not yet formally tested.</p><a class="more" href="https://soobujmiah.github.io/adt/">Explore ADT →</a><br><a class="more" href="https://github.com/soobujmiah/ternux/blob/main/docs/INSTALLATION.md#install-adt-tools-inside-the-ternux-debian-guest">Use ADT in the Debian guest →</a></article>
+      </div>
+      <p class="note-amber">Optional workloads are selected by number during interactive installation. The full set needs about 10–12 GB installed plus temporary download/build space; select only what you plan to use.</p>
+    </section>
+
     <section id="docs" aria-labelledby="docs-h" class="reveal">
-      <h2 id="docs-h"><span class="n">03</span>More help</h2>
+      <h2 id="docs-h"><span class="n">04</span>More help</h2>
       <p class="note">Detailed setup options, CLI reference, architecture, benchmarks and troubleshooting live in the repository guides.</p>
       <p><a class="btn" href="https://github.com/soobujmiah/ternux/blob/main/docs/README.md">Browse deep documentation →</a></p>
       <p class="note-amber">Graphics route and performance depend on the device. Use `ternux verify` to inspect your setup.</p>

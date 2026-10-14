@@ -309,8 +309,9 @@ case "${ACTION}" in
     ;;
   resume|install)
     # Preserve argument boundaries and pass --yes only when the caller asked
-    # for it. A local TTY run gets one confirmation; a curl|bash run has no
-    # TTY and proceeds with the documented defaults.
+    # for it. Prompts use /dev/tty, so curl|bash can still offer the numbered
+    # workload chooser when launched from an attached terminal. Without a
+    # controlling terminal it uses the base profile.
     INSTALL_ARGS=()
     [ "$USER_SET" = "1" ] && INSTALL_ARGS+=(--user "$USER_NAME")
     [ "$LOCALE_SET" = "1" ] && INSTALL_ARGS+=(--locale "$LOCALE")

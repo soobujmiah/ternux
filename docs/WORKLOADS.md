@@ -15,6 +15,12 @@ one-command route is a flag on the installer. The manual route is the same
 commands run yourself inside the guest, so you can read them before they run
 and so a failed install can be finished by hand instead of started over.
 
+During an interactive install, choose workloads by number (`1` development, `2`
+local AI, `3` network, `4` media, `5` Blender; separate multiple choices with
+commas). Choose `6` for all or press Enter/`0` for the base desktop. The installer
+suggests from the graphics route and reports RAM and free-storage limits. `--yes`
+and non-interactive runs keep the base profile unless flags select workloads.
+
 ## The workloads
 
 | Workload | Flag | What it installs |
