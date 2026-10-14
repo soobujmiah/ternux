@@ -15,7 +15,7 @@ basic-usage path, then link here for details.
 | Section | Pages |
 |---|---|
 | Start here | `QUICK-START.md`, `INSTALLATION.md`, `MANUAL.md` |
-| Repository deep guides | [`../guides/device-benchmark-evidence.md`](../guides/device-benchmark-evidence.md), [`../guides/llama-vulkan-extension.md`](../guides/llama-vulkan-extension.md), matching `../bn/guides/` pages (source repository only; not rendered on the website) |
+| Repository deep guides | [`../guides/device-benchmark-evidence.md`](../guides/device-benchmark-evidence.md), [`../guides/llama-vulkan-extension.md`](../guides/llama-vulkan-extension.md), [`../guides/llama-htp-experimental.md`](../guides/llama-htp-experimental.md), matching `../bn/guides/` pages (source repository only; not rendered on the website) |
 | Operate | `USAGE.md`, `BLENDER-MCP.md`, `CONFIGURATION.md`, `TROUBLESHOOTING.md` |
 | Understand | `ARCHITECTURE.md`, `BENCHMARKS.md`, `FAQ.md` |
 | Reference | `CLI.md`, root `CHANGELOG.md`, root `CONTRIBUTING.md` |

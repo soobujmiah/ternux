@@ -175,6 +175,15 @@ Keep your GGUF model wherever it already is. Vulkan needs a working system
 Vulkan driver. For the manual install route, checksum and archive checks, backend
 details, and recovery steps, see the [repository extension guide](https://github.com/soobujmiah/ternux/blob/main/guides/llama-vulkan-extension.md).
 
+### Experimental Hexagon HTP on SM8735
+
+Ternux also lists a separate experimental HTP extension for the Redmi Turbo 4
+Pro / SM8735. It is not a supported release feature. Install from Termux with
+`ternux extension install llama-htp-experimental`; the Debian guest needs
+`libgbinder1`, `libglibutil1`, and `libfastrpc1`. Its known-answer-safe settings,
+current failures, and device qualification status are in the
+[repository HTP guide](https://github.com/soobujmiah/ternux/blob/main/guides/llama-htp-experimental.md).
+
 ## Next
 
 - [Installation](INSTALLATION.html) — every phase explained, all options, uninstall

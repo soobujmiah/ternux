@@ -1154,7 +1154,13 @@ if env HOME="$TMP/ext-host-home" PATH="$EXT_HOST_BIN:$PATH" \
     tnx_state_set user sbj
     tnx_state_set distro debian
     tnx_cmd_extension list
-  ' _ "$ROOT" | grep -q 'llama-vulkan.*Linux ARM64'; then
+  ' _ "$ROOT" | grep -q 'llama-vulkan.*Linux ARM64' &&
+  env HOME="$TMP/ext-host-home-htp" PATH="$EXT_HOST_BIN:$PATH" \
+    TERNUX_STATE_DIR="$TMP/ext-host-state-htp" bash -c '
+      . "$1/lib/core.sh"; . "$1/lib/extension.sh"
+      tnx_state_set user sbj; tnx_state_set distro debian
+      tnx_cmd_extension list
+    ' _ "$ROOT" | grep -q 'llama-htp-experimental.*experimental'; then
   ok "host extension command delegates its menu into the selected guest"
 else
   not_ok "host extension command delegates its menu into the selected guest"
@@ -1163,15 +1169,26 @@ fi
 # Release extensions install from checksummed, path-validated archives and do
 # not mutate an existing destination on failure.
 EXT_TAG=ternux-llama-vulkan-linux-arm64-b11582
+HTP_TAG=ternux-llama-htp-sm8735-b11582
 EXT_FIXTURE="$TMP/extension-fixture"
 EXT_BIN="$TMP/extension-bin"
-mkdir -p "$EXT_FIXTURE/$EXT_TAG/bin" "$EXT_BIN"
+mkdir -p "$EXT_FIXTURE/$EXT_TAG/bin" "$EXT_FIXTURE/$HTP_TAG/bin" \
+  "$EXT_FIXTURE/$HTP_TAG/libexec" "$EXT_FIXTURE/$HTP_TAG/lib" "$EXT_BIN"
 printf '#!/bin/sh\necho llama.cpp b11582\n' > "$EXT_FIXTURE/$EXT_TAG/bin/llama-cli"
 chmod 0755 "$EXT_FIXTURE/$EXT_TAG/bin/llama-cli"
 printf 'LLAMA_HOME=fixture\n' > "$EXT_FIXTURE/$EXT_TAG/env.sh"
 printf '{"artifact": "ternux-llama-vulkan-linux-arm64-b11582"}\n' > "$EXT_FIXTURE/$EXT_TAG/build-manifest.json"
 tar -czf "$EXT_FIXTURE/$EXT_TAG.tar.gz" -C "$EXT_FIXTURE" "$EXT_TAG"
 (cd "$EXT_FIXTURE" && sha256sum "$EXT_TAG.tar.gz" > "$EXT_TAG.tar.gz.sha256")
+printf '#!/bin/sh\necho llama.cpp b11582\n' > "$EXT_FIXTURE/$HTP_TAG/bin/llama-cli"
+chmod 0755 "$EXT_FIXTURE/$HTP_TAG/bin/llama-cli"
+printf '#!/bin/sh\nexit 0\n' > "$EXT_FIXTURE/$HTP_TAG/bin/htp-run"
+chmod 0755 "$EXT_FIXTURE/$HTP_TAG/bin/htp-run"
+printf '#!/usr/bin/env python3\n' > "$EXT_FIXTURE/$HTP_TAG/libexec/htp-broker.py"
+: > "$EXT_FIXTURE/$HTP_TAG/lib/libternux-htp-broker.so"
+printf '{"artifact": "ternux-llama-htp-sm8735-b11582"}\n' > "$EXT_FIXTURE/$HTP_TAG/build-manifest.json"
+tar -czf "$EXT_FIXTURE/$HTP_TAG.tar.gz" -C "$EXT_FIXTURE" "$HTP_TAG"
+(cd "$EXT_FIXTURE" && sha256sum "$HTP_TAG.tar.gz" > "$HTP_TAG.tar.gz.sha256")
 cat > "$EXT_BIN/uname" <<'EOF'
 #!/bin/sh
 case "${1:-}" in -s) echo Linux ;; -m) echo aarch64 ;; *) exit 1 ;; esac
@@ -1192,7 +1209,7 @@ cp "$EXT_FIXTURE/${url##*/}" "$out"
 EOF
 cat > "$EXT_BIN/ldconfig" <<'EOF'
 #!/bin/sh
-for library in libssl.so.3 libcrypto.so.3 libgomp.so.1 libvulkan.so.1; do
+for library in libssl.so.3 libcrypto.so.3 libgomp.so.1 libvulkan.so.1 libgbinder.so.1 libglibutil.so.1 libcdsprpc.so.1; do
   [ "$library" = "${EXT_MISSING_LIBRARY:-}" ] || printf '%s (libc6,AArch64) => /usr/lib/%s\n' "$library" "$library"
 done
 EOF
@@ -1227,6 +1244,27 @@ if env HOME="$TMP/ext-home-ok" EXT_GLIBC_VERSION=2.38 EXT_CURL_LOG="$TMP/ext-dow
   ok "extension installer verifies and atomically installs the selected release"
 else
   not_ok "extension installer verifies and atomically installs the selected release"
+fi
+if ! env HOME="$TMP/ext-home-htp-missing" EXT_MISSING_LIBRARY=libcdsprpc.so.1 \
+  EXT_CURL_LOG="$TMP/ext-htp-missing-downloads" EXT_FIXTURE="$EXT_FIXTURE" \
+  PATH="$EXT_BIN:$PATH" TERNUX_STATE_DIR="$TMP/ext-state-htp-missing" \
+  bash "$ROOT/bin/ternux" extension install llama-htp-experimental >/dev/null 2>&1 &&
+  [ ! -e "$TMP/ext-home-htp-missing/.local/opt/ternux-extensions" ] &&
+  [ ! -e "$TMP/ext-htp-missing-downloads" ]; then
+  ok "HTP extension checks Binder/FastRPC runtime libraries before download"
+else
+  not_ok "HTP extension checks Binder/FastRPC runtime libraries before download"
+fi
+if env HOME="$TMP/ext-home-htp" EXT_GLIBC_VERSION=2.38 EXT_CURL_LOG="$TMP/ext-htp-downloads" \
+  EXT_FIXTURE="$EXT_FIXTURE" PATH="$EXT_BIN:$PATH" \
+  TERNUX_STATE_DIR="$TMP/ext-state-htp" bash "$ROOT/bin/ternux" extension install llama-htp-experimental >/dev/null 2>&1 &&
+  [ -x "$TMP/ext-home-htp/.local/opt/ternux-extensions/llama-htp-experimental/bin/htp-run" ] &&
+  [ -f "$TMP/ext-home-htp/.local/opt/ternux-extensions/llama-htp-experimental/libexec/htp-broker.py" ] &&
+  grep -Fq '"artifact": "ternux-llama-htp-sm8735-b11582"' \
+    "$TMP/ext-home-htp/.local/opt/ternux-extensions/llama-htp-experimental/build-manifest.json"; then
+  ok "experimental HTP extension verifies and installs the brokered package"
+else
+  not_ok "experimental HTP extension verifies and installs the brokered package"
 fi
 printf '%064d  %s.tar.gz\n' 0 "$EXT_TAG" > "$EXT_FIXTURE/$EXT_TAG.tar.gz.sha256"
 if ! env HOME="$TMP/ext-home-bad" EXT_GLIBC_VERSION=2.38 EXT_CURL_LOG="$TMP/ext-bad-downloads" \
@@ -1373,6 +1411,12 @@ check "the GPU phase holds what the profile names, not a fixed list" bash -c '
   printf "%s" "$phase" | grep -q "apt-mark hold \$TNX_DP_MESA_HOLD \$TNX_DP_EXTRA_HOLD" || exit 1
   printf "%s" "$phase" | grep -q "apt-mark hold mesa-vulkan-drivers libgl1-mesa-dri" && exit 1
   exit 0
+' _ "$ROOT"
+check "extension install finds ldconfig outside the default PATH" bash -c '
+  PATH=/usr/bin:/bin
+  . "$1/lib/extension.sh"
+  found="$(_tnx_extension_find_ldconfig)" || exit 1
+  [ "$found" = /sbin/ldconfig ] || [ "$found" = /usr/sbin/ldconfig ]
 ' _ "$ROOT"
 
 # Invariant 1 of lib/ui.sh: middle dot, bullet and braille render two cells wide

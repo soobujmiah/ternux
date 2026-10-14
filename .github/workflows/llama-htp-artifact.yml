@@ -2,9 +2,21 @@ name: llama.cpp Hexagon HTP artifact
 
 on:
   workflow_dispatch:
+    inputs:
+      publish:
+        description: Upload the built artifact to the experimental draft release
+        required: true
+        type: boolean
+        default: false
+  pull_request:
+    paths:
+      - '.github/workflows/llama-htp-artifact.yml'
+      - 'tools/llama-htp/**'
+      - 'LICENSE'
+      - 'NOTICE'
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: llama-htp-b11582-v73
@@ -44,9 +56,14 @@ jobs:
             --workdir /workspace \
             ghcr.io/snapdragon-toolchain/arm64-linux@sha256:41b710ee5f99d21f0fb9d83a1f815ecffb7708315b4218a11cd0baeb5ecf4c14 \
             bash -lc '
-              cmake --preset arm64-linux-snapdragon-release -B build-ternux-htp-b11582 &&
-              cmake --build build-ternux-htp-b11582 -j 4 &&
-              cmake --install build-ternux-htp-b11582 --prefix pkg-ternux-htp-b11582/llama.cpp
+            cmake --preset arm64-linux-snapdragon-release -B build-ternux-htp-b11582 &&
+            cmake --build build-ternux-htp-b11582 -j 4 &&
+            cmake --install build-ternux-htp-b11582 --prefix pkg-ternux-htp-b11582/llama.cpp &&
+            compiler=$(sed -n "s/^CMAKE_C_COMPILER:FILEPATH=//p" build-ternux-htp-b11582/CMakeCache.txt | head -n 1) &&
+            test -x "$compiler" &&
+            "$compiler" -shared -fPIC -O2 -Wall -Wextra \
+              /workspace/tools/llama-htp/broker_open.c \
+              -o pkg-ternux-htp-b11582/llama.cpp/lib/libternux-htp-broker.so -ldl
             '
 
       - name: Package and inspect target files
@@ -57,11 +74,22 @@ jobs:
           test -x "$package/bin/llama-cli"
           test -f "$package/lib/libggml-hexagon.so"
           test -f "$package/lib/libggml-htp-v73.so"
+          test -f "$package/lib/libternux-htp-broker.so"
+          file "$package/lib/libternux-htp-broker.so" | tee htp-broker-file.txt
+          grep -q 'aarch64' htp-broker-file.txt
           file "$package/bin/llama-cli" | tee llama-cli-file.txt
           grep -q 'aarch64' llama-cli-file.txt
           mkdir -p release/ternux-llama-htp-sm8735-b11582
           cp -a "$package/." release/ternux-llama-htp-sm8735-b11582/
+          install -D -m 0755 tools/llama-htp/htp-run \
+            release/ternux-llama-htp-sm8735-b11582/bin/htp-run
+          install -D -m 0644 tools/llama-htp/htp-broker.py \
+            release/ternux-llama-htp-sm8735-b11582/libexec/htp-broker.py
+          install -D -m 0644 tools/llama-htp/README.md \
+            release/ternux-llama-htp-sm8735-b11582/HTP-EXPERIMENTAL-README.md
           cp llama.cpp/LICENSE release/ternux-llama-htp-sm8735-b11582/LLAMA-CPP-LICENSE
+          cp LICENSE release/ternux-llama-htp-sm8735-b11582/TERNUX-LICENSE
+          cp NOTICE release/ternux-llama-htp-sm8735-b11582/TERNUX-NOTICE
           cat > release/ternux-llama-htp-sm8735-b11582/README.txt <<'EOF'
           Ternux experimental llama.cpp Hexagon HTP package
 
@@ -71,18 +99,17 @@ jobs:
           Build: upstream scripts/snapdragon/build.py using the
           ghcr.io/snapdragon-toolchain/arm64-linux:v0.7 toolchain image
 
-          This package is an experimental test artifact. The same upstream
-          b11582 release backend has been observed executing HTP operators on
-          Redmi Turbo 4 Pro / SM8735 through a brokered FastRPC descriptor, but
-          the known-output check returned incorrect text compared with CPU.
-          This package does not claim correct or production-ready inference.
+          This package is an experimental test artifact. It includes a Ternux
+          Binder/FastRPC broker launcher configured for the constrained HVX
+          matmul / flash-attention-off route. See HTP-EXPERIMENTAL-README.md.
+          Some HMX and flash-attention combinations returned incorrect text;
+          cancellation and fallback still require device qualification. This
+          package does not claim supported or production-ready NPU inference.
 
           The package does not include Qualcomm vendor libraries, firmware,
-          device permissions, or a Binder/FastRPC broker. Set LD_LIBRARY_PATH
-          and ADSP_LIBRARY_PATH to this package's lib directory and provide a
-          compatible libcdsprpc.so plus an authorized FastRPC descriptor path.
-          On this device the existing process-local Binder broker probe is
-          required; see the Ternux release notes and SKB device evidence.
+          or device permission changes. Install libgbinder1, libglibutil1, and
+          libfastrpc1 in Debian before running bin/htp-run. Do not change device
+          node permissions. No model weights are bundled.
           EOF
           cat > release/ternux-llama-htp-sm8735-b11582/build-manifest.json <<'EOF'
           {
@@ -94,15 +121,43 @@ jobs:
             "upstream_commit": "af50f2f248b475d9760f8e67503d01c0f194f5f4",
             "toolchain_image": "ghcr.io/snapdragon-toolchain/arm64-linux:v0.7",
             "toolchain_image_digest": "sha256:41b710ee5f99d21f0fb9d83a1f815ecffb7708315b4218a11cd0baeb5ecf4c14",
-            "build_command": "cmake --preset arm64-linux-snapdragon-release -B build-ternux-htp-b11582; cmake --build build-ternux-htp-b11582 -j 4; cmake --install build-ternux-htp-b11582 --prefix pkg-ternux-htp-b11582/llama.cpp",
+            "build_command": "cmake --preset arm64-linux-snapdragon-release -B build-ternux-htp-b11582; cmake --build build-ternux-htp-b11582 -j 4; cmake --install build-ternux-htp-b11582 --prefix pkg-ternux-htp-b11582/llama.cpp; compile broker_open.c as libternux-htp-broker.so with the pinned AArch64 compiler",
             "htp_libraries": ["libggml-hexagon.so", "libggml-htp-v73.so"],
-            "device_validation": "pending"
+            "device_validation": "experimental; existing HVX-only/flash-attention-off HTP known-answer observed on SM8735 before this packaged adapter; exact archive retest and cancellation qualification pending",
+            "experimental_adapter": ["bin/htp-run", "libexec/htp-broker.py", "lib/libternux-htp-broker.so"],
+            "runtime_dependencies": ["libgbinder.so.1", "libglibutil.so.1", "libcdsprpc.so.1", "python3"]
           }
           EOF
           tar -C release -czf ternux-llama-htp-sm8735-b11582.tar.gz ternux-llama-htp-sm8735-b11582
           sha256sum ternux-llama-htp-sm8735-b11582.tar.gz > ternux-llama-htp-sm8735-b11582.tar.gz.sha256
           tar -tzf ternux-llama-htp-sm8735-b11582.tar.gz > archive-contents.txt
           sed -n '1,40p' archive-contents.txt
+
+      - name: Upload build artifact for review
+        uses: actions/upload-artifact@v4
+        with:
+          name: ternux-llama-htp-sm8735-b11582
+          path: |
+            ternux-llama-htp-sm8735-b11582.tar.gz
+            ternux-llama-htp-sm8735-b11582.tar.gz.sha256
+            archive-contents.txt
+            htp-broker-file.txt
+            llama-cli-file.txt
+          if-no-files-found: error
+          retention-days: 14
+
+  publish:
+    if: github.event_name == 'workflow_dispatch' && inputs.publish == true && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download the exact build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ternux-llama-htp-sm8735-b11582
+          path: release
 
       - name: Create or refresh draft experimental release
         env:
@@ -119,28 +174,34 @@ jobs:
           using Qualcomm's upstream Snapdragon Linux toolchain image `v0.7`.
 
           Includes Linux aarch64 llama.cpp tools and Hexagon V73 backend/skeleton
-          libraries. Intended for experimental validation on Snapdragon 8s Gen 4
-          (SM8735) from Ternux/PRoot using the separately established brokered
-          FastRPC access path.
+          libraries, plus the experimental Ternux Binder/FastRPC launcher.
+          Intended for experimental validation on Snapdragon 8s Gen 4 (SM8735)
+          from Ternux/PRoot. Install Debian runtime dependencies
+          `libgbinder1`, `libglibutil1`, and `libfastrpc1` first.
 
-          **Known limitation:** the same upstream b11582 backend produced
-          incorrect text in a deterministic CPU-vs-HTP known-output test on the
-          Redmi Turbo 4 Pro. HTP operator profile records were present, but
-          inference correctness failed. This release is a reproducible build
-          artifact, not a claim of correct or production-ready NPU inference.
-          Device retest of this exact archive is pending.
+          **Known limitation:** the upstream b11582 backend returned wrong
+          answers with HMX-selected matmul and with flash attention enabled.
+          A bounded HVX-only / flash-attention-off setup returned the expected
+          answer and completed a long recall-key workload on SM8735, but was
+          slower than Vulkan. This release is an experimental artifact, not a
+          supported or production-ready NPU feature. Retest this exact packaged
+          broker/launcher, cancellation cleanup, and restart before qualification.
 
-          The archive does not bundle Qualcomm vendor runtime libraries,
-          firmware, permissions changes, or a Binder/FastRPC broker.
+          The archive does not bundle Qualcomm vendor runtime libraries or
+          firmware and does not change device permissions. Its broker is
+          experimental; cancellation/fallback remain unqualified.
           EOF
           if gh release view "$tag" >/dev/null 2>&1; then
             gh release upload "$tag" \
-              ternux-llama-htp-sm8735-b11582.tar.gz \
-              ternux-llama-htp-sm8735-b11582.tar.gz.sha256 --clobber
+              release/ternux-llama-htp-sm8735-b11582.tar.gz \
+              release/ternux-llama-htp-sm8735-b11582.tar.gz.sha256 --clobber
+            gh release edit "$tag" \
+              --title 'Experimental llama.cpp HTP V73 for SM8735 (b11582)' \
+              --notes-file release-notes.md --prerelease
           else
             gh release create "$tag" \
-              ternux-llama-htp-sm8735-b11582.tar.gz \
-              ternux-llama-htp-sm8735-b11582.tar.gz.sha256 \
+              release/ternux-llama-htp-sm8735-b11582.tar.gz \
+              release/ternux-llama-htp-sm8735-b11582.tar.gz.sha256 \
               --draft --prerelease \
               --title 'Experimental llama.cpp HTP V73 for SM8735 (b11582)' \
               --notes-file release-notes.md \
