@@ -10,9 +10,10 @@ experiment; supported বা production-ready Ternux feature নয়।
 SM8735-এ known-answer-safe configuration-এ HVX-only matmul
 (`GGML_HEXAGON_MM_SELECT=1`) এবং flash attention বন্ধ ছিল। এই device-এ ছোট
 CPU/HTP তুলনা এবং 2,955-token prompt / 511-token generation প্রত্যাশিত recall
-key ফিরিয়েছে; clean-idle তুলনায় HTP Vulkan-এর চেয়ে ধীর ছিল। আলাদা test-এ
-HMX-selected matmul এবং flash attention চালু—দুটিই ভুল answer দিয়েছে। এই
-package-এ ওই failure ঠিক করা হয়নি।
+key ফিরিয়েছে; clean-idle তুলনায় HTP Vulkan-এর চেয়ে ধীর ছিল। আগের default
+attention selection-এ HMX-selected matmul এবং flash attention চালু—দুটিই আলাদা
+test-এ ভুল answer দিয়েছে। Explicit HVX attention selection operator failure কমায়,
+কিন্তু সাতটি numerical error আবার reproduce হয়েছে; কোনোটিই এই package-এ qualify নয়।
 
 বর্তমান launcher HTP0, সব eligible layer এবং পর্যবেক্ষিত
 HVX/flash-attention-off setting জোর করে ব্যবহার করে। Broker
@@ -58,12 +59,16 @@ skip হয়েছে; HTP backend OK এবং broker clean `closeSession [0,
 [SM7750 HMX report](https://github.com/ggml-org/llama.cpp/issues/29473),
 [SM8650 flash-attention report](https://github.com/ggml-org/llama.cpp/issues/26759)।
 SM8735-এর HMX FP16 capability ও অন্য HVX operator coverage আলাদাভাবে যাচাই
-বাকি। `GGML_HEXAGON_MM_SELECT=1` দিয়ে `FLASH_ATTN_EXT` run ১২০ সেকেন্ডের সীমায়
-থেমেছে; ৪,৬৬০ output line-এর মধ্যে ১,৮৪৮টি infinite numerical-error case এবং
-১১২টি pass ছিল (exit 124)। Suite অসম্পূর্ণ, pass নয়; child থামানো হয়েছে এবং
-broker CDSP session cleanly close করেছে। তাই flash-attention operator correctness
-এখনও unqualified। HTP launcher এখনও HVX matmul বেছে নিয়ে flash attention বন্ধ
-রাখে।
+বাকি। প্রথম `FLASH_ATTN_EXT` run-এ `GGML_HEXAGON_MM_SELECT=1` দিয়ে HVX matmul
+নির্বাচিত হলেও attention selection default-এ ছিল; ১২০ সেকেন্ডে timeout-এর আগে
+৪,৬৬০ output line-এ ১,৮৪৮টি `inf` numerical error ও ১১২ pass ছিল, তাই run অসম্পূর্ণ।
+পরের run-এ `GGML_HEXAGON_MM_SELECT=1 GGML_HEXAGON_FA_SELECT=1` দিয়ে matmul ও
+attention দুটোই HVX বেছে suite সম্পন্ন হয়: ৫,৩৩২ unique case-এর ২,৫৯৩ pass,
+২,৭৩২ unsupported, ৭টি tolerance-এর বেশি finite numerical error-সহ fail। Filtered
+rerun-এ সাতটি failed parameter case-ই reproduce হয়েছে। Test failure-এর কারণে
+exit 1; broker CDSP session cleanly close করেছে। আগের error pattern অনেক কমেছে,
+তবু flash attention qualify হয়নি; HTP launcher এটি বন্ধ রাখে। Raw log আছে
+`/home/sbj/npu-probe-2026-10-13/htp-op-qualification-38567329752/`-এ।
 
 Reduced queue setting (`GGML_HEXAGON_OPBATCH=128`,
 `GGML_HEXAGON_OPQUEUE=2`) দিয়ে broad HVX-selected

@@ -11,8 +11,10 @@ The known-answer-safe configuration observed on SM8735 uses HVX-only matmul
 (`GGML_HEXAGON_MM_SELECT=1`) with flash attention disabled. A short
 CPU/HTP comparison and a 2,955-token prompt / 511-token generation returned the
 expected recall key on this device; HTP was slower than Vulkan in the clean-idle
-comparison. HMX-selected matmul and flash attention enabled each produced wrong
-answers in separate checks. Those failures are not resolved by this package.
+comparison. HMX-selected matmul and flash attention enabled under the prior
+default attention selection each produced wrong answers in separate checks.
+Explicit HVX attention selection reduced the operator failures but reproduced
+seven numerical errors; neither path is qualified by this package.
 
 The current launcher forces HTP0, all eligible layers, the observed
 HVX/flash-attention-off settings. The broker forwards SIGINT/SIGTERM/SIGHUP to
@@ -59,13 +61,19 @@ queue race. These are related diagnostic leads from different devices, not a
 confirmed root cause for SM8735: [SM7750 HMX report](https://github.com/ggml-org/llama.cpp/issues/29473),
 [SM8650 flash-attention report](https://github.com/ggml-org/llama.cpp/issues/26759).
 The device's HMX FP16 capability and other HVX operator coverage still need
-separate checks. A `FLASH_ATTN_EXT` run with `GGML_HEXAGON_MM_SELECT=1` was
-bounded at 120 seconds and recorded 1,848 infinite numerical-error cases and
-112 passing cases among 4,660 output lines before timeout (exit 124). The suite
-was incomplete, not a pass; the child stopped and the broker closed the CDSP
-session cleanly. Flash-attention operator correctness is therefore still
-unqualified. The HTP launcher continues to force HVX matmul with flash
-attention off.
+separate checks. A first `FLASH_ATTN_EXT` run selected HVX matmul with
+`GGML_HEXAGON_MM_SELECT=1` but left flash-attention selection at default; it hit
+a 120-second bound with 1,848 infinite numerical-error cases and 112 passes
+among 4,660 output lines (exit 124), so that run was incomplete. A later run
+explicitly selected HVX for both matmul and attention with
+`GGML_HEXAGON_MM_SELECT=1 GGML_HEXAGON_FA_SELECT=1` and completed the suite:
+2,593 of 5,332 unique cases passed, 2,732 were unsupported, and 7 failed with
+finite numerical errors above tolerance. A filtered rerun reproduced all 7
+failing parameter cases. The test exited 1 for these correctness failures; the
+broker closed the CDSP session cleanly. This narrows the earlier error pattern
+but does not qualify flash attention. The HTP launcher continues to force HVX
+matmul with flash attention off. Raw logs are under
+`/home/sbj/npu-probe-2026-10-13/htp-op-qualification-38567329752/`.
 
 A broad HVX-selected `test-backend-ops -b HTP0` run used reduced queue settings
 (`GGML_HEXAGON_OPBATCH=128`, `GGML_HEXAGON_OPQUEUE=2`). Before abort it logged
