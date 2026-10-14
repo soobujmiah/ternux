@@ -1,0 +1,7 @@
+event_id: commit-90fd77a644f1-4930e7de32bbe8ef
+repository: soobujmiah/ternux
+commit: 90fd77a644f154c777a02293ad185e909000141b
+kind: commit
+occurred_at: '2026-10-14T14:35:24Z'
+status: completed
+summary: 'docs: record Local Dream NPU performance reference (#23)'
