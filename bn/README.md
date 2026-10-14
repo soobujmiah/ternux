@@ -21,6 +21,8 @@ Ternux, Termux ও PRoot দিয়ে Debian এবং Xfce4 বসায়�
 সামঞ্জস্যপূর্ণ ডিভাইসে VirGL graphics route ব্যবহৃত হয়। ফলাফল device ভেদে
 বদলায়।
 
+![Ternux workstation-এর স্তর এবং যাচাইকৃত CPU, GPU ও পরীক্ষামূলক NPU অবস্থা](../docs/assets/ternux-overview.svg)
+
 ## ইনস্টল
 
 ১. একই বিশ্বস্ত source থেকে [Termux](https://github.com/termux/termux-app/releases)
