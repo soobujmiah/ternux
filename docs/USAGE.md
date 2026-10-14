@@ -149,6 +149,7 @@ Do not omit `DISPLAY` or `GALLIUM_DRIVER=zink`: on the measured setup those
 routes fail rather than rendering on the GPU. Check `glxinfo -B` for the Zink /
 Adreno / Turnip renderer before a long run. The complete reproducible workflow
 and its limits are in the [cartoon pipeline guide](https://github.com/soobujmiah/ternux/blob/main/experiments/cartoon-pipeline/README.md).
+For agent-driven renders through the local MCP, see the [Blender GPU MCP guide](BLENDER-MCP.html).
 
 ### llama.cpp with Vulkan
 

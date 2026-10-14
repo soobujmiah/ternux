@@ -187,7 +187,7 @@ alt_url: "/"
   .site-footer{margin-top:72px;border-top:1px solid var(--border);padding:34px 0 42px;background:var(--bg2)}
   .eco{list-style:none;margin:0 0 18px;padding:0;display:flex;flex-wrap:wrap;gap:8px 22px;font-size:13.5px}
   .eco a{color:var(--muted)} .eco a:hover{color:var(--fg)}
-  .site-footer .row{display:flex;flex-wrap:wrap;gap:8px 24px;justify-content:space-between;color:var(--faint);font-size:12.5px}
+  .site-footer .row{display:grid;grid-template-columns:minmax(150px,auto) minmax(0,1fr);align-items:start;gap:8px 28px;color:var(--faint);font-size:12.5px;line-height:1.65}.site-footer .row span:last-child{text-align:right}
   .reveal{opacity:0;transform:translateY(14px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
   /* scroll progress — the shared effects script drives it, the palette is this page's */
   .scroll-progress{position:absolute;z-index:3;right:0;bottom:-1px;left:0;height:2px;overflow:hidden;pointer-events:none}
@@ -201,7 +201,7 @@ alt_url: "/"
   @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}.reveal{opacity:1;transform:none;transition:none}*{animation:none!important;transition:none!important}}
   @media (max-width:860px){.hero-grid{grid-template-columns:1fr}}
   @media (max-width:700px){.stage::after{content:none}}
-  @media (max-width:640px){body{font-size:14.5px}.hero{padding:60px 0 26px}section{padding:44px 0 6px}}
+  @media (max-width:640px){body{font-size:14.5px}.hero{padding:60px 0 26px}section{padding:44px 0 6px}.site-footer .row{grid-template-columns:1fr;gap:8px}.site-footer .row span:last-child{text-align:left}}
   </style>
 </head>
 <body>
@@ -295,8 +295,15 @@ ternux stop</pre></article>
 
     <section id="docs" aria-labelledby="docs-h" class="reveal">
       <h2 id="docs-h"><span class="n">04</span>আরও সহায়তা</h2>
-      <p class="note">বিস্তারিত setup, CLI reference, architecture, benchmark ও troubleshooting repository guide-এ আছে।</p>
-      <p><a class="btn" href="https://github.com/soobujmiah/ternux/blob/main/bn/docs/README.md">বিস্তারিত ডকুমেন্টেশন →</a></p>
+      <p class="note">ওয়েবসাইটের guide-এ manual setup, workload, configuration, benchmark ও troubleshooting দেখুন।</p>
+      <p class="actions">
+        <a class="btn primary" href="{{ '/bn/docs/' | relative_url }}">সব website guide →</a>
+        <a class="btn" href="https://github.com/soobujmiah/ternux/blob/main/bn/docs/README.md">রিপোজিটরির বিস্তারিত guide</a>
+        <a class="btn" href="{{ '/bn/docs/MANUAL.html' | relative_url }}">ম্যানুয়াল ইনস্টলেশন</a>
+        <a class="btn" href="{{ '/bn/docs/WORKLOADS.html' | relative_url }}">ওয়ার্কলোড</a>
+        <a class="btn" href="{{ '/bn/docs/TROUBLESHOOTING.html' | relative_url }}">সমস্যা সমাধান</a>
+        <a class="btn" href="{{ '/bn/docs/BENCHMARKS.html' | relative_url }}">প্রমাণ ও বেঞ্চমার্ক</a>
+      </p>
       <p class="note-amber">Graphics route ও performance device অনুযায়ী বদলায়। নিজের setup দেখতে `ternux verify` চালান।</p>
     </section>
   </main>

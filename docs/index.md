@@ -30,7 +30,10 @@ For the optional CPU + Vulkan llama.cpp extension, start with the [short guide](
 
 <div class="doc-grid">
   <a class="doc-card" href="USAGE.html"><span class="doc-card__icon">$</span><strong>Daily usage</strong><span>Start and stop sessions, manage files, run workloads, and back up data.</span></a>
+  <a class="doc-card" href="WORKLOADS.html"><span class="doc-card__icon">+</span><strong>Workloads</strong><span>See what optional workloads install and how to use them.</span></a>
+  <a class="doc-card" href="BLENDER-MCP.html"><span class="doc-card__icon">3D</span><strong>Blender GPU MCP</strong><span>Connect coding agents and use the measured headless GPU route.</span></a>
   <a class="doc-card" href="CONFIGURATION.html"><span class="doc-card__icon">{ }</span><strong>Configuration</strong><span>Graphics backends, launch variables, audio, locale, fonts, and file locations.</span></a>
+  <a class="doc-card" href="GRAPHICS-PERSISTENCE.html"><span class="doc-card__icon">GPU</span><strong>Graphics persistence</strong><span>Keep the GPU driver working across package updates.</span></a>
   <a class="doc-card" href="TROUBLESHOOTING.html"><span class="doc-card__icon">!</span><strong>Troubleshooting</strong><span>Symptom-led checks, `ternux doctor`, safe repair, and clean reinstall paths.</span></a>
   <a class="doc-card" href="CLI.html"><span class="doc-card__icon">--</span><strong>CLI reference</strong><span>Every public command, option, status behavior, and documented JSON surface.</span></a>
 </div>

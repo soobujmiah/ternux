@@ -239,7 +239,7 @@ if len(nav_sections) == 2:
     en_urls = re.findall(r"^\s{8}url:\s*(\S+)\s*$", en_part, re.M)
     bn_urls = re.findall(r"^\s{8}url:\s*(\S+)\s*$", bn_part, re.M)
     check(len(en_groups) == len(bn_groups) == 4, "documentation navigation must have four mirrored groups")
-    check(len(en_urls) == len(bn_urls) == 15, "documentation navigation must have 15 destinations per language")
+    check(len(en_urls) == len(bn_urls) == 16, "documentation navigation must have 16 destinations per language")
     expected_bn = ["/bn" + url if url.startswith("/docs") else "/bn" + url for url in en_urls]
     check(expected_bn == bn_urls, "English/Bengali navigation destinations are not structural mirrors")
 
@@ -394,7 +394,7 @@ try:
     sitemap = ET.parse(ROOT / "sitemap.xml").getroot()
     namespace = {"s": "http://www.sitemaps.org/schemas/sitemap/0.9", "x": "http://www.w3.org/1999/xhtml"}
     entries = sitemap.findall("s:url", namespace)
-    check(len(entries) == 28, "sitemap.xml: expected 28 bilingual URLs")
+    check(len(entries) == 30, "sitemap.xml: expected 30 bilingual URLs")
     for entry in entries:
         check(len(entry.findall("x:link", namespace)) == 3, "sitemap.xml: every URL needs en, bn, and x-default alternates")
 except (ET.ParseError, OSError) as exc:
