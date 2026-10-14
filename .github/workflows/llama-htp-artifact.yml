@@ -130,11 +130,10 @@ jobs:
           This package is an experimental test artifact. It includes a Ternux
           Binder/FastRPC broker launcher configured for the constrained HVX
           matmul / flash-attention-off route. See HTP-EXPERIMENTAL-README.md.
-          Some HMX and flash-attention combinations returned incorrect text;
-          source-level cancellation passed a bounded device check, while
-          exact-artifact cancellation and fallback behavior still need
-          qualification. This
-          package does not claim supported or production-ready NPU inference.
+          Some HMX and flash-attention combinations returned incorrect text.
+          Device qualification is recorded separately in Ternux's experimental
+          HTP guide and accelerator release plan; this build does not claim
+          supported or production-ready NPU inference.
 
           Upstream license texts and their source paths are indexed under upstream-licenses/.
 
@@ -155,9 +154,10 @@ jobs:
             "toolchain_image_digest": "sha256:41b710ee5f99d21f0fb9d83a1f815ecffb7708315b4218a11cd0baeb5ecf4c14",
             "build_command": "cmake --preset arm64-linux-snapdragon-release -B build-ternux-htp-b11582; cmake --build build-ternux-htp-b11582 -j 4; cmake --install build-ternux-htp-b11582 --prefix pkg-ternux-htp-b11582/llama.cpp; build ternux-htp-broker through the pinned AArch64 CMake toolchain",
             "htp_libraries": ["libggml-hexagon.so", "libggml-htp-v73.so"],
-            "device_validation": "experimental; existing HVX-only/flash-attention-off HTP known-answer observed on SM8735 before this packaged adapter; exact archive retest and cancellation qualification pending",
+            "device_validation": "experimental; this manifest records build provenance only. Consult Ternux docs/ACCELERATOR-RELEASE-PLAN.md for current device qualification",
             "experimental_adapter": ["bin/htp-run", "libexec/htp-broker.py", "lib/libternux-htp-broker.so"],
-            "runtime_dependencies": ["libgbinder.so.1", "libglibutil.so.1", "libcdsprpc.so.1", "python3"],
+            "runtime_dependencies": ["libgbinder.so.1", "libglibutil.so.1", "libcdsprpc.so.1", "libcdsprpc.so", "python3"],
+            "debian_packages": ["libgbinder1", "libglibutil1", "libfastrpc1", "libfastrpc-dev", "python3"],
             "license_files": ["LLAMA-CPP-LICENSE", "upstream-licenses/INDEX.txt", "TERNUX-LICENSE", "TERNUX-NOTICE"]
           }
           EOF
