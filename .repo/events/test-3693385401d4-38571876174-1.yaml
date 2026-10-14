@@ -1,0 +1,13 @@
+event_id: test-3693385401d4-38571876174-1
+repository: soobujmiah/ternux
+commit: 3693385401d4111c7e025909919516f659a4a9c0
+kind: test
+occurred_at: '2026-10-14T13:27:54Z'
+run_id: '38571876174'
+run_attempt: '1'
+status: passed
+summary: bash syntax + Bats smoke + docs (ci.yml)
+workflow_name: Repo Knowledge Sync
+event_type: push
+actor: soobujmiah
+run_url: https://github.com/soobujmiah/ternux/actions/runs/38571876174
