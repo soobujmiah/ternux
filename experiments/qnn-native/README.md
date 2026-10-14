@@ -218,8 +218,10 @@ it streams CLIP, token/position tables, UNet and decoder from the original ZIP
 (model contexts/tables only enter sealed anonymous memfds), runs CLIP on CPU,
 and keeps QNN UNet and VAE decoder contexts alive in separate Bionic helper
 processes. The helper protocol uses framed stdin/stdout tensors; the runner
-implements fixed-seed SD1.5 DPM++ 2M denoising and emits a new PNG plus per-stage
-logs. Initial noise and UNet model input use the scheduler's sigma scaling.
+implements fixed-seed SD1.5 DPM++ 2M denoising with scaled-linear betas and
+trailing timestep spacing, then emits a new PNG plus per-stage logs. Initial
+noise and UNet model input use the scheduler's sigma scaling. The trailing
+step formula follows the reference [Diffusers DPM solver implementation](https://github.com/huggingface/diffusers/blob/main/src/diffusers/schedulers/scheduling_dpmsolver_multistep.py#L2898-L2904).
 The requested realistic landscape prompt is only a test prompt; output quality
 and QNN tensor correctness are not established until a generated image is
 visually reviewed and suitable independent tensor checks exist.

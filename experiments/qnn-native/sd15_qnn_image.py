@@ -59,13 +59,14 @@ def _write_png(path, raw_u16, scale, offset):
 
 
 def dpm_schedule(steps):
-    """SD1.5 scaled-linear training noise schedule and leading DPM++ steps."""
+    """SD1.5 scaled-linear noise schedule with trailing DPM++ timesteps."""
     if not 2 <= steps <= 50:
         raise ValueError("steps must be between 2 and 50")
     beta = np.linspace(math.sqrt(0.00085), math.sqrt(0.012), 1000, dtype=np.float64) ** 2
     alpha_bar = np.cumprod(1.0 - beta)
     sigmas_all = np.sqrt((1.0 - alpha_bar) / alpha_bar)
-    timesteps = np.floor((steps - np.arange(steps, dtype=np.float64)) * 999.0 / steps + 0.5).astype(np.int32)
+    step_ratio = 1000.0 / steps
+    timesteps = np.arange(1000.0, 0.0, -step_ratio).round().astype(np.int32) - 1
     sigmas = np.concatenate((sigmas_all[timesteps], np.array([0.0])))
     return timesteps, sigmas
 
@@ -305,7 +306,7 @@ def run(args):
     print(json.dumps({"stage": "image_complete", "path": str(output),
                       "bytes": size, "sha256": digest, "width": 512, "height": 512,
                       "seed": args.seed, "steps": args.steps, "cfg": args.cfg,
-                      "scheduler": "DPM++ 2M, scaled-linear beta, leading spacing",
+                      "scheduler": "DPM++ 2M, scaled-linear beta, trailing spacing",
                       "total_seconds": round(time.monotonic() - start_total, 3),
                       "image_oracle": "visual_review_and_seed_repeat_only",
                       "model_copy_to_disk": False}), flush=True)
