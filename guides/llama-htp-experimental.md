@@ -19,10 +19,14 @@ HVX/flash-attention-off settings. The broker forwards SIGINT/SIGTERM/SIGHUP to
 the isolated inference process group, then escalates to TERM/KILL after bounded
 waits and reports the CDSP `closeSession` result. Source-level device checks
 returned `4` and verified a broker SIGINT exit 130 with child shutdown and
-`closeSession [0, 0]`. Those checks reused the earlier b11582 binary and a local
-shim; exact-archive installation and cancellation still need device retest.
-Restart behavior, other models/SoCs, optimized HTP configurations and sustained
-operation remain unqualified. There is no automatic CPU/Vulkan fallback; a
+`closeSession [0, 0]`. The exact package archive from workflow run `38560288558` was installed into
+an isolated home: known-answer output was `4`, all 31 layers were assigned to
+HTP0, child exit was 0, and `closeSession` returned `[0, 0]`. Its bounded SIGINT
+check exited 130 after child shutdown and clean `closeSession`. A follow-up build
+`38562008524` corrects only package README/manifest dependency metadata; direct
+archive comparison confirmed every runtime file and symlink is identical.
+Restart behavior, other models/SoCs,
+optimized HTP configurations and sustained operation remain unqualified. There is no automatic CPU/Vulkan fallback; a
 failed HTP invocation returns an error.
 
 Current gates and dated device evidence stay in the single

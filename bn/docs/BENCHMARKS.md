@@ -30,7 +30,7 @@ evidence_through: "2026-10-14"
 | llama.cpp CPU + Vulkan | **Verified:** দুটো backend-ই সীমাবদ্ধ known-answer prompt-এ `4` দিয়েছে; Vulkan Adreno 825-এ 29/29 layer assign করেছে। **Measured:** নিচে clean-idle long run। | একটি device ও workload-এ Qwen2.5 1.5B Q4_0। |
 | llama.cpp Hexagon HTP | **Experimental:** HVX matmul ও flash attention বন্ধ রেখে সীমাবদ্ধ known-answer ও long recall-key check pass করেছে। | HMX-selected matmul + flash attention off এবং HVX matmul + flash attention on-এ ভুল উত্তর এসেছে। HTP supported route নয়। |
 | `stable-diffusion.cpp` Vulkan | **Observed:** Vulkan-enabled build-এর report আছে। | Inference, image output, ও seconds/image **Untested**। |
-| আলাদা QNN SD1.5 runner | **Measured:** একই seed-এর ২০-step 512×512 output হুবহু repeat হয়েছে; visual review-তে coherent landscape ও ছোট cyan artifact দেখা গেছে। | এটি `stable-diffusion.cpp` নয়; independent stage-tensor correctness এখনো যাচাই হয়নি। |
+| আলাদা QNN SD1.5 runner | **Measured:** পরপর ২৫টি ২০-step 512×512 image; প্রতি image-এর median 29.76 s, mean 31.12 s। HTP UNet-এর ২০ denoise step-এর median 15.96 s। | CLIP CPU-তে; UNet ও VAE decoder HTP-তে চলে। একটি SM8735 device; একই model-এ CPU/GPU তুলনা নয়। `stable-diffusion.cpp` নয়; independent stage-tensor correctness এখনো যাচাই হয়নি। |
 
 ### Clean-idle llama.cpp throughput
 
@@ -46,6 +46,28 @@ processing ও generation rate:
 এটি একটি device-এর সীমিত তুলনা। HTP-তে known-answer pass-করা conservative
 configuration ব্যবহার হয়েছে; সেটি Vulkan-এর চেয়ে ধীর ছিল। এটি sustained
 performance, power use, বা একাধিক device-এর ফল প্রমাণ করে না।
+
+### QNN SD1.5 image generation soak
+
+2026-10-14-এ আলাদা QNN runner বিদ্যমান
+`/sdcard/Llms/AbsoluteReality_qnn2.28_8gen2.zip` থেকে পরপর ২৫টি 512×512 image
+তৈরি করেছে; প্রতিটিতে DPM++-এর ২০টি step ছিল। সব ২৫টি সম্পন্ন হয়েছে। Runner-এর
+মাপা image time median 29.76 s, mean 31.12 s (28.23–55.80 s); HTP UNet-এর ২০টি
+step median 15.96 s, mean 17.03 s (15.87–41.59 s)। একটি generation-এ UNet-এর
+একটি step 26.24 s লেগেছে। CLIP prompt encoding CPU-তে; UNet denoising ও VAE
+decoding Qualcomm QNN HTP-তে হয়েছে। ১৭ মিনিট ৩৬ সেকেন্ডের মোট batch সময়ে
+monitoring/poll interval ও process transition আছে; image throughput বোঝার জন্য
+উপরের per-run মাপ ব্যবহার করুন।
+
+Battery temperature সর্বোচ্চ 41.9°C, `quiet_therm` 47.9°C, sampled GPU zone
+64.2°C ছিল; NPU-নির্দিষ্ট thermal sensor শনাক্ত হয়নি। একটি image দেখে coherent
+landscape ও আগের ছোট cyan artifact নিশ্চিত হয়েছে; বাকি ২৪টি আলাদাভাবে দেখা
+হয়নি। এটি এক device-এর experimental mixed CPU/HTP image pipeline—একই model-এ
+CPU/GPU তুলনা নয়, HTP-only end-to-end measurement নয়, independent QNN tensor
+correctness বা supported compatibility-র প্রমাণও নয়। ২৫টি image এবং
+machine-readable run/thermal summary device-এর `/sdcard/sdgen/`-এ আছে।
+Implementation ও বিস্তারিত evidence: [QNN runner record](https://github.com/soobujmiah/ternux/blob/main/experiments/qnn-native/README.md)
+এবং [device benchmark log](https://github.com/soobujmiah/ternux/blob/main/bn/guides/device-benchmark-evidence.md)।
 
 ## বিস্তারিত রেকর্ড
 

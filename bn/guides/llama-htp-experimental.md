@@ -20,10 +20,14 @@ SIGINT/SIGTERM/SIGHUP আলাদা inference process group-এ পাঠা�
 পর TERM/KILL দেয় এবং CDSP `closeSession` result জানায়। Source-level device
 check-এ ফল `4` এসেছে; broker-এ SIGINT দিলে child বন্ধ হয়েছে, broker exit 130
 এবং `closeSession [0, 0]` হয়েছে। এই check আগের b11582 binary ও local shim দিয়ে
-হয়েছে; exact-archive install ও cancellation device retest এখনো বাকি। Restart,
-অন্য model/SoC, optimized HTP configuration এবং sustained operation এখনো qualify
-করা হয়নি। Automatic CPU/Vulkan fallback নেই; HTP command ব্যর্থ হলে error
-return করে।
+হয়েছে। Workflow run `38560288558`-এর exact archive isolated home-এ install
+করে test করা হয়েছে: answer `4`, 31/31 layer HTP0-তে, child exit 0 এবং
+`closeSession [0, 0]`। একই package-এ bounded SIGINT দিলে child বন্ধ, broker exit
+130 এবং clean session close হয়েছে। Follow-up build `38562008524` শুধু package
+README/manifest dependency metadata ঠিক করছে; runtime payload hash comparison
+bাকি। Restart, অন্য model/SoC, optimized HTP configuration ও sustained operation
+এখনো qualify করা হয়নি। Automatic CPU/Vulkan fallback নেই; HTP command ব্যর্থ
+হলে error return করে।
 
 বর্তমান gate ও dated device evidence একক
 [accelerator release plan](../../docs/ACCELERATOR-RELEASE-PLAN.md) এবং
