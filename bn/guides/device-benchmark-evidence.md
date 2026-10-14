@@ -306,8 +306,9 @@ recall-key workload pass করেছে। সব 29 layer HTP0-তে ছি�
 run-এ Vulkan-এর চেয়ে ধীর ছিল। অন্য দুই isolated configuration fail করেছে:
 HMX-selected matmul + flash attention off, এবং HVX matmul + flash attention on।
 HTP এখনো experimental, supported নয়; এই evidence সব model/operator qualify
-করে না। Package-এ Qualcomm vendor runtime library, firmware বা Android
-Binder/FastRPC broker নেই। বর্তমান gate [release plan](https://github.com/soobujmiah/ternux/blob/main/docs/ACCELERATOR-RELEASE-PLAN.md)-এ
+করে না। প্রকাশিত archive-এ Qualcomm vendor runtime library, firmware বা Android
+Binder/FastRPC broker নেই। Working tree-তে experimental Binder/FastRPC broker ও
+launcher artifact workflow-তে যোগ হয়েছে; package build বা device test এখনো হয়নি। বর্তমান gate [release plan](https://github.com/soobujmiah/ternux/blob/main/docs/ACCELERATOR-RELEASE-PLAN.md)-এ
 আছে।
 
 [Build run](https://github.com/soobujmiah/ternux/actions/runs/38381879734)।
@@ -581,6 +582,44 @@ sequence-এ skin temperature সর্বোচ্চ 44.5 C এবং battery 
 এটি এই device, model ও configuration-এর clean controlled comparison; multi-hour
 stability soak বা সব Snapdragon device-এর performance claim নয়। Log
 `/home/sbj/npu-probe-2026-10-13/`-এ আছে।
+
+### ২০২৬-১০-১৪ অতিরিক্ত CPU/HTP known-answer smoke (SmolLM2-135M Q4_0)
+
+SD-card-এর model না ছুঁয়ে দ্বিতীয় একটি local model যাচাই করতে একই greedy
+`2 + 2` prompt CPU ও brokered HTP-তে চালানো হয়। দুটিই `2 + 2 = 4` ফেরত দিয়ে
+exit 0 করেছে। CPU-তে pinned b11582 CPU/Vulkan release binary (`-ngl 0`), HTP-তে
+b11582 Snapdragon HTP build (`-ngl 99`, `GGML_HEXAGON_MM_SELECT=1`, `-fa off`)
+ব্যবহার হয়। HTP brokered child exit 0 এবং CDSP `closeSession` reply `[0, 0]`;
+thermal status 0, battery 100%, charger সংযুক্ত ছিল না। Local model SHA-256:
+`f68203bfb98b1b1e8c64fac75fab10c4e36acac081609573b4df0fcc19c90dd9`।
+
+এটি একটি অতিরিক্ত model-এ ছোট functional smoke; performance measurement,
+সমর্থিত HTP configuration বা end-user installation test নয়। Qwen-এর default/HMX
+ও flash-attention failure এতে সমাধান হয় না; HTP cancel, fallback, repeatability
+বা sustained operation-ও qualify হয় না। Device investigation-এর local experimental
+broker ব্যবহার হয়েছে। Working tree-তে HTP artifact workflow-তে broker/launcher
+যোগ হয়েছে, তবে build বা exact archive device test এখনো হয়নি। Log
+`cpu-smollm135-kat-2026-10-14.log` এবং
+`htp-smollm135-hvx-faoff-kat-2026-10-14.log` আছে
+`/home/sbj/npu-probe-2026-10-13/`-এ।
+
+এরপর সদ্য rebuild করা Vulkan prerelease-টি working-tree `ternux extension
+install` logic দিয়ে isolated temporary home-এ install করেছি। একই local model
+CPU ও Vulkan-এ `2 + 2 = 4` দিয়েছে; verbose output-এ Vulkan0-এর device Adreno 825
+দেখায়। Archive CI run `38521164812`, main commit `6097aec` থেকে; device-এ আগে
+থাকা Turnip driver ব্যবহার হয়েছে, তাই এটি clean-driver installation test নয়।
+Log `cpu-vulkan-release-smollm-kat-2026-10-14.log` ও
+`gpu-vulkan-release-smollm-kat-2026-10-14.log` probe scratch directory-তে আছে।
+
+আলাদা HTP interrupt probe-এ চলমান inference child-কে SIGINT পাঠানো হয়। Child ও
+broker ২০ সেকেন্ডের cleanup window-তে শেষ হয়নি; test harness পুরো process group
+kill করেছে এবং CDSP `closeSession` result পাওয়া যায়নি। বর্তমান experimental
+probe route-এর cancellation/cleanup check FAILED; এটি HTP hardware failure-এর
+প্রমাণ নয়। এরপর forced process-group kill-এর পর নতুন HTP process আবার
+`2 + 2 = 4` দিয়েছে, exit 0 করেছে এবং নতুন broker session cleanly close করেছে।
+এটি forced termination-এর পর recovery যাচাই করে, graceful cancellation নয়। Log
+`htp-smollm135-cancel-close-2026-10-14.log` ও
+`htp-smollm135-hvx-faoff-restart-kat-2026-10-14.log` একই scratch directory-তে।
 
 ### Stable Diffusion মূল্যায়ন (`stable-diffusion.cpp` inference untested)
 

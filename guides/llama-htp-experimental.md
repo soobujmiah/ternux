@@ -1,0 +1,96 @@
+# Experimental llama.cpp Hexagon HTP extension
+
+This guide covers the optional `llama-htp-experimental` Ternux extension. It
+packages a Linux ARM64 llama.cpp build with a Ternux Binder/FastRPC broker and
+launcher. It is a device-specific experiment for Qualcomm SM8735 / Hexagon V73,
+not a supported or production-ready Ternux feature.
+
+## Current evidence and limits
+
+The known-answer-safe configuration observed on SM8735 uses HVX-only matmul
+(`GGML_HEXAGON_MM_SELECT=1`) with flash attention disabled. A short
+CPU/HTP comparison and a 2,955-token prompt / 511-token generation returned the
+expected recall key on this device; HTP was slower than Vulkan in the clean-idle
+comparison. HMX-selected matmul and flash attention enabled each produced wrong
+answers in separate checks. Those failures are not resolved by this package.
+
+The current launcher pins the observed HVX/flash-attention-off settings. The
+broker forwards SIGINT/SIGTERM/SIGHUP to the isolated inference process group,
+then escalates to TERM/KILL after bounded waits and reports the CDSP
+`closeSession` result. The packaged launcher has not completed exact-archive
+device retest yet. Cancellation, restart behavior, automatic fallback, other
+models/SoCs, optimized HTP configurations and sustained operation remain
+unqualified. There is no automatic CPU/Vulkan fallback; a failed HTP invocation
+returns an error.
+
+Current gates and dated device evidence stay in the single
+[accelerator release plan](../docs/ACCELERATOR-RELEASE-PLAN.md) and
+[device benchmark record](device-benchmark-evidence.md).
+
+## Requirements
+
+- Ternux's Debian ARM64 glibc guest, glibc 2.38 or newer.
+- Qualcomm SM8735 with the vendor DSP service available to the current
+  Termux/PRoot process. Other devices are not qualified.
+- Debian runtime packages `libgbinder1`, `libglibutil1` and `libfastrpc1`.
+- A GGUF model at a path the Debian guest can read. The extension does not
+  download, copy or bundle model weights.
+
+Install the runtime packages in the Debian guest:
+
+```bash
+sudo apt install libgbinder1 libglibutil1 libfastrpc1
+```
+
+On Debian 13, `libgbinder1` and `libglibutil1` are available from
+Trixie Backports, while `libfastrpc1` is in its `contrib` component. If apt
+cannot find them, configure the official `trixie-backports` source with `main`
+and `contrib`, update package indexes, then retry. See Debian's package records
+for [`libgbinder1`](https://packages.debian.org/trixie-backports/arm64/libs/libgbinder1),
+[`libglibutil1`](https://packages.debian.org/trixie-backports/arm64/libs/libglibutil1),
+and [`libfastrpc1`](https://packages.debian.org/trixie-backports/arm64/contrib/libfastrpc1).
+
+The launcher never changes `/dev/fastrpc-cdsp` permissions and does not bundle
+Qualcomm vendor libraries or firmware.
+
+## Install and run
+
+From Termux, install the experimental package through the Ternux CLI:
+
+```bash
+ternux extension list
+ternux extension install llama-htp-experimental
+```
+
+If the installer reports missing Binder/FastRPC libraries, install the Debian
+packages above in the guest, then repeat the command. The installer checks the
+release checksum, archive paths, package manifest, launcher and broker files,
+and installs atomically without replacing an existing extension directory.
+
+In Debian, run the launcher with your existing model path:
+
+```bash
+"$HOME/.local/opt/ternux-extensions/llama-htp-experimental/bin/htp-run" \
+  -m /path/to/model.gguf \
+  -p 'What is 2 + 2? Reply with only the number.' -n 8
+```
+
+The launcher selects the observed HVX-only / flash-attention-off configuration
+and requests all eligible model layers for HTP. Check the output and exit code;
+do not infer correct inference from a successful model load or HTP operator
+profile alone. Keep the model at its current path. For a separate CPU or Vulkan
+run, install `llama-vulkan` and follow the
+[CPU/Vulkan extension guide](llama-vulkan-extension.md).
+
+## Removal
+
+Inspect the exact installation first. If you choose to remove only this
+extension, stop its inference process and remove this directory from the Debian
+guest:
+
+```text
+$HOME/.local/opt/ternux-extensions/llama-htp-experimental
+```
+
+The extension does not remove model files, system packages, or another
+extension.

@@ -268,6 +268,23 @@ ternux logs <subcommand> [n]
 | `clear` | Clear the log file |
 | `list` | List available log files |
 
+### `ternux extension`
+
+List or install optional release-based Linux ARM64 extensions. The host CLI
+delegates installation to the selected Debian guest.
+
+```bash
+ternux extension list
+ternux extension install llama-vulkan
+ternux extension install llama-htp-experimental
+```
+
+`llama-vulkan` is the CPU + Vulkan prerelease. `llama-htp-experimental` is an
+experimental SM8735/V73 route with known configuration limits; it is not a
+supported release feature and has no automatic CPU/GPU fallback. See the
+[CPU/Vulkan guide](https://github.com/soobujmiah/ternux/blob/main/guides/llama-vulkan-extension.md)
+and [HTP guide](https://github.com/soobujmiah/ternux/blob/main/guides/llama-htp-experimental.md).
+
 ### `ternux update`
 
 Self-update ternux CLI from GitHub.

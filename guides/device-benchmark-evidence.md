@@ -314,8 +314,10 @@ known-answer prompts and completed the long recall-key workload. It placed all
 Two other isolated configurations failed: HMX-selected matmul with flash
 attention off, and HVX-selected matmul with flash attention on. HTP remains
 experimental and unsupported; this evidence does not qualify every model or
-operator. The package does not include Qualcomm vendor runtime libraries,
-firmware, or the Android Binder/FastRPC broker. The current gate is tracked in
+operator. The published archive does not include Qualcomm vendor runtime libraries,
+firmware, or the Android Binder/FastRPC broker. The working tree now adds an
+experimental Binder/FastRPC broker and launcher to the artifact workflow; that
+package has not yet been built or device-tested. The current gate is tracked in
 the [release plan](../docs/ACCELERATOR-RELEASE-PLAN.html).
 
 [Build run](https://github.com/soobujmiah/ternux/actions/runs/38381879734).
@@ -638,6 +640,47 @@ skin temperature peaked at 44.5 C and battery declined from 31% to 28% over the
 sequence. This is a clean controlled comparison for this device, model and
 configuration, not a multi-hour stability soak or a claim for every Snapdragon
 device. Logs are in `/home/sbj/npu-probe-2026-10-13/`.
+
+### 2026-10-14 additional CPU/HTP known-answer smoke (SmolLM2-135M Q4_0)
+
+To check a second local model without touching the SD-card weights, the same
+greedy `2 + 2` prompt ran on CPU and on the brokered HTP route. Both returned
+`2 + 2 = 4` and exited 0. The test used the pinned b11582 CPU/Vulkan release
+binary for CPU (`-ngl 0`) and the b11582 Snapdragon HTP build for HTP
+(`-ngl 99`, `GGML_HEXAGON_MM_SELECT=1`, `-fa off`). HTP's brokered child exited
+0 and the CDSP `closeSession` reply was `[0, 0]`. Thermal status was 0, battery
+was 100%, and the phone was unplugged. The local model SHA-256 was
+`f68203bfb98b1b1e8c64fac75fab10c4e36acac081609573b4df0fcc19c90dd9`.
+
+This is a short functional smoke on one additional model, not a performance
+measurement, a supported HTP configuration, or an end-user installation test.
+It does not resolve the Qwen default/HMX and flash-attention failures, nor
+qualify HTP cancellation, fallback, repeatability, or sustained operation. The
+test used the local experimental broker from the device investigation; Ternux
+still has no packaged HTP broker/launcher. Logs are
+`cpu-smollm135-kat-2026-10-14.log` and
+`htp-smollm135-hvx-faoff-kat-2026-10-14.log` in
+`/home/sbj/npu-probe-2026-10-13/`.
+
+The freshly rebuilt Vulkan prerelease was then installed to an isolated
+temporary home by the current working-tree `ternux extension install` logic.
+The same local model returned `2 + 2 = 4` on CPU and on Vulkan; verbose output
+identified Vulkan0 as Adreno 825. The archive came from CI run
+`38521164812` on main commit `6097aec`; the extension used the Turnip driver
+already present on this device, so this was not a clean-driver installation
+test. Logs are `cpu-vulkan-release-smollm-kat-2026-10-14.log` and
+`gpu-vulkan-release-smollm-kat-2026-10-14.log` in the probe scratch directory.
+
+A separate HTP interrupt probe sent SIGINT to the active inference child. The
+child/broker did not finish within the 20-second cleanup window, and the test
+harness had to kill their process group; no CDSP `closeSession` result was
+recorded. This is a failed cancellation/cleanup check for the current
+experimental probe route, not evidence that the HTP hardware itself failed.
+After that forced process-group kill, a fresh HTP process again returned
+`2 + 2 = 4`, exited 0, and closed the next broker session cleanly. This verifies
+recovery after forced termination, not graceful cancellation. Logs:
+`htp-smollm135-cancel-close-2026-10-14.log` and
+`htp-smollm135-hvx-faoff-restart-kat-2026-10-14.log` in the same scratch directory.
 
 ### Stable Diffusion evaluation (`stable-diffusion.cpp` inference untested)
 

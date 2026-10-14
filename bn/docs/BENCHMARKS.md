@@ -52,5 +52,6 @@ performance, power use, বা একাধিক device-এর ফল প্র
 - [সম্পূর্ণ device benchmark evidence, পুনরুৎপাদন ধাপ ও dated measurement](https://github.com/soobujmiah/ternux/blob/main/bn/guides/device-benchmark-evidence.md) — শুধু repository-তে।
 - [EEVEE GPU-offload render পদ্ধতি](https://github.com/soobujmiah/ternux/blob/main/experiments/cartoon-pipeline/README.md) — repository workflow ও পরীক্ষিত headless command।
 - [CPU/Vulkan package install ও qualification](https://github.com/soobujmiah/ternux/blob/main/bn/guides/llama-vulkan-extension.md#device-qualification-record) — শুধু repository-তে।
+- [পরীক্ষামূলক HTP extension install ও সীমা](https://github.com/soobujmiah/ternux/blob/main/bn/guides/llama-htp-experimental.md) — শুধু repository-তে।
 - [বর্তমান accelerator gate](ACCELERATOR-RELEASE-PLAN.html)।
 - [আলাদা QNN SD1.5 implementation ও evidence](https://github.com/soobujmiah/ternux/blob/main/experiments/qnn-native/README.md) — শুধু repository-তে; `stable-diffusion.cpp` থেকে পৃথক।

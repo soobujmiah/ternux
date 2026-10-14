@@ -52,5 +52,6 @@ It does not establish sustained performance, power use, or cross-device results.
 - [Full device benchmark evidence, reproduction steps, and dated measurements](https://github.com/soobujmiah/ternux/blob/main/guides/device-benchmark-evidence.md) — repository-only.
 - [EEVEE GPU-offload render procedure](https://github.com/soobujmiah/ternux/blob/main/experiments/cartoon-pipeline/README.md) — repository workflow and tested headless command.
 - [CPU/Vulkan package installation and qualification](https://github.com/soobujmiah/ternux/blob/main/guides/llama-vulkan-extension.md#device-qualification-record) — repository-only.
+- [Experimental HTP extension installation and limits](https://github.com/soobujmiah/ternux/blob/main/guides/llama-htp-experimental.md) — repository-only.
 - [Current accelerator gates](ACCELERATOR-RELEASE-PLAN.html).
 - [Separate QNN SD1.5 implementation and evidence](https://github.com/soobujmiah/ternux/blob/main/experiments/qnn-native/README.md) — repository-only; kept separate from `stable-diffusion.cpp`.

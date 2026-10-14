@@ -1,64 +1,60 @@
 ---
 title: Accelerator ও ecosystem release completion plan
-description: পরবর্তী Ternux release-এর আগে standalone QNN, qualification ও artifact installation gate।
+description: পরবর্তী Ternux release-এর আগে বাকি CPU/GPU/HTP qualification ও release gate।
 lang: bn
 alt_url: /docs/ACCELERATOR-RELEASE-PLAN.html
 ---
 
-২০২৬-১০-১৩-এর owner direction: আগে নিজস্ব standalone QNN image path সম্পূর্ণ
-করব; তারপর Ternux NPU support-এর মূল কাজে ফিরব। পরবর্তী Ternux version release-এর
-২০২৬-১০-১৪-এর owner clarification: অন্য ডিভাইসে Ubuntu install এই release-এর
-blocker বা বাকি কাজ নয়; এটি স্থগিত। Ubuntu profile এখনো device-এ যাচাই করা হয়নি।
-পরবর্তী Ternux version-এর আগে scope-এর বাকি accelerator ও release gate শেষ করতে
-হবে। এটি pending কাজের plan, shipped capability নয়।
+Owner direction, ২০২৬-১০-১৪: পরবর্তী stable Ternux release-এর আগে CPU, GPU ও
+NPU qualification এবং release preparation শেষ করতে হবে। মূল HTP কাজের পাশাপাশি
+standalone QNN image route-টি আলাদা gate হিসেবে থাকবে। অন্য device-এ Ubuntu
+install স্থগিত; এটি release blocker নয়। এই plan pending কাজ নথিভুক্ত করে,
+shipped capability দাবি করে না।
 
-| ক্রম | কাজ | বর্তমান status | Completion evidence |
+| ক্রম | কাজ | বর্তমান অবস্থা | Completion evidence |
 |---|---|---|---|
-| ১ | PRoot থেকে callable নিজস্ব Android/Bionic QNN helper | Runtime/provider, backend/device, VAE context load/free ও encoder graph execution VERIFIED; generic HTP Add known-answer VERIFIED; model output correctness UNVERIFIED | Matching execution headers, tensor metadata, request/response, known-output accelerator test |
-| ২ | Existing QNN picture model একই জায়গায় রেখে ব্যবহার | No-copy VAE/UNet fixed-input graph execution VERIFIED; 2026-10-14-এ fixed-prompt CLIP CPU input/output repeatability VERIFIED; CLIP-to-UNet ও prompt-to-image UNVERIFIED | CLIP/UNet/VAE pipeline, graph execution, stage attribution, fixed-seed image test ও reviewed output |
-| ৩ | মূল Debian llama.cpp CPU/GPU/HTP qualification | CPU/Vulkan known-answer pass; default/HMX HTP path FAILED; HVX matmul ও flash-attention-off-এ SM8735-এ Qwen2.5 1.5B ও Llama 3.2 3B-এর short answer pass (2026-10-14)। এরপর CPU, Vulkan ও HTP-তে একই 2,955-token prompt/511-token generation সম্পন্ন; recall key সঠিক ও HTP routing নিশ্চিত। Correct HTP run-এ HVX-only এবং flash attention বন্ধ ছিল; measured speed Vulkan-এর চেয়ে কম, তাই এটি peak HTP performance নয়। ২০২৬-১০-১৪-এ clean-idle repeat সম্পন্ন: CPU prompt/generation 59.04/2.38 tok/s (264.39 s), Vulkan 92.19/13.27 (71.30 s), HTP 34.20/12.02 (129.46 s)। প্রতিটিতে recall key `KITE-8042` সঠিক ছিল; HTP0-তে 29/29 layer ছিল। এটি বিদ্যমান Qwen GGUF দিয়ে llama.cpp Hexagon HTP-তে long text inference নিশ্চিত করে, QNN-এ compile করা text model নয়। HTP Vulkan-এর চেয়ে ধীর; default/HMX ও flash-attention correctness failure রয়ে গেছে। | HMX/attention failure আলাদা করে সমাধান; optimized-path correctness/performance, HTP cancellation ও fallback qualify; এরপর pinned supported configuration qualify |
-| ৪ | Repeat ও sustained device qualification | SM8735-এ thermal status 0-সহ পরপর ৬০০টি 720p/16-sample EEVEE frame সম্পন্ন (2026-10-14); packaged extension-এর CPU ও Vulkan-এ live generation চলাকালে তিনবার করে SIGINT clean-exit sample; এরপর প্রতিটি backend-এ fresh known-answer process `4` দিয়ে exit 0 করেছে। Clean-idle CPU/GPU/HTP long comparison-ও সম্পন্ন (2026-10-14); thermal status 0, সর্বোচ্চ skin temperature 44.5 C এবং battery 31%→28%। এটি সীমিত repeat evidence, দীর্ঘ stability নয়। NPU cancellation ও fallback এখনও UNVERIFIED | Matched run, memory/thermal/power availability, sustained CPU/NPU stability, NPU cancel/restart/cleanup, safe fallback |
-| ৫ | পুনর্ব্যবহারযোগ্য GitHub artifact | প্রকাশিত Vulkan ARM64 archive SM8735-এ install; CPU ও Adreno Vulkan known-answer pass। Offline audit-এ package-এর ৬৯টি ELF file যাচাই হয়েছে (AArch64, `$ORIGIN/../lib`, package dependency resolve, সর্বোচ্চ GLIBC 2.38) এবং upstream MIT license আছে। Installer এখন GLIBC ও system library prerequisite যাচাই করে। ভবিষ্যৎ build-এর জন্য workflow-তে একই audit gate যোগ হয়েছে, তবে CI artifact build এখনো চালাতে হবে। HTP experimental। | Clean-device Mesa/Turnip install, নতুন CI artifact build, transitive license review এবং পুনরাবৃত্ত/দীর্ঘ device qualification |
-| ৬ | Extension install ও সম্পূর্ণ guide | প্রকাশিত CPU + Vulkan prerelease-এর জন্য COMPLETE: `ternux extension list/install llama-vulkan` host delegation, guest install, SHA-256, archive path, atomic destination ও no-overwrite যাচাই করা; CPU ও Vulkan known-answer pass। Website-এর সংক্ষিপ্ত guide repository-র বিস্তারিত automatic/manual guide-এ link করে; install নীতি ও ADT-র আলাদা ownership নথিভুক্ত। | ভবিষ্যৎ extension-এর নিজস্ব release ও validation gate লাগবে; এই ধাপ HTP বা পরের stable Ternux release qualify করে না। |
-| ৭ | CLI ও installation screen polish | Repository UI renderer suite-এ portrait, landscape ও resize মিলিয়ে ২৪/২৪ pass; CLI guide-এ CPU/Vulkan-এর quick ও deep guide link যোগ হয়েছে। Phone-এ মানুষের visual/usability validation বাকি। | পরিষ্কার mobile layout, অর্থপূর্ণ status/error, interactive/unattended path ও owner-এর visual/usability validation |
-| ৮ | Complete Ternux version release | HELD | সব আগের gate, accurate support matrix, required CI, installed-artifact device test ও final documentation |
+| ১ | PRoot থেকে callable Android/Bionic QNN helper | Runtime/provider, backend/device, VAE context load/free ও encoder graph execution VERIFIED; generic HTP Add known-answer VERIFIED; model output correctness UNVERIFIED | Matching execution headers, tensor metadata, request/response ও known-output accelerator test |
+| ২ | বিদ্যমান QNN picture model | CLIP CPU, UNet/VAE HTP graph execution এবং fixed-seed 20-step SD1.5 image generation SM8735-এ চলেছে। DPM++ solver-এর sigma/VP-space ভুল ঠিক করার পর একই seed-এ 512×512 image একই SHA-256-এ repeat হয়েছে; image coherent, তবে ছোট cyan artifact আছে। Independent QNN tensor correctness UNVERIFIED। | CLIP/UNet/VAE stage tensor তুলনা; artifact review; সমর্থিত image/runtime configuration qualify |
+| ৩ | Debian llama.cpp CPU/GPU/HTP | CPU/Vulkan known-answer pass। Qwen2.5 1.5B-এর HMX-selected matmul + flash attention off এবং HVX matmul + flash attention on—দুই configuration-ই ভুল token দিয়েছে; HVX-only + flash attention off expected `4` দিয়েছে। SmolLM2-135M CPU/HTP A/B smoke দুটিই `2 + 2 = 4` দিয়েছে; child exit 0, broker session clean close। একই long recall workload-এ 2,955-token prompt / 511-token generation এবং 29/29 HTP0 layer pass; clean-idle throughput CPU 59.04/2.38, Vulkan 92.19/13.27, HTP 34.20/12.02 tok/s—HTP Vulkan-এর চেয়ে ধীর। Working tree-তে experimental broker/launcher আছে; package build ও exact-archive device test বাকি। এটি GGUF-এর llama.cpp HTP execution, QNN-compiled text model নয় এবং supported route নয়। | HMX/attention failure-এর কারণ আলাদা করা; experimental package build ও device test; optimized correctness/performance, cancellation ও fallback qualify; তারপর pinned supported configuration |
+| ৪ | Repeat ও sustained device qualification | SM8735-এ thermal status 0-সহ 600টি 720p/16-sample EEVEE frame সম্পন্ন। Packaged CPU/Vulkan extension-এ তিনবার করে SIGINT clean-exit এবং পরের known-answer restart pass। ২০২৬-১০-১৪-এর HTP cancellation probe 20 সেকেন্ডেও শেষ হয়নি; harness process group kill করায় `closeSession` রেকর্ড হয়নি। Working tree-তে signal forwarding, bounded escalation ও closeSession reporting যোগ হয়েছে, তবে device retest বাকি; cancellation UNVERIFIED। HTP fallback-ও UNVERIFIED। | নতুন supervised HTP cancellation/cleanup device-test; fallback ও restart retest; sustained CPU/NPU stability |
+| ৫ | পুনর্ব্যবহারযোগ্য GitHub artifact | CPU/Vulkan ARM64 package-এর fresh build ও ABI audit run `38521164812`-এ pass: 69 AArch64 ELF, dependencies resolve, GLIBC সর্বোচ্চ 2.38, `$ORIGIN/../lib`; upstream MIT license আছে। Exact archive isolated home-এ install করে SM8735-এ CPU ও Adreno Vulkan known-answer pass। HTP broker/launcher packaging code আছে, তবে সফল build বা exact-archive device validation নেই। | Clean-driver install, transitive license review, HTP artifact build ও device test, repeated/sustained qualification |
+| ৬ | Extension install ও guide | CPU + Vulkan prerelease-এর `ternux extension list/install llama-vulkan`, checksum, archive validation, atomic install ও no-overwrite pass। HTP-এর জন্য CLI extension এই working tree-তে যোগ হচ্ছে; release build/device validation এখনো বাকি। | HTP CLI install ও exact archive test; সব warning, dependency ও guide মিলিয়ে নেওয়া |
+| ৭ | CLI ও installation screen polish | Renderer suite portrait/landscape/resize-এ 24/24 pass; human visual/usability check phone-এ বাকি। | পরিষ্কার mobile layout, অর্থপূর্ণ error/status, interactive ও unattended path, owner usability review |
+| ৮ | Ternux stable release | HELD | আগের gate, accurate support matrix, required CI, installed-artifact device test ও final docs শেষ |
 
-দ্বিতীয় ধাপের QNN archive দিয়ে CPU/GPU execution প্রমাণ হবে না: প্রতিটি path-এর
-compatible weights/backend pair লাগবে। HTP-এর জন্য compiled `.bin` context
-CPU/GPU backend-এ নিজে থেকে portable নয়। Prerequisite-এর জন্য valid test করা
-না গেলে BLOCKED লিখব; unrun test-কে FAILED বা PASS বলব না। Optional 1.58-bit/Q8
-experiment current correctness gate-এর বাইরে থাকবে।
+QNN archive-এর graph CPU/GPU support প্রমাণ করে না; প্রতিটি backend-এর compatible
+weight/backend pair আলাদা। HTP-এর জন্য compiled `.bin` context CPU/GPU-তে নিজে
+থেকে portable নয়। Valid prerequisite না থাকলে BLOCKED লিখুন; না-চালানো test-কে
+PASS বা FAILED বলবেন না। Optional 1.58-bit/Q8 experiment correctness gate-এর
+বাইরে।
 
-## Vulkan প্রমাণের graphics নির্ভরতা
+## Vulkan evidence-এর Turnip নির্ভরতা
 
-ক্রম ৩-এ একটি Vulkan known-answer pass লিপিবদ্ধ আছে। সেই pass Debian-এর দেওয়া কোনো
-কিছুর উপর দাঁড়িয়ে নেই। ২০২৬-১০-১৩-এ Adreno 825 ডিভাইসে মাপা: Debian-এর
-`mesa-vulkan-drivers 25.0.7-2+deb13u1` **কোনো Adreno device-ই পায়নি** — শুধু
-`llvmpipe`, CPU-type Vulkan device হিসেবে — এবং একই ডিভাইসে জোর করে software GL
-চালালে ধীর render নয়, `SIGILL` হয়েছে। তাই Vulkan row-টি Turnip-এর উপর নির্ভরশীল।
-Ternux GPU phase এখন upstream Debian Trixie ARM64 archive-এর pinned release
-`mesa-26.3.0-devel-20260824` ব্যবহার করে এবং install-এর আগে SHA-256
+Vulkan known-answer ফল Debian-এর Mesa-র উপর নির্ভর করে না। ২০২৬-১০-১৩-এ Adreno
+825-এ `mesa-vulkan-drivers 25.0.7-2+deb13u1` কোনো Adreno device enumerate করেনি;
+শুধু CPU-type `llvmpipe` দেখা গেছে। Software GL জোর করে চালালে ধীর render নয়,
+`SIGILL` হয়েছে। তাই Vulkan result Turnip-নির্ভর। Ternux GPU phase upstream
+Debian Trixie ARM64 archive-এর pinned `mesa-26.3.0-devel-20260824` ব্যবহার করে
+এবং install-এর আগে SHA-256
 `c014cf66bdbff96417ee30d34f006cf51df64ae04893d599711b0b6b73b52ccf` যাচাই করে।
-এটি upstream binary dependency, Ternux-built artifact নয়; ফলাফলের সঙ্গে এই
-নির্ভরতা উল্লেখ করতে হবে।
+এটি upstream binary dependency, Ternux-built artifact নয়; ফলের সঙ্গে এই তথ্য
+উল্লেখ করতে হবে।
 
-এর একটি পরিণতি ক্রম ৫-এর উপর। যে driver দরকার সেটি clean device-এ না থাকলে Vulkan
-path-এর clean-device install verification পাস করতে পারে না। Pinned input mutable-download
-gap বন্ধ করে; clean-device install, ABI ও license review এখনও ক্রম ৫-এর খোলা gate।
+Clean device-এ driver অনুপস্থিত থাকলে clean-device Vulkan install pass করা যাবে
+না। Pinned input mutable download সমস্যা কমায়; clean-device install, ABI ও
+license gate এখনও বাকি। [Graphics persistence](GRAPHICS-PERSISTENCE.html)-এ
+apt-safe driver layout আছে; এটি clean-device qualification-এর বিকল্প নয়।
 
-[গ্রাফিক্স স্থায়িত্ব](GRAPHICS-PERSISTENCE.html) চালু install-এ apt-safe driver layout
-নথিভুক্ত করে। এটি clean-device qualification বা reusable artifact gate-এর বিকল্প নয়।
+## পৃথক QNN experiment ও পরের gate
 
-## পরের কাজ
+[QNN standalone experiment](../../experiments/qnn-native/README.md)-এ implementation
+ও reproduction command আছে। Solver-space mismatch ঠিক করার পর fixed-seed image
+repeat হয় এবং coherent দেখায়, তবে cyan artifact আছে। এটি independent QNN
+stage-tensor correctness প্রমাণ করে না।
 
-[Standalone discovery experiment](../../experiments/qnn-native/README.md)-এ
-নিজস্ব source, measured runtime identity, reproduction command ও inference
-prerequisite আছে। Image pipeline implement করার আগে verified graph execution-এর independent
-known-output tensor যাচাই করব। Existing QNN archive ও GGUF path অপরিবর্তিত
-রাখতে হবে।
-
-[প্রকাশিত benchmark summary](BENCHMARKS.html)-তে সংক্ষিপ্ত CPU/GPU ফল আছে;
-[repository-only detailed device record](https://github.com/soobujmiah/ternux/blob/main/bn/guides/device-benchmark-evidence.md)-এ
-HTP failure matrix ও পরের conditional HVX result আছে। LAI-এর জন্য
-প্রযোজ্য finding তার native Android research note-এ থাকবে; এই plan LAI runtime
-বা device gate পরিবর্তন করে না।
+[Benchmark summary](BENCHMARKS.html) সংক্ষিপ্ত ফল দেয়।
+[Repository-only device evidence](https://github.com/soobujmiah/ternux/blob/main/bn/guides/device-benchmark-evidence.md)-এ
+HTP failure matrix ও conditional HVX result আছে। Experimental HTP package-এর
+install ও সীমা [repository HTP guide](https://github.com/soobujmiah/ternux/blob/main/bn/guides/llama-htp-experimental.md)-এ
+আছে। LAI-এর evidence তার নিজস্ব Android research note-এ থাকবে; এই plan LAI
+runtime বা device gate বদলায় না।

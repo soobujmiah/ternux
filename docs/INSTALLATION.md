@@ -202,54 +202,15 @@ release-aware commands above.
 
 ---
 
-### Install the experimental llama.cpp HTP artifact
+### Experimental llama.cpp HTP extension
 
-Do this inside the Debian guest. It installs under your Debian user's home and
-does not modify the Termux host or require `sudo`:
-
-```bash
-ARTIFACT_DIR="$HOME/.cache/ternux-artifacts"
-mkdir -p "$ARTIFACT_DIR" "$HOME/.local/opt"
-cd "$ARTIFACT_DIR"
-curl -fL --retry 3 \
-  -o ternux-llama-htp-sm8735-b11582.tar.gz \
-  https://github.com/soobujmiah/ternux/releases/download/ternux-llama-htp-sm8735-b11582/ternux-llama-htp-sm8735-b11582.tar.gz
-curl -fL --retry 3 \
-  -o ternux-llama-htp-sm8735-b11582.tar.gz.sha256 \
-  https://github.com/soobujmiah/ternux/releases/download/ternux-llama-htp-sm8735-b11582/ternux-llama-htp-sm8735-b11582.tar.gz.sha256
-sha256sum -c ternux-llama-htp-sm8735-b11582.tar.gz.sha256
-tar -xzf ternux-llama-htp-sm8735-b11582.tar.gz -C "$HOME/.local/opt"
-```
-
-Point llama.cpp at the extracted libraries and run a CPU baseline first. Replace
-the model path with a GGUF model you already have:
-
-```bash
-export LLAMA_HTP_HOME="$HOME/.local/opt/ternux-llama-htp-sm8735-b11582"
-export LD_LIBRARY_PATH="$LLAMA_HTP_HOME/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
-"$LLAMA_HTP_HOME/bin/llama-cli" \
-  -m "$HOME/models/model.gguf" -ngl 0 \
-  -p 'What is 2 + 2? Reply with only the number.' -n 8
-```
-
-This archive is Linux aarch64 and includes the HTP V73 backend, but it does not
-include Qualcomm vendor runtime libraries, firmware or a Binder/FastRPC broker.
-HTP execution requires a compatible `libcdsprpc.so` and an authorized CDSP file
-descriptor supplied through an Android-side broker. The demonstrated SM8735
-setup currently uses a separate experimental probe; there is no self-contained
-HTP launcher in this release. Do not change `/dev/fastrpc-cdsp` permissions.
-Even with the broker, the known-answer test on this exact build returned
-incorrect text. Standalone `ADD` and F32 `MUL_MAT` checks passed, but a
-Q4_0×F32 matrix test differed from the same-build CPU result. Later bounded
-HVX/flash-attention-off checks passed, but that does not qualify the package for
-supported use. See the [current release gate](ACCELERATOR-RELEASE-PLAN.html)
-and [repository-only detailed evidence](https://github.com/soobujmiah/ternux/blob/main/guides/device-benchmark-evidence.md).
-
-To remove the extracted artifact, close any `llama.cpp` processes, then run:
-
-```bash
-rm -rf "$HOME/.local/opt/ternux-llama-htp-sm8735-b11582"
-```
+The experimental HTP package is installed from the Termux host with
+`ternux extension install llama-htp-experimental`. It is limited to the
+SM8735/V73 experiment and is not a supported Ternux feature. Review the
+[repository HTP guide](https://github.com/soobujmiah/ternux/blob/main/guides/llama-htp-experimental.md)
+for runtime dependencies, exact usage, known incorrect configurations,
+cancellation status and removal. Do not change FastRPC device permissions or
+copy model weights for this extension.
 
 ---
 

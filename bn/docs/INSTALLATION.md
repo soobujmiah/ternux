@@ -181,52 +181,14 @@ update হবে।
 
 ---
 
-### পরীক্ষামূলক llama.cpp HTP artifact বসান
+### পরীক্ষামূলক llama.cpp HTP extension
 
-এটি Debian guest-এর ভেতরে চালান। Artifact আপনার Debian user-এর home-এ বসবে;
-Termux host-এ পরিবর্তন বা `sudo` লাগবে না:
-
-```bash
-ARTIFACT_DIR="$HOME/.cache/ternux-artifacts"
-mkdir -p "$ARTIFACT_DIR" "$HOME/.local/opt"
-cd "$ARTIFACT_DIR"
-curl -fL --retry 3 \
-  -o ternux-llama-htp-sm8735-b11582.tar.gz \
-  https://github.com/soobujmiah/ternux/releases/download/ternux-llama-htp-sm8735-b11582/ternux-llama-htp-sm8735-b11582.tar.gz
-curl -fL --retry 3 \
-  -o ternux-llama-htp-sm8735-b11582.tar.gz.sha256 \
-  https://github.com/soobujmiah/ternux/releases/download/ternux-llama-htp-sm8735-b11582/ternux-llama-htp-sm8735-b11582.tar.gz.sha256
-sha256sum -c ternux-llama-htp-sm8735-b11582.tar.gz.sha256
-tar -xzf ternux-llama-htp-sm8735-b11582.tar.gz -C "$HOME/.local/opt"
-```
-
-Library path সেট করে আগে CPU baseline চালান। নিজের থাকা GGUF model-এর path
-ব্যবহার করুন:
-
-```bash
-export LLAMA_HTP_HOME="$HOME/.local/opt/ternux-llama-htp-sm8735-b11582"
-export LD_LIBRARY_PATH="$LLAMA_HTP_HOME/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
-"$LLAMA_HTP_HOME/bin/llama-cli" \
-  -m "$HOME/models/model.gguf" -ngl 0 \
-  -p 'What is 2 + 2? Reply with only the number.' -n 8
-```
-
-এই Linux aarch64 archive-এ HTP V73 backend আছে, কিন্তু Qualcomm vendor
-runtime library, firmware বা Binder/FastRPC broker নেই। HTP চালাতে compatible
-`libcdsprpc.so` এবং Android-side broker থেকে অনুমোদিত CDSP file descriptor
-লাগবে। SM8735-এ দেখানো পদ্ধতিটি আলাদা experimental probe ব্যবহার করে; এই
-release-এ স্বয়ংসম্পূর্ণ HTP launcher নেই। `/dev/fastrpc-cdsp`-এর permission
-বদলাবেন না। Default/HMX ও flash-attention configuration-এ ভুল text
-এসেছে। HVX matmul ও flash attention বন্ধ রেখে bounded known-answer এবং long
-recall-key check pass করেছে, কিন্তু এতে package supported হয় না। [Release gate](ACCELERATOR-RELEASE-PLAN.html)
-ও [repository-only বিস্তারিত evidence](https://github.com/soobujmiah/ternux/blob/main/bn/guides/device-benchmark-evidence.md#experimental-llamacpp-hexagon-htp-artifact-for-sm8735)
-দেখুন।
-
-Extract করা artifact সরাতে, আগে `llama.cpp` process বন্ধ করে চালান:
-
-```bash
-rm -rf "$HOME/.local/opt/ternux-llama-htp-sm8735-b11582"
-```
+Termux host থেকে `ternux extension install llama-htp-experimental` চালিয়ে
+পরীক্ষামূলক HTP package install করুন। এটি শুধু SM8735/V73 experiment-এর জন্য;
+Ternux-এর supported feature নয়। Runtime dependency, command, ভুল output-দেওয়া
+configuration, cancellation status ও removal-এর জন্য
+[repository HTP guide](https://github.com/soobujmiah/ternux/blob/main/bn/guides/llama-htp-experimental.md)
+দেখুন। FastRPC device permission বদলাবেন না, model weight copy-ও করবেন না।
 
 ---
 

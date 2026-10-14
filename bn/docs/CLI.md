@@ -212,6 +212,23 @@ ternux logs <subcommand> [n]
 | `clear` | লগ ফাইল মুছে ফেলা |
 | `list` | লগ ফাইলের তালিকা |
 
+### `ternux extension`
+
+ঐচ্ছিক Linux ARM64 extension list বা install করুন। Host CLI নির্বাচিত Debian
+guest-এ install নির্দেশ পাঠায়।
+
+```bash
+ternux extension list
+ternux extension install llama-vulkan
+ternux extension install llama-htp-experimental
+```
+
+`llama-vulkan` হলো CPU + Vulkan prerelease। `llama-htp-experimental` হলো
+সীমিত experimental SM8735/V73 route; এটি supported release feature নয় এবং
+automatic CPU/GPU fallback নেই।
+[CPU/Vulkan guide](https://github.com/soobujmiah/ternux/blob/main/bn/guides/llama-vulkan-extension.md)
+ও [HTP guide](https://github.com/soobujmiah/ternux/blob/main/bn/guides/llama-htp-experimental.md) দেখুন।
+
 ### `ternux update`
 
 ternux CLI আপডেট।
