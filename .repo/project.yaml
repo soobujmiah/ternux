@@ -1,13 +1,13 @@
 schema_version: 1
 project_id: ternux
 repository: soobujmiah/ternux
-generated_at: '2026-10-14T09:29:46Z'
+generated_at: '2026-10-14T13:05:30Z'
 generated_by: tools/repo_knowledge collect
-version: ternux-qnn-native-probe-sm8735-2026-10-14-27-g877536a
+version: ternux-qnn-native-probe-sm8735-2026-10-14-29-g67bc986
 head:
-  commit: 877536a6948c2713709032274240a0c3504996ef
+  commit: 67bc986251b90580d0d873b048c8d19913e0e822
   branch: main
-  committed_at: '2026-10-14T09:29:01Z'
+  committed_at: '2026-10-14T13:04:49Z'
 phases:
   source: not_configured
   completed: []
@@ -15,33 +15,33 @@ phases:
   next: null
 build:
   status: passed
-  run_id: '38542672527'
-  commit: 877536a6948c2713709032274240a0c3504996ef
+  run_id: '38568840485'
+  commit: 67bc986251b90580d0d873b048c8d19913e0e822
   run_attempt: '1'
-  at: '2026-10-14T09:29:46Z'
+  at: '2026-10-14T13:05:30Z'
   timestamp_source: observed
   workflow_name: Repo Knowledge Sync
   event_type: push
   actor: soobujmiah
-  run_url: https://github.com/soobujmiah/ternux/actions/runs/38542672527
+  run_url: https://github.com/soobujmiah/ternux/actions/runs/38568840485
 test:
   status: passed
-  run_id: '38542672527'
-  commit: 877536a6948c2713709032274240a0c3504996ef
+  run_id: '38568840485'
+  commit: 67bc986251b90580d0d873b048c8d19913e0e822
   run_attempt: '1'
-  at: '2026-10-14T09:29:46Z'
+  at: '2026-10-14T13:05:30Z'
   timestamp_source: observed
   workflow_name: Repo Knowledge Sync
   event_type: push
   actor: soobujmiah
-  run_url: https://github.com/soobujmiah/ternux/actions/runs/38542672527
+  run_url: https://github.com/soobujmiah/ternux/actions/runs/38568840485
   summary: bash syntax + Bats smoke + docs (ci.yml)
 last_successful_build:
-  commit: 877536a6948c2713709032274240a0c3504996ef
-  at: '2026-10-14T09:29:46Z'
-  run_id: '38542672527'
+  commit: 67bc986251b90580d0d873b048c8d19913e0e822
+  at: '2026-10-14T13:05:30Z'
+  run_id: '38568840485'
 last_failed_build: null
 sync:
   status: ok
-  last_synced_at: '2026-10-14T09:29:46Z'
+  last_synced_at: '2026-10-14T13:05:30Z'
   source: ci

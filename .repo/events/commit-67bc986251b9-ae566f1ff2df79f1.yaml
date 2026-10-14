@@ -1,0 +1,7 @@
+event_id: commit-67bc986251b9-ae566f1ff2df79f1
+repository: soobujmiah/ternux
+commit: 67bc986251b90580d0d873b048c8d19913e0e822
+kind: commit
+occurred_at: '2026-10-14T13:04:49Z'
+status: completed
+summary: 'fix: close brokered HTP sessions cleanly (#19)'
