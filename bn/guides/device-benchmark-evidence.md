@@ -648,10 +648,18 @@ step 26.242 s লেগেছে; সেই image সফলভাবে তৈ�
 CLIP prompt encoding CPU-তে; UNet denoising ও VAE decoding Qualcomm QNN HTP-তে
 চলেছে। ফলটি experimental mixed CPU/HTP image route-এর; একই model-এ CPU/GPU
 তুলনা নয়, HTP-only end-to-end time নয়, independent tensor correctness-এর
-প্রমাণও নয়। একটি output দেখে coherent landscape ও আগের ছোট cyan artifact
-নিশ্চিত হয়েছে; বাকি ২৪টি আলাদাভাবে review করা হয়নি। ১৭ মিনিট ৩৬ সেকেন্ডের
+প্রমাণও নয়। ২৫টি output-ই visual screen করা হয়েছে: image 01 full resolution-এ
+দেখে coherent landscape ও পানিতে ছোট cyan/black দাগ দেখা গেছে; image 02–25 দুইটি
+contact sheet-এ coherent landscape variation হিসেবে দেখা গেছে, ওই আকারে একই
+রকম স্পষ্ট defect চোখে পড়েনি। এটি initial visual screen; প্রতিটি image-এর
+বিস্তারিত full-resolution artifact review নয়। ১৭ মিনিট ৩৬ সেকেন্ডের
 batch wall interval-এ monitoring poll delay ও স্বল্পস্থায়ী runner process-এর
 মাঝের transition আছে; per-run timing-এ বাইরের poll overhead নেই।
+
+HTP route-এর প্রমাণ প্রতিটি run-এর QNN HTP backend/device ও graph-execution
+record। PRoot একা accelerator expose করে না; এই setup existing FastRPC/Binder
+bridge দিয়ে Android QNN ব্যবহার করে। GPU-লেবেলযুক্ত thermal zone sensor data;
+এটি GPU inference চলার প্রমাণ নয়।
 
 Thermal-zone sample-এ battery সর্বোচ্চ 41.9°C, `quiet_therm` 47.9°C, এবং
 GPU-labelled zone 64.2°C ছিল। NPU-নির্দিষ্ট thermal sensor শনাক্ত হয়নি। Archive

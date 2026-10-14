@@ -59,13 +59,22 @@ denoising and VAE decoding ran through Qualcomm QNN HTP. The 17m36s batch wall
 time includes monitoring/poll intervals and process transitions, so use the
 per-run measurements above for image throughput.
 
+The HTP attribution comes from the runner's QNN HTP backend/device and graph
+execution records. PRoot itself does not provide an accelerator: this path
+reaches the Android QNN runtime through the existing FastRPC/Binder bridge.
+GPU-labelled thermal readings are sensor measurements only and do not show
+that the GPU ran this workload. The run was not a same-model GPU comparison.
+
 Battery temperature peaked at 41.9°C, `quiet_therm` at 47.9°C, and the sampled
-GPU zones at 64.2°C; no NPU-specific thermal sensor was identified. One image
-was visually reviewed and showed a coherent landscape with the previously
-noted small cyan artifact; the other 24 were not individually reviewed. This
-is an experimental single-device mixed CPU/HTP image pipeline, not a CPU/GPU
-comparison using the same model, not an HTP-only end-to-end measurement, and
-not independent proof of QNN tensor correctness or supported compatibility.
+GPU zones at 64.2°C; no NPU-specific thermal sensor was identified. All 25
+images were visually screened: image 01 was checked at full resolution, and
+images 02–25 were checked in two contact sheets. They show coherent landscape
+variations; image 01 has a small cyan/black spot on the water, and no comparable
+obvious defect stood out in the other 24 at contact-sheet size. This is a visual
+screen, not detailed full-resolution artifact review. It is an experimental
+single-device mixed CPU/HTP image pipeline, not a CPU/GPU comparison using the
+same model, not an HTP-only end-to-end measurement, and not independent proof of
+QNN tensor correctness or supported compatibility.
 The 25 images and machine-readable run/thermal summary are on the device at
 `/sdcard/sdgen/`; detailed implementation and historical evidence are in the
 [QNN runner record](https://github.com/soobujmiah/ternux/blob/main/experiments/qnn-native/README.md)

@@ -19,8 +19,8 @@ describe shipped capabilities.
 | Order | Work | Current status | Completion evidence |
 |---|---|---|---|
 | 1 | Our standalone Android/Bionic QNN helper, callable from PRoot | Runtime/provider, backend/device, VAE context load/free and encoder graph execution VERIFIED; generic HTP Add known-answer VERIFIED; model output correctness UNVERIFIED | Matching execution headers, tensor metadata, request/response, known-output accelerator test |
-| 2 | Existing QNN picture model, kept in place | CLIP CPU, UNet/VAE HTP graph execution and fixed-seed SD1.5 generation ran on SM8735. After correcting the scheduler, same-seed 20-step 512×512 runs repeated exactly (`1a13957f…6764fc3`); one was visually reviewed as a coherent landscape with a small cyan artifact. A 25-image 20-step soak then completed 25/25 (17m36s batch wall including monitoring/poll intervals). Runner time was median 29.76 s and mean 31.12 s per image; HTP UNet 20-step time was median 15.96 s and mean 17.03 s, with one 26.24 s single-step outlier. CLIP ran on CPU and UNet/VAE on QNN HTP. Battery peak was 41.9°C, `quiet_therm` 47.9°C, sampled GPU zone 64.2°C; no NPU-specific thermal sensor was identified. Only one image was visually reviewed. Independent QNN tensor correctness remains **UNVERIFIED**. | Compare CLIP/UNet/VAE stage tensors with independent expected values; review the remaining generated images and qualify a supported image/runtime configuration |
-| 3 | Main Debian llama.cpp CPU/GPU/HTP qualification | CPU/Vulkan known-answer pass. On SM8735, one-token greedy Qwen2.5 1.5B checks isolate two independent failing configurations: HMX-selected matmul with flash attention off returned a wrong token; HVX-selected matmul with flash attention on also returned a wrong token. HVX-only matmul with flash attention off returned `4`. Exact package run `38560288558` (SHA-256 `9d5d2793a9a83d2d688b1df84494f1ef46f3f9fc91cb622ee2a0f1ebc26a1462`) was installed into an isolated home; SmolLM2-135M returned `2 + 2 = 4`, all 31/31 layers were assigned to HTP0, and `closeSession [0, 0]` succeeded. Its bounded SIGINT check also stopped the child and closed the session cleanly (broker exit 130). Metadata-corrected build `38562008524` completed successfully; its archive SHA-256 is `229f8026084d83d2853be89319cef23fb0909101edb0be916b33cc1bd441f845`. Direct archive inventories confirm the only changed members are `README.txt` and `build-manifest.json`; all runtime files and symlinks are identical to the tested archive. The HVX-only route also completed a 2,955-token prompt/511-token generation and clean-idle repeat with recall key `KITE-8042`; HTP was slower than Vulkan. These are bounded GGUF/llama.cpp results, not broad operator qualification, a QNN-compiled text model, or a supported route. | Identify the two HMX/attention wrong-token causes; qualify optimized-path correctness/performance and broader sustained stability before considering support |
+| 2 | Existing QNN picture model, kept in place | CLIP CPU, UNet/VAE HTP graph execution and fixed-seed SD1.5 generation ran on SM8735. After correcting the scheduler, same-seed 20-step 512×512 runs repeated exactly (`1a13957f…6764fc3`); the 25-image 20-step soak completed 25/25 (17m36s wall including monitoring/poll intervals). Runner median/mean was 29.76/31.12 s per image; HTP UNet median/mean was 15.96/17.03 s per 20 steps, with one 26.24 s single-step outlier. CLIP ran on CPU and UNet/VAE on QNN HTP. Battery, `quiet_therm` and sampled GPU-zone peaks were 41.9/47.9/64.2°C; no NPU-specific thermal sensor was identified. All 25 images received a visual screen: image 01 at full resolution and images 02–25 in contact sheets. They show coherent landscape variations; image 01 has a small cyan/black spot on water, with no comparable obvious defect noticed in the others at contact-sheet size. This is not detailed full-resolution artifact review. Independent QNN tensor correctness remains **UNVERIFIED**. | Compare CLIP/UNet/VAE stage tensors with independent expected values and qualify a supported image/runtime configuration |
+| 3 | Main Debian llama.cpp CPU/GPU/HTP qualification | CPU/Vulkan known-answer pass. On SM8735, one-token greedy Qwen2.5 1.5B checks still show wrong tokens for HMX matmul and for HVX matmul with flash attention enabled; HVX-only with flash attention off returns `4`. Exact-package `MUL_MAT` operator run with HVX matmul selected completed **1,389/1,389 tests successfully** and closed its broker session cleanly. Default HMX `MUL_MAT` still has 529 infinite-error failures. A separate HVX-selected `FLASH_ATTN_EXT` run hit its 120 s timeout after 1,848 infinite-error failures and 112 passing cases; it is incomplete. Exact package run `38560288558` was isolated-installed; SmolLM2-135M returned `2 + 2 = 4`, 31/31 layers were on HTP0, and bounded cancellation closed the session cleanly. Metadata-corrected build `38562008524` passed; runtime files match the tested archive. A 2,955-token prompt/511-token generation and clean-idle repeat preserved recall key `KITE-8042`; HTP was slower than Vulkan. These are bounded GGUF/llama.cpp results, not complete operator coverage, a QNN-compiled text model, or a supported route. | Identify HMX and flash-attention failure causes; test other HTP operators, qualify failure/restart and sustained operation before considering support |
 | 4 | Repeat and sustained device qualification | 600 consecutive 720p/16-sample EEVEE frames completed on SM8735 with thermal status 0 (2026-10-14); packaged CPU and Vulkan extensions each passed three live-generation SIGINT/clean-exit samples and fresh known-answer restarts. Exact HTP package run `38560288558` passed bounded SIGINT and clean `closeSession [0, 0]`. Separate QNN SD1.5 image soak completed 25/25 generations in 17m36s, with a 29.76 s median runner time and recorded thermal samples; this is one experimental mixed CPU/HTP image workload, not a general NPU stability qualification. Failure/restart behavior and broad sustained CPU/NPU stability remain open. No automatic CPU fallback is configured. | Qualify failure/restart behavior and sustained CPU/NPU behavior across supported paths |
 | 5 | Reusable GitHub artifacts | Fresh ARM64 Vulkan build and ABI audit passed in run `38521164812`; its exact archive passed isolated install and CPU/Adreno Vulkan known-answer checks. HTP artifact run `38560288558` passed checksum, safe-path inspection, isolated installation, known-answer HTP0 execution, and bounded cancellation. Metadata-corrected build `38562008524` passed; its checksum-verified archive differs from the device-tested runtime payload only in README/manifest metadata, adding `libcdsprpc.so` and `libfastrpc-dev` dependency inventory. HTP remains experimental. | Finish clean-driver installation and broader transitive-license review; retain separate correctness and compatibility gates |
 | 6 | Extension installation and complete guides | COMPLETE for the published CPU + Vulkan prerelease. HTP run `38560288558` installed through the extension installer into an isolated HOME using archive/checksum fixtures; path/manifest/launcher checks passed. The metadata-corrected run `38562008524` also passed checksum and isolated installer-fixture ingestion with the corrected README/manifest. Runtime package files match the tested archive; HTP remains experimental and unpublished. | Keep experimental HTP support and release gates separate |
@@ -34,9 +34,10 @@ through the Ternux Binder/FastRPC broker on the SM8735 device. With default
 HMX selection, `test-backend-ops -b HTP0 -o MUL_MAT` completed with **529
 failing cases**, each reporting an infinite error; the device reported Hexagon
 v73, HMX present, and 8 MB VTCM. With `GGML_HEXAGON_MM_SELECT=1`, the HVX-only
-`MUL_MAT` suite ran for a bounded 180 seconds and recorded 2,389 case outputs
-without an error before the timeout. That partial run is **incomplete**, not a
-suite pass. Both broker sessions closed with `closeSession [0, 0]`.
+`MUL_MAT` suite was rerun with a longer bound and completed **1,389/1,389 HTP
+tests successfully**. The CPU backend was skipped; the HTP backend reported
+OK, and the broker session closed with `closeSession [0, 0]`. This qualifies
+the tested HVX `MUL_MAT` cases only, not all HTP operators.
 
 This isolates a real HMX `MUL_MAT` correctness failure on this device, but does
 not identify its hardware or kernel cause. An upstream v73 report documents a
@@ -45,8 +46,8 @@ diagnostic lead, not proof that SM8735 has the same capability. A separate
 upstream v75 report describes a race in HMX flash attention. See the
 [SM7750 HMX report](https://github.com/ggml-org/llama.cpp/issues/29473) and
 [SM8650 flash-attention report](https://github.com/ggml-org/llama.cpp/issues/26759).
-The next HTP gates are an SM8735 HMX FP16 capability probe, a complete HVX
-operator run, and separate flash-attention operator checks. Full commands and
+The next HTP gates are an SM8735 HMX FP16 capability probe, other HVX operator
+coverage, and correcting then rerunning flash attention. Full commands and
 artifact provenance are in the
 [experimental HTP guide](../guides/llama-htp-experimental.md#latest-operator-checks).
 
@@ -58,6 +59,14 @@ an observed failure signal and incomplete run, not a completed suite result.
 The brokered child was stopped and the CDSP session closed cleanly. Flash
 attention remains disabled in the launcher; its operator correctness is not
 qualified.
+
+A broad `test-backend-ops -b HTP0` run with HVX matmul and reduced queue
+settings (`OPBATCH=128`, `OPQUEUE=2`) recorded 3,520 passing case lines, 45
+numerical-error failures across `DIV`, `GET_ROWS`, `SWIGLU_CLAMP`, `ADD`, and
+`SUB`, and 4,874 unsupported cases before aborting with
+`dspqueue_read failed: 0x0000002e` (child exit -6). The broker then closed the
+CDSP session cleanly. This is **incomplete**, not an all-operator result. An
+isolated `MUL_MAT_W4A4` check passed 1/1; the broad-run abort cause is unknown.
 
 For order 2, the existing QNN archive cannot establish CPU/GPU execution: those
 paths need compatible weights/backend pairs of their own. A `.bin` context

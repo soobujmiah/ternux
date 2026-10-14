@@ -710,11 +710,19 @@ image; that outlier was returned as a successful image, not a failed run.
 CLIP prompt encoding ran on CPU; UNet denoising and VAE decoding ran through
 Qualcomm QNN HTP. This reports an experimental mixed CPU/HTP image route. It is
 not a CPU/GPU comparison using the same model, not an HTP-only end-to-end time,
-and not proof of independent tensor correctness. One output was visually
-reviewed and showed a coherent landscape with the known small cyan artifact;
-the other 24 were not individually reviewed. The 17m36s batch wall interval
+and not proof of independent tensor correctness. All 25 outputs received a
+visual screen: image 01 was inspected at full resolution and showed a coherent
+landscape with a small cyan/black spot on the water; images 02–25 were inspected
+in two contact sheets and showed coherent landscape variations without a
+comparable obvious defect at that size. This is an initial visual screen, not
+detailed full-resolution artifact review of every image. The 17m36s batch wall interval
 includes monitoring poll delay and transitions between short-lived runner
 processes. Per-run times above exclude that outer polling overhead.
+
+The HTP route is supported by the per-run QNN HTP backend/device and graph
+execution records. PRoot by itself does not expose an accelerator; this setup
+reaches Android QNN through the existing FastRPC/Binder bridge. The GPU-labelled
+thermal zones are sensor data, not evidence that GPU inference ran.
 
 Thermal-zone samples peaked at 41.9°C battery, 47.9°C `quiet_therm`, and 64.2°C
 among GPU-labelled zones. No NPU-specific thermal sensor was identified. The

@@ -59,12 +59,21 @@ decoding Qualcomm QNN HTP-তে হয়েছে। ১৭ মিনিট �
 monitoring/poll interval ও process transition আছে; image throughput বোঝার জন্য
 উপরের per-run মাপ ব্যবহার করুন।
 
+HTP ব্যবহারের প্রমাণ runner-এর QNN HTP backend/device এবং graph-execution
+record। PRoot নিজে accelerator দেয় না; এই পথ existing FastRPC/Binder bridge
+দিয়ে Android QNN runtime-এ পৌঁছায়। GPU-লেবেলযুক্ত thermal reading শুধু sensor
+measurement, এই workload GPU-তে চলেছে তার প্রমাণ নয়। একই model-এ GPU comparison
+করা হয়নি।
+
 Battery temperature সর্বোচ্চ 41.9°C, `quiet_therm` 47.9°C, sampled GPU zone
-64.2°C ছিল; NPU-নির্দিষ্ট thermal sensor শনাক্ত হয়নি। একটি image দেখে coherent
-landscape ও আগের ছোট cyan artifact নিশ্চিত হয়েছে; বাকি ২৪টি আলাদাভাবে দেখা
-হয়নি। এটি এক device-এর experimental mixed CPU/HTP image pipeline—একই model-এ
-CPU/GPU তুলনা নয়, HTP-only end-to-end measurement নয়, independent QNN tensor
-correctness বা supported compatibility-র প্রমাণও নয়। ২৫টি image এবং
+64.2°C ছিল; NPU-নির্দিষ্ট thermal sensor শনাক্ত হয়নি। ২৫টি image-ই visual
+screen করা হয়েছে: image 01 full resolution-এ, আর image 02–25 দুইটি contact
+sheet-এ দেখা হয়েছে। সবগুলো coherent landscape variation; image 01-এর পানিতে
+ছোট cyan/black দাগ আছে। Contact-sheet size-এ অন্য ২৪টিতে একই রকম স্পষ্ট defect
+চোখে পড়েনি। এটি visual screen, প্রতিটি image-এর বিস্তারিত full-resolution
+artifact review নয়। এটি এক device-এর experimental mixed CPU/HTP image
+pipeline—একই model-এ CPU/GPU তুলনা নয়, HTP-only end-to-end measurement নয়,
+independent QNN tensor correctness বা supported compatibility-র প্রমাণও নয়। ২৫টি image এবং
 machine-readable run/thermal summary device-এর `/sdcard/sdgen/`-এ আছে।
 Implementation ও বিস্তারিত evidence: [QNN runner record](https://github.com/soobujmiah/ternux/blob/main/experiments/qnn-native/README.md)
 এবং [device benchmark log](https://github.com/soobujmiah/ternux/blob/main/bn/guides/device-benchmark-evidence.md)।
