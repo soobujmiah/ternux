@@ -61,7 +61,9 @@ jobs:
             cmake --install build-ternux-htp-b11582 --prefix pkg-ternux-htp-b11582/llama.cpp &&
             compiler=$(sed -n "s/^CMAKE_C_COMPILER:[^=]*=//p" build-ternux-htp-b11582/CMakeCache.txt | head -n 1) &&
             test -n "$compiler" &&
+            if ! test -x "$compiler"; then compiler=$(command -v "$compiler" || true); fi &&
             test -x "$compiler" &&
+            printf "Using C compiler: %s\n" "$compiler" &&
             "$compiler" -shared -fPIC -O2 -Wall -Wextra \
               /workspace/tools/llama-htp/broker_open.c \
               -o pkg-ternux-htp-b11582/llama.cpp/lib/libternux-htp-broker.so -ldl
