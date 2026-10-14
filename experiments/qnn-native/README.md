@@ -224,12 +224,13 @@ The requested realistic landscape prompt is only a test prompt; output quality
 and QNN tensor correctness are not established until a generated image is
 visually reviewed and suitable independent tensor checks exist.
 
-The initial runner revision passed Python syntax/scheduler checks; the helper
-source passed host C syntax checks. A later decoder-process cleanup edit has
-not been rechecked. Nothing here has **yet** been built by the pinned NDK
-workflow or run on the phone. Do not use the older helper artifact for
-this runner: it does not contain `--serve-unet` or `--serve-decoder`. After CI succeeds, the owner must
-retrieve the test artifact and hand it off before device execution, per the
+The current runner passed Python AST parsing, and the existing CLIP-conditioning
+unit tests pass. Its import/scheduler checks could not run in this Python
+environment because `numpy`, `tokenizers` and `MNN` are absent. The helper
+source passed host C syntax checks and the pinned NDK CI build. The runner has
+not run on the phone. Do not use the older helper artifact for this runner: it
+does not contain `--serve-unet` or `--serve-decoder`. The owner must manually
+retrieve the CI artifact and hand it off before device execution, per the
 repository's artifact-transfer policy. The original model ZIP must remain in
 place; no weight/model member may be extracted or copied.
 
