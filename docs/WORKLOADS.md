@@ -150,6 +150,31 @@ ternux repair                       # repair the recorded install
 If one workload keeps failing, install the rest automatically and do that one by
 hand from the block above — the manual route exists for this.
 
+## Driving Blender from an AI agent
+
+`tools/blender-gpu-mcp/` is a small MCP server — Python standard library only,
+nothing to install — that exposes the tested headless route as three tools:
+`gpu_check`, `render_script` and `render_blend`. It exists because the route is
+easy to lose: drop `DISPLAY` and Blender ends with `EGL_BAD_MATCH`, drop
+`GALLIUM_DRIVER=zink` and Mesa picks `llvmpipe`, which dies with `Illegal
+instruction` on this hardware. Both failures write zero frames and neither is
+about the scene.
+
+The wrapper keeps the command this page documents, `--factory-startup` included,
+rather than loading an addon into a long-running Blender: the renderer an agent
+reaches is the one [Evidence & benchmarks](BENCHMARKS.html) measured. It starts
+Xvfb only when that display is down, requires absolute paths, and never
+enumerates a directory.
+
+```bash
+claude mcp add --scope user blender-gpu -- python3 ~/ternux/tools/blender-gpu-mcp/server.py
+```
+
+**Measured** 2026-10-14 on the Redmi Turbo 4 Pro: `gpu_check` read back
+`zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP))` and one 320×180 EEVEE Next
+frame rendered in 2.49 s. See `tools/blender-gpu-mcp/README.md` for the tool
+table and its limits.
+
 ## Status
 
 The package sets on this page are read from the installer itself, so they are

@@ -146,6 +146,29 @@ ternux repair                       # লিপিবদ্ধ install মের
 একটি workload বারবার ব্যর্থ হলে বাকিগুলো স্বয়ংক্রিয়ভাবে বসান আর ওইটি উপরের block
 থেকে হাতে করুন — manual পথ এই কারণেই আছে।
 
+<h2 id="driving-blender-from-an-ai-agent">AI agent থেকে Blender চালানো</h2>
+
+`tools/blender-gpu-mcp/` একটি ছোট MCP server — কেবল Python standard library, আলাদা
+কিছু বসাতে হয় না — যা পরীক্ষিত headless পথটিকে তিনটি tool হিসেবে দেয়: `gpu_check`,
+`render_script` ও `render_blend`। এটি দরকার, কারণ পথটি সহজেই হারিয়ে যায়: `DISPLAY`
+বাদ পড়লে Blender `EGL_BAD_MATCH` দিয়ে থামে, আর `GALLIUM_DRIVER=zink` বাদ পড়লে Mesa
+`llvmpipe` বেছে নেয়, যা এই hardware-এ `Illegal instruction` দিয়ে মরে। দুটো ব্যর্থতাই
+শূন্য frame লেখে, আর কোনোটিই scene-এর দোষ নয়।
+
+Wrapper-টি দীর্ঘ সময় চালু থাকা Blender-এ addon না বসিয়ে এই পৃষ্ঠার command-টিই ধরে
+রাখে, `--factory-startup` সহ: agent যে renderer-এ পৌঁছায় সেটি
+[প্রমাণ ও বেঞ্চমার্ক](BENCHMARKS.html)-এ মাপা renderer-ই। Display বন্ধ থাকলেই এটি Xvfb
+চালু করে, path অবশ্যই absolute চায়, আর কোনো directory ঘেঁটে দেখে না।
+
+```bash
+claude mcp add --scope user blender-gpu -- python3 ~/ternux/tools/blender-gpu-mcp/server.py
+```
+
+**মাপা হয়েছে** ২০২৬-১০-১৪, Redmi Turbo 4 Pro-তে: `gpu_check` ফিরিয়ে দিয়েছে
+`zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP))`, আর একটি ৩২০×১৮০ EEVEE Next frame
+২.৪৯ সেকেন্ডে render হয়েছে। Tool-এর তালিকা ও সীমার জন্য দেখুন
+`tools/blender-gpu-mcp/README.md`।
+
 <h2 id="status">অবস্থা</h2>
 
 এই পৃষ্ঠার package সেটগুলো installer থেকেই পড়া, তাই এই সংস্করণের জন্য সেগুলো

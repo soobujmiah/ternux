@@ -12,6 +12,18 @@ Notable changes to ternux. Dates are ISO 8601.
 
 ## [Unreleased]
 
+### Rendering from an agent
+
+- Added `tools/blender-gpu-mcp/`, an MCP server over the tested headless route
+  (`DISPLAY=:9 GALLIUM_DRIVER=zink blender -b --factory-startup`) with three
+  tools: `gpu_check`, `render_script` and `render_blend`. Python standard library
+  only, local stdio only, and `--factory-startup` is kept so the measured
+  baseline does not change. It reports the two GPU-path failures by name —
+  `EGL_BAD_MATCH` for a missing display, `Illegal instruction` for an llvmpipe
+  selection — instead of leaving them to look like scene faults. Measured
+  2026-10-14: renderer `zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP))`, one
+  320x180 EEVEE Next frame in 2.49 s.
+
 ### Accelerator qualification update
 
 - Repeated the Qwen2.5 1.5B Q4_0 arithmetic known-answer prompt on the pinned
