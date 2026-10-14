@@ -67,7 +67,7 @@ Termux-এ `db` চালান। Debian-এর ভেতরে Android shared 
 Ternux Debian guest-এর ভেতরে ADT install করে Android app build, sign ও device-এ
 validate করতে পারবেন। Shared Termux + PRoot host-এ ADT build-to-device workflow
 verified; Ternux Xfce session থেকে চালানো এখনো formally tested নয়।
-[ADT installation steps](docs/INSTALLATION.md#install-adt-tools-inside-the-ternux-debian-guest)
+[ADT installation steps](docs/INSTALLATION.md)
 এবং [ADT + Ternux relationship](https://github.com/soobujmiah/adt/blob/main/docs/TERNUX_RELATIONSHIP.md) দেখুন।
 
 Blender render-এর জন্য coding agent-কে local GPU MCP দিয়ে route পরীক্ষা ও

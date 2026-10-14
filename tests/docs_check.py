@@ -301,7 +301,7 @@ for path in (ROOT / "index.html", ROOT / "bn/index.html", ROOT / "_layouts/defau
 # published benchmarks measure. (This replaces the earlier assertion, which
 # described the superseded landing's markup — inert class names and a
 # decorative accent sequence — rather than the page's actual structure.)
-LANDING_SECTIONS = ["install", "use", "docs"]
+LANDING_SECTIONS = ["install", "use", "capabilities", "docs"]
 landing_sections: dict[str, list[str]] = {}
 for path in (ROOT / "index.html", ROOT / "bn/index.html"):
     text = read(path)
