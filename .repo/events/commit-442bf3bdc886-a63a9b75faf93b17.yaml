@@ -1,0 +1,7 @@
+event_id: commit-442bf3bdc886-a63a9b75faf93b17
+repository: soobujmiah/ternux
+commit: 442bf3bdc8861e7b62a76191ffb5b379e03ee5f2
+kind: commit
+occurred_at: '2026-10-14T08:27:05Z'
+status: completed
+summary: 'docs: record verified experimental HTP artifact (#17)'
