@@ -1,0 +1,7 @@
+event_id: commit-877536a6948c-ff27ffe83e4c812a
+repository: soobujmiah/ternux
+commit: 877536a6948c2713709032274240a0c3504996ef
+kind: commit
+occurred_at: '2026-10-14T09:29:01Z'
+status: completed
+summary: 'fix(ternux): preserve upstream HTP license notices (#18)'
