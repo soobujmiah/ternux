@@ -1,0 +1,7 @@
+event_id: commit-29a850753f36-365f0667e7591af8
+repository: soobujmiah/ternux
+commit: 29a850753f36edd31ac0dd20e1cf44878adcc597
+kind: commit
+occurred_at: '2026-10-14T08:23:03Z'
+status: completed
+summary: 'feat: package experimental SM8735 HTP support (#16)'
