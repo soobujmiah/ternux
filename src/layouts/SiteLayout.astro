@@ -403,8 +403,17 @@ const matrixFallback = (lang === "bn" ? "টার্নাক্স" : "TERNUX"
         const maskCtx = mask.getContext("2d");
         const rain = document.createElement("canvas");
         const rainCtx = rain.getContext("2d");
-        const glyphs =
+        const glyphText =
           document.documentElement.lang === "bn" ? "টার্নাক্স" : "TERNUX";
+        const glyphs =
+          typeof Intl.Segmenter === "function"
+            ? Array.from(
+                new Intl.Segmenter(document.documentElement.lang, {
+                  granularity: "grapheme",
+                }).segment(glyphText),
+                ({ segment }) => segment,
+              )
+            : Array.from(glyphText);
         let streams = [];
         let width = 0;
         let height = 0;
@@ -443,7 +452,7 @@ const matrixFallback = (lang === "bn" ? "টার্নাক্স" : "TERNUX"
             (_, i) => ({
               x: i * 10,
               offset: Math.random() * (height + 140),
-              speed: 0.018 + Math.random() * 0.038,
+              speed: 0.024 + Math.random() * 0.012,
               seed: Math.floor(Math.random() * glyphs.length),
             }),
           );
@@ -459,25 +468,28 @@ const matrixFallback = (lang === "bn" ? "টার্নাক্স" : "TERNUX"
             requestAnimationFrame(draw);
             return;
           }
-          if (now - lastTitleFrame < 34) {
+          if (now - lastTitleFrame < 16) {
             requestAnimationFrame(draw);
             return;
           }
           lastTitleFrame = now;
           rainCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
           rainCtx.clearRect(0, 0, width, height);
-          rainCtx.font = "10px ui-monospace, monospace";
+          rainCtx.font =
+            document.documentElement.lang === "bn"
+              ? "10px NotoBN, sans-serif"
+              : "10px ui-monospace, monospace";
           rainCtx.textBaseline = "middle";
           for (const stream of streams) {
             const head = (now * stream.speed + stream.offset) % (height + 300);
-            for (let row = 0; row < 30; row++) {
+            for (let row = 0; row < 24; row++) {
               const y = head - row * 11;
               if (y < 0 || y > height) continue;
-              rainCtx.globalAlpha = (1 - row / 30) * (row === 0 ? 1 : 0.78);
+              rainCtx.globalAlpha = (1 - row / 24) * (row === 0 ? 1 : 0.72);
               rainCtx.fillStyle = row === 0 ? "#e9fff0" : "#47ee72";
               rainCtx.fillText(
                 glyphs[
-                  (stream.seed + row + Math.floor(now / 260)) % glyphs.length
+                  (stream.seed + row + Math.floor(head / 44)) % glyphs.length
                 ],
                 stream.x,
                 y,
@@ -493,21 +505,18 @@ const matrixFallback = (lang === "bn" ? "টার্নাক্স" : "TERNUX"
           ctx.font = font;
           ctx.textBaseline = "alphabetic";
           ctx.lineJoin = "round";
-          ctx.lineWidth = 1.1;
-          ctx.strokeStyle = "#1f7140";
-          for (let depth = 7; depth > 0; depth--) {
-            ctx.globalAlpha = 0.1 + (7 - depth) * 0.035;
-            ctx.strokeText(titleText, depth * 0.7, baseline + depth, textWidth);
-          }
-          ctx.globalAlpha = 0.58;
+          ctx.globalAlpha = 0.42;
           ctx.fillStyle = "#10331c";
+          ctx.fillText(titleText, 2, baseline + 2, textWidth);
+          ctx.globalAlpha = 0.9;
+          ctx.fillStyle = "#173d22";
           ctx.fillText(titleText, 0, baseline, textWidth);
           ctx.globalAlpha = 1;
           ctx.drawImage(rain, 0, 0, width, height);
           ctx.strokeStyle = "#c3fbd0";
-          ctx.lineWidth = 1.3;
+          ctx.lineWidth = 1;
           ctx.shadowColor = "#53ec78";
-          ctx.shadowBlur = 9;
+          ctx.shadowBlur = 5;
           ctx.strokeText(titleText, 0, baseline, textWidth);
           ctx.globalAlpha = 1;
           ctx.shadowBlur = 0;
