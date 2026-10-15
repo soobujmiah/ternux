@@ -1597,7 +1597,7 @@ body.lang-bn .home-section-link {
     min-height: 230px;
   }
   .ecosystem-copy {
-    padding: 6px 24px 32px;
+    padding: 6px 0 32px;
   }
   .ecosystem-section {
     padding-top: 0;
@@ -2093,14 +2093,38 @@ body {
   background: linear-gradient(90deg, #77e3ad, #6bc7f4);
   box-shadow: 0 0 18px #6bc7f4aa;
 }
-.ecosystem-copy {
-  padding: 32px clamp(24px, 5vw, 58px);
+.ecosystem-section .ecosystem-copy {
+  padding: 32px clamp(20px, 2.5vw, 32px);
 }
 .ecosystem-tags span {
   border: 0;
   border-bottom: 1px solid #416157;
   background: transparent;
   padding: 6px 10px 6px 0;
+}
+body.lang-bn .ecosystem-copy h2 {
+  line-height: 1.45;
+  letter-spacing: 0;
+}
+body.lang-bn .ecosystem-node {
+  font:
+    700 15px/1.45 NotoBN,
+    sans-serif;
+}
+body.lang-bn .ecosystem-caption {
+  width: 100%;
+  padding-inline: 8px;
+  font:
+    10px/1.8 NotoBN,
+    sans-serif;
+  letter-spacing: 0;
+  text-align: center;
+}
+body.lang-bn .ecosystem-tags span {
+  font:
+    10px/1.8 NotoBN,
+    sans-serif;
+  letter-spacing: 0;
 }
 
 .device-panel {
@@ -2443,6 +2467,13 @@ body {
   }
   .ecosystem-graphic {
     min-height: 300px;
+  }
+  .ecosystem-graphic:before,
+  .ecosystem-graphic:after {
+    scale: 0.8;
+  }
+  .ecosystem-section .ecosystem-copy {
+    padding: 6px 0 32px;
   }
   .ecosystem-panel {
     grid-template-columns: minmax(0, 1fr);
