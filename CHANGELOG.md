@@ -20,6 +20,9 @@ Notable changes to ternux. Dates are ISO 8601.
 - Kept the title letter shapes readable while `TERNUX` falls inside them,
   increased the ambient field at the page margins, and replaced the system
   map's vertical list with six softly animated open nodes.
+- Reordered both homepages as host device → system map → first boot → Android
+  development → compute paths → verified 3D output, and added a moving wireframe
+  mesh to the render timeline.
 - Fixed the mobile `LINUX` title clipping and canvas glyph misalignment, kept
   the phone illustration caption clear, and used bundled typefaces so Android's
   system font cannot alter the site typography.

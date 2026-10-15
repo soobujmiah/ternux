@@ -298,8 +298,8 @@ for path in site_pages:
         check(required in source, f"{path.relative_to(ROOT)}: missing SEO metadata {required}")
 
 LANDING_SECTIONS = [
-    "system-map", "local-inference", "engine-cpu", "engine-gpu", "engine-htp",
-    "android-development", "device-profile", "install", "benchmarks",
+    "device-profile", "system-map", "install", "android-development",
+    "local-inference", "engine-cpu", "engine-gpu", "engine-htp", "benchmarks",
 ]
 for rel in ("dist/index.html", "dist/bn/index.html"):
     text = read(ROOT / rel)
