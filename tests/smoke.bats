@@ -13,6 +13,7 @@
 setup() {
   TNX_CLI="$(cd "$(dirname "$BATS_TEST_FILENAME")/.." && pwd)/bin/ternux"
   export TERNUX_STATE_DIR="$(mktemp -d)"
+  export TERNUX_LOG_DIR="$TERNUX_STATE_DIR/logs"
 }
 
 teardown() {
@@ -452,6 +453,14 @@ teardown() {
   # Log file doesn't exist; clearing should be harmless
   run bash "$TNX_CLI" --quiet logs clear
   [ "$status" -eq 0 ]
+}
+
+@test "logs: quiet clear of an existing isolated log succeeds" {
+  mkdir -p "$TERNUX_LOG_DIR"
+  printf 'old log\n' > "$TERNUX_LOG_DIR/ternux.log"
+  run bash "$TNX_CLI" --quiet logs clear
+  [ "$status" -eq 0 ]
+  [ ! -s "$TERNUX_LOG_DIR/ternux.log" ]
 }
 
 # ===== NO-CRASH GUARANTEES ================================================

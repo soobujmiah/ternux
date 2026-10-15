@@ -63,6 +63,7 @@ _tnx_logs_clear() {
   : > "$TERNUX_LOG_FILE"
   tnx_ok "Log cleared"
   [ "${TERNUX_JSON:-0}" = "1" ] && tnx_json_object "logs" "cleared"
+  return 0
 }
 
 _tnx_logs_list() {

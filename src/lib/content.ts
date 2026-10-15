@@ -30,7 +30,9 @@ function rewriteHtml(html: string, route: string) {
           return `href=${q}https://github.com/soobujmiah/ternux/blob/main/${relative}${hash}${q}`;
         return `href=${q}${value}.html${hash}${q}`;
       },
-    );
+    )
+    .replace(/<table>/g, '<div class="table-scroll"><table>')
+    .replace(/<\/table>/g, "</table></div>");
 }
 
 export type Page = {

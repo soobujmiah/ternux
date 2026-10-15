@@ -932,6 +932,7 @@ a:focus-visible,
   background: #122126;
   padding: 2px 5px;
   border-radius: 2px;
+  overflow-wrap: anywhere;
 }
 .article pre code {
   padding: 0;
@@ -979,12 +980,14 @@ a:focus-visible,
 .article pre:has(.copy-code) {
   padding-top: 52px;
 }
+.article .table-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+  margin: 22px 0;
+}
 .article table {
   width: 100%;
   border-collapse: collapse;
-  display: block;
-  overflow-x: auto;
-  margin: 22px 0;
   border: 1px solid #29404a;
 }
 .article th,
@@ -1049,8 +1052,8 @@ a:focus-visible,
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
-.reveal,
-[data-reveal] {
+.js-reveal .reveal,
+.js-reveal [data-reveal] {
   opacity: 0;
   transform: translateY(24px);
   filter: blur(5px);
@@ -1059,8 +1062,8 @@ a:focus-visible,
     transform 0.85s cubic-bezier(0.2, 0.8, 0.2, 1),
     filter 0.85s ease;
 }
-.reveal.visible,
-[data-reveal].visible {
+.js-reveal .reveal.visible,
+.js-reveal [data-reveal].visible {
   opacity: 1;
   transform: none;
   filter: none;

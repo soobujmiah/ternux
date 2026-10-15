@@ -520,6 +520,7 @@ const titleText = `${title} · Ternux`;
         }).observe(matrixTitle);
         requestAnimationFrame(draw);
       }
+      document.body.classList.add("js-reveal");
       document.querySelectorAll("[data-reveal]").forEach((el) => {
         if (
           !("IntersectionObserver" in window) ||

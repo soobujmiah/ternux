@@ -12,6 +12,13 @@ Notable changes to ternux. Dates are ISO 8601.
 
 ## [Unreleased]
 
+### Website and CLI reliability
+
+- Kept homepage sections visible without JavaScript and made wide documentation
+  tables scroll within the article on narrow screens.
+- Made successful quiet `logs clear` return success, and isolated smoke-test logs
+  from the workstation's own log directory.
+
 ### Rendering from an agent
 
 - Added `tools/blender-gpu-mcp/`, an MCP server over the tested headless route

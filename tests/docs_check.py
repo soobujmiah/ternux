@@ -9,7 +9,7 @@ from pathlib import Path
 import re
 import sys
 import unicodedata
-from urllib.parse import unquote
+from urllib.parse import unquote, urlparse
 import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -297,7 +297,10 @@ for path in site_pages:
     for required in ('<title>', 'name="description"', 'rel="canonical"', 'property="og:image:alt"', 'name="twitter:image:alt"', 'application/ld+json'):
         check(required in source, f"{path.relative_to(ROOT)}: missing SEO metadata {required}")
 
-LANDING_SECTIONS = ["system-map", "capabilities", "device-profile", "install", "benchmarks"]
+LANDING_SECTIONS = [
+    "system-map", "local-inference", "engine-cpu", "engine-gpu", "engine-htp",
+    "android-development", "device-profile", "install", "benchmarks",
+]
 for rel in ("dist/index.html", "dist/bn/index.html"):
     text = read(ROOT / rel)
     ids = re.findall(r'<section[^>]*\bid="([^"]+)"', text)
@@ -305,6 +308,10 @@ for rel in ("dist/index.html", "dist/bn/index.html"):
 check(re.search(r"@media\s*\(prefers-reduced-motion:\s*reduce\)", read(ROOT / "src/styles/site.css")) is not None,
       "site.css: reduced-motion support missing")
 check("data-copy" in read(ROOT / "src/layouts/SiteLayout.astro"), "site shell: command copy control missing")
+check(".js-reveal [data-reveal]" in read(ROOT / "src/styles/site.css"), "site.css: no-JavaScript reveal fallback missing")
+check('document.body.classList.add("js-reveal")' in read(ROOT / "src/layouts/SiteLayout.astro"), "site shell: reveal enhancement marker missing")
+for rel in ("dist/docs/ACCELERATOR-RELEASE-PLAN.html", "dist/bn/docs/ACCELERATOR-RELEASE-PLAN.html", "dist/docs/GRAPHICS-PERSISTENCE.html"):
+    check('<div class="table-scroll"><table>' in read(ROOT / rel), f"{rel}: wide tables need a scroll container")
 
 social_source = read(ROOT / "src/layouts/SiteLayout.astro")
 for required in ('property="og:image"', 'property="og:image:width"', 'property="og:image:height"', 'property="og:image:alt"', 'name="twitter:card"', 'name="twitter:image"', 'name="twitter:image:alt"'):
@@ -319,6 +326,15 @@ if len(card) >= 26 and card[:8] == b"\x89PNG\r\n\x1a\n":
 for source in site_pages:
     for raw in re.findall(r"\bhref=[\"']([^\"']+)", read(source), re.I):
         raw = html.unescape(raw)
+        parsed = urlparse(raw)
+        repository_prefix = "/soobujmiah/ternux/blob/main/"
+        if parsed.netloc == "github.com" and parsed.path.startswith(repository_prefix):
+            evidence_path = unquote(parsed.path[len(repository_prefix):])
+            evidence_target = (ROOT / evidence_path).resolve()
+            check(
+                evidence_target.is_relative_to(ROOT) and evidence_target.is_file(),
+                f"{source.relative_to(ROOT)}: missing repository evidence {raw}",
+            )
         if raw.startswith(("http://", "https://", "mailto:", "tel:", "data:", "javascript:")):
             continue
         target, _, fragment = raw.partition("#")
