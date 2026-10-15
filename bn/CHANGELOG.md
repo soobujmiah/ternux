@@ -12,6 +12,13 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 
 ## [Unreleased]
 
+### Website ও CLI নির্ভরযোগ্যতা
+
+- JavaScript বন্ধ থাকলেও homepage-এর section দৃশ্যমান থাকে; ছোট পর্দায় চওড়া
+  documentation table এখন article-এর ভেতরে scroll করে।
+- সফল quiet `logs clear` এখন success status দেয়; smoke test-এর log workstation-এর
+  নিজস্ব log directory থেকে আলাদা রাখা হয়েছে।
+
 ### Rendering from an agent
 
 - `tools/blender-gpu-mcp/` যোগ হয়েছে — পরীক্ষিত headless পথের

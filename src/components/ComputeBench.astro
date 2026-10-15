@@ -1,0 +1,247 @@
+---
+const { lang = "en" } = Astro.props;
+const bn = lang === "bn";
+---
+
+<div class="compute-panel" data-compute-panel>
+  <p class="compute-model-line">
+    <span>MODEL / WORKLOAD</span>
+    <strong>QWEN2.5 · 1.5B · Q4_0</strong>
+    <i>REDMI TURBO 4 PRO</i>
+  </p>
+  <div
+    class="compute-tabs"
+    role="tablist"
+    aria-label={
+      bn ? "CPU, GPU ও NPU evidence বাছুন" : "Choose CPU, GPU or NPU evidence"
+    }
+  >
+    <button
+      class="compute-tab is-active"
+      id="engine-cpu-tab"
+      type="button"
+      role="tab"
+      aria-selected="true"
+      aria-controls="engine-cpu"
+      data-engine-tab="cpu"
+    >
+      <span class="engine-dot cpu-dot"></span>CPU <small>ARM64</small>
+    </button>
+    <button
+      class="compute-tab"
+      id="engine-gpu-tab"
+      type="button"
+      role="tab"
+      aria-selected="false"
+      aria-controls="engine-gpu"
+      data-engine-tab="gpu"
+      tabindex="-1"
+    >
+      <span class="engine-dot gpu-dot"></span>GPU <small>ADRENO 825</small>
+    </button>
+    <button
+      class="compute-tab"
+      id="engine-htp-tab"
+      type="button"
+      role="tab"
+      aria-selected="false"
+      aria-controls="engine-htp"
+      data-engine-tab="htp"
+      tabindex="-1"
+    >
+      <span class="engine-dot htp-dot"></span>NPU <small>HEXAGON HTP</small>
+    </button>
+  </div>
+
+  <section
+    class="compute-readout"
+    id="engine-cpu"
+    role="tabpanel"
+    aria-labelledby="engine-cpu-tab"
+    data-engine-panel="cpu"
+  >
+    <header class="compute-readout-head">
+      <div>
+        <h3>CPU · ARM64</h3>
+      </div>
+      <span class="evidence-badge measured">
+        <i></i>
+        {bn ? "মাপা" : "MEASURED"}
+      </span>
+    </header>
+    <div class="compute-facts">
+      <div class="compute-fact">
+        <small>{bn ? "সম্পূর্ণ run" : "TOTAL RUN"}</small>
+        <strong>
+          264.39 <em>s</em>
+        </strong>
+      </div>
+      <div class="compute-fact">
+        <small>{bn ? "device অবস্থা" : "DEVICE STATE"}</small>
+        <strong>{bn ? "Clean idle" : "Clean idle"}</strong>
+      </div>
+    </div>
+  </section>
+
+  <section
+    class="compute-readout"
+    id="engine-gpu"
+    role="tabpanel"
+    aria-labelledby="engine-gpu-tab"
+    data-engine-panel="gpu"
+    hidden
+  >
+    <header class="compute-readout-head">
+      <div>
+        <h3>Adreno 825 · Vulkan</h3>
+      </div>
+      <span class="evidence-badge verified">
+        <i></i>
+        {bn ? "যাচাইকৃত" : "VERIFIED"}
+      </span>
+    </header>
+    <div class="compute-facts">
+      <div class="compute-fact">
+        <small>{bn ? "Vulkan-এ layer" : "LAYERS ON VULKAN"}</small>
+        <strong>29 / 29</strong>
+      </div>
+      <div class="compute-fact">
+        <small>{bn ? "সঠিকতার check" : "KNOWN-ANSWER CHECK"}</small>
+        <strong>Returned “4”</strong>
+      </div>
+    </div>
+  </section>
+
+  <section
+    class="compute-readout"
+    id="engine-htp"
+    role="tabpanel"
+    aria-labelledby="engine-htp-tab"
+    data-engine-panel="htp"
+    hidden
+  >
+    <header class="compute-readout-head">
+      <div>
+        <h3>Hexagon HTP · HVX</h3>
+      </div>
+      <span class="evidence-badge experimental">
+        <i></i>
+        {bn ? "পরীক্ষামূলক" : "EXPERIMENTAL"}
+      </span>
+    </header>
+    <div class="compute-facts">
+      <div class="compute-fact">
+        <small>{bn ? "সম্পূর্ণ run" : "TOTAL RUN"}</small>
+        <strong>
+          129.46 <em>s</em>
+        </strong>
+      </div>
+      <div class="compute-fact">
+        <small>{bn ? "configuration" : "CONFIGURATION"}</small>
+        <strong>HVX matmul · flash attention off</strong>
+      </div>
+      <div class="compute-fact">
+        <small>{bn ? "সঠিকতার check" : "CHECK RESULT"}</small>
+        <strong>{bn ? "Bounded check pass" : "Bounded check passed"}</strong>
+      </div>
+    </div>
+  </section>
+
+  <div class="compute-chart">
+    <header class="compute-chart-head">
+      <div>
+        <span class="eyebrow">
+          {bn ? "একই model · তিন backend" : "SAME MODEL · THREE BACKENDS"}
+        </span>
+        <h3>{bn ? "Measured speed" : "Measured speed"}</h3>
+      </div>
+    </header>
+    <div class="compute-chart-grid">
+      <div
+        class="speed-chart"
+        role="img"
+        aria-label={
+          bn
+            ? "Token generation: CPU 2.38, Adreno Vulkan 13.27, experimental Hexagon HTP 12.02 token per second"
+            : "Token generation: CPU 2.38, Adreno Vulkan 13.27, experimental Hexagon HTP 12.02 tokens per second"
+        }
+      >
+        <h4>
+          {bn ? "Token তৈরি" : "TOKEN GENERATION"}
+          <small>tok/s · {bn ? "scale 0–14" : "SCALE 0–14"}</small>
+        </h4>
+        <div class="chart-row cpu-row">
+          <span>CPU</span>
+          <i>
+            <b style="--bar:17%"></b>
+          </i>
+          <strong>2.38</strong>
+        </div>
+        <div class="chart-row gpu-row">
+          <span>ADRENO</span>
+          <i>
+            <b style="--bar:95%"></b>
+          </i>
+          <strong>13.27</strong>
+        </div>
+        <div class="chart-row htp-row">
+          <span>HTP*</span>
+          <i>
+            <b style="--bar:86%"></b>
+          </i>
+          <strong>12.02</strong>
+        </div>
+      </div>
+      <div
+        class="speed-chart"
+        role="img"
+        aria-label={
+          bn
+            ? "Prompt processing: CPU 59.04, Adreno Vulkan 92.19, experimental Hexagon HTP 34.20 token per second"
+            : "Prompt processing: CPU 59.04, Adreno Vulkan 92.19, experimental Hexagon HTP 34.20 tokens per second"
+        }
+      >
+        <h4>
+          {bn ? "Prompt processing" : "PROMPT PROCESSING"}
+          <small>tok/s · {bn ? "scale 0–100" : "SCALE 0–100"}</small>
+        </h4>
+        <div class="chart-row cpu-row">
+          <span>CPU</span>
+          <i>
+            <b style="--bar:59%"></b>
+          </i>
+          <strong>59.04</strong>
+        </div>
+        <div class="chart-row gpu-row">
+          <span>ADRENO</span>
+          <i>
+            <b style="--bar:92%"></b>
+          </i>
+          <strong>92.19</strong>
+        </div>
+        <div class="chart-row htp-row">
+          <span>HTP*</span>
+          <i>
+            <b style="--bar:34%"></b>
+          </i>
+          <strong>34.20</strong>
+        </div>
+      </div>
+    </div>
+    <p class="chart-foot">
+      {bn
+        ? "একটি sequential run প্রতি backend-এ। * HTP experimental; HVX matmul ও flash attention off; supported Ternux route নয়।"
+        : "One sequential run per backend. * HTP is experimental; HVX matmul and flash attention off; not a supported Ternux route."}
+    </p>
+  </div>
+
+  <footer class="compute-foot">
+    <a
+      href={
+        bn ? "/ternux/bn/docs/BENCHMARKS.html" : "/ternux/docs/BENCHMARKS.html"
+      }
+    >
+      {bn ? "সম্পূর্ণ benchmark ↗" : "FULL BENCHMARK ↗"}
+    </a>
+  </footer>
+</div>

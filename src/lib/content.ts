@@ -15,7 +15,7 @@ function rewriteHtml(html: string, route: string) {
       (_m, attr, quote, value) => ` ${attr}=${quote}${base}${value}${quote}`,
     )
     .replace(
-      /href=(['"])([^:'"#][^'"]*?)\.md(#[^'"]*)?\1/g,
+      /href=(['"])((?![a-z][a-z0-9+.-]*:|\/\/)[^:'"#][^'"]*?)\.md(#[^'"]*)?\1/gi,
       (_m, q, value, hash = "") => {
         const target = path.resolve(sourceDir, `${value}.md`);
         const relative = path.relative(root, target).split(path.sep).join("/");
@@ -30,7 +30,9 @@ function rewriteHtml(html: string, route: string) {
           return `href=${q}https://github.com/soobujmiah/ternux/blob/main/${relative}${hash}${q}`;
         return `href=${q}${value}.html${hash}${q}`;
       },
-    );
+    )
+    .replace(/<table>/g, '<div class="table-scroll"><table>')
+    .replace(/<\/table>/g, "</table></div>");
 }
 
 export type Page = {
