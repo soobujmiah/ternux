@@ -9,7 +9,7 @@ const bn = lang === "bn";
   role="img"
   aria-label={
     bn
-      ? "Android ফোনের ভেতরে Termux, Debian, ADT এবং Adreno GPU-সহ Ternux workstation-এর চিত্র"
+      ? "অ্যান্ড্রয়েড ফোনের ভেতরে টার্মাক্স, ডেবিয়ান, এডিটি এবং অ্যাড্রেনো জিপিইউ-সহ টার্নাক্স ওয়ার্কস্টেশনের চিত্র"
       : "Ternux workstation diagram: an Android phone running Termux, Debian, ADT and Adreno GPU workloads"
   }
 >
@@ -19,26 +19,26 @@ const bn = lang === "bn";
   <div class="device-platform" aria-hidden="true"></div>
 
   <div class="signal-chip chip-cpu" aria-hidden="true">
-    <span class="chip-mark cpu-mark">C</span>
+    <span class="chip-mark cpu-mark">{bn ? "সি" : "C"}</span>
     <span>
-      <b>CPU</b>
-      <small>ARM64 · llama.cpp</small>
+      <b>{bn ? "সিপিইউ" : "CPU"}</b>
+      <small>{bn ? "এআরএম৬৪ · লামা.সিপিপি" : "ARM64 · llama.cpp"}</small>
     </span>
     <i></i>
   </div>
   <div class="signal-chip chip-gpu" aria-hidden="true">
-    <span class="chip-mark gpu-mark">G</span>
+    <span class="chip-mark gpu-mark">{bn ? "জি" : "G"}</span>
     <span>
-      <b>ADRENO 825</b>
-      <small>VULKAN · ZINK</small>
+      <b>{bn ? "অ্যাড্রেনো ৮২৫" : "ADRENO 825"}</b>
+      <small>{bn ? "ভলকান · জিঙ্ক" : "VULKAN · ZINK"}</small>
     </span>
     <i></i>
   </div>
   <div class="signal-chip chip-htp" aria-hidden="true">
-    <span class="chip-mark htp-mark">H</span>
+    <span class="chip-mark htp-mark">{bn ? "হে" : "H"}</span>
     <span>
-      <b>HEXAGON HTP</b>
-      <small>EXPERIMENTAL</small>
+      <b>{bn ? "হেক্সাগন এইচটিপি" : "HEXAGON HTP"}</b>
+      <small>{bn ? "পরীক্ষামূলক" : "EXPERIMENTAL"}</small>
     </span>
     <i></i>
   </div>
@@ -50,38 +50,42 @@ const bn = lang === "bn";
       <div class="phone-camera"></div>
       <div class="phone-screen">
         <div class="phone-status">
-          <span>LOCAL</span>
-          <span>ARM64</span>
-          <span>READY</span>
+          <span>{bn ? "স্থানীয়" : "LOCAL"}</span>
+          <span>{bn ? "এআরএম৬৪" : "ARM64"}</span>
+          <span>{bn ? "প্রস্তুত" : "READY"}</span>
         </div>
         <div class="screen-brand">
-          <span>&gt;_</span> TERNUX <i>DEBIAN WORKSTATION</i>
+          <span>&gt;_</span> {bn ? "টার্নাক্স" : "TERNUX"}{" "}
+          <i>{bn ? "ডেবিয়ান ওয়ার্কস্টেশন" : "DEBIAN WORKSTATION"}</i>
         </div>
         <div class="terminal-window">
           <div class="terminal-title">
             <i></i>
             <i></i>
             <i></i>
-            <span>debian — zsh</span>
+            <span>{bn ? "ডেবিয়ান — জেডশ" : "debian — zsh"}</span>
           </div>
           <code>
-            <span>sbj@redmi</span>:~$ fastfetch
+            <span>{bn ? "সবুজ@রেডমি" : "sbj@redmi"}</span>:~${" "}
+            {bn ? "ফাস্টফেচ" : "fastfetch"}
           </code>
           <div class="terminal-rule"></div>
           <div class="terminal-info">
-            <b>Debian 13</b>
-            <small>PRoot · aarch64</small>
+            <b>{bn ? "ডেবিয়ান ১৩" : "Debian 13"}</b>
+            <small>{bn ? "প্রুট · এআরএম৬৪" : "PRoot · aarch64"}</small>
           </div>
           <div class="terminal-info">
-            <b>XFCE 4</b>
-            <small>Termux:X11</small>
+            <b>{bn ? "এক্সএফসিই ৪" : "XFCE 4"}</b>
+            <small>{bn ? "টার্মাক্স:এক্স১১" : "Termux:X11"}</small>
           </div>
           <div class="terminal-info">
-            <b>ADT toolchain</b>
-            <small>Android SDK · NDK</small>
+            <b>{bn ? "এডিটি নির্মাণ-সরঞ্জাম" : "ADT toolchain"}</b>
+            <small>
+              {bn ? "অ্যান্ড্রয়েড এসডিকে · এনডিকে" : "Android SDK · NDK"}
+            </small>
           </div>
           <div class="terminal-prompt">
-            <span>●</span> system ready
+            <span>●</span> {bn ? "ব্যবস্থা প্রস্তুত" : "system ready"}
           </div>
         </div>
         <div class="screen-dock">
@@ -98,7 +102,7 @@ const bn = lang === "bn";
     <span class="live-dot"></span>
     <span>
       {bn
-        ? "একটি ফোন · সম্পূর্ণ ARM64 workstation"
+        ? "একটি ফোন · সম্পূর্ণ এআরএম৬৪ ওয়ার্কস্টেশন"
         : "ONE PHONE · FULL ARM64 WORKSTATION"}
     </span>
   </div>

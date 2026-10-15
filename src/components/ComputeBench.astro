@@ -5,15 +5,19 @@ const bn = lang === "bn";
 
 <div class="compute-panel" data-compute-panel>
   <p class="compute-model-line">
-    <span>MODEL / WORKLOAD</span>
-    <strong>QWEN2.5 · 1.5B · Q4_0</strong>
-    <i>REDMI TURBO 4 PRO</i>
+    <span>{bn ? "মডেল / কাজ" : "MODEL / WORKLOAD"}</span>
+    <strong>
+      {bn ? "কিউয়েন ২.৫ · ১.৫বি · কিউ৪_০" : "QWEN2.5 · 1.5B · Q4_0"}
+    </strong>
+    <i>{bn ? "রেডমি টার্বো ৪ প্রো" : "REDMI TURBO 4 PRO"}</i>
   </p>
   <div
     class="compute-tabs"
     role="tablist"
     aria-label={
-      bn ? "CPU, GPU ও NPU evidence বাছুন" : "Choose CPU, GPU or NPU evidence"
+      bn
+        ? "সিপিইউ, জিপিইউ ও এনপিইউর প্রমাণ বাছুন"
+        : "Choose CPU, GPU or NPU evidence"
     }
   >
     <button
@@ -25,7 +29,8 @@ const bn = lang === "bn";
       aria-controls="engine-cpu"
       data-engine-tab="cpu"
     >
-      <span class="engine-dot cpu-dot"></span>CPU <small>ARM64</small>
+      <span class="engine-dot cpu-dot"></span>
+      {bn ? "সিপিইউ" : "CPU"} <small>{bn ? "এআরএম৬৪" : "ARM64"}</small>
     </button>
     <button
       class="compute-tab"
@@ -37,7 +42,9 @@ const bn = lang === "bn";
       data-engine-tab="gpu"
       tabindex="-1"
     >
-      <span class="engine-dot gpu-dot"></span>GPU <small>ADRENO 825</small>
+      <span class="engine-dot gpu-dot"></span>
+      {bn ? "জিপিইউ" : "GPU"}{" "}
+      <small>{bn ? "অ্যাড্রেনো ৮২৫" : "ADRENO 825"}</small>
     </button>
     <button
       class="compute-tab"
@@ -49,7 +56,9 @@ const bn = lang === "bn";
       data-engine-tab="htp"
       tabindex="-1"
     >
-      <span class="engine-dot htp-dot"></span>NPU <small>HEXAGON HTP</small>
+      <span class="engine-dot htp-dot"></span>
+      {bn ? "এনপিইউ" : "NPU"}{" "}
+      <small>{bn ? "হেক্সাগন এইচটিপি" : "HEXAGON HTP"}</small>
     </button>
   </div>
 
@@ -62,7 +71,7 @@ const bn = lang === "bn";
   >
     <header class="compute-readout-head">
       <div>
-        <h3>CPU · ARM64</h3>
+        <h3>{bn ? "সিপিইউ · এআরএম৬৪" : "CPU · ARM64"}</h3>
       </div>
       <span class="evidence-badge measured">
         <i></i>
@@ -71,14 +80,14 @@ const bn = lang === "bn";
     </header>
     <div class="compute-facts">
       <div class="compute-fact">
-        <small>{bn ? "সম্পূর্ণ run" : "TOTAL RUN"}</small>
+        <small>{bn ? "সম্পূর্ণ পরীক্ষা" : "TOTAL RUN"}</small>
         <strong>
-          264.39 <em>s</em>
+          264.39 <em>{bn ? "সে." : "s"}</em>
         </strong>
       </div>
       <div class="compute-fact">
-        <small>{bn ? "device অবস্থা" : "DEVICE STATE"}</small>
-        <strong>{bn ? "Clean idle" : "Clean idle"}</strong>
+        <small>{bn ? "যন্ত্রের অবস্থা" : "DEVICE STATE"}</small>
+        <strong>{bn ? "নিষ্ক্রিয়" : "Clean idle"}</strong>
       </div>
     </div>
   </section>
@@ -93,7 +102,7 @@ const bn = lang === "bn";
   >
     <header class="compute-readout-head">
       <div>
-        <h3>Adreno 825 · Vulkan</h3>
+        <h3>{bn ? "অ্যাড্রেনো ৮২৫ · ভলকান" : "Adreno 825 · Vulkan"}</h3>
       </div>
       <span class="evidence-badge verified">
         <i></i>
@@ -102,12 +111,12 @@ const bn = lang === "bn";
     </header>
     <div class="compute-facts">
       <div class="compute-fact">
-        <small>{bn ? "Vulkan-এ layer" : "LAYERS ON VULKAN"}</small>
+        <small>{bn ? "ভলকান চালকস্তর" : "LAYERS ON VULKAN"}</small>
         <strong>29 / 29</strong>
       </div>
       <div class="compute-fact">
-        <small>{bn ? "সঠিকতার check" : "KNOWN-ANSWER CHECK"}</small>
-        <strong>Returned “4”</strong>
+        <small>{bn ? "সঠিকতার যাচাই" : "KNOWN-ANSWER CHECK"}</small>
+        <strong>{bn ? "“৪” পাওয়া গেছে" : "Returned “4”"}</strong>
       </div>
     </div>
   </section>
@@ -122,7 +131,7 @@ const bn = lang === "bn";
   >
     <header class="compute-readout-head">
       <div>
-        <h3>Hexagon HTP · HVX</h3>
+        <h3>{bn ? "হেক্সাগন এইচটিপি · এইচভিএক্স" : "Hexagon HTP · HVX"}</h3>
       </div>
       <span class="evidence-badge experimental">
         <i></i>
@@ -131,18 +140,24 @@ const bn = lang === "bn";
     </header>
     <div class="compute-facts">
       <div class="compute-fact">
-        <small>{bn ? "সম্পূর্ণ run" : "TOTAL RUN"}</small>
+        <small>{bn ? "সম্পূর্ণ পরীক্ষা" : "TOTAL RUN"}</small>
         <strong>
-          129.46 <em>s</em>
+          129.46 <em>{bn ? "সে." : "s"}</em>
         </strong>
       </div>
       <div class="compute-fact">
-        <small>{bn ? "configuration" : "CONFIGURATION"}</small>
-        <strong>HVX matmul · flash attention off</strong>
+        <small>{bn ? "বিন্যাস" : "CONFIGURATION"}</small>
+        <strong>
+          {bn
+            ? "এইচভিএক্স ম্যাটমাল · ফ্ল্যাশ অ্যাটেনশন বন্ধ"
+            : "HVX matmul · flash attention off"}
+        </strong>
       </div>
       <div class="compute-fact">
-        <small>{bn ? "সঠিকতার check" : "CHECK RESULT"}</small>
-        <strong>{bn ? "Bounded check pass" : "Bounded check passed"}</strong>
+        <small>{bn ? "যাচাইয়ের ফল" : "CHECK RESULT"}</small>
+        <strong>
+          {bn ? "নির্দিষ্ট সীমায় যাচাই পাস" : "Bounded check passed"}
+        </strong>
       </div>
     </div>
   </section>
@@ -151,9 +166,9 @@ const bn = lang === "bn";
     <header class="compute-chart-head">
       <div>
         <span class="eyebrow">
-          {bn ? "একই model · তিন backend" : "SAME MODEL · THREE BACKENDS"}
+          {bn ? "একই মডেল · তিন গণনাপথ" : "SAME MODEL · THREE BACKENDS"}
         </span>
-        <h3>{bn ? "Measured speed" : "Measured speed"}</h3>
+        <h3>{bn ? "মাপা গতি" : "Measured speed"}</h3>
       </div>
     </header>
     <div class="compute-chart-grid">
@@ -162,30 +177,30 @@ const bn = lang === "bn";
         role="img"
         aria-label={
           bn
-            ? "Token generation: CPU 2.38, Adreno Vulkan 13.27, experimental Hexagon HTP 12.02 token per second"
+            ? "টোকেন তৈরি: সিপিইউ ২.৩৮, অ্যাড্রেনো ভলকান ১৩.২৭, পরীক্ষামূলক হেক্সাগন এইচটিপি ১২.০২ টোকেন প্রতি সেকেন্ড"
             : "Token generation: CPU 2.38, Adreno Vulkan 13.27, experimental Hexagon HTP 12.02 tokens per second"
         }
       >
         <h4>
-          {bn ? "Token তৈরি" : "TOKEN GENERATION"}
-          <small>tok/s · {bn ? "scale 0–14" : "SCALE 0–14"}</small>
+          {bn ? "টোকেন তৈরি" : "TOKEN GENERATION"}
+          <small>{bn ? "টোকেন/সে. · মাপ ০–১৪" : "tok/s · SCALE 0–14"}</small>
         </h4>
         <div class="chart-row cpu-row">
-          <span>CPU</span>
+          <span>{bn ? "সিপিইউ" : "CPU"}</span>
           <i>
             <b style="--bar:17%"></b>
           </i>
           <strong>2.38</strong>
         </div>
         <div class="chart-row gpu-row">
-          <span>ADRENO</span>
+          <span>{bn ? "অ্যাড্রেনো" : "ADRENO"}</span>
           <i>
             <b style="--bar:95%"></b>
           </i>
           <strong>13.27</strong>
         </div>
         <div class="chart-row htp-row">
-          <span>HTP*</span>
+          <span>{bn ? "এইচটিপি*" : "HTP*"}</span>
           <i>
             <b style="--bar:86%"></b>
           </i>
@@ -197,30 +212,30 @@ const bn = lang === "bn";
         role="img"
         aria-label={
           bn
-            ? "Prompt processing: CPU 59.04, Adreno Vulkan 92.19, experimental Hexagon HTP 34.20 token per second"
+            ? "প্রশ্ন প্রক্রিয়াকরণ: সিপিইউ ৫৯.০৪, অ্যাড্রেনো ভলকান ৯২.১৯, পরীক্ষামূলক হেক্সাগন এইচটিপি ৩৪.২০ টোকেন প্রতি সেকেন্ড"
             : "Prompt processing: CPU 59.04, Adreno Vulkan 92.19, experimental Hexagon HTP 34.20 tokens per second"
         }
       >
         <h4>
-          {bn ? "Prompt processing" : "PROMPT PROCESSING"}
-          <small>tok/s · {bn ? "scale 0–100" : "SCALE 0–100"}</small>
+          {bn ? "প্রশ্ন প্রক্রিয়াকরণ" : "PROMPT PROCESSING"}
+          <small>{bn ? "টোকেন/সে. · মাপ ০–১০০" : "tok/s · SCALE 0–100"}</small>
         </h4>
         <div class="chart-row cpu-row">
-          <span>CPU</span>
+          <span>{bn ? "সিপিইউ" : "CPU"}</span>
           <i>
             <b style="--bar:59%"></b>
           </i>
           <strong>59.04</strong>
         </div>
         <div class="chart-row gpu-row">
-          <span>ADRENO</span>
+          <span>{bn ? "অ্যাড্রেনো" : "ADRENO"}</span>
           <i>
             <b style="--bar:92%"></b>
           </i>
           <strong>92.19</strong>
         </div>
         <div class="chart-row htp-row">
-          <span>HTP*</span>
+          <span>{bn ? "এইচটিপি*" : "HTP*"}</span>
           <i>
             <b style="--bar:34%"></b>
           </i>
@@ -230,7 +245,7 @@ const bn = lang === "bn";
     </div>
     <p class="chart-foot">
       {bn
-        ? "একটি sequential run প্রতি backend-এ। * HTP experimental; HVX matmul ও flash attention off; supported Ternux route নয়।"
+        ? "প্রতিটি গণনাপথে একবার করে ধারাবাহিক পরীক্ষা। * এইচটিপি পরীক্ষামূলক; এইচভিএক্স ম্যাটমাল ও ফ্ল্যাশ অ্যাটেনশন বন্ধ; এটি সমর্থিত টার্নাক্স পথ নয়।"
         : "One sequential run per backend. * HTP is experimental; HVX matmul and flash attention off; not a supported Ternux route."}
     </p>
   </div>
@@ -241,7 +256,7 @@ const bn = lang === "bn";
         bn ? "/ternux/bn/docs/BENCHMARKS.html" : "/ternux/docs/BENCHMARKS.html"
       }
     >
-      {bn ? "সম্পূর্ণ benchmark ↗" : "FULL BENCHMARK ↗"}
+      {bn ? "সম্পূর্ণ মাপজোখ ↗" : "FULL BENCHMARK ↗"}
     </a>
   </footer>
 </div>

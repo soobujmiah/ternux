@@ -7,7 +7,7 @@ import RenderBench from "../../components/RenderBench.astro";
 
 <SiteLayout
   title="পকেটেই লিনাক্স ওয়ার্কস্টেশন"
-  description="Android ARM64 ফোনে no-root Debian workstation. Termux, PRoot, Xfce এবং evidence-led Adreno GPU acceleration."
+  description="অ্যান্ড্রয়েডের এআরএম৬৪ ফোনে রুট-ছাড়া ডেবিয়ান ওয়ার্কস্টেশন। টার্মাক্স, প্রুট, এক্সএফসিই এবং প্রমাণভিত্তিক অ্যাড্রেনো জিপিইউ ত্বরণ।"
   lang="bn"
   canonical="/bn/"
   altUrl="/"
@@ -16,43 +16,52 @@ import RenderBench from "../../components/RenderBench.astro";
     <section class="home-hero">
       <div class="container hero-grid">
         <div class="hero-copy">
-          <span class="eyebrow">ANDROID × DEBIAN · ARM64</span>
-          <h1 aria-label="লিনাক্স ওয়ার্কস্টেশন আপনার পকেটে">
+          <span class="eyebrow">অ্যান্ড্রয়েড × ডেবিয়ান · এআরএম৬৪</span>
+          <h1 aria-label="লিনাক্স ওয়ার্কস্টেশন আপনার পকেটে, সবুজ মিয়া">
             <span class="matrix-title" data-matrix-title aria-hidden="true">
               <span class="matrix-title-text">লিনাক্স</span>
             </span>
             <br />
-            <em aria-hidden="true">ওয়ার্কস্টেশন আপনার পকেটে</em>
+            <em class="hero-tagline" aria-hidden="true">
+              ওয়ার্কস্টেশন আপনার পকেটে
+            </em>
+            <span class="hero-signature" aria-label="সবুজ মিয়া">
+              সবুজ মিয়া
+            </span>
           </h1>
           <p>
-            Android ফোনেই সম্পূর্ণ ARM64 Linux workstation। Root বা remote
-            server দরকার নেই। সতর্কভাবে তৈরি stack-টি ফোনকে build, render ও
-            compute করার বাস্তব পরিবেশে রূপ দেয়।
+            অ্যান্ড্রয়েড ফোনেই সম্পূর্ণ এআরএম৬৪ লিনাক্স ওয়ার্কস্টেশন। রুট বা
+            রিমোট সার্ভার দরকার নেই। যত্ন করে তৈরি এই স্তরবিন্যাস ফোনকে
+            সফটওয়্যার তৈরি, ত্রিমাত্রিক দৃশ্য রেন্ডার ও গণনার বাস্তব পরিবেশে
+            রূপ দেয়।
           </p>
           <div class="hero-actions">
             <a class="button primary" href="/ternux/bn/docs/QUICK-START.html">
-              WORKSTATION চালু করুন <span>↗</span>
+              ওয়ার্কস্টেশন চালু করুন <span>↗</span>
             </a>
             <a class="button" href="/ternux/bn/docs/ARCHITECTURE.html">
-              STACK দেখুন <span>→</span>
+              স্তরবিন্যাস দেখুন <span>→</span>
             </a>
           </div>
           <div class="hero-label">
-            ROOT লাগবে না　/　OPEN SOURCE　/　EVIDENCE LED
+            রুট লাগবে না　/　ওপেন সোর্স　/　প্রমাণভিত্তিক
           </div>
         </div>
-        <div class="hero-system-route" aria-label="Ternux system route">
+        <div
+          class="hero-system-route"
+          aria-label="টার্নাক্সের ব্যবস্থাপথ: অ্যান্ড্রয়েড, টার্মাক্স, ডেবিয়ান ও অ্যাড্রেনো"
+        >
           <span>
-            ANDROID <b>HOST</b>
+            অ্যান্ড্রয়েড <b>মূল যন্ত্র</b>
           </span>
           <span>
-            TERMUX <b>SHELL</b>
+            টার্মাক্স <b>কমান্ড পরিবেশ</b>
           </span>
           <span>
-            DEBIAN <b>GUEST</b>
+            ডেবিয়ান <b>অতিথি ব্যবস্থা</b>
           </span>
           <span>
-            ADRENO <b>GRAPHICS</b>
+            অ্যাড্রেনো <b>গ্রাফিক্স</b>
           </span>
         </div>
       </div>
@@ -61,29 +70,29 @@ import RenderBench from "../../components/RenderBench.astro";
       <div class="container">
         <div class="device-panel">
           <div class="device-copy">
-            <span class="eyebrow">01 / HOST DEVICE</span>
-            <h2>Redmi Turbo 4 Pro</h2>
+            <span class="eyebrow">০১ / মূল যন্ত্র</span>
+            <h2>রেডমি টার্বো ৪ প্রো</h2>
             <p>
-              গল্প শুরু হচ্ছে নিচের measurement-এর জন্য ব্যবহৃত যাচাইকৃত Android
-              ফোন থেকে। ফলাফল এই configured device-এর জন্যই প্রযোজ্য।
+              নিচের মাপজোখে ব্যবহৃত যাচাইকৃত অ্যান্ড্রয়েড ফোন থেকেই শুরু। ফলাফল
+              এই নির্দিষ্ট যন্ত্রটির ক্ষেত্রেই প্রযোজ্য।
             </p>
           </div>
           <div class="device-data">
             <div>
-              <small>System on chip</small>
-              <strong>Snapdragon 8s Gen 4</strong>
+              <small>চিপের ভেতরের ব্যবস্থা</small>
+              <strong>স্ন্যাপড্রাগন ৮এস জেন ৪</strong>
             </div>
             <div>
-              <small>Graphics</small>
-              <strong>Adreno 825</strong>
+              <small>গ্রাফিক্স</small>
+              <strong>অ্যাড্রেনো ৮২৫</strong>
             </div>
             <div>
-              <small>Host OS</small>
-              <strong>Android</strong>
+              <small>মূল পরিচালন ব্যবস্থা</small>
+              <strong>অ্যান্ড্রয়েড</strong>
             </div>
             <div>
-              <small>Architecture</small>
-              <strong>ARM64</strong>
+              <small>স্থাপত্য</small>
+              <strong>এআরএম৬৪</strong>
             </div>
           </div>
         </div>
@@ -92,52 +101,53 @@ import RenderBench from "../../components/RenderBench.astro";
     <section class="section" id="system-map" data-reveal>
       <div class="container">
         <header class="section-head">
-          <span class="eyebrow">02 / SYSTEM MAP</span>
+          <span class="eyebrow">০২ / ব্যবস্থার মানচিত্র</span>
           <div>
             <h2>
               একটি ডিভাইস।
               <br />
-              স্তরে সাজানো workstation.
+              স্তরে সাজানো ওয়ার্কস্টেশন।
             </h2>
             <p>
-              প্রতিটি অংশের কাজ নির্দিষ্ট। Ternux host, Linux environment,
-              display ও graphics route-কে এক যাচাইযোগ্য system-এ সাজায়।
+              প্রতিটি অংশের কাজ নির্দিষ্ট। টার্নাক্স মূল যন্ত্র, লিনাক্সের
+              পরিবেশ, স্ক্রিন ও গ্রাফিক্সের পথকে একটি যাচাইযোগ্য ব্যবস্থায়
+              সাজায়।
             </p>
           </div>
         </header>
         <div
           class="architecture"
-          aria-label="Android থেকে Linux ও GPU system flow"
+          aria-label="অ্যান্ড্রয়েড থেকে লিনাক্স ও জিপিইউ ব্যবস্থার প্রবাহ"
         >
-          <article class="arch-stage" data-index="01 / HOST">
+          <article class="arch-stage" data-index="০১ / মূল যন্ত্র">
             <span class="arch-pulse"></span>
-            <h3>Android</h3>
-            <p>ফোন hardware ও kernel</p>
+            <h3>অ্যান্ড্রয়েড</h3>
+            <p>ফোনের যন্ত্রাংশ ও কার্নেল</p>
           </article>
-          <article class="arch-stage" data-index="02 / SHELL">
+          <article class="arch-stage" data-index="০২ / কমান্ড পরিবেশ">
             <span class="arch-pulse"></span>
-            <h3>Termux</h3>
-            <p>Native ARM64 tools</p>
+            <h3>টার্মাক্স</h3>
+            <p>এআরএম৬৪-এর নিজস্ব সরঞ্জাম</p>
           </article>
-          <article class="arch-stage" data-index="03 / LINUX">
+          <article class="arch-stage" data-index="০৩ / লিনাক্স">
             <span class="arch-pulse"></span>
-            <h3>PRoot · Debian</h3>
-            <p>Linux userspace · Xfce</p>
+            <h3>প্রুট · ডেবিয়ান</h3>
+            <p>লিনাক্স ব্যবহারকারী পরিবেশ · এক্সএফসিই</p>
           </article>
-          <article class="arch-stage" data-index="04 / DISPLAY">
+          <article class="arch-stage" data-index="০৪ / স্ক্রিন">
             <span class="arch-pulse"></span>
-            <h3>Termux:X11</h3>
-            <p>Android display bridge</p>
+            <h3>টার্মাক্স:এক্স১১</h3>
+            <p>অ্যান্ড্রয়েডের স্ক্রিন-সংযোগ</p>
           </article>
-          <article class="arch-stage" data-index="05 / GPU">
+          <article class="arch-stage" data-index="০৫ / জিপিইউ">
             <span class="arch-pulse"></span>
-            <h3>Zink · Turnip</h3>
-            <p>Vulkan-এর উপর OpenGL</p>
+            <h3>জিঙ্ক · টার্নিপ</h3>
+            <p>ভলকানের ওপর ওপেনজিএল</p>
           </article>
-          <article class="arch-stage" data-index="06 / READY">
+          <article class="arch-stage" data-index="০৬ / প্রস্তুত">
             <span class="arch-pulse"></span>
-            <h3>Ternux</h3>
-            <p>এক ফোনে সম্পূর্ণ workstation</p>
+            <h3>টার্নাক্স</h3>
+            <p>এক ফোনেই সম্পূর্ণ ওয়ার্কস্টেশন</p>
           </article>
         </div>
         <div class="system-device">
@@ -149,30 +159,30 @@ import RenderBench from "../../components/RenderBench.astro";
       <div class="container">
         <div class="install-panel">
           <div>
-            <span class="eyebrow">03 / FIRST BOOT</span>
-            <h2>Linux workstation চালু করুন।</h2>
+            <span class="eyebrow">০৩ / প্রথমবার চালু</span>
+            <h2>লিনাক্স ওয়ার্কস্টেশন চালু করুন।</h2>
             <p>
-              বিশ্বস্ত source থেকে Termux install করে quick-start অনুসরণ করুন।
-              Setup স্পষ্ট, inspect করা যায় এবং ফোনের বাস্তব সীমা মাথায় রেখে
-              তৈরি।
+              বিশ্বস্ত উৎস থেকে টার্মাক্স বসিয়ে দ্রুত-শুরুর নির্দেশনা অনুসরণ
+              করুন। প্রতিটি ধাপ স্পষ্ট, যাচাইযোগ্য এবং ফোনের বাস্তব সীমা মাথায়
+              রেখে তৈরি।
             </p>
             <a
               class="home-section-link"
               href="/ternux/bn/docs/INSTALLATION.html"
             >
-              INSTALLATION guide ↗
+              স্থাপনের নির্দেশিকা ↗
             </a>
           </div>
           <div class="command">
-            <small>TERMUX / SHELL</small>
-            <button type="button" data-copy>
-              COPY
+            <small>টার্মাক্স / শেল</small>
+            <button
+              type="button"
+              data-copy
+              data-copy-value="curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash"
+            >
+              কপি
             </button>
-            <code>
-              curl -fsSL
-              https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh
-              | bash
-            </code>
+            <code>টার্মাক্সে চালানোর একক স্থাপন-নির্দেশনা</code>
           </div>
         </div>
       </div>
@@ -186,33 +196,36 @@ import RenderBench from "../../components/RenderBench.astro";
         <div class="ecosystem-panel">
           <div class="ecosystem-graphic" aria-hidden="true">
             <span class="ecosystem-node ecosystem-ternux">
-              TERN
+              টার্
               <br />
-              UX
+              নাক্স
             </span>
             <span class="ecosystem-link"></span>
-            <span class="ecosystem-node ecosystem-adt">ADT</span>
-            <span class="ecosystem-caption">ONE DEVICE · TWO TOOLSETS</span>
+            <span class="ecosystem-node ecosystem-adt">এডিটি</span>
+            <span class="ecosystem-caption">এক যন্ত্র · দুই কাজের পরিবেশ</span>
           </div>
           <div class="ecosystem-copy">
-            <span class="eyebrow">04 / ANDROID DEVELOPMENT</span>
-            <h2>Ternux চালায় Linux. ADT বানায় Android app.</h2>
+            <span class="eyebrow">০৪ / অ্যান্ড্রয়েড উন্নয়ন</span>
+            <h2>
+              টার্নাক্সে লিনাক্স চলে। এডিটি দিয়ে অ্যান্ড্রয়েড অ্যাপ তৈরি হয়।
+            </h2>
             <p>
-              Ternux দেয় Debian desktop। ADT সেই guest-এর ভেতরে native Android
-              development toolchain যোগ করে: SDK build-tools, platform-tools,
-              signing, ADB, Flutter/Dart ও native build tools। দুই project-এর
-              device workflow আলাদাভাবে verified; Xfce terminal থেকে ADT চালানো
-              observed, তবে একসঙ্গে পুরো workflow formally qualified নয়।
+              টার্নাক্সে ডেবিয়ান ডেস্কটপ চলে। এডিটি সেই অতিথি ব্যবস্থায়
+              অ্যান্ড্রয়েড অ্যাপ তৈরির সরঞ্জাম যোগ করে: এসডিকে নির্মাণ-সরঞ্জাম,
+              প্ল্যাটফর্ম-সরঞ্জাম, স্বাক্ষর, এডিবি, ফ্লাটার/ডার্ট এবং নিজস্ব
+              নির্মাণ-সরঞ্জাম। দুই প্রকল্পের যন্ত্রভিত্তিক কাজ আলাদাভাবে যাচাই
+              করা হয়েছে; এক্সএফসিই টার্মিনাল থেকে এডিটি চালানো দেখা গেছে, তবে
+              পুরো যৌথ কাজের ধারা আনুষ্ঠানিকভাবে যাচাই হয়নি।
             </p>
-            <div class="ecosystem-tags" aria-label="ADT toolchain">
-              <span>ANDROID SDK</span>
-              <span>ADB</span>
-              <span>NDK</span>
-              <span>FLUTTER · DART</span>
-              <span>CMAKE · NINJA</span>
+            <div class="ecosystem-tags" aria-label="এডিটি নির্মাণ-সরঞ্জাম">
+              <span>অ্যান্ড্রয়েড এসডিকে</span>
+              <span>এডিবি</span>
+              <span>এনডিকে</span>
+              <span>ফ্লাটার · ডার্ট</span>
+              <span>সিমেক · নিনজা</span>
             </div>
             <a class="button" href="https://github.com/soobujmiah/adt">
-              ADT TOOLCHAIN খুলুন ↗
+              এডিটি সরঞ্জাম খুলুন ↗
             </a>
           </div>
         </div>
@@ -221,13 +234,13 @@ import RenderBench from "../../components/RenderBench.astro";
     <section class="section compute-section" id="local-inference" data-reveal>
       <div class="container">
         <header class="section-head">
-          <span class="eyebrow">05 / ON-DEVICE INFERENCE</span>
+          <span class="eyebrow">০৫ / যন্ত্রে কৃত্রিম বুদ্ধিমত্তা</span>
           <div>
-            <h2>একই model. তিনটি compute path.</h2>
+            <h2>একই মডেল। গণনার তিনটি পথ।</h2>
             <p>
-              Redmi Turbo 4 Pro-তে মাপা CPU, Adreno Vulkan ও পরীক্ষামূলক Hexagon
-              HTP ফলের মধ্যে switch করুন। প্রতিটি সংখ্যার সঙ্গে model ও
-              evidence-এর সীমা দেখানো আছে।
+              রেডমি টার্বো ৪ প্রোতে মাপা সিপিইউ, অ্যাড্রেনো ভলকান ও পরীক্ষামূলক
+              হেক্সাগন এইচটিপি ফলের মধ্যে বদল করুন। প্রতিটি সংখ্যার সঙ্গে মডেল ও
+              প্রমাণের সীমা দেখানো আছে।
             </p>
           </div>
         </header>
@@ -237,23 +250,38 @@ import RenderBench from "../../components/RenderBench.astro";
     <section class="section render-section" id="benchmarks" data-reveal>
       <div class="container">
         <header class="section-head">
-          <span class="eyebrow">06 / VERIFIED 3D OUTPUT</span>
+          <span class="eyebrow">০৬ / যাচাইকৃত ত্রিমাত্রিক ফল</span>
           <div>
-            <h2>Mesh থেকে motion.</h2>
+            <h2>ত্রিমাত্রিক মেশ থেকে চলমান দৃশ্য।</h2>
             <p>
-              Redmi Turbo 4 Pro-তে Blender 4.3.2, MPFB2 2.0.18 ও EEVEE Next
-              দিয়ে measured. প্রতিটি ধাপ বাস্তব output দেখায়।
+              রেডমি টার্বো ৪ প্রোতে ব্লেন্ডার ৪.৩.২, এমপিএফবি২ ২.০.১৮ ও ইভি
+              নেক্সট দিয়ে মাপা। প্রতিটি ধাপে বাস্তব ফল দেখানো হয়েছে।
             </p>
           </div>
         </header>
         <RenderBench lang="bn" />
+        <div
+          class="render-extra-results"
+          aria-label="দীর্ঘ অ্যানিমেশন রেন্ডারের মাপা ফল"
+        >
+          <article>
+            <small>২৭ সেকেন্ডের অ্যানিমেশন</small>
+            <strong>৬৪৮ ফ্রেম</strong>
+            <span>গড়ে ১.১২৬ সেকেন্ড প্রতি ফ্রেম · ইভি নেক্সট</span>
+          </article>
+          <article>
+            <small>বাংলা সংলাপসহ এক মিনিটের চলচ্চিত্র</small>
+            <strong>১,৪৪০ ফ্রেম</strong>
+            <span>গড়ে ১.৯৪৪ সেকেন্ড প্রতি ফ্রেম · ইভি নেক্সট</span>
+          </article>
+        </div>
         <p class="notice">
-          MPFB2 দিয়ে anatomically correct base mesh তৈরি হয়। Grooming,
-          finished material, expressive pose ও photoreal presentation-এর জন্য
+          এমপিএফবি২ দিয়ে শারীরিক গঠনের সঠিক প্রাথমিক মেশ তৈরি হয়। চুলের সাজ,
+          চূড়ান্ত উপকরণ, অভিব্যক্তিপূর্ণ ভঙ্গি ও বাস্তবসম্মত উপস্থাপনার জন্য
           আরও কাজ দরকার।
         </p>
         <a class="home-section-link" href="/ternux/bn/docs/BENCHMARKS.html">
-          সম্পূর্ণ benchmark log →
+          সম্পূর্ণ মাপজোখের নথি →
         </a>
       </div>
     </section>

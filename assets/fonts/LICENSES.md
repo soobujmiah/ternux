@@ -2,6 +2,14 @@
 
 The self-hosted webfonts in this directory are redistributed under the SIL Open Font License 1.1.
 
+## Caveat
+
+Source: https://github.com/google/fonts/tree/main/ofl/caveat
+
+Copyright 2014 The Caveat Project Authors (https://github.com/googlefonts/caveat)
+
+The Caveat font is licensed under the SIL Open Font License 1.1. The license text below applies.
+
 ## Space Grotesk
 
 Source: https://github.com/google/fonts/tree/main/ofl/spacegrotesk
