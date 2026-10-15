@@ -34,7 +34,7 @@
   --violet: #b8a5ff;
   --mono: Jet, ui-monospace, monospace;
   --display: Space, system-ui, sans-serif;
-  --body: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --body: Space, system-ui, -apple-system, "Segoe UI", sans-serif;
   --max: 1240px;
   font-synthesis: none;
 }
@@ -53,7 +53,7 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 body.lang-bn {
-  font-family: NotoBN, system-ui, sans-serif;
+  font-family: NotoBN, Space, sans-serif;
   line-height: 1.95;
 }
 a {
@@ -1253,7 +1253,7 @@ body.lang-bn .article h3 {
 body.lang-bn .toplinks,
 body.lang-bn .button,
 body.lang-bn .home-section-link {
-  font-family: NotoBN, system-ui, sans-serif;
+  font-family: NotoBN, Space, sans-serif;
   font-size: 13px;
   letter-spacing: 0;
   text-transform: none;
@@ -3709,6 +3709,15 @@ body.lang-bn .hero-copy h1 {
   -webkit-text-stroke: 1px #ccffda;
   text-shadow: 0 0 18px #42f8745e;
 }
+@media (max-width: 760px) {
+  .matrix-title-text {
+    color: #a9f4b8;
+    -webkit-text-stroke: 1px #bdffcd;
+    text-shadow:
+      0 0 10px #44ff7099,
+      0 0 28px #22cc554d;
+  }
+}
 .matrix-title.is-code-live .matrix-title-text {
   opacity: 0;
 }
@@ -3719,9 +3728,9 @@ body.lang-bn .hero-copy h1 {
   display: inline-block;
   margin-top: 12px;
   color: #eef8ef;
-  font-family: Atma, NotoBN, cursive;
+  font-family: var(--display);
   font-size: clamp(2rem, 5vw, 3.8rem);
-  font-weight: 400;
+  font-weight: 500;
   line-height: 1.25;
   letter-spacing: 0;
   text-shadow: none;
@@ -3838,7 +3847,7 @@ body.lang-bn .hero-copy h1 {
   }
   .hero-copy h1 {
     margin-block: 24px 20px;
-    font-size: clamp(6rem, 27vw, 8.5rem);
+    font-size: clamp(4rem, 20vw, 6rem);
   }
   .hero-copy h1 em {
     margin-top: 10px;
@@ -3892,10 +3901,17 @@ body.lang-bn .hero-copy h1 {
 }
 @media (max-width: 430px) {
   .hero-copy h1 {
-    font-size: clamp(5.8rem, 27vw, 7rem);
+    font-size: clamp(4rem, 20vw, 5.2rem);
   }
   .system-device .system-visual {
-    min-height: 350px;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  .system-device .visual-caption {
+    position: relative;
+    bottom: auto;
+    margin-top: -26px;
   }
 }
 @media (max-width: 350px) {

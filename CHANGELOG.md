@@ -14,6 +14,9 @@ Notable changes to ternux. Dates are ISO 8601.
 
 ### Website and CLI reliability
 
+- Fixed the mobile `LINUX` title clipping and canvas glyph misalignment, kept
+  the phone illustration caption clear, and used bundled typefaces so Android's
+  system font cannot alter the site typography.
 - Kept homepage sections visible without JavaScript and made wide documentation
   tables scroll within the article on narrow screens.
 - Made successful quiet `logs clear` return success, and isolated smoke-test logs
