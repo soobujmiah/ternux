@@ -1,13 +1,13 @@
 schema_version: 1
 project_id: ternux
 repository: soobujmiah/ternux
-generated_at: '2026-10-15T06:12:10Z'
+generated_at: '2026-10-15T06:48:12Z'
 generated_by: tools/repo_knowledge collect
-version: ternux-qnn-native-probe-sm8735-2026-10-14-54-g6f9b955
+version: ternux-qnn-native-probe-sm8735-2026-10-14-57-g465d173
 head:
-  commit: 6f9b955aceb07f8a2976e25ab5e616ef6df213a5
+  commit: 465d17373ea74fb8e99ffba87b6c4ef9ac9550cf
   branch: main
-  committed_at: '2026-10-15T06:11:25Z'
+  committed_at: '2026-10-15T06:47:17Z'
 phases:
   source: not_configured
   completed: []
@@ -15,34 +15,34 @@ phases:
   next: null
 build:
   status: passed
-  run_id: '38690948442'
-  commit: 6f9b955aceb07f8a2976e25ab5e616ef6df213a5
+  run_id: '38694530510'
+  commit: 465d17373ea74fb8e99ffba87b6c4ef9ac9550cf
   run_attempt: '1'
-  at: '2026-10-15T06:12:10Z'
+  at: '2026-10-15T06:48:12Z'
   timestamp_source: observed
   workflow_name: Repo Knowledge Sync
   event_type: push
   actor: soobujmiah
-  run_url: https://github.com/soobujmiah/ternux/actions/runs/38690948442
+  run_url: https://github.com/soobujmiah/ternux/actions/runs/38694530510
 test:
   status: failed
-  run_id: '38690948442'
-  commit: 6f9b955aceb07f8a2976e25ab5e616ef6df213a5
+  run_id: '38694530510'
+  commit: 465d17373ea74fb8e99ffba87b6c4ef9ac9550cf
   run_attempt: '1'
-  at: '2026-10-15T06:12:10Z'
+  at: '2026-10-15T06:48:12Z'
   timestamp_source: observed
   workflow_name: Repo Knowledge Sync
   event_type: push
   actor: soobujmiah
-  run_url: https://github.com/soobujmiah/ternux/actions/runs/38690948442
+  run_url: https://github.com/soobujmiah/ternux/actions/runs/38694530510
   summary: focused regressions + Bats + UI + docs + JavaScript syntax + whitespace
     + repo knowledge tests (ci.yml)
 last_successful_build:
-  commit: 6f9b955aceb07f8a2976e25ab5e616ef6df213a5
-  at: '2026-10-15T06:12:10Z'
-  run_id: '38690948442'
+  commit: 465d17373ea74fb8e99ffba87b6c4ef9ac9550cf
+  at: '2026-10-15T06:48:12Z'
+  run_id: '38694530510'
 last_failed_build: null
 sync:
   status: ok
-  last_synced_at: '2026-10-15T06:12:10Z'
+  last_synced_at: '2026-10-15T06:48:12Z'
   source: ci
