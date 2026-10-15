@@ -1244,8 +1244,8 @@ body.lang-bn {
   --display: NotoBN, Space, system-ui, sans-serif;
 }
 body.lang-bn .hero-copy h1 {
-  line-height: 1.3;
-  letter-spacing: -0.02em;
+  line-height: 1.55;
+  letter-spacing: 0;
 }
 body.lang-bn .section-head h2,
 body.lang-bn .device-copy h2,
@@ -1253,7 +1253,7 @@ body.lang-bn .install-panel h2,
 body.lang-bn .article h1,
 body.lang-bn .article h2,
 body.lang-bn .article h3 {
-  line-height: 1.45;
+  line-height: 1.65;
   letter-spacing: 0;
 }
 body.lang-bn .toplinks,
@@ -2108,7 +2108,7 @@ body.lang-bn .ecosystem-copy h2 {
 }
 body.lang-bn .ecosystem-node {
   font:
-    700 15px/1.45 NotoBN,
+    700 15px/1.65 NotoBN,
     sans-serif;
 }
 body.lang-bn .ecosystem-caption {
@@ -3808,7 +3808,7 @@ body.lang-bn .matrix-title {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     -webkit-text-stroke: 1px #b7f9c5;
-    animation: title-signal 8s ease-in-out infinite;
+    animation: title-signal 12s linear infinite alternate;
     text-shadow:
       0 1px 0 #286d3d,
       0 2px 0 #205c32,
@@ -4284,4 +4284,185 @@ body.lang-bn .hero-copy h1 .hero-signature {
   .render-extra-results article {
     padding: 12px 14px;
   }
+}
+
+/* Center device facts and the six system layers as matching information cards. */
+.device-data {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  align-content: stretch;
+  padding: 0;
+  border-left: 0;
+}
+.device-data > div,
+.architecture .arch-stage {
+  display: flex;
+  min-width: 0;
+  min-height: 112px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 12px;
+  border: 1px solid #1c3825;
+  border-radius: 8px;
+  background: linear-gradient(145deg, #0d1b16, #080f0d 70%);
+  text-align: center;
+}
+.device-data > div:nth-child(odd),
+.device-data > div:nth-child(even) {
+  padding-inline: 12px;
+}
+.device-data > div:last-child {
+  border-bottom: 1px solid #1c3825;
+}
+.device-data small {
+  margin-bottom: 6px;
+}
+.device-data strong {
+  line-height: 1.45;
+}
+.architecture {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  padding: 0;
+}
+.architecture:before {
+  display: none;
+}
+.architecture .arch-stage {
+  position: relative;
+  min-height: 142px;
+  padding: 34px 12px 18px;
+}
+.architecture .arch-stage:before {
+  margin: 0 0 12px;
+}
+.architecture .arch-stage h3 {
+  margin: 0 0 5px;
+}
+.architecture .arch-stage p {
+  margin: 0;
+}
+.architecture .arch-pulse {
+  top: 12px;
+  left: calc(50% - 6.5px);
+}
+@media (max-width: 680px) {
+  .architecture {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .architecture .arch-stage {
+    min-height: 148px;
+    padding-inline: 8px;
+  }
+}
+
+/* Bengali matras need Noto Sans Bengali and line-height that clears every mark. */
+body.lang-bn
+  :is(.home-hero, .section, .article)
+  :is(
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    p,
+    li,
+    dd,
+    dt,
+    blockquote,
+    figcaption,
+    summary,
+    label,
+    small,
+    strong,
+    em,
+    a,
+    button,
+    span,
+    th,
+    td,
+    caption
+  ):not(.hero-signature):not(.hero-tagline):not(.matrix-value):not(
+    .engine-dot
+  ):not(.arch-pulse):not(code) {
+  font-family: NotoBN, sans-serif !important;
+  letter-spacing: 0 !important;
+}
+body.lang-bn :is(h1, h2, h3, h4, h5, h6) {
+  line-height: 1.7 !important;
+  letter-spacing: 0 !important;
+}
+body.lang-bn :is(p, li, dd, dt, blockquote, figcaption, summary, label) {
+  line-height: 2 !important;
+}
+body.lang-bn :is(.eyebrow, .section-kicker, .hero-label, .timeline-index) {
+  font-family: NotoBN, sans-serif;
+  line-height: 2 !important;
+  letter-spacing: 0 !important;
+  text-transform: none;
+}
+body.lang-bn
+  :is(
+    .architecture .arch-stage:before,
+    .device-data small,
+    .compute-fact small,
+    .compute-tab small,
+    .evidence-badge
+  ) {
+  line-height: 1.9 !important;
+}
+body.lang-bn
+  :is(
+    .architecture .arch-stage:before,
+    .compute-model-line,
+    .compute-tab,
+    .compute-tab small,
+    .evidence-badge,
+    .compute-fact em,
+    .article .path-choice b,
+    .article .evidence-key b,
+    .device-data small,
+    .compute-fact small,
+    .path-choice strong,
+    .doc-card strong,
+    .evidence-key strong,
+    .compute-fact strong,
+    .hero-copy h1 em,
+    .hero-signature,
+    .ecosystem-node
+  ) {
+  font-family: NotoBN, sans-serif;
+  line-height: 1.8 !important;
+  letter-spacing: 0 !important;
+}
+body.lang-bn .ecosystem-node {
+  font-weight: 700;
+}
+body.lang-bn
+  :is(.home-hero, .section, .article)
+  :is(
+    p,
+    li,
+    dd,
+    dt,
+    blockquote,
+    figcaption,
+    summary,
+    label,
+    small,
+    strong,
+    em,
+    a,
+    button,
+    span,
+    th,
+    td,
+    caption
+  ):not(.hero-signature):not(.hero-tagline):not(.matrix-value):not(
+    .engine-dot
+  ):not(.arch-pulse):not(code) {
+  line-height: 1.95 !important;
 }
