@@ -388,6 +388,7 @@ const titleText = `${title} · Ternux`;
       const matrixTitle = document.querySelector("[data-matrix-title]");
       if (
         matrixTitle &&
+        !matchMedia("(max-width: 760px)").matches &&
         !matchMedia("(prefers-reduced-motion: reduce)").matches
       ) {
         const titleText =

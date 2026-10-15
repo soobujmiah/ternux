@@ -14,6 +14,9 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 
 ### Website ও CLI নির্ভরযোগ্যতা
 
+- ছোট পর্দায় `LINUX` title কেটে যাওয়া ও canvas glyph সরে যাওয়া ঠিক করা হয়েছে;
+  ফোনের ছবির caption আলাদা রাখা হয়েছে। Site-এর নিজস্ব font ব্যবহার করায়
+  Android-এর system font typography বদলাতে পারবে না।
 - JavaScript বন্ধ থাকলেও homepage-এর section দৃশ্যমান থাকে; ছোট পর্দায় চওড়া
   documentation table এখন article-এর ভেতরে scroll করে।
 - সফল quiet `logs clear` এখন success status দেয়; smoke test-এর log workstation-এর
