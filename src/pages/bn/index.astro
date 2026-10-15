@@ -57,10 +57,42 @@ import RenderBench from "../../components/RenderBench.astro";
         </div>
       </div>
     </section>
+    <section class="section" id="device-profile" data-reveal>
+      <div class="container">
+        <div class="device-panel">
+          <div class="device-copy">
+            <span class="eyebrow">01 / HOST DEVICE</span>
+            <h2>Redmi Turbo 4 Pro</h2>
+            <p>
+              গল্প শুরু হচ্ছে নিচের measurement-এর জন্য ব্যবহৃত যাচাইকৃত Android
+              ফোন থেকে। ফলাফল এই configured device-এর জন্যই প্রযোজ্য।
+            </p>
+          </div>
+          <div class="device-data">
+            <div>
+              <small>System on chip</small>
+              <strong>Snapdragon 8s Gen 4</strong>
+            </div>
+            <div>
+              <small>Graphics</small>
+              <strong>Adreno 825</strong>
+            </div>
+            <div>
+              <small>Host OS</small>
+              <strong>Android</strong>
+            </div>
+            <div>
+              <small>Architecture</small>
+              <strong>ARM64</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
     <section class="section" id="system-map" data-reveal>
       <div class="container">
         <header class="section-head">
-          <span class="eyebrow">01 / SYSTEM MAP</span>
+          <span class="eyebrow">02 / SYSTEM MAP</span>
           <div>
             <h2>
               একটি ডিভাইস।
@@ -113,100 +145,11 @@ import RenderBench from "../../components/RenderBench.astro";
         </div>
       </div>
     </section>
-    <section class="section compute-section" id="local-inference" data-reveal>
-      <div class="container">
-        <header class="section-head">
-          <span class="eyebrow">02 / ON-DEVICE INFERENCE</span>
-          <div>
-            <h2>একই model. তিনটি compute path.</h2>
-            <p>
-              Redmi Turbo 4 Pro-তে মাপা CPU, Adreno Vulkan ও পরীক্ষামূলক Hexagon
-              HTP ফলের মধ্যে switch করুন। প্রতিটি সংখ্যার সঙ্গে model ও
-              evidence-এর সীমা দেখানো আছে।
-            </p>
-          </div>
-        </header>
-        <ComputeBench lang="bn" />
-      </div>
-    </section>
-    <section
-      class="section ecosystem-section"
-      id="android-development"
-      data-reveal
-    >
-      <div class="container">
-        <div class="ecosystem-panel">
-          <div class="ecosystem-graphic" aria-hidden="true">
-            <span class="ecosystem-node ecosystem-ternux">
-              TERN
-              <br />
-              UX
-            </span>
-            <span class="ecosystem-link"></span>
-            <span class="ecosystem-node ecosystem-adt">ADT</span>
-            <span class="ecosystem-caption">ONE DEVICE · TWO TOOLSETS</span>
-          </div>
-          <div class="ecosystem-copy">
-            <span class="eyebrow">03 / একই ফোন · পরিপূরক tool</span>
-            <h2>Ternux চালায় Linux. ADT বানায় Android app.</h2>
-            <p>
-              Ternux দেয় Debian desktop। ADT সেই guest-এর ভেতরে native Android
-              development toolchain যোগ করে: SDK build-tools, platform-tools,
-              signing, ADB, Flutter/Dart ও native build tools। দুই project-এর
-              device workflow আলাদাভাবে verified; Xfce terminal থেকে ADT চালানো
-              observed, তবে একসঙ্গে পুরো workflow formally qualified নয়।
-            </p>
-            <div class="ecosystem-tags" aria-label="ADT toolchain">
-              <span>ANDROID SDK</span>
-              <span>ADB</span>
-              <span>NDK</span>
-              <span>FLUTTER · DART</span>
-              <span>CMAKE · NINJA</span>
-            </div>
-            <a class="button" href="https://github.com/soobujmiah/adt">
-              ADT TOOLCHAIN খুলুন ↗
-            </a>
-          </div>
-        </div>
-      </div>
-    </section>
-    <section class="section" id="device-profile" data-reveal>
-      <div class="container">
-        <div class="device-panel">
-          <div class="device-copy">
-            <span class="eyebrow">04 / FIELD PROFILE</span>
-            <h2>Redmi Turbo 4 Pro</h2>
-            <p>
-              নিচের measurement-এর জন্য ব্যবহৃত যাচাইকৃত phone ও Linux guest।
-              ফলাফল এই configured device-এর জন্যই প্রযোজ্য।
-            </p>
-          </div>
-          <div class="device-data">
-            <div>
-              <small>System on chip</small>
-              <strong>Snapdragon 8s Gen 4</strong>
-            </div>
-            <div>
-              <small>Graphics</small>
-              <strong>Adreno 825</strong>
-            </div>
-            <div>
-              <small>Linux guest</small>
-              <strong>Debian 13 · arm64</strong>
-            </div>
-            <div>
-              <small>Desktop display</small>
-              <strong>Termux:X11 · Xfce</strong>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
     <section class="section" id="install" data-reveal>
       <div class="container">
         <div class="install-panel">
           <div>
-            <span class="eyebrow">05 / FIRST BOOT</span>
+            <span class="eyebrow">03 / FIRST BOOT</span>
             <h2>Linux workstation চালু করুন।</h2>
             <p>
               বিশ্বস্ত source থেকে Termux install করে quick-start অনুসরণ করুন।
@@ -232,6 +175,63 @@ import RenderBench from "../../components/RenderBench.astro";
             </code>
           </div>
         </div>
+      </div>
+    </section>
+    <section
+      class="section ecosystem-section"
+      id="android-development"
+      data-reveal
+    >
+      <div class="container">
+        <div class="ecosystem-panel">
+          <div class="ecosystem-graphic" aria-hidden="true">
+            <span class="ecosystem-node ecosystem-ternux">
+              TERN
+              <br />
+              UX
+            </span>
+            <span class="ecosystem-link"></span>
+            <span class="ecosystem-node ecosystem-adt">ADT</span>
+            <span class="ecosystem-caption">ONE DEVICE · TWO TOOLSETS</span>
+          </div>
+          <div class="ecosystem-copy">
+            <span class="eyebrow">04 / ANDROID DEVELOPMENT</span>
+            <h2>Ternux চালায় Linux. ADT বানায় Android app.</h2>
+            <p>
+              Ternux দেয় Debian desktop। ADT সেই guest-এর ভেতরে native Android
+              development toolchain যোগ করে: SDK build-tools, platform-tools,
+              signing, ADB, Flutter/Dart ও native build tools। দুই project-এর
+              device workflow আলাদাভাবে verified; Xfce terminal থেকে ADT চালানো
+              observed, তবে একসঙ্গে পুরো workflow formally qualified নয়।
+            </p>
+            <div class="ecosystem-tags" aria-label="ADT toolchain">
+              <span>ANDROID SDK</span>
+              <span>ADB</span>
+              <span>NDK</span>
+              <span>FLUTTER · DART</span>
+              <span>CMAKE · NINJA</span>
+            </div>
+            <a class="button" href="https://github.com/soobujmiah/adt">
+              ADT TOOLCHAIN খুলুন ↗
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="section compute-section" id="local-inference" data-reveal>
+      <div class="container">
+        <header class="section-head">
+          <span class="eyebrow">05 / ON-DEVICE INFERENCE</span>
+          <div>
+            <h2>একই model. তিনটি compute path.</h2>
+            <p>
+              Redmi Turbo 4 Pro-তে মাপা CPU, Adreno Vulkan ও পরীক্ষামূলক Hexagon
+              HTP ফলের মধ্যে switch করুন। প্রতিটি সংখ্যার সঙ্গে model ও
+              evidence-এর সীমা দেখানো আছে।
+            </p>
+          </div>
+        </header>
+        <ComputeBench lang="bn" />
       </div>
     </section>
     <section class="section render-section" id="benchmarks" data-reveal>

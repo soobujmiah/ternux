@@ -1,4 +1,6 @@
 ---
+import MeshGlyph from "./MeshGlyph.astro";
+
 const { lang = "en" } = Astro.props;
 const bn = lang === "bn";
 ---
@@ -14,7 +16,7 @@ const bn = lang === "bn";
   <div class="timeline-beam" aria-hidden="true"></div>
   <article class="render-stage" data-reveal>
     <span class="render-orb mesh-orb" aria-hidden="true">
-      <i></i>
+      <MeshGlyph />
     </span>
     <small>01 / {bn ? "GENERATE" : "GENERATE"}</small>
     <h3>{bn ? "Base mesh" : "Base mesh"}</h3>
@@ -25,7 +27,7 @@ const bn = lang === "bn";
   </article>
   <article class="render-stage" data-reveal>
     <span class="render-orb build-orb" aria-hidden="true">
-      <i></i>
+      <MeshGlyph />
     </span>
     <small>02 / {bn ? "ASSEMBLE" : "ASSEMBLE"}</small>
     <h3>{bn ? "চরিত্র তৈরি" : "Character build"}</h3>
@@ -36,7 +38,7 @@ const bn = lang === "bn";
   </article>
   <article class="render-stage" data-reveal>
     <span class="render-orb still-orb" aria-hidden="true">
-      <i></i>
+      <MeshGlyph />
     </span>
     <small>03 / {bn ? "STILL" : "STILL"}</small>
     <h3>{bn ? "স্থির ছবি" : "Still image"}</h3>
@@ -47,7 +49,7 @@ const bn = lang === "bn";
   </article>
   <article class="render-stage" data-reveal>
     <span class="render-orb frame-orb" aria-hidden="true">
-      <i></i>
+      <MeshGlyph />
     </span>
     <small>04 / {bn ? "ANIMATE" : "ANIMATE"}</small>
     <h3>{bn ? "Animation frame" : "Animation frame"}</h3>
@@ -58,7 +60,7 @@ const bn = lang === "bn";
   </article>
   <article class="render-stage render-finale" data-reveal>
     <span class="render-orb movie-orb" aria-hidden="true">
-      <i></i>
+      <MeshGlyph />
     </span>
     <small>05 / {bn ? "SEQUENCE" : "SEQUENCE"}</small>
     <h3>{bn ? "৫-সেকেন্ডের shot" : "Five-second shot"}</h3>

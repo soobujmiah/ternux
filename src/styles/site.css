@@ -2233,14 +2233,25 @@ body {
   border-color: #b8a5ff55;
   transform: rotate(-38deg);
 }
-.render-orb i {
+.render-mesh {
   position: relative;
   z-index: 1;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: #bbffe0;
-  box-shadow: 0 0 22px #77e3ad;
+  width: 69px;
+  height: 69px;
+  color: #a3f4c2;
+  filter: drop-shadow(0 0 7px #77e3ad80);
+  animation: mesh-turn 8s ease-in-out infinite alternate;
+}
+.mesh-back {
+  opacity: 0.32;
+}
+@keyframes mesh-turn {
+  from {
+    transform: perspective(160px) rotateY(-29deg) rotateX(9deg);
+  }
+  to {
+    transform: perspective(160px) rotateY(29deg) rotateX(-9deg);
+  }
 }
 .still-orb {
   filter: hue-rotate(26deg);
@@ -2462,6 +2473,7 @@ body {
   .arch-pulse:after,
   .timeline-beam,
   .render-orb,
+  .render-mesh,
   .phone-3d {
     animation: none !important;
   }
@@ -4052,5 +4064,83 @@ body.lang-bn .matrix-title {
 @media (prefers-reduced-motion: reduce) {
   .arch-stage {
     animation: none;
+  }
+}
+
+@media (max-width: 680px) {
+  .render-timeline {
+    display: block;
+    width: min(100%, 480px);
+    height: 420px;
+    margin-inline: auto;
+    padding: 0;
+  }
+  .timeline-beam {
+    display: block;
+    top: 50%;
+    left: 50%;
+    right: auto;
+    bottom: auto;
+    width: min(54vw, 240px);
+    height: min(54vw, 240px);
+    border: 1px solid #40875a80;
+    border-radius: 50%;
+    background: none;
+    box-shadow: 0 0 28px #45e76b14;
+    transform: translate(-50%, -50%);
+    animation: none;
+  }
+  .render-stage {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 30%;
+    min-height: 0;
+    padding: 0;
+    text-align: center;
+  }
+  .render-stage:nth-of-type(1) {
+    top: 0;
+    left: 35%;
+  }
+  .render-stage:nth-of-type(2) {
+    top: 108px;
+    right: 0;
+  }
+  .render-stage:nth-of-type(3) {
+    right: 12%;
+    bottom: 0;
+  }
+  .render-stage:nth-of-type(4) {
+    bottom: 0;
+    left: 12%;
+  }
+  .render-stage:nth-of-type(5) {
+    top: 108px;
+    left: 0;
+  }
+  .render-finale {
+    width: 30%;
+  }
+  .render-orb {
+    width: 52px;
+    height: 52px;
+    margin: 0 0 8px;
+  }
+  .render-mesh {
+    width: 39px;
+    height: 39px;
+  }
+  .render-stage h3 {
+    min-height: 0;
+    margin: 5px 0 3px;
+    font-size: 13px;
+  }
+  .render-stage > strong {
+    font-size: 20px;
+  }
+  .render-stage p {
+    font-size: 9px;
   }
 }

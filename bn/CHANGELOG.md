@@ -21,6 +21,9 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 - Title-এর অক্ষর স্পষ্ট রেখে ভেতরে `TERNUX` animation যোগ হয়েছে;
   পৃষ্ঠার দুই পাশে background effect কিছুটা বাড়ানো হয়েছে। System map-এর
   vertical list এখন ছয়টি খোলা, হালকা animated node।
+- দুই homepage-এর ধাপ এখন host device → system map → first boot → Android
+  development → compute path → যাচাইকৃত 3D output; render timeline-এ চলমান
+  wireframe mesh দেখানো হয়েছে।
 - ছোট পর্দায় `LINUX` title কেটে যাওয়া ও canvas glyph সরে যাওয়া ঠিক করা হয়েছে;
   ফোনের ছবির caption আলাদা রাখা হয়েছে। Site-এর নিজস্ব font ব্যবহার করায়
   Android-এর system font typography বদলাতে পারবে না।
