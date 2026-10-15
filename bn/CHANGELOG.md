@@ -14,6 +14,10 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 
 ### Website ও CLI নির্ভরযোগ্যতা
 
+- English hero-তে `LINUX`, বাংলা hero-তে `লিনাক্স` রাখা হয়েছে; দুই homepage-এ
+  “Workstation In Your Pocket” লাইনটি নিজ ভাষায় লেখা হয়েছে।
+  Background-এর পড়তে থাকা glyph-গুলো random character-এর বদলে `TERNUX`
+  পুনরাবৃত্তি করে।
 - ছোট পর্দায় `LINUX` title কেটে যাওয়া ও canvas glyph সরে যাওয়া ঠিক করা হয়েছে;
   ফোনের ছবির caption আলাদা রাখা হয়েছে। Site-এর নিজস্ব font ব্যবহার করায়
   Android-এর system font typography বদলাতে পারবে না।

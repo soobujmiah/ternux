@@ -14,6 +14,9 @@ Notable changes to ternux. Dates are ISO 8601.
 
 ### Website and CLI reliability
 
+- Set the hero words to `LINUX` and `লিনাক্স` in their respective languages,
+  with matching “Workstation In Your Pocket” taglines, and changed the falling
+  background glyphs to repeat `TERNUX` instead of random characters.
 - Fixed the mobile `LINUX` title clipping and canvas glyph misalignment, kept
   the phone illustration caption clear, and used bundled typefaces so Android's
   system font cannot alter the site typography.

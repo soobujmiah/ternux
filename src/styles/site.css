@@ -3680,13 +3680,15 @@ body:not(.article-page) .matrix-field {
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 100%;
+  max-width: none;
   margin: 26px 0 22px;
   font-size: clamp(8rem, 31vw, 22rem);
   line-height: 0.88;
   text-align: center;
 }
 body.lang-bn .hero-copy h1 {
-  line-height: 0.96;
+  line-height: 1.3;
 }
 .hero-copy h1 br {
   display: none;
@@ -3704,6 +3706,10 @@ body.lang-bn .hero-copy h1 {
   background-clip: initial;
   filter: none;
   animation: none;
+}
+body.lang-bn .matrix-title {
+  font-family: NotoBN, Space, sans-serif;
+  letter-spacing: 0;
 }
 .matrix-title-text {
   -webkit-text-stroke: 1px #ccffda;
@@ -3851,7 +3857,12 @@ body.lang-bn .hero-copy h1 {
   }
   .hero-copy h1 em {
     margin-top: 10px;
-    font-size: clamp(1.38rem, 6vw, 2rem);
+    font-size: clamp(1rem, 4.6vw, 2rem);
+    white-space: nowrap;
+  }
+  body.lang-bn .hero-copy h1 em {
+    max-width: 100%;
+    white-space: normal;
   }
   .hero-copy > p {
     font-size: 15px;

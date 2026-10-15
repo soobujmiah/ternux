@@ -23,6 +23,7 @@ const bengaliUrl =
       ? new URL(baseUrl(altUrl), "https://soobujmiah.github.io").href
       : "";
 const titleText = `${title} · Ternux`;
+const matrixFallback = "TERNUX".repeat(8);
 ---
 
 <!doctype html>
@@ -116,14 +117,9 @@ const titleText = `${title} · Ternux`;
   </head>
   <body class:list={[`lang-${lang}`, { "article-page": article }]}>
     <div class="matrix-field" aria-hidden="true">
-      <span>010110010101100101011010011010010110101101001</span>
-      <span>101001101010011010110010010110101001101101010</span>
-      <span>011010010110100101101001101001011010110100101</span>
-      <span>110100101101001011010010110110100101101001011</span>
-      <span>010110100101101011010010110100101101001011010</span>
-      <span>101101001011010010110100110101001011010011010</span>
-      <span>001011010110100101101001011010110100101101010</span>
-      <span>110010101101001011010010110100101101101001010</span>
+      {Array.from({ length: 8 }, () => (
+        <span>{matrixFallback}</span>
+      ))}
     </div>
     <a class="skip" href="#main">
       {lang === "bn" ? "মূল বিষয়বস্তুতে যান" : "Skip to content"}
@@ -239,9 +235,9 @@ const titleText = `${title} · Ternux`;
         fieldCanvas.className = "matrix-depth-canvas";
         fieldCanvas.setAttribute("aria-hidden", "true");
         matrixField.append(fieldCanvas);
-        matrixField.classList.add("matrix-field-live");
         const fieldContext = fieldCanvas.getContext("2d", { alpha: true });
-        const glyphSet = "01ABCDEFGHIJKLMNOPQRSTUVWXYZ<>/[]{}";
+        if (fieldContext) matrixField.classList.add("matrix-field-live");
+        const glyphSet = "TERNUX";
         let streams = [];
         let viewWidth = 0;
         let viewHeight = 0;
@@ -270,11 +266,6 @@ const titleText = `${title} · Ternux`;
               speed: 13 + depth * 25,
               length: 8 + Math.floor(Math.random() * 12),
               head: Math.random() * viewHeight,
-              chars: Array.from(
-                { length: 24 },
-                () => glyphSet[Math.floor(Math.random() * glyphSet.length)],
-              ),
-              tick: 0,
             });
           }
           for (let i = 0; i < Math.floor(viewWidth / 110); i++) {
@@ -286,11 +277,6 @@ const titleText = `${title} · Ternux`;
               speed: 18 + depth * 28,
               length: 8 + Math.floor(Math.random() * 10),
               head: Math.random() * viewHeight,
-              chars: Array.from(
-                { length: 24 },
-                () => glyphSet[Math.floor(Math.random() * glyphSet.length)],
-              ),
-              tick: 0,
             });
           }
         };
@@ -332,12 +318,6 @@ const titleText = `${title} · Ternux`;
           fieldContext.textBaseline = "middle";
           for (const stream of streams) {
             stream.head += stream.speed * elapsed;
-            stream.tick += elapsed;
-            if (stream.tick > 0.19) {
-              stream.tick = 0;
-              stream.chars[Math.floor(Math.random() * stream.chars.length)] =
-                glyphSet[Math.floor(Math.random() * glyphSet.length)];
-            }
             if (stream.head - stream.length * stream.size > viewHeight + 10) {
               stream.head = -Math.random() * viewHeight * 0.5;
               stream.x = Math.random() * viewWidth;
@@ -356,7 +336,7 @@ const titleText = `${title} · Ternux`;
               fieldContext.shadowColor = "#31ff5b";
               fieldContext.shadowBlur = row === 0 ? 7 : 0;
               fieldContext.fillText(
-                stream.chars[row % stream.chars.length],
+                glyphSet[glyphSet.length - 1 - (row % glyphSet.length)],
                 x,
                 y + (pointerY - 0.5) * stream.depth * 8,
               );
@@ -388,9 +368,9 @@ const titleText = `${title} · Ternux`;
       const matrixTitle = document.querySelector("[data-matrix-title]");
       if (
         matrixTitle &&
-        !matchMedia("(max-width: 760px)").matches &&
         !matchMedia("(prefers-reduced-motion: reduce)").matches
       ) {
+        const mobileTitle = matchMedia("(max-width: 760px)");
         const titleText =
           matrixTitle
             .querySelector(".matrix-title-text")
@@ -416,6 +396,12 @@ const titleText = `${title} · Ternux`;
         let textWidth = 0;
 
         const rebuild = () => {
+          if (mobileTitle.matches) {
+            canvas.style.display = "none";
+            matrixTitle.classList.remove("is-code-live");
+            return;
+          }
+          canvas.style.display = "";
           const rect = matrixTitle.getBoundingClientRect();
           if (!rect.width || !rect.height || !ctx || !maskCtx || !rainCtx)
             return;
@@ -449,7 +435,7 @@ const titleText = `${title} · Ternux`;
         };
 
         const draw = (now) => {
-          if (!titleVisible || document.hidden) {
+          if (mobileTitle.matches || !titleVisible || document.hidden) {
             setTimeout(() => requestAnimationFrame(draw), 300);
             return;
           }
@@ -514,6 +500,7 @@ const titleText = `${title} · Ternux`;
         };
 
         rebuild();
+        mobileTitle.addEventListener("change", rebuild);
         document.fonts?.ready.then(rebuild);
         new ResizeObserver(rebuild).observe(matrixTitle);
         new IntersectionObserver(([entry]) => {
