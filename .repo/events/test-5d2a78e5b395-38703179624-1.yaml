@@ -1,0 +1,14 @@
+event_id: test-5d2a78e5b395-38703179624-1
+repository: soobujmiah/ternux
+commit: 5d2a78e5b395cdb0e336e933b1da02efe76e0b84
+kind: test
+occurred_at: '2026-10-15T08:06:03Z'
+run_id: '38703179624'
+run_attempt: '1'
+status: failed
+summary: focused regressions + Bats + UI + docs + JavaScript syntax + whitespace +
+  repo knowledge tests (ci.yml)
+workflow_name: Repo Knowledge Sync
+event_type: push
+actor: soobujmiah
+run_url: https://github.com/soobujmiah/ternux/actions/runs/38703179624
