@@ -4070,8 +4070,12 @@ body.lang-bn .matrix-title {
 @media (max-width: 680px) {
   .render-timeline {
     display: flex;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
     gap: 16px;
     overflow-x: auto;
+    overflow-y: hidden;
     overscroll-behavior-inline: contain;
     scroll-snap-type: x mandatory;
     scrollbar-width: thin;
