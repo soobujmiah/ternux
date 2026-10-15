@@ -23,6 +23,7 @@ const bengaliUrl =
       ? new URL(baseUrl(altUrl), "https://soobujmiah.github.io").href
       : "";
 const titleText = `${title} · Ternux`;
+const matrixFallback = "TERNUX".repeat(8);
 ---
 
 <!doctype html>
@@ -116,14 +117,9 @@ const titleText = `${title} · Ternux`;
   </head>
   <body class:list={[`lang-${lang}`, { "article-page": article }]}>
     <div class="matrix-field" aria-hidden="true">
-      <span>010110010101100101011010011010010110101101001</span>
-      <span>101001101010011010110010010110101001101101010</span>
-      <span>011010010110100101101001101001011010110100101</span>
-      <span>110100101101001011010010110110100101101001011</span>
-      <span>010110100101101011010010110100101101001011010</span>
-      <span>101101001011010010110100110101001011010011010</span>
-      <span>001011010110100101101001011010110100101101010</span>
-      <span>110010101101001011010010110100101101101001010</span>
+      {Array.from({ length: 8 }, () => (
+        <span>{matrixFallback}</span>
+      ))}
     </div>
     <a class="skip" href="#main">
       {lang === "bn" ? "মূল বিষয়বস্তুতে যান" : "Skip to content"}
@@ -239,9 +235,9 @@ const titleText = `${title} · Ternux`;
         fieldCanvas.className = "matrix-depth-canvas";
         fieldCanvas.setAttribute("aria-hidden", "true");
         matrixField.append(fieldCanvas);
-        matrixField.classList.add("matrix-field-live");
         const fieldContext = fieldCanvas.getContext("2d", { alpha: true });
-        const glyphSet = "01ABCDEFGHIJKLMNOPQRSTUVWXYZ<>/[]{}";
+        if (fieldContext) matrixField.classList.add("matrix-field-live");
+        const glyphSet = "TERNUX";
         let streams = [];
         let viewWidth = 0;
         let viewHeight = 0;
@@ -259,7 +255,7 @@ const titleText = `${title} · Ternux`;
           fieldCanvas.height = Math.ceil(viewHeight * pixelRatio);
           fieldCanvas.style.width = `${viewWidth}px`;
           fieldCanvas.style.height = `${viewHeight}px`;
-          const columnGap = viewWidth < 700 ? 36 : 31;
+          const columnGap = viewWidth < 700 ? 29 : 27;
           streams = [];
           for (let x = -columnGap; x < viewWidth + columnGap; x += columnGap) {
             const depth = Math.random();
@@ -270,14 +266,9 @@ const titleText = `${title} · Ternux`;
               speed: 13 + depth * 25,
               length: 8 + Math.floor(Math.random() * 12),
               head: Math.random() * viewHeight,
-              chars: Array.from(
-                { length: 24 },
-                () => glyphSet[Math.floor(Math.random() * glyphSet.length)],
-              ),
-              tick: 0,
             });
           }
-          for (let i = 0; i < Math.floor(viewWidth / 110); i++) {
+          for (let i = 0; i < Math.floor(viewWidth / 92); i++) {
             const depth = 0.68 + Math.random() * 0.32;
             streams.push({
               x: Math.random() * viewWidth,
@@ -286,11 +277,6 @@ const titleText = `${title} · Ternux`;
               speed: 18 + depth * 28,
               length: 8 + Math.floor(Math.random() * 10),
               head: Math.random() * viewHeight,
-              chars: Array.from(
-                { length: 24 },
-                () => glyphSet[Math.floor(Math.random() * glyphSet.length)],
-              ),
-              tick: 0,
             });
           }
         };
@@ -332,12 +318,6 @@ const titleText = `${title} · Ternux`;
           fieldContext.textBaseline = "middle";
           for (const stream of streams) {
             stream.head += stream.speed * elapsed;
-            stream.tick += elapsed;
-            if (stream.tick > 0.19) {
-              stream.tick = 0;
-              stream.chars[Math.floor(Math.random() * stream.chars.length)] =
-                glyphSet[Math.floor(Math.random() * glyphSet.length)];
-            }
             if (stream.head - stream.length * stream.size > viewHeight + 10) {
               stream.head = -Math.random() * viewHeight * 0.5;
               stream.x = Math.random() * viewWidth;
@@ -356,7 +336,7 @@ const titleText = `${title} · Ternux`;
               fieldContext.shadowColor = "#31ff5b";
               fieldContext.shadowBlur = row === 0 ? 7 : 0;
               fieldContext.fillText(
-                stream.chars[row % stream.chars.length],
+                glyphSet[glyphSet.length - 1 - (row % glyphSet.length)],
                 x,
                 y + (pointerY - 0.5) * stream.depth * 8,
               );
@@ -388,9 +368,9 @@ const titleText = `${title} · Ternux`;
       const matrixTitle = document.querySelector("[data-matrix-title]");
       if (
         matrixTitle &&
-        !matchMedia("(max-width: 760px)").matches &&
         !matchMedia("(prefers-reduced-motion: reduce)").matches
       ) {
+        const mobileTitle = matchMedia("(max-width: 760px)");
         const titleText =
           matrixTitle
             .querySelector(".matrix-title-text")
@@ -404,7 +384,7 @@ const titleText = `${title} · Ternux`;
         const maskCtx = mask.getContext("2d");
         const rain = document.createElement("canvas");
         const rainCtx = rain.getContext("2d");
-        const glyphs = "0123456789ABCDEF";
+        const glyphs = "TERNUX";
         let streams = [];
         let width = 0;
         let height = 0;
@@ -428,6 +408,8 @@ const titleText = `${title} · Ternux`;
           canvas.style.height = `${height}px`;
           const style = getComputedStyle(matrixTitle);
           font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+          maskCtx.letterSpacing = style.letterSpacing;
+          ctx.letterSpacing = style.letterSpacing;
           baseline = height * 0.78;
           textWidth = width;
           maskCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -467,12 +449,11 @@ const titleText = `${title} · Ternux`;
           rainCtx.font = "10px ui-monospace, monospace";
           rainCtx.textBaseline = "middle";
           for (const stream of streams) {
-            const head =
-              ((now * stream.speed + stream.offset) % (height + 140)) - 70;
-            for (let row = 0; row < 12; row++) {
+            const head = (now * stream.speed + stream.offset) % (height + 300);
+            for (let row = 0; row < 30; row++) {
               const y = head - row * 11;
               if (y < 0 || y > height) continue;
-              rainCtx.globalAlpha = (1 - row / 12) * (row === 0 ? 1 : 0.72);
+              rainCtx.globalAlpha = (1 - row / 30) * (row === 0 ? 1 : 0.78);
               rainCtx.fillStyle = row === 0 ? "#e9fff0" : "#47ee72";
               rainCtx.fillText(
                 glyphs[
@@ -489,6 +470,21 @@ const titleText = `${title} · Ternux`;
           rainCtx.globalCompositeOperation = "source-over";
           ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
           ctx.clearRect(0, 0, width, height);
+          if (mobileTitle.matches) {
+            const bengaliTitle = document.body.classList.contains("lang-bn");
+            ctx.font = font;
+            ctx.textBaseline = "alphabetic";
+            ctx.fillStyle = bengaliTitle ? "#397f50" : "#245c36";
+            ctx.fillText(titleText, 0, baseline, textWidth);
+            ctx.drawImage(rain, 0, 0, width, height);
+            if (!bengaliTitle) {
+              ctx.strokeStyle = "#a9f7ba";
+              ctx.lineWidth = 1.1;
+              ctx.strokeText(titleText, 0, baseline, textWidth);
+            }
+            requestAnimationFrame(draw);
+            return;
+          }
           ctx.font = font;
           ctx.textBaseline = "alphabetic";
           ctx.lineJoin = "round";
@@ -514,6 +510,7 @@ const titleText = `${title} · Ternux`;
         };
 
         rebuild();
+        mobileTitle.addEventListener("change", rebuild);
         document.fonts?.ready.then(rebuild);
         new ResizeObserver(rebuild).observe(matrixTitle);
         new IntersectionObserver(([entry]) => {
