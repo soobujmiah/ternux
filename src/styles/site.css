@@ -3593,7 +3593,7 @@ body:not(.article-page) .matrix-field {
   );
 }
 body:not(.article-page) .matrix-field {
-  opacity: 0.24;
+  opacity: 0.29;
 }
 .matrix-title {
   filter: drop-shadow(0 0 14px #32f66a36);
@@ -3684,7 +3684,7 @@ body:not(.article-page) .matrix-field {
   max-width: none;
   margin: 26px 0 22px;
   font-size: clamp(8rem, 31vw, 22rem);
-  line-height: 0.88;
+  line-height: 1.15;
   text-align: center;
 }
 body.lang-bn .hero-copy h1 {
@@ -3699,7 +3699,7 @@ body.lang-bn .hero-copy h1 {
 }
 .matrix-title {
   font-family: Space, system-ui, sans-serif;
-  letter-spacing: -0.085em;
+  letter-spacing: 0.05em;
   color: #96edaa;
   background: none;
   -webkit-background-clip: initial;
@@ -3718,10 +3718,34 @@ body.lang-bn .matrix-title {
 @media (max-width: 760px) {
   .matrix-title-text {
     color: #a9f4b8;
-    -webkit-text-stroke: 1px #bdffcd;
-    text-shadow:
-      0 0 10px #44ff7099,
-      0 0 28px #22cc554d;
+    background: linear-gradient(
+      105deg,
+      #82eaa0 8%,
+      #d7ffe0 32%,
+      #64d88a 51%,
+      #effff2 67%,
+      #8ceda7 93%
+    );
+    background-size: 240% 100%;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    -webkit-text-stroke: 1px #b7f9c5;
+    animation: title-signal 8s ease-in-out infinite;
+  }
+  .matrix-title {
+    filter: drop-shadow(0 0 3px #3de86a4d);
+  }
+  .matrix-title:after {
+    display: block;
+    width: 100%;
+    bottom: -0.07em;
+    height: 1px;
+    opacity: 0.45;
+  }
+  body.lang-bn .matrix-title-text {
+    -webkit-text-stroke: 0;
+    -webkit-text-fill-color: #a9f4b8;
   }
 }
 .matrix-title.is-code-live .matrix-title-text {
@@ -3780,7 +3804,7 @@ body.lang-bn .matrix-title {
     transparent
   );
   box-shadow: 0 0 17px #72ff9a;
-  animation: signal-route 8s linear infinite;
+  animation: signal-route 6s ease-in-out infinite alternate;
 }
 .hero-system-route span {
   color: #d9f5de;
@@ -3901,7 +3925,7 @@ body.lang-bn .matrix-title {
       #63fc89,
       transparent
     );
-    animation: signal-route 8s linear infinite;
+    animation: signal-route 6s ease-in-out infinite alternate;
   }
   .system-device {
     margin-top: 30px;
@@ -3935,6 +3959,98 @@ body.lang-bn .matrix-title {
   .hero-system-route:before,
   .section-head h2:after,
   .article h1:after {
+    animation: none;
+  }
+}
+
+/* Six steps stay readable while the active signal moves from card to card. */
+.architecture {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px 24px;
+  padding: 8px 0 18px;
+}
+.architecture:before {
+  display: none;
+}
+.arch-stage {
+  min-height: 140px;
+  padding: 16px 12px 20px;
+  border: 0;
+  border-bottom: 1px solid #294936;
+  background: none;
+  box-shadow: none;
+  animation: arch-activate 9s ease-in-out infinite;
+}
+.arch-stage:before {
+  margin-bottom: 33px;
+  color: #91eaa4;
+}
+.arch-stage h3 {
+  color: #e9faec;
+  font-size: clamp(17px, 1.8vw, 22px);
+}
+.arch-stage p {
+  font-size: 12px;
+}
+.arch-pulse {
+  top: 18px;
+  right: 12px;
+  left: auto;
+}
+.arch-stage:nth-child(2) {
+  animation-delay: -1.5s;
+}
+.arch-stage:nth-child(3) {
+  animation-delay: -3s;
+}
+.arch-stage:nth-child(4) {
+  animation-delay: -4.5s;
+}
+.arch-stage:nth-child(5) {
+  animation-delay: -6s;
+}
+.arch-stage:nth-child(6) {
+  animation-delay: -7.5s;
+}
+.arch-stage:nth-child(6) .arch-pulse:after {
+  animation-delay: 1.25s;
+}
+@keyframes arch-activate {
+  0%,
+  16.67%,
+  100% {
+    border-bottom-color: #294936;
+    filter: drop-shadow(0 0 0 #43ed6c00);
+  }
+  8.33% {
+    border-bottom-color: #91f9aa;
+    filter: drop-shadow(0 0 9px #43ed6c52);
+  }
+}
+@media (max-width: 680px) {
+  .architecture {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px 18px;
+    padding-top: 4px;
+  }
+  .arch-stage {
+    min-height: 136px;
+    padding: 15px 8px;
+  }
+  .arch-stage:before {
+    margin: 0 0 27px;
+  }
+  .arch-pulse {
+    top: 15px;
+    right: 8px;
+    left: auto;
+  }
+  .arch-stage h3 {
+    font-size: 17px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .arch-stage {
     animation: none;
   }
 }

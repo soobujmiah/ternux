@@ -255,7 +255,7 @@ const matrixFallback = "TERNUX".repeat(8);
           fieldCanvas.height = Math.ceil(viewHeight * pixelRatio);
           fieldCanvas.style.width = `${viewWidth}px`;
           fieldCanvas.style.height = `${viewHeight}px`;
-          const columnGap = viewWidth < 700 ? 36 : 31;
+          const columnGap = viewWidth < 700 ? 29 : 27;
           streams = [];
           for (let x = -columnGap; x < viewWidth + columnGap; x += columnGap) {
             const depth = Math.random();
@@ -268,7 +268,7 @@ const matrixFallback = "TERNUX".repeat(8);
               head: Math.random() * viewHeight,
             });
           }
-          for (let i = 0; i < Math.floor(viewWidth / 110); i++) {
+          for (let i = 0; i < Math.floor(viewWidth / 92); i++) {
             const depth = 0.68 + Math.random() * 0.32;
             streams.push({
               x: Math.random() * viewWidth,
@@ -384,7 +384,7 @@ const matrixFallback = "TERNUX".repeat(8);
         const maskCtx = mask.getContext("2d");
         const rain = document.createElement("canvas");
         const rainCtx = rain.getContext("2d");
-        const glyphs = "0123456789ABCDEF";
+        const glyphs = "TERNUX";
         let streams = [];
         let width = 0;
         let height = 0;
@@ -396,12 +396,6 @@ const matrixFallback = "TERNUX".repeat(8);
         let textWidth = 0;
 
         const rebuild = () => {
-          if (mobileTitle.matches) {
-            canvas.style.display = "none";
-            matrixTitle.classList.remove("is-code-live");
-            return;
-          }
-          canvas.style.display = "";
           const rect = matrixTitle.getBoundingClientRect();
           if (!rect.width || !rect.height || !ctx || !maskCtx || !rainCtx)
             return;
@@ -414,6 +408,8 @@ const matrixFallback = "TERNUX".repeat(8);
           canvas.style.height = `${height}px`;
           const style = getComputedStyle(matrixTitle);
           font = `${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
+          maskCtx.letterSpacing = style.letterSpacing;
+          ctx.letterSpacing = style.letterSpacing;
           baseline = height * 0.78;
           textWidth = width;
           maskCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -435,7 +431,7 @@ const matrixFallback = "TERNUX".repeat(8);
         };
 
         const draw = (now) => {
-          if (mobileTitle.matches || !titleVisible || document.hidden) {
+          if (!titleVisible || document.hidden) {
             setTimeout(() => requestAnimationFrame(draw), 300);
             return;
           }
@@ -453,12 +449,11 @@ const matrixFallback = "TERNUX".repeat(8);
           rainCtx.font = "10px ui-monospace, monospace";
           rainCtx.textBaseline = "middle";
           for (const stream of streams) {
-            const head =
-              ((now * stream.speed + stream.offset) % (height + 140)) - 70;
-            for (let row = 0; row < 12; row++) {
+            const head = (now * stream.speed + stream.offset) % (height + 300);
+            for (let row = 0; row < 30; row++) {
               const y = head - row * 11;
               if (y < 0 || y > height) continue;
-              rainCtx.globalAlpha = (1 - row / 12) * (row === 0 ? 1 : 0.72);
+              rainCtx.globalAlpha = (1 - row / 30) * (row === 0 ? 1 : 0.78);
               rainCtx.fillStyle = row === 0 ? "#e9fff0" : "#47ee72";
               rainCtx.fillText(
                 glyphs[
@@ -475,6 +470,21 @@ const matrixFallback = "TERNUX".repeat(8);
           rainCtx.globalCompositeOperation = "source-over";
           ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
           ctx.clearRect(0, 0, width, height);
+          if (mobileTitle.matches) {
+            const bengaliTitle = document.body.classList.contains("lang-bn");
+            ctx.font = font;
+            ctx.textBaseline = "alphabetic";
+            ctx.fillStyle = bengaliTitle ? "#397f50" : "#245c36";
+            ctx.fillText(titleText, 0, baseline, textWidth);
+            ctx.drawImage(rain, 0, 0, width, height);
+            if (!bengaliTitle) {
+              ctx.strokeStyle = "#a9f7ba";
+              ctx.lineWidth = 1.1;
+              ctx.strokeText(titleText, 0, baseline, textWidth);
+            }
+            requestAnimationFrame(draw);
+            return;
+          }
           ctx.font = font;
           ctx.textBaseline = "alphabetic";
           ctx.lineJoin = "round";

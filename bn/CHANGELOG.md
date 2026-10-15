@@ -18,6 +18,9 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
   “Workstation In Your Pocket” লাইনটি নিজ ভাষায় লেখা হয়েছে।
   Background-এর পড়তে থাকা glyph-গুলো random character-এর বদলে `TERNUX`
   পুনরাবৃত্তি করে।
+- Title-এর অক্ষর স্পষ্ট রেখে ভেতরে `TERNUX` animation যোগ হয়েছে;
+  পৃষ্ঠার দুই পাশে background effect কিছুটা বাড়ানো হয়েছে। System map-এর
+  vertical list এখন ছয়টি খোলা, হালকা animated node।
 - ছোট পর্দায় `LINUX` title কেটে যাওয়া ও canvas glyph সরে যাওয়া ঠিক করা হয়েছে;
   ফোনের ছবির caption আলাদা রাখা হয়েছে। Site-এর নিজস্ব font ব্যবহার করায়
   Android-এর system font typography বদলাতে পারবে না।
