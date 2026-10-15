@@ -52,7 +52,7 @@ export const nav = {
       items: [
         ["দৈনন্দিন ব্যবহার", "/bn/docs/USAGE.html"],
         ["ওয়ার্কলোড", "/bn/docs/WORKLOADS.html"],
-        ["Blender GPU MCP", "/bn/docs/BLENDER-MCP.html"],
+        ["ব্লেন্ডার জিপিইউ এমসিপি", "/bn/docs/BLENDER-MCP.html"],
         ["কনফিগারেশন", "/bn/docs/CONFIGURATION.html"],
         ["গ্রাফিক্স স্থায়িত্ব", "/bn/docs/GRAPHICS-PERSISTENCE.html"],
         ["সমস্যা সমাধান", "/bn/docs/TROUBLESHOOTING.html"],
@@ -69,7 +69,7 @@ export const nav = {
     {
       label: "রেফারেন্স",
       items: [
-        ["CLI রেফারেন্স", "/bn/docs/CLI.html"],
+        ["সিএলআই রেফারেন্স", "/bn/docs/CLI.html"],
         ["পরিবর্তনলগ", "/bn/CHANGELOG.html"],
         ["কনট্রিবিউটিং", "/bn/CONTRIBUTING.html"],
       ],

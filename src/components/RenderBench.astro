@@ -9,7 +9,7 @@ const bn = lang === "bn";
   class="render-timeline"
   aria-label={
     bn
-      ? "MPFB2 character creation ও Blender render-এর measured workflow"
+      ? "এমপিএফবি২ চরিত্র তৈরি ও ব্লেন্ডার রেন্ডারের মাপা কাজের ধারা"
       : "Measured MPFB2 character creation and Blender rendering workflow"
   }
 >
@@ -18,55 +18,55 @@ const bn = lang === "bn";
     <span class="render-orb mesh-orb" aria-hidden="true">
       <MeshGlyph />
     </span>
-    <small>01 / {bn ? "GENERATE" : "GENERATE"}</small>
-    <h3>{bn ? "Base mesh" : "Base mesh"}</h3>
+    <small>{bn ? "০১ / তৈরি" : "01 / GENERATE"}</small>
+    <h3>{bn ? "প্রাথমিক মেশ" : "Base mesh"}</h3>
     <strong>
-      0.4 <em>s</em>
+      {bn ? "০.৪" : "0.4"} <em>{bn ? "সে." : "s"}</em>
     </strong>
-    <p>19,158 {bn ? "vertices" : "vertices"}</p>
+    <p>{bn ? "১৯,১৫৮টি শীর্ষবিন্দু" : "19,158 vertices"}</p>
   </article>
   <article class="render-stage" data-reveal>
     <span class="render-orb build-orb" aria-hidden="true">
       <MeshGlyph />
     </span>
-    <small>02 / {bn ? "ASSEMBLE" : "ASSEMBLE"}</small>
-    <h3>{bn ? "চরিত্র তৈরি" : "Character build"}</h3>
+    <small>{bn ? "০২ / গঠন" : "02 / ASSEMBLE"}</small>
+    <h3>{bn ? "চরিত্র গঠন" : "Character build"}</h3>
     <strong>
-      3.9 <em>s</em>
+      {bn ? "৩.৯" : "3.9"} <em>{bn ? "সে." : "s"}</em>
     </strong>
-    <p>{bn ? "mesh · skin · assets · rig" : "mesh · skin · assets · rig"}</p>
+    <p>{bn ? "মেশ · ত্বক · উপকরণ · কাঠামো" : "mesh · skin · assets · rig"}</p>
   </article>
   <article class="render-stage" data-reveal>
     <span class="render-orb still-orb" aria-hidden="true">
       <MeshGlyph />
     </span>
-    <small>03 / {bn ? "STILL" : "STILL"}</small>
+    <small>{bn ? "০৩ / স্থিরচিত্র" : "03 / STILL"}</small>
     <h3>{bn ? "স্থির ছবি" : "Still image"}</h3>
     <strong>
-      ~4 <em>s</em>
+      {bn ? "প্রায় ৪" : "~4"} <em>{bn ? "সে." : "s"}</em>
     </strong>
-    <p>460 × 800 · EEVEE Next</p>
+    <p>{bn ? "৪৬০ × ৮০০ · ইভি নেক্সট" : "460 × 800 · EEVEE Next"}</p>
   </article>
   <article class="render-stage" data-reveal>
     <span class="render-orb frame-orb" aria-hidden="true">
       <MeshGlyph />
     </span>
-    <small>04 / {bn ? "ANIMATE" : "ANIMATE"}</small>
-    <h3>{bn ? "Animation frame" : "Animation frame"}</h3>
+    <small>{bn ? "০৪ / চলমান দৃশ্য" : "04 / ANIMATE"}</small>
+    <h3>{bn ? "অ্যানিমেশনের ফ্রেম" : "Animation frame"}</h3>
     <strong>
-      3.8 <em>s</em>
+      {bn ? "৩.৮" : "3.8"} <em>{bn ? "সে." : "s"}</em>
     </strong>
-    <p>540 × 960 · EEVEE Next</p>
+    <p>{bn ? "৫৪০ × ৯৬০ · ইভি নেক্সট" : "540 × 960 · EEVEE Next"}</p>
   </article>
   <article class="render-stage render-finale" data-reveal>
     <span class="render-orb movie-orb" aria-hidden="true">
       <MeshGlyph />
     </span>
-    <small>05 / {bn ? "SEQUENCE" : "SEQUENCE"}</small>
-    <h3>{bn ? "৫-সেকেন্ডের shot" : "Five-second shot"}</h3>
+    <small>{bn ? "০৫ / দৃশ্যক্রম" : "05 / SEQUENCE"}</small>
+    <h3>{bn ? "৫ সেকেন্ডের দৃশ্য" : "Five-second shot"}</h3>
     <strong>
-      ~7.5 <em>min</em>
+      {bn ? "প্রায় ৭.৫" : "~7.5"} <em>{bn ? "মিনিট" : "min"}</em>
     </strong>
-    <p>120 frames · 24 fps</p>
+    <p>{bn ? "১২০টি ফ্রেম · সেকেন্ডে ২৪ ফ্রেম" : "120 frames · 24 fps"}</p>
   </article>
 </div>

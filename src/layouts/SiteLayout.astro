@@ -22,8 +22,8 @@ const bengaliUrl =
     : altUrl
       ? new URL(baseUrl(altUrl), "https://soobujmiah.github.io").href
       : "";
-const titleText = `${title} · Ternux`;
-const matrixFallback = "TERNUX".repeat(8);
+const titleText = `${title} · ${lang === "bn" ? "টার্নাক্স" : "Ternux"}`;
+const matrixFallback = (lang === "bn" ? "টার্নাক্স" : "TERNUX").repeat(8);
 ---
 
 <!doctype html>
@@ -38,7 +38,7 @@ const matrixFallback = "TERNUX".repeat(8);
     <meta name="color-scheme" content="dark" />
     <title>{titleText}</title>
     <meta name="description" content={description} />
-    <meta name="author" content="Sobuj Miah" />
+    <meta name="author" content={lang === "bn" ? "সবুজ মিয়া" : "Sobuj Miah"} />
     <meta
       name="robots"
       content={
@@ -52,7 +52,10 @@ const matrixFallback = "TERNUX".repeat(8);
       <link rel="alternate" hreflang="x-default" href={englishUrl} />
     )}
     <meta property="og:type" content={article ? "article" : "website"} />
-    <meta property="og:site_name" content="Ternux" />
+    <meta
+      property="og:site_name"
+      content={lang === "bn" ? "টার্নাক্স" : "Ternux"}
+    />
     <meta property="og:title" content={titleText} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonicalUrl} />
@@ -64,7 +67,7 @@ const matrixFallback = "TERNUX".repeat(8);
       property="og:image:alt"
       content={
         lang === "bn"
-          ? "Android ফোনে চলা Ternux Debian Linux workstation"
+          ? "অ্যান্ড্রয়েড ফোনে চলা টার্নাক্স ডেবিয়ান লিনাক্স ওয়ার্কস্টেশন"
           : "Ternux Debian Linux workstation running on an Android phone"
       }
     />
@@ -82,7 +85,7 @@ const matrixFallback = "TERNUX".repeat(8);
       name="twitter:image:alt"
       content={
         lang === "bn"
-          ? "Android ফোনে চলা Ternux Debian Linux workstation"
+          ? "অ্যান্ড্রয়েড ফোনে চলা টার্নাক্স ডেবিয়ান লিনাক্স ওয়ার্কস্টেশন"
           : "Ternux Debian Linux workstation running on an Android phone"
       }
     />
@@ -102,12 +105,12 @@ const matrixFallback = "TERNUX".repeat(8);
         url: canonicalUrl,
         isPartOf: {
           "@type": "WebSite",
-          name: "Ternux",
+          name: lang === "bn" ? "টার্নাক্স" : "Ternux",
           url: "https://soobujmiah.github.io/ternux/",
         },
         author: {
           "@type": "Person",
-          name: "Sobuj Miah",
+          name: lang === "bn" ? "সবুজ মিয়া" : "Sobuj Miah",
           url: "https://soobujmiah.github.io/",
         },
         codeRepository: "https://github.com/soobujmiah/ternux",
@@ -131,16 +134,26 @@ const matrixFallback = "TERNUX".repeat(8);
           &gt;<i>_</i>
         </span>
         <b>
-          TERN<span>UX</span>
+          {lang === "bn" ? (
+            "টার্নাক্স"
+          ) : (
+            <>
+              TERN<span>UX</span>
+            </>
+          )}
         </b>
-        <small>ARM64 / ON-DEVICE LINUX</small>
+        <small>
+          {lang === "bn"
+            ? "এআরএম৬৪ / ফোনেই লিনাক্স"
+            : "ARM64 / ON-DEVICE LINUX"}
+        </small>
       </a>
       <nav
         class="toplinks"
         aria-label={lang === "bn" ? "প্রধান নেভিগেশন" : "Primary navigation"}
       >
         <a href={baseUrl(lang === "bn" ? "/bn/docs/" : "/docs/")}>
-          {lang === "bn" ? "ডকস" : "Docs"}
+          {lang === "bn" ? "নথি" : "Docs"}
         </a>
         <a
           href={baseUrl(
@@ -152,16 +165,18 @@ const matrixFallback = "TERNUX".repeat(8);
           {lang === "bn" ? "প্রমাণ" : "Evidence"}
         </a>
         <a class="portfolio-link" href="https://soobujmiah.github.io/">
-          {lang === "bn" ? "Portfolio ↗" : "Portfolio ↗"}
+          {lang === "bn" ? "পোর্টফোলিও ↗" : "Portfolio ↗"}
         </a>
-        <a href="https://github.com/soobujmiah/ternux">GitHub ↗</a>
+        <a href="https://github.com/soobujmiah/ternux">
+          {lang === "bn" ? "গিটহাব ↗" : "GitHub ↗"}
+        </a>
         {altUrl && (
           <a
             class="lang-switch"
             href={baseUrl(altUrl)}
             hreflang={lang === "bn" ? "en" : "bn"}
           >
-            {lang === "bn" ? "EN" : "বাংলা"}
+            {lang === "bn" ? "ইংরেজি" : "বাংলা"}
           </a>
         )}
       </nav>
@@ -172,7 +187,7 @@ const matrixFallback = "TERNUX".repeat(8);
             href={baseUrl(altUrl)}
             hreflang={lang === "bn" ? "en" : "bn"}
           >
-            {lang === "bn" ? "EN" : "বাংলা"}
+            {lang === "bn" ? "ইংরেজি" : "বাংলা"}
           </a>
         )}
         <details class="mobile-nav">
@@ -187,7 +202,7 @@ const matrixFallback = "TERNUX".repeat(8);
               {lang === "bn" ? "হোম" : "Home"}
             </a>
             <a href={baseUrl(lang === "bn" ? "/bn/docs/" : "/docs/")}>
-              {lang === "bn" ? "ডকস" : "Docs"}
+              {lang === "bn" ? "নথি" : "Docs"}
             </a>
             <a
               href={baseUrl(
@@ -198,15 +213,19 @@ const matrixFallback = "TERNUX".repeat(8);
             >
               {lang === "bn" ? "প্রমাণ" : "Evidence"}
             </a>
-            <a href="https://soobujmiah.github.io/">Portfolio ↗</a>
-            <a href="https://github.com/soobujmiah/ternux">GitHub ↗</a>
+            <a href="https://soobujmiah.github.io/">
+              {lang === "bn" ? "পোর্টফোলিও ↗" : "Portfolio ↗"}
+            </a>
+            <a href="https://github.com/soobujmiah/ternux">
+              {lang === "bn" ? "গিটহাব ↗" : "GitHub ↗"}
+            </a>
           </nav>
         </details>
       </div>
     </header>
     <slot />
     <footer class="footer">
-      <span>© 2026 Sobuj Miah</span>
+      <span>{lang === "bn" ? "© ২০২৬ সবুজ মিয়া" : "© 2026 Sobuj Miah"}</span>
       <a
         class="footer-evidence"
         href={baseUrl(
@@ -214,7 +233,7 @@ const matrixFallback = "TERNUX".repeat(8);
         )}
       >
         {lang === "bn"
-          ? "Evidence-led Linux · benchmark ↗"
+          ? "প্রমাণভিত্তিক লিনাক্স · মাপজোখ ↗"
           : "Evidence-led Linux · benchmarks ↗"}
       </a>
     </footer>
@@ -237,7 +256,8 @@ const matrixFallback = "TERNUX".repeat(8);
         matrixField.append(fieldCanvas);
         const fieldContext = fieldCanvas.getContext("2d", { alpha: true });
         if (fieldContext) matrixField.classList.add("matrix-field-live");
-        const glyphSet = "TERNUX";
+        const glyphSet =
+          document.documentElement.lang === "bn" ? "টার্নাক্স" : "TERNUX";
         let streams = [];
         let viewWidth = 0;
         let viewHeight = 0;
@@ -370,7 +390,6 @@ const matrixFallback = "TERNUX".repeat(8);
         matrixTitle &&
         !matchMedia("(prefers-reduced-motion: reduce)").matches
       ) {
-        const mobileTitle = matchMedia("(max-width: 760px)");
         const titleText =
           matrixTitle
             .querySelector(".matrix-title-text")
@@ -384,7 +403,8 @@ const matrixFallback = "TERNUX".repeat(8);
         const maskCtx = mask.getContext("2d");
         const rain = document.createElement("canvas");
         const rainCtx = rain.getContext("2d");
-        const glyphs = "TERNUX";
+        const glyphs =
+          document.documentElement.lang === "bn" ? "টার্নাক্স" : "TERNUX";
         let streams = [];
         let width = 0;
         let height = 0;
@@ -470,21 +490,6 @@ const matrixFallback = "TERNUX".repeat(8);
           rainCtx.globalCompositeOperation = "source-over";
           ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
           ctx.clearRect(0, 0, width, height);
-          if (mobileTitle.matches) {
-            const bengaliTitle = document.body.classList.contains("lang-bn");
-            ctx.font = font;
-            ctx.textBaseline = "alphabetic";
-            ctx.fillStyle = bengaliTitle ? "#397f50" : "#245c36";
-            ctx.fillText(titleText, 0, baseline, textWidth);
-            ctx.drawImage(rain, 0, 0, width, height);
-            if (!bengaliTitle) {
-              ctx.strokeStyle = "#a9f7ba";
-              ctx.lineWidth = 1.1;
-              ctx.strokeText(titleText, 0, baseline, textWidth);
-            }
-            requestAnimationFrame(draw);
-            return;
-          }
           ctx.font = font;
           ctx.textBaseline = "alphabetic";
           ctx.lineJoin = "round";
@@ -510,7 +515,6 @@ const matrixFallback = "TERNUX".repeat(8);
         };
 
         rebuild();
-        mobileTitle.addEventListener("change", rebuild);
         document.fonts?.ready.then(rebuild);
         new ResizeObserver(rebuild).observe(matrixTitle);
         new IntersectionObserver(([entry]) => {
@@ -556,22 +560,31 @@ const matrixFallback = "TERNUX".repeat(8);
       };
       const wireCopy = (button, code, originalLabel) => {
         if (!code) return;
+        const bn = document.documentElement.lang === "bn";
         button.addEventListener("click", async () => {
           try {
-            await copyText(code.textContent || "");
-            button.textContent = "COPIED";
+            await copyText(button.dataset.copyValue || code.textContent || "");
+            button.textContent = bn ? "কপি হয়েছে" : "COPIED";
             button.classList.add("is-copied");
-            button.setAttribute("aria-label", "Copied to clipboard");
+            button.setAttribute(
+              "aria-label",
+              bn ? "কমান্ড কপি হয়েছে" : "Copied to clipboard",
+            );
             setTimeout(() => {
               button.textContent = originalLabel;
               button.classList.remove("is-copied");
-              button.setAttribute("aria-label", "Copy code to clipboard");
+              button.setAttribute(
+                "aria-label",
+                bn ? "কমান্ড কপি করুন" : "Copy code to clipboard",
+              );
             }, 1800);
           } catch {
-            button.textContent = "COPY FAILED";
+            button.textContent = bn ? "কপি হয়নি" : "COPY FAILED";
             button.setAttribute(
               "aria-label",
-              "Copy failed; select the code manually",
+              bn
+                ? "কপি হয়নি; নির্দেশনা নির্বাচন করে কপি করুন"
+                : "Copy failed; select the code manually",
             );
           }
         });
@@ -579,7 +592,12 @@ const matrixFallback = "TERNUX".repeat(8);
       document.querySelectorAll(".command [data-copy]").forEach((button) => {
         const label = button.textContent?.trim() || "COPY";
         button.classList.add("copy-code");
-        button.setAttribute("aria-label", "Copy command to clipboard");
+        button.setAttribute(
+          "aria-label",
+          document.documentElement.lang === "bn"
+            ? "স্থাপন-নির্দেশনা কপি করুন"
+            : "Copy command to clipboard",
+        );
         button.setAttribute("aria-live", "polite");
         wireCopy(
           button,

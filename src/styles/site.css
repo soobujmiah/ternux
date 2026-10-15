@@ -20,6 +20,12 @@
   font-display: swap;
   font-weight: 400;
 }
+@font-face {
+  font-family: Caveat;
+  src: url("../../assets/fonts/caveat-bold-latin.woff2") format("woff2");
+  font-display: swap;
+  font-weight: 700;
+}
 :root {
   color-scheme: dark;
   --bg: #070d09;
@@ -2288,6 +2294,34 @@ body {
   color: #8da4aa;
   font-size: 10px;
 }
+.render-extra-results {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+.render-extra-results article {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+  padding: 16px 18px;
+  border: 1px solid #294d43;
+  border-radius: 10px;
+  background: linear-gradient(130deg, #0e1d19, #0a1112 75%);
+}
+.render-extra-results small {
+  color: #91b9aa;
+  font: 10px var(--mono);
+}
+.render-extra-results strong {
+  color: #a5f3cb;
+  font: 500 clamp(17px, 2vw, 23px)/1.2 var(--display);
+}
+.render-extra-results span {
+  color: #a5b9b6;
+  font-size: 11px;
+  line-height: 1.45;
+}
 .render-section .notice {
   margin-top: 34px;
 }
@@ -3744,20 +3778,21 @@ body.lang-bn .matrix-title {
     -webkit-text-fill-color: transparent;
     -webkit-text-stroke: 1px #b7f9c5;
     animation: title-signal 8s ease-in-out infinite;
+    text-shadow:
+      0 1px 0 #286d3d,
+      0 2px 0 #205c32,
+      0 3px 0 #174a29,
+      0 5px 5px #000b,
+      0 0 18px #42f8745e;
   }
   .matrix-title {
-    filter: drop-shadow(0 0 3px #3de86a4d);
+    filter: drop-shadow(0 0 8px #3de86a55);
   }
   .matrix-title:after {
-    display: block;
-    width: 100%;
-    bottom: -0.07em;
-    height: 1px;
-    opacity: 0.45;
+    display: none;
   }
   body.lang-bn .matrix-title-text {
-    -webkit-text-stroke: 0;
-    -webkit-text-fill-color: #a9f4b8;
+    -webkit-text-stroke: 0.6px #b7f9c5;
   }
 }
 .matrix-title.is-code-live .matrix-title-text {
@@ -3794,31 +3829,45 @@ body.lang-bn .matrix-title {
 }
 .hero-system-route {
   position: relative;
+  isolation: isolate;
+  overflow: hidden;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 20px;
   margin: 48px 0 0;
-  padding: 20px 0 0;
-  border-top: 1px solid #2c5739;
+  padding: 20px;
+  border: 1px solid #2c5739;
+  border-radius: 8px;
 }
 .hero-system-route:before {
   content: "";
   position: absolute;
-  top: -2px;
-  left: 0;
-  width: 25%;
-  height: 3px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    #d5ffe0,
-    #63fc89,
-    transparent
+  inset: 0;
+  z-index: 0;
+  padding: 2px;
+  border-radius: inherit;
+  background: conic-gradient(
+    from var(--route-angle, 0deg),
+    transparent 0deg 300deg,
+    #d5ffe0 330deg,
+    #63fc89 345deg,
+    transparent 360deg
   );
-  box-shadow: 0 0 17px #72ff9a;
-  animation: signal-route 6s ease-in-out infinite alternate;
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  filter: none;
+  pointer-events: none;
+  animation: route-border-loop 6s linear infinite;
 }
 .hero-system-route span {
+  position: relative;
+  z-index: 1;
   color: #d9f5de;
   font: 12px var(--mono);
   letter-spacing: 0.14em;
@@ -3879,6 +3928,57 @@ body.lang-bn .matrix-title {
     transform: translateY(300%);
   }
 }
+@property --route-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+@keyframes route-border-loop {
+  from {
+    --route-angle: 0deg;
+  }
+  to {
+    --route-angle: 360deg;
+  }
+}
+.hero-copy h1 em.hero-tagline {
+  font-family: Atma, cursive;
+  font-size: clamp(2rem, 3vw, 3rem);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+}
+.hero-copy h1 .hero-signature {
+  position: relative;
+  display: block;
+  width: max-content;
+  margin: 2px 6px 0 auto;
+  color: #9ef0ad;
+  font:
+    700 clamp(1.65rem, 2.3vw, 2.1rem)/0.9 Caveat,
+    cursive;
+  letter-spacing: 0;
+  transform: rotate(-3deg);
+  text-shadow: 0 0 12px #45ff7030;
+}
+body.lang-bn .hero-copy h1 .hero-signature {
+  font:
+    400 clamp(1.3rem, 1.8vw, 1.7rem)/1.2 Atma,
+    cursive;
+  letter-spacing: 0.02em;
+}
+.hero-copy h1 .hero-signature::after {
+  content: "";
+  position: absolute;
+  right: -0.08em;
+  bottom: -0.1em;
+  width: 76%;
+  height: 0.28em;
+  border-bottom: 1px solid #70db8a;
+  border-radius: 50%;
+  opacity: 0.8;
+  transform: rotate(-5deg);
+}
 @media (max-width: 760px) {
   .home-hero {
     min-height: auto;
@@ -3899,6 +3999,32 @@ body.lang-bn .matrix-title {
   body.lang-bn .hero-copy h1 em {
     max-width: 100%;
     white-space: normal;
+  }
+  .hero-tagline {
+    font-family: Atma, cursive !important;
+    font-size: clamp(1.35rem, 5.6vw, 2rem) !important;
+    font-weight: 400 !important;
+    letter-spacing: 0.01em !important;
+    line-height: 1.25 !important;
+  }
+  .hero-copy h1 .hero-signature {
+    display: block;
+    width: max-content;
+    margin: 3px auto 0;
+    color: #9ef0ad;
+    font:
+      700 1.8rem/0.95 Caveat,
+      cursive;
+    letter-spacing: 0;
+    transform: rotate(-3deg);
+    text-shadow: 0 0 12px #45ff7030;
+  }
+  body.lang-bn .hero-copy h1 .hero-signature {
+    font:
+      400 1.55rem/1.2 Atma,
+      cursive;
+    font-size: 1.55rem;
+    letter-spacing: 0.02em;
   }
   .hero-copy > p {
     font-size: 15px;
@@ -3921,23 +4047,7 @@ body.lang-bn .matrix-title {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 19px 20px;
     margin: 42px 0 0;
-    padding: 20px 0 0;
-    border: 0;
-    border-top: 1px solid #2c5739;
-  }
-  .hero-system-route:before {
-    top: -2px;
-    left: 0;
-    width: 25%;
-    height: 3px;
-    background: linear-gradient(
-      90deg,
-      transparent,
-      #d5ffe0,
-      #63fc89,
-      transparent
-    );
-    animation: signal-route 6s ease-in-out infinite alternate;
+    padding: 18px;
   }
   .system-device {
     margin-top: 30px;
@@ -4069,78 +4179,78 @@ body.lang-bn .matrix-title {
 
 @media (max-width: 680px) {
   .render-timeline {
-    display: block;
-    width: min(100%, 480px);
-    height: 420px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    width: min(100%, 520px);
+    height: auto;
     margin-inline: auto;
     padding: 0;
   }
   .timeline-beam {
-    display: block;
-    top: 50%;
-    left: 50%;
-    right: auto;
-    bottom: auto;
-    width: min(54vw, 240px);
-    height: min(54vw, 240px);
-    border: 1px solid #40875a80;
-    border-radius: 50%;
-    background: none;
-    box-shadow: 0 0 28px #45e76b14;
-    transform: translate(-50%, -50%);
-    animation: none;
+    display: none;
   }
   .render-stage {
-    position: absolute;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 30%;
-    min-height: 0;
-    padding: 0;
-    text-align: center;
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr);
+    grid-template-rows: auto auto auto auto;
+    align-content: center;
+    column-gap: 10px;
+    min-width: 0;
+    min-height: 136px;
+    padding: 12px 10px;
+    border: 1px solid #28513a;
+    border-radius: 8px;
+    background: linear-gradient(145deg, #0d1b16, #080f0d 70%);
+    text-align: left;
   }
-  .render-stage:nth-of-type(1) {
-    top: 0;
-    left: 35%;
+  .render-stage:last-child {
+    grid-column: 1 / -1;
+    width: calc(50% - 6px);
+    justify-self: center;
   }
-  .render-stage:nth-of-type(2) {
-    top: 108px;
-    right: 0;
-  }
-  .render-stage:nth-of-type(3) {
-    right: 12%;
-    bottom: 0;
-  }
-  .render-stage:nth-of-type(4) {
-    bottom: 0;
-    left: 12%;
-  }
-  .render-stage:nth-of-type(5) {
-    top: 108px;
-    left: 0;
-  }
-  .render-finale {
-    width: 30%;
+  .render-stage .render-orb {
+    grid-column: 1;
+    grid-row: 1 / 5;
+    align-self: center;
   }
   .render-orb {
-    width: 52px;
-    height: 52px;
-    margin: 0 0 8px;
+    width: 42px;
+    height: 42px;
+    margin: 0;
   }
   .render-mesh {
-    width: 39px;
-    height: 39px;
+    width: 32px;
+    height: 32px;
+  }
+  .render-stage > small,
+  .render-stage h3,
+  .render-stage > strong,
+  .render-stage p {
+    grid-column: 2;
+    min-width: 0;
   }
   .render-stage h3 {
     min-height: 0;
-    margin: 5px 0 3px;
-    font-size: 13px;
+    margin: 4px 0 2px;
+    font-size: 12px;
+    line-height: 1.2;
   }
   .render-stage > strong {
-    font-size: 20px;
+    font-size: 18px;
   }
   .render-stage p {
-    font-size: 9px;
+    margin-top: 3px;
+    font-size: 8px;
+    line-height: 1.35;
+  }
+  .render-extra-results {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    width: min(100%, 520px);
+    margin: 10px auto 0;
+  }
+  .render-extra-results article {
+    padding: 12px 14px;
   }
 }

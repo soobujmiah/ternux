@@ -16,12 +16,17 @@ import RenderBench from "../components/RenderBench.astro";
       <div class="container hero-grid">
         <div class="hero-copy">
           <span class="eyebrow">ANDROID × DEBIAN · ARM64</span>
-          <h1 aria-label="LINUX Workstation In Your Pocket">
+          <h1 aria-label="LINUX Workstation In Your Pocket, Soobujmiah">
             <span class="matrix-title" data-matrix-title aria-hidden="true">
               <span class="matrix-title-text">LINUX</span>
             </span>
             <br />
-            <em aria-hidden="true">Workstation In Your Pocket</em>
+            <em class="hero-tagline" aria-hidden="true">
+              Workstation In Your Pocket
+            </em>
+            <span class="hero-signature" aria-label="Soobujmiah">
+              Soobujmiah
+            </span>
           </h1>
           <p>
             A complete ARM64 Linux workstation running on Android. No root. No
@@ -40,7 +45,10 @@ import RenderBench from "../components/RenderBench.astro";
             NO ROOT REQUIRED　/　OPEN SOURCE　/　EVIDENCE LED
           </div>
         </div>
-        <div class="hero-system-route" aria-label="Ternux system route">
+        <div
+          class="hero-system-route"
+          aria-label="Ternux system route: Android, Termux, Debian, Adreno"
+        >
           <span>
             ANDROID <b>HOST</b>
           </span>
@@ -244,6 +252,21 @@ import RenderBench from "../components/RenderBench.astro";
           </div>
         </header>
         <RenderBench lang="en" />
+        <div
+          class="render-extra-results"
+          aria-label="Measured longer animation render results"
+        >
+          <article>
+            <small>27-second animated short</small>
+            <strong>648 frames</strong>
+            <span>1.126 s per frame mean · EEVEE Next</span>
+          </article>
+          <article>
+            <small>One-minute Bengali short film</small>
+            <strong>1,440 frames</strong>
+            <span>1.944 s per frame mean · EEVEE Next</span>
+          </article>
+        </div>
         <p class="notice">
           MPFB2 creates an anatomically correct base mesh. Grooming, finished
           materials, expressive posing and photoreal presentation need further
