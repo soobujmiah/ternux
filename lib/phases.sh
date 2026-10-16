@@ -37,6 +37,58 @@ unset _TNX_UI_PATH
 # ---------------------------------------------------------------------------
 # Phase 1 — preflight checks
 # ---------------------------------------------------------------------------
+tnx_optional_storage_mb() {
+  local item total=0
+  for item in "$@"; do
+    case "$item" in
+      dev) total=$((total + 1500)) ;;       # compiler, Python and Node stack
+      llm) total=$((total + 3500)) ;;       # pinned source + Vulkan build tree
+      network) total=$((total + 100)) ;;
+      media) total=$((total + 1300)) ;;
+      git) total=$((total + 100)) ;;
+      python) total=$((total + 250)) ;;
+      node) total=$((total + 250)) ;;
+      build) total=$((total + 800)) ;;
+      rust) total=$((total + 700)) ;;
+      java) total=$((total + 500)) ;;
+      godot) total=$((total + 350)) ;;
+      geany) total=$((total + 150)) ;;
+      adt-build-tools|adt-platform-tools) total=$((total + 60)) ;;
+      adt-ndk|adt-cmake) total=$((total + 20)) ;;
+      adt-cmdline) total=$((total + 250)) ;;
+      adt-platform) total=$((total + 500)) ;;
+      llama-vulkan) total=$((total + 150)) ;;
+      llama-htp-experimental) total=$((total + 120)) ;;
+      nmap) total=$((total + 80)) ;;
+      tmux) total=$((total + 10)) ;;
+      ffmpeg) total=$((total + 300)) ;;
+      mpv) total=$((total + 250)) ;;
+      gimp) total=$((total + 600)) ;;
+      krita) total=$((total + 800)) ;;
+      inkscape) total=$((total + 500)) ;;
+      audacity) total=$((total + 300)) ;;
+      imagemagick) total=$((total + 100)) ;;
+      libreoffice-writer) total=$((total + 900)) ;;
+      blender) total=$((total + 600)) ;;
+      claude|codex) total=$((total + 350)) ;;
+      openai-cli) total=$((total + 150)) ;;
+      hermes) total=$((total + 1800)) ;;
+      openclaw) total=$((total + 500)) ;;
+    esac
+  done
+  printf '%s\n' "$total"
+}
+
+tnx_storage_estimate() {
+  local optional_mb installed_mb peak_mb
+  optional_mb="$(tnx_optional_storage_mb "$@")"
+  installed_mb=$((3500 + optional_mb))
+  peak_mb=$((installed_mb + 2048))
+  awk -v installed="$installed_mb" -v peak="$peak_mb" 'BEGIN {
+    printf "about %.1f GB installed; keep about %.1f GB free during downloads and setup (rough estimate)", installed/1024, peak/1024
+  }'
+}
+
 tnx_phase_preflight() {
   local rc=0
   tnx_require_termux
@@ -71,12 +123,17 @@ tnx_phase_preflight() {
   fi
 
   local free target_free=6 profile="${TERNUX_INSTALL_PROFILE:-base}" size_label="~3–4 GB"
+  local -a selected_extras=()
+  if [ -n "${TERNUX_SELECTED_EXTRAS:-}" ]; then IFS=',' read -r -a selected_extras <<< "$TERNUX_SELECTED_EXTRAS"; fi
+  local optional_mb estimate
+  optional_mb="$(tnx_optional_storage_mb "${selected_extras[@]}")"
+  target_free=$(((3500 + optional_mb + 2048 + 1023) / 1024))
+  if [ "$profile" = "full" ] && [ "$target_free" -lt 14 ]; then target_free=14; fi
+  estimate="$(tnx_storage_estimate "${selected_extras[@]}")"
+  size_label="$estimate"
   free="$(df -Pk "$HOME" 2>/dev/null | awk 'NR==2{print int($4/1024/1024)}')"
-  case "$profile" in
-    full)   target_free=14; size_label="~10–12 GB" ;;
-    custom) target_free=8;  size_label="between the base and complete profiles" ;;
-  esac
-  tnx_info "Installed-size estimate: base desktop ~3–4 GB; complete --all profile ~10–12 GB."
+  tnx_info "Installed-size baseline: base desktop ~3–4 GB; complete --all profile ~10–12 GB."
+  tnx_info "Selected install estimate: $estimate. Includes the base desktop, chosen optional items and temporary setup headroom."
   if [ -n "$free" ] && [ "$free" -lt "$target_free" ]; then
     tnx_warn "Only ~${free} GB free. The ${profile} profile uses ${size_label}; keep ~${target_free} GB free before installation for downloads and package-cache headroom."
   elif [ -n "$free" ]; then
@@ -1494,6 +1551,11 @@ tnx_install() {
       plan_summary+=("Workload $workload_number" "$workload_label")
     done
   fi
+  local storage_estimate
+  storage_estimate="$(tnx_storage_estimate "${extras[@]}")"
+  plan_summary+=("Storage estimate" "$storage_estimate")
+  TERNUX_SELECTED_EXTRAS="$(IFS=,; printf '%s' "${extras[*]}")"
+  export TERNUX_SELECTED_EXTRAS
   tnx_summary_box "Install Plan" "${plan_summary[@]}"
 
   if ! tnx_confirm "Install ternux with backend '$backend' and Debian user '$user_name'?"; then
