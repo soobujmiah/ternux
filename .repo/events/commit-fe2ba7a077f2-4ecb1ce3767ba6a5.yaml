@@ -1,0 +1,7 @@
+event_id: commit-fe2ba7a077f2-4ecb1ce3767ba6a5
+repository: soobujmiah/ternux
+commit: fe2ba7a077f217e4b4a56d581ca785a7812d0b2d
+kind: commit
+occurred_at: '2026-10-16T18:57:31Z'
+status: completed
+summary: 'Merge pull request #36 from soobujmiah/codex/installer-chooser-ui-20261016'
