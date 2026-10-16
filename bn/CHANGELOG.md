@@ -32,6 +32,13 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 - সফল quiet `logs clear` এখন success status দেয়; smoke test-এর log workstation-এর
   নিজস্ব log directory থেকে আলাদা রাখা হয়েছে।
 
+### Installer নির্বাচন ও terminal interface
+
+- Install screen-কে adaptive, animated terminal interface করা হয়েছে; এতে পাঁচ
+  সারির TERNUX wordmark, device/resource তথ্য এবং আরও পরিষ্কার progress ও task
+  status আছে। Optional program এবং Ternux-এর উপলভ্য prerelease extension আলাদা
+  করে বাছাই করা যায়; Android SDK ও ADB setup ADT-এর নিজস্ব installer-এ পাঠায়।
+
 ### Rendering from an agent
 
 - `tools/blender-gpu-mcp/` যোগ হয়েছে — পরীক্ষিত headless পথের
