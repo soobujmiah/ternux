@@ -2,6 +2,17 @@ name: llama.cpp CPU + Vulkan artifact
 
 on:
   workflow_dispatch:
+    inputs:
+      publish:
+        description: "Create a new prerelease (requires a verified, unused release tag)"
+        required: false
+        type: boolean
+        default: false
+      release_tag:
+        description: "New, unused release tag; required only when publish is enabled"
+        required: false
+        type: string
+        default: ""
 
 permissions:
   contents: write
@@ -186,14 +197,37 @@ jobs:
             grep -Fqx "ternux-llama-vulkan-linux-arm64-b11582/$license_path" release-contents.txt
           done
 
-      - name: Create or refresh the draft device-validation release
+      - name: Create a new device-validation release
+        if: inputs.publish == true && github.ref == 'refs/heads/main'
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
         shell: bash
         run: |
           set -euo pipefail
-          tag=ternux-llama-vulkan-linux-arm64-b11582
+          tag="$RELEASE_TAG"
+          if [[ -z "$tag" ]]; then
+            echo "publish=true requires a new release_tag" >&2
+            exit 1
+          fi
+          if ! git check-ref-format "refs/tags/$tag"; then
+            echo "Invalid Git tag name: $tag" >&2
+            exit 1
+          fi
+          existing_release="$(gh release list --limit 1000 --json tagName --jq 'any(.[]; .tagName == strenv(RELEASE_TAG))')"
+          if [[ "$existing_release" == "true" ]]; then
+            echo "Refusing to overwrite existing GitHub Release: $tag" >&2
+            exit 1
+          fi
+          if ! remote_tags="$(git ls-remote origin "refs/tags/$tag")"; then
+            echo "Could not verify whether Git tag exists: $tag" >&2
+            exit 1
+          fi
+          if [[ -n "$remote_tags" ]]; then
+            echo "Refusing to reuse existing Git tag: $tag" >&2
+            exit 1
+          fi
           cat > release-notes.md <<'EOF'
           ## CPU + Vulkan prerelease
 
@@ -210,19 +244,10 @@ jobs:
           Ternux version release. See the build manifest and checksum included
           in the archive.
           EOF
-          if gh release view "$tag" >/dev/null 2>&1; then
-            gh release upload "$tag" \
-              ternux-llama-vulkan-linux-arm64-b11582.tar.gz \
-              ternux-llama-vulkan-linux-arm64-b11582.tar.gz.sha256 --clobber
-            gh release edit "$tag" \
-              --title 'Ternux llama.cpp CPU + Vulkan (ARM64, b11582)' \
-              --notes-file release-notes.md --prerelease
-          else
-            gh release create "$tag" \
-              ternux-llama-vulkan-linux-arm64-b11582.tar.gz \
-              ternux-llama-vulkan-linux-arm64-b11582.tar.gz.sha256 \
-              --draft --prerelease \
-              --title 'Ternux llama.cpp CPU + Vulkan (ARM64, b11582)' \
-              --notes-file release-notes.md \
-              --target "$GITHUB_SHA"
-          fi
+          gh release create "$tag" \
+            ternux-llama-vulkan-linux-arm64-b11582.tar.gz \
+            ternux-llama-vulkan-linux-arm64-b11582.tar.gz.sha256 \
+            --draft --prerelease \
+            --title 'Ternux llama.cpp CPU + Vulkan (ARM64, b11582)' \
+            --notes-file release-notes.md \
+            --target "$GITHUB_SHA"
