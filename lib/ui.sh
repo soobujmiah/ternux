@@ -73,7 +73,7 @@ _TNX_ANIM=1
 _TNX_NEED_NL=0
 
 # Layout row indices (computed from the current terminal size).
-_TNX_LY_TITLE=2; _TNX_LY_TITLE2=0; _TNX_LY_TITLE3=0; _TNX_LY_IDENT=3; _TNX_LY_VER=4; _TNX_LY_BY=5; _TNX_LY_DIV1=6; _TNX_LY_DEV0=7; _TNX_LY_DEV_ON=1
+_TNX_LY_TITLE=2; _TNX_LY_TITLE2=0; _TNX_LY_TITLE3=0; _TNX_LY_TITLE4=0; _TNX_LY_TITLE5=0; _TNX_LY_IDENT=3; _TNX_LY_VER=4; _TNX_LY_BY=5; _TNX_LY_DIV1=6; _TNX_LY_DEV0=7; _TNX_LY_DEV_ON=1
 _TNX_LY_PROG=12; _TNX_LY_DIV2=13; _TNX_LY_LOGTOP=14
 _TNX_LY_LOGBOT=21; _TNX_LY_DIV3=22; _TNX_LY_FOOTER=23; _TNX_LY_BOT=24
 # Device panel content.
@@ -345,23 +345,27 @@ _tnx_plain_cols() {
 _tnx_frame_layout() {
   local R="$_TNX_FRAME_ROWS" C="$_TNX_FRAME_COLS"
   _TNX_LY_DEV_ON=0
-  if (( R >= 16 )); then
-    _TNX_LY_TITLE=2; _TNX_LY_TITLE2=3; _TNX_LY_TITLE3=4
-    _TNX_LY_IDENT=5; _TNX_LY_VER=6; _TNX_LY_BY=7; _TNX_LY_DIV1=8
-    if (( R >= 22 && C >= 46 )); then
-      _TNX_LY_DEV_ON=1; _TNX_LY_DEV0=9
-      _TNX_LY_PROG=14; _TNX_LY_DIV2=15; _TNX_LY_LOGTOP=16
+  if (( R >= 18 && C >= 39 )); then
+    _TNX_LY_TITLE=2; _TNX_LY_TITLE2=3; _TNX_LY_TITLE3=4; _TNX_LY_TITLE4=5; _TNX_LY_TITLE5=6
+    _TNX_LY_IDENT=7; _TNX_LY_VER=8; _TNX_LY_BY=9; _TNX_LY_DIV1=10
+    if (( R >= 26 && C >= 46 )); then
+      _TNX_LY_DEV_ON=1; _TNX_LY_DEV0=11
+      _TNX_LY_PROG=16; _TNX_LY_DIV2=17; _TNX_LY_LOGTOP=18
     else
       _TNX_LY_DEV0=0
-      _TNX_LY_PROG=9; _TNX_LY_DIV2=10; _TNX_LY_LOGTOP=11
+      _TNX_LY_PROG=11; _TNX_LY_DIV2=12; _TNX_LY_LOGTOP=13
     fi
+  elif (( R >= 16 && C >= 27 )); then
+    _TNX_LY_TITLE=2; _TNX_LY_TITLE2=3; _TNX_LY_TITLE3=4; _TNX_LY_TITLE4=0; _TNX_LY_TITLE5=0
+    _TNX_LY_IDENT=5; _TNX_LY_VER=6; _TNX_LY_BY=7; _TNX_LY_DIV1=8; _TNX_LY_DEV0=0
+    _TNX_LY_PROG=9; _TNX_LY_DIV2=10; _TNX_LY_LOGTOP=11
   elif (( R >= 13 )); then
-    _TNX_LY_TITLE=2; _TNX_LY_TITLE2=0; _TNX_LY_TITLE3=0
+    _TNX_LY_TITLE=2; _TNX_LY_TITLE2=0; _TNX_LY_TITLE3=0; _TNX_LY_TITLE4=0; _TNX_LY_TITLE5=0
     _TNX_LY_IDENT=3; _TNX_LY_VER=4; _TNX_LY_BY=0; _TNX_LY_DIV1=5
     _TNX_LY_DEV0=0
     _TNX_LY_PROG=7; _TNX_LY_DIV2=8; _TNX_LY_LOGTOP=9
   else
-    _TNX_LY_TITLE=2; _TNX_LY_TITLE2=0; _TNX_LY_TITLE3=0
+    _TNX_LY_TITLE=2; _TNX_LY_TITLE2=0; _TNX_LY_TITLE3=0; _TNX_LY_TITLE4=0; _TNX_LY_TITLE5=0
     _TNX_LY_IDENT=3; _TNX_LY_VER=4; _TNX_LY_BY=0; _TNX_LY_DIV1=5
     _TNX_LY_DEV0=0
     _TNX_LY_PROG=6; _TNX_LY_DIV2=7; _TNX_LY_LOGTOP=8
@@ -457,15 +461,26 @@ _tnx_frame_paint_header() {
   local tick="${1:-${_TNX_FRAME_TICK:-0}}" inner=$(( _TNX_FRAME_COLS - 4 )) content="" title tpad trpad tsp trsp logo_color
   local -a logo_colors=("$TNX_CG" "$TNX_CC" "$TNX_CG" "$TNX_CC" "$TNX_CG" "$TNX_CG")
   logo_color="${logo_colors[$((tick % ${#logo_colors[@]}))]}"
-  if (( _TNX_LY_TITLE3 > 0 )); then
-    local logo1='***** ***** ****  *   * *   * *   *'
-    local logo2='  *   *     *   * **  * *   *  * * '
-    local logo3='  *   ***** *  ** * * * ***** *   *'
+  if (( _TNX_LY_TITLE5 > 0 )); then
+    local logo1='##### ##### ####  #   # #   # #   #'
+    local logo2='  #   #     #   # ##  # #   # #   #'
+    local logo3='  #   ####  ####  # # # #   #   #  '
+    local logo4='  #   #     # #   #  ## #   # #   #'
+    local logo5='  #   ##### #  ## #   # ##### #   #'
     _tnx_frame_center_line "$_TNX_LY_TITLE" "$logo1" "$logo_color"
-    _tnx_frame_center_line "$_TNX_LY_TITLE2" "$logo2" "$TNX_CC"
-    _tnx_frame_center_line "$_TNX_LY_TITLE3" "$logo3" "$logo_color"
+    _tnx_frame_center_line "$_TNX_LY_TITLE2" "$logo2" "${logo_colors[$(((tick + 1) % ${#logo_colors[@]}))]}"
+    _tnx_frame_center_line "$_TNX_LY_TITLE3" "$logo3" "${logo_colors[$(((tick + 2) % ${#logo_colors[@]}))]}"
+    _tnx_frame_center_line "$_TNX_LY_TITLE4" "$logo4" "${logo_colors[$(((tick + 3) % ${#logo_colors[@]}))]}"
+    _tnx_frame_center_line "$_TNX_LY_TITLE5" "$logo5" "$logo_color"
+  elif (( _TNX_LY_TITLE3 > 0 )); then
+    local logo1='### ### ##  # # # # # #'
+    local logo2=' #  #   # # ### # #  # '
+    local logo3=' #  ### ##  # # ### # #'
+    _tnx_frame_center_line "$_TNX_LY_TITLE" "$logo1" "$logo_color"
+    _tnx_frame_center_line "$_TNX_LY_TITLE2" "$logo2" "${logo_colors[$(((tick + 1) % ${#logo_colors[@]}))]}"
+    _tnx_frame_center_line "$_TNX_LY_TITLE3" "$logo3" "${logo_colors[$(((tick + 2) % ${#logo_colors[@]}))]}"
   else
-    _tnx_clipv "$inner" '*<== T E R N U X ==>*'
+    _tnx_clipv "$inner" '### TERNUX ###'
     title="$_TNX_CLIP"
     tpad=$(( (inner - _TNX_CLIPW) / 2 )); (( tpad < 0 )) && tpad=0
     trpad=$(( inner - _TNX_CLIPW - tpad )); (( trpad < 0 )) && trpad=0
@@ -1126,15 +1141,36 @@ tnx_phase_checklist() {
 tnx_summary_box() {
   [ "${TERNUX_QUIET:-0}" = "1" ] && return 0
   local title="$1"; shift
-  local pairs=("$@") w=52 i k v row
+  local pairs=("$@") w=52 i k v row cols maxw prefix remaining word line content
+  cols="${COLUMNS:-}"
+  if [ -t 1 ]; then cols="$(stty size < /dev/tty 2>/dev/null | awk '{print $2}')"; fi
+  [[ "$cols" =~ ^[0-9]+$ ]] || cols=80
+  (( cols > 100 )) && cols=100
+  w=$((cols - 4)); (( w > 76 )) && w=76; (( w < 16 )) && w=16
+  maxw=$((w - 4))
   printf '\n  %s+%s+%s\n' "$TNX_CM" "$(_tnx_repeat '-' "$w")" "$TNX_C0"
   printf -v row '%-*.*s' "$((w - 2))" "$((w - 2))" "$title"
   printf '  %s|%s %s%s%s %s|%s\n' "$TNX_CM" "$TNX_C0" "$TNX_CG" "$row" "$TNX_C0" "$TNX_CM" "$TNX_C0"
   printf '  %s+%s+%s\n' "$TNX_CM" "$(_tnx_repeat '-' "$w")" "$TNX_C0"
   for ((i=0; i<${#pairs[@]}; i+=2)); do
     k="${pairs[$i]}"; v="${pairs[$((i+1))]}"
-    printf -v row '%-16s %-*.*s' "$k:" "$((w - 19))" "$((w - 19))" "$v"
-    printf '  %s|%s %s%-*.*s%s %s|%s\n' "$TNX_CM" "$TNX_C0" "$TNX_CW" "$((w - 2))" "$((w - 2))" "$row" "$TNX_C0" "$TNX_CM" "$TNX_C0"
+    prefix="$k:"
+    if (( ${#prefix} >= maxw )); then prefix="${prefix:0:$((maxw - 1))}"; fi
+    remaining="${v:-}"
+    if [ -z "$remaining" ]; then printf '  %s|%s %s%-*s%s %s|%s\n' "$TNX_CM" "$TNX_C0" "$TNX_CW" "$maxw" "$prefix" "$TNX_C0" "$TNX_CM" "$TNX_C0"; continue; fi
+    line="$prefix"
+    while [ -n "$remaining" ]; do
+      word="${remaining%% *}"
+      if [ "$word" = "$remaining" ]; then remaining=""; else remaining="${remaining#* }"; fi
+      if (( ${#line} > 0 && ${#line} + ${#word} + 1 > maxw )); then
+        printf '  %s|%s %s%-*s%s %s|%s\n' "$TNX_CM" "$TNX_C0" "$TNX_CW" "$maxw" "$line" "$TNX_C0" "$TNX_CM" "$TNX_C0"
+        line="  $word"
+      else
+        line+=" "
+        line+="$word"
+      fi
+    done
+    printf '  %s|%s %s%-*s%s %s|%s\n' "$TNX_CM" "$TNX_C0" "$TNX_CW" "$maxw" "$line" "$TNX_C0" "$TNX_CM" "$TNX_C0"
   done
   printf '  %s+%s+%s\n' "$TNX_CM" "$(_tnx_repeat '-' "$w")" "$TNX_C0"
 }

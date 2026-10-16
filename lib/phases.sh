@@ -1330,22 +1330,43 @@ tnx_parse_workload_selection() {
 
 _tnx_optional_menu_draw() {
   local cursor="$1" selected_name i mark mark_color pointer pointer_color color size="${2:-}" rows cols visible first last count
-  local group group_color label label_width selected_text hint controls title="TERNUX / SOFTWARE CATALOG" status
+  local group group_color label label_width hint controls title="TERNUX OPTIONAL SOFTWARE" status word remaining line maxw selected_lines item
+  local -a chosen_labels=() summary_lines=()
   [ -n "$size" ] || size="$(stty size <&3 2>/dev/null || true)"
   read -r rows cols <<< "$size"
   [[ "$rows" =~ ^[0-9]+$ ]] || rows=24; [[ "$cols" =~ ^[0-9]+$ ]] || cols=80
   (( cols > 200 )) && cols=200; (( cols < 20 )) && cols=20
-  visible=$((rows - 10)); (( visible < 1 )) && visible=1
+  count=${#_TNX_SELECTED_ITEMS[@]}
+  selected_name=" ${_TNX_SELECTED_ITEMS[*]} "
+  for item in "${_TNX_SELECTED_ITEMS[@]}"; do
+    for i in "${!TNX_OPTIONAL_ITEMS[@]}"; do
+      if [ "$item" = "${TNX_OPTIONAL_ITEMS[$i]}" ]; then chosen_labels+=("${TNX_OPTIONAL_LABELS[$i]}"); break; fi
+    done
+  done
+  maxw=$((cols - 2)); (( maxw < 12 )) && maxw=12
+  line='Selected: '
+  if (( ${#chosen_labels[@]} == 0 )); then line='Selected: none yet'
+  else
+    for word in "${chosen_labels[@]}"; do
+      if (( ${#line} + ${#word} + 2 > maxw )) && [ "$line" != 'Selected: ' ]; then
+        summary_lines+=("${line},"); line="$word"
+      else
+        [ "$line" = 'Selected: ' ] || line+=', '
+        line+="$word"
+      fi
+    done
+  fi
+  summary_lines+=("$line"); selected_lines=${#summary_lines[@]}
+  visible=$((rows - 9 - selected_lines)); (( visible < 1 )) && visible=1
   (( visible > 12 )) && visible=12
   (( visible > ${#TNX_OPTIONAL_ITEMS[@]} )) && visible=${#TNX_OPTIONAL_ITEMS[@]}
   first=0; (( cursor >= visible )) && first=$((cursor - visible + 1))
   last=$((first + visible)); (( last > ${#TNX_OPTIONAL_ITEMS[@]} )) && last=${#TNX_OPTIONAL_ITEMS[@]}
-  selected_name=" ${_TNX_SELECTED_ITEMS[*]} "; count=${#_TNX_SELECTED_ITEMS[@]}
   label_width=$((cols - 17)); (( label_width < 1 )) && label_width=1
   # Reset any scroll region left by a prior terminal UI before anchoring the
   # catalog at the top of the viewport.
   printf '\033[?25l\033[r\033[H\033[2J%s+%s+%s\n' "$TNX_CM" "$(printf '%*s' "$((cols - 2))" '' | tr ' ' '=')" "$TNX_C0" >&2
-  title="${title}  |  @soobujmiah"; printf '%s%s%s\n' "$TNX_CG" "${title:0:cols-2}" "$TNX_C0" >&2
+  printf '%s%s%s\n' "$TNX_CG" "${title:0:cols-2}" "$TNX_C0" >&2
   status="OPTIONAL SOFTWARE  |  ${count} selected  |  ${#TNX_OPTIONAL_ITEMS[@]} available"
   printf '%s%s%s\n' "$TNX_CC" "${status:0:cols-2}" "$TNX_C0" >&2
   hint="Debian packages use latest versions from configured repositories."
@@ -1367,9 +1388,8 @@ _tnx_optional_menu_draw() {
       "$pointer_color" "$pointer" "$TNX_C0" "$mark_color" "$mark" "$TNX_C0" "$TNX_CD" "$((i + 1))" "$TNX_C0" \
       "$group_color" "$group" "$TNX_C0" "$color" "$label" "$TNX_C0" >&2
   done
-  selected_text="${_TNX_SELECTED_ITEMS[*]:-none yet}"
-  (( ${#selected_text} > cols - 14 )) && selected_text="${selected_text:0:cols-17}..."
-  printf '\n%sSelected: %s%s\n' "$TNX_CG" "$selected_text" "$TNX_C0" >&2
+  printf '\n' >&2
+  for line in "${summary_lines[@]}"; do printf '%s%s%s\n' "$TNX_CG" "$line" "$TNX_C0" >&2; done
   if (( first > 0 || last < ${#TNX_OPTIONAL_ITEMS[@]} )); then
     printf '%sShowing %d-%d of %d%s\n' "$TNX_CD" "$((first + 1))" "$last" "${#TNX_OPTIONAL_ITEMS[@]}" "$TNX_C0" >&2
   fi
