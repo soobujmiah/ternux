@@ -181,7 +181,7 @@ _tnx_strip_controls() { _tnx_stripv "$1"; printf '%s' "$_TNX_TXT"; }
 _tnx_cellwidth() {
   local c="$1"
   _TNX_CW=1
-  if (( c == 9609 )); then _TNX_CW=1                  # wordmark glyph: ▉
+  if (( c == 42341 )); then _TNX_CW=1                  # wordmark glyph: ꕥ
   elif (( c > 11903 )); then _TNX_CW=2                            # CJK onwards, emoji
   elif (( c == 183 || c == 8226 )); then _TNX_CW=2                # middle dot, bullet
   elif (( c >= 8592 && c <= 8959 )); then _TNX_CW=2               # arrows, math operators
@@ -470,19 +470,19 @@ _tnx_frame_paint_header() {
     local -a logo
     if (( inner >= 48 )); then
     logo=(
-      '▉▉▉    ▉▉▉    ▉▉     ▉ ▉    ▉ ▉    ▉ ▉'
-      ' ▉     ▉      ▉ ▉    ▉▉▉    ▉ ▉     ▉▉'
-      ' ▉     ▉▉     ▉▉     ▉✺▉    ▉ ▉      ▉'
-      ' ▉     ▉      ▉ ▉    ▉ ▉    ▉ ▉    ▉▉ '
-      ' ▉     ▉▉▉    ▉ ▉    ▉ ▉    ▉▉▉    ▉ ▉'
+      'ꕥꕥꕥꕥꕥ  ꕥꕥꕥꕥꕥ  ꕥꕥꕥꕥ   ꕥ   ꕥ  ꕥ   ꕥ  ꕥ   ꕥ'
+      '  ꕥ    ꕥ      ꕥ   ꕥ  ꕥꕥ  ꕥ  ꕥ   ꕥ   ꕥ ꕥ '
+      '  ꕥ    ꕥꕥꕥꕥ   ꕥꕥꕥꕥ   ꕥ ꕥ ꕥ  ꕥ   ꕥ    ꕥ  '
+      '  ꕥ    ꕥ      ꕥ  ꕥ   ꕥ  ꕥꕥ  ꕥ   ꕥ   ꕥ ꕥ '
+      '  ꕥ    ꕥꕥꕥꕥꕥ  ꕥ   ꕥ  ꕥ   ꕥ  ꕥꕥꕥꕥꕥ  ꕥ   ꕥ'
     )
     else
     logo=(
-      '▉▉▉ ▉▉▉ ▉▉  ▉ ▉ ▉ ▉ ▉ ▉'
-      ' ▉  ▉   ▉ ▉ ▉▉▉ ▉ ▉  ▉▉'
-      ' ▉  ▉▉  ▉▉  ▉✺▉ ▉ ▉   ▉'
-      ' ▉  ▉   ▉ ▉ ▉ ▉ ▉ ▉ ▉▉ '
-      ' ▉  ▉▉▉ ▉ ▉ ▉ ▉ ▉▉▉ ▉ ▉'
+      'ꕥꕥꕥ ꕥꕥꕥ ꕥꕥ  ꕥ ꕥ ꕥ ꕥ ꕥ ꕥ'
+      ' ꕥ  ꕥ   ꕥ ꕥ ꕥꕥꕥ ꕥ ꕥ  ꕥꕥ'
+      ' ꕥ  ꕥꕥ  ꕥꕥ  ꕥꕥꕥ ꕥ ꕥ   ꕥ'
+      ' ꕥ  ꕥ   ꕥ ꕥ ꕥ ꕥ ꕥ ꕥ ꕥꕥ '
+      ' ꕥ  ꕥꕥꕥ ꕥ ꕥ ꕥ ꕥ ꕥꕥꕥ ꕥ ꕥ'
     )
     fi
     local row
@@ -537,8 +537,7 @@ _tnx_frame_logo_line() {
   for ((i=0; i<${#_TNX_CLIP}; i++)); do
     ch="${_TNX_CLIP:i:1}"
     case "$ch" in
-      '▉') phase=$(( (i + tick) % ${#colors[@]} )); color="${colors[$phase]}" ;;
-      '✺') phase=$(( (tick + i) % ${#colors[@]} )); color="${colors[$phase]}" ;;
+      'ꕥ') phase=$(( (i + tick) % ${#colors[@]} )); color="${colors[$phase]}" ;;
       *) color="$TNX_C0" ;;
     esac
     content+="${color}${ch}"
