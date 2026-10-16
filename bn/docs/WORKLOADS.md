@@ -17,8 +17,8 @@ installer-এর একটি flag। Manual পথ হলো একই command 
 
 Interactive install-এ terminal-এর উচ্চতা অনুযায়ী যতগুলো item ধরে, ততগুলো দেখায়;
 Android keyboard খুলে terminal resize হলেও menu নিজে থেকে নতুন মাপে সাজে। item-গুলো
-ছোট category tag-এ গোছানো। Arrow key অথবা `j`/`k` দিয়ে চলুন, Space বা item-এর number দিয়ে
-নির্বাচন বদলান, তারপর Enter-এ plan দেখুন। শুধু base desktop চাইলে `q` চাপুন। Plan
+ছোট category tag-এ গোছানো; অপ্রয়োজনীয় বর্ণনা নেই। Arrow key অথবা `j`/`k` দিয়ে চলুন,
+Space বা item-এর number দিয়ে নির্বাচন বদলান, তারপর Enter-এ plan দেখুন। শুধু base desktop চাইলে `q` চাপুন। Plan
 দেখার পর Enter চাপলে install শুরু হবে; বাতিল করতে `n` লিখুন। Firefox চাইলে অন্য
 desktop tool ছাড়াই, বা পুরো Android toolchain ছাড়াই ADT-এর ADB বেছে নিতে পারবেন।
 Debian package বসানোর আগে `apt update` হয়, তাই configured Debian repository-তে
@@ -31,6 +31,7 @@ Install শুরুর আগে Ternux নির্বাচিত optional so
 estimate দেখায়; এতে download ও setup-এর অস্থায়ী জায়গাও ধরা হয়। Terminal যথেষ্ট
 বড় হলে install dashboard-এ Linux guest-এর live CPU utilization-ও দেখা যায়। এটি
 স্বল্প সময়ের sample থেকে হিসাব করা আনুমানিক মান; কোন process কত CPU নিচ্ছে তা নয়।
+এই মান পড়া না গেলে dashboard core সংখ্যা ও load average দেখায়।
 
 <h2 id="the-workloads">ওয়ার্কলোডগুলো</h2>
 
@@ -55,7 +56,8 @@ Termux:Widget, Termux:Boot ও Termux:Styling-এর মতো Android companion
 এবং [Termux:X11-এর official project](https://github.com/termux/termux-x11) দেখুন।
 
 বেস desktop — Xfce4, terminal, VLC, archive tool, Mesa utility, Vulkan tool —
-সবসময় বসে এবং সেটি কোনো workload নয়।
+সবসময় বসে; এতে প্রায় ৩–৪ GB storage লাগে। VLC catalog-এ আলাদা করে বেছে নেওয়া যায়,
+তবে base desktop-এ আগে থেকেই থাকায় দ্বিতীয় কপি বসে না।
 
 <h2 id="automatic">স্বয়ংক্রিয়</h2>
 

@@ -17,8 +17,9 @@ and so a failed install can be finished by hand instead of started over.
 
 During an interactive install, the software catalog shows as many items as fit
 in the current terminal height and reflows when the terminal resizes, including
-when the Android keyboard opens; items are grouped by short category tags. Move
-with arrow keys or `j`/`k`, press Space or the item's number to toggle it, then Enter to review the plan. Press
+when the Android keyboard opens; items use short names and category tags. Move
+with arrow keys or `j`/`k`, press Space or the item's number to toggle it, then
+press Enter to review the plan. Press
 `q` for the base desktop only. The plan screen starts installation when you
 press Enter; type `n` to cancel. Each tool is separate, so you can choose
 Firefox without the other desktop tools, or ADT's ADB without the rest of the
@@ -32,6 +33,7 @@ Before installation, Ternux shows a rough storage estimate based on the selected
 optional software, including temporary download and setup space. In a sufficiently
 large terminal, the install dashboard also shows live CPU utilization sampled
 from the Linux guest; this is a short-interval estimate, not a per-process view.
+If CPU counters are restricted, it shows the available core count and load average.
 
 ## The workloads
 
@@ -60,7 +62,8 @@ Termux:X11 has its [own official project](https://github.com/termux/termux-x11).
 They are not Debian packages and cannot be installed from this guest selector.
 
 The base desktop — Xfce4, terminal, VLC, archive tools, Mesa utilities, Vulkan
-tools — is always installed and is not a workload.
+tools — uses about 3–4 GB and is always installed. VLC is also listed in the
+catalog so it can be selected explicitly; choosing it does not add a second copy.
 
 ## Automatic
 
@@ -112,6 +115,9 @@ sudo apt install -y firefox-esr neovim gh
 Firefox ESR is Debian's supported ARM64 browser package; `apt update` before
 installation selects the newest package available from the configured Debian
 repository. See [Debian's Firefox ESR package](https://packages.debian.org/bookworm/firefox-esr).
+
+VLC is included with the base desktop. If needed, the catalog's separate VLC
+choice simply verifies or reinstalls the Debian package.
 
 **Media**
 

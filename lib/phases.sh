@@ -808,6 +808,7 @@ tnx_phase_extras() {
       nmap) apt_packages+=(nmap) ;;
       tmux) apt_packages+=(tmux) ;;
       ffmpeg) apt_packages+=(ffmpeg) ;;
+      vlc) apt_packages+=(vlc) ;;
       mpv) apt_packages+=(mpv) ;;
       gimp) apt_packages+=(gimp) ;;
       krita) apt_packages+=(krita) ;;
@@ -841,7 +842,7 @@ tnx_phase_extras() {
 
   for opt in "$@"; do
     case "$opt" in
-      dev|llm|network|media|git|python|node|build|rust|java|godot|geany|neovim|gh|firefox|nmap|tmux|ffmpeg|mpv|gimp|krita|inkscape|audacity|imagemagick|libreoffice-writer|blender) ;;
+      dev|llm|network|media|git|python|node|build|rust|java|godot|geany|neovim|gh|firefox|nmap|tmux|ffmpeg|vlc|mpv|gimp|krita|inkscape|audacity|imagemagick|libreoffice-writer|blender) ;;
       adt-build-tools|adt-platform-tools|adt-ndk|adt-cmake|adt-cmdline|adt-platform)
         if tnx_guest_login --shared-tmp --user "$user_name" -- bash -lc '
           set -e
@@ -1283,9 +1284,9 @@ tnx_prompt_username() {
 
 # Item catalogue for the interactive optional-software checklist. Keep this
 # list aligned with the case labels in tnx_phase_extras.
-TNX_OPTIONAL_ITEMS=(git python node build rust java geany neovim gh godot firefox adt-build-tools adt-platform-tools adt-ndk adt-cmake adt-cmdline adt-platform llama-vulkan llama-htp-experimental nmap tmux ffmpeg mpv gimp krita inkscape audacity imagemagick libreoffice-writer blender claude codex openai-cli hermes openclaw)
-TNX_OPTIONAL_GROUPS=(DEV DEV DEV DEV DEV DEV DEV DEV DEV GAME WEB ANDROID ANDROID ANDROID ANDROID ANDROID ANDROID AI AI NET NET MEDIA MEDIA DESIGN DESIGN DESIGN MEDIA DESIGN OFFICE 3D AGENT AGENT AGENT AGENT AGENT)
-TNX_OPTIONAL_LABELS=("Git + curl/wget" "Python + venv" "Node.js + npm" "C/C++ build tools" "Rust + Cargo" "Java JDK" "Geany IDE" "Neovim editor" "GitHub CLI (gh)" "Godot game engine" "Firefox ESR browser" "ADT Build Tools - latest verified" "ADT Platform Tools (ADB + fastboot)" "ADT NDK shim - verified version" "ADT CMake shim" "ADT SDK Manager" "Android Platform API 36" "llama.cpp CPU + Vulkan - verified prerelease" "llama.cpp Hexagon HTP - experimental / SM8735" "Nmap" "tmux" "FFmpeg" "mpv media player" "GIMP" "Krita" "Inkscape" "Audacity" "ImageMagick" "LibreOffice Writer" "Blender + Xvfb" "Claude Code" "OpenAI Codex CLI" "OpenAI API CLI" "Hermes Agent" "OpenClaw")
+TNX_OPTIONAL_ITEMS=(git python node build rust java geany neovim gh godot firefox adt-build-tools adt-platform-tools adt-ndk adt-cmake adt-cmdline adt-platform llama-vulkan llama-htp-experimental nmap tmux ffmpeg vlc mpv gimp krita inkscape audacity imagemagick libreoffice-writer blender claude codex openai-cli hermes openclaw)
+TNX_OPTIONAL_GROUPS=(DEV DEV DEV DEV DEV DEV DEV DEV DEV GAME WEB ANDROID ANDROID ANDROID ANDROID ANDROID ANDROID AI AI NET NET MEDIA MEDIA MEDIA MEDIA DESIGN DESIGN DESIGN MEDIA DESIGN OFFICE 3D AGENT AGENT AGENT AGENT AGENT)
+TNX_OPTIONAL_LABELS=("Git" "Python" "Node.js" "C/C++ tools" "Rust" "Java JDK" "Geany" "Neovim" "GitHub CLI" "Godot" "Firefox ESR" "ADT Build Tools" "ADT Platform Tools / ADB" "ADT NDK" "ADT CMake" "SDK Manager" "Android API 36" "llama.cpp Vulkan" "llama.cpp HTP (experimental)" "Nmap" "tmux" "FFmpeg" "VLC" "mpv" "GIMP" "Krita" "Inkscape" "Audacity" "ImageMagick" "LibreOffice Writer" "Blender" "Claude Code" "Codex CLI" "OpenAI API CLI" "Hermes" "OpenClaw")
 
 # Parse number lists used when a TTY key-reading menu is unavailable.
 tnx_parse_workload_selection() {
@@ -1310,13 +1311,13 @@ _tnx_optional_menu_draw() {
   [ -n "$size" ] || size="$(stty size <&3 2>/dev/null || true)"
   read -r rows cols <<< "$size"
   [[ "$rows" =~ ^[0-9]+$ ]] || rows=24; [[ "$cols" =~ ^[0-9]+$ ]] || cols=80
-  (( cols > 82 )) && cols=82; (( cols < 42 )) && cols=42
+  (( cols > 200 )) && cols=200; (( cols < 20 )) && cols=20
   visible=$((rows - 10)); (( visible < 1 )) && visible=1
   (( visible > ${#TNX_OPTIONAL_ITEMS[@]} )) && visible=${#TNX_OPTIONAL_ITEMS[@]}
   first=0; (( cursor >= visible )) && first=$((cursor - visible + 1))
   last=$((first + visible)); (( last > ${#TNX_OPTIONAL_ITEMS[@]} )) && last=${#TNX_OPTIONAL_ITEMS[@]}
   selected_name=" ${_TNX_SELECTED_ITEMS[*]} "; count=${#_TNX_SELECTED_ITEMS[@]}
-  label_width=$((cols - 23)); (( label_width < 12 )) && label_width=12
+  label_width=$((cols - 19)); (( label_width < 1 )) && label_width=1
   printf '\033[?25l\033[H\033[2J%s+%s+%s\n' "$TNX_CM" "$(printf '%*s' "$((cols - 2))" '' | tr ' ' '=')" "$TNX_C0" >&2
   title="${title}  |  @soobujmiah"; printf '%s%s%s\n' "$TNX_CG" "${title:0:cols-2}" "$TNX_C0" >&2
   status="OPTIONAL SOFTWARE  |  ${count} selected  |  ${#TNX_OPTIONAL_ITEMS[@]} available"
@@ -1412,9 +1413,11 @@ tnx_prompt_workloads() {
           idx=$((10#$number - 1))
           (( idx >= 0 && idx < ${#TNX_OPTIONAL_ITEMS[@]} )) && _tnx_checklist_toggle "${TNX_OPTIONAL_ITEMS[$idx]}"
           ;;
-        $'\r'|$'\n') break ;;
+        ''|$'\r'|$'\n') break ;;
         q|Q) _TNX_SELECTED_ITEMS=(); break ;;
       esac
+      size="$(stty size <&3 2>/dev/null || true)"
+      [ -n "$size" ] && menu_size="$size"
       _tnx_optional_menu_draw "$cursor" "$menu_size"
     done
     [ -n "$old_stty" ] && stty "$old_stty" <&3 2>/dev/null || true
@@ -1591,7 +1594,7 @@ tnx_install() {
         firefox) workload_label="Firefox ESR (latest Debian package)" ;;
         neovim) workload_label="Neovim editor" ;;
         gh) workload_label="GitHub CLI" ;;
-        nmap|tmux|ffmpeg|gimp|audacity|imagemagick) workload_label="$workload" ;;
+        nmap|tmux|ffmpeg|vlc|gimp|audacity|imagemagick) workload_label="$workload" ;;
         blender) workload_label="Blender + Xvfb" ;;
         claude) workload_label="Claude Code" ;;
         codex) workload_label="OpenAI Codex CLI" ;;

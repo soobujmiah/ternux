@@ -49,7 +49,7 @@
 _TNX_UI_LOADED=1
 _TNX_SIG_NAME="Sobuj Miah"
 _TNX_SIG_WIDTH=${#_TNX_SIG_NAME}
-_TNX_SIG_COLORS=("$TNX_CG" "$TNX_CC" "$TNX_CY" "$TNX_CM" "$TNX_CB" "$TNX_CW")
+_TNX_SIG_COLORS=("$TNX_CG" "$TNX_CC" "$TNX_CG" "$TNX_CC" "$TNX_CG" "$TNX_CG")
 _TNX_FRAME_ACTIVE=0
 _TNX_FRAME_MODE="off"
 
@@ -73,16 +73,17 @@ _TNX_ANIM=1
 _TNX_NEED_NL=0
 
 # Layout row indices (computed from the current terminal size).
-_TNX_LY_TITLE=2; _TNX_LY_IDENT=3; _TNX_LY_DEV0=5; _TNX_LY_DEV_ON=1
-_TNX_LY_PROG=8; _TNX_LY_DIV2=9; _TNX_LY_LOGTOP=10
+_TNX_LY_TITLE=2; _TNX_LY_IDENT=3; _TNX_LY_VER=4; _TNX_LY_BY=5; _TNX_LY_DIV1=6; _TNX_LY_DEV0=7; _TNX_LY_DEV_ON=1
+_TNX_LY_PROG=12; _TNX_LY_DIV2=13; _TNX_LY_LOGTOP=14
 _TNX_LY_LOGBOT=21; _TNX_LY_DIV3=22; _TNX_LY_FOOTER=23; _TNX_LY_BOT=24
 # Device panel content.
 _TNX_FRAME_DEV_LABELS=()
 _TNX_FRAME_DEV_VALUES=()
+_TNX_FRAME_STORAGE="?"
 
 # Renderer tuning. Times are milliseconds.
 _TNX_READ_TIMEOUT=0.12      # idle granularity of the stream loop
-_TNX_ANIM_MS=300            # footer animation interval
+_TNX_ANIM_MS=900            # gentle title/footer animation interval
 _TNX_TRANSIENT_MS=90        # in-place progress refresh interval
 _TNX_RESIZE_MS=1200         # resize poll interval (SIGWINCH bypasses it)
 _TNX_FLOOD_LINES=40         # painted log lines per second before coalescing
@@ -112,10 +113,10 @@ _tnx_repeat() {
 
 # _TNX_RULE <- a full-width ASCII rule for the current frame width.
 _tnx_rule_cache() {
-  local n=$(( _TNX_FRAME_COLS - 2 )) r=""
+  local n=$(( _TNX_FRAME_COLS - 2 )) r="" pattern='==01==10==' i idx
   (( n < 1 )) && n=1
-  printf -v r '%*s' "$n" ''
-  _TNX_RULE="${r// /=}"
+  for ((i=0; i<n; i++)); do idx=$((i % ${#pattern})); r+="${pattern:idx:1}"; done
+  _TNX_RULE="$r"
 }
 
 _tnx_frame_rule() { printf '%s' "$_TNX_RULE"; }
@@ -240,7 +241,7 @@ _tnx_line_color() {
     get:*|hit:*|*download*|*unpack*|*package*)
       _TNX_LC="$TNX_CC" ;;
     *task*|*phase*|*"[info]"*)
-      _TNX_LC="$TNX_CM"; _TNX_IMPORTANT=1 ;;
+      _TNX_LC="$TNX_CC"; _TNX_IMPORTANT=1 ;;
     *)
       _TNX_LC="$TNX_CW" ;;
   esac
@@ -294,11 +295,11 @@ _tnx_measure() {
   fi
   case "${c:-}" in ''|*[!0-9]*) c=0 ;; esac
   case "${r:-}" in ''|*[!0-9]*) r=0 ;; esac
-  if (( c >= 20 && r >= 6 )); then
+  if (( c >= 8 && r >= 6 )); then
     _TNX_TERM_COLS=$c; _TNX_TERM_ROWS=$r; _TNX_SIZE_OK=1
     return 0
   fi
-  if (( ${COLUMNS:-0} >= 20 && ${LINES:-0} >= 6 )); then
+  if (( ${COLUMNS:-0} >= 8 && ${LINES:-0} >= 6 )); then
     _TNX_TERM_COLS=$COLUMNS; _TNX_TERM_ROWS=$LINES; _TNX_SIZE_OK=1
     return 0
   fi
@@ -315,10 +316,10 @@ _tnx_apply_size() {
   # cramped on a phone, and the right-hand column also keeps the terminal out
   # of pending-wrap when the last cell is written.
   c=$(( c - 2 ))
-  (( c > 120 )) && c=120
-  (( c < 24 )) && c=24
+  (( c > 200 )) && c=200
+  (( c < 6 )) && c=6
   (( r > 200 )) && r=200
-  (( r < 8 )) && r=8
+  (( r < 6 )) && r=6
   _TNX_FRAME_COLS=$c
   _TNX_FRAME_ROWS=$r
   _tnx_rule_cache
@@ -332,8 +333,8 @@ _tnx_plain_cols() {
   local cols=80
   _tnx_measure >/dev/null 2>&1 || true
   [ "$_TNX_SIZE_OK" = "1" ] && cols=$(( _TNX_TERM_COLS - 2 ))
-  (( cols > 80 )) && cols=80
-  (( cols < 24 )) && cols=24
+  (( cols > 200 )) && cols=200
+  (( cols < 6 )) && cols=6
   _TNX_FRAME_COLS=$cols
   _tnx_rule_cache
   printf '%s' "$cols"
@@ -346,11 +347,15 @@ _tnx_frame_layout() {
   _TNX_LY_DEV_ON=0
   if (( R >= 22 && C >= 46 )); then
     _TNX_LY_DEV_ON=1
-    _TNX_LY_TITLE=2; _TNX_LY_IDENT=3; _TNX_LY_TAGLINE=4
-    _TNX_LY_DEV0=6
-    _TNX_LY_PROG=11; _TNX_LY_DIV2=12; _TNX_LY_LOGTOP=13
+    _TNX_LY_TITLE=2; _TNX_LY_IDENT=3; _TNX_LY_VER=4; _TNX_LY_BY=5; _TNX_LY_DIV1=6
+    _TNX_LY_DEV0=7
+    _TNX_LY_PROG=12; _TNX_LY_DIV2=13; _TNX_LY_LOGTOP=14
+  elif (( R >= 13 )); then
+    _TNX_LY_TITLE=2; _TNX_LY_IDENT=3; _TNX_LY_VER=4; _TNX_LY_BY=5; _TNX_LY_DIV1=6
+    _TNX_LY_DEV0=0
+    _TNX_LY_PROG=7; _TNX_LY_DIV2=8; _TNX_LY_LOGTOP=9
   else
-    _TNX_LY_TITLE=2; _TNX_LY_IDENT=3; _TNX_LY_TAGLINE=4
+    _TNX_LY_TITLE=2; _TNX_LY_IDENT=3; _TNX_LY_VER=4; _TNX_LY_BY=0; _TNX_LY_DIV1=5
     _TNX_LY_DEV0=0
     _TNX_LY_PROG=6; _TNX_LY_DIV2=7; _TNX_LY_LOGTOP=8
   fi
@@ -361,13 +366,12 @@ _tnx_frame_layout() {
   (( _TNX_LY_LOGBOT < _TNX_LY_LOGTOP )) && _TNX_LY_LOGBOT=$_TNX_LY_LOGTOP
 }
 
-# True when the current geometry can host a readable dashboard: a log window of
-# at least four rows inside a frame wide enough for the progress bar.
+# True when the current geometry can host a compact dashboard with a log row.
 _tnx_frame_fits() {
-  (( _TNX_FRAME_COLS >= 39 )) || return 1
-  (( _TNX_FRAME_ROWS >= 13 )) || return 1
+  (( _TNX_FRAME_COLS >= 22 )) || return 1
+  (( _TNX_FRAME_ROWS >= 11 )) || return 1
   _tnx_frame_layout
-  (( _TNX_LY_LOGBOT - _TNX_LY_LOGTOP + 1 >= 4 ))
+  (( _TNX_LY_LOGBOT - _TNX_LY_LOGTOP + 1 >= 1 ))
 }
 
 # Snapshot the hardware/software profile shown in the device panel. Values may
@@ -383,13 +387,14 @@ _tnx_frame_gather_device() {
   vulkan="$(tnx_detect_vulkan 2>/dev/null || echo '?')";  vulkan="${vulkan:-?}"
   ram="$(tnx_detect_ram_gb 2>/dev/null || echo '?')";     ram="${ram:-?}"
   storage="$(tnx_detect_storage_gb 2>/dev/null || echo '?')"; storage="${storage:-?}"
+  _TNX_FRAME_STORAGE="$storage"
   backend="${_TNX_FRAME_BACKEND:-auto}"
   _TNX_FRAME_DEV_LABELS=("Device" "Android" "Graphics" "Resources" "CPU")
   _TNX_FRAME_DEV_VALUES=(
     "${model} - ${arch}"
     "Android ${android} (SDK ${sdk})"
     "${gpu} - ${backend} - Vulkan ${vulkan}"
-    "${ram} GB RAM - ${storage} GB free"
+    "${ram} GB RAM - ${storage} GB free; base ~3-4 GB"
     "sampling..."
   )
   _tnx_frame_cpu_sample 0
@@ -399,11 +404,19 @@ _tnx_frame_gather_device() {
 # sample establishes a baseline; subsequent samples update the dashboard no
 # more than once per second.
 _tnx_frame_cpu_sample() {
-  local now="${_TNX_NOW:-0}" user nice system idle iowait irq softirq steal total idle_all delta_total delta_idle pct
+  local now="${_TNX_NOW:-0}" user nice system idle iowait irq softirq steal total idle_all delta_total delta_idle pct cores load
   (( now - ${_TNX_CPU_SAMPLE_T0:-0} >= 1000 )) || [ "${1:-1}" = "0" ] || return 0
-  [ -r /proc/stat ] || { _TNX_FRAME_DEV_VALUES[4]="unavailable"; _TNX_CPU_SAMPLE_T0=$now; return 0; }
+  if [ ! -r /proc/stat ]; then
+    cores="$(awk '/^processor[[:space:]]*:/ {n++} END {print n+0}' /proc/cpuinfo 2>/dev/null)"
+    load="$(awk '{print $1}' /proc/loadavg 2>/dev/null)"
+    _TNX_FRAME_DEV_VALUES[4]="${cores:-?} cores; load ${load:-n/a}"
+    _TNX_CPU_SAMPLE_T0=$now
+    return 0
+  fi
   read -r _ _TNX_CPU_USER _TNX_CPU_NICE _TNX_CPU_SYSTEM _TNX_CPU_IDLE _TNX_CPU_IOWAIT _TNX_CPU_IRQ _TNX_CPU_SOFTIRQ _TNX_CPU_STEAL _ < /proc/stat || {
-    _TNX_FRAME_DEV_VALUES[4]="unavailable"
+    cores="$(awk '/^processor[[:space:]]*:/ {n++} END {print n+0}' /proc/cpuinfo 2>/dev/null)"
+    load="$(awk '{print $1}' /proc/loadavg 2>/dev/null)"
+    _TNX_FRAME_DEV_VALUES[4]="${cores:-?} cores; load ${load:-n/a}"
     _TNX_CPU_SAMPLE_T0=$now
     return 0
   }
@@ -430,36 +443,40 @@ _tnx_frame_cpu_sample() {
 # in the left/right borders and paint it at an absolute row.
 _tnx_frame_box_row() {
   local row="$1" content="$2"
-  printf '\0337\033[%d;%dH\033[K%s|%s %s %s|%s\0338' "$row" "$_TNX_FRAME_X" "$TNX_CM" "$TNX_C0" "$content" "$TNX_CM" "$TNX_C0"
+  printf '\0337\033[%d;%dH\033[K%s|%s %s %s|%s\0338' "$row" "$_TNX_FRAME_X" "$TNX_CC" "$TNX_C0" "$content" "$TNX_CC" "$TNX_C0"
 }
 
 _tnx_frame_paint_header() {
-  local inner=$(( _TNX_FRAME_COLS - 4 )) content="" title tpad trpad tsp trsp
-  _tnx_clipv "$inner" "TERNUX"
+  local tick="${1:-${_TNX_FRAME_TICK:-0}}" inner=$(( _TNX_FRAME_COLS - 4 )) content="" title tpad trpad tsp trsp logo_color
+  local -a logo_colors=("$TNX_CG" "$TNX_CC" "$TNX_CG" "$TNX_CC" "$TNX_CG" "$TNX_CG")
+  logo_color="${logo_colors[$((tick % ${#logo_colors[@]}))]}"
+  _tnx_clipv "$inner" "*<== T E R N U X ==>*"
   title="$_TNX_CLIP"
   tpad=$(( (inner - _TNX_CLIPW) / 2 )); (( tpad < 0 )) && tpad=0
   trpad=$(( inner - _TNX_CLIPW - tpad )); (( trpad < 0 )) && trpad=0
   _tnx_pad "$tpad"; tsp="$_TNX_SP"
   _tnx_pad "$trpad"; trsp="$_TNX_SP"
-  printf -v content '%s%s%s%s%s' "$tsp" "$TNX_CG" "$title" "$TNX_C0" "$trsp"
+  printf -v content '%s%s%s%s%s%s' "$tsp" "$logo_color" "$title" "$TNX_C0" "$trsp" "$TNX_C0"
   _tnx_frame_box_row "$_TNX_LY_TITLE" "$content"
 
-  local ident="by @soobujmiah (Sobuj Miah)  |  v${TERNUX_VERSION}"
-  _tnx_clipv "$inner" "$ident"
-  tpad=$(( (inner - _TNX_CLIPW) / 2 )); (( tpad < 0 )) && tpad=0
-  trpad=$(( inner - _TNX_CLIPW - tpad )); (( trpad < 0 )) && trpad=0
-  _tnx_pad "$tpad"; tsp="$_TNX_SP"
-  _tnx_pad "$trpad"; trsp="$_TNX_SP"
-  printf -v content '%s%s%s%s%s' "$tsp" "$TNX_CD" "$_TNX_CLIP" "$TNX_C0" "$trsp"
-  _tnx_frame_box_row "$_TNX_LY_IDENT" "$content"
+  _tnx_frame_center_line "$_TNX_LY_IDENT" 'Linux Workstation In Your Pocket' "$TNX_CD"
+  if (( _TNX_LY_BY > 0 )); then
+    _tnx_frame_center_line "$_TNX_LY_VER" "v${TERNUX_VERSION}" "$TNX_CY"
+    _tnx_frame_center_line "$_TNX_LY_BY" 'by Sobuj Miah (@soobujmiah)' "$TNX_CD"
+  else
+    _tnx_frame_center_line "$_TNX_LY_VER" "v${TERNUX_VERSION}  |  by Sobuj Miah" "$TNX_CY"
+  fi
+}
 
-  _tnx_clipv "$inner" "Linux desktop for Android  |  Zink + VirGL"
+_tnx_frame_center_line() {
+  local row="$1" text="$2" color="$3" inner=$(( _TNX_FRAME_COLS - 4 )) content tpad trpad tsp trsp
+  _tnx_clipv "$inner" "$text"
   tpad=$(( (inner - _TNX_CLIPW) / 2 )); (( tpad < 0 )) && tpad=0
   trpad=$(( inner - _TNX_CLIPW - tpad )); (( trpad < 0 )) && trpad=0
   _tnx_pad "$tpad"; tsp="$_TNX_SP"
   _tnx_pad "$trpad"; trsp="$_TNX_SP"
-  printf -v content '%s%s%s%s%s' "$tsp" "$TNX_CD" "$_TNX_CLIP" "$TNX_C0" "$trsp"
-  _tnx_frame_box_row "$_TNX_LY_TAGLINE" "$content"
+  printf -v content '%s%s%s%s%s' "$tsp" "$color" "$_TNX_CLIP" "$TNX_C0" "$trsp"
+  _tnx_frame_box_row "$row" "$content"
 }
 
 _tnx_frame_paint_device() {
@@ -485,6 +502,7 @@ _tnx_frame_paint_progress() {
   local barw=18
   (( inner < 52 )) && barw=12
   (( inner < 40 )) && barw=8
+  (( inner < 26 )) && barw=4
   local filled=$(( cur * barw / total )) empty
   (( filled > barw )) && filled=$barw
   empty=$(( barw - filled ))
@@ -492,6 +510,18 @@ _tnx_frame_paint_progress() {
   printf -v tmp '%*s' "$filled" ''; bar="${tmp// /#}"
   printf -v tmp '%*s' "$empty" '';  bar+="${tmp// /-}"
   local cnt="${cur}/${total}"
+  if (( inner < 28 )); then
+    local compact="${cnt} [${bar}]" available=$(( inner - ${#cnt} - 3 ))
+    (( available < 0 )) && available=0
+    if (( available > 0 )) && [ -n "$title" ]; then
+      _tnx_clipv "$available" "$title"
+      compact+=" ${_TNX_CLIP}"
+    fi
+    _tnx_clipv "$inner" "$compact"
+    _tnx_pad $(( inner - _TNX_CLIPW ))
+    _tnx_frame_box_row "$row" "${sc}${_TNX_CLIP}${TNX_C0}${_TNX_SP}"
+    return 0
+  fi
   local fixed=$(( 6 + ${#cnt} + 2 + barw + 2 ))
   local titlemax=$(( inner - fixed )); (( titlemax < 1 )) && titlemax=1
   _tnx_clipv "$titlemax" "$title"
@@ -505,7 +535,7 @@ _tnx_frame_paint_progress() {
 
 _tnx_frame_paint_footer() {
   local tick="${1:-0}" inner=$(( _TNX_FRAME_COLS - 4 )) row="${_TNX_LY_FOOTER:-$(( _TNX_FRAME_ROWS - 1 ))}"
-  local sp='|/-\' spc elapsed mins secs right rightw content
+  local sp='|/-\' spc elapsed mins secs right rightw content left leftw pre fixed center_start right_start gap_left gap_right
   spc="${sp:$((tick % 4)):1}"
   [ "$_TNX_ANIM" = "1" ] || spc='*'
   elapsed=$(( SECONDS - _TNX_FRAME_T0 ))
@@ -513,19 +543,37 @@ _tnx_frame_paint_footer() {
   mins=$(( elapsed / 60 )); secs=$(( elapsed % 60 ))
   printf -v right '%02d:%02d %s' "$mins" "$secs" "$spc"
   rightw=${#right}
-
-  local pre="© github.com/soobujmiah - 2026" fixed
+  left="Free:${_TNX_FRAME_STORAGE:-?}G"; leftw=${#left}
+  pre="© github.com/soobujmiah - 2026"
   fixed=${#pre}
-  local avail=$(( inner - fixed - rightw - 1 ))
-  local palette=("$TNX_CG" "$TNX_CC" "$TNX_CY" "$TNX_CM" "$TNX_CB" "$TNX_CW")
+  local palette=("$TNX_CG" "$TNX_CC" "$TNX_CG" "$TNX_CC" "$TNX_CG" "$TNX_CG")
   local copyright_color="${palette[$((tick % ${#palette[@]}))]}"
-  if (( avail >= 1 )); then
-    _tnx_pad $(( inner - fixed - rightw ))
-    printf -v content '%s%s%s%s%s%s%s%s' \
-      "$copyright_color" "$pre" "$TNX_C0" "$_TNX_SP" "$TNX_CD" "$right" "$TNX_C0" ""
-  else
+  if (( leftw + fixed + rightw + 2 > inner )); then
+    pre="© Sobuj Miah - 2026"; fixed=${#pre}
+    printf -v right '%d:%02d' "$mins" "$secs"; rightw=${#right}
+    left="${_TNX_FRAME_STORAGE:-?}G"; leftw=${#left}
+  fi
+  center_start=$(( (inner - fixed) / 2 ))
+  right_start=$(( inner - rightw ))
+  gap_left=$(( center_start - leftw )); gap_right=$(( right_start - center_start - fixed ))
+  if (( inner < 20 )); then
+    local compact="©Sobuj ${mins}:$(printf '%02d' "$secs")"
+    _tnx_clipv "$inner" "$compact"
+    content="${copyright_color}${_TNX_CLIP}${TNX_C0}"
+    _tnx_pad $(( inner - _TNX_CLIPW )); content+="$_TNX_SP"
+  elif (( gap_left < 1 || gap_right < 1 )); then
     _tnx_clipv "$inner" "$pre"
-    printf -v content '%s%s%s%s%s%s' "$copyright_color" "$_TNX_CLIP" "$TNX_C0" "$_TNX_SP" "$right" "$TNX_C0"
+    _tnx_pad $(( inner - _TNX_CLIPW ))
+    content="${copyright_color}${_TNX_CLIP}${TNX_C0}${_TNX_SP}"
+  else
+    _tnx_pad "$gap_left"; local sp_left="$_TNX_SP"
+    _tnx_pad "$gap_right"; local sp_right="$_TNX_SP"
+    printf -v content '%s%s%s%s%s%s%s%s%s' \
+      "$TNX_CD" "$left" "$sp_left" "$copyright_color" "$pre" "$TNX_C0" "$sp_right" "$TNX_CD" "$right"
+    local content_width=$(( leftw + gap_left + fixed + gap_right + rightw ))
+    if (( content_width < inner )); then
+      _tnx_pad $(( inner - content_width )); content+="$_TNX_SP"
+    fi
   fi
   _tnx_frame_box_row "$row" "$content"
 }
@@ -571,17 +619,17 @@ _tnx_frame_draw_dashboard() {
   [ "$state" = "FAILED" ] && state_color="$TNX_CR"
 
   printf '\033[?25l\033[r\033[2J\033[H'
-  printf '\033[1;%dH%s+%s+%s' "$_TNX_FRAME_X" "$TNX_CM" "$_TNX_RULE" "$TNX_C0"
+  printf '\033[1;%dH%s+%s+%s' "$_TNX_FRAME_X" "$TNX_CG" "$_TNX_RULE" "$TNX_C0"
   _tnx_frame_paint_header
-  printf '\033[5;%dH%s+%s+%s' "$_TNX_FRAME_X" "$TNX_CM" "$_TNX_RULE" "$TNX_C0"
+  printf '\033[%d;%dH%s+%s+%s' "$_TNX_LY_DIV1" "$_TNX_FRAME_X" "$TNX_CG" "$_TNX_RULE" "$TNX_C0"
   if [ "$_TNX_LY_DEV_ON" = "1" ]; then
     _tnx_frame_paint_device
   fi
   _tnx_frame_paint_progress "$state_color"
-  printf '\033[%d;%dH%s+%s+%s' "$_TNX_LY_DIV2" "$_TNX_FRAME_X" "$TNX_CM" "$_TNX_RULE" "$TNX_C0"
-  printf '\033[%d;%dH%s+%s+%s' "$_TNX_LY_DIV3" "$_TNX_FRAME_X" "$TNX_CM" "$_TNX_RULE" "$TNX_C0"
+  printf '\033[%d;%dH%s+%s+%s' "$_TNX_LY_DIV2" "$_TNX_FRAME_X" "$TNX_CG" "$_TNX_RULE" "$TNX_C0"
+  printf '\033[%d;%dH%s+%s+%s' "$_TNX_LY_DIV3" "$_TNX_FRAME_X" "$TNX_CG" "$_TNX_RULE" "$TNX_C0"
   _tnx_frame_paint_footer "$_TNX_FRAME_TICK"
-  printf '\033[%d;%dH%s+%s+%s' "$_TNX_LY_BOT" "$_TNX_FRAME_X" "$TNX_CM" "$_TNX_RULE" "$TNX_C0"
+  printf '\033[%d;%dH%s+%s+%s' "$_TNX_LY_BOT" "$_TNX_FRAME_X" "$TNX_CG" "$_TNX_RULE" "$TNX_C0"
 
   printf '\033[%d;%dr' "$_TNX_LY_LOGTOP" "$_TNX_LY_LOGBOT"
   _tnx_frame_repaint_log
@@ -594,7 +642,8 @@ _tnx_frame_draw_dashboard() {
 # measurement, so clamping can never masquerade as a resize. Returns 0 when a
 # redraw happened.
 _tnx_frame_refit() {
-  [ "${_TNX_FRAME_MODE:-off}" = "dashboard" ] || return 1
+  [ "${_TNX_FRAME_MODE:-off}" = "dashboard" ] || [ "${_TNX_FRAME_MODE:-off}" = "plain" ] || return 1
+  [ "${TERNUX_UI:-auto}" != "plain" ] || return 1
   [ "$_TNX_SIZE_OK" = "1" ] || return 1
   local oc="$_TNX_TERM_COLS" or="$_TNX_TERM_ROWS"
   _tnx_measure || return 1
@@ -602,14 +651,20 @@ _tnx_frame_refit() {
     return 1
   fi
   _tnx_apply_size
-  if ! _tnx_frame_fits; then
+  if _tnx_frame_fits; then
+    _TNX_FRAME_MODE="dashboard"
+    trap '_TNX_RESIZE_PENDING=1' WINCH
+    _tnx_frame_gather_device
+    _tnx_frame_draw_dashboard "RUNNING"
+    return 0
+  else
     # The terminal became too small for a dashboard: fall back cleanly instead
     # of drawing a broken frame.
     printf '\033[r\033[?25h\033[2J\033[H'
     _TNX_FRAME_MODE="plain"
-    _TNX_FRAME_COLS=$(( _TNX_TERM_COLS - 1 ))
-    (( _TNX_FRAME_COLS > 80 )) && _TNX_FRAME_COLS=80
-    (( _TNX_FRAME_COLS < 24 )) && _TNX_FRAME_COLS=24
+    _TNX_FRAME_COLS=$(( _TNX_TERM_COLS - 2 ))
+    (( _TNX_FRAME_COLS > 200 )) && _TNX_FRAME_COLS=200
+    (( _TNX_FRAME_COLS < 6 )) && _TNX_FRAME_COLS=6
     _tnx_rule_cache
     _TNX_NEED_NL=0
     printf '%s+%s+%s\n' "$TNX_CM" "$_TNX_RULE" "$TNX_C0"
@@ -651,6 +706,8 @@ tnx_frame_open() {
   _TNX_FRAME_PROFILE="$profile"
   _TNX_FRAME_TICK=0
   _TNX_FRAME_T0=$SECONDS
+  _TNX_FRAME_STORAGE="$(tnx_detect_storage_gb 2>/dev/null || echo '?')"
+  _TNX_FRAME_STORAGE="${_TNX_FRAME_STORAGE:-?}"
   _TNX_FRAME_ACTIVE=1
   _TNX_FRAME_MODE="plain"
   _TNX_NEED_NL=0
@@ -679,11 +736,14 @@ tnx_frame_open() {
     cols="$(_tnx_plain_cols)"
     inner=$(( cols - 4 ))
     printf '%s+%s+%s\n' "$TNX_CM" "$_TNX_RULE" "$TNX_C0"
-    _tnx_clipv "$inner" 'TERNUX'
+    _tnx_clipv "$inner" '*<== T E R N U X ==>*'
     printf '%s|%s %s%s%s\n' "$TNX_CM" "$TNX_CG" "$TNX_CW" "$_TNX_CLIP" "$TNX_C0"
-    _tnx_clipv "$inner" "by @soobujmiah (Sobuj Miah)  |  v${TERNUX_VERSION}"
+    _tnx_clipv "$inner" 'Linux Workstation In Your Pocket'
     printf '%s|%s %s%s%s\n' "$TNX_CM" "$TNX_CD" "$TNX_CW" "$_TNX_CLIP" "$TNX_C0"
-    _tnx_clipv "$inner" 'Linux desktop for Android  |  Zink + VirGL'
+    _tnx_clipv "$inner" "v${TERNUX_VERSION}"
+    printf '%s|%s %s%s%s\n' "$TNX_CM" "$TNX_CY" "$TNX_CW" "$_TNX_CLIP" "$TNX_C0"
+    _tnx_clipv "$inner" 'by Sobuj Miah (@soobujmiah)'
+    printf '%s|%s %s%s%s\n' "$TNX_CM" "$TNX_CD" "$TNX_CW" "$_TNX_CLIP" "$TNX_C0"
     printf '%s|%s %s%s%s\n' "$TNX_CM" "$TNX_CD" "$TNX_CW" "$_TNX_CLIP" "$TNX_C0"
     _tnx_clipv "$inner" 'Storage estimate: base ~3-4 GB; complete ~10-12 GB'
     printf '%s|%s %s%s%s\n' "$TNX_CM" "$TNX_CD" "$TNX_CW" "$_TNX_CLIP" "$TNX_C0"
@@ -701,6 +761,12 @@ tnx_frame_phase() {
   export _TNX_FRAME_CUR _TNX_FRAME_TOTAL _TNX_FRAME_TITLE
   tnx_log_info "Phase $cur/$total: $title"
 
+  # A dashboard can return after zooming back out or closing the keyboard.
+  # Plain mode is append-only, so retry at phase boundaries before printing.
+  if [ "${_TNX_FRAME_MODE:-off}" = "plain" ] && [ "${_TNX_TTY:-0}" = "1" ]; then
+    _tnx_frame_refit || true
+  fi
+
   if [ "${_TNX_FRAME_MODE:-off}" = "dashboard" ]; then
     # A phase stream runs in a pipeline subshell; a resize it handled cannot
     # propagate back, so the phase boundary re-measures before repainting.
@@ -708,6 +774,8 @@ tnx_frame_phase() {
       _tnx_frame_paint_progress "$TNX_CC"
       _tnx_frame_paint_footer "$_TNX_FRAME_TICK"
     fi
+  fi
+  if [ "${_TNX_FRAME_MODE:-off}" = "dashboard" ]; then
     if [ -n "${_TNX_STREAM_LOG:-}" ]; then
       printf -- '--- [%s/%s] %s\n' "$cur" "$total" "$title" >> "${_TNX_STREAM_LOG:-}" 2>/dev/null || true
     fi
@@ -836,6 +904,7 @@ _tnx_stream_idle() {
   if [ "$_TNX_ANIM" = "1" ] && (( _TNX_NOW - _TNX_ANIM_T0 >= _TNX_ANIM_MS )); then
     _TNX_ANIM_T0=$_TNX_NOW
     _TNX_FRAME_TICK=$(( _TNX_FRAME_TICK + 1 ))
+    _tnx_frame_paint_header "$_TNX_FRAME_TICK"
     _tnx_frame_paint_progress "${_TNX_SIG_COLORS[$((_TNX_FRAME_TICK % ${#_TNX_SIG_COLORS[@]}))]}"
     _tnx_frame_paint_footer "$_TNX_FRAME_TICK"
   fi
@@ -923,6 +992,10 @@ tnx_frame_close() {
   local reserved=0
   [ "$status" = "success" ] && state="COMPLETE"
   tnx_log_info "Installation frame closed: $status"
+
+  if [ "${_TNX_FRAME_MODE:-off}" = "plain" ] && [ "${_TNX_TTY:-0}" = "1" ]; then
+    _tnx_frame_refit || true
+  fi
 
   if [ "${_TNX_FRAME_MODE:-off}" = "dashboard" ]; then
     # The last phase ran in a subshell: re-measure before the final paint or
