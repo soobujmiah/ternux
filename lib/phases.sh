@@ -1285,7 +1285,7 @@ tnx_prompt_username() {
 # Item catalogue for the interactive optional-software checklist. Keep this
 # list aligned with the case labels in tnx_phase_extras.
 TNX_OPTIONAL_ITEMS=(git python node build rust java geany neovim gh godot firefox adt-build-tools adt-platform-tools adt-ndk adt-cmake adt-cmdline adt-platform llama-vulkan llama-htp-experimental nmap tmux ffmpeg vlc mpv gimp krita inkscape audacity imagemagick libreoffice-writer blender claude codex openai-cli hermes openclaw)
-TNX_OPTIONAL_GROUPS=(DEV DEV DEV DEV DEV DEV DEV DEV DEV GAME WEB ANDROID ANDROID ANDROID ANDROID ANDROID ANDROID AI AI NET NET MEDIA MEDIA MEDIA MEDIA DESIGN DESIGN DESIGN MEDIA DESIGN OFFICE 3D AGENT AGENT AGENT AGENT AGENT)
+TNX_OPTIONAL_GROUPS=(DEV DEV DEV DEV DEV DEV DEV DEV DEV GAME WEB ANDROID ANDROID ANDROID ANDROID ANDROID ANDROID AI AI NET NET MEDIA MEDIA MEDIA DESIGN DESIGN DESIGN MEDIA DESIGN OFFICE 3D AGENT AGENT AGENT AGENT AGENT)
 TNX_OPTIONAL_LABELS=("Git" "Python" "Node.js" "C/C++ tools" "Rust" "Java JDK" "Geany" "Neovim" "GitHub CLI" "Godot" "Firefox ESR" "ADT Build Tools" "ADT Platform Tools / ADB" "ADT NDK" "ADT CMake" "SDK Manager" "Android API 36" "llama.cpp Vulkan" "llama.cpp HTP (experimental)" "Nmap" "tmux" "FFmpeg" "VLC" "mpv" "GIMP" "Krita" "Inkscape" "Audacity" "ImageMagick" "LibreOffice Writer" "Blender" "Claude Code" "Codex CLI" "OpenAI API CLI" "Hermes" "OpenClaw")
 
 # Parse number lists used when a TTY key-reading menu is unavailable.
@@ -1313,20 +1313,23 @@ _tnx_optional_menu_draw() {
   [[ "$rows" =~ ^[0-9]+$ ]] || rows=24; [[ "$cols" =~ ^[0-9]+$ ]] || cols=80
   (( cols > 200 )) && cols=200; (( cols < 20 )) && cols=20
   visible=$((rows - 10)); (( visible < 1 )) && visible=1
+  (( visible > 12 )) && visible=12
   (( visible > ${#TNX_OPTIONAL_ITEMS[@]} )) && visible=${#TNX_OPTIONAL_ITEMS[@]}
   first=0; (( cursor >= visible )) && first=$((cursor - visible + 1))
   last=$((first + visible)); (( last > ${#TNX_OPTIONAL_ITEMS[@]} )) && last=${#TNX_OPTIONAL_ITEMS[@]}
   selected_name=" ${_TNX_SELECTED_ITEMS[*]} "; count=${#_TNX_SELECTED_ITEMS[@]}
-  label_width=$((cols - 19)); (( label_width < 1 )) && label_width=1
-  printf '\033[?25l\033[H\033[2J%s+%s+%s\n' "$TNX_CM" "$(printf '%*s' "$((cols - 2))" '' | tr ' ' '=')" "$TNX_C0" >&2
+  label_width=$((cols - 17)); (( label_width < 1 )) && label_width=1
+  # Reset any scroll region left by a prior terminal UI before anchoring the
+  # catalog at the top of the viewport.
+  printf '\033[?25l\033[r\033[H\033[2J%s+%s+%s\n' "$TNX_CM" "$(printf '%*s' "$((cols - 2))" '' | tr ' ' '=')" "$TNX_C0" >&2
   title="${title}  |  @soobujmiah"; printf '%s%s%s\n' "$TNX_CG" "${title:0:cols-2}" "$TNX_C0" >&2
   status="OPTIONAL SOFTWARE  |  ${count} selected  |  ${#TNX_OPTIONAL_ITEMS[@]} available"
   printf '%s%s%s\n' "$TNX_CC" "${status:0:cols-2}" "$TNX_C0" >&2
   hint="Debian packages use latest versions from configured repositories."
   printf '%s%s%s\n\n' "$TNX_CD" "${hint:0:cols-2}" "$TNX_C0" >&2
   for ((i=first; i<last; i++)); do
-    mark=' '; mark_color="$TNX_CD"
-    if [[ "$selected_name" == *" ${TNX_OPTIONAL_ITEMS[$i]} "* ]]; then mark='+'; mark_color="$TNX_CG"; fi
+    mark='o'; mark_color="$TNX_CD"
+    if [[ "$selected_name" == *" ${TNX_OPTIONAL_ITEMS[$i]} "* ]]; then mark='*'; mark_color="$TNX_CG"; fi
     pointer=' '; pointer_color="$TNX_CD"; color="$TNX_CW"
     if (( i == cursor )); then pointer='>'; pointer_color="$TNX_CY"; color="$TNX_CW"; fi
     group="${TNX_OPTIONAL_GROUPS[$i]}"
@@ -1337,7 +1340,7 @@ _tnx_optional_menu_draw() {
       *) group_color="$TNX_CC" ;;
     esac
     label="${TNX_OPTIONAL_LABELS[$i]}"; (( ${#label} > label_width )) && label="${label:0:label_width}"
-    printf '%s%s%s %s[%s]%s %s%02d%s %s%-7s%s %s%s\n' \
+    printf '%s%s%s %s%s%s %s%d%s %s%-7s%s %s%s%s\n' \
       "$pointer_color" "$pointer" "$TNX_C0" "$mark_color" "$mark" "$TNX_C0" "$TNX_CD" "$((i + 1))" "$TNX_C0" \
       "$group_color" "$group" "$TNX_C0" "$color" "$label" "$TNX_C0" >&2
   done
