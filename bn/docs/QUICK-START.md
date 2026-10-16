@@ -28,13 +28,13 @@ mirror এবং network অনুযায়ী বদলাবে।
 Termux খুলে পেস্ট করুন:
 
 ```bash
-curl -fsSL https://soobujmiah.github.io/ternux/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
 ```
 
 আপগ্রেডের পর curl ভেঙে গেছে? wget দিয়েও একই কাজ:
 
 ```bash
-wget -qO- https://soobujmiah.github.io/ternux/install.sh | bash
+wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
 ```
 
 ইনস্টলার:

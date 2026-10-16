@@ -52,7 +52,7 @@ installer base-এ প্রায় **৬ GB free** এবং `--all`-এ **�
 ## পদ্ধতি ১ — এক কমান্ড (প্রস্তাবিত)
 
 ```bash
-curl -fsSL https://soobujmiah.github.io/ternux/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
 ```
 
 এটি HTTPS-এ ইনস্টলার নামিয়ে চালায়। সাথে terminal থাকলে script pipe হলেও installer `/dev/tty` দিয়ে prompt এবং optional workload chooser দেখায়। Controlling terminal না থাকলে base profile install হয়। Prompt ছাড়া base install চাইলে `--yes` দিন। এই রিপোজিটরির সেই একই স্ক্রিপ্ট — লুকানো কিছু নেই, compiled কিছু নেই।
@@ -74,7 +74,7 @@ source-ই রাখে এবং frame-এর ভেতর `termux-change-repo`
 ইনস্টলার, আর স্ক্রিপ্ট আপনার curl নিজেই মেরামত করে দেবে:
 
 ```bash
-wget -qO- https://soobujmiah.github.io/ternux/install.sh | bash
+wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
 ```
 
 ### Optional workload সংখ্যা দিয়ে বাছাই

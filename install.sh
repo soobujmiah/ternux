@@ -12,7 +12,7 @@
 #  https://github.com/soobujmiah/ternux
 #
 #  Usage
-#    curl -fsSL https://soobujmiah.github.io/ternux/install.sh | bash
+#    curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
 #    bash install.sh [options]
 #
 #  Options

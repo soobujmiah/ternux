@@ -289,7 +289,7 @@ pkg reinstall -y curl openssl openssl-tool libngtcp2 libnghttp3
 
 # Option B: skip curl entirely and fetch the installer with wget
 # (wget links openssl directly and usually still works):
-wget -qO- https://soobujmiah.github.io/ternux/install.sh | bash
+wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
 ```
 
 > **Already upgraded curl and it STILL fails?** The missing symbol is

@@ -25,13 +25,13 @@ Four steps from Android apps to an installed desktop and renderer check. Downloa
 Open Termux and paste:
 
 ```bash
-curl -fsSL https://soobujmiah.github.io/ternux/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
 ```
 
 **curl broken after an upgrade?** Use wget — same installer:
 
 ```bash
-wget -qO- https://soobujmiah.github.io/ternux/install.sh | bash
+wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
 ```
 
 With a controlling terminal, the one-command installer also offers a numbered optional-workload chooser. Press Enter for the base desktop, enter a comma-separated selection such as `1,5`, or choose `6` for all optional workloads. In a non-interactive run, use `--yes` to keep the base profile.

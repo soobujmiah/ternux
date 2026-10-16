@@ -257,7 +257,7 @@ pkg reinstall -y curl openssl openssl-tool libngtcp2 libnghttp3
 
 # পথ খ: curl বাদ দিয়ে wget দিয়ে ইনস্টলার নামান
 # (wget সরাসরি openssl-এর সাথে লিংক হয়, সাধারণত চলে):
-wget -qO- https://soobujmiah.github.io/ternux/install.sh | bash
+wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
 ```
 
 > **curl আপগ্রেড করেও STILL ব্যর্থ?** হারানো সিম্বলটি **openssl** দেয়, curl
