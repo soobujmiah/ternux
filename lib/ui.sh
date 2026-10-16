@@ -472,7 +472,7 @@ _tnx_frame_paint_header() {
     logo=(
       '▉▉▉    ▉▉▉    ▉▉     ▉ ▉    ▉ ▉    ▉ ▉'
       ' ▉     ▉      ▉ ▉    ▉▉▉    ▉ ▉     ▉▉'
-      ' ▉     ▉▉     ▉▉     ▉▉▉    ▉ ▉      ▉'
+      ' ▉     ▉▉     ▉▉     ▉✺▉    ▉ ▉      ▉'
       ' ▉     ▉      ▉ ▉    ▉ ▉    ▉ ▉    ▉▉ '
       ' ▉     ▉▉▉    ▉ ▉    ▉ ▉    ▉▉▉    ▉ ▉'
     )
@@ -480,7 +480,7 @@ _tnx_frame_paint_header() {
     logo=(
       '▉▉▉ ▉▉▉ ▉▉  ▉ ▉ ▉ ▉ ▉ ▉'
       ' ▉  ▉   ▉ ▉ ▉▉▉ ▉ ▉  ▉▉'
-      ' ▉  ▉▉  ▉▉  ▉▉▉ ▉ ▉   ▉'
+      ' ▉  ▉▉  ▉▉  ▉✺▉ ▉ ▉   ▉'
       ' ▉  ▉   ▉ ▉ ▉ ▉ ▉ ▉ ▉▉ '
       ' ▉  ▉▉▉ ▉ ▉ ▉ ▉ ▉▉▉ ▉ ▉'
     )
@@ -538,6 +538,7 @@ _tnx_frame_logo_line() {
     ch="${_TNX_CLIP:i:1}"
     case "$ch" in
       '▉') phase=$(( (i + tick) % ${#colors[@]} )); color="${colors[$phase]}" ;;
+      '✺') phase=$(( (tick + i) % ${#colors[@]} )); color="${colors[$phase]}" ;;
       *) color="$TNX_C0" ;;
     esac
     content+="${color}${ch}"
