@@ -462,7 +462,7 @@ _tnx_frame_paint_header() {
   local -a logo_colors=("$TNX_CG" "$TNX_CC" "$TNX_CG" "$TNX_CC" "$TNX_CG" "$TNX_CG")
   logo_color="${logo_colors[$((tick % ${#logo_colors[@]}))]}"
   if (( _TNX_LY_TITLE2 > 0 )); then
-    local logo1='### TERNUX ###' logo2='=== TERNUX ==='
+    local logo1='### TERNUX ###' logo2='===+=======+==='
     _tnx_frame_center_line "$_TNX_LY_TITLE" "$logo1" "$logo_color"
     _tnx_frame_center_line "$_TNX_LY_TITLE2" "$logo2" "${logo_colors[$(((tick + 3) % ${#logo_colors[@]}))]}"
   else
@@ -1147,8 +1147,11 @@ tnx_summary_box() {
   if [ -t 1 ]; then cols="$(stty size < /dev/tty 2>/dev/null | awk '{print $2}')"; fi
   [[ "$cols" =~ ^[0-9]+$ ]] || cols=80
   (( cols > 100 )) && cols=100
-  w=$((cols - 4)); (( w > 76 )) && w=76; (( w < 16 )) && w=16
-  maxw=$((w - 4))
+  # Keep a clear gutter around the plan: Android floating edge panels can
+  # cover the terminal's last few cells without changing the reported width.
+  if (( cols >= 48 )); then w=$((cols - 8)); else w=$((cols - 6)); fi
+  (( w > 76 )) && w=76; (( w < 10 )) && w=10
+  maxw=$((w - 2))
   printf '\n  %s+%s+%s\n' "$TNX_CM" "$(_tnx_repeat '-' "$w")" "$TNX_C0"
   printf -v row '%-*.*s' "$((w - 2))" "$((w - 2))" "$title"
   printf '  %s|%s %s%s%s %s|%s\n' "$TNX_CM" "$TNX_C0" "$TNX_CG" "$row" "$TNX_C0" "$TNX_CM" "$TNX_C0"
