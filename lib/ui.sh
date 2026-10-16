@@ -468,9 +468,12 @@ _tnx_frame_paint_header() {
       # animated colour phase while the glyphs stay fixed and readable.
       logo1='##### ##### ####  #   # #   # #   #'
       logo2='  #   ####  #  ## ##### #___#  # # '
+      _tnx_frame_logo_line "$_TNX_LY_TITLE" "$logo1" "$tick"
+      _tnx_frame_logo_line "$_TNX_LY_TITLE2" "$logo2" "$((tick + 3))"
+    else
+      _tnx_frame_center_line "$_TNX_LY_TITLE" "$logo1" "$logo_color"
+      _tnx_frame_center_line "$_TNX_LY_TITLE2" "$logo2" "${logo_colors[$(((tick + 3) % ${#logo_colors[@]}))]}"
     fi
-    _tnx_frame_center_line "$_TNX_LY_TITLE" "$logo1" "$logo_color"
-    _tnx_frame_center_line "$_TNX_LY_TITLE2" "$logo2" "${logo_colors[$(((tick + 3) % ${#logo_colors[@]}))]}"
   else
     _tnx_clipv "$inner" '### TERNUX ###'
     title="$_TNX_CLIP"
@@ -499,6 +502,29 @@ _tnx_frame_center_line() {
   _tnx_pad "$tpad"; tsp="$_TNX_SP"
   _tnx_pad "$trpad"; trsp="$_TNX_SP"
   printf -v content '%s%s%s%s%s' "$tsp" "$color" "$_TNX_CLIP" "$TNX_C0" "$trsp"
+  _tnx_frame_box_row "$row" "$content"
+}
+
+# Animate the symbol strokes of the large TERNUX wordmark with a moving colour
+# wave. The ASCII glyph stays fixed, so the name remains readable throughout.
+_tnx_frame_logo_line() {
+  local row="$1" text="$2" tick="${3:-0}" inner=$(( _TNX_FRAME_COLS - 4 ))
+  local i ch color pad left right content="" phase
+  local -a colors=("$TNX_CG" "$TNX_CC" "$TNX_CY" "$TNX_CG" "$TNX_CC" "$TNX_CY")
+  _tnx_clipv "$inner" "$text"
+  pad=$(( (inner - _TNX_CLIPW) / 2 )); (( pad < 0 )) && pad=0
+  left="$(_tnx_repeat ' ' "$pad")"
+  right="$(_tnx_repeat ' ' "$((inner - _TNX_CLIPW - pad))")"
+  content="$left"
+  for ((i=0; i<${#_TNX_CLIP}; i++)); do
+    ch="${_TNX_CLIP:i:1}"
+    case "$ch" in
+      '#'|'_') phase=$(( (i + tick) % ${#colors[@]} )); color="${colors[$phase]}" ;;
+      *) color="$TNX_C0" ;;
+    esac
+    content+="${color}${ch}"
+  done
+  content+="${TNX_C0}${right}${TNX_C0}"
   _tnx_frame_box_row "$row" "$content"
 }
 
