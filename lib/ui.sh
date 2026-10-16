@@ -483,7 +483,8 @@ _tnx_frame_paint_footer() {
   printf -v right '%02d:%02d %s' "$mins" "$secs" "$spc"
   rightw=${#right}
 
-  local pre="© github.com/soobujmiah - 2026" fixed=${#pre}
+  local pre="© github.com/soobujmiah - 2026" fixed
+  fixed=${#pre}
   local avail=$(( inner - fixed - rightw - 1 ))
   local palette=("$TNX_CG" "$TNX_CC" "$TNX_CY" "$TNX_CM" "$TNX_CB" "$TNX_CW")
   local copyright_color="${palette[$((tick % ${#palette[@]}))]}"
