@@ -26,6 +26,11 @@ QNN native-probe prerelease is Android-host-only and has no PRoot install path,
 so it is not offered as an install action. `--yes` and non-interactive runs keep
 the base profile unless flags select workloads.
 
+Before installation, Ternux shows a rough storage estimate based on the selected
+optional software, including temporary download and setup space. In a sufficiently
+large terminal, the install dashboard also shows live CPU utilization sampled
+from the Linux guest; this is a short-interval estimate, not a per-process view.
+
 ## The workloads
 
 | Workload | Flag | What it installs |

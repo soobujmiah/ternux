@@ -384,13 +384,44 @@ _tnx_frame_gather_device() {
   ram="$(tnx_detect_ram_gb 2>/dev/null || echo '?')";     ram="${ram:-?}"
   storage="$(tnx_detect_storage_gb 2>/dev/null || echo '?')"; storage="${storage:-?}"
   backend="${_TNX_FRAME_BACKEND:-auto}"
-  _TNX_FRAME_DEV_LABELS=("Device" "Android" "Graphics" "Resources")
+  _TNX_FRAME_DEV_LABELS=("Device" "Android" "Graphics" "Resources" "CPU")
   _TNX_FRAME_DEV_VALUES=(
     "${model} - ${arch}"
     "Android ${android} (SDK ${sdk})"
     "${gpu} - ${backend} - Vulkan ${vulkan}"
     "${ram} GB RAM - ${storage} GB free"
+    "sampling..."
   )
+  _tnx_frame_cpu_sample 0
+}
+
+# Read aggregate CPU counters from procfs with Bash builtins only. The first
+# sample establishes a baseline; subsequent samples update the dashboard no
+# more than once per second.
+_tnx_frame_cpu_sample() {
+  local now="${_TNX_NOW:-0}" user nice system idle iowait irq softirq steal total idle_all delta_total delta_idle pct
+  (( now - ${_TNX_CPU_SAMPLE_T0:-0} >= 1000 )) || [ "${1:-1}" = "0" ] || return 0
+  [ -r /proc/stat ] || { _TNX_FRAME_DEV_VALUES[4]="unavailable"; _TNX_CPU_SAMPLE_T0=$now; return 0; }
+  read -r _ _TNX_CPU_USER _TNX_CPU_NICE _TNX_CPU_SYSTEM _TNX_CPU_IDLE _TNX_CPU_IOWAIT _TNX_CPU_IRQ _TNX_CPU_SOFTIRQ _TNX_CPU_STEAL _ < /proc/stat || {
+    _TNX_FRAME_DEV_VALUES[4]="unavailable"
+    _TNX_CPU_SAMPLE_T0=$now
+    return 0
+  }
+  user="${_TNX_CPU_USER:-0}"; nice="${_TNX_CPU_NICE:-0}"; system="${_TNX_CPU_SYSTEM:-0}"
+  idle="${_TNX_CPU_IDLE:-0}"; iowait="${_TNX_CPU_IOWAIT:-0}"; irq="${_TNX_CPU_IRQ:-0}"
+  softirq="${_TNX_CPU_SOFTIRQ:-0}"; steal="${_TNX_CPU_STEAL:-0}"
+  total=$(( user + nice + system + idle + iowait + irq + softirq + steal ))
+  idle_all=$(( idle + iowait ))
+  if [ -n "${_TNX_CPU_PREV_TOTAL:-}" ]; then
+    delta_total=$(( total - _TNX_CPU_PREV_TOTAL )); delta_idle=$(( idle_all - _TNX_CPU_PREV_IDLE ))
+    if (( delta_total > 0 )); then
+      pct=$(( (delta_total - delta_idle) * 100 / delta_total ))
+      (( pct < 0 )) && pct=0
+      (( pct > 100 )) && pct=100
+      _TNX_FRAME_DEV_VALUES[4]="${pct}% utilization"
+    fi
+  fi
+  _TNX_CPU_PREV_TOTAL=$total; _TNX_CPU_PREV_IDLE=$idle_all; _TNX_CPU_SAMPLE_T0=$now
 }
 
 # ── Static painters (absolute positioning; save/restore cursor) -------------
@@ -433,7 +464,7 @@ _tnx_frame_paint_header() {
 
 _tnx_frame_paint_device() {
   local i row label value inner=$(( _TNX_FRAME_COLS - 4 )) content
-  for i in 0 1 2 3; do
+  for i in 0 1 2 3 4; do
     row=$(( _TNX_LY_DEV0 + i ))
     label="${_TNX_FRAME_DEV_LABELS[$i]:-}"
     value="${_TNX_FRAME_DEV_VALUES[$i]:-}"
@@ -807,6 +838,13 @@ _tnx_stream_idle() {
     _TNX_FRAME_TICK=$(( _TNX_FRAME_TICK + 1 ))
     _tnx_frame_paint_progress "${_TNX_SIG_COLORS[$((_TNX_FRAME_TICK % ${#_TNX_SIG_COLORS[@]}))]}"
     _tnx_frame_paint_footer "$_TNX_FRAME_TICK"
+  fi
+  if [ "${_TNX_LY_DEV_ON:-0}" = "1" ]; then
+    local old_cpu="${_TNX_FRAME_DEV_VALUES[4]:-}"
+    _tnx_frame_cpu_sample
+    if [ "${_TNX_FRAME_DEV_VALUES[4]:-}" != "$old_cpu" ]; then
+      _tnx_frame_paint_device
+    fi
   fi
   if (( _TNX_NOW - _TNX_WIN_T0 >= 1000 )); then
     _tnx_flush_skipped

@@ -25,6 +25,11 @@ prerelease বসে; ADT component তার registry-র সর্বশেষ
 তাই এটিকে install option হিসেবে দেখানো হয় না। `--yes` ও non-interactive run-এ
 flag না থাকলে শুধু base profile বসে।
 
+Install শুরুর আগে Ternux নির্বাচিত optional software অনুযায়ী আনুমানিক storage
+estimate দেখায়; এতে download ও setup-এর অস্থায়ী জায়গাও ধরা হয়। Terminal যথেষ্ট
+বড় হলে install dashboard-এ Linux guest-এর live CPU utilization-ও দেখা যায়। এটি
+স্বল্প সময়ের sample থেকে হিসাব করা আনুমানিক মান; কোন process কত CPU নিচ্ছে তা নয়।
+
 <h2 id="the-workloads">ওয়ার্কলোডগুলো</h2>
 
 | Workload | Flag | কী বসায় |
