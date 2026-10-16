@@ -349,7 +349,8 @@ using it.
 
 An interactive install asks which guest to use when `--distro` was not given,
 alongside the user name and shell prompts, and names which one is verified.
-Unattended runs take the default.
+Each of these prompts waits up to five minutes; if left unanswered, it uses the
+displayed default. Unattended runs take the default immediately.
 
 Any other name is refused rather than attempted. Selecting a guest without a
 verified result prints a warning and does not change what the installer claims:

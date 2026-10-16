@@ -53,6 +53,9 @@ tnx_optional_storage_mb() {
       java) total=$((total + 500)) ;;
       godot) total=$((total + 350)) ;;
       geany) total=$((total + 150)) ;;
+      neovim) total=$((total + 120)) ;;
+      gh) total=$((total + 100)) ;;
+      firefox) total=$((total + 350)) ;;
       adt-build-tools|adt-platform-tools) total=$((total + 60)) ;;
       adt-ndk|adt-cmake) total=$((total + 20)) ;;
       adt-cmdline) total=$((total + 250)) ;;
@@ -797,6 +800,9 @@ tnx_phase_extras() {
       java) apt_packages+=(default-jdk-headless) ;;
       godot) apt_packages+=(godot) ;;
       geany) apt_packages+=(geany) ;;
+      neovim) apt_packages+=(neovim) ;;
+      gh) apt_packages+=(gh) ;;
+      firefox) apt_packages+=(firefox-esr) ;;
       adt-build-tools|adt-platform-tools|adt-ndk|adt-cmake) apt_packages+=(git curl ca-certificates) ;;
       adt-cmdline|adt-platform) apt_packages+=(git curl ca-certificates default-jdk-headless unzip) ;;
       nmap) apt_packages+=(nmap) ;;
@@ -835,7 +841,7 @@ tnx_phase_extras() {
 
   for opt in "$@"; do
     case "$opt" in
-      dev|llm|network|media|git|python|node|build|rust|java|godot|geany|nmap|tmux|ffmpeg|mpv|gimp|krita|inkscape|audacity|imagemagick|libreoffice-writer|blender) ;;
+      dev|llm|network|media|git|python|node|build|rust|java|godot|geany|neovim|gh|firefox|nmap|tmux|ffmpeg|mpv|gimp|krita|inkscape|audacity|imagemagick|libreoffice-writer|blender) ;;
       adt-build-tools|adt-platform-tools|adt-ndk|adt-cmake|adt-cmdline|adt-platform)
         if tnx_guest_login --shared-tmp --user "$user_name" -- bash -lc '
           set -e
@@ -1277,8 +1283,9 @@ tnx_prompt_username() {
 
 # Item catalogue for the interactive optional-software checklist. Keep this
 # list aligned with the case labels in tnx_phase_extras.
-TNX_OPTIONAL_ITEMS=(git python node build rust java godot geany adt-build-tools adt-platform-tools adt-ndk adt-cmake adt-cmdline adt-platform llama-vulkan llama-htp-experimental nmap tmux ffmpeg mpv gimp krita inkscape audacity imagemagick libreoffice-writer blender claude codex openai-cli hermes openclaw)
-TNX_OPTIONAL_LABELS=("Git + curl/wget" "Python + venv" "Node.js + npm" "C/C++ build tools" "Rust + Cargo" "Java JDK (Android/Java builds)" "Godot Engine (game development)" "Geany (lightweight IDE)" "ADT Build Tools — latest verified release" "ADT Platform Tools — latest verified release (ADB + fastboot)" "ADT NDK shim (verified registry version)" "ADT CMake shim" "ADT SDK Manager" "ADT Android Platform API 36 (through ADT)" "llama.cpp CPU + Vulkan — prerelease b11582 (checksum verified)" "llama.cpp Hexagon HTP — prerelease, experimental (SM8735 only)" "Nmap" "tmux" "FFmpeg" "mpv media player" "GIMP" "Krita (painting)" "Inkscape (vector graphics)" "Audacity" "ImageMagick" "LibreOffice Writer" "Blender + Xvfb" "Claude Code" "OpenAI Codex CLI" "OpenAI API CLI (Go 1.26+)" "Hermes Agent" "OpenClaw")
+TNX_OPTIONAL_ITEMS=(git python node build rust java geany neovim gh godot firefox adt-build-tools adt-platform-tools adt-ndk adt-cmake adt-cmdline adt-platform llama-vulkan llama-htp-experimental nmap tmux ffmpeg mpv gimp krita inkscape audacity imagemagick libreoffice-writer blender claude codex openai-cli hermes openclaw)
+TNX_OPTIONAL_GROUPS=(DEV DEV DEV DEV DEV DEV DEV DEV DEV GAME WEB ANDROID ANDROID ANDROID ANDROID ANDROID ANDROID AI AI NET NET MEDIA MEDIA DESIGN DESIGN DESIGN MEDIA DESIGN OFFICE 3D AGENT AGENT AGENT AGENT AGENT)
+TNX_OPTIONAL_LABELS=("Git + curl/wget" "Python + venv" "Node.js + npm" "C/C++ build tools" "Rust + Cargo" "Java JDK" "Geany IDE" "Neovim editor" "GitHub CLI (gh)" "Godot game engine" "Firefox ESR browser" "ADT Build Tools - latest verified" "ADT Platform Tools (ADB + fastboot)" "ADT NDK shim - verified version" "ADT CMake shim" "ADT SDK Manager" "Android Platform API 36" "llama.cpp CPU + Vulkan - verified prerelease" "llama.cpp Hexagon HTP - experimental / SM8735" "Nmap" "tmux" "FFmpeg" "mpv media player" "GIMP" "Krita" "Inkscape" "Audacity" "ImageMagick" "LibreOffice Writer" "Blender + Xvfb" "Claude Code" "OpenAI Codex CLI" "OpenAI API CLI" "Hermes Agent" "OpenClaw")
 
 # Parse number lists used when a TTY key-reading menu is unavailable.
 tnx_parse_workload_selection() {
@@ -1298,21 +1305,44 @@ tnx_parse_workload_selection() {
 }
 
 _tnx_optional_menu_draw() {
-  local cursor="$1" selected_name i mark color rows visible first last
-  rows="$(stty size <&3 2>/dev/null | awk '{print $1}')"; [[ "$rows" =~ ^[0-9]+$ ]] || rows=24
-  visible=$((rows - 8)); (( visible < 5 )) && visible=5; (( visible > 16 )) && visible=16
+  local cursor="$1" selected_name i mark color size rows cols visible first last count
+  local group group_color label label_width selected_text hint controls title="TERNUX / SOFTWARE CATALOG" status
+  size="$(stty size <&3 2>/dev/null || true)"; read -r rows cols <<< "$size"
+  [[ "$rows" =~ ^[0-9]+$ ]] || rows=24; [[ "$cols" =~ ^[0-9]+$ ]] || cols=80
+  (( cols > 82 )) && cols=82; (( cols < 42 )) && cols=42
+  visible=$((rows - 10)); (( visible < 5 )) && visible=5; (( visible > 16 )) && visible=16
   first=0; (( cursor >= visible )) && first=$((cursor - visible + 1))
   last=$((first + visible)); (( last > ${#TNX_OPTIONAL_ITEMS[@]} )) && last=${#TNX_OPTIONAL_ITEMS[@]}
-  printf '\033[H\033[2J' >&2
-  printf '%sTERNUX optional software%s  %s↑/↓ or j/k move  Space/number toggle  Enter continue%s\n\n' "$TNX_CG" "$TNX_C0" "$TNX_CD" "$TNX_C0" >&2
+  selected_name=" ${_TNX_SELECTED_ITEMS[*]} "; count=${#_TNX_SELECTED_ITEMS[@]}
+  label_width=$((cols - 23)); (( label_width < 12 )) && label_width=12
+  printf '\033[?25l\033[H\033[2J%s+%s+%s\n' "$TNX_CM" "$(printf '%*s' "$((cols - 2))" '' | tr ' ' '=')" "$TNX_C0" >&2
+  title="${title}  |  @soobujmiah"; printf '%s%s%s\n' "$TNX_CG" "${title:0:cols-2}" "$TNX_C0" >&2
+  status="OPTIONAL SOFTWARE  |  ${count} selected  |  ${#TNX_OPTIONAL_ITEMS[@]} available"
+  printf '%s%s%s\n' "$TNX_CC" "${status:0:cols-2}" "$TNX_C0" >&2
+  hint="Debian packages use latest versions from configured repositories."
+  printf '%s%s%s\n\n' "$TNX_CD" "${hint:0:cols-2}" "$TNX_C0" >&2
   for ((i=first; i<last; i++)); do
-    selected_name=" ${_TNX_SELECTED_ITEMS[*]} "
-    mark=' '
-    [[ "$selected_name" == *" ${TNX_OPTIONAL_ITEMS[$i]} "* ]] && mark='✓'
+    mark=' '; [[ "$selected_name" == *" ${TNX_OPTIONAL_ITEMS[$i]} "* ]] && mark='*'
     color="$TNX_CW"; (( i == cursor )) && color="$TNX_CC"
-    printf '  %s%s%s [%s] %2d  %s\n' "$color" "$([[ $i == "$cursor" ]] && printf '›' || printf ' ')" "$TNX_C0" "$mark" "$((i + 1))" "${TNX_OPTIONAL_LABELS[$i]}" >&2
+    group="${TNX_OPTIONAL_GROUPS[$i]}"
+    case "$group" in
+      ANDROID|WEB|AGENT) group_color="$TNX_CM" ;;
+      AI|DESIGN|3D) group_color="$TNX_CY" ;;
+      MEDIA|OFFICE) group_color="$TNX_CG" ;;
+      *) group_color="$TNX_CC" ;;
+    esac
+    label="${TNX_OPTIONAL_LABELS[$i]}"; (( ${#label} > label_width )) && label="${label:0:label_width}"
+    printf '%s%s%s [%s] %02d %s%-7s%s %s%s\n' "$color" "$([[ $i == "$cursor" ]] && printf '>' || printf ' ')" "$TNX_C0" "$mark" "$((i + 1))" "$group_color" "$group" "$TNX_C0" "$label" "$TNX_C0" >&2
   done
-  printf '\n  %sShowing %d-%d of %d. Selected items install individually; empty selection keeps base desktop.%s\n' "$TNX_CD" "$((first + 1))" "$last" "${#TNX_OPTIONAL_ITEMS[@]}" "$TNX_C0" >&2
+  selected_text="${_TNX_SELECTED_ITEMS[*]:-none yet}"
+  (( ${#selected_text} > cols - 14 )) && selected_text="${selected_text:0:cols-17}..."
+  printf '\n%sSelected: %s%s\n' "$TNX_CG" "$selected_text" "$TNX_C0" >&2
+  if (( first > 0 || last < ${#TNX_OPTIONAL_ITEMS[@]} )); then
+    printf '%sShowing %d-%d of %d%s\n' "$TNX_CD" "$((first + 1))" "$last" "${#TNX_OPTIONAL_ITEMS[@]}" "$TNX_C0" >&2
+  fi
+  controls="UP/DOWN or J/K move | SPACE/number toggle | ENTER review | Q base"
+  printf '%s%s%s\n' "$TNX_CY" "${controls:0:cols-2}" "$TNX_C0" >&2
+  printf '%s+%s+%s\n' "$TNX_CM" "$(printf '%*s' "$((cols - 2))" '' | tr ' ' '=')" "$TNX_C0" >&2
 }
 
 _tnx_checklist_toggle() {
@@ -1370,7 +1400,7 @@ tnx_prompt_workloads() {
     done
     [ -n "$old_stty" ] && stty "$old_stty" <&3 2>/dev/null || true
     trap - INT TERM
-    printf '\033[H\033[2J' >&2
+    printf '\033[?25h\033[H\033[2J' >&2
   else
     printf '\n%sOptional software%s (choose numbers separated by spaces or commas)\n' "$TNX_CW" "$TNX_C0" >&2
     for idx in "${!TNX_OPTIONAL_ITEMS[@]}"; do printf '  %2d) %s\n' "$((idx + 1))" "${TNX_OPTIONAL_LABELS[$idx]}" >&2; done
@@ -1466,13 +1496,13 @@ tnx_install() {
     fi
   else
     if [ "$user_explicit" -eq 0 ]; then
-      user_name="$(tnx_prompt_username "$user_name" 30)"
+      user_name="$(tnx_prompt_username "$user_name" 300)"
     fi
     if [ "$shell_explicit" -eq 0 ]; then
-      shell_choice="$(tnx_prompt_shell "$shell_choice" 20)"
+      shell_choice="$(tnx_prompt_shell "$shell_choice" 300)"
     fi
     if [ "$distro_explicit" -eq 0 ]; then
-      distro_choice="$(tnx_prompt_distro "$distro_choice" 20)"
+      distro_choice="$(tnx_prompt_distro "$distro_choice" 300)"
     fi
   fi
 
@@ -1539,6 +1569,9 @@ tnx_install() {
         build) workload_label="C/C++ build tools" ;;
         llama-vulkan) workload_label="llama.cpp Vulkan release" ;;
         llama-htp-experimental) workload_label="llama.cpp HTP experimental release" ;;
+        firefox) workload_label="Firefox ESR (latest Debian package)" ;;
+        neovim) workload_label="Neovim editor" ;;
+        gh) workload_label="GitHub CLI" ;;
         nmap|tmux|ffmpeg|gimp|audacity|imagemagick) workload_label="$workload" ;;
         blender) workload_label="Blender + Xvfb" ;;
         claude) workload_label="Claude Code" ;;
@@ -1558,7 +1591,7 @@ tnx_install() {
   export TERNUX_SELECTED_EXTRAS
   tnx_summary_box "Install Plan" "${plan_summary[@]}"
 
-  if ! tnx_confirm "Install ternux with backend '$backend' and Debian user '$user_name'?"; then
+  if ! tnx_confirm "Plan ready. Press Enter to install, or type n to cancel (backend '$backend', user '$user_name')?" yes; then
     tnx_info "Installation cancelled; no phase was started."
     return 0
   fi

@@ -346,8 +346,10 @@ tnx_log_error() { tnx_log "ERROR" "$1"; }
 tnx_confirm() {
   [ "${TERNUX_YES:-0}" = "1" ] && return 0
   [ -t 0 ] || { tnx_info "$1 -> y (non-interactive)"; return 0; }
-  local a
-  read -r -p "${TNX_CC}?${TNX_C0} $1 [y/N]: " a || return 1
+  local a default="${2:-no}" prompt="[y/N]"
+  [ "$default" = "yes" ] && prompt="[Y/n]"
+  read -r -p "${TNX_CC}?${TNX_C0} $1 $prompt: " a || return 1
+  if [ "$default" = "yes" ] && [ -z "$a" ]; then return 0; fi
   case "$a" in [Yy]|[Yy][Ee][Ss]) return 0 ;; *) return 1 ;; esac
 }
 
