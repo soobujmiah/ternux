@@ -12,6 +12,13 @@ Notable changes to ternux. Dates are ISO 8601.
 
 ## [Unreleased]
 
+### Licensing
+- Sobuj Miah's original Ternux material now uses PolyForm Noncommercial 1.0.0
+  plus the project-specific company-use condition.
+  Earlier releases remain available under their original Apache-2.0 grants;
+  third-party components retain their own licenses. See `LICENSE-SCOPE.md` and
+  `THIRD_PARTY_NOTICES.md`.
+
 ### Website and CLI reliability
 
 - Set the hero words to `LINUX` and `লিনাক্স` in their respective languages,

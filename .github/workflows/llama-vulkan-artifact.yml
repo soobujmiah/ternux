@@ -58,6 +58,41 @@ jobs:
           cmake --build build --parallel 4
           cmake --install build --prefix "$package"
           install -m 0644 llama.cpp/LICENSE "$package/LLAMA-CPP-LICENSE"
+          install -m 0644 LICENSE "$package/TERNUX-LICENSE"
+          install -m 0644 NOTICE "$package/TERNUX-NOTICE"
+          install -m 0644 LICENSE-SCOPE.md "$package/TERNUX-LICENSE-SCOPE.txt"
+          install -m 0644 LICENSE-COMMERCIAL-ADDENDUM.md "$package/TERNUX-COMMERCIAL-ADDENDUM.txt"
+          install -m 0644 THIRD_PARTY_NOTICES.md "$package/TERNUX-THIRD-PARTY-NOTICES.txt"
+          python3 - <<'PY_LICENSES'
+          from pathlib import Path
+          import shutil
+          import subprocess
+
+          package = Path("package/ternux-llama-vulkan-linux-arm64-b11582")
+          destination = package / "upstream-licenses"
+          paths = subprocess.run(
+              ["git", "-C", "llama.cpp", "ls-files", "-z"],
+              check=True, capture_output=True,
+          ).stdout.split(b"\0")
+
+          def is_license_file(raw_path: bytes) -> bool:
+              name = Path(raw_path.decode("utf-8")).name.upper()
+              if name.endswith(".CMAKE"):
+                  return False
+              return (
+                  name in {"LICENSE", "COPYING", "NOTICE"}
+                  or name.startswith(("LICENSE.", "LICENSE-", "COPYING.", "COPYING-", "NOTICE.", "NOTICE-"))
+              )
+
+          licenses = sorted(path.decode("utf-8") for path in paths if path and is_license_file(path))
+          if not licenses:
+              raise SystemExit("pinned upstream source contains no tracked license or notice files")
+          for relative in licenses:
+              target = destination / relative
+              target.parent.mkdir(parents=True, exist_ok=True)
+              shutil.copyfile(Path("llama.cpp") / relative, target)
+          (destination / "INDEX.txt").write_text("\n".join(licenses) + "\n", encoding="utf-8")
+          PY_LICENSES
           file "$package/bin/llama-cli" | tee llama-cli-file.txt
           grep -q 'ARM aarch64' llama-cli-file.txt
           readelf -d "$package/bin/llama-cli" | grep -F '$ORIGIN/../lib'
@@ -85,6 +120,13 @@ jobs:
           guest's system libssl3, libgomp1, and libvulkan1 runtime libraries.
           On Ternux, verify the renderer and device with `vulkaninfo --summary`
           before selecting Vulkan.
+
+          Ternux's first-party package helpers are under PolyForm Noncommercial 1.0.0;
+          company use requires a separate commercial license. See TERNUX-LICENSE,
+          TERNUX-LICENSE-SCOPE.txt, TERNUX-NOTICE, and
+          TERNUX-THIRD-PARTY-NOTICES.txt and
+          TERNUX-COMMERCIAL-ADDENDUM.txt. Upstream llama.cpp and vendored
+          dependency license/notice files are under upstream-licenses/.
           EOF
           cat > "$package/env.sh" <<'EOF'
           # Source this file to use the packaged llama.cpp tools.
@@ -125,7 +167,7 @@ jobs:
             "system_runtime_dependencies": [
               "libssl.so.3", "libcrypto.so.3", "libgomp.so.1", "libvulkan.so.1"
             ],
-            "license_file": "LLAMA-CPP-LICENSE",
+            "license_files": ["LLAMA-CPP-LICENSE", "TERNUX-LICENSE", "TERNUX-LICENSE-SCOPE.txt", "TERNUX-COMMERCIAL-ADDENDUM.txt", "TERNUX-NOTICE", "TERNUX-THIRD-PARTY-NOTICES.txt", "upstream-licenses/INDEX.txt"],
             "device_validation": "CPU and Vulkan known-answer passed on SM8735/Adreno 825; see release notes"
           }
           EOF
@@ -137,6 +179,12 @@ jobs:
             > ternux-llama-vulkan-linux-arm64-b11582.tar.gz.sha256
           tar -tzf ternux-llama-vulkan-linux-arm64-b11582.tar.gz \
             > release-contents.txt
+          while IFS= read -r license_path; do
+            grep -Fqx "ternux-llama-vulkan-linux-arm64-b11582/upstream-licenses/$license_path" release-contents.txt
+          done < package/ternux-llama-vulkan-linux-arm64-b11582/upstream-licenses/INDEX.txt
+          for license_path in TERNUX-LICENSE TERNUX-LICENSE-SCOPE.txt TERNUX-COMMERCIAL-ADDENDUM.txt TERNUX-NOTICE TERNUX-THIRD-PARTY-NOTICES.txt; do
+            grep -Fqx "ternux-llama-vulkan-linux-arm64-b11582/$license_path" release-contents.txt
+          done
 
       - name: Create or refresh the draft device-validation release
         env:

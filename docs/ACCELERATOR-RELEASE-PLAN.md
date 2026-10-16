@@ -92,6 +92,26 @@ numerical-error failures across `DIV`, `GET_ROWS`, `SWIGLU_CLAMP`, `ADD`, and
 CDSP session cleanly. This is **incomplete**, not an all-operator result. An
 isolated `MUL_MAT_W4A4` check passed 1/1; the broad-run abort cause is unknown.
 
+### Deferred external HTP comparison: S24 Ultra (2026-10-16)
+
+The community project [OpenCL-S24-Ultra](https://github.com/Ishabdullah/OpenCL-S24-Ultra)
+and its [report](https://www.reddit.com/r/LocalLLM/comments/1wx5gbe/i_got_llamacpp_inference_running_on_the/)
+document source-built llama.cpp inference from native Termux on a Galaxy S24
+Ultra / Snapdragon 8 Gen 3 / Hexagon v75. Its author reports HMX/HVX matrix
+kernels and 7.14x / 7.83x CPU-baseline prompt-processing results for two
+small models, while explicitly leaving decode, thermal behavior, and broader
+comparison open. This is a single-device community result, not an independent
+reproduction or an overall generation-speed claim.
+
+Keep this as a deferred research lead, not a release gate or a promised
+optimization. When HTP correctness work resumes, compare the project's pinned
+llama.cpp revision, source patches/build configuration, HMX/HVX numerical
+checks, and prefill-versus-decode methodology with Ternux's Debian PRoot
+Binder/FastRPC route. Transfer nothing solely from the S24 v75 result: the
+current Ternux target is SM8735 / Hexagon v73, where HMX `MUL_MAT` currently
+fails numerical checks. Any candidate change must pass the existing SM8735
+known-answer and operator-correctness gates before performance is considered.
+
 For order 2, the existing QNN archive cannot establish CPU/GPU execution: those
 paths need compatible weights/backend pairs of their own. A `.bin` context
 compiled for HTP is not automatically portable to a CPU or GPU backend. Record

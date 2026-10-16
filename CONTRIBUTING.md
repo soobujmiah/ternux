@@ -177,4 +177,4 @@ share/templates/        schemas and managed templates
 Maintainers may ask for a smaller scope, raw evidence, a regression, or language
 parity before merging. Review comments address the change, not the contributor.
 By participating, you agree to follow the [Code of Conduct](https://github.com/soobujmiah/ternux/blob/main/CODE_OF_CONDUCT.md).
-Contributions are accepted under the repository's [Apache License 2.0](https://github.com/soobujmiah/ternux/blob/main/LICENSE).
+Contributions are accepted under the repository's [PolyForm Noncommercial License 1.0.0](https://github.com/soobujmiah/ternux/blob/main/LICENSE) and [commercial-use addendum](LICENSE-COMMERCIAL-ADDENDUM.md). Contributors retain copyright in their work and grant this project the rights needed to distribute it under those terms. Submit only work you own or have permission to contribute; identify third-party code, data, models, fonts, and binaries with source and license details. Existing releases made under Apache-2.0 remain available under their original terms; see [LICENSE-SCOPE.md](LICENSE-SCOPE.md).

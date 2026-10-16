@@ -194,4 +194,4 @@ current failures, and device qualification status are in the
 
 ---
 
-*ternux — Copyright (c) 2026 Sobuj Miah ([@soobujmiah](https://github.com/soobujmiah)) · Apache-2.0*
+*ternux — Copyright (c) 2026 Sobuj Miah ([@soobujmiah](https://github.com/soobujmiah)) · PolyForm NC + commercial-use terms*

@@ -36,7 +36,7 @@
 #    TERNUX_QUIET=1 / TERNUX_JSON=1       renderer disabled
 #
 #  Copyright (c) 2026 Sobuj Miah (@soobujmiah)
-#  Licensed under the Apache License, Version 2.0.
+#  Licensed under PolyForm NC + business terms plus the Ternux commercial-use addendum; see LICENSE-SCOPE.md.
 #  https://github.com/soobujmiah/ternux
 # =============================================================================
 
@@ -476,7 +476,7 @@ _tnx_frame_paint_footer() {
   printf -v right '%02d:%02d %s' "$mins" "$secs" "$spc"
   rightw=${#right}
 
-  local pre="(c) 2026 " post=" - ${TERNUX_REPO#https://} - Apache-2.0"
+  local pre="(c) 2026 " post=" - ${TERNUX_REPO#https://} - PolyForm NC + business terms"
   local fixed=$(( ${#pre} + _TNX_SIG_WIDTH ))
   local avail=$(( inner - fixed - rightw - 2 ))
   local postc="" postw=0
@@ -963,7 +963,7 @@ tnx_banner() {
   done
   printf '  %sLinux desktop for Android with Zink and VirGL graphics routes%s\n' "$TNX_CG" "$TNX_C0"
   _tnx_sigv 0
-  printf '  %sv%s - by %s%s%s - Apache-2.0%s\n\n' "$TNX_CD" "$TERNUX_VERSION" "$TNX_C0" "$_TNX_SIG" "$TNX_CD" "$TNX_C0"
+  printf '  %sv%s - by %s%s%s - PolyForm NC + business terms%s\n\n' "$TNX_CD" "$TERNUX_VERSION" "$TNX_C0" "$_TNX_SIG" "$TNX_CD" "$TNX_C0"
 }
 
 # ── Phase header used when no install frame is active ----------------------

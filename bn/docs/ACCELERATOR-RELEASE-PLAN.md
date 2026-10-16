@@ -78,6 +78,26 @@ HVX matmul ও ছোট queue setting (`OPBATCH=128`, `OPQUEUE=2`) দিয়
 cleanly close করেছে। এটি **অসম্পূর্ণ**, সব operator-এর result নয়। আলাদা
 `MUL_MAT_W4A4` check 1/1 pass হয়েছে; broad-run abort-এর কারণ অজানা।
 
+### স্থগিত বাহ্যিক HTP তুলনা: S24 Ultra (২০২৬-১০-১৬)
+
+কমিউনিটি project [OpenCL-S24-Ultra](https://github.com/Ishabdullah/OpenCL-S24-Ultra)
+ও তার [report](https://www.reddit.com/r/LocalLLM/comments/1wx5gbe/i_got_llamacpp_inference_running_on_the/)
+Galaxy S24 Ultra / Snapdragon 8 Gen 3 / Hexagon v75-এ native Termux থেকে
+source-build করা llama.cpp inference নথিভুক্ত করেছে। লেখক HMX/HVX matrix kernel
+এবং দুটি ছোট model-এ CPU baseline-এর তুলনায় prompt processing-এ 7.14x / 7.83x
+ফল জানিয়েছেন; decode, thermal behavior ও বিস্তৃত তুলনা এখনও বাকি বলেছেন। এটি
+একটি device-এর community result—স্বাধীনভাবে reproduce করা নয়, এবং পুরো
+generation-এর speed দাবি নয়।
+
+এটিকে ভবিষ্যৎ গবেষণার lead হিসেবে রাখুন; release gate বা নিশ্চিত optimization
+হিসেবে নয়। HTP correctness-এর কাজ আবার শুরু হলে project-টির pinned llama.cpp
+revision, source patch/build config, HMX/HVX numerical test এবং prefill বনাম
+decode মাপার পদ্ধতি Ternux-এর Debian PRoot Binder/FastRPC path-এর সঙ্গে তুলনা
+করুন। শুধু S24 v75 result দেখে কিছু port করবেন না: Ternux-এর বর্তমান target
+SM8735 / Hexagon v73, যেখানে HMX `MUL_MAT` numerical check-এ এখনও fail করে।
+Performance বিবেচনার আগে যেকোনো candidate change-কে SM8735-এর বিদ্যমান
+known-answer ও operator-correctness gate pass করতে হবে।
+
 QNN archive-এর graph CPU/GPU support প্রমাণ করে না; প্রতিটি backend-এর compatible
 weight/backend pair আলাদা। HTP-এর জন্য compiled `.bin` context CPU/GPU-তে নিজে
 থেকে portable নয়। Valid prerequisite না থাকলে BLOCKED লিখুন; না-চালানো test-কে

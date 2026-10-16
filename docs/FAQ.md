@@ -114,7 +114,7 @@ The design choices that matter:
   paths, the two selected members must be regular files, and only those two
   members are staged and installed. Other legitimate archive symlinks are not
   extracted.
-- **Auditable installer** — one plain-text file, Apache-2.0 licensed; read it before
+- **Auditable installer** — one plain-text file, PolyForm Noncommercial 1.0.0 licensed; read it before
   you run it.
 
 The usual rules still apply: don't run untrusted binaries as root inside the
@@ -142,8 +142,7 @@ sudo dpkg-reconfigure locales
 
 ## Is ternux really free?
 
-Yes. Apache-2.0 licensed — code and documentation. Built and maintained by
-[Sobuj Miah (@soobujmiah)](https://github.com/soobujmiah). Contributions welcome.
+Yes. Sobuj Miah's original code and documentation are under the PolyForm Noncommercial License 1.0.0 plus the project-specific commercial-use condition: personal and other noncommercial use and modification are allowed, while for-profit company use or use on behalf of a business requires a separate written agreement even if that activity earns no direct revenue. Royalty terms are agreed separately. Third-party components keep their own licenses. See [LICENSE-SCOPE.md](../LICENSE-SCOPE.md), [LICENSE-COMMERCIAL-ADDENDUM.md](../LICENSE-COMMERCIAL-ADDENDUM.md), [NOTICE](../NOTICE), and [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md). Built and maintained by [Sobuj Miah (@soobujmiah)](https://github.com/soobujmiah).
 
 ## What is it NOT for?
 
@@ -160,4 +159,4 @@ data-loss risks.
 
 ---
 
-*ternux — Copyright (c) 2026 Sobuj Miah ([@soobujmiah](https://github.com/soobujmiah)) · Apache-2.0*
+*ternux — Copyright (c) 2026 Sobuj Miah ([@soobujmiah](https://github.com/soobujmiah)) · PolyForm NC + commercial-use terms*

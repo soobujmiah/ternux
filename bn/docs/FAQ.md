@@ -104,7 +104,7 @@ battery management আছে। Termux ও Termux:X11 battery use *Unrestricted*
 - **যাচাইকৃত extraction** — unsafe path প্রত্যাখ্যান হয়, নির্বাচিত driver/ICD
   member দুটি regular file কিনা পরীক্ষা হয়, এবং শুধু সেগুলোই install হয়।
   Archive-এর অন্য বৈধ symlink extract করা হয় না।
-- **পরীক্ষাযোগ্য ইনস্টলার** — একটি প্লেইন-টেক্সট ফাইল, Apache-2.0 লাইসেন্স; চালানোর
+- **পরীক্ষাযোগ্য ইনস্টলার** — একটি প্লেইন-টেক্সট ফাইল, PolyForm Noncommercial 1.0.0 লাইসেন্স; চালানোর
   আগে পড়ে নিন।
 
 সাধারণ নিয়ম তো আছেই: কন্টেইনারে অপরিচিত বাইনারি রুট হিসেবে চালাবেন না, আর
@@ -132,7 +132,7 @@ sudo dpkg-reconfigure locales
 
 ## ternux কি সত্যিই ফ্রি?
 
-হ্যাঁ। কোড ও ডকুমেন্টেশন Apache-2.0 লাইসেন্সকৃত।
+হ্যাঁ। Sobuj-এর নিজের code ও documentation PolyForm Noncommercial License 1.0.0 এবং project-specific commercial-use condition-এর অধীনে: ব্যক্তিগত, hobby, research ও অন্য noncommercial use এবং modification বিনামূল্যে। For-profit company বা business-এর হয়ে use করতে আলাদা লিখিত agreement দরকার—সেই কাজে সরাসরি আয় না হলেও। Royalty আলাদাভাবে ঠিক হবে। Third-party component তাদের নিজস্ব license-এ থাকবে। [License scope](../../LICENSE-SCOPE.md), [commercial addendum](../../LICENSE-COMMERCIAL-ADDENDUM.md), [NOTICE](../../NOTICE), [third-party notice](../../THIRD_PARTY_NOTICES.md) দেখুন।
 নির্মাতা ও রক্ষণাবেক্ষণকারী: [Sobuj Miah (@soobujmiah)](https://github.com/soobujmiah)।
 কনট্রিবিউশন স্বাগত।
 
@@ -149,4 +149,4 @@ code, heat, battery wear বা data loss-এর ঝুঁকি শূন্য
 
 ---
 
-*ternux — Copyright (c) 2026 Sobuj Miah ([@soobujmiah](https://github.com/soobujmiah)) · Apache-2.0*
+*ternux — Copyright (c) 2026 Sobuj Miah ([@soobujmiah](https://github.com/soobujmiah)) · PolyForm NC + commercial-use terms*

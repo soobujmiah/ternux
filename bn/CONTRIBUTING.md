@@ -179,4 +179,4 @@ Merge করার আগে maintainer ছোট scope, raw evidence, regressio
 চাইতে পারেন। Review comment change নিয়ে—contributor নিয়ে নয়। অংশগ্রহণ করে আপনি
 [আচরণবিধি](https://github.com/soobujmiah/ternux/blob/main/CODE_OF_CONDUCT.md)
 মানতে সম্মত হন। Contribution repository-এর
-[Apache License 2.0](https://github.com/soobujmiah/ternux/blob/main/LICENSE)-এর অধীনে গৃহীত হয়।
+[PolyForm Noncommercial License 1.0.0](https://github.com/soobujmiah/ternux/blob/main/LICENSE) এবং [commercial-use addendum](LICENSE-COMMERCIAL-ADDENDUM.md)-এর অধীনে গৃহীত হয়। Contributor নিজের কাজের copyright রাখেন এবং project-কে এই terms-এ distribute করার অনুমতি দেন। শুধু নিজের বা contribute করার অনুমতি থাকা কাজ জমা দিন; third-party code, data, model, font ও binary হলে source/license জানান। Apache-2.0-তে আগের release-গুলোর license আগের মতোই থাকবে; [LICENSE-SCOPE.md](LICENSE-SCOPE.md) দেখুন।
