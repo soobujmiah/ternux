@@ -15,8 +15,9 @@ installer-এর একটি flag। Manual পথ হলো একই command 
 চালাচ্ছেন — যাতে চালানোর আগে পড়ে নিতে পারেন, এবং ব্যর্থ একটি install গোড়া থেকে
 শুরু না করে হাতে শেষ করতে পারেন।
 
-Interactive install-এ একবারে সর্বোচ্চ ১৬টি software দেখায়, ছোট category tag-এ
-গোছানো থাকে। Arrow key অথবা `j`/`k` দিয়ে চলুন, Space বা item-এর number দিয়ে
+Interactive install-এ terminal-এর উচ্চতা অনুযায়ী যতগুলো item ধরে, ততগুলো দেখায়;
+Android keyboard খুলে terminal resize হলেও menu নিজে থেকে নতুন মাপে সাজে। item-গুলো
+ছোট category tag-এ গোছানো। Arrow key অথবা `j`/`k` দিয়ে চলুন, Space বা item-এর number দিয়ে
 নির্বাচন বদলান, তারপর Enter-এ plan দেখুন। শুধু base desktop চাইলে `q` চাপুন। Plan
 দেখার পর Enter চাপলে install শুরু হবে; বাতিল করতে `n` লিখুন। Firefox চাইলে অন্য
 desktop tool ছাড়াই, বা পুরো Android toolchain ছাড়াই ADT-এর ADB বেছে নিতে পারবেন।

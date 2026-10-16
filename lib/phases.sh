@@ -1305,12 +1305,14 @@ tnx_parse_workload_selection() {
 }
 
 _tnx_optional_menu_draw() {
-  local cursor="$1" selected_name i mark color size rows cols visible first last count
+  local cursor="$1" selected_name i mark mark_color pointer pointer_color color size="${2:-}" rows cols visible first last count
   local group group_color label label_width selected_text hint controls title="TERNUX / SOFTWARE CATALOG" status
-  size="$(stty size <&3 2>/dev/null || true)"; read -r rows cols <<< "$size"
+  [ -n "$size" ] || size="$(stty size <&3 2>/dev/null || true)"
+  read -r rows cols <<< "$size"
   [[ "$rows" =~ ^[0-9]+$ ]] || rows=24; [[ "$cols" =~ ^[0-9]+$ ]] || cols=80
   (( cols > 82 )) && cols=82; (( cols < 42 )) && cols=42
-  visible=$((rows - 10)); (( visible < 5 )) && visible=5; (( visible > 16 )) && visible=16
+  visible=$((rows - 10)); (( visible < 1 )) && visible=1
+  (( visible > ${#TNX_OPTIONAL_ITEMS[@]} )) && visible=${#TNX_OPTIONAL_ITEMS[@]}
   first=0; (( cursor >= visible )) && first=$((cursor - visible + 1))
   last=$((first + visible)); (( last > ${#TNX_OPTIONAL_ITEMS[@]} )) && last=${#TNX_OPTIONAL_ITEMS[@]}
   selected_name=" ${_TNX_SELECTED_ITEMS[*]} "; count=${#_TNX_SELECTED_ITEMS[@]}
@@ -1322,8 +1324,10 @@ _tnx_optional_menu_draw() {
   hint="Debian packages use latest versions from configured repositories."
   printf '%s%s%s\n\n' "$TNX_CD" "${hint:0:cols-2}" "$TNX_C0" >&2
   for ((i=first; i<last; i++)); do
-    mark=' '; [[ "$selected_name" == *" ${TNX_OPTIONAL_ITEMS[$i]} "* ]] && mark='*'
-    color="$TNX_CW"; (( i == cursor )) && color="$TNX_CC"
+    mark=' '; mark_color="$TNX_CD"
+    if [[ "$selected_name" == *" ${TNX_OPTIONAL_ITEMS[$i]} "* ]]; then mark='+'; mark_color="$TNX_CG"; fi
+    pointer=' '; pointer_color="$TNX_CD"; color="$TNX_CW"
+    if (( i == cursor )); then pointer='>'; pointer_color="$TNX_CY"; color="$TNX_CW"; fi
     group="${TNX_OPTIONAL_GROUPS[$i]}"
     case "$group" in
       ANDROID|WEB|AGENT) group_color="$TNX_CM" ;;
@@ -1332,7 +1336,9 @@ _tnx_optional_menu_draw() {
       *) group_color="$TNX_CC" ;;
     esac
     label="${TNX_OPTIONAL_LABELS[$i]}"; (( ${#label} > label_width )) && label="${label:0:label_width}"
-    printf '%s%s%s [%s] %02d %s%-7s%s %s%s\n' "$color" "$([[ $i == "$cursor" ]] && printf '>' || printf ' ')" "$TNX_C0" "$mark" "$((i + 1))" "$group_color" "$group" "$TNX_C0" "$label" "$TNX_C0" >&2
+    printf '%s%s%s %s[%s]%s %s%02d%s %s%-7s%s %s%s\n' \
+      "$pointer_color" "$pointer" "$TNX_C0" "$mark_color" "$mark" "$TNX_C0" "$TNX_CD" "$((i + 1))" "$TNX_C0" \
+      "$group_color" "$group" "$TNX_C0" "$color" "$label" "$TNX_C0" >&2
   done
   selected_text="${_TNX_SELECTED_ITEMS[*]:-none yet}"
   (( ${#selected_text} > cols - 14 )) && selected_text="${selected_text:0:cols-17}..."
@@ -1367,17 +1373,30 @@ tnx_prompt_workloads() {
   else printf '\n'; return 0; fi
 
   if [ "$tty_fd" = 3 ] && [ -t 3 ]; then
-    local old_stty
+  local old_stty menu_size read_status size
     old_stty="$(stty -g <&3 2>/dev/null || true)"
     tnx_detect_ram_gb >/dev/null 2>&1 || true
     printf '%sDetected route:%s %s  |  %sRAM/storage suggestions are advisory only.%s\n' "$TNX_CC" "$TNX_C0" "$backend" "$TNX_CD" "$TNX_C0" >&2
-    _tnx_optional_menu_draw "$cursor"
+    menu_size="$(stty size <&3 2>/dev/null || true)"
+    _tnx_optional_menu_draw "$cursor" "$menu_size"
     stty -echo -icanon min 1 time 0 <&3 2>/dev/null || true
     trap 'stty "$old_stty" <&3 2>/dev/null || true; exit 130' INT
     trap 'stty "$old_stty" <&3 2>/dev/null || true; exit 143' TERM
     while true; do
       if [ -n "$pending_key" ]; then key="$pending_key"; pending_key=""
-      elif ! IFS= read -r -s -n 1 -u 3 key; then break; fi
+      elif IFS= read -r -s -n 1 -t 0.5 -u 3 key; then :
+      else
+        read_status=$?
+        if (( read_status > 128 )); then
+          size="$(stty size <&3 2>/dev/null || true)"
+          if [ "$size" != "$menu_size" ]; then
+            menu_size="$size"
+            _tnx_optional_menu_draw "$cursor" "$menu_size"
+          fi
+          continue
+        fi
+        break
+      fi
       case "$key" in
         $'\033') IFS= read -r -s -n 2 -t 1 -u 3 seq || seq=""; case "$seq" in '[A') (( cursor > 0 )) && cursor=$((cursor - 1)) ;; '[B') (( cursor + 1 < ${#TNX_OPTIONAL_ITEMS[@]} )) && cursor=$((cursor + 1)) ;; esac ;;
         k) (( cursor > 0 )) && cursor=$((cursor - 1)) ;;
@@ -1396,7 +1415,7 @@ tnx_prompt_workloads() {
         $'\r'|$'\n') break ;;
         q|Q) _TNX_SELECTED_ITEMS=(); break ;;
       esac
-      _tnx_optional_menu_draw "$cursor"
+      _tnx_optional_menu_draw "$cursor" "$menu_size"
     done
     [ -n "$old_stty" ] && stty "$old_stty" <&3 2>/dev/null || true
     trap - INT TERM

@@ -15,9 +15,10 @@ one-command route is a flag on the installer. The manual route is the same
 commands run yourself inside the guest, so you can read them before they run
 and so a failed install can be finished by hand instead of started over.
 
-During an interactive install, the software catalog shows up to 16 items at a
-time, grouped by short category tags. Move with arrow keys or `j`/`k`, press
-Space or the item's number to toggle it, then Enter to review the plan. Press
+During an interactive install, the software catalog shows as many items as fit
+in the current terminal height and reflows when the terminal resizes, including
+when the Android keyboard opens; items are grouped by short category tags. Move
+with arrow keys or `j`/`k`, press Space or the item's number to toggle it, then Enter to review the plan. Press
 `q` for the base desktop only. The plan screen starts installation when you
 press Enter; type `n` to cancel. Each tool is separate, so you can choose
 Firefox without the other desktop tools, or ADT's ADB without the rest of the
