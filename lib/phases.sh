@@ -721,75 +721,144 @@ ALIASEOF
 # ---------------------------------------------------------------------------
 tnx_phase_extras() {
   local user_name="${1:-ternux}"; shift
-  local rc=0
+  local rc=0 opt node_selected=0 node_version="" go_version="" cores jobs
+  local -a apt_packages=() unique_packages=()
   local APT="sudo apt update -o APT::Color=1 && sudo DEBIAN_FRONTEND=noninteractive apt install -y -o APT::Color=1 -o Dpkg::Progress-Fancy=1"
+
+  # Resolve individual software choices and install apt packages in one pass.
+  for opt in "$@"; do
+    case "$opt" in
+      dev) apt_packages+=(git curl wget nodejs npm python3 python3-pip python3-venv build-essential ca-certificates); node_selected=1 ;;
+      llm) apt_packages+=(build-essential cmake git pkg-config libvulkan-dev vulkan-tools clinfo glslang-dev glslang-tools libshaderc-dev glslc) ;;
+      network) apt_packages+=(nmap tmux) ;;
+      media) apt_packages+=(ffmpeg gimp audacity imagemagick) ;;
+      git) apt_packages+=(git curl wget ca-certificates) ;;
+      python) apt_packages+=(python3 python3-venv python3-pip) ;;
+      node|claude|codex) apt_packages+=(nodejs npm); node_selected=1 ;;
+      build) apt_packages+=(build-essential cmake ninja-build pkg-config) ;;
+      rust) apt_packages+=(rustc cargo) ;;
+      java) apt_packages+=(default-jdk-headless) ;;
+      godot) apt_packages+=(godot) ;;
+      geany) apt_packages+=(geany) ;;
+      adt-build-tools|adt-platform-tools|adt-ndk|adt-cmake) apt_packages+=(git curl ca-certificates) ;;
+      adt-cmdline|adt-platform) apt_packages+=(git curl ca-certificates default-jdk-headless unzip) ;;
+      nmap) apt_packages+=(nmap) ;;
+      tmux) apt_packages+=(tmux) ;;
+      ffmpeg) apt_packages+=(ffmpeg) ;;
+      mpv) apt_packages+=(mpv) ;;
+      gimp) apt_packages+=(gimp) ;;
+      krita) apt_packages+=(krita) ;;
+      inkscape) apt_packages+=(inkscape) ;;
+      audacity) apt_packages+=(audacity) ;;
+      imagemagick) apt_packages+=(imagemagick) ;;
+      libreoffice-writer) apt_packages+=(libreoffice-writer) ;;
+      blender) apt_packages+=(blender xvfb) ;;
+    esac
+  done
+  for opt in "${apt_packages[@]}"; do
+    case " ${unique_packages[*]} " in *" $opt "*) ;; *) unique_packages+=("$opt") ;; esac
+  done
+  if [ ${#unique_packages[@]} -gt 0 ]; then
+    tnx_guest_login --shared-tmp --user "$user_name" -- bash -c "$APT ${unique_packages[*]}" || { tnx_warn "One or more selected Debian packages failed to install."; rc=1; }
+  fi
+
+  if [ "$node_selected" = 1 ]; then
+    tnx_guest_login --shared-tmp --user "$user_name" -- bash -lc '
+      set -e
+      mkdir -p "$HOME/.local/bin"
+      npm config set prefix "$HOME/.local"
+      for profile in "$HOME/.profile" "$HOME/.bashrc" "$HOME/.zshrc"; do
+        [ -e "$profile" ] || : > "$profile"
+        if ! grep -qF "# Ternux optional tool path" "$profile"; then
+          printf "\\n%s\\n%s\\n" "# Ternux optional tool path" "export PATH=\"\$HOME/.local/bin:\$PATH\"" >> "$profile"
+        fi
+      done
+    ' || { tnx_warn "Could not configure the user-local npm path."; rc=1; }
+  fi
 
   for opt in "$@"; do
     case "$opt" in
-      dev)
-        if tnx_guest_login --shared-tmp --user "$user_name" -- bash -c "$APT git curl wget nodejs npm python3 python3-pip python3-venv build-essential ca-certificates"; then
-          tnx_ok "Dev tools installed"
-        else
-          tnx_warn "Dev tools failed."
-          rc=1
-        fi
-        ;;
-      llm)
-        local cores jobs
-        cores="$(nproc 2>/dev/null || echo 4)"
-        jobs=$((cores / 2)); [ "$jobs" -lt 1 ] && jobs=1; [ "$jobs" -gt 4 ] && jobs=4
-        if tnx_guest_login --shared-tmp --user "$user_name" -- bash -c '
+      dev|llm|network|media|git|python|node|build|rust|java|godot|geany|nmap|tmux|ffmpeg|mpv|gimp|krita|inkscape|audacity|imagemagick|libreoffice-writer|blender) ;;
+      adt-build-tools|adt-platform-tools|adt-ndk|adt-cmake|adt-cmdline|adt-platform)
+        if tnx_guest_login --shared-tmp --user "$user_name" -- bash -lc '
           set -e
-          sudo apt update -o APT::Color=1
-          sudo DEBIAN_FRONTEND=noninteractive apt install -y -o APT::Color=1 -o Dpkg::Progress-Fancy=1 build-essential cmake git pkg-config libvulkan-dev vulkan-tools clinfo glslang-dev glslang-tools libshaderc-dev glslc
-          src="$HOME/llama.cpp-b11582"
-          pin=af50f2f248b475d9760f8e67503d01c0f194f5f4
-          if [ -e "$src" ]; then
-            if [ ! -d "$src/.git" ] || [ "$(git -C "$src" rev-parse HEAD 2>/dev/null)" != "$pin" ]; then
-              echo "Refusing to modify existing non-pinned source at $src" >&2
-              exit 1
-            fi
-          else
-            git clone --depth 1 --branch b11582 https://github.com/ggml-org/llama.cpp.git "$src"
-            test "$(git -C "$src" rev-parse HEAD)" = "$pin"
-          fi
-          cd "$src"
-          cmake -S . -B build -DGGML_VULKAN=ON -DGGML_HEXAGON=OFF -DCMAKE_BUILD_TYPE=Release
-          cmake --build build --config Release -j"$1"
-          mkdir -p models
-        ' _ "$jobs"; then
-          tnx_ok "llama.cpp built with Vulkan"
-        else
-          tnx_warn "llama.cpp build failed."
-          rc=1
-        fi
+          repo="$HOME/.local/share/ternux/adt"
+          mkdir -p "$(dirname "$repo")"
+          if [ -e "$repo" ]; then
+            [ -d "$repo/.git" ] || { echo "Refusing to overwrite unexpected ADT path: $repo" >&2; exit 2; }
+            remote="$(git -C "$repo" remote get-url origin 2>/dev/null || true)"
+            case "$remote" in https://github.com/soobujmiah/adt.git|git@github.com:soobujmiah/adt.git) ;;
+              *) echo "Refusing to use ADT checkout with unexpected origin: ${remote:-none}" >&2; exit 2 ;;
+            esac
+          else git clone --depth 1 https://github.com/soobujmiah/adt.git "$repo"; fi
+          case "$1" in
+            adt-build-tools) component=build-tools; command=install-build-tools ;;
+            adt-platform-tools) component=platform-tools; command=install-platform-tools ;;
+            adt-ndk) component=ndk; command=install-ndk ;;
+            adt-cmake) component=cmake; command=install-cmake ;;
+            adt-cmdline) component=cmdline-tools; command=install-cmd-tools ;;
+            adt-platform) component=platform; command=install-platforms ;;
+          esac
+          case "$component" in
+            platform) bash "$repo/setup.sh" install-cmd-tools; bash "$repo/setup.sh" "$command" android-36 ;;
+            cmdline-tools) bash "$repo/setup.sh" "$command" ;;
+            cmake) bash "$repo/setup.sh" "$command" ;;
+            ndk) version="$(bash -c '\''cd "$(dirname "$1")"; ADT_SOURCE_ONLY=1 source "$1"; get_bootstrap_ndk'\'' _ "$repo/setup.sh")"; bash "$repo/setup.sh" "$command" "$version" ;;
+            *) version="$(bash -c '\''cd "$(dirname "$1")"; ADT_SOURCE_ONLY=1 source "$1"; get_bootstrap_version "$2"'\'' _ "$repo/setup.sh" "$component")"; [ -n "$version" ] || { echo "ADT has no verified $component version." >&2; exit 1; }; bash "$repo/setup.sh" "$command" "$version" ;;
+          esac
+        ' _ "$opt"; then
+          tnx_ok "$opt installed through the ADT repository"
+        else tnx_warn "$opt could not be installed through ADT; check the ADT output."; rc=1; fi
         ;;
-      network)
-        if tnx_guest_login --shared-tmp --user "$user_name" -- bash -c "$APT nmap tmux"; then
-          tnx_ok "Network tools installed"
-        else
-          tnx_warn "Network tools failed."
-          rc=1
-        fi
+      llama-vulkan|llama-htp-experimental)
+        if [ -f "${_TNX_SRC:-}/lib/extension.sh" ] && ( . "${_TNX_SRC}/lib/extension.sh"; tnx_cmd_extension install "$opt" ); then
+          tnx_ok "$opt release installed and validated"
+        else tnx_warn "$opt release could not be installed; check device/runtime support and the extension guide."; rc=1; fi
         ;;
-      media)
-        if tnx_guest_login --shared-tmp --user "$user_name" -- bash -c "$APT ffmpeg gimp audacity imagemagick"; then
-          tnx_ok "Media tools installed"
-        else
-          tnx_warn "Media tools failed."
-          rc=1
-        fi
+      claude)
+        node_version="$(tnx_guest_login --user "$user_name" -- bash -lc 'node -p "process.versions.node.split(\".\")[0]"' 2>/dev/null || true)"
+        if [[ "$node_version" =~ ^[0-9]+$ ]] && [ "$node_version" -ge 22 ] && tnx_guest_login --shared-tmp --user "$user_name" -- bash -lc 'npm install -g @anthropic-ai/claude-code'; then
+          tnx_ok "Claude Code installed; run claude to sign in when ready"
+        else tnx_warn "Claude Code needs Node.js 22 or newer; no credentials were requested or stored."; rc=1; fi
         ;;
-      blender)
-        if tnx_guest_login --shared-tmp --user "$user_name" -- bash -c "$APT blender xvfb"; then
-          tnx_ok "Blender and headless Xvfb support installed"
-        else
-          tnx_warn "Blender install failed."
-          rc=1
-        fi
+      codex)
+        if tnx_guest_login --shared-tmp --user "$user_name" -- bash -lc 'npm install -g @openai/codex@latest'; then
+          tnx_ok "OpenAI Codex CLI installed; run codex to sign in when ready"
+        else tnx_warn "OpenAI Codex CLI installation failed."; rc=1; fi
         ;;
+      openai-cli)
+        go_version="$(tnx_guest_login --user "$user_name" -- bash -lc 'go version 2>/dev/null | sed -E "s/^go([0-9]+\\.[0-9]+).*/\\1/"' 2>/dev/null || true)"
+        if [[ "$go_version" =~ ^[0-9]+\.[0-9]+$ ]] && awk -v v="$go_version" 'BEGIN{split(v,a,"."); exit !((a[1]>1)||(a[1]==1&&a[2]>=26))}' && tnx_guest_login --shared-tmp --user "$user_name" -- bash -lc 'mkdir -p "$HOME/.local/bin"; GOBIN="$HOME/.local/bin" go install github.com/openai/openai-cli/cmd/openai@latest'; then
+          tnx_ok "OpenAI API CLI installed; it needs an API key when used"
+        else tnx_warn "OpenAI API CLI needs Go 1.26 or newer; install a supported Go toolchain, then run go install github.com/openai/openai-cli/cmd/openai@latest."; rc=1; fi
+        ;;
+      hermes)
+        if tnx_guest_login --shared-tmp --user "$user_name" -- bash -lc 'curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash -s -- --non-interactive'; then
+          tnx_ok "Hermes Agent installed; run hermes setup when ready"
+        else tnx_warn "Hermes Agent installer failed; its setup can be retried from the official guide."; rc=1; fi
+        ;;
+      openclaw)
+        if tnx_guest_login --shared-tmp --user "$user_name" -- bash -lc 'curl -fsSL --proto https --tlsv1.2 https://openclaw.ai/install.sh | bash -s -- --no-onboard --verify'; then
+          tnx_ok "OpenClaw installed; run openclaw onboard when ready"
+        else tnx_warn "OpenClaw installer failed; its setup can be retried from the official guide."; rc=1; fi
+        ;;
+      # Backward-compatible grouped flags remain supported for scripts and --all.
+      blender) : ;;
+      *) tnx_warn "Unknown optional software choice '$opt'; skipping it."; rc=1 ;;
     esac
   done
+
+  # The legacy llama workload compiles from the pinned upstream revision.
+  if [[ " $* " == *" llm "* ]]; then
+    cores="$(nproc 2>/dev/null || echo 4)"; jobs=$((cores / 2)); (( jobs < 1 )) && jobs=1; (( jobs > 4 )) && jobs=4
+    if tnx_guest_login --shared-tmp --user "$user_name" -- bash -c '
+      set -e
+      src="$HOME/llama.cpp-b11582"; pin=af50f2f248b475d9760f8e67503d01c0f194f5f4
+      if [ -e "$src" ]; then [ -d "$src/.git" ] && [ "$(git -C "$src" rev-parse HEAD 2>/dev/null)" = "$pin" ] || { echo "Refusing to modify non-pinned source at $src" >&2; exit 1; }
+      else git clone --depth 1 --branch b11582 https://github.com/ggml-org/llama.cpp.git "$src"; test "$(git -C "$src" rev-parse HEAD)" = "$pin"; fi
+      cd "$src"; cmake -S . -B build -DGGML_VULKAN=ON -DGGML_HEXAGON=OFF -DCMAKE_BUILD_TYPE=Release; cmake --build build --config Release -j"$1"; mkdir -p models
+    ' _ "$jobs"; then tnx_ok "llama.cpp built with Vulkan"; else tnx_warn "llama.cpp build failed."; rc=1; fi
+  fi
   return "$rc"
 }
 
@@ -1149,84 +1218,120 @@ tnx_prompt_username() {
   printf '%s\n' "$chosen"
 }
 
-# Parse the numbered optional-workload menu. Keep this separate from the TTY
-# reader so selection rules stay small and can be checked independently.
+# Item catalogue for the interactive optional-software checklist. Keep this
+# list aligned with the case labels in tnx_phase_extras.
+TNX_OPTIONAL_ITEMS=(git python node build rust java godot geany adt-build-tools adt-platform-tools adt-ndk adt-cmake adt-cmdline adt-platform llama-vulkan llama-htp-experimental nmap tmux ffmpeg mpv gimp krita inkscape audacity imagemagick libreoffice-writer blender claude codex openai-cli hermes openclaw)
+TNX_OPTIONAL_LABELS=("Git + curl/wget" "Python + venv" "Node.js + npm" "C/C++ build tools" "Rust + Cargo" "Java JDK (Android/Java builds)" "Godot Engine (game development)" "Geany (lightweight IDE)" "ADT Build Tools — latest verified release" "ADT Platform Tools — latest verified release (ADB + fastboot)" "ADT NDK shim (verified registry version)" "ADT CMake shim" "ADT SDK Manager" "ADT Android Platform API 36 (through ADT)" "llama.cpp CPU + Vulkan — prerelease b11582 (checksum verified)" "llama.cpp Hexagon HTP — prerelease, experimental (SM8735 only)" "Nmap" "tmux" "FFmpeg" "mpv media player" "GIMP" "Krita (painting)" "Inkscape (vector graphics)" "Audacity" "ImageMagick" "LibreOffice Writer" "Blender + Xvfb" "Claude Code" "OpenAI Codex CLI" "OpenAI API CLI (Go 1.26+)" "Hermes Agent" "OpenClaw")
+
+# Parse number lists used when a TTY key-reading menu is unavailable.
 tnx_parse_workload_selection() {
-  local input="$1" item seen=""
-  input="$(printf '%s' "$input" | tr -d '[:space:]')"
-  case "$input" in
-    ""|0) printf '\n'; return 0 ;;
-    6) printf 'dev,llm,network,media,blender\n'; return 0 ;;
-  esac
-  [[ "$input" != *0* && "$input" != *6* ]] || return 2
+  local input="$1" item idx seen="" out=""
+  input="${input//,/ }"
   local -a choices=()
-  IFS=',' read -r -a choices <<< "$input"
+  read -r -a choices <<< "$input"
   for item in "${choices[@]}"; do
-    case "$item" in
-      1) item=dev ;;
-      2) item=llm ;;
-      3) item=network ;;
-      4) item=media ;;
-      5) item=blender ;;
-      *) return 2 ;;
-    esac
-    case ",$seen," in *,"$item",*) continue ;; esac
-    seen="${seen:+$seen,}$item"
+    [[ "$item" =~ ^[0-9]+$ ]] || return 2
+    (( item >= 1 && item <= ${#TNX_OPTIONAL_ITEMS[@]} )) || return 2
+    idx=$((item - 1))
+    case " $seen " in *" ${TNX_OPTIONAL_ITEMS[$idx]} "*) continue ;; esac
+    seen+=" ${TNX_OPTIONAL_ITEMS[$idx]}"
+    out+="${out:+,}${TNX_OPTIONAL_ITEMS[$idx]}"
   done
-  printf '%s\n' "$seen"
+  printf '%s\n' "$out"
 }
 
-# Suggest workloads from the detected graphics route, then let a local user
-# select optional installs by number. Non-interactive and --yes installs keep
-# the base profile unless flags explicitly request more.
-tnx_prompt_workloads() {
-  local backend="${1:-virgl}" tty_fd="" input="" selected=""
-  local ram_gb="?" free_gb="?"
-  if { exec 3<>/dev/tty; } 2>/dev/null; then
-    tty_fd=3
-  elif [ -t 0 ]; then
-    tty_fd=0
-  else
-    printf '\n'
-    return 0
-  fi
-
-  printf '\n%sOptional workloads%s (base desktop is always installed)\n' "$TNX_CW" "$TNX_C0" >&2
-  if declare -F tnx_detect_ram_gb >/dev/null 2>&1; then ram_gb="$(tnx_detect_ram_gb)"; fi
-  if declare -F tnx_detect_storage_gb >/dev/null 2>&1; then free_gb="$(tnx_detect_storage_gb "$HOME")"; fi
-  printf '  Device resources: about %s GB RAM, %s GB free storage.\n' "$ram_gb" "$free_gb" >&2
-  if [ "$backend" = "zink" ]; then
-    printf '  %sSuggestion:%s Blender with EEVEE Next; GPU rendering depends on the active Zink/Turnip path.\n' "$TNX_CC" "$TNX_C0" >&2
-  else
-    printf '  %sSuggestion:%s development tools or media apps; this device selected the VirGL compatibility route.\n' "$TNX_CC" "$TNX_C0" >&2
-  fi
-  if [[ "$ram_gb" =~ ^[0-9]+$ ]] && [ "$ram_gb" -lt 6 ]; then
-    printf '  %sResource note:%s Android and Debian share RAM; local model builds/runs may be constrained.\n' "$TNX_CY" "$TNX_C0" >&2
-  fi
-  if [[ "$free_gb" =~ ^[0-9]+$ ]] && [ "$free_gb" -lt 14 ]; then
-    printf '  %sResource note:%s the full set targets about 14 GB free for install, downloads and build cache.\n' "$TNX_CY" "$TNX_C0" >&2
-  fi
-  printf '  1) Development   Git, Python, Node.js and compilers\n' >&2
-  printf '  2) llama.cpp     Vulkan build; model not included; needs extra RAM and storage\n' >&2
-  printf '  3) Network       nmap and tmux; for systems you are authorised to test\n' >&2
-  printf '  4) Media         FFmpeg, GIMP, Audacity and ImageMagick\n' >&2
-  printf '  5) Blender       Blender + Xvfb for desktop/headless EEVEE workflows\n' >&2
-  printf '  6) All optional workloads (about 10–12 GB installed; reserve extra download space)\n' >&2
-  printf '  0) Base desktop only\n' >&2
-
-  while true; do
-    printf 'Choose numbers separated by commas [default: 0]: ' >&2
-    if ! IFS= read -r -u "$tty_fd" input; then
-      printf '\n'
-      break
-    fi
-    if selected="$(tnx_parse_workload_selection "$input")"; then
-      printf '%s\n' "$selected"
-      break
-    fi
-    printf '%s[WARN]%s Use 1–5 separated by commas, 6 for all, or 0 for base only.\n' "$TNX_CY" "$TNX_C0" >&2
+_tnx_optional_menu_draw() {
+  local cursor="$1" selected_name i mark color rows visible first last
+  rows="$(stty size <&3 2>/dev/null | awk '{print $1}')"; [[ "$rows" =~ ^[0-9]+$ ]] || rows=24
+  visible=$((rows - 8)); (( visible < 5 )) && visible=5; (( visible > 16 )) && visible=16
+  first=0; (( cursor >= visible )) && first=$((cursor - visible + 1))
+  last=$((first + visible)); (( last > ${#TNX_OPTIONAL_ITEMS[@]} )) && last=${#TNX_OPTIONAL_ITEMS[@]}
+  printf '\033[H\033[2J' >&2
+  printf '%sTERNUX optional software%s  %s↑/↓ or j/k move  Space/number toggle  Enter continue%s\n\n' "$TNX_CG" "$TNX_C0" "$TNX_CD" "$TNX_C0" >&2
+  for ((i=first; i<last; i++)); do
+    selected_name=" ${_TNX_SELECTED_ITEMS[*]} "
+    mark=' '
+    [[ "$selected_name" == *" ${TNX_OPTIONAL_ITEMS[$i]} "* ]] && mark='✓'
+    color="$TNX_CW"; (( i == cursor )) && color="$TNX_CC"
+    printf '  %s%s%s [%s] %2d  %s\n' "$color" "$([[ $i == "$cursor" ]] && printf '›' || printf ' ')" "$TNX_C0" "$mark" "$((i + 1))" "${TNX_OPTIONAL_LABELS[$i]}" >&2
   done
-  [ "$tty_fd" = "3" ] && exec 3>&-
+  printf '\n  %sShowing %d-%d of %d. Selected items install individually; empty selection keeps base desktop.%s\n' "$TNX_CD" "$((first + 1))" "$last" "${#TNX_OPTIONAL_ITEMS[@]}" "$TNX_C0" >&2
+}
+
+_tnx_checklist_toggle() {
+  local item="$1" i
+  for i in "${!_TNX_SELECTED_ITEMS[@]}"; do
+    if [[ "${_TNX_SELECTED_ITEMS[$i]}" == "$item" ]]; then
+      unset '_TNX_SELECTED_ITEMS[i]'
+      _TNX_SELECTED_ITEMS=("${_TNX_SELECTED_ITEMS[@]}")
+      return 0
+    fi
+  done
+  _TNX_SELECTED_ITEMS+=("$item")
+}
+
+# Interactive selector supports arrow keys (or j/k), Space, number toggles and
+# Enter. When no controlling TTY exists, retain a simple number-list fallback.
+tnx_prompt_workloads() {
+  local backend="${1:-virgl}" tty_fd="" input="" cursor=0 key seq idx number next pending_key=""
+  _TNX_SELECTED_ITEMS=()
+  if { exec 3<>/dev/tty; } 2>/dev/null; then tty_fd=3
+  elif [ -t 0 ]; then tty_fd=0
+  else printf '\n'; return 0; fi
+
+  if [ "$tty_fd" = 3 ] && [ -t 3 ]; then
+    local old_stty
+    old_stty="$(stty -g <&3 2>/dev/null || true)"
+    tnx_detect_ram_gb >/dev/null 2>&1 || true
+    printf '%sDetected route:%s %s  |  %sRAM/storage suggestions are advisory only.%s\n' "$TNX_CC" "$TNX_C0" "$backend" "$TNX_CD" "$TNX_C0" >&2
+    _tnx_optional_menu_draw "$cursor"
+    stty -echo -icanon min 1 time 0 <&3 2>/dev/null || true
+    trap 'stty "$old_stty" <&3 2>/dev/null || true; exit 130' INT
+    trap 'stty "$old_stty" <&3 2>/dev/null || true; exit 143' TERM
+    while true; do
+      if [ -n "$pending_key" ]; then key="$pending_key"; pending_key=""
+      elif ! IFS= read -r -s -n 1 -u 3 key; then break; fi
+      case "$key" in
+        $'\033') IFS= read -r -s -n 2 -t 1 -u 3 seq || seq=""; case "$seq" in '[A') (( cursor > 0 )) && cursor=$((cursor - 1)) ;; '[B') (( cursor + 1 < ${#TNX_OPTIONAL_ITEMS[@]} )) && cursor=$((cursor + 1)) ;; esac ;;
+        k) (( cursor > 0 )) && cursor=$((cursor - 1)) ;;
+        j) (( cursor + 1 < ${#TNX_OPTIONAL_ITEMS[@]} )) && cursor=$((cursor + 1)) ;;
+        ' ') _tnx_checklist_toggle "${TNX_OPTIONAL_ITEMS[$cursor]}" ;;
+        [0-9])
+          number="$key"
+          while IFS= read -r -s -n 1 -t 0.18 -u 3 next; do
+            if [[ "$next" =~ ^[0-9]$ ]]; then number+="$next"
+            else pending_key="$next"; break
+            fi
+          done
+          idx=$((10#$number - 1))
+          (( idx >= 0 && idx < ${#TNX_OPTIONAL_ITEMS[@]} )) && _tnx_checklist_toggle "${TNX_OPTIONAL_ITEMS[$idx]}"
+          ;;
+        $'\r'|$'\n') break ;;
+        q|Q) _TNX_SELECTED_ITEMS=(); break ;;
+      esac
+      _tnx_optional_menu_draw "$cursor"
+    done
+    [ -n "$old_stty" ] && stty "$old_stty" <&3 2>/dev/null || true
+    trap - INT TERM
+    printf '\033[H\033[2J' >&2
+  else
+    printf '\n%sOptional software%s (choose numbers separated by spaces or commas)\n' "$TNX_CW" "$TNX_C0" >&2
+    for idx in "${!TNX_OPTIONAL_ITEMS[@]}"; do printf '  %2d) %s\n' "$((idx + 1))" "${TNX_OPTIONAL_LABELS[$idx]}" >&2; done
+    while true; do
+      printf 'Choose items [default: none]: ' >&2
+      if ! IFS= read -r -u "$tty_fd" input; then break; fi
+      if input="$(tnx_parse_workload_selection "$input")"; then
+        IFS=',' read -r -a _TNX_SELECTED_ITEMS <<< "$input"
+        [[ -z "$input" ]] && _TNX_SELECTED_ITEMS=()
+        break
+      fi
+      printf '%s[WARN]%s Enter valid item numbers, e.g. 1 3 14.\n' "$TNX_CY" "$TNX_C0" >&2
+    done
+  fi
+  [ "$tty_fd" = 3 ] && exec 3>&-
+  local result=""
+  for key in "${_TNX_SELECTED_ITEMS[@]}"; do result+="${result:+,}$key"; done
+  printf '%s\n' "$result"
 }
 
 # ---------------------------------------------------------------------------
@@ -1371,11 +1476,19 @@ tnx_install() {
     for workload in "${extras[@]}"; do
       workload_number=$((workload_number + 1))
       case "$workload" in
-        dev) workload_label="Development tools" ;;
-        llm) workload_label="llama.cpp + Vulkan" ;;
-        network) workload_label="Network tools" ;;
-        media) workload_label="Media tools" ;;
+        git) workload_label="Git + curl/wget" ;;
+        python) workload_label="Python + venv" ;;
+        node) workload_label="Node.js + npm" ;;
+        build) workload_label="C/C++ build tools" ;;
+        llama-vulkan) workload_label="llama.cpp Vulkan release" ;;
+        llama-htp-experimental) workload_label="llama.cpp HTP experimental release" ;;
+        nmap|tmux|ffmpeg|gimp|audacity|imagemagick) workload_label="$workload" ;;
         blender) workload_label="Blender + Xvfb" ;;
+        claude) workload_label="Claude Code" ;;
+        codex) workload_label="OpenAI Codex CLI" ;;
+        openai-cli) workload_label="OpenAI API CLI" ;;
+        hermes) workload_label="Hermes Agent" ;;
+        openclaw) workload_label="OpenClaw" ;;
         *) workload_label="$workload" ;;
       esac
       plan_summary+=("Workload $workload_number" "$workload_label")

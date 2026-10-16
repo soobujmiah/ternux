@@ -15,11 +15,16 @@ one-command route is a flag on the installer. The manual route is the same
 commands run yourself inside the guest, so you can read them before they run
 and so a failed install can be finished by hand instead of started over.
 
-During an interactive install, choose workloads by number (`1` development, `2`
-local AI, `3` network, `4` media, `5` Blender; separate multiple choices with
-commas). Choose `6` for all or press Enter/`0` for the base desktop. The installer
-suggests from the graphics route and reports RAM and free-storage limits. `--yes`
-and non-interactive runs keep the base profile unless flags select workloads.
+During an interactive install, move with arrow keys or `j`/`k`, press Space or
+the item's number to toggle it, then Enter to continue. Press `q` to install no
+optional items. Each tool is separate, so you can choose Blender without the
+other design tools, or ADT's ADB without the rest of the Android toolchain. The
+menu includes the currently supported release choices: llama.cpp CPU + Vulkan
+and experimental HTP are prereleases installed through Ternux's checksum
+verifier; ADT choices use its latest verified release registry. The separate
+QNN native-probe prerelease is Android-host-only and has no PRoot install path,
+so it is not offered as an install action. `--yes` and non-interactive runs keep
+the base profile unless flags select workloads.
 
 ## The workloads
 
@@ -31,6 +36,11 @@ and non-interactive runs keep the base profile unless flags select workloads.
 | Media | `--with-media` | ffmpeg, GIMP, Audacity, ImageMagick |
 | Blender | `--with-blender` | Blender and Xvfb for headless EEVEE rendering (about 95 MB for Blender with `--no-install-recommends`) |
 | Everything | `--all` | all five |
+
+The interactive menu also offers individual tools such as Godot, Blender,
+Claude Code, Codex, Hermes, OpenClaw, and the ADT Android components. ADT
+Platform Tools provides `adb` and `fastboot`; Ternux installs these by invoking
+ADT's own `setup.sh`, never Debian's separate `android-tools-adb` package.
 
 The base desktop — Xfce4, terminal, VLC, archive tools, Mesa utilities, Vulkan
 tools — is always installed and is not a workload.

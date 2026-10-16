@@ -344,15 +344,15 @@ _tnx_plain_cols() {
 _tnx_frame_layout() {
   local R="$_TNX_FRAME_ROWS" C="$_TNX_FRAME_COLS"
   _TNX_LY_DEV_ON=0
-  if (( R >= 20 && C >= 46 )); then
+  if (( R >= 22 && C >= 46 )); then
     _TNX_LY_DEV_ON=1
-    _TNX_LY_TITLE=2; _TNX_LY_IDENT=3
-    _TNX_LY_DEV0=5
-    _TNX_LY_PROG=8; _TNX_LY_DIV2=9; _TNX_LY_LOGTOP=10
+    _TNX_LY_TITLE=2; _TNX_LY_IDENT=3; _TNX_LY_TAGLINE=4
+    _TNX_LY_DEV0=6
+    _TNX_LY_PROG=11; _TNX_LY_DIV2=12; _TNX_LY_LOGTOP=13
   else
-    _TNX_LY_TITLE=2; _TNX_LY_IDENT=3
+    _TNX_LY_TITLE=2; _TNX_LY_IDENT=3; _TNX_LY_TAGLINE=4
     _TNX_LY_DEV0=0
-    _TNX_LY_PROG=5; _TNX_LY_DIV2=6; _TNX_LY_LOGTOP=7
+    _TNX_LY_PROG=6; _TNX_LY_DIV2=7; _TNX_LY_LOGTOP=8
   fi
   _TNX_LY_LOGBOT=$(( R - 3 ))
   _TNX_LY_DIV3=$(( R - 2 ))
@@ -384,11 +384,12 @@ _tnx_frame_gather_device() {
   ram="$(tnx_detect_ram_gb 2>/dev/null || echo '?')";     ram="${ram:-?}"
   storage="$(tnx_detect_storage_gb 2>/dev/null || echo '?')"; storage="${storage:-?}"
   backend="${_TNX_FRAME_BACKEND:-auto}"
-  _TNX_FRAME_DEV_LABELS=("Device" "Graphics" "Memory")
+  _TNX_FRAME_DEV_LABELS=("Device" "Android" "Graphics" "Resources")
   _TNX_FRAME_DEV_VALUES=(
-    "${model} - Android ${android} (SDK ${sdk})"
-    "${gpu} - backend ${backend} - Vulkan ${vulkan}"
-    "${ram} GB RAM - ${storage} GB free - ${arch}"
+    "${model} - ${arch}"
+    "Android ${android} (SDK ${sdk})"
+    "${gpu} - ${backend} - Vulkan ${vulkan}"
+    "${ram} GB RAM - ${storage} GB free"
   )
 }
 
@@ -403,7 +404,7 @@ _tnx_frame_box_row() {
 
 _tnx_frame_paint_header() {
   local inner=$(( _TNX_FRAME_COLS - 4 )) content="" title tpad trpad tsp trsp
-  _tnx_clipv "$inner" "ternux v${TERNUX_VERSION} - ONE-CLICK INSTALLER"
+  _tnx_clipv "$inner" "TERNUX"
   title="$_TNX_CLIP"
   tpad=$(( (inner - _TNX_CLIPW) / 2 )); (( tpad < 0 )) && tpad=0
   trpad=$(( inner - _TNX_CLIPW - tpad )); (( trpad < 0 )) && trpad=0
@@ -412,21 +413,27 @@ _tnx_frame_paint_header() {
   printf -v content '%s%s%s%s%s' "$tsp" "$TNX_CG" "$title" "$TNX_C0" "$trsp"
   _tnx_frame_box_row "$_TNX_LY_TITLE" "$content"
 
-  local pre="by " post="  -  base ~3-4 GB  -  complete ~10-12 GB"
-  local fixed=$(( ${#pre} + _TNX_SIG_WIDTH ))
-  local postmax=$(( inner - fixed )); (( postmax < 3 )) && postmax=3
-  _tnx_clipv "$postmax" "$post"
-  local postc="$_TNX_CLIP" postw="$_TNX_CLIPW"
-  _tnx_pad $(( inner - fixed - postw ))
-  _tnx_sigv 0
-  printf -v content '%s%s%s%s%s%s%s%s' \
-    "$TNX_CD" "$pre" "$TNX_C0" "$_TNX_SIG" "$TNX_CD" "$postc" "$_TNX_SP" "$TNX_C0"
+  local ident="by @soobujmiah  |  v${TERNUX_VERSION}"
+  _tnx_clipv "$inner" "$ident"
+  tpad=$(( (inner - _TNX_CLIPW) / 2 )); (( tpad < 0 )) && tpad=0
+  trpad=$(( inner - _TNX_CLIPW - tpad )); (( trpad < 0 )) && trpad=0
+  _tnx_pad "$tpad"; tsp="$_TNX_SP"
+  _tnx_pad "$trpad"; trsp="$_TNX_SP"
+  printf -v content '%s%s%s%s%s' "$tsp" "$TNX_CD" "$_TNX_CLIP" "$TNX_C0" "$trsp"
   _tnx_frame_box_row "$_TNX_LY_IDENT" "$content"
+
+  _tnx_clipv "$inner" "Linux desktop for Android  |  Zink + VirGL"
+  tpad=$(( (inner - _TNX_CLIPW) / 2 )); (( tpad < 0 )) && tpad=0
+  trpad=$(( inner - _TNX_CLIPW - tpad )); (( trpad < 0 )) && trpad=0
+  _tnx_pad "$tpad"; tsp="$_TNX_SP"
+  _tnx_pad "$trpad"; trsp="$_TNX_SP"
+  printf -v content '%s%s%s%s%s' "$tsp" "$TNX_CD" "$_TNX_CLIP" "$TNX_C0" "$trsp"
+  _tnx_frame_box_row "$_TNX_LY_TAGLINE" "$content"
 }
 
 _tnx_frame_paint_device() {
   local i row label value inner=$(( _TNX_FRAME_COLS - 4 )) content
-  for i in 0 1 2; do
+  for i in 0 1 2 3; do
     row=$(( _TNX_LY_DEV0 + i ))
     label="${_TNX_FRAME_DEV_LABELS[$i]:-}"
     value="${_TNX_FRAME_DEV_VALUES[$i]:-}"
@@ -476,19 +483,18 @@ _tnx_frame_paint_footer() {
   printf -v right '%02d:%02d %s' "$mins" "$secs" "$spc"
   rightw=${#right}
 
-  local pre="(c) 2026 " post=" - ${TERNUX_REPO#https://} - Apache-2.0"
-  local fixed=$(( ${#pre} + _TNX_SIG_WIDTH ))
-  local avail=$(( inner - fixed - rightw - 2 ))
-  local postc="" postw=0
-  if (( avail >= 6 )); then
-    _tnx_clipv "$avail" "$post"
-    postc="$_TNX_CLIP"; postw="$_TNX_CLIPW"
+  local pre="© github.com/soobujmiah - 2026" fixed=${#pre}
+  local avail=$(( inner - fixed - rightw - 1 ))
+  local palette=("$TNX_CG" "$TNX_CC" "$TNX_CY" "$TNX_CM" "$TNX_CB" "$TNX_CW")
+  local copyright_color="${palette[$((tick % ${#palette[@]}))]}"
+  if (( avail >= 1 )); then
+    _tnx_pad $(( inner - fixed - rightw ))
+    printf -v content '%s%s%s%s%s%s%s%s' \
+      "$copyright_color" "$pre" "$TNX_C0" "$_TNX_SP" "$TNX_CD" "$right" "$TNX_C0" ""
+  else
+    _tnx_clipv "$inner" "$pre"
+    printf -v content '%s%s%s%s%s%s' "$copyright_color" "$_TNX_CLIP" "$TNX_C0" "$_TNX_SP" "$right" "$TNX_C0"
   fi
-  _tnx_pad $(( inner - fixed - postw - rightw ))
-  _tnx_sigv "$tick"
-  printf -v content '%s%s%s%s%s%s%s%s%s%s%s' \
-    "$TNX_CD" "$pre" "$TNX_C0" "$_TNX_SIG" "$TNX_CD" "$postc" "$TNX_C0" \
-    "$_TNX_SP" "$TNX_CD" "$right" "$TNX_C0"
   _tnx_frame_box_row "$row" "$content"
 }
 
@@ -535,7 +541,7 @@ _tnx_frame_draw_dashboard() {
   printf '\033[?25l\033[r\033[2J\033[H'
   printf '\033[1;%dH%s+%s+%s' "$_TNX_FRAME_X" "$TNX_CM" "$_TNX_RULE" "$TNX_C0"
   _tnx_frame_paint_header
-  printf '\033[4;%dH%s+%s+%s' "$_TNX_FRAME_X" "$TNX_CM" "$_TNX_RULE" "$TNX_C0"
+  printf '\033[5;%dH%s+%s+%s' "$_TNX_FRAME_X" "$TNX_CM" "$_TNX_RULE" "$TNX_C0"
   if [ "$_TNX_LY_DEV_ON" = "1" ]; then
     _tnx_frame_paint_device
   fi
@@ -641,11 +647,12 @@ tnx_frame_open() {
     cols="$(_tnx_plain_cols)"
     inner=$(( cols - 4 ))
     printf '%s+%s+%s\n' "$TNX_CM" "$_TNX_RULE" "$TNX_C0"
-    _tnx_clipv "$inner" 't e r n u x  -  one-click installer'
+    _tnx_clipv "$inner" 'TERNUX'
     printf '%s|%s %s%s%s\n' "$TNX_CM" "$TNX_CG" "$TNX_CW" "$_TNX_CLIP" "$TNX_C0"
-    _tnx_clipv $(( inner - 3 - _TNX_SIG_WIDTH )) '  -  base ~3-4 GB  -  complete ~10-12 GB'
-    printf '%s|%s by %s%s%s%s%s\n' "$TNX_CM" "$TNX_C0" "$TNX_CG" "$_TNX_SIG_NAME" "$TNX_C0" \
-      "$_TNX_CLIP" "$TNX_C0"
+    _tnx_clipv "$inner" "by @soobujmiah  |  v${TERNUX_VERSION}"
+    printf '%s|%s %s%s%s\n' "$TNX_CM" "$TNX_CD" "$TNX_CW" "$_TNX_CLIP" "$TNX_C0"
+    _tnx_clipv "$inner" 'Linux desktop for Android  |  Zink + VirGL'
+    printf '%s|%s %s%s%s\n' "$TNX_CM" "$TNX_CD" "$TNX_CW" "$_TNX_CLIP" "$TNX_C0"
     printf '%s+%s+%s\n' "$TNX_CM" "$_TNX_RULE" "$TNX_C0"
   fi
 }
@@ -793,6 +800,7 @@ _tnx_stream_idle() {
   if [ "$_TNX_ANIM" = "1" ] && (( _TNX_NOW - _TNX_ANIM_T0 >= _TNX_ANIM_MS )); then
     _TNX_ANIM_T0=$_TNX_NOW
     _TNX_FRAME_TICK=$(( _TNX_FRAME_TICK + 1 ))
+    _tnx_frame_paint_progress "${_TNX_SIG_COLORS[$((_TNX_FRAME_TICK % ${#_TNX_SIG_COLORS[@]}))]}"
     _tnx_frame_paint_footer "$_TNX_FRAME_TICK"
   fi
   if (( _TNX_NOW - _TNX_WIN_T0 >= 1000 )); then
@@ -931,39 +939,8 @@ tnx_frame_close() {
 
 # ── Banner -----------------------------------------------------------------
 tnx_banner() {
-  [ "${TERNUX_QUIET:-0}" = "1" ] && return 0
-  if [ "$_TNX_TTY" != "1" ] || [ -z "$TNX_C0" ] || [ "${TERNUX_NO_ANIM:-0}" = "1" ]; then
-    printf '%sternux v%s%s - Linux desktop for Android\n' "$TNX_CG" "$TERNUX_VERSION" "$TNX_C0"
-    printf 'Zink and VirGL graphics routes - by %s\n%s\n\n' "$_TNX_SIG_NAME" "$TERNUX_REPO"
-    return 0
-  fi
-
-  local rows=(
-    "  _______ ______ _____  _   _ _    ___   __"
-    " |__   __|  ____|  __ \\| \\ | | |  | \\ \\ / /"
-    "    | |  | |__  | |__) |  \\| | |  | |\\ V /"
-    '    | |  |  __| |  _  /| . ` | |  | | > <'
-    "    | |  | |____| | \\ \\| |\\  | |__| |/ . \\\\"
-    "    |_|  |______|_|  \\_\\_| \\_|\\____//_/ \\_\\\\"
-  )
-  local charset="#%&*+=<>/|01" i j pass len ch out
-  for pass in 1 2 3; do
-    for i in 0 1 2 3 4 5; do
-      printf '\033[1;38;5;%dm' "$((34 + i * 3))"
-      len=${#rows[$i]}; out=""
-      for ((j=0; j<len; j++)); do
-        ch="${rows[$i]:$j:1}"
-        [ "$ch" = " " ] && { out+=" "; continue; }
-        if [ "$pass" -eq 3 ] || [ $((RANDOM % (4 - pass))) -eq 0 ]; then out+="$ch"
-        else out+="${charset:$((RANDOM % ${#charset})):1}"; fi
-      done
-      printf '%s%s\n' "$out" "$TNX_C0"
-    done
-    [ "$pass" -lt 3 ] && { sleep 0.07; printf '\033[6A'; }
-  done
-  printf '  %sLinux desktop for Android with Zink and VirGL graphics routes%s\n' "$TNX_CG" "$TNX_C0"
-  _tnx_sigv 0
-  printf '  %sv%s - by %s%s%s - Apache-2.0%s\n\n' "$TNX_CD" "$TERNUX_VERSION" "$TNX_C0" "$_TNX_SIG" "$TNX_CD" "$TNX_C0"
+  # Installer branding is rendered in the persistent frame, not flashed before it.
+  return 0
 }
 
 # ── Phase header used when no install frame is active ----------------------

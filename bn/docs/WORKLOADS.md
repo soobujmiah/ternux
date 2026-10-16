@@ -15,11 +15,15 @@ installer-এর একটি flag। Manual পথ হলো একই command 
 চালাচ্ছেন — যাতে চালানোর আগে পড়ে নিতে পারেন, এবং ব্যর্থ একটি install গোড়া থেকে
 শুরু না করে হাতে শেষ করতে পারেন।
 
-Interactive install-এ workload সংখ্যা দিয়ে বাছুন (`1` development, `2` local AI,
-`3` network, `4` media, `5` Blender; একাধিক হলে comma দিন)। `6` সবগুলো,
-Enter/`0` শুধু base desktop। Detected graphics route দেখে installer পরামর্শ দেয়
-এবং RAM/storage সীমা জানায়। `--yes` এবং non-interactive run-এ flag না থাকলে
-base profile-ই থাকে।
+Interactive install-এ arrow key অথবা `j`/`k` দিয়ে চলুন, Space বা item-এর
+number দিয়ে আলাদা করে নির্বাচন বদলান, তারপর Enter চাপুন। ঐচ্ছিক কিছু না চাইলে
+`q` চাপুন। তাই অন্য design tool ছাড়াই Blender, অথবা পুরো Android toolchain ছাড়াই
+ADT-এর ADB বেছে নেওয়া যাবে। Menu-তে বর্তমানে সমর্থিত release-ও দেখায়: Ternux-এর
+checksum-যাচাইকৃত installer দিয়ে llama.cpp CPU + Vulkan এবং experimental HTP
+prerelease বসে; ADT component তার registry-র সর্বশেষ verified release ব্যবহার করে।
+আলাদা QNN native-probe prerelease শুধু Android host-এর জন্য, PRoot-এ বসানোর পথ নেই,
+তাই এটিকে install option হিসেবে দেখানো হয় না। `--yes` ও non-interactive run-এ
+flag না থাকলে শুধু base profile বসে।
 
 <h2 id="the-workloads">ওয়ার্কলোডগুলো</h2>
 
@@ -31,6 +35,11 @@ base profile-ই থাকে।
 | মিডিয়া | `--with-media` | ffmpeg, GIMP, Audacity, ImageMagick |
 | Blender | `--with-blender` | headless EEVEE render-এর জন্য Blender ও Xvfb (Blender প্রায় ৯৫ MB, `--no-install-recommends` সহ) |
 | সবকিছু | `--all` | পাঁচটিই |
+
+Interactive menu-তে Godot, Blender, Claude Code, Codex, Hermes, OpenClaw এবং ADT-এর
+Android component-ও আলাদা item। ADT Platform Tools-এর মধ্যে `adb` ও `fastboot`
+আছে। Ternux এগুলো ADT-র `setup.sh` দিয়ে বসায়; Debian-এর আলাদা
+`android-tools-adb` package ব্যবহার করে না।
 
 বেস desktop — Xfce4, terminal, VLC, archive tool, Mesa utility, Vulkan tool —
 সবসময় বসে এবং সেটি কোনো workload নয়।
