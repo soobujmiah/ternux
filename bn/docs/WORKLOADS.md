@@ -15,11 +15,26 @@ installer-এর একটি flag। Manual পথ হলো একই command 
 চালাচ্ছেন — যাতে চালানোর আগে পড়ে নিতে পারেন, এবং ব্যর্থ একটি install গোড়া থেকে
 শুরু না করে হাতে শেষ করতে পারেন।
 
-Interactive install-এ workload সংখ্যা দিয়ে বাছুন (`1` development, `2` local AI,
-`3` network, `4` media, `5` Blender; একাধিক হলে comma দিন)। `6` সবগুলো,
-Enter/`0` শুধু base desktop। Detected graphics route দেখে installer পরামর্শ দেয়
-এবং RAM/storage সীমা জানায়। `--yes` এবং non-interactive run-এ flag না থাকলে
-base profile-ই থাকে।
+Interactive install-এ একসঙ্গে সর্বোচ্চ ১২টি item দেখায়; terminal resize হলে,
+Android keyboard খোলাসহ, menu নিজে থেকে নতুন মাপে সাজে। item-গুলো
+ছোট category tag-এ গোছানো; অপ্রয়োজনীয় বর্ণনা নেই। Arrow key অথবা `j`/`k` দিয়ে চলুন,
+Space বা item-এর number দিয়ে নির্বাচন বদলান, তারপর Enter-এ plan দেখুন। শুধু base desktop চাইলে `q` চাপুন। Plan
+দেখার পর Enter চাপলে install শুরু হবে; বাতিল করতে `n` লিখুন। Firefox চাইলে অন্য
+desktop tool ছাড়াই, বা পুরো Android toolchain ছাড়াই ADT-এর ADB বেছে নিতে পারবেন।
+Debian package বসানোর আগে `apt update` হয়, তাই configured Debian repository-তে
+যে সর্বশেষ version পাওয়া যায় সেটিই বসে। ADT component তার registry-র সর্বশেষ
+verified release ব্যবহার করে; llama.cpp CPU + Vulkan ও experimental HTP Ternux-এর
+checksum-যাচাইকৃত installer দিয়ে prerelease হিসেবে বসে। `--yes` ও non-interactive
+run-এ flag না থাকলে শুধু base profile বসে।
+
+Catalog-এ Go, PHP, SQLite, ripgrep, jq, htop, tree, Micro, Thonny, Thunderbird,
+Evince ও LibreOffice Calc-ও আছে; সম্পর্কিত software এক category-তে সাজানো।
+
+Install শুরুর আগে Ternux নির্বাচিত optional software অনুযায়ী আনুমানিক storage
+estimate দেখায়; এতে download ও setup-এর অস্থায়ী জায়গাও ধরা হয়। Terminal যথেষ্ট
+বড় হলে install dashboard-এ Linux guest-এর live CPU utilization-ও দেখা যায়। এটি
+স্বল্প সময়ের sample থেকে হিসাব করা আনুমানিক মান; কোন process কত CPU নিচ্ছে তা নয়।
+এই মান পড়া না গেলে dashboard core সংখ্যা ও load average দেখায়।
 
 <h2 id="the-workloads">ওয়ার্কলোডগুলো</h2>
 
@@ -32,8 +47,20 @@ base profile-ই থাকে।
 | Blender | `--with-blender` | headless EEVEE render-এর জন্য Blender ও Xvfb (Blender প্রায় ৯৫ MB, `--no-install-recommends` সহ) |
 | সবকিছু | `--all` | পাঁচটিই |
 
+Interactive menu-তে Godot, Blender, Firefox ESR, Neovim, GitHub CLI, Claude Code,
+Codex, Hermes, OpenClaw এবং ADT-এর Android component-ও আলাদা item। ADT Platform
+Tools-এর মধ্যে `adb` ও `fastboot` আছে। Ternux এগুলো ADT-র `setup.sh` দিয়ে বসায়;
+Debian-এর আলাদা `android-tools-adb` package ব্যবহার করে না।
+
+PRoot-Distro-র জন্য একক universal extension store নেই। Termux:API,
+Termux:Widget, Termux:Boot ও Termux:Styling-এর মতো Android companion app আলাদা APK;
+এগুলো Termux-এর সঙ্গে Android-এ install করতে হয়, Debian guest-এর software menu
+থেকে নয়। [Termux-এর official app ও add-on project](https://github.com/termux/termux-app)
+এবং [Termux:X11-এর official project](https://github.com/termux/termux-x11) দেখুন।
+
 বেস desktop — Xfce4, terminal, VLC, archive tool, Mesa utility, Vulkan tool —
-সবসময় বসে এবং সেটি কোনো workload নয়।
+সবসময় বসে; এতে প্রায় ৩–৪ GB storage লাগে। VLC catalog-এ আলাদা করে বেছে নেওয়া যায়,
+তবে base desktop-এ আগে থেকেই থাকায় দ্বিতীয় কপি বসে না।
 
 <h2 id="automatic">স্বয়ংক্রিয়</h2>
 
@@ -74,6 +101,15 @@ sudo apt install -y nmap tmux
 
 কেবল অনুমোদিত পরীক্ষার জন্য। নিজের নয় এমন network-এ nmap চালাতে ternux আপনাকে
 বলছে না।
+
+**Browser ও developer utility**
+
+```bash
+sudo apt install -y firefox-esr neovim gh
+```
+
+Firefox ESR Debian-এর ARM64 browser package; `apt update`-এর পর configured Debian
+repository-তে থাকা সর্বশেষ package বসে। বিস্তারিত: [Debian Firefox ESR package](https://packages.debian.org/bookworm/firefox-esr)।
 
 **মিডিয়া**
 

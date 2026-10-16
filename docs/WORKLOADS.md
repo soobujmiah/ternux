@@ -15,11 +15,28 @@ one-command route is a flag on the installer. The manual route is the same
 commands run yourself inside the guest, so you can read them before they run
 and so a failed install can be finished by hand instead of started over.
 
-During an interactive install, choose workloads by number (`1` development, `2`
-local AI, `3` network, `4` media, `5` Blender; separate multiple choices with
-commas). Choose `6` for all or press Enter/`0` for the base desktop. The installer
-suggests from the graphics route and reports RAM and free-storage limits. `--yes`
-and non-interactive runs keep the base profile unless flags select workloads.
+During an interactive install, the software catalog shows up to 12 items at a
+time and reflows when the terminal resizes, including when the Android keyboard
+opens; items use short names and category tags. Move
+with arrow keys or `j`/`k`, press Space or the item's number to toggle it, then
+press Enter to review the plan. Press
+`q` for the base desktop only. The plan screen starts installation when you
+press Enter; type `n` to cancel. Each tool is separate, so you can choose
+Firefox without the other desktop tools, or ADT's ADB without the rest of the
+Android toolchain. Debian packages use the latest version available from the
+configured Debian repositories after `apt update`. ADT choices use its latest
+verified release registry; llama.cpp CPU + Vulkan and experimental HTP are
+prereleases installed through Ternux's checksum verifier. `--yes` and
+non-interactive runs keep the base profile unless flags select workloads.
+
+The catalog also includes Go, PHP, SQLite, ripgrep, jq, htop, tree, Micro,
+Thonny, Thunderbird, Evince, and LibreOffice Calc, grouped with related tools.
+
+Before installation, Ternux shows a rough storage estimate based on the selected
+optional software, including temporary download and setup space. In a sufficiently
+large terminal, the install dashboard also shows live CPU utilization sampled
+from the Linux guest; this is a short-interval estimate, not a per-process view.
+If CPU counters are restricted, it shows the available core count and load average.
 
 ## The workloads
 
@@ -32,8 +49,24 @@ and non-interactive runs keep the base profile unless flags select workloads.
 | Blender | `--with-blender` | Blender and Xvfb for headless EEVEE rendering (about 95 MB for Blender with `--no-install-recommends`) |
 | Everything | `--all` | all five |
 
+The interactive menu also offers individual tools such as Godot, Blender,
+Firefox ESR, Neovim, GitHub CLI, Claude Code, Codex, Hermes, OpenClaw, and ADT
+Android components. ADT Platform Tools provides `adb` and `fastboot`; Ternux
+installs these by invoking ADT's own `setup.sh`, never Debian's separate
+`android-tools-adb` package. Ternux refreshes Debian's package index before
+installing selected APT software; the package version is the newest candidate
+in that device's configured Debian repository.
+
+PRoot-Distro does not define a universal extension store. Android-side Termux
+companion apps such as Termux:API, Termux:Widget, Termux:Boot and Termux:Styling
+are separate Android apps, so install them from the official Termux project
+alongside Termux ([official app and add-on projects](https://github.com/termux/termux-app));
+Termux:X11 has its [own official project](https://github.com/termux/termux-x11).
+They are not Debian packages and cannot be installed from this guest selector.
+
 The base desktop — Xfce4, terminal, VLC, archive tools, Mesa utilities, Vulkan
-tools — is always installed and is not a workload.
+tools — uses about 3–4 GB and is always installed. VLC is also listed in the
+catalog so it can be selected explicitly; choosing it does not add a second copy.
 
 ## Automatic
 
@@ -75,6 +108,19 @@ sudo apt install -y nmap tmux
 
 Authorised testing only. nmap against networks you do not own is not something
 ternux is asking you to do.
+
+**Browser and developer utilities**
+
+```bash
+sudo apt install -y firefox-esr neovim gh
+```
+
+Firefox ESR is Debian's supported ARM64 browser package; `apt update` before
+installation selects the newest package available from the configured Debian
+repository. See [Debian's Firefox ESR package](https://packages.debian.org/bookworm/firefox-esr).
+
+VLC is included with the base desktop. If needed, the catalog's separate VLC
+choice simply verifies or reinstalls the Debian package.
 
 **Media**
 

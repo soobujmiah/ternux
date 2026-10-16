@@ -31,6 +31,14 @@ Notable changes to ternux. Dates are ISO 8601.
 - Made successful quiet `logs clear` return success, and isolated smoke-test logs
   from the workstation's own log directory.
 
+### Installer chooser and terminal interface
+
+- Reworked the install screen as an adaptive, animated terminal interface with a
+  five-row TERNUX wordmark, device/resource details, and clearer progress and
+  task status. Optional programs and available Ternux prerelease extensions can
+  be selected individually; Android SDK and ADB setup points to ADT's own
+  installer.
+
 ### Rendering from an agent
 
 - Added `tools/blender-gpu-mcp/`, an MCP server over the tested headless route
