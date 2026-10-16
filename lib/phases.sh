@@ -51,11 +51,20 @@ tnx_optional_storage_mb() {
       build) total=$((total + 800)) ;;
       rust) total=$((total + 700)) ;;
       java) total=$((total + 500)) ;;
+      golang) total=$((total + 600)) ;;
+      php) total=$((total + 150)) ;;
+      sqlite3) total=$((total + 20)) ;;
+      ripgrep) total=$((total + 10)) ;;
+      jq) total=$((total + 10)) ;;
+      htop|tree) total=$((total + 10)) ;;
       godot) total=$((total + 350)) ;;
       geany) total=$((total + 150)) ;;
       neovim) total=$((total + 120)) ;;
+      micro) total=$((total + 30)) ;;
+      thonny) total=$((total + 150)) ;;
       gh) total=$((total + 100)) ;;
       firefox) total=$((total + 350)) ;;
+      thunderbird) total=$((total + 600)) ;;
       adt-build-tools|adt-platform-tools) total=$((total + 60)) ;;
       adt-ndk|adt-cmake) total=$((total + 20)) ;;
       adt-cmdline) total=$((total + 250)) ;;
@@ -71,7 +80,9 @@ tnx_optional_storage_mb() {
       inkscape) total=$((total + 500)) ;;
       audacity) total=$((total + 300)) ;;
       imagemagick) total=$((total + 100)) ;;
+      evince) total=$((total + 150)) ;;
       libreoffice-writer) total=$((total + 900)) ;;
+      libreoffice-calc) total=$((total + 400)) ;;
       blender) total=$((total + 600)) ;;
       claude|codex) total=$((total + 350)) ;;
       openai-cli) total=$((total + 150)) ;;
@@ -798,11 +809,21 @@ tnx_phase_extras() {
       build) apt_packages+=(build-essential cmake ninja-build pkg-config) ;;
       rust) apt_packages+=(rustc cargo) ;;
       java) apt_packages+=(default-jdk-headless) ;;
+      golang) apt_packages+=(golang-go) ;;
+      php) apt_packages+=(php-cli) ;;
+      sqlite3) apt_packages+=(sqlite3) ;;
+      ripgrep) apt_packages+=(ripgrep) ;;
+      jq) apt_packages+=(jq) ;;
+      htop) apt_packages+=(htop) ;;
+      tree) apt_packages+=(tree) ;;
       godot) apt_packages+=(godot) ;;
       geany) apt_packages+=(geany) ;;
       neovim) apt_packages+=(neovim) ;;
+      micro) apt_packages+=(micro) ;;
+      thonny) apt_packages+=(thonny) ;;
       gh) apt_packages+=(gh) ;;
       firefox) apt_packages+=(firefox-esr) ;;
+      thunderbird) apt_packages+=(thunderbird) ;;
       adt-build-tools|adt-platform-tools|adt-ndk|adt-cmake) apt_packages+=(git curl ca-certificates) ;;
       adt-cmdline|adt-platform) apt_packages+=(git curl ca-certificates default-jdk-headless unzip) ;;
       nmap) apt_packages+=(nmap) ;;
@@ -815,7 +836,9 @@ tnx_phase_extras() {
       inkscape) apt_packages+=(inkscape) ;;
       audacity) apt_packages+=(audacity) ;;
       imagemagick) apt_packages+=(imagemagick) ;;
+      evince) apt_packages+=(evince) ;;
       libreoffice-writer) apt_packages+=(libreoffice-writer) ;;
+      libreoffice-calc) apt_packages+=(libreoffice-calc) ;;
       blender) apt_packages+=(blender xvfb) ;;
     esac
   done
@@ -842,7 +865,7 @@ tnx_phase_extras() {
 
   for opt in "$@"; do
     case "$opt" in
-      dev|llm|network|media|git|python|node|build|rust|java|godot|geany|neovim|gh|firefox|nmap|tmux|ffmpeg|vlc|mpv|gimp|krita|inkscape|audacity|imagemagick|libreoffice-writer|blender) ;;
+      dev|llm|network|media|git|python|node|build|rust|java|golang|php|sqlite3|ripgrep|jq|htop|tree|godot|geany|neovim|micro|thonny|gh|firefox|thunderbird|nmap|tmux|ffmpeg|vlc|mpv|gimp|krita|inkscape|audacity|imagemagick|evince|libreoffice-writer|libreoffice-calc|blender) ;;
       adt-build-tools|adt-platform-tools|adt-ndk|adt-cmake|adt-cmdline|adt-platform)
         if tnx_guest_login --shared-tmp --user "$user_name" -- bash -lc '
           set -e
@@ -1284,9 +1307,9 @@ tnx_prompt_username() {
 
 # Item catalogue for the interactive optional-software checklist. Keep this
 # list aligned with the case labels in tnx_phase_extras.
-TNX_OPTIONAL_ITEMS=(git python node build rust java geany neovim gh godot firefox adt-build-tools adt-platform-tools adt-ndk adt-cmake adt-cmdline adt-platform llama-vulkan llama-htp-experimental nmap tmux ffmpeg vlc mpv gimp krita inkscape audacity imagemagick libreoffice-writer blender claude codex openai-cli hermes openclaw)
-TNX_OPTIONAL_GROUPS=(DEV DEV DEV DEV DEV DEV DEV DEV DEV GAME WEB ANDROID ANDROID ANDROID ANDROID ANDROID ANDROID AI AI NET NET MEDIA MEDIA MEDIA DESIGN DESIGN DESIGN MEDIA DESIGN OFFICE 3D AGENT AGENT AGENT AGENT AGENT)
-TNX_OPTIONAL_LABELS=("Git" "Python" "Node.js" "C/C++ tools" "Rust" "Java JDK" "Geany" "Neovim" "GitHub CLI" "Godot" "Firefox ESR" "ADT Build Tools" "ADT Platform Tools / ADB" "ADT NDK" "ADT CMake" "SDK Manager" "Android API 36" "llama.cpp Vulkan" "llama.cpp HTP (experimental)" "Nmap" "tmux" "FFmpeg" "VLC" "mpv" "GIMP" "Krita" "Inkscape" "Audacity" "ImageMagick" "LibreOffice Writer" "Blender" "Claude Code" "Codex CLI" "OpenAI API CLI" "Hermes" "OpenClaw")
+TNX_OPTIONAL_ITEMS=(git python node build rust java golang php ripgrep jq gh sqlite3 htop tree geany neovim micro thonny godot firefox thunderbird adt-build-tools adt-platform-tools adt-ndk adt-cmake adt-cmdline adt-platform llama-vulkan llama-htp-experimental nmap tmux ffmpeg vlc mpv audacity gimp krita inkscape imagemagick evince libreoffice-writer libreoffice-calc blender claude codex openai-cli hermes openclaw)
+TNX_OPTIONAL_GROUPS=(DEV DEV DEV DEV LANG LANG LANG LANG DEV DEV DEV DATA SYSTEM SYSTEM IDE IDE IDE IDE GAME WEB WEB ANDROID ANDROID ANDROID ANDROID ANDROID ANDROID AI AI NET NET MEDIA MEDIA MEDIA MEDIA DESIGN DESIGN DESIGN DESIGN OFFICE OFFICE OFFICE 3D AGENT AGENT AGENT AGENT AGENT)
+TNX_OPTIONAL_LABELS=("Git" "Python" "Node.js" "C/C++ tools" "Rust" "Java JDK" "Go toolchain" "PHP CLI" "ripgrep" "jq" "GitHub CLI" "SQLite" "htop" "tree" "Geany" "Neovim" "Micro editor" "Thonny IDE" "Godot" "Firefox ESR" "Thunderbird" "ADT Build Tools" "ADT Platform Tools / ADB" "ADT NDK" "ADT CMake" "SDK Manager" "Android API 36" "llama.cpp Vulkan" "llama.cpp HTP (experimental)" "Nmap" "tmux" "FFmpeg" "VLC" "mpv" "Audacity" "GIMP" "Krita" "Inkscape" "ImageMagick" "Evince PDF" "LibreOffice Writer" "LibreOffice Calc" "Blender" "Claude Code" "Codex CLI" "OpenAI API CLI" "Hermes" "OpenClaw")
 
 # Parse number lists used when a TTY key-reading menu is unavailable.
 tnx_parse_workload_selection() {
@@ -1592,6 +1615,10 @@ tnx_install() {
         python) workload_label="Python + venv" ;;
         node) workload_label="Node.js + npm" ;;
         build) workload_label="C/C++ build tools" ;;
+        golang) workload_label="Go toolchain" ;;
+        php) workload_label="PHP CLI" ;;
+        sqlite3) workload_label="SQLite" ;;
+        ripgrep|jq|htop|tree|micro|thonny|thunderbird|evince|libreoffice-calc) workload_label="$workload" ;;
         llama-vulkan) workload_label="llama.cpp Vulkan release" ;;
         llama-htp-experimental) workload_label="llama.cpp HTP experimental release" ;;
         firefox) workload_label="Firefox ESR (latest Debian package)" ;;

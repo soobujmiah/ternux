@@ -15,9 +15,9 @@ one-command route is a flag on the installer. The manual route is the same
 commands run yourself inside the guest, so you can read them before they run
 and so a failed install can be finished by hand instead of started over.
 
-During an interactive install, the software catalog shows as many items as fit
-in the current terminal height and reflows when the terminal resizes, including
-when the Android keyboard opens; items use short names and category tags. Move
+During an interactive install, the software catalog shows up to 12 items at a
+time and reflows when the terminal resizes, including when the Android keyboard
+opens; items use short names and category tags. Move
 with arrow keys or `j`/`k`, press Space or the item's number to toggle it, then
 press Enter to review the plan. Press
 `q` for the base desktop only. The plan screen starts installation when you
@@ -28,6 +28,9 @@ configured Debian repositories after `apt update`. ADT choices use its latest
 verified release registry; llama.cpp CPU + Vulkan and experimental HTP are
 prereleases installed through Ternux's checksum verifier. `--yes` and
 non-interactive runs keep the base profile unless flags select workloads.
+
+The catalog also includes Go, PHP, SQLite, ripgrep, jq, htop, tree, Micro,
+Thonny, Thunderbird, Evince, and LibreOffice Calc, grouped with related tools.
 
 Before installation, Ternux shows a rough storage estimate based on the selected
 optional software, including temporary download and setup space. In a sufficiently

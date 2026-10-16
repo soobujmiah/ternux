@@ -15,8 +15,8 @@ installer-এর একটি flag। Manual পথ হলো একই command 
 চালাচ্ছেন — যাতে চালানোর আগে পড়ে নিতে পারেন, এবং ব্যর্থ একটি install গোড়া থেকে
 শুরু না করে হাতে শেষ করতে পারেন।
 
-Interactive install-এ terminal-এর উচ্চতা অনুযায়ী যতগুলো item ধরে, ততগুলো দেখায়;
-Android keyboard খুলে terminal resize হলেও menu নিজে থেকে নতুন মাপে সাজে। item-গুলো
+Interactive install-এ একসঙ্গে সর্বোচ্চ ১২টি item দেখায়; terminal resize হলে,
+Android keyboard খোলাসহ, menu নিজে থেকে নতুন মাপে সাজে। item-গুলো
 ছোট category tag-এ গোছানো; অপ্রয়োজনীয় বর্ণনা নেই। Arrow key অথবা `j`/`k` দিয়ে চলুন,
 Space বা item-এর number দিয়ে নির্বাচন বদলান, তারপর Enter-এ plan দেখুন। শুধু base desktop চাইলে `q` চাপুন। Plan
 দেখার পর Enter চাপলে install শুরু হবে; বাতিল করতে `n` লিখুন। Firefox চাইলে অন্য
@@ -26,6 +26,9 @@ Debian package বসানোর আগে `apt update` হয়, তাই co
 verified release ব্যবহার করে; llama.cpp CPU + Vulkan ও experimental HTP Ternux-এর
 checksum-যাচাইকৃত installer দিয়ে prerelease হিসেবে বসে। `--yes` ও non-interactive
 run-এ flag না থাকলে শুধু base profile বসে।
+
+Catalog-এ Go, PHP, SQLite, ripgrep, jq, htop, tree, Micro, Thonny, Thunderbird,
+Evince ও LibreOffice Calc-ও আছে; সম্পর্কিত software এক category-তে সাজানো।
 
 Install শুরুর আগে Ternux নির্বাচিত optional software অনুযায়ী আনুমানিক storage
 estimate দেখায়; এতে download ও setup-এর অস্থায়ী জায়গাও ধরা হয়। Terminal যথেষ্ট

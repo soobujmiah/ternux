@@ -73,7 +73,7 @@ _TNX_ANIM=1
 _TNX_NEED_NL=0
 
 # Layout row indices (computed from the current terminal size).
-_TNX_LY_TITLE=2; _TNX_LY_IDENT=3; _TNX_LY_VER=4; _TNX_LY_BY=5; _TNX_LY_DIV1=6; _TNX_LY_DEV0=7; _TNX_LY_DEV_ON=1
+_TNX_LY_TITLE=2; _TNX_LY_TITLE2=0; _TNX_LY_TITLE3=0; _TNX_LY_IDENT=3; _TNX_LY_VER=4; _TNX_LY_BY=5; _TNX_LY_DIV1=6; _TNX_LY_DEV0=7; _TNX_LY_DEV_ON=1
 _TNX_LY_PROG=12; _TNX_LY_DIV2=13; _TNX_LY_LOGTOP=14
 _TNX_LY_LOGBOT=21; _TNX_LY_DIV3=22; _TNX_LY_FOOTER=23; _TNX_LY_BOT=24
 # Device panel content.
@@ -113,7 +113,7 @@ _tnx_repeat() {
 
 # _TNX_RULE <- a full-width ASCII rule for the current frame width.
 _tnx_rule_cache() {
-  local n=$(( _TNX_FRAME_COLS - 2 )) r="" pattern='==01==10==' i idx
+  local n=$(( _TNX_FRAME_COLS - 2 )) r="" pattern='*+=-~^-=+*' i idx
   (( n < 1 )) && n=1
   for ((i=0; i<n; i++)); do idx=$((i % ${#pattern})); r+="${pattern:idx:1}"; done
   _TNX_RULE="$r"
@@ -345,17 +345,24 @@ _tnx_plain_cols() {
 _tnx_frame_layout() {
   local R="$_TNX_FRAME_ROWS" C="$_TNX_FRAME_COLS"
   _TNX_LY_DEV_ON=0
-  if (( R >= 22 && C >= 46 )); then
-    _TNX_LY_DEV_ON=1
-    _TNX_LY_TITLE=2; _TNX_LY_IDENT=3; _TNX_LY_VER=4; _TNX_LY_BY=5; _TNX_LY_DIV1=6
-    _TNX_LY_DEV0=7
-    _TNX_LY_PROG=12; _TNX_LY_DIV2=13; _TNX_LY_LOGTOP=14
+  if (( R >= 16 )); then
+    _TNX_LY_TITLE=2; _TNX_LY_TITLE2=3; _TNX_LY_TITLE3=4
+    _TNX_LY_IDENT=5; _TNX_LY_VER=6; _TNX_LY_BY=7; _TNX_LY_DIV1=8
+    if (( R >= 22 && C >= 46 )); then
+      _TNX_LY_DEV_ON=1; _TNX_LY_DEV0=9
+      _TNX_LY_PROG=14; _TNX_LY_DIV2=15; _TNX_LY_LOGTOP=16
+    else
+      _TNX_LY_DEV0=0
+      _TNX_LY_PROG=9; _TNX_LY_DIV2=10; _TNX_LY_LOGTOP=11
+    fi
   elif (( R >= 13 )); then
-    _TNX_LY_TITLE=2; _TNX_LY_IDENT=3; _TNX_LY_VER=4; _TNX_LY_BY=5; _TNX_LY_DIV1=6
+    _TNX_LY_TITLE=2; _TNX_LY_TITLE2=0; _TNX_LY_TITLE3=0
+    _TNX_LY_IDENT=3; _TNX_LY_VER=4; _TNX_LY_BY=0; _TNX_LY_DIV1=5
     _TNX_LY_DEV0=0
     _TNX_LY_PROG=7; _TNX_LY_DIV2=8; _TNX_LY_LOGTOP=9
   else
-    _TNX_LY_TITLE=2; _TNX_LY_IDENT=3; _TNX_LY_VER=4; _TNX_LY_BY=0; _TNX_LY_DIV1=5
+    _TNX_LY_TITLE=2; _TNX_LY_TITLE2=0; _TNX_LY_TITLE3=0
+    _TNX_LY_IDENT=3; _TNX_LY_VER=4; _TNX_LY_BY=0; _TNX_LY_DIV1=5
     _TNX_LY_DEV0=0
     _TNX_LY_PROG=6; _TNX_LY_DIV2=7; _TNX_LY_LOGTOP=8
   fi
@@ -450,14 +457,23 @@ _tnx_frame_paint_header() {
   local tick="${1:-${_TNX_FRAME_TICK:-0}}" inner=$(( _TNX_FRAME_COLS - 4 )) content="" title tpad trpad tsp trsp logo_color
   local -a logo_colors=("$TNX_CG" "$TNX_CC" "$TNX_CG" "$TNX_CC" "$TNX_CG" "$TNX_CG")
   logo_color="${logo_colors[$((tick % ${#logo_colors[@]}))]}"
-  _tnx_clipv "$inner" "*<== T E R N U X ==>*"
-  title="$_TNX_CLIP"
-  tpad=$(( (inner - _TNX_CLIPW) / 2 )); (( tpad < 0 )) && tpad=0
-  trpad=$(( inner - _TNX_CLIPW - tpad )); (( trpad < 0 )) && trpad=0
-  _tnx_pad "$tpad"; tsp="$_TNX_SP"
-  _tnx_pad "$trpad"; trsp="$_TNX_SP"
-  printf -v content '%s%s%s%s%s%s' "$tsp" "$logo_color" "$title" "$TNX_C0" "$trsp" "$TNX_C0"
-  _tnx_frame_box_row "$_TNX_LY_TITLE" "$content"
+  if (( _TNX_LY_TITLE3 > 0 )); then
+    local logo1='***** ***** ****  *   * *   * *   *'
+    local logo2='  *   *     *   * **  * *   *  * * '
+    local logo3='  *   ***** *  ** * * * ***** *   *'
+    _tnx_frame_center_line "$_TNX_LY_TITLE" "$logo1" "$logo_color"
+    _tnx_frame_center_line "$_TNX_LY_TITLE2" "$logo2" "$TNX_CC"
+    _tnx_frame_center_line "$_TNX_LY_TITLE3" "$logo3" "$logo_color"
+  else
+    _tnx_clipv "$inner" '*<== T E R N U X ==>*'
+    title="$_TNX_CLIP"
+    tpad=$(( (inner - _TNX_CLIPW) / 2 )); (( tpad < 0 )) && tpad=0
+    trpad=$(( inner - _TNX_CLIPW - tpad )); (( trpad < 0 )) && trpad=0
+    _tnx_pad "$tpad"; tsp="$_TNX_SP"
+    _tnx_pad "$trpad"; trsp="$_TNX_SP"
+    printf -v content '%s%s%s%s%s%s' "$tsp" "$logo_color" "$title" "$TNX_C0" "$trsp" "$TNX_C0"
+    _tnx_frame_box_row "$_TNX_LY_TITLE" "$content"
+  fi
 
   _tnx_frame_center_line "$_TNX_LY_IDENT" 'Linux Workstation In Your Pocket' "$TNX_CD"
   if (( _TNX_LY_BY > 0 )); then
@@ -544,12 +560,13 @@ _tnx_frame_paint_footer() {
   printf -v right '%02d:%02d %s' "$mins" "$secs" "$spc"
   rightw=${#right}
   left="Free:${_TNX_FRAME_STORAGE:-?}G"; leftw=${#left}
-  pre="© github.com/soobujmiah - 2026"
+  pre="https://soobujmiah.github.io/"
+  (( inner < 40 )) && pre="soobujmiah.github.io"
   fixed=${#pre}
   local palette=("$TNX_CG" "$TNX_CC" "$TNX_CG" "$TNX_CC" "$TNX_CG" "$TNX_CG")
   local copyright_color="${palette[$((tick % ${#palette[@]}))]}"
   if (( leftw + fixed + rightw + 2 > inner )); then
-    pre="© Sobuj Miah - 2026"; fixed=${#pre}
+    pre="soobujmiah.github.io"; fixed=${#pre}
     printf -v right '%d:%02d' "$mins" "$secs"; rightw=${#right}
     left="${_TNX_FRAME_STORAGE:-?}G"; leftw=${#left}
   fi
@@ -557,7 +574,7 @@ _tnx_frame_paint_footer() {
   right_start=$(( inner - rightw ))
   gap_left=$(( center_start - leftw )); gap_right=$(( right_start - center_start - fixed ))
   if (( inner < 20 )); then
-    local compact="©Sobuj ${mins}:$(printf '%02d' "$secs")"
+    local compact="soobujmiah.github.io"
     _tnx_clipv "$inner" "$compact"
     content="${copyright_color}${_TNX_CLIP}${TNX_C0}"
     _tnx_pad $(( inner - _TNX_CLIPW )); content+="$_TNX_SP"
@@ -736,8 +753,17 @@ tnx_frame_open() {
     cols="$(_tnx_plain_cols)"
     inner=$(( cols - 4 ))
     printf '%s+%s+%s\n' "$TNX_CM" "$_TNX_RULE" "$TNX_C0"
-    _tnx_clipv "$inner" '*<== T E R N U X ==>*'
-    printf '%s|%s %s%s%s\n' "$TNX_CM" "$TNX_CG" "$TNX_CW" "$_TNX_CLIP" "$TNX_C0"
+    if (( inner >= 35 )); then
+      _tnx_clipv "$inner" '***** ***** ****  *   * *   * *   *'
+      printf '%s|%s %s%s%s\n' "$TNX_CM" "$TNX_CG" "$TNX_CW" "$_TNX_CLIP" "$TNX_C0"
+      _tnx_clipv "$inner" '  *   *     *   * **  * *   *  * * '
+      printf '%s|%s %s%s%s\n' "$TNX_CM" "$TNX_CC" "$TNX_CW" "$_TNX_CLIP" "$TNX_C0"
+      _tnx_clipv "$inner" '  *   ***** *  ** * * * ***** *   *'
+      printf '%s|%s %s%s%s\n' "$TNX_CM" "$TNX_CG" "$TNX_CW" "$_TNX_CLIP" "$TNX_C0"
+    else
+      _tnx_clipv "$inner" '*<== T E R N U X ==>*'
+      printf '%s|%s %s%s%s\n' "$TNX_CM" "$TNX_CG" "$TNX_CW" "$_TNX_CLIP" "$TNX_C0"
+    fi
     _tnx_clipv "$inner" 'Linux Workstation In Your Pocket'
     printf '%s|%s %s%s%s\n' "$TNX_CM" "$TNX_CD" "$TNX_CW" "$_TNX_CLIP" "$TNX_C0"
     _tnx_clipv "$inner" "v${TERNUX_VERSION}"
@@ -747,7 +773,7 @@ tnx_frame_open() {
     printf '%s|%s %s%s%s\n' "$TNX_CM" "$TNX_CD" "$TNX_CW" "$_TNX_CLIP" "$TNX_C0"
     _tnx_clipv "$inner" 'Storage estimate: base ~3-4 GB; complete ~10-12 GB'
     printf '%s|%s %s%s%s\n' "$TNX_CM" "$TNX_CD" "$TNX_CW" "$_TNX_CLIP" "$TNX_C0"
-    _tnx_clipv "$inner" '© github.com/soobujmiah - 2026'
+    _tnx_clipv "$inner" 'Portfolio: soobujmiah.github.io'
     printf '%s|%s %s%s%s\n' "$TNX_CM" "$TNX_CY" "$TNX_CW" "$_TNX_CLIP" "$TNX_C0"
     printf '%s+%s+%s\n' "$TNX_CM" "$_TNX_RULE" "$TNX_C0"
   fi
