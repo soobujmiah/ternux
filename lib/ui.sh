@@ -181,7 +181,7 @@ _tnx_strip_controls() { _tnx_stripv "$1"; printf '%s' "$_TNX_TXT"; }
 _tnx_cellwidth() {
   local c="$1"
   _TNX_CW=1
-  if (( c == 9641 )); then _TNX_CW=1                               # installer pixel glyph: ▩
+  if (( c == 9609 )); then _TNX_CW=1                  # wordmark glyph: ▉
   elif (( c > 11903 )); then _TNX_CW=2                            # CJK onwards, emoji
   elif (( c == 183 || c == 8226 )); then _TNX_CW=2                # middle dot, bullet
   elif (( c >= 8592 && c <= 8959 )); then _TNX_CW=2               # arrows, math operators
@@ -346,13 +346,13 @@ _tnx_plain_cols() {
 _tnx_frame_layout() {
   local R="$_TNX_FRAME_ROWS" C="$_TNX_FRAME_COLS"
   _TNX_LY_DEV_ON=0
-  if (( R >= 26 && C >= 46 )); then
+  if (( R >= 26 && C >= 44 )); then
     _TNX_LY_LOGO_ROWS=5
     _TNX_LY_TITLE=2; _TNX_LY_TITLE2=3; _TNX_LY_TITLE3=4; _TNX_LY_TITLE4=5; _TNX_LY_TITLE5=6
     _TNX_LY_IDENT=7; _TNX_LY_VER=8; _TNX_LY_BY=9; _TNX_LY_DIV1=10
     _TNX_LY_DEV_ON=1; _TNX_LY_DEV0=11
     _TNX_LY_PROG=16; _TNX_LY_BAR=17; _TNX_LY_TASK=18; _TNX_LY_DIV2=19; _TNX_LY_LOGTOP=20
-  elif (( R >= 18 && C >= 46 )); then
+  elif (( R >= 18 && C >= 44 )); then
     _TNX_LY_LOGO_ROWS=5
     _TNX_LY_TITLE=2; _TNX_LY_TITLE2=3; _TNX_LY_TITLE3=4; _TNX_LY_TITLE4=5; _TNX_LY_TITLE5=6
     _TNX_LY_IDENT=7; _TNX_LY_VER=8; _TNX_LY_BY=0; _TNX_LY_DIV1=9; _TNX_LY_DEV0=0
@@ -362,7 +362,7 @@ _tnx_frame_layout() {
     _TNX_LY_TITLE=2; _TNX_LY_TITLE2=3; _TNX_LY_TITLE3=0; _TNX_LY_TITLE4=0; _TNX_LY_TITLE5=0
     _TNX_LY_IDENT=4; _TNX_LY_VER=5; _TNX_LY_BY=6; _TNX_LY_DIV1=7; _TNX_LY_DEV0=0
     _TNX_LY_PROG=8; _TNX_LY_BAR=9; _TNX_LY_TASK=10; _TNX_LY_DIV2=11; _TNX_LY_LOGTOP=12
-  elif (( R >= 16 && C >= 46 )); then
+  elif (( R >= 16 && C >= 44 )); then
     _TNX_LY_LOGO_ROWS=5
     _TNX_LY_TITLE=2; _TNX_LY_TITLE2=3; _TNX_LY_TITLE3=4; _TNX_LY_TITLE4=5; _TNX_LY_TITLE5=6
     _TNX_LY_IDENT=7; _TNX_LY_VER=8; _TNX_LY_BY=0; _TNX_LY_DIV1=9; _TNX_LY_DEV0=0
@@ -468,21 +468,21 @@ _tnx_frame_paint_header() {
   logo_color="${logo_colors[$((tick % ${#logo_colors[@]}))]}"
   if (( _TNX_LY_LOGO_ROWS == 5 )); then
     local -a logo
-    if (( inner >= 50 )); then
+    if (( inner >= 48 )); then
     logo=(
-      '▩▩▩▩▩    ▩▩▩▩▩    ▩▩▩▩     ▩   ▩    ▩   ▩    ▩   ▩'
-      '  ▩      ▩        ▩   ▩    ▩▩  ▩    ▩   ▩    ▩   ▩'
-      '  ▩      ▩▩▩▩     ▩▩▩▩     ▩ ▩ ▩    ▩   ▩     ▩ ▩ '
-      '  ▩      ▩        ▩ ▩      ▩  ▩▩    ▩   ▩      ▩  '
-      '  ▩      ▩▩▩▩▩    ▩  ▩     ▩   ▩    ▩▩▩▩▩     ▩ ▩ '
+      '▉▉▉    ▉▉▉    ▉▉     ▉ ▉    ▉ ▉    ▉ ▉'
+      ' ▉     ▉      ▉ ▉    ▉▉▉    ▉ ▉     ▉▉'
+      ' ▉     ▉▉     ▉▉     ▉▉▉    ▉ ▉      ▉'
+      ' ▉     ▉      ▉ ▉    ▉ ▉    ▉ ▉    ▉▉ '
+      ' ▉     ▉▉▉    ▉ ▉    ▉ ▉    ▉▉▉    ▉ ▉'
     )
     else
     logo=(
-      '▩▩▩▩▩  ▩▩▩▩▩  ▩▩▩▩   ▩   ▩  ▩   ▩  ▩   ▩'
-      '  ▩    ▩      ▩   ▩  ▩▩  ▩  ▩   ▩  ▩   ▩'
-      '  ▩    ▩▩▩▩   ▩▩▩▩   ▩ ▩ ▩  ▩   ▩   ▩ ▩ '
-      '  ▩    ▩      ▩ ▩    ▩  ▩▩  ▩   ▩    ▩  '
-      '  ▩    ▩▩▩▩▩  ▩  ▩   ▩   ▩  ▩▩▩▩▩   ▩ ▩ '
+      '▉▉▉ ▉▉▉ ▉▉  ▉ ▉ ▉ ▉ ▉ ▉'
+      ' ▉  ▉   ▉ ▉ ▉▉▉ ▉ ▉  ▉▉'
+      ' ▉  ▉▉  ▉▉  ▉▉▉ ▉ ▉   ▉'
+      ' ▉  ▉   ▉ ▉ ▉ ▉ ▉ ▉ ▉▉ '
+      ' ▉  ▉▉▉ ▉ ▉ ▉ ▉ ▉▉▉ ▉ ▉'
     )
     fi
     local row
@@ -527,7 +527,7 @@ _tnx_frame_center_line() {
 # wave. The ASCII glyph stays fixed, so the name remains readable throughout.
 _tnx_frame_logo_line() {
   local row="$1" text="$2" tick="${3:-0}" inner=$(( _TNX_FRAME_COLS - 4 ))
-  local i ch color pad left right content="" phase
+  local i ch color pad left right content="" phase right_col=$(( _TNX_FRAME_X + _TNX_FRAME_COLS - 1 ))
   local -a colors=("$TNX_CG" "$TNX_CC" "$TNX_CY" "$TNX_CG" "$TNX_CC" "$TNX_CY")
   _tnx_clipv "$inner" "$text"
   pad=$(( (inner - _TNX_CLIPW) / 2 )); (( pad < 0 )) && pad=0
@@ -537,13 +537,16 @@ _tnx_frame_logo_line() {
   for ((i=0; i<${#_TNX_CLIP}; i++)); do
     ch="${_TNX_CLIP:i:1}"
     case "$ch" in
-      '▩') phase=$(( (i + tick) % ${#colors[@]} )); color="${colors[$phase]}" ;;
+      '▉') phase=$(( (i + tick) % ${#colors[@]} )); color="${colors[$phase]}" ;;
       *) color="$TNX_C0" ;;
     esac
     content+="${color}${ch}"
   done
   content+="${TNX_C0}${right}${TNX_C0}"
-  _tnx_frame_box_row "$row" "$content"
+  # Unicode wordmark glyphs may have ambiguous terminal widths. Anchor both
+  # frame edges by cursor position instead of relying on the glyph run length.
+  printf '\0337\033[%d;%dH\033[K%s|%s %s%s' "$row" "$_TNX_FRAME_X" "$TNX_CC" "$TNX_C0" "$content" "$TNX_C0"
+  printf '\033[%d;%dH%s|\0338' "$row" "$right_col" "$TNX_CC"
 }
 
 _tnx_frame_paint_device() {
