@@ -74,7 +74,7 @@ _TNX_NEED_NL=0
 
 # Layout row indices (computed from the current terminal size).
 _TNX_LY_TITLE=2; _TNX_LY_TITLE2=0; _TNX_LY_TITLE3=0; _TNX_LY_TITLE4=0; _TNX_LY_TITLE5=0; _TNX_LY_IDENT=3; _TNX_LY_VER=4; _TNX_LY_BY=5; _TNX_LY_DIV1=6; _TNX_LY_DEV0=7; _TNX_LY_DEV_ON=1
-_TNX_LY_PROG=12; _TNX_LY_DIV2=13; _TNX_LY_LOGTOP=14
+_TNX_LY_PROG=12; _TNX_LY_BAR=13; _TNX_LY_TASK=14; _TNX_LY_DIV2=15; _TNX_LY_LOGTOP=16
 _TNX_LY_LOGBOT=21; _TNX_LY_DIV3=22; _TNX_LY_FOOTER=23; _TNX_LY_BOT=24
 # Device panel content.
 _TNX_FRAME_DEV_LABELS=()
@@ -346,29 +346,29 @@ _tnx_frame_layout() {
   local R="$_TNX_FRAME_ROWS" C="$_TNX_FRAME_COLS"
   _TNX_LY_DEV_ON=0
   if (( R >= 18 && C >= 39 )); then
-    _TNX_LY_TITLE=2; _TNX_LY_TITLE2=3; _TNX_LY_TITLE3=4; _TNX_LY_TITLE4=5; _TNX_LY_TITLE5=6
-    _TNX_LY_IDENT=7; _TNX_LY_VER=8; _TNX_LY_BY=9; _TNX_LY_DIV1=10
+    _TNX_LY_TITLE=2; _TNX_LY_TITLE2=3; _TNX_LY_TITLE3=0; _TNX_LY_TITLE4=0; _TNX_LY_TITLE5=0
+    _TNX_LY_IDENT=4; _TNX_LY_VER=5; _TNX_LY_BY=6; _TNX_LY_DIV1=7
     if (( R >= 26 && C >= 46 )); then
-      _TNX_LY_DEV_ON=1; _TNX_LY_DEV0=11
-      _TNX_LY_PROG=16; _TNX_LY_DIV2=17; _TNX_LY_LOGTOP=18
+      _TNX_LY_DEV_ON=1; _TNX_LY_DEV0=8
+      _TNX_LY_PROG=13; _TNX_LY_BAR=14; _TNX_LY_TASK=15; _TNX_LY_DIV2=16; _TNX_LY_LOGTOP=17
     else
       _TNX_LY_DEV0=0
-      _TNX_LY_PROG=11; _TNX_LY_DIV2=12; _TNX_LY_LOGTOP=13
+      _TNX_LY_PROG=8; _TNX_LY_BAR=9; _TNX_LY_TASK=10; _TNX_LY_DIV2=11; _TNX_LY_LOGTOP=12
     fi
   elif (( R >= 16 && C >= 27 )); then
-    _TNX_LY_TITLE=2; _TNX_LY_TITLE2=3; _TNX_LY_TITLE3=4; _TNX_LY_TITLE4=0; _TNX_LY_TITLE5=0
-    _TNX_LY_IDENT=5; _TNX_LY_VER=6; _TNX_LY_BY=7; _TNX_LY_DIV1=8; _TNX_LY_DEV0=0
-    _TNX_LY_PROG=9; _TNX_LY_DIV2=10; _TNX_LY_LOGTOP=11
+    _TNX_LY_TITLE=2; _TNX_LY_TITLE2=3; _TNX_LY_TITLE3=0; _TNX_LY_TITLE4=0; _TNX_LY_TITLE5=0
+    _TNX_LY_IDENT=4; _TNX_LY_VER=5; _TNX_LY_BY=6; _TNX_LY_DIV1=7; _TNX_LY_DEV0=0
+    _TNX_LY_PROG=8; _TNX_LY_BAR=9; _TNX_LY_TASK=10; _TNX_LY_DIV2=11; _TNX_LY_LOGTOP=12
   elif (( R >= 13 )); then
     _TNX_LY_TITLE=2; _TNX_LY_TITLE2=0; _TNX_LY_TITLE3=0; _TNX_LY_TITLE4=0; _TNX_LY_TITLE5=0
     _TNX_LY_IDENT=3; _TNX_LY_VER=4; _TNX_LY_BY=0; _TNX_LY_DIV1=5
     _TNX_LY_DEV0=0
-    _TNX_LY_PROG=7; _TNX_LY_DIV2=8; _TNX_LY_LOGTOP=9
+    _TNX_LY_PROG=6; _TNX_LY_BAR=0; _TNX_LY_TASK=0; _TNX_LY_DIV2=7; _TNX_LY_LOGTOP=8
   else
     _TNX_LY_TITLE=2; _TNX_LY_TITLE2=0; _TNX_LY_TITLE3=0; _TNX_LY_TITLE4=0; _TNX_LY_TITLE5=0
     _TNX_LY_IDENT=3; _TNX_LY_VER=4; _TNX_LY_BY=0; _TNX_LY_DIV1=5
     _TNX_LY_DEV0=0
-    _TNX_LY_PROG=6; _TNX_LY_DIV2=7; _TNX_LY_LOGTOP=8
+    _TNX_LY_PROG=6; _TNX_LY_BAR=0; _TNX_LY_TASK=0; _TNX_LY_DIV2=7; _TNX_LY_LOGTOP=8
   fi
   _TNX_LY_LOGBOT=$(( R - 3 ))
   _TNX_LY_DIV3=$(( R - 2 ))
@@ -461,24 +461,10 @@ _tnx_frame_paint_header() {
   local tick="${1:-${_TNX_FRAME_TICK:-0}}" inner=$(( _TNX_FRAME_COLS - 4 )) content="" title tpad trpad tsp trsp logo_color
   local -a logo_colors=("$TNX_CG" "$TNX_CC" "$TNX_CG" "$TNX_CC" "$TNX_CG" "$TNX_CG")
   logo_color="${logo_colors[$((tick % ${#logo_colors[@]}))]}"
-  if (( _TNX_LY_TITLE5 > 0 )); then
-    local logo1='##### ##### ####  #   # #   # #   #'
-    local logo2='  #   #     #   # ##  # #   # #   #'
-    local logo3='  #   ####  ####  # # # #   #   #  '
-    local logo4='  #   #     # #   #  ## #   # #   #'
-    local logo5='  #   ##### #  ## #   # ##### #   #'
+  if (( _TNX_LY_TITLE2 > 0 )); then
+    local logo1='### TERNUX ###' logo2='=== TERNUX ==='
     _tnx_frame_center_line "$_TNX_LY_TITLE" "$logo1" "$logo_color"
-    _tnx_frame_center_line "$_TNX_LY_TITLE2" "$logo2" "${logo_colors[$(((tick + 1) % ${#logo_colors[@]}))]}"
-    _tnx_frame_center_line "$_TNX_LY_TITLE3" "$logo3" "${logo_colors[$(((tick + 2) % ${#logo_colors[@]}))]}"
-    _tnx_frame_center_line "$_TNX_LY_TITLE4" "$logo4" "${logo_colors[$(((tick + 3) % ${#logo_colors[@]}))]}"
-    _tnx_frame_center_line "$_TNX_LY_TITLE5" "$logo5" "$logo_color"
-  elif (( _TNX_LY_TITLE3 > 0 )); then
-    local logo1='### ### ##  # # # # # #'
-    local logo2=' #  #   # # ### # #  # '
-    local logo3=' #  ### ##  # # ### # #'
-    _tnx_frame_center_line "$_TNX_LY_TITLE" "$logo1" "$logo_color"
-    _tnx_frame_center_line "$_TNX_LY_TITLE2" "$logo2" "${logo_colors[$(((tick + 1) % ${#logo_colors[@]}))]}"
-    _tnx_frame_center_line "$_TNX_LY_TITLE3" "$logo3" "${logo_colors[$(((tick + 2) % ${#logo_colors[@]}))]}"
+    _tnx_frame_center_line "$_TNX_LY_TITLE2" "$logo2" "${logo_colors[$(((tick + 3) % ${#logo_colors[@]}))]}"
   else
     _tnx_clipv "$inner" '### TERNUX ###'
     title="$_TNX_CLIP"
@@ -490,10 +476,10 @@ _tnx_frame_paint_header() {
     _tnx_frame_box_row "$_TNX_LY_TITLE" "$content"
   fi
 
-  _tnx_frame_center_line "$_TNX_LY_IDENT" 'Linux Workstation In Your Pocket' "$TNX_CD"
+  _tnx_frame_center_line "$_TNX_LY_IDENT" 'Linux Workstation In Your Pocket' "${logo_colors[$(((tick + 2) % ${#logo_colors[@]}))]}"
   if (( _TNX_LY_BY > 0 )); then
     _tnx_frame_center_line "$_TNX_LY_VER" "v${TERNUX_VERSION}" "$TNX_CY"
-    _tnx_frame_center_line "$_TNX_LY_BY" 'by Sobuj Miah (@soobujmiah)' "$TNX_CD"
+    _tnx_frame_center_line "$_TNX_LY_BY" 'by Sobuj Miah (@soobujmiah)' "${logo_colors[$(((tick + 4) % ${#logo_colors[@]}))]}"
   else
     _tnx_frame_center_line "$_TNX_LY_VER" "v${TERNUX_VERSION}  |  by Sobuj Miah" "$TNX_CY"
   fi
@@ -530,17 +516,32 @@ _tnx_frame_paint_progress() {
   (( total <= 0 )) && total=1
   (( cur < 0 )) && cur=0
   (( cur > total )) && cur=$total
+  local cnt="${cur}/${total}" filled empty bar tmp barw=18
+  if (( _TNX_LY_BAR > 0 && _TNX_LY_TASK > 0 )); then
+    local barw=$(( _TNX_FRAME_COLS - 2 )) content
+    filled=$(( cur * barw / total )); (( filled > barw )) && filled=$barw
+    empty=$(( barw - filled ))
+    printf -v tmp '%*s' "$filled" ''; bar="${tmp// /#}"
+    printf -v tmp '%*s' "$empty" ''; bar+="${tmp// /-}"
+    _tnx_frame_center_line "$row" "STEPS ${cnt}" "$sc"
+    printf '\0337\033[%d;%dH|%s%s%s%s|\033[K\0338' \
+      "$_TNX_LY_BAR" "$_TNX_FRAME_X" "$sc" "$bar" "$TNX_C0" "$TNX_C0"
+    _tnx_clipv $(( inner - 1 )) "$title"
+    _tnx_pad $(( inner - _TNX_CLIPW - 1 ))
+    printf -v content '%s%s%s%s ' "$TNX_CG" "$_TNX_CLIP" "$TNX_C0" "$_TNX_SP"
+    _tnx_frame_box_row "$_TNX_LY_TASK" "$content"
+    return 0
+  fi
   local barw=18
   (( inner < 52 )) && barw=12
   (( inner < 40 )) && barw=8
   (( inner < 26 )) && barw=4
-  local filled=$(( cur * barw / total )) empty
+  filled=$(( cur * barw / total ))
   (( filled > barw )) && filled=$barw
   empty=$(( barw - filled ))
-  local bar="" tmp=""
+  bar=""; tmp=""
   printf -v tmp '%*s' "$filled" ''; bar="${tmp// /#}"
   printf -v tmp '%*s' "$empty" '';  bar+="${tmp// /-}"
-  local cnt="${cur}/${total}"
   if (( inner < 28 )); then
     local compact="${cnt} [${bar}]" available=$(( inner - ${#cnt} - 3 ))
     (( available < 0 )) && available=0
