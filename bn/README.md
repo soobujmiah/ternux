@@ -11,7 +11,7 @@
 [![সংস্করণ](https://img.shields.io/badge/version-1.4.0-00e5a0?style=flat-square)](https://github.com/soobujmiah/ternux/releases)
 [![প্ল্যাটফর্ম](https://img.shields.io/badge/platform-Android%20arm64-38bdf8?style=flat-square)](https://github.com/soobujmiah/ternux)
 [![NPU](https://img.shields.io/badge/NPU-experimental%20(QNN%20HTP)-f59e0b?style=flat-square)](../docs/ACCELERATOR-RELEASE-PLAN.md)
-[![লাইসেন্স](https://img.shields.io/badge/license-Apache--2.0-22c55e?style=flat-square)](../LICENSE)
+[![লাইসেন্স](https://img.shields.io/badge/license-PolyForm--NC--plus--business--terms-22c55e?style=flat-square)](../LICENSE-SCOPE.md)
 
 [ওয়েবসাইট](https://soobujmiah.github.io/ternux/) · [বিস্তারিত ডকুমেন্টেশন](../docs/README.md) · [English](../README.md) · [সোর্স কোড](https://github.com/soobujmiah/ternux)
 

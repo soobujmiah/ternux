@@ -8,7 +8,8 @@
 #    2. Standalone:  curl ... | bash         (libs downloaded from GitHub)
 #
 #  Copyright (c) 2026 Sobuj Miah (@soobujmiah)
-#  Licensed under the Apache License, Version 2.0.
+#  Licensed under PolyForm Noncommercial 1.0.0 plus the Ternux commercial-use
+#  addendum; see LICENSE-SCOPE.md and LICENSE-COMMERCIAL-ADDENDUM.md.
 #  https://github.com/soobujmiah/ternux
 #
 #  Usage

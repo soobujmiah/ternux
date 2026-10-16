@@ -320,4 +320,4 @@ lib/ui.sh           ← ইনস্টলার রেন্ডারার: da
 
 ---
 
-*ternux — সর্বস্বত্ব (c) ২০২৬ Sobuj Miah ([@soobujmiah](https://github.com/soobujmiah)) · Apache-2.0 লাইসেন্স*
+*ternux — সর্বস্বত্ব (c) ২০২৬ Sobuj Miah ([@soobujmiah](https://github.com/soobujmiah)) · PolyForm Noncommercial 1.0.0 লাইসেন্স*

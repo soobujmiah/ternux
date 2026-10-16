@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Ternux experimental llama.cpp Hexagon launcher.
 # Copyright (c) 2026 Sobuj Miah (@soobujmiah)
-# Licensed under the Apache License, Version 2.0.
+# Licensed under PolyForm Noncommercial 1.0.0 plus the Ternux commercial-use addendum; see LICENSE-SCOPE.md.
 set -euo pipefail
 
 script_dir="$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"

@@ -10,6 +10,16 @@ const copy = (from, to) =>
   });
 copy("assets/fonts", "assets/fonts");
 copy("assets/img", "assets/img");
+for (const file of [
+  "LICENSE",
+  "LICENSE-APACHE-2.0",
+  "LICENSE-COMMERCIAL-ADDENDUM.md",
+  "LICENSE-SCOPE.md",
+  "NOTICE",
+  "THIRD_PARTY_NOTICES.md",
+]) {
+  fs.copyFileSync(path.join(root, file), path.join(dist, file));
+}
 // Preserve the established directory URLs for the two documentation indexes.
 for (const [from, to] of [
   ["docs.html", "docs/index.html"],

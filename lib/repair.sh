@@ -2,7 +2,7 @@
 #  ternux — repair (auto-fix common issues)
 #
 #  Copyright (c) 2026 Sobuj Miah (@soobujmiah)
-#  Licensed under the Apache License, Version 2.0.
+#  Licensed under PolyForm Noncommercial 1.0.0 plus the Ternux commercial-use addendum; see LICENSE-SCOPE.md.
 #  https://github.com/soobujmiah/ternux
 # =============================================================================
 

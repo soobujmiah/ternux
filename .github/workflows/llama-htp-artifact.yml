@@ -14,6 +14,9 @@ on:
       - 'tools/llama-htp/**'
       - 'LICENSE'
       - 'NOTICE'
+      - 'LICENSE-SCOPE.md'
+      - 'LICENSE-COMMERCIAL-ADDENDUM.md'
+      - 'THIRD_PARTY_NOTICES.md'
 
 permissions:
   contents: read
@@ -95,8 +98,8 @@ jobs:
               name = Path(raw_path.decode("utf-8")).name.upper()
               if name.endswith(".CMAKE"):
                   return False
-              return (name in {"LICENSE", "COPYING"} or
-                      name.startswith(("LICENSE.", "LICENSE-", "COPYING.", "COPYING-")))
+              return (name in {"LICENSE", "COPYING", "NOTICE"} or
+                      name.startswith(("LICENSE.", "LICENSE-", "COPYING.", "COPYING-", "NOTICE.", "NOTICE-")))
 
           licenses = sorted(path.decode("utf-8") for path in paths if path and is_license_file(path))
           if not licenses:
@@ -118,6 +121,9 @@ jobs:
           cp llama.cpp/LICENSE release/ternux-llama-htp-sm8735-b11582/LLAMA-CPP-LICENSE
           cp LICENSE release/ternux-llama-htp-sm8735-b11582/TERNUX-LICENSE
           cp NOTICE release/ternux-llama-htp-sm8735-b11582/TERNUX-NOTICE
+          cp LICENSE-SCOPE.md release/ternux-llama-htp-sm8735-b11582/TERNUX-LICENSE-SCOPE.txt
+          cp LICENSE-COMMERCIAL-ADDENDUM.md release/ternux-llama-htp-sm8735-b11582/TERNUX-COMMERCIAL-ADDENDUM.txt
+          cp THIRD_PARTY_NOTICES.md release/ternux-llama-htp-sm8735-b11582/TERNUX-THIRD-PARTY-NOTICES.txt
           cat > release/ternux-llama-htp-sm8735-b11582/README.txt <<'EOF'
           Ternux experimental llama.cpp Hexagon HTP package
 
@@ -135,7 +141,11 @@ jobs:
           HTP guide and accelerator release plan; this build does not claim
           supported or production-ready NPU inference.
 
-          Upstream license texts and their source paths are indexed under upstream-licenses/.
+          Upstream license and notice texts, with source paths, are indexed under upstream-licenses/.
+          The Ternux first-party adapter terms and third-party scope are recorded in
+          TERNUX-LICENSE, TERNUX-LICENSE-SCOPE.txt, TERNUX-NOTICE, and
+          TERNUX-THIRD-PARTY-NOTICES.txt. Company use needs a separate commercial license.
+          TERNUX-COMMERCIAL-ADDENDUM.txt contains the exact additional condition.
 
           The package does not include Qualcomm vendor libraries, firmware,
           or device permission changes. Install libgbinder1, libglibutil1,
@@ -158,7 +168,7 @@ jobs:
             "experimental_adapter": ["bin/htp-run", "libexec/htp-broker.py", "lib/libternux-htp-broker.so"],
             "runtime_dependencies": ["libgbinder.so.1", "libglibutil.so.1", "libcdsprpc.so.1", "libcdsprpc.so", "python3"],
             "debian_packages": ["libgbinder1", "libglibutil1", "libfastrpc1", "libfastrpc-dev", "python3"],
-            "license_files": ["LLAMA-CPP-LICENSE", "upstream-licenses/INDEX.txt", "TERNUX-LICENSE", "TERNUX-NOTICE"]
+            "license_files": ["LLAMA-CPP-LICENSE", "upstream-licenses/INDEX.txt", "TERNUX-LICENSE", "TERNUX-LICENSE-SCOPE.txt", "TERNUX-COMMERCIAL-ADDENDUM.txt", "TERNUX-NOTICE", "TERNUX-THIRD-PARTY-NOTICES.txt"]
           }
           EOF
           tar -C release -czf ternux-llama-htp-sm8735-b11582.tar.gz ternux-llama-htp-sm8735-b11582
@@ -167,6 +177,9 @@ jobs:
           while IFS= read -r license_path; do
             grep -Fqx "ternux-llama-htp-sm8735-b11582/upstream-licenses/$license_path" archive-contents.txt
           done < release/ternux-llama-htp-sm8735-b11582/upstream-licenses/INDEX.txt
+          for license_path in TERNUX-LICENSE TERNUX-LICENSE-SCOPE.txt TERNUX-COMMERCIAL-ADDENDUM.txt TERNUX-NOTICE TERNUX-THIRD-PARTY-NOTICES.txt; do
+            grep -Fqx "ternux-llama-htp-sm8735-b11582/$license_path" archive-contents.txt
+          done
           sed -n '1,40p' archive-contents.txt
 
       - name: Upload build artifact for review
