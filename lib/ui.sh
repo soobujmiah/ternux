@@ -463,6 +463,12 @@ _tnx_frame_paint_header() {
   logo_color="${logo_colors[$((tick % ${#logo_colors[@]}))]}"
   if (( _TNX_LY_TITLE2 > 0 )); then
     local logo1='### TERNUX ###' logo2='===+=======+==='
+    if (( inner >= 35 )); then
+      # A two-row symbol font spells TERNUX once; each row gets its own
+      # animated colour phase while the glyphs stay fixed and readable.
+      logo1='##### ##### ####  #   # #   # #   #'
+      logo2='  #   ####  #  ## ##### #___#  # # '
+    fi
     _tnx_frame_center_line "$_TNX_LY_TITLE" "$logo1" "$logo_color"
     _tnx_frame_center_line "$_TNX_LY_TITLE2" "$logo2" "${logo_colors[$(((tick + 3) % ${#logo_colors[@]}))]}"
   else
