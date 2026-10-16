@@ -413,7 +413,7 @@ _tnx_frame_paint_header() {
   printf -v content '%s%s%s%s%s' "$tsp" "$TNX_CG" "$title" "$TNX_C0" "$trsp"
   _tnx_frame_box_row "$_TNX_LY_TITLE" "$content"
 
-  local ident="by @soobujmiah  |  v${TERNUX_VERSION}"
+  local ident="by @soobujmiah (Sobuj Miah)  |  v${TERNUX_VERSION}"
   _tnx_clipv "$inner" "$ident"
   tpad=$(( (inner - _TNX_CLIPW) / 2 )); (( tpad < 0 )) && tpad=0
   trpad=$(( inner - _TNX_CLIPW - tpad )); (( trpad < 0 )) && trpad=0
@@ -649,7 +649,7 @@ tnx_frame_open() {
     printf '%s+%s+%s\n' "$TNX_CM" "$_TNX_RULE" "$TNX_C0"
     _tnx_clipv "$inner" 'TERNUX'
     printf '%s|%s %s%s%s\n' "$TNX_CM" "$TNX_CG" "$TNX_CW" "$_TNX_CLIP" "$TNX_C0"
-    _tnx_clipv "$inner" "by @soobujmiah  |  v${TERNUX_VERSION}"
+    _tnx_clipv "$inner" "by @soobujmiah (Sobuj Miah)  |  v${TERNUX_VERSION}"
     printf '%s|%s %s%s%s\n' "$TNX_CM" "$TNX_CD" "$TNX_CW" "$_TNX_CLIP" "$TNX_C0"
     _tnx_clipv "$inner" 'Linux desktop for Android  |  Zink + VirGL'
     printf '%s|%s %s%s%s\n' "$TNX_CM" "$TNX_CD" "$TNX_CW" "$_TNX_CLIP" "$TNX_C0"

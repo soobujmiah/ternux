@@ -854,7 +854,7 @@ tnx_phase_extras() {
     if tnx_guest_login --shared-tmp --user "$user_name" -- bash -c '
       set -e
       src="$HOME/llama.cpp-b11582"; pin=af50f2f248b475d9760f8e67503d01c0f194f5f4
-      if [ -e "$src" ]; then [ -d "$src/.git" ] && [ "$(git -C "$src" rev-parse HEAD 2>/dev/null)" = "$pin" ] || { echo "Refusing to modify non-pinned source at $src" >&2; exit 1; }
+      if [ -e "$src" ]; then [ -d "$src/.git" ] && [ "$(git -C "$src" rev-parse HEAD 2>/dev/null)" = "$pin" ] || { echo "Refusing to modify existing non-pinned source at $src" >&2; exit 1; }
       else git clone --depth 1 --branch b11582 https://github.com/ggml-org/llama.cpp.git "$src"; test "$(git -C "$src" rev-parse HEAD)" = "$pin"; fi
       cd "$src"; cmake -S . -B build -DGGML_VULKAN=ON -DGGML_HEXAGON=OFF -DCMAKE_BUILD_TYPE=Release; cmake --build build --config Release -j"$1"; mkdir -p models
     ' _ "$jobs"; then tnx_ok "llama.cpp built with Vulkan"; else tnx_warn "llama.cpp build failed."; rc=1; fi
