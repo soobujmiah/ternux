@@ -181,7 +181,8 @@ _tnx_strip_controls() { _tnx_stripv "$1"; printf '%s' "$_TNX_TXT"; }
 _tnx_cellwidth() {
   local c="$1"
   _TNX_CW=1
-  if (( c > 11903 )); then _TNX_CW=2                              # CJK onwards, emoji
+  if (( c == 9641 )); then _TNX_CW=1                               # installer pixel glyph: ▩
+  elif (( c > 11903 )); then _TNX_CW=2                            # CJK onwards, emoji
   elif (( c == 183 || c == 8226 )); then _TNX_CW=2                # middle dot, bullet
   elif (( c >= 8592 && c <= 8959 )); then _TNX_CW=2               # arrows, math operators
   elif (( c >= 9312 && c <= 9727 )); then _TNX_CW=2               # enclosed alnum, box drawing, shapes
@@ -345,42 +346,46 @@ _tnx_plain_cols() {
 _tnx_frame_layout() {
   local R="$_TNX_FRAME_ROWS" C="$_TNX_FRAME_COLS"
   _TNX_LY_DEV_ON=0
-  if (( R >= 18 && C >= 39 )); then
-    _TNX_LY_TITLE=2; _TNX_LY_TITLE2=3; _TNX_LY_TITLE3=0; _TNX_LY_TITLE4=0; _TNX_LY_TITLE5=0
-    _TNX_LY_IDENT=4; _TNX_LY_VER=5; _TNX_LY_BY=6; _TNX_LY_DIV1=7
-    if (( R >= 26 && C >= 46 )); then
-      _TNX_LY_DEV_ON=1; _TNX_LY_DEV0=8
-      _TNX_LY_PROG=13; _TNX_LY_BAR=14; _TNX_LY_TASK=15; _TNX_LY_DIV2=16; _TNX_LY_LOGTOP=17
-    else
-      _TNX_LY_DEV0=0
-      _TNX_LY_PROG=8; _TNX_LY_BAR=9; _TNX_LY_TASK=10; _TNX_LY_DIV2=11; _TNX_LY_LOGTOP=12
-    fi
-  elif (( R >= 16 && C >= 27 )); then
+  if (( R >= 26 && C >= 46 )); then
+    _TNX_LY_LOGO_ROWS=5
+    _TNX_LY_TITLE=2; _TNX_LY_TITLE2=3; _TNX_LY_TITLE3=4; _TNX_LY_TITLE4=5; _TNX_LY_TITLE5=6
+    _TNX_LY_IDENT=7; _TNX_LY_VER=8; _TNX_LY_BY=9; _TNX_LY_DIV1=10
+    _TNX_LY_DEV_ON=1; _TNX_LY_DEV0=11
+    _TNX_LY_PROG=16; _TNX_LY_BAR=17; _TNX_LY_TASK=18; _TNX_LY_DIV2=19; _TNX_LY_LOGTOP=20
+  elif (( R >= 18 && C >= 46 )); then
+    _TNX_LY_LOGO_ROWS=5
+    _TNX_LY_TITLE=2; _TNX_LY_TITLE2=3; _TNX_LY_TITLE3=4; _TNX_LY_TITLE4=5; _TNX_LY_TITLE5=6
+    _TNX_LY_IDENT=7; _TNX_LY_VER=8; _TNX_LY_BY=0; _TNX_LY_DIV1=9; _TNX_LY_DEV0=0
+    _TNX_LY_PROG=10; _TNX_LY_BAR=11; _TNX_LY_TASK=12; _TNX_LY_DIV2=13; _TNX_LY_LOGTOP=14
+  elif (( R >= 18 && C >= 39 )); then
+    _TNX_LY_LOGO_ROWS=0
     _TNX_LY_TITLE=2; _TNX_LY_TITLE2=3; _TNX_LY_TITLE3=0; _TNX_LY_TITLE4=0; _TNX_LY_TITLE5=0
     _TNX_LY_IDENT=4; _TNX_LY_VER=5; _TNX_LY_BY=6; _TNX_LY_DIV1=7; _TNX_LY_DEV0=0
     _TNX_LY_PROG=8; _TNX_LY_BAR=9; _TNX_LY_TASK=10; _TNX_LY_DIV2=11; _TNX_LY_LOGTOP=12
-  elif (( R >= 13 )); then
-    _TNX_LY_TITLE=2; _TNX_LY_TITLE2=0; _TNX_LY_TITLE3=0; _TNX_LY_TITLE4=0; _TNX_LY_TITLE5=0
-    _TNX_LY_IDENT=3; _TNX_LY_VER=4; _TNX_LY_BY=0; _TNX_LY_DIV1=5
-    _TNX_LY_DEV0=0
-    _TNX_LY_PROG=6; _TNX_LY_BAR=0; _TNX_LY_TASK=0; _TNX_LY_DIV2=7; _TNX_LY_LOGTOP=8
+  elif (( R >= 16 && C >= 46 )); then
+    _TNX_LY_LOGO_ROWS=5
+    _TNX_LY_TITLE=2; _TNX_LY_TITLE2=3; _TNX_LY_TITLE3=4; _TNX_LY_TITLE4=5; _TNX_LY_TITLE5=6
+    _TNX_LY_IDENT=7; _TNX_LY_VER=8; _TNX_LY_BY=0; _TNX_LY_DIV1=9; _TNX_LY_DEV0=0
+    _TNX_LY_PROG=10; _TNX_LY_BAR=0; _TNX_LY_TASK=0; _TNX_LY_DIV2=11; _TNX_LY_LOGTOP=12
+  elif (( R >= 16 && C >= 27 )); then
+    _TNX_LY_LOGO_ROWS=0
+    _TNX_LY_TITLE=2; _TNX_LY_TITLE2=3; _TNX_LY_TITLE3=0; _TNX_LY_TITLE4=0; _TNX_LY_TITLE5=0
+    _TNX_LY_IDENT=4; _TNX_LY_VER=5; _TNX_LY_BY=6; _TNX_LY_DIV1=7; _TNX_LY_DEV0=0
+    _TNX_LY_PROG=8; _TNX_LY_BAR=0; _TNX_LY_TASK=0; _TNX_LY_DIV2=9; _TNX_LY_LOGTOP=10
   else
+    _TNX_LY_LOGO_ROWS=0
     _TNX_LY_TITLE=2; _TNX_LY_TITLE2=0; _TNX_LY_TITLE3=0; _TNX_LY_TITLE4=0; _TNX_LY_TITLE5=0
-    _TNX_LY_IDENT=3; _TNX_LY_VER=4; _TNX_LY_BY=0; _TNX_LY_DIV1=5
-    _TNX_LY_DEV0=0
+    _TNX_LY_IDENT=3; _TNX_LY_VER=4; _TNX_LY_BY=0; _TNX_LY_DIV1=5; _TNX_LY_DEV0=0
     _TNX_LY_PROG=6; _TNX_LY_BAR=0; _TNX_LY_TASK=0; _TNX_LY_DIV2=7; _TNX_LY_LOGTOP=8
   fi
-  _TNX_LY_LOGBOT=$(( R - 3 ))
-  _TNX_LY_DIV3=$(( R - 2 ))
-  _TNX_LY_FOOTER=$(( R - 1 ))
-  _TNX_LY_BOT=$R
+  _TNX_LY_LOGBOT=$(( R - 3 )); _TNX_LY_DIV3=$(( R - 2 )); _TNX_LY_FOOTER=$(( R - 1 )); _TNX_LY_BOT=$R
   (( _TNX_LY_LOGBOT < _TNX_LY_LOGTOP )) && _TNX_LY_LOGBOT=$_TNX_LY_LOGTOP
 }
 
 # True when the current geometry can host a compact dashboard with a log row.
 _tnx_frame_fits() {
   (( _TNX_FRAME_COLS >= 22 )) || return 1
-  (( _TNX_FRAME_ROWS >= 11 )) || return 1
+  (( _TNX_FRAME_ROWS >= 16 )) || return 1
   _tnx_frame_layout
   (( _TNX_LY_LOGBOT - _TNX_LY_LOGTOP + 1 >= 1 ))
 }
@@ -461,21 +466,34 @@ _tnx_frame_paint_header() {
   local tick="${1:-${_TNX_FRAME_TICK:-0}}" inner=$(( _TNX_FRAME_COLS - 4 )) content="" title tpad trpad tsp trsp logo_color
   local -a logo_colors=("$TNX_CG" "$TNX_CC" "$TNX_CG" "$TNX_CC" "$TNX_CG" "$TNX_CG")
   logo_color="${logo_colors[$((tick % ${#logo_colors[@]}))]}"
-  if (( _TNX_LY_TITLE2 > 0 )); then
-    local logo1='### TERNUX ###' logo2='===+=======+==='
-    if (( inner >= 35 )); then
-      # A two-row symbol font spells TERNUX once; each row gets its own
-      # animated colour phase while the glyphs stay fixed and readable.
-      logo1='##### ##### ####  #   # #   # #   #'
-      logo2='  #   ####  #  ## ##### #___#  # # '
-      _tnx_frame_logo_line "$_TNX_LY_TITLE" "$logo1" "$tick"
-      _tnx_frame_logo_line "$_TNX_LY_TITLE2" "$logo2" "$((tick + 3))"
+  if (( _TNX_LY_LOGO_ROWS == 5 )); then
+    local -a logo
+    if (( inner >= 50 )); then
+    logo=(
+      '▩▩▩▩▩    ▩▩▩▩▩    ▩▩▩▩     ▩   ▩    ▩   ▩    ▩   ▩'
+      '  ▩      ▩        ▩   ▩    ▩▩  ▩    ▩   ▩    ▩   ▩'
+      '  ▩      ▩▩▩▩     ▩▩▩▩     ▩ ▩ ▩    ▩   ▩     ▩ ▩ '
+      '  ▩      ▩        ▩ ▩      ▩  ▩▩    ▩   ▩      ▩  '
+      '  ▩      ▩▩▩▩▩    ▩  ▩     ▩   ▩    ▩▩▩▩▩     ▩ ▩ '
+    )
     else
-      _tnx_frame_center_line "$_TNX_LY_TITLE" "$logo1" "$logo_color"
-      _tnx_frame_center_line "$_TNX_LY_TITLE2" "$logo2" "${logo_colors[$(((tick + 3) % ${#logo_colors[@]}))]}"
+    logo=(
+      '▩▩▩▩▩  ▩▩▩▩▩  ▩▩▩▩   ▩   ▩  ▩   ▩  ▩   ▩'
+      '  ▩    ▩      ▩   ▩  ▩▩  ▩  ▩   ▩  ▩   ▩'
+      '  ▩    ▩▩▩▩   ▩▩▩▩   ▩ ▩ ▩  ▩   ▩   ▩ ▩ '
+      '  ▩    ▩      ▩ ▩    ▩  ▩▩  ▩   ▩    ▩  '
+      '  ▩    ▩▩▩▩▩  ▩  ▩   ▩   ▩  ▩▩▩▩▩   ▩ ▩ '
+    )
     fi
+    local row
+    for ((row=0; row<5; row++)); do
+      _tnx_frame_logo_line "$(( _TNX_LY_TITLE + row ))" "${logo[$row]}" "$((tick + row))"
+    done
+  elif (( _TNX_LY_TITLE2 > 0 )); then
+    _tnx_frame_center_line "$_TNX_LY_TITLE" 'T E R N U X' "$logo_color"
+    _tnx_frame_center_line "$_TNX_LY_TITLE2" 'T E R N U X' "${logo_colors[$(((tick + 3) % ${#logo_colors[@]}))]}"
   else
-    _tnx_clipv "$inner" '### TERNUX ###'
+    _tnx_clipv "$inner" 'T E R N U X'
     title="$_TNX_CLIP"
     tpad=$(( (inner - _TNX_CLIPW) / 2 )); (( tpad < 0 )) && tpad=0
     trpad=$(( inner - _TNX_CLIPW - tpad )); (( trpad < 0 )) && trpad=0
@@ -519,7 +537,7 @@ _tnx_frame_logo_line() {
   for ((i=0; i<${#_TNX_CLIP}; i++)); do
     ch="${_TNX_CLIP:i:1}"
     case "$ch" in
-      '#'|'_') phase=$(( (i + tick) % ${#colors[@]} )); color="${colors[$phase]}" ;;
+      '▩') phase=$(( (i + tick) % ${#colors[@]} )); color="${colors[$phase]}" ;;
       *) color="$TNX_C0" ;;
     esac
     content+="${color}${ch}"
