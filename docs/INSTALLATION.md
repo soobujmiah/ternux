@@ -53,7 +53,7 @@ the finished installation itself is approximately **3–4 GB** or **10–12 GB**
 ## Method 1 — One command (recommended)
 
 ```bash
-curl -fsSL https://soobujmiah.github.io/ternux/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
 ```
 
 This downloads the installer over HTTPS and runs it. With an attached terminal,
@@ -82,7 +82,7 @@ openssl out of sync. Use wget — same installer, and the script repairs curl
 for you:
 
 ```bash
-wget -qO- https://soobujmiah.github.io/ternux/install.sh | bash
+wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
 ```
 
 ### Optional workload chooser
