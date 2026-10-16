@@ -181,7 +181,7 @@ _tnx_strip_controls() { _tnx_stripv "$1"; printf '%s' "$_TNX_TXT"; }
 _tnx_cellwidth() {
   local c="$1"
   _TNX_CW=1
-  if (( c == 9760 )); then _TNX_CW=2                   # wordmark glyph: skull emoji
+  if (( c == 9641 )); then _TNX_CW=1                   # wordmark glyph: ▩
   elif (( c > 11903 )); then _TNX_CW=2                            # CJK onwards, emoji
   elif (( c == 183 || c == 8226 )); then _TNX_CW=2                # middle dot, bullet
   elif (( c >= 8592 && c <= 8959 )); then _TNX_CW=2               # arrows, math operators
@@ -469,11 +469,11 @@ _tnx_frame_paint_header() {
   if (( _TNX_LY_LOGO_ROWS == 5 )); then
     local -a logo
     logo=(
-      '☠☠☠ ☠☠☠ ☠☠  ☠ ☠ ☠ ☠ ☠ ☠'
-      ' ☠  ☠   ☠ ☠ ☠☠  ☠ ☠  ☠ '
-      ' ☠  ☠☠  ☠☠  ☠ ☠ ☠ ☠  ☠ '
-      ' ☠  ☠   ☠ ☠ ☠ ☠ ☠ ☠  ☠ '
-      ' ☠  ☠☠☠ ☠ ☠ ☠ ☠ ☠☠☠ ☠ ☠'
+      '▩▩▩▩▩  ▩▩▩▩▩  ▩▩▩▩   ▩   ▩  ▩   ▩  ▩   ▩'
+      '  ▩    ▩      ▩   ▩  ▩▩  ▩  ▩   ▩   ▩ ▩ '
+      '  ▩    ▩▩▩▩   ▩▩▩▩   ▩ ▩ ▩  ▩   ▩    ▩  '
+      '  ▩    ▩      ▩  ▩   ▩  ▩▩  ▩   ▩   ▩ ▩ '
+      '  ▩    ▩▩▩▩▩  ▩   ▩  ▩   ▩  ▩▩▩▩▩  ▩   ▩'
     )
     local row
     for ((row=0; row<5; row++)); do
@@ -527,7 +527,7 @@ _tnx_frame_logo_line() {
   for ((i=0; i<${#_TNX_CLIP}; i++)); do
     ch="${_TNX_CLIP:i:1}"
     case "$ch" in
-      '☠') phase=$(( (i + tick) % ${#colors[@]} )); color="${colors[$phase]}" ;;
+      '▩') phase=$(( (i + tick) % ${#colors[@]} )); color="${colors[$phase]}" ;;
       *) color="$TNX_C0" ;;
     esac
     content+="${color}${ch}"
