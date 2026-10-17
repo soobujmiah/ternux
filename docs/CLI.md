@@ -114,15 +114,34 @@ ternux restart
 
 ### `ternux doctor`
 
-Run system diagnostics. Checks 11 categories:
-Termux environment, storage, PRoot/Debian, Termux:X11, PulseAudio,
-Vulkan, GPU/backend, renderer, Android child-process setting, launcher, VirGL.
+Run categorised diagnostics. Each check is reported as `ok`, `warn`, `fail` or
+`info` with a fix hint; `info` is context and never counts as an issue.
+
+| Category | Checks |
+|---|---|
+| `system` | architecture, storage, memory, battery temperature, state directory |
+| `host` | proot-distro, Debian container, Termux:X11, PulseAudio, curl, Android child-process setting |
+| `guest` | Debian glibc, passwordless sudo, desktop commands, dpkg state, free space |
+| `graphics` | Vulkan, GPU, backend, KGSL node, Turnip layout, renderer, launcher, VirGL |
+| `extensions` | installed extensions: version, runtime libraries, x86/x86-64 emulation DLLs, Wine prefix and graphics path |
+
+The `guest`, `graphics` (Turnip layout) and `extensions` checks come from one
+read-only probe that runs inside the Debian guest. An unreachable guest is
+reported as `info`, not as a fault.
 
 ```bash
-ternux doctor [--json]
+ternux doctor [CATEGORY...] [--quick] [--strict] [--json]
 ```
 
-**JSON output example:**
+| Option | Effect |
+|---|---|
+| `CATEGORY` | run only the named categories, for example `ternux doctor extensions` |
+| `--quick` | skip the Debian guest probe |
+| `--strict` | exit `1` when a warning exists and `2` when a check fails; the default exit status stays `0` |
+| `--json` | machine-readable output |
+
+**JSON output example** (abridged; `schema_version` 2 keeps the original
+`issues` and `recommended_actions` arrays and adds `summary` and `checks`):
 ```json
 {
   "command": "doctor",
@@ -131,8 +150,15 @@ ternux doctor [--json]
   "backend": "zink",
   "renderer": "zink Vulkan (Adreno ... (MESA_TURNIP))",
   "vulkan": "yes",
+  "schema_version": 2,
+  "summary": {"ok": 30, "warn": 1, "fail": 0, "info": 3},
+  "checks": [
+    {"id": "ext_wine_hangover", "category": "extensions", "status": "ok",
+     "title": "wine-hangover: wine-11.16 (Hangover) (ternux-wine-hangover-11.16-debian13-arm64)",
+     "detail": "", "fix": ""}
+  ],
   "issues": ["phantom_process_killer_enabled"],
-  "recommended_actions": ["review Android process restrictions and other Signal 9 causes"]
+  "recommended_actions": ["Review Android process restrictions and other Signal 9 causes (see docs)"]
 }
 ```
 
@@ -277,13 +303,18 @@ delegates installation to the selected Debian guest.
 ternux extension list
 ternux extension install llama-vulkan
 ternux extension install llama-htp-experimental
+ternux extension install wine-hangover
 ```
 
 `llama-vulkan` is the CPU + Vulkan prerelease. `llama-htp-experimental` is an
 experimental SM8735/V73 route with known configuration limits; it is not a
-supported release feature and has no automatic CPU/GPU fallback. See the
-[CPU/Vulkan guide](https://github.com/soobujmiah/ternux/blob/main/guides/llama-vulkan-extension.md)
-and [HTP guide](https://github.com/soobujmiah/ternux/blob/main/guides/llama-htp-experimental.md).
+supported release feature and has no automatic CPU/GPU fallback. `wine-hangover`
+is an experimental Hangover Wine 11.16 build that runs x86 and x86-64 Windows
+programs; it installs the upstream release pinned by SHA-256 without root, and its
+`env.sh` uses the GPU through Zink when available and the CPU otherwise. See the
+[CPU/Vulkan guide](https://github.com/soobujmiah/ternux/blob/main/guides/llama-vulkan-extension.md),
+[HTP guide](https://github.com/soobujmiah/ternux/blob/main/guides/llama-htp-experimental.md)
+and [Wine + Hangover guide](https://github.com/soobujmiah/ternux/blob/main/guides/wine-hangover-extension.md).
 
 ### `ternux update`
 

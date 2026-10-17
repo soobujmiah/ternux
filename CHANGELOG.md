@@ -12,6 +12,23 @@ Notable changes to ternux. Dates are ISO 8601.
 
 ## [Unreleased]
 
+### Windows programs and a deeper doctor
+
+- Added the experimental `ternux extension install wine-hangover`: Hangover
+  Wine 11.16 for Debian 13 ARM64, installed from the upstream release pinned by
+  SHA-256 without root, with path and link checks, an atomic move and a
+  `wine --version` smoke test. Its `env.sh` follows Ternux's backend rule: the
+  session driver if set, Zink on a visible Adreno, otherwise the CPU fallback.
+- Reworked `ternux doctor` into categorised checks (`system`, `host`, `guest`,
+  `graphics`, `extensions`) with `--quick`, `--strict` and category filters. The
+  JSON gains `schema_version`, `summary` and `checks[]` while keeping the
+  original keys. It now inspects installed extensions, including Wine's version,
+  runtime libraries, x86 and x86-64 emulation DLLs, prefix and graphics path.
+- Recorded the device qualification and benchmark results in the Wine +
+  Hangover guide and added `experiments/wine-hangover/validate.sh`, a
+  reproducible check that downloads real Windows programs against pinned
+  SHA-256 values.
+
 ### Website and CLI reliability
 
 - Set the hero words to `LINUX` and `লিনাক্স` in their respective languages,
