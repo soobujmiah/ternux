@@ -22,7 +22,7 @@
 # (info is context and never counts as an issue).
 # ---------------------------------------------------------------------------
 TNX_DOCTOR_CATEGORIES="system host guest graphics extensions"
-TNX_DOCTOR_EXTENSIONS="llama-vulkan llama-htp-experimental wine-hangover"
+TNX_DOCTOR_EXTENSIONS="llama-vulkan llama-htp-experimental"
 _TNX_DR_US=$'\x1f'
 declare -a _TNX_DR_ROWS=()
 declare -a _TNX_DR_FILTER=()
@@ -93,24 +93,6 @@ _tnx_doctor_guest_probe() {
         if [ "$name" = llama-htp-experimental ]; then
           if [ -x "$e/bin/htp-run" ] && [ -f "$e/libexec/htp-broker.py" ]; then _p "ext.$name.broker" yes; else _p "ext.$name.broker" no; fi
         fi
-        ;;
-      wine-hangover)
-        if [ -x "$e/bin/wine" ]; then
-          out="$( ( . "$e/env.sh" >/dev/null 2>&1; timeout 30 "$e/bin/wine" --version 2>&1 | head -1 ) )"
-          _p "ext.$name.version" "$out"
-          libs="$(ldd "$e/lib/wine/aarch64-unix/ntdll.so" 2>/dev/null | grep -c 'not found')"
-          _p "ext.$name.missing_libs" "${libs:-0}"
-        else
-          _p "ext.$name.binary" missing
-        fi
-        if [ -f "$e/lib/wine/aarch64-windows/libwow64fex.dll" ] || [ -f "$e/lib/wine/aarch64-windows/wowbox64.dll" ]; then
-          _p "ext.$name.x86_32" yes
-        else
-          _p "ext.$name.x86_32" no
-        fi
-        if [ -f "$e/lib/wine/aarch64-windows/libarm64ecfex.dll" ]; then _p "ext.$name.x86_64" yes; else _p "ext.$name.x86_64" no; fi
-        _p "ext.$name.gpu" "$( ( . "$e/env.sh" >/dev/null 2>&1; printf '%s' "${GALLIUM_DRIVER:-}" ) )"
-        if [ -f "${WINEPREFIX:-$HOME/.wine}/system.reg" ]; then _p "ext.$name.prefix" yes; else _p "ext.$name.prefix" no; fi
         ;;
     esac
   done
@@ -352,32 +334,6 @@ _tnx_dr_extensions() {
         if [ "$name" = llama-htp-experimental ]; then
           if [ "${_TNX_DR_GUEST[$p.broker]:-no}" = yes ]; then _tnx_dr_add ok extensions ext_htp_broker "HTP launcher and broker present (experimental)"
           else _tnx_dr_add warn extensions ext_htp_broker_missing "HTP launcher or broker missing" "" "Reinstall: ternux extension install llama-htp-experimental"; fi
-        fi
-        ;;
-      wine-hangover)
-        if [ "${_TNX_DR_GUEST[$p.binary]:-}" = missing ]; then
-          _tnx_dr_add warn extensions ext_wine_binary "wine-hangover: bin/wine missing" "" "Reinstall: ternux extension install wine-hangover"
-        else
-          v="${_TNX_DR_GUEST[$p.version]:-}"
-          case "$v" in
-            wine-*) _tnx_dr_add ok extensions ext_wine_hangover "wine-hangover: $v ($art)" ;;
-            *) _tnx_dr_add warn extensions ext_wine_run "wine-hangover: wine did not report a version" "${v:-no output}" "Run: ternux doctor extensions --json, then see guides/wine-hangover-extension.md" ;;
-          esac
-          if [ "${_TNX_DR_GUEST[$p.missing_libs]:-0}" -gt 0 ] 2>/dev/null; then
-            _tnx_dr_add warn extensions ext_wine_libs "wine-hangover: ${_TNX_DR_GUEST[$p.missing_libs]} runtime librar(ies) not found" "" "Rerun: ternux extension install wine-hangover (it lists the apt packages to add)"
-          fi
-          if [ "${_TNX_DR_GUEST[$p.x86_32]:-no}" = yes ]; then _tnx_dr_add ok extensions ext_wine_x86 "x86 (32-bit) emulation DLL present"
-          else _tnx_dr_add warn extensions ext_wine_x86_missing "x86 (32-bit) emulation DLL missing" "32-bit Windows programs cannot run" "Reinstall: ternux extension install wine-hangover"; fi
-          if [ "${_TNX_DR_GUEST[$p.x86_64]:-no}" = yes ]; then _tnx_dr_add ok extensions ext_wine_x64 "x86-64 emulation DLL present"
-          else _tnx_dr_add info extensions ext_wine_x64_missing "x86-64 emulation DLL missing" "64-bit Windows programs cannot run through this path"; fi
-          case "${_TNX_DR_GUEST[$p.gpu]:-}" in
-            zink) _tnx_dr_add ok extensions ext_wine_gpu "Wine graphics: GPU through Zink/Turnip" ;;
-            virpipe) _tnx_dr_add ok extensions ext_wine_gpu "Wine graphics: VirGL (host-accelerated)" ;;
-            "") _tnx_dr_add info extensions ext_wine_gpu "Wine graphics: CPU fallback (llvmpipe)" "No GPU driver is selected outside the desktop session: no Adreno KGSL node is visible here. In the Ternux desktop session the session driver (zink or VirGL) is inherited." ;;
-            *) _tnx_dr_add info extensions ext_wine_gpu "Wine graphics: GALLIUM_DRIVER=${_TNX_DR_GUEST[$p.gpu]}" ;;
-          esac
-          if [ "${_TNX_DR_GUEST[$p.prefix]:-no}" = yes ]; then _tnx_dr_add ok extensions ext_wine_prefix "Wine prefix initialised"
-          else _tnx_dr_add info extensions ext_wine_prefix "Wine prefix not created yet" "" "source the extension env.sh, then run: wineboot -i"; fi
         fi
         ;;
     esac

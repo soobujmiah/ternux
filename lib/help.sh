@@ -80,9 +80,6 @@ Debian user's ~/.local/opt/ternux-extensions directory.
 Available names:
   llama-vulkan             llama.cpp CPU + Vulkan package (b11582)
   llama-htp-experimental   llama.cpp Hexagon HTP for SM8735 (experimental)
-  wine-hangover            Windows x86/x86-64 programs through Hangover Wine 11.16
-                           (experimental; upstream release pinned by SHA-256;
-                           needs Debian 13 and about 4 GB free; GPU first, CPU fallback)
 
 Run it from the Termux host CLI; installation is delegated to the selected
 Debian guest. Model files and system packages are not installed or changed.
@@ -140,8 +137,7 @@ Categories (default: all):
                Android child-process monitoring
   guest        Debian glibc, passwordless sudo, desktop commands, dpkg state, disk
   graphics     Vulkan, GPU, backend, KGSL node, Turnip layout, renderer, launcher
-  extensions   health of installed extensions (llama-vulkan, llama-htp-experimental,
-               wine-hangover: version, runtime libraries, x86/x86-64 emulation, prefix)
+  extensions   health of installed extensions (llama-vulkan, llama-htp-experimental)
 
 Options:
   --quick      skip the Debian guest probe (guest and extension checks)

@@ -193,10 +193,6 @@ configuration, cancellation status ও removal-এর জন্য
 [repository HTP guide](https://github.com/soobujmiah/ternux/blob/main/bn/guides/llama-htp-experimental.md)
 দেখুন। FastRPC device permission বদলাবেন না, model weight copy-ও করবেন না।
 
-### পরীক্ষামূলক Windows-প্রোগ্রাম extension (Wine + Hangover)
-
-`ternux extension install wine-hangover` upstream Hangover 11.16 release (Debian 13 ARM64) SHA-256 নির্দিষ্ট করে, root ছাড়াই আপনার Debian home-এ install করে। install চলাকালে প্রায় 4 GB ফাঁকা জায়গা লাগে, install-এর পরে 2.3 GB, এবং প্রতি Wine prefix-এর জন্য আও 2.3 গ়্B। সংক্ষিপ্ত পথ [Quick start](QUICK-START.html#ঐচ্ছিক-windows-প্রোগ্রাম-পরীক্ষামূলক)-এ; automatic ও manual পথ, graphics-এর আচরণ (GPU আগে, CPU fallback), সমস্যা সমাধান এবং মাপা device record [repository Wine + Hangover গুইদে](https://github.com/soobujmiah/ternux/blob/main/bn/guides/wine-hangover-extension.md)-এ আছে। এটি পরীক্ষামূলক; সুপ্পোর্তেদ্ release feature নয়।
-
 ---
 
 ## ternux CLI — host control ও guest diagnostics

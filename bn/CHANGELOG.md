@@ -12,11 +12,9 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 
 ## [Unreleased]
 
-### Windows প্রোগ্রাম ও উন্নত doctor
+### উন্নত doctor
 
-- পরীক্ষামূলক `ternux extension install wine-hangover` যোগ করা হযেছে: Debian 13 ARM64-এর জন্য Hangover Wine 11.16, upstream release থেকে SHA-256 নির্দিষ্ট করে root ছাড়াই install করা হয়, সাথে path ও link যাচাই, atomic সরানো ও `wine --version` smoke test থাকে। তার `env.sh` Ternux-এর backend নিযম অনুসরণ করে: session driver set থাকলে সেটি, দেখা গেলে Adreno-এ Zink, না হলে CPU fallback।
-- `ternux doctor` category আনুসরে সাজানো check-এ (`system`, `host`, `guest`, `graphics`, `extensions`) রূপান্তরিত হযেছে, সাথে `--quick`, `--strict` ও category filter আছে। JSON-এ `schema_version`, `summary` ও `checks[]` যোগ হযেছে, মূল key-গুলো থাকায় পুরনো consumer ভাঙে না। এবার install করা extension-গুলো-কে-ও পরীক্ষা করে, Wine-এর version, runtime library, x86/x86-64 emulation DLL, prefix ও graphics পথ সমেত।
-- Wine + Hangover গুইদে-এ device qualification record ও মাপা benchmark ফলাফল যোগ হযেছে, এবং `experiments/wine-hangover/validate.sh` নামে একটি বার বার চালানোযোগ্য যাচাই script যোগ হযেছে, যা SHA-256 নির্দিষ্ট করে আসল Windows প্রোগ্রাম download করে চালায়।
+- `ternux doctor` category আনুসরে সাজানো check-এ (`system`, `host`, `guest`, `graphics`, `extensions`) রূপান্তরিত হযেছে, সাথে `--quick`, `--strict` ও category filter আছে। JSON-এ `schema_version`, `summary` ও `checks[]` যোগ হযেছে, মূল key-গুলো থাকায় পুরনো consumer ভাঙে না। এবার install করা extension-গুলো-কে-ও পরীক্ষা করে, package, version, runtime library ও launcher file সমেত।
 
 ### Website ও CLI নির্ভরযোগ্যতা
 

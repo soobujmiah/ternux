@@ -123,7 +123,7 @@ Run categorised diagnostics. Each check is reported as `ok`, `warn`, `fail` or
 | `host` | proot-distro, Debian container, Termux:X11, PulseAudio, curl, Android child-process setting |
 | `guest` | Debian glibc, passwordless sudo, desktop commands, dpkg state, free space |
 | `graphics` | Vulkan, GPU, backend, KGSL node, Turnip layout, renderer, launcher, VirGL |
-| `extensions` | installed extensions: version, runtime libraries, x86/x86-64 emulation DLLs, Wine prefix and graphics path |
+| `extensions` | installed extensions: package present, version, runtime libraries and launcher files |
 
 The `guest`, `graphics` (Turnip layout) and `extensions` checks come from one
 read-only probe that runs inside the Debian guest. An unreachable guest is
@@ -153,8 +153,8 @@ ternux doctor [CATEGORY...] [--quick] [--strict] [--json]
   "schema_version": 2,
   "summary": {"ok": 30, "warn": 1, "fail": 0, "info": 3},
   "checks": [
-    {"id": "ext_wine_hangover", "category": "extensions", "status": "ok",
-     "title": "wine-hangover: wine-11.16 (Hangover) (ternux-wine-hangover-11.16-debian13-arm64)",
+    {"id": "ext_llama-vulkan", "category": "extensions", "status": "ok",
+     "title": "llama-vulkan: ternux-llama-vulkan-linux-arm64-b11582",
      "detail": "", "fix": ""}
   ],
   "issues": ["phantom_process_killer_enabled"],
@@ -303,18 +303,13 @@ delegates installation to the selected Debian guest.
 ternux extension list
 ternux extension install llama-vulkan
 ternux extension install llama-htp-experimental
-ternux extension install wine-hangover
 ```
 
 `llama-vulkan` is the CPU + Vulkan prerelease. `llama-htp-experimental` is an
 experimental SM8735/V73 route with known configuration limits; it is not a
-supported release feature and has no automatic CPU/GPU fallback. `wine-hangover`
-is an experimental Hangover Wine 11.16 build that runs x86 and x86-64 Windows
-programs; it installs the upstream release pinned by SHA-256 without root, and its
-`env.sh` uses the GPU through Zink when available and the CPU otherwise. See the
-[CPU/Vulkan guide](https://github.com/soobujmiah/ternux/blob/main/guides/llama-vulkan-extension.md),
-[HTP guide](https://github.com/soobujmiah/ternux/blob/main/guides/llama-htp-experimental.md)
-and [Wine + Hangover guide](https://github.com/soobujmiah/ternux/blob/main/guides/wine-hangover-extension.md).
+supported release feature and has no automatic CPU/GPU fallback. See the
+[CPU/Vulkan guide](https://github.com/soobujmiah/ternux/blob/main/guides/llama-vulkan-extension.md)
+and [HTP guide](https://github.com/soobujmiah/ternux/blob/main/guides/llama-htp-experimental.md).
 
 ### `ternux update`
 

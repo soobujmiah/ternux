@@ -188,24 +188,6 @@ Ternux-এ Redmi Turbo 4 Pro / SM8735-এর জন্য আলাদা experi
 Known-answer-safe setting, বর্তমান failure ও device qualification-এর অবস্থা
 [repository HTP guide](https://github.com/soobujmiah/ternux/blob/main/bn/guides/llama-htp-experimental.md)-এ আছে。
 
-## ঐচ্ছিক: Windows প্রোগ্রাম (পরীক্ষামূলক)
-
-একটি পরীক্ষামূলক extension Hangover Wine যোগ করে, যা ফোনে-এ x86 ও x86-64 Windows প্রোগ্রাম চালায়। **Termux**-এ:
-
-```bash
-ternux extension install wine-hangover
-```
-
-installer download করার আগে Debian 13 guest ও তার runtime package যাচাই করে, upstream release-টি নির্দিষ্ট SHA-256-এর সাথে মিলিয়ে দেখে এবং root ছাড়াই install করে। তারপর Debian-এ:
-
-```bash
-source "$HOME/.local/opt/ternux-extensions/wine-hangover/env.sh"
-WINEDLLOVERRIDES="mscoree=d;winemenubuilder.exe=d" wine wineboot -u   # first run, 3-4 minutes
-wine ./your_program.exe
-```
-
-`env.sh` Adreno দেখা গেলে Zink-এর মাধ্যমে GPU ব্যবহার করে, না হলে CPU-তে ফিরে যায়; `ternux doctor extensions` ফলাফল দেখায়। extension প্রায় 2.3 GB নেয় এবং প্রতি Wine prefix আও প্রায় 2.3 গ়্B। এটি যাচাই করা release feature নয়: manual পথের নিযম, সীমাবদ্ধতা ও device পরীক্ষার record-এর জন্য [repository গুইদে](https://github.com/soobujmiah/ternux/blob/main/bn/guides/wine-hangover-extension.md) দেখুন।
-
 ## এরপর
 
 - [ম্যানুয়াল ইনস্টলেশন](MANUAL.html) — প্রতিটি কমান্ড হাতে-কলমে, দুই GPU পথ

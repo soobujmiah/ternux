@@ -1334,14 +1334,6 @@ guest.cmd.pactl=yes
 guest.dpkg_audit=0
 guest.disk_free_gb=80
 guest.turnip=managed
-ext.wine-hangover.present=yes
-ext.wine-hangover.artifact=ternux-wine-hangover-11.16-debian13-arm64
-ext.wine-hangover.version=wine-11.16 (Hangover)
-ext.wine-hangover.missing_libs=0
-ext.wine-hangover.x86_32=yes
-ext.wine-hangover.x86_64=yes
-ext.wine-hangover.prefix=yes
-ext.wine-hangover.gpu=zink
 ext.llama-vulkan.present=yes
 ext.llama-vulkan.artifact=ternux-llama-vulkan-linux-arm64-b11582
 ext.llama-vulkan.missing_libs=2
@@ -1366,9 +1358,6 @@ for st in ("ok", "warn", "fail", "info"):
     assert s[st] == sum(1 for c in checks if c["status"] == st), st
 assert len(x["issues"]) == len(x["recommended_actions"]) == s["warn"] + s["fail"]
 by = {c["id"]: c for c in checks}
-assert by["ext_wine_hangover"]["status"] == "ok" and "wine-11.16" in by["ext_wine_hangover"]["title"]
-assert by["ext_wine_x86"]["status"] == "ok" and by["ext_wine_x64"]["status"] == "ok"
-assert by["ext_wine_gpu"]["status"] == "ok" and "Zink" in by["ext_wine_gpu"]["title"]
 assert by["ext_llama-vulkan_libs"]["status"] == "warn" and "ext_llama-vulkan_libs" in x["issues"]
 assert by["ext_llama-htp-experimental"]["status"] == "info"
 assert by["glibc"]["status"] == "ok" and by["sudo"]["status"] == "ok"
@@ -1412,24 +1401,18 @@ else
 fi
 
 DR_PROBE_BAD="$TMP/doctor-probe-bad.txt"
-sed -e 's/^ext.wine-hangover.version=.*/ext.wine-hangover.version=/' \
-    -e 's/^ext.wine-hangover.x86_32=.*/ext.wine-hangover.x86_32=no/' \
-    -e 's/^guest.dpkg_audit=0/guest.dpkg_audit=3/' \
-    -e 's/^ext.wine-hangover.gpu=.*/ext.wine-hangover.gpu=/' \
+sed -e 's/^guest.dpkg_audit=0/guest.dpkg_audit=3/' \
     -e 's/^guest.sudo=yes/guest.sudo=no/' "$DR_PROBE_OK" > "$DR_PROBE_BAD"
 DR_BAD="$(dr_run bad env TERNUX_JSON=1 DR_PROBE_FILE="$DR_PROBE_BAD" bash "$DR_HARNESS" "$ROOT" guest extensions)"
 if python3 - "$DR_BAD" <<'PY'
 import json, sys
 x = json.loads(sys.argv[1])
 assert x["status"] == "warning"
-for needed in ("ext_wine_run", "ext_wine_x86_missing", "dpkg_broken", "sudo_missing"):
+for needed in ("dpkg_broken", "sudo_missing"):
     assert needed in x["issues"], needed
-by = {c["id"]: c for c in x["checks"]}
-assert by["ext_wine_gpu"]["status"] == "info" and "CPU fallback" in by["ext_wine_gpu"]["title"]
-assert "ext_wine_gpu" not in x["issues"]
 PY
-then ok "doctor flags a broken Wine, missing 32-bit DLL, broken dpkg and missing sudo"
-else not_ok "doctor flags a broken Wine, missing 32-bit DLL, broken dpkg and missing sudo"; fi
+then ok "doctor flags broken dpkg and missing sudo"
+else not_ok "doctor flags broken dpkg and missing sudo"; fi
 
 DR_NOPROBE="$(dr_run noprobe env TERNUX_JSON=1 bash "$DR_HARNESS" "$ROOT" guest extensions)"
 if python3 - "$DR_NOPROBE" <<'PY'
@@ -1443,162 +1426,10 @@ then ok "doctor treats an unreachable guest as information, not a failure"
 else not_ok "doctor treats an unreachable guest as information, not a failure"; fi
 
 DR_HUMAN="$(dr_run human env DR_PROBE_FILE="$DR_PROBE_OK" bash "$DR_HARNESS" "$ROOT" extensions)"
-if printf '%s' "$DR_HUMAN" | grep -q 'Diagnostic Summary' && printf '%s' "$DR_HUMAN" | grep -q 'wine-hangover: wine-11.16'; then
+if printf '%s' "$DR_HUMAN" | grep -q 'Diagnostic Summary' && printf '%s' "$DR_HUMAN" | grep -q 'llama-vulkan'; then
   ok "doctor human output groups checks and prints a summary"
 else
   not_ok "doctor human output groups checks and prints a summary"
-fi
-
-# ---------------------------------------------------------------------------
-# wine-hangover: pinned upstream archive, deb unpacking without root, smoke test
-# ---------------------------------------------------------------------------
-if command -v dpkg-deb >/dev/null 2>&1; then
-HG_FIXTURE="$TMP/hangover-fixture"
-HG_BIN="$TMP/hangover-bin"
-HG_ASSET=hangover_11.16_debian13_trixie_arm64.tar
-mkdir -p "$HG_FIXTURE/debs" "$HG_BIN"
-hg_deb() { # package filename payload-dir
-  local pkg="$1" file="$2" dir="$3"
-  mkdir -p "$dir/DEBIAN"
-  printf 'Package: %s\nVersion: 11.16\nArchitecture: arm64\nMaintainer: t <t@example.invalid>\nDescription: fixture\n' "$pkg" > "$dir/DEBIAN/control"
-  dpkg-deb --build "$dir" "$HG_FIXTURE/debs/$file" >/dev/null 2>&1
-}
-W="$TMP/hg-wine"; mkdir -p "$W/usr/bin" "$W/usr/lib/wine/aarch64-unix" "$W/usr/lib/wine/aarch64-windows" "$W/usr/include/wine" "$W/usr/share/wine" "$W/usr/share/doc/hangover-wine" "$W/usr/share/man/man1"
-printf '#!/bin/sh\n[ "${1:-}" = --version ] && echo "wine-11.16 (Hangover)"\n' > "$W/usr/bin/wine"; chmod 0755 "$W/usr/bin/wine"
-ln -s wine "$W/usr/bin/wineboot"
-: > "$W/usr/include/wine/skip.h"; : > "$W/usr/share/wine/wine.inf"; : > "$W/usr/share/doc/hangover-wine/copyright"; : > "$W/usr/share/man/man1/wine.1"
-hg_deb hangover-wine 'hangover-wine_11.16~trixie_arm64.deb' "$W"
-for pair in 'hangover-libwow64fex:hangover-libwow64fex_11.16_arm64.deb:libwow64fex.dll' 'hangover-libarm64ecfex:hangover-libarm64ecfex_11.16_arm64.deb:libarm64ecfex.dll' 'hangover-wowbox64:hangover-wowbox64_11.16_arm64.deb:wowbox64.dll'; do
-  IFS=: read -r pkg file dll <<< "$pair"
-  D="$TMP/hg-$pkg"; mkdir -p "$D/usr/lib/wine/aarch64-windows"; : > "$D/usr/lib/wine/aarch64-windows/$dll"
-  hg_deb "$pkg" "$file" "$D"
-done
-printf 'dxvk\n' > "$HG_FIXTURE/debs/dxvk-v2.7.1.tar.gz"
-tar -cf "$HG_FIXTURE/$HG_ASSET" -C "$HG_FIXTURE/debs" .
-# `tar -C … .` records ./ members; the installer's member check wants bare names.
-tar -cf "$HG_FIXTURE/$HG_ASSET" -C "$HG_FIXTURE/debs" $(cd "$HG_FIXTURE/debs" && ls)
-HG_SHA="$(sha256sum "$HG_FIXTURE/$HG_ASSET" | awk '{print $1}')"
-# The pin is a constant in the product code; the test uses a copy carrying the fixture digest.
-HG_LIB="$TMP/hangover-lib"; mkdir -p "$HG_LIB"
-cp -r "$ROOT/bin" "$ROOT/lib" "$HG_LIB/"
-sed -i "s/^TNX_HANGOVER_SHA256=.*/TNX_HANGOVER_SHA256=\"$HG_SHA\"/" "$HG_LIB/lib/extension.sh"
-printf 'ID=debian\nVERSION_ID="13"\n' > "$TMP/hg-os-debian13"
-printf 'ID=ubuntu\nVERSION_ID="24.04"\n' > "$TMP/hg-os-ubuntu"
-cat > "$HG_BIN/uname" <<'EOF'
-#!/bin/sh
-case "${1:-}" in -s) echo Linux ;; -m) echo aarch64 ;; *) exit 1 ;; esac
-EOF
-cat > "$HG_BIN/getconf" <<'EOF'
-#!/bin/sh
-echo "glibc ${EXT_GLIBC_VERSION:-2.41}"
-EOF
-cat > "$HG_BIN/curl" <<'EOF'
-#!/bin/sh
-out= url=
-while [ "$#" -gt 0 ]; do
-  if [ "$1" = -o ]; then shift; out="$1"; else url="$1"; fi
-  shift
-done
-printf '%s\n' "$url" >> "$EXT_CURL_LOG"
-cp "$EXT_FIXTURE/${url##*/}" "$out"
-EOF
-cat > "$HG_BIN/dpkg-query" <<'EOF'
-#!/bin/sh
-for last; do :; done
-[ "$last" = "${EXT_MISSING_PACKAGE:-}" ] && exit 1
-printf 'install ok installed'
-EOF
-chmod 0755 "$HG_BIN/uname" "$HG_BIN/getconf" "$HG_BIN/curl" "$HG_BIN/dpkg-query"
-hg_install() { # name, extra env...
-  local name="$1"; shift
-  env HOME="$TMP/hg-home-$name" EXT_FIXTURE="$HG_FIXTURE" EXT_CURL_LOG="$TMP/hg-dl-$name" \
-    PATH="$HG_BIN:$PATH" TERNUX_STATE_DIR="$TMP/hg-state-$name" TERNUX_OS_RELEASE="$TMP/hg-os-debian13" "$@" \
-    bash "$HG_LIB/bin/ternux" extension install wine-hangover >"$TMP/hg-out-$name" 2>&1
-}
-HG_OPT="ternux-extensions"
-hg_install oldglibc EXT_GLIBC_VERSION=2.37; rc=$?
-if [ "$rc" -ne 0 ] && [ ! -e "$TMP/hg-home-oldglibc/.local/opt/$HG_OPT" ] && [ ! -e "$TMP/hg-dl-oldglibc" ]; then
-  ok "wine-hangover rejects glibc below 2.38 before download"
-else not_ok "wine-hangover rejects glibc below 2.38 before download"; fi
-hg_install ubuntu TERNUX_OS_RELEASE="$TMP/hg-os-ubuntu"; rc=$?
-if [ "$rc" -ne 0 ] && grep -q 'Debian 13' "$TMP/hg-out-ubuntu" && [ ! -e "$TMP/hg-dl-ubuntu" ]; then
-  ok "wine-hangover rejects a non-Debian-13 guest before download"
-else not_ok "wine-hangover rejects a non-Debian-13 guest before download"; fi
-hg_install nopkg EXT_MISSING_PACKAGE=libxkbregistry0; rc=$?
-if [ "$rc" -ne 0 ] && grep -q 'sudo apt install libxkbregistry0' "$TMP/hg-out-nopkg" &&
-   [ ! -e "$TMP/hg-home-nopkg/.local/opt/$HG_OPT" ] && [ ! -e "$TMP/hg-dl-nopkg" ]; then
-  ok "wine-hangover names missing Debian packages before download and writes nothing"
-else not_ok "wine-hangover names missing Debian packages before download and writes nothing"; fi
-hg_install ok; rc=$?
-HG_DEST="$TMP/hg-home-ok/.local/opt/$HG_OPT/wine-hangover"
-if [ "$rc" -eq 0 ] && [ -x "$HG_DEST/bin/wine" ] && [ -L "$HG_DEST/bin/wineboot" ] &&
-   [ -f "$HG_DEST/lib/wine/aarch64-windows/libwow64fex.dll" ] && [ -f "$HG_DEST/lib/wine/aarch64-windows/libarm64ecfex.dll" ] &&
-   [ -f "$HG_DEST/lib/wine/aarch64-windows/wowbox64.dll" ] && [ -f "$HG_DEST/share/wine/wine.inf" ] &&
-   [ -f "$HG_DEST/share/ternux/dxvk-v2.7.1.tar.gz" ] && [ ! -e "$HG_DEST/include" ] && [ ! -e "$HG_DEST/share/man" ] &&
-   grep -Fq '"artifact": "ternux-wine-hangover-11.16-debian13-arm64"' "$HG_DEST/build-manifest.json" &&
-   ! find "$TMP/hg-home-ok/.local/opt/$HG_OPT" -mindepth 1 -maxdepth 1 -name '.wine-hangover.install.*' | grep -q .; then
-  ok "wine-hangover unpacks the debs into the home, drops headers/man pages and leaves no staging"
-else not_ok "wine-hangover unpacks the debs into the home, drops headers/man pages and leaves no staging"; fi
-if [ "$(env -u GALLIUM_DRIVER TERNUX_KGSL_DEVICE="$TMP/hg-os-debian13" bash -c ". '$HG_DEST/env.sh'; printf %s \"\${GALLIUM_DRIVER-unset}\"")" = zink ] &&
-   [ "$(env -u GALLIUM_DRIVER TERNUX_KGSL_DEVICE="$TMP/absent-kgsl" bash -c ". '$HG_DEST/env.sh'; printf %s \"\${GALLIUM_DRIVER-unset}\"")" = unset ] &&
-   [ "$(env GALLIUM_DRIVER=llvmpipe TERNUX_KGSL_DEVICE="$TMP/hg-os-debian13" bash -c ". '$HG_DEST/env.sh'; printf %s \"\$GALLIUM_DRIVER\"")" = llvmpipe ]; then
-  ok "wine-hangover env.sh picks Zink with a GPU node, keeps the CPU fallback without one, and honours overrides"
-else not_ok "wine-hangover env.sh picks Zink with a GPU node, keeps the CPU fallback without one, and honours overrides"; fi
-hg_install ok; rc=$?
-if [ "$rc" -ne 0 ] && grep -q 'already exists' "$TMP/hg-out-ok" && [ "$(wc -l < "$TMP/hg-dl-ok")" -eq 1 ]; then
-  ok "wine-hangover refuses to overwrite an existing install without downloading again"
-else not_ok "wine-hangover refuses to overwrite an existing install without downloading again"; fi
-
-HG_BAD_LIB="$TMP/hangover-lib-badsha"; mkdir -p "$HG_BAD_LIB"; cp -r "$HG_LIB/bin" "$HG_LIB/lib" "$HG_BAD_LIB/"
-sed -i "s/^TNX_HANGOVER_SHA256=.*/TNX_HANGOVER_SHA256=\"$(printf '%064d' 0)\"/" "$HG_BAD_LIB/lib/extension.sh"
-env HOME="$TMP/hg-home-badsha" EXT_FIXTURE="$HG_FIXTURE" EXT_CURL_LOG="$TMP/hg-dl-badsha" PATH="$HG_BIN:$PATH" \
-  TERNUX_STATE_DIR="$TMP/hg-state-badsha" TERNUX_OS_RELEASE="$TMP/hg-os-debian13" \
-  bash "$HG_BAD_LIB/bin/ternux" extension install wine-hangover >"$TMP/hg-out-badsha" 2>&1; rc=$?
-if [ "$rc" -ne 0 ] && grep -q 'SHA-256 mismatch' "$TMP/hg-out-badsha" &&
-   [ ! -e "$TMP/hg-home-badsha/.local/opt/$HG_OPT/wine-hangover" ] &&
-   ! find "$TMP/hg-home-badsha/.local/opt/$HG_OPT" -mindepth 1 -maxdepth 1 -name '.wine-hangover.install.*' | grep -q .; then
-  ok "wine-hangover checksum mismatch installs nothing and removes its staging directory"
-else not_ok "wine-hangover checksum mismatch installs nothing and removes its staging directory"; fi
-
-# An absolute symlink inside a deb must be rejected even when the archive digest matches.
-HG_EVIL="$TMP/hangover-evil"; mkdir -p "$HG_EVIL"; cp -r "$HG_FIXTURE/debs/." "$HG_EVIL/"
-EV="$TMP/hg-evil-wine"; cp -r "$W" "$EV"; ln -s /etc/passwd "$EV/usr/lib/wine/escape"
-hg_deb hangover-wine 'hangover-wine_11.16~trixie_arm64.deb.new' "$EV"
-mv "$HG_FIXTURE/debs/hangover-wine_11.16~trixie_arm64.deb.new" "$HG_EVIL/hangover-wine_11.16~trixie_arm64.deb"
-tar -cf "$HG_EVIL/$HG_ASSET" -C "$HG_EVIL" $(cd "$HG_EVIL" && ls | grep -v "^$HG_ASSET$")
-EVIL_SHA="$(sha256sum "$HG_EVIL/$HG_ASSET" | awk '{print $1}')"
-HG_EVIL_LIB="$TMP/hangover-lib-evil"; mkdir -p "$HG_EVIL_LIB"; cp -r "$HG_LIB/bin" "$HG_LIB/lib" "$HG_EVIL_LIB/"
-sed -i "s/^TNX_HANGOVER_SHA256=.*/TNX_HANGOVER_SHA256=\"$EVIL_SHA\"/" "$HG_EVIL_LIB/lib/extension.sh"
-env HOME="$TMP/hg-home-evil" EXT_FIXTURE="$HG_EVIL" EXT_CURL_LOG="$TMP/hg-dl-evil" PATH="$HG_BIN:$PATH" \
-  TERNUX_STATE_DIR="$TMP/hg-state-evil" TERNUX_OS_RELEASE="$TMP/hg-os-debian13" \
-  bash "$HG_EVIL_LIB/bin/ternux" extension install wine-hangover >"$TMP/hg-out-evil" 2>&1; rc=$?
-if [ "$rc" -ne 0 ] && grep -q 'Unsafe path or link' "$TMP/hg-out-evil" && [ ! -e "$TMP/hg-home-evil/.local/opt/$HG_OPT/wine-hangover" ]; then
-  ok "wine-hangover rejects an absolute symlink inside a package"
-else not_ok "wine-hangover rejects an absolute symlink inside a package"; fi
-
-# A Wine that cannot report its version is never moved into place.
-HG_DEAD="$TMP/hangover-dead"; mkdir -p "$HG_DEAD"; cp -r "$HG_FIXTURE/debs/." "$HG_DEAD/"
-DW="$TMP/hg-dead-wine"; cp -r "$W" "$DW"; printf '#!/bin/sh\nexit 1\n' > "$DW/usr/bin/wine"
-hg_deb hangover-wine 'hangover-wine_11.16~trixie_arm64.deb.new' "$DW"
-mv "$HG_FIXTURE/debs/hangover-wine_11.16~trixie_arm64.deb.new" "$HG_DEAD/hangover-wine_11.16~trixie_arm64.deb"
-tar -cf "$HG_DEAD/$HG_ASSET" -C "$HG_DEAD" $(cd "$HG_DEAD" && ls | grep -v "^$HG_ASSET$")
-DEAD_SHA="$(sha256sum "$HG_DEAD/$HG_ASSET" | awk '{print $1}')"
-HG_DEAD_LIB="$TMP/hangover-lib-dead"; mkdir -p "$HG_DEAD_LIB"; cp -r "$HG_LIB/bin" "$HG_LIB/lib" "$HG_DEAD_LIB/"
-sed -i "s/^TNX_HANGOVER_SHA256=.*/TNX_HANGOVER_SHA256=\"$DEAD_SHA\"/" "$HG_DEAD_LIB/lib/extension.sh"
-env HOME="$TMP/hg-home-dead" EXT_FIXTURE="$HG_DEAD" EXT_CURL_LOG="$TMP/hg-dl-dead" PATH="$HG_BIN:$PATH" \
-  TERNUX_STATE_DIR="$TMP/hg-state-dead" TERNUX_OS_RELEASE="$TMP/hg-os-debian13" \
-  bash "$HG_DEAD_LIB/bin/ternux" extension install wine-hangover >"$TMP/hg-out-dead" 2>&1; rc=$?
-if [ "$rc" -ne 0 ] && grep -q 'did not report a version' "$TMP/hg-out-dead" && [ ! -e "$TMP/hg-home-dead/.local/opt/$HG_OPT/wine-hangover" ]; then
-  ok "wine-hangover does not install a Wine that fails its version smoke test"
-else not_ok "wine-hangover does not install a Wine that fails its version smoke test"; fi
-
-# The shipped pin must be the upstream digest GitHub publishes for the release asset.
-check "wine-hangover pins the upstream release digest and tag" bash -c '
-  grep -Fq "b5493f5903ab3c05f78bf4c03b06ac0005eb26f732437748c1592fefa45e861a" "$1/lib/extension.sh" &&
-  grep -Fq "hangover_11.16_debian13_trixie_arm64.tar" "$1/lib/extension.sh" &&
-  grep -Fq "hangover-11.16" "$1/lib/extension.sh"' _ "$ROOT"
-else
-  printf '# SKIP wine-hangover installer tests: dpkg-deb not available\n'
 fi
 
 # The GPU phase must install the Turnip driver where apt cannot reach it. A
