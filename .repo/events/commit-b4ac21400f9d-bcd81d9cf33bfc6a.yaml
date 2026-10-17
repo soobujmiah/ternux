@@ -1,0 +1,8 @@
+event_id: commit-b4ac21400f9d-bcd81d9cf33bfc6a
+repository: soobujmiah/ternux
+commit: b4ac21400f9d80a342e8ae761acf4949854945b6
+kind: commit
+occurred_at: '2026-10-17T05:52:23Z'
+status: completed
+summary: Remove the experimental wine-hangover extension from the CLI; keep the categorised
+  doctor (#40)
