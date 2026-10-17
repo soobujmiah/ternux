@@ -74,16 +74,11 @@ Installer installed entry point দুটি execute করে version response 
 
 ## এ দিয়ে কি PC গেম খেলা যাবে?
 
-যেভাবে আশা করছেন সেভাবে নয়। ternux ফোন হার্ডওয়্যারে একটি ডেস্কটপ
-পরিবেশ, Windows গেমের কম্প্যাটিবিলিটি লেয়ার নয়। হালকা নেটিভ Linux/GL গেম
-ও এমুলেটর চলতে পারে; AAA PC টাইটেল নয় — সেটা x86 + Windows-এর সমস্যা,
-ডিসপ্লের নয়।
+আপনার আশা অনুযায়ী না। ternux ফোনের hardware-এ একটি desktop পরিবেশ। হল্কা native Linux/GL গেম ও emulator চলতে পারে। একটি পরীক্ষামূলক ঐচ্ছিক extension এখন কিচু Windows প্রোগ্রাম চালাতে পারে (পরের উত্তর দেখুন), কিন্তু PC গেম পরীক্ষা করা হয়নি এবং AAA title চলবে এমন আশা করা ঠিক নয়।
 
 ## Windows বা macOS অ্যাপ চালাতে পারব?
 
-না। ternux **arm64 Linux** বাইনারি চালায়। Windows `.exe` আর macOS অ্যাপের
-নিজস্ব OS (বা ভারী এমুলেটর) লাগে — যা এটি নয়। Android অ্যাপও Android-এই
-চলে; সেগুলো ডেস্কটপের "ভেতরে" নয়।
+Windows: **কখনো কখনো, পরীক্ষামূলকভাবে।** ternux নিজেই **arm64 Linux** binary চালায়, কিন্তু ঐচ্ছিক `ternux extension install wine-hangover` Hangover Wine যোগ করে, যা পরীক্ষিত device-এ আসল 32-bit ও 64-bit x86 Windows প্রোগ্রাম চালিয়েছে (Python, একটি OpenGL তথ্য tool, 7-Zip installer ও একটি benchmark)। এটি সাধারণ compatibility-র্ প্রতিশ্রুতি নয়; আগেআগে [qualification record](https://github.com/soobujmiah/ternux/blob/main/bn/guides/wine-hangover-extension.md#device-qualification-record) পড়ুন। macOS অযাপ চলবে না। Android অযাপ Android-এই চলে, desktop-এর ভিতরে নয়।
 
 ## স্ক্রিন লক হলে বা কিছুক্ষণ পর ডেস্কটপ মরে যায় কেন?
 

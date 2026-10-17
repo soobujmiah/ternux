@@ -417,6 +417,7 @@ uname -m
 getprop ro.product.manufacturer; getprop ro.product.model
 getprop ro.build.version.release
 ternux doctor --json           # machine-readable diagnostic
+ternux doctor extensions --json  # health of installed extensions only
 ternux info --json             # সম্পূর্ণ ডিভাইস প্রোফাইল
 db -c 'glxinfo | grep "renderer string"; vulkaninfo --summary | grep -i driverName'
 ```

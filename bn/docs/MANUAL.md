@@ -621,6 +621,8 @@ CPU + Vulkan prerelease-এর আলাদা
 পড়ুন। Stable Diffusion/QNN এখনও standalone experiment; Ternux installable
 extension নয়।
 
+পরীক্ষামূলক Wine + Hangover package-ও (Windows x86 ও x86-64 প্রোগ্রাম) `ternux extension install` দিয়ে install হয় এবং তার নিজস্ব [manual, checksum-যাচাই করা গুইদে](https://github.com/soobujmiah/ternux/blob/main/bn/guides/wine-hangover-extension.md#route-b-manual-install) আছে।
+
 ---
 
 ## আনইনস্টল

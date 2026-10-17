@@ -213,6 +213,18 @@ for runtime dependencies, exact usage, known incorrect configurations,
 cancellation status and removal. Do not change FastRPC device permissions or
 copy model weights for this extension.
 
+### Experimental Windows-program extension (Wine + Hangover)
+
+`ternux extension install wine-hangover` installs the upstream Hangover 11.16
+release for Debian 13 ARM64, pinned by SHA-256, into your Debian home without
+root. It needs about 4 GB free while installing, 2.3 GB afterwards and 2.3 GB
+for every Wine prefix. The short path is in
+[Quick start](QUICK-START.html#optional-windows-programs-experimental); the
+automatic and manual routes, graphics behaviour (GPU first, CPU fallback),
+troubleshooting and the measured device record are in the
+[repository Wine + Hangover guide](https://github.com/soobujmiah/ternux/blob/main/guides/wine-hangover-extension.md).
+It is experimental and is not a supported release feature.
+
 ---
 
 ## ternux CLI — host control and guest diagnostics

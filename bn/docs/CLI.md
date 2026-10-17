@@ -105,10 +105,48 @@ ternux restart
 
 ### `ternux doctor`
 
-সম্পূর্ণ সিস্টেম ডায়াগনস্টিক চালায়।
+category আনুসরে সাজানো diagnostic চালান। প্রতি check-এর ফল `ok`, `warn`, `fail` বা `info` হিসেবে সমাধানের hint-শহ দেখানো হয়; `info` কেবল প্রসংগ, এখানে কখনো issue গণ্য হয় না।
+
+| Category | Check |
+|---|---|
+| `system` | architecture, storage, memory, battery তাপমাত্রা, state directory |
+| `host` | proot-distro, Debian container, Termux:X11, PulseAudio, curl, Android child-process setting |
+| `guest` | Debian glibc, passwordless sudo, desktop command, dpkg অবস্থা, ফাঁকা জায়গা |
+| `graphics` | Vulkan, GPU, backend, KGSL node, Turnip layout, renderer, launcher, VirGL |
+| `extensions` | install করা extension: version, runtime library, x86/x86-64 emulation DLL, Wine prefix ও graphics পথ |
+
+`guest`, `graphics` (Turnip layout) ও `extensions` check-গুলি Debian guest-এর ভিতরে চলা একটি read-only probe থেকে আসে। guest নাগালে না পাওয়া গেলে সেটি `info` হিসেবে জানানো হয়, ত্রুটি হিসেবে না।
 
 ```bash
-ternux doctor [--json]
+ternux doctor [CATEGORY...] [--quick] [--strict] [--json]
+```
+
+| Option | প্রভাব |
+|---|---|
+| `CATEGORY` | কেবল নামকরা category চালান, যেমন `ternux doctor extensions` |
+| `--quick` | Debian guest probe বাদ দেয় |
+| `--strict` | warning থাকলে `1` ও check ব্যর্থ হলে `2` exit করে; default exit status `0`-ই থাকে |
+| `--json` | machine-readable output |
+
+**JSON output-এর উদাহরণ** (সংক্ষেপিত; `schema_version` 2 মূল `issues` ও `recommended_actions` array রাখে এবং `summary` ও `checks` যোগ করে):
+```json
+{
+  "command": "doctor",
+  "status": "warning",
+  "gpu": "Adreno (730)",
+  "backend": "zink",
+  "renderer": "zink Vulkan (Adreno ... (MESA_TURNIP))",
+  "vulkan": "yes",
+  "schema_version": 2,
+  "summary": {"ok": 30, "warn": 1, "fail": 0, "info": 3},
+  "checks": [
+    {"id": "ext_wine_hangover", "category": "extensions", "status": "ok",
+     "title": "wine-hangover: wine-11.16 (Hangover) (ternux-wine-hangover-11.16-debian13-arm64)",
+     "detail": "", "fix": ""}
+  ],
+  "issues": ["phantom_process_killer_enabled"],
+  "recommended_actions": ["Review Android process restrictions and other Signal 9 causes (see docs)"]
+}
 ```
 
 ### `ternux repair`
@@ -214,20 +252,16 @@ ternux logs <subcommand> [n]
 
 ### `ternux extension`
 
-ঐচ্ছিক Linux ARM64 extension list বা install করুন। Host CLI নির্বাচিত Debian
-guest-এ install নির্দেশ পাঠায়।
+ঐচ্ছিক release-ভিত্তিক Linux ARM64 extension-এর তালিকা দেখায় ব install করে। host CLI install নির্বাচিত Debian guest-এ পাঠিয়ে দেয়।
 
 ```bash
 ternux extension list
 ternux extension install llama-vulkan
 ternux extension install llama-htp-experimental
+ternux extension install wine-hangover
 ```
 
-`llama-vulkan` হলো CPU + Vulkan prerelease। `llama-htp-experimental` হলো
-সীমিত experimental SM8735/V73 route; এটি supported release feature নয় এবং
-automatic CPU/GPU fallback নেই।
-[CPU/Vulkan guide](https://github.com/soobujmiah/ternux/blob/main/bn/guides/llama-vulkan-extension.md)
-ও [HTP guide](https://github.com/soobujmiah/ternux/blob/main/bn/guides/llama-htp-experimental.md) দেখুন।
+`llama-vulkan` হল CPU + Vulkan prerelease। `llama-htp-experimental` একটি সীমিত SM8735/V73 পরীক্ষামূলক পথ, যার configuration সীমাবদ্ধতা আছে; এটি সুপ্পোর্তেদ্ release feature নয় এবং এটাতে automatic CPU/GPU fallback নেই। `wine-hangover` Hangover Wine 11.16-এর একটি পরীক্ষামূলক build, যা x86 ও x86-64 Windows প্রোগ্রাম চালায়; এটি upstream release-টি SHA-256 নির্দিষ্ট করে root ছাড়াই install করে, এবং তার `env.sh` GPU আগে Zink-এর মাধ্যমে, না হলে CPU ব্যবহার করে। দেখুন [CPU/Vulkan গুইদে](https://github.com/soobujmiah/ternux/blob/main/bn/guides/llama-vulkan-extension.md), [HTP গুইদে](https://github.com/soobujmiah/ternux/blob/main/bn/guides/llama-htp-experimental.md) ও [Wine + Hangover গুইদে](https://github.com/soobujmiah/ternux/blob/main/bn/guides/wine-hangover-extension.md)।
 
 ### `ternux update`
 

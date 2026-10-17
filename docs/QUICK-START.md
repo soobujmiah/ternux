@@ -185,6 +185,31 @@ known-answer-safe settings,
 current failures, and device qualification status are in the
 [repository HTP guide](https://github.com/soobujmiah/ternux/blob/main/guides/llama-htp-experimental.md).
 
+## Optional: Windows programs (experimental)
+
+An experimental extension adds Hangover Wine, which runs x86 and x86-64 Windows
+programs on the phone. In **Termux**:
+
+```bash
+ternux extension install wine-hangover
+```
+
+The installer checks the Debian 13 guest and its runtime packages before
+downloading, verifies the upstream release against a pinned SHA-256 and installs
+without root. Then, in Debian:
+
+```bash
+source "$HOME/.local/opt/ternux-extensions/wine-hangover/env.sh"
+WINEDLLOVERRIDES="mscoree=d;winemenubuilder.exe=d" wine wineboot -u   # first run, 3-4 minutes
+wine ./your_program.exe
+```
+
+`env.sh` uses the GPU through Zink when the Adreno is visible and falls back to
+the CPU otherwise; `ternux doctor extensions` shows the result. The extension
+takes about 2.3 GB and each Wine prefix another 2.3 GB. It is not a qualified
+release feature: see the [repository guide](https://github.com/soobujmiah/ternux/blob/main/guides/wine-hangover-extension.md)
+for the manual route, limits and the device test record.
+
 ## Next
 
 - [Installation](INSTALLATION.html) — every phase explained, all options, uninstall

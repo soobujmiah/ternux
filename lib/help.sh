@@ -78,7 +78,11 @@ Install a checksum-verified Ternux Linux ARM64 extension release in your
 Debian user's ~/.local/opt/ternux-extensions directory.
 
 Available names:
-  llama-vulkan   llama.cpp CPU + Vulkan package (b11582)
+  llama-vulkan             llama.cpp CPU + Vulkan package (b11582)
+  llama-htp-experimental   llama.cpp Hexagon HTP for SM8735 (experimental)
+  wine-hangover            Windows x86/x86-64 programs through Hangover Wine 11.16
+                           (experimental; upstream release pinned by SHA-256;
+                           needs Debian 13 and about 4 GB free; GPU first, CPU fallback)
 
 Run it from the Termux host CLI; installation is delegated to the selected
 Debian guest. Model files and system packages are not installed or changed.
@@ -123,7 +127,34 @@ tnx_help_guides() { echo "Usage: ternux guides"; echo "Show installation, ecosys
 tnx_help_start()     { echo "Usage: ternux start"; echo "Start the Xfce4 desktop session."; }
 tnx_help_stop()      { echo "Usage: ternux stop"; echo "Stop the desktop session and clean up."; }
 tnx_help_restart()   { echo "Usage: ternux restart"; echo "Restart the desktop session."; }
-tnx_help_doctor()    { echo "Usage: ternux doctor [--json]"; echo "Run system diagnostics. Supports --json for machine-readable output."; }
+tnx_help_doctor() {
+  cat << HELP
+Usage: ternux doctor [CATEGORY...] [--quick] [--strict] [--json]
+
+Run categorised diagnostics. Every check is reported as ok, warn, fail or info
+with a fix hint; info is context and never counts as an issue.
+
+Categories (default: all):
+  system       architecture, storage, memory, battery temperature, state directory
+  host         proot-distro, Debian container, Termux:X11, PulseAudio, curl,
+               Android child-process monitoring
+  guest        Debian glibc, passwordless sudo, desktop commands, dpkg state, disk
+  graphics     Vulkan, GPU, backend, KGSL node, Turnip layout, renderer, launcher
+  extensions   health of installed extensions (llama-vulkan, llama-htp-experimental,
+               wine-hangover: version, runtime libraries, x86/x86-64 emulation, prefix)
+
+Options:
+  --quick      skip the Debian guest probe (guest and extension checks)
+  --strict     exit 1 on warnings and 2 on failures (default exit status is 0)
+  --json       machine-readable output (schema_version 2: summary and checks[]
+               plus the original issues and recommended_actions arrays)
+
+Examples:
+  ternux doctor extensions         ${TNX_CD}only the extension checks${TNX_C0}
+  ternux doctor graphics --json    ${TNX_CD}graphics checks for scripts${TNX_C0}
+  ternux doctor --quick --strict   ${TNX_CD}fast host-only gate for automation${TNX_C0}
+HELP
+}
 tnx_help_repair()    { echo "Usage: ternux repair"; echo "Auto-fix common issues: broken curl, missing X11, backend mismatch, stale cache."; }
 tnx_help_verify()    { echo "Usage: ternux verify [--json]"; echo "Verify installation completeness. Checks binaries, launcher, container, GPU driver."; }
 tnx_help_benchmark() { echo "Usage: ternux benchmark [--json]"; echo "Run GPU benchmarks (glmark2, vkmark) and renderer verification."; }
