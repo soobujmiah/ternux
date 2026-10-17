@@ -91,25 +91,6 @@ The 25 images and machine-readable run/thermal summary are on the device at
 [QNN runner record](https://github.com/soobujmiah/ternux/blob/main/experiments/qnn-native/README.md)
 and [device benchmark log](https://github.com/soobujmiah/ternux/blob/main/guides/device-benchmark-evidence.md).
 
-## Windows programs through Wine + Hangover
-
-The experimental `wine-hangover` extension runs x86 and x86-64 Windows programs
-through Hangover Wine 11.16: Box64 for 32-bit programs and FEX for 64-bit ones.
-These are bounded single-device runs from 2026-10-17, not a compatibility or
-sustained-performance claim.
-
-| Check | Result | Evidence class |
-|---|---|---|
-| Real 32-bit and 64-bit Python, an OpenGL information tool and the 7-Zip installers | ran; 15 of 15 checks of `validate.sh` passed | observed |
-| OpenGL renderer seen by a Windows program (GLEW) | GPU path: `zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP))`; CPU fallback: `llvmpipe` | observed |
-| 7-Zip `b` total rating, mean of 3 passes | native 15,423; x86-64 on FEX 10,573 (69%); x86 on Box64 8,724 (57%); x86 on FEX 9,098 (59%) | measured; heat visible between passes |
-| ChimbaBenchXPL A3 "Simple Test", 640×360, mean of 3 runs | 32-bit: 84.0 on CPU, 122.0 on GPU; 64-bit: 88.0 on CPU, 181.3 on GPU | measured; GPU drawing unverified, because Zink windows are black on Xvfb |
-
-The temperature drift, the Zink-on-Xvfb limit and everything not tested are in the
-[qualification record](https://github.com/soobujmiah/ternux/blob/main/guides/wine-hangover-extension.md#device-qualification-record);
-the scripts that reproduce the runs are in
-[`experiments/wine-hangover`](https://github.com/soobujmiah/ternux/blob/main/experiments/wine-hangover/README.md).
-
 ## Detailed records
 
 - [Full device benchmark evidence, reproduction steps, and dated measurements](https://github.com/soobujmiah/ternux/blob/main/guides/device-benchmark-evidence.md) — repository-only.
@@ -117,6 +98,5 @@ the scripts that reproduce the runs are in
 - [MPFB2 character-build measurements](https://github.com/soobujmiah/ternux/blob/main/guides/device-benchmark-evidence.md#mpfb2-human-character-build) — one device-side character build and render run.
 - [CPU/Vulkan package installation and qualification](https://github.com/soobujmiah/ternux/blob/main/guides/llama-vulkan-extension.md#device-qualification-record) — repository-only.
 - [Experimental HTP extension installation and limits](https://github.com/soobujmiah/ternux/blob/main/guides/llama-htp-experimental.md) — repository-only.
-- [Windows programs through Wine + Hangover: install, record and limits](https://github.com/soobujmiah/ternux/blob/main/guides/wine-hangover-extension.md#device-qualification-record) — repository-only.
 - [Current accelerator gates](ACCELERATOR-RELEASE-PLAN.html).
 - [Separate QNN SD1.5 implementation and evidence](https://github.com/soobujmiah/ternux/blob/main/experiments/qnn-native/README.md) — repository-only; kept separate from `stable-diffusion.cpp`.

@@ -83,20 +83,15 @@ is not active. See
 ## Can I play PC games with this?
 
 Not the way you might hope. ternux is a desktop environment on phone
-hardware. Light native Linux/GL games and emulators can run. An experimental
-optional extension can now run some Windows programs (see the next answer), but
-PC games have not been tested and AAA titles should not be expected to work.
+hardware, not a compatibility layer for Windows games. Light native Linux/GL
+games and emulators can run; AAA PC titles cannot — that is an x86 + Windows
+problem, not a display problem.
 
 ## Can I run Windows or macOS apps?
 
-Windows: **sometimes, experimentally.** ternux itself runs **arm64 Linux**
-binaries, but the optional `ternux extension install wine-hangover` adds
-Hangover Wine, which ran real 32-bit and 64-bit x86 Windows programs on the
-tested device (Python, an OpenGL information tool, the 7-Zip installer and a
-benchmark). It is not a general compatibility promise; read
-[the qualification record](https://github.com/soobujmiah/ternux/blob/main/guides/wine-hangover-extension.md#device-qualification-record)
-first. macOS apps cannot run. Android apps keep running in Android — they are
-not "inside" the desktop.
+No. ternux runs **arm64 Linux** binaries. Windows `.exe` and macOS apps need
+their own OS (or heavy emulators this is not). Android apps also keep running
+in Android — they are not "inside" the desktop.
 
 ## Why does my desktop die when the screen locks or after a while?
 

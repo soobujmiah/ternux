@@ -113,7 +113,7 @@ category আনুসরে সাজানো diagnostic চালান। প
 | `host` | proot-distro, Debian container, Termux:X11, PulseAudio, curl, Android child-process setting |
 | `guest` | Debian glibc, passwordless sudo, desktop command, dpkg অবস্থা, ফাঁকা জায়গা |
 | `graphics` | Vulkan, GPU, backend, KGSL node, Turnip layout, renderer, launcher, VirGL |
-| `extensions` | install করা extension: version, runtime library, x86/x86-64 emulation DLL, Wine prefix ও graphics পথ |
+| `extensions` | install করা extension: package, version, runtime library ও launcher file |
 
 `guest`, `graphics` (Turnip layout) ও `extensions` check-গুলি Debian guest-এর ভিতরে চলা একটি read-only probe থেকে আসে। guest নাগালে না পাওয়া গেলে সেটি `info` হিসেবে জানানো হয়, ত্রুটি হিসেবে না।
 
@@ -140,8 +140,8 @@ ternux doctor [CATEGORY...] [--quick] [--strict] [--json]
   "schema_version": 2,
   "summary": {"ok": 30, "warn": 1, "fail": 0, "info": 3},
   "checks": [
-    {"id": "ext_wine_hangover", "category": "extensions", "status": "ok",
-     "title": "wine-hangover: wine-11.16 (Hangover) (ternux-wine-hangover-11.16-debian13-arm64)",
+    {"id": "ext_llama-vulkan", "category": "extensions", "status": "ok",
+     "title": "llama-vulkan: ternux-llama-vulkan-linux-arm64-b11582",
      "detail": "", "fix": ""}
   ],
   "issues": ["phantom_process_killer_enabled"],
@@ -258,10 +258,13 @@ ternux logs <subcommand> [n]
 ternux extension list
 ternux extension install llama-vulkan
 ternux extension install llama-htp-experimental
-ternux extension install wine-hangover
 ```
 
-`llama-vulkan` হল CPU + Vulkan prerelease। `llama-htp-experimental` একটি সীমিত SM8735/V73 পরীক্ষামূলক পথ, যার configuration সীমাবদ্ধতা আছে; এটি সুপ্পোর্তেদ্ release feature নয় এবং এটাতে automatic CPU/GPU fallback নেই। `wine-hangover` Hangover Wine 11.16-এর একটি পরীক্ষামূলক build, যা x86 ও x86-64 Windows প্রোগ্রাম চালায়; এটি upstream release-টি SHA-256 নির্দিষ্ট করে root ছাড়াই install করে, এবং তার `env.sh` GPU আগে Zink-এর মাধ্যমে, না হলে CPU ব্যবহার করে। দেখুন [CPU/Vulkan গুইদে](https://github.com/soobujmiah/ternux/blob/main/bn/guides/llama-vulkan-extension.md), [HTP গুইদে](https://github.com/soobujmiah/ternux/blob/main/bn/guides/llama-htp-experimental.md) ও [Wine + Hangover গুইদে](https://github.com/soobujmiah/ternux/blob/main/bn/guides/wine-hangover-extension.md)।
+`llama-vulkan` হলো CPU + Vulkan prerelease। `llama-htp-experimental` হলো
+সীমিত experimental SM8735/V73 route; এটি supported release feature নয় এবং
+automatic CPU/GPU fallback নেই।
+[CPU/Vulkan guide](https://github.com/soobujmiah/ternux/blob/main/bn/guides/llama-vulkan-extension.md)
+ও [HTP guide](https://github.com/soobujmiah/ternux/blob/main/bn/guides/llama-htp-experimental.md) দেখুন।
 
 ### `ternux update`
 

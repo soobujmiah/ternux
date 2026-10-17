@@ -500,8 +500,7 @@ teardown() {
   for f in "$(dirname "$BATS_TEST_FILENAME")/../bin/ternux" \
            "$(dirname "$BATS_TEST_FILENAME")/../lib/"*.sh \
            "$(dirname "$BATS_TEST_FILENAME")/../install.sh" \
-           "$(dirname "$BATS_TEST_FILENAME")/../uninstall.sh" \
-           "$(dirname "$BATS_TEST_FILENAME")/../experiments/wine-hangover/validate.sh"; do
+           "$(dirname "$BATS_TEST_FILENAME")/../uninstall.sh"; do
     if [ -f "$f" ]; then
       bash -n "$f" 2>/dev/null || { echo "Syntax error: $f"; errors=$((errors + 1)); }
     fi

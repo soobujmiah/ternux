@@ -632,11 +632,8 @@ The CPU + Vulkan prerelease has a separate
 The experimental HTP package uses `ternux extension install` from the Termux
 host and is not part of this manual-only setup; read the
 [HTP limits and installation guide](https://github.com/soobujmiah/ternux/blob/main/guides/llama-htp-experimental.md)
-before using it. The experimental Wine + Hangover package (Windows x86 and
-x86-64 programs) also installs through `ternux extension install` and has its
-own [manual, checksum-verified guide](https://github.com/soobujmiah/ternux/blob/main/guides/wine-hangover-extension.md#route-b-manual-install).
-Stable Diffusion/QNN remains a standalone experiment, not an installable Ternux
-extension.
+before using it. Stable Diffusion/QNN remains a standalone experiment, not an
+installable Ternux extension.
 
 ---
 

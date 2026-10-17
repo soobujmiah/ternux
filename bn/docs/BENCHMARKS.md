@@ -88,19 +88,6 @@ machine-readable run/thermal summary device-এর `/sdcard/sdgen/`-এ আছ�
 Implementation ও বিস্তারিত evidence: [QNN runner record](https://github.com/soobujmiah/ternux/blob/main/experiments/qnn-native/README.md)
 এবং [device benchmark log](https://github.com/soobujmiah/ternux/blob/main/bn/guides/device-benchmark-evidence.md)।
 
-## Windows প্রোগ্রাম Wine + Hangover দিয়ে
-
-পরীক্ষামূলক `wine-hangover` extension Hangover Wine 11.16-এর মাধ্যমে x86 ও x86-64 Windows প্রোগ্রাম চালায়: 32-bit প্রোগ্রামে Box64, 64-bit প্রোগ্রামে FEX। এই ফলাফল 2026-10-17 তারিখের সীমিত, একটি device-এর মাপ; এটি compatibility বা দীর্ঘস্থায়ী performance-এর দাবি নয়।
-
-| Check | ফল | প্রমাণের শ্রেণি |
-|---|---|---|
-| আসল 32-bit ও 64-bit Python, একটি OpenGL তথ্য tool ও 7-Zip installer | চলেছে; `validate.sh`-এর 15-টির মধ্যে 15-টি check পাস | observed |
-| Windows প্রোগ্রাম (GLEW) যেই OpenGL renderer দেখে | GPU পথ: `zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP))`; CPU fallback: `llvmpipe` | observed |
-| 7-Zip `b` total rating, 3 pass-এর mean | native 15,423; FEX-এ x86-64 10,573 (69%); Box64-এ x86 8,724 (57%); FEX-এ x86 9,098 (59%) | measured; pass-গুলোর মধ্যে তাপ দৃশ্য |
-| ChimbaBenchXPL A3 "Simple Test", 640×360, 3 run-এর mean | 32-bit: CPU-তে 84.0, GPU-তে 122.0; 64-bit: CPU-তে 88.0, GPU-তে 181.3 | measured; GPU-তে drawing unverified, কারণ Xvfb-এ Zink window কালো |
-
-তাপমাত্রার পরিবর্তন, Xvfb-এ Zink-এর সীমা এবং যা পরীক্ষা করা হয়নি তা [qualification record](https://github.com/soobujmiah/ternux/blob/main/bn/guides/wine-hangover-extension.md#device-qualification-record)-এ আছে; run-গুলো পুনরায় চালানোর্ script [`experiments/wine-hangover`](https://github.com/soobujmiah/ternux/blob/main/experiments/wine-hangover/README.md)-এ।
-
 ## বিস্তারিত রেকর্ড
 
 - [সম্পূর্ণ device benchmark evidence, পুনরুৎপাদন ধাপ ও dated measurement](https://github.com/soobujmiah/ternux/blob/main/bn/guides/device-benchmark-evidence.md) — শুধু repository-তে।
@@ -108,6 +95,5 @@ Implementation ও বিস্তারিত evidence: [QNN runner record](htt
 - [MPFB2 character-build measurement](https://github.com/soobujmiah/ternux/blob/main/guides/device-benchmark-evidence.md#mpfb2-human-character-build) — একটি device-side character build ও render run।
 - [CPU/Vulkan package install ও qualification](https://github.com/soobujmiah/ternux/blob/main/bn/guides/llama-vulkan-extension.md#device-qualification-record) — শুধু repository-তে।
 - [পরীক্ষামূলক HTP extension install ও সীমা](https://github.com/soobujmiah/ternux/blob/main/bn/guides/llama-htp-experimental.md) — শুধু repository-তে।
-- [Wine + Hangover দিয়ে Windows প্রোগ্রাম: install, record ও সীমা](https://github.com/soobujmiah/ternux/blob/main/bn/guides/wine-hangover-extension.md#device-qualification-record) — কেবল repository-এ।
 - [বর্তমান accelerator gate](ACCELERATOR-RELEASE-PLAN.html)।
 - [আলাদা QNN SD1.5 implementation ও evidence](https://github.com/soobujmiah/ternux/blob/main/experiments/qnn-native/README.md) — শুধু repository-তে; `stable-diffusion.cpp` থেকে পৃথক।
