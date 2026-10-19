@@ -170,7 +170,7 @@ jobs:
           sed -n '1,40p' archive-contents.txt
 
       - name: Upload build artifact for review
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ternux-llama-htp-sm8735-b11582
           path: |
