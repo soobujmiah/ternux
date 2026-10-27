@@ -12,6 +12,15 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 
 ## [Unreleased]
 
+### Installer dependency recovery
+
+- Experimental HTP extension বাছাই করলে Debian Backports থেকে runtime library
+  package বসে।
+- SDK component-এর আগে ADT command-line tools চলে, যাতে version যাচাইয়ের জন্য
+  `sdkmanager` আগে থেকেই থাকে।
+- Claude Code বাছাই করলে দরকারে user-local Node.js 22 বসে; সাময়িক network
+  failure-এ Hermes installer সীমিতবার retry করে।
+
 ### উন্নত doctor
 
 - `ternux doctor` category আনুসরে সাজানো check-এ (`system`, `host`, `guest`, `graphics`, `extensions`) রূপান্তরিত হযেছে, সাথে `--quick`, `--strict` ও category filter আছে। JSON-এ `schema_version`, `summary` ও `checks[]` যোগ হযেছে, মূল key-গুলো থাকায় পুরনো consumer ভাঙে না। এবার install করা extension-গুলো-কে-ও পরীক্ষা করে, package, version, runtime library ও launcher file সমেত।

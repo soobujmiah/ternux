@@ -792,8 +792,8 @@ ALIASEOF
 # ---------------------------------------------------------------------------
 tnx_phase_extras() {
   local user_name="${1:-ternux}"; shift
-  local rc=0 opt node_selected=0 node_version="" go_version="" cores jobs
-  local -a apt_packages=() unique_packages=()
+  local rc=0 opt selected node_selected=0 go_version="" cores jobs htp_selected=0 adt_selected=0
+  local -a apt_packages=() unique_packages=() install_opts=()
   local APT="sudo apt update -o APT::Color=1 && sudo DEBIAN_FRONTEND=noninteractive apt install -y -o APT::Color=1 -o Dpkg::Progress-Fancy=1"
 
   # Resolve individual software choices and install apt packages in one pass.
@@ -826,6 +826,10 @@ tnx_phase_extras() {
       thunderbird) apt_packages+=(thunderbird) ;;
       adt-build-tools|adt-platform-tools|adt-ndk|adt-cmake) apt_packages+=(git curl ca-certificates) ;;
       adt-cmdline|adt-platform) apt_packages+=(git curl ca-certificates default-jdk-headless unzip) ;;
+      llama-htp-experimental)
+        htp_selected=1
+        apt_packages+=(libgbinder1 libglibutil1 libfastrpc1 libfastrpc-dev)
+        ;;
       nmap) apt_packages+=(nmap) ;;
       tmux) apt_packages+=(tmux) ;;
       ffmpeg) apt_packages+=(ffmpeg) ;;
@@ -845,6 +849,24 @@ tnx_phase_extras() {
   for opt in "${apt_packages[@]}"; do
     case " ${unique_packages[*]} " in *" $opt "*) ;; *) unique_packages+=("$opt") ;; esac
   done
+  if [ "$htp_selected" -eq 1 ]; then
+    if [ "$(tnx_distro)" != debian ]; then
+      tnx_warn "The experimental HTP extension dependency setup currently supports the Debian guest only."
+      rc=1
+    elif ! tnx_guest_login --shared-tmp -- bash -c '
+      set -e
+      source_file=/etc/apt/sources.list.d/ternux-htp-backports.list
+      source_line="deb https://deb.debian.org/debian trixie-backports main contrib"
+      if [ -e "$source_file" ]; then
+        [ "$(cat "$source_file")" = "$source_line" ] || { echo "Refusing to replace existing $source_file" >&2; exit 2; }
+      else
+        printf "%s\n" "$source_line" > "$source_file"
+      fi
+    '; then
+      tnx_warn "Could not configure the official Debian Trixie Backports source for HTP dependencies."
+      rc=1
+    fi
+  fi
   if [ ${#unique_packages[@]} -gt 0 ]; then
     tnx_guest_login --shared-tmp --user "$user_name" -- bash -c "$APT ${unique_packages[*]}" || { tnx_warn "One or more selected Debian packages failed to install."; rc=1; }
   fi
@@ -863,12 +885,35 @@ tnx_phase_extras() {
     ' || { tnx_warn "Could not configure the user-local npm path."; rc=1; }
   fi
 
+  # ADT needs its command-line tools (which provide sdkmanager) before it can
+  # resolve and install versioned SDK components. Preserve the selected set but
+  # run those dependencies first, regardless of the menu's display order.
+  for selected in "$@"; do
+    case "$selected" in
+      adt-build-tools|adt-platform-tools|adt-ndk|adt-cmake|adt-cmdline|adt-platform) adt_selected=1 ;;
+    esac
+  done
+  if [ "$adt_selected" -eq 1 ]; then install_opts+=(adt-cmdline); fi
+  for opt in adt-platform adt-build-tools adt-platform-tools adt-ndk adt-cmake; do
+    for selected in "$@"; do
+      if [ "$selected" = "$opt" ]; then install_opts+=("$opt"); break; fi
+    done
+  done
   for opt in "$@"; do
+    case "$opt" in
+      adt-build-tools|adt-platform-tools|adt-ndk|adt-cmake|adt-cmdline|adt-platform) ;;
+      *) install_opts+=("$opt") ;;
+    esac
+  done
+  for opt in "${install_opts[@]}"; do
     case "$opt" in
       dev|llm|network|media|git|python|node|build|rust|java|golang|php|sqlite3|ripgrep|jq|htop|tree|godot|geany|neovim|micro|thonny|gh|firefox|thunderbird|nmap|tmux|ffmpeg|vlc|mpv|gimp|krita|inkscape|audacity|imagemagick|evince|libreoffice-writer|libreoffice-calc|blender) ;;
       adt-build-tools|adt-platform-tools|adt-ndk|adt-cmake|adt-cmdline|adt-platform)
         if tnx_guest_login --shared-tmp --user "$user_name" -- bash -lc '
           set -e
+          export ANDROID_HOME="${ANDROID_HOME:-$HOME/android-sdk}"
+          export ANDROID_SDK_ROOT="$ANDROID_HOME"
+          mkdir -p "$ANDROID_HOME"
           repo="$HOME/.local/share/ternux/adt"
           mkdir -p "$(dirname "$repo")"
           if [ -e "$repo" ]; then
@@ -887,7 +932,7 @@ tnx_phase_extras() {
             adt-platform) component=platform; command=install-platforms ;;
           esac
           case "$component" in
-            platform) bash "$repo/setup.sh" install-cmd-tools; bash "$repo/setup.sh" "$command" android-36 ;;
+            platform) bash "$repo/setup.sh" "$command" android-36 ;;
             cmdline-tools) bash "$repo/setup.sh" "$command" ;;
             cmake) bash "$repo/setup.sh" "$command" ;;
             ndk) version="$(bash -c '\''cd "$(dirname "$1")"; ADT_SOURCE_ONLY=1 source "$1"; get_bootstrap_ndk'\'' _ "$repo/setup.sh")"; bash "$repo/setup.sh" "$command" "$version" ;;
@@ -903,10 +948,18 @@ tnx_phase_extras() {
         else tnx_warn "$opt release could not be installed; check device/runtime support and the extension guide."; rc=1; fi
         ;;
       claude)
-        node_version="$(tnx_guest_login --user "$user_name" -- bash -lc 'node -p "process.versions.node.split(\".\")[0]"' 2>/dev/null || true)"
-        if [[ "$node_version" =~ ^[0-9]+$ ]] && [ "$node_version" -ge 22 ] && tnx_guest_login --shared-tmp --user "$user_name" -- bash -lc 'npm install -g @anthropic-ai/claude-code'; then
-          tnx_ok "Claude Code installed; run claude to sign in when ready"
-        else tnx_warn "Claude Code needs Node.js 22 or newer; no credentials were requested or stored."; rc=1; fi
+        if tnx_guest_login --shared-tmp --user "$user_name" -- bash -lc '
+          set -e
+          node_major="$(node --version 2>/dev/null | cut -d. -f1 | tr -d v || true)"
+          if ! [[ "$node_major" =~ ^[0-9]+$ ]] || [ "$node_major" -lt 22 ]; then
+            npm install --global node@22
+          fi
+          node_major="$(node --version | cut -d. -f1 | tr -d v)"
+          [ "$node_major" -ge 22 ] || { echo "Node.js 22+ required; found $node_major" >&2; exit 1; }
+          npm install --global @anthropic-ai/claude-code
+        '; then
+          tnx_ok "Claude Code installed with Node.js 22+; run claude to sign in when ready"
+        else tnx_warn "Claude Code install failed while provisioning its Node.js 22+ runtime; no credentials were requested or stored."; rc=1; fi
         ;;
       codex)
         if tnx_guest_login --shared-tmp --user "$user_name" -- bash -lc 'npm install -g @openai/codex@latest'; then
@@ -920,9 +973,19 @@ tnx_phase_extras() {
         else tnx_warn "OpenAI API CLI needs Go 1.26 or newer; install a supported Go toolchain, then run go install github.com/openai/openai-cli/cmd/openai@latest."; rc=1; fi
         ;;
       hermes)
-        if tnx_guest_login --shared-tmp --user "$user_name" -- bash -lc 'curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash -s -- --non-interactive'; then
+        if tnx_guest_login --shared-tmp --user "$user_name" -- bash -lc '
+          set -o pipefail
+          for attempt in 1 2 3; do
+            echo "Hermes Agent install attempt $attempt/3"
+            if curl -fsSL --retry 2 --retry-delay 2 --connect-timeout 15 https://hermes-agent.nousresearch.com/install.sh | bash -s -- --non-interactive; then
+              exit 0
+            fi
+            [ "$attempt" -lt 3 ] && sleep $((attempt * 3))
+          done
+          exit 1
+        '; then
           tnx_ok "Hermes Agent installed; run hermes setup when ready"
-        else tnx_warn "Hermes Agent installer failed; its setup can be retried from the official guide."; rc=1; fi
+        else tnx_warn "Hermes Agent install failed after three attempts; see the network error and retry from the official guide."; rc=1; fi
         ;;
       openclaw)
         if tnx_guest_login --shared-tmp --user "$user_name" -- bash -lc 'curl -fsSL --proto https --tlsv1.2 https://openclaw.ai/install.sh | bash -s -- --no-onboard --verify'; then

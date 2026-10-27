@@ -127,7 +127,9 @@ installer বা Debian root filesystem নয়। আগে Ternux setup ক�
 ও flash-attention path-এ ভুল উত্তর এসেছে। Flash attention বন্ধ রেখে HVX-only
 matmul-এ tested device-এ bounded known-answer ও long recall-key check pass
 করেছে। Explicit HVX flash attention-এ এখনও সাতটি reproduce করা numerical error
-আছে; তাই HTP experimental, supported নয়। [বর্তমান release gate](ACCELERATOR-RELEASE-PLAN.html)
+আছে; তাই HTP experimental, supported নয়। Installer-এ HTP বেছে নিলে Ternux official Debian Trixie Backports-এর `main`
+ও `contrib` component যোগ করে চারটি runtime package install করে; system dependency
+হওয়ায় এগুলো HTP archive-এ bundle করা নেই। [বর্তমান release gate](ACCELERATOR-RELEASE-PLAN.html)
 ও [repository-only বিস্তারিত evidence](https://github.com/soobujmiah/ternux/blob/main/bn/guides/device-benchmark-evidence.md#experimental-llamacpp-hexagon-htp-artifact-for-sm8735)
 দেখুন।
 
@@ -150,8 +152,11 @@ sudo apt update && sudo apt install -y ca-certificates curl tar gzip
 
 ### Ternux Debian guest-এ ADT tools বসান
 
-Termux host থেকে `db` চালিয়ে Debian-এ ঢুকুন (অথবা Xfce terminal খুলুন),
-তারপর সাধারণ Debian user হিসেবে ADT-এর installer চালান:
+Ternux interactive installer থেকে ADT component বেছে install করা যায়। এতে
+versioned SDK component-এর আগে ADT command-line tools বসে, তাই `sdkmanager`
+আগেই থাকে। হাতে setup করতে Termux host থেকে `db` চালিয়ে Debian-এ ঢুকুন
+(অথবা Xfce terminal খুলুন), তারপর সাধারণ Debian user হিসেবে ADT-এর installer
+চালান:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/soobujmiah/adt/main/install.sh | bash

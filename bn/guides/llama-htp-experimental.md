@@ -91,7 +91,9 @@ session cleanly close করেছে। এটি অসম্পূর্ণ, 
 - Debian guest থেকে পড়া যায় এমন path-এ GGUF model। Extension model weight
   download, copy বা bundle করে না।
 
-Debian guest-এ runtime package install করুন:
+Ternux interactive installer-এ HTP বেছে নিলে extension install-এর আগে Debian
+Trixie Backports-এর `main` ও `contrib` সক্রিয় করে runtime package-গুলো বসায়।
+পরে হাতে `ternux extension install` চালালে আগে Debian guest-এ package বসান:
 
 ```bash
 sudo apt install libgbinder1 libglibutil1 libfastrpc1 libfastrpc-dev

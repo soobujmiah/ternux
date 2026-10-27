@@ -166,8 +166,11 @@ sudo apt update && sudo apt install -y ca-certificates curl tar gzip
 
 ### Install ADT tools inside the Ternux Debian guest
 
-From the Termux host, enter Debian with `db` (or open an Xfce terminal), then
-run the ADT-owned installer as your normal Debian user:
+The interactive Ternux installer can install selected ADT components. It runs
+ADT's command-line tools first so `sdkmanager` is available before installing
+versioned SDK components. For manual setup, enter Debian from the Termux host
+with `db` (or open an Xfce terminal), then run the ADT-owned installer as your
+normal Debian user:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/soobujmiah/adt/main/install.sh | bash
@@ -210,8 +213,11 @@ The experimental HTP package is installed from the Termux host with
 SM8735/V73 experiment and is not a supported Ternux feature. Review the
 [repository HTP guide](https://github.com/soobujmiah/ternux/blob/main/guides/llama-htp-experimental.md)
 for runtime dependencies, exact usage, known incorrect configurations,
-cancellation status and removal. Do not change FastRPC device permissions or
-copy model weights for this extension.
+cancellation status and removal. When selected in the installer, Ternux enables
+the official Debian Trixie Backports `main` and `contrib` components and installs
+the four Debian runtime packages before downloading the extension. These are
+system runtime dependencies, so they are not bundled in the release archive. Do
+not change FastRPC device permissions or copy model weights for this extension.
 
 ---
 

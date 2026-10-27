@@ -12,6 +12,15 @@ Notable changes to ternux. Dates are ISO 8601.
 
 ## [Unreleased]
 
+### Installer dependency recovery
+
+- Provisioned Debian Backports runtime libraries when the experimental HTP
+  extension is selected.
+- Run ADT command-line tools before SDK components so `sdkmanager` exists for
+  version resolution.
+- Provisioned a user-local Node.js 22 runtime when Claude Code is selected and
+  added bounded retries for transient Hermes installer network failures.
+
 ### A deeper doctor
 
 - Reworked `ternux doctor` into categorised checks (`system`, `host`, `guest`,

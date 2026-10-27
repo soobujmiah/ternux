@@ -180,7 +180,8 @@ details, and recovery steps, see the [repository extension guide](https://github
 Ternux also lists a separate experimental HTP extension for the Redmi Turbo 4
 Pro / SM8735. It is not a supported release feature. Install from Termux with
 `ternux extension install llama-htp-experimental`; the Debian guest needs
-`libgbinder1`, `libglibutil1`, `libfastrpc1`, and `libfastrpc-dev`. Its
+`libgbinder1`, `libglibutil1`, `libfastrpc1`, and `libfastrpc-dev`. Selecting HTP
+in the installer provisions these packages from Debian Trixie Backports. Its
 known-answer-safe settings,
 current failures, and device qualification status are in the
 [repository HTP guide](https://github.com/soobujmiah/ternux/blob/main/guides/llama-htp-experimental.md).

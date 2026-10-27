@@ -95,7 +95,10 @@ CDSP session cleanly. This was incomplete, not a broad-suite pass. An isolated
 - A GGUF model at a path the Debian guest can read. The extension does not
   download, copy or bundle model weights.
 
-Install the runtime packages in the Debian guest:
+When HTP is selected in Ternux's interactive installer, it enables Debian
+Trixie Backports `main` and `contrib` and installs these runtime packages before
+installing the extension. For a later manual `ternux extension install` command,
+install the runtime packages in the Debian guest first:
 
 ```bash
 sudo apt install libgbinder1 libglibutil1 libfastrpc1 libfastrpc-dev
