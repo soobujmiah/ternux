@@ -11,7 +11,7 @@
 # =============================================================================
 set -u
 
-TERNUX_GUEST_VERSION="1.4.0"
+TERNUX_GUEST_VERSION="2.0.0"
 
 _guest_help() {
   cat <<'EOF'
