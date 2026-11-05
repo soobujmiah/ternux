@@ -81,6 +81,19 @@ else
   not_ok "Debian phase reuses a PRoot-Distro 5 container"
 fi
 
+# A caller-provided host toolchain path must not override Termux APT libraries.
+if env LD_LIBRARY_PATH="$TMP/foreign-libraries" TERNUX_STATE_DIR="$TMP/state-pkg-env" \
+  HOME="$TMP/home-pkg-env" bash -c '
+    . "$1/lib/core.sh"
+    pkg(){ [ "${LD_LIBRARY_PATH-unset}" = "" ] && [ "$*" = "install ternux" ]; }
+    apt-cache(){ [ "${LD_LIBRARY_PATH-unset}" = "" ] && [ "$*" = "policy ternux" ]; }
+    tnx_termux_pkg install ternux && tnx_termux_apt_cache policy ternux
+  ' _ "$ROOT"; then
+  ok "Termux package tools ignore a caller-supplied LD_LIBRARY_PATH"
+else
+  not_ok "Termux package tools ignore a caller-supplied LD_LIBRARY_PATH"
+fi
+
 # Package setup keeps the current mirror and suppresses pkg's all-mirror sweep;
 # it must not open the full-screen termux-change-repo dialog inside the frame.
 if env TERNUX_STATE_DIR="$TMP/state-repos" HOME="$TMP/home-repos" \
@@ -96,6 +109,13 @@ if env TERNUX_STATE_DIR="$TMP/state-repos" HOME="$TMP/home-repos" \
 else
   not_ok "package phase avoids repository dialogs and mirror sweeps"
 fi
+
+# Package artifacts must survive the Astro build, which owns dist/.
+check "Termux APT artifacts live outside the website dist directory" bash -c '
+  grep -Fq "artifacts/ternux-apt/debs" "$1/packaging/termux/build.sh" &&
+  grep -Fq "artifacts/ternux-apt/debs" "$1/packaging/termux/manifest.json" &&
+  ! grep -R -q "dist/ternux-apt" "$1/packaging/termux"
+' _ "$ROOT"
 
 # Build archives that exercise target-only validation. An unrelated symlink is
 # legitimate; a symlink at either selected target is not.

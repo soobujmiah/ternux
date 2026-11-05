@@ -198,15 +198,15 @@ _tnx_install_core_packages() {
   local apt_force="$1"
   local pkgs="pulseaudio proot-distro virglrenderer-android zsh git curl wget nano tar termux-api"
 
-  pkg install -y $apt_force $pkgs && return 0
+  tnx_termux_pkg install -y $apt_force $pkgs && return 0
 
   # Retry with refresh and fix-missing on the current repository first
-  apt-get update -y && pkg install -y --fix-missing $apt_force $pkgs && return 0
+  LD_LIBRARY_PATH= apt-get update -y && tnx_termux_pkg install -y --fix-missing $apt_force $pkgs && return 0
 
   # Automatic mirror fallback: switch to verified alternate mirrors if 404 occurs
   if _tnx_switch_mirror; then
     tnx_warn "Repository mirror failed; switched to an alternate mirror and retrying..."
-    pkg update -y $apt_force && pkg install -y $apt_force $pkgs && return 0
+    tnx_termux_pkg update -y $apt_force && tnx_termux_pkg install -y $apt_force $pkgs && return 0
   fi
 
   return 1
@@ -230,18 +230,18 @@ tnx_phase_packages() {
   termux-setup-storage 2>/dev/null || tnx_warn "termux-setup-storage: continuing."
   sleep 1
 
-  tnx_spin_run "Refresh Termux repositories" pkg update -y $APT_FORCE || rc=1
-  tnx_spin_run "Upgrade installed Termux packages" pkg upgrade -y $APT_FORCE || {
+  tnx_spin_run "Refresh Termux repositories" tnx_termux_pkg update -y $APT_FORCE || rc=1
+  tnx_spin_run "Upgrade installed Termux packages" tnx_termux_pkg upgrade -y $APT_FORCE || {
     tnx_warn "pkg upgrade incomplete — repairing dpkg before continuing."
     tnx_spin_run "Repair interrupted dpkg configuration" dpkg --configure -a --force-confold --force-confdef || true
   }
-  tnx_spin_run "Enable X11 and TUR repositories" pkg install -y $APT_FORCE x11-repo tur-repo || rc=1
-  tnx_spin_run "Install the Termux:X11 client" bash -c "pkg install -y $APT_FORCE termux-x11-nightly || pkg install -y $APT_FORCE termux-x11" || rc=1
+  tnx_spin_run "Enable X11 and TUR repositories" tnx_termux_pkg install -y $APT_FORCE x11-repo tur-repo || rc=1
+  tnx_spin_run "Install the Termux:X11 client" bash -c "LD_LIBRARY_PATH= pkg install -y $APT_FORCE termux-x11-nightly || LD_LIBRARY_PATH= pkg install -y $APT_FORCE termux-x11" || rc=1
   tnx_spin_run "Install PulseAudio, PRoot, VirGL and core tools" _tnx_install_core_packages "$APT_FORCE" || rc=1
 
   local backend="${1:-auto}"
   if [ "$backend" = "zink" ] || { [ "$backend" = "auto" ] && [ -e "${TERNUX_KGSL_DEVICE:-/dev/kgsl-3d0}" ]; }; then
-    tnx_spin_run "Install the Freedreno Vulkan ICD" pkg install -y $APT_FORCE mesa-vulkan-icd-freedreno || \
+    tnx_spin_run "Install the Freedreno Vulkan ICD" tnx_termux_pkg install -y $APT_FORCE mesa-vulkan-icd-freedreno || \
       tnx_warn "Freedreno ICD unavailable"
   fi
 
@@ -762,7 +762,7 @@ tnx_phase_aliases() {
   local distro; distro="$(tnx_distro)"
   local RC_FILE="$HOME/.bashrc"
   if [ "$shell_choice" = "zsh" ]; then
-    tnx_has_cmd zsh || tnx_spin_run "Install zsh" pkg install zsh -y \
+    tnx_has_cmd zsh || tnx_spin_run "Install zsh" tnx_termux_pkg install zsh -y \
       -o APT::Color=1 -o Dpkg::Progress-Fancy=1 || true
     RC_FILE="$HOME/.zshrc"; touch "$RC_FILE"
     # </dev/null so a chsh that wants a password cannot stall the install.
@@ -1101,6 +1101,25 @@ tnx_phase_cli() {
   local bin_dir="$prefix/bin" lib_dir="$prefix/lib/ternux"
   local cli_src="" try="" cleanup_dir="" archive="" listing=""
   local root_name="" source_root="" source_lib_dir="" local_lib=""
+
+  # APT owns the packaged CLI files. Keep dpkg's file inventory consistent;
+  # package upgrades are handled by the configured APT repository.
+  if command -v dpkg-query >/dev/null 2>&1 &&
+     [ "$(dpkg-query -W -f='${Status}' ternux 2>/dev/null || true)" = "install ok installed" ]; then
+    local managed_version=""
+    managed_version="$("$bin_dir/ternux" --version 2>&1)" || {
+      tnx_fail "APT-managed Ternux CLI cannot load its installed libraries. Repair the package with: pkg reinstall ternux"
+      return 1
+    }
+    case "$managed_version" in
+      "ternux v${TERNUX_VERSION}"|"ternux v${TERNUX_VERSION}"$'\n'*)
+        tnx_ok "APT-managed Ternux CLI is installed and version-verified: ${TERNUX_VERSION}"
+        return 0 ;;
+      *)
+        tnx_fail "APT-managed CLI version mismatch (${managed_version}). Upgrade or reinstall with: pkg upgrade ternux"
+        return 1 ;;
+    esac
+  fi
 
   if [ -n "${_TNX_SRC:-}" ] && [ -f "$_TNX_SRC/bin/ternux" ]; then
     cli_src="$_TNX_SRC/bin/ternux"

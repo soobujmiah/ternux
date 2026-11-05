@@ -50,7 +50,7 @@ ${TNX_CW}Commands:${TNX_C0}
   ${TNX_CG}info${TNX_C0}       System information       ${TNX_CD}[--json]${TNX_C0}
   ${TNX_CG}state${TNX_C0}      Installation state       ${TNX_CD}[--json]${TNX_C0}
   ${TNX_CG}logs${TNX_C0}       View/manage log files
-  ${TNX_CG}update${TNX_C0}     Self-update ternux CLI
+  ${TNX_CG}update${TNX_C0}     Update Ternux through its install source
   ${TNX_CG}uninstall${TNX_C0}  Remove ternux components
 
 ${TNX_CW}Global options:${TNX_C0}
@@ -198,7 +198,7 @@ Subcommands:
 HELP
 }
 
-tnx_help_update()    { echo "Usage: ternux update [check]"; echo "check — check for updates without installing. Otherwise, self-update ternux CLI from GitHub."; }
+tnx_help_update()    { echo "Usage: ternux update [check]"; echo "check — check for updates without installing. APT-installed copies use pkg upgrade; other installs update from GitHub."; }
 tnx_help_uninstall() {
   echo "Usage: ternux uninstall [session|launcher|state|container|all] [--yes]"
   echo "Interactive by default; destructive container removal requires confirmation."

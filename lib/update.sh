@@ -24,8 +24,33 @@ tnx_cmd_update() {
   esac
 }
 
+_tnx_is_apt_managed() {
+  command -v dpkg-query >/dev/null 2>&1 || return 1
+  [ "$(dpkg-query -W -f='${Status}' ternux 2>/dev/null || true)" = "install ok installed" ]
+}
+
 _tnx_update_check() {
   tnx_step "Checking for updates..."
+
+  if _tnx_is_apt_managed; then
+    local policy installed candidate
+    policy="$(tnx_termux_apt_cache policy ternux 2>/dev/null || true)"
+    installed="$(printf '%s\n' "$policy" | awk '/^[[:space:]]*Installed:/{print $2; exit}')"
+    candidate="$(printf '%s\n' "$policy" | awk '/^[[:space:]]*Candidate:/{print $2; exit}')"
+    if [ -z "$installed" ] || [ -z "$candidate" ] || [ "$candidate" = "(none)" ]; then
+      [ "${TERNUX_JSON:-0}" = "1" ] && tnx_json_object "update" "unknown" "current" "$TERNUX_VERSION" "error" "apt_candidate_unavailable"
+      [ "${TERNUX_JSON:-0}" != "1" ] && tnx_warn "APT package source is unavailable. Run pkg update and check your configured repository."
+      return 1
+    fi
+    if dpkg --compare-versions "$candidate" gt "$installed"; then
+      [ "${TERNUX_JSON:-0}" = "1" ] && tnx_json_object "update" "available" "current" "$installed" "latest" "$candidate"
+      [ "${TERNUX_JSON:-0}" != "1" ] && tnx_warn "APT update available: $installed → $candidate" && tnx_info "Run: pkg upgrade ternux"
+    else
+      [ "${TERNUX_JSON:-0}" = "1" ] && tnx_json_object "update" "current" "version" "$installed"
+      [ "${TERNUX_JSON:-0}" != "1" ] && tnx_ok "You're up to date ($installed)."
+    fi
+    return 0
+  fi
 
   local current_version="$TERNUX_VERSION"
   local remote_version=""
@@ -62,6 +87,16 @@ _tnx_update_check() {
 
 _tnx_update_run() {
   tnx_step "Updating ternux..."
+
+  if _tnx_is_apt_managed; then
+    tnx_info "This Ternux installation is managed by APT."
+    tnx_info "Refreshing package lists and upgrading only ternux..."
+    tnx_termux_pkg update && tnx_termux_pkg upgrade ternux || {
+      tnx_fail "APT could not upgrade ternux. Check the repository configuration and retry: pkg upgrade ternux"
+      return 1
+    }
+    return 0
+  fi
 
   local repo_url="${TERNUX_REPO_URL:-https://github.com/soobujmiah/ternux.git}"
   local clone_dir="${TMPDIR:-/data/data/com.termux/files/usr/tmp}/ternux-update-$$"

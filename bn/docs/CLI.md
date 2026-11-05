@@ -268,7 +268,7 @@ automatic CPU/GPU fallback নেই।
 
 ### `ternux update`
 
-ternux CLI আপডেট।
+CLI-কে তার install source অনুযায়ী আপডেট করে। APT-managed install APT দিয়ে update/check করে; অন্য install GitHub থেকে self-update করে।
 
 ```bash
 ternux update [check]
@@ -276,8 +276,8 @@ ternux update [check]
 
 | সাবকমান্ড | বিবরণ |
 |-----------|--------|
-| *(none)* | সর্বশেষ ভার্সন ডাউনলোড ও ইনস্টল |
-| `check` | ইনস্টল না করেই আপডেট চেক |
+| *(none)* | APT package-managed হলে configured repository থেকে update; অন্যথায় GitHub থেকে latest version download/install |
+| `check` | ইনস্টল না করেই আপডেট চেক; APT-managed install configured package candidate দেখে |
 
 ### `ternux uninstall`
 

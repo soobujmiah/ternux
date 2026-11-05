@@ -313,7 +313,7 @@ and [HTP guide](https://github.com/soobujmiah/ternux/blob/main/guides/llama-htp-
 
 ### `ternux update`
 
-Self-update ternux CLI from GitHub.
+Update the CLI using its install source. APT-managed installations check and update through APT; other installations self-update from GitHub.
 
 ```bash
 ternux update [check]
@@ -321,8 +321,8 @@ ternux update [check]
 
 | Subcommand | Description |
 |------------|-------------|
-| *(none)* | Fetch and install latest version |
-| `check` | Check for updates without installing |
+| *(none)* | Update from the configured APT repository when package-managed; otherwise fetch and install the latest GitHub version |
+| `check` | Check for updates without installing; APT-managed installs use the configured package candidate |
 
 ### `ternux uninstall`
 

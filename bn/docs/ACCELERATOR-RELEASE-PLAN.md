@@ -1,6 +1,6 @@
 ---
 title: Accelerator ও ecosystem release completion plan
-description: পরবর্তী Ternux release-এর আগে বাকি CPU/GPU/HTP qualification ও release gate।
+description: পরবর্তী Ternux release-এর আগে accelerator, package বিতরণ ও artifact installation gate।
 lang: bn
 alt_url: /docs/ACCELERATOR-RELEASE-PLAN.html
 ---
@@ -9,7 +9,9 @@ Owner direction, ২০২৬-১০-১৪: পরবর্তী stable Ternux
 NPU qualification এবং release preparation শেষ করতে হবে। মূল HTP কাজের পাশাপাশি
 standalone QNN image route-টি আলাদা gate হিসেবে থাকবে। অন্য device-এ Ubuntu
 install স্থগিত; এটি release blocker নয়। এই plan pending কাজ নথিভুক্ত করে,
-shipped capability দাবি করে না।
+shipped capability দাবি করে না। Owner request, ২০২৬-১১-০৬: `pkg install ternux`-এর
+জন্য signed Termux APT distribution channel প্রস্তুত করতে হবে; এই নতুন gate
+accelerator qualification gate-গুলোর বিকল্প নয়।
 
 | ক্রম | কাজ | বর্তমান অবস্থা | Completion evidence |
 |---|---|---|---|
@@ -20,7 +22,8 @@ shipped capability দাবি করে না।
 | ৫ | পুনর্ব্যবহারযোগ্য GitHub artifact | CPU/Vulkan ARM64 build ও ABI audit run `38521164812`-এ pass; exact archive isolated install ও CPU/Adreno Vulkan known-answer-ও pass। HTP run `38560288558` checksum, safe-path, isolated install, HTP0 known-answer ও cancellation pass। Metadata-corrected HTP run `38562008524` pass; checksum-verified archive-এ tested runtime payload অপরিবর্তিত, শুধু README/manifest metadata বদলেছে এবং `libcdsprpc.so` / `libfastrpc-dev` dependency যুক্ত হয়েছে। HTP experimental। | clean-driver install ও transitive license review; correctness ও compatibility gate খোলা রাখা |
 | ৬ | Extension install ও guide | CPU + Vulkan prerelease-এর install, SHA-256, archive check, atomic/no-overwrite ও known-answer pass। HTP run `38560288558` exact package isolated HOME-এ installer fixture দিয়ে install; path/manifest/launcher check pass। Metadata-corrected `38562008524`-ও checksum ও isolated installer fixture pass করেছে; README/manifest বদলেছে, runtime file একই। HTP experimental ও unpublished। | Experimental HTP support ও release gate আলাদা রাখা |
 | ৭ | CLI ও installation screen polish | Renderer suite portrait/landscape/resize-এ 24/24 pass; human visual/usability check phone-এ বাকি। | পরিষ্কার mobile layout, অর্থপূর্ণ error/status, interactive ও unattended path, owner usability review |
-| ৮ | Ternux stable release | HELD | আগের gate, accurate support matrix, required CI, installed-artifact device test ও final docs শেষ |
+| ৮ | Signed Termux APT distribution (`pkg install ternux`) | Redmi Turbo 4 Pro-তে unsigned local `file:` repository থেকে local 1.4.0 `.deb` `pkg` দিয়ে install ও reinstall হয়েছে; managed base desktop install-এর ১১/১১ phase শেষ; `ternux doctor --strict`-এ ২৫টি check pass, কোনো warning বা failure নেই। এটি শুধু local artifact path যাচাই করে। Signing key বা hosted repository এখনো নেই। | Signed repository publish, independently verified key bootstrap docs, এবং signed source থেকে device-এ clean install ও package upgrade নিশ্চিত করা |
+| ৯ | Ternux stable release | HELD | আগের সব gate, accurate support matrix, required CI, installed-artifact device test ও final docs শেষ |
 
 SD1.5 performance gap এখনো qualification item: Ternux QNN runner-এর median
 29.76 s/image; একই device-এর আলাদা Local Dream route-এ 512×512, ২০ step-এর মাপ

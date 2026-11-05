@@ -12,6 +12,13 @@ Notable changes to ternux. Dates are ISO 8601.
 
 ## [Unreleased]
 
+### Termux APT packaging and installation
+
+- Added a Termux `ternux` package manifest and reproducible local APT repository build guide. `pkg install ternux` installs the host CLI; desktop provisioning remains an explicit `ternux install` step.
+- Routed package-manager calls through a wrapper that clears inherited `LD_LIBRARY_PATH`, so external CLI-bundled C++ libraries cannot break Termux APT tools.
+- Fixed lazy-loaded `doctor` associative-array scope under Bash 5.3.
+- Updated the locked transitive `undici` dependency to 8.12.4; `npm audit` reports no known vulnerabilities.
+
 ### Installer dependency recovery
 
 - Provisioned Debian Backports runtime libraries when the experimental HTP

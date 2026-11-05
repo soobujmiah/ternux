@@ -1,6 +1,6 @@
 ---
 title: Accelerator and ecosystem release completion plan
-description: Pending validation, standalone QNN and artifact installation gates before the next Ternux release.
+description: Pending accelerator, package distribution and artifact installation gates before the next Ternux release.
 lang: en
 alt_url: /bn/docs/ACCELERATOR-RELEASE-PLAN.html
 ---
@@ -14,7 +14,9 @@ device is deferred and is not a blocker or remaining task for this release;
 the existing Ubuntu profile remains explicitly unverified. Complete the
 remaining in-scope accelerator and release gates before the next Ternux
 version is released. This plan tracks pending work explicitly; it does not
-describe shipped capabilities.
+describe shipped capabilities. Owner request, 2026-11-06: prepare a signed Termux
+APT distribution channel for `pkg install ternux`; this new distribution gate
+does not waive the accelerator qualification gates.
 
 | Order | Work | Current status | Completion evidence |
 |---|---|---|---|
@@ -25,7 +27,8 @@ describe shipped capabilities.
 | 5 | Reusable GitHub artifacts | Fresh ARM64 Vulkan build and ABI audit passed in run `38521164812`; its exact archive passed isolated install and CPU/Adreno Vulkan known-answer checks. HTP artifact run `38560288558` passed checksum, safe-path inspection, isolated installation, known-answer HTP0 execution, and bounded cancellation. Metadata-corrected build `38562008524` passed; its checksum-verified archive differs from the device-tested runtime payload only in README/manifest metadata, adding `libcdsprpc.so` and `libfastrpc-dev` dependency inventory. HTP remains experimental. | Finish clean-driver installation and broader transitive-license review; retain separate correctness and compatibility gates |
 | 6 | Extension installation and complete guides | COMPLETE for the published CPU + Vulkan prerelease. HTP run `38560288558` installed through the extension installer into an isolated HOME using archive/checksum fixtures; path/manifest/launcher checks passed. The metadata-corrected run `38562008524` also passed checksum and isolated installer-fixture ingestion with the corrected README/manifest. Runtime package files match the tested archive; HTP remains experimental and unpublished. | Keep experimental HTP support and release gates separate |
 | 7 | CLI and installation screen polish | Repository UI renderer suite passes 24/24 portrait, landscape and resize checks; generated CLI guide links now expose the CPU/Vulkan quick and deep guides. Human visual/usability validation on the phone remains pending. | Clear mobile layout, meaningful status/error text, interactive/unattended paths and owner visual/usability validation |
-| 8 | Complete Ternux version release | HELD | All prior gates satisfied, accurate support matrix, required CI, installed-artifact device tests and final documentation |
+| 8 | Signed Termux APT distribution (`pkg install ternux`) | Local 1.4.0 `.deb` installed and reinstalled through `pkg` from an unsigned local `file:` repository on the Redmi Turbo 4 Pro; managed base desktop install completed 11/11 phases; `ternux doctor --strict` passed 25 checks with no warnings or failures. This verifies the local artifact path only. No signing key or hosted repository exists yet. | Publish a signed repository, document independently verified key bootstrap, and confirm clean install and package upgrade from the signed source on-device |
+| 9 | Complete Ternux version release | HELD | All prior gates satisfied, accurate support matrix, required CI, installed-artifact device tests and final documentation |
 
 The SD1.5 performance gap remains a qualification item: the Ternux QNN runner
 measured a 29.76 s/image median, while the separate Local Dream route measured

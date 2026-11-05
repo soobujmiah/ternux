@@ -43,7 +43,7 @@ tnx_detect_storage_gb() {
 
 tnx_detect_termux_version() {
   dpkg -s com.termux 2>/dev/null | grep '^Version:' | awk '{print $2}' || \
-  apt-cache policy com.termux 2>/dev/null | grep 'Installed:' | awk '{print $2}' || \
+  tnx_termux_apt_cache policy com.termux 2>/dev/null | grep 'Installed:' | awk '{print $2}' || \
   echo "unknown"
 }
 

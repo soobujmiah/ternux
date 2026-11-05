@@ -12,6 +12,13 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 
 ## [Unreleased]
 
+### Termux APT package ও installation
+
+- Termux `ternux` package manifest এবং local APT repository তৈরির পুনরুৎপাদনযোগ্য নির্দেশনা যোগ হয়েছে। `pkg install ternux` host CLI install করে; desktop setup আলাদা করে `ternux install` চালালে শুরু হয়।
+- Package-manager call এখন এমন wrapper দিয়ে চলে যা inherited `LD_LIBRARY_PATH` খালি করে। ফলে বাইরের CLI bundle-এর C++ library Termux APT-কে আর ভাঙতে পারে না।
+- Bash 5.3-এ lazy-loaded `doctor`-এর associative-array scope সমস্যা ঠিক হয়েছে।
+- Lock করা transitive `undici` dependency 8.12.4-এ তোলা হয়েছে; `npm audit`-এ পরিচিত vulnerability নেই।
+
 ### Installer dependency recovery
 
 - Experimental HTP extension বাছাই করলে Debian Backports থেকে runtime library
