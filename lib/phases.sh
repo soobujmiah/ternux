@@ -343,7 +343,7 @@ tnx_phase_debian() {
     DPKG_FORCE=\"-o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -o APT::Color=1 -o Dpkg::Progress-Fancy=1\"
     apt update -o APT::Color=1
     dpkg --configure -a --force-confold --force-confdef || true
-    apt install -y \$DPKG_FORCE sudo nano dbus-x11 pulseaudio pulseaudio-utils x11-utils mesa-utils libgl1-mesa-dri xfce4 xfce4-terminal vlc pm-utils colord
+    apt install -y \$DPKG_FORCE sudo nano dbus-x11 pulseaudio pulseaudio-utils x11-utils mesa-utils libgl1-mesa-dri adwaita-gtk-theme adwaita-icon-theme xfce4 xfce4-terminal vlc pm-utils colord
     apt install -y \$DPKG_FORCE polkitd || apt install -y \$DPKG_FORCE policykit-1 || true
     apt install -y \$DPKG_FORCE libvulkan1 vulkan-tools || true
     apt install -y \$DPKG_FORCE zip unzip xarchiver unrar-free || true
@@ -693,8 +693,19 @@ proot-distro login $distro --shared-tmp --bind /dev/kgsl-3d0:/dev/kgsl --bind /d
     sudo -n mkdir -p /var/run/dbus /run/dbus /run/user/\$(id -u) 2>/dev/null || true
     sudo -n dbus-uuidgen --ensure >/dev/null 2>&1 || true
     sudo -n rm -f /etc/xdg/autostart/light-locker.desktop 2>/dev/null || true
-    xfconf-query -c xfwm4 -p /general/use_compositing -s false >/dev/null 2>&1 || true
-    exec dbus-launch --exit-with-session startxfce4
+    exec dbus-launch --exit-with-session sh -c "
+      startxfce4 & session_pid=\$!
+      tries=0
+      until xfconf-query -c xsettings -l >/dev/null 2>&1 || [ \$tries -ge 50 ]; do
+        tries=\$((tries + 1)); sleep 0.2
+      done
+      xfconf-query -c xsettings -p /Net/ThemeName --create -t string -s Adwaita-dark
+      xfconf-query -c xsettings -p /Net/IconThemeName --create -t string -s Adwaita
+      xfconf-query -c xsettings -p /Gtk/CursorThemeName --create -t string -s Adwaita
+      xfconf-query -c xfwm4 -p /general/theme --create -t string -s Default
+      xfconf-query -c xfwm4 -p /general/use_compositing -s false >/dev/null 2>&1 || true
+      wait \$session_pid
+    "
   '
 EOF
   else
@@ -719,8 +730,19 @@ proot-distro login $distro --shared-tmp --user $user_name \\
     until xdpyinfo -display :0 >/dev/null 2>&1; do sleep 0.1; done
     sudo -n mkdir -p /var/run/dbus /run/dbus /run/user/\$(id -u) 2>/dev/null || true
     sudo -n dbus-uuidgen --ensure >/dev/null 2>&1 || true
-    xfconf-query -c xfwm4 -p /general/use_compositing -s false >/dev/null 2>&1 || true
-    exec dbus-launch --exit-with-session startxfce4
+    exec dbus-launch --exit-with-session sh -c "
+      startxfce4 & session_pid=\$!
+      tries=0
+      until xfconf-query -c xsettings -l >/dev/null 2>&1 || [ \$tries -ge 50 ]; do
+        tries=\$((tries + 1)); sleep 0.2
+      done
+      xfconf-query -c xsettings -p /Net/ThemeName --create -t string -s Adwaita-dark
+      xfconf-query -c xsettings -p /Net/IconThemeName --create -t string -s Adwaita
+      xfconf-query -c xsettings -p /Gtk/CursorThemeName --create -t string -s Adwaita
+      xfconf-query -c xfwm4 -p /general/theme --create -t string -s Default
+      xfconf-query -c xfwm4 -p /general/use_compositing -s false >/dev/null 2>&1 || true
+      wait \$session_pid
+    "
   '
 EOF
   fi

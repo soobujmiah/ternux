@@ -15,6 +15,7 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 ### Termux APT package ও installation
 
 - Installer-এর বড় duplicate wordmark ও patterned frame বাদ দিয়ে compact mobile header এবং পরিষ্কার separator করা হয়েছে; portrait screen-এ log-এর জায়গা বাড়ানো হয়েছে, routine APT chatter full log-এ রাখা হয়েছে এবং renderer assertion যোগ হয়েছে।
+- Termux:X11-এর black screen-এর জন্য documented legacy drawing mode চালু হয়েছে; managed XFCE launcher session bus ready হলে Adwaita dark GTK theme ও Adwaita icon theme সেট করে।
 - PulseAudio bridge port collision ঠিক করা হয়েছে: desktop launcher এখন 4713–4722 loopback port চেষ্টা করে, পাওয়া port Debian-এ পাঠায়; ভুল listener-এ নীরবে যুক্ত হয় না।
 - Termux `ternux` package manifest ও পুনরুৎপাদনযোগ্য local APT repository builder যোগ হয়েছে। এটি package পরিচয় ও SHA-256 মেলায়, নির্দিষ্ট primary-key fingerprint দিয়ে sign যাচাই করে, শুধু public key export করে, symlink করা artifact root ও stale package প্রত্যাখ্যান করে এবং unsigned rebuild-এ পুরোনো signature সরায়। CI unsigned review artifact বানায়; manual release workflow কেবল source version 2.0.0 হলে v2 publish করতে পারে। `pkg install ternux` host CLI install করে; desktop setup আলাদা করে `ternux install` চালালে শুরু হয়।
 - Package-manager call এখন এমন wrapper দিয়ে চলে যা inherited `LD_LIBRARY_PATH` খালি করে। ফলে বাইরের CLI bundle-এর C++ library Termux APT-কে আর ভাঙতে পারে না।
