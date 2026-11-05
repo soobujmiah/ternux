@@ -81,6 +81,39 @@ else
   not_ok "Debian phase reuses a PRoot-Distro 5 container"
 fi
 
+# The Debian base keeps VLC; the Firefox browser stays optional, and the welcome
+# page is registered for XFCE sessions without executing the desktop command on the host.
+if env TERNUX_STATE_DIR="$TMP/state-welcome" HOME="$TMP/home-welcome" \
+  PREFIX="$TMP/prefix-welcome" MARKER="$TMP/welcome-script" bash -c '
+    . "$1/lib/phases.sh"
+    tnx_debian_installed(){ return 0; }
+    tnx_install_guest_cli(){ :; }
+    tnx_guest_login(){ if [ "${3:-}" = bash ] && [ "${4:-}" = -c ] && [[ "$5" == *ternux-welcome.desktop* ]]; then printf "%s\n" "$5" > "$MARKER"; bash -n "$MARKER" || return 1; fi; return 0; }
+    tnx_phase_debian alice >/dev/null &&
+      grep -q "Exec=sh -c" "$MARKER" &&
+      grep -q "firefox-esr.*soobujmiah.github.io/ternux" "$MARKER" &&
+      grep -q "xfce4-terminal vlc pm-utils" "$1/lib/phases.sh" &&
+      ! grep -q "xfce4-terminal vlc firefox-esr" "$1/lib/phases.sh"
+  ' _ "$ROOT"; then
+  ok "base VLC, optional Firefox welcome autostart stays guest-managed"
+else
+  not_ok "base VLC, optional Firefox welcome autostart stays guest-managed"
+fi
+
+# GPU updater uses the validated Zink driver workflow through the CLI alias.
+if env TERNUX_STATE_DIR="$TMP/state-gpu-update" HOME="$TMP/home-gpu-update" \
+  MARKER="$TMP/gpu-update-called" bash -c '
+    . "$1/lib/backend.sh"
+    tnx_state_get(){ [ "$1" = backend ] && echo zink; }
+    tnx_detect_backend(){ echo zink; }
+    tnx_phase_gpu(){ [ "$1" = zink ] && : > "$MARKER"; }
+    TERNUX_JSON=1 tnx_cmd_gpu update >/dev/null && [ -f "$MARKER" ]
+  ' _ "$ROOT"; then
+  ok "GPU CLI updater reuses the validated Zink install phase"
+else
+  not_ok "GPU CLI updater reuses the validated Zink install phase"
+fi
+
 # A caller-provided host toolchain path must not override Termux APT libraries.
 if env LD_LIBRARY_PATH="$TMP/foreign-libraries" TERNUX_STATE_DIR="$TMP/state-pkg-env" \
   HOME="$TMP/home-pkg-env" bash -c '
@@ -296,9 +329,14 @@ if env TERNUX_STATE_DIR="$TMP/state-launcher" HOME="$launcher_home" bash -c '
   grep -q -- "--user alice" "$HOME/x.sh" &&
   grep -q -- "--env DISPLAY=:0" "$HOME/x.sh" &&
   grep -q "termux-x11 :0 -legacy-drawing -ac" "$HOME/x.sh" &&
+  grep -q "stop_legacy_ternuxx_audio" "$HOME/x.sh" &&
+  grep -Fq "ternuxx\\/audio\\/default\\.pa" "$HOME/x.sh" &&
   grep -q "Adwaita-dark" "$HOME/x.sh" &&
   grep -q "IconThemeName --create -t string -s Adwaita" "$HOME/x.sh" &&
   grep -q "ThemeName --create -t string -s Adwaita-dark" "$HOME/x.sh" &&
+  grep -Fq "session_pid=\\\$!" "$HOME/x.sh" &&
+  grep -Fq "wait \\\$session_pid" "$HOME/x.sh" &&
+  grep -Fq "[ \\\$tries -ge 50 ]" "$HOME/x.sh" &&
   grep -q "adwaita-gtk-theme adwaita-icon-theme" "$1/lib/phases.sh" &&
   grep -q -- "--env LC_ALL=en_US.UTF-8" "$HOME/x.sh" &&
   grep -q "^trap cleanup EXIT$" "$HOME/x.sh" &&
@@ -978,7 +1016,10 @@ if env TERNUX_STATE_DIR="$TMP/state-desktop-stop" HOME="$TMP/home-desktop-stop" 
     pgrep(){ return 0; }
     pkill(){ printf "pkill %s\n" "$*" >> "$log"; }
     pulseaudio(){ printf "pulseaudio %s\n" "$*" >> "$log"; return 1; }
-    tnx_has_cmd(){ return 1; }
+    ps(){ printf "9709 /data/data/com.termux/files/usr/bin/pulseaudio --file /home/ternux/.local/share/ternuxx/audio/default.pa\n"; }
+    kill(){ printf "kill %s\n" "$*" >> "$log"; }
+    tnx_has_cmd(){ [ "$1" = proot-distro ]; }
+    tnx_guest_login(){ printf "guest %s\n" "$*" >> "$log"; }
     TERNUX_JSON=1
     out="$(tnx_cmd_stop)" || exit
     JSON_OUT="$out" python3 -c '\''
@@ -986,6 +1027,8 @@ import json, os
 obj=json.loads(os.environ["JSON_OUT"])
 assert obj["command"] == "stop" and obj["status"] == "ok"
 '\'' &&
+    grep -qx "guest --user root -- pkill -TERM -x xfce4-session" "$log" &&
+    grep -qx "kill -TERM 9709" "$log" &&
     grep -qx "pulseaudio --kill" "$log" &&
     grep -qx "pkill -KILL -x pulseaudio" "$log" &&
     ! grep -qi dbus "$log" &&

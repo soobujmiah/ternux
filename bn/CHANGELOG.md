@@ -14,6 +14,9 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 
 ### Termux APT package ও installation
 
+- `ternux gpu update` (এবং সমতুল্য `ternux backend update`) যোগ হয়েছে; Zink device-এ pinned, SHA-256-যাচাইকৃত Debian Turnip userspace driver refresh করে। Android vendor driver OS-এর নিয়ন্ত্রণেই থাকে।
+- Optional Firefox ESR ইনস্টল থাকলে XFCE চালুর সময় Ternux website খোলার autostart যোগ হয়েছে; VLC base desktop-এ থাকে, Firefox optional।
+
 - Installer-এর বড় duplicate wordmark ও patterned frame বাদ দিয়ে compact mobile header এবং পরিষ্কার separator করা হয়েছে; portrait screen-এ log-এর জায়গা বাড়ানো হয়েছে, routine APT chatter full log-এ রাখা হয়েছে এবং renderer assertion যোগ হয়েছে।
 - Termux:X11-এর black screen-এর জন্য documented legacy drawing mode চালু হয়েছে; managed XFCE launcher session bus ready হলে Adwaita dark GTK theme ও Adwaita icon theme সেট করে।
 - PulseAudio bridge port collision ঠিক করা হয়েছে: desktop launcher এখন 4713–4722 loopback port চেষ্টা করে, পাওয়া port Debian-এ পাঠায়; ভুল listener-এ নীরবে যুক্ত হয় না।

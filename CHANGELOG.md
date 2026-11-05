@@ -14,6 +14,9 @@ Notable changes to ternux. Dates are ISO 8601.
 
 ### Termux APT packaging and installation
 
+- Added `ternux gpu update` (also `ternux backend update`) to refresh the pinned, SHA-256-validated Debian Turnip userspace driver on Zink devices; it explicitly leaves Android vendor drivers to the OS.
+- Added an XFCE welcome autostart that opens the Ternux website when optional Firefox ESR is installed; VLC remains in the base desktop and Firefox stays optional.
+
 - Replaced the installer’s oversized duplicate wordmark and patterned frame with a compact mobile header and clean separators; expanded portrait log space, kept routine APT chatter in the full log instead of the dashboard, and added renderer assertions.
 - Fixed black Termux:X11 screens with the documented legacy drawing mode; the managed XFCE launcher now applies the Adwaita dark GTK theme and Adwaita icons after the session bus is ready.
 - Fixed PulseAudio bridge port collisions: the desktop launcher now tries loopback ports 4713–4722 and passes the selected endpoint into Debian, instead of silently launching with an unrelated listener.

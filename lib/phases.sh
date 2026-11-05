@@ -359,6 +359,20 @@ tnx_phase_debian() {
     printf '%s ALL=(ALL) NOPASSWD: ALL\n' \"\$U\" > \"\$T\"
     if visudo -cf \"\$T\" >/dev/null 2>&1; then install -m 0440 -o root -g root \"\$T\" \"\$F\"; else rm -f \"\$T\"; exit 1; fi
     rm -f \"\$T\"
+    H=\"\$(getent passwd \"\$U\" | cut -d: -f6)\"
+    install -d -o \"\$U\" -g \"\$U\" -m 0755 \"\$H/.config/autostart\"
+    cat > \"\$H/.config/autostart/ternux-welcome.desktop\" <<'DESKTOP'
+[Desktop Entry]
+Type=Application
+Name=Ternux Welcome
+Comment=Open the Ternux project website when the desktop starts
+Exec=sh -c \"command -v firefox-esr >/dev/null 2>&1 && exec firefox-esr --new-window https://soobujmiah.github.io/ternux/\"
+Terminal=false
+OnlyShowIn=XFCE;
+X-GNOME-Autostart-enabled=true
+DESKTOP
+    chown \"\$U:\$U\" \"\$H/.config/autostart/ternux-welcome.desktop\"
+    chmod 0644 \"\$H/.config/autostart/ternux-welcome.desktop\"
   " || { tnx_fail "User setup failed."; return 1; }
 
   if tnx_guest_login --shared-tmp --user "$user_name" -- sudo -n true >/dev/null 2>&1; then
@@ -622,7 +636,15 @@ tnx_phase_launcher() {
 #!/data/data/com.termux/files/usr/bin/bash
 set -u
 TMPDIR="${TMPDIR:-/data/data/com.termux/files/usr/tmp}"
+stop_legacy_ternuxx_audio() {
+  local stale_pid
+  while IFS= read -r stale_pid; do
+    [ -n "$stale_pid" ] || continue
+    kill -TERM "$stale_pid" 2>/dev/null || true
+  done < <(ps -A -o pid=,args= 2>/dev/null | awk '$2 ~ /pulseaudio$/ && /\/.local\/share\/ternuxx\/audio\/default\.pa/ {print $1}')
+}
 cleanup() {
+  stop_legacy_ternuxx_audio
   pkill -9 -f termux-x11 2>/dev/null || true
   pkill -9 -f virgl_test_server 2>/dev/null || true
   pulseaudio --kill 2>/dev/null || pkill -KILL -x pulseaudio 2>/dev/null || true
@@ -639,9 +661,12 @@ pulseaudio --kill 2>/dev/null || pkill -KILL -x pulseaudio 2>/dev/null || true
 rm -f "$TMPDIR"/.X11-unix/X* "$TMPDIR"/.X*-lock "$TMPDIR"/pulse-socket "$TMPDIR"/.pulse-*/native 2>/dev/null || true
 # Wake lock
 termux-wake-lock 2>/dev/null || true
-# Audio: find a loopback port that is actually free. Another Android audio
-# service may already own 4713; silently ignoring that collision leaves guest
-# clients pointed at the wrong server and typically produces "Access denied".
+# Retire the orphaned Ternuxx audio daemon left behind by uninstall, then find
+# a loopback port that is actually free. A stale server may retain the Android
+# sink and otherwise leave the new guest bridge silent.
+stop_legacy_ternuxx_audio
+# Another Android service may own 4713; silently ignoring that collision leaves
+# guest clients pointed at the wrong server and typically produces Access denied.
 unset PULSE_SERVER; pulseaudio --start --exit-idle-time=-1 --daemonize 2>/dev/null || true
 sleep 0.3
 PULSE_PORT=""
@@ -694,17 +719,17 @@ proot-distro login $distro --shared-tmp --bind /dev/kgsl-3d0:/dev/kgsl --bind /d
     sudo -n dbus-uuidgen --ensure >/dev/null 2>&1 || true
     sudo -n rm -f /etc/xdg/autostart/light-locker.desktop 2>/dev/null || true
     exec dbus-launch --exit-with-session sh -c "
-      startxfce4 & session_pid=\$!
+      startxfce4 & session_pid=\\\$!
       tries=0
-      until xfconf-query -c xsettings -l >/dev/null 2>&1 || [ \$tries -ge 50 ]; do
-        tries=\$((tries + 1)); sleep 0.2
+      until xfconf-query -c xsettings -l >/dev/null 2>&1 || [ \\\$tries -ge 50 ]; do
+        tries=\\\$((tries + 1)); sleep 0.2
       done
       xfconf-query -c xsettings -p /Net/ThemeName --create -t string -s Adwaita-dark
       xfconf-query -c xsettings -p /Net/IconThemeName --create -t string -s Adwaita
       xfconf-query -c xsettings -p /Gtk/CursorThemeName --create -t string -s Adwaita
       xfconf-query -c xfwm4 -p /general/theme --create -t string -s Default
       xfconf-query -c xfwm4 -p /general/use_compositing -s false >/dev/null 2>&1 || true
-      wait \$session_pid
+      wait \\\$session_pid
     "
   '
 EOF
@@ -731,17 +756,17 @@ proot-distro login $distro --shared-tmp --user $user_name \\
     sudo -n mkdir -p /var/run/dbus /run/dbus /run/user/\$(id -u) 2>/dev/null || true
     sudo -n dbus-uuidgen --ensure >/dev/null 2>&1 || true
     exec dbus-launch --exit-with-session sh -c "
-      startxfce4 & session_pid=\$!
+      startxfce4 & session_pid=\\\$!
       tries=0
-      until xfconf-query -c xsettings -l >/dev/null 2>&1 || [ \$tries -ge 50 ]; do
-        tries=\$((tries + 1)); sleep 0.2
+      until xfconf-query -c xsettings -l >/dev/null 2>&1 || [ \\\$tries -ge 50 ]; do
+        tries=\\\$((tries + 1)); sleep 0.2
       done
       xfconf-query -c xsettings -p /Net/ThemeName --create -t string -s Adwaita-dark
       xfconf-query -c xsettings -p /Net/IconThemeName --create -t string -s Adwaita
       xfconf-query -c xsettings -p /Gtk/CursorThemeName --create -t string -s Adwaita
       xfconf-query -c xfwm4 -p /general/theme --create -t string -s Default
       xfconf-query -c xfwm4 -p /general/use_compositing -s false >/dev/null 2>&1 || true
-      wait \$session_pid
+      wait \\\$session_pid
     "
   '
 EOF

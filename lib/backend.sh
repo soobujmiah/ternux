@@ -10,6 +10,21 @@
 . "$(dirname "${BASH_SOURCE[0]}")/core.sh"
 # shellcheck source=lib/detect.sh
 . "$(dirname "${BASH_SOURCE[0]}")/detect.sh"
+# Use the installer's pinned, archive-validated Turnip updater.
+# shellcheck source=lib/phases.sh
+. "$(dirname "${BASH_SOURCE[0]}")/phases.sh"
+
+# Friendly GPU-focused alias for backend management.
+tnx_cmd_gpu() {
+  local subcmd="${1:-show}"
+  shift 2>/dev/null || true
+  case "$subcmd" in
+    update|--update) _tnx_backend_update ;;
+    show|--show) _tnx_backend_show ;;
+    --help|-h) tnx_help_gpu ;;
+    *) tnx_fail "Usage: ternux gpu [show|update]"; return 1 ;;
+  esac
+}
 
 # ---------------------------------------------------------------------------
 # tnx_cmd_backend
@@ -22,9 +37,37 @@ tnx_cmd_backend() {
     show|--show)   _tnx_backend_show ;;
     set|--set)     _tnx_backend_set "${1:-}" ;;
     detect|--detect) _tnx_backend_detect ;;
+    update|--update) _tnx_backend_update ;;
     --help|-h)     tnx_help_backend ;;
-    *) tnx_fail "Usage: ternux backend [show|set|detect]"; return 1 ;;
+    *) tnx_fail "Usage: ternux backend [show|set|detect|update]"; return 1 ;;
   esac
+}
+
+_tnx_backend_update() {
+  local backend
+  backend="$(tnx_canonical_backend "$(tnx_state_get "backend")")"
+  [ -n "$backend" ] || backend="$(tnx_detect_backend)"
+  [ "$backend" = "zink-turnip" ] && backend="zink"
+  if [ "$backend" != "zink" ]; then
+    tnx_info "VirGL uses the Termux host renderer; there is no guest Turnip driver to update."
+    [ "${TERNUX_JSON:-0}" = "1" ] && tnx_json_object "gpu" "unchanged" "backend" "$backend" "reason" "turnip_not_used"
+    return 0
+  fi
+  tnx_info "Refreshing the validated Debian Turnip driver and ICD. Android's vendor GPU driver is managed by the device OS."
+  local phase_output="" phase_status=0
+  if [ "${TERNUX_JSON:-0}" = "1" ]; then
+    phase_output="$(tnx_phase_gpu "$backend" 2>&1)" || phase_status=$?
+    [ -n "$phase_output" ] && printf '%s\n' "$phase_output" >&2
+  else
+    tnx_phase_gpu "$backend" || phase_status=$?
+  fi
+  if [ "$phase_status" -eq 0 ]; then
+    tnx_ok "Turnip driver refreshed from Ternux's validated release. Restart the desktop to load it."
+    [ "${TERNUX_JSON:-0}" = "1" ] && tnx_json_object "gpu" "updated" "backend" "$backend" "restart_required" "true"
+    return 0
+  fi
+  [ "${TERNUX_JSON:-0}" = "1" ] && tnx_json_object "gpu" "error" "backend" "$backend" "reason" "driver_update_failed"
+  return 1
 }
 
 _tnx_backend_show() {

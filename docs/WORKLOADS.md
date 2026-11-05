@@ -49,8 +49,8 @@ If CPU counters are restricted, it shows the available core count and load avera
 | Blender | `--with-blender` | Blender and Xvfb for headless EEVEE rendering (about 95 MB for Blender with `--no-install-recommends`) |
 | Everything | `--all` | all five |
 
-The interactive menu also offers individual tools such as Godot, Blender,
-Firefox ESR, Neovim, GitHub CLI, Claude Code, Codex, Hermes, OpenClaw, and ADT
+The interactive menu also offers individual tools such as Firefox ESR, Godot, Blender,
+Neovim, GitHub CLI, Claude Code, Codex, Hermes, OpenClaw, and ADT
 Android components. ADT Platform Tools provides `adb` and `fastboot`; Ternux
 installs these by invoking ADT's own `setup.sh`, never Debian's separate
 `android-tools-adb` package. Ternux refreshes Debian's package index before
@@ -109,15 +109,15 @@ sudo apt install -y nmap tmux
 Authorised testing only. nmap against networks you do not own is not something
 ternux is asking you to do.
 
-**Browser and developer utilities**
+**Developer utilities**
 
 ```bash
-sudo apt install -y firefox-esr neovim gh
+sudo apt install -y neovim gh
 ```
 
-Firefox ESR is Debian's supported ARM64 browser package; `apt update` before
-installation selects the newest package available from the configured Debian
-repository. See [Debian's Firefox ESR package](https://packages.debian.org/bookworm/firefox-esr).
+Firefox ESR is an optional ARM64 browser package available in the software menu.
+
+At XFCE login, Ternux opens its project website in Firefox ESR when that optional browser is installed.
 
 VLC is included with the base desktop. If needed, the catalog's separate VLC
 choice simply verifies or reinstalls the Debian package.

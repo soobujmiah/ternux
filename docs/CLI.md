@@ -247,6 +247,7 @@ ternux backend <subcommand> [backend]
 | `show` | Display current backend configuration |
 | `set auto\|zink\|virgl` | Change GPU backend |
 | `detect` | Auto-detect the correct backend |
+| `update` | Reinstall Ternux's checksum-validated Debian Turnip driver for the configured Zink route; restart the desktop afterward. It does not update Android's vendor driver. |
 
 **JSON output** (`ternux backend --json`):
 ```json
@@ -260,6 +261,21 @@ ternux backend <subcommand> [backend]
   "available_backends": "zink,virgl"
 }
 ```
+
+### `ternux gpu`
+
+Manage the guest GPU userspace driver. `update` refreshes Ternux's pinned,
+SHA-256-validated Debian Turnip driver on the Zink route; restart the desktop
+afterward. It does not update Android's vendor/kernel driver. On VirGL, `update`
+reports that no guest Turnip driver is used.
+
+```bash
+ternux gpu show
+ternux gpu update
+ternux gpu update --json
+```
+
+`ternux backend update` remains an equivalent command.
 
 ### `ternux info`
 

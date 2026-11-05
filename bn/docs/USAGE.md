@@ -55,6 +55,7 @@ ternux profile          # ডিভাইস প্রোফাইল
 ternux profile save     # বর্তমান কনফিগ সেভ
 ternux backend          # GPU ব্যাকএন্ড দেখা/বদলানো
 ternux backend set virgl    # VirGL-এ স্যুইচ
+ternux gpu update           # যাচাইকৃত Debian Turnip driver refresh
 ternux update           # ternux CLI আপডেট
 ternux logs             # লগ ফাইল দেখা
 ternux info             # সিস্টেম তথ্য
