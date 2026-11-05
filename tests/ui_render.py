@@ -249,6 +249,9 @@ set -u
 
 feed_phase_one() {
   echo "[TASK] Refreshing Termux package index"
+  echo "WARNING: apt does not have a stable CLI interface. Use with caution in scripts."
+  echo "Reading package lists..."
+  echo "pulseaudio is already the newest version (17.0-5)."
   echo "Hit:1 https://packages.termux.dev/apt/termux-main stable InRelease"
   echo "Get:2 https://packages.termux.dev/apt/termux-x11 x11 InRelease [8,000 B]"
   # Carriage-return download progress: one row, updated in place.
@@ -416,6 +419,17 @@ def analyse(tap: Tap, screen: Screen, log: str, raw: str, label: str, expect_cle
             expect_width: int | None = None) -> None:
     cols = frame_columns(screen)
     tap.check(cols is not None, f"{label}: frame has a top rule", screen.text())
+    visible = screen.text()
+    branded_frame = any(
+        "Ternux" in snapshot and "Linux workstation in your pocket" in snapshot
+        for _elapsed, snapshot, _html in screen.snapshots
+    )
+    tap.check(
+        branded_frame,
+        f"{label}: compact brand header appears with a clear product descriptor",
+        visible,
+    )
+    tap.check("▩" not in raw, f"{label}: brand header avoids oversized multi-line glyph art")
     if cols:
         left, right = cols
         rule_rows = [r for r in range(screen.rows) if screen.line(r).lstrip().startswith("+")]
@@ -460,6 +474,13 @@ def analyse(tap: Tap, screen: Screen, log: str, raw: str, label: str, expect_cle
     tap.check(
         "downloading base packages" in log,
         f"{label}: progress output is recorded once the line completes",
+    )
+    tap.check(
+        "WARNING: apt does not have a stable CLI interface" in log
+        and "WARNING: apt does not have a stable CLI interface" not in raw
+        and "pulseaudio is already the newest version" in log
+        and "pulseaudio is already the newest version" not in raw,
+        f"{label}: routine APT chatter stays in the full log without crowding the dashboard",
     )
     progress_rows = sum(1 for r in range(screen.rows) if "downloading base packages" in screen.line(r))
     tap.check(

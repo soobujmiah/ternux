@@ -364,8 +364,7 @@ sudo apt install -y fonts-symbola fonts-noto-color-emoji \
   fonts-font-awesome fonts-powerline
 
 # Point the desktop's PulseAudio client at the loopback bridge.
-mkdir -p ~/.config/pulse
-echo 'default-server = tcp:127.0.0.1:4713' > ~/.config/pulse/client.conf
+# The launcher exports the selected loopback PulseAudio endpoint to desktop apps.
 
 # Nerd Font for terminal icon glyphs (best-effort).
 mkdir -p ~/.local/share/fonts
@@ -427,8 +426,18 @@ termux-wake-lock 2>/dev/null || true
 unset PULSE_SERVER
 pulseaudio --start --exit-idle-time=-1 --daemonize 2>/dev/null || true
 sleep 0.3
-pactl load-module module-native-protocol-tcp listen=127.0.0.1 auth-ip-acl=127.0.0.1 auth-anonymous=1 port=4713 \
-  >/dev/null 2>&1 || true
+PULSE_PORT=""
+for ((candidate=4713; candidate<=4722; candidate++)); do
+  if pactl load-module module-native-protocol-tcp listen=127.0.0.1 auth-ip-acl=127.0.0.1 auth-anonymous=1 port="$candidate" >/dev/null 2>&1; then
+    PULSE_PORT="$candidate"
+    break
+  fi
+done
+if [ -z "$PULSE_PORT" ]; then
+  echo "ERROR: Could not open the loopback PulseAudio bridge on ports 4713-4722."
+  exit 1
+fi
+export PULSE_SERVER="tcp:127.0.0.1:$PULSE_PORT"
 
 # Display
 termux-x11 :0 -ac &
@@ -456,7 +465,7 @@ proot-distro login debian --shared-tmp \
   --bind /dev/dri \
   --user ternux \
   --env DISPLAY=:0 \
-  --env PULSE_SERVER=tcp:127.0.0.1:4713 \
+  --env PULSE_SERVER="$PULSE_SERVER" \
   --env MESA_LOADER_DRIVER_OVERRIDE=zink \
   --env GALLIUM_DRIVER=zink \
   --env TU_DEBUG=sysmem,noconform \
@@ -507,7 +516,7 @@ fi
 ```bash
   --user ternux \
   --env DISPLAY=:0 \
-  --env PULSE_SERVER=tcp:127.0.0.1:4713 \
+  --env PULSE_SERVER="$PULSE_SERVER" \
   --env GALLIUM_DRIVER=virpipe \
   --env MESA_GL_VERSION_OVERRIDE=4.3COMPAT \
   --env QT_X11_NO_MITSHM=1 \

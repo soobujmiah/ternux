@@ -117,6 +117,149 @@ check "Termux APT artifacts live outside the website dist directory" bash -c '
   ! grep -R -q "dist/ternux-apt" "$1/packaging/termux"
 ' _ "$ROOT"
 
+# Repository builds must bind the exact package checksum to a verified full
+# signing fingerprint, export only the public key, and remove stale signatures.
+apt_fixture="$TMP/apt-fixture"
+mkdir -p "$apt_fixture/packaging/termux" "$apt_fixture/artifacts/ternux-apt/debs" "$apt_fixture/lib"
+cp "$ROOT/packaging/termux/build-repository.sh" "$apt_fixture/packaging/termux/"
+cp "$ROOT/packaging/termux/build.sh" "$apt_fixture/packaging/termux/"
+printf 'TERNUX_VERSION="2.0.0"\n' > "$apt_fixture/lib/core.sh"
+printf '{"Version":"@VERSION@"}\n' > "$apt_fixture/packaging/termux/manifest.json"
+printf 'deb payload\n' > "$apt_fixture/artifacts/ternux-apt/debs/ternux_2.0.0_all.deb"
+printf 'stale package\n' > "$apt_fixture/artifacts/ternux-apt/debs/ternux_1.3.0_all.deb"
+cat > "$apt_fixture/fake-create-package" <<'EOF'
+#!/usr/bin/env bash
+set -eu
+printf 'current package\n' > "$FAKE_PACKAGE_OUTPUT/ternux_2.0.0_all.deb"
+EOF
+chmod +x "$apt_fixture/fake-create-package"
+if env TERMUX_CREATE_PACKAGE="$apt_fixture/fake-create-package" \
+  FAKE_PACKAGE_OUTPUT="$apt_fixture/artifacts/ternux-apt/debs" \
+  bash "$apt_fixture/packaging/termux/build.sh" >/dev/null &&
+  [[ -s "$apt_fixture/artifacts/ternux-apt/debs/ternux_2.0.0_all.deb" ]] &&
+  [[ ! -e "$apt_fixture/artifacts/ternux-apt/debs/ternux_1.3.0_all.deb" ]]; then
+  ok "package rebuild keeps only the current Ternux package artifact"
+else
+  not_ok "package rebuild keeps only the current Ternux package artifact"
+fi
+cat > "$apt_fixture/fake-apt-repo" <<'EOF'
+#!/usr/bin/env bash
+set -eu
+sign=0
+if [[ "$1" = --sign ]]; then sign=1; shift; fi
+input="$1"; output="$2"; dist="$3"; component="$4"
+mkdir -p "$output/dists/$dist/$component/binary-all"
+release="$output/dists/$dist"
+deb="ternux_2.0.0_all.deb"
+hash="$(sha256sum "$input/$deb" | awk '{print $1}')"
+printf 'Package: ternux\nVersion: 2.0.0\nArchitecture: all\nFilename: dists/%s/%s/binary-all/%s\nSHA256: %s\n\n' \
+  "$dist" "$component" "$deb" "$hash" > "$release/$component/binary-all/Packages"
+printf 'Codename: termux\nSuite: stable\nRelease\n' > "$release/Release"
+if ((sign)); then printf 'signed\n' > "$release/InRelease"; fi
+EOF
+cat > "$apt_fixture/fake-gpg" <<'EOF'
+#!/usr/bin/env bash
+set -eu
+if [[ " $* " == *" --verify "* ]]; then
+  printf '[GNUPG:] VALIDSIG %s 20261106 0 0 4 0 1 8 00 %s\n' "$FAKE_SIGNER_FINGERPRINT" "${FAKE_PRIMARY_FINGERPRINT:-$FAKE_SIGNING_FINGERPRINT}"
+  exit 0
+fi
+if [[ " $* " == *" --clearsign "* ]]; then
+  output=""; previous=""
+  for argument in "$@"; do
+    [[ "$previous" != --output ]] || output="$argument"
+    previous="$argument"
+  done
+  printf 'SIGNED InRelease\n' > "$output"
+  exit 0
+fi
+if [[ " $* " == *" --export "* ]]; then
+  printf 'PUBLIC KEY ONLY\n'
+  exit 0
+fi
+if [[ " $* " == *" --show-keys "* ]]; then
+  printf 'pub:::::::::\nfpr:::::::::%s:\n' "${FAKE_KEY_FINGERPRINT:-$FAKE_SIGNING_FINGERPRINT}"
+  exit 0
+fi
+exit 9
+EOF
+chmod +x "$apt_fixture/fake-apt-repo" "$apt_fixture/fake-gpg"
+apt_fingerprint=0123456789ABCDEF0123456789ABCDEF01234567
+if env TERMUX_APT_REPO_TOOL="$apt_fixture/fake-apt-repo" GPG="$apt_fixture/fake-gpg" \
+  TERNUX_APT_SIGNING_FINGERPRINT="$apt_fingerprint" FAKE_SIGNING_FINGERPRINT="$apt_fingerprint" \
+  FAKE_SIGNER_FINGERPRINT="$apt_fingerprint" \
+  bash "$apt_fixture/packaging/termux/build-repository.sh" --sign >"$apt_fixture/sign-success.log" 2>&1 &&
+  grep -q '^PUBLIC KEY ONLY$' "$apt_fixture/artifacts/ternux-apt/repository/ternux-archive-key.asc" &&
+  grep -q '^Origin: Ternux$' "$apt_fixture/artifacts/ternux-apt/repository/dists/stable/Release" &&
+  grep -q '^Codename: stable$' "$apt_fixture/artifacts/ternux-apt/repository/dists/stable/Release" &&
+  [[ -s "$apt_fixture/artifacts/ternux-apt/repository/dists/stable/InRelease" ]] &&
+  [[ -s "$apt_fixture/artifacts/ternux-apt/repository/ternux-archive-key.asc" ]]; then
+  ok "signed APT build verifies its full fingerprint and exports only public key"
+else
+  cat "$apt_fixture/sign-success.log" >&2 2>/dev/null || true
+  not_ok "signed APT build verifies its full fingerprint and exports only public key"
+fi
+if env TERMUX_APT_REPO_TOOL="$apt_fixture/fake-apt-repo" GPG="$apt_fixture/fake-gpg" \
+  TERNUX_APT_SIGNING_FINGERPRINT="$apt_fingerprint" \
+  FAKE_SIGNING_FINGERPRINT="$apt_fingerprint" \
+  FAKE_SIGNER_FINGERPRINT=FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF \
+  FAKE_PRIMARY_FINGERPRINT="$apt_fingerprint" \
+  FAKE_KEY_FINGERPRINT="$apt_fingerprint" \
+  bash "$apt_fixture/packaging/termux/build-repository.sh" --sign >/dev/null 2>&1; then
+  ok "APT signing accepts a verified signing subkey under the pinned primary key"
+else
+  not_ok "APT signing accepts a verified signing subkey under the pinned primary key"
+fi
+if env TERMUX_APT_REPO_TOOL="$apt_fixture/fake-apt-repo" GPG="$apt_fixture/fake-gpg" \
+  TERNUX_APT_SIGNING_FINGERPRINT="$apt_fingerprint" \
+  FAKE_SIGNING_FINGERPRINT=FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF \
+  FAKE_SIGNER_FINGERPRINT=FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF \
+  bash "$apt_fixture/packaging/termux/build-repository.sh" --sign >/dev/null 2>&1; then
+  not_ok "signed APT build rejects a different key fingerprint"
+else
+  ok "signed APT build rejects a different key fingerprint"
+fi
+if env TERMUX_APT_REPO_TOOL="$apt_fixture/fake-apt-repo" GPG="$apt_fixture/fake-gpg" \
+  TERNUX_APT_SIGNING_FINGERPRINT="$apt_fingerprint" \
+  FAKE_SIGNING_FINGERPRINT="$apt_fingerprint" \
+  FAKE_SIGNER_FINGERPRINT="$apt_fingerprint" \
+  FAKE_KEY_FINGERPRINT=FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF \
+  bash "$apt_fixture/packaging/termux/build-repository.sh" --sign >/dev/null 2>&1; then
+  not_ok "signed APT build rejects a public key with a different fingerprint"
+else
+  ok "signed APT build rejects a public key with a different fingerprint"
+fi
+if env TERMUX_APT_REPO_TOOL="$apt_fixture/fake-apt-repo" \
+  bash "$apt_fixture/packaging/termux/build-repository.sh" >/dev/null &&
+  [[ ! -e "$apt_fixture/artifacts/ternux-apt/repository/dists/stable/InRelease" ]] &&
+  [[ ! -e "$apt_fixture/artifacts/ternux-apt/repository/ternux-archive-key.asc" ]]; then
+  ok "unsigned APT rebuild removes stale signature and public-key files"
+else
+  not_ok "unsigned APT rebuild removes stale signature and public-key files"
+fi
+
+printf 'stale package\n' > "$apt_fixture/artifacts/ternux-apt/debs/ternux_1.3.0_all.deb"
+if env TERMUX_APT_REPO_TOOL="$apt_fixture/fake-apt-repo" \
+  bash "$apt_fixture/packaging/termux/build-repository.sh" >/dev/null 2>&1; then
+  not_ok "APT build rejects stale or unrelated package versions"
+else
+  ok "APT build rejects stale or unrelated package versions"
+fi
+rm -f "$apt_fixture/artifacts/ternux-apt/debs/ternux_1.3.0_all.deb"
+
+outside_apt_artifacts="$TMP/apt-outside-artifacts"
+mkdir -p "$outside_apt_artifacts/ternux-apt/debs"
+printf 'outside marker\n' > "$outside_apt_artifacts/marker"
+rm -rf "$apt_fixture/artifacts"
+ln -s "$outside_apt_artifacts" "$apt_fixture/artifacts"
+if env TERMUX_APT_REPO_TOOL="$apt_fixture/fake-apt-repo" \
+  bash "$apt_fixture/packaging/termux/build-repository.sh" >/dev/null 2>&1; then
+  not_ok "APT build refuses a symlinked artifacts directory"
+else
+  [[ -f "$outside_apt_artifacts/marker" ]] && ok "APT build refuses a symlinked artifacts directory" ||
+    not_ok "APT build refuses a symlinked artifacts directory"
+fi
+
 # Build archives that exercise target-only validation. An unrelated symlink is
 # legitimate; a symlink at either selected target is not.
 fixture="$TMP/archive"
@@ -157,6 +300,10 @@ if env TERNUX_STATE_DIR="$TMP/state-launcher" HOME="$launcher_home" bash -c '
   grep -qF '\''/run/user/$(id -u)'\'' "$HOME/x.sh" &&
   grep -qF '\''rm -f "$TMPDIR"/.X11-unix/X*'\'' "$HOME/x.sh" &&
   grep -q "pulseaudio --kill.*pkill -KILL -x pulseaudio" "$HOME/x.sh" &&
+  grep -q "candidate=4713; candidate<=4722" "$HOME/x.sh" &&
+  grep -q "PULSE_MODULE_ID=.*pactl load-module module-native-protocol-tcp" "$HOME/x.sh" &&
+  grep -q -- "--env PULSE_SERVER=\"tcp:127.0.0.1:\$PULSE_PORT\"" "$HOME/x.sh" &&
+  ! grep -q "PULSE_SERVER=tcp:127.0.0.1:4713" "$HOME/x.sh" &&
   ! grep -q "pkill.*dbus" "$HOME/x.sh" &&
   grep -q "chmod 700 ~/.runtime /tmp/mesa_cache" "$HOME/x.sh" &&
   ! grep -q "^virgl_test_server_android " "$HOME/x.sh" &&
@@ -167,6 +314,48 @@ if env TERNUX_STATE_DIR="$TMP/state-launcher" HOME="$launcher_home" bash -c '
   ok "Zink launcher and aliases preserve user and backend boundaries"
 else
   not_ok "Zink launcher and aliases preserve user and backend boundaries"
+fi
+
+if env TERNUX_STATE_DIR="$TMP/state-pulse-port" HOME="$TMP/home-pulse-port" bash -c '
+  mkdir -p "$HOME"
+  . "$1/lib/phases.sh"
+  tnx_phase_launcher ternux zink en_US.UTF-8 >/dev/null
+  sed -n "/^PULSE_PORT=.*/,/^# Display/{ /^# Display/d; p; }" "$HOME/x.sh" > "$2/audio-bridge.sh"
+  pactl(){
+    case "$*" in
+      *port=4713*) return 1 ;;
+      *port=4714*) printf 91; return 0 ;;
+      *) return 2 ;;
+    esac
+  }
+  . "$2/audio-bridge.sh" >/dev/null
+  [ "$PULSE_PORT" = 4714 ] && [ "$PULSE_MODULE_ID" = 91 ]
+' _ "$ROOT" "$TMP"; then
+  ok "launcher falls back to an available loopback audio port after a collision"
+else
+  not_ok "launcher falls back to an available loopback audio port after a collision"
+fi
+
+if env TERNUX_STATE_DIR="$TMP/state-repair-launcher" HOME="$TMP/home-repair-launcher" bash -c '
+  mkdir -p "$HOME"
+  . "$1/lib/repair.sh"
+  tnx_state_get(){ case "$1" in backend) echo zink;; user) echo ternux;; locale) echo en_US.UTF-8;; esac; }
+  tnx_ok(){ :; }; tnx_warn(){ :; }; tnx_state_set(){ :; }
+  cat > "$HOME/x.sh" <<"OLD"
+#!/bin/bash
+exit 0
+OLD
+  chmod +x "$HOME/x.sh"
+  _TNX_REPAIR_CHANGED=0
+  _tnx_repair_launcher || exit
+  [ "$_TNX_REPAIR_CHANGED" = 1 ] && grep -q '^PULSE_PORT=""$' "$HOME/x.sh" || exit
+  _TNX_REPAIR_CHANGED=0
+  _tnx_repair_launcher || exit
+  [ "$_TNX_REPAIR_CHANGED" = 0 ]
+' _ "$ROOT"; then
+  ok "repair upgrades a legacy launcher and leaves a current launcher intact"
+else
+  not_ok "repair upgrades a legacy launcher and leaves a current launcher intact"
 fi
 
 if env TERNUX_STATE_DIR="$TMP/state-virgl" HOME="$TMP/home-virgl" bash -c '
@@ -203,6 +392,9 @@ then
      grep -qF '/run/user/$(id -u)' "$manual_en" &&
      grep -qF 'rm -f "$TMPDIR"/.X11-unix/X*' "$manual_en" &&
      grep -q 'pulseaudio --kill.*pkill -KILL -x pulseaudio' "$manual_en" &&
+     grep -q "candidate=4713; candidate<=4722" "$manual_en" &&
+     grep -q "export PULSE_SERVER=\"tcp:127.0.0.1:\$PULSE_PORT\"" "$manual_en" &&
+     ! grep -q "PULSE_SERVER=tcp:127.0.0.1:4713" "$manual_en" &&
      ! grep -q 'pkill.*dbus' "$manual_en" &&
      grep -q -- '--env MESA_LOADER_DRIVER_OVERRIDE=zink' "$manual_en" &&
      grep -q 'chmod 700 ~/.runtime /tmp/mesa_cache' "$manual_en" &&

@@ -192,7 +192,8 @@ _tnx_repair_backend() {
 }
 
 _tnx_repair_launcher() {
-  [ -x "$HOME/x.sh" ] && bash -n "$HOME/x.sh" 2>/dev/null && { tnx_ok "Launcher OK"; return 0; }
+  [ -x "$HOME/x.sh" ] && bash -n "$HOME/x.sh" 2>/dev/null &&
+    grep -q '^PULSE_PORT=""$' "$HOME/x.sh" && { tnx_ok "Launcher OK"; return 0; }
 
   local backend user_name locale
   backend="$(tnx_state_get "backend")"
@@ -203,7 +204,7 @@ _tnx_repair_launcher() {
   user_name="${user_name:-ternux}"
   locale="${locale:-en_US.UTF-8}"
 
-  tnx_warn "Launcher missing or broken — regenerating..."
+  tnx_warn "Launcher missing, outdated or broken — regenerating..."
   tnx_phase_launcher "$user_name" "$backend" "$locale" || return 1
   _TNX_REPAIR_CHANGED=1
   return 0

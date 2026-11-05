@@ -1,0 +1,90 @@
+name: Termux APT package artifact
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: termux-apt-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build and inspect unsigned package artifact
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out Ternux
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Check out pinned Termux package builder
+        uses: actions/checkout@v4
+        with:
+          repository: termux/termux-create-package
+          ref: a7e20f92cfc9664a6ab6232bc826e86da73a8524
+          path: tools/termux-create-package
+          persist-credentials: false
+
+      - name: Check out pinned Termux APT repository builder
+        uses: actions/checkout@v4
+        with:
+          repository: termux/termux-apt-repo
+          ref: f2bf088281248e8817b913cc778750796ea5dc19
+          path: tools/termux-apt-repo
+          persist-credentials: false
+
+      - name: Install repository index tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends xz-utils binutils dpkg-dev
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install pinned package-builder dependency
+        run: >-
+          python -m pip install --disable-pip-version-check --no-deps --require-hashes
+          -r packaging/termux/requirements-build.txt
+        shell: bash
+
+      - name: Build package and unsigned APT index
+        run: |
+          set -euo pipefail
+          TERMUX_CREATE_PACKAGE="$GITHUB_WORKSPACE/tools/termux-create-package/src/termux-create-package" \
+            bash packaging/termux/build.sh
+          TERMUX_APT_REPO_TOOL="$GITHUB_WORKSPACE/tools/termux-apt-repo/termux-apt-repo" \
+            bash packaging/termux/build-repository.sh
+          deb="$(find artifacts/ternux-apt/debs -maxdepth 1 -type f -name 'ternux_*_all.deb' -print -quit)"
+          test -n "$deb"
+          test "$(dpkg-deb --field "$deb" Package)" = ternux
+          test "$(dpkg-deb --field "$deb" Architecture)" = all
+          version="$(sed -n 's/^TERNUX_VERSION="\([^"]*\)"$/\1/p' lib/core.sh | head -n 1)"
+          test "$(dpkg-deb --field "$deb" Version)" = "$version"
+          dpkg-deb --contents "$deb" >/dev/null
+          sha256sum "$deb" | tee "$deb.sha256"
+          grep -Fq "SHA256: $(cut -d ' ' -f 1 "$deb.sha256")" \
+            artifacts/ternux-apt/repository/dists/stable/main/binary-all/Packages
+          {
+            printf 'project_commit=%s\n' "$GITHUB_SHA"
+            printf 'package_builder_commit=%s\n' a7e20f92cfc9664a6ab6232bc826e86da73a8524
+            printf 'apt_repo_builder_commit=%s\n' f2bf088281248e8817b913cc778750796ea5dc19
+            printf 'package_version=%s\n' "$version"
+            printf 'apt_signature=unsigned-ci-only\n'
+          } > artifacts/ternux-apt/build-info.txt
+
+      - name: Upload unsigned CI artifact for review
+        uses: actions/upload-artifact@v4
+        with:
+          name: ternux-apt-unsigned-ci-${{ github.sha }}
+          path: artifacts/ternux-apt/
+          if-no-files-found: error
+          retention-days: 14

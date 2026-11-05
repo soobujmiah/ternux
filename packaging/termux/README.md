@@ -19,27 +19,61 @@ from `lib/core.sh`; the package architecture is `all` because the package
 contains shell scripts only. The manifest lists the installed files explicitly
 so a new CLI module must be added to `manifest.json` when introduced.
 
-## Build the APT repository tree
+## Build and verify the APT repository tree
 
 ```bash
 pkg install termux-apt-repo
-termux-apt-repo artifacts/ternux-apt/debs artifacts/ternux-apt/repository stable main
+bash packaging/termux/build-repository.sh
 ```
 
-`termux-apt-repo` deletes the output directory before regenerating it. Keep the
-`.deb` input directory outside the repository output directory.
+The unsigned tree is written to `artifacts/ternux-apt/repository/` for local
+install testing only. Each build recreates this generated directory and checks
+the package identity, architecture, filename, and SHA-256 in the APT index.
+Never publish an unsigned tree or configure clients with `trusted=yes`.
+
+To sign with a key already available in the current GnuPG home, inspect its full
+fingerprint first, then run:
+
+```bash
+gpg --list-secret-keys --fingerprint
+TERNUX_APT_SIGNING_FINGERPRINT='<full fingerprint>' \
+  bash packaging/termux/build-repository.sh --sign
+```
+
+The script writes `Origin`/`Label` metadata, signs `InRelease` with that exact
+full fingerprint, verifies the signature, and exports only
+`ternux-archive-key.asc` (the public key). It does not create, import, copy, or
+export a private key. For a passphrase protected key, read the passphrase without
+echo and pass it through the environment; the script forwards it to GnuPG on
+stdin, not in a command argument or file:
+
+```bash
+read -r -s -p 'Signing key passphrase: ' TERNUX_APT_SIGNING_PASSPHRASE
+printf '\n'
+export TERNUX_APT_SIGNING_PASSPHRASE
+TERNUX_APT_SIGNING_FINGERPRINT='<full signing fingerprint>' \
+  bash packaging/termux/build-repository.sh --sign
+unset TERNUX_APT_SIGNING_PASSPHRASE
+```
+
+Keep private signing material in an owner-managed secure signing environment;
+never put it in the repository, package artifacts, website, or shared storage.
 
 ## Publish and sign
 
-Host the generated repository directory at a stable HTTPS URL, for example
-`https://soobujmiah.github.io/ternux-apt/`. Before public distribution, create
-and retain an offline signing key, publish its public key through a separately
-verified channel, and sign the repository with the supported `--sign` option.
-Verify the key fingerprint independently when bootstrapping clients. Do not
-tell users to trust an unsigned repository with `trusted=yes` for public use.
+The release-only GitHub Actions workflow `termux-apt-release.yml` publishes
+the signed tree under `/apt/` on the project Pages site. It accepts manual
+runs only from `main` with `confirm_release=publish-v2` and refuses to build
+unless the project version is exactly `2.0.0`. Configure the protected
+`apt-release` environment with the armored private signing key and optional
+passphrase secrets, plus the full primary-key fingerprint variable. The
+workflow is prepared but does not run on pushes; invoke it only after every
+release-plan gate is closed.
 
-Publishing the repository requires a GitHub repository/Pages deployment and a
-maintained signing-key process. This package build does not publish anything.
+Before enabling client installation, publish the public key fingerprint through
+an independent channel and verify it from a clean Termux environment. The
+workflow publishes the public key at `apt/ternux-archive-key.asc`; it never
+publishes private signing material.
 
 ## Install from a published repository
 
@@ -60,15 +94,16 @@ fingerprint through an independent channel:
 
 ```bash
 pkg install gnupg
-curl -fsSLo "$TMPDIR/ternux-archive-key.gpg" https://soobujmiah.github.io/ternux-apt/ternux-archive-key.gpg
-gpg --show-keys --with-fingerprint "$TMPDIR/ternux-archive-key.gpg"
+curl -fsSLo "$TMPDIR/ternux-archive-key.asc" https://<host>/<path>/ternux-archive-key.asc
+gpg --show-keys --with-fingerprint "$TMPDIR/ternux-archive-key.asc"
 # Compare the displayed fingerprint with the independently published value.
-install -Dm600 "$TMPDIR/ternux-archive-key.gpg" "$PREFIX/etc/apt/keyrings/ternux.gpg"
-printf 'deb [signed-by=%s/etc/apt/keyrings/ternux.gpg] https://soobujmiah.github.io/ternux-apt stable main\n' "$PREFIX" \
+gpg --dearmor --output "$TMPDIR/ternux.gpg" "$TMPDIR/ternux-archive-key.asc"
+install -Dm600 "$TMPDIR/ternux.gpg" "$PREFIX/etc/apt/keyrings/ternux.gpg"
+printf 'deb [signed-by=%s/etc/apt/keyrings/ternux.gpg] https://<host>/<path> stable main\n' "$PREFIX" \
   > "$PREFIX/etc/apt/sources.list.d/ternux.list"
 pkg update
 pkg install ternux
 ```
 
-The URL and fingerprint above are examples until the owner creates the signing
-key and publishes the repository.
+The host, path, and fingerprint remain placeholders until the owner publishes
+the signed repository and verifies its independent fingerprint channel.

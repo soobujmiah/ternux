@@ -581,7 +581,7 @@ tnx_phase_audio_fonts() {
     grep -q \"export LANG='${locale}'\" ~/.bashrc 2>/dev/null || echo \"export LANG='${locale}'\" >> ~/.bashrc
     grep -q \"export LC_ALL='${locale}'\" ~/.bashrc 2>/dev/null || echo \"export LC_ALL='${locale}'\" >> ~/.bashrc
     sudo apt install -y \$DPKG_FORCE fonts-symbola fonts-noto-color-emoji fonts-font-awesome fonts-powerline
-    mkdir -p ~/.config/pulse && echo 'default-server = tcp:127.0.0.1:4713' > ~/.config/pulse/client.conf
+    # The launcher exports the live loopback PulseAudio endpoint for desktop apps.
     mkdir -p ~/.local/share/fonts
     if [ ! -f ~/.local/share/fonts/.ternux-nerdfont-installed ]; then
       wget -q -O /tmp/font.zip \"https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.zip\" \
@@ -639,9 +639,25 @@ pulseaudio --kill 2>/dev/null || pkill -KILL -x pulseaudio 2>/dev/null || true
 rm -f "$TMPDIR"/.X11-unix/X* "$TMPDIR"/.X*-lock "$TMPDIR"/pulse-socket "$TMPDIR"/.pulse-*/native 2>/dev/null || true
 # Wake lock
 termux-wake-lock 2>/dev/null || true
-# Audio
+# Audio: find a loopback port that is actually free. Another Android audio
+# service may already own 4713; silently ignoring that collision leaves guest
+# clients pointed at the wrong server and typically produces "Access denied".
 unset PULSE_SERVER; pulseaudio --start --exit-idle-time=-1 --daemonize 2>/dev/null || true
-sleep 0.3; pactl load-module module-native-protocol-tcp listen=127.0.0.1 auth-ip-acl=127.0.0.1 auth-anonymous=1 port=4713 >/dev/null 2>&1 || true
+sleep 0.3
+PULSE_PORT=""
+PULSE_MODULE_ID=""
+for ((candidate=4713; candidate<=4722; candidate++)); do
+  if PULSE_MODULE_ID="$(pactl load-module module-native-protocol-tcp listen=127.0.0.1 auth-ip-acl=127.0.0.1 auth-anonymous=1 port="$candidate" 2>/dev/null)"; then
+    PULSE_PORT="$candidate"
+    break
+  fi
+  PULSE_MODULE_ID=""
+done
+if [ -z "$PULSE_PORT" ]; then
+  echo "ERROR: Could not open the loopback PulseAudio bridge on ports 4713-4722."
+  exit 1
+fi
+echo "PulseAudio bridge ready on 127.0.0.1:$PULSE_PORT."
 # Display
 termux-x11 :0 -ac &
 X11_PID=$!
@@ -661,7 +677,7 @@ LAUNCHEOF
     # to the fallback route below.
     cat >> "$LAUNCHER" << EOF
 proot-distro login $distro --shared-tmp --bind /dev/kgsl-3d0:/dev/kgsl --bind /dev/dri --user $user_name \\
-  --env DISPLAY=:0 --env PULSE_SERVER=tcp:127.0.0.1:4713 \\
+  --env DISPLAY=:0 --env PULSE_SERVER="tcp:127.0.0.1:\$PULSE_PORT" \\
   --env MESA_LOADER_DRIVER_OVERRIDE=zink --env GALLIUM_DRIVER=zink \\
   --env TU_DEBUG=sysmem,noconform --env MESA_VK_WSI_DEBUG=sw \\
   --env MESA_DISK_CACHE_SINGLE_FILE=1 --env MESA_SHADER_CACHE_MAX_SIZE=2048M \\
@@ -690,7 +706,7 @@ fi
 VIRGLEOF
     cat >> "$LAUNCHER" << EOF
 proot-distro login $distro --shared-tmp --user $user_name \\
-  --env DISPLAY=:0 --env PULSE_SERVER=tcp:127.0.0.1:4713 \\
+  --env DISPLAY=:0 --env PULSE_SERVER="tcp:127.0.0.1:\$PULSE_PORT" \\
   --env GALLIUM_DRIVER=virpipe --env MESA_GL_VERSION_OVERRIDE=4.3COMPAT \\
   --env QT_X11_NO_MITSHM=1 --env XDG_RUNTIME_DIR=/home/$user_name/.runtime \\
   --env LANG=$locale --env LC_ALL=$locale \\
