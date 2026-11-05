@@ -659,7 +659,9 @@ if [ -z "$PULSE_PORT" ]; then
 fi
 echo "PulseAudio bridge ready on 127.0.0.1:$PULSE_PORT."
 # Display
-termux-x11 :0 -ac &
+# Termux:X11 documents -legacy-drawing as the fix for devices that render
+# only a black screen with a cursor. Keep it enabled in the managed launcher.
+termux-x11 :0 -legacy-drawing -ac &
 X11_PID=$!
 echo "Waiting for Termux-X11..."
 WAITED=0

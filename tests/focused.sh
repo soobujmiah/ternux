@@ -295,6 +295,7 @@ if env TERNUX_STATE_DIR="$TMP/state-launcher" HOME="$launcher_home" bash -c '
   bash -n "$HOME/x.sh" &&
   grep -q -- "--user alice" "$HOME/x.sh" &&
   grep -q -- "--env DISPLAY=:0" "$HOME/x.sh" &&
+  grep -q "termux-x11 :0 -legacy-drawing -ac" "$HOME/x.sh" &&
   grep -q -- "--env LC_ALL=en_US.UTF-8" "$HOME/x.sh" &&
   grep -q "^trap cleanup EXIT$" "$HOME/x.sh" &&
   grep -qF '\''/run/user/$(id -u)'\'' "$HOME/x.sh" &&
