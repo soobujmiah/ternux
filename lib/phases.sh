@@ -727,7 +727,7 @@ tnx_phase_launcher() {
   # Write launcher
   cat > "$LAUNCHER" << 'LAUNCHEOF'
 #!/data/data/com.termux/files/usr/bin/bash
-# TERNUX_DESKTOP_LAUNCHER=9
+# TERNUX_DESKTOP_LAUNCHER=10
 set -u
 TMPDIR="${TMPDIR:-/data/data/com.termux/files/usr/tmp}"
 TNX_PID_FILE="${TNX_PID_FILE:-$HOME/.local/share/ternux/session/desktop.pid}"
@@ -864,8 +864,8 @@ proot-distro login $distro --shared-tmp --bind /dev/kgsl-3d0:/dev/kgsl --bind /d
   --env LANG=$locale --env LC_ALL=$locale \\
   -- bash -c '
     set -u
-    mkdir -p ~/.runtime /tmp/mesa_cache
-    chmod 700 ~/.runtime /tmp/mesa_cache
+    mkdir -p ~/.runtime
+    chmod 700 ~/.runtime
     until xdpyinfo -display :0 >/dev/null 2>&1; do sleep 0.1; done
     sudo -n mkdir -p /var/run/dbus /run/dbus /run/user/\$(id -u) 2>/dev/null || true
     sudo -n dbus-uuidgen --ensure >/dev/null 2>&1 || true
@@ -943,8 +943,8 @@ proot-distro login $distro --shared-tmp --bind "\$TNX_CPUINFO_FILE:/proc/cpuinfo
   --env LANG=$locale --env LC_ALL=$locale \\
   -- bash -c '
     set -u
-    mkdir -p ~/.runtime /tmp/mesa_cache
-    chmod 700 ~/.runtime /tmp/mesa_cache
+    mkdir -p ~/.runtime
+    chmod 700 ~/.runtime
     until xdpyinfo -display :0 >/dev/null 2>&1; do sleep 0.1; done
     sudo -n mkdir -p /var/run/dbus /run/dbus /run/user/\$(id -u) 2>/dev/null || true
     sudo -n dbus-uuidgen --ensure >/dev/null 2>&1 || true
@@ -1079,7 +1079,7 @@ alias killx='ternux stop'
 alias db='proot-distro login $distro --shared-tmp --user $user_name'
 alias droot='proot-distro login $distro --shared-tmp'
 alias xgo='am start -n com.termux.x11/com.termux.x11.MainActivity 2>/dev/null; sleep 1; ternux start'
-clean-mesa() { proot-distro login $distro --user $user_name -- bash -c 'rm -rf ~/.cache/mesa/*'; echo "Mesa cache cleared."; }
+clean-mesa() { proot-distro login $distro --user $user_name -- bash -c 'rm -rf -- ~/.cache/mesa ~/.cache/mesa_shader_cache ~/.cache/mesa_shader_cache_db ~/.cache/mesa_shader_cache_sf'; echo "Mesa cache cleared."; }
 sysmon() { echo "--- CPU & Memory ---"; free -h; echo ""; echo "--- GPU / KGSL ---"; ls -l /dev/kgsl-3d0 /dev/dri 2>/dev/null || echo "No GPU nodes."; }
 # ==== END TERNUX ALIASES ====
 ALIASEOF

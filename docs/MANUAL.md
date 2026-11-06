@@ -489,8 +489,8 @@ proot-distro login debian --shared-tmp \
   --env LC_ALL=en_US.UTF-8 \
   -- bash -c '
     set -u
-    mkdir -p ~/.runtime /tmp/mesa_cache
-    chmod 700 ~/.runtime /tmp/mesa_cache
+    mkdir -p ~/.runtime
+    chmod 700 ~/.runtime
 
     until xdpyinfo -display :0 >/dev/null 2>&1; do sleep 0.1; done
 
@@ -562,7 +562,7 @@ alias db='proot-distro login debian --shared-tmp --user ternux'
 alias droot='proot-distro login debian --shared-tmp'
 alias xgo='am start -n com.termux.x11/com.termux.x11.MainActivity 2>/dev/null; sleep 1; ~/x.sh'
 clean-mesa() {
-  proot-distro login debian --user ternux -- bash -c 'rm -rf ~/.cache/mesa/*'
+  proot-distro login debian --user ternux -- bash -c 'rm -rf -- ~/.cache/mesa ~/.cache/mesa_shader_cache ~/.cache/mesa_shader_cache_db ~/.cache/mesa_shader_cache_sf'
   echo "Mesa cache cleared."
 }
 sysmon() {

@@ -193,7 +193,7 @@ _tnx_repair_backend() {
 
 _tnx_repair_launcher() {
   [ -x "$HOME/x.sh" ] && bash -n "$HOME/x.sh" 2>/dev/null &&
-    grep -q '^# TERNUX_DESKTOP_LAUNCHER=9$' "$HOME/x.sh" &&
+    grep -q '^# TERNUX_DESKTOP_LAUNCHER=10$' "$HOME/x.sh" &&
     grep -q '^PULSE_PORT=""$' "$HOME/x.sh" && { tnx_ok "Launcher OK"; return 0; }
 
   local backend user_name locale
@@ -215,9 +215,13 @@ _tnx_repair_mesa_cache() {
   local out=""
   if tnx_has_cmd proot-distro; then
     out="$(tnx_guest_login --user "${TERNUX_USER:-ternux}" -- bash -c '
-      if [ -d ~/.cache/mesa ] && [ "$(ls -A ~/.cache/mesa 2>/dev/null)" ]; then
-        rm -rf ~/.cache/mesa/* 2>/dev/null && echo CLEARED
-      fi
+      cleared=0
+      for cache in ~/.cache/mesa ~/.cache/mesa_shader_cache ~/.cache/mesa_shader_cache_db ~/.cache/mesa_shader_cache_sf; do
+        if [ -d "$cache" ] && [ -n "$(ls -A "$cache" 2>/dev/null)" ]; then
+          rm -rf -- "$cache" 2>/dev/null && cleared=1
+        fi
+      done
+      [ "$cleared" -eq 1 ] && echo CLEARED
     ' 2>/dev/null || true)"
   fi
   if printf '%s' "$out" | grep -q "CLEARED"; then

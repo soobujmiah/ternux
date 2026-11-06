@@ -73,11 +73,12 @@ TU_DEBUG=noconform                 Turnip compatibility workaround; rendering mo
 MESA_VK_WSI_DEBUG=sw               সফটওয়্যার WSI — X11/Vulkan সারফেস সমস্যা এড়ায়
 MESA_DISK_CACHE_SINGLE_FILE=1      শেডার ক্যাশ এক ফাইলে, দ্রুত ওয়ার্ম-স্টার্ট
 MESA_SHADER_CACHE_MAX_SIZE=2048M   ক্যাপ — ক্যাশ যেন সব স্টোরেজ খেয়ে না নেয়
-MESA_SHADER_CACHE_DIR=/tmp/mesa_cache  শেয়ার্ড tmp-তে ক্যাশ (RAM-ব্যাকড)
 QT_X11_NO_MITSHM=1 / _X11_NO_MITSHM=1  MIT-SHM বন্ধ (এখানে X11-এ ভাঙা)
 XDG_RUNTIME_DIR=~/.runtime         dbus/GTK অ্যাপের জন্য দরকারি
 --bind /dev/kgsl-3d0               Adreno কার্নেল নোড কন্টেইনারে উন্মুক্ত
 ```
+
+Mesa shader cache Debian user-এর cache directory-তে desktop restart-এর পরও থাকে; launcher সেটিকে shared `/tmp`-তে পাঠায় না। Graphics repair-এর সময় `ternux repair` cache মুছতে পারে।
 
 প্রতিটি Debian user-এর জন্য ডেস্কটপ bundled theme, wallpaper ও compositor-off
 ডিফল্ট একবারই বসায়। পরের start-এ এই সেটিং ও wallpaper reload বাদ যায়,

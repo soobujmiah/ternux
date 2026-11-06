@@ -73,11 +73,12 @@ TU_DEBUG=noconform                 Turnip compatibility workaround; render-mode 
 MESA_VK_WSI_DEBUG=sw               Software WSI — avoids X11/Vulkan surface issues
 MESA_DISK_CACHE_SINGLE_FILE=1      Shader cache as one file, faster warm starts
 MESA_SHADER_CACHE_MAX_SIZE=2048M   Cap so the cache can't eat all storage
-MESA_SHADER_CACHE_DIR=/tmp/mesa_cache  Cache in the shared tmp (RAM-backed)
 QT_X11_NO_MITSHM=1 / _X11_NO_MITSHM=1  Disable MIT-SHM (broken over X11 here)
 XDG_RUNTIME_DIR=~/.runtime         Required by dbus/GTK apps
 --bind /dev/kgsl-3d0               Expose the Adreno kernel node to the container
 ```
+
+Mesa keeps its shader cache in the Debian user cache across desktop restarts; the launcher does not redirect it into shared `/tmp`. `ternux repair` can clear that cache when repairing a graphics issue.
 
 The desktop applies its bundled theme, wallpaper and no-compositor defaults
 once for each Debian user. Later starts skip those settings and wallpaper reload,
