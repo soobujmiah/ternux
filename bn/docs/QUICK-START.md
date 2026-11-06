@@ -202,18 +202,26 @@ Termux theke pinned image-generation runtime install korun:
 ternux extension install stable-diffusion
 ```
 
-Debian-e shared storage theke model use korun:
+Debian-e `/sdcard/Llms` theke CPU ba Adreno Vulkan model use korun:
 
 ```bash
 source "$HOME/.local/opt/ternux-extensions/stable-diffusion/env.sh"
-sd-cli --backend cpu --model /sdcard/Llms/ternux-v2-validation/stable-diffusion-v1-5-pruned-emaonly-Q8_0.gguf \
-  --prompt "a small red robot in a garden, clean illustration" \
-  --threads 4 --output /tmp/ternux-sd-cpu.png --width 512 --height 512 --steps 10 --seed 42
+MODEL=/sdcard/Llms/ternux-v2-validation/stable-diffusion-v1-5-pruned-emaonly-Q8_0.gguf
+
+# CPU low-resolution test, slow hote pare
+sd-cli --backend cpu --model "$MODEL" --prompt "a small red robot in a garden, clean illustration" \
+  --threads 4 --output /tmp/ternux-sd-cpu.png --width 256 --height 256 --steps 20 --seed 42
+
+# Adreno GPU: 512x512-e VAE tiling dorkar
+sd-cli --backend vulkan0 --model "$MODEL" --prompt "a small red robot in a garden, clean illustration" \
+  --threads 4 --output /tmp/ternux-sd-vulkan.png --width 512 --height 512 --steps 10 --seed 42 \
+  --vae-tiling --vae-tile-size 256x256
 ```
 
-GPU-r jonno backend `vulkan0` korun, age `vulkaninfo --summary` check kore nin.
-Extension model ba GPU driver bundle kore na. Device speed o image quality ekhono
-qualification-e ache; [extension guide](https://github.com/soobujmiah/ternux/blob/main/bn/guides/stable-diffusion-vulkan-extension.md) dekhun.
+Adreno 825-e VAE tiling chara 512x512 Vulkan device-lost hoyechilo. Tiled
+512x512/10-step complete image 101.9s-e save koreche. CPU 256x256/10-step
+output save korechilo kintu blocky chilo; CPU image quality qualify hoyni.
+Extension model ba GPU driver bundle kore na; [extension guide](https://github.com/soobujmiah/ternux/blob/main/bn/guides/stable-diffusion-vulkan-extension.md)-e limits ache.
 
 ### SM8735-এ পরীক্ষামূলক Hexagon HTP
 

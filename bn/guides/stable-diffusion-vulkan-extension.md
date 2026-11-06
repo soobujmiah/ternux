@@ -18,15 +18,27 @@ Model extension-er baire rakhun. User-authorized SD 1.5 Q8 GGUF model `/sdcard/L
 
 ```sh
 source "$HOME/.local/opt/ternux-extensions/stable-diffusion/env.sh"
-sd-cli --backend cpu \
-  --model /sdcard/Llms/ternux-v2-validation/stable-diffusion-v1-5-pruned-emaonly-Q8_0.gguf \
+MODEL=/sdcard/Llms/ternux-v2-validation/stable-diffusion-v1-5-pruned-emaonly-Q8_0.gguf
+
+# CPU-only, low-resolution diagnostic (slow on this phone)
+sd-cli --backend cpu --model "$MODEL" \
   --prompt 'a small red robot in a garden, clean illustration' \
-  --threads 4 --output /tmp/ternux-sd-cpu.png --width 512 --height 512 --steps 10 --seed 42
+  --threads 4 --output /tmp/ternux-sd-cpu.png --width 256 --height 256 --steps 20 --seed 42
+
+# Adreno GPU: tiled VAE is required for reliable 512x512 on SM8735
+sd-cli --backend vulkan0 --model "$MODEL" \
+  --prompt 'a small red robot in a garden, clean illustration' \
+  --threads 4 --output /tmp/ternux-sd-vulkan.png --width 512 --height 512 --steps 10 --seed 42 \
+  --vae-tiling --vae-tile-size 256x256
 ```
 
-Vulkan-er jonno `--backend cpu`-r jaygay `--backend vulkan0` din. Kom memory-r device-e prothome 512×512, 10 step nin. Vulkan chalate Vulkan ICD (`vulkaninfo --summary`) thik thaka dorkar; device init fail korle CPU use korun. Installed pinned build-er exact flag dekhte `sd-cli --help` chalan.
+Test-e model card-e CreativeML OpenRAIL-M deya ache; oi license ebong base model-er terms mene cholun. Pinned CLI option `sd-cli --help` diye dekhun.
 
-Target device-e ashol image workload, CPU/Vulkan output check, quality, speed, memory, cancel o restart test record na howa porjonto build/ABI chara baki qualification complete noy. Install success-ke stable release approval dhorben na.
+Adreno 825-e 512x512 pure Vulkan tiling chara VAE decode-e device-lost hoyechilo. `--vae-tiling --vae-tile-size 256x256` diye same resolution-er 10-step full-Vulkan image save hoyeche (101.9s). CPU backend 256x256/10-step image save koreche (194.4s), kintu output blocky chilo; CPU quality ekhono qualify hoyni. Mixed fallback `--backend diffusion=vulkan0,te=cpu,vae=cpu` output save koreche, kintu 512x512/10-step-e 221s legeche ebong RSS praye 3.4 GiB hoyechilo. `vulkaninfo --summary` diye Vulkan ICD check korun.
+
+Puro command, measurement, model checksum ebong gate decision [device qualification handoff](../../handoffs/stable-diffusion-cpu-vulkan-qualification-2026-11-07.md)-e ache.
+
+Build/ABI audit ebong tiled Vulkan image path pass; CPU quality, broader image quality, speed/memory range, cancellation, restart o sustained-use gate khola. Stable release-e eta qualify hoyni.
 
 ## Remove
 

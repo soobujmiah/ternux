@@ -18,15 +18,27 @@ Keep model weights outside the extension. The included SD 1.5 Q8 GGUF qualificat
 
 ```sh
 source "$HOME/.local/opt/ternux-extensions/stable-diffusion/env.sh"
-sd-cli --backend cpu \
-  --model /sdcard/Llms/ternux-v2-validation/stable-diffusion-v1-5-pruned-emaonly-Q8_0.gguf \
+MODEL=/sdcard/Llms/ternux-v2-validation/stable-diffusion-v1-5-pruned-emaonly-Q8_0.gguf
+
+# CPU-only, low-resolution diagnostic (slow on this phone)
+sd-cli --backend cpu --model "$MODEL" \
   --prompt 'a small red robot in a garden, clean illustration' \
-  --threads 4 --output /tmp/ternux-sd-cpu.png --width 512 --height 512 --steps 10 --seed 42
+  --threads 4 --output /tmp/ternux-sd-cpu.png --width 256 --height 256 --steps 20 --seed 42
+
+# Adreno GPU: tiled VAE is needed for reliable 512x512 on SM8735
+sd-cli --backend vulkan0 --model "$MODEL" \
+  --prompt 'a small red robot in a garden, clean illustration' \
+  --threads 4 --output /tmp/ternux-sd-vulkan.png --width 512 --height 512 --steps 10 --seed 42 \
+  --vae-tiling --vae-tile-size 256x256
 ```
 
-For Vulkan, change `--backend cpu` to `--backend vulkan0`. Start with 512×512 and 10 steps on memory-constrained devices. The Vulkan route needs a functioning Vulkan ICD (`vulkaninfo --summary`); if device initialization fails, use CPU. Confirm exact CLI flags with `sd-cli --help` for the installed pinned build.
+The [model card](https://huggingface.co/second-state/stable-diffusion-v1-5-GGUF/blob/main/README.md) lists CreativeML OpenRAIL-M; follow that license and the base model terms. Check pinned CLI options with `sd-cli --help`.
 
-This preview has build/ABI qualification only until a real target-device image workload, CPU/Vulkan output checks, quality, performance, memory use, cancellation, and restart behavior are recorded. Do not interpret a successful install as a stable release qualification.
+On the Adreno 825, untiled 512×512 Vulkan lost the device during VAE decode. `--vae-tiling --vae-tile-size 256x256` completed a same-size 10-step full-Vulkan image in 101.9s. CPU backend produced a 256×256/10-step image in 194.4s, but it was blocky; CPU image quality is not qualified. A mixed fallback, `--backend diffusion=vulkan0,te=cpu,vae=cpu`, saved a 512×512/10-step image in 221s with RSS around 3.4 GiB. Check the Vulkan ICD with `vulkaninfo --summary`.
+
+For the full commands, measurements, model checksum and gate decisions, see the [device qualification handoff](../handoffs/stable-diffusion-cpu-vulkan-qualification-2026-11-07.md).
+
+Build/ABI and tiled Vulkan image path passed; CPU quality, broader image quality, speed/memory range, cancellation, restart and sustained-use gates remain open. This is not qualified for stable release.
 
 ## Remove
 
