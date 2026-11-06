@@ -196,7 +196,7 @@ _tnx_switch_mirror() {
 # if the current mirror yields 404 or missing package archives.
 _tnx_install_core_packages() {
   local apt_force="$1"
-  local pkgs="pulseaudio proot-distro virglrenderer-android zsh git curl wget nano tar termux-api"
+  local pkgs="pulseaudio proot-distro virglrenderer-android util-linux zsh git curl wget nano tar termux-api"
 
   tnx_termux_pkg install -y $apt_force $pkgs && return 0
 
@@ -246,7 +246,7 @@ tnx_phase_packages() {
   fi
 
   local missing=""
-  for b in proot-distro termux-x11 pulseaudio; do
+  for b in proot-distro termux-x11 pulseaudio setsid; do
     command -v "$b" >/dev/null 2>&1 || missing="$missing $b"
   done
   if [ -n "$missing" ]; then
@@ -1321,6 +1321,7 @@ tnx_phase_verify() {
   tnx_has_cmd termux-x11  && tnx_ok "termux-x11 found"  || { tnx_fail "termux-x11 missing"; rc=1; }
   tnx_has_cmd proot-distro && tnx_ok "proot-distro found" || { tnx_fail "proot-distro missing"; rc=1; }
   tnx_has_cmd pulseaudio  && tnx_ok "pulseaudio found"  || { tnx_fail "pulseaudio missing"; rc=1; }
+  tnx_has_cmd setsid && tnx_ok "setsid found for detached desktop service" || { tnx_fail "setsid missing; install util-linux"; rc=1; }
   [ -x "$HOME/x.sh" ] && tnx_ok "Launcher executable" || { tnx_fail "Launcher missing"; rc=1; }
 
   local host_cli="${PREFIX:-/data/data/com.termux/files/usr}/bin/ternux"

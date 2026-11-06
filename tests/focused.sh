@@ -161,7 +161,7 @@ if env TERNUX_STATE_DIR="$TMP/state-repos" HOME="$TMP/home-repos" \
     . "$1/lib/phases.sh"
     termux-change-repo(){ : > "$MARKER"; return 1; }
     termux-setup-storage(){ :; }
-    proot-distro(){ :; }; termux-x11(){ :; }; pulseaudio(){ :; }
+    proot-distro(){ :; }; termux-x11(){ :; }; pulseaudio(){ :; }; setsid(){ :; }
     tnx_spin_run(){ [ "${TERMUX_PKG_NO_MIRROR_SELECT:-}" = 1 ]; }
     tnx_phase_packages virgl >/dev/null && [ ! -e "$MARKER" ]
   ' _ "$ROOT"; then
@@ -1115,7 +1115,7 @@ else
   not_ok "desktop status ignores process-name false positives"
 fi
 
-# Starting a managed desktop must detach from the caller, persist its PID, and
+# Starting a managed desktop must start a new session detached from the caller, persist its PID, and
 # route verbose output to a bounded session log. Stop must signal that PID.
 managed_launcher="$TMP/managed-launcher.sh"
 cat > "$managed_launcher" <<'LAUNCHER'
@@ -1140,7 +1140,8 @@ if env TERNUX_STATE_DIR="$TMP/state-desktop-start" HOME="$TMP/home-desktop-start
       sed -i "1a# TERNUX_DESKTOP_LAUNCHER=2" "$HOME/x.sh"
       chmod +x "$HOME/x.sh"
     }
-    tnx_has_cmd(){ return 1; }
+    tnx_has_cmd(){ [ "$1" = setsid ]; }
+    setsid(){ command setsid "$@"; }
     pgrep(){ return 1; }
     start_at=$SECONDS
     tnx_cmd_start >/dev/null || exit
@@ -1149,6 +1150,7 @@ if env TERNUX_STATE_DIR="$TMP/state-desktop-start" HOME="$TMP/home-desktop-start
     [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null || exit
     grep -q session-started "$TERNUX_STATE_DIR/session/desktop.log" || exit
     grep -q "^# TERNUX_DESKTOP_LAUNCHER=2$" "$HOME/x.sh" || exit
+    grep -q "util-linux zsh git curl" "$1/lib/phases.sh" || exit
     tnx_cmd_stop >/dev/null || exit
     [ ! -e "$TERNUX_STATE_DIR/session/desktop.pid" ]
   ' _ "$ROOT" "$managed_launcher"; then

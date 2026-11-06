@@ -181,6 +181,8 @@ _tnx_dr_host() {
   else _tnx_dr_add warn host termux_x11_missing "termux-x11 missing" "" "pkg install termux-x11-nightly"; fi
   if tnx_has_cmd pulseaudio; then _tnx_dr_add ok host pulseaudio "PulseAudio installed"
   else _tnx_dr_add warn host pulseaudio_missing "PulseAudio missing" "" "pkg install pulseaudio"; fi
+  if tnx_has_cmd setsid; then _tnx_dr_add ok host session_detach "setsid available for persistent desktop sessions"
+  else _tnx_dr_add warn host session_detach_missing "Desktop session detachment is unavailable" "Background desktop may stop when the launching shell closes" "pkg install util-linux"; fi
   if tnx_has_cmd curl; then
     if curl --version >/dev/null 2>&1; then _tnx_dr_add ok host curl "curl runs"
     else _tnx_dr_add warn host curl_broken "curl fails to start (OpenSSL/library mismatch)" "Downloads, updates and extensions depend on it" "Run: ternux repair"; fi
@@ -473,7 +475,7 @@ tnx_cmd_verify() {
   clear_line() { printf "\r\033[K"; }
 
   # Check binaries
-  for b in termux-x11 proot-distro pulseaudio; do
+  for b in termux-x11 proot-distro pulseaudio setsid; do
     if tnx_has_cmd "$b"; then
       checks+=("${b}:installed")
       [ "${TERNUX_JSON:-0}" != "1" ] && tnx_ok "$b found"

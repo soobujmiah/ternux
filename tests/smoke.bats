@@ -202,6 +202,11 @@ teardown() {
   echo "$output" | grep -q '"command":"verify"'
 }
 
+@test "verify: reports the detached-session runtime dependency" {
+  run bash "$TNX_CLI" verify --json
+  echo "$output" | grep -q 'setsid:installed'
+}
+
 @test "json: output is parsable JSON" {
   run bash "$TNX_CLI" state --json
   [ "$status" -eq 0 ]

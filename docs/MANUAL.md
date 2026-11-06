@@ -49,7 +49,7 @@ pkg install x11-repo tur-repo -y
 
 # The display app service, audio, and the container engine.
 pkg install termux-x11-nightly -y
-pkg install pulseaudio proot-distro -y
+pkg install pulseaudio proot-distro util-linux -y
 
 # Host-side VirGL renderer (the compatibility GPU path — install it even on
 # Adreno; it costs little and makes switching paths painless).

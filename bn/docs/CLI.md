@@ -81,7 +81,7 @@ chooser বাদ দিয়ে base profile রাখে।
 
 ### `ternux start`
 
-Xfce4 desktop background-এ চালু করে। Termux:X11 display `:0` ready হলে
+Xfce4 desktop-কে আলাদা detached session-এ চালু করে, তাই shell বন্ধ হলেও desktop চলে। Termux:X11 display `:0` ready হলে
 command ফিরে আসে; startup output `~/.local/share/ternux/session/desktop.log`-এ
 থাকে। `ternux status` বা `ternux logs desktop tail` দিয়ে দেখুন। CLI package update-এর পর `ternux start` পুরোনো generated `~/x.sh` নিজে refresh করে।
 
