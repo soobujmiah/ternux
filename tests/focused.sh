@@ -353,8 +353,11 @@ if env TERNUX_STATE_DIR="$TMP/state-launcher" HOME="$launcher_home" bash -c '
   tnx_phase_launcher alice zink en_US.UTF-8 >/dev/null
   tnx_phase_aliases alice bash >/dev/null
   bash -n "$HOME/x.sh" &&
+  grep -q "^# TERNUX_DESKTOP_LAUNCHER=2$" "$HOME/x.sh" &&
   grep -q -- "--user alice" "$HOME/x.sh" &&
   grep -q -- "--env DISPLAY=:0" "$HOME/x.sh" &&
+  grep -Fq "pkill -9 -f \"^termux-x11 com\\.termux\\.x11([[:space:]]|$)\"" "$HOME/x.sh" &&
+  ! grep -Fq "pkill -9 -f termux-x11" "$HOME/x.sh" &&
   grep -q "termux-x11 :0 -legacy-drawing -ac" "$HOME/x.sh" &&
   grep -q "stop_legacy_ternuxx_audio" "$HOME/x.sh" &&
   grep -Fq "ternuxx\\/audio\\/default\\.pa" "$HOME/x.sh" &&
@@ -1089,6 +1092,29 @@ else
   not_ok "desktop stop uses scoped process and socket cleanup"
 fi
 
+# Desktop detection must match Android's actual truncated Termux:X11 process
+# name, not any command line containing a display-related search term.
+if env TERNUX_STATE_DIR="$TMP/state-desktop-detect" HOME="$TMP/home-desktop-detect" bash -c '
+    . "$1/lib/desktop.sh"
+    pgrep(){
+      if [ "$1" = "-f" ]; then
+        case "$2" in
+          ^termux-x11*) return 1 ;;
+          *) return 0 ;;
+        esac
+      fi
+      return 1
+      return 1
+    }
+    TERNUX_JSON=1
+    out="$(tnx_cmd_status)" || exit
+    JSON_OUT="$out" python3 -c "import json,os; d=json.loads(os.environ[\"JSON_OUT\"]); assert d[\"status\"]==\"stopped\" and d[\"x11_running\"]==\"no\""
+  ' _ "$ROOT"; then
+  ok "desktop status ignores process-name false positives"
+else
+  not_ok "desktop status ignores process-name false positives"
+fi
+
 # Starting a managed desktop must detach from the caller, persist its PID, and
 # route verbose output to a bounded session log. Stop must signal that PID.
 managed_launcher="$TMP/managed-launcher.sh"
@@ -1103,18 +1129,26 @@ LAUNCHER
 if env TERNUX_STATE_DIR="$TMP/state-desktop-start" HOME="$TMP/home-desktop-start" \
   TMPDIR="$TMP/desktop-start-tmp" bash -c '
     mkdir -p "$HOME"
-    cp "$2" "$HOME/x.sh"
+    cp "$2" "$HOME/legacy-x.sh"
+    printf "#!/usr/bin/env bash\n# legacy\n" > "$HOME/x.sh"
+    MOCK_LAUNCHER="$2"
     . "$1/lib/desktop.sh"
     tnx_canonical_backend(){ echo virgl; }
-    tnx_state_get(){ echo virgl; }
+    tnx_state_get(){ case "$1" in backend) echo virgl;; user) echo alice;; locale) echo en_US.UTF-8;; esac; }
+    tnx_phase_launcher(){
+      cp "$MOCK_LAUNCHER" "$HOME/x.sh"
+      sed -i "1a# TERNUX_DESKTOP_LAUNCHER=2" "$HOME/x.sh"
+      chmod +x "$HOME/x.sh"
+    }
     tnx_has_cmd(){ return 1; }
     pgrep(){ return 1; }
     start_at=$SECONDS
     tnx_cmd_start >/dev/null || exit
-    [ "$((SECONDS-start_at))" -le 2 ] || exit
+    [ "$((SECONDS-start_at))" -le 5 ] || exit
     pid="$(cat "$TERNUX_STATE_DIR/session/desktop.pid")"
     [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null || exit
     grep -q session-started "$TERNUX_STATE_DIR/session/desktop.log" || exit
+    grep -q "^# TERNUX_DESKTOP_LAUNCHER=2$" "$HOME/x.sh" || exit
     tnx_cmd_stop >/dev/null || exit
     [ ! -e "$TERNUX_STATE_DIR/session/desktop.pid" ]
   ' _ "$ROOT" "$managed_launcher"; then

@@ -34,6 +34,22 @@ tnx_cmd_start() {
     return 1
   fi
 
+  if ! grep -q '^# TERNUX_DESKTOP_LAUNCHER=2$' "$HOME/x.sh"; then
+    # CLI package upgrades must refresh the generated launcher too. It carries
+    # process matching, audio routing and session supervision behavior.
+    if ! declare -F tnx_phase_launcher >/dev/null 2>&1; then
+      . "$(dirname "${BASH_SOURCE[0]}")/phases.sh"
+    fi
+    local launcher_user launcher_locale launcher_backend
+    launcher_user="$(tnx_state_get "user" || echo "ternux")"
+    launcher_locale="$(tnx_state_get "locale" || echo "en_US.UTF-8")"
+    launcher_backend="$(tnx_canonical_backend "$(tnx_state_get "backend" || echo "auto")")"
+    launcher_user="${launcher_user:-ternux}"
+    launcher_locale="${launcher_locale:-en_US.UTF-8}"
+    launcher_backend="${launcher_backend:-auto}"
+    tnx_info "Refreshing the generated desktop launcher..."
+    tnx_phase_launcher "$launcher_user" "$launcher_backend" "$launcher_locale" || return 1
+  fi
   chmod +x "$HOME/x.sh" 2>/dev/null || true
 
   # Termux:X11's character-based IME mode fixes soft-keyboard input on devices
@@ -57,7 +73,8 @@ tnx_cmd_start() {
   fi
 
   # Check for an unmanaged/legacy session before starting another display.
-  if pgrep -f "termux-x11" >/dev/null 2>&1; then
+  # Android truncates the configured nice-name to this 15-character comm.
+  if pgrep -f "^termux-x11 com\.termux\.x11([[:space:]]|$)" >/dev/null 2>&1; then
     if [ "${TERNUX_JSON:-0}" != "1" ]; then
       tnx_warn "Termux:X11 already running."
       if ! tnx_confirm "Start another session?"; then
@@ -75,7 +92,7 @@ tnx_cmd_start() {
   fi
   : >> "$desktop_log" || { tnx_fail "Could not write desktop log: $desktop_log"; return 1; }
   tnx_info "Starting desktop in background (backend: $configured_backend)..."
-  TNX_PID_FILE="$pid_file" nohup bash "$HOME/x.sh" >>"$desktop_log" 2>&1 </dev/null &
+  LD_LIBRARY_PATH= TNX_PID_FILE="$pid_file" nohup bash "$HOME/x.sh" >>"$desktop_log" 2>&1 </dev/null &
   local pid=$!
   printf '%s\n' "$pid" > "$pid_file" || { kill "$pid" 2>/dev/null || true; tnx_fail "Could not save desktop PID."; return 1; }
   local ready=0 i
@@ -125,12 +142,13 @@ tnx_cmd_stop() {
       found=1
     fi
   fi
-  if pgrep -f "termux-x11" >/dev/null 2>&1; then
-    pkill -f "termux-x11" 2>/dev/null || true
+  # Android truncates the configured nice-name to this 15-character comm.
+  if pgrep -f "^termux-x11 com\.termux\.x11([[:space:]]|$)" >/dev/null 2>&1; then
+    pkill -f "^termux-x11 com\.termux\.x11([[:space:]]|$)" 2>/dev/null || true
     found=1
   fi
-  if pgrep -f "virgl_test_server" >/dev/null 2>&1; then
-    pkill -f "virgl_test_server" 2>/dev/null || true
+  if pgrep -f '(^|/)virgl_test_server(_android)?([[:space:]]|$)' >/dev/null 2>&1; then
+    pkill -f '(^|/)virgl_test_server(_android)?([[:space:]]|$)' 2>/dev/null || true
     found=1
   fi
   if pgrep -x pulseaudio >/dev/null 2>&1; then
@@ -178,9 +196,9 @@ tnx_cmd_status() {
   local x11=0 pa=0 virgl=0 desktop_pid=""
   [ -r "$TERNUX_STATE_DIR/session/desktop.pid" ] && desktop_pid="$(cat "$TERNUX_STATE_DIR/session/desktop.pid" 2>/dev/null || true)"
   [[ "$desktop_pid" =~ ^[0-9]+$ ]] && kill -0 "$desktop_pid" 2>/dev/null || desktop_pid=""
-  pgrep -f "termux-x11" >/dev/null 2>&1 && x11=1
+  pgrep -f "^termux-x11 com\.termux\.x11([[:space:]]|$)" >/dev/null 2>&1 && x11=1
   pgrep -x pulseaudio >/dev/null 2>&1 && pa=1
-  pgrep -f "virgl_test_server" >/dev/null 2>&1 && virgl=1
+  pgrep -f '(^|/)virgl_test_server(_android)?([[:space:]]|$)' >/dev/null 2>&1 && virgl=1
 
   local overall="stopped"
   [ "$x11" -eq 1 ] && overall="running"
