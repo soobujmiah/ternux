@@ -39,9 +39,8 @@ _tnx_uninstall_confirm() {
 _tnx_uninstall_stop() {
   # Stop only ternux session processes. In particular, do not broadly kill
   # D-Bus daemons that may belong to another PRoot session.
-  pkill -f termux-x11 2>/dev/null || true
-  pkill -f virgl_test_server_android 2>/dev/null || true
-  pkill -f virgl_test_server 2>/dev/null || true
+  pkill -f "^termux-x11 com\.termux\.x11([[:space:]]|$)" 2>/dev/null || true
+  pkill -f '(^|/)virgl_test_server(_android)?([[:space:]]|$)' 2>/dev/null || true
   if tnx_has_cmd pulseaudio; then
     pulseaudio --kill 2>/dev/null || pkill -KILL -x pulseaudio 2>/dev/null || true
   fi

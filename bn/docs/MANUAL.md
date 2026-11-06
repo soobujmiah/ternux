@@ -337,11 +337,14 @@ fi
 `listen=127.0.0.1` service-টিকে LAN থেকে দূরে রাখে; anonymous same-device
 client তবুও পৌঁছাতে পারে, তাই bind address সরাবেন না।
 
-Ternux Android OpenSL ES microphone source-ও load করে। Android permission এখনো
-প্রযোজ্য: PulseAudio `module-sles-source` চালু করতে না পারলে Android Settings-এ
-Termux app-এর **Microphone** permission দিন, তারপর desktop restart করুন। Xfce-তে
-**PulseAudio Volume Control → Input Devices** খুলে **OpenSL ES Input** বেছে নিন।
-কোনো app audio capture করলে Android-এর microphone privacy indicator দেখা যায়।
+Ternux Android OpenSL ES microphone source load করে, নাম `Ternux_Microphone`;
+কোনো desktop audio client capture চাইলে তবেই এটি সক্রিয় হয়। Android permission
+নিয়ন্ত্রণ করে। Capture অনুমতি না পেলে Android Settings-এ Termux app-এর
+**Microphone** permission দিয়ে আবার চেষ্টা করুন। Xfce-তে **PulseAudio Volume
+Control → Input Devices** খুলে `Ternux_Microphone` বেছে নিন। Capture চলার সময়
+Android microphone privacy indicator দেখায়। বর্তমান Termux:API
+`termux-microphone-record` command ফাইলে record করে; desktop app-এর live
+PulseAudio source দেয় না, তাই Ternux এটিকে live desktop capture path বলে না।
 
 ### ৭খ — লোকেল ও ফন্ট (Debian-এর ভেতরে)
 
@@ -400,8 +403,8 @@ set -u
 TMPDIR="${TMPDIR:-/data/data/com.termux/files/usr/tmp}"
 
 cleanup() {
-  pkill -9 -f termux-x11 2>/dev/null || true
-  pkill -9 -f virgl_test_server 2>/dev/null || true
+  pkill -9 -f "^termux-x11 com\.termux\.x11([[:space:]]|$)" 2>/dev/null || true
+  pkill -9 -f '(^|/)virgl_test_server(_android)?([[:space:]]|$)' 2>/dev/null || true
   pulseaudio --kill 2>/dev/null || pkill -KILL -x pulseaudio 2>/dev/null || true
   rm -f "$TMPDIR"/.X11-unix/X* "$TMPDIR"/.X*-lock "$TMPDIR"/pulse-socket "$TMPDIR"/.pulse-*/native 2>/dev/null || true
   termux-wake-unlock 2>/dev/null || true
@@ -411,8 +414,8 @@ trap 'exit 130' INT
 trap 'exit 143' TERM
 
 # Clean up any previous session
-pkill -9 -f termux-x11 2>/dev/null || true
-pkill -9 -f virgl_test_server 2>/dev/null || true
+pkill -9 -f "^termux-x11 com\.termux\.x11([[:space:]]|$)" 2>/dev/null || true
+pkill -9 -f '(^|/)virgl_test_server(_android)?([[:space:]]|$)' 2>/dev/null || true
 pulseaudio --kill 2>/dev/null || pkill -KILL -x pulseaudio 2>/dev/null || true
 rm -f "$TMPDIR"/.X11-unix/X* "$TMPDIR"/.X*-lock "$TMPDIR"/pulse-socket "$TMPDIR"/.pulse-*/native 2>/dev/null || true
 
@@ -541,7 +544,7 @@ cat >> ~/.bashrc << 'EOF'
 
 # ==== TERNUX ALIASES ====
 alias x='~/x.sh'
-alias killx='pkill -f termux-x11 || true; pulseaudio --kill 2>/dev/null || \
+alias killx='pkill -f "^termux-x11 com\\.termux\\.x11([[:space:]]|$)" || true; pulseaudio --kill 2>/dev/null || \
   pkill -KILL -x pulseaudio || true; rm -f $TMPDIR/.X11-unix/X* \
   $TMPDIR/.X*-lock $TMPDIR/.pulse-*/native'
 alias db='proot-distro login debian --shared-tmp --user ternux'
