@@ -138,7 +138,7 @@ jobs:
             "system_runtime_dependencies": ["libgomp.so.1", "libvulkan.so.1"],
             "license_bundle": "share/licenses/SHA256SUMS",
             "weights_included": false,
-            "device_validation": "Build/ABI validation only; runtime image quality and performance are not claimed"
+            "device_validation": "SM8735 Adreno 825: tiled Vulkan 512x512/10-step image completed in 101.9s; untiled VAE lost device; CPU output quality unqualified; broader stability and performance not claimed"
           }
           MANIFEST
           python3 tests/stable_diffusion_abi_audit.py "$package"
@@ -187,6 +187,12 @@ jobs:
           driver/ICD are not included. The model's own license applies to its
           weights and outputs. This artifact has build/ABI validation only;
           device image quality and performance are not yet qualified.
+          Device check: an extracted candidate generated a coherent 512x512,
+          10-step image on SM8735/Adreno 825 with Vulkan VAE tiling in 101.9 s.
+          Untiled VAE decoding lost the Vulkan device on that phone. CPU image
+          quality is unqualified; broad device, quality, memory, cancellation,
+          and sustained-use qualification remain open. Keep CPU use diagnostic
+          until its image quality is independently established.
           NOTES
           if gh release view "$tag" >/dev/null 2>&1; then
             gh release upload "$tag" "$tag.tar.gz" "$tag.tar.gz.sha256" --clobber
