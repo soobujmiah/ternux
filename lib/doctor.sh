@@ -22,7 +22,7 @@
 # (info is context and never counts as an issue).
 # ---------------------------------------------------------------------------
 TNX_DOCTOR_CATEGORIES="system host guest graphics extensions"
-TNX_DOCTOR_EXTENSIONS="llama-vulkan llama-htp-experimental"
+TNX_DOCTOR_EXTENSIONS="llama-vulkan stable-diffusion llama-htp-experimental"
 _TNX_DR_US=$'\x1f'
 declare -a _TNX_DR_ROWS=()
 declare -a _TNX_DR_FILTER=()
@@ -49,7 +49,7 @@ _tnx_dr_jesc() {
 # Runs inside the Debian guest (serialised with `declare -f`). It only reads
 # state and prints `key=value` lines; it never installs or changes anything.
 _tnx_doctor_guest_probe() {
-  local one root="$HOME/.local/opt/ternux-extensions" e name manifest artifact out libs
+  local one root="$HOME/.local/opt/ternux-extensions" e name manifest artifact out libs binary
   _p() { printf '%s=%s\n' "$1" "$(printf '%s' "$2" | tr '\n\r' '  ')"; }
   _p guest.arch "$(uname -m 2>/dev/null)"
   _p guest.glibc "$(getconf GNU_LIBC_VERSION 2>/dev/null | awk '{print $2}')"
@@ -79,9 +79,10 @@ _tnx_doctor_guest_probe() {
       _p "ext.$name.artifact" "${artifact:-unknown}"
     fi
     case "$name" in
-      llama-vulkan|llama-htp-experimental)
-        if [ -x "$e/bin/llama-cli" ]; then
-          libs="$(ldd "$e/bin/llama-cli" 2>/dev/null | grep -c 'not found')"
+      llama-vulkan|llama-htp-experimental|stable-diffusion)
+        binary=llama-cli; [ "$name" = stable-diffusion ] && binary=sd-cli
+        if [ -x "$e/bin/$binary" ]; then
+          libs="$(ldd "$e/bin/$binary" 2>/dev/null | grep -c 'not found')"
           _p "ext.$name.missing_libs" "${libs:-0}"
           if [ "$name" = llama-vulkan ] && [ -f "$e/env.sh" ]; then
             out="$( ( . "$e/env.sh" >/dev/null 2>&1; timeout 15 llama-cli --version 2>&1 | head -2 ) )"
@@ -324,9 +325,10 @@ _tnx_dr_extensions() {
       continue
     fi
     case "$name" in
-      llama-vulkan|llama-htp-experimental)
+      llama-vulkan|llama-htp-experimental|stable-diffusion)
         if [ "${_TNX_DR_GUEST["$p.binary"]:-}" = missing ]; then
-          _tnx_dr_add warn extensions "ext_${name}_binary" "$name: bin/llama-cli missing" "" "Reinstall: ternux extension install $name"
+          binary=llama-cli; [ "$name" = stable-diffusion ] && binary=sd-cli
+          _tnx_dr_add warn extensions "ext_${name}_binary" "$name: bin/$binary missing" "" "Reinstall: ternux extension install $name"
         elif [ "${_TNX_DR_GUEST["$p.missing_libs"]:-0}" -gt 0 ] 2>/dev/null; then
           _tnx_dr_add warn extensions "ext_${name}_libs" "$name: ${_TNX_DR_GUEST["$p.missing_libs"]} shared librar(ies) not found" "" "In Debian: sudo apt install libgomp1 libvulkan1 libssl3t64 (HTP: libgbinder1 libglibutil1 libfastrpc1)"
         else

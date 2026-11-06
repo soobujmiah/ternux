@@ -194,6 +194,27 @@ llama-cli -m /path/to/model.gguf -dev Vulkan0 -ngl 99 -p 'What is 2 + 2?' -n 8
 সমস্যা সমাধানের জন্য [repository extension guide](https://github.com/soobujmiah/ternux/blob/main/bn/guides/llama-vulkan-extension.md) দেখুন।
 
 
+## ঐচ্ছিক: Stable Diffusion CPU + Vulkan image generation
+
+Termux theke pinned image-generation runtime install korun:
+
+```bash
+ternux extension install stable-diffusion
+```
+
+Debian-e shared storage theke model use korun:
+
+```bash
+source "$HOME/.local/opt/ternux-extensions/stable-diffusion/env.sh"
+sd-cli --backend cpu --model /sdcard/Llms/ternux-v2-validation/stable-diffusion-v1-5-pruned-emaonly-Q8_0.gguf \
+  --prompt "a small red robot in a garden, clean illustration" \
+  --output /tmp/ternux-sd-cpu.png --width 512 --height 512 --steps 10 --seed 42
+```
+
+GPU-r jonno backend `vulkan0` korun, age `vulkaninfo --summary` check kore nin.
+Extension model ba GPU driver bundle kore na. Device speed o image quality ekhono
+qualification-e ache; [extension guide](https://github.com/soobujmiah/ternux/blob/main/bn/guides/stable-diffusion-vulkan-extension.md) dekhun.
+
 ### SM8735-এ পরীক্ষামূলক Hexagon HTP
 
 Ternux-এ Redmi Turbo 4 Pro / SM8735-এর জন্য আলাদা experimental HTP extension

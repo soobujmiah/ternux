@@ -190,6 +190,28 @@ Keep your GGUF model wherever it already is. Vulkan needs a working system
 Vulkan driver. For the manual install route, checksum and archive checks, backend
 details, and recovery steps, see the [repository extension guide](https://github.com/soobujmiah/ternux/blob/main/guides/llama-vulkan-extension.md).
 
+## Optional: Stable Diffusion CPU + Vulkan image generation
+
+From Termux, install the pinned image-generation runtime:
+
+```bash
+ternux extension install stable-diffusion
+```
+
+Then in Debian, use model weights directly from shared storage:
+
+```bash
+source "$HOME/.local/opt/ternux-extensions/stable-diffusion/env.sh"
+sd-cli --backend cpu --model /sdcard/Llms/ternux-v2-validation/stable-diffusion-v1-5-pruned-emaonly-Q8_0.gguf \
+  --prompt "a small red robot in a garden, clean illustration" \
+  --output /tmp/ternux-sd-cpu.png --width 512 --height 512 --steps 10 --seed 42
+```
+
+Change the backend to `vulkan0` for GPU after checking
+`vulkaninfo --summary`. The extension does not bundle models or GPU drivers.
+Target-device performance and image quality are still being qualified; see the
+[extension guide](https://github.com/soobujmiah/ternux/blob/main/guides/stable-diffusion-vulkan-extension.md).
+
 ### Experimental Hexagon HTP on SM8735
 
 Ternux also lists a separate experimental HTP extension for the Redmi Turbo 4

@@ -40,9 +40,11 @@ _tnx_extension_list() {
   cat <<'LIST'
 Ternux extensions:
   llama-vulkan  llama.cpp CPU + Vulkan, Linux ARM64, upstream b11582
+  stable-diffusion  stable-diffusion.cpp CPU + Vulkan image generation (ARM64)
   llama-htp-experimental  llama.cpp Hexagon HTP for SM8735 (experimental)
 
 Install with: ternux extension install llama-vulkan
+Image generation: ternux extension install stable-diffusion
 Experimental HTP: ternux extension install llama-htp-experimental
 ADT releases are managed by ADT; see ternux guides.
 LIST
@@ -68,7 +70,7 @@ _tnx_extension_find_ldconfig() {
 }
 
 _tnx_extension_install() {
-  local name="${1:-}" tag asset base tmp expected listed actual member top dest glibc version_major version_minor library ldconfig_bin missing_libraries="" min_glibc_minor package_kind
+  local name="${1:-}" tag asset base tmp expected listed actual member top dest glibc version_major version_minor library ldconfig_bin missing_libraries="" min_glibc_minor package_kind binary
   local -a runtime_libraries
   [ -n "$name" ] || { _tnx_extension_fail "Choose an extension: ternux extension list"; return 2; }
   case "$name" in
@@ -77,13 +79,23 @@ _tnx_extension_install() {
       asset="${tag}.tar.gz"
       min_glibc_minor=38
       package_kind=vulkan
+      binary=llama-cli
       runtime_libraries=(libssl.so.3 libcrypto.so.3 libgomp.so.1 libvulkan.so.1)
+      ;;
+    stable-diffusion)
+      tag="ternux-stable-diffusion-vulkan-linux-arm64-master-1053"
+      asset="${tag}.tar.gz"
+      min_glibc_minor=39
+      package_kind=stable-diffusion
+      binary=sd-cli
+      runtime_libraries=(libgomp.so.1 libvulkan.so.1)
       ;;
     llama-htp-experimental)
       tag="ternux-llama-htp-sm8735-b11582"
       asset="${tag}.tar.gz"
       min_glibc_minor=38
       package_kind=htp
+      binary=llama-cli
       runtime_libraries=(libgbinder.so.1 libglibutil.so.1 libcdsprpc.so.1 libcdsprpc.so)
       ;;
     *) _tnx_extension_fail "Unknown extension '$name'. Run: ternux extension list"; return 2 ;;
@@ -133,6 +145,8 @@ _tnx_extension_install() {
   if [ -n "$missing_libraries" ]; then
     if [ "$package_kind" = htp ]; then
       _tnx_extension_fail "Missing HTP runtime libraries: $missing_libraries. Install libgbinder1, libglibutil1, libfastrpc1, and libfastrpc-dev in Debian; enable trixie-backports main contrib if apt cannot find them."
+    elif [ "$package_kind" = stable-diffusion ]; then
+      _tnx_extension_fail "Missing runtime libraries: $missing_libraries. In Debian install libgomp1 and libvulkan1."
     else
       _tnx_extension_fail "Missing runtime libraries: $missing_libraries. In Debian install libgomp1 and libvulkan1, plus the OpenSSL 3 runtime package (libssl3 or libssl3t64)."
     fi
@@ -202,7 +216,7 @@ _tnx_extension_install() {
   fi
 
   if ! tar --no-same-owner -xzf "$tmp/$asset" -C "$tmp" ||
-     [ ! -x "$tmp/$top/bin/llama-cli" ] ||
+     [ ! -x "$tmp/$top/bin/$binary" ] ||
      [ ! -f "$tmp/$top/build-manifest.json" ]; then
     rm -rf "$tmp"
     _tnx_extension_fail "Extension archive failed its package layout checks; nothing was installed."
@@ -215,6 +229,13 @@ _tnx_extension_install() {
        ! grep -Fq '"artifact": "ternux-llama-htp-sm8735-b11582"' "$tmp/$top/build-manifest.json"; then
       rm -rf "$tmp"
       _tnx_extension_fail "Experimental HTP archive is missing its broker, launcher, or matching manifest."
+      return 1
+    fi
+  elif [ "$package_kind" = stable-diffusion ]; then
+    if [ ! -f "$tmp/$top/env.sh" ] || [ ! -d "$tmp/$top/share/licenses" ] ||
+       ! grep -Fq '"artifact": "ternux-stable-diffusion-vulkan-linux-arm64-master-1053"' "$tmp/$top/build-manifest.json"; then
+      rm -rf "$tmp"
+      _tnx_extension_fail "Stable Diffusion archive is missing its environment, license bundle, or matching manifest."
       return 1
     fi
   elif [ ! -f "$tmp/$top/env.sh" ] ||
@@ -234,6 +255,9 @@ _tnx_extension_install() {
   if [ "$package_kind" = htp ]; then
     printf '  Experimental SM8735 route: %s/bin/htp-run\n' "$dest"
     printf '  HTP is not a supported release feature; no CPU/GPU fallback is configured.\n'
+  elif [ "$package_kind" = stable-diffusion ]; then
+    printf '  Image generator: %s/bin/sd-cli (CPU and Vulkan backends)\n' "$dest"
+    printf '  Source with: source %s/env.sh\n' "$dest"
   else
     printf '  Source its environment with: source %s/env.sh\n' "$dest"
   fi

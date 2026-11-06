@@ -70,6 +70,7 @@ tnx_optional_storage_mb() {
       adt-cmdline) total=$((total + 250)) ;;
       adt-platform) total=$((total + 500)) ;;
       llama-vulkan) total=$((total + 150)) ;;
+      stable-diffusion) total=$((total + 250)) ;;
       llama-htp-experimental) total=$((total + 120)) ;;
       nmap) total=$((total + 80)) ;;
       tmux) total=$((total + 10)) ;;
@@ -1344,6 +1345,14 @@ tnx_phase_extras() {
           tnx_ok "$opt installed through the ADT repository"
         else tnx_warn "$opt could not be installed through ADT; check the ADT output."; rc=1; fi
         ;;
+      stable-diffusion)
+        if ! tnx_guest_login --shared-tmp --user "$user_name" -- bash -lc \
+          'sudo apt update -o APT::Color=1 && sudo DEBIAN_FRONTEND=noninteractive apt install -y -o Dpkg::Progress-Fancy=1 libgomp1 libvulkan1'; then
+          tnx_warn "Stable Diffusion runtime dependencies could not be installed."; rc=1
+        elif [ -f "${_TNX_SRC:-}/lib/extension.sh" ] && ( . "${_TNX_SRC}/lib/extension.sh"; tnx_cmd_extension install "$opt" ); then
+          tnx_ok "stable-diffusion release installed and validated"
+        else tnx_warn "stable-diffusion release could not be installed; check device/runtime support and the extension guide."; rc=1; fi
+        ;;
       llama-vulkan|llama-htp-experimental)
         if [ -f "${_TNX_SRC:-}/lib/extension.sh" ] && ( . "${_TNX_SRC}/lib/extension.sh"; tnx_cmd_extension install "$opt" ); then
           tnx_ok "$opt release installed and validated"
@@ -1792,9 +1801,9 @@ tnx_prompt_username() {
 
 # Item catalogue for the interactive optional-software checklist. Keep this
 # list aligned with the case labels in tnx_phase_extras.
-TNX_OPTIONAL_ITEMS=(git python node build rust java golang php ripgrep jq gh sqlite3 htop tree geany neovim micro thonny godot firefox thunderbird adt-build-tools adt-platform-tools adt-ndk adt-cmake adt-cmdline adt-platform llama-vulkan llama-htp-experimental nmap tmux ffmpeg vlc mpv audacity gimp krita inkscape imagemagick evince libreoffice-writer libreoffice-calc blender claude codex openai-cli hermes openclaw)
-TNX_OPTIONAL_GROUPS=(DEV DEV DEV DEV LANG LANG LANG LANG DEV DEV DEV DATA SYSTEM SYSTEM IDE IDE IDE IDE GAME WEB WEB ANDROID ANDROID ANDROID ANDROID ANDROID ANDROID AI AI NET NET MEDIA MEDIA MEDIA MEDIA DESIGN DESIGN DESIGN DESIGN OFFICE OFFICE OFFICE 3D AGENT AGENT AGENT AGENT AGENT)
-TNX_OPTIONAL_LABELS=("Git" "Python" "Node.js" "C/C++ tools" "Rust" "Java JDK" "Go toolchain" "PHP CLI" "ripgrep" "jq" "GitHub CLI" "SQLite" "htop" "tree" "Geany" "Neovim" "Micro editor" "Thonny IDE" "Godot" "Firefox ESR" "Thunderbird" "ADT Build Tools" "ADT Platform Tools / ADB" "ADT NDK" "ADT CMake" "SDK Manager" "Android API 36" "llama.cpp Vulkan" "llama.cpp HTP (experimental)" "Nmap" "tmux" "FFmpeg" "VLC" "mpv" "Audacity" "GIMP" "Krita" "Inkscape" "ImageMagick" "Evince PDF" "LibreOffice Writer" "LibreOffice Calc" "Blender" "Claude Code" "Codex CLI" "OpenAI API CLI" "Hermes" "OpenClaw")
+TNX_OPTIONAL_ITEMS=(git python node build rust java golang php ripgrep jq gh sqlite3 htop tree geany neovim micro thonny godot firefox thunderbird adt-build-tools adt-platform-tools adt-ndk adt-cmake adt-cmdline adt-platform llama-vulkan stable-diffusion llama-htp-experimental nmap tmux ffmpeg vlc mpv audacity gimp krita inkscape imagemagick evince libreoffice-writer libreoffice-calc blender claude codex openai-cli hermes openclaw)
+TNX_OPTIONAL_GROUPS=(DEV DEV DEV DEV LANG LANG LANG LANG DEV DEV DEV DATA SYSTEM SYSTEM IDE IDE IDE IDE GAME WEB WEB ANDROID ANDROID ANDROID ANDROID ANDROID ANDROID AI AI AI NET NET MEDIA MEDIA MEDIA MEDIA DESIGN DESIGN DESIGN DESIGN OFFICE OFFICE OFFICE 3D AGENT AGENT AGENT AGENT AGENT)
+TNX_OPTIONAL_LABELS=("Git" "Python" "Node.js" "C/C++ tools" "Rust" "Java JDK" "Go toolchain" "PHP CLI" "ripgrep" "jq" "GitHub CLI" "SQLite" "htop" "tree" "Geany" "Neovim" "Micro editor" "Thonny IDE" "Godot" "Firefox ESR" "Thunderbird" "ADT Build Tools" "ADT Platform Tools / ADB" "ADT NDK" "ADT CMake" "SDK Manager" "Android API 36" "llama.cpp Vulkan" "Stable Diffusion CPU + Vulkan" "llama.cpp HTP (experimental)" "Nmap" "tmux" "FFmpeg" "VLC" "mpv" "Audacity" "GIMP" "Krita" "Inkscape" "ImageMagick" "Evince PDF" "LibreOffice Writer" "LibreOffice Calc" "Blender" "Claude Code" "Codex CLI" "OpenAI API CLI" "Hermes" "OpenClaw")
 
 # Parse number lists used when a TTY key-reading menu is unavailable.
 tnx_parse_workload_selection() {
@@ -2125,6 +2134,7 @@ tnx_install() {
         sqlite3) workload_label="SQLite" ;;
         ripgrep|jq|htop|tree|micro|thonny|thunderbird|evince|libreoffice-calc) workload_label="$workload" ;;
         llama-vulkan) workload_label="llama.cpp Vulkan release" ;;
+        stable-diffusion) workload_label="Stable Diffusion CPU + Vulkan image generator" ;;
         llama-htp-experimental) workload_label="llama.cpp HTP experimental release" ;;
         firefox) workload_label="Firefox ESR (latest Debian package)" ;;
         neovim) workload_label="Neovim editor" ;;

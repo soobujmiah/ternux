@@ -270,11 +270,12 @@ ternux logs <subcommand> [n]
 
 ### `ternux extension`
 
-ঐচ্ছিক release-ভিত্তিক Linux ARM64 extension-এর তালিকা দেখায় ব install করে। host CLI install নির্বাচিত Debian guest-এ পাঠিয়ে দেয়।
+ঐচ্ছিক release-ভিত্তিক Linux ARM64 extension-এর তালিকা দেখায় ও install করে। host CLI install নির্বাচিত Debian guest-এ পাঠিয়ে দেয়।
 
 ```bash
 ternux extension list
 ternux extension install llama-vulkan
+ternux extension install stable-diffusion
 ternux extension install llama-htp-experimental
 ```
 
@@ -282,7 +283,7 @@ ternux extension install llama-htp-experimental
 সীমিত experimental SM8735/V73 route; এটি supported release feature নয় এবং
 automatic CPU/GPU fallback নেই।
 [CPU/Vulkan guide](https://github.com/soobujmiah/ternux/blob/main/bn/guides/llama-vulkan-extension.md)
-ও [HTP guide](https://github.com/soobujmiah/ternux/blob/main/bn/guides/llama-htp-experimental.md) দেখুন।
+ও [Stable Diffusion guide](https://github.com/soobujmiah/ternux/blob/main/bn/guides/stable-diffusion-vulkan-extension.md) এবং [HTP guide](https://github.com/soobujmiah/ternux/blob/main/bn/guides/llama-htp-experimental.md) দেখুন।
 
 ### `ternux update`
 
