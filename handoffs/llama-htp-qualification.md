@@ -1,7 +1,7 @@
 # Handoff: llama.cpp Hexagon HTP qualification
 
 **Status:** open; experimental launcher keeps flash attention disabled.
-**Last updated:** 2026-10-14
+**Last updated:** 2026-11-07
 **Canonical status:** [`docs/ACCELERATOR-RELEASE-PLAN.md`](../docs/ACCELERATOR-RELEASE-PLAN.md)
 
 ## Goal
@@ -22,6 +22,24 @@ llama.cpp GGUF text inference, separate from the standalone QNN SD1.5 route.
 - Broad HVX-selected operator suite: 3,520 pass lines, 45 numerical failures,
   4,874 unsupported cases, then abort `dspqueue_read failed: 0x0000002e`
   (exit -6). It is incomplete; cause unknown.
+- Short same-prompt Qwen2.5 1.5B Q4_0 generation probe (2026-11-07): 19.6 tok/s
+  on HTP with default power mode and 17.6 tok/s on Vulkan; HTP Q4_K_M was
+  15.9 tok/s. One run per setting; no sustained speed advantage established.
+- Matched Qwen2.5 0.5B Q4_0 CPU/Vulkan/HTP comparison (2026-11-07): same prompt,
+  64-token output cap, context 2048, batch/ubatch 128, seed 42, temperature 0,
+  four threads; three interleaved runs per backend. Generation rates: CPU
+  7.2/8.0/8.1 (median 8.0), Vulkan 24.1/24.8/26.3 (median 24.8), HTP
+  46.9/46.2/43.9 tok/s (median 46.2). All three HTP broker sessions closed
+  cleanly. This is short single-device throughput evidence only; quality, energy,
+  thermal stability, sustained use, and HTP correctness remain unqualified.
+  Speculative decoding with a Vulkan Qwen2.5 0.5B draft reduced HTP's 19.5 tok/s
+  baseline to 9.1/7.1 tok/s for draft windows 2/4.
+- Official upstream llama.cpp b12177 Snapdragon Linux ARM64 build (commit
+  `6c01da6`, SHA-256
+  `b3d2503821a6688ec5c500d43b7e57d96fad893a206bbefe208b07ee647d85e7`) failed
+  to start its HTP session (`0x8000040e`) through the current Ternux broker
+  before inference. Broker cleanup still returned `closeSession [0, 0]`; no
+  performance result. The installed b11582 extension was not changed.
 
 ## Next work
 

@@ -3,7 +3,7 @@ title: "বেঞ্চমার্ক ও ডিভাইস প্রমাণ
 description: "Ternux graphics ও accelerator workload-এর পরিমাপ করা সংক্ষিপ্ত ফল এবং স্পষ্ট evidence boundary।"
 lang: "bn"
 alt_url: "/docs/BENCHMARKS.html"
-evidence_through: "2026-10-15"
+evidence_through: "2026-11-07"
 ---
 
 এই পৃষ্ঠায় একটি configured Redmi Turbo 4 Pro / SM8735 / Adreno 825 device-এর
@@ -29,7 +29,7 @@ evidence_through: "2026-10-15"
 | MPFB2 human-character build | **Measured:** `create_human` 0.4 s; পুরো rigged rebuild 3.9 s; 540×960 frame 3.8 s; ১২০-frame, ৫ s shot প্রায় ৭.৫ min। | Adreno 825-তে Zink দিয়ে EEVEE Next; MPFB2 2.0.18 / Blender 4.3.2। একটি device run; sustained thermal claim নয়। |
 | Blender viewport | **Observed:** Adreno 825-তে Zink/Turnip। | Renderer শনাক্তকরণ EEVEE render time থেকে আলাদা। Cycles GPU **প্রমাণিত নয়**। |
 | llama.cpp CPU + Vulkan | **Verified:** দুটো backend-ই সীমাবদ্ধ known-answer prompt-এ `4` দিয়েছে; Vulkan Adreno 825-এ 29/29 layer assign করেছে। **Measured:** নিচে clean-idle long run। | একটি device ও workload-এ Qwen2.5 1.5B Q4_0। |
-| llama.cpp Hexagon HTP | **Experimental:** HVX matmul ও flash attention বন্ধ রেখে সীমাবদ্ধ known-answer ও long recall-key check pass করেছে। | HMX-selected matmul + flash attention off এবং HVX matmul + flash attention on-এ ভুল উত্তর এসেছে। HTP supported route নয়। |
+| llama.cpp Hexagon HTP | **Experimental:** একই Qwen2.5 0.5B Q4_0 workload-এর তিন run-এ HTP median 46.2 tok/s, Vulkan 24.8, এবং চার-thread CPU 8.0 tok/s। আলাদা সীমিত known-answer run-এ `4` এসেছে এবং 24/24 layer HTP-তে ছিল। | একটি device, ছোট model ও short workload; quality, energy বা sustained-use comparison নয়। Qwen2.5 1.5B-র long run-এ HTP Vulkan-এর চেয়ে ধীর ছিল। HMX/attention correctness ও বিস্তৃত HTP qualification বাকি; HTP supported route নয়। |
 | `stable-diffusion.cpp` Vulkan | **Observed:** Vulkan-enabled build-এর report আছে। | Inference, image output, ও seconds/image **Untested**। |
 | আলাদা QNN SD1.5 runner | **Measured:** পরপর ২৫টি ২০-step 512×512 image; প্রতি image-এর median 29.76 s, mean 31.12 s। HTP UNet-এর ২০ denoise step-এর median 15.96 s। | CLIP CPU-তে; UNet ও VAE decoder HTP-তে চলে। একটি SM8735 device; একই model-এ CPU/GPU তুলনা নয়। `stable-diffusion.cpp` নয়; independent stage-tensor correctness এখনো যাচাই হয়নি। |
 
@@ -47,6 +47,50 @@ processing ও generation rate:
 এটি একটি device-এর সীমিত তুলনা। HTP-তে known-answer pass-করা conservative
 configuration ব্যবহার হয়েছে; সেটি Vulkan-এর চেয়ে ধীর ছিল। এটি sustained
 performance, power use, বা একাধিক device-এর ফল প্রমাণ করে না।
+
+### HTP speculative decoding probe (2026-11-06)
+
+একটি exploratory llama.cpp `draft-simple` run-এ Qwen2.5 1.5B Q4_0 main model
+HTP0-তে এবং একই family-র Qwen2.5 0.5B Q4_0 draft model Adreno 825 Vulkan0-তে
+চালানো হয়েছে। একই short prompt, seed, context এবং 128-token output limit ছিল।
+Speculation ছাড়া generation 19.5 tok/s; দুই-token draft window-এ 9.1 tok/s,
+চার-token window-এ 7.1 tok/s হয়েছে। তিনটি brokered run-ই exit করেছে এবং HTP
+session clean close হয়েছে। Mixed-backend route ধীর হওয়ায় এটি গ্রহণ করা হয়নি।
+এটি ছোট exploratory ফল; sustained benchmark বা QNN-compiled text model test নয়।
+
+### একই prompt-এ HTP quantization probe (2026-11-07)
+
+একই device-এ Qwen2.5 1.5B Q4_0 model, একই prompt, seed, context এবং 64-token
+output cap দিয়ে ছোট run হয়েছে। Launcher-এর default power mode-এ HTP 19.6
+generated tok/s, `burst` mode-এ 19.0 tok/s এবং Adreno Vulkan 17.6 tok/s
+মেপেছে। একই settings-এ HTP-তে Q4_K_M model 15.9 tok/s দিয়েছে। প্রতিটি HTP
+session clean close হয়েছে। প্রতিটি setting-এ একবারের ছোট run; sustained বা
+পরিসংখ্যানগতভাবে নিয়ন্ত্রিত তুলনা নয় এবং NPU-তে বড় speed advantage দেখায় না।
+
+### আগের ছোট model HTP/Vulkan throughput repeat (2026-11-07)
+
+Qwen2.5 0.5B Instruct Q4_0 একই 64-token prompt, seed, context এবং batch setting-এ
+প্রতি backend-এ তিনবার চালানো হয়েছে। HTP generation rate ছিল 42.8, 40.1 ও
+40.8 tok/s (median 40.8); Vulkan-এ 27.9, 28.1 ও 27.9 tok/s (median 27.9)।
+আলাদা verbose HTP known-answer run `4` দিয়েছে এবং 24/24 transformer layer
+HTP0-তে assign করেছে; throughput-এর তিনটি HTP session-ই clean close হয়েছে।
+এই আলাদা আগের run-টি নিচের CPU-সহ matched test-এর সঙ্গে সরাসরি তুলনীয় নয়। এই
+সীমিত test-এ ছোট model-টির generation throughput প্রায় 46% বেশি। বড় model,
+model quality বা দীর্ঘ সময় চালানোর ক্ষেত্রেও একই ফল হবে—এটি প্রমাণ করে না.
+
+### ছোট model-এ CPU/Vulkan/HTP matched throughput (2026-11-07)
+
+একই Qwen2.5 0.5B Instruct Q4_0 model, prompt, 64-token generation limit,
+2048 context, 128 batch/ubatch, seed 42, temperature 0 এবং চার-thread setting
+প্রতি backend-এ তিনবার চালানো হয়েছে; প্রতিটি round-এ CPU → Vulkan → HTP ক্রম
+রাখা হয়েছে। Generation rate: CPU 7.2/8.0/8.1 tok/s (median 8.0), Vulkan
+24.1/24.8/26.3 tok/s (median 24.8), HTP 46.9/46.2/43.9 tok/s (median 46.2)।
+এই সীমিত run-এ HTP generation throughput Vulkan-এর প্রায় 1.86× এবং CPU-র
+5.78× ছিল। HTP-র তিনটি broker session cleanly close হয়েছে। আলাদা known-answer
+run `4` দিয়েছে এবং 24/24 layer HTP0-তে assign হয়েছে। এটি এক device ও ছোট
+model-এর throughput comparison; response quality, energy efficiency, thermal
+stability বা sustained performance প্রমাণ করে না এবং HTP operator correctness-এর
+বাকি gate বন্ধ করে না।
 
 ### QNN SD1.5 image generation soak
 

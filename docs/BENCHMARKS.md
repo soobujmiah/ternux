@@ -3,7 +3,7 @@ title: "Benchmarks and device evidence"
 description: "A concise, measured snapshot of Ternux graphics and accelerator workloads, with explicit evidence boundaries."
 lang: "en"
 alt_url: "/bn/docs/BENCHMARKS.html"
-evidence_through: "2026-10-15"
+evidence_through: "2026-11-07"
 ---
 
 This page summarizes measured workloads and their limits on one configured
@@ -29,7 +29,7 @@ performance guarantee for other devices.
 | MPFB2 human-character build | **Measured:** `create_human` 0.4 s; full rigged rebuild 3.9 s; 540×960 frame 3.8 s; 120-frame, 5 s shot about 7.5 min. | MPFB2 2.0.18 / Blender 4.3.2, EEVEE Next on Adreno 825 through Zink. One device run; no sustained thermal claim. |
 | Blender viewport | **Observed:** Zink/Turnip on Adreno 825. | Renderer detection is separate from EEVEE render timing. Cycles GPU is **not established**. |
 | llama.cpp CPU + Vulkan | **Verified:** both returned `4` on the bounded known-answer prompt; Vulkan assigned 29/29 layers to Adreno 825. **Measured:** clean-idle long run below. | Qwen2.5 1.5B Q4_0, one device and one workload. |
-| llama.cpp Hexagon HTP | **Experimental:** HVX matmul with flash attention off passed bounded known-answer and long recall-key checks. | HMX-selected matmul + flash attention off and HVX matmul + flash attention on returned wrong answers. HTP is not a supported route. |
+| llama.cpp Hexagon HTP | **Experimental:** on a matched three-run Qwen2.5 0.5B Q4_0 workload, HTP measured a 46.2 tok/s median, Vulkan 24.8, and four-thread CPU 8.0. A separate bounded known-answer run returned `4`, with all 24 layers on HTP. | One device, small model, and short workload; not a quality, energy, or sustained-use comparison. Qwen2.5 1.5B long-run HTP was slower than Vulkan. HMX/attention correctness and broader HTP qualification remain open; HTP is not a supported route. |
 | `stable-diffusion.cpp` Vulkan | **Observed:** Vulkan-enabled build reported. | Inference, image output, and seconds/image are **untested**. |
 | Separate QNN SD1.5 runner | **Measured:** 25 consecutive 20-step 512×512 images; median 29.76 s/image, mean 31.12 s/image. Median HTP UNet time was 15.96 s for 20 denoising steps. | CLIP runs on CPU; UNet and VAE decoder run on HTP. One SM8735 device; no same-model CPU/GPU comparison. Not `stable-diffusion.cpp`; independent stage-tensor correctness remains unverified. |
 
@@ -47,6 +47,54 @@ run on the configured device:
 This is a bounded single-device comparison. HTP used the conservative
 configuration that passed its known-answer checks and was slower than Vulkan.
 It does not establish sustained performance, power use, or cross-device results.
+
+### HTP speculative decoding probe (2026-11-06)
+
+An exploratory llama.cpp `draft-simple` run used the Qwen2.5 1.5B Q4_0 main
+model on HTP0 and the matching-family Qwen2.5 0.5B Q4_0 draft model on
+Adreno 825 Vulkan0. The same short prompt, seed, context, and 128-token output
+limit were used for the baseline and draft runs. Generation measured 19.5
+tok/s without speculation, 9.1 tok/s with a two-token draft window, and 7.1
+tok/s with a four-token window. All three brokered runs exited cleanly and the
+HTP session closed successfully. This route made text generation slower, so it
+was not adopted. It is a short exploratory result, not a controlled sustained
+benchmark or a QNN-compiled text-model test.
+
+### Same-prompt HTP quantization probe (2026-11-07)
+
+A short run on the same device used the Qwen2.5 1.5B Q4_0 model, the same
+prompt, seed, context, and 64-token output cap. HTP measured 19.6 generated
+tok/s with the launcher's default power mode and 19.0 tok/s with the `burst`
+power mode; Adreno Vulkan measured 17.6 tok/s. A same-settings HTP run with
+the Q4_K_M model measured 15.9 tok/s. Each HTP session closed successfully.
+This is one short run per setting, not a sustained or statistically controlled
+comparison; it does not show a large NPU advantage.
+
+### Earlier repeated small-model HTP/Vulkan throughput (2026-11-07)
+
+Qwen2.5 0.5B Instruct Q4_0 was run three times per backend with the same
+64-token prompt, seed, context, and batch settings. HTP generation rates were
+42.8, 40.1, and 40.8 tok/s (median 40.8); Vulkan rates were 27.9, 28.1, and
+27.9 tok/s (median 27.9). A separate verbose HTP known-answer run returned `4`
+and assigned all 24 transformer layers to HTP0; all three throughput sessions
+closed cleanly. This is about 46% higher generation throughput for this small
+model in this bounded test. It is a separate earlier run set, not directly
+comparable with the CPU-inclusive trial below, and does not establish the same
+gain for larger models, model quality, or sustained use.
+
+### Matched small-model CPU/Vulkan/HTP throughput (2026-11-07)
+
+The same Qwen2.5 0.5B Instruct Q4_0 model, prompt, 64-token generation cap,
+context (2048), batch/ubatch (128), seed (42), temperature (0), and four-thread
+setting were run three times on each backend, interleaved CPU → Vulkan → HTP.
+Generation rates were CPU 7.2/8.0/8.1 tok/s (median 8.0), Vulkan
+24.1/24.8/26.3 tok/s (median 24.8), and HTP 46.9/46.2/43.9 tok/s (median
+46.2). This bounded run measured HTP at about 1.86× Vulkan and 5.78× CPU
+generation throughput. All three HTP broker sessions closed cleanly. A separate
+known-answer run returned `4` and assigned all 24 layers to HTP0. This remains
+a single-device, small-model throughput comparison: it does not establish
+response quality, energy efficiency, thermal stability, or sustained
+performance, and it does not resolve the open HTP operator-correctness gates.
 
 ### QNN SD1.5 image generation soak
 

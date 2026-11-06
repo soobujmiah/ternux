@@ -6,7 +6,7 @@ This page records what has actually been measured on a real ternux setup, what w
 only observed, and what remains unverified. It exists to prevent build success,
 renderer detection and benchmark performance from being mixed into one claim.
 
-> **Snapshot:** evidence through 2026-10-15 on one Redmi Turbo 4 Pro / SM8735
+> **Snapshot:** evidence through 2026-11-07 on one Redmi Turbo 4 Pro / SM8735
 > configuration, not a compatibility or performance guarantee.
 
 ---
@@ -859,6 +859,40 @@ On the Redmi Turbo 4 Pro running Android 16, Termux, Debian 13 PRoot, and the Zi
 Three seconds after the readiness point, `ternux status --json` still reported the session running with X11 and PulseAudio active. A read-only 752×1155 X11 capture showed the Xfce panel, dock, desktop icons, and wallpaper rendered normally. `ternux verify --json` passed; full `ternux doctor --json` reported 26 OK, zero warnings, zero failures. At the later doctor sample, Android reported about 3,984 MiB available of about 11 GiB total and a 40°C battery reading.
 
 The new launcher applies theme, wallpaper, and compositor-off defaults once per guest user, then skips repeated Xfconf launches and wallpaper reloads on later sessions. No pre-change timing or controlled before/after memory measurement was collected, so this observation does **not** quantify a speedup or memory reduction. The focused regression suite passed 98/98 after the launcher change. The sample is one device/session and does not establish low-RAM behavior across devices.
+
+### 2026-11-07 matched small-model CPU/Vulkan/HTP throughput (Qwen2.5 0.5B Q4_0)
+
+The model at `/sdcard/Llms/qwen2.5-0.5b-instruct-q4_0.gguf` used the same
+prompt, 64-token output cap, context 2048, batch/ubatch 128, temperature 0,
+seed 42 and four-thread setting on CPU, Adreno Vulkan and brokered Hexagon HTP.
+Three rounds ran in CPU → Vulkan → HTP order so the backends were interleaved.
+
+| Backend | Generation tok/s, three runs | Median |
+|---|---:|---:|
+| CPU (`-ngl 0`) | 7.2 / 8.0 / 8.1 | 8.0 |
+| Adreno 825 Vulkan (`-dev Vulkan0 -ngl 99`) | 24.1 / 24.8 / 26.3 | 24.8 |
+| Hexagon HTP (`htp-run`, HTP0) | 46.9 / 46.2 / 43.9 | 46.2 |
+
+In this bounded run, HTP's median was about 1.86× Vulkan and 5.78× CPU.
+All three HTP broker sessions closed cleanly (`closeSession` transport status 0,
+reply `[0, 0]`). A separate known-answer run returned `4` and assigned all
+24 layers to HTP0. The throughput runs did not separately verify response
+quality or HTP layer assignment; this is a short generation benchmark on one
+device, not an energy, thermal-stability or sustained-performance test. HTP
+correctness/operator gates remain open.
+
+Reproduce in the Debian guest after loading the Vulkan extension environment;
+the HTP launcher supplies its own broker and configuration:
+
+```bash
+MODEL=/sdcard/Llms/qwen2.5-0.5b-instruct-q4_0.gguf
+PROMPT='Write a concise paragraph about how an efficient mobile computer balances speed, battery use, and memory.'
+source "$HOME/.local/opt/ternux-extensions/llama-vulkan/env.sh"
+# Repeat each command three times, in CPU → Vulkan → HTP order.
+llama-cli -m "$MODEL" -ngl 0 -t 4 -tb 4 -p "$PROMPT" -n 64 -c 2048 -b 128 -ub 128 --temp 0 --seed 42 --ignore-eos
+llama-cli -m "$MODEL" -dev Vulkan0 -ngl 99 -t 4 -tb 4 -p "$PROMPT" -n 64 -c 2048 -b 128 -ub 128 --temp 0 --seed 42 --ignore-eos
+"$HOME/.local/opt/ternux-extensions/llama-htp-experimental/bin/htp-run" -m "$MODEL" -t 4 -tb 4 -p "$PROMPT" -n 64 -c 2048 -b 128 -ub 128 --temp 0 --seed 42 --ignore-eos
+```
 
 ## References
 
