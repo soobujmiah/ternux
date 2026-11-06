@@ -18,3 +18,6 @@
 *.yml text eol=lf
 *.yaml text eol=lf
 *.json text eol=lf
+# Preserve upstream license files byte-for-byte, including terminal blank lines.
+lib/licenses/mesa-27.0.0-devel-20261025/licenses/BSL-1.0 -whitespace
+lib/licenses/mesa-27.0.0-devel-20261025/licenses/SGI-B-2.0 -whitespace

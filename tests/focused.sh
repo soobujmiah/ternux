@@ -1990,6 +1990,22 @@ check "GPU phase pins the upstream release URL and archive checksum" bash -c '
   grep -Fq "b711d1d9ab5537ee9085da8896dfe2115e791b33aa317fe37538f276c967d687" "$1/lib/phases.sh" &&
   grep -Fq "Freedreno archive SHA-256 mismatch" "$1/lib/phases.sh"
 ' _ "$ROOT"
+check "pinned Mesa license bundle matches its source hashes" bash -c '
+  (cd "$1/lib/licenses/mesa-27.0.0-devel-20261025" && sha256sum -c SHA256SUMS >/dev/null) &&
+  grep -q "6f90e92dfdacc4759d8e9ccb328805d0f0b4439b" "$1/lib/licenses/mesa-27.0.0-devel-20261025/README.md"
+' _ "$ROOT"
+check "GPU phase installs and rechecks Mesa upstream notices beside the driver" bash -c '
+  printf "%s" "$1" | grep -q "/usr/local/share/doc/ternux/mesa-27.0.0-devel-20261025" &&
+  printf "%s" "$1" | grep -q "sha256sum -c SHA256SUMS"
+' _ "$gpu_phase"
+check "Termux package includes all pinned Mesa license bundle files" python3 -c '
+import json, sys
+m=json.load(open(sys.argv[1]))["data_files"]
+p=[x for x in m if "licenses/mesa-27.0.0-devel-20261025/" in x]
+assert len(p) == 10, p
+assert all(m[x]["source"] == x.replace("lib/ternux/", "lib/", 1) for x in p), p
+' "$ROOT/packaging/termux/manifest.json"
+
 check "GPU phase installs the driver outside dpkg's reach" bash -c '
   printf "%s" "$1" | grep -q "install -D -m 0755 .* /usr/local/lib/aarch64-linux-gnu/libvulkan_freedreno.so" &&
   ! printf "%s" "$1" | grep -qE "install -[Dm].* /usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so"
