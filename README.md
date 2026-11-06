@@ -99,12 +99,15 @@ stays smaller; choose only what you need. The `--all` profile needs roughly
 10.5–12.5 GB installed and about 14 GB free during setup. See
 [workload details](docs/WORKLOADS.md).
 
-**Local AI and GPU tools:** the optional llama.cpp CPU + Vulkan extension is
-installed separately with `ternux extension install llama-vulkan`. A separate
-Hexagon HTP extension is explicitly experimental and device-specific; neither
-extension includes model files. Blender and headless EEVEE tools are optional.
-The [release plan](docs/ACCELERATOR-RELEASE-PLAN.md) records current support
-limits and qualification gates.
+**Local AI and GPU tools:** optional extensions provide llama.cpp CPU + Vulkan,
+plus a pinned Stable Diffusion CPU + Vulkan image generator preview; install
+with `ternux extension install llama-vulkan` or
+`ternux extension install stable-diffusion`. Model weights stay outside the runtime and can be used straight from shared
+storage. The separate Hexagon HTP extension remains
+experimental and device-specific. Blender and headless EEVEE tools are optional.
+See the [Stable Diffusion guide](guides/stable-diffusion-vulkan-extension.md)
+and [release plan](docs/ACCELERATOR-RELEASE-PLAN.md) for model usage, current
+support limits and qualification gates.
 
 ## Manage and troubleshoot
 

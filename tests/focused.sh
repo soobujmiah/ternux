@@ -1762,6 +1762,36 @@ for library in libssl.so.3 libcrypto.so.3 libgomp.so.1 libvulkan.so.1 libgbinder
 done
 EOF
 chmod 0755 "$EXT_BIN/uname" "$EXT_BIN/getconf" "$EXT_BIN/curl" "$EXT_BIN/ldconfig"
+# Stable Diffusion artifact fixture: CPU/Vulkan image CLI, manifest and notice tree.
+SD_EXT_TAG=ternux-stable-diffusion-vulkan-linux-arm64-master-1053
+mkdir -p "$EXT_FIXTURE/$SD_EXT_TAG/bin" "$EXT_FIXTURE/$SD_EXT_TAG/share/licenses"
+printf '#!/bin/sh\necho sd-cli fixture\n' > "$EXT_FIXTURE/$SD_EXT_TAG/bin/sd-cli"
+chmod 0755 "$EXT_FIXTURE/$SD_EXT_TAG/bin/sd-cli"
+printf 'SD_HOME=fixture\n' > "$EXT_FIXTURE/$SD_EXT_TAG/env.sh"
+printf 'fixture notice\n' > "$EXT_FIXTURE/$SD_EXT_TAG/share/licenses/UPSTREAM-LICENSE"
+printf '{"artifact": "ternux-stable-diffusion-vulkan-linux-arm64-master-1053"}\n' > "$EXT_FIXTURE/$SD_EXT_TAG/build-manifest.json"
+tar -czf "$EXT_FIXTURE/$SD_EXT_TAG.tar.gz" -C "$EXT_FIXTURE" "$SD_EXT_TAG"
+(cd "$EXT_FIXTURE" && sha256sum "$SD_EXT_TAG.tar.gz" > "$SD_EXT_TAG.tar.gz.sha256")
+if env HOME="$TMP/ext-home-sd" EXT_GLIBC_VERSION=2.39 EXT_CURL_LOG="$TMP/ext-sd-downloads" \
+  EXT_FIXTURE="$EXT_FIXTURE" PATH="$EXT_BIN:$PATH" \
+  TERNUX_STATE_DIR="$TMP/ext-state-sd" bash "$ROOT/bin/ternux" extension install stable-diffusion >/dev/null 2>&1 &&
+  [ -x "$TMP/ext-home-sd/.local/opt/ternux-extensions/stable-diffusion/bin/sd-cli" ] &&
+  [ -f "$TMP/ext-home-sd/.local/opt/ternux-extensions/stable-diffusion/share/licenses/UPSTREAM-LICENSE" ] &&
+  grep -Fq '"artifact": "ternux-stable-diffusion-vulkan-linux-arm64-master-1053"' \
+    "$TMP/ext-home-sd/.local/opt/ternux-extensions/stable-diffusion/build-manifest.json"; then
+  ok "Stable Diffusion CPU/Vulkan extension verifies and atomically installs its runtime and notices"
+else
+  not_ok "Stable Diffusion CPU/Vulkan extension verifies and atomically installs its runtime and notices"
+fi
+if ! env HOME="$TMP/ext-home-sd-old-glibc" EXT_GLIBC_VERSION=2.38 \
+  EXT_CURL_LOG="$TMP/ext-sd-old-downloads" EXT_FIXTURE="$EXT_FIXTURE" \
+  PATH="$EXT_BIN:$PATH" TERNUX_STATE_DIR="$TMP/ext-state-sd-old" \
+  bash "$ROOT/bin/ternux" extension install stable-diffusion >/dev/null 2>&1 &&
+  [ ! -e "$TMP/ext-sd-old-downloads" ]; then
+  ok "Stable Diffusion extension rejects guests below its glibc ABI before download"
+else
+  not_ok "Stable Diffusion extension rejects guests below its glibc ABI before download"
+fi
 if ! env HOME="$TMP/ext-home-old-glibc" EXT_GLIBC_VERSION=2.37 \
   EXT_CURL_LOG="$TMP/ext-old-glibc-downloads" EXT_FIXTURE="$EXT_FIXTURE" \
   PATH="$EXT_BIN:$PATH" TERNUX_STATE_DIR="$TMP/ext-state-old-glibc" \
@@ -1885,6 +1915,9 @@ guest.turnip=managed
 ext.llama-vulkan.present=yes
 ext.llama-vulkan.artifact=ternux-llama-vulkan-linux-arm64-b11582
 ext.llama-vulkan.missing_libs=2
+ext.stable-diffusion.present=yes
+ext.stable-diffusion.artifact=ternux-stable-diffusion-vulkan-linux-arm64-master-1053
+ext.stable-diffusion.missing_libs=0
 EOF
 dr_run() { # name, args... ; env TERNUX_JSON passed through
   local name="$1"; shift
@@ -1908,6 +1941,7 @@ assert len(x["issues"]) == len(x["recommended_actions"]) == s["warn"] + s["fail"
 by = {c["id"]: c for c in checks}
 assert by["ext_llama-vulkan_libs"]["status"] == "warn" and "ext_llama-vulkan_libs" in x["issues"]
 assert by["ext_llama-htp-experimental"]["status"] == "info"
+assert by["ext_stable-diffusion"]["status"] == "ok"
 assert by["glibc"]["status"] == "ok" and by["sudo"]["status"] == "ok"
 assert x["backend"] == "virgl"
 PY

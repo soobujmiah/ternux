@@ -190,6 +190,35 @@ Keep your GGUF model wherever it already is. Vulkan needs a working system
 Vulkan driver. For the manual install route, checksum and archive checks, backend
 details, and recovery steps, see the [repository extension guide](https://github.com/soobujmiah/ternux/blob/main/guides/llama-vulkan-extension.md).
 
+## Optional: Stable Diffusion CPU + Vulkan image generation
+
+From Termux, install the pinned image-generation runtime:
+
+```bash
+ternux extension install stable-diffusion
+```
+
+Then in Debian, use the model directly from `/sdcard/Llms` on CPU or Adreno Vulkan:
+
+```bash
+source "$HOME/.local/opt/ternux-extensions/stable-diffusion/env.sh"
+MODEL=/sdcard/Llms/ternux-v2-validation/stable-diffusion-v1-5-pruned-emaonly-Q8_0.gguf
+
+# CPU low-resolution test; it can take several minutes
+sd-cli --backend cpu --model "$MODEL" --prompt "a small red robot in a garden, clean illustration" \
+  --threads 4 --output /tmp/ternux-sd-cpu.png --width 256 --height 256 --steps 20 --seed 42
+
+# Adreno GPU: VAE tiling is needed at 512x512
+sd-cli --backend vulkan0 --model "$MODEL" --prompt "a small red robot in a garden, clean illustration" \
+  --threads 4 --output /tmp/ternux-sd-vulkan.png --width 512 --height 512 --steps 10 --seed 42 \
+  --vae-tiling --vae-tile-size 256x256
+```
+
+On Adreno 825, an untiled 512×512 Vulkan run lost the device during VAE decode.
+The tiled 512×512/10-step run saved a complete image in 101.9s. The CPU
+256×256/10-step output saved but was blocky; CPU image quality is not qualified.
+The extension does not bundle models or GPU drivers; see the [extension guide](https://github.com/soobujmiah/ternux/blob/main/guides/stable-diffusion-vulkan-extension.md) for limits.
+
 ### Experimental Hexagon HTP on SM8735
 
 Ternux also lists a separate experimental HTP extension for the Redmi Turbo 4

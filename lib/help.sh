@@ -80,11 +80,16 @@ Debian user's ~/.local/opt/ternux-extensions directory.
 
 Available names:
   llama-vulkan             llama.cpp CPU + Vulkan package (b11582)
+  stable-diffusion         Stable Diffusion CPU + Vulkan image generator
   llama-htp-experimental   llama.cpp Hexagon HTP for SM8735 (experimental)
 
+Stable Diffusion models remain user-provided; install a compatible GGUF model
+separately and pass its path to sd-cli.
+
 Run it from the Termux host CLI; installation is delegated to the selected
-Debian guest. Model files and system packages are not installed or changed.
-ADT has its own release-aware installer and remains managed by the ADT project.
+Debian guest. Model weights are never downloaded. During fresh setup, selecting
+Stable Diffusion provisions its Debian runtime libraries; the extension command
+itself only installs extension files. ADT remains managed by its own installer.
 HELP
 }
 
@@ -138,7 +143,7 @@ Categories (default: all):
                Android child-process monitoring
   guest        Debian glibc, passwordless sudo, desktop commands, dpkg state, disk
   graphics     Vulkan, GPU, backend, KGSL node, Turnip layout, renderer, launcher
-  extensions   health of installed extensions (llama-vulkan, llama-htp-experimental)
+  extensions   health of installed extensions (llama-vulkan, stable-diffusion, llama-htp-experimental)
 
 Options:
   --quick      skip the Debian guest probe (guest and extension checks)
