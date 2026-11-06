@@ -38,7 +38,7 @@ On the Adreno 825, untiled 512×512 Vulkan lost the device during VAE decode. `-
 
 For the full commands, measurements, model checksum and gate decisions, see the [device qualification handoff](../handoffs/stable-diffusion-cpu-vulkan-qualification-2026-11-07.md).
 
-Build/ABI and tiled Vulkan image path passed; CPU quality, broader image quality, speed/memory range, cancellation, restart and sustained-use gates remain open. This is not qualified for stable release.
+The public prerelease was checksum-verified and installed through `ternux extension install stable-diffusion`; `ternux doctor` detects it. The installed binary generated a coherent 512×512/10-step image from `/sdcard/Llms` in 92.91s with tiled Vulkan VAE. CPU image quality remains unqualified. Broader quality, memory range, cancellation, restart and sustained-use gates remain open; this is not a stable Ternux release.
 
 ## Remove
 

@@ -215,8 +215,10 @@ sd-cli --backend vulkan0 --model "$MODEL" --prompt "a small red robot in a garde
 ```
 
 On Adreno 825, an untiled 512×512 Vulkan run lost the device during VAE decode.
-The tiled 512×512/10-step run saved a complete image in 101.9s. The CPU
-256×256/10-step output saved but was blocky; CPU image quality is not qualified.
+The extracted candidate saved a tiled 512×512/10-step image in 101.9s. After
+public prerelease publication, the Ternux-managed install also generated a
+coherent image from the same `/sdcard/Llms` model in 92.91s. CPU output remains
+unqualified and is not claimed; see the [device handoff](../handoffs/stable-diffusion-cpu-vulkan-qualification-2026-11-07.md).
 The extension does not bundle models or GPU drivers; see the [extension guide](https://github.com/soobujmiah/ternux/blob/main/guides/stable-diffusion-vulkan-extension.md) for limits.
 
 ### Experimental Hexagon HTP on SM8735
