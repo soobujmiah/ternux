@@ -14,6 +14,7 @@ Notable changes to ternux. Dates are ISO 8601.
 
 ### Desktop reliability
 
+- Verified menu-entry-launched PulseAudio Volume Control on the connected Xfce desktop: Playback controls and the OpenSL input are readable in the shared dark theme. The microphone source returns to idle when the app closes.
 - Fixed intermittent black PulseAudio Volume Control windows by keeping `GALLIUM_DRIVER=zink` scoped to GPU workloads instead of exporting it to every desktop app; the desktop still selects accelerated Zink through `MESA_LOADER_DRIVER_OVERRIDE=zink`.
 
 

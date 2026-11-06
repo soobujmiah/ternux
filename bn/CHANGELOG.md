@@ -14,6 +14,7 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 
 ### Desktop reliability
 
+- Xfce desktop entry দিয়ে চালানো PulseAudio Volume Control connected phone-এ verify: একই dark theme-এ Playback controls ও OpenSL input readable; app বন্ধ করলে microphone source idle হয়।
 - `GALLIUM_DRIVER=zink` সব desktop app-এ export না করে GPU workload-এ সীমিত করায় PulseAudio Volume Control-এর intermittent black window ঠিক হয়েছে; accelerated desktop Zink `MESA_LOADER_DRIVER_OVERRIDE=zink` দিয়ে selected থাকে।
 
 
