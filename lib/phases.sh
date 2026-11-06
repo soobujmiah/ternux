@@ -806,7 +806,7 @@ tnx_phase_launcher() {
   # Write launcher
   cat > "$LAUNCHER" << 'LAUNCHEOF'
 #!/data/data/com.termux/files/usr/bin/bash
-# TERNUX_DESKTOP_LAUNCHER=13
+# TERNUX_DESKTOP_LAUNCHER=14
 set -u
 TMPDIR="${TMPDIR:-/data/data/com.termux/files/usr/tmp}"
 TNX_PID_FILE="${TNX_PID_FILE:-$HOME/.local/share/ternux/session/desktop.pid}"
@@ -936,7 +936,7 @@ LAUNCHEOF
     cat >> "$LAUNCHER" << EOF
 proot-distro login $distro --shared-tmp --bind /dev/kgsl-3d0:/dev/kgsl --bind /dev/dri --bind "\$TNX_CPUINFO_FILE:/proc/cpuinfo" --user $user_name \\
   --env DISPLAY=:0 --env PULSE_SERVER="tcp:127.0.0.1:\$PULSE_PORT" \\
-  --env MESA_LOADER_DRIVER_OVERRIDE=zink --env GALLIUM_DRIVER=zink \\
+  --env MESA_LOADER_DRIVER_OVERRIDE=zink \\
   --env TU_DEBUG=noconform --env MESA_VK_WSI_DEBUG=sw \\
   --env MESA_DISK_CACHE_SINGLE_FILE=1 --env MESA_SHADER_CACHE_MAX_SIZE=2048M \\
   --env QT_X11_NO_MITSHM=1 --env XDG_RUNTIME_DIR=/home/$user_name/.runtime \\

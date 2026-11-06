@@ -33,7 +33,12 @@ Ternux Android ফোনে কম resource-এ ব্যবহারযোগ�
 
 ১. একই বিশ্বস্ত source থেকে [Termux](https://github.com/termux/termux-app/releases)
    ও [Termux:X11](https://github.com/termux/termux-x11/releases) ইনস্টল করুন।
-   Termux:X11 একবার খুলুন।
+   Termux:X11 একবার খুলুন। অতিরিক্ত companion app হিসেবে
+   [Termux:Boot](https://github.com/termux/termux-boot/releases) reboot-এর পর
+   নির্ধারিত script চালায়, [Termux:API](https://github.com/termux/termux-api/releases)
+   microphone-এর মতো Android integration দেয়, আর
+   [Termux:Styling](https://github.com/termux/termux-styling/releases) terminal
+   theme ও font যোগ করে। Termux ও add-on-গুলো একই source থেকে ইনস্টল করুন।
 ২. Termux-এ চালান:
 
 ```bash

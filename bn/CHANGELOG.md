@@ -12,6 +12,11 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 
 ## [Unreleased]
 
+### Desktop reliability
+
+- `GALLIUM_DRIVER=zink` সব desktop app-এ export না করে GPU workload-এ সীমিত করায় PulseAudio Volume Control-এর intermittent black window ঠিক হয়েছে; accelerated desktop Zink `MESA_LOADER_DRIVER_OVERRIDE=zink` দিয়ে selected থাকে।
+
+
 ### Performance
 
 - Bundled JetBrainsMono Nerd Font v3.5.1 pin করা হয়েছে; extract-এর আগে SHA-256 যাচাই হয় এবং 100+ MB ZIP-এর বদলে 7.3 MB xz archive ব্যবহৃত হয়।

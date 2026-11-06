@@ -25,7 +25,8 @@ alt_url: "/docs/INSTALLATION.html"
 | **স্টোরেজ** | Installed footprint: বেস ~৪–৪.৫ GB; `--all`-সহ ~১০.৫–১২.৫ GB | Download, package cache, build tree, model ও project-এর জন্য অতিরিক্ত ফাঁকা জায়গা দিয়ে শুরু করুন |
 | **RAM** | ন্যূনতম ৪ GB, ৬–৮ GB ভালো | ডেস্কটপ আর Android একই মেমরি ভাগ করে; কম RAM = বেশি প্রসেস-কিল |
 | **গ্রাফিক্স** | Adreno হলে Zink/Turnip; অন্য ক্ষেত্রে VirGL candidate | Adreno route-টি মাপা; VirGL compatibility ও গতি device/Android build অনুযায়ী যাচাই করতে হবে |
-| **অ্যাপ** | Termux (F-Droid/GitHub) + Termux:X11 | মূল release line ব্যবহার করুন, Termux/plugin একই source-এ রাখুন; Google Play line আলাদা ও পরীক্ষামূলক |
+| **প্রয়োজনীয় অ্যাপ** | [Termux](https://github.com/termux/termux-app/releases) + [Termux:X11](https://github.com/termux/termux-x11/releases) | দুটো compatible source থেকে ইনস্টল করুন; Ternux চালুর আগে Termux:X11 একবার খুলুন |
+| **ঐচ্ছিক companion app** | [Termux:Boot](https://github.com/termux/termux-boot/releases), [Termux:API](https://github.com/termux/termux-api/releases), [Termux:Styling](https://github.com/termux/termux-styling/releases) | Boot reboot-এর পর নির্ধারিত startup script চালাতে পারে; API microphone-এর মতো Android integration দেয় (Termux-এ matching `termux-api` package-ও ইনস্টল করুন); Styling terminal theme ও font দেয়। Termux ও প্রতিটি add-on একই source থেকে নিন |
 
 শুরু করার আগে ডিভাইস পরীক্ষা করুন (শুধু পড়ে, কিছুই বদলায় না):
 

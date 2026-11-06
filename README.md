@@ -32,7 +32,12 @@ same graphics performance on every phone.
 
 1. Install [Termux](https://github.com/termux/termux-app/releases) and
    [Termux:X11](https://github.com/termux/termux-x11/releases) from compatible
-   sources. Open Termux:X11 once.
+   sources. Open Termux:X11 once. Optional companion apps:
+   [Termux:Boot](https://github.com/termux/termux-boot/releases) starts configured
+   scripts after reboot, [Termux:API](https://github.com/termux/termux-api/releases)
+   enables Android integrations such as microphone access, and
+   [Termux:Styling](https://github.com/termux/termux-styling/releases) adds
+   terminal themes and fonts. Install Termux and its add-ons from the same source.
 2. In Termux, run:
 
 ```bash

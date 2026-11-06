@@ -24,7 +24,8 @@ Detailed installation walkthrough. For the concise path, see
 | **Storage** | Installed: ~4–4.5 GB base; ~10.5–12.5 GB with `--all` | Begin with additional free space for downloads, package caches, build trees, models and projects |
 | **RAM** | 4 GB min, 6–8 GB preferred | The desktop + Android share memory; less RAM = more killing |
 | **Graphics** | Adreno preferred; VirGL fallback otherwise | Zink/Turnip requires the Qualcomm KGSL path; VirGL compatibility varies by device/Android build |
-| **Apps** | Termux (F-Droid/GitHub) + Termux:X11 | Keep Termux and all plugins from the same source; the Google Play line is experimental and differs from the main releases |
+| **Required apps** | [Termux](https://github.com/termux/termux-app/releases) + [Termux:X11](https://github.com/termux/termux-x11/releases) | Install both from compatible sources; open Termux:X11 once before starting Ternux |
+| **Optional companion apps** | [Termux:Boot](https://github.com/termux/termux-boot/releases), [Termux:API](https://github.com/termux/termux-api/releases), [Termux:Styling](https://github.com/termux/termux-styling/releases) | Boot can run configured startup scripts after reboot; API enables Android integrations such as microphone access (install the matching `termux-api` package in Termux too); Styling provides terminal themes and fonts. Keep Termux and each add-on from the same source |
 
 Check your device first (read-only, changes nothing):
 

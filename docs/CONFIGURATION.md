@@ -67,8 +67,8 @@ freely; a reinstall regenerates it (your edits are replaced).
 ### Zink (Adreno) environment
 
 ```text
-MESA_LOADER_DRIVER_OVERRIDE=zink   Force Mesa's Zink Gallium driver
-GALLIUM_DRIVER=zink                (same intent, legacy spelling — both set)
+MESA_LOADER_DRIVER_OVERRIDE=zink   Select Zink for normal desktop OpenGL apps
+GALLIUM_DRIVER=zink                Scoped to workloads such as Blender; not global
 TU_DEBUG=noconform                 Turnip compatibility workaround; render-mode selection stays adaptive
 MESA_VK_WSI_DEBUG=sw               Software WSI — avoids X11/Vulkan surface issues
 MESA_DISK_CACHE_SINGLE_FILE=1      Shader cache as one file, faster warm starts

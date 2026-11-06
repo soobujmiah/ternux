@@ -67,8 +67,8 @@ bash install.sh --locale bn_BD.UTF-8
 ### Zink (Adreno) এনভায়রনমেন্ট
 
 ```text
-MESA_LOADER_DRIVER_OVERRIDE=zink   Mesa-র Zink Gallium ড্রাইভার বাধ্যতামূলক
-GALLIUM_DRIVER=zink                (একই উদ্দেশ্য, পুরনো বানান — দুটোই সেট)
+MESA_LOADER_DRIVER_OVERRIDE=zink   সাধারণ desktop OpenGL app-এর জন্য Zink নির্বাচন
+GALLIUM_DRIVER=zink                Blender-এর মতো workload-এ আলাদাভাবে দিন; globally নয়
 TU_DEBUG=noconform                 Turnip compatibility workaround; rendering mode workload অনুযায়ী adaptive থাকে
 MESA_VK_WSI_DEBUG=sw               সফটওয়্যার WSI — X11/Vulkan সারফেস সমস্যা এড়ায়
 MESA_DISK_CACHE_SINGLE_FILE=1      শেডার ক্যাশ এক ফাইলে, দ্রুত ওয়ার্ম-স্টার্ট

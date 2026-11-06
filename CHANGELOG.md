@@ -12,6 +12,11 @@ Notable changes to ternux. Dates are ISO 8601.
 
 ## [Unreleased]
 
+### Desktop reliability
+
+- Fixed intermittent black PulseAudio Volume Control windows by keeping `GALLIUM_DRIVER=zink` scoped to GPU workloads instead of exporting it to every desktop app; the desktop still selects accelerated Zink through `MESA_LOADER_DRIVER_OVERRIDE=zink`.
+
+
 ### Performance
 
 - Pinned the bundled JetBrainsMono Nerd Font to v3.5.1, verify its SHA-256 before extraction, and use the 7.3 MB xz archive instead of the unpinned 100+ MB ZIP.

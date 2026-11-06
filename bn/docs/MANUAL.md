@@ -469,7 +469,6 @@ proot-distro login debian --shared-tmp \
   --env DISPLAY=:0 \
   --env PULSE_SERVER="$PULSE_SERVER" \
   --env MESA_LOADER_DRIVER_OVERRIDE=zink \
-  --env GALLIUM_DRIVER=zink \
   --env TU_DEBUG=noconform \
   --env MESA_VK_WSI_DEBUG=sw \
   --env MESA_DISK_CACHE_SINGLE_FILE=1 \
