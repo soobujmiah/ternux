@@ -21,6 +21,7 @@ alt_url: "/docs/"
   <a class="doc-card" href="QUICK-START.html"><span class="doc-card__icon">01</span><strong>দ্রুত শুরু</strong><span>চালু ও যাচাইকৃত workspace পাওয়ার সংক্ষিপ্ততম পথ।</span></a>
   <a class="doc-card" href="INSTALLATION.html"><span class="doc-card__icon">02</span><strong>ইনস্টলেশন</strong><span>প্রয়োজনীয়তা, review-first route, phase, flag, update ও removal।</span></a>
   <a class="doc-card" href="MANUAL.html"><span class="doc-card__icon">03</span><strong>ম্যানুয়াল ইনস্টলেশন</strong><span>সম্পূর্ণ launcher behavior-সহ audit করা যায় এমন command-by-command setup।</span></a>
+  <a class="doc-card" href="TERMUX-APT.html"><span class="doc-card__icon">APT</span><strong>Signed Termux package</strong><span>Release key যাচাই করে pkg দিয়ে CLI install করুন।</span></a>
   <a class="doc-card" href="FAQ.html"><span class="doc-card__icon">?</span><strong>ইনস্টলের আগে</strong><span>Root, compatibility, storage, battery, privacy ও project limit।</span></a>
 </div>
 

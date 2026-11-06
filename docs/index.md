@@ -21,6 +21,7 @@ something is already broken, go directly to [Troubleshooting](TROUBLESHOOTING.ht
   <a class="doc-card" href="QUICK-START.html"><span class="doc-card__icon">01</span><strong>Quick start</strong><span>The shortest path to a launched and verified workspace.</span></a>
   <a class="doc-card" href="INSTALLATION.html"><span class="doc-card__icon">02</span><strong>Installation</strong><span>Requirements, review-first route, phases, flags, updates, and removal.</span></a>
   <a class="doc-card" href="MANUAL.html"><span class="doc-card__icon">03</span><strong>Manual installation</strong><span>An auditable command-by-command setup with complete launcher behavior.</span></a>
+  <a class="doc-card" href="TERMUX-APT.html"><span class="doc-card__icon">APT</span><strong>Signed Termux package</strong><span>Verify the release key and install the CLI with pkg.</span></a>
   <a class="doc-card" href="FAQ.html"><span class="doc-card__icon">?</span><strong>Before you install</strong><span>Root, compatibility, storage, battery, privacy, and project limits.</span></a>
 </div>
 

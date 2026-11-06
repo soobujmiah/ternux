@@ -7,6 +7,7 @@ export const nav = {
         ["Quick start", "/docs/QUICK-START.html"],
         ["Installation", "/docs/INSTALLATION.html"],
         ["Manual installation", "/docs/MANUAL.html"],
+        ["Signed APT package", "/docs/TERMUX-APT.html"],
       ],
     },
     {
@@ -45,6 +46,7 @@ export const nav = {
         ["দ্রুত শুরু", "/bn/docs/QUICK-START.html"],
         ["ইনস্টলেশন", "/bn/docs/INSTALLATION.html"],
         ["ম্যানুয়াল ইনস্টলেশন", "/bn/docs/MANUAL.html"],
+        ["Signed APT package", "/bn/docs/TERMUX-APT.html"],
       ],
     },
     {
