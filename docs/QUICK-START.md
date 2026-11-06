@@ -111,14 +111,16 @@ clean-mesa clear the Mesa shader cache
 
 ### First GUI run, browser and video
 
-If Firefox ESR is installed, the desktop opens the Ternux project page at login.
-Without a browser, the first GUI session shows a one-time welcome guide with
-project/developer links, guest commands and the host benchmark command. Firefox
-remains optional; choose it from the installer’s optional software list.
+After a fresh install, the first GUI session opens the Ternux project page in
+Firefox ESR if it is installed. Without a browser, it shows a one-time welcome
+guide with project/developer links, guest commands and the host benchmark
+command. This happens once per guest user; later desktop boots do not redirect
+to the website. Firefox remains optional; choose it from the installer’s
+optional software list.
 
 Noto Bengali fonts and the Avro IBus phonetic keyboard are installed by default;
 press **Ctrl+Space** to switch between English and Bangla. VLC, PulseAudio Volume Control, the Xfce Task
-Manager, and Mousepad text editor are included in the base desktop. The dark Arc GTK theme and lightweight stock Adwaita icons are selected by
+Manager, and Mousepad text editor are included in the base desktop. The global Adwaita Dark GTK theme and lightweight stock Adwaita icons are selected by
 default for a modern, high-contrast desktop, with a custom Aurora wallpaper. The first-run guide adapts to the available screen and uses a reliable software renderer. VLC defaults to a compact mobile view, X11 `xcb_x11` output and software decoding because PRoot does not provide VAAPI/VDPAU; this
 avoids blank video caused by selecting unavailable host decoder paths.
 

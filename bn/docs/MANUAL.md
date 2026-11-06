@@ -468,7 +468,7 @@ proot-distro login debian --shared-tmp \
   --env PULSE_SERVER="$PULSE_SERVER" \
   --env MESA_LOADER_DRIVER_OVERRIDE=zink \
   --env GALLIUM_DRIVER=zink \
-  --env TU_DEBUG=sysmem,noconform \
+  --env TU_DEBUG=noconform \
   --env MESA_VK_WSI_DEBUG=sw \
   --env MESA_DISK_CACHE_SINGLE_FILE=1 \
   --env MESA_SHADER_CACHE_MAX_SIZE=2048M \

@@ -12,16 +12,20 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 
 ## [Unreleased]
 
+### Performance
+
+- Zink desktop launcher থেকে Turnip-এর forced `sysmem` debug mode বাদ, যাতে driver workload অনুযায়ী system-memory বা tile-memory rendering বেছে নিতে পারে। ঠান্ডা device-এ performance comparison এখনও বাকি।
+
 ### ডেস্কটপ welcome ও media
 
-- Firefox ESR না থাকলে প্রথম GUI run-এ একবারের welcome dialog যোগ হয়েছে। এতে project/developer link, Debian guest command এবং Termux host-এর `ternux benchmark` shortcut আছে; Firefox optional-ই থাকে, থাকলে login-এ project website খোলে।
+- Firefox ESR থাকুক বা না থাকুক, প্রথম GUI run-এর welcome flow এখন guest user-পিছু একবার চলে। প্রথমবার Firefox project website খোলে, অথবা browser না থাকলে welcome guide দেখায়; পরের boot-এ আর redirect হয় না।
 - Fresh install ও upgrade-এ browser-হীন welcome dialog পাওয়ার জন্য Debian desktop base-এ Zenity যোগ হয়েছে; নতুন font, IBus, theme ও window-fit helper ধরতে base install estimate প্রায় ৪ GB করা হয়েছে।
-- Noto Bengali font ও Avro IBus phonetic keyboard default-এ যোগ হয়েছে (English আগে, Ctrl+Space-এ বদল); Xfce Task Manager, Mousepad editor এবং dark Arc GTK theme-এর সঙ্গে Adwaita icon default-এ যোগ হয়েছে। ডিফল্ট Aurora Xfce wallpaper এবং Live X11 screen মেপে বড় normal/dialog window maximize ও screen-এর বাইরে থাকা window center করতে event-driven Devilspie2 rule যোগ হয়েছে। First-run guide GTK Cairo renderer ও live screen অনুযায়ী scrollable layout ব্যবহার করে। Base desktop-এ PulseAudio Volume Control-ও আছে। VLC-তে XCB output, software decoding ও compact mobile UI default। Base install থেকে অপ্রয়োজনীয় host-suspend helper বাদ, আর PRoot startup error কমাতে system D-Bus ও সঠিক ICE socket যোগ হয়েছে।
+- Noto Bengali font ও Avro IBus phonetic keyboard default-এ যোগ হয়েছে (English আগে, Ctrl+Space-এ বদল); Xfce Task Manager, Mousepad editor এবং সব app-এ প্রয়োগ করা Adwaita Dark GTK theme-এর সঙ্গে Adwaita icon default-এ যোগ হয়েছে। ডিফল্ট Aurora Xfce wallpaper এবং Live X11 screen মেপে বড় normal/dialog window maximize ও screen-এর বাইরে থাকা window center করতে event-driven Devilspie2 rule যোগ হয়েছে। First-run guide GTK Cairo renderer ও live screen অনুযায়ী scrollable layout ব্যবহার করে। Base desktop-এ PulseAudio Volume Control-ও আছে। VLC-তে XCB output, software decoding ও compact mobile UI default। Base install থেকে অপ্রয়োজনীয় host-suspend helper বাদ, আর PRoot startup error কমাতে system D-Bus ও সঠিক ICE socket যোগ হয়েছে।
 
 ### Termux APT package ও installation
 
 - `ternux gpu update` (এবং সমতুল্য `ternux backend update`) যোগ হয়েছে; Zink device-এ pinned, SHA-256-যাচাইকৃত Debian Turnip userspace driver refresh করে। Android vendor driver OS-এর নিয়ন্ত্রণেই থাকে।
-- Optional Firefox ESR ইনস্টল থাকলে XFCE চালুর সময় Ternux website খোলার autostart যোগ হয়েছে; VLC base desktop-এ থাকে, Firefox optional।
+- Optional Firefox-এ website welcome এখন guest user-পিছু প্রথম GUI run-এ একবার চলে; পরের boot-এ redirect হয় না। PulseAudio Volume Control এখন per-app launcher override ছাড়া Debian-এর stock menu entry ব্যবহার করে। Detached session bus-এর বদলে supervised `dbus-run-session` এবং IBus helper cleanup আছে, যাতে restart-এর পর orphan desktop process জমে না থাকে।
 
 - Installer-এর বড় duplicate wordmark ও patterned frame বাদ দিয়ে compact mobile header এবং পরিষ্কার separator করা হয়েছে; portrait screen-এ log-এর জায়গা বাড়ানো হয়েছে, routine APT chatter full log-এ রাখা হয়েছে এবং renderer assertion যোগ হয়েছে।
 - Termux:X11-এর black screen-এর জন্য documented legacy drawing mode চালু হয়েছে; managed XFCE launcher session bus ready হলে Adwaita dark GTK theme ও Adwaita icon theme সেট করে।

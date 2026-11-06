@@ -19,6 +19,10 @@ X11 display ready হলে prompt-এ ফিরে আসে। Startup output
 বন্ধ করুন বা log পড়ুন। Android memory pressure-এ background process বন্ধ
 করতে পারে; এমন হলে Termux:X11 আবার খুলুন।
 
+### Termux:X11-এ কিবোর্ড ইনপুট
+
+Android soft keyboard থেকে terminal ও অন্য X11 app-এ text পাঠাতে Ternux desktop শুরুর আগে Termux:X11-এর `enforceCharBasedInput` চালু করে। `~/x.sh` সরাসরি চালালেও setting-টি apply হয়। Upgrade-এর পরও input না এলে একবার `ternux restart` দিন, যাতে নতুন setting-সহ X11 server শুরু হয়।
+
 ## দৈনিক নিয়ন্ত্রণ
 
 | কমান্ড | কী করে |
@@ -60,7 +64,7 @@ unavailable হিসেবে দেখানো হয়।
 
 ### অডিও ও VLC কন্ট্রোল
 
-ডেস্কটপ মেনু PulseAudio Volume Control-কে আলাদা X11/GTK wrapper ও dark theme দিয়ে চালায়। Termux:X11 session-এ Ternux Xfwm compositing বন্ধ রাখে, কারণ এটি চালু থাকলে Android display-তে পুরো desktop black হতে পারে। এতে desktop-এর সামগ্রিক GTK theme বদলায় না। VLC ডিফল্টে full interface চালায়, তাই playback control দেখা যায়।
+Ternux পুরো Xfce desktop-এ একই Adwaita Dark GTK theme প্রয়োগ করে। PulseAudio Volume Control Debian-এর packaged application entry দিয়ে চলে এবং একই desktop environment পায়; Ternux আলাদা theme বা backend চাপায় না। Termux:X11 session-এ Xfwm compositing বন্ধ থাকে, কারণ এটি চালু থাকলে পুরো desktop black হতে পারে। VLC ডিফল্টে full interface চালায়, তাই playback control দেখা যায়।
 
 ---
 

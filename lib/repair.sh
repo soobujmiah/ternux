@@ -193,7 +193,7 @@ _tnx_repair_backend() {
 
 _tnx_repair_launcher() {
   [ -x "$HOME/x.sh" ] && bash -n "$HOME/x.sh" 2>/dev/null &&
-    grep -q '^# TERNUX_DESKTOP_LAUNCHER=2$' "$HOME/x.sh" &&
+    grep -q '^# TERNUX_DESKTOP_LAUNCHER=8$' "$HOME/x.sh" &&
     grep -q '^PULSE_PORT=""$' "$HOME/x.sh" && { tnx_ok "Launcher OK"; return 0; }
 
   local backend user_name locale

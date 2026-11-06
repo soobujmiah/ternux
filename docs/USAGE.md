@@ -18,6 +18,10 @@ when the X11 display is ready. Startup output is kept in
 inspect it. Android may still stop background processes under memory pressure;
 reopen Termux:X11 if Android has reclaimed the session.
 
+### Keyboard input in Termux:X11
+
+Ternux enables Termux:X11 `enforceCharBasedInput` before starting the desktop so Android soft keyboards can send committed text to terminal and other X11 apps. The setting is also applied when `~/x.sh` is started directly. If input still fails after an upgrade, run `ternux restart` once so the running X11 server is recreated with the setting.
+
 ## Daily controls
 
 | Command | What it does |
@@ -60,7 +64,7 @@ Unknown models remain labeled as unavailable instead of being guessed.
 
 ### Audio and VLC controls
 
-The desktop menu launches PulseAudio Volume Control through a dedicated X11/GTK wrapper with its own dark theme. Ternux keeps Xfwm compositing disabled in the Termux:X11 session because the Android display can otherwise show a black desktop. These settings do not change the desktop-wide GTK theme. VLC uses its full interface by default so playback controls remain visible.
+Ternux applies one Adwaita Dark GTK theme across the Xfce desktop. PulseAudio Volume Control uses Debian’s packaged application entry and inherits the same desktop environment; Ternux does not assign it a separate theme or backend. Xfwm compositing stays disabled because enabling it can make the whole Termux:X11 desktop black. VLC uses its full interface by default so playback controls remain visible.
 
 ---
 

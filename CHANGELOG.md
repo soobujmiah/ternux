@@ -12,16 +12,20 @@ Notable changes to ternux. Dates are ISO 8601.
 
 ## [Unreleased]
 
+### Performance
+
+- Removed Turnip's forced `sysmem` debug mode from the Zink desktop launcher so the driver can choose system-memory or tile-memory rendering per workload. Device-side performance comparison remains pending a cool-device run.
+
 ### Desktop welcome and media
 
-- Added a one-time first-GUI welcome dialog when Firefox ESR is absent. It gives project/developer links, Debian guest commands, and the Termux-host `ternux benchmark` shortcut; Firefox remains optional and still opens the project website when installed.
+- Made the first-GUI welcome flow one-time per guest user whether or not Firefox ESR is installed. On the first GUI run Firefox opens the project website, or a welcome guide appears without a browser; later boots do not redirect.
 - Added Zenity to the Debian desktop base so the no-browser welcome dialog is available on fresh installs and upgrades. Raised the base installed-size estimate to about 4 GB to include the added fonts, IBus, themes and window-fit helper.
-- Added Noto Bengali fonts and the Avro IBus phonetic keyboard by default (English-first, Ctrl+Space switch), the Xfce Task Manager and Mousepad editor, and dark Arc GTK theme with stock Adwaita icons. Added a custom Aurora Xfce wallpaper and an event-driven Devilspie2 rule that maximizes oversized normal/dialog windows and centers windows that exceed the live X11 screen. The first-run guide uses GTK Cairo rendering and adapts its scrollable layout to the live X11 size. Set per-user VLC output to XCB, software decoding and compact mobile UI; removed unused host-suspend helpers from the base install. Added a minimal system D-Bus and correctly owned ICE socket to reduce PRoot desktop startup errors.
+- Added Noto Bengali fonts and the Avro IBus phonetic keyboard by default (English-first, Ctrl+Space switch), the Xfce Task Manager and Mousepad editor, and a single global Adwaita Dark GTK theme with stock Adwaita icons. Added a custom Aurora Xfce wallpaper and an event-driven Devilspie2 rule that maximizes oversized normal/dialog windows and centers windows that exceed the live X11 screen. The first-run guide uses GTK Cairo rendering and adapts its scrollable layout to the live X11 size. Set per-user VLC output to XCB, software decoding and compact mobile UI; removed unused host-suspend helpers from the base install. Added a minimal system D-Bus and correctly owned ICE socket to reduce PRoot desktop startup errors.
 
 ### Termux APT packaging and installation
 
 - Added `ternux gpu update` (also `ternux backend update`) to refresh the pinned, SHA-256-validated Debian Turnip userspace driver on Zink devices; it explicitly leaves Android vendor drivers to the OS.
-- Added an XFCE welcome autostart that opens the Ternux website when optional Firefox ESR is installed; VLC remains in the base desktop and Firefox stays optional.
+- Made the optional Firefox website welcome a first-GUI-run action per guest user; later desktop boots do not redirect. PulseAudio Volume Control now uses Debian’s stock menu entry without a per-app launcher environment override. Replaced detached session-bus startup with supervised `dbus-run-session` and IBus helper cleanup to prevent orphaned desktop processes from accumulating after restarts.
 
 - Replaced the installer’s oversized duplicate wordmark and patterned frame with a compact mobile header and clean separators; expanded portrait log space, kept routine APT chatter in the full log instead of the dashboard, and added renderer assertions.
 - Fixed black Termux:X11 screens with the documented legacy drawing mode; the managed XFCE launcher now applies the Adwaita dark GTK theme and Adwaita icons after the session bus is ready.

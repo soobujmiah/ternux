@@ -34,7 +34,7 @@ tnx_cmd_start() {
     return 1
   fi
 
-  if ! grep -q '^# TERNUX_DESKTOP_LAUNCHER=2$' "$HOME/x.sh"; then
+  if ! grep -q '^# TERNUX_DESKTOP_LAUNCHER=8$' "$HOME/x.sh"; then
     # CLI package upgrades must refresh the generated launcher too. It carries
     # process matching, audio routing and session supervision behavior.
     if ! declare -F tnx_phase_launcher >/dev/null 2>&1; then
@@ -52,11 +52,13 @@ tnx_cmd_start() {
   fi
   chmod +x "$HOME/x.sh" 2>/dev/null || true
 
-  # Termux:X11's character-based IME mode fixes soft-keyboard input on devices
-  # whose IME emits text without corresponding X11 key events. The preference
-  # utility is shipped by termux-x11-nightly; skip cleanly on older clients.
+  # Termux:X11 expects key:value arguments (not key=value). Character-based
+  # input lets Android IMEs deliver committed text to X11 clients that do not
+  # receive corresponding hardware key events.
   if tnx_has_cmd termux-x11-preference; then
-    timeout 3 termux-x11-preference enforceCharBasedInput=true >/dev/null 2>&1 || true
+    if ! timeout 3 termux-x11-preference enforceCharBasedInput:true >/dev/null 2>&1; then
+      tnx_warn "Could not enable Termux:X11 character-based keyboard input."
+    fi
   fi
 
   local session_dir="$TERNUX_STATE_DIR/session" pid_file="$TERNUX_STATE_DIR/session/desktop.pid"
@@ -142,6 +144,18 @@ tnx_cmd_stop() {
   # server. Otherwise its PRoot process can survive uninstall/reinstall and
   # leave duplicate XFCE sessions attached to the next display.
   if tnx_has_cmd proot-distro; then
+    # Stop IBus daemon and helpers with the desktop. The launcher runs its
+    # private bus under dbus-run-session so the bus is reaped with XFCE.
+    tnx_guest_login --user root -- sh -c '
+      pkill -TERM -x ibus-daemon 2>/dev/null || true
+      pkill -TERM -x ibus-ui-gtk3 2>/dev/null || true
+      pkill -TERM -x ibus-extension-gtk3 2>/dev/null || true
+      pkill -TERM -x ibus-memconf 2>/dev/null || true
+      pkill -TERM -x ibus-x11 2>/dev/null || true
+      pkill -TERM -x ibus-portal 2>/dev/null || true
+      pkill -TERM -x ibus-engine-simple 2>/dev/null || true
+      pkill -TERM -f "[/]usr/share/ibus-avro/main-gjs.js" 2>/dev/null || true
+    ' >/dev/null 2>&1 || true
     if tnx_guest_login --user root -- pkill -TERM -x xfce4-session >/dev/null 2>&1; then
       found=1
     fi

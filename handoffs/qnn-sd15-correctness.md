@@ -1,7 +1,7 @@
 # Handoff: SD1.5 QNN correctness and image review
 
 **Status:** open; repeatable image generation is not independent numerical proof.
-**Last updated:** 2026-10-14
+**Last updated:** 2026-11-06
 **Canonical status:** [`docs/ACCELERATOR-RELEASE-PLAN.md`](../docs/ACCELERATOR-RELEASE-PLAN.md)
 
 ## Goal
@@ -15,9 +15,12 @@ match independent expected values, then complete full-resolution review of the
 - Corrected DPM++ sample-space handling; a fixed-seed 20-step 512×512 result
   repeated with the same SHA-256 (`1a13957f…6764fc3`). This proves repeatability,
   not correctness against an independent implementation.
-- The 25-image soak completed 25/25. Image 01 received full-resolution review
-  and showed a small cyan/black spot on water. Images 02–25 were only screened
-  in contact sheets; no similar obvious defect was seen at that scale.
+- The 25-image soak completed 25/25. Images 02–25 were reviewed individually
+  at their full 512×512 resolution on 2026-11-06. They are coherent landscape
+  scenes; image 19 has a tiny dark mark touching the top edge that may be a
+  generation artifact or a scene detail. Image 01 still has the previously
+  recorded small cyan/black spot on water. Neither observation establishes
+  numerical correctness; preserve both as visual findings.
 - The three later performance-profile outputs are additional samples, not a
   replacement for stage-tensor checks.
 - The image-runner reports `image_oracle: visual_review_and_seed_repeat_only`.
@@ -30,8 +33,8 @@ match independent expected values, then complete full-resolution review of the
 2. Compare tokenizer IDs, CLIP hidden output, each denoising-stage latent/
    epsilon, and decoded tensor before PNG conversion. Record tolerances and
    hashes; distinguish expected quantization error from a mismatch.
-3. Inspect images 02–25 at full resolution; preserve the existing outputs and
-   note image index, defect, and review disposition.
+3. Visual review of images 02–25 is complete. Preserve the existing outputs
+   and recheck images 01 and 19 if the model/runner changes.
 4. Re-run same-seed output and relevant tensor comparisons after any runner or
    model-path change.
 
@@ -42,7 +45,8 @@ match independent expected values, then complete full-resolution review of the
   `/home/sbj/npu-probe-2026-10-13/sd15-npu-soak-20261014-182316/`
 - Later profile outputs: `/sdcard/Llms/ternux-profile-20261014-01.png` through
   `-03.png`
-- Original archive SHA-256:
+- Original model archive on device: `/sdcard/Llms/AbsoluteReality_qnn2.28_8gen2.zip`.
+  Its current SHA-256 matches the soak report exactly:
   `f479f3221fb90d31de1e695577f5aec9a5afb5fb7e076cfac40f00e039b22977`
 
 Do not claim independent correctness from HTP backend logs, coherent visuals, or

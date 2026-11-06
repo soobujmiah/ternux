@@ -69,7 +69,7 @@ freely; a reinstall regenerates it (your edits are replaced).
 ```text
 MESA_LOADER_DRIVER_OVERRIDE=zink   Force Mesa's Zink Gallium driver
 GALLIUM_DRIVER=zink                (same intent, legacy spelling — both set)
-TU_DEBUG=sysmem,noconform          Turnip options for correct desktop GL
+TU_DEBUG=noconform                 Turnip compatibility workaround; render-mode selection stays adaptive
 MESA_VK_WSI_DEBUG=sw               Software WSI — avoids X11/Vulkan surface issues
 MESA_DISK_CACHE_SINGLE_FILE=1      Shader cache as one file, faster warm starts
 MESA_SHADER_CACHE_MAX_SIZE=2048M   Cap so the cache can't eat all storage
@@ -81,7 +81,8 @@ XDG_RUNTIME_DIR=~/.runtime         Required by dbus/GTK apps
 
 *Why the cache tweaks?* The phone's storage is slow flash; a single-file,
 size-capped cache keeps app warm-starts fast without letting Mesa silently
-consume gigabytes.
+consume gigabytes. Turnip is left to choose system-memory or tile-memory rendering
+per workload; its forced `sysmem` debug mode is omitted.
 
 ### VirGL environment
 

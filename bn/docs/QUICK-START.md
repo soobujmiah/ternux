@@ -115,15 +115,16 @@ sysmon   ডিভাইসের সারসংক্ষেপ   clean-mesa  �
 
 ### প্রথম GUI চালু, browser ও video
 
-Firefox ESR ইনস্টল থাকলে desktop login-এ Ternux project page খুলবে। Browser
-না থাকলে প্রথম GUI session-এ project/developer link, guest command এবং host
-benchmark command-সহ একবারের welcome guide দেখাবে। Firefox optional; installer-এর
+Fresh install-এর পর প্রথম GUI session-এ Firefox ESR থাকলে Ternux project page
+খুলবে। Browser না থাকলে project/developer link, guest command এবং host benchmark
+command-সহ একবারের welcome guide দেখাবে। প্রতি guest user-এর জন্য এটি একবারই হবে;
+পরের desktop boot-এ website redirect হবে না। Firefox optional; installer-এর
 optional software তালিকা থেকে বেছে নেওয়া যায়।
 
 Noto Bengali font ও Avro IBus phonetic keyboard default-এ থাকে; English ও
 বাংলার মধ্যে বদলাতে **Ctrl+Space** চাপুন। VLC, PulseAudio Volume Control, Xfce Task Manager ও Mousepad
 text editor base desktop-এ থাকে। আধুনিক,
-পরিপাটি dark desktop-এর জন্য Arc GTK theme, Adwaita icon ও Aurora wallpaper default। ছোট X11 screen-এ welcome guide scrollable layout ও Cairo renderer ব্যবহার করে।
+পরিপাটি dark desktop-এর জন্য সব app-এ একই global Adwaita Dark GTK theme, Adwaita icon ও Aurora wallpaper default। ছোট X11 screen-এ welcome guide scrollable layout ও Cairo renderer ব্যবহার করে।
 PRoot-এ VAAPI/VDPAU না থাকায় VLC-তে X11 `xcb_x11` output ও software decoding
 default; ছোট screen-এ compact player view ব্যবহার করে। এতে অনুপস্থিত host decoder বেছে নিয়ে video blank হওয়া এড়ায়।
 

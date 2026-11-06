@@ -82,7 +82,7 @@ else
 fi
 
 # The Debian base keeps VLC + Zenity; Firefox stays optional. Welcome content is
-# guest-managed, first-run-only without a browser, and the VLC XCB output is set.
+# guest-managed and one-time with or without a browser; VLC uses XCB output.
 if env TERNUX_STATE_DIR="$TMP/state-welcome" HOME="$TMP/home-welcome" \
   PREFIX="$TMP/prefix-welcome" MARKER="$TMP/welcome-script" bash -c '
     . "$1/lib/phases.sh"
@@ -98,11 +98,10 @@ if env TERNUX_STATE_DIR="$TMP/state-welcome" HOME="$TMP/home-welcome" \
       grep -q "qt-minimal-view=0" "$1/lib/phases.sh" &&
       grep -q "qt-video-autoresize=0" "$1/lib/phases.sh" &&
       grep -q "qt-system-tray=0" "$1/lib/phases.sh" &&
-      grep -q "org.pulseaudio.pavucontrol.desktop" "$1/lib/phases.sh" &&
-      grep -q "ternux-volume-control" "$1/lib/phases.sh" &&
-      grep -q "unset DESKTOP_STARTUP_ID GTK_MODULES" "$1/lib/phases.sh" &&
-      grep -q "exec /usr/local/bin/ternux-volume-control" "$1/lib/phases.sh" &&
-      grep -q "GTK_THEME=Adwaita:dark" "$1/lib/phases.sh" &&
+      grep -q "rm -f /usr/local/bin/ternux-volume-control /usr/local/bin/pavucontrol" "$1/lib/phases.sh" &&
+      ! grep -q "GTK_THEME=\\|GDK_BACKEND=\\|GTK_MODULES" "$1/lib/phases.sh" &&
+      grep -q "dbus-run-session -- sh -c" "$1/lib/phases.sh" &&
+      grep -q "ibus_tries" "$1/lib/phases.sh" &&
       grep -q "pm-is-supported" "$1/lib/phases.sh" &&
       grep -q "pavucontrol" "$1/lib/phases.sh" &&
       grep -q "devilspie2" "$1/lib/phases.sh" &&
@@ -125,6 +124,26 @@ if env TERNUX_STATE_DIR="$TMP/state-welcome" HOME="$TMP/home-welcome" \
   ok "first-run welcome, optional Firefox, Zenity, VLC XCB output are guest-managed"
 else
   not_ok "first-run welcome, optional Firefox, Zenity, VLC XCB output are guest-managed"
+fi
+
+# The optional browser receives the welcome URL only on its first guest login.
+welcome_bin="$TMP/welcome-bin"
+welcome_state="$TMP/welcome-state"
+mkdir -p "$welcome_bin"
+cat > "$welcome_bin/firefox-esr" <<'EOF'
+#!/bin/sh
+printf '%s\n' "$*" >> "$WELCOME_CALLS"
+EOF
+chmod +x "$welcome_bin/firefox-esr"
+if WELCOME_CALLS="$TMP/welcome-calls" XDG_STATE_HOME="$welcome_state" HOME="$TMP/welcome-home" \
+  PATH="$welcome_bin:/usr/bin:/bin" sh "$ROOT/lib/ternux-welcome.sh" && \
+  WELCOME_CALLS="$TMP/welcome-calls" XDG_STATE_HOME="$welcome_state" HOME="$TMP/welcome-home" \
+  PATH="$welcome_bin:/usr/bin:/bin" sh "$ROOT/lib/ternux-welcome.sh" && \
+  [ "$(wc -l < "$TMP/welcome-calls")" -eq 1 ] && \
+  grep -q 'https://soobujmiah.github.io/ternux/' "$TMP/welcome-calls"; then
+  ok "website welcome redirect runs once per guest user"
+else
+  not_ok "website welcome redirect runs once per guest user"
 fi
 
 # GPU updater uses the validated Zink driver workflow through the CLI alias.
@@ -344,6 +363,53 @@ else
   ok "Turnip validator rejects a selected symlink"
 fi
 
+
+# Pavucontrol uses Debian’s stock desktop entry without environment overrides.
+if python3 - "$ROOT/lib/phases.sh" <<'PAVUCHECK'
+import pathlib, sys
+source = pathlib.Path(sys.argv[1]).read_text()
+assert "rm -f /usr/local/bin/ternux-volume-control /usr/local/bin/pavucontrol" in source
+assert "Exec=/usr/local/bin/ternux-volume-control" not in source
+assert "GTK_THEME=" not in source and "GDK_BACKEND=" not in source
+PAVUCHECK
+then
+  ok "Pavucontrol inherits the shared desktop theme and launch environment"
+else
+  not_ok "Pavucontrol inherits the shared desktop theme and launch environment"
+fi
+
+# The APT package must carry all resources read relative to its installed phase module.
+if python3 - "$ROOT/packaging/termux/manifest.json" "$ROOT" <<'PYMANIFEST'
+import json, pathlib, sys
+manifest = json.loads(pathlib.Path(sys.argv[1]).read_text())
+root = pathlib.Path(sys.argv[2])
+files = manifest["data_files"]
+required = {
+    "lib/ternux/ternux-welcome.sh": "lib/ternux-welcome.sh",
+    "lib/ternux/ternux-welcome-gui.py": "lib/ternux-welcome-gui.py",
+    "lib/ternux/ternux-window-fit.lua": "lib/ternux-window-fit.lua",
+    "lib/ternux/ternux-wallpaper.svg": "lib/ternux-wallpaper.svg",
+}
+assert all(files.get(dest, {}).get("source") == source for dest, source in required.items())
+assert all((root / source).is_file() for source in required.values())
+PYMANIFEST
+then
+  ok "APT manifest includes all Debian phase resources"
+else
+  not_ok "APT manifest includes all Debian phase resources"
+fi
+
+# A missing installer asset must stop the Debian phase before any guest mutation.
+resource_fixture="$TMP/resource-fixture"
+cp -R "$ROOT/lib" "$resource_fixture"
+rm -f "$resource_fixture/lib/ternux-welcome-gui.py"
+if env TERNUX_STATE_DIR="$TMP/state-missing-resource" HOME="$TMP/home-missing-resource" \
+  bash -c '. "$1/lib/phases.sh"; tnx_phase_debian ternux' _ "$resource_fixture" >/dev/null 2>&1; then
+  not_ok "Debian phase fails closed when a packaged resource is missing"
+else
+  ok "Debian phase fails closed when a packaged resource is missing"
+fi
+
 # Generated launchers must target the chosen account, use repeatable --env
 # correctly, and start VirGL only on the VirGL route.
 launcher_home="$TMP/home-launcher"
@@ -353,7 +419,7 @@ if env TERNUX_STATE_DIR="$TMP/state-launcher" HOME="$launcher_home" bash -c '
   tnx_phase_launcher alice zink en_US.UTF-8 >/dev/null
   tnx_phase_aliases alice bash >/dev/null
   bash -n "$HOME/x.sh" &&
-  grep -q "^# TERNUX_DESKTOP_LAUNCHER=2$" "$HOME/x.sh" &&
+  grep -q "^# TERNUX_DESKTOP_LAUNCHER=8$" "$HOME/x.sh" &&
   grep -q -- "--user alice" "$HOME/x.sh" &&
   grep -q -- "--env DISPLAY=:0" "$HOME/x.sh" &&
   grep -Fq "pkill -9 -f \"^termux-x11 com\\.termux\\.x11([[:space:]]|$)\"" "$HOME/x.sh" &&
@@ -361,9 +427,10 @@ if env TERNUX_STATE_DIR="$TMP/state-launcher" HOME="$launcher_home" bash -c '
   grep -q "termux-x11 :0 -legacy-drawing -ac" "$HOME/x.sh" &&
   grep -q "stop_legacy_ternuxx_audio" "$HOME/x.sh" &&
   grep -Fq "ternuxx\\/audio\\/default\\.pa" "$HOME/x.sh" &&
-  grep -q "Arc-Dark" "$HOME/x.sh" &&
   grep -q "IconThemeName --create -t string -s Adwaita" "$HOME/x.sh" &&
-  grep -q "ThemeName --create -t string -s Arc-Dark" "$HOME/x.sh" &&
+  grep -q "ThemeName --create -t string -s Adwaita-dark" "$HOME/x.sh" &&
+  grep -q "dbus-run-session -- sh -c" "$HOME/x.sh" &&
+  ! grep -q "dbus-launch --exit-with-session" "$HOME/x.sh" &&
   grep -Fq "session_pid=\\\$!" "$HOME/x.sh" &&
   grep -Fq "wait \\\$session_pid" "$HOME/x.sh" &&
   grep -Fq "[ \\\$tries -ge 50 ]" "$HOME/x.sh" &&
@@ -371,10 +438,10 @@ if env TERNUX_STATE_DIR="$TMP/state-launcher" HOME="$launcher_home" bash -c '
   ! grep -q "adwaita-gtk-theme" "$1/lib/phases.sh" &&
   ! grep -q "pm-utils" "$1/lib/phases.sh" &&
   grep -q "GTK_IM_MODULE=ibus QT_IM_MODULE=ibus XMODIFIERS=@im=ibus" "$HOME/x.sh" &&
-  grep -Fq "IBUS_ADDRESS=unix:path=/home/alice/.runtime/ibus.sock" "$HOME/x.sh" &&
-  grep -Fq "rm -f ~/.runtime/ibus.sock" "$HOME/x.sh" &&
   grep -Fq "ibus-daemon --daemonize --xim --replace" "$HOME/x.sh" &&
-  grep -Fq "IBUS_ADDRESS=unix:path=/home/\$user_name/.runtime/ibus.sock" "$1/lib/phases.sh" &&
+  grep -Fq "pkill -TERM -x ibus-daemon" "$HOME/x.sh" &&
+  grep -Fq "unset IBUS_ADDRESS" "$HOME/x.sh" &&
+  ! grep -q -- "--env IBUS_ADDRESS=" "$HOME/x.sh" &&
   grep -q "image-style --create -t int -s 5" "$1/lib/phases.sh" &&
   grep -Fq "monitor0/workspace0/last-image" "$1/lib/phases.sh" &&
   grep -Fq "monitor1/workspace0/last-image" "$1/lib/phases.sh" &&
@@ -1079,6 +1146,8 @@ obj=json.loads(os.environ["JSON_OUT"])
 assert obj["command"] == "stop" and obj["status"] == "ok"
 '\'' &&
     grep -qx "guest --user root -- pkill -TERM -x xfce4-session" "$log" &&
+    grep -q "ibus-daemon" "$1/lib/desktop.sh" &&
+    grep -q "ibus-extension-gtk3" "$1/lib/desktop.sh" &&
     grep -qx "kill -TERM 9709" "$log" &&
     grep -qx "pulseaudio --kill" "$log" &&
     grep -qx "pkill -KILL -x pulseaudio" "$log" &&
@@ -1137,7 +1206,7 @@ if env TERNUX_STATE_DIR="$TMP/state-desktop-start" HOME="$TMP/home-desktop-start
     tnx_state_get(){ case "$1" in backend) echo virgl;; user) echo alice;; locale) echo en_US.UTF-8;; esac; }
     tnx_phase_launcher(){
       cp "$MOCK_LAUNCHER" "$HOME/x.sh"
-      sed -i "1a# TERNUX_DESKTOP_LAUNCHER=2" "$HOME/x.sh"
+      sed -i "1a# TERNUX_DESKTOP_LAUNCHER=8" "$HOME/x.sh"
       chmod +x "$HOME/x.sh"
     }
     tnx_has_cmd(){ [ "$1" = setsid ]; }
@@ -1149,7 +1218,7 @@ if env TERNUX_STATE_DIR="$TMP/state-desktop-start" HOME="$TMP/home-desktop-start
     pid="$(cat "$TERNUX_STATE_DIR/session/desktop.pid")"
     [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null || exit
     grep -q session-started "$TERNUX_STATE_DIR/session/desktop.log" || exit
-    grep -q "^# TERNUX_DESKTOP_LAUNCHER=2$" "$HOME/x.sh" || exit
+    grep -q "^# TERNUX_DESKTOP_LAUNCHER=8$" "$HOME/x.sh" || exit
     grep -q "util-linux zsh git curl" "$1/lib/phases.sh" || exit
     tnx_cmd_stop >/dev/null || exit
     [ ! -e "$TERNUX_STATE_DIR/session/desktop.pid" ]

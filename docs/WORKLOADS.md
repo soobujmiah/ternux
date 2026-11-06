@@ -117,7 +117,7 @@ sudo apt install -y neovim gh
 
 Firefox ESR is an optional ARM64 browser package available in the software menu.
 
-At XFCE login, Ternux opens its project website in Firefox ESR when that optional browser is installed.
+After a fresh install, the first XFCE login opens the project website in Firefox ESR when that optional browser is installed. It runs once per guest user.
 
 VLC is included with the base desktop. If needed, the catalog's separate VLC
 choice simply verifies or reinstalls the Debian package.

@@ -330,11 +330,18 @@ tnx_install_guest_cli() {
 # ---------------------------------------------------------------------------
 tnx_phase_debian() {
   local user_name="${1:-ternux}"
-  local welcome_b64 welcome_gui_b64 window_fit_b64 wallpaper_b64
-  welcome_b64="$(base64 < "${BASH_SOURCE[0]%/*}/ternux-welcome.sh" | tr -d '\n')" || return 1
-  welcome_gui_b64="$(base64 < "${BASH_SOURCE[0]%/*}/ternux-welcome-gui.py" | tr -d '\n')" || return 1
-  window_fit_b64="$(base64 < "${BASH_SOURCE[0]%/*}/ternux-window-fit.lua" | tr -d '\n')" || return 1
-  wallpaper_b64="$(base64 < "${BASH_SOURCE[0]%/*}/ternux-wallpaper.svg" | tr -d '\n')" || return 1
+  local resource_dir="${BASH_SOURCE[0]%/*}"
+  local welcome_b64 welcome_gui_b64 window_fit_b64 wallpaper_b64 resource
+  for resource in ternux-welcome.sh ternux-welcome-gui.py ternux-window-fit.lua ternux-wallpaper.svg; do
+    if [ ! -s "$resource_dir/$resource" ] || [ ! -r "$resource_dir/$resource" ]; then
+      tnx_fail "Required Debian desktop resource is missing or unreadable: $resource_dir/$resource"
+      return 1
+    fi
+  done
+  welcome_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-welcome.sh" | tr -d '\n')" || return 1
+  welcome_gui_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-welcome-gui.py" | tr -d '\n')" || return 1
+  window_fit_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-window-fit.lua" | tr -d '\n')" || return 1
+  wallpaper_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-wallpaper.svg" | tr -d '\n')" || return 1
 
   if tnx_debian_installed; then
     tnx_warn "Debian container already installed; reusing it."
@@ -377,38 +384,10 @@ tnx_phase_debian() {
     printf '%s\n' 'qt-video-autoresize=0' >> \"\$H/.config/vlc/vlcrc\"
     sed -i '/^[[:space:]]*qt-system-tray=/d' \"\$H/.config/vlc/vlcrc\"
     printf '%s\n' 'qt-system-tray=0' >> \"\$H/.config/vlc/vlcrc\"
-    install -d -o root -g root -m 0755 /usr/local/share/applications
-    cat > /usr/local/bin/ternux-volume-control <<'PAVUCTL'
-#!/bin/sh
-# Xfce menu launches can inherit stale GTK startup/theme state from the panel.
-unset DESKTOP_STARTUP_ID GTK_MODULES
-export GDK_BACKEND=x11
-export GTK_THEME=Adwaita:dark
-exec /usr/bin/pavucontrol "$@"
-PAVUCTL
-    chmod 0755 /usr/local/bin/ternux-volume-control
-    cat > /usr/local/bin/pavucontrol <<'PAVUBIN'
-#!/bin/sh
-exec /usr/local/bin/ternux-volume-control "$@"
-PAVUBIN
-    chmod 0755 /usr/local/bin/pavucontrol
-    cat > /usr/local/share/applications/org.pulseaudio.pavucontrol.desktop <<'PAVU'
-[Desktop Entry]
-Version=1.0
-Type=Application
-Name=PulseAudio Volume Control
-GenericName=Volume Control
-Comment=Adjust the volume level
-Exec=/usr/local/bin/ternux-volume-control
-TryExec=/usr/local/bin/ternux-volume-control
-Icon=multimedia-volume-control
-Terminal=false
-StartupNotify=false
-Categories=AudioVideo;Audio;Mixer;GTK;Settings;X-XFCE-SettingsDialog;X-XFCE-HardwareSettings;
-Keywords=pavucontrol;PulseAudio;Microphone;Volume;Fade;Balance;Headset;Speakers;Headphones;Audio;Mixer;Output;Input;Devices;Playback;Recording;
-PAVU
-    chmod 0644 /usr/local/share/applications/org.pulseaudio.pavucontrol.desktop
-    update-desktop-database /usr/local/share/applications >/dev/null 2>&1 || true
+    # Use Debian's stock application entry and process so menu launches
+    # inherit the same global Xfce theme and environment as other GTK apps.
+    rm -f /usr/local/bin/ternux-volume-control /usr/local/bin/pavucontrol \
+      /usr/local/share/applications/org.pulseaudio.pavucontrol.desktop
     install -d -o \"\$U\" -g \"\$U\" -m 0755 \"\$H/.config/devilspie2\"
     printf '%s' '${window_fit_b64}' | base64 -d > \"\$H/.config/devilspie2/window-fit.lua\"
     chown \"\$U:\$U\" \"\$H/.config/devilspie2/window-fit.lua\"
@@ -591,7 +570,7 @@ tnx_phase_gpu() {
     [ -n \"\$driver\" ] && [ -n \"\$icd\" ] || exit 1
     install -D -m 0755 \"\$driver\" /usr/local/lib/aarch64-linux-gnu/libvulkan_freedreno.so
     mkdir -p /usr/local/share/vulkan/icd.d
-    api=\"\$(sed -n 's/.*\"api_version\"[[:space:]]*:[[:space:]]*\"\\([^\"]*\\)\".*/\\1/p' \"\$icd\" | head -n1)\"
+    api=\"\$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))[\"api_version\"])' \"\$icd\" 2>/dev/null || true)\"
     [ -n \"\$api\" ] || api=1.4.0
     printf '{\\n    \"ICD\": {\\n        \"api_version\": \"%s\",\\n        \"library_arch\": \"64\",\\n        \"library_path\": \"%s\"\\n    },\\n    \"file_format_version\": \"1.0.1\"\\n}\\n' \
       \"\$api\" /usr/local/lib/aarch64-linux-gnu/libvulkan_freedreno.so \
@@ -748,7 +727,7 @@ tnx_phase_launcher() {
   # Write launcher
   cat > "$LAUNCHER" << 'LAUNCHEOF'
 #!/data/data/com.termux/files/usr/bin/bash
-# TERNUX_DESKTOP_LAUNCHER=2
+# TERNUX_DESKTOP_LAUNCHER=8
 set -u
 TMPDIR="${TMPDIR:-/data/data/com.termux/files/usr/tmp}"
 TNX_PID_FILE="${TNX_PID_FILE:-$HOME/.local/share/ternux/session/desktop.pid}"
@@ -826,6 +805,12 @@ pulseaudio --kill 2>/dev/null || pkill -KILL -x pulseaudio 2>/dev/null || true
 rm -f "$TMPDIR"/.X11-unix/X* "$TMPDIR"/.X*-lock "$TMPDIR"/pulse-socket "$TMPDIR"/.pulse-*/native 2>/dev/null || true
 # Wake lock
 termux-wake-lock 2>/dev/null || true
+# Termux:X11 uses key:value syntax; enable Android IME text delivery even when
+# users start this generated launcher directly instead of calling `ternux start`.
+if command -v termux-x11-preference >/dev/null 2>&1; then
+  termux-x11-preference enforceCharBasedInput:true >/dev/null 2>&1 || \
+    echo "WARNING: could not enable Termux:X11 character-based keyboard input."
+fi
 # Retire the orphaned Ternuxx audio daemon left behind by uninstall, then find
 # a loopback port that is actually free. A stale server may retain the Android
 # sink and otherwise leave the new guest bridge silent.
@@ -873,10 +858,9 @@ LAUNCHEOF
 proot-distro login $distro --shared-tmp --bind /dev/kgsl-3d0:/dev/kgsl --bind /dev/dri --bind "\$TNX_CPUINFO_FILE:/proc/cpuinfo" --user $user_name \\
   --env DISPLAY=:0 --env PULSE_SERVER="tcp:127.0.0.1:\$PULSE_PORT" \\
   --env MESA_LOADER_DRIVER_OVERRIDE=zink --env GALLIUM_DRIVER=zink \\
-  --env TU_DEBUG=sysmem,noconform --env MESA_VK_WSI_DEBUG=sw \\
+  --env TU_DEBUG=noconform --env MESA_VK_WSI_DEBUG=sw \\
   --env MESA_DISK_CACHE_SINGLE_FILE=1 --env MESA_SHADER_CACHE_MAX_SIZE=2048M \\
   --env QT_X11_NO_MITSHM=1 --env XDG_RUNTIME_DIR=/home/$user_name/.runtime \\
-  --env IBUS_ADDRESS=unix:path=/home/$user_name/.runtime/ibus.sock \\
   --env LANG=$locale --env LC_ALL=$locale \\
   -- bash -c '
     set -u
@@ -886,16 +870,32 @@ proot-distro login $distro --shared-tmp --bind /dev/kgsl-3d0:/dev/kgsl --bind /d
     sudo -n mkdir -p /var/run/dbus /run/dbus /run/user/\$(id -u) 2>/dev/null || true
     sudo -n dbus-uuidgen --ensure >/dev/null 2>&1 || true
     sudo -n rm -f /etc/xdg/autostart/light-locker.desktop 2>/dev/null || true
-    exec dbus-launch --exit-with-session sh -c "
+    exec dbus-run-session -- sh -c "
       export GTK_IM_MODULE=ibus QT_IM_MODULE=ibus XMODIFIERS=@im=ibus
-      rm -f ~/.runtime/ibus.sock
+      unset IBUS_ADDRESS
+      # Retire IBus daemons left by earlier detached Xfce sessions. Their
+      # private D-Bus sessions prevent --replace from finding/replacing them.
+      pkill -TERM -x ibus-daemon 2>/dev/null || true
+      pkill -TERM -x ibus-ui-gtk3 2>/dev/null || true
+      pkill -TERM -x ibus-extension-gtk3 2>/dev/null || true
+      pkill -TERM -x ibus-memconf 2>/dev/null || true
+      pkill -TERM -x ibus-x11 2>/dev/null || true
+      pkill -TERM -x ibus-portal 2>/dev/null || true
+      pkill -TERM -x ibus-engine-simple 2>/dev/null || true
+      pkill -TERM -f '[/]usr/share/ibus-avro/main-gjs.js' 2>/dev/null || true
+      sleep 0.2
+      rm -f ~/.config/ibus/bus/*
       ibus-daemon --daemonize --xim --replace
+      ibus_tries=0
+      until ibus address 2>/dev/null | grep -q '^unix:' || [ \\\$ibus_tries -ge 20 ]; do
+        ibus_tries=\\\$((ibus_tries + 1)); sleep 0.1
+      done
       startxfce4 & session_pid=\\\$!
       tries=0
       until xfconf-query -c xsettings -l >/dev/null 2>&1 && pgrep -x xfdesktop >/dev/null 2>&1 || [ \\\$tries -ge 50 ]; do
         tries=\\\$((tries + 1)); sleep 0.2
       done
-      xfconf-query -c xsettings -p /Net/ThemeName --create -t string -s Arc-Dark
+      xfconf-query -c xsettings -p /Net/ThemeName --create -t string -s Adwaita-dark
       xfconf-query -c xsettings -p /Net/IconThemeName --create -t string -s Adwaita
       xfconf-query -c xsettings -p /Gtk/CursorThemeName --create -t string -s Adwaita
       xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-path --create -t string -s /usr/share/backgrounds/ternux/aurora.svg
@@ -931,7 +931,6 @@ proot-distro login $distro --shared-tmp --bind "\$TNX_CPUINFO_FILE:/proc/cpuinfo
   --env DISPLAY=:0 --env PULSE_SERVER="tcp:127.0.0.1:\$PULSE_PORT" \\
   --env GALLIUM_DRIVER=virpipe --env MESA_GL_VERSION_OVERRIDE=4.3COMPAT \\
   --env QT_X11_NO_MITSHM=1 --env XDG_RUNTIME_DIR=/home/$user_name/.runtime \\
-  --env IBUS_ADDRESS=unix:path=/home/$user_name/.runtime/ibus.sock \\
   --env LANG=$locale --env LC_ALL=$locale \\
   -- bash -c '
     set -u
@@ -940,16 +939,32 @@ proot-distro login $distro --shared-tmp --bind "\$TNX_CPUINFO_FILE:/proc/cpuinfo
     until xdpyinfo -display :0 >/dev/null 2>&1; do sleep 0.1; done
     sudo -n mkdir -p /var/run/dbus /run/dbus /run/user/\$(id -u) 2>/dev/null || true
     sudo -n dbus-uuidgen --ensure >/dev/null 2>&1 || true
-    exec dbus-launch --exit-with-session sh -c "
+    exec dbus-run-session -- sh -c "
       export GTK_IM_MODULE=ibus QT_IM_MODULE=ibus XMODIFIERS=@im=ibus
-      rm -f ~/.runtime/ibus.sock
+      unset IBUS_ADDRESS
+      # Retire IBus daemons left by earlier detached Xfce sessions. Their
+      # private D-Bus sessions prevent --replace from finding/replacing them.
+      pkill -TERM -x ibus-daemon 2>/dev/null || true
+      pkill -TERM -x ibus-ui-gtk3 2>/dev/null || true
+      pkill -TERM -x ibus-extension-gtk3 2>/dev/null || true
+      pkill -TERM -x ibus-memconf 2>/dev/null || true
+      pkill -TERM -x ibus-x11 2>/dev/null || true
+      pkill -TERM -x ibus-portal 2>/dev/null || true
+      pkill -TERM -x ibus-engine-simple 2>/dev/null || true
+      pkill -TERM -f '[/]usr/share/ibus-avro/main-gjs.js' 2>/dev/null || true
+      sleep 0.2
+      rm -f ~/.config/ibus/bus/*
       ibus-daemon --daemonize --xim --replace
+      ibus_tries=0
+      until ibus address 2>/dev/null | grep -q '^unix:' || [ \\\$ibus_tries -ge 20 ]; do
+        ibus_tries=\\\$((ibus_tries + 1)); sleep 0.1
+      done
       startxfce4 & session_pid=\\\$!
       tries=0
       until xfconf-query -c xsettings -l >/dev/null 2>&1 && pgrep -x xfdesktop >/dev/null 2>&1 || [ \\\$tries -ge 50 ]; do
         tries=\\\$((tries + 1)); sleep 0.2
       done
-      xfconf-query -c xsettings -p /Net/ThemeName --create -t string -s Arc-Dark
+      xfconf-query -c xsettings -p /Net/ThemeName --create -t string -s Adwaita-dark
       xfconf-query -c xsettings -p /Net/IconThemeName --create -t string -s Adwaita
       xfconf-query -c xsettings -p /Gtk/CursorThemeName --create -t string -s Adwaita
       xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-path --create -t string -s /usr/share/backgrounds/ternux/aurora.svg
