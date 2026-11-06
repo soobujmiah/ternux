@@ -48,7 +48,7 @@ pkg install x11-repo tur-repo -y
 
 # ডিসপ্লে অ্যাপ সার্ভিস, অডিও, এবং কন্টেইনার ইঞ্জিন।
 pkg install termux-x11-nightly -y
-pkg install pulseaudio proot-distro -y
+pkg install pulseaudio proot-distro util-linux -y
 
 # হোস্ট-পাশের VirGL রেন্ডারার (সামঞ্জস্য GPU পথ — Adreno-তেও ইনস্টল করুন;
 # খরচ কম, আর পথ বদল করা সহজ থাকে)।

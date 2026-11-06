@@ -91,8 +91,12 @@ tnx_cmd_start() {
     mv -f "$desktop_log" "$desktop_log.1" || { tnx_fail "Could not rotate desktop log."; return 1; }
   fi
   : >> "$desktop_log" || { tnx_fail "Could not write desktop log: $desktop_log"; return 1; }
+  if ! tnx_has_cmd setsid; then
+    tnx_fail "Session detachment tool 'setsid' is missing. Install it with 'pkg install util-linux' and retry."
+    return 1
+  fi
   tnx_info "Starting desktop in background (backend: $configured_backend)..."
-  LD_LIBRARY_PATH= TNX_PID_FILE="$pid_file" nohup bash "$HOME/x.sh" >>"$desktop_log" 2>&1 </dev/null &
+  setsid env LD_LIBRARY_PATH= TNX_PID_FILE="$pid_file" nohup bash "$HOME/x.sh" >>"$desktop_log" 2>&1 </dev/null &
   local pid=$!
   printf '%s\n' "$pid" > "$pid_file" || { kill "$pid" 2>/dev/null || true; tnx_fail "Could not save desktop PID."; return 1; }
   local ready=0 i

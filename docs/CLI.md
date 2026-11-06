@@ -81,7 +81,7 @@ and free storage limits. `--yes` skips the chooser and keeps the base profile.
 
 ### `ternux start`
 
-Start the Xfce4 desktop session in the background. The command returns when
+Start the Xfce4 desktop session in its own detached session so it survives the launching shell closing. The command returns when
 Termux:X11 display `:0` is ready; startup output is kept in
 `~/.local/share/ternux/session/desktop.log`. Use `ternux status` or
 `ternux logs desktop tail` to inspect it. After a CLI package update, `ternux start` refreshes an older generated `~/x.sh` automatically. The launcher (`~/x.sh`):
