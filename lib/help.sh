@@ -87,8 +87,9 @@ Stable Diffusion models remain user-provided; install a compatible GGUF model
 separately and pass its path to sd-cli.
 
 Run it from the Termux host CLI; installation is delegated to the selected
-Debian guest. Model files and system packages are not installed or changed.
-ADT has its own release-aware installer and remains managed by the ADT project.
+Debian guest. Model weights are never downloaded. During fresh setup, selecting
+Stable Diffusion provisions its Debian runtime libraries; the extension command
+itself only installs extension files. ADT remains managed by its own installer.
 HELP
 }
 
