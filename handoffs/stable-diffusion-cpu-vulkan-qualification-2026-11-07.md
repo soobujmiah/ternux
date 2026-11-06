@@ -102,7 +102,12 @@ and the optional extension prerelease was published from main by workflow run
 - `ternux doctor --json` reported `ext_stable-diffusion` OK and identified the
   installed pinned artifact. Doctor also reported one unrelated existing
   `llama-htp-experimental_libs` warning (9 HTP shared libraries unavailable);
-  no doctor failures.
+  no doctor failures. After the workload, the new CLI `repair` command
+  checksum-verified and replaced the recognized install; `sd-cli --help`
+  worked afterward, and the SD1.5 model stayed in `/sdcard/Llms`. The new
+  `remove` command deleted only the managed extension directory; the model
+  remained. Reinstall from the public release passed again and doctor still
+  reported the extension OK (30 OK, 0 failed, 1 existing HTP warning).
 - The installed package generated
   `/sdcard/Llms/ternux-v2-validation/results-54d6e22/managed-extension-vulkan-512-10.png`
   from the direct `/sdcard/Llms/...Q8_0.gguf` path. Settings were Vulkan0,
@@ -113,8 +118,9 @@ and the optional extension prerelease was published from main by workflow run
   Auto-fit kept diffusion compute on Adreno Vulkan and staged text/VAE weights
   in host RAM; model bytes remained on shared `/sdcard` storage.
 - CPU output remains unqualified and is not claimed. Optional fresh-install
-  selection, removal/repair, cancellation/restart, sustained-use and broader
-  device/model coverage remain open.
+  selection, cancellation/restart, sustained-use and broader device/model
+  coverage remain open. Managed repair, removal and reinstall are verified on
+  the active Debian guest; the extension remains installed after the test.
 
 The earlier extracted workflow candidate archive had SHA-256
 `a193996aef0efd6d1843957fb9a77ac36edbf47edb30bd366d13c0c1a538cb29`.

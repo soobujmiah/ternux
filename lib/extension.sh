@@ -30,9 +30,11 @@ _tnx_extension_guest_dispatch() {
   shift 2>/dev/null || true
   case "$subcmd" in
     list|ls) _tnx_extension_list ;;
-    install) _tnx_extension_install "${1:-}" ;;
+    install) _tnx_extension_install "${1:-}" install ;;
+    repair) _tnx_extension_install "${1:-}" repair ;;
+    remove|uninstall) _tnx_extension_remove "${1:-}" ;;
     --help|-h|help) tnx_help_extension ;;
-    *) _tnx_extension_fail "Usage: ternux extension [list|install NAME]"; return 2 ;;
+    *) _tnx_extension_fail "Usage: ternux extension [list|install|repair|remove NAME]"; return 2 ;;
   esac
 }
 
@@ -40,12 +42,15 @@ _tnx_extension_list() {
   cat <<'LIST'
 Ternux extensions:
   llama-vulkan  llama.cpp CPU + Vulkan, Linux ARM64, upstream b11582
-  stable-diffusion  stable-diffusion.cpp CPU + Vulkan image generation (ARM64)
+  stable-diffusion  Vulkan image preview on Adreno; CPU quality is unqualified
   llama-htp-experimental  llama.cpp Hexagon HTP for SM8735 (experimental)
 
 Install with: ternux extension install llama-vulkan
 Image generation: ternux extension install stable-diffusion
 Experimental HTP: ternux extension install llama-htp-experimental
+Repair an existing managed install: ternux extension repair NAME
+Remove one managed extension: ternux extension remove NAME
+Removal preserves model weights and other files outside the extension directory.
 ADT releases are managed by ADT; see ternux guides.
 LIST
 }
@@ -70,12 +75,14 @@ _tnx_extension_find_ldconfig() {
 }
 
 _tnx_extension_install() {
-  local name="${1:-}" tag asset base tmp expected listed actual member top dest glibc version_major version_minor library ldconfig_bin missing_libraries="" min_glibc_minor package_kind binary
+  local name="${1:-}" mode="${2:-install}" tag artifact asset base tmp backup expected listed actual member top dest glibc version_major version_minor library ldconfig_bin missing_libraries="" min_glibc_minor package_kind binary
   local -a runtime_libraries
   [ -n "$name" ] || { _tnx_extension_fail "Choose an extension: ternux extension list"; return 2; }
+  case "$mode" in install|repair) ;; *) _tnx_extension_fail "Unknown extension operation '$mode'."; return 2 ;; esac
   case "$name" in
     llama-vulkan)
       tag="ternux-llama-vulkan-linux-arm64-b11582"
+      artifact="$tag"
       asset="${tag}.tar.gz"
       min_glibc_minor=38
       package_kind=vulkan
@@ -84,6 +91,7 @@ _tnx_extension_install() {
       ;;
     stable-diffusion)
       tag="ternux-stable-diffusion-vulkan-linux-arm64-master-1053"
+      artifact="$tag"
       asset="${tag}.tar.gz"
       min_glibc_minor=39
       package_kind=stable-diffusion
@@ -92,6 +100,7 @@ _tnx_extension_install() {
       ;;
     llama-htp-experimental)
       tag="ternux-llama-htp-sm8735-b11582"
+      artifact="$tag"
       asset="${tag}.tar.gz"
       min_glibc_minor=38
       package_kind=htp
@@ -157,7 +166,22 @@ _tnx_extension_install() {
   dest="$base/$name"
   mkdir -p "$base" || { _tnx_extension_fail "Cannot create extension directory: $base"; return 1; }
   if [ -e "$dest" ] || [ -L "$dest" ]; then
-    _tnx_extension_fail "Extension path already exists; inspect or remove it before reinstalling: $dest"
+    if [ "$mode" != repair ]; then
+      _tnx_extension_fail "Extension path already exists; inspect it or use 'ternux extension repair $name': $dest"
+      return 1
+    fi
+    if [ -L "$dest" ] || [ ! -d "$dest" ] ||
+       ! grep -Fq '"artifact": "'"$artifact"'"' "$dest/build-manifest.json" 2>/dev/null; then
+      _tnx_extension_fail "Refusing to replace an unrecognized extension path: $dest"
+      return 1
+    fi
+    backup="$base/.${name}.repair-backup.$$.${RANDOM}"
+    if [ -e "$backup" ] || [ -L "$backup" ]; then
+      _tnx_extension_fail "Repair backup path already exists: $backup"
+      return 1
+    fi
+  elif [ "$mode" = repair ]; then
+    _tnx_extension_fail "Cannot repair $name because no managed installation exists at $dest"
     return 1
   fi
   tmp="$(mktemp -d "$base/.${name}.install.XXXXXX")" || { _tnx_extension_fail "Cannot create temporary install directory."; return 1; }
@@ -245,21 +269,75 @@ _tnx_extension_install() {
     return 1
   fi
 
-  if ! mv -T "$tmp/$top" "$dest"; then
+  if [ "$mode" = repair ]; then
+    if ! mv -T "$dest" "$backup"; then
+      rm -rf "$tmp"
+      _tnx_extension_fail "Could not move the managed installation into a temporary repair backup."
+      return 1
+    fi
+    if ! mv -T "$tmp/$top" "$dest"; then
+      if ! mv -T "$backup" "$dest"; then
+        _tnx_extension_fail "Replacement failed and rollback failed; the previous installation is preserved at $backup"
+      else
+        rm -rf "$tmp"
+        _tnx_extension_fail "Replacement failed; the previous installation was restored."
+      fi
+      return 1
+    fi
+    if ! rm -rf "$backup"; then
+      printf '[WARN] New installation is active; stale repair backup remains at %s\n' "$backup" >&2
+    fi
+  elif ! mv -T "$tmp/$top" "$dest"; then
     rm -rf "$tmp"
     _tnx_extension_fail "Could not atomically install extension at $dest"
     return 1
   fi
   rm -rf "$tmp"
-  _tnx_extension_ok "Installed $name at $dest"
+  if [ "$mode" = repair ]; then
+    _tnx_extension_ok "Repaired $name at $dest"
+  else
+    _tnx_extension_ok "Installed $name at $dest"
+  fi
   if [ "$package_kind" = htp ]; then
     printf '  Experimental SM8735 route: %s/bin/htp-run\n' "$dest"
     printf '  HTP is not a supported release feature; no CPU/GPU fallback is configured.\n'
   elif [ "$package_kind" = stable-diffusion ]; then
     printf '  Image generator: %s/bin/sd-cli (CPU and Vulkan backends)\n' "$dest"
+    printf '  CPU image quality is not qualified; use Vulkan for the tested Adreno route.\n'
     printf '  Source with: source %s/env.sh\n' "$dest"
   else
     printf '  Source its environment with: source %s/env.sh\n' "$dest"
   fi
   printf '  Model weights remain wherever you keep them.\n'
+}
+
+_tnx_extension_remove() {
+  local name="${1:-}" artifact base dest
+  [ -n "$name" ] || { _tnx_extension_fail "Choose an extension: ternux extension list"; return 2; }
+  case "$name" in
+    llama-vulkan) artifact="ternux-llama-vulkan-linux-arm64-b11582" ;;
+    stable-diffusion) artifact="ternux-stable-diffusion-vulkan-linux-arm64-master-1053" ;;
+    llama-htp-experimental) artifact="ternux-llama-htp-sm8735-b11582" ;;
+    *) _tnx_extension_fail "Unknown extension '$name'. Run: ternux extension list"; return 2 ;;
+  esac
+  if [ "$(uname -s 2>/dev/null)" != Linux ] || ! getconf GNU_LIBC_VERSION >/dev/null 2>&1; then
+    _tnx_extension_fail "Run this inside the Linux glibc guest, not the Termux host."
+    return 1
+  fi
+  base="$HOME/.local/opt/ternux-extensions"
+  dest="$base/$name"
+  if [ ! -e "$dest" ] && [ ! -L "$dest" ]; then
+    _tnx_extension_ok "$name is already absent"
+    return 0
+  fi
+  if [ -L "$dest" ] || [ ! -d "$dest" ] ||
+     ! grep -Fq '"artifact": "'"$artifact"'"' "$dest/build-manifest.json" 2>/dev/null; then
+    _tnx_extension_fail "Refusing to remove an unrecognized path: $dest"
+    return 1
+  fi
+  if ! rm -rf -- "$dest"; then
+    _tnx_extension_fail "Could not remove managed extension directory: $dest"
+    return 1
+  fi
+  _tnx_extension_ok "Removed $name; model weights and files outside $dest were preserved"
 }

@@ -1783,6 +1783,73 @@ if env HOME="$TMP/ext-home-sd" EXT_GLIBC_VERSION=2.39 EXT_CURL_LOG="$TMP/ext-sd-
 else
   not_ok "Stable Diffusion CPU/Vulkan extension verifies and atomically installs its runtime and notices"
 fi
+SD_EXT_HOME="$TMP/ext-home-sd/.local/opt/ternux-extensions"
+printf '#!/bin/sh\necho sd-cli repaired\n' > "$EXT_FIXTURE/$SD_EXT_TAG/bin/sd-cli"
+chmod 0755 "$EXT_FIXTURE/$SD_EXT_TAG/bin/sd-cli"
+tar -czf "$EXT_FIXTURE/$SD_EXT_TAG.tar.gz" -C "$EXT_FIXTURE" "$SD_EXT_TAG"
+(cd "$EXT_FIXTURE" && sha256sum "$SD_EXT_TAG.tar.gz" > "$SD_EXT_TAG.tar.gz.sha256")
+if env HOME="$TMP/ext-home-sd" EXT_GLIBC_VERSION=2.39 EXT_CURL_LOG="$TMP/ext-sd-downloads" \
+  EXT_FIXTURE="$EXT_FIXTURE" PATH="$EXT_BIN:$PATH" TERNUX_STATE_DIR="$TMP/ext-state-sd" \
+  bash "$ROOT/bin/ternux" extension repair stable-diffusion >/dev/null 2>&1 &&
+  "$SD_EXT_HOME/stable-diffusion/bin/sd-cli" | grep -q repaired &&
+  ! find "$SD_EXT_HOME" -maxdepth 1 -name '.stable-diffusion.repair-backup.*' | grep -q .; then
+  ok "extension repair atomically replaces a recognized package and clears its backup"
+else
+  not_ok "extension repair atomically replaces a recognized package and clears its backup"
+fi
+cat > "$EXT_BIN/mv" <<'EOF'
+#!/bin/sh
+count=0
+[ ! -f "$EXT_MV_FAIL_COUNT" ] || read -r count < "$EXT_MV_FAIL_COUNT"
+count=$((count + 1))
+printf '%s\n' "$count" > "$EXT_MV_FAIL_COUNT"
+[ "$count" -ne 2 ] || exit 1
+exec "$EXT_REAL_MV" "$@"
+EOF
+chmod 0755 "$EXT_BIN/mv"
+if ! env HOME="$TMP/ext-home-sd" EXT_GLIBC_VERSION=2.39 EXT_CURL_LOG="$TMP/ext-sd-downloads" \
+  EXT_FIXTURE="$EXT_FIXTURE" EXT_MV_FAIL_COUNT="$TMP/ext-sd-mv-count" \
+  EXT_REAL_MV="$(command -v mv)" PATH="$EXT_BIN:$PATH" TERNUX_STATE_DIR="$TMP/ext-state-sd" \
+  bash "$ROOT/bin/ternux" extension repair stable-diffusion >/dev/null 2>&1 &&
+  "$SD_EXT_HOME/stable-diffusion/bin/sd-cli" | grep -q repaired &&
+  ! find "$SD_EXT_HOME" -maxdepth 1 -name '.stable-diffusion.repair-backup.*' | grep -q . &&
+  ! find "$SD_EXT_HOME" -maxdepth 1 -name '.stable-diffusion.install.*' | grep -q .; then
+  ok "failed extension replacement rolls back to the previous working install"
+else
+  not_ok "failed extension replacement rolls back to the previous working install"
+fi
+rm "$EXT_BIN/mv"
+cp "$EXT_FIXTURE/$SD_EXT_TAG.tar.gz.sha256" "$EXT_FIXTURE/$SD_EXT_TAG.tar.gz.sha256.good"
+printf '%064d  %s\n' 0 "$SD_EXT_TAG.tar.gz" > "$EXT_FIXTURE/$SD_EXT_TAG.tar.gz.sha256"
+if ! env HOME="$TMP/ext-home-sd" EXT_GLIBC_VERSION=2.39 EXT_CURL_LOG="$TMP/ext-sd-downloads" \
+  EXT_FIXTURE="$EXT_FIXTURE" PATH="$EXT_BIN:$PATH" TERNUX_STATE_DIR="$TMP/ext-state-sd" \
+  bash "$ROOT/bin/ternux" extension repair stable-diffusion >/dev/null 2>&1 &&
+  "$SD_EXT_HOME/stable-diffusion/bin/sd-cli" | grep -q repaired &&
+  ! find "$SD_EXT_HOME" -maxdepth 1 -name '.stable-diffusion.install.*' | grep -q .; then
+  ok "failed extension repair keeps the current install intact and removes its staging files"
+else
+  not_ok "failed extension repair keeps the current install intact and removes its staging files"
+fi
+mv "$EXT_FIXTURE/$SD_EXT_TAG.tar.gz.sha256.good" "$EXT_FIXTURE/$SD_EXT_TAG.tar.gz.sha256"
+mkdir -p "$TMP/ext-home-sd/models"
+printf 'user model stays\n' > "$TMP/ext-home-sd/models/weights.gguf"
+if env HOME="$TMP/ext-home-sd" PATH="$EXT_BIN:$PATH" TERNUX_STATE_DIR="$TMP/ext-state-sd" \
+  bash "$ROOT/bin/ternux" extension remove stable-diffusion >/dev/null 2>&1 &&
+  [ ! -e "$SD_EXT_HOME/stable-diffusion" ] &&
+  grep -q 'user model stays' "$TMP/ext-home-sd/models/weights.gguf"; then
+  ok "extension removal only deletes the recognized managed package and preserves model files"
+else
+  not_ok "extension removal only deletes the recognized managed package and preserves model files"
+fi
+mkdir -p "$SD_EXT_HOME/stable-diffusion"
+printf 'user data stays\n' > "$SD_EXT_HOME/stable-diffusion/user-data"
+if ! env HOME="$TMP/ext-home-sd" PATH="$EXT_BIN:$PATH" TERNUX_STATE_DIR="$TMP/ext-state-sd" \
+  bash "$ROOT/bin/ternux" extension remove stable-diffusion >/dev/null 2>&1 &&
+  grep -q 'user data stays' "$SD_EXT_HOME/stable-diffusion/user-data"; then
+  ok "extension removal refuses an unrecognized directory without a matching manifest"
+else
+  not_ok "extension removal refuses an unrecognized directory without a matching manifest"
+fi
 if ! env HOME="$TMP/ext-home-sd-old-glibc" EXT_GLIBC_VERSION=2.38 \
   EXT_CURL_LOG="$TMP/ext-sd-old-downloads" EXT_FIXTURE="$EXT_FIXTURE" \
   PATH="$EXT_BIN:$PATH" TERNUX_STATE_DIR="$TMP/ext-state-sd-old" \

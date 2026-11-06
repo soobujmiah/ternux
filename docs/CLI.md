@@ -316,17 +316,19 @@ ternux logs <subcommand> [n]
 
 ### `ternux extension`
 
-List or install optional release-based Linux ARM64 extensions. The host CLI
-delegates installation to the selected Debian guest.
+List, install, repair, or remove optional release-based Linux ARM64 extensions.
+The host CLI delegates these operations to the selected Debian guest.
 
 ```bash
 ternux extension list
 ternux extension install llama-vulkan
 ternux extension install stable-diffusion
 ternux extension install llama-htp-experimental
+ternux extension repair stable-diffusion
+ternux extension remove stable-diffusion
 ```
 
-`llama-vulkan` is the CPU + Vulkan prerelease. `stable-diffusion` installs a pinned CPU + Vulkan `sd-cli` preview; weights remain user-provided. `llama-htp-experimental` is an
+`llama-vulkan` is the CPU + Vulkan prerelease. `stable-diffusion` installs a pinned `sd-cli` preview; Adreno Vulkan generation has a bounded device test, while CPU image quality is unqualified. Model weights remain user-provided. Repair checksum-verifies and atomically replaces a recognized install, restoring the prior copy if replacement fails. Remove deletes only the recognized managed extension directory and leaves model weights alone. `llama-htp-experimental` is an
 experimental SM8735/V73 route with known configuration limits; it is not a
 supported release feature and has no automatic CPU/GPU fallback. See the
 [CPU/Vulkan guide](https://github.com/soobujmiah/ternux/blob/main/guides/llama-vulkan-extension.md)
