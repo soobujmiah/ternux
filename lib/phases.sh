@@ -727,7 +727,7 @@ tnx_phase_launcher() {
   # Write launcher
   cat > "$LAUNCHER" << 'LAUNCHEOF'
 #!/data/data/com.termux/files/usr/bin/bash
-# TERNUX_DESKTOP_LAUNCHER=8
+# TERNUX_DESKTOP_LAUNCHER=9
 set -u
 TMPDIR="${TMPDIR:-/data/data/com.termux/files/usr/tmp}"
 TNX_PID_FILE="${TNX_PID_FILE:-$HOME/.local/share/ternux/session/desktop.pid}"
@@ -895,24 +895,33 @@ proot-distro login $distro --shared-tmp --bind /dev/kgsl-3d0:/dev/kgsl --bind /d
       until xfconf-query -c xsettings -l >/dev/null 2>&1 && pgrep -x xfdesktop >/dev/null 2>&1 || [ \\\$tries -ge 50 ]; do
         tries=\\\$((tries + 1)); sleep 0.2
       done
-      xfconf-query -c xsettings -p /Net/ThemeName --create -t string -s Adwaita-dark
-      xfconf-query -c xsettings -p /Net/IconThemeName --create -t string -s Adwaita
-      xfconf-query -c xsettings -p /Gtk/CursorThemeName --create -t string -s Adwaita
-      xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-path --create -t string -s /usr/share/backgrounds/ternux/aurora.svg
-      xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/last-image --create -t string -s /usr/share/backgrounds/ternux/aurora.svg
-      xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-show --create -t bool -s true
-      xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-style --create -t int -s 5
-      xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/aurora.svg
-      xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/workspace0/image-style --create -t int -s 5
-      xfdesktop --reload >/dev/null 2>&1 || true
-      xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-path --create -t string -s /usr/share/backgrounds/ternux/aurora.svg >/dev/null 2>&1 || true
-      xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/last-image --create -t string -s /usr/share/backgrounds/ternux/aurora.svg >/dev/null 2>&1 || true
-      xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-show --create -t bool -s true >/dev/null 2>&1 || true
-      xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-style --create -t int -s 5 >/dev/null 2>&1 || true
-      xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/aurora.svg >/dev/null 2>&1 || true
-      xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/workspace0/image-style --create -t int -s 5 >/dev/null 2>&1 || true
-      xfconf-query -c xfwm4 -p /general/theme --create -t string -s Default
-      xfconf-query -c xfwm4 -p /general/use_compositing -s false >/dev/null 2>&1 || true
+      # Apply branded defaults once per guest user. Reapplying these on every
+      # launch spawned many xfconf clients, reloaded the wallpaper, and erased
+      # later user theme choices. Keep the desktop lightweight with compositor
+      # effects disabled, while allowing users to customize after first login.
+      defaults_marker="$HOME/.config/ternux/desktop-defaults-v1"
+      if [ ! -e "$defaults_marker" ]; then
+        xfconf-query -c xsettings -p /Net/ThemeName --create -t string -s Adwaita-dark
+        xfconf-query -c xsettings -p /Net/IconThemeName --create -t string -s Adwaita
+        xfconf-query -c xsettings -p /Gtk/CursorThemeName --create -t string -s Adwaita
+        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-path --create -t string -s /usr/share/backgrounds/ternux/aurora.svg
+        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/last-image --create -t string -s /usr/share/backgrounds/ternux/aurora.svg
+        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-show --create -t bool -s true
+        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-style --create -t int -s 5
+        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/aurora.svg
+        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/workspace0/image-style --create -t int -s 5
+        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-path --create -t string -s /usr/share/backgrounds/ternux/aurora.svg >/dev/null 2>&1 || true
+        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/last-image --create -t string -s /usr/share/backgrounds/ternux/aurora.svg >/dev/null 2>&1 || true
+        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-show --create -t bool -s true >/dev/null 2>&1 || true
+        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-style --create -t int -s 5 >/dev/null 2>&1 || true
+        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/aurora.svg >/dev/null 2>&1 || true
+        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/workspace0/image-style --create -t int -s 5 >/dev/null 2>&1 || true
+        xfconf-query -c xfwm4 -p /general/theme --create -t string -s Default
+        xfconf-query -c xfwm4 -p /general/use_compositing -s false >/dev/null 2>&1 || true
+        xfdesktop --reload >/dev/null 2>&1 || true
+        install -d -m 0755 "$(dirname "$defaults_marker")"
+        : > "$defaults_marker"
+      fi
       wait \\\$session_pid
     "
   '
@@ -964,24 +973,33 @@ proot-distro login $distro --shared-tmp --bind "\$TNX_CPUINFO_FILE:/proc/cpuinfo
       until xfconf-query -c xsettings -l >/dev/null 2>&1 && pgrep -x xfdesktop >/dev/null 2>&1 || [ \\\$tries -ge 50 ]; do
         tries=\\\$((tries + 1)); sleep 0.2
       done
-      xfconf-query -c xsettings -p /Net/ThemeName --create -t string -s Adwaita-dark
-      xfconf-query -c xsettings -p /Net/IconThemeName --create -t string -s Adwaita
-      xfconf-query -c xsettings -p /Gtk/CursorThemeName --create -t string -s Adwaita
-      xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-path --create -t string -s /usr/share/backgrounds/ternux/aurora.svg
-      xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/last-image --create -t string -s /usr/share/backgrounds/ternux/aurora.svg
-      xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-show --create -t bool -s true
-      xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-style --create -t int -s 5
-      xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/aurora.svg
-      xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/workspace0/image-style --create -t int -s 5
-      xfdesktop --reload >/dev/null 2>&1 || true
-      xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-path --create -t string -s /usr/share/backgrounds/ternux/aurora.svg >/dev/null 2>&1 || true
-      xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/last-image --create -t string -s /usr/share/backgrounds/ternux/aurora.svg >/dev/null 2>&1 || true
-      xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-show --create -t bool -s true >/dev/null 2>&1 || true
-      xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-style --create -t int -s 5 >/dev/null 2>&1 || true
-      xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/aurora.svg >/dev/null 2>&1 || true
-      xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/workspace0/image-style --create -t int -s 5 >/dev/null 2>&1 || true
-      xfconf-query -c xfwm4 -p /general/theme --create -t string -s Default
-      xfconf-query -c xfwm4 -p /general/use_compositing -s false >/dev/null 2>&1 || true
+      # Apply branded defaults once per guest user. Reapplying these on every
+      # launch spawned many xfconf clients, reloaded the wallpaper, and erased
+      # later user theme choices. Keep the desktop lightweight with compositor
+      # effects disabled, while allowing users to customize after first login.
+      defaults_marker="$HOME/.config/ternux/desktop-defaults-v1"
+      if [ ! -e "$defaults_marker" ]; then
+        xfconf-query -c xsettings -p /Net/ThemeName --create -t string -s Adwaita-dark
+        xfconf-query -c xsettings -p /Net/IconThemeName --create -t string -s Adwaita
+        xfconf-query -c xsettings -p /Gtk/CursorThemeName --create -t string -s Adwaita
+        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-path --create -t string -s /usr/share/backgrounds/ternux/aurora.svg
+        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/last-image --create -t string -s /usr/share/backgrounds/ternux/aurora.svg
+        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-show --create -t bool -s true
+        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-style --create -t int -s 5
+        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/aurora.svg
+        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/workspace0/image-style --create -t int -s 5
+        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-path --create -t string -s /usr/share/backgrounds/ternux/aurora.svg >/dev/null 2>&1 || true
+        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/last-image --create -t string -s /usr/share/backgrounds/ternux/aurora.svg >/dev/null 2>&1 || true
+        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-show --create -t bool -s true >/dev/null 2>&1 || true
+        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-style --create -t int -s 5 >/dev/null 2>&1 || true
+        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/aurora.svg >/dev/null 2>&1 || true
+        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/workspace0/image-style --create -t int -s 5 >/dev/null 2>&1 || true
+        xfconf-query -c xfwm4 -p /general/theme --create -t string -s Default
+        xfconf-query -c xfwm4 -p /general/use_compositing -s false >/dev/null 2>&1 || true
+        xfdesktop --reload >/dev/null 2>&1 || true
+        install -d -m 0755 "$(dirname "$defaults_marker")"
+        : > "$defaults_marker"
+      fi
       wait \\\$session_pid
     "
   '

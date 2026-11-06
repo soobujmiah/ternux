@@ -79,6 +79,10 @@ XDG_RUNTIME_DIR=~/.runtime         Required by dbus/GTK apps
 --bind /dev/kgsl-3d0               Expose the Adreno kernel node to the container
 ```
 
+The desktop applies its bundled theme, wallpaper and no-compositor defaults
+once for each Debian user. Later starts skip those settings and wallpaper reload,
+so startup does less work and personal theme changes remain in place.
+
 *Why the cache tweaks?* The phone's storage is slow flash; a single-file,
 size-capped cache keeps app warm-starts fast without letting Mesa silently
 consume gigabytes. Turnip is left to choose system-memory or tile-memory rendering
