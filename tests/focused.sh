@@ -362,6 +362,15 @@ if env TERNUX_STATE_DIR="$TMP/state-launcher" HOME="$launcher_home" bash -c '
   ! grep -q "adwaita-gtk-theme" "$1/lib/phases.sh" &&
   ! grep -q "pm-utils" "$1/lib/phases.sh" &&
   grep -q "GTK_IM_MODULE=ibus QT_IM_MODULE=ibus XMODIFIERS=@im=ibus" "$HOME/x.sh" &&
+  grep -Fq "IBUS_ADDRESS=unix:path=/home/alice/.runtime/ibus.sock" "$HOME/x.sh" &&
+  grep -Fq "rm -f ~/.runtime/ibus.sock" "$HOME/x.sh" &&
+  grep -Fq "ibus-daemon --daemonize --xim --replace" "$HOME/x.sh" &&
+  grep -Fq "IBUS_ADDRESS=unix:path=/home/\$user_name/.runtime/ibus.sock" "$1/lib/phases.sh" &&
+  grep -q "image-style --create -t int -s 5" "$1/lib/phases.sh" &&
+  grep -Fq "monitor0/workspace0/last-image" "$1/lib/phases.sh" &&
+  grep -Fq "monitor1/workspace0/last-image" "$1/lib/phases.sh" &&
+  grep -q "pgrep -x xfdesktop" "$1/lib/phases.sh" &&
+  grep -q "xfdesktop --reload" "$1/lib/phases.sh" &&
   grep -q -- "--env LC_ALL=en_US.UTF-8" "$HOME/x.sh" &&
   grep -q "^trap cleanup EXIT$" "$HOME/x.sh" &&
   grep -qF '\''/run/user/$(id -u)'\'' "$HOME/x.sh" &&
@@ -1855,11 +1864,18 @@ check "the GPU phase holds what the profile names, not a fixed list" bash -c '
   printf "%s" "$phase" | grep -q "apt-mark hold mesa-vulkan-drivers libgl1-mesa-dri" && exit 1
   exit 0
 ' _ "$ROOT"
-check "extension install finds ldconfig outside the default PATH" bash -c '
+check "extension install locates ldconfig outside PATH or reports it unavailable" bash -c '
   PATH=/usr/bin:/bin
   . "$1/lib/extension.sh"
-  found="$(_tnx_extension_find_ldconfig)" || exit 1
-  [ "$found" = /sbin/ldconfig ] || [ "$found" = /usr/sbin/ldconfig ]
+  rc=0
+  found="$(_tnx_extension_find_ldconfig)" || rc=$?
+  if [ -x /sbin/ldconfig ]; then
+    [ "$rc" -eq 0 ] && [ "$found" = /sbin/ldconfig ]
+  elif [ -x /usr/sbin/ldconfig ]; then
+    [ "$rc" -eq 0 ] && [ "$found" = /usr/sbin/ldconfig ]
+  else
+    [ "$rc" -ne 0 ]
+  fi
 ' _ "$ROOT"
 
 # Invariant 1 of lib/ui.sh: middle dot, bullet and braille render two cells wide

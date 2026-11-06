@@ -787,6 +787,7 @@ proot-distro login $distro --shared-tmp --bind /dev/kgsl-3d0:/dev/kgsl --bind /d
   --env TU_DEBUG=sysmem,noconform --env MESA_VK_WSI_DEBUG=sw \\
   --env MESA_DISK_CACHE_SINGLE_FILE=1 --env MESA_SHADER_CACHE_MAX_SIZE=2048M \\
   --env QT_X11_NO_MITSHM=1 --env XDG_RUNTIME_DIR=/home/$user_name/.runtime \\
+  --env IBUS_ADDRESS=unix:path=/home/$user_name/.runtime/ibus.sock \\
   --env LANG=$locale --env LC_ALL=$locale \\
   -- bash -c '
     set -u
@@ -798,10 +799,11 @@ proot-distro login $distro --shared-tmp --bind /dev/kgsl-3d0:/dev/kgsl --bind /d
     sudo -n rm -f /etc/xdg/autostart/light-locker.desktop 2>/dev/null || true
     exec dbus-launch --exit-with-session sh -c "
       export GTK_IM_MODULE=ibus QT_IM_MODULE=ibus XMODIFIERS=@im=ibus
+      rm -f ~/.runtime/ibus.sock
       ibus-daemon --daemonize --xim --replace
       startxfce4 & session_pid=\\\$!
       tries=0
-      until xfconf-query -c xsettings -l >/dev/null 2>&1 || [ \\\$tries -ge 50 ]; do
+      until xfconf-query -c xsettings -l >/dev/null 2>&1 && pgrep -x xfdesktop >/dev/null 2>&1 || [ \\\$tries -ge 50 ]; do
         tries=\\\$((tries + 1)); sleep 0.2
       done
       xfconf-query -c xsettings -p /Net/ThemeName --create -t string -s Arc-Dark
@@ -810,9 +812,16 @@ proot-distro login $distro --shared-tmp --bind /dev/kgsl-3d0:/dev/kgsl --bind /d
       xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-path --create -t string -s /usr/share/backgrounds/ternux/aurora.svg
       xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/last-image --create -t string -s /usr/share/backgrounds/ternux/aurora.svg
       xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-show --create -t bool -s true
+      xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-style --create -t int -s 5
+      xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/aurora.svg
+      xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/workspace0/image-style --create -t int -s 5
+      xfdesktop --reload >/dev/null 2>&1 || true
       xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-path --create -t string -s /usr/share/backgrounds/ternux/aurora.svg >/dev/null 2>&1 || true
       xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/last-image --create -t string -s /usr/share/backgrounds/ternux/aurora.svg >/dev/null 2>&1 || true
       xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-show --create -t bool -s true >/dev/null 2>&1 || true
+      xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-style --create -t int -s 5 >/dev/null 2>&1 || true
+      xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/aurora.svg >/dev/null 2>&1 || true
+      xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/workspace0/image-style --create -t int -s 5 >/dev/null 2>&1 || true
       xfconf-query -c xfwm4 -p /general/theme --create -t string -s Default
       xfconf-query -c xfwm4 -p /general/use_compositing -s false >/dev/null 2>&1 || true
       wait \\\$session_pid
@@ -833,6 +842,7 @@ proot-distro login $distro --shared-tmp --user $user_name \\
   --env DISPLAY=:0 --env PULSE_SERVER="tcp:127.0.0.1:\$PULSE_PORT" \\
   --env GALLIUM_DRIVER=virpipe --env MESA_GL_VERSION_OVERRIDE=4.3COMPAT \\
   --env QT_X11_NO_MITSHM=1 --env XDG_RUNTIME_DIR=/home/$user_name/.runtime \\
+  --env IBUS_ADDRESS=unix:path=/home/$user_name/.runtime/ibus.sock \\
   --env LANG=$locale --env LC_ALL=$locale \\
   -- bash -c '
     set -u
@@ -843,10 +853,11 @@ proot-distro login $distro --shared-tmp --user $user_name \\
     sudo -n dbus-uuidgen --ensure >/dev/null 2>&1 || true
     exec dbus-launch --exit-with-session sh -c "
       export GTK_IM_MODULE=ibus QT_IM_MODULE=ibus XMODIFIERS=@im=ibus
+      rm -f ~/.runtime/ibus.sock
       ibus-daemon --daemonize --xim --replace
       startxfce4 & session_pid=\\\$!
       tries=0
-      until xfconf-query -c xsettings -l >/dev/null 2>&1 || [ \\\$tries -ge 50 ]; do
+      until xfconf-query -c xsettings -l >/dev/null 2>&1 && pgrep -x xfdesktop >/dev/null 2>&1 || [ \\\$tries -ge 50 ]; do
         tries=\\\$((tries + 1)); sleep 0.2
       done
       xfconf-query -c xsettings -p /Net/ThemeName --create -t string -s Arc-Dark
@@ -855,9 +866,16 @@ proot-distro login $distro --shared-tmp --user $user_name \\
       xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-path --create -t string -s /usr/share/backgrounds/ternux/aurora.svg
       xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/last-image --create -t string -s /usr/share/backgrounds/ternux/aurora.svg
       xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-show --create -t bool -s true
+      xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-style --create -t int -s 5
+      xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/aurora.svg
+      xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/workspace0/image-style --create -t int -s 5
+      xfdesktop --reload >/dev/null 2>&1 || true
       xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-path --create -t string -s /usr/share/backgrounds/ternux/aurora.svg >/dev/null 2>&1 || true
       xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/last-image --create -t string -s /usr/share/backgrounds/ternux/aurora.svg >/dev/null 2>&1 || true
       xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-show --create -t bool -s true >/dev/null 2>&1 || true
+      xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-style --create -t int -s 5 >/dev/null 2>&1 || true
+      xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/aurora.svg >/dev/null 2>&1 || true
+      xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/workspace0/image-style --create -t int -s 5 >/dev/null 2>&1 || true
       xfconf-query -c xfwm4 -p /general/theme --create -t string -s Default
       xfconf-query -c xfwm4 -p /general/use_compositing -s false >/dev/null 2>&1 || true
       wait \\\$session_pid

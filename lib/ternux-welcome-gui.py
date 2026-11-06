@@ -32,7 +32,7 @@ def main():
     screen_width = root_window.get_width() if root_window else 752
     screen_height = root_window.get_height() if root_window else 1155
     width = max(200, min(600, screen_width - 34))
-    height = max(250, min(680, screen_height - 96))
+    height = max(250, min(500, screen_height - 96))
 
     css = Gtk.CssProvider()
     css.load_from_data(b"""
