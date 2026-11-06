@@ -600,11 +600,11 @@ tnx_phase_gpu() {
 }
 
 tnx_resolve_freedreno_asset() {
-  printf '%s\n' 'https://github.com/lfdevs/mesa-for-android-container/releases/download/mesa-26.3.0-devel-20260824/mesa-for-android-container_26.3.0-devel-20260824_debian_trixie_arm64.tar.gz'
+  printf '%s\n' 'https://github.com/lfdevs/mesa-for-android-container/releases/download/mesa-27.0.0-devel-20261025/mesa-for-android-container_27.0.0-devel-20261025_debian_trixie_arm64.tar.gz'
 }
 
 tnx_expected_freedreno_sha() {
-  printf '%s\n' 'c014cf66bdbff96417ee30d34f006cf51df64ae04893d599711b0b6b73b52ccf'
+  printf '%s\n' 'b711d1d9ab5537ee9085da8896dfe2115e791b33aa317fe37538f276c967d687'
 }
 
 # ---------------------------------------------------------------------------

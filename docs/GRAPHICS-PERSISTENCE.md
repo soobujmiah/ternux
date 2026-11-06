@@ -40,10 +40,15 @@ The Vulkan loader searches `/usr/local/share/vulkan/icd.d` as well as
 and no launcher changes.
 
 Ternux's GPU phase installs the upstream Debian Trixie arm64 Turnip archive in
-this managed layout. The source pins release `mesa-26.3.0-devel-20260824` and
-checks SHA-256 `c014cf66bdbff96417ee30d34f006cf51df64ae04893d599711b0b6b73b52ccf`
-before extraction. This makes the downloaded input reproducible; it does not
-mean Ternux builds or redistributes Mesa.
+this managed layout. The source pins release `mesa-27.0.0-devel-20261025` and
+checks SHA-256 `b711d1d9ab5537ee9085da8896dfe2115e791b33aa317fe37538f276c967d687`
+before extraction. On 2026-11-07, this exact archive's checksum matched the
+upstream release manifest; its staged AArch64 driver resolved dynamic
+dependencies on the connected Debian guest, and Vulkan enumeration plus Zink
+GLX identified Adreno 825. A short interleaved Qwen2.5 0.5B Vulkan run measured
+27.2 tok/s median on staged 27.0 versus 26.6 on the installed 26.3 driver. This
+three-run, one-device sample is not a sustained performance claim. Ternux
+downloads the archive from its upstream project; it does not build or host Mesa.
 
 ## Check which layout you have
 

@@ -12,12 +12,13 @@ alt_url: "/docs/GRAPHICS-PERSISTENCE.html"
 package update তা কেড়ে নিতে না পারে — কারণ driver ফিরে গেলে সেটা চোখে পড়া কঠিন:
 desktop চালু হতেই থাকে, শুধু ধীর হয়ে যায় বা accelerate হয় না।
 
-> **ডিভাইস প্রমাণ, ২০২৬-১০-১৩, Redmi Turbo 4 Pro (Adreno 825):** Debian trixie-এর
+> **ডিভাইস প্রমাণ, ২০২৬-১১-০৭, Redmi Turbo 4 Pro (Adreno 825):** Debian trixie-এর
 > `mesa-vulkan-drivers 25.0.7-2+deb13u1`-এ `vulkaninfo` **কোনো Adreno device
-> পায়নি** — শুধু `llvmpipe`, `PHYSICAL_DEVICE_TYPE_CPU` হিসেবে। স্থানীয়ভাবে build
-> করা Turnip (Mesa 26.3.0-devel)-এ একই command জানায় `Adreno (TM) 825`,
-> `PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU`। একটি ডিভাইস, একটি configuration; এখানে
-> ব্যবহৃত result class-এর জন্য দেখুন [প্রমাণ ও বেঞ্চমার্ক](BENCHMARKS.html)।
+> পায়নি** — শুধু `llvmpipe`, `PHYSICAL_DEVICE_TYPE_CPU` হিসেবে। Ternux-এর staged
+> upstream Mesa 27.0.0 archive-এ Vulkan এবং Zink GLX দুটোতেই Adreno 825 দেখা যায়।
+> একই model/settings-এ তিন-run median ছিল staged 27.0 driver-এ 27.2 tok/s এবং
+> installed 26.3 driver-এ 26.6 tok/s। এটি এক device-এর short test, sustained
+> performance claim নয়; বিস্তারিত [প্রমাণ ও বেঞ্চমার্ক](BENCHMARKS.html)-এ।
 
 ## দুটি layout, এবং কেন শুধু একটি apt-এর পরেও টেকে
 

@@ -1972,8 +1972,8 @@ fi
 # GPU support entirely rather than only speed.
 gpu_phase="$(sed -n '/stage=\/tmp\/ternux-driver-stage/,/apt-mark hold/p' "$ROOT/lib/phases.sh")"
 check "GPU phase pins the upstream release URL and archive checksum" bash -c '
-  grep -Fq "mesa-26.3.0-devel-20260824" "$1/lib/phases.sh" &&
-  grep -Fq "c014cf66bdbff96417ee30d34f006cf51df64ae04893d599711b0b6b73b52ccf" "$1/lib/phases.sh" &&
+  grep -Fq "mesa-27.0.0-devel-20261025" "$1/lib/phases.sh" &&
+  grep -Fq "b711d1d9ab5537ee9085da8896dfe2115e791b33aa317fe37538f276c967d687" "$1/lib/phases.sh" &&
   grep -Fq "Freedreno archive SHA-256 mismatch" "$1/lib/phases.sh"
 ' _ "$ROOT"
 check "GPU phase installs the driver outside dpkg's reach" bash -c '
