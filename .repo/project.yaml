@@ -1,13 +1,13 @@
 schema_version: 1
 project_id: ternux
 repository: soobujmiah/ternux
-generated_at: '2026-11-06T14:49:36Z'
+generated_at: '2026-11-06T17:03:02Z'
 generated_by: tools/repo_knowledge collect
-version: ternux-qnn-native-probe-sm8735-2026-10-14-157-g202116f
+version: ternux-qnn-native-probe-sm8735-2026-10-14-162-gd057aa0
 head:
-  commit: 202116f55671479f67441a0ac08c7b9f1d0e5f7f
+  commit: d057aa0bfe24a7d1362232b127d26030e266a8b8
   branch: main
-  committed_at: '2026-11-06T14:48:33Z'
+  committed_at: '2026-11-06T17:01:41Z'
 phases:
   source: not_configured
   completed: []
@@ -15,34 +15,34 @@ phases:
   next: null
 build:
   status: passed
-  run_id: '42237250845'
-  commit: 202116f55671479f67441a0ac08c7b9f1d0e5f7f
+  run_id: '42257817423'
+  commit: d057aa0bfe24a7d1362232b127d26030e266a8b8
   run_attempt: '1'
-  at: '2026-11-06T14:49:36Z'
+  at: '2026-11-06T17:03:02Z'
   timestamp_source: observed
   workflow_name: Repo Knowledge Sync
   event_type: push
   actor: soobujmiah
-  run_url: https://github.com/soobujmiah/ternux/actions/runs/42237250845
+  run_url: https://github.com/soobujmiah/ternux/actions/runs/42257817423
 test:
   status: passed
-  run_id: '42237250845'
-  commit: 202116f55671479f67441a0ac08c7b9f1d0e5f7f
+  run_id: '42257817423'
+  commit: d057aa0bfe24a7d1362232b127d26030e266a8b8
   run_attempt: '1'
-  at: '2026-11-06T14:49:36Z'
+  at: '2026-11-06T17:03:02Z'
   timestamp_source: observed
   workflow_name: Repo Knowledge Sync
   event_type: push
   actor: soobujmiah
-  run_url: https://github.com/soobujmiah/ternux/actions/runs/42237250845
+  run_url: https://github.com/soobujmiah/ternux/actions/runs/42257817423
   summary: focused regressions + Bats + UI + site build + docs + JavaScript syntax
     + whitespace + repo knowledge tests (ci.yml)
 last_successful_build:
-  commit: 202116f55671479f67441a0ac08c7b9f1d0e5f7f
-  at: '2026-11-06T14:49:36Z'
-  run_id: '42237250845'
+  commit: d057aa0bfe24a7d1362232b127d26030e266a8b8
+  at: '2026-11-06T17:03:02Z'
+  run_id: '42257817423'
 last_failed_build: null
 sync:
   status: ok
-  last_synced_at: '2026-11-06T14:49:36Z'
+  last_synced_at: '2026-11-06T17:03:02Z'
   source: ci
