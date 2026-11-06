@@ -25,6 +25,20 @@ check "core loads persisted Debian user" env -u TERNUX_USER \
   TERNUX_STATE_DIR="$state" HOME="$TMP/home-user" bash -c \
   '. "$1/lib/core.sh"; test "$TERNUX_USER" = alice' _ "$ROOT"
 
+# State values may contain URL separators and must update atomically.
+state_url="$TMP/state-url"
+if env TERNUX_STATE_DIR="$state_url" HOME="$TMP/home-state-url" bash -c '
+  . "$1/lib/core.sh"
+  tnx_state_set freedreno_url https://example.invalid/releases/mesa.tar.gz
+  tnx_state_set freedreno_url https://example.invalid/releases/mesa-27.tar.gz
+  [ "$(tnx_state_get freedreno_url)" = https://example.invalid/releases/mesa-27.tar.gz ] &&
+    [ "$(grep -c "^freedreno_url=" "$TERNUX_STATE_DIR/state")" -eq 1 ]
+' _ "$ROOT"; then
+  ok "state writer safely replaces URL values"
+else
+  not_ok "state writer safely replaces URL values"
+fi
+
 # Container detection must support PRoot-Distro 5's machine-readable list,
 # older Alias/Status output, and both known on-disk rootfs layouts.
 if env TERNUX_STATE_DIR="$TMP/state-proot-list" HOME="$TMP/home-proot-list" \
