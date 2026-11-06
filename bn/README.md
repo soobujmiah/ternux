@@ -22,13 +22,23 @@ Ternux, Termux ও PRoot দিয়ে Debian এবং Xfce4 বসায়�
 সামঞ্জস্যপূর্ণ ডিভাইসে VirGL graphics route ব্যবহৃত হয়। ফলাফল device ভেদে
 বদলায়।
 
+Ternux Android ফোনে কম resource-এ ব্যবহারযোগ্য একটি managed Linux workstation
+হিসেবে তৈরি: একবার install করুন, background-এ desktop চালান, আর `ternux` CLI
+দিয়ে অবস্থা দেখুন বা সমস্যা ঠিক করুন। Root লাগে না, Android বদলে দেয় না, আর
+সব ফোনে একই graphics performance-এর নিশ্চয়তা দেয় না।
+
 ![Ternux workstation-এর স্তর এবং যাচাইকৃত CPU, GPU ও পরীক্ষামূলক NPU অবস্থা](../docs/assets/ternux-overview.svg)
 
 ## ইনস্টল
 
 ১. একই বিশ্বস্ত source থেকে [Termux](https://github.com/termux/termux-app/releases)
    ও [Termux:X11](https://github.com/termux/termux-x11/releases) ইনস্টল করুন।
-   Termux:X11 একবার খুলুন।
+   Termux:X11 একবার খুলুন। অতিরিক্ত companion app হিসেবে
+   [Termux:Boot](https://github.com/termux/termux-boot/releases) reboot-এর পর
+   নির্ধারিত script চালায়, [Termux:API](https://github.com/termux/termux-api/releases)
+   microphone-এর মতো Android integration দেয়, আর
+   [Termux:Styling](https://github.com/termux/termux-styling/releases) terminal
+   theme ও font যোগ করে। Termux ও add-on-গুলো একই source থেকে ইনস্টল করুন।
 ২. Termux-এ চালান:
 
 ```bash
@@ -65,6 +75,54 @@ ternux stop       # desktop বন্ধ
 `x` desktop চালায়; `xgo` Termux:X11 খুলে desktop চালায়। Debian shell-এর জন্য
 Termux-এ `db` চালান। Debian-এর ভেতরে Android shared storage `/sdcard`-এ পাবেন।
 
+## কী কী পাবেন
+
+**বেস desktop:** user-space PRoot container-এ Debian 13 (Trixie), Xfce4,
+Termux:X11 display integration এবং PulseAudio audio routing। বেস setup-এ
+Bangla-capable Noto font, Avro phonetic input (Ctrl+Space), VLC, PulseAudio
+Volume Control, Xfce Task Manager ও Mousepad থাকে। প্রথমবার GUI চালালে Firefox
+ESR থাকলে project website একবার খোলে; browser না থাকলে desktop-এর ভেতর welcome
+guide দেখায়। Firefox optional।
+
+**Graphics:** সমর্থিত Adreno/KGSL device-এ স্বয়ংক্রিয় Zink + Turnip setup;
+অন্য ক্ষেত্রে VirGL compatibility route। সক্রিয় renderer দেখতে `ternux verify`
+এবং Debian-এর ভেতরে `glxinfo -B` চালান। Desktop চালু হওয়া একাই hardware
+acceleration-এর প্রমাণ নয়। `ternux gpu` ও `ternux backend` driver route দেখায়
+ও পরিচালনা করে। বিস্তারিত [graphics persistence](../docs/GRAPHICS-PERSISTENCE.md)।
+
+**ঐচ্ছিক software:** installer-এর numbered তালিকা থেকে package বা workload বেছে নিতে
+পারবেন। Developer toolchain ও editor, Android SDK/NDK, Firefox ও Thunderbird,
+local AI runtime, network utility, media/graphics app, office tool এবং Blender
+পছন্দ করা যায়। শুধু দরকারি জিনিস নিলে base install ছোট থাকে। `--all` profile
+install-এর পর প্রায় ১০.৫–১২.৫ GB নেয় এবং setup চলাকালে প্রায় ১৪ GB খালি জায়গা
+লক্ষ্য রাখে। [Workload guide](../docs/WORKLOADS.md) দেখুন।
+
+**Local AI ও GPU tool:** ঐচ্ছিক llama.cpp CPU + Vulkan extension আলাদা করে
+`ternux extension install llama-vulkan` দিয়ে install হয়। Hexagon HTP extension
+আলাদা, device-specific এবং experimental; কোনো extension-এ model file থাকে না।
+Blender ও headless EEVEE tool-ও optional। সমর্থন ও qualification সীমা
+[release plan](../docs/ACCELERATOR-RELEASE-PLAN.md)-এ আছে।
+
+## পরিচালনা ও সমস্যা সমাধান
+
+CLI দিয়ে managed background desktop start/stop/restart, session/device/install
+state দেখা, diagnostics ও safe repair, installation verify, graphics backend
+দেখা বা update, GPU benchmark ও device profile নেওয়া, log দেখা, Ternux update,
+extension manage এবং নির্বাচিত component uninstall করতে পারবেন। Command-গুলোর
+help আছে; নির্দিষ্ট command-গুলো machine-readable JSON-ও দেয়।
+
+```bash
+ternux info             # device ও system summary
+ternux logs desktop tail # desktop log-এর শেষ অংশ
+ternux gpu status        # graphics driver-এর অবস্থা
+ternux --help            # command list
+```
+
+বিস্তারিত behavior-এর জন্য [CLI reference](../docs/CLI.md), [দৈনন্দিন ব্যবহার](../docs/USAGE.md)
+এবং [সমস্যা সমাধান](../docs/TROUBLESHOOTING.md) দেখুন। Android memory pressure
+বা vendor battery policy দীর্ঘ PRoot session বন্ধ করে দিতে পারে; সব device policy
+Ternux নিয়ন্ত্রণ করতে পারে না।
+
 ## একই device-এ Android development
 
 Ternux Debian guest-এর ভেতরে ADT install করে Android app build, sign ও device-এ
@@ -85,6 +143,5 @@ script/scene render করানো যায়। [MCP guide](../tools/blender
 - [Benchmark](../docs/BENCHMARKS.md): মাপা device ফলাফল ও তার সীমা।
 - [পরিবর্তনলগ](../CHANGELOG.md)
 
-ওয়েবসাইটেও একই সংক্ষিপ্ত install ও usage নির্দেশনা আছে, আর সেখান থেকে বিস্তারিত
-গাইডে যাওয়া যায়। পরীক্ষামূলক CPU/GPU/NPU release gate-এর বর্তমান অবস্থা
+এখন `pkg install ternux` package route প্রস্তুত, তবে v2 release-এর আগে প্রকাশিত নয়; আপাতত উপরের installer ব্যবহার করুন। [Termux APT guide](../docs/TERMUX-APT.md) দেখুন। প্রকাশিত release ও পরীক্ষামূলক CPU/GPU/NPU release gate-এর বর্তমান অবস্থা
 [`docs/ACCELERATOR-RELEASE-PLAN.md`](../docs/ACCELERATOR-RELEASE-PLAN.md)-এ।

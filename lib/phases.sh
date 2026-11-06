@@ -671,9 +671,83 @@ _tnx_configure_pulse_bridge() {
   return 0
 }
 
+tnx_request_microphone_permission() {
+  local recorder="termux-microphone-record"
+  local tmpdir="${TMPDIR:-/data/data/com.termux/files/usr/tmp}"
+  local probe_dir probe info="" active=0 attempt output_file record_rc=1
+
+  if ! tnx_has_cmd "$recorder"; then
+    tnx_warn "Termux:API microphone recorder is unavailable; Android microphone permission was not requested."
+    return 0
+  fi
+  if ! tnx_has_cmd timeout; then
+    tnx_warn "The timeout utility is unavailable; skipping the optional microphone permission request."
+    return 0
+  fi
+
+  info="$("$recorder" -i 2>/dev/null || true)"
+  if printf '%s' "$info" | grep -Eq '"isRecording"[[:space:]]*:[[:space:]]*true'; then
+    tnx_info "Termux:API is already recording; leaving the existing recording untouched."
+    return 0
+  fi
+
+  probe_dir="$(mktemp -d "$tmpdir/ternux-mic-permission.XXXXXX" 2>/dev/null)" || {
+    tnx_warn "Could not create a private microphone permission probe directory."
+    return 0
+  }
+  probe="$probe_dir/permission.m4a"
+
+  # Termux:API requests RECORD_AUDIO by starting its recorder service. Keep
+  # this permission-only probe private and bounded; never stop a recording
+  # unless the API confirms that its output path is this probe's unique file.
+  timeout 10 "$recorder" -f "$probe" -l 1 >/dev/null 2>&1 && record_rc=0 || true
+  for ((attempt=0; attempt<25; attempt++)); do
+    info="$("$recorder" -i 2>/dev/null || true)"
+    output_file="$(printf '%s\n' "$info" | sed -n 's/.*"outputFile"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p')"
+    if printf '%s' "$info" | grep -Eq '"isRecording"[[:space:]]*:[[:space:]]*true' &&
+       [ "$output_file" = "$probe" ]; then
+      active=1
+      break
+    fi
+    sleep 0.2
+  done
+
+  if [ "$active" -eq 1 ]; then
+    if "$recorder" -q >/dev/null 2>&1; then
+      tnx_ok "Termux:API microphone permission is available; the permission probe was stopped."
+    else
+      tnx_warn "Microphone permission was confirmed, but the temporary API recording did not stop cleanly."
+    fi
+  else
+    # A one-second API recording may complete before the first status poll.
+    # If it is still active, stop it only after matching our unique output path.
+    info="$("$recorder" -i 2>/dev/null || true)"
+    output_file="$(printf '%s\n' "$info" | sed -n 's/.*"outputFile"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p')"
+    if printf '%s' "$info" | grep -Eq '"isRecording"[[:space:]]*:[[:space:]]*true' &&
+       [ "$output_file" = "$probe" ]; then
+      "$recorder" -q >/dev/null 2>&1 || true
+      active=1
+    fi
+    if [ "$active" -eq 1 ]; then
+      tnx_ok "Termux:API microphone permission is available; the permission probe was stopped."
+    elif [ "$record_rc" -eq 0 ] && [ -s "$probe" ]; then
+      # A one-second capture can finish before the first status poll. A non-empty
+      # file at this unique path confirms our bounded probe completed.
+      tnx_ok "Termux:API microphone permission is available; the bounded probe completed."
+    else
+      tnx_warn "Termux:API microphone permission was not confirmed; installation continues without API microphone access."
+    fi
+  fi
+
+  rm -f -- "$probe" 2>/dev/null || true
+  rmdir -- "$probe_dir" 2>/dev/null || true
+  return 0
+}
+
 tnx_phase_audio_fonts() {
   local user_name="${1:-ternux}" locale="${2:-en_US.UTF-8}"
 
+  tnx_request_microphone_permission
   local PA_CONF="${PREFIX:-/data/data/com.termux/files/usr}/etc/pulse/default.pa"
   _tnx_configure_pulse_bridge "$PA_CONF" || return 1
   [ "$_TNX_PULSE_CHANGED" = "1" ] && tnx_ok "PulseAudio TCP bridge bound to loopback."
@@ -690,12 +764,17 @@ tnx_phase_audio_fonts() {
     sudo apt install -y \$DPKG_FORCE fonts-symbola fonts-noto-color-emoji fonts-font-awesome fonts-powerline
     # The launcher exports the live loopback PulseAudio endpoint for desktop apps.
     mkdir -p ~/.local/share/fonts
-    if [ ! -f ~/.local/share/fonts/.ternux-nerdfont-installed ]; then
-      wget -q -O /tmp/font.zip \"https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.zip\" \
-        && unzip -oq /tmp/font.zip -d ~/.local/share/fonts/ \
-        && touch ~/.local/share/fonts/.ternux-nerdfont-installed \
-        && fc-cache -f >/dev/null 2>&1 || true
-      rm -f /tmp/font.zip
+    if [ ! -f ~/.local/share/fonts/.ternux-nerdfont-v3.5.1-installed ]; then
+      font_archive=\"\$(mktemp /tmp/ternux-jetbrainsmono.XXXXXX.tar.xz)\"
+      if wget -q -O \"\$font_archive\" \"https://github.com/ryanoasis/nerd-fonts/releases/download/v3.5.1/JetBrainsMono.tar.xz\" \
+        && echo \"04d5e8f903693f9dd13e16f867e994834e681eb3c72c0d337a770dcda09010cf  \$font_archive\" | sha256sum -c - >/dev/null \
+        && tar -xJf \"\$font_archive\" -C ~/.local/share/fonts/; then
+        touch ~/.local/share/fonts/.ternux-nerdfont-v3.5.1-installed
+        fc-cache -f >/dev/null 2>&1 || true
+      else
+        echo \"JetBrainsMono Nerd Font download or checksum verification failed; continuing without it.\" >&2
+      fi
+      rm -f \"\$font_archive\"
     fi
   " || { tnx_fail "Locale/font setup failed."; return 1; }
   tnx_ok "Locale '$locale', PulseAudio client and fonts configured."
@@ -727,7 +806,7 @@ tnx_phase_launcher() {
   # Write launcher
   cat > "$LAUNCHER" << 'LAUNCHEOF'
 #!/data/data/com.termux/files/usr/bin/bash
-# TERNUX_DESKTOP_LAUNCHER=13
+# TERNUX_DESKTOP_LAUNCHER=14
 set -u
 TMPDIR="${TMPDIR:-/data/data/com.termux/files/usr/tmp}"
 TNX_PID_FILE="${TNX_PID_FILE:-$HOME/.local/share/ternux/session/desktop.pid}"
@@ -857,7 +936,7 @@ LAUNCHEOF
     cat >> "$LAUNCHER" << EOF
 proot-distro login $distro --shared-tmp --bind /dev/kgsl-3d0:/dev/kgsl --bind /dev/dri --bind "\$TNX_CPUINFO_FILE:/proc/cpuinfo" --user $user_name \\
   --env DISPLAY=:0 --env PULSE_SERVER="tcp:127.0.0.1:\$PULSE_PORT" \\
-  --env MESA_LOADER_DRIVER_OVERRIDE=zink --env GALLIUM_DRIVER=zink \\
+  --env MESA_LOADER_DRIVER_OVERRIDE=zink \\
   --env TU_DEBUG=noconform --env MESA_VK_WSI_DEBUG=sw \\
   --env MESA_DISK_CACHE_SINGLE_FILE=1 --env MESA_SHADER_CACHE_MAX_SIZE=2048M \\
   --env QT_X11_NO_MITSHM=1 --env XDG_RUNTIME_DIR=/home/$user_name/.runtime \\

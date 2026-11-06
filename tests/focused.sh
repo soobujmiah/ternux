@@ -81,6 +81,27 @@ else
   not_ok "Debian phase reuses a PRoot-Distro 5 container"
 fi
 
+# Renderer detection should query the active X11 display even when doctor was
+# launched from Termux without DISPLAY, and preserve an explicitly selected one.
+if env TERNUX_STATE_DIR="$TMP/state-renderer-display" HOME="$TMP/home-renderer-display" \
+  PREFIX="$TMP/prefix-renderer-display" bash -c '
+    . "$1/lib/detect.sh"
+    tnx_has_cmd(){ [ "$1" = proot-distro ]; }
+    pgrep(){ [ "$1" = -f ] && [[ "$2" == *termux-x11* ]]; }
+    tnx_guest_login(){ printf "%s\\n" "$*" >> "$LOG"; echo "Adreno (TM) 825"; }
+    export LOG="$2/renderer-display.log"
+    unset DISPLAY
+    [ "$(tnx_detect_renderer)" = "Adreno (TM) 825" ] || exit
+    grep -q -- "--shared-tmp -- env DISPLAY=:0 bash -c" "$LOG" || exit
+    : > "$LOG"; DISPLAY=:7
+    [ "$(tnx_detect_renderer)" = "Adreno (TM) 825" ] &&
+    grep -q -- "--shared-tmp -- env DISPLAY=:7 bash -c" "$LOG"
+  ' _ "$ROOT" "$TMP"; then
+  ok "renderer detection passes the active display into the Debian guest"
+else
+  not_ok "renderer detection passes the active display into the Debian guest"
+fi
+
 # The Debian base keeps VLC + Zenity; Firefox stays optional. Welcome content is
 # guest-managed and one-time with or without a browser; VLC uses XCB output.
 if env TERNUX_STATE_DIR="$TMP/state-welcome" HOME="$TMP/home-welcome" \
@@ -419,7 +440,9 @@ if env TERNUX_STATE_DIR="$TMP/state-launcher" HOME="$launcher_home" bash -c '
   tnx_phase_launcher alice zink en_US.UTF-8 >/dev/null
   tnx_phase_aliases alice bash >/dev/null
   bash -n "$HOME/x.sh" &&
-  grep -q "^# TERNUX_DESKTOP_LAUNCHER=13$" "$HOME/x.sh" &&
+  grep -q "^# TERNUX_DESKTOP_LAUNCHER=14$" "$HOME/x.sh" &&
+  grep -q -- "--env MESA_LOADER_DRIVER_OVERRIDE=zink" "$HOME/x.sh" &&
+  ! grep -q -- "--env GALLIUM_DRIVER=zink" "$HOME/x.sh" &&
   grep -q -- "--user alice" "$HOME/x.sh" &&
   grep -q -- "--env DISPLAY=:0" "$HOME/x.sh" &&
   grep -Fq "pkill -9 -f \"^termux-x11 com\\.termux\\.x11([[:space:]]|$)\"" "$HOME/x.sh" &&
@@ -559,6 +582,7 @@ then
      ! grep -q "PULSE_SERVER=tcp:127.0.0.1:4713" "$manual_en" &&
      ! grep -q 'pkill.*dbus' "$manual_en" &&
      grep -q -- '--env MESA_LOADER_DRIVER_OVERRIDE=zink' "$manual_en" &&
+     ! grep -q -- '--env GALLIUM_DRIVER=zink' "$manual_en" &&
      grep -q 'chmod 700 ~/.runtime' "$manual_en" &&
      ! grep -q '^virgl_test_server_android ' "$manual_en"; then
     ok "manual Zink launchers match generated launcher invariants"
@@ -1076,6 +1100,63 @@ else
   not_ok "verification failures return nonzero structured results"
 fi
 
+# A microphone permission probe is private, bounded and stops only its own
+# Termux:API recording. It must never interrupt an already-running recording.
+if env TERNUX_STATE_DIR="$TMP/state-mic-permission" HOME="$TMP/home-mic-permission" \
+  PREFIX="$TMP/prefix-mic-permission" TMPDIR="$TMP/mic-permission-tmp" bash -c '
+    mkdir -p "$HOME" "$TMPDIR"
+    . "$1/lib/phases.sh"
+    mode=idle output_file="" fast=0 log="$TMPDIR/commands.log"
+    tnx_has_cmd(){ [[ "$1" == termux-microphone-record || "$1" == timeout ]]; }
+    timeout(){ shift; "$@"; }
+    sleep(){ :; }
+    tnx_ok(){ printf "OK:%s\\n" "$*" >> "$log"; }
+    tnx_warn(){ printf "WARN:%s\n" "$*" >> "$log"; }
+    tnx_info(){ printf "INFO:%s\n" "$*" >> "$log"; }
+    termux-microphone-record(){
+      printf "%s\n" "$*" >> "$log"
+      case "$1" in
+        -i)
+          if [ "$mode" = recording ]; then
+            printf "{\"isRecording\":true,\"outputFile\":\"%s\"}\n" "$output_file"
+          else
+            printf "{\"isRecording\":false}\n"
+          fi
+          ;;
+        -f)
+          output_file="$2"
+          if [ "$fast" = 1 ]; then printf "probe" > "$output_file"; mode=idle
+          else mode=recording; fi
+          return 0
+          ;;
+        -q)
+          [ "$mode" = recording ] || return 1
+          mode=idle
+          ;;
+        *) return 2 ;;
+      esac
+    }
+    tnx_request_microphone_permission || exit
+    [ "$mode" = idle ] &&
+    grep -q -- "-f .*permission.m4a -l 1" "$log" &&
+    grep -qx -- "-q" "$log" &&
+    grep -q "permission probe was stopped" "$log" &&
+    ! compgen -G "$TMPDIR/ternux-mic-permission.*" >/dev/null || exit
+
+    : > "$log"; fast=1; mode=idle; output_file=""
+    tnx_request_microphone_permission || exit
+    grep -q "bounded probe completed" "$log" || exit
+    fast=0; : > "$log"; mode=recording; output_file="$TMPDIR/owner-recording.amr"
+    tnx_request_microphone_permission || exit
+    [ "$mode" = recording ] &&
+    ! grep -Eq "^-q$|^-f " "$log" &&
+    grep -q "already recording; leaving the existing recording untouched" "$log"
+  ' _ "$ROOT" "$TMP"; then
+  ok "microphone permission probe handles fast completion and preserves existing recordings"
+else
+  not_ok "microphone permission probe handles fast completion and preserves existing recordings"
+fi
+
 # Pulse setup covers a fresh file, exact legacy migration, idempotence, custom
 # listener refusal (even beside a secure line), and atomic write failure.
 if env TERNUX_STATE_DIR="$TMP/state-pulse" HOME="$TMP/home-pulse" bash -c '
@@ -1208,7 +1289,7 @@ if env TERNUX_STATE_DIR="$TMP/state-desktop-start" HOME="$TMP/home-desktop-start
     tnx_state_get(){ case "$1" in backend) echo virgl;; user) echo alice;; locale) echo en_US.UTF-8;; esac; }
     tnx_phase_launcher(){
       cp "$MOCK_LAUNCHER" "$HOME/x.sh"
-      sed -i "1a# TERNUX_DESKTOP_LAUNCHER=13" "$HOME/x.sh"
+      sed -i "1a# TERNUX_DESKTOP_LAUNCHER=14" "$HOME/x.sh"
       chmod +x "$HOME/x.sh"
     }
     tnx_has_cmd(){ [ "$1" = setsid ]; }
@@ -1220,7 +1301,7 @@ if env TERNUX_STATE_DIR="$TMP/state-desktop-start" HOME="$TMP/home-desktop-start
     pid="$(cat "$TERNUX_STATE_DIR/session/desktop.pid")"
     [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null || exit
     grep -q session-started "$TERNUX_STATE_DIR/session/desktop.log" || exit
-    grep -q "^# TERNUX_DESKTOP_LAUNCHER=13$" "$HOME/x.sh" || exit
+    grep -q "^# TERNUX_DESKTOP_LAUNCHER=14$" "$HOME/x.sh" || exit
     grep -q "util-linux zsh git curl" "$1/lib/phases.sh" || exit
     tnx_cmd_stop >/dev/null || exit
     [ ! -e "$TERNUX_STATE_DIR/session/desktop.pid" ]
@@ -2055,6 +2136,17 @@ check "a clipped line never exceeds the slot it was given" bash -c '
     done
   done
 ' _ "$ROOT"
+
+# The base install must use a small, pinned and checksum-verified font archive.
+if grep -Eq 'nerd-fonts/releases/download/v3\.5\.1/JetBrainsMono\.tar\.xz' "$ROOT/lib/phases.sh" \
+  && grep -Fq '04d5e8f903693f9dd13e16f867e994834e681eb3c72c0d337a770dcda09010cf' "$ROOT/lib/phases.sh" \
+  && grep -Fq 'sha256sum -c' "$ROOT/lib/phases.sh" \
+  && grep -Fq 'tar -xJf' "$ROOT/lib/phases.sh" \
+  && ! grep -Fq 'releases/latest/download/JetBrainsMono.zip' "$ROOT/lib/phases.sh"; then
+  ok "base Nerd Font download is pinned, checksummed and compact"
+else
+  not_ok "base Nerd Font download is pinned, checksummed and compact"
+fi
 
 printf '1..%d\n' "$((pass + fail))"
 printf '# pass %d\n# fail %d\n' "$pass" "$fail"

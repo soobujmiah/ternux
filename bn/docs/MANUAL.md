@@ -368,11 +368,13 @@ sudo apt install -y fonts-symbola fonts-noto-color-emoji \
 
 # টার্মিনাল আইকন গ্লিফের জন্য Nerd Font (বেস্ট-এফোর্ট)।
 mkdir -p ~/.local/share/fonts
-wget -q -O /tmp/font.zip \
-  https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.zip \
-  && unzip -oq /tmp/font.zip -d ~/.local/share/fonts/ \
+font_archive=$(mktemp /tmp/ternux-jetbrainsmono.XXXXXX.tar.xz)
+wget -q -O "$font_archive" \
+  https://github.com/ryanoasis/nerd-fonts/releases/download/v3.5.1/JetBrainsMono.tar.xz \
+  && echo "04d5e8f903693f9dd13e16f867e994834e681eb3c72c0d337a770dcda09010cf  $font_archive" | sha256sum -c - \
+  && tar -xJf "$font_archive" -C ~/.local/share/fonts/ \
   && fc-cache -f
-rm -f /tmp/font.zip
+rm -f "$font_archive"
 
 exit
 ```
@@ -467,7 +469,6 @@ proot-distro login debian --shared-tmp \
   --env DISPLAY=:0 \
   --env PULSE_SERVER="$PULSE_SERVER" \
   --env MESA_LOADER_DRIVER_OVERRIDE=zink \
-  --env GALLIUM_DRIVER=zink \
   --env TU_DEBUG=noconform \
   --env MESA_VK_WSI_DEBUG=sw \
   --env MESA_DISK_CACHE_SINGLE_FILE=1 \
