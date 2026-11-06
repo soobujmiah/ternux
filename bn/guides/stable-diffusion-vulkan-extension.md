@@ -21,7 +21,7 @@ source "$HOME/.local/opt/ternux-extensions/stable-diffusion/env.sh"
 sd-cli --backend cpu \
   --model /sdcard/Llms/ternux-v2-validation/stable-diffusion-v1-5-pruned-emaonly-Q8_0.gguf \
   --prompt 'a small red robot in a garden, clean illustration' \
-  --output /tmp/ternux-sd-cpu.png --width 512 --height 512 --steps 10 --seed 42
+  --threads 4 --output /tmp/ternux-sd-cpu.png --width 512 --height 512 --steps 10 --seed 42
 ```
 
 Vulkan-er jonno `--backend cpu`-r jaygay `--backend vulkan0` din. Kom memory-r device-e prothome 512×512, 10 step nin. Vulkan chalate Vulkan ICD (`vulkaninfo --summary`) thik thaka dorkar; device init fail korle CPU use korun. Installed pinned build-er exact flag dekhte `sd-cli --help` chalan.

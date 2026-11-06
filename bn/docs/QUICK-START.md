@@ -208,7 +208,7 @@ Debian-e shared storage theke model use korun:
 source "$HOME/.local/opt/ternux-extensions/stable-diffusion/env.sh"
 sd-cli --backend cpu --model /sdcard/Llms/ternux-v2-validation/stable-diffusion-v1-5-pruned-emaonly-Q8_0.gguf \
   --prompt "a small red robot in a garden, clean illustration" \
-  --output /tmp/ternux-sd-cpu.png --width 512 --height 512 --steps 10 --seed 42
+  --threads 4 --output /tmp/ternux-sd-cpu.png --width 512 --height 512 --steps 10 --seed 42
 ```
 
 GPU-r jonno backend `vulkan0` korun, age `vulkaninfo --summary` check kore nin.
