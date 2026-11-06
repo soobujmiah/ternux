@@ -52,10 +52,12 @@ The desktop exposes Android audio input to guest apps through PulseAudio's
 OpenSL ES source. Android may ask for Termux's microphone permission the first
 time a guest app captures audio; grant **Settings → Apps → Termux → Permissions
 → Microphone** if needed. Idle sessions do not start a recording; the source is
-used when a guest app requests capture. Termux:API's `termux-microphone-record`
-records to a file and cannot act as a live PulseAudio input stream, so it is not
-the desktop's source. Android shows its microphone privacy indicator while
-capture is active.
+used when a guest app requests capture. Volume Control also reads the source
+while it is open to display the live input meter; closing the app releases that
+stream and the source returns to idle. An idle desktop does not keep recording.
+Termux:API's `termux-microphone-record` records to a file and cannot act as a
+live PulseAudio input stream, so it is not the desktop's source. Android shows
+its microphone privacy indicator while capture is active.
 
 The Xfce **About → System** page reads CPU model names from `/proc/cpuinfo`.
 Android may expose only ARM part IDs there, so the Ternux launcher supplies

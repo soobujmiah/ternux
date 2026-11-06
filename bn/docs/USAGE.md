@@ -53,9 +53,11 @@ Desktop-এ PulseAudio-এর OpenSL ES source দিয়ে Android mic guest
 যায়। Guest app প্রথম capture চাইলে Android Termux-এর microphone permission
 চাইতে পারে; দরকার হলে **Settings → Apps → Termux → Permissions → Microphone**
 অনুমতি দিন। Idle অবস্থায় কোনো recording শুরু হয় না; guest app capture চাইলে
-source ব্যবহৃত হয়। Termux:API-এর `termux-microphone-record` কেবল file-এ record
-করে, live PulseAudio input stream দেয় না—তাই desktop-এর mic source সেটি নয়।
-Capture চলার সময় Android-এর microphone privacy indicator দেখা যায়।
+source ব্যবহৃত হয়। Volume Control খোলা থাকলে live input meter দেখানোর জন্য
+সেটিও source পড়ে; app বন্ধ করলে stream ছেড়ে দেয় এবং source আবার idle হয়। Idle
+desktop mic record করতে থাকে না। Termux:API-এর `termux-microphone-record` কেবল
+file-এ record করে, live PulseAudio input stream দেয় না—তাই desktop-এর mic source
+সেটি নয়। Capture চলার সময় Android-এর microphone privacy indicator দেখা যায়।
 
 Install-এর সময় Android Termux:API app-এর microphone permission চাওয়ার জন্য
 একবার private temporary file-এ সর্বোচ্চ এক সেকেন্ডের probe চলে; শেষে probe থেমে
