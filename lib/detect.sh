@@ -114,19 +114,31 @@ tnx_detect_backend() {
 }
 
 tnx_detect_renderer() {
-  if tnx_has_cmd proot-distro; then
-    tnx_guest_login -- bash -c '
-      if command -v glxinfo >/dev/null 2>&1; then
-        glxinfo 2>/dev/null | grep "renderer string" | head -1 | sed "s/.*: //"
-      elif [ -f /usr/local/lib/aarch64-linux-gnu/libvulkan_freedreno.so ] || [ -f /usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so ]; then
-        echo "zink Vulkan (Adreno via Turnip)"
-      else
-        echo "unknown"
-      fi
-    ' 2>/dev/null || echo "unknown"
-  else
+  local display="${DISPLAY:-}" renderer
+  if ! tnx_has_cmd proot-distro; then
     echo "unknown"
+    return 0
   fi
+
+  # A doctor command launched from Termux does not inherit the guest desktop's
+  # DISPLAY. Probe the live Termux:X11 display when it is running so the result
+  # reflects the renderer actually used by Xfce, rather than "unknown".
+  if [ -z "$display" ] &&
+     pgrep -f "^termux-x11 com\\.termux\\.x11([[:space:]]|$)" >/dev/null 2>&1; then
+    display=:0
+  fi
+  renderer="$(tnx_guest_login --shared-tmp -- env "DISPLAY=$display" bash -c '
+    if [ -n "${DISPLAY:-}" ] && command -v glxinfo >/dev/null 2>&1; then
+      glxinfo 2>/dev/null | grep "renderer string" | head -1 | sed "s/.*: //"
+    elif [ ! -x /usr/bin/glxinfo ] &&
+         { [ -f /usr/local/lib/aarch64-linux-gnu/libvulkan_freedreno.so ] ||
+           [ -f /usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so ]; }; then
+      echo "zink Vulkan (Adreno via Turnip)"
+    else
+      echo "unknown"
+    fi
+  ' 2>/dev/null)" || renderer=unknown
+  [ -n "$renderer" ] && echo "$renderer" || echo "unknown"
 }
 
 # ---------------------------------------------------------------------------

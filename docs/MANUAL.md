@@ -354,6 +354,14 @@ current Termux:API `termux-microphone-record` command records to a file; it does
 not provide the live PulseAudio source used by desktop apps, so Ternux does not
 claim to route live desktop capture through that API.
 
+During installation, Ternux makes one bounded, private one-second
+termux-microphone-record probe so Android can request the Termux:API app's
+microphone permission. The temporary file is removed after the probe. This
+permission belongs to Termux:API; it does not grant the separate Termux app
+permission used by the desktop's OpenSL ES source, and it does not create a
+live API-to-PulseAudio stream. Desktop microphone capture remains on-demand and
+uses the OpenSL ES source above.
+
 ### 7b — Locale and fonts (inside Debian)
 
 ```bash
@@ -379,11 +387,13 @@ sudo apt install -y fonts-symbola fonts-noto-color-emoji \
 
 # Nerd Font for terminal icon glyphs (best-effort).
 mkdir -p ~/.local/share/fonts
-wget -q -O /tmp/font.zip \
-  https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.zip \
-  && unzip -oq /tmp/font.zip -d ~/.local/share/fonts/ \
+font_archive=$(mktemp /tmp/ternux-jetbrainsmono.XXXXXX.tar.xz)
+wget -q -O "$font_archive" \
+  https://github.com/ryanoasis/nerd-fonts/releases/download/v3.5.1/JetBrainsMono.tar.xz \
+  && echo "04d5e8f903693f9dd13e16f867e994834e681eb3c72c0d337a770dcda09010cf  $font_archive" | sha256sum -c - \
+  && tar -xJf "$font_archive" -C ~/.local/share/fonts/ \
   && fc-cache -f
-rm -f /tmp/font.zip
+rm -f "$font_archive"
 
 exit
 ```

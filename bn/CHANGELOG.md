@@ -14,6 +14,8 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 
 ### Performance
 
+- Bundled JetBrainsMono Nerd Font v3.5.1 pin করা হয়েছে; extract-এর আগে SHA-256 যাচাই হয় এবং 100+ MB ZIP-এর বদলে 7.3 MB xz archive ব্যবহৃত হয়।
+
 - Zink desktop launcher থেকে Turnip-এর forced `sysmem` debug mode বাদ, যাতে driver workload অনুযায়ী system-memory বা tile-memory rendering বেছে নিতে পারে। ঠান্ডা device-এ performance comparison এখনও বাকি।
 
 ### ডেস্কটপ welcome ও media
@@ -32,6 +34,8 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 - PulseAudio bridge port collision ঠিক করা হয়েছে: desktop launcher এখন 4713–4722 loopback port চেষ্টা করে, পাওয়া port Debian-এ পাঠায়; ভুল listener-এ নীরবে যুক্ত হয় না।
 - Termux `ternux` package manifest ও পুনরুৎপাদনযোগ্য local APT repository builder যোগ হয়েছে। এটি package পরিচয় ও SHA-256 মেলায়, নির্দিষ্ট primary-key fingerprint দিয়ে sign যাচাই করে, শুধু public key export করে, symlink করা artifact root ও stale package প্রত্যাখ্যান করে এবং unsigned rebuild-এ পুরোনো signature সরায়। CI unsigned review artifact বানায়; manual release workflow কেবল source version 2.0.0 হলে v2 publish করতে পারে। `pkg install ternux` host CLI install করে; desktop setup আলাদা করে `ternux install` চালালে শুরু হয়।
 - Package-manager call এখন এমন wrapper দিয়ে চলে যা inherited `LD_LIBRARY_PATH` খালি করে। ফলে বাইরের CLI bundle-এর C++ library Termux APT-কে আর ভাঙতে পারে না।
+- Installer এখন private unique temporary file-এ সীমিত microphone permission probe চালায়, শুধু নিজের path-এর recording বন্ধ করে এবং চলমান user recording অক্ষত রাখে। Termux:API এখনও file-এ record করে; live desktop input আলাদা on-demand PulseAudio OpenSL source ব্যবহার করে।
+- ternux doctor এখন চালু Termux:X11 display-কে Debian guest-এ পাঠায়, ফলে Xfce-এর বাইরে command চালালেই renderer unknown হওয়ার সমস্যা ঠিক হয়।
 - Bash 5.3-এ lazy-loaded `doctor`-এর associative-array scope সমস্যা ঠিক হয়েছে।
 - Lock করা transitive `undici` dependency 8.12.4-এ তোলা হয়েছে; `npm audit`-এ পরিচিত vulnerability নেই।
 

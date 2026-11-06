@@ -57,6 +57,12 @@ source ব্যবহৃত হয়। Termux:API-এর `termux-microphone-r
 করে, live PulseAudio input stream দেয় না—তাই desktop-এর mic source সেটি নয়।
 Capture চলার সময় Android-এর microphone privacy indicator দেখা যায়।
 
+Install-এর সময় Android Termux:API app-এর microphone permission চাওয়ার জন্য
+একবার private temporary file-এ সর্বোচ্চ এক সেকেন্ডের probe চলে; শেষে probe থেমে
+file মুছে যায়। এটি Termux:API app-এর permission—Termux app-এর OpenSL ES source
+permission আলাদা। Desktop-এর live input এখনও on-demand OpenSL ES source-ই ব্যবহার
+করে; Termux:API command live PulseAudio stream দেয় না।
+
 Xfce-এর **About → System** page CPU model name পড়ে `/proc/cpuinfo` থেকে।
 Android সেখানে শুধু ARM part ID দিলে Ternux launcher live `lscpu` থেকে চেনা
 model name যোগ করে এবং Android SoC identifier দেখায়। অচেনা model অনুমান না করে

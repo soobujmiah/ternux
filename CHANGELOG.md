@@ -14,6 +14,8 @@ Notable changes to ternux. Dates are ISO 8601.
 
 ### Performance
 
+- Pinned the bundled JetBrainsMono Nerd Font to v3.5.1, verify its SHA-256 before extraction, and use the 7.3 MB xz archive instead of the unpinned 100+ MB ZIP.
+
 - Removed Turnip's forced `sysmem` debug mode from the Zink desktop launcher so the driver can choose system-memory or tile-memory rendering per workload. Device-side performance comparison remains pending a cool-device run.
 
 ### Desktop welcome and media
@@ -24,6 +26,8 @@ Notable changes to ternux. Dates are ISO 8601.
 
 ### Termux APT packaging and installation
 
+- Made the install-time Termux:API microphone-permission probe use a private, unique temporary file, stop only the recording whose output path matches that probe, and leave an existing recording untouched. The API still records to files; live desktop input remains the separate on-demand PulseAudio OpenSL source.
+- Fixed the doctor renderer probe to pass the active Termux:X11 display into the Debian guest instead of reporting unknown when the command starts outside Xfce.
 - Added `ternux gpu update` (also `ternux backend update`) to refresh the pinned, SHA-256-validated Debian Turnip userspace driver on Zink devices; it explicitly leaves Android vendor drivers to the OS.
 - Made the optional Firefox website welcome a first-GUI-run action per guest user; later desktop boots do not redirect. PulseAudio Volume Control now uses Debian’s stock menu entry without a per-app launcher environment override. Replaced detached session-bus startup with supervised `dbus-run-session` and IBus helper cleanup to prevent orphaned desktop processes from accumulating after restarts.
 

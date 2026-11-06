@@ -81,6 +81,27 @@ else
   not_ok "Debian phase reuses a PRoot-Distro 5 container"
 fi
 
+# Renderer detection should query the active X11 display even when doctor was
+# launched from Termux without DISPLAY, and preserve an explicitly selected one.
+if env TERNUX_STATE_DIR="$TMP/state-renderer-display" HOME="$TMP/home-renderer-display" \
+  PREFIX="$TMP/prefix-renderer-display" bash -c '
+    . "$1/lib/detect.sh"
+    tnx_has_cmd(){ [ "$1" = proot-distro ]; }
+    pgrep(){ [ "$1" = -f ] && [[ "$2" == *termux-x11* ]]; }
+    tnx_guest_login(){ printf "%s\\n" "$*" >> "$LOG"; echo "Adreno (TM) 825"; }
+    export LOG="$2/renderer-display.log"
+    unset DISPLAY
+    [ "$(tnx_detect_renderer)" = "Adreno (TM) 825" ] || exit
+    grep -q -- "--shared-tmp -- env DISPLAY=:0 bash -c" "$LOG" || exit
+    : > "$LOG"; DISPLAY=:7
+    [ "$(tnx_detect_renderer)" = "Adreno (TM) 825" ] &&
+    grep -q -- "--shared-tmp -- env DISPLAY=:7 bash -c" "$LOG"
+  ' _ "$ROOT" "$TMP"; then
+  ok "renderer detection passes the active display into the Debian guest"
+else
+  not_ok "renderer detection passes the active display into the Debian guest"
+fi
+
 # The Debian base keeps VLC + Zenity; Firefox stays optional. Welcome content is
 # guest-managed and one-time with or without a browser; VLC uses XCB output.
 if env TERNUX_STATE_DIR="$TMP/state-welcome" HOME="$TMP/home-welcome" \
@@ -1076,6 +1097,63 @@ else
   not_ok "verification failures return nonzero structured results"
 fi
 
+# A microphone permission probe is private, bounded and stops only its own
+# Termux:API recording. It must never interrupt an already-running recording.
+if env TERNUX_STATE_DIR="$TMP/state-mic-permission" HOME="$TMP/home-mic-permission" \
+  PREFIX="$TMP/prefix-mic-permission" TMPDIR="$TMP/mic-permission-tmp" bash -c '
+    mkdir -p "$HOME" "$TMPDIR"
+    . "$1/lib/phases.sh"
+    mode=idle output_file="" fast=0 log="$TMPDIR/commands.log"
+    tnx_has_cmd(){ [[ "$1" == termux-microphone-record || "$1" == timeout ]]; }
+    timeout(){ shift; "$@"; }
+    sleep(){ :; }
+    tnx_ok(){ printf "OK:%s\\n" "$*" >> "$log"; }
+    tnx_warn(){ printf "WARN:%s\n" "$*" >> "$log"; }
+    tnx_info(){ printf "INFO:%s\n" "$*" >> "$log"; }
+    termux-microphone-record(){
+      printf "%s\n" "$*" >> "$log"
+      case "$1" in
+        -i)
+          if [ "$mode" = recording ]; then
+            printf "{\"isRecording\":true,\"outputFile\":\"%s\"}\n" "$output_file"
+          else
+            printf "{\"isRecording\":false}\n"
+          fi
+          ;;
+        -f)
+          output_file="$2"
+          if [ "$fast" = 1 ]; then printf "probe" > "$output_file"; mode=idle
+          else mode=recording; fi
+          return 0
+          ;;
+        -q)
+          [ "$mode" = recording ] || return 1
+          mode=idle
+          ;;
+        *) return 2 ;;
+      esac
+    }
+    tnx_request_microphone_permission || exit
+    [ "$mode" = idle ] &&
+    grep -q -- "-f .*permission.m4a -l 1" "$log" &&
+    grep -qx -- "-q" "$log" &&
+    grep -q "permission probe was stopped" "$log" &&
+    ! compgen -G "$TMPDIR/ternux-mic-permission.*" >/dev/null || exit
+
+    : > "$log"; fast=1; mode=idle; output_file=""
+    tnx_request_microphone_permission || exit
+    grep -q "bounded probe completed" "$log" || exit
+    fast=0; : > "$log"; mode=recording; output_file="$TMPDIR/owner-recording.amr"
+    tnx_request_microphone_permission || exit
+    [ "$mode" = recording ] &&
+    ! grep -Eq "^-q$|^-f " "$log" &&
+    grep -q "already recording; leaving the existing recording untouched" "$log"
+  ' _ "$ROOT" "$TMP"; then
+  ok "microphone permission probe handles fast completion and preserves existing recordings"
+else
+  not_ok "microphone permission probe handles fast completion and preserves existing recordings"
+fi
+
 # Pulse setup covers a fresh file, exact legacy migration, idempotence, custom
 # listener refusal (even beside a secure line), and atomic write failure.
 if env TERNUX_STATE_DIR="$TMP/state-pulse" HOME="$TMP/home-pulse" bash -c '
@@ -2055,6 +2133,17 @@ check "a clipped line never exceeds the slot it was given" bash -c '
     done
   done
 ' _ "$ROOT"
+
+# The base install must use a small, pinned and checksum-verified font archive.
+if rg -q 'nerd-fonts/releases/download/v3\.5\.1/JetBrainsMono\.tar\.xz' "$ROOT/lib/phases.sh" \
+  && rg -q '04d5e8f903693f9dd13e16f867e994834e681eb3c72c0d337a770dcda09010cf' "$ROOT/lib/phases.sh" \
+  && rg -q 'sha256sum -c' "$ROOT/lib/phases.sh" \
+  && rg -q 'tar -xJf' "$ROOT/lib/phases.sh" \
+  && ! rg -q 'releases/latest/download/JetBrainsMono\.zip' "$ROOT/lib/phases.sh"; then
+  ok "base Nerd Font download is pinned, checksummed and compact"
+else
+  not_ok "base Nerd Font download is pinned, checksummed and compact"
+fi
 
 printf '1..%d\n' "$((pass + fail))"
 printf '# pass %d\n# fail %d\n' "$pass" "$fail"
