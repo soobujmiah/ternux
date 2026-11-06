@@ -881,6 +881,12 @@ quality or HTP layer assignment; this is a short generation benchmark on one
 device, not an energy, thermal-stability or sustained-performance test. HTP
 correctness/operator gates remain open.
 
+A later llama.cpp verbose load of this same file reported GGUF `general.name`
+`qwen2.5-0.5b-instruct`, but runtime model type `1B` and 630.17 million
+parameters. Until that difference from the filename's nominal 0.5B label is
+explained against the model source, treat the throughput figures as results for
+this exact file rather than a verified 0.5B model-size comparison.
+
 Reproduce in the Debian guest after loading the Vulkan extension environment;
 the HTP launcher supplies its own broker and configuration:
 
@@ -892,6 +898,75 @@ source "$HOME/.local/opt/ternux-extensions/llama-vulkan/env.sh"
 llama-cli -m "$MODEL" -ngl 0 -t 4 -tb 4 -p "$PROMPT" -n 64 -c 2048 -b 128 -ub 128 --temp 0 --seed 42 --ignore-eos
 llama-cli -m "$MODEL" -dev Vulkan0 -ngl 99 -t 4 -tb 4 -p "$PROMPT" -n 64 -c 2048 -b 128 -ub 128 --temp 0 --seed 42 --ignore-eos
 "$HOME/.local/opt/ternux-extensions/llama-htp-experimental/bin/htp-run" -m "$MODEL" -t 4 -tb 4 -p "$PROMPT" -n 64 -c 2048 -b 128 -ub 128 --temp 0 --seed 42 --ignore-eos
+```
+
+### 2026-11-07 same-build CPU/Vulkan throughput repeat (Qwen2.5 0.5B Q4_0)
+
+Using the existing user model `/sdcard/Llms/qwen2.5-0.5b-instruct-q4_0.gguf`
+(SHA-256 `7671c0c304e6ce5a7fc577bcb12aba01e2c155cc2efd29b2213c95b18edaf6ed`),
+I ran the same Vulkan-enabled `llama-bench` binary three times per setting in
+the Debian guest. The CPU row used `-ngl 0` (no model layers offloaded); the
+GPU row used `-ngl 99` and the detected Adreno 825 Turnip device. Both used a
+128-token prompt workload, 64-token generation workload, and four threads.
+
+| Setting | Prompt processing, pp128 (tok/s) | Generation, tg64 (tok/s) |
+|---|---:|---:|
+| CPU (`-ngl 0`) | 145.11 ± 12.42 | 12.73 ± 0.75 |
+| Adreno 825 Vulkan (`-ngl 99`) | 360.55 ± 2.12 | 33.73 ± 0.59 |
+
+These are llama-bench mean ± standard deviation across three repetitions. In
+this short workload, Vulkan generation throughput was about 2.65× the CPU
+setting. The test did not measure answer quality, energy, thermals, sustained
+use, or performance across other models/devices. The binary was llama.cpp
+`0.6.0-dev`, build commit `af50f2f`, SHA-256
+`f62b0d2717159175792d83e807208b90539681611e78b5c3c7acb145fb85112c`.
+
+Reproduce from the Debian guest with the installed Vulkan extension:
+
+```bash
+MODEL=/sdcard/Llms/qwen2.5-0.5b-instruct-q4_0.gguf
+BENCH="$HOME/.local/opt/ternux-extensions/llama-vulkan/bin/llama-bench"
+"$BENCH" -m "$MODEL" -p 128 -n 64 -r 3 -t 4 -ngl 0
+"$BENCH" -m "$MODEL" -p 128 -n 64 -r 3 -t 4 -ngl 99
+```
+
+### 2026-11-07 Qwen2.5 1.5B Q4_K_M CPU/Vulkan benchmark
+
+The pre-existing model `/sdcard/LAI/models/qwen2.5-1.5b-instruct-q4_k_m.gguf`
+was verified by SHA-256 (`6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e`)
+to match the Qwen GGUF file at repository revision
+[`91cad51170dc346986eccefdc2dd33a9da36ead9`](https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF/tree/91cad51170dc346986eccefdc2dd33a9da36ead9). It is 1,117,320,736 bytes
+(1.04 GiB). No new model download was needed.
+
+I used the same installed Vulkan-enabled `llama-bench` binary for both
+settings, with three repetitions, a 128-token prompt workload, a 64-token
+generation workload and four threads. `-ngl 0` kept model layers on CPU;
+`-ngl 99` offloaded them to the detected Adreno 825 Turnip device.
+
+| Setting | Prompt processing, pp128 (tok/s) | Generation, tg64 (tok/s) |
+|---|---:|---:|
+| CPU (`-ngl 0`) | 75.62 ± 0.11 | 6.11 ± 0.87 |
+| Adreno 825 Vulkan (`-ngl 99`) | 106.18 ± 0.21 | 17.32 ± 0.26 |
+
+Values are mean ± standard deviation across three repetitions. Vulkan
+generation was about 2.83× the CPU result in this bounded benchmark. A separate
+deterministic `2 + 2 =` known-answer run returned `4` with both CPU and Vulkan
+settings (temperature 0, seed 42, four threads). This does not establish broad
+answer quality, energy use, thermals, sustained behavior, or results on other
+models/devices. The benchmark executable is llama.cpp `0.6.0-dev`, build commit
+`af50f2f`, SHA-256
+`f62b0d2717159175792d83e807208b90539681611e78b5c3c7acb145fb85112c`.
+
+Reproduce in the Debian guest with the installed Vulkan extension:
+
+```bash
+MODEL=/sdcard/LAI/models/qwen2.5-1.5b-instruct-q4_k_m.gguf
+BENCH="$HOME/.local/opt/ternux-extensions/llama-vulkan/bin/llama-bench"
+"$BENCH" -m "$MODEL" -p 128 -n 64 -r 3 -t 4 -ngl 0
+"$BENCH" -m "$MODEL" -p 128 -n 64 -r 3 -t 4 -ngl 99
+CLI="$HOME/.local/opt/ternux-extensions/llama-vulkan/bin/llama-cli"
+"$CLI" -m "$MODEL" -p "2 + 2 =" -n 8 -c 512 -t 4 --temp 0 --seed 42 --no-warmup -ngl 0
+"$CLI" -m "$MODEL" -p "2 + 2 =" -n 8 -c 512 -t 4 --temp 0 --seed 42 --no-warmup -ngl 99
 ```
 
 ## References
