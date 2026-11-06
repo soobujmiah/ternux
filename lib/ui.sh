@@ -284,7 +284,9 @@ _tnx_measure() {
   if [ -n "${TERNUX_COLS:-}" ] && [ -n "${TERNUX_ROWS:-}" ]; then
     c="$TERNUX_COLS"; r="$TERNUX_ROWS"
   else
-    sz="$(stty size </dev/tty 2>/dev/null)" || sz=""
+    if ( : </dev/tty ) 2>/dev/null; then
+      sz="$(stty size </dev/tty 2>/dev/null)" || sz=""
+    fi
     [ -n "$sz" ] || sz="$(stty size <&2 2>/dev/null)" || sz=""
     if [ -z "$sz" ] && [ "$_TNX_TTY" = "1" ]; then
       sz="$(stty size <&1 2>/dev/null)" || sz=""
@@ -411,7 +413,7 @@ _tnx_frame_gather_device() {
     "${model} - ${arch}"
     "Android ${android} (SDK ${sdk})"
     "${gpu} - ${backend} - Vulkan ${vulkan}"
-    "${ram} GB RAM - ${storage} GB free; base ~3-4 GB"
+    "${ram} GB RAM - ${storage} GB free; base ~4-4.5 GB"
     "sampling..."
   )
   _tnx_frame_cpu_sample 0
@@ -797,7 +799,7 @@ tnx_frame_open() {
     _tnx_clipv "$inner" 'by Sobuj Miah (@soobujmiah)'
     printf '%s|%s %s%s%s\n' "$TNX_CM" "$TNX_CD" "$TNX_CW" "$_TNX_CLIP" "$TNX_C0"
     printf '%s|%s %s%s%s\n' "$TNX_CM" "$TNX_CD" "$TNX_CW" "$_TNX_CLIP" "$TNX_C0"
-    _tnx_clipv "$inner" 'Storage estimate: base ~3-4 GB; complete ~10-12 GB'
+    _tnx_clipv "$inner" 'Storage estimate: base ~4-4.5 GB; complete ~10.5-12.5 GB'
     printf '%s|%s %s%s%s\n' "$TNX_CM" "$TNX_CD" "$TNX_CW" "$_TNX_CLIP" "$TNX_C0"
     _tnx_clipv "$inner" 'Portfolio: soobujmiah.github.io'
     printf '%s|%s %s%s%s\n' "$TNX_CM" "$TNX_CY" "$TNX_CW" "$_TNX_CLIP" "$TNX_C0"

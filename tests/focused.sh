@@ -91,7 +91,7 @@ if env TERNUX_STATE_DIR="$TMP/state-welcome" HOME="$TMP/home-welcome" \
     tnx_guest_login(){ if [ "${3:-}" = bash ] && [ "${4:-}" = -c ] && [[ "$5" == *ternux-welcome.desktop* ]]; then printf "%s\n" "$5" > "$MARKER"; bash -n "$MARKER" || return 1; fi; return 0; }
     tnx_phase_debian alice >/dev/null &&
       grep -q "Exec=/usr/local/bin/ternux-welcome" "$MARKER" &&
-      grep -q "mousepad fonts-noto-core ibus ibus-avro devilspie2" "$1/lib/phases.sh" &&
+      grep -q "mousepad.*fonts-noto-core.*ibus ibus-avro devilspie2" "$1/lib/phases.sh" &&
       grep -q "xfce4-taskmanager.*xfce4-terminal zenity vlc arc-theme" "$1/lib/phases.sh" &&
       grep -q "vout=xcb_x11" "$1/lib/phases.sh" &&
       grep -q "avcodec-hw=none" "$1/lib/phases.sh" &&
@@ -1130,6 +1130,7 @@ if env TERNUX_STATE_DIR="$TMP/state-cli-layout" HOME="$TMP/home-cli-layout" \
   PREFIX="$TMP/prefix-cli-layout" bash -c '
     mkdir -p "$HOME"
     . "$1/lib/phases.sh"
+    dpkg-query(){ return 1; }
     tnx_phase_cli >/dev/null &&
     [ -x "$PREFIX/bin/ternux" ] &&
     [ -f "$PREFIX/lib/ternux/core.sh" ] &&
@@ -1145,6 +1146,7 @@ if env TERNUX_STATE_DIR="$TMP/state-cli-stale" HOME="$TMP/home-cli-stale" \
   PREFIX="$TMP/prefix-cli-stale" bash -c '
     mkdir -p "$HOME"
     . "$1/lib/phases.sh"
+    dpkg-query(){ return 1; }
     install(){
       local dest="${!#}"
       if [ "$dest" = "$PREFIX/bin/ternux" ]; then
@@ -1339,6 +1341,7 @@ if env TERNUX_STATE_DIR="$TMP/state-update-layout" HOME="$TMP/home-update-layout
     . "$1/lib/core.sh"
     TNX_ROOT="$1"
     . "$1/lib/update.sh"
+    dpkg-query(){ return 1; }
     git(){
       local dest="${!#}"
       mkdir -p "$dest"
@@ -1366,6 +1369,7 @@ if env TERNUX_STATE_DIR="$TMP/state-update-guest" HOME="$TMP/home-update-guest" 
     . "$1/lib/core.sh"
     TNX_ROOT="$1"
     . "$1/lib/update.sh"
+    dpkg-query(){ return 1; }
     git(){
       local dest="${!#}"
       mkdir -p "$dest"
