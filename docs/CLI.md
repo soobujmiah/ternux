@@ -81,7 +81,10 @@ and free storage limits. `--yes` skips the chooser and keeps the base profile.
 
 ### `ternux start`
 
-Start the Xfce4 desktop session. Runs the launcher (`~/x.sh`) which:
+Start the Xfce4 desktop session in the background. The command returns when
+Termux:X11 display `:0` is ready; startup output is kept in
+`~/.local/share/ternux/session/desktop.log`. Use `ternux status` or
+`ternux logs desktop tail` to inspect it. The launcher (`~/x.sh`):
 1. Cleans up any previous session
 2. Starts PulseAudio with TCP bridge
 3. Launches Termux:X11 display
@@ -100,7 +103,8 @@ Stop the desktop session and clean up sockets.
 ternux stop
 ```
 
-Kills: termux-x11, pulseaudio, virgl_test_server, dbus.
+Stops the managed Xfce, Termux:X11, PulseAudio and VirGL processes. Independent
+D-Bus sessions are left alone.
 Removes: stale X11 sockets, pulse socket.
 Releases: wake-lock.
 

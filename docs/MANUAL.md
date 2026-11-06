@@ -309,6 +309,7 @@ PA_CONF="$PREFIX/etc/pulse/default.pa"
 OLD='load-module module-native-protocol-tcp auth-ip-acl=127.0.0.1 auth-anonymous=1 port=4713'
 NEW='load-module module-native-protocol-tcp listen=127.0.0.1 auth-ip-acl=127.0.0.1 auth-anonymous=1 port=4713'
 SINK='load-module module-opensles-sink sink_name=Speaker'
+SOURCE='load-module module-sles-source source_name=Ternux_Microphone'
 DEFAULT='set-default-sink Speaker'
 mkdir -p "$(dirname "$PA_CONF")"
 if [ -L "$PA_CONF" ] || { [ -e "$PA_CONF" ] && [ ! -f "$PA_CONF" ]; }; then
@@ -328,6 +329,7 @@ else
       END { if (!seen) print new }
     ' "$INPUT" > "$TMP" &&
     { grep -qxF "$SINK" "$TMP" || printf '%s\n' "$SINK" >> "$TMP"; } &&
+    { grep -qxF "$SOURCE" "$TMP" || printf '%s\n' "$SOURCE" >> "$TMP"; } &&
     { grep -qxF "$DEFAULT" "$TMP" || printf '%s\n' "$DEFAULT" >> "$TMP"; } &&
     { [ ! -f "$PA_CONF" ] || chmod --reference="$PA_CONF" "$TMP" 2>/dev/null || true; } &&
     mv -f "$TMP" "$PA_CONF" || { rm -f "$TMP"; false; }
@@ -341,6 +343,13 @@ fi
 *Why loopback-only?* The guest uses an anonymous TCP connection to cross the
 PRoot boundary. Explicit `listen=127.0.0.1` keeps the service off the LAN, but
 other same-device clients can still reach it; do not remove the bind address.
+
+Ternux also loads the Android OpenSL ES microphone source. Android still controls
+access: grant **Microphone** permission to the Termux app in Android Settings if
+PulseAudio reports that `module-sles-source` could not initialize. Restart the
+desktop after granting it. In Xfce, open **PulseAudio Volume Control → Input
+Devices** and select **OpenSL ES Input**. Android's microphone privacy indicator
+remains under Android's control while an audio client captures input.
 
 ### 7b — Locale and fonts (inside Debian)
 

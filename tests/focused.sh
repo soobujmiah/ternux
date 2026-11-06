@@ -95,9 +95,14 @@ if env TERNUX_STATE_DIR="$TMP/state-welcome" HOME="$TMP/home-welcome" \
       grep -q "xfce4-taskmanager.*xfce4-terminal zenity vlc arc-theme" "$1/lib/phases.sh" &&
       grep -q "vout=xcb_x11" "$1/lib/phases.sh" &&
       grep -q "avcodec-hw=none" "$1/lib/phases.sh" &&
-      grep -q "qt-minimal-view=1" "$1/lib/phases.sh" &&
+      grep -q "qt-minimal-view=0" "$1/lib/phases.sh" &&
       grep -q "qt-video-autoresize=0" "$1/lib/phases.sh" &&
       grep -q "qt-system-tray=0" "$1/lib/phases.sh" &&
+      grep -q "org.pulseaudio.pavucontrol.desktop" "$1/lib/phases.sh" &&
+      grep -q "ternux-volume-control" "$1/lib/phases.sh" &&
+      grep -q "unset DESKTOP_STARTUP_ID GTK_MODULES" "$1/lib/phases.sh" &&
+      grep -q "exec /usr/local/bin/ternux-volume-control" "$1/lib/phases.sh" &&
+      grep -q "GTK_THEME=Adwaita:dark" "$1/lib/phases.sh" &&
       grep -q "pm-is-supported" "$1/lib/phases.sh" &&
       grep -q "pavucontrol" "$1/lib/phases.sh" &&
       grep -q "devilspie2" "$1/lib/phases.sh" &&
@@ -378,13 +383,21 @@ if env TERNUX_STATE_DIR="$TMP/state-launcher" HOME="$launcher_home" bash -c '
   grep -qF '\''rm -f "$TMPDIR"/.X11-unix/X*'\'' "$HOME/x.sh" &&
   grep -q "pulseaudio --kill.*pkill -KILL -x pulseaudio" "$HOME/x.sh" &&
   grep -q "candidate=4713; candidate<=4722" "$HOME/x.sh" &&
+  grep -q "lscpu -p=CPU,MODELNAME" "$HOME/x.sh" &&
+  grep -Fq -- "--bind \"\$TNX_CPUINFO_FILE:/proc/cpuinfo\"" "$HOME/x.sh" &&
+  grep -Fq "model name\\t: " "$HOME/x.sh" &&
   grep -q "PULSE_MODULE_ID=.*pactl load-module module-native-protocol-tcp" "$HOME/x.sh" &&
+  grep -Fq "TNX_PID_FILE=\"\${TNX_PID_FILE:-\$HOME/.local/share/ternux/session/desktop.pid}\"" "$HOME/x.sh" &&
+  grep -Fq "cat \"\$TNX_PID_FILE\"" "$HOME/x.sh" &&
   grep -q -- "--env PULSE_SERVER=\"tcp:127.0.0.1:\$PULSE_PORT\"" "$HOME/x.sh" &&
   ! grep -q "PULSE_SERVER=tcp:127.0.0.1:4713" "$HOME/x.sh" &&
   ! grep -q "pkill.*dbus" "$HOME/x.sh" &&
   grep -q "chmod 700 ~/.runtime /tmp/mesa_cache" "$HOME/x.sh" &&
   ! grep -q "^virgl_test_server_android " "$HOME/x.sh" &&
   ! grep -q "pkill.*dbus" "$HOME/.bashrc" &&
+  grep -q "alias x=.*ternux start" "$HOME/.bashrc" &&
+  grep -q "alias killx=.*ternux stop" "$HOME/.bashrc" &&
+  grep -q "alias xgo=.*ternux start" "$HOME/.bashrc" &&
   grep -q "login debian --shared-tmp --user alice" "$HOME/.bashrc" &&
   grep -q "droot=.*login debian --shared-tmp" "$HOME/.bashrc"
 ' _ "$ROOT"; then
@@ -1006,6 +1019,7 @@ if env TERNUX_STATE_DIR="$TMP/state-pulse" HOME="$TMP/home-pulse" bash -c '
   [ "$(stat -c %a "$fresh")" = 640 ] &&
   [ "$(grep -cxF "$new" "$fresh")" -eq 1 ] &&
   grep -qxF "load-module module-opensles-sink sink_name=Speaker" "$fresh" &&
+  grep -qxF "load-module module-sles-source source_name=Ternux_Microphone" "$fresh" &&
   grep -qxF "set-default-sink Speaker" "$fresh" || exit
 
   _tnx_configure_pulse_bridge "$newfile" >/dev/null &&
@@ -1073,6 +1087,40 @@ assert obj["command"] == "stop" and obj["status"] == "ok"
   ok "desktop stop uses scoped process and socket cleanup"
 else
   not_ok "desktop stop uses scoped process and socket cleanup"
+fi
+
+# Starting a managed desktop must detach from the caller, persist its PID, and
+# route verbose output to a bounded session log. Stop must signal that PID.
+managed_launcher="$TMP/managed-launcher.sh"
+cat > "$managed_launcher" <<'LAUNCHER'
+#!/usr/bin/env bash
+mkdir -p "$TMPDIR/.X11-unix"
+echo session-started
+: > "$TMPDIR/.X11-unix/X0"
+trap 'rm -f "$TMPDIR/.X11-unix/X0"; exit 0' TERM EXIT
+while :; do sleep 1; done
+LAUNCHER
+if env TERNUX_STATE_DIR="$TMP/state-desktop-start" HOME="$TMP/home-desktop-start" \
+  TMPDIR="$TMP/desktop-start-tmp" bash -c '
+    mkdir -p "$HOME"
+    cp "$2" "$HOME/x.sh"
+    . "$1/lib/desktop.sh"
+    tnx_canonical_backend(){ echo virgl; }
+    tnx_state_get(){ echo virgl; }
+    tnx_has_cmd(){ return 1; }
+    pgrep(){ return 1; }
+    start_at=$SECONDS
+    tnx_cmd_start >/dev/null || exit
+    [ "$((SECONDS-start_at))" -le 2 ] || exit
+    pid="$(cat "$TERNUX_STATE_DIR/session/desktop.pid")"
+    [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null || exit
+    grep -q session-started "$TERNUX_STATE_DIR/session/desktop.log" || exit
+    tnx_cmd_stop >/dev/null || exit
+    [ ! -e "$TERNUX_STATE_DIR/session/desktop.pid" ]
+  ' _ "$ROOT" "$managed_launcher"; then
+  ok "desktop start detaches with session PID/log and stop cleans it"
+else
+  not_ok "desktop start detaches with session PID/log and stop cleans it"
 fi
 
 # Vulkan detection must not turn a missing glob into a false positive.

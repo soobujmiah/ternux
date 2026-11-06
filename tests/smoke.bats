@@ -552,3 +552,12 @@ print('State JSON schema OK')
 " 2>/dev/null
   [ "$?" -eq 0 ]
 }
+
+
+@test "logs: desktop session log can be read separately" {
+  mkdir -p "$TERNUX_STATE_DIR/session"
+  printf 'desktop startup line\n' > "$TERNUX_STATE_DIR/session/desktop.log"
+  run bash "$TNX_CLI" logs desktop show
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"desktop startup line"* ]]
+}

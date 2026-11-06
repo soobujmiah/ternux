@@ -372,11 +372,43 @@ tnx_phase_debian() {
     sed -i '/^[[:space:]]*avcodec-hw=/d' \"\$H/.config/vlc/vlcrc\"
     printf '%s\n' 'avcodec-hw=none' >> \"\$H/.config/vlc/vlcrc\"
     sed -i '/^[[:space:]]*qt-minimal-view=/d' \"\$H/.config/vlc/vlcrc\"
-    printf '%s\n' 'qt-minimal-view=1' >> \"\$H/.config/vlc/vlcrc\"
+    printf '%s\n' 'qt-minimal-view=0' >> \"\$H/.config/vlc/vlcrc\"
     sed -i '/^[[:space:]]*qt-video-autoresize=/d' \"\$H/.config/vlc/vlcrc\"
     printf '%s\n' 'qt-video-autoresize=0' >> \"\$H/.config/vlc/vlcrc\"
     sed -i '/^[[:space:]]*qt-system-tray=/d' \"\$H/.config/vlc/vlcrc\"
     printf '%s\n' 'qt-system-tray=0' >> \"\$H/.config/vlc/vlcrc\"
+    install -d -o root -g root -m 0755 /usr/local/share/applications
+    cat > /usr/local/bin/ternux-volume-control <<'PAVUCTL'
+#!/bin/sh
+# Xfce menu launches can inherit stale GTK startup/theme state from the panel.
+unset DESKTOP_STARTUP_ID GTK_MODULES
+export GDK_BACKEND=x11
+export GTK_THEME=Adwaita:dark
+exec /usr/bin/pavucontrol "$@"
+PAVUCTL
+    chmod 0755 /usr/local/bin/ternux-volume-control
+    cat > /usr/local/bin/pavucontrol <<'PAVUBIN'
+#!/bin/sh
+exec /usr/local/bin/ternux-volume-control "$@"
+PAVUBIN
+    chmod 0755 /usr/local/bin/pavucontrol
+    cat > /usr/local/share/applications/org.pulseaudio.pavucontrol.desktop <<'PAVU'
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=PulseAudio Volume Control
+GenericName=Volume Control
+Comment=Adjust the volume level
+Exec=/usr/local/bin/ternux-volume-control
+TryExec=/usr/local/bin/ternux-volume-control
+Icon=multimedia-volume-control
+Terminal=false
+StartupNotify=false
+Categories=AudioVideo;Audio;Mixer;GTK;Settings;X-XFCE-SettingsDialog;X-XFCE-HardwareSettings;
+Keywords=pavucontrol;PulseAudio;Microphone;Volume;Fade;Balance;Headset;Speakers;Headphones;Audio;Mixer;Output;Input;Devices;Playback;Recording;
+PAVU
+    chmod 0644 /usr/local/share/applications/org.pulseaudio.pavucontrol.desktop
+    update-desktop-database /usr/local/share/applications >/dev/null 2>&1 || true
     install -d -o \"\$U\" -g \"\$U\" -m 0755 \"\$H/.config/devilspie2\"
     printf '%s' '${window_fit_b64}' | base64 -d > \"\$H/.config/devilspie2/window-fit.lua\"
     chown \"\$U:\$U\" \"\$H/.config/devilspie2/window-fit.lua\"
@@ -605,6 +637,7 @@ _tnx_configure_pulse_bridge() {
   local legacy_line="load-module module-native-protocol-tcp auth-ip-acl=127.0.0.1 auth-anonymous=1 port=4713"
   local bridge_line="load-module module-native-protocol-tcp listen=127.0.0.1 auth-ip-acl=127.0.0.1 auth-anonymous=1 port=4713"
   local sink_line="load-module module-opensles-sink sink_name=Speaker"
+  local source_line="load-module module-sles-source source_name=Ternux_Microphone"
   local default_line="set-default-sink Speaker"
   _TNX_PULSE_CHANGED=0
 
@@ -639,6 +672,9 @@ _tnx_configure_pulse_bridge() {
   ' "$input" > "$tmp" || { rm -f "$tmp"; return 1; }
 
   grep -qxF "$sink_line" "$tmp" || printf '%s\n' "$sink_line" >> "$tmp" || {
+    rm -f "$tmp"; return 1;
+  }
+  grep -qxF "$source_line" "$tmp" || printf '%s\n' "$source_line" >> "$tmp" || {
     rm -f "$tmp"; return 1;
   }
   grep -qxF "$default_line" "$tmp" || printf '%s\n' "$default_line" >> "$tmp" || {
@@ -714,6 +750,52 @@ tnx_phase_launcher() {
 #!/data/data/com.termux/files/usr/bin/bash
 set -u
 TMPDIR="${TMPDIR:-/data/data/com.termux/files/usr/tmp}"
+TNX_PID_FILE="${TNX_PID_FILE:-$HOME/.local/share/ternux/session/desktop.pid}"
+TNX_CPUINFO_FILE="$TMPDIR/ternux-cpuinfo-$$"
+TNX_CPU_MODEL_MAP="$TMPDIR/ternux-cpu-models-$$"
+write_cpuinfo_with_model_names() {
+  local soc tmp="$TNX_CPUINFO_FILE.tmp"
+  soc="$(getprop ro.soc.model 2>/dev/null || true)"
+  lscpu -p=CPU,MODELNAME 2>/dev/null | awk -F, '!/^#/ && NF >= 2 && $2 != "" { print $1 "\t" $2 }' > "$TNX_CPU_MODEL_MAP" || :
+  awk -F: -v models="$TNX_CPU_MODEL_MAP" -v soc="$soc" '
+    function add_model() {
+      if (!has_model) {
+        model = model_by_cpu[processor]
+        if (model == "") {
+          if (part == "0xd81") model = "Cortex-A720"
+          else if (part == "0xd82") model = "Cortex-X4"
+          else if (part != "") model = "ARM CPU (part " part ")"
+          else model = "ARM CPU model unavailable"
+        }
+        if (soc != "") model = model " (SoC " soc ")"
+        print "model name\t: " model
+      }
+      has_model = 0
+      part = ""
+    }
+    FILENAME == models {
+      if ($0 !~ /^#/) { split($0, fields, "\t"); model_by_cpu[fields[1]] = fields[2] }
+      next
+    }
+    /^processor[[:space:]]*:/ {
+      if (have_processor) add_model()
+      processor = $2
+      gsub(/[[:space:]]/, "", processor)
+      have_processor = 1
+      print
+      next
+    }
+    /^(model name|cpu|Model Name|Processor)[[:space:]]*:/ { has_model = 1 }
+    /^CPU part[[:space:]]*:/ { part = $2; gsub(/[[:space:]]/, "", part) }
+    /^$/ { if (have_processor) { add_model(); have_processor = 0 }; print; next }
+    { print }
+    END { if (have_processor) add_model() }
+  ' "$TNX_CPU_MODEL_MAP" /proc/cpuinfo > "$tmp" && [ -s "$tmp" ] && mv -f "$tmp" "$TNX_CPUINFO_FILE" || {
+    cp /proc/cpuinfo "$TNX_CPUINFO_FILE" 2>/dev/null || :
+    rm -f "$tmp"
+  }
+  rm -f "$TNX_CPU_MODEL_MAP"
+}
 stop_legacy_ternuxx_audio() {
   local stale_pid
   while IFS= read -r stale_pid; do
@@ -727,7 +809,11 @@ cleanup() {
   pkill -9 -f virgl_test_server 2>/dev/null || true
   pulseaudio --kill 2>/dev/null || pkill -KILL -x pulseaudio 2>/dev/null || true
   rm -f "$TMPDIR"/.X11-unix/X* "$TMPDIR"/.X*-lock "$TMPDIR"/pulse-socket "$TMPDIR"/.pulse-*/native 2>/dev/null || true
+  rm -f "$TNX_CPUINFO_FILE" "$TNX_CPU_MODEL_MAP" "$TNX_CPUINFO_FILE.tmp" 2>/dev/null || true
   termux-wake-unlock 2>/dev/null || true
+  if [ -n "$TNX_PID_FILE" ] && [ "$(cat "$TNX_PID_FILE" 2>/dev/null || true)" = "$$" ]; then
+    rm -f "$TNX_PID_FILE"
+  fi
 }
 trap cleanup EXIT
 trap 'exit 130' INT
@@ -743,6 +829,8 @@ termux-wake-lock 2>/dev/null || true
 # a loopback port that is actually free. A stale server may retain the Android
 # sink and otherwise leave the new guest bridge silent.
 stop_legacy_ternuxx_audio
+# Provide model names to Xfce About from live ARM IDs plus util-linux decoding.
+write_cpuinfo_with_model_names
 # Another Android service may own 4713; silently ignoring that collision leaves
 # guest clients pointed at the wrong server and typically produces Access denied.
 unset PULSE_SERVER; pulseaudio --start --exit-idle-time=-1 --daemonize 2>/dev/null || true
@@ -781,7 +869,7 @@ LAUNCHEOF
     # Zink talks to Turnip/KGSL directly; the VirGL host server belongs only
     # to the fallback route below.
     cat >> "$LAUNCHER" << EOF
-proot-distro login $distro --shared-tmp --bind /dev/kgsl-3d0:/dev/kgsl --bind /dev/dri --user $user_name \\
+proot-distro login $distro --shared-tmp --bind /dev/kgsl-3d0:/dev/kgsl --bind /dev/dri --bind "\$TNX_CPUINFO_FILE:/proc/cpuinfo" --user $user_name \\
   --env DISPLAY=:0 --env PULSE_SERVER="tcp:127.0.0.1:\$PULSE_PORT" \\
   --env MESA_LOADER_DRIVER_OVERRIDE=zink --env GALLIUM_DRIVER=zink \\
   --env TU_DEBUG=sysmem,noconform --env MESA_VK_WSI_DEBUG=sw \\
@@ -838,7 +926,7 @@ if ! kill -0 "$VIRGL_PID" 2>/dev/null; then
 fi
 VIRGLEOF
     cat >> "$LAUNCHER" << EOF
-proot-distro login $distro --shared-tmp --user $user_name \\
+proot-distro login $distro --shared-tmp --bind "\$TNX_CPUINFO_FILE:/proc/cpuinfo" --user $user_name \\
   --env DISPLAY=:0 --env PULSE_SERVER="tcp:127.0.0.1:\$PULSE_PORT" \\
   --env GALLIUM_DRIVER=virpipe --env MESA_GL_VERSION_OVERRIDE=4.3COMPAT \\
   --env QT_X11_NO_MITSHM=1 --env XDG_RUNTIME_DIR=/home/$user_name/.runtime \\
@@ -952,11 +1040,11 @@ tnx_phase_aliases() {
   cat >> "$RC_FILE" << ALIASEOF
 
 # ==== TERNUX ALIASES ====
-alias x='~/x.sh'
-alias killx='pkill -f termux-x11 || true; pulseaudio --kill 2>/dev/null || pkill -KILL -x pulseaudio 2>/dev/null || true; rm -f \$TMPDIR/.X11-unix/X* \$TMPDIR/.X*-lock \$TMPDIR/.pulse-*/native'
+alias x='ternux start'
+alias killx='ternux stop'
 alias db='proot-distro login $distro --shared-tmp --user $user_name'
 alias droot='proot-distro login $distro --shared-tmp'
-alias xgo='am start -n com.termux.x11/com.termux.x11.MainActivity 2>/dev/null; sleep 1; ~/x.sh'
+alias xgo='am start -n com.termux.x11/com.termux.x11.MainActivity 2>/dev/null; sleep 1; ternux start'
 clean-mesa() { proot-distro login $distro --user $user_name -- bash -c 'rm -rf ~/.cache/mesa/*'; echo "Mesa cache cleared."; }
 sysmon() { echo "--- CPU & Memory ---"; free -h; echo ""; echo "--- GPU / KGSL ---"; ls -l /dev/kgsl-3d0 /dev/dri 2>/dev/null || echo "No GPU nodes."; }
 # ==== END TERNUX ALIASES ====
