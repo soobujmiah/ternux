@@ -19,6 +19,7 @@ Notable changes to ternux. Dates are ISO 8601.
 
 ### Performance
 
+- Updated the pinned Turnip source to Mesa 27.0.0 after its checksum-verified archive passed staged Vulkan enumeration and Zink GLX checks on Adreno 825; a short interleaved small-model sample measured a 27.2 tok/s median versus 26.6 on the previous driver.
 - Pinned the bundled JetBrainsMono Nerd Font to v3.5.1, verify its SHA-256 before extraction, and use the 7.3 MB xz archive instead of the unpinned 100+ MB ZIP.
 
 - Removed Turnip's forced `sysmem` debug mode from the Zink desktop launcher so the driver can choose system-memory or tile-memory rendering per workload. Device-side performance comparison remains pending a cool-device run.

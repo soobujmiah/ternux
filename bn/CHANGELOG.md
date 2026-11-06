@@ -19,6 +19,7 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 
 ### Performance
 
+- Checksum-verified staged archive দিয়ে Mesa 27.0.0 Turnip pin update; Adreno 825-এ Vulkan enumeration ও Zink GLX pass করেছে। ছোট interleaved model test-এ staged driver-এর median 27.2 tok/s, আগের driver-এ 26.6 tok/s।
 - Bundled JetBrainsMono Nerd Font v3.5.1 pin করা হয়েছে; extract-এর আগে SHA-256 যাচাই হয় এবং 100+ MB ZIP-এর বদলে 7.3 MB xz archive ব্যবহৃত হয়।
 
 - Zink desktop launcher থেকে Turnip-এর forced `sysmem` debug mode বাদ, যাতে driver workload অনুযায়ী system-memory বা tile-memory rendering বেছে নিতে পারে। ঠান্ডা device-এ performance comparison এখনও বাকি।
