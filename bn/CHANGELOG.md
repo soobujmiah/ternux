@@ -12,6 +12,12 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 
 ## [Unreleased]
 
+### ডেস্কটপ welcome ও media
+
+- Firefox ESR না থাকলে প্রথম GUI run-এ একবারের welcome dialog যোগ হয়েছে। এতে project/developer link, Debian guest command এবং Termux host-এর `ternux benchmark` shortcut আছে; Firefox optional-ই থাকে, থাকলে login-এ project website খোলে।
+- Fresh install ও upgrade-এ browser-হীন welcome dialog পাওয়ার জন্য Debian desktop base-এ Zenity যোগ হয়েছে; নতুন font, IBus, theme ও window-fit helper ধরতে base install estimate প্রায় ৪ GB করা হয়েছে।
+- Noto Bengali font ও Avro IBus phonetic keyboard default-এ যোগ হয়েছে (English আগে, Ctrl+Space-এ বদল); Xfce Task Manager, Mousepad editor এবং dark Arc GTK theme-এর সঙ্গে Adwaita icon default-এ যোগ হয়েছে। ডিফল্ট Aurora Xfce wallpaper এবং Live X11 screen মেপে বড় normal/dialog window maximize ও screen-এর বাইরে থাকা window center করতে event-driven Devilspie2 rule যোগ হয়েছে। First-run guide GTK Cairo renderer ও live screen অনুযায়ী scrollable layout ব্যবহার করে। Base desktop-এ PulseAudio Volume Control-ও আছে। VLC-তে XCB output, software decoding ও compact mobile UI default। Base install থেকে অপ্রয়োজনীয় host-suspend helper বাদ, আর PRoot startup error কমাতে system D-Bus ও সঠিক ICE socket যোগ হয়েছে।
+
 ### Termux APT package ও installation
 
 - `ternux gpu update` (এবং সমতুল্য `ternux backend update`) যোগ হয়েছে; Zink device-এ pinned, SHA-256-যাচাইকৃত Debian Turnip userspace driver refresh করে। Android vendor driver OS-এর নিয়ন্ত্রণেই থাকে।

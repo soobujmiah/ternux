@@ -96,7 +96,7 @@ tnx_optional_storage_mb() {
 tnx_storage_estimate() {
   local optional_mb installed_mb peak_mb
   optional_mb="$(tnx_optional_storage_mb "$@")"
-  installed_mb=$((3500 + optional_mb))
+  installed_mb=$((4000 + optional_mb))
   peak_mb=$((installed_mb + 2048))
   awk -v installed="$installed_mb" -v peak="$peak_mb" 'BEGIN {
     printf "about %.1f GB installed; keep about %.1f GB free during downloads and setup (rough estimate)", installed/1024, peak/1024
@@ -136,24 +136,24 @@ tnx_phase_preflight() {
     esac
   fi
 
-  local free target_free=6 profile="${TERNUX_INSTALL_PROFILE:-base}" size_label="~3–4 GB"
+  local free target_free=6 profile="${TERNUX_INSTALL_PROFILE:-base}" size_label="~4–4.5 GB"
   local -a selected_extras=()
   if [ -n "${TERNUX_SELECTED_EXTRAS:-}" ]; then IFS=',' read -r -a selected_extras <<< "$TERNUX_SELECTED_EXTRAS"; fi
   local optional_mb estimate
   optional_mb="$(tnx_optional_storage_mb "${selected_extras[@]}")"
-  target_free=$(((3500 + optional_mb + 2048 + 1023) / 1024))
+  target_free=$(((4000 + optional_mb + 2048 + 1023) / 1024))
   if [ "$profile" = "full" ] && [ "$target_free" -lt 14 ]; then target_free=14; fi
   estimate="$(tnx_storage_estimate "${selected_extras[@]}")"
   size_label="$estimate"
   free="$(df -Pk "$HOME" 2>/dev/null | awk 'NR==2{print int($4/1024/1024)}')"
-  tnx_info "Installed-size baseline: base desktop ~3–4 GB; complete --all profile ~10–12 GB."
+  tnx_info "Installed-size baseline: base desktop ~4–4.5 GB; complete --all profile ~10.5–12.5 GB."
   tnx_info "Selected install estimate: $estimate. Includes the base desktop, chosen optional items and temporary setup headroom."
   if [ -n "$free" ] && [ "$free" -lt "$target_free" ]; then
     tnx_warn "Only ~${free} GB free. The ${profile} profile uses ${size_label}; keep ~${target_free} GB free before installation for downloads and package-cache headroom."
   elif [ -n "$free" ]; then
     tnx_ok "Storage: ~${free} GB free (${profile} profile; installed use ${size_label})"
   else
-    tnx_warn "Could not measure free storage; base uses ~3–4 GB and the complete profile ~10–12 GB."
+    tnx_warn "Could not measure free storage; base uses ~4–4.5 GB and the complete profile ~10.5–12.5 GB."
   fi
 
   if tnx_has_cmd curl && curl -s --max-time 5 https://1.1.1.1 >/dev/null 2>&1; then
@@ -330,6 +330,11 @@ tnx_install_guest_cli() {
 # ---------------------------------------------------------------------------
 tnx_phase_debian() {
   local user_name="${1:-ternux}"
+  local welcome_b64 welcome_gui_b64 window_fit_b64 wallpaper_b64
+  welcome_b64="$(base64 < "${BASH_SOURCE[0]%/*}/ternux-welcome.sh" | tr -d '\n')" || return 1
+  welcome_gui_b64="$(base64 < "${BASH_SOURCE[0]%/*}/ternux-welcome-gui.py" | tr -d '\n')" || return 1
+  window_fit_b64="$(base64 < "${BASH_SOURCE[0]%/*}/ternux-window-fit.lua" | tr -d '\n')" || return 1
+  wallpaper_b64="$(base64 < "${BASH_SOURCE[0]%/*}/ternux-wallpaper.svg" | tr -d '\n')" || return 1
 
   if tnx_debian_installed; then
     tnx_warn "Debian container already installed; reusing it."
@@ -343,7 +348,7 @@ tnx_phase_debian() {
     DPKG_FORCE=\"-o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -o APT::Color=1 -o Dpkg::Progress-Fancy=1\"
     apt update -o APT::Color=1
     dpkg --configure -a --force-confold --force-confdef || true
-    apt install -y \$DPKG_FORCE sudo nano dbus-x11 pulseaudio pulseaudio-utils x11-utils mesa-utils libgl1-mesa-dri adwaita-gtk-theme adwaita-icon-theme xfce4 xfce4-terminal vlc pm-utils colord
+    apt install -y \$DPKG_FORCE sudo nano mousepad fonts-noto-core python3-gi gir1.2-gtk-3.0 ibus ibus-avro devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol x11-utils mesa-utils libgl1-mesa-dri adwaita-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc arc-theme colord
     apt install -y \$DPKG_FORCE polkitd || apt install -y \$DPKG_FORCE policykit-1 || true
     apt install -y \$DPKG_FORCE libvulkan1 vulkan-tools || true
     apt install -y \$DPKG_FORCE zip unzip xarchiver unrar-free || true
@@ -360,19 +365,92 @@ tnx_phase_debian() {
     if visudo -cf \"\$T\" >/dev/null 2>&1; then install -m 0440 -o root -g root \"\$T\" \"\$F\"; else rm -f \"\$T\"; exit 1; fi
     rm -f \"\$T\"
     H=\"\$(getent passwd \"\$U\" | cut -d: -f6)\"
+    install -d -o \"\$U\" -g \"\$U\" -m 0755 \"\$H/.config/vlc\"
+    touch \"\$H/.config/vlc/vlcrc\"
+    sed -i '/^[[:space:]]*vout=/d' \"\$H/.config/vlc/vlcrc\"
+    printf '%s\n' 'vout=xcb_x11' >> \"\$H/.config/vlc/vlcrc\"
+    sed -i '/^[[:space:]]*avcodec-hw=/d' \"\$H/.config/vlc/vlcrc\"
+    printf '%s\n' 'avcodec-hw=none' >> \"\$H/.config/vlc/vlcrc\"
+    sed -i '/^[[:space:]]*qt-minimal-view=/d' \"\$H/.config/vlc/vlcrc\"
+    printf '%s\n' 'qt-minimal-view=1' >> \"\$H/.config/vlc/vlcrc\"
+    sed -i '/^[[:space:]]*qt-video-autoresize=/d' \"\$H/.config/vlc/vlcrc\"
+    printf '%s\n' 'qt-video-autoresize=0' >> \"\$H/.config/vlc/vlcrc\"
+    sed -i '/^[[:space:]]*qt-system-tray=/d' \"\$H/.config/vlc/vlcrc\"
+    printf '%s\n' 'qt-system-tray=0' >> \"\$H/.config/vlc/vlcrc\"
+    install -d -o \"\$U\" -g \"\$U\" -m 0755 \"\$H/.config/devilspie2\"
+    printf '%s' '${window_fit_b64}' | base64 -d > \"\$H/.config/devilspie2/window-fit.lua\"
+    chown \"\$U:\$U\" \"\$H/.config/devilspie2/window-fit.lua\"
+    chmod 0644 \"\$H/.config/devilspie2/window-fit.lua\"
+    runuser -u \"\$U\" -- env HOME=\"\$H\" dbus-run-session -- gsettings set org.freedesktop.ibus.general preload-engines \"['xkb:us::eng', 'ibus-avro']\"
     install -d -o \"\$U\" -g \"\$U\" -m 0755 \"\$H/.config/autostart\"
+    install -d -o root -g root -m 0755 /usr/local/bin
+    cat > /usr/bin/pm-is-supported <<'PM'
+#!/bin/sh
+# PRoot has no permission to suspend or hibernate the Android host.
+exit 1
+PM
+    chown root:root /usr/bin/pm-is-supported
+    chmod 0755 /usr/bin/pm-is-supported
+    printf '%s' '${welcome_b64}' | base64 -d > /usr/local/bin/ternux-welcome
+    chown root:root /usr/local/bin/ternux-welcome
+    chmod 0755 /usr/local/bin/ternux-welcome
+    install -d -o root -g root -m 0755 /usr/share/backgrounds/ternux
+    printf '%s' '${wallpaper_b64}' | base64 -d > /usr/share/backgrounds/ternux/aurora.svg
+    chown root:root /usr/share/backgrounds/ternux/aurora.svg
+    chmod 0644 /usr/share/backgrounds/ternux/aurora.svg
+    cat > \"\$H/.config/autostart/ternux-window-fit.desktop\" <<'DESKTOP'
+[Desktop Entry]
+Type=Application
+Name=Ternux Window Fit
+Comment=Keep application windows inside the current X11 screen
+Exec=devilspie2 --folder=/home/$user_name/.config/devilspie2
+Terminal=false
+OnlyShowIn=XFCE;
+X-GNOME-Autostart-enabled=true
+DESKTOP
+    chown \"\$U:\$U\" \"\$H/.config/autostart/ternux-window-fit.desktop\"
+    chmod 0644 \"\$H/.config/autostart/ternux-window-fit.desktop\"
+    cat > \"\$H/.config/autostart/xiccd.desktop\" <<'DESKTOP'
+[Desktop Entry]
+Type=Application
+Name=Xiccd color daemon
+Hidden=true
+DESKTOP
+    chown \"\$U:\$U\" \"\$H/.config/autostart/xiccd.desktop\"
+    chmod 0644 \"\$H/.config/autostart/xiccd.desktop\"
+    cat > \"\$H/.config/autostart/polkit-mate-authentication-agent-1.desktop\" <<'DESKTOP'
+[Desktop Entry]
+Type=Application
+Name=polkit-mate-authentication-agent-1.desktop
+Hidden=true
+DESKTOP
+    chown \"\$U:\$U\" \"\$H/.config/autostart/polkit-mate-authentication-agent-1.desktop\"
+    chmod 0644 \"\$H/.config/autostart/polkit-mate-authentication-agent-1.desktop\"
+    cat > \"\$H/.config/autostart/polkit-ukui-authentication-agent-1.desktop\" <<'DESKTOP'
+[Desktop Entry]
+Type=Application
+Name=polkit-ukui-authentication-agent-1.desktop
+Hidden=true
+DESKTOP
+    chown \"\$U:\$U\" \"\$H/.config/autostart/polkit-ukui-authentication-agent-1.desktop\"
+    chmod 0644 \"\$H/.config/autostart/polkit-ukui-authentication-agent-1.desktop\"
     cat > \"\$H/.config/autostart/ternux-welcome.desktop\" <<'DESKTOP'
 [Desktop Entry]
 Type=Application
 Name=Ternux Welcome
-Comment=Open the Ternux project website when the desktop starts
-Exec=sh -c \"command -v firefox-esr >/dev/null 2>&1 && exec firefox-esr --new-window https://soobujmiah.github.io/ternux/\"
+Comment=Show the Ternux first-run guide or open the project website
+Exec=/usr/local/bin/ternux-welcome
 Terminal=false
 OnlyShowIn=XFCE;
 X-GNOME-Autostart-enabled=true
 DESKTOP
     chown \"\$U:\$U\" \"\$H/.config/autostart/ternux-welcome.desktop\"
     chmod 0644 \"\$H/.config/autostart/ternux-welcome.desktop\"
+    install -d -o root -g root -m 0755 /usr/local/libexec
+    printf '%s' '${welcome_gui_b64}' | base64 -d > /usr/local/libexec/ternux-welcome-gui.py
+    chown root:root /usr/local/libexec/ternux-welcome-gui.py
+    chmod 0755 /usr/local/libexec/ternux-welcome-gui.py
+    sh -n /usr/local/bin/ternux-welcome
   " || { tnx_fail "User setup failed."; return 1; }
 
   if tnx_guest_login --shared-tmp --user "$user_name" -- sudo -n true >/dev/null 2>&1; then
@@ -719,14 +797,22 @@ proot-distro login $distro --shared-tmp --bind /dev/kgsl-3d0:/dev/kgsl --bind /d
     sudo -n dbus-uuidgen --ensure >/dev/null 2>&1 || true
     sudo -n rm -f /etc/xdg/autostart/light-locker.desktop 2>/dev/null || true
     exec dbus-launch --exit-with-session sh -c "
+      export GTK_IM_MODULE=ibus QT_IM_MODULE=ibus XMODIFIERS=@im=ibus
+      ibus-daemon --daemonize --xim --replace
       startxfce4 & session_pid=\\\$!
       tries=0
       until xfconf-query -c xsettings -l >/dev/null 2>&1 || [ \\\$tries -ge 50 ]; do
         tries=\\\$((tries + 1)); sleep 0.2
       done
-      xfconf-query -c xsettings -p /Net/ThemeName --create -t string -s Adwaita-dark
+      xfconf-query -c xsettings -p /Net/ThemeName --create -t string -s Arc-Dark
       xfconf-query -c xsettings -p /Net/IconThemeName --create -t string -s Adwaita
       xfconf-query -c xsettings -p /Gtk/CursorThemeName --create -t string -s Adwaita
+      xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-path --create -t string -s /usr/share/backgrounds/ternux/aurora.svg
+      xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/last-image --create -t string -s /usr/share/backgrounds/ternux/aurora.svg
+      xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-show --create -t bool -s true
+      xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-path --create -t string -s /usr/share/backgrounds/ternux/aurora.svg >/dev/null 2>&1 || true
+      xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/last-image --create -t string -s /usr/share/backgrounds/ternux/aurora.svg >/dev/null 2>&1 || true
+      xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-show --create -t bool -s true >/dev/null 2>&1 || true
       xfconf-query -c xfwm4 -p /general/theme --create -t string -s Default
       xfconf-query -c xfwm4 -p /general/use_compositing -s false >/dev/null 2>&1 || true
       wait \\\$session_pid
@@ -756,14 +842,22 @@ proot-distro login $distro --shared-tmp --user $user_name \\
     sudo -n mkdir -p /var/run/dbus /run/dbus /run/user/\$(id -u) 2>/dev/null || true
     sudo -n dbus-uuidgen --ensure >/dev/null 2>&1 || true
     exec dbus-launch --exit-with-session sh -c "
+      export GTK_IM_MODULE=ibus QT_IM_MODULE=ibus XMODIFIERS=@im=ibus
+      ibus-daemon --daemonize --xim --replace
       startxfce4 & session_pid=\\\$!
       tries=0
       until xfconf-query -c xsettings -l >/dev/null 2>&1 || [ \\\$tries -ge 50 ]; do
         tries=\\\$((tries + 1)); sleep 0.2
       done
-      xfconf-query -c xsettings -p /Net/ThemeName --create -t string -s Adwaita-dark
+      xfconf-query -c xsettings -p /Net/ThemeName --create -t string -s Arc-Dark
       xfconf-query -c xsettings -p /Net/IconThemeName --create -t string -s Adwaita
       xfconf-query -c xsettings -p /Gtk/CursorThemeName --create -t string -s Adwaita
+      xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-path --create -t string -s /usr/share/backgrounds/ternux/aurora.svg
+      xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/last-image --create -t string -s /usr/share/backgrounds/ternux/aurora.svg
+      xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-show --create -t bool -s true
+      xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-path --create -t string -s /usr/share/backgrounds/ternux/aurora.svg >/dev/null 2>&1 || true
+      xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/last-image --create -t string -s /usr/share/backgrounds/ternux/aurora.svg >/dev/null 2>&1 || true
+      xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-show --create -t bool -s true >/dev/null 2>&1 || true
       xfconf-query -c xfwm4 -p /general/theme --create -t string -s Default
       xfconf-query -c xfwm4 -p /general/use_compositing -s false >/dev/null 2>&1 || true
       wait \\\$session_pid

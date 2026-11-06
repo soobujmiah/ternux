@@ -12,6 +12,12 @@ Notable changes to ternux. Dates are ISO 8601.
 
 ## [Unreleased]
 
+### Desktop welcome and media
+
+- Added a one-time first-GUI welcome dialog when Firefox ESR is absent. It gives project/developer links, Debian guest commands, and the Termux-host `ternux benchmark` shortcut; Firefox remains optional and still opens the project website when installed.
+- Added Zenity to the Debian desktop base so the no-browser welcome dialog is available on fresh installs and upgrades. Raised the base installed-size estimate to about 4 GB to include the added fonts, IBus, themes and window-fit helper.
+- Added Noto Bengali fonts and the Avro IBus phonetic keyboard by default (English-first, Ctrl+Space switch), the Xfce Task Manager and Mousepad editor, and dark Arc GTK theme with stock Adwaita icons. Added a custom Aurora Xfce wallpaper and an event-driven Devilspie2 rule that maximizes oversized normal/dialog windows and centers windows that exceed the live X11 screen. The first-run guide uses GTK Cairo rendering and adapts its scrollable layout to the live X11 size. Set per-user VLC output to XCB, software decoding and compact mobile UI; removed unused host-suspend helpers from the base install. Added a minimal system D-Bus and correctly owned ICE socket to reduce PRoot desktop startup errors.
+
 ### Termux APT packaging and installation
 
 - Added `ternux gpu update` (also `ternux backend update`) to refresh the pinned, SHA-256-validated Debian Turnip userspace driver on Zink devices; it explicitly leaves Android vendor drivers to the OS.

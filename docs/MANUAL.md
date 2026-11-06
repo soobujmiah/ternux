@@ -105,8 +105,7 @@ export DEBIAN_FRONTEND=noninteractive
 apt update
 
 # Core desktop + GL/audio plumbing. Must succeed.
-apt install -y sudo nano dbus-x11 pulseaudio pulseaudio-utils x11-utils \
-  mesa-utils libgl1-mesa-dri xfce4 xfce4-terminal vlc pm-utils colord
+apt install -y sudo nano mousepad fonts-noto-core python3-gi gir1.2-gtk-3.0 ibus ibus-avro devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol x11-utils mesa-utils libgl1-mesa-dri adwaita-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc arc-theme colord
 
 # PolicyKit: polkitd = trixie+, policykit-1 = bookworm. Best effort.
 apt install -y polkitd || apt install -y policykit-1 || true

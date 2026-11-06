@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="2560" viewBox="0 0 1440 2560">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#081426"/><stop offset=".55" stop-color="#111b3b"/><stop offset="1" stop-color="#211344"/></linearGradient>
+    <radialGradient id="glowA"><stop stop-color="#00d4c7" stop-opacity=".38"/><stop offset="1" stop-color="#00d4c7" stop-opacity="0"/></radialGradient>
+    <radialGradient id="glowB"><stop stop-color="#8655ff" stop-opacity=".48"/><stop offset="1" stop-color="#8655ff" stop-opacity="0"/></radialGradient>
+    <linearGradient id="line" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#32e6d1" stop-opacity=".85"/><stop offset="1" stop-color="#ac70ff" stop-opacity=".12"/></linearGradient>
+    <pattern id="grid" width="96" height="96" patternUnits="userSpaceOnUse"><path d="M96 0H0V96" fill="none" stroke="#a9c6ff" stroke-opacity=".055" stroke-width="1"/><circle cx="0" cy="0" r="2" fill="#87f6ed" fill-opacity=".2"/></pattern>
+  </defs>
+  <rect width="1440" height="2560" fill="url(#bg)"/>
+  <ellipse cx="1180" cy="540" rx="680" ry="620" fill="url(#glowA)"/>
+  <ellipse cx="240" cy="1860" rx="760" ry="760" fill="url(#glowB)"/>
+  <rect width="1440" height="2560" fill="url(#grid)"/>
+  <g fill="none" stroke="url(#line)" stroke-width="3" opacity=".7">
+    <path d="M-80 900h360l130-130h210l190 190h180l150-150h380"/>
+    <path d="M-60 1010h470l110 110h230l160-160h210l90 90h300" opacity=".5"/>
+    <path d="M120 2130h350l160-160h250l100 100h170l220-220h220" opacity=".55"/>
+    <path d="M0 2240h210l120-120h210l100 100h250l90-90h210l170 170h190" opacity=".35"/>
+  </g>
+  <g fill="#76fff0" opacity=".82"><circle cx="280" cy="900" r="7"/><circle cx="710" cy="770" r="7"/><circle cx="860" cy="960" r="7"/><circle cx="1190" cy="810" r="7"/><circle cx="470" cy="2130" r="7"/><circle cx="880" cy="1970" r="7"/><circle cx="1150" cy="2070" r="7"/></g>
+  <circle cx="1010" cy="1390" r="460" fill="none" stroke="#b7a0ff" stroke-opacity=".1" stroke-width="2"/>
+  <circle cx="1010" cy="1390" r="350" fill="none" stroke="#49e1d1" stroke-opacity=".11" stroke-width="2"/>
+  <circle cx="1010" cy="1390" r="230" fill="none" stroke="#b7a0ff" stroke-opacity=".08" stroke-width="2"/>
+</svg>

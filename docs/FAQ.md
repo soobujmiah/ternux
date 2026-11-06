@@ -39,8 +39,8 @@ keys match.
 
 ## How much storage will it really use?
 
-The corrected approximate **installed footprint** is **3–4 GB for the base
-installation** and **10–12 GB for a complete `--all` installation**. Actual use
+The corrected approximate **installed footprint** is **4–4.5 GB for the base
+installation** and **10.5–12.5 GB for a complete `--all` installation**. Actual use
 varies with Debian package versions, filesystem accounting, optional tools and
 cache retention. Models and your own projects are additional.
 

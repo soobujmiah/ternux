@@ -21,7 +21,7 @@ Detailed installation walkthrough. For the concise path, see
 |---|---|---|
 | **Android** | 10 or newer | Older builds lack the APIs Termux/X11 rely on |
 | **CPU** | `aarch64` (64-bit ARM) | PRoot runs native binaries; 32-bit ARM is unsupported upstream |
-| **Storage** | Installed: ~3–4 GB base; ~10–12 GB with `--all` | Begin with additional free space for downloads, package caches, build trees, models and projects |
+| **Storage** | Installed: ~4–4.5 GB base; ~10.5–12.5 GB with `--all` | Begin with additional free space for downloads, package caches, build trees, models and projects |
 | **RAM** | 4 GB min, 6–8 GB preferred | The desktop + Android share memory; less RAM = more killing |
 | **Graphics** | Adreno preferred; VirGL fallback otherwise | Zink/Turnip requires the Qualcomm KGSL path; VirGL compatibility varies by device/Android build |
 | **Apps** | Termux (F-Droid/GitHub) + Termux:X11 | Keep Termux and all plugins from the same source; the Google Play line is experimental and differs from the main releases |
@@ -46,7 +46,7 @@ The storage figures above are the approximate **installed footprint**, not the
 minimum temporary headroom. Package versions and filesystem accounting vary.
 For a clean run, the installer targets roughly **6 GB free** for base and
 **14 GB free** for `--all`, allowing downloads, caches, extraction, and builds;
-the finished installation itself is approximately **3–4 GB** or **10–12 GB**.
+the finished installation itself is approximately **4–4.5 GB** or **10.5–12.5 GB**.
 
 ---
 
@@ -390,7 +390,7 @@ current phase; the complete stream is always appended to the log file.
 ```text
 +=========================================================+
 |           ternux v1.4.0 - ONE-CLICK INSTALLER           |
-| by Sobuj Miah  -  base ~3-4 GB  -  complete ~10-12 GB   |
+| by Sobuj Miah  -  base ~4-4.5 GB  -  complete ~10.5-12.5 GB   |
 +=========================================================+
 | Device    Redmi Turbo 4 Pro - Android 15 (SDK 35)       |
 | Graphics  Adreno 825 - backend zink - Vulkan 1.4        |

@@ -81,8 +81,8 @@ else
   not_ok "Debian phase reuses a PRoot-Distro 5 container"
 fi
 
-# The Debian base keeps VLC; the Firefox browser stays optional, and the welcome
-# page is registered for XFCE sessions without executing the desktop command on the host.
+# The Debian base keeps VLC + Zenity; Firefox stays optional. Welcome content is
+# guest-managed, first-run-only without a browser, and the VLC XCB output is set.
 if env TERNUX_STATE_DIR="$TMP/state-welcome" HOME="$TMP/home-welcome" \
   PREFIX="$TMP/prefix-welcome" MARKER="$TMP/welcome-script" bash -c '
     . "$1/lib/phases.sh"
@@ -90,14 +90,35 @@ if env TERNUX_STATE_DIR="$TMP/state-welcome" HOME="$TMP/home-welcome" \
     tnx_install_guest_cli(){ :; }
     tnx_guest_login(){ if [ "${3:-}" = bash ] && [ "${4:-}" = -c ] && [[ "$5" == *ternux-welcome.desktop* ]]; then printf "%s\n" "$5" > "$MARKER"; bash -n "$MARKER" || return 1; fi; return 0; }
     tnx_phase_debian alice >/dev/null &&
-      grep -q "Exec=sh -c" "$MARKER" &&
-      grep -q "firefox-esr.*soobujmiah.github.io/ternux" "$MARKER" &&
-      grep -q "xfce4-terminal vlc pm-utils" "$1/lib/phases.sh" &&
-      ! grep -q "xfce4-terminal vlc firefox-esr" "$1/lib/phases.sh"
+      grep -q "Exec=/usr/local/bin/ternux-welcome" "$MARKER" &&
+      grep -q "mousepad fonts-noto-core ibus ibus-avro devilspie2" "$1/lib/phases.sh" &&
+      grep -q "xfce4-taskmanager.*xfce4-terminal zenity vlc arc-theme" "$1/lib/phases.sh" &&
+      grep -q "vout=xcb_x11" "$1/lib/phases.sh" &&
+      grep -q "avcodec-hw=none" "$1/lib/phases.sh" &&
+      grep -q "qt-minimal-view=1" "$1/lib/phases.sh" &&
+      grep -q "qt-video-autoresize=0" "$1/lib/phases.sh" &&
+      grep -q "qt-system-tray=0" "$1/lib/phases.sh" &&
+      grep -q "pm-is-supported" "$1/lib/phases.sh" &&
+      grep -q "pavucontrol" "$1/lib/phases.sh" &&
+      grep -q "devilspie2" "$1/lib/phases.sh" &&
+      grep -q "pulseaudio pulseaudio-utils pavucontrol" "$1/lib/phases.sh" &&
+      grep -q "ibus-avro" "$1/lib/phases.sh" &&
+      grep -q "fonts-noto-core" "$1/lib/phases.sh" &&
+      grep -q "ternux-window-fit.desktop" "$MARKER" &&
+      grep -q "set_window_geometry" "$1/lib/ternux-window-fit.lua" &&
+      ! grep -q "xfce4-terminal vlc firefox-esr" "$1/lib/phases.sh" &&
+      sh -n "$1/lib/ternux-welcome.sh" &&
+      grep -q "firefox-esr --new-window" "$1/lib/ternux-welcome.sh" &&
+      grep -q "welcome-seen" "$1/lib/ternux-welcome.sh" &&
+      grep -q "ternux benchmark" "$1/lib/ternux-welcome-gui.py" &&
+      grep -q "Ctrl+Space" "$1/lib/ternux-welcome-gui.py" &&
+      grep -q "Sobuj Miah" "$1/lib/ternux-welcome-gui.py" &&
+      python3 -m py_compile "$1/lib/ternux-welcome-gui.py" &&
+      grep -q "ternux-wallpaper.svg" "$1/lib/phases.sh"
   ' _ "$ROOT"; then
-  ok "base VLC, optional Firefox welcome autostart stays guest-managed"
+  ok "first-run welcome, optional Firefox, Zenity, VLC XCB output are guest-managed"
 else
-  not_ok "base VLC, optional Firefox welcome autostart stays guest-managed"
+  not_ok "first-run welcome, optional Firefox, Zenity, VLC XCB output are guest-managed"
 fi
 
 # GPU updater uses the validated Zink driver workflow through the CLI alias.
@@ -331,13 +352,16 @@ if env TERNUX_STATE_DIR="$TMP/state-launcher" HOME="$launcher_home" bash -c '
   grep -q "termux-x11 :0 -legacy-drawing -ac" "$HOME/x.sh" &&
   grep -q "stop_legacy_ternuxx_audio" "$HOME/x.sh" &&
   grep -Fq "ternuxx\\/audio\\/default\\.pa" "$HOME/x.sh" &&
-  grep -q "Adwaita-dark" "$HOME/x.sh" &&
+  grep -q "Arc-Dark" "$HOME/x.sh" &&
   grep -q "IconThemeName --create -t string -s Adwaita" "$HOME/x.sh" &&
-  grep -q "ThemeName --create -t string -s Adwaita-dark" "$HOME/x.sh" &&
+  grep -q "ThemeName --create -t string -s Arc-Dark" "$HOME/x.sh" &&
   grep -Fq "session_pid=\\\$!" "$HOME/x.sh" &&
   grep -Fq "wait \\\$session_pid" "$HOME/x.sh" &&
   grep -Fq "[ \\\$tries -ge 50 ]" "$HOME/x.sh" &&
-  grep -q "adwaita-gtk-theme adwaita-icon-theme" "$1/lib/phases.sh" &&
+  grep -q "adwaita-icon-theme xfce4 xfce4-taskmanager" "$1/lib/phases.sh" &&
+  ! grep -q "adwaita-gtk-theme" "$1/lib/phases.sh" &&
+  ! grep -q "pm-utils" "$1/lib/phases.sh" &&
+  grep -q "GTK_IM_MODULE=ibus QT_IM_MODULE=ibus XMODIFIERS=@im=ibus" "$HOME/x.sh" &&
   grep -q -- "--env LC_ALL=en_US.UTF-8" "$HOME/x.sh" &&
   grep -q "^trap cleanup EXIT$" "$HOME/x.sh" &&
   grep -qF '\''/run/user/$(id -u)'\'' "$HOME/x.sh" &&
@@ -1206,8 +1230,8 @@ if env TERM=dumb NO_COLOR=1 TERNUX_STATE_DIR="$TMP/state-frame" \
     tnx_frame_close failed
   ' _ "$ROOT" > "$frame_out" &&
   grep -q "Sobuj Miah" "$frame_out" &&
-  grep -q "base ~3-4 GB" "$frame_out" &&
-  grep -q "complete ~10-12 GB" "$frame_out" &&
+  grep -q "base ~4-4.5 GB" "$frame_out" &&
+  grep -q "complete ~10.5-12.5 GB" "$frame_out" &&
   grep -q "Get: package-one" "$frame_out" &&
   grep -q "ERROR: sample failure" "$TMP/log-frame/ternux.log"; then
   ok "persistent install frame has a readable line-stream fallback"
@@ -1242,7 +1266,7 @@ fi
 
 # Storage copy must distinguish installed size from temporary free-space
 # headroom and must not restore the old 12 GB base-install claim.
-if grep -q "base desktop ~3–4 GB; complete --all profile ~10–12 GB" "$ROOT/lib/phases.sh" &&
+if grep -q "base desktop ~4–4.5 GB; complete --all profile ~10.5–12.5 GB" "$ROOT/lib/phases.sh" &&
    ! grep -q "base install wants ~12 GB" "$ROOT/lib/phases.sh"; then
   ok "preflight reports corrected base and complete storage estimates"
 else

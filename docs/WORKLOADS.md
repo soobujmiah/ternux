@@ -65,7 +65,7 @@ Termux:X11 has its [own official project](https://github.com/termux/termux-x11).
 They are not Debian packages and cannot be installed from this guest selector.
 
 The base desktop — Xfce4, terminal, VLC, archive tools, Mesa utilities, Vulkan
-tools — uses about 3–4 GB and is always installed. VLC is also listed in the
+tools — uses about 4–4.5 GB and is always installed. VLC is also listed in the
 catalog so it can be selected explicitly; choosing it does not add a second copy.
 
 ## Automatic

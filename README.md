@@ -40,7 +40,7 @@ If `curl` is unavailable, use:
 wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
 ```
 
-The base install needs about 3–4 GB of storage. Keep extra temporary space for
+The base install needs about 4–4.5 GB of storage. Keep extra temporary space for
 downloads and package caches.
 
 ## Start and use

@@ -61,7 +61,7 @@ Termux:Widget, Termux:Boot ও Termux:Styling-এর মতো Android companion
 XFCE session শুরু হলে optional Firefox ESR ইনস্টল থাকলে Ternux-এর ওয়েবসাইট খুলবে।
 
 বেস desktop — Xfce4, terminal, VLC, archive tool, Mesa utility, Vulkan tool —
-সবসময় বসে; এতে প্রায় ৩–৪ GB storage লাগে। VLC catalog-এ আলাদা করে বেছে নেওয়া যায়,
+সবসময় বসে; এতে প্রায় ৪–৪.৫ GB storage লাগে। VLC catalog-এ আলাদা করে বেছে নেওয়া যায়,
 তবে base desktop-এ আগে থেকেই থাকায় দ্বিতীয় কপি বসে না।
 
 <h2 id="automatic">স্বয়ংক্রিয়</h2>
