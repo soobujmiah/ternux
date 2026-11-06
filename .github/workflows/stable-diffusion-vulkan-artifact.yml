@@ -104,6 +104,17 @@ jobs:
           export SD_HOME
           export LD_LIBRARY_PATH="$SD_HOME/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
           export PATH="$SD_HOME/bin:$PATH"
+          if [ -z "${VK_ICD_FILENAMES:-}" ]; then
+            for _tnx_icd in \
+              /usr/local/share/vulkan/icd.d/ternux_freedreno_icd.json \
+              /usr/share/vulkan/icd.d/freedreno_icd.aarch64.json; do
+              if [ -f "$_tnx_icd" ]; then
+                export VK_ICD_FILENAMES="$_tnx_icd"
+                break
+              fi
+            done
+          fi
+          unset _tnx_icd
           ENV
           cat > "$package/build-manifest.json" <<MANIFEST
           {

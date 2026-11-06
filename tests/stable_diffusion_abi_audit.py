@@ -37,6 +37,10 @@ ldd = subprocess.check_output(["ldd", str(binary)], text=True)
 if "not found" in ldd:
     fail("unresolved runtime dependency")
 
+environment = (root / "env.sh").read_text()
+if "ternux_freedreno_icd.json" not in environment or "freedreno_icd.aarch64.json" not in environment:
+    fail("environment helper does not discover the managed or distro Freedreno Vulkan ICD")
+
 manifest = json.loads(manifest_path.read_text())
 if manifest.get("artifact") != "ternux-stable-diffusion-vulkan-linux-arm64-master-1053":
     fail("unexpected artifact identity")
