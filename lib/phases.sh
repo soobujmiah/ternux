@@ -727,7 +727,7 @@ tnx_phase_launcher() {
   # Write launcher
   cat > "$LAUNCHER" << 'LAUNCHEOF'
 #!/data/data/com.termux/files/usr/bin/bash
-# TERNUX_DESKTOP_LAUNCHER=10
+# TERNUX_DESKTOP_LAUNCHER=12
 set -u
 TMPDIR="${TMPDIR:-/data/data/com.termux/files/usr/tmp}"
 TNX_PID_FILE="${TNX_PID_FILE:-$HOME/.local/share/ternux/session/desktop.pid}"
@@ -899,8 +899,8 @@ proot-distro login $distro --shared-tmp --bind /dev/kgsl-3d0:/dev/kgsl --bind /d
       # launch spawned many xfconf clients, reloaded the wallpaper, and erased
       # later user theme choices. Keep the desktop lightweight with compositor
       # effects disabled, while allowing users to customize after first login.
-      defaults_marker="$HOME/.config/ternux/desktop-defaults-v1"
-      if [ ! -e "$defaults_marker" ]; then
+      defaults_marker="/home/$user_name/.config/ternux/desktop-defaults-v1"
+      if [ ! -e "\$defaults_marker" ]; then
         xfconf-query -c xsettings -p /Net/ThemeName --create -t string -s Adwaita-dark
         xfconf-query -c xsettings -p /Net/IconThemeName --create -t string -s Adwaita
         xfconf-query -c xsettings -p /Gtk/CursorThemeName --create -t string -s Adwaita
@@ -919,8 +919,8 @@ proot-distro login $distro --shared-tmp --bind /dev/kgsl-3d0:/dev/kgsl --bind /d
         xfconf-query -c xfwm4 -p /general/theme --create -t string -s Default
         xfconf-query -c xfwm4 -p /general/use_compositing -s false >/dev/null 2>&1 || true
         xfdesktop --reload >/dev/null 2>&1 || true
-        install -d -m 0755 "$(dirname "$defaults_marker")"
-        : > "$defaults_marker"
+        install -d -m 0755 "/home/$user_name/.config/ternux"
+        : > "\$defaults_marker"
       fi
       wait \\\$session_pid
     "
@@ -977,8 +977,8 @@ proot-distro login $distro --shared-tmp --bind "\$TNX_CPUINFO_FILE:/proc/cpuinfo
       # launch spawned many xfconf clients, reloaded the wallpaper, and erased
       # later user theme choices. Keep the desktop lightweight with compositor
       # effects disabled, while allowing users to customize after first login.
-      defaults_marker="$HOME/.config/ternux/desktop-defaults-v1"
-      if [ ! -e "$defaults_marker" ]; then
+      defaults_marker="/home/$user_name/.config/ternux/desktop-defaults-v1"
+      if [ ! -e "\$defaults_marker" ]; then
         xfconf-query -c xsettings -p /Net/ThemeName --create -t string -s Adwaita-dark
         xfconf-query -c xsettings -p /Net/IconThemeName --create -t string -s Adwaita
         xfconf-query -c xsettings -p /Gtk/CursorThemeName --create -t string -s Adwaita
@@ -997,8 +997,8 @@ proot-distro login $distro --shared-tmp --bind "\$TNX_CPUINFO_FILE:/proc/cpuinfo
         xfconf-query -c xfwm4 -p /general/theme --create -t string -s Default
         xfconf-query -c xfwm4 -p /general/use_compositing -s false >/dev/null 2>&1 || true
         xfdesktop --reload >/dev/null 2>&1 || true
-        install -d -m 0755 "$(dirname "$defaults_marker")"
-        : > "$defaults_marker"
+        install -d -m 0755 "/home/$user_name/.config/ternux"
+        : > "\$defaults_marker"
       fi
       wait \\\$session_pid
     "
