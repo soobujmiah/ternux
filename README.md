@@ -102,8 +102,8 @@ stays smaller; choose only what you need. The `--all` profile needs roughly
 **Local AI and GPU tools:** optional extensions provide llama.cpp CPU + Vulkan,
 plus a pinned Stable Diffusion CPU + Vulkan image generator preview; install
 with `ternux extension install llama-vulkan` or
-`ternux extension install stable-diffusion`. Model weights stay outside the runtime and can be used
-straight from shared storage. The separate Hexagon HTP extension remains
+`ternux extension install stable-diffusion`. Model weights stay outside the runtime and can be used straight from shared
+storage. The separate Hexagon HTP extension remains
 experimental and device-specific. Blender and headless EEVEE tools are optional.
 See the [Stable Diffusion guide](guides/stable-diffusion-vulkan-extension.md)
 and [release plan](docs/ACCELERATOR-RELEASE-PLAN.md) for model usage, current
