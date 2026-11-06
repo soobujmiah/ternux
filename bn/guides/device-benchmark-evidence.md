@@ -783,6 +783,29 @@ workload এখনো মাপা হয়নি। Log: `/home/sbj/npu-probe-
 
 ---
 
+### Ternux desktop restart ও idle-resource পর্যবেক্ষণ (২০২৬-১১-০৬)
+
+Android 16-এ Redmi Turbo 4 Pro, Termux, Debian 13 PRoot এবং Zink/Turnip route-এ
+installed Ternux 2.0.0 package local-এ rebuild করে reinstall করা হয়েছে। Managed
+`ternux restart` command shutdown-এর আগে থেকে `xfce4-session`, `xfce4-panel` এবং
+`xfdesktop` process দেখা যাওয়া পর্যন্ত মাপা হয়েছে: **১৪,১৯৮ ms**। এই end-to-end
+সময়ে teardown, restart command-এর নির্দিষ্ট এক সেকেন্ড pause এবং readiness polling
+আছে; এটি শুধু desktop startup latency নয়।
+
+Readiness-এর তিন সেকেন্ড পরে `ternux status --json`-এ session running এবং X11 ও
+PulseAudio active ছিল। Read-only 752×1155 X11 capture-এ Xfce panel, dock, desktop
+icon ও wallpaper স্বাভাবিকভাবে render হয়েছে। `ternux verify --json` pass করেছে;
+পূর্ণ `ternux doctor --json`-এ ২৬ OK, warning শূন্য, failure শূন্য। পরের doctor
+sample-এ Android প্রায় ১১ GiB total-এর মধ্যে ৩,৯৮৪ MiB available এবং battery
+reading ৪০°C দেখিয়েছে।
+
+নতুন launcher প্রতি guest user-এ theme, wallpaper ও compositor-off default একবার
+বসায়, তারপর পরের session-গুলোতে পুনরাবৃত্ত Xfconf launch ও wallpaper reload বাদ
+দেয়। পরিবর্তনের আগের timing বা নিয়ন্ত্রিত before/after memory measurement নেই,
+তাই এই observation থেকে speedup বা memory reduction-এর পরিমাণ দাবি করা হচ্ছে না।
+Launcher পরিবর্তনের পর focused regression suite 98/98 pass করেছে। এই নমুনা একটি
+device/session-এর; বিভিন্ন device-এর low-RAM আচরণ প্রমাণ করে না।
+
 ## রেফারেন্স
 
 - [glmark2](https://github.com/glmark2/glmark2)
