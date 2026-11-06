@@ -72,21 +72,50 @@ sd-cli --backend cpu --model "$MODEL" \
 - **Vulkan image path:** bounded target-device pass with VAE tiling at 512×512,
   10 steps. Untiled 512×512 is unreliable on this device and must not be the
   documented default.
-- **CPU image path:** visual failure at 256×256 through 20 steps. Investigate
-  backend/model compatibility or mark CPU execution diagnostic-only; repeat
-  visual review after a runtime/model change.
+- **CPU image path:** user excluded CPU picture output from the current image
+  qualification. The observed 256×256/20-step run was severely artifacted;
+  leave CPU image quality unqualified and do not claim it. It does not block
+  the now-verified Adreno Vulkan path.
 - **Extension packaging:** build/ABI/license-notice checks passed in workflow
-  run `42295461009`, but that only validates an extracted candidate. It has not
-  been published or installed by Ternux's actual extension manager. Do not mark
-  extension installation complete until checksum-verified managed install,
-  doctor detection, removal/repair behavior, and an installed-package workload
-  are tested.
+  run `42303285336`; its public optional prerelease was checksum-verified and
+  installed by Ternux's actual extension manager. Doctor detection and an
+  installed-package target workload pass. Fresh-install selection and
+  post-install removal/repair are still untested.
 - **Broader reliability:** cancellation, restart, longer sustained runs,
   different Adreno devices, model quality range, and memory/thermal range remain
   unqualified.
 - **Release:** Ternux v2 remains held by this and other release-plan gates.
 
-The temporary workflow archive was checksum-verified before extraction; its
-SHA-256 was
+## Public prerelease and managed-install workload
+
+After the CPU image was excluded from this release decision, PR #59 was merged
+and the optional extension prerelease was published from main by workflow run
+`42303285336`.
+
+- Public release: `ternux-stable-diffusion-vulkan-linux-arm64-master-1053`.
+- Archive size: 27,367,156 bytes; SHA-256:
+  `64a2761e680f0791eba476a24f476533c9ae35989d4ab6bbe2ecda26d0d9f336`.
+- The Termux-side Ternux CLI ran `ternux extension install stable-diffusion`.
+  It downloaded the public archive and `.sha256`, verified checksum and package
+  layout/license manifest, then atomically installed it at
+  `/home/ternux/.local/opt/ternux-extensions/stable-diffusion`.
+- `ternux doctor --json` reported `ext_stable-diffusion` OK and identified the
+  installed pinned artifact. Doctor also reported one unrelated existing
+  `llama-htp-experimental_libs` warning (9 HTP shared libraries unavailable);
+  no doctor failures.
+- The installed package generated
+  `/sdcard/Llms/ternux-v2-validation/results-54d6e22/managed-extension-vulkan-512-10.png`
+  from the direct `/sdcard/Llms/...Q8_0.gguf` path. Settings were Vulkan0,
+  512×512, 10 steps, seed 42, VAE tile size 256×256. It saved a coherent robot
+  garden image; runner generation time was 92.91s, shell wall time 1m35.962s.
+  The output SHA-256 is
+  `b59b0b3e43226b4ae484b433aadf4d681eb87de7ee300b78a9adc1029a2ec65a`.
+  Auto-fit kept diffusion compute on Adreno Vulkan and staged text/VAE weights
+  in host RAM; model bytes remained on shared `/sdcard` storage.
+- CPU output remains unqualified and is not claimed. Optional fresh-install
+  selection, removal/repair, cancellation/restart, sustained-use and broader
+  device/model coverage remain open.
+
+The earlier extracted workflow candidate archive had SHA-256
 `a193996aef0efd6d1843957fb9a77ac36edbf47edb30bd366d13c0c1a538cb29`.
 The model and generated outputs remain outside the Git repository.

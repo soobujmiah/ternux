@@ -38,7 +38,7 @@ Adreno 825-e 512x512 pure Vulkan tiling chara VAE decode-e device-lost hoyechilo
 
 Puro command, measurement, model checksum ebong gate decision [device qualification handoff](../../handoffs/stable-diffusion-cpu-vulkan-qualification-2026-11-07.md)-e ache.
 
-Build/ABI audit ebong tiled Vulkan image path pass; CPU quality, broader image quality, speed/memory range, cancellation, restart o sustained-use gate khola. Stable release-e eta qualify hoyni.
+Public prerelease checksum verify kore `ternux extension install stable-diffusion` diye install hoyeche; `ternux doctor` extension detect kore. Installed binary `/sdcard/Llms` theke model niye tiled Vulkan VAE-te 512×512/10-step coherent image 92.91s-e generate koreche. CPU image quality unqualified. Broader quality, memory range, cancellation, restart o sustained-use gate khola; eta stable Ternux release noy.
 
 ## Remove
 

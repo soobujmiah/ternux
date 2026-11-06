@@ -219,8 +219,10 @@ sd-cli --backend vulkan0 --model "$MODEL" --prompt "a small red robot in a garde
 ```
 
 Adreno 825-e VAE tiling chara 512x512 Vulkan device-lost hoyechilo. Tiled
-512x512/10-step complete image 101.9s-e save koreche. CPU 256x256/10-step
-output save korechilo kintu blocky chilo; CPU image quality qualify hoyni.
+Extracted candidate tiled 512x512/10-step image 101.9s-e save korechilo. Public
+prerelease-er por Ternux-managed install eki `/sdcard/Llms` model diye coherent
+image 92.91s-e baniyeche. CPU output unqualified, support claim noy; [device
+handoff](../../handoffs/stable-diffusion-cpu-vulkan-qualification-2026-11-07.md) dekhun.
 Extension model ba GPU driver bundle kore na; [extension guide](https://github.com/soobujmiah/ternux/blob/main/bn/guides/stable-diffusion-vulkan-extension.md)-e limits ache.
 
 ### SM8735-এ পরীক্ষামূলক Hexagon HTP
