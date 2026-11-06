@@ -2138,11 +2138,11 @@ check "a clipped line never exceeds the slot it was given" bash -c '
 ' _ "$ROOT"
 
 # The base install must use a small, pinned and checksum-verified font archive.
-if rg -q 'nerd-fonts/releases/download/v3\.5\.1/JetBrainsMono\.tar\.xz' "$ROOT/lib/phases.sh" \
-  && rg -q '04d5e8f903693f9dd13e16f867e994834e681eb3c72c0d337a770dcda09010cf' "$ROOT/lib/phases.sh" \
-  && rg -q 'sha256sum -c' "$ROOT/lib/phases.sh" \
-  && rg -q 'tar -xJf' "$ROOT/lib/phases.sh" \
-  && ! rg -q 'releases/latest/download/JetBrainsMono\.zip' "$ROOT/lib/phases.sh"; then
+if grep -Eq 'nerd-fonts/releases/download/v3\.5\.1/JetBrainsMono\.tar\.xz' "$ROOT/lib/phases.sh" \
+  && grep -Fq '04d5e8f903693f9dd13e16f867e994834e681eb3c72c0d337a770dcda09010cf' "$ROOT/lib/phases.sh" \
+  && grep -Fq 'sha256sum -c' "$ROOT/lib/phases.sh" \
+  && grep -Fq 'tar -xJf' "$ROOT/lib/phases.sh" \
+  && ! grep -Fq 'releases/latest/download/JetBrainsMono.zip' "$ROOT/lib/phases.sh"; then
   ok "base Nerd Font download is pinned, checksummed and compact"
 else
   not_ok "base Nerd Font download is pinned, checksummed and compact"
