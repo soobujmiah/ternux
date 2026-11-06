@@ -1,13 +1,13 @@
 schema_version: 1
 project_id: ternux
 repository: soobujmiah/ternux
-generated_at: '2026-11-06T07:04:14Z'
+generated_at: '2026-11-06T09:02:50Z'
 generated_by: tools/repo_knowledge collect
-version: ternux-qnn-native-probe-sm8735-2026-10-14-127-g6767e22
+version: ternux-qnn-native-probe-sm8735-2026-10-14-130-gd47e380
 head:
-  commit: 6767e22f807809e366db95593d75bbbf5851e158
+  commit: d47e380a57c9c8f6513c230ba1659249a937721b
   branch: main
-  committed_at: '2026-11-06T07:03:21Z'
+  committed_at: '2026-11-06T09:01:46Z'
 phases:
   source: not_configured
   completed: []
@@ -15,34 +15,34 @@ phases:
   next: null
 build:
   status: passed
-  run_id: '42178349219'
-  commit: 6767e22f807809e366db95593d75bbbf5851e158
+  run_id: '42191931902'
+  commit: d47e380a57c9c8f6513c230ba1659249a937721b
   run_attempt: '1'
-  at: '2026-11-06T07:04:14Z'
+  at: '2026-11-06T09:02:50Z'
   timestamp_source: observed
   workflow_name: Repo Knowledge Sync
   event_type: push
   actor: soobujmiah
-  run_url: https://github.com/soobujmiah/ternux/actions/runs/42178349219
+  run_url: https://github.com/soobujmiah/ternux/actions/runs/42191931902
 test:
-  status: failed
-  run_id: '42178349219'
-  commit: 6767e22f807809e366db95593d75bbbf5851e158
+  status: passed
+  run_id: '42191931902'
+  commit: d47e380a57c9c8f6513c230ba1659249a937721b
   run_attempt: '1'
-  at: '2026-11-06T07:04:14Z'
+  at: '2026-11-06T09:02:50Z'
   timestamp_source: observed
   workflow_name: Repo Knowledge Sync
   event_type: push
   actor: soobujmiah
-  run_url: https://github.com/soobujmiah/ternux/actions/runs/42178349219
-  summary: focused regressions + Bats + UI + docs + JavaScript syntax + whitespace
-    + repo knowledge tests (ci.yml)
+  run_url: https://github.com/soobujmiah/ternux/actions/runs/42191931902
+  summary: focused regressions + Bats + UI + site build + docs + JavaScript syntax
+    + whitespace + repo knowledge tests (ci.yml)
 last_successful_build:
-  commit: 6767e22f807809e366db95593d75bbbf5851e158
-  at: '2026-11-06T07:04:14Z'
-  run_id: '42178349219'
+  commit: d47e380a57c9c8f6513c230ba1659249a937721b
+  at: '2026-11-06T09:02:50Z'
+  run_id: '42191931902'
 last_failed_build: null
 sync:
   status: ok
-  last_synced_at: '2026-11-06T07:04:14Z'
+  last_synced_at: '2026-11-06T09:02:50Z'
   source: ci
