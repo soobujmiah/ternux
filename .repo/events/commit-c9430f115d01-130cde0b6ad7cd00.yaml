@@ -1,0 +1,7 @@
+event_id: commit-c9430f115d01-130cde0b6ad7cd00
+repository: soobujmiah/ternux
+commit: c9430f115d01f21512f8a9d86a9e79cf2449ad8b
+kind: commit
+occurred_at: '2026-11-06T14:46:30Z'
+status: completed
+summary: Preserve launcher defaults through nested shells
