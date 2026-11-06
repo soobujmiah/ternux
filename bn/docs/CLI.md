@@ -270,16 +270,18 @@ ternux logs <subcommand> [n]
 
 ### `ternux extension`
 
-ঐচ্ছিক release-ভিত্তিক Linux ARM64 extension-এর তালিকা দেখায় ও install করে। host CLI install নির্বাচিত Debian guest-এ পাঠিয়ে দেয়।
+ঐচ্ছিক release-ভিত্তিক Linux ARM64 extension list, install, repair বা remove করে। Host CLI কাজগুলো নির্বাচিত Debian guest-এ পাঠিয়ে দেয়।
 
 ```bash
 ternux extension list
 ternux extension install llama-vulkan
 ternux extension install stable-diffusion
 ternux extension install llama-htp-experimental
+ternux extension repair stable-diffusion
+ternux extension remove stable-diffusion
 ```
 
-`llama-vulkan` হলো CPU + Vulkan prerelease। `llama-htp-experimental` হলো
+`llama-vulkan` হলো CPU + Vulkan prerelease। `stable-diffusion` pinned `sd-cli` preview install করে; Adreno Vulkan generation device-এ সীমিতভাবে test হয়েছে, CPU image quality unqualified। Model weights user-এর কাছেই থাকে। Repair checksum verify করে recognized install atomicভাবে replace করে; ব্যর্থ হলে আগের install restore করে। Remove শুধু recognized extension directory delete করে, model weights অক্ষত রাখে। `llama-htp-experimental` হলো
 সীমিত experimental SM8735/V73 route; এটি supported release feature নয় এবং
 automatic CPU/GPU fallback নেই।
 [CPU/Vulkan guide](https://github.com/soobujmiah/ternux/blob/main/bn/guides/llama-vulkan-extension.md)
