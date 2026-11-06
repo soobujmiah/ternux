@@ -103,8 +103,7 @@ export DEBIAN_FRONTEND=noninteractive
 apt update
 
 # কোর ডেস্কটপ + GL/অডিও। এটি সফল হতেই হবে।
-apt install -y sudo nano dbus-x11 pulseaudio pulseaudio-utils x11-utils \
-  mesa-utils libgl1-mesa-dri xfce4 xfce4-terminal vlc pm-utils colord
+apt install -y sudo nano mousepad fonts-noto-core python3-gi gir1.2-gtk-3.0 ibus ibus-avro devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol x11-utils mesa-utils libgl1-mesa-dri adwaita-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc arc-theme colord
 
 # PolicyKit: polkitd = trixie+, policykit-1 = bookworm। বেস্ট-এফোর্ট।
 apt install -y polkitd || apt install -y policykit-1 || true
@@ -354,8 +353,7 @@ sudo apt install -y fonts-symbola fonts-noto-color-emoji \
   fonts-font-awesome fonts-powerline
 
 # ডেস্কটপের PulseAudio ক্লায়েন্টকে লুপব্যাক ব্রিজের দিকে দেখান।
-mkdir -p ~/.config/pulse
-echo 'default-server = tcp:127.0.0.1:4713' > ~/.config/pulse/client.conf
+# The launcher exports the selected loopback PulseAudio endpoint to desktop apps.
 
 # টার্মিনাল আইকন গ্লিফের জন্য Nerd Font (বেস্ট-এফোর্ট)।
 mkdir -p ~/.local/share/fonts
@@ -417,8 +415,18 @@ termux-wake-lock 2>/dev/null || true
 unset PULSE_SERVER
 pulseaudio --start --exit-idle-time=-1 --daemonize 2>/dev/null || true
 sleep 0.3
-pactl load-module module-native-protocol-tcp listen=127.0.0.1 auth-ip-acl=127.0.0.1 auth-anonymous=1 port=4713 \
-  >/dev/null 2>&1 || true
+PULSE_PORT=""
+for ((candidate=4713; candidate<=4722; candidate++)); do
+  if pactl load-module module-native-protocol-tcp listen=127.0.0.1 auth-ip-acl=127.0.0.1 auth-anonymous=1 port="$candidate" >/dev/null 2>&1; then
+    PULSE_PORT="$candidate"
+    break
+  fi
+done
+if [ -z "$PULSE_PORT" ]; then
+  echo "ERROR: Could not open the loopback PulseAudio bridge on ports 4713-4722."
+  exit 1
+fi
+export PULSE_SERVER="tcp:127.0.0.1:$PULSE_PORT"
 
 # Display
 termux-x11 :0 -ac &
@@ -446,7 +454,7 @@ proot-distro login debian --shared-tmp \
   --bind /dev/dri \
   --user ternux \
   --env DISPLAY=:0 \
-  --env PULSE_SERVER=tcp:127.0.0.1:4713 \
+  --env PULSE_SERVER="$PULSE_SERVER" \
   --env MESA_LOADER_DRIVER_OVERRIDE=zink \
   --env GALLIUM_DRIVER=zink \
   --env TU_DEBUG=sysmem,noconform \
@@ -497,7 +505,7 @@ fi
 ```bash
   --user ternux \
   --env DISPLAY=:0 \
-  --env PULSE_SERVER=tcp:127.0.0.1:4713 \
+  --env PULSE_SERVER="$PULSE_SERVER" \
   --env GALLIUM_DRIVER=virpipe \
   --env MESA_GL_VERSION_OVERRIDE=4.3COMPAT \
   --env QT_X11_NO_MITSHM=1 \

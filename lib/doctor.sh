@@ -26,7 +26,7 @@ TNX_DOCTOR_EXTENSIONS="llama-vulkan llama-htp-experimental"
 _TNX_DR_US=$'\x1f'
 declare -a _TNX_DR_ROWS=()
 declare -a _TNX_DR_FILTER=()
-declare -A _TNX_DR_GUEST=()
+declare -gA _TNX_DR_GUEST=()
 
 _tnx_dr_add() { # status category id title [detail] [fix]
   _TNX_DR_ROWS+=("$1${_TNX_DR_US}$2${_TNX_DR_US}$3${_TNX_DR_US}$4${_TNX_DR_US}${5:-}${_TNX_DR_US}${6:-}")
@@ -209,8 +209,8 @@ _tnx_dr_guest() {
     _tnx_dr_add info guest guest_probe_unavailable "Could not query the Debian guest" "The probe could not log in; this is not necessarily a fault" "Try: ternux start, then rerun doctor"
     return 0
   fi
-  _tnx_dr_add ok guest guest_os "Guest: ${_TNX_DR_GUEST[guest.os]:-unknown} (${_TNX_DR_GUEST[guest.arch]:-?})"
-  v="${_TNX_DR_GUEST[guest.glibc]:-}"
+  _tnx_dr_add ok guest guest_os "Guest: ${_TNX_DR_GUEST["guest.os"]:-unknown} (${_TNX_DR_GUEST["guest.arch"]:-?})"
+  v="${_TNX_DR_GUEST["guest.glibc"]:-}"
   glibc_minor="${v#2.}"
   if [[ "$v" =~ ^2\.([0-9]+)$ ]]; then
     if [ "${BASH_REMATCH[1]}" -lt 38 ]; then
@@ -221,19 +221,19 @@ _tnx_dr_guest() {
   else
     _tnx_dr_add info guest glibc "glibc version unknown"
   fi
-  if [ "${_TNX_DR_GUEST[guest.sudo]:-no}" = yes ]; then _tnx_dr_add ok guest sudo "Passwordless sudo works"
+  if [ "${_TNX_DR_GUEST["guest.sudo"]:-no}" = yes ]; then _tnx_dr_add ok guest sudo "Passwordless sudo works"
   else _tnx_dr_add warn guest sudo_missing "Passwordless sudo does not work" "Package installs inside the guest will ask for a password" "Run: ternux repair"; fi
   for k in startxfce4 glxinfo xdpyinfo pactl; do
-    if [ "${_TNX_DR_GUEST[guest.cmd.$k]:-no}" = yes ]; then _tnx_dr_add ok guest "cmd_$k" "$k present"
+    if [ "${_TNX_DR_GUEST["guest.cmd.$k"]:-no}" = yes ]; then _tnx_dr_add ok guest "cmd_$k" "$k present"
     else _tnx_dr_add warn guest "guest_cmd_${k}_missing" "$k missing in the guest" "" "Run: ternux install --resume"; fi
   done
-  v="${_TNX_DR_GUEST[guest.dpkg_audit]:-0}"
+  v="${_TNX_DR_GUEST["guest.dpkg_audit"]:-0}"
   if [ "$v" -gt 0 ] 2>/dev/null; then
     _tnx_dr_add warn guest dpkg_broken "dpkg reports unfinished or broken packages" "Interrupted upgrades leave the package database inconsistent" "In Debian run: sudo dpkg --configure -a && sudo apt -f install"
   else
     _tnx_dr_add ok guest dpkg "Package database consistent"
   fi
-  v="${_TNX_DR_GUEST[guest.disk_free_gb]:-}"
+  v="${_TNX_DR_GUEST["guest.disk_free_gb"]:-}"
   if [ -n "$v" ] && [ "$v" -lt 2 ] 2>/dev/null; then
     _tnx_dr_add warn guest guest_low_disk "Guest home has ~${v} GB free" "" "Free up storage space"
   elif [ -n "$v" ]; then
@@ -267,7 +267,7 @@ _tnx_dr_graphics() {
   if [ "$configured_backend" = zink ]; then
     if [ -e "$kgsl" ]; then _tnx_dr_add ok graphics kgsl "Adreno KGSL node visible ($kgsl)"
     else _tnx_dr_add warn graphics kgsl_missing "Zink is configured but $kgsl is not visible" "Zink/Turnip cannot reach the GPU without it" "ternux backend set virgl && ternux repair"; fi
-    case "${_TNX_DR_GUEST[guest.turnip]:-}" in
+    case "${_TNX_DR_GUEST["guest.turnip"]:-}" in
       managed) _tnx_dr_add ok graphics turnip "Turnip driver present (apt-safe layout)" ;;
       fragile) _tnx_dr_add warn graphics turnip_fragile "Turnip is on a dpkg-owned path" "A mesa upgrade will revert it (docs/GRAPHICS-PERSISTENCE.md)" "Run: ternux repair" ;;
       missing) _tnx_dr_add warn graphics turnip_missing "Turnip driver files missing" "" "Run: ternux repair" ;;
@@ -312,27 +312,27 @@ _tnx_dr_extensions() {
   fi
   for name in $TNX_DOCTOR_EXTENSIONS; do
     p="ext.$name"
-    if [ "${_TNX_DR_GUEST[$p.present]:-no}" != yes ]; then
+    if [ "${_TNX_DR_GUEST["$p.present"]:-no}" != yes ]; then
       _tnx_dr_add info extensions "ext_$name" "$name: not installed" "" "ternux extension install $name"
       continue
     fi
-    art="${_TNX_DR_GUEST[$p.artifact]:-}"
+    art="${_TNX_DR_GUEST["$p.artifact"]:-}"
     if [ -z "$art" ]; then
       _tnx_dr_add warn extensions "ext_${name}_manifest" "$name: build-manifest.json missing or unreadable" "The installation looks incomplete" "Inspect, then remove the exact directory and reinstall: ternux extension install $name"
       continue
     fi
     case "$name" in
       llama-vulkan|llama-htp-experimental)
-        if [ "${_TNX_DR_GUEST[$p.binary]:-}" = missing ]; then
+        if [ "${_TNX_DR_GUEST["$p.binary"]:-}" = missing ]; then
           _tnx_dr_add warn extensions "ext_${name}_binary" "$name: bin/llama-cli missing" "" "Reinstall: ternux extension install $name"
-        elif [ "${_TNX_DR_GUEST[$p.missing_libs]:-0}" -gt 0 ] 2>/dev/null; then
-          _tnx_dr_add warn extensions "ext_${name}_libs" "$name: ${_TNX_DR_GUEST[$p.missing_libs]} shared librar(ies) not found" "" "In Debian: sudo apt install libgomp1 libvulkan1 libssl3t64 (HTP: libgbinder1 libglibutil1 libfastrpc1)"
+        elif [ "${_TNX_DR_GUEST["$p.missing_libs"]:-0}" -gt 0 ] 2>/dev/null; then
+          _tnx_dr_add warn extensions "ext_${name}_libs" "$name: ${_TNX_DR_GUEST["$p.missing_libs"]} shared librar(ies) not found" "" "In Debian: sudo apt install libgomp1 libvulkan1 libssl3t64 (HTP: libgbinder1 libglibutil1 libfastrpc1)"
         else
-          v="${_TNX_DR_GUEST[$p.version]:-}"
+          v="${_TNX_DR_GUEST["$p.version"]:-}"
           _tnx_dr_add ok extensions "ext_$name" "$name: $art${v:+ — ${v%%$'\n'*}}"
         fi
         if [ "$name" = llama-htp-experimental ]; then
-          if [ "${_TNX_DR_GUEST[$p.broker]:-no}" = yes ]; then _tnx_dr_add ok extensions ext_htp_broker "HTP launcher and broker present (experimental)"
+          if [ "${_TNX_DR_GUEST["$p.broker"]:-no}" = yes ]; then _tnx_dr_add ok extensions ext_htp_broker "HTP launcher and broker present (experimental)"
           else _tnx_dr_add warn extensions ext_htp_broker_missing "HTP launcher or broker missing" "" "Reinstall: ternux extension install llama-htp-experimental"; fi
         fi
         ;;

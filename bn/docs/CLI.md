@@ -219,6 +219,21 @@ ternux backend <subcommand> [backend]
 | `set auto\|zink\|virgl` | GPU ব্যাকএন্ড পরিবর্তন |
 | `detect` | স্বয়ংক্রিয় ব্যাকএন্ড শনাক্ত |
 
+### `ternux gpu`
+
+GPU backend ও guest userspace driver দেখুন বা update করুন। `update` Zink route-এ
+Ternux-এর pinned এবং SHA-256-যাচাইকৃত Debian Turnip driver আবার install করে;
+তারপর desktop restart করতে হবে। এটি Android-এর vendor/kernel driver update করে না।
+VirGL route-এ guest Turnip driver ব্যবহৃত হয় না।
+
+```bash
+ternux gpu show
+ternux gpu update
+ternux gpu update --json
+```
+
+`ternux backend update` একই কাজের সমতুল্য command।
+
 ### `ternux info`
 
 সিস্টেম তথ্য সারসংক্ষেপ।
@@ -268,7 +283,7 @@ automatic CPU/GPU fallback নেই।
 
 ### `ternux update`
 
-ternux CLI আপডেট।
+CLI-কে তার install source অনুযায়ী আপডেট করে। APT-managed install APT দিয়ে update/check করে; অন্য install GitHub থেকে self-update করে।
 
 ```bash
 ternux update [check]
@@ -276,8 +291,8 @@ ternux update [check]
 
 | সাবকমান্ড | বিবরণ |
 |-----------|--------|
-| *(none)* | সর্বশেষ ভার্সন ডাউনলোড ও ইনস্টল |
-| `check` | ইনস্টল না করেই আপডেট চেক |
+| *(none)* | APT package-managed হলে configured repository থেকে update; অন্যথায় GitHub থেকে latest version download/install |
+| `check` | ইনস্টল না করেই আপডেট চেক; APT-managed install configured package candidate দেখে |
 
 ### `ternux uninstall`
 

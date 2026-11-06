@@ -92,14 +92,14 @@ tnx_cmd_repair() {
 
 _tnx_repair_curl() {
   if ! tnx_has_cmd curl; then
-    pkg install -y curl 2>/dev/null || { tnx_fail "Could not install curl"; return 1; }
+    tnx_termux_pkg install -y curl 2>/dev/null || { tnx_fail "Could not install curl"; return 1; }
     _TNX_REPAIR_CHANGED=1
     tnx_ok "curl installed"
     return 0
   fi
   curl --version >/dev/null 2>&1 && { tnx_ok "curl working"; return 0; }
   tnx_warn "curl broken — repairing..."
-  pkg install -y curl openssl openssl-tool libngtcp2 libnghttp3 2>/dev/null || true
+  tnx_termux_pkg install -y curl openssl openssl-tool libngtcp2 libnghttp3 2>/dev/null || true
   if curl --version >/dev/null 2>&1; then
     _TNX_REPAIR_CHANGED=1
     tnx_ok "curl repaired"
@@ -112,8 +112,8 @@ _tnx_repair_curl() {
 _tnx_repair_x11() {
   tnx_has_cmd termux-x11 && { tnx_ok "termux-x11 installed"; return 0; }
   tnx_warn "Installing Termux:X11 package..."
-  pkg install -y x11-repo 2>/dev/null || true
-  pkg install -y termux-x11-nightly 2>/dev/null || pkg install -y termux-x11 2>/dev/null || true
+  tnx_termux_pkg install -y x11-repo 2>/dev/null || true
+  tnx_termux_pkg install -y termux-x11-nightly 2>/dev/null || tnx_termux_pkg install -y termux-x11 2>/dev/null || true
   if tnx_has_cmd termux-x11; then
     _TNX_REPAIR_CHANGED=1
     tnx_ok "termux-x11 installed"
@@ -154,7 +154,7 @@ _tnx_repair_backend() {
     virgl)
       if ! tnx_has_cmd virgl_test_server_android; then
         tnx_warn "Installing the VirGL host renderer..."
-        pkg install -y virglrenderer-android 2>/dev/null || {
+        tnx_termux_pkg install -y virglrenderer-android 2>/dev/null || {
           tnx_fail "Could not install virglrenderer-android"
           return 1
         }
@@ -192,7 +192,8 @@ _tnx_repair_backend() {
 }
 
 _tnx_repair_launcher() {
-  [ -x "$HOME/x.sh" ] && bash -n "$HOME/x.sh" 2>/dev/null && { tnx_ok "Launcher OK"; return 0; }
+  [ -x "$HOME/x.sh" ] && bash -n "$HOME/x.sh" 2>/dev/null &&
+    grep -q '^PULSE_PORT=""$' "$HOME/x.sh" && { tnx_ok "Launcher OK"; return 0; }
 
   local backend user_name locale
   backend="$(tnx_state_get "backend")"
@@ -203,7 +204,7 @@ _tnx_repair_launcher() {
   user_name="${user_name:-ternux}"
   locale="${locale:-en_US.UTF-8}"
 
-  tnx_warn "Launcher missing or broken — regenerating..."
+  tnx_warn "Launcher missing, outdated or broken — regenerating..."
   tnx_phase_launcher "$user_name" "$backend" "$locale" || return 1
   _TNX_REPAIR_CHANGED=1
   return 0

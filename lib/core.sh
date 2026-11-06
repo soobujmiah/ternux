@@ -8,7 +8,7 @@
 #  https://github.com/soobujmiah/ternux
 # =============================================================================
 
-TERNUX_VERSION="1.4.0"
+TERNUX_VERSION="2.0.0"
 TERNUX_NAME="ternux"
 TERNUX_DESC="Linux desktop for Android with Zink and VirGL graphics routes"
 TERNUX_REPO="https://github.com/soobujmiah/ternux"
@@ -73,6 +73,10 @@ tnx_distro_profile() {
 
 # Run a command in the guest. Takes the same flags as `proot-distro login`.
 tnx_guest_login() { proot-distro login "$(tnx_distro)" "$@"; }
+
+# Avoid a host toolchain override shadowing Termux libraries in APT.
+tnx_termux_pkg() { LD_LIBRARY_PATH= pkg "$@"; }
+tnx_termux_apt_cache() { LD_LIBRARY_PATH= apt-cache "$@"; }
 
 # ---------------------------------------------------------------------------
 # UTC timestamp (ISO 8601) — used for all log entries and JSON output

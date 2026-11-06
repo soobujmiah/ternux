@@ -41,7 +41,7 @@ curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh |
 wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
 ```
 
-বেস ইনস্টলে প্রায় ৩–৪ GB storage লাগে। Download ও package cache-এর জন্য আরও
+বেস ইনস্টলে প্রায় ৪–৪.৫ GB storage লাগে। Download ও package cache-এর জন্য আরও
 কিছু খালি জায়গা রাখুন।
 
 ## চালান ও ব্যবহার

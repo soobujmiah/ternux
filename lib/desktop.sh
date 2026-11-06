@@ -9,6 +9,17 @@
 # shellcheck source=lib/core.sh
 . "$(dirname "${BASH_SOURCE[0]}")/core.sh"
 
+# Ternuxx was uninstalled, but its standalone PulseAudio daemon can outlive
+# the app removal and keep an audio sink open. Match only that legacy config.
+tnx_stop_legacy_ternuxx_audio() {
+  local stale_pid pids=""
+  pids="$(ps -A -o pid=,args= 2>/dev/null | awk '$2 ~ /pulseaudio$/ && /\/.local\/share\/ternuxx\/audio\/default\.pa/ {print $1}')"
+  for stale_pid in $pids; do
+    [ -n "$stale_pid" ] || continue
+    kill -TERM "$stale_pid" 2>/dev/null || true
+  done
+}
+
 # ---------------------------------------------------------------------------
 # tnx_cmd_start
 # ---------------------------------------------------------------------------
@@ -60,6 +71,15 @@ tnx_cmd_stop() {
   fi
 
   local found=0
+  tnx_stop_legacy_ternuxx_audio
+  # Stop only the managed guest desktop session before closing the host X
+  # server. Otherwise its PRoot process can survive uninstall/reinstall and
+  # leave duplicate XFCE sessions attached to the next display.
+  if tnx_has_cmd proot-distro; then
+    if tnx_guest_login --user root -- pkill -TERM -x xfce4-session >/dev/null 2>&1; then
+      found=1
+    fi
+  fi
   if pgrep -f "termux-x11" >/dev/null 2>&1; then
     pkill -f "termux-x11" 2>/dev/null || true
     found=1

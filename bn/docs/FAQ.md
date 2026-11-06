@@ -34,8 +34,8 @@ Google Play-এ আলাদা পরীক্ষামূলক Android 11+ br
 
 ## আসলে কত স্টোরেজ লাগবে?
 
-সংশোধিত আনুমানিক **installed footprint** হলো **বেস ইনস্টলে ৩–৪ GB** এবং সব
-repository tool-সহ সম্পূর্ণ `--all` ইনস্টলে **১০–১২ GB**। Debian package version,
+সংশোধিত আনুমানিক **installed footprint** হলো **বেস ইনস্টলে ৪–৪.৫ GB** এবং সব
+repository tool-সহ সম্পূর্ণ `--all` ইনস্টলে **১০.৫–১২.৫ GB**। Debian package version,
 filesystem accounting, optional tool ও cache retention অনুযায়ী actual use বদলায়।
 Model ও নিজের project এই হিসাবের বাইরে।
 

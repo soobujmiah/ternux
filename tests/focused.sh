@@ -81,6 +81,74 @@ else
   not_ok "Debian phase reuses a PRoot-Distro 5 container"
 fi
 
+# The Debian base keeps VLC + Zenity; Firefox stays optional. Welcome content is
+# guest-managed, first-run-only without a browser, and the VLC XCB output is set.
+if env TERNUX_STATE_DIR="$TMP/state-welcome" HOME="$TMP/home-welcome" \
+  PREFIX="$TMP/prefix-welcome" MARKER="$TMP/welcome-script" bash -c '
+    . "$1/lib/phases.sh"
+    tnx_debian_installed(){ return 0; }
+    tnx_install_guest_cli(){ :; }
+    tnx_guest_login(){ if [ "${3:-}" = bash ] && [ "${4:-}" = -c ] && [[ "$5" == *ternux-welcome.desktop* ]]; then printf "%s\n" "$5" > "$MARKER"; bash -n "$MARKER" || return 1; fi; return 0; }
+    tnx_phase_debian alice >/dev/null &&
+      grep -q "Exec=/usr/local/bin/ternux-welcome" "$MARKER" &&
+      grep -q "mousepad.*fonts-noto-core.*ibus ibus-avro devilspie2" "$1/lib/phases.sh" &&
+      grep -q "xfce4-taskmanager.*xfce4-terminal zenity vlc arc-theme" "$1/lib/phases.sh" &&
+      grep -q "vout=xcb_x11" "$1/lib/phases.sh" &&
+      grep -q "avcodec-hw=none" "$1/lib/phases.sh" &&
+      grep -q "qt-minimal-view=1" "$1/lib/phases.sh" &&
+      grep -q "qt-video-autoresize=0" "$1/lib/phases.sh" &&
+      grep -q "qt-system-tray=0" "$1/lib/phases.sh" &&
+      grep -q "pm-is-supported" "$1/lib/phases.sh" &&
+      grep -q "pavucontrol" "$1/lib/phases.sh" &&
+      grep -q "devilspie2" "$1/lib/phases.sh" &&
+      grep -q "pulseaudio pulseaudio-utils pavucontrol" "$1/lib/phases.sh" &&
+      grep -q "ibus-avro" "$1/lib/phases.sh" &&
+      grep -q "fonts-noto-core" "$1/lib/phases.sh" &&
+      grep -q "ternux-window-fit.desktop" "$MARKER" &&
+      grep -q "set_window_geometry" "$1/lib/ternux-window-fit.lua" &&
+      ! grep -q "xfce4-terminal vlc firefox-esr" "$1/lib/phases.sh" &&
+      sh -n "$1/lib/ternux-welcome.sh" &&
+      grep -q "firefox-esr --new-window" "$1/lib/ternux-welcome.sh" &&
+      grep -q "welcome-seen" "$1/lib/ternux-welcome.sh" &&
+      grep -q "ternux benchmark" "$1/lib/ternux-welcome-gui.py" &&
+      grep -q "height = max(250, min(400, screen_height - 96))" "$1/lib/ternux-welcome-gui.py" &&
+      grep -q "Ctrl+Space" "$1/lib/ternux-welcome-gui.py" &&
+      grep -q "Sobuj Miah" "$1/lib/ternux-welcome-gui.py" &&
+      python3 -m py_compile "$1/lib/ternux-welcome-gui.py" &&
+      grep -q "ternux-wallpaper.svg" "$1/lib/phases.sh"
+  ' _ "$ROOT"; then
+  ok "first-run welcome, optional Firefox, Zenity, VLC XCB output are guest-managed"
+else
+  not_ok "first-run welcome, optional Firefox, Zenity, VLC XCB output are guest-managed"
+fi
+
+# GPU updater uses the validated Zink driver workflow through the CLI alias.
+if env TERNUX_STATE_DIR="$TMP/state-gpu-update" HOME="$TMP/home-gpu-update" \
+  MARKER="$TMP/gpu-update-called" bash -c '
+    . "$1/lib/backend.sh"
+    tnx_state_get(){ [ "$1" = backend ] && echo zink; }
+    tnx_detect_backend(){ echo zink; }
+    tnx_phase_gpu(){ [ "$1" = zink ] && : > "$MARKER"; }
+    TERNUX_JSON=1 tnx_cmd_gpu update >/dev/null && [ -f "$MARKER" ]
+  ' _ "$ROOT"; then
+  ok "GPU CLI updater reuses the validated Zink install phase"
+else
+  not_ok "GPU CLI updater reuses the validated Zink install phase"
+fi
+
+# A caller-provided host toolchain path must not override Termux APT libraries.
+if env LD_LIBRARY_PATH="$TMP/foreign-libraries" TERNUX_STATE_DIR="$TMP/state-pkg-env" \
+  HOME="$TMP/home-pkg-env" bash -c '
+    . "$1/lib/core.sh"
+    pkg(){ [ "${LD_LIBRARY_PATH-unset}" = "" ] && [ "$*" = "install ternux" ]; }
+    apt-cache(){ [ "${LD_LIBRARY_PATH-unset}" = "" ] && [ "$*" = "policy ternux" ]; }
+    tnx_termux_pkg install ternux && tnx_termux_apt_cache policy ternux
+  ' _ "$ROOT"; then
+  ok "Termux package tools ignore a caller-supplied LD_LIBRARY_PATH"
+else
+  not_ok "Termux package tools ignore a caller-supplied LD_LIBRARY_PATH"
+fi
+
 # Package setup keeps the current mirror and suppresses pkg's all-mirror sweep;
 # it must not open the full-screen termux-change-repo dialog inside the frame.
 if env TERNUX_STATE_DIR="$TMP/state-repos" HOME="$TMP/home-repos" \
@@ -95,6 +163,156 @@ if env TERNUX_STATE_DIR="$TMP/state-repos" HOME="$TMP/home-repos" \
   ok "package phase avoids repository dialogs and mirror sweeps"
 else
   not_ok "package phase avoids repository dialogs and mirror sweeps"
+fi
+
+# Package artifacts must survive the Astro build, which owns dist/.
+check "Termux APT artifacts live outside the website dist directory" bash -c '
+  grep -Fq "artifacts/ternux-apt/debs" "$1/packaging/termux/build.sh" &&
+  grep -Fq "artifacts/ternux-apt/debs" "$1/packaging/termux/manifest.json" &&
+  ! grep -R -q "dist/ternux-apt" "$1/packaging/termux"
+' _ "$ROOT"
+
+# Repository builds must bind the exact package checksum to a verified full
+# signing fingerprint, export only the public key, and remove stale signatures.
+apt_fixture="$TMP/apt-fixture"
+mkdir -p "$apt_fixture/packaging/termux" "$apt_fixture/artifacts/ternux-apt/debs" "$apt_fixture/lib"
+cp "$ROOT/packaging/termux/build-repository.sh" "$apt_fixture/packaging/termux/"
+cp "$ROOT/packaging/termux/build.sh" "$apt_fixture/packaging/termux/"
+printf 'TERNUX_VERSION="2.0.0"\n' > "$apt_fixture/lib/core.sh"
+printf '{"Version":"@VERSION@"}\n' > "$apt_fixture/packaging/termux/manifest.json"
+printf 'deb payload\n' > "$apt_fixture/artifacts/ternux-apt/debs/ternux_2.0.0_all.deb"
+printf 'stale package\n' > "$apt_fixture/artifacts/ternux-apt/debs/ternux_1.3.0_all.deb"
+cat > "$apt_fixture/fake-create-package" <<'EOF'
+#!/usr/bin/env bash
+set -eu
+printf 'current package\n' > "$FAKE_PACKAGE_OUTPUT/ternux_2.0.0_all.deb"
+EOF
+chmod +x "$apt_fixture/fake-create-package"
+if env TERMUX_CREATE_PACKAGE="$apt_fixture/fake-create-package" \
+  FAKE_PACKAGE_OUTPUT="$apt_fixture/artifacts/ternux-apt/debs" \
+  bash "$apt_fixture/packaging/termux/build.sh" >/dev/null &&
+  [[ -s "$apt_fixture/artifacts/ternux-apt/debs/ternux_2.0.0_all.deb" ]] &&
+  [[ ! -e "$apt_fixture/artifacts/ternux-apt/debs/ternux_1.3.0_all.deb" ]]; then
+  ok "package rebuild keeps only the current Ternux package artifact"
+else
+  not_ok "package rebuild keeps only the current Ternux package artifact"
+fi
+cat > "$apt_fixture/fake-apt-repo" <<'EOF'
+#!/usr/bin/env bash
+set -eu
+sign=0
+if [[ "$1" = --sign ]]; then sign=1; shift; fi
+input="$1"; output="$2"; dist="$3"; component="$4"
+mkdir -p "$output/dists/$dist/$component/binary-all"
+release="$output/dists/$dist"
+deb="ternux_2.0.0_all.deb"
+hash="$(sha256sum "$input/$deb" | awk '{print $1}')"
+printf 'Package: ternux\nVersion: 2.0.0\nArchitecture: all\nFilename: dists/%s/%s/binary-all/%s\nSHA256: %s\n\n' \
+  "$dist" "$component" "$deb" "$hash" > "$release/$component/binary-all/Packages"
+printf 'Codename: termux\nSuite: stable\nRelease\n' > "$release/Release"
+if ((sign)); then printf 'signed\n' > "$release/InRelease"; fi
+EOF
+cat > "$apt_fixture/fake-gpg" <<'EOF'
+#!/usr/bin/env bash
+set -eu
+if [[ " $* " == *" --verify "* ]]; then
+  printf '[GNUPG:] VALIDSIG %s 20261106 0 0 4 0 1 8 00 %s\n' "$FAKE_SIGNER_FINGERPRINT" "${FAKE_PRIMARY_FINGERPRINT:-$FAKE_SIGNING_FINGERPRINT}"
+  exit 0
+fi
+if [[ " $* " == *" --clearsign "* ]]; then
+  output=""; previous=""
+  for argument in "$@"; do
+    [[ "$previous" != --output ]] || output="$argument"
+    previous="$argument"
+  done
+  printf 'SIGNED InRelease\n' > "$output"
+  exit 0
+fi
+if [[ " $* " == *" --export "* ]]; then
+  printf 'PUBLIC KEY ONLY\n'
+  exit 0
+fi
+if [[ " $* " == *" --show-keys "* ]]; then
+  printf 'pub:::::::::\nfpr:::::::::%s:\n' "${FAKE_KEY_FINGERPRINT:-$FAKE_SIGNING_FINGERPRINT}"
+  exit 0
+fi
+exit 9
+EOF
+chmod +x "$apt_fixture/fake-apt-repo" "$apt_fixture/fake-gpg"
+apt_fingerprint=0123456789ABCDEF0123456789ABCDEF01234567
+if env TERMUX_APT_REPO_TOOL="$apt_fixture/fake-apt-repo" GPG="$apt_fixture/fake-gpg" \
+  TERNUX_APT_SIGNING_FINGERPRINT="$apt_fingerprint" FAKE_SIGNING_FINGERPRINT="$apt_fingerprint" \
+  FAKE_SIGNER_FINGERPRINT="$apt_fingerprint" \
+  bash "$apt_fixture/packaging/termux/build-repository.sh" --sign >"$apt_fixture/sign-success.log" 2>&1 &&
+  grep -q '^PUBLIC KEY ONLY$' "$apt_fixture/artifacts/ternux-apt/repository/ternux-archive-key.asc" &&
+  grep -q '^Origin: Ternux$' "$apt_fixture/artifacts/ternux-apt/repository/dists/stable/Release" &&
+  grep -q '^Codename: stable$' "$apt_fixture/artifacts/ternux-apt/repository/dists/stable/Release" &&
+  [[ -s "$apt_fixture/artifacts/ternux-apt/repository/dists/stable/InRelease" ]] &&
+  [[ -s "$apt_fixture/artifacts/ternux-apt/repository/ternux-archive-key.asc" ]]; then
+  ok "signed APT build verifies its full fingerprint and exports only public key"
+else
+  cat "$apt_fixture/sign-success.log" >&2 2>/dev/null || true
+  not_ok "signed APT build verifies its full fingerprint and exports only public key"
+fi
+if env TERMUX_APT_REPO_TOOL="$apt_fixture/fake-apt-repo" GPG="$apt_fixture/fake-gpg" \
+  TERNUX_APT_SIGNING_FINGERPRINT="$apt_fingerprint" \
+  FAKE_SIGNING_FINGERPRINT="$apt_fingerprint" \
+  FAKE_SIGNER_FINGERPRINT=FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF \
+  FAKE_PRIMARY_FINGERPRINT="$apt_fingerprint" \
+  FAKE_KEY_FINGERPRINT="$apt_fingerprint" \
+  bash "$apt_fixture/packaging/termux/build-repository.sh" --sign >/dev/null 2>&1; then
+  ok "APT signing accepts a verified signing subkey under the pinned primary key"
+else
+  not_ok "APT signing accepts a verified signing subkey under the pinned primary key"
+fi
+if env TERMUX_APT_REPO_TOOL="$apt_fixture/fake-apt-repo" GPG="$apt_fixture/fake-gpg" \
+  TERNUX_APT_SIGNING_FINGERPRINT="$apt_fingerprint" \
+  FAKE_SIGNING_FINGERPRINT=FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF \
+  FAKE_SIGNER_FINGERPRINT=FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF \
+  bash "$apt_fixture/packaging/termux/build-repository.sh" --sign >/dev/null 2>&1; then
+  not_ok "signed APT build rejects a different key fingerprint"
+else
+  ok "signed APT build rejects a different key fingerprint"
+fi
+if env TERMUX_APT_REPO_TOOL="$apt_fixture/fake-apt-repo" GPG="$apt_fixture/fake-gpg" \
+  TERNUX_APT_SIGNING_FINGERPRINT="$apt_fingerprint" \
+  FAKE_SIGNING_FINGERPRINT="$apt_fingerprint" \
+  FAKE_SIGNER_FINGERPRINT="$apt_fingerprint" \
+  FAKE_KEY_FINGERPRINT=FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF \
+  bash "$apt_fixture/packaging/termux/build-repository.sh" --sign >/dev/null 2>&1; then
+  not_ok "signed APT build rejects a public key with a different fingerprint"
+else
+  ok "signed APT build rejects a public key with a different fingerprint"
+fi
+if env TERMUX_APT_REPO_TOOL="$apt_fixture/fake-apt-repo" \
+  bash "$apt_fixture/packaging/termux/build-repository.sh" >/dev/null &&
+  [[ ! -e "$apt_fixture/artifacts/ternux-apt/repository/dists/stable/InRelease" ]] &&
+  [[ ! -e "$apt_fixture/artifacts/ternux-apt/repository/ternux-archive-key.asc" ]]; then
+  ok "unsigned APT rebuild removes stale signature and public-key files"
+else
+  not_ok "unsigned APT rebuild removes stale signature and public-key files"
+fi
+
+printf 'stale package\n' > "$apt_fixture/artifacts/ternux-apt/debs/ternux_1.3.0_all.deb"
+if env TERMUX_APT_REPO_TOOL="$apt_fixture/fake-apt-repo" \
+  bash "$apt_fixture/packaging/termux/build-repository.sh" >/dev/null 2>&1; then
+  not_ok "APT build rejects stale or unrelated package versions"
+else
+  ok "APT build rejects stale or unrelated package versions"
+fi
+rm -f "$apt_fixture/artifacts/ternux-apt/debs/ternux_1.3.0_all.deb"
+
+outside_apt_artifacts="$TMP/apt-outside-artifacts"
+mkdir -p "$outside_apt_artifacts/ternux-apt/debs"
+printf 'outside marker\n' > "$outside_apt_artifacts/marker"
+rm -rf "$apt_fixture/artifacts"
+ln -s "$outside_apt_artifacts" "$apt_fixture/artifacts"
+if env TERMUX_APT_REPO_TOOL="$apt_fixture/fake-apt-repo" \
+  bash "$apt_fixture/packaging/termux/build-repository.sh" >/dev/null 2>&1; then
+  not_ok "APT build refuses a symlinked artifacts directory"
+else
+  [[ -f "$outside_apt_artifacts/marker" ]] && ok "APT build refuses a symlinked artifacts directory" ||
+    not_ok "APT build refuses a symlinked artifacts directory"
 fi
 
 # Build archives that exercise target-only validation. An unrelated symlink is
@@ -132,11 +350,37 @@ if env TERNUX_STATE_DIR="$TMP/state-launcher" HOME="$launcher_home" bash -c '
   bash -n "$HOME/x.sh" &&
   grep -q -- "--user alice" "$HOME/x.sh" &&
   grep -q -- "--env DISPLAY=:0" "$HOME/x.sh" &&
+  grep -q "termux-x11 :0 -legacy-drawing -ac" "$HOME/x.sh" &&
+  grep -q "stop_legacy_ternuxx_audio" "$HOME/x.sh" &&
+  grep -Fq "ternuxx\\/audio\\/default\\.pa" "$HOME/x.sh" &&
+  grep -q "Arc-Dark" "$HOME/x.sh" &&
+  grep -q "IconThemeName --create -t string -s Adwaita" "$HOME/x.sh" &&
+  grep -q "ThemeName --create -t string -s Arc-Dark" "$HOME/x.sh" &&
+  grep -Fq "session_pid=\\\$!" "$HOME/x.sh" &&
+  grep -Fq "wait \\\$session_pid" "$HOME/x.sh" &&
+  grep -Fq "[ \\\$tries -ge 50 ]" "$HOME/x.sh" &&
+  grep -q "adwaita-icon-theme xfce4 xfce4-taskmanager" "$1/lib/phases.sh" &&
+  ! grep -q "adwaita-gtk-theme" "$1/lib/phases.sh" &&
+  ! grep -q "pm-utils" "$1/lib/phases.sh" &&
+  grep -q "GTK_IM_MODULE=ibus QT_IM_MODULE=ibus XMODIFIERS=@im=ibus" "$HOME/x.sh" &&
+  grep -Fq "IBUS_ADDRESS=unix:path=/home/alice/.runtime/ibus.sock" "$HOME/x.sh" &&
+  grep -Fq "rm -f ~/.runtime/ibus.sock" "$HOME/x.sh" &&
+  grep -Fq "ibus-daemon --daemonize --xim --replace" "$HOME/x.sh" &&
+  grep -Fq "IBUS_ADDRESS=unix:path=/home/\$user_name/.runtime/ibus.sock" "$1/lib/phases.sh" &&
+  grep -q "image-style --create -t int -s 5" "$1/lib/phases.sh" &&
+  grep -Fq "monitor0/workspace0/last-image" "$1/lib/phases.sh" &&
+  grep -Fq "monitor1/workspace0/last-image" "$1/lib/phases.sh" &&
+  grep -q "pgrep -x xfdesktop" "$1/lib/phases.sh" &&
+  grep -q "xfdesktop --reload" "$1/lib/phases.sh" &&
   grep -q -- "--env LC_ALL=en_US.UTF-8" "$HOME/x.sh" &&
   grep -q "^trap cleanup EXIT$" "$HOME/x.sh" &&
   grep -qF '\''/run/user/$(id -u)'\'' "$HOME/x.sh" &&
   grep -qF '\''rm -f "$TMPDIR"/.X11-unix/X*'\'' "$HOME/x.sh" &&
   grep -q "pulseaudio --kill.*pkill -KILL -x pulseaudio" "$HOME/x.sh" &&
+  grep -q "candidate=4713; candidate<=4722" "$HOME/x.sh" &&
+  grep -q "PULSE_MODULE_ID=.*pactl load-module module-native-protocol-tcp" "$HOME/x.sh" &&
+  grep -q -- "--env PULSE_SERVER=\"tcp:127.0.0.1:\$PULSE_PORT\"" "$HOME/x.sh" &&
+  ! grep -q "PULSE_SERVER=tcp:127.0.0.1:4713" "$HOME/x.sh" &&
   ! grep -q "pkill.*dbus" "$HOME/x.sh" &&
   grep -q "chmod 700 ~/.runtime /tmp/mesa_cache" "$HOME/x.sh" &&
   ! grep -q "^virgl_test_server_android " "$HOME/x.sh" &&
@@ -147,6 +391,48 @@ if env TERNUX_STATE_DIR="$TMP/state-launcher" HOME="$launcher_home" bash -c '
   ok "Zink launcher and aliases preserve user and backend boundaries"
 else
   not_ok "Zink launcher and aliases preserve user and backend boundaries"
+fi
+
+if env TERNUX_STATE_DIR="$TMP/state-pulse-port" HOME="$TMP/home-pulse-port" bash -c '
+  mkdir -p "$HOME"
+  . "$1/lib/phases.sh"
+  tnx_phase_launcher ternux zink en_US.UTF-8 >/dev/null
+  sed -n "/^PULSE_PORT=.*/,/^# Display/{ /^# Display/d; p; }" "$HOME/x.sh" > "$2/audio-bridge.sh"
+  pactl(){
+    case "$*" in
+      *port=4713*) return 1 ;;
+      *port=4714*) printf 91; return 0 ;;
+      *) return 2 ;;
+    esac
+  }
+  . "$2/audio-bridge.sh" >/dev/null
+  [ "$PULSE_PORT" = 4714 ] && [ "$PULSE_MODULE_ID" = 91 ]
+' _ "$ROOT" "$TMP"; then
+  ok "launcher falls back to an available loopback audio port after a collision"
+else
+  not_ok "launcher falls back to an available loopback audio port after a collision"
+fi
+
+if env TERNUX_STATE_DIR="$TMP/state-repair-launcher" HOME="$TMP/home-repair-launcher" bash -c '
+  mkdir -p "$HOME"
+  . "$1/lib/repair.sh"
+  tnx_state_get(){ case "$1" in backend) echo zink;; user) echo ternux;; locale) echo en_US.UTF-8;; esac; }
+  tnx_ok(){ :; }; tnx_warn(){ :; }; tnx_state_set(){ :; }
+  cat > "$HOME/x.sh" <<"OLD"
+#!/bin/bash
+exit 0
+OLD
+  chmod +x "$HOME/x.sh"
+  _TNX_REPAIR_CHANGED=0
+  _tnx_repair_launcher || exit
+  [ "$_TNX_REPAIR_CHANGED" = 1 ] && grep -q '^PULSE_PORT=""$' "$HOME/x.sh" || exit
+  _TNX_REPAIR_CHANGED=0
+  _tnx_repair_launcher || exit
+  [ "$_TNX_REPAIR_CHANGED" = 0 ]
+' _ "$ROOT"; then
+  ok "repair upgrades a legacy launcher and leaves a current launcher intact"
+else
+  not_ok "repair upgrades a legacy launcher and leaves a current launcher intact"
 fi
 
 if env TERNUX_STATE_DIR="$TMP/state-virgl" HOME="$TMP/home-virgl" bash -c '
@@ -183,6 +469,9 @@ then
      grep -qF '/run/user/$(id -u)' "$manual_en" &&
      grep -qF 'rm -f "$TMPDIR"/.X11-unix/X*' "$manual_en" &&
      grep -q 'pulseaudio --kill.*pkill -KILL -x pulseaudio' "$manual_en" &&
+     grep -q "candidate=4713; candidate<=4722" "$manual_en" &&
+     grep -q "export PULSE_SERVER=\"tcp:127.0.0.1:\$PULSE_PORT\"" "$manual_en" &&
+     ! grep -q "PULSE_SERVER=tcp:127.0.0.1:4713" "$manual_en" &&
      ! grep -q 'pkill.*dbus' "$manual_en" &&
      grep -q -- '--env MESA_LOADER_DRIVER_OVERRIDE=zink' "$manual_en" &&
      grep -q 'chmod 700 ~/.runtime /tmp/mesa_cache' "$manual_en" &&
@@ -761,7 +1050,10 @@ if env TERNUX_STATE_DIR="$TMP/state-desktop-stop" HOME="$TMP/home-desktop-stop" 
     pgrep(){ return 0; }
     pkill(){ printf "pkill %s\n" "$*" >> "$log"; }
     pulseaudio(){ printf "pulseaudio %s\n" "$*" >> "$log"; return 1; }
-    tnx_has_cmd(){ return 1; }
+    ps(){ printf "9709 /data/data/com.termux/files/usr/bin/pulseaudio --file /home/ternux/.local/share/ternuxx/audio/default.pa\n"; }
+    kill(){ printf "kill %s\n" "$*" >> "$log"; }
+    tnx_has_cmd(){ [ "$1" = proot-distro ]; }
+    tnx_guest_login(){ printf "guest %s\n" "$*" >> "$log"; }
     TERNUX_JSON=1
     out="$(tnx_cmd_stop)" || exit
     JSON_OUT="$out" python3 -c '\''
@@ -769,6 +1061,8 @@ import json, os
 obj=json.loads(os.environ["JSON_OUT"])
 assert obj["command"] == "stop" and obj["status"] == "ok"
 '\'' &&
+    grep -qx "guest --user root -- pkill -TERM -x xfce4-session" "$log" &&
+    grep -qx "kill -TERM 9709" "$log" &&
     grep -qx "pulseaudio --kill" "$log" &&
     grep -qx "pkill -KILL -x pulseaudio" "$log" &&
     ! grep -qi dbus "$log" &&
@@ -846,6 +1140,7 @@ if env TERNUX_STATE_DIR="$TMP/state-cli-layout" HOME="$TMP/home-cli-layout" \
   PREFIX="$TMP/prefix-cli-layout" bash -c '
     mkdir -p "$HOME"
     . "$1/lib/phases.sh"
+    dpkg-query(){ return 1; }
     tnx_phase_cli >/dev/null &&
     [ -x "$PREFIX/bin/ternux" ] &&
     [ -f "$PREFIX/lib/ternux/core.sh" ] &&
@@ -861,6 +1156,7 @@ if env TERNUX_STATE_DIR="$TMP/state-cli-stale" HOME="$TMP/home-cli-stale" \
   PREFIX="$TMP/prefix-cli-stale" bash -c '
     mkdir -p "$HOME"
     . "$1/lib/phases.sh"
+    dpkg-query(){ return 1; }
     install(){
       local dest="${!#}"
       if [ "$dest" = "$PREFIX/bin/ternux" ]; then
@@ -946,8 +1242,8 @@ if env TERM=dumb NO_COLOR=1 TERNUX_STATE_DIR="$TMP/state-frame" \
     tnx_frame_close failed
   ' _ "$ROOT" > "$frame_out" &&
   grep -q "Sobuj Miah" "$frame_out" &&
-  grep -q "base ~3-4 GB" "$frame_out" &&
-  grep -q "complete ~10-12 GB" "$frame_out" &&
+  grep -q "base ~4-4.5 GB" "$frame_out" &&
+  grep -q "complete ~10.5-12.5 GB" "$frame_out" &&
   grep -q "Get: package-one" "$frame_out" &&
   grep -q "ERROR: sample failure" "$TMP/log-frame/ternux.log"; then
   ok "persistent install frame has a readable line-stream fallback"
@@ -982,7 +1278,7 @@ fi
 
 # Storage copy must distinguish installed size from temporary free-space
 # headroom and must not restore the old 12 GB base-install claim.
-if grep -q "base desktop ~3–4 GB; complete --all profile ~10–12 GB" "$ROOT/lib/phases.sh" &&
+if grep -q "base desktop ~4–4.5 GB; complete --all profile ~10.5–12.5 GB" "$ROOT/lib/phases.sh" &&
    ! grep -q "base install wants ~12 GB" "$ROOT/lib/phases.sh"; then
   ok "preflight reports corrected base and complete storage estimates"
 else
@@ -1055,6 +1351,7 @@ if env TERNUX_STATE_DIR="$TMP/state-update-layout" HOME="$TMP/home-update-layout
     . "$1/lib/core.sh"
     TNX_ROOT="$1"
     . "$1/lib/update.sh"
+    dpkg-query(){ return 1; }
     git(){
       local dest="${!#}"
       mkdir -p "$dest"
@@ -1082,6 +1379,7 @@ if env TERNUX_STATE_DIR="$TMP/state-update-guest" HOME="$TMP/home-update-guest" 
     . "$1/lib/core.sh"
     TNX_ROOT="$1"
     . "$1/lib/update.sh"
+    dpkg-query(){ return 1; }
     git(){
       local dest="${!#}"
       mkdir -p "$dest"
@@ -1567,11 +1865,18 @@ check "the GPU phase holds what the profile names, not a fixed list" bash -c '
   printf "%s" "$phase" | grep -q "apt-mark hold mesa-vulkan-drivers libgl1-mesa-dri" && exit 1
   exit 0
 ' _ "$ROOT"
-check "extension install finds ldconfig outside the default PATH" bash -c '
+check "extension install locates ldconfig outside PATH or reports it unavailable" bash -c '
   PATH=/usr/bin:/bin
   . "$1/lib/extension.sh"
-  found="$(_tnx_extension_find_ldconfig)" || exit 1
-  [ "$found" = /sbin/ldconfig ] || [ "$found" = /usr/sbin/ldconfig ]
+  rc=0
+  found="$(_tnx_extension_find_ldconfig)" || rc=$?
+  if [ -x /sbin/ldconfig ]; then
+    [ "$rc" -eq 0 ] && [ "$found" = /sbin/ldconfig ]
+  elif [ -x /usr/sbin/ldconfig ]; then
+    [ "$rc" -eq 0 ] && [ "$found" = /usr/sbin/ldconfig ]
+  else
+    [ "$rc" -ne 0 ]
+  fi
 ' _ "$ROOT"
 
 # Invariant 1 of lib/ui.sh: middle dot, bullet and braille render two cells wide

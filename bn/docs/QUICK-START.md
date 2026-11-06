@@ -48,7 +48,7 @@ wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | 
 6. লঞ্চার ও শেল শর্টকাট লিখে দেয়;
 7. সবকিছু ঠিকমতো বসেছে কিনা যাচাই করে।
 
-Installed size base-এ প্রায় **৩–৪ GB**, আর `--all`-এ **১০–১২ GB**; download ও
+Installed size base-এ প্রায় **৪–৪.৫ GB**, আর `--all`-এ **১০.৫–১২.৫ GB**; download ও
 cache-এর জন্য অতিরিক্ত temporary space রাখুন। একটিমাত্র স্থায়ী স্ক্রিন শেষ status
 পর্যন্ত device panel, step progress ও live log window দেখায়; যে terminal সেটি
 চালাতে পারে না, সেখানে plain framed log আসে। দুটিতেই পুরো আউটপুট রেকর্ড হয় —
@@ -112,6 +112,20 @@ db       Debian শেল (ইউজার)    droot  রুট শেল
 xgo      Termux:X11 + x একসাথে
 sysmon   ডিভাইসের সারসংক্ষেপ   clean-mesa  শেডার ক্যাশ পরিষ্কার
 ```
+
+### প্রথম GUI চালু, browser ও video
+
+Firefox ESR ইনস্টল থাকলে desktop login-এ Ternux project page খুলবে। Browser
+না থাকলে প্রথম GUI session-এ project/developer link, guest command এবং host
+benchmark command-সহ একবারের welcome guide দেখাবে। Firefox optional; installer-এর
+optional software তালিকা থেকে বেছে নেওয়া যায়।
+
+Noto Bengali font ও Avro IBus phonetic keyboard default-এ থাকে; English ও
+বাংলার মধ্যে বদলাতে **Ctrl+Space** চাপুন। VLC, PulseAudio Volume Control, Xfce Task Manager ও Mousepad
+text editor base desktop-এ থাকে। আধুনিক,
+পরিপাটি dark desktop-এর জন্য Arc GTK theme, Adwaita icon ও Aurora wallpaper default। ছোট X11 screen-এ welcome guide scrollable layout ও Cairo renderer ব্যবহার করে।
+PRoot-এ VAAPI/VDPAU না থাকায় VLC-তে X11 `xcb_x11` output ও software decoding
+default; ছোট screen-এ compact player view ব্যবহার করে। এতে অনুপস্থিত host decoder বেছে নিয়ে video blank হওয়া এড়ায়।
 
 ### ternux CLI — ব্যবস্থাপনা ইন্টারফেস
 

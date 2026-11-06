@@ -52,7 +52,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for file in install.sh uninstall.sh bin/ternux bin/ternux-guest lib/*.sh; do
+          for file in install.sh uninstall.sh bin/ternux bin/ternux-guest lib/*.sh packaging/termux/*.sh; do
             bash -n "$file"
           done
 

@@ -47,7 +47,7 @@ estimate দেখায়; এতে download ও setup-এর অস্থা
 | Blender | `--with-blender` | headless EEVEE render-এর জন্য Blender ও Xvfb (Blender প্রায় ৯৫ MB, `--no-install-recommends` সহ) |
 | সবকিছু | `--all` | পাঁচটিই |
 
-Interactive menu-তে Godot, Blender, Firefox ESR, Neovim, GitHub CLI, Claude Code,
+Interactive menu-তে Firefox ESR, Godot, Blender, Neovim, GitHub CLI, Claude Code,
 Codex, Hermes, OpenClaw এবং ADT-এর Android component-ও আলাদা item। ADT Platform
 Tools-এর মধ্যে `adb` ও `fastboot` আছে। Ternux এগুলো ADT-র `setup.sh` দিয়ে বসায়;
 Debian-এর আলাদা `android-tools-adb` package ব্যবহার করে না।
@@ -58,8 +58,10 @@ Termux:Widget, Termux:Boot ও Termux:Styling-এর মতো Android companion
 থেকে নয়। [Termux-এর official app ও add-on project](https://github.com/termux/termux-app)
 এবং [Termux:X11-এর official project](https://github.com/termux/termux-x11) দেখুন।
 
+XFCE session শুরু হলে optional Firefox ESR ইনস্টল থাকলে Ternux-এর ওয়েবসাইট খুলবে।
+
 বেস desktop — Xfce4, terminal, VLC, archive tool, Mesa utility, Vulkan tool —
-সবসময় বসে; এতে প্রায় ৩–৪ GB storage লাগে। VLC catalog-এ আলাদা করে বেছে নেওয়া যায়,
+সবসময় বসে; এতে প্রায় ৪–৪.৫ GB storage লাগে। VLC catalog-এ আলাদা করে বেছে নেওয়া যায়,
 তবে base desktop-এ আগে থেকেই থাকায় দ্বিতীয় কপি বসে না।
 
 <h2 id="automatic">স্বয়ংক্রিয়</h2>
@@ -102,14 +104,13 @@ sudo apt install -y nmap tmux
 কেবল অনুমোদিত পরীক্ষার জন্য। নিজের নয় এমন network-এ nmap চালাতে ternux আপনাকে
 বলছে না।
 
-**Browser ও developer utility**
+**Developer utility**
 
 ```bash
-sudo apt install -y firefox-esr neovim gh
+sudo apt install -y neovim gh
 ```
 
-Firefox ESR Debian-এর ARM64 browser package; `apt update`-এর পর configured Debian
-repository-তে থাকা সর্বশেষ package বসে। বিস্তারিত: [Debian Firefox ESR package](https://packages.debian.org/bookworm/firefox-esr)।
+Firefox ESR software menu-তে পাওয়া ঐচ্ছিক ARM64 browser package।
 
 **মিডিয়া**
 

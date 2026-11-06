@@ -1,7 +1,7 @@
 # =============================================================================
 #  ternux — installer UI (renderer rev 2)
-#  Persistent framed dashboard: device panel, fixed step progress bar, a
-#  framed live log, and an animated footer.
+#  Persistent installer dashboard: compact branding, device panel, fixed-step
+#  progress, a framed live log, and a quiet footer.
 #
 #  Stability rules (learned the hard way on Android terminals):
 #    1. The frame is built ONLY from ASCII characters. Box-drawing, block,
@@ -113,9 +113,10 @@ _tnx_repeat() {
 
 # _TNX_RULE <- a full-width ASCII rule for the current frame width.
 _tnx_rule_cache() {
-  local n=$(( _TNX_FRAME_COLS - 2 )) r="" pattern='*+=-~^-=+*' i idx
+  local n=$(( _TNX_FRAME_COLS - 2 )) r=""
   (( n < 1 )) && n=1
-  for ((i=0; i<n; i++)); do idx=$((i % ${#pattern})); r+="${pattern:idx:1}"; done
+  printf -v r '%*s' "$n" ''
+  r="${r// /-}"
   _TNX_RULE="$r"
 }
 
@@ -283,7 +284,9 @@ _tnx_measure() {
   if [ -n "${TERNUX_COLS:-}" ] && [ -n "${TERNUX_ROWS:-}" ]; then
     c="$TERNUX_COLS"; r="$TERNUX_ROWS"
   else
-    sz="$(stty size </dev/tty 2>/dev/null)" || sz=""
+    if ( : </dev/tty ) 2>/dev/null; then
+      sz="$(stty size </dev/tty 2>/dev/null)" || sz=""
+    fi
     [ -n "$sz" ] || sz="$(stty size <&2 2>/dev/null)" || sz=""
     if [ -z "$sz" ] && [ "$_TNX_TTY" = "1" ]; then
       sz="$(stty size <&1 2>/dev/null)" || sz=""
@@ -341,41 +344,41 @@ _tnx_plain_cols() {
   printf '%s' "$cols"
 }
 
-# Compute fixed row indices for the current terminal size. Full layout includes
-# the device panel; a short/narrow viewport drops it.
+# Compute fixed row indices for the current terminal size. The compact header
+# deliberately leaves more vertical space for install output on phone screens.
 _tnx_frame_layout() {
   local R="$_TNX_FRAME_ROWS" C="$_TNX_FRAME_COLS"
   _TNX_LY_DEV_ON=0
   if (( R >= 26 && C >= 44 )); then
-    _TNX_LY_LOGO_ROWS=5
-    _TNX_LY_TITLE=2; _TNX_LY_TITLE2=3; _TNX_LY_TITLE3=4; _TNX_LY_TITLE4=5; _TNX_LY_TITLE5=6
-    _TNX_LY_IDENT=7; _TNX_LY_VER=8; _TNX_LY_BY=9; _TNX_LY_DIV1=10
-    _TNX_LY_DEV_ON=1; _TNX_LY_DEV0=11
-    _TNX_LY_PROG=16; _TNX_LY_BAR=17; _TNX_LY_TASK=18; _TNX_LY_DIV2=19; _TNX_LY_LOGTOP=20
+    _TNX_LY_LOGO_ROWS=0
+    _TNX_LY_TITLE=2; _TNX_LY_TITLE2=3; _TNX_LY_TITLE3=0; _TNX_LY_TITLE4=0; _TNX_LY_TITLE5=0
+    _TNX_LY_IDENT=0; _TNX_LY_VER=4; _TNX_LY_BY=0; _TNX_LY_DIV1=5
+    _TNX_LY_DEV_ON=1; _TNX_LY_DEV0=6
+    _TNX_LY_PROG=12; _TNX_LY_BAR=13; _TNX_LY_TASK=14; _TNX_LY_DIV2=15; _TNX_LY_LOGTOP=16
   elif (( R >= 18 && C >= 44 )); then
-    _TNX_LY_LOGO_ROWS=5
-    _TNX_LY_TITLE=2; _TNX_LY_TITLE2=3; _TNX_LY_TITLE3=4; _TNX_LY_TITLE4=5; _TNX_LY_TITLE5=6
-    _TNX_LY_IDENT=7; _TNX_LY_VER=8; _TNX_LY_BY=0; _TNX_LY_DIV1=9; _TNX_LY_DEV0=0
-    _TNX_LY_PROG=10; _TNX_LY_BAR=11; _TNX_LY_TASK=12; _TNX_LY_DIV2=13; _TNX_LY_LOGTOP=14
+    _TNX_LY_LOGO_ROWS=0
+    _TNX_LY_TITLE=2; _TNX_LY_TITLE2=3; _TNX_LY_TITLE3=0; _TNX_LY_TITLE4=0; _TNX_LY_TITLE5=0
+    _TNX_LY_IDENT=0; _TNX_LY_VER=4; _TNX_LY_BY=0; _TNX_LY_DIV1=5; _TNX_LY_DEV0=0
+    _TNX_LY_PROG=6; _TNX_LY_BAR=7; _TNX_LY_TASK=8; _TNX_LY_DIV2=9; _TNX_LY_LOGTOP=10
   elif (( R >= 18 && C >= 39 )); then
     _TNX_LY_LOGO_ROWS=0
     _TNX_LY_TITLE=2; _TNX_LY_TITLE2=3; _TNX_LY_TITLE3=0; _TNX_LY_TITLE4=0; _TNX_LY_TITLE5=0
-    _TNX_LY_IDENT=4; _TNX_LY_VER=5; _TNX_LY_BY=6; _TNX_LY_DIV1=7; _TNX_LY_DEV0=0
-    _TNX_LY_PROG=8; _TNX_LY_BAR=9; _TNX_LY_TASK=10; _TNX_LY_DIV2=11; _TNX_LY_LOGTOP=12
+    _TNX_LY_IDENT=0; _TNX_LY_VER=4; _TNX_LY_BY=0; _TNX_LY_DIV1=5; _TNX_LY_DEV0=0
+    _TNX_LY_PROG=6; _TNX_LY_BAR=7; _TNX_LY_TASK=8; _TNX_LY_DIV2=9; _TNX_LY_LOGTOP=10
   elif (( R >= 16 && C >= 44 )); then
-    _TNX_LY_LOGO_ROWS=5
-    _TNX_LY_TITLE=2; _TNX_LY_TITLE2=3; _TNX_LY_TITLE3=4; _TNX_LY_TITLE4=5; _TNX_LY_TITLE5=6
-    _TNX_LY_IDENT=7; _TNX_LY_VER=8; _TNX_LY_BY=0; _TNX_LY_DIV1=9; _TNX_LY_DEV0=0
-    _TNX_LY_PROG=10; _TNX_LY_BAR=0; _TNX_LY_TASK=0; _TNX_LY_DIV2=11; _TNX_LY_LOGTOP=12
+    _TNX_LY_LOGO_ROWS=0
+    _TNX_LY_TITLE=2; _TNX_LY_TITLE2=3; _TNX_LY_TITLE3=0; _TNX_LY_TITLE4=0; _TNX_LY_TITLE5=0
+    _TNX_LY_IDENT=0; _TNX_LY_VER=4; _TNX_LY_BY=0; _TNX_LY_DIV1=5; _TNX_LY_DEV0=0
+    _TNX_LY_PROG=6; _TNX_LY_BAR=0; _TNX_LY_TASK=0; _TNX_LY_DIV2=7; _TNX_LY_LOGTOP=8
   elif (( R >= 16 && C >= 27 )); then
     _TNX_LY_LOGO_ROWS=0
     _TNX_LY_TITLE=2; _TNX_LY_TITLE2=3; _TNX_LY_TITLE3=0; _TNX_LY_TITLE4=0; _TNX_LY_TITLE5=0
-    _TNX_LY_IDENT=4; _TNX_LY_VER=5; _TNX_LY_BY=6; _TNX_LY_DIV1=7; _TNX_LY_DEV0=0
-    _TNX_LY_PROG=8; _TNX_LY_BAR=0; _TNX_LY_TASK=0; _TNX_LY_DIV2=9; _TNX_LY_LOGTOP=10
+    _TNX_LY_IDENT=0; _TNX_LY_VER=4; _TNX_LY_BY=0; _TNX_LY_DIV1=5; _TNX_LY_DEV0=0
+    _TNX_LY_PROG=6; _TNX_LY_BAR=0; _TNX_LY_TASK=0; _TNX_LY_DIV2=7; _TNX_LY_LOGTOP=8
   else
     _TNX_LY_LOGO_ROWS=0
-    _TNX_LY_TITLE=2; _TNX_LY_TITLE2=0; _TNX_LY_TITLE3=0; _TNX_LY_TITLE4=0; _TNX_LY_TITLE5=0
-    _TNX_LY_IDENT=3; _TNX_LY_VER=4; _TNX_LY_BY=0; _TNX_LY_DIV1=5; _TNX_LY_DEV0=0
+    _TNX_LY_TITLE=2; _TNX_LY_TITLE2=3; _TNX_LY_TITLE3=0; _TNX_LY_TITLE4=0; _TNX_LY_TITLE5=0
+    _TNX_LY_IDENT=0; _TNX_LY_VER=4; _TNX_LY_BY=0; _TNX_LY_DIV1=5; _TNX_LY_DEV0=0
     _TNX_LY_PROG=6; _TNX_LY_BAR=0; _TNX_LY_TASK=0; _TNX_LY_DIV2=7; _TNX_LY_LOGTOP=8
   fi
   _TNX_LY_LOGBOT=$(( R - 3 )); _TNX_LY_DIV3=$(( R - 2 )); _TNX_LY_FOOTER=$(( R - 1 )); _TNX_LY_BOT=$R
@@ -410,7 +413,7 @@ _tnx_frame_gather_device() {
     "${model} - ${arch}"
     "Android ${android} (SDK ${sdk})"
     "${gpu} - ${backend} - Vulkan ${vulkan}"
-    "${ram} GB RAM - ${storage} GB free; base ~3-4 GB"
+    "${ram} GB RAM - ${storage} GB free; base ~4-4.5 GB"
     "sampling..."
   )
   _tnx_frame_cpu_sample 0
@@ -463,43 +466,9 @@ _tnx_frame_box_row() {
 }
 
 _tnx_frame_paint_header() {
-  local tick="${1:-${_TNX_FRAME_TICK:-0}}" inner=$(( _TNX_FRAME_COLS - 4 )) content="" title tpad trpad tsp trsp logo_color
-  local -a logo_colors=("$TNX_CG" "$TNX_CC" "$TNX_CG" "$TNX_CC" "$TNX_CG" "$TNX_CG")
-  logo_color="${logo_colors[$((tick % ${#logo_colors[@]}))]}"
-  if (( _TNX_LY_LOGO_ROWS == 5 )); then
-    local -a logo
-    logo=(
-      '▩▩▩▩▩  ▩▩▩▩▩  ▩▩▩▩   ▩   ▩  ▩   ▩  ▩   ▩'
-      '  ▩    ▩      ▩   ▩  ▩▩  ▩  ▩   ▩   ▩ ▩ '
-      '  ▩    ▩▩▩▩   ▩▩▩▩   ▩ ▩ ▩  ▩   ▩    ▩  '
-      '  ▩    ▩      ▩  ▩   ▩  ▩▩  ▩   ▩   ▩ ▩ '
-      '  ▩    ▩▩▩▩▩  ▩   ▩  ▩   ▩  ▩▩▩▩▩  ▩   ▩'
-    )
-    local row
-    for ((row=0; row<5; row++)); do
-      _tnx_frame_logo_line "$(( _TNX_LY_TITLE + row ))" "${logo[$row]}" "$((tick + row))"
-    done
-  elif (( _TNX_LY_TITLE2 > 0 )); then
-    _tnx_frame_center_line "$_TNX_LY_TITLE" 'T E R N U X' "$logo_color"
-    _tnx_frame_center_line "$_TNX_LY_TITLE2" 'T E R N U X' "${logo_colors[$(((tick + 3) % ${#logo_colors[@]}))]}"
-  else
-    _tnx_clipv "$inner" 'T E R N U X'
-    title="$_TNX_CLIP"
-    tpad=$(( (inner - _TNX_CLIPW) / 2 )); (( tpad < 0 )) && tpad=0
-    trpad=$(( inner - _TNX_CLIPW - tpad )); (( trpad < 0 )) && trpad=0
-    _tnx_pad "$tpad"; tsp="$_TNX_SP"
-    _tnx_pad "$trpad"; trsp="$_TNX_SP"
-    printf -v content '%s%s%s%s%s%s' "$tsp" "$logo_color" "$title" "$TNX_C0" "$trsp" "$TNX_C0"
-    _tnx_frame_box_row "$_TNX_LY_TITLE" "$content"
-  fi
-
-  _tnx_frame_center_line "$_TNX_LY_IDENT" 'Linux Workstation In Your Pocket' "${logo_colors[$(((tick + 2) % ${#logo_colors[@]}))]}"
-  if (( _TNX_LY_BY > 0 )); then
-    _tnx_frame_center_line "$_TNX_LY_VER" "v${TERNUX_VERSION}" "$TNX_CY"
-    _tnx_frame_center_line "$_TNX_LY_BY" 'by Sobuj Miah (@soobujmiah)' "${logo_colors[$(((tick + 4) % ${#logo_colors[@]}))]}"
-  else
-    _tnx_frame_center_line "$_TNX_LY_VER" "v${TERNUX_VERSION}  |  by Sobuj Miah" "$TNX_CY"
-  fi
+  _tnx_frame_center_line "$_TNX_LY_TITLE" 'Ternux' "$TNX_CG"
+  (( _TNX_LY_TITLE2 > 0 )) && _tnx_frame_center_line "$_TNX_LY_TITLE2" 'Linux workstation in your pocket' "$TNX_CD"
+  _tnx_frame_center_line "$_TNX_LY_VER" "v${TERNUX_VERSION}  |  ${_TNX_FRAME_PROFILE^^} INSTALL" "$TNX_CY"
 }
 
 _tnx_frame_center_line() {
@@ -830,7 +799,7 @@ tnx_frame_open() {
     _tnx_clipv "$inner" 'by Sobuj Miah (@soobujmiah)'
     printf '%s|%s %s%s%s\n' "$TNX_CM" "$TNX_CD" "$TNX_CW" "$_TNX_CLIP" "$TNX_C0"
     printf '%s|%s %s%s%s\n' "$TNX_CM" "$TNX_CD" "$TNX_CW" "$_TNX_CLIP" "$TNX_C0"
-    _tnx_clipv "$inner" 'Storage estimate: base ~3-4 GB; complete ~10-12 GB'
+    _tnx_clipv "$inner" 'Storage estimate: base ~4-4.5 GB; complete ~10.5-12.5 GB'
     printf '%s|%s %s%s%s\n' "$TNX_CM" "$TNX_CD" "$TNX_CW" "$_TNX_CLIP" "$TNX_C0"
     _tnx_clipv "$inner" 'Portfolio: soobujmiah.github.io'
     printf '%s|%s %s%s%s\n' "$TNX_CM" "$TNX_CY" "$TNX_CW" "$_TNX_CLIP" "$TNX_C0"
@@ -906,8 +875,17 @@ _tnx_stream_commit() {
   _tnx_stripv "$raw"
   local clean="$_TNX_TXT"
 
-  # Record everything, always.
+  # Keep the full command output in the log even when routine package-manager
+  # chatter is omitted from the live dashboard.
   printf '%s\n' "$clean" >> "$TERNUX_LOG_FILE" 2>/dev/null || true
+  case "$clean" in
+    'WARNING: apt does not have a stable CLI interface. Use with caution in scripts.'|\
+    'Reading package lists...'|'Building dependency tree...'|'Reading state information...'|\
+    'The following packages were automatically installed and are no longer required.'|\
+    "Use 'apt autoremove' to remove them."|\
+    '0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.'|\
+    *' is already the newest version ('*')'*) return 0 ;;
+  esac
   if [ -n "${_TNX_STREAM_LOG:-}" ]; then
     printf '%s\n' "$clean" >> "${_TNX_STREAM_LOG:-}" 2>/dev/null || true
   fi

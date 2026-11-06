@@ -22,7 +22,7 @@ alt_url: "/docs/INSTALLATION.html"
 |---|---|---|
 | **Android** | ১০ বা নতুন | পুরনো বিল্ডে Termux/X11-এর দরকারি API নেই |
 | **CPU** | `aarch64` (৬৪-বিট ARM) | PRoot নেটিভ বাইনারি চালায়; ৩২-বিট ARM আপস্ট্রিমে অসমর্থিত |
-| **স্টোরেজ** | Installed footprint: বেস ~৩–৪ GB; `--all`-সহ ~১০–১২ GB | Download, package cache, build tree, model ও project-এর জন্য অতিরিক্ত ফাঁকা জায়গা দিয়ে শুরু করুন |
+| **স্টোরেজ** | Installed footprint: বেস ~৪–৪.৫ GB; `--all`-সহ ~১০.৫–১২.৫ GB | Download, package cache, build tree, model ও project-এর জন্য অতিরিক্ত ফাঁকা জায়গা দিয়ে শুরু করুন |
 | **RAM** | ন্যূনতম ৪ GB, ৬–৮ GB ভালো | ডেস্কটপ আর Android একই মেমরি ভাগ করে; কম RAM = বেশি প্রসেস-কিল |
 | **গ্রাফিক্স** | Adreno হলে Zink/Turnip; অন্য ক্ষেত্রে VirGL candidate | Adreno route-টি মাপা; VirGL compatibility ও গতি device/Android build অনুযায়ী যাচাই করতে হবে |
 | **অ্যাপ** | Termux (F-Droid/GitHub) + Termux:X11 | মূল release line ব্যবহার করুন, Termux/plugin একই source-এ রাখুন; Google Play line আলাদা ও পরীক্ষামূলক |
@@ -45,7 +45,7 @@ VirGL সামঞ্জস্য পথ। এর acceleration, feature coverag
 minimum নয়। Package version ও filesystem accounting বদলায়। Clean run-এর জন্য
 installer base-এ প্রায় **৬ GB free** এবং `--all`-এ **১৪ GB free** target করে,
 যাতে download, cache, extraction ও build-এর জায়গা থাকে; finished installation
-যথাক্রমে প্রায় **৩–৪ GB** ও **১০–১২ GB**।
+যথাক্রমে প্রায় **৪–৪.৫ GB** ও **১০.৫–১২.৫ GB**।
 
 ---
 
@@ -363,7 +363,7 @@ Adreno hardware-এ সেটি Debian-এর দেওয়া driver-এর 
 ```text
 +=========================================================+
 |           ternux v1.4.0 - ONE-CLICK INSTALLER           |
-| by Sobuj Miah  -  base ~3-4 GB  -  complete ~10-12 GB   |
+| by Sobuj Miah  -  base ~4-4.5 GB  -  complete ~10.5-12.5 GB   |
 +=========================================================+
 | Device    Redmi Turbo 4 Pro - Android 15 (SDK 35)       |
 | Graphics  Adreno 825 - backend zink - Vulkan 1.4        |

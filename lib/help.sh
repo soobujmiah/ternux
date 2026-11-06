@@ -47,10 +47,11 @@ ${TNX_CW}Commands:${TNX_C0}
   ${TNX_CG}benchmark${TNX_C0}  Run GPU benchmarks       ${TNX_CD}[--json]${TNX_C0}
   ${TNX_CG}profile${TNX_C0}    Device hardware profile  ${TNX_CD}[--json]${TNX_C0}
   ${TNX_CG}backend${TNX_C0}    GPU backend management   ${TNX_CD}[--json]${TNX_C0}
+  ${TNX_CG}gpu${TNX_C0}        GPU driver status/update
   ${TNX_CG}info${TNX_C0}       System information       ${TNX_CD}[--json]${TNX_C0}
   ${TNX_CG}state${TNX_C0}      Installation state       ${TNX_CD}[--json]${TNX_C0}
   ${TNX_CG}logs${TNX_C0}       View/manage log files
-  ${TNX_CG}update${TNX_C0}     Self-update ternux CLI
+  ${TNX_CG}update${TNX_C0}     Update Ternux through its install source
   ${TNX_CG}uninstall${TNX_C0}  Remove ternux components
 
 ${TNX_CW}Global options:${TNX_C0}
@@ -178,6 +179,7 @@ Subcommands:
   show             Display current backend configuration
   set auto|zink|virgl  Change GPU backend
   detect           Auto-detect the correct backend
+  update           Refresh the validated Debian Turnip driver (Zink only)
 
 Supports --json for machine-readable output.
 HELP
@@ -198,8 +200,21 @@ Subcommands:
 HELP
 }
 
-tnx_help_update()    { echo "Usage: ternux update [check]"; echo "check — check for updates without installing. Otherwise, self-update ternux CLI from GitHub."; }
+tnx_help_update()    { echo "Usage: ternux update [check]"; echo "check — check for updates without installing. APT-installed copies use pkg upgrade; other installs update from GitHub."; }
 tnx_help_uninstall() {
   echo "Usage: ternux uninstall [session|launcher|state|container|all] [--yes]"
   echo "Interactive by default; destructive container removal requires confirmation."
+}
+
+tnx_help_gpu() {
+  cat << HELP
+Usage: ternux gpu <subcommand>
+
+Subcommands:
+  show       Show GPU/backend status
+  update     Refresh the validated Debian Turnip driver (Zink only)
+
+This updates the guest userspace driver, not Android's vendor driver.
+Supports --json for machine-readable output.
+HELP
 }

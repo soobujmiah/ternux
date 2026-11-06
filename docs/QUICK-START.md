@@ -47,7 +47,7 @@ The installer:
 6. writes the `x` launcher and shell shortcuts;
 7. verifies everything landed.
 
-Expect about **3–4 GB installed** for base or **10–12 GB** with `--all`; keep
+Expect about **4–4.5 GB installed** for base or **10.5–12.5 GB** with `--all`; keep
 additional temporary space for downloads and caches. One persistent screen shows
 the device panel, step progress and a live log window until the final status; a
 terminal that cannot host it gets a plain framed log instead. Both record the
@@ -108,6 +108,19 @@ db         shell inside Debian (user) droot   shell as root
 xgo        auto-open Termux:X11 + x   sysmon  device resource overview
 clean-mesa clear the Mesa shader cache
 ```
+
+### First GUI run, browser and video
+
+If Firefox ESR is installed, the desktop opens the Ternux project page at login.
+Without a browser, the first GUI session shows a one-time welcome guide with
+project/developer links, guest commands and the host benchmark command. Firefox
+remains optional; choose it from the installer’s optional software list.
+
+Noto Bengali fonts and the Avro IBus phonetic keyboard are installed by default;
+press **Ctrl+Space** to switch between English and Bangla. VLC, PulseAudio Volume Control, the Xfce Task
+Manager, and Mousepad text editor are included in the base desktop. The dark Arc GTK theme and lightweight stock Adwaita icons are selected by
+default for a modern, high-contrast desktop, with a custom Aurora wallpaper. The first-run guide adapts to the available screen and uses a reliable software renderer. VLC defaults to a compact mobile view, X11 `xcb_x11` output and software decoding because PRoot does not provide VAAPI/VDPAU; this
+avoids blank video caused by selecting unavailable host decoder paths.
 
 ### Ternux CLI — the management interface
 
