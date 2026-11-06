@@ -307,11 +307,19 @@ tnx_state_get() {
 tnx_state_set() {
   local key="$1" val="$2"
   mkdir -p "$TERNUX_STATE_DIR"
-  if grep -qs "^${key}=" "$TERNUX_STATE_DIR/state" 2>/dev/null; then
-    sed -i "s/^${key}=.*/${key}=${val}/" "$TERNUX_STATE_DIR/state"
+  local state_file="$TERNUX_STATE_DIR/state" tmp_file="$TERNUX_STATE_DIR/.state.tmp.$$"
+  # Values include URLs and paths, so they must not be interpolated into a sed
+  # replacement expression. Rewrite through awk variables and atomically swap.
+  if [ -f "$state_file" ]; then
+    awk -v key="$key" -v val="$val" '
+      index($0, key "=") == 1 { print key "=" val; found=1; next }
+      { print }
+      END { if (!found) print key "=" val }
+    ' "$state_file" > "$tmp_file" || { rm -f "$tmp_file"; return 1; }
   else
-    echo "${key}=${val}" >> "$TERNUX_STATE_DIR/state"
+    printf '%s=%s\n' "$key" "$val" > "$tmp_file" || { rm -f "$tmp_file"; return 1; }
   fi
+  mv -f "$tmp_file" "$state_file"
 }
 
 tnx_state_done() {

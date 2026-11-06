@@ -12,6 +12,10 @@ Notable changes to ternux. Dates are ISO 8601.
 
 ## [Unreleased]
 
+### CLI reliability
+
+- Fixed state updates for stored URLs and paths; the GPU updater can now be rerun without `sed` replacement errors. Added a focused regression check.
+
 ### Desktop reliability
 
 - Verified menu-entry-launched PulseAudio Volume Control on the connected Xfce desktop: Playback controls and the OpenSL input are readable in the shared dark theme. The microphone source returns to idle when the app closes.

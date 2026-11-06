@@ -12,6 +12,10 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 
 ## [Unreleased]
 
+### CLI reliability
+
+- State-এ সংরক্ষিত URL ও path update-এর bug ঠিক হয়েছে; `sed` replacement error ছাড়াই GPU updater আবার চালানো যায়। Focused regression check যোগ হয়েছে।
+
 ### Desktop reliability
 
 - Xfce desktop entry দিয়ে চালানো PulseAudio Volume Control connected phone-এ verify: একই dark theme-এ Playback controls ও OpenSL input readable; app বন্ধ করলে microphone source idle হয়।
