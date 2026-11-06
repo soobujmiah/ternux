@@ -12,7 +12,7 @@ command ও evidence boundary aligned রাখতে হবে।
 |---|---|
 | শুরু করুন | `index.md`, `QUICK-START.md`, `INSTALLATION.md`, `MANUAL.md` |
 | Release অবস্থা ও roadmap | `ACCELERATOR-RELEASE-PLAN.md` (accelerator/release-এর একমাত্র canonical plan) |
-| Package বিতরণ | [`../packaging/termux/README.md`](../packaging/termux/README.md) (Termux APT package ও signed repository build/publish) |
+| Package বিতরণ | [`TERMUX-APT.md`](TERMUX-APT.md) (repository trust ও install); [`../packaging/termux/README.md`](../packaging/termux/README.md) (build ও publish) |
 | Repository deep guide | [`../guides/device-benchmark-evidence.md`](../guides/device-benchmark-evidence.md), [`../guides/llama-vulkan-extension.md`](../guides/llama-vulkan-extension.md), matching English pages under `../guides/` (শুধু source repository-তে; website-এ প্রকাশিত নয়) |
 | পরিচালনা | `USAGE.md`, `WORKLOADS.md`, `BLENDER-MCP.md`, `CONFIGURATION.md`, `GRAPHICS-PERSISTENCE.md`, `TROUBLESHOOTING.md` |
 | বুঝে নিন | `ARCHITECTURE.md`, `BENCHMARKS.md`, `FAQ.md` |
