@@ -81,7 +81,9 @@ chooser বাদ দিয়ে base profile রাখে।
 
 ### `ternux start`
 
-Xfce4 ডেস্কটপ সেশন চালু করে।
+Xfce4 desktop background-এ চালু করে। Termux:X11 display `:0` ready হলে
+command ফিরে আসে; startup output `~/.local/share/ternux/session/desktop.log`-এ
+থাকে। `ternux status` বা `ternux logs desktop tail` দিয়ে দেখুন।
 
 ```bash
 ternux start
@@ -264,6 +266,7 @@ ternux logs <subcommand> [n]
 | `tail` | রিয়েল-টাইম লগ দেখা |
 | `clear` | লগ ফাইল মুছে ফেলা |
 | `list` | লগ ফাইলের তালিকা |
+| `desktop [show|tail]` | desktop session log পড়ুন বা live follow করুন |
 
 ### `ternux extension`
 

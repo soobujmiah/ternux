@@ -195,8 +195,9 @@ Usage: ternux logs <subcommand>
 Subcommands:
   show [n]     Show last n log lines (default: 50)
   tail         Follow log output in real time
-  clear        Clear the log file
+  clear        Clear the CLI/install log file
   list         List available log files
+  desktop [show|tail]  Read or follow the desktop session log
 HELP
 }
 

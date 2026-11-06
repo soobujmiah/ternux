@@ -302,6 +302,7 @@ PA_CONF="$PREFIX/etc/pulse/default.pa"
 OLD='load-module module-native-protocol-tcp auth-ip-acl=127.0.0.1 auth-anonymous=1 port=4713'
 NEW='load-module module-native-protocol-tcp listen=127.0.0.1 auth-ip-acl=127.0.0.1 auth-anonymous=1 port=4713'
 SINK='load-module module-opensles-sink sink_name=Speaker'
+SOURCE='load-module module-sles-source source_name=Ternux_Microphone'
 DEFAULT='set-default-sink Speaker'
 mkdir -p "$(dirname "$PA_CONF")"
 if [ -L "$PA_CONF" ] || { [ -e "$PA_CONF" ] && [ ! -f "$PA_CONF" ]; }; then
@@ -321,6 +322,7 @@ else
       END { if (!seen) print new }
     ' "$INPUT" > "$TMP" &&
     { grep -qxF "$SINK" "$TMP" || printf '%s\n' "$SINK" >> "$TMP"; } &&
+    { grep -qxF "$SOURCE" "$TMP" || printf '%s\n' "$SOURCE" >> "$TMP"; } &&
     { grep -qxF "$DEFAULT" "$TMP" || printf '%s\n' "$DEFAULT" >> "$TMP"; } &&
     { [ ! -f "$PA_CONF" ] || chmod --reference="$PA_CONF" "$TMP" 2>/dev/null || true; } &&
     mv -f "$TMP" "$PA_CONF" || { rm -f "$TMP"; false; }
@@ -334,6 +336,12 @@ fi
 *কেন শুধু loopback?* Audio TCP দিয়ে container boundary পার হয়।
 `listen=127.0.0.1` service-টিকে LAN থেকে দূরে রাখে; anonymous same-device
 client তবুও পৌঁছাতে পারে, তাই bind address সরাবেন না।
+
+Ternux Android OpenSL ES microphone source-ও load করে। Android permission এখনো
+প্রযোজ্য: PulseAudio `module-sles-source` চালু করতে না পারলে Android Settings-এ
+Termux app-এর **Microphone** permission দিন, তারপর desktop restart করুন। Xfce-তে
+**PulseAudio Volume Control → Input Devices** খুলে **OpenSL ES Input** বেছে নিন।
+কোনো app audio capture করলে Android-এর microphone privacy indicator দেখা যায়।
 
 ### ৭খ — লোকেল ও ফন্ট (Debian-এর ভেতরে)
 

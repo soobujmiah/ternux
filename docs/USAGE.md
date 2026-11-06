@@ -9,11 +9,20 @@ Everything you need for day-to-day life with a Linux desktop in your pocket.
 
 ---
 
+## Background desktop session
+
+`ternux start` starts the desktop as a managed background session and returns
+when the X11 display is ready. Startup output is kept in
+`~/.local/share/ternux/session/desktop.log` (the previous log is rotated at
+1 MiB). Use `ternux status`, `ternux stop`, or `ternux logs desktop tail` to manage and
+inspect it. Android may still stop background processes under memory pressure;
+reopen Termux:X11 if Android has reclaimed the session.
+
 ## Daily controls
 
 | Command | What it does |
 |---|---|
-| `x` | Start the desktop (audio → display → Debian → Xfce4) |
+| `x` | Start the desktop in the background through `ternux start` (audio → display → Debian → Xfce4) |
 | `xgo` | Open the Termux:X11 app automatically, then start the desktop |
 | `killx` | Stop the session cleanly and clear stale sockets |
 | `db` | Shell inside Debian as your user |
@@ -32,6 +41,26 @@ Everything you need for day-to-day life with a Linux desktop in your pocket.
 next session "start" against a dead service — the desktop appears but audio
 or display behaves oddly. `x` cleans these up at every start, so a clean stop
 mainly saves battery.
+
+### Android microphone input
+
+The desktop exposes Android audio input to guest apps through PulseAudio's
+OpenSL ES source. Android may ask for Termux's microphone permission the first
+time a guest app captures audio; grant **Settings → Apps → Termux → Permissions
+→ Microphone** if needed. Idle sessions do not start a recording; the source is
+used when a guest app requests capture. Termux:API's `termux-microphone-record`
+records to a file and cannot act as a live PulseAudio input stream, so it is not
+the desktop's source. Android shows its microphone privacy indicator while
+capture is active.
+
+The Xfce **About → System** page reads CPU model names from `/proc/cpuinfo`.
+Android may expose only ARM part IDs there, so the Ternux launcher supplies
+recognized live model names from `lscpu` and adds the Android SoC identifier.
+Unknown models remain labeled as unavailable instead of being guessed.
+
+### Audio and VLC controls
+
+The desktop menu launches PulseAudio Volume Control through a dedicated X11/GTK wrapper with its own dark theme. Ternux keeps Xfwm compositing disabled in the Termux:X11 session because the Android display can otherwise show a black desktop. These settings do not change the desktop-wide GTK theme. VLC uses its full interface by default so playback controls remain visible.
 
 ---
 

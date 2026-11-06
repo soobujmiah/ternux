@@ -36,7 +36,27 @@ tnx_cmd_start() {
 
   chmod +x "$HOME/x.sh" 2>/dev/null || true
 
-  # Check for existing session
+  # Termux:X11's character-based IME mode fixes soft-keyboard input on devices
+  # whose IME emits text without corresponding X11 key events. The preference
+  # utility is shipped by termux-x11-nightly; skip cleanly on older clients.
+  if tnx_has_cmd termux-x11-preference; then
+    timeout 3 termux-x11-preference enforceCharBasedInput=true >/dev/null 2>&1 || true
+  fi
+
+  local session_dir="$TERNUX_STATE_DIR/session" pid_file="$TERNUX_STATE_DIR/session/desktop.pid"
+  mkdir -p "$session_dir" || { tnx_fail "Could not create desktop state directory."; return 1; }
+  if [ -r "$pid_file" ]; then
+    local old_pid
+    old_pid="$(cat "$pid_file" 2>/dev/null || true)"
+    if [[ "$old_pid" =~ ^[0-9]+$ ]] && kill -0 "$old_pid" 2>/dev/null; then
+      tnx_info "Desktop is already running (PID $old_pid). Use 'ternux status' or 'ternux logs desktop tail'."
+      [ "${TERNUX_JSON:-0}" = "1" ] && tnx_json_object "start" "already_running" "pid" "$old_pid"
+      return 0
+    fi
+    rm -f "$pid_file"
+  fi
+
+  # Check for an unmanaged/legacy session before starting another display.
   if pgrep -f "termux-x11" >/dev/null 2>&1; then
     if [ "${TERNUX_JSON:-0}" != "1" ]; then
       tnx_warn "Termux:X11 already running."
@@ -49,17 +69,41 @@ tnx_cmd_start() {
 
   local configured_backend
   configured_backend="$(tnx_canonical_backend "$(tnx_state_get "backend" || echo "auto")")"
-  tnx_info "Starting desktop (backend: $configured_backend)..."
-  bash "$HOME/x.sh"
-  local rc=$?
-
-  if [ "${TERNUX_JSON:-0}" = "1" ]; then
-    tnx_json_object "start" "$([ $rc -eq 0 ] && echo "ok" || echo "error")" \
-      "backend" "$configured_backend"
+  local desktop_log="$session_dir/desktop.log"
+  if [ -f "$desktop_log" ] && [ "$(wc -c < "$desktop_log" 2>/dev/null || echo 0)" -ge 1048576 ]; then
+    mv -f "$desktop_log" "$desktop_log.1" || { tnx_fail "Could not rotate desktop log."; return 1; }
+  fi
+  : >> "$desktop_log" || { tnx_fail "Could not write desktop log: $desktop_log"; return 1; }
+  tnx_info "Starting desktop in background (backend: $configured_backend)..."
+  TNX_PID_FILE="$pid_file" nohup bash "$HOME/x.sh" >>"$desktop_log" 2>&1 </dev/null &
+  local pid=$!
+  printf '%s\n' "$pid" > "$pid_file" || { kill "$pid" 2>/dev/null || true; tnx_fail "Could not save desktop PID."; return 1; }
+  local ready=0 i
+  for ((i=0; i<100; i++)); do
+    if [ -e "${TMPDIR:-/data/data/com.termux/files/usr/tmp}/.X11-unix/X0" ]; then ready=1; break; fi
+    if ! kill -0 "$pid" 2>/dev/null; then break; fi
+    sleep 0.1
+  done
+  if [ "$ready" -ne 1 ]; then
+    local rc=1
+    kill -TERM "$pid" 2>/dev/null || true
+    local waited=0
+    while kill -0 "$pid" 2>/dev/null && [ "$waited" -lt 20 ]; do sleep 0.1; waited=$((waited+1)); done
+    kill -KILL "$pid" 2>/dev/null || true
+    wait "$pid" 2>/dev/null || rc=$?
+    rm -f "$pid_file"
+    tnx_fail "Desktop did not reach display :0. See 'ternux logs show' for details."
+    [ "${TERNUX_JSON:-0}" = "1" ] && tnx_json_object "start" "error" "backend" "$configured_backend" "log" "$desktop_log"
     return "$rc"
   fi
-  [ "$rc" -eq 0 ] && tnx_ok "Desktop session ended." || tnx_warn "Desktop exited with code $rc"
-  return "$rc"
+
+  if [ "${TERNUX_JSON:-0}" = "1" ]; then
+    tnx_json_object "start" "ok" "backend" "$configured_backend" "pid" "$pid" "log" "$desktop_log"
+    return 0
+  fi
+  tnx_ok "Desktop is running in the background (PID $pid)."
+  tnx_info "Startup output: ternux logs desktop tail"
+  return 0
 }
 
 # ---------------------------------------------------------------------------
@@ -70,7 +114,8 @@ tnx_cmd_stop() {
     tnx_step "Stopping ternux desktop..."
   fi
 
-  local found=0
+  local found=0 pid_file="$TERNUX_STATE_DIR/session/desktop.pid" managed_pid=""
+  [ -r "$pid_file" ] && managed_pid="$(cat "$pid_file" 2>/dev/null || true)"
   tnx_stop_legacy_ternuxx_audio
   # Stop only the managed guest desktop session before closing the host X
   # server. Otherwise its PRoot process can survive uninstall/reinstall and
@@ -92,6 +137,15 @@ tnx_cmd_stop() {
     pulseaudio --kill 2>/dev/null || pkill -KILL -x pulseaudio 2>/dev/null || true
     found=1
   fi
+
+  if [[ "$managed_pid" =~ ^[0-9]+$ ]] && kill -0 "$managed_pid" 2>/dev/null; then
+    kill -TERM "$managed_pid" 2>/dev/null || true
+    found=1
+    local waited=0
+    while kill -0 "$managed_pid" 2>/dev/null && [ "$waited" -lt 30 ]; do sleep 0.1; waited=$((waited+1)); done
+    kill -KILL "$managed_pid" 2>/dev/null || true
+  fi
+  rm -f "$pid_file"
 
   # Do not kill every D-Bus daemon owned by the Termux app. Closing the display
   # lets the launcher's guest dbus-run-session unwind without disrupting other
@@ -121,7 +175,9 @@ tnx_cmd_restart() {
 # tnx_cmd_status (helper — used internally)
 # ---------------------------------------------------------------------------
 tnx_cmd_status() {
-  local x11=0 pa=0 virgl=0
+  local x11=0 pa=0 virgl=0 desktop_pid=""
+  [ -r "$TERNUX_STATE_DIR/session/desktop.pid" ] && desktop_pid="$(cat "$TERNUX_STATE_DIR/session/desktop.pid" 2>/dev/null || true)"
+  [[ "$desktop_pid" =~ ^[0-9]+$ ]] && kill -0 "$desktop_pid" 2>/dev/null || desktop_pid=""
   pgrep -f "termux-x11" >/dev/null 2>&1 && x11=1
   pgrep -x pulseaudio >/dev/null 2>&1 && pa=1
   pgrep -f "virgl_test_server" >/dev/null 2>&1 && virgl=1
@@ -134,7 +190,8 @@ tnx_cmd_status() {
       "x11_running" "$([ $x11 -eq 1 ] && echo "yes" || echo "no")" \
       "pulseaudio" "$([ $pa -eq 1 ] && echo "running" || echo "stopped")" \
       "virgl" "$([ $virgl -eq 1 ] && echo "running" || echo "stopped")" \
-      "launcher" "$([ -f "$HOME/x.sh" ] && echo "present" || echo "missing")"
+      "launcher" "$([ -f "$HOME/x.sh" ] && echo "present" || echo "missing")" \
+      "desktop_pid" "${desktop_pid:-none}"
     return 0
   fi
 
@@ -145,5 +202,6 @@ tnx_cmd_status() {
   printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "PulseAudio:" "$([ $pa -eq 1 ] && echo "running" || echo "stopped")"
   printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "VirGL:" "$([ $virgl -eq 1 ] && echo "running" || echo "stopped")"
   printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "Launcher:" "$([ -f "$HOME/x.sh" ] && echo "present" || echo "missing")"
+  printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "Managed PID:" "${desktop_pid:-none}"
   echo ""
 }

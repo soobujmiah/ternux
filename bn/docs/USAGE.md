@@ -10,11 +10,20 @@ alt_url: "/docs/USAGE.html"
 
 ---
 
+## ব্যাকগ্রাউন্ড ডেস্কটপ সেশন
+
+`ternux start` desktop-কে managed background session হিসেবে চালু করে এবং
+X11 display ready হলে prompt-এ ফিরে আসে। Startup output
+`~/.local/share/ternux/session/desktop.log`-এ থাকে; 1 MiB হলে আগের log rotate
+হয়। `ternux status`, `ternux stop` বা `ternux logs desktop tail` দিয়ে session দেখুন,
+বন্ধ করুন বা log পড়ুন। Android memory pressure-এ background process বন্ধ
+করতে পারে; এমন হলে Termux:X11 আবার খুলুন।
+
 ## দৈনিক নিয়ন্ত্রণ
 
 | কমান্ড | কী করে |
 |---|---|
-| `x` | ডেস্কটপ শুরু (অডিও → ডিসপ্লে → Debian → Xfce4) |
+| `x` | `ternux start` দিয়ে ডেস্কটপ background-এ শুরু (অডিও → ডিসপ্লে → Debian → Xfce4) |
 | `xgo` | Termux:X11 অ্যাপ স্বয়ংক্রিয় খুলে ডেস্কটপ শুরু |
 | `killx` | সেশন পরিষ্কারভাবে বন্ধ + পুরনো সকেট মুছে ফেলা |
 | `db` | আপনার ইউজার হিসেবে Debian শেল |
@@ -33,6 +42,25 @@ alt_url: "/docs/USAGE.html"
 মৃত সার্ভিসের ওপর "শুরু" করিয়ে দেয় — ডেস্কটপ আসে, কিন্তু অডিও বা ডিসপ্লে
 অদ্ভুত আচরণ করে। `x` প্রতিটি শুরুতে এগুলো পরিষ্কার করে, তাই পরিষ্কার শেষ
 করার আসল লাভ ব্যাটারি বাঁচানো।
+
+### Android microphone input
+
+Desktop-এ PulseAudio-এর OpenSL ES source দিয়ে Android mic guest app-এ পাওয়া
+যায়। Guest app প্রথম capture চাইলে Android Termux-এর microphone permission
+চাইতে পারে; দরকার হলে **Settings → Apps → Termux → Permissions → Microphone**
+অনুমতি দিন। Idle অবস্থায় কোনো recording শুরু হয় না; guest app capture চাইলে
+source ব্যবহৃত হয়। Termux:API-এর `termux-microphone-record` কেবল file-এ record
+করে, live PulseAudio input stream দেয় না—তাই desktop-এর mic source সেটি নয়।
+Capture চলার সময় Android-এর microphone privacy indicator দেখা যায়।
+
+Xfce-এর **About → System** page CPU model name পড়ে `/proc/cpuinfo` থেকে।
+Android সেখানে শুধু ARM part ID দিলে Ternux launcher live `lscpu` থেকে চেনা
+model name যোগ করে এবং Android SoC identifier দেখায়। অচেনা model অনুমান না করে
+unavailable হিসেবে দেখানো হয়।
+
+### অডিও ও VLC কন্ট্রোল
+
+ডেস্কটপ মেনু PulseAudio Volume Control-কে আলাদা X11/GTK wrapper ও dark theme দিয়ে চালায়। Termux:X11 session-এ Ternux Xfwm compositing বন্ধ রাখে, কারণ এটি চালু থাকলে Android display-তে পুরো desktop black হতে পারে। এতে desktop-এর সামগ্রিক GTK theme বদলায় না। VLC ডিফল্টে full interface চালায়, তাই playback control দেখা যায়।
 
 ---
 

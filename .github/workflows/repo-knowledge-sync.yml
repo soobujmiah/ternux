@@ -14,7 +14,7 @@ on:
   push:
     branches: [main]
     paths-ignore:
-      - '.repo/**'
+      - ".repo/**"
   pull_request:
     branches: [main]
   workflow_dispatch:
@@ -90,17 +90,27 @@ jobs:
         continue-on-error: true
         run: python3 tests/ui_render.py
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Build documentation site
+        id: site_build
+        continue-on-error: true
+        run: |
+          npm ci
+          npm run build
+
       - name: Validate documentation and bilingual site structure
         id: docs
         continue-on-error: true
         run: python3 tests/docs_check.py
 
-      - name: Check JavaScript syntax
+      - name: Check build script syntax
         id: js_syntax
         continue-on-error: true
-        run: |
-          node --check assets/js/docs.js
-          node --check assets/js/codecopy.js
+        run: node --check scripts/finalize-site.mjs
 
       - name: Reject whitespace errors in the committed change
         id: whitespace
@@ -116,10 +126,10 @@ jobs:
         if: always()
         run: |
           build_status="${{ steps.build.outcome == 'success' && 'passed' || 'failed' }}"
-          test_status="${{ steps.tests.outcome == 'success' && steps.bats_smoke.outcome == 'success' && steps.ui.outcome == 'success' && steps.docs.outcome == 'success' && steps.js_syntax.outcome == 'success' && steps.whitespace.outcome == 'success' && steps.tool_tests.outcome == 'success' && 'passed' || 'failed' }}"
+          test_status="${{ steps.tests.outcome == 'success' && steps.bats_smoke.outcome == 'success' && steps.ui.outcome == 'success' && steps.site_build.outcome == 'success' && steps.docs.outcome == 'success' && steps.js_syntax.outcome == 'success' && steps.whitespace.outcome == 'success' && steps.tool_tests.outcome == 'success' && 'passed' || 'failed' }}"
           python3 -m tools.repo_knowledge sync --ci \
             --build-status "$build_status" --build-run-id "${{ github.run_id }}" \
-            --test-status "$test_status" --test-summary "focused regressions + Bats + UI + docs + JavaScript syntax + whitespace + repo knowledge tests (ci.yml)" \
+            --test-status "$test_status" --test-summary "focused regressions + Bats + UI + site build + docs + JavaScript syntax + whitespace + repo knowledge tests (ci.yml)" \
             --test-run-id "${{ github.run_id }}" \
             --run-attempt "${{ github.run_attempt }}" \
             --workflow-name "${{ github.workflow }}" \

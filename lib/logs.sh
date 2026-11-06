@@ -19,6 +19,7 @@ tnx_cmd_logs() {
   case "$subcmd" in
     show|--show)   _tnx_logs_show "${1:-50}" ;;
     tail|--tail)   _tnx_logs_tail ;;
+    desktop|session) _tnx_logs_desktop "${1:-show}" ;;
     clear|--clear) _tnx_logs_clear ;;
     list|--list)   _tnx_logs_list ;;
     --help|-h)     tnx_help_logs ;;
@@ -77,4 +78,14 @@ _tnx_logs_list() {
   tnx_header "Log Files"
   [ -d "$TERNUX_LOG_DIR" ] && ls -lh "$TERNUX_LOG_DIR" 2>/dev/null | awk 'NR>1{printf "  %s %5s %s\n", $1, $5, $9}' || tnx_info "No log files found"
   echo ""
+}
+
+_tnx_logs_desktop() {
+  local action="${1:-show}" file="$TERNUX_STATE_DIR/session/desktop.log"
+  [ -f "$file" ] || { tnx_info "No desktop log found: $file"; return 0; }
+  case "$action" in
+    tail) tnx_info "Tailing desktop log: $file (Ctrl+C to stop)"; tail -f "$file" ;;
+    show) tnx_header "Desktop Session Log"; tail -n 100 "$file" ;;
+    *) tnx_fail "Usage: ternux logs desktop [show|tail]"; return 1 ;;
+  esac
 }

@@ -45,7 +45,9 @@ _ternux_completions() {
       ;;
     logs)
       if [ "$COMP_CWORD" -eq 2 ]; then
-        COMPREPLY=($(compgen -W "show tail clear list --help" -- "$cur"))
+        COMPREPLY=($(compgen -W "show tail clear list desktop --help" -- "$cur"))
+      elif [ "$COMP_CWORD" -eq 3 ] && [ "${COMP_WORDS[2]}" = "desktop" ]; then
+        COMPREPLY=($(compgen -W "show tail" -- "$cur"))
       fi
       ;;
     update)

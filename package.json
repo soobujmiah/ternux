@@ -6,7 +6,7 @@
     "dev": "astro dev",
     "build": "astro build && node scripts/finalize-site.mjs",
     "preview": "astro preview",
-    "format:check": "prettier --plugin prettier-plugin-astro --check \"src/**/*.astro\" \"src/**/*.ts\" src/styles/site.css scripts/finalize-site.mjs astro.config.mjs package.json .github/workflows/deploy.yml .github/workflows/ci.yml .github/workflows/termux-apt-package.yml .github/workflows/termux-apt-release.yml"
+    "format:check": "prettier --plugin prettier-plugin-astro --check \"src/**/*.astro\" \"src/**/*.ts\" src/styles/site.css scripts/finalize-site.mjs astro.config.mjs package.json .github/workflows/deploy.yml .github/workflows/ci.yml .github/workflows/termux-apt-package.yml .github/workflows/termux-apt-release.yml .github/workflows/repo-knowledge-sync.yml"
   },
   "dependencies": {
     "astro": "^7.3.8",
