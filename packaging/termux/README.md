@@ -63,17 +63,20 @@ never put it in the repository, package artifacts, website, or shared storage.
 
 The release-only GitHub Actions workflow `termux-apt-release.yml` publishes
 the signed tree under `/apt/` on the project Pages site. It accepts manual
-runs only from `main` with `confirm_release=publish-v2` and refuses to build
+runs only from `main` with the selected workflow mode and refuses to build
 unless the project version is exactly `2.0.0`. Configure the protected
 `apt-release` environment with the armored private signing key and optional
 passphrase secrets, plus the full primary-key fingerprint variable. The
-workflow is prepared but does not run on pushes; invoke it only after every
-release-plan gate is closed.
+`verify-signing` mode signs and validates a repository without deployment. Use
+`publish-v2` only after every release-plan gate closes; the workflow does not
+run on pushes.
 
-Before enabling client installation, publish the public key fingerprint through
-an independent channel and verify it from a clean Termux environment. The
-workflow publishes the public key at `apt/ternux-archive-key.asc`; it never
-publishes private signing material.
+The v2 primary-key fingerprint is published independently from GitHub Pages
+in [`docs/TERMUX-APT.md`](../../docs/TERMUX-APT.md):
+`E5527F4D5B83037FF77B65AE5E894BBB81168B1D`. The workflow publishes the public
+key at `apt/ternux-archive-key.asc`; it never publishes private signing
+material. The repository is not deployed until the release workflow runs after
+every release-plan gate closes.
 
 ## Install from a published repository
 
@@ -89,21 +92,9 @@ APT source URL and keyring path must match the repository's actual published
 configuration. Do not copy a source line using `[trusted=yes]` into release
 instructions.
 
-Example client setup after the owner has published the key and confirmed the
-fingerprint through an independent channel:
-
-```bash
-pkg install gnupg
-curl -fsSLo "$TMPDIR/ternux-archive-key.asc" https://<host>/<path>/ternux-archive-key.asc
-gpg --show-keys --with-fingerprint "$TMPDIR/ternux-archive-key.asc"
-# Compare the displayed fingerprint with the independently published value.
-gpg --dearmor --output "$TMPDIR/ternux.gpg" "$TMPDIR/ternux-archive-key.asc"
-install -Dm600 "$TMPDIR/ternux.gpg" "$PREFIX/etc/apt/keyrings/ternux.gpg"
-printf 'deb [signed-by=%s/etc/apt/keyrings/ternux.gpg] https://<host>/<path> stable main\n' "$PREFIX" \
-  > "$PREFIX/etc/apt/sources.list.d/ternux.list"
-pkg update
-pkg install ternux
-```
-
-The host, path, and fingerprint remain placeholders until the owner publishes
-the signed repository and verifies its independent fingerprint channel.
+Client setup after repository publication is documented in the paired
+[English](../../docs/TERMUX-APT.md) and
+[Bengali](../../bn/docs/TERMUX-APT.md) trust/install guide. The repository URL
+will be `https://soobujmiah.github.io/ternux/apt`; verify the key fingerprint
+against the GitHub source guide before adding it with `signed-by`. Never use
+`[trusted=yes]`.

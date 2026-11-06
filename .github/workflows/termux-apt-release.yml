@@ -1,12 +1,16 @@
-name: Publish signed Termux APT repository
+name: Sign or publish the Termux APT repository
 
 on:
   workflow_dispatch:
     inputs:
-      confirm_release:
-        description: Type publish-v2 after every release gate is closed
+      mode:
+        description: Verify signing setup without deployment, or publish after every release gate is closed
         required: true
-        type: string
+        type: choice
+        options:
+          - verify-signing
+          - publish-v2
+        default: verify-signing
 
 permissions:
   contents: read
@@ -19,8 +23,8 @@ concurrency:
 
 jobs:
   build:
-    if: github.ref == 'refs/heads/main' && inputs.confirm_release == 'publish-v2'
-    name: Build and sign the v2 APT repository
+    if: github.ref == 'refs/heads/main' && (inputs.mode == 'verify-signing' || inputs.mode == 'publish-v2')
+    name: Verify signing setup or build the signed v2 APT repository
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment: apt-release
@@ -116,11 +120,13 @@ jobs:
           fi
 
       - name: Build Ternux website
+        if: inputs.mode == 'publish-v2'
         run: |
           npm ci
           npm run build
 
       - name: Add signed APT repository after the site build
+        if: inputs.mode == 'publish-v2'
         run: |
           set -euo pipefail
           install -d dist/apt
@@ -129,12 +135,13 @@ jobs:
           test -s dist/apt/ternux-archive-key.asc
 
       - name: Upload Pages artifact
+        if: inputs.mode == 'publish-v2'
         uses: actions/upload-pages-artifact@v4
         with:
           path: dist
 
   deploy:
-    if: github.ref == 'refs/heads/main' && inputs.confirm_release == 'publish-v2'
+    if: github.ref == 'refs/heads/main' && inputs.mode == 'publish-v2'
     name: Publish website and signed APT repository
     runs-on: ubuntu-latest
     needs: build
