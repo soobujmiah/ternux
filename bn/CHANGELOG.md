@@ -12,6 +12,11 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 
 ## [Unreleased]
 
+### AI artifact delivery
+
+- Installable CPU/GPU/NPU LLM ও Stable Diffusion tool, fresh-install optional selection, checksum, license, runtime dependency এবং target-device verification-এর জন্য v2 release gate যোগ হয়েছে। বর্তমান Stable Diffusion route experiment; installable release extension নয়।
+
+
 ### CLI reliability
 
 - State-এ সংরক্ষিত URL ও path update-এর bug ঠিক হয়েছে; `sed` replacement error ছাড়াই GPU updater আবার চালানো যায়। Focused regression check যোগ হয়েছে।
@@ -23,6 +28,8 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 
 
 ### Performance
+
+- Termux package-এ exact Mesa source-tag-এর license overview ও সব license text যোগ হয়েছে; `ternux gpu update` এখন hash যাচাই করে pinned Turnip driver-এর পাশে notice install করে। Live Debian update-এ notice verification pass করেছে। Binary-to-source mapping ও বিস্তৃত transitive-license review release gate হিসেবে বাকি।
 
 - Checksum-verified staged archive দিয়ে Mesa 27.0.0 Turnip pin update; Adreno 825-এ Vulkan enumeration ও Zink GLX pass করেছে। ছোট interleaved model test-এ staged driver-এর median 27.2 tok/s, আগের driver-এ 26.6 tok/s।
 - Bundled JetBrainsMono Nerd Font v3.5.1 pin করা হয়েছে; extract-এর আগে SHA-256 যাচাই হয় এবং 100+ MB ZIP-এর বদলে 7.3 MB xz archive ব্যবহৃত হয়।

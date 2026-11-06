@@ -545,7 +545,7 @@ tnx_phase_gpu() {
     return 1
   fi
 
-  local sha expected_sha
+  local sha expected_sha module_dir notice_source notice_tarball
   sha="$(sha256sum "$tarball" | cut -d' ' -f1)"
   expected_sha="$(tnx_expected_freedreno_sha)"
   if [ "$sha" != "$expected_sha" ]; then
@@ -553,6 +553,22 @@ tnx_phase_gpu() {
     rm -f "$tarball"
     return 1
   fi
+  module_dir="$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
+  notice_source="$module_dir/licenses/mesa-27.0.0-devel-20261025"
+  notice_tarball="${TMPDIR:-/data/data/com.termux/files/usr/tmp}/ternux-mesa-notices.tar.gz"
+  if [ ! -s "$notice_source/README.md" ] || [ ! -s "$notice_source/SHA256SUMS" ] ||
+     ! (cd "$notice_source" && sha256sum -c SHA256SUMS >/dev/null 2>&1); then
+    tnx_fail "Pinned Mesa license notice bundle is missing or failed its checksum manifest."
+    rm -f "$tarball" "$notice_tarball"
+    return 1
+  fi
+  rm -f "$notice_tarball"
+  if ! tar -czf "$notice_tarball" -C "$notice_source" .; then
+    tnx_fail "Could not package the pinned Mesa license notices."
+    rm -f "$tarball" "$notice_tarball"
+    return 1
+  fi
+
   tnx_state_set "freedreno_sha" "$sha"
   tnx_state_set "freedreno_url" "$url"
 
@@ -561,6 +577,12 @@ tnx_phase_gpu() {
     stage=/tmp/ternux-driver-stage; rm -rf \"\$stage\"; mkdir -p \"\$stage\"
     trap 'rm -rf \"\$stage\"' EXIT
     export DEBIAN_FRONTEND=noninteractive
+    notice_dest=/usr/local/share/doc/ternux/mesa-27.0.0-devel-20261025
+    mkdir -p "\$notice_dest"
+    tar -xzf /tmp/ternux-mesa-notices.tar.gz -C "\$notice_dest"
+    (cd "\$notice_dest" && sha256sum -c SHA256SUMS)
+    find "\$notice_dest" -type d -exec chmod 0755 {} +
+    find "\$notice_dest" -type f -exec chmod 0644 {} +
     apt install -y -o APT::Color=1 -o Dpkg::Progress-Fancy=1 libvulkan1 || true
     tar -xzf /tmp/mesa-freedreno.tar.gz -C \"\$stage\" --wildcards \
       \"*/usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so\" \
@@ -581,19 +603,21 @@ tnx_phase_gpu() {
     rm -f /usr/share/vulkan/icd.d/freedreno_icd.aarch64.json
     ldconfig
     apt-mark hold $TNX_DP_MESA_HOLD $TNX_DP_EXTRA_HOLD || true
-  " || { tnx_fail "Driver installation failed."; rm -f "$tarball"; return 1; }
-  rm -f "$tarball"
+  " || { tnx_fail "Driver or license notice installation failed."; rm -f "$tarball" "$notice_tarball"; return 1; }
+  rm -f "$tarball" "$notice_tarball"
 
   if tnx_guest_login --shared-tmp -- bash -c '
     [ -f /usr/local/lib/aarch64-linux-gnu/libvulkan_freedreno.so ] &&
-    [ -f /usr/local/share/vulkan/icd.d/ternux_freedreno_icd.json ]
+    [ -f /usr/local/share/vulkan/icd.d/ternux_freedreno_icd.json ] &&
+    [ -s /usr/local/share/doc/ternux/mesa-27.0.0-devel-20261025/README.md ] &&
+    (cd /usr/local/share/doc/ternux/mesa-27.0.0-devel-20261025 && sha256sum -c SHA256SUMS >/dev/null)
   ' >/dev/null 2>&1; then
     local driver_sha icd_sha
     driver_sha="$(tnx_guest_login -- sha256sum /usr/local/lib/aarch64-linux-gnu/libvulkan_freedreno.so 2>/dev/null | awk '{print $1}')"
     icd_sha="$(tnx_guest_login -- sha256sum /usr/local/share/vulkan/icd.d/ternux_freedreno_icd.json 2>/dev/null | awk '{print $1}')"
     [ -n "$driver_sha" ] && tnx_state_set "freedreno_driver_sha" "$driver_sha"
     [ -n "$icd_sha" ] && tnx_state_set "freedreno_icd_sha" "$icd_sha"
-    tnx_ok "Turnip driver + ICD installed, hashed and pinned."
+    tnx_ok "Turnip driver, ICD and upstream license notices installed and verified."
   else
     tnx_fail "Turnip driver files missing after extraction."; return 1
   fi

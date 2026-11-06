@@ -12,6 +12,11 @@ Notable changes to ternux. Dates are ISO 8601.
 
 ## [Unreleased]
 
+### AI artifact delivery
+
+- Added a v2 release gate for installable CPU/GPU/NPU LLM and Stable Diffusion tools, with fresh-install opt-in selection, checksums, licenses, runtime requirements and target-device verification. Current Stable Diffusion routes are experiments, not installable release extensions.
+
+
 ### CLI reliability
 
 - Fixed state updates for stored URLs and paths; the GPU updater can now be rerun without `sed` replacement errors. Added a focused regression check.
@@ -23,6 +28,8 @@ Notable changes to ternux. Dates are ISO 8601.
 
 
 ### Performance
+
+- Added the exact Mesa source-tag license overview and license texts to the Termux package; `ternux gpu update` now checksum-verifies and installs them beside the pinned Turnip driver. The live Debian update passed notice verification. Exact binary-to-source mapping and broader transitive-license review remain release gates.
 
 - Updated the pinned Turnip source to Mesa 27.0.0 after its checksum-verified archive passed staged Vulkan enumeration and Zink GLX checks on Adreno 825; a short interleaved small-model sample measured a 27.2 tok/s median versus 26.6 on the previous driver.
 - Pinned the bundled JetBrainsMono Nerd Font to v3.5.1, verify its SHA-256 before extraction, and use the 7.3 MB xz archive instead of the unpinned 100+ MB ZIP.
