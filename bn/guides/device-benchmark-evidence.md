@@ -6,7 +6,7 @@
 কী এখনো যাচাই হয়নি—তা রেকর্ড করা হয়েছে। Build success, renderer detection ও
 benchmark performance যেন এক claim-এ মিশে না যায়, সেটিই এর উদ্দেশ্য।
 
-> **Snapshot:** 2026-10-15 পর্যন্ত evidence। এটি একটি
+> **Snapshot:** 2026-11-07 পর্যন্ত evidence। এটি একটি
 > device/configuration; compatibility বা performance guarantee নয়।
 
 ---
@@ -805,6 +805,41 @@ reading ৪০°C দেখিয়েছে।
 তাই এই observation থেকে speedup বা memory reduction-এর পরিমাণ দাবি করা হচ্ছে না।
 Launcher পরিবর্তনের পর focused regression suite 98/98 pass করেছে। এই নমুনা একটি
 device/session-এর; বিভিন্ন device-এর low-RAM আচরণ প্রমাণ করে না।
+
+### ২০২৬-১১-০৭ একই model-এ CPU/Vulkan/HTP generation throughput
+
+`/sdcard/Llms/qwen2.5-0.5b-instruct-q4_0.gguf` model-এ একই prompt, সর্বোচ্চ
+৬৪-token output, context 2048, batch/ubatch 128, temperature 0, seed 42 এবং চারটি
+thread ব্যবহার করে CPU, Adreno Vulkan ও brokered Hexagon HTP মাপা হয়েছে। তিনটি
+round-এই CPU → Vulkan → HTP ক্রম রাখা হয়েছে, যাতে backend-গুলো আলাদা পর্যায়ে
+একটানা না চলে।
+
+| Backend | তিন run-এর generation tok/s | Median |
+|---|---:|---:|
+| CPU (`-ngl 0`) | 7.2 / 8.0 / 8.1 | 8.0 |
+| Adreno 825 Vulkan (`-dev Vulkan0 -ngl 99`) | 24.1 / 24.8 / 26.3 | 24.8 |
+| Hexagon HTP (`htp-run`, HTP0) | 46.9 / 46.2 / 43.9 | 46.2 |
+
+এই সীমিত পরীক্ষায় HTP median Vulkan-এর প্রায় 1.86 গুণ এবং CPU-র 5.78 গুণ। HTP-র
+তিনটি broker session-ই clean close হয়েছে (`closeSession` transport status 0,
+reply `[0, 0]`)। আলাদা known-answer run-এ `4` এসেছে এবং 24/24 layer HTP0-তে assign
+হয়েছে। বর্তমান throughput run-গুলো response quality বা HTP layer count আলাদাভাবে
+যাচাই করেনি। এটি একটি device-এ স্বল্প সময়ের generation benchmark; energy,
+thermal stability বা দীর্ঘ সময়ের performance test নয়। HTP correctness/operator
+সংক্রান্ত gate এখনো খোলা।
+
+পুনরুৎপাদনের জন্য Debian guest-এ Vulkan extension environment load করুন; HTP
+launcher নিজেই broker ও configuration সরবরাহ করে:
+
+```bash
+MODEL=/sdcard/Llms/qwen2.5-0.5b-instruct-q4_0.gguf
+PROMPT='Write a concise paragraph about how an efficient mobile computer balances speed, battery use, and memory.'
+source "$HOME/.local/opt/ternux-extensions/llama-vulkan/env.sh"
+# প্রতিটি command তিনবার চালান; ক্রম: CPU → Vulkan → HTP।
+llama-cli -m "$MODEL" -ngl 0 -t 4 -tb 4 -p "$PROMPT" -n 64 -c 2048 -b 128 -ub 128 --temp 0 --seed 42 --ignore-eos
+llama-cli -m "$MODEL" -dev Vulkan0 -ngl 99 -t 4 -tb 4 -p "$PROMPT" -n 64 -c 2048 -b 128 -ub 128 --temp 0 --seed 42 --ignore-eos
+"$HOME/.local/opt/ternux-extensions/llama-htp-experimental/bin/htp-run" -m "$MODEL" -t 4 -tb 4 -p "$PROMPT" -n 64 -c 2048 -b 128 -ub 128 --temp 0 --seed 42 --ignore-eos
+```
 
 ## রেফারেন্স
 

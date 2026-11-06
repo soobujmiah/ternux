@@ -248,6 +248,54 @@ const bn = lang === "bn";
         ? "প্রতিটি গণনাপথে একবার করে ধারাবাহিক পরীক্ষা। * এইচটিপি পরীক্ষামূলক; এইচভিএক্স ম্যাটমাল ও ফ্ল্যাশ অ্যাটেনশন বন্ধ; এটি সমর্থিত টার্নাক্স পথ নয়।"
         : "One sequential run per backend. * HTP is experimental; HVX matmul and flash attention off; not a supported Ternux route."}
     </p>
+    <section
+      class="matched-bench"
+      aria-label={
+        bn ? "ছোট মডেলের matched benchmark" : "Matched small-model benchmark"
+      }
+    >
+      <header>
+        <div>
+          <span class="eyebrow">
+            {bn ? "কিউয়েন ২.৫ · ০.৫বি · কিউ৪_০" : "QWEN2.5 · 0.5B · Q4_0"}
+          </span>
+          <h4>
+            {bn
+              ? "তিনবারের তুলনায় median generation"
+              : "Median generation · three runs each"}
+          </h4>
+        </div>
+        <span class="evidence-badge experimental">
+          <i></i>
+          {bn ? "পরীক্ষামূলক এইচটিপি" : "EXPERIMENTAL HTP"}
+        </span>
+      </header>
+      <div class="matched-bench-values">
+        <article class="cpu-row">
+          <small>{bn ? "চার-thread CPU" : "4-thread CPU"}</small>
+          <strong>
+            8.0 <em>tok/s</em>
+          </strong>
+        </article>
+        <article class="gpu-row">
+          <small>{bn ? "অ্যাড্রেনো ভলকান" : "Adreno Vulkan"}</small>
+          <strong>
+            24.8 <em>tok/s</em>
+          </strong>
+        </article>
+        <article class="htp-row">
+          <small>{bn ? "হেক্সাগন HTP" : "Hexagon HTP"}</small>
+          <strong>
+            46.2 <em>tok/s</em>
+          </strong>
+        </article>
+      </div>
+      <p>
+        {bn
+          ? "একই prompt/settings, 64-token output; CPU → Vulkan → HTP ক্রমে তিন round। আলাদা known-answer run-এ HTP-তে 24/24 layer assign হয়েছিল। এক device-এর short throughput test; quality বা sustained speed-এর নিশ্চয়তা নয়।"
+          : "Same prompt/settings and 64-token output; three rounds in CPU → Vulkan → HTP order. A separate known-answer run assigned all 24 layers to HTP. Short throughput test on one device; no quality or sustained-speed claim."}
+      </p>
+    </section>
   </div>
 
   <footer class="compute-foot">

@@ -35,6 +35,43 @@ Current gates and dated device evidence stay in the single
 [accelerator release plan](../docs/ACCELERATOR-RELEASE-PLAN.md) and
 [device benchmark record](device-benchmark-evidence.md).
 
+An exploratory 2026-11-06 speculative-decoding test placed the Qwen2.5 1.5B
+Q4_0 main model on HTP0 and a Qwen2.5 0.5B Q4_0 draft model on Vulkan0. On
+the same short prompt, the baseline measured 19.5 generated tok/s; draft
+windows of 2 and 4 measured 9.1 and 7.1 tok/s. Both broker sessions closed
+cleanly. Since this mixed-backend setup was slower, it is not part of the
+launcher and should not be presented as an optimization. This one short run
+does not establish sustained performance.
+
+A second short probe on 2026-11-07 used the Qwen2.5 1.5B Q4_0 model, the same
+prompt, seed, context, and 64-token cap on the b11582 CPU/Vulkan and HTP builds.
+Generation measured 19.6 tok/s on HTP with default power mode, 19.0 with
+`GGML_HEXAGON_POWER_MODE=burst`, and 17.6 on Vulkan. HTP with the Q4_K_M model
+measured 15.9 tok/s. Each HTP session closed cleanly. These single short runs
+show only a modest measured difference and do not establish a repeatable NPU
+speed advantage or sustained performance.
+
+I also tested the official llama.cpp `b12177` Snapdragon Linux ARM64 asset in an
+isolated temporary directory (commit `6c01da6`, SHA-256
+`b3d2503821a6688ec5c500d43b7e57d96fad893a206bbefe208b07ee647d85e7`). Through
+the current Ternux broker it failed to start the HTP session with error
+`0x8000040e` before model inference; the broker's `closeSession` still returned
+`[0, 0]`. There is no speed result, and the installed b11582 extension was
+left untouched.
+
+The existing `/sdcard/Llms/qwen2.5-0.5b-instruct-q4_0.gguf` was also tested
+directly on HTP. Qwen2.5 0.5B Instruct Q4_0 returned `4` on a short known-answer
+prompt; its verbose trace showed all 24 transformer layers on HTP0 and an HTP
+compute buffer. An earlier three-run HTP/Vulkan comparison measured medians of
+40.8 and 27.9 tok/s. A later matched CPU/Vulkan/HTP comparison used the same
+prompt, 64-token output cap, context 2048, batch/ubatch 128, seed 42, temperature
+0, and four threads, with three interleaved runs per backend. Generation rates
+were CPU 7.2/8.0/8.1 tok/s (median 8.0), Vulkan 24.1/24.8/26.3 (median 24.8),
+and HTP 46.9/46.2/43.9 (median 46.2). All HTP broker sessions closed cleanly.
+This short, single-device throughput result does not assess response quality,
+energy use, thermal stability, or sustained performance and does not close the
+open HTP correctness gates.
+
 ## Latest operator checks
 
 On 2026-10-14, the Linux ARM64 package from workflow run `38567329752`
@@ -137,6 +174,24 @@ In Debian, run the launcher with your existing model path:
   -m /path/to/model.gguf \
   -p 'What is 2 + 2? Reply with only the number.' -n 8
 ```
+
+### Fast small-model example
+
+On the tested SM8735 phone, the existing Qwen2.5 0.5B Instruct Q4_0 file at
+`/sdcard/Llms/qwen2.5-0.5b-instruct-q4_0.gguf` returned `4` with all 24
+transformer layers assigned to HTP0. Run it directly from shared storage:
+
+```bash
+"$HOME/.local/opt/ternux-extensions/llama-htp-experimental/bin/htp-run" \
+  -m /sdcard/Llms/qwen2.5-0.5b-instruct-q4_0.gguf \
+  -p 'What is 2 + 2? Reply with only the number.' -n 8
+```
+
+A later matched three-backend test measured a 46.2 tok/s HTP median, versus
+24.8 tok/s on Vulkan and 8.0 tok/s on four-thread CPU. The test used three short
+runs per backend on one device; it did not evaluate response quality, energy,
+thermal stability, or sustained use. Do not assume the same result for larger
+models.
 
 The launcher selects the observed HVX-only / flash-attention-off configuration
 and requests all eligible model layers for HTP. Check the output and exit code;
