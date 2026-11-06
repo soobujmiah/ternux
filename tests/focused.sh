@@ -1681,6 +1681,28 @@ else
   not_ok "Blender workload installs Xvfb for headless GPU rendering"
 fi
 
+if env SD_MARKER="$TMP/stable-diffusion-optional-phase" \
+  SD_PHASE_SRC="$TMP/stable-diffusion-phase-src" bash -c '
+    . "$1/lib/phases.sh"
+    mkdir -p "$SD_PHASE_SRC/lib"
+    cat > "$SD_PHASE_SRC/lib/extension.sh" <<"EOF"
+tnx_cmd_extension() { printf "extension:%s\n" "$*" >> "$SD_MARKER"; }
+EOF
+    tnx_guest_login(){ printf "dependencies:%s\n" "$*" >> "$SD_MARKER"; }
+    tnx_ok(){ printf "ok:%s\n" "$*" >> "$SD_MARKER"; }
+    tnx_warn(){ printf "warn:%s\n" "$*" >> "$SD_MARKER"; }
+    _TNX_SRC="$SD_PHASE_SRC"
+    tnx_phase_extras ternux stable-diffusion &&
+      grep -Fq "libgomp1 libvulkan1" "$SD_MARKER" &&
+      grep -Fq "extension:install stable-diffusion" "$SD_MARKER" &&
+      grep -Fq "stable-diffusion release installed and validated" "$SD_MARKER" &&
+      awk "/dependencies:/{d=NR} /extension:/{e=NR} END {exit !(d && e && d < e)}" "$SD_MARKER"
+  ' _ "$ROOT"; then
+  ok "Stable Diffusion optional phase installs runtime dependencies before its managed extension"
+else
+  not_ok "Stable Diffusion optional phase installs runtime dependencies before its managed extension"
+fi
+
 # The Termux host frontend streams the installer into the selected Debian guest.
 EXT_HOST_BIN="$TMP/extension-host-bin"
 mkdir -p "$EXT_HOST_BIN"
