@@ -5,7 +5,6 @@ lang: "bn"
 alt_url: "/docs/TERMUX-APT.html"
 ---
 
-# Ternux Termux APT repository
 
 Ternux 2.0.0 release-এর জন্য signed Termux APT repository প্রস্তুত। Repository
 এখনো **প্রকাশিত হয়নি**; release gate শেষ করে publish workflow চালানোর পর

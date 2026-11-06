@@ -5,7 +5,6 @@ lang: "en"
 alt_url: "/bn/docs/TERMUX-APT.html"
 ---
 
-# Ternux Termux APT repository
 
 The signed Termux APT repository is prepared for the Ternux 2.0.0 release. The
 repository has **not been published yet**, so `pkg install ternux` is not
