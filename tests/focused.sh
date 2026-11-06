@@ -111,6 +111,7 @@ if env TERNUX_STATE_DIR="$TMP/state-welcome" HOME="$TMP/home-welcome" \
       grep -q "firefox-esr --new-window" "$1/lib/ternux-welcome.sh" &&
       grep -q "welcome-seen" "$1/lib/ternux-welcome.sh" &&
       grep -q "ternux benchmark" "$1/lib/ternux-welcome-gui.py" &&
+      grep -q "height = max(250, min(400, screen_height - 96))" "$1/lib/ternux-welcome-gui.py" &&
       grep -q "Ctrl+Space" "$1/lib/ternux-welcome-gui.py" &&
       grep -q "Sobuj Miah" "$1/lib/ternux-welcome-gui.py" &&
       python3 -m py_compile "$1/lib/ternux-welcome-gui.py" &&
