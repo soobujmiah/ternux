@@ -200,6 +200,6 @@ jobs:
               --notes-file release-notes.md --prerelease
           else
             gh release create "$tag" "$tag.tar.gz" "$tag.tar.gz.sha256" \
-              --draft --prerelease --title 'Ternux Stable Diffusion CPU + Vulkan (ARM64)' \
+              --prerelease --title 'Ternux Stable Diffusion CPU + Vulkan (ARM64)' \
               --notes-file release-notes.md --target "$GITHUB_SHA"
           fi
