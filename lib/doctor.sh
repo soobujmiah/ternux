@@ -82,7 +82,10 @@ _tnx_doctor_guest_probe() {
       llama-vulkan|llama-htp-experimental|stable-diffusion)
         binary=llama-cli; [ "$name" = stable-diffusion ] && binary=sd-cli
         if [ -x "$e/bin/$binary" ]; then
-          libs="$(ldd "$e/bin/$binary" 2>/dev/null | grep -c 'not found')"
+          # Include bundled libraries in the runtime search path so ldd reports
+          # missing system dependencies, not this extension's own .so files.
+          libs="$(LD_LIBRARY_PATH="$e/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" \
+            ldd "$e/bin/$binary" 2>/dev/null | grep -c 'not found')"
           _p "ext.$name.missing_libs" "${libs:-0}"
           if [ "$name" = llama-vulkan ] && [ -f "$e/env.sh" ]; then
             out="$( ( . "$e/env.sh" >/dev/null 2>&1; timeout 15 llama-cli --version 2>&1 | head -2 ) )"
