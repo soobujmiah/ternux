@@ -1067,9 +1067,13 @@ threads, flash attention off, and the same candidate build. The HTP run used
 
 This is a useful target-device perplexity agreement signal across these two
 models, not proof of token-by-token equality, broad answer quality, every HTP
-operator, or sustained stability. The HTP program also logged that it could not
-query free device memory for its automatic fit heuristic because the test set
-`-ngl 99`; inference continued to completion. It does not change the production extension:
+operator, or sustained stability. A separate integer-HMX candidate run on the
+same Qwen2.5 1.5B Q4_K_M model returned `4` for the deterministic `2 + 2`
+prompt at 18.7 tok/s; its child exited 0 and CDSP `closeSession` returned
+`[0, 0]`. This is one answer check, not a performance result. The HTP program
+also logged that it could not query free device memory for its automatic fit
+heuristic because the test set `-ngl 99`; inference continued to completion.
+It does not change the production extension:
 the candidate remains unmerged and its `FLASH_ATTN_EXT` path aborted on this
 SM8735, while the production launcher keeps flash attention disabled. The
 candidate is not yet release-qualified.
