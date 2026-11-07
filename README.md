@@ -35,9 +35,11 @@ same graphics performance on every phone.
    sources. Open Termux:X11 once. Optional companion apps:
    [Termux:Boot](https://github.com/termux/termux-boot/releases) starts configured
    scripts after reboot, [Termux:API](https://github.com/termux/termux-api/releases)
-   enables Android integrations such as microphone access, and
+   adds Android utilities (install the matching `termux-api` package too), and
    [Termux:Styling](https://github.com/termux/termux-styling/releases) adds
-   terminal themes and fonts. Install Termux and its add-ons from the same source.
+   terminal themes and fonts. Ternux desktop apps capture live microphone audio
+   on demand through Termux's OpenSL ES source; the API's recorder is file-based.
+   Install Termux and its add-ons from the same source.
 2. In Termux, run:
 
 ```bash
