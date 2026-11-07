@@ -42,19 +42,31 @@ packaging পরে করার সিদ্ধান্ত দিয়েছ�
 accelerator/release roadmap, দ্বিতীয় roadmap তৈরি করবেন না।
 [Local Dream device evidence](https://github.com/soobujmiah/skb/blob/main/devices/redmi-turbo-4-pro/accelerator-access-audit.md)।
 
-২০২৬-১১-০৭-এ ফোনে নতুন QNN batch path দিয়ে দুইটি image, প্রতিটিতে দুইটি
-denoising step চালিয়েছি; পরে একই দুই seed-এর জন্য আলাদা single-image control
-চালানো হয়েছে। Batch ও control PNG hash হুবহু মিলে গেছে: seed 20261014-এর
-cf1cb7bbf4fa3e67dc9d82fc24d93201d103d2e3f552214a54749383ccd68ef2 এবং seed
-20261015-এর
-8bf689f9c555357a1c7704fcbc330e95eaebf3e87c9a3fc075ea85adcac0a0f1। Batch-এ একটি
-UNet ও একটি decoder QNN context load হয়েছে, দুইটি verified model member একবার
-করে stream হয়েছে, এবং মোট সময় 20.321 s; আলাদা control-এর সময় 14.275 s ও
-12.197 s। এটি order-sensitive দুই-step setup-reuse check; full-generation
-qualification বা controlled performance comparison নয়। অপরিবর্তিত original
-archive-এর SHA-256 এখনো
-f479f3221fb90d31de1e695577f5aec9a5afb5fb7e076cfac40f00e039b22977। Independent
-stage correctness এবং 3–5 second image target এখনো বাকি।
+২০২৬-১১-০৭-এ ফোনে দুইটি image ও দুইটি denoising step-এর QNN batch run একই seed-এর
+আলাদা single-image control-এর সঙ্গে মিলে গেছে। Batch-এ একটি UNet ও একটি decoder
+QNN context load হয়েছে, সময় লেগেছে 20.321 s; control-এর সময় 14.275 s ও
+12.197 s। এরপর ২০-step, দুই-image batch আগের ২৫-image soak-এর প্রথম দুই image-এর
+সঙ্গে হুবহু মিলে গেছে: seed 20261014 SHA-256
+1a13957f5cb65132d98fc212756bdcf8d8b959d69feba84902a9314036764fc3 এবং seed
+20261015 SHA-256 d20bf183909928236e02c8a1f7fe869e5883eb7931e3f5fe5eb65c0f74ee5aec।
+Batch-এ একটি UNet ও একটি decoder context load হয়েছে; প্রতিটি verified model
+member একবার stream হয়েছে; মোট সময় 49.923 s। প্রতি-image UNet/decode-PNG সময়
+14.815/0.850 s ও 16.129/0.824 s। আগের soak-এ image দুটির আলাদা সময় 28.233 s ও
+28.911 s (মোট 57.144 s); দুই session-এর এই non-interleaved মাপ controlled speedup
+প্রমাণ করে না। Battery 40.7–40.9°C মাপা হয়েছে; NPU-specific thermal sensor
+শনাক্ত হয়নি। অপরিবর্তিত archive-এর SHA-256
+f479f3221fb90d31de1e695577f5aec9a5afb5fb7e076cfac40f00e039b22977। একই output
+hash repeat হওয়া independent stage correctness প্রমাণ করে না। Owner-এর 3–5
+second target এখনো বাকি।
+
+এরপর একই দিনে interleaved ২০-step check হয়েছে: seed 20261016-এর single run
+30.945 s; seed 20261016/17-এর দুই-image batch 47.825 s; শেষে seed 20261017-এর
+single run 29.484 s। Batch-এর দুই image সংশ্লিষ্ট single control ও আগের soak-এর সঙ্গে হুবহু মিলে গেছে (seed 20261016
+d93d395a437f57c92b81827bfd08e1347d6926eaf1534cb990af0a8ef504a977; seed 20261017
+cee7951bcd73ca0f677be9f8e2feed4151c42ba931adfb2929532fb71449cde0)। দুই single
+control-এর মোট 60.429 s, এই এক ছোট sequence-এ batch 47.825 s। এখানে batch wall
+time 20.9% কম পাওয়া গেছে, তবে randomized পুনরাবৃত্ত trial বা confidence bound নেই; তাই এটি release performance guarantee নয়। Batch চলাকালে battery 40.3°C
+ছিল। Independent stage correctness এবং 3–5 second target এখনো বাকি।
 
 ### HTP operator diagnostic (২০২৬-১০-১৪)
 

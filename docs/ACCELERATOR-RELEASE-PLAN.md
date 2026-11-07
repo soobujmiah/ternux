@@ -49,19 +49,34 @@ extension; the owner explicitly deferred packaging it until later. See the
 [HTP qualification handoff](../handoffs/llama-htp-qualification.md).
 See the [Local Dream device evidence](https://github.com/soobujmiah/skb/blob/main/devices/redmi-turbo-4-pro/accelerator-access-audit.md).
 
-On 2026-11-07, the phone ran the new QNN batch path for two images at two
-denoising steps, then ran separate single-image controls for both seeds. Batch
-and control PNG hashes matched exactly: seed 20261014
-cf1cb7bbf4fa3e67dc9d82fc24d93201d103d2e3f552214a54749383ccd68ef2, seed
-20261015
-8bf689f9c555357a1c7704fcbc330e95eaebf3e87c9a3fc075ea85adcac0a0f1. The batch
-loaded one UNet and one decoder QNN context, streamed both verified model
-members once, and took 20.321 s; separate controls took 14.275 s and 12.197 s.
-This is an order-dependent two-step setup-reuse check, not full-generation
-qualification or a controlled performance comparison. The unchanged original
-archive still hashes to
-f479f3221fb90d31de1e695577f5aec9a5afb5fb7e076cfac40f00e039b22977. Independent
-stage correctness and the 3–5 second image target remain open.
+On 2026-11-07, a 2-image, 2-step phone batch matched separate single-image
+controls for seeds 20261014 and 20261015. It loaded one UNet and one decoder
+QNN context and took 20.321 s; controls took 14.275 s and 12.197 s.
+A subsequent 20-step, 2-image batch matched the first two images from the
+earlier 25-image soak exactly: seed 20261014 SHA-256
+1a13957f5cb65132d98fc212756bdcf8d8b959d69feba84902a9314036764fc3 and seed
+20261015 SHA-256 d20bf183909928236e02c8a1f7fe869e5883eb7931e3f5fe5eb65c0f74ee5aec.
+It loaded one UNet and one decoder context, streamed each verified model member
+once, and took 49.923 s total. Per-image UNet/decode-and-PNG time was
+14.815/0.850 s and 16.129/0.824 s. The earlier soak measured those images at
+28.233 s and 28.911 s separately (57.144 s combined); this non-interleaved
+cross-session sample is not a controlled speedup. Battery sampled at
+40.7–40.9°C; no NPU-specific thermal sensor was identified. The unchanged
+archive SHA-256 is f479f3221fb90d31de1e695577f5aec9a5afb5fb7e076cfac40f00e039b22977.
+Repeatable image hashes do not establish independent stage correctness. The
+owner's 3–5 second target remains open.
+
+An interleaved same-day 20-step check followed: single seed 20261016 took
+30.945 s; a two-image batch for seeds 20261016/17 took 47.825 s; the final
+single seed 20261017 took 29.484 s. Batch images matched their corresponding
+single controls and prior soak outputs exactly (seed 20261016
+d93d395a437f57c92b81827bfd08e1347d6926eaf1534cb990af0a8ef504a977; seed
+20261017 cee7951bcd73ca0f677be9f8e2feed4151c42ba931adfb2929532fb71449cde0).
+The two single controls total 60.429 s, versus 47.825 s for the batch in this
+one short sequence. This is an observed 20.9% lower wall time for the batch,
+without randomized repeated trials or confidence bounds; it is not a release
+performance guarantee. Battery sampled at 40.3°C during the batch. Independent
+stage correctness and the 3–5 second target remain open.
 
 These three handoffs are repository-only continuation notes. This file remains
 the single canonical accelerator/release roadmap; do not create a second roadmap.

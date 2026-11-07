@@ -268,10 +268,31 @@ For seeds 20261014 and 20261015, each batch PNG SHA-256 exactly matched its
 single-image control. The batch loaded one UNet and one decoder context, streamed
 the 880,827,736-byte UNet member and 59,945,848-byte decoder member once each,
 and completed in 20.321 s. The separate single-image runs took 14.275 s and
-12.197 s (26.472 s combined). This is a short, order-dependent setup-reuse
-screen, not a controlled throughput result: only two denoising steps were run,
-the independent quality oracle remains open, and the 3–5 second target is not
-met. The original archive SHA-256 remained
+12.197 s (26.472 s combined).
+
+A full 20-step, 2-image batch then completed in 49.923 s. Its PNG hashes again
+matched the first two images from the earlier 25-image soak: seed 20261014
+1a13957f5cb65132d98fc212756bdcf8d8b959d69feba84902a9314036764fc3 and seed
+20261015 d20bf183909928236e02c8a1f7fe869e5883eb7931e3f5fe5eb65c0f74ee5aec.
+Per-image UNet/decode-and-PNG work was 14.815/0.850 s and 16.129/0.824 s.
+The old soak measured those single images at 28.233 s and 28.911 s (57.144 s
+combined); the 12.6% shorter batch wall time is an observed, non-interleaved
+cross-session comparison, not a controlled performance claim. Battery
+temperature sampled at 40.7–40.9°C; no NPU-specific thermal sensor was
+identified. Exact hash repeatability confirms this batch path preserves those
+two outputs, not independent stage-tensor correctness.
+
+An interleaved same-day 20-step check used single seed 20261016 (30.945 s), a
+two-image batch for seeds 20261016/17 (47.825 s), then single seed 20261017
+(29.484 s). Each batch PNG exactly matched its corresponding single control:
+`d93d395a437f57c92b81827bfd08e1347d6926eaf1534cb990af0a8ef504a977` and
+`cee7951bcd73ca0f677be9f8e2feed4151c42ba931adfb2929532fb71449cde0`. Combined
+single controls took 60.429 s, 20.9% longer than this one batch. This is one
+short observation without randomized repeated trials or confidence bounds,
+not a release performance guarantee. Battery sampled at 40.3°C during batch.
+
+These checks reuse the same existing archive and do not close the owner's
+3–5 second target. The original archive SHA-256 remained
 f479f3221fb90d31de1e695577f5aec9a5afb5fb7e076cfac40f00e039b22977; no model
 member was written to disk. Batch timing reports per-image UNet and decode/PNG
 work plus cumulative batch time; CLIP, archive streaming, and context startup
