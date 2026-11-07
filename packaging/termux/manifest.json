@@ -987,6 +987,130 @@
     "lib/ternux/ternux-assets/icons/Ternux/scalable/categories/preferences-desktop-wallpaper.svg": {
       "source": "lib/ternux-assets/icons/Ternux/scalable/categories/preferences-desktop-wallpaper.svg",
       "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/places/desktop.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/places/desktop.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/places/network-server.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/places/network-server.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/places/network-workgroup.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/places/network-workgroup.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/places/user-desktop.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/places/user-desktop.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/application-exit.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/application-exit.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/document-open.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/document-open.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/document-properties.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/document-properties.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/document-save.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/document-save.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/edit-copy.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/edit-copy.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/edit-cut.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/edit-cut.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/edit-delete.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/edit-delete.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/edit-find.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/edit-find.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/edit-rename.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/edit-rename.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/edit-select-all.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/edit-select-all.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/emblem-symbolic-link.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/emblem-symbolic-link.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/go-home.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/go-home.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/go-next.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/go-next.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/go-previous.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/go-previous.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/go-up.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/go-up.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/help-about.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/help-about.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/process-stop.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/process-stop.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/system-search.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/system-search.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/user-bookmarks.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/user-bookmarks.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/view-details.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/view-details.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/view-grid.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/view-grid.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/view-list.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/view-list.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/view-more-symbolic.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/view-more-symbolic.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/view-refresh.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/view-refresh.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/view-sort-descending.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/view-sort-descending.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/window-close-symbolic.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/window-close-symbolic.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/window-close.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/window-close.svg",
+      "perm": "644"
     }
   }
 }

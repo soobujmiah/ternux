@@ -74,6 +74,10 @@ unavailable হিসেবে দেখানো হয়।
 
 Fresh install-এ Xfce জুড়ে Ternux-এর graphite-emerald GTK 2/3/4 ও Xfwm theme এবং Qt 5 GTK platform theme, Papirus-Dark fallback-সহ branded app, category ও panel icon, Ternux panel এবং wallpaper default apply হয়। পনেরোটি portrait-first wallpaper landscape-এ aspect ratio ঠিক রাখে। অন্য toolkit ব্যবহার করা app নিজস্ব styling রাখতে পারে। PulseAudio Volume Control Debian-এর packaged application entry ও একই desktop session ব্যবহার করে। Termux:X11 session-এ Xfwm compositing বন্ধ থাকে, কারণ এটি চালু থাকলে পুরো desktop black হতে পারে। VLC ডিফল্টে full interface চালায়, তাই playback control দেখা যায়।
 
+## XFCE Task Manager-এর performance
+
+কম resource-এর Android device-এ process scan কমাতে Task Manager শুরুতে বর্তমান user-এর process list, flat view এবং এক সেকেন্ডের refresh interval ব্যবহার করে। System বা অন্য user-এর process দেখতে **Show all processes** চালু করুন। এই default একবারই apply হয়; পরের preference overwrite করে না।
+
 ---
 
 ## ternux CLI — স্থায়ী ইন্টারফেস

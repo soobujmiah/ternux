@@ -3,6 +3,6 @@
  <path fill="#07120f" d="M5 16a7 7 0 0 1 7-7h14l7 7h19a7 7 0 0 1 7 7v25a8 8 0 0 1-8 8H13a8 8 0 0 1-8-8z"/>
  <path fill="url(#g)" d="M5 21a6 6 0 0 1 6-6h16l6 6h20a6 6 0 0 1 6 6v20a7 7 0 0 1-7 7H12a7 7 0 0 1-7-7z"/>
  <path fill="url(#d)" d="M11 27a4 4 0 0 1 4-4h34a4 4 0 0 1 4 4v18a4 4 0 0 1-4 4H15a4 4 0 0 1-4-4z"/>
- <path fill="#8bf3bd" d="M23 31h19v5h-7v13h-5V36h-7z"/>
+ <g fill="none" stroke="#8bf3bd" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M22 30h9a4 4 0 0 1 4 4v13h-9a4 4 0 0 0-4 3zm22 0h-9a4 4 0 0 0-4 4v13h9a4 4 0 0 1 4 3z"/></g>
  <path fill="none" stroke="#b5ffd7" stroke-opacity=".56" stroke-width="1.5" d="M7 26a5 5 0 0 1 5-5h15l6 6h20"/>
 </svg>

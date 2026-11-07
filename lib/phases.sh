@@ -1165,6 +1165,14 @@ proot-distro login $distro --shared-tmp --bind /dev/kgsl-3d0:/dev/kgsl --bind /d
         install -d -m 0755 "/home/$user_name/.config/ternux"
         : > "\$wm_controls_marker"
       fi
+      taskmanager_marker="/home/$user_name/.config/ternux/taskmanager-performance-v1"
+      if [ ! -e "\$taskmanager_marker" ]; then
+        xfconf-query -c xfce4-taskmanager -p /interface/show-all-processes --create -t bool -s false >/dev/null 2>&1 || true
+        xfconf-query -c xfce4-taskmanager -p /interface/process-tree --create -t bool -s false >/dev/null 2>&1 || true
+        xfconf-query -c xfce4-taskmanager -p /interface/refresh-rate --create -t int -s 1000 >/dev/null 2>&1 || true
+        install -d -m 0755 "/home/$user_name/.config/ternux"
+        : > "\$taskmanager_marker"
+      fi
       /usr/local/bin/ternux-panel-shortcuts >/dev/null 2>&1 || true
       wait \\\$session_pid
     "
@@ -1263,6 +1271,14 @@ proot-distro login $distro --shared-tmp --bind "\$TNX_CPUINFO_FILE:/proc/cpuinfo
         xfconf-query -c xfwm4 -p /general/button_layout --create -t string -s '|HMC' >/dev/null 2>&1 || true
         install -d -m 0755 "/home/$user_name/.config/ternux"
         : > "\$wm_controls_marker"
+      fi
+      taskmanager_marker="/home/$user_name/.config/ternux/taskmanager-performance-v1"
+      if [ ! -e "\$taskmanager_marker" ]; then
+        xfconf-query -c xfce4-taskmanager -p /interface/show-all-processes --create -t bool -s false >/dev/null 2>&1 || true
+        xfconf-query -c xfce4-taskmanager -p /interface/process-tree --create -t bool -s false >/dev/null 2>&1 || true
+        xfconf-query -c xfce4-taskmanager -p /interface/refresh-rate --create -t int -s 1000 >/dev/null 2>&1 || true
+        install -d -m 0755 "/home/$user_name/.config/ternux"
+        : > "\$taskmanager_marker"
       fi
       /usr/local/bin/ternux-panel-shortcuts >/dev/null 2>&1 || true
       wait \\\$session_pid

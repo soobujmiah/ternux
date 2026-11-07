@@ -70,6 +70,10 @@ Fresh installs apply Ternux's graphite-and-emerald GTK 2/3/4 and Xfwm theme, Qt 
 
 ---
 
+## XFCE Task Manager performance
+
+Ternux defaults the Task Manager to the current user's process list, flat view, and a one-second refresh interval to reduce repeated process scans on low-resource Android devices. Use the Task Manager's **Show all processes** option when you need to inspect system or other-user processes. The defaults are applied once and do not overwrite later preferences.
+
 ## Ternux CLI — the permanent interface
 
 When ternux is installed, the `ternux` command is your single entry point for

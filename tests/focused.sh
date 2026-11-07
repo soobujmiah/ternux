@@ -458,15 +458,32 @@ for icon in ("applications-accessories", "applications-graphics", "applications-
 places_icons = root / "lib/ternux-assets/icons/Ternux/scalable/places"
 assert (places_icons / "user-trash.svg").is_file()
 assert (places_icons / "user-trash-full.svg").is_file()
+for icon in ("user-desktop", "desktop", "network-server", "network-workgroup"):
+    assert (places_icons / f"{icon}.svg").is_file()
+folder_icons = sorted(places_icons.glob("folder*.svg"))
+assert len(folder_icons) >= 20
+assert len({icon.read_bytes() for icon in folder_icons}) == len(folder_icons)
 panel_icons = root / "lib/ternux-assets/icons/Ternux/scalable/apps"
 for icon in ("org.xfce.panel.applicationsmenu", "org.xfce.panel.showdesktop",
              "org.xfce.panel.directorymenu", "org.xfce.panel.actions", "org.xfce.panel.pager",
              "folder-new", "document-new", "insert-link", "edit-paste",
-             "window-new", "view-sort-ascending"):
+             "window-new", "view-sort-ascending", "application-exit", "document-open",
+             "document-properties", "document-save", "edit-copy", "edit-cut", "edit-delete",
+             "edit-find", "edit-rename", "edit-select-all", "system-search", "go-home",
+             "go-next", "go-previous", "go-up", "help-about", "process-stop",
+             "user-bookmarks", "view-details", "view-grid", "view-list", "view-more-symbolic",
+             "view-refresh", "view-sort-descending", "window-close", "window-close-symbolic"):
     assert (panel_icons / f"{icon}.svg").is_file()
 xfwm_config = (root / "lib/ternux-assets/themes/Ternux/xfwm4/themerc").read_text()
-assert "button_offset=3" in xfwm_config and "button_spacing=3" in xfwm_config
+assert "button_offset=2" in xfwm_config and "button_spacing=1" in xfwm_config
+assert "frame_border_top=4" in xfwm_config
+assert "save(f\"{kind}-{state}.png\", (24, 24), draw)" in (root / "tools/generate_ternux_xfwm.py").read_text()
 assert "image-style --create -t int -s 4" in (root / "lib/phases.sh").read_text()
+phases = (root / "lib/phases.sh").read_text()
+assert phases.count("taskmanager-performance-v1") == 2
+assert phases.count("/interface/show-all-processes --create -t bool -s false") == 2
+assert phases.count("/interface/process-tree --create -t bool -s false") == 2
+assert phases.count("/interface/refresh-rate --create -t int -s 1000") == 2
 assert (root / "lib/ternux-assets/themes/Ternux/gtk-4.0/gtk.css").is_file()
 gtk4_theme = (root / "lib/ternux-assets/themes/Ternux/gtk-4.0/gtk.css").read_text()
 assert 'resource:///org/gtk/libgtk/theme/Default/gtk-dark.css' in gtk4_theme

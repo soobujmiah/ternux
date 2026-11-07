@@ -44,27 +44,27 @@ def state_button(kind, state, inactive=False):
 
     def draw(d, size):
         w, h = size
-        d.rounded_rectangle((1, 1, w - 2, h - 2), radius=9, fill=bg,
+        d.rounded_rectangle((1, 1, w - 2, h - 2), radius=7, fill=bg,
                             outline=outline, width=1)
         cx, cy = w // 2, h // 2
-        stroke = 4
+        stroke = 3
         if kind == "close":
-            r = 9
+            r = 7
             d.line((cx-r, cy-r, cx+r, cy+r), fill=color, width=stroke)
             d.line((cx+r, cy-r, cx-r, cy+r), fill=color, width=stroke)
         elif kind == "hide":
-            d.line((cx-9, cy+6, cx+9, cy+6), fill=color, width=stroke)
+            d.line((cx-7, cy+5, cx+7, cy+5), fill=color, width=stroke)
         elif kind == "maximize":
-            d.rectangle((cx-9, cy-9, cx+9, cy+9), outline=color, width=stroke)
+            d.rectangle((cx-7, cy-7, cx+7, cy+7), outline=color, width=stroke)
         elif kind == "menu":
-            for yy in (-7, 0, 7):
-                d.line((cx-9, cy+yy, cx+9, cy+yy), fill=color, width=stroke)
+            for yy in (-5, 0, 5):
+                d.line((cx-7, cy+yy, cx+7, cy+yy), fill=color, width=stroke)
         elif kind == "shade":
             d.line((cx-7, cy-3, cx, cy+5, cx+7, cy-3), fill=color, width=stroke, joint="curve")
         elif kind == "stick":
             d.ellipse((cx-6, cy-6, cx+6, cy+6), outline=color, width=stroke)
 
-    save(f"{kind}-{state}.png", (32, 32), draw)
+    save(f"{kind}-{state}.png", (24, 24), draw)
 
 
 def edge(name, color, vertical=True, corner=False):
@@ -74,11 +74,11 @@ def edge(name, color, vertical=True, corner=False):
             d.rectangle((0, 0, w-1, h-1), fill=color)
             d.line((0, h-1, w-1, h-1), fill=EDGE, width=1)
             d.line((w-1, 0, w-1, h-1), fill=EDGE, width=1)
-        save(name, (6, 6), draw)
+        save(name, (4, 4), draw)
     elif vertical:
-        save(name, (2, 5), lambda d, s: (d.rectangle((0,0,1,4), fill=color), d.line((1,0,1,4), fill=EDGE)))
+        save(name, (2, 4), lambda d, s: (d.rectangle((0,0,1,3), fill=color), d.line((1,0,1,3), fill=EDGE)))
     else:
-        save(name, (5, 2), lambda d, s: (d.rectangle((0,0,4,1), fill=color), d.line((0,1,4,1), fill=EDGE)))
+        save(name, (4, 2), lambda d, s: (d.rectangle((0,0,3,1), fill=color), d.line((0,1,3,1), fill=EDGE)))
 
 OUT.mkdir(parents=True, exist_ok=True)
 for state, color in (("active", ACTIVE), ("inactive", INACTIVE)):
@@ -89,7 +89,7 @@ for state, color in (("active", ACTIVE), ("inactive", INACTIVE)):
     for corner_name in ("top-left", "top-right", "bottom-left", "bottom-right"):
         edge(f"{corner_name}-{state}.png", color, corner=True)
     for i in range(1, 6):
-        save(f"title-{i}-{state}.png", (2, 32), lambda d, s, c=color: d.rectangle((0,0,1,31), fill=c))
+        save(f"title-{i}-{state}.png", (2, 24), lambda d, s, c=color: d.rectangle((0,0,1,23), fill=c))
 
 for kind in ("close", "hide", "maximize", "menu", "shade", "stick"):
     state_button(kind, "active")
