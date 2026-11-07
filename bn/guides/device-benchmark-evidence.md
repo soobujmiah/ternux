@@ -925,6 +925,38 @@ for run in 1 2 3; do
 done
 ```
 
+### ২০২৬-১১-০৭ HTP CPU-thread scaling
+
+আগের মতো Qwen2.5 1.5B Q4_K_M model, deterministic arithmetic prompt, চার batch
+thread, 64 generated token, context 2048, batch/ubatch 128, temperature 0,
+seed 42 ও --ignore-eos রেখে generation thread এক, দুই ও চার করে (প্রতি round-এ
+একই ক্রমে) তিনটি করে HTP run interleave করেছি। নয়টি run-এই প্রথম answer 4
+এসেছে এবং প্রতিটি broker/CDSP session clean close হয়েছে।
+
+| Generation thread (-t) | তিন round-এর generation tok/s | Median |
+|---|---:|---:|
+| 1 | 18.9 / 19.0 / 17.8 | 18.9 |
+| 2 | 18.2 / 17.9 / 18.8 | 18.2 |
+| 4 | 18.4 / 16.5 / 18.4 | 18.4 |
+
+এই ছোট sample-এ এক generation thread-এর median বেশি; তবে run-এর spread ও
+স্থির thread order-এর কারণে পার্থক্য নিশ্চিত নয়। CPU utilization, memory,
+power বা thermal behavior মাপা হয়নি; launcher-এর default বদলানোর জন্য এটি
+যথেষ্ট evidence নয়। Interactive headroom অগ্রাধিকার দিলে এই exact model-এ কম
+thread দিয়ে আরও test করার ইঙ্গিত দেয়।
+
+Debian guest-এ ternux user হিসেবে পুনরুৎপাদন:
+
+```bash
+MODEL=/sdcard/LAI/models/qwen2.5-1.5b-instruct-q4_k_m.gguf
+RUNNER="$HOME/.local/opt/ternux-extensions/llama-htp-experimental/bin/htp-run"
+for round in 1 2 3; do
+  for threads in 1 2 4; do
+    "$RUNNER" -m "$MODEL" -t "$threads" -tb 4 -p "Solve 2 + 2. Reply with only the number." -n 64 -c 2048 -b 128 -ub 128 --temp 0 --seed 42 --ignore-eos
+  done
+done
+```
+
 ### ২০২৬-১১-০৭ SM8735 integer-HMX candidate probe
 
 Build-only [CI run 42348072918](https://github.com/soobujmiah/ternux/actions/runs/42348072918) unmerged [llama.cpp PR #29740](https://github.com/ggml-org/llama.cpp/pull/29740), commit `08c83734f9c5c3b497e98b96f1a380f5a6084468` থেকে disposable artifact তৈরি করেছে। Archive SHA-256 `52877aad044c6da3f701d0230fde86520ce26066a412118bfb93e1a6f238de0a`। Checksum verify করে ফাইলগুলো শুধু isolated `ternux-clean-apt` Debian guest-এ extract/install করা হয়েছে; production HTP extension ও চলমান Debian desktop বদলানো হয়নি।

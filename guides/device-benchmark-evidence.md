@@ -1099,6 +1099,38 @@ for run in 1 2 3; do
 done
 ```
 
+### 2026-11-07 HTP CPU-thread scaling
+
+Using the same existing Qwen2.5 1.5B Q4_K_M model, deterministic arithmetic
+prompt, four batch threads, 64 generated tokens, context 2048, batch/ubatch 128,
+temperature 0, seed 42 and --ignore-eos, I interleaved three HTP runs each at
+one, two and four generation threads (in that fixed order per round). All nine
+runs began with answer 4 and each broker/CDSP session closed cleanly.
+
+| Generation threads (-t) | Generation tok/s, three rounds | Median |
+|---|---:|---:|
+| 1 | 18.9 / 19.0 / 17.8 | 18.9 |
+| 2 | 18.2 / 17.9 / 18.8 | 18.2 |
+| 4 | 18.4 / 16.5 / 18.4 | 18.4 |
+
+One generation thread had the highest median in this small sample, while the
+spread and fixed run order make the differences inconclusive. This does not
+measure CPU utilization, memory, power or thermal behavior, and is not enough
+to change the launcher's defaults. It suggests testing a low-thread setting
+for this exact model when prioritizing interactive headroom.
+
+Reproduce as the ternux user in the Debian guest:
+
+```bash
+MODEL=/sdcard/LAI/models/qwen2.5-1.5b-instruct-q4_k_m.gguf
+RUNNER="$HOME/.local/opt/ternux-extensions/llama-htp-experimental/bin/htp-run"
+for round in 1 2 3; do
+  for threads in 1 2 4; do
+    "$RUNNER" -m "$MODEL" -t "$threads" -tb 4 -p "Solve 2 + 2. Reply with only the number." -n 64 -c 2048 -b 128 -ub 128 --temp 0 --seed 42 --ignore-eos
+  done
+done
+```
+
 ### 2026-11-07 SM8735 integer-HMX candidate probe
 
 A build-only [CI run 42348072918](https://github.com/soobujmiah/ternux/actions/runs/42348072918) produced a disposable artifact from the unmerged [llama.cpp PR #29740](https://github.com/ggml-org/llama.cpp/pull/29740), commit `08c83734f9c5c3b497e98b96f1a380f5a6084468`. The archive SHA-256 was `52877aad044c6da3f701d0230fde86520ce26066a412118bfb93e1a6f238de0a`. I verified the checksum and installed the extracted files only in the isolated `ternux-clean-apt` Debian guest; the production HTP extension and active Debian desktop were not changed.
