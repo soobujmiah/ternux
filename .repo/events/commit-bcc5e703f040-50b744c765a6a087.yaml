@@ -1,0 +1,7 @@
+event_id: commit-bcc5e703f040-50b744c765a6a087
+repository: soobujmiah/ternux
+commit: bcc5e703f040e550d29dd531d6e5376ad790e426
+kind: commit
+occurred_at: '2026-11-07T05:25:22Z'
+status: completed
+summary: 'docs: record clean guest diffusion provisioning (#71)'
