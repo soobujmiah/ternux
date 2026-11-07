@@ -1029,6 +1029,39 @@ for run in 1 2 3; do
 done
 ```
 
+### 2026-11-07 installed HTP long-session and repeated-reopen check (Qwen2.5 1.5B Q4_K_M)
+
+On the Redmi Turbo 4 Pro / SM8735, I used the already-installed managed
+llama-htp-experimental launcher and the existing model
+/sdcard/LAI/models/qwen2.5-1.5b-instruct-q4_k_m.gguf (SHA-256
+6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e). No model
+file was moved or modified. Five additional independent cold-start processes
+used four threads, a fixed 2 + 2 prompt, 64 generated tokens, context 2048,
+batch/ubatch 128, temperature 0, seed 42, and --ignore-eos. All five began
+with the expected answer 4; generation measured 19.6–19.9 tok/s, each child
+exited 0, and each CDSP session returned [0, 0] on close.
+
+A separate single session generated 2,048 tokens with context 4096, the same
+four-thread managed HTP route, batch/ubatch 128, temperature 0, seed 42 and
+--ignore-eos. It completed in 136 seconds at 15.5 generation tok/s; the broker
+child exited 0 and CDSP returned [0, 0]. This shows one clean, approximately
+two-minute long-session workload plus five clean cold restarts for this exact
+model, extension and device. It is not a thermal soak, power/energy measurement,
+a CPU/Vulkan comparison, general operator qualification, or evidence that the
+experimental HTP route is release-supported. The lower long-session rate is
+observed but its cause was not isolated.
+
+Reproduce in the Debian guest as the ternux user. Each cold-start invocation must print its broker child exit and CDSP close status; the five short runs should begin with answer 4.
+
+```bash
+MODEL=/sdcard/LAI/models/qwen2.5-1.5b-instruct-q4_k_m.gguf
+RUNNER="$HOME/.local/opt/ternux-extensions/llama-htp-experimental/bin/htp-run"
+for run in 1 2 3 4 5; do
+  "$RUNNER" -m "$MODEL" -t 4 -tb 4 -p "Solve 2 + 2. Reply with only the number." -n 64 -c 2048 -b 128 -ub 128 --temp 0 --seed 42 --ignore-eos
+done
+"$RUNNER" -m "$MODEL" -t 4 -tb 4 -p "Write a detailed but factual explanation of how smartphone neural processing units execute local language models." -n 2048 -c 4096 -b 128 -ub 128 --temp 0 --seed 42 --ignore-eos
+```
+
 ### 2026-11-07 SM8735 integer-HMX candidate probe
 
 A build-only [CI run 42348072918](https://github.com/soobujmiah/ternux/actions/runs/42348072918) produced a disposable artifact from the unmerged [llama.cpp PR #29740](https://github.com/ggml-org/llama.cpp/pull/29740), commit `08c83734f9c5c3b497e98b96f1a380f5a6084468`. The archive SHA-256 was `52877aad044c6da3f701d0230fde86520ce26066a412118bfb93e1a6f238de0a`. I verified the checksum and installed the extracted files only in the isolated `ternux-clean-apt` Debian guest; the production HTP extension and active Debian desktop were not changed.
