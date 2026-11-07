@@ -134,15 +134,15 @@ Implementation ও বিস্তারিত evidence: [QNN runner record](htt
 
 ### QNN batch setup-reuse check (2026-11-07)
 
-২০-step-এর দুই-image batch 49.923 s-এ শেষ হয়েছে (shared startup-সহ প্রতি
-image 24.96 s)। একই দিনের single → batch → single sequence-এ দুই single-image
-control-এর সময় ছিল 30.945 s ও 29.484 s (মোট 60.429 s); batch লেগেছে 47.825 s।
-Batch PNG hash একই seed-এর single control ও আগের soak output-এর সঙ্গে হুবহু
-মিলেছে। এই একটি ছোট sequence-এ batch-এর মোট wall time 20.9% কম দেখা গেছে; তবে
-randomized পুনরাবৃত্ত trial বা confidence bound নেই, তাই এটি performance guarantee
-নয়। Existing model archive থেকেই run হয়েছে, model member disk-এ লেখা হয়নি।
-CLIP/UNet/VAE stage tensor-এর independent correctness এখনো যাচাই হয়নি, QNN runner
-managed extension নয়, এবং owner-এর 3–5 second target পূরণ হয়নি।
+একই দিনের তিনটি ২০-step paired batch 47.825, 46.946 ও 45.931 s (mean 46.901;
+প্রতি image 22.97–23.91 s) নিয়েছে। একই seed-এর single control-এর যোগফল ছিল
+60.429, 57.145 ও 60.012 s (mean 59.195)। এই তিনটি ছোট sample-এ batch-এর mean
+wall time 20.8% কম; order ছিল দুবার single→batch→single এবং একবার
+batch→single→single। ছয়টি batch/control PNG hash মিলেছে। এটি randomized বা
+statistically powered নয় এবং performance guarantee নয়। Existing archive ব্যবহার
+হয়েছে; model member disk-এ লেখা হয়নি। Independent CLIP/UNet/VAE stage-tensor
+correctness এখনো যাচাই হয়নি; QNN runner managed extension নয় এবং owner-এর
+3–5 second target পূরণ হয়নি। [প্রতি-run device record](https://github.com/soobujmiah/ternux/blob/main/guides/device-benchmark-evidence.md#2026-11-07-qnn-batch-setup-reuse-repeat)।
 
 ## বিস্তারিত রেকর্ড
 

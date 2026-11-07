@@ -141,16 +141,16 @@ and [device benchmark log](https://github.com/soobujmiah/ternux/blob/main/guides
 
 ### QNN batch setup-reuse check (2026-11-07)
 
-A 20-step, two-image batch completed in 49.923 s (24.96 s/image including
-shared startup). In a same-day single → batch → single sequence, the two
-single-image controls took 30.945 s and 29.484 s (60.429 s combined), while the
-batch took 47.825 s. Batch PNG hashes matched their same-seed single controls
-and earlier soak outputs exactly. This one short sequence observed 20.9% lower
-combined wall time for batching; there were no randomized repeated trials or
-confidence bounds, so it is not a performance guarantee. The run used the
-existing model archive without writing model members to disk. Independent
-CLIP/UNet/VAE stage-tensor correctness is still unverified, the QNN runner is
-not a managed extension, and the owner's 3–5 second target remains unmet.
+Three same-day, 20-step paired batches measured 47.825, 46.946 and 45.931 s
+(mean 46.901; 22.97–23.91 s/image). Their same-seed single controls totaled
+60.429, 57.145 and 60.012 s (mean 59.195). Batch mean wall time was 20.8% lower
+across these three short samples; order was single→batch→single twice and
+batch→single→single once. All six batch/control PNG hashes matched. This is not
+randomized or statistically powered, and is not a performance guarantee. Runs
+used the existing archive without writing model members to disk. Independent
+CLIP/UNet/VAE stage-tensor correctness remains unverified; the QNN runner is not
+a managed extension, and the owner's 3–5 second target remains unmet. See the
+[full per-run device record](https://github.com/soobujmiah/ternux/blob/main/guides/device-benchmark-evidence.md#2026-11-07-qnn-batch-setup-reuse-repeat).
 
 ## Detailed records
 

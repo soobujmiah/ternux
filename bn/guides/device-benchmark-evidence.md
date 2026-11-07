@@ -1031,6 +1031,35 @@ Median generation rate আগের একই model ও prompt-এর 24.8 tok/s
 
 এটি একটি ছোট known-answer check; বিস্তৃত language-quality evidence নয়। সংক্ষিপ্ত, no-warmup rate backend ranking নয়; HTP আলাদা build-ও ব্যবহার করে।
 
+### ২০২৬-১১-০৭ QNN batch setup-reuse repeat
+
+বিদ্যমান QNN archive ও licensed runtime দিয়ে SM8735 ফোনে তিনটি ২০-step, দুই-image batch-কে একই seed-এর আলাদা single-image control-এর সঙ্গে তুলনা করেছি। দুই sequence-এর order ছিল single→batch→single, আর একটিতে batch→single→single; এই বিপরীত order একটি sample হলেও run order randomized ছিল না।
+
+| Seed | Order | Single control (s) | Batch total (s) | PNG SHA-256 (single = batch) |
+|---|---|---:|---:|---|
+| 20261016/17 | single → batch → single | 30.945 / 29.484 | 47.825 | `d93d395a437f57c92b81827bfd08e1347d6926eaf1534cb990af0a8ef504a977` / `cee7951bcd73ca0f677be9f8e2feed4151c42ba931adfb2929532fb71449cde0` |
+| 20261018/19 | single → batch → single | 28.326 / 28.819 | 46.946 | `31470ff3c9292cbd67f972bff020857ded3031ddfa217256f93dcb808f89b00b` / `0bf7907657a36109f61b882fbb02267753c4b2110a255ecf3cd4a68b646f1c98` |
+| 20261020/21 | batch → single → single | 31.084 / 28.928 | 45.931 | `0c337ab69e50fa21b4d15cf31cd224600c1c13d4dcbf75954fccdaae9a1e2d50` / `ee3f7a0a05a188b583128392efe8663bcbce5c1923ca244faadd6ee734cad553` |
+
+Batch-এর mean total 46.901 s (45.931–47.825); paired single control-এর mean total 59.195 s (57.145–60.429)। এই তিন জোড়ায় batch-এর mean wall time 20.8% কম ছিল। এটি ছোট, non-randomized sample; confidence bound নেই, তাই statistically established speedup বা performance promise নয়। প্রতি image-এর কাজ গড়ে প্রায় 23.45 s—owner-এর 3–5 s target থেকে অনেক বেশি। PNG hash মেলা এই নির্দিষ্ট output-গুলোর repeatability দেখায়; independent QNN model-stage correctness নয়।
+
+দুই নতুন sequence-এর আগে Termux battery API 63%, 36.5°C দেখায়; পরে 62%, 37.1°C। এগুলো battery reading, NPU temperature নয়। NPU-specific sensor পাওয়া যায়নি। মূল archive-এর SHA-256 অপরিবর্তিত: `f479f3221fb90d31de1e695577f5aec9a5afb5fb7e076cfac40f00e039b22977`; ছয়টি নতুন image-এই runner `model_copy_to_disk: false` দিয়েছে।
+
+আটটি PNG `/sdcard/Llms/ternux-v2-validation/`-এ রাখা হয়েছে: seed18 single, seed18 batch-এর দুই PNG, seed19 single, seed20 batch-এর দুই PNG, seed20 single এবং seed21 single। Runner isolated Debian guest থেকে এবং QNN context Android/Bionic helper দিয়ে চালানো হয়েছে। পুনরুৎপাদনের command কাঠামো:
+
+```bash
+proot-distro login --shared-tmp ternux-clean-apt -- bash -lc '
+  cd /data/data/com.termux/files/home/ternux-task-fix/experiments/qnn-native
+  /root/.cache/ternux-qnn-venv/bin/python sd15_qnn_image.py \
+    --archive /sdcard/Llms/AbsoluteReality_qnn2.28_8gen2.zip \
+    --helper /data/data/com.termux/files/usr/tmp/ternux-qnn-audit/unpacked/bin/ternux-qnn-context-inspect \
+    --runtime-dir /data/data/com.termux/files/home/.cache/native-ai-qualification/qnn-2.29-v73-image-test \
+    --steps 20 --seed 20261018 --output /sdcard/Llms/ternux-v2-validation/repro.png
+'
+```
+
+Paired batch চালাতে নতুন output path দিয়ে `--count 2` যোগ করুন। সংরক্ষিত image রাখতে একই seed/path overwrite করবেন না।
+
 ## রেফারেন্স
 
 - [glmark2](https://github.com/glmark2/glmark2)

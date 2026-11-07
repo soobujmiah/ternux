@@ -39,25 +39,24 @@ The owner deferred making this runner a Ternux extension.
   tensor correctness. Batch mode still makes 40 serial HTP UNet requests per
   20-step image.
 
-- A same-day interleaved 20-step sequence then measured seed 20261016 single at
-  30.945 s, seeds 20261016/17 batch at 47.825 s, and seed 20261017 single at
-  29.484 s. Batch hashes matched both single controls exactly:
-  `d93d395a437f57c92b81827bfd08e1347d6926eaf1534cb990af0a8ef504a977` and
-  `cee7951bcd73ca0f677be9f8e2feed4151c42ba931adfb2929532fb71449cde0`.
-  Controls totaled 60.429 s, 20.9% longer than the batch in this one sequence.
-  This is a short observation without randomized repeats or confidence bounds,
-  not a performance guarantee; batch battery sample was 40.3°C.
+- Three same-day 20-step paired sequences measured batch totals of 47.825,
+  46.946 and 45.931 s (mean 46.901; range 45.931–47.825), versus paired
+  same-seed single-control totals of 60.429, 57.145 and 60.012 s (mean 59.195).
+  Batch mean wall time was 20.8% lower across the three samples; two were
+  single→batch→single and one batch→single→single. All six batch/control hashes
+  matched. This small set is not randomized or statistically powered. Android
+  battery API read 36.5°C before and 37.1°C after the two new sequences, without
+  an NPU-specific sensor. Full seeds/hashes/results are in the device record.
 
 ## Next work
 
-1. Repeat randomized/interleaved one-image controls and two-image batches at
-   20 steps to estimate setup reuse with confidence bounds; distinguish CLIP,
-   acquisition, context startup, HTP requests, VAE decode, and output.
-2. Check numerical image quality against an independent stage oracle,
-   preserving the source archive.
-3. Profile the two serial CFG requests per step and test graph-level alternatives
-   only when compatible with the fixed QNN context.
-4. Compare runtime/provider and model-graph choices with available Local Dream
+1. Check numerical image quality against an independent stage oracle,
+   preserving the source archive. Three timing pairs now show setup reuse but
+   do not establish a performance guarantee.
+2. Profile the two serial CFG requests per step and establish whether the fixed
+   compiled QNN graph can support a higher-throughput call without changing
+   numerical behavior.
+3. Compare runtime/provider and model-graph choices with available Local Dream
    evidence. Do not attribute the gap without a measured comparison.
 5. Recheck output correctness and thermal behavior after any change.
 

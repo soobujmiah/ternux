@@ -1287,6 +1287,35 @@ returned `Paris`. Reported generation rates were CPU 3.3, Vulkan 16.6, and HTP
 This is one short known-answer check, not broad language-quality evidence. The
 short no-warmup rates are not a backend ranking; HTP also uses a separate build.
 
+### 2026-11-07 QNN batch setup-reuse repeat
+
+Three 20-step, two-image batches were compared with separate same-seed single-image controls on the SM8735 phone using the existing QNN archive and licensed runtime. Two sequences ran single→batch→single; one ran batch→single→single. The latter ordering gives one counter-order sample, but the run order was not randomized.
+
+| Seeds | Order | Single controls (s) | Batch total (s) | PNG SHA-256 (single = batch) |
+|---|---|---:|---:|---|
+| 20261016/17 | single → batch → single | 30.945 / 29.484 | 47.825 | `d93d395a437f57c92b81827bfd08e1347d6926eaf1534cb990af0a8ef504a977` / `cee7951bcd73ca0f677be9f8e2feed4151c42ba931adfb2929532fb71449cde0` |
+| 20261018/19 | single → batch → single | 28.326 / 28.819 | 46.946 | `31470ff3c9292cbd67f972bff020857ded3031ddfa217256f93dcb808f89b00b` / `0bf7907657a36109f61b882fbb02267753c4b2110a255ecf3cd4a68b646f1c98` |
+| 20261020/21 | batch → single → single | 31.084 / 28.928 | 45.931 | `0c337ab69e50fa21b4d15cf31cd224600c1c13d4dcbf75954fccdaae9a1e2d50` / `ee3f7a0a05a188b583128392efe8663bcbce5c1923ca244faadd6ee734cad553` |
+
+Batch total mean was 46.901 s (45.931–47.825); paired single-control total mean was 59.195 s (57.145–60.429). In this three-pair sample the batch mean wall time was 20.8% lower. This is a small non-randomized comparison without confidence bounds, not a statistically established speedup or performance promise. The per-image work is still around 23.45 s on average, far from the owner's 3–5 s target. The same PNG hashes prove repeatability for these outputs only, not independent QNN model-stage correctness.
+
+Before the two new sequences, Android's Termux battery API read 63%, 36.5°C; after them it read 62%, 37.1°C. These are battery readings, not an NPU thermal measurement. No NPU-specific sensor was identified. The original archive remained at SHA-256 `f479f3221fb90d31de1e695577f5aec9a5afb5fb7e076cfac40f00e039b22977`, and the runner reported `model_copy_to_disk: false` for all eight generated images in the two new sequences.
+
+The eight new PNGs remain under `/sdcard/Llms/ternux-v2-validation/`: `qnn-single20-seed18.png`, `qnn-batch20-seed18-001.png`, `qnn-batch20-seed18-002.png`, `qnn-single20-seed19.png`, `qnn-batch20-seed20-001.png`, `qnn-batch20-seed20-002.png`, `qnn-single20-seed20.png`, and `qnn-single20-seed21.png`. The runner and QNN contexts were launched from the isolated Debian guest and the existing Android/Bionic helper. Reproduction command shape:
+
+```bash
+proot-distro login --shared-tmp ternux-clean-apt -- bash -lc '
+  cd /data/data/com.termux/files/home/ternux-task-fix/experiments/qnn-native
+  /root/.cache/ternux-qnn-venv/bin/python sd15_qnn_image.py \
+    --archive /sdcard/Llms/AbsoluteReality_qnn2.28_8gen2.zip \
+    --helper /data/data/com.termux/files/usr/tmp/ternux-qnn-audit/unpacked/bin/ternux-qnn-context-inspect \
+    --runtime-dir /data/data/com.termux/files/home/.cache/native-ai-qualification/qnn-2.29-v73-image-test \
+    --steps 20 --seed 20261018 --output /sdcard/Llms/ternux-v2-validation/repro.png
+'
+```
+
+Add `--count 2` and use a new output path to reproduce a paired batch. Do not reuse these seeds/paths if preserving the captured files.
+
 ## References
 
 - [glmark2](https://github.com/glmark2/glmark2)

@@ -59,14 +59,17 @@ f479f3221fb90d31de1e695577f5aec9a5afb5fb7e076cfac40f00e039b22977। একই ou
 hash repeat হওয়া independent stage correctness প্রমাণ করে না। Owner-এর 3–5
 second target এখনো বাকি।
 
-এরপর একই দিনে interleaved ২০-step check হয়েছে: seed 20261016-এর single run
-30.945 s; seed 20261016/17-এর দুই-image batch 47.825 s; শেষে seed 20261017-এর
-single run 29.484 s। Batch-এর দুই image সংশ্লিষ্ট single control ও আগের soak-এর সঙ্গে হুবহু মিলে গেছে (seed 20261016
-d93d395a437f57c92b81827bfd08e1347d6926eaf1534cb990af0a8ef504a977; seed 20261017
-cee7951bcd73ca0f677be9f8e2feed4151c42ba931adfb2929532fb71449cde0)। দুই single
-control-এর মোট 60.429 s, এই এক ছোট sequence-এ batch 47.825 s। এখানে batch wall
-time 20.9% কম পাওয়া গেছে, তবে randomized পুনরাবৃত্ত trial বা confidence bound নেই; তাই এটি release performance guarantee নয়। Batch চলাকালে battery 40.3°C
-ছিল। Independent stage correctness এবং 3–5 second target এখনো বাকি।
+২০২৬-১১-০৭-এ একই দিনে ২০-step-এর তিনটি paired sequence হয়েছে; এর দুটিতে
+single→batch→single এবং একটিতে batch→single→single order ছিল। Batch total ছিল
+47.825, 46.946 ও 45.931 s (mean 46.901; range 45.931–47.825); paired single
+control-এর যোগফল 60.429, 57.145 ও 60.012 s (mean 59.195)। এই তিনটি ছোট sample-এ
+batch mean 20.8% কম। ছয়টি batch/control PNG-র hash হুবহু মিলে গেছে। পরীক্ষা
+randomized বা statistical power-সহ নয়; release guarantee নয়। দুই নতুন run-এর
+আগে/পরে battery 36.5–37.1°C ছিল; NPU-specific thermal sensor শনাক্ত হয়নি।
+অপরিবর্তিত archive-এর SHA-256
+f479f3221fb90d31de1e695577f5aec9a5afb5fb7e076cfac40f00e039b22977। Independent
+stage correctness ও 3–5 second target এখনো বাকি। Seed, hash, command ও প্রতি-run
+ফল [device benchmark record](../../guides/device-benchmark-evidence.md#2026-11-07-qnn-batch-setup-reuse-repeat)-এ আছে।
 
 ### HTP operator diagnostic (২০২৬-১০-১৪)
 
