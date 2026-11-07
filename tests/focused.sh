@@ -479,13 +479,14 @@ for icon in ("org.xfce.panel.applicationsmenu", "org.xfce.panel.showdesktop",
              "user-bookmarks", "view-details", "view-grid", "view-list", "view-more-symbolic",
              "view-refresh", "view-sort-descending", "window-close", "window-close-symbolic"):
     assert (panel_icons / f"{icon}.svg").is_file()
-# Keep Ternux icons distinctive at panel size by avoiding the repeated generic
-# enclosing badge that previously made app/category/status glyphs look alike.
+# Keep small icons distinct by removing the repeated badge frames and chevron
+# brand stamp from app/category/status glyphs; standalone Ternux marks stay branded.
 shared_frames = (
     'M32 4 55 17v30L32 60 9 47V17z',
     'M16 2 29 9.5v13L16 30 3 22.5v-13z',
     'M32 3 57 17v30L32 61 7 47V17z',
     'm64 5 52 30v58l-52 30L12 93V35z',
+    'm22 96 42 24 42-24',
 )
 icon_root = root / "lib/ternux-assets/icons/Ternux/scalable"
 for icon_dir in ("apps", "categories", "places", "devices", "status", "mimetypes"):
