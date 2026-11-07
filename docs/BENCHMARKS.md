@@ -139,6 +139,19 @@ The 25 images and machine-readable run/thermal summary are on the device at
 [QNN runner record](https://github.com/soobujmiah/ternux/blob/main/experiments/qnn-native/README.md)
 and [device benchmark log](https://github.com/soobujmiah/ternux/blob/main/guides/device-benchmark-evidence.md).
 
+### QNN batch setup-reuse check (2026-11-07)
+
+A 20-step, two-image batch completed in 49.923 s (24.96 s/image including
+shared startup). In a same-day single → batch → single sequence, the two
+single-image controls took 30.945 s and 29.484 s (60.429 s combined), while the
+batch took 47.825 s. Batch PNG hashes matched their same-seed single controls
+and earlier soak outputs exactly. This one short sequence observed 20.9% lower
+combined wall time for batching; there were no randomized repeated trials or
+confidence bounds, so it is not a performance guarantee. The run used the
+existing model archive without writing model members to disk. Independent
+CLIP/UNet/VAE stage-tensor correctness is still unverified, the QNN runner is
+not a managed extension, and the owner's 3–5 second target remains unmet.
+
 ## Detailed records
 
 - [Full device benchmark evidence, reproduction steps, and dated measurements](https://github.com/soobujmiah/ternux/blob/main/guides/device-benchmark-evidence.md) — repository-only.

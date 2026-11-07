@@ -132,6 +132,18 @@ machine-readable run/thermal summary device-এর `/sdcard/sdgen/`-এ আছ�
 Implementation ও বিস্তারিত evidence: [QNN runner record](https://github.com/soobujmiah/ternux/blob/main/experiments/qnn-native/README.md)
 এবং [device benchmark log](https://github.com/soobujmiah/ternux/blob/main/bn/guides/device-benchmark-evidence.md)।
 
+### QNN batch setup-reuse check (2026-11-07)
+
+২০-step-এর দুই-image batch 49.923 s-এ শেষ হয়েছে (shared startup-সহ প্রতি
+image 24.96 s)। একই দিনের single → batch → single sequence-এ দুই single-image
+control-এর সময় ছিল 30.945 s ও 29.484 s (মোট 60.429 s); batch লেগেছে 47.825 s।
+Batch PNG hash একই seed-এর single control ও আগের soak output-এর সঙ্গে হুবহু
+মিলেছে। এই একটি ছোট sequence-এ batch-এর মোট wall time 20.9% কম দেখা গেছে; তবে
+randomized পুনরাবৃত্ত trial বা confidence bound নেই, তাই এটি performance guarantee
+নয়। Existing model archive থেকেই run হয়েছে, model member disk-এ লেখা হয়নি।
+CLIP/UNet/VAE stage tensor-এর independent correctness এখনো যাচাই হয়নি, QNN runner
+managed extension নয়, এবং owner-এর 3–5 second target পূরণ হয়নি।
+
 ## বিস্তারিত রেকর্ড
 
 - [সম্পূর্ণ device benchmark evidence, পুনরুৎপাদন ধাপ ও dated measurement](https://github.com/soobujmiah/ternux/blob/main/bn/guides/device-benchmark-evidence.md) — শুধু repository-তে।
