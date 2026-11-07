@@ -1,0 +1,7 @@
+event_id: commit-760dd87e0002-ed8164239ea69dc0
+repository: soobujmiah/ternux
+commit: 760dd87e000205da0a6c6e719f5908bfc75fa577
+kind: commit
+occurred_at: '2026-11-07T07:46:28Z'
+status: completed
+summary: 'docs: align release metadata with v2 (#79)'
