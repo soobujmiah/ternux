@@ -1,0 +1,7 @@
+event_id: commit-61ba32f6255d-13332c3fa7e5f076
+repository: soobujmiah/ternux
+commit: 61ba32f6255d87d979c7b916637a4b761ede3663
+kind: commit
+occurred_at: '2026-11-07T08:01:33Z'
+status: completed
+summary: 'docs: map Turnip runtime package dependencies (#80)'
