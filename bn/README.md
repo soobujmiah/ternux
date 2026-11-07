@@ -8,7 +8,7 @@
 
 ### ARM64 Android ফোনে Debian + Xfce ডেস্কটপ — root লাগে না
 
-[![সংস্করণ](https://img.shields.io/badge/version-1.4.0-00e5a0?style=flat-square)](https://github.com/soobujmiah/ternux/releases)
+[![সংস্করণ](https://img.shields.io/badge/version-2.0.0-00e5a0?style=flat-square)](https://github.com/soobujmiah/ternux/releases)
 [![প্ল্যাটফর্ম](https://img.shields.io/badge/platform-Android%20arm64-38bdf8?style=flat-square)](https://github.com/soobujmiah/ternux)
 [![NPU](https://img.shields.io/badge/NPU-experimental%20(QNN%20HTP)-f59e0b?style=flat-square)](../docs/ACCELERATOR-RELEASE-PLAN.md)
 [![লাইসেন্স](https://img.shields.io/badge/license-Apache--2.0-22c55e?style=flat-square)](../LICENSE)
