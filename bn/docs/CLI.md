@@ -74,10 +74,13 @@ ternux install [options]
 | `--all` | সব ঐচ্ছিক ওয়ার্কলোড |
 | `--resume` | completed phase skip এবং interrupted run-এর saved optional workload set restore |
 
-Workload flag না দিলে interactive install-এ সংখ্যার chooser আসে: 1 development,
-2 llama.cpp, 3 network, 4 media, 5 Blender, 6 সব, অথবা 0/Enter-এ শুধু base
-desktop। GPU route অনুযায়ী পরামর্শ দেয় এবং RAM/storage সীমা জানায়। `--yes`
-chooser বাদ দিয়ে base profile রাখে।
+Workload flag না দিলে interactive install-এ category-সহ checklist আসে। Up/Down
+বা `j`/`k` দিয়ে চলুন, Space বা item-এর নম্বর দিয়ে একাধিক item বাছুন, Enter-এ
+plan review করুন, আর শুধু base desktop-এর জন্য `q` চাপুন। আলাদা managed extension
+option-এ llama.cpp CPU + Vulkan, Stable Diffusion CPU + Vulkan preview, এবং
+experimental SM8735/V73 HTP আছে। `--with-llm` আলাদা source থেকে llama.cpp build
+করে। GPU route অনুযায়ী পরামর্শ ও RAM/storage সীমা দেখায়। `--yes` checklist না
+দেখিয়ে base profile রাখে।
 
 ### `ternux start`
 

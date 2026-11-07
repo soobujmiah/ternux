@@ -10,10 +10,11 @@ alt_url: "/docs/WORKLOADS.html"
 package সেট, যা guest-এ বসে এবং state-এ লিপিবদ্ধ হয় — যাতে `--resume` ও
 `ternux repair` জানে কী কী ছিল।
 
-প্রতিটি workload দুইভাবে বসানো যায়, আর দুটোই সমান বৈধ। এক-কমান্ড পথ হলো
-installer-এর একটি flag। Manual পথ হলো একই command আপনি নিজে guest-এর ভেতরে
-চালাচ্ছেন — যাতে চালানোর আগে পড়ে নিতে পারেন, এবং ব্যর্থ একটি install গোড়া থেকে
-শুরু না করে হাতে শেষ করতে পারেন।
+নিচের workload group দুইভাবে বসানো যায়, আর দুটোই সমান বৈধ। এক-কমান্ড পথ হলো
+installer-এর flag। Manual পথ হলো একই command নিজে guest-এর ভেতরে চালানো — যাতে
+চালানোর আগে পড়তে পারেন, এবং ব্যর্থ install গোড়া থেকে শুরু না করে হাতে শেষ করতে
+পারেন। Interactive catalog-এ managed extension release-ও আলাদা item হিসেবে আছে;
+সেগুলো checksum-যাচাইকৃত extension manager ব্যবহার করে, `--with-*` group flag নয়।
 
 Interactive install-এ একসঙ্গে সর্বোচ্চ ১২টি item দেখায়; terminal resize হলে,
 Android keyboard খোলাসহ, menu নিজে থেকে নতুন মাপে সাজে। item-গুলো
@@ -23,9 +24,13 @@ Space বা item-এর number দিয়ে নির্বাচন বদ�
 desktop tool ছাড়াই, বা পুরো Android toolchain ছাড়াই ADT-এর ADB বেছে নিতে পারবেন।
 Debian package বসানোর আগে `apt update` হয়, তাই configured Debian repository-তে
 যে সর্বশেষ version পাওয়া যায় সেটিই বসে। ADT component তার registry-র সর্বশেষ
-verified release ব্যবহার করে; llama.cpp CPU + Vulkan ও experimental HTP Ternux-এর
-checksum-যাচাইকৃত installer দিয়ে prerelease হিসেবে বসে। `--yes` ও non-interactive
-run-এ flag না থাকলে শুধু base profile বসে।
+verified release ব্যবহার করে; llama.cpp CPU + Vulkan, Stable Diffusion CPU +
+Vulkan, ও experimental HTP Ternux-এর checksum-যাচাইকৃত extension manager-এ
+prerelease হিসেবে বসে। Catalog-এ এগুলো আলাদা item। Stable Diffusion preview; CPU
+image quality qualify হয়নি, আর HTP কেবল SM8735/V73-তে experimental, supported নয়।
+Model weight user-এর নিজের। `--with-llm` এখনও llama.cpp source থেকে build করে; এটি
+managed CPU + Vulkan extension থেকে আলাদা। `--yes` ও non-interactive run-এ flag না
+থাকলে শুধু base profile বসে।
 
 Catalog-এ Go, PHP, SQLite, ripgrep, jq, htop, tree, Micro, Thonny, Thunderbird,
 Evince ও LibreOffice Calc-ও আছে; সম্পর্কিত software এক category-তে সাজানো।

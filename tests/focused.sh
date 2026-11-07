@@ -2336,6 +2336,9 @@ else
   not_ok "base Nerd Font download is pinned, checksummed and compact"
 fi
 
+check "interactive workload selector returns the selected Stable Diffusion ID" \
+  python3 "$ROOT/tests/workload_menu_pty.py" "$ROOT"
+
 printf '1..%d\n' "$((pass + fail))"
 printf '# pass %d\n# fail %d\n' "$pass" "$fail"
 [ "$fail" -eq 0 ]
