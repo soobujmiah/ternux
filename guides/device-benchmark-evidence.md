@@ -1148,6 +1148,52 @@ The median generation rate was about 1.95× the earlier 24.8 tok/s Adreno Vulkan
 
 In the same guest and artifact, HTP `MUL_MAT` correctness completed 1,588/1,588 tests, and `GATED_DELTA_NET` completed 43/43. The full `FLASH_ATTN_EXT` suite aborted with a DSP `INTERNAL-ERROR` (child exit `-6`); a filtered, backend-reported supported subset (`kv=1024, nb=32`) reproduced the abort. In both cases the broker reported a clean CDSP `closeSession` reply `[0, 0]`. Therefore the candidate is **not** broadly operator-qualified. Ternux's production HTP launcher remains on the previously tested HVX matmul path with flash attention disabled. The candidate was not installed as an extension and does not qualify the upstream PR for release.
 
+### 2026-11-07 installed HTP HVX perplexity screen
+
+I compared the already-installed managed production HTP extension (HVX matmul,
+flash attention off) with the CPU backend on the same Debian guest and
+Wikitext-2 corpus. The CPU path used the installed llama.cpp b11582 CPU/Vulkan
+extension; the HTP path used managed build b1-af50f2f through the Binder/FastRPC
+broker. Each run evaluated the same first ten 512-token chunks with context,
+batch and ubatch 512, four threads, no warm-up and flash attention off. Both
+model files stayed at their existing user-provided paths.
+
+| Existing model | CPU PPL | Installed HTP HVX PPL | Absolute difference | Relative difference |
+|---|---:|---:|---:|---:|
+| Qwen2.5 0.5B-named Q4_0 (SHA-256 7671c0c304e6ce5a7fc577bcb12aba01e2c155cc2efd29b2213c95b18edaf6ed) | 19.0657 ± 1.14854 | 19.0715 ± 1.14855 | 0.0058 | 0.03% |
+| Qwen2.5 1.5B Q4_K_M (SHA-256 6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e) | 12.1464 ± 0.65534 | 12.1015 ± 0.65151 | 0.0449 | 0.37% |
+
+Both production HTP runs exited 0 and CDSP returned [0, 0] on close. The output
+shows close CPU-reference perplexity for these exact models and corpus chunks.
+It is not token-by-token equality, broad conversational quality, all-operator
+coverage, or sustained/thermal qualification. The HTP run also warned that
+manual -ngl 99 prevented its free-device-memory auto-fit query; inference still
+completed. The model loader warned about the same non-control-looking </s>
+token in both CPU and HTP runs.
+
+Reproduce in the Debian guest as the ternux user. The corpus is the verified
+file /tmp/ternux-hmx-quality/wikitext-2-raw/wiki.test.raw (SHA-256
+173c87a53759e0201f33e0ccf978e510c2042d7f2cb78229d9a50d79b9e7dd08).
+
+```bash
+DATA=/tmp/ternux-hmx-quality/wikitext-2-raw/wiki.test.raw
+SMALL=/sdcard/Llms/qwen2.5-0.5b-instruct-q4_0.gguf
+LARGE=/sdcard/LAI/models/qwen2.5-1.5b-instruct-q4_k_m.gguf
+VULKAN_HOME="$HOME/.local/opt/ternux-extensions/llama-vulkan"
+source "$VULKAN_HOME/env.sh"
+for MODEL in "$SMALL" "$LARGE"; do
+  "$LLAMA_HOME/bin/llama-perplexity" -m "$MODEL" -f "$DATA" -ngl 0 -dev none -t 4 -c 512 -b 512 -ub 512 --chunks 10 -fa off --no-warmup
+done
+PKG="$HOME/.local/opt/ternux-extensions/llama-htp-experimental"
+export LD_LIBRARY_PATH="$PKG/lib"
+export ADSP_LIBRARY_PATH="$PKG/lib"
+export LD_PRELOAD="$PKG/lib/libternux-htp-broker.so"
+export GGML_HEXAGON_MM_SELECT=1
+for MODEL in "$SMALL" "$LARGE"; do
+  timeout 900 python3 "$PKG/libexec/htp-broker.py" -- "$PKG/bin/llama-perplexity" -m "$MODEL" -f "$DATA" -ngl 99 -dev HTP0 -t 4 -c 512 -b 512 -ub 512 --chunks 10 -fa off --no-warmup
+done
+```
+
 ### 2026-11-07 SM8735 integer-HMX model perplexity screen
 
 I compared the disposable PR #29740 candidate's CPU and integer-HMX routes

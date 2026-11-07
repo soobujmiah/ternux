@@ -957,6 +957,51 @@ for round in 1 2 3; do
 done
 ```
 
+### ২০২৬-১১-০৭ installed HTP HVX perplexity screen
+
+আগে থেকে থাকা managed production HTP extension (HVX matmul, flash attention
+বন্ধ) একই Debian guest ও Wikitext-2 corpus-এ CPU backend-এর সঙ্গে তুলনা করেছি।
+CPU-তে installed llama.cpp b11582 CPU/Vulkan extension, HTP-তে Binder/FastRPC
+broker-এর মাধ্যমে managed build b1-af50f2f ব্যবহার হয়েছে। প্রতিটি run-এ
+একই প্রথম দশটি 512-token chunk, context/batch/ubatch 512, চার thread, warm-up
+ছাড়া এবং flash attention বন্ধ ছিল। User model file-গুলো আগের অবস্থানেই ছিল।
+
+| বিদ্যমান model | CPU PPL | Installed HTP HVX PPL | Absolute difference | Relative difference |
+|---|---:|---:|---:|---:|
+| Qwen2.5 0.5B নামযুক্ত Q4_0 (SHA-256 7671c0c304e6ce5a7fc577bcb12aba01e2c155cc2efd29b2213c95b18edaf6ed) | 19.0657 ± 1.14854 | 19.0715 ± 1.14855 | 0.0058 | 0.03% |
+| Qwen2.5 1.5B Q4_K_M (SHA-256 6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e) | 12.1464 ± 0.65534 | 12.1015 ± 0.65151 | 0.0449 | 0.37% |
+
+দুই production HTP run-ই exit 0 করেছে এবং CDSP close reply [0, 0] দিয়েছে।
+এই ফল এই exact model ও corpus chunk-এ CPU-reference perplexity কাছাকাছি দেখায়।
+এটি token-by-token equality, বিস্তৃত conversational quality, সব operator-এর
+coverage বা sustained/thermal qualification নয়। Manual -ngl 99 থাকায় HTP run
+free-device-memory auto-fit query করতে পারেনি বলে warning দিয়েছে, কিন্তু
+inference শেষ করেছে। CPU ও HTP উভয় run-এই একই non-control-looking </s>
+token warning এসেছে।
+
+Debian guest-এ ternux user হিসেবে পুনরুৎপাদন। Corpus হলো যাচাইকৃত
+/tmp/ternux-hmx-quality/wikitext-2-raw/wiki.test.raw
+(SHA-256 173c87a53759e0201f33e0ccf978e510c2042d7f2cb78229d9a50d79b9e7dd08)।
+
+```bash
+DATA=/tmp/ternux-hmx-quality/wikitext-2-raw/wiki.test.raw
+SMALL=/sdcard/Llms/qwen2.5-0.5b-instruct-q4_0.gguf
+LARGE=/sdcard/LAI/models/qwen2.5-1.5b-instruct-q4_k_m.gguf
+VULKAN_HOME="$HOME/.local/opt/ternux-extensions/llama-vulkan"
+source "$VULKAN_HOME/env.sh"
+for MODEL in "$SMALL" "$LARGE"; do
+  "$LLAMA_HOME/bin/llama-perplexity" -m "$MODEL" -f "$DATA" -ngl 0 -dev none -t 4 -c 512 -b 512 -ub 512 --chunks 10 -fa off --no-warmup
+done
+PKG="$HOME/.local/opt/ternux-extensions/llama-htp-experimental"
+export LD_LIBRARY_PATH="$PKG/lib"
+export ADSP_LIBRARY_PATH="$PKG/lib"
+export LD_PRELOAD="$PKG/lib/libternux-htp-broker.so"
+export GGML_HEXAGON_MM_SELECT=1
+for MODEL in "$SMALL" "$LARGE"; do
+  timeout 900 python3 "$PKG/libexec/htp-broker.py" -- "$PKG/bin/llama-perplexity" -m "$MODEL" -f "$DATA" -ngl 99 -dev HTP0 -t 4 -c 512 -b 512 -ub 512 --chunks 10 -fa off --no-warmup
+done
+```
+
 ### ২০২৬-১১-০৭ SM8735 integer-HMX candidate probe
 
 Build-only [CI run 42348072918](https://github.com/soobujmiah/ternux/actions/runs/42348072918) unmerged [llama.cpp PR #29740](https://github.com/ggml-org/llama.cpp/pull/29740), commit `08c83734f9c5c3b497e98b96f1a380f5a6084468` থেকে disposable artifact তৈরি করেছে। Archive SHA-256 `52877aad044c6da3f701d0230fde86520ce26066a412118bfb93e1a6f238de0a`। Checksum verify করে ফাইলগুলো শুধু isolated `ternux-clean-apt` Debian guest-এ extract/install করা হয়েছে; production HTP extension ও চলমান Debian desktop বদলানো হয়নি।
