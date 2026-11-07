@@ -36,9 +36,10 @@ Ternux Android ফোনে কম resource-এ ব্যবহারযোগ�
    Termux:X11 একবার খুলুন। অতিরিক্ত companion app হিসেবে
    [Termux:Boot](https://github.com/termux/termux-boot/releases) reboot-এর পর
    নির্ধারিত script চালায়, [Termux:API](https://github.com/termux/termux-api/releases)
-   microphone-এর মতো Android integration দেয়, আর
+   Android utility দেয় (Termux-এ matching `termux-api` package-ও লাগবে), আর
    [Termux:Styling](https://github.com/termux/termux-styling/releases) terminal
-   theme ও font যোগ করে। Termux ও add-on-গুলো একই source থেকে ইনস্টল করুন।
+   theme ও font যোগ করে। Desktop app-এর live mic on-demand Termux OpenSL ES
+   source দিয়ে চলে; API recorder file তৈরি করে। Termux ও add-on একই source থেকে নিন।
 ২. Termux-এ চালান:
 
 ```bash
