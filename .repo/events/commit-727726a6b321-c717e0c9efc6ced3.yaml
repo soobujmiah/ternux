@@ -1,0 +1,7 @@
+event_id: commit-727726a6b321-c717e0c9efc6ced3
+repository: soobujmiah/ternux
+commit: 727726a6b32124992a8c0153159a440ced0708c8
+kind: commit
+occurred_at: '2026-11-07T04:38:25Z'
+status: completed
+summary: 'docs: record Gemma QNN SoC compatibility limit (#68)'
