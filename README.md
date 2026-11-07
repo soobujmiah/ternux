@@ -8,7 +8,7 @@
 
 ### Debian + Xfce desktop on an ARM64 Android phone — no root required
 
-[![Version](https://img.shields.io/badge/version-1.4.0-00e5a0?style=flat-square)](https://github.com/soobujmiah/ternux/releases)
+[![Version](https://img.shields.io/badge/version-2.0.0-00e5a0?style=flat-square)](https://github.com/soobujmiah/ternux/releases)
 [![Platform](https://img.shields.io/badge/platform-Android%20arm64-38bdf8?style=flat-square)](https://github.com/soobujmiah/ternux)
 [![NPU](https://img.shields.io/badge/NPU-experimental%20(QNN%20HTP)-f59e0b?style=flat-square)](docs/ACCELERATOR-RELEASE-PLAN.md)
 [![License](https://img.shields.io/badge/license-Apache--2.0-22c55e?style=flat-square)](LICENSE)

@@ -373,7 +373,7 @@ Adreno hardware-এ সেটি Debian-এর দেওয়া driver-এর 
 
 ```text
 +=========================================================+
-|           ternux v1.4.0 - ONE-CLICK INSTALLER           |
+|           ternux v2.0.0 - ONE-CLICK INSTALLER           |
 | by Sobuj Miah  -  base ~4-4.5 GB  -  complete ~10.5-12.5 GB   |
 +=========================================================+
 | Device    Redmi Turbo 4 Pro - Android 15 (SDK 35)       |
@@ -381,8 +381,8 @@ Adreno hardware-এ সেটি Debian-এর দেওয়া driver-এর 
 | Memory    12 GB RAM - 84 GB free - aarch64              |
 | STEPS 4/11  ######------------  Debian container        |
 +=========================================================+
-| Get:14 http://deb.debian.org bookworm/main arm64        |
-| Unpacking xfce4-session (4.18.3-1) ...                  |
+| Get:14 http://deb.debian.org trixie/main arm64          |
+| Unpacking xfce4-session ...                             |
 |     ... +201 more lines (full log: ternux.log)          |
 | [ OK ] Base packages installed                          |
 +=========================================================+
