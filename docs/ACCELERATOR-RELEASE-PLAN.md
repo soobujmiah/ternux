@@ -66,17 +66,17 @@ archive SHA-256 is f479f3221fb90d31de1e695577f5aec9a5afb5fb7e076cfac40f00e039b22
 Repeatable image hashes do not establish independent stage correctness. The
 owner's 3–5 second target remains open.
 
-An interleaved same-day 20-step check followed: single seed 20261016 took
-30.945 s; a two-image batch for seeds 20261016/17 took 47.825 s; the final
-single seed 20261017 took 29.484 s. Batch images matched their corresponding
-single controls and prior soak outputs exactly (seed 20261016
-d93d395a437f57c92b81827bfd08e1347d6926eaf1534cb990af0a8ef504a977; seed
-20261017 cee7951bcd73ca0f677be9f8e2feed4151c42ba931adfb2929532fb71449cde0).
-The two single controls total 60.429 s, versus 47.825 s for the batch in this
-one short sequence. This is an observed 20.9% lower wall time for the batch,
-without randomized repeated trials or confidence bounds; it is not a release
-performance guarantee. Battery sampled at 40.3°C during the batch. Independent
-stage correctness and the 3–5 second target remain open.
+Three same-day, 20-step paired sequences on 2026-11-07 used both single→batch→single
+(two runs) and batch→single→single (one run) order. Batch totals were 47.825,
+46.946 and 45.931 s (mean 46.901; range 45.931–47.825); paired single controls
+totaled 60.429, 57.145 and 60.012 s (mean 59.195). The batch mean was 20.8%
+lower in these three short samples. All six batch/control PNG hashes matched
+exactly. This is not randomized or statistically powered, and does not establish
+a release guarantee. Battery sampled 36.5–37.1°C before/after the two new runs;
+no NPU-specific thermal sensor was identified. The unchanged archive SHA-256 is
+f479f3221fb90d31de1e695577f5aec9a5afb5fb7e076cfac40f00e039b22977. Independent
+stage correctness and the 3–5 second target remain open; detailed seeds, hashes,
+commands and per-run values are in the [device benchmark record](../guides/device-benchmark-evidence.md#2026-11-07-qnn-batch-setup-reuse-repeat).
 
 These three handoffs are repository-only continuation notes. This file remains
 the single canonical accelerator/release roadmap; do not create a second roadmap.

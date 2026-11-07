@@ -282,14 +282,18 @@ temperature sampled at 40.7–40.9°C; no NPU-specific thermal sensor was
 identified. Exact hash repeatability confirms this batch path preserves those
 two outputs, not independent stage-tensor correctness.
 
-An interleaved same-day 20-step check used single seed 20261016 (30.945 s), a
-two-image batch for seeds 20261016/17 (47.825 s), then single seed 20261017
-(29.484 s). Each batch PNG exactly matched its corresponding single control:
-`d93d395a437f57c92b81827bfd08e1347d6926eaf1534cb990af0a8ef504a977` and
-`cee7951bcd73ca0f677be9f8e2feed4151c42ba931adfb2929532fb71449cde0`. Combined
-single controls took 60.429 s, 20.9% longer than this one batch. This is one
-short observation without randomized repeated trials or confidence bounds,
-not a release performance guarantee. Battery sampled at 40.3°C during batch.
+Three same-day, 20-step paired sequences measured batch totals of 47.825,
+46.946 and 45.931 s (mean 46.901; range 45.931–47.825). Same-seed single
+controls totaled 60.429, 57.145 and 60.012 s (mean 59.195). Batch mean wall time
+was 20.8% lower in these three samples. Order was single→batch→single twice,
+then batch→single→single once. All six batch/control PNG hashes matched exactly;
+the individual timings and hashes are in the device benchmark record. This small
+set is not randomized or statistically powered and is not a release performance
+guarantee. Android battery API sampled 36.5°C before and 37.1°C after the two
+new sequences; it does not provide an NPU-specific temperature. Archive SHA-256
+remained `f479f3221fb90d31de1e695577f5aec9a5afb5fb7e076cfac40f00e039b22977`.
+The runner still misses the owner's 3–5 second target and has no independent
+CLIP/UNet/VAE stage-tensor oracle.
 
 These checks reuse the same existing archive and do not close the owner's
 3–5 second target. The original archive SHA-256 remained
