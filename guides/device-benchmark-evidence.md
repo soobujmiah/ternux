@@ -1249,6 +1249,29 @@ Repeat with the `/mnt/sdcard/LAI/models/qwen2.5-1.5b-instruct-q4_k_m.gguf`
 model for the second row. These logs are in Termux temporary storage at
 `/tmp/ternux-hmx-quality/{cpu-ppl,htp-ppl,cpu-1p5-ppl,htp-1p5-ppl}.log`.
 
+### 2026-11-07 HTP long-generation thermal-boundary cancellation
+
+Using the existing `/sdcard/LAI/models/qwen2.5-1.5b-instruct-q4_k_m.gguf`
+directly, the installed experimental HTP runner started a 4,096-token-cap
+generation (`-t 4 -tb 4 -c 6144 -b 128 -ub 128`, temperature 0, seed 42,
+`--ignore-eos`). Battery temperature was 40.4 °C before the run. I sent SIGINT
+after a live battery sample reached 43.0 °C; the immediate post-stop sample was
+43.3 °C, and the highest sampled system thermal-zone value was 68.5 °C (zone
+identities were not mapped to CPU/GPU/NPU). The partial run reported 12.9
+generation tok/s. The brokered child exited 0 with cancel signal 2, and CDSP
+`closeSession` returned transport status 0 and `[0, 0]`. No HTP process remained.
+
+This is an intentional thermal-boundary stop, not a completed 4,096-token run
+or a thermal-safety qualification. The generated text was repetitive and made
+incorrect hardware claims; this stress prompt/run is excluded from answer-
+quality evidence. Do not compare its rate with other runs because the prompt,
+context, and duration differed. The raw output was held temporarily under
+`/tmp/ternux-htp-sustained-4096-20261107.log` and removed after recording these
+measurements. After the battery cooled to 41.9 °C, a new cold-start run on the
+same model answered `4`; the brokered child exited 0 and CDSP returned `[0, 0]`
+on close. Generation measured 16.7 tok/s for this eight-token check. This
+validates one controlled cancel-then-reopen sequence only.
+
 ## References
 
 - [glmark2](https://github.com/glmark2/glmark2)
