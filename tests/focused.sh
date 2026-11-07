@@ -445,6 +445,9 @@ for asset in (root / "lib/ternux-assets").rglob("*"):
 assert "Inherits=Papirus-Dark,Adwaita,hicolor" in (root / "lib/ternux-assets/icons/Ternux/index.theme").read_text()
 assert len(list((root / "lib/ternux-assets/wallpapers").glob("*.svg"))) == 7
 assert (root / "lib/ternux-assets/themes/Ternux/gtk-4.0/gtk.css").is_file()
+gtk4_theme = (root / "lib/ternux-assets/themes/Ternux/gtk-4.0/gtk.css").read_text()
+assert 'resource:///org/gtk/libgtk/theme/Default/gtk-dark.css' in gtk4_theme
+assert 'resource:///org/gtk/libgtk/theme/Adwaita/gtk.css' not in gtk4_theme
 assert (root / "lib/ternux-assets/icons/Ternux/scalable/apps/org.xfce.ristretto.svg").is_file()
 for icon in ("ternux-recorder", "ternux-avro", "ternux-python", "ternux-keyboard",
              "ternux-launcher", "org.xfce.webbrowser"):

@@ -1,4 +1,4 @@
-@import url("resource:///org/gtk/libgtk/theme/Adwaita/gtk.css");
+@import url("resource:///org/gtk/libgtk/theme/Default/gtk-dark.css");
 /* Ternux GTK 4 palette: match the GTK 2/3 theme and Xfwm shell. */
 :root {
   --window-bg-color: #101816;
