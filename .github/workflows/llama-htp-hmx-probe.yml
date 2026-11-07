@@ -44,6 +44,17 @@ jobs:
         run: |
           set -euo pipefail
           cp llama.cpp/docs/backend/snapdragon/CMakeUserPresets.json llama.cpp/CMakeUserPresets.json
+          python3 - <<'PY_HTP_TARGETS'
+          from pathlib import Path
+          cmake = Path('llama.cpp/ggml/src/ggml-hexagon/CMakeLists.txt')
+          source = cmake.read_text()
+          for target in ('v75', 'v79', 'v81', 'v85'):
+              line = f'build_htp_skel({target})\n'
+              if source.count(line) != 1:
+                  raise SystemExit(f'expected one HTP skeleton target: {target}')
+              source = source.replace(line, '')
+          cmake.write_text(source)
+          PY_HTP_TARGETS
           mkdir -p llama.cpp/tools/llama-htp
           cp tools/llama-htp/broker_open.c llama.cpp/tools/llama-htp/broker_open.c
           docker run --rm \
@@ -119,7 +130,7 @@ jobs:
           cat > release/ternux-llama-htp-sm8735-hmx-probe-08c8373/README.txt <<'EOF'
           Ternux experimental llama.cpp Hexagon HTP package
 
-          Target: Linux aarch64 / Qualcomm Hexagon HTP, with the V73 library
+          Target: Linux aarch64 / Qualcomm SM8735 Hexagon HTP V73 only
           Source: ggml-org/llama.cpp PR #29740 candidate
           Source commit: 08c83734f9c5c3b497e98b96f1a380f5a6084468
           Build: upstream scripts/snapdragon/build.py using the
@@ -142,6 +153,7 @@ jobs:
           {
             "artifact": "ternux-llama-htp-sm8735-hmx-probe-08c8373",
             "target": "linux-aarch64",
+            "build_scope": "SM8735 HTP V73 only; build-time target list excludes v75, v79, v81, and v85 skeletons",
             "soc_test_target": "Qualcomm SM8735 / Hexagon HTP V73",
             "upstream": "https://github.com/ggml-org/llama.cpp",
             "upstream_tag": "PR #29740 candidate",
