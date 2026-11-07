@@ -1,0 +1,7 @@
+event_id: commit-6a9aeb946c87-056ff8c429657fec
+repository: soobujmiah/ternux
+commit: 6a9aeb946c870ccab17d40d05542d694c2401d58
+kind: commit
+occurred_at: '2026-11-07T04:48:32Z'
+status: completed
+summary: 'docs: record exact v2 package smoke evidence (#69)'
