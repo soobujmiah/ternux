@@ -1,0 +1,7 @@
+event_id: commit-fb124e594729-5b778b186bf594df
+repository: soobujmiah/ternux
+commit: fb124e594729df4ac182430c9532e9501d361733
+kind: commit
+occurred_at: '2026-11-07T04:34:36Z'
+status: completed
+summary: 'fix: resolve bundled extension libraries in doctor (#67)'
