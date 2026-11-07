@@ -1,0 +1,7 @@
+event_id: commit-aadc9255ca10-e43d1c7fe9c58531
+repository: soobujmiah/ternux
+commit: aadc9255ca10f93476fdbda13f673c2465beae7d
+kind: commit
+occurred_at: '2026-11-07T15:39:09Z'
+status: completed
+summary: 'feat(termux): add verified APT bootstrap installer (#96)'
