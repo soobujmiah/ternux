@@ -74,10 +74,14 @@ ternux install [options]
 | `--plain` | Shorthand for `--ui plain`: plain scrolling output instead of the dashboard |
 | `--no-anim` | Freeze the spinner and colour cycling |
 
-With no workload flags, an interactive install uses the numbered chooser: 1
- development, 2 llama.cpp, 3 network, 4 media, 5 Blender, 6 all, or 0/base for
-the desktop only. The suggestion uses the detected GPU route and reports RAM
-and free storage limits. `--yes` skips the chooser and keeps the base profile.
+With no workload flags, an interactive install opens the categorized checklist.
+Use Up/Down or `j`/`k` to move, Space or an item's number to select multiple
+items, Enter to review the plan, and `q` for the base desktop. Individual
+managed extension choices include llama.cpp CPU + Vulkan, the Stable Diffusion
+CPU + Vulkan preview, and experimental SM8735/V73 HTP. The `--with-llm` flag
+remains a separate llama.cpp source build. The suggestion uses the detected GPU
+route and reports RAM and free storage limits. `--yes` skips the chooser and
+keeps the base profile.
 
 ### `ternux start`
 

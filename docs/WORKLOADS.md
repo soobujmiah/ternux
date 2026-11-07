@@ -10,10 +10,13 @@ is installed unless you ask for it, and each option is a *workload*: a named set
 of packages, installed into the guest, recorded in state so `--resume` and
 `ternux repair` know about it.
 
-Every workload can be installed two ways, and both are first-class. The
-one-command route is a flag on the installer. The manual route is the same
+The workload groups below can be installed two ways, and both are first-class.
+The one-command route is a flag on the installer. The manual route is the same
 commands run yourself inside the guest, so you can read them before they run
-and so a failed install can be finished by hand instead of started over.
+and so a failed install can be finished by hand instead of started over. The
+interactive catalog also offers managed extension releases as individual
+choices; these use the checksum-verifying extension manager rather than the
+`--with-*` group flags.
 
 During an interactive install, the software catalog shows up to 12 items at a
 time and reflows when the terminal resizes, including when the Android keyboard
@@ -25,9 +28,14 @@ press Enter; type `n` to cancel. Each tool is separate, so you can choose
 Firefox without the other desktop tools, or ADT's ADB without the rest of the
 Android toolchain. Debian packages use the latest version available from the
 configured Debian repositories after `apt update`. ADT choices use its latest
-verified release registry; llama.cpp CPU + Vulkan and experimental HTP are
-prereleases installed through Ternux's checksum verifier. `--yes` and
-non-interactive runs keep the base profile unless flags select workloads.
+verified release registry; llama.cpp CPU + Vulkan, Stable Diffusion CPU + Vulkan,
+and experimental HTP are managed prereleases installed through Ternux's
+checksum verifier. The chooser lists them individually. Stable Diffusion is a
+preview, CPU image quality is unqualified, and HTP is limited to SM8735/V73 and
+not supported. Model weights remain user-provided. `--with-llm` continues to
+build llama.cpp from source; it is separate from the managed CPU + Vulkan
+extension. `--yes` and non-interactive runs keep the base profile unless flags
+select workloads.
 
 The catalog also includes Go, PHP, SQLite, ripgrep, jq, htop, tree, Micro,
 Thonny, Thunderbird, Evince, and LibreOffice Calc, grouped with related tools.
