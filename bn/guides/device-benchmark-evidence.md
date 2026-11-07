@@ -841,6 +841,22 @@ llama-cli -m "$MODEL" -dev Vulkan0 -ngl 99 -t 4 -tb 4 -p "$PROMPT" -n 64 -c 2048
 "$HOME/.local/opt/ternux-extensions/llama-htp-experimental/bin/htp-run" -m "$MODEL" -t 4 -tb 4 -p "$PROMPT" -n 64 -c 2048 -b 128 -ub 128 --temp 0 --seed 42 --ignore-eos
 ```
 
+### ২০২৬-১১-০৭ Qwen2.5 1.5B HTP cold-start known-answer পুনরাবৃত্তি
+
+আগে থেকে থাকা `/sdcard/LAI/models/qwen2.5-1.5b-instruct-q4_k_m.gguf` model-টি না সরিয়ে HTP runner তিনবার আলাদা process হিসেবে চালানো হয়েছে। প্রতিবার একই deterministic arithmetic prompt, seed 42, temperature 0, চারটি thread এবং আট-token limit ছিল। তিনবারই `4` এসেছে; generation ছিল 22.0–22.3 tok/s, প্রতিটি brokered child exit 0 এবং CDSP session transport status 0 ও reply `[0, 0]` দিয়ে বন্ধ হয়েছে। captured run-এ timeout বা error ছিল না। এটি একটি model ও device-এ ছোট restart/reopen check; দীর্ঘস্থায়ী বা পূর্ণ HTP qualification নয়। numerical operator failure ও অন্য release gate এখনো খোলা।
+
+Debian guest-এ `ternux` user হিসেবে পুনরুৎপাদন:
+
+```bash
+MODEL=/sdcard/LAI/models/qwen2.5-1.5b-instruct-q4_k_m.gguf
+RUNNER="$HOME/.local/opt/ternux-extensions/llama-htp-experimental/bin/htp-run"
+for run in 1 2 3; do
+  timeout 90 "$RUNNER" -m "$MODEL" -t 4 -tb 4 \
+    -p "What is 2 + 2? Reply with only the number." -n 8 -c 512 \
+    -b 128 -ub 128 --temp 0 --seed 42
+done
+```
+
 ## রেফারেন্স
 
 - [glmark2](https://github.com/glmark2/glmark2)

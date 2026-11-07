@@ -969,6 +969,22 @@ CLI="$HOME/.local/opt/ternux-extensions/llama-vulkan/bin/llama-cli"
 "$CLI" -m "$MODEL" -p "2 + 2 =" -n 8 -c 512 -t 4 --temp 0 --seed 42 --no-warmup -ngl 99
 ```
 
+### 2026-11-07 Qwen2.5 1.5B HTP cold-start known-answer repeats
+
+Using the existing `/sdcard/LAI/models/qwen2.5-1.5b-instruct-q4_k_m.gguf` in place, I started three independent HTP runner processes in sequence. Each used the same deterministic arithmetic prompt, seed 42, temperature 0, four threads, and an eight-token limit. All three returned `4`; generation measured 22.0–22.3 tok/s, each brokered child exited 0, and every CDSP session closed with transport status 0 and reply `[0, 0]`. No timeout or error appeared in the captured runs. This is a short restart/reopen check on one model and device, not sustained or broad HTP qualification; numerical operator failures and other release gates remain open.
+
+Reproduce in the Debian guest as `ternux`:
+
+```bash
+MODEL=/sdcard/LAI/models/qwen2.5-1.5b-instruct-q4_k_m.gguf
+RUNNER="$HOME/.local/opt/ternux-extensions/llama-htp-experimental/bin/htp-run"
+for run in 1 2 3; do
+  timeout 90 "$RUNNER" -m "$MODEL" -t 4 -tb 4 \
+    -p "What is 2 + 2? Reply with only the number." -n 8 -c 512 \
+    -b 128 -ub 128 --temp 0 --seed 42
+done
+```
+
 ## References
 
 - [glmark2](https://github.com/glmark2/glmark2)
