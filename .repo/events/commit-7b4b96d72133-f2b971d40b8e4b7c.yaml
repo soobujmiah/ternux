@@ -1,0 +1,7 @@
+event_id: commit-7b4b96d72133-f2b971d40b8e4b7c
+repository: soobujmiah/ternux
+commit: 7b4b96d721334e78908f7f5603248e8b9c6771bc
+kind: commit
+occurred_at: '2026-11-07T07:30:27Z'
+status: completed
+summary: 'docs: record pinned Turnip binary license evidence (#78)'
