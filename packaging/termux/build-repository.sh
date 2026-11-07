@@ -183,5 +183,7 @@ else
   printf 'Built unsigned local repository. Do not publish it for client use.\n'
 fi
 
+install -m 755 "$repo_root/packaging/termux/bootstrap-repository.sh" "$repository_dir/bootstrap.sh"
+
 printf 'Repository tree: %s\n' "$repository_dir"
 printf 'APT source: deb [signed-by=$PREFIX/etc/apt/keyrings/ternux.gpg] https://<host>/<path> %s %s\n' "$distribution" "$component"

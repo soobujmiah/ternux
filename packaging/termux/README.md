@@ -80,21 +80,17 @@ every release-plan gate closes.
 
 ## Install from a published repository
 
-After the user has verified and installed the repository signing key, add a
-source entry using that key with APT's `signed-by` option, then run:
-
-```bash
-pkg update
-pkg install ternux
-```
-
-APT source URL and keyring path must match the repository's actual published
-configuration. Do not copy a source line using `[trusted=yes]` into release
-instructions.
-
-Client setup after repository publication is documented in the paired
-[English](../../docs/TERMUX-APT.md) and
-[Bengali](../../bn/docs/TERMUX-APT.md) trust/install guide. The repository URL
-will be `https://soobujmiah.github.io/ternux/apt`; verify the key fingerprint
-against the GitHub source guide before adding it with `signed-by`. Never use
+The signed release tree includes `bootstrap.sh`. After installing `curl` and
+`gnupg` from Termux's normal repository, users download and run it; it verifies
+the pinned primary-key fingerprint, writes a `signed-by` source, refreshes APT,
+and installs Ternux. The script also supports `--configure-only`. Future
+updates use normal `pkg update` / `pkg upgrade ternux` commands. It never uses
 `[trusted=yes]`.
+
+The bootstrap URL is `https://soobujmiah.github.io/ternux/apt/bootstrap.sh` and
+exists only after the signed release is published. See the paired
+[English](../../docs/TERMUX-APT.md) and
+[Bengali](../../bn/docs/TERMUX-APT.md) user guide. A custom repository cannot
+make the first `pkg install ternux` work before APT trusts its signing key;
+zero-bootstrap discovery requires acceptance into an official Termux package
+repository.

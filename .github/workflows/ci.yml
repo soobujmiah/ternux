@@ -59,6 +59,9 @@ jobs:
       - name: Run focused regressions
         run: bash tests/focused.sh
 
+      - name: Test Termux APT bootstrap
+        run: bash tests/termux_apt_bootstrap.sh
+
       - name: Run Bats smoke suite
         run: bats tests/smoke.bats
 

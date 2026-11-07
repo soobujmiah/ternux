@@ -240,6 +240,7 @@ check "Termux APT artifacts live outside the website dist directory" bash -c '
 apt_fixture="$TMP/apt-fixture"
 mkdir -p "$apt_fixture/packaging/termux" "$apt_fixture/artifacts/ternux-apt/debs" "$apt_fixture/lib"
 cp "$ROOT/packaging/termux/build-repository.sh" "$apt_fixture/packaging/termux/"
+cp "$ROOT/packaging/termux/bootstrap-repository.sh" "$apt_fixture/packaging/termux/"
 cp "$ROOT/packaging/termux/build.sh" "$apt_fixture/packaging/termux/"
 printf 'TERNUX_VERSION="2.0.0"\n' > "$apt_fixture/lib/core.sh"
 printf '{"Version":"@VERSION@"}\n' > "$apt_fixture/packaging/termux/manifest.json"
@@ -311,8 +312,9 @@ if env TERMUX_APT_REPO_TOOL="$apt_fixture/fake-apt-repo" GPG="$apt_fixture/fake-
   grep -q '^Origin: Ternux$' "$apt_fixture/artifacts/ternux-apt/repository/dists/stable/Release" &&
   grep -q '^Codename: stable$' "$apt_fixture/artifacts/ternux-apt/repository/dists/stable/Release" &&
   [[ -s "$apt_fixture/artifacts/ternux-apt/repository/dists/stable/InRelease" ]] &&
-  [[ -s "$apt_fixture/artifacts/ternux-apt/repository/ternux-archive-key.asc" ]]; then
-  ok "signed APT build verifies its full fingerprint and exports only public key"
+  [[ -s "$apt_fixture/artifacts/ternux-apt/repository/ternux-archive-key.asc" ]] &&
+  [[ -x "$apt_fixture/artifacts/ternux-apt/repository/bootstrap.sh" ]]; then
+  ok "signed APT build verifies its full fingerprint and includes the bootstrap"
 else
   cat "$apt_fixture/sign-success.log" >&2 2>/dev/null || true
   not_ok "signed APT build verifies its full fingerprint and exports only public key"
