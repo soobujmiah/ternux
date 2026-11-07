@@ -857,6 +857,37 @@ for run in 1 2 3; do
 done
 ```
 
+### ২০২৬-১১-০৭ installed HTP long-session ও repeated-reopen check (Qwen2.5 1.5B Q4_K_M)
+
+Redmi Turbo 4 Pro / SM8735-এ আগে থেকে থাকা managed llama-htp-experimental
+launcher এবং model /sdcard/LAI/models/qwen2.5-1.5b-instruct-q4_k_m.gguf
+(SHA-256 6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e)
+ব্যবহার করা হয়েছে। Model file সরানো বা বদলানো হয়নি। চার thread, fixed 2 + 2
+prompt, 64 generated token, context 2048, batch/ubatch 128, temperature 0,
+seed 42 ও --ignore-eos দিয়ে আরও পাঁচটি independent cold-start process চালানো
+হয়েছে। পাঁচটিতেই প্রথম answer 4; generation 19.6–19.9 tok/s, প্রতিটি child
+exit 0 এবং CDSP close reply [0, 0] দিয়েছে।
+
+আলাদা একটি session-এ context 4096, একই managed HTP route, চার thread,
+batch/ubatch 128, temperature 0, seed 42 ও --ignore-eos দিয়ে 2,048 token
+generate হয়েছে। 136 সেকেন্ডে শেষ হয়েছে, generation 15.5 tok/s; broker child
+exit 0 এবং CDSP close reply [0, 0]। এই exact model, extension ও device-এ একটি
+clean প্রায় দুই-মিনিটের long session এবং পাঁচটি clean cold restart দেখা গেছে।
+এটি thermal soak, power/energy measurement, CPU/Vulkan comparison, সাধারণ
+operator qualification বা experimental HTP-কে release-supported প্রমাণ করে
+না। Long-session rate কমার কারণ আলাদাভাবে isolate করা হয়নি।
+
+Debian guest-এ ternux user হিসেবে পুনরুৎপাদন। প্রতিটি cold-start run-এর broker child exit ও CDSP close status দেখুন; পাঁচটি short run-এ প্রথম answer 4 হওয়া উচিত।
+
+```bash
+MODEL=/sdcard/LAI/models/qwen2.5-1.5b-instruct-q4_k_m.gguf
+RUNNER="$HOME/.local/opt/ternux-extensions/llama-htp-experimental/bin/htp-run"
+for run in 1 2 3 4 5; do
+  "$RUNNER" -m "$MODEL" -t 4 -tb 4 -p "Solve 2 + 2. Reply with only the number." -n 64 -c 2048 -b 128 -ub 128 --temp 0 --seed 42 --ignore-eos
+done
+"$RUNNER" -m "$MODEL" -t 4 -tb 4 -p "Write a detailed but factual explanation of how smartphone neural processing units execute local language models." -n 2048 -c 4096 -b 128 -ub 128 --temp 0 --seed 42 --ignore-eos
+```
+
 ### ২০২৬-১১-০৭ SM8735 integer-HMX candidate probe
 
 Build-only [CI run 42348072918](https://github.com/soobujmiah/ternux/actions/runs/42348072918) unmerged [llama.cpp PR #29740](https://github.com/ggml-org/llama.cpp/pull/29740), commit `08c83734f9c5c3b497e98b96f1a380f5a6084468` থেকে disposable artifact তৈরি করেছে। Archive SHA-256 `52877aad044c6da3f701d0230fde86520ce26066a412118bfb93e1a6f238de0a`। Checksum verify করে ফাইলগুলো শুধু isolated `ternux-clean-apt` Debian guest-এ extract/install করা হয়েছে; production HTP extension ও চলমান Debian desktop বদলানো হয়নি।
