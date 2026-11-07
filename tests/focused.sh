@@ -127,7 +127,7 @@ if env TERNUX_STATE_DIR="$TMP/state-welcome" HOME="$TMP/home-welcome" \
     tnx_phase_debian alice >/dev/null &&
       grep -q "Exec=/usr/local/bin/ternux-welcome" "$MARKER" &&
       grep -q "mousepad.*fonts-noto-core.*ibus ibus-avro devilspie2" "$1/lib/phases.sh" &&
-      grep -q "xfce4-taskmanager.*xfce4-terminal zenity vlc guvcview ristretto qt5-gtk-platformtheme colord" "$1/lib/phases.sh" &&
+      grep -q "xfce4-taskmanager.*xfce4-terminal zenity vlc ffmpeg guvcview ristretto qt5-gtk-platformtheme colord" "$1/lib/phases.sh" &&
       grep -q "vout=xcb_x11" "$1/lib/phases.sh" &&
       grep -q "avcodec-hw=none" "$1/lib/phases.sh" &&
       grep -q "qt-minimal-view=0" "$1/lib/phases.sh" &&
@@ -459,6 +459,12 @@ assert '"-i"' in recorder and '"-q"' in recorder
 assert 'state.get("outputFile") == str(self.partial)' in recorder
 assert 'Another recording is active; it was left untouched.' in recorder
 assert 'Path.home() / "Music" / "Ternux"' in recorder
+assert 'self.format_combo.set_active_id("aac")' in recorder
+assert 'self.format_combo.append("mp3", "MP3 · 128 kbps")' in recorder
+assert '"-codec:a", "libmp3lame", "-b:a", "128k"' in recorder
+assert 'probe.stdout.strip() != "mp3"' in recorder
+assert 'with_suffix(".partial" + self.target.suffix)' in recorder
+assert "ffmpeg guvcview ristretto" in (root / "lib/phases.sh").read_text()
 camera = (root / "lib/ternux-camera.py").read_text()
 assert "GdkPixbuf.Pixbuf.new_from_file_at_scale" in camera
 assert "pixbuf.apply_embedded_orientation()" in camera

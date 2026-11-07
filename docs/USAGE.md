@@ -57,7 +57,7 @@ while it is open to display the live input meter; closing the app releases that
 stream and the source returns to idle. An idle desktop does not keep recording.
 Termux:API's `termux-microphone-record` records to a file and cannot act as a
 live PulseAudio input stream, so it is not the desktop's source. Android shows
-its microphone privacy indicator while capture is active.
+its microphone privacy indicator while capture is active. The default Ternux Sound Recorder app captures only after Start, saves AAC/M4A by default, and can export MP3 locally with FFmpeg; files are saved in `~/Music/Ternux`.
 
 The Xfce **About → System** page reads CPU model names from `/proc/cpuinfo`.
 Android may expose only ARM part IDs there, so the Ternux launcher supplies

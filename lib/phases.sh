@@ -363,7 +363,7 @@ tnx_phase_debian() {
     DPKG_FORCE=\"-o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -o APT::Color=1 -o Dpkg::Progress-Fancy=1\"
     apt update -o APT::Color=1
     dpkg --configure -a --force-confold --force-confdef || true
-    apt install -y \$DPKG_FORCE sudo nano mousepad fonts-noto-core python3-gi gir1.2-gtk-3.0 ibus ibus-avro devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol x11-utils mesa-utils libgl1-mesa-dri adwaita-icon-theme papirus-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc guvcview ristretto qt5-gtk-platformtheme colord
+    apt install -y \$DPKG_FORCE sudo nano mousepad fonts-noto-core python3-gi gir1.2-gtk-3.0 ibus ibus-avro devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol x11-utils mesa-utils libgl1-mesa-dri adwaita-icon-theme papirus-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc ffmpeg guvcview ristretto qt5-gtk-platformtheme colord
     asset_stage=\$(mktemp -d /tmp/ternux-assets.XXXXXX)
     printf '%s' '$ternux_assets_b64' | base64 -d | tar -xz -C "\$asset_stage"
     install -d -m 0755 /usr/share/icons/Ternux /usr/share/themes/Ternux /usr/share/backgrounds/ternux

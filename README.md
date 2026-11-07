@@ -92,7 +92,7 @@ Android front/rear cameras and captures photos through Termux:API after Camera
 permission is granted to the Termux:API app. Each photo appears in the app preview after capture with its EXIF orientation corrected; compact controls fit the window. Photos save inside Debian at `~/Pictures/Ternux`. A validated capture is staged in Termux app storage, then copied into PRoot; no Gallery scan is performed. Ristretto is the
 default image viewer. guvcview previews Linux V4L2 webcams
 when `/dev/video*` is exposed to PRoot; Termux:API does not provide live video.
-Ternux Sound Recorder records only after you press Start, uses the Termux:API microphone permission requested during setup when available, and saves AAC files inside Debian at `~/Music/Ternux`.
+Ternux Sound Recorder captures only after you press Start. Save as AAC/M4A by default, or choose MP3; MP3 is encoded locally with Debian FFmpeg. Recordings stay inside Debian at `~/Music/Ternux`.
 
 A one-time first-run welcome opens the project website in Firefox ESR when
 installed; without a browser it shows an in-desktop welcome guide. Firefox is

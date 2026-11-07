@@ -22,7 +22,7 @@ alt_url: "/docs/INSTALLATION.html"
 |---|---|---|
 | **Android** | ১০ বা নতুন | পুরনো বিল্ডে Termux/X11-এর দরকারি API নেই |
 | **CPU** | `aarch64` (৬৪-বিট ARM) | PRoot নেটিভ বাইনারি চালায়; ৩২-বিট ARM আপস্ট্রিমে অসমর্থিত |
-| **স্টোরেজ** | Installed footprint: বেস ~৪–৪.৫ GB; `--all`-সহ ~১০.৫–১২.৫ GB | Download, package cache, build tree, model ও project-এর জন্য অতিরিক্ত ফাঁকা জায়গা দিয়ে শুরু করুন |
+| **স্টোরেজ** | Installed footprint: বেস ~৪–৪.৬ GB; `--all`-সহ ~১০.৫–১২.৬ GB | Download, package cache, build tree, model ও project-এর জন্য অতিরিক্ত ফাঁকা জায়গা দিয়ে শুরু করুন |
 | **RAM** | ন্যূনতম ৪ GB, ৬–৮ GB ভালো | ডেস্কটপ আর Android একই মেমরি ভাগ করে; কম RAM = বেশি প্রসেস-কিল |
 | **গ্রাফিক্স** | Adreno হলে Zink/Turnip; অন্য ক্ষেত্রে VirGL candidate | Adreno route-টি মাপা; VirGL compatibility ও গতি device/Android build অনুযায়ী যাচাই করতে হবে |
 | **প্রয়োজনীয় অ্যাপ** | [Termux](https://github.com/termux/termux-app/releases) + [Termux:X11](https://github.com/termux/termux-x11/releases) | দুটো compatible source থেকে ইনস্টল করুন; Ternux চালুর আগে Termux:X11 একবার খুলুন |

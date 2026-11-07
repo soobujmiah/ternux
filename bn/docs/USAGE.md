@@ -57,7 +57,7 @@ source ব্যবহৃত হয়। Volume Control খোলা থাক�
 সেটিও source পড়ে; app বন্ধ করলে stream ছেড়ে দেয় এবং source আবার idle হয়। Idle
 desktop mic record করতে থাকে না। Termux:API-এর `termux-microphone-record` কেবল
 file-এ record করে, live PulseAudio input stream দেয় না—তাই desktop-এর mic source
-সেটি নয়। Capture চলার সময় Android-এর microphone privacy indicator দেখা যায়।
+সেটি নয়। Capture চলার সময় Android-এর microphone privacy indicator দেখা যায়। Default Ternux Sound Recorder Start চাপার পরই capture করে; AAC/M4A default, চাইলে Debian-এর FFmpeg দিয়ে local MP3 export করে। File `~/Music/Ternux`-এ থাকে।
 
 Install-এর সময় Android Termux:API app-এর microphone permission চাওয়ার জন্য
 একবার private temporary file-এ সর্বোচ্চ এক সেকেন্ডের probe চলে; শেষে probe থেমে

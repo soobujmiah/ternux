@@ -15,7 +15,7 @@ Notable changes to ternux. Dates are ISO 8601.
 ### Desktop experience
 
 - Ternux Camera now corrects EXIF rotation and fits its capture actions into a compact two-row phone layout. The desktop theme adds original, larger touch targets for minimize/maximize/close and icon mappings for every audited base application with a hard-coded icon path. Seven original wallpaper assets are available in the selector.
-- Added an on-demand, low-resource GTK Sound Recorder to the base desktop and panel. Mic capture starts only after Start; AAC files are saved inside Debian at `~/Music/Ternux`.
+- Added an on-demand, low-resource GTK Sound Recorder to the base desktop and panel. Mic capture starts only after Start; save as AAC/M4A or locally encoded MP3 inside Debian at `~/Music/Ternux`.
 
 
 ### AI artifact delivery

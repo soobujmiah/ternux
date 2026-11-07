@@ -83,7 +83,7 @@ Termux:X11 display integration এবং PulseAudio audio routing। বেস s
 Bangla-capable Noto font, Avro phonetic input (Ctrl+Space), VLC, PulseAudio
 Volume Control, Xfce Task Manager ও Mousepad থাকে। প্রথমবার GUI চালালে Firefox
 ESR থাকলে project website একবার খোলে; browser না থাকলে desktop-এর ভেতর welcome
-guide দেখায়। Sound Recorder-এ Start চাপলেই শুধু microphone চালু হয়; setup-এর সময় Termux:API permission চাওয়া হয়; তখন না পেলে প্রথম use-এ Android permission চাইতে পারে। Stop and save করলে AAC recording Debian-এর `~/Music/Ternux`-এ থাকে। Firefox optional।
+guide দেখায়। Sound Recorder-এ Start চাপলেই শুধু microphone চালু হয়; setup-এর সময় Termux:API permission চাওয়া হয়; তখন না পেলে প্রথম use-এ Android permission চাইতে পারে। AAC/M4A (default) অথবা MP3 format বেছে নেওয়া যায়; MP3 Debian-এর FFmpeg দিয়ে local-এ encode হয়। Recording Debian-এর `~/Music/Ternux`-এ থাকে। Firefox optional।
 
 **Graphics:** সমর্থিত Adreno/KGSL device-এ স্বয়ংক্রিয় Zink + Turnip setup;
 অন্য ক্ষেত্রে VirGL compatibility route। সক্রিয় renderer দেখতে `ternux verify`

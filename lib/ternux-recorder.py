@@ -13,6 +13,8 @@ gi.require_version("Gtk", "3.0")
 from gi.repository import Gio, Gtk, GLib
 
 TERMUX_API = "/data/data/com.termux/files/usr/bin/termux-microphone-record"
+FFMPEG = "/usr/bin/ffmpeg"
+FFPROBE = "/usr/bin/ffprobe"
 TERMUX_HOME = Path("/data/data/com.termux/files/home")
 STAGING = TERMUX_HOME / ".cache" / "ternux-recorder"
 OUTPUT = Path.home() / "Music" / "Ternux"
@@ -41,6 +43,17 @@ class Recorder(Gtk.Window):
         intro.set_line_wrap(True)
         box.pack_start(intro, False, False, 0)
 
+        format_row = Gtk.Box(spacing=12)
+        format_label = Gtk.Label(label="Save format")
+        format_label.set_xalign(0)
+        format_row.pack_start(format_label, True, True, 0)
+        self.format_combo = Gtk.ComboBoxText()
+        self.format_combo.append("aac", "AAC · M4A")
+        self.format_combo.append("mp3", "MP3 · 128 kbps")
+        self.format_combo.set_active_id("aac")
+        format_row.pack_end(self.format_combo, False, False, 0)
+        box.pack_start(format_row, False, False, 0)
+
         self.status = Gtk.Label(label="Ready · microphone is off")
         self.status.set_xalign(0)
         self.status.set_line_wrap(True)
@@ -62,7 +75,7 @@ class Recorder(Gtk.Window):
         row.pack_start(self.folder_button, True, True, 0)
         box.pack_start(row, False, False, 0)
 
-        hint = Gtk.Label(label="Saved inside Debian · Music / Ternux · AAC audio")
+        hint = Gtk.Label(label="Saved inside Debian · Music / Ternux · AAC or MP3")
         hint.set_xalign(0)
         hint.get_style_context().add_class("dim-label")
         box.pack_start(hint, False, False, 0)
@@ -83,9 +96,15 @@ class Recorder(Gtk.Window):
             self.status.set_text("Termux:API command is missing. Install the Termux:API app and run `pkg install termux-api` in Termux.")
             return
         stamp = datetime.now().strftime("%Y%m%d-%H%M%S-%f")
-        self.target = OUTPUT / f"Ternux-{stamp}.m4a"
+        output_format = self.format_combo.get_active_id() or "aac"
+        if output_format == "mp3" and (not Path(FFMPEG).is_file() or not Path(FFPROBE).is_file()):
+            self.status.set_text("MP3 export needs FFmpeg. Install with sudo apt install ffmpeg, or choose AAC · M4A.")
+            return
+        suffix = ".mp3" if output_format == "mp3" else ".m4a"
+        self.target = OUTPUT / f"Ternux-{stamp}{suffix}"
         self.partial = STAGING / f".Ternux-{stamp}.recording.m4a"
         self.starting = True
+        self.format_combo.set_sensitive(False)
         self.record_button.set_sensitive(False)
         self.status.set_text("Requesting Android microphone access… recording starts only after you press this button.")
 
@@ -158,11 +177,39 @@ class Recorder(Gtk.Window):
                     if audio.read(8)[4:8] != b"ftyp":
                         raise RuntimeError("Android output is not a valid MPEG-4/AAC audio file.")
                 OUTPUT.mkdir(parents=True, exist_ok=True)
-                temporary = self.target.with_suffix(".partial.m4a")
-                with self.partial.open("rb") as source, temporary.open("xb") as dest:
-                    shutil.copyfileobj(source, dest, 1024 * 1024)
-                    dest.flush()
-                    os.fsync(dest.fileno())
+                temporary = self.target.with_suffix(".partial" + self.target.suffix)
+                if self.target.suffix == ".mp3":
+                    try:
+                        subprocess.run([FFMPEG, "-nostdin", "-hide_banner", "-loglevel", "error",
+                                        "-n", "-i", str(self.partial), "-map_metadata", "-1", "-vn",
+                                        "-codec:a", "libmp3lame", "-b:a", "128k", str(temporary)],
+                                       check=True, capture_output=True, text=True, timeout=1800)
+                        if not temporary.is_file() or temporary.stat().st_size < 1024:
+                            raise RuntimeError("FFmpeg did not produce a complete MP3 file.")
+                        probe = subprocess.run([FFPROBE, "-v", "error", "-select_streams", "a:0",
+                                                "-show_entries", "stream=codec_name", "-of", "default=nw=1:nk=1",
+                                                str(temporary)], check=True, capture_output=True, text=True, timeout=30)
+                        if probe.stdout.strip() != "mp3":
+                            raise RuntimeError("The exported audio did not verify as MP3.")
+                    except (OSError, subprocess.SubprocessError, RuntimeError) as exc:
+                        temporary.unlink(missing_ok=True)
+                        fallback = self.target.with_suffix(".m4a")
+                        fallback_tmp = fallback.with_suffix(".partial.m4a")
+                        with self.partial.open("rb") as source, fallback_tmp.open("xb") as dest:
+                            shutil.copyfileobj(source, dest, 1024 * 1024)
+                            dest.flush()
+                            os.fsync(dest.fileno())
+                        os.chmod(fallback_tmp, 0o644)
+                        os.replace(fallback_tmp, fallback)
+                        self.partial.unlink(missing_ok=True)
+                        GLib.idle_add(self.recording_saved, fallback,
+                                      f"MP3 export failed; the original AAC recording was saved instead. {str(exc)[:160]}")
+                        return
+                else:
+                    with self.partial.open("rb") as source, temporary.open("xb") as dest:
+                        shutil.copyfileobj(source, dest, 1024 * 1024)
+                        dest.flush()
+                        os.fsync(dest.fileno())
                 os.chmod(temporary, 0o644)
                 os.replace(temporary, self.target)
                 self.partial.unlink(missing_ok=True)
@@ -171,15 +218,19 @@ class Recorder(Gtk.Window):
                 detail = getattr(exc, "stderr", "") or str(exc)
                 if self.partial:
                     self.partial.unlink(missing_ok=True)
+                if self.target:
+                    self.target.with_suffix(".partial" + self.target.suffix).unlink(missing_ok=True)
                 GLib.idle_add(self.recording_failed, f"Recording could not be saved: {detail[:240]}")
         threading.Thread(target=work, daemon=True).start()
 
-    def recording_saved(self, path):
+    def recording_saved(self, path, note=None):
         self.recording = False
         self.record_button.set_label("Start recording")
         self.record_button.set_sensitive(True)
+        self.format_combo.set_sensitive(True)
         self.play_button.set_sensitive(True)
-        self.status.set_text(f"Saved: {path}\nFind it in Home → Music → Ternux.")
+        detail = f"\n{note}" if note else ""
+        self.status.set_text(f"Saved: {path}\nFind it in Home → Music → Ternux.{detail}")
         return GLib.SOURCE_REMOVE
 
     def recording_failed(self, message):
@@ -187,6 +238,7 @@ class Recorder(Gtk.Window):
         self.recording = False
         self.record_button.set_label("Start recording")
         self.record_button.set_sensitive(True)
+        self.format_combo.set_sensitive(True)
         self.status.set_text(message)
         return GLib.SOURCE_REMOVE
 
