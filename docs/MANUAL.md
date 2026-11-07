@@ -80,7 +80,7 @@ command -v proot-distro && command -v termux-x11 && command -v pulseaudio
 ---
 
 
-Ternux Camera, Ternux Sound Recorder, and guvcview webcam preview are included in the Debian desktop. For Android front/rear photo capture, install the **Termux:API Android app from the same source as Termux** and allow Camera permission to Termux:API when prompted. Ternux Camera stages a capture in Termux app-private storage, validates it, then saves it inside Debian at `/home/ternux/Pictures/Ternux` (or the selected guest user’s home). It does not add photos to Android Gallery. The in-app photo preview follows EXIF orientation and uses compact capture controls. guvcview opens a live preview only when a Linux V4L2 `/dev/video*` device is exposed to the guest; Termux:API currently provides camera information and still photos, not a continuous camera stream. Ternux Sound Recorder uses the same Termux:API bridge only after the user presses Start; Android microphone permission is requested during installation when Termux:API is available; otherwise Android prompts on first use. Choose AAC/M4A (default) or MP3 before recording. Stop and save writes the selected format into the Debian user’s `~/Music/Ternux` folder. MP3 is encoded locally with FFmpeg; Android microphone capture itself is AAC.
+Ternux Camera and Ternux Sound Recorder are included in the Debian desktop. For Android front/rear photo capture, install the **Termux:API Android app from the same source as Termux** and allow Camera permission to Termux:API when prompted. Ternux Camera stages a capture in Termux app-private storage, validates it, then saves it inside Debian at `/home/ternux/Pictures/Ternux` (or the selected guest user’s home). It does not add photos to Android Gallery. The in-app photo preview follows EXIF orientation and uses compact capture controls. Termux:API currently provides camera information and still photos, not a continuous camera stream; the app therefore does not show a live feed before capture. Ternux Sound Recorder uses the same Termux:API bridge only after the user presses Start; Android microphone permission is requested during installation when Termux:API is available; otherwise Android prompts on first use. Choose AAC/M4A (default) or MP3 before recording. Stop and save writes the selected format into the Debian user’s `~/Music/Ternux` folder. MP3 is encoded locally with FFmpeg; Android microphone capture itself is AAC.
 
 ## Step 3 — Install Debian
 
@@ -108,7 +108,7 @@ export DEBIAN_FRONTEND=noninteractive
 apt update
 
 # Core desktop + GL/audio plumbing. Must succeed.
-apt install -y sudo nano mousepad fonts-noto-core python3-gi gir1.2-gtk-3.0 ibus ibus-avro devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol x11-utils mesa-utils libgl1-mesa-dri adwaita-icon-theme papirus-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc guvcview ristretto qt5-gtk-platformtheme arc-theme colord
+apt install -y sudo nano mousepad fonts-noto-core python3-gi gir1.2-gtk-3.0 ibus ibus-avro devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol x11-utils mesa-utils libgl1-mesa-dri adwaita-icon-theme papirus-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc ristretto qt5-gtk-platformtheme arc-theme colord
 
 # PolicyKit: polkitd = trixie+, policykit-1 = bookworm. Best effort.
 apt install -y polkitd || apt install -y policykit-1 || true

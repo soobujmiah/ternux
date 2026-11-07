@@ -700,10 +700,6 @@
       "source": "lib/ternux-panel-shortcuts.sh",
       "perm": "644"
     },
-    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/guvcview.svg": {
-      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/guvcview.svg",
-      "perm": "644"
-    },
     "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/ibus-setup-ibus-avro.svg": {
       "source": "lib/ternux-assets/icons/Ternux/scalable/apps/ibus-setup-ibus-avro.svg",
       "perm": "644"
@@ -850,6 +846,146 @@
     },
     "lib/ternux/ternux-assets/themes/Ternux/xfwm4/bottom-right-inactive.png": {
       "source": "lib/ternux-assets/themes/Ternux/xfwm4/bottom-right-inactive.png",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/org.xfce.panel.applicationsmenu.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/org.xfce.panel.applicationsmenu.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/org.xfce.panel.showdesktop.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/org.xfce.panel.showdesktop.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/categories/applications-accessories.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/categories/applications-accessories.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/categories/applications-development.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/categories/applications-development.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/categories/applications-games.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/categories/applications-games.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/categories/applications-graphics.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/categories/applications-graphics.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/categories/applications-internet.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/categories/applications-internet.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/categories/applications-multimedia.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/categories/applications-multimedia.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/categories/applications-office.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/categories/applications-office.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/categories/applications-other.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/categories/applications-other.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/categories/applications-science.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/categories/applications-science.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/categories/preferences-desktop-peripherals.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/categories/preferences-desktop-peripherals.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/categories/preferences-desktop-personal.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/categories/preferences-desktop-personal.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/categories/preferences-desktop-screensaver.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/categories/preferences-desktop-screensaver.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/categories/preferences-desktop.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/categories/preferences-desktop.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers/08-prism-pulse.svg": {
+      "source": "lib/ternux-assets/wallpapers/08-prism-pulse.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers/09-fractal-bloom.svg": {
+      "source": "lib/ternux-assets/wallpapers/09-fractal-bloom.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers/10-solar-sentinel.svg": {
+      "source": "lib/ternux-assets/wallpapers/10-solar-sentinel.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers/11-glass-current.svg": {
+      "source": "lib/ternux-assets/wallpapers/11-glass-current.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers/12-bioluminescent-reef.svg": {
+      "source": "lib/ternux-assets/wallpapers/12-bioluminescent-reef.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers/13-neon-monsoon.svg": {
+      "source": "lib/ternux-assets/wallpapers/13-neon-monsoon.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers/14-data-cathedral.svg": {
+      "source": "lib/ternux-assets/wallpapers/14-data-cathedral.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers/15-moonlit-canopy.svg": {
+      "source": "lib/ternux-assets/wallpapers/15-moonlit-canopy.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/org.xfce.panel.actions.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/org.xfce.panel.actions.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/org.xfce.panel.directorymenu.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/org.xfce.panel.directorymenu.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/org.xfce.panel.pager.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/org.xfce.panel.pager.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/places/user-trash.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/places/user-trash.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/places/user-trash-full.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/places/user-trash-full.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/folder-new.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/folder-new.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/document-new.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/document-new.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/insert-link.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/insert-link.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/edit-paste.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/edit-paste.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/window-new.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/window-new.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/view-sort-ascending.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/view-sort-ascending.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/categories/preferences-desktop-wallpaper.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/categories/preferences-desktop-wallpaper.svg",
       "perm": "644"
     }
   }

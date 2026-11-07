@@ -363,7 +363,9 @@ tnx_phase_debian() {
     DPKG_FORCE=\"-o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -o APT::Color=1 -o Dpkg::Progress-Fancy=1\"
     apt update -o APT::Color=1
     dpkg --configure -a --force-confold --force-confdef || true
-    apt install -y \$DPKG_FORCE sudo nano mousepad fonts-noto-core python3-gi gir1.2-gtk-3.0 ibus ibus-avro devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol x11-utils mesa-utils libgl1-mesa-dri adwaita-icon-theme papirus-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc ffmpeg guvcview ristretto qt5-gtk-platformtheme colord
+    apt install -y \$DPKG_FORCE sudo nano mousepad fonts-noto-core python3-gi gir1.2-gtk-3.0 ibus ibus-avro devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol x11-utils mesa-utils libgl1-mesa-dri adwaita-icon-theme papirus-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc ffmpeg ristretto qt5-gtk-platformtheme colord
+    apt remove -y \$DPKG_FORCE guvcview >/dev/null 2>&1 || true
+    rm -f /usr/local/share/applications/guvcview.desktop
     asset_stage=\$(mktemp -d /tmp/ternux-assets.XXXXXX)
     printf '%s' '$ternux_assets_b64' | base64 -d | tar -xz -C "\$asset_stage"
     install -d -m 0755 /usr/share/icons/Ternux /usr/share/themes/Ternux /usr/share/backgrounds/ternux
@@ -379,8 +381,7 @@ tnx_phase_debian() {
       'python3.13.desktop ternux-python' \
       'im-config.desktop ternux-keyboard' \
       'panel-desktop-handler.desktop ternux-launcher' \
-      'xfce4-web-browser.desktop org.xfce.webbrowser' \
-      'guvcview.desktop guvcview'; do
+      'xfce4-web-browser.desktop org.xfce.webbrowser'; do
       set -- \${icon_pair% *} \${icon_pair#* }
       source_entry="/usr/share/applications/\$1"
       if [ -r "\$source_entry" ]; then
@@ -1130,15 +1131,15 @@ proot-distro login $distro --shared-tmp --bind /dev/kgsl-3d0:/dev/kgsl --bind /d
         xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-path --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg
         xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/last-image --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg
         xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-show --create -t bool -s true
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-style --create -t int -s 5
+        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-style --create -t int -s 4
         xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/workspace0/image-style --create -t int -s 5
+        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/workspace0/image-style --create -t int -s 4
         xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-path --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg >/dev/null 2>&1 || true
         xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/last-image --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg >/dev/null 2>&1 || true
         xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-show --create -t bool -s true >/dev/null 2>&1 || true
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-style --create -t int -s 5 >/dev/null 2>&1 || true
+        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-style --create -t int -s 4 >/dev/null 2>&1 || true
         xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg >/dev/null 2>&1 || true
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/workspace0/image-style --create -t int -s 5 >/dev/null 2>&1 || true
+        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/workspace0/image-style --create -t int -s 4 >/dev/null 2>&1 || true
         xfconf-query -c xfwm4 -p /general/theme --create -t string -s Ternux
         xfconf-query -c xfwm4 -p /general/button_layout --create -t string -s '|HMC'
         for panel_id in \\\$(xfconf-query -c xfce4-panel -l 2>/dev/null | sed -n 's#^/panels/\(panel-[0-9][0-9]*\)/.*#\1#p' | sort -u); do
@@ -1229,15 +1230,15 @@ proot-distro login $distro --shared-tmp --bind "\$TNX_CPUINFO_FILE:/proc/cpuinfo
         xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-path --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg
         xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/last-image --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg
         xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-show --create -t bool -s true
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-style --create -t int -s 5
+        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-style --create -t int -s 4
         xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/workspace0/image-style --create -t int -s 5
+        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/workspace0/image-style --create -t int -s 4
         xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-path --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg >/dev/null 2>&1 || true
         xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/last-image --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg >/dev/null 2>&1 || true
         xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-show --create -t bool -s true >/dev/null 2>&1 || true
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-style --create -t int -s 5 >/dev/null 2>&1 || true
+        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-style --create -t int -s 4 >/dev/null 2>&1 || true
         xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg >/dev/null 2>&1 || true
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/workspace0/image-style --create -t int -s 5 >/dev/null 2>&1 || true
+        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/workspace0/image-style --create -t int -s 4 >/dev/null 2>&1 || true
         xfconf-query -c xfwm4 -p /general/theme --create -t string -s Ternux
         xfconf-query -c xfwm4 -p /general/button_layout --create -t string -s '|HMC'
         for panel_id in \\\$(xfconf-query -c xfce4-panel -l 2>/dev/null | sed -n 's#^/panels/\(panel-[0-9][0-9]*\)/.*#\1#p' | sort -u); do

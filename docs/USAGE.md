@@ -66,7 +66,7 @@ Unknown models remain labeled as unavailable instead of being guessed.
 
 ### Audio and VLC controls
 
-Fresh installs apply Ternux's graphite-and-emerald GTK 2/3/4 and Xfwm theme, Qt 5 GTK platform theme, branded icon mappings with Papirus-Dark fallbacks, and the Ternux panel and wallpaper defaults across Xfce. Apps using other toolkits may keep their own styling. PulseAudio Volume Control uses Debian's packaged application entry and the same desktop session. Xfwm compositing stays disabled because enabling it can make the whole Termux:X11 desktop black. VLC uses its full interface by default so playback controls remain visible.
+Fresh installs apply Ternux's graphite-and-emerald GTK 2/3/4 and Xfwm theme, Qt 5 GTK platform theme, branded app, category, and panel icon mappings with Papirus-Dark fallbacks, and the Ternux panel defaults across Xfce. Fifteen portrait-first wallpapers preserve their aspect ratio in landscape. Apps using other toolkits may keep their own styling. PulseAudio Volume Control uses Debian's packaged application entry and the same desktop session. Xfwm compositing stays disabled because enabling it can make the whole Termux:X11 desktop black. VLC uses its full interface by default so playback controls remain visible.
 
 ---
 

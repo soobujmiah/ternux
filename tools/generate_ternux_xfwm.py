@@ -19,32 +19,46 @@ def save(name, size, draw_fn):
 
 
 def state_button(kind, state, inactive=False):
-    color = MUTED if inactive else GREEN
-    bg = (23, 34, 30, 0)
+    color = MUTED if inactive else PALE
+    outline = EDGE
+    bg = (27, 42, 35, 210) if inactive else (35, 60, 47, 250)
+    if not inactive and kind == "close":
+        color = (255, 226, 226, 255)
+        bg = (101, 38, 42, 255)
+        outline = (255, 111, 115, 255)
     if state == "prelight":
-        bg = (57, 230, 140, 44)
+        bg = (57, 230, 140, 255)
+        color = (7, 32, 21, 255)
+        outline = (135, 255, 193, 255)
+        if kind == "close":
+            bg = (220, 56, 66, 255)
+            color = (255, 255, 255, 255)
+            outline = (255, 180, 181, 255)
     elif state == "pressed":
-        bg = (8, 120, 76, 210)
-    elif inactive:
-        bg = (30, 43, 37, 190)
+        bg = (8, 120, 76, 255)
+        color = PALE
+        outline = GREEN
+        if kind == "close":
+            bg = (150, 35, 43, 255)
+            outline = (255, 111, 115, 255)
 
     def draw(d, size):
         w, h = size
-        d.rounded_rectangle((1, 1, w - 2, h - 2), radius=8, fill=bg,
-                            outline=(52, 72, 62, 255) if state != "active" else None, width=1)
+        d.rounded_rectangle((1, 1, w - 2, h - 2), radius=9, fill=bg,
+                            outline=outline, width=1)
         cx, cy = w // 2, h // 2
-        stroke = 3
+        stroke = 4
         if kind == "close":
-            r = 6
+            r = 9
             d.line((cx-r, cy-r, cx+r, cy+r), fill=color, width=stroke)
             d.line((cx+r, cy-r, cx-r, cy+r), fill=color, width=stroke)
         elif kind == "hide":
-            d.line((cx-7, cy+5, cx+7, cy+5), fill=color, width=stroke)
+            d.line((cx-9, cy+6, cx+9, cy+6), fill=color, width=stroke)
         elif kind == "maximize":
-            d.rectangle((cx-7, cy-7, cx+7, cy+7), outline=color, width=stroke)
+            d.rectangle((cx-9, cy-9, cx+9, cy+9), outline=color, width=stroke)
         elif kind == "menu":
-            for yy in (-5, 0, 5):
-                d.line((cx-7, cy+yy, cx+7, cy+yy), fill=color, width=stroke)
+            for yy in (-7, 0, 7):
+                d.line((cx-9, cy+yy, cx+9, cy+yy), fill=color, width=stroke)
         elif kind == "shade":
             d.line((cx-7, cy-3, cx, cy+5, cx+7, cy-3), fill=color, width=stroke, joint="curve")
         elif kind == "stick":
@@ -60,11 +74,11 @@ def edge(name, color, vertical=True, corner=False):
             d.rectangle((0, 0, w-1, h-1), fill=color)
             d.line((0, h-1, w-1, h-1), fill=EDGE, width=1)
             d.line((w-1, 0, w-1, h-1), fill=EDGE, width=1)
-        save(name, (10, 10), draw)
+        save(name, (6, 6), draw)
     elif vertical:
-        save(name, (2, 10), lambda d, s: (d.rectangle((0,0,1,9), fill=color), d.line((1,0,1,9), fill=EDGE)))
+        save(name, (2, 5), lambda d, s: (d.rectangle((0,0,1,4), fill=color), d.line((1,0,1,4), fill=EDGE)))
     else:
-        save(name, (10, 2), lambda d, s: (d.rectangle((0,0,9,1), fill=color), d.line((0,1,9,1), fill=EDGE)))
+        save(name, (5, 2), lambda d, s: (d.rectangle((0,0,4,1), fill=color), d.line((0,1,4,1), fill=EDGE)))
 
 OUT.mkdir(parents=True, exist_ok=True)
 for state, color in (("active", ACTIVE), ("inactive", INACTIVE)):

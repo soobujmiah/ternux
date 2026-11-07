@@ -127,7 +127,7 @@ if env TERNUX_STATE_DIR="$TMP/state-welcome" HOME="$TMP/home-welcome" \
     tnx_phase_debian alice >/dev/null &&
       grep -q "Exec=/usr/local/bin/ternux-welcome" "$MARKER" &&
       grep -q "mousepad.*fonts-noto-core.*ibus ibus-avro devilspie2" "$1/lib/phases.sh" &&
-      grep -q "xfce4-taskmanager.*xfce4-terminal zenity vlc ffmpeg guvcview ristretto qt5-gtk-platformtheme colord" "$1/lib/phases.sh" &&
+      grep -q "xfce4-taskmanager.*xfce4-terminal zenity vlc ffmpeg ristretto qt5-gtk-platformtheme colord" "$1/lib/phases.sh" &&
       grep -q "vout=xcb_x11" "$1/lib/phases.sh" &&
       grep -q "avcodec-hw=none" "$1/lib/phases.sh" &&
       grep -q "qt-minimal-view=0" "$1/lib/phases.sh" &&
@@ -159,7 +159,7 @@ if env TERNUX_STATE_DIR="$TMP/state-welcome" HOME="$TMP/home-welcome" \
       grep -q "Sobuj Miah" "$1/lib/ternux-welcome-gui.py" &&
       python3 -m py_compile "$1/lib/ternux-welcome-gui.py" &&
       grep -q "ternux_assets_b64" "$1/lib/phases.sh" && grep -q "ternux-camera.py" "$1/lib/phases.sh" &&
-      grep -q "guvcview" "$1/lib/phases.sh" && grep -q "ristretto" "$1/lib/phases.sh" && grep -q "QT_QPA_PLATFORMTHEME=gtk3" "$1/lib/phases.sh" && grep -q "ternux-panel-shortcuts" "$1/lib/phases.sh" && grep -q "01-aurora-circuit.svg" "$1/lib/phases.sh" &&
+      grep -q "apt remove -y.*guvcview" "$1/lib/phases.sh" && ! grep -q "vlc ffmpeg guvcview" "$1/lib/phases.sh" && grep -q "ristretto" "$1/lib/phases.sh" && grep -q "QT_QPA_PLATFORMTHEME=gtk3" "$1/lib/phases.sh" && grep -q "ternux-panel-shortcuts" "$1/lib/phases.sh" && grep -q "01-aurora-circuit.svg" "$1/lib/phases.sh" &&
       grep -q "/Net/ThemeName" "$1/lib/phases.sh"
   ' _ "$ROOT"; then
   ok "first-run welcome, optional Firefox, Zenity, VLC XCB output are guest-managed"
@@ -443,7 +443,30 @@ for asset in (root / "lib/ternux-assets").rglob("*"):
         destination = "lib/ternux/ternux-assets/" + asset.relative_to(root / "lib/ternux-assets").as_posix()
         assert files.get(destination, {}).get("source") == asset.relative_to(root).as_posix()
 assert "Inherits=Papirus-Dark,Adwaita,hicolor" in (root / "lib/ternux-assets/icons/Ternux/index.theme").read_text()
-assert len(list((root / "lib/ternux-assets/wallpapers").glob("*.svg"))) == 7
+wallpapers = list((root / "lib/ternux-assets/wallpapers").glob("*.svg"))
+assert len(wallpapers) == 15
+assert len({wallpaper.read_bytes() for wallpaper in wallpapers}) == 15
+assert all('viewBox="0 0 900 1600"' in wallpaper.read_text() for wallpaper in wallpapers)
+assert all('preserveAspectRatio="xMidYMid slice"' in wallpaper.read_text() for wallpaper in wallpapers)
+custom_categories = root / "lib/ternux-assets/icons/Ternux/scalable/categories"
+for icon in ("applications-accessories", "applications-graphics", "applications-multimedia",
+             "preferences-desktop", "applications-development", "applications-games",
+             "applications-internet", "applications-office", "applications-science",
+             "applications-other", "preferences-desktop-wallpaper", "preferences-desktop-peripherals",
+             "preferences-desktop-personal", "preferences-desktop-screensaver"):
+    assert (custom_categories / f"{icon}.svg").is_file()
+places_icons = root / "lib/ternux-assets/icons/Ternux/scalable/places"
+assert (places_icons / "user-trash.svg").is_file()
+assert (places_icons / "user-trash-full.svg").is_file()
+panel_icons = root / "lib/ternux-assets/icons/Ternux/scalable/apps"
+for icon in ("org.xfce.panel.applicationsmenu", "org.xfce.panel.showdesktop",
+             "org.xfce.panel.directorymenu", "org.xfce.panel.actions", "org.xfce.panel.pager",
+             "folder-new", "document-new", "insert-link", "edit-paste",
+             "window-new", "view-sort-ascending"):
+    assert (panel_icons / f"{icon}.svg").is_file()
+xfwm_config = (root / "lib/ternux-assets/themes/Ternux/xfwm4/themerc").read_text()
+assert "button_offset=3" in xfwm_config and "button_spacing=3" in xfwm_config
+assert "image-style --create -t int -s 4" in (root / "lib/phases.sh").read_text()
 assert (root / "lib/ternux-assets/themes/Ternux/gtk-4.0/gtk.css").is_file()
 gtk4_theme = (root / "lib/ternux-assets/themes/Ternux/gtk-4.0/gtk.css").read_text()
 assert 'resource:///org/gtk/libgtk/theme/Default/gtk-dark.css' in gtk4_theme
@@ -470,7 +493,10 @@ assert 'wait_for_audio(self.partial, "aac", deadline=20)' in recorder
 assert 'stream=codec_name:format=duration' in recorder
 assert 'Recovery copy remains in' in recorder
 assert 'with_suffix(".partial" + self.target.suffix)' in recorder
-assert "ffmpeg guvcview ristretto" in (root / "lib/phases.sh").read_text()
+assert "ffmpeg ristretto" in (root / "lib/phases.sh").read_text()
+desktop_phase = (root / "lib/phases.sh").read_text()
+assert "apt remove -y \\$DPKG_FORCE guvcview" in desktop_phase
+assert not next(line for line in desktop_phase.splitlines() if "apt install -y \\$DPKG_FORCE sudo nano" in line).strip().endswith("guvcview")
 camera = (root / "lib/ternux-camera.py").read_text()
 assert "GdkPixbuf.Pixbuf.new_from_file_at_scale" in camera
 assert "pixbuf.apply_embedded_orientation()" in camera
@@ -481,7 +507,8 @@ assert "partial.unlink(missing_ok=True)" in camera
 assert 'OUTPUT_DIR = Path.home() / "Pictures" / "Ternux"' in camera
 assert 'API_CAPTURE_DIR = TERMUX_HOME / ".cache" / "ternux-camera"' in camera
 assert 'Back camera selected' in camera and 'self.camera.set_active_id(back)' in camera
-assert 'Termux:API only returns captured photos' in camera
+assert 'Termux:API returned without creating the photo file.' in camera
+assert "guvcview" not in camera and "Webcam" not in camera
 assert "Ternux Sound Recorder" in (root / "lib/phases.sh").read_text()
 assert "ternux-recorder.desktop" in (root / "lib/ternux-panel-shortcuts.sh").read_text()
 PYMANIFEST
@@ -549,7 +576,7 @@ if env TERNUX_STATE_DIR="$TMP/state-launcher" HOME="$launcher_home" bash -c '
   grep -Fq "pkill -TERM -x ibus-daemon" "$HOME/x.sh" &&
   grep -Fq "unset IBUS_ADDRESS" "$HOME/x.sh" &&
   ! grep -q -- "--env IBUS_ADDRESS=" "$HOME/x.sh" &&
-  grep -q "image-style --create -t int -s 5" "$1/lib/phases.sh" &&
+  grep -q "image-style --create -t int -s 4" "$1/lib/phases.sh" &&
   grep -Fq "monitor0/workspace0/last-image" "$1/lib/phases.sh" &&
   grep -Fq "monitor1/workspace0/last-image" "$1/lib/phases.sh" &&
   grep -q "pgrep -x xfdesktop" "$1/lib/phases.sh" &&

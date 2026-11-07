@@ -97,11 +97,6 @@ class TernuxCamera(Gtk.Window):
         self.status.set_line_wrap(True)
         root.pack_start(self.status, False, False, 0)
 
-        self.webcam = Gtk.Label()
-        self.webcam.set_xalign(0)
-        self.webcam.set_line_wrap(True)
-        root.pack_start(self.webcam, False, False, 0)
-
         self.capture = Gtk.Button(label="Take photo")
         self.capture.get_style_context().add_class("suggested-action")
         self.capture.get_style_context().add_class("ternux-primary")
@@ -119,15 +114,11 @@ class TernuxCamera(Gtk.Window):
         self.open_folder = Gtk.Button(label="Photos")
         self.open_folder.set_tooltip_text("Open Ternux photo folder")
         self.open_folder.connect("clicked", self.open_save_folder)
-        self.webcam_button = Gtk.Button(label="Webcam")
-        self.webcam_button.set_tooltip_text("Open a connected Linux webcam")
-        self.webcam_button.connect("clicked", self.open_webcam)
-        for button in (self.open_photo, self.open_folder, self.webcam_button):
+        for button in (self.open_photo, self.open_folder):
             button.get_style_context().add_class("ternux-compact")
             actions.pack_start(button, True, True, 0)
         root.pack_start(actions, False, False, 0)
 
-        self.update_webcam_status()
         self.show_all()
         self.load_cameras()
 
@@ -296,28 +287,6 @@ class TernuxCamera(Gtk.Window):
             Gio.AppInfo.launch_default_for_uri(folder.as_uri(), None)
         except (OSError, GLib.Error) as exc:
             self.status.set_text(f"Could not open {OUTPUT_DIR}: {exc}")
-
-    def update_webcam_status(self):
-        devices = [d for d in sorted(Path("/dev").glob("video[0-9]*")) if os.access(d, os.R_OK | os.W_OK)]
-        self.webcam_devices = devices
-        available = bool(devices) and subprocess.call(["sh", "-c", "command -v guvcview >/dev/null 2>&1"]) == 0
-        self.webcam_button.set_sensitive(available)
-        if available:
-            self.webcam.set_text("USB/Linux webcam ready: " + ", ".join(map(str, devices)))
-        elif devices:
-            self.webcam.set_text("Video device found, but guvcview is unavailable. Install guvcview to preview it.")
-        else:
-            self.webcam.set_text("Android still-photo capture is available. Live preview needs an Android camera stream or Linux /dev/video device; Termux:API only returns captured photos.")
-
-    def open_webcam(self, *_):
-        if not self.webcam_devices:
-            return
-        try:
-            subprocess.Popen(["guvcview", "--device=" + str(self.webcam_devices[0])],
-                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
-            self.status.set_text("Opening the Linux webcam preview…")
-        except OSError as exc:
-            self.status.set_text(f"Could not start guvcview: {exc}")
 
 
 if __name__ == "__main__":
