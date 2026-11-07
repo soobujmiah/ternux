@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 """Ternux Recorder: on-demand Android microphone recording for Debian PRoot."""
 import json
+import math
 import os
 from pathlib import Path
 import shutil
 import subprocess
 import threading
+import time
 from datetime import datetime
 
 import gi
@@ -18,6 +20,34 @@ FFPROBE = "/usr/bin/ffprobe"
 TERMUX_HOME = Path("/data/data/com.termux/files/home")
 STAGING = TERMUX_HOME / ".cache" / "ternux-recorder"
 OUTPUT = Path.home() / "Music" / "Ternux"
+
+
+def probe_audio(path, expected_codec, timeout=5):
+    """Return metadata only after ffprobe can read a finalized audio file."""
+    result = subprocess.run(
+        [FFPROBE, "-v", "error", "-select_streams", "a:0",
+         "-show_entries", "stream=codec_name:format=duration", "-of", "json", str(path)],
+        check=True, capture_output=True, text=True, timeout=timeout)
+    data = json.loads(result.stdout)
+    streams = data.get("streams", [])
+    duration = float(data.get("format", {}).get("duration", 0))
+    if not streams or streams[0].get("codec_name") != expected_codec or not math.isfinite(duration) or duration <= 0:
+        raise RuntimeError(f"Audio verification failed (expected {expected_codec}, positive duration).")
+    return duration
+
+
+def wait_for_audio(path, expected_codec, deadline=20):
+    """Wait for Android MediaRecorder to finalize the container after stop."""
+    end = time.monotonic() + deadline
+    last_error = "file is not ready"
+    while time.monotonic() < end:
+        try:
+            if Path(path).is_file() and Path(path).stat().st_size >= 1024:
+                return probe_audio(path, expected_codec, timeout=3)
+        except (OSError, subprocess.SubprocessError, ValueError, json.JSONDecodeError, RuntimeError) as exc:
+            last_error = str(exc) or type(exc).__name__
+        time.sleep(0.25)
+    raise RuntimeError(f"Android recording did not finalize as {expected_codec}: {last_error[:160]}")
 
 
 class Recorder(Gtk.Window):
@@ -132,8 +162,7 @@ class Recorder(Gtk.Window):
                 GLib.idle_add(self.recording_started)
             except (OSError, subprocess.SubprocessError, RuntimeError) as exc:
                 detail = getattr(exc, "stderr", "") or str(exc)
-                if self.partial:
-                    self.partial.unlink(missing_ok=True)
+                # Preserve any bytes captured before an API/start failure for recovery.
                 GLib.idle_add(self.recording_failed, f"Could not start recording: {detail[:240]}")
         threading.Thread(target=work, daemon=True).start()
 
@@ -166,16 +195,8 @@ class Recorder(Gtk.Window):
                                    text=True, timeout=20)
                 if not self.partial or not self.target:
                     raise RuntimeError("Recording state was lost.")
-                # MediaRecorder finalizes the container asynchronously after quit.
-                for _ in range(50):
-                    if self.partial.is_file() and self.partial.stat().st_size >= 1024:
-                        break
-                    threading.Event().wait(0.1)
-                if not self.partial.is_file() or self.partial.stat().st_size < 1024:
-                    raise RuntimeError("Android returned no complete audio file.")
-                with self.partial.open("rb") as audio:
-                    if audio.read(8)[4:8] != b"ftyp":
-                        raise RuntimeError("Android output is not a valid MPEG-4/AAC audio file.")
+                # Termux:API returns before Android writes the MP4 moov atom.
+                wait_for_audio(self.partial, "aac", deadline=20)
                 OUTPUT.mkdir(parents=True, exist_ok=True)
                 temporary = self.target.with_suffix(".partial" + self.target.suffix)
                 if self.target.suffix == ".mp3":
@@ -186,11 +207,7 @@ class Recorder(Gtk.Window):
                                        check=True, capture_output=True, text=True, timeout=1800)
                         if not temporary.is_file() or temporary.stat().st_size < 1024:
                             raise RuntimeError("FFmpeg did not produce a complete MP3 file.")
-                        probe = subprocess.run([FFPROBE, "-v", "error", "-select_streams", "a:0",
-                                                "-show_entries", "stream=codec_name", "-of", "default=nw=1:nk=1",
-                                                str(temporary)], check=True, capture_output=True, text=True, timeout=30)
-                        if probe.stdout.strip() != "mp3":
-                            raise RuntimeError("The exported audio did not verify as MP3.")
+                        probe_audio(temporary, "mp3", timeout=30)
                     except (OSError, subprocess.SubprocessError, RuntimeError) as exc:
                         temporary.unlink(missing_ok=True)
                         fallback = self.target.with_suffix(".m4a")
@@ -200,6 +217,7 @@ class Recorder(Gtk.Window):
                             dest.flush()
                             os.fsync(dest.fileno())
                         os.chmod(fallback_tmp, 0o644)
+                        wait_for_audio(fallback_tmp, "aac", deadline=1)
                         os.replace(fallback_tmp, fallback)
                         self.partial.unlink(missing_ok=True)
                         GLib.idle_add(self.recording_saved, fallback,
@@ -210,17 +228,17 @@ class Recorder(Gtk.Window):
                         shutil.copyfileobj(source, dest, 1024 * 1024)
                         dest.flush()
                         os.fsync(dest.fileno())
+                    wait_for_audio(temporary, "aac", deadline=1)
                 os.chmod(temporary, 0o644)
                 os.replace(temporary, self.target)
                 self.partial.unlink(missing_ok=True)
                 GLib.idle_add(self.recording_saved, self.target)
             except (OSError, subprocess.SubprocessError, RuntimeError) as exc:
                 detail = getattr(exc, "stderr", "") or str(exc)
-                if self.partial:
-                    self.partial.unlink(missing_ok=True)
                 if self.target:
                     self.target.with_suffix(".partial" + self.target.suffix).unlink(missing_ok=True)
-                GLib.idle_add(self.recording_failed, f"Recording could not be saved: {detail[:240]}")
+                recovery = f" Recovery copy remains in {self.partial}." if self.partial and self.partial.exists() else ""
+                GLib.idle_add(self.recording_failed, f"Recording could not be verified/saved: {detail[:200]}.{recovery}")
         threading.Thread(target=work, daemon=True).start()
 
     def recording_saved(self, path, note=None):

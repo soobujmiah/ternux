@@ -462,7 +462,10 @@ assert 'Path.home() / "Music" / "Ternux"' in recorder
 assert 'self.format_combo.set_active_id("aac")' in recorder
 assert 'self.format_combo.append("mp3", "MP3 · 128 kbps")' in recorder
 assert '"-codec:a", "libmp3lame", "-b:a", "128k"' in recorder
-assert 'probe.stdout.strip() != "mp3"' in recorder
+assert 'probe_audio(temporary, "mp3"' in recorder
+assert 'wait_for_audio(self.partial, "aac", deadline=20)' in recorder
+assert 'stream=codec_name:format=duration' in recorder
+assert 'Recovery copy remains in' in recorder
 assert 'with_suffix(".partial" + self.target.suffix)' in recorder
 assert "ffmpeg guvcview ristretto" in (root / "lib/phases.sh").read_text()
 camera = (root / "lib/ternux-camera.py").read_text()
