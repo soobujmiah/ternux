@@ -125,3 +125,35 @@ and the optional extension prerelease was published from main by workflow run
 The earlier extracted workflow candidate archive had SHA-256
 `a193996aef0efd6d1843957fb9a77ac36edbf47edb30bd366d13c0c1a538cb29`.
 The model and generated outputs remain outside the Git repository.
+
+## Clean guest optional dependency provisioning (2026-11-07)
+
+I installed a separate Debian 13 Trixie PRoot guest named `ternux-clean-apt`; the active Debian guest and its extension tree were left unchanged. The rootfs started without `sudo`, `libgomp1`, or `libvulkan1`. I then provisioned the base Ternux preconditions (`sudo` plus the `ternux` user/passwordless sudo), and invoked the repository's actual `tnx_phase_extras ternux stable-diffusion` phase with its guest-login target bound to the isolated alias. APT installed the previously absent `libgomp1` and `libvulkan1` and their Debian runtime dependencies. The real extension manager downloaded the public pinned archive and checksum, verified and installed it under the clean guest's `/home/ternux/.local/opt/ternux-extensions/stable-diffusion`.
+
+Post-install checks on that guest:
+
+- `TERNUX_DISTRO=ternux-clean-apt TERNUX_USER=ternux bash bin/ternux doctor extensions --json` returned overall status `ok`; the extension check identified `ternux-stable-diffusion-vulkan-linux-arm64-master-1053` as installed, with no extension warnings or failures.
+- The guest reported Debian GNU/Linux 13 (Trixie), glibc 2.41; `sd-cli --help` started successfully.
+- `ldd -r` resolved `libgomp.so.1`, `libvulkan.so.1`, and all other dynamic dependencies without missing libraries or undefined symbols.
+- Installed Debian runtime versions were `libgomp1 14.2.0-19` and `libvulkan1 1.4.309.0-1`.
+
+This closes clean-guest dependency provisioning and managed artifact installation for the optional extension. The clean guest did not receive the Ternux Turnip overlay or a model workload; this test does not qualify GPU image generation in a clean guest. Fresh-install menu selection, clean-guest graphics setup, cancellation/restart, sustained use, and broader device/model coverage remain open. The known-good Adreno workload evidence remains the separate existing-device test above.
+
+Reproduction outline from the Ternux Termux host:
+
+```bash
+proot-distro install --name ternux-clean-apt debian:trixie
+# In that isolated guest, install the Ternux base precondition sudo, create
+# user ternux, and configure passwordless sudo. Then, from the repository:
+ROOT="$PWD"
+. "$ROOT/lib/phases.sh"
+_TNX_DISTRO=ternux-clean-apt
+export _TNX_DISTRO
+# Bind the installer phase to this isolated alias; the extension dispatch also
+# reads _TNX_DISTRO after loading the project core functions.
+tnx_guest_login() { proot-distro login ternux-clean-apt "$@"; }
+_TNX_SRC="$ROOT"
+export _TNX_SRC
+tnx_phase_extras ternux stable-diffusion
+TERNUX_DISTRO=ternux-clean-apt TERNUX_USER=ternux bash bin/ternux doctor extensions --json
+```
