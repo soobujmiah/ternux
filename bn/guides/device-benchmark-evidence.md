@@ -1019,6 +1019,12 @@ Median generation rate আগের একই model ও prompt-এর 24.8 tok/s
 
 একই guest ও artifact-এ HTP `MUL_MAT` correctness 1,588/1,588 test complete করেছে; `GATED_DELTA_NET` 43/43 complete করেছে। সম্পূর্ণ `FLASH_ATTN_EXT` suite DSP `INTERNAL-ERROR` দিয়ে abort করেছে (child exit `-6`); backend-supported subset (`kv=1024, nb=32`) বেছে চালালেও একই abort এসেছে। দুই run-এই broker CDSP `closeSession` reply `[0, 0]` দিয়ে clean close করেছে। তাই candidate-টি **সব operator-এর জন্য qualify হয়নি**। Ternux production HTP launcher আগের tested HVX matmul route-এ এবং flash attention বন্ধ রেখেছে। Candidate-টি extension হিসেবে install হয়নি, upstream PR-কেও release-ready প্রমাণ করে না।
 
+### ২০২৬-১১-০৭ HTP দীর্ঘ generation-এর তাপমাত্রা সীমায় cancellation
+
+আগে থেকে থাকা `/sdcard/LAI/models/qwen2.5-1.5b-instruct-q4_k_m.gguf` সরাসরি ব্যবহার করে installed experimental HTP runner-এ 4,096-token cap-এর generation শুরু হয়েছিল (`-t 4 -tb 4 -c 6144 -b 128 -ub 128`, temperature 0, seed 42, `--ignore-eos`)। Run-এর আগে battery temperature ছিল 40.4 °C। Live battery sample 43.0 °C হওয়ার পর SIGINT পাঠাই; থামার পরপর sample ছিল 43.3 °C এবং সব system thermal zone-এর মধ্যে সর্বোচ্চ sample ছিল 68.5 °C (zone-গুলো CPU/GPU/NPU হিসেবে চিহ্নিত করা হয়নি)। আংশিক run-এ generation rate ছিল 12.9 tok/s। Broker child cancel signal 2-সহ exit 0 দিয়েছে; CDSP `closeSession`-এর transport status 0 এবং reply `[0, 0]`। এরপর আর HTP process চলছিল না।
+
+এটি তাপমাত্রা সীমায় ইচ্ছাকৃতভাবে থামানো run; সম্পূর্ণ 4,096-token generation বা thermal-safety qualification নয়। তৈরি হওয়া text পুনরাবৃত্তিমূলক ছিল এবং hardware সম্পর্কে ভুল দাবি করেছে; এই stress prompt/run-কে answer-quality evidence হিসেবে ধরা হয়নি। Prompt, context ও duration আলাদা হওয়ায় অন্য run-এর সঙ্গে speed তুলনা করবেন না। মাপগুলো লেখার পর raw output `/tmp/ternux-htp-sustained-4096-20261107.log` থেকে সরানো হয়েছে। Battery 41.9 °C-এ ঠান্ডা হলে একই model দিয়ে নতুন cold-start run-এ উত্তর `4` এসেছে; broker child exit 0 এবং CDSP close reply `[0, 0]`। এই আট-token check-এ generation 16.7 tok/s ছিল। এটি শুধু একটি controlled cancel-এর পর পুনরায় চালুর প্রমাণ।
+
 ## রেফারেন্স
 
 - [glmark2](https://github.com/glmark2/glmark2)
