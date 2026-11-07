@@ -985,6 +985,23 @@ for run in 1 2 3; do
 done
 ```
 
+### 2026-11-07 SM8735 integer-HMX candidate probe
+
+A build-only [CI run 42348072918](https://github.com/soobujmiah/ternux/actions/runs/42348072918) produced a disposable artifact from the unmerged [llama.cpp PR #29740](https://github.com/ggml-org/llama.cpp/pull/29740), commit `08c83734f9c5c3b497e98b96f1a380f5a6084468`. The archive SHA-256 was `52877aad044c6da3f701d0230fde86520ce26066a412118bfb93e1a6f238de0a`. I verified the checksum and installed the extracted files only in the isolated `ternux-clean-apt` Debian guest; the production HTP extension and active Debian desktop were not changed.
+
+On SM8735 / HTP V73, llama.cpp detected `HMX FP16: no` and selected its integer-HMX route. With the existing model `/sdcard/Llms/qwen2.5-0.5b-instruct-q4_0.gguf` (SHA-256 `7671c0c304e6ce5a7fc577bcb12aba01e2c155cc2efd29b2213c95b18edaf6ed`), the deterministic prompt used in the earlier matched benchmark, 64 generated tokens, context 2048, batch/ubatch 128, four threads, temperature 0, seed 42, and flash attention off produced:
+
+| Run | Prompt tok/s | Generation tok/s | HTP placement | Broker close |
+|---|---:|---:|---|---|
+| 1 | 303.4 | 48.5 | 25/25 layers | `[0, 0]` |
+| 2 | 299.3 | 47.3 | 25/25 layers | `[0, 0]` |
+| 3 | 295.7 | 49.7 | 25/25 layers | `[0, 0]` |
+| Median | 299.3 | 48.5 | 25/25 layers | clean |
+
+The median generation rate was about 1.95× the earlier 24.8 tok/s Adreno Vulkan result and 6.06× the earlier 8.0 tok/s CPU result for the same model and prompt. Those CPU/Vulkan measurements used a different llama.cpp build, so this is a directional comparison rather than a same-binary comparison. The file name calls this a 0.5B model, but its GGUF metadata previously reported 630.17M parameters; these results apply to the exact file.
+
+In the same guest and artifact, HTP `MUL_MAT` correctness completed 1,588/1,588 tests, and `GATED_DELTA_NET` completed 43/43. The full `FLASH_ATTN_EXT` suite aborted with a DSP `INTERNAL-ERROR` (child exit `-6`); a filtered, backend-reported supported subset (`kv=1024, nb=32`) reproduced the abort. In both cases the broker reported a clean CDSP `closeSession` reply `[0, 0]`. Therefore the candidate is **not** broadly operator-qualified. Ternux's production HTP launcher remains on the previously tested HVX matmul path with flash attention disabled. The candidate was not installed as an extension and does not qualify the upstream PR for release.
+
 ## References
 
 - [glmark2](https://github.com/glmark2/glmark2)
