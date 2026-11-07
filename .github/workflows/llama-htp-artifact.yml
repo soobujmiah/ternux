@@ -190,7 +190,7 @@ jobs:
       contents: write
     steps:
       - name: Download the exact build artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: ternux-llama-htp-sm8735-b11582
           path: release
