@@ -1,0 +1,7 @@
+event_id: commit-22e8ef74ed9d-06f8ca8c292f04f2
+repository: soobujmiah/ternux
+commit: 22e8ef74ed9d0e7246b1ee3c1d51fe2684a57ee8
+kind: commit
+occurred_at: '2026-11-07T12:59:49Z'
+status: completed
+summary: 'Merge pull request #90 from soobujmiah/feat/qnn-sd15-batch-context-reuse'
