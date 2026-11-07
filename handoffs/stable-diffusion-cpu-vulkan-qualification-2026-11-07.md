@@ -137,7 +137,7 @@ Post-install checks on that guest:
 - `ldd -r` resolved `libgomp.so.1`, `libvulkan.so.1`, and all other dynamic dependencies without missing libraries or undefined symbols.
 - Installed Debian runtime versions were `libgomp1 14.2.0-19` and `libvulkan1 1.4.309.0-1`.
 
-This closes clean-guest dependency provisioning and managed artifact installation for the optional extension. The clean guest did not receive the Ternux Turnip overlay or a model workload; this test does not qualify GPU image generation in a clean guest. Fresh-install menu selection, clean-guest graphics setup, cancellation/restart, sustained use, and broader device/model coverage remain open. The known-good Adreno workload evidence remains the separate existing-device test above.
+This closes clean-guest dependency provisioning, managed artifact installation, Turnip setup, and a real GPU workload for the optional extension. The exact Ternux GPU phase installed the pinned Mesa 27.0.0 Turnip archive and license notices in this isolated guest. `vulkaninfo --summary` enumerated Adreno 825 as Vulkan GPU0 (`turnip Mesa driver`, Mesa 27.0.0-devel); llvmpipe appeared separately as GPU1. The existing Q8_0 model at `/sdcard/Llms/ternux-v2-validation/stable-diffusion-v1-5-pruned-emaonly-Q8_0.gguf` then generated a 512×512, 10-step tiled-Vulkan image in 91.18 s, with CLIP, diffusion model and VAE all assigned to Vulkan0. The PNG was valid and its SHA-256 `b59b0b3e43226b4ae484b433aadf4d681eb87de7ee300b78a9adc1029a2ec65a` exactly matches the previously reviewed same-seed output, confirming deterministic output across the two guest setups. The test output is retained temporarily at `/data/data/com.termux/files/usr/tmp/ternux-clean-guest-512-10.png`; the source model was read in place and not modified. This does not qualify a fresh X11 desktop or fresh-install menu selection. Cancellation/restart, sustained use, and broader device/model coverage remain open. The clean guest uses `ternux-clean-apt` and did not change the active Debian desktop.
 
 Reproduction outline from the Ternux Termux host:
 
@@ -156,4 +156,14 @@ _TNX_SRC="$ROOT"
 export _TNX_SRC
 tnx_phase_extras ternux stable-diffusion
 TERNUX_DISTRO=ternux-clean-apt TERNUX_USER=ternux bash bin/ternux doctor extensions --json
+# Install vulkan-tools as a test utility, then check Adreno discovery and run:
+proot-distro login ternux-clean-apt --user ternux -- bash -lc 'sudo apt-get install -y vulkan-tools && vulkaninfo --summary'
+proot-distro login ternux-clean-apt --user ternux --shared-tmp -- bash -lc '''
+  ext="$HOME/.local/opt/ternux-extensions/stable-diffusion"
+  . "$ext/env.sh"
+  sd-cli --backend vulkan0 --model /sdcard/Llms/ternux-v2-validation/stable-diffusion-v1-5-pruned-emaonly-Q8_0.gguf \
+    --prompt "a small red robot in a garden, clean illustration" --threads 4 \
+    --output /tmp/ternux-clean-guest-512-10.png --width 512 --height 512 \
+    --steps 10 --seed 42 --vae-tiling --vae-tile-size 256x256
+'''
 ```
