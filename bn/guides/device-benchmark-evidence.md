@@ -1025,6 +1025,12 @@ Median generation rate আগের একই model ও prompt-এর 24.8 tok/s
 
 এটি তাপমাত্রা সীমায় ইচ্ছাকৃতভাবে থামানো run; সম্পূর্ণ 4,096-token generation বা thermal-safety qualification নয়। তৈরি হওয়া text পুনরাবৃত্তিমূলক ছিল এবং hardware সম্পর্কে ভুল দাবি করেছে; এই stress prompt/run-কে answer-quality evidence হিসেবে ধরা হয়নি। Prompt, context ও duration আলাদা হওয়ায় অন্য run-এর সঙ্গে speed তুলনা করবেন না। মাপগুলো লেখার পর raw output `/tmp/ternux-htp-sustained-4096-20261107.log` থেকে সরানো হয়েছে। Battery 41.9 °C-এ ঠান্ডা হলে একই model দিয়ে নতুন cold-start run-এ উত্তর `4` এসেছে; broker child exit 0 এবং CDSP close reply `[0, 0]`। এই আট-token check-এ generation 16.7 tok/s ছিল। এটি শুধু একটি controlled cancel-এর পর পুনরায় চালুর প্রমাণ।
 
+### ২০২৬-১১-০৭ single-turn chat-format known-answer check (Qwen2.5 1.5B)
+
+আগে থেকে থাকা `/sdcard/LAI/models/qwen2.5-1.5b-instruct-q4_k_m.gguf` ফাইলটি সরানো বা পরিবর্তন না করে ব্যবহার করেছি (SHA-256 `6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e`)। CPU ও Vulkan একই installed b11582 binary ব্যবহার করেছে; HTP-তে installed managed experimental build `b1-af50f2f`। তিনটিই single-turn chat (`-st --simple-io --no-display-prompt`), context 2048, চার thread, batch/ubatch 128, temperature 0, seed 42, no warmup এবং সর্বোচ্চ 16 token দিয়ে একই prompt চালায়: “What is the capital of France? Answer with one word.” তিন route-ই `Paris` দিয়েছে। Reported generation rate CPU 3.3, Vulkan 16.6 এবং HTP 15.5 tok/s। HTP child exit 0 এবং CDSP `closeSession` reply `[0, 0]`।
+
+এটি একটি ছোট known-answer check; বিস্তৃত language-quality evidence নয়। সংক্ষিপ্ত, no-warmup rate backend ranking নয়; HTP আলাদা build-ও ব্যবহার করে।
+
 ## রেফারেন্স
 
 - [glmark2](https://github.com/glmark2/glmark2)
