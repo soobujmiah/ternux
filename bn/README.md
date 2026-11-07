@@ -81,9 +81,15 @@ Termux-এ `db` চালান। Debian-এর ভেতরে Android shared 
 **বেস desktop:** user-space PRoot container-এ Debian 13 (Trixie), Xfce4,
 Termux:X11 display integration এবং PulseAudio audio routing। বেস setup-এ
 Bangla-capable Noto font, Avro phonetic input (Ctrl+Space), VLC, PulseAudio
-Volume Control, Xfce Task Manager ও Mousepad থাকে। প্রথমবার GUI চালালে Firefox
-ESR থাকলে project website একবার খোলে; browser না থাকলে desktop-এর ভেতর welcome
-guide দেখায়। Sound Recorder-এ Start চাপলেই শুধু microphone চালু হয়; setup-এর সময় Termux:API permission চাওয়া হয়; তখন না পেলে প্রথম use-এ Android permission চাইতে পারে। AAC/M4A (default) অথবা MP3 format বেছে নেওয়া যায়; MP3 Debian-এর FFmpeg দিয়ে local-এ encode হয়। Recording Debian-এর `~/Music/Ternux`-এ থাকে। Firefox optional।
+Volume Control, Xfce Task Manager, Mousepad, Galculator, Xournal++ PDF
+reader/markup editor, Thunderbird mail client, Ternux Camera, Ternux Sound
+Recorder এবং Ristretto image viewer default-এ থাকে। Xournal++ annotation PDF,
+SVG বা PNG-তে export করে; বড় document edit/export-এর জন্য optional
+LibreOffice Draw আছে। Thunderbird mailto link খোলে এবং supported provider-এ
+OAuth sign-in ব্যবহার করে। Camera, Photos ও Sound Recorder-এর one-click shortcut
+Xfce panel-এ থাকে। প্রথমবার GUI চালালে Firefox ESR থাকলে project website একবার
+খোলে; browser না থাকলে desktop guide দেখায়। Sound Recorder-এ Start চাপলে mic
+চালু হয়; AAC/M4A বা MP3-তে save করা যায়।
 
 **Graphics:** সমর্থিত Adreno/KGSL device-এ স্বয়ংক্রিয় Zink + Turnip setup;
 অন্য ক্ষেত্রে VirGL compatibility route। সক্রিয় renderer দেখতে `ternux verify`
@@ -92,7 +98,7 @@ acceleration-এর প্রমাণ নয়। `ternux gpu` ও `ternux bac
 ও পরিচালনা করে। বিস্তারিত [graphics persistence](../docs/GRAPHICS-PERSISTENCE.md)।
 
 **ঐচ্ছিক software:** installer-এর numbered তালিকা থেকে package বা workload বেছে নিতে
-পারবেন। Developer toolchain ও editor, Android SDK/NDK, Firefox ও Thunderbird,
+পারবেন। Developer toolchain ও editor, Android SDK/NDK ও Firefox,
 local AI runtime, network utility, media/graphics app, office tool এবং Blender
 পছন্দ করা যায়। শুধু দরকারি জিনিস নিলে base install ছোট থাকে। `--all` profile
 install-এর পর প্রায় ১০.৫–১২.৫ GB নেয় এবং setup চলাকালে প্রায় ১৪ GB খালি জায়গা

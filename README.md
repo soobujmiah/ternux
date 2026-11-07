@@ -82,9 +82,13 @@ available at `/sdcard` inside Debian.
 **Base desktop:** Debian 13 (Trixie) in a user-space PRoot container, Xfce4,
 Termux:X11 display integration, and PulseAudio audio routing. The default setup
 includes Bangla-capable Noto fonts, Avro phonetic input (Ctrl+Space), VLC,
-PulseAudio Volume Control, Xfce Task Manager, Mousepad, Ternux Camera, Ternux Sound Recorder,
-and Ristretto image viewer. One-click Camera, Photos, and Sound Recorder shortcuts are on the
-Xfce panel. Qt5 applications such as VLC use the matching GTK platform theme. The systemwide graphite-and-emerald Ternux GTK theme covers apps, menus,
+PulseAudio Volume Control, Xfce Task Manager, Mousepad, Galculator, Xournal++
+PDF reader/markup editor, Thunderbird mail client, Ternux Camera, Ternux Sound
+Recorder, and Ristretto image viewer. Xournal++ exports annotations as PDF,
+SVG, or PNG; LibreOffice Draw is optional for broader PDF page editing and
+document export. Thunderbird handles mail links and supports OAuth sign-in
+with major providers. One-click Camera, Photos, and Sound Recorder shortcuts
+are on the Xfce panel. Qt5 applications such as VLC use the matching GTK platform theme. The systemwide graphite-and-emerald Ternux GTK theme covers apps, menus,
 and panel; custom Ternux Xfwm frames cover window borders and title bars. The
 Ternux icon theme includes original folder and app icons with Papirus-Dark
 fallback coverage, and 15 selectable portrait-first branded wallpapers that preserve their proportions in landscape. Ternux Camera lists
@@ -106,7 +110,7 @@ does not by itself prove hardware acceleration. `ternux gpu` and
 
 **Optional software:** the interactive installer lets you choose individual
 packages or workload groups. Choices include developer toolchains and editors,
-Android SDK/NDK tools, Firefox and Thunderbird, local AI runtimes, network
+Android SDK/NDK tools, Firefox, local AI runtimes, network
 utilities, media and graphics apps, office tools, and Blender. The base install
 stays smaller; choose only what you need. The `--all` profile needs roughly
 10.5–12.5 GB installed and about 14 GB free during setup. See

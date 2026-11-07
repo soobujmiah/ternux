@@ -33,7 +33,7 @@ does not waive the accelerator qualification gates.
 
 ### Desktop icon coverage audit — 2026-11-08
 
-The earlier 43-entry desktop audit found missing category and panel-plugin icon IDs that fell back to Papirus. Ternux now includes original icons for XFCE menu categories and the Applications, Show Desktop, and directory panel plugins. The earlier guvcview package and desktop override are removed; its still-photo camera flow remains the supported Android integration. The prior entry/icon count is historical and does not describe the new icon set.
+The earlier 43-entry desktop audit found missing category and panel-plugin icon IDs that fell back to Papirus. Ternux now includes original icons for XFCE menu categories and the Applications, Show Desktop, and directory panel plugins. The earlier guvcview package and desktop override are removed; its still-photo camera flow remains the supported Android integration. The prior entry/icon count is historical and does not describe the new icon set. A follow-up panel-size review removed the repeated enclosing badge frame from application, category, device, status, MIME-type, and non-folder place icons. Their glyphs retain Ternux colors and now have distinct silhouettes; folder icons and the standalone Ternux brand marks keep their own shapes. After adding Xournal++ and Thunderbird branding, the live Debian guest resolved custom Ternux icon names for all 54 installed desktop application entries; no current desktop entry fell back to an unthemed icon.
 
 ### Desktop camera gate — 2026-11-08
 

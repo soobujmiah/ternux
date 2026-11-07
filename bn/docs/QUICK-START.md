@@ -122,7 +122,7 @@ command-সহ একবারের welcome guide দেখাবে। প্�
 optional software তালিকা থেকে বেছে নেওয়া যায়।
 
 Noto Bengali font ও Avro IBus phonetic keyboard default-এ থাকে। English ও
-বাংলার মধ্যে cycle করতে IBus-এর **Next input method** shortcut **Ctrl+Space** করা থাকে। VLC, PulseAudio Volume Control, Xfce Task Manager, Mousepad text editor, Ternux Camera, Ternux Sound Recorder ও Ristretto image viewer base desktop-এ থাকে। Xfce panel-এ Camera, Photos ও Sound Recorder-এর one-click shortcut থাকে। Systemwide graphite-emerald Ternux GTK 2/3/4 theme, Qt 5 app-এর জন্য GTK platform theme, Xfwm
+বাংলার মধ্যে cycle করতে IBus-এর **Next input method** shortcut **Ctrl+Space** করা থাকে। VLC, PulseAudio Volume Control, Xfce Task Manager, Mousepad text editor, Galculator, Xournal++ PDF reader/markup editor, Thunderbird mail client, Ternux Camera, Ternux Sound Recorder ও Ristretto image viewer base desktop-এ থাকে। Xournal++ annotation PDF, SVG বা PNG-তে export করে; optional LibreOffice Draw দিয়ে আরও বিস্তৃত PDF page edit ও document export করা যায়। Thunderbird mailto link খোলে এবং supported provider-এ OAuth login ব্যবহার করে। Xfce panel-এ Camera, Photos ও Sound Recorder-এর one-click shortcut থাকে। Systemwide graphite-emerald Ternux GTK 2/3/4 theme, Qt 5 app-এর জন্য GTK platform theme, Xfwm
 window frame, Xfce panel styling ও Ternux icon theme default। নিজস্ব folder silhouette
 ও app icon-এর পাশাপাশি Papirus-Dark fallback-এ জনপ্রিয় ও পরে install করা app-এর icon
 coverage থাকে। Xfce Desktop settings থেকে বেছে নেওয়ার জন্য ১৫টি portrait-first Ternux wallpaper থাকে; landscape করলেও aspect ratio ঠিক থাকে;

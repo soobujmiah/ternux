@@ -29,7 +29,7 @@ accelerator qualification gate-গুলোর বিকল্প নয়।
 
 ### Desktop icon coverage audit — ২০২৬-১১-০৮
 
-আগের ৪৩-entry desktop audit-এ XFCE menu category ও panel plugin-এর কিছু icon ID Papirus fallback-এ পড়েছিল। এখন Ternux theme-এ menu category এবং Applications, Show Desktop ও directory panel plugin-এর নিজস্ব icon আছে। আগের guvcview package ও desktop override সরানো হয়েছে; Android still-photo camera flow-ই সমর্থিত integration। আগের entry/icon সংখ্যা historical, নতুন icon set-এর count নয়।
+আগের ৪৩-entry desktop audit-এ XFCE menu category ও panel plugin-এর কিছু icon ID Papirus fallback-এ পড়েছিল। এখন Ternux theme-এ menu category এবং Applications, Show Desktop ও directory panel plugin-এর নিজস্ব icon আছে। আগের guvcview package ও desktop override সরানো হয়েছে; Android still-photo camera flow-ই সমর্থিত integration। আগের entry/icon সংখ্যা historical, নতুন icon set-এর count নয়। Panel-size পর্যালোচনায় application, category, device, status, MIME type এবং folder নয় এমন place icon থেকে একই enclosing badge সরানো হয়েছে। Glyph-গুলো Ternux-এর রং রাখে, কিন্তু এখন আলাদা silhouette-এ দেখা যায়; folder icon ও Ternux brand mark-এর নিজস্ব shape রাখা হয়েছে। Xournal++ ও Thunderbird icon যোগ করার পর live Debian guest-এর ৫৪টি desktop application entry-তেই custom Ternux icon resolve হয়েছে; কোনো installed desktop entry unthemed fallback-এ যায়নি।
 
 ### Desktop camera gate — ২০২৬-১১-০৮
 

@@ -126,7 +126,7 @@ if env TERNUX_STATE_DIR="$TMP/state-welcome" HOME="$TMP/home-welcome" \
     tnx_guest_login(){ if [ "${3:-}" = bash ] && [ "${4:-}" = -c ] && [[ "$5" == *ternux-welcome.desktop* ]]; then printf "%s\n" "$5" > "$MARKER"; bash -n "$MARKER" || return 1; fi; return 0; }
     tnx_phase_debian alice >/dev/null &&
       grep -q "Exec=/usr/local/bin/ternux-welcome" "$MARKER" &&
-      grep -q "mousepad galculator mupdf.*fonts-noto-core.*ibus ibus-avro devilspie2" "$1/lib/phases.sh" &&
+      grep -q "mousepad galculator xournalpp thunderbird.*fonts-noto-core.*ibus ibus-avro devilspie2" "$1/lib/phases.sh" &&
       grep -q "xfce4-taskmanager.*xfce4-terminal zenity vlc ffmpeg ristretto qt5-gtk-platformtheme colord" "$1/lib/phases.sh" &&
       grep -q "vout=xcb_x11" "$1/lib/phases.sh" &&
       grep -q "avcodec-hw=none" "$1/lib/phases.sh" &&
@@ -443,6 +443,8 @@ for asset in (root / "lib/ternux-assets").rglob("*"):
         destination = "lib/ternux/ternux-assets/" + asset.relative_to(root / "lib/ternux-assets").as_posix()
         assert files.get(destination, {}).get("source") == asset.relative_to(root).as_posix()
 assert "Inherits=Papirus-Dark,Adwaita,hicolor" in (root / "lib/ternux-assets/icons/Ternux/index.theme").read_text()
+assert 'find "\\$asset_stage" -type d -exec chmod 0755 {} +' in (root / "lib/phases.sh").read_text()
+assert 'find "\\$asset_stage" -type f -exec chmod 0644 {} +' in (root / "lib/phases.sh").read_text()
 wallpapers = list((root / "lib/ternux-assets/wallpapers").glob("*.svg"))
 assert len(wallpapers) == 15
 assert len({wallpaper.read_bytes() for wallpaper in wallpapers}) == 15
@@ -477,6 +479,19 @@ for icon in ("org.xfce.panel.applicationsmenu", "org.xfce.panel.showdesktop",
              "user-bookmarks", "view-details", "view-grid", "view-list", "view-more-symbolic",
              "view-refresh", "view-sort-descending", "window-close", "window-close-symbolic"):
     assert (panel_icons / f"{icon}.svg").is_file()
+# Keep Ternux icons distinctive at panel size by avoiding the repeated generic
+# enclosing badge that previously made app/category/status glyphs look alike.
+shared_frames = (
+    'M32 4 55 17v30L32 60 9 47V17z',
+    'M16 2 29 9.5v13L16 30 3 22.5v-13z',
+    'M32 3 57 17v30L32 61 7 47V17z',
+    'm64 5 52 30v58l-52 30L12 93V35z',
+)
+icon_root = root / "lib/ternux-assets/icons/Ternux/scalable"
+for icon_dir in ("apps", "categories", "places", "devices", "status", "mimetypes"):
+    for icon_file in (icon_root / icon_dir).glob("*.svg"):
+        svg = icon_file.read_text()
+        assert not any(frame in svg for frame in shared_frames), icon_file
 xfwm_config = (root / "lib/ternux-assets/themes/Ternux/xfwm4/themerc").read_text()
 assert "button_offset=2" in xfwm_config and "button_spacing=1" in xfwm_config
 assert "frame_border_top=4" in xfwm_config
@@ -514,7 +529,7 @@ assert 'stream=codec_name:format=duration' in recorder
 assert 'Recovery copy remains in' in recorder
 assert 'with_suffix(".partial" + self.target.suffix)' in recorder
 assert "ffmpeg ristretto" in (root / "lib/phases.sh").read_text()
-assert "mousepad galculator mupdf" in (root / "lib/phases.sh").read_text()
+assert "mousepad galculator xournalpp thunderbird" in (root / "lib/phases.sh").read_text()
 assert (root / "lib/ternux-assets/icons/Ternux/scalable/apps/galculator.svg").is_file()
 desktop_phase = (root / "lib/phases.sh").read_text()
 assert "libreoffice-writer) workload_label=\"LibreOffice Writer\"" in desktop_phase
@@ -525,7 +540,11 @@ assert "Exec=thunar /sdcard" in sdcard_desktop.read_text()
 assert "Icon=drive-removable-media" in sdcard_desktop.read_text()
 assert r'install -m 0644 "\$asset_stage/applications/ternux-sdcard.desktop"' in desktop_phase
 assert 'Desktop/SD-Card.desktop' in desktop_phase
-assert "runuser -u \"\\$U\" -- env HOME=\"\\$H\" xdg-mime default mupdf.desktop application/pdf" in desktop_phase
+assert "runuser -u \"\\$U\" -- env HOME=\"\\$H\" xdg-mime default com.github.xournalpp.xournalpp.desktop application/pdf" in desktop_phase
+assert 'xdg-mime default thunderbird.desktop x-scheme-handler/mailto' in desktop_phase
+assert 'xdg-mime default thunderbird.desktop message/rfc822' in desktop_phase
+for icon in ("com.github.xournalpp.xournalpp", "thunderbird"):
+    assert (root / f"lib/ternux-assets/icons/Ternux/scalable/apps/{icon}.svg").is_file()
 assert not (root / "lib/ternux-assets/applications/ternux-pdf.desktop").exists()
 launcher_icon = (root / "lib/ternux-assets/icons/Ternux/scalable/apps/ternux-launcher.svg").read_text()
 assert "M32 20v24M20 32h24" not in launcher_icon
