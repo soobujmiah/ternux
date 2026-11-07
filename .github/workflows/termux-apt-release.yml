@@ -133,6 +133,7 @@ jobs:
           cp -a artifacts/ternux-apt/repository/. dist/apt/
           test -s dist/apt/dists/stable/InRelease
           test -s dist/apt/ternux-archive-key.asc
+          test -x dist/apt/bootstrap.sh
 
       - name: Upload Pages artifact
         if: inputs.mode == 'publish-v2'

@@ -154,7 +154,9 @@ With a terminal attached, the installer offers a numbered optional
 software chooser; Enter keeps the base desktop. `--yes` skips prompts and
 installs the base profile, while explicit `--with-*` flags or `--all` select
 additional workloads. The `pkg install ternux` package route is prepared for
-the v2 release but is not published yet; use the installer above for now. See
-the [Termux APT guide](docs/TERMUX-APT.md). Review the linked guides for
+the v2 release but is not published yet; use the installer above for now. After
+publication, a one-time verified bootstrap sets up the signed APT source and
+installs Ternux; later installs and updates use normal `pkg` commands. See the
+[Termux APT guide](docs/TERMUX-APT.md). Review the linked guides for
 requirements and exact commands. The published release and experimental CPU/GPU/NPU gates are tracked
 in [`docs/ACCELERATOR-RELEASE-PLAN.md`](docs/ACCELERATOR-RELEASE-PLAN.md).

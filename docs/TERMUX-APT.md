@@ -27,29 +27,36 @@ The key is an RSA 4096 signing key created on 2026-11-06 and expires on
 2031-11-05. The protected private key is held in the `apt-release` GitHub
 Actions environment; only the public key will be published with the repository.
 
-## Install after the repository is published
+## One-command install after the repository is published
+
+Install the small bootstrap prerequisites from the normal Termux repository,
+then let the project script verify the pinned primary-key fingerprint, configure
+APT with `signed-by`, refresh indexes, and install Ternux:
 
 ```bash
 pkg install curl gnupg
-install -d -m 700 "$PREFIX/etc/apt/keyrings"
-curl -fsSLo "$TMPDIR/ternux-archive-key.asc" \
-  https://soobujmiah.github.io/ternux/apt/ternux-archive-key.asc
-gpg --show-keys --with-fingerprint "$TMPDIR/ternux-archive-key.asc"
+curl -fsSLo "$TMPDIR/ternux-bootstrap.sh" \
+  https://soobujmiah.github.io/ternux/apt/bootstrap.sh
+bash "$TMPDIR/ternux-bootstrap.sh"
 ```
 
-Confirm the displayed primary fingerprint matches the value above, then add the
-repository and install its CLI package:
+After this one-time setup, updates and reinstall use ordinary Termux commands:
 
 ```bash
-gpg --dearmor --output "$PREFIX/etc/apt/keyrings/ternux.gpg" \
-  "$TMPDIR/ternux-archive-key.asc"
-chmod 600 "$PREFIX/etc/apt/keyrings/ternux.gpg"
-printf 'deb [signed-by=%s/etc/apt/keyrings/ternux.gpg] https://soobujmiah.github.io/ternux/apt stable main\n' \
-  "$PREFIX" > "$PREFIX/etc/apt/sources.list.d/ternux.list"
 pkg update
+pkg upgrade ternux
+# or, on a new device after the repository has been bootstrapped:
 pkg install ternux
-ternux install
 ```
 
-Never configure the repository with `[trusted=yes]`. Signed index verification
-and the fingerprint comparison are both part of the first-install trust check.
+To configure the verified repository without installing the package yet, run
+`bash "$TMPDIR/ternux-bootstrap.sh" --configure-only`, then use `pkg install
+ternux` when ready. The script is idempotent and refuses symlinked APT
+configuration paths or a signing key whose primary fingerprint does not match
+the value above. It never uses `[trusted=yes]`.
+
+Before the signed repository is published, the bootstrap URL will return 404;
+use the source installer in the README until the release workflow publishes
+v2. The project cannot make a brand-new Termux installation resolve
+`pkg install ternux` before this one-time trust setup unless Termux accepts
+Ternux into one of its own official package repositories.

@@ -144,5 +144,5 @@ script/scene render করানো যায়। [MCP guide](../tools/blender
 - [Benchmark](../docs/BENCHMARKS.md): মাপা device ফলাফল ও তার সীমা।
 - [পরিবর্তনলগ](../CHANGELOG.md)
 
-এখন `pkg install ternux` package route প্রস্তুত, তবে v2 release-এর আগে প্রকাশিত নয়; আপাতত উপরের installer ব্যবহার করুন। [Termux APT guide](../docs/TERMUX-APT.md) দেখুন। প্রকাশিত release ও পরীক্ষামূলক CPU/GPU/NPU release gate-এর বর্তমান অবস্থা
+এখন `pkg install ternux` package route প্রস্তুত, তবে v2 release-এর আগে প্রকাশিত নয়; আপাতত উপরের installer ব্যবহার করুন। প্রকাশের পরে একবার verified bootstrap signed APT source configure করে Ternux install করবে; পরের install ও update সাধারণ `pkg` command-এ হবে। [Termux APT guide](../docs/TERMUX-APT.md) দেখুন। প্রকাশিত release ও পরীক্ষামূলক CPU/GPU/NPU release gate-এর বর্তমান অবস্থা
 [`docs/ACCELERATOR-RELEASE-PLAN.md`](../docs/ACCELERATOR-RELEASE-PLAN.md)-এ।

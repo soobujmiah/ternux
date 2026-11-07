@@ -26,29 +26,35 @@ E552 7F4D 5B83 037F F77B 65AE 5E89 4BBB 8116 8B1D
 private key GitHub Actions-এর `apt-release` environment-এ আছে; repository-তে
 শুধু public key প্রকাশ হবে।
 
-## Repository প্রকাশের পরে install
+## প্রকাশের পরে এক কমান্ডে install
+
+প্রথমে Termux-এর স্বাভাবিক repository থেকে bootstrap-এর ছোট prerequisite
+install করুন। এরপর project script pinned primary-key fingerprint যাচাই করে,
+`signed-by` দিয়ে APT configure করে, index refresh ও Ternux install করবে:
 
 ```bash
 pkg install curl gnupg
-install -d -m 700 "$PREFIX/etc/apt/keyrings"
-curl -fsSLo "$TMPDIR/ternux-archive-key.asc" \
-  https://soobujmiah.github.io/ternux/apt/ternux-archive-key.asc
-gpg --show-keys --with-fingerprint "$TMPDIR/ternux-archive-key.asc"
+curl -fsSLo "$TMPDIR/ternux-bootstrap.sh" \
+  https://soobujmiah.github.io/ternux/apt/bootstrap.sh
+bash "$TMPDIR/ternux-bootstrap.sh"
 ```
 
-দেখানো primary fingerprint উপরের মানের সঙ্গে মিলিয়ে repository যোগ করে CLI
-install করুন:
+এই একবারের setup-এর পর update বা reinstall সাধারণ Termux command-এ হবে:
 
 ```bash
-gpg --dearmor --output "$PREFIX/etc/apt/keyrings/ternux.gpg" \
-  "$TMPDIR/ternux-archive-key.asc"
-chmod 600 "$PREFIX/etc/apt/keyrings/ternux.gpg"
-printf 'deb [signed-by=%s/etc/apt/keyrings/ternux.gpg] https://soobujmiah.github.io/ternux/apt stable main\n' \
-  "$PREFIX" > "$PREFIX/etc/apt/sources.list.d/ternux.list"
 pkg update
+pkg upgrade ternux
+# নতুন device-এ repository bootstrap করার পরে:
 pkg install ternux
-ternux install
 ```
 
-কখনো `[trusted=yes]` দিয়ে repository configure করবেন না। Signed index verify
-এবং fingerprint মিল—দুটিই প্রথম install-এর trust check।
+Package এখনই install না করে repository configure করতে
+`bash "$TMPDIR/ternux-bootstrap.sh" --configure-only` চালান; পরে
+`pkg install ternux` চালাতে পারবেন। Script বারবার চালানো নিরাপদ; এটি symlink করা
+APT configuration path বা উপরের fingerprint-এর সঙ্গে না-মেলা primary signing
+key প্রত্যাখ্যান করে। এটি কখনো `[trusted=yes]` ব্যবহার করে না।
+
+Signed repository প্রকাশের আগে bootstrap URL 404 দেবে; release workflow-তে v2
+প্রকাশ না হওয়া পর্যন্ত README-এর source installer ব্যবহার করুন। Termux-এর
+নিজস্ব official package repository-তে Ternux গ্রহণ না করা পর্যন্ত একেবারে নতুন
+Termux setup-এ trust bootstrap ছাড়া `pkg install ternux` resolve করা সম্ভব নয়।
