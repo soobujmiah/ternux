@@ -1956,6 +1956,41 @@ else
   not_ok "extension checksum failure leaves no installed files or staging directory"
 fi
 
+# The guest doctor probe must include managed extension libraries in ldd's
+# search path, or bundled shared objects are falsely reported as missing.
+doc_ldd_home="$TMP/doctor-ldd-home"
+doc_ldd_ext="$doc_ldd_home/.local/opt/ternux-extensions/llama-htp-experimental"
+doc_ldd_bin="$TMP/doctor-ldd-bin"
+mkdir -p "$doc_ldd_ext/bin" "$doc_ldd_ext/lib" "$doc_ldd_ext/libexec" "$doc_ldd_bin"
+cat > "$doc_ldd_ext/build-manifest.json" <<'EOF'
+{"artifact":"ternux-llama-htp-sm8735-test"}
+EOF
+: > "$doc_ldd_ext/bin/llama-cli"
+: > "$doc_ldd_ext/bin/htp-run"
+: > "$doc_ldd_ext/libexec/htp-broker.py"
+chmod +x "$doc_ldd_ext/bin/llama-cli" "$doc_ldd_ext/bin/htp-run"
+cat > "$doc_ldd_bin/ldd" <<'EOF'
+#!/usr/bin/env bash
+printf '%s\n' "${LD_LIBRARY_PATH:-}" > "$DOCTOR_LDD_LOG"
+case ":${LD_LIBRARY_PATH:-}:" in
+  *":$DOCTOR_EXPECTED_LIB:"*) printf 'libfixture.so => %s/libfixture.so (0x1)\n' "$DOCTOR_EXPECTED_LIB" ;;
+  *) printf 'libfixture.so => not found\n' ;;
+esac
+EOF
+chmod +x "$doc_ldd_bin/ldd"
+if env HOME="$doc_ldd_home" PATH="$doc_ldd_bin:$PATH" \
+  DOCTOR_LDD_LOG="$TMP/doctor-ldd.log" DOCTOR_EXPECTED_LIB="$doc_ldd_ext/lib" \
+  bash -c '
+    . "$1/lib/doctor.sh"
+    probe="$(_tnx_doctor_guest_probe)"
+    printf "%s\n" "$probe" | grep -qx "ext.llama-htp-experimental.missing_libs=0" &&
+      grep -Fq "$DOCTOR_EXPECTED_LIB" "$DOCTOR_LDD_LOG"
+  ' _ "$ROOT"; then
+  ok "doctor resolves libraries bundled in a managed extension before reporting missing dependencies"
+else
+  not_ok "doctor resolves libraries bundled in a managed extension before reporting missing dependencies"
+fi
+
 # ---------------------------------------------------------------------------
 # Doctor v2: categorised checks, structured JSON, filters, --strict/--quick and
 # extension health. The guest is mocked; the probe output is a fixture.
