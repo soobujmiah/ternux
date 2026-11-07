@@ -118,10 +118,13 @@ command. This happens once per guest user; later desktop boots do not redirect
 to the website. Firefox remains optional; choose it from the installer’s
 optional software list.
 
-Noto Bengali fonts and the Avro IBus phonetic keyboard are installed by default. The IBus **Next input method** shortcut is set to **Ctrl+Space** to cycle between English and Bangla. VLC, PulseAudio Volume Control, the Xfce Task
-Manager, and Mousepad text editor are included in the base desktop. The global Adwaita Dark GTK theme and lightweight stock Adwaita icons are selected by
-default for a modern, high-contrast desktop, with a custom Aurora wallpaper. The first-run guide adapts to the available screen and uses a reliable software renderer. VLC defaults to a compact mobile view, X11 `xcb_x11` output and software decoding because PRoot does not provide VAAPI/VDPAU; this
-avoids blank video caused by selecting unavailable host decoder paths.
+Noto Bengali fonts and the Avro IBus phonetic keyboard are installed by default. The IBus **Next input method** shortcut is **Ctrl+Space**, cycling between English and Bangla. VLC, PulseAudio Volume Control, Xfce Task Manager, Mousepad, Ternux Camera, guvcview, and the Ristretto image viewer are included in the base desktop. One-click Camera and Photos shortcuts are on the Xfce panel.
+
+The systemwide Ternux graphite-and-emerald GTK 2/3/4 theme styles applications, menus, and the Xfce panel; Qt 5 apps use the GTK platform theme; custom Ternux Xfwm frames style window borders and title bars. Original folder silhouettes and branded app marks sit over Papirus-Dark fallback coverage for popular and newly installed apps. Seven Ternux wallpapers are selectable in Xfce Desktop settings; Aurora Circuit is the default.
+
+Ternux Camera lists Android front and rear cameras and captures photos through Termux:API. Grant Camera permission to the Termux:API Android app; the app previews each photo after capture and saves it inside Debian at `~/Pictures/Ternux`; its capture is staged privately in Termux home and copied into PRoot. No Android Gallery scan is performed. Ristretto opens the photos. guvcview opens a live preview when a Linux V4L2 `/dev/video*` device is exposed to PRoot. Termux:API provides still-photo capture, not a continuous camera stream.
+
+The first-run guide adapts to the available screen and uses a reliable software renderer. VLC defaults to a compact mobile view, X11 `xcb_x11` output, and software decoding because PRoot does not provide VAAPI/VDPAU; this avoids blank video caused by selecting unavailable host decoder paths.
 
 ### Ternux CLI — the management interface
 
@@ -224,9 +227,10 @@ The extension does not bundle models or GPU drivers; see the [extension guide](h
 
 Ternux also lists a separate experimental HTP extension for the Redmi Turbo 4
 Pro / SM8735. It is not a supported release feature. Install from Termux with
-`ternux extension install llama-htp-experimental`; the Debian guest needs
-`libgbinder1`, `libglibutil1`, `libfastrpc1`, and `libfastrpc-dev`. Selecting HTP
-in the installer provisions these packages from Debian Trixie Backports. Its
+`ternux extension install llama-htp-experimental`; the managed command first
+provisions `libgbinder1`, `libglibutil1`, `libfastrpc1`, and `libfastrpc-dev`
+from Debian Trixie Backports, then verifies and installs the extension. Selecting
+HTP in the installer uses the same dependency setup. Its
 known-answer-safe settings,
 current failures, and device qualification status are in the
 [repository HTP guide](https://github.com/soobujmiah/ternux/blob/main/guides/llama-htp-experimental.md).

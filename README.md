@@ -82,9 +82,19 @@ available at `/sdcard` inside Debian.
 **Base desktop:** Debian 13 (Trixie) in a user-space PRoot container, Xfce4,
 Termux:X11 display integration, and PulseAudio audio routing. The default setup
 includes Bangla-capable Noto fonts, Avro phonetic input (Ctrl+Space), VLC,
-PulseAudio Volume Control, Xfce Task Manager and Mousepad. A one-time first-run
-welcome opens the project website in Firefox ESR when installed; without a
-browser it shows an in-desktop welcome guide. Firefox is optional.
+PulseAudio Volume Control, Xfce Task Manager, Mousepad, Ternux Camera, guvcview,
+and Ristretto image viewer. One-click Camera and Photos shortcuts are on the
+Xfce panel. Qt5 applications such as VLC use the matching GTK platform theme. The systemwide graphite-and-emerald Ternux GTK theme covers apps, menus,
+and panel; custom Ternux Xfwm frames cover window borders and title bars. The
+Ternux icon theme includes original folder and app icons with Papirus-Dark
+fallback coverage, and seven selectable branded wallpapers. Ternux Camera lists
+Android front/rear cameras and captures photos through Termux:API after Camera
+permission is granted to the Termux:API app. Each photo appears in the app preview after capture and saves inside Debian at `~/Pictures/Ternux`. A validated capture is staged in Termux app storage, then copied into PRoot; no Gallery scan is performed. Ristretto is the
+default image viewer. guvcview previews Linux V4L2 webcams
+when `/dev/video*` is exposed to PRoot; Termux:API does not provide live video.
+A one-time first-run welcome opens the project website in Firefox ESR when
+installed; without a browser it shows an in-desktop welcome guide. Firefox is
+optional.
 
 **Graphics:** automatic Zink + Turnip setup for supported Adreno/KGSL devices,
 with VirGL as a compatibility route. Use `ternux verify` and

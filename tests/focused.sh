@@ -127,7 +127,7 @@ if env TERNUX_STATE_DIR="$TMP/state-welcome" HOME="$TMP/home-welcome" \
     tnx_phase_debian alice >/dev/null &&
       grep -q "Exec=/usr/local/bin/ternux-welcome" "$MARKER" &&
       grep -q "mousepad.*fonts-noto-core.*ibus ibus-avro devilspie2" "$1/lib/phases.sh" &&
-      grep -q "xfce4-taskmanager.*xfce4-terminal zenity vlc arc-theme" "$1/lib/phases.sh" &&
+      grep -q "xfce4-taskmanager.*xfce4-terminal zenity vlc guvcview ristretto qt5-gtk-platformtheme arc-theme" "$1/lib/phases.sh" &&
       grep -q "vout=xcb_x11" "$1/lib/phases.sh" &&
       grep -q "avcodec-hw=none" "$1/lib/phases.sh" &&
       grep -q "qt-minimal-view=0" "$1/lib/phases.sh" &&
@@ -158,7 +158,9 @@ if env TERNUX_STATE_DIR="$TMP/state-welcome" HOME="$TMP/home-welcome" \
       grep -q "Ctrl+Space" "$1/lib/ternux-welcome-gui.py" &&
       grep -q "Sobuj Miah" "$1/lib/ternux-welcome-gui.py" &&
       python3 -m py_compile "$1/lib/ternux-welcome-gui.py" &&
-      grep -q "ternux-wallpaper.svg" "$1/lib/phases.sh"
+      grep -q "ternux_assets_b64" "$1/lib/phases.sh" && grep -q "ternux-camera.py" "$1/lib/phases.sh" &&
+      grep -q "guvcview" "$1/lib/phases.sh" && grep -q "ristretto" "$1/lib/phases.sh" && grep -q "QT_QPA_PLATFORMTHEME=gtk3" "$1/lib/phases.sh" && grep -q "ternux-panel-shortcuts" "$1/lib/phases.sh" && grep -q "01-aurora-circuit.svg" "$1/lib/phases.sh" &&
+      grep -q "/Net/ThemeName" "$1/lib/phases.sh"
   ' _ "$ROOT"; then
   ok "first-run welcome, optional Firefox, Zenity, VLC XCB output are guest-managed"
 else
@@ -430,9 +432,26 @@ required = {
     "lib/ternux/ternux-welcome-gui.py": "lib/ternux-welcome-gui.py",
     "lib/ternux/ternux-window-fit.lua": "lib/ternux-window-fit.lua",
     "lib/ternux/ternux-wallpaper.svg": "lib/ternux-wallpaper.svg",
+    "lib/ternux/ternux-camera.py": "lib/ternux-camera.py",
+    "lib/ternux/ternux-panel-shortcuts.sh": "lib/ternux-panel-shortcuts.sh",
 }
 assert all(files.get(dest, {}).get("source") == source for dest, source in required.items())
 assert all((root / source).is_file() for source in required.values())
+for asset in (root / "lib/ternux-assets").rglob("*"):
+    if asset.is_file():
+        destination = "lib/ternux/ternux-assets/" + asset.relative_to(root / "lib/ternux-assets").as_posix()
+        assert files.get(destination, {}).get("source") == asset.relative_to(root).as_posix()
+assert "Inherits=Papirus-Dark,Adwaita,hicolor" in (root / "lib/ternux-assets/icons/Ternux/index.theme").read_text()
+assert len(list((root / "lib/ternux-assets/wallpapers").glob("*.svg"))) == 7
+assert (root / "lib/ternux-assets/themes/Ternux/gtk-4.0/gtk.css").is_file()
+assert (root / "lib/ternux-assets/icons/Ternux/scalable/apps/org.xfce.ristretto.svg").is_file()
+camera = (root / "lib/ternux-camera.py").read_text()
+assert "GdkPixbuf.Pixbuf.new_from_file_at_scale" in camera
+assert "partial.unlink(missing_ok=True)" in camera
+assert 'OUTPUT_DIR = Path.home() / "Pictures" / "Ternux"' in camera
+assert 'API_CAPTURE_DIR = TERMUX_HOME / ".cache" / "ternux-camera"' in camera
+assert 'Back camera selected' in camera and 'self.camera.set_active_id(back)' in camera
+assert 'Termux:API has no live video feed' in camera
 PYMANIFEST
 then
   ok "APT manifest includes all Debian phase resources"
@@ -449,6 +468,12 @@ if env TERNUX_STATE_DIR="$TMP/state-missing-resource" HOME="$TMP/home-missing-re
   not_ok "Debian phase fails closed when a packaged resource is missing"
 else
   ok "Debian phase fails closed when a packaged resource is missing"
+fi
+
+if sh -n "$ROOT/lib/ternux-panel-shortcuts.sh" && grep -q 'panel-shortcuts-v1' "$ROOT/lib/ternux-panel-shortcuts.sh"; then
+  ok "one-time Ternux Camera and Photos panel shortcuts are valid"
+else
+  not_ok "one-time Ternux Camera and Photos panel shortcuts are valid"
 fi
 
 # Generated launchers must target the chosen account, use repeatable --env
@@ -470,8 +495,8 @@ if env TERNUX_STATE_DIR="$TMP/state-launcher" HOME="$launcher_home" bash -c '
   grep -q "termux-x11 :0 -legacy-drawing -ac" "$HOME/x.sh" &&
   grep -q "stop_legacy_ternuxx_audio" "$HOME/x.sh" &&
   grep -Fq "ternuxx\\/audio\\/default\\.pa" "$HOME/x.sh" &&
-  grep -q "IconThemeName --create -t string -s Adwaita" "$HOME/x.sh" &&
-  grep -q "ThemeName --create -t string -s Adwaita-dark" "$HOME/x.sh" &&
+  grep -q "IconThemeName --create -t string -s Ternux" "$HOME/x.sh" &&
+  grep -q "ThemeName --create -t string -s Ternux" "$HOME/x.sh" &&
   grep -q "defaults_marker=\"/home/alice/.config/ternux/desktop-defaults-v1\"" "$HOME/x.sh" &&
   grep -q "install -d -m 0755" "$HOME/x.sh" &&
   grep -q "dbus-run-session -- sh -c" "$HOME/x.sh" &&
@@ -479,10 +504,15 @@ if env TERNUX_STATE_DIR="$TMP/state-launcher" HOME="$launcher_home" bash -c '
   grep -Fq "session_pid=\\\$!" "$HOME/x.sh" &&
   grep -Fq "wait \\\$session_pid" "$HOME/x.sh" &&
   grep -Fq "[ \\\$tries -ge 50 ]" "$HOME/x.sh" &&
-  grep -q "adwaita-icon-theme xfce4 xfce4-taskmanager" "$1/lib/phases.sh" &&
+  grep -q "adwaita-icon-theme papirus-icon-theme xfce4 xfce4-taskmanager" "$1/lib/phases.sh" &&
+  grep -q "Inherits=Papirus-Dark,Adwaita,hicolor" "$1/packaging/termux/icons/Ternux/index.theme" &&
+  test -s "$1/packaging/termux/icons/Ternux/scalable/places/folder.svg" &&
+  grep -q "Icon=ternux-welcome" "$1/lib/phases.sh" &&
+  test -s "$1/packaging/termux/icons/Ternux/LICENSE" &&
+  grep -q "#39e68c" "$1/packaging/termux/icons/Ternux/scalable/places/folder.svg" &&
   ! grep -q "adwaita-gtk-theme" "$1/lib/phases.sh" &&
   ! grep -q "pm-utils" "$1/lib/phases.sh" &&
-  grep -q "GTK_IM_MODULE=ibus QT_IM_MODULE=ibus XMODIFIERS=@im=ibus" "$HOME/x.sh" &&
+  grep -q "GTK_IM_MODULE=ibus QT_IM_MODULE=ibus QT_QPA_PLATFORMTHEME=gtk3 XMODIFIERS=@im=ibus" "$HOME/x.sh" &&
   grep -Fq "ibus-daemon --daemonize --xim --replace" "$HOME/x.sh" &&
   grep -Fq "pkill -TERM -x ibus-daemon" "$HOME/x.sh" &&
   grep -Fq "unset IBUS_ADDRESS" "$HOME/x.sh" &&
@@ -1740,6 +1770,53 @@ if env HOME="$TMP/ext-host-home" PATH="$EXT_HOST_BIN:$PATH" \
   ok "host extension command delegates its menu into the selected guest"
 else
   not_ok "host extension command delegates its menu into the selected guest"
+fi
+
+if env HOME="$TMP/ext-host-home-provision" PATH="$EXT_HOST_BIN:$PATH" \
+  TERNUX_STATE_DIR="$TMP/ext-host-state-provision" HTP_DEPS_LOG="$TMP/htp-deps.log" \
+  bash -c '
+    . "$1/lib/core.sh"; . "$1/lib/phases.sh"; . "$1/lib/extension.sh"
+    tnx_state_set user sbj; tnx_state_set distro debian
+    getconf(){ return 1; }
+    proot-distro(){
+      case "$*" in
+        *trixie-backports*) printf "backports\n" >> "$HTP_DEPS_LOG"; return 0 ;;
+        *"libgbinder1 libglibutil1 libfastrpc1 libfastrpc-dev"*)
+          printf "runtime-deps\n" >> "$HTP_DEPS_LOG"; return 0 ;;
+        *"-- bash -s -- install llama-htp-experimental"*)
+          grep -Fxq runtime-deps "$HTP_DEPS_LOG" &&
+          grep -Fxq backports "$HTP_DEPS_LOG" &&
+          cat >/dev/null && printf "extension\n" >> "$HTP_DEPS_LOG"; return $? ;;
+        *) return 90 ;;
+      esac
+    }
+    tnx_cmd_extension install llama-htp-experimental
+  ' _ "$ROOT" >/dev/null 2>&1 &&
+  [[ "$(cat "$TMP/htp-deps.log")" == $'backports\nruntime-deps\nextension' ]]; then
+  ok "direct HTP extension install provisions Debian backports runtime before download"
+else
+  not_ok "direct HTP extension install provisions Debian backports runtime before download"
+fi
+
+if env HOME="$TMP/ext-host-home-provision-fail" PATH="$EXT_HOST_BIN:$PATH" \
+  TERNUX_STATE_DIR="$TMP/ext-host-state-provision-fail" HTP_DEPS_LOG="$TMP/htp-deps-fail.log" \
+  bash -c '
+    . "$1/lib/core.sh"; . "$1/lib/phases.sh"; . "$1/lib/extension.sh"
+    tnx_state_set user sbj; tnx_state_set distro debian
+    getconf(){ return 1; }
+    proot-distro(){
+      case "$*" in
+        *trixie-backports*) return 0 ;;
+        *"libgbinder1 libglibutil1 libfastrpc1 libfastrpc-dev"*) return 1 ;;
+        *) printf "extension\n" >> "$HTP_DEPS_LOG"; cat >/dev/null; return 0 ;;
+      esac
+    }
+    ! tnx_cmd_extension install llama-htp-experimental
+  ' _ "$ROOT" >/dev/null 2>&1 &&
+  [[ ! -e "$TMP/htp-deps-fail.log" ]]; then
+  ok "HTP extension install stops before download when dependency setup fails"
+else
+  not_ok "HTP extension install stops before download when dependency setup fails"
 fi
 
 # Release extensions install from checksummed, path-validated archives and do

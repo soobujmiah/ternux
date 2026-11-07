@@ -78,6 +78,9 @@ command -v proot-distro && command -v termux-x11 && command -v pulseaudio
 
 ---
 
+
+Debian desktop-এ Ternux Camera ও guvcview webcam preview থাকে। Android front/rear camera দিয়ে photo তুলতে Termux-এর **একই source থেকে Termux:API Android app** ইনস্টল করুন এবং প্রথম capture-এ Termux:API-কে Camera permission দিন। ছবি যাচাইয়ের পর Debian PRoot-এর `/home/ternux/Pictures/Ternux`-এ (অথবা নির্বাচিত guest user-এর home-এ) সেভ হয়। Android Gallery-তে যোগ করা হয় না। guvcview live preview দেখায় যখন Linux V4L2 `/dev/video*` device guest-এ exposed থাকে; Termux:API camera info ও still photo দেয়, continuous camera stream দেয় না।
+
 ## ধাপ ৩ — Debian ইনস্টল
 
 ```bash
@@ -103,7 +106,7 @@ export DEBIAN_FRONTEND=noninteractive
 apt update
 
 # কোর ডেস্কটপ + GL/অডিও। এটি সফল হতেই হবে।
-apt install -y sudo nano mousepad fonts-noto-core python3-gi gir1.2-gtk-3.0 ibus ibus-avro devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol x11-utils mesa-utils libgl1-mesa-dri adwaita-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc arc-theme colord
+apt install -y sudo nano mousepad fonts-noto-core python3-gi gir1.2-gtk-3.0 ibus ibus-avro devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol x11-utils mesa-utils libgl1-mesa-dri adwaita-icon-theme papirus-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc guvcview ristretto qt5-gtk-platformtheme arc-theme colord
 
 # PolicyKit: polkitd = trixie+, policykit-1 = bookworm। বেস্ট-এফোর্ট।
 apt install -y polkitd || apt install -y policykit-1 || true

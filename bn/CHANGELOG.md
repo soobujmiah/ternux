@@ -38,6 +38,8 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 
 ### ডেস্কটপ welcome ও media
 
+- Xfce panel-এ এক-ক্লিক Ternux Camera ও Photos launcher, default image viewer হিসেবে Ristretto, এবং আলাদা artwork-এর সাতটি branded wallpaper যোগ হয়েছে। Camera capture-এ rear lens default; JPEG যাচাই করে আগে Termux app storage-এ রাখা হয়, পরে Debian-এর `~/Pictures/Ternux`-এ সেভ হয়। Capture-এর পর app-এ photo preview আসে। Termux:API continuous live preview stream দেয় না।
+
 - Firefox ESR থাকুক বা না থাকুক, প্রথম GUI run-এর welcome flow এখন guest user-পিছু একবার চলে। প্রথমবার Firefox project website খোলে, অথবা browser না থাকলে welcome guide দেখায়; পরের boot-এ আর redirect হয় না।
 - Fresh install ও upgrade-এ browser-হীন welcome dialog পাওয়ার জন্য Debian desktop base-এ Zenity যোগ হয়েছে; নতুন font, IBus, theme ও window-fit helper ধরতে base install estimate প্রায় ৪ GB করা হয়েছে।
 - Noto Bengali font ও Avro IBus phonetic keyboard default-এ যোগ হয়েছে (English আগে, Ctrl+Space-এ বদল); Xfce Task Manager, Mousepad editor এবং সব app-এ প্রয়োগ করা Adwaita Dark GTK theme-এর সঙ্গে Adwaita icon default-এ যোগ হয়েছে। ডিফল্ট Aurora Xfce wallpaper এবং Live X11 screen মেপে বড় normal/dialog window maximize ও screen-এর বাইরে থাকা window center করতে event-driven Devilspie2 rule যোগ হয়েছে। First-run guide GTK Cairo renderer ও live screen অনুযায়ী scrollable layout ব্যবহার করে। Base desktop-এ PulseAudio Volume Control-ও আছে। VLC-তে XCB output, software decoding ও compact mobile UI default। Base install থেকে অপ্রয়োজনীয় host-suspend helper বাদ, আর PRoot startup error কমাতে system D-Bus ও সঠিক ICE socket যোগ হয়েছে।

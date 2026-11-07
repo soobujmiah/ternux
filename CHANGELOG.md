@@ -38,6 +38,8 @@ Notable changes to ternux. Dates are ISO 8601.
 
 ### Desktop welcome and media
 
+- Added the Ternux Camera and Photos one-click panel launchers, Ristretto as the default image viewer, and seven distinct branded wallpapers. Camera captures now default to the rear lens, validate JPEG output in Termux app storage, then save inside Debian at `~/Pictures/Ternux`; the app previews photos after capture. Termux:API does not expose a continuous live preview stream.
+
 - Made the first-GUI welcome flow one-time per guest user whether or not Firefox ESR is installed. On the first GUI run Firefox opens the project website, or a welcome guide appears without a browser; later boots do not redirect.
 - Added Zenity to the Debian desktop base so the no-browser welcome dialog is available on fresh installs and upgrades. Raised the base installed-size estimate to about 4 GB to include the added fonts, IBus, themes and window-fit helper.
 - Added Noto Bengali fonts and the Avro IBus phonetic keyboard by default (English-first, Ctrl+Space switch), the Xfce Task Manager and Mousepad editor, and a single global Adwaita Dark GTK theme with stock Adwaita icons. Added a custom Aurora Xfce wallpaper and an event-driven Devilspie2 rule that maximizes oversized normal/dialog windows and centers windows that exceed the live X11 screen. The first-run guide uses GTK Cairo rendering and adapts its scrollable layout to the live X11 size. Set per-user VLC output to XCB, software decoding and compact mobile UI; removed unused host-suspend helpers from the base install. Added a minimal system D-Bus and correctly owned ICE socket to reduce PRoot desktop startup errors.

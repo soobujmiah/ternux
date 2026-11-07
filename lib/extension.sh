@@ -15,6 +15,13 @@ tnx_cmd_extension() {
     user="$(tnx_state_get user)"
     [ -n "$user" ] || { printf '[FAIL] Install Ternux before installing extensions.\n' >&2; return 1; }
     . "$(dirname "$module")/phases.sh"
+    if [[ "$subcmd" == install || "$subcmd" == repair ]] &&
+       [[ "${1:-}" == llama-htp-experimental ]]; then
+      tnx_phase_extras "$user" htp-runtime || {
+        _tnx_extension_fail "Could not provision the Debian HTP runtime dependencies; the extension was not changed."
+        return 1
+      }
+    fi
     {
       cat "$module" || exit 1
       printf '\n_tnx_extension_guest_dispatch "$@"\n'

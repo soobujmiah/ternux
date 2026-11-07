@@ -72,7 +72,7 @@ unavailable হিসেবে দেখানো হয়।
 
 ### অডিও ও VLC কন্ট্রোল
 
-Ternux পুরো Xfce desktop-এ একই Adwaita Dark GTK theme প্রয়োগ করে। PulseAudio Volume Control Debian-এর packaged application entry দিয়ে চলে এবং একই desktop environment পায়; Ternux আলাদা theme বা backend চাপায় না। Termux:X11 session-এ Xfwm compositing বন্ধ থাকে, কারণ এটি চালু থাকলে পুরো desktop black হতে পারে। VLC ডিফল্টে full interface চালায়, তাই playback control দেখা যায়।
+Fresh install-এ Xfce জুড়ে Ternux-এর graphite-emerald GTK 2/3/4 ও Xfwm theme এবং Qt 5 GTK platform theme, Papirus-Dark fallback-সহ branded icon mapping, Ternux panel এবং wallpaper default apply হয়। অন্য toolkit ব্যবহার করা app নিজস্ব styling রাখতে পারে। PulseAudio Volume Control Debian-এর packaged application entry ও একই desktop session ব্যবহার করে। Termux:X11 session-এ Xfwm compositing বন্ধ থাকে, কারণ এটি চালু থাকলে পুরো desktop black হতে পারে। VLC ডিফল্টে full interface চালায়, তাই playback control দেখা যায়।
 
 ---
 

@@ -1,0 +1,9 @@
+Ternux icon theme
+Copyright 2026 Ternux contributors
+
+This original Ternux icon artwork is licensed under the Apache License, Version 2.0.
+See the repository root LICENSE for the complete license text.
+
+Unmodified fallback icons are supplied by the Debian adwaita-icon-theme package
+and remain under that package's upstream license and copyright notices. They
+are not copied into this theme.

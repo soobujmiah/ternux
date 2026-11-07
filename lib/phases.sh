@@ -332,17 +332,23 @@ tnx_install_guest_cli() {
 tnx_phase_debian() {
   local user_name="${1:-ternux}"
   local resource_dir="${BASH_SOURCE[0]%/*}"
-  local welcome_b64 welcome_gui_b64 window_fit_b64 wallpaper_b64 resource
-  for resource in ternux-welcome.sh ternux-welcome-gui.py ternux-window-fit.lua ternux-wallpaper.svg; do
+  local welcome_b64 welcome_gui_b64 window_fit_b64 camera_gui_b64 panel_shortcuts_b64 ternux_assets_b64 resource
+  for resource in ternux-welcome.sh ternux-welcome-gui.py ternux-window-fit.lua ternux-camera.py ternux-panel-shortcuts.sh; do
     if [ ! -s "$resource_dir/$resource" ] || [ ! -r "$resource_dir/$resource" ]; then
       tnx_fail "Required Debian desktop resource is missing or unreadable: $resource_dir/$resource"
       return 1
     fi
   done
+  if [ ! -d "$resource_dir/ternux-assets/icons/Ternux" ] || [ ! -d "$resource_dir/ternux-assets/wallpapers" ] || [ ! -d "$resource_dir/ternux-assets/themes/Ternux" ]; then
+    tnx_fail "Required Ternux desktop branding assets are missing under $resource_dir/ternux-assets"
+    return 1
+  fi
   welcome_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-welcome.sh" | tr -d '\n')" || return 1
   welcome_gui_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-welcome-gui.py" | tr -d '\n')" || return 1
   window_fit_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-window-fit.lua" | tr -d '\n')" || return 1
-  wallpaper_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-wallpaper.svg" | tr -d '\n')" || return 1
+  camera_gui_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-camera.py" | tr -d '\n')" || return 1
+  panel_shortcuts_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-panel-shortcuts.sh" | tr -d '\n')" || return 1
+  ternux_assets_b64="$(set -o pipefail; tar -czf - -C "$resource_dir/ternux-assets" icons wallpapers themes | base64 | tr -d '\n')" || return 1
 
   if tnx_debian_installed; then
     tnx_warn "Debian container already installed; reusing it."
@@ -356,7 +362,20 @@ tnx_phase_debian() {
     DPKG_FORCE=\"-o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -o APT::Color=1 -o Dpkg::Progress-Fancy=1\"
     apt update -o APT::Color=1
     dpkg --configure -a --force-confold --force-confdef || true
-    apt install -y \$DPKG_FORCE sudo nano mousepad fonts-noto-core python3-gi gir1.2-gtk-3.0 ibus ibus-avro devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol x11-utils mesa-utils libgl1-mesa-dri adwaita-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc arc-theme colord
+    apt install -y \$DPKG_FORCE sudo nano mousepad fonts-noto-core python3-gi gir1.2-gtk-3.0 ibus ibus-avro devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol x11-utils mesa-utils libgl1-mesa-dri adwaita-icon-theme papirus-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc guvcview ristretto qt5-gtk-platformtheme arc-theme colord
+    asset_stage=\$(mktemp -d /tmp/ternux-assets.XXXXXX)
+    printf '%s' '$ternux_assets_b64' | base64 -d | tar -xz -C "\$asset_stage"
+    install -d -m 0755 /usr/share/icons/Ternux /usr/share/themes/Ternux /usr/share/backgrounds/ternux
+    cp -a "\$asset_stage/icons/Ternux/." /usr/share/icons/Ternux/
+    cp -a "\$asset_stage/themes/Ternux/." /usr/share/themes/Ternux/
+    if [ -d /usr/share/themes/Arc-Dark/xfwm4 ]; then
+      for frame_asset in /usr/share/themes/Arc-Dark/xfwm4/*; do
+        [ "\$\{frame_asset##*/\}" = themerc ] || [ -e "/usr/share/themes/Ternux/xfwm4/\$\{frame_asset##*/\}" ] || ln -sfn "\$frame_asset" "/usr/share/themes/Ternux/xfwm4/\$\{frame_asset##*/\}"
+      done
+    fi
+    cp -a "\$asset_stage/wallpapers/." /usr/share/backgrounds/ternux/
+    rm -rf "\$asset_stage"
+    gtk-update-icon-cache -f /usr/share/icons/Ternux >/dev/null 2>&1 || true
     apt install -y \$DPKG_FORCE polkitd || apt install -y \$DPKG_FORCE policykit-1 || true
     apt install -y \$DPKG_FORCE libvulkan1 vulkan-tools || true
     apt install -y \$DPKG_FORCE zip unzip xarchiver unrar-free || true
@@ -373,6 +392,28 @@ tnx_phase_debian() {
     if visudo -cf \"\$T\" >/dev/null 2>&1; then install -m 0440 -o root -g root \"\$T\" \"\$F\"; else rm -f \"\$T\"; exit 1; fi
     rm -f \"\$T\"
     H=\"\$(getent passwd \"\$U\" | cut -d: -f6)\"
+    install -d -o \"\$U\" -g \"\$U\" -m 0755 \"\$H/Pictures\"
+    if [ -L \"\$H/Pictures/Ternux\" ] && [ \"\$(readlink \"\$H/Pictures/Ternux\")\" = /sdcard/Pictures/Ternux ]; then
+      rm \"\$H/Pictures/Ternux\"
+    fi
+    install -d -o \"\$U\" -g \"\$U\" -m 0755 \"\$H/Pictures/Ternux\"
+    install -d -o \"\$U\" -g \"\$U\" -m 0755 \"\$H/.config/xfce4/terminal\"
+    if [ ! -e \"\$H/.config/xfce4/terminal/terminalrc\" ]; then
+      cat > \"\$H/.config/xfce4/terminal/terminalrc\" <<'TERMINAL'
+[Configuration]
+ColorForeground=#e4f3eb
+ColorBackground=#101816
+ColorCursor=#39e68c
+ColorSelection=#08784c
+ColorPalette=#26332d;#ff5c57;#5af78e;#f3f99d;#57c7ff;#ff6ac1;#9aedfe;#e4f3eb;#4b5b52;#ff5c57;#5af78e;#f3f99d;#57c7ff;#ff6ac1;#9aedfe;#ffffff
+BackgroundMode=TERMINAL_BACKGROUND_SOLID
+BackgroundDarkness=0.97
+FontName=Monospace 10
+MiscBell=FALSE
+TERMINAL
+      chown \"\$U:\$U\" \"\$H/.config/xfce4/terminal/terminalrc\"
+      chmod 0644 \"\$H/.config/xfce4/terminal/terminalrc\"
+    fi
     install -d -o \"\$U\" -g \"\$U\" -m 0755 \"\$H/.config/vlc\"
     touch \"\$H/.config/vlc/vlcrc\"
     sed -i '/^[[:space:]]*vout=/d' \"\$H/.config/vlc/vlcrc\"
@@ -401,6 +442,51 @@ tnx_phase_debian() {
     runuser -u \"\$U\" -- env HOME=\"\$H\" dbus-run-session -- gsettings set org.freedesktop.ibus.general.hotkey next-engine-in-menu \"['Control+space']\"
     install -d -o \"\$U\" -g \"\$U\" -m 0755 \"\$H/.config/autostart\"
     install -d -o root -g root -m 0755 /usr/local/bin
+    printf '%s' '${camera_gui_b64}' | base64 -d > /usr/local/bin/ternux-camera
+    chown root:root /usr/local/bin/ternux-camera
+    chmod 0755 /usr/local/bin/ternux-camera
+    printf '%s' '${panel_shortcuts_b64}' | base64 -d > /usr/local/bin/ternux-panel-shortcuts
+    chown root:root /usr/local/bin/ternux-panel-shortcuts
+    chmod 0755 /usr/local/bin/ternux-panel-shortcuts
+    cat > /usr/share/applications/ternux-camera.desktop <<'DESKTOP'
+[Desktop Entry]
+Type=Application
+Name=Ternux Camera
+Comment=Capture photos with the Android front or rear camera
+Exec=/usr/local/bin/ternux-camera
+Icon=ternux-camera
+Terminal=false
+Categories=AudioVideo;Photography;
+StartupNotify=true
+DESKTOP
+    chmod 0644 /usr/share/applications/ternux-camera.desktop
+    cat > /usr/share/applications/ternux-photos.desktop <<DESKTOP
+[Desktop Entry]
+Type=Application
+Name=Ternux Photos
+Comment=Browse captured photos in the Ternux Pictures folder
+Exec=ristretto /home/${user_name}/Pictures/Ternux
+Icon=org.xfce.ristretto
+Terminal=false
+Categories=Graphics;Photography;
+StartupNotify=true
+DESKTOP
+    chmod 0644 /usr/share/applications/ternux-photos.desktop
+    install -d -m 0755 /usr/local/share/applications
+    for vlc_entry in /usr/share/applications/vlc*.desktop; do
+      [ -f "\$vlc_entry" ] || continue
+      sed 's#^Exec=#Exec=env QT_QPA_PLATFORMTHEME=gtk3 #' "\$vlc_entry" > "/usr/local/share/applications/\${vlc_entry##*/}"
+      chmod 0644 "/usr/local/share/applications/\${vlc_entry##*/}"
+    done
+    update-desktop-database /usr/local/share/applications >/dev/null 2>&1 || true
+    install -d -o "\$U" -g "\$U" -m 0755 "\$H/Desktop"
+    cp /usr/share/applications/ternux-camera.desktop "\$H/Desktop/Ternux-Camera.desktop"
+    cp /usr/share/applications/ternux-photos.desktop "\$H/Desktop/Ternux-Photos.desktop"
+    chown "\$U:\$U" "\$H/Desktop/Ternux-Camera.desktop" "\$H/Desktop/Ternux-Photos.desktop"
+    chmod 0755 "\$H/Desktop/Ternux-Camera.desktop" "\$H/Desktop/Ternux-Photos.desktop"
+    for mime in image/jpeg image/png image/gif image/webp image/tiff image/bmp; do
+      runuser -u "\$U" -- env HOME="\$H" xdg-mime default org.xfce.ristretto.desktop "\$mime" || true
+    done
     cat > /usr/bin/pm-is-supported <<'PM'
 #!/bin/sh
 # PRoot has no permission to suspend or hibernate the Android host.
@@ -412,9 +498,9 @@ PM
     chown root:root /usr/local/bin/ternux-welcome
     chmod 0755 /usr/local/bin/ternux-welcome
     install -d -o root -g root -m 0755 /usr/share/backgrounds/ternux
-    printf '%s' '${wallpaper_b64}' | base64 -d > /usr/share/backgrounds/ternux/aurora.svg
-    chown root:root /usr/share/backgrounds/ternux/aurora.svg
-    chmod 0644 /usr/share/backgrounds/ternux/aurora.svg
+    ln -sfn 01-aurora-circuit.svg /usr/share/backgrounds/ternux/aurora.svg
+    chown -h root:root /usr/share/backgrounds/ternux/aurora.svg
+    chmod 0644 /usr/share/backgrounds/ternux/*.svg
     cat > \"\$H/.config/autostart/ternux-window-fit.desktop\" <<'DESKTOP'
 [Desktop Entry]
 Type=Application
@@ -455,6 +541,7 @@ DESKTOP
 [Desktop Entry]
 Type=Application
 Name=Ternux Welcome
+Icon=ternux-welcome
 Comment=Show the Ternux first-run guide or open the project website
 Exec=/usr/local/bin/ternux-welcome
 Terminal=false
@@ -980,7 +1067,7 @@ proot-distro login $distro --shared-tmp --bind /dev/kgsl-3d0:/dev/kgsl --bind /d
     sudo -n dbus-uuidgen --ensure >/dev/null 2>&1 || true
     sudo -n rm -f /etc/xdg/autostart/light-locker.desktop 2>/dev/null || true
     exec dbus-run-session -- sh -c "
-      export GTK_IM_MODULE=ibus QT_IM_MODULE=ibus XMODIFIERS=@im=ibus
+      export GTK_IM_MODULE=ibus QT_IM_MODULE=ibus QT_QPA_PLATFORMTHEME=gtk3 XMODIFIERS=@im=ibus
       unset IBUS_ADDRESS
       # Retire IBus daemons left by earlier detached Xfce sessions. Their
       # private D-Bus sessions prevent --replace from finding/replacing them.
@@ -1010,27 +1097,41 @@ proot-distro login $distro --shared-tmp --bind /dev/kgsl-3d0:/dev/kgsl --bind /d
       # effects disabled, while allowing users to customize after first login.
       defaults_marker="/home/$user_name/.config/ternux/desktop-defaults-v1"
       if [ ! -e "\\\$defaults_marker" ]; then
-        xfconf-query -c xsettings -p /Net/ThemeName --create -t string -s Adwaita-dark
-        xfconf-query -c xsettings -p /Net/IconThemeName --create -t string -s Adwaita
+        xfconf-query -c xsettings -p /Net/ThemeName --create -t string -s Ternux
+        xfconf-query -c xsettings -p /Net/IconThemeName --create -t string -s Ternux
+        xfconf-query -c xfwm4 -p /general/theme --create -t string -s Ternux
         xfconf-query -c xsettings -p /Gtk/CursorThemeName --create -t string -s Adwaita
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-path --create -t string -s /usr/share/backgrounds/ternux/aurora.svg
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/last-image --create -t string -s /usr/share/backgrounds/ternux/aurora.svg
+        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-path --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg
+        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/last-image --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg
         xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-show --create -t bool -s true
         xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-style --create -t int -s 5
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/aurora.svg
+        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg
         xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/workspace0/image-style --create -t int -s 5
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-path --create -t string -s /usr/share/backgrounds/ternux/aurora.svg >/dev/null 2>&1 || true
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/last-image --create -t string -s /usr/share/backgrounds/ternux/aurora.svg >/dev/null 2>&1 || true
+        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-path --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg >/dev/null 2>&1 || true
+        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/last-image --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg >/dev/null 2>&1 || true
         xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-show --create -t bool -s true >/dev/null 2>&1 || true
         xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-style --create -t int -s 5 >/dev/null 2>&1 || true
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/aurora.svg >/dev/null 2>&1 || true
+        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg >/dev/null 2>&1 || true
         xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/workspace0/image-style --create -t int -s 5 >/dev/null 2>&1 || true
-        xfconf-query -c xfwm4 -p /general/theme --create -t string -s Default
+        xfconf-query -c xfwm4 -p /general/theme --create -t string -s Ternux
+        for panel_id in \\\$(xfconf-query -c xfce4-panel -l 2>/dev/null | sed -n 's#^/panels/\(panel-[0-9][0-9]*\)/.*#\1#p' | sort -u); do
+          xfconf-query -c xfce4-panel -p "/panels/\$panel_id/background-style" --create -t int -s 0 >/dev/null 2>&1 || true
+        done
         xfconf-query -c xfwm4 -p /general/use_compositing -s false >/dev/null 2>&1 || true
         xfdesktop --reload >/dev/null 2>&1 || true
         install -d -m 0755 "/home/$user_name/.config/ternux"
         : > "\\\$defaults_marker"
       fi
+      icon_migration_marker="/home/$user_name/.config/ternux/desktop-icons-v2"
+      if [ ! -e "\\\$icon_migration_marker" ]; then
+        current_icon_theme="\\\$(xfconf-query -c xsettings -p /Net/IconThemeName 2>/dev/null || true)"
+        if [ "\\\$current_icon_theme" = Adwaita ]; then
+          xfconf-query -c xsettings -p /Net/IconThemeName --create -t string -s Ternux
+        fi
+        install -d -m 0755 "/home/$user_name/.config/ternux"
+        : > "\\\$icon_migration_marker"
+      fi
+      /usr/local/bin/ternux-panel-shortcuts >/dev/null 2>&1 || true
       wait \\\$session_pid
     "
   '
@@ -1058,7 +1159,7 @@ proot-distro login $distro --shared-tmp --bind "\$TNX_CPUINFO_FILE:/proc/cpuinfo
     sudo -n mkdir -p /var/run/dbus /run/dbus /run/user/\$(id -u) 2>/dev/null || true
     sudo -n dbus-uuidgen --ensure >/dev/null 2>&1 || true
     exec dbus-run-session -- sh -c "
-      export GTK_IM_MODULE=ibus QT_IM_MODULE=ibus XMODIFIERS=@im=ibus
+      export GTK_IM_MODULE=ibus QT_IM_MODULE=ibus QT_QPA_PLATFORMTHEME=gtk3 XMODIFIERS=@im=ibus
       unset IBUS_ADDRESS
       # Retire IBus daemons left by earlier detached Xfce sessions. Their
       # private D-Bus sessions prevent --replace from finding/replacing them.
@@ -1088,27 +1189,41 @@ proot-distro login $distro --shared-tmp --bind "\$TNX_CPUINFO_FILE:/proc/cpuinfo
       # effects disabled, while allowing users to customize after first login.
       defaults_marker="/home/$user_name/.config/ternux/desktop-defaults-v1"
       if [ ! -e "\\\$defaults_marker" ]; then
-        xfconf-query -c xsettings -p /Net/ThemeName --create -t string -s Adwaita-dark
-        xfconf-query -c xsettings -p /Net/IconThemeName --create -t string -s Adwaita
+        xfconf-query -c xsettings -p /Net/ThemeName --create -t string -s Ternux
+        xfconf-query -c xsettings -p /Net/IconThemeName --create -t string -s Ternux
+        xfconf-query -c xfwm4 -p /general/theme --create -t string -s Ternux
         xfconf-query -c xsettings -p /Gtk/CursorThemeName --create -t string -s Adwaita
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-path --create -t string -s /usr/share/backgrounds/ternux/aurora.svg
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/last-image --create -t string -s /usr/share/backgrounds/ternux/aurora.svg
+        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-path --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg
+        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/last-image --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg
         xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-show --create -t bool -s true
         xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-style --create -t int -s 5
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/aurora.svg
+        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg
         xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/workspace0/image-style --create -t int -s 5
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-path --create -t string -s /usr/share/backgrounds/ternux/aurora.svg >/dev/null 2>&1 || true
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/last-image --create -t string -s /usr/share/backgrounds/ternux/aurora.svg >/dev/null 2>&1 || true
+        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-path --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg >/dev/null 2>&1 || true
+        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/last-image --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg >/dev/null 2>&1 || true
         xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-show --create -t bool -s true >/dev/null 2>&1 || true
         xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-style --create -t int -s 5 >/dev/null 2>&1 || true
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/aurora.svg >/dev/null 2>&1 || true
+        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg >/dev/null 2>&1 || true
         xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/workspace0/image-style --create -t int -s 5 >/dev/null 2>&1 || true
-        xfconf-query -c xfwm4 -p /general/theme --create -t string -s Default
+        xfconf-query -c xfwm4 -p /general/theme --create -t string -s Ternux
+        for panel_id in \\\$(xfconf-query -c xfce4-panel -l 2>/dev/null | sed -n 's#^/panels/\(panel-[0-9][0-9]*\)/.*#\1#p' | sort -u); do
+          xfconf-query -c xfce4-panel -p "/panels/\$panel_id/background-style" --create -t int -s 0 >/dev/null 2>&1 || true
+        done
         xfconf-query -c xfwm4 -p /general/use_compositing -s false >/dev/null 2>&1 || true
         xfdesktop --reload >/dev/null 2>&1 || true
         install -d -m 0755 "/home/$user_name/.config/ternux"
         : > "\\\$defaults_marker"
       fi
+      icon_migration_marker="/home/$user_name/.config/ternux/desktop-icons-v2"
+      if [ ! -e "\\\$icon_migration_marker" ]; then
+        current_icon_theme="\\\$(xfconf-query -c xsettings -p /Net/IconThemeName 2>/dev/null || true)"
+        if [ "\\\$current_icon_theme" = Adwaita ]; then
+          xfconf-query -c xsettings -p /Net/IconThemeName --create -t string -s Ternux
+        fi
+        install -d -m 0755 "/home/$user_name/.config/ternux"
+        : > "\\\$icon_migration_marker"
+      fi
+      /usr/local/bin/ternux-panel-shortcuts >/dev/null 2>&1 || true
       wait \\\$session_pid
     "
   '
@@ -1234,7 +1349,7 @@ tnx_phase_extras() {
       thunderbird) apt_packages+=(thunderbird) ;;
       adt-build-tools|adt-platform-tools|adt-ndk|adt-cmake) apt_packages+=(git curl ca-certificates) ;;
       adt-cmdline|adt-platform) apt_packages+=(git curl ca-certificates default-jdk-headless unzip) ;;
-      llama-htp-experimental)
+      llama-htp-experimental|htp-runtime)
         htp_selected=1
         apt_packages+=(libgbinder1 libglibutil1 libfastrpc1 libfastrpc-dev)
         ;;
@@ -1358,6 +1473,7 @@ tnx_phase_extras() {
           tnx_ok "stable-diffusion release installed and validated"
         else tnx_warn "stable-diffusion release could not be installed; check device/runtime support and the extension guide."; rc=1; fi
         ;;
+      htp-runtime) : ;; # Internal dependency-only path used by the managed extension command.
       llama-vulkan|llama-htp-experimental)
         if [ -f "${_TNX_SRC:-}/lib/extension.sh" ] && ( . "${_TNX_SRC}/lib/extension.sh"; tnx_cmd_extension install "$opt" ); then
           tnx_ok "$opt release installed and validated"

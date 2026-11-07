@@ -1,0 +1,27 @@
+@import url("resource:///org/gtk/libgtk/theme/Adwaita/gtk.css");
+/* Ternux GTK 4 palette: match the GTK 2/3 theme and Xfwm shell. */
+:root {
+  --window-bg-color: #101816;
+  --window-fg-color: #e4f3eb;
+  --view-bg-color: #0c1311;
+  --view-fg-color: #e4f3eb;
+  --headerbar-bg-color: #17221e;
+  --headerbar-fg-color: #e4f3eb;
+  --card-bg-color: #17221e;
+  --card-fg-color: #e4f3eb;
+  --popover-bg-color: #17221e;
+  --popover-fg-color: #e4f3eb;
+  --accent-bg-color: #08784c;
+  --accent-fg-color: #ffffff;
+  --accent-color: #39e68c;
+  --theme_bg_color: #101816;
+  --theme_fg_color: #e4f3eb;
+  --theme_base_color: #0c1311;
+  --theme_text_color: #e4f3eb;
+  --theme_selected_bg_color: #08784c;
+  --theme_selected_fg_color: #ffffff;
+}
+window, .background { background-color: #101816; color: #e4f3eb; }
+headerbar, .titlebar { background-color: #17221e; color: #e4f3eb; }
+button, entry, .card, popover, menu { border-color: #34483e; }
+button:checked, button:active, *:selected { background-color: #08784c; color: #ffffff; }
