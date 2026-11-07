@@ -10,7 +10,8 @@ from datetime import datetime
 import gi
 gi.require_version("Gtk", "3.0")
 gi.require_version("GdkPixbuf", "2.0")
-from gi.repository import GdkPixbuf, Gio, Gtk, GLib
+gi.require_version("Gdk", "3.0")
+from gi.repository import Gdk, GdkPixbuf, Gio, Gtk, GLib
 
 CAMERA_INFO = "/data/data/com.termux/files/usr/bin/termux-camera-info"
 CAMERA_PHOTO = "/data/data/com.termux/files/usr/bin/termux-camera-photo"
@@ -23,8 +24,8 @@ LEGACY_SHARED_DIR = Path("/sdcard/Pictures/Ternux")
 class TernuxCamera(Gtk.Window):
     def __init__(self):
         super().__init__(title="Ternux Camera")
-        self.set_default_size(600, 650)
-        self.set_border_width(22)
+        self.set_default_size(520, 610)
+        self.set_border_width(16)
         self.set_icon_name("ternux-camera")
         self.set_position(Gtk.WindowPosition.CENTER)
         self.last_photo = None
@@ -42,8 +43,18 @@ class TernuxCamera(Gtk.Window):
         except OSError:
             pass
 
-        root = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=14)
+        root = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=10)
         self.add(root)
+        css = Gtk.CssProvider()
+        css.load_from_data(b"""
+            button.ternux-compact { padding: 4px 9px; min-height: 28px; }
+            button.ternux-primary { padding: 6px 12px; min-height: 34px; }
+        """)
+        screen = Gdk.Screen.get_default()
+        if screen:
+            Gtk.StyleContext.add_provider_for_screen(
+                screen, css, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+        self._css_provider = css
 
         hero = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, spacing=5)
         title = Gtk.Label()
@@ -59,10 +70,10 @@ class TernuxCamera(Gtk.Window):
         self.preview.set_pixel_size(72)
         preview_frame = Gtk.Frame()
         preview_frame.set_shadow_type(Gtk.ShadowType.IN)
-        preview_frame.set_size_request(-1, 280)
+        preview_frame.set_size_request(-1, 220)
         preview_frame.add(self.preview)
         root.pack_start(preview_frame, True, True, 0)
-        self.preview_hint = Gtk.Label(label="Termux:API has no live video feed; the captured photo preview appears here")
+        self.preview_hint = Gtk.Label(label="Capture a photo to preview it here")
         self.preview_hint.get_style_context().add_class("dim-label")
         root.pack_start(self.preview_hint, False, False, 0)
 
@@ -86,25 +97,34 @@ class TernuxCamera(Gtk.Window):
         self.status.set_line_wrap(True)
         root.pack_start(self.status, False, False, 0)
 
-        actions = Gtk.Box(spacing=10)
         self.webcam = Gtk.Label()
         self.webcam.set_xalign(0)
         self.webcam.set_line_wrap(True)
-        actions.pack_start(self.webcam, True, True, 0)
-        self.webcam_button = Gtk.Button(label="Open webcam")
-        self.webcam_button.connect("clicked", self.open_webcam)
-        actions.pack_start(self.webcam_button, False, False, 0)
+        root.pack_start(self.webcam, False, False, 0)
+
+        self.capture = Gtk.Button(label="Take photo")
+        self.capture.get_style_context().add_class("suggested-action")
+        self.capture.get_style_context().add_class("ternux-primary")
+        self.capture.set_hexpand(True)
+        self.capture.set_tooltip_text("Capture with the selected Android camera")
+        self.capture.connect("clicked", self.take_photo)
+        root.pack_start(self.capture, False, False, 0)
+
+        actions = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=8)
+        actions.set_homogeneous(True)
         self.open_photo = Gtk.Button(label="View photo")
         self.open_photo.set_sensitive(False)
+        self.open_photo.set_tooltip_text("Open the latest photo")
         self.open_photo.connect("clicked", self.open_last_photo)
-        actions.pack_start(self.open_photo, False, False, 0)
-        self.open_folder = Gtk.Button(label="Open folder")
+        self.open_folder = Gtk.Button(label="Photos")
+        self.open_folder.set_tooltip_text("Open Ternux photo folder")
         self.open_folder.connect("clicked", self.open_save_folder)
-        actions.pack_start(self.open_folder, False, False, 0)
-        self.capture = Gtk.Button(label="Capture photo")
-        self.capture.get_style_context().add_class("suggested-action")
-        self.capture.connect("clicked", self.take_photo)
-        actions.pack_start(self.capture, False, False, 0)
+        self.webcam_button = Gtk.Button(label="Webcam")
+        self.webcam_button.set_tooltip_text("Open a connected Linux webcam")
+        self.webcam_button.connect("clicked", self.open_webcam)
+        for button in (self.open_photo, self.open_folder, self.webcam_button):
+            button.get_style_context().add_class("ternux-compact")
+            actions.pack_start(button, True, True, 0)
         root.pack_start(actions, False, False, 0)
 
         self.update_webcam_status()
@@ -232,12 +252,21 @@ class TernuxCamera(Gtk.Window):
         threading.Thread(target=work, daemon=True).start()
 
     def capture_ready(self, target, _unused):
+        self.last_photo = target
+        self.open_photo.set_sensitive(True)
         try:
-            pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(str(target), 520, 260, True)
+            # Decode to a small square first so either orientation fits the
+            # preview without loading the camera's full-resolution image.
+            pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(str(target), 480, 480, True)
+            # Android cameras commonly store portrait orientation in EXIF while
+            # keeping the JPEG pixels landscape. Rotate before the final fit.
+            pixbuf = pixbuf.apply_embedded_orientation()
+            scale = min(480 / pixbuf.get_width(), 210 / pixbuf.get_height(), 1.0)
+            width = max(1, round(pixbuf.get_width() * scale))
+            height = max(1, round(pixbuf.get_height() * scale))
+            pixbuf = pixbuf.scale_simple(width, height, GdkPixbuf.InterpType.BILINEAR)
             self.preview.set_from_pixbuf(pixbuf)
             self.preview_hint.set_text(target.name)
-            self.last_photo = target
-            self.open_photo.set_sensitive(True)
             self.status.set_text(f"Photo saved: {target}\nFind it in Home → Pictures → Ternux.")
         except GLib.Error as exc:
             self.status.set_text(f"Photo saved at {target}, but preview failed: {exc.message}")

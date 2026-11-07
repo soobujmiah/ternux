@@ -12,6 +12,12 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 
 ## [Unreleased]
 
+### ডেস্কটপ অভিজ্ঞতা
+
+- Ternux Camera এখন EXIF rotation ঠিক করে এবং phone-sized compact দুই-row layout-এ capture action দেখায়। Minimize/maximize/close-এর জন্য original বড় touch target এবং hard-coded icon path থাকা audited base app-গুলোর branded icon mapping যোগ হয়েছে। Selector-এ সাতটি original wallpaper থাকে।
+- Base desktop ও panel-এ on-demand low-resource GTK Sound Recorder যোগ হয়েছে। Start না চাপা পর্যন্ত mic capture শুরু হয় না; AAC file Debian-এর `~/Music/Ternux`-এ সেভ হয়।
+
+
 ### AI artifact delivery
 
 - Installable CPU/GPU/NPU LLM ও Stable Diffusion tool, fresh-install optional selection, checksum, license, runtime dependency এবং target-device verification-এর জন্য v2 release gate যোগ হয়েছে। বর্তমান Stable Diffusion route experiment; installable release extension নয়।

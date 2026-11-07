@@ -127,7 +127,7 @@ if env TERNUX_STATE_DIR="$TMP/state-welcome" HOME="$TMP/home-welcome" \
     tnx_phase_debian alice >/dev/null &&
       grep -q "Exec=/usr/local/bin/ternux-welcome" "$MARKER" &&
       grep -q "mousepad.*fonts-noto-core.*ibus ibus-avro devilspie2" "$1/lib/phases.sh" &&
-      grep -q "xfce4-taskmanager.*xfce4-terminal zenity vlc guvcview ristretto qt5-gtk-platformtheme arc-theme" "$1/lib/phases.sh" &&
+      grep -q "xfce4-taskmanager.*xfce4-terminal zenity vlc guvcview ristretto qt5-gtk-platformtheme colord" "$1/lib/phases.sh" &&
       grep -q "vout=xcb_x11" "$1/lib/phases.sh" &&
       grep -q "avcodec-hw=none" "$1/lib/phases.sh" &&
       grep -q "qt-minimal-view=0" "$1/lib/phases.sh" &&
@@ -433,6 +433,7 @@ required = {
     "lib/ternux/ternux-window-fit.lua": "lib/ternux-window-fit.lua",
     "lib/ternux/ternux-wallpaper.svg": "lib/ternux-wallpaper.svg",
     "lib/ternux/ternux-camera.py": "lib/ternux-camera.py",
+    "lib/ternux/ternux-recorder.py": "lib/ternux-recorder.py",
     "lib/ternux/ternux-panel-shortcuts.sh": "lib/ternux-panel-shortcuts.sh",
 }
 assert all(files.get(dest, {}).get("source") == source for dest, source in required.items())
@@ -445,13 +446,32 @@ assert "Inherits=Papirus-Dark,Adwaita,hicolor" in (root / "lib/ternux-assets/ico
 assert len(list((root / "lib/ternux-assets/wallpapers").glob("*.svg"))) == 7
 assert (root / "lib/ternux-assets/themes/Ternux/gtk-4.0/gtk.css").is_file()
 assert (root / "lib/ternux-assets/icons/Ternux/scalable/apps/org.xfce.ristretto.svg").is_file()
+for icon in ("ternux-recorder", "ternux-avro", "ternux-python", "ternux-keyboard",
+             "ternux-launcher", "org.xfce.webbrowser"):
+    assert (root / f"lib/ternux-assets/icons/Ternux/scalable/apps/{icon}.svg").is_file()
+xfwm = root / "lib/ternux-assets/themes/Ternux/xfwm4"
+assert (xfwm / "themerc").is_file()
+assert all(not asset.is_symlink() for asset in xfwm.glob("*.png"))
+assert len(list(xfwm.glob("*.png"))) >= 40
+recorder = (root / "lib/ternux-recorder.py").read_text()
+assert '"-f", str(self.partial), "-e", "aac", "-c", "1"' in recorder
+assert '"-i"' in recorder and '"-q"' in recorder
+assert 'state.get("outputFile") == str(self.partial)' in recorder
+assert 'Another recording is active; it was left untouched.' in recorder
+assert 'Path.home() / "Music" / "Ternux"' in recorder
 camera = (root / "lib/ternux-camera.py").read_text()
 assert "GdkPixbuf.Pixbuf.new_from_file_at_scale" in camera
+assert "pixbuf.apply_embedded_orientation()" in camera
+assert "button.ternux-compact" in camera and "button.ternux-primary" in camera
+assert 'self.set_default_size(520, 610)' in camera
+assert 'self.open_folder = Gtk.Button(label="Photos")' in camera
 assert "partial.unlink(missing_ok=True)" in camera
 assert 'OUTPUT_DIR = Path.home() / "Pictures" / "Ternux"' in camera
 assert 'API_CAPTURE_DIR = TERMUX_HOME / ".cache" / "ternux-camera"' in camera
 assert 'Back camera selected' in camera and 'self.camera.set_active_id(back)' in camera
-assert 'Termux:API has no live video feed' in camera
+assert 'Termux:API only returns captured photos' in camera
+assert "Ternux Sound Recorder" in (root / "lib/phases.sh").read_text()
+assert "ternux-recorder.desktop" in (root / "lib/ternux-panel-shortcuts.sh").read_text()
 PYMANIFEST
 then
   ok "APT manifest includes all Debian phase resources"
@@ -470,10 +490,10 @@ else
   ok "Debian phase fails closed when a packaged resource is missing"
 fi
 
-if sh -n "$ROOT/lib/ternux-panel-shortcuts.sh" && grep -q 'panel-shortcuts-v1' "$ROOT/lib/ternux-panel-shortcuts.sh"; then
-  ok "one-time Ternux Camera and Photos panel shortcuts are valid"
+if sh -n "$ROOT/lib/ternux-panel-shortcuts.sh" && grep -q 'panel-shortcuts-v2' "$ROOT/lib/ternux-panel-shortcuts.sh"; then
+  ok "one-time Ternux Camera, Photos and Sound Recorder panel shortcuts are valid"
 else
-  not_ok "one-time Ternux Camera and Photos panel shortcuts are valid"
+  not_ok "one-time Ternux Camera, Photos and Sound Recorder panel shortcuts are valid"
 fi
 
 # Generated launchers must target the chosen account, use repeatable --env

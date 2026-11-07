@@ -332,8 +332,8 @@ tnx_install_guest_cli() {
 tnx_phase_debian() {
   local user_name="${1:-ternux}"
   local resource_dir="${BASH_SOURCE[0]%/*}"
-  local welcome_b64 welcome_gui_b64 window_fit_b64 camera_gui_b64 panel_shortcuts_b64 ternux_assets_b64 resource
-  for resource in ternux-welcome.sh ternux-welcome-gui.py ternux-window-fit.lua ternux-camera.py ternux-panel-shortcuts.sh; do
+  local welcome_b64 welcome_gui_b64 window_fit_b64 camera_gui_b64 recorder_gui_b64 panel_shortcuts_b64 ternux_assets_b64 resource
+  for resource in ternux-welcome.sh ternux-welcome-gui.py ternux-window-fit.lua ternux-camera.py ternux-recorder.py ternux-panel-shortcuts.sh; do
     if [ ! -s "$resource_dir/$resource" ] || [ ! -r "$resource_dir/$resource" ]; then
       tnx_fail "Required Debian desktop resource is missing or unreadable: $resource_dir/$resource"
       return 1
@@ -347,6 +347,7 @@ tnx_phase_debian() {
   welcome_gui_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-welcome-gui.py" | tr -d '\n')" || return 1
   window_fit_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-window-fit.lua" | tr -d '\n')" || return 1
   camera_gui_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-camera.py" | tr -d '\n')" || return 1
+  recorder_gui_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-recorder.py" | tr -d '\n')" || return 1
   panel_shortcuts_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-panel-shortcuts.sh" | tr -d '\n')" || return 1
   ternux_assets_b64="$(set -o pipefail; tar -czf - -C "$resource_dir/ternux-assets" icons wallpapers themes | base64 | tr -d '\n')" || return 1
 
@@ -362,20 +363,31 @@ tnx_phase_debian() {
     DPKG_FORCE=\"-o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -o APT::Color=1 -o Dpkg::Progress-Fancy=1\"
     apt update -o APT::Color=1
     dpkg --configure -a --force-confold --force-confdef || true
-    apt install -y \$DPKG_FORCE sudo nano mousepad fonts-noto-core python3-gi gir1.2-gtk-3.0 ibus ibus-avro devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol x11-utils mesa-utils libgl1-mesa-dri adwaita-icon-theme papirus-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc guvcview ristretto qt5-gtk-platformtheme arc-theme colord
+    apt install -y \$DPKG_FORCE sudo nano mousepad fonts-noto-core python3-gi gir1.2-gtk-3.0 ibus ibus-avro devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol x11-utils mesa-utils libgl1-mesa-dri adwaita-icon-theme papirus-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc guvcview ristretto qt5-gtk-platformtheme colord
     asset_stage=\$(mktemp -d /tmp/ternux-assets.XXXXXX)
     printf '%s' '$ternux_assets_b64' | base64 -d | tar -xz -C "\$asset_stage"
     install -d -m 0755 /usr/share/icons/Ternux /usr/share/themes/Ternux /usr/share/backgrounds/ternux
     cp -a "\$asset_stage/icons/Ternux/." /usr/share/icons/Ternux/
     cp -a "\$asset_stage/themes/Ternux/." /usr/share/themes/Ternux/
-    if [ -d /usr/share/themes/Arc-Dark/xfwm4 ]; then
-      for frame_asset in /usr/share/themes/Arc-Dark/xfwm4/*; do
-        [ "\$\{frame_asset##*/\}" = themerc ] || [ -e "/usr/share/themes/Ternux/xfwm4/\$\{frame_asset##*/\}" ] || ln -sfn "\$frame_asset" "/usr/share/themes/Ternux/xfwm4/\$\{frame_asset##*/\}"
-      done
-    fi
+    rm -f /usr/share/backgrounds/ternux/aurora.svg
     cp -a "\$asset_stage/wallpapers/." /usr/share/backgrounds/ternux/
     rm -rf "\$asset_stage"
     gtk-update-icon-cache -f /usr/share/icons/Ternux >/dev/null 2>&1 || true
+    install -d -m 0755 /usr/local/share/applications
+    for icon_pair in \
+      'ibus-setup-ibus-avro.desktop ternux-avro' \
+      'python3.13.desktop ternux-python' \
+      'im-config.desktop ternux-keyboard' \
+      'panel-desktop-handler.desktop ternux-launcher' \
+      'xfce4-web-browser.desktop org.xfce.webbrowser' \
+      'guvcview.desktop guvcview'; do
+      set -- \${icon_pair% *} \${icon_pair#* }
+      source_entry="/usr/share/applications/\$1"
+      if [ -r "\$source_entry" ]; then
+        sed "s#^Icon=.*#Icon=\$2#" "\$source_entry" > "/usr/local/share/applications/\$1"
+        chmod 0644 "/usr/local/share/applications/\$1"
+      fi
+    done
     apt install -y \$DPKG_FORCE polkitd || apt install -y \$DPKG_FORCE policykit-1 || true
     apt install -y \$DPKG_FORCE libvulkan1 vulkan-tools || true
     apt install -y \$DPKG_FORCE zip unzip xarchiver unrar-free || true
@@ -397,6 +409,7 @@ tnx_phase_debian() {
       rm \"\$H/Pictures/Ternux\"
     fi
     install -d -o \"\$U\" -g \"\$U\" -m 0755 \"\$H/Pictures/Ternux\"
+    install -d -o \"\$U\" -g \"\$U\" -m 0755 \"\$H/Music/Ternux\"
     install -d -o \"\$U\" -g \"\$U\" -m 0755 \"\$H/.config/xfce4/terminal\"
     if [ ! -e \"\$H/.config/xfce4/terminal/terminalrc\" ]; then
       cat > \"\$H/.config/xfce4/terminal/terminalrc\" <<'TERMINAL'
@@ -445,6 +458,9 @@ TERMINAL
     printf '%s' '${camera_gui_b64}' | base64 -d > /usr/local/bin/ternux-camera
     chown root:root /usr/local/bin/ternux-camera
     chmod 0755 /usr/local/bin/ternux-camera
+    printf '%s' '${recorder_gui_b64}' | base64 -d > /usr/local/bin/ternux-recorder
+    chown root:root /usr/local/bin/ternux-recorder
+    chmod 0755 /usr/local/bin/ternux-recorder
     printf '%s' '${panel_shortcuts_b64}' | base64 -d > /usr/local/bin/ternux-panel-shortcuts
     chown root:root /usr/local/bin/ternux-panel-shortcuts
     chmod 0755 /usr/local/bin/ternux-panel-shortcuts
@@ -460,6 +476,18 @@ Categories=AudioVideo;Photography;
 StartupNotify=true
 DESKTOP
     chmod 0644 /usr/share/applications/ternux-camera.desktop
+    cat > /usr/share/applications/ternux-recorder.desktop <<'DESKTOP'
+[Desktop Entry]
+Type=Application
+Name=Ternux Sound Recorder
+Comment=Record on demand from the Android microphone
+Exec=/usr/local/bin/ternux-recorder
+Icon=ternux-recorder
+Terminal=false
+Categories=AudioVideo;Audio;Recorder;
+StartupNotify=true
+DESKTOP
+    chmod 0644 /usr/share/applications/ternux-recorder.desktop
     cat > /usr/share/applications/ternux-photos.desktop <<DESKTOP
 [Desktop Entry]
 Type=Application
@@ -498,8 +526,6 @@ PM
     chown root:root /usr/local/bin/ternux-welcome
     chmod 0755 /usr/local/bin/ternux-welcome
     install -d -o root -g root -m 0755 /usr/share/backgrounds/ternux
-    ln -sfn 01-aurora-circuit.svg /usr/share/backgrounds/ternux/aurora.svg
-    chown -h root:root /usr/share/backgrounds/ternux/aurora.svg
     chmod 0644 /usr/share/backgrounds/ternux/*.svg
     cat > \"\$H/.config/autostart/ternux-window-fit.desktop\" <<'DESKTOP'
 [Desktop Entry]
@@ -1114,6 +1140,7 @@ proot-distro login $distro --shared-tmp --bind /dev/kgsl-3d0:/dev/kgsl --bind /d
         xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg >/dev/null 2>&1 || true
         xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/workspace0/image-style --create -t int -s 5 >/dev/null 2>&1 || true
         xfconf-query -c xfwm4 -p /general/theme --create -t string -s Ternux
+        xfconf-query -c xfwm4 -p /general/button_layout --create -t string -s '|HMC'
         for panel_id in \\\$(xfconf-query -c xfce4-panel -l 2>/dev/null | sed -n 's#^/panels/\(panel-[0-9][0-9]*\)/.*#\1#p' | sort -u); do
           xfconf-query -c xfce4-panel -p "/panels/\$panel_id/background-style" --create -t int -s 0 >/dev/null 2>&1 || true
         done
@@ -1130,6 +1157,12 @@ proot-distro login $distro --shared-tmp --bind /dev/kgsl-3d0:/dev/kgsl --bind /d
         fi
         install -d -m 0755 "/home/$user_name/.config/ternux"
         : > "\\\$icon_migration_marker"
+      fi
+      wm_controls_marker="/home/$user_name/.config/ternux/window-controls-v2"
+      if [ ! -e "\$wm_controls_marker" ]; then
+        xfconf-query -c xfwm4 -p /general/button_layout --create -t string -s '|HMC' >/dev/null 2>&1 || true
+        install -d -m 0755 "/home/$user_name/.config/ternux"
+        : > "\$wm_controls_marker"
       fi
       /usr/local/bin/ternux-panel-shortcuts >/dev/null 2>&1 || true
       wait \\\$session_pid
@@ -1206,6 +1239,7 @@ proot-distro login $distro --shared-tmp --bind "\$TNX_CPUINFO_FILE:/proc/cpuinfo
         xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg >/dev/null 2>&1 || true
         xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/workspace0/image-style --create -t int -s 5 >/dev/null 2>&1 || true
         xfconf-query -c xfwm4 -p /general/theme --create -t string -s Ternux
+        xfconf-query -c xfwm4 -p /general/button_layout --create -t string -s '|HMC'
         for panel_id in \\\$(xfconf-query -c xfce4-panel -l 2>/dev/null | sed -n 's#^/panels/\(panel-[0-9][0-9]*\)/.*#\1#p' | sort -u); do
           xfconf-query -c xfce4-panel -p "/panels/\$panel_id/background-style" --create -t int -s 0 >/dev/null 2>&1 || true
         done
@@ -1222,6 +1256,12 @@ proot-distro login $distro --shared-tmp --bind "\$TNX_CPUINFO_FILE:/proc/cpuinfo
         fi
         install -d -m 0755 "/home/$user_name/.config/ternux"
         : > "\\\$icon_migration_marker"
+      fi
+      wm_controls_marker="/home/$user_name/.config/ternux/window-controls-v2"
+      if [ ! -e "\$wm_controls_marker" ]; then
+        xfconf-query -c xfwm4 -p /general/button_layout --create -t string -s '|HMC' >/dev/null 2>&1 || true
+        install -d -m 0755 "/home/$user_name/.config/ternux"
+        : > "\$wm_controls_marker"
       fi
       /usr/local/bin/ternux-panel-shortcuts >/dev/null 2>&1 || true
       wait \\\$session_pid
