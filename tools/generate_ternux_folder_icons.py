@@ -15,7 +15,7 @@ GLYPHS = {
     "folder-download": '<path d="M32 29v16m-7-7 7 7 7-7M23 49h18"/>',
     "folder-games": '<path d="M25 34h14a6 6 0 0 1 5 9l-2 4-7-5h-8l-7 5-2-4a6 6 0 0 1 7-9z"/><path d="M26 36v6m-3-3h6"/><circle cx="38" cy="38" r="1" fill="#b5ffd7"/><circle cx="41" cy="41" r="1" fill="#b5ffd7"/>',
     "folder-home": '<path d="m21 38 11-9 11 9m-18-2v13h14V36m-9 13v-8h5v8"/>',
-    "folder-important": '<path fill="#b5ffd7" stroke="none" d="m32 28 4 9 10 1-7.5 6.5 2.3 10L32 49l-8.8 5.5 2.3-10L18 38l10-1z"/>',
+    "folder-important": '<circle cx="32" cy="40" r="11"/><path d="M32 34v8m0 4v.2"/>',
     "folder-music": '<path d="M35 29v16a5 5 0 1 1-3-4V32l12-3v12a5 5 0 1 1-3-4v-9z"/>',
     "folder-network": '<circle cx="32" cy="31" r="4"/><circle cx="23" cy="46" r="4"/><circle cx="41" cy="46" r="4"/><path d="m30 35-5 7m9-7 5 7m-12 4h10"/>',
     "folder-open": '<path d="M21 36h24l-4 12H20l-2-15h8l4 3"/><path d="M27 29h12l4 5"/>',

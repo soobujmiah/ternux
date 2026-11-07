@@ -363,7 +363,7 @@ tnx_phase_debian() {
     DPKG_FORCE=\"-o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -o APT::Color=1 -o Dpkg::Progress-Fancy=1\"
     apt update -o APT::Color=1
     dpkg --configure -a --force-confold --force-confdef || true
-    apt install -y \$DPKG_FORCE sudo nano mousepad fonts-noto-core python3-gi gir1.2-gtk-3.0 ibus ibus-avro devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol x11-utils mesa-utils libgl1-mesa-dri adwaita-icon-theme papirus-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc ffmpeg ristretto qt5-gtk-platformtheme colord
+    apt install -y \$DPKG_FORCE sudo nano mousepad galculator mupdf fonts-noto-core python3-gi gir1.2-gtk-3.0 ibus ibus-avro devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol x11-utils mesa-utils libgl1-mesa-dri adwaita-icon-theme papirus-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc ffmpeg ristretto qt5-gtk-platformtheme colord
     apt remove -y \$DPKG_FORCE guvcview >/dev/null 2>&1 || true
     rm -f /usr/local/share/applications/guvcview.desktop
     asset_stage=\$(mktemp -d /tmp/ternux-assets.XXXXXX)
@@ -501,6 +501,7 @@ Categories=Graphics;Photography;
 StartupNotify=true
 DESKTOP
     chmod 0644 /usr/share/applications/ternux-photos.desktop
+    install -m 0644 "\$asset_stage/applications/ternux-sdcard.desktop" /usr/share/applications/ternux-sdcard.desktop
     install -d -m 0755 /usr/local/share/applications
     for vlc_entry in /usr/share/applications/vlc*.desktop; do
       [ -f "\$vlc_entry" ] || continue
@@ -513,9 +514,15 @@ DESKTOP
     cp /usr/share/applications/ternux-photos.desktop "\$H/Desktop/Ternux-Photos.desktop"
     chown "\$U:\$U" "\$H/Desktop/Ternux-Camera.desktop" "\$H/Desktop/Ternux-Photos.desktop"
     chmod 0755 "\$H/Desktop/Ternux-Camera.desktop" "\$H/Desktop/Ternux-Photos.desktop"
+    if [ ! -e "\$H/Desktop/SD-Card.desktop" ]; then
+      cp /usr/share/applications/ternux-sdcard.desktop "\$H/Desktop/SD-Card.desktop"
+      chown "\$U:\$U" "\$H/Desktop/SD-Card.desktop"
+      chmod 0755 "\$H/Desktop/SD-Card.desktop"
+    fi
     for mime in image/jpeg image/png image/gif image/webp image/tiff image/bmp; do
       runuser -u "\$U" -- env HOME="\$H" xdg-mime default org.xfce.ristretto.desktop "\$mime" || true
     done
+    runuser -u "\$U" -- env HOME="\$H" xdg-mime default mupdf.desktop application/pdf || true
     cat > /usr/bin/pm-is-supported <<'PM'
 #!/bin/sh
 # PRoot has no permission to suspend or hibernate the Android host.
@@ -2310,7 +2317,9 @@ tnx_install() {
         golang) workload_label="Go toolchain" ;;
         php) workload_label="PHP CLI" ;;
         sqlite3) workload_label="SQLite" ;;
-        ripgrep|jq|htop|tree|micro|thonny|thunderbird|evince|libreoffice-calc) workload_label="$workload" ;;
+        ripgrep|jq|htop|tree|micro|thonny|thunderbird|evince) workload_label="$workload" ;;
+        libreoffice-writer) workload_label="LibreOffice Writer" ;;
+        libreoffice-calc) workload_label="LibreOffice Calc" ;;
         llama-vulkan) workload_label="llama.cpp Vulkan release" ;;
         stable-diffusion) workload_label="Stable Diffusion CPU + Vulkan image generator" ;;
         llama-htp-experimental) workload_label="llama.cpp HTP experimental release" ;;

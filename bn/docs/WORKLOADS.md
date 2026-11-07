@@ -32,8 +32,7 @@ Model weight user-এর নিজের। `--with-llm` এখনও llama.cpp 
 managed CPU + Vulkan extension থেকে আলাদা। `--yes` ও non-interactive run-এ flag না
 থাকলে শুধু base profile বসে।
 
-Catalog-এ Go, PHP, SQLite, ripgrep, jq, htop, tree, Micro, Thonny, Thunderbird,
-Evince ও LibreOffice Calc-ও আছে; সম্পর্কিত software এক category-তে সাজানো।
+Base desktop-এ scientific calculator Galculator এবং lightweight PDF reader MuPDF থাকে; PDF ফাইল Debian-এর MuPDF app-এ ডিফল্টভাবে খোলে। Optional catalog-এ LibreOffice Writer ও Calc আলাদা item হিসেবে আছে। এ ছাড়া Go, PHP, SQLite, ripgrep, jq, htop, tree, Micro, Thonny, Thunderbird ও Evince-ও পাওয়া যায়।
 
 Install শুরুর আগে Ternux নির্বাচিত optional software অনুযায়ী আনুমানিক storage
 estimate দেখায়; এতে download ও setup-এর অস্থায়ী জায়গাও ধরা হয়। Terminal যথেষ্ট

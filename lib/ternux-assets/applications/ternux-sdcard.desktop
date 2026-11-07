@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=SD Card
+Comment=Open Android shared storage in Thunar
+Exec=thunar /sdcard
+Icon=drive-removable-media
+Terminal=false
+Categories=System;FileTools;
+StartupNotify=true

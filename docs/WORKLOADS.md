@@ -37,8 +37,7 @@ build llama.cpp from source; it is separate from the managed CPU + Vulkan
 extension. `--yes` and non-interactive runs keep the base profile unless flags
 select workloads.
 
-The catalog also includes Go, PHP, SQLite, ripgrep, jq, htop, tree, Micro,
-Thonny, Thunderbird, Evince, and LibreOffice Calc, grouped with related tools.
+The base desktop includes Galculator and MuPDF for quick scientific calculations and lightweight PDF viewing. PDF files open with Debian's MuPDF app by default. The optional catalog also offers LibreOffice Writer and LibreOffice Calc as separate choices, along with Go, PHP, SQLite, ripgrep, jq, htop, tree, Micro, Thonny, Thunderbird, and Evince.
 
 Before installation, Ternux shows a rough storage estimate based on the selected
 optional software, including temporary download and setup space. In a sufficiently

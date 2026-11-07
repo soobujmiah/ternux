@@ -126,7 +126,7 @@ if env TERNUX_STATE_DIR="$TMP/state-welcome" HOME="$TMP/home-welcome" \
     tnx_guest_login(){ if [ "${3:-}" = bash ] && [ "${4:-}" = -c ] && [[ "$5" == *ternux-welcome.desktop* ]]; then printf "%s\n" "$5" > "$MARKER"; bash -n "$MARKER" || return 1; fi; return 0; }
     tnx_phase_debian alice >/dev/null &&
       grep -q "Exec=/usr/local/bin/ternux-welcome" "$MARKER" &&
-      grep -q "mousepad.*fonts-noto-core.*ibus ibus-avro devilspie2" "$1/lib/phases.sh" &&
+      grep -q "mousepad galculator mupdf.*fonts-noto-core.*ibus ibus-avro devilspie2" "$1/lib/phases.sh" &&
       grep -q "xfce4-taskmanager.*xfce4-terminal zenity vlc ffmpeg ristretto qt5-gtk-platformtheme colord" "$1/lib/phases.sh" &&
       grep -q "vout=xcb_x11" "$1/lib/phases.sh" &&
       grep -q "avcodec-hw=none" "$1/lib/phases.sh" &&
@@ -463,6 +463,9 @@ for icon in ("user-desktop", "desktop", "network-server", "network-workgroup"):
 folder_icons = sorted(places_icons.glob("folder*.svg"))
 assert len(folder_icons) >= 20
 assert len({icon.read_bytes() for icon in folder_icons}) == len(folder_icons)
+important_icon = (places_icons / "folder-important.svg").read_text()
+assert "m32 28 4 9 10 1" not in important_icon
+assert '<circle cx="32" cy="40" r="11"/>' in important_icon
 panel_icons = root / "lib/ternux-assets/icons/Ternux/scalable/apps"
 for icon in ("org.xfce.panel.applicationsmenu", "org.xfce.panel.showdesktop",
              "org.xfce.panel.directorymenu", "org.xfce.panel.actions", "org.xfce.panel.pager",
@@ -511,7 +514,23 @@ assert 'stream=codec_name:format=duration' in recorder
 assert 'Recovery copy remains in' in recorder
 assert 'with_suffix(".partial" + self.target.suffix)' in recorder
 assert "ffmpeg ristretto" in (root / "lib/phases.sh").read_text()
+assert "mousepad galculator mupdf" in (root / "lib/phases.sh").read_text()
+assert (root / "lib/ternux-assets/icons/Ternux/scalable/apps/galculator.svg").is_file()
 desktop_phase = (root / "lib/phases.sh").read_text()
+assert "libreoffice-writer) workload_label=\"LibreOffice Writer\"" in desktop_phase
+assert "libreoffice-calc) workload_label=\"LibreOffice Calc\"" in desktop_phase
+sdcard_desktop = root / "lib/ternux-assets/applications/ternux-sdcard.desktop"
+assert "Name=SD Card" in sdcard_desktop.read_text()
+assert "Exec=thunar /sdcard" in sdcard_desktop.read_text()
+assert "Icon=drive-removable-media" in sdcard_desktop.read_text()
+assert r'install -m 0644 "\$asset_stage/applications/ternux-sdcard.desktop"' in desktop_phase
+assert 'Desktop/SD-Card.desktop' in desktop_phase
+assert "runuser -u \"\\$U\" -- env HOME=\"\\$H\" xdg-mime default mupdf.desktop application/pdf" in desktop_phase
+assert not (root / "lib/ternux-assets/applications/ternux-pdf.desktop").exists()
+launcher_icon = (root / "lib/ternux-assets/icons/Ternux/scalable/apps/ternux-launcher.svg").read_text()
+assert "M32 20v24M20 32h24" not in launcher_icon
+assert 'width="9" height="9"' in launcher_icon
+assert (root / "lib/ternux-assets/icons/Ternux/scalable/devices/drive-removable-media.svg").is_file()
 assert "apt remove -y \\$DPKG_FORCE guvcview" in desktop_phase
 assert not next(line for line in desktop_phase.splitlines() if "apt install -y \\$DPKG_FORCE sudo nano" in line).strip().endswith("guvcview")
 camera = (root / "lib/ternux-camera.py").read_text()

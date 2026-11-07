@@ -1111,6 +1111,14 @@
     "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/window-close.svg": {
       "source": "lib/ternux-assets/icons/Ternux/scalable/apps/window-close.svg",
       "perm": "644"
+    },
+    "lib/ternux/ternux-assets/applications/ternux-sdcard.desktop": {
+      "source": "lib/ternux-assets/applications/ternux-sdcard.desktop",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/galculator.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/galculator.svg",
+      "perm": "644"
     }
   }
 }
