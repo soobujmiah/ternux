@@ -1272,6 +1272,21 @@ same model answered `4`; the brokered child exited 0 and CDSP returned `[0, 0]`
 on close. Generation measured 16.7 tok/s for this eight-token check. This
 validates one controlled cancel-then-reopen sequence only.
 
+### 2026-11-07 single-turn chat-format known-answer screen (Qwen2.5 1.5B)
+
+I used the existing `/sdcard/LAI/models/qwen2.5-1.5b-instruct-q4_k_m.gguf`
+in place (SHA-256 `6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e`).
+CPU and Vulkan used the same installed b11582 binary; HTP used the installed
+managed experimental build `b1-af50f2f`. All three ran a single-turn chat
+(`-st --simple-io --no-display-prompt`), context 2048, four threads, batch and
+ubatch 128, temperature 0, seed 42, no warmup, 16-token maximum, with the same
+prompt: “What is the capital of France? Answer with one word.” All three
+returned `Paris`. Reported generation rates were CPU 3.3, Vulkan 16.6, and HTP
+15.5 tok/s. HTP child exit was 0 and CDSP `closeSession` returned `[0, 0]`.
+
+This is one short known-answer check, not broad language-quality evidence. The
+short no-warmup rates are not a backend ranking; HTP also uses a separate build.
+
 ## References
 
 - [glmark2](https://github.com/glmark2/glmark2)
