@@ -2160,7 +2160,7 @@ check "Termux package includes all pinned Mesa license bundle files" python3 -c 
 import json, sys
 m=json.load(open(sys.argv[1]))["data_files"]
 p=[x for x in m if "licenses/mesa-27.0.0-devel-20261025/" in x]
-assert len(p) == 10, p
+assert len(p) == 11, p
 assert all(m[x]["source"] == x.replace("lib/ternux/", "lib/", 1) for x in p), p
 ' "$ROOT/packaging/termux/manifest.json"
 

@@ -45,12 +45,15 @@ with `meson install`. The archive also contains other Mesa binaries, but Ternux
 extracts only `libvulkan_freedreno.so` and
 `freedreno_icd.aarch64.json` for this phase.
 
-This is a binary identity, build-configuration, and runtime-import record, not a
-complete binary-to-source SBOM. The installed ELF has no debug sections or
-per-object license manifest. An exact mapping of all statically linked Mesa
-components and their file-level SPDX terms, plus a reviewed inventory of
-third-party build/runtime components, remains a release gate. Do not infer that
-all source-tree license texts apply to this binary.
+The [Debian runtime snapshot](DEBIAN-RUNTIME-SNAPSHOT.md) maps all direct ELF
+imports to package owners and records installed package versions plus the local
+copyright-file hashes. This is a binary identity, build-configuration, and direct
+runtime-import record, not a complete binary-to-source SBOM. The installed ELF
+has no debug sections or per-object license manifest. An exact mapping of all
+statically linked Mesa components and their file-level SPDX terms, plus a
+reviewed inventory of transitive third-party build/runtime components, remains
+a release gate. Do not infer that all source-tree license texts apply to this
+binary.
 
 Ternux installs this notice bundle beside the downloaded driver at
 `/usr/local/share/doc/ternux/mesa-27.0.0-devel-20261025/`. It does not claim that

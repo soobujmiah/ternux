@@ -32,6 +32,7 @@
     "lib/ternux/ui.sh": {"source": "lib/ui.sh", "perm": "644"},
     "lib/ternux/phases.sh": {"source": "lib/phases.sh", "perm": "644"},
     "lib/ternux/licenses/mesa-27.0.0-devel-20261025/README.md": {"source": "lib/licenses/mesa-27.0.0-devel-20261025/README.md", "perm": "644"},
+    "lib/ternux/licenses/mesa-27.0.0-devel-20261025/DEBIAN-RUNTIME-SNAPSHOT.md": {"source": "lib/licenses/mesa-27.0.0-devel-20261025/DEBIAN-RUNTIME-SNAPSHOT.md", "perm": "644"},
     "lib/ternux/licenses/mesa-27.0.0-devel-20261025/SHA256SUMS": {"source": "lib/licenses/mesa-27.0.0-devel-20261025/SHA256SUMS", "perm": "644"},
     "lib/ternux/licenses/mesa-27.0.0-devel-20261025/docs/license.rst": {"source": "lib/licenses/mesa-27.0.0-devel-20261025/docs/license.rst", "perm": "644"},
     "lib/ternux/licenses/mesa-27.0.0-devel-20261025/licenses/Apache-2.0": {"source": "lib/licenses/mesa-27.0.0-devel-20261025/licenses/Apache-2.0", "perm": "644"},
