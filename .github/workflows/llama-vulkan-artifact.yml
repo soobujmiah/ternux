@@ -99,8 +99,20 @@ jobs:
               "source-relative paths; SHA256SUMS verifies each copied file.\n",
               encoding="utf-8")
           PY_LICENSES
-          test -s "$package/share/licenses/upstream/licenses/LICENSE-jsonhpp"
-          test -s "$package/share/licenses/upstream/vendor/cpp-httplib/LICENSE"
+          python3 - "$package" <<'PY_CHECK_LICENSES'
+          from pathlib import Path
+          import sys
+
+          package = Path(sys.argv[1])
+          bundle = package / "share/licenses/upstream"
+          expected = ("licenses/LICENSE-jsonhpp", "vendor/cpp-httplib/LICENSE")
+          for relative in expected:
+              path = bundle / relative
+              if not path.is_file() or path.stat().st_size == 0:
+                  indexed = (bundle / "INDEX.txt").read_text(encoding="utf-8") if (bundle / "INDEX.txt").exists() else "<missing index>"
+                  raise SystemExit(f"required upstream notice is missing: {relative}; index: {indexed}")
+          print(f"Bundled {len((bundle / 'INDEX.txt').read_text(encoding='utf-8').splitlines())} tracked upstream license/notice files.")
+          PY_CHECK_LICENSES
           file "$package/bin/llama-cli" | tee llama-cli-file.txt
           grep -q 'ARM aarch64' llama-cli-file.txt
           readelf -d "$package/bin/llama-cli" | grep -F '$ORIGIN/../lib'
