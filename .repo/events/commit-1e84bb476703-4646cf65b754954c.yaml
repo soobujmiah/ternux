@@ -1,0 +1,7 @@
+event_id: commit-1e84bb476703-4646cf65b754954c
+repository: soobujmiah/ternux
+commit: 1e84bb476703d02cffdac51bed70e183941ffd79
+kind: commit
+occurred_at: '2026-11-07T08:47:58Z'
+status: completed
+summary: 'docs: record managed llama CPU and Vulkan check (#82)'
