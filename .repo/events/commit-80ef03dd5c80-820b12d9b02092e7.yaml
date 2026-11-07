@@ -1,0 +1,7 @@
+event_id: commit-80ef03dd5c80-820b12d9b02092e7
+repository: soobujmiah/ternux
+commit: 80ef03dd5c80ad631c34d745a37493a4ca3a2ff6
+kind: commit
+occurred_at: '2026-11-07T05:11:09Z'
+status: completed
+summary: 'docs: record HTP cold-start known-answer repeats (#70)'
