@@ -1,0 +1,7 @@
+event_id: commit-200c659fc484-e751013f8ec78216
+repository: soobujmiah/ternux
+commit: 200c659fc484a65c631ce9e72e89cb534cafc6cd
+kind: commit
+occurred_at: '2026-11-07T14:01:43Z'
+status: completed
+summary: 'docs: clarify desktop microphone routing (#94)'
