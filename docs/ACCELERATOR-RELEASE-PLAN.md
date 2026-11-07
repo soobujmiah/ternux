@@ -49,6 +49,20 @@ extension; the owner explicitly deferred packaging it until later. See the
 [HTP qualification handoff](../handoffs/llama-htp-qualification.md).
 See the [Local Dream device evidence](https://github.com/soobujmiah/skb/blob/main/devices/redmi-turbo-4-pro/accelerator-access-audit.md).
 
+On 2026-11-07, the phone ran the new QNN batch path for two images at two
+denoising steps, then ran separate single-image controls for both seeds. Batch
+and control PNG hashes matched exactly: seed 20261014
+cf1cb7bbf4fa3e67dc9d82fc24d93201d103d2e3f552214a54749383ccd68ef2, seed
+20261015
+8bf689f9c555357a1c7704fcbc330e95eaebf3e87c9a3fc075ea85adcac0a0f1. The batch
+loaded one UNet and one decoder QNN context, streamed both verified model
+members once, and took 20.321 s; separate controls took 14.275 s and 12.197 s.
+This is an order-dependent two-step setup-reuse check, not full-generation
+qualification or a controlled performance comparison. The unchanged original
+archive still hashes to
+f479f3221fb90d31de1e695577f5aec9a5afb5fb7e076cfac40f00e039b22977. Independent
+stage correctness and the 3–5 second image target remain open.
+
 These three handoffs are repository-only continuation notes. This file remains
 the single canonical accelerator/release roadmap; do not create a second roadmap.
 

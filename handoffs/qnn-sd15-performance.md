@@ -25,17 +25,20 @@ The owner deferred making this runner a Ternux extension.
   HTP execution in this route; it does not establish why Local Dream is faster.
 - A bounded --count 2..8 mode now reuses each loaded helper context and streams
   the UNet/decoder members only once per invocation. Its host-side mocked tests
-  pass, but it has not been exercised on the device and no throughput gain is
-  claimed. It keeps 40 serial HTP UNet requests per 20-step image.
+  pass. On 2026-11-07, a two-image/two-step phone batch matched separate
+  single-image PNG hashes for seeds 20261014 and 20261015, loaded one context
+  for each QNN member, and took 20.321 s total. Separate controls took 14.275
+  and 12.197 s (26.472 s together). This is a short, order-dependent setup
+  screen, not a controlled throughput benchmark or a 20-step test. It keeps
+  40 serial HTP UNet requests per 20-step image.
 
 ## Next work
 
-1. Preserve the current archive and capture repeatable stage timings under the
-   same resolution/step count; distinguish model acquisition, helper/context
-   startup, CLIP, each HTP call, decoder, and output.
-2. Run the bounded batch on the device; compare count 1 and count 2 output for
-   seed 20261014, then measure total throughput, per-image work, and thermal
-   behavior without changing the source archive.
+1. Run a repeatable full 20-step batch comparison on-device and distinguish
+   model acquisition, helper/context startup, CLIP, each HTP call, decoder, and
+   output, while monitoring thermal behavior.
+2. Extend the same-seed comparison beyond two steps and check numerical/image
+   quality with an independent stage oracle, preserving the source archive.
 3. Profile the two serial CFG requests per step and test graph-level alternatives
    only when compatible with the fixed QNN context.
 4. Compare runtime/provider and model-graph choices with available Local Dream

@@ -42,6 +42,20 @@ packaging পরে করার সিদ্ধান্ত দিয়েছ�
 accelerator/release roadmap, দ্বিতীয় roadmap তৈরি করবেন না।
 [Local Dream device evidence](https://github.com/soobujmiah/skb/blob/main/devices/redmi-turbo-4-pro/accelerator-access-audit.md)।
 
+২০২৬-১১-০৭-এ ফোনে নতুন QNN batch path দিয়ে দুইটি image, প্রতিটিতে দুইটি
+denoising step চালিয়েছি; পরে একই দুই seed-এর জন্য আলাদা single-image control
+চালানো হয়েছে। Batch ও control PNG hash হুবহু মিলে গেছে: seed 20261014-এর
+cf1cb7bbf4fa3e67dc9d82fc24d93201d103d2e3f552214a54749383ccd68ef2 এবং seed
+20261015-এর
+8bf689f9c555357a1c7704fcbc330e95eaebf3e87c9a3fc075ea85adcac0a0f1। Batch-এ একটি
+UNet ও একটি decoder QNN context load হয়েছে, দুইটি verified model member একবার
+করে stream হয়েছে, এবং মোট সময় 20.321 s; আলাদা control-এর সময় 14.275 s ও
+12.197 s। এটি order-sensitive দুই-step setup-reuse check; full-generation
+qualification বা controlled performance comparison নয়। অপরিবর্তিত original
+archive-এর SHA-256 এখনো
+f479f3221fb90d31de1e695577f5aec9a5afb5fb7e076cfac40f00e039b22977। Independent
+stage correctness এবং 3–5 second image target এখনো বাকি।
+
 ### HTP operator diagnostic (২০২৬-১০-১৪)
 
 Workflow run `38567329752`-এর exact Linux ARM64 artifact Ternux Binder/FastRPC
