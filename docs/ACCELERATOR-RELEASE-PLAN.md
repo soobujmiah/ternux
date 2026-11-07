@@ -128,10 +128,11 @@ license texts from the exact matching Mesa source commit in
 `lib/licenses/mesa-27.0.0-devel-20261025/`; the GPU phase installs and checksum-checks
 them at `/usr/local/share/doc/ternux/mesa-27.0.0-devel-20261025/`. On 2026-11-07, the
 live Debian updater installed Mesa 27.0.0 and verified every notice hash. A pinned-binary
-inspection now records the installed ICD binary SHA-256, ELF build ID, runtime imports,
-and upstream build configuration in the [Mesa notice bundle](../lib/licenses/mesa-27.0.0-devel-20261025/README.md).
+inspection now records the installed ICD binary SHA-256, ELF build ID, upstream build
+configuration, and direct runtime imports mapped to Debian package owners with installed
+copyright-file hashes in the [Mesa notice bundle](../lib/licenses/mesa-27.0.0-devel-20261025/README.md).
 Exact mapping of statically linked source components to file-level SPDX terms and the
-wider third-party build/runtime license inventory remain open; the bundle does not claim
+wider transitive third-party license inventory remain open; the bundle does not claim
 every source-tree license applies to the extracted binary.
 
 This has a consequence for order 5. Clean-device install verification of the
