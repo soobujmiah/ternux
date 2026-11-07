@@ -930,6 +930,50 @@ BENCH="$HOME/.local/opt/ternux-extensions/llama-vulkan/bin/llama-bench"
 "$BENCH" -m "$MODEL" -p 128 -n 64 -r 3 -t 4 -ngl 99
 ```
 
+### 2026-11-07 managed-extension CPU/Vulkan known-answer check (Qwen GGUF)
+
+I verified the installed `llama-vulkan` extension from the Debian guest using
+the existing `/sdcard/Llms/qwen2.5-0.5b-instruct-q4_0.gguf` file in place
+(SHA-256 `7671c0c304e6ce5a7fc577bcb12aba01e2c155cc2efd29b2213c95b18edaf6ed`).
+The installed `llama-cli` reported version `0.6.0-dev`, build commit
+`af50f2f`, matching the extension manifest. On CPU (`-ngl 0`, two threads),
+the deterministic `2 + 2` prompt returned `4`. On `Vulkan0`, identified as
+Adreno 825, it also returned `4`; the verbose log confirmed **25/25 layers
+offloaded** to Vulkan. This rechecks both installed-extension routes against
+the model currently stored under `/sdcard/Llms`.
+
+The short interactive runs reported 11.6 tok/s generation on CPU and
+19.6 tok/s on Vulkan in two separate invocations. A subsequent same-binary
+`llama-bench` comparison used 128 prompt tokens, 64 generated tokens, two
+threads, and three repetitions per backend:
+
+| Backend | Prompt processing, pp128 (tok/s) | Generation, tg64 (tok/s) |
+|---|---:|---:|
+| CPU (`-ngl 0`) | 133.09 ± 1.39 | 13.15 ± 0.08 |
+| Adreno 825 Vulkan (`-ngl 99`) | 360.96 ± 5.53 | 33.94 ± 0.52 |
+
+Vulkan generation was 2.58× CPU in this bounded benchmark. The benchmark
+identified the file as `qwen2 1B Q4_0`, 630.17M parameters, despite the
+filename's 0.5B label. Results apply only to this exact file, binary, device,
+and settings. They do not qualify output quality, thermal or sustained
+behavior, or other devices. The benchmark executable is llama.cpp
+`0.6.0-dev`, build commit `af50f2f`, SHA-256
+`f62b0d2717159175792d83e807208b90539681611e78b5c3c7acb145fb85112c`.
+
+Reproduce in the Debian guest:
+
+```bash
+MODEL=/sdcard/Llms/qwen2.5-0.5b-instruct-q4_0.gguf
+source "$HOME/.local/opt/ternux-extensions/llama-vulkan/env.sh"
+llama-cli --version
+llama-cli -m "$MODEL" -ngl 0 -t 2 -c 256 \
+  -p 'What is 2 + 2? Answer with the number only.' -n 8 --no-warmup
+llama-cli -m "$MODEL" -dev Vulkan0 -ngl 99 -t 2 -c 256 \
+  -p 'What is 2 + 2? Answer with the number only.' -n 8 --no-warmup -v
+llama-bench -m "$MODEL" -p 128 -n 64 -r 3 -t 2 -ngl 0
+llama-bench -m "$MODEL" -p 128 -n 64 -r 3 -t 2 -ngl 99 -dev Vulkan0
+```
+
 ### 2026-11-07 Qwen2.5 1.5B Q4_K_M CPU/Vulkan benchmark
 
 The pre-existing model `/sdcard/LAI/models/qwen2.5-1.5b-instruct-q4_k_m.gguf`
@@ -1001,6 +1045,57 @@ On SM8735 / HTP V73, llama.cpp detected `HMX FP16: no` and selected its integer-
 The median generation rate was about 1.95× the earlier 24.8 tok/s Adreno Vulkan result and 6.06× the earlier 8.0 tok/s CPU result for the same model and prompt. Those CPU/Vulkan measurements used a different llama.cpp build, so this is a directional comparison rather than a same-binary comparison. The file name calls this a 0.5B model, but its GGUF metadata previously reported 630.17M parameters; these results apply to the exact file.
 
 In the same guest and artifact, HTP `MUL_MAT` correctness completed 1,588/1,588 tests, and `GATED_DELTA_NET` completed 43/43. The full `FLASH_ATTN_EXT` suite aborted with a DSP `INTERNAL-ERROR` (child exit `-6`); a filtered, backend-reported supported subset (`kv=1024, nb=32`) reproduced the abort. In both cases the broker reported a clean CDSP `closeSession` reply `[0, 0]`. Therefore the candidate is **not** broadly operator-qualified. Ternux's production HTP launcher remains on the previously tested HVX matmul path with flash attention disabled. The candidate was not installed as an extension and does not qualify the upstream PR for release.
+
+### 2026-11-07 SM8735 integer-HMX model perplexity screen
+
+I compared the disposable PR #29740 candidate's CPU and integer-HMX routes
+against the same existing GGUF weights. The model files were not moved or
+modified. The test used the upstream llama.cpp `wikitext-2-raw-v1.zip` corpus
+from `ggml-org/ci` (archive SHA-256
+`ef7edb566e3e2b2d31b29c1fdb0c89a4cc683597484c3dc2517919c615435a11`; extracted
+`wiki.test.raw` SHA-256
+`173c87a53759e0201f33e0ccf978e510c2042d7f2cb78229d9a50d79b9e7dd08`). Both
+runs used the first ten 512-token chunks, context/batch/ubatch 512, four CPU
+threads, flash attention off, and the same candidate build. The HTP run used
+`GGML_HEXAGON_MM_SELECT=2` (HMX) through the Binder/FastRPC broker; it exited
+0 and CDSP `closeSession` returned `[0, 0]`.
+
+| Existing model | CPU PPL | Candidate HMX PPL | Absolute difference | Relative difference |
+|---|---:|---:|---:|---:|
+| `/sdcard/Llms/qwen2.5-0.5b-instruct-q4_0.gguf` (SHA-256 `7671c0c304e6ce5a7fc577bcb12aba01e2c155cc2efd29b2213c95b18edaf6ed`) | 19.1083 ± 1.15135 | 19.0430 ± 1.14537 | 0.0653 | 0.34% |
+| `/sdcard/LAI/models/qwen2.5-1.5b-instruct-q4_k_m.gguf` (SHA-256 `6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e`) | 12.1935 ± 0.65831 | 12.1015 ± 0.65151 | 0.0920 | 0.75% |
+
+This is a useful target-device perplexity agreement signal across these two
+models, not proof of token-by-token equality, broad answer quality, every HTP
+operator, or sustained stability. The HTP program also logged that it could not
+query free device memory for its automatic fit heuristic because the test set
+`-ngl 99`; inference continued to completion. It does not change the production extension:
+the candidate remains unmerged and its `FLASH_ATTN_EXT` path aborted on this
+SM8735, while the production launcher keeps flash attention disabled. The
+candidate is not yet release-qualified.
+
+Reproduce in the isolated Debian guest after extracting the checksum-verified
+candidate under `/tmp/ternux-hmx-probe-42348072918/extracted/` and the corpus
+under `/tmp/ternux-hmx-quality/`:
+
+```bash
+PKG=/tmp/ternux-hmx-probe-42348072918/extracted/ternux-llama-htp-sm8735-hmx-probe-08c8373
+DATA=/tmp/ternux-hmx-quality/wikitext-2-raw/wiki.test.raw
+MODEL=/mnt/sdcard/Llms/qwen2.5-0.5b-instruct-q4_0.gguf
+export LD_LIBRARY_PATH="$PKG/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+"$PKG/bin/llama-perplexity" -m "$MODEL" -f "$DATA" -ngl 0 -dev none \
+  -t 4 -c 512 -b 512 -ub 512 --chunks 10 -fa off --no-warmup
+export ADSP_LIBRARY_PATH="$PKG/lib"
+export LD_PRELOAD="$PKG/lib/libternux-htp-broker.so"
+export GGML_HEXAGON_MM_SELECT=2
+timeout 240 python3 "$PKG/libexec/htp-broker.py" -- \
+  "$PKG/bin/llama-perplexity" -m "$MODEL" -f "$DATA" -ngl 99 \
+  -dev HTP0 -t 4 -c 512 -b 512 -ub 512 --chunks 10 -fa off --no-warmup
+```
+
+Repeat with the `/mnt/sdcard/LAI/models/qwen2.5-1.5b-instruct-q4_k_m.gguf`
+model for the second row. These logs are in Termux temporary storage at
+`/tmp/ternux-hmx-quality/{cpu-ppl,htp-ppl,cpu-1p5-ppl,htp-1p5-ppl}.log`.
 
 ## References
 
