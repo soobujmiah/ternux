@@ -23,16 +23,21 @@ The owner deferred making this runner a Ternux extension.
   write 0.044 s. Decoder-member acquisition was 0.477 s.
 - The run logs QNN HTP/DSP graph execution for UNet and VAE. This establishes
   HTP execution in this route; it does not establish why Local Dream is faster.
+- A bounded --count 2..8 mode now reuses each loaded helper context and streams
+  the UNet/decoder members only once per invocation. Its host-side mocked tests
+  pass, but it has not been exercised on the device and no throughput gain is
+  claimed. It keeps 40 serial HTP UNet requests per 20-step image.
 
 ## Next work
 
 1. Preserve the current archive and capture repeatable stage timings under the
    same resolution/step count; distinguish model acquisition, helper/context
    startup, CLIP, each HTP call, decoder, and output.
-2. Inspect whether the archive can be opened once and the helper/context reused
-   safely across images, without writing or changing the original model.
-3. Profile the two serial CFG requests per step and test batching or graph-level
-   alternatives only when compatible with the fixed QNN context.
+2. Run the bounded batch on the device; compare count 1 and count 2 output for
+   seed 20261014, then measure total throughput, per-image work, and thermal
+   behavior without changing the source archive.
+3. Profile the two serial CFG requests per step and test graph-level alternatives
+   only when compatible with the fixed QNN context.
 4. Compare runtime/provider and model-graph choices with available Local Dream
    evidence. Do not attribute the gap without a measured comparison.
 5. Recheck output correctness and thermal behavior after any change.

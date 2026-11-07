@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Run one fixed-seed SD1.5 image using the in-place QNN archive.
+"""Run fixed-seed SD1.5 images using the in-place QNN archive.
 
 CLIP runs on CPU through the archive's MNN model. UNet and VAE decoder run on
-Qualcomm HTP through a persistent Android/Bionic helper. Model ZIP members are
-streamed to sealed anonymous memfds; only the final PNG and text logs touch disk.
+Qualcomm HTP through persistent Android/Bionic helpers. Model ZIP members are
+streamed once per batch to sealed anonymous memfds; only PNGs and text logs touch disk.
 """
 
 import argparse
@@ -223,6 +223,109 @@ def _qnn_decode(proc, ready, latents):
     return _read_exact(proc.stdout, 3 * 512 * 512 * 2)
 
 
+def _image_outputs(output, count):
+    if count == 1:
+        return [output]
+    suffix = output.suffix or ".png"
+    return [output.with_name(f"{output.stem}-{index + 1:03d}{suffix}")
+            for index in range(count)]
+
+
+def _run_batch(args, archive_path, helper, runtime_dir, outputs):
+    """Reuse each HTP context for a bounded batch and acquire model bytes once."""
+    timesteps, sigmas = dpm_schedule(args.steps)
+    started = time.monotonic()
+    with zipfile.ZipFile(archive_path) as archive:
+        negative, positive = _clip_hidden(archive, [args.negative_prompt, args.prompt])
+        latents = []
+        unet_log = Path(str(outputs[0]) + ".unet.log")
+        with unet_log.open("xb") as log_file:
+            with member_fd(archive_path, "unet.bin") as (unet_fd, evidence):
+                if evidence["sha256"] != UNET_SHA256:
+                    raise ValueError("UNet context SHA-256 mismatch")
+                print(json.dumps({"stage": "model_stream", **evidence}), flush=True)
+                proc, ready = _start_server(helper, unet_fd, "--serve-unet", runtime_dir, log_file)
+                if ready.get("kind") != "unet":
+                    if proc.poll() is None:
+                        proc.kill()
+                        proc.wait()
+                    raise RuntimeError("unexpected UNet helper handshake")
+                try:
+                    for image_index in range(args.count):
+                        image_start = time.monotonic()
+                        seed = args.seed + image_index
+                        rng = np.random.default_rng(seed)
+                        latent = rng.standard_normal((1, 4, 64, 64), dtype=np.float32)
+                        prior_x0 = []
+                        for step_index, timestep in enumerate(timesteps):
+                            step_start = time.monotonic()
+                            uncond = _qnn_run_unet(proc, ready, latent, timestep, negative)
+                            cond = _qnn_run_unet(proc, ready, latent, timestep, positive)
+                            epsilon = uncond + args.cfg * (cond - uncond)
+                            latent, x0 = dpm_step(latent, epsilon, step_index, sigmas, prior_x0)
+                            prior_x0 = (prior_x0 + [x0])[-2:]
+                            if not np.isfinite(latent).all():
+                                raise RuntimeError(f"non-finite latent after step {step_index}")
+                            print(json.dumps({"stage": "unet_step", "image_index": image_index + 1,
+                                              "index": step_index + 1, "total": len(timesteps),
+                                              "timestep": int(timestep),
+                                              "seconds": round(time.monotonic() - step_start, 3)}),
+                                  flush=True)
+                        latents.append((latent, seed, image_start, time.monotonic()))
+                    proc.stdin.write(struct.pack("<I", 0))
+                    proc.stdin.flush()
+                    if proc.wait(timeout=30) != 0:
+                        raise RuntimeError(f"UNet helper failed; see {unet_log}")
+                except BaseException:
+                    if proc.poll() is None:
+                        proc.kill()
+                        proc.wait()
+                    raise
+
+        decoder_log = Path(str(outputs[0]) + ".decoder.log")
+        with decoder_log.open("xb") as log_file:
+            with member_fd(archive_path, "vae_decoder.bin") as (decoder_fd, evidence):
+                if evidence["sha256"] != DECODER_SHA256:
+                    raise ValueError("decoder context SHA-256 mismatch")
+                print(json.dumps({"stage": "model_stream", **evidence}), flush=True)
+                proc, ready = _start_server(helper, decoder_fd, "--serve-decoder",
+                                            runtime_dir, log_file)
+                if ready.get("kind") != "decoder":
+                    if proc.poll() is None:
+                        proc.kill()
+                        proc.wait()
+                    raise RuntimeError("unexpected decoder helper handshake")
+                try:
+                    for image_index, ((latent, seed, image_start, unet_done), image_output) in enumerate(
+                            zip(latents, outputs)):
+                        decode_start = time.monotonic()
+                        raw = _qnn_decode(proc, ready, latent / np.float32(0.18215))
+                        digest, size = _write_png(
+                            image_output, raw, ready["output_scale"], ready["output_offset"])
+                        decode_seconds = time.monotonic() - decode_start
+                        unet_seconds = unet_done - image_start
+                        print(json.dumps({"stage": "image_complete", "path": str(image_output),
+                                          "bytes": size, "sha256": digest, "width": 512, "height": 512,
+                                          "seed": seed, "image_index": image_index + 1,
+                                          "image_count": args.count, "steps": args.steps, "cfg": args.cfg,
+                                          "scheduler": "DPM++ 2M, scaled-linear beta, trailing spacing",
+                                          "unet_seconds": round(unet_seconds, 3),
+                                          "decode_png_seconds": round(decode_seconds, 3),
+                                          "image_work_seconds": round(unet_seconds + decode_seconds, 3),
+                                          "batch_total_seconds": round(time.monotonic() - started, 3),
+                                          "image_oracle": "visual_review_and_seed_repeat_only",
+                                          "model_copy_to_disk": False}), flush=True)
+                    proc.stdin.write(struct.pack("<I", 0))
+                    proc.stdin.flush()
+                    if proc.wait(timeout=30) != 0:
+                        raise RuntimeError(f"decoder helper failed; see {decoder_log}")
+                except BaseException:
+                    if proc.poll() is None:
+                        proc.kill()
+                        proc.wait()
+                    raise
+
+
 def run(args):
     archive_path = Path(args.archive)
     helper = Path(args.helper)
@@ -233,8 +336,14 @@ def run(args):
             raise FileNotFoundError(path)
     if not runtime_dir.is_dir():
         raise FileNotFoundError(runtime_dir)
-    if output.exists():
-        raise FileExistsError(output)
+    outputs = _image_outputs(output, args.count)
+    for path in outputs:
+        for candidate in (path, Path(str(path) + ".unet.log"), Path(str(path) + ".decoder.log")):
+            if candidate.exists():
+                raise FileExistsError(candidate)
+    if args.count > 1:
+        _run_batch(args, archive_path, helper, runtime_dir, outputs)
+        return
     timesteps, sigmas = dpm_schedule(args.steps)
     start_total = time.monotonic()
 
@@ -326,11 +435,15 @@ def main():
     parser.add_argument("--prompt", default="photorealistic landscape photograph of a quiet tropical river at dawn, thin mist above water, forested hills in the distance, natural soft golden light, realistic colors, fine photographic detail")
     parser.add_argument("--negative-prompt", default="illustration, painting, cartoon, CGI, 3d render, text, watermark, low resolution, blurry, oversaturated")
     parser.add_argument("--steps", type=int, default=20)
+    parser.add_argument("--count", type=int, default=1,
+                        help="generate 1-8 images in one run, reusing loaded QNN contexts")
     parser.add_argument("--cfg", type=float, default=7.5)
     parser.add_argument("--seed", type=int, default=20261014)
     args = parser.parse_args()
     if not math.isfinite(args.cfg) or not 1.0 <= args.cfg <= 20.0:
         parser.error("--cfg must be finite and in [1,20]")
+    if not 1 <= args.count <= 8:
+        parser.error("--count must be between 1 and 8")
     run(args)
 
 

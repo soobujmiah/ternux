@@ -253,6 +253,26 @@ SHA-256. The scheduler correction resolved the noise-like output. Use
 independent stage values to qualify QNN numerical correctness and investigate
 the small cyan artifact before broader release claims.
 
+The runner now accepts --count 2 through --count 8. A bounded batch computes
+prompt conditioning once, streams and verifies each large QNN member once, and
+keeps the UNet and decoder helper contexts open while processing all images.
+For an output path /path/image.png, it creates image-001.png,
+image-002.png, and so on; seeds increment from --seed. Default --count 1
+retains the original output name and runner path. This can reduce repeated
+setup and archive-stream cost across a batch, but leaves both serial CFG
+requests per denoising step intact. Batch mode has only host-side mocked tests
+so far: it has not been run on the phone, its output has no independent
+numerical oracle, and it does not close the 3–5 second performance target.
+Timing fields report per-image UNet and decode/PNG work plus cumulative batch
+time; CLIP, archive streaming, and context startup are shared batch costs.
+
+Run the bounded mocked batch tests in a Debian Python environment with NumPy:
+
+~~~~bash
+PYTHONPATH=experiments/qnn-native \
+  python3 -m unittest -v test_sd15_qnn_image
+~~~~
+
 ### Repeated image-generation soak (2026-10-14)
 
 Using the checksum-verified helper from pinned-NDK workflow run
