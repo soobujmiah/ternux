@@ -857,6 +857,23 @@ for run in 1 2 3; do
 done
 ```
 
+### ২০২৬-১১-০৭ SM8735 integer-HMX candidate probe
+
+Build-only [CI run 42348072918](https://github.com/soobujmiah/ternux/actions/runs/42348072918) unmerged [llama.cpp PR #29740](https://github.com/ggml-org/llama.cpp/pull/29740), commit `08c83734f9c5c3b497e98b96f1a380f5a6084468` থেকে disposable artifact তৈরি করেছে। Archive SHA-256 `52877aad044c6da3f701d0230fde86520ce26066a412118bfb93e1a6f238de0a`। Checksum verify করে ফাইলগুলো শুধু isolated `ternux-clean-apt` Debian guest-এ extract/install করা হয়েছে; production HTP extension ও চলমান Debian desktop বদলানো হয়নি।
+
+SM8735 / HTP V73-তে llama.cpp `HMX FP16: no` detect করে integer-HMX route বেছে নিয়েছে। আগে থেকেই থাকা `/sdcard/Llms/qwen2.5-0.5b-instruct-q4_0.gguf` model (SHA-256 `7671c0c304e6ce5a7fc577bcb12aba01e2c155cc2efd29b2213c95b18edaf6ed`)-এ আগের matched benchmark-এর একই deterministic prompt, 64 generated token, context 2048, batch/ubatch 128, চার thread, temperature 0, seed 42 এবং flash attention off দিয়ে ফল:
+
+| Run | Prompt tok/s | Generation tok/s | HTP placement | Broker close |
+|---|---:|---:|---|---|
+| 1 | 303.4 | 48.5 | 25/25 layer | `[0, 0]` |
+| 2 | 299.3 | 47.3 | 25/25 layer | `[0, 0]` |
+| 3 | 295.7 | 49.7 | 25/25 layer | `[0, 0]` |
+| Median | 299.3 | 48.5 | 25/25 layer | clean |
+
+Median generation rate আগের একই model ও prompt-এর 24.8 tok/s Adreno Vulkan result-এর প্রায় 1.95× এবং 8.0 tok/s CPU result-এর 6.06×। তবে CPU/Vulkan মাপ ভিন্ন llama.cpp build দিয়ে; তাই এটি আনুমানিক তুলনা, same-binary comparison নয়। Filename-এ 0.5B লেখা থাকলেও GGUF metadata-তে আগে 630.17M parameter দেখা গেছে; result এই exact file-এর জন্য।
+
+একই guest ও artifact-এ HTP `MUL_MAT` correctness 1,588/1,588 test complete করেছে; `GATED_DELTA_NET` 43/43 complete করেছে। সম্পূর্ণ `FLASH_ATTN_EXT` suite DSP `INTERNAL-ERROR` দিয়ে abort করেছে (child exit `-6`); backend-supported subset (`kv=1024, nb=32`) বেছে চালালেও একই abort এসেছে। দুই run-এই broker CDSP `closeSession` reply `[0, 0]` দিয়ে clean close করেছে। তাই candidate-টি **সব operator-এর জন্য qualify হয়নি**। Ternux production HTP launcher আগের tested HVX matmul route-এ এবং flash attention বন্ধ রেখেছে। Candidate-টি extension হিসেবে install হয়নি, upstream PR-কেও release-ready প্রমাণ করে না।
+
 ## রেফারেন্স
 
 - [glmark2](https://github.com/glmark2/glmark2)
