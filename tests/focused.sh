@@ -137,6 +137,10 @@ if env TERNUX_STATE_DIR="$TMP/state-welcome" HOME="$TMP/home-welcome" \
       ! grep -q "GTK_THEME=\\|GDK_BACKEND=\\|GTK_MODULES" "$1/lib/phases.sh" &&
       grep -q "dbus-run-session -- sh -c" "$1/lib/phases.sh" &&
       grep -q "ibus_tries" "$1/lib/phases.sh" &&
+      grep -Fq "org.freedesktop.ibus.general.hotkey triggers" "$1/lib/phases.sh" &&
+      grep -Fq "org.freedesktop.ibus.general.hotkey next-engine" "$1/lib/phases.sh" &&
+      grep -Fq "org.freedesktop.ibus.general.hotkey next-engine-in-menu" "$1/lib/phases.sh" &&
+      grep -Fq "Control+space" "$1/lib/phases.sh" &&
       grep -q "pm-is-supported" "$1/lib/phases.sh" &&
       grep -q "pavucontrol" "$1/lib/phases.sh" &&
       grep -q "devilspie2" "$1/lib/phases.sh" &&

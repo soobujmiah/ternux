@@ -394,6 +394,11 @@ tnx_phase_debian() {
     chown \"\$U:\$U\" \"\$H/.config/devilspie2/window-fit.lua\"
     chmod 0644 \"\$H/.config/devilspie2/window-fit.lua\"
     runuser -u \"\$U\" -- env HOME=\"\$H\" dbus-run-session -- gsettings set org.freedesktop.ibus.general preload-engines \"['xkb:us::eng', 'ibus-avro']\"
+    # Make Ctrl+Space cycle between English and Avro instead of competing with
+    # IBus's separate on/off trigger, which may also be bound to Ctrl+Space.
+    runuser -u \"\$U\" -- env HOME=\"\$H\" dbus-run-session -- gsettings set org.freedesktop.ibus.general.hotkey triggers \"[]\"
+    runuser -u \"\$U\" -- env HOME=\"\$H\" dbus-run-session -- gsettings set org.freedesktop.ibus.general.hotkey next-engine \"['Control+space']\"
+    runuser -u \"\$U\" -- env HOME=\"\$H\" dbus-run-session -- gsettings set org.freedesktop.ibus.general.hotkey next-engine-in-menu \"['Control+space']\"
     install -d -o \"\$U\" -g \"\$U\" -m 0755 \"\$H/.config/autostart\"
     install -d -o root -g root -m 0755 /usr/local/bin
     cat > /usr/bin/pm-is-supported <<'PM'
