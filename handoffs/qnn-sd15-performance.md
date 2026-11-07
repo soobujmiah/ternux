@@ -25,17 +25,36 @@ The owner deferred making this runner a Ternux extension.
   HTP execution in this route; it does not establish why Local Dream is faster.
 - A bounded --count 2..8 mode now reuses each loaded helper context and streams
   the UNet/decoder members only once per invocation. Its host-side mocked tests
-  pass, but it has not been exercised on the device and no throughput gain is
-  claimed. It keeps 40 serial HTP UNet requests per 20-step image.
+  pass. On 2026-11-07, a two-image/two-step phone batch matched separate
+  single-image PNG hashes for seeds 20261014 and 20261015, loaded one context
+  for each QNN member, and took 20.321 s total. A subsequent 20-step batch
+  matched those seeds to images 01/02 from the earlier 25-image soak exactly:
+  1a13957f5cb65132d98fc212756bdcf8d8b959d69feba84902a9314036764fc3 and
+  d20bf183909928236e02c8a1f7fe869e5883eb7931e3f5fe5eb65c0f74ee5aec. It took 49.923 s; per-image
+  UNet and decode/PNG were 14.815/0.850 s and 16.129/0.824 s. The older soak
+  recorded 28.233 and 28.911 s separately (57.144 s combined). The difference
+  is a non-interleaved cross-session observation, not a controlled speedup.
+  Battery samples were 40.7–40.9°C; no NPU-specific sensor was identified.
+  Hash matches show repeatability for those exact outputs, not independent
+  tensor correctness. Batch mode still makes 40 serial HTP UNet requests per
+  20-step image.
+
+- A same-day interleaved 20-step sequence then measured seed 20261016 single at
+  30.945 s, seeds 20261016/17 batch at 47.825 s, and seed 20261017 single at
+  29.484 s. Batch hashes matched both single controls exactly:
+  `d93d395a437f57c92b81827bfd08e1347d6926eaf1534cb990af0a8ef504a977` and
+  `cee7951bcd73ca0f677be9f8e2feed4151c42ba931adfb2929532fb71449cde0`.
+  Controls totaled 60.429 s, 20.9% longer than the batch in this one sequence.
+  This is a short observation without randomized repeats or confidence bounds,
+  not a performance guarantee; batch battery sample was 40.3°C.
 
 ## Next work
 
-1. Preserve the current archive and capture repeatable stage timings under the
-   same resolution/step count; distinguish model acquisition, helper/context
-   startup, CLIP, each HTP call, decoder, and output.
-2. Run the bounded batch on the device; compare count 1 and count 2 output for
-   seed 20261014, then measure total throughput, per-image work, and thermal
-   behavior without changing the source archive.
+1. Repeat randomized/interleaved one-image controls and two-image batches at
+   20 steps to estimate setup reuse with confidence bounds; distinguish CLIP,
+   acquisition, context startup, HTP requests, VAE decode, and output.
+2. Check numerical image quality against an independent stage oracle,
+   preserving the source archive.
 3. Profile the two serial CFG requests per step and test graph-level alternatives
    only when compatible with the fixed QNN context.
 4. Compare runtime/provider and model-graph choices with available Local Dream

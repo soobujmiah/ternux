@@ -260,13 +260,53 @@ For an output path /path/image.png, it creates image-001.png,
 image-002.png, and so on; seeds increment from --seed. Default --count 1
 retains the original output name and runner path. This can reduce repeated
 setup and archive-stream cost across a batch, but leaves both serial CFG
-requests per denoising step intact. Batch mode has only host-side mocked tests
-so far: it has not been run on the phone, its output has no independent
-numerical oracle, and it does not close the 3–5 second performance target.
-Timing fields report per-image UNet and decode/PNG work plus cumulative batch
-time; CLIP, archive streaming, and context startup are shared batch costs.
+requests per denoising step intact.
 
-Run the bounded mocked batch tests in a Debian Python environment with NumPy:
+On 2026-11-07, the phone ran a 2-image, 2-step batch and separate 2-step
+single-image controls with the existing QNN archive and licensed test runtime.
+For seeds 20261014 and 20261015, each batch PNG SHA-256 exactly matched its
+single-image control. The batch loaded one UNet and one decoder context, streamed
+the 880,827,736-byte UNet member and 59,945,848-byte decoder member once each,
+and completed in 20.321 s. The separate single-image runs took 14.275 s and
+12.197 s (26.472 s combined).
+
+A full 20-step, 2-image batch then completed in 49.923 s. Its PNG hashes again
+matched the first two images from the earlier 25-image soak: seed 20261014
+1a13957f5cb65132d98fc212756bdcf8d8b959d69feba84902a9314036764fc3 and seed
+20261015 d20bf183909928236e02c8a1f7fe869e5883eb7931e3f5fe5eb65c0f74ee5aec.
+Per-image UNet/decode-and-PNG work was 14.815/0.850 s and 16.129/0.824 s.
+The old soak measured those single images at 28.233 s and 28.911 s (57.144 s
+combined); the 12.6% shorter batch wall time is an observed, non-interleaved
+cross-session comparison, not a controlled performance claim. Battery
+temperature sampled at 40.7–40.9°C; no NPU-specific thermal sensor was
+identified. Exact hash repeatability confirms this batch path preserves those
+two outputs, not independent stage-tensor correctness.
+
+An interleaved same-day 20-step check used single seed 20261016 (30.945 s), a
+two-image batch for seeds 20261016/17 (47.825 s), then single seed 20261017
+(29.484 s). Each batch PNG exactly matched its corresponding single control:
+`d93d395a437f57c92b81827bfd08e1347d6926eaf1534cb990af0a8ef504a977` and
+`cee7951bcd73ca0f677be9f8e2feed4151c42ba931adfb2929532fb71449cde0`. Combined
+single controls took 60.429 s, 20.9% longer than this one batch. This is one
+short observation without randomized repeated trials or confidence bounds,
+not a release performance guarantee. Battery sampled at 40.3°C during batch.
+
+These checks reuse the same existing archive and do not close the owner's
+3–5 second target. The original archive SHA-256 remained
+f479f3221fb90d31de1e695577f5aec9a5afb5fb7e076cfac40f00e039b22977; no model
+member was written to disk. Batch timing reports per-image UNet and decode/PNG
+work plus cumulative batch time; CLIP, archive streaming, and context startup
+are shared batch costs.
+
+The 2026-11-07 device outputs are preserved under
+/sdcard/Llms/ternux-v2-validation/: batch and single-image controls for both
+seeds. The two hashes are
+cf1cb7bbf4fa3e67dc9d82fc24d93201d103d2e3f552214a54749383ccd68ef2 (seed
+20261014) and
+8bf689f9c555357a1c7704fcbc330e95eaebf3e87c9a3fc075ea85adcac0a0f1 (seed
+20261015). Host-side mocked batch tests also pass.
+
+Run the host-side mocked batch tests in a Debian Python environment with NumPy:
 
 ~~~~bash
 PYTHONPATH=experiments/qnn-native \
@@ -316,9 +356,10 @@ and runtime differ, so this is a substantial optimization gap, not a controlled
 A/B benchmark. Per-image `runner_seconds - unet_20step_seconds` has a 13.848 s
 median; that includes CLIP, helper/context startup, VAE decode, and PNG output.
 The Python runner makes separate unconditional and conditional UNet graph
-requests per denoising step (40 serial requests per 20-step image) and starts
-fresh UNet/decoder helper processes for each image. These are concrete profiling
-targets, but the cause of the gap remains unknown. QNN HTP/DSP execution is
+requests per denoising step (40 serial requests per 20-step image); default
+single-image mode starts fresh UNet/decoder helper processes for each image.
+These are concrete profiling targets, but the cause of the gap remains unknown.
+QNN HTP/DSP execution is
 recorded in the helper logs; the performance gap does not by itself show a GPU
 fallback. Profile startup, stage time, and CFG execution on-device before
 changing the model path or making performance claims.
