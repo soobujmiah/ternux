@@ -58,14 +58,15 @@ jobs:
           cmake --build build --parallel 4
           cmake --install build --prefix "$package"
           install -m 0644 llama.cpp/LICENSE "$package/LLAMA-CPP-LICENSE"
-          python3 - <<'PY_LICENSES'
+          python3 - "$package" <<'PY_LICENSES'
           from pathlib import Path
           import hashlib
           import shutil
           import subprocess
+          import sys
 
           source = Path("llama.cpp")
-          destination = Path("$package/share/licenses/upstream")
+          destination = Path(sys.argv[1]) / "share/licenses/upstream"
           paths = subprocess.run(
               ["git", "-C", str(source), "ls-files", "-z"],
               check=True, capture_output=True,
