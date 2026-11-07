@@ -1062,6 +1062,43 @@ done
 "$RUNNER" -m "$MODEL" -t 4 -tb 4 -p "Write a detailed but factual explanation of how smartphone neural processing units execute local language models." -n 2048 -c 4096 -b 128 -ub 128 --temp 0 --seed 42 --ignore-eos
 ```
 
+### 2026-11-07 matched Qwen2.5 1.5B CPU/Vulkan/HTP generation
+
+On the Redmi Turbo 4 Pro / SM8735, I ran three interleaved CPU → Vulkan → HTP
+rounds with the existing model /sdcard/LAI/models/qwen2.5-1.5b-instruct-q4_k_m.gguf
+(SHA-256 6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e).
+Each route used four threads, the same arithmetic prompt, 64 generated tokens,
+context 2048, batch/ubatch 128, temperature 0, seed 42 and --ignore-eos. All
+nine runs began with the expected answer 4.
+
+| Backend | Generation tok/s, three rounds | Median |
+|---|---:|---:|
+| CPU, llama.cpp b11582 (-ngl 0) | 8.8 / 7.6 / 7.6 | 7.6 |
+| Adreno 825 Vulkan, b11582 (-ngl 99) | 18.1 / 18.4 / 18.2 | 18.2 |
+| Hexagon HTP0, managed experimental build b1-af50f2f | 18.9 / 18.7 / 19.0 | 18.9 |
+
+For this exact model and workload, the HTP median was about 1.04x Vulkan and
+2.49x CPU. CPU and Vulkan used the same b11582 binary; the managed HTP extension
+is a separate build, so this is a matched workload rather than a same-binary
+comparison. Each HTP child exited 0 and each CDSP session closed with reply
+[0, 0]. This bounded test does not qualify HTP operator correctness, sustained
+thermal behavior, energy efficiency, or release support.
+
+Reproduce in the Debian guest as the ternux user:
+
+```bash
+MODEL=/sdcard/LAI/models/qwen2.5-1.5b-instruct-q4_k_m.gguf
+VULKAN_HOME="$HOME/.local/opt/ternux-extensions/llama-vulkan"
+source "$VULKAN_HOME/env.sh"
+CLI="$VULKAN_HOME/bin/llama-cli"
+HTP="$HOME/.local/opt/ternux-extensions/llama-htp-experimental/bin/htp-run"
+for run in 1 2 3; do
+  "$CLI" -m "$MODEL" -ngl 0 -t 4 -tb 4 -p "Solve 2 + 2. Reply with only the number." -n 64 -c 2048 -b 128 -ub 128 --temp 0 --seed 42 --ignore-eos
+  "$CLI" -m "$MODEL" -dev Vulkan0 -ngl 99 -t 4 -tb 4 -p "Solve 2 + 2. Reply with only the number." -n 64 -c 2048 -b 128 -ub 128 --temp 0 --seed 42 --ignore-eos
+  env -u LD_LIBRARY_PATH -u LLAMA_HOME -u VK_ICD_FILENAMES "$HTP" -m "$MODEL" -t 4 -tb 4 -p "Solve 2 + 2. Reply with only the number." -n 64 -c 2048 -b 128 -ub 128 --temp 0 --seed 42 --ignore-eos
+done
+```
+
 ### 2026-11-07 SM8735 integer-HMX candidate probe
 
 A build-only [CI run 42348072918](https://github.com/soobujmiah/ternux/actions/runs/42348072918) produced a disposable artifact from the unmerged [llama.cpp PR #29740](https://github.com/ggml-org/llama.cpp/pull/29740), commit `08c83734f9c5c3b497e98b96f1a380f5a6084468`. The archive SHA-256 was `52877aad044c6da3f701d0230fde86520ce26066a412118bfb93e1a6f238de0a`. I verified the checksum and installed the extracted files only in the isolated `ternux-clean-apt` Debian guest; the production HTP extension and active Debian desktop were not changed.

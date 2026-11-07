@@ -888,6 +888,43 @@ done
 "$RUNNER" -m "$MODEL" -t 4 -tb 4 -p "Write a detailed but factual explanation of how smartphone neural processing units execute local language models." -n 2048 -c 4096 -b 128 -ub 128 --temp 0 --seed 42 --ignore-eos
 ```
 
+### ২০২৬-১১-০৭ matched Qwen2.5 1.5B CPU/Vulkan/HTP generation
+
+Redmi Turbo 4 Pro / SM8735-এ আগে থেকে থাকা model
+/sdcard/LAI/models/qwen2.5-1.5b-instruct-q4_k_m.gguf (SHA-256
+6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e) দিয়ে CPU →
+Vulkan → HTP ক্রমে তিনটি interleaved round চালানো হয়েছে। প্রতিটি route-এ চার
+thread, একই arithmetic prompt, 64 generated token, context 2048, batch/ubatch
+128, temperature 0, seed 42 ও --ignore-eos ছিল। নয়টি run-এই প্রথম answer 4।
+
+| Backend | তিন round-এর generation tok/s | Median |
+|---|---:|---:|
+| CPU, llama.cpp b11582 (-ngl 0) | 8.8 / 7.6 / 7.6 | 7.6 |
+| Adreno 825 Vulkan, b11582 (-ngl 99) | 18.1 / 18.4 / 18.2 | 18.2 |
+| Hexagon HTP0, managed experimental build b1-af50f2f | 18.9 / 18.7 / 19.0 | 18.9 |
+
+এই exact model ও workload-এ HTP median Vulkan-এর প্রায় 1.04× এবং CPU-এর
+2.49×। CPU ও Vulkan একই b11582 binary ব্যবহার করেছে; managed HTP extension
+আলাদা build, তাই এটি matched workload comparison, same-binary comparison নয়।
+প্রতিটি HTP child exit 0 এবং CDSP session reply [0, 0] দিয়ে বন্ধ হয়েছে। এই
+bounded test HTP operator correctness, দীর্ঘস্থায়ী thermal behavior, energy
+efficiency বা release support qualify করে না।
+
+Debian guest-এ ternux user হিসেবে পুনরুৎপাদন:
+
+```bash
+MODEL=/sdcard/LAI/models/qwen2.5-1.5b-instruct-q4_k_m.gguf
+VULKAN_HOME="$HOME/.local/opt/ternux-extensions/llama-vulkan"
+source "$VULKAN_HOME/env.sh"
+CLI="$VULKAN_HOME/bin/llama-cli"
+HTP="$HOME/.local/opt/ternux-extensions/llama-htp-experimental/bin/htp-run"
+for run in 1 2 3; do
+  "$CLI" -m "$MODEL" -ngl 0 -t 4 -tb 4 -p "Solve 2 + 2. Reply with only the number." -n 64 -c 2048 -b 128 -ub 128 --temp 0 --seed 42 --ignore-eos
+  "$CLI" -m "$MODEL" -dev Vulkan0 -ngl 99 -t 4 -tb 4 -p "Solve 2 + 2. Reply with only the number." -n 64 -c 2048 -b 128 -ub 128 --temp 0 --seed 42 --ignore-eos
+  env -u LD_LIBRARY_PATH -u LLAMA_HOME -u VK_ICD_FILENAMES "$HTP" -m "$MODEL" -t 4 -tb 4 -p "Solve 2 + 2. Reply with only the number." -n 64 -c 2048 -b 128 -ub 128 --temp 0 --seed 42 --ignore-eos
+done
+```
+
 ### ২০২৬-১১-০৭ SM8735 integer-HMX candidate probe
 
 Build-only [CI run 42348072918](https://github.com/soobujmiah/ternux/actions/runs/42348072918) unmerged [llama.cpp PR #29740](https://github.com/ggml-org/llama.cpp/pull/29740), commit `08c83734f9c5c3b497e98b96f1a380f5a6084468` থেকে disposable artifact তৈরি করেছে। Archive SHA-256 `52877aad044c6da3f701d0230fde86520ce26066a412118bfb93e1a6f238de0a`। Checksum verify করে ফাইলগুলো শুধু isolated `ternux-clean-apt` Debian guest-এ extract/install করা হয়েছে; production HTP extension ও চলমান Debian desktop বদলানো হয়নি।
