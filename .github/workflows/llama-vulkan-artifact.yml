@@ -58,6 +58,49 @@ jobs:
           cmake --build build --parallel 4
           cmake --install build --prefix "$package"
           install -m 0644 llama.cpp/LICENSE "$package/LLAMA-CPP-LICENSE"
+          python3 - <<'PY_LICENSES'
+          from pathlib import Path
+          import hashlib
+          import shutil
+          import subprocess
+
+          source = Path("llama.cpp")
+          destination = Path("$package/share/licenses/upstream")
+          paths = subprocess.run(
+              ["git", "-C", str(source), "ls-files", "-z"],
+              check=True, capture_output=True,
+          ).stdout.split(b"\0")
+
+          def is_license_file(raw_path: bytes) -> bool:
+              name = Path(raw_path.decode("utf-8")).name.upper()
+              if name.endswith(".CMAKE"):
+                  return False
+              stems = ("LICENSE", "LICENCE", "COPYING", "NOTICE", "COPYRIGHT",
+                       "AUTHORS", "PATENTS", "UNLICENSE")
+              return any(name == stem or name.startswith((stem + ".", stem + "-"))
+                         for stem in stems)
+
+          licenses = sorted(path.decode("utf-8") for path in paths if path and is_license_file(path))
+          if not licenses:
+              raise SystemExit("pinned upstream source contains no tracked license files")
+          for relative in licenses:
+              target = destination / relative
+              target.parent.mkdir(parents=True, exist_ok=True)
+              shutil.copyfile(source / relative, target)
+          (destination / "INDEX.txt").write_text("\n".join(licenses) + "\n", encoding="utf-8")
+          entries = []
+          for relative in licenses:
+              content = (destination / relative).read_bytes()
+              entries.append(f"{hashlib.sha256(content).hexdigest()}  {relative}")
+          (destination / "SHA256SUMS").write_text("\n".join(entries) + "\n", encoding="utf-8")
+          (destination / "README.txt").write_text(
+              "Upstream license, notice, attribution and patent files copied from "
+              "tracked llama.cpp source at the pinned build commit. INDEX.txt lists "
+              "source-relative paths; SHA256SUMS verifies each copied file.\n",
+              encoding="utf-8")
+          PY_LICENSES
+          test -s "$package/share/licenses/upstream/licenses/LICENSE-jsonhpp"
+          test -s "$package/share/licenses/upstream/vendor/cpp-httplib/LICENSE"
           file "$package/bin/llama-cli" | tee llama-cli-file.txt
           grep -q 'ARM aarch64' llama-cli-file.txt
           readelf -d "$package/bin/llama-cli" | grep -F '$ORIGIN/../lib'
@@ -126,6 +169,8 @@ jobs:
               "libssl.so.3", "libcrypto.so.3", "libgomp.so.1", "libvulkan.so.1"
             ],
             "license_file": "LLAMA-CPP-LICENSE",
+            "upstream_license_bundle": "share/licenses/upstream/INDEX.txt",
+            "upstream_license_checksums": "share/licenses/upstream/SHA256SUMS",
             "device_validation": "CPU and Vulkan known-answer passed on SM8735/Adreno 825; see release notes"
           }
           EOF
@@ -137,6 +182,11 @@ jobs:
             > ternux-llama-vulkan-linux-arm64-b11582.tar.gz.sha256
           tar -tzf ternux-llama-vulkan-linux-arm64-b11582.tar.gz \
             > release-contents.txt
+          (cd "$package/share/licenses/upstream" && sha256sum -c SHA256SUMS)
+          while IFS= read -r license_path; do
+            grep -Fqx "ternux-llama-vulkan-linux-arm64-b11582/share/licenses/upstream/$license_path" \
+              release-contents.txt
+          done < "$package/share/licenses/upstream/INDEX.txt"
 
       - name: Create or refresh the draft device-validation release
         env:

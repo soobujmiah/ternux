@@ -2448,6 +2448,9 @@ else
   not_ok "base Nerd Font download is pinned, checksummed and compact"
 fi
 
+check "llama.cpp artifact license bundle audit verifies file hashes and safe paths" \
+  python3 "$ROOT/tests/llama_vulkan_license_audit_test.py"
+
 check "interactive workload selector returns the selected Stable Diffusion ID" \
   python3 "$ROOT/tests/workload_menu_pty.py" "$ROOT"
 

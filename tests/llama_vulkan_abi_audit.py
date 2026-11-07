@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import re
 import subprocess
 import sys
@@ -26,6 +27,47 @@ SYSTEM_LIBRARIES = {
 
 def readelf(*args: str) -> str:
     return subprocess.check_output(["readelf", *args], text=True)
+
+
+def audit_license_bundle(root: Path) -> list[str]:
+    """Check the indexed upstream license texts and their complete hash list."""
+    bundle = root / "share/licenses/upstream"
+    index = bundle / "INDEX.txt"
+    checksums = bundle / "SHA256SUMS"
+    errors: list[str] = []
+    if not (root / "LLAMA-CPP-LICENSE").is_file():
+        errors.append("missing top-level LLAMA-CPP-LICENSE")
+    if not index.is_file() or not checksums.is_file():
+        return errors + ["missing upstream license INDEX.txt or SHA256SUMS"]
+    try:
+        indexed = [line for line in index.read_text(encoding="utf-8").splitlines() if line]
+        entries: dict[str, str] = {}
+        for line in checksums.read_text(encoding="utf-8").splitlines():
+            digest, separator, relative = line.partition("  ")
+            if not separator or len(digest) != 64 or relative in entries:
+                errors.append(f"malformed or duplicate upstream license checksum: {line!r}")
+                continue
+            entries[relative] = digest
+        if not indexed:
+            errors.append("upstream license index is empty")
+        if len(indexed) != len(set(indexed)):
+            errors.append("upstream license index contains duplicates")
+        if set(indexed) != set(entries):
+            errors.append("upstream license index and checksum manifest list different files")
+        for relative in indexed:
+            path = bundle / relative
+            if Path(relative).is_absolute() or ".." in Path(relative).parts:
+                errors.append(f"unsafe upstream license path: {relative}")
+                continue
+            if not path.is_file() or path.is_symlink():
+                errors.append(f"missing or non-regular upstream license file: {relative}")
+                continue
+            actual = hashlib.sha256(path.read_bytes()).hexdigest()
+            if entries.get(relative) != actual:
+                errors.append(f"upstream license checksum mismatch: {relative}")
+    except (OSError, UnicodeError) as exc:
+        errors.append(f"cannot read upstream license bundle: {exc}")
+    return errors
 
 
 def main() -> int:
@@ -54,7 +96,7 @@ def main() -> int:
         print("package contains no ELF files", file=sys.stderr)
         return 1
 
-    errors: list[str] = []
+    errors: list[str] = audit_license_bundle(root)
     sonames: set[str] = set()
     objects: list[tuple[Path, set[str]]] = []
     maximum_glibc = (0, 0)
