@@ -1559,7 +1559,7 @@ tnx_phase_extras() {
   done
   for opt in "${install_opts[@]}"; do
     case "$opt" in
-      dev|llm|network|media|git|python|node|build|rust|java|golang|php|sqlite3|ripgrep|jq|htop|tree|godot|geany|neovim|micro|thonny|gh|firefox|nmap|tmux|ffmpeg|vlc|mpv|gimp|krita|inkscape|audacity|imagemagick|libreoffice-writer|libreoffice-calc|libreoffice-draw|evolution|blender) ;;
+      dev|llm|network|media|git|python|node|build|rust|java|golang|php|sqlite3|ripgrep|jq|htop|tree|godot|geany|neovim|micro|thonny|gh|firefox|nmap|tmux|ffmpeg|vlc|mpv|gimp|krita|inkscape|audacity|imagemagick|libreoffice-writer|libreoffice-calc|libreoffice-draw|blender) ;;
       adt-build-tools|adt-platform-tools|adt-ndk|adt-cmake|adt-cmdline|adt-platform)
         if tnx_guest_login --shared-tmp --user "$user_name" -- bash -lc '
           set -e

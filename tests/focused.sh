@@ -1951,6 +1951,23 @@ else
   not_ok "Blender workload installs Xvfb for headless GPU rendering"
 fi
 
+if env TERNUX_STATE_DIR="$TMP/state-evolution-optional" \
+  EVOLUTION_MARKER="$TMP/evolution-optional-command" bash -c '
+    . "$1/lib/phases.sh"
+    tnx_guest_login(){ printf "CALL\n%s\n" "$*" >> "$EVOLUTION_MARKER"; }
+    tnx_ok(){ printf "OK:%s\n" "$*" >> "$EVOLUTION_MARKER"; }
+    tnx_warn(){ printf "WARN:%s\n" "$*" >> "$EVOLUTION_MARKER"; }
+    tnx_phase_extras ternux evolution &&
+      grep -Fq "evolution gnome-online-accounts-gtk" "$EVOLUTION_MARKER" &&
+      grep -Fq "Exec=/usr/local/bin/evolution" "$EVOLUTION_MARKER" &&
+      grep -Fq "choose your own mail defaults" "$EVOLUTION_MARKER" &&
+      ! grep -Eq "xdg-mime default .*mailto|MailReader=" "$EVOLUTION_MARKER"
+  ' _ "$ROOT"; then
+  ok "Evolution workload installs optional packages and managed launcher without assigning mail defaults"
+else
+  not_ok "Evolution workload installs optional packages and managed launcher without assigning mail defaults"
+fi
+
 if env SD_MARKER="$TMP/stable-diffusion-optional-phase" \
   SD_PHASE_SRC="$TMP/stable-diffusion-phase-src" bash -c '
     . "$1/lib/phases.sh"
