@@ -1,0 +1,23 @@
+#!/bin/sh
+# Open HTTP(S) links in the Debian browser when installed, otherwise use the
+# Android host browser. This keeps Thunderbird OAuth usable on browser-light
+# Ternux installations without making Firefox a base dependency.
+if [ "$#" -eq 0 ]; then
+  set -- "https://soobujmiah.github.io/ternux/"
+fi
+if [ "$#" -ne 1 ]; then
+  printf 'Usage: ternux-open-url [http-or-https-url]\n' >&2
+  exit 2
+fi
+case "$1" in
+  http://*|https://*) ;;
+  *) printf 'Ternux browser bridge only accepts HTTP(S) URLs.\n' >&2; exit 2 ;;
+esac
+if command -v firefox-esr >/dev/null 2>&1; then
+  exec firefox-esr --new-window "$1"
+fi
+if command -v termux-open-url >/dev/null 2>&1; then
+  exec termux-open-url "$1"
+fi
+printf 'No browser is available. Install Firefox ESR or ensure Termux tools and its Android URL handler are available.\n' >&2
+exit 127

@@ -37,7 +37,7 @@ build llama.cpp from source; it is separate from the managed CPU + Vulkan
 extension. `--yes` and non-interactive runs keep the base profile unless flags
 select workloads.
 
-The base desktop includes Galculator and Xournal++ for scientific calculations, PDF reading, annotation, and markup. Edited copies can be exported as PDF, SVG, or PNG; PDFs open with Xournal++ by default. LibreOffice Draw is the heavier option for broader page editing and document conversion. Thunderbird is installed in the base desktop and registered for mail links; major providers can authenticate with OAuth. The optional catalog also offers LibreOffice Writer, Calc, and Draw as separate choices, along with Go, PHP, SQLite, ripgrep, jq, htop, tree, Micro, Thonny, and Evince.
+The base desktop includes Galculator and Xournal++ for scientific calculations, PDF reading, annotation, and markup. Edited copies can be exported as PDF, SVG, or PNG; PDFs open with Xournal++ by default. LibreOffice Draw is the heavier option for broader page editing and document conversion. Thunderbird is installed as the default mail reader and registered for mail links. It auto-configures common providers, uses OAuth when a provider offers it, and supports manual IMAP/POP settings for other mail hosts. OAuth opens Firefox ESR when installed, or the Android default browser through the Ternux browser bridge. The optional catalog also offers LibreOffice Writer, Calc, and Draw as separate choices, along with Go, PHP, SQLite, ripgrep, jq, htop, tree, Micro, Thonny, and Evince.
 
 Before installation, Ternux shows a rough storage estimate based on the selected
 optional software, including temporary download and setup space. In a sufficiently

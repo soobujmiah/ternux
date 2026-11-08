@@ -442,7 +442,10 @@ for asset in (root / "lib/ternux-assets").rglob("*"):
     if asset.is_file():
         destination = "lib/ternux/ternux-assets/" + asset.relative_to(root / "lib/ternux-assets").as_posix()
         assert files.get(destination, {}).get("source") == asset.relative_to(root).as_posix()
-assert "Inherits=Papirus-Dark,Adwaita,hicolor" in (root / "lib/ternux-assets/icons/Ternux/index.theme").read_text()
+assert "Inherits=Adwaita,hicolor" in (root / "lib/ternux-assets/icons/Ternux/index.theme").read_text()
+assert "Papirus" not in (root / "lib/ternux-assets/icons/Ternux/index.theme").read_text()
+assert files.get("lib/ternux/ternux-assets/bin/ternux-open-url", {}).get("source") == "lib/ternux-assets/bin/ternux-open-url"
+assert "Exec=/usr/local/bin/ternux-open-url %u" in (root / "lib/phases.sh").read_text()
 assert 'find "\\$asset_stage" -type d -exec chmod 0755 {} +' in (root / "lib/phases.sh").read_text()
 assert 'find "\\$asset_stage" -type f -exec chmod 0644 {} +' in (root / "lib/phases.sh").read_text()
 wallpapers = list((root / "lib/ternux-assets/wallpapers").glob("*.svg"))
@@ -574,6 +577,35 @@ else
   not_ok "APT manifest includes all Debian phase resources"
 fi
 
+if python3 - "$ROOT/lib/ternux-assets/bin/ternux-open-url" <<'PYBROWSER'
+import os, pathlib, subprocess, sys, tempfile
+helper = pathlib.Path(sys.argv[1])
+with tempfile.TemporaryDirectory() as tmp:
+    root = pathlib.Path(tmp)
+    log = root / "args"
+    firefox = root / "firefox-esr"
+    firefox.write_text(f"#!{sys.executable}\nimport os,sys\nopen(os.environ['URL_TEST_LOG'],'w').write('\\n'.join(sys.argv[1:])+'\\n')\n")
+    firefox.chmod(0o755)
+    env = {"PATH": tmp, "URL_TEST_LOG": str(log)}
+    result = subprocess.run([str(helper), "https://accounts.example.test/oauth"], env=env)
+    assert result.returncode == 0 and log.read_text().splitlines() == ["--new-window", "https://accounts.example.test/oauth"]
+    result = subprocess.run([str(helper)], env=env)
+    assert result.returncode == 0 and log.read_text().splitlines() == ["--new-window", "https://soobujmiah.github.io/ternux/"]
+    firefox.unlink()
+    bridge = root / "termux-open-url"
+    bridge.write_text(f"#!{sys.executable}\nimport os,sys\nopen(os.environ['URL_TEST_LOG'],'w').write('\\n'.join(sys.argv[1:])+'\\n')\n")
+    bridge.chmod(0o755)
+    result = subprocess.run([str(helper), "https://accounts.example.test/oauth"], env=env)
+    assert result.returncode == 0 and log.read_text().strip() == "https://accounts.example.test/oauth"
+    result = subprocess.run([str(helper), "javascript:alert(1)"], env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    assert result.returncode == 2
+PYBROWSER
+then
+  ok "Ternux browser bridge routes HTTP(S) to Firefox or Android and rejects other schemes"
+else
+  not_ok "Ternux browser bridge routes HTTP(S) to Firefox or Android and rejects other schemes"
+fi
+
 # A missing installer asset must stop the Debian phase before any guest mutation.
 resource_fixture="$TMP/resource-fixture"
 cp -R "$ROOT/lib" "$resource_fixture"
@@ -619,8 +651,8 @@ if env TERNUX_STATE_DIR="$TMP/state-launcher" HOME="$launcher_home" bash -c '
   grep -Fq "session_pid=\\\$!" "$HOME/x.sh" &&
   grep -Fq "wait \\\$session_pid" "$HOME/x.sh" &&
   grep -Fq "[ \\\$tries -ge 50 ]" "$HOME/x.sh" &&
-  grep -q "adwaita-icon-theme papirus-icon-theme xfce4 xfce4-taskmanager" "$1/lib/phases.sh" &&
-  grep -q "Inherits=Papirus-Dark,Adwaita,hicolor" "$1/packaging/termux/icons/Ternux/index.theme" &&
+  grep -q "adwaita-icon-theme xfce4 xfce4-taskmanager" "$1/lib/phases.sh" &&
+  grep -q "Inherits=Adwaita,hicolor" "$1/packaging/termux/icons/Ternux/index.theme" &&
   test -s "$1/packaging/termux/icons/Ternux/scalable/places/folder.svg" &&
   grep -q "Icon=ternux-welcome" "$1/lib/phases.sh" &&
   test -s "$1/packaging/termux/icons/Ternux/LICENSE" &&

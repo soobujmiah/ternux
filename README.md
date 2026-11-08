@@ -86,12 +86,15 @@ PulseAudio Volume Control, Xfce Task Manager, Mousepad, Galculator, Xournal++
 PDF reader/markup editor, Thunderbird mail client, Ternux Camera, Ternux Sound
 Recorder, and Ristretto image viewer. Xournal++ exports annotations as PDF,
 SVG, or PNG; LibreOffice Draw is optional for broader PDF page editing and
-document export. Thunderbird handles mail links and supports OAuth sign-in
-with major providers. One-click Camera, Photos, and Sound Recorder shortcuts
+document export. Thunderbird is the default mail reader, auto-configures common
+providers, supports OAuth where offered, and allows manual IMAP/POP setup for other
+mail hosts. OAuth links open Firefox ESR when installed or the Android default browser
+through the Ternux bridge. One-click Camera, Photos, and Sound Recorder shortcuts
 are on the Xfce panel. Qt5 applications such as VLC use the matching GTK platform theme. The systemwide graphite-and-emerald Ternux GTK theme covers apps, menus,
 and panel; custom Ternux Xfwm frames cover window borders and title bars. The
-Ternux icon theme includes original folder and app icons with Papirus-Dark
-fallback coverage, and 15 selectable portrait-first branded wallpapers that preserve their proportions in landscape. Ternux Camera lists
+Ternux icon theme uses original app, folder, Thunar-action, category, and panel
+icons, with Adwaita as the neutral fallback for uncommon or newly installed apps; it
+avoids Papirus inheritance to keep desktop silhouettes consistent, and 15 selectable portrait-first branded wallpapers that preserve their proportions in landscape. Ternux Camera lists
 Android front/rear cameras and captures photos through Termux:API after Camera
 permission is granted to the Termux:API app. Each photo appears in the app preview after capture with its EXIF orientation corrected; compact controls fit the window. Photos save inside Debian at `~/Pictures/Ternux`. A validated capture is staged in Termux app storage, then copied into PRoot; no Gallery scan is performed. Ristretto is the
 default image viewer. Termux:API provides still-photo capture; it does not expose a continuous camera stream for live preview.

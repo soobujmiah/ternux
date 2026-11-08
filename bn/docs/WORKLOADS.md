@@ -32,7 +32,7 @@ Model weight user-এর নিজের। `--with-llm` এখনও llama.cpp 
 managed CPU + Vulkan extension থেকে আলাদা। `--yes` ও non-interactive run-এ flag না
 থাকলে শুধু base profile বসে।
 
-Base desktop-এ scientific calculator Galculator এবং PDF পড়া, annotation ও markup-এর জন্য Xournal++ থাকে; পরিবর্তিত কপি PDF, SVG বা PNG হিসেবে export করা যায়। PDF ফাইল Xournal++-এ ডিফল্টভাবে খোলে। বড় ডকুমেন্ট conversion ও page edit-এর জন্য optional LibreOffice Draw যোগ করা যেতে পারে। Thunderbird modern mail client base desktop-এ থাকে এবং mailto link-এর default app। এতে OAuth login সহ major mail provider support আছে। Optional catalog-এ LibreOffice Writer, Calc ও Draw আলাদা item হিসেবে আছে। এ ছাড়া Go, PHP, SQLite, ripgrep, jq, htop, tree, Micro, Thonny ও Evince-ও পাওয়া যায়।
+Base desktop-এ scientific calculator Galculator এবং PDF পড়া, annotation ও markup-এর জন্য Xournal++ থাকে; পরিবর্তিত কপি PDF, SVG বা PNG হিসেবে export করা যায়। PDF ফাইল Xournal++-এ ডিফল্টভাবে খোলে। বড় ডকুমেন্ট conversion ও page edit-এর জন্য optional LibreOffice Draw যোগ করা যেতে পারে। Thunderbird base desktop-এর default mail reader এবং mailto link-এর default app। এটি common provider auto-configure করে, provider সমর্থন করলে OAuth login ব্যবহার করে, আর অন্য mail host-এর জন্য manual IMAP/POP setup দেয়। OAuth Firefox ESR থাকলে সেটি, না থাকলে Ternux browser bridge দিয়ে Android-এর default browser-এ খোলে। Optional catalog-এ LibreOffice Writer, Calc ও Draw আলাদা item হিসেবে আছে। এ ছাড়া Go, PHP, SQLite, ripgrep, jq, htop, tree, Micro, Thonny ও Evince-ও পাওয়া যায়।
 
 Install শুরুর আগে Ternux নির্বাচিত optional software অনুযায়ী আনুমানিক storage
 estimate দেখায়; এতে download ও setup-এর অস্থায়ী জায়গাও ধরা হয়। Terminal যথেষ্ট

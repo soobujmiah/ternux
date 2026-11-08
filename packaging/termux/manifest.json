@@ -1127,6 +1127,10 @@
     "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/thunderbird.svg": {
       "source": "lib/ternux-assets/icons/Ternux/scalable/apps/thunderbird.svg",
       "perm": "644"
+    },
+    "lib/ternux/ternux-assets/bin/ternux-open-url": {
+      "source": "lib/ternux-assets/bin/ternux-open-url",
+      "perm": "755"
     }
   }
 }

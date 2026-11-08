@@ -349,7 +349,7 @@ tnx_phase_debian() {
   camera_gui_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-camera.py" | tr -d '\n')" || return 1
   recorder_gui_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-recorder.py" | tr -d '\n')" || return 1
   panel_shortcuts_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-panel-shortcuts.sh" | tr -d '\n')" || return 1
-  ternux_assets_b64="$(set -o pipefail; tar -czf - -C "$resource_dir/ternux-assets" icons wallpapers themes | base64 | tr -d '\n')" || return 1
+  ternux_assets_b64="$(set -o pipefail; tar -czf - -C "$resource_dir/ternux-assets" icons wallpapers themes applications bin | base64 | tr -d '\n')" || return 1
 
   if tnx_debian_installed; then
     tnx_warn "Debian container already installed; reusing it."
@@ -363,7 +363,7 @@ tnx_phase_debian() {
     DPKG_FORCE=\"-o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -o APT::Color=1 -o Dpkg::Progress-Fancy=1\"
     apt update -o APT::Color=1
     dpkg --configure -a --force-confold --force-confdef || true
-    apt install -y \$DPKG_FORCE sudo nano mousepad galculator xournalpp thunderbird fonts-noto-core python3-gi gir1.2-gtk-3.0 ibus ibus-avro devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol x11-utils mesa-utils libgl1-mesa-dri adwaita-icon-theme papirus-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc ffmpeg ristretto qt5-gtk-platformtheme colord
+    apt install -y \$DPKG_FORCE sudo nano mousepad galculator xournalpp thunderbird fonts-noto-core python3-gi gir1.2-gtk-3.0 ibus ibus-avro devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol x11-utils mesa-utils libgl1-mesa-dri adwaita-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc ffmpeg ristretto qt5-gtk-platformtheme colord
     apt remove -y \$DPKG_FORCE guvcview >/dev/null 2>&1 || true
     rm -f /usr/local/share/applications/guvcview.desktop
     asset_stage=\$(mktemp -d /tmp/ternux-assets.XXXXXX)
@@ -373,6 +373,7 @@ tnx_phase_debian() {
     install -d -m 0755 /usr/share/icons/Ternux /usr/share/themes/Ternux /usr/share/backgrounds/ternux
     cp -a "\$asset_stage/icons/Ternux/." /usr/share/icons/Ternux/
     cp -a "\$asset_stage/themes/Ternux/." /usr/share/themes/Ternux/
+    install -m 0755 "\$asset_stage/bin/ternux-open-url" /usr/local/bin/ternux-open-url
     rm -f /usr/share/backgrounds/ternux/aurora.svg
     cp -a "\$asset_stage/wallpapers/." /usr/share/backgrounds/ternux/
     rm -rf "\$asset_stage"
@@ -388,6 +389,9 @@ tnx_phase_debian() {
       source_entry="/usr/share/applications/\$1"
       if [ -r "\$source_entry" ]; then
         sed "s#^Icon=.*#Icon=\$2#" "\$source_entry" > "/usr/local/share/applications/\$1"
+        if [ "\$1" = xfce4-web-browser.desktop ]; then
+          sed -i 's#^Exec=.*#Exec=/usr/local/bin/ternux-open-url %u#' "/usr/local/share/applications/\$1"
+        fi
         chmod 0644 "/usr/local/share/applications/\$1"
       fi
     done
@@ -527,6 +531,8 @@ DESKTOP
     runuser -u "\$U" -- env HOME="\$H" xdg-mime default com.github.xournalpp.xournalpp.desktop application/pdf || true
     runuser -u "\$U" -- env HOME="\$H" xdg-mime default thunderbird.desktop x-scheme-handler/mailto || true
     runuser -u "\$U" -- env HOME="\$H" xdg-mime default thunderbird.desktop message/rfc822 || true
+    runuser -u "\$U" -- env HOME="\$H" xdg-mime default xfce4-web-browser.desktop x-scheme-handler/http || true
+    runuser -u "\$U" -- env HOME="\$H" xdg-mime default xfce4-web-browser.desktop x-scheme-handler/https || true
     cat > /usr/bin/pm-is-supported <<'PM'
 #!/bin/sh
 # PRoot has no permission to suspend or hibernate the Android host.
