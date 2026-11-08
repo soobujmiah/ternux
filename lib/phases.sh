@@ -370,8 +370,30 @@ tnx_phase_debian() {
     printf '%s' '$ternux_assets_b64' | base64 -d | tar -xz -C "\$asset_stage"
     find "\$asset_stage" -type d -exec chmod 0755 {} +
     find "\$asset_stage" -type f -exec chmod 0644 {} +
-    install -d -m 0755 /usr/share/icons/Ternux /usr/share/themes/Ternux /usr/share/backgrounds/ternux
-    cp -a "\$asset_stage/icons/Ternux/." /usr/share/icons/Ternux/
+    install -d -m 0755 /usr/share/icons /usr/share/themes/Ternux /usr/share/backgrounds/ternux
+    # Replace the managed theme as one staged tree. Overlay copies leave old
+    # icon aliases behind when an asset moves between contexts or is retired.
+    icon_stage=\$(mktemp -d /usr/share/icons/.Ternux-stage.XXXXXX)
+    icon_backup="/usr/share/icons/.Ternux-backup.\$\$"
+    if ! cp -a "\$asset_stage/icons/Ternux/." "\$icon_stage/"; then
+      rm -rf "\$icon_stage"
+      exit 1
+    fi
+    chmod 0755 "\$icon_stage"
+    if [ -e "\$icon_backup" ]; then
+      rm -rf "\$icon_stage"
+      printf '%s\\n' 'A Ternux icon rollback directory already exists; refusing to replace the theme.' >&2
+      exit 1
+    fi
+    if [ -e /usr/share/icons/Ternux ]; then
+      mv -T /usr/share/icons/Ternux "\$icon_backup"
+    fi
+    if mv -T "\$icon_stage" /usr/share/icons/Ternux; then
+      [ ! -e "\$icon_backup" ] || rm -rf "\$icon_backup"
+    else
+      [ ! -e "\$icon_backup" ] || mv -T "\$icon_backup" /usr/share/icons/Ternux
+      exit 1
+    fi
     cp -a "\$asset_stage/themes/Ternux/." /usr/share/themes/Ternux/
     install -m 0755 "\$asset_stage/bin/ternux-open-url" /usr/local/bin/ternux-open-url
     rm -f /usr/share/backgrounds/ternux/aurora.svg

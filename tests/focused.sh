@@ -496,6 +496,26 @@ for icon in ("folder-new", "document-new", "insert-link", "edit-paste",
     assert (action_icons / f"{icon}.svg").is_file()
 icon_index = (root / "lib/ternux-assets/icons/Ternux/index.theme").read_text()
 assert "scalable/actions" in icon_index and "Context=Actions" in icon_index
+base_desktop_icon_ids = (
+    "com.github.xournalpp.xournalpp", "drive-removable-media", "galculator", "ibus-setup",
+    "input-keyboard", "multimedia-volume-control", "org.xfce.about", "org.xfce.appfinder",
+    "org.xfce.filemanager", "org.xfce.mailreader", "org.xfce.mousepad", "org.xfce.notification",
+    "org.xfce.panel", "org.xfce.ristretto", "org.xfce.session", "org.xfce.settings.accessibility",
+    "org.xfce.settings.appearance", "org.xfce.settings.color", "org.xfce.settings.default-applications",
+    "org.xfce.settings.display", "org.xfce.settings.editor", "org.xfce.settings.keyboard",
+    "org.xfce.settings.manager", "org.xfce.settings.mouse", "org.xfce.taskmanager",
+    "org.xfce.terminal", "org.xfce.terminal-settings", "org.xfce.terminalemulator",
+    "org.xfce.thunar", "org.xfce.volman", "org.xfce.webbrowser", "org.xfce.workspaces",
+    "org.xfce.xfdesktop", "org.xfce.xfwm4", "org.xfce.xfwm4-tweaks", "ternux-camera",
+    "ternux-keyboard", "ternux-recorder", "thunderbird", "vlc", "xarchiver", "xfsm-logout",
+)
+theme_icon_root = root / "lib/ternux-assets/icons/Ternux"
+theme_icon_ids = {asset.stem for asset in theme_icon_root.rglob("*.svg")}
+assert set(base_desktop_icon_ids) <= theme_icon_ids
+phase_source = (root / "lib/phases.sh").read_text()
+assert 'icon_stage=\\$(mktemp -d /usr/share/icons/.Ternux-stage.XXXXXX)' in phase_source
+assert 'mv -T /usr/share/icons/Ternux "\\$icon_backup"' in phase_source
+assert 'cp -a "\\$asset_stage/icons/Ternux/." /usr/share/icons/Ternux/' not in phase_source
 optional_app_icons = ("firefox", "firefox-esr", "blender", "gimp", "krita", "inkscape",
                       "audacity", "mpv", "evince", "geany", "thonny", "libreoffice-writer",
                       "libreoffice-calc", "libreoffice-draw", "libreoffice-impress", "zenity")
