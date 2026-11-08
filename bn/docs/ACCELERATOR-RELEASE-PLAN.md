@@ -46,7 +46,7 @@ diagnostic: এতে model, Qualcomm runtime, firmware বা broker নেই 
 correctness-ও প্রমাণ করে না। বর্তমান link: [llama CPU/Vulkan](https://github.com/soobujmiah/ternux/releases/tag/ternux-llama-vulkan-linux-arm64-b11582),
 [Stable Diffusion CPU/Vulkan](https://github.com/soobujmiah/ternux/releases/tag/ternux-stable-diffusion-vulkan-linux-arm64-master-1053),
 [experimental SM8735 HTP](https://github.com/soobujmiah/ternux/releases/tag/ternux-llama-htp-sm8735-b11582),
-এবং [SM8735 QNN probe](https://github.com/soobujmiah/ternux/releases/tag/ternux-qnn-native-probe-sm8735-2026-10-14)। Current PR-এর HTP build check run `42510280008`-এ pass করেছে; এটা artifact compile/inspection নিশ্চিত করে, published HTP known-answer failure ঠিক হয়েছে তা নয়।
+এবং [SM8735 QNN probe](https://github.com/soobujmiah/ternux/releases/tag/ternux-qnn-native-probe-sm8735-2026-10-14)। Current PR head `4f300b4f1e6dafe7e15892d7b074a89bd104d10a`-এ সাতটি check-ই pass করেছে: Validate `42511329995`, APT artifact `42511330003`, llama CPU/Vulkan `42511330016`, Stable Diffusion CPU/Vulkan `42511330080`, HTP candidate build `42511329996`, repository contract `42511330008`, এবং knowledge sync `42511330055`। এই CI source validation ও artifact build নিশ্চিত করে; HTP/QNN inference, device-এ দীর্ঘস্থায়ী কাজ, বা public signed APT install qualify করে না। Device testing-এর জন্য কোনো Actions artifact download করা হয়নি। PR #97 draft-ই আছে এবং signed APT hosting endpoint এখনও 404 দেয়।
 
 ### Optional mail client — ২০২৬-১১-০৮/০৯
 
