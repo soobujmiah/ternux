@@ -2690,6 +2690,12 @@ check "llama.cpp source-map build runs on PRs without release-write permissions"
 
 check "interactive workload selector returns the selected Stable Diffusion ID" \
   python3 "$ROOT/tests/workload_menu_pty.py" "$ROOT"
+check "interactive workload selector returns the selected llama.cpp Vulkan ID" \
+  python3 "$ROOT/tests/workload_menu_pty.py" "$ROOT" llama-vulkan
+check "interactive workload selector returns the selected experimental HTP ID" \
+  python3 "$ROOT/tests/workload_menu_pty.py" "$ROOT" llama-htp-experimental
+check "interactive workload selector returns the selected Evolution Mail ID" \
+  python3 "$ROOT/tests/workload_menu_pty.py" "$ROOT" evolution
 check "interactive workload selector returns the selected Celestia ID" \
   python3 "$ROOT/tests/workload_menu_pty.py" "$ROOT" celestia
 

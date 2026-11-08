@@ -10,7 +10,13 @@ from pathlib import Path
 
 root = Path(sys.argv[1]).resolve()
 target = sys.argv[2] if len(sys.argv) > 2 else "stable-diffusion"
-labels = {"stable-diffusion": "Stable Diffusion CPU + Vulkan", "celestia": "Celestia astronomy simulator"}
+labels = {
+    "llama-vulkan": "llama.cpp Vulkan",
+    "stable-diffusion": "Stable Diffusion CPU + Vulkan",
+    "llama-htp-experimental": "llama.cpp HTP (experimental)",
+    "evolution": "Evolution Mail",
+    "celestia": "Celestia astronomy simulator",
+}
 if target not in labels:
     raise SystemExit(f"unsupported test workload: {target}")
 script = shutil.which("script")
