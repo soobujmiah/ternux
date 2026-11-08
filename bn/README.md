@@ -89,7 +89,7 @@ format-এ export করতে optional LibreOffice Draw আছে। Thunderbir
 configuration দেয়। OAuth link Firefox ESR থাকলে সেটি, না থাকলে Ternux bridge দিয়ে
 Android-এর default browser খোলে। Camera, Photos ও Sound Recorder-এর one-click shortcut
 Xfce panel-এ থাকে। Ternux icon theme-এ app, folder, Thunar action, category ও panel-এর
-নিজস্ব icon আছে; Firefox ESR, Blender, GIMP, Krita, Inkscape, Audacity, Geany, Evince
+নিজস্ব icon আছে; Firefox ESR, Blender, GIMP, Krita, Inkscape, Audacity, Geany
 ও LibreOffice-এর মতো optional GUI app-এর branded icon-ও আছে। Thunar action-এর জন্য
 আলাদা icon context আছে। uncommon বা পরে install করা app-এর জন্য neutral Adwaita
 fallback থাকে; Papirus inheritance নেই। প্রথমবার GUI চালালে Firefox ESR থাকলে project website একবার

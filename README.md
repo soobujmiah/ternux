@@ -94,7 +94,7 @@ are on the Xfce panel. Qt5 applications such as VLC use the matching GTK platfor
 and panel; custom Ternux Xfwm frames cover window borders and title bars. The
 Ternux icon theme uses original app, folder, Thunar-action, category, and panel
 icons, plus branded aliases for optional GUI apps such as Firefox ESR, Blender, GIMP,
-Krita, Inkscape, Audacity, Geany, Evince, and LibreOffice. Thunar actions have their own
+Krita, Inkscape, Audacity, Geany, and LibreOffice; Evince is a base app. Thunar actions have their own
 icon context. Adwaita remains the neutral fallback for uncommon or newly installed apps;
 Papirus is not inherited. Fifteen selectable portrait-first branded wallpapers preserve
 their proportions in landscape. Ternux Camera lists
