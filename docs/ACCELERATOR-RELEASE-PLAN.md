@@ -356,3 +356,26 @@ asset and hosted signed APT endpoints remain unchanged; both hosted APT URLs
 still return HTTP 404. PR #97 remains a draft, and these checks do not close
 the live-device, correctness, sustained-use, license-scope, or hosted install
 gates.
+
+### Latest PR #97 CI snapshot and live install check — 2026-11-09
+
+At PR head `6f58393a32fe90fe81a10554b41115d3b6972b13`, all eight workflows
+completed successfully: APT package `42527094159`, repository contract
+`42527094177`, Validate `42527094180`, knowledge sync `42527094186`, llama
+CPU/Vulkan `42527094171`, Stable Diffusion CPU/Vulkan `42527094154`, integer-HMX
+candidate `42527094161`, and production HTP `42527094173`. Actions metadata
+reports the CPU/Vulkan candidate as artifact `13635469668` (21,327,333 bytes),
+Stable Diffusion as `13635803194` (27,029,203 bytes), integer-HMX as
+`13636525224` (15,530,758 bytes), production HTP as `13635773588`
+(15,637,158 bytes), and the unsigned APT CI package as `13635891822`
+(268,628 bytes). These exact build artifacts are not in their project handoff
+directories and have not been locally installed or device-tested. The integer-
+HMX candidate belongs in `artifacts/htp-qualification/incoming/`; the three
+extension archives in `artifacts/ternux-extensions/incoming/`; and the APT
+package in `artifacts/ternux-apt/incoming/`. CI success is build/validation
+evidence, not device qualification. On the active Termux installation,
+`ternux verify --json` passed and `ternux doctor --json` reported 31 OK,
+0 warnings, and 0 failures; desktop status reported X11 and PulseAudio running.
+Fresh artifact install, exact-artifact device checks, release publication, and
+clean public APT install remain open. Both hosted signed APT endpoints still
+return HTTP 404. PR #97 is open, clean, and draft.

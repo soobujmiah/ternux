@@ -320,3 +320,24 @@ package check; এই pass-এ downloaded artifact install বা device test �
 HTP release asset এবং hosted signed APT endpoint বদলায়নি; দুই hosted APT URL
 এখনো HTTP 404 দেয়। PR #97 draft-ই আছে। এই check-গুলো live-device,
 correctness, sustained-use, license-scope বা hosted install gate বন্ধ করে না।
+
+### PR #97-এর সর্বশেষ CI snapshot ও live install check — ২০২৬-১১-০৯
+
+PR head `6f58393a32fe90fe81a10554b41115d3b6972b13`-এ আটটি workflow-ই
+সফলভাবে শেষ হয়েছে: APT package `42527094159`, repository contract
+`42527094177`, Validate `42527094180`, knowledge sync `42527094186`, llama
+CPU/Vulkan `42527094171`, Stable Diffusion CPU/Vulkan `42527094154`, integer-HMX
+candidate `42527094161`, এবং production HTP `42527094173`। Actions metadata-তে
+CPU/Vulkan candidate artifact `13635469668` (২১,৩২৭,৩৩৩ byte), Stable Diffusion
+`13635803194` (২৭,০২৯,২০৩ byte), integer-HMX `13636525224` (১৫,৫৩০,৭৫৮ byte),
+production HTP `13635773588` (১৫,৬৩৭,১৫৮ byte), এবং unsigned APT CI package
+`13635891822` (২৬৮,৬২৮ byte) দেখা যাচ্ছে। Exact build artifact-গুলো project-এর
+handoff folder-এ নেই; local install বা device test-ও হয়নি। Integer-HMX candidate
+`artifacts/htp-qualification/incoming/`-এ, তিনটি extension archive
+`artifacts/ternux-extensions/incoming/`-এ, আর APT package
+`artifacts/ternux-apt/incoming/`-এ দিতে হবে। CI pass build/validation evidence;
+device qualification নয়। Active Termux installation-এ `ternux verify --json`
+pass করেছে এবং `ternux doctor --json`-এ ৩১টি OK, ০ warning, ০ failure এসেছে;
+desktop status-এ X11 ও PulseAudio running ছিল। Exact artifact install,
+device check, release publication এবং clean public APT install এখনো বাকি। দুই
+hosted signed APT endpoint এখনো HTTP 404 দেয়। PR #97 open, clean এবং draft।
