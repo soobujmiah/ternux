@@ -50,6 +50,26 @@ stable-support claim. The Android/Bionic QNN native probe archive is diagnostic
 only: it has no model, Qualcomm runtime, firmware, or broker and does not
 establish model-output correctness. Current links: [llama CPU/Vulkan](https://github.com/soobujmiah/ternux/releases/tag/ternux-llama-vulkan-linux-arm64-b11582), [Stable Diffusion CPU/Vulkan](https://github.com/soobujmiah/ternux/releases/tag/ternux-stable-diffusion-vulkan-linux-arm64-master-1053), [experimental SM8735 HTP](https://github.com/soobujmiah/ternux/releases/tag/ternux-llama-htp-sm8735-b11582), and [SM8735 QNN probe](https://github.com/soobujmiah/ternux/releases/tag/ternux-qnn-native-probe-sm8735-2026-10-14). At current PR head `4f300b4f1e6dafe7e15892d7b074a89bd104d10a`, all seven checks passed: Validate `42511329995`, APT artifact `42511330003`, llama CPU/Vulkan `42511330016`, Stable Diffusion CPU/Vulkan `42511330080`, HTP candidate build `42511329996`, repository contract `42511330008`, and knowledge sync `42511330055`. These CI results confirm source validation and artifact builds; they do not qualify HTP/QNN inference, sustained device operation, or a public signed APT install. No Actions artifact was downloaded for device testing. PR #97 remains draft and the signed APT hosting endpoints still return 404.
 
+### Current candidate build and HTP notice audit — 2026-11-09
+
+At PR head `bf71a994993bc072aa878f177a604a2651cef591`, all eight reported PR
+checks passed: Validate `42512876206`, APT package `42512876326`, repository
+contract `42512876203`, knowledge sync `42512876191`, llama CPU/Vulkan
+`42512876192`, Stable Diffusion CPU/Vulkan `42512876202`, production HTP
+`42512876240`, and integer-HMX HTP candidate `42512876199`. Local
+`bash tests/focused.sh` passed 123/123 and `python3 tests/docs_check.py`
+passed 3,017 assertions, 310 internal links, and 19 bilingual page pairs.
+The production HTP workflow now puts root `AUTHORS` and LICENSE/LICENCE,
+COPYING, NOTICE, COPYRIGHT, PATENTS, and UNLICENSE variants in the upstream
+notice bundle, generates per-file SHA-256 checksums, and checks archive
+membership. Run `42512876240` passed these checks and uploaded Actions
+artifact `13630760600`; the artifact was not downloaded or device-tested.
+The public HTP prerelease still has its earlier asset and malformed
+known-answer output, so the workflow fix does not qualify HTP inference or
+update that public release. The other three public accelerator prereleases
+also remain separate from v2. PR #97 remains a draft; hosted signed APT
+endpoints still return 404, and release gate 10 remains held.
+
 ### Optional mail client — 2026-11-08/09
 
 On owner direction, the base desktop has no mail client and sets no mail handler; Evolution Mail is an optional workload. The optional installer adds Evolution and GNOME Online Accounts GTK and creates a Ternux-managed launcher; it does not run an explicit mail-default assignment command. When Evolution is the only registered mail app, GIO may still recommend it from its desktop MIME metadata. On 2026-11-08, the live Debian guest was updated to Evolution 3.56.2-0+deb13u1 and GNOME Online Accounts GTK 3.50.6-1, and Thunderbird 1:153.6.0esr-1~deb13u1 was removed. The Thunderbird and Evolution profile directories were preserved, and the existing Evolution process was left running. Thunderbird mail defaults and XFCE `MailReader` entries were removed; the Firefox `WebBrowser` helper remains. Evolution is present in the live desktop MIME cache when installed, so a clean fresh-base install and a post-optional-install default-handler check remain separate validation points. `apt-get check` and `dpkg --audit` are clean. The optional package mapping, Ternux launcher, branded icons, bilingual guides, and focused regression test are committed and pushed in `b64d3f7` and `89d0fe9`. The added test exposed an unreachable Evolution launcher branch (the ID was consumed by a no-op case); the branch is now reachable. Running the exact optional phase against the live guest kept both Evolution packages current and installed the managed desktop entry with `Exec=/usr/local/bin/evolution`; `desktop-file-validate` passed and the installed wrapper hash matches the repository asset. Evolution remained running, Thunderbird is purged, both profile directories remain, and APT/dpkg checks are clean. The new commit CI passed Validate, APT package, CPU/Vulkan llama, Stable Diffusion, HTP candidate, repository contract and knowledge sync. The live Ternux guest has Evolution because it is an explicitly installed optional app; GIO may recommend it from its MIME metadata, while fresh base installs contain no mail app. No public release was made.

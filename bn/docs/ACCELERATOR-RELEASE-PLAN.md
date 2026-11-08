@@ -48,6 +48,25 @@ correctness-ও প্রমাণ করে না। বর্তমান lin
 [experimental SM8735 HTP](https://github.com/soobujmiah/ternux/releases/tag/ternux-llama-htp-sm8735-b11582),
 এবং [SM8735 QNN probe](https://github.com/soobujmiah/ternux/releases/tag/ternux-qnn-native-probe-sm8735-2026-10-14)। Current PR head `4f300b4f1e6dafe7e15892d7b074a89bd104d10a`-এ সাতটি check-ই pass করেছে: Validate `42511329995`, APT artifact `42511330003`, llama CPU/Vulkan `42511330016`, Stable Diffusion CPU/Vulkan `42511330080`, HTP candidate build `42511329996`, repository contract `42511330008`, এবং knowledge sync `42511330055`। এই CI source validation ও artifact build নিশ্চিত করে; HTP/QNN inference, device-এ দীর্ঘস্থায়ী কাজ, বা public signed APT install qualify করে না। Device testing-এর জন্য কোনো Actions artifact download করা হয়নি। PR #97 draft-ই আছে এবং signed APT hosting endpoint এখনও 404 দেয়।
 
+### বর্তমান candidate build ও HTP notice audit — ২০২৬-১১-০৯
+
+PR head `bf71a994993bc072aa878f177a604a2651cef591`-এ রিপোর্ট করা আটটি
+check-ই pass করেছে: Validate `42512876206`, APT package `42512876326`,
+repository contract `42512876203`, knowledge sync `42512876191`, llama
+CPU/Vulkan `42512876192`, Stable Diffusion CPU/Vulkan `42512876202`,
+production HTP `42512876240`, এবং integer-HMX HTP candidate `42512876199`।
+Local `bash tests/focused.sh` ১২৩/১২৩ pass করেছে;
+`python3 tests/docs_check.py`-তে ৩,০১৭ assertion, ৩১০ internal link এবং ১৯টি
+bilingual page pair pass করেছে। Production HTP workflow এখন root `AUTHORS`-সহ
+LICENSE/LICENCE, COPYING, NOTICE, COPYRIGHT, PATENTS ও UNLICENSE-জাতীয়
+upstream notice file bundle-এ রাখে, প্রতিটি file-এর SHA-256 তৈরি করে, এবং
+archive membership পরীক্ষা করে। Run `42512876240`-এ এই check-গুলো pass হয়েছে
+এবং Actions artifact `13630760600` upload হয়েছে; artifact download বা device
+test করা হয়নি। Public HTP prerelease-এ আগের asset ও malformed known-answer
+output-ই আছে, তাই workflow fix HTP inference qualify করে না বা public release
+update করে না। বাকি তিনটি accelerator prerelease-ও v2 থেকে আলাদা। PR #97
+draft-ই আছে; hosted signed APT endpoint এখনো 404 দেয় এবং release gate ১০ held।
+
 ### Optional mail client — ২০২৬-১১-০৮/০৯
 
 Owner-এর সর্বশেষ নির্দেশে base desktop-এ কোনো mail client বা mail default থাকবে না; Evolution optional workload। Evolution ও GNOME Online Accounts GTK install করে Ternux-managed launcher বসানোর source code `b64d3f7` ও `89d0fe9` commit-এ push হয়েছে। নতুন regression test-এ Evolution launcher branch আগে no-op case-এ আটকে থাকার bug ধরা পড়ে; সেটি ঠিক করা হয়েছে। Live guest-এ exact optional phase চালিয়ে package current রাখা ও `/usr/local/bin/evolution`-এ Exec-সহ desktop entry বসানো হয়েছে; `desktop-file-validate` pass, installed wrapper hash source asset-এর সঙ্গে মিলে। Evolution চলমান ছিল; Thunderbird purge হয়েছে; দুই profile directory অক্ষত। XFCE `MailReader` default নেই, Firefox `WebBrowser` helper আছে, APT ও dpkg clean। Focused tests ১২৩/১২৩ pass; 89d0fe9-এর Validate, APT, CPU/Vulkan, Stable Diffusion, HTP, repository contract ও knowledge sync CI-ও pass। Optional Evolution থাকলে GIO desktop MIME metadata থেকে সেটিকে recommend করতে পারে; fresh base install-এ Evolution থাকে না। Public release করা হয়নি।
