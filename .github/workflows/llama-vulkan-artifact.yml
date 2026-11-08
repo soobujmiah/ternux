@@ -2,6 +2,12 @@ name: llama.cpp CPU + Vulkan artifact
 
 on:
   workflow_dispatch:
+    inputs:
+      publish_preview:
+        description: Update the public optional prerelease after the artifact audit
+        required: true
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -167,6 +173,7 @@ jobs:
             "upstream": "https://github.com/ggml-org/llama.cpp",
             "upstream_tag": "b11582",
             "upstream_commit": "$package_commit",
+            "ternux_commit": "$GITHUB_SHA",
             "build_runner": "GitHub-hosted ubuntu-24.04-arm",
             "cmake_options": {
               "CMAKE_BUILD_TYPE": "Release",
@@ -187,6 +194,7 @@ jobs:
             "device_validation": "CPU and Vulkan known-answer passed on SM8735/Adreno 825; see release notes"
           }
           EOF
+          python3 tools/generate_llama_vulkan_component_manifest.py "$package" llama.cpp .
           python3 tests/llama_vulkan_abi_audit.py "$package"
           tar -C package -czf \
             ternux-llama-vulkan-linux-arm64-b11582.tar.gz \
@@ -201,7 +209,25 @@ jobs:
               release-contents.txt
           done < "$package/share/licenses/upstream/INDEX.txt"
 
+      - name: Upload inspected candidate artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ternux-llama-vulkan-linux-arm64-b11582-candidate
+          path: |
+            ternux-llama-vulkan-linux-arm64-b11582.tar.gz
+            ternux-llama-vulkan-linux-arm64-b11582.tar.gz.sha256
+          if-no-files-found: error
+
+      - name: Require main before updating the public prerelease
+        if: inputs.publish_preview == true
+        run: |
+          if [ "$GITHUB_REF" != refs/heads/main ]; then
+            echo 'Publishing the public prerelease is restricted to main.' >&2
+            exit 1
+          fi
+
       - name: Create or refresh the draft device-validation release
+        if: inputs.publish_preview == true
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
@@ -222,7 +248,7 @@ jobs:
           llama-vulkan`: Qwen2.5 1.5B Q4_0 returned `4` on CPU and Vulkan, and
           verbose Vulkan output identified Adreno 825 with all 29/29 layers
           offloaded. This is an optional prerelease artifact, not a stable
-          Ternux version release. See the build manifest and checksum included
+          Ternux version release. See the build manifest, source-component map, and checksum included
           in the archive.
           EOF
           if gh release view "$tag" >/dev/null 2>&1; then

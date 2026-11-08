@@ -960,30 +960,6 @@
       "source": "lib/ternux-assets/icons/Ternux/scalable/places/user-trash-full.svg",
       "perm": "644"
     },
-    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/folder-new.svg": {
-      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/folder-new.svg",
-      "perm": "644"
-    },
-    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/document-new.svg": {
-      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/document-new.svg",
-      "perm": "644"
-    },
-    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/insert-link.svg": {
-      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/insert-link.svg",
-      "perm": "644"
-    },
-    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/edit-paste.svg": {
-      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/edit-paste.svg",
-      "perm": "644"
-    },
-    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/window-new.svg": {
-      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/window-new.svg",
-      "perm": "644"
-    },
-    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/view-sort-ascending.svg": {
-      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/view-sort-ascending.svg",
-      "perm": "644"
-    },
     "lib/ternux/ternux-assets/icons/Ternux/scalable/categories/preferences-desktop-wallpaper.svg": {
       "source": "lib/ternux-assets/icons/Ternux/scalable/categories/preferences-desktop-wallpaper.svg",
       "perm": "644"
@@ -1002,114 +978,6 @@
     },
     "lib/ternux/ternux-assets/icons/Ternux/scalable/places/user-desktop.svg": {
       "source": "lib/ternux-assets/icons/Ternux/scalable/places/user-desktop.svg",
-      "perm": "644"
-    },
-    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/application-exit.svg": {
-      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/application-exit.svg",
-      "perm": "644"
-    },
-    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/document-open.svg": {
-      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/document-open.svg",
-      "perm": "644"
-    },
-    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/document-properties.svg": {
-      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/document-properties.svg",
-      "perm": "644"
-    },
-    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/document-save.svg": {
-      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/document-save.svg",
-      "perm": "644"
-    },
-    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/edit-copy.svg": {
-      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/edit-copy.svg",
-      "perm": "644"
-    },
-    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/edit-cut.svg": {
-      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/edit-cut.svg",
-      "perm": "644"
-    },
-    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/edit-delete.svg": {
-      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/edit-delete.svg",
-      "perm": "644"
-    },
-    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/edit-find.svg": {
-      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/edit-find.svg",
-      "perm": "644"
-    },
-    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/edit-rename.svg": {
-      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/edit-rename.svg",
-      "perm": "644"
-    },
-    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/edit-select-all.svg": {
-      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/edit-select-all.svg",
-      "perm": "644"
-    },
-    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/emblem-symbolic-link.svg": {
-      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/emblem-symbolic-link.svg",
-      "perm": "644"
-    },
-    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/go-home.svg": {
-      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/go-home.svg",
-      "perm": "644"
-    },
-    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/go-next.svg": {
-      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/go-next.svg",
-      "perm": "644"
-    },
-    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/go-previous.svg": {
-      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/go-previous.svg",
-      "perm": "644"
-    },
-    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/go-up.svg": {
-      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/go-up.svg",
-      "perm": "644"
-    },
-    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/help-about.svg": {
-      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/help-about.svg",
-      "perm": "644"
-    },
-    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/process-stop.svg": {
-      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/process-stop.svg",
-      "perm": "644"
-    },
-    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/system-search.svg": {
-      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/system-search.svg",
-      "perm": "644"
-    },
-    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/user-bookmarks.svg": {
-      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/user-bookmarks.svg",
-      "perm": "644"
-    },
-    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/view-details.svg": {
-      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/view-details.svg",
-      "perm": "644"
-    },
-    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/view-grid.svg": {
-      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/view-grid.svg",
-      "perm": "644"
-    },
-    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/view-list.svg": {
-      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/view-list.svg",
-      "perm": "644"
-    },
-    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/view-more-symbolic.svg": {
-      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/view-more-symbolic.svg",
-      "perm": "644"
-    },
-    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/view-refresh.svg": {
-      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/view-refresh.svg",
-      "perm": "644"
-    },
-    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/view-sort-descending.svg": {
-      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/view-sort-descending.svg",
-      "perm": "644"
-    },
-    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/window-close-symbolic.svg": {
-      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/window-close-symbolic.svg",
-      "perm": "644"
-    },
-    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/window-close.svg": {
-      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/window-close.svg",
       "perm": "644"
     },
     "lib/ternux/ternux-assets/applications/ternux-sdcard.desktop": {
@@ -1134,6 +1002,218 @@
     },
     "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/application-x-executable.svg": {
       "source": "lib/ternux-assets/icons/Ternux/scalable/apps/application-x-executable.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/actions/application-exit.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/actions/application-exit.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/actions/document-new.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/actions/document-new.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/actions/document-open.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/actions/document-open.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/actions/document-properties.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/actions/document-properties.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/actions/document-save.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/actions/document-save.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/actions/edit-copy.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/actions/edit-copy.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/actions/edit-cut.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/actions/edit-cut.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/actions/edit-delete.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/actions/edit-delete.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/actions/edit-find.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/actions/edit-find.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/actions/edit-paste.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/actions/edit-paste.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/actions/edit-rename.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/actions/edit-rename.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/actions/edit-select-all.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/actions/edit-select-all.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/actions/emblem-symbolic-link.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/actions/emblem-symbolic-link.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/actions/folder-new.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/actions/folder-new.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/actions/go-home.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/actions/go-home.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/actions/go-next.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/actions/go-next.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/actions/go-previous.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/actions/go-previous.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/actions/go-up.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/actions/go-up.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/actions/help-about.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/actions/help-about.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/actions/insert-link.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/actions/insert-link.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/actions/process-stop.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/actions/process-stop.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/actions/system-search.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/actions/system-search.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/actions/user-bookmarks.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/actions/user-bookmarks.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/actions/view-details.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/actions/view-details.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/actions/view-grid.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/actions/view-grid.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/actions/view-list.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/actions/view-list.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/actions/view-more-symbolic.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/actions/view-more-symbolic.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/actions/view-refresh.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/actions/view-refresh.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/actions/view-sort-ascending.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/actions/view-sort-ascending.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/actions/view-sort-descending.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/actions/view-sort-descending.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/actions/window-close-symbolic.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/actions/window-close-symbolic.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/actions/window-close.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/actions/window-close.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/actions/window-new.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/actions/window-new.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/audacity.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/audacity.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/blender.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/blender.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/evince.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/evince.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/firefox-esr.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/firefox-esr.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/firefox.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/firefox.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/geany.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/geany.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/gimp.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/gimp.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/inkscape.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/inkscape.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/krita.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/krita.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/libreoffice-calc.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/libreoffice-calc.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/libreoffice-draw.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/libreoffice-draw.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/libreoffice-impress.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/libreoffice-impress.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/libreoffice-writer.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/libreoffice-writer.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/mpv.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/mpv.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/org.gimp.GIMP.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/org.gimp.GIMP.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/org.gnome.Evince.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/org.gnome.Evince.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/org.inkscape.Inkscape.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/org.inkscape.Inkscape.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/org.kde.krita.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/org.kde.krita.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/thonny.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/thonny.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/zenity.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/zenity.svg",
       "perm": "644"
     }
   }

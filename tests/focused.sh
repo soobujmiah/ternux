@@ -446,6 +446,14 @@ assert "Inherits=Adwaita,hicolor" in (root / "lib/ternux-assets/icons/Ternux/ind
 assert "Papirus" not in (root / "lib/ternux-assets/icons/Ternux/index.theme").read_text()
 assert (root / "lib/ternux-assets/icons/Ternux/scalable/apps/application-x-executable.svg").is_file()
 assert (root / "packaging/termux/icons/Ternux/scalable/apps/application-x-executable.svg").read_bytes() == (root / "lib/ternux-assets/icons/Ternux/scalable/apps/application-x-executable.svg").read_bytes()
+assert (root / "packaging/termux/icons/Ternux/index.theme").read_bytes() == (root / "lib/ternux-assets/icons/Ternux/index.theme").read_bytes()
+for action in (root / "lib/ternux-assets/icons/Ternux/scalable/actions").glob("*.svg"):
+    mirror = root / "packaging/termux/icons/Ternux/scalable/actions" / action.name
+    assert mirror.is_file() and mirror.read_bytes() == action.read_bytes()
+for app in ("firefox-esr", "blender", "gimp", "krita", "inkscape", "audacity", "evince", "geany", "libreoffice-writer", "libreoffice-calc"):
+    core = root / f"lib/ternux-assets/icons/Ternux/scalable/apps/{app}.svg"
+    mirror = root / f"packaging/termux/icons/Ternux/scalable/apps/{app}.svg"
+    assert mirror.is_file() and mirror.read_bytes() == core.read_bytes()
 assert files.get("lib/ternux/ternux-assets/bin/ternux-open-url", {}).get("source") == "lib/ternux-assets/bin/ternux-open-url"
 assert "Exec=/usr/local/bin/ternux-open-url %u" in (root / "lib/phases.sh").read_text()
 assert 'find "\\$asset_stage" -type d -exec chmod 0755 {} +' in (root / "lib/phases.sh").read_text()
@@ -474,16 +482,26 @@ important_icon = (places_icons / "folder-important.svg").read_text()
 assert "m32 28 4 9 10 1" not in important_icon
 assert '<circle cx="32" cy="40" r="11"/>' in important_icon
 panel_icons = root / "lib/ternux-assets/icons/Ternux/scalable/apps"
+action_icons = root / "lib/ternux-assets/icons/Ternux/scalable/actions"
 for icon in ("org.xfce.panel.applicationsmenu", "org.xfce.panel.showdesktop",
-             "org.xfce.panel.directorymenu", "org.xfce.panel.actions", "org.xfce.panel.pager",
-             "folder-new", "document-new", "insert-link", "edit-paste",
+             "org.xfce.panel.directorymenu", "org.xfce.panel.actions", "org.xfce.panel.pager"):
+    assert (panel_icons / f"{icon}.svg").is_file()
+for icon in ("folder-new", "document-new", "insert-link", "edit-paste",
              "window-new", "view-sort-ascending", "application-exit", "document-open",
              "document-properties", "document-save", "edit-copy", "edit-cut", "edit-delete",
              "edit-find", "edit-rename", "edit-select-all", "system-search", "go-home",
              "go-next", "go-previous", "go-up", "help-about", "process-stop",
              "user-bookmarks", "view-details", "view-grid", "view-list", "view-more-symbolic",
              "view-refresh", "view-sort-descending", "window-close", "window-close-symbolic"):
-    assert (panel_icons / f"{icon}.svg").is_file()
+    assert (action_icons / f"{icon}.svg").is_file()
+icon_index = (root / "lib/ternux-assets/icons/Ternux/index.theme").read_text()
+assert "scalable/actions" in icon_index and "Context=Actions" in icon_index
+optional_app_icons = ("firefox", "firefox-esr", "blender", "gimp", "krita", "inkscape",
+                      "audacity", "mpv", "evince", "geany", "thonny", "libreoffice-writer",
+                      "libreoffice-calc", "libreoffice-draw", "libreoffice-impress", "zenity")
+for icon in optional_app_icons:
+    asset = root / f"lib/ternux-assets/icons/Ternux/scalable/apps/{icon}.svg"
+    assert asset.is_file() and "<ellipse" not in asset.read_text()
 # Keep small icons distinct by removing the repeated badge frames and chevron
 # brand stamp from app/category/status glyphs; standalone Ternux marks stay branded.
 shared_frames = (
@@ -494,10 +512,12 @@ shared_frames = (
     'm22 96 42 24 42-24',
 )
 icon_root = root / "lib/ternux-assets/icons/Ternux/scalable"
-for icon_dir in ("apps", "categories", "places", "devices", "status", "mimetypes"):
+for icon_dir in ("apps", "actions", "categories", "places", "devices", "status", "mimetypes"):
     for icon_file in (icon_root / icon_dir).glob("*.svg"):
         svg = icon_file.read_text()
         assert not any(frame in svg for frame in shared_frames), icon_file
+        if icon_dir in ("apps", "categories"):
+            assert "<ellipse" not in svg, icon_file
 xfwm_config = (root / "lib/ternux-assets/themes/Ternux/xfwm4/themerc").read_text()
 assert "button_offset=2" in xfwm_config and "button_spacing=1" in xfwm_config
 assert "frame_border_top=4" in xfwm_config
@@ -549,6 +569,7 @@ assert 'Desktop/SD-Card.desktop' in desktop_phase
 assert "runuser -u \"\\$U\" -- env HOME=\"\\$H\" xdg-mime default com.github.xournalpp.xournalpp.desktop application/pdf" in desktop_phase
 assert 'xdg-mime default thunderbird.desktop x-scheme-handler/mailto' in desktop_phase
 assert 'xdg-mime default thunderbird.desktop message/rfc822' in desktop_phase
+assert "MailReader=thunderbird" in desktop_phase and "mail_helpers=/etc/xdg/xfce4/helpers.rc" in desktop_phase
 for icon in ("com.github.xournalpp.xournalpp", "thunderbird"):
     assert (root / f"lib/ternux-assets/icons/Ternux/scalable/apps/{icon}.svg").is_file()
 assert not (root / "lib/ternux-assets/applications/ternux-pdf.desktop").exists()

@@ -531,6 +531,19 @@ DESKTOP
     runuser -u "\$U" -- env HOME="\$H" xdg-mime default com.github.xournalpp.xournalpp.desktop application/pdf || true
     runuser -u "\$U" -- env HOME="\$H" xdg-mime default thunderbird.desktop x-scheme-handler/mailto || true
     runuser -u "\$U" -- env HOME="\$H" xdg-mime default thunderbird.desktop message/rfc822 || true
+    mail_helpers=/etc/xdg/xfce4/helpers.rc
+    install -d -m 0755 /etc/xdg/xfce4
+    if [ -e "\$mail_helpers" ]; then
+      if grep -q '^[[:space:]]*MailReader=' "\$mail_helpers"; then
+        sed -i 's/^[[:space:]]*MailReader=.*/MailReader=thunderbird/' "\$mail_helpers"
+      elif grep -q '^\[Helpers\]' "\$mail_helpers"; then
+        sed -i '/^\[Helpers\]/a MailReader=thunderbird' "\$mail_helpers"
+      else
+        printf '\n[Helpers]\nMailReader=thunderbird\n' >> "\$mail_helpers"
+      fi
+    else
+      printf '[Helpers]\nMailReader=thunderbird\n' > "\$mail_helpers"
+    fi
     runuser -u "\$U" -- env HOME="\$H" xdg-mime default xfce4-web-browser.desktop x-scheme-handler/http || true
     runuser -u "\$U" -- env HOME="\$H" xdg-mime default xfce4-web-browser.desktop x-scheme-handler/https || true
     cat > /usr/bin/pm-is-supported <<'PM'

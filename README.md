@@ -93,8 +93,11 @@ through the Ternux bridge. One-click Camera, Photos, and Sound Recorder shortcut
 are on the Xfce panel. Qt5 applications such as VLC use the matching GTK platform theme. The systemwide graphite-and-emerald Ternux GTK theme covers apps, menus,
 and panel; custom Ternux Xfwm frames cover window borders and title bars. The
 Ternux icon theme uses original app, folder, Thunar-action, category, and panel
-icons, with Adwaita as the neutral fallback for uncommon or newly installed apps; it
-avoids Papirus inheritance to keep desktop silhouettes consistent, and 15 selectable portrait-first branded wallpapers that preserve their proportions in landscape. Ternux Camera lists
+icons, plus branded aliases for optional GUI apps such as Firefox ESR, Blender, GIMP,
+Krita, Inkscape, Audacity, Geany, Evince, and LibreOffice. Thunar actions have their own
+icon context. Adwaita remains the neutral fallback for uncommon or newly installed apps;
+Papirus is not inherited. Fifteen selectable portrait-first branded wallpapers preserve
+their proportions in landscape. Ternux Camera lists
 Android front/rear cameras and captures photos through Termux:API after Camera
 permission is granted to the Termux:API app. Each photo appears in the app preview after capture with its EXIF orientation corrected; compact controls fit the window. Photos save inside Debian at `~/Pictures/Ternux`. A validated capture is staged in Termux app storage, then copied into PRoot; no Gallery scan is performed. Ristretto is the
 default image viewer. Termux:API provides still-photo capture; it does not expose a continuous camera stream for live preview.

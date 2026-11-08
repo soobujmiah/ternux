@@ -2,7 +2,7 @@
 Name=Ternux
 Comment=Ternux branded green dark icon theme
 Inherits=Adwaita,hicolor
-Directories=scalable/places,scalable/apps,scalable/categories,scalable/devices,scalable/status,scalable/mimetypes
+Directories=scalable/places,scalable/apps,scalable/actions,scalable/categories,scalable/devices,scalable/status,scalable/mimetypes
 
 [scalable/places]
 Size=48
@@ -17,6 +17,13 @@ Type=Scalable
 MinSize=16
 MaxSize=512
 Context=Applications
+
+[scalable/actions]
+Size=48
+Type=Scalable
+MinSize=16
+MaxSize=512
+Context=Actions
 
 [scalable/categories]
 Size=48
