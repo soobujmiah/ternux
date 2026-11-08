@@ -362,10 +362,7 @@ tnx_phase_debian() {
     DPKG_FORCE=\"-o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -o APT::Color=1 -o Dpkg::Progress-Fancy=1\"
     apt update -o APT::Color=1
     dpkg --configure -a --force-confold --force-confdef || true
-    apt install -y \$DPKG_FORCE --no-install-recommends evolution gnome-online-accounts-gtk
-    apt install -y \$DPKG_FORCE sudo nano mousepad galculator evince fonts-noto-core python3-gi gir1.2-gtk-3.0 ibus ibus-avro devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol x11-utils mesa-utils libgl1-mesa-dri adwaita-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc ffmpeg ristretto qt5-gtk-platformtheme colord
-    apt remove -y \$DPKG_FORCE thunderbird >/dev/null 2>&1 || true
-    apt remove -y \$DPKG_FORCE thunderbird-esr >/dev/null 2>&1 || true
+    apt install -y \$DPKG_FORCE sudo nano mousepad galculator evince thunderbird fonts-noto-core python3-gi gir1.2-gtk-3.0 ibus ibus-avro devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol x11-utils mesa-utils libgl1-mesa-dri adwaita-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc ffmpeg ristretto qt5-gtk-platformtheme colord
     apt install -y \$DPKG_FORCE --no-install-recommends synaptic
     apt remove -y \$DPKG_FORCE guvcview >/dev/null 2>&1 || true
     rm -f /usr/local/share/applications/guvcview.desktop
@@ -400,12 +397,6 @@ tnx_phase_debian() {
     cp -a "\$asset_stage/themes/Ternux/." /usr/share/themes/Ternux/
     install -m 0755 "\$asset_stage/bin/ternux-open-url" /usr/local/bin/ternux-open-url
     install -m 0755 "\$asset_stage/bin/ternux-app-center" /usr/local/bin/ternux-app-center
-    install -d -m 0755 /usr/local/share/applications
-    install -m 0755 "\$asset_stage/bin/evolution" /usr/local/bin/evolution
-    if [ -f /usr/share/applications/org.gnome.Evolution.desktop ]; then
-      sed 's#^Exec=evolution#Exec=/usr/local/bin/evolution#' /usr/share/applications/org.gnome.Evolution.desktop > /usr/local/share/applications/org.gnome.Evolution.desktop
-      chmod 0644 /usr/local/share/applications/org.gnome.Evolution.desktop
-    fi
     install -m 0644 "\$asset_stage/applications/ternux-app-center.desktop" /usr/local/share/applications/ternux-app-center.desktop
     install -m 0644 "\$asset_stage/applications/synaptic.desktop" /usr/local/share/applications/synaptic.desktop
     rm -f /usr/share/backgrounds/ternux/aurora.svg
@@ -563,20 +554,20 @@ DESKTOP
       runuser -u "\$U" -- env HOME="\$H" xdg-mime default org.xfce.ristretto.desktop "\$mime" || true
     done
     runuser -u "\$U" -- env HOME="\$H" xdg-mime default org.gnome.Evince.desktop application/pdf || true
-    runuser -u "\$U" -- env HOME="\$H" xdg-mime default org.gnome.Evolution.desktop x-scheme-handler/mailto || true
-    runuser -u "\$U" -- env HOME="\$H" xdg-mime default org.gnome.Evolution.desktop message/rfc822 || true
+    runuser -u "\$U" -- env HOME="\$H" xdg-mime default thunderbird.desktop x-scheme-handler/mailto || true
+    runuser -u "\$U" -- env HOME="\$H" xdg-mime default thunderbird.desktop message/rfc822 || true
     mail_helpers=/etc/xdg/xfce4/helpers.rc
     install -d -m 0755 /etc/xdg/xfce4
     if [ -e "\$mail_helpers" ]; then
       if grep -q '^[[:space:]]*MailReader=' "\$mail_helpers"; then
-        sed -i 's/^[[:space:]]*MailReader=.*/MailReader=evolution/' "\$mail_helpers"
+        sed -i 's/^[[:space:]]*MailReader=.*/MailReader=thunderbird/' "\$mail_helpers"
       elif grep -q '^\[Helpers\]' "\$mail_helpers"; then
-        sed -i '/^\[Helpers\]/a MailReader=evolution' "\$mail_helpers"
+        sed -i '/^\[Helpers\]/a MailReader=thunderbird' "\$mail_helpers"
       else
-        printf '\n[Helpers]\nMailReader=evolution\n' >> "\$mail_helpers"
+        printf '\n[Helpers]\nMailReader=thunderbird\n' >> "\$mail_helpers"
       fi
     else
-      printf '[Helpers]\nMailReader=evolution\n' > "\$mail_helpers"
+      printf '[Helpers]\nMailReader=thunderbird\n' > "\$mail_helpers"
     fi
     runuser -u "\$U" -- env HOME="\$H" xdg-mime default xfce4-web-browser.desktop x-scheme-handler/http || true
     runuser -u "\$U" -- env HOME="\$H" xdg-mime default xfce4-web-browser.desktop x-scheme-handler/https || true

@@ -83,11 +83,14 @@ available at `/sdcard` inside Debian.
 Termux:X11 display integration, and PulseAudio audio routing. The default setup
 includes Bangla-capable Noto fonts, Avro phonetic input (Ctrl+Space), VLC,
 PulseAudio Volume Control, Xfce Task Manager, Mousepad, Galculator, Evince PDF
-reader, Evolution mail client, Online Accounts, Ternux Camera, Ternux Sound Recorder,
+reader, Thunderbird mail client, Ternux Camera, Ternux Sound Recorder,
 Ristretto image viewer, and Synaptic Package Manager. Synaptic uses Ternux
 branding and can search, install, upgrade, or remove Debian packages. Evince is
 the default PDF reader; LibreOffice Draw is optional for editing PDF pages and exporting documents to other formats.
-Evolution is the default mail reader and handles mail links. It supports IMAP, POP, and SMTP accounts; the Online Accounts app helps connect providers that support GNOME Online Accounts, including Google and Microsoft accounts. One-click Camera, Photos, and Sound Recorder shortcuts
+Thunderbird is the default mail reader, auto-configures common
+providers, supports OAuth where offered, and allows manual IMAP/POP setup for other
+mail hosts. OAuth links open Firefox ESR when installed or the Android default browser
+through the Ternux bridge. One-click Camera, Photos, and Sound Recorder shortcuts
 are on the Xfce panel. Qt5 applications such as VLC use the matching GTK platform theme. The systemwide graphite-and-emerald Ternux GTK theme covers apps, menus,
 and panel; custom Ternux Xfwm frames cover window borders and title bars. The
 Ternux icon theme uses original app, folder, Thunar-action, category, and panel

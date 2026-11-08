@@ -82,10 +82,13 @@ Termux-এ `db` চালান। Debian-এর ভেতরে Android shared 
 Termux:X11 display integration এবং PulseAudio audio routing। বেস setup-এ
 Bangla-capable Noto font, Avro phonetic input (Ctrl+Space), VLC, PulseAudio
 Volume Control, Xfce Task Manager, Mousepad, Galculator, Evince PDF reader,
-Evolution mail client, Online Accounts, Ternux Camera, Ternux Sound Recorder এবং Ristretto
+Thunderbird mail client, Ternux Camera, Ternux Sound Recorder এবং Ristretto
 image viewer এবং Ternux icon/theme-সহ Synaptic Package Manager default-এ থাকে।
 এখানে Debian package খুঁজে install, upgrade ও remove করা যায়। Evince default
-PDF reader; PDF page edit ও অন্য format-এ export করতে optional LibreOffice Draw আছে। Evolution default mail reader এবং mail link-এর handler। এতে IMAP, POP ও SMTP account চলে; Google ও Microsoft-সহ GNOME Online Accounts সমর্থন করা provider যুক্ত করতে Online Accounts app আছে। Camera, Photos ও Sound Recorder-এর one-click shortcut
+PDF reader; PDF page edit ও অন্য format-এ export করতে optional LibreOffice Draw আছে। Thunderbird default mail reader; common provider auto-configure
+করে, provider দিলে OAuth সমর্থন করে, আর অন্য mail host-এর জন্য manual IMAP/POP
+configuration দেয়। OAuth link Firefox ESR থাকলে সেটি, না থাকলে Ternux bridge দিয়ে
+Android-এর default browser খোলে। Camera, Photos ও Sound Recorder-এর one-click shortcut
 Xfce panel-এ থাকে। Ternux icon theme-এ app, folder, Thunar action, category ও panel-এর
 নিজস্ব icon আছে; Firefox ESR, Blender, GIMP, Krita, Inkscape, Audacity, Geany
 ও LibreOffice-এর মতো optional GUI app-এর branded icon-ও আছে। Thunar action-এর জন্য

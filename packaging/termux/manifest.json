@@ -988,8 +988,8 @@
       "source": "lib/ternux-assets/icons/Ternux/scalable/apps/galculator.svg",
       "perm": "644"
     },
-    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/org.gnome.Evolution.svg": {
-      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/org.gnome.Evolution.svg",
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/thunderbird.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/thunderbird.svg",
       "perm": "644"
     },
     "lib/ternux/ternux-assets/bin/ternux-open-url": {
@@ -1250,18 +1250,6 @@
     },
     "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/ternux-app-center.svg": {
       "source": "lib/ternux-assets/icons/Ternux/scalable/apps/ternux-app-center.svg",
-      "perm": "644"
-    },
-    "lib/ternux/ternux-assets/bin/evolution": {
-      "source": "lib/ternux-assets/bin/evolution",
-      "perm": "755"
-    },
-    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/evolution.svg": {
-      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/evolution.svg",
-      "perm": "644"
-    },
-    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/gnome-online-accounts-gtk.svg": {
-      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/gnome-online-accounts-gtk.svg",
       "perm": "644"
     }
   }

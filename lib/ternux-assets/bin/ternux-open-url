@@ -1,7 +1,7 @@
 #!/bin/sh
 # Open HTTP(S) links in the Debian browser when installed, otherwise use the
-# Android host browser on browser-light Ternux installations without making
-# Firefox a base dependency.
+# Android host browser. This keeps Thunderbird OAuth usable on browser-light
+# Ternux installations without making Firefox a base dependency.
 if [ "$#" -eq 0 ]; then
   set -- "https://soobujmiah.github.io/ternux/"
 fi

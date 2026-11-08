@@ -138,7 +138,7 @@ if env TERNUX_STATE_DIR="$TMP/state-welcome" HOME="$TMP/home-welcome" \
     tnx_guest_login(){ if [ "${3:-}" = bash ] && [ "${4:-}" = -c ] && [[ "$5" == *ternux-welcome.desktop* ]]; then printf "%s\n" "$5" > "$MARKER"; bash -n "$MARKER" || return 1; fi; return 0; }
     tnx_phase_debian alice >/dev/null &&
       grep -q "Exec=/usr/local/bin/ternux-welcome" "$MARKER" &&
-      grep -q "mousepad galculator evince fonts-noto-core.*ibus ibus-avro devilspie2" "$1/lib/phases.sh" &&
+      grep -q "mousepad galculator evince thunderbird.*fonts-noto-core.*ibus ibus-avro devilspie2" "$1/lib/phases.sh" &&
       grep -q "xfce4-taskmanager.*xfce4-terminal zenity vlc ffmpeg ristretto qt5-gtk-platformtheme colord" "$1/lib/phases.sh" &&
       grep -q "vout=xcb_x11" "$1/lib/phases.sh" &&
       grep -q "avcodec-hw=none" "$1/lib/phases.sh" &&
@@ -526,7 +526,7 @@ base_desktop_icon_ids = (
     "org.xfce.xfdesktop", "org.xfce.xfwm4", "org.xfce.xfwm4-tweaks", "org.xfce.panel.clock",
     "org.xfce.panel.launcher", "org.xfce.panel.separator", "org.xfce.panel.systray", "org.xfce.panel.tasklist",
     "org.xfce.panel.windowmenu", "xfce4-pulseaudio-plugin", "ternux-camera",
-    "ternux-keyboard", "ternux-recorder", "evolution", "org.gnome.Evolution", "gnome-online-accounts-gtk", "vlc", "xarchiver", "xfsm-logout",
+    "ternux-keyboard", "ternux-recorder", "thunderbird", "vlc", "xarchiver", "xfsm-logout",
 )
 theme_icon_root = root / "lib/ternux-assets/icons/Ternux"
 theme_icon_ids = {asset.stem for asset in theme_icon_root.rglob("*.svg")}
@@ -598,10 +598,7 @@ assert 'stream=codec_name:format=duration' in recorder
 assert 'Recovery copy remains in' in recorder
 assert 'with_suffix(".partial" + self.target.suffix)' in recorder
 assert "ffmpeg ristretto" in (root / "lib/phases.sh").read_text()
-assert "--no-install-recommends evolution gnome-online-accounts-gtk" in (root / "lib/phases.sh").read_text()
-assert "apt remove -y \\$DPKG_FORCE thunderbird >/dev/null 2>&1 || true" in (root / "lib/phases.sh").read_text()
-assert "apt remove -y \\$DPKG_FORCE thunderbird-esr >/dev/null 2>&1 || true" in (root / "lib/phases.sh").read_text()
-assert "mousepad galculator evince fonts-noto-core" in (root / "lib/phases.sh").read_text()
+assert "mousepad galculator evince thunderbird" in (root / "lib/phases.sh").read_text()
 assert "--no-install-recommends synaptic" in (root / "lib/phases.sh").read_text()
 app_center = (root / "lib/ternux-assets/bin/ternux-app-center").read_text()
 assert 'exec sudo env DISPLAY="$display" GTK_THEME=Ternux /usr/sbin/synaptic "$@"' in app_center
@@ -626,11 +623,10 @@ assert "Icon=drive-removable-media" in sdcard_desktop.read_text()
 assert r'install -m 0644 "\$asset_stage/applications/ternux-sdcard.desktop"' in desktop_phase
 assert 'Desktop/SD-Card.desktop' in desktop_phase
 assert "runuser -u \"\\$U\" -- env HOME=\"\\$H\" xdg-mime default org.gnome.Evince.desktop application/pdf" in desktop_phase
-assert 'xdg-mime default org.gnome.Evolution.desktop x-scheme-handler/mailto' in desktop_phase
-assert 'xdg-mime default org.gnome.Evolution.desktop message/rfc822' in desktop_phase
-assert "MailReader=evolution" in desktop_phase and "mail_helpers=/etc/xdg/xfce4/helpers.rc" in desktop_phase
-assert "WEBKIT_DISABLE_SANDBOX_THIS_IS_DANGEROUS=1" in (root / "lib/ternux-assets/bin/evolution").read_text()
-for icon in ("org.gnome.Evince", "evolution", "org.gnome.Evolution", "gnome-online-accounts-gtk"):
+assert 'xdg-mime default thunderbird.desktop x-scheme-handler/mailto' in desktop_phase
+assert 'xdg-mime default thunderbird.desktop message/rfc822' in desktop_phase
+assert "MailReader=thunderbird" in desktop_phase and "mail_helpers=/etc/xdg/xfce4/helpers.rc" in desktop_phase
+for icon in ("org.gnome.Evince", "thunderbird"):
     assert (root / f"lib/ternux-assets/icons/Ternux/scalable/apps/{icon}.svg").is_file()
 assert not (root / "lib/ternux-assets/applications/ternux-pdf.desktop").exists()
 launcher_icon = (root / "lib/ternux-assets/icons/Ternux/scalable/apps/ternux-launcher.svg").read_text()
