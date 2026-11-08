@@ -18,9 +18,12 @@ Qualcomm SM8735 / Hexagon V73 device while improving Q4_0 inference throughput.
   PR remains unmerged, so Ternux builds it only as an isolated, disposable
   research candidate. The workflow checks out this exact source commit; it no
   longer reapplies an older patch over the production llama.cpp pin.
-- Upstream SM7750 results and the separate SM8735 candidate measurements are
-  device-specific evidence, not general support claims. The SM8735 candidate
-  still has a failing FLASH_ATTN_EXT path and is not release-qualified.
+- Exact-source SM8735 tests partially passed: Q4_0 MUL_MAT passed 1,588/1,588
+  cases and GATED_DELTA_NET passed 43/43. Both full and supported-size
+  FLASH_ATTN_EXT runs aborted with DSP INTERNAL-ERROR (child signal 6). These
+  results are from a separately packaged probe of this exact source commit,
+  not this Ternux-built artifact. The candidate remains unqualified; detailed
+  evidence is in the [release-plan test record](../../guides/device-benchmark-evidence.md#2026-11-07-sm8735-integer-hmx-candidate-probe).
 
 ## Candidate artifact smoke commands
 

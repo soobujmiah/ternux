@@ -144,9 +144,11 @@ jobs:
 
           This package is a disposable test artifact containing a candidate
           integer-HMX implementation for SoCs without FP16-capable HMX. It
-          includes a Ternux Binder/FastRPC broker and test-backend-ops. The code
-          is not validated on SM8735 and is not for production use. See
-          HTP-INTEGER-HMX-CANDIDATE.md and Ternux's release plan.
+          includes a Ternux Binder/FastRPC broker and test-backend-ops. A prior
+          package of this exact source commit partially passed SM8735 operator
+          tests, but FLASH_ATTN_EXT aborted with DSP INTERNAL-ERROR (signal 6).
+          This CI artifact itself is not device-qualified or for production use.
+          See HTP-INTEGER-HMX-CANDIDATE.md and Ternux's release plan.
 
           Upstream license texts and their source paths are indexed under upstream-licenses/.
 
@@ -171,7 +173,7 @@ jobs:
             "toolchain_image_digest": "sha256:41b710ee5f99d21f0fb9d83a1f815ecffb7708315b4218a11cd0baeb5ecf4c14",
             "build_command": "cmake --preset arm64-linux-snapdragon-release -B build-ternux-htp-integer-hmx-v73; cmake --build build-ternux-htp-integer-hmx-v73 -j 4; cmake --install build-ternux-htp-integer-hmx-v73 --prefix pkg-ternux-htp-integer-hmx-v73/llama.cpp; build ternux-htp-broker through the pinned AArch64 CMake toolchain",
             "htp_libraries": ["libggml-hexagon.so", "libggml-htp-v73.so"],
-            "device_validation": "unqualified candidate; build provenance only. Do not install as the production extension before SM8735 correctness, performance, restart and sustained testing",
+            "device_validation": "A separate package of this exact source commit partially passed SM8735: Q4_0 MUL_MAT 1588/1588 and GATED_DELTA_NET 43/43; full and supported-size FLASH_ATTN_EXT aborted with DSP INTERNAL-ERROR (signal 6). This Ternux artifact is build-only, not device-qualified or production-ready. See Ternux release plan.",
             "experimental_adapter": ["bin/htp-run", "bin/htp-backend-ops", "libexec/htp-broker.py", "lib/libternux-htp-broker.so"],
             "runtime_dependencies": ["libgbinder.so.1", "libglibutil.so.1", "libcdsprpc.so.1", "libcdsprpc.so", "python3"],
             "debian_packages": ["libgbinder1", "libglibutil1", "libfastrpc1", "libfastrpc-dev", "python3"],
