@@ -1002,7 +1002,7 @@ tnx_phase_launcher() {
   # Write launcher
   cat > "$LAUNCHER" << 'LAUNCHEOF'
 #!/data/data/com.termux/files/usr/bin/bash
-# TERNUX_DESKTOP_LAUNCHER=14
+# TERNUX_DESKTOP_LAUNCHER=15
 set -u
 TMPDIR="${TMPDIR:-/data/data/com.termux/files/usr/tmp}"
 TNX_PID_FILE="${TNX_PID_FILE:-$HOME/.local/share/ternux/session/desktop.pid}"
@@ -1192,6 +1192,8 @@ proot-distro login $distro --shared-tmp --bind /dev/kgsl-3d0:/dev/kgsl --bind /d
         xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-style --create -t int -s 4 >/dev/null 2>&1 || true
         xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg >/dev/null 2>&1 || true
         xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/workspace0/image-style --create -t int -s 4 >/dev/null 2>&1 || true
+        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitorbuiltin/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg
+        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitorbuiltin/workspace0/image-style --create -t int -s 5
         xfconf-query -c xfwm4 -p /general/theme --create -t string -s Ternux
         xfconf-query -c xfwm4 -p /general/button_layout --create -t string -s '|HMC'
         for panel_id in \\\$(xfconf-query -c xfce4-panel -l 2>/dev/null | sed -n 's#^/panels/\(panel-[0-9][0-9]*\)/.*#\1#p' | sort -u); do
@@ -1201,6 +1203,17 @@ proot-distro login $distro --shared-tmp --bind /dev/kgsl-3d0:/dev/kgsl --bind /d
         xfdesktop --reload >/dev/null 2>&1 || true
         install -d -m 0755 "/home/$user_name/.config/ternux"
         : > "\\\$defaults_marker"
+      fi
+      wallpaper_migration_marker="/home/$user_name/.config/ternux/monitorbuiltin-wallpaper-v1"
+      if [ ! -e "\\\$wallpaper_migration_marker" ]; then
+        current_wallpaper="\\\$(xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitorbuiltin/workspace0/last-image 2>/dev/null || true)"
+        if [ -z "\\\$current_wallpaper" ] || [ ! -r "\\\$current_wallpaper" ] || [ "\\\$current_wallpaper" = /usr/share/images/desktop-base/default ]; then
+          xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitorbuiltin/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg
+          xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitorbuiltin/workspace0/image-style --create -t int -s 5
+          xfdesktop --reload >/dev/null 2>&1 || true
+        fi
+        install -d -m 0755 "/home/$user_name/.config/ternux"
+        : > "\\\$wallpaper_migration_marker"
       fi
       icon_migration_marker="/home/$user_name/.config/ternux/desktop-icons-v2"
       if [ ! -e "\\\$icon_migration_marker" ]; then
@@ -1299,6 +1312,8 @@ proot-distro login $distro --shared-tmp --bind "\$TNX_CPUINFO_FILE:/proc/cpuinfo
         xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-style --create -t int -s 4 >/dev/null 2>&1 || true
         xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg >/dev/null 2>&1 || true
         xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/workspace0/image-style --create -t int -s 4 >/dev/null 2>&1 || true
+        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitorbuiltin/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg
+        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitorbuiltin/workspace0/image-style --create -t int -s 5
         xfconf-query -c xfwm4 -p /general/theme --create -t string -s Ternux
         xfconf-query -c xfwm4 -p /general/button_layout --create -t string -s '|HMC'
         for panel_id in \\\$(xfconf-query -c xfce4-panel -l 2>/dev/null | sed -n 's#^/panels/\(panel-[0-9][0-9]*\)/.*#\1#p' | sort -u); do
@@ -1308,6 +1323,17 @@ proot-distro login $distro --shared-tmp --bind "\$TNX_CPUINFO_FILE:/proc/cpuinfo
         xfdesktop --reload >/dev/null 2>&1 || true
         install -d -m 0755 "/home/$user_name/.config/ternux"
         : > "\\\$defaults_marker"
+      fi
+      wallpaper_migration_marker="/home/$user_name/.config/ternux/monitorbuiltin-wallpaper-v1"
+      if [ ! -e "\\\$wallpaper_migration_marker" ]; then
+        current_wallpaper="\\\$(xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitorbuiltin/workspace0/last-image 2>/dev/null || true)"
+        if [ -z "\\\$current_wallpaper" ] || [ ! -r "\\\$current_wallpaper" ] || [ "\\\$current_wallpaper" = /usr/share/images/desktop-base/default ]; then
+          xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitorbuiltin/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg
+          xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitorbuiltin/workspace0/image-style --create -t int -s 5
+          xfdesktop --reload >/dev/null 2>&1 || true
+        fi
+        install -d -m 0755 "/home/$user_name/.config/ternux"
+        : > "\\\$wallpaper_migration_marker"
       fi
       icon_migration_marker="/home/$user_name/.config/ternux/desktop-icons-v2"
       if [ ! -e "\\\$icon_migration_marker" ]; then

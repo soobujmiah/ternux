@@ -687,7 +687,7 @@ if env TERNUX_STATE_DIR="$TMP/state-launcher" HOME="$launcher_home" bash -c '
   tnx_phase_launcher alice zink en_US.UTF-8 >/dev/null
   tnx_phase_aliases alice bash >/dev/null
   bash -n "$HOME/x.sh" &&
-  grep -q "^# TERNUX_DESKTOP_LAUNCHER=14$" "$HOME/x.sh" &&
+  grep -q "^# TERNUX_DESKTOP_LAUNCHER=15$" "$HOME/x.sh" &&
   grep -q -- "--env MESA_LOADER_DRIVER_OVERRIDE=zink" "$HOME/x.sh" &&
   ! grep -q -- "--env GALLIUM_DRIVER=zink" "$HOME/x.sh" &&
   grep -q -- "--user alice" "$HOME/x.sh" &&
@@ -700,6 +700,8 @@ if env TERNUX_STATE_DIR="$TMP/state-launcher" HOME="$launcher_home" bash -c '
   grep -q "IconThemeName --create -t string -s Ternux" "$HOME/x.sh" &&
   grep -q "ThemeName --create -t string -s Ternux" "$HOME/x.sh" &&
   grep -q "defaults_marker=\"/home/alice/.config/ternux/desktop-defaults-v1\"" "$HOME/x.sh" &&
+  grep -Fq "monitorbuiltin/workspace0/last-image" "$HOME/x.sh" &&
+  grep -Fq "monitorbuiltin-wallpaper-v1" "$HOME/x.sh" &&
   grep -q "install -d -m 0755" "$HOME/x.sh" &&
   grep -q "dbus-run-session -- sh -c" "$HOME/x.sh" &&
   ! grep -q "dbus-launch --exit-with-session" "$HOME/x.sh" &&
@@ -1541,7 +1543,7 @@ if env TERNUX_STATE_DIR="$TMP/state-desktop-start" HOME="$TMP/home-desktop-start
     tnx_state_get(){ case "$1" in backend) echo virgl;; user) echo alice;; locale) echo en_US.UTF-8;; esac; }
     tnx_phase_launcher(){
       cp "$MOCK_LAUNCHER" "$HOME/x.sh"
-      sed -i "1a# TERNUX_DESKTOP_LAUNCHER=14" "$HOME/x.sh"
+      sed -i "1a# TERNUX_DESKTOP_LAUNCHER=15" "$HOME/x.sh"
       chmod +x "$HOME/x.sh"
     }
     tnx_has_cmd(){ [ "$1" = setsid ]; }
@@ -1553,7 +1555,7 @@ if env TERNUX_STATE_DIR="$TMP/state-desktop-start" HOME="$TMP/home-desktop-start
     pid="$(cat "$TERNUX_STATE_DIR/session/desktop.pid")"
     [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null || exit
     grep -q session-started "$TERNUX_STATE_DIR/session/desktop.log" || exit
-    grep -q "^# TERNUX_DESKTOP_LAUNCHER=14$" "$HOME/x.sh" || exit
+    grep -q "^# TERNUX_DESKTOP_LAUNCHER=15$" "$HOME/x.sh" || exit
     grep -q "util-linux zsh git curl" "$1/lib/phases.sh" || exit
     tnx_cmd_stop >/dev/null || exit
     [ ! -e "$TERNUX_STATE_DIR/session/desktop.pid" ]
