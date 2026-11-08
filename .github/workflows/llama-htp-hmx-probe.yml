@@ -28,27 +28,16 @@ jobs:
       - name: Check out pinned llama.cpp source
         uses: actions/checkout@v4
         with:
-          repository: ggml-org/llama.cpp
-          ref: af50f2f248b475d9760f8e67503d01c0f194f5f4
+          repository: karusrus/llama.cpp
+          ref: 08c83734f9c5c3b497e98b96f1a380f5a6084468
           path: llama.cpp
 
       - name: Verify source pin
         shell: bash
         run: |
           set -euo pipefail
-          test "$(git -C llama.cpp rev-parse HEAD)" = "af50f2f248b475d9760f8e67503d01c0f194f5f4"
-      - name: Apply the pinned no-FP16 integer-HMX candidate
-        shell: bash
-        run: |
-          set -euo pipefail
-          patch="$GITHUB_WORKSPACE/experiments/htp-integer-hmx-candidate/v73-no-fp16-integer-hmx.patch"
-          printf '%s  %s\n' \
-            'ecf351cbf43889090998400bbe0fa65a2efd210da81997463fd02f85c682f512' \
-            "$patch" | sha256sum --check --status
-          git -C llama.cpp apply --check "$patch"
-          git -C llama.cpp apply "$patch"
-          grep -q 'integer HMX for Q4_0 matmul and attention' llama.cpp/ggml/src/ggml-hexagon/ggml-hexagon.cpp
-
+          test "$(git -C llama.cpp rev-parse HEAD)" = "08c83734f9c5c3b497e98b96f1a380f5a6084468"
+          test "$(git -C llama.cpp show -s --format=%P HEAD)" = "5851a8e505f4d5fbb183f2847698eb6155d176b7"
       - name: Build for Snapdragon Linux with the pinned upstream toolchain
         shell: bash
         run: |
@@ -136,10 +125,8 @@ jobs:
             release/ternux-llama-htp-sm8735-integer-hmx-v73-candidate/libexec/htp-broker.py
           install -D -m 0644 experiments/htp-integer-hmx-candidate/README.md \
             release/ternux-llama-htp-sm8735-integer-hmx-v73-candidate/HTP-INTEGER-HMX-CANDIDATE.md
-          install -D -m 0644 experiments/htp-integer-hmx-candidate/v73-no-fp16-integer-hmx.patch \
-            release/ternux-llama-htp-sm8735-integer-hmx-v73-candidate/upstream-patches/v73-no-fp16-integer-hmx.patch
           install -D -m 0644 experiments/htp-integer-hmx-candidate/LLAMA-CPP-MIT-LICENSE \
-            release/ternux-llama-htp-sm8735-integer-hmx-v73-candidate/upstream-patches/LLAMA-CPP-MIT-LICENSE
+            release/ternux-llama-htp-sm8735-integer-hmx-v73-candidate/candidate-source/LLAMA-CPP-MIT-LICENSE
           cp llama.cpp/LICENSE release/ternux-llama-htp-sm8735-integer-hmx-v73-candidate/LLAMA-CPP-LICENSE
           cp LICENSE release/ternux-llama-htp-sm8735-integer-hmx-v73-candidate/TERNUX-LICENSE
           cp NOTICE release/ternux-llama-htp-sm8735-integer-hmx-v73-candidate/TERNUX-NOTICE
@@ -147,10 +134,10 @@ jobs:
           Ternux experimental llama.cpp Hexagon HTP package
 
           Target: Linux aarch64 / Qualcomm SM8735 Hexagon HTP V73 only
-          Source: ggml-org/llama.cpp tag b11582 plus Ternux candidate patch
-          Source commit: af50f2f248b475d9760f8e67503d01c0f194f5f4
-          Patch source: karusrus/llama.cpp hexagon-int-hmx, commit ea11b8fd41da2c3716b7a83d006a7d4261cd72e7
-          Patch SHA-256: ecf351cbf43889090998400bbe0fa65a2efd210da81997463fd02f85c682f512
+          Source: karusrus/llama.cpp integer-HMX candidate, PR #29740
+          Source commit: 08c83734f9c5c3b497e98b96f1a380f5a6084468
+          Base ggml-org/llama.cpp commit: 5851a8e505f4d5fbb183f2847698eb6155d176b7
+          Candidate source license: MIT (exact text in candidate-source/LLAMA-CPP-MIT-LICENSE)
           Build: upstream scripts/snapdragon/build.py using the
           ghcr.io/snapdragon-toolchain/arm64-linux:v0.7 toolchain image
 
@@ -173,13 +160,12 @@ jobs:
             "target": "linux-aarch64",
             "build_scope": "SM8735 HTP V73 candidate only; build-time target list excludes v75, v79, v81, and v85 skeletons",
             "soc_test_target": "Qualcomm SM8735 / Hexagon HTP V73",
-            "upstream": "https://github.com/ggml-org/llama.cpp",
-            "upstream_tag": "b11582 plus no-FP16 integer-HMX candidate patch",
-            "upstream_commit": "af50f2f248b475d9760f8e67503d01c0f194f5f4",
-            "candidate_patch_source": "https://github.com/karusrus/llama.cpp/tree/hexagon-int-hmx",
-            "candidate_patch_commit": "ea11b8fd41da2c3716b7a83d006a7d4261cd72e7",
-            "candidate_patch_sha256": "ecf351cbf43889090998400bbe0fa65a2efd210da81997463fd02f85c682f512",
-            "candidate_patch_license": "MIT; exact license text is in upstream-patches/LLAMA-CPP-MIT-LICENSE",
+            "upstream": "https://github.com/karusrus/llama.cpp",
+            "upstream_pr": "https://github.com/ggml-org/llama.cpp/pull/29740",
+            "upstream_commit": "08c83734f9c5c3b497e98b96f1a380f5a6084468",
+            "upstream_base_repository": "https://github.com/ggml-org/llama.cpp",
+            "upstream_base_commit": "5851a8e505f4d5fbb183f2847698eb6155d176b7",
+            "candidate_source_license": "MIT; exact source license text is in candidate-source/LLAMA-CPP-MIT-LICENSE",
             "toolchain_image": "ghcr.io/snapdragon-toolchain/arm64-linux:v0.7",
             "toolchain_image_digest": "sha256:41b710ee5f99d21f0fb9d83a1f815ecffb7708315b4218a11cd0baeb5ecf4c14",
             "build_command": "cmake --preset arm64-linux-snapdragon-release -B build-ternux-htp-integer-hmx-v73; cmake --build build-ternux-htp-integer-hmx-v73 -j 4; cmake --install build-ternux-htp-integer-hmx-v73 --prefix pkg-ternux-htp-integer-hmx-v73/llama.cpp; build ternux-htp-broker through the pinned AArch64 CMake toolchain",
@@ -188,7 +174,7 @@ jobs:
             "experimental_adapter": ["bin/htp-run", "bin/htp-backend-ops", "libexec/htp-broker.py", "lib/libternux-htp-broker.so"],
             "runtime_dependencies": ["libgbinder.so.1", "libglibutil.so.1", "libcdsprpc.so.1", "libcdsprpc.so", "python3"],
             "debian_packages": ["libgbinder1", "libglibutil1", "libfastrpc1", "libfastrpc-dev", "python3"],
-            "license_files": ["LLAMA-CPP-LICENSE", "upstream-licenses/INDEX.txt", "TERNUX-LICENSE", "TERNUX-NOTICE"]
+            "license_files": ["LLAMA-CPP-LICENSE", "candidate-source/LLAMA-CPP-MIT-LICENSE", "upstream-licenses/INDEX.txt", "TERNUX-LICENSE", "TERNUX-NOTICE"]
           }
           EOF
           tar -C release -czf ternux-llama-htp-sm8735-integer-hmx-v73-candidate.tar.gz ternux-llama-htp-sm8735-integer-hmx-v73-candidate

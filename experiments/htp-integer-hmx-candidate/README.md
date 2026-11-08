@@ -7,25 +7,20 @@ Qualcomm SM8735 / Hexagon V73 device while improving Q4_0 inference throughput.
 
 ## Source provenance
 
-- Base: official `ggml-org/llama.cpp` commit
-  `af50f2f248b475d9760f8e67503d01c0f194f5f4` (the Ternux HTP build pin).
-- Candidate implementation: [`karusrus/llama.cpp` branch
-  `hexagon-int-hmx`](https://github.com/karusrus/llama.cpp/tree/hexagon-int-hmx),
-  based on commit `86a24a182bd3c6c877aaf3734d99f9a1820f8cbd` and ending at
-  `ea11b8fd41da2c3716b7a83d006a7d4261cd72e7`.
-- The four candidate commits add FP16-HMX capability probing, integer-HMX
-  Q4_0 matmul and attention paths, and an HVX Gated Delta Net path. The source
-  branch is MIT licensed; the exact matching license text is preserved in
-  [`LLAMA-CPP-MIT-LICENSE`](LLAMA-CPP-MIT-LICENSE).
-- Candidate commits: `76074e0cd08da129be7610c67b76b6a2b512a06b`,
-  `4aa1a98d2c0f6c7a7a9630c1e41c8bdf8310191a`,
-  `0f69bd61da08` and `ea11b8fd41da2c3716b7a83d006a7d4261cd72e7`.
-- Ternux rebases those changes onto the pinned official source. The single
-  merge conflict in `ggml-hexagon.cpp` was resolved while retaining the pinned
-  source's memory-buffer parsing and tiled dimensions, then gating HMX kernels
-  on the runtime FP16 probe or Q4_0 weights.
-- Patch SHA-256:
-  `ecf351cbf43889090998400bbe0fa65a2efd210da81997463fd02f85c682f512`.
+- Upstream base: official ggml-org/llama.cpp commit
+  5851a8e505f4d5fbb183f2847698eb6155d176b7 (November 4, 2026).
+- Candidate implementation: karusrus/llama.cpp PR #29740, exact commit
+  08c83734f9c5c3b497e98b96f1a380f5a6084468, with the base commit above as
+  its parent. The candidate is MIT licensed; this repository preserves the
+  exact license text in LLAMA-CPP-MIT-LICENSE.
+- This revision includes later Q4_0 row-padding and dynamically allocated HMX
+  scratch fixes, and gates FP16-HMX-specific paths on detected capability. The
+  PR remains unmerged, so Ternux builds it only as an isolated, disposable
+  research candidate. The workflow checks out this exact source commit; it no
+  longer reapplies an older patch over the production llama.cpp pin.
+- Upstream SM7750 results and the separate SM8735 candidate measurements are
+  device-specific evidence, not general support claims. The SM8735 candidate
+  still has a failing FLASH_ATTN_EXT path and is not release-qualified.
 
 ## Candidate artifact smoke commands
 
