@@ -33,6 +33,21 @@ Source head `a2c3c67c7763e04d1259c1b558f29a1f32eff7fd`-এ সাতটি workf
 
 আগের PR head `8d332484dce4b48d2fe385694d3397682b380da9`-এ সব প্রয়োজনীয় check আবার pass করেছে: Validate `42503534731`, Termux APT package `42503534742`, CPU/Vulkan llama.cpp `42503534757`, Stable Diffusion `42503534870`, HTP candidate `42503534721`, repository contract `42503534682`, এবং knowledge sync `42503534687`। Protected APT signing setup-এর non-publishing `verify-signing` run `42504581740`-ও pass করেছে; এতে configured key দিয়ে signed repository build ও verify হয়, কিন্তু publish হয়নি। সরাসরি check-এ hosted APT endpoint দুটিই এখনো HTTP 404, তাই public `pkg install ternux` এখনো verify হয়নি। Handoff folder-গুলোও খালি ছিল। Local focused test ১২২/১২২ এবং documentation check-এ ৩,০১৭টি assertion, ৩১০টি internal link ও ১৯টি bilingual page pair pass করেছে। PR #97 এখনো draft এবং release gate ১০ held.
 
+### প্রকাশিত accelerator prerelease audit — ২০২৬-১১-০৯
+
+Public GitHub Releases-এ এখন accelerator-এর চারটি prerelease আছে; এগুলো stable
+Ternux v1.4.0 থেকে আলাদা। llama.cpp CPU/Vulkan archive optional `llama-vulkan`
+extension। Stable Diffusion CPU/Vulkan archive optional `stable-diffusion`
+extension; এতে model weights নেই। SM8735 llama.cpp HTP V73 archive শুধু
+`llama-htp-experimental` হিসেবে install হয়; release note-এই deterministic
+`2 + 2` known-answer test-এর malformed output লেখা আছে, তাই এটি correctness
+বা stable-support claim নয়। Android/Bionic QNN native probe archive কেবল
+diagnostic: এতে model, Qualcomm runtime, firmware বা broker নেই এবং model output
+correctness-ও প্রমাণ করে না। বর্তমান link: [llama CPU/Vulkan](https://github.com/soobujmiah/ternux/releases/tag/ternux-llama-vulkan-linux-arm64-b11582),
+[Stable Diffusion CPU/Vulkan](https://github.com/soobujmiah/ternux/releases/tag/ternux-stable-diffusion-vulkan-linux-arm64-master-1053),
+[experimental SM8735 HTP](https://github.com/soobujmiah/ternux/releases/tag/ternux-llama-htp-sm8735-b11582),
+এবং [SM8735 QNN probe](https://github.com/soobujmiah/ternux/releases/tag/ternux-qnn-native-probe-sm8735-2026-10-14)। Current PR-এর HTP build check run `42510280008`-এ pass করেছে; এটা artifact compile/inspection নিশ্চিত করে, published HTP known-answer failure ঠিক হয়েছে তা নয়।
+
 ### Optional mail client — ২০২৬-১১-০৮/০৯
 
 Owner-এর সর্বশেষ নির্দেশে base desktop-এ কোনো mail client বা mail default থাকবে না; Evolution optional workload। Evolution ও GNOME Online Accounts GTK install করে Ternux-managed launcher বসানোর source code `b64d3f7` ও `89d0fe9` commit-এ push হয়েছে। নতুন regression test-এ Evolution launcher branch আগে no-op case-এ আটকে থাকার bug ধরা পড়ে; সেটি ঠিক করা হয়েছে। Live guest-এ exact optional phase চালিয়ে package current রাখা ও `/usr/local/bin/evolution`-এ Exec-সহ desktop entry বসানো হয়েছে; `desktop-file-validate` pass, installed wrapper hash source asset-এর সঙ্গে মিলে। Evolution চলমান ছিল; Thunderbird purge হয়েছে; দুই profile directory অক্ষত। XFCE `MailReader` default নেই, Firefox `WebBrowser` helper আছে, APT ও dpkg clean। Focused tests ১২৩/১২৩ pass; 89d0fe9-এর Validate, APT, CPU/Vulkan, Stable Diffusion, HTP, repository contract ও knowledge sync CI-ও pass। Optional Evolution থাকলে GIO desktop MIME metadata থেকে সেটিকে recommend করতে পারে; fresh base install-এ Evolution থাকে না। Public release করা হয়নি।
