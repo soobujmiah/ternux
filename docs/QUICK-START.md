@@ -47,7 +47,7 @@ The installer:
 6. writes the `x` launcher and shell shortcuts;
 7. verifies everything landed.
 
-Expect about **4–4.5 GB installed** for base or **10.5–12.5 GB** with `--all`; keep
+Expect about **4–4.6 GB installed** for base or **10.5–12.5 GB** with `--all`; keep
 additional temporary space for downloads and caches. One persistent screen shows
 the device panel, step progress and a live log window until the final status; a
 terminal that cannot host it gets a plain framed log instead. Both record the
@@ -118,7 +118,7 @@ command. This happens once per guest user; later desktop boots do not redirect
 to the website. Firefox remains optional; choose it from the installer’s
 optional software list.
 
-Noto Bengali fonts and the Avro IBus phonetic keyboard are installed by default. The IBus **Next input method** shortcut is **Ctrl+Space**, cycling between English and Bangla. VLC, PulseAudio Volume Control, Xfce Task Manager, Mousepad, Galculator, Xournal++ PDF reader/markup editor, Thunderbird mail client, Ternux Camera, Ternux Sound Recorder, and the Ristretto image viewer are included in the base desktop. Xournal++ can export annotations as PDF, SVG, or PNG; optional LibreOffice Draw provides broader PDF page editing and document export. Thunderbird is the default mail reader: it auto-configures common providers, uses OAuth where available, and supports manual IMAP/POP setup for other hosts. OAuth opens Firefox ESR or, when it is not installed, the Android default browser through Ternux. One-click Camera, Photos, and Sound Recorder shortcuts are on the Xfce panel.
+Noto Bengali fonts and the Avro IBus phonetic keyboard are installed by default. The IBus **Next input method** shortcut is **Ctrl+Space**, cycling between English and Bangla. VLC, PulseAudio Volume Control, Xfce Task Manager, Mousepad, Galculator, Evince PDF reader, Thunderbird mail client, Ternux Camera, Ternux Sound Recorder, and the Ristretto image viewer are included in the base desktop. Evince opens PDFs by default; optional LibreOffice Draw provides PDF page editing and export to other formats. Thunderbird is the default mail reader: it auto-configures common providers, uses OAuth where available, and supports manual IMAP/POP setup for other hosts. OAuth opens Firefox ESR or, when it is not installed, the Android default browser through Ternux. One-click Camera, Photos, and Sound Recorder shortcuts are on the Xfce panel.
 
 The systemwide Ternux graphite-and-emerald GTK 2/3/4 theme styles applications, menus, and the Xfce panel; Qt 5 apps use the GTK platform theme; custom Ternux Xfwm frames style window borders and title bars. Original Ternux icons cover the base apps, folders, Thunar actions, categories, and panel. Adwaita supplies neutral fallback icons for uncommon or newly installed applications; Papirus is not inherited. Fifteen original portrait-first Ternux wallpapers are selectable in Xfce Desktop settings. Xfce keeps their aspect ratio in landscape; Aurora Circuit is the default.
 

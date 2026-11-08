@@ -413,7 +413,7 @@ _tnx_frame_gather_device() {
     "${model} - ${arch}"
     "Android ${android} (SDK ${sdk})"
     "${gpu} - ${backend} - Vulkan ${vulkan}"
-    "${ram} GB RAM - ${storage} GB free; base ~4-4.5 GB"
+    "${ram} GB RAM - ${storage} GB free; base ~4-4.6 GB"
     "sampling..."
   )
   _tnx_frame_cpu_sample 0
@@ -799,7 +799,7 @@ tnx_frame_open() {
     _tnx_clipv "$inner" 'by Sobuj Miah (@soobujmiah)'
     printf '%s|%s %s%s%s\n' "$TNX_CM" "$TNX_CD" "$TNX_CW" "$_TNX_CLIP" "$TNX_C0"
     printf '%s|%s %s%s%s\n' "$TNX_CM" "$TNX_CD" "$TNX_CW" "$_TNX_CLIP" "$TNX_C0"
-    _tnx_clipv "$inner" 'Storage estimate: base ~4-4.5 GB; complete ~10.5-12.5 GB'
+    _tnx_clipv "$inner" 'Storage estimate: base ~4-4.6 GB; complete ~10.5-12.5 GB'
     printf '%s|%s %s%s%s\n' "$TNX_CM" "$TNX_CD" "$TNX_CW" "$_TNX_CLIP" "$TNX_C0"
     _tnx_clipv "$inner" 'Portfolio: soobujmiah.github.io'
     printf '%s|%s %s%s%s\n' "$TNX_CM" "$TNX_CY" "$TNX_CW" "$_TNX_CLIP" "$TNX_C0"

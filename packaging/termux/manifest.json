@@ -988,10 +988,6 @@
       "source": "lib/ternux-assets/icons/Ternux/scalable/apps/galculator.svg",
       "perm": "644"
     },
-    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/com.github.xournalpp.xournalpp.svg": {
-      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/com.github.xournalpp.xournalpp.svg",
-      "perm": "644"
-    },
     "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/thunderbird.svg": {
       "source": "lib/ternux-assets/icons/Ternux/scalable/apps/thunderbird.svg",
       "perm": "644"

@@ -80,7 +80,6 @@ tnx_optional_storage_mb() {
       inkscape) total=$((total + 500)) ;;
       audacity) total=$((total + 300)) ;;
       imagemagick) total=$((total + 100)) ;;
-      evince) total=$((total + 150)) ;;
       libreoffice-writer) total=$((total + 900)) ;;
       libreoffice-calc) total=$((total + 400)) ;;
       libreoffice-draw) total=$((total + 900)) ;;
@@ -97,7 +96,7 @@ tnx_optional_storage_mb() {
 tnx_storage_estimate() {
   local optional_mb installed_mb peak_mb
   optional_mb="$(tnx_optional_storage_mb "$@")"
-  installed_mb=$((4500 + optional_mb))
+  installed_mb=$((4575 + optional_mb))
   peak_mb=$((installed_mb + 2048))
   awk -v installed="$installed_mb" -v peak="$peak_mb" 'BEGIN {
     printf "about %.1f GB installed; keep about %.1f GB free during downloads and setup (rough estimate)", installed/1024, peak/1024
@@ -137,24 +136,24 @@ tnx_phase_preflight() {
     esac
   fi
 
-  local free target_free=6 profile="${TERNUX_INSTALL_PROFILE:-base}" size_label="~4–4.5 GB"
+  local free target_free=6 profile="${TERNUX_INSTALL_PROFILE:-base}" size_label="~4–4.6 GB"
   local -a selected_extras=()
   if [ -n "${TERNUX_SELECTED_EXTRAS:-}" ]; then IFS=',' read -r -a selected_extras <<< "$TERNUX_SELECTED_EXTRAS"; fi
   local optional_mb estimate
   optional_mb="$(tnx_optional_storage_mb "${selected_extras[@]}")"
-  target_free=$(((4500 + optional_mb + 2048 + 1023) / 1024))
+  target_free=$(((4575 + optional_mb + 2048 + 1023) / 1024))
   if [ "$profile" = "full" ] && [ "$target_free" -lt 14 ]; then target_free=14; fi
   estimate="$(tnx_storage_estimate "${selected_extras[@]}")"
   size_label="$estimate"
   free="$(df -Pk "$HOME" 2>/dev/null | awk 'NR==2{print int($4/1024/1024)}')"
-  tnx_info "Installed-size baseline: base desktop ~4–4.5 GB; complete --all profile ~10.5–12.5 GB."
+  tnx_info "Installed-size baseline: base desktop ~4–4.6 GB; complete --all profile ~10.5–12.5 GB."
   tnx_info "Selected install estimate: $estimate. Includes the base desktop, chosen optional items and temporary setup headroom."
   if [ -n "$free" ] && [ "$free" -lt "$target_free" ]; then
     tnx_warn "Only ~${free} GB free. The ${profile} profile uses ${size_label}; keep ~${target_free} GB free before installation for downloads and package-cache headroom."
   elif [ -n "$free" ]; then
     tnx_ok "Storage: ~${free} GB free (${profile} profile; installed use ${size_label})"
   else
-    tnx_warn "Could not measure free storage; base uses ~4–4.5 GB and the complete profile ~10.5–12.5 GB."
+    tnx_warn "Could not measure free storage; base uses ~4–4.6 GB and the complete profile ~10.5–12.5 GB."
   fi
 
   if tnx_has_cmd curl && curl -s --max-time 5 https://1.1.1.1 >/dev/null 2>&1; then
@@ -363,7 +362,8 @@ tnx_phase_debian() {
     DPKG_FORCE=\"-o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -o APT::Color=1 -o Dpkg::Progress-Fancy=1\"
     apt update -o APT::Color=1
     dpkg --configure -a --force-confold --force-confdef || true
-    apt install -y \$DPKG_FORCE sudo nano mousepad galculator xournalpp thunderbird fonts-noto-core python3-gi gir1.2-gtk-3.0 ibus ibus-avro devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol x11-utils mesa-utils libgl1-mesa-dri adwaita-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc ffmpeg ristretto qt5-gtk-platformtheme colord
+    apt install -y \$DPKG_FORCE sudo nano mousepad galculator evince thunderbird fonts-noto-core python3-gi gir1.2-gtk-3.0 ibus ibus-avro devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol x11-utils mesa-utils libgl1-mesa-dri adwaita-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc ffmpeg ristretto qt5-gtk-platformtheme colord
+    apt purge -y \$DPKG_FORCE xournalpp
     apt remove -y \$DPKG_FORCE guvcview >/dev/null 2>&1 || true
     rm -f /usr/local/share/applications/guvcview.desktop
     asset_stage=\$(mktemp -d /tmp/ternux-assets.XXXXXX)
@@ -550,7 +550,7 @@ DESKTOP
     for mime in image/jpeg image/png image/gif image/webp image/tiff image/bmp; do
       runuser -u "\$U" -- env HOME="\$H" xdg-mime default org.xfce.ristretto.desktop "\$mime" || true
     done
-    runuser -u "\$U" -- env HOME="\$H" xdg-mime default com.github.xournalpp.xournalpp.desktop application/pdf || true
+    runuser -u "\$U" -- env HOME="\$H" xdg-mime default org.gnome.Evince.desktop application/pdf || true
     runuser -u "\$U" -- env HOME="\$H" xdg-mime default thunderbird.desktop x-scheme-handler/mailto || true
     runuser -u "\$U" -- env HOME="\$H" xdg-mime default thunderbird.desktop message/rfc822 || true
     mail_helpers=/etc/xdg/xfce4/helpers.rc
@@ -1471,7 +1471,6 @@ tnx_phase_extras() {
       inkscape) apt_packages+=(inkscape) ;;
       audacity) apt_packages+=(audacity) ;;
       imagemagick) apt_packages+=(imagemagick) ;;
-      evince) apt_packages+=(evince) ;;
       libreoffice-writer) apt_packages+=(libreoffice-writer) ;;
       libreoffice-calc) apt_packages+=(libreoffice-calc) ;;
       libreoffice-draw) apt_packages+=(libreoffice-draw) ;;
@@ -1539,7 +1538,7 @@ tnx_phase_extras() {
   done
   for opt in "${install_opts[@]}"; do
     case "$opt" in
-      dev|llm|network|media|git|python|node|build|rust|java|golang|php|sqlite3|ripgrep|jq|htop|tree|godot|geany|neovim|micro|thonny|gh|firefox|nmap|tmux|ffmpeg|vlc|mpv|gimp|krita|inkscape|audacity|imagemagick|evince|libreoffice-writer|libreoffice-calc|libreoffice-draw|blender) ;;
+      dev|llm|network|media|git|python|node|build|rust|java|golang|php|sqlite3|ripgrep|jq|htop|tree|godot|geany|neovim|micro|thonny|gh|firefox|nmap|tmux|ffmpeg|vlc|mpv|gimp|krita|inkscape|audacity|imagemagick|libreoffice-writer|libreoffice-calc|libreoffice-draw|blender) ;;
       adt-build-tools|adt-platform-tools|adt-ndk|adt-cmake|adt-cmdline|adt-platform)
         if tnx_guest_login --shared-tmp --user "$user_name" -- bash -lc '
           set -e
@@ -2031,9 +2030,9 @@ tnx_prompt_username() {
 
 # Item catalogue for the interactive optional-software checklist. Keep this
 # list aligned with the case labels in tnx_phase_extras.
-TNX_OPTIONAL_ITEMS=(git python node build rust java golang php ripgrep jq gh sqlite3 htop tree geany neovim micro thonny godot firefox adt-build-tools adt-platform-tools adt-ndk adt-cmake adt-cmdline adt-platform llama-vulkan stable-diffusion llama-htp-experimental nmap tmux ffmpeg vlc mpv audacity gimp krita inkscape imagemagick evince libreoffice-writer libreoffice-calc libreoffice-draw blender claude codex openai-cli hermes openclaw)
-TNX_OPTIONAL_GROUPS=(DEV DEV DEV DEV LANG LANG LANG LANG DEV DEV DEV DATA SYSTEM SYSTEM IDE IDE IDE IDE GAME WEB ANDROID ANDROID ANDROID ANDROID ANDROID ANDROID AI AI AI NET NET MEDIA MEDIA MEDIA MEDIA DESIGN DESIGN DESIGN DESIGN OFFICE OFFICE OFFICE OFFICE 3D AGENT AGENT AGENT AGENT AGENT)
-TNX_OPTIONAL_LABELS=("Git" "Python" "Node.js" "C/C++ tools" "Rust" "Java JDK" "Go toolchain" "PHP CLI" "ripgrep" "jq" "GitHub CLI" "SQLite" "htop" "tree" "Geany" "Neovim" "Micro editor" "Thonny IDE" "Godot" "Firefox ESR" "ADT Build Tools" "ADT Platform Tools / ADB" "ADT NDK" "ADT CMake" "SDK Manager" "Android API 36" "llama.cpp Vulkan" "Stable Diffusion CPU + Vulkan" "llama.cpp HTP (experimental)" "Nmap" "tmux" "FFmpeg" "VLC" "mpv" "Audacity" "GIMP" "Krita" "Inkscape" "ImageMagick" "Evince PDF" "LibreOffice Writer" "LibreOffice Calc" "LibreOffice Draw" "Blender" "Claude Code" "Codex CLI" "OpenAI API CLI" "Hermes" "OpenClaw")
+TNX_OPTIONAL_ITEMS=(git python node build rust java golang php ripgrep jq gh sqlite3 htop tree geany neovim micro thonny godot firefox adt-build-tools adt-platform-tools adt-ndk adt-cmake adt-cmdline adt-platform llama-vulkan stable-diffusion llama-htp-experimental nmap tmux ffmpeg vlc mpv audacity gimp krita inkscape imagemagick libreoffice-writer libreoffice-calc libreoffice-draw blender claude codex openai-cli hermes openclaw)
+TNX_OPTIONAL_GROUPS=(DEV DEV DEV DEV LANG LANG LANG LANG DEV DEV DEV DATA SYSTEM SYSTEM IDE IDE IDE IDE GAME WEB ANDROID ANDROID ANDROID ANDROID ANDROID ANDROID AI AI AI NET NET MEDIA MEDIA MEDIA MEDIA DESIGN DESIGN DESIGN DESIGN OFFICE OFFICE OFFICE 3D AGENT AGENT AGENT AGENT AGENT)
+TNX_OPTIONAL_LABELS=("Git" "Python" "Node.js" "C/C++ tools" "Rust" "Java JDK" "Go toolchain" "PHP CLI" "ripgrep" "jq" "GitHub CLI" "SQLite" "htop" "tree" "Geany" "Neovim" "Micro editor" "Thonny IDE" "Godot" "Firefox ESR" "ADT Build Tools" "ADT Platform Tools / ADB" "ADT NDK" "ADT CMake" "SDK Manager" "Android API 36" "llama.cpp Vulkan" "Stable Diffusion CPU + Vulkan" "llama.cpp HTP (experimental)" "Nmap" "tmux" "FFmpeg" "VLC" "mpv" "Audacity" "GIMP" "Krita" "Inkscape" "ImageMagick" "LibreOffice Writer" "LibreOffice Calc" "LibreOffice Draw" "Blender" "Claude Code" "Codex CLI" "OpenAI API CLI" "Hermes" "OpenClaw")
 
 # Parse number lists used when a TTY key-reading menu is unavailable.
 tnx_parse_workload_selection() {
@@ -2362,7 +2361,7 @@ tnx_install() {
         golang) workload_label="Go toolchain" ;;
         php) workload_label="PHP CLI" ;;
         sqlite3) workload_label="SQLite" ;;
-        ripgrep|jq|htop|tree|micro|thonny|evince) workload_label="$workload" ;;
+        ripgrep|jq|htop|tree|micro|thonny) workload_label="$workload" ;;
         libreoffice-writer) workload_label="LibreOffice Writer" ;;
         libreoffice-calc) workload_label="LibreOffice Calc" ;;
         libreoffice-draw) workload_label="LibreOffice Draw (PDF editing and export)" ;;

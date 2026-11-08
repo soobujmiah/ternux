@@ -47,7 +47,7 @@ The storage figures above are the approximate **installed footprint**, not the
 minimum temporary headroom. Package versions and filesystem accounting vary.
 For a clean run, the installer targets roughly **6 GB free** for base and
 **14 GB free** for `--all`, allowing downloads, caches, extraction, and builds;
-the finished installation itself is approximately **4–4.5 GB** or **10.5–12.5 GB**.
+the finished installation itself is approximately **4–4.6 GB** or **10.5–12.5 GB**.
 
 ---
 
@@ -403,7 +403,7 @@ current phase; the complete stream is always appended to the log file.
 ```text
 +=========================================================+
 |           ternux v2.0.0 - ONE-CLICK INSTALLER           |
-| by Sobuj Miah  -  base ~4-4.5 GB  -  complete ~10.5-12.5 GB   |
+| by Sobuj Miah  -  base ~4-4.6 GB  -  complete ~10.5-12.5 GB   |
 +=========================================================+
 | Device    Redmi Turbo 4 Pro - Android 15 (SDK 35)       |
 | Graphics  Adreno 825 - backend zink - Vulkan 1.4        |

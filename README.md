@@ -52,7 +52,7 @@ If `curl` is unavailable, use:
 wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
 ```
 
-The base install needs about 4–4.5 GB of storage. Keep extra temporary space for
+The base install needs about 4–4.6 GB of storage. Keep extra temporary space for
 downloads and package caches.
 
 ## Start and use
@@ -82,11 +82,11 @@ available at `/sdcard` inside Debian.
 **Base desktop:** Debian 13 (Trixie) in a user-space PRoot container, Xfce4,
 Termux:X11 display integration, and PulseAudio audio routing. The default setup
 includes Bangla-capable Noto fonts, Avro phonetic input (Ctrl+Space), VLC,
-PulseAudio Volume Control, Xfce Task Manager, Mousepad, Galculator, Xournal++
-PDF reader/markup editor, Thunderbird mail client, Ternux Camera, Ternux Sound
-Recorder, and Ristretto image viewer. Xournal++ exports annotations as PDF,
-SVG, or PNG; LibreOffice Draw is optional for broader PDF page editing and
-document export. Thunderbird is the default mail reader, auto-configures common
+PulseAudio Volume Control, Xfce Task Manager, Mousepad, Galculator, Evince PDF
+reader, Thunderbird mail client, Ternux Camera, Ternux Sound Recorder, and
+Ristretto image viewer. Evince is the default PDF reader; LibreOffice Draw is
+optional for editing PDF pages and exporting documents to other formats.
+Thunderbird is the default mail reader, auto-configures common
 providers, supports OAuth where offered, and allows manual IMAP/POP setup for other
 mail hosts. OAuth links open Firefox ESR when installed or the Android default browser
 through the Ternux bridge. One-click Camera, Photos, and Sound Recorder shortcuts

@@ -126,7 +126,8 @@ if env TERNUX_STATE_DIR="$TMP/state-welcome" HOME="$TMP/home-welcome" \
     tnx_guest_login(){ if [ "${3:-}" = bash ] && [ "${4:-}" = -c ] && [[ "$5" == *ternux-welcome.desktop* ]]; then printf "%s\n" "$5" > "$MARKER"; bash -n "$MARKER" || return 1; fi; return 0; }
     tnx_phase_debian alice >/dev/null &&
       grep -q "Exec=/usr/local/bin/ternux-welcome" "$MARKER" &&
-      grep -q "mousepad galculator xournalpp thunderbird.*fonts-noto-core.*ibus ibus-avro devilspie2" "$1/lib/phases.sh" &&
+      grep -q "mousepad galculator evince thunderbird.*fonts-noto-core.*ibus ibus-avro devilspie2" "$1/lib/phases.sh" &&
+      grep -q "apt purge -y.*xournalpp" "$1/lib/phases.sh" &&
       grep -q "xfce4-taskmanager.*xfce4-terminal zenity vlc ffmpeg ristretto qt5-gtk-platformtheme colord" "$1/lib/phases.sh" &&
       grep -q "vout=xcb_x11" "$1/lib/phases.sh" &&
       grep -q "avcodec-hw=none" "$1/lib/phases.sh" &&
@@ -502,7 +503,7 @@ for icon in ("folder-new", "document-new", "insert-link", "edit-paste",
 icon_index = (root / "lib/ternux-assets/icons/Ternux/index.theme").read_text()
 assert "scalable/actions" in icon_index and "Context=Actions" in icon_index
 base_desktop_icon_ids = (
-    "com.github.xournalpp.xournalpp", "drive-removable-media", "galculator", "ibus-setup",
+    "org.gnome.Evince", "drive-removable-media", "galculator", "ibus-setup",
     "input-keyboard", "multimedia-volume-control", "org.xfce.about", "org.xfce.appfinder",
     "org.xfce.filemanager", "org.xfce.mailreader", "org.xfce.mousepad", "org.xfce.notification",
     "org.xfce.panel", "org.xfce.ristretto", "org.xfce.session", "org.xfce.settings.accessibility",
@@ -525,7 +526,7 @@ assert 'icon_stage=\\$(mktemp -d /usr/share/icons/.Ternux-stage.XXXXXX)' in phas
 assert 'mv -T /usr/share/icons/Ternux "\\$icon_backup"' in phase_source
 assert 'cp -a "\\$asset_stage/icons/Ternux/." /usr/share/icons/Ternux/' not in phase_source
 optional_app_icons = ("firefox", "firefox-esr", "blender", "gimp", "krita", "inkscape",
-                      "audacity", "mpv", "evince", "geany", "thonny", "libreoffice-writer",
+                      "audacity", "mpv", "geany", "thonny", "libreoffice-writer",
                       "libreoffice-calc", "libreoffice-draw", "libreoffice-impress", "zenity")
 for icon in optional_app_icons:
     asset = root / f"lib/ternux-assets/icons/Ternux/scalable/apps/{icon}.svg"
@@ -586,7 +587,7 @@ assert 'stream=codec_name:format=duration' in recorder
 assert 'Recovery copy remains in' in recorder
 assert 'with_suffix(".partial" + self.target.suffix)' in recorder
 assert "ffmpeg ristretto" in (root / "lib/phases.sh").read_text()
-assert "mousepad galculator xournalpp thunderbird" in (root / "lib/phases.sh").read_text()
+assert "mousepad galculator evince thunderbird" in (root / "lib/phases.sh").read_text()
 assert (root / "lib/ternux-assets/icons/Ternux/scalable/apps/galculator.svg").is_file()
 desktop_phase = (root / "lib/phases.sh").read_text()
 assert "libreoffice-writer) workload_label=\"LibreOffice Writer\"" in desktop_phase
@@ -597,11 +598,11 @@ assert "Exec=thunar /sdcard" in sdcard_desktop.read_text()
 assert "Icon=drive-removable-media" in sdcard_desktop.read_text()
 assert r'install -m 0644 "\$asset_stage/applications/ternux-sdcard.desktop"' in desktop_phase
 assert 'Desktop/SD-Card.desktop' in desktop_phase
-assert "runuser -u \"\\$U\" -- env HOME=\"\\$H\" xdg-mime default com.github.xournalpp.xournalpp.desktop application/pdf" in desktop_phase
+assert "runuser -u \"\\$U\" -- env HOME=\"\\$H\" xdg-mime default org.gnome.Evince.desktop application/pdf" in desktop_phase
 assert 'xdg-mime default thunderbird.desktop x-scheme-handler/mailto' in desktop_phase
 assert 'xdg-mime default thunderbird.desktop message/rfc822' in desktop_phase
 assert "MailReader=thunderbird" in desktop_phase and "mail_helpers=/etc/xdg/xfce4/helpers.rc" in desktop_phase
-for icon in ("com.github.xournalpp.xournalpp", "thunderbird"):
+for icon in ("org.gnome.Evince", "thunderbird"):
     assert (root / f"lib/ternux-assets/icons/Ternux/scalable/apps/{icon}.svg").is_file()
 assert not (root / "lib/ternux-assets/applications/ternux-pdf.desktop").exists()
 launcher_icon = (root / "lib/ternux-assets/icons/Ternux/scalable/apps/ternux-launcher.svg").read_text()
@@ -1729,7 +1730,7 @@ if env TERM=dumb NO_COLOR=1 TERNUX_STATE_DIR="$TMP/state-frame" \
     tnx_frame_close failed
   ' _ "$ROOT" > "$frame_out" &&
   grep -q "Sobuj Miah" "$frame_out" &&
-  grep -q "base ~4-4.5 GB" "$frame_out" &&
+  grep -q "base ~4-4.6 GB" "$frame_out" &&
   grep -q "complete ~10.5-12.5 GB" "$frame_out" &&
   grep -q "Get: package-one" "$frame_out" &&
   grep -q "ERROR: sample failure" "$TMP/log-frame/ternux.log"; then
@@ -1765,7 +1766,7 @@ fi
 
 # Storage copy must distinguish installed size from temporary free-space
 # headroom and must not restore the old 12 GB base-install claim.
-if grep -q "base desktop ~4–4.5 GB; complete --all profile ~10.5–12.5 GB" "$ROOT/lib/phases.sh" &&
+if grep -q "base desktop ~4–4.6 GB; complete --all profile ~10.5–12.5 GB" "$ROOT/lib/phases.sh" &&
    ! grep -q "base install wants ~12 GB" "$ROOT/lib/phases.sh"; then
   ok "preflight reports corrected base and complete storage estimates"
 else

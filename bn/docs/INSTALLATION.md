@@ -374,7 +374,7 @@ Adreno hardware-এ সেটি Debian-এর দেওয়া driver-এর 
 ```text
 +=========================================================+
 |           ternux v2.0.0 - ONE-CLICK INSTALLER           |
-| by Sobuj Miah  -  base ~4-4.5 GB  -  complete ~10.5-12.5 GB   |
+| by Sobuj Miah  -  base ~4-4.6 GB  -  complete ~10.5-12.5 GB   |
 +=========================================================+
 | Device    Redmi Turbo 4 Pro - Android 15 (SDK 35)       |
 | Graphics  Adreno 825 - backend zink - Vulkan 1.4        |

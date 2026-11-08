@@ -37,7 +37,7 @@ build llama.cpp from source; it is separate from the managed CPU + Vulkan
 extension. `--yes` and non-interactive runs keep the base profile unless flags
 select workloads.
 
-The base desktop includes Galculator and Xournal++ for scientific calculations, PDF reading, annotation, and markup. Edited copies can be exported as PDF, SVG, or PNG; PDFs open with Xournal++ by default. LibreOffice Draw is the heavier option for broader page editing and document conversion. Thunderbird is installed as the default mail reader and registered for mail links. It auto-configures common providers, uses OAuth when a provider offers it, and supports manual IMAP/POP settings for other mail hosts. OAuth opens Firefox ESR when installed, or the Android default browser through the Ternux browser bridge. The optional catalog also offers LibreOffice Writer, Calc, and Draw as separate choices, along with Go, PHP, SQLite, ripgrep, jq, htop, tree, Micro, Thonny, and Evince.
+The base desktop includes Galculator for scientific calculations and Evince as the lightweight default PDF reader. LibreOffice Draw is available as an optional tool for editing PDF pages and exporting documents to other formats. Thunderbird is installed as the default mail reader and registered for mail links. It auto-configures common providers, uses OAuth when a provider offers it, and supports manual IMAP/POP settings for other mail hosts. OAuth opens Firefox ESR when installed, or the Android default browser through the Ternux browser bridge. The optional catalog also offers LibreOffice Writer, Calc, and Draw as separate choices, along with Go, PHP, SQLite, ripgrep, jq, htop, tree, Micro, and Thonny.
 
 Before installation, Ternux shows a rough storage estimate based on the selected
 optional software, including temporary download and setup space. In a sufficiently
@@ -72,7 +72,7 @@ Termux:X11 has its [own official project](https://github.com/termux/termux-x11).
 They are not Debian packages and cannot be installed from this guest selector.
 
 The base desktop — Xfce4, terminal, VLC, archive tools, Mesa utilities, Vulkan
-tools — uses about 4–4.5 GB and is always installed. VLC is also listed in the
+tools — uses about 4–4.6 GB and is always installed. VLC is also listed in the
 catalog so it can be selected explicitly; choosing it does not add a second copy.
 
 ## Automatic
