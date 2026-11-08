@@ -1,6 +1,12 @@
 name: llama.cpp CPU + Vulkan artifact
 
 on:
+  pull_request:
+    branches: [main]
+    paths:
+      - ".github/workflows/llama-vulkan-artifact.yml"
+      - "tools/generate_llama_vulkan_component_manifest.py"
+      - "tests/llama_vulkan_abi_audit.py"
   workflow_dispatch:
     inputs:
       publish_preview:
@@ -10,7 +16,7 @@ on:
         default: false
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: llama-vulkan-b11582
@@ -218,16 +224,28 @@ jobs:
             ternux-llama-vulkan-linux-arm64-b11582.tar.gz.sha256
           if-no-files-found: error
 
+  publish-preview:
+    if: github.event_name == 'workflow_dispatch' && inputs.publish_preview == true && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: write
+    steps:
       - name: Require main before updating the public prerelease
-        if: inputs.publish_preview == true
         run: |
           if [ "$GITHUB_REF" != refs/heads/main ]; then
             echo 'Publishing the public prerelease is restricted to main.' >&2
             exit 1
           fi
 
+      - name: Download inspected candidate
+        uses: actions/download-artifact@v4
+        with:
+          name: ternux-llama-vulkan-linux-arm64-b11582-candidate
+          path: candidate
+
       - name: Create or refresh the draft device-validation release
-        if: inputs.publish_preview == true
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
@@ -251,17 +269,18 @@ jobs:
           Ternux version release. See the build manifest, source-component map, and checksum included
           in the archive.
           EOF
+          archive=candidate/ternux-llama-vulkan-linux-arm64-b11582.tar.gz
+          checksum=candidate/ternux-llama-vulkan-linux-arm64-b11582.tar.gz.sha256
+          test -s "$archive"
+          test -s "$checksum"
+          (cd candidate && sha256sum --check ternux-llama-vulkan-linux-arm64-b11582.tar.gz.sha256)
           if gh release view "$tag" >/dev/null 2>&1; then
-            gh release upload "$tag" \
-              ternux-llama-vulkan-linux-arm64-b11582.tar.gz \
-              ternux-llama-vulkan-linux-arm64-b11582.tar.gz.sha256 --clobber
+            gh release upload "$tag" "$archive" "$checksum" --clobber
             gh release edit "$tag" \
               --title 'Ternux llama.cpp CPU + Vulkan (ARM64, b11582)' \
               --notes-file release-notes.md --prerelease
           else
-            gh release create "$tag" \
-              ternux-llama-vulkan-linux-arm64-b11582.tar.gz \
-              ternux-llama-vulkan-linux-arm64-b11582.tar.gz.sha256 \
+            gh release create "$tag" "$archive" "$checksum" \
               --draft --prerelease \
               --title 'Ternux llama.cpp CPU + Vulkan (ARM64, b11582)' \
               --notes-file release-notes.md \
