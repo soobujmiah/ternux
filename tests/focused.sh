@@ -444,6 +444,8 @@ for asset in (root / "lib/ternux-assets").rglob("*"):
         assert files.get(destination, {}).get("source") == asset.relative_to(root).as_posix()
 assert "Inherits=Adwaita,hicolor" in (root / "lib/ternux-assets/icons/Ternux/index.theme").read_text()
 assert "Papirus" not in (root / "lib/ternux-assets/icons/Ternux/index.theme").read_text()
+assert (root / "lib/ternux-assets/icons/Ternux/scalable/apps/application-x-executable.svg").is_file()
+assert (root / "packaging/termux/icons/Ternux/scalable/apps/application-x-executable.svg").read_bytes() == (root / "lib/ternux-assets/icons/Ternux/scalable/apps/application-x-executable.svg").read_bytes()
 assert files.get("lib/ternux/ternux-assets/bin/ternux-open-url", {}).get("source") == "lib/ternux-assets/bin/ternux-open-url"
 assert "Exec=/usr/local/bin/ternux-open-url %u" in (root / "lib/phases.sh").read_text()
 assert 'find "\\$asset_stage" -type d -exec chmod 0755 {} +' in (root / "lib/phases.sh").read_text()

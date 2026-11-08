@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Ternux Application Launcher">
+  <path d="M12 12h40v40H12z" fill="#0b1712" stroke="#b8ffdc" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M12 21h40" stroke="#39e68c" stroke-width="3"/>
+  <path d="M19 17h2m6 0h2m6 0h2" stroke="#b8ffdc" stroke-width="2" stroke-linecap="square"/>
+  <path d="m25 31 8 6-8 6m11 0h8" fill="none" stroke="#39e68c" stroke-width="3" stroke-linecap="square" stroke-linejoin="miter"/>
+</svg>
