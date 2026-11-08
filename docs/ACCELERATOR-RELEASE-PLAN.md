@@ -310,6 +310,32 @@ right-edge location, including after the Mesa 27.0.0 Turnip update. The same liv
 rendered an Adreno 825 Vulkan `vkcube` cleanly. This is an observed windowed GLX artifact;
 its cause and impact on other applications remain unqualified.
 
+### Exact-current-head CI artifact inventory — 2026-11-09
+
+At PR #97 head `00ae81d33636e3d1922dc11ad7d69898d58bf393`, Validate
+(`42531145730`), unsigned Termux APT package (`42531145886`), repository
+contract (`42531145835`), knowledge sync (`42531145892`), CPU/Vulkan llama
+(`42531145812`), Stable Diffusion CPU/Vulkan (`42531145901`), production HTP
+(`42531145736`), and integer-HMX V73 candidate (`42531145848`) all completed
+successfully. Their artifact archive metadata is:
+
+| Artifact | Actions artifact ID | Bytes | SHA-256 |
+|---|---:|---:|---|
+| `ternux-apt-unsigned-ci-1e73d4e61e6cec4284d6a26d15a5893a076a5fd3` | `13637333054` | 268,662 | `5be7c527acd32fdc325ab4829deb30ec79908f4c5dbf7b4da83452398e264be5` |
+| `ternux-llama-vulkan-linux-arm64-b11582-candidate` | `13637875613` | 21,323,880 | `8d6f3b876c0bc13c15f2dc7aeadf557d83454bf1373ab08183fe841f21369e62` |
+| `ternux-stable-diffusion-vulkan-linux-arm64-master-1053-candidate` | `13637945477` | 27,026,780 | `44a48c2ce880152e2e0922bba578d3855e8c46ad1f790dc73a3f34705aac9910` |
+| `ternux-llama-htp-sm8735-b11582` | `13637801419` | 15,636,407 | `a56ce0123922a52ee449692ee8743d8254abdd122e81f1615e93576301513c11` |
+| `ternux-llama-htp-sm8735-integer-hmx-v73-candidate` | `13637348036` | 15,531,191 | `52c322fd718839ae4f2461570221f65408c4797f808f36f7b83b7963957977d3` |
+
+These are Actions archive digests and build/inspection evidence; the exact
+archives are not present in `artifacts/{ternux-apt,ternux-extensions,htp-qualification}/incoming/`
+and have not been installed from this run. CPU/Vulkan and Stable Diffusion
+belong in `artifacts/ternux-extensions/incoming/`; production HTP and integer-
+HMX belong in `artifacts/htp-qualification/incoming/`; the unsigned APT CI
+package belongs in `artifacts/ternux-apt/incoming/`. Consequently fresh exact-
+artifact installation and device qualification remain open. The public hosted
+signed APT endpoints and release publication gates are also still open.
+
 ## QNN experiment and next validation
 
 The [standalone discovery experiment](../experiments/qnn-native/README.md)
