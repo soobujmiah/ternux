@@ -312,20 +312,20 @@ its cause and impact on other applications remain unqualified.
 
 ### Exact-current-head CI artifact inventory — 2026-11-09
 
-At PR #97 head `c328b161350b6803904545e808dfa2e1799ed1d5`, all eight required
-checks passed: Validate `42532221661`, unsigned Termux APT package `42532221625`,
-repository contract `42532221597`, knowledge sync `42532221596`, CPU/Vulkan llama
-`42532221601`, Stable Diffusion CPU/Vulkan `42532221646`, production HTP
-`42532221626`, and integer-HMX V73 candidate `42532221611`. Preview/publication
+At PR #97 head `96c30aa1325bc14850d14b7a4dcd4528b5aab5da`, all eight required
+checks passed: Validate `42535686912`, unsigned Termux APT package `42535686925`,
+repository contract `42535686910`, knowledge sync `42535686911`, CPU/Vulkan llama
+`42535686914`, Stable Diffusion CPU/Vulkan `42535686917`, production HTP
+`42535686924`, and integer-HMX V73 candidate `42535686919`. Preview/publication
 jobs were skipped because this is a draft PR. Actions artifact archive metadata:
 
 | Artifact | Actions artifact ID | Bytes | SHA-256 |
 |---|---:|---:|---|
-| `ternux-apt-unsigned-ci-e5ef0c1efc6936e4482f584782c287d5554f16c2` | `13637384873` | 268,630 | `f44328e71b28de046650dff8fd413d2ed515aa10f2dd69ed04c8f9e50d7c52ab` |
-| `ternux-llama-vulkan-linux-arm64-b11582-candidate` | `13637957311` | 21,325,818 | `c0cd6d0e127710ddeaa60911c0fb7ca3ab7910181d14bc6f734c2ca03f96be2c` |
-| `ternux-stable-diffusion-vulkan-linux-arm64-master-1053-candidate` | `13637523394` | 27,026,285 | `d7596e68a96f56074b25e01a1a281d1cffe86e3b5fcf5ae5b0f7b804b4de157b` |
-| `ternux-llama-htp-sm8735-b11582` | `13638580460` | 15,636,455 | `e55cb2fc8f3205f1a688aceb29752deccd692a85c38cc85126a6aae21de54e22` |
-| `ternux-llama-htp-sm8735-integer-hmx-v73-candidate` | `13637669764` | 15,530,647 | `0e67882fecf05791c2070d127ac23c840a411106dbe6b054b296a9dc3dd746bb` |
+| `ternux-apt-unsigned-ci-af450cc891fd2120cea9e5697e0159c61a7a35d3` | `13638992164` | 268,620 | `94fc4252b41faceb60d021d5f1982cf23f81f69eb9a9e0e3e5c3cf94f7587101` |
+| `ternux-llama-vulkan-linux-arm64-b11582-candidate` | `13639198127` | 21,327,935 | `60c84df443bbf996b64c5c46076253d4a89b8ca5fdefaf5439919d0a3605bbc8` |
+| `ternux-stable-diffusion-vulkan-linux-arm64-master-1053-candidate` | `13639660775` | 27,030,299 | `b40238efee496b813572a9a13d84624bc2693efb502e4b07ae7a56a89aa5544c` |
+| `ternux-llama-htp-sm8735-b11582` | `13639273191` | 15,637,038 | `bdf22e7d17769bd3289c8596fb48631ea269295240aa05ff0d06dae085c94eee` |
+| `ternux-llama-htp-sm8735-integer-hmx-v73-candidate` | `13639198836` | 15,530,741 | `1d8010b25656d5ec70806c9544e1af4576aa5bc1f53e2839f78aac7dbdb572e4` |
 
 These are GitHub Actions archive digests and CI build/inspection evidence. The
 exact archives are not in the project incoming directories and have not been
