@@ -196,10 +196,13 @@ Extract করা archive-এর ৬৯টি ELF file offline audit করি: 
 Audit package-এর local dependency ও upstream license-ও যাচাই করেছে। System
 runtime-এ OpenSSL 3 (`libssl3` বা `libssl3t64`), `libgomp1`, ও `libvulkan1`
 লাগে; installer download-এর আগে shared library ও glibc minimum পরীক্ষা করে।
-বর্তমান release workflow-তে এই ABI audit আছে, তবে সর্বশেষ সফল artifact run-টি
-audit ধাপ যোগ হওয়ার আগের। [Run #3](https://github.com/soobujmiah/ternux/actions/runs/38457240250)
-2026-10-13-এ commit `b568b9f`-এ সফল হয়েছিল; এটি নতুন audit ধাপ পাশের প্রমাণ
-নয়। নতুন artifact build এখনো বাকি।
+বর্তমান workflow pinned upstream license/notice bundle করে এবং upload-এর আগে
+ABI ও license audit চালায়। Candidate run
+[42511869708](https://github.com/soobujmiah/ternux/actions/runs/42511869708)
+commit `2837c8f`-এ pass করেছে; এটি candidate artifact-এর build, ABI ও bundled
+notice যাচাই, device behavior নয়। আলাদা publisher skip হওয়ায় public
+prerelease এখনো আগের asset। এই candidate নতুন করে device-এ install করে
+known-answer যাচাই করা বাকি।
 
 আগের জায়গায় থাকা model দিয়ে install করা package CPU-তে (`-ngl 0`) এবং Vulkan-এ
 (`-dev Vulkan0 -ngl 99`) একই greedy `2 + 2` prompt-এর উত্তর `4` দেয়। Verbose

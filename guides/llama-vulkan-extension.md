@@ -207,10 +207,13 @@ used `$ORIGIN/../lib`, and required no GLIBC symbol newer than 2.38. The audit
 confirmed the package-local dependencies and the upstream license. The system
 runtime needs OpenSSL 3 (`libssl3` or `libssl3t64`), `libgomp1`, and
 `libvulkan1`; the installer checks their shared libraries and the glibc minimum
-before downloading. The current release workflow includes this ABI audit, but
-its latest successful artifact run predates the audit step. [Run #3](https://github.com/soobujmiah/ternux/actions/runs/38457240250)
-succeeded on 2026-10-13 at commit `b568b9f`; it is not evidence that the new
-audit step has passed. A fresh artifact build remains open.
+before downloading. The current workflow now bundles the pinned upstream
+license/notice files and runs the ABI and license audit before upload. Candidate
+run [42511869708](https://github.com/soobujmiah/ternux/actions/runs/42511869708)
+passed on commit `2837c8f`; this verifies build, ABI, and bundled notices for the
+candidate artifact, not device behavior. The separate publisher was skipped,
+so the public prerelease remains the earlier asset. A fresh device installation
+of this candidate and its known-answer check remain open.
 
 Using the existing model in place, the installed package returned `4` for the
 same greedy `2 + 2` prompt on CPU (`-ngl 0`) and Vulkan
