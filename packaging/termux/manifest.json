@@ -1215,6 +1215,34 @@
     "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/zenity.svg": {
       "source": "lib/ternux-assets/icons/Ternux/scalable/apps/zenity.svg",
       "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/org.xfce.panel.clock.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/org.xfce.panel.clock.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/org.xfce.panel.launcher.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/org.xfce.panel.launcher.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/org.xfce.panel.systray.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/org.xfce.panel.systray.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/org.xfce.panel.tasklist.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/org.xfce.panel.tasklist.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/org.xfce.panel.windowmenu.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/org.xfce.panel.windowmenu.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/xfce4-pulseaudio-plugin.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/xfce4-pulseaudio-plugin.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/org.xfce.panel.separator.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/org.xfce.panel.separator.svg",
+      "perm": "644"
     }
   }
 }

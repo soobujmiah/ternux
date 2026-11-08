@@ -444,6 +444,11 @@ for asset in (root / "lib/ternux-assets").rglob("*"):
         assert files.get(destination, {}).get("source") == asset.relative_to(root).as_posix()
 assert "Inherits=Adwaita,hicolor" in (root / "lib/ternux-assets/icons/Ternux/index.theme").read_text()
 assert "Papirus" not in (root / "lib/ternux-assets/icons/Ternux/index.theme").read_text()
+for plugin_icon in ("org.xfce.panel.clock", "org.xfce.panel.launcher", "org.xfce.panel.separator", "org.xfce.panel.systray",
+                    "org.xfce.panel.tasklist", "org.xfce.panel.windowmenu", "xfce4-pulseaudio-plugin"):
+    asset = root / f"lib/ternux-assets/icons/Ternux/scalable/apps/{plugin_icon}.svg"
+    mirror = root / f"packaging/termux/icons/Ternux/scalable/apps/{plugin_icon}.svg"
+    assert asset.is_file() and mirror.read_bytes() == asset.read_bytes()
 assert (root / "lib/ternux-assets/icons/Ternux/scalable/apps/application-x-executable.svg").is_file()
 assert (root / "packaging/termux/icons/Ternux/scalable/apps/application-x-executable.svg").read_bytes() == (root / "lib/ternux-assets/icons/Ternux/scalable/apps/application-x-executable.svg").read_bytes()
 assert (root / "packaging/termux/icons/Ternux/index.theme").read_bytes() == (root / "lib/ternux-assets/icons/Ternux/index.theme").read_bytes()
@@ -506,12 +511,15 @@ base_desktop_icon_ids = (
     "org.xfce.settings.manager", "org.xfce.settings.mouse", "org.xfce.taskmanager",
     "org.xfce.terminal", "org.xfce.terminal-settings", "org.xfce.terminalemulator",
     "org.xfce.thunar", "org.xfce.volman", "org.xfce.webbrowser", "org.xfce.workspaces",
-    "org.xfce.xfdesktop", "org.xfce.xfwm4", "org.xfce.xfwm4-tweaks", "ternux-camera",
+    "org.xfce.xfdesktop", "org.xfce.xfwm4", "org.xfce.xfwm4-tweaks", "org.xfce.panel.clock",
+    "org.xfce.panel.launcher", "org.xfce.panel.separator", "org.xfce.panel.systray", "org.xfce.panel.tasklist",
+    "org.xfce.panel.windowmenu", "xfce4-pulseaudio-plugin", "ternux-camera",
     "ternux-keyboard", "ternux-recorder", "thunderbird", "vlc", "xarchiver", "xfsm-logout",
 )
 theme_icon_root = root / "lib/ternux-assets/icons/Ternux"
 theme_icon_ids = {asset.stem for asset in theme_icon_root.rglob("*.svg")}
 assert set(base_desktop_icon_ids) <= theme_icon_ids
+assert all("<ellipse" not in asset.read_text() for asset in theme_icon_root.rglob("*.svg"))
 phase_source = (root / "lib/phases.sh").read_text()
 assert 'icon_stage=\\$(mktemp -d /usr/share/icons/.Ternux-stage.XXXXXX)' in phase_source
 assert 'mv -T /usr/share/icons/Ternux "\\$icon_backup"' in phase_source
@@ -553,6 +561,9 @@ gtk4_theme = (root / "lib/ternux-assets/themes/Ternux/gtk-4.0/gtk.css").read_tex
 assert 'resource:///org/gtk/libgtk/theme/Default/gtk-dark.css' in gtk4_theme
 assert 'resource:///org/gtk/libgtk/theme/Adwaita/gtk.css' not in gtk4_theme
 assert (root / "lib/ternux-assets/icons/Ternux/scalable/apps/org.xfce.ristretto.svg").is_file()
+gtk3_theme = (root / "lib/ternux-assets/themes/Ternux/gtk-3.0/gtk.css").read_text()
+assert "button:checked" in gtk3_theme and "button:active" in gtk3_theme
+assert "border-radius: 3px" in gtk3_theme and "box-shadow: none" in gtk3_theme
 for icon in ("ternux-recorder", "ternux-avro", "ternux-python", "ternux-keyboard",
              "ternux-launcher", "org.xfce.webbrowser"):
     assert (root / f"lib/ternux-assets/icons/Ternux/scalable/apps/{icon}.svg").is_file()

@@ -36,6 +36,9 @@ check, radio { -gtk-icon-palette: success @ternux_green; }
 
 /* Xfce panel and window shell */
 #XfcePanelWindow, .xfce4-panel, .xfce4-panel.background { background-image: none; background-color: #101816; color: #e4f3eb; border-color: #34483e; }
-#XfcePanelWindow button, .xfce4-panel button { background-image: none; background-color: transparent; color: #e4f3eb; border-color: transparent; }
-#XfcePanelWindow button:hover, .xfce4-panel button:hover { background-color: #202e28; color: #39e68c; }
+#XfcePanelWindow button, .xfce4-panel button { background-image: none; background-color: transparent; color: #e4f3eb; border-color: transparent; border-radius: 3px; box-shadow: none; }
+#XfcePanelWindow button:hover, .xfce4-panel button:hover { background-image: none; background-color: #202e28; color: #39e68c; border-color: transparent; box-shadow: none; }
+#XfcePanelWindow button:checked, #XfcePanelWindow button:active,
+.xfce4-panel button:checked, .xfce4-panel button:active { background-image: none; background-color: #202e28; color: #39e68c; border-color: transparent; box-shadow: none; }
+#XfcePanelWindow button:backdrop, .xfce4-panel button:backdrop { background-image: none; box-shadow: none; }
 #XfcePanelWindow menu, .xfce4-panel menu { background-color: #17221e; color: #e4f3eb; }
