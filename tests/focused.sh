@@ -604,6 +604,15 @@ base_desktop_install = next(line for line in phase_source.splitlines() if line.s
 assert "thunderbird" not in base_desktop_install and "evolution" not in base_desktop_install
 assert "evolution) apt_packages+=(evolution gnome-online-accounts-gtk)" in phase_source
 assert "evolution" in phase_source.split("TNX_OPTIONAL_ITEMS=(", 1)[1].split(")", 1)[0]
+assert "celestia) celestia_selected=1; apt_packages+=(python3 gnupg ca-certificates) ;;" in phase_source
+assert "celestia" in phase_source.split("TNX_OPTIONAL_ITEMS=(", 1)[1].split(")", 1)[0]
+assert "ternux-install-celestia" in phase_source
+celestia_installer = (root / "lib/ternux-assets/bin/ternux-install-celestia").read_text()
+assert "3FE0C0AC1FD6F1034B818A14BDF3F6ACD4D81407" in celestia_installer
+assert "VALIDSIG $fingerprint" in celestia_installer
+assert "Packages.gz" in celestia_installer and "SHA256" in celestia_installer
+assert "trusted=yes" in celestia_installer and "celestia-obs" not in celestia_installer
+assert (root / "lib/ternux-assets/icons/Ternux/scalable/apps/celestia.svg").is_file()
 assert "--no-install-recommends synaptic" in (root / "lib/phases.sh").read_text()
 app_center = (root / "lib/ternux-assets/bin/ternux-app-center").read_text()
 assert 'exec sudo env DISPLAY="$display" GTK_THEME=Ternux /usr/sbin/synaptic "$@"' in app_center
@@ -2670,6 +2679,9 @@ else
   not_ok "base Nerd Font download is pinned, checksummed and compact"
 fi
 
+check "website font assets have matching attribution and complete OFL files" \
+  python3 "$ROOT/tests/font_license_inventory_test.py"
+
 check "llama.cpp artifact license bundle audit verifies file hashes and safe paths" \
   python3 "$ROOT/tests/llama_vulkan_license_audit_test.py"
 
@@ -2678,6 +2690,8 @@ check "llama.cpp source-map build runs on PRs without release-write permissions"
 
 check "interactive workload selector returns the selected Stable Diffusion ID" \
   python3 "$ROOT/tests/workload_menu_pty.py" "$ROOT"
+check "interactive workload selector returns the selected Celestia ID" \
+  python3 "$ROOT/tests/workload_menu_pty.py" "$ROOT" celestia
 
 printf '1..%d\n' "$((pass + fail))"
 printf '# pass %d\n# fail %d\n' "$pass" "$fail"

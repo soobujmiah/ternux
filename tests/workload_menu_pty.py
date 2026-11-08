@@ -9,6 +9,10 @@ import sys
 from pathlib import Path
 
 root = Path(sys.argv[1]).resolve()
+target = sys.argv[2] if len(sys.argv) > 2 else "stable-diffusion"
+labels = {"stable-diffusion": "Stable Diffusion CPU + Vulkan", "celestia": "Celestia astronomy simulator"}
+if target not in labels:
+    raise SystemExit(f"unsupported test workload: {target}")
 script = shutil.which("script")
 if script is None:
     raise SystemExit("util-linux script command is required for the PTY integration test")
@@ -16,7 +20,7 @@ if script is None:
 index_program = r'''
 source "$1/lib/phases.sh"
 for i in "${!TNX_OPTIONAL_ITEMS[@]}"; do
-  if [ "${TNX_OPTIONAL_ITEMS[$i]}" = stable-diffusion ]; then
+  if [ "${TNX_OPTIONAL_ITEMS[$i]}" = "$2" ]; then
     printf '%s' "$i"
     exit 0
   fi
@@ -24,7 +28,7 @@ done
 exit 1
 '''
 index_result = subprocess.run(
-    ["bash", "-c", index_program, "workload-menu-test", str(root)],
+    ["bash", "-c", index_program, "workload-menu-test", str(root), target],
     check=True,
     capture_output=True,
     text=True,
@@ -43,8 +47,8 @@ result = subprocess.run(
 output = result.stdout + result.stderr
 if result.returncode != 0:
     raise SystemExit(f"workload selector exited with status {result.returncode}")
-if not output.rstrip().endswith(b"stable-diffusion"):
-    raise SystemExit("selector did not return the stable-diffusion workload ID")
-if b"Stable Diffusion CPU + Vulkan" not in output:
-    raise SystemExit("selector did not render the selected Stable Diffusion label")
-print("interactive workload menu PTY selection passed: stable-diffusion")
+if not output.rstrip().endswith(target.encode()):
+    raise SystemExit(f"selector did not return the {target} workload ID")
+if labels[target].encode() not in output:
+    raise SystemExit(f"selector did not render the selected {target} label")
+print(f"interactive workload menu PTY selection passed: {target}")

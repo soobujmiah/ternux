@@ -84,6 +84,7 @@ tnx_optional_storage_mb() {
       libreoffice-calc) total=$((total + 400)) ;;
       libreoffice-draw) total=$((total + 900)) ;;
       evolution) total=$((total + 450)) ;;
+      celestia) total=$((total + 700)) ;;
       blender) total=$((total + 600)) ;;
       claude|codex) total=$((total + 350)) ;;
       openai-cli) total=$((total + 150)) ;;
@@ -399,6 +400,7 @@ tnx_phase_debian() {
     install -m 0755 "\$asset_stage/bin/ternux-open-url" /usr/local/bin/ternux-open-url
     install -m 0755 "\$asset_stage/bin/ternux-app-center" /usr/local/bin/ternux-app-center
     install -m 0755 "\$asset_stage/bin/evolution" /usr/local/bin/evolution
+    install -m 0755 "\$asset_stage/bin/ternux-install-celestia" /usr/local/bin/ternux-install-celestia
     if [ -f /usr/share/applications/org.gnome.Evolution.desktop ]; then
       sed 's#^Exec=evolution#Exec=/usr/local/bin/evolution#' /usr/share/applications/org.gnome.Evolution.desktop > /usr/local/share/applications/org.gnome.Evolution.desktop
       chmod 0644 /usr/local/share/applications/org.gnome.Evolution.desktop
@@ -1444,7 +1446,7 @@ ALIASEOF
 # ---------------------------------------------------------------------------
 tnx_phase_extras() {
   local user_name="${1:-ternux}"; shift
-  local rc=0 opt selected node_selected=0 go_version="" cores jobs htp_selected=0 adt_selected=0
+  local rc=0 opt selected node_selected=0 go_version="" cores jobs htp_selected=0 adt_selected=0 celestia_selected=0
   local -a apt_packages=() unique_packages=() install_opts=()
   local APT="sudo apt update -o APT::Color=1 && sudo DEBIAN_FRONTEND=noninteractive apt install -y -o APT::Color=1 -o Dpkg::Progress-Fancy=1"
 
@@ -1476,6 +1478,7 @@ tnx_phase_extras() {
       gh) apt_packages+=(gh) ;;
       firefox) apt_packages+=(firefox-esr) ;;
       evolution) apt_packages+=(evolution gnome-online-accounts-gtk) ;;
+      celestia) celestia_selected=1; apt_packages+=(python3 gnupg ca-certificates) ;;
       adt-build-tools|adt-platform-tools|adt-ndk|adt-cmake) apt_packages+=(git curl ca-certificates) ;;
       adt-cmdline|adt-platform) apt_packages+=(git curl ca-certificates default-jdk-headless unzip) ;;
       llama-htp-experimental|htp-runtime)
@@ -1521,6 +1524,15 @@ tnx_phase_extras() {
   fi
   if [ ${#unique_packages[@]} -gt 0 ]; then
     tnx_guest_login --shared-tmp --user "$user_name" -- bash -c "$APT ${unique_packages[*]}" || { tnx_warn "One or more selected Debian packages failed to install."; rc=1; }
+  fi
+  if [ "$celestia_selected" -eq 1 ]; then
+    if [ "$(tnx_distro)" != debian ]; then
+      tnx_warn "Celestia optional install currently supports the Debian guest only."
+      rc=1
+    elif ! tnx_guest_login --shared-tmp --user "$user_name" -- bash -lc 'sudo /usr/local/bin/ternux-install-celestia'; then
+      tnx_warn "Celestia could not be installed; its repository signature/package checks failed, or a dependency failed."
+      rc=1
+    fi
   fi
 
   if [ "$node_selected" = 1 ]; then
@@ -1661,6 +1673,7 @@ tnx_phase_extras() {
           tnx_ok "Evolution Mail installed as an optional app; choose your own mail defaults"
         else tnx_warn "Evolution Mail package installed, but its managed launcher could not be configured."; rc=1; fi
         ;;
+      celestia) tnx_ok "Celestia installed as an optional astronomy app" ;;
       openclaw)
         if tnx_guest_login --shared-tmp --user "$user_name" -- bash -lc 'curl -fsSL --proto https --tlsv1.2 https://openclaw.ai/install.sh | bash -s -- --no-onboard --verify'; then
           tnx_ok "OpenClaw installed; run openclaw onboard when ready"
@@ -2064,9 +2077,9 @@ tnx_prompt_username() {
 
 # Item catalogue for the interactive optional-software checklist. Keep this
 # list aligned with the case labels in tnx_phase_extras.
-TNX_OPTIONAL_ITEMS=(git python node build rust java golang php ripgrep jq gh sqlite3 htop tree geany neovim micro thonny godot firefox adt-build-tools adt-platform-tools adt-ndk adt-cmake adt-cmdline adt-platform llama-vulkan stable-diffusion llama-htp-experimental nmap tmux ffmpeg vlc mpv audacity gimp krita inkscape imagemagick libreoffice-writer libreoffice-calc libreoffice-draw evolution blender claude codex openai-cli hermes openclaw)
-TNX_OPTIONAL_GROUPS=(DEV DEV DEV DEV LANG LANG LANG LANG DEV DEV DEV DATA SYSTEM SYSTEM IDE IDE IDE IDE GAME WEB ANDROID ANDROID ANDROID ANDROID ANDROID ANDROID AI AI AI NET NET MEDIA MEDIA MEDIA MEDIA DESIGN DESIGN DESIGN DESIGN OFFICE OFFICE OFFICE OFFICE 3D AGENT AGENT AGENT AGENT AGENT)
-TNX_OPTIONAL_LABELS=("Git" "Python" "Node.js" "C/C++ tools" "Rust" "Java JDK" "Go toolchain" "PHP CLI" "ripgrep" "jq" "GitHub CLI" "SQLite" "htop" "tree" "Geany" "Neovim" "Micro editor" "Thonny IDE" "Godot" "Firefox ESR" "ADT Build Tools" "ADT Platform Tools / ADB" "ADT NDK" "ADT CMake" "SDK Manager" "Android API 36" "llama.cpp Vulkan" "Stable Diffusion CPU + Vulkan" "llama.cpp HTP (experimental)" "Nmap" "tmux" "FFmpeg" "VLC" "mpv" "Audacity" "GIMP" "Krita" "Inkscape" "ImageMagick" "LibreOffice Writer" "LibreOffice Calc" "LibreOffice Draw" "Evolution Mail" "Blender" "Claude Code" "Codex CLI" "OpenAI API CLI" "Hermes" "OpenClaw")
+TNX_OPTIONAL_ITEMS=(git python node build rust java golang php ripgrep jq gh sqlite3 htop tree geany neovim micro thonny godot firefox adt-build-tools adt-platform-tools adt-ndk adt-cmake adt-cmdline adt-platform llama-vulkan stable-diffusion llama-htp-experimental nmap tmux ffmpeg vlc mpv audacity gimp krita inkscape imagemagick libreoffice-writer libreoffice-calc libreoffice-draw evolution blender celestia claude codex openai-cli hermes openclaw)
+TNX_OPTIONAL_GROUPS=(DEV DEV DEV DEV LANG LANG LANG LANG DEV DEV DEV DATA SYSTEM SYSTEM IDE IDE IDE IDE GAME WEB ANDROID ANDROID ANDROID ANDROID ANDROID ANDROID AI AI AI NET NET MEDIA MEDIA MEDIA MEDIA DESIGN DESIGN DESIGN DESIGN OFFICE OFFICE OFFICE OFFICE 3D 3D AGENT AGENT AGENT AGENT AGENT)
+TNX_OPTIONAL_LABELS=("Git" "Python" "Node.js" "C/C++ tools" "Rust" "Java JDK" "Go toolchain" "PHP CLI" "ripgrep" "jq" "GitHub CLI" "SQLite" "htop" "tree" "Geany" "Neovim" "Micro editor" "Thonny IDE" "Godot" "Firefox ESR" "ADT Build Tools" "ADT Platform Tools / ADB" "ADT NDK" "ADT CMake" "SDK Manager" "Android API 36" "llama.cpp Vulkan" "Stable Diffusion CPU + Vulkan" "llama.cpp HTP (experimental)" "Nmap" "tmux" "FFmpeg" "VLC" "mpv" "Audacity" "GIMP" "Krita" "Inkscape" "ImageMagick" "LibreOffice Writer" "LibreOffice Calc" "LibreOffice Draw" "Evolution Mail" "Blender" "Celestia astronomy simulator" "Claude Code" "Codex CLI" "OpenAI API CLI" "Hermes" "OpenClaw")
 
 # Parse number lists used when a TTY key-reading menu is unavailable.
 tnx_parse_workload_selection() {
@@ -2400,6 +2413,7 @@ tnx_install() {
         libreoffice-calc) workload_label="LibreOffice Calc" ;;
         libreoffice-draw) workload_label="LibreOffice Draw (PDF editing and export)" ;;
         evolution) workload_label="Evolution Mail (optional; no mail default)" ;;
+        celestia) workload_label="Celestia astronomy simulator" ;;
         llama-vulkan) workload_label="llama.cpp Vulkan release" ;;
         stable-diffusion) workload_label="Stable Diffusion CPU + Vulkan image generator" ;;
         llama-htp-experimental) workload_label="llama.cpp HTP experimental release" ;;

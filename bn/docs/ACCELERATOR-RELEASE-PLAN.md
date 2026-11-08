@@ -67,6 +67,25 @@ output-ই আছে, তাই workflow fix HTP inference qualify করে ন
 update করে না। বাকি তিনটি accelerator prerelease-ও v2 থেকে আলাদা। PR #97
 draft-ই আছে; hosted signed APT endpoint এখনো 404 দেয় এবং release gate ১০ held।
 
+### Webfont attribution ও license-file audit — ২০২৬-১১-০৯
+
+পাঁচটি self-hosted webfont-এর embedded name-table copyright metadata পরীক্ষা
+করে `NOTICE`-এ Noto Sans Bengali ও JetBrains Mono-এর stale attribution, আর
+Caveat ও Atma-এর attribution অনুপস্থিত পেয়েছি। `NOTICE` ও
+`assets/fonts/LICENSES.md`-এ এখন Atma, Caveat, JetBrains Mono, Noto Sans
+Bengali এবং Space Grotesk-এর embedded attribution আছে। Noto Sans Bengali-এর
+OFL text `notofonts/bengali` source commit
+`85d80394cbbbb798ca0a41c983902e6cf77be3a3` থেকে copy করে SHA-256 দিয়ে pin
+করা হয়েছে; Atma-র embedded ২০১৫ metadata এবং upstream OFL-এর ২০১০ copyright
+দুটিই রাখা হয়েছে। Astro site finalizer প্রকাশিত site-এ `assets/fonts/`
+copy করে; নতুন focused regression test asset inventory, NOTICE attribution
+ও license hash পরীক্ষা করে। Local check pass: `bash tests/focused.sh` ১২৪/১২৪,
+`python3 tests/docs_check.py`-তে ৩,০১৮ assertion, ৩১২ internal link এবং ১৯টি
+bilingual page pair। Self-hosted webfont inventory gate বন্ধ হয়েছে; wider
+binary dependency-license review এখনো বাকি। Mesa binary-র exact static
+component/source mapping ও transitive third-party inventory এখনো open, তাই
+release gate ১০ held থাকবে।
+
 ### Optional mail client — ২০২৬-১১-০৮/০৯
 
 Owner-এর সর্বশেষ নির্দেশে base desktop-এ কোনো mail client বা mail default থাকবে না; Evolution optional workload। Evolution ও GNOME Online Accounts GTK install করে Ternux-managed launcher বসানোর source code `b64d3f7` ও `89d0fe9` commit-এ push হয়েছে। নতুন regression test-এ Evolution launcher branch আগে no-op case-এ আটকে থাকার bug ধরা পড়ে; সেটি ঠিক করা হয়েছে। Live guest-এ exact optional phase চালিয়ে package current রাখা ও `/usr/local/bin/evolution`-এ Exec-সহ desktop entry বসানো হয়েছে; `desktop-file-validate` pass, installed wrapper hash source asset-এর সঙ্গে মিলে। Evolution চলমান ছিল; Thunderbird purge হয়েছে; দুই profile directory অক্ষত। XFCE `MailReader` default নেই, Firefox `WebBrowser` helper আছে, APT ও dpkg clean। Focused tests ১২৩/১২৩ pass; 89d0fe9-এর Validate, APT, CPU/Vulkan, Stable Diffusion, HTP, repository contract ও knowledge sync CI-ও pass। Optional Evolution থাকলে GIO desktop MIME metadata থেকে সেটিকে recommend করতে পারে; fresh base install-এ Evolution থাকে না। Public release করা হয়নি।

@@ -1,0 +1,85 @@
+#!/usr/bin/env bash
+# Install Celestia from its publisher's signed Debian 13 package feed. Current
+# Debian APT rejects that publisher key's old SHA-1 key certification, so verify
+# the pinned fingerprint/signature and every package hash before using a short
+# lived local APT index. No external APT source is left configured.
+set -euo pipefail
+
+fingerprint=3FE0C0AC1FD6F1034B818A14BDF3F6ACD4D81407
+base=https://download.opensuse.org/repositories/home:/munix9:/celestia:/1.7/Debian_13
+if [ "$(dpkg --print-architecture)" != arm64 ]; then
+  echo "Celestia's verified Ternux package route currently supports Debian ARM64 only." >&2
+  exit 2
+fi
+if dpkg-query -W -f='${Status}' celestia 2>/dev/null | grep -q 'install ok installed'; then
+  echo "Celestia is already installed."
+  exit 0
+fi
+for tool in curl gpg python3 sha256sum awk sudo; do
+  command -v "$tool" >/dev/null 2>&1 || { echo "Missing required installer tool: $tool" >&2; exit 1; }
+done
+work=$(mktemp -d "${TMPDIR:-/tmp}/ternux-celestia.XXXXXX")
+repo="$work/repo"
+source_file=/etc/apt/sources.list.d/ternux-celestia-stage.list
+cleanup() {
+  rc=$?
+  set +e
+  sudo rm -f "$source_file"
+  sudo find /var/lib/apt/lists -maxdepth 1 -type f -name '*ternux-celestia*' -delete
+  rm -rf "$work"
+  exit "$rc"
+}
+trap cleanup EXIT INT TERM
+mkdir -p "$repo" "$work/gnupg"
+chmod 700 "$work/gnupg"
+curl --proto '=https' --tlsv1.2 -fsSL "$base/Release.key" -o "$work/Release.key"
+actual_fingerprint=$(gpg --show-keys --with-colons "$work/Release.key" | awk -F: '$1=="fpr" {print $10; exit}')
+[ "$actual_fingerprint" = "$fingerprint" ] || { echo "Celestia signing-key fingerprint mismatch." >&2; exit 1; }
+GNUPGHOME="$work/gnupg" gpg --batch --import "$work/Release.key" >/dev/null 2>&1
+curl --proto '=https' --tlsv1.2 -fsSL "$base/InRelease" -o "$work/InRelease"
+GNUPGHOME="$work/gnupg" gpg --batch --status-fd=1 --verify "$work/InRelease" >"$work/signature.status" 2>/dev/null
+ grep -q "^\[GNUPG:\] VALIDSIG $fingerprint " "$work/signature.status"
+GNUPGHOME="$work/gnupg" gpg --batch --output "$work/Release" --decrypt "$work/InRelease" 2>/dev/null
+curl --proto '=https' --tlsv1.2 -fsSL "$base/Packages.gz" -o "$work/Packages.gz"
+packages_hash=$(sha256sum "$work/Packages.gz" | awk '{print $1}')
+awk -v h="$packages_hash" '$1==h && $3=="Packages.gz" {found=1} END {exit !found}' "$work/Release" || {
+  echo "Celestia package index does not match its signed release." >&2; exit 1;
+}
+python3 - "$base" "$work" <<'PY'
+import gzip, hashlib, pathlib, subprocess, sys
+base, work = sys.argv[1], pathlib.Path(sys.argv[2])
+repo = work / "repo"
+allowed = {"celestia", "celestia-common", "celestia-data", "celestia-qt6",
+           "celestia-textures-lores", "celestia-textures-medres", "celestia-tools",
+           "libcelestia1.7", "libcspice1", "libmeshoptimizer5d"}
+records = []
+raw = gzip.decompress((work / "Packages.gz").read_bytes()).decode("utf-8")
+for block in raw.strip().split("\n\n"):
+    fields = {}
+    for line in block.splitlines():
+        if line and not line[0].isspace() and ": " in line:
+            key, value = line.split(": ", 1)
+            fields[key] = value
+    if fields.get("Package") not in allowed or fields.get("Architecture") not in {"all", "arm64"}:
+        continue
+    filename = fields["Filename"]
+    destination = repo / filename
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    subprocess.run(["curl", "--proto", "=https", "--tlsv1.2", "-fsSL", "--retry", "3",
+                    "--connect-timeout", "15", "-o", str(destination), base + "/" + filename], check=True)
+    payload = destination.read_bytes()
+    if len(payload) != int(fields["Size"]) or hashlib.sha256(payload).hexdigest() != fields["SHA256"]:
+        raise SystemExit("Celestia package checksum mismatch: " + fields["Package"])
+    records.append(block)
+if not {"celestia", "celestia-data", "celestia-qt6", "libcelestia1.7", "celestia-tools",
+        "celestia-textures-lores", "celestia-textures-medres", "libcspice1", "libmeshoptimizer5d"}.issubset(
+            {next(line[9:] for line in block.splitlines() if line.startswith("Package: ")) for block in records}):
+    raise SystemExit("Celestia feed is missing a required ARM64 package.")
+(repo / "Packages").write_text("\n\n".join(records) + "\n", encoding="utf-8")
+PY
+chmod -R a+rX "$repo"
+printf 'deb [trusted=yes] file:%s ./\n' "$repo" | sudo tee "$source_file" >/dev/null
+sudo apt-get update
+sudo env DEBIAN_FRONTEND=noninteractive apt-get install -y celestia
+sudo desktop-file-validate /usr/share/applications/space.celestiaproject.celestia_qt6.desktop
+printf 'Celestia installed; signed publisher metadata and package checksums verified.\n'

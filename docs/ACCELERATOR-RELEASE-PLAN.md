@@ -70,6 +70,25 @@ update that public release. The other three public accelerator prereleases
 also remain separate from v2. PR #97 remains a draft; hosted signed APT
 endpoints still return 404, and release gate 10 remains held.
 
+### Webfont attribution and license-file audit — 2026-11-09
+
+I inspected the embedded name-table copyright metadata in all five self-hosted
+webfonts. This found stale Noto Sans Bengali and JetBrains Mono attribution in
+`NOTICE`, plus missing Caveat and Atma entries. `NOTICE` and
+`assets/fonts/LICENSES.md` now list the embedded attributions for Atma, Caveat,
+JetBrains Mono, Noto Sans Bengali, and Space Grotesk. The Noto Sans Bengali OFL
+text was copied from `notofonts/bengali` source commit
+`85d80394cbbbb798ca0a41c983902e6cf77be3a3` and pinned by SHA-256; Atma's
+embedded 2015 metadata and upstream OFL's 2010 copyright are both recorded.
+The Astro site finalizer copies `assets/fonts/` into the published site, and a
+focused regression test verifies the asset inventory, notice names, and license
+hashes. Local checks passed: `bash tests/focused.sh` 124/124 and
+`python3 tests/docs_check.py` 3,018 assertions, 312 internal links, and 19
+bilingual page pairs. This closes the inventory for the self-hosted webfonts;
+it does not close the broader binary dependency-license review. Mesa's exact
+static component/source mapping and transitive third-party inventory remain
+open, so release gate 10 remains held.
+
 ### Optional mail client — 2026-11-08/09
 
 On owner direction, the base desktop has no mail client and sets no mail handler; Evolution Mail is an optional workload. The optional installer adds Evolution and GNOME Online Accounts GTK and creates a Ternux-managed launcher; it does not run an explicit mail-default assignment command. When Evolution is the only registered mail app, GIO may still recommend it from its desktop MIME metadata. On 2026-11-08, the live Debian guest was updated to Evolution 3.56.2-0+deb13u1 and GNOME Online Accounts GTK 3.50.6-1, and Thunderbird 1:153.6.0esr-1~deb13u1 was removed. The Thunderbird and Evolution profile directories were preserved, and the existing Evolution process was left running. Thunderbird mail defaults and XFCE `MailReader` entries were removed; the Firefox `WebBrowser` helper remains. Evolution is present in the live desktop MIME cache when installed, so a clean fresh-base install and a post-optional-install default-handler check remain separate validation points. `apt-get check` and `dpkg --audit` are clean. The optional package mapping, Ternux launcher, branded icons, bilingual guides, and focused regression test are committed and pushed in `b64d3f7` and `89d0fe9`. The added test exposed an unreachable Evolution launcher branch (the ID was consumed by a no-op case); the branch is now reachable. Running the exact optional phase against the live guest kept both Evolution packages current and installed the managed desktop entry with `Exec=/usr/local/bin/evolution`; `desktop-file-validate` passed and the installed wrapper hash matches the repository asset. Evolution remained running, Thunderbird is purged, both profile directories remain, and APT/dpkg checks are clean. The new commit CI passed Validate, APT package, CPU/Vulkan llama, Stable Diffusion, HTP candidate, repository contract and knowledge sync. The live Ternux guest has Evolution because it is an explicitly installed optional app; GIO may recommend it from its MIME metadata, while fresh base installs contain no mail app. No public release was made.

@@ -2,6 +2,24 @@
 
 The self-hosted webfonts in this directory are redistributed under the SIL Open Font License 1.1.
 
+## Bundled font attribution
+
+The bundled webfont files and their embedded copyright metadata are:
+
+| Font | File | Embedded copyright metadata | License text |
+|---|---|---|---|
+| Atma | `atma-regular.ttf` | Copyright 2015 The Atma Project Authors (www.black-foundry.com) | [ATMA-OFL.txt](ATMA-OFL.txt); source OFL copyright 2010 |
+| Caveat | `caveat-bold-latin.woff2` | Copyright 2014 The Caveat Project Authors | This file; see Caveat source and license statement below |
+| JetBrains Mono | `jetbrains-mono-latin.woff2` | Copyright 2020 The JetBrains Mono Project Authors | This file; see JetBrains Mono section below |
+| Noto Sans Bengali | `noto-bengali.woff2` | Copyright 2025 The Noto Project Authors | [NOTO-SANS-BENGALI-OFL.txt](NOTO-SANS-BENGALI-OFL.txt); source OFL copyright 2022 |
+| Space Grotesk | `space-grotesk-latin.woff2` | Copyright 2020 The Space Grotesk Project Authors | This file; see Space Grotesk section below |
+
+Noto Sans Bengali metadata reports version 3.011 and links to source commit
+`85d80394cbbbb798ca0a41c983902e6cf77be3a3` in
+[notofonts/bengali](https://github.com/notofonts/bengali). The bundled OFL text
+is copied from that exact source commit. Atma's embedded copyright metadata is
+preserved alongside the separately copied upstream OFL notice.
+
 ## Caveat
 
 Source: https://github.com/google/fonts/tree/main/ofl/caveat

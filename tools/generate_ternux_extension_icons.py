@@ -12,6 +12,7 @@ OUTS = (
 # launchers. No common oval or badge backdrop; each glyph owns its silhouette.
 GLYPHS = {
     "firefox-esr": '<path d="M19 14c5-8 18-10 27-3 8 6 10 18 4 27-6 9-18 13-28 7-8-4-12-13-10-22l8 6c-1 7 4 12 10 12 7 0 12-5 12-12 0-6-5-11-11-11-4 0-8 2-10 5l7 1-11 7-8-10 7-7z" fill="#42efa0"/><path d="M15 11 9 8l4 9m35-5 8-3-5 9" fill="none" stroke="#c8ffe1" stroke-width="3"/>',
+    "celestia": '<circle cx="32" cy="32" r="21" fill="none" stroke="#42efa0" stroke-width="3"/><path d="M9 42C14 26 40 11 53 20c10 7-1 22-18 29-13 5-25 3-26-7z" stroke="#c8ffe1" stroke-width="2.5"/><circle cx="32" cy="32" r="5" fill="#42efa0"/><circle cx="47" cy="18" r="2" fill="#c8ffe1"/>',
     "blender": '<path d="m8 23 23-7 25 8-23 8zm4 12 20-6 20 7-21 7zm8 12 14-5 14 5-15 6z" fill="#42efa0"/><circle cx="44" cy="24" r="5" fill="#101a17" stroke="#c8ffe1" stroke-width="2"/>',
     "gimp": '<path d="M13 21c7-10 25-12 36-3l5 11-8 4 5 12c-9 9-27 9-36 0l-5-13z" fill="none" stroke="#42efa0" stroke-width="3"/><path d="m21 41 7-12 6 8 7-11 7 15z" fill="#c8ffe1"/><circle cx="42" cy="22" r="2" fill="#c8ffe1"/>',
     "krita": '<path d="M17 45 38 16l10 7-21 29-12 4z" fill="#42efa0"/><path d="m37 18 6-7 11 8-6 7m-27 20 7 5" fill="none" stroke="#c8ffe1" stroke-width="3" stroke-linejoin="round"/>',
@@ -31,6 +32,7 @@ GLYPHS = {
 ALIASES = {
     "firefox-esr": ("firefox", "firefox-esr"),
     "blender": ("blender",),
+    "celestia": ("celestia",),
     "gimp": ("gimp", "org.gimp.GIMP"),
     "krita": ("krita", "org.kde.krita"),
     "inkscape": ("inkscape", "org.inkscape.Inkscape"),

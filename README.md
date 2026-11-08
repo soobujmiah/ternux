@@ -87,7 +87,7 @@ reader, Ternux Camera, Ternux Sound Recorder,
 Ristretto image viewer, and Synaptic Package Manager. Synaptic uses Ternux
 branding and can search, install, upgrade, or remove Debian packages. Evince is
 the default PDF reader; LibreOffice Draw is optional for editing PDF pages and exporting documents to other formats.
-No mail client is installed or set as default. Evolution is available as an optional
+Celestia is available as an optional astronomy simulator and is not installed by default. No mail client is installed or set as default. Evolution is available as an optional
 mail client; common providers can use OAuth, and other hosts support manual IMAP/POP
 setup. OAuth opens Firefox ESR when installed or the Android default browser through
 the Ternux bridge. One-click Camera, Photos, and Sound Recorder shortcuts

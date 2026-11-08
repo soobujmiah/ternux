@@ -1260,6 +1260,14 @@
       "source": "lib/ternux-assets/icons/Ternux/scalable/apps/evolution.svg",
       "perm": "644"
     },
+    "lib/ternux/ternux-assets/bin/ternux-install-celestia": {
+      "source": "lib/ternux-assets/bin/ternux-install-celestia",
+      "perm": "755"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/celestia.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/celestia.svg",
+      "perm": "644"
+    },
     "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/gnome-online-accounts-gtk.svg": {
       "source": "lib/ternux-assets/icons/Ternux/scalable/apps/gnome-online-accounts-gtk.svg",
       "perm": "644"
