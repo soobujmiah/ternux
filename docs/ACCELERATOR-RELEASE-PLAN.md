@@ -335,15 +335,20 @@ Termux APT package, repository-contract, knowledge-sync, llama CPU/Vulkan,
 Stable Diffusion CPU/Vulkan, production HTP, and integer-HMX candidate build
 checks passed. I downloaded the exact Actions artifacts and verified each
 archive against its sidecar checksum. The llama CPU/Vulkan archive from run
-`42523800363` (artifact `13634048426`) passed the local ABI/source-map/license
-audit: 69 AArch64 ELF files, maximum GLIBC 2.38, all dependencies resolved,
+`42523800363` (artifact `13634048426`; archive SHA-256
+`1ff7d8ec2187ccbe6e5940cd5e02bde40283044727ea19e6befe7f5b8e57eaa5`) passed
+the local ABI/source-map/license audit: 69 AArch64 ELF files, maximum GLIBC 2.38, all dependencies resolved,
 and `$ORIGIN/../lib` RUNPATH. The Stable Diffusion archive from run
-`42523800211` (artifact `13634521936`) passed its local ABI and 11-notice
-license audit. The production HTP archive from run `42523800207` (artifact
-`13634444182`) passed its SHA-256 check, safe extraction, expected broker and
-launcher layout checks, and every upstream-notice hash. The separate integer-
-HMX candidate from run `42523800189` (artifact `13634897369`) passed its
-SHA-256 check, safe extraction, manifest and required-file checks. These are
+`42523800211` (artifact `13634521936`; archive SHA-256
+`7430e9092f26f9d155b639c8ffe14c59acae69a2157a9c54e0d5fce227c3ac8d`) passed
+its local ABI and 11-notice license audit. The production HTP archive from run `42523800207` (artifact
+`13634444182`; archive SHA-256
+`10997fba5cf5aec6d15beb5ef5557c44c1d3cdb405758eb085062afaaea0aa34`) passed
+its sidecar check, safe extraction, expected broker and launcher layout checks,
+and every upstream-notice hash. The separate integer-
+HMX candidate from run `42523800189` (artifact `13634897369`; archive SHA-256
+`b8408d93396f445c45e1c8d1e833d2e8baa36e513e8a781d92bb36150efa5d94`) passed
+its sidecar check, safe extraction, manifest and required-file checks. These are
 exact-current-head build and static package checks; the downloaded artifacts
 were not installed or device-tested in this pass. The phone reported 46 °C, so
 device inference and graphics stress were deferred. The public HTP release

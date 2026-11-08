@@ -300,15 +300,21 @@ Termux APT package, repository contract, knowledge sync, llama CPU/Vulkan,
 Stable Diffusion CPU/Vulkan, production HTP এবং integer-HMX candidate build
 check pass করেছে। Exact Actions artifact download করে প্রতিটি archive-এর
 sidecar checksum মিলিয়েছি। Run `42523800363`-এর llama CPU/Vulkan archive
-(artifact `13634048426`) local ABI/source-map/license audit pass করেছে: ৬৯টি
-AArch64 ELF file, সর্বোচ্চ GLIBC 2.38, সব dependency resolve হয়েছে, আর
+(artifact `13634048426`; archive SHA-256
+`1ff7d8ec2187ccbe6e5940cd5e02bde40283044727ea19e6befe7f5b8e57eaa5`) local
+ABI/source-map/license audit pass করেছে: ৬৯টি AArch64 ELF file, সর্বোচ্চ GLIBC
+2.38, সব dependency resolve হয়েছে, আর
 `$ORIGIN/../lib` RUNPATH আছে। Run `42523800211`-এর Stable Diffusion archive
-(artifact `13634521936`) local ABI ও ১১টি notice license audit pass করেছে।
-Run `42523800207`-এর production HTP archive (artifact `13634444182`) SHA-256,
-নিরাপদ extraction, broker ও launcher-এর প্রয়োজনীয় layout এবং upstream
-notice-এর সব hash check pass করেছে। আলাদা integer-HMX candidate run
-`42523800189` (artifact `13634897369`) SHA-256, নিরাপদ extraction, manifest
-এবং প্রয়োজনীয় file check pass করেছে। এগুলো exact current-head build ও static
+(artifact `13634521936`; archive SHA-256
+`7430e9092f26f9d155b639c8ffe14c59acae69a2157a9c54e0d5fce227c3ac8d`) local
+ABI ও ১১টি notice license audit pass করেছে।
+Run `42523800207`-এর production HTP archive (artifact `13634444182`; archive SHA-256
+`10997fba5cf5aec6d15beb5ef5557c44c1d3cdb405758eb085062afaaea0aa34`) sidecar,
+নিরাপদ extraction, broker ও launcher-এর layout এবং upstream notice-এর সব hash
+check pass করেছে। আলাদা integer-HMX candidate run
+`42523800189` (artifact `13634897369`; archive SHA-256
+`b8408d93396f445c45e1c8d1e833d2e8baa36e513e8a781d92bb36150efa5d94`) sidecar,
+নিরাপদ extraction, manifest এবং প্রয়োজনীয় file check pass করেছে. এগুলো exact current-head build ও static
 package check; এই pass-এ downloaded artifact install বা device test করা হয়নি।
 ফোনে ৪৬ °C দেখানোয় device inference ও graphics stress স্থগিত রেখেছি। Public
 HTP release asset এবং hosted signed APT endpoint বদলায়নি; দুই hosted APT URL
