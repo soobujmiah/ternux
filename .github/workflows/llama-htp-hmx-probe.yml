@@ -48,7 +48,7 @@ jobs:
           from pathlib import Path
           cmake = Path('llama.cpp/ggml/src/ggml-hexagon/CMakeLists.txt')
           source = cmake.read_text()
-          for target in ('v75', 'v79', 'v81'):
+          for target in ('v75', 'v79', 'v81', 'v85'):
               line = f'build_htp_skel({target})\n'
               if source.count(line) != 1:
                   raise SystemExit(f'expected one HTP skeleton target: {target}')
