@@ -363,7 +363,6 @@ tnx_phase_debian() {
     apt update -o APT::Color=1
     dpkg --configure -a --force-confold --force-confdef || true
     apt install -y \$DPKG_FORCE sudo nano mousepad galculator evince thunderbird fonts-noto-core python3-gi gir1.2-gtk-3.0 ibus ibus-avro devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol x11-utils mesa-utils libgl1-mesa-dri adwaita-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc ffmpeg ristretto qt5-gtk-platformtheme colord
-    apt purge -y \$DPKG_FORCE xournalpp
     apt remove -y \$DPKG_FORCE guvcview >/dev/null 2>&1 || true
     rm -f /usr/local/share/applications/guvcview.desktop
     asset_stage=\$(mktemp -d /tmp/ternux-assets.XXXXXX)
