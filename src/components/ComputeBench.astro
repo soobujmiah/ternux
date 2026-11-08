@@ -307,9 +307,7 @@ const bn = lang === "bn";
       <header>
         <div>
           <span class="eyebrow">
-            {bn
-              ? "কিউয়েন ২.৫ · ১.৫বি · Q4_K_M"
-              : "QWEN2.5 · 1.5B · Q4_K_M"}
+            {bn ? "কিউয়েন ২.৫ · ১.৫বি · Q4_K_M" : "QWEN2.5 · 1.5B · Q4_K_M"}
           </span>
           <h4>
             {bn
@@ -325,15 +323,21 @@ const bn = lang === "bn";
       <div class="matched-bench-values">
         <article class="cpu-row">
           <small>{bn ? "চার-thread CPU" : "4-thread CPU"}</small>
-          <strong>7.6 <em>tok/s</em></strong>
+          <strong>
+            7.6 <em>tok/s</em>
+          </strong>
         </article>
         <article class="gpu-row">
           <small>{bn ? "অ্যাড্রেনো ভলকান" : "Adreno Vulkan"}</small>
-          <strong>18.2 <em>tok/s</em></strong>
+          <strong>
+            18.2 <em>tok/s</em>
+          </strong>
         </article>
         <article class="htp-row">
           <small>{bn ? "হেক্সাগন HTP" : "Hexagon HTP"}</small>
-          <strong>18.9 <em>tok/s</em></strong>
+          <strong>
+            18.9 <em>tok/s</em>
+          </strong>
         </article>
       </div>
       <p>
