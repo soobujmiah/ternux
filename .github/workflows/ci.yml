@@ -59,6 +59,9 @@ jobs:
       - name: Run focused regressions
         run: bash tests/focused.sh
 
+      - name: Test QNN CLIP tokenizer and input conditioning
+        run: python3 -m unittest discover -s experiments/qnn-native -p 'test_clip*.py' -v
+
       - name: Test Termux APT bootstrap
         run: bash tests/termux_apt_bootstrap.sh
 

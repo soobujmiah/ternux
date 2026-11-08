@@ -30,18 +30,22 @@ must stay within the existing archive handling boundary and must not be
 committed or redistributed.
 
 After the owner authorized the four named archive members, I added
-[`clip_archive_probe.py`](clip_archive_probe.py). It loads the tokenizer JSON in
-memory, asks Hugging Face `tokenizers` for content IDs without its own special
-tokens, streams the token and position tables into anonymous memfds, verifies
-their sizes and SHA-256, and writes only the resulting FP32 input tensor to a
-new scratch file. On `a cat`, content IDs were `[320, 2368]` and the final
-`[1,77,768]` input SHA-256 was
-`c224f03dbd0fb9abed0dd6747f8607d1059da847e74bf6fab02c34c65c59ccb3`
-in repeated runs. The ZIP remains unchanged.
+[`clip_archive_probe.py`](clip_archive_probe.py). It reads the pinned tokenizer
+JSON in memory and uses [`clip_tokenizer.py`](clip_tokenizer.py), a compact
+standard-library byte-level BPE implementation for that exact normalizer and
+pre-tokenizer configuration. It streams the token and position tables into
+anonymous memfds, verifies sizes and SHA-256, and writes only the derived FP32
+input tensor to a new scratch file. The archive tokenizer known-answer `a cat`
+returns content IDs `[320, 2368]`; two PRoot runs produced identical
+`[1,77,768]` inputs with SHA-256
+`c224f03dbd0fb9abed0dd6747f8607d1059da847e74bf6fab02c34c65c59ccb3`. This
+known-answer checks tokenization and input construction, not MNN/HTP model-stage
+correctness. The ZIP remains unchanged.
 
 ```bash
-PYTHONPATH=/absolute/scratch/tokenizers-package \
-  python3 experiments/qnn-native/clip_archive_probe.py \
+python3 -m unittest discover -s experiments/qnn-native -p 'test_clip_tokenizer.py' -v
+proot-distro login debian --shared-tmp --user ternux -- \
+  python3 /path/to/ternux/experiments/qnn-native/clip_archive_probe.py \
   --archive /sdcard/Llms/AbsoluteReality_qnn2.28_8gen2.zip \
   --prompt 'a cat' --output /absolute/scratch/new-input_embedding.f32
 ```
@@ -378,14 +382,23 @@ instrumented run, so small residuals from surrounding Python work and timer
 boundaries are expected. This narrows the performance follow-up: repeated
 per-image UNet archive streaming and the serial UNet requests both cost several
 seconds. It does not establish why Local Dream is faster, and no optimization
-has yet been qualified. The original model archive remained unchanged. The
+has yet been qualified. The original model archive remained unchanged. On 2026-11-08, I also called the
+same MNN 3.6.1 CPU model through its native Android helper from an anonymous
+model FD, avoiding a Python MNN wheel. For `a cat`, its finite output repeated
+exactly and had the same hidden-state SHA-256 above. Using that helper for the
+positive and negative default prompts, the full 20-step QNN image runner again
+produced the prior image hash `1a13957f5cb65132d98fc212756bdcf8d8b959d69feba84902a9314036764fc3`
+in 34.21 s. This confirms repeatability for this model, seed, runtime and device;
+it does not provide an independent UNet/VAE tensor oracle or qualify a faster
+route. The generated image still has the previously recorded small cyan/black
+water artifact. The original model archive remained unchanged. The
 instrumented outputs and raw log are local under `/sdcard/Llms/ternux-profile-20261014-*.png`
 and `/home/sbj/npu-probe-2026-10-13/sd15-profile-20261014-precise.log`.
 
 The opt-in runner invocation after that handoff is:
 
 ```bash
-PYTHONPATH=/absolute/scratch/tokenizers-package:/absolute/scratch/mnn-and-numpy-packages \
+PYTHONPATH=/absolute/scratch/mnn-and-numpy-packages \
   python3 experiments/qnn-native/sd15_qnn_image.py \
   --archive /sdcard/Llms/AbsoluteReality_qnn2.28_8gen2.zip \
   --helper /absolute/path/to/ternux-qnn-context-inspect \

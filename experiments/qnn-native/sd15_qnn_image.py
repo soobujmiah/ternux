@@ -25,6 +25,7 @@ from archive_input import DECODER_SHA256, UNET_SHA256, member_fd
 from clip_archive_probe import EXPECTED_SHA256, PREFIX, stream_memfd
 from clip_conditioning import WIDTH, ROWS, build_input, padded_ids
 from clip_mnn_probe import MODEL_SHA256, MODEL_SIZE, MEMBER as CLIP_MEMBER
+from clip_tokenizer import ClipBpeTokenizer
 
 
 def _read_exact(stream, size):
@@ -101,14 +102,13 @@ def dpm_step(sample, epsilon, index, sigmas, prior_x0):
 
 
 def _clip_hidden(archive, prompts):
-    from tokenizers import Tokenizer
     import MNN
 
     tokenizer_name = PREFIX + "tokenizer.json"
     tokenizer_bytes = archive.read(tokenizer_name)
     if hashlib.sha256(tokenizer_bytes).hexdigest() != EXPECTED_SHA256["tokenizer.json"]:
         raise ValueError("unexpected tokenizer SHA-256")
-    tokenizer = Tokenizer.from_str(tokenizer_bytes.decode("utf-8"))
+    tokenizer = ClipBpeTokenizer.from_json(tokenizer_bytes)
 
     with ExitStack() as stack:
         token_fd = stream_memfd(archive, "token_emb.bin")
@@ -143,7 +143,7 @@ def _clip_hidden(archive, prompts):
 
         result = []
         for prompt in prompts:
-            content_ids = tokenizer.encode(prompt, add_special_tokens=False).ids
+            content_ids = tokenizer.encode(prompt)
             ids = padded_ids(content_ids)
             values = build_input(content_ids, Path(f"/proc/self/fd/{token_fd}"),
                                  Path(f"/proc/self/fd/{pos_fd}"))
