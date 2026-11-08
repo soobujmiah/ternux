@@ -1239,6 +1239,18 @@
     "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/org.xfce.panel.separator.svg": {
       "source": "lib/ternux-assets/icons/Ternux/scalable/apps/org.xfce.panel.separator.svg",
       "perm": "644"
+    },
+    "lib/ternux/ternux-assets/bin/ternux-app-center": {
+      "source": "lib/ternux-assets/bin/ternux-app-center",
+      "perm": "755"
+    },
+    "lib/ternux/ternux-assets/applications/synaptic.desktop": {
+      "source": "lib/ternux-assets/applications/synaptic.desktop",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/ternux-app-center.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/ternux-app-center.svg",
+      "perm": "644"
     }
   }
 }

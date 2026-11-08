@@ -83,9 +83,10 @@ available at `/sdcard` inside Debian.
 Termux:X11 display integration, and PulseAudio audio routing. The default setup
 includes Bangla-capable Noto fonts, Avro phonetic input (Ctrl+Space), VLC,
 PulseAudio Volume Control, Xfce Task Manager, Mousepad, Galculator, Evince PDF
-reader, Thunderbird mail client, Ternux Camera, Ternux Sound Recorder, and
-Ristretto image viewer. Evince is the default PDF reader; LibreOffice Draw is
-optional for editing PDF pages and exporting documents to other formats.
+reader, Thunderbird mail client, Ternux Camera, Ternux Sound Recorder,
+Ristretto image viewer, and Synaptic Package Manager. Synaptic uses Ternux
+branding and can search, install, upgrade, or remove Debian packages. Evince is
+the default PDF reader; LibreOffice Draw is optional for editing PDF pages and exporting documents to other formats.
 Thunderbird is the default mail reader, auto-configures common
 providers, supports OAuth where offered, and allows manual IMAP/POP setup for other
 mail hosts. OAuth links open Firefox ESR when installed or the Android default browser

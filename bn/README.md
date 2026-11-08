@@ -83,8 +83,9 @@ Termux:X11 display integration এবং PulseAudio audio routing। বেস s
 Bangla-capable Noto font, Avro phonetic input (Ctrl+Space), VLC, PulseAudio
 Volume Control, Xfce Task Manager, Mousepad, Galculator, Evince PDF reader,
 Thunderbird mail client, Ternux Camera, Ternux Sound Recorder এবং Ristretto
-image viewer default-এ থাকে। Evince default PDF reader; PDF page edit ও অন্য
-format-এ export করতে optional LibreOffice Draw আছে। Thunderbird default mail reader; common provider auto-configure
+image viewer এবং Ternux icon/theme-সহ Synaptic Package Manager default-এ থাকে।
+এখানে Debian package খুঁজে install, upgrade ও remove করা যায়। Evince default
+PDF reader; PDF page edit ও অন্য format-এ export করতে optional LibreOffice Draw আছে। Thunderbird default mail reader; common provider auto-configure
 করে, provider দিলে OAuth সমর্থন করে, আর অন্য mail host-এর জন্য manual IMAP/POP
 configuration দেয়। OAuth link Firefox ESR থাকলে সেটি, না থাকলে Ternux bridge দিয়ে
 Android-এর default browser খোলে। Camera, Photos ও Sound Recorder-এর one-click shortcut

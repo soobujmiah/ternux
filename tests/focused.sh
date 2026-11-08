@@ -599,6 +599,18 @@ assert 'Recovery copy remains in' in recorder
 assert 'with_suffix(".partial" + self.target.suffix)' in recorder
 assert "ffmpeg ristretto" in (root / "lib/phases.sh").read_text()
 assert "mousepad galculator evince thunderbird" in (root / "lib/phases.sh").read_text()
+assert "--no-install-recommends synaptic" in (root / "lib/phases.sh").read_text()
+app_center = (root / "lib/ternux-assets/bin/ternux-app-center").read_text()
+assert 'exec sudo env DISPLAY="$display" GTK_THEME=Ternux /usr/sbin/synaptic "$@"' in app_center
+assert "Name=Synaptic Package Manager" in (root / "lib/ternux-assets/applications/synaptic.desktop").read_text()
+assert "Exec=/usr/local/bin/ternux-app-center" in (root / "lib/ternux-assets/applications/synaptic.desktop").read_text()
+assert not (root / "lib/ternux-assets/applications/ternux-app-center.desktop").exists()
+assert "NoDisplay=true" not in (root / "lib/ternux-assets/applications/synaptic.desktop").read_text()
+assert (root / "lib/ternux-assets/icons/Ternux/scalable/apps/ternux-app-center.svg").is_file()
+assert (root / "packaging/termux/icons/Ternux/scalable/apps/ternux-app-center.svg").read_bytes() == (root / "lib/ternux-assets/icons/Ternux/scalable/apps/ternux-app-center.svg").read_bytes()
+manifest = json.loads((root / "packaging/termux/manifest.json").read_text())
+for asset in ("bin/ternux-app-center", "applications/synaptic.desktop", "icons/Ternux/scalable/apps/ternux-app-center.svg"):
+    assert "lib/ternux/ternux-assets/" + asset in manifest["data_files"]
 assert (root / "lib/ternux-assets/icons/Ternux/scalable/apps/galculator.svg").is_file()
 desktop_phase = (root / "lib/phases.sh").read_text()
 assert "libreoffice-writer) workload_label=\"LibreOffice Writer\"" in desktop_phase

@@ -1,0 +1,7 @@
+#!/bin/sh
+set -eu
+
+# PRoot does not provide a system polkit service. Ternux configures its guest
+# user for passwordless sudo, so run Synaptic in the existing X11 session.
+display=${DISPLAY:-:0}
+exec sudo env DISPLAY="$display" GTK_THEME=Ternux /usr/sbin/synaptic "$@"
