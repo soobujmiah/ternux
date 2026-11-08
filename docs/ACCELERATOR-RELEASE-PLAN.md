@@ -92,6 +92,16 @@ state and verifies recovery on three opens; it does not establish that the
 owner's longer black-screen report is resolved. Keep the owner visual review and
 startup-delay investigation open.
 
+### Audio output path check — 2026-11-09
+
+No PulseAudio sink input was active before the check. A one-second 660 Hz WAV
+was sent to `OpenSL_ES_sink` with `paplay`; a concurrent capture from
+`OpenSL_ES_sink.monitor` contained 286,640 bytes of non-silent PCM (peak 5,999
+of 32,767). PulseAudio reported the sink IDLE afterward. This verifies delivery
+to the Termux OpenSL ES PulseAudio route and digital monitor; it does not prove
+that sound was physically audible from the phone speaker. Keep audible playback
+verification open.
+
 ### Desktop camera gate — 2026-11-08
 
 The MP3 export command was exercised on a two-second generated tone using Debian FFmpeg 7.1.5; `ffprobe` identified codec `mp3`, duration 2.04 seconds, and a 33,068-byte output. The Ternux 2.0.0 CLI package installed in the live guest contains a recorder file byte-identical to the checked-out source (SHA-256 `2607ebcc40a8687c9e048074e309f278d99a06ee346e633adf6b5c6ae0eb528d`). On 2026-11-08, an owner-operated GUI recording was reported saved, but its 36,737-byte M4A failed `ffprobe` with a missing `moov` atom. The file was preserved. The failed capture came from the earlier implementation, which reported success before MP4 finalization. The current fix waits for a readable AAC stream and positive duration and preserves incomplete captures for recovery. A Debian guest helper smoke test accepted generated AAC/M4A (1.00s) and MP3 (1.04s), and rejected a truncated M4A. On 2026-11-08, I opened the exact-source Ternux Sound Recorder in the live X11 session, used Start and Stop, and verified the saved 78,854-byte M4A with `ffprobe`: AAC codec, 50.176-second duration. The UI showed its Saved path; the Android microphone API returned idle after close. I deleted only this test recording; the two earlier user recordings remain untouched. This closes the interactive AAC GUI save path. In the same live GUI, I selected MP3 and used Start/Stop; the app saved a 346,796-byte MP3 that `ffprobe` identified as MP3 with 43.200-second duration. I removed only that test file and confirmed the Android mic was idle. Both GUI save formats are now verified; audible playback remains unverified.

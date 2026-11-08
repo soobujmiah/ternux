@@ -88,6 +88,15 @@ reproduce ও সাত সেকেন্ডে recovery তিনবার ver
 screen report সমাধান হয়েছে—এমন প্রমাণ এটি নয়। Owner visual review ও startup
 latency তদন্ত এখনও বাকি।
 
+### Audio output path check — ২০২৬-১১-০৯
+
+Test-এর আগে PulseAudio-তে কোনো sink input চলছিল না। `paplay` দিয়ে এক-সেকেন্ডের
+660 Hz WAV `OpenSL_ES_sink`-এ পাঠিয়েছি; একই সময়ে `OpenSL_ES_sink.monitor`
+থেকে capture করা non-silent PCM ছিল 286,640 byte, peak 5,999/32,767। Test শেষে
+PulseAudio sink IDLE ছিল। এতে Termux OpenSL ES PulseAudio route-এ audio delivery
+ও digital monitor যাচাই হয়েছে; ফোনের speaker থেকে বাস্তবে শোনা গেছে তা প্রমাণ
+হয়নি। Audible playback gate খোলা রাখুন।
+
 ### Desktop camera gate — ২০২৬-১১-০৮
 
 Debian FFmpeg 7.1.5 দিয়ে দুই-সেকেন্ডের generated tone-কে MP3-তে convert করে পরীক্ষা করা হয়েছে; `ffprobe` codec `mp3`, ২.০৪-সেকেন্ড duration এবং ৩৩,০৬৮-বাইট output নিশ্চিত করেছে। Live guest-এ install করা Ternux 2.0.0 CLI package-এর recorder file checkout-এর source-এর byte-identical (SHA-256 `2607ebcc40a8687c9e048074e309f278d99a06ee346e633adf6b5c6ae0eb528d`)। ২০২৬-১১-০৮-এ live X11 session-এ exact-source Ternux Sound Recorder খুলে Start/Stop ব্যবহার করেছি; `ffprobe`-এ সেভ হওয়া ৭৮,৮৫৪-বাইট M4A-তে AAC codec ও ৫০.১৭৬-সেকেন্ড duration মিলেছে। UI Saved path দেখিয়েছে, আর app বন্ধের পরে Android microphone API idle ছিল। শুধু এই test recording মুছে দিয়েছি; আগের দুইটি user recording অক্ষত আছে। এতে interactive AAC GUI save path verify হয়েছে। Audible playback ও GUI-র MP3 নির্বাচন/export এখনো verify হয়নি।
