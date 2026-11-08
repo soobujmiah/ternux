@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# Candidate-only HTP operator test runner; never used by the production extension.
+set -euo pipefail
+script_dir="$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+package_dir="${LLAMA_HTP_HOME:-$(cd -- "$script_dir" && pwd)}"
+binary="$package_dir/bin/test-backend-ops"
+broker="$package_dir/libexec/htp-broker.py"
+shim="$package_dir/lib/libternux-htp-broker.so"
+if [ ! -x "$binary" ] || [ ! -f "$broker" ] || [ ! -f "$shim" ]; then
+  printf '[FAIL] Integer-HMX candidate test files are incomplete.\n' >&2
+  exit 1
+fi
+if [ "$#" -eq 0 ]; then
+  printf 'Usage: %s -o OPERATOR [test-backend-ops options]\n' "${0##*/}" >&2
+  exit 2
+fi
+export LD_LIBRARY_PATH="$package_dir/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+export ADSP_LIBRARY_PATH="$package_dir/lib"
+export LD_PRELOAD="$shim${LD_PRELOAD:+:$LD_PRELOAD}"
+export GGML_HEXAGON_MM_SELECT="${GGML_HEXAGON_MM_SELECT:-2}"
+printf '[EXPERIMENTAL CANDIDATE] HTP operator suite; GGML_HEXAGON_MM_SELECT=%s\n' "$GGML_HEXAGON_MM_SELECT" >&2
+exec python3 "$broker" -- "$binary" -b HTP0 "$@"

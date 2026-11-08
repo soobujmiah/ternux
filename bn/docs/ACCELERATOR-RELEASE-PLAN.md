@@ -129,6 +129,23 @@ weight/backend pair আলাদা। HTP-এর জন্য compiled `.bin` c
 PASS বা FAILED বলবেন না। Optional 1.58-bit/Q8 experiment correctness gate-এর
 বাইরে।
 
+### SM8735 no-FP16 integer-HMX candidate — ২০২৬-১১-০৮
+
+Ternux-এর pinned llama.cpp commit `af50f2f248b475d9760f8e67503d01c0f194f5f4`-এর
+উপর MIT-licensed `karusrus/llama.cpp`-এর `hexagon-int-hmx` implementation port করে
+একটি disposable candidate তৈরি করেছি। Patch-এ runtime HMX-FP16 probe, integer-HMX
+Q4_0 matmul/attention এবং HVX Gated Delta Net path আছে। Production extension ও
+তার HVX-only launcher অপরিবর্তিত আছে। Exact patch, license text, test launcher
+এবং manual build workflow
+[`experiments/htp-integer-hmx-candidate/`](../../experiments/htp-integer-hmx-candidate/README.md)-এ
+রয়েছে।
+
+এটি এখনো শুধু source candidate: build workflow চালানো হয়নি এবং এই patch-এর
+SM8735 execution evidence নেই। Exact candidate artifact build, CPU reference-এর
+সঙ্গে Q4_0 model output মেলা, supported operator suite pass, এবং SM8735-এ
+failure/restart ও সীমিত sustained test cleanly শেষ না হওয়া পর্যন্ত এটিকে release
+claim বা production extension-এ নেওয়া যাবে না।
+
 ## Vulkan evidence-এর Turnip নির্ভরতা
 
 Vulkan known-answer ফল Debian-এর Mesa-র উপর নির্ভর করে না। ২০২৬-১০-১৩-এ Adreno

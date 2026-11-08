@@ -1,12 +1,11 @@
-name: llama.cpp Hexagon HTP SM8735 capability probe
+name: llama.cpp Hexagon HTP V73 integer-HMX candidate
 
 on:
   workflow_dispatch: {}
   pull_request:
     paths:
-      - '.github/workflows/llama-htp-artifact.yml'
-      - 'tools/llama-htp/**'
       - '.github/workflows/llama-htp-hmx-probe.yml'
+      - 'experiments/htp-integer-hmx-candidate/**'
       - 'LICENSE'
       - 'NOTICE'
 
@@ -14,7 +13,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: llama-htp-hmx-probe-08c8373-v73
+  group: llama-htp-integer-hmx-v73-candidate
   cancel-in-progress: false
 
 jobs:
@@ -30,14 +29,25 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: ggml-org/llama.cpp
-          ref: 08c83734f9c5c3b497e98b96f1a380f5a6084468
+          ref: af50f2f248b475d9760f8e67503d01c0f194f5f4
           path: llama.cpp
 
       - name: Verify source pin
         shell: bash
         run: |
           set -euo pipefail
-          test "$(git -C llama.cpp rev-parse HEAD)" = "08c83734f9c5c3b497e98b96f1a380f5a6084468"
+          test "$(git -C llama.cpp rev-parse HEAD)" = "af50f2f248b475d9760f8e67503d01c0f194f5f4"
+      - name: Apply the pinned no-FP16 integer-HMX candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          patch="$GITHUB_WORKSPACE/experiments/htp-integer-hmx-candidate/v73-no-fp16-integer-hmx.patch"
+          printf '%s  %s\n' \
+            'ecf351cbf43889090998400bbe0fa65a2efd210da81997463fd02f85c682f512' \
+            "$patch" | sha256sum --check --status
+          git -C llama.cpp apply --check "$patch"
+          git -C llama.cpp apply "$patch"
+          grep -q 'integer HMX for Q4_0 matmul and attention' llama.cpp/ggml/src/ggml-hexagon/ggml-hexagon.cpp
 
       - name: Build for Snapdragon Linux with the pinned upstream toolchain
         shell: bash
@@ -65,19 +75,19 @@ jobs:
             ghcr.io/snapdragon-toolchain/arm64-linux@sha256:41b710ee5f99d21f0fb9d83a1f815ecffb7708315b4218a11cd0baeb5ecf4c14 \
             bash -lc '
             printf "\nadd_library(ternux-htp-broker SHARED tools/llama-htp/broker_open.c)\ntarget_link_libraries(ternux-htp-broker PRIVATE \${CMAKE_DL_LIBS})\ninstall(TARGETS ternux-htp-broker LIBRARY DESTINATION lib)\n" >> CMakeLists.txt &&
-            cmake --preset arm64-linux-snapdragon-release -B build-ternux-htp-hmx-probe-08c8373 -DLLAMA_BUILD_TESTS=ON &&
-            cmake --build build-ternux-htp-hmx-probe-08c8373 -j 4 &&
-            cmake --install build-ternux-htp-hmx-probe-08c8373 --prefix pkg-ternux-htp-hmx-probe-08c8373/llama.cpp &&
-            test -f pkg-ternux-htp-hmx-probe-08c8373/llama.cpp/lib/libternux-htp-broker.so &&
-            test -x build-ternux-htp-hmx-probe-08c8373/bin/test-backend-ops &&
-            install -m 0755 build-ternux-htp-hmx-probe-08c8373/bin/test-backend-ops pkg-ternux-htp-hmx-probe-08c8373/llama.cpp/bin/test-backend-ops
+            cmake --preset arm64-linux-snapdragon-release -B build-ternux-htp-integer-hmx-v73 -DLLAMA_BUILD_TESTS=ON &&
+            cmake --build build-ternux-htp-integer-hmx-v73 -j 4 &&
+            cmake --install build-ternux-htp-integer-hmx-v73 --prefix pkg-ternux-htp-integer-hmx-v73/llama.cpp &&
+            test -f pkg-ternux-htp-integer-hmx-v73/llama.cpp/lib/libternux-htp-broker.so &&
+            test -x build-ternux-htp-integer-hmx-v73/bin/test-backend-ops &&
+            install -m 0755 build-ternux-htp-integer-hmx-v73/bin/test-backend-ops pkg-ternux-htp-integer-hmx-v73/llama.cpp/bin/test-backend-ops
             '
 
       - name: Package and inspect target files
         shell: bash
         run: |
           set -euo pipefail
-          package="llama.cpp/pkg-ternux-htp-hmx-probe-08c8373/llama.cpp"
+          package="llama.cpp/pkg-ternux-htp-integer-hmx-v73/llama.cpp"
           test -x "$package/bin/llama-cli"
           test -f "$package/lib/libggml-hexagon.so"
           test -f "$package/lib/libggml-htp-v73.so"
@@ -87,14 +97,14 @@ jobs:
           grep -q 'aarch64' htp-broker-file.txt
           file "$package/bin/llama-cli" | tee llama-cli-file.txt
           grep -q 'aarch64' llama-cli-file.txt
-          mkdir -p release/ternux-llama-htp-sm8735-hmx-probe-08c8373
-          cp -a "$package/." release/ternux-llama-htp-sm8735-hmx-probe-08c8373/
+          mkdir -p release/ternux-llama-htp-sm8735-integer-hmx-v73-candidate
+          cp -a "$package/." release/ternux-llama-htp-sm8735-integer-hmx-v73-candidate/
           python3 - <<'PY_LICENSES'
           from pathlib import Path
           import shutil
           import subprocess
 
-          package = Path("release/ternux-llama-htp-sm8735-hmx-probe-08c8373")
+          package = Path("release/ternux-llama-htp-sm8735-integer-hmx-v73-candidate")
           destination = package / "upstream-licenses"
           paths = subprocess.run(
               ["git", "-C", "llama.cpp", "ls-files", "-z"],
@@ -116,31 +126,39 @@ jobs:
               shutil.copyfile(Path("llama.cpp") / relative, target)
           (destination / "INDEX.txt").write_text("\n".join(licenses) + "\n", encoding="utf-8")
           PY_LICENSES
-          test -s release/ternux-llama-htp-sm8735-hmx-probe-08c8373/upstream-licenses/licenses/LICENSE-jsonhpp
-          test -s release/ternux-llama-htp-sm8735-hmx-probe-08c8373/upstream-licenses/vendor/cpp-httplib/LICENSE
-          install -D -m 0755 tools/llama-htp/htp-run \
-            release/ternux-llama-htp-sm8735-hmx-probe-08c8373/bin/htp-run
+          test -s release/ternux-llama-htp-sm8735-integer-hmx-v73-candidate/upstream-licenses/licenses/LICENSE-jsonhpp
+          test -s release/ternux-llama-htp-sm8735-integer-hmx-v73-candidate/upstream-licenses/vendor/cpp-httplib/LICENSE
+          install -D -m 0755 experiments/htp-integer-hmx-candidate/htp-run \
+            release/ternux-llama-htp-sm8735-integer-hmx-v73-candidate/bin/htp-run
+          install -D -m 0755 experiments/htp-integer-hmx-candidate/htp-backend-ops \
+            release/ternux-llama-htp-sm8735-integer-hmx-v73-candidate/bin/htp-backend-ops
           install -D -m 0644 tools/llama-htp/htp-broker.py \
-            release/ternux-llama-htp-sm8735-hmx-probe-08c8373/libexec/htp-broker.py
-          install -D -m 0644 tools/llama-htp/README.md \
-            release/ternux-llama-htp-sm8735-hmx-probe-08c8373/HTP-EXPERIMENTAL-README.md
-          cp llama.cpp/LICENSE release/ternux-llama-htp-sm8735-hmx-probe-08c8373/LLAMA-CPP-LICENSE
-          cp LICENSE release/ternux-llama-htp-sm8735-hmx-probe-08c8373/TERNUX-LICENSE
-          cp NOTICE release/ternux-llama-htp-sm8735-hmx-probe-08c8373/TERNUX-NOTICE
-          cat > release/ternux-llama-htp-sm8735-hmx-probe-08c8373/README.txt <<'EOF'
+            release/ternux-llama-htp-sm8735-integer-hmx-v73-candidate/libexec/htp-broker.py
+          install -D -m 0644 experiments/htp-integer-hmx-candidate/README.md \
+            release/ternux-llama-htp-sm8735-integer-hmx-v73-candidate/HTP-INTEGER-HMX-CANDIDATE.md
+          install -D -m 0644 experiments/htp-integer-hmx-candidate/v73-no-fp16-integer-hmx.patch \
+            release/ternux-llama-htp-sm8735-integer-hmx-v73-candidate/upstream-patches/v73-no-fp16-integer-hmx.patch
+          install -D -m 0644 experiments/htp-integer-hmx-candidate/LLAMA-CPP-MIT-LICENSE \
+            release/ternux-llama-htp-sm8735-integer-hmx-v73-candidate/upstream-patches/LLAMA-CPP-MIT-LICENSE
+          cp llama.cpp/LICENSE release/ternux-llama-htp-sm8735-integer-hmx-v73-candidate/LLAMA-CPP-LICENSE
+          cp LICENSE release/ternux-llama-htp-sm8735-integer-hmx-v73-candidate/TERNUX-LICENSE
+          cp NOTICE release/ternux-llama-htp-sm8735-integer-hmx-v73-candidate/TERNUX-NOTICE
+          cat > release/ternux-llama-htp-sm8735-integer-hmx-v73-candidate/README.txt <<'EOF'
           Ternux experimental llama.cpp Hexagon HTP package
 
           Target: Linux aarch64 / Qualcomm SM8735 Hexagon HTP V73 only
-          Source: ggml-org/llama.cpp PR #29740 candidate
-          Source commit: 08c83734f9c5c3b497e98b96f1a380f5a6084468
+          Source: ggml-org/llama.cpp tag b11582 plus Ternux candidate patch
+          Source commit: af50f2f248b475d9760f8e67503d01c0f194f5f4
+          Patch source: karusrus/llama.cpp hexagon-int-hmx, commit ea11b8fd41da2c3716b7a83d006a7d4261cd72e7
+          Patch SHA-256: ecf351cbf43889090998400bbe0fa65a2efd210da81997463fd02f85c682f512
           Build: upstream scripts/snapdragon/build.py using the
           ghcr.io/snapdragon-toolchain/arm64-linux:v0.7 toolchain image
 
-          This package is a disposable test artifact built from the unmerged
-          upstream PR #29740 candidate. It includes a Ternux Binder/FastRPC
-          broker launcher and test-backend-ops for SM8735 capability probing.
-          It has not been validated on a device and is not for production use.
-          See HTP-EXPERIMENTAL-README.md and Ternux's accelerator release plan.
+          This package is a disposable test artifact containing a candidate
+          integer-HMX implementation for SoCs without FP16-capable HMX. It
+          includes a Ternux Binder/FastRPC broker and test-backend-ops. The code
+          is not validated on SM8735 and is not for production use. See
+          HTP-INTEGER-HMX-CANDIDATE.md and Ternux's release plan.
 
           Upstream license texts and their source paths are indexed under upstream-licenses/.
 
@@ -149,41 +167,45 @@ jobs:
           libfastrpc1, and libfastrpc-dev in Debian before running bin/htp-run.
           Do not change device node permissions. No model weights are bundled.
           EOF
-          cat > release/ternux-llama-htp-sm8735-hmx-probe-08c8373/build-manifest.json <<'EOF'
+          cat > release/ternux-llama-htp-sm8735-integer-hmx-v73-candidate/build-manifest.json <<'EOF'
           {
-            "artifact": "ternux-llama-htp-sm8735-hmx-probe-08c8373",
+            "artifact": "ternux-llama-htp-sm8735-integer-hmx-v73-candidate",
             "target": "linux-aarch64",
-            "build_scope": "SM8735 HTP V73 only; build-time target list excludes v75, v79, v81, and v85 skeletons",
+            "build_scope": "SM8735 HTP V73 candidate only; build-time target list excludes v75, v79, v81, and v85 skeletons",
             "soc_test_target": "Qualcomm SM8735 / Hexagon HTP V73",
             "upstream": "https://github.com/ggml-org/llama.cpp",
-            "upstream_tag": "PR #29740 candidate",
-            "upstream_commit": "08c83734f9c5c3b497e98b96f1a380f5a6084468",
+            "upstream_tag": "b11582 plus no-FP16 integer-HMX candidate patch",
+            "upstream_commit": "af50f2f248b475d9760f8e67503d01c0f194f5f4",
+            "candidate_patch_source": "https://github.com/karusrus/llama.cpp/tree/hexagon-int-hmx",
+            "candidate_patch_commit": "ea11b8fd41da2c3716b7a83d006a7d4261cd72e7",
+            "candidate_patch_sha256": "ecf351cbf43889090998400bbe0fa65a2efd210da81997463fd02f85c682f512",
+            "candidate_patch_license": "MIT; exact license text is in upstream-patches/LLAMA-CPP-MIT-LICENSE",
             "toolchain_image": "ghcr.io/snapdragon-toolchain/arm64-linux:v0.7",
             "toolchain_image_digest": "sha256:41b710ee5f99d21f0fb9d83a1f815ecffb7708315b4218a11cd0baeb5ecf4c14",
-            "build_command": "cmake --preset arm64-linux-snapdragon-release -B build-ternux-htp-hmx-probe-08c8373; cmake --build build-ternux-htp-hmx-probe-08c8373 -j 4; cmake --install build-ternux-htp-hmx-probe-08c8373 --prefix pkg-ternux-htp-hmx-probe-08c8373/llama.cpp; build ternux-htp-broker through the pinned AArch64 CMake toolchain",
+            "build_command": "cmake --preset arm64-linux-snapdragon-release -B build-ternux-htp-integer-hmx-v73; cmake --build build-ternux-htp-integer-hmx-v73 -j 4; cmake --install build-ternux-htp-integer-hmx-v73 --prefix pkg-ternux-htp-integer-hmx-v73/llama.cpp; build ternux-htp-broker through the pinned AArch64 CMake toolchain",
             "htp_libraries": ["libggml-hexagon.so", "libggml-htp-v73.so"],
-            "device_validation": "experimental; this manifest records build provenance only. Consult Ternux docs/ACCELERATOR-RELEASE-PLAN.md for current device qualification",
-            "experimental_adapter": ["bin/htp-run", "libexec/htp-broker.py", "lib/libternux-htp-broker.so"],
+            "device_validation": "unqualified candidate; build provenance only. Do not install as the production extension before SM8735 correctness, performance, restart and sustained testing",
+            "experimental_adapter": ["bin/htp-run", "bin/htp-backend-ops", "libexec/htp-broker.py", "lib/libternux-htp-broker.so"],
             "runtime_dependencies": ["libgbinder.so.1", "libglibutil.so.1", "libcdsprpc.so.1", "libcdsprpc.so", "python3"],
             "debian_packages": ["libgbinder1", "libglibutil1", "libfastrpc1", "libfastrpc-dev", "python3"],
             "license_files": ["LLAMA-CPP-LICENSE", "upstream-licenses/INDEX.txt", "TERNUX-LICENSE", "TERNUX-NOTICE"]
           }
           EOF
-          tar -C release -czf ternux-llama-htp-sm8735-hmx-probe-08c8373.tar.gz ternux-llama-htp-sm8735-hmx-probe-08c8373
-          sha256sum ternux-llama-htp-sm8735-hmx-probe-08c8373.tar.gz > ternux-llama-htp-sm8735-hmx-probe-08c8373.tar.gz.sha256
-          tar -tzf ternux-llama-htp-sm8735-hmx-probe-08c8373.tar.gz > archive-contents.txt
+          tar -C release -czf ternux-llama-htp-sm8735-integer-hmx-v73-candidate.tar.gz ternux-llama-htp-sm8735-integer-hmx-v73-candidate
+          sha256sum ternux-llama-htp-sm8735-integer-hmx-v73-candidate.tar.gz > ternux-llama-htp-sm8735-integer-hmx-v73-candidate.tar.gz.sha256
+          tar -tzf ternux-llama-htp-sm8735-integer-hmx-v73-candidate.tar.gz > archive-contents.txt
           while IFS= read -r license_path; do
-            grep -Fqx "ternux-llama-htp-sm8735-hmx-probe-08c8373/upstream-licenses/$license_path" archive-contents.txt
-          done < release/ternux-llama-htp-sm8735-hmx-probe-08c8373/upstream-licenses/INDEX.txt
+            grep -Fqx "ternux-llama-htp-sm8735-integer-hmx-v73-candidate/upstream-licenses/$license_path" archive-contents.txt
+          done < release/ternux-llama-htp-sm8735-integer-hmx-v73-candidate/upstream-licenses/INDEX.txt
           sed -n '1,40p' archive-contents.txt
 
       - name: Upload build artifact for review
         uses: actions/upload-artifact@v4
         with:
-          name: ternux-llama-htp-sm8735-hmx-probe-08c8373
+          name: ternux-llama-htp-sm8735-integer-hmx-v73-candidate
           path: |
-            ternux-llama-htp-sm8735-hmx-probe-08c8373.tar.gz
-            ternux-llama-htp-sm8735-hmx-probe-08c8373.tar.gz.sha256
+            ternux-llama-htp-sm8735-integer-hmx-v73-candidate.tar.gz
+            ternux-llama-htp-sm8735-integer-hmx-v73-candidate.tar.gz.sha256
             archive-contents.txt
             htp-broker-file.txt
             llama-cli-file.txt

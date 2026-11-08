@@ -143,6 +143,22 @@ BLOCKED when an actual prerequisite prevents a valid test; never manufacture a
 PASS or treat an unrun test as FAILED. Optional 1.58-bit/Q8 exploration remains
 outside the current correctness gate.
 
+### SM8735 no-FP16 integer-HMX candidate — 2026-11-08
+
+A disposable candidate now ports the MIT-licensed `karusrus/llama.cpp`
+`hexagon-int-hmx` implementation onto Ternux's pinned llama.cpp commit
+`af50f2f248b475d9760f8e67503d01c0f194f5f4`. The patch adds runtime HMX-FP16
+probing, integer-HMX Q4_0 matmul/attention paths, and an HVX Gated Delta Net
+path. It keeps the production extension and its HVX-only launcher unchanged.
+The exact patch, license text, test launchers, and manual build workflow are in
+[`experiments/htp-integer-hmx-candidate/`](../experiments/htp-integer-hmx-candidate/README.md).
+
+This is only a source candidate: the build workflow has not yet run and there is
+no SM8735 execution evidence for this patch. Do not include it in a release
+claim or the production extension until the exact candidate artifact builds,
+Q4_0 model output matches the CPU reference, supported operator suites pass,
+and failure/restart plus bounded sustained tests close cleanly on SM8735.
+
 ## Graphics dependency of the Vulkan evidence
 
 Order 3 records a Vulkan known-answer pass. That pass does not rest on anything
