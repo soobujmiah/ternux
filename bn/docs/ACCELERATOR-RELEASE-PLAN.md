@@ -154,7 +154,7 @@ license notice যাচাই করে 14,211,453-byte
 build/package evidence; SM8735-এ candidate inference বা operator test হয়নি।
 Device-side HMX capability, CPU reference correctness, supported operator suite,
 failure/restart ও সীমিত sustained test pass না হওয়া পর্যন্ত production HTP
-extension অপরিবর্তিত থাকবে। বর্তমান PR head-এর candidate build pass করেছে।
+extension অপরিবর্তিত থাকবে। ২০২৬-১১-০৮ তারিখে `6aaa41cfc2bd75fc2cb95de025b6e4f27373be23` head-এ PR-এর সাতটি check pass করেছে: Validate `42494970578`, APT package `42494970656`, CPU/Vulkan llama.cpp `42494970581`, Stable Diffusion `42494970714`, HTP candidate `42494970777`, repository contract `42494970670` এবং knowledge sync `42494970688`। `738b1cbb68b27d166eeee85d6dca045a607daa02` head-এর HTP build প্রথমে fail করেছিল, কারণ upstream SM8735 V73-এর পাশাপাশি এমন V85 skeleton-ও build করছিল যার নতুন intrinsic pinned toolchain-এ নেই। Candidate workflow এখন V75/V79/V81-এর সঙ্গে V85-ও বাদ দিয়ে শুধু SM8735 V73 target build করে। সংশোধিত run pass করে `ternux-llama-htp-sm8735-integer-hmx-v73-candidate` artifact upload করেছে (১৫,৫৩০,৬২৩ byte; metadata ID `13622933656`)। CPU/Vulkan ও Stable Diffusion candidate artifact-ও upload হয়েছে (ID `13622533883` এবং `13622369733`)। CI artifact ডাউনলোড বা install করা হয়নি; তিনটি incoming handoff directory-ই খালি, তাই exact-artifact install ও device validation এখনো বাকি। Public APT `InRelease` ও bootstrap endpoint এখনো HTTP 404 দেয়। PR #97 এখনও draft; এই evidence release gate বন্ধ করে না।
 
 ## Vulkan evidence-এর Turnip নির্ভরতা
 
