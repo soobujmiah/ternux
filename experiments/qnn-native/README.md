@@ -312,7 +312,11 @@ seeds. The two hashes are
 cf1cb7bbf4fa3e67dc9d82fc24d93201d103d2e3f552214a54749383ccd68ef2 (seed
 20261014) and
 8bf689f9c555357a1c7704fcbc330e95eaebf3e87c9a3fc075ea85adcac0a0f1 (seed
-20261015). Host-side mocked batch tests also pass.
+20261015). Host-side mocked batch tests also pass. On 2026-11-08, the full
+`experiments/qnn-native` Python unittest set ran on the live Debian 13 guest with
+NumPy 2.2.4: **9 tests passed**, including the mocked batch runner. The temporary
+`python3-numpy` packages used for the run were removed afterward; this verifies
+host-side test logic only, not accelerator inference or image correctness.
 
 Run the host-side mocked batch tests in a Debian Python environment with NumPy:
 
