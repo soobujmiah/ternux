@@ -29,8 +29,8 @@ evidence_through: "2026-11-07"
 | MPFB2 human-character build | **Measured:** `create_human` 0.4 s; পুরো rigged rebuild 3.9 s; 540×960 frame 3.8 s; ১২০-frame, ৫ s shot প্রায় ৭.৫ min। | Adreno 825-তে Zink দিয়ে EEVEE Next; MPFB2 2.0.18 / Blender 4.3.2। একটি device run; sustained thermal claim নয়। |
 | Blender viewport | **Observed:** Adreno 825-তে Zink/Turnip। | Renderer শনাক্তকরণ EEVEE render time থেকে আলাদা। Cycles GPU **প্রমাণিত নয়**। |
 | llama.cpp CPU + Vulkan | **Verified:** দুটো backend-ই সীমাবদ্ধ known-answer prompt-এ `4` দিয়েছে; Vulkan Adreno 825-এ 29/29 layer assign করেছে। **Measured:** নিচে clean-idle long run। | একটি device ও workload-এ Qwen2.5 1.5B Q4_0। |
-| llama.cpp Hexagon HTP | **Experimental:** একই Qwen2.5 0.5B Q4_0 workload-এর তিন run-এ HTP median 46.2 tok/s, Vulkan 24.8, এবং চার-thread CPU 8.0 tok/s। আলাদা সীমিত known-answer run-এ `4` এসেছে এবং 24/24 layer HTP-তে ছিল। | একটি device, ছোট model ও short workload; quality, energy বা sustained-use comparison নয়। Qwen2.5 1.5B-র long run-এ HTP Vulkan-এর চেয়ে ধীর ছিল। HMX/attention correctness ও বিস্তৃত HTP qualification বাকি; HTP supported route নয়। |
-| `stable-diffusion.cpp` Vulkan | **Observed:** Vulkan-enabled build-এর report আছে। | Inference, image output, ও seconds/image **Untested**। |
+| llama.cpp Hexagon HTP | **Experimental:** Qwen2.5 0.5B নামে থাকা Q4_0 GGUF-এ তিন-run matched test-এ HTP median 46.2 tok/s, Vulkan 24.8 এবং চার-thread CPU 8.0 tok/s; llama.cpp metadata-তে model type Qwen2 1B, 630.17M parameter। Qwen2.5 1.5B Q4_K_M-এর তিন interleaved round-এ median ছিল CPU 7.6, Vulkan 18.2 ও HTP 18.9 tok/s; সব route-এ `4` এসেছে। HTP পরীক্ষামূলক। | এক device-এর স্বল্পমেয়াদি পরীক্ষা; quality, energy বা sustained-use claim নয়। HTP operator failure ও বিস্তৃত qualification বাকি; HTP supported route নয়। |
+| `stable-diffusion.cpp` Vulkan | **Verified:** managed extension tiled Vulkan VAE দিয়ে 10-step 512×512 image 92.91 s-এ তৈরি করেছে; একই output hash clean guest-এ আবার মিলেছে। | Redmi Turbo 4 Pro / SM8735 / Adreno 825, user-provided SD1.5 Q8_0 model, seed 42। একটি model/device/workload; CPU image quality unqualified। |
 | আলাদা QNN SD1.5 runner | **Measured:** পরপর ২৫টি ২০-step 512×512 image; প্রতি image-এর median 29.76 s, mean 31.12 s। HTP UNet-এর ২০ denoise step-এর median 15.96 s। | CLIP CPU-তে; UNet ও VAE decoder HTP-তে চলে। একটি SM8735 device; একই model-এ CPU/GPU তুলনা নয়। `stable-diffusion.cpp` নয়; independent stage-tensor correctness এখনো যাচাই হয়নি। |
 
 ### Clean-idle llama.cpp throughput
@@ -91,6 +91,10 @@ run `4` দিয়েছে এবং 24/24 layer HTP0-তে assign হয়
 model-এর throughput comparison; response quality, energy efficiency, thermal
 stability বা sustained performance প্রমাণ করে না এবং HTP operator correctness-এর
 বাকি gate বন্ধ করে না।
+
+### Matched Qwen2.5 1.5B CPU/Vulkan/HTP generation
+
+বিদ্যমান Qwen2.5 1.5B Q4_K_M model-এ চার thread, একই arithmetic prompt, 64-token output, context 2048, batch/ubatch 128, temperature 0 ও seed 42 দিয়ে CPU → Vulkan → HTP ক্রমে তিনটি interleaved round চালানো হয়েছে। নয়টি run-এই উত্তর `4` এসেছে। Median generation ছিল CPU 7.6, Vulkan 18.2 ও HTP 18.9 tok/s। HTP build CPU/Vulkan binary থেকে আলাদা। এক device-এর এই সীমিত পরীক্ষায় HTP Vulkan-এর সামান্য এগিয়ে; এতে sustained speed বা HTP correctness প্রমাণিত হয় না। [সম্পূর্ণ device record](https://github.com/soobujmiah/ternux/blob/main/guides/device-benchmark-evidence.md#2026-11-07-matched-qwen25-15b-cpuvulkanhtp-generation)।
 
 ### QNN SD1.5 image generation soak
 

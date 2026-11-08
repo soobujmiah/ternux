@@ -717,11 +717,27 @@ recovery after forced termination, not graceful cancellation. Logs:
 `htp-smollm135-cancel-close-2026-10-14.log` and
 `htp-smollm135-hvx-faoff-restart-kat-2026-10-14.log` in the same scratch directory.
 
-### Stable Diffusion evaluation (`stable-diffusion.cpp` inference untested)
+### Managed Stable Diffusion Vulkan inference (2026-11-07)
 
-The supplied Vulkan-enabled `stable-diffusion.cpp` build is an observation only.
-No compatible model/backend inference run, completed image, or seconds-per-image
-measurement is recorded here. Do not infer inference support from build success.
+The pinned `stable-diffusion.cpp` ARM64 extension (upstream commit
+`5a1ba5d895bec4e07deab80d6d791721cd59d9c2`) generated a valid 512×512 image
+with 10 steps, seed 42 and tiled Vulkan VAE on the Redmi Turbo 4 Pro / SM8735 /
+Adreno 825. The user-provided SD1.5 Q8_0 model SHA-256 is
+`d0555243938c62faeefb4ac93f6c7a053ad373a4290c5256bce229aeb193bf94`. The
+managed-extension run took 92.91 s; a second clean Debian guest run took 91.18 s
+and produced the same PNG SHA-256
+`b59b0b3e43226b4ae484b433aadf4d681eb87de7ee300b78a9adc1029a2ec65a`. The
+model remained outside the extension. This verifies one model/device/settings
+combination, not broad quality or performance. CPU image output remains
+unqualified. Full reproduction and dependency details: [Stable Diffusion
+CPU/Vulkan qualification](../handoffs/stable-diffusion-cpu-vulkan-qualification-2026-11-07.md).
+
+### Historical build-only observation (superseded)
+
+The initial Vulkan-enabled `stable-diffusion.cpp` build report did not include a
+model run. That observation was superseded by the managed-extension device
+qualification below: a pinned ARM64 build generated a valid tiled-Vulkan image
+on Adreno 825. The old build report alone is not the inference evidence.
 
 The separate QNN SD1.5 runner has since completed a bounded 20-step 512×512
 prompt-to-image run. Same-seed outputs repeated exactly (SHA-256
@@ -845,8 +861,9 @@ in `/home/sbj/npu-probe-2026-10-13/`.
 | Blender Cycles GPU rendering | **Untested / not established** |
 | llama.cpp CPU + Vulkan inference | **Verified — known-answer pass on both backends** |
 | llama.cpp CPU + Vulkan throughput | **Measured — bounded repeated short and long workloads; one device/model** |
-| stable-diffusion.cpp Vulkan build | **Observed only — build report, no inference run** |
-| stable-diffusion.cpp inference / seconds per image | **Untested** |
+| stable-diffusion.cpp Vulkan build | **Verified — pinned managed extension installed and launched** |
+| stable-diffusion.cpp Vulkan inference | **Verified — 512×512 / 10-step tiled-VAE image on Adreno 825; repeated hash in clean guest** |
+| stable-diffusion.cpp CPU image quality | **Unqualified — severe artifacts in tested Q8_0 output** |
 | Are sustained thermals/power measured? | **No** |
 | Is same-device VirGL versus Zink measured? | **No** |
 

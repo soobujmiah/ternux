@@ -29,8 +29,8 @@ performance guarantee for other devices.
 | MPFB2 human-character build | **Measured:** `create_human` 0.4 s; full rigged rebuild 3.9 s; 540×960 frame 3.8 s; 120-frame, 5 s shot about 7.5 min. | MPFB2 2.0.18 / Blender 4.3.2, EEVEE Next on Adreno 825 through Zink. One device run; no sustained thermal claim. |
 | Blender viewport | **Observed:** Zink/Turnip on Adreno 825. | Renderer detection is separate from EEVEE render timing. Cycles GPU is **not established**. |
 | llama.cpp CPU + Vulkan | **Verified:** both returned `4` on the bounded known-answer prompt; Vulkan assigned 29/29 layers to Adreno 825. **Measured:** clean-idle long run below. | Qwen2.5 1.5B Q4_0, one device and one workload. |
-| llama.cpp Hexagon HTP | **Experimental:** on a matched three-run Qwen2.5 0.5B Q4_0 workload, HTP measured a 46.2 tok/s median, Vulkan 24.8, and four-thread CPU 8.0. A separate bounded known-answer run returned `4`, with all 24 layers on HTP. | One device, small model, and short workload; not a quality, energy, or sustained-use comparison. Qwen2.5 1.5B long-run HTP was slower than Vulkan. HMX/attention correctness and broader HTP qualification remain open; HTP is not a supported route. |
-| `stable-diffusion.cpp` Vulkan | **Observed:** Vulkan-enabled build reported. | Inference, image output, and seconds/image are **untested**. |
+| llama.cpp Hexagon HTP | **Experimental:** on a matched three-run Qwen2.5 0.5B-named Q4_0 GGUF (llama.cpp identifies Qwen2 1B / 630.17M parameters), HTP measured a 46.2 tok/s median, Vulkan 24.8, and four-thread CPU 8.0. A separate matched Qwen2.5 1.5B Q4_K_M workload measured medians of 7.6 CPU, 18.2 Vulkan, and 18.9 HTP tok/s across three interleaved rounds; all routes returned `4`. HTP remains experimental. | One device and short workloads; no quality, energy, or sustained-use claim. The HTP operator failures and broader qualification remain open; HTP is not a supported route. HMX/attention correctness and broader HTP qualification remain open; HTP is not a supported route. |
+| `stable-diffusion.cpp` Vulkan | **Verified:** the managed extension generated a valid 512×512 image in 92.91 s at 10 steps with tiled Vulkan VAE; the output hash matched a second clean-guest run. | Redmi Turbo 4 Pro / SM8735 / Adreno 825, user-provided SD1.5 Q8_0 model, seed 42. One model/device/workload; CPU image quality remains unqualified. |
 | Separate QNN SD1.5 runner | **Measured:** 25 consecutive 20-step 512×512 images; median 29.76 s/image, mean 31.12 s/image. Median HTP UNet time was 15.96 s for 20 denoising steps. | CLIP runs on CPU; UNet and VAE decoder run on HTP. One SM8735 device; no same-model CPU/GPU comparison. Not `stable-diffusion.cpp`; independent stage-tensor correctness remains unverified. |
 
 ### Clean-idle llama.cpp throughput
@@ -95,6 +95,10 @@ known-answer run returned `4` and assigned all 24 layers to HTP0. This remains
 a single-device, small-model throughput comparison: it does not establish
 response quality, energy efficiency, thermal stability, or sustained
 performance, and it does not resolve the open HTP operator-correctness gates.
+
+### Matched Qwen2.5 1.5B CPU/Vulkan/HTP generation
+
+The existing Qwen2.5 1.5B Q4_K_M model was run in three interleaved CPU → Vulkan → HTP rounds with four threads, the same arithmetic prompt, 64-token output cap, context 2048, batch/ubatch 128, temperature 0 and seed 42. All nine runs produced the expected answer `4`. Median generation rates were 7.6 tok/s CPU, 18.2 Vulkan and 18.9 HTP. The HTP build is separate from the CPU/Vulkan binary. This bounded result is a small HTP-over-Vulkan margin on one device; it does not establish sustained speed or HTP correctness. See the [full device record](https://github.com/soobujmiah/ternux/blob/main/guides/device-benchmark-evidence.md#2026-11-07-matched-qwen25-15b-cpuvulkanhtp-generation).
 
 ### QNN SD1.5 image generation soak
 
