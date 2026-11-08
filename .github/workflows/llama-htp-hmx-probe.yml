@@ -30,6 +30,7 @@ jobs:
         with:
           repository: karusrus/llama.cpp
           ref: 08c83734f9c5c3b497e98b96f1a380f5a6084468
+          fetch-depth: 2
           path: llama.cpp
 
       - name: Verify source pin
