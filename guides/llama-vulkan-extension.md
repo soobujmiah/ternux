@@ -109,7 +109,7 @@ sha256sum -c "$ASSET.sha256"
 Expected archive SHA-256 for this published build:
 
 ```text
-3753fa3044ec258732cc52729eafc42c0cbf5b476f27fd247be3619617611d9e  ternux-llama-vulkan-linux-arm64-b11582.tar.gz
+bf5e80362620c52e43837949953c00aee6d80be5d87fc45f44911d8624cc3871  ternux-llama-vulkan-linux-arm64-b11582.tar.gz
 ```
 
 Before extraction, inspect archive names and confirm all entries are below the

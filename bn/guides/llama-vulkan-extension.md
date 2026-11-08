@@ -106,7 +106,7 @@ sha256sum -c "$ASSET.sha256"
 এই প্রকাশিত build-এর প্রত্যাশিত archive SHA-256:
 
 ```text
-3753fa3044ec258732cc52729eafc42c0cbf5b476f27fd247be3619617611d9e  ternux-llama-vulkan-linux-arm64-b11582.tar.gz
+bf5e80362620c52e43837949953c00aee6d80be5d87fc45f44911d8624cc3871  ternux-llama-vulkan-linux-arm64-b11582.tar.gz
 ```
 
 Extract করার আগে archive-এর path দেখুন এবং নিশ্চিত করুন সব entry নির্দিষ্ট
