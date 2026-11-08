@@ -23,3 +23,6 @@ lib/licenses/mesa-27.0.0-devel-20261025/licenses/BSL-1.0 -whitespace
 lib/licenses/mesa-27.0.0-devel-20261025/licenses/SGI-B-2.0 -whitespace
 # Patch payloads preserve upstream blank-line whitespace required for exact application.
 experiments/htp-integer-hmx-candidate/*.patch -whitespace
+
+# Preserve the upstream OFL wording, including its whitespace.
+assets/fonts/NOTO-SANS-BENGALI-OFL.txt whitespace=-blank-at-eol
