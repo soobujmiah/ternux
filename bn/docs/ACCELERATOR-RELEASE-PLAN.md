@@ -292,3 +292,25 @@ HTP failure matrix ও conditional HVX result আছে। Experimental HTP pack
 install ও সীমা [repository HTP guide](https://github.com/soobujmiah/ternux/blob/main/bn/guides/llama-htp-experimental.md)-এ
 আছে। LAI-এর evidence তার নিজস্ব Android research note-এ থাকবে; এই plan LAI
 runtime বা device gate বদলায় না।
+
+### PR #97-এর exact current-head artifact audit — ২০২৬-১১-০৯
+
+`ccc9b94ff49db5c05a534ede26e607cfcc0e415b` head-এ Validate, unsigned
+Termux APT package, repository contract, knowledge sync, llama CPU/Vulkan,
+Stable Diffusion CPU/Vulkan, production HTP এবং integer-HMX candidate build
+check pass করেছে। Exact Actions artifact download করে প্রতিটি archive-এর
+sidecar checksum মিলিয়েছি। Run `42523800363`-এর llama CPU/Vulkan archive
+(artifact `13634048426`) local ABI/source-map/license audit pass করেছে: ৬৯টি
+AArch64 ELF file, সর্বোচ্চ GLIBC 2.38, সব dependency resolve হয়েছে, আর
+`$ORIGIN/../lib` RUNPATH আছে। Run `42523800211`-এর Stable Diffusion archive
+(artifact `13634521936`) local ABI ও ১১টি notice license audit pass করেছে।
+Run `42523800207`-এর production HTP archive (artifact `13634444182`) SHA-256,
+নিরাপদ extraction, broker ও launcher-এর প্রয়োজনীয় layout এবং upstream
+notice-এর সব hash check pass করেছে। আলাদা integer-HMX candidate run
+`42523800189` (artifact `13634897369`) SHA-256, নিরাপদ extraction, manifest
+এবং প্রয়োজনীয় file check pass করেছে। এগুলো exact current-head build ও static
+package check; এই pass-এ downloaded artifact install বা device test করা হয়নি।
+ফোনে ৪৬ °C দেখানোয় device inference ও graphics stress স্থগিত রেখেছি। Public
+HTP release asset এবং hosted signed APT endpoint বদলায়নি; দুই hosted APT URL
+এখনো HTTP 404 দেয়। PR #97 draft-ই আছে। এই check-গুলো live-device,
+correctness, sustained-use, license-scope বা hosted install gate বন্ধ করে না।

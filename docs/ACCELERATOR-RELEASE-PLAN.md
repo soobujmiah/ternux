@@ -327,3 +327,27 @@ The experimental HTP package install and operating limits are in the separate
 [repository HTP guide](https://github.com/soobujmiah/ternux/blob/main/guides/llama-htp-experimental.md).
 Existing LAI findings are recorded in LAI's native Android research
 note for later work; this plan does not alter LAI's runtime or device gates.
+
+### PR #97 exact current-head artifact audit — 2026-11-09
+
+At head `ccc9b94ff49db5c05a534ede26e607cfcc0e415b`, the Validate, unsigned
+Termux APT package, repository-contract, knowledge-sync, llama CPU/Vulkan,
+Stable Diffusion CPU/Vulkan, production HTP, and integer-HMX candidate build
+checks passed. I downloaded the exact Actions artifacts and verified each
+archive against its sidecar checksum. The llama CPU/Vulkan archive from run
+`42523800363` (artifact `13634048426`) passed the local ABI/source-map/license
+audit: 69 AArch64 ELF files, maximum GLIBC 2.38, all dependencies resolved,
+and `$ORIGIN/../lib` RUNPATH. The Stable Diffusion archive from run
+`42523800211` (artifact `13634521936`) passed its local ABI and 11-notice
+license audit. The production HTP archive from run `42523800207` (artifact
+`13634444182`) passed its SHA-256 check, safe extraction, expected broker and
+launcher layout checks, and every upstream-notice hash. The separate integer-
+HMX candidate from run `42523800189` (artifact `13634897369`) passed its
+SHA-256 check, safe extraction, manifest and required-file checks. These are
+exact-current-head build and static package checks; the downloaded artifacts
+were not installed or device-tested in this pass. The phone reported 46 °C, so
+device inference and graphics stress were deferred. The public HTP release
+asset and hosted signed APT endpoints remain unchanged; both hosted APT URLs
+still return HTTP 404. PR #97 remains a draft, and these checks do not close
+the live-device, correctness, sustained-use, license-scope, or hosted install
+gates.
