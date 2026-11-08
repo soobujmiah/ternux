@@ -371,3 +371,27 @@ pass করেছে এবং `ternux doctor --json`-এ ৩১টি OK, ০ w
 desktop status-এ X11 ও PulseAudio running ছিল। Exact artifact install,
 device check, release publication এবং clean public APT install এখনো বাকি। দুই
 hosted signed APT endpoint এখনো HTTP 404 দেয়। PR #97 open, clean এবং draft।
+
+### সর্বশেষ CI artifact সংগ্রহ — ২০২৬-১১-০৯
+
+PR head `c0e2c1785dd35c1a51916b569bcca184509ea5e2`-এ আটটি required workflow
+pass করেছে: Validate `42536592457`, unsigned APT package `42536592422`, repository
+contract `42536592415`, knowledge sync `42536592409`, CPU/Vulkan llama.cpp
+`42536592402`, Stable Diffusion `42536592357`, production HTP `42536592386`,
+এবং integer-HMX candidate `42536592385`। PR #97 draft হওয়ায় preview/publication
+skip হয়েছে। তৈরি হওয়া artifact ও GitHub Actions ZIP digest:
+
+| Artifact | Actions artifact ID | Byte | ZIP SHA-256 |
+|---|---:|---:|---|
+| `ternux-apt-unsigned-ci-99de5071b7ed1d598ae29f067b52191b3fc8f00a` | `13639159392` | 268,630 | `ebf8a2bbce030bea10a462f4cfcfb833855fbf52afe1c1240eed4a67a06379fd` |
+| `ternux-llama-vulkan-linux-arm64-b11582-candidate` | `13639896523` | 21,330,602 | `cdb648e53b740c9997f2b5e6a8c8266a662945a8c712a816672e777d9ee5a344` |
+| `ternux-stable-diffusion-vulkan-linux-arm64-master-1053-candidate` | `13640110682` | 27,034,110 | `1bf2eb3d040abad14116b862aa4db5653b87bddfbce0a341a64d2762fa7ec111` |
+| `ternux-llama-htp-sm8735-b11582` | `13640265652` | 15,636,542 | `e67d4428a0781771c3bb0337cdaf8cbbf4cd02d2cc08f4b01dd5ae7b1289d942` |
+| `ternux-llama-htp-sm8735-integer-hmx-v73-candidate` | `13640420118` | 15,530,593 | `9454f8f280b17cb2e6dc866afaa123f1f2fc8b483aafeb21353005102f995f86` |
+
+এগুলো GitHub Actions ZIP digest; extracted package checksum নয়। Artifact-গুলো এখনো
+`artifacts/{ternux-apt,ternux-extensions,htp-qualification}/incoming/`-এ নেই;
+এই run-এর কোনো archive local-এ install বা device-test করা হয়নি। Exact archive
+যাচাইয়ের input হিসেবে owner-mediated handoff folder-গুলোই রাখা হয়েছে। Build pass
+accelerator correctness, release publication, বা hosted APT install/upgrade gate
+বন্ধ করে না।

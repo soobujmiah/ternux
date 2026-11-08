@@ -410,3 +410,28 @@ evidence, not device qualification. On the active Termux installation,
 Fresh artifact install, exact-artifact device checks, release publication, and
 clean public APT install remain open. Both hosted signed APT endpoints still
 return HTTP 404. PR #97 is open, clean, and draft.
+
+### Latest CI artifact collection — 2026-11-09
+
+At PR head `c0e2c1785dd35c1a51916b569bcca184509ea5e2`, all eight required
+workflows passed: Validate `42536592457`, unsigned APT package `42536592422`,
+repository contract `42536592415`, knowledge sync `42536592409`, CPU/Vulkan
+llama.cpp `42536592402`, Stable Diffusion `42536592357`, production HTP
+`42536592386`, and integer-HMX candidate `42536592385`. Preview/publication was
+skipped because PR #97 is draft. The completed artifacts and GitHub Actions
+artifact ZIP digests are:
+
+| Artifact | Actions artifact ID | Bytes | ZIP SHA-256 |
+|---|---:|---:|---|
+| `ternux-apt-unsigned-ci-99de5071b7ed1d598ae29f067b52191b3fc8f00a` | `13639159392` | 268,630 | `ebf8a2bbce030bea10a462f4cfcfb833855fbf52afe1c1240eed4a67a06379fd` |
+| `ternux-llama-vulkan-linux-arm64-b11582-candidate` | `13639896523` | 21,330,602 | `cdb648e53b740c9997f2b5e6a8c8266a662945a8c712a816672e777d9ee5a344` |
+| `ternux-stable-diffusion-vulkan-linux-arm64-master-1053-candidate` | `13640110682` | 27,034,110 | `1bf2eb3d040abad14116b862aa4db5653b87bddfbce0a341a64d2762fa7ec111` |
+| `ternux-llama-htp-sm8735-b11582` | `13640265652` | 15,636,542 | `e67d4428a0781771c3bb0337cdaf8cbbf4cd02d2cc08f4b01dd5ae7b1289d942` |
+| `ternux-llama-htp-sm8735-integer-hmx-v73-candidate` | `13640420118` | 15,530,593 | `9454f8f280b17cb2e6dc866afaa123f1f2fc8b483aafeb21353005102f995f86` |
+
+These are the GitHub Actions ZIP digests, not extracted package checksums. The
+archives are still absent from `artifacts/{ternux-apt,ternux-extensions,htp-qualification}/incoming/`;
+none has been locally installed or device-tested from this run. The owner-mediated
+handoff folders remain the input for exact-archive verification. The build pass
+does not close accelerator correctness, release publication, or hosted APT
+install/upgrade gates.
