@@ -83,6 +83,7 @@ tnx_optional_storage_mb() {
       libreoffice-writer) total=$((total + 900)) ;;
       libreoffice-calc) total=$((total + 400)) ;;
       libreoffice-draw) total=$((total + 900)) ;;
+      evolution) total=$((total + 450)) ;;
       blender) total=$((total + 600)) ;;
       claude|codex) total=$((total + 350)) ;;
       openai-cli) total=$((total + 150)) ;;
@@ -362,7 +363,7 @@ tnx_phase_debian() {
     DPKG_FORCE=\"-o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -o APT::Color=1 -o Dpkg::Progress-Fancy=1\"
     apt update -o APT::Color=1
     dpkg --configure -a --force-confold --force-confdef || true
-    apt install -y \$DPKG_FORCE sudo nano mousepad galculator evince thunderbird fonts-noto-core python3-gi gir1.2-gtk-3.0 ibus ibus-avro devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol x11-utils mesa-utils libgl1-mesa-dri adwaita-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc ffmpeg ristretto qt5-gtk-platformtheme colord
+    apt install -y \$DPKG_FORCE sudo nano mousepad galculator evince fonts-noto-core python3-gi gir1.2-gtk-3.0 ibus ibus-avro devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol x11-utils mesa-utils libgl1-mesa-dri adwaita-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc ffmpeg ristretto qt5-gtk-platformtheme colord
     apt install -y \$DPKG_FORCE --no-install-recommends synaptic
     apt remove -y \$DPKG_FORCE guvcview >/dev/null 2>&1 || true
     rm -f /usr/local/share/applications/guvcview.desktop
@@ -397,6 +398,11 @@ tnx_phase_debian() {
     cp -a "\$asset_stage/themes/Ternux/." /usr/share/themes/Ternux/
     install -m 0755 "\$asset_stage/bin/ternux-open-url" /usr/local/bin/ternux-open-url
     install -m 0755 "\$asset_stage/bin/ternux-app-center" /usr/local/bin/ternux-app-center
+    install -m 0755 "\$asset_stage/bin/evolution" /usr/local/bin/evolution
+    if [ -f /usr/share/applications/org.gnome.Evolution.desktop ]; then
+      sed 's#^Exec=evolution#Exec=/usr/local/bin/evolution#' /usr/share/applications/org.gnome.Evolution.desktop > /usr/local/share/applications/org.gnome.Evolution.desktop
+      chmod 0644 /usr/local/share/applications/org.gnome.Evolution.desktop
+    fi
     install -m 0644 "\$asset_stage/applications/ternux-app-center.desktop" /usr/local/share/applications/ternux-app-center.desktop
     install -m 0644 "\$asset_stage/applications/synaptic.desktop" /usr/local/share/applications/synaptic.desktop
     rm -f /usr/share/backgrounds/ternux/aurora.svg
@@ -554,21 +560,6 @@ DESKTOP
       runuser -u "\$U" -- env HOME="\$H" xdg-mime default org.xfce.ristretto.desktop "\$mime" || true
     done
     runuser -u "\$U" -- env HOME="\$H" xdg-mime default org.gnome.Evince.desktop application/pdf || true
-    runuser -u "\$U" -- env HOME="\$H" xdg-mime default thunderbird.desktop x-scheme-handler/mailto || true
-    runuser -u "\$U" -- env HOME="\$H" xdg-mime default thunderbird.desktop message/rfc822 || true
-    mail_helpers=/etc/xdg/xfce4/helpers.rc
-    install -d -m 0755 /etc/xdg/xfce4
-    if [ -e "\$mail_helpers" ]; then
-      if grep -q '^[[:space:]]*MailReader=' "\$mail_helpers"; then
-        sed -i 's/^[[:space:]]*MailReader=.*/MailReader=thunderbird/' "\$mail_helpers"
-      elif grep -q '^\[Helpers\]' "\$mail_helpers"; then
-        sed -i '/^\[Helpers\]/a MailReader=thunderbird' "\$mail_helpers"
-      else
-        printf '\n[Helpers]\nMailReader=thunderbird\n' >> "\$mail_helpers"
-      fi
-    else
-      printf '[Helpers]\nMailReader=thunderbird\n' > "\$mail_helpers"
-    fi
     runuser -u "\$U" -- env HOME="\$H" xdg-mime default xfce4-web-browser.desktop x-scheme-handler/http || true
     runuser -u "\$U" -- env HOME="\$H" xdg-mime default xfce4-web-browser.desktop x-scheme-handler/https || true
     cat > /usr/bin/pm-is-supported <<'PM'
@@ -1484,6 +1475,7 @@ tnx_phase_extras() {
       thonny) apt_packages+=(thonny) ;;
       gh) apt_packages+=(gh) ;;
       firefox) apt_packages+=(firefox-esr) ;;
+      evolution) apt_packages+=(evolution gnome-online-accounts-gtk) ;;
       adt-build-tools|adt-platform-tools|adt-ndk|adt-cmake) apt_packages+=(git curl ca-certificates) ;;
       adt-cmdline|adt-platform) apt_packages+=(git curl ca-certificates default-jdk-headless unzip) ;;
       llama-htp-experimental|htp-runtime)
@@ -1567,7 +1559,7 @@ tnx_phase_extras() {
   done
   for opt in "${install_opts[@]}"; do
     case "$opt" in
-      dev|llm|network|media|git|python|node|build|rust|java|golang|php|sqlite3|ripgrep|jq|htop|tree|godot|geany|neovim|micro|thonny|gh|firefox|nmap|tmux|ffmpeg|vlc|mpv|gimp|krita|inkscape|audacity|imagemagick|libreoffice-writer|libreoffice-calc|libreoffice-draw|blender) ;;
+      dev|llm|network|media|git|python|node|build|rust|java|golang|php|sqlite3|ripgrep|jq|htop|tree|godot|geany|neovim|micro|thonny|gh|firefox|nmap|tmux|ffmpeg|vlc|mpv|gimp|krita|inkscape|audacity|imagemagick|libreoffice-writer|libreoffice-calc|libreoffice-draw|evolution|blender) ;;
       adt-build-tools|adt-platform-tools|adt-ndk|adt-cmake|adt-cmdline|adt-platform)
         if tnx_guest_login --shared-tmp --user "$user_name" -- bash -lc '
           set -e
@@ -1655,6 +1647,19 @@ tnx_phase_extras() {
         '; then
           tnx_ok "Hermes Agent installed; run hermes setup when ready"
         else tnx_warn "Hermes Agent install failed after three attempts; see the network error and retry from the official guide."; rc=1; fi
+        ;;
+      evolution)
+        if tnx_guest_login --shared-tmp -- bash -c '
+          set -e
+          entry=/usr/share/applications/org.gnome.Evolution.desktop
+          [ -x /usr/bin/evolution ] && [ -x /usr/local/bin/evolution ] && [ -r "$entry" ]
+          install -d -m 0755 /usr/local/share/applications
+          sed "s#^Exec=evolution#Exec=/usr/local/bin/evolution#" "$entry" > /usr/local/share/applications/org.gnome.Evolution.desktop
+          chmod 0644 /usr/local/share/applications/org.gnome.Evolution.desktop
+          update-desktop-database /usr/local/share/applications >/dev/null 2>&1 || true
+        '; then
+          tnx_ok "Evolution Mail installed as an optional app; choose your own mail defaults"
+        else tnx_warn "Evolution Mail package installed, but its managed launcher could not be configured."; rc=1; fi
         ;;
       openclaw)
         if tnx_guest_login --shared-tmp --user "$user_name" -- bash -lc 'curl -fsSL --proto https --tlsv1.2 https://openclaw.ai/install.sh | bash -s -- --no-onboard --verify'; then
@@ -2059,9 +2064,9 @@ tnx_prompt_username() {
 
 # Item catalogue for the interactive optional-software checklist. Keep this
 # list aligned with the case labels in tnx_phase_extras.
-TNX_OPTIONAL_ITEMS=(git python node build rust java golang php ripgrep jq gh sqlite3 htop tree geany neovim micro thonny godot firefox adt-build-tools adt-platform-tools adt-ndk adt-cmake adt-cmdline adt-platform llama-vulkan stable-diffusion llama-htp-experimental nmap tmux ffmpeg vlc mpv audacity gimp krita inkscape imagemagick libreoffice-writer libreoffice-calc libreoffice-draw blender claude codex openai-cli hermes openclaw)
-TNX_OPTIONAL_GROUPS=(DEV DEV DEV DEV LANG LANG LANG LANG DEV DEV DEV DATA SYSTEM SYSTEM IDE IDE IDE IDE GAME WEB ANDROID ANDROID ANDROID ANDROID ANDROID ANDROID AI AI AI NET NET MEDIA MEDIA MEDIA MEDIA DESIGN DESIGN DESIGN DESIGN OFFICE OFFICE OFFICE 3D AGENT AGENT AGENT AGENT AGENT)
-TNX_OPTIONAL_LABELS=("Git" "Python" "Node.js" "C/C++ tools" "Rust" "Java JDK" "Go toolchain" "PHP CLI" "ripgrep" "jq" "GitHub CLI" "SQLite" "htop" "tree" "Geany" "Neovim" "Micro editor" "Thonny IDE" "Godot" "Firefox ESR" "ADT Build Tools" "ADT Platform Tools / ADB" "ADT NDK" "ADT CMake" "SDK Manager" "Android API 36" "llama.cpp Vulkan" "Stable Diffusion CPU + Vulkan" "llama.cpp HTP (experimental)" "Nmap" "tmux" "FFmpeg" "VLC" "mpv" "Audacity" "GIMP" "Krita" "Inkscape" "ImageMagick" "LibreOffice Writer" "LibreOffice Calc" "LibreOffice Draw" "Blender" "Claude Code" "Codex CLI" "OpenAI API CLI" "Hermes" "OpenClaw")
+TNX_OPTIONAL_ITEMS=(git python node build rust java golang php ripgrep jq gh sqlite3 htop tree geany neovim micro thonny godot firefox adt-build-tools adt-platform-tools adt-ndk adt-cmake adt-cmdline adt-platform llama-vulkan stable-diffusion llama-htp-experimental nmap tmux ffmpeg vlc mpv audacity gimp krita inkscape imagemagick libreoffice-writer libreoffice-calc libreoffice-draw evolution blender claude codex openai-cli hermes openclaw)
+TNX_OPTIONAL_GROUPS=(DEV DEV DEV DEV LANG LANG LANG LANG DEV DEV DEV DATA SYSTEM SYSTEM IDE IDE IDE IDE GAME WEB ANDROID ANDROID ANDROID ANDROID ANDROID ANDROID AI AI AI NET NET MEDIA MEDIA MEDIA MEDIA DESIGN DESIGN DESIGN DESIGN OFFICE OFFICE OFFICE OFFICE 3D AGENT AGENT AGENT AGENT AGENT)
+TNX_OPTIONAL_LABELS=("Git" "Python" "Node.js" "C/C++ tools" "Rust" "Java JDK" "Go toolchain" "PHP CLI" "ripgrep" "jq" "GitHub CLI" "SQLite" "htop" "tree" "Geany" "Neovim" "Micro editor" "Thonny IDE" "Godot" "Firefox ESR" "ADT Build Tools" "ADT Platform Tools / ADB" "ADT NDK" "ADT CMake" "SDK Manager" "Android API 36" "llama.cpp Vulkan" "Stable Diffusion CPU + Vulkan" "llama.cpp HTP (experimental)" "Nmap" "tmux" "FFmpeg" "VLC" "mpv" "Audacity" "GIMP" "Krita" "Inkscape" "ImageMagick" "LibreOffice Writer" "LibreOffice Calc" "LibreOffice Draw" "Evolution Mail" "Blender" "Claude Code" "Codex CLI" "OpenAI API CLI" "Hermes" "OpenClaw")
 
 # Parse number lists used when a TTY key-reading menu is unavailable.
 tnx_parse_workload_selection() {
@@ -2394,6 +2399,7 @@ tnx_install() {
         libreoffice-writer) workload_label="LibreOffice Writer" ;;
         libreoffice-calc) workload_label="LibreOffice Calc" ;;
         libreoffice-draw) workload_label="LibreOffice Draw (PDF editing and export)" ;;
+        evolution) workload_label="Evolution Mail (optional; no mail default)" ;;
         llama-vulkan) workload_label="llama.cpp Vulkan release" ;;
         stable-diffusion) workload_label="Stable Diffusion CPU + Vulkan image generator" ;;
         llama-htp-experimental) workload_label="llama.cpp HTP experimental release" ;;

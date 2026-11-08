@@ -82,16 +82,16 @@ Termux-এ `db` চালান। Debian-এর ভেতরে Android shared 
 Termux:X11 display integration এবং PulseAudio audio routing। বেস setup-এ
 Bangla-capable Noto font, Avro phonetic input (Ctrl+Space), VLC, PulseAudio
 Volume Control, Xfce Task Manager, Mousepad, Galculator, Evince PDF reader,
-Thunderbird mail client, Ternux Camera, Ternux Sound Recorder এবং Ristretto
+Ternux Camera, Ternux Sound Recorder এবং Ristretto
 image viewer এবং Ternux icon/theme-সহ Synaptic Package Manager default-এ থাকে।
 এখানে Debian package খুঁজে install, upgrade ও remove করা যায়। Evince default
-PDF reader; PDF page edit ও অন্য format-এ export করতে optional LibreOffice Draw আছে। Thunderbird default mail reader; common provider auto-configure
-করে, provider দিলে OAuth সমর্থন করে, আর অন্য mail host-এর জন্য manual IMAP/POP
-configuration দেয়। OAuth link Firefox ESR থাকলে সেটি, না থাকলে Ternux bridge দিয়ে
-Android-এর default browser খোলে। Camera, Photos ও Sound Recorder-এর one-click shortcut
+PDF reader; PDF page edit ও অন্য format-এ export করতে optional LibreOffice Draw আছে। Fresh install-এ কোনো mail client install বা default করা হয় না। Optional software থেকে
+Evolution Mail নিতে পারবেন; common provider-এ OAuth ব্যবহার করে, অন্য mail host-এর জন্য
+manual IMAP/POP setup দেয়। OAuth link Firefox ESR থাকলে সেটি, না থাকলে Ternux bridge
+দিয়ে Android-এর default browser খোলে। Camera, Photos ও Sound Recorder-এর one-click shortcut
 Xfce panel-এ থাকে। Ternux icon theme-এ app, folder, Thunar action, category ও panel-এর
 নিজস্ব icon আছে; Firefox ESR, Blender, GIMP, Krita, Inkscape, Audacity, Geany
-ও LibreOffice-এর মতো optional GUI app-এর branded icon-ও আছে। Thunar action-এর জন্য
+Evolution Mail, Firefox ESR ও LibreOffice-এর মতো optional GUI app-এর branded icon-ও আছে। Thunar action-এর জন্য
 আলাদা icon context আছে। uncommon বা পরে install করা app-এর জন্য neutral Adwaita
 fallback থাকে; Papirus inheritance নেই। প্রথমবার GUI চালালে Firefox ESR থাকলে project website একবার
 খোলে; browser না থাকলে desktop guide দেখায়। Sound Recorder-এ Start চাপলে mic
