@@ -312,29 +312,31 @@ its cause and impact on other applications remain unqualified.
 
 ### Exact-current-head CI artifact inventory — 2026-11-09
 
-At PR #97 head `00ae81d33636e3d1922dc11ad7d69898d58bf393`, Validate
-(`42531145730`), unsigned Termux APT package (`42531145886`), repository
-contract (`42531145835`), knowledge sync (`42531145892`), CPU/Vulkan llama
-(`42531145812`), Stable Diffusion CPU/Vulkan (`42531145901`), production HTP
-(`42531145736`), and integer-HMX V73 candidate (`42531145848`) all completed
-successfully. Their artifact archive metadata is:
+At PR #97 head `c328b161350b6803904545e808dfa2e1799ed1d5`, all eight required
+checks passed: Validate `42532221661`, unsigned Termux APT package `42532221625`,
+repository contract `42532221597`, knowledge sync `42532221596`, CPU/Vulkan llama
+`42532221601`, Stable Diffusion CPU/Vulkan `42532221646`, production HTP
+`42532221626`, and integer-HMX V73 candidate `42532221611`. Preview/publication
+jobs were skipped because this is a draft PR. Actions artifact archive metadata:
 
 | Artifact | Actions artifact ID | Bytes | SHA-256 |
 |---|---:|---:|---|
-| `ternux-apt-unsigned-ci-1e73d4e61e6cec4284d6a26d15a5893a076a5fd3` | `13637333054` | 268,662 | `5be7c527acd32fdc325ab4829deb30ec79908f4c5dbf7b4da83452398e264be5` |
-| `ternux-llama-vulkan-linux-arm64-b11582-candidate` | `13637875613` | 21,323,880 | `8d6f3b876c0bc13c15f2dc7aeadf557d83454bf1373ab08183fe841f21369e62` |
-| `ternux-stable-diffusion-vulkan-linux-arm64-master-1053-candidate` | `13637945477` | 27,026,780 | `44a48c2ce880152e2e0922bba578d3855e8c46ad1f790dc73a3f34705aac9910` |
-| `ternux-llama-htp-sm8735-b11582` | `13637801419` | 15,636,407 | `a56ce0123922a52ee449692ee8743d8254abdd122e81f1615e93576301513c11` |
-| `ternux-llama-htp-sm8735-integer-hmx-v73-candidate` | `13637348036` | 15,531,191 | `52c322fd718839ae4f2461570221f65408c4797f808f36f7b83b7963957977d3` |
+| `ternux-apt-unsigned-ci-e5ef0c1efc6936e4482f584782c287d5554f16c2` | `13637384873` | 268,630 | `f44328e71b28de046650dff8fd413d2ed515aa10f2dd69ed04c8f9e50d7c52ab` |
+| `ternux-llama-vulkan-linux-arm64-b11582-candidate` | `13637957311` | 21,325,818 | `c0cd6d0e127710ddeaa60911c0fb7ca3ab7910181d14bc6f734c2ca03f96be2c` |
+| `ternux-stable-diffusion-vulkan-linux-arm64-master-1053-candidate` | `13637523394` | 27,026,285 | `d7596e68a96f56074b25e01a1a281d1cffe86e3b5fcf5ae5b0f7b804b4de157b` |
+| `ternux-llama-htp-sm8735-b11582` | `13638580460` | 15,636,455 | `e55cb2fc8f3205f1a688aceb29752deccd692a85c38cc85126a6aae21de54e22` |
+| `ternux-llama-htp-sm8735-integer-hmx-v73-candidate` | `13637669764` | 15,530,647 | `0e67882fecf05791c2070d127ac23c840a411106dbe6b054b296a9dc3dd746bb` |
 
-These are Actions archive digests and build/inspection evidence; the exact
-archives are not present in `artifacts/{ternux-apt,ternux-extensions,htp-qualification}/incoming/`
-and have not been installed from this run. CPU/Vulkan and Stable Diffusion
-belong in `artifacts/ternux-extensions/incoming/`; production HTP and integer-
-HMX belong in `artifacts/htp-qualification/incoming/`; the unsigned APT CI
-package belongs in `artifacts/ternux-apt/incoming/`. Consequently fresh exact-
-artifact installation and device qualification remain open. The public hosted
-signed APT endpoints and release publication gates are also still open.
+These are GitHub Actions archive digests and CI build/inspection evidence. The
+exact archives are not in the project incoming directories and have not been
+installed from this run. CPU/Vulkan and Stable Diffusion belong in
+`artifacts/ternux-extensions/incoming/`; both HTP archives belong in
+`artifacts/htp-qualification/incoming/`; the unsigned APT artifact belongs in
+`artifacts/ternux-apt/incoming/`. Exact-artifact fresh install/device checks,
+independent QNN model-stage correctness, the known HTP operator failures,
+owner visual review, wider dependency-license review, and public signed APT
+install/upgrade and release publication remain open. The new CI evidence does
+not close those release gates.
 
 ## QNN experiment and next validation
 
