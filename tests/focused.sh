@@ -2685,6 +2685,9 @@ check "website font assets have matching attribution and complete OFL files" \
 check "llama.cpp artifact license bundle audit verifies file hashes and safe paths" \
   python3 "$ROOT/tests/llama_vulkan_license_audit_test.py"
 
+check "HTP candidate operator wrapper resolves package-root test binary and loader paths" \
+  python3 "$ROOT/tests/htp_candidate_launcher_test.py"
+
 check "llama.cpp source-map build runs on PRs without release-write permissions" \
   python3 "$ROOT/tests/llama_vulkan_workflow_contract.py" "$ROOT"
 

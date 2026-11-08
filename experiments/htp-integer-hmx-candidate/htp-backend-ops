@@ -2,7 +2,7 @@
 # Candidate-only HTP operator test runner; never used by the production extension.
 set -euo pipefail
 script_dir="$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-package_dir="${LLAMA_HTP_HOME:-$(cd -- "$script_dir" && pwd)}"
+package_dir="${LLAMA_HTP_HOME:-$(cd -- "$script_dir/.." && pwd)}"
 binary="$package_dir/bin/test-backend-ops"
 broker="$package_dir/libexec/htp-broker.py"
 shim="$package_dir/lib/libternux-htp-broker.so"
