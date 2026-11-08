@@ -67,6 +67,12 @@ output-ই আছে, তাই workflow fix HTP inference qualify করে ন
 update করে না। বাকি তিনটি accelerator prerelease-ও v2 থেকে আলাদা। PR #97
 draft-ই আছে; hosted signed APT endpoint এখনো 404 দেয় এবং release gate ১০ held।
 
+### HTP prerelease install ও SM8735 known-answer check — ২০২৬-১১-০৯
+
+প্রকাশিত HTP archive-এর SHA-256 sidecar মেলে (`dffcf83fa969f3ccfad238217b4ca7f3d47040e5e5b2fa834ebd3f123d144ea5`), কিন্তু archive-টি বর্তমান extension-manager contract-এর আগের: এতে `llama-cli` ও provenance manifest আছে, কিন্তু `bin/htp-run`, `libexec/htp-broker.py` বা `lib/libternux-htp-broker.so` নেই। `ternux extension install llama-htp-experimental` প্রয়োজনীয় Debian runtime package বসায়, archive hash যাচাই করে, এরপর stale public archive-টি সঠিকভাবেই reject করে; extension-এর কোনো file install হয়নি।
+
+সর্বশেষ PR build artifact run `42520478911` (artifact `13633283508`, source head `637c31d`)-এর SHA-256 `89e0f8f4ae232352d4949e989c5e7b435f815f286d5dbe58381a082b05da025d`; এতে launcher, broker, shim ও matching manifest আছে। Sidecar verify করে ওই exact archive device qualification-এর জন্য সক্রিয় Debian user-এর managed extension directory-তে stage করেছি। `ternux doctor extensions --json`-এ চারটি check-ই OK; extension library directory set করলে `ldd -r` resolve করে। `htp-run --version` CDSP service পেয়েছে এবং broker session `[0, 0]` দিয়ে বন্ধ করেছে। SM8735-এ থাকা `/sdcard/Llms/qwen2.5-0.5b-instruct-q4_0.gguf` দিয়ে সীমাবদ্ধ inference-এ `4.00` এসেছে; চার-token sample-এ 42.0 tok/s দেখা গেছে এবং শেষে `closeSession [0, 0]` এসেছে। এটি exact candidate-এর মৌলিক device path যাচাই, বিস্তৃত model quality, sustained use, cancellation/restart বা performance নয়। Local extension-টি PR artifact সরাসরি stage করে বসানো; managed downloader দিয়ে install করা হয়নি। Release gate পূরণ হলে শুধু main-only HTP publisher দিয়েই public prerelease refresh করতে হবে, এরপর একই public asset দিয়ে managed install/repair/remove ও failure/restart test পুনরায় চালাতে হবে।
+
 ### Webfont attribution ও license-file audit — ২০২৬-১১-০৯
 
 পাঁচটি self-hosted webfont-এর embedded name-table copyright metadata পরীক্ষা

@@ -70,6 +70,12 @@ update that public release. The other three public accelerator prereleases
 also remain separate from v2. PR #97 remains a draft; hosted signed APT
 endpoints still return 404, and release gate 10 remains held.
 
+### HTP prerelease install and SM8735 known-answer check — 2026-11-09
+
+The published HTP asset SHA-256 sidecar is valid (`dffcf83fa969f3ccfad238217b4ca7f3d47040e5e5b2fa834ebd3f123d144ea5`), but its archive predates the current extension-manager contract: it has `llama-cli` and a provenance manifest, but no `bin/htp-run`, `libexec/htp-broker.py`, or `lib/libternux-htp-broker.so`. Running `ternux extension install llama-htp-experimental` provisioned the documented Debian runtime packages, verified the archive hash, then correctly rejected this stale public archive before installing extension files.
+
+The current PR build artifact from run `42520478911` (artifact `13633283508`, source head `637c31d`) has SHA-256 `89e0f8f4ae232352d4949e989c5e7b435f815f286d5dbe58381a082b05da025d` and includes the launcher, broker, shim and matching manifest. After verifying its sidecar, I staged that exact archive into the active Debian user's managed extension directory for device qualification. `ternux doctor extensions --json` reports all four checks OK; `ldd -r` resolves when the extension library directory is set. `htp-run --version` found the CDSP service and closed its broker session with `[0, 0]`. A bounded SM8735 inference with the existing `/sdcard/Llms/qwen2.5-0.5b-instruct-q4_0.gguf` returned `4.00`; this four-token sample reported 42.0 tok/s and ended with `closeSession [0, 0]`. This verifies the exact candidate's basic device path, not broad model quality, sustained use, cancellation/restart, or performance. The local extension is the PR artifact staged directly, not one installed by the managed downloader. Refresh the public prerelease only through the main-only HTP publisher after its release gate, then repeat install/repair/remove and failure/restart checks with that exact public asset.
+
 ### Webfont attribution and license-file audit — 2026-11-09
 
 I inspected the embedded name-table copyright metadata in all five self-hosted
