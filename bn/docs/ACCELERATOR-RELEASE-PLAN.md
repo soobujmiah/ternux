@@ -304,7 +304,10 @@ artifact যাবে `artifacts/ternux-apt/incoming/`-এ। Exact-artifact fre
 ও device check, independent QNN model-stage correctness, HTP operator failure,
 owner visual review, wider dependency-license review, এবং public signed APT
 install/upgrade ও release publication এখনো খোলা gate। নতুন CI evidence ওই
-release gate-গুলো বন্ধ করে না।
+release gate-গুলো বন্ধ করে না। Live HTTP check-এ
+`https://soobujmiah.github.io/ternux/apt/dists/stable/InRelease` ও
+`https://soobujmiah.github.io/ternux/apt/bootstrap.sh`—দুটিই 404 দিয়েছে;
+signed publish workflow শুধু main branch-এ চলে এবং release-এর জন্য এখনো dispatch হয়নি।
 
 ## পৃথক QNN experiment ও পরের gate
 

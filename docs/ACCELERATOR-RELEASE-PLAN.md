@@ -336,7 +336,10 @@ installed from this run. CPU/Vulkan and Stable Diffusion belong in
 independent QNN model-stage correctness, the known HTP operator failures,
 owner visual review, wider dependency-license review, and public signed APT
 install/upgrade and release publication remain open. The new CI evidence does
-not close those release gates.
+not close those release gates. A live HTTP check at
+`https://soobujmiah.github.io/ternux/apt/dists/stable/InRelease` and
+`https://soobujmiah.github.io/ternux/apt/bootstrap.sh` returned 404; the
+signed publish workflow is main-only and has not been dispatched for release.
 
 ## QNN experiment and next validation
 
