@@ -34,7 +34,7 @@ exit 2
 STUB
 cat > "$tmp/bin/pkg" <<'STUB'
 #!/usr/bin/env bash
-printf '%s\n' "$*" >> "$PKG_LOG"
+printf '%s|%s\n' "$*" "${LD_LIBRARY_PATH-unset}" >> "$PKG_LOG"
 STUB
 chmod +x "$tmp/bin/"*
 expected=E5527F4D5B83037FF77B65AE5E894BBB81168B1D
@@ -59,10 +59,10 @@ if env PATH="$tmp/bin:$PATH" PREFIX="$prefix" TMPDIR="$prefix/tmp" \
   exit 1
 fi
 if env PATH="$tmp/bin:$PATH" PREFIX="$prefix" TMPDIR="$prefix/tmp" \
-  MOCK_FINGERPRINT="$expected" PKG_LOG="$tmp/pkg.log" \
+  MOCK_FINGERPRINT="$expected" PKG_LOG="$tmp/pkg.log" LD_LIBRARY_PATH=/mock/codex-runtime/lib \
   bash "$root/packaging/termux/bootstrap-repository.sh"; then
-  grep -Fxq 'update' "$tmp/pkg.log"
-  grep -Fxq 'install ternux' "$tmp/pkg.log"
+  grep -Fxq 'update|' "$tmp/pkg.log"
+  grep -Fxq 'install ternux|' "$tmp/pkg.log"
 else
   echo 'verified install path failed' >&2
   exit 1

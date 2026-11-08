@@ -107,13 +107,25 @@ if env TERNUX_STATE_DIR="$TMP/state-renderer-display" HOME="$TMP/home-renderer-d
     unset DISPLAY
     [ "$(tnx_detect_renderer)" = "Adreno (TM) 825" ] || exit
     grep -q -- "--shared-tmp -- env DISPLAY=:0 bash -c" "$LOG" || exit
+    grep -q "timeout 5s glxinfo" "$LOG" || exit
+    grep -q "zink Vulkan (Adreno via Turnip)" "$LOG" || exit
     : > "$LOG"; DISPLAY=:7
     [ "$(tnx_detect_renderer)" = "Adreno (TM) 825" ] &&
-    grep -q -- "--shared-tmp -- env DISPLAY=:7 bash -c" "$LOG"
+    grep -q -- "--shared-tmp -- env DISPLAY=:7 bash -c" "$LOG" &&
+    grep -q "timeout 5s glxinfo" "$LOG"
   ' _ "$ROOT" "$TMP"; then
   ok "renderer detection passes the active display into the Debian guest"
 else
   not_ok "renderer detection passes the active display into the Debian guest"
+fi
+
+if env TERMUX_APP__APP_VERSION_NAME= TERMUX_VERSION=0.119.0-beta.3 \
+  bash -c '. "$1/lib/detect.sh"; [ "$(tnx_detect_termux_version)" = "0.119.0-beta.3" ]' _ "$ROOT" &&
+  env TERMUX_APP__APP_VERSION_NAME=0.119.0-beta.4 TERMUX_VERSION=0.119.0-beta.3 \
+  bash -c '. "$1/lib/detect.sh"; [ "$(tnx_detect_termux_version)" = "0.119.0-beta.4" ]' _ "$ROOT"; then
+  ok "device info reports the Termux app version from Android runtime metadata"
+else
+  not_ok "device info reports the Termux app version from Android runtime metadata"
 fi
 
 # The Debian base keeps VLC + Zenity; Firefox stays optional. Welcome content is

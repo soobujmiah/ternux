@@ -42,9 +42,14 @@ tnx_detect_storage_gb() {
 }
 
 tnx_detect_termux_version() {
-  dpkg -s com.termux 2>/dev/null | grep '^Version:' | awk '{print $2}' || \
-  tnx_termux_apt_cache policy com.termux 2>/dev/null | grep 'Installed:' | awk '{print $2}' || \
-  echo "unknown"
+  local version="${TERMUX_APP__APP_VERSION_NAME:-${TERMUX_VERSION:-}}"
+  [ -n "$version" ] && { echo "$version"; return 0; }
+
+  version="$(dpkg-query -W -f='${Version}' com.termux 2>/dev/null || true)"
+  [ -n "$version" ] && { echo "$version"; return 0; }
+
+  version="$(tnx_termux_apt_cache policy com.termux 2>/dev/null | awk '/Installed:/ {print $2; exit}')"
+  [ -n "$version" ] && echo "$version" || echo "unknown"
 }
 
 # ---------------------------------------------------------------------------
@@ -128,11 +133,16 @@ tnx_detect_renderer() {
     display=:0
   fi
   renderer="$(tnx_guest_login --shared-tmp -- env "DISPLAY=$display" bash -c '
-    if [ -n "${DISPLAY:-}" ] && command -v glxinfo >/dev/null 2>&1; then
-      glxinfo 2>/dev/null | grep "renderer string" | head -1 | sed "s/.*: //"
-    elif [ ! -x /usr/bin/glxinfo ] &&
-         { [ -f /usr/local/lib/aarch64-linux-gnu/libvulkan_freedreno.so ] ||
-           [ -f /usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so ]; }; then
+    renderer=""
+    if [ -n "${DISPLAY:-}" ] && command -v glxinfo >/dev/null 2>&1 &&
+       command -v timeout >/dev/null 2>&1; then
+      renderer="$(timeout 5s glxinfo 2>/dev/null |
+        sed -n "s/^OpenGL renderer string: //p" | head -1 || true)"
+    fi
+    if [ -n "$renderer" ]; then
+      printf "%s\n" "$renderer"
+    elif [ -f /usr/local/lib/aarch64-linux-gnu/libvulkan_freedreno.so ] ||
+         [ -f /usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so ]; then
       echo "zink Vulkan (Adreno via Turnip)"
     else
       echo "unknown"

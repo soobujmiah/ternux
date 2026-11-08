@@ -5,6 +5,9 @@ readonly repo_url='https://soobujmiah.github.io/ternux/apt'
 readonly key_url="$repo_url/ternux-archive-key.asc"
 readonly expected_fingerprint='E5527F4D5B83037FF77B65AE5E894BBB81168B1D'
 
+# A caller's toolchain LD_LIBRARY_PATH can shadow Termux's Bionic libraries.
+termux_pkg() { LD_LIBRARY_PATH= pkg "$@"; }
+
 usage() {
   cat <<'HELP'
 Configure the signed Ternux Termux APT repository and install its CLI.
@@ -74,5 +77,5 @@ if ((configure_only)); then
   printf 'Next: pkg update && pkg install ternux\n'
   exit 0
 fi
-pkg update
-pkg install ternux
+termux_pkg update
+termux_pkg install ternux
