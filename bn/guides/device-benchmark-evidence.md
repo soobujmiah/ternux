@@ -1060,6 +1060,43 @@ proot-distro login --shared-tmp ternux-clean-apt -- bash -lc '
 
 Paired batch চালাতে নতুন output path দিয়ে `--count 2` যোগ করুন। সংরক্ষিত image রাখতে একই seed/path overwrite করবেন না।
 
+### ২০২৬-১১-০৯ দুইটি Qwen GGUF-এ managed HTP known-answer smoke check
+
+Redmi Turbo 4 Pro / SM8735-এ আগে থেকে installed managed
+`llama-htp-experimental` extension (`b1-af50f2f`, HVX matmul, flash attention
+off) ব্যবহার করে প্রতিটি model-এ একবার আট-token, temperature-zero
+known-answer check করেছি। বিদ্যমান model file একই জায়গায় ছিল:
+
+| Model path | Prompt tok/s | Generation tok/s | Answer | Broker child | CDSP close |
+|---|---:|---:|---|---:|---|
+| `/sdcard/Llms/qwen2.5-0.5b-instruct-q4_0.gguf` | 107.3 | 38.3 | `4` | 0 | `[0, 0]` |
+| `/sdcard/LAI/models/qwen2.5-1.5b-instruct-q4_k_m.gguf` | 32.5 | 13.2 | `4` | 0 | `[0, 0]` |
+
+দুটিতে চারটি thread, context 512, batch/ubatch 128, seed 42, এবং একই prompt
+`What is 2 + 2? Reply with only the number.` ব্যবহার করেছি। প্রতিটি ছিল একবারের
+cold-start run, আট-token cap-সহ; throughput একবারের spot reading, model comparison
+বা performance claim নয়। Launcher HTP service ও `/dev/fastrpc-cdsp` access পেয়েছে;
+দুই broker child-ই স্বাভাবিকভাবে exit করেছে এবং CDSP session পরিষ্কারভাবে বন্ধ
+হয়েছে। Model file copy বা modify করা হয়নি।
+
+দুই ছোট run-এর আগে battery temperature 45.1°C, পরে 45.2°C ছিল। Run-এর পর doctor
+`battery_hot` warning দিয়েছে, তাই আর model/graphics load চালাইনি। এটি installed
+experimental package ও এই দুই model file-এ short known answer যাচাই করে; current
+CI candidate, model quality, HTP operator coverage বা দীর্ঘ thermal behavior
+qualify করে না।
+
+Debian-এর `ternux` user হিসেবে পুনরায় চালাতে:
+
+```bash
+RUNNER="$HOME/.local/opt/ternux-extensions/llama-htp-experimental/bin/htp-run"
+for MODEL in /sdcard/Llms/qwen2.5-0.5b-instruct-q4_0.gguf \
+  /sdcard/LAI/models/qwen2.5-1.5b-instruct-q4_k_m.gguf; do
+  timeout 60 "$RUNNER" -m "$MODEL" -t 4 -tb 4 \
+    -p "What is 2 + 2? Reply with only the number." -n 8 -c 512 \
+    -b 128 -ub 128 --temp 0 --seed 42
+done
+```
+
 ## রেফারেন্স
 
 - [glmark2](https://github.com/glmark2/glmark2)

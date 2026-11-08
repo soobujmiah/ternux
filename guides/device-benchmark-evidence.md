@@ -1333,6 +1333,44 @@ proot-distro login --shared-tmp ternux-clean-apt -- bash -lc '
 
 Add `--count 2` and use a new output path to reproduce a paired batch. Do not reuse these seeds/paths if preserving the captured files.
 
+### 2026-11-09 short managed HTP known-answer check (two existing Qwen GGUFs)
+
+On the Redmi Turbo 4 Pro / SM8735, I ran one eight-token, temperature-zero
+known-answer check per model using the already-installed managed
+`llama-htp-experimental` extension (`b1-af50f2f`, HVX matmul, flash attention
+off). The existing files stayed in place:
+
+| Model path | Prompt tok/s | Generation tok/s | Answer | Broker child | CDSP close |
+|---|---:|---:|---|---:|---|
+| `/sdcard/Llms/qwen2.5-0.5b-instruct-q4_0.gguf` | 107.3 | 38.3 | `4` | 0 | `[0, 0]` |
+| `/sdcard/LAI/models/qwen2.5-1.5b-instruct-q4_k_m.gguf` | 32.5 | 13.2 | `4` | 0 | `[0, 0]` |
+
+Both used four threads, context 512, batch/ubatch 128, seed 42, and the prompt
+`What is 2 + 2? Reply with only the number.` Each was one cold-start run with
+an eight-token cap; throughput is a spot reading, not a model comparison or
+performance claim. The launcher reported HTP service discovery and access to
+`/dev/fastrpc-cdsp`; both brokered children exited normally and their CDSP
+sessions closed cleanly. The files were neither copied nor modified.
+
+Battery temperature was 45.1°C before and 45.2°C after the two short runs. The
+post-run doctor emitted its `battery_hot` warning, so further model/graphics
+load was stopped. This validates a short known answer on the installed
+experimental package and these two existing model files; it does not qualify
+the current CI candidate, model quality, HTP operator coverage, or sustained
+thermal behavior.
+
+Reproduction, as Debian user `ternux`:
+
+```bash
+RUNNER="$HOME/.local/opt/ternux-extensions/llama-htp-experimental/bin/htp-run"
+for MODEL in /sdcard/Llms/qwen2.5-0.5b-instruct-q4_0.gguf \
+  /sdcard/LAI/models/qwen2.5-1.5b-instruct-q4_k_m.gguf; do
+  timeout 60 "$RUNNER" -m "$MODEL" -t 4 -tb 4 \
+    -p "What is 2 + 2? Reply with only the number." -n 8 -c 512 \
+    -b 128 -ub 128 --temp 0 --seed 42
+done
+```
+
 ## References
 
 - [glmark2](https://github.com/glmark2/glmark2)
