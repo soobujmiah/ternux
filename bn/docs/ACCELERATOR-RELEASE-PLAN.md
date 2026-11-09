@@ -408,3 +408,19 @@ Official Termux main source-সহ Termux APT client signed index গ্রহ�
 মিলেছে। Active installation বদলানো হয়নি। এই test local package/index/client path
 যাচাই করে; protected release key, hosted signed repository, অথবা public clean
 install/upgrade যাচাই করে না।
+
+### Local `pkg install` source-build verification — ২০২৬-১১-০৯
+
+Checkout-এর Ternux source থেকে `ternux_2.0.0_all.deb` rebuild করেছি CI workflow-তে
+pinned Termux package-builder script দিয়ে (source SHA-256
+`dd1acf8cb6eb48a3b6fc50c56a6a1f20426112a458e342980a5955a788494650`) এবং pinned
+APT repository-builder script দিয়ে (SHA-256
+`d5768791086f3ad1f12e95d59a54ccaf582f3ba43908c452d722ee2b96b49db1`)। Package SHA-256
+`363f906c1644408d86bd332eff7f5fd6964004b07180de0d855efd3210963f7c`। Fresh
+temporary repository বানিয়ে isolated স্বল্পমেয়াদি test key দিয়ে sign করেছি;
+Termux APT client index গ্রহণ করেছে এবং download করা package-এর hash মিলে গেছে।
+এরপর `pkg install -y --reinstall ternux` দিয়ে ওই signed local source থেকে package
+reinstall করেছি; `ternux verify --json` pass এবং installed CLI package payload-এর
+sঙ্গে byte-for-byte মিলে গেছে। Temporary APT source সরিয়ে ফেলা হয়েছে। এটি test
+key দিয়ে একই version-এর in-place install; protected release key বা hosted public
+repository দিয়ে clean-prefix install নয়।

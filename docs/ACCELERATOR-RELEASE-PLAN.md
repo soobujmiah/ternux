@@ -449,3 +449,21 @@ repository, and `apt-get --simulate install ternux` completed. A download-only
 the local package. The active installation was not changed. This validates the
 local package/index/client path with a test key; it does not validate the
 protected release key, hosted signed repository, or public clean install/upgrade.
+
+### Local `pkg install` source-build verification — 2026-11-09
+
+Rebuilt `ternux_2.0.0_all.deb` from the checked-out Ternux source using the exact
+Termux package-builder script pinned by the CI workflow (source SHA-256
+`dd1acf8cb6eb48a3b6fc50c56a6a1f20426112a458e342980a5955a788494650`) and the
+pinned APT repository-builder script (SHA-256
+`d5768791086f3ad1f12e95d59a54ccaf582f3ba43908c452d722ee2b96b49db1`). The
+package SHA-256 is
+`363f906c1644408d86bd332eff7f5fd6964004b07180de0d855efd3210963f7c`. Built a
+fresh temporary repository, signed it with an isolated short-lived test key,
+and confirmed the Termux APT client accepted the index and downloaded the exact
+package hash. `pkg install -y --reinstall ternux` then reinstalled the package
+from that signed local source; `ternux verify --json` passed, and the installed
+CLI matched the package payload byte-for-byte. The temporary apt source was
+removed afterward. This is an in-place same-version installation using a test
+key, not a clean-prefix install with the protected release key or hosted public
+repository.
