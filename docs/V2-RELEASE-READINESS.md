@@ -143,7 +143,7 @@ All eight required PR workflows passed on this exact head on 2026-11-09: Validat
 
 ### Physical-device CPU/Vulkan lifecycle follow-up — 2026-11-10
 
-The existing SM8735/Adreno 825 installation passed a fresh CPU and Vulkan known-answer reopen after each backend's bounded SIGINT cancellation. Both 4,096-token generations stopped at the five-second deadline with expected status 124, logged normal exit, and left no `llama-cli` process; the immediate fresh runs returned `4`. The desktop and audio session remained active. Details, model/binary hashes, and limits are in the [device benchmark record](../guides/device-benchmark-evidence.html#2026-11-10-bounded-cpuvulkan-cancellation-and-reopen-check). Memory-pressure and sustained thermal/cancellation tests remain incomplete, so CPU/Vulkan qualification stays partial.
+The existing SM8735/Adreno 825 installation passed a fresh CPU and Vulkan known-answer reopen after each backend's bounded SIGINT cancellation. Both 4,096-token generations stopped at the five-second deadline with expected status 124, logged normal exit, and left no `llama-cli` process; the immediate fresh runs returned `4`. The desktop and audio session remained active. Details, model/binary hashes, and limits are in the [device benchmark record](https://github.com/soobujmiah/ternux/blob/main/guides/device-benchmark-evidence.md#2026-11-10-bounded-cpuvulkan-cancellation-and-reopen-check). Memory-pressure and sustained thermal/cancellation tests remain incomplete, so CPU/Vulkan qualification stays partial.
 
 ## Remaining blockers and release exclusions
 

@@ -127,7 +127,7 @@ Report-only refresh `a165b532488a08388566a2a1edfa7f21b3e5424b` হিসেব�
 
 ### বাস্তব ডিভাইসে CPU/Vulkan lifecycle follow-up — ২০২৬-১১-১০
 
-আগে থেকে installed SM8735/Adreno 825 environment-এ CPU ও Vulkan — দুই backend-এই bounded SIGINT cancellation-এর পর fresh known-answer reopen pass করেছে। ৪,০৯৬-token generation দুটোই পাঁচ-second deadline-এ প্রত্যাশিত status 124 দিয়ে শেষ, স্বাভাবিক exit log দিয়েছে, এবং কোনো `llama-cli` process রেখে যায়নি; পরের fresh run-এ উত্তর `4` এসেছে। Desktop ও audio session চালু ছিল। Model/binary hash ও বিস্তারিত [device benchmark record-এ](../guides/device-benchmark-evidence.html#২০২৬-১১-১০-cpuvulkan-cancellation-ও-reopen-check) আছে। Memory-pressure ও sustained thermal/cancellation test বাকি, তাই CPU/Vulkan qualification এখনো partial।
+আগে থেকে installed SM8735/Adreno 825 environment-এ CPU ও Vulkan — দুই backend-এই bounded SIGINT cancellation-এর পর fresh known-answer reopen pass করেছে। ৪,০৯৬-token generation দুটোই পাঁচ-second deadline-এ প্রত্যাশিত status 124 দিয়ে শেষ, স্বাভাবিক exit log দিয়েছে, এবং কোনো `llama-cli` process রেখে যায়নি; পরের fresh run-এ উত্তর `4` এসেছে। Desktop ও audio session চালু ছিল। Model/binary hash ও বিস্তারিত [device benchmark record-এ](https://github.com/soobujmiah/ternux/blob/main/bn/guides/device-benchmark-evidence.md#২০২৬-১১-১০-cpuvulkan-cancellation-ও-reopen-check) আছে। Memory-pressure ও sustained thermal/cancellation test বাকি, তাই CPU/Vulkan qualification এখনো partial।
 
 ## বাকি blocker ও release exclusion
 
