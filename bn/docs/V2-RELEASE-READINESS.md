@@ -27,7 +27,7 @@ alt_url: "/docs/V2-RELEASE-READINESS.html"
 | `skb` | canonical checkout যাচাই করা; owner change আছে | শুধু guidance পড়া হয়েছে; file পরিবর্তন হয়নি। |
 | চলমান Termux:X11 desktop | active; session restart করা হয়নি | session অক্ষত রাখা হয়েছে; desktop, audio বা Android service restart করা হয়নি। |
 
-অন্য কোনো Codex agent সক্রিয় নেই। PR #35 আলাদা draft license proposal; owner review-এর অপেক্ষায়, v2 source-এর অংশ নয়। পাঁচটি open Dependabot PR action version update নিয়ে, release diff-এর বাইরে। Read-only GitHub check-এ `main` branch protection নেই, ruleset শূন্য। Report refresh-এর আগে `e8dab0a` implementation tree clean ছিল; এই audit-এর জন্য শুধু দুই report file ইচ্ছাকৃতভাবে modified আছে।
+অন্য কোনো Codex agent সক্রিয় নেই। PR #35 আলাদা draft license proposal; owner review-এর অপেক্ষায়, v2 source-এর অংশ নয়। পাঁচটি open Dependabot PR action version update নিয়ে, release diff-এর বাইরে। Read-only GitHub check-এ `main` branch protection নেই, ruleset শূন্য। Report-only commit-এর আগে `e8dab0a` implementation tree clean ছিল; report evidence এখন `07640c1` পর্যন্ত pushed।
 
 | Finding | সমন্বিত অবস্থা | Evidence/বাকি কাজ |
 |---|---|---|
@@ -117,7 +117,7 @@ alt_url: "/docs/V2-RELEASE-READINESS.html"
 
 ### ২০২৬-১১-১০-এর বর্তমান exact-head audit
 
-Implementation/evidence head `e8dab0a3cdb795826b3f583efbaef4a9a9320e51`; report-only refresh-এর আগে PR #97 branch clean ও remote-এর সঙ্গে synced ছিল। এই head-এ আছে isolated guest login ও `/sdcard` রাখা (`b9caeeb`), Stable Diffusion artifact-এ Ternux license metadata ঠিক করা (`6f6ae0c`), এবং দুই পরিবর্তনের regression test (`e8dab0a`)। Base `main` এখনো `8e24062589e81c20095c875fa4d19dd5cb928554`; PR #97 draft, review নেই, branch ১৪৭ commit এগিয়ে।
+Implementation head `e8dab0a3cdb795826b3f583efbaef4a9a9320e51`; report-only evidence head `07640c1f8b031970fb716a5d9d8326fc86067c7f`। এই head-এ আছে isolated guest login ও `/sdcard` রাখা (`b9caeeb`), Stable Diffusion artifact-এ Ternux license metadata ঠিক করা (`6f6ae0c`), এবং দুই পরিবর্তনের regression test (`e8dab0a`)। Base `main` এখনো `8e24062589e81c20095c875fa4d19dd5cb928554`; PR #97 draft, review নেই, branch ১৪৭ commit এগিয়ে।
 
 এই exact implementation head-এ আটটি required workflow-ই pass করেছে:
 
@@ -133,6 +133,19 @@ Implementation/evidence head `e8dab0a3cdb795826b3f583efbaef4a9a9320e51`; report-
 | Snapdragon HMX capability candidate | `42693350221` | Build pass; draft PR-এ publication skip |
 
 একই code-এ local `bash tests/focused.sh` **134/134** pass; `python3 tests/docs_check.py` **3,041 assertion, 312 internal link, 20 bilingual page pair** pass। `tests/release_gates.py --self-test`, JSON parser, shell syntax ও `git diff --check` pass করেছে। Astro production build-ও Validate workflow-তে pass। Machine inventory-তে ১৯ gate; নয়টি অসম্পূর্ণ blocker থাকায় verdict `NOT_READY`।
+
+Report/evidence head `07640c1f8b031970fb716a5d9d8326fc86067c7f`-এ আটটি workflow-ই আবার pass করেছে। এই commit-এ শুধু bilingual readiness report ও machine-readable release-gate evidence বদলেছে, implementation code নয়:
+
+| Workflow | Run ID | ফল |
+|---|---:|---|
+| Validate (Astro site, syntax, focused regression, docs ও gate check) | `42697905503` | Pass |
+| Termux unsigned APT package build/inspection | `42697905151` | Pass |
+| Repository state contract | `42697905211` | Pass |
+| Repo knowledge sync/test | `42697905337` | Pass |
+| llama.cpp CPU + Vulkan ARM64 artifact | `42697905396` | Pass |
+| Stable Diffusion CPU + Vulkan ও license audit | `42697905145` | Pass |
+| Snapdragon HTP artifact | `42697905394` | Build pass; draft PR-এ publication skip |
+| Snapdragon HMX capability candidate | `42697905652` | Build pass; draft PR-এ publication skip |
 
 ### Device ও distribution evidence
 
