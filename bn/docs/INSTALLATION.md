@@ -467,7 +467,7 @@ proot-distro backup debian --output ~/debian-backup.tar.gz
 
 ## আপডেট
 
-- **ternux CLI:** `ternux update` GitHub থেকে সর্বশেষ ভার্সন নিয়ে আসে।
+- **ternux CLI:** `ternux update` সর্বশেষ প্রকাশিত stable release tag ব্যবহার করে। নির্দিষ্ট Git commit resolve ও fetch করে, সম্পূর্ণ staged module tree যাচাই করে, তারপর recovery journal-সহ CLI ও module switch করে। আগের ভার্সন backup-এ থাকে; verification ব্যর্থ হলে সেটি restore হয়। নতুন development build-কে পুরোনো stable tag-এ downgrade করে না।
 - **Interrupted installer run:** একই reviewed script আবার download করে
   `--resume` দিন; শুধু successful হিসেবে recorded phase বাদ যাবে। এটি completed
   phase update/repair করে না—CLI-এর জন্য `ternux update`, managed artifact-এর

@@ -497,7 +497,7 @@ proot-distro backup debian --output ~/debian-backup.tar.gz
 
 ## Updating
 
-- **The ternux CLI:** `ternux update` fetches the latest version from GitHub.
+- **The ternux CLI:** `ternux update` uses the latest published stable release tag. It resolves and fetches that exact Git commit, validates a complete staged module tree, then switches the CLI and modules with a recovery journal. The previous version remains backed up; failed verification restores it. A newer development build is never downgraded to an older stable tag.
 - **An interrupted installer run:** re-download the same reviewed script and use
   `--resume`; it skips only successfully recorded phases. This does **not**
   update or repair phases already complete—use `ternux update` for the CLI and

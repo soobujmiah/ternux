@@ -61,6 +61,17 @@ alt_url: "/docs/V2-RELEASE-READINESS.html"
 - `vulkan_state`: `NOT_DETECTED`, `HARDWARE_AVAILABLE`, `LOADER_MISSING`, `DRIVER_MISSING`, `ICD_MISSING`, `DEVICE_ENUMERATION_FAILED`, `VULKAN_READY`, `SOFTWARE_FALLBACK`। Live `glxinfo` non-software renderer দেখালেই `OPENGL_ACCELERATION_READY`।
 - Live renderer query না পেলে Turnip file দেখে renderer দাবি করা হয় না। GPU documentation-এর English/Bangla দুই সংস্করণ হালনাগাদ।
 
+### Release-tag updater ও interrupted-update recovery
+
+- Non-APT update এখন সর্বশেষ প্রকাশিত stable release দেখে এবং নতুন development build-কে downgrade হতে দেয় না।
+- Updater exact `vX.Y.Z` tag থেকে Git commit resolve ও fetch করে; pin-এর সঙ্গে commit না মিললে source বাতিল করে। Installed file বদলানোর আগে tag/core version, CLI ও guest syntax, symlink-মুক্ত source layout এবং staged CLI response যাচাই করে।
+- সম্পূর্ণ `lib/` tree target filesystem-এ stage হয়। আগের CLI ও module tree `$PREFIX/lib/ternux-update-backups/`-এ রাখা হয়। Journal-এ owner PID/start identity ও backup ID থাকে। একই filesystem-এ rename করে dispatcher ও module switch হয়; installed verification ব্যর্থ হলে আগের দুটোই restore হয়।
+- Transaction চলার সময় installed dispatcher concurrent CLI call আটকায়। updater মাঝপথে বন্ধ হলে পরের CLI launch-এ আগের version restore হয়। সফল update-এর পরও backup থাকে।
+- `tests/update_transaction.sh` স্থানীয় tagged Git repository দিয়ে exact commit, downgrade আটকানো, সম্পূর্ণ tree switch, failed-candidate rollback, dead-owner crash recovery এবং live-owner blocking যাচাই করে। এতে GitHub Actions artifact ব্যবহার হয় না।
+- Provenance হলো authenticated Git transport-এ আনা Git commit object ID; release tag বর্তমানে cryptographically signed নয়। আগে থেকে ইনস্টল v1.4.0 CLI-র প্রথম upgrade তখনকার পুরোনো updater দিয়েই হবে; সেই transition এবং native APT/public install এখনো unverified। বর্তমান stable metadata v1.4.0 আর v2 source version 2.0.0, তাই updater downgrade প্রস্তাব করে না।
+- এই continuation-এর local focused verification: `bash tests/focused.sh` **133/133** পাস, যার মধ্যে updater transaction fixture আছে; `python3 tests/docs_check.py`-তে **3,041 assertion, 312 internal link ও 20 bilingual page pair** পাস; `git diff --check` পাস। এগুলো current-head hosted CI বা প্রকাশিত release migration-এর বিকল্প নয়।
+- Storage audit-এ দেখা গেছে normal Termux PRoot-Distro login Debian guest-এ Android shared storage (`/sdcard`), Termux app path, `$PREFIX` ও Termux home bind করে। `/sdcard` access Ternux-এর স্বাভাবিক feature এবং থাকবে। আলাদা least-privilege প্রশ্ন হলো camera/microphone bridge-এর জন্য পুরো Termux home/prefix দরকার কি না, নাকি সীমিত API path যথেষ্ট; এই audit-এ কোনো bind বদলানো হয়নি।
+
 ## যাচাইয়ের প্রমাণ
 
 ### বর্তমান অডিট আপডেট — 2026-11-09
@@ -106,12 +117,12 @@ Report-only refresh `a165b532488a08388566a2a1edfa7f21b3e5424b` হিসেব�
 
 | Priority | Gate | অবস্থা | v2.0.0-এর আগে দরকার |
 |---|---|---|---|
-| P0 | Current-head CI ও PR review | **Implementation head `60c9378`-এ সব required workflow পাস; report-only head `a165b53`-এর check চলছিল** | Report-only accelerator check confirm করে owner review ও final PR diff review করতে হবে। |
+| P0 | Current-head CI ও PR review | **Updater-এর বর্তমান change local-এ আছে; hosted CI এখনো চলেনি। আগের implementation head `60c9378`-এর required workflow পাস করেছিল** | Review করা continuation commit/push করে current-head-এর সব required workflow শেষ হওয়া পর্যন্ত অপেক্ষা; এরপর owner review ও final PR diff review। |
 | P1 | Device desktop lifecycle | **Code বদলেছে; live deployment unverified** | নিয়ন্ত্রিত update-এর পর repeated/concurrent start, `status --json`, stop/start, crash recovery, socket ownership ও audio readiness যাচাই। চলমান GUI restart করা হয়নি। |
-| P1 | Update transaction/provenance | **অসম্পূর্ণ** | `lib/update.sh` moving repository head clone করে module একে একে বসায়। Release commit pin, provenance/checksum, staging, pre-switch test ও failure rollback দরকার। |
+| P1 | Update transaction/provenance | **Implemented ও local fixture-tested; migration আংশিক বাকি** | প্রকাশিত v2 release দিয়ে native Termux-এ যাচাই এবং প্রথম v1.4.0 upgrade path পরীক্ষা দরকার। Release tag signed নয়; transition-এর আগে পুরোনো installed updater বদলানো যায় না। |
 | P1 | APT ও clean install | **Public endpoint এখন unavailable** | 2026-11-09-এ `https://soobujmiah.github.io/ternux/apt/bootstrap.sh`, `apt/ternux-archive-key.asc`, `apt/dists/stable/InRelease`, `apt/dists/stable/main/binary-all/Packages`—সব HTTP 404 দিয়েছে। Signed repository deploy/restore করে supported Termux device-এ `pkg install ternux`, upgrade ও uninstall যাচাই করতে হবে। |
 | P1 | Workload correctness | **মিশ্র/experimental** | llama.cpp artifact build হলেও target-device known-answer, offload, memory pressure, repeat/cancel ও sustained measurement বাকি। HTP/HMX experimental; QNN Stable Diffusion supported NPU feature হিসেবে integrated নয়। |
-| P1 | Shared-storage/security | **আংশিক** | Bind/permission audit এবং প্রতিটি workload-এর storage exposure নথিভুক্ত করা। |
+| P1 | Host path exposure | **আংশিক: `/sdcard` ইচ্ছাকৃতভাবে guest-এ থাকে; Termux home/prefix-ও default-এ bind হয়** | স্বাভাবিক shared-storage access বজায় রেখে camera/microphone bridge-এর জন্য পুরো Termux home/prefix-এর বদলে সীমিত Termux API bind সম্ভব কি না audit ও verify করা। Desktop, audio, camera ও microphone পরীক্ষা করতে হবে। |
 | P1 | Repository governance | **বদলানো হয়নি** | Required checks, branch protection, CODEOWNERS, secret/release protection-এর owner-approved settings দরকার। কোনো settings বদলানো হয়নি। |
 | P2 | Release documentation/review | **আংশিক** | README/install/upgrade/uninstall/limitations package-এর সঙ্গে মেলানো, release notes তৈরি, বড় PR diff-এর unrelated/duplicate change review। |
 | P2 | Device coverage | **এক device** | Hardware/software support matrix; অন্য GPU/NPU-কে `NOT_TESTED` বা experimental চিহ্নিত করা। |
@@ -120,6 +131,6 @@ Report-only refresh `a165b532488a08388566a2a1edfa7f21b3e5424b` হিসেব�
 
 ## চূড়ান্ত সুপারিশ
 
-**NOT_READY.** Stable Diffusion notice defect ঠিক এবং আগের PR head-এর CI পাস। Unsafe global desktop cleanup ও Vulkan false-positive source-এ ঠিক হয়েছে, regression test-সহ। নতুন change-এর exact-head CI ও নিয়ন্ত্রিত device verification বাকি। Update rollback/provenance, signed APT clean install/upgrade, workload qualification এবং owner-reviewed governance অসম্পূর্ণ।
+**NOT_READY.** Release-tag updater-এর transaction, rollback, crash recovery ও concurrency local-এ যাচাই হয়েছে। Published-v2/native-Termux update এবং v1.4.0 migration unverified। Public signed APT path এখনও 404। নিয়ন্ত্রিত desktop lifecycle verification, workload correctness, Termux host-path review, owner-approved governance এবং final PR review বাকি। শুধু build সফল হওয়া এই gate-গুলো পূরণ করে না।
 
 কোনো release tag, package publication, merge, repository setting change বা live desktop restart করা হয়নি।

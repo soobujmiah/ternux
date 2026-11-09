@@ -93,7 +93,7 @@ ternux benchmark        # Run GPU benchmarks (glmark2, vkmark)
 ternux profile          # Show or save device hardware profile
 ternux backend set virgl    # Switch to VirGL backend
 ternux gpu update           # Refresh validated Debian Turnip driver (Zink)
-ternux update           # Self-update ternux CLI
+ternux update           # Update the CLI from the latest stable release tag
 ternux logs             # View and manage log files
 ternux info --json      # machine-readable system info
 ternux state            # Show installation state

@@ -62,6 +62,15 @@ The separate owner checkout contains modified bilingual accelerator plans, QNN e
 - Renderer identification no longer falls back to Turnip file existence when no live OpenGL renderer can be queried.
 - English and Bangla GPU documentation explain these states and the device evidence.
 
+### Release-tag updater and interrupted-update recovery
+
+- Non-APT updates now inspect the latest published stable release and refuse to downgrade a newer development build.
+- The updater resolves the exact `vX.Y.Z` tag to a Git commit, fetches the tag, and rejects the source if the resolved commit differs from the pin. It checks the tag/core version, CLI and guest syntax, symlink-free source layout, and staged CLI response before touching the installed files.
+- It stages the complete `lib/` tree on the target filesystem, saves the previous CLI and module tree under `$PREFIX/lib/ternux-update-backups/`, and records a journal containing the owner PID/start identity and backup ID. Dispatcher and module switches use same-filesystem renames; failed installed verification restores both prior paths.
+- The installed dispatcher blocks concurrent CLI calls during the transaction and restores the saved version on the next launch after an interrupted updater. Backups remain available after success.
+- `tests/update_transaction.sh` uses local tagged repositories to verify exact commit resolution, no-downgrade behavior, complete-tree switch, failed-candidate rollback, dead-owner crash recovery, and live-owner blocking. It does not access GitHub Actions artifacts.
+- Provenance is the Git commit object ID fetched over the authenticated Git transport; the release tag is not currently cryptographically signed. The first upgrade from an existing v1.4.0 CLI still uses that older CLI's updater, and the native APT/public install transition remains unverified. Current stable release metadata is v1.4.0 while the v2 source reports 2.0.0, so the updater correctly does not offer a downgrade.
+
 ## Verification evidence
 
 ### Current audit refresh — 2026-11-09
@@ -72,7 +81,7 @@ The separate `~/ternux-tools` checkout still has six owner-modified/untracked en
 
 The report-only refresh was committed as `a165b532488a08388566a2a1edfa7f21b3e5424b`; its Validate, package, and documentation checks passed, while accelerator builds were still running at the time of this snapshot. The four hosted signed APT paths were checked again on 2026-11-09 and each returned HTTP 404. A passing package build therefore does not establish a working public `pkg install ternux` path.
 
-Local verification on this audit refresh: `bash tests/focused.sh` passed **134/134**, `python3 tests/docs_check.py` passed **3,041 assertions, 312 internal links, and 20 bilingual page pairs**, and `git diff --check` passed. The Astro production build was not run because dependencies are not installed in this Termux checkout (`node_modules/.bin/astro` is absent).
+Local verification on the prior report-only refresh: `bash tests/focused.sh` passed **134/134**, `python3 tests/docs_check.py` passed **3,041 assertions, 312 internal links, and 20 bilingual page pairs**, and `git diff --check` passed. The updater changes in this continuation are tracked separately in the focused test run recorded below. The Astro production build was not run because dependencies are not installed in this Termux checkout (`node_modules/.bin/astro` is absent).
 
 ### Local source checks
 
@@ -126,10 +135,10 @@ A documentation-only commit updates this report after those results; its own exa
 |---|---|---|---|
 | P0 | Current-head CI and PR review | **All required workflows passed on implementation head `60c9378`; report-only head `a165b53` checks were in progress** | Confirm the report-only accelerator checks, then complete owner review and final PR diff review. |
 | P1 | Desktop lifecycle on device | **Code changed; live deployment unverified** | After a controlled package/update path, verify repeated/overlapping start, `status --json`, stop/start, crash/stale-record recovery, X11 socket ownership, audio readiness, and ensure the current working GUI remains usable. Current live session was deliberately not restarted. |
-| P1 | Update transaction and provenance | **Not fixed** | `lib/update.sh` still shallow-clones the moving repository head and installs modules one by one. Pin source to a release commit, verify provenance/checksum, stage all files, test them before switch, and roll back on failure/interruption. |
+| P1 | Update transaction and provenance | **Implemented and locally fixture-tested; migration remains partial** | Verify on a published v2 release in native Termux, then verify the first v1.4.0 upgrade path. Release tags are not signed, and the old installed updater cannot be retroactively replaced before the transition. |
 | P1 | APT repository and clean install | **Public endpoint currently unavailable** | On 2026-11-09, `https://soobujmiah.github.io/ternux/apt/bootstrap.sh`, `apt/ternux-archive-key.asc`, `apt/dists/stable/InRelease`, and `apt/dists/stable/main/binary-all/Packages` all returned HTTP 404. Restore/deploy the signed repository, then verify signed index/key lifecycle and clean `pkg install ternux`, upgrade, and uninstall on a supported Termux device. |
 | P1 | Workload correctness | **Mixed / experimental** | llama.cpp CPU/Vulkan artifacts build, but target-device known-answer, offload confirmation, memory pressure, repeated runs, cancellation, and sustained measurements remain incomplete. HTP/HMX remain experimental pending operator-level numerical qualification. QNN Stable Diffusion remains experimental and not integrated as supported NPU functionality. |
-| P1 | Shared-storage/security review | **Partial** | Complete an end-to-end bind/permission audit and document optional storage exposure for each workload. Avoid inferring user data access from a tool’s ability to bind a path. |
+| P1 | Host-path exposure review | **Partial: `/sdcard` access is intentional; Termux home/prefix are also bound by default** | Preserve normal shared-storage access. Audit whether the camera/microphone bridge can use narrower Termux API bindings instead of exposing all of Termux home/prefix, then verify desktop, audio, camera and microphone behavior. |
 | P1 | Repository governance | **Not changed** | Required checks, branch protection, CODEOWNERS and secret/release protection need owner-approved settings. No repository settings were modified. |
 | P2 | Full release documentation and review | **Partial** | Reconcile README/install/upgrade/uninstall/known-limitations text against current package contents and publish a complete release notes set after technical gates pass. Review the broad PR diff (551 files at Stage 0) for unrelated or duplicated changes. |
 | P2 | Device coverage | **One-device evidence only** | Record supported hardware/software matrix and mark other GPU/NPU paths `NOT_TESTED` or experimental. Do not generalize Redmi Turbo 4 Pro results. |
@@ -138,6 +147,6 @@ Native AI qualification work in `~/ternux-tools` is preserved. It does not curre
 
 ## Final recommendation
 
-**NOT_READY.** All required PR workflows passed on exact head `60c9378`, and the working checkout is clean. The public signed APT paths still return 404. Updater rollback/provenance, controlled desktop lifecycle verification, workload correctness qualification, shared-storage review, owner-reviewed governance, and final PR review remain open. Build success does not close these gates.
+**NOT_READY.** The release-tag updater now has local transaction, rollback, crash-recovery, and concurrency evidence. A real published-v2/native-Termux update and the existing v1.4.0 migration are unverified. The public signed APT paths still return 404. Controlled desktop lifecycle verification, workload correctness qualification, host Termux path review, owner-reviewed governance, and final PR review remain open. Build success does not close these gates.
 
 No release tag, package publication, merge, repository-settings change, or live desktop restart was performed.

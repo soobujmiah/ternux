@@ -2003,72 +2003,9 @@ else
   not_ok "bare resume restores the saved full-profile workload set"
 fi
 
-# A forced update installs the same PREFIX/bin + PREFIX/lib/ternux structure as
-# a fresh install and executes that installed dispatcher before recording state.
-if env TERNUX_STATE_DIR="$TMP/state-update-layout" HOME="$TMP/home-update-layout" \
-  PREFIX="$TMP/prefix-update-layout" TMPDIR="$TMP/tmp-update-layout" bash -c '
-    mkdir -p "$HOME"
-    . "$1/lib/core.sh"
-    TNX_ROOT="$1"
-    . "$1/lib/update.sh"
-    dpkg-query(){ return 1; }
-    git(){
-      local dest="${!#}"
-      mkdir -p "$dest"
-      cp -R "$TNX_ROOT/bin" "$TNX_ROOT/lib" "$dest/"
-      cp "$TNX_ROOT/install.sh" "$dest/install.sh"
-    }
-    tnx_has_cmd(){ [ "$1" != proot-distro ] && command -v "$1" >/dev/null 2>&1; }
-    tnx_cmd_update >/dev/null &&
-    [ -x "$PREFIX/bin/ternux" ] &&
-    [ -f "$PREFIX/lib/ternux/core.sh" ] &&
-    "$PREFIX/bin/ternux" --version | grep -q "^ternux v$TERNUX_VERSION" &&
-    [ "$(tnx_state_get version)" = "$TERNUX_VERSION" ]
-  ' _ "$ROOT"; then
-  ok "updater installs and executes the PREFIX module layout"
-else
-  not_ok "updater installs and executes the PREFIX module layout"
-fi
-
-# Guest refresh remains best-effort, but a stale response must be reported as
-# unverified rather than silently accepted by the updater.
-if env TERNUX_STATE_DIR="$TMP/state-update-guest" HOME="$TMP/home-update-guest" \
-  PREFIX="$TMP/prefix-update-guest" TMPDIR="$TMP/tmp-update-guest" \
-  MOCK_GUEST="$TMP/mock-update-guest" WARN_FILE="$TMP/update-guest-warning" bash -c '
-    mkdir -p "$HOME"
-    . "$1/lib/core.sh"
-    TNX_ROOT="$1"
-    . "$1/lib/update.sh"
-    dpkg-query(){ return 1; }
-    git(){
-      local dest="${!#}"
-      mkdir -p "$dest"
-      cp -R "$TNX_ROOT/bin" "$TNX_ROOT/lib" "$dest/"
-      cp "$TNX_ROOT/install.sh" "$dest/install.sh"
-    }
-    tnx_has_cmd(){
-      [ "$1" = proot-distro ] && return 0
-      command -v "$1" >/dev/null 2>&1
-    }
-    proot-distro(){
-      if [ "${1:-}" = list ]; then
-        printf "debian installed\n"
-      elif [[ "$*" == *"bash -c"* ]]; then
-        cat > "$MOCK_GUEST"; chmod +x "$MOCK_GUEST"
-      else
-        printf "ternux guest v%s0\n" "$TERNUX_VERSION"
-      fi
-    }
-    tnx_warn(){ printf "%s\n" "$1" >> "$WARN_FILE"; }
-    tnx_cmd_update >/dev/null &&
-      [ -x "$MOCK_GUEST" ] &&
-      grep -q "could not be version-verified" "$WARN_FILE" &&
-      [ "$(tnx_state_get version)" = "$TERNUX_VERSION" ]
-  ' _ "$ROOT"; then
-  ok "updater warns when the refreshed Debian companion version is stale"
-else
-  not_ok "updater warns when the refreshed Debian companion version is stale"
-fi
+# Release updater transaction and recovery coverage uses local tagged Git fixtures.
+check "release updater pins commits, preserves backups, and recovers interrupted transactions" \
+  bash "$ROOT/tests/update_transaction.sh"
 
 # Optional llama.cpp builds are pinned and isolated from an existing checkout.
 check "optional llama workload pins a safe llama.cpp revision" bash -c '
