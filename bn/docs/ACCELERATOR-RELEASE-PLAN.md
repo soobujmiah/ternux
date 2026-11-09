@@ -117,6 +117,17 @@ reproduce ও সাত সেকেন্ডে recovery তিনবার ver
 screen report সমাধান হয়েছে—এমন প্রমাণ এটি নয়। Owner visual review ও startup
 latency তদন্ত এখনও বাকি।
 
+### Volume Control window-targeted visual follow-up — ২০২৬-১১-০৯
+
+পরেরবার exact desktop entry দিয়ে app খুলে guessed root-screen crop-এর বদলে
+pavucontrol X11 window-এর window ID ধরে 500×400 capture করেছি। Output Devices
+tab-এ `OpenSL ES Output` slider ও controls এবং Input Devices tab-এ `OpenSL ES
+Input` ও controls স্পষ্ট ছিল। এই run-এ black window দেখা যায়নি। শুধু test-এর
+pavucontrol process বন্ধ করেছি; PulseAudio sink ও microphone source আবার
+`SUSPENDED` হয়েছে, detached XFCE desktop চলেছে। এটি দুই tab-এর বর্তমান agent
+visual check; আগের দীর্ঘস্থায়ী black view আর হয় না—owner-এর এমন confirmation
+নয়।
+
 ### Audio output path check — ২০২৬-১১-০৯
 
 Test-এর আগে PulseAudio-তে কোনো sink input চলছিল না। `paplay` দিয়ে এক-সেকেন্ডের

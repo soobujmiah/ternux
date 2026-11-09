@@ -121,6 +121,18 @@ state and verifies recovery on three opens; it does not establish that the
 owner's longer black-screen report is resolved. Keep the owner visual review and
 startup-delay investigation open.
 
+### Volume Control window-targeted visual follow-up — 2026-11-09
+
+A later repeat used the exact desktop entry and captured the pavucontrol X11
+window by its window ID (500×400), rather than cropping guessed root-screen
+coordinates. The Output Devices tab immediately showed the `OpenSL ES Output`
+slider and controls; the Input Devices tab showed `OpenSL ES Input` and its
+controls. No black window was reproduced in this run. I closed only the
+pavucontrol test process; the PulseAudio sink and microphone source returned to
+`SUSPENDED`, and the detached XFCE desktop stayed running. This is a current
+agent visual check of both tabs, not owner confirmation that the earlier
+longer-lasting black view is resolved.
+
 ### Audio output path check — 2026-11-09
 
 No PulseAudio sink input was active before the check. A one-second 660 Hz WAV
