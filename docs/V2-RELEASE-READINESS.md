@@ -95,13 +95,26 @@ All required PR workflows passed on exact head `8101fa5e51f0f5b28c51a35b4d714cd0
 | Snapdragon HTP candidate | `42620921974` | Build passed; publication skipped on PR |
 | Snapdragon HMX candidate | `42620921987` | Build passed; publication skipped on PR |
 
-Those CI runs predate the current lifecycle and Vulkan-state changes. On exact head `0906ffa74f4d7de1f4f3d58a596d6a729531a803`, the first `Validate` run (`42630638797`) failed one focused assertion: its Vulkan parser test assumed the host had `proot-distro`, so GitHub Actions skipped the mocked guest probe. The implementation passed locally; the test now explicitly enables the guest-probe path. The Termux package, repository-contract, and knowledge-sync jobs passed. The second run also exposed a stale sitemap-count assertion (36); the two new bilingual report pages raise it to 38, and that expectation is updated. A new exact-head CI run is required after this fix is pushed.
+Those CI runs predate the current lifecycle and Vulkan-state changes. On exact head `0906ffa74f4d7de1f4f3d58a596d6a729531a803`, the first `Validate` run (`42630638797`) failed one focused assertion: its Vulkan parser test assumed the host had `proot-distro`, so GitHub Actions skipped the mocked guest probe. The implementation passed locally; the test now explicitly enables the guest-probe path. The Termux package, repository-contract, and knowledge-sync jobs passed. The second run also exposed a stale sitemap-count assertion (36); the two new bilingual report pages raise it to 38. Both test issues were fixed. All PR workflows then passed on exact head `8ed1766f75735bcb55777f2a718988429c184d78`:
+
+| Workflow | Run ID | Result |
+|---|---:|---|
+| Termux APT package build/inspection | `42631907368` | Passed |
+| Repository state contract | `42631907373` | Passed |
+| Shell, behavior, documentation | `42631907351` | Passed |
+| Repo knowledge sync/test | `42631907829` | Passed |
+| llama.cpp CPU + Vulkan artifact | `42631907378` | Passed |
+| Stable Diffusion CPU + Vulkan artifact | `42631907382` | Passed |
+| Snapdragon HTP candidate | `42631907409` | Build passed; publication skipped on PR |
+| Snapdragon HMX candidate | `42631907376` | Build passed; publication skipped on PR |
+
+A documentation-only commit updates this report after those results; its own exact-head CI will run separately.
 
 ## Remaining blockers and release exclusions
 
 | Priority | Gate | Current status | Required evidence before v2.0.0 |
 |---|---|---|---|
-| P0 | Current-head CI and PR review | **Two exact-head runs exposed test-only assumptions; fixes pass locally** | Push the environment-independent test fix, require all workflows on that exact head, review logs/artifacts, refresh the draft PR description, and obtain owner review. |
+| P0 | Current-head CI and PR review | **All workflows passed on source head `8ed1766`; report-only follow-up CI pending** | Confirm the report-only head checks, review logs/artifacts, keep the PR draft, and obtain owner review. |
 | P1 | Desktop lifecycle on device | **Code changed; live deployment unverified** | After a controlled package/update path, verify repeated/overlapping start, `status --json`, stop/start, crash/stale-record recovery, X11 socket ownership, audio readiness, and ensure the current working GUI remains usable. Current live session was deliberately not restarted. |
 | P1 | Update transaction and provenance | **Not fixed** | `lib/update.sh` still shallow-clones the moving repository head and installs modules one by one. Pin source to a release commit, verify provenance/checksum, stage all files, test them before switch, and roll back on failure/interruption. |
 | P1 | APT repository and clean install | **Public endpoint currently unavailable** | On 2026-11-09, `https://soobujmiah.github.io/ternux/apt/bootstrap.sh`, `apt/ternux-archive-key.asc`, `apt/dists/stable/InRelease`, and `apt/dists/stable/main/binary-all/Packages` all returned HTTP 404. Restore/deploy the signed repository, then verify signed index/key lifecycle and clean `pkg install ternux`, upgrade, and uninstall on a supported Termux device. |
@@ -115,6 +128,6 @@ Native AI qualification work in `~/ternux-tools` is preserved. It does not curre
 
 ## Final recommendation
 
-**NOT_READY.** The Stable Diffusion notice defect is fixed and the previous PR head passed all required CI. This audit also removed unsafe global desktop cleanup and false-positive Vulkan detection in the source, with focused regressions. Those new changes still require exact-head CI and controlled device verification. Update rollback/provenance, signed APT clean-install/upgrade verification, workload correctness qualification, and owner-reviewed governance remain outstanding.
+**NOT_READY.** The Stable Diffusion notice defect is fixed. Desktop lifecycle and Vulkan detection changes, focused regressions, documentation, and all candidate build workflows passed on source head `8ed1766`. Controlled device verification is still outstanding. The public APT endpoint returns 404; updater rollback/provenance, workload correctness qualification, and owner-reviewed governance also remain outstanding.
 
 No release tag, package publication, merge, repository-settings change, or live desktop restart was performed.

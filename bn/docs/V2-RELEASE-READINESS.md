@@ -96,7 +96,7 @@ alt_url: "/docs/V2-RELEASE-READINESS.html"
 
 | Priority | Gate | অবস্থা | v2.0.0-এর আগে দরকার |
 |---|---|---|---|
-| P0 | Current-head CI ও PR review | **দুই exact-head run-এ test-only assumption ধরা পড়েছে; local fix পাস** | Environment-independent test fix push করে exact head-এর সব workflow পাস করাতে হবে, log/artifact review, draft PR description update ও owner review দরকার। |
+| P0 | Current-head CI ও PR review | **Source head `8ed1766`-এর সব workflow পাস; report-only follow-up CI অপেক্ষমাণ** | Report-only head-এর check confirm, log/artifact review, PR draft রাখা ও owner review দরকার। |
 | P1 | Device desktop lifecycle | **Code বদলেছে; live deployment unverified** | নিয়ন্ত্রিত update-এর পর repeated/concurrent start, `status --json`, stop/start, crash recovery, socket ownership ও audio readiness যাচাই। চলমান GUI restart করা হয়নি। |
 | P1 | Update transaction/provenance | **অসম্পূর্ণ** | `lib/update.sh` moving repository head clone করে module একে একে বসায়। Release commit pin, provenance/checksum, staging, pre-switch test ও failure rollback দরকার। |
 | P1 | APT ও clean install | **Public endpoint এখন unavailable** | 2026-11-09-এ `https://soobujmiah.github.io/ternux/apt/bootstrap.sh`, `apt/ternux-archive-key.asc`, `apt/dists/stable/InRelease`, `apt/dists/stable/main/binary-all/Packages`—সব HTTP 404 দিয়েছে। Signed repository deploy/restore করে supported Termux device-এ `pkg install ternux`, upgrade ও uninstall যাচাই করতে হবে। |
