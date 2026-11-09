@@ -877,11 +877,11 @@ fi
 
 # The English and Bengali manual must direct users through the managed desktop
 # lifecycle, whose launcher carries the isolated bind policy.
-if rg -q 'ternux start' "$ROOT/docs/MANUAL.md" &&
-   rg -q 'ternux start' "$ROOT/bn/docs/MANUAL.md" &&
-   rg -q 'shared storage.*`/sdcard`' "$ROOT/docs/MANUAL.md" &&
-   rg -q '`/sdcard`' "$ROOT/bn/docs/MANUAL.md" &&
-   ! rg -q '^# TERNUX_DESKTOP_LAUNCHER=' "$ROOT/docs/MANUAL.md" "$ROOT/bn/docs/MANUAL.md"; then
+if grep -q 'ternux start' "$ROOT/docs/MANUAL.md" &&
+   grep -q 'ternux start' "$ROOT/bn/docs/MANUAL.md" &&
+   grep -q 'shared storage.*`/sdcard`' "$ROOT/docs/MANUAL.md" &&
+   grep -q '`/sdcard`' "$ROOT/bn/docs/MANUAL.md" &&
+   ! grep -q '^# TERNUX_DESKTOP_LAUNCHER=' "$ROOT/docs/MANUAL.md" "$ROOT/bn/docs/MANUAL.md"; then
   ok "English and Bengali manuals use the managed, isolated desktop launcher"
 else
   not_ok "English and Bengali manuals use the managed, isolated desktop launcher"
