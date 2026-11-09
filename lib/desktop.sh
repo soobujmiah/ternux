@@ -20,6 +20,26 @@ tnx_stop_legacy_ternuxx_audio() {
   done
 }
 
+# A valid PID file is not enough to prove the desktop is usable: Android may
+# have killed/recreated the X11 app, and old PIDs can be reused. Check the
+# actual guest session and shared X11 socket before accepting a start request.
+tnx_desktop_session_live() {
+  local tmp="${TMPDIR:-/data/data/com.termux/files/usr/tmp}"
+  [ -S "$tmp/.X11-unix/X0" ] || return 1
+  pgrep -f "^termux-x11 com\.termux\.x11([[:space:]]|$)" >/dev/null 2>&1 || return 1
+  pgrep -x xfce4-session >/dev/null 2>&1 || return 1
+  pgrep -x xfwm4 >/dev/null 2>&1 || return 1
+  pgrep -x xfdesktop >/dev/null 2>&1 || return 1
+  return 0
+}
+
+# The X server runs as a background service, but Android only displays its
+# desktop when Termux:X11's activity is in the foreground.
+tnx_show_x11_activity() {
+  command -v am >/dev/null 2>&1 || return 0
+  am start -n com.termux.x11/com.termux.x11.MainActivity >/dev/null 2>&1 || true
+}
+
 # ---------------------------------------------------------------------------
 # tnx_cmd_start
 # ---------------------------------------------------------------------------
@@ -66,13 +86,24 @@ tnx_cmd_start() {
   if [ -r "$pid_file" ]; then
     local old_pid
     old_pid="$(cat "$pid_file" 2>/dev/null || true)"
-    if [[ "$old_pid" =~ ^[0-9]+$ ]] && kill -0 "$old_pid" 2>/dev/null && grep -q '^READY$' "$ready_file" 2>/dev/null; then
+    if [[ "$old_pid" =~ ^[0-9]+$ ]] && kill -0 "$old_pid" 2>/dev/null && grep -q '^READY$' "$ready_file" 2>/dev/null && tnx_desktop_session_live; then
+      tnx_show_x11_activity
       tnx_info "Desktop is already running (PID $old_pid). Use 'ternux status' or 'ternux logs desktop tail'."
       [ "${TERNUX_JSON:-0}" = "1" ] && tnx_json_object "start" "already_running" "pid" "$old_pid"
       return 0
     fi
-    rm -f "$pid_file" "$ready_file"
   fi
+
+  # Recover cleanly when the supervisor marker was lost but the actual desktop
+  # survived. Do not run another launcher: it would tear down the live X server.
+  if tnx_desktop_session_live; then
+    local active_pid="$(cat "$pid_file" 2>/dev/null || true)"
+    tnx_show_x11_activity
+    tnx_info "Desktop is already active${active_pid:+ (PID $active_pid)}. Use 'ternux status' or 'ternux logs desktop tail'."
+    [ "${TERNUX_JSON:-0}" = "1" ] && tnx_json_object "start" "already_running" "pid" "${active_pid:-unknown}"
+    return 0
+  fi
+  rm -f "$pid_file" "$ready_file"
 
   # Check for an unmanaged/legacy session before starting another display.
   # Android truncates the configured nice-name to this 15-character comm.
@@ -128,9 +159,11 @@ tnx_cmd_start() {
   fi
 
   if [ "${TERNUX_JSON:-0}" = "1" ]; then
+    tnx_show_x11_activity
     tnx_json_object "start" "ok" "backend" "$configured_backend" "pid" "$pid" "log" "$desktop_log"
     return 0
   fi
+  tnx_show_x11_activity
   tnx_ok "Desktop is running in the background (PID $pid)."
   tnx_info "Startup output: ternux logs desktop tail"
   return 0
@@ -220,8 +253,9 @@ tnx_cmd_restart() {
 tnx_cmd_status() {
   local x11=0 pa=0 virgl=0 desktop_pid=""
   [ -r "$TERNUX_STATE_DIR/session/desktop.pid" ] && desktop_pid="$(cat "$TERNUX_STATE_DIR/session/desktop.pid" 2>/dev/null || true)"
-  [[ "$desktop_pid" =~ ^[0-9]+$ ]] && kill -0 "$desktop_pid" 2>/dev/null && grep -q '^READY$' "$TERNUX_STATE_DIR/session/desktop.pid.ready" 2>/dev/null || desktop_pid=""
+  if ! [[ "$desktop_pid" =~ ^[0-9]+$ ]] || ! kill -0 "$desktop_pid" 2>/dev/null || ! grep -q '^READY$' "$TERNUX_STATE_DIR/session/desktop.pid.ready" 2>/dev/null; then desktop_pid=""; fi
   pgrep -f "^termux-x11 com\.termux\.x11([[:space:]]|$)" >/dev/null 2>&1 && x11=1
+  tnx_desktop_session_live && desktop_pid="${desktop_pid:-active}"
   pgrep -x pulseaudio >/dev/null 2>&1 && pa=1
   pgrep -f '(^|/)virgl_test_server(_android)?([[:space:]]|$)' >/dev/null 2>&1 && virgl=1
 

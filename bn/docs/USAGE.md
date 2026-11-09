@@ -27,7 +27,7 @@ Android soft keyboard থেকে terminal ও অন্য X11 app-এ text �
 
 | কমান্ড | কী করে |
 |---|---|
-| `x` | `ternux start` দিয়ে ডেস্কটপ background-এ শুরু (অডিও → ডিসপ্লে → Debian → Xfce4) |
+| `x` | `ternux start` দিয়ে ডেস্কটপ শুরু করে Termux:X11 সামনে আনে (অডিও → ডিসপ্লে → Debian → Xfce4) |
 | `xgo` | Termux:X11 অ্যাপ স্বয়ংক্রিয় খুলে ডেস্কটপ শুরু |
 | `killx` | সেশন পরিষ্কারভাবে বন্ধ + পুরনো সকেট মুছে ফেলা |
 | `db` | আপনার ইউজার হিসেবে Debian শেল |

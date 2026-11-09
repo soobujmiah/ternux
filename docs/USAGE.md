@@ -26,7 +26,7 @@ Ternux enables Termux:X11 `enforceCharBasedInput` before starting the desktop so
 
 | Command | What it does |
 |---|---|
-| `x` | Start the desktop in the background through `ternux start` (audio → display → Debian → Xfce4) |
+| `x` | Start the desktop through `ternux start` and bring Termux:X11 to the foreground (audio → display → Debian → Xfce4) |
 | `xgo` | Open the Termux:X11 app automatically, then start the desktop |
 | `killx` | Stop the session cleanly and clear stale sockets |
 | `db` | Shell inside Debian as your user |

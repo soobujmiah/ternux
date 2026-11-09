@@ -30,6 +30,7 @@ Notable changes to ternux. Dates are ISO 8601.
 
 ### Desktop reliability
 
+- `ternux start` now brings the Termux:X11 activity to the foreground and reuses a live XFCE session when launcher state is stale, preventing accidental duplicate launches and a missing desktop view.
 - Fixed the GTK 4 theme's invalid built-in stylesheet resource path. On Debian Trixie GTK 4, the old Adwaita resource did not exist and caused a theme parser error; the theme now imports GTK's bundled dark stylesheet. The live pavucontrol launch no longer emitted that parser error, and its OpenSL ES Output controls rendered visibly. Repeated Xfce menu-launch validation remains open.
 - Verified menu-entry-launched PulseAudio Volume Control on the connected Xfce desktop: Playback controls and the OpenSL input are readable in the shared dark theme. The microphone source returns to idle when the app closes.
 - Fixed intermittent black PulseAudio Volume Control windows by keeping `GALLIUM_DRIVER=zink` scoped to GPU workloads instead of exporting it to every desktop app; the desktop still selects accelerated Zink through `MESA_LOADER_DRIVER_OVERRIDE=zink`.
