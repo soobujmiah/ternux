@@ -1735,6 +1735,8 @@ fi
 # software device and must never turn a CPU-only device into hardware readiness.
 if env TERNUX_STATE_DIR="$TMP/state-vulkan-enum" HOME="$TMP/home-vulkan-enum" bash -c '
   . "$1/lib/detect.sh"
+  # Force the mocked guest probe regardless of host-installed Termux tools.
+  tnx_has_cmd(){ [ "$1" = proot-distro ]; }
   tnx_detect_gpu(){ echo "Adreno (TM) 825"; }
   tnx_vulkan_probe_guest(){ printf "TNX_LOADER=yes\nTNX_ICD=yes\nTNX_ENUM_RC=0\nGPU0:\n\tdeviceType = PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU\n\tdeviceName = Adreno (TM) 825\n\tdriverName = turnip Mesa driver\nGPU1:\n\tdeviceType = PHYSICAL_DEVICE_TYPE_CPU\n\tdeviceName = llvmpipe\n\tdriverName = llvmpipe\n"; }
   [ "$(tnx_detect_vulkan_state)" = VULKAN_READY ] || exit

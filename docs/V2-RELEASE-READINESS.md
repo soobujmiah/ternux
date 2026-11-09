@@ -95,16 +95,16 @@ All required PR workflows passed on exact head `8101fa5e51f0f5b28c51a35b4d714cd0
 | Snapdragon HTP candidate | `42620921974` | Build passed; publication skipped on PR |
 | Snapdragon HMX candidate | `42620921987` | Build passed; publication skipped on PR |
 
-Those CI runs predate the current lifecycle and Vulkan-state changes. Current-head CI remains a release gate.
+Those CI runs predate the current lifecycle and Vulkan-state changes. On exact head `0906ffa74f4d7de1f4f3d58a596d6a729531a803`, the first `Validate` run (`42630638797`) failed one focused assertion: its Vulkan parser test assumed the host had `proot-distro`, so GitHub Actions skipped the mocked guest probe. The implementation passed locally; the test now explicitly enables the guest-probe path. The Termux package and repository-contract jobs passed; artifact and knowledge-sync jobs were still running when this report was updated. A new exact-head CI run is required after the test fix is pushed.
 
 ## Remaining blockers and release exclusions
 
 | Priority | Gate | Current status | Required evidence before v2.0.0 |
 |---|---|---|---|
-| P0 | Current-head CI and PR review | **Pending** | Push the audited changes, require all workflows on the resulting exact head, review their logs/artifacts, refresh the draft PR description, and obtain owner review. |
+| P0 | Current-head CI and PR review | **First run had one test portability failure; test fix locally passes** | Push the environment-independent test fix, require all workflows on that exact head, review logs/artifacts, refresh the draft PR description, and obtain owner review. |
 | P1 | Desktop lifecycle on device | **Code changed; live deployment unverified** | After a controlled package/update path, verify repeated/overlapping start, `status --json`, stop/start, crash/stale-record recovery, X11 socket ownership, audio readiness, and ensure the current working GUI remains usable. Current live session was deliberately not restarted. |
 | P1 | Update transaction and provenance | **Not fixed** | `lib/update.sh` still shallow-clones the moving repository head and installs modules one by one. Pin source to a release commit, verify provenance/checksum, stage all files, test them before switch, and roll back on failure/interruption. |
-| P1 | APT repository and clean install | **CI-only/partially verified** | Verify signed public index/key lifecycle, endpoint availability, `pkg install ternux`, upgrade and uninstall on a clean supported Termux environment, and compatibility with standalone install. The prior public endpoint observation was unavailable; it must be checked again before release. |
+| P1 | APT repository and clean install | **Public endpoint currently unavailable** | On 2026-11-09, `https://soobujmiah.github.io/ternux/apt/bootstrap.sh`, `apt/ternux-archive-key.asc`, `apt/dists/stable/InRelease`, and `apt/dists/stable/main/binary-all/Packages` all returned HTTP 404. Restore/deploy the signed repository, then verify signed index/key lifecycle and clean `pkg install ternux`, upgrade, and uninstall on a supported Termux device. |
 | P1 | Workload correctness | **Mixed / experimental** | llama.cpp CPU/Vulkan artifacts build, but target-device known-answer, offload confirmation, memory pressure, repeated runs, cancellation, and sustained measurements remain incomplete. HTP/HMX remain experimental pending operator-level numerical qualification. QNN Stable Diffusion remains experimental and not integrated as supported NPU functionality. |
 | P1 | Shared-storage/security review | **Partial** | Complete an end-to-end bind/permission audit and document optional storage exposure for each workload. Avoid inferring user data access from a tool’s ability to bind a path. |
 | P1 | Repository governance | **Not changed** | Required checks, branch protection, CODEOWNERS and secret/release protection need owner-approved settings. No repository settings were modified. |

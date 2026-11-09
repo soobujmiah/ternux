@@ -90,16 +90,16 @@ alt_url: "/docs/V2-RELEASE-READINESS.html"
 | Snapdragon HTP candidate | `42620921974` | Build পাস; PR-এ publication বাদ |
 | Snapdragon HMX candidate | `42620921987` | Build পাস; PR-এ publication বাদ |
 
-এগুলো বর্তমান lifecycle/Vulkan change-এর আগের CI; exact current-head CI এখনো release gate।
+এগুলো বর্তমান lifecycle/Vulkan change-এর আগের CI। ঠিক `0906ffa74f4d7de1f4f3d58a596d6a729531a803` head-এর প্রথম `Validate` run (`42630638797`)-এ একটি focused assertion fail করে: Vulkan parser test host-এ `proot-distro` আছে ধরে নিয়েছিল, তাই GitHub Actions-এ mocked guest probe চলেনি। Implementation local-এ পাস করেছে; test-এ এখন guest-probe path স্পষ্টভাবে enable করা হয়েছে। Termux package ও repository-contract job পাস করেছে; রিপোর্ট লেখার সময় artifact ও knowledge-sync job চলছিল। Test fix push হওয়ার পর exact নতুন head-এর CI আবার পাস করতে হবে।
 
 ## বাকি blocker ও release exclusion
 
 | Priority | Gate | অবস্থা | v2.0.0-এর আগে দরকার |
 |---|---|---|---|
-| P0 | Current-head CI ও PR review | **অপেক্ষমাণ** | Audited change push, exact head-এ workflow pass, log/artifact review, draft PR description update ও owner review। |
+| P0 | Current-head CI ও PR review | **প্রথম run-এ test portability failure; local fix পাস** | Environment-independent test fix push করে exact head-এর সব workflow পাস করাতে হবে, log/artifact review, draft PR description update ও owner review দরকার। |
 | P1 | Device desktop lifecycle | **Code বদলেছে; live deployment unverified** | নিয়ন্ত্রিত update-এর পর repeated/concurrent start, `status --json`, stop/start, crash recovery, socket ownership ও audio readiness যাচাই। চলমান GUI restart করা হয়নি। |
 | P1 | Update transaction/provenance | **অসম্পূর্ণ** | `lib/update.sh` moving repository head clone করে module একে একে বসায়। Release commit pin, provenance/checksum, staging, pre-switch test ও failure rollback দরকার। |
-| P1 | APT ও clean install | **আংশিক/CI-only** | Signed index/key lifecycle, endpoint, clean Termux-এ `pkg install ternux`, upgrade/uninstall ও standalone পথ যাচাই। আগের public endpoint unavailable ছিল; release-এর আগে পুনরায় যাচাই দরকার। |
+| P1 | APT ও clean install | **Public endpoint এখন unavailable** | 2026-11-09-এ `https://soobujmiah.github.io/ternux/apt/bootstrap.sh`, `apt/ternux-archive-key.asc`, `apt/dists/stable/InRelease`, `apt/dists/stable/main/binary-all/Packages`—সব HTTP 404 দিয়েছে। Signed repository deploy/restore করে supported Termux device-এ `pkg install ternux`, upgrade ও uninstall যাচাই করতে হবে। |
 | P1 | Workload correctness | **মিশ্র/experimental** | llama.cpp artifact build হলেও target-device known-answer, offload, memory pressure, repeat/cancel ও sustained measurement বাকি। HTP/HMX experimental; QNN Stable Diffusion supported NPU feature হিসেবে integrated নয়। |
 | P1 | Shared-storage/security | **আংশিক** | Bind/permission audit এবং প্রতিটি workload-এর storage exposure নথিভুক্ত করা। |
 | P1 | Repository governance | **বদলানো হয়নি** | Required checks, branch protection, CODEOWNERS, secret/release protection-এর owner-approved settings দরকার। কোনো settings বদলানো হয়নি। |
