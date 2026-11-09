@@ -604,3 +604,44 @@ Artifact যাচাইয়ের জন্য নির্ধারিত ow
 Package/runtime correctness, clean install, sustained use এবং release publication-এর
 সব দাবি উপরের খোলা gate অনুযায়ী যাচাই হবে। পরের documentation-only inventory
 update build হওয়া product source বদলায় না।
+
+### PR #97-এর বর্তমান source-head ও live release audit — ২০২৬-১১-০৯
+
+Source head `cd7df4307b9c55ddce76aafecd5a11790a42412a`-এ PR-এর আটটি প্রয়োজনীয়
+workflow pass করেছে: unsigned Termux APT package `42593962372`, CPU/Vulkan
+llama.cpp `42593962410`, Stable Diffusion `42593962517`, production HTP
+`42593962427`, integer-HMX candidate `42593962461`, Validate `42593962422`,
+repository contract `42593962492`, এবং knowledge sync `42593962457`। PR #97 draft
+থাকায় preview ও public-release job skip হয়েছে। GitHub Actions candidate archive-এর
+metadata:
+
+| Artifact | Actions artifact ID | Byte | ZIP SHA-256 |
+|---|---:|---:|---|
+| `ternux-apt-unsigned-ci-9fe12e9915bcb6821314e60b7301d2614af0f2e0` | `13661918119` | 268,116 | `38d97f8502faf2ace2ac9f963484ae102490b7f1fa97b14ef2761fe8a81a87aa` |
+| `ternux-llama-vulkan-linux-arm64-b11582-candidate` | `13662713136` | 21,323,560 | `c2e73acc3f8963e3abf6eaeeb30763fa97643e35555d214753fb930aa2cd9a70` |
+| `ternux-stable-diffusion-vulkan-linux-arm64-master-1053-candidate` | `13662364167` | 27,027,607 | `3910614a64e30e0cc00fa9f0ae8a5442bfb747a45bcf913ecdb9190448ac072a` |
+| `ternux-llama-htp-sm8735-b11582` | `13663720894` | 15,633,114 | `da36db57e5b631023dab2bba8dd0424eb1a5e19f5b9032c4a7a817c99fbb830e` |
+| `ternux-llama-htp-sm8735-integer-hmx-v73-candidate` | `13663990153` | 15,535,173 | `07f543821d1333444b1c7cb6b0e2318f4dec6852b6a8a347fec23841e888139e` |
+
+Digest-গুলো Actions ZIP archive-এর। নির্ধারিত incoming directory-তে exact
+current-head archive স্থানান্তর বা install করা হয়নি; তাই এই build-গুলো exact
+artifact device qualification সম্পন্ন করে না। এই source head-এ
+`tests/focused.sh`-এ 129/129 এবং `tests/docs_check.py`-এ 3,018 assertion, 312টি
+internal link ও 19টি bilingual page pair pass করেছে। Installed Ternux 2.0.0
+package-এর `ternux verify --json` pass করেছে; `ternux doctor --json`-এ 31 OK,
+0 warning, 0 failure এবং 1টি informational item এসেছে। এর মধ্যে Adreno 825
+Zink/Turnip Vulkan এবং installed llama Vulkan, Stable Diffusion ও experimental
+HTP extension health আছে। সংশোধিত desktop launcher XFCE process চালু হওয়ার
+পরেই readiness দেখায়। সর্বশেষ live check-এ detached desktop (PID 16987), X11
+এবং PulseAudio running ছিল; desktop restart না করে Termux:X11 foreground-এ আনা
+হয়েছে। এগুলো process/runtime evidence, owner-এর visual review নয়।
+
+Hosted signed APT-এর URL (`apt/bootstrap.sh`, `apt/ternux-archive-key.asc`,
+`apt/dists/stable/InRelease`) HTTP 404 দিয়েছে। Termux camera-video API PR
+[#904](https://github.com/termux/termux-api/pull/904) এবং client PR
+[#242](https://github.com/termux/termux-api-package/pull/242) এখনো open; installed
+Termux:API-তে in-window live preview-এর camera stream নেই। Exact artifact/device
+qualification, QNN stage correctness ও image performance, HTP numerical/operator
+qualification, sustained/failure-restart coverage, বিস্তৃত dependency-license
+review, camera live preview, owner visual review এবং hosted signed APT clean
+install/upgrade বাকি থাকায় release gate 10 এখনো held।

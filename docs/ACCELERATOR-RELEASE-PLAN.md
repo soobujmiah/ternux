@@ -650,3 +650,46 @@ intake for artifact validation. All package/runtime correctness, clean-install,
 sustained-use and release publication claims remain governed by the open gates
 above. The following documentation-only inventory update does not alter the
 built product sources.
+
+### Current PR #97 source-head and live release audit — 2026-11-09
+
+At source head `cd7df4307b9c55ddce76aafecd5a11790a42412a`, all eight required
+PR workflows passed: unsigned Termux APT package `42593962372`, CPU/Vulkan
+llama.cpp `42593962410`, Stable Diffusion `42593962517`, production HTP
+`42593962427`, integer-HMX candidate `42593962461`, Validate `42593962422`,
+repository contract `42593962492`, and knowledge sync `42593962457`. Preview
+and public-release jobs were skipped because PR #97 remains draft. GitHub
+Actions reports these candidate archive metadata values:
+
+| Artifact | Actions artifact ID | Bytes | ZIP SHA-256 |
+|---|---:|---:|---|
+| `ternux-apt-unsigned-ci-9fe12e9915bcb6821314e60b7301d2614af0f2e0` | `13661918119` | 268,116 | `38d97f8502faf2ace2ac9f963484ae102490b7f1fa97b14ef2761fe8a81a87aa` |
+| `ternux-llama-vulkan-linux-arm64-b11582-candidate` | `13662713136` | 21,323,560 | `c2e73acc3f8963e3abf6eaeeb30763fa97643e35555d214753fb930aa2cd9a70` |
+| `ternux-stable-diffusion-vulkan-linux-arm64-master-1053-candidate` | `13662364167` | 27,027,607 | `3910614a64e30e0cc00fa9f0ae8a5442bfb747a45bcf913ecdb9190448ac072a` |
+| `ternux-llama-htp-sm8735-b11582` | `13663720894` | 15,633,114 | `da36db57e5b631023dab2bba8dd0424eb1a5e19f5b9032c4a7a817c99fbb830e` |
+| `ternux-llama-htp-sm8735-integer-hmx-v73-candidate` | `13663990153` | 15,535,173 | `07f543821d1333444b1c7cb6b0e2318f4dec6852b6a8a347fec23841e888139e` |
+
+The digests identify Actions ZIP archives. The exact current-head archives were
+not transferred to the designated incoming directories or installed, so these
+builds do not close exact-artifact device qualification. On this source head,
+`tests/focused.sh` passed 129/129 and `tests/docs_check.py` passed 3,018
+assertions, 312 internal links, and 19 bilingual page pairs. The installed
+Ternux 2.0.0 package passed `ternux verify --json`; `ternux doctor --json`
+reported 31 OK, 0 warnings, 0 failures, and 1 informational item, including
+Adreno 825 Zink/Turnip Vulkan and the installed llama Vulkan, Stable Diffusion,
+and experimental HTP extensions. The fixed desktop launcher reports readiness
+only after XFCE processes are alive. At the latest live check the detached
+desktop remained running (PID 16987), X11 was available, and PulseAudio was
+running; Termux:X11 was brought to the foreground without restarting the
+desktop. This is process/runtime evidence, not an owner visual review.
+
+The hosted signed APT endpoints (`apt/bootstrap.sh`,
+`apt/ternux-archive-key.asc`, and `apt/dists/stable/InRelease`) returned HTTP
+404. Termux camera-video API PR [#904](https://github.com/termux/termux-api/pull/904)
+and client PR [#242](https://github.com/termux/termux-api-package/pull/242)
+remain open, so installed Termux:API still provides no camera stream for the
+in-window live preview. Release gate 10 remains held for exact artifact/device
+qualification, QNN stage correctness and image performance, HTP numerical and
+operator qualification, sustained/failure-restart coverage, the wider
+dependency-license review, camera live preview, owner visual review, and hosted
+signed APT clean install/upgrade.
