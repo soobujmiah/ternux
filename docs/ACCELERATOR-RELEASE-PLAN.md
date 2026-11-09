@@ -727,3 +727,14 @@ Local `tests/focused.sh` passed 130/130, including the new stale-marker/live-XFC
 recovery and activity-foreground regression; `tests/docs_check.py` passed 3,018
 assertions, 312 internal links, and 19 bilingual page pairs. These checks do not
 close the open release gates listed above.
+
+### Live desktop visual check — 2026-11-09
+
+With the existing desktop left running, the Termux:X11 display was captured at
+752×1155 after `ternux start` confirmed it was already running. The visible
+screen showed the Ternux-branded XFCE wallpaper, readable desktop icons (Home,
+File System, Trash, SD Card), and the panel; the display was not blank or black.
+`DISPLAY=:0` responded and the screenshot was inspected from the active X11
+session. The temporary screenshot was deleted after inspection. This closes the
+agent's live-display rendering check for this session only; it does not replace
+the owner's final visual review or validate every application/window.

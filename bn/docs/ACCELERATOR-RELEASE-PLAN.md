@@ -677,3 +677,14 @@ Termux APT package [42599397259](https://github.com/soobujmiah/ternux/actions/ru
 session reuse এবং Termux:X11 সামনে আনা যাচাই করে। `tests/docs_check.py`-এ 3,018
 assertion, 312 internal link ও 19 bilingual page pair pass করেছে। এই check-গুলো
 উপরের খোলা release gate বন্ধ করে না।
+
+### লাইভ ডেস্কটপের দৃশ্যমানতা যাচাই — ২০২৬-১১-০৯
+
+চলমান ডেস্কটপ বন্ধ না করে `ternux start` দিয়ে existing session নিশ্চিত করার
+পর Termux:X11 display-তে 752×1155 screenshot নেওয়া হয়। দেখা স্ক্রিনে Ternux
+ব্র্যান্ডের XFCE wallpaper, পড়া যায় এমন Home, File System, Trash ও SD Card
+desktop icon এবং panel ছিল; display কালো বা ফাঁকা ছিল না। Active X11 session-এর
+`DISPLAY=:0` সাড়া দিয়েছে এবং screenshot দেখা হয়েছে। পরিদর্শনের পর অস্থায়ী
+screenshot মুছে ফেলা হয়েছে। এতে এই session-এর agent-side live-display rendering
+check সম্পন্ন হয়েছে; owner-এর final visual review বা প্রতিটি app/window যাচাই
+সম্পন্ন হয়েছে এমন প্রমাণ নয়।
