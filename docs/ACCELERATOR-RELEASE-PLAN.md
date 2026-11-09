@@ -604,3 +604,29 @@ device-qualified. The successful jobs prove pinned builds and static packaging
 only. Runtime, numerical correctness, sustained-use, clean-install, owner
 visual, camera live-preview, public signed APT and publication gates remain
 open. PR #97 remains draft.
+
+### Complete current-head CI artifact inventory — 2026-11-09
+
+At PR #97 head `c0b7de99673c0a7618514d30f8471f23c0431420`, all eight build
+and validation workflows passed: APT `42557310299`, repository contract
+`42557310329`, Validate `42557310363`, knowledge sync `42557310330`, llama
+CPU/Vulkan `42557310347`, Stable Diffusion `42557310304`, production HTP
+`42557310507`, and integer-HMX candidate `42557310332`. Preview and publication
+jobs were skipped because PR #97 remains draft. Actions artifact metadata:
+
+| Artifact | ID | Bytes | Archive SHA-256 |
+|---|---:|---:|---|
+| `ternux-apt-unsigned-ci-2aafb646e1bb30a9ee66cc8b0e9a4c195167296b` | `13646994621` | 268,622 | `256f2d7e71001b19b387832bbb6efda016cfa87731a1df2c4440fb982aaf6244` |
+| `ternux-llama-vulkan-linux-arm64-b11582-candidate` | `13648121485` | 21,321,152 | `458b9dfc92f0e3a404e2050378e173595b1cb2cefaae1e5913cdaa9137969af5` |
+| `ternux-stable-diffusion-vulkan-linux-arm64-master-1053-candidate` | `13647719068` | 27,028,493 | `4bf92744b0a4aedf380f8d2b30aa6cd2ba9a3b54cd4d8036972804535fd36995` |
+| `ternux-llama-htp-sm8735-b11582` | `13648505570` | 15,632,903 | `0bed70ecddb9873116d094b4d7932c8cf40a0912ad5ebb1b79958ca52698032d` |
+| `ternux-llama-htp-sm8735-integer-hmx-v73-candidate` | `13648406193` | 15,534,201 | `80747d62304dae39592bd796d4ba7a5c1288f3a8d494408f6a7cd0e147c87d6b` |
+
+These SHA-256 values identify GitHub Actions ZIP archives, not extracted
+payloads. The archives remain absent from the designated incoming directories
+and have not been installed or device-qualified. Successful CI proves pinned
+builds and static packaging only; runtime correctness, numerical behavior,
+sustained use, clean-install behavior, and device compatibility remain open.
+The working tree was clean at this source head. A fresh non-GUI `ternux doctor
+--json` check reported 30 OK, 0 failures, one informational item, and a 44 °C
+battery warning; the desktop remained stopped.
