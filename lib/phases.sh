@@ -1067,6 +1067,7 @@ for ((candidate=4713; candidate<=4722; candidate++)); do
 done
 if [ -z "$PULSE_PORT" ]; then echo "ERROR: Could not open the loopback PulseAudio bridge on ports 4713-4722."; exit 1; fi
 echo "PulseAudio bridge ready on 127.0.0.1:$PULSE_PORT."
+# Display
 termux-x11 :0 -legacy-drawing -ac &
 X11_PID=$!
 echo "Waiting for Termux-X11..."
@@ -1077,7 +1078,6 @@ while [ ! -e "$TMPDIR/.X11-unix/X0" ]; do
   WAITED=$((WAITED+1)); sleep 0.1
 done
 echo "Display :0 ready."
-# Display
 cat > "$TNX_GUEST_SESSION_SCRIPT" <<'TERNUX_GUEST_EOF'
 #!/usr/bin/env bash
 set -u
