@@ -1641,6 +1641,14 @@ if env TERNUX_STATE_DIR="$TMP/state-desktop-start" HOME="$TMP/home-desktop-start
       sed -i "1a# TERNUX_DESKTOP_LAUNCHER=18" "$HOME/x.sh"
       chmod +x "$HOME/x.sh"
     }
+    fixture_pid=""; fixture_start=""; fixture_pgid=""
+    cleanup_managed_fixture(){
+      if [[ "$fixture_pid" =~ ^[0-9]+$ ]] && [ "$fixture_pgid" = "$fixture_pid" ] &&
+         [ "$(tnx_process_start_identity "$fixture_pid" 2>/dev/null || true)" = "$fixture_start" ]; then
+        tnx_signal_process_group KILL "$fixture_pgid" || true
+      fi
+    }
+    trap cleanup_managed_fixture EXIT
     tnx_has_cmd(){ [ "$1" = setsid ] || [ "$1" = flock ]; }
     setsid(){ command setsid "$@"; }
     pgrep(){ return 1; }
@@ -1649,15 +1657,23 @@ if env TERNUX_STATE_DIR="$TMP/state-desktop-start" HOME="$TMP/home-desktop-start
     [ "$((SECONDS-start_at))" -le 5 ] || exit
     pid="$(cat "$TERNUX_STATE_DIR/session/desktop.pid")"
     [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null || exit
+    read -r fixture_pid fixture_start fixture_pgid < "$TERNUX_STATE_DIR/session/desktop.pid.identity" || exit
     grep -q session-started "$TERNUX_STATE_DIR/session/desktop.log" || exit
     grep -q "^# TERNUX_DESKTOP_LAUNCHER=18$" "$HOME/x.sh" || exit
     grep -q "util-linux zsh git curl" "$1/lib/phases.sh" || exit
     tnx_cmd_stop >/dev/null || exit
-    [ ! -e "$TERNUX_STATE_DIR/session/desktop.pid" ]
+    [ ! -e "$TERNUX_STATE_DIR/session/desktop.pid" ] || exit
+    state=""
+    for attempt in $(seq 1 30); do
+      state="$(ps -o stat= -p "$pid" 2>/dev/null | tr -d "[:space:]" || true)"
+      [[ -z "$state" || "$state" == Z* ]] && break
+      sleep 0.1
+    done
+    [[ -z "$state" || "$state" == Z* ]]
   ' _ "$ROOT" "$managed_launcher"; then
-  ok "desktop start detaches with session PID/log and stop cleans it"
+  ok "desktop start detaches with session PID/log and stop terminates its process group"
 else
-  not_ok "desktop start detaches with session PID/log and stop cleans it"
+  not_ok "desktop start detaches with session PID/log and stop terminates its process group"
 fi
 
 # A surviving XFCE session with a missing/stale supervisor marker must be reused,
