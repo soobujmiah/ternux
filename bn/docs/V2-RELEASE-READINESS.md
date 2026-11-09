@@ -17,7 +17,7 @@ alt_url: "/docs/V2-RELEASE-READINESS.html"
 
 ## Stage 0: ২০২৬-১১-১০-এর বর্তমান repository reconciliation
 
-এই pass শুরুর সময় primary worktree clean ছিল, commit `b9caeeb7a1dda7f0fd20ca1c2477a0e22804aa56`-এ। এই audit-এর implementation ও regression-test commit-গুলো branch-কে `e8dab0a3cdb795826b3f583efbaef4a9a9320e51` পর্যন্ত এগিয়েছে। Branch remote-এর সঙ্গে synced, `origin/main` (`8e24062589e81c20095c875fa4d19dd5cb928554`)-এর ওপর ভিত্তি করে ১৪৭ commit এগিয়ে। PR #97 open ও draft, target `main`; কোনো review decision নেই। v2 tag নেই। PR diff-এ ৫৬৯টি file—Ternux CLI/assets ও Debian packaging, bilingual docs, test/CI, এবং AI experiment-এর কাজ। Inventory-তে অপ্রাসঙ্গিক top-level path চোখে পড়েনি; final PR review-তে ৫৬৯টি file পুরো inspect করতে হবে।
+এই pass শুরুর সময় primary worktree clean ছিল, commit `b9caeeb7a1dda7f0fd20ca1c2477a0e22804aa56`-এ। এই audit-এর implementation ও regression-test commit-গুলো branch-কে `e8dab0a3cdb795826b3f583efbaef4a9a9320e51` পর্যন্ত এগিয়েছে। Branch remote-এর সঙ্গে synced, `origin/main` (`8e24062589e81c20095c875fa4d19dd5cb928554`)-এর ওপর ভিত্তি করে ১৫৬ commit এগিয়ে। PR #97 open ও draft, target `main`; কোনো review decision নেই। v2 tag নেই। PR diff-এ ৫৬৯টি file—Ternux CLI/assets ও Debian packaging, bilingual docs, test/CI, এবং AI experiment-এর কাজ। Inventory-তে অপ্রাসঙ্গিক top-level path চোখে পড়েনি; final PR review-তে ৫৬৯টি file পুরো inspect করতে হবে।
 
 | স্থান | বর্তমান অবস্থা | সমন্বয় |
 |---|---|---|
@@ -32,12 +32,12 @@ alt_url: "/docs/V2-RELEASE-READINESS.html"
 | Finding | সমন্বিত অবস্থা | Evidence/বাকি কাজ |
 |---|---|---|
 | P0-01 SD Vulkan license inventory | COMPLETE | Deterministic component manifest ও bundle regression test আছে; Ternux license সঠিকভাবে Apache-2.0। Exact-head ARM64 audit নিচে আছে। |
-| P0-02 release branch consistency | PARTIAL | `main` ancestor; open draft PR #97-এর ১৪৭ commit review/integration বাকি। |
+| P0-02 release branch consistency | PARTIAL | `main` ancestor; open draft PR #97-এর ১৫৬ commit review/integration বাকি। |
 | P0-03 machine release gate | COMPLETE | ১৯টি gate; blocker থাকলে readiness `NOT_READY` থাকে। |
 | P1-01 desktop lifecycle | PARTIAL | ownership/state handling ও host fixture pass; updated package-এ device start/stop/crash recovery বাকি। |
 | P1-02 Vulkan/renderer detection | পরীক্ষিত Adreno 825 stack-এ COMPLETE | Enumeration ও live Zink/Turnip evidence আছে; অন্য GPU family qualify হয়নি। |
 | P1-03 updater | PARTIAL | stage, integrity, rollback, interruption, concurrency fixture pass; published v2 ও v1.4.0 migration এখনো test করা যায়নি। |
-| P1-04 storage isolation | PARTIAL | managed desktop ও guest login Termux HOME isolate করে, `/sdcard` রাখে; `/tmp` explicit। Device helper probe ও CI regression pass; full XFCE/app smoke বাকি। |
+| P1-04 storage ও desktop | PARTIAL | PRoot থেকে Android shared storage-এর স্বাভাবিক `/sdcard` access verified; Termux HOME isolated, `/tmp` explicit। বাকি শুধু updated launcher-এ full XFCE/app smoke। |
 | P1-05 repository governance | BLOCKED | required review/branch rule নেই। Settings বদলাতে owner authorization দরকার; কিছু বদলানো হয়নি। |
 | P1-06 CPU/Vulkan LLM | PARTIAL | known-answer, offload, cancel, reopen evidence আছে; model breadth, sustained thermal ও memory-pressure qualification বাকি। |
 | P1-07 HTP/HMX | PARTIAL, experimental এবং release থেকে বাদ | Build evidence আছে; operator numerical qualification অসম্পূর্ণ/ব্যর্থ হওয়ায় stable claim/default নয়। |
@@ -124,7 +124,7 @@ alt_url: "/docs/V2-RELEASE-READINESS.html"
 
 ### ২০২৬-১১-১০-এর বর্তমান exact-head audit
 
-Core implementation ও regression fix `e8dab0a3cdb795826b3f583efbaef4a9a9320e51`-এ: isolated guest login ও `/sdcard` রাখা (`b9caeeb`), Stable Diffusion license metadata ঠিক করা (`6f6ae0c`), এবং regression coverage (`e8dab0a`)। Latest product-code head `aa2c5f1aeeed14e252c6c6d0669ceb745f6150f1` routine Pages deploy-তে signed APT preserve ও integration test যোগ করেছে; নিচে ওই head-এর exact CI-ও আছে। Base `main` এখনো `8e24062589e81c20095c875fa4d19dd5cb928554`; PR #97 draft, review নেই, branch ১৪৭ commit এগিয়ে।
+Core implementation ও regression fix `e8dab0a3cdb795826b3f583efbaef4a9a9320e51`-এ: isolated guest login ও স্বাভাবিক `/sdcard` access (`b9caeeb`), Stable Diffusion license metadata ঠিক করা (`6f6ae0c`), এবং regression coverage (`e8dab0a`)। Latest product-code head `aa2c5f1aeeed14e252c6c6d0669ceb745f6150f1` routine Pages deploy-তে signed APT preserve ও integration test যোগ করেছে। Report-only head `e1212bbc10078ec761dd5911f7858dbdc9b22c19`। Base `main` এখনো `8e24062589e81c20095c875fa4d19dd5cb928554`; PR #97 draft, review নেই, branch বর্তমানে ১৫৬ commit এগিয়ে।
 
 এই exact implementation head-এ আটটি required workflow-ই pass করেছে:
 
@@ -154,6 +154,8 @@ Latest product-code head `aa2c5f1aeeed14e252c6c6d0669ceb745f6150f1`-এ আট�
 | Snapdragon HTP artifact | `42704005486` | Build pass; draft PR-এ publication skip |
 | Snapdragon HMX capability candidate | `42704005958` | Build pass; draft PR-এ publication skip |
 
+Report-only head `e1212bbc10078ec761dd5911f7858dbdc9b22c19`-এও আটটি required workflow pass করেছে: Validate `42707570617`, Termux APT package `42707570582`, repository contract `42707570627`, knowledge sync `42707570460`, llama CPU/Vulkan `42707570564`, Stable Diffusion/license `42707570566`, HTP `42707570651`, এবং HMX `42707570549`। Draft PR হওয়ায় APT ও accelerator artifact publication job যথাযথভাবে skip করেছে। Branch ওই head-এ clean এবং remote-এর সঙ্গে synced.
+
 ### Device ও distribution evidence
 
 - Live Termux host-এ Ternux `2.0.0` installed; X11 ও PulseAudio চলছিল। চলমান desktop অক্ষত রাখা হয়েছে, service restart করা হয়নি।
@@ -171,10 +173,10 @@ Latest product-code head `aa2c5f1aeeed14e252c6c6d0669ceb745f6150f1`-এ আট�
 | P0-02 branch ও owner review | **PARTIAL** | ৫৬৯-file PR diff review করে PR #97 intended release branch-এ integrate করতে হবে; owner approval নেই। |
 | P1-01 desktop lifecycle | **PARTIAL** | বর্তমান session না ভেঙে updated package-এ repeated/concurrent start, stop, stale/crash recovery, socket ownership ও audio readiness যাচাই। |
 | P1-03 updater migration | **PARTIAL** | Published v2 update ও প্রথম v1.4.0 migration native Termux-এ পরীক্ষা; publication-এর আগে এটি সম্ভব নয়। |
-| P1-04 storage ও desktop | **PARTIAL** | `/sdcard` access রেখে isolated bind বজায়; updated launcher-এ controlled/separate session-এ full XFCE ও app smoke। |
+| P1-04 storage ও desktop | **PARTIAL** | PRoot-এর ভেতর স্বাভাবিক `/sdcard` ব্যবহার verified ও expected; Termux HOME isolated থাকে। Updated launcher-এ controlled/separate session-এ full XFCE ও app smoke বাকি। |
 | P1-05 repository governance | **BLOCKED** | Owner-এর সিদ্ধান্ত ও অনুমতি নিয়ে required review এবং branch-protection rule। |
 | P1-06 CPU/Vulkan qualification | **PARTIAL** | Supported hardware-এ memory-pressure, sustained thermal ও আরও model correctness evidence। |
-| P1-APT public repository | **BLOCKED** | `aa2c5f1`-এ signed APT preservation code ও CI pass; owner-approved signed publish, hosted bootstrap/key/index verify, তারপর normal website redeploy ও clean `pkg install ternux` test বাকি। Endpoint এখনো 404। |
+| P1-APT public repository | **BLOCKED** | `aa2c5f1`-এ signed APT preservation code ও CI pass; owner-approved signed publish, hosted bootstrap/key/index verify, তারপর normal website redeploy ও clean `pkg install ternux` test বাকি। আগের check-এ 404 ছিল; সর্বশেষ check-এ `ternux.dev` resolve হয়নি, তাই current endpoint status network ঠিক হলে আবার verify করতে হবে। |
 | P1-PKG native package lifecycle | **PARTIAL** | Published APT route ও standalone route দিয়ে supported device-এ clean install, upgrade, repair, uninstall verify। |
 | P1-DOCS final review | **PARTIAL** | Owner review; release note ও version surface published artifact/exclusion-এর সঙ্গে মেলানো। |
 

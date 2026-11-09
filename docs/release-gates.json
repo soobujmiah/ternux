@@ -23,7 +23,7 @@
       "evidence": [
         "tests/stable_diffusion_license_bundle_test.py",
         "packaging/stable-diffusion/components.json: Ternux component correctly declares Apache-2.0; regression test verifies declared license and bundled TERNUX-LICENSE/TERNUX-NOTICE.",
-        "Exact-head Stable Diffusion ARM64 build and independent license audit passed (run 42693350226; source e8dab0a3cdb795826b3f583efbaef4a9a9320e51)."
+        "Exact-head Stable Diffusion ARM64 build and independent license audit passed (run 42707570566; source e1212bbc10078ec761dd5911f7858dbdc9b22c19)."
       ],
       "required_tests": [
         "ARM64 build",
@@ -46,8 +46,8 @@
       "ci_status": "PASS",
       "device_status": "N_A",
       "evidence": [
-        "PR #97 targets main; origin/main 8e24062589e81c20095c875fa4d19dd5cb928554 is an ancestor; development branch is 147 commits ahead and remains open/draft.",
-        "Exact-head checks passed on e8dab0a3cdb795826b3f583efbaef4a9a9320e51: Validate 42693350220; APT artifact 42693350684; repository contract 42693350209; knowledge sync/test 42693350631; llama CPU/Vulkan 42693350529; Stable Diffusion Vulkan/license audit 42693350226; HTP artifact 42693350490; HMX capability probe 42693350221. Publication skipped on draft PR."
+        "PR #97 targets main; origin/main 8e24062589e81c20095c875fa4d19dd5cb928554 is an ancestor; current head e1212bbc10078ec761dd5911f7858dbdc9b22c19 is synced and 156 commits ahead; PR remains open/draft with no review decision.",
+        "All eight workflows passed on the exact current head e1212bbc10078ec761dd5911f7858dbdc9b22c19: Validate 42707570617; Termux APT package 42707570582; repository contract 42707570627; knowledge sync 42707570460; llama CPU/Vulkan 42707570564; Stable Diffusion/license 42707570566; HTP 42707570651; HMX 42707570549. Artifact publication skipped on the draft PR."
       ],
       "required_tests": [
         "exact-head required CI",
@@ -71,7 +71,7 @@
       "evidence": [
         "docs/V2-RELEASE-READINESS.md",
         "docs/release-gates.json",
-        "Exact-head Validate 42693350220 passed tests/release_gates.py self-test; inventory continues to derive NOT_READY while nine blocking gates are incomplete."
+        "Exact-head Validate 42707570617 passed tests/release_gates.py self-test; inventory continues to derive NOT_READY while nine blocking gates are incomplete."
       ],
       "required_tests": [
         "release-gate validator",
@@ -94,7 +94,7 @@
       "device_status": "VERIFIED_ON_DEVICE",
       "evidence": [
         "lib/desktop.sh",
-        "Exact-head Validate 42693350220 passed lifecycle stop/start/reuse/concurrency fixtures, including managed process-group reaping.",
+        "Exact-head Validate 42707570617 passed lifecycle stop/start/reuse/concurrency fixtures, including managed process-group reaping.",
         "Read-only live status: desktop/X11/PulseAudio remained running (supervisor PID 16987); no device lifecycle restart attempted. Controlled updated-launcher recovery remains unverified."
       ],
       "required_tests": [
@@ -119,7 +119,7 @@
       "evidence": [
         "lib/detect.sh",
         "docs/V2-RELEASE-READINESS.md#physical-device-vulkan-observation",
-        "Adreno 825 guest Vulkan/Turnip/Zink observed. Parser/failure-path regressions pass in Validate 42693350220; other GPU families are not qualified."
+        "Adreno 825 guest Vulkan/Turnip/Zink observed. Parser/failure-path regressions pass in Validate 42707570617; other GPU families are not qualified."
       ],
       "required_tests": [
         "mocked missing-loader/ICD/device cases",
@@ -142,7 +142,7 @@
       "device_status": "NOT_TESTED",
       "evidence": [
         "tests/update_transaction.sh",
-        "Local focused suite passed 134/134, including update transaction version/pinning/staging/rollback/crash/concurrency/symlink cases; exact-head Validate 42693350220 passed.",
+        "Local focused suite passed 134/134, including update transaction version/pinning/staging/rollback/crash/concurrency/symlink cases; exact-head Validate 42707570617 passed.",
         "Published v2 and v1.4.0 migration remain unverified because no v2 stable publication exists."
       ],
       "required_tests": [
@@ -169,9 +169,9 @@
         "bn/docs/FAQ.md",
         "docs/MANUAL.md",
         "bn/docs/MANUAL.md",
-        "Managed desktop, generic guest-command wrapper, and generated db/droot aliases use --isolated; `/sdcard` remains conditionally bound as required for user storage/model access; --shared-tmp remains explicit.",
-        "Device probe through the current wrapper verified `/sdcard` readable and Termux HOME files hidden without restarting the live desktop; prior isolated X11/PulseAudio/mic-status/camera-info probes are recorded here.",
-        "Exact-head Validate 42693350220 passed the generic-wrapper isolation regression. Full XFCE/app smoke under the updated launcher remains open.",
+        "Normal PRoot use of Android shared storage at /sdcard is expected and verified; managed desktop, generic guest wrapper, and generated db/droot aliases keep Termux HOME isolated. /tmp remains explicitly requested.",
+        "Device probe through the current wrapper verified /sdcard readable and Termux HOME files hidden without restarting the live desktop; prior isolated X11/PulseAudio/mic-status/camera-info probes are recorded here.",
+        "Exact-head Validate 42707570617 passed the generic-wrapper isolation regression. Full XFCE/app smoke under the updated launcher remains open.",
         "2026-11-10 source-module device check: TERNUX_LIB_DIR=$PWD/lib TERNUX_JSON=1 bash bin/ternux verify --json returned passed; termux-x11, proot-distro, PulseAudio, setsid, launcher, Debian services and Turnip were present/ok. No GUI/service restart."
       ],
       "required_tests": [
@@ -218,7 +218,7 @@
       "evidence": [
         "docs/ACCELERATOR-RELEASE-PLAN.md",
         "guides/device-benchmark-evidence.md",
-        "Exact-head llama CPU/Vulkan ARM64 artifact run 42693350529 passed; Adreno Vulkan verified on device.",
+        "Exact-head llama CPU/Vulkan ARM64 artifact run 42707570564 passed; Adreno Vulkan verified on device.",
         "SM8735/Adreno 825 CPU and Vulkan known-answer, layer offload, bounded cancellation and reopen evidence is recorded; broad sustained/memory-pressure qualification remains open."
       ],
       "required_tests": [
@@ -241,7 +241,7 @@
       "device_status": "VERIFIED_ON_DEVICE",
       "evidence": [
         "docs/ACCELERATOR-RELEASE-PLAN.md: HMX MUL_MAT and FLASH_ATTN_EXT numerical failures remain visible.",
-        "Exact-head HTP artifact 42693350490 and HMX capability build 42693350221 passed; publication skipped on draft PR. Build evidence does not clear numerical qualification failures."
+        "Exact-head HTP artifact 42707570651 and HMX capability build 42707570549 passed; publication skipped on draft PR. Build evidence does not clear numerical qualification failures."
       ],
       "required_tests": [
         "operator/reference/tolerance matrix",
@@ -286,9 +286,9 @@
       "ci_status": "PASS",
       "device_status": "NOT_TESTED",
       "evidence": [
-        "Exact-head unsigned Termux package artifact passed run 42693350684; protected-key non-deploy signing verification passed earlier on main.",
-        "2026-11-10 HTTP checks returned 404 for hosted bootstrap.sh, public key, InRelease, and Packages endpoints; current native Termux has Ternux 2.0.0 installed without a Ternux APT source.",
-        "Ordinary Pages deploy previously uploaded only the Astro site and could erase a published /apt tree. New preserve-pages-apt.sh verifies the pinned archive key, signed InRelease, Release index hashes/sizes, and every package hash/size before copying the existing signed tree; deployment fails closed on partial publication or integrity errors. Exact-head Validate 42704005351 passed the signed-fixture integration test for first publish, valid preservation, partial publication, package tampering, and signed path traversal; all eight required workflows passed on aa2c5f1aeeed14e252c6c6d0669ceb745f6150f1."
+        "Exact-head unsigned Termux package artifact passed run 42707570582; protected-key non-deploy signing verification passed earlier on main.",
+        "Earlier 2026-11-10 HTTP checks returned 404 for hosted bootstrap.sh, public key, InRelease, and Packages endpoints; the latest recheck failed DNS resolution (curl HTTP code 000), so verify again from a resolving network before asserting current hosted status; current native Termux has Ternux 2.0.0 installed without a Ternux APT source.",
+        "Ordinary Pages deploy previously uploaded only the Astro site and could erase a published /apt tree. New preserve-pages-apt.sh verifies the pinned archive key, signed InRelease, Release index hashes/sizes, and every package hash/size before copying the existing signed tree; deployment fails closed on partial publication or integrity errors. Exact-head Validate 42707570617 on e1212bbc10078ec761dd5911f7858dbdc9b22c19 passed the signed-fixture integration test for first publish, valid preservation, partial publication, package tampering, and signed path traversal."
       ],
       "required_tests": [
         "signed repository publish after approval",
@@ -311,7 +311,7 @@
       "ci_status": "PASS",
       "device_status": "NOT_TESTED",
       "evidence": [
-        "Exact-head unsigned Termux package build/inspection passed run 42693350684.",
+        "Exact-head unsigned Termux package build/inspection passed run 42707570582.",
         "Native `dpkg-query` confirms ternux 2.0.0 is installed; public APT source is absent, so clean repository install/upgrade/uninstall remains unverified."
       ],
       "required_tests": [
@@ -339,7 +339,7 @@
         "docs/QUICK-START.md",
         "docs/USAGE.md",
         "docs/V2-RELEASE-READINESS.md",
-        "Exact-head Validate 42693350220 passed; local docs check passed 3041 assertions, 312 internal links and 20 bilingual page pairs. Native package lifecycle and owner release review remain open."
+        "Exact-head Validate 42707570617 passed; local docs check passed 3041 assertions, 312 internal links and 20 bilingual page pairs. Native package lifecycle and owner release review remain open."
       ],
       "required_tests": [
         "version/package/tag/release metadata audit",
@@ -384,7 +384,7 @@
       "device_status": "N_A",
       "evidence": [
         "tests/focused.sh and tests/update_transaction.sh",
-        "Exact-head Validate 42693350220 passed focused regressions (134/134), including generic guest isolation and managed desktop process reaping. Further test-suite decomposition remains maintainability work."
+        "Exact-head Validate 42707570617 passed focused regressions (134/134), including generic guest isolation and managed desktop process reaping. Further test-suite decomposition remains maintainability work."
       ],
       "required_tests": [
         "split remaining core/installer/desktop/GPU/extension/package/security/docs suites"
@@ -428,7 +428,7 @@
       "evidence": [
         "docs/release-gates.json",
         "tests/release_gates.py",
-        "Exact-head Validate 42693350220 passed release-gate schema and readiness fixtures; inventory truthfully derives NOT_READY."
+        "Exact-head Validate 42707570617 passed release-gate schema and readiness fixtures; inventory truthfully derives NOT_READY."
       ],
       "required_tests": [
         "schema, duplicate-ID, failure and exclusion validator fixtures",
@@ -463,5 +463,5 @@
       "release_exclusion": "Qualify only the documented Redmi Turbo 4 Pro / SM8735 target; all other device-specific acceleration remains unqualified."
     }
   ],
-  "observed_head_commit": "e8dab0a3cdb795826b3f583efbaef4a9a9320e51"
+  "observed_head_commit": "e1212bbc10078ec761dd5911f7858dbdc9b22c19"
 }
