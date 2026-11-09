@@ -70,7 +70,8 @@ for line in checksums.read_text().splitlines():
     checksum_entries[rel] = digest
 if set(checksum_entries) != set(indexed):
     fail("license index and checksum inventory differ")
-for required in ("stable-diffusion.cpp/LICENSE", "TERNUX-LICENSE", "TERNUX-NOTICE"):
+for required in ("stable-diffusion.cpp/LICENSE", "stable-diffusion.cpp/ggml/AUTHORS",
+                 "TERNUX-LICENSE", "TERNUX-NOTICE"):
     if required not in indexed:
         fail(f"required upstream/project license missing: {required}")
 print(f"Stable Diffusion ARM64 ABI audit passed; checked {len(indexed)} license notices")

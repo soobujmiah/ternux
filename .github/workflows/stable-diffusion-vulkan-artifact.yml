@@ -63,6 +63,7 @@ jobs:
           set -euo pipefail
           tag=ternux-stable-diffusion-vulkan-linux-arm64-master-1053
           package="$GITHUB_WORKSPACE/package/$tag"
+          mkdir -p build/_deps
           cmake -S stable-diffusion.cpp -B build -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
             -DSD_VULKAN=ON \
@@ -79,6 +80,7 @@ jobs:
             --extra "LICENSE=TERNUX-LICENSE" \
             --extra "NOTICE=TERNUX-NOTICE" \
             --require "stable-diffusion.cpp/LICENSE" \
+            --require "stable-diffusion.cpp/ggml/AUTHORS" \
             --require "TERNUX-LICENSE" \
             --require "TERNUX-NOTICE" \
             --output "$package/share/licenses"

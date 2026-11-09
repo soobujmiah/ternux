@@ -20,7 +20,8 @@ with tempfile.TemporaryDirectory() as temporary:
     output = root / "package/share/licenses"
     files = {
         upstream / "LICENSE": b"main upstream license\n",
-        upstream / "vendor/ggml/LICENSE": b"nested vendored license\n",
+        upstream / "ggml/LICENSE": b"nested vendored license\n",
+        upstream / "ggml/AUTHORS": b"ggml authors attribution\n",
         upstream / "vendor/ggml/COPYING": b"nested copying notice\n",
         upstream / "NOTICE": b"upstream notice\n",
         deps / "codec/COPYRIGHT.txt": b"dependency copyright\n",
@@ -39,7 +40,8 @@ with tempfile.TemporaryDirectory() as temporary:
 
     expected = {
         "stable-diffusion.cpp/LICENSE",
-        "stable-diffusion.cpp/vendor/ggml/LICENSE",
+        "stable-diffusion.cpp/ggml/LICENSE",
+        "stable-diffusion.cpp/ggml/AUTHORS",
         "stable-diffusion.cpp/vendor/ggml/COPYING",
         "stable-diffusion.cpp/NOTICE",
         "build/_deps/codec/COPYRIGHT.txt",
@@ -53,10 +55,11 @@ with tempfile.TemporaryDirectory() as temporary:
         [("stable-diffusion.cpp", upstream), ("build/_deps", deps)],
         [(project_license, "TERNUX-LICENSE"), (project_notice, "TERNUX-NOTICE")],
         output,
-        ["stable-diffusion.cpp/LICENSE", "TERNUX-LICENSE", "TERNUX-NOTICE"],
+        ["stable-diffusion.cpp/LICENSE", "stable-diffusion.cpp/ggml/AUTHORS",
+         "TERNUX-LICENSE", "TERNUX-NOTICE"],
     )
     assert set(index) == expected, (set(index) - expected, expected - set(index))
-    assert (output / "stable-diffusion.cpp/vendor/ggml/LICENSE").read_bytes() == b"nested vendored license\n"
+    assert (output / "stable-diffusion.cpp/ggml/AUTHORS").read_bytes() == b"ggml authors attribution\n"
     assert "INDEX.txt" in {path.name for path in output.iterdir()}
     listed = (output / "SHA256SUMS").read_text().splitlines()
     assert len(listed) == len(expected)
