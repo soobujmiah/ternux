@@ -506,3 +506,28 @@ PR #97 head `99b94413e8f8a2263b8baa245edaf2100236eef0`-এ Validate
 signed repository build ও verify হয়েছে। এতে signing configuration যাচাই হয়,
 public deployment নয়। Hosted APT endpoint দুটিই এখনো 404 দেয়; release gate
 খোলা থাকায় publish mode চালানো হয়নি।
+
+### বর্তমান head-এর সম্পূর্ণ CI artifact inventory — ২০২৬-১১-০৯
+
+PR #97 head `0978fba5c46993640acf1b0b7d7986bcf290f666`-এ আটটি validation ও
+package-build workflow pass করেছে: Validate `42554550884`, APT `42554550728`,
+repository contract `42554550768`, knowledge sync `42554550962`, llama
+CPU/Vulkan `42554550807`, Stable Diffusion CPU/Vulkan `42554550879`, production
+HTP `42554550670`, এবং integer-HMX candidate `42554550722`। PR draft থাকায়
+preview/release publication job skip হয়েছে। বর্তমান Actions artifact metadata:
+
+| Artifact | ID | Byte | Archive SHA-256 |
+|---|---:|---:|---|
+| `ternux-apt-unsigned-ci-478caf84f5b306f3b2173e6d8d114f10b3b900e5` | `13646663061` | 268,678 | `1c7989ff9fece0288502c4db06186c42c2908c0287699850c83f21661345a4a5` |
+| `ternux-llama-vulkan-linux-arm64-b11582-candidate` | `13647211389` | 21,327,346 | `34b897b2951de89dd9e09dbed17e0a624d50c9f295eb266409036e2981d34e19` |
+| `ternux-stable-diffusion-vulkan-linux-arm64-master-1053-candidate` | `13646683907` | 27,027,336 | `9579a3d7d5c4e6d0736482fe9eb1ea3c500f5804063f3a0554174fd1e1a030a4` |
+| `ternux-llama-htp-sm8735-b11582` | `13647510166` | 15,636,380 | `4d95b279fb296b02583980c99d070f63d592a47433e18618c532729c38b23f0a` |
+| `ternux-llama-htp-sm8735-integer-hmx-v73-candidate` | `13646692551` | 15,529,809 | `273fd9f04b4f4281618cf996dd507bbe46ac5a3c8c47adc6f8c19ca0ca4c2aee` |
+
+এগুলো Actions ZIP digest, extracted payload checksum নয়। Exact archive-গুলো
+নির্ধারিত incoming directory-তে নেই এবং install বা device test করা হয়নি। তাই
+সফল workflow-গুলো pinned build ও static package inspection প্রমাণ করে; CPU/GPU/NPU
+runtime, QNN model correctness, sustained use বা device compatibility qualify
+করে না। Signed APT key-এর non-publishing verification আলাদা run `42554187198`-এ
+pass করেছে, কিন্তু public APT endpoint এখনো 404 দেয়। PR #97 draft এবং release
+publication সম্পন্ন হয়নি।

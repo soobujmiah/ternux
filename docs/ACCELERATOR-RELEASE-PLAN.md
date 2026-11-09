@@ -552,3 +552,30 @@ non-publishing `verify-signing` mode completed successfully on main at commit
 APT key built and verified a signed repository. This validates signing
 configuration, not public deployment. Both hosted APT endpoints still return
 404; publish mode remains unrun while release gates are open.
+
+### Complete current-head CI artifact inventory — 2026-11-09
+
+At PR #97 head `0978fba5c46993640acf1b0b7d7986bcf290f666`, all eight
+validation and package-build workflows passed: Validate `42554550884`, APT
+`42554550728`, repository contract `42554550768`, knowledge sync `42554550962`,
+llama CPU/Vulkan `42554550807`, Stable Diffusion CPU/Vulkan `42554550879`,
+production HTP `42554550670`, and the integer-HMX candidate `42554550722`.
+Preview/release publication jobs were skipped because the PR remains draft.
+Current Actions artifact metadata:
+
+| Artifact | ID | Bytes | Archive SHA-256 |
+|---|---:|---:|---|
+| `ternux-apt-unsigned-ci-478caf84f5b306f3b2173e6d8d114f10b3b900e5` | `13646663061` | 268,678 | `1c7989ff9fece0288502c4db06186c42c2908c0287699850c83f21661345a4a5` |
+| `ternux-llama-vulkan-linux-arm64-b11582-candidate` | `13647211389` | 21,327,346 | `34b897b2951de89dd9e09dbed17e0a624d50c9f295eb266409036e2981d34e19` |
+| `ternux-stable-diffusion-vulkan-linux-arm64-master-1053-candidate` | `13646683907` | 27,027,336 | `9579a3d7d5c4e6d0736482fe9eb1ea3c500f5804063f3a0554174fd1e1a030a4` |
+| `ternux-llama-htp-sm8735-b11582` | `13647510166` | 15,636,380 | `4d95b279fb296b02583980c99d070f63d592a47433e18618c532729c38b23f0a` |
+| `ternux-llama-htp-sm8735-integer-hmx-v73-candidate` | `13646692551` | 15,529,809 | `273fd9f04b4f4281618cf996dd507bbe46ac5a3c8c47adc6f8c19ca0ca4c2aee` |
+
+These are Actions ZIP digests, not extracted payload checksums. The exact
+archives are not in their designated incoming directories and have not been
+installed or device-tested. Therefore these successful workflows prove pinned
+build and static package inspection only; they do not qualify CPU/GPU/NPU
+runtime behavior, QNN model correctness, sustained use, or device compatibility.
+The signed APT key's non-publishing verification passed separately in run
+`42554187198`, but the public APT endpoints still return 404. PR #97 remains
+draft, and release publication is not complete.
