@@ -443,3 +443,41 @@ repository দিয়ে clean-prefix install নয়।
 ### সংক্ষিপ্ত audio output ও microphone loopback check — ২০২৬-১১-০৯
 
 Live PulseAudio server-এ `OpenSL_ES_sink` এবং `Ternux_Microphone` দেখা গেছে। তিন সেকেন্ডের Termux:API Opus capture চলার সময় low-level 440 Hz, 0.65-second test tone সক্রিয় sink-এ `paplay` গ্রহণ করেছে। Capture নিজে থেমেছে (`isRecording: false`); 440 Hz band-pass-এ RMS `-42.61 dBFS` মাপা হয়েছে। অস্থায়ী recording ও tone মুছে ফেলা হয়েছে। এই ছোট পরীক্ষায় output submission এবং mic path-এ acoustic signal পাওয়া যাচাই হয়েছে; owner-এর নিজের কানে শোনা বা দীর্ঘক্ষণ playback/music controls যাচাইয়ের বিকল্প নয়।
+
+### বর্তমান head যাচাই ও package notice audit — ২০২৬-১১-০৯
+
+PR #97 head `135609006b867c2ed32b71038a0501eab5185d4a`-এ আটটি required check
+pass করেছে: Validate `42542637255`, APT package `42542637286`, repository
+contract `42542637246`, knowledge sync `42542637225`, CPU/Vulkan
+`42542637226`, Stable Diffusion `42542637243`, production HTP `42542637261`,
+এবং SM8735 integer-HMX candidate `42542637212`। PR draft থাকায় preview ও
+publication job skip হয়েছে। বর্তমান Actions artifact metadata:
+
+| Artifact | ID | Byte | Archive SHA-256 |
+|---|---:|---:|---|
+| `ternux-apt-unsigned-ci-0266ac109af0a6670ce50ea1faeb993042d7ba16` | `13642061334` | 268,693 | `0ff6c7bd826a0efc06bbb02355a5f866472dc240528701ce7a59a6cb30735fc0` |
+| `ternux-llama-vulkan-linux-arm64-b11582-candidate` | `13641857606` | 21,320,298 | `b2458ac76a1fdef842cf80ca8b4698f6ec02c16de327217ef1c48d99dc501e81` |
+| `ternux-stable-diffusion-vulkan-linux-arm64-master-1053-candidate` | `13642167554` | 27,023,984 | `8550c75e77a5711186b900cd0c825a932d24b343f339098424e02e1edefe9a3b` |
+| `ternux-llama-htp-sm8735-b11582` | `13641389194` | 15,637,166 | `8e8b10db4df6b88528ad52d01e99c9f615a93a57d38b965be368ad6d9ef7533e` |
+| `ternux-llama-htp-sm8735-integer-hmx-v73-candidate` | `13642277117` | 15,530,759 | `4f068dc849a7aabfc8b281898ad3a0f7ceb0875f5f4b7a2d4c8e094948316d68` |
+
+এগুলো GitHub Actions ZIP digest, extracted package checksum নয়। Archive-গুলো
+নির্ধারিত incoming directory-তে নেই এবং install করা হয়নি; exact-artifact
+qualification বাকি। Local source-built `ternux_2.0.0_all.deb` 129,352 byte,
+SHA-256 `363f906c1644408d86bd332eff7f5fd6964004b07180de0d855efd3210963f7c`।
+এর archive-এ Mesa source-tag notice bundle আছে; extract করে `SHA256SUMS` চালিয়ে
+সব bundled license text যাচাই করেছি। এতে local `.deb`-এ notice inclusion প্রমাণ
+হয়; upstream Turnip archive-এ বা অনুপস্থিত exact-current-head APT artifact-এ
+নয়। Static Mesa component mapping ও বিস্তৃত transitive-license review বাকি।
+
+এই head-এ local verification pass করেছে: `tests/focused.sh` (129/129),
+`tests/smoke.bats` (72/72), installer UI render (33/33), QNN CLIP/tokenizer
+unit test (7/7), repo-knowledge unit test (43), documentation check (3,018
+assertion), Termux APT bootstrap, formatting, shell syntax, এবং
+`ternux verify --json`। `ternux doctor --json`-এ 30 OK, 0 failure, 1
+informational check এবং battery 46 °C warning এসেছে। Desktop বন্ধ ছিল এবং বন্ধই
+রাখা হয়েছে। Termux-এর Android Node binding দিয়ে local website build চালানো
+যায়নি; pinned Linux build-সহ Validate workflow pass করেছে। Exact-artifact
+qualification, owner visual review, camera live-preview support, accelerator
+correctness/sustained-use gate, public signed APT availability, এবং release
+publication এখনো release আটকে রেখেছে।

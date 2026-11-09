@@ -486,3 +486,43 @@ repository.
 ### Short audio output and microphone loopback check — 2026-11-09
 
 The live PulseAudio server reports `OpenSL_ES_sink` and `Ternux_Microphone`. A low-level 440 Hz, 0.65-second test tone was accepted by `paplay` on the active sink while a three-second Termux:API Opus capture ran. The capture auto-stopped (`isRecording: false`); a 440 Hz band-pass measured RMS `-42.61 dBFS`. The disposable recording and tone were deleted. This verifies the output submission and an acoustic signal in the mic path for this short test; it does not replace an owner audibility check or verify sustained playback/music controls.
+
+### Current-head validation and package notice audit — 2026-11-09
+
+At PR #97 head `135609006b867c2ed32b71038a0501eab5185d4a`, all eight required
+checks passed: Validate `42542637255`, APT package `42542637286`, repository
+contract `42542637246`, knowledge sync `42542637225`, CPU/Vulkan
+`42542637226`, Stable Diffusion `42542637243`, production HTP `42542637261`,
+and SM8735 integer-HMX candidate `42542637212`. Preview and publication jobs
+were skipped because the PR is draft. The current Actions archive metadata is:
+
+| Artifact | ID | Bytes | Archive SHA-256 |
+|---|---:|---:|---|
+| `ternux-apt-unsigned-ci-0266ac109af0a6670ce50ea1faeb993042d7ba16` | `13642061334` | 268,693 | `0ff6c7bd826a0efc06bbb02355a5f866472dc240528701ce7a59a6cb30735fc0` |
+| `ternux-llama-vulkan-linux-arm64-b11582-candidate` | `13641857606` | 21,320,298 | `b2458ac76a1fdef842cf80ca8b4698f6ec02c16de327217ef1c48d99dc501e81` |
+| `ternux-stable-diffusion-vulkan-linux-arm64-master-1053-candidate` | `13642167554` | 27,023,984 | `8550c75e77a5711186b900cd0c825a932d24b343f339098424e02e1edefe9a3b` |
+| `ternux-llama-htp-sm8735-b11582` | `13641389194` | 15,637,166 | `8e8b10db4df6b88528ad52d01e99c9f615a93a57d38b965be368ad6d9ef7533e` |
+| `ternux-llama-htp-sm8735-integer-hmx-v73-candidate` | `13642277117` | 15,530,759 | `4f068dc849a7aabfc8b281898ad3a0f7ceb0875f5f4b7a2d4c8e094948316d68` |
+
+These are GitHub Actions ZIP digests, not extracted package checksums. The
+archives are absent from the designated incoming directories and remain
+uninstalled; exact-artifact qualification is open. The local source-built
+`ternux_2.0.0_all.deb` is 129,352 bytes with SHA-256
+`363f906c1644408d86bd332eff7f5fd6964004b07180de0d855efd3210963f7c`. Its
+archive contains the Mesa source-tag notice bundle; extracting it and checking
+`SHA256SUMS` verified every bundled license text. This closes notice inclusion
+for the local `.deb`, not for the upstream Turnip archive itself or the
+unavailable exact-current-head APT artifact. Static Mesa component mapping and
+the wider transitive-license review remain open.
+
+On this head, local verification passed: `tests/focused.sh` (129/129),
+`tests/smoke.bats` (72/72), installer UI render (33/33), QNN CLIP/tokenizer
+unit tests (7/7), repo-knowledge unit tests (43), documentation checks
+(3,018 assertions), Termux APT bootstrap, formatting, shell syntax, and
+`ternux verify --json`. `ternux doctor --json` reported 30 OK, 0 failures,
+one informational check, and a 46 °C battery warning. The desktop was stopped
+and left stopped. The local website build could not use Termux's Android Node
+binding; the required Validate workflow passed its pinned Linux build. The
+release remains held on exact-artifact qualification, owner visual review,
+camera live-preview support, accelerator correctness/sustained-use gates,
+public signed APT availability, and release publication.
