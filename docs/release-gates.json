@@ -190,7 +190,7 @@
       "ci_status": "N_A",
       "device_status": "N_A",
       "evidence": [
-        "GitHub API 2026-11-09: main protection 404, rulesets [], no CODEOWNERS; secret scanning and push protection enabled",
+        "Read-only GitHub API 2026-11-09: main branch protection 404; repository rulesets []; tracked .github/CODEOWNERS exists and assigns @soobujmiah; secret scanning and push protection enabled.",
         "docs/V2-RELEASE-READINESS.md"
       ],
       "required_tests": [
