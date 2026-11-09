@@ -435,3 +435,17 @@ none has been locally installed or device-tested from this run. The owner-mediat
 handoff folders remain the input for exact-archive verification. The build pass
 does not close accelerator correctness, release publication, or hosted APT
 install/upgrade gates.
+
+### Local signed Termux APT client check — 2026-11-09
+
+Built a fresh repository in a temporary directory from the current local
+`ternux_2.0.0_all.deb` (SHA-256
+`0cb55b9cefe187c733ad82f205ecc134c1f99e18c7e654b1426382db95f4b68d`) and
+signed its `InRelease` with an isolated, short-lived test key. With the official
+Termux main source also enabled, the installed Termux APT client accepted the
+signed index, `apt-cache policy ternux` selected version 2.0.0 from the local
+repository, and `apt-get --simulate install ternux` completed. A download-only
+`apt-get download ternux=2.0.0` produced a `.deb` whose SHA-256 exactly matched
+the local package. The active installation was not changed. This validates the
+local package/index/client path with a test key; it does not validate the
+protected release key, hosted signed repository, or public clean install/upgrade.

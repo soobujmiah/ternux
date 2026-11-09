@@ -395,3 +395,16 @@ skip হয়েছে। তৈরি হওয়া artifact ও GitHub Acti
 যাচাইয়ের input হিসেবে owner-mediated handoff folder-গুলোই রাখা হয়েছে। Build pass
 accelerator correctness, release publication, বা hosted APT install/upgrade gate
 বন্ধ করে না।
+
+### Local signed Termux APT client check — ২০২৬-১১-০৯
+
+বর্তমান local `ternux_2.0.0_all.deb` থেকে temporary directory-তে fresh repository
+তৈরি করে isolated, স্বল্পমেয়াদি test key দিয়ে `InRelease` sign করেছি। Package-এর
+SHA-256 `0cb55b9cefe187c733ad82f205ecc134c1f99e18c7e654b1426382db95f4b68d`।
+Official Termux main source-সহ Termux APT client signed index গ্রহণ করেছে,
+`apt-cache policy ternux` local repository থেকে 2.0.0 candidate দেখিয়েছে, এবং
+`apt-get --simulate install ternux` pass করেছে। Download-only
+`apt-get download ternux=2.0.0`-এর `.deb`-এর SHA-256 local package-এর সঙ্গে হুবহু
+মিলেছে। Active installation বদলানো হয়নি। এই test local package/index/client path
+যাচাই করে; protected release key, hosted signed repository, অথবা public clean
+install/upgrade যাচাই করে না।
