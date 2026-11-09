@@ -124,7 +124,7 @@ alt_url: "/docs/V2-RELEASE-READINESS.html"
 
 ### ২০২৬-১১-১০-এর বর্তমান exact-head audit
 
-Implementation head `e8dab0a3cdb795826b3f583efbaef4a9a9320e51`; report-only evidence head `07640c1f8b031970fb716a5d9d8326fc86067c7f`। এই head-এ আছে isolated guest login ও `/sdcard` রাখা (`b9caeeb`), Stable Diffusion artifact-এ Ternux license metadata ঠিক করা (`6f6ae0c`), এবং দুই পরিবর্তনের regression test (`e8dab0a`)। Base `main` এখনো `8e24062589e81c20095c875fa4d19dd5cb928554`; PR #97 draft, review নেই, branch ১৪৭ commit এগিয়ে।
+Core implementation ও regression fix `e8dab0a3cdb795826b3f583efbaef4a9a9320e51`-এ: isolated guest login ও `/sdcard` রাখা (`b9caeeb`), Stable Diffusion license metadata ঠিক করা (`6f6ae0c`), এবং regression coverage (`e8dab0a`)। Latest product-code head `aa2c5f1aeeed14e252c6c6d0669ceb745f6150f1` routine Pages deploy-তে signed APT preserve ও integration test যোগ করেছে; নিচে ওই head-এর exact CI-ও আছে। Base `main` এখনো `8e24062589e81c20095c875fa4d19dd5cb928554`; PR #97 draft, review নেই, branch ১৪৭ commit এগিয়ে।
 
 এই exact implementation head-এ আটটি required workflow-ই pass করেছে:
 
