@@ -31,7 +31,7 @@ alt_url: "/docs/V2-RELEASE-READINESS.html"
 - PR #97 `main`-কে target করে draft অবস্থায় আছে। অডিট শুরুর head বর্তমান main baseline-এর ওপর 122 commit এগিয়ে ছিল।
 - Draft PR #35 (`codex/license-terms-review-20261016`) first-party material-এর জন্য PolyForm Noncommercial terms ও notice প্রস্তাব করে। এটি Sobuj-এর license review-এর অপেক্ষায়; merge হয়নি বা v2-তে নেই। `main`-এর বর্তমান license Apache-2.0, তাই এই proposal বর্তমান release-এর জন্য দরকারি নয় এবং এটিকে কার্যকর license বলা যাবে না।
 - `origin/codex/v2-reinstall-device-evidence-2026-11-07`-এর IBus Ctrl+Space fix PR source-এ সমতুল্যভাবে আছে।
-- `origin/fix/detached-desktop-service-2026-11-06`-এ পুরোনো APT trust implementation আছে; বর্তমান package/signing flow থেকে আলাদা, তাই যাচাই ছাড়া cherry-pick করা হয়নি।
+- `origin/feat/apt-trust-channel-2026-11-06` current `main`-এর ancestor; branch-only commit নেই। `origin/fix/detached-desktop-service-2026-11-06` main থেকে 134 commit পিছিয়ে, branch-এ একটিমাত্র unique APT commit আছে। সেটি পরীক্ষা করে দেখা গেছে publish workflow থেকে `bootstrap.sh` executable assertion সরায়; current `main`-এ stricter check আছে এবং paired trust/install guide update করা। Cherry-pick দরকার নেই।
 - পুরোনো HTP soak ও package smoke evidence বর্তমান পরিকল্পনার চেয়ে পুরোনো। Native AI evidence বর্তমান source/runtime-এর সঙ্গে মেলানো না পর্যন্ত owner-local থাকবে।
 
 ## Priority zero gate
@@ -39,7 +39,7 @@ alt_url: "/docs/V2-RELEASE-READINESS.html"
 | Gate | ফল | Evidence / বাকি কাজ |
 |---|---|---|
 | Stable Diffusion dependency notice | **`8101fa5`-এ ঠিক; CI পাস** | Upstream component/license mapping, header notice, deterministic manifest/checksum, optional dependency handling ও regression test যোগ হয়েছে। বর্তমান change-এর পর CI আবার পাস করতে হবে। |
-| Release branch consistency | **আংশিক** | PR #97 বর্তমান main-এর ওপর। পুরোনো APT ও evidence branch release branch বাছার আগে file-level-এ মেলাতে হবে। |
+| Release branch consistency | **PR #97 current `main`-এর ওপর; merge/review বাকি** | Current `main` v2 PR head-এর ancestor। পুরোনো APT trust branch-ও main-এর ancestor; detached-service branch-এর একমাত্র unique commit পরীক্ষা করে দেখা গেছে current workflow-এর চেয়ে দুর্বল। পুরোনো evidence branch পরীক্ষা করে release PR-এ অন্তর্ভুক্ত হয়নি নিশ্চিত করা। Release build-এর আগে owner review ও PR integration দরকার। |
 | Release readiness gate | **এই রিপোর্টে যোগ হয়েছে** | বর্তমান verdict `NOT_READY`; শুধু CI green হলেই release-ready হবে না। |
 
 ## এই অডিটে করা পরিবর্তন
@@ -70,6 +70,12 @@ alt_url: "/docs/V2-RELEASE-READINESS.html"
 - Transaction চলার সময় installed dispatcher concurrent CLI call আটকায়। updater মাঝপথে বন্ধ হলে পরের CLI launch-এ আগের version restore হয়। সফল update-এর পরও backup থাকে।
 - `tests/update_transaction.sh` স্থানীয় tagged Git repository দিয়ে exact commit, downgrade আটকানো, সম্পূর্ণ tree switch, failed-candidate rollback, dead-owner crash recovery এবং live-owner blocking যাচাই করে। এতে GitHub Actions artifact ব্যবহার হয় না।
 - Provenance হলো authenticated Git transport-এ আনা Git commit object ID; release tag বর্তমানে cryptographically signed নয়। আগে থেকে ইনস্টল v1.4.0 CLI-র প্রথম upgrade তখনকার পুরোনো updater দিয়েই হবে; সেই transition এবং native APT/public install এখনো unverified। বর্তমান stable metadata v1.4.0 আর v2 source version 2.0.0, তাই updater downgrade প্রস্তাব করে না।
+
+### Continuation-এর file ও commit তালিকা
+
+- `ce435e90cf4c4c4394d5bf2d0228858ad3ed34e2` updater transaction/recovery-এর জন্য `bin/ternux`, `lib/update.sh`, CLI help-এর `lib/help.sh`, নতুন `tests/update_transaction.sh`, `tests/focused.sh` এবং English/Bangla usage, installation ও readiness docs বদলেছে।
+- `f3ba516ac6b5d6df0441c9db650e5b5ee090dcd5` ও `2cbf673599bc4e483cd0fc07af2265ba5dcc3b18` bilingual audit evidence আপডেট করেছে; product code বদলায়নি। এই report snapshot-এ working-tree-র বাকি পরিবর্তন শুধু দুই readiness report file; local docs validation-এর পর আলাদা commit হচ্ছে।
+- Updater code commit-এ 11টি file বদলেছে। `~/ternux-tools`-এর owner change, `~/ternux-package-audit`-এর unknown untracked artifact এবং dirty `~/skb` checkout অক্ষত ও uncommitted আছে।
 - এই continuation-এর local focused verification: `bash tests/focused.sh` **133/133** পাস, যার মধ্যে updater transaction fixture আছে; `python3 tests/docs_check.py`-তে **3,041 assertion, 312 internal link ও 20 bilingual page pair** পাস; `git diff --check` পাস। এগুলো current-head hosted CI বা প্রকাশিত release migration-এর বিকল্প নয়।
 - Storage audit-এ দেখা গেছে normal Termux PRoot-Distro login Debian guest-এ Android shared storage (`/sdcard`), Termux app path, `$PREFIX` ও Termux home bind করে। `/sdcard` access Ternux-এর স্বাভাবিক feature এবং থাকবে। আলাদা least-privilege প্রশ্ন হলো camera/microphone bridge-এর জন্য পুরো Termux home/prefix দরকার কি না, নাকি সীমিত API path যথেষ্ট; এই audit-এ কোনো bind বদলানো হয়নি।
 
@@ -118,21 +124,25 @@ Report-only refresh `a165b532488a08388566a2a1edfa7f21b3e5424b` হিসেব�
 
 | Priority | Gate | অবস্থা | v2.0.0-এর আগে দরকার |
 |---|---|---|---|
-| P0 | Current-head CI ও PR review | **Report head `f3ba516ac6b5d6df0441c9db650e5b5ee090dcd5`-এ সব required PR workflow পাস** | Exact-head run: Validate `42654725501`, APT package `42654725613`, repo contract `42654725455`, knowledge sync/test `42654725537`, llama Vulkan `42654725528`, Stable Diffusion Vulkan `42654725583`, HTP artifact `42654725695`, HTP capability probe `42654725555`। Draft PR-এ HTP/HMX publication skip ছিল। Owner review ও final diff review বাকি। |
+| P0 | Current-head CI ও PR review | **Report head `2cbf673599bc4e483cd0fc07af2265ba5dcc3b18`-এ সব required PR workflow পাস** | Exact-head run: Validate `42655929046`, APT package `42655929637`, repo contract `42655929436`, knowledge sync/test `42655929464`, llama Vulkan `42655929093`, Stable Diffusion Vulkan `42655929168`, HTP artifact `42655929365`, HTP capability probe `42655929484`। Draft PR-এ HTP/HMX publication skip ছিল। Owner review ও final diff review বাকি। |
 | P1 | Device desktop lifecycle | **Code বদলেছে; live deployment unverified** | নিয়ন্ত্রিত update-এর পর repeated/concurrent start, `status --json`, stop/start, crash recovery, socket ownership ও audio readiness যাচাই। চলমান GUI restart করা হয়নি। |
 | P1 | Update transaction/provenance | **Implemented ও local fixture-tested; migration আংশিক বাকি** | প্রকাশিত v2 release দিয়ে native Termux-এ যাচাই এবং প্রথম v1.4.0 upgrade path পরীক্ষা দরকার। Release tag signed নয়; transition-এর আগে পুরোনো installed updater বদলানো যায় না। |
 | P1 | APT ও clean install | **Public endpoint এখন unavailable** | Non-deploy signing run `42654336547` main commit `8e24062589e81c20095c875fa4d19dd5cb928554`-এ পাস: v2 package ও signed APT repository তৈরি এবং signature verification সফল; ephemeral key cleanup-ও পাস। Publish/deploy step skip ছিল। 2026-11-09-এ bootstrap, key, `InRelease` ও `Packages` URL HTTP 404 দিয়েছে। সব release gate ও owner approval-এর পর signed repository publish করে supported Termux device-এ clean install, upgrade ও uninstall যাচাই করতে হবে। |
-| P1 | Workload correctness | **মিশ্র/experimental** | llama.cpp artifact build হলেও target-device known-answer, offload, memory pressure, repeat/cancel ও sustained measurement বাকি। HTP/HMX experimental; QNN Stable Diffusion supported NPU feature হিসেবে integrated নয়। |
+| P1 | Workload correctness | **CPU/Vulkan-এর মৌলিক device check পাস; বিস্তৃত qualification আংশিক; HTP/HMX/QNN experimental** | SM8735/Adreno 825-এ managed llama.cpp CPU ও Vulkan দুটোতেই `2 + 2 = 4` হয়েছে; verbose Vulkan log-এ 25/25 layer offload দেখা গেছে, accelerator plan-এ তিন-repeat throughput আছে। অনেক model/quality, memory-pressure, sustained-run ও cancellation matrix বাকি। HTP-তে HMX MUL_MAT এবং পুনরায় পাওয়া সাতটি FLASH_ATTN_EXT numerical failure নথিভুক্ত; শুধু HVX matrix pass broad qualification নয়। QNN Stable Diffusion stage-tensor correctness unverified। |
 | P1 | Host path exposure | **আংশিক: `/sdcard` ইচ্ছাকৃতভাবে guest-এ থাকে; Termux home/prefix-ও default-এ bind হয়** | স্বাভাবিক shared-storage access বজায় রেখে camera/microphone bridge-এর জন্য পুরো Termux home/prefix-এর বদলে সীমিত Termux API bind সম্ভব কি না audit ও verify করা। Desktop, audio, camera ও microphone পরীক্ষা করতে হবে। |
 | P1 | Repository governance | **Settings বদলানো হয়নি; protection config স্বাধীনভাবে যাচাই করা হয়নি** | Required checks, branch protection, CODEOWNERS ও secret/release protection review করে owner-approved proposal দিতে হবে। কোনো repo setting বদলানো হয়নি। |
 | P2 | Proposed license terms | **Draft PR #35 owner review-এর অপেক্ষায়; বর্তমান release source Apache-2.0** | Sobuj review ও merge না করা পর্যন্ত PR #35 এই release-এ নয়। বর্তমান license/notice অক্ষত থাকলে এটি optional proposal, v2 release blocker নয়। |
 | P2 | Release documentation/review | **আংশিক** | README/install/upgrade/uninstall/limitations package-এর সঙ্গে মেলানো, release notes তৈরি, বড় PR diff-এর unrelated/duplicate change review। |
+| P2 | Installer phase modularization | **শুরু হয়নি; `lib/phases.sh` 2,439 লাইন** | Public function contract বজায় রেখে responsibility অনুযায়ী ধাপে ধাপে split-এর পরিকল্পনা ও boundary test দরকার। ঝুঁকিপূর্ণ একবারে rewrite করা হয়নি। |
+| P2 | Test architecture | **আংশিক; `tests/focused.sh` 2,781 লাইন** | Updater transaction test আলাদা হয়েছে; বাকি core, installer, desktop, GPU, extension, package, security ও docs suite-এ ভাগ করতে হবে, regression contract অক্ষুণ্ণ রেখে। |
+| P2 | Workload manifest schema | **শুরু হয়নি; extension/workload নির্বাচন code-এ নির্ধারিত** | version, architecture, backend, dependency, source/checksum, license, permission, verification, cleanup, hardware ও experimental status-এর common schema তৈরি ও migrate করতে হবে। `packaging/termux/manifest.json` শুধু package file list, workload schema নয়। |
+| P2 | Machine-readable release gate | **শুরু হয়নি; readiness gate Markdown-এ রক্ষণাবেক্ষণ হয়** | phase, issue ID, severity, owner, status, evidence, required test, acceptance criteria ও release-blocking field-সহ validated machine-readable source যোগ; CI/source/device status আলাদা রাখতে হবে। |
 | P2 | Device coverage | **এক device** | Hardware/software support matrix; অন্য GPU/NPU-কে `NOT_TESTED` বা experimental চিহ্নিত করা। |
 
 `~/ternux-tools`-এর native AI qualification কাজ অক্ষত আছে; তা Ternux integration বা stable HTP/QNN support প্রমাণ করে না।
 
 ## চূড়ান্ত সুপারিশ
 
-**NOT_READY.** Release-tag updater-এর transaction, rollback, crash recovery ও concurrency local-এ যাচাই হয়েছে। Published-v2/native-Termux update এবং v1.4.0 migration unverified। Report head `f3ba516ac6b5d6df0441c9db650e5b5ee090dcd5`-এ সব required PR workflow পাস (run ID P0 table-এ আছে); draft PR হওয়ায় HTP/HMX publication skip ছিল। APT signing workflow পাস করেছে, deployment skip; public signed APT path এখনও 404। নিয়ন্ত্রিত desktop lifecycle verification, workload correctness, Termux host-path review, owner-approved governance এবং final PR review বাকি। শুধু build সফল হওয়া এই gate-গুলো পূরণ করে না।
+**NOT_READY.** Release-tag updater-এর transaction, rollback, crash recovery ও concurrency local-এ যাচাই হয়েছে। Published-v2/native-Termux update এবং v1.4.0 migration unverified। Report head `2cbf673599bc4e483cd0fc07af2265ba5dcc3b18`-এ সব required PR workflow পাস (run ID P0 table-এ আছে); draft PR হওয়ায় HTP/HMX publication skip ছিল। APT signing workflow পাস করেছে, deployment skip; public signed APT path এখনও 404। নিয়ন্ত্রিত desktop lifecycle verification, workload correctness, Termux host-path review, owner-approved governance এবং final PR review বাকি। শুধু build সফল হওয়া এই gate-গুলো পূরণ করে না।
 
 কোনো release tag, package publication, merge, repository setting change বা live desktop restart করা হয়নি।
