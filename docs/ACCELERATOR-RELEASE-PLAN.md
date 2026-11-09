@@ -630,3 +630,23 @@ sustained use, clean-install behavior, and device compatibility remain open.
 The working tree was clean at this source head. A fresh non-GUI `ternux doctor
 --json` check reported 30 OK, 0 failures, one informational item, and a 44 °C
 battery warning; the desktop remained stopped.
+
+### Complete PR #97 CI artifact inventory — source head `19a25eb` — 2026-11-09
+
+All eight required checks passed at PR head `19a25eb42d447717fb80509afb1dd766ee275d3c`: Validate `42558158091`, APT `42558158092`, repository contract `42558158082`, knowledge sync `42558158087`, llama CPU/Vulkan `42558158068`, Stable Diffusion CPU/Vulkan `42558158114`, production HTP `42558158086`, and integer-HMX candidate `42558158118`. Preview/publication jobs were skipped because PR #97 remains draft. GitHub Actions artifact metadata:
+
+| Artifact | ID | Bytes | Archive SHA-256 |
+|---|---:|---:|---|
+| `ternux-apt-unsigned-ci-a2013dd8256b511cf90785b42d1d14bf54d3a36c` | `13647553701` | 268,663 | `ed13d138d7ab23db91f1c46c2dd1e813d98f2727632eca610b981e477c114f54` |
+| `ternux-llama-vulkan-linux-arm64-b11582-candidate` | `13648218569` | 21,321,978 | `a5c7f563a49223eee9d0ccb38ef731005422766035041de926ce2e7d6049876c` |
+| `ternux-stable-diffusion-vulkan-linux-arm64-master-1053-candidate` | `13648666221` | 27,029,887 | `2eec4e2f7744f5ec2378709dc83baa32463f7227adba944e621f3218e733196f` |
+| `ternux-llama-htp-sm8735-b11582` | `13648259251` | 15,633,069 | `27db701243e509885a96b6419b440198e44acb6ca6404119df3b4d7222b1e612` |
+| `ternux-llama-htp-sm8735-integer-hmx-v73-candidate` | `13648442714` | 15,533,267 | `78ba8a6743e2f97bdb8956622dc53459d0366994f3f3d7ae54124734bfa5188b` |
+
+These are archive digests, not extracted payload checksums. No archive was
+retrieved or installed, so these builds do not provide exact-artifact device
+qualification. The designated owner-handoff directories remain the required
+intake for artifact validation. All package/runtime correctness, clean-install,
+sustained-use and release publication claims remain governed by the open gates
+above. The following documentation-only inventory update does not alter the
+built product sources.
