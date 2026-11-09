@@ -138,6 +138,7 @@ Implementation/evidence head `e8dab0a3cdb795826b3f583efbaef4a9a9320e51`; report-
 
 - Live Termux host-এ Ternux `2.0.0` installed; X11 ও PulseAudio চলছিল। চলমান desktop অক্ষত রাখা হয়েছে, service restart করা হয়নি।
 - Isolated generic guest helper device-এ pass: `/sdcard` ব্যবহারযোগ্য ছিল, কিন্তু host Termux HOME-এর একটি file guest-এ দেখা যায়নি। User PRoot-এ shared storage চান; `/sdcard` থাকলেই bind হয়, Android permission Termux-এর permission flow দিয়েই আসে। Guest alias ও helper host HOME isolate করে; `/tmp` শুধু চাইলে share হয়।
+- 2026-11-10-এ repo source module দিয়ে `TERNUX_LIB_DIR=$PWD/lib TERNUX_JSON=1 bash bin/ternux verify --json` চালিয়ে `status=passed` পাওয়া গেছে; Termux:X11, PRoot-Distro, PulseAudio, `setsid`, launcher, Debian service ও Turnip present/OK ছিল। GUI বা service restart হয়নি।
 - আগের isolated desktop probe-এ X11 query, PulseAudio, mic status ও camera-info pass করেছে। তবে updated launcher-এ fresh XFCE/app visual smoke এখনো হয়নি।
 - SM8735 / Adreno 825 CPU ও Vulkan known-answer, Vulkan layer offload, bounded cancel ও reopen result `guides/device-benchmark-evidence.md`-এ আছে। Memory-pressure ও দীর্ঘ thermal test বাকি। HTP/HMX numerical failure স্পষ্ট রাখা হয়েছে; HTP ও QNN experimental, stable acceleration claim থেকে বাদ।
 - Hosted signed APT bootstrap, public key, `InRelease`, `Packages`—চার URL-ই 2026-11-10-এ HTTP 404 দিয়েছে। Native `dpkg-query`-তে Ternux 2.0.0 installed, কিন্তু Ternux APT source configured নেই। Unsigned CI package ও signing pipeline hosted `pkg install ternux` বা clean repository lifecycle প্রমাণ করে না।

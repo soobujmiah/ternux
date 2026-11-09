@@ -171,7 +171,8 @@
         "bn/docs/MANUAL.md",
         "Managed desktop, generic guest-command wrapper, and generated db/droot aliases use --isolated; `/sdcard` remains conditionally bound as required for user storage/model access; --shared-tmp remains explicit.",
         "Device probe through the current wrapper verified `/sdcard` readable and Termux HOME files hidden without restarting the live desktop; prior isolated X11/PulseAudio/mic-status/camera-info probes are recorded here.",
-        "Exact-head Validate 42693350220 passed the generic-wrapper isolation regression. Full XFCE/app smoke under the updated launcher remains open."
+        "Exact-head Validate 42693350220 passed the generic-wrapper isolation regression. Full XFCE/app smoke under the updated launcher remains open.",
+        "2026-11-10 source-module device check: TERNUX_LIB_DIR=$PWD/lib TERNUX_JSON=1 bash bin/ternux verify --json returned passed; termux-x11, proot-distro, PulseAudio, setsid, launcher, Debian services and Turnip were present/ok. No GUI/service restart."
       ],
       "required_tests": [
         "verify generated generic aliases preserve /sdcard and shared tmp while excluding Termux HOME",
