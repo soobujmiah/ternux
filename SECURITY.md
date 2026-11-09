@@ -2,10 +2,11 @@
 
 ## Supported versions
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 1.x     | ✅ Active development |
-| < 1.0   | ❌ Pre-release      |
+| Version | Support status |
+| ------- | -------------- |
+| 2.x | Active development; v2.0.0 is not published yet |
+| 1.x | Current published stable line (v1.4.0) |
+| < 1.0 | Pre-release; unsupported |
 
 ## Reporting a vulnerability
 

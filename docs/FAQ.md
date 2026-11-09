@@ -106,7 +106,12 @@ changing any system-wide Android safeguard.
 The design choices that matter:
 
 - **No root** — no privileged Android access is requested; PRoot remains within
-  Termux's app permissions and is not a separate security boundary.
+  Termux's app permissions and is not a separate security boundary. The normal
+  Debian guest mounts Android shared storage at `/sdcard` and also exposes the
+  Termux app home and prefix paths for host integration. Code run in the guest
+  runs under the same Termux Android app identity; do not use this guest to
+  sandbox untrusted programs. Only grant Termux the Android storage permissions
+  you want Ternux programs to use.
 - **Loopback-only defaults/examples** — the audio bridge and documented model
   servers use `127.0.0.1`, keeping them off the LAN. Other same-device clients
   may still reach loopback listeners, so do not treat anonymous services as authenticated.

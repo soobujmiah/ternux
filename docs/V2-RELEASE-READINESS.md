@@ -75,7 +75,7 @@ The separate owner checkout contains modified bilingual accelerator plans, QNN e
 ### Continuation file and commit inventory
 
 - `ce435e90cf4c4c4394d5bf2d0228858ad3ed34e2` implements the updater transaction and recovery path in `bin/ternux` and `lib/update.sh`, updates CLI help in `lib/help.sh`, adds `tests/update_transaction.sh`, wires it into `tests/focused.sh`, and updates English/Bangla usage, installation, and readiness documentation.
-- `f3ba516ac6b5d6df0441c9db650e5b5ee090dcd5` and `2cbf673599bc4e483cd0fc07af2265ba5dcc3b18` refresh bilingual audit evidence; no product code was changed in those commits. The remaining working-tree changes at this report snapshot are only the two readiness report files and are being committed separately after local docs validation.
+- `f3ba516ac6b5d6df0441c9db650e5b5ee090dcd5` and `2cbf673599bc4e483cd0fc07af2265ba5dcc3b18` refresh bilingual audit evidence; no product code was changed in those commits. This final documentation continuation also updates `SECURITY.md` and the English/Bangla FAQ to disclose the current guest bind behavior. All pending report/security/FAQ edits pass `tests/docs_check.py` and `git diff --check` before commit.
 - The updater code commit changes 11 files; the unrelated owner changes in `~/ternux-tools`, the unknown untracked artifact in `~/ternux-package-audit`, and the dirty `~/skb` checkout remain untouched and uncommitted.
 
 ## Verification evidence
