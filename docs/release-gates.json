@@ -287,7 +287,7 @@
       "device_status": "NOT_TESTED",
       "evidence": [
         "Exact-head unsigned Termux package artifact passed run 42707570582; protected-key non-deploy signing verification passed earlier on main.",
-        "Earlier 2026-11-10 HTTP checks returned 404 for hosted bootstrap.sh, public key, InRelease, and Packages endpoints; the latest recheck failed DNS resolution (curl HTTP code 000), so verify again from a resolving network before asserting current hosted status; current native Termux has Ternux 2.0.0 installed without a Ternux APT source.",
+        "2026-11-10 direct checks of canonical GitHub Pages URLs apt/bootstrap.sh, apt/ternux-archive-key.asc, apt/dists/stable/InRelease, and apt/dists/stable/main/binary-all/Packages each returned HTTP 404; native Termux has Ternux 2.0.0 installed without a Ternux APT source.",
         "Ordinary Pages deploy previously uploaded only the Astro site and could erase a published /apt tree. New preserve-pages-apt.sh verifies the pinned archive key, signed InRelease, Release index hashes/sizes, and every package hash/size before copying the existing signed tree; deployment fails closed on partial publication or integrity errors. Exact-head Validate 42707570617 on e1212bbc10078ec761dd5911f7858dbdc9b22c19 passed the signed-fixture integration test for first publish, valid preservation, partial publication, package tampering, and signed path traversal."
       ],
       "required_tests": [

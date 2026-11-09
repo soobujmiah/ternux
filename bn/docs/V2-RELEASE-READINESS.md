@@ -176,7 +176,7 @@ Report-only head `e1212bbc10078ec761dd5911f7858dbdc9b22c19`-এও আটটি 
 | P1-04 storage ও desktop | **PARTIAL** | PRoot-এর ভেতর স্বাভাবিক `/sdcard` ব্যবহার verified ও expected; Termux HOME isolated থাকে। Updated launcher-এ controlled/separate session-এ full XFCE ও app smoke বাকি। |
 | P1-05 repository governance | **BLOCKED** | Owner-এর সিদ্ধান্ত ও অনুমতি নিয়ে required review এবং branch-protection rule। |
 | P1-06 CPU/Vulkan qualification | **PARTIAL** | Supported hardware-এ memory-pressure, sustained thermal ও আরও model correctness evidence। |
-| P1-APT public repository | **BLOCKED** | `aa2c5f1`-এ signed APT preservation code ও CI pass; owner-approved signed publish, hosted bootstrap/key/index verify, তারপর normal website redeploy ও clean `pkg install ternux` test বাকি। আগের check-এ 404 ছিল; সর্বশেষ check-এ `ternux.dev` resolve হয়নি, তাই current endpoint status network ঠিক হলে আবার verify করতে হবে। |
+| P1-APT public repository | **BLOCKED** | `aa2c5f1`-এ signed APT preservation code ও CI pass; owner-approved signed publish, hosted bootstrap/key/index verify, তারপর normal website redeploy ও clean `pkg install ternux` test বাকি। Canonical GitHub Pages-এর চারটি APT path এখনো HTTP 404 দিচ্ছে। |
 | P1-PKG native package lifecycle | **PARTIAL** | Published APT route ও standalone route দিয়ে supported device-এ clean install, upgrade, repair, uninstall verify। |
 | P1-DOCS final review | **PARTIAL** | Owner review; release note ও version surface published artifact/exclusion-এর সঙ্গে মেলানো। |
 
