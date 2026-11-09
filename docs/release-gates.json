@@ -2,7 +2,7 @@
   "schema_version": 1,
   "project": "Ternux",
   "target_release": "2.0.0",
-  "audit_date": "2026-11-09",
+  "audit_date": "2026-11-10",
   "derived_readiness": "NOT_READY",
   "release_approved": false,
   "status_axes": {
@@ -22,7 +22,7 @@
       "device_status": "CI_ONLY",
       "evidence": [
         "tests/stable_diffusion_license_bundle_test.py",
-        "Exact-head Stable Diffusion ARM64 build and independent license audit passed (run 42667605877; source 65c2ad7aa517a6d50af5b1259a447cabbeb427ed)."
+        "Exact-head Stable Diffusion ARM64 build and independent license audit passed (run 42677162918; source 21ae0e13605b0926e32c4a463cec1fafd169fdd4)."
       ],
       "required_tests": [
         "ARM64 build",
@@ -46,7 +46,7 @@
       "device_status": "N_A",
       "evidence": [
         "PR #97 targets main; main is ancestor of the development branch",
-        "Exact-head PR checks passed on 65c2ad7aa517a6d50af5b1259a447cabbeb427ed: Validate 42667605757; APT artifact 42667606027; repository contract 42667605778; knowledge sync/test 42667606023; llama CPU/Vulkan 42667605843; Stable Diffusion Vulkan 42667605877; HTP artifact 42667605868; HMX capability probe 42667606050. Publication jobs skipped because PR #97 remains draft."
+        "Exact-head PR checks passed on 21ae0e13605b0926e32c4a463cec1fafd169fdd4: Validate 42677162847; APT artifact 42677162973; repository contract 42677162860; knowledge sync/test 42677162600; llama CPU/Vulkan 42677163058; Stable Diffusion Vulkan 42677162918; HTP artifact 42677162846; HMX capability probe 42677162836. Publication jobs skipped because PR #97 remains draft."
       ],
       "required_tests": [
         "exact-head required CI",
@@ -70,7 +70,7 @@
       "evidence": [
         "docs/V2-RELEASE-READINESS.md",
         "docs/release-gates.json",
-        "tests/release_gates.py --self-test passed in exact-head Validate run 42667605757; gate derives NOT_READY while blocking evidence is incomplete."
+        "tests/release_gates.py --self-test passed in exact-head Validate run 42677162847; gate derives NOT_READY while blocking evidence is incomplete."
       ],
       "required_tests": [
         "release-gate validator",
@@ -93,7 +93,7 @@
       "device_status": "VERIFIED_ON_DEVICE",
       "evidence": [
         "lib/desktop.sh",
-        "tests/focused.sh: exact-head Validate 42667605757 passed lifecycle stop/start/reuse/concurrency fixtures, including assertion that stop reaps the managed fixture process group. Live device status: X11/PulseAudio running, PID 16987; no lifecycle restart attempted.",
+        "tests/focused.sh: exact-head Validate 42677162847 passed lifecycle stop/start/reuse/concurrency fixtures, including assertion that stop reaps the managed fixture process group. Live device status: X11/PulseAudio running, PID 16987; no lifecycle restart attempted.",
         "read-only ternux status --json: running, X11/PulseAudio running, PID 16987; stop/start/crash recovery not device-tested"
       ],
       "required_tests": [
@@ -118,7 +118,7 @@
       "evidence": [
         "lib/detect.sh",
         "docs/V2-RELEASE-READINESS.md#physical-device-vulkan-observation",
-        "Adreno 825 guest Vulkan/Turnip/Zink observed; parser and failure-path regressions pass in exact-head Validate 42667605757."
+        "Adreno 825 guest Vulkan/Turnip/Zink observed; parser and failure-path regressions pass in exact-head Validate 42677162847."
       ],
       "required_tests": [
         "mocked missing-loader/ICD/device cases",
@@ -141,7 +141,7 @@
       "device_status": "NOT_TESTED",
       "evidence": [
         "tests/update_transaction.sh",
-        "tests/focused.sh: update transaction suite and 133/133 focused regressions passed locally before this run; exact-head Validate 42667605757 passed. Published v2 and v1.4.0 migration remain unverified on device.",
+        "tests/focused.sh: update transaction suite and 133/133 focused regressions passed locally before this run; exact-head Validate 42677162847 passed. Published v2 and v1.4.0 migration remain unverified on device.",
         "Published v2 update and v1.4.0 migration remain unverified on device"
       ],
       "required_tests": [
@@ -213,7 +213,7 @@
       "device_status": "VERIFIED_ON_DEVICE",
       "evidence": [
         "docs/ACCELERATOR-RELEASE-PLAN.md",
-        "Exact-head llama CPU/Vulkan artifact run 42667605843 passed; Adreno Vulkan verified on-device.",
+        "Exact-head llama CPU/Vulkan artifact run 42677163058 passed; Adreno Vulkan verified on-device.",
         "llama CPU/Vulkan artifact passed exact-head run 42662384280; Adreno Vulkan confirmed 25/25 layers offloaded; broader sustained/memory/cancel matrix open",
         "2026-11-10 installed device check: CPU and Adreno Vulkan known-answer reopen passed after five-second SIGINT cancellation; both jobs exited and left no llama-cli process (guides/device-benchmark-evidence.md). Memory-pressure and sustained-run matrices remain open."
       ],
@@ -237,7 +237,7 @@
       "device_status": "VERIFIED_ON_DEVICE",
       "evidence": [
         "docs/ACCELERATOR-RELEASE-PLAN.md: HMX MUL_MAT and seven FLASH_ATTN_EXT numerical failures recorded",
-        "HTP and HMX candidate builds passed exact-head runs 42667605868 and 42667606050; numerical correctness still fails."
+        "HTP and HMX candidate builds passed exact-head runs 42677162846 and 42677162836; numerical correctness still fails."
       ],
       "required_tests": [
         "operator/reference/tolerance matrix",
@@ -282,7 +282,7 @@
       "ci_status": "PASS",
       "device_status": "NOT_TESTED",
       "evidence": [
-        "APT unsigned package artifact passed exact-head run 42667606027; non-deploy signing run 42654336547 passed on main 8e240625.",
+        "APT unsigned package artifact passed exact-head run 42677162973; non-deploy signing run 42654336547 passed on main 8e240625.",
         "Public bootstrap/key/InRelease/Packages endpoints returned HTTP 404 on 2026-11-09"
       ],
       "required_tests": [
@@ -305,7 +305,7 @@
       "ci_status": "PASS",
       "device_status": "NOT_TESTED",
       "evidence": [
-        "CI unsigned Termux package artifact passed exact-head run 42667606027.",
+        "CI unsigned Termux package artifact passed exact-head run 42677162973.",
         "docs/V2-RELEASE-READINESS.md",
         "Clean install/update/repair/uninstall remains untested on a supported Termux device"
       ],
@@ -334,7 +334,7 @@
         "docs/QUICK-START.md",
         "docs/USAGE.md",
         "docs/V2-RELEASE-READINESS.md",
-        "English/Bangla docs checks and site validation passed in exact-head Validate run 42667605757; native package lifecycle and owner release review remain open."
+        "English/Bangla docs checks and site validation passed in exact-head Validate run 42677162847; native package lifecycle and owner release review remain open."
       ],
       "required_tests": [
         "version/package/tag/release metadata audit",
@@ -380,7 +380,7 @@
       "evidence": [
         "tests/focused.sh (2781 lines)",
         "tests/update_transaction.sh",
-        "Exact-head Validate run 42667605757 passed focused regression suite (133/133), including managed desktop process reaping."
+        "Exact-head Validate run 42677162847 passed focused regression suite (133/133), including managed desktop process reaping."
       ],
       "required_tests": [
         "split remaining core/installer/desktop/GPU/extension/package/security/docs suites"
@@ -424,7 +424,7 @@
       "evidence": [
         "docs/release-gates.json",
         "tests/release_gates.py",
-        "Exact-head Validate run 42667605757 passed release-gate validator fixtures; current inventory truthfully derives NOT_READY."
+        "Exact-head Validate run 42677162847 passed release-gate validator fixtures; current inventory truthfully derives NOT_READY."
       ],
       "required_tests": [
         "schema, duplicate-ID, failure and exclusion validator fixtures",
@@ -459,5 +459,5 @@
       "release_exclusion": "Qualify only the documented Redmi Turbo 4 Pro / SM8735 target; all other device-specific acceleration remains unqualified."
     }
   ],
-  "observed_head_commit": "65c2ad7aa517a6d50af5b1259a447cabbeb427ed"
+  "observed_head_commit": "21ae0e13605b0926e32c4a463cec1fafd169fdd4"
 }
