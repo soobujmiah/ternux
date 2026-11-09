@@ -17,7 +17,7 @@ This report separates source and CI evidence from physical-device qualification.
 
 ## Stage 0: current repository reconciliation — 2026-11-10
 
-At the start of this pass, the primary worktree was clean at `b9caeeb7a1dda7f0fd20ca1c2477a0e22804aa56`; the implementation and regression-test follow-ups below advanced it to `e8dab0a3cdb795826b3f583efbaef4a9a9320e51`. The branch tracks its remote exactly, is based on `origin/main` (`8e24062589e81c20095c875fa4d19dd5cb928554`), and is currently 156 commits ahead. PR #97 is open, draft, and targets `main`; no review decision is recorded. The v2 tag does not exist. The broad PR diff is 569 files; its main groups are the Ternux CLI/assets and Debian packaging, bilingual docs, test/CI work, and explicit AI experiments. No unrelated top-level path was apparent from the inventory; the final PR review must still inspect the complete 569-file diff.
+At the start of this pass, the primary worktree was clean at `b9caeeb7a1dda7f0fd20ca1c2477a0e22804aa56`; this audit’s implementation and regression work advanced through `e8dab0a3cdb795826b3f583efbaef4a9a9320e51`. At validated evidence head `e1212bbc10078ec761dd5911f7858dbdc9b22c19`, the branch was synced to `origin` and 156 commits ahead; the live PR diff contains 573 files. PR #97 remains open and draft against `main`, with no review decision. The v2 tag does not exist. The diff covers Ternux CLI/assets and Debian packaging, bilingual docs, tests/CI and AI experiments. No unrelated top-level path was apparent, but the full 573-file diff still needs final review.
 
 | Location | Current state | Reconciliation |
 |---|---|---|
@@ -123,7 +123,7 @@ The separate owner checkout contains modified bilingual accelerator plans, QNN e
 
 ### Current exact-head audit — 2026-11-10
 
-Core implementation and regression fixes are at `e8dab0a3cdb795826b3f583efbaef4a9a9320e51`, including isolated guest login and normal `/sdcard` access (`b9caeeb`), corrected Stable Diffusion license metadata (`6f6ae0c`), and regression coverage (`e8dab0a`). Latest product-code commit `aa2c5f1aeeed14e252c6c6d0669ceb745f6150f1` adds signed APT preservation to ordinary Pages deployments and its integration tests. The report-only head is `e1212bbc10078ec761dd5911f7858dbdc9b22c19`. The base `main` remains `8e24062589e81c20095c875fa4d19dd5cb928554`; PR #97 is still draft, no review is recorded, and the branch is currently 156 commits ahead.
+Core implementation and regression fixes are at `e8dab0a3cdb795826b3f583efbaef4a9a9320e51`, including isolated guest login and normal `/sdcard` access (`b9caeeb`), corrected Stable Diffusion license metadata (`6f6ae0c`), and regression coverage (`e8dab0a`). Latest product-code commit `aa2c5f1aeeed14e252c6c6d0669ceb745f6150f1` adds signed APT preservation to ordinary Pages deployments and its integration tests. The validated evidence head is `e1212bbc10078ec761dd5911f7858dbdc9b22c19`; the later report-only sync commit is `0a292c3f13d32d597b996304b86195d7be5ae343`. At the validated evidence head, PR #97 was draft with no review decision and had 573 changed files.
 
 All eight required workflows passed on that exact implementation head:
 
@@ -169,7 +169,7 @@ The report-only head `e1212bbc10078ec761dd5911f7858dbdc9b22c19` also passed all 
 
 | Gate | Status | Required evidence |
 |---|---|---|
-| P0-02 branch and owner review | **PARTIAL** | Review the 569-file PR diff and integrate PR #97 into the intended release branch. Owner approval is still absent. |
+| P0-02 branch and owner review | **PARTIAL** | Review the 573-file PR diff and integrate PR #97 into the intended release branch. Owner approval is still absent. |
 | P1-01 desktop lifecycle | **PARTIAL** | Validate repeated/concurrent start, stop, stale/crash recovery, socket ownership and independent audio readiness on the updated package without disturbing the current session. |
 | P1-03 updater migration | **PARTIAL** | Exercise the published v2 update and first v1.4.0 migration in native Termux. Until publication, these cannot be verified. |
 | P1-04 storage and desktop | **PARTIAL** | Normal `/sdcard` use inside PRoot is verified and expected; Termux HOME remains isolated. Run full XFCE and user-facing app smoke through the updated launcher in a separate/controlled session. |

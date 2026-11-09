@@ -46,7 +46,7 @@
       "ci_status": "PASS",
       "device_status": "N_A",
       "evidence": [
-        "PR #97 targets main; origin/main 8e24062589e81c20095c875fa4d19dd5cb928554 is an ancestor; current head e1212bbc10078ec761dd5911f7858dbdc9b22c19 is synced and 156 commits ahead; PR remains open/draft with no review decision.",
+        "PR #97 targets main; origin/main 8e24062589e81c20095c875fa4d19dd5cb928554 is an ancestor. The validated audit snapshot e1212bbc10078ec761dd5911f7858dbdc9b22c19 was synced and 156 commits ahead, with a live 573-file diff; PR remains open/draft with no review decision.",
         "All eight workflows passed on the exact current head e1212bbc10078ec761dd5911f7858dbdc9b22c19: Validate 42707570617; Termux APT package 42707570582; repository contract 42707570627; knowledge sync 42707570460; llama CPU/Vulkan 42707570564; Stable Diffusion/license 42707570566; HTP 42707570651; HMX 42707570549. Artifact publication skipped on the draft PR."
       ],
       "required_tests": [
