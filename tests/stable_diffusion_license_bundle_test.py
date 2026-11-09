@@ -16,6 +16,10 @@ module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(module)
 components_path = repo / "packaging/stable-diffusion/components.json"
 components = module._load_components(components_path)
+ternux_component = next(component for component in components["components"] if component["id"] == "ternux")
+assert ternux_component["license"] == "Apache-2.0", ternux_component
+assert "TERNUX-LICENSE" in ternux_component["archive_license_files"]
+assert "TERNUX-NOTICE" in ternux_component["archive_license_files"]
 
 with tempfile.TemporaryDirectory() as temporary:
     root = Path(temporary)

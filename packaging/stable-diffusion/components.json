@@ -25,7 +25,9 @@
       "version": "5a1ba5d895bec4e07deab80d6d791721cd59d9c2",
       "license": "MIT",
       "source_tree": "stable-diffusion.cpp",
-      "license_files": ["LICENSE"],
+      "license_files": [
+        "LICENSE"
+      ],
       "embedded_notice_sources": []
     },
     {
@@ -33,7 +35,10 @@
       "version": "135ce1e0e3f2b0693d3de93d4f6b5fa0a1947820",
       "license": "MIT",
       "source_tree": "stable-diffusion.cpp",
-      "license_files": ["ggml/LICENSE", "ggml/AUTHORS"],
+      "license_files": [
+        "ggml/LICENSE",
+        "ggml/AUTHORS"
+      ],
       "embedded_notice_sources": []
     },
     {
@@ -41,7 +46,9 @@
       "version": "6.9.10",
       "license": "BSD-2-Clause",
       "source_tree": "stable-diffusion.cpp",
-      "license_files": ["thirdparty/oniguruma/COPYING"],
+      "license_files": [
+        "thirdparty/oniguruma/COPYING"
+      ],
       "embedded_notice_sources": []
     },
     {
@@ -49,7 +56,9 @@
       "version": "pinned-in-upstream-commit",
       "license": "MIT",
       "source_tree": "stable-diffusion.cpp",
-      "license_files": ["thirdparty/utf8proc/LICENSE.md"],
+      "license_files": [
+        "thirdparty/utf8proc/LICENSE.md"
+      ],
       "embedded_notice_sources": []
     },
     {
@@ -57,7 +66,9 @@
       "version": "pinned-in-upstream-commit",
       "license": "BSD-3-Clause",
       "source_tree": "stable-diffusion.cpp",
-      "license_files": ["thirdparty/LICENSE.darts_clone.txt"],
+      "license_files": [
+        "thirdparty/LICENSE.darts_clone.txt"
+      ],
       "embedded_notice_sources": []
     },
     {
@@ -66,7 +77,9 @@
       "license": "MIT and Unlicense notices are embedded in the upstream header",
       "source_tree": "stable-diffusion.cpp",
       "license_files": [],
-      "embedded_notice_sources": ["thirdparty/miniz.h"]
+      "embedded_notice_sources": [
+        "thirdparty/miniz.h"
+      ]
     },
     {
       "id": "nlohmann-json-single-header",
@@ -74,7 +87,9 @@
       "license": "MIT",
       "source_tree": "stable-diffusion.cpp",
       "license_files": [],
-      "embedded_notice_sources": ["thirdparty/json.hpp"]
+      "embedded_notice_sources": [
+        "thirdparty/json.hpp"
+      ]
     },
     {
       "id": "stb-image",
@@ -82,7 +97,9 @@
       "license": "MIT OR Unlicense",
       "source_tree": "stable-diffusion.cpp",
       "license_files": [],
-      "embedded_notice_sources": ["thirdparty/stb_image.h"]
+      "embedded_notice_sources": [
+        "thirdparty/stb_image.h"
+      ]
     },
     {
       "id": "stb-image-write",
@@ -90,7 +107,9 @@
       "license": "MIT OR Unlicense",
       "source_tree": "stable-diffusion.cpp",
       "license_files": [],
-      "embedded_notice_sources": ["thirdparty/stb_image_write.h"]
+      "embedded_notice_sources": [
+        "thirdparty/stb_image_write.h"
+      ]
     },
     {
       "id": "stb-image-resize",
@@ -98,13 +117,18 @@
       "license": "Public domain with fallback perpetual irrevocable license",
       "source_tree": "stable-diffusion.cpp",
       "license_files": [],
-      "embedded_notice_sources": ["thirdparty/stb_image_resize.h"]
+      "embedded_notice_sources": [
+        "thirdparty/stb_image_resize.h"
+      ]
     },
     {
       "id": "ternux",
       "version": "2.0.0",
-      "license": "MIT",
-      "archive_license_files": ["TERNUX-LICENSE", "TERNUX-NOTICE"]
+      "license": "Apache-2.0",
+      "archive_license_files": [
+        "TERNUX-LICENSE",
+        "TERNUX-NOTICE"
+      ]
     }
   ],
   "excluded_build_components": [
@@ -113,5 +137,8 @@
     "thirdparty/cutlass (CUDA backend disabled)",
     "examples/server web frontend (SD_SERVER_BUILD_FRONTEND=OFF)"
   ],
-  "system_runtime_dependencies": ["libgomp.so.1", "libvulkan.so.1"]
+  "system_runtime_dependencies": [
+    "libgomp.so.1",
+    "libvulkan.so.1"
+  ]
 }
