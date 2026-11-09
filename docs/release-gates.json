@@ -16,14 +16,13 @@
       "issue_id": "P0-01",
       "severity": "P0",
       "owner": "engineering",
-      "status": "PARTIAL",
+      "status": "COMPLETE",
       "source_status": "PASS",
-      "ci_status": "PENDING",
+      "ci_status": "PASS",
       "device_status": "CI_ONLY",
       "evidence": [
-        "docs/V2-RELEASE-READINESS.md#stable-diffusion-dependency-notices",
         "tests/stable_diffusion_license_bundle_test.py",
-        "CI 42658800169 passed on 251e478; exact head 02b4395 pending"
+        "Exact-head SD Vulkan build + independent license audit passed (run 42662384378; source 39094ed640a25a0caff102f6f5ba49d93cce744d)"
       ],
       "required_tests": [
         "ARM64 build",
@@ -43,11 +42,11 @@
       "owner": "engineering",
       "status": "PARTIAL",
       "source_status": "PASS",
-      "ci_status": "PENDING",
+      "ci_status": "PASS",
       "device_status": "N_A",
       "evidence": [
         "PR #97 targets main; main is ancestor of the development branch",
-        "https://github.com/soobujmiah/ternux/pull/97"
+        "All eight required PR workflows passed on exact head 39094ed640a25a0caff102f6f5ba49d93cce744d: Validate 42662384318, APT 42662384326, contract 42662384306, sync 42662384340, llama Vulkan 42662384280, SD Vulkan 42662384378, HTP 42662384493, HMX 42662384282"
       ],
       "required_tests": [
         "exact-head required CI",
@@ -65,12 +64,13 @@
       "severity": "P0",
       "owner": "engineering",
       "status": "PARTIAL",
-      "source_status": "PARTIAL",
+      "source_status": "PASS",
       "ci_status": "PENDING",
       "device_status": "N_A",
       "evidence": [
         "docs/V2-RELEASE-READINESS.md",
-        "docs/release-gates.json"
+        "docs/release-gates.json",
+        "Release-gate validator hardening is locally verified; hosted CI for that delta is pending."
       ],
       "required_tests": [
         "release-gate validator",
@@ -89,12 +89,12 @@
       "owner": "engineering",
       "status": "PARTIAL",
       "source_status": "PARTIAL",
-      "ci_status": "PENDING",
+      "ci_status": "PASS",
       "device_status": "VERIFIED_ON_DEVICE",
       "evidence": [
         "lib/desktop.sh",
-        "tests/focused.sh: desktop stop/start/reuse/concurrency fixtures",
-        "read-only ternux status --json: running, X11/PulseAudio running, PID 16987"
+        "tests/focused.sh: desktop stop/start/reuse/concurrency fixtures; exact-head Validate run 42662384318 passed",
+        "read-only ternux status --json: running, X11/PulseAudio running, PID 16987; stop/start/crash recovery not device-tested"
       ],
       "required_tests": [
         "overlap/start-stop/crash-recovery fixtures",
@@ -111,14 +111,14 @@
       "issue_id": "P1-02",
       "severity": "P1",
       "owner": "engineering",
-      "status": "PARTIAL",
+      "status": "COMPLETE",
       "source_status": "PASS",
-      "ci_status": "PENDING",
+      "ci_status": "PASS",
       "device_status": "VERIFIED_ON_DEVICE",
       "evidence": [
         "lib/detect.sh",
         "docs/V2-RELEASE-READINESS.md#physical-device-vulkan-observation",
-        "Adreno 825 guest Vulkan/Turnip/Zink observed"
+        "Adreno 825 guest Vulkan/Turnip/Zink observed; parser and failure-path regressions pass in exact-head Validate 42662384318"
       ],
       "required_tests": [
         "mocked missing-loader/ICD/device cases",
@@ -138,10 +138,11 @@
       "status": "PARTIAL",
       "source_status": "PASS",
       "ci_status": "PASS",
-      "device_status": "VERIFIED_ON_DEVICE",
+      "device_status": "NOT_TESTED",
       "evidence": [
         "tests/update_transaction.sh",
-        "local tests/focused.sh: 133/133 on updater commit ce435e9"
+        "tests/focused.sh: 133/133 on updater commit ce435e9; latest exact-head Validate 42662384318 passed",
+        "Published v2 update and v1.4.0 migration remain unverified on device"
       ],
       "required_tests": [
         "pinning/downgrade/staging/rollback/crash/concurrency/symlink fixtures",
@@ -161,12 +162,13 @@
       "status": "PARTIAL",
       "source_status": "PARTIAL",
       "ci_status": "NOT_RUN",
-      "device_status": "VERIFIED_ON_DEVICE",
+      "device_status": "NOT_TESTED",
       "evidence": [
         "docs/FAQ.md",
         "bn/docs/FAQ.md",
         "docs/MANUAL.md",
-        "proot-distro default binds /sdcard, Termux home and prefix; /sdcard is expected"
+        "proot-distro default binds /sdcard, Termux home and prefix; /sdcard is expected",
+        "No narrower API binding implementation or regression test has been qualified"
       ],
       "required_tests": [
         "Termux API path dependency audit",
@@ -188,7 +190,8 @@
       "ci_status": "N_A",
       "device_status": "N_A",
       "evidence": [
-        "GitHub API 2026-11-09: main protection 404, rulesets [], no CODEOWNERS; secret scanning and push protection enabled"
+        "GitHub API 2026-11-09: main protection 404, rulesets [], no CODEOWNERS; secret scanning and push protection enabled",
+        "docs/V2-RELEASE-READINESS.md"
       ],
       "required_tests": [
         "owner review of proposed branch and release protections"
@@ -206,12 +209,12 @@
       "owner": "engineering",
       "status": "PARTIAL",
       "source_status": "PASS",
-      "ci_status": "PENDING",
+      "ci_status": "PASS",
       "device_status": "VERIFIED_ON_DEVICE",
       "evidence": [
         "docs/ACCELERATOR-RELEASE-PLAN.md",
         "docs/V2-RELEASE-READINESS.md#physical-device-vulkan-observation",
-        "Adreno Vulkan 25/25 layers; CPU/Vulkan known-answer and repeats"
+        "llama CPU/Vulkan artifact passed exact-head run 42662384280; Adreno Vulkan confirmed 25/25 layers offloaded; broader sustained/memory/cancel matrix open"
       ],
       "required_tests": [
         "correctness, fallback, memory, repeated and cancellation workload matrix"
@@ -229,10 +232,11 @@
       "owner": "engineering",
       "status": "PARTIAL",
       "source_status": "PARTIAL",
-      "ci_status": "PENDING",
+      "ci_status": "PASS",
       "device_status": "VERIFIED_ON_DEVICE",
       "evidence": [
-        "docs/ACCELERATOR-RELEASE-PLAN.md: HMX MUL_MAT and seven FLASH_ATTN_EXT numerical failures recorded"
+        "docs/ACCELERATOR-RELEASE-PLAN.md: HMX MUL_MAT and seven FLASH_ATTN_EXT numerical failures recorded",
+        "HTP and HMX candidate builds passed exact-head runs 42662384493 and 42662384282; numerical correctness still fails"
       ],
       "required_tests": [
         "operator/reference/tolerance matrix",
@@ -251,10 +255,11 @@
       "owner": "engineering",
       "status": "PARTIAL",
       "source_status": "PARTIAL",
-      "ci_status": "PENDING",
+      "ci_status": "NOT_RUN",
       "device_status": "VERIFIED_ON_DEVICE",
       "evidence": [
-        "docs/ACCELERATOR-RELEASE-PLAN.md: QNN generation repeatability; independent stage tensors unverified"
+        "docs/ACCELERATOR-RELEASE-PLAN.md: QNN generation repeatability; independent stage tensors unverified",
+        "Research generation ran on-device; production stage correctness remains unverified"
       ],
       "required_tests": [
         "CLIP/UNet/VAE stage tensor oracle",
@@ -272,11 +277,12 @@
       "severity": "P1",
       "owner": "engineering",
       "status": "BLOCKED",
-      "source_status": "PASS",
+      "source_status": "BLOCKED",
       "ci_status": "PASS",
       "device_status": "NOT_TESTED",
       "evidence": [
-        "APT signing run 42654336547 passed on main 8e240625; public bootstrap/key/InRelease/Packages endpoints returned HTTP 404 on 2026-11-09"
+        "APT unsigned package artifact passed exact-head run 42662384326; non-deploy signing run 42654336547 passed on main 8e240625",
+        "Public bootstrap/key/InRelease/Packages endpoints returned HTTP 404 on 2026-11-09"
       ],
       "required_tests": [
         "signed repository publish after approval",
@@ -298,8 +304,9 @@
       "ci_status": "PASS",
       "device_status": "NOT_TESTED",
       "evidence": [
-        "CI unsigned package artifact 42660737780 passed on 02b4395",
-        "docs/V2-RELEASE-READINESS.md"
+        "CI unsigned Termux package artifact passed exact-head run 42662384326",
+        "docs/V2-RELEASE-READINESS.md",
+        "Clean install/update/repair/uninstall remains untested on a supported Termux device"
       ],
       "required_tests": [
         "clean install/update/repair/uninstall in native Termux",
@@ -317,7 +324,7 @@
       "severity": "P1",
       "owner": "engineering",
       "status": "PARTIAL",
-      "source_status": "PARTIAL",
+      "source_status": "PASS",
       "ci_status": "PENDING",
       "device_status": "N_A",
       "evidence": [
@@ -325,7 +332,8 @@
         "docs/INSTALLATION.md",
         "docs/QUICK-START.md",
         "docs/USAGE.md",
-        "docs/V2-RELEASE-READINESS.md"
+        "docs/V2-RELEASE-READINESS.md",
+        "English/Bangla docs checks passed on 39094ed; changelog corrections and report refresh are local and await exact-head CI."
       ],
       "required_tests": [
         "version/package/tag/release metadata audit",
@@ -369,8 +377,9 @@
       "ci_status": "PASS",
       "device_status": "N_A",
       "evidence": [
-        "tests/focused.sh",
-        "tests/update_transaction.sh"
+        "tests/focused.sh (2781 lines)",
+        "tests/update_transaction.sh",
+        "exact-head Validate run 42662384318 passed focused regression suite"
       ],
       "required_tests": [
         "split remaining core/installer/desktop/GPU/extension/package/security/docs suites"
@@ -413,7 +422,8 @@
       "device_status": "N_A",
       "evidence": [
         "docs/release-gates.json",
-        "tests/release_gates.py"
+        "tests/release_gates.py",
+        "Final local regression fixtures pass; hosted CI for validator hardening on the next commit is pending."
       ],
       "required_tests": [
         "schema, duplicate-ID, failure and exclusion validator fixtures",
@@ -432,7 +442,7 @@
       "owner": "engineering",
       "status": "PARTIAL",
       "source_status": "PARTIAL",
-      "ci_status": "PASS",
+      "ci_status": "N_A",
       "device_status": "VERIFIED_ON_DEVICE",
       "evidence": [
         "docs/ACCELERATOR-RELEASE-PLAN.md",
@@ -448,5 +458,5 @@
       "release_exclusion": "Qualify only the documented Redmi Turbo 4 Pro / SM8735 target; all other device-specific acceleration remains unqualified."
     }
   ],
-  "observed_head_commit": "02b4395eda553ecdfc0e1fc21d321e5bd5656417"
+  "observed_head_commit": "39094ed640a25a0caff102f6f5ba49d93cce744d"
 }

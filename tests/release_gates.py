@@ -83,9 +83,13 @@ def validate(data: object) -> list[str]:
         if exclusion is not None and (not isinstance(exclusion, str) or not exclusion.strip()):
             errors.append(f"{issue_id}.release_exclusion must be null or a non-empty string")
         status = gate.get("status")
-        if status == "COMPLETE" and not (gate.get("source_status") == "PASS" and gate.get("evidence")):
-            errors.append(f"{issue_id} cannot be COMPLETE without passing source evidence")
-        if blocking is True and status != "COMPLETE":
+        source_ok = gate.get("source_status") == "PASS" and bool(gate.get("evidence"))
+        ci_ok = gate.get("ci_status") in {"PASS", "N_A"}
+        device_ok = gate.get("device_status") not in {"NOT_TESTED", "BLOCKED"}
+        gate_complete = status == "COMPLETE" and source_ok and ci_ok and device_ok
+        if status == "COMPLETE" and not gate_complete:
+            errors.append(f"{issue_id} cannot be COMPLETE without passing source, CI, and required device evidence")
+        if blocking is True and not gate_complete:
             blocking_incomplete.append(str(issue_id))
         if blocking is False and status not in ("COMPLETE",) and not exclusion:
             errors.append(f"{issue_id} is non-blocking but incomplete without a release_exclusion")
@@ -106,6 +110,27 @@ def self_test(data: object) -> list[str]:
     errors = validate(data)
     if errors:
         return ["real gate inventory is invalid: " + "; ".join(errors)]
+    ready = copy.deepcopy(data)
+    ready["derived_readiness"] = "READY_FOR_OWNER_APPROVAL"
+    for gate in ready["gates"]:
+        gate["status"] = "COMPLETE"
+        gate["source_status"] = "PASS"
+        gate["ci_status"] = "PASS"
+        if gate["device_status"] in {"NOT_TESTED", "BLOCKED"}:
+            gate["device_status"] = "VERIFIED_ON_DEVICE"
+    if validate(ready):
+        errors.append("validator rejected a fully evidenced owner-approval-ready fixture")
+    ready["gates"][0]["ci_status"] = "PENDING"
+    if not any("derived_readiness must be NOT_READY" in issue for issue in validate(ready)):
+        errors.append("validator allowed pending CI to produce a READY_FOR_OWNER_APPROVAL verdict")
+    ready["gates"][0]["ci_status"] = "PASS"
+    ready["gates"][0]["device_status"] = "NOT_TESTED"
+    if not any("derived_readiness must be NOT_READY" in issue for issue in validate(ready)):
+        errors.append("validator allowed untested device requirements to produce a READY_FOR_OWNER_APPROVAL verdict")
+    bad = copy.deepcopy(data)
+    bad["gates"][0]["evidence"] = ["docs/not-a-real-file.md"]
+    if not any("references missing evidence file" in issue for issue in validate(bad)):
+        errors.append("validator failed missing evidence-file regression fixture")
     bad = copy.deepcopy(data)
     bad["gates"][0]["issue_id"] = bad["gates"][1]["issue_id"]
     if not any("duplicate issue_id" in issue for issue in validate(bad)):
@@ -117,6 +142,7 @@ def self_test(data: object) -> list[str]:
     if not any("failing CI" in issue for issue in validate(bad)):
         errors.append("validator failed failed-CI regression fixture")
     bad = copy.deepcopy(data)
+    bad["gates"][0]["status"] = "PARTIAL"
     bad["gates"][0]["release_blocking"] = False
     bad["gates"][0]["release_exclusion"] = None
     if not any("release_exclusion" in issue for issue in validate(bad)):

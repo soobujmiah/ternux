@@ -21,7 +21,7 @@ Notable changes to ternux. Dates are ISO 8601.
 
 ### AI artifact delivery
 
-- Added a v2 release gate for installable CPU/GPU/NPU LLM and Stable Diffusion tools, with fresh-install opt-in selection, checksums, licenses, runtime requirements and target-device verification. Current Stable Diffusion routes are experiments, not installable release extensions.
+- Added managed, checksum-verified llama.cpp CPU/Vulkan and Stable Diffusion CPU/Vulkan extensions, plus an experimental device-specific HTP artifact. Fresh installs can opt in to eligible workloads; model weights stay user-managed. These are preview/experimental paths, not production-qualified AI products; see the release plan for current limits.
 
 
 ### CLI reliability
@@ -47,11 +47,11 @@ Notable changes to ternux. Dates are ISO 8601.
 
 ### Desktop welcome and media
 
-- Added the Ternux Camera and Photos one-click panel launchers, Ristretto as the default image viewer, and seven distinct branded wallpapers. Camera captures now default to the rear lens, validate JPEG output in Termux app storage, then save inside Debian at `~/Pictures/Ternux`; the app previews photos after capture. Termux:API does not expose a continuous live preview stream.
+- Added Ternux Camera and Photos one-click panel launchers and Ristretto as the default image viewer. Camera captures validate JPEG output in Termux app storage, then save inside Debian at `~/Pictures/Ternux`; the app previews photos after capture. Termux:API does not expose a continuous live preview stream. The selector now includes fifteen distinct portrait-first branded wallpapers.
 
 - Made the first-GUI welcome flow one-time per guest user whether or not Firefox ESR is installed. On the first GUI run Firefox opens the project website, or a welcome guide appears without a browser; later boots do not redirect.
 - Added Zenity to the Debian desktop base so the no-browser welcome dialog is available on fresh installs and upgrades. Raised the base installed-size estimate to about 4 GB to include the added fonts, IBus, themes and window-fit helper.
-- Added Noto Bengali fonts and the Avro IBus phonetic keyboard by default (English-first, Ctrl+Space switch), the Xfce Task Manager and Mousepad editor, and a single global Adwaita Dark GTK theme with stock Adwaita icons. Added a custom Aurora Xfce wallpaper and an event-driven Devilspie2 rule that maximizes oversized normal/dialog windows and centers windows that exceed the live X11 screen. The first-run guide uses GTK Cairo rendering and adapts its scrollable layout to the live X11 size. Set per-user VLC output to XCB, software decoding and compact mobile UI; removed unused host-suspend helpers from the base install. Added a minimal system D-Bus and correctly owned ICE socket to reduce PRoot desktop startup errors.
+- Added Noto Bengali fonts and the Avro IBus phonetic keyboard by default (English-first, Ctrl+Space switch), Xfce Task Manager and Mousepad. The graphite-and-emerald Ternux theme now covers GTK apps, menus, panel and window frames, with branded app, folder, Thunar-action and panel icons; Adwaita remains a neutral fallback for unmapped apps. An event-driven Devilspie2 rule fits oversized windows to the live X11 screen. The first-run guide adapts to the display. VLC defaults to XCB output and a compact mobile layout. Added a minimal system D-Bus and correctly owned ICE socket to reduce PRoot desktop startup errors.
 
 ### Termux APT packaging and installation
 
@@ -61,7 +61,7 @@ Notable changes to ternux. Dates are ISO 8601.
 - Made the optional Firefox website welcome a first-GUI-run action per guest user; later desktop boots do not redirect. PulseAudio Volume Control now uses Debian’s stock menu entry without a per-app launcher environment override. Replaced detached session-bus startup with supervised `dbus-run-session` and IBus helper cleanup to prevent orphaned desktop processes from accumulating after restarts.
 
 - Replaced the installer’s oversized duplicate wordmark and patterned frame with a compact mobile header and clean separators; expanded portrait log space, kept routine APT chatter in the full log instead of the dashboard, and added renderer assertions.
-- Fixed black Termux:X11 screens with the documented legacy drawing mode; the managed XFCE launcher now applies the Adwaita dark GTK theme and Adwaita icons after the session bus is ready.
+- Fixed black Termux:X11 screens with the documented legacy drawing mode; the managed XFCE launcher applies the shared Ternux GTK and icon theme after the session bus is ready.
 - Fixed PulseAudio bridge port collisions: the desktop launcher now tries loopback ports 4713–4722 and passes the selected endpoint into Debian, instead of silently launching with an unrelated listener.
 - Added a Termux `ternux` package manifest and reproducible local APT repository builder. It checks package identity and SHA-256, pins signing to the configured primary-key fingerprint, exports only the public key, refuses symlinked artifact roots, rejects stale packages, and removes stale signatures on unsigned rebuilds. CI builds unsigned review artifacts; a manual release workflow is guarded to publish v2 only after the source version is 2.0.0. `pkg install ternux` installs the host CLI; desktop provisioning remains an explicit `ternux install` step.
 - Routed package-manager calls through a wrapper that clears inherited `LD_LIBRARY_PATH`, so external CLI-bundled C++ libraries cannot break Termux APT tools.
