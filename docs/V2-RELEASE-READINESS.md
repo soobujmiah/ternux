@@ -64,6 +64,16 @@ The separate owner checkout contains modified bilingual accelerator plans, QNN e
 
 ## Verification evidence
 
+### Current audit refresh — 2026-11-09
+
+The current PR head is `60c937865cdc9fd7096d169874f196d150a8bfda`; the checkout is clean and tracks `origin/fix/managed-htp-extension-prerequisites`. PR #97 remains open and draft. All required workflows completed successfully on this exact head: Validate (`42641354925`), Termux APT package (`42641355428`), repository contract (`42641355103`), knowledge sync (`42641355025`), llama CPU/Vulkan (`42641355199`), Stable Diffusion CPU/Vulkan (`42641354978`), HTP build (`42641355238`), and HMX build (`42641355262`). HTP/HMX publication was skipped because this is a draft pull request.
+
+The separate `~/ternux-tools` checkout still has six owner-modified/untracked entries: the two accelerator plans, two QNN experiment files, `experiments/qnn-native/clip_mnn_native_probe.cpp`, and `experiments/native-ai-qualification/`. The detached `~/ternux-package-audit` worktree has an untracked `ci-artifact/` directory of unknown provenance. Both worktrees are preserved in place; no file was staged, moved, deleted, or read from that artifact directory. These changes are not silently included in PR #97.
+
+The four hosted signed APT paths were checked again on 2026-11-09 and each returned HTTP 404. A passing package build therefore does not establish a working public `pkg install ternux` path.
+
+Local verification on this audit refresh: `bash tests/focused.sh` passed **134/134**, `python3 tests/docs_check.py` passed **3,041 assertions, 312 internal links, and 20 bilingual page pairs**, and `git diff --check` passed. The Astro production build was not run because dependencies are not installed in this Termux checkout (`node_modules/.bin/astro` is absent).
+
 ### Local source checks
 
 - `bash tests/focused.sh`: **134 checks, 134 passed**.
@@ -114,7 +124,7 @@ A documentation-only commit updates this report after those results; its own exa
 
 | Priority | Gate | Current status | Required evidence before v2.0.0 |
 |---|---|---|---|
-| P0 | Current-head CI and PR review | **All workflows passed on source head `8ed1766`; report-only follow-up CI pending** | Confirm the report-only head checks, review logs/artifacts, keep the PR draft, and obtain owner review. |
+| P0 | Current-head CI and PR review | **All required workflows passed on exact head `60c9378`; PR remains draft** | Owner review and final PR diff review remain open. |
 | P1 | Desktop lifecycle on device | **Code changed; live deployment unverified** | After a controlled package/update path, verify repeated/overlapping start, `status --json`, stop/start, crash/stale-record recovery, X11 socket ownership, audio readiness, and ensure the current working GUI remains usable. Current live session was deliberately not restarted. |
 | P1 | Update transaction and provenance | **Not fixed** | `lib/update.sh` still shallow-clones the moving repository head and installs modules one by one. Pin source to a release commit, verify provenance/checksum, stage all files, test them before switch, and roll back on failure/interruption. |
 | P1 | APT repository and clean install | **Public endpoint currently unavailable** | On 2026-11-09, `https://soobujmiah.github.io/ternux/apt/bootstrap.sh`, `apt/ternux-archive-key.asc`, `apt/dists/stable/InRelease`, and `apt/dists/stable/main/binary-all/Packages` all returned HTTP 404. Restore/deploy the signed repository, then verify signed index/key lifecycle and clean `pkg install ternux`, upgrade, and uninstall on a supported Termux device. |
@@ -128,6 +138,6 @@ Native AI qualification work in `~/ternux-tools` is preserved. It does not curre
 
 ## Final recommendation
 
-**NOT_READY.** The Stable Diffusion notice defect is fixed. Desktop lifecycle and Vulkan detection changes, focused regressions, documentation, and all candidate build workflows passed on source head `8ed1766`. Controlled device verification is still outstanding. The public APT endpoint returns 404; updater rollback/provenance, workload correctness qualification, and owner-reviewed governance also remain outstanding.
+**NOT_READY.** All required PR workflows passed on exact head `60c9378`, and the working checkout is clean. The public signed APT paths still return 404. Updater rollback/provenance, controlled desktop lifecycle verification, workload correctness qualification, shared-storage review, owner-reviewed governance, and final PR review remain open. Build success does not close these gates.
 
 No release tag, package publication, merge, repository-settings change, or live desktop restart was performed.

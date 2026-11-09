@@ -63,6 +63,16 @@ alt_url: "/docs/V2-RELEASE-READINESS.html"
 
 ## যাচাইয়ের প্রমাণ
 
+### বর্তমান অডিট আপডেট — 2026-11-09
+
+বর্তমান PR head `60c937865cdc9fd7096d169874f196d150a8bfda`; checkout clean এবং `origin/fix/managed-htp-extension-prerequisites`-এর সঙ্গে যুক্ত। PR #97 এখনও open ও draft। এই exact head-এ সব required workflow সফল: Validate (`42641354925`), Termux APT package (`42641355428`), repository contract (`42641355103`), knowledge sync (`42641355025`), llama CPU/Vulkan (`42641355199`), Stable Diffusion CPU/Vulkan (`42641354978`), HTP build (`42641355238`) এবং HMX build (`42641355262`)। Draft PR হওয়ায় HTP/HMX publication বাদ গেছে।
+
+আলাদা `~/ternux-tools` checkout-এ owner-এর ছয়টি modified/untracked entry আছে: accelerator plan দুটি, QNN experiment file দুটি, `experiments/qnn-native/clip_mnn_native_probe.cpp` এবং `experiments/native-ai-qualification/`। Detached `~/ternux-package-audit` worktree-তে অজানা provenance-এর untracked `ci-artifact/` আছে। দুই worktree-ই আগের অবস্থায় রাখা হয়েছে; কোনো file stage, move, delete করা হয়নি এবং artifact directory পড়া হয়নি। এগুলো নীরবে PR #97-এ যোগ করা হয়নি।
+
+2026-11-09-এ hosted signed APT-এর চারটি path আবার পরীক্ষা করে সবগুলোতে HTTP 404 পাওয়া গেছে। তাই package build পাস করলেই public `pkg install ternux` কাজ করে—এটা প্রমাণ হয় না।
+
+এই অডিটে local verification: `bash tests/focused.sh` **134/134 পাস**, `python3 tests/docs_check.py` **3,041 assertion, 312 internal link ও 20 bilingual page pair পাস**, এবং `git diff --check` পাস। Termux checkout-এ dependency install নেই (`node_modules/.bin/astro` অনুপস্থিত), তাই Astro production build চালানো হয়নি।
+
 ### Local checks
 
 - `bash tests/focused.sh`: **134 check, 134 পাস**।
@@ -96,7 +106,7 @@ alt_url: "/docs/V2-RELEASE-READINESS.html"
 
 | Priority | Gate | অবস্থা | v2.0.0-এর আগে দরকার |
 |---|---|---|---|
-| P0 | Current-head CI ও PR review | **Source head `8ed1766`-এর সব workflow পাস; report-only follow-up CI অপেক্ষমাণ** | Report-only head-এর check confirm, log/artifact review, PR draft রাখা ও owner review দরকার। |
+| P0 | Current-head CI ও PR review | **Exact head `60c9378`-এ সব required workflow পাস; PR draft** | Owner review ও final PR diff review বাকি। |
 | P1 | Device desktop lifecycle | **Code বদলেছে; live deployment unverified** | নিয়ন্ত্রিত update-এর পর repeated/concurrent start, `status --json`, stop/start, crash recovery, socket ownership ও audio readiness যাচাই। চলমান GUI restart করা হয়নি। |
 | P1 | Update transaction/provenance | **অসম্পূর্ণ** | `lib/update.sh` moving repository head clone করে module একে একে বসায়। Release commit pin, provenance/checksum, staging, pre-switch test ও failure rollback দরকার। |
 | P1 | APT ও clean install | **Public endpoint এখন unavailable** | 2026-11-09-এ `https://soobujmiah.github.io/ternux/apt/bootstrap.sh`, `apt/ternux-archive-key.asc`, `apt/dists/stable/InRelease`, `apt/dists/stable/main/binary-all/Packages`—সব HTTP 404 দিয়েছে। Signed repository deploy/restore করে supported Termux device-এ `pkg install ternux`, upgrade ও uninstall যাচাই করতে হবে। |
