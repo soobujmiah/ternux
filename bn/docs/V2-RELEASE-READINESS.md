@@ -25,6 +25,7 @@ alt_url: "/docs/V2-RELEASE-READINESS.html"
 | `ternux-package-audit` | detached `727726a6`; untracked `ci-artifact/` ৭৪৭ KB | metadata অনুযায়ী এটি ৭ Nov-এর unsigned package/rootfs, source `b3a0f894…`; পুরোনো evidence হিসেবে রাখা হয়েছে, release diff-এ যোগ করা হয়নি। |
 | `ternux-tools` | `main`-এ ছয়টি owner-modified/untracked QNN qualification entry | সব অপরিবর্তিত রাখা হয়েছে; এগুলো আলাদা research artifact, release source নয়। |
 | `skb` | canonical checkout যাচাই করা; owner change আছে | শুধু guidance পড়া হয়েছে; file পরিবর্তন হয়নি। |
+| `.repo/STATUS.md` | `main` থেকে generated snapshot; ৭ Nov-এ `aadc925`-এ sync | `python3 -m tools.repo_knowledge verify`-তে কোনো finding নেই। হাতে edit করা হয়নি; PR head-এর state exact-head CI-তে আছে। |
 | চলমান Termux:X11 desktop | active; session restart করা হয়নি | session অক্ষত রাখা হয়েছে; desktop, audio বা Android service restart করা হয়নি। |
 
 অন্য কোনো Codex agent সক্রিয় নেই। PR #35 আলাদা draft license proposal; owner review-এর অপেক্ষায়, v2 source-এর অংশ নয়। পাঁচটি open Dependabot PR action version update নিয়ে, release diff-এর বাইরে। Read-only GitHub check-এ `main` branch protection নেই, ruleset শূন্য। Report-only commit-এর আগে `e8dab0a` implementation tree clean ছিল; সর্বশেষ product-code commit `aa2c5f1`; এতে routine website deploy-তে signed APT tree যাচাই করে ধরে রাখার ব্যবস্থা আছে।

@@ -25,6 +25,7 @@ At the start of this pass, the primary worktree was clean at `b9caeeb7a1dda7f0fd
 | `ternux-package-audit` | detached at `727726a6`; untracked `ci-artifact/` is 747 KB | Build metadata identifies an unsigned Nov 7 package/rootfs from source `b3a0f894…`; preserve as stale evidence, never include it in the release diff. |
 | `ternux-tools` | `main` with six owner-modified/untracked QNN qualification entries | Preserve all entries; they are separate research materials and are not release-source changes. |
 | `skb` | verified canonical checkout; contains owner changes | Guidance only; no files changed. |
+| `.repo/STATUS.md` | Generated snapshot from `main`, last synced at `aadc925` on Nov 7 | `python3 -m tools.repo_knowledge verify` reports zero findings. It was not hand-edited; PR head state is represented by exact-head CI. |
 | Live Termux:X11 desktop | running; current session not restarted | Keep it undisturbed. No desktop, audio, or Android service restart was performed. |
 
 There are no other active Codex agents. PR #35 remains a separate draft license proposal awaiting owner review; it is not part of this v2 source. Five open Dependabot PRs are unrelated action-version updates. Read-only GitHub inspection still finds no `main` branch protection and zero repository rulesets. The implementation tree was clean at `e8dab0a` before the report-only commits; the latest product-code commit is `aa2c5f1`; it adds verified preservation of the signed APT tree during routine website deployments.
