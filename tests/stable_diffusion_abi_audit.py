@@ -17,7 +17,7 @@ root = pathlib.Path(sys.argv[1]).resolve()
 binary = root / "bin/sd-cli"
 manifest_path = root / "build-manifest.json"
 license_dir = root / "share/licenses"
-for required in (binary, manifest_path, root / "env.sh", license_dir / "SHA256SUMS"):
+for required in (binary, manifest_path, root / "env.sh", license_dir / "INDEX.txt", license_dir / "SHA256SUMS"):
     if not required.exists():
         fail(f"missing required path: {required.relative_to(root)}")
 if not binary.is_file() or not binary.stat().st_mode & 0o111:
@@ -52,7 +52,13 @@ if manifest.get("upstream_commit") != "5a1ba5d895bec4e07deab80d6d791721cd59d9c2"
     fail("upstream commit pin mismatch")
 
 checksums = license_dir / "SHA256SUMS"
-listed = 0
+index_path = license_dir / "INDEX.txt"
+if manifest.get("license_index") != "share/licenses/INDEX.txt":
+    fail("build manifest does not point to the upstream license index")
+indexed = index_path.read_text().splitlines()
+if not indexed or indexed != sorted(set(indexed)):
+    fail("license index is empty, duplicated, or unsorted")
+checksum_entries = {}
 for line in checksums.read_text().splitlines():
     digest, rel = line.split("  ", 1)
     target = (license_dir / rel).resolve()
@@ -61,7 +67,10 @@ for line in checksums.read_text().splitlines():
     actual = hashlib.sha256(target.read_bytes()).hexdigest()
     if actual != digest:
         fail(f"license checksum mismatch: {rel}")
-    listed += 1
-if listed < 1:
-    fail("no license notices bundled")
-print(f"Stable Diffusion ARM64 ABI audit passed; checked {listed} license notices")
+    checksum_entries[rel] = digest
+if set(checksum_entries) != set(indexed):
+    fail("license index and checksum inventory differ")
+for required in ("stable-diffusion.cpp/LICENSE", "TERNUX-LICENSE", "TERNUX-NOTICE"):
+    if required not in indexed:
+        fail(f"required upstream/project license missing: {required}")
+print(f"Stable Diffusion ARM64 ABI audit passed; checked {len(indexed)} license notices")
