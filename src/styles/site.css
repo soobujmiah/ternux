@@ -4546,3 +4546,13 @@ body.lang-bn
   ):not(.arch-pulse):not(code) {
   line-height: 1.95 !important;
 }
+
+.qnn-bench .qnn-single strong {
+  color: #b4c4c7;
+}
+.qnn-bench .qnn-batch strong {
+  color: var(--mint);
+}
+.qnn-bench .qnn-per-image strong {
+  color: #d4c7ff;
+}

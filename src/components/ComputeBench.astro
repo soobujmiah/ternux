@@ -346,6 +346,54 @@ const bn = lang === "bn";
           : "Same Qwen2.5 1.5B Q4_K_M model, prompt/settings and four threads; three interleaved runs, with known-answer 4 on each route. HTP was slightly ahead of Vulkan in this short single-device test; no sustained or general performance claim."}
       </p>
     </section>
+    <section
+      class="matched-bench qnn-bench"
+      aria-label={
+        bn ? "QNN SD1.5 ব্যাচের মাপজোখ" : "QNN SD1.5 batch measurements"
+      }
+    >
+      <header>
+        <div>
+          <span class="eyebrow">
+            {bn
+              ? "QNN · স্টেবল ডিফিউশন ১.৫ · এইচটিপি"
+              : "QNN · STABLE DIFFUSION 1.5 · HTP"}
+          </span>
+          <h4>
+            {bn
+              ? "দুই ছবির ব্যাচে কম মোট সময়"
+              : "Two-image batch · lower total time"}
+          </h4>
+        </div>
+        <span class="evidence-badge experimental">
+          <i></i>
+          {bn ? "পরীক্ষামূলক" : "EXPERIMENTAL"}
+        </span>
+      </header>
+      <div class="matched-bench-values">
+        <article class="qnn-single">
+          <small>
+            {bn ? "আলাদা একক রান · ২ ছবি" : "Separate singles · 2 images"}
+          </small>
+          <strong>59.20 <em>s</em></strong>
+        </article>
+        <article class="qnn-batch">
+          <small>{bn ? "এক ব্যাচ · ২ ছবি" : "One batch · 2 images"}</small>
+          <strong>46.90 <em>s</em></strong>
+        </article>
+        <article class="qnn-per-image">
+          <small>
+            {bn ? "ব্যাচে গড় · প্রতি ছবি" : "Batch average · per image"}
+          </small>
+          <strong>23.45 <em>s</em></strong>
+        </article>
+      </div>
+      <p>
+        {bn
+          ? "SM8735-এ QNN SD1.5, ৫১২×৫১২ রেজোলিউশন ও ২০ ধাপ। তিনটি ছোট তুলনামূলক জোড়ায় ব্যাচে মোট সময় ২০.৮% কম ছিল; নমুনা দৈবচয়িত বা বড় ছিল না। একই seed-এ তৈরি ছবিগুলোর hash মিলে গেছে; তবে CLIP/UNet/VAE পর্যায়ের tensor ফল স্বাধীনভাবে যাচাই হয়নি। ৩–৫ সেকেন্ডের লক্ষ্য পূরণ হয়নি; এই ফল উৎপাদন-ব্যবহারের গতির নিশ্চয়তা নয়."
+          : "QNN SD1.5, 512×512 at 20 steps on SM8735. Across three small paired runs, batching lowered total time by 20.8%; the sample was neither randomized nor large. Same-seed image hashes matched, but independent CLIP/UNet/VAE tensor correctness is unverified. The 3–5 second target remains unmet; this is not a production performance claim."}
+      </p>
+    </section>
   </div>
 
   <footer class="compute-foot">
