@@ -28,7 +28,7 @@ jobs:
     timeout-minutes: 120
     steps:
       - name: Check out Ternux metadata
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Install build and runtime dependencies
         run: |
@@ -39,7 +39,7 @@ jobs:
             python3 binutils file
 
       - name: Check out pinned stable-diffusion.cpp source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: leejet/stable-diffusion.cpp
           ref: 5a1ba5d895bec4e07deab80d6d791721cd59d9c2
@@ -147,7 +147,7 @@ jobs:
           tar -tzf "$tag.tar.gz" > release-contents.txt
 
       - name: Upload inspected prerelease candidate
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ternux-stable-diffusion-vulkan-linux-arm64-master-1053-candidate
           path: |
@@ -161,12 +161,12 @@ jobs:
     name: Publish the optional preview archive
     if: github.event_name == 'workflow_dispatch' && inputs.publish_prerelease
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: write
     steps:
       - name: Download inspected prerelease candidate
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: ternux-stable-diffusion-vulkan-linux-arm64-master-1053-candidate
 

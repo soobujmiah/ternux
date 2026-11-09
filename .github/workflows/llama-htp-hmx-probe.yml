@@ -19,14 +19,14 @@ concurrency:
 jobs:
   build:
     name: Build pinned Snapdragon Linux package
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 120
     steps:
       - name: Check out Ternux release metadata
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Check out pinned llama.cpp source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: karusrus/llama.cpp
           ref: 08c83734f9c5c3b497e98b96f1a380f5a6084468
@@ -189,7 +189,7 @@ jobs:
           sed -n '1,40p' archive-contents.txt
 
       - name: Upload build artifact for review
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ternux-llama-htp-sm8735-integer-hmx-v73-candidate
           path: |

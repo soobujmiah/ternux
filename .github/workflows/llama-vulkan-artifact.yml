@@ -29,7 +29,7 @@ jobs:
     timeout-minutes: 90
     steps:
       - name: Check out Ternux metadata
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Install Vulkan build dependencies
         run: |
@@ -40,7 +40,7 @@ jobs:
             libssl-dev libgomp1 libvulkan1
 
       - name: Check out pinned llama.cpp source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: ggml-org/llama.cpp
           ref: af50f2f248b475d9760f8e67503d01c0f194f5f4
@@ -216,7 +216,7 @@ jobs:
           done < "$package/share/licenses/upstream/INDEX.txt"
 
       - name: Upload inspected candidate artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ternux-llama-vulkan-linux-arm64-b11582-candidate
           path: |
@@ -227,7 +227,7 @@ jobs:
   publish-preview:
     if: github.event_name == 'workflow_dispatch' && inputs.publish_preview == true && github.ref == 'refs/heads/main'
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       actions: read
       contents: write
@@ -240,7 +240,7 @@ jobs:
           fi
 
       - name: Download inspected candidate
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: ternux-llama-vulkan-linux-arm64-b11582-candidate
           path: candidate
