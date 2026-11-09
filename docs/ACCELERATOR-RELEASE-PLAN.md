@@ -705,3 +705,25 @@ qualification, QNN stage correctness and image performance, HTP numerical and
 operator qualification, sustained/failure-restart coverage, the wider
 dependency-license review, camera live preview, owner visual review, and hosted
 signed APT clean install/upgrade.
+
+### Desktop start recovery follow-up — 2026-11-09
+
+Product commit `46227886bb6c142d48b2b363fae39fab005f36e0` brings the
+Termux:X11 activity forward after `ternux start` reaches XFCE readiness. Start
+now recognizes the shared X11 socket plus the live Termux:X11, XFCE session,
+window manager, and desktop processes, so a missing/stale supervisor marker does
+not launch a second session and tear down the first one. On the active phone,
+`ternux start` returned “already running” for PID `16987`; `ternux status --json`
+reported `running`, with the same PRoot/XFCE PIDs before and after. Android
+reported that the existing Termux:X11 task was brought to the foreground; no
+X11/XFCE restart occurred.
+
+Current-product-head workflow-dispatch runs all passed: Validate
+[42599397496](https://github.com/soobujmiah/ternux/actions/runs/42599397496),
+Termux APT package [42599397259](https://github.com/soobujmiah/ternux/actions/runs/42599397259),
+and Repository State Contract
+[42599397452](https://github.com/soobujmiah/ternux/actions/runs/42599397452).
+Local `tests/focused.sh` passed 130/130, including the new stale-marker/live-XFCE
+recovery and activity-foreground regression; `tests/docs_check.py` passed 3,018
+assertions, 312 internal links, and 19 bilingual page pairs. These checks do not
+close the open release gates listed above.

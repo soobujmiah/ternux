@@ -1608,6 +1608,36 @@ else
   not_ok "desktop start detaches with session PID/log and stop cleans it"
 fi
 
+# A surviving XFCE session with a missing/stale supervisor marker must be reused,
+# and starting it from Termux must bring the Termux:X11 activity forward.
+if env TERNUX_STATE_DIR="$TMP/state-desktop-recover" HOME="$TMP/home-desktop-recover" \
+  TMPDIR="$TMP/desktop-recover-tmp" PATH="$TMP/desktop-recover-bin:$PATH" bash -c '
+    mockbin="${PATH%%:*}"
+    mkdir -p "$HOME" "$TMPDIR/.X11-unix" "$mockbin"
+    printf "#!/usr/bin/env bash\n# TERNUX_DESKTOP_LAUNCHER=17\n" > "$HOME/x.sh"
+    python3 -c "import socket,sys; s=socket.socket(socket.AF_UNIX); s.bind(sys.argv[1] + \"/.X11-unix/X0\"); s.close()" "$TMPDIR"
+    cat > "$mockbin/am" <<"AM"
+#!/usr/bin/env bash
+printf "%s\n" "$*" > "$HOME/am-invoked"
+AM
+    chmod +x "$mockbin/am"
+    . "$1/lib/desktop.sh"
+    pgrep(){ case "$*" in *termux-x11*|*xfce4-session*|*xfwm4*|*xfdesktop*) return 0;; esac; return 1; }
+    tnx_has_cmd(){ return 1; }
+    tnx_desktop_session_live || exit
+    TERNUX_JSON=1
+    status="$(tnx_cmd_status)"
+    case "$status" in *"\"status\":\"running\""*) :;; *) exit 1;; esac
+    tnx_cmd_start >/dev/null || exit
+    [ -s "$HOME/am-invoked" ] || exit
+    grep -q "com.termux.x11/com.termux.x11.MainActivity" "$HOME/am-invoked" || exit
+    [ ! -e "$TERNUX_STATE_DIR/session/desktop.pid" ] || exit
+  ' _ "$ROOT"; then
+  ok "desktop start reuses a live XFCE session and foregrounds Termux:X11"
+else
+  not_ok "desktop start reuses a live XFCE session and foregrounds Termux:X11"
+fi
+
 # Vulkan detection must not turn a missing glob into a false positive.
 if env TERNUX_STATE_DIR="$TMP/state-vulkan" HOME="$TMP/home-vulkan" \
   PREFIX="$TMP/empty-prefix" TERNUX_KGSL_DEVICE="$TMP/absent-kgsl" bash -c '

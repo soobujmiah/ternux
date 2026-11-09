@@ -656,3 +656,24 @@ qualification, QNN stage correctness ও image performance, HTP numerical/operat
 qualification, sustained/failure-restart coverage, বিস্তৃত dependency-license
 review, camera live preview, owner visual review এবং hosted signed APT clean
 install/upgrade বাকি থাকায় release gate 10 এখনো held।
+
+### Desktop start recovery follow-up — ২০২৬-১১-০৯
+
+Product commit `46227886bb6c142d48b2b363fae39fab005f36e0`-এ XFCE ready হলে
+`ternux start` Termux:X11 activity সামনে আনে। Start এখন shared X11 socket এবং
+চলমান Termux:X11, XFCE session, window manager ও desktop process মিলিয়ে live
+session শনাক্ত করে। তাই supervisor marker হারালেও প্রথম session বন্ধ করে আরেকটি
+session শুরু করে না। ফোনে `ternux start` PID `16987`-এর জন্য “already running”
+জানিয়েছে; `ternux status --json`-এ `running` এসেছে এবং start-এর আগে-পরে একই
+PRoot/XFCE PID ছিল। Android জানিয়েছে চলমান Termux:X11 task সামনে আনা হয়েছে;
+X11/XFCE restart হয়নি।
+
+এই product head-এর workflow-dispatch pass করেছে: Validate
+[42599397496](https://github.com/soobujmiah/ternux/actions/runs/42599397496),
+Termux APT package [42599397259](https://github.com/soobujmiah/ternux/actions/runs/42599397259),
+এবং Repository State Contract
+[42599397452](https://github.com/soobujmiah/ternux/actions/runs/42599397452)। Local
+`tests/focused.sh` 130/130 pass করেছে; নতুন test stale marker-সহ live XFCE
+session reuse এবং Termux:X11 সামনে আনা যাচাই করে। `tests/docs_check.py`-এ 3,018
+assertion, 312 internal link ও 19 bilingual page pair pass করেছে। এই check-গুলো
+উপরের খোলা release gate বন্ধ করে না।
