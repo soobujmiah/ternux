@@ -1275,6 +1275,238 @@
     "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/org.gnome.Evolution.svg": {
       "source": "lib/ternux-assets/icons/Ternux/scalable/apps/org.gnome.Evolution.svg",
       "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/xfwm4/bottom-active.xpm": {
+      "source": "lib/ternux-assets/themes/Ternux/xfwm4/bottom-active.xpm",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/xfwm4/bottom-inactive.xpm": {
+      "source": "lib/ternux-assets/themes/Ternux/xfwm4/bottom-inactive.xpm",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/xfwm4/bottom-left-active.xpm": {
+      "source": "lib/ternux-assets/themes/Ternux/xfwm4/bottom-left-active.xpm",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/xfwm4/bottom-left-inactive.xpm": {
+      "source": "lib/ternux-assets/themes/Ternux/xfwm4/bottom-left-inactive.xpm",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/xfwm4/bottom-right-active.xpm": {
+      "source": "lib/ternux-assets/themes/Ternux/xfwm4/bottom-right-active.xpm",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/xfwm4/bottom-right-inactive.xpm": {
+      "source": "lib/ternux-assets/themes/Ternux/xfwm4/bottom-right-inactive.xpm",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/xfwm4/close-active.xpm": {
+      "source": "lib/ternux-assets/themes/Ternux/xfwm4/close-active.xpm",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/xfwm4/close-inactive.xpm": {
+      "source": "lib/ternux-assets/themes/Ternux/xfwm4/close-inactive.xpm",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/xfwm4/close-prelight.xpm": {
+      "source": "lib/ternux-assets/themes/Ternux/xfwm4/close-prelight.xpm",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/xfwm4/close-pressed.xpm": {
+      "source": "lib/ternux-assets/themes/Ternux/xfwm4/close-pressed.xpm",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/xfwm4/hide-active.xpm": {
+      "source": "lib/ternux-assets/themes/Ternux/xfwm4/hide-active.xpm",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/xfwm4/hide-inactive.xpm": {
+      "source": "lib/ternux-assets/themes/Ternux/xfwm4/hide-inactive.xpm",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/xfwm4/hide-prelight.xpm": {
+      "source": "lib/ternux-assets/themes/Ternux/xfwm4/hide-prelight.xpm",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/xfwm4/hide-pressed.xpm": {
+      "source": "lib/ternux-assets/themes/Ternux/xfwm4/hide-pressed.xpm",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/xfwm4/left-active.xpm": {
+      "source": "lib/ternux-assets/themes/Ternux/xfwm4/left-active.xpm",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/xfwm4/left-inactive.xpm": {
+      "source": "lib/ternux-assets/themes/Ternux/xfwm4/left-inactive.xpm",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/xfwm4/maximize-active.xpm": {
+      "source": "lib/ternux-assets/themes/Ternux/xfwm4/maximize-active.xpm",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/xfwm4/maximize-inactive.xpm": {
+      "source": "lib/ternux-assets/themes/Ternux/xfwm4/maximize-inactive.xpm",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/xfwm4/maximize-prelight.xpm": {
+      "source": "lib/ternux-assets/themes/Ternux/xfwm4/maximize-prelight.xpm",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/xfwm4/maximize-pressed.xpm": {
+      "source": "lib/ternux-assets/themes/Ternux/xfwm4/maximize-pressed.xpm",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/xfwm4/menu-active.xpm": {
+      "source": "lib/ternux-assets/themes/Ternux/xfwm4/menu-active.xpm",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/xfwm4/menu-inactive.xpm": {
+      "source": "lib/ternux-assets/themes/Ternux/xfwm4/menu-inactive.xpm",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/xfwm4/right-active.xpm": {
+      "source": "lib/ternux-assets/themes/Ternux/xfwm4/right-active.xpm",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/xfwm4/right-inactive.xpm": {
+      "source": "lib/ternux-assets/themes/Ternux/xfwm4/right-inactive.xpm",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/xfwm4/shade-active.xpm": {
+      "source": "lib/ternux-assets/themes/Ternux/xfwm4/shade-active.xpm",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/xfwm4/shade-inactive.xpm": {
+      "source": "lib/ternux-assets/themes/Ternux/xfwm4/shade-inactive.xpm",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/xfwm4/stick-active.xpm": {
+      "source": "lib/ternux-assets/themes/Ternux/xfwm4/stick-active.xpm",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/xfwm4/stick-inactive.xpm": {
+      "source": "lib/ternux-assets/themes/Ternux/xfwm4/stick-inactive.xpm",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/xfwm4/title-1-active.xpm": {
+      "source": "lib/ternux-assets/themes/Ternux/xfwm4/title-1-active.xpm",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/xfwm4/title-1-inactive.xpm": {
+      "source": "lib/ternux-assets/themes/Ternux/xfwm4/title-1-inactive.xpm",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/xfwm4/title-2-active.xpm": {
+      "source": "lib/ternux-assets/themes/Ternux/xfwm4/title-2-active.xpm",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/xfwm4/title-2-inactive.xpm": {
+      "source": "lib/ternux-assets/themes/Ternux/xfwm4/title-2-inactive.xpm",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/xfwm4/title-3-active.xpm": {
+      "source": "lib/ternux-assets/themes/Ternux/xfwm4/title-3-active.xpm",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/xfwm4/title-3-inactive.xpm": {
+      "source": "lib/ternux-assets/themes/Ternux/xfwm4/title-3-inactive.xpm",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/xfwm4/title-4-active.xpm": {
+      "source": "lib/ternux-assets/themes/Ternux/xfwm4/title-4-active.xpm",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/xfwm4/title-4-inactive.xpm": {
+      "source": "lib/ternux-assets/themes/Ternux/xfwm4/title-4-inactive.xpm",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/xfwm4/title-5-active.xpm": {
+      "source": "lib/ternux-assets/themes/Ternux/xfwm4/title-5-active.xpm",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/xfwm4/title-5-inactive.xpm": {
+      "source": "lib/ternux-assets/themes/Ternux/xfwm4/title-5-inactive.xpm",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/xfwm4/top-active.xpm": {
+      "source": "lib/ternux-assets/themes/Ternux/xfwm4/top-active.xpm",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/xfwm4/top-inactive.xpm": {
+      "source": "lib/ternux-assets/themes/Ternux/xfwm4/top-inactive.xpm",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/xfwm4/top-left-active.xpm": {
+      "source": "lib/ternux-assets/themes/Ternux/xfwm4/top-left-active.xpm",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/xfwm4/top-left-inactive.xpm": {
+      "source": "lib/ternux-assets/themes/Ternux/xfwm4/top-left-inactive.xpm",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/xfwm4/top-right-active.xpm": {
+      "source": "lib/ternux-assets/themes/Ternux/xfwm4/top-right-active.xpm",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/xfwm4/top-right-inactive.xpm": {
+      "source": "lib/ternux-assets/themes/Ternux/xfwm4/top-right-inactive.xpm",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/xfwm4/maximize-toggled-active.png": {
+      "source": "lib/ternux-assets/themes/Ternux/xfwm4/maximize-toggled-active.png",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/xfwm4/maximize-toggled-inactive.png": {
+      "source": "lib/ternux-assets/themes/Ternux/xfwm4/maximize-toggled-inactive.png",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/xfwm4/maximize-toggled-prelight.png": {
+      "source": "lib/ternux-assets/themes/Ternux/xfwm4/maximize-toggled-prelight.png",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/xfwm4/maximize-toggled-pressed.png": {
+      "source": "lib/ternux-assets/themes/Ternux/xfwm4/maximize-toggled-pressed.png",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/xfwm4/maximize-toggled-active.xpm": {
+      "source": "lib/ternux-assets/themes/Ternux/xfwm4/maximize-toggled-active.xpm",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/xfwm4/maximize-toggled-inactive.xpm": {
+      "source": "lib/ternux-assets/themes/Ternux/xfwm4/maximize-toggled-inactive.xpm",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/xfwm4/maximize-toggled-prelight.xpm": {
+      "source": "lib/ternux-assets/themes/Ternux/xfwm4/maximize-toggled-prelight.xpm",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/xfwm4/maximize-toggled-pressed.xpm": {
+      "source": "lib/ternux-assets/themes/Ternux/xfwm4/maximize-toggled-pressed.xpm",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/xfwm4/menu-prelight.xpm": {
+      "source": "lib/ternux-assets/themes/Ternux/xfwm4/menu-prelight.xpm",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/xfwm4/menu-pressed.xpm": {
+      "source": "lib/ternux-assets/themes/Ternux/xfwm4/menu-pressed.xpm",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/xfwm4/shade-prelight.xpm": {
+      "source": "lib/ternux-assets/themes/Ternux/xfwm4/shade-prelight.xpm",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/xfwm4/shade-pressed.xpm": {
+      "source": "lib/ternux-assets/themes/Ternux/xfwm4/shade-pressed.xpm",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/xfwm4/stick-prelight.xpm": {
+      "source": "lib/ternux-assets/themes/Ternux/xfwm4/stick-prelight.xpm",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/xfwm4/stick-pressed.xpm": {
+      "source": "lib/ternux-assets/themes/Ternux/xfwm4/stick-pressed.xpm",
+      "perm": "644"
     }
   }
 }

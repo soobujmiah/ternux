@@ -435,7 +435,7 @@ fi
 
 # The APT package must carry all resources read relative to its installed phase module.
 if python3 - "$ROOT/packaging/termux/manifest.json" "$ROOT" <<'PYMANIFEST'
-import json, pathlib, sys
+import json, pathlib, re, sys
 manifest = json.loads(pathlib.Path(sys.argv[1]).read_text())
 root = pathlib.Path(sys.argv[2])
 files = manifest["data_files"]
@@ -561,7 +561,9 @@ for icon_dir in ("apps", "actions", "categories", "places", "devices", "status",
 xfwm_config = (root / "lib/ternux-assets/themes/Ternux/xfwm4/themerc").read_text()
 assert "button_offset=2" in xfwm_config and "button_spacing=1" in xfwm_config
 assert "frame_border_top=4" in xfwm_config
-assert "save(f\"{kind}-{state}.png\", (24, 24), draw)" in (root / "tools/generate_ternux_xfwm.py").read_text()
+xfwm_generator = (root / "tools/generate_ternux_xfwm.py").read_text()
+assert 'xpm_name = Path(name).with_suffix(".xpm")' in xfwm_generator
+assert 'state_button("maximize", state, inactive=inactive, toggled=True)' in xfwm_generator
 assert "image-style --create -t int -s 4" in (root / "lib/phases.sh").read_text()
 phases = (root / "lib/phases.sh").read_text()
 assert phases.count("taskmanager-performance-v1") == 1
@@ -581,8 +583,21 @@ for icon in ("ternux-recorder", "ternux-avro", "ternux-python", "ternux-keyboard
     assert (root / f"lib/ternux-assets/icons/Ternux/scalable/apps/{icon}.svg").is_file()
 xfwm = root / "lib/ternux-assets/themes/Ternux/xfwm4"
 assert (xfwm / "themerc").is_file()
-assert all(not asset.is_symlink() for asset in xfwm.glob("*.png"))
-assert len(list(xfwm.glob("*.png"))) >= 40
+png_assets = list(xfwm.glob("*.png"))
+assert all(not asset.is_symlink() for asset in png_assets)
+assert len(png_assets) >= 40
+assert all(asset.with_suffix(".xpm").is_file() for asset in png_assets)
+for asset in png_assets:
+    lines = asset.with_suffix(".xpm").read_text().splitlines()
+    assert lines[0] == "/* XPM */"
+    assert "static char * ternux_" in lines[2]
+    dimensions = re.fullmatch(r'"(\d+) (\d+) 1 1",', lines[3])
+    assert dimensions, asset
+    width, height = map(int, dimensions.groups())
+    assert lines[4] == '". c None",'
+    rows = [line.strip('" ,') for line in lines[5:5 + height]]
+    assert len(rows) == height and all(len(row) == width for row in rows), asset
+assert "composites the same-named PNG over it" in (root / "tools/generate_ternux_xfwm.py").read_text()
 recorder = (root / "lib/ternux-recorder.py").read_text()
 assert '"-f", str(self.partial), "-e", "aac", "-c", "1"' in recorder
 assert '"-i"' in recorder and '"-q"' in recorder
