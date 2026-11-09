@@ -8,12 +8,14 @@
 
 # shellcheck source=lib/core.sh
 . "$(dirname "${BASH_SOURCE[0]}")/core.sh"
+# shellcheck source=lib/desktop.sh
+. "$(dirname "${BASH_SOURCE[0]}")/desktop.sh"
 
 _tnx_uninstall_usage() {
   cat <<'EOF'
 Usage: ternux uninstall [session|launcher|state|container|all] [--yes]
 
-  session    Stop desktop services and remove stale sockets
+  session    Stop the Ternux-owned desktop session and remove its state markers
   launcher   Remove ~/x.sh and ternux shell aliases
   state      Remove ternux logs and state (not the Debian container)
   container  Delete the Debian PRoot container
@@ -37,18 +39,9 @@ _tnx_uninstall_confirm() {
 }
 
 _tnx_uninstall_stop() {
-  # Stop only ternux session processes. In particular, do not broadly kill
-  # D-Bus daemons that may belong to another PRoot session.
-  pkill -f "^termux-x11 com\.termux\.x11([[:space:]]|$)" 2>/dev/null || true
-  pkill -f '(^|/)virgl_test_server(_android)?([[:space:]]|$)' 2>/dev/null || true
-  if tnx_has_cmd pulseaudio; then
-    pulseaudio --kill 2>/dev/null || pkill -KILL -x pulseaudio 2>/dev/null || true
-  fi
-  local tmp="${TMPDIR:-/data/data/com.termux/files/usr/tmp}"
-  rm -f "$tmp/.X11-unix/X"* "$tmp/.X"*"-lock" "$tmp/pulse-socket" \
-        "$tmp"/.pulse-*/native 2>/dev/null || true
-  tnx_has_cmd termux-wake-unlock && termux-wake-unlock 2>/dev/null || true
-  tnx_ok "Desktop services stopped and stale sockets removed"
+  # Reuse the ownership-checked lifecycle path. Shared Termux:X11 and PulseAudio
+  # processes/sockets are not terminated or removed during uninstall.
+  tnx_cmd_stop
 }
 
 _tnx_uninstall_launcher() {

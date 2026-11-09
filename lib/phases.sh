@@ -994,12 +994,19 @@ tnx_phase_launcher() {
   # truncating the command and triggering teardown before XFCE starts.
   cat > "$LAUNCHER" <<'LAUNCHEOF'
 #!/data/data/com.termux/files/usr/bin/bash
-# TERNUX_DESKTOP_LAUNCHER=17
+# TERNUX_DESKTOP_LAUNCHER=18
 set -u
 TMPDIR="${TMPDIR:-/data/data/com.termux/files/usr/tmp}"
 TNX_PID_FILE="${TNX_PID_FILE:-$HOME/.local/share/ternux/session/desktop.pid}"
-printf '%s\n' "$$" > "$TNX_PID_FILE" 2>/dev/null || true
+TNX_IDENTITY_FILE="${TNX_PID_FILE}.identity"
 TNX_READY_FILE="${TNX_PID_FILE}.ready"
+proc_start_identity() { awk '{ sub(/^.*\) /, ""); print $20 }' "/proc/$1/stat" 2>/dev/null; }
+TNX_START_ID="$(proc_start_identity "$$")"
+TNX_PGID="$(ps -o pgid= -p "$$" 2>/dev/null | tr -d '[:space:]')"
+printf '%s\n' "$$" > "$TNX_PID_FILE" 2>/dev/null || true
+if [ -n "$TNX_START_ID" ] && [ "$TNX_PGID" = "$$" ]; then
+  printf '%s %s %s\n' "$$" "$TNX_START_ID" "$TNX_PGID" > "${TNX_IDENTITY_FILE}.tmp" && mv -f "${TNX_IDENTITY_FILE}.tmp" "$TNX_IDENTITY_FILE" 2>/dev/null || true
+fi
 TNX_GUEST_SESSION_SCRIPT="$TMPDIR/ternux-desktop-session-$$.sh"
 TNX_CPUINFO_FILE="$TMPDIR/ternux-cpuinfo-$$"
 TNX_CPU_MODEL_MAP="$TMPDIR/ternux-cpu-models-$$"
@@ -1032,30 +1039,36 @@ write_cpuinfo_with_model_names() {
   ' "$TNX_CPU_MODEL_MAP" /proc/cpuinfo > "$tmp" && [ -s "$tmp" ] && mv -f "$tmp" "$TNX_CPUINFO_FILE" || { cp /proc/cpuinfo "$TNX_CPUINFO_FILE" 2>/dev/null || :; rm -f "$tmp"; }
   rm -f "$TNX_CPU_MODEL_MAP"
 }
-stop_legacy_ternuxx_audio() {
-  local stale_pid
-  while IFS= read -r stale_pid; do [ -n "$stale_pid" ] || continue; kill -TERM "$stale_pid" 2>/dev/null || true; done < <(ps -A -o pid=,args= 2>/dev/null | awk '$2 ~ /pulseaudio$/ && /\/.local\/share\/ternuxx\/audio\/default\.pa/ {print $1}')
+kill_owned_child() {
+  local child_pid="${1:-}" child_start="${2:-}" current_start=""
+  [[ "$child_pid" =~ ^[0-9]+$ ]] && [ -n "$child_start" ] || return 0
+  current_start="$(proc_start_identity "$child_pid")"
+  [ "$current_start" = "$child_start" ] || return 0
+  kill -TERM "$child_pid" 2>/dev/null || true
+  local attempt=0
+  while [ "$attempt" -lt 20 ] && kill -0 "$child_pid" 2>/dev/null; do
+    current_start="$(proc_start_identity "$child_pid")"
+    [ "$current_start" = "$child_start" ] || return 0
+    sleep 0.1; attempt=$((attempt+1))
+  done
+  current_start="$(proc_start_identity "$child_pid")"
+  [ "$current_start" = "$child_start" ] && kill -KILL "$child_pid" 2>/dev/null || true
 }
 cleanup() {
-  stop_legacy_ternuxx_audio
-  pkill -9 -f "^termux-x11 com\.termux\.x11([[:space:]]|$)" 2>/dev/null || true
-  pkill -9 -f '(^|/)virgl_test_server(_android)?([[:space:]]|$)' 2>/dev/null || true
-  pulseaudio --kill 2>/dev/null || pkill -KILL -x pulseaudio 2>/dev/null || true
-  rm -f "$TMPDIR"/.X11-unix/X* "$TMPDIR"/.X*-lock "$TMPDIR"/pulse-socket "$TMPDIR"/.pulse-*/native 2>/dev/null || true
-  rm -f "$TNX_CPUINFO_FILE" "$TNX_CPU_MODEL_MAP" "$TNX_CPUINFO_FILE.tmp" "$TNX_GUEST_SESSION_SCRIPT" "$TNX_READY_FILE" 2>/dev/null || true
+  kill_owned_child "${X11_PID:-}" "${X11_START_ID:-}"
+  kill_owned_child "${VIRGL_PID:-}" "${VIRGL_START_ID:-}"
+  if [[ "${PULSE_MODULE_ID:-}" =~ ^[0-9]+$ ]]; then pactl unload-module "$PULSE_MODULE_ID" >/dev/null 2>&1 || true; fi
+  rm -f "$TNX_CPUINFO_FILE" "$TNX_CPU_MODEL_MAP" "$TNX_CPUINFO_FILE.tmp" "$TNX_GUEST_SESSION_SCRIPT" "$TNX_READY_FILE" "${TNX_IDENTITY_FILE}.tmp" 2>/dev/null || true
   termux-wake-unlock 2>/dev/null || true
-  if [ -n "$TNX_PID_FILE" ] && [ "$(cat "$TNX_PID_FILE" 2>/dev/null || true)" = "$$" ]; then rm -f "$TNX_PID_FILE"; fi
+  if [ -n "$TNX_PID_FILE" ] && [ "$(cat "$TNX_PID_FILE" 2>/dev/null || true)" = "$$" ]; then
+    rm -f "$TNX_PID_FILE" "$TNX_IDENTITY_FILE"
+  fi
 }
 trap cleanup EXIT
 trap 'exit 130' INT
 trap 'exit 143' TERM
-pkill -9 -f "^termux-x11 com\.termux\.x11([[:space:]]|$)" 2>/dev/null || true
-pkill -9 -f '(^|/)virgl_test_server(_android)?([[:space:]]|$)' 2>/dev/null || true
-pulseaudio --kill 2>/dev/null || pkill -KILL -x pulseaudio 2>/dev/null || true
-rm -f "$TMPDIR"/.X11-unix/X* "$TMPDIR"/.X*-lock "$TMPDIR"/pulse-socket "$TMPDIR"/.pulse-*/native 2>/dev/null || true
 termux-wake-lock 2>/dev/null || true
 if command -v termux-x11-preference >/dev/null 2>&1; then termux-x11-preference enforceCharBasedInput:true >/dev/null 2>&1 || echo "WARNING: could not enable Termux:X11 character-based keyboard input."; fi
-stop_legacy_ternuxx_audio
 write_cpuinfo_with_model_names
 unset PULSE_SERVER; pulseaudio --start --exit-idle-time=-1 --daemonize 2>/dev/null || true
 sleep 0.3
@@ -1070,6 +1083,7 @@ echo "PulseAudio bridge ready on 127.0.0.1:$PULSE_PORT."
 # Display
 termux-x11 :0 -legacy-drawing -ac &
 X11_PID=$!
+X11_START_ID="$(proc_start_identity "$X11_PID")"
 echo "Waiting for Termux-X11..."
 WAITED=0
 while [ ! -e "$TMPDIR/.X11-unix/X0" ]; do
@@ -1092,16 +1106,8 @@ sudo -n rm -f /etc/xdg/autostart/light-locker.desktop 2>/dev/null || true
 exec dbus-run-session -- bash -c '
   set -u
   until xdpyinfo -display :0 >/dev/null 2>&1; do sleep 0.1; done
-  pkill -TERM -x ibus-daemon 2>/dev/null || true
-  pkill -TERM -x ibus-ui-gtk3 2>/dev/null || true
-  pkill -TERM -x ibus-extension-gtk3 2>/dev/null || true
-  pkill -TERM -x ibus-memconf 2>/dev/null || true
-  pkill -TERM -x ibus-x11 2>/dev/null || true
-  pkill -TERM -x ibus-portal 2>/dev/null || true
-  pkill -TERM -x ibus-engine-simple 2>/dev/null || true
-  pkill -TERM -f "[/]usr/share/ibus-avro/main-gjs.js" 2>/dev/null || true
-  sleep 0.2
-  rm -f ~/.config/ibus/bus/*
+  # --replace targets the selected account session bus; process-wide pkill would
+  # disrupt other PRoot desktops sharing the guest process namespace.
   ibus-daemon --daemonize --xim --replace
   ibus_tries=0
   until ibus address 2>/dev/null | grep -q "^unix:" || [ "$ibus_tries" -ge 20 ]; do ibus_tries=$((ibus_tries + 1)); sleep 0.1; done
@@ -1187,6 +1193,7 @@ EOF
     cat >> "$LAUNCHER" << 'VIRGLEOF'
 virgl_test_server_android >/dev/null 2>&1 &
 VIRGL_PID=$!
+VIRGL_START_ID="$(proc_start_identity "$VIRGL_PID")"
 sleep 1
 if ! kill -0 "$VIRGL_PID" 2>/dev/null; then echo "WARNING: virgl_test_server_android failed to start; check for llvmpipe."; fi
 VIRGLEOF

@@ -9,16 +9,17 @@
 # shellcheck source=lib/core.sh
 . "$(dirname "${BASH_SOURCE[0]}")/core.sh"
 
-# Ternuxx was uninstalled, but its standalone PulseAudio daemon can outlive
-# the app removal and keep an audio sink open. Match only that legacy config.
-tnx_stop_legacy_ternuxx_audio() {
-  local stale_pid pids=""
-  pids="$(ps -A -o pid=,args= 2>/dev/null | awk '$2 ~ /pulseaudio$/ && /\/.local\/share\/ternuxx\/audio\/default\.pa/ {print $1}')"
-  for stale_pid in $pids; do
-    [ -n "$stale_pid" ] || continue
-    kill -TERM "$stale_pid" 2>/dev/null || true
-  done
+# Linux /proc start time protects the managed PID from reuse after a crash.
+tnx_process_start_identity() {
+  local pid="${1:-}"
+  [[ "$pid" =~ ^[0-9]+$ ]] || return 1
+  [ -r "/proc/$pid/stat" ] || return 1
+  awk '{ sub(/^.*\) /, ""); print $20 }' "/proc/$pid/stat" 2>/dev/null
 }
+
+tnx_process_is_live() { kill -0 "${1:-}" 2>/dev/null; }
+tnx_process_group_id() { ps -o pgid= -p "${1:-}" 2>/dev/null | tr -d '[:space:]'; }
+tnx_signal_process_group() { kill -"$1" -- "-$2" 2>/dev/null; }
 
 # A valid PID file is not enough to prove the desktop is usable: Android may
 # have killed/recreated the X11 app, and old PIDs can be reused. Check the
@@ -54,7 +55,7 @@ tnx_cmd_start() {
     return 1
   fi
 
-  if ! grep -q '^# TERNUX_DESKTOP_LAUNCHER=17$' "$HOME/x.sh"; then
+  if ! grep -q '^# TERNUX_DESKTOP_LAUNCHER=18$' "$HOME/x.sh"; then
     # CLI package upgrades must refresh the generated launcher too. It carries
     # process matching, audio routing and session supervision behavior.
     if ! declare -F tnx_phase_launcher >/dev/null 2>&1; then
@@ -82,14 +83,33 @@ tnx_cmd_start() {
   fi
 
   local session_dir="$TERNUX_STATE_DIR/session" pid_file="$TERNUX_STATE_DIR/session/desktop.pid" ready_file="$TERNUX_STATE_DIR/session/desktop.pid.ready"
+  local state_file="$TERNUX_STATE_DIR/session/desktop.state"
   mkdir -p "$session_dir" || { tnx_fail "Could not create desktop state directory."; return 1; }
+  if ! tnx_has_cmd flock; then
+    tnx_fail "Desktop lifecycle lock is unavailable. Install util-linux and retry."
+    return 1
+  fi
+  exec 9>"$session_dir/start.lock" || { tnx_fail "Could not open the desktop startup lock."; return 1; }
+  if ! flock -n 9; then
+    tnx_info "Desktop startup is already in progress. Check 'ternux status' or 'ternux logs desktop tail'."
+    [ "${TERNUX_JSON:-0}" = "1" ] && tnx_json_object "start" "starting" "log" "$session_dir/desktop.log"
+    exec 9>&-
+    return 0
+  fi
   if [ -r "$pid_file" ]; then
-    local old_pid
+    local old_pid old_identity_pid old_start old_pgid
     old_pid="$(cat "$pid_file" 2>/dev/null || true)"
-    if [[ "$old_pid" =~ ^[0-9]+$ ]] && kill -0 "$old_pid" 2>/dev/null && grep -q '^READY$' "$ready_file" 2>/dev/null && tnx_desktop_session_live; then
+    old_identity_pid=""; old_start=""; old_pgid=""
+    [ -r "$pid_file.identity" ] && read -r old_identity_pid old_start old_pgid < "$pid_file.identity" || true
+    if [[ "$old_pid" =~ ^[0-9]+$ ]] && [ "$old_identity_pid" = "$old_pid" ] && [ "$old_pgid" = "$old_pid" ] &&
+       [ -n "$old_start" ] && tnx_process_is_live "$old_pid" &&
+       [ "$(tnx_process_start_identity "$old_pid" 2>/dev/null || true)" = "$old_start" ] &&
+       grep -q '^READY$' "$ready_file" 2>/dev/null && tnx_desktop_session_live; then
+      printf '%s\n' READY > "$session_dir/desktop.state"
       tnx_show_x11_activity
       tnx_info "Desktop is already running (PID $old_pid). Use 'ternux status' or 'ternux logs desktop tail'."
       [ "${TERNUX_JSON:-0}" = "1" ] && tnx_json_object "start" "already_running" "pid" "$old_pid"
+      exec 9>&-
       return 0
     fi
   fi
@@ -98,9 +118,11 @@ tnx_cmd_start() {
   # survived. Do not run another launcher: it would tear down the live X server.
   if tnx_desktop_session_live; then
     local active_pid="$(cat "$pid_file" 2>/dev/null || true)"
+    printf '%s\n' READY > "$state_file"
     tnx_show_x11_activity
     tnx_info "Desktop is already active${active_pid:+ (PID $active_pid)}. Use 'ternux status' or 'ternux logs desktop tail'."
     [ "${TERNUX_JSON:-0}" = "1" ] && tnx_json_object "start" "already_running" "pid" "${active_pid:-unknown}"
+    exec 9>&-
     return 0
   fi
   rm -f "$pid_file" "$ready_file"
@@ -129,8 +151,9 @@ tnx_cmd_start() {
     tnx_fail "Session detachment tool 'setsid' is missing. Install it with 'pkg install util-linux' and retry."
     return 1
   fi
+  printf '%s\n' STARTING > "$state_file" || { tnx_fail "Could not record desktop startup state."; exec 9>&-; return 1; }
   tnx_info "Starting desktop in background (backend: $configured_backend)..."
-  setsid env LD_LIBRARY_PATH= TNX_PID_FILE="$pid_file" nohup bash "$HOME/x.sh" >>"$desktop_log" 2>&1 </dev/null &
+  setsid env LD_LIBRARY_PATH= TNX_PID_FILE="$pid_file" nohup bash "$HOME/x.sh" >>"$desktop_log" 2>&1 </dev/null 9>&- &
   local spawn_pid=$! pid="$!"
   local ready=0 i pid_wait=0
   tnx_info "Waiting for the XFCE desktop to finish starting..."
@@ -138,26 +161,42 @@ tnx_cmd_start() {
     local recorded_pid
     recorded_pid="$(cat "$pid_file" 2>/dev/null || true)"
     [[ "$recorded_pid" =~ ^[0-9]+$ ]] && pid="$recorded_pid"
-    if [ -e "${TMPDIR:-/data/data/com.termux/files/usr/tmp}/.X11-unix/X0" ] && grep -q '^READY$' "$ready_file" 2>/dev/null; then ready=1; break; fi
-    if ! kill -0 "$pid" 2>/dev/null; then
+    local identity_pid="" identity_start="" identity_pgid="" current_identity=""
+    if [ -r "$pid_file.identity" ]; then read -r identity_pid identity_start identity_pgid < "$pid_file.identity" || true; fi
+    if [[ "$pid" =~ ^[0-9]+$ ]] && [ "$identity_pid" = "$pid" ] && [ "$identity_pgid" = "$pid" ] &&
+       [ -n "$identity_start" ]; then current_identity="$(tnx_process_start_identity "$pid" 2>/dev/null || true)"; fi
+    if [ -e "${TMPDIR:-/data/data/com.termux/files/usr/tmp}/.X11-unix/X0" ] &&
+       [ "$current_identity" = "$identity_start" ] && tnx_process_is_live "$pid" && grep -q '^READY$' "$ready_file" 2>/dev/null; then ready=1; break; fi
+    if ! tnx_process_is_live "$pid"; then
       if [[ ! "$recorded_pid" =~ ^[0-9]+$ ]] && [ "$pid_wait" -lt 50 ]; then pid_wait=$((pid_wait+1)); sleep 0.1; continue; fi
       break
     fi
     sleep 0.1
   done
   if [ "$ready" -ne 1 ]; then
-    local rc=1
-    kill -TERM "$pid" 2>/dev/null || kill -TERM "$spawn_pid" 2>/dev/null || true
+    local rc=1 failed_identity_pid="" failed_start="" failed_pgid="" failed_current=""
+    if [ -r "$pid_file.identity" ]; then read -r failed_identity_pid failed_start failed_pgid < "$pid_file.identity" || true; fi
+    if [ "$failed_identity_pid" = "$pid" ] && [ "$failed_pgid" = "$pid" ] && [ -n "$failed_start" ]; then
+      failed_current="$(tnx_process_start_identity "$pid" 2>/dev/null || true)"
+      if [ "$failed_current" = "$failed_start" ] && tnx_process_is_live "$pid"; then tnx_signal_process_group TERM "$failed_pgid" || true; fi
+    elif tnx_process_is_live "$spawn_pid"; then
+      kill -TERM "$spawn_pid" 2>/dev/null || true
+    fi
     local waited=0
-    while kill -0 "$pid" 2>/dev/null && [ "$waited" -lt 50 ]; do sleep 0.1; waited=$((waited+1)); done
-    if kill -0 "$pid" 2>/dev/null; then kill -KILL "$pid" 2>/dev/null || true; fi
+    while tnx_process_is_live "$pid" && [ "$waited" -lt 50 ]; do sleep 0.1; waited=$((waited+1)); done
+    failed_current="$(tnx_process_start_identity "$pid" 2>/dev/null || true)"
+    if [ "$failed_current" = "$failed_start" ] && tnx_process_is_live "$pid"; then tnx_signal_process_group KILL "$failed_pgid" || true; fi
     wait "$spawn_pid" 2>/dev/null || rc=$?
-    rm -f "$pid_file"
+    rm -f "$pid_file" "$pid_file.identity"
+    printf '%s\n' FAILED > "$state_file"
+    exec 9>&-
     tnx_fail "Desktop did not complete XFCE startup. See 'ternux logs show' for details."
     [ "${TERNUX_JSON:-0}" = "1" ] && tnx_json_object "start" "error" "backend" "$configured_backend" "log" "$desktop_log"
     return "$rc"
   fi
 
+  printf '%s\n' READY > "$state_file"
+  exec 9>&-
   if [ "${TERNUX_JSON:-0}" = "1" ]; then
     tnx_show_x11_activity
     tnx_json_object "start" "ok" "backend" "$configured_backend" "pid" "$pid" "log" "$desktop_log"
@@ -177,65 +216,70 @@ tnx_cmd_stop() {
     tnx_step "Stopping ternux desktop..."
   fi
 
-  local found=0 pid_file="$TERNUX_STATE_DIR/session/desktop.pid" managed_pid=""
-  [ -r "$pid_file" ] && managed_pid="$(cat "$pid_file" 2>/dev/null || true)"
-  tnx_stop_legacy_ternuxx_audio
-  # Stop only the managed guest desktop session before closing the host X
-  # server. Otherwise its PRoot process can survive uninstall/reinstall and
-  # leave duplicate XFCE sessions attached to the next display.
-  if tnx_has_cmd proot-distro; then
-    # Stop IBus daemon and helpers with the desktop. The launcher runs its
-    # private bus under dbus-run-session so the bus is reaped with XFCE.
-    tnx_guest_login --user root -- sh -c '
-      pkill -TERM -x ibus-daemon 2>/dev/null || true
-      pkill -TERM -x ibus-ui-gtk3 2>/dev/null || true
-      pkill -TERM -x ibus-extension-gtk3 2>/dev/null || true
-      pkill -TERM -x ibus-memconf 2>/dev/null || true
-      pkill -TERM -x ibus-x11 2>/dev/null || true
-      pkill -TERM -x ibus-portal 2>/dev/null || true
-      pkill -TERM -x ibus-engine-simple 2>/dev/null || true
-      pkill -TERM -f "[/]usr/share/ibus-avro/main-gjs.js" 2>/dev/null || true
-    ' >/dev/null 2>&1 || true
-    if tnx_guest_login --user root -- pkill -TERM -x xfce4-session >/dev/null 2>&1; then
+  local session_dir="$TERNUX_STATE_DIR/session" pid_file="$TERNUX_STATE_DIR/session/desktop.pid"
+  local identity_file="${pid_file}.identity" managed_pid="" recorded_pid="" start_id="" pgid=""
+  local found=0 waited=0 actual_start=""
+  mkdir -p "$session_dir" || { tnx_fail "Could not access desktop state directory."; return 1; }
+  exec 8>"$session_dir/start.lock" || { tnx_fail "Could not open the desktop lifecycle lock."; return 1; }
+  if ! flock -n 8; then
+    tnx_info "Desktop is still starting; stop was not sent. Check 'ternux status' or 'ternux logs desktop tail'."
+    exec 8>&-
+    return 0
+  fi
+  if [ -r "$identity_file" ]; then
+    read -r recorded_pid start_id pgid < "$identity_file" || true
+  fi
+  if [ -e "$pid_file" ] || [ -e "$identity_file" ]; then printf '%s\n' STOPPING > "$session_dir/desktop.state"; fi
+  if [[ "$recorded_pid" =~ ^[0-9]+$ ]] && [ "$recorded_pid" = "$(cat "$pid_file" 2>/dev/null || true)" ] &&
+     [[ "$pgid" =~ ^[0-9]+$ ]] && [ "$pgid" = "$recorded_pid" ] && [ -n "$start_id" ]; then
+    actual_start="$(tnx_process_start_identity "$recorded_pid" 2>/dev/null || true)"
+    if [ -n "$actual_start" ] && [ "$actual_start" = "$start_id" ] && tnx_process_is_live "$recorded_pid"; then
+      managed_pid="$recorded_pid"
+      tnx_signal_process_group TERM "$pgid" || true
+      found=1
+      while [ "$waited" -lt 30 ] && tnx_process_is_live "$managed_pid"; do
+        actual_start="$(tnx_process_start_identity "$managed_pid" 2>/dev/null || true)"
+        [ "$actual_start" = "$start_id" ] || break
+        sleep 0.1
+        waited=$((waited+1))
+      done
+      actual_start="$(tnx_process_start_identity "$managed_pid" 2>/dev/null || true)"
+      if [ "$actual_start" = "$start_id" ] && tnx_process_is_live "$managed_pid"; then
+        tnx_signal_process_group KILL "$pgid" || true
+      fi
+    fi
+  elif [[ "$(cat "$pid_file" 2>/dev/null || true)" =~ ^[0-9]+$ ]]; then
+    # Pre-identity launchers have a global cleanup trap. Verify their PID,
+    # process group, command path, and inherited state path, then SIGKILL only
+    # that session group so the obsolete trap cannot kill shared Termux services.
+    local legacy_pid legacy_pgid legacy_start legacy_cmdline legacy_state
+    legacy_pid="$(cat "$pid_file" 2>/dev/null || true)"
+    legacy_pgid="$(tnx_process_group_id "$legacy_pid")"
+    legacy_start="$(tnx_process_start_identity "$legacy_pid" 2>/dev/null || true)"
+    legacy_cmdline="$(tr '\0' ' ' < "/proc/$legacy_pid/cmdline" 2>/dev/null || true)"
+    legacy_state="$(tr '\0' '\n' < "/proc/$legacy_pid/environ" 2>/dev/null | grep -F -x "TNX_PID_FILE=$pid_file" || true)"
+    if [ "$legacy_pgid" = "$legacy_pid" ] && [ -n "$legacy_start" ] &&
+       [[ "$legacy_cmdline" == *"$HOME/x.sh"* ]] && [ -n "$legacy_state" ] &&
+       [ "$(tnx_process_start_identity "$legacy_pid" 2>/dev/null || true)" = "$legacy_start" ] &&
+       tnx_process_is_live "$legacy_pid"; then
+      tnx_signal_process_group KILL "$legacy_pgid" || true
       found=1
     fi
   fi
-  # Android truncates the configured nice-name to this 15-character comm.
-  if pgrep -f "^termux-x11 com\.termux\.x11([[:space:]]|$)" >/dev/null 2>&1; then
-    pkill -f "^termux-x11 com\.termux\.x11([[:space:]]|$)" 2>/dev/null || true
-    found=1
-  fi
-  if pgrep -f '(^|/)virgl_test_server(_android)?([[:space:]]|$)' >/dev/null 2>&1; then
-    pkill -f '(^|/)virgl_test_server(_android)?([[:space:]]|$)' 2>/dev/null || true
-    found=1
-  fi
-  if pgrep -x pulseaudio >/dev/null 2>&1; then
-    pulseaudio --kill 2>/dev/null || pkill -KILL -x pulseaudio 2>/dev/null || true
-    found=1
-  fi
 
-  if [[ "$managed_pid" =~ ^[0-9]+$ ]] && kill -0 "$managed_pid" 2>/dev/null; then
-    kill -TERM "$managed_pid" 2>/dev/null || true
-    found=1
-    local waited=0
-    while kill -0 "$managed_pid" 2>/dev/null && [ "$waited" -lt 30 ]; do sleep 0.1; waited=$((waited+1)); done
-    kill -KILL "$managed_pid" 2>/dev/null || true
+  # Remove only Ternux's own session markers. X11/Pulse sockets and daemons may
+  # be shared with other Termux sessions; their owners clean them up themselves.
+  rm -f "$pid_file" "${pid_file}.ready" "$identity_file"
+  if [ "$found" -eq 1 ] || [ "$(cat "$session_dir/desktop.state" 2>/dev/null || true)" = STOPPING ]; then
+    printf '%s\n' STOPPED > "$session_dir/desktop.state"
   fi
-  rm -f "$pid_file" "$pid_file.ready"
-
-  # Do not kill every D-Bus daemon owned by the Termux app. Closing the display
-  # lets the launcher's guest dbus-run-session unwind without disrupting other
-  # independent Termux sessions.
-  local TMP="${TMPDIR:-/data/data/com.termux/files/usr/tmp}"
-  rm -f "$TMP/.X11-unix/X"* "$TMP/.X"*"-lock" \
-    "$TMP/pulse-socket" "$TMP"/.pulse-*/native 2>/dev/null || true
-  tnx_has_cmd termux-wake-unlock && termux-wake-unlock 2>/dev/null || true
+  exec 8>&-
 
   if [ "${TERNUX_JSON:-0}" = "1" ]; then
-    tnx_json_object "stop" "ok" "cleaned" "$([ $found -eq 1 ] && echo "yes" || echo "no")"
+    tnx_json_object "stop" "ok" "cleaned" "$([ "$found" -eq 1 ] && echo yes || echo no)"
     return 0
   fi
-  [ "$found" -eq 1 ] && tnx_ok "Desktop stopped and sockets cleaned." || tnx_info "No active session found."
+  [ "$found" -eq 1 ] && tnx_ok "Managed desktop session stopped." || tnx_info "No active managed session found."
 }
 
 # ---------------------------------------------------------------------------
@@ -251,11 +295,27 @@ tnx_cmd_restart() {
 # tnx_cmd_status (helper — used internally)
 # ---------------------------------------------------------------------------
 tnx_cmd_status() {
-  local x11=0 pa=0 virgl=0 desktop_pid=""
+  local x11=0 pa=0 virgl=0 desktop_pid="" lifecycle="STOPPED"
+  local identity_pid="" identity_start="" identity_pgid="" observed_start=""
   [ -r "$TERNUX_STATE_DIR/session/desktop.pid" ] && desktop_pid="$(cat "$TERNUX_STATE_DIR/session/desktop.pid" 2>/dev/null || true)"
-  if ! [[ "$desktop_pid" =~ ^[0-9]+$ ]] || ! kill -0 "$desktop_pid" 2>/dev/null || ! grep -q '^READY$' "$TERNUX_STATE_DIR/session/desktop.pid.ready" 2>/dev/null; then desktop_pid=""; fi
+  if [ -r "$TERNUX_STATE_DIR/session/desktop.pid.identity" ]; then
+    read -r identity_pid identity_start identity_pgid < "$TERNUX_STATE_DIR/session/desktop.pid.identity" || true
+  fi
+  if [[ "$desktop_pid" =~ ^[0-9]+$ ]] && [ "$desktop_pid" = "$identity_pid" ] &&
+     [ "$identity_pgid" = "$identity_pid" ] && [ -n "$identity_start" ]; then
+    observed_start="$(tnx_process_start_identity "$desktop_pid" 2>/dev/null || true)"
+  fi
+  if ! [[ "$desktop_pid" =~ ^[0-9]+$ ]] || [ -z "$observed_start" ] || [ "$observed_start" != "$identity_start" ] ||
+     ! tnx_process_is_live "$desktop_pid" || ! grep -q '^READY$' "$TERNUX_STATE_DIR/session/desktop.pid.ready" 2>/dev/null; then desktop_pid=""; fi
   pgrep -f "^termux-x11 com\.termux\.x11([[:space:]]|$)" >/dev/null 2>&1 && x11=1
   tnx_desktop_session_live && desktop_pid="${desktop_pid:-active}"
+  lifecycle="$(cat "$TERNUX_STATE_DIR/session/desktop.state" 2>/dev/null || echo STOPPED)"
+  case "$lifecycle" in STARTING|READY|STOPPING|FAILED|RECOVERING|STOPPED) ;; *) lifecycle=FAILED ;; esac
+  if [ "$x11" -eq 1 ] && [ -n "$desktop_pid" ]; then
+    if [ "$lifecycle" = READY ]; then :; else lifecycle=RECOVERING; fi
+  elif [ "$lifecycle" = READY ]; then lifecycle=FAILED
+  elif [ "$lifecycle" = STARTING ] && { [ -z "$desktop_pid" ] || ! kill -0 "$desktop_pid" 2>/dev/null; }; then lifecycle=FAILED
+  fi
   pgrep -x pulseaudio >/dev/null 2>&1 && pa=1
   pgrep -f '(^|/)virgl_test_server(_android)?([[:space:]]|$)' >/dev/null 2>&1 && virgl=1
 
@@ -264,6 +324,7 @@ tnx_cmd_status() {
 
   if [ "${TERNUX_JSON:-0}" = "1" ]; then
     tnx_json_object "status" "$overall" \
+      "lifecycle" "$lifecycle" \
       "x11_running" "$([ $x11 -eq 1 ] && echo "yes" || echo "no")" \
       "pulseaudio" "$([ $pa -eq 1 ] && echo "running" || echo "stopped")" \
       "virgl" "$([ $virgl -eq 1 ] && echo "running" || echo "stopped")" \
@@ -273,6 +334,7 @@ tnx_cmd_status() {
   fi
 
   tnx_header "Desktop Status"
+  printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "Lifecycle:" "$lifecycle"
   printf "  ${TNX_CW}%-20s${TNX_C0} " "Overall:"
   [ "$overall" = "running" ] && printf "${TNX_CG}%s${TNX_C0}\n" "$overall" || printf "${TNX_CD}%s${TNX_C0}\n" "$overall"
   printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "Termux:X11:" "$([ $x11 -eq 1 ] && echo "running" || echo "stopped")"

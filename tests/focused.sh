@@ -108,7 +108,7 @@ if env TERNUX_STATE_DIR="$TMP/state-renderer-display" HOME="$TMP/home-renderer-d
     [ "$(tnx_detect_renderer)" = "Adreno (TM) 825" ] || exit
     grep -q -- "--shared-tmp -- env DISPLAY=:0 bash -c" "$LOG" || exit
     grep -q "timeout 5s glxinfo" "$LOG" || exit
-    grep -q "zink Vulkan (Adreno via Turnip)" "$LOG" || exit
+    ! grep -q "zink Vulkan (Adreno via Turnip)" "$LOG" || exit
     : > "$LOG"; DISPLAY=:7
     [ "$(tnx_detect_renderer)" = "Adreno (TM) 825" ] &&
     grep -q -- "--shared-tmp -- env DISPLAY=:7 bash -c" "$LOG" &&
@@ -743,16 +743,14 @@ if env TERNUX_STATE_DIR="$TMP/state-launcher" HOME="$launcher_home" bash -c '
   bash -n "$HOME/x.sh" &&
   awk "/cat > .*TERNUX_GUEST_EOF/ {guest=1; next} guest && /^TERNUX_GUEST_EOF$/ {exit} guest {print}" "$HOME/x.sh" > "$HOME/guest-session.sh" &&
   bash -n "$HOME/guest-session.sh" &&
-  grep -q "^# TERNUX_DESKTOP_LAUNCHER=17$" "$HOME/x.sh" &&
+  grep -q "^# TERNUX_DESKTOP_LAUNCHER=18$" "$HOME/x.sh" &&
   grep -q -- "--env MESA_LOADER_DRIVER_OVERRIDE=zink" "$HOME/x.sh" &&
   ! grep -q -- "--env GALLIUM_DRIVER=zink" "$HOME/x.sh" &&
   grep -q -- "--user alice" "$HOME/x.sh" &&
   grep -q -- "--env DISPLAY=:0" "$HOME/x.sh" &&
-  grep -Fq "pkill -9 -f \"^termux-x11 com\\.termux\\.x11([[:space:]]|$)\"" "$HOME/x.sh" &&
-  ! grep -Fq "pkill -9 -f termux-x11" "$HOME/x.sh" &&
+  ! grep -q "pkill -9" "$HOME/x.sh" &&
   grep -q "termux-x11 :0 -legacy-drawing -ac" "$HOME/x.sh" &&
-  grep -q "stop_legacy_ternuxx_audio" "$HOME/x.sh" &&
-  grep -Fq "ternuxx\\/audio\\/default\\.pa" "$HOME/x.sh" &&
+  ! grep -q "stop_legacy_ternuxx_audio" "$HOME/x.sh" &&
   grep -q "IconThemeName --create -t string -s Ternux" "$HOME/x.sh" &&
   grep -q "ThemeName --create -t string -s Ternux" "$HOME/x.sh" &&
   grep -q "defaults_marker=\"\$HOME/.config/ternux/desktop-defaults-v1\"" "$HOME/x.sh" &&
@@ -774,7 +772,7 @@ if env TERNUX_STATE_DIR="$TMP/state-launcher" HOME="$launcher_home" bash -c '
   ! grep -q "pm-utils" "$1/lib/phases.sh" &&
   grep -q "GTK_IM_MODULE=ibus QT_IM_MODULE=ibus QT_QPA_PLATFORMTHEME=gtk3 XMODIFIERS=@im=ibus" "$HOME/x.sh" &&
   grep -Fq "ibus-daemon --daemonize --xim --replace" "$HOME/x.sh" &&
-  grep -Fq "pkill -TERM -x ibus-daemon" "$HOME/x.sh" &&
+  ! grep -Fq "pkill -TERM -x ibus-daemon" "$HOME/x.sh" &&
   grep -Fq "unset IBUS_ADDRESS" "$HOME/x.sh" &&
   ! grep -q -- "--env IBUS_ADDRESS=" "$HOME/x.sh" &&
   grep -q "image-style --create -t int -s 4" "$1/lib/phases.sh" &&
@@ -784,9 +782,12 @@ if env TERNUX_STATE_DIR="$TMP/state-launcher" HOME="$launcher_home" bash -c '
   grep -q "xfdesktop --reload" "$1/lib/phases.sh" &&
   grep -q -- "--env LC_ALL=en_US.UTF-8" "$HOME/x.sh" &&
   grep -q "^trap cleanup EXIT$" "$HOME/x.sh" &&
+  grep -Fq "pactl unload-module \"\$PULSE_MODULE_ID\"" "$HOME/x.sh" &&
+  grep -Fq "kill_owned_child \"\${X11_PID:-}\"" "$HOME/x.sh" &&
+  grep -Fq "TNX_IDENTITY_FILE=\"\${TNX_PID_FILE}.identity\"" "$HOME/x.sh" &&
   grep -qF '\''/run/user/$(id -u)'\'' "$HOME/x.sh" &&
-  grep -qF '\''rm -f "$TMPDIR"/.X11-unix/X*'\'' "$HOME/x.sh" &&
-  grep -q "pulseaudio --kill.*pkill -KILL -x pulseaudio" "$HOME/x.sh" &&
+  ! grep -Fq "rm -f \"\$TMPDIR\"/.X11-unix/X*" "$HOME/x.sh" &&
+  ! grep -q "pulseaudio --kill.*pkill -KILL" "$HOME/x.sh" &&
   grep -q "candidate=4713; candidate<=4722" "$HOME/x.sh" &&
   grep -q "lscpu -p=CPU,MODELNAME" "$HOME/x.sh" &&
   grep -Fq -- "--bind \"\$TNX_CPUINFO_FILE:/proc/cpuinfo\"" "$HOME/x.sh" &&
@@ -885,15 +886,15 @@ then
   if bash -n "$manual_en" && bash -n "$manual_bn" && cmp -s "$manual_en" "$manual_bn" &&
      grep -q '^trap cleanup EXIT$' "$manual_en" &&
      grep -qF '/run/user/$(id -u)' "$manual_en" &&
-     grep -qF 'rm -f "$TMPDIR"/.X11-unix/X*' "$manual_en" &&
-     grep -q 'pulseaudio --kill.*pkill -KILL -x pulseaudio' "$manual_en" &&
+     ! grep -Fq 'rm -f "$TMPDIR"/.X11-unix/X*' "$manual_en" &&
+     ! grep -q "pulseaudio --kill.*pkill -KILL" "$manual_en" &&
      grep -q "candidate=4713; candidate<=4722" "$manual_en" &&
-     grep -q "export PULSE_SERVER=\"tcp:127.0.0.1:\$PULSE_PORT\"" "$manual_en" &&
+     grep -q -- "--env PULSE_SERVER=\"tcp:127.0.0.1:\$PULSE_PORT\"" "$manual_en" &&
      ! grep -q "PULSE_SERVER=tcp:127.0.0.1:4713" "$manual_en" &&
      ! grep -q 'pkill.*dbus' "$manual_en" &&
      grep -q -- '--env MESA_LOADER_DRIVER_OVERRIDE=zink' "$manual_en" &&
      ! grep -q -- '--env GALLIUM_DRIVER=zink' "$manual_en" &&
-     grep -q 'chmod 700 ~/.runtime' "$manual_en" &&
+     grep -q 'chmod 700 "$HOME/.runtime"' "$manual_en" &&
      ! grep -q '^virgl_test_server_android ' "$manual_en"; then
     ok "manual Zink launchers match generated launcher invariants"
   else
@@ -1008,7 +1009,7 @@ if env TERNUX_STATE_DIR="$TMP/state-doctor" HOME="$TMP/home-doctor" bash -c '
   tnx_has_cmd(){ return 0; }
   proot-distro(){ [ "${1:-}" = list ] && echo "debian installed"; }
   tnx_detect_storage_gb(){ echo 10; }
-  tnx_detect_vulkan(){ echo yes; }
+  tnx_detect_vulkan_state(){ echo VULKAN_READY; }
   tnx_detect_gpu(){ echo Mali; }
   tnx_detect_backend(){ echo virgl; }
   tnx_detect_renderer(){ echo unknown; }
@@ -1197,7 +1198,7 @@ if env TERNUX_STATE_DIR="$TMP/state-profile-names" HOME="$TMP/home-profile-names
   tnx_detect_model(){ echo phone; }; tnx_detect_manufacturer(){ echo vendor; }
   tnx_detect_ram_gb(){ echo 8; }; tnx_detect_storage_gb(){ echo 10; }
   tnx_detect_termux_version(){ echo current; }; tnx_detect_gpu(){ echo Adreno; }
-  tnx_detect_vulkan(){ echo yes; }; tnx_detect_backend(){ echo zink; }
+  tnx_detect_vulkan_state(){ echo VULKAN_READY; }; tnx_detect_backend(){ echo zink; }
   tnx_detect_phantom_killer(){ echo unknown; }
   for op in save load compare; do
     set +e; tnx_cmd_profile "$op" ../../escaped >/dev/null 2>&1; rc=$?; set -e
@@ -1324,6 +1325,7 @@ done
 case "$url" in
   */lib/core.sh) src="$MOCK_REPO/lib/core.sh" ;;
   */lib/uninstall.sh) src="$MOCK_REPO/lib/uninstall.sh" ;;
+  */lib/desktop.sh) src="$MOCK_REPO/lib/desktop.sh" ;;
   *) exit 22 ;;
 esac
 printf "%s\n" "$url" >> "$MOCK_LOG"
@@ -1331,10 +1333,10 @@ cp "$src" "$dest"
 EOF
   chmod +x "$2/mockbin/curl"
   PATH="$2/mockbin:$PATH" bash "$2/standalone/uninstall.sh" state --yes >/dev/null
-  [ "$(wc -l < "$MOCK_LOG")" -eq 2 ] &&
-  grep -q "/lib/core.sh$" "$MOCK_LOG" && grep -q "/lib/uninstall.sh$" "$MOCK_LOG" &&
-  grep -q "pkill -KILL -x pulseaudio" "$1/lib/uninstall.sh" &&
-  ! grep -q "pkill.*dbus" "$1/lib/uninstall.sh"
+  [ "$(wc -l < "$MOCK_LOG")" -eq 3 ] &&
+  grep -q "/lib/core.sh$" "$MOCK_LOG" && grep -q "/lib/uninstall.sh$" "$MOCK_LOG" && grep -q "/lib/desktop.sh$" "$MOCK_LOG" &&
+  grep -q "desktop.sh" "$1/lib/uninstall.sh" && grep -q "tnx_cmd_stop" "$1/lib/uninstall.sh" &&
+  ! grep -q "pkill.*pulseaudio" "$1/lib/uninstall.sh"
 ' _ "$ROOT" "$TMP"; then
   ok "standalone uninstall loads the scoped implementation safely"
 else
@@ -1515,43 +1517,75 @@ else
   not_ok "Pulse bridge setup is secure, idempotent, guarded and atomic"
 fi
 
-# CLI session cleanup must not kill unrelated D-Bus or broad PulseAudio process
-# matches. If graceful PulseAudio shutdown fails, only the exact process name is
-# forced, and all managed socket forms are covered.
+# Desktop stop must signal only the recorded Ternux process group and preserve
+# shared X11/Pulse sockets and unrelated PulseAudio processes.
 if env TERNUX_STATE_DIR="$TMP/state-desktop-stop" HOME="$TMP/home-desktop-stop" \
   TMPDIR="$TMP/desktop-stop-tmp" bash -c '
-    mkdir -p "$HOME" "$TMPDIR/.X11-unix" "$TMPDIR/.pulse-test"
+    mkdir -p "$HOME" "$TMPDIR/.X11-unix" "$TMPDIR/.pulse-test" "$TERNUX_STATE_DIR/session"
     : > "$TMPDIR/.X11-unix/X0"; : > "$TMPDIR/.X0-lock"; : > "$TMPDIR/.pulse-test/native"
     log="$2/desktop-stop.log"
+    printf "9709\n" > "$TERNUX_STATE_DIR/session/desktop.pid"
+    printf "9709 start-token 9709\n" > "$TERNUX_STATE_DIR/session/desktop.pid.identity"
     . "$1/lib/desktop.sh"
-    pgrep(){ return 0; }
-    pkill(){ printf "pkill %s\n" "$*" >> "$log"; }
-    pulseaudio(){ printf "pulseaudio %s\n" "$*" >> "$log"; return 1; }
-    ps(){ printf "9709 /data/data/com.termux/files/usr/bin/pulseaudio --file /home/ternux/.local/share/ternuxx/audio/default.pa\n"; }
-    kill(){ printf "kill %s\n" "$*" >> "$log"; }
-    tnx_has_cmd(){ [ "$1" = proot-distro ]; }
-    tnx_guest_login(){ printf "guest %s\n" "$*" >> "$log"; }
+    tnx_process_start_identity(){ [ "$1" = 9709 ] && echo start-token; }
+    live_checks=0
+    tnx_process_is_live(){ live_checks=$((live_checks+1)); [ "$live_checks" -eq 1 ]; }
+    tnx_signal_process_group(){ printf "signal %s %s\n" "$1" "$2" >> "$log"; return 0; }
+    pulseaudio(){ printf "unexpected pulseaudio %s\n" "$*" >> "$log"; return 99; }
+    pkill(){ printf "unexpected pkill %s\n" "$*" >> "$log"; return 99; }
+    tnx_has_cmd(){ return 1; }
     TERNUX_JSON=1
     out="$(tnx_cmd_stop)" || exit
     JSON_OUT="$out" python3 -c '\''
 import json, os
 obj=json.loads(os.environ["JSON_OUT"])
-assert obj["command"] == "stop" and obj["status"] == "ok"
+assert obj["command"] == "stop" and obj["status"] == "ok" and obj["cleaned"] == "yes"
 '\'' &&
-    grep -qx "guest --user root -- pkill -TERM -x xfce4-session" "$log" &&
-    grep -q "ibus-daemon" "$1/lib/desktop.sh" &&
-    grep -q "ibus-extension-gtk3" "$1/lib/desktop.sh" &&
-    grep -qx "kill -TERM 9709" "$log" &&
-    grep -qx "pulseaudio --kill" "$log" &&
-    grep -qx "pkill -KILL -x pulseaudio" "$log" &&
-    ! grep -qi dbus "$log" &&
-    ! grep -q "pkill .*pulseaudio.*-f\|-f .*pulseaudio" "$log" &&
-    [ ! -e "$TMPDIR/.X11-unix/X0" ] && [ ! -e "$TMPDIR/.X0-lock" ] &&
-    [ ! -e "$TMPDIR/.pulse-test/native" ]
+    grep -qx "signal TERM 9709" "$log" &&
+    ! grep -q "pkill\|pulseaudio" "$log" &&
+    [ -e "$TMPDIR/.X11-unix/X0" ] && [ -e "$TMPDIR/.X0-lock" ] &&
+    [ -e "$TMPDIR/.pulse-test/native" ] &&
+    [ ! -e "$TERNUX_STATE_DIR/session/desktop.pid" ] &&
+    [ ! -e "$TERNUX_STATE_DIR/session/desktop.pid.identity" ]
   ' _ "$ROOT" "$TMP"; then
-  ok "desktop stop uses scoped process and socket cleanup"
+  ok "desktop stop signals its owned process group and preserves shared sockets"
 else
-  not_ok "desktop stop uses scoped process and socket cleanup"
+  not_ok "desktop stop signals its owned process group and preserves shared sockets"
+fi
+
+# Old launchers have no process identity record and a global EXIT cleanup
+# trap. Stop must verify the command/environment and kill only that process group.
+legacy_script="$TMP/legacy-desktop-launcher.sh"
+cat > "$legacy_script" <<'LEGACY'
+#!/usr/bin/env bash
+printf '%s\n' "$$" > "$TNX_PID_FILE"
+while :; do sleep 1; done
+LEGACY
+if env TERNUX_STATE_DIR="$TMP/state-desktop-legacy" HOME="$TMP/home-desktop-legacy" \
+  TMPDIR="$TMP/desktop-legacy-tmp" bash -c '
+    mkdir -p "$HOME"
+    cp "$2" "$HOME/x.sh"
+    chmod +x "$HOME/x.sh"
+    . "$1/lib/desktop.sh"
+    pid_file="$TERNUX_STATE_DIR/session/desktop.pid"
+    mkdir -p "$(dirname "$pid_file")"
+    setsid env TNX_PID_FILE="$pid_file" bash "$HOME/x.sh" >/dev/null 2>&1 &
+    spawned=$!
+    for attempt in $(seq 1 50); do [ -s "$pid_file" ] && break; sleep 0.1; done
+    [ -s "$pid_file" ] || { kill -KILL "$spawned" 2>/dev/null || true; exit 1; }
+    [ "$(cat "$pid_file")" = "$spawned" ] || { kill -KILL -- "-$(cat "$pid_file")" 2>/dev/null || true; exit 1; }
+    TERNUX_JSON=1
+    out="$(tnx_cmd_stop)" || exit
+    wait "$spawned" 2>/dev/null || true
+    JSON_OUT="$out" python3 -c '\''
+import json, os
+obj=json.loads(os.environ["JSON_OUT"])
+assert obj["command"] == "stop" and obj["cleaned"] == "yes"
+'\''
+  ' _ "$ROOT" "$legacy_script"; then
+  ok "legacy desktop stop bypasses its global trap and kills only its verified group"
+else
+  not_ok "legacy desktop stop bypasses its global trap and kills only its verified group"
 fi
 
 # Desktop detection must match Android's actual truncated Termux:X11 process
@@ -1583,6 +1617,9 @@ managed_launcher="$TMP/managed-launcher.sh"
 cat > "$managed_launcher" <<'LAUNCHER'
 #!/usr/bin/env bash
 printf '%s\n' "$$" > "$TNX_PID_FILE"
+start_id="$(awk '{ sub(/^.*\) /, ""); print $20 }' "/proc/$$/stat")"
+pgid="$(ps -o pgid= -p "$$" | tr -d '[:space:]')"
+printf '%s %s %s\n' "$$" "$start_id" "$pgid" > "${TNX_PID_FILE}.identity"
 mkdir -p "$TMPDIR/.X11-unix"
 echo session-started
 : > "$TMPDIR/.X11-unix/X0"
@@ -1601,10 +1638,10 @@ if env TERNUX_STATE_DIR="$TMP/state-desktop-start" HOME="$TMP/home-desktop-start
     tnx_state_get(){ case "$1" in backend) echo virgl;; user) echo alice;; locale) echo en_US.UTF-8;; esac; }
     tnx_phase_launcher(){
       cp "$MOCK_LAUNCHER" "$HOME/x.sh"
-      sed -i "1a# TERNUX_DESKTOP_LAUNCHER=17" "$HOME/x.sh"
+      sed -i "1a# TERNUX_DESKTOP_LAUNCHER=18" "$HOME/x.sh"
       chmod +x "$HOME/x.sh"
     }
-    tnx_has_cmd(){ [ "$1" = setsid ]; }
+    tnx_has_cmd(){ [ "$1" = setsid ] || [ "$1" = flock ]; }
     setsid(){ command setsid "$@"; }
     pgrep(){ return 1; }
     start_at=$SECONDS
@@ -1613,7 +1650,7 @@ if env TERNUX_STATE_DIR="$TMP/state-desktop-start" HOME="$TMP/home-desktop-start
     pid="$(cat "$TERNUX_STATE_DIR/session/desktop.pid")"
     [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null || exit
     grep -q session-started "$TERNUX_STATE_DIR/session/desktop.log" || exit
-    grep -q "^# TERNUX_DESKTOP_LAUNCHER=17$" "$HOME/x.sh" || exit
+    grep -q "^# TERNUX_DESKTOP_LAUNCHER=18$" "$HOME/x.sh" || exit
     grep -q "util-linux zsh git curl" "$1/lib/phases.sh" || exit
     tnx_cmd_stop >/dev/null || exit
     [ ! -e "$TERNUX_STATE_DIR/session/desktop.pid" ]
@@ -1629,7 +1666,7 @@ if env TERNUX_STATE_DIR="$TMP/state-desktop-recover" HOME="$TMP/home-desktop-rec
   TMPDIR="$TMP/desktop-recover-tmp" PATH="$TMP/desktop-recover-bin:$PATH" bash -c '
     mockbin="${PATH%%:*}"
     mkdir -p "$HOME" "$TMPDIR/.X11-unix" "$mockbin"
-    printf "#!/usr/bin/env bash\n# TERNUX_DESKTOP_LAUNCHER=17\n" > "$HOME/x.sh"
+    printf "#!/usr/bin/env bash\n# TERNUX_DESKTOP_LAUNCHER=18\n" > "$HOME/x.sh"
     python3 -c "import socket,sys; s=socket.socket(socket.AF_UNIX); s.bind(sys.argv[1] + \"/.X11-unix/X0\"); s.close()" "$TMPDIR"
     cat > "$mockbin/am" <<"AM"
 #!/usr/bin/env bash
@@ -1638,7 +1675,7 @@ AM
     chmod +x "$mockbin/am"
     . "$1/lib/desktop.sh"
     pgrep(){ case "$*" in *termux-x11*|*xfce4-session*|*xfwm4*|*xfdesktop*) return 0;; esac; return 1; }
-    tnx_has_cmd(){ return 1; }
+    tnx_has_cmd(){ [ "$1" = flock ]; }
     tnx_desktop_session_live || exit
     TERNUX_JSON=1
     status="$(tnx_cmd_status)"
@@ -1653,17 +1690,60 @@ else
   not_ok "desktop start reuses a live XFCE session and foregrounds Termux:X11"
 fi
 
+# Concurrent desktop start calls must observe the lifecycle lock and avoid
+# launching a duplicate detached session.
+if env TERNUX_STATE_DIR="$TMP/state-desktop-concurrent" HOME="$TMP/home-desktop-concurrent" bash -c '
+  mkdir -p "$HOME"
+  printf "#!/usr/bin/env bash\n# TERNUX_DESKTOP_LAUNCHER=18\n" > "$HOME/x.sh"
+  . "$1/lib/desktop.sh"
+  tnx_has_cmd(){ [ "$1" = flock ]; }
+  flock(){ return 1; }
+  TERNUX_JSON=1
+  out="$(tnx_cmd_start)" || exit
+  JSON_OUT="$out" python3 -c '\''
+import json, os
+obj=json.loads(os.environ["JSON_OUT"])
+assert obj["command"] == "start" and obj["status"] == "starting"
+'\'' &&
+  [ ! -e "$TERNUX_STATE_DIR/session/desktop.pid" ]
+' _ "$ROOT"; then
+  ok "concurrent desktop start requests do not spawn a second launcher"
+else
+  not_ok "concurrent desktop start requests do not spawn a second launcher"
+fi
+
 # Vulkan detection must not turn a missing glob into a false positive.
 if env TERNUX_STATE_DIR="$TMP/state-vulkan" HOME="$TMP/home-vulkan" \
   PREFIX="$TMP/empty-prefix" TERNUX_KGSL_DEVICE="$TMP/absent-kgsl" bash -c '
     mkdir -p "$PREFIX/lib"
     . "$1/lib/detect.sh"
     tnx_has_cmd(){ return 1; }
-    [ "$(tnx_detect_vulkan)" = no ]
+    tnx_detect_gpu(){ echo Adreno; }
+    [ "$(tnx_detect_vulkan_state)" = HARDWARE_AVAILABLE ] || exit
+    [ "$(tnx_detect_vulkan)" = "no (HARDWARE_AVAILABLE)" ] || exit
+    : > "$TERNUX_KGSL_DEVICE"
+    [ "$(tnx_detect_vulkan_state)" = LOADER_MISSING ] &&
+    [ "$(tnx_detect_vulkan)" = "no (LOADER_MISSING)" ]
   ' _ "$ROOT"; then
-  ok "Vulkan detection does not accept a missing library glob"
+  ok "Vulkan detection distinguishes hardware, KGSL, and loader availability"
 else
-  not_ok "Vulkan detection does not accept a missing library glob"
+  not_ok "Vulkan detection distinguishes hardware, KGSL, and loader availability"
+fi
+
+
+# Vulkan enumeration must prefer an enumerated hardware GPU over a secondary
+# software device and must never turn a CPU-only device into hardware readiness.
+if env TERNUX_STATE_DIR="$TMP/state-vulkan-enum" HOME="$TMP/home-vulkan-enum" bash -c '
+  . "$1/lib/detect.sh"
+  tnx_detect_gpu(){ echo "Adreno (TM) 825"; }
+  tnx_vulkan_probe_guest(){ printf "TNX_LOADER=yes\nTNX_ICD=yes\nTNX_ENUM_RC=0\nGPU0:\n\tdeviceType = PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU\n\tdeviceName = Adreno (TM) 825\n\tdriverName = turnip Mesa driver\nGPU1:\n\tdeviceType = PHYSICAL_DEVICE_TYPE_CPU\n\tdeviceName = llvmpipe\n\tdriverName = llvmpipe\n"; }
+  [ "$(tnx_detect_vulkan_state)" = VULKAN_READY ] || exit
+  tnx_vulkan_probe_guest(){ printf "TNX_LOADER=yes\nTNX_ICD=yes\nTNX_ENUM_RC=0\nGPU0:\n\tdeviceType = PHYSICAL_DEVICE_TYPE_CPU\n\tdeviceName = llvmpipe\n\tdriverName = llvmpipe\n"; }
+  [ "$(tnx_detect_vulkan_state)" = SOFTWARE_FALLBACK ]
+' _ "$ROOT"; then
+  ok "Vulkan state confirms hardware enumeration and rejects CPU-only fallback"
+else
+  not_ok "Vulkan state confirms hardware enumeration and rejects CPU-only fallback"
 fi
 
 # The standalone one-click path downloads one complete snapshot, retries a
@@ -2400,7 +2480,7 @@ tnx_has_cmd(){ return 0; }
 proot-distro(){ [ "${1:-}" = list ] && echo "debian installed"; }
 curl(){ return 0; }
 tnx_detect_storage_gb(){ echo 10; }
-tnx_detect_vulkan(){ echo yes; }
+tnx_detect_vulkan_state(){ echo VULKAN_READY; }
 tnx_detect_gpu(){ echo Mali; }
 tnx_detect_backend(){ echo virgl; }
 tnx_detect_renderer(){ echo unknown; }

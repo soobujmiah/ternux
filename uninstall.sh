@@ -36,7 +36,7 @@ if [ -f "$_root/lib/core.sh" ] && [ -f "$_root/lib/uninstall.sh" ]; then
 fi
 
 # Direct-pipe fallback: fetch the same scoped implementation used by the CLI.
-# Download every dependency first and syntax-check both files before sourcing
+# Download every dependency first and syntax-check all files before sourcing
 # either one. This keeps the published curl route functional without silently
 # substituting a destructive catch-all script.
 _TNX_REMOTE_LOADED=0
@@ -45,7 +45,7 @@ _tnx_load_remote_uninstaller() {
   local tmpdir="" file=""
   tmpdir="$(mktemp -d "${TMPDIR:-/tmp}/ternux-uninstall.XXXXXX")" || return 1
 
-  for file in core.sh uninstall.sh; do
+  for file in core.sh desktop.sh uninstall.sh; do
     if command -v curl >/dev/null 2>&1; then
       curl -fsSL --max-time 15 "$base/lib/$file" -o "$tmpdir/$file" 2>/dev/null || {
         rm -rf "$tmpdir"; return 1;
@@ -60,13 +60,14 @@ _tnx_load_remote_uninstaller() {
     fi
   done
 
-  for file in "$tmpdir/core.sh" "$tmpdir/uninstall.sh"; do
+  for file in "$tmpdir/core.sh" "$tmpdir/desktop.sh" "$tmpdir/uninstall.sh"; do
     bash -n "$file" 2>/dev/null || { rm -rf "$tmpdir"; return 1; }
   done
 
   # shellcheck disable=SC1090
   . "$tmpdir/core.sh" || { rm -rf "$tmpdir"; return 1; }
-  # lib/uninstall.sh locates this downloaded core.sh beside itself.
+  # lib/uninstall.sh locates these downloaded modules beside itself.
+  . "$tmpdir/desktop.sh" || { rm -rf "$tmpdir"; return 1; }
   # shellcheck disable=SC1090
   . "$tmpdir/uninstall.sh" || { rm -rf "$tmpdir"; return 1; }
   rm -rf "$tmpdir"

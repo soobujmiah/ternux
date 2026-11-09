@@ -20,6 +20,25 @@ desktop keeps starting, only slower or not accelerated at all.
 > configuration; see [Evidence & benchmarks](BENCHMARKS.html) for the result
 > classes used here.
 
+## How Ternux reports graphics readiness
+
+`ternux info` and `ternux profile` distinguish Vulkan device readiness from
+OpenGL rendering. A visible KGSL node, Vulkan loader, or ICD manifest is not
+reported as hardware acceleration by itself. Ternux runs `vulkaninfo --summary`
+in the Debian guest with the available KGSL device bound in, then checks the
+physical device type and driver. The `vulkan_state` value is one of
+`NOT_DETECTED`, `HARDWARE_AVAILABLE`, `LOADER_MISSING`, `DRIVER_MISSING`,
+`ICD_MISSING`, `DEVICE_ENUMERATION_FAILED`, `VULKAN_READY`, or
+`SOFTWARE_FALLBACK`. `graphics_state` reports `OPENGL_ACCELERATION_READY` only
+when `glxinfo` identifies a live non-software renderer.
+
+On the connected Redmi Turbo 4 Pro, the Termux host Vulkan probe failed with
+`VK_ERROR_INCOMPATIBLE_DRIVER`; the Debian guest probe enumerated Adreno 825
+through Turnip plus a separate llvmpipe device. The source CLI therefore
+reported `vulkan_state=VULKAN_READY`, and the live X11 probe identified
+`zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP))`. These are current device
+observations, not claims for other devices.
+
 ## Two layouts, and why only one survives apt
 
 | | Managed layout | Fragile layout |

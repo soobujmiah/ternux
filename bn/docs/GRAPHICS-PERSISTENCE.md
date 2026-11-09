@@ -20,6 +20,25 @@ desktop চালু হতেই থাকে, শুধু ধীর হয়
 > installed 26.3 driver-এ 26.6 tok/s। এটি এক device-এর short test, sustained
 > performance claim নয়; বিস্তারিত [প্রমাণ ও বেঞ্চমার্ক](BENCHMARKS.html)-এ।
 
+## Ternux কীভাবে graphics readiness জানায়
+
+`ternux info` এবং `ternux profile` Vulkan device readiness ও OpenGL rendering
+আলাদা করে দেখায়। KGSL node, Vulkan loader বা ICD manifest দেখা গেলেই hardware
+acceleration বলা হয় না। Ternux Debian guest-এর ভেতর প্রযোজ্য KGSL device bind
+করে `vulkaninfo --summary` চালায়, তারপর physical device-এর ধরন ও driver যাচাই
+করে। `vulkan_state`-এর মান `NOT_DETECTED`, `HARDWARE_AVAILABLE`,
+`LOADER_MISSING`, `DRIVER_MISSING`, `ICD_MISSING`,
+`DEVICE_ENUMERATION_FAILED`, `VULKAN_READY` অথবা `SOFTWARE_FALLBACK` হতে পারে।
+`graphics_state`-এ `OPENGL_ACCELERATION_READY` কেবল তখনই আসে, যখন `glxinfo`
+চলমান non-software renderer শনাক্ত করে।
+
+সংযুক্ত Redmi Turbo 4 Pro-তে Termux host-এর Vulkan probe
+`VK_ERROR_INCOMPATIBLE_DRIVER` দিয়ে ব্যর্থ হয়েছে; Debian guest-এর probe Turnip
+দিয়ে Adreno 825 এবং আলাদা llvmpipe device enumerate করেছে। তাই source CLI
+`vulkan_state=VULKAN_READY` দেখিয়েছে এবং live X11 probe
+`zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP))` শনাক্ত করেছে। এগুলো এই
+ডিভাইসের বর্তমান observation; অন্য ডিভাইসের জন্য দাবি নয়।
+
 ## দুটি layout, এবং কেন শুধু একটি apt-এর পরেও টেকে
 
 | | Managed layout | Fragile layout |
