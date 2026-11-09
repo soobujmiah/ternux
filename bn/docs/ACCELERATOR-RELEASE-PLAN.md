@@ -531,3 +531,27 @@ runtime, QNN model correctness, sustained use বা device compatibility qualif
 করে না। Signed APT key-এর non-publishing verification আলাদা run `42554187198`-এ
 pass করেছে, কিন্তু public APT endpoint এখনো 404 দেয়। PR #97 draft এবং release
 publication সম্পন্ন হয়নি।
+
+### বর্তমান Node 24 CI artifact inventory — ২০২৬-১১-০৯
+
+PR #97 head `b7bb3850ecc3d21666eff65acd2d67b974c329ba`-এ আটটি build ও
+validation workflow pass করেছে: APT `42556143394`, repository contract
+`42556143358`, Validate `42556143370`, knowledge sync `42556143419`, llama
+CPU/Vulkan `42556143328`, Stable Diffusion `42556143441`, production HTP
+`42556143514`, এবং integer-HMX candidate `42556143349`। PR draft থাকায় preview
+ও publication job skip হয়েছে। Node 24-compatible workflow update-ও pass করেছে।
+Actions artifact inventory:
+
+| Artifact | ID | Byte | Archive SHA-256 |
+|---|---:|---:|---|
+| `ternux-apt-unsigned-ci-fcac15570a4a3459922276b301d119c8f2610b07` | `13646914880` | 268,611 | `b4730d815992f87a3cc40901d39d5884fa9da8dd65294b0bfd4fcf45b06dcced` |
+| `ternux-llama-vulkan-linux-arm64-b11582-candidate` | `13647194909` | 21,329,406 | `289cc0082483ebaa355960d74f772477421ae322f72a4eebb04a92780c759a18` |
+| `ternux-stable-diffusion-vulkan-linux-arm64-master-1053-candidate` | `13647907176` | 27,029,814 | `29a84606fcd483f2afc42f3d911be37edb20fa7c28ecdea61b12463eb3d1a65f` |
+| `ternux-llama-htp-sm8735-b11582` | `13647314688` | 15,633,028 | `017c22226e22ef3321eafe1aa6a8d9033a1b432d366c25d356ffafe7d96583c0` |
+| `ternux-llama-htp-sm8735-integer-hmx-v73-candidate` | `13648120716` | 15,532,991 | `2903df15c67048c85d6909fe1de8bfa36b6cce7f1cef865fb24e8b82aef85a6f` |
+
+এগুলো Actions ZIP digest, extracted payload checksum নয়। Archive-গুলো নির্ধারিত
+incoming directory-তে নেই এবং install বা device qualification করা হয়নি। সফল
+job-গুলো pinned build ও static packaging প্রমাণ করে। Runtime, numerical
+correctness, sustained-use, clean-install, owner visual, camera live-preview,
+public signed APT, এবং publication gate এখনো খোলা। PR #97 draft আছে।
