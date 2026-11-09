@@ -7,6 +7,7 @@ on:
       - tests/stable_diffusion_abi_audit.py
       - tests/stable_diffusion_license_bundle_test.py
       - tools/build_stable_diffusion_license_bundle.py
+      - packaging/stable-diffusion/components.json
       - LICENSE
       - NOTICE
       - lib/extension.sh
@@ -55,15 +56,14 @@ jobs:
           set -euo pipefail
           test "$(git -C stable-diffusion.cpp rev-parse HEAD)" = \
             5a1ba5d895bec4e07deab80d6d791721cd59d9c2
+          test "$(git -C stable-diffusion.cpp/ggml rev-parse HEAD)" = \
+            135ce1e0e3f2b0693d3de93d4f6b5fa0a1947820
           test "$(uname -m)" = aarch64
 
-      - name: Configure, build, install, and inspect
+      - name: Configure and compile the pinned ARM64 target
         shell: bash
         run: |
           set -euo pipefail
-          tag=ternux-stable-diffusion-vulkan-linux-arm64-master-1053
-          package="$GITHUB_WORKSPACE/package/$tag"
-          mkdir -p build/_deps
           cmake -S stable-diffusion.cpp -B build -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
             -DSD_VULKAN=ON \
@@ -73,17 +73,15 @@ jobs:
             -DSD_WEBP=OFF \
             -DSD_WEBM=OFF
           cmake --build build --target sd-cli --parallel 4
-          install -D -m 0755 build/bin/sd-cli "$package/bin/sd-cli"
-          python3 tools/build_stable_diffusion_license_bundle.py \
-            --tree "stable-diffusion.cpp=stable-diffusion.cpp" \
-            --tree "build/_deps=build/_deps" \
-            --extra "LICENSE=TERNUX-LICENSE" \
-            --extra "NOTICE=TERNUX-NOTICE" \
-            --require "stable-diffusion.cpp/LICENSE" \
-            --require "stable-diffusion.cpp/ggml/AUTHORS" \
-            --require "TERNUX-LICENSE" \
-            --require "TERNUX-NOTICE" \
-            --output "$package/share/licenses"
+          install -D -m 0755 build/bin/sd-cli \
+            "$GITHUB_WORKSPACE/package/ternux-stable-diffusion-vulkan-linux-arm64-master-1053/bin/sd-cli"
+
+      - name: Inspect ARM64 binary and record runtime build metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag=ternux-stable-diffusion-vulkan-linux-arm64-master-1053
+          package="$GITHUB_WORKSPACE/package/$tag"
           test -s "$package/bin/sd-cli"
           chmod 0755 "$package/bin/sd-cli"
           file "$package/bin/sd-cli" | tee sd-cli-file.txt
@@ -140,10 +138,32 @@ jobs:
             "system_runtime_dependencies": ["libgomp.so.1", "libvulkan.so.1"],
             "license_bundle": "share/licenses/SHA256SUMS",
             "license_index": "share/licenses/INDEX.txt",
+            "license_components": "share/licenses/COMPONENTS.json",
             "weights_included": false,
             "device_validation": "SM8735 Adreno 825: tiled Vulkan 512x512/10-step image completed in 101.9s; untiled VAE lost device; CPU output quality unqualified; broader stability and performance not claimed"
           }
           MANIFEST
+
+      - name: Build and independently audit component license bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag=ternux-stable-diffusion-vulkan-linux-arm64-master-1053
+          package="$GITHUB_WORKSPACE/package/$tag"
+          python3 tools/build_stable_diffusion_license_bundle.py \
+            --tree "stable-diffusion.cpp=stable-diffusion.cpp" \
+            --optional-tree "cmake-deps=build/_deps" \
+            --components packaging/stable-diffusion/components.json \
+            --extra "LICENSE=TERNUX-LICENSE" \
+            --extra "NOTICE=TERNUX-NOTICE" \
+            --require "stable-diffusion.cpp/LICENSE" \
+            --require "stable-diffusion.cpp/ggml/AUTHORS" \
+            --require "stable-diffusion.cpp/thirdparty/LICENSE.darts_clone.txt" \
+            --require "stable-diffusion.cpp/thirdparty/oniguruma/COPYING" \
+            --require "stable-diffusion.cpp/thirdparty/utf8proc/LICENSE.md" \
+            --require "TERNUX-LICENSE" \
+            --require "TERNUX-NOTICE" \
+            --output "$package/share/licenses"
           python3 tests/stable_diffusion_abi_audit.py "$package"
           tar -C package -czf "$tag.tar.gz" "$tag"
           sha256sum "$tag.tar.gz" > "$tag.tar.gz.sha256"
