@@ -29,6 +29,7 @@ alt_url: "/docs/V2-RELEASE-READINESS.html"
 ### Remote branch
 
 - PR #97 `main`-কে target করে draft অবস্থায় আছে। অডিট শুরুর head বর্তমান main baseline-এর ওপর 122 commit এগিয়ে ছিল।
+- Draft PR #35 (`codex/license-terms-review-20261016`) first-party material-এর জন্য PolyForm Noncommercial terms ও notice প্রস্তাব করে। এটি Sobuj-এর license review-এর অপেক্ষায়; merge হয়নি বা v2-তে নেই। `main`-এর বর্তমান license Apache-2.0, তাই এই proposal বর্তমান release-এর জন্য দরকারি নয় এবং এটিকে কার্যকর license বলা যাবে না।
 - `origin/codex/v2-reinstall-device-evidence-2026-11-07`-এর IBus Ctrl+Space fix PR source-এ সমতুল্যভাবে আছে।
 - `origin/fix/detached-desktop-service-2026-11-06`-এ পুরোনো APT trust implementation আছে; বর্তমান package/signing flow থেকে আলাদা, তাই যাচাই ছাড়া cherry-pick করা হয়নি।
 - পুরোনো HTP soak ও package smoke evidence বর্তমান পরিকল্পনার চেয়ে পুরোনো। Native AI evidence বর্তমান source/runtime-এর সঙ্গে মেলানো না পর্যন্ত owner-local থাকবে।
@@ -117,13 +118,14 @@ Report-only refresh `a165b532488a08388566a2a1edfa7f21b3e5424b` হিসেব�
 
 | Priority | Gate | অবস্থা | v2.0.0-এর আগে দরকার |
 |---|---|---|---|
-| P0 | Current-head CI ও PR review | **`ce435e90cf4c4c4394d5bf2d0228858ad3ed34e2`-এ সব required PR check পাস** | Run: Validate `42653090951`, APT package `42653090889`, repo contract `42653090839`, knowledge sync/test `42653090876`, llama Vulkan `42653091127`, Stable Diffusion Vulkan `42653091062`, HTP artifact `42653090862`, HTP capability probe `42653090874`। Draft PR-এ HTP/HMX publication skip ছিল। Owner review ও final diff review দরকার। |
+| P0 | Current-head CI ও PR review | **Report head `f3ba516ac6b5d6df0441c9db650e5b5ee090dcd5`-এ সব required PR workflow পাস** | Exact-head run: Validate `42654725501`, APT package `42654725613`, repo contract `42654725455`, knowledge sync/test `42654725537`, llama Vulkan `42654725528`, Stable Diffusion Vulkan `42654725583`, HTP artifact `42654725695`, HTP capability probe `42654725555`। Draft PR-এ HTP/HMX publication skip ছিল। Owner review ও final diff review বাকি। |
 | P1 | Device desktop lifecycle | **Code বদলেছে; live deployment unverified** | নিয়ন্ত্রিত update-এর পর repeated/concurrent start, `status --json`, stop/start, crash recovery, socket ownership ও audio readiness যাচাই। চলমান GUI restart করা হয়নি। |
 | P1 | Update transaction/provenance | **Implemented ও local fixture-tested; migration আংশিক বাকি** | প্রকাশিত v2 release দিয়ে native Termux-এ যাচাই এবং প্রথম v1.4.0 upgrade path পরীক্ষা দরকার। Release tag signed নয়; transition-এর আগে পুরোনো installed updater বদলানো যায় না। |
 | P1 | APT ও clean install | **Public endpoint এখন unavailable** | Non-deploy signing run `42654336547` main commit `8e24062589e81c20095c875fa4d19dd5cb928554`-এ পাস: v2 package ও signed APT repository তৈরি এবং signature verification সফল; ephemeral key cleanup-ও পাস। Publish/deploy step skip ছিল। 2026-11-09-এ bootstrap, key, `InRelease` ও `Packages` URL HTTP 404 দিয়েছে। সব release gate ও owner approval-এর পর signed repository publish করে supported Termux device-এ clean install, upgrade ও uninstall যাচাই করতে হবে। |
 | P1 | Workload correctness | **মিশ্র/experimental** | llama.cpp artifact build হলেও target-device known-answer, offload, memory pressure, repeat/cancel ও sustained measurement বাকি। HTP/HMX experimental; QNN Stable Diffusion supported NPU feature হিসেবে integrated নয়। |
 | P1 | Host path exposure | **আংশিক: `/sdcard` ইচ্ছাকৃতভাবে guest-এ থাকে; Termux home/prefix-ও default-এ bind হয়** | স্বাভাবিক shared-storage access বজায় রেখে camera/microphone bridge-এর জন্য পুরো Termux home/prefix-এর বদলে সীমিত Termux API bind সম্ভব কি না audit ও verify করা। Desktop, audio, camera ও microphone পরীক্ষা করতে হবে। |
-| P1 | Repository governance | **বদলানো হয়নি** | Required checks, branch protection, CODEOWNERS, secret/release protection-এর owner-approved settings দরকার। কোনো settings বদলানো হয়নি। |
+| P1 | Repository governance | **Settings বদলানো হয়নি; protection config স্বাধীনভাবে যাচাই করা হয়নি** | Required checks, branch protection, CODEOWNERS ও secret/release protection review করে owner-approved proposal দিতে হবে। কোনো repo setting বদলানো হয়নি। |
+| P2 | Proposed license terms | **Draft PR #35 owner review-এর অপেক্ষায়; বর্তমান release source Apache-2.0** | Sobuj review ও merge না করা পর্যন্ত PR #35 এই release-এ নয়। বর্তমান license/notice অক্ষত থাকলে এটি optional proposal, v2 release blocker নয়। |
 | P2 | Release documentation/review | **আংশিক** | README/install/upgrade/uninstall/limitations package-এর সঙ্গে মেলানো, release notes তৈরি, বড় PR diff-এর unrelated/duplicate change review। |
 | P2 | Device coverage | **এক device** | Hardware/software support matrix; অন্য GPU/NPU-কে `NOT_TESTED` বা experimental চিহ্নিত করা। |
 
@@ -131,6 +133,6 @@ Report-only refresh `a165b532488a08388566a2a1edfa7f21b3e5424b` হিসেব�
 
 ## চূড়ান্ত সুপারিশ
 
-**NOT_READY.** Release-tag updater-এর transaction, rollback, crash recovery ও concurrency local-এ যাচাই হয়েছে। Published-v2/native-Termux update এবং v1.4.0 migration unverified। Implementation head `ce435e90cf4c4c4394d5bf2d0228858ad3ed34e2`-এ সব required PR check পাস (run ID P0 table-এ আছে); draft PR হওয়ায় HTP/HMX publication skip ছিল। APT signing workflow পাস করেছে, deployment skip; public signed APT path এখনও 404। নিয়ন্ত্রিত desktop lifecycle verification, workload correctness, Termux host-path review, owner-approved governance এবং final PR review বাকি। শুধু build সফল হওয়া এই gate-গুলো পূরণ করে না।
+**NOT_READY.** Release-tag updater-এর transaction, rollback, crash recovery ও concurrency local-এ যাচাই হয়েছে। Published-v2/native-Termux update এবং v1.4.0 migration unverified। Report head `f3ba516ac6b5d6df0441c9db650e5b5ee090dcd5`-এ সব required PR workflow পাস (run ID P0 table-এ আছে); draft PR হওয়ায় HTP/HMX publication skip ছিল। APT signing workflow পাস করেছে, deployment skip; public signed APT path এখনও 404। নিয়ন্ত্রিত desktop lifecycle verification, workload correctness, Termux host-path review, owner-approved governance এবং final PR review বাকি। শুধু build সফল হওয়া এই gate-গুলো পূরণ করে না।
 
 কোনো release tag, package publication, merge, repository setting change বা live desktop restart করা হয়নি।
