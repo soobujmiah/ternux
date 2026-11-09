@@ -743,7 +743,7 @@ if env TERNUX_STATE_DIR="$TMP/state-launcher" HOME="$launcher_home" bash -c '
   bash -n "$HOME/x.sh" &&
   awk "/cat > .*TERNUX_GUEST_EOF/ {guest=1; next} guest && /^TERNUX_GUEST_EOF$/ {exit} guest {print}" "$HOME/x.sh" > "$HOME/guest-session.sh" &&
   bash -n "$HOME/guest-session.sh" &&
-  grep -q "^# TERNUX_DESKTOP_LAUNCHER=18$" "$HOME/x.sh" &&
+  grep -q "^# TERNUX_DESKTOP_LAUNCHER=19$" "$HOME/x.sh" &&
   grep -q -- "--env MESA_LOADER_DRIVER_OVERRIDE=zink" "$HOME/x.sh" &&
   ! grep -q -- "--env GALLIUM_DRIVER=zink" "$HOME/x.sh" &&
   grep -q -- "--user alice" "$HOME/x.sh" &&
@@ -794,6 +794,14 @@ if env TERNUX_STATE_DIR="$TMP/state-launcher" HOME="$launcher_home" bash -c '
   grep -Fq "model name\\t: " "$HOME/x.sh" &&
   grep -q "PULSE_MODULE_ID=.*pactl load-module module-native-protocol-tcp" "$HOME/x.sh" &&
   grep -Fq "TNX_PID_FILE=\"\${TNX_PID_FILE:-\$HOME/.local/share/ternux/session/desktop.pid}\"" "$HOME/x.sh" &&
+  grep -Fq "guest_login_isolated debian" "$HOME/x.sh" &&
+  grep -Fq "local -a login_args=(--isolated --shared-x11)" "$HOME/x.sh" &&
+  grep -Fq "login_args+=(--bind /sdcard:/sdcard)" "$HOME/x.sh" &&
+  grep -Fq "/linkerconfig/ld.config.txt" "$HOME/x.sh" &&
+  grep -Fq "ternux-camera" "$HOME/x.sh" &&
+  grep -Fq "ternux-recorder" "$HOME/x.sh" &&
+  ! grep -Fq -- "--shared-home" "$HOME/x.sh" &&
+  ! grep -Fq -- "--shared-tmp" "$HOME/x.sh" &&
   grep -Fq "cat \"\$TNX_PID_FILE\"" "$HOME/x.sh" &&
   grep -q -- "--env PULSE_SERVER=\"tcp:127.0.0.1:\$PULSE_PORT\"" "$HOME/x.sh" &&
   ! grep -q "PULSE_SERVER=tcp:127.0.0.1:4713" "$HOME/x.sh" &&
@@ -867,41 +875,16 @@ else
   not_ok "VirGL launcher starts only the fallback renderer"
 fi
 
-# English and Bengali manual launchers must stay executable and preserve the
-# generated Zink launcher's cleanup, runtime-UID, environment and permission
-# invariants.
-manual_en="$TMP/manual-en-launcher.sh"
-manual_bn="$TMP/manual-bn-launcher.sh"
-if python3 - "$ROOT/docs/MANUAL.md" "$manual_en" "$ROOT/bn/docs/MANUAL.md" "$manual_bn" <<'PY'
-from pathlib import Path
-import re, sys
-for source, output in ((sys.argv[1], sys.argv[2]), (sys.argv[3], sys.argv[4])):
-    blocks = re.findall(r'^```bash\n(.*?)^```[ \t]*$', Path(source).read_text(), re.M | re.S)
-    hits = [block for block in blocks if block.startswith('#!/data/data/com.termux/files/usr/bin/bash')]
-    if len(hits) != 1:
-        raise SystemExit(f'{source}: expected one launcher, found {len(hits)}')
-    Path(output).write_text(hits[0])
-PY
-then
-  if bash -n "$manual_en" && bash -n "$manual_bn" && cmp -s "$manual_en" "$manual_bn" &&
-     grep -q '^trap cleanup EXIT$' "$manual_en" &&
-     grep -qF '/run/user/$(id -u)' "$manual_en" &&
-     ! grep -Fq 'rm -f "$TMPDIR"/.X11-unix/X*' "$manual_en" &&
-     ! grep -q "pulseaudio --kill.*pkill -KILL" "$manual_en" &&
-     grep -q "candidate=4713; candidate<=4722" "$manual_en" &&
-     grep -q -- "--env PULSE_SERVER=\"tcp:127.0.0.1:\$PULSE_PORT\"" "$manual_en" &&
-     ! grep -q "PULSE_SERVER=tcp:127.0.0.1:4713" "$manual_en" &&
-     ! grep -q 'pkill.*dbus' "$manual_en" &&
-     grep -q -- '--env MESA_LOADER_DRIVER_OVERRIDE=zink' "$manual_en" &&
-     ! grep -q -- '--env GALLIUM_DRIVER=zink' "$manual_en" &&
-     grep -q 'chmod 700 "$HOME/.runtime"' "$manual_en" &&
-     ! grep -q '^virgl_test_server_android ' "$manual_en"; then
-    ok "manual Zink launchers match generated launcher invariants"
-  else
-    not_ok "manual Zink launchers match generated launcher invariants"
-  fi
+# The English and Bengali manual must direct users through the managed desktop
+# lifecycle, whose launcher carries the isolated bind policy.
+if rg -q 'ternux start' "$ROOT/docs/MANUAL.md" &&
+   rg -q 'ternux start' "$ROOT/bn/docs/MANUAL.md" &&
+   rg -q 'shared storage.*`/sdcard`' "$ROOT/docs/MANUAL.md" &&
+   rg -q '`/sdcard`' "$ROOT/bn/docs/MANUAL.md" &&
+   ! rg -q '^# TERNUX_DESKTOP_LAUNCHER=' "$ROOT/docs/MANUAL.md" "$ROOT/bn/docs/MANUAL.md"; then
+  ok "English and Bengali manuals use the managed, isolated desktop launcher"
 else
-  not_ok "manual Zink launchers match generated launcher invariants"
+  not_ok "English and Bengali manuals use the managed, isolated desktop launcher"
 fi
 
 # Required failure must stop dependants and only successful phases are marked.
@@ -1638,7 +1621,7 @@ if env TERNUX_STATE_DIR="$TMP/state-desktop-start" HOME="$TMP/home-desktop-start
     tnx_state_get(){ case "$1" in backend) echo virgl;; user) echo alice;; locale) echo en_US.UTF-8;; esac; }
     tnx_phase_launcher(){
       cp "$MOCK_LAUNCHER" "$HOME/x.sh"
-      sed -i "1a# TERNUX_DESKTOP_LAUNCHER=18" "$HOME/x.sh"
+      sed -i "1a# TERNUX_DESKTOP_LAUNCHER=19" "$HOME/x.sh"
       chmod +x "$HOME/x.sh"
     }
     fixture_pid=""; fixture_start=""; fixture_pgid=""
@@ -1659,7 +1642,7 @@ if env TERNUX_STATE_DIR="$TMP/state-desktop-start" HOME="$TMP/home-desktop-start
     [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null || exit
     read -r fixture_pid fixture_start fixture_pgid < "$TERNUX_STATE_DIR/session/desktop.pid.identity" || exit
     grep -q session-started "$TERNUX_STATE_DIR/session/desktop.log" || exit
-    grep -q "^# TERNUX_DESKTOP_LAUNCHER=18$" "$HOME/x.sh" || exit
+    grep -q "^# TERNUX_DESKTOP_LAUNCHER=19$" "$HOME/x.sh" || exit
     grep -q "util-linux zsh git curl" "$1/lib/phases.sh" || exit
     tnx_cmd_stop >/dev/null || exit
     [ ! -e "$TERNUX_STATE_DIR/session/desktop.pid" ] || exit
@@ -2640,7 +2623,8 @@ if env HOME="$TMP/home-launchgen" TERNUX_STATE_DIR="$TMP/state-launchgen" \
     tnx_phase_launcher ternux zink en_US.UTF-8 >/dev/null 2>&1
     : > "$HOME/.bashrc"
     RC_FILE="$HOME/.bashrc" tnx_phase_aliases ternux bash >/dev/null 2>&1 || true
-    grep -q "proot-distro login debian" "$HOME/x.sh" &&
+    grep -q "guest_login_isolated debian" "$HOME/x.sh" &&
+    grep -q "proot-distro login" "$HOME/x.sh" &&
     ! grep -q "tnx_guest_login" "$HOME/x.sh" &&
     ! grep -rq "tnx_guest_login" "$HOME/.bashrc"
   ' _ "$ROOT"; then

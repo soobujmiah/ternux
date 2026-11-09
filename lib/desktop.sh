@@ -55,9 +55,9 @@ tnx_cmd_start() {
     return 1
   fi
 
-  if ! grep -q '^# TERNUX_DESKTOP_LAUNCHER=18$' "$HOME/x.sh"; then
+  if ! grep -q '^# TERNUX_DESKTOP_LAUNCHER=19$' "$HOME/x.sh"; then
     # CLI package upgrades must refresh the generated launcher too. It carries
-    # process matching, audio routing and session supervision behavior.
+    # process matching, audio routing and narrowed guest bind behavior.
     if ! declare -F tnx_phase_launcher >/dev/null 2>&1; then
       . "$(dirname "${BASH_SOURCE[0]}")/phases.sh"
     fi

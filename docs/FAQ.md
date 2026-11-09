@@ -106,12 +106,15 @@ changing any system-wide Android safeguard.
 The design choices that matter:
 
 - **No root** — no privileged Android access is requested; PRoot remains within
-  Termux's app permissions and is not a separate security boundary. The normal
-  Debian guest mounts Android shared storage at `/sdcard` and also exposes the
-  Termux app home and prefix paths for host integration. Code run in the guest
-  runs under the same Termux Android app identity; do not use this guest to
-  sandbox untrusted programs. Only grant Termux the Android storage permissions
-  you want Ternux programs to use.
+  Termux's app permissions and is not a separate security boundary. Android
+  shared storage at `/sdcard` remains available inside Debian as an ordinary
+  user feature. The managed desktop uses isolated PRoot binds: it keeps `/sdcard`,
+  the Termux prefix and Android runtime paths available, and binds only the
+  camera/recorder staging folders from Termux HOME. Direct `proot-distro login`
+  commands and the `db`/`droot` aliases retain PRoot-Distro's normal broad host
+  binds. Guest code runs under the same Termux Android app identity; do not use
+  it to sandbox untrusted programs. Grant Termux only the Android storage
+  permissions you want Ternux programs to use.
 - **Loopback-only defaults/examples** — the audio bridge and documented model
   servers use `127.0.0.1`, keeping them off the LAN. Other same-device clients
   may still reach loopback listeners, so do not treat anonymous services as authenticated.

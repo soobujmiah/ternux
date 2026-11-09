@@ -994,9 +994,11 @@ tnx_phase_launcher() {
   # truncating the command and triggering teardown before XFCE starts.
   cat > "$LAUNCHER" <<'LAUNCHEOF'
 #!/data/data/com.termux/files/usr/bin/bash
-# TERNUX_DESKTOP_LAUNCHER=18
+# TERNUX_DESKTOP_LAUNCHER=19
 set -u
 TMPDIR="${TMPDIR:-/data/data/com.termux/files/usr/tmp}"
+PREFIX="${PREFIX:-/data/data/com.termux/files/usr}"
+TERMUX_HOST_HOME="/data/data/com.termux/files/home"
 TNX_PID_FILE="${TNX_PID_FILE:-$HOME/.local/share/ternux/session/desktop.pid}"
 TNX_IDENTITY_FILE="${TNX_PID_FILE}.identity"
 TNX_READY_FILE="${TNX_PID_FILE}.ready"
@@ -1038,6 +1040,44 @@ write_cpuinfo_with_model_names() {
     END { if (have_processor) add_model() }
   ' "$TNX_CPU_MODEL_MAP" /proc/cpuinfo > "$tmp" && [ -s "$tmp" ] && mv -f "$tmp" "$TNX_CPUINFO_FILE" || { cp /proc/cpuinfo "$TNX_CPUINFO_FILE" 2>/dev/null || :; rm -f "$tmp"; }
   rm -f "$TNX_CPU_MODEL_MAP"
+}
+guest_login_isolated() {
+  local distro="${1:?missing PRoot distribution}"; shift
+  local prefix="${PREFIX:-/data/data/com.termux/files/usr}"
+  local host_home="${TERMUX_HOST_HOME:-/data/data/com.termux/files/home}"
+  local -a login_args=(--isolated --shared-x11)
+  local -a android_env=() env_args=()
+  local key pair bind_path
+  local -a keys=(ANDROID_ART_ROOT ANDROID_ASSETS ANDROID_DATA ANDROID_I18N_ROOT ANDROID_ROOT ANDROID_STORAGE ANDROID_TZDATA_ROOT ANDROID__BUILD_VERSION_SDK ASEC_MOUNTPOINT BOOTCLASSPATH DEX2OATBOOTCLASSPATH EXTERNAL_STORAGE SYSTEMSERVERCLASSPATH TERMUX_APP__PACKAGE_NAME TERMUX__UID TERMUX__USER_ID TERMUX__HOME TERMUX__PREFIX)
+  local -a host_bind_paths=(/apex /system /system_ext /vendor /odm /product /linkerconfig/ld.config.txt /linkerconfig/com.android.art/ld.config.txt)
+  local -a api_cache_paths=("$host_home/.cache/ternux-camera" "$host_home/.cache/ternux-recorder")
+
+  # Shared Android storage is an intentional user-facing feature. Keep /sdcard
+  # visible while avoiding PRoot-Distro's default bind of all Termux HOME.
+  if [ -e /sdcard ]; then login_args+=(--bind /sdcard:/sdcard); fi
+  login_args+=(--bind "$prefix:$prefix")
+  for bind_path in "${host_bind_paths[@]}"; do
+    [ -e "$bind_path" ] && login_args+=(--bind "$bind_path:$bind_path")
+  done
+  [ ! -L "$host_home" ] && [ ! -L "$host_home/.cache" ] || { echo "Refusing symlinked Termux home/cache path." >&2; return 1; }
+  mkdir -p -- "$host_home/.cache" || return 1
+  for bind_path in "${api_cache_paths[@]}"; do
+    [ ! -L "$bind_path" ] || { echo "Refusing symlinked Termux API staging directory: $bind_path" >&2; return 1; }
+    mkdir -p -- "$bind_path" || return 1
+    login_args+=(--bind "$bind_path:$bind_path")
+  done
+  if [ -r "$prefix/etc/termux/termux.env" ]; then
+    while IFS= read -r -d '' pair; do android_env+=("$pair"); done < <(
+      (
+        . "$prefix/etc/termux/termux.env"
+        for key in "${keys[@]}"; do
+          [ -n "${!key-}" ] && printf '%s=%s\0' "$key" "${!key}"
+        done
+      )
+    )
+  fi
+  for pair in "${android_env[@]}"; do env_args+=(--env "$pair"); done
+  proot-distro login "$distro" "${login_args[@]}" "${env_args[@]}" "$@"
 }
 kill_owned_child() {
   local child_pid="${1:-}" child_start="${2:-}" current_start=""
@@ -1180,7 +1220,7 @@ LAUNCHEOF
     cat >> "$LAUNCHER" << EOF
  : > "\$TNX_READY_FILE"
 chmod 666 "\$TNX_READY_FILE"
-proot-distro login $distro --shared-tmp --bind /dev/kgsl-3d0:/dev/kgsl --bind /dev/dri --bind "\$TNX_CPUINFO_FILE:/proc/cpuinfo" --bind "\$TNX_GUEST_SESSION_SCRIPT:/tmp/ternux-desktop-session.sh" --bind "\$TNX_READY_FILE:/tmp/ternux-desktop-ready" --user $user_name \\
+guest_login_isolated $distro --bind /dev/kgsl-3d0:/dev/kgsl --bind /dev/dri --bind "\$TNX_CPUINFO_FILE:/proc/cpuinfo" --bind "\$TNX_GUEST_SESSION_SCRIPT:/tmp/ternux-desktop-session.sh" --bind "\$TNX_READY_FILE:/tmp/ternux-desktop-ready" --user $user_name \\
   --env DISPLAY=:0 --env PULSE_SERVER="tcp:127.0.0.1:\$PULSE_PORT" \\
   --env TERNUX_GUEST_USER=$user_name --env TERNUX_READY_FILE=/tmp/ternux-desktop-ready \\
   --env MESA_LOADER_DRIVER_OVERRIDE=zink --env TU_DEBUG=noconform --env MESA_VK_WSI_DEBUG=sw \\
@@ -1200,7 +1240,7 @@ VIRGLEOF
     cat >> "$LAUNCHER" << EOF
  : > "\$TNX_READY_FILE"
 chmod 666 "\$TNX_READY_FILE"
-proot-distro login $distro --shared-tmp --bind "\$TNX_CPUINFO_FILE:/proc/cpuinfo" --bind "\$TNX_GUEST_SESSION_SCRIPT:/tmp/ternux-desktop-session.sh" --bind "\$TNX_READY_FILE:/tmp/ternux-desktop-ready" --user $user_name \\
+guest_login_isolated $distro --bind "\$TNX_CPUINFO_FILE:/proc/cpuinfo" --bind "\$TNX_GUEST_SESSION_SCRIPT:/tmp/ternux-desktop-session.sh" --bind "\$TNX_READY_FILE:/tmp/ternux-desktop-ready" --user $user_name \\
   --env DISPLAY=:0 --env PULSE_SERVER="tcp:127.0.0.1:\$PULSE_PORT" \\
   --env TERNUX_GUEST_USER=$user_name --env TERNUX_READY_FILE=/tmp/ternux-desktop-ready \\
   --env GALLIUM_DRIVER=virpipe --env MESA_GL_VERSION_OVERRIDE=4.3COMPAT \\

@@ -162,17 +162,18 @@
       "status": "PARTIAL",
       "source_status": "PARTIAL",
       "ci_status": "NOT_RUN",
-      "device_status": "NOT_TESTED",
+      "device_status": "VERIFIED_ON_DEVICE",
       "evidence": [
         "docs/FAQ.md",
         "bn/docs/FAQ.md",
         "docs/MANUAL.md",
-        "proot-distro default binds /sdcard, Termux home and prefix; /sdcard is expected",
-        "No narrower API binding implementation or regression test has been qualified"
+        "Generated managed desktop launcher uses --isolated, preserves /sdcard and binds only the Termux API staging directories from Termux HOME",
+        "2026-11-10 on-device isolated PRoot probe passed /sdcard access, X11 query, PulseAudio connection, Termux microphone status and camera-info query; no capture or recording was started",
+        "Generic CLI aliases and direct proot-distro logins retain default broad host binds"
       ],
       "required_tests": [
-        "Termux API path dependency audit",
-        "camera/mic/audio/desktop regression under any narrower bindings"
+        "full XFCE startup and user-facing app smoke through the updated launcher (current live GUI was not restarted)",
+        "review whether generic CLI aliases can adopt the same isolation without breaking documented use"
       ],
       "acceptance_criteria": [
         "Preserve normal /sdcard access while granting only the host paths needed for Ternux integrations."
