@@ -396,6 +396,22 @@ skip হয়েছে। তৈরি হওয়া artifact ও GitHub Acti
 accelerator correctness, release publication, বা hosted APT install/upgrade gate
 বন্ধ করে না।
 
+### Artifact collection status — PR head `05ed728` — ২০২৬-১১-০৯
+
+বর্তমান local package-এর পরিচয় নথিভুক্ত করা হয়েছে: `ternux_2.0.0_all.deb`, 129,352 byte, SHA-256 `363f906c1644408d86bd332eff7f5fd6964004b07180de0d855efd3210963f7c`। Installed package এই local build-এর সঙ্গে মেলে এবং `ternux verify --json` pass করেছে (৩০ OK, ০ failure; ১টি informational item ও device temperature warning)।
+
+বর্তমান PR head `05ed728b09ac193215eaeed5ed746655b8105122`-এ আটটি required workflow pass করেছে; PR #97 draft থাকায় preview/publication skip হয়েছে। Actions artifact metadata:
+
+| Artifact | ID | Byte | Archive SHA-256 |
+|---|---:|---:|---|
+| `ternux-apt-unsigned-ci-05ed728b09ac193215eaeed5ed746655b8105122` | `13640014843` | 268,643 | `f302cb2763f57ddd5776d15767eba3244759f5837415c1433af7338867ae02ab` |
+| `ternux-llama-vulkan-linux-arm64-b11582-candidate` | `13640943581` | 21,322,189 | `0e3bc39f706db5d537c849bc8bad5ca8e2d0d76c1d6eb1bf6c66e66e8c6d3dbd` |
+| `ternux-stable-diffusion-vulkan-linux-arm64-master-1053-candidate` | `13641476523` | 27,029,814 | `8e7f3109c4a4bbc5210d9786e8f9ba1bf79338b5d2cd6ab666bd5a0cd5199097` |
+| `ternux-llama-htp-sm8735-b11582` | `13640958579` | 15,637,148 | `fa0955a5baad56539e44f4882c0a6adfb015caef4dbc3e000dabfb0341586b30` |
+| `ternux-llama-htp-sm8735-integer-hmx-v73-candidate` | `13640913826` | 15,530,319 | `67276b780589546d4136c61304cdb1445bee450575896eb5de1bcab9abb7ad8d` |
+
+এগুলো Actions archive digest, extracted package checksum নয়। Owner-mediated handoff policy অনুযায়ী Actions archive download করা হয়নি; তিনটি `incoming/` folder এখনো খালি। তাই CI pass হলেও exact archive install/device qualification বাকি। আলাদা করে local source-built `.deb` এই device-এ install ও verify করা হয়েছে।
+
 ### Local signed Termux APT client check — ২০২৬-১১-০৯
 
 বর্তমান local `ternux_2.0.0_all.deb` থেকে temporary directory-তে fresh repository

@@ -436,6 +436,22 @@ handoff folders remain the input for exact-archive verification. The build pass
 does not close accelerator correctness, release publication, or hosted APT
 install/upgrade gates.
 
+### Artifact collection status — PR head `05ed728` — 2026-11-09
+
+Collected the current local package and recorded its exact identity: `ternux_2.0.0_all.deb`, 129,352 bytes, SHA-256 `363f906c1644408d86bd332eff7f5fd6964004b07180de0d855efd3210963f7c`. The installed package matches this local build and `ternux verify --json` passes (30 OK, 0 failures; 1 informational item and 1 device-temperature warning).
+
+For current PR head `05ed728b09ac193215eaeed5ed746655b8105122`, all eight required workflows passed; preview/publication was skipped because PR #97 remains draft. Collected Actions artifact metadata:
+
+| Artifact | ID | Bytes | Archive SHA-256 |
+|---|---:|---:|---|
+| `ternux-apt-unsigned-ci-05ed728b09ac193215eaeed5ed746655b8105122` | `13640014843` | 268,643 | `f302cb2763f57ddd5776d15767eba3244759f5837415c1433af7338867ae02ab` |
+| `ternux-llama-vulkan-linux-arm64-b11582-candidate` | `13640943581` | 21,322,189 | `0e3bc39f706db5d537c849bc8bad5ca8e2d0d76c1d6eb1bf6c66e66e8c6d3dbd` |
+| `ternux-stable-diffusion-vulkan-linux-arm64-master-1053-candidate` | `13641476523` | 27,029,814 | `8e7f3109c4a4bbc5210d9786e8f9ba1bf79338b5d2cd6ab666bd5a0cd5199097` |
+| `ternux-llama-htp-sm8735-b11582` | `13640958579` | 15,637,148 | `fa0955a5baad56539e44f4882c0a6adfb015caef4dbc3e000dabfb0341586b30` |
+| `ternux-llama-htp-sm8735-integer-hmx-v73-candidate` | `13640913826` | 15,530,319 | `67276b780589546d4136c61304cdb1445bee450575896eb5de1bcab9abb7ad8d` |
+
+These are Actions archive digests, not extracted package checksums. Under the owner-mediated handoff policy, the Actions archives were not downloaded; the three `incoming/` folders remain empty. Exact archive install/device qualification therefore remains open even though CI passed. The local source-built `.deb` above is separately installed and verified on this device.
+
 ### Local signed Termux APT client check — 2026-11-09
 
 Built a fresh repository in a temporary directory from the current local
