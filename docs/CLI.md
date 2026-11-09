@@ -85,10 +85,7 @@ keeps the base profile.
 
 ### `ternux start`
 
-Start the Xfce4 desktop session in its own detached session so it survives the launching shell closing. The command returns when
-Termux:X11 display `:0` is ready; startup output is kept in
-`~/.local/share/ternux/session/desktop.log`. Use `ternux status` or
-`ternux logs desktop tail` to inspect it. After a CLI package update, `ternux start` refreshes an older generated `~/x.sh` automatically. The launcher (`~/x.sh`):
+Start the Xfce4 desktop session in its own detached session so it survives the launching shell closing. The command returns only after Termux:X11 and the XFCE session, window manager, and desktop are ready. If startup fails, it returns an error and points to `~/.local/share/ternux/session/desktop.log`. Use `ternux status` or `ternux logs desktop tail` to inspect the session. After a CLI package update, `ternux start` refreshes an older generated `~/x.sh` automatically. The launcher (`~/x.sh`):
 1. Cleans up any previous session
 2. Starts PulseAudio with TCP bridge
 3. Launches Termux:X11 display

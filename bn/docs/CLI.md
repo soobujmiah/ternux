@@ -84,9 +84,7 @@ experimental SM8735/V73 HTP আছে। `--with-llm` আলাদা source থ
 
 ### `ternux start`
 
-Xfce4 desktop-কে আলাদা detached session-এ চালু করে, তাই shell বন্ধ হলেও desktop চলে। Termux:X11 display `:0` ready হলে
-command ফিরে আসে; startup output `~/.local/share/ternux/session/desktop.log`-এ
-থাকে। `ternux status` বা `ternux logs desktop tail` দিয়ে দেখুন। CLI package update-এর পর `ternux start` পুরোনো generated `~/x.sh` নিজে refresh করে।
+Xfce4 desktop-কে আলাদা detached session-এ চালু করে, তাই shell বন্ধ হলেও desktop চলে। Termux:X11-এর সঙ্গে XFCE session, window manager ও desktop প্রস্তুত হলেই command সফল হয়। startup ব্যর্থ হলে error দেখিয়ে `~/.local/share/ternux/session/desktop.log`-এর ঠিকানা দেয়। `ternux status` বা `ternux logs desktop tail` দিয়ে session দেখুন। CLI package update-এর পর `ternux start` পুরোনো generated `~/x.sh` নিজে refresh করে।
 
 ```bash
 ternux start

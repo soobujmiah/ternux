@@ -980,14 +980,8 @@ tnx_phase_launcher() {
   local distro; distro="$(tnx_distro)"
   local LAUNCHER="$HOME/x.sh"
 
-  [[ "$user_name" =~ ^[a-z_][a-z0-9_-]{0,31}$ ]] || {
-    tnx_fail "Launcher user name is invalid."; return 2;
-  }
-  [[ "$locale" =~ ^[A-Za-z0-9_.@-]+$ ]] || {
-    tnx_fail "Launcher locale is invalid."; return 2;
-  }
-
-  # Resolve backend
+  [[ "$user_name" =~ ^[a-z_][a-z0-9_-]{0,31}$ ]] || { tnx_fail "Launcher user name is invalid."; return 2; }
+  [[ "$locale" =~ ^[A-Za-z0-9_.@-]+$ ]] || { tnx_fail "Launcher locale is invalid."; return 2; }
   case "$backend" in
     zink|zink-turnip) backend="zink" ;;
     virgl) backend="virgl" ;;
@@ -995,13 +989,18 @@ tnx_phase_launcher() {
     *) tnx_fail "Launcher backend must be auto, zink or virgl."; return 2 ;;
   esac
 
-  # Write launcher
-  cat > "$LAUNCHER" << 'LAUNCHEOF'
+  # The guest desktop lives in a standalone script. Keeping it out of nested
+  # `bash -c`/`sh -c` quoting prevents theme values such as `|HMC` from
+  # truncating the command and triggering teardown before XFCE starts.
+  cat > "$LAUNCHER" <<'LAUNCHEOF'
 #!/data/data/com.termux/files/usr/bin/bash
-# TERNUX_DESKTOP_LAUNCHER=15
+# TERNUX_DESKTOP_LAUNCHER=17
 set -u
 TMPDIR="${TMPDIR:-/data/data/com.termux/files/usr/tmp}"
 TNX_PID_FILE="${TNX_PID_FILE:-$HOME/.local/share/ternux/session/desktop.pid}"
+printf '%s\n' "$$" > "$TNX_PID_FILE" 2>/dev/null || true
+TNX_READY_FILE="${TNX_PID_FILE}.ready"
+TNX_GUEST_SESSION_SCRIPT="$TMPDIR/ternux-desktop-session-$$.sh"
 TNX_CPUINFO_FILE="$TMPDIR/ternux-cpuinfo-$$"
 TNX_CPU_MODEL_MAP="$TMPDIR/ternux-cpu-models-$$"
 write_cpuinfo_with_model_names() {
@@ -1021,38 +1020,21 @@ write_cpuinfo_with_model_names() {
         if (soc != "") model = model " (SoC " soc ")"
         print "model name\t: " model
       }
-      has_model = 0
-      part = ""
+      has_model = 0; part = ""
     }
-    FILENAME == models {
-      if ($0 !~ /^#/) { split($0, fields, "\t"); model_by_cpu[fields[1]] = fields[2] }
-      next
-    }
-    /^processor[[:space:]]*:/ {
-      if (have_processor) add_model()
-      processor = $2
-      gsub(/[[:space:]]/, "", processor)
-      have_processor = 1
-      print
-      next
-    }
+    FILENAME == models { if ($0 !~ /^#/) { split($0, fields, "\t"); model_by_cpu[fields[1]] = fields[2] }; next }
+    /^processor[[:space:]]*:/ { if (have_processor) add_model(); processor = $2; gsub(/[[:space:]]/, "", processor); have_processor = 1; print; next }
     /^(model name|cpu|Model Name|Processor)[[:space:]]*:/ { has_model = 1 }
     /^CPU part[[:space:]]*:/ { part = $2; gsub(/[[:space:]]/, "", part) }
     /^$/ { if (have_processor) { add_model(); have_processor = 0 }; print; next }
     { print }
     END { if (have_processor) add_model() }
-  ' "$TNX_CPU_MODEL_MAP" /proc/cpuinfo > "$tmp" && [ -s "$tmp" ] && mv -f "$tmp" "$TNX_CPUINFO_FILE" || {
-    cp /proc/cpuinfo "$TNX_CPUINFO_FILE" 2>/dev/null || :
-    rm -f "$tmp"
-  }
+  ' "$TNX_CPU_MODEL_MAP" /proc/cpuinfo > "$tmp" && [ -s "$tmp" ] && mv -f "$tmp" "$TNX_CPUINFO_FILE" || { cp /proc/cpuinfo "$TNX_CPUINFO_FILE" 2>/dev/null || :; rm -f "$tmp"; }
   rm -f "$TNX_CPU_MODEL_MAP"
 }
 stop_legacy_ternuxx_audio() {
   local stale_pid
-  while IFS= read -r stale_pid; do
-    [ -n "$stale_pid" ] || continue
-    kill -TERM "$stale_pid" 2>/dev/null || true
-  done < <(ps -A -o pid=,args= 2>/dev/null | awk '$2 ~ /pulseaudio$/ && /\/.local\/share\/ternuxx\/audio\/default\.pa/ {print $1}')
+  while IFS= read -r stale_pid; do [ -n "$stale_pid" ] || continue; kill -TERM "$stale_pid" 2>/dev/null || true; done < <(ps -A -o pid=,args= 2>/dev/null | awk '$2 ~ /pulseaudio$/ && /\/.local\/share\/ternuxx\/audio\/default\.pa/ {print $1}')
 }
 cleanup() {
   stop_legacy_ternuxx_audio
@@ -1060,309 +1042,166 @@ cleanup() {
   pkill -9 -f '(^|/)virgl_test_server(_android)?([[:space:]]|$)' 2>/dev/null || true
   pulseaudio --kill 2>/dev/null || pkill -KILL -x pulseaudio 2>/dev/null || true
   rm -f "$TMPDIR"/.X11-unix/X* "$TMPDIR"/.X*-lock "$TMPDIR"/pulse-socket "$TMPDIR"/.pulse-*/native 2>/dev/null || true
-  rm -f "$TNX_CPUINFO_FILE" "$TNX_CPU_MODEL_MAP" "$TNX_CPUINFO_FILE.tmp" 2>/dev/null || true
+  rm -f "$TNX_CPUINFO_FILE" "$TNX_CPU_MODEL_MAP" "$TNX_CPUINFO_FILE.tmp" "$TNX_GUEST_SESSION_SCRIPT" "$TNX_READY_FILE" 2>/dev/null || true
   termux-wake-unlock 2>/dev/null || true
-  if [ -n "$TNX_PID_FILE" ] && [ "$(cat "$TNX_PID_FILE" 2>/dev/null || true)" = "$$" ]; then
-    rm -f "$TNX_PID_FILE"
-  fi
+  if [ -n "$TNX_PID_FILE" ] && [ "$(cat "$TNX_PID_FILE" 2>/dev/null || true)" = "$$" ]; then rm -f "$TNX_PID_FILE"; fi
 }
 trap cleanup EXIT
 trap 'exit 130' INT
 trap 'exit 143' TERM
-# Cleanup any previous session
 pkill -9 -f "^termux-x11 com\.termux\.x11([[:space:]]|$)" 2>/dev/null || true
 pkill -9 -f '(^|/)virgl_test_server(_android)?([[:space:]]|$)' 2>/dev/null || true
 pulseaudio --kill 2>/dev/null || pkill -KILL -x pulseaudio 2>/dev/null || true
 rm -f "$TMPDIR"/.X11-unix/X* "$TMPDIR"/.X*-lock "$TMPDIR"/pulse-socket "$TMPDIR"/.pulse-*/native 2>/dev/null || true
-# Wake lock
 termux-wake-lock 2>/dev/null || true
-# Termux:X11 uses key:value syntax; enable Android IME text delivery even when
-# users start this generated launcher directly instead of calling `ternux start`.
-if command -v termux-x11-preference >/dev/null 2>&1; then
-  termux-x11-preference enforceCharBasedInput:true >/dev/null 2>&1 || \
-    echo "WARNING: could not enable Termux:X11 character-based keyboard input."
-fi
-# Retire the orphaned Ternuxx audio daemon left behind by uninstall, then find
-# a loopback port that is actually free. A stale server may retain the Android
-# sink and otherwise leave the new guest bridge silent.
+if command -v termux-x11-preference >/dev/null 2>&1; then termux-x11-preference enforceCharBasedInput:true >/dev/null 2>&1 || echo "WARNING: could not enable Termux:X11 character-based keyboard input."; fi
 stop_legacy_ternuxx_audio
-# Provide model names to Xfce About from live ARM IDs plus util-linux decoding.
 write_cpuinfo_with_model_names
-# Another Android service may own 4713; silently ignoring that collision leaves
-# guest clients pointed at the wrong server and typically produces Access denied.
 unset PULSE_SERVER; pulseaudio --start --exit-idle-time=-1 --daemonize 2>/dev/null || true
 sleep 0.3
 PULSE_PORT=""
 PULSE_MODULE_ID=""
 for ((candidate=4713; candidate<=4722; candidate++)); do
-  if PULSE_MODULE_ID="$(pactl load-module module-native-protocol-tcp listen=127.0.0.1 auth-ip-acl=127.0.0.1 auth-anonymous=1 port="$candidate" 2>/dev/null)"; then
-    PULSE_PORT="$candidate"
-    break
-  fi
+  if PULSE_MODULE_ID="$(pactl load-module module-native-protocol-tcp listen=127.0.0.1 auth-ip-acl=127.0.0.1 auth-anonymous=1 port="$candidate" 2>/dev/null)"; then PULSE_PORT="$candidate"; break; fi
   PULSE_MODULE_ID=""
 done
-if [ -z "$PULSE_PORT" ]; then
-  echo "ERROR: Could not open the loopback PulseAudio bridge on ports 4713-4722."
-  exit 1
-fi
+if [ -z "$PULSE_PORT" ]; then echo "ERROR: Could not open the loopback PulseAudio bridge on ports 4713-4722."; exit 1; fi
 echo "PulseAudio bridge ready on 127.0.0.1:$PULSE_PORT."
-# Display
-# Termux:X11 documents -legacy-drawing as the fix for devices that render
-# only a black screen with a cursor. Keep it enabled in the managed launcher.
 termux-x11 :0 -legacy-drawing -ac &
 X11_PID=$!
 echo "Waiting for Termux-X11..."
 WAITED=0
 while [ ! -e "$TMPDIR/.X11-unix/X0" ]; do
   if ! kill -0 "$X11_PID" 2>/dev/null; then echo "ERROR: termux-x11 exited."; exit 1; fi
-  if [ "$WAITED" -ge 300 ]; then echo "ERROR: timed out."; exit 1; fi
+  if [ "$WAITED" -ge 300 ]; then echo "ERROR: timed out waiting for Termux:X11."; exit 1; fi
   WAITED=$((WAITED+1)); sleep 0.1
 done
 echo "Display :0 ready."
+# Display
+cat > "$TNX_GUEST_SESSION_SCRIPT" <<'TERNUX_GUEST_EOF'
+#!/usr/bin/env bash
+set -u
+export HOME="/home/${TERNUX_GUEST_USER:-ternux}"
+export GTK_IM_MODULE=ibus QT_IM_MODULE=ibus QT_QPA_PLATFORMTHEME=gtk3 XMODIFIERS=@im=ibus
+unset IBUS_ADDRESS
+mkdir -p "$HOME/.runtime"
+chmod 700 "$HOME/.runtime"
+sudo -n mkdir -p /var/run/dbus /run/dbus "/run/user/$(id -u)" 2>/dev/null || true
+sudo -n dbus-uuidgen --ensure >/dev/null 2>&1 || true
+sudo -n rm -f /etc/xdg/autostart/light-locker.desktop 2>/dev/null || true
+exec dbus-run-session -- bash -c '
+  set -u
+  until xdpyinfo -display :0 >/dev/null 2>&1; do sleep 0.1; done
+  pkill -TERM -x ibus-daemon 2>/dev/null || true
+  pkill -TERM -x ibus-ui-gtk3 2>/dev/null || true
+  pkill -TERM -x ibus-extension-gtk3 2>/dev/null || true
+  pkill -TERM -x ibus-memconf 2>/dev/null || true
+  pkill -TERM -x ibus-x11 2>/dev/null || true
+  pkill -TERM -x ibus-portal 2>/dev/null || true
+  pkill -TERM -x ibus-engine-simple 2>/dev/null || true
+  pkill -TERM -f "[/]usr/share/ibus-avro/main-gjs.js" 2>/dev/null || true
+  sleep 0.2
+  rm -f ~/.config/ibus/bus/*
+  ibus-daemon --daemonize --xim --replace
+  ibus_tries=0
+  until ibus address 2>/dev/null | grep -q "^unix:" || [ "$ibus_tries" -ge 20 ]; do ibus_tries=$((ibus_tries + 1)); sleep 0.1; done
+  startxfce4 &
+  session_pid=$!
+  tries=0
+  until { xfconf-query -c xsettings -l >/dev/null 2>&1 && pgrep -x xfdesktop >/dev/null 2>&1 && pgrep -x xfwm4 >/dev/null 2>&1; } || [ "$tries" -ge 100 ] || ! kill -0 "$session_pid" 2>/dev/null; do tries=$((tries + 1)); sleep 0.2; done
+  if ! kill -0 "$session_pid" 2>/dev/null || ! pgrep -x xfdesktop >/dev/null 2>&1 || ! pgrep -x xfwm4 >/dev/null 2>&1; then echo "ERROR: XFCE session, window manager, or desktop did not become ready."; exit 1; fi
+  defaults_marker="$HOME/.config/ternux/desktop-defaults-v1"
+  if [ ! -e "$defaults_marker" ]; then
+    xfconf-query -c xsettings -p /Net/ThemeName --create -t string -s Ternux
+    xfconf-query -c xsettings -p /Net/IconThemeName --create -t string -s Ternux
+    xfconf-query -c xfwm4 -p /general/theme --create -t string -s Ternux
+    xfconf-query -c xsettings -p /Gtk/CursorThemeName --create -t string -s Adwaita
+    xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-path --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg
+    xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/last-image --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg
+    xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-show --create -t bool -s true
+    xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-style --create -t int -s 4
+    xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg
+    xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/workspace0/image-style --create -t int -s 4
+    xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-path --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg >/dev/null 2>&1 || true
+    xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/last-image --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg >/dev/null 2>&1 || true
+    xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-show --create -t bool -s true >/dev/null 2>&1 || true
+    xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-style --create -t int -s 4 >/dev/null 2>&1 || true
+    xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg >/dev/null 2>&1 || true
+    xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/workspace0/image-style --create -t int -s 4 >/dev/null 2>&1 || true
+    xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitorbuiltin/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg
+    xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitorbuiltin/workspace0/image-style --create -t int -s 5
+    xfconf-query -c xfwm4 -p /general/button_layout --create -t string -s "|HMC"
+    for panel_id in $(xfconf-query -c xfce4-panel -l 2>/dev/null | sed -n "s#^/panels/\(panel-[0-9][0-9]*\)/.*#\1#p" | sort -u); do xfconf-query -c xfce4-panel -p "/panels/$panel_id/background-style" --create -t int -s 0 >/dev/null 2>&1 || true; done
+    xfconf-query -c xfwm4 -p /general/use_compositing -s false >/dev/null 2>&1 || true
+    xfdesktop --reload >/dev/null 2>&1 || true
+    install -d -m 0755 "$HOME/.config/ternux"
+    : > "$defaults_marker"
+  fi
+  wallpaper_migration_marker="$HOME/.config/ternux/monitorbuiltin-wallpaper-v1"
+  if [ ! -e "$wallpaper_migration_marker" ]; then
+    current_wallpaper=$(xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitorbuiltin/workspace0/last-image 2>/dev/null || true)
+    if [ -z "$current_wallpaper" ] || [ ! -r "$current_wallpaper" ] || [ "$current_wallpaper" = /usr/share/images/desktop-base/default ]; then
+      xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitorbuiltin/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg
+      xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitorbuiltin/workspace0/image-style --create -t int -s 5
+      xfdesktop --reload >/dev/null 2>&1 || true
+    fi
+    install -d -m 0755 "$HOME/.config/ternux"; : > "$wallpaper_migration_marker"
+  fi
+  icon_migration_marker="$HOME/.config/ternux/desktop-icons-v2"
+  if [ ! -e "$icon_migration_marker" ]; then
+    current_icon_theme=$(xfconf-query -c xsettings -p /Net/IconThemeName 2>/dev/null || true)
+    if [ "$current_icon_theme" = Adwaita ]; then xfconf-query -c xsettings -p /Net/IconThemeName --create -t string -s Ternux; fi
+    install -d -m 0755 "$HOME/.config/ternux"; : > "$icon_migration_marker"
+  fi
+  wm_controls_marker="$HOME/.config/ternux/window-controls-v2"
+  if [ ! -e "$wm_controls_marker" ]; then xfconf-query -c xfwm4 -p /general/button_layout --create -t string -s "|HMC" >/dev/null 2>&1 || true; install -d -m 0755 "$HOME/.config/ternux"; : > "$wm_controls_marker"; fi
+  taskmanager_marker="$HOME/.config/ternux/taskmanager-performance-v1"
+  if [ ! -e "$taskmanager_marker" ]; then
+    xfconf-query -c xfce4-taskmanager -p /interface/show-all-processes --create -t bool -s false >/dev/null 2>&1 || true
+    xfconf-query -c xfce4-taskmanager -p /interface/process-tree --create -t bool -s false >/dev/null 2>&1 || true
+    xfconf-query -c xfce4-taskmanager -p /interface/refresh-rate --create -t int -s 1000 >/dev/null 2>&1 || true
+    install -d -m 0755 "$HOME/.config/ternux"; : > "$taskmanager_marker"
+  fi
+  /usr/local/bin/ternux-panel-shortcuts >/dev/null 2>&1 || true
+  printf "READY\n" > "$TERNUX_READY_FILE"
+  wait "$session_pid"
+'
+TERNUX_GUEST_EOF
+chmod 700 "$TNX_GUEST_SESSION_SCRIPT"
 LAUNCHEOF
 
-  # Backend-specific launcher additions
   if [ "$backend" = "zink" ]; then
-    # Zink talks to Turnip/KGSL directly; the VirGL host server belongs only
-    # to the fallback route below.
     cat >> "$LAUNCHER" << EOF
-proot-distro login $distro --shared-tmp --bind /dev/kgsl-3d0:/dev/kgsl --bind /dev/dri --bind "\$TNX_CPUINFO_FILE:/proc/cpuinfo" --user $user_name \\
+ : > "\$TNX_READY_FILE"
+chmod 666 "\$TNX_READY_FILE"
+proot-distro login $distro --shared-tmp --bind /dev/kgsl-3d0:/dev/kgsl --bind /dev/dri --bind "\$TNX_CPUINFO_FILE:/proc/cpuinfo" --bind "\$TNX_GUEST_SESSION_SCRIPT:/tmp/ternux-desktop-session.sh" --bind "\$TNX_READY_FILE:/tmp/ternux-desktop-ready" --user $user_name \\
   --env DISPLAY=:0 --env PULSE_SERVER="tcp:127.0.0.1:\$PULSE_PORT" \\
-  --env MESA_LOADER_DRIVER_OVERRIDE=zink \\
-  --env TU_DEBUG=noconform --env MESA_VK_WSI_DEBUG=sw \\
+  --env TERNUX_GUEST_USER=$user_name --env TERNUX_READY_FILE=/tmp/ternux-desktop-ready \\
+  --env MESA_LOADER_DRIVER_OVERRIDE=zink --env TU_DEBUG=noconform --env MESA_VK_WSI_DEBUG=sw \\
   --env MESA_DISK_CACHE_SINGLE_FILE=1 --env MESA_SHADER_CACHE_MAX_SIZE=2048M \\
   --env QT_X11_NO_MITSHM=1 --env XDG_RUNTIME_DIR=/home/$user_name/.runtime \\
   --env LANG=$locale --env LC_ALL=$locale \\
-  -- bash -c '
-    set -u
-    mkdir -p ~/.runtime
-    chmod 700 ~/.runtime
-    until xdpyinfo -display :0 >/dev/null 2>&1; do sleep 0.1; done
-    sudo -n mkdir -p /var/run/dbus /run/dbus /run/user/\$(id -u) 2>/dev/null || true
-    sudo -n dbus-uuidgen --ensure >/dev/null 2>&1 || true
-    sudo -n rm -f /etc/xdg/autostart/light-locker.desktop 2>/dev/null || true
-    exec dbus-run-session -- sh -c "
-      export GTK_IM_MODULE=ibus QT_IM_MODULE=ibus QT_QPA_PLATFORMTHEME=gtk3 XMODIFIERS=@im=ibus
-      unset IBUS_ADDRESS
-      # Retire IBus daemons left by earlier detached Xfce sessions. Their
-      # private D-Bus sessions prevent --replace from finding/replacing them.
-      pkill -TERM -x ibus-daemon 2>/dev/null || true
-      pkill -TERM -x ibus-ui-gtk3 2>/dev/null || true
-      pkill -TERM -x ibus-extension-gtk3 2>/dev/null || true
-      pkill -TERM -x ibus-memconf 2>/dev/null || true
-      pkill -TERM -x ibus-x11 2>/dev/null || true
-      pkill -TERM -x ibus-portal 2>/dev/null || true
-      pkill -TERM -x ibus-engine-simple 2>/dev/null || true
-      pkill -TERM -f '[/]usr/share/ibus-avro/main-gjs.js' 2>/dev/null || true
-      sleep 0.2
-      rm -f ~/.config/ibus/bus/*
-      ibus-daemon --daemonize --xim --replace
-      ibus_tries=0
-      until ibus address 2>/dev/null | grep -q '^unix:' || [ \\\$ibus_tries -ge 20 ]; do
-        ibus_tries=\\\$((ibus_tries + 1)); sleep 0.1
-      done
-      startxfce4 & session_pid=\\\$!
-      tries=0
-      until xfconf-query -c xsettings -l >/dev/null 2>&1 && pgrep -x xfdesktop >/dev/null 2>&1 || [ \\\$tries -ge 50 ]; do
-        tries=\\\$((tries + 1)); sleep 0.2
-      done
-      # Apply branded defaults once per guest user. Reapplying these on every
-      # launch spawned many xfconf clients, reloaded the wallpaper, and erased
-      # later user theme choices. Keep the desktop lightweight with compositor
-      # effects disabled, while allowing users to customize after first login.
-      defaults_marker="/home/$user_name/.config/ternux/desktop-defaults-v1"
-      if [ ! -e "\\\$defaults_marker" ]; then
-        xfconf-query -c xsettings -p /Net/ThemeName --create -t string -s Ternux
-        xfconf-query -c xsettings -p /Net/IconThemeName --create -t string -s Ternux
-        xfconf-query -c xfwm4 -p /general/theme --create -t string -s Ternux
-        xfconf-query -c xsettings -p /Gtk/CursorThemeName --create -t string -s Adwaita
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-path --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/last-image --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-show --create -t bool -s true
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-style --create -t int -s 4
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/workspace0/image-style --create -t int -s 4
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-path --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg >/dev/null 2>&1 || true
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/last-image --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg >/dev/null 2>&1 || true
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-show --create -t bool -s true >/dev/null 2>&1 || true
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-style --create -t int -s 4 >/dev/null 2>&1 || true
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg >/dev/null 2>&1 || true
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/workspace0/image-style --create -t int -s 4 >/dev/null 2>&1 || true
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitorbuiltin/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitorbuiltin/workspace0/image-style --create -t int -s 5
-        xfconf-query -c xfwm4 -p /general/theme --create -t string -s Ternux
-        xfconf-query -c xfwm4 -p /general/button_layout --create -t string -s '|HMC'
-        for panel_id in \\\$(xfconf-query -c xfce4-panel -l 2>/dev/null | sed -n 's#^/panels/\(panel-[0-9][0-9]*\)/.*#\1#p' | sort -u); do
-          xfconf-query -c xfce4-panel -p "/panels/\$panel_id/background-style" --create -t int -s 0 >/dev/null 2>&1 || true
-        done
-        xfconf-query -c xfwm4 -p /general/use_compositing -s false >/dev/null 2>&1 || true
-        xfdesktop --reload >/dev/null 2>&1 || true
-        install -d -m 0755 "/home/$user_name/.config/ternux"
-        : > "\\\$defaults_marker"
-      fi
-      wallpaper_migration_marker="/home/$user_name/.config/ternux/monitorbuiltin-wallpaper-v1"
-      if [ ! -e "\\\$wallpaper_migration_marker" ]; then
-        current_wallpaper="\\\$(xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitorbuiltin/workspace0/last-image 2>/dev/null || true)"
-        if [ -z "\\\$current_wallpaper" ] || [ ! -r "\\\$current_wallpaper" ] || [ "\\\$current_wallpaper" = /usr/share/images/desktop-base/default ]; then
-          xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitorbuiltin/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg
-          xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitorbuiltin/workspace0/image-style --create -t int -s 5
-          xfdesktop --reload >/dev/null 2>&1 || true
-        fi
-        install -d -m 0755 "/home/$user_name/.config/ternux"
-        : > "\\\$wallpaper_migration_marker"
-      fi
-      icon_migration_marker="/home/$user_name/.config/ternux/desktop-icons-v2"
-      if [ ! -e "\\\$icon_migration_marker" ]; then
-        current_icon_theme="\\\$(xfconf-query -c xsettings -p /Net/IconThemeName 2>/dev/null || true)"
-        if [ "\\\$current_icon_theme" = Adwaita ]; then
-          xfconf-query -c xsettings -p /Net/IconThemeName --create -t string -s Ternux
-        fi
-        install -d -m 0755 "/home/$user_name/.config/ternux"
-        : > "\\\$icon_migration_marker"
-      fi
-      wm_controls_marker="/home/$user_name/.config/ternux/window-controls-v2"
-      if [ ! -e "\$wm_controls_marker" ]; then
-        xfconf-query -c xfwm4 -p /general/button_layout --create -t string -s '|HMC' >/dev/null 2>&1 || true
-        install -d -m 0755 "/home/$user_name/.config/ternux"
-        : > "\$wm_controls_marker"
-      fi
-      taskmanager_marker="/home/$user_name/.config/ternux/taskmanager-performance-v1"
-      if [ ! -e "\$taskmanager_marker" ]; then
-        xfconf-query -c xfce4-taskmanager -p /interface/show-all-processes --create -t bool -s false >/dev/null 2>&1 || true
-        xfconf-query -c xfce4-taskmanager -p /interface/process-tree --create -t bool -s false >/dev/null 2>&1 || true
-        xfconf-query -c xfce4-taskmanager -p /interface/refresh-rate --create -t int -s 1000 >/dev/null 2>&1 || true
-        install -d -m 0755 "/home/$user_name/.config/ternux"
-        : > "\$taskmanager_marker"
-      fi
-      /usr/local/bin/ternux-panel-shortcuts >/dev/null 2>&1 || true
-      wait \\\$session_pid
-    "
-  '
+  -- /tmp/ternux-desktop-session.sh
 EOF
   else
     cat >> "$LAUNCHER" << 'VIRGLEOF'
 virgl_test_server_android >/dev/null 2>&1 &
 VIRGL_PID=$!
 sleep 1
-if ! kill -0 "$VIRGL_PID" 2>/dev/null; then
-  echo "WARNING: virgl_test_server_android failed to start; check for llvmpipe."
-fi
+if ! kill -0 "$VIRGL_PID" 2>/dev/null; then echo "WARNING: virgl_test_server_android failed to start; check for llvmpipe."; fi
 VIRGLEOF
     cat >> "$LAUNCHER" << EOF
-proot-distro login $distro --shared-tmp --bind "\$TNX_CPUINFO_FILE:/proc/cpuinfo" --user $user_name \\
+ : > "\$TNX_READY_FILE"
+chmod 666 "\$TNX_READY_FILE"
+proot-distro login $distro --shared-tmp --bind "\$TNX_CPUINFO_FILE:/proc/cpuinfo" --bind "\$TNX_GUEST_SESSION_SCRIPT:/tmp/ternux-desktop-session.sh" --bind "\$TNX_READY_FILE:/tmp/ternux-desktop-ready" --user $user_name \\
   --env DISPLAY=:0 --env PULSE_SERVER="tcp:127.0.0.1:\$PULSE_PORT" \\
+  --env TERNUX_GUEST_USER=$user_name --env TERNUX_READY_FILE=/tmp/ternux-desktop-ready \\
   --env GALLIUM_DRIVER=virpipe --env MESA_GL_VERSION_OVERRIDE=4.3COMPAT \\
   --env QT_X11_NO_MITSHM=1 --env XDG_RUNTIME_DIR=/home/$user_name/.runtime \\
   --env LANG=$locale --env LC_ALL=$locale \\
-  -- bash -c '
-    set -u
-    mkdir -p ~/.runtime
-    chmod 700 ~/.runtime
-    until xdpyinfo -display :0 >/dev/null 2>&1; do sleep 0.1; done
-    sudo -n mkdir -p /var/run/dbus /run/dbus /run/user/\$(id -u) 2>/dev/null || true
-    sudo -n dbus-uuidgen --ensure >/dev/null 2>&1 || true
-    exec dbus-run-session -- sh -c "
-      export GTK_IM_MODULE=ibus QT_IM_MODULE=ibus QT_QPA_PLATFORMTHEME=gtk3 XMODIFIERS=@im=ibus
-      unset IBUS_ADDRESS
-      # Retire IBus daemons left by earlier detached Xfce sessions. Their
-      # private D-Bus sessions prevent --replace from finding/replacing them.
-      pkill -TERM -x ibus-daemon 2>/dev/null || true
-      pkill -TERM -x ibus-ui-gtk3 2>/dev/null || true
-      pkill -TERM -x ibus-extension-gtk3 2>/dev/null || true
-      pkill -TERM -x ibus-memconf 2>/dev/null || true
-      pkill -TERM -x ibus-x11 2>/dev/null || true
-      pkill -TERM -x ibus-portal 2>/dev/null || true
-      pkill -TERM -x ibus-engine-simple 2>/dev/null || true
-      pkill -TERM -f '[/]usr/share/ibus-avro/main-gjs.js' 2>/dev/null || true
-      sleep 0.2
-      rm -f ~/.config/ibus/bus/*
-      ibus-daemon --daemonize --xim --replace
-      ibus_tries=0
-      until ibus address 2>/dev/null | grep -q '^unix:' || [ \\\$ibus_tries -ge 20 ]; do
-        ibus_tries=\\\$((ibus_tries + 1)); sleep 0.1
-      done
-      startxfce4 & session_pid=\\\$!
-      tries=0
-      until xfconf-query -c xsettings -l >/dev/null 2>&1 && pgrep -x xfdesktop >/dev/null 2>&1 || [ \\\$tries -ge 50 ]; do
-        tries=\\\$((tries + 1)); sleep 0.2
-      done
-      # Apply branded defaults once per guest user. Reapplying these on every
-      # launch spawned many xfconf clients, reloaded the wallpaper, and erased
-      # later user theme choices. Keep the desktop lightweight with compositor
-      # effects disabled, while allowing users to customize after first login.
-      defaults_marker="/home/$user_name/.config/ternux/desktop-defaults-v1"
-      if [ ! -e "\\\$defaults_marker" ]; then
-        xfconf-query -c xsettings -p /Net/ThemeName --create -t string -s Ternux
-        xfconf-query -c xsettings -p /Net/IconThemeName --create -t string -s Ternux
-        xfconf-query -c xfwm4 -p /general/theme --create -t string -s Ternux
-        xfconf-query -c xsettings -p /Gtk/CursorThemeName --create -t string -s Adwaita
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-path --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/last-image --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-show --create -t bool -s true
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-style --create -t int -s 4
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/workspace0/image-style --create -t int -s 4
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-path --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg >/dev/null 2>&1 || true
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/last-image --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg >/dev/null 2>&1 || true
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-show --create -t bool -s true >/dev/null 2>&1 || true
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-style --create -t int -s 4 >/dev/null 2>&1 || true
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg >/dev/null 2>&1 || true
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/workspace0/image-style --create -t int -s 4 >/dev/null 2>&1 || true
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitorbuiltin/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitorbuiltin/workspace0/image-style --create -t int -s 5
-        xfconf-query -c xfwm4 -p /general/theme --create -t string -s Ternux
-        xfconf-query -c xfwm4 -p /general/button_layout --create -t string -s '|HMC'
-        for panel_id in \\\$(xfconf-query -c xfce4-panel -l 2>/dev/null | sed -n 's#^/panels/\(panel-[0-9][0-9]*\)/.*#\1#p' | sort -u); do
-          xfconf-query -c xfce4-panel -p "/panels/\$panel_id/background-style" --create -t int -s 0 >/dev/null 2>&1 || true
-        done
-        xfconf-query -c xfwm4 -p /general/use_compositing -s false >/dev/null 2>&1 || true
-        xfdesktop --reload >/dev/null 2>&1 || true
-        install -d -m 0755 "/home/$user_name/.config/ternux"
-        : > "\\\$defaults_marker"
-      fi
-      wallpaper_migration_marker="/home/$user_name/.config/ternux/monitorbuiltin-wallpaper-v1"
-      if [ ! -e "\\\$wallpaper_migration_marker" ]; then
-        current_wallpaper="\\\$(xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitorbuiltin/workspace0/last-image 2>/dev/null || true)"
-        if [ -z "\\\$current_wallpaper" ] || [ ! -r "\\\$current_wallpaper" ] || [ "\\\$current_wallpaper" = /usr/share/images/desktop-base/default ]; then
-          xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitorbuiltin/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg
-          xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitorbuiltin/workspace0/image-style --create -t int -s 5
-          xfdesktop --reload >/dev/null 2>&1 || true
-        fi
-        install -d -m 0755 "/home/$user_name/.config/ternux"
-        : > "\\\$wallpaper_migration_marker"
-      fi
-      icon_migration_marker="/home/$user_name/.config/ternux/desktop-icons-v2"
-      if [ ! -e "\\\$icon_migration_marker" ]; then
-        current_icon_theme="\\\$(xfconf-query -c xsettings -p /Net/IconThemeName 2>/dev/null || true)"
-        if [ "\\\$current_icon_theme" = Adwaita ]; then
-          xfconf-query -c xsettings -p /Net/IconThemeName --create -t string -s Ternux
-        fi
-        install -d -m 0755 "/home/$user_name/.config/ternux"
-        : > "\\\$icon_migration_marker"
-      fi
-      wm_controls_marker="/home/$user_name/.config/ternux/window-controls-v2"
-      if [ ! -e "\$wm_controls_marker" ]; then
-        xfconf-query -c xfwm4 -p /general/button_layout --create -t string -s '|HMC' >/dev/null 2>&1 || true
-        install -d -m 0755 "/home/$user_name/.config/ternux"
-        : > "\$wm_controls_marker"
-      fi
-      taskmanager_marker="/home/$user_name/.config/ternux/taskmanager-performance-v1"
-      if [ ! -e "\$taskmanager_marker" ]; then
-        xfconf-query -c xfce4-taskmanager -p /interface/show-all-processes --create -t bool -s false >/dev/null 2>&1 || true
-        xfconf-query -c xfce4-taskmanager -p /interface/process-tree --create -t bool -s false >/dev/null 2>&1 || true
-        xfconf-query -c xfce4-taskmanager -p /interface/refresh-rate --create -t int -s 1000 >/dev/null 2>&1 || true
-        install -d -m 0755 "/home/$user_name/.config/ternux"
-        : > "\$taskmanager_marker"
-      fi
-      /usr/local/bin/ternux-panel-shortcuts >/dev/null 2>&1 || true
-      wait \\\$session_pid
-    "
-  '
+  -- /tmp/ternux-desktop-session.sh
 EOF
   fi
-
-  # The EXIT trap defined near the top performs teardown on success, failure,
-  # Ctrl+C, or termination.
 
   chmod +x "$LAUNCHER"
   if bash -n "$LAUNCHER" 2>/dev/null; then

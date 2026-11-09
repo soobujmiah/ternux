@@ -147,7 +147,7 @@ if env TERNUX_STATE_DIR="$TMP/state-welcome" HOME="$TMP/home-welcome" \
       grep -q "qt-system-tray=0" "$1/lib/phases.sh" &&
       grep -q "rm -f /usr/local/bin/ternux-volume-control /usr/local/bin/pavucontrol" "$1/lib/phases.sh" &&
       ! grep -q "GTK_THEME=\\|GDK_BACKEND=\\|GTK_MODULES" "$1/lib/phases.sh" &&
-      grep -q "dbus-run-session -- sh -c" "$1/lib/phases.sh" &&
+      grep -q "dbus-run-session -- bash -c" "$1/lib/phases.sh" &&
       grep -q "ibus_tries" "$1/lib/phases.sh" &&
       grep -Fq "org.freedesktop.ibus.general.hotkey triggers" "$1/lib/phases.sh" &&
       grep -Fq "org.freedesktop.ibus.general.hotkey next-engine" "$1/lib/phases.sh" &&
@@ -564,10 +564,10 @@ assert "frame_border_top=4" in xfwm_config
 assert "save(f\"{kind}-{state}.png\", (24, 24), draw)" in (root / "tools/generate_ternux_xfwm.py").read_text()
 assert "image-style --create -t int -s 4" in (root / "lib/phases.sh").read_text()
 phases = (root / "lib/phases.sh").read_text()
-assert phases.count("taskmanager-performance-v1") == 2
-assert phases.count("/interface/show-all-processes --create -t bool -s false") == 2
-assert phases.count("/interface/process-tree --create -t bool -s false") == 2
-assert phases.count("/interface/refresh-rate --create -t int -s 1000") == 2
+assert phases.count("taskmanager-performance-v1") == 1
+assert phases.count("/interface/show-all-processes --create -t bool -s false") == 1
+assert phases.count("/interface/process-tree --create -t bool -s false") == 1
+assert phases.count("/interface/refresh-rate --create -t int -s 1000") == 1
 assert (root / "lib/ternux-assets/themes/Ternux/gtk-4.0/gtk.css").is_file()
 gtk4_theme = (root / "lib/ternux-assets/themes/Ternux/gtk-4.0/gtk.css").read_text()
 assert 'resource:///org/gtk/libgtk/theme/Default/gtk-dark.css' in gtk4_theme
@@ -726,7 +726,9 @@ if env TERNUX_STATE_DIR="$TMP/state-launcher" HOME="$launcher_home" bash -c '
   tnx_phase_launcher alice zink en_US.UTF-8 >/dev/null
   tnx_phase_aliases alice bash >/dev/null
   bash -n "$HOME/x.sh" &&
-  grep -q "^# TERNUX_DESKTOP_LAUNCHER=15$" "$HOME/x.sh" &&
+  awk "/cat > .*TERNUX_GUEST_EOF/ {guest=1; next} guest && /^TERNUX_GUEST_EOF$/ {exit} guest {print}" "$HOME/x.sh" > "$HOME/guest-session.sh" &&
+  bash -n "$HOME/guest-session.sh" &&
+  grep -q "^# TERNUX_DESKTOP_LAUNCHER=17$" "$HOME/x.sh" &&
   grep -q -- "--env MESA_LOADER_DRIVER_OVERRIDE=zink" "$HOME/x.sh" &&
   ! grep -q -- "--env GALLIUM_DRIVER=zink" "$HOME/x.sh" &&
   grep -q -- "--user alice" "$HOME/x.sh" &&
@@ -738,15 +740,15 @@ if env TERNUX_STATE_DIR="$TMP/state-launcher" HOME="$launcher_home" bash -c '
   grep -Fq "ternuxx\\/audio\\/default\\.pa" "$HOME/x.sh" &&
   grep -q "IconThemeName --create -t string -s Ternux" "$HOME/x.sh" &&
   grep -q "ThemeName --create -t string -s Ternux" "$HOME/x.sh" &&
-  grep -q "defaults_marker=\"/home/alice/.config/ternux/desktop-defaults-v1\"" "$HOME/x.sh" &&
+  grep -q "defaults_marker=\"\$HOME/.config/ternux/desktop-defaults-v1\"" "$HOME/x.sh" &&
   grep -Fq "monitorbuiltin/workspace0/last-image" "$HOME/x.sh" &&
   grep -Fq "monitorbuiltin-wallpaper-v1" "$HOME/x.sh" &&
   grep -q "install -d -m 0755" "$HOME/x.sh" &&
-  grep -q "dbus-run-session -- sh -c" "$HOME/x.sh" &&
+  grep -q "dbus-run-session -- bash -c" "$HOME/x.sh" &&
   ! grep -q "dbus-launch --exit-with-session" "$HOME/x.sh" &&
-  grep -Fq "session_pid=\\\$!" "$HOME/x.sh" &&
-  grep -Fq "wait \\\$session_pid" "$HOME/x.sh" &&
-  grep -Fq "[ \\\$tries -ge 50 ]" "$HOME/x.sh" &&
+  grep -Fq "session_pid=\$!" "$HOME/x.sh" &&
+  grep -Fq "wait \"\$session_pid\"" "$HOME/x.sh" &&
+  grep -Fq "[ \"\$tries\" -ge 100 ]" "$HOME/x.sh" &&
   grep -q "adwaita-icon-theme xfce4 xfce4-taskmanager" "$1/lib/phases.sh" &&
   grep -q "Inherits=Adwaita,hicolor" "$1/packaging/termux/icons/Ternux/index.theme" &&
   test -s "$1/packaging/termux/icons/Ternux/scalable/places/folder.svg" &&
@@ -780,7 +782,7 @@ if env TERNUX_STATE_DIR="$TMP/state-launcher" HOME="$launcher_home" bash -c '
   grep -q -- "--env PULSE_SERVER=\"tcp:127.0.0.1:\$PULSE_PORT\"" "$HOME/x.sh" &&
   ! grep -q "PULSE_SERVER=tcp:127.0.0.1:4713" "$HOME/x.sh" &&
   ! grep -q "pkill.*dbus" "$HOME/x.sh" &&
-  grep -q "chmod 700 ~/.runtime" "$HOME/x.sh" &&
+  grep -q "chmod 700 \"\$HOME/.runtime\"" "$HOME/x.sh" &&
   ! grep -q "^virgl_test_server_android " "$HOME/x.sh" &&
   ! grep -q "pkill.*dbus" "$HOME/.bashrc" &&
   grep -q "alias x=.*ternux start" "$HOME/.bashrc" &&
@@ -1565,9 +1567,11 @@ fi
 managed_launcher="$TMP/managed-launcher.sh"
 cat > "$managed_launcher" <<'LAUNCHER'
 #!/usr/bin/env bash
+printf '%s\n' "$$" > "$TNX_PID_FILE"
 mkdir -p "$TMPDIR/.X11-unix"
 echo session-started
 : > "$TMPDIR/.X11-unix/X0"
+printf "READY\n" > "${TNX_PID_FILE}.ready"
 trap 'rm -f "$TMPDIR/.X11-unix/X0"; exit 0' TERM EXIT
 while :; do sleep 1; done
 LAUNCHER
@@ -1582,7 +1586,7 @@ if env TERNUX_STATE_DIR="$TMP/state-desktop-start" HOME="$TMP/home-desktop-start
     tnx_state_get(){ case "$1" in backend) echo virgl;; user) echo alice;; locale) echo en_US.UTF-8;; esac; }
     tnx_phase_launcher(){
       cp "$MOCK_LAUNCHER" "$HOME/x.sh"
-      sed -i "1a# TERNUX_DESKTOP_LAUNCHER=15" "$HOME/x.sh"
+      sed -i "1a# TERNUX_DESKTOP_LAUNCHER=17" "$HOME/x.sh"
       chmod +x "$HOME/x.sh"
     }
     tnx_has_cmd(){ [ "$1" = setsid ]; }
@@ -1594,7 +1598,7 @@ if env TERNUX_STATE_DIR="$TMP/state-desktop-start" HOME="$TMP/home-desktop-start
     pid="$(cat "$TERNUX_STATE_DIR/session/desktop.pid")"
     [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null || exit
     grep -q session-started "$TERNUX_STATE_DIR/session/desktop.log" || exit
-    grep -q "^# TERNUX_DESKTOP_LAUNCHER=15$" "$HOME/x.sh" || exit
+    grep -q "^# TERNUX_DESKTOP_LAUNCHER=17$" "$HOME/x.sh" || exit
     grep -q "util-linux zsh git curl" "$1/lib/phases.sh" || exit
     tnx_cmd_stop >/dev/null || exit
     [ ! -e "$TERNUX_STATE_DIR/session/desktop.pid" ]
@@ -2450,8 +2454,12 @@ else
 fi
 
 DR_PROBE_BAD="$TMP/doctor-probe-bad.txt"
-sed -e 's/^guest.dpkg_audit=0/guest.dpkg_audit=3/' \
-    -e 's/^guest.sudo=yes/guest.sudo=no/' "$DR_PROBE_OK" > "$DR_PROBE_BAD"
+python3 - "$DR_PROBE_OK" "$DR_PROBE_BAD" <<'PYDOCTORPROBE'
+import pathlib, sys
+source, target = map(pathlib.Path, sys.argv[1:])
+content = source.read_text().replace("guest.dpkg_audit=0", "guest.dpkg_audit=3").replace("guest.sudo=yes", "guest.sudo=no")
+target.write_text(content)
+PYDOCTORPROBE
 DR_BAD="$(dr_run bad env TERNUX_JSON=1 DR_PROBE_FILE="$DR_PROBE_BAD" bash "$DR_HARNESS" "$ROOT" guest extensions)"
 if python3 - "$DR_BAD" <<'PY'
 import json, sys

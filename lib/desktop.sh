@@ -34,7 +34,7 @@ tnx_cmd_start() {
     return 1
   fi
 
-  if ! grep -q '^# TERNUX_DESKTOP_LAUNCHER=15$' "$HOME/x.sh"; then
+  if ! grep -q '^# TERNUX_DESKTOP_LAUNCHER=17$' "$HOME/x.sh"; then
     # CLI package upgrades must refresh the generated launcher too. It carries
     # process matching, audio routing and session supervision behavior.
     if ! declare -F tnx_phase_launcher >/dev/null 2>&1; then
@@ -61,17 +61,17 @@ tnx_cmd_start() {
     fi
   fi
 
-  local session_dir="$TERNUX_STATE_DIR/session" pid_file="$TERNUX_STATE_DIR/session/desktop.pid"
+  local session_dir="$TERNUX_STATE_DIR/session" pid_file="$TERNUX_STATE_DIR/session/desktop.pid" ready_file="$TERNUX_STATE_DIR/session/desktop.pid.ready"
   mkdir -p "$session_dir" || { tnx_fail "Could not create desktop state directory."; return 1; }
   if [ -r "$pid_file" ]; then
     local old_pid
     old_pid="$(cat "$pid_file" 2>/dev/null || true)"
-    if [[ "$old_pid" =~ ^[0-9]+$ ]] && kill -0 "$old_pid" 2>/dev/null; then
+    if [[ "$old_pid" =~ ^[0-9]+$ ]] && kill -0 "$old_pid" 2>/dev/null && grep -q '^READY$' "$ready_file" 2>/dev/null; then
       tnx_info "Desktop is already running (PID $old_pid). Use 'ternux status' or 'ternux logs desktop tail'."
       [ "${TERNUX_JSON:-0}" = "1" ] && tnx_json_object "start" "already_running" "pid" "$old_pid"
       return 0
     fi
-    rm -f "$pid_file"
+    rm -f "$pid_file" "$ready_file"
   fi
 
   # Check for an unmanaged/legacy session before starting another display.
@@ -93,29 +93,36 @@ tnx_cmd_start() {
     mv -f "$desktop_log" "$desktop_log.1" || { tnx_fail "Could not rotate desktop log."; return 1; }
   fi
   : >> "$desktop_log" || { tnx_fail "Could not write desktop log: $desktop_log"; return 1; }
+  rm -f "$ready_file"
   if ! tnx_has_cmd setsid; then
     tnx_fail "Session detachment tool 'setsid' is missing. Install it with 'pkg install util-linux' and retry."
     return 1
   fi
   tnx_info "Starting desktop in background (backend: $configured_backend)..."
   setsid env LD_LIBRARY_PATH= TNX_PID_FILE="$pid_file" nohup bash "$HOME/x.sh" >>"$desktop_log" 2>&1 </dev/null &
-  local pid=$!
-  printf '%s\n' "$pid" > "$pid_file" || { kill "$pid" 2>/dev/null || true; tnx_fail "Could not save desktop PID."; return 1; }
-  local ready=0 i
-  for ((i=0; i<100; i++)); do
-    if [ -e "${TMPDIR:-/data/data/com.termux/files/usr/tmp}/.X11-unix/X0" ]; then ready=1; break; fi
-    if ! kill -0 "$pid" 2>/dev/null; then break; fi
+  local spawn_pid=$! pid="$!"
+  local ready=0 i pid_wait=0
+  tnx_info "Waiting for the XFCE desktop to finish starting..."
+  for ((i=0; i<1200; i++)); do
+    local recorded_pid
+    recorded_pid="$(cat "$pid_file" 2>/dev/null || true)"
+    [[ "$recorded_pid" =~ ^[0-9]+$ ]] && pid="$recorded_pid"
+    if [ -e "${TMPDIR:-/data/data/com.termux/files/usr/tmp}/.X11-unix/X0" ] && grep -q '^READY$' "$ready_file" 2>/dev/null; then ready=1; break; fi
+    if ! kill -0 "$pid" 2>/dev/null; then
+      if [[ ! "$recorded_pid" =~ ^[0-9]+$ ]] && [ "$pid_wait" -lt 50 ]; then pid_wait=$((pid_wait+1)); sleep 0.1; continue; fi
+      break
+    fi
     sleep 0.1
   done
   if [ "$ready" -ne 1 ]; then
     local rc=1
-    kill -TERM "$pid" 2>/dev/null || true
+    kill -TERM "$pid" 2>/dev/null || kill -TERM "$spawn_pid" 2>/dev/null || true
     local waited=0
-    while kill -0 "$pid" 2>/dev/null && [ "$waited" -lt 20 ]; do sleep 0.1; waited=$((waited+1)); done
-    kill -KILL "$pid" 2>/dev/null || true
-    wait "$pid" 2>/dev/null || rc=$?
+    while kill -0 "$pid" 2>/dev/null && [ "$waited" -lt 50 ]; do sleep 0.1; waited=$((waited+1)); done
+    if kill -0 "$pid" 2>/dev/null; then kill -KILL "$pid" 2>/dev/null || true; fi
+    wait "$spawn_pid" 2>/dev/null || rc=$?
     rm -f "$pid_file"
-    tnx_fail "Desktop did not reach display :0. See 'ternux logs show' for details."
+    tnx_fail "Desktop did not complete XFCE startup. See 'ternux logs show' for details."
     [ "${TERNUX_JSON:-0}" = "1" ] && tnx_json_object "start" "error" "backend" "$configured_backend" "log" "$desktop_log"
     return "$rc"
   fi
@@ -181,7 +188,7 @@ tnx_cmd_stop() {
     while kill -0 "$managed_pid" 2>/dev/null && [ "$waited" -lt 30 ]; do sleep 0.1; waited=$((waited+1)); done
     kill -KILL "$managed_pid" 2>/dev/null || true
   fi
-  rm -f "$pid_file"
+  rm -f "$pid_file" "$pid_file.ready"
 
   # Do not kill every D-Bus daemon owned by the Termux app. Closing the display
   # lets the launcher's guest dbus-run-session unwind without disrupting other
@@ -213,13 +220,13 @@ tnx_cmd_restart() {
 tnx_cmd_status() {
   local x11=0 pa=0 virgl=0 desktop_pid=""
   [ -r "$TERNUX_STATE_DIR/session/desktop.pid" ] && desktop_pid="$(cat "$TERNUX_STATE_DIR/session/desktop.pid" 2>/dev/null || true)"
-  [[ "$desktop_pid" =~ ^[0-9]+$ ]] && kill -0 "$desktop_pid" 2>/dev/null || desktop_pid=""
+  [[ "$desktop_pid" =~ ^[0-9]+$ ]] && kill -0 "$desktop_pid" 2>/dev/null && grep -q '^READY$' "$TERNUX_STATE_DIR/session/desktop.pid.ready" 2>/dev/null || desktop_pid=""
   pgrep -f "^termux-x11 com\.termux\.x11([[:space:]]|$)" >/dev/null 2>&1 && x11=1
   pgrep -x pulseaudio >/dev/null 2>&1 && pa=1
   pgrep -f '(^|/)virgl_test_server(_android)?([[:space:]]|$)' >/dev/null 2>&1 && virgl=1
 
   local overall="stopped"
-  [ "$x11" -eq 1 ] && overall="running"
+  [ "$x11" -eq 1 ] && [ -n "$desktop_pid" ] && overall="running"
 
   if [ "${TERNUX_JSON:-0}" = "1" ]; then
     tnx_json_object "status" "$overall" \
