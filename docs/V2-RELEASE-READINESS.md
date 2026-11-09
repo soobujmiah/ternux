@@ -67,7 +67,7 @@ The separate owner checkout contains modified bilingual accelerator plans, QNN e
 ### Local source checks
 
 - `bash tests/focused.sh`: **134 checks, 134 passed**.
-- `python3 tests/docs_check.py`: **3039 assertions, 312 internal links, 20 bilingual page pairs passed**.
+- `python3 tests/docs_check.py`: **3041 assertions, 312 internal links, 20 bilingual page pairs passed**. The Termux host could not run the Astro site build (`astro` is unavailable here); GitHub Actions rebuilds the generated sitemap.
 - `bash -n` passed for the changed shell modules and launcher/uninstaller entry points.
 - `git diff --check`: passed after final edits.
 - Read-only source CLI probe: `info --json` returned `vulkan_state=VULKAN_READY`, `graphics_state=OPENGL_ACCELERATION_READY`, and renderer `zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP))` on the connected Redmi Turbo 4 Pro.
@@ -95,13 +95,13 @@ All required PR workflows passed on exact head `8101fa5e51f0f5b28c51a35b4d714cd0
 | Snapdragon HTP candidate | `42620921974` | Build passed; publication skipped on PR |
 | Snapdragon HMX candidate | `42620921987` | Build passed; publication skipped on PR |
 
-Those CI runs predate the current lifecycle and Vulkan-state changes. On exact head `0906ffa74f4d7de1f4f3d58a596d6a729531a803`, the first `Validate` run (`42630638797`) failed one focused assertion: its Vulkan parser test assumed the host had `proot-distro`, so GitHub Actions skipped the mocked guest probe. The implementation passed locally; the test now explicitly enables the guest-probe path. The Termux package and repository-contract jobs passed; artifact and knowledge-sync jobs were still running when this report was updated. A new exact-head CI run is required after the test fix is pushed.
+Those CI runs predate the current lifecycle and Vulkan-state changes. On exact head `0906ffa74f4d7de1f4f3d58a596d6a729531a803`, the first `Validate` run (`42630638797`) failed one focused assertion: its Vulkan parser test assumed the host had `proot-distro`, so GitHub Actions skipped the mocked guest probe. The implementation passed locally; the test now explicitly enables the guest-probe path. The Termux package, repository-contract, and knowledge-sync jobs passed. The second run also exposed a stale sitemap-count assertion (36); the two new bilingual report pages raise it to 38, and that expectation is updated. A new exact-head CI run is required after this fix is pushed.
 
 ## Remaining blockers and release exclusions
 
 | Priority | Gate | Current status | Required evidence before v2.0.0 |
 |---|---|---|---|
-| P0 | Current-head CI and PR review | **First run had one test portability failure; test fix locally passes** | Push the environment-independent test fix, require all workflows on that exact head, review logs/artifacts, refresh the draft PR description, and obtain owner review. |
+| P0 | Current-head CI and PR review | **Two exact-head runs exposed test-only assumptions; fixes pass locally** | Push the environment-independent test fix, require all workflows on that exact head, review logs/artifacts, refresh the draft PR description, and obtain owner review. |
 | P1 | Desktop lifecycle on device | **Code changed; live deployment unverified** | After a controlled package/update path, verify repeated/overlapping start, `status --json`, stop/start, crash/stale-record recovery, X11 socket ownership, audio readiness, and ensure the current working GUI remains usable. Current live session was deliberately not restarted. |
 | P1 | Update transaction and provenance | **Not fixed** | `lib/update.sh` still shallow-clones the moving repository head and installs modules one by one. Pin source to a release commit, verify provenance/checksum, stage all files, test them before switch, and roll back on failure/interruption. |
 | P1 | APT repository and clean install | **Public endpoint currently unavailable** | On 2026-11-09, `https://soobujmiah.github.io/ternux/apt/bootstrap.sh`, `apt/ternux-archive-key.asc`, `apt/dists/stable/InRelease`, and `apt/dists/stable/main/binary-all/Packages` all returned HTTP 404. Restore/deploy the signed repository, then verify signed index/key lifecycle and clean `pkg install ternux`, upgrade, and uninstall on a supported Termux device. |
