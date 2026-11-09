@@ -156,6 +156,8 @@ All eight workflows passed on the latest product-code head `aa2c5f1aeeed14e252c6
 
 The report-only head `e1212bbc10078ec761dd5911f7858dbdc9b22c19` also passed all eight required workflows: Validate `42707570617`, Termux APT package `42707570582`, repository contract `42707570627`, knowledge sync `42707570460`, llama CPU/Vulkan `42707570564`, Stable Diffusion/license `42707570566`, HTP `42707570651`, and HMX `42707570549`. The APT and accelerator artifact publication jobs correctly skipped on this draft PR. The branch is clean and synced to its remote at that head.
 
+The latest report-only head `b5cf839bdb5597392022ec21438cc45b9cf4e83c` passed all eight required workflows: Validate `42712474036`, Termux APT package `42712474219`, repository contract `42712474435`, knowledge sync `42712474995`, llama CPU/Vulkan `42712474493`, Stable Diffusion/license `42712473855`, HTP `42712474195`, and HMX `42712474393`. Both Snapdragon builds completed successfully; publication jobs were skipped because PR #97 is draft. Local documentation checks on this evidence state passed 3,041 assertions, 312 internal links and 20 bilingual page pairs; repo knowledge verification found zero issues. CI/build success does not close the nine device, hosted APT, package lifecycle or owner-review blockers.
+
 ### Device and distribution evidence
 
 - The live Termux host reports Ternux `2.0.0` installed, with X11 and PulseAudio running. The active desktop was left untouched; no service restart was made.

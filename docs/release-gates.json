@@ -47,7 +47,7 @@
       "device_status": "N_A",
       "evidence": [
         "PR #97 targets main; origin/main 8e24062589e81c20095c875fa4d19dd5cb928554 is an ancestor. The validated audit snapshot e1212bbc10078ec761dd5911f7858dbdc9b22c19 was synced and 156 commits ahead, with a live 573-file diff; PR remains open/draft with no review decision.",
-        "All eight workflows passed on the exact current head e1212bbc10078ec761dd5911f7858dbdc9b22c19: Validate 42707570617; Termux APT package 42707570582; repository contract 42707570627; knowledge sync 42707570460; llama CPU/Vulkan 42707570564; Stable Diffusion/license 42707570566; HTP 42707570651; HMX 42707570549. Artifact publication skipped on the draft PR."
+        "All eight workflows passed on exact report-only head b5cf839bdb5597392022ec21438cc45b9cf4e83c: Validate 42712474036; Termux APT package 42712474219; repository contract 42712474435; knowledge sync 42712474995; llama CPU/Vulkan 42712474493; Stable Diffusion/license 42712473855; HTP 42712474195; HMX 42712474393. Both Snapdragon builds passed; artifact publication skipped on the draft PR. PR #97 remains open/draft with no review decision and a 573-file diff."
       ],
       "required_tests": [
         "exact-head required CI",
@@ -339,7 +339,7 @@
         "docs/QUICK-START.md",
         "docs/USAGE.md",
         "docs/V2-RELEASE-READINESS.md",
-        "Exact-head Validate 42707570617 passed; local docs check passed 3041 assertions, 312 internal links and 20 bilingual page pairs. Native package lifecycle and owner release review remain open."
+        "On exact report-only head b5cf839bdb5597392022ec21438cc45b9cf4e83c, Validate 42712474036 passed; local docs check passed 3041 assertions, 312 internal links and 20 bilingual page pairs; repo knowledge verify returned zero findings. Native package lifecycle and owner release review remain open."
       ],
       "required_tests": [
         "version/package/tag/release metadata audit",

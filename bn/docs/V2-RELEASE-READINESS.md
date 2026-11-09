@@ -157,6 +157,8 @@ Latest product-code head `aa2c5f1aeeed14e252c6c6d0669ceb745f6150f1`-এ আট�
 
 Report-only head `e1212bbc10078ec761dd5911f7858dbdc9b22c19`-এও আটটি required workflow pass করেছে: Validate `42707570617`, Termux APT package `42707570582`, repository contract `42707570627`, knowledge sync `42707570460`, llama CPU/Vulkan `42707570564`, Stable Diffusion/license `42707570566`, HTP `42707570651`, এবং HMX `42707570549`। Draft PR হওয়ায় APT ও accelerator artifact publication job যথাযথভাবে skip করেছে। Branch ওই head-এ clean এবং remote-এর সঙ্গে synced.
 
+সর্বশেষ report-only head `b5cf839bdb5597392022ec21438cc45b9cf4e83c`-এ আটটি required workflow-ই pass করেছে: Validate `42712474036`, Termux APT package `42712474219`, repository contract `42712474435`, knowledge sync `42712474995`, llama CPU/Vulkan `42712474493`, Stable Diffusion/license `42712473855`, HTP `42712474195`, এবং HMX `42712474393`। Snapdragon build দুটিই সফল; PR #97 draft থাকায় publication job skip হয়েছে। এই evidence state-এ local docs check-এ ৩,০৪১ assertion, ৩১২ internal link ও ২০টি bilingual page pair pass করেছে; repo knowledge verification-এ কোনো issue পাওয়া যায়নি। CI/build pass হলেও device, hosted APT, package lifecycle ও owner-review blocker নয়টি এখনো খোলা।
+
 ### Device ও distribution evidence
 
 - Live Termux host-এ Ternux `2.0.0` installed; X11 ও PulseAudio চলছিল। চলমান desktop অক্ষত রাখা হয়েছে, service restart করা হয়নি।
