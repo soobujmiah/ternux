@@ -40,7 +40,7 @@ jobs:
           set -u
           for attempt in 1 2 3; do
             if sudo apt-get update -o Acquire::Retries=3 &&
-               sudo apt-get install --yes --no-install-recommends bats python3-numpy; then
+               sudo apt-get install --yes --no-install-recommends bats python3-numpy curl gnupg xz-utils; then
               exit 0
             fi
             echo "apt attempt ${attempt} failed; retrying..."
@@ -70,6 +70,9 @@ jobs:
 
       - name: Test Termux APT bootstrap
         run: bash tests/termux_apt_bootstrap.sh
+
+      - name: Test signed APT preservation in website deploys
+        run: bash tests/termux_apt_pages_preservation.sh
 
       - name: Run Bats smoke suite
         run: bats tests/smoke.bats

@@ -42,8 +42,8 @@ There are no other active Codex agents. PR #35 remains a separate draft license 
 | P1-06 CPU/Vulkan LLM | PARTIAL | Known-answer, offload, cancellation, and reopen evidence exists; broad model, sustained thermal, and memory-pressure qualification remains open. |
 | P1-07 HTP/HMX | PARTIAL, experimental and release-excluded | Build evidence exists; failing/incomplete operator numerical qualification prevents stable claims/defaults. |
 | P1-08 QNN Stable Diffusion | PARTIAL, experimental and release-excluded | Device artifacts exist; full stage-tensor/reference qualification is incomplete. |
-| P1-APT / P1-PKG | BLOCKED / PARTIAL | Signed pipeline works, but all four hosted APT paths still return 404; native clean install, upgrade, and uninstall through the repository are unverified. |
-| P1-DOCS | PARTIAL | README, install/update/remove guidance, troubleshooting, changelog, security, and accelerator matrix exist; this report is being refreshed to current evidence. |
+| P1-APT / P1-PKG | BLOCKED / PARTIAL | Signed pipeline works, but all four hosted APT paths still return 404; ordinary Pages redeploy now has a signed-repository preservation check, but native clean install, upgrade, and uninstall through the repository remain unverified. |
+| P1-DOCS | PARTIAL | README, install/update/remove guidance, troubleshooting, changelog, security, and accelerator matrix exist; the readiness report has been refreshed to the current evidence; owner review remains open. |
 | P2 modularization / test architecture / workload schema | NOT_STARTED / PARTIAL / NOT_STARTED | Keep these incremental and non-blocking; no risky one-shot refactor is justified before release gates close. |
 
 ## Repository and work reconciliation
@@ -96,6 +96,13 @@ The separate owner checkout contains modified bilingual accelerator plans, QNN e
 - `vulkan_state` distinguishes `NOT_DETECTED`, `HARDWARE_AVAILABLE`, `LOADER_MISSING`, `DRIVER_MISSING`, `ICD_MISSING`, `DEVICE_ENUMERATION_FAILED`, `VULKAN_READY`, and `SOFTWARE_FALLBACK`. `graphics_state` reports `OPENGL_ACCELERATION_READY` only for a live non-software `glxinfo` renderer.
 - Renderer identification no longer falls back to Turnip file existence when no live OpenGL renderer can be queried.
 - English and Bangla GPU documentation explain these states and the device evidence.
+
+### Preserve the signed APT repository during routine Pages deploys
+
+- `.github/workflows/deploy.yml` now preserves the shared `pages` deployment instead of canceling an in-flight signed APT release; after building the website, it runs `packaging/termux/preserve-pages-apt.sh` before uploading the Pages artifact.
+- The preservation helper accepts the official HTTPS Pages endpoint in production. It checks the pinned primary-key fingerprint, verifies the signed `InRelease`, downloads and verifies each signed Release index by SHA-256 and size, parses the Packages indexes, and verifies every referenced package by SHA-256 and size. It carries forward the existing signature and packages, and includes the current repository bootstrap script.
+- Before first publication it allows deployment only when `InRelease`, the public key, and bootstrap are all absent. Network errors, partial publication, invalid signatures, unsafe signed paths, or content mismatches fail the site deployment before an APT tree is assembled.
+- `tests/termux_apt_pages_preservation.sh` uses a generated signing key and local HTTP fixture to cover the no-repository first deploy, inconsistent partial publication, valid signed preservation, tampered package rejection, and signed path traversal rejection. Local integration passed. A live website redeploy remains unverified because the public APT endpoints are still 404.
 
 ### Release-tag updater and interrupted-update recovery
 
@@ -153,7 +160,7 @@ All eight workflows were rerun on report/evidence head `07640c1f8b031970fb716a5d
 - On 2026-11-10, running the repository source modules with `TERNUX_LIB_DIR=$PWD/lib TERNUX_JSON=1 bash bin/ternux verify --json` returned `status=passed`; Termux:X11, PRoot-Distro, PulseAudio, `setsid`, launcher, Debian services and Turnip were present/OK. No GUI or service restart occurred.
 - Earlier isolated desktop probes recorded X11 query, PulseAudio connection, microphone status and camera-info success. These probes do not substitute for a fresh XFCE/app visual smoke on the updated generated launcher.
 - SM8735 / Adreno 825 CPU and Vulkan known-answer, Vulkan layer-offload, bounded cancellation and reopen results are recorded in `guides/device-benchmark-evidence.md`. Memory-pressure and sustained thermal tests remain open. HTP/HMX numerical failures remain visible; HTP and QNN are experimental and excluded from stable acceleration claims.
-- The hosted signed APT bootstrap, public key, `InRelease`, and `Packages` URLs all returned HTTP 404 on 2026-11-10. Native `dpkg-query` shows Ternux 2.0.0 installed, but no Ternux APT source is configured. The unsigned CI package and signing pipeline do not prove hosted `pkg install ternux` or clean repository lifecycle.
+- The hosted signed APT bootstrap, public key, `InRelease`, and `Packages` URLs all returned HTTP 404 on 2026-11-10. Native `dpkg-query` shows Ternux 2.0.0 installed, but no Ternux APT source is configured. A Pages deploy previously replaced the whole site tree and could erase `/apt`; `preserve-pages-apt.sh` now validates the pinned key, signed `InRelease`, signed index checksums, and package checksums before retaining the repository. Its local signed-fixture integration test passes for valid preservation and rejects partial publication, package tampering, and signed path traversal. The host still returns 404, so live post-publish preservation and `pkg install ternux` lifecycle remain unverified.
 - GitHub read-only inspection found no `main` branch protection and zero repository rulesets. No settings were changed. The old `ci-artifact/` in `ternux-package-audit` and owner-modified `ternux-tools` files remain outside the release diff and were preserved.
 
 ## Remaining blockers before v2.0.0
@@ -166,7 +173,7 @@ All eight workflows were rerun on report/evidence head `07640c1f8b031970fb716a5d
 | P1-04 storage and desktop | **PARTIAL** | Keep `/sdcard` available as requested while retaining isolated host binds; run full XFCE and user-facing app smoke through the updated launcher in a separate/controlled session. |
 | P1-05 repository governance | **BLOCKED** | Owner must decide and authorize required-review and branch-protection rules. |
 | P1-06 CPU/Vulkan qualification | **PARTIAL** | Add memory-pressure, sustained thermal and broader model correctness evidence on supported hardware. |
-| P1-APT public repository | **BLOCKED** | Owner-authorized signed publication, then verify hosted bootstrap/key/index and clean `pkg install ternux`. Current endpoints are 404. |
+| P1-APT public repository | **BLOCKED** | Owner-authorized signed publication, verify hosted bootstrap/key/index, then exercise normal website redeploy and clean `pkg install ternux`. Pages preservation code now has signed-fixture coverage; current endpoints are 404. |
 | P1-PKG native package lifecycle | **PARTIAL** | Verify exact supported-device clean install, upgrade, repair and uninstall using the published APT route and standalone route. |
 | P1-DOCS final review | **PARTIAL** | Finish owner review and ensure release notes/version surfaces match the actual published artifacts and exclusions. |
 

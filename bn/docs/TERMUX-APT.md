@@ -58,3 +58,8 @@ Signed repository প্রকাশের আগে bootstrap URL 404 দেব
 প্রকাশ না হওয়া পর্যন্ত README-এর source installer ব্যবহার করুন। Termux-এর
 নিজস্ব official package repository-তে Ternux গ্রহণ না করা পর্যন্ত একেবারে নতুন
 Termux setup-এ trust bootstrap ছাড়া `pkg install ternux` resolve করা সম্ভব নয়।
+
+Repository প্রকাশের পর সাধারণ website deploy বর্তমান APT signature ও প্রতিটি
+index/package checksum যাচাই করে signed tree-টি নতুন Pages artifact-এ রেখে দেয়।
+যাচাই ব্যর্থ বা অসম্পূর্ণ হলে website deploy থেমে যায়, তাই package repository
+নীরবে মুছে বা বদলে যায় না।

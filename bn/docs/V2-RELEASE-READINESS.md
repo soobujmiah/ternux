@@ -42,8 +42,8 @@ alt_url: "/docs/V2-RELEASE-READINESS.html"
 | P1-06 CPU/Vulkan LLM | PARTIAL | known-answer, offload, cancel, reopen evidence আছে; model breadth, sustained thermal ও memory-pressure qualification বাকি। |
 | P1-07 HTP/HMX | PARTIAL, experimental এবং release থেকে বাদ | Build evidence আছে; operator numerical qualification অসম্পূর্ণ/ব্যর্থ হওয়ায় stable claim/default নয়। |
 | P1-08 QNN Stable Diffusion | PARTIAL, experimental এবং release থেকে বাদ | Device artifact আছে; পূর্ণ stage-tensor/reference qualification হয়নি। |
-| P1-APT / P1-PKG | BLOCKED / PARTIAL | Signed pipeline কাজ করে, কিন্তু hosted APT-এর চারটি URL-ই 404; native clean install, upgrade, uninstall unverified। |
-| P1-DOCS | PARTIAL | README, install/update/remove guide, troubleshooting, changelog, security ও accelerator matrix আছে; এই report বর্তমান evidence-এ refresh হচ্ছে। |
+| P1-APT / P1-PKG | BLOCKED / PARTIAL | Signed pipeline কাজ করে, কিন্তু hosted APT-এর চারটি URL-ই 404; সাধারণ Pages deploy-তে signed repository preserve করার check যোগ হয়েছে, কিন্তু native clean install, upgrade, uninstall unverified। |
+| P1-DOCS | PARTIAL | README, install/update/remove guide, troubleshooting, changelog, security ও accelerator matrix আছে; Readiness report বর্তমান evidence-এ refresh হয়েছে; owner review বাকি। |
 | P2 modularization / test architecture / workload schema | NOT_STARTED / PARTIAL / NOT_STARTED | Incremental/non-blocking রাখব; release gate না মিটিয়ে risky one-shot refactor করব না। |
 
 ## Repository ও কাজের অবস্থা
@@ -95,6 +95,13 @@ alt_url: "/docs/V2-RELEASE-READINESS.html"
 - Debian guest-এ `vulkaninfo --summary` চালিয়ে physical device type ও driver যাচাই হয়। আসল Turnip GPU-র পাশে llvmpipe থাকলেও CPU-only llvmpipe `SOFTWARE_FALLBACK`।
 - `vulkan_state`: `NOT_DETECTED`, `HARDWARE_AVAILABLE`, `LOADER_MISSING`, `DRIVER_MISSING`, `ICD_MISSING`, `DEVICE_ENUMERATION_FAILED`, `VULKAN_READY`, `SOFTWARE_FALLBACK`। Live `glxinfo` non-software renderer দেখালেই `OPENGL_ACCELERATION_READY`।
 - Live renderer query না পেলে Turnip file দেখে renderer দাবি করা হয় না। GPU documentation-এর English/Bangla দুই সংস্করণ হালনাগাদ।
+
+### সাধারণ Pages deploy-তে signed APT repository অক্ষত রাখা
+
+- `.github/workflows/deploy.yml` এখন shared `pages` deployment cancel না করে signed APT release-এর সঙ্গে serialize হয়। Website build-এর পরে Pages artifact upload করার আগে `packaging/termux/preserve-pages-apt.sh` চলে।
+- Preservation helper production-এ শুধু official HTTPS Pages endpoint গ্রহণ করে। এটি pinned primary-key fingerprint যাচাই করে, signed `InRelease` verify করে, Release-এ উল্লেখিত প্রতিটি index-এর SHA-256 ও size মিলায়, Packages index পড়ে প্রতিটি package-এর SHA-256 ও size যাচাই করে। বর্তমান signature ও package রেখে দেয়, আর source repository-র bootstrap script যোগ করে।
+- প্রথম publish-এর আগে deploy চলবে শুধু যখন `InRelease`, public key ও bootstrap—তিনটিই অনুপস্থিত। Network error, partial publish, invalid signature, unsafe signed path বা content mismatch হলে APT tree তৈরি করার আগেই site deploy থামে।
+- `tests/termux_apt_pages_preservation.sh` generated signing key ও local HTTP fixture দিয়ে no-repository first deploy, inconsistent partial publication, valid signed preservation, tampered package rejection ও signed path traversal rejection পরীক্ষা করে। Local integration pass। Public APT endpoint এখনো 404 হওয়ায় live website redeploy test বাকি।
 
 ### Release-tag updater ও interrupted-update recovery
 
@@ -154,7 +161,7 @@ Report/evidence head `07640c1f8b031970fb716a5d9d8326fc86067c7f`-এ আটটি
 - 2026-11-10-এ repo source module দিয়ে `TERNUX_LIB_DIR=$PWD/lib TERNUX_JSON=1 bash bin/ternux verify --json` চালিয়ে `status=passed` পাওয়া গেছে; Termux:X11, PRoot-Distro, PulseAudio, `setsid`, launcher, Debian service ও Turnip present/OK ছিল। GUI বা service restart হয়নি।
 - আগের isolated desktop probe-এ X11 query, PulseAudio, mic status ও camera-info pass করেছে। তবে updated launcher-এ fresh XFCE/app visual smoke এখনো হয়নি।
 - SM8735 / Adreno 825 CPU ও Vulkan known-answer, Vulkan layer offload, bounded cancel ও reopen result `guides/device-benchmark-evidence.md`-এ আছে। Memory-pressure ও দীর্ঘ thermal test বাকি। HTP/HMX numerical failure স্পষ্ট রাখা হয়েছে; HTP ও QNN experimental, stable acceleration claim থেকে বাদ।
-- Hosted signed APT bootstrap, public key, `InRelease`, `Packages`—চার URL-ই 2026-11-10-এ HTTP 404 দিয়েছে। Native `dpkg-query`-তে Ternux 2.0.0 installed, কিন্তু Ternux APT source configured নেই। Unsigned CI package ও signing pipeline hosted `pkg install ternux` বা clean repository lifecycle প্রমাণ করে না।
+- Hosted signed APT bootstrap, public key, `InRelease`, `Packages`—চার URL-ই 2026-11-10-এ HTTP 404 দিয়েছে। Native `dpkg-query`-তে Ternux 2.0.0 installed, কিন্তু Ternux APT source configured নেই। Pages deploy আগে পুরো site tree upload করত, ফলে প্রকাশিত `/apt` মুছে যেতে পারত। `preserve-pages-apt.sh` এখন pinned key, signed `InRelease`, signed index checksum ও package checksum যাচাই করে APT tree ধরে রাখে। Signed-fixture integration test valid preserve pass করেছে এবং partial publish/tampering প্রত্যাখ্যান করেছে। Hosted path এখনো 404, তাই live redeploy preservation ও `pkg install ternux` lifecycle এখনো unverified।
 - Read-only GitHub check-এ `main` branch protection নেই, repository ruleset শূন্য। Setting বদলানো হয়নি। `ternux-package-audit`-এর পুরোনো `ci-artifact/` ও owner-modified `ternux-tools` file release diff-এর বাইরে এবং অক্ষত।
 
 ## v2.0.0-এর আগে বাকি blocker
@@ -167,7 +174,7 @@ Report/evidence head `07640c1f8b031970fb716a5d9d8326fc86067c7f`-এ আটটি
 | P1-04 storage ও desktop | **PARTIAL** | `/sdcard` access রেখে isolated bind বজায়; updated launcher-এ controlled/separate session-এ full XFCE ও app smoke। |
 | P1-05 repository governance | **BLOCKED** | Owner-এর সিদ্ধান্ত ও অনুমতি নিয়ে required review এবং branch-protection rule। |
 | P1-06 CPU/Vulkan qualification | **PARTIAL** | Supported hardware-এ memory-pressure, sustained thermal ও আরও model correctness evidence। |
-| P1-APT public repository | **BLOCKED** | Owner-approved signed publish, তারপর hosted bootstrap/key/index ও clean `pkg install ternux` verify; এখন endpoint 404। |
+| P1-APT public repository | **BLOCKED** | Owner-approved signed publish, hosted bootstrap/key/index verify, তারপর normal website redeploy ও clean `pkg install ternux` test। Pages preservation code signed-fixture test pass; endpoint এখনো 404। |
 | P1-PKG native package lifecycle | **PARTIAL** | Published APT route ও standalone route দিয়ে supported device-এ clean install, upgrade, repair, uninstall verify। |
 | P1-DOCS final review | **PARTIAL** | Owner review; release note ও version surface published artifact/exclusion-এর সঙ্গে মেলানো। |
 

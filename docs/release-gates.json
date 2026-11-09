@@ -283,18 +283,20 @@
       "owner": "engineering",
       "status": "BLOCKED",
       "source_status": "BLOCKED",
-      "ci_status": "PASS",
+      "ci_status": "PENDING",
       "device_status": "NOT_TESTED",
       "evidence": [
         "Exact-head unsigned Termux package artifact passed run 42693350684; protected-key non-deploy signing verification passed earlier on main.",
-        "2026-11-10 HTTP checks returned 404 for hosted bootstrap.sh, public key, InRelease, and Packages endpoints; current native Termux has Ternux 2.0.0 installed without a Ternux APT source."
+        "2026-11-10 HTTP checks returned 404 for hosted bootstrap.sh, public key, InRelease, and Packages endpoints; current native Termux has Ternux 2.0.0 installed without a Ternux APT source.",
+        "Ordinary Pages deploy previously uploaded only the Astro site and could erase a published /apt tree. New preserve-pages-apt.sh verifies the pinned archive key, signed InRelease, Release index hashes/sizes, and every package hash/size before copying the existing signed tree; deployment fails closed on partial publication or integrity errors. Local signed-fixture integration test covers first publish, valid preservation, partial publication, package tampering, and signed path traversal; exact-head CI is pending."
       ],
       "required_tests": [
         "signed repository publish after approval",
+        "routine Pages redeploy preserves the published signed repository",
         "clean pkg install, upgrade, uninstall on Termux"
       ],
       "acceptance_criteria": [
-        "Both supported install routes produce compatible installs; signed public index and clean device flow succeed."
+        "Both supported install routes produce compatible installs; signed public index survives website deploys and clean device flow succeeds."
       ],
       "release_blocking": true,
       "release_exclusion": null
