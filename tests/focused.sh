@@ -25,6 +25,29 @@ check "core loads persisted Debian user" env -u TERNUX_USER \
   TERNUX_STATE_DIR="$state" HOME="$TMP/home-user" bash -c \
   '. "$1/lib/core.sh"; test "$TERNUX_USER" = alice' _ "$ROOT"
 
+# Generic guest commands use isolated binds, keep shared Android storage when
+# the host exposes it, and still honor caller-requested temporary storage.
+if env TERNUX_STATE_DIR="$TMP/state-guest-isolation" HOME="$TMP/home-guest-isolation" \
+  PREFIX="$TMP/prefix-guest-isolation" LOG="$TMP/guest-login-args" bash -c '
+    . "$1/lib/core.sh"
+    tnx_distro(){ echo debian; }
+    proot-distro(){ printf "%s\n" "$@" > "$LOG"; }
+    tnx_guest_login --shared-tmp --user ternux -- bash -c true || exit
+    grep -qx -- "--isolated" "$LOG" || exit
+    grep -qx -- "--shared-tmp" "$LOG" || exit
+    grep -qx -- "--user" "$LOG" || exit
+    ! grep -Fq -- "$HOME" "$LOG" || exit
+    ! grep -qx -- "--shared-home" "$LOG" || exit
+    if [ -e /sdcard ]; then
+      grep -qx -- "--bind" "$LOG" || exit
+      grep -qx -- "/sdcard:/sdcard" "$LOG" || exit
+    fi
+  ' _ "$ROOT"; then
+  ok "generic guest login isolates Termux HOME and preserves available /sdcard"
+else
+  not_ok "generic guest login isolates Termux HOME and preserves available /sdcard"
+fi
+
 # State values may contain URL separators and must update atomically.
 state_url="$TMP/state-url"
 if env TERNUX_STATE_DIR="$state_url" HOME="$TMP/home-state-url" bash -c '

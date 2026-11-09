@@ -127,6 +127,24 @@ with tempfile.TemporaryDirectory() as temporary:
     else:
         raise AssertionError("duplicate component ID was accepted")
 
+    # Every redistributed component needs an explicit license and a concrete
+    # notice source; a prose license label by itself is not enough evidence.
+    for mutation, expected_error in (
+        (lambda component: component.update(license=""), "no declared license"),
+        (lambda component: component.update(license_files=[], embedded_notice_sources=[],
+                                            archive_license_files=[]), "no bundled license evidence"),
+    ):
+        incomplete_manifest = root / "incomplete-components.json"
+        incomplete_data = json.loads(json.dumps(components))
+        mutation(incomplete_data["components"][0])
+        incomplete_manifest.write_text(json.dumps(incomplete_data))
+        try:
+            module._load_components(incomplete_manifest)
+        except ValueError as exc:
+            assert expected_error in str(exc)
+        else:
+            raise AssertionError(f"component with {expected_error} was accepted")
+
     # Required source trees and component license entries fail closed.
     try:
         module.collect_files([("stable-diffusion.cpp", root / "missing-source")], [], [], components)
