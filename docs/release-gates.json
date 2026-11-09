@@ -283,12 +283,12 @@
       "owner": "engineering",
       "status": "BLOCKED",
       "source_status": "BLOCKED",
-      "ci_status": "PENDING",
+      "ci_status": "PASS",
       "device_status": "NOT_TESTED",
       "evidence": [
         "Exact-head unsigned Termux package artifact passed run 42693350684; protected-key non-deploy signing verification passed earlier on main.",
         "2026-11-10 HTTP checks returned 404 for hosted bootstrap.sh, public key, InRelease, and Packages endpoints; current native Termux has Ternux 2.0.0 installed without a Ternux APT source.",
-        "Ordinary Pages deploy previously uploaded only the Astro site and could erase a published /apt tree. New preserve-pages-apt.sh verifies the pinned archive key, signed InRelease, Release index hashes/sizes, and every package hash/size before copying the existing signed tree; deployment fails closed on partial publication or integrity errors. Local signed-fixture integration test covers first publish, valid preservation, partial publication, package tampering, and signed path traversal; exact-head CI is pending."
+        "Ordinary Pages deploy previously uploaded only the Astro site and could erase a published /apt tree. New preserve-pages-apt.sh verifies the pinned archive key, signed InRelease, Release index hashes/sizes, and every package hash/size before copying the existing signed tree; deployment fails closed on partial publication or integrity errors. Exact-head Validate 42704005351 passed the signed-fixture integration test for first publish, valid preservation, partial publication, package tampering, and signed path traversal; all eight required workflows passed on aa2c5f1aeeed14e252c6c6d0669ceb745f6150f1."
       ],
       "required_tests": [
         "signed repository publish after approval",

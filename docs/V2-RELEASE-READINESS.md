@@ -27,7 +27,7 @@ At the start of this pass, the primary worktree was clean at `b9caeeb7a1dda7f0fd
 | `skb` | verified canonical checkout; contains owner changes | Guidance only; no files changed. |
 | Live Termux:X11 desktop | running; current session not restarted | Keep it undisturbed. No desktop, audio, or Android service restart was performed. |
 
-There are no other active Codex agents. PR #35 remains a separate draft license proposal awaiting owner review; it is not part of this v2 source. Five open Dependabot PRs are unrelated action-version updates. Read-only GitHub inspection still finds no `main` branch protection and zero repository rulesets. The implementation tree was clean at `e8dab0a` before the report-only commits; the current pushed report evidence is at `07640c1`.
+There are no other active Codex agents. PR #35 remains a separate draft license proposal awaiting owner review; it is not part of this v2 source. Five open Dependabot PRs are unrelated action-version updates. Read-only GitHub inspection still finds no `main` branch protection and zero repository rulesets. The implementation tree was clean at `e8dab0a` before the report-only commits; the latest product-code commit is `aa2c5f1`; it adds verified preservation of the signed APT tree during routine website deployments.
 
 | Finding | Reconciled state | Evidence/remaining gap |
 |---|---|---|
@@ -123,7 +123,7 @@ The separate owner checkout contains modified bilingual accelerator plans, QNN e
 
 ### Current exact-head audit — 2026-11-10
 
-The implementation head is `e8dab0a3cdb795826b3f583efbaef4a9a9320e51`; report-only evidence is current through `07640c1f8b031970fb716a5d9d8326fc86067c7f`. It includes the isolated guest login and `/sdcard` preservation (`b9caeeb`), the Stable Diffusion artifact's corrected Ternux license declaration (`6f6ae0c`), and regression coverage for both changes (`e8dab0a`). The base `main` remains `8e24062589e81c20095c875fa4d19dd5cb928554`; PR #97 is still draft, no review is recorded, and the branch is 147 commits ahead.
+Core implementation and regression fixes are at `e8dab0a3cdb795826b3f583efbaef4a9a9320e51`, including isolated guest login and `/sdcard` preservation (`b9caeeb`), corrected Stable Diffusion license metadata (`6f6ae0c`), and regression coverage (`e8dab0a`). Latest product-code commit `aa2c5f1aeeed14e252c6c6d0669ceb745f6150f1` adds signed APT preservation to ordinary Pages deployments and its integration tests. The base `main` remains `8e24062589e81c20095c875fa4d19dd5cb928554`; PR #97 is still draft, no review is recorded, and the branch is 147 commits ahead.
 
 All eight required workflows passed on that exact implementation head:
 
@@ -140,18 +140,18 @@ All eight required workflows passed on that exact implementation head:
 
 Local verification on the same code: `bash tests/focused.sh` passed **134/134**; `python3 tests/docs_check.py` passed **3,041 assertions, 312 internal links, 20 bilingual page pairs**; `python3 tests/release_gates.py --self-test`, both relevant JSON parsers, shell syntax checks, and `git diff --check` passed. The website's Astro production build also passed in Validate. The machine-readable inventory has 19 gates and still reports `NOT_READY` with nine incomplete blockers.
 
-All eight workflows were rerun on report/evidence head `07640c1f8b031970fb716a5d9d8326fc86067c7f`; all passed. This commit changes only the bilingual readiness report and machine-readable release-gate evidence, not implementation code:
+All eight workflows passed on the latest product-code head `aa2c5f1aeeed14e252c6c6d0669ceb745f6150f1`. Validate includes the new signed APT preservation fixture; the deployment workflow itself runs only on `main` or manual dispatch, so its live Pages operation remains unverified until publication.
 
 | Workflow | Run ID | Result |
 |---|---:|---|
-| Validate (Astro site, syntax, focused regressions, docs and gate checks) | `42697905503` | Passed |
-| Termux unsigned APT package build/inspection | `42697905151` | Passed |
-| Repository state contract | `42697905211` | Passed |
-| Repo knowledge sync/test | `42697905337` | Passed |
-| llama.cpp CPU + Vulkan ARM64 artifact | `42697905396` | Passed |
-| Stable Diffusion CPU + Vulkan plus license audit | `42697905145` | Passed |
-| Snapdragon HTP artifact | `42697905394` | Build passed; publication skipped on draft PR |
-| Snapdragon HMX capability candidate | `42697905652` | Build passed; publication skipped on draft PR |
+| Validate (Astro site, 134 regressions, signed APT preservation, docs and gates) | `42704005351` | Passed |
+| Termux unsigned APT package build/inspection | `42704005345` | Passed |
+| Repository state contract | `42704005391` | Passed |
+| Repo knowledge sync/test | `42704005633` | Passed |
+| llama.cpp CPU + Vulkan ARM64 artifact | `42704005356` | Passed |
+| Stable Diffusion CPU + Vulkan plus license audit | `42704005340` | Passed |
+| Snapdragon HTP artifact | `42704005486` | Build passed; publication skipped on draft PR |
+| Snapdragon HMX capability candidate | `42704005958` | Build passed; publication skipped on draft PR |
 
 ### Device and distribution evidence
 
@@ -173,7 +173,7 @@ All eight workflows were rerun on report/evidence head `07640c1f8b031970fb716a5d
 | P1-04 storage and desktop | **PARTIAL** | Keep `/sdcard` available as requested while retaining isolated host binds; run full XFCE and user-facing app smoke through the updated launcher in a separate/controlled session. |
 | P1-05 repository governance | **BLOCKED** | Owner must decide and authorize required-review and branch-protection rules. |
 | P1-06 CPU/Vulkan qualification | **PARTIAL** | Add memory-pressure, sustained thermal and broader model correctness evidence on supported hardware. |
-| P1-APT public repository | **BLOCKED** | Owner-authorized signed publication, verify hosted bootstrap/key/index, then exercise normal website redeploy and clean `pkg install ternux`. Pages preservation code now has signed-fixture coverage; current endpoints are 404. |
+| P1-APT public repository | **BLOCKED** | Signed APT preservation code and CI pass on `aa2c5f1`; still needs owner-authorized publication, hosted bootstrap/key/index verification, a normal website redeploy, and clean `pkg install ternux`. Current endpoints are 404. |
 | P1-PKG native package lifecycle | **PARTIAL** | Verify exact supported-device clean install, upgrade, repair and uninstall using the published APT route and standalone route. |
 | P1-DOCS final review | **PARTIAL** | Finish owner review and ensure release notes/version surfaces match the actual published artifacts and exclusions. |
 

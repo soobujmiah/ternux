@@ -27,7 +27,7 @@ alt_url: "/docs/V2-RELEASE-READINESS.html"
 | `skb` | canonical checkout যাচাই করা; owner change আছে | শুধু guidance পড়া হয়েছে; file পরিবর্তন হয়নি। |
 | চলমান Termux:X11 desktop | active; session restart করা হয়নি | session অক্ষত রাখা হয়েছে; desktop, audio বা Android service restart করা হয়নি। |
 
-অন্য কোনো Codex agent সক্রিয় নেই। PR #35 আলাদা draft license proposal; owner review-এর অপেক্ষায়, v2 source-এর অংশ নয়। পাঁচটি open Dependabot PR action version update নিয়ে, release diff-এর বাইরে। Read-only GitHub check-এ `main` branch protection নেই, ruleset শূন্য। Report-only commit-এর আগে `e8dab0a` implementation tree clean ছিল; report evidence এখন `07640c1` পর্যন্ত pushed।
+অন্য কোনো Codex agent সক্রিয় নেই। PR #35 আলাদা draft license proposal; owner review-এর অপেক্ষায়, v2 source-এর অংশ নয়। পাঁচটি open Dependabot PR action version update নিয়ে, release diff-এর বাইরে। Read-only GitHub check-এ `main` branch protection নেই, ruleset শূন্য। Report-only commit-এর আগে `e8dab0a` implementation tree clean ছিল; সর্বশেষ product-code commit `aa2c5f1`; এতে routine website deploy-তে signed APT tree যাচাই করে ধরে রাখার ব্যবস্থা আছে।
 
 | Finding | সমন্বিত অবস্থা | Evidence/বাকি কাজ |
 |---|---|---|
@@ -141,18 +141,18 @@ Implementation head `e8dab0a3cdb795826b3f583efbaef4a9a9320e51`; report-only evid
 
 একই code-এ local `bash tests/focused.sh` **134/134** pass; `python3 tests/docs_check.py` **3,041 assertion, 312 internal link, 20 bilingual page pair** pass। `tests/release_gates.py --self-test`, JSON parser, shell syntax ও `git diff --check` pass করেছে। Astro production build-ও Validate workflow-তে pass। Machine inventory-তে ১৯ gate; নয়টি অসম্পূর্ণ blocker থাকায় verdict `NOT_READY`।
 
-Report/evidence head `07640c1f8b031970fb716a5d9d8326fc86067c7f`-এ আটটি workflow-ই আবার pass করেছে। এই commit-এ শুধু bilingual readiness report ও machine-readable release-gate evidence বদলেছে, implementation code নয়:
+Latest product-code head `aa2c5f1aeeed14e252c6c6d0669ceb745f6150f1`-এ আটটি workflow pass করেছে। Validate-এ signed APT preservation fixture-ও আছে। Deployment workflow শুধু `main` push বা manual dispatch-এ চলে; তাই publication-এর পরে live Pages redeploy এখনো যাচাই হয়নি।
 
 | Workflow | Run ID | ফল |
 |---|---:|---|
-| Validate (Astro site, syntax, focused regression, docs ও gate check) | `42697905503` | Pass |
-| Termux unsigned APT package build/inspection | `42697905151` | Pass |
-| Repository state contract | `42697905211` | Pass |
-| Repo knowledge sync/test | `42697905337` | Pass |
-| llama.cpp CPU + Vulkan ARM64 artifact | `42697905396` | Pass |
-| Stable Diffusion CPU + Vulkan ও license audit | `42697905145` | Pass |
-| Snapdragon HTP artifact | `42697905394` | Build pass; draft PR-এ publication skip |
-| Snapdragon HMX capability candidate | `42697905652` | Build pass; draft PR-এ publication skip |
+| Validate (Astro site, ১৩৪ regression, signed APT preservation, docs ও gate) | `42704005351` | Pass |
+| Termux unsigned APT package build/inspection | `42704005345` | Pass |
+| Repository state contract | `42704005391` | Pass |
+| Repo knowledge sync/test | `42704005633` | Pass |
+| llama.cpp CPU + Vulkan ARM64 artifact | `42704005356` | Pass |
+| Stable Diffusion CPU + Vulkan ও license audit | `42704005340` | Pass |
+| Snapdragon HTP artifact | `42704005486` | Build pass; draft PR-এ publication skip |
+| Snapdragon HMX capability candidate | `42704005958` | Build pass; draft PR-এ publication skip |
 
 ### Device ও distribution evidence
 
@@ -174,7 +174,7 @@ Report/evidence head `07640c1f8b031970fb716a5d9d8326fc86067c7f`-এ আটটি
 | P1-04 storage ও desktop | **PARTIAL** | `/sdcard` access রেখে isolated bind বজায়; updated launcher-এ controlled/separate session-এ full XFCE ও app smoke। |
 | P1-05 repository governance | **BLOCKED** | Owner-এর সিদ্ধান্ত ও অনুমতি নিয়ে required review এবং branch-protection rule। |
 | P1-06 CPU/Vulkan qualification | **PARTIAL** | Supported hardware-এ memory-pressure, sustained thermal ও আরও model correctness evidence। |
-| P1-APT public repository | **BLOCKED** | Owner-approved signed publish, hosted bootstrap/key/index verify, তারপর normal website redeploy ও clean `pkg install ternux` test। Pages preservation code signed-fixture test pass; endpoint এখনো 404। |
+| P1-APT public repository | **BLOCKED** | `aa2c5f1`-এ signed APT preservation code ও CI pass; owner-approved signed publish, hosted bootstrap/key/index verify, তারপর normal website redeploy ও clean `pkg install ternux` test বাকি। Endpoint এখনো 404। |
 | P1-PKG native package lifecycle | **PARTIAL** | Published APT route ও standalone route দিয়ে supported device-এ clean install, upgrade, repair, uninstall verify। |
 | P1-DOCS final review | **PARTIAL** | Owner review; release note ও version surface published artifact/exclusion-এর সঙ্গে মেলানো। |
 
