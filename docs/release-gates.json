@@ -1,0 +1,452 @@
+{
+  "schema_version": 1,
+  "project": "Ternux",
+  "target_release": "2.0.0",
+  "audit_date": "2026-11-09",
+  "derived_readiness": "NOT_READY",
+  "release_approved": false,
+  "status_axes": {
+    "source": "Implementation and compatibility evidence",
+    "ci": "Dated snapshot only: workflow runs must be matched to the proposed release commit before any READY verdict.",
+    "device": "Physical-device evidence; never inferred from CI"
+  },
+  "gates": [
+    {
+      "phase": "Stage 1",
+      "issue_id": "P0-01",
+      "severity": "P0",
+      "owner": "engineering",
+      "status": "PARTIAL",
+      "source_status": "PASS",
+      "ci_status": "PENDING",
+      "device_status": "CI_ONLY",
+      "evidence": [
+        "docs/V2-RELEASE-READINESS.md#stable-diffusion-dependency-notices",
+        "tests/stable_diffusion_license_bundle_test.py",
+        "CI 42658800169 passed on 251e478; exact head 02b4395 pending"
+      ],
+      "required_tests": [
+        "ARM64 build",
+        "independent license bundle audit",
+        "missing/duplicate license fixtures"
+      ],
+      "acceptance_criteria": [
+        "Exact release head compiles and independently accounts for every redistributed dependency notice."
+      ],
+      "release_blocking": true,
+      "release_exclusion": null
+    },
+    {
+      "phase": "Stage 1",
+      "issue_id": "P0-02",
+      "severity": "P0",
+      "owner": "engineering",
+      "status": "PARTIAL",
+      "source_status": "PASS",
+      "ci_status": "PENDING",
+      "device_status": "N_A",
+      "evidence": [
+        "PR #97 targets main; main is ancestor of the development branch",
+        "https://github.com/soobujmiah/ternux/pull/97"
+      ],
+      "required_tests": [
+        "exact-head required CI",
+        "final branch and PR diff review"
+      ],
+      "acceptance_criteria": [
+        "All release fixes are on the intended branch and final review approves a coherent release commit."
+      ],
+      "release_blocking": true,
+      "release_exclusion": null
+    },
+    {
+      "phase": "Stage 1",
+      "issue_id": "P0-03",
+      "severity": "P0",
+      "owner": "engineering",
+      "status": "PARTIAL",
+      "source_status": "PARTIAL",
+      "ci_status": "PENDING",
+      "device_status": "N_A",
+      "evidence": [
+        "docs/V2-RELEASE-READINESS.md",
+        "docs/release-gates.json"
+      ],
+      "required_tests": [
+        "release-gate validator",
+        "exact-head CI and owner review"
+      ],
+      "acceptance_criteria": [
+        "No release is READY unless every blocking gate has authoritative passing evidence."
+      ],
+      "release_blocking": true,
+      "release_exclusion": null
+    },
+    {
+      "phase": "Stage 2",
+      "issue_id": "P1-01",
+      "severity": "P1",
+      "owner": "engineering",
+      "status": "PARTIAL",
+      "source_status": "PARTIAL",
+      "ci_status": "PENDING",
+      "device_status": "VERIFIED_ON_DEVICE",
+      "evidence": [
+        "lib/desktop.sh",
+        "tests/focused.sh: desktop stop/start/reuse/concurrency fixtures",
+        "read-only ternux status --json: running, X11/PulseAudio running, PID 16987"
+      ],
+      "required_tests": [
+        "overlap/start-stop/crash-recovery fixtures",
+        "controlled device lifecycle matrix"
+      ],
+      "acceptance_criteria": [
+        "Track only Ternux-owned process identities and prove readiness, stop, recovery, X11 ownership and independent audio status."
+      ],
+      "release_blocking": true,
+      "release_exclusion": null
+    },
+    {
+      "phase": "Stage 2",
+      "issue_id": "P1-02",
+      "severity": "P1",
+      "owner": "engineering",
+      "status": "PARTIAL",
+      "source_status": "PASS",
+      "ci_status": "PENDING",
+      "device_status": "VERIFIED_ON_DEVICE",
+      "evidence": [
+        "lib/detect.sh",
+        "docs/V2-RELEASE-READINESS.md#physical-device-vulkan-observation",
+        "Adreno 825 guest Vulkan/Turnip/Zink observed"
+      ],
+      "required_tests": [
+        "mocked missing-loader/ICD/device cases",
+        "device renderer and Vulkan enumeration"
+      ],
+      "acceptance_criteria": [
+        "Report hardware, loader, ICD, enumeration, renderer and acceleration as distinct verified states; no device-node false positive."
+      ],
+      "release_blocking": true,
+      "release_exclusion": null
+    },
+    {
+      "phase": "Stage 2",
+      "issue_id": "P1-03",
+      "severity": "P1",
+      "owner": "engineering",
+      "status": "PARTIAL",
+      "source_status": "PASS",
+      "ci_status": "PASS",
+      "device_status": "VERIFIED_ON_DEVICE",
+      "evidence": [
+        "tests/update_transaction.sh",
+        "local tests/focused.sh: 133/133 on updater commit ce435e9"
+      ],
+      "required_tests": [
+        "pinning/downgrade/staging/rollback/crash/concurrency/symlink fixtures",
+        "published v2 and v1.4.0 migration"
+      ],
+      "acceptance_criteria": [
+        "Never replace a working CLI/modules tree with an incomplete or unpinned update; prove published migration."
+      ],
+      "release_blocking": true,
+      "release_exclusion": null
+    },
+    {
+      "phase": "Stage 2",
+      "issue_id": "P1-04",
+      "severity": "P1",
+      "owner": "engineering",
+      "status": "PARTIAL",
+      "source_status": "PARTIAL",
+      "ci_status": "NOT_RUN",
+      "device_status": "VERIFIED_ON_DEVICE",
+      "evidence": [
+        "docs/FAQ.md",
+        "bn/docs/FAQ.md",
+        "docs/MANUAL.md",
+        "proot-distro default binds /sdcard, Termux home and prefix; /sdcard is expected"
+      ],
+      "required_tests": [
+        "Termux API path dependency audit",
+        "camera/mic/audio/desktop regression under any narrower bindings"
+      ],
+      "acceptance_criteria": [
+        "Preserve normal /sdcard access while granting only the host paths needed for Ternux integrations."
+      ],
+      "release_blocking": true,
+      "release_exclusion": null
+    },
+    {
+      "phase": "Stage 2",
+      "issue_id": "P1-05",
+      "severity": "P1",
+      "owner": "engineering",
+      "status": "BLOCKED",
+      "source_status": "PARTIAL",
+      "ci_status": "N_A",
+      "device_status": "N_A",
+      "evidence": [
+        "GitHub API 2026-11-09: main protection 404, rulesets [], no CODEOWNERS; secret scanning and push protection enabled"
+      ],
+      "required_tests": [
+        "owner review of proposed branch and release protections"
+      ],
+      "acceptance_criteria": [
+        "Required PR review/checks, CODEOWNERS ownership and release protections are reviewed and approved."
+      ],
+      "release_blocking": true,
+      "release_exclusion": null
+    },
+    {
+      "phase": "Stage 3",
+      "issue_id": "P1-06",
+      "severity": "P1",
+      "owner": "engineering",
+      "status": "PARTIAL",
+      "source_status": "PASS",
+      "ci_status": "PENDING",
+      "device_status": "VERIFIED_ON_DEVICE",
+      "evidence": [
+        "docs/ACCELERATOR-RELEASE-PLAN.md",
+        "docs/V2-RELEASE-READINESS.md#physical-device-vulkan-observation",
+        "Adreno Vulkan 25/25 layers; CPU/Vulkan known-answer and repeats"
+      ],
+      "required_tests": [
+        "correctness, fallback, memory, repeated and cancellation workload matrix"
+      ],
+      "acceptance_criteria": [
+        "Stable CPU/Vulkan paths pass correctness and lifecycle tests on the declared support matrix."
+      ],
+      "release_blocking": true,
+      "release_exclusion": null
+    },
+    {
+      "phase": "Stage 3",
+      "issue_id": "P1-07",
+      "severity": "P1",
+      "owner": "engineering",
+      "status": "PARTIAL",
+      "source_status": "PARTIAL",
+      "ci_status": "PENDING",
+      "device_status": "VERIFIED_ON_DEVICE",
+      "evidence": [
+        "docs/ACCELERATOR-RELEASE-PLAN.md: HMX MUL_MAT and seven FLASH_ATTN_EXT numerical failures recorded"
+      ],
+      "required_tests": [
+        "operator/reference/tolerance matrix",
+        "sustained, cancellation and memory qualification"
+      ],
+      "acceptance_criteria": [
+        "Experimental HTP remains disabled as stable default until numerical matrix passes."
+      ],
+      "release_blocking": false,
+      "release_exclusion": "HTP/HMX is explicitly experimental and excluded from stable workload claims; known failing operators remain disabled."
+    },
+    {
+      "phase": "Stage 3",
+      "issue_id": "P1-08",
+      "severity": "P1",
+      "owner": "engineering",
+      "status": "PARTIAL",
+      "source_status": "PARTIAL",
+      "ci_status": "PENDING",
+      "device_status": "VERIFIED_ON_DEVICE",
+      "evidence": [
+        "docs/ACCELERATOR-RELEASE-PLAN.md: QNN generation repeatability; independent stage tensors unverified"
+      ],
+      "required_tests": [
+        "CLIP/UNet/VAE stage tensor oracle",
+        "model/runtime/memory/repeat/failure-recovery checks"
+      ],
+      "acceptance_criteria": [
+        "Do not claim production NPU image generation without stage correctness and runtime qualification."
+      ],
+      "release_blocking": false,
+      "release_exclusion": "QNN Stable Diffusion remains experimental/research-only; no production correctness or speed claim."
+    },
+    {
+      "phase": "Stage 5",
+      "issue_id": "P1-APT",
+      "severity": "P1",
+      "owner": "engineering",
+      "status": "BLOCKED",
+      "source_status": "PASS",
+      "ci_status": "PASS",
+      "device_status": "NOT_TESTED",
+      "evidence": [
+        "APT signing run 42654336547 passed on main 8e240625; public bootstrap/key/InRelease/Packages endpoints returned HTTP 404 on 2026-11-09"
+      ],
+      "required_tests": [
+        "signed repository publish after approval",
+        "clean pkg install, upgrade, uninstall on Termux"
+      ],
+      "acceptance_criteria": [
+        "Both supported install routes produce compatible installs; signed public index and clean device flow succeed."
+      ],
+      "release_blocking": true,
+      "release_exclusion": null
+    },
+    {
+      "phase": "Stage 5",
+      "issue_id": "P1-PKG",
+      "severity": "P1",
+      "owner": "engineering",
+      "status": "PARTIAL",
+      "source_status": "PASS",
+      "ci_status": "PASS",
+      "device_status": "NOT_TESTED",
+      "evidence": [
+        "CI unsigned package artifact 42660737780 passed on 02b4395",
+        "docs/V2-RELEASE-READINESS.md"
+      ],
+      "required_tests": [
+        "clean install/update/repair/uninstall in native Termux",
+        "metadata and checksum verification"
+      ],
+      "acceptance_criteria": [
+        "Reproducible package metadata/integrity and clean lifecycle install pass on supported Termux."
+      ],
+      "release_blocking": true,
+      "release_exclusion": null
+    },
+    {
+      "phase": "Stage 5",
+      "issue_id": "P1-DOCS",
+      "severity": "P1",
+      "owner": "engineering",
+      "status": "PARTIAL",
+      "source_status": "PARTIAL",
+      "ci_status": "PENDING",
+      "device_status": "N_A",
+      "evidence": [
+        "README.md",
+        "docs/INSTALLATION.md",
+        "docs/QUICK-START.md",
+        "docs/USAGE.md",
+        "docs/V2-RELEASE-READINESS.md"
+      ],
+      "required_tests": [
+        "version/package/tag/release metadata audit",
+        "bilingual docs/link checks"
+      ],
+      "acceptance_criteria": [
+        "Docs accurately distinguish stable, supported, experimental and unsupported features and match package metadata."
+      ],
+      "release_blocking": true,
+      "release_exclusion": null
+    },
+    {
+      "phase": "Stage 4",
+      "issue_id": "P2-01",
+      "severity": "P2",
+      "owner": "engineering",
+      "status": "NOT_STARTED",
+      "source_status": "NOT_STARTED",
+      "ci_status": "NOT_RUN",
+      "device_status": "N_A",
+      "evidence": [
+        "lib/phases.sh",
+        "docs/V2-RELEASE-READINESS.md"
+      ],
+      "required_tests": [
+        "module boundary/contract tests before incremental extraction"
+      ],
+      "acceptance_criteria": [
+        "Incrementally separate installer responsibilities without contract regressions."
+      ],
+      "release_blocking": false,
+      "release_exclusion": "Maintain current tested installer; defer modularization as a documented maintainability task."
+    },
+    {
+      "phase": "Stage 4",
+      "issue_id": "P2-02",
+      "severity": "P2",
+      "owner": "engineering",
+      "status": "PARTIAL",
+      "source_status": "PARTIAL",
+      "ci_status": "PASS",
+      "device_status": "N_A",
+      "evidence": [
+        "tests/focused.sh",
+        "tests/update_transaction.sh"
+      ],
+      "required_tests": [
+        "split remaining core/installer/desktop/GPU/extension/package/security/docs suites"
+      ],
+      "acceptance_criteria": [
+        "Separate suites preserve all existing regression coverage and have clear ownership."
+      ],
+      "release_blocking": false,
+      "release_exclusion": "Existing focused suite remains the authoritative regression suite until safe incremental split."
+    },
+    {
+      "phase": "Stage 4",
+      "issue_id": "P2-03",
+      "severity": "P2",
+      "owner": "engineering",
+      "status": "NOT_STARTED",
+      "source_status": "NOT_STARTED",
+      "ci_status": "NOT_RUN",
+      "device_status": "N_A",
+      "evidence": [
+        "packaging/termux/manifest.json is a package file list, not a workload schema"
+      ],
+      "required_tests": [
+        "schema validation and migration tests for each managed workload"
+      ],
+      "acceptance_criteria": [
+        "One workload schema records versions, architecture, backend, dependencies, provenance, licenses, permissions, verification, cleanup and experimental state."
+      ],
+      "release_blocking": false,
+      "release_exclusion": "Existing workload code remains in use; do not claim manifest standardization until migrated."
+    },
+    {
+      "phase": "Stage 4",
+      "issue_id": "P2-04",
+      "severity": "P2",
+      "owner": "engineering",
+      "status": "PARTIAL",
+      "source_status": "PASS",
+      "ci_status": "PENDING",
+      "device_status": "N_A",
+      "evidence": [
+        "docs/release-gates.json",
+        "tests/release_gates.py"
+      ],
+      "required_tests": [
+        "schema, duplicate-ID, failure and exclusion validator fixtures",
+        "exact-head CI"
+      ],
+      "acceptance_criteria": [
+        "Machine-readable gates validate and keep source, CI and device state separate; blocking incomplete gates derive NOT_READY."
+      ],
+      "release_blocking": true,
+      "release_exclusion": null
+    },
+    {
+      "phase": "Stage 6",
+      "issue_id": "P2-DEVICE",
+      "severity": "P2",
+      "owner": "engineering",
+      "status": "PARTIAL",
+      "source_status": "PARTIAL",
+      "ci_status": "PASS",
+      "device_status": "VERIFIED_ON_DEVICE",
+      "evidence": [
+        "docs/ACCELERATOR-RELEASE-PLAN.md",
+        "docs/V2-RELEASE-READINESS.md: one SM8735/Adreno 825 device"
+      ],
+      "required_tests": [
+        "multi-device Android/GPU/NPU qualification matrix"
+      ],
+      "acceptance_criteria": [
+        "Claims are limited to tested hardware; all other device paths are explicitly NOT_TESTED or experimental."
+      ],
+      "release_blocking": false,
+      "release_exclusion": "Qualify only the documented Redmi Turbo 4 Pro / SM8735 target; all other device-specific acceleration remains unqualified."
+    }
+  ],
+  "observed_head_commit": "02b4395eda553ecdfc0e1fc21d321e5bd5656417"
+}
