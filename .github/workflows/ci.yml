@@ -40,7 +40,7 @@ jobs:
           set -u
           for attempt in 1 2 3; do
             if sudo apt-get update -o Acquire::Retries=3 &&
-               sudo apt-get install --yes --no-install-recommends bats; then
+               sudo apt-get install --yes --no-install-recommends bats python3-numpy; then
               exit 0
             fi
             echo "apt attempt ${attempt} failed; retrying..."
