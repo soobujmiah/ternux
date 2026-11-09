@@ -214,7 +214,8 @@
       "evidence": [
         "docs/ACCELERATOR-RELEASE-PLAN.md",
         "Exact-head llama CPU/Vulkan artifact run 42667605843 passed; Adreno Vulkan verified on-device.",
-        "llama CPU/Vulkan artifact passed exact-head run 42662384280; Adreno Vulkan confirmed 25/25 layers offloaded; broader sustained/memory/cancel matrix open"
+        "llama CPU/Vulkan artifact passed exact-head run 42662384280; Adreno Vulkan confirmed 25/25 layers offloaded; broader sustained/memory/cancel matrix open",
+        "2026-11-10 installed device check: CPU and Adreno Vulkan known-answer reopen passed after five-second SIGINT cancellation; both jobs exited and left no llama-cli process (guides/device-benchmark-evidence.md). Memory-pressure and sustained-run matrices remain open."
       ],
       "required_tests": [
         "correctness, fallback, memory, repeated and cancellation workload matrix"

@@ -1097,6 +1097,14 @@ for MODEL in /sdcard/Llms/qwen2.5-0.5b-instruct-q4_0.gguf \
 done
 ```
 
+### ২০২৬-১১-১০ CPU/Vulkan cancellation ও reopen check
+
+Redmi Turbo 4 Pro (SM8735 / Adreno 825)-এ আগে থেকে installed managed `llama-vulkan` CLI-এর version `0.6.0-dev`, build commit `af50f2f`; binary SHA-256 `4827f62ac89a442d76e9461c18115fa37d2c6cced0a887bf559b8ee615046eb5`। `/sdcard/Llms/qwen2.5-0.5b-instruct-q4_0.gguf` model একই জায়গায় ছিল; SHA-256 `7671c0c304e6ce5a7fc577bcb12aba01e2c155cc2efd29b2213c95b18edaf6ed`।
+
+CPU (`-ngl 0`) ও Vulkan0 (`-ngl 99`) — দুই ক্ষেত্রেই ৪,০৯৬-token counting generation-এ ৫-second SIGINT timeout পাঠিয়েছি। দুটোই প্রত্যাশিত timeout status 124 দিয়ে ফিরেছে, `Exiting...` log করেছে, এবং পরে `llama-cli` process অবশিষ্ট ছিল না। Vulkan log-এ Adreno 825 শনাক্ত ও model layer Vulkan0-তে assign দেখা গেছে। এরপর fresh CPU ও Vulkan launch-এ একই known-answer `4` এসেছে। চলমান desktop ও PulseAudio session চালু ছিল।
+
+এটি এই installed build/model-এ bounded cancellation ও reopen verify করে। Memory-pressure cancellation, দীর্ঘ thermal run, অন্য model বা অন্য device qualify করে না। Run-এর পর memory snapshot-এ 4.3 GiB available ছিল; কৃত্রিম memory pressure তৈরি করা হয়নি। পরীক্ষা চলাকালে log Termux temporary storage-এ রাখা হয়েছিল; model copy বা modify করা হয়নি।
+
 ## রেফারেন্স
 
 - [glmark2](https://github.com/glmark2/glmark2)

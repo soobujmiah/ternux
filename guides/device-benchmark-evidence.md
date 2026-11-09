@@ -1371,6 +1371,14 @@ for MODEL in /sdcard/Llms/qwen2.5-0.5b-instruct-q4_0.gguf \
 done
 ```
 
+### 2026-11-10 bounded CPU/Vulkan cancellation and reopen check
+
+On the Redmi Turbo 4 Pro (SM8735 / Adreno 825), the currently installed managed `llama-vulkan` CLI reports llama.cpp `0.6.0-dev`, build commit `af50f2f`, SHA-256 `4827f62ac89a442d76e9461c18115fa37d2c6cced0a887bf559b8ee615046eb5`. The unchanged Qwen2.5 0.5B Q4_0 model at `/sdcard/Llms/qwen2.5-0.5b-instruct-q4_0.gguf` has SHA-256 `7671c0c304e6ce5a7fc577bcb12aba01e2c155cc2efd29b2213c95b18edaf6ed`.
+
+On CPU (`-ngl 0`) and Vulkan0 (`-ngl 99`), a 4,096-token counting generation was interrupted by a five-second SIGINT timeout. Both processes returned the expected timeout status 124, logged normal `Exiting...`, and left no `llama-cli` process. The Vulkan log identified Adreno 825 and showed model layers assigned to Vulkan0. Fresh CPU and Vulkan launches immediately afterward both returned the known answer `4`. The existing desktop and PulseAudio session stayed running.
+
+This verifies bounded cancellation and reopen on this installed build/model. It does not qualify memory-pressure cancellation, sustained thermals, other models, or other devices. A post-run memory snapshot showed 4.3 GiB available; no artificial memory pressure was induced. Full output was captured in Termux temporary logs during the check; no model files were copied or modified.
+
 ## References
 
 - [glmark2](https://github.com/glmark2/glmark2)
