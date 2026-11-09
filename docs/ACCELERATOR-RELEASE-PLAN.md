@@ -436,21 +436,19 @@ handoff folders remain the input for exact-archive verification. The build pass
 does not close accelerator correctness, release publication, or hosted APT
 install/upgrade gates.
 
-### Artifact collection status — PR head `05ed728` — 2026-11-09
+### Latest PR #97 artifact collection — source head `0f2d9f5` — 2026-11-09
 
-Collected the current local package and recorded its exact identity: `ternux_2.0.0_all.deb`, 129,352 bytes, SHA-256 `363f906c1644408d86bd332eff7f5fd6964004b07180de0d855efd3210963f7c`. The installed package matches this local build and `ternux verify --json` passes (30 OK, 0 failures; 1 informational item and 1 device-temperature warning).
-
-For current PR head `05ed728b09ac193215eaeed5ed746655b8105122`, all eight required workflows passed; preview/publication was skipped because PR #97 remains draft. Collected Actions artifact metadata:
+The local source-built `ternux_2.0.0_all.deb` remains installed: 129,352 bytes, SHA-256 `363f906c1644408d86bd332eff7f5fd6964004b07180de0d855efd3210963f7c`; `ternux verify --json` passes. At PR source head `0f2d9f5492d2964e2efbaa13efec3eff768d57a9`, all eight required workflows passed. Preview/publication workflows were skipped because PR #97 is draft. Collected Actions artifact metadata:
 
 | Artifact | ID | Bytes | Archive SHA-256 |
 |---|---:|---:|---|
-| `ternux-apt-unsigned-ci-05ed728b09ac193215eaeed5ed746655b8105122` | `13640014843` | 268,643 | `f302cb2763f57ddd5776d15767eba3244759f5837415c1433af7338867ae02ab` |
-| `ternux-llama-vulkan-linux-arm64-b11582-candidate` | `13640943581` | 21,322,189 | `0e3bc39f706db5d537c849bc8bad5ca8e2d0d76c1d6eb1bf6c66e66e8c6d3dbd` |
-| `ternux-stable-diffusion-vulkan-linux-arm64-master-1053-candidate` | `13641476523` | 27,029,814 | `8e7f3109c4a4bbc5210d9786e8f9ba1bf79338b5d2cd6ab666bd5a0cd5199097` |
-| `ternux-llama-htp-sm8735-b11582` | `13640958579` | 15,637,148 | `fa0955a5baad56539e44f4882c0a6adfb015caef4dbc3e000dabfb0341586b30` |
-| `ternux-llama-htp-sm8735-integer-hmx-v73-candidate` | `13640913826` | 15,530,319 | `67276b780589546d4136c61304cdb1445bee450575896eb5de1bcab9abb7ad8d` |
+| `ternux-apt-unsigned-ci-195d094bd7999a684995665d03767d192c3fbbf9` | `13641307456` | 268,664 | `a08dcb995c4888c783c4bcae4c8292c88b9fe15b50aadee1c00e9321d4b30ec6` |
+| `ternux-llama-vulkan-linux-arm64-b11582-candidate` | `13641273491` | 21,326,091 | `c373af05488f25a9348b6434342c3eedb8a17a9320f5d50e21c0903800ed0b91` |
+| `ternux-stable-diffusion-vulkan-linux-arm64-master-1053-candidate` | `13640903441` | 27,033,643 | `dbcb7d0f44771313f74b10b405fb8f9289f6530e0820e9809138400c028e6a4c` |
+| `ternux-llama-htp-sm8735-integer-hmx-v73-candidate` | `13641249471` | 15,530,439 | `8fe85c0c8674be52ea98fb013b0b84b9c10f553f76dd1e619021aad0eb84fbe9` |
+| `ternux-llama-htp-sm8735-b11582` | `13641971275` | 15,636,123 | `9a17d2937b6387b1ece19f3a8d3af1edd972cd3fd56307cd6d53b73f0a936708` |
 
-These are Actions archive digests, not extracted package checksums. Under the owner-mediated handoff policy, the Actions archives were not downloaded; the three `incoming/` folders remain empty. Exact archive install/device qualification therefore remains open even though CI passed. The local source-built `.deb` above is separately installed and verified on this device.
+These are Actions archive digests, not extracted package checksums. Under the owner-mediated handoff policy, the archives were not downloaded; the `artifacts/ternux-apt/incoming/`, `artifacts/ternux-extensions/incoming/`, and `artifacts/htp-qualification/incoming/` directories remain empty. Exact CI-archive installation/device qualification remains open. These builds use the same product source as the locally verified package; this collection commit changes release documentation only.
 
 ### Local signed Termux APT client check — 2026-11-09
 
@@ -483,3 +481,8 @@ CLI matched the package payload byte-for-byte. The temporary apt source was
 removed afterward. This is an in-place same-version installation using a test
 key, not a clean-prefix install with the protected release key or hosted public
 repository.
+
+
+### Short audio output and microphone loopback check — 2026-11-09
+
+The live PulseAudio server reports `OpenSL_ES_sink` and `Ternux_Microphone`. A low-level 440 Hz, 0.65-second test tone was accepted by `paplay` on the active sink while a three-second Termux:API Opus capture ran. The capture auto-stopped (`isRecording: false`); a 440 Hz band-pass measured RMS `-42.61 dBFS`. The disposable recording and tone were deleted. This verifies the output submission and an acoustic signal in the mic path for this short test; it does not replace an owner audibility check or verify sustained playback/music controls.

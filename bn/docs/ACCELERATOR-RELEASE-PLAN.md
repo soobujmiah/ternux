@@ -396,21 +396,19 @@ skip হয়েছে। তৈরি হওয়া artifact ও GitHub Acti
 accelerator correctness, release publication, বা hosted APT install/upgrade gate
 বন্ধ করে না।
 
-### Artifact collection status — PR head `05ed728` — ২০২৬-১১-০৯
+### সর্বশেষ PR #97 artifact সংগ্রহ — source head `0f2d9f5` — ২০২৬-১১-০৯
 
-বর্তমান local package-এর পরিচয় নথিভুক্ত করা হয়েছে: `ternux_2.0.0_all.deb`, 129,352 byte, SHA-256 `363f906c1644408d86bd332eff7f5fd6964004b07180de0d855efd3210963f7c`। Installed package এই local build-এর সঙ্গে মেলে এবং `ternux verify --json` pass করেছে (৩০ OK, ০ failure; ১টি informational item ও device temperature warning)।
-
-বর্তমান PR head `05ed728b09ac193215eaeed5ed746655b8105122`-এ আটটি required workflow pass করেছে; PR #97 draft থাকায় preview/publication skip হয়েছে। Actions artifact metadata:
+Local source-built `ternux_2.0.0_all.deb` এখনো install আছে: 129,352 byte, SHA-256 `363f906c1644408d86bd332eff7f5fd6964004b07180de0d855efd3210963f7c`; `ternux verify --json` pass করেছে। PR source head `0f2d9f5492d2964e2efbaa13efec3eff768d57a9`-এ আটটি required workflow pass করেছে। PR #97 draft হওয়ায় preview/publication workflow skip হয়েছে। Actions artifact metadata:
 
 | Artifact | ID | Byte | Archive SHA-256 |
 |---|---:|---:|---|
-| `ternux-apt-unsigned-ci-05ed728b09ac193215eaeed5ed746655b8105122` | `13640014843` | 268,643 | `f302cb2763f57ddd5776d15767eba3244759f5837415c1433af7338867ae02ab` |
-| `ternux-llama-vulkan-linux-arm64-b11582-candidate` | `13640943581` | 21,322,189 | `0e3bc39f706db5d537c849bc8bad5ca8e2d0d76c1d6eb1bf6c66e66e8c6d3dbd` |
-| `ternux-stable-diffusion-vulkan-linux-arm64-master-1053-candidate` | `13641476523` | 27,029,814 | `8e7f3109c4a4bbc5210d9786e8f9ba1bf79338b5d2cd6ab666bd5a0cd5199097` |
-| `ternux-llama-htp-sm8735-b11582` | `13640958579` | 15,637,148 | `fa0955a5baad56539e44f4882c0a6adfb015caef4dbc3e000dabfb0341586b30` |
-| `ternux-llama-htp-sm8735-integer-hmx-v73-candidate` | `13640913826` | 15,530,319 | `67276b780589546d4136c61304cdb1445bee450575896eb5de1bcab9abb7ad8d` |
+| `ternux-apt-unsigned-ci-195d094bd7999a684995665d03767d192c3fbbf9` | `13641307456` | 268,664 | `a08dcb995c4888c783c4bcae4c8292c88b9fe15b50aadee1c00e9321d4b30ec6` |
+| `ternux-llama-vulkan-linux-arm64-b11582-candidate` | `13641273491` | 21,326,091 | `c373af05488f25a9348b6434342c3eedb8a17a9320f5d50e21c0903800ed0b91` |
+| `ternux-stable-diffusion-vulkan-linux-arm64-master-1053-candidate` | `13640903441` | 27,033,643 | `dbcb7d0f44771313f74b10b405fb8f9289f6530e0820e9809138400c028e6a4c` |
+| `ternux-llama-htp-sm8735-integer-hmx-v73-candidate` | `13641249471` | 15,530,439 | `8fe85c0c8674be52ea98fb013b0b84b9c10f553f76dd1e619021aad0eb84fbe9` |
+| `ternux-llama-htp-sm8735-b11582` | `13641971275` | 15,636,123 | `9a17d2937b6387b1ece19f3a8d3af1edd972cd3fd56307cd6d53b73f0a936708` |
 
-এগুলো Actions archive digest, extracted package checksum নয়। Owner-mediated handoff policy অনুযায়ী Actions archive download করা হয়নি; তিনটি `incoming/` folder এখনো খালি। তাই CI pass হলেও exact archive install/device qualification বাকি। আলাদা করে local source-built `.deb` এই device-এ install ও verify করা হয়েছে।
+এগুলো Actions archive digest, extracted package checksum নয়। Owner-mediated handoff policy অনুযায়ী archive download করা হয়নি; `artifacts/ternux-apt/incoming/`, `artifacts/ternux-extensions/incoming/` এবং `artifacts/htp-qualification/incoming/` directory এখনো খালি। তাই exact CI archive install/device qualification বাকি। এই build-গুলোতে local verified package-এর একই product source আছে; এই inventory commit শুধু release documentation বদলেছে।
 
 ### Local signed Termux APT client check — ২০২৬-১১-০৯
 
@@ -440,3 +438,8 @@ reinstall করেছি; `ternux verify --json` pass এবং installed CLI p
 sঙ্গে byte-for-byte মিলে গেছে। Temporary APT source সরিয়ে ফেলা হয়েছে। এটি test
 key দিয়ে একই version-এর in-place install; protected release key বা hosted public
 repository দিয়ে clean-prefix install নয়।
+
+
+### সংক্ষিপ্ত audio output ও microphone loopback check — ২০২৬-১১-০৯
+
+Live PulseAudio server-এ `OpenSL_ES_sink` এবং `Ternux_Microphone` দেখা গেছে। তিন সেকেন্ডের Termux:API Opus capture চলার সময় low-level 440 Hz, 0.65-second test tone সক্রিয় sink-এ `paplay` গ্রহণ করেছে। Capture নিজে থেমেছে (`isRecording: false`); 440 Hz band-pass-এ RMS `-42.61 dBFS` মাপা হয়েছে। অস্থায়ী recording ও tone মুছে ফেলা হয়েছে। এই ছোট পরীক্ষায় output submission এবং mic path-এ acoustic signal পাওয়া যাচাই হয়েছে; owner-এর নিজের কানে শোনা বা দীর্ঘক্ষণ playback/music controls যাচাইয়ের বিকল্প নয়।
