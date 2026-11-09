@@ -71,8 +71,14 @@ tnx_distro_profile() {
   esac
 }
 
-# Run a command in the guest. Takes the same flags as `proot-distro login`.
-tnx_guest_login() { proot-distro login "$(tnx_distro)" "$@"; }
+# Run a command in an isolated guest. Shared Android storage is an intentional
+# feature; expose it when Android has mounted it, without exposing Termux HOME.
+# Callers may still request specific integrations such as --shared-tmp/X11.
+tnx_guest_login() {
+  local -a login_args=(--isolated)
+  [ ! -e /sdcard ] || login_args+=(--bind /sdcard:/sdcard)
+  proot-distro login "$(tnx_distro)" "${login_args[@]}" "$@"
+}
 
 # Avoid a host toolchain override shadowing Termux libraries in APT.
 tnx_termux_pkg() { LD_LIBRARY_PATH= pkg "$@"; }

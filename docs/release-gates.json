@@ -167,13 +167,13 @@
         "docs/FAQ.md",
         "bn/docs/FAQ.md",
         "docs/MANUAL.md",
-        "Generated managed desktop launcher uses --isolated, preserves /sdcard and binds only the Termux API staging directories from Termux HOME",
+        "Managed desktop launcher and Ternux guest-command wrapper use --isolated and conditionally preserve /sdcard; desktop binds only required Termux API staging paths",
         "2026-11-10 on-device isolated PRoot probe passed /sdcard access, X11 query, PulseAudio connection, Termux microphone status and camera-info query; no capture or recording was started",
-        "Generic CLI aliases and direct proot-distro logins retain default broad host binds"
+        "Generated db/droot aliases now use isolated guest login; direct user-invoked proot-distro logins remain under PRoot-Distro defaults"
       ],
       "required_tests": [
-        "full XFCE startup and user-facing app smoke through the updated launcher (current live GUI was not restarted)",
-        "review whether generic CLI aliases can adopt the same isolation without breaking documented use"
+        "verify generated generic aliases preserve /sdcard and shared tmp while excluding Termux HOME",
+        "full XFCE startup and user-facing app smoke through updated launcher (current live GUI was not restarted)"
       ],
       "acceptance_criteria": [
         "Preserve normal /sdcard access while granting only the host paths needed for Ternux integrations."

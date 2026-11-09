@@ -812,8 +812,10 @@ if env TERNUX_STATE_DIR="$TMP/state-launcher" HOME="$launcher_home" bash -c '
   grep -q "alias x=.*ternux start" "$HOME/.bashrc" &&
   grep -q "alias killx=.*ternux stop" "$HOME/.bashrc" &&
   grep -q "alias xgo=.*ternux start" "$HOME/.bashrc" &&
-  grep -q "login debian --shared-tmp --user alice" "$HOME/.bashrc" &&
-  grep -q "droot=.*login debian --shared-tmp" "$HOME/.bashrc"
+  grep -q "_ternux_guest_login --shared-tmp --user alice" "$HOME/.bashrc" &&
+  grep -q "droot=.*_ternux_guest_login --shared-tmp" "$HOME/.bashrc" &&
+  grep -q "login_args=(--isolated)" "$HOME/.bashrc" &&
+  grep -q -- "--bind /sdcard:/sdcard" "$HOME/.bashrc"
 ' _ "$ROOT"; then
   ok "Zink launcher and aliases preserve user and backend boundaries"
 else

@@ -110,9 +110,11 @@ The design choices that matter:
   shared storage at `/sdcard` remains available inside Debian as an ordinary
   user feature. The managed desktop uses isolated PRoot binds: it keeps `/sdcard`,
   the Termux prefix and Android runtime paths available, and binds only the
-  camera/recorder staging folders from Termux HOME. Direct `proot-distro login`
-  commands and the `db`/`droot` aliases retain PRoot-Distro's normal broad host
-  binds. Guest code runs under the same Termux Android app identity; do not use
+  camera/recorder staging folders from Termux HOME. Ternux's `db`/`droot`
+  aliases and managed guest commands also use isolated binds, preserve `/sdcard`,
+  and share `/tmp` only when requested. A direct, manually invoked
+  `proot-distro login` still follows PRoot-Distro's own defaults. Guest code
+  runs under the same Termux Android app identity; do not use
   it to sandbox untrusted programs. Grant Termux only the Android storage
   permissions you want Ternux programs to use.
 - **Loopback-only defaults/examples** — the audio bridge and documented model

@@ -1317,10 +1317,15 @@ tnx_phase_aliases() {
 # ==== TERNUX ALIASES ====
 alias x='ternux start'
 alias killx='ternux stop'
-alias db='proot-distro login $distro --shared-tmp --user $user_name'
-alias droot='proot-distro login $distro --shared-tmp'
+_ternux_guest_login() {
+  local -a login_args=(--isolated)
+  [ ! -e /sdcard ] || login_args+=(--bind /sdcard:/sdcard)
+  proot-distro login $distro "${login_args[@]}" "$@"
+}
+alias db='_ternux_guest_login --shared-tmp --user $user_name'
+alias droot='_ternux_guest_login --shared-tmp'
 alias xgo='am start -n com.termux.x11/com.termux.x11.MainActivity 2>/dev/null; sleep 1; ternux start'
-clean-mesa() { proot-distro login $distro --user $user_name -- bash -c 'rm -rf -- ~/.cache/mesa ~/.cache/mesa_shader_cache ~/.cache/mesa_shader_cache_db ~/.cache/mesa_shader_cache_sf'; echo "Mesa cache cleared."; }
+clean-mesa() { _ternux_guest_login --user $user_name -- bash -c 'rm -rf -- ~/.cache/mesa ~/.cache/mesa_shader_cache ~/.cache/mesa_shader_cache_db ~/.cache/mesa_shader_cache_sf'; echo "Mesa cache cleared."; }
 sysmon() { echo "--- CPU & Memory ---"; free -h; echo ""; echo "--- GPU / KGSL ---"; ls -l /dev/kgsl-3d0 /dev/dri 2>/dev/null || echo "No GPU nodes."; }
 # ==== END TERNUX ALIASES ====
 ALIASEOF

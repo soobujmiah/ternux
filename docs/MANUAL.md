@@ -424,27 +424,11 @@ installer with `ternux install`.
 
 ## Step 9 — Shell shortcuts
 
-```bash
-cat >> ~/.bashrc << 'EOF'
-
-# ==== TERNUX ALIASES ====
-alias x='ternux start'
-alias killx='ternux stop'
-alias db='proot-distro login debian --shared-tmp --user ternux'
-alias droot='proot-distro login debian --shared-tmp'
-alias xgo='am start -n com.termux.x11/com.termux.x11.MainActivity 2>/dev/null; sleep 1; ~/x.sh'
-clean-mesa() {
-  proot-distro login debian --user ternux -- bash -c 'rm -rf -- ~/.cache/mesa ~/.cache/mesa_shader_cache ~/.cache/mesa_shader_cache_db ~/.cache/mesa_shader_cache_sf'
-  echo "Mesa cache cleared."
-}
-sysmon() {
-  echo "--- CPU & Memory ---"; free -h
-  echo ""; echo "--- GPU / KGSL Nodes ---"
-  ls -l /dev/kgsl-3d0 /dev/dri 2>/dev/null || echo "Direct GPU nodes not available."
-}
-# ==== END TERNUX ALIASES ====
-EOF
-```
+The installer creates and maintains the `x`, `killx`, `db`, `droot`, `xgo`,
+`clean-mesa` and `sysmon` shortcuts. The guest aliases use isolated PRoot
+bindings, keep `/sdcard` available, and share `/tmp` only for commands that need
+it. Run `ternux install` to create or refresh the generated aliases; do not
+copy an older alias block from a previous guide.
 
 Reload and start:
 

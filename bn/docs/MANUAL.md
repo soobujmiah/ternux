@@ -405,27 +405,10 @@ resume করুন।
 
 ## ধাপ ৯ — শেল শর্টকাট
 
-```bash
-cat >> ~/.bashrc << 'EOF'
-
-# ==== TERNUX ALIASES ====
-alias x='ternux start'
-alias killx='ternux stop'
-alias db='proot-distro login debian --shared-tmp --user ternux'
-alias droot='proot-distro login debian --shared-tmp'
-alias xgo='am start -n com.termux.x11/com.termux.x11.MainActivity 2>/dev/null; sleep 1; ~/x.sh'
-clean-mesa() {
-  proot-distro login debian --user ternux -- bash -c 'rm -rf -- ~/.cache/mesa ~/.cache/mesa_shader_cache ~/.cache/mesa_shader_cache_db ~/.cache/mesa_shader_cache_sf'
-  echo "Mesa cache cleared."
-}
-sysmon() {
-  echo "--- CPU & Memory ---"; free -h
-  echo ""; echo "--- GPU / KGSL Nodes ---"
-  ls -l /dev/kgsl-3d0 /dev/dri 2>/dev/null || echo "Direct GPU nodes not available."
-}
-# ==== END TERNUX ALIASES ====
-EOF
-```
+ইনস্টলার `x`, `killx`, `db`, `droot`, `xgo`, `clean-mesa` এবং `sysmon`
+shortcut তৈরি ও রক্ষণাবেক্ষণ করে। Guest alias isolated PRoot binding ব্যবহার
+করে, `/sdcard` রাখে এবং দরকার হলে শুধু `/tmp` share করে। Alias তৈরি বা refresh
+করতে `ternux install` চালান; পুরোনো guide-এর alias block কপি করবেন না।
 
 রিলোড করে শুরু করুন:
 
