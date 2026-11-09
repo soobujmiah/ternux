@@ -481,3 +481,28 @@ informational check এবং battery 46 °C warning এসেছে। Desktop 
 qualification, owner visual review, camera live-preview support, accelerator
 correctness/sustained-use gate, public signed APT availability, এবং release
 publication এখনো release আটকে রেখেছে।
+
+### বর্তমান PR head artifact ও signing follow-up — ২০২৬-১১-০৯
+
+PR #97 head `99b94413e8f8a2263b8baa245edaf2100236eef0`-এ Validate
+`42553378033`, unsigned APT package `42553378059`, repository contract
+`42553378055`, knowledge sync `42553378006`, CPU/Vulkan llama.cpp
+`42553378100`, Stable Diffusion `42553378034`, এবং integer-HMX candidate
+`42553378136` সফলভাবে শেষ হয়েছে। এই inventory লেখার সময় production HTP build
+`42553378026` চলছিল। পাওয়া Actions artifact metadata:
+
+| Artifact | ID | Byte | Archive SHA-256 |
+|---|---:|---:|---|
+| `ternux-apt-unsigned-ci-f3526479a0c9b1ff62a73e0d9a25b3fed30a79a6` | `13646616051` | 268,620 | `157d4b69f9712eab45548e0d8a75b0e49b8b7bc4362f4545401d810e14c92cd1` |
+| `ternux-llama-vulkan-linux-arm64-b11582-candidate` | `13645828954` | 21,326,902 | `c4d1789c29e68231b4ee411cf00d58b0dec70081674ba080442a183a79f97a07` |
+| `ternux-stable-diffusion-vulkan-linux-arm64-master-1053-candidate` | `13646249363` | 27,031,950 | `eae0bfe9ca5d6580d9addb8fed278cb55fa286eccb25b3aed8a33c3ccc7b208e` |
+| `ternux-llama-htp-sm8735-integer-hmx-v73-candidate` | `13647070267` | 15,530,994 | `0c343bf01ef6ecff87a0c14f35616f718f452192b2b25a5e1a1a53989a500037` |
+
+এগুলো GitHub Actions ZIP digest, extracted payload checksum নয়। Exact archive
+নির্ধারিত incoming directory-তে রাখা বা device-এ install করা হয়নি, তাই এগুলো
+সেই artifact-গুলোর qualification নয়। আলাদাভাবে, main branch-এর commit
+`8e24062589e81c20095c875fa4d19dd5cb928554`-এ non-publishing
+`verify-signing` mode সফল হয়েছে (run `42554187198`): protected APT key দিয়ে
+signed repository build ও verify হয়েছে। এতে signing configuration যাচাই হয়,
+public deployment নয়। Hosted APT endpoint দুটিই এখনো 404 দেয়; release gate
+খোলা থাকায় publish mode চালানো হয়নি।

@@ -526,3 +526,29 @@ binding; the required Validate workflow passed its pinned Linux build. The
 release remains held on exact-artifact qualification, owner visual review,
 camera live-preview support, accelerator correctness/sustained-use gates,
 public signed APT availability, and release publication.
+
+### Current PR head artifact and signing follow-up — 2026-11-09
+
+At PR #97 head `99b94413e8f8a2263b8baa245edaf2100236eef0`, Validate
+`42553378033`, unsigned APT package `42553378059`, repository contract
+`42553378055`, knowledge sync `42553378006`, CPU/Vulkan llama.cpp
+`42553378100`, Stable Diffusion `42553378034`, and integer-HMX candidate
+`42553378136` completed successfully. The production HTP build `42553378026`
+was still running when this inventory was recorded. Available Actions artifact
+metadata:
+
+| Artifact | ID | Bytes | Archive SHA-256 |
+|---|---:|---:|---|
+| `ternux-apt-unsigned-ci-f3526479a0c9b1ff62a73e0d9a25b3fed30a79a6` | `13646616051` | 268,620 | `157d4b69f9712eab45548e0d8a75b0e49b8b7bc4362f4545401d810e14c92cd1` |
+| `ternux-llama-vulkan-linux-arm64-b11582-candidate` | `13645828954` | 21,326,902 | `c4d1789c29e68231b4ee411cf00d58b0dec70081674ba080442a183a79f97a07` |
+| `ternux-stable-diffusion-vulkan-linux-arm64-master-1053-candidate` | `13646249363` | 27,031,950 | `eae0bfe9ca5d6580d9addb8fed278cb55fa286eccb25b3aed8a33c3ccc7b208e` |
+| `ternux-llama-htp-sm8735-integer-hmx-v73-candidate` | `13647070267` | 15,530,994 | `0c343bf01ef6ecff87a0c14f35616f718f452192b2b25a5e1a1a53989a500037` |
+
+These are GitHub Actions ZIP digests, not extracted payload checksums. Exact
+archives have not been placed in the designated incoming directories or
+installed on-device, so they do not qualify those artifacts. Separately, the
+non-publishing `verify-signing` mode completed successfully on main at commit
+`8e24062589e81c20095c875fa4d19dd5cb928554` (run `42554187198`): the protected
+APT key built and verified a signed repository. This validates signing
+configuration, not public deployment. Both hosted APT endpoints still return
+404; publish mode remains unrun while release gates are open.
