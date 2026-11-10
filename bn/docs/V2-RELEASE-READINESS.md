@@ -56,7 +56,7 @@ PR #139 storage privacy implement করে সব required check পাসে�
 ## যাচাই
 
 - `bash tests/focused.sh`: **153/153 পাস**—default-এ mount না হওয়া, নির্দিষ্ট path mount, tampered grant rejection, stale grant revoke, install-এ permission prompt না আসা, alias refresh ও host isolation অন্তর্ভুক্ত।
-- `python3 tests/docs_check.py`: **3120 assertion, 314 internal link, 20 bilingual page pair পাস**।
+- `python3 tests/docs_check.py`: documentation, internal-link ও bilingual consistency check পাস।
 - `python3 tests/release_gates.py --self-test` এবং `--check`: পাস; ১৯ gate `NOT_READY`, ছয় blocker উপরে তালিকাভুক্ত।
 - Bash syntax, `git diff --check`, JSON parse: পাস।
 - PR #139 head `53344d9a69a7f7a3019b10840a7495aaf56f548d`: Validate `42897454459`, unsigned package artifact `42897454586`, repo-contract `42897311193` ও `42897454513`, Repo Knowledge Sync/test `42897454842`: সব পাস।

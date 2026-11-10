@@ -56,7 +56,7 @@ PR #139 implemented storage privacy and merged with all required checks as `eaf9
 ## Verification
 
 - `bash tests/focused.sh`: **153/153 passed**, including default no-mount behavior, exact scoped mounts, malformed/out-of-root rejection, stale revocation, no setup-time permission prompt, launcher/alias refresh and host isolation.
-- `python3 tests/docs_check.py`: **3116 assertions, 314 internal links, 20 bilingual page pairs passed**.
+- `python3 tests/docs_check.py`: documentation, internal-link, and bilingual consistency checks passed.
 - `python3 tests/release_gates.py --self-test` and `--check`: pass; 19 gates derive `NOT_READY`, with the six blockers listed above.
 - Bash syntax checks, `git diff --check`, and JSON parsing: pass.
 - PR #139 head `53344d9a69a7f7a3019b10840a7495aaf56f548d`: Validate `42897454459`, unsigned package artifact `42897454586`, repo-contract `42897311193` and `42897454513`, Repo Knowledge Sync/test `42897454842`: all passed.
