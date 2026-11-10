@@ -7,7 +7,7 @@ alt_url: "/docs/V2-RELEASE-READINESS.html"
 **অবস্থা: NOT_READY**
 **Audit date:** 2026-11-11
 **লক্ষ্য:** Ternux 2.0.0
-**Audit baseline `main`:** `f35fd95f60731c7d4638099285b7b314f459f4d2`
+**সর্বশেষ মিলিয়ে দেখা `main`:** `159806ff395a34349086504ae3055ddef21ddbec` (2026-11-11)
 **সর্বশেষ stable release:** v1.4.0; v2.0.0 tag বা release নেই।
 **Machine gate:** ১৯টি gate-এর মধ্যে P1-01, P1-03, P1-04, P1-APT, P1-PKG—এই পাঁচটি release-blocking gate অসম্পূর্ণ।
 
@@ -20,6 +20,8 @@ alt_url: "/docs/V2-RELEASE-READINESS.html"
 Audit শুরুতে পরিষ্কার `main` ছিল `bcf363e10bc52a87fe2806a28f44dfdd220cf98f`। Open PR #137 ছিল CI-generated `.repo/` state update। সেখানে `Repo Knowledge Sync` first-run approval-এর অপেক্ষায় থাকলেও branch-filtered API query run-টি খুঁজে পায়নি, ফলে workflow timeout হয়। PR #138-এ unfiltered সাম্প্রতিক ১০০টি run থেকে exact SHA/branch মেলানো হয়েছে; bounded polling-সহ সব দরকারি check পাস করে এটি `5d4be243e8d3` হিসেবে merge হয়েছে। এরপর generated-state PR #137 check পাস করে `aff6aae40f8fa22bfe76a2a91e56f1ee10c51b60` হিসেবে merge হয়েছে। `.repo/` হাতে edit করা হয়নি।
 
 PR #139 storage privacy implement করে সব required check পাসের পর `eaf97fc514c045193e7ef5968a95d1b26c449f9c` হিসেবে merge হয়েছে। Generated-state PR #140 সব check পাস করে `3c03dffa4ba07a2c0355613560c0768b45022c96` হিসেবে merge হয়েছে। এই audit PR #141 (`2763bac0cde5f38e2d3009eb236db2a89606f1c1`) এবং generated-state PR #142 (`f35fd95f60731c7d4638099285b7b314f459f4d2`) merge হয়েছে। Follow-up PR #143-তে bounded CPU/Vulkan model profile ও 90-day package-artifact retention নথিবদ্ধ; current-main merge `30bea68ff4440a97fc98a3f2c8b4d041e13c15f8`। Generated-state PR #144 check পাস করে `de52efcf5d4666dfa872c248d9370607a209c1ed` হিসেবে merge হয়েছে। Session-এর শুরুতে যাচাইকৃত SKB checkout-এ আগের dirty change ছিল; সেটি স্পর্শ করা হয়নি। অন্য কোনো active agent কাজ ছিল না। Open PR #42, #44, #45 Dependabot action update; PR #35 owner-review-এর licensing proposal, merge করা হয়নি।
+
+সর্বশেষ reconciliation-এ PR #147 ও #149 signed repository preservation-এর transient Pages 5xx retry যোগ করেছে; PR #149 merge SHA `c78c03efa9875ca96613165de64bbcb174f1d075`। Generated-state PR #150 merge হয়ে বর্তমান `main` `159806ff395a34349086504ae3055ddef21ddbec` হয়েছে। Checkout ওই SHA-তে clean। একই SHA-তে Validate `42911714807`, package artifact `42911714820`, Repository State Contract `42911714662` পাস করেছে। Open PR #42, #44, #45 Dependabot update; #35 owner-review licensing proposal। Package-audit worktree detached অবস্থায় `727726a6b32124992a8c0153159a440ced0708c8`; untracked `ci-artifact/` পরীক্ষা করে অক্ষত রাখা হয়েছে। Local Codex TUI MCP endpoint connection দেয়নি, তাই অন্য Codex session enumeration হয়েছে—এ দাবি করছি না। বর্তমান live desktop read-only status-এ running, Termux:X11 ও PulseAudio চালু; restart করা হয়নি। এই session-এর managed filesystem scope native `$PREFIX`-এ write দেয় না এবং ADB binary load হয় না; ফলে এখান থেকে native package lifecycle বা GUI-control evidence যোগ করা যাচ্ছে না।
 
 ## Finding-ভিত্তিক অবস্থা
 
