@@ -484,5 +484,5 @@
       "release_exclusion": "Qualify only the documented Redmi Turbo 4 Pro / SM8735 target; all other device-specific acceleration remains unqualified."
     }
   ],
-  "observed_head_commit": "3cc8e2cdafa7d9cd93d27d48ec3ce674f91aaaa8"
+  "observed_head_commit": "985c5c5ae1c942315c5e3d0a85a9ffb3d3682a9d"
 }

@@ -17,7 +17,7 @@ alt_url: "/docs/V2-RELEASE-READINESS.html"
 
 ### সর্বশেষ continuation — ২০২৬-১১-১০
 
-Standalone bootstrap এখন commit `614d3b7d1ceda1ecd96107333b5d03795c4d5b7a` এবং archive SHA-256 `f55737a18eedff270ce32416ab55fbc070132dd02d41f0234f509f03f99cbf8c` pin করে। Focused test exact codeload URL verify করে এবং extraction-এর আগে byte-modified archive reject করে; local suite 145/145 pass। Follow-up change-এর আগে PR #97-এর exact-head-এ পাঁচটি required CI check pass ছিল; এই নতুন source change এখনো push বা CI-verified হয়নি। Release এখনও `NOT_READY`; validator আটটি incomplete blocker দেখায়।
+Standalone bootstrap এখন commit `614d3b7d1ceda1ecd96107333b5d03795c4d5b7a` এবং archive SHA-256 `f55737a18eedff270ce32416ab55fbc070132dd02d41f0234f509f03f99cbf8c` pin করে। Focused test exact codeload URL verify করে এবং extraction-এর আগে byte-modified archive reject করে; local suite 145/145 pass। Follow-up change-এর আগে PR #97-এর exact-head-এ পাঁচটি required CI check pass ছিল; source change `985c5c5ae1c942315c5e3d0a85a9ffb3d3682a9d` হিসেবে push হয়েছে; exact-head-এর পাঁচটি required CI check pass। Release এখনও `NOT_READY`; validator আটটি incomplete blocker দেখায়।
 
 ### এই session-এর repository reconciliation — ২০২৬-১১-১০
 

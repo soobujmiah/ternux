@@ -17,7 +17,7 @@ alt_url: "/bn/docs/V2-RELEASE-READINESS.html"
 
 ### Latest continuation — 2026-11-10
 
-The standalone bootstrap source is now pinned to commit `614d3b7d1ceda1ecd96107333b5d03795c4d5b7a`, archive SHA-256 `f55737a18eedff270ce32416ab55fbc070132dd02d41f0234f509f03f99cbf8c`. Focused regression tests verify the exact codeload URL and reject a byte-modified archive before extraction; the suite passed 145/145 locally. PR #97 exact-head CI had all five required checks passing at `614d3b7d1ceda1ecd96107333b5d03795c4d5b7a` before this follow-up change. The source update is not yet pushed or CI-verified. Release remains `NOT_READY`; the validator reports eight incomplete blockers.
+The standalone bootstrap source is now pinned to commit `614d3b7d1ceda1ecd96107333b5d03795c4d5b7a`, archive SHA-256 `f55737a18eedff270ce32416ab55fbc070132dd02d41f0234f509f03f99cbf8c`. Focused regression tests verify the exact codeload URL and reject a byte-modified archive before extraction; the suite passed 145/145 locally. PR #97 exact-head CI had all five required checks passing at `614d3b7d1ceda1ecd96107333b5d03795c4d5b7a` before this follow-up change. The source update was pushed as `985c5c5ae1c942315c5e3d0a85a9ffb3d3682a9d`; all five required exact-head CI checks passed. Release remains `NOT_READY`; the validator reports eight incomplete blockers.
 
 ### Current session reconciliation — 2026-11-10
 
