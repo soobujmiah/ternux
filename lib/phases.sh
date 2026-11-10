@@ -1705,6 +1705,7 @@ tnx_phase_cli() {
   local bin_dir="$prefix/bin" lib_dir="$prefix/lib/ternux"
   local cli_src="" try="" cleanup_dir="" archive="" listing=""
   local root_name="" source_root="" source_lib_dir="" local_lib=""
+  local source_commit="${TERNUX_SOURCE_COMMIT:-}" source_sha256="${TERNUX_SOURCE_SHA256:-}"
 
   # APT owns the packaged CLI files. Keep dpkg's file inventory consistent;
   # package upgrades are handled by the configured APT repository.
@@ -1743,11 +1744,26 @@ tnx_phase_cli() {
     archive="$cleanup_dir/ternux.tar.gz"
     listing="$cleanup_dir/archive.list"
     mkdir -p "$cleanup_dir" || return 1
-    tnx_info "Downloading one retryable ternux CLI source bundle..."
+    if [[ ! "$source_commit" =~ ^[a-f0-9]{40}$ || ! "$source_sha256" =~ ^[a-f0-9]{64}$ ]]; then
+      tnx_fail "Pinned CLI source identity is missing or invalid."
+      rm -rf "$cleanup_dir"
+      return 1
+    fi
+    tnx_has_cmd sha256sum || {
+      tnx_fail "sha256sum is required to verify the CLI source bundle."
+      rm -rf "$cleanup_dir"
+      return 1
+    }
+    tnx_info "Downloading pinned ternux CLI source bundle ($source_commit)..."
     if ! tnx_download \
-      "https://codeload.github.com/soobujmiah/ternux/tar.gz/refs/heads/main" \
+      "https://codeload.github.com/soobujmiah/ternux/tar.gz/$source_commit" \
       "$archive"; then
       tnx_fail "CLI source bundle download failed after retries."
+      rm -rf "$cleanup_dir"
+      return 1
+    fi
+    if ! printf "%s  %s\n" "$source_sha256" "$archive" | sha256sum --check --status; then
+      tnx_fail "Downloaded CLI source bundle failed its pinned SHA-256 check."
       rm -rf "$cleanup_dir"
       return 1
     fi

@@ -31,6 +31,7 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 ### CLI reliability
 
 - State-এ সংরক্ষিত URL ও path update-এর bug ঠিক হয়েছে; `sed` replacement error ছাড়াই GPU updater আবার চালানো যায়। Focused regression check যোগ হয়েছে।
+- Standalone host-CLI fallback-কে installer bootstrap-এর একই reviewed source commit ও SHA-256-এ pin করা হয়েছে; hash না মিললে extraction বা installation-এর আগেই থেমে যায়।
 
 ### Desktop reliability
 

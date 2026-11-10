@@ -31,6 +31,7 @@ Notable changes to ternux. Dates are ISO 8601.
 ### CLI reliability
 
 - Fixed state updates for stored URLs and paths; the GPU updater can now be rerun without `sed` replacement errors. Added a focused regression check.
+- Pinned the standalone host-CLI fallback to the reviewed source commit and SHA-256 already used by the installer bootstrap; mismatched archives now fail before extraction or installation.
 
 ### Desktop reliability
 

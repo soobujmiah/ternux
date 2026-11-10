@@ -2070,6 +2070,64 @@ else
   fi
 fi
 
+# The standalone CLI fallback must use the same immutable source pin as the
+# first-run bootstrap and reject byte-changed archives before installation.
+cli_pin_commit="$(sed -n 's/^TERNUX_SOURCE_COMMIT="\([0-9a-f]*\)"$/\1/p' "$ROOT/lib/core.sh")"
+cli_pin_sha="$(sed -n 's/^TERNUX_SOURCE_SHA256="\([0-9a-f]*\)"$/\1/p' "$ROOT/lib/core.sh")"
+boot_pin_commit="$(sed -n 's/^_TNX_BOOTSTRAP_COMMIT="\([0-9a-f]*\)"$/\1/p' "$ROOT/install.sh")"
+boot_pin_sha="$(sed -n 's/^_TNX_BOOTSTRAP_SHA256="\([0-9a-f]*\)"$/\1/p' "$ROOT/install.sh")"
+mkdir -p "$TMP/cli-fallback-source/ternux-pinned-source/bin" \
+  "$TMP/cli-fallback-source/ternux-pinned-source/lib" \
+  "$TMP/cli-fallback-modules" "$TMP/cli-fallback-cwd" "$TMP/cli-fallback-tmp"
+cp "$ROOT/bin/ternux" "$TMP/cli-fallback-source/ternux-pinned-source/bin/"
+cp "$ROOT"/lib/*.sh "$TMP/cli-fallback-source/ternux-pinned-source/lib/"
+tar -czf "$TMP/cli-fallback-source.tar.gz" -C "$TMP/cli-fallback-source" ternux-pinned-source
+cli_fixture_sha="$(sha256sum "$TMP/cli-fallback-source.tar.gz" | awk '{print $1}')"
+cp "$ROOT/lib/core.sh" "$ROOT/lib/phases.sh" "$TMP/cli-fallback-modules/"
+if [ "$cli_pin_commit" = "$boot_pin_commit" ] &&
+   [ "$cli_pin_sha" = "$boot_pin_sha" ] &&
+   env HOME="$TMP/home-cli-fallback" PREFIX="$TMP/prefix-cli-fallback" \
+     TMPDIR="$TMP/cli-fallback-tmp" CLI_CWD="$TMP/cli-fallback-cwd" \
+     CLI_ARCHIVE="$TMP/cli-fallback-source.tar.gz" CLI_URL="$TMP/cli-fallback-url" \
+     CLI_EXPECTED_SHA="$cli_fixture_sha" \
+     bash -c '
+       cd "$CLI_CWD" || exit
+       . "$1/core.sh"; . "$1/phases.sh"
+       TERNUX_SOURCE_SHA256="$CLI_EXPECTED_SHA"
+       dpkg-query(){ return 1; }
+       tnx_download(){ printf "%s\n" "$1" > "$CLI_URL"; cp "$CLI_ARCHIVE" "$2"; }
+       tnx_phase_cli
+     ' _ "$TMP/cli-fallback-modules" >/dev/null &&
+   [ "$(cat "$TMP/cli-fallback-url")" = "https://codeload.github.com/soobujmiah/ternux/tar.gz/$cli_pin_commit" ] &&
+   "$TMP/prefix-cli-fallback/bin/ternux" --version | grep -q "^ternux v2.0.0$"; then
+  ok "CLI source fallback downloads one matching pinned commit and verifies its archive digest"
+else
+  not_ok "CLI source fallback downloads one matching pinned commit and verifies its archive digest"
+fi
+
+cp "$TMP/cli-fallback-source.tar.gz" "$TMP/cli-fallback-tampered.tar.gz"
+printf 'tamper' >> "$TMP/cli-fallback-tampered.tar.gz"
+mkdir -p "$TMP/cli-fallback-tampered-tmp"
+if env HOME="$TMP/home-cli-fallback-tampered" PREFIX="$TMP/prefix-cli-fallback-tampered" \
+  TMPDIR="$TMP/cli-fallback-tampered-tmp" CLI_CWD="$TMP/cli-fallback-cwd" \
+  CLI_ARCHIVE="$TMP/cli-fallback-tampered.tar.gz" CLI_EXPECTED_SHA="$cli_fixture_sha" \
+  bash -c '
+    cd "$CLI_CWD" || exit
+    . "$1/core.sh"; . "$1/phases.sh"
+    TERNUX_SOURCE_SHA256="$CLI_EXPECTED_SHA"
+    dpkg-query(){ return 1; }
+    tnx_download(){ cp "$CLI_ARCHIVE" "$2"; }
+    tnx_phase_cli
+  ' _ "$TMP/cli-fallback-modules" >/dev/null 2>&1; then
+  not_ok "CLI source fallback rejects a tampered archive before installation"
+else
+  if [ ! -e "$TMP/prefix-cli-fallback-tampered/bin/ternux" ]; then
+    ok "CLI source fallback rejects a tampered archive before installation"
+  else
+    not_ok "CLI source fallback rejects a tampered archive before installation"
+  fi
+fi
+
 # The host CLI installer must prove that the exact PREFIX command can load the
 # flat installed module directory; merely creating an executable is not enough.
 if env TERNUX_STATE_DIR="$TMP/state-cli-layout" HOME="$TMP/home-cli-layout" \
