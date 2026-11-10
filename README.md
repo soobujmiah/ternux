@@ -129,9 +129,10 @@ with `ternux extension install llama-vulkan` or
 `ternux extension install stable-diffusion`. Model weights stay outside the runtime and can be used straight from shared
 storage. The separate Hexagon HTP extension remains
 experimental and device-specific. Blender and headless EEVEE tools are optional.
-See the [Stable Diffusion guide](guides/stable-diffusion-vulkan-extension.md)
-and [release plan](docs/ACCELERATOR-RELEASE-PLAN.md) for model usage, current
-support limits and qualification gates.
+See the [llama.cpp extension guide](guides/llama-vulkan-extension.md) for
+model setup and memory-conscious context settings. The [Stable Diffusion guide](guides/stable-diffusion-vulkan-extension.md)
+and [release plan](docs/ACCELERATOR-RELEASE-PLAN.md) cover current support limits
+and qualification gates.
 
 ## Manage and troubleshoot
 

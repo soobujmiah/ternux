@@ -1409,6 +1409,39 @@ refer to earlier installed/build artifacts and are not silently transferred to
 this archive.
 
 
+
+### 2026-11-10 Llama 3.2 3B CPU/Vulkan bounded-context run
+
+At 17:59–18:02 UTC on the Redmi Turbo 4 Pro (Android 16, SM8735 / Adreno
+825), I inspected the already-authorized model directories and tested the
+existing `/sdcard/LAI/models/llama-3.2-3b-instruct-q4_k_m.gguf` in place. The
+file is 2,019,373,920 bytes, SHA-256
+`c55a83bfb6396799337853ca69918a0b9bbb2917621078c34570bc17d20fd7a1`. The
+installed llama.cpp binary is `0.6.0-dev` / `af50f2f`, SHA-256
+`4827f62ac89a442d76e9461c18115fa37d2c6cced0a887bf559b8ee615046eb5`.
+GGUF metadata identifies `Llama 3.2 3B Instruct`, Q4_K_M, 29 layers, and a
+131,072-token maximum context.
+
+One CPU attempt using the CLI defaults was killed during model loading before
+producing output. The reason was not independently confirmed; no OOM-killer or
+kernel log was available. A subsequent controlled run with `-c 512 -b 64
+-ub 64` returned `4` on CPU and Vulkan. CPU short-run output reported 10.3 tok/s
+prompt processing and 5.2 tok/s generation. Vulkan reported 40.9 tok/s prompt
+processing and 12.0 tok/s generation, assigned 29/29 layers to Adreno 825, and
+used about 1,918 MiB model, 56 MiB KV, and 9 MiB compute buffers. The first
+Vulkan memory fit projected 1,983 MiB total against 3,678 MiB free. These
+single-turn numbers are correctness/offload observations, not a performance
+benchmark. The explicit small context proves only this short workload; longer
+context behavior and sustained memory pressure remain untested.
+
+Before the bounded runs, `ternux doctor --quick --json` reported 40 C battery
+temperature and about 4.6 GiB available memory. Afterward it reported 40 C and
+about 4.3 GiB available; `ternux status --json` and `ternux verify --json`
+passed, with the existing desktop, X11 and PulseAudio still running under PID
+16987. No model file was moved, copied, or deleted, and no service was
+restarted. The default-context kill is retained as a failure observation; it
+is not silently replaced by the bounded-context pass.
+
 ### 2026-11-10 short Qwen2.5 CPU/Vulkan correctness rerun
 
 At 17:24–17:28 UTC on the Redmi Turbo 4 Pro (Android 16, SM8735 / Adreno

@@ -51,6 +51,31 @@ llama-cli --version
 llama-cli --list-devices
 ```
 
+### কম RAM-এ context সীমিত করে শুরু করুন
+
+Quantized model-এর weight file-এর আকার একা runtime memory বলে না: context ও
+batch বাড়লে KV cache এবং compute buffer-ও বাড়ে। `-c 0` হলে `llama-cli` model-এ
+লেখা context length ব্যবহার করতে পারে। ফোনে বড়-context GGUF চালানোর আগে ছোট
+context দিয়ে শুরু করুন, available RAM ও Vulkan memory দেখুন, তারপর ধীরে ধীরে
+বাড়ান। ছোট context-এ conversation history কম ধরে; এটি capacity tradeoff, speed
+বাড়ার নিশ্চয়তা নয়।
+
+পরীক্ষিত Redmi Turbo 4 Pro-তে `Llama 3.2 3B Instruct`-এর model context
+131,072 token। Default context-এ CPU load-এর সময় process kill হয়েছিল; কারণটি
+আলাদা করে নিশ্চিত করা যায়নি। `-c 512 -b 64 -ub 64` দিয়ে একই model CPU ও Vulkan-এ
+ছোট known-answer prompt pass করেছে। এটি ওই model/device-এর low-memory starting
+point, universal setting নয়:
+
+```bash
+MODEL=/path/to/llama-3.2-3b-instruct-q4_k_m.gguf
+llama-cli -m "$MODEL" -c 512 -b 64 -ub 64 -ngl 0 -t 4 \
+  -p 'What is 2 + 2? Answer with the number only.' -n 8 --temp 0 \
+  --seed 1234 --single-turn --verbosity 1
+llama-cli -m "$MODEL" -c 512 -b 64 -ub 64 -dev Vulkan0 -ngl 99 -t 4 \
+  -p 'What is 2 + 2? Answer with the number only.' -n 8 --temp 0 \
+  --seed 1234 --single-turn --verbosity 4
+```
+
 আগে CPU baseline চালান (কোনো GPU layer নয়):
 
 ```bash

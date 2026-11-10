@@ -5,9 +5,9 @@ lang: "bn"
 alt_url: "/docs/V2-RELEASE-READINESS.html"
 ---
 **অবস্থা: NOT_READY**
-**অডিট:** 2026-11-10 17:44 UTC
+**অডিট:** 2026-11-10 18:02 UTC
 **Release tag/publication:** v2.0.0 tag বা release নেই; GitHub-এর সর্বশেষ stable হলো v1.4.0।
-**এই audit-এর `main`:** `68f14ba48a67829d3aaa09b799233f79f2f59cc8`; product source baseline `5e41401dd60bf5261f6a638c62b4ad94eea98812` অপরিবর্তিত।
+**এই audit-এর `main`:** `926836fb7435cd62e695cf921a2d848fac319829`; product source baseline `5e41401dd60bf5261f6a638c62b4ad94eea98812` অপরিবর্তিত।
 **Machine gate:** `docs/release-gates.json` ছয়টি অসম্পূর্ণ release blocker-সহ `NOT_READY` দেখায়।
 
 ## সুপারিশ
@@ -33,14 +33,14 @@ Public signed APT path চারটিই এখন HTTP 404 দেয়। APT
 | Finding | অবস্থা | বর্তমান প্রমাণ / বাকি acceptance |
 |---|---|---|
 | P0-01 Stable Diffusion Vulkan license CI | **COMPLETE** | Deterministic component manifest, source/header notice, missing/duplicate/path regression এবং exact product-source ARM64 build/license audit pass। Run `42863263043`-এ `5e41401`-এর artifact build ও inspect হয়েছে এবং license bundle independently audit হয়েছে; prerelease publication skip। |
-| P0-02 release branch consistency | **COMPLETE** | v2 source `main`-এ integrated; PR #127 source checks এবং `68f14ba`-এর exact-main Validate `42867226542`, package `42867226104`, Repository State Contract `42867226155` pass। PR #128 ও generated-state PR #129 merge; v2 tag নেই। |
+| P0-02 release branch consistency | **COMPLETE** | v2 source `main`-এ integrated; PR #127 source checks এবং `68f14ba`-এর exact-main Validate `42867226542`, package `42867226104`, Repository State Contract `42867226155` pass। PR #128, generated-state PR #129, report PR #130 এবং generated-state PR #131 merge। `926836f`-এর exact-main check pass; v2 tag নেই। |
 | P0-03 release gate | **COMPLETE** | ১৯টি machine-readable gate; blocking gate অসম্পূর্ণ থাকলে validator `NOT_READY` রাখে। |
 | P1-01 desktop lifecycle | **PARTIAL** | Source lifecycle fixture ও live READY status pass। Installed `desktop.sh` current source থেকে আলাদা; updated package-এ stop/restart/crash recovery ও managed-process identity যাচাই হয়নি। |
 | P1-02 GPU/Vulkan detection | **শুধু পরীক্ষিত Adreno 825-এর জন্য COMPLETE** | Physical device Adreno 825, Vulkan/Turnip ও Zink renderer দেখায়; software-renderer false positive regression test আছে। অন্য GPU/device qualify হয়নি। |
 | P1-03 installer/updater reliability | **PARTIAL** | Bootstrap archive, host CLI archive ও guest CLI fallback immutable commit pin এবং SHA-256 যাচাই করে; tamper regression merged PR #127-এ pass। Local v1.4.0 migration/rollback fixture pass। Published-v2 native migration বাকি। |
 | P1-04 storage isolation | **PARTIAL** | PRoot-এ `/sdcard` ইচ্ছাকৃতভাবে ব্যবহারযোগ্য; generic guest test তা রাখে এবং Termux HOME isolate করে। Updated package-এ পূর্ণ XFCE/app smoke বাকি। |
 | P1-05 repository protection | **COMPLETE** | Main branch protection read-back-এ required PR check, admin enforcement, force-push/deletion বন্ধ নিশ্চিত। Owner-only repo-র জন্য required approval count শূন্য। |
-| P1-06 CPU/Vulkan LLM | **PARTIAL** | এক Adreno 825-এ Qwen2.5 0.5B/1.5B CPU/Vulkan correctness, 25/25 ও 29/29 layer offload, short repeated throughput, cancellation ও reopen evidence আছে। নতুন single-turn run-এ দুই model/backend-ই `4` ফেরত দিয়েছে। বিস্তৃত model এবং sustained/memory-pressure qualification বাকি। |
+| P1-06 CPU/Vulkan LLM | **PARTIAL** | এক Adreno 825-এ Qwen2.5 0.5B/1.5B এবং Llama 3.2 3B CPU/Vulkan known-answer pass। 3B-র Vulkan-এ `-c 512 -b 64 -ub 64` দিয়ে 29/29 layer offload হয়েছে; default-context CPU load output-এর আগে kill হয়েছিল, কারণ নিশ্চিত নয়। Sustained, long-context ও memory-pressure qualification বাকি। |
 | P1-07 HTP/HMX | **PARTIAL, experimental এবং release-excluded** | Operator numerical failure/অসম্পূর্ণ qualification আছে; stable default বা claim নয়। |
 | P1-08 QNN Stable Diffusion | **PARTIAL, experimental এবং release-excluded** | Stage tensor/reference correctness ও production qualification অসম্পূর্ণ। |
 | P1-APT public repository | **BLOCKED** | চারটি canonical signed APT URL-ই 404। Publish, hosted verification, Pages preservation এবং clean Termux install/upgrade/uninstall বাকি। |
@@ -75,7 +75,7 @@ Public signed APT path চারটিই এখন HTTP 404 দেয়। APT
 | PR #127 exact-head required check | Validate, package artifact, repo-contract, Repo Knowledge Sync test/sync সব pass। |
 | Main `5e41401` exact-SHA CI | Validate `42860196252`, package artifact `42860196300`, Repo Knowledge Sync `42860196265` pass। |
 | Stable Diffusion ARM64 ও license bundle | Exact product-source build, binary inspection ও independent license audit run `42863263043`-এ pass; 27,381,115-byte candidate artifact upload হয়েছে, prerelease publication skip। |
-| Device CPU/Vulkan smoke | Qwen2.5 0.5B/1.5B known-answer CPU ও Vulkan0-তে pass; verbose log full layer offload নিশ্চিত করেছে। Battery 36.3°C → 37.4°C; sustained test হয়নি। |
+| Device CPU/Vulkan smoke | Qwen2.5 0.5B/1.5B pass; Llama 3.2 3B bounded-context-এ CPU/Vulkan দুইটিতেই `4`, Vulkan-এ 29/29 layer। 3B default-context CPU load kill হয়েছিল। Battery 40°C; sustained/memory-pressure test হয়নি। |
 
 ### Device ও distribution
 
@@ -101,4 +101,4 @@ HTP/HMX ও QNN Stable Diffusion experimental/research-only; stable Ternux v2 cl
 
 ## চূড়ান্ত সুপারিশ
 
-**NOT_READY।** Current source ও `68f14ba`-এর exact-main CI verified, কিন্তু ছয়টি release-blocking acceptance check অসম্পূর্ণ। Public APT repository নেই, এবং চলমান installed package-এ current desktop lifecycle module নেই। Device/package gate বন্ধ এবং repository owner publication স্পষ্টভাবে approve না করা পর্যন্ত v2.0.0 tag বা publish করবেন না।
+**NOT_READY।** Current source ও `926836f`-এর exact-main CI verified, কিন্তু ছয়টি release-blocking acceptance check অসম্পূর্ণ। Public APT repository নেই, এবং চলমান installed package-এ current desktop lifecycle module নেই। Device/package gate বন্ধ এবং repository owner publication স্পষ্টভাবে approve না করা পর্যন্ত v2.0.0 tag বা publish করবেন না।

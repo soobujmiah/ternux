@@ -53,6 +53,31 @@ llama-cli --version
 llama-cli --list-devices
 ```
 
+### Start with a bounded context on memory-limited devices
+
+A quantized model's weight file size does not describe its full runtime memory:
+KV cache and compute buffers also grow with context and batch size. `llama-cli`
+may use the context length stored in a model when `-c 0` is selected. For a
+large-context GGUF on a phone, start small, check available RAM and Vulkan
+memory, then raise the context gradually. A smaller context limits how much
+conversation history fits; it is a capacity tradeoff, not a speed guarantee.
+
+On the tested Redmi Turbo 4 Pro, `Llama 3.2 3B Instruct` declares a 131,072-token
+model context. A default-context CPU load was killed during model loading; the
+cause was not independently confirmed. With `-c 512 -b 64 -ub 64`, the same
+model answered the short known-answer prompt on CPU and Vulkan. This is a
+low-memory starting point for that model/device, not a universal setting:
+
+```bash
+MODEL=/path/to/llama-3.2-3b-instruct-q4_k_m.gguf
+llama-cli -m "$MODEL" -c 512 -b 64 -ub 64 -ngl 0 -t 4 \
+  -p 'What is 2 + 2? Answer with the number only.' -n 8 --temp 0 \
+  --seed 1234 --single-turn --verbosity 1
+llama-cli -m "$MODEL" -c 512 -b 64 -ub 64 -dev Vulkan0 -ngl 99 -t 4 \
+  -p 'What is 2 + 2? Answer with the number only.' -n 8 --temp 0 \
+  --seed 1234 --single-turn --verbosity 4
+```
+
 Run a CPU baseline (no GPU layers):
 
 ```bash
