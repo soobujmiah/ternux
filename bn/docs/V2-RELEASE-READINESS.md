@@ -5,9 +5,9 @@ lang: "bn"
 alt_url: "/docs/V2-RELEASE-READINESS.html"
 ---
 **অবস্থা: NOT_READY**
-**অডিট:** 2026-11-10 18:02 UTC
+**অডিট:** 2026-11-10 19:10 UTC
 **Release tag/publication:** v2.0.0 tag বা release নেই; GitHub-এর সর্বশেষ stable হলো v1.4.0।
-**এই audit-এর `main`:** `926836fb7435cd62e695cf921a2d848fac319829`; product source baseline `5e41401dd60bf5261f6a638c62b4ad94eea98812` অপরিবর্তিত।
+**এই audit-এর `main`:** `f94b83ea0d626c3d873fb9076d0871b42ea990c4`, PR #132-এর পর generated-state merge; product source baseline `5e41401dd60bf5261f6a638c62b4ad94eea98812` অপরিবর্তিত।
 **Machine gate:** `docs/release-gates.json` ছয়টি অসম্পূর্ণ release blocker-সহ `NOT_READY` দেখায়।
 
 ## সুপারিশ
@@ -33,14 +33,14 @@ Public signed APT path চারটিই এখন HTTP 404 দেয়। APT
 | Finding | অবস্থা | বর্তমান প্রমাণ / বাকি acceptance |
 |---|---|---|
 | P0-01 Stable Diffusion Vulkan license CI | **COMPLETE** | Deterministic component manifest, source/header notice, missing/duplicate/path regression এবং exact product-source ARM64 build/license audit pass। Run `42863263043`-এ `5e41401`-এর artifact build ও inspect হয়েছে এবং license bundle independently audit হয়েছে; prerelease publication skip। |
-| P0-02 release branch consistency | **COMPLETE** | v2 source `main`-এ integrated; PR #127 source checks এবং `68f14ba`-এর exact-main Validate `42867226542`, package `42867226104`, Repository State Contract `42867226155` pass। PR #128, generated-state PR #129, report PR #130 এবং generated-state PR #131 merge। `926836f`-এর exact-main check pass; v2 tag নেই। |
+| P0-02 release branch consistency | **COMPLETE** | v2 source `main`-এ integrated; PR #132 এবং generated-state PR #133 merge। `f94b83e`-এ exact-main Validate `42872807131`, package artifact `42872807143`, repo-contract `42872806994` pass; v2 tag নেই। |
 | P0-03 release gate | **COMPLETE** | ১৯টি machine-readable gate; blocking gate অসম্পূর্ণ থাকলে validator `NOT_READY` রাখে। |
 | P1-01 desktop lifecycle | **PARTIAL** | Source lifecycle fixture ও live READY status pass। Installed `desktop.sh` current source থেকে আলাদা; updated package-এ stop/restart/crash recovery ও managed-process identity যাচাই হয়নি। |
 | P1-02 GPU/Vulkan detection | **শুধু পরীক্ষিত Adreno 825-এর জন্য COMPLETE** | Physical device Adreno 825, Vulkan/Turnip ও Zink renderer দেখায়; software-renderer false positive regression test আছে। অন্য GPU/device qualify হয়নি। |
 | P1-03 installer/updater reliability | **PARTIAL** | Bootstrap archive, host CLI archive ও guest CLI fallback immutable commit pin এবং SHA-256 যাচাই করে; tamper regression merged PR #127-এ pass। Local v1.4.0 migration/rollback fixture pass। Published-v2 native migration বাকি। |
 | P1-04 storage isolation | **PARTIAL** | PRoot-এ `/sdcard` ইচ্ছাকৃতভাবে ব্যবহারযোগ্য; generic guest test তা রাখে এবং Termux HOME isolate করে। Updated package-এ পূর্ণ XFCE/app smoke বাকি। |
 | P1-05 repository protection | **COMPLETE** | Main branch protection read-back-এ required PR check, admin enforcement, force-push/deletion বন্ধ নিশ্চিত। Owner-only repo-র জন্য required approval count শূন্য। |
-| P1-06 CPU/Vulkan LLM | **PARTIAL** | এক Adreno 825-এ Qwen2.5 0.5B/1.5B এবং Llama 3.2 3B CPU/Vulkan known-answer pass। 3B-র Vulkan-এ `-c 512 -b 64 -ub 64` দিয়ে 29/29 layer offload হয়েছে; default-context CPU load output-এর আগে kill হয়েছিল, কারণ নিশ্চিত নয়। Sustained, long-context ও memory-pressure qualification বাকি। |
+| P1-06 CPU/Vulkan LLM | **PARTIAL** | চারটি local GGUF variant CPU ও Adreno Vulkan-এ তিন-repeat benchmark সম্পন্ন করেছে (512 prompt / 128 generated token); file অনুযায়ী ফল published benchmark page-এ আছে। 4096 context cap-এ Llama 3.2 3B-এর 180-record retrieval pass; 2461–2463-token synthetic retrieval-এ তিনটি Qwen variant ভুল record দিয়েছে। 3B bounded cancellation cleanup pass করেছে। Artificial memory-pressure/recovery এবং এই device-এর বাইরে qualification বাকি। |
 | P1-07 HTP/HMX | **PARTIAL, experimental এবং release-excluded** | Operator numerical failure/অসম্পূর্ণ qualification আছে; stable default বা claim নয়। |
 | P1-08 QNN Stable Diffusion | **PARTIAL, experimental এবং release-excluded** | Stage tensor/reference correctness ও production qualification অসম্পূর্ণ। |
 | P1-APT public repository | **BLOCKED** | চারটি canonical signed APT URL-ই 404। Publish, hosted verification, Pages preservation এবং clean Termux install/upgrade/uninstall বাকি। |
@@ -69,23 +69,24 @@ Public signed APT path চারটিই এখন HTTP 404 দেয়। APT
 | প্রমাণ | ফল |
 |---|---|
 | PR #127 source-এ `bash tests/focused.sh` | **150/150 pass**, pinned CLI/guest fallback success ও tampered-byte rejection-সহ। |
-| `python3 tests/docs_check.py` | **3096 assertion**, 312 internal link, 20 bilingual page pair pass। |
+| `python3 tests/docs_check.py` | **3112 assertion**, 314 internal link, 20 bilingual page pair pass। |
+| PR #133 generated-state merge-এর exact-main CI | Validate `42872807131`, package artifact `42872807143`, repo-contract `42872806994` — `f94b83e`-এ সব pass। |
 | `python3 tests/release_gates.py --self-test` | ১৯ gate valid; `NOT_READY`; ছয়টি incomplete blocking gate, সব P1। |
 | `git diff --check`, Bash syntax check | Merged installer change-এর জন্য pass। |
 | PR #127 exact-head required check | Validate, package artifact, repo-contract, Repo Knowledge Sync test/sync সব pass। |
 | Main `5e41401` exact-SHA CI | Validate `42860196252`, package artifact `42860196300`, Repo Knowledge Sync `42860196265` pass। |
 | Stable Diffusion ARM64 ও license bundle | Exact product-source build, binary inspection ও independent license audit run `42863263043`-এ pass; 27,381,115-byte candidate artifact upload হয়েছে, prerelease publication skip। |
-| Device CPU/Vulkan smoke | Qwen2.5 0.5B/1.5B pass; Llama 3.2 3B bounded-context-এ CPU/Vulkan দুইটিতেই `4`, Vulkan-এ 29/29 layer। 3B default-context CPU load kill হয়েছিল। Battery 40°C; sustained/memory-pressure test হয়নি। |
+| Device CPU/Vulkan এবং throughput | চারটি exact GGUF file CPU ও Vulkan-এ প্রতি backend-এ ৩ বার benchmark হয়েছে; 512 prompt / 128 generated token। Prompt/generation tok/s: Qwen 0.5B-named Q4_0 CPU 65.0/15.4, Vulkan 319.8/34.5; Qwen 1.5B Q4_0 17.4/7.47, 101.9/19.8; Qwen 1.5B Q4_K_M 19.1/7.92, 96.7/17.6; Llama 3.2 3B Q4_K_M 8.93/5.15, 46.3/10.7। Synthetic retrieval-এ 3B exact marker দিয়েছে; তিনটি Qwen ভুল record value দিয়েছে। আগের bounded 3B Vulkan cancellation clean exit করেছে। ফল এক device-এর; universal model quality বা sustained thermal claim নয়। পূর্ণ capture device guide ও published Benchmarks page-এ আছে। |
 
 ### Device ও distribution
 
-- 2026-11-10 17:42 UTC-তে native `ternux status --json` version 2.0.0, desktop `running`, X11 `yes`, PulseAudio `running`, launcher present, PID 16987 দেখায়; 17:44 UTC-তে `ternux verify --json` pass।
+- 2026-11-10 18:34 UTC-তে native `ternux status --json` version 2.0.0, desktop `running`, X11 `yes`, PulseAudio `running`, launcher present, PID 16987 দেখায়; একই সময়ে `ternux verify --json` pass।
 - 17:44 UTC-তে `ternux verify --json` Android 16, Adreno 825-এ pass; Termux:X11, PRoot-Distro, PulseAudio, `setsid`, launcher, Debian services ও Turnip present।
 - `dpkg -V ternux` packaged file পরিবর্তন দেখায়নি। এটা package lifecycle pass প্রমাণ করে না।
 - Source `lib/desktop.sh` SHA-256 `b3f0753a771f54c2c337310b2f23485926c9fded314ace818d76828c96af8ea3`; installed `$PREFIX/lib/ternux/desktop.sh` SHA-256 `02c5f6175f45c94c4ec68f323294f1c633bd7e4f501430b243f72132ed0950cb`। তাই বর্তমান চলমান desktop updated source lifecycle-এর প্রমাণ নয়।
-- Bounded model smoke-এর আগে battery 36.3°C এবং পরে 37.4°C ছিল, discharging। Sustained inference/rendering বা artificial memory-pressure চালানো হয়নি। সব প্রমাণ এক device-এ সীমিত; broad-model, sustained thermal ও memory-pressure qualification বাকি।
+- Multi-model benchmark ও retrieval run-এর পরে native status 19:10 UTC-তে Ternux 2.0.0 running, X11/PulseAudio running এবং desktop PID 16987 দেখায়। Verify pass; doctor battery 40°C ও available memory 5372 MB দেখায়। পুরো workload-এর বিভিন্ন snapshot-এ একই desktop PID ছিল। তিন-repeat benchmark repeatability/throughput মাপে; বহু-ঘণ্টার soak বা artificial memory-pressure recovery নয়।
 - `adb` binary missing Android NDK linker symbol-এর কারণে চালু হয় না। Native `$PREFIX` এই session-এর writable path-এর বাইরে; তাই CI package install বা native package lifecycle test করা যায়নি। চলমান GUI/service stop, restart বা modify করা হয়নি।
-- 2026-11-10 17:44 UTC direct HTTPS GET-এ `apt/bootstrap.sh`, `apt/ternux-archive-key.asc`, `apt/dists/stable/InRelease` এবং `apt/dists/stable/main/binary-all/Packages` **404** দিয়েছে।
+- 2026-11-10 18:34 UTC fresh direct HTTPS GET-এ `apt/bootstrap.sh`, `apt/ternux-archive-key.asc`, `apt/dists/stable/InRelease` এবং `apt/dists/stable/main/binary-all/Packages` **404** দিয়েছে।
 - Signing-only APT verification `42863371746` pass করেছে এবং deploy step skip করেছে। GitHub-এর latest stable `v1.4.0`; v2.0.0 release tag/publication নেই। APT publish, production Pages deploy বা v2 release action চালানো হয়নি।
 
 ## সঠিক blocker ও পরের acceptance evidence
@@ -93,7 +94,7 @@ Public signed APT path চারটিই এখন HTTP 404 দেয়। APT
 1. **P1-01 desktop lifecycle:** current `desktop.sh`-সহ exact package নিরাপদে install/use করে owned PID identity, bounded XFCE/X11 readiness, independent audio status, stop/restart, crash recovery এবং unrelated process/socket preservation যাচাই।
 2. **P1-03 updater migration:** approved v2 publication হলে supported Termux device-এ native v1.4.0 → v2 migration ও rollback চালান; local transaction fixture pass রাখতে হবে।
 3. **P1-04 storage/security:** updated package দিয়ে XFCE ও user-facing app smoke; প্রত্যাশিত `/sdcard` access এবং Termux HOME isolation নিশ্চিত করুন।
-4. **P1-06 CPU/Vulkan:** supported-device correctness, fallback, memory-pressure, repeated, cancellation ও cleanup matrix সম্পন্ন করুন। দীর্ঘ test-এর আগে thermal state recheck করুন; অন্য device সমর্থনের দাবি করবেন না।
+4. **P1-06 CPU/Vulkan:** চারটি local GGUF variant-এর CPU/Vulkan fallback ও repeated throughput evidence আছে; 3B path-এ bounded cancellation pass। Llama 3.2 3B-তে exact retrieval pass, কিন্তু পরীক্ষিত তিন Qwen variant-এ fail। Artificial memory-pressure/recovery, এই তিন-repeat benchmark-এর চেয়ে দীর্ঘ soak, এবং declared support matrix-এর বাকি check দরকার। অন্য device সমর্থনের দাবি করবেন না।
 5. **P1-APT:** owner approval-এর পর signed repository publish, hosted path/signature/hash verify, সাধারণ Pages deploy-এ `/apt` অক্ষত রাখা, তারপর clean `pkg install`, upgrade ও uninstall test।
 6. **P1-PKG:** supported Termux device-এ native package install/update/repair/uninstall এবং metadata/checksum verify; CI artifact integrity একা যথেষ্ট নয়।
 
@@ -101,4 +102,4 @@ HTP/HMX ও QNN Stable Diffusion experimental/research-only; stable Ternux v2 cl
 
 ## চূড়ান্ত সুপারিশ
 
-**NOT_READY।** Current source ও `926836f`-এর exact-main CI verified, কিন্তু ছয়টি release-blocking acceptance check অসম্পূর্ণ। Public APT repository নেই, এবং চলমান installed package-এ current desktop lifecycle module নেই। Device/package gate বন্ধ এবং repository owner publication স্পষ্টভাবে approve না করা পর্যন্ত v2.0.0 tag বা publish করবেন না।
+**NOT_READY।** Current source ও `f94b83e`-এর exact-main CI verified, কিন্তু ছয়টি release-blocking acceptance check অসম্পূর্ণ। Public APT repository নেই, এবং চলমান installed package-এ current desktop lifecycle module নেই। Device/package gate বন্ধ এবং repository owner publication স্পষ্টভাবে approve না করা পর্যন্ত v2.0.0 tag বা publish করবেন না।

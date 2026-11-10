@@ -1112,3 +1112,73 @@ CPU (`-ngl 0`) ও Vulkan0 (`-ngl 99`) — দুই ক্ষেত্রেই
 - [Blender 4.3 GPU rendering](https://docs.blender.org/manual/en/4.3/render/cycles/gpu_rendering.html)
 - [llama.cpp Vulkan build](https://github.com/ggml-org/llama.cpp/blob/master/docs/build.md#vulkan)
 - [stable-diffusion.cpp Vulkan build](https://github.com/leejet/stable-diffusion.cpp/blob/master/docs/build.md#build-with-vulkan)
+
+### ২০২৬-১১-১০ Llama 3.2 3B repeated correctness ও cancellation
+
+Redmi Turbo 4 Pro-তে একই known-answer prompt CPU (`-ngl 0`) ও Vulkan0
+(`-ngl 99`) backend-এ দুইবার করে চালিয়েছি। প্রতিটি run-এ `-c 512 -b 64
+-ub 64`, চারটি thread, greedy decoding, একই model file ও binary build ছিল।
+চারটি run-ই exit status 0 দিয়ে শেষ হয়ে exact উত্তর `4` দিয়েছে। Verbose
+Vulkan run-এ 29/29 layer offload এবং CPU run-এ 0/29 GPU layer দেখা গেছে।
+এটি bounded prompt-এর repeatability; long-context বা throughput qualification
+নয়।
+
+এরপর ৬-second SIGINT timeout এবং ৩-second forced-stop grace দিয়ে bounded
+Vulkan generation চালিয়েছি। `timeout` প্রত্যাশিত status 124 দিয়েছে, llama.cpp
+`Exiting...` লিখে বের হয়েছে, এবং exact-name process check-এ কোনো `llama-cli`
+বাকি ছিল না। এই process/build/command path-এর cancellation cleanup যাচাই হয়েছে;
+memory pressure-এ cancellation যাচাই হয়নি।
+
+18:20 UTC-তে native `ternux status --json` desktop PID 16987, X11 `yes` ও
+PulseAudio `running` দেখায়; `ternux verify --json` pass করে। Test-এর পরে quick
+doctor battery 40 C এবং available memory 4,103 MB দেখায়। Desktop/audio service
+stop বা restart করিনি; model file copy, পরিবর্তন বা delete করিনি। Long-context,
+artificial memory-pressure, sustained thermal এবং অন্য device-এর test বাকি।
+
+### ২০২৬-১১-১০ Llama 3.2 3B bounded longer-input retrieval
+
+একই authorized 3B Q4_K_M model ও Vulkan build দিয়ে prompt-এর শুরুতে একটি
+unique marker, তার পরে 820টি repeated filler word, এবং শেষে marker ফেরত চাওয়া
+হয়। 2048-token context cap-এ llama.cpp 860 prompt token report করে, Adreno 825-এ
+29/29 layer assign করে, marker ফেরত দেয় এবং exit 0 করে। Prompt evaluation
+15.57 second (55.23 token/s), generation 0.38 second (13.13 token/s) লেগেছে।
+
+এর পরে doctor battery 41 C ও available memory 4,115 MB দেখায়; native status/
+verify pass করে, desktop PID 16987, X11 এবং PulseAudio running ছিল। কোনো
+llama-cli process বাকি ছিল না। এটি একটি bounded longer-input retrieval sample;
+sustained বা artificial memory-pressure qualification নয়।
+
+### ২০২৬-১১-১০ local GGUF CPU/Vulkan benchmark ও retrieval matrix
+
+Redmi Turbo 4 Pro / SM8735 / Adreno 825-এ owner-এর নির্দিষ্ট করা দুই model
+folder-এর direct child-এ পাওয়া প্রতিটি GGUF file benchmark করেছি। CPU ও Vulkan
+প্রতিটি configuration তিনবার চালানো হয়েছে; চার thread, 512 prompt token,
+128 generated token, batch/ubatch 64, flash attention বন্ধ। নিচের মান
+tokens/second-এ mean ± standard deviation।
+
+| Model file | CPU prompt | CPU generation | Vulkan prompt | Vulkan generation |
+|---|---:|---:|---:|---:|
+| qwen2.5-0.5b-instruct-q4_0.gguf (runtime 630M parameter দেখায়) | 65.0 ± 3.2 | 15.37 ± 0.08 | 319.8 ± 0.7 | 34.55 ± 0.09 |
+| qwen2.5-1.5b-instruct-q4-0.gguf | 17.38 ± 0.92 | 7.47 ± 0.24 | 101.93 ± 0.44 | 19.83 ± 0.04 |
+| qwen2.5-1.5b-instruct-q4_k_m.gguf | 19.07 ± 0.08 | 7.92 ± 0.18 | 96.73 ± 0.28 | 17.57 ± 0.04 |
+| llama-3.2-3b-instruct-q4_k_m.gguf | 8.93 ± 0.23 | 5.15 ± 0.18 | 46.26 ± 0.01 | 10.68 ± 0.23 |
+
+প্রতি model-এ একই Vulkan CLI দিয়ে একটি synthetic structured-retrieval task
+চালানো হয়েছে। 100-record, 2461–2463-token prompt-এ তিন Qwen variant-ই ভুল
+record ফেরত দিয়েছে: Qwen 0.5B-named Q4_0, Q05-L4096-7A3C-এর বদলে A0049-B49;
+Qwen 1.5B Q4_0, Q15Q0-L4096-6B2D-এর বদলে A0059-B59; এবং Qwen 1.5B Q4_K_M,
+Q15KM-L4096-3C8F-এর বদলে A0049-B49 দিয়েছে। আলাদা 180-record prompt-এ
+4096 context cap-সহ Llama 3.2
+3B exact marker দিয়েছে। এটি সীমিত retrieval sample, general quality benchmark
+নয়। ছোট model-এর ভুল result failure হিসেবেই রাখা হয়েছে; throughput মানেই
+long-context recall ঠিক—এমন নয়।
+
+SM7635 target-এর Gemma 4 QNN file ছিল, কিন্তু চালানো হয়নি: target SM7635 এই
+SM8735 / Adreno 825 device-এর সঙ্গে মেলে না; managed Ternux extension-এ
+compatible text-QNN runner নেই। AbsoluteReality 8gen2 QNN image archive এই
+text-model session-এ আবার চালানো হয়নি; আলাদা QNN image pipeline-এর 25-image
+device run আগেই নথিভুক্ত আছে এবং এটি CPU/Vulkan LLM matrix-এর বাইরে। কোনোটিই
+llama.cpp-এর GGUF input নয় বা CPU/Vulkan measurement হিসেবে দেখানো হয়নি।
+Model file সরানো বা বদলানো হয়নি। পুরো workload-এর পর desktop running ছিল;
+status-এ PID 16987, X11 ও PulseAudio running, battery 40°C এবং available RAM
+5372 MB দেখা গেছে। প্রমাণ এক device-এ সীমিত।

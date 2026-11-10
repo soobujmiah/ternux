@@ -3,7 +3,7 @@ title: "Benchmarks and device evidence"
 description: "A concise, measured snapshot of Ternux graphics and accelerator workloads, with explicit evidence boundaries."
 lang: "en"
 alt_url: "/bn/docs/BENCHMARKS.html"
-evidence_through: "2026-11-07"
+evidence_through: "2026-11-10"
 ---
 
 This page summarizes measured workloads and their limits on one configured
@@ -32,6 +32,32 @@ performance guarantee for other devices.
 | llama.cpp Hexagon HTP | **Experimental:** on a matched three-run Qwen2.5 0.5B-named Q4_0 GGUF (llama.cpp identifies Qwen2 1B / 630.17M parameters), HTP measured a 46.2 tok/s median, Vulkan 24.8, and four-thread CPU 8.0. A separate matched Qwen2.5 1.5B Q4_K_M workload measured medians of 7.6 CPU, 18.2 Vulkan, and 18.9 HTP tok/s across three interleaved rounds; all routes returned `4`. | One device and short workloads; no quality, energy, or sustained-use claim. HTP operator failures and broader qualification remain open; HTP remains unsupported. HMX and attention correctness are unqualified. |
 | `stable-diffusion.cpp` Vulkan | **Verified:** the managed extension generated a valid 512×512 image in 92.91 s at 10 steps with tiled Vulkan VAE; the output hash matched a second clean-guest run. | Redmi Turbo 4 Pro / SM8735 / Adreno 825, user-provided SD1.5 Q8_0 model, seed 42. One model/device/workload; CPU image quality remains unqualified. |
 | Separate QNN SD1.5 runner | **Measured:** 25 consecutive 20-step 512×512 images; median 29.76 s/image, mean 31.12 s/image. Median HTP UNet time was 15.96 s for 20 denoising steps. | CLIP runs on CPU; UNet and VAE decoder run on HTP. One SM8735 device; no same-model CPU/GPU comparison. Not `stable-diffusion.cpp`; independent stage-tensor correctness remains unverified. |
+
+### Current llama.cpp multi-model results (2026-11-10)
+
+Four local GGUF files were each benchmarked on CPU and Adreno 825 Vulkan on
+one Redmi Turbo 4 Pro / SM8735 device. Each cell is the mean ± standard
+deviation across three runs, with four threads, a 512-token prompt, 128
+generated tokens, batch/ubatch 64, and flash attention off.
+
+| Model | CPU prompt / generation | Vulkan prompt / generation |
+|---|---:|---:|
+| Qwen 0.5B-named Q4_0 (runtime: 630M parameters) | 65.0 ± 3.2 / 15.37 ± 0.08 tok/s | 319.8 ± 0.7 / 34.55 ± 0.09 tok/s |
+| Qwen 1.5B Q4_0 | 17.38 ± 0.92 / 7.47 ± 0.24 tok/s | 101.93 ± 0.44 / 19.83 ± 0.04 tok/s |
+| Qwen 1.5B Q4_K_M | 19.07 ± 0.08 / 7.92 ± 0.18 tok/s | 96.73 ± 0.28 / 17.57 ± 0.04 tok/s |
+| Llama 3.2 3B Q4_K_M | 8.93 ± 0.23 / 5.15 ± 0.18 tok/s | 46.26 ± 0.01 / 10.68 ± 0.23 tok/s |
+
+These are throughput results, not quality scores. In one synthetic structured
+retrieval sample, the three Qwen variants returned the wrong record; Llama
+3.2 3B returned the exact marker from a separate 180-record input with a
+4096-token context cap. Small-model long-context reliability is therefore not
+established.
+
+The Gemma 4 QNN model targeting SM7635 was not run on this SM8735 device; no
+compatible managed text-QNN runner is installed. The AbsoluteReality 8gen2
+QNN image archive is not a GGUF text model and is covered by a separate,
+previously recorded 25-image QNN run above. Neither belongs in the CPU/Vulkan
+LLM table. Full details are in the linked device benchmark record.
 
 ### Clean-idle llama.cpp throughput
 
