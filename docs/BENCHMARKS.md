@@ -53,6 +53,20 @@ retrieval sample, the three Qwen variants returned the wrong record; Llama
 4096-token context cap. Small-model long-context reliability is therefore not
 established.
 
+### Memory-pressure retrieval and recovery (2026-11-10)
+
+With 768 MiB of native memory reserved and touched, Llama 3.2 3B Q4_K_M
+retrieved the exact target record and recovery token from a 30-record support
+queue on both CPU and Adreno 825 Vulkan. CPU completed in 42.1 s; Vulkan in
+30.5 s. After releasing the reservation, Ternux status, verify, and quick
+doctor all passed; the same desktop PID (16987), X11, and PulseAudio remained
+active, and no `llama-cli` process remained. This closes the bounded
+memory-pressure/recovery check for this model and device; it is not a sustained
+thermal soak or evidence for other models/devices. A separate pressure-time
+invoice task returned 24.75 instead of the expected 39.50 on CPU, so that
+correctness failure remains open. The three Qwen long-record retrieval misses
+also remain failures; P1-06 stays partial.
+
 The Gemma 4 QNN model targeting SM7635 was not run on this SM8735 device; no
 compatible managed text-QNN runner is installed. The AbsoluteReality 8gen2
 QNN image archive is not a GGUF text model and is covered by a separate,

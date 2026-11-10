@@ -1561,3 +1561,12 @@ llama.cpp or represented as a CPU/Vulkan measurement. The model files were left 
 place. The desktop stayed running through the workload; post-run status showed
 PID 16987, X11 and PulseAudio running, 40°C battery, and 5372 MB available RAM.
 This is one-device evidence only.
+
+### 2026-11-10 768 MiB memory-pressure retrieval and recovery (Llama 3.2 3B)
+
+On the Redmi Turbo 4 Pro / SM8735 / Adreno 825, I allocated and touched 768 MiB
+of native memory while using the existing `/sdcard/LAI/models/llama-3.2-3b-instruct-q4_k_m.gguf` in place. A 30-record synthetic support queue asked for the exact case ID and recovery token for Mira Solis's repeated display-wake failure. CPU (`-ngl 0`) returned `CASE-8417-QW6P | recovery token: RESTORE-73KQ-2M` with exit 0 in 42.1 s; Adreno Vulkan (`-dev Vulkan0 -ngl 99`) returned the same exact result with exit 0 in 30.5 s. Both runs used four threads, context 1024, batch/ubatch 64, temperature 0 and seed 42.
+
+After inference, the reservation was freed. Native Ternux status remained running with desktop PID 16987, X11 and PulseAudio active; `ternux verify --json` passed; quick doctor reported 17 OK, 0 warnings, 0 failures, 5079 MB available RAM and 40 C battery temperature. No `llama-cli` process remained. No model file was moved or changed. This passes a bounded pressure/recovery path for this model and device only; it is not a thermal soak or broad model/device qualification.
+
+A separate CPU invoice task under the same pressure returned 24.75 instead of the expected 39.50. This is a correctness failure, not a memory-recovery pass. The three Qwen structured retrieval misses recorded above also remain failures. P1-06 therefore remains partial; no prompt retry was made.
