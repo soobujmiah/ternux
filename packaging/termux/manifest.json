@@ -76,6 +76,10 @@
       "source": "lib/state.sh",
       "perm": "644"
     },
+    "lib/ternux/storage.sh": {
+      "source": "lib/storage.sh",
+      "perm": "644"
+    },
     "lib/ternux/ui.sh": {
       "source": "lib/ui.sh",
       "perm": "644"

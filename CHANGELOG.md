@@ -28,6 +28,10 @@ Notable changes to ternux. Dates are ISO 8601.
 - Added managed, checksum-verified llama.cpp CPU/Vulkan and Stable Diffusion CPU/Vulkan extensions, plus an experimental device-specific HTP artifact. Fresh installs can opt in to eligible workloads; model weights stay user-managed. These are preview/experimental paths, not production-qualified AI products; see the release plan for current limits.
 
 
+### Storage privacy
+
+- Android shared storage is no longer mounted or permission-requested during setup by default. `ternux storage grant /sdcard/Folder` exposes only a chosen existing directory to new guest sessions; list and revoke commands are available. Generated desktop and shell aliases validate the same private allowlist.
+
 ### CLI reliability
 
 - Fixed state updates for stored URLs and paths; the GPU updater can now be rerun without `sed` replacement errors. Added a focused regression check.

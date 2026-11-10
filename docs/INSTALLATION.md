@@ -214,8 +214,9 @@ release-aware commands above.
 ### Optional Stable Diffusion CPU + Vulkan extension
 
 `ternux extension install stable-diffusion` installs the pinned Linux ARM64
-`sd-cli` runtime. Model weights remain user-provided and can be used directly
-from shared storage such as `/sdcard/Llms`; Vulkan requires a working Debian
+`sd-cli` runtime. Model weights remain user-provided. To use weights under Android shared
+storage, first run `ternux storage grant /sdcard/Llms`; only granted folders are
+mounted in the guest. Vulkan requires a working Debian
 Vulkan ICD. The artifact is in preview pending target-device image generation,
 quality and performance qualification. See the
 [Stable Diffusion extension guide](https://github.com/soobujmiah/ternux/blob/main/guides/stable-diffusion-vulkan-extension.md)

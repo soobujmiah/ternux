@@ -75,7 +75,12 @@ ternux stop       # stop the desktop session
 
 The `x` shortcut starts the desktop; `xgo` opens Termux:X11 and starts it.
 Inside Debian, use `db` from Termux to open a shell. Shared Android storage is
-available at `/sdcard` inside Debian.
+not mounted by default. Grant only a needed folder, then restart the desktop or
+open a new guest shell to use it:
+
+```bash
+ternux storage grant /sdcard/Llms
+```
 
 ## What you get
 

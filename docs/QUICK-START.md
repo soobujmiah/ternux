@@ -155,8 +155,8 @@ it is documented in the [CLI Reference](CLI.html).
 - A configured **Zink/Turnip or VirGL graphics route** for OpenGL apps; verify
   the actual renderer rather than assuming acceleration.
 - **Sound** bridged to the phone speakers/headphones.
-- **Shared storage** between Android and Debian (`~/storage` in Termux ↔
-  `/sdcard` inside the container).
+- Optional **shared storage**: grant one Android folder with
+  `ternux storage grant /sdcard/Folder`; no user files are exposed by default.
 
 ## Android 12+? One important note
 
@@ -200,7 +200,13 @@ From Termux, install the pinned image-generation runtime:
 ternux extension install stable-diffusion
 ```
 
-Then in Debian, use the model directly from `/sdcard/Llms` on CPU or Adreno Vulkan:
+Grant the model folder from Termux, then in Debian use it directly on CPU or Adreno Vulkan:
+
+```bash
+ternux storage grant /sdcard/Llms
+```
+
+Open a new guest shell or restart the desktop for the mount to appear:
 
 ```bash
 source "$HOME/.local/opt/ternux-extensions/stable-diffusion/env.sh"

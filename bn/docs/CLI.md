@@ -51,6 +51,20 @@ workload, ecosystem tool, graphics-persistence এবং daily-use guide-এর 
 কিছু
 install করে না।
 
+### `ternux storage`
+
+PRoot-এ Android shared storage default-এ hidden থাকে। `/sdcard`-এর নিচে থাকা
+বিদ্যমান একটি directory grant করলে generic guest command এবং পরের desktop session-এ
+শুধু ওই directory mount হয়। পুরো storage root grant করা যায় না। দরকার হলে grant
+করার সময়ই Android storage permission চাওয়া হয়। Revoke করলে grant মুছে যায়;
+চলমান desktop session বন্ধ হওয়া পর্যন্ত আগের mount থাকবে।
+
+```bash
+ternux storage list
+ternux storage grant /sdcard/Llms
+ternux storage revoke /sdcard/Llms
+```
+
 ### `ternux install`
 
 সম্পূর্ণ ternux ডেস্কটপ ইনস্টল বা পুনরায় ইনস্টল।

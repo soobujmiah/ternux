@@ -229,8 +229,8 @@ tnx_phase_packages() {
   export TERMUX_PKG_NO_MIRROR_SELECT=1
   tnx_info "Using the currently configured Termux repository (automatic mirror sweep disabled)."
 
-  termux-setup-storage 2>/dev/null || tnx_warn "termux-setup-storage: continuing."
-  sleep 1
+  # Android shared storage permission is requested only when the user runs
+  # `ternux storage grant DIRECTORY`; setup itself does not expose user files.
 
   tnx_spin_run "Refresh Termux repositories" tnx_termux_pkg update -y $APT_FORCE || rc=1
   tnx_spin_run "Upgrade installed Termux packages" tnx_termux_pkg upgrade -y $APT_FORCE || {
@@ -1010,7 +1010,7 @@ tnx_phase_launcher() {
   # truncating the command and triggering teardown before XFCE starts.
   cat > "$LAUNCHER" <<'LAUNCHEOF'
 #!/data/data/com.termux/files/usr/bin/bash
-# TERNUX_DESKTOP_LAUNCHER=19
+# TERNUX_DESKTOP_LAUNCHER=20
 set -u
 TMPDIR="${TMPDIR:-/data/data/com.termux/files/usr/tmp}"
 PREFIX="${PREFIX:-/data/data/com.termux/files/usr}"
@@ -1068,9 +1068,20 @@ guest_login_isolated() {
   local -a host_bind_paths=(/apex /system /system_ext /vendor /odm /product /linkerconfig/ld.config.txt /linkerconfig/com.android.art/ld.config.txt)
   local -a api_cache_paths=("$host_home/.cache/ternux-camera" "$host_home/.cache/ternux-recorder")
 
-  # Shared Android storage is an intentional user-facing feature. Keep /sdcard
-  # visible while avoiding PRoot-Distro's default bind of all Termux HOME.
-  if [ -e /sdcard ]; then login_args+=(--bind /sdcard:/sdcard); fi
+  local storage_allowlist="$HOME/.local/share/ternux/storage-allowlist"
+  if [ -e "$storage_allowlist" ]; then
+    [ ! -L "$storage_allowlist" ] && [ -f "$storage_allowlist" ] || { echo "Unsafe Ternux storage allowlist; refusing storage mounts." >&2; return 1; }
+    local storage_root storage_host storage_guest storage_real storage_expected storage_extra
+    storage_root="$(realpath -e /sdcard 2>/dev/null)" || { echo "Granted Android storage is unavailable." >&2; return 1; }
+    while IFS=$'\t' read -r storage_host storage_guest storage_extra; do
+      [ -n "$storage_host" ] || continue
+      storage_expected="/sdcard/${storage_host#"$storage_root"/}"
+      [ -z "$storage_extra" ] && [[ "$storage_host" == "$storage_root"/* && "$storage_host" != *:* && "$storage_guest" == "$storage_expected" && "$storage_guest" != *:* ]] || { echo "Out-of-scope Ternux storage grant." >&2; return 1; }
+      storage_real="$(realpath -e -- "$storage_host" 2>/dev/null)" || return 1
+      [ "$storage_real" = "$storage_host" ] && [ -d "$storage_host" ] || return 1
+      login_args+=(--bind "$storage_host:$storage_guest")
+    done < "$storage_allowlist"
+  fi
   login_args+=(--bind "$prefix:$prefix")
   for bind_path in "${host_bind_paths[@]}"; do
     [ -e "$bind_path" ] && login_args+=(--bind "$bind_path:$bind_path")
@@ -1326,7 +1337,25 @@ tnx_phase_aliases() {
     [ "${TERNUX_THEME:-p10k}" = "none" ] || _tnx_setup_p10k
   fi
 
-  grep -q "TERNUX ALIASES" "$RC_FILE" 2>/dev/null && { tnx_warn "Aliases already present."; return 0; }
+  [ -e "$RC_FILE" ] || touch "$RC_FILE"
+  RC_FILE="$(realpath -e -- "$RC_FILE" 2>/dev/null)" || { tnx_fail "Cannot resolve shell configuration path."; return 1; }
+  if grep -q '^# ==== TERNUX ALIASES ====$' "$RC_FILE" 2>/dev/null; then
+    local aliases_tmp aliases_mode
+    aliases_mode="$(stat -c '%a' "$RC_FILE" 2>/dev/null || echo 600)"
+    [[ "$aliases_mode" =~ ^[0-7]{3,4}$ ]] || { tnx_fail "Shell configuration permissions are invalid."; return 1; }
+    aliases_tmp="$(umask 077; mktemp "${RC_FILE}.ternux-tmp.XXXXXX")" || return 1
+    if ! awk '
+      $0 == "# ==== TERNUX ALIASES ====" { if (skip) exit 2; skip=1; next }
+      $0 == "# ==== END TERNUX ALIASES ====" && skip { skip=0; next }
+      !skip { print }
+      END { if (skip) exit 2 }
+    ' "$RC_FILE" > "$aliases_tmp"; then
+      rm -f -- "$aliases_tmp"
+      tnx_fail "Existing Ternux alias block is malformed; preserving $RC_FILE."
+      return 1
+    fi
+    chmod "$aliases_mode" "$aliases_tmp" && mv -f -- "$aliases_tmp" "$RC_FILE" || { rm -f -- "$aliases_tmp"; return 1; }
+  fi
 
   cat >> "$RC_FILE" << ALIASEOF
 
@@ -1335,8 +1364,20 @@ alias x='ternux start'
 alias killx='ternux stop'
 _ternux_guest_login() {
   local -a login_args=(--isolated)
-  [ ! -e /sdcard ] || login_args+=(--bind /sdcard:/sdcard)
-  proot-distro login $distro "${login_args[@]}" "$@"
+  local allowlist="\$HOME/.local/share/ternux/storage-allowlist" root host guest resolved expected extra
+  if [ -e "\$allowlist" ]; then
+    [ ! -L "\$allowlist" ] && [ -f "\$allowlist" ] || return 1
+    root="\$(realpath -e /sdcard 2>/dev/null)" || return 1
+    while IFS=$'\t' read -r host guest extra; do
+      [ -n "\$host" ] || continue
+      expected="/sdcard/\${host#"\$root"/}"
+      [ -z "\$extra" ] && [[ "\$host" == "\$root"/* && "\$host" != *:* && "\$guest" == "\$expected" && "\$guest" != *:* ]] || return 1
+      resolved="\$(realpath -e -- "\$host" 2>/dev/null)" || return 1
+      [ "\$resolved" = "\$host" ] && [ -d "\$host" ] || return 1
+      login_args+=(--bind "\$host:\$guest")
+    done < "\$allowlist"
+  fi
+  proot-distro login $distro "\${login_args[@]}" "\$@"
 }
 alias db='_ternux_guest_login --shared-tmp --user $user_name'
 alias droot='_ternux_guest_login --shared-tmp'

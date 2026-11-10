@@ -25,8 +25,8 @@ check "core loads persisted Debian user" env -u TERNUX_USER \
   TERNUX_STATE_DIR="$state" HOME="$TMP/home-user" bash -c \
   '. "$1/lib/core.sh"; test "$TERNUX_USER" = alice' _ "$ROOT"
 
-# Generic guest commands use isolated binds, keep shared Android storage when
-# the host exposes it, and still honor caller-requested temporary storage.
+# Generic guest commands expose no Android shared storage by default, while
+# retaining isolation and honoring caller-requested temporary storage.
 if env TERNUX_STATE_DIR="$TMP/state-guest-isolation" HOME="$TMP/home-guest-isolation" \
   PREFIX="$TMP/prefix-guest-isolation" LOG="$TMP/guest-login-args" bash -c '
     . "$1/lib/core.sh"
@@ -38,14 +38,52 @@ if env TERNUX_STATE_DIR="$TMP/state-guest-isolation" HOME="$TMP/home-guest-isola
     grep -qx -- "--user" "$LOG" || exit
     ! grep -Fq -- "$HOME" "$LOG" || exit
     ! grep -qx -- "--shared-home" "$LOG" || exit
-    if [ -e /sdcard ]; then
-      grep -qx -- "--bind" "$LOG" || exit
-      grep -qx -- "/sdcard:/sdcard" "$LOG" || exit
-    fi
+    ! grep -Fq -- "/sdcard" "$LOG" || exit
   ' _ "$ROOT"; then
-  ok "generic guest login isolates Termux HOME and preserves available /sdcard"
+  ok "generic guest login isolates Termux HOME and does not mount shared storage by default"
 else
-  not_ok "generic guest login isolates Termux HOME and preserves available /sdcard"
+  not_ok "generic guest login isolates Termux HOME and does not mount shared storage by default"
+fi
+
+# Explicit storage grants bind only the requested directory and reject a
+# tampered allowlist that points outside the shared-storage root.
+if env TERNUX_STATE_DIR="$TMP/state-storage-grant" HOME="$TMP/home-storage-grant" \
+  PREFIX="$TMP/prefix-storage-grant" FIXTURE="$TMP/shared-storage" LOG="$TMP/guest-storage-args" bash -c '
+    mkdir -p "$FIXTURE/Models" "$TERNUX_STATE_DIR"
+    printf "%s\t/sdcard/Models\n" "$FIXTURE/Models" > "$TERNUX_STATE_DIR/storage-allowlist"
+    . "$1/lib/core.sh"
+    realpath(){
+      if [ "$*" = "-e /sdcard" ]; then printf "%s\n" "$FIXTURE"
+      else command realpath "$@"; fi
+    }
+    tnx_distro(){ echo debian; }
+    proot-distro(){ printf "%s\n" "$@" > "$LOG"; }
+    tnx_guest_login --user alice -- true || exit
+    grep -Fqx -- "$FIXTURE/Models:/sdcard/Models" "$LOG" || exit
+    printf "/data/private\t/sdcard/Private\n" > "$TERNUX_STATE_DIR/storage-allowlist"
+    ! tnx_guest_login -- true 2>/dev/null
+  ' _ "$ROOT"; then
+  ok "guest login binds only explicitly granted, validated storage directories"
+else
+  not_ok "guest login binds only explicitly granted, validated storage directories"
+fi
+
+# Storage CLI refuses root/traversal grants and can revoke a previously granted
+# folder even if that folder has since disappeared from shared storage.
+if env TERNUX_STATE_DIR="$TMP/state-storage-cli" HOME="$TMP/home-storage-cli" bash -c '
+  mkdir -p "$TERNUX_STATE_DIR"
+  . "$1/lib/core.sh"
+  . "$1/lib/storage.sh"
+  printf "/storage/emulated/0/Old\t/sdcard/Old\n" > "$TERNUX_STATE_DIR/storage-allowlist"
+  tnx_cmd_storage revoke /sdcard/Old >/dev/null || exit
+  [ ! -e "$TERNUX_STATE_DIR/storage-allowlist" ] || exit
+  tnx_cmd_storage grant /sdcard >/dev/null 2>&1 && exit 1
+  tnx_cmd_storage grant /sdcard/../private >/dev/null 2>&1 && exit 1
+  exit 0
+' _ "$ROOT"; then
+  ok "storage CLI rejects broad/traversal grants and revokes stale paths without reading user files"
+else
+  not_ok "storage CLI rejects broad/traversal grants and revokes stale paths without reading user files"
 fi
 
 # The bounded X11 probe keeps the guest isolated while enabling only shared X11.
@@ -277,17 +315,17 @@ fi
 # Package setup keeps the current mirror and suppresses pkg's all-mirror sweep;
 # it must not open the full-screen termux-change-repo dialog inside the frame.
 if env TERNUX_STATE_DIR="$TMP/state-repos" HOME="$TMP/home-repos" \
-  PREFIX="$TMP/prefix-repos" MARKER="$TMP/change-repo-called" bash -c '
+  PREFIX="$TMP/prefix-repos" MARKER="$TMP/change-repo-called" STORAGE_MARKER="$TMP/storage-permission-called" bash -c '
     . "$1/lib/phases.sh"
     termux-change-repo(){ : > "$MARKER"; return 1; }
-    termux-setup-storage(){ :; }
+    termux-setup-storage(){ : > "$STORAGE_MARKER"; }
     proot-distro(){ :; }; termux-x11(){ :; }; pulseaudio(){ :; }; setsid(){ :; }
     tnx_spin_run(){ [ "${TERMUX_PKG_NO_MIRROR_SELECT:-}" = 1 ]; }
-    tnx_phase_packages virgl >/dev/null && [ ! -e "$MARKER" ]
+    tnx_phase_packages virgl >/dev/null && [ ! -e "$MARKER" ] && [ ! -e "$STORAGE_MARKER" ]
   ' _ "$ROOT"; then
-  ok "package phase avoids repository dialogs and mirror sweeps"
+  ok "package phase avoids repository dialogs, mirror sweeps and automatic storage permission"
 else
-  not_ok "package phase avoids repository dialogs and mirror sweeps"
+  not_ok "package phase avoids repository dialogs, mirror sweeps and automatic storage permission"
 fi
 
 # Package artifacts must survive the Astro build, which owns dist/.
@@ -796,7 +834,7 @@ if env TERNUX_STATE_DIR="$TMP/state-launcher" HOME="$launcher_home" bash -c '
   bash -n "$HOME/x.sh" &&
   awk "/cat > .*TERNUX_GUEST_EOF/ {guest=1; next} guest && /^TERNUX_GUEST_EOF$/ {exit} guest {print}" "$HOME/x.sh" > "$HOME/guest-session.sh" &&
   bash -n "$HOME/guest-session.sh" &&
-  grep -q "^# TERNUX_DESKTOP_LAUNCHER=19$" "$HOME/x.sh" &&
+  grep -q "^# TERNUX_DESKTOP_LAUNCHER=20$" "$HOME/x.sh" &&
   grep -q -- "--env MESA_LOADER_DRIVER_OVERRIDE=zink" "$HOME/x.sh" &&
   ! grep -q -- "--env GALLIUM_DRIVER=zink" "$HOME/x.sh" &&
   grep -q -- "--user alice" "$HOME/x.sh" &&
@@ -849,7 +887,8 @@ if env TERNUX_STATE_DIR="$TMP/state-launcher" HOME="$launcher_home" bash -c '
   grep -Fq "TNX_PID_FILE=\"\${TNX_PID_FILE:-\$HOME/.local/share/ternux/session/desktop.pid}\"" "$HOME/x.sh" &&
   grep -Fq "guest_login_isolated debian" "$HOME/x.sh" &&
   grep -Fq "local -a login_args=(--isolated --shared-x11)" "$HOME/x.sh" &&
-  grep -Fq "login_args+=(--bind /sdcard:/sdcard)" "$HOME/x.sh" &&
+  grep -Fq "storage-allowlist" "$HOME/x.sh" &&
+  ! grep -Fq "login_args+=(--bind /sdcard:/sdcard)" "$HOME/x.sh" &&
   grep -Fq "/linkerconfig/ld.config.txt" "$HOME/x.sh" &&
   grep -Fq "ternux-camera" "$HOME/x.sh" &&
   grep -Fq "ternux-recorder" "$HOME/x.sh" &&
@@ -868,11 +907,28 @@ if env TERNUX_STATE_DIR="$TMP/state-launcher" HOME="$launcher_home" bash -c '
   grep -q "_ternux_guest_login --shared-tmp --user alice" "$HOME/.bashrc" &&
   grep -q "droot=.*_ternux_guest_login --shared-tmp" "$HOME/.bashrc" &&
   grep -q "login_args=(--isolated)" "$HOME/.bashrc" &&
-  grep -q -- "--bind /sdcard:/sdcard" "$HOME/.bashrc"
+  grep -q "storage-allowlist" "$HOME/.bashrc" &&
+  ! grep -q -- "--bind /sdcard:/sdcard" "$HOME/.bashrc"
 ' _ "$ROOT"; then
   ok "Zink launcher and aliases preserve user and backend boundaries"
 else
   not_ok "Zink launcher and aliases preserve user and backend boundaries"
+fi
+
+# Re-running install replaces only the generated alias block, removing legacy
+# broad storage mounts while preserving user shell configuration around it.
+if env TERNUX_STATE_DIR="$TMP/state-alias-refresh" HOME="$TMP/home-alias-refresh" bash -c '
+  mkdir -p "$HOME"
+  printf "# user before\n# ==== TERNUX ALIASES ====\nold\n[ ! -e /sdcard ] || login_args+=(--bind /sdcard:/sdcard)\n# ==== END TERNUX ALIASES ====\n# user after\n" > "$HOME/.bashrc"
+  . "$1/lib/phases.sh"
+  tnx_phase_aliases alice bash >/dev/null
+  bash -n "$HOME/.bashrc" && grep -q "# user before" "$HOME/.bashrc" &&
+    grep -q "# user after" "$HOME/.bashrc" && grep -q "storage-allowlist" "$HOME/.bashrc" &&
+    ! grep -q "/sdcard:/sdcard" "$HOME/.bashrc"
+' _ "$ROOT"; then
+  ok "alias refresh removes legacy broad mounts and preserves surrounding user shell content"
+else
+  not_ok "alias refresh removes legacy broad mounts and preserves surrounding user shell content"
 fi
 
 if env TERNUX_STATE_DIR="$TMP/state-pulse-port" HOME="$TMP/home-pulse-port" bash -c '
@@ -934,8 +990,8 @@ fi
 # lifecycle, whose launcher carries the isolated bind policy.
 if grep -q 'ternux start' "$ROOT/docs/MANUAL.md" &&
    grep -q 'ternux start' "$ROOT/bn/docs/MANUAL.md" &&
-   grep -q 'shared storage.*`/sdcard`' "$ROOT/docs/MANUAL.md" &&
-   grep -q '`/sdcard`' "$ROOT/bn/docs/MANUAL.md" &&
+   grep -q 'ternux storage grant' "$ROOT/docs/MANUAL.md" &&
+   grep -q 'ternux storage grant' "$ROOT/bn/docs/MANUAL.md" &&
    ! grep -q '^# TERNUX_DESKTOP_LAUNCHER=' "$ROOT/docs/MANUAL.md" "$ROOT/bn/docs/MANUAL.md"; then
   ok "English and Bengali manuals use the managed, isolated desktop launcher"
 else
@@ -1700,7 +1756,7 @@ fi
 if env TERNUX_STATE_DIR="$TMP/state-x11-duplicate" HOME="$TMP/home-x11-duplicate" \
   TMPDIR="$TMP/x11-duplicate-tmp" bash -c '
     mkdir -p "$HOME" "$TMPDIR/.X11-unix"
-    printf "#!/usr/bin/env bash\n# TERNUX_DESKTOP_LAUNCHER=19\n" > "$HOME/x.sh"
+    printf "#!/usr/bin/env bash\n# TERNUX_DESKTOP_LAUNCHER=20\n" > "$HOME/x.sh"
     python3 -c "import socket,sys; s=socket.socket(socket.AF_UNIX); s.bind(sys.argv[1]); s.close()" "$TMPDIR/.X11-unix/X0" || exit
     . "$1/lib/desktop.sh"
     pgrep(){ case "$1" in -f) return 0;; *) return 1;; esac; }
@@ -1810,7 +1866,7 @@ if env TERNUX_STATE_DIR="$TMP/state-desktop-start" HOME="$TMP/home-desktop-start
     tnx_state_get(){ case "$1" in backend) echo virgl;; user) echo alice;; locale) echo en_US.UTF-8;; esac; }
     tnx_phase_launcher(){
       cp "$MOCK_LAUNCHER" "$HOME/x.sh"
-      sed -i "1a# TERNUX_DESKTOP_LAUNCHER=19" "$HOME/x.sh"
+      sed -i "1a# TERNUX_DESKTOP_LAUNCHER=20" "$HOME/x.sh"
       chmod +x "$HOME/x.sh"
     }
     fixture_pid=""; fixture_start=""; fixture_pgid=""
@@ -1834,7 +1890,7 @@ if env TERNUX_STATE_DIR="$TMP/state-desktop-start" HOME="$TMP/home-desktop-start
     [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null || exit
     read -r fixture_pid fixture_start fixture_pgid < "$TERNUX_STATE_DIR/session/desktop.pid.identity" || exit
     grep -q session-started "$TERNUX_STATE_DIR/session/desktop.log" || exit
-    grep -q "^# TERNUX_DESKTOP_LAUNCHER=19$" "$HOME/x.sh" || exit
+    grep -q "^# TERNUX_DESKTOP_LAUNCHER=20$" "$HOME/x.sh" || exit
     grep -q "util-linux zsh git curl" "$1/lib/phases.sh" || exit
     tnx_cmd_stop >/dev/null || exit
     [ ! -e "$TERNUX_STATE_DIR/session/desktop.pid" ] || exit

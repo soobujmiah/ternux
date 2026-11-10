@@ -16,6 +16,10 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 
 - Production Pages deploy এখন explicit `workflow_dispatch` চায়; routine source বা documentation merge live site-এ automatic deployment করবে না।
 
+### Storage privacy
+
+- Setup-এ Android shared storage default-এ mount বা permission request হয় না। `ternux storage grant /sdcard/Folder` দিয়ে শুধু নির্বাচিত বিদ্যমান folder নতুন guest session-এ প্রকাশ করুন; list ও revoke command-ও আছে। Generated desktop ও shell alias একই private allowlist যাচাই করে।
+
 ### ডেস্কটপ অভিজ্ঞতা
 
 - ARM64-এর optional workload হিসেবে Celestia astronomy simulator যোগ হয়েছে। Install-এর আগে publisher-signed package metadata ও package hash যাচাই হয়; astronomy data opt-in, তাই default desktop হালকা থাকে।

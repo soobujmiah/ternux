@@ -48,6 +48,16 @@ before `lib/core.sh` can load is necessarily plain stderr, not JSON.
 
 Run `ternux guides` in the Termux host or Debian/Xfce guest to print direct installation, workload, ecosystem tool, graphics-persistence, and daily-use links. It performs no install or browser action.
 
+### `ternux storage`
+
+Android shared storage is hidden from PRoot by default. Grant an existing directory below `/sdcard` to mount only that directory for generic guest commands and future desktop sessions. The storage root itself is rejected. Granting requests Android storage permission only when needed. Revoke removes the grant; an already-running desktop keeps its current mounts until that session exits.
+
+```bash
+ternux storage list
+ternux storage grant /sdcard/Llms
+ternux storage revoke /sdcard/Llms
+```
+
 ### `ternux install`
 
 Install or reinstall the full ternux desktop environment.

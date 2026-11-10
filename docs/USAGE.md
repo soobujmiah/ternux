@@ -66,7 +66,7 @@ Unknown models remain labeled as unavailable instead of being guessed.
 
 ### Audio and VLC controls
 
-Fresh installs apply Ternux's graphite-and-emerald GTK 2/3/4 and Xfwm theme, Qt 5 GTK platform theme, branded app, folder, Thunar-action, category, and panel icon mappings with neutral Adwaita fallbacks, and the Ternux panel defaults across Xfce. Optional GUI apps such as Firefox ESR, Blender, GIMP, Krita, Inkscape, Audacity, Geany, and LibreOffice also have branded icon aliases; the base Evince PDF reader has one too. Common Thunar actions are stored in their own icon context. Fifteen portrait-first wallpapers preserve their aspect ratio in landscape. Apps using other toolkits may keep their own styling. PulseAudio Volume Control uses Debian's packaged application entry and the same desktop session. Xfwm compositing stays disabled because enabling it can make the whole Termux:X11 desktop black. VLC uses its full interface by default so playback controls remain visible. A **SD Card** desktop shortcut opens Android shared storage in Thunar.
+Fresh installs apply Ternux's graphite-and-emerald GTK 2/3/4 and Xfwm theme, Qt 5 GTK platform theme, branded app, folder, Thunar-action, category, and panel icon mappings with neutral Adwaita fallbacks, and the Ternux panel defaults across Xfce. Optional GUI apps such as Firefox ESR, Blender, GIMP, Krita, Inkscape, Audacity, Geany, and LibreOffice also have branded icon aliases; the base Evince PDF reader has one too. Common Thunar actions are stored in their own icon context. Fifteen portrait-first wallpapers preserve their aspect ratio in landscape. Apps using other toolkits may keep their own styling. PulseAudio Volume Control uses Debian's packaged application entry and the same desktop session. Xfwm compositing stays disabled because enabling it can make the whole Termux:X11 desktop black. VLC uses its full interface by default so playback controls remain visible. Android storage is not mounted by default. Use `ternux storage grant /sdcard/Folder` to expose one folder; the desktop shortcut then opens only granted folders.
 
 ---
 
@@ -125,15 +125,15 @@ Termux host                          PRoot Debian
 ────────────                         ────────────
 ~/x.sh             launcher          /home/<user>     your home
 ~/.local/share/ternux/ state          /root            root's home
-~/storage/shared   Android storage   /sdcard          same files, bind-mounted
+~/storage/shared   Android storage   /sdcard          same files; guest access is opt-in
 ```
 
 - **Debian home** is inside the container — it travels with a
   `proot-distro backup` and is deleted with the container.
-- **`~/storage/shared`** (Termux) and **`/sdcard`** (Debian) are the *same*
-  Android storage. Files you want other apps (gallery, Drive, WhatsApp) to
-  see belong here. *Why:* the container is invisible to Android apps; shared
-  storage is the hand-off point.
+- **`~/storage/shared`** (Termux) and **`/sdcard`** (Debian) refer to Android
+  shared storage. Ternux does not mount it by default. Grant only a specific
+  folder with `ternux storage grant /sdcard/Folder`; revoke it with
+  `ternux storage revoke /sdcard/Folder`.
 - **Source code you care about** should also live in a Git remote. A phone is
   easy to lose and containers are easy to delete — GitHub is not.
 
@@ -250,8 +250,8 @@ Terminal-based coding assistants work inside the container; account and
 licence terms are between you and the provider.
 
 *Tip:* run `git` inside the container (`db`), but push from wherever is
-convenient — both sides share the same Android storage if you clone under
-`/sdcard`.
+convenient. Android shared storage is only visible to the guest after you grant
+that specific directory.
 
 ### Authorised security lab
 
