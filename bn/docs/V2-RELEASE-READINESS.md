@@ -25,7 +25,7 @@ exact publisher verifier-ও pass করেছে: source ancestry, build defini
 run/artifact provenance ও expiry যাচাই হয়েছে। Public prerelease-এ এখনো পুরোনো archive;
 প্রকাশনা `main`-এ owner/CODEOWNERS review ও merge-এর অপেক্ষায়।
 
-PR head `3cc8e2cdafa7d9cd93d27d48ec3ce674f91aaaa8`-এ পাঁচটি required check pass: Validate `42796372115`, Termux APT `42796372208`, repository contract `42796372131`, Repo Knowledge Sync `42796372536`-এর `sync` ও `test`। GitHub `REVIEW_REQUIRED` দেখায়, review request নেই। `.github/CODEOWNERS`-এ শুধু `@soobujmiah`, যিনি PR author; GitHub collaborator তালিকাতেও শুধু owner। Branch protection-এ ১টি approval ও CODEOWNERS review লাগে, তাই owner trusted independent reviewer যোগ/অনুমোদন না করা পর্যন্ত eligible reviewer নেই। PR merge না হলে main-only HTP publisher চালানো যাবে না।
+সর্বশেষ exact-head follow-up: PR #97 এখন `2d19b4566e2cf9aa40edb5f71011b011604651d7` commit-এ। পাঁচটি required check-ই pass করেছে: Validate `42797563217`, Termux APT package `42797562831`, repository contract `42797563017`, Repo Knowledge Sync `42797562765`-এর `sync` ও `test`। GitHub এখনো `REVIEW_REQUIRED`, `BLOCKED`; কোনো review request বা approval নেই। `.github/CODEOWNERS`-এ শুধু PR author `@soobujmiah`; collaborator তালিকায় শুধু owner, আর non-owner review entry-গুলো bot comment। PR merge ও main-only HTP publisher চালাতে independent human reviewer লাগবে.
 
 Public experimental HTP prerelease আছে, তবে এখনো ২০২৬-১০-১৩-এর পুরোনো archive
 serve করছে (SHA-256 `dffcf83fa969f3ccfad238217b4ca7f3d47040e5e5b2fa834ebd3f123d144ea5`)।
