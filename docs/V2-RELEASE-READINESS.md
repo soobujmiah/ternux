@@ -17,11 +17,11 @@ This report separates source and CI evidence from physical-device qualification.
 
 ## Stage 0: current repository reconciliation — 2026-11-10
 
-Current snapshot: `ternux-task-fix` is clean at `762889b629368afe3043e99fc204eec6212a9877`, synced with its remote, and 166 commits ahead of `origin/main` (`8e24062589e81c20095c875fa4d19dd5cb928554`). PR #97 is open, draft, cleanly mergeable, and has no review decision; GitHub reports 576 changed files. The v2 tag does not exist. The diff is concentrated in Ternux CLI/assets, Debian packaging, bilingual docs, tests/CI and AI experiments. The complete 576-file review and owner review remain open.
+Validated code snapshot before this report-only refresh: `ternux-task-fix` was clean at `e7654d261a795817ed5ac22edce83143da2adf25`, synced with its remote, and 168 commits ahead of `origin/main` (`8e24062589e81c20095c875fa4d19dd5cb928554`). PR #97 is open, draft, cleanly mergeable, and has no review decision; GitHub reports 576 changed files. The v2 tag does not exist. The diff is concentrated in Ternux CLI/assets, Debian packaging, bilingual docs, tests/CI and AI experiments. The complete 576-file review and owner review remain open.
 
 | Location | Current state | Reconciliation |
 |---|---|---|
-| `ternux-task-fix` | clean at `762889b`; 166 commits ahead; 576 PR files | Continue PR #97; keep it draft while release blockers remain. No merge, tag, or publication performed. |
+| `ternux-task-fix` | clean at `e7654d2`; 168 commits ahead; 576 PR files | Continue PR #97; keep it draft while release blockers remain. No merge, tag, or publication performed. |
 | `ternux-package-audit` | detached at `727726a6`; untracked `ci-artifact/` is 747 KB | Build metadata identifies an unsigned Nov 7 package/rootfs from source `b3a0f894…`; preserve as stale evidence, never include it in the release diff. |
 | `ternux-tools` | `main` with six owner-modified/untracked QNN qualification entries | Preserve all entries; they are separate research materials and are not release-source changes. |
 | `skb` | verified canonical checkout; contains owner changes | Guidance only; no files changed. |
@@ -33,7 +33,7 @@ There are no other active Codex agents. PR #35 remains a separate draft license 
 | Finding | Reconciled state | Evidence/remaining gap |
 |---|---|---|
 | P0-01 SD Vulkan license inventory | COMPLETE | Deterministic component manifest and bundle regression tests; Ternux component now correctly says Apache-2.0. Exact-head ARM64 artifact audit is recorded below. |
-| P0-02 release branch consistency | PARTIAL | `main` is an ancestor; 166 commits and a 576-file diff remain in draft PR #97. Exact current checks pass, but release-critical acceptance and owner review/integration remain open. |
+| P0-02 release branch consistency | PARTIAL | `main` is an ancestor; 168 commits and a 576-file diff remain in draft PR #97. Exact current checks pass, but release-critical acceptance and owner review/integration remain open. |
 | P0-03 machine release gate | COMPLETE | 19 gates; readiness derives `NOT_READY` while blocking items remain. |
 | P1-01 desktop lifecycle | PARTIAL | Ownership/state handling and host fixtures pass; controlled device start/stop/crash recovery on the updated package remains unverified. |
 | P1-02 Vulkan/renderer detection | COMPLETE on the tested Adreno 825 stack | Enumeration and real Zink/Turnip observations exist; other GPU families remain unqualified. |
@@ -185,12 +185,11 @@ Those four heavy workflows are now manual-dispatch only. The three optional
 artifact workflows can validate an earlier successful run ID, checksum the exact
 archive, and copy it into a fresh 90-day CI artifact without compiling again.
 The candidate HMX workflow already provides the same retention-refresh path.
-Existing f4 artifacts were metadata-verified as reusable without downloading them;
-their current expiry dates remain unchanged until a refresh run completes. The
+All four existing f4 artifacts were revalidated and refreshed without compilation or publication. Refresh runs `42783356045` (Vulkan), `42783357108` (Stable Diffusion), `42783356495` (HTP), and `42783356082` (HMX) succeeded with build and publisher jobs skipped. New artifact IDs `13747211879`, `13747515887`, `13747701121`, and `13746772303`, respectively, expire 2027-02-08. The
 provenance verifier compares the pinned build job and package inputs, while allowing
 retention-only workflow changes. Focused regressions cover these paths plus wrong
 workflow, expired artifacts, changed package inputs/build definitions, and manual-only
-triggers. Latest PR head `762889b` passed Validate `42780935951`, Termux APT package `42780936046`, Repository State Contract `42780936162`, and Repo Knowledge Sync `42780936058`; no ARM64/Vulkan, Stable Diffusion, HTP, or HMX build ran.
+triggers. Latest PR head `e7654d2` passed Validate `42783161375`, Termux APT package `42783161248`, Repository State Contract `42783160978`, and Repo Knowledge Sync `42783161055`. Four source-run refresh workflows also passed; all compile and publish jobs were skipped.
 
 On artifact-reuse commit `89802f73408a1638221c0b3f62c26d212385b2ea`, Validate `42779265831`, Termux APT package `42779265743`, Repository State Contract `42779266172`, and Repo Knowledge Sync `42779266194` all passed. No ARM64/Vulkan, Stable Diffusion, HTP, or HMX build workflow triggered on this PR update.
 
@@ -212,4 +211,4 @@ HTP/HMX and QNN remain experimental/research-only until their numerical or stage
 
 ## Final recommendation
 
-**NOT_READY.** P0-01 and P0-03 are complete, but nine release-blocking gates remain incomplete. All eight build/test workflows passed on product commit `f4bb945576f03a9d8979d7d89553660471dafbaf`. On latest head `762889b`, Validate `42780935951`, Termux APT package `42780936046`, Repository State Contract `42780936162`, and Repo Knowledge Sync `42780936058` passed; accelerator workflows did not run because they are now manual-only. This proves source/build checks, not public repository availability, installed-package migration, live updated-desktop lifecycle, or owner review. No v2 tag, release, package publication, PR merge, repository-settings change, or live desktop restart was performed. Only the repository owner can authorize the actual release.
+**NOT_READY.** P0-01 and P0-03 are complete, but nine release-blocking gates remain incomplete. All eight build/test workflows passed on product commit `f4bb945576f03a9d8979d7d89553660471dafbaf`. On latest code head `e7654d2`, Validate `42783161375`, Termux APT package `42783161248`, Repository State Contract `42783160978`, and Repo Knowledge Sync `42783161055` passed. Four manual artifact refresh runs passed provenance/checksum checks, skipped builds and publishers, and extended the exact artifacts through 2027-02-08. This proves source/build checks, not public repository availability, installed-package migration, live updated-desktop lifecycle, or owner review. No v2 tag, release, package publication, PR merge, repository-settings change, or live desktop restart was performed. Only the repository owner can authorize the actual release.
