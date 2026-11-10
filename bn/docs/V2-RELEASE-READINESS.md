@@ -58,7 +58,7 @@ HTP stable support হিসেবে qualified হয় না।
 | P0-03 machine release gate | COMPLETE | ১৯টি gate; blocking item থাকলে readiness `NOT_READY`; এখন ৮টি blocker incomplete। |
 | P1-01 desktop lifecycle | PARTIAL | ownership/state handling ও host fixture pass; updated package-এ device start/stop/crash recovery বাকি। |
 | P1-02 Vulkan/renderer detection | পরীক্ষিত Adreno 825 stack-এ COMPLETE | Enumeration ও live Zink/Turnip evidence আছে; অন্য GPU family qualify হয়নি। |
-| P1-03 updater | PARTIAL | stage, integrity, rollback, interruption, concurrency fixture pass; published v2 ও v1.4.0 migration এখনো test করা যায়নি। |
+| P1-03 updater | PARTIAL | exact v1.4.0 CLI fixture থেকে v2 source-level migration pass; publication-এর পর public route ও native-device migration verify করতে হবে। |
 | P1-04 storage ও desktop | PARTIAL | PRoot থেকে Android shared storage-এর স্বাভাবিক `/sdcard` access verified; Termux HOME isolated, `/tmp` explicit। বাকি শুধু updated launcher-এ full XFCE/app smoke। |
 | P1-05 repository governance | COMPLETE | Owner-authorized `main` protection-এ ১টি CODEOWNERS approval ও পাঁচটি CI context লাগে; admin-দেরও মানতে হবে, force-push/deletion বন্ধ। PR #97 `REVIEW_REQUIRED`; সেটি P0-02। |
 | P1-06 CPU/Vulkan LLM | PARTIAL | known-answer, offload, cancel, reopen evidence আছে; model breadth, sustained thermal ও memory-pressure qualification বাকি। |
@@ -131,9 +131,9 @@ HTP stable support হিসেবে qualified হয় না।
 - Updater exact `vX.Y.Z` tag থেকে Git commit resolve ও fetch করে; pin-এর সঙ্গে commit না মিললে source বাতিল করে। Installed file বদলানোর আগে tag/core version, CLI ও guest syntax, symlink-মুক্ত source layout এবং staged CLI response যাচাই করে।
 - সম্পূর্ণ `lib/` tree target filesystem-এ stage হয়। আগের CLI ও module tree `$PREFIX/lib/ternux-update-backups/`-এ রাখা হয়। Journal-এ owner PID/start identity ও backup ID থাকে। একই filesystem-এ rename করে dispatcher ও module switch হয়; installed verification ব্যর্থ হলে আগের দুটোই restore হয়।
 - Transaction চলার সময় installed dispatcher concurrent CLI call আটকায়। updater মাঝপথে বন্ধ হলে পরের CLI launch-এ আগের version restore হয়। সফল update-এর পরও backup থাকে।
-- `tests/update_transaction.sh` স্থানীয় tagged Git repository দিয়ে exact commit, downgrade আটকানো, সম্পূর্ণ tree switch, failed-candidate rollback, dead-owner crash recovery এবং live-owner blocking যাচাই করে। এতে GitHub Actions artifact ব্যবহার হয় না।
-- ২০২৬-১১-১০-এ PR head `4c8348d1a9199465c8f40b1f5b70530d19793154`-এ `bash tests/update_transaction.sh` আলাদাভাবে pass করেছে; exact-head Validate run `42794218577`-ও pass। এতে transaction fixture যাচাই হয়, published v1.4.0 install থেকে first upgrade নয়।
-- Provenance হলো authenticated Git transport-এ আনা Git commit object ID; release tag বর্তমানে cryptographically signed নয়। আগে থেকে ইনস্টল v1.4.0 CLI-র প্রথম upgrade তখনকার পুরোনো updater দিয়েই হবে; সেই transition এবং native APT/public install এখনো unverified। বর্তমান stable metadata v1.4.0 আর v2 source version 2.0.0, তাই updater downgrade প্রস্তাব করে না।
+- `tests/update_transaction.sh` স্থানীয় tagged Git repository দিয়ে exact commit, downgrade আটকানো, সম্পূর্ণ tree switch, failed-candidate rollback, dead-owner crash recovery এবং live-owner blocking যাচাই করে। এটি `3e6c07e2afcb5f1e65ecd57af19b0382a948835a`-এর published v1.4.0 dispatcher/core/updater fixture-ও local `main` branch-এর v2 source-এ update করে। Fake `proot-distro` live guest-কে স্পর্শ হতে দেয় না। GitHub Actions artifact ব্যবহার হয় না।
+- ২০২৬-১১-১০-এ legacy migration fixture যোগ করার আগে PR head `4c8348d1a9199465c8f40b1f5b70530d19793154`-এ `bash tests/update_transaction.sh` pass করেছিল; exact-head Validate run `42794218577`-ও pass। এখন expanded test source-level migration cover করে; published-device migration বাকি।
+- ২০২৬-১১-১০-এ `bash tests/update_transaction.sh` v1.4.0-to-v2 source-level migration fixture ও সব transaction case pass করেছে। এতে published v2 release বা physical-device migration qualify হয় না। Provenance হলো authenticated Git transport-এ আনা Git commit object ID; release tag cryptographically signed নয়। Native APT/public install transition এখনো unverified। বর্তমান stable metadata v1.4.0 আর v2 source version 2.0.0, তাই updater downgrade প্রস্তাব করে না।
 
 ### Continuation-এর file ও commit তালিকা
 

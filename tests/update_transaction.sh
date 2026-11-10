@@ -201,4 +201,45 @@ set -e
 grep -q outside-marker "$OUTSIDE/$backup_id/lib/outside.marker" || fail 'symlinked backup check modified outside data'
 [ -e "$PREFIX/lib/.ternux-update-journal" ] || fail 'symlinked backup check discarded the recovery journal'
 
-printf 'updater transaction tests passed: version, stable no-downgrade, pinned fetch, staging, commit, rollback, crash recovery, concurrency, symlink safety\n'
+# Migration path: exercise the actual published v1.4.0 dispatcher/core/updater
+# against a local main branch containing the current v2 source. Keep the fake
+# PRoot command fail-closed so this fixture cannot modify the live Debian guest.
+MIGRATION_ORIGIN="$FIXTURE/v2-migration-origin.git"
+MIGRATION_WORK="$FIXTURE/v2-migration-work"
+MIGRATION_PREFIX="$TMP/prefix-v1.4-migration"
+MIGRATION_HOME="$TMP/home-v1.4-migration"
+MIGRATION_TMP="$TMP/tmp-v1.4-migration"
+git init -q --bare "$MIGRATION_ORIGIN"
+git --git-dir="$MIGRATION_ORIGIN" symbolic-ref HEAD refs/heads/main
+mkdir -p "$MIGRATION_WORK" "$MIGRATION_PREFIX/bin" "$MIGRATION_PREFIX/lib/ternux" "$MIGRATION_TMP"
+git archive HEAD | tar -x -C "$MIGRATION_WORK"
+git -C "$MIGRATION_WORK" init -q
+git -C "$MIGRATION_WORK" checkout -qb main
+git -C "$MIGRATION_WORK" config user.name 'Ternux v1.4 migration fixture'
+git -C "$MIGRATION_WORK" config user.email 'ternux-migration-test@example.invalid'
+git -C "$MIGRATION_WORK" remote add origin "$MIGRATION_ORIGIN"
+git -C "$MIGRATION_WORK" add .
+git -C "$MIGRATION_WORK" commit -qm 'fixture Ternux v2 source'
+git -C "$MIGRATION_WORK" push -q -u origin main
+LEGACY_FIXTURE="$ROOT/tests/fixtures/ternux-v1.4.0"
+[ -f "$LEGACY_FIXTURE/bin/ternux" ] && [ -f "$LEGACY_FIXTURE/lib/core.sh" ] &&
+  [ -f "$LEGACY_FIXTURE/lib/update.sh" ] || fail 'published v1.4.0 updater fixture is incomplete'
+cp "$LEGACY_FIXTURE/bin/ternux" "$MIGRATION_PREFIX/bin/ternux"
+chmod 0755 "$MIGRATION_PREFIX/bin/ternux"
+cp "$LEGACY_FIXTURE/lib/core.sh" "$MIGRATION_PREFIX/lib/ternux/core.sh"
+cp "$LEGACY_FIXTURE/lib/update.sh" "$MIGRATION_PREFIX/lib/ternux/update.sh"
+cat > "$FAKEBIN/proot-distro" <<'EOF_PROOT'
+#!/bin/sh
+# No installed guest exists in this test; never reach the real host command.
+exit 1
+EOF_PROOT
+chmod 0755 "$FAKEBIN/proot-distro"
+env PREFIX="$MIGRATION_PREFIX" HOME="$MIGRATION_HOME" TMPDIR="$MIGRATION_TMP" \
+  PATH="$FAKEBIN:$PATH" TERNUX_REPO_URL="$MIGRATION_ORIGIN" \
+  "$MIGRATION_PREFIX/bin/ternux" update || fail 'v1.4.0 to v2 source migration'
+"$MIGRATION_PREFIX/bin/ternux" --version | grep -q '^ternux v2.0.0$' ||
+  fail 'v1.4.0 migration did not activate the v2 CLI'
+grep -q '^TERNUX_VERSION="2.0.0"$' "$MIGRATION_PREFIX/lib/ternux/core.sh" ||
+  fail 'v1.4.0 migration did not install matching v2 modules'
+
+printf 'updater transaction tests passed: version, stable no-downgrade, pinned fetch, staging, commit, rollback, crash recovery, concurrency, symlink safety, v1.4.0-to-v2 source migration\n'

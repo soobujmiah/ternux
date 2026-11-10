@@ -147,8 +147,8 @@
       "device_status": "NOT_TESTED",
       "evidence": [
         "tests/update_transaction.sh",
-        "Local focused suite passed 134/134, including update transaction version/pinning/staging/rollback/crash/concurrency/symlink cases; exact-head Validate 42707570617 passed. On 2026-11-10, bash tests/update_transaction.sh independently passed on PR head 4c8348d1a9199465c8f40b1f5b70530d19793154; exact-head Validate 42794218577 also passed.",
-        "Published v2 and v1.4.0 migration remain unverified because no v2 stable publication exists."
+        "Local focused suite passed 134/134, including update transaction version/pinning/staging/rollback/crash/concurrency/symlink cases; exact-head Validate 42707570617 passed. On 2026-11-10, bash tests/update_transaction.sh passed with an exact published v1.4.0 dispatcher/core/updater fixture from commit 3e6c07e2afcb5f1e65ecd57af19b0382a948835a, updating against a local bare repository containing the current v2 source. A fake proot-distro keeps the installed Debian guest untouched. This proves source-level migration behavior, not migration through a published v2 release or on-device.",
+        "A published v2 release and actual native-device v1.4.0 migration remain unverified because no v2 stable publication exists."
       ],
       "required_tests": [
         "pinning/downgrade/staging/rollback/crash/concurrency/symlink fixtures",
