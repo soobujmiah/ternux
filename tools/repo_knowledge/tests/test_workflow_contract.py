@@ -27,7 +27,10 @@ class RepoKnowledgeWorkflowContractTests(unittest.TestCase):
         self.assertIn("actions: write", workflow)
         self.assertIn("name: Approve checks for generated state pull request", workflow)
         self.assertIn('gh api -X POST "repos/$GITHUB_REPOSITORY/actions/runs/$run_id/approve"', workflow)
-        self.assertIn('select(.head_sha == $sha and .conclusion == "action_required"', workflow)
+        self.assertIn('gh api "repos/$GITHUB_REPOSITORY/actions/runs?per_page=100"', workflow)
+        self.assertNotIn('--paginate', workflow)
+        self.assertNotIn('branch=$STATE_BRANCH&event=pull_request', workflow)
+        self.assertIn('select(.head_sha == $sha and .head_branch == $branch and .conclusion == "action_required"', workflow)
         for expected_workflow in ("Validate", "Repository State Contract", "Termux APT package artifact", "Repo Knowledge Sync"):
             self.assertIn(f'\"{expected_workflow}\"', workflow)
         self.assertNotIn("git push origin HEAD:", workflow)
