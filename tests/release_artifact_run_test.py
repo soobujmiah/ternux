@@ -85,22 +85,38 @@ esac
             "MOCK_RUN": str(run_file),
             "MOCK_ARTIFACTS": str(artifact_file),
         })
-        good = run(str(SCRIPT), RUN_ID, WORKFLOW, ARTIFACT, "package-source.txt", cwd=repo, env=env)
+        good = run(str(SCRIPT), RUN_ID, WORKFLOW, ARTIFACT, WORKFLOW, "package-source.txt", cwd=repo, env=env)
         assert good.returncode == 0, good.stderr
         assert source_sha in good.stdout
         assert (base / "github-env").read_text().strip() == f"SOURCE_ARTIFACT_SHA={source_sha}"
         assert (base / "github-output").read_text().strip() == f"source_sha={source_sha}"
 
+        # Safe publisher/retention edits leave the pinned build job unchanged,
+        # so an inspected package can be retained without rebuilding it.
+        workflow_retention = workflow_source.replace(
+            "  publish:\n    steps: []\n",
+            "  refresh_artifact:\n    steps: [reupload-exact-archive]\n  publish:\n    steps: []\n",
+        )
+        (repo / "workflow.yml").write_text(workflow_retention)
+        git("add", "workflow.yml", cwd=repo)
+        git("commit", "-qm", "add artifact retention job", cwd=repo)
+        env["GITHUB_SHA"] = git("rev-parse", "HEAD", cwd=repo)
+        safe_workflow_edit = run(
+            str(SCRIPT), RUN_ID, WORKFLOW, ARTIFACT, WORKFLOW,
+            "package-source.txt", cwd=repo, env=env,
+        )
+        assert safe_workflow_edit.returncode == 0, safe_workflow_edit.stderr
+
         wrong_workflow = dict(run_payload, path=".github/workflows/other.yml")
         run_file.write_text(json.dumps(wrong_workflow))
-        bad = run(str(SCRIPT), RUN_ID, WORKFLOW, ARTIFACT, "package-source.txt", cwd=repo, env=env)
+        bad = run(str(SCRIPT), RUN_ID, WORKFLOW, ARTIFACT, WORKFLOW, "package-source.txt", cwd=repo, env=env)
         assert bad.returncode != 0 and "different workflow" in bad.stderr
         run_file.write_text(json.dumps(run_payload))
 
         expired_payload = json.loads(artifact_file.read_text())
         expired_payload["artifacts"][0]["expired"] = True
         artifact_file.write_text(json.dumps(expired_payload))
-        bad = run(str(SCRIPT), RUN_ID, WORKFLOW, ARTIFACT, "package-source.txt", cwd=repo, env=env)
+        bad = run(str(SCRIPT), RUN_ID, WORKFLOW, ARTIFACT, WORKFLOW, "package-source.txt", cwd=repo, env=env)
         assert bad.returncode != 0 and "expired" in bad.stderr
         artifact_file.write_text(json.dumps(artifact_payload))
 
@@ -108,7 +124,7 @@ esac
         git("add", "package-source.txt", cwd=repo)
         git("commit", "-qm", "changed package input", cwd=repo)
         env["GITHUB_SHA"] = git("rev-parse", "HEAD", cwd=repo)
-        bad = run(str(SCRIPT), RUN_ID, WORKFLOW, ARTIFACT, "package-source.txt", cwd=repo, env=env)
+        bad = run(str(SCRIPT), RUN_ID, WORKFLOW, ARTIFACT, WORKFLOW, "package-source.txt", cwd=repo, env=env)
         assert bad.returncode != 0 and "build inputs changed" in bad.stderr
 
         workflow_changed = workflow_source.replace("compile-pinned-package", "compile-different-package")
@@ -116,10 +132,10 @@ esac
         git("add", "workflow.yml", cwd=repo)
         git("commit", "-qm", "changed build job", cwd=repo)
         env["GITHUB_SHA"] = git("rev-parse", "HEAD", cwd=repo)
-        bad = run(str(SCRIPT), RUN_ID, WORKFLOW, ARTIFACT, "package-source.txt", cwd=repo, env=env)
+        bad = run(str(SCRIPT), RUN_ID, WORKFLOW, ARTIFACT, WORKFLOW, "package-source.txt", cwd=repo, env=env)
         assert bad.returncode != 0 and "build-job definition changed" in bad.stderr
 
-    print("release artifact provenance checks passed: success, wrong workflow, expired artifact, changed package input, changed build job")
+    print("release artifact provenance checks passed: success, safe retention edit, wrong workflow, expired artifact, changed package input, changed build job")
 
 
 if __name__ == "__main__":

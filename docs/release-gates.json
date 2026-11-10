@@ -48,6 +48,7 @@
       "evidence": [
         "PR #97 targets main; origin/main 8e24062589e81c20095c875fa4d19dd5cb928554 is an ancestor. Current head 762889b629368afe3043e99fc204eec6212a9877 is 166 commits ahead; GitHub reports a 576-file diff. PR remains open/draft with no review decision.",
         "All eight build/test workflows passed on product commit f4bb945576f03a9d8979d7d89553660471dafbaf. Latest PR head 762889b passed Validate 42780935951; Termux APT package 42780936046; repository contract 42780936162; knowledge sync 42780936058. No ARM64/Vulkan, Stable Diffusion, HTP, or HMX build triggered.",
+        "New source_run_id refresh jobs for llama Vulkan, Stable Diffusion, and HTP verify the source run, compare package inputs/build-job identity, checksum the existing archive, and re-upload the same bytes for 90-day CI retention without compiling. HMX already supports this path; workflow validation and manual dispatch are pending.",
         "Release readiness remains NOT_READY with nine incomplete blockers; branch review/integration is not complete."
       ],
       "required_tests": [

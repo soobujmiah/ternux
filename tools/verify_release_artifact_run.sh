@@ -103,7 +103,19 @@ if before != after:
     raise SystemExit(1)
 PY_BUILD_JOB
 
-git diff --quiet "$source_sha" "$release_sha" -- "$@" || {
+build_inputs=()
+for input_path in "$@"; do
+  # The workflow's build job is compared structurally above; allow safe
+  # provenance, publication, and retention-job changes without invalidating
+  # an already verified package build.
+  [ "$input_path" = "$workflow_path" ] && continue
+  build_inputs+=("$input_path")
+done
+[ "${#build_inputs[@]}" -gt 0 ] || {
+  echo "No package build inputs remain to verify." >&2
+  exit 2
+}
+git diff --quiet "$source_sha" "$release_sha" -- "${build_inputs[@]}" || {
   echo "Artifact build inputs changed after the selected build; rebuild the package." >&2
   exit 1
 }

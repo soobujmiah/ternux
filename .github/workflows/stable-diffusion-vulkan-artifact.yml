@@ -199,6 +199,35 @@ jobs:
           tools/verify_release_artifact_run.sh "$SOURCE_RUN_ID"
           ".github/workflows/stable-diffusion-vulkan-artifact.yml" "ternux-stable-diffusion-vulkan-linux-arm64-master-1053-candidate" "tests/stable_diffusion_abi_audit.py" "tests/stable_diffusion_license_bundle_test.py" "tools/build_stable_diffusion_license_bundle.py" "packaging/stable-diffusion/components.json" "LICENSE" "NOTICE" "lib/extension.sh"
 
+  refresh_artifact:
+    if: github.event_name == 'workflow_dispatch' && inputs.source_run_id != ''
+    needs: verify_source
+    runs-on: ubuntu-24.04
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - name: Download the verified candidate without rebuilding
+        uses: actions/download-artifact@v7
+        with:
+          name: ternux-stable-diffusion-vulkan-linux-arm64-master-1053-candidate
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ inputs.source_run_id }}
+          path: candidate
+      - name: Verify archive checksum
+        run: (cd candidate && sha256sum --check ternux-stable-diffusion-vulkan-linux-arm64-master-1053.tar.gz.sha256)
+      - name: Re-upload the exact inspected artifact with extended retention
+        uses: actions/upload-artifact@v6
+        with:
+          name: ternux-stable-diffusion-vulkan-linux-arm64-master-1053-candidate
+          path: |
+            candidate/ternux-stable-diffusion-vulkan-linux-arm64-master-1053.tar.gz
+            candidate/ternux-stable-diffusion-vulkan-linux-arm64-master-1053.tar.gz.sha256
+            candidate/release-contents.txt
+          if-no-files-found: error
+          retention-days: 90
+
   publish:
     name: Publish the optional preview archive
     if: >-

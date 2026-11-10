@@ -33,6 +33,11 @@ for filename, (workflow, artifact, publisher) in workflows.items():
     assert "run-id: ${{ inputs.source_run_id || github.run_id }}" in text, filename
     assert "github-token: ${{ github.token }}" in text, filename
     assert "name: " + artifact in text, filename
+    assert "  refresh_artifact:" in text, filename
+    assert "needs: verify_source" in text, filename
+    assert "Re-upload the exact inspected artifact with extended retention" in text, filename
+    assert "actions/download-artifact@v7" in text, filename
+    assert "actions/upload-artifact@v6" in text, filename
     assert "  " + publisher + ":" in text, filename
 
 hmx = (ROOT / ".github/workflows/llama-htp-hmx-probe.yml").read_text(encoding="utf-8")

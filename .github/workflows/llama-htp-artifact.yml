@@ -218,6 +218,37 @@ jobs:
           tools/verify_release_artifact_run.sh "$SOURCE_RUN_ID"
           ".github/workflows/llama-htp-artifact.yml" "ternux-llama-htp-sm8735-b11582" "tools/llama-htp" "LICENSE" "NOTICE"
 
+  refresh_artifact:
+    if: github.event_name == 'workflow_dispatch' && inputs.source_run_id != ''
+    needs: verify_source
+    runs-on: ubuntu-24.04
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - name: Download the verified HTP artifact without rebuilding
+        uses: actions/download-artifact@v7
+        with:
+          name: ternux-llama-htp-sm8735-b11582
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ inputs.source_run_id }}
+          path: candidate
+      - name: Verify archive checksum
+        run: (cd candidate && sha256sum --check ternux-llama-htp-sm8735-b11582.tar.gz.sha256)
+      - name: Re-upload the exact inspected artifact with extended retention
+        uses: actions/upload-artifact@v6
+        with:
+          name: ternux-llama-htp-sm8735-b11582
+          path: |
+            candidate/ternux-llama-htp-sm8735-b11582.tar.gz
+            candidate/ternux-llama-htp-sm8735-b11582.tar.gz.sha256
+            candidate/archive-contents.txt
+            candidate/htp-broker-file.txt
+            candidate/llama-cli-file.txt
+          if-no-files-found: error
+          retention-days: 90
+
   publish:
     if: >-
       ${{ always() && github.event_name == 'workflow_dispatch' && inputs.publish == true && github.ref == 'refs/heads/main' && ((needs.build.result == 'success' && inputs.source_run_id == '') || (needs.build.result == 'skipped' && inputs.source_run_id != '')) && ((needs.verify_source.result == 'success' && inputs.source_run_id != '') || (needs.verify_source.result == 'skipped' && inputs.source_run_id == '')) }}

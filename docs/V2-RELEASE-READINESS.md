@@ -181,12 +181,15 @@ filters match the overall PR diff, each `synchronize` event could rerun ARM64/HT
 compilation even when the newly pushed commit only changed documentation. The
 repeat runs on head `9016bf9` were canceled: llama Vulkan `42774732346`, Stable
 Diffusion `42774732436`, HTP `42774732564`, and integer-HMX `42774732544`.
-Those four heavy workflows are now manual-dispatch only. The three publishable
-workflows can validate and reuse a prior successful artifact by run ID, and new
-uploads retain for 90 days. Existing f4 artifacts were metadata-verified as
-reusable without downloading them; their current expiry dates remain unchanged.
-Focused provenance and workflow-contract regressions cover wrong workflow,
-expired artifacts, changed package inputs/build definitions, reuse, and manual-only
+Those four heavy workflows are now manual-dispatch only. The three optional
+artifact workflows can validate an earlier successful run ID, checksum the exact
+archive, and copy it into a fresh 90-day CI artifact without compiling again.
+The candidate HMX workflow already provides the same retention-refresh path.
+Existing f4 artifacts were metadata-verified as reusable without downloading them;
+their current expiry dates remain unchanged until a refresh run completes. The
+provenance verifier compares the pinned build job and package inputs, while allowing
+retention-only workflow changes. Focused regressions cover these paths plus wrong
+workflow, expired artifacts, changed package inputs/build definitions, and manual-only
 triggers. Latest PR head `762889b` passed Validate `42780935951`, Termux APT package `42780936046`, Repository State Contract `42780936162`, and Repo Knowledge Sync `42780936058`; no ARM64/Vulkan, Stable Diffusion, HTP, or HMX build ran.
 
 On artifact-reuse commit `89802f73408a1638221c0b3f62c26d212385b2ea`, Validate `42779265831`, Termux APT package `42779265743`, Repository State Contract `42779266172`, and Repo Knowledge Sync `42779266194` all passed. No ARM64/Vulkan, Stable Diffusion, HTP, or HMX build workflow triggered on this PR update.

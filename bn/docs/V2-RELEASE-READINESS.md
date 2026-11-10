@@ -182,13 +182,14 @@ PR #97-এর artifact workflow-গুলোতে broad `pull_request` trigger 
 `synchronize` event ARM64/HTP compile আবার চালাতে পারত। Head `9016bf9`-এর repeat
 run-গুলো cancel করা হয়েছে: llama Vulkan `42774732346`, Stable Diffusion
 `42774732436`, HTP `42774732564`, integer-HMX `42774732544`। চারটি heavy
-workflow এখন শুধু manual dispatch-এ চলে। তিনটি publishable workflow run ID দিয়ে
-আগের successful artifact reuse করে; HMX candidate-ও যাচাই করে পুনরায় upload
-করতে পারে। নতুন upload ৯০ দিন থাকবে।
-আগের f4 artifact metadata download না করেই reuse করার উপযোগী বলে verify হয়েছে;
-তাদের expiry অপরিবর্তিত। Focused provenance এবং workflow-contract regression-এ
-ভুল workflow, expired artifact, বদলানো package input/build definition, reuse ও
-manual-only trigger যাচাই হয়। এই workflow পরিবর্তনের hosted CI এখনো বাকি।
+workflow এখন শুধু manual dispatch-এ চলে। তিনটি optional artifact workflow আগের
+successful run ID যাচাই করে, archive checksum মেলায়, এবং compile না করেই একই
+archive নতুন ৯০ দিনের CI artifact হিসেবে upload করতে পারে। HMX candidate-এও এই
+retention-refresh path আছে। আগের f4 artifact metadata download না করেই reuse-এর
+উপযোগী বলে verify হয়েছে; refresh run শেষ না হওয়া পর্যন্ত expiry বদলায়নি।
+Provenance verifier pinned build job ও package input তুলনা করে, retention-only
+workflow change অনুমোদন করে। Focused regression-এ ভুল workflow, expired artifact,
+বদলানো package input/build definition, reuse এবং manual-only trigger-ও যাচাই হয়।
 
 Artifact-reuse commit `89802f73408a1638221c0b3f62c26d212385b2ea`-এ Validate `42779265831`, Termux APT `42779265743`, Repository State Contract `42779266172`, Repo Knowledge Sync `42779266194` pass করেছে। Latest PR head `762889b629368afe3043e99fc204eec6212a9877`-এ Validate `42780935951`, Termux APT `42780936046`, Repository State Contract `42780936162`, Repo Knowledge Sync `42780936058` pass করেছে। এই দুই update-এই ARM64/Vulkan, Stable Diffusion, HTP বা HMX build trigger হয়নি।
 
