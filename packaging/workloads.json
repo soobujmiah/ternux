@@ -1,0 +1,257 @@
+{
+  "schema_version": 1,
+  "workloads": [
+    {
+      "id": "llama-vulkan",
+      "display_name": "llama.cpp CPU + Vulkan",
+      "version": "b11582",
+      "architecture": "aarch64",
+      "backends": [
+        "cpu",
+        "vulkan"
+      ],
+      "dependencies": {
+        "debian_packages": [
+          "libssl3-or-libssl3t64",
+          "libgomp1",
+          "libvulkan1"
+        ],
+        "runtime_libraries": [
+          "libssl.so.3",
+          "libcrypto.so.3",
+          "libgomp.so.1",
+          "libvulkan.so.1"
+        ]
+      },
+      "installation_source": {
+        "type": "github_release",
+        "repository": "https://github.com/soobujmiah/ternux",
+        "release_tag": "ternux-llama-vulkan-linux-arm64-b11582",
+        "asset": "ternux-llama-vulkan-linux-arm64-b11582.tar.gz",
+        "source_repository": "https://github.com/ggml-org/llama.cpp",
+        "source_version": "b11582",
+        "source_commit": "af50f2f248b475d9760f8e67503d01c0f194f5f4",
+        "manifest_path": "build-manifest.json"
+      },
+      "checksums": {
+        "algorithm": "sha256",
+        "archive_sha256": "bf5e80362620c52e43837949953c00aee6d80be5d87fc45f44911d8624cc3871",
+        "sidecar_sha256": "49d338de829773e0d44be4b8bf27dbf8d7d5e863e098907e3e42948e11ae7937"
+      },
+      "license_metadata": {
+        "status": "audited",
+        "inventory_path": "share/licenses/upstream/INDEX.txt",
+        "checksum_path": "share/licenses/upstream/SHA256SUMS",
+        "license_expressions": [
+          "MIT"
+        ],
+        "limitations": [
+          "The bundle includes 11 tracked upstream notice/license files; see the archive inventory and release qualification report."
+        ]
+      },
+      "required_permissions": [],
+      "hardware_requirements": [
+        "Linux AArch64 glibc 2.38 or newer.",
+        "CPU inference is available without GPU access; Vulkan requires a working Vulkan loader, ICD, and device. Adreno 825 is the currently verified GPU."
+      ],
+      "verification_commands": [
+        "bin/llama-cli --help",
+        "ternux doctor extensions --json",
+        "Run a known-answer prompt and verify Vulkan layer offload separately from backend availability."
+      ],
+      "cleanup_behavior": "ternux extension remove removes only the recognized managed extension directory; model weights and files outside it are preserved.",
+      "support_status": "supported",
+      "availability": "available",
+      "availability_note": "",
+      "installer": {
+        "minimum_glibc": "2.38",
+        "primary_binary": "llama-cli",
+        "required_executables": [
+          "bin/llama-cli"
+        ],
+        "required_files": [
+          "build-manifest.json",
+          "env.sh"
+        ],
+        "required_directories": [],
+        "environment_file": "env.sh",
+        "host_dependency_profile": "",
+        "dependency_hint": "In Debian install libgomp1, libvulkan1, and OpenSSL 3 runtime (libssl3 or libssl3t64).",
+        "post_install_notes": [
+          "The Vulkan backend is accelerated only when device enumeration and actual layer offload succeed."
+        ]
+      }
+    },
+    {
+      "id": "stable-diffusion",
+      "display_name": "Stable Diffusion CPU + Vulkan",
+      "version": "master-1053-5a1ba5d",
+      "architecture": "aarch64",
+      "backends": [
+        "cpu",
+        "vulkan"
+      ],
+      "dependencies": {
+        "debian_packages": [
+          "libgomp1",
+          "libvulkan1"
+        ],
+        "runtime_libraries": [
+          "libgomp.so.1",
+          "libvulkan.so.1"
+        ]
+      },
+      "installation_source": {
+        "type": "github_release",
+        "repository": "https://github.com/soobujmiah/ternux",
+        "release_tag": "ternux-stable-diffusion-vulkan-linux-arm64-master-1053",
+        "asset": "ternux-stable-diffusion-vulkan-linux-arm64-master-1053.tar.gz",
+        "source_repository": "https://github.com/leejet/stable-diffusion.cpp",
+        "source_version": "master-1053-5a1ba5d",
+        "source_commit": "5a1ba5d895bec4e07deab80d6d791721cd59d9c2",
+        "manifest_path": "build-manifest.json"
+      },
+      "checksums": {
+        "algorithm": "sha256",
+        "archive_sha256": "64a2761e680f0791eba476a24f476533c9ae35989d4ab6bbe2ecda26d0d9f336",
+        "sidecar_sha256": "36cd2ebc7596f263ddd813d43f762d6ab42d3bb0bc1e93f1f32bde72b23099a4"
+      },
+      "license_metadata": {
+        "status": "audited",
+        "inventory_path": "share/licenses/SHA256SUMS",
+        "checksum_path": "share/licenses/SHA256SUMS",
+        "license_expressions": [
+          "MIT",
+          "BSD-2-Clause",
+          "BSD-3-Clause",
+          "Apache-2.0",
+          "MIT OR Unlicense",
+          "LicenseRef-stb-image-resize"
+        ],
+        "limitations": [
+          "The checked component manifest at packaging/stable-diffusion/components.json lists the pinned upstream and every redistributed component notice."
+        ]
+      },
+      "required_permissions": [],
+      "hardware_requirements": [
+        "Linux AArch64 glibc 2.39 or newer.",
+        "Vulkan image route verified on Adreno 825; CPU output quality remains unqualified."
+      ],
+      "verification_commands": [
+        "bin/sd-cli --help",
+        "ternux doctor extensions --json",
+        "Run a fixed-seed tiled Vulkan image and inspect the output."
+      ],
+      "cleanup_behavior": "ternux extension remove removes only the recognized managed extension directory; model weights and files outside it are preserved.",
+      "support_status": "supported",
+      "availability": "available",
+      "availability_note": "",
+      "installer": {
+        "minimum_glibc": "2.39",
+        "primary_binary": "sd-cli",
+        "required_executables": [
+          "bin/sd-cli"
+        ],
+        "required_files": [
+          "build-manifest.json",
+          "env.sh"
+        ],
+        "required_directories": [
+          "share/licenses"
+        ],
+        "environment_file": "env.sh",
+        "host_dependency_profile": "",
+        "dependency_hint": "In Debian install libgomp1 and libvulkan1.",
+        "post_install_notes": [
+          "CPU image quality is unqualified; use the tested Adreno Vulkan route."
+        ]
+      }
+    },
+    {
+      "id": "llama-htp-experimental",
+      "display_name": "llama.cpp Hexagon HTP (experimental)",
+      "version": "b11582-v73",
+      "architecture": "aarch64",
+      "backends": [
+        "qualcomm-htp-v73"
+      ],
+      "dependencies": {
+        "debian_packages": [
+          "libgbinder1",
+          "libglibutil1",
+          "libfastrpc1",
+          "libfastrpc-dev",
+          "python3"
+        ],
+        "runtime_libraries": [
+          "libgbinder.so.1",
+          "libglibutil.so.1",
+          "libcdsprpc.so.1",
+          "libcdsprpc.so"
+        ]
+      },
+      "installation_source": {
+        "type": "github_release",
+        "repository": "https://github.com/soobujmiah/ternux",
+        "release_tag": "ternux-llama-htp-sm8735-b11582",
+        "asset": "ternux-llama-htp-sm8735-b11582.tar.gz",
+        "source_repository": "https://github.com/ggml-org/llama.cpp",
+        "source_version": "b11582",
+        "source_commit": "af50f2f248b475d9760f8e67503d01c0f194f5f4",
+        "manifest_path": "build-manifest.json"
+      },
+      "checksums": {
+        "algorithm": "sha256",
+        "archive_sha256": "dffcf83fa969f3ccfad238217b4ca7f3d47040e5e5b2fa834ebd3f123d144ea5",
+        "sidecar_sha256": "5c7e1bad7f1398987c20243f780e3654f3087bbedba822bcba4c03ffd791a50b"
+      },
+      "license_metadata": {
+        "status": "incomplete",
+        "inventory_path": null,
+        "checksum_path": null,
+        "license_expressions": [
+          "MIT",
+          "Apache-2.0"
+        ],
+        "limitations": [
+          "The published prerelease archive contains no broker/launcher files or bundled notice inventory; comprehensive redistribution accounting is incomplete."
+        ]
+      },
+      "required_permissions": [
+        "Existing accessible Qualcomm FastRPC device nodes are required; installer does not change Android permissions."
+      ],
+      "hardware_requirements": [
+        "Linux AArch64 glibc 2.38 or newer.",
+        "Qualcomm SM8735 with Hexagon HTP V73 and existing FastRPC access; other SoCs are not qualified."
+      ],
+      "verification_commands": [
+        "ternux doctor extensions --json",
+        "Run a known-answer through bin/htp-run; verify HTP layer assignment and cancellation/reopen."
+      ],
+      "cleanup_behavior": "ternux extension remove removes only the recognized managed extension directory; model weights and files outside it are preserved.",
+      "support_status": "experimental",
+      "availability": "blocked",
+      "availability_note": "The current public prerelease lacks the broker/launcher files required by the Ternux manager; install is disabled until a compatible artifact is published.",
+      "installer": {
+        "minimum_glibc": "2.38",
+        "primary_binary": "llama-cli",
+        "required_executables": [
+          "bin/llama-cli",
+          "bin/htp-run"
+        ],
+        "required_files": [
+          "build-manifest.json",
+          "libexec/htp-broker.py",
+          "lib/libternux-htp-broker.so"
+        ],
+        "required_directories": [],
+        "environment_file": null,
+        "host_dependency_profile": "htp-runtime",
+        "dependency_hint": "In Debian install libgbinder1, libglibutil1, libfastrpc1, and libfastrpc-dev.",
+        "post_install_notes": [
+          "HTP is experimental and release-excluded; no CPU/GPU fallback is configured."
+        ]
+      }
+    }
+  ]
+}

@@ -10,26 +10,51 @@
 tnx_cmd_extension() {
   local subcmd="${1:-list}"
   shift 2>/dev/null || true
+  local module="${BASH_SOURCE[0]}" module_dir user guest_rc host_profile=""
+  module_dir="$(CDPATH= cd -- "$(dirname -- "$module")" 2>/dev/null && pwd -P)" || return 1
+  _tnx_extension_load_registry "$module_dir" || return 1
   if ! getconf GNU_LIBC_VERSION >/dev/null 2>&1; then
-    local module="${BASH_SOURCE[0]}" user guest_rc
     user="$(tnx_state_get user)"
-    [ -n "$user" ] || { printf '[FAIL] Install Ternux before installing extensions.\n' >&2; return 1; }
-    . "$(dirname "$module")/phases.sh"
-    if [[ "$subcmd" == install || "$subcmd" == repair ]] &&
-       [[ "${1:-}" == llama-htp-experimental ]]; then
-      tnx_phase_extras "$user" htp-runtime || {
-        _tnx_extension_fail "Could not provision the Debian HTP runtime dependencies; the extension was not changed."
+    [ -n "$user" ] || { _tnx_extension_fail "Install Ternux before installing extensions."; return 1; }
+    . "$module_dir/phases.sh"
+    if [[ "$subcmd" == install || "$subcmd" == repair ]]; then
+      local requested_availability
+      requested_availability="$(tnx_workload_get "${1:-}" availability 2>/dev/null || true)"
+      if [ "$requested_availability" = blocked ]; then
+        _tnx_extension_fail "$(tnx_workload_get "${1:-}" availability_note)"
         return 1
-      }
+      fi
+      host_profile="$(tnx_workload_get "${1:-}" host_dependency_profile 2>/dev/null || true)"
+      case "$host_profile" in
+        htp-runtime)
+          tnx_phase_extras "$user" "$host_profile" || {
+            _tnx_extension_fail "Could not provision the Debian HTP runtime dependencies; the extension was not changed."
+            return 1
+          }
+          ;;
+        "") ;;
+        *) _tnx_extension_fail "Unknown workload host dependency profile '$host_profile'."; return 1 ;;
+      esac
     fi
     {
       cat "$module" || exit 1
+      cat "$module_dir/workload-registry.sh" || exit 1
       printf '\n_tnx_extension_guest_dispatch "$@"\n'
     } | tnx_guest_login --shared-tmp --user "$user" -- bash -s -- "$subcmd" "$@"
     guest_rc="${PIPESTATUS[1]:-1}"
     return "$guest_rc"
   fi
   _tnx_extension_guest_dispatch "$subcmd" "$@"
+}
+
+_tnx_extension_load_registry() {
+  local module_dir="${1:-}"
+  [ -n "$module_dir" ] || module_dir="$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")" 2>/dev/null && pwd -P)"
+  if [ ! -r "$module_dir/workload-registry.sh" ]; then
+    _tnx_extension_fail "Workload registry is missing beside the extension manager: $module_dir/workload-registry.sh"
+    return 1
+  fi
+  . "$module_dir/workload-registry.sh"
 }
 
 _tnx_extension_guest_dispatch() {
@@ -46,20 +71,24 @@ _tnx_extension_guest_dispatch() {
 }
 
 _tnx_extension_list() {
-  cat <<'LIST'
-Ternux extensions:
-  llama-vulkan  llama.cpp CPU + Vulkan, Linux ARM64, upstream b11582
-  stable-diffusion  Vulkan image preview on Adreno; CPU quality is unqualified
-  llama-htp-experimental  llama.cpp Hexagon HTP for SM8735 (experimental)
-
-Install with: ternux extension install llama-vulkan
-Image generation: ternux extension install stable-diffusion
-Experimental HTP: ternux extension install llama-htp-experimental
-Repair an existing managed install: ternux extension repair NAME
-Remove one managed extension: ternux extension remove NAME
-Removal preserves model weights and other files outside the extension directory.
-ADT releases are managed by ADT; see ternux guides.
-LIST
+  local workload label backends status availability note
+  printf 'Ternux extensions:\n'
+  for workload in "${TNX_WORKLOAD_IDS[@]}"; do
+    label="$(tnx_workload_get "$workload" display_name)"
+    backends="$(tnx_workload_get "$workload" backends)"
+    status="$(tnx_workload_get "$workload" support_status)"
+    availability="$(tnx_workload_get "$workload" availability)"
+    printf '  %-28s %s (%s; %s)\n' "$workload" "$label" "$backends" "$status"
+    if [ "$availability" = blocked ]; then
+      note="$(tnx_workload_get "$workload" availability_note)"
+      printf '    Unavailable: %s\n' "$note"
+    fi
+  done
+  printf '\nInstall with: ternux extension install NAME\n'
+  printf 'Repair an existing managed install: ternux extension repair NAME\n'
+  printf 'Remove one managed extension: ternux extension remove NAME\n'
+  printf 'Removal preserves model weights and other files outside the extension directory.\n'
+  printf 'ADT releases are managed by ADT; see ternux guides.\n'
 }
 
 _tnx_extension_fail() { printf '[FAIL] %s\n' "$*" >&2; }
@@ -82,40 +111,34 @@ _tnx_extension_find_ldconfig() {
 }
 
 _tnx_extension_install() {
-  local name="${1:-}" mode="${2:-install}" tag artifact asset base tmp backup expected listed actual member top dest glibc version_major version_minor library ldconfig_bin missing_libraries="" min_glibc_minor package_kind binary
-  local -a runtime_libraries
+  local name="${1:-}" mode="${2:-install}" tag artifact asset base tmp backup expected listed actual member top dest glibc version_major version_minor required_major required_minor library ldconfig_bin missing_libraries="" minimum_glibc binary expected_archive_sha256 expected_sidecar_sha256 dependency_hint manifest_path environment_file note availability
+  local -a runtime_libraries required_executables required_files required_directories post_install_notes
   [ -n "$name" ] || { _tnx_extension_fail "Choose an extension: ternux extension list"; return 2; }
   case "$mode" in install|repair) ;; *) _tnx_extension_fail "Unknown extension operation '$mode'."; return 2 ;; esac
-  case "$name" in
-    llama-vulkan)
-      tag="ternux-llama-vulkan-linux-arm64-b11582"
-      artifact="$tag"
-      asset="${tag}.tar.gz"
-      min_glibc_minor=38
-      package_kind=vulkan
-      binary=llama-cli
-      runtime_libraries=(libssl.so.3 libcrypto.so.3 libgomp.so.1 libvulkan.so.1)
-      ;;
-    stable-diffusion)
-      tag="ternux-stable-diffusion-vulkan-linux-arm64-master-1053"
-      artifact="$tag"
-      asset="${tag}.tar.gz"
-      min_glibc_minor=39
-      package_kind=stable-diffusion
-      binary=sd-cli
-      runtime_libraries=(libgomp.so.1 libvulkan.so.1)
-      ;;
-    llama-htp-experimental)
-      tag="ternux-llama-htp-sm8735-b11582"
-      artifact="$tag"
-      asset="${tag}.tar.gz"
-      min_glibc_minor=38
-      package_kind=htp
-      binary=llama-cli
-      runtime_libraries=(libgbinder.so.1 libglibutil.so.1 libcdsprpc.so.1 libcdsprpc.so)
-      ;;
-    *) _tnx_extension_fail "Unknown extension '$name'. Run: ternux extension list"; return 2 ;;
-  esac
+  _tnx_extension_load_registry || return 1
+  if ! tnx_workload_get "$name" display_name >/dev/null 2>&1; then
+    _tnx_extension_fail "Unknown extension '$name'. Run: ternux extension list"
+    return 2
+  fi
+  availability="$(tnx_workload_get "$name" availability)"
+  if [ "$availability" = blocked ]; then
+    _tnx_extension_fail "$(tnx_workload_get "$name" availability_note)"
+    return 1
+  fi
+  tag="$(tnx_workload_get "$name" release_tag)"
+  artifact="$tag"
+  asset="$(tnx_workload_get "$name" asset)"
+  minimum_glibc="$(tnx_workload_get "$name" minimum_glibc)"
+  binary="$(tnx_workload_get "$name" primary_binary)"
+  expected_archive_sha256="$(tnx_workload_get "$name" archive_sha256)"
+  expected_sidecar_sha256="$(tnx_workload_get "$name" sidecar_sha256)"
+  dependency_hint="$(tnx_workload_get "$name" dependency_hint)"
+  manifest_path="$(tnx_workload_get "$name" manifest_path)"
+  environment_file="$(tnx_workload_get "$name" environment_file)"
+  mapfile -t runtime_libraries < <(tnx_workload_get "$name" runtime_libraries)
+  mapfile -t required_executables < <(tnx_workload_get "$name" required_executables)
+  mapfile -t required_files < <(tnx_workload_get "$name" required_files)
+  mapfile -t required_directories < <(tnx_workload_get "$name" required_directories)
 
   if [ "$(uname -s 2>/dev/null)" != Linux ] || [ "$(uname -m 2>/dev/null)" != aarch64 ] ||
      ! getconf GNU_LIBC_VERSION >/dev/null 2>&1; then
@@ -124,13 +147,15 @@ _tnx_extension_install() {
   fi
   glibc="$(getconf GNU_LIBC_VERSION 2>/dev/null)"
   if [[ ! "$glibc" =~ ^glibc[[:space:]]+([0-9]+)\.([0-9]+)$ ]]; then
-    _tnx_extension_fail "Cannot determine the guest's glibc version; $name requires glibc 2.$min_glibc_minor or newer."
+    _tnx_extension_fail "Cannot determine the guest's glibc version; $name requires glibc $minimum_glibc or newer."
     return 1
   fi
   version_major="${BASH_REMATCH[1]}"
   version_minor="${BASH_REMATCH[2]}"
-  if (( version_major < 2 || (version_major == 2 && version_minor < min_glibc_minor) )); then
-    _tnx_extension_fail "$name requires glibc 2.$min_glibc_minor or newer; found $glibc. No files were installed."
+  required_major="${minimum_glibc%%.*}"
+  required_minor="${minimum_glibc#*.}"
+  if (( version_major < required_major || (version_major == required_major && version_minor < required_minor) )); then
+    _tnx_extension_fail "$name requires glibc $minimum_glibc or newer; found $glibc. No files were installed."
     return 1
   fi
   for cmd in curl sha256sum tar mktemp; do
@@ -159,13 +184,7 @@ _tnx_extension_install() {
     fi
   done
   if [ -n "$missing_libraries" ]; then
-    if [ "$package_kind" = htp ]; then
-      _tnx_extension_fail "Missing HTP runtime libraries: $missing_libraries. Install libgbinder1, libglibutil1, libfastrpc1, and libfastrpc-dev in Debian; enable trixie-backports main contrib if apt cannot find them."
-    elif [ "$package_kind" = stable-diffusion ]; then
-      _tnx_extension_fail "Missing runtime libraries: $missing_libraries. In Debian install libgomp1 and libvulkan1."
-    else
-      _tnx_extension_fail "Missing runtime libraries: $missing_libraries. In Debian install libgomp1 and libvulkan1, plus the OpenSSL 3 runtime package (libssl3 or libssl3t64)."
-    fi
+    _tnx_extension_fail "Missing runtime libraries: $missing_libraries. $dependency_hint"
     return 1
   fi
 
@@ -193,7 +212,9 @@ _tnx_extension_install() {
   fi
   tmp="$(mktemp -d "$base/.${name}.install.XXXXXX")" || { _tnx_extension_fail "Cannot create temporary install directory."; return 1; }
 
-  local release="https://github.com/soobujmiah/ternux/releases/download/$tag"
+  local release_repository
+  release_repository="$(tnx_workload_get "$name" release_repository)"
+  local release="$release_repository/releases/download/$tag"
   if ! curl -fL --retry 3 --max-time 180 -o "$tmp/$asset" "$release/$asset" ||
      ! curl -fL --retry 3 --max-time 30 -o "$tmp/$asset.sha256" "$release/$asset.sha256"; then
     rm -rf "$tmp"
@@ -201,6 +222,12 @@ _tnx_extension_install() {
     return 1
   fi
 
+  actual="$(sha256sum "$tmp/$asset.sha256" | awk '{print $1}')"
+  if [ "${actual,,}" != "${expected_sidecar_sha256,,}" ]; then
+    rm -rf "$tmp"
+    _tnx_extension_fail "Release checksum sidecar SHA-256 mismatch; nothing was installed."
+    return 1
+  fi
   read -r expected listed < "$tmp/$asset.sha256"
   listed="${listed#\*}"
   case "$expected" in
@@ -212,9 +239,9 @@ _tnx_extension_install() {
     return 1
   fi
   actual="$(sha256sum "$tmp/$asset" | awk '{print $1}')"
-  if [ "${actual,,}" != "${expected,,}" ]; then
+  if [ "${actual,,}" != "${expected,,}" ] || [ "${actual,,}" != "${expected_archive_sha256,,}" ]; then
     rm -rf "$tmp"
-    _tnx_extension_fail "Extension archive SHA-256 mismatch; nothing was installed."
+    _tnx_extension_fail "Extension archive SHA-256 mismatch against its pinned release digest; nothing was installed."
     return 1
   fi
 
@@ -246,33 +273,35 @@ _tnx_extension_install() {
     return 1
   fi
 
-  if ! tar --no-same-owner -xzf "$tmp/$asset" -C "$tmp" ||
-     [ ! -x "$tmp/$top/bin/$binary" ] ||
-     [ ! -f "$tmp/$top/build-manifest.json" ]; then
+  if ! tar --no-same-owner -xzf "$tmp/$asset" -C "$tmp"; then
     rm -rf "$tmp"
-    _tnx_extension_fail "Extension archive failed its package layout checks; nothing was installed."
+    _tnx_extension_fail "Cannot extract extension archive; nothing was installed."
     return 1
   fi
-  if [ "$package_kind" = htp ]; then
-    if [ ! -x "$tmp/$top/bin/htp-run" ] ||
-       [ ! -f "$tmp/$top/libexec/htp-broker.py" ] ||
-       [ ! -f "$tmp/$top/lib/libternux-htp-broker.so" ] ||
-       ! grep -Fq '"artifact": "ternux-llama-htp-sm8735-b11582"' "$tmp/$top/build-manifest.json"; then
-      rm -rf "$tmp"
-      _tnx_extension_fail "Experimental HTP archive is missing its broker, launcher, or matching manifest."
-      return 1
-    fi
-  elif [ "$package_kind" = stable-diffusion ]; then
-    if [ ! -f "$tmp/$top/env.sh" ] || [ ! -d "$tmp/$top/share/licenses" ] ||
-       ! grep -Fq '"artifact": "ternux-stable-diffusion-vulkan-linux-arm64-master-1053"' "$tmp/$top/build-manifest.json"; then
-      rm -rf "$tmp"
-      _tnx_extension_fail "Stable Diffusion archive is missing its environment, license bundle, or matching manifest."
-      return 1
-    fi
-  elif [ ! -f "$tmp/$top/env.sh" ] ||
-       ! grep -Fq '"artifact": "ternux-llama-vulkan-linux-arm64-b11582"' "$tmp/$top/build-manifest.json"; then
+  local required_path
+  for required_path in "${required_executables[@]}"; do
+    [ -x "$tmp/$top/$required_path" ] || {
+      rm -rf "$tmp"; _tnx_extension_fail "Extension archive is missing required executable: $required_path"; return 1;
+    }
+  done
+  for required_path in "${required_files[@]}"; do
+    [ -f "$tmp/$top/$required_path" ] || {
+      rm -rf "$tmp"; _tnx_extension_fail "Extension archive is missing required file: $required_path"; return 1;
+    }
+  done
+  for required_path in "${required_directories[@]}"; do
+    [ -d "$tmp/$top/$required_path" ] || {
+      rm -rf "$tmp"; _tnx_extension_fail "Extension archive is missing required directory: $required_path"; return 1;
+    }
+  done
+  if [ -n "$environment_file" ] && [ ! -f "$tmp/$top/$environment_file" ]; then
     rm -rf "$tmp"
-    _tnx_extension_fail "Vulkan archive is missing its environment file or matching manifest."
+    _tnx_extension_fail "Extension archive is missing its environment file: $environment_file"
+    return 1
+  fi
+  if ! grep -Fq '"artifact": "'"$tag"'"' "$tmp/$top/$manifest_path"; then
+    rm -rf "$tmp"
+    _tnx_extension_fail "Extension manifest does not identify the selected release artifact."
     return 1
   fi
 
@@ -305,15 +334,11 @@ _tnx_extension_install() {
   else
     _tnx_extension_ok "Installed $name at $dest"
   fi
-  if [ "$package_kind" = htp ]; then
-    printf '  Experimental SM8735 route: %s/bin/htp-run\n' "$dest"
-    printf '  HTP is not a supported release feature; no CPU/GPU fallback is configured.\n'
-  elif [ "$package_kind" = stable-diffusion ]; then
-    printf '  Image generator: %s/bin/sd-cli (CPU and Vulkan backends)\n' "$dest"
-    printf '  CPU image quality is not qualified; use Vulkan for the tested Adreno route.\n'
-    printf '  Source with: source %s/env.sh\n' "$dest"
-  else
-    printf '  Source its environment with: source %s/env.sh\n' "$dest"
+  for note in "${post_install_notes[@]}"; do
+    printf '  %s\n' "$note"
+  done
+  if [ -n "$environment_file" ]; then
+    printf '  Source its environment with: source %s/%s\n' "$dest" "$environment_file"
   fi
   printf '  Model weights remain wherever you keep them.\n'
 }
@@ -321,12 +346,10 @@ _tnx_extension_install() {
 _tnx_extension_remove() {
   local name="${1:-}" artifact base dest
   [ -n "$name" ] || { _tnx_extension_fail "Choose an extension: ternux extension list"; return 2; }
-  case "$name" in
-    llama-vulkan) artifact="ternux-llama-vulkan-linux-arm64-b11582" ;;
-    stable-diffusion) artifact="ternux-stable-diffusion-vulkan-linux-arm64-master-1053" ;;
-    llama-htp-experimental) artifact="ternux-llama-htp-sm8735-b11582" ;;
-    *) _tnx_extension_fail "Unknown extension '$name'. Run: ternux extension list"; return 2 ;;
-  esac
+  _tnx_extension_load_registry || return 1
+  artifact="$(tnx_workload_get "$name" release_tag 2>/dev/null)" || {
+    _tnx_extension_fail "Unknown extension '$name'. Run: ternux extension list"; return 2;
+  }
   if [ "$(uname -s 2>/dev/null)" != Linux ] || ! getconf GNU_LIBC_VERSION >/dev/null 2>&1; then
     _tnx_extension_fail "Run this inside the Linux glibc guest, not the Termux host."
     return 1

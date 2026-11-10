@@ -1507,6 +1507,10 @@
     "lib/ternux/ternux-assets/themes/Ternux/xfwm4/stick-pressed.xpm": {
       "source": "lib/ternux-assets/themes/Ternux/xfwm4/stick-pressed.xpm",
       "perm": "644"
+    },
+    "lib/ternux/workload-registry.sh": {
+      "source": "lib/workload-registry.sh",
+      "perm": "644"
     }
   }
 }
