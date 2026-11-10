@@ -11,7 +11,26 @@ alt_url: "/bn/docs/V2-RELEASE-READINESS.html"
 
 **Ternux v2.0.0 tag/publication:** not created
 
-**Active pull request:** [#97](https://github.com/soobujmiah/ternux/pull/97), ready for review
+**Latest source baseline:** `main` at `195304de13dce6e7c2c0d12163b6cba80e571030`
+
+**Latest v2 integration PR:** [#97](https://github.com/soobujmiah/ternux/pull/97), merged as `394d0d12e972dd977cd7ec8c639caaead84b1b40`
+
+**Current blockers:** seven release-blocking gates remain incomplete; the signed public APT endpoints return HTTP 404. No v2.0.0 tag or owner-requested release exists. A Pages deployment run was unexpectedly triggered by PR #103, then cancelled while its deploy action was running; the external result is unverified.
+
+> Current-state note (2026-11-10): the reconciliation and gate matrix below supersede earlier snapshots in this report that describe PR #97 as open, require an independent reviewer, or show earlier `main` commits. Those statements are retained only as historical evidence.
+
+### Latest repository reconciliation — 2026-11-10
+
+- **Repository:** verified `origin/main` is `195304de13dce6e7c2c0d12163b6cba80e571030`. The working branch for this continuation starts from that exact commit; no working-tree changes or release tag existed at intake.
+- **PR #97:** merged at `394d0d12e972dd977cd7ec8c639caaead84b1b40`. On pre-sync main `bdae6d70c9015f6893bad4f81f79e3f1e059e41d`, all five required checks passed: Validate `42813902350`, Termux APT package `42813902395`, Repository State Contract `42813902288`, and Repo Knowledge Sync `42813902314` (`test` and `sync`). PR #103 carried generated state for that SHA and all five PR checks passed; after merge, package run `42816692114`, Validate `42816691833`, and Repository State Contract `42816691795` passed on `195304de13dce6e7c2c0d12163b6cba80e571030`.
+- **Review protection:** main requires a PR and the five CI contexts, with strict checks and admin enforcement. Required approvals are zero; CODEOWNERS review and latest-push approval are disabled. Force-push and branch deletion are disabled. The only collaborator is the owner. No review was impersonated or fabricated.
+- **PR #103:** generated `.repo` state only; its diff and five checks were inspected before merge. It merged as `195304de13dce6e7c2c0d12163b6cba80e571030`. Other open PRs: #45 Dependabot (`CLEAN`); #44 and #42 Dependabot (`BLOCKED`); #35 proposed license terms (`DIRTY`). None is a v2 product integration PR.
+- **Other work:** preserve the separate `ternux-tools` owner edits/untracked native-AI qualification and QNN probe, the detached `ternux-package-audit` worktree's untracked package artifact, and all SKB owner changes. No live GUI/service was touched.
+- **Public APT / Pages:** the bootstrap, archive key, `InRelease`, and `Packages` paths returned HTTP 404 before the generated-state merge. That merge unexpectedly triggered Pages run `42816692044`; it was cancelled while `actions/deploy-pages` was running. The GitHub Pages deployment history endpoint returned 404, so any external side effect is unverified. A post-cancellation recheck confirmed all four APT paths still return 404. No owner-requested release publication was performed.
+
+The reconciled 19-gate matrix is: **COMPLETE** P0-01, P0-02, P0-03, P1-02 (tested Adreno 825 stack), P1-05, P2-04; **PARTIAL** P1-01, P1-03, P1-04, P1-06, P1-07 (experimental/release-excluded), P1-08 (experimental/release-excluded), P1-PKG, P1-DOCS, P2-02, P2-DEVICE; **BLOCKED** P1-APT; **NOT_STARTED** P2-01 and P2-03. Seven gates still block release: P1-01, P1-03, P1-04, P1-06, P1-APT, P1-PKG, and P1-DOCS. The machine-readable inventory derives `NOT_READY`. Main deployment workflow is now manual-dispatch only; its previous `push: main` trigger caused Pages run `42816692044`, cancelled while `actions/deploy-pages` was running. The Pages root currently returns HTTP 200, but the API did not expose deployment history, so that run’s external effect remains unverified.
+
+## Prior audit archive — historical snapshots superseded by the latest reconciliation above
 
 ### Continuation snapshot — 2026-11-10
 
@@ -19,7 +38,7 @@ alt_url: "/bn/docs/V2-RELEASE-READINESS.html"
 
 The standalone bootstrap source is now pinned to commit `614d3b7d1ceda1ecd96107333b5d03795c4d5b7a`, archive SHA-256 `f55737a18eedff270ce32416ab55fbc070132dd02d41f0234f509f03f99cbf8c`. Focused regression tests verify the exact codeload URL and reject a byte-modified archive before extraction; the suite passed 145/145 locally. PR #97 exact-head CI had all five required checks passing at `614d3b7d1ceda1ecd96107333b5d03795c4d5b7a` before this follow-up change. The source update was pushed as `985c5c5ae1c942315c5e3d0a85a9ffb3d3682a9d`; all five required exact-head CI checks passed. Release remains `NOT_READY`; the validator reports eight incomplete blockers.
 
-### Current session reconciliation — 2026-11-10
+### Historical session snapshot — superseded by latest repository reconciliation above
 
 - **Repository:** `origin/main` is `8e24062589e81c20095c875fa4d19dd5cb928554`; the active branch `fix/managed-htp-extension-prerequisites` is clean at `6f8e8344c13d6cf2013ab7f9a6dc7cf6df836ac8`, with `main` as an ancestor. It is 183 commits ahead and PR #97 changes 581 files (+13,975/−1,386). No staged, unstaged, or untracked work existed in this checkout before this continuation's desktop change.
 - **Open PRs:** #97 is the v2 branch; #45/#44/#43/#42/#41 are Dependabot action updates; #35 is the separate proposed-license review. PR #96 (signed APT setup) is merged. PR #97 is non-draft, authored by `soobujmiah`, has no review requests, and GitHub reports `REVIEW_REQUIRED`/`BLOCKED`.
@@ -40,7 +59,7 @@ The public experimental HTP prerelease exists but still serves its older 2026-10
 
 This report separates source and CI evidence from physical-device qualification. A green build does not establish release readiness for the GPU, desktop, package installation, or accelerator workloads.
 
-## Stage 0: current repository reconciliation — 2026-11-10
+## Historical Stage 0 repository snapshot — superseded by latest repository reconciliation above
 
 Historical Stage 0 snapshot before this report-only refresh: `ternux-task-fix` was clean at `6fd2772e4245be0069bf8777ee00c01a16c51aac`, synced with its remote, and 169 commits ahead of `origin/main` (`8e24062589e81c20095c875fa4d19dd5cb928554`). At that snapshot PR #97 was draft with 576 changed files and `REVIEW_REQUIRED` under the newly configured branch protection. The v2 tag does not exist. The diff is concentrated in Ternux CLI/assets, Debian packaging, bilingual docs, tests/CI and AI experiments. The complete 576-file review and owner review remain open.
 
@@ -178,7 +197,7 @@ All eight required workflows passed on that exact implementation head:
 
 Local verification on the same code: `bash tests/focused.sh` passed **134/134**; `python3 tests/docs_check.py` passed **3,041 assertions, 312 internal links, 20 bilingual page pairs**; `python3 tests/release_gates.py --self-test`, both relevant JSON parsers, shell syntax checks, and `git diff --check` passed. The website's Astro production build also passed in Validate. The current machine-readable inventory has 19 gates and reports `NOT_READY` with eight incomplete blockers.
 
-All eight workflows passed on the latest product-code head `aa2c5f1aeeed14e252c6c6d0669ceb745f6150f1`. Validate includes the new signed APT preservation fixture; the deployment workflow itself runs only on `main` or manual dispatch, so its live Pages operation remains unverified until publication.
+All eight workflows passed on the latest product-code head `aa2c5f1aeeed14e252c6c6d0669ceb745f6150f1`. Validate includes the new signed APT preservation fixture; the deployment workflow was configured for `main` pushes or manual dispatch (this reconciliation changes it to manual-only), so its live Pages operation remains unverified until publication.
 
 | Workflow | Run ID | Result |
 |---|---:|---|

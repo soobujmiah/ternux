@@ -42,5 +42,6 @@ URL-এ প্রকাশ করে; `src/data/navigation.ts` shared navigation
 
 Shared page shell `src/layouts/SiteLayout.astro`; style `src/styles/site.css`,
 আর content loading ও route-safe link rewrite `src/lib/content.ts`-এ। Astro build-এর
-`dist/` output `.github/workflows/deploy.yml` দিয়ে deploy হয়। Runtime হালকা রাখুন
-এবং reduced-motion preference মানুন।
+`dist/` output `.github/workflows/deploy.yml` দিয়ে deploy হয়; production deploy
+শুধু explicit workflow dispatch-এর পর চলে। Runtime হালকা রাখুন এবং reduced-motion
+preference মানুন।

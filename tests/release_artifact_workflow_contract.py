@@ -40,6 +40,12 @@ for filename, (workflow, artifact, publisher) in workflows.items():
     assert "actions/upload-artifact@v6" in text, filename
     assert "  " + publisher + ":" in text, filename
 
+deploy = (ROOT / ".github/workflows/deploy.yml").read_text(encoding="utf-8")
+deploy_triggers = deploy.split("permissions:", 1)[0]
+assert "workflow_dispatch:" in deploy_triggers
+assert "push:" not in deploy_triggers, "production Pages deployment must not run on source pushes"
+assert "uses: actions/deploy-pages@v5" in deploy
+
 hmx = (ROOT / ".github/workflows/llama-htp-hmx-probe.yml").read_text(encoding="utf-8")
 assert "pull_request:" not in hmx
 assert "source_run_id:" in hmx
@@ -50,4 +56,4 @@ assert "actions/download-artifact@v7" in hmx
 assert "actions/upload-artifact@v6" in hmx
 assert "retention-days: 90" in hmx
 
-print("release artifact workflow contract passed: prior-run reuse, provenance, 90-day retention, manual-only heavy builds with reuse")
+print("release artifact workflow contract passed: prior-run reuse, provenance, 90-day retention, manual-only heavy builds and production Pages deploy with reuse")

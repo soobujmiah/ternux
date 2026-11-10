@@ -11,7 +11,26 @@ alt_url: "/docs/V2-RELEASE-READINESS.html"
 
 **Ternux v2.0.0 tag/publication:** তৈরি করা হয়নি
 
-**সক্রিয় pull request:** [#97](https://github.com/soobujmiah/ternux/pull/97), review-এর জন্য প্রস্তুত
+**সর্বশেষ source baseline:** `main` commit `bdae6d70c9015f6893bad4f81f79e3f1e059e41d`
+
+**সর্বশেষ v2 integration PR:** [#97](https://github.com/soobujmiah/ternux/pull/97), merge commit `394d0d12e972dd977cd7ec8c639caaead84b1b40`
+
+**বর্তমান blocker:** release-blocking সাতটি gate অসম্পূর্ণ; signed public APT endpoint চারটিই HTTP 404। v2.0.0 tag বা owner-requested release নেই। PR #103 merge-এর পর Pages deployment run শুরু হয়েছিল; deploy action চলার সময় cancel করা হয়েছে, তাই external result unverified।
+
+> বর্তমান অবস্থার নোট (2026-11-10): নিচের reconciliation ও gate matrix এই রিপোর্টের আগের snapshot-গুলোকে supersede করে, যেখানে PR #97 open, independent reviewer বাধ্যতামূলক, বা পুরোনো `main` commit দেখানো হয়েছে। সেগুলো কেবল historical evidence।
+
+### সর্বশেষ repository reconciliation — 2026-11-10
+
+- **Repository:** যাচাই করা `origin/main` হলো `bdae6d70c9015f6893bad4f81f79e3f1e059e41d`। এই continuation-এর কাজ সেই commit থেকে শুরু; intake-এর সময় working tree clean, কোনো release tag ছিল না।
+- **PR #97:** `394d0d12e972dd977cd7ec8c639caaead84b1b40` হিসেবে merge হয়েছে। আগের main `bdae6d70c9015f6893bad4f81f79e3f1e059e41d`-এ পাঁচটি required check pass: Validate `42813902350`, Termux APT package `42813902395`, Repository State Contract `42813902288`, Repo Knowledge Sync `42813902314` (`test` ও `sync`)। PR #103 এই SHA-র generated state বহন করে এবং পাঁচটি PR check pass করেছে; merge-এর পর `195304de13dce6e7c2c0d12163b6cba80e571030`-এ package `42816692114`, Validate `42816691833`, Repository State Contract `42816691795` pass করেছে।
+- **Review protection:** main-এ PR ও পাঁচটি CI context বাধ্যতামূলক; strict checks ও admin enforcement চালু। Required approval শূন্য; CODEOWNERS review ও latest-push approval বন্ধ। Force-push ও branch deletion বন্ধ। একমাত্র collaborator owner। কোনো review impersonate বা fabricate করা হয়নি।
+- **PR #103:** শুধু generated `.repo` state; merge-এর আগে diff ও পাঁচটি check যাচাই করা হয়েছে। এটি `195304de13dce6e7c2c0d12163b6cba80e571030` হিসেবে merge হয়েছে। অন্য open PR: #45 Dependabot (`CLEAN`); #44 ও #42 Dependabot (`BLOCKED`); #35 proposed license terms (`DIRTY`)। এগুলো v2 product integration PR নয়।
+- **অন্য কাজ:** আলাদা `ternux-tools`-এর owner edit/untracked native-AI qualification ও QNN probe, detached `ternux-package-audit` worktree-র untracked package artifact এবং SKB owner changes preserve করা হয়েছে। Live GUI/service স্পর্শ করা হয়নি।
+- **Public APT / Pages:** generated-state merge-এর আগে bootstrap, archive key, `InRelease`, `Packages`—চারটি endpoint-ই HTTP 404 ছিল। Merge-এ Pages run `42816692044` অপ্রত্যাশিতভাবে শুরু হয়; `actions/deploy-pages` চলার সময় cancel করা হয়েছে। GitHub Pages deployment history endpoint 404 দিয়েছে, তাই external side effect unverified। Cancel-এর পরও চারটি APT path 404 ছিল। Owner-requested release publication হয়নি।
+
+১৯টি gate-এর বর্তমান matrix: **COMPLETE** P0-01, P0-02, P0-03, P1-02 (পরীক্ষিত Adreno 825 stack), P1-05, P2-04; **PARTIAL** P1-01, P1-03, P1-04, P1-06, P1-07 (experimental/release-excluded), P1-08 (experimental/release-excluded), P1-PKG, P1-DOCS, P2-02, P2-DEVICE; **BLOCKED** P1-APT; **NOT_STARTED** P2-01 ও P2-03। সাতটি gate এখনো release block করে: P1-01, P1-03, P1-04, P1-06, P1-APT, P1-PKG, P1-DOCS। Machine-readable inventory `NOT_READY` দেখায়। Main push-এ automatic Pages run `42816692044` শুরু হয়েছিল; `actions/deploy-pages` চলার সময় cancel করা হয়েছে। Workflow এখন manual-dispatch only। Pages root HTTP 200, কিন্তু deployment history API 404 হওয়ায় ওই run-এর external effect অনিশ্চিত।
+
+## আগের audit archive — উপরের সর্বশেষ reconciliation দ্বারা superseded
 
 ### সর্বশেষ continuation snapshot — ২০২৬-১১-১০
 
@@ -19,7 +38,7 @@ alt_url: "/docs/V2-RELEASE-READINESS.html"
 
 Standalone bootstrap এখন commit `614d3b7d1ceda1ecd96107333b5d03795c4d5b7a` এবং archive SHA-256 `f55737a18eedff270ce32416ab55fbc070132dd02d41f0234f509f03f99cbf8c` pin করে। Focused test exact codeload URL verify করে এবং extraction-এর আগে byte-modified archive reject করে; local suite 145/145 pass। Follow-up change-এর আগে PR #97-এর exact-head-এ পাঁচটি required CI check pass ছিল; source change `985c5c5ae1c942315c5e3d0a85a9ffb3d3682a9d` হিসেবে push হয়েছে; exact-head-এর পাঁচটি required CI check pass। Release এখনও `NOT_READY`; validator আটটি incomplete blocker দেখায়।
 
-### এই session-এর repository reconciliation — ২০২৬-১১-১০
+### আগের session snapshot — উপরের সর্বশেষ reconciliation দ্বারা superseded
 
 - **Repository:** `origin/main` হলো `8e24062589e81c20095c875fa4d19dd5cb928554`; active branch `fix/managed-htp-extension-prerequisites` clean head `6f8e8344c13d6cf2013ab7f9a6dc7cf6df836ac8`-এ, এবং `main` তার ancestor। Branch-টি ১৮৩ commit এগিয়ে; PR #97-এ ৫৮১টি file পরিবর্তিত (+১৩,৯৭৫/−১,৩৮৬)। এই continuation-এর desktop change-এর আগে এই checkout-এ staged, unstaged বা untracked কাজ ছিল না।
 - **Open PR:** #97 হলো v2 branch; #45/#44/#43/#42/#41 Dependabot action update; #35 আলাদা proposed-license review। Signed APT setup-এর PR #96 merged। PR #97 non-draft, author `soobujmiah`, review request নেই; GitHub `REVIEW_REQUIRED`/`BLOCKED` দেখায়।
@@ -55,7 +74,7 @@ HTP stable support হিসেবে qualified হয় না।
 
 এই রিপোর্ট source ও CI-র প্রমাণকে বাস্তব ডিভাইস পরীক্ষার থেকে আলাদা রাখে। Build সফল হলেই GPU, desktop, package installation বা accelerator workload release-ready প্রমাণ হয় না।
 
-## Stage 0: ২০২৬-১১-১০-এর বর্তমান repository reconciliation
+## ঐতিহাসিক Stage 0 repository snapshot — উপরের সর্বশেষ reconciliation দ্বারা superseded
 
 এই report-only refresh-এর আগের validated PR snapshot-এ `ternux-task-fix` clean ও remote-এর সঙ্গে synced ছিল, head `6fd2772e4245be0069bf8777ee00c01a16c51aac`; `origin/main` (`8e24062589e81c20095c875fa4d19dd5cb928554`)-এর চেয়ে ১৬৯ commit এগিয়ে। PR #97 open/draft, ৫৭৬টি changed file; নতুন branch protection অনুযায়ী GitHub `REVIEW_REQUIRED` দেখায়। v2 tag নেই। Diff মূলত Ternux CLI/assets, Debian packaging, bilingual docs, test/CI ও AI experiment। পুরো ৫৭৬-file review এবং owner review বাকি।
 

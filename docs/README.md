@@ -54,5 +54,5 @@ steps: update those canonical docs in the same change that alters the behavior.
 The shared page shell is `src/layouts/SiteLayout.astro`; shared styles live in
 `src/styles/site.css`, while content loading and route-safe link rewriting live in
 `src/lib/content.ts`. Astro builds the static site into `dist/` for deployment by
-`.github/workflows/deploy.yml`. Keep the runtime light and respect reduced-motion
-preferences.
+`.github/workflows/deploy.yml`; production deployment runs only after an explicit
+workflow dispatch. Keep the runtime light and respect reduced-motion preferences.

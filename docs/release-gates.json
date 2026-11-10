@@ -41,25 +41,21 @@
       "issue_id": "P0-02",
       "severity": "P0",
       "owner": "engineering",
-      "status": "PARTIAL",
+      "status": "COMPLETE",
       "source_status": "PASS",
       "ci_status": "PASS",
       "device_status": "N_A",
       "evidence": [
-        "PR #97 targets main; origin/main 8e24062589e81c20095c875fa4d19dd5cb928554 is an ancestor. Audited head before this documentation-only refresh, 025f3f8a56bd26013aa2ce7340a183b1fe876697, was 172 commits ahead; GitHub reports 576 changed files. PR is open and ready for review, but requires owner/CODEOWNERS review; no review has been submitted.",
-        "Follow-up on PR head 3cc8e2cdafa7d9cd93d27d48ec3ce674f91aaaa8: all five required checks pass (Validate 42796372115; Termux APT package 42796372208; repository contract 42796372131; Repo Knowledge Sync 42796372536 sync and test). GitHub shows REVIEW_REQUIRED with no review requests. CODEOWNERS lists only @soobujmiah, who authored the PR; collaborator enumeration lists only the owner. Branch protection requires one approval plus CODEOWNERS, so there is no independent eligible reviewer until the owner adds/authorizes one. The main-only publisher cannot run before the protected merge.",
-        "All five required checks pass on exact PR head 025f3f8a56bd26013aa2ce7340a183b1fe876697: Validate 42791752634; Termux APT package 42791752738; repository contract 42791752506; Repo Knowledge Sync 42791752499 (sync and test).",
-        "Four source-run refresh workflows passed provenance/checksum checks, skipped compilation and publication, and extended exact-artifact retention through 2027-02-08. HTP candidate run 42783356495 / artifact 13747701121 was downloaded and its sidecar SHA-256 verified as a139a6248356a44e89348ddbe1334edaad33f81a9efbe8f5b8fe3c5733dcf3de (15,691,323 bytes). The exact no-rebuild publisher verifier passed against current PR head 025f3f8a56bd26013aa2ce7340a183b1fe876697, confirming run/artifact provenance, ancestry, unchanged build definition/package inputs, and non-expired artifact.",
-        "The existing public HTP prerelease still serves its older 2026-10-13 archive (SHA-256 dffcf83fa969f3ccfad238217b4ca7f3d47040e5e5b2fa834ebd3f123d144ea5); main-only publication can reuse the retained run after integration without rebuilding. PR #97 is now ready for review, but publication still requires owner/CODEOWNERS review and merge; release readiness remains NOT_READY with eight incomplete blockers.",
-        "Latest exact PR head 2d19b4566e2cf9aa40edb5f71011b011604651d7 passes all five required checks: Validate 42797563217; Termux APT package 42797562831; repository contract 42797563017; Repo Knowledge Sync 42797562765 sync and test. GitHub still reports REVIEW_REQUIRED/BLOCKED with no approval or review request. The PR author is the only collaborator/CODEOWNER; other recorded review entries are bot comments, so an independent human reviewer is still required before merge and the main-only publisher.",
-        "Latest exact PR head b97ea9965865c602d0119f8f8916e0430e06d847 passes all five required checks: Validate 42798314264; Termux APT package 42798314373; repository contract 42798315057; Repo Knowledge Sync 42798315019 sync and test. The no-rebuild verifier passes against this head for HTP source run 42783356495; Actions artifact 13747701121 is unexpired through 2027-02-08. No artifact download or rebuild was performed. The public prerelease still has the older asset; protected merge/review remains required."
+        "PR #97 (v2 feature integration) merged into main as 394d0d12e972dd977cd7ec8c639caaead84b1b40. PR #103 generated-state sync merged as 195304de13dce6e7c2c0d12163b6cba80e571030; it changed only CI-collected .repo state. Main remains the v2 integration baseline.",
+        "All five required PR checks passed for PR #103 generated-state head 316cf535ae724f60984cb83219f27ccdfa4e8e85. After merge, package artifact run 42816692114, Validate run 42816691833, and Repository State Contract run 42816691795 passed on main commit 195304de13dce6e7c2c0d12163b6cba80e571030; the PR-head Repo Knowledge Sync `test` and `sync` contexts also passed.",
+        "No separate v2.0.0 release tag exists. Main push from PR #103 unexpectedly started Pages deployment run 42816692044; it was cancelled after actions/deploy-pages began. Root URL returns HTTP 200, but GitHub Pages deployment-history API returned 404, so whether this run caused a partial external update is UNVERIFIED. No owner-requested v2 release publication was performed. Seven other blocking gates remain incomplete."
       ],
       "required_tests": [
         "exact-head required CI",
         "final branch and PR diff review"
       ],
       "acceptance_criteria": [
-        "All release fixes are on the intended branch and final review approves a coherent release commit."
+        "All identified v2 source changes are integrated on the main release baseline and exact-main required CI passes; release qualification remains governed by the other blocking gates."
       ],
       "release_blocking": true,
       "release_exclusion": null
@@ -76,7 +72,7 @@
       "evidence": [
         "docs/V2-RELEASE-READINESS.md",
         "docs/release-gates.json",
-        "Current inventory has 19 gates; release_gates.py derives NOT_READY with eight incomplete blockers. The validator does not permit readiness while any release-blocking gate is incomplete."
+        "Current inventory has 19 gates; release_gates.py derives NOT_READY with seven incomplete blockers. The validator does not permit readiness while any release-blocking gate is incomplete."
       ],
       "required_tests": [
         "release-gate validator",
@@ -208,9 +204,8 @@
       "ci_status": "PASS",
       "device_status": "N_A",
       "evidence": [
-        "Owner-authorized GitHub branch protection is active on main. Strict required checks are Shell, behavior, and documentation; Build and inspect unsigned package artifact; repo-contract; test; sync.",
-        "Live read-back confirms one approving review and CODEOWNERS review, dismissal of stale approvals, approval after latest push, admin enforcement, conversation resolution, force-push disabled, and deletion disabled.",
-        ".github/CODEOWNERS assigns @soobujmiah as default owner. PR #97 is still draft with REVIEW_REQUIRED and no submitted reviews; this remaining integration/review is tracked by P0-02."
+        "Live GitHub branch-protection read-back on 2026-11-10: pull request required; required approving review count is 0; CODEOWNERS review and latest-push approval are disabled; strict required checks are Shell, behavior, and documentation; Build and inspect unsigned package artifact; repo-contract; test; sync. Admin enforcement is enabled; force-push and deletion are disabled.",
+        "The sole collaborator and PR author is @soobujmiah. PR #97 merged successfully as 394d0d12e972dd977cd7ec8c639caaead84b1b40 after all required checks passed; no self-review or reviewer impersonation was used."
       ],
       "required_tests": [
         "read back branch protection and required contexts",
@@ -218,7 +213,7 @@
         "verify CODEOWNERS and outstanding PR review state"
       ],
       "acceptance_criteria": [
-        "Required PR review/checks, CODEOWNERS ownership and release protections are reviewed and approved."
+        "Owner-only repository permits owner-authored PRs without an impossible second-person approval; required PR workflow and CI checks remain enforced, branch administration and force-push protections are active."
       ],
       "release_blocking": true,
       "release_exclusion": null
@@ -307,7 +302,10 @@
         "Exact-head unsigned Termux package artifact passed run 42707570582; protected-key non-deploy signing verification passed earlier on main.",
         "2026-11-10 direct checks of canonical GitHub Pages URLs apt/bootstrap.sh, apt/ternux-archive-key.asc, apt/dists/stable/InRelease, and apt/dists/stable/main/binary-all/Packages each returned HTTP 404; native Termux has Ternux 2.0.0 installed without a Ternux APT source.",
         "Ordinary Pages deploy previously uploaded only the Astro site and could erase a published /apt tree. New preserve-pages-apt.sh verifies the pinned archive key, signed InRelease, Release index hashes/sizes, and every package hash/size before copying the existing signed tree; deployment fails closed on partial publication or integrity errors. Exact-head Validate 42707570617 on e1212bbc10078ec761dd5911f7858dbdc9b22c19 passed the signed-fixture integration test for first publish, valid preservation, partial publication, package tampering, and signed path traversal.",
-        "Exact PR head 8041c33939fc00639fe3296779ba840a352f82a3 passed Validate 42792959040 and unsigned Termux package build/inspection 42792958963. Fresh checks on 2026-11-10 still return HTTP 404 for all four hosted APT endpoints; no deployment was performed."
+        "Exact PR head 8041c33939fc00639fe3296779ba840a352f82a3 passed Validate 42792959040 and unsigned Termux package build/inspection 42792958963. Fresh checks on 2026-11-10 still return HTTP 404 for all four hosted APT endpoints; no deployment was performed.",
+        "Rechecked during this reconciliation on 2026-11-10 with HTTP GET: apt/bootstrap.sh, apt/ternux-archive-key.asc, apt/dists/stable/InRelease, and apt/dists/stable/main/binary-all/Packages all returned 404; no APT publication or deploy was performed.",
+        "The automatic Pages run 42816692044 after PR #103 was cancelled while actions/deploy-pages was running. Pages deployment history API returned 404; post-cancellation publication state is unverified and the release must not rely on it.",
+        "After cancellation of Pages run 42816692044, direct HTTP GET rechecks still returned 404 for apt/bootstrap.sh, apt/ternux-archive-key.asc, apt/dists/stable/InRelease, and apt/dists/stable/main/binary-all/Packages. The website root returns 200; the separate APT repository remains unpublished."
       ],
       "required_tests": [
         "signed repository publish after approval",
@@ -332,7 +330,8 @@
       "evidence": [
         "Exact-head unsigned Termux package build/inspection passed run 42707570582.",
         "Native `dpkg-query` confirms ternux 2.0.0 is installed; public APT source is absent, so clean repository install/upgrade/uninstall remains unverified.",
-        "Exact PR head 8041c33939fc00639fe3296779ba840a352f82a3 passed unsigned Termux package build/inspection (run 42792958963); this does not prove clean installation from the unavailable hosted APT source."
+        "Exact PR head 8041c33939fc00639fe3296779ba840a352f82a3 passed unsigned Termux package build/inspection (run 42792958963); this does not prove clean installation from the unavailable hosted APT source.",
+        "Current main bdae6d70c9015f6893bad4f81f79e3f1e059e41d package-artifact workflow run 42813902395 passed; hosted APT clean install/upgrade/uninstall remains unverified because its canonical endpoints return 404."
       ],
       "required_tests": [
         "clean install/update/repair/uninstall in native Termux",
@@ -360,7 +359,9 @@
         "docs/USAGE.md",
         "docs/V2-RELEASE-READINESS.md",
         "On exact report-only head b5cf839bdb5597392022ec21438cc45b9cf4e83c, Validate 42712474036 passed; local docs check passed 3041 assertions, 312 internal links and 20 bilingual page pairs; repo knowledge verify returned zero findings. Native package lifecycle and owner release review remain open.",
-        "Exact report head 8041c33939fc00639fe3296779ba840a352f82a3 passed Validate 42792959040, Termux APT package 42792958963, Repository State Contract 42792959029, and Repo Knowledge Sync 42792959241 (sync and test). Owner release review remains open."
+        "Exact report head 8041c33939fc00639fe3296779ba840a352f82a3 passed Validate 42792959040, Termux APT package 42792958963, Repository State Contract 42792959029, and Repo Knowledge Sync 42792959241 (sync and test). Owner release review remains open.",
+        "Current-main review found stale PR #97/reviewer/protection snapshots in both readiness reports and this gate inventory; the reconciliation update records the merged PR, live zero-approval rule, current main SHA and current CI. Bilingual docs checks must pass on the updated head.",
+        "2026-11-10 reconciliation corrects historical PR #97, branch-protection, and main-SHA claims in the bilingual release-readiness reports. Pages workflow now requires manual dispatch; tests/release_artifact_workflow_contract.py enforces that ordinary source pushes cannot deploy production."
       ],
       "required_tests": [
         "version/package/tag/release metadata audit",
@@ -484,5 +485,5 @@
       "release_exclusion": "Qualify only the documented Redmi Turbo 4 Pro / SM8735 target; all other device-specific acceleration remains unqualified."
     }
   ],
-  "observed_head_commit": "985c5c5ae1c942315c5e3d0a85a9ffb3d3682a9d"
+  "observed_head_commit": "195304de13dce6e7c2c0d12163b6cba80e571030"
 }

@@ -1,8 +1,7 @@
 name: Deploy Ternux website
 
 on:
-  push:
-    branches: [main]
+  # Production Pages deployment requires an explicit workflow dispatch.
   workflow_dispatch:
 
 permissions:
@@ -12,7 +11,7 @@ permissions:
 
 concurrency:
   group: pages
-  # Keep the combined signed APT publication and regular website deployment serialized.
+  # Keep signed APT publication and explicitly dispatched website deployment serialized.
   cancel-in-progress: false
 
 jobs:
