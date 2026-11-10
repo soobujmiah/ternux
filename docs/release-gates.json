@@ -431,21 +431,27 @@
       "issue_id": "P2-03",
       "severity": "P2",
       "owner": "engineering",
-      "status": "NOT_STARTED",
-      "source_status": "NOT_STARTED",
-      "ci_status": "NOT_RUN",
+      "status": "PARTIAL",
+      "source_status": "PASS",
+      "ci_status": "PENDING",
       "device_status": "N_A",
       "evidence": [
-        "packaging/termux/manifest.json is a package file list, not a workload schema"
+        "packaging/workloads.schema.json",
+        "packaging/workloads.json",
+        "tools/generate_workload_registry.py",
+        "lib/workload-registry.sh",
+        "lib/extension.sh consumes workload metadata for extension list, install, repair, archive layout, runtime requirements and removal. Local validation: focused regression suite 144/144; workload registry drift check; docs 3,076 assertions. Exact-head CI pending."
       ],
       "required_tests": [
-        "schema validation and migration tests for each managed workload"
+        "schema validation and migration tests for each managed workload",
+        "generated registry drift check",
+        "extension installer checksum, layout, block and cleanup regressions"
       ],
       "acceptance_criteria": [
         "One workload schema records versions, architecture, backend, dependencies, provenance, licenses, permissions, verification, cleanup and experimental state."
       ],
       "release_blocking": false,
-      "release_exclusion": "Existing workload code remains in use; do not claim manifest standardization until migrated."
+      "release_exclusion": "Non-blocking; exact-head CI and merge remain before marking complete."
     },
     {
       "phase": "Stage 4",

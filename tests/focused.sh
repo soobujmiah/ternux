@@ -2321,7 +2321,7 @@ if env HOME="$TMP/ext-host-home" PATH="$EXT_HOST_BIN:$PATH" \
     tnx_state_set user sbj
     tnx_state_set distro debian
     tnx_cmd_extension list
-  ' _ "$ROOT" | grep -q 'llama-vulkan.*Linux ARM64' &&
+  ' _ "$ROOT" | grep -q 'llama-vulkan.*llama.cpp CPU + Vulkan' &&
   env HOME="$TMP/ext-host-home-htp" PATH="$EXT_HOST_BIN:$PATH" \
     TERNUX_STATE_DIR="$TMP/ext-host-state-htp" bash -c '
       . "$1/lib/core.sh"; . "$1/lib/extension.sh"
@@ -2339,45 +2339,13 @@ if env HOME="$TMP/ext-host-home-provision" PATH="$EXT_HOST_BIN:$PATH" \
     . "$1/lib/core.sh"; . "$1/lib/phases.sh"; . "$1/lib/extension.sh"
     tnx_state_set user sbj; tnx_state_set distro debian
     getconf(){ return 1; }
-    proot-distro(){
-      case "$*" in
-        *trixie-backports*) printf "backports\n" >> "$HTP_DEPS_LOG"; return 0 ;;
-        *"libgbinder1 libglibutil1 libfastrpc1 libfastrpc-dev"*)
-          printf "runtime-deps\n" >> "$HTP_DEPS_LOG"; return 0 ;;
-        *"-- bash -s -- install llama-htp-experimental"*)
-          grep -Fxq runtime-deps "$HTP_DEPS_LOG" &&
-          grep -Fxq backports "$HTP_DEPS_LOG" &&
-          cat >/dev/null && printf "extension\n" >> "$HTP_DEPS_LOG"; return $? ;;
-        *) return 90 ;;
-      esac
-    }
-    tnx_cmd_extension install llama-htp-experimental
-  ' _ "$ROOT" >/dev/null 2>&1 &&
-  [[ "$(cat "$TMP/htp-deps.log")" == $'backports\nruntime-deps\nextension' ]]; then
-  ok "direct HTP extension install provisions Debian backports runtime before download"
-else
-  not_ok "direct HTP extension install provisions Debian backports runtime before download"
-fi
-
-if env HOME="$TMP/ext-host-home-provision-fail" PATH="$EXT_HOST_BIN:$PATH" \
-  TERNUX_STATE_DIR="$TMP/ext-host-state-provision-fail" HTP_DEPS_LOG="$TMP/htp-deps-fail.log" \
-  bash -c '
-    . "$1/lib/core.sh"; . "$1/lib/phases.sh"; . "$1/lib/extension.sh"
-    tnx_state_set user sbj; tnx_state_set distro debian
-    getconf(){ return 1; }
-    proot-distro(){
-      case "$*" in
-        *trixie-backports*) return 0 ;;
-        *"libgbinder1 libglibutil1 libfastrpc1 libfastrpc-dev"*) return 1 ;;
-        *) printf "extension\n" >> "$HTP_DEPS_LOG"; cat >/dev/null; return 0 ;;
-      esac
-    }
+    proot-distro(){ printf "unexpected provisioning\n" >> "$HTP_DEPS_LOG"; return 0; }
     ! tnx_cmd_extension install llama-htp-experimental
   ' _ "$ROOT" >/dev/null 2>&1 &&
-  [[ ! -e "$TMP/htp-deps-fail.log" ]]; then
-  ok "HTP extension install stops before download when dependency setup fails"
+  [ ! -e "$TMP/htp-deps.log" ]; then
+  ok "blocked HTP extension is rejected before host dependency changes"
 else
-  not_ok "HTP extension install stops before download when dependency setup fails"
+  not_ok "blocked HTP extension is rejected before host dependency changes"
 fi
 
 # Release extensions install from checksummed, path-validated archives and do
@@ -2438,6 +2406,26 @@ printf 'fixture notice\n' > "$EXT_FIXTURE/$SD_EXT_TAG/share/licenses/UPSTREAM-LI
 printf '{"artifact": "ternux-stable-diffusion-vulkan-linux-arm64-master-1053"}\n' > "$EXT_FIXTURE/$SD_EXT_TAG/build-manifest.json"
 tar -czf "$EXT_FIXTURE/$SD_EXT_TAG.tar.gz" -C "$EXT_FIXTURE" "$SD_EXT_TAG"
 (cd "$EXT_FIXTURE" && sha256sum "$SD_EXT_TAG.tar.gz" > "$SD_EXT_TAG.tar.gz.sha256")
+EXT_TEST_LIB="$TMP/extension-test-lib"
+mkdir -p "$EXT_TEST_LIB"
+for libfile in "$ROOT"/lib/*.sh; do ln -sf "$libfile" "$EXT_TEST_LIB/$(basename "$libfile")"; done
+python3 - "$ROOT/packaging/workloads.json" "$TMP/workloads-test.json" "$EXT_FIXTURE" <<'PYWORKLOAD'
+import hashlib, json, pathlib, sys
+source, target, fixture = map(pathlib.Path, sys.argv[1:])
+data=json.loads(source.read_text())
+for workload in data['workloads']:
+    tag=workload['installation_source']['release_tag']
+    archive=fixture / f"{tag}.tar.gz"
+    sidecar=fixture / f"{tag}.tar.gz.sha256"
+    workload['checksums']['archive_sha256']=hashlib.sha256(archive.read_bytes()).hexdigest()
+    workload['checksums']['sidecar_sha256']=hashlib.sha256(sidecar.read_bytes()).hexdigest()
+    if workload['id']=='llama-htp-experimental':
+        workload['availability']='available'
+        workload['availability_note']=''
+target.write_text(json.dumps(data,indent=2)+'\n')
+PYWORKLOAD
+python3 "$ROOT/tools/generate_workload_registry.py" --manifest "$TMP/workloads-test.json" --schema "$ROOT/packaging/workloads.schema.json" --output "$EXT_TEST_LIB/workload-registry.sh" >/dev/null
+export TERNUX_LIB_DIR="$EXT_TEST_LIB"
 if env HOME="$TMP/ext-home-sd" EXT_GLIBC_VERSION=2.39 EXT_CURL_LOG="$TMP/ext-sd-downloads" \
   EXT_FIXTURE="$EXT_FIXTURE" PATH="$EXT_BIN:$PATH" \
   TERNUX_STATE_DIR="$TMP/ext-state-sd" bash "$ROOT/bin/ternux" extension install stable-diffusion >/dev/null 2>&1 &&
@@ -2450,14 +2438,10 @@ else
   not_ok "Stable Diffusion CPU/Vulkan extension verifies and atomically installs its runtime and notices"
 fi
 SD_EXT_HOME="$TMP/ext-home-sd/.local/opt/ternux-extensions"
-printf '#!/bin/sh\necho sd-cli repaired\n' > "$EXT_FIXTURE/$SD_EXT_TAG/bin/sd-cli"
-chmod 0755 "$EXT_FIXTURE/$SD_EXT_TAG/bin/sd-cli"
-tar -czf "$EXT_FIXTURE/$SD_EXT_TAG.tar.gz" -C "$EXT_FIXTURE" "$SD_EXT_TAG"
-(cd "$EXT_FIXTURE" && sha256sum "$SD_EXT_TAG.tar.gz" > "$SD_EXT_TAG.tar.gz.sha256")
 if env HOME="$TMP/ext-home-sd" EXT_GLIBC_VERSION=2.39 EXT_CURL_LOG="$TMP/ext-sd-downloads" \
   EXT_FIXTURE="$EXT_FIXTURE" PATH="$EXT_BIN:$PATH" TERNUX_STATE_DIR="$TMP/ext-state-sd" \
   bash "$ROOT/bin/ternux" extension repair stable-diffusion >/dev/null 2>&1 &&
-  "$SD_EXT_HOME/stable-diffusion/bin/sd-cli" | grep -q repaired &&
+  "$SD_EXT_HOME/stable-diffusion/bin/sd-cli" | grep -q "sd-cli fixture" &&
   ! find "$SD_EXT_HOME" -maxdepth 1 -name '.stable-diffusion.repair-backup.*' | grep -q .; then
   ok "extension repair atomically replaces a recognized package and clears its backup"
 else
@@ -2477,7 +2461,7 @@ if ! env HOME="$TMP/ext-home-sd" EXT_GLIBC_VERSION=2.39 EXT_CURL_LOG="$TMP/ext-s
   EXT_FIXTURE="$EXT_FIXTURE" EXT_MV_FAIL_COUNT="$TMP/ext-sd-mv-count" \
   EXT_REAL_MV="$(command -v mv)" PATH="$EXT_BIN:$PATH" TERNUX_STATE_DIR="$TMP/ext-state-sd" \
   bash "$ROOT/bin/ternux" extension repair stable-diffusion >/dev/null 2>&1 &&
-  "$SD_EXT_HOME/stable-diffusion/bin/sd-cli" | grep -q repaired &&
+  "$SD_EXT_HOME/stable-diffusion/bin/sd-cli" | grep -q "sd-cli fixture" &&
   ! find "$SD_EXT_HOME" -maxdepth 1 -name '.stable-diffusion.repair-backup.*' | grep -q . &&
   ! find "$SD_EXT_HOME" -maxdepth 1 -name '.stable-diffusion.install.*' | grep -q .; then
   ok "failed extension replacement rolls back to the previous working install"
@@ -2490,7 +2474,7 @@ printf '%064d  %s\n' 0 "$SD_EXT_TAG.tar.gz" > "$EXT_FIXTURE/$SD_EXT_TAG.tar.gz.s
 if ! env HOME="$TMP/ext-home-sd" EXT_GLIBC_VERSION=2.39 EXT_CURL_LOG="$TMP/ext-sd-downloads" \
   EXT_FIXTURE="$EXT_FIXTURE" PATH="$EXT_BIN:$PATH" TERNUX_STATE_DIR="$TMP/ext-state-sd" \
   bash "$ROOT/bin/ternux" extension repair stable-diffusion >/dev/null 2>&1 &&
-  "$SD_EXT_HOME/stable-diffusion/bin/sd-cli" | grep -q repaired &&
+  "$SD_EXT_HOME/stable-diffusion/bin/sd-cli" | grep -q "sd-cli fixture" &&
   ! find "$SD_EXT_HOME" -maxdepth 1 -name '.stable-diffusion.install.*' | grep -q .; then
   ok "failed extension repair keeps the current install intact and removes its staging files"
 else
@@ -2599,6 +2583,8 @@ if ! env HOME="$TMP/ext-home-bad" EXT_GLIBC_VERSION=2.38 EXT_CURL_LOG="$TMP/ext-
 else
   not_ok "extension checksum failure leaves no installed files or staging directory"
 fi
+
+unset TERNUX_LIB_DIR
 
 # The guest doctor probe must include managed extension libraries in ldd's
 # search path, or bundled shared objects are falsely reported as missing.

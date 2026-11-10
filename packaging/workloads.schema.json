@@ -1,0 +1,309 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/soobujmiah/ternux/blob/main/packaging/workloads.schema.json",
+  "title": "Ternux optional workload registry",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "workloads"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "workloads": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "display_name",
+          "version",
+          "architecture",
+          "backends",
+          "dependencies",
+          "installation_source",
+          "checksums",
+          "license_metadata",
+          "required_permissions",
+          "hardware_requirements",
+          "verification_commands",
+          "cleanup_behavior",
+          "support_status",
+          "availability",
+          "availability_note",
+          "installer"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+          },
+          "version": {
+            "type": "string",
+            "minLength": 1
+          },
+          "architecture": {
+            "const": "aarch64"
+          },
+          "backends": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "dependencies": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "debian_packages",
+              "runtime_libraries"
+            ],
+            "properties": {
+              "debian_packages": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "uniqueItems": true
+              },
+              "runtime_libraries": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "uniqueItems": true
+              }
+            }
+          },
+          "installation_source": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "type",
+              "repository",
+              "release_tag",
+              "asset",
+              "source_repository",
+              "source_version",
+              "source_commit",
+              "manifest_path"
+            ],
+            "properties": {
+              "type": {
+                "const": "github_release"
+              },
+              "repository": {
+                "type": "string",
+                "format": "uri"
+              },
+              "release_tag": {
+                "type": "string",
+                "minLength": 1
+              },
+              "asset": {
+                "type": "string",
+                "minLength": 1
+              },
+              "source_repository": {
+                "type": "string",
+                "format": "uri"
+              },
+              "source_version": {
+                "type": "string",
+                "minLength": 1
+              },
+              "source_commit": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{40}$"
+              },
+              "manifest_path": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          },
+          "checksums": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "algorithm",
+              "archive_sha256",
+              "sidecar_sha256"
+            ],
+            "properties": {
+              "algorithm": {
+                "const": "sha256"
+              },
+              "archive_sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              "sidecar_sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              }
+            }
+          },
+          "license_metadata": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status",
+              "inventory_path",
+              "checksum_path",
+              "license_expressions",
+              "limitations"
+            ],
+            "properties": {
+              "status": {
+                "enum": [
+                  "audited",
+                  "incomplete"
+                ]
+              },
+              "inventory_path": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "checksum_path": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "license_expressions": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "minItems": 1,
+                "uniqueItems": true
+              },
+              "limitations": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "required_permissions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "hardware_requirements": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1
+          },
+          "verification_commands": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1
+          },
+          "cleanup_behavior": {
+            "type": "string",
+            "minLength": 1
+          },
+          "support_status": {
+            "enum": [
+              "supported",
+              "experimental"
+            ]
+          },
+          "availability": {
+            "enum": [
+              "available",
+              "blocked"
+            ]
+          },
+          "availability_note": {
+            "type": "string"
+          },
+          "installer": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "minimum_glibc",
+              "primary_binary",
+              "required_executables",
+              "required_files",
+              "required_directories",
+              "environment_file",
+              "host_dependency_profile",
+              "dependency_hint",
+              "post_install_notes"
+            ],
+            "properties": {
+              "minimum_glibc": {
+                "type": "string",
+                "pattern": "^2\\.[0-9]+$"
+              },
+              "primary_binary": {
+                "type": "string",
+                "pattern": "^[A-Za-z0-9._+-]+$"
+              },
+              "required_executables": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z0-9._+/-]+$"
+                }
+              },
+              "required_files": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z0-9._+/-]+$"
+                }
+              },
+              "required_directories": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "pattern": "^[A-Za-z0-9._+/-]+$"
+                }
+              },
+              "environment_file": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "host_dependency_profile": {
+                "type": "string"
+              },
+              "dependency_hint": {
+                "type": "string"
+              },
+              "post_install_notes": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "display_name": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  }
+}
