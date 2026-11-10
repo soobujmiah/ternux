@@ -19,7 +19,7 @@ Do not publish v2.0.0 yet. The source now fixes the generated-state CI timeout a
 
 The audit began with a clean `main` at `bcf363e10bc52a87fe2806a28f44dfdd220cf98f`. Open PR #137 was a CI-generated `.repo/` state update. It had three checks registered while the `Repo Knowledge Sync` run waited for first-run approval; the workflow's branch-filtered API query hid that fourth run and timed out. PR #138 fixed discovery, bounded polling to one newest-100 API page, passed all required checks, and merged as `5d4be243e8d3`. Its main-triggered state PR #137 then passed its exact-head checks and merged as `aff6aae40f8fa22bfe76a2a91e56f1ee10c51b60`. No `.repo/` files were edited by hand.
 
-PR #139 implemented storage privacy and merged with all required checks as `3c03dffa4ba07a2c0355613560c0768b45022c96`. The generated-state PR #140 passed its checks and merged as `3c03dffa4ba07a2c0355613560c0768b45022c96`. The verified SKB checkout was dirty at session start and was left untouched; no other active agent work was present. Open PRs #42, #44 and #45 are Dependabot action updates; PR #35 is an owner-review licensing proposal and was not merged.
+PR #139 implemented storage privacy and merged with all required checks as `eaf97fc514c045193e7ef5968a95d1b26c449f9c`. The generated-state PR #140 passed its checks and merged as `3c03dffa4ba07a2c0355613560c0768b45022c96`. The verified SKB checkout was dirty at session start and was left untouched; no other active agent work was present. Open PRs #42, #44 and #45 are Dependabot action updates; PR #35 is an owner-review licensing proposal and was not merged.
 
 ## Finding reconciliation
 
@@ -60,7 +60,7 @@ PR #139 implemented storage privacy and merged with all required checks as `3c03
 - `python3 tests/release_gates.py --self-test` and `--check`: pass; 19 gates derive `NOT_READY`, with the six blockers listed above.
 - Bash syntax checks, `git diff --check`, and JSON parsing: pass.
 - PR #139 head `53344d9a69a7f7a3019b10840a7495aaf56f548d`: Validate `42897454459`, unsigned package artifact `42897454586`, repo-contract `42897311193` and `42897454513`, Repo Knowledge Sync/test `42897454842`: all passed.
-- Exact product head `3c03dffa4ba07a2c0355613560c0768b45022c96`: Validate `42897720583`, unsigned package artifact `42897720810`, Repository State Contract `42897720730`, Repo Knowledge Sync `42897720595`: all passed.
+- Exact product head `eaf97fc514c045193e7ef5968a95d1b26c449f9c`: Validate `42897720583`, unsigned package artifact `42897720810`, Repository State Contract `42897720730`, Repo Knowledge Sync `42897720595`: all passed.
 - Generated-state PR #140 head `e8754415c25fce38ab9bfd7011e990a5000b7fb8` passed Validate `42898005440`, unsigned package artifact `42898005215`, repo-contract `42898005314`, and Repo Knowledge Sync/test `42898005386`; merged as `3c03dffa4ba07a2c0355613560c0768b45022c96`.
 - Local Astro build was unavailable: the Termux `node` binary fails to link `_ZNSt6__ndk113__hash_memoryEPKvm`. The exact-main Validate workflow passed, including its Ubuntu Astro site build. The running GUI and services were not restarted or modified.
 

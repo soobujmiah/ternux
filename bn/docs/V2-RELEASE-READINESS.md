@@ -13,20 +13,20 @@ alt_url: "/docs/V2-RELEASE-READINESS.html"
 
 ## সুপারিশ
 
-এখনই v2.0.0 প্রকাশ করবেন না। Generated-state CI timeout ঠিক হয়েছে এবং Android storage এখন opt-in ও নির্দিষ্ট directory-তে সীমিত। দুইটি merged PR-ই CI পাস করেছে। এই audit-এর সময় বর্তমান `main`-এর Validate ও repository-contract run চলছিল; unsigned Termux package artifact পাস করেছে। Native package install এবং updated-package desktop যাচাই বাকি, public APT URL এখনো 404, আর পরীক্ষিত একটি AI model family retrieval correctness-এ ব্যর্থ হয়েছে।
+এখনই v2.0.0 প্রকাশ করবেন না। Generated-state CI timeout ঠিক হয়েছে এবং Android storage এখন opt-in ও নির্দিষ্ট directory-তে সীমিত। দুইটি merged PR-ই CI পাস করেছে। PR #139 এবং generated-state PR #140-এর সব required CI পাস করেছে। Native package install এবং updated-package desktop যাচাই বাকি, public APT URL এখনো 404, আর পরীক্ষিত কিছু model-এর retrieval correctness-এ ব্যর্থতা আছে।
 
 ## Stage 0 — repo ও কাজের পুনর্মিলন
 
 Audit শুরুতে পরিষ্কার `main` ছিল `bcf363e10bc52a87fe2806a28f44dfdd220cf98f`। Open PR #137 ছিল CI-generated `.repo/` state update। সেখানে `Repo Knowledge Sync` first-run approval-এর অপেক্ষায় থাকলেও branch-filtered API query run-টি খুঁজে পায়নি, ফলে workflow timeout হয়। PR #138-এ unfiltered সাম্প্রতিক ১০০টি run থেকে exact SHA/branch মেলানো হয়েছে; bounded polling-সহ সব দরকারি check পাস করে এটি `5d4be243e8d3` হিসেবে merge হয়েছে। এরপর generated-state PR #137 check পাস করে `aff6aae40f8fa22bfe76a2a91e56f1ee10c51b60` হিসেবে merge হয়েছে। `.repo/` হাতে edit করা হয়নি।
 
-PR #139 storage privacy implement করে সব required check পাসের পর `3c03dffa4ba07a2c0355613560c0768b45022c96` হিসেবে merge হয়েছে। বর্তমান worktree পরিষ্কার। Session-এর শুরুতে যাচাইকৃত SKB checkout-এ আগের dirty change ছিল; সেটি স্পর্শ করা হয়নি। অন্য কোনো active agent কাজ ছিল না। Open PR #42, #44, #45 Dependabot action update; PR #35 owner-review-এর licensing proposal, merge করা হয়নি।
+PR #139 storage privacy implement করে সব required check পাসের পর `eaf97fc514c045193e7ef5968a95d1b26c449f9c` হিসেবে merge হয়েছে। Generated-state PR #140 সব check পাস করে `3c03dffa4ba07a2c0355613560c0768b45022c96` হিসেবে merge হয়েছে। Session-এর শুরুতে যাচাইকৃত SKB checkout-এ আগের dirty change ছিল; সেটি স্পর্শ করা হয়নি। অন্য কোনো active agent কাজ ছিল না। Open PR #42, #44, #45 Dependabot action update; PR #35 owner-review-এর licensing proposal, merge করা হয়নি।
 
 ## Finding-ভিত্তিক অবস্থা
 
 | Finding | অবস্থা | প্রমাণ ও বাকি acceptance |
 |---|---|---|
 | P0-01 Stable Diffusion Vulkan license CI | **COMPLETE** | Deterministic notice manifest ও regression আছে। Exact ARM64 build, binary inspection, independent license audit run `42863263043`-এ source `5e41401dd60bf5261f6a638c62b4ad94eea98812`-এ পাস; prerelease প্রকাশ বন্ধ ছিল। |
-| P0-02 release branch consistency | **COMPLETE** | Product fix `main`-এ আছে; PR #138, generated PR #137, storage PR #139 merge হয়েছে। `eaf97fc`-এর exact-main check চলছিল; release tag নেই। |
+| P0-02 release branch consistency | **COMPLETE** | Product fix `main`-এ আছে; PR #138, generated PR #137, storage PR #139 merge হয়েছে। product head `eaf97fc`-এর সব exact-main check এবং generated-state PR #140-এর check পাস; release tag নেই। |
 | P0-03 machine release gate | **COMPLETE** | `docs/release-gates.json`-এ ১৯ gate; blocker অসম্পূর্ণ থাকলে validator `NOT_READY` দেয়। |
 | P1-01 desktop lifecycle | **PARTIAL** | Source regression ও আগের live READY status আছে। Installed v2.0.0 `desktop.sh` বর্তমান source থেকে আলাদা; updated-package GUI, stop/restart ও crash recovery বাকি। |
 | P1-02 GPU/Vulkan detection | **শুধু tested Adreno device-এ COMPLETE** | Redmi Turbo 4 Pro / SM8735 / Adreno 825-এ Vulkan/Turnip ও Zink শনাক্ত হয়েছে; software renderer false-positive regression আছে। অন্য device qualify নয়। |
@@ -56,11 +56,11 @@ PR #139 storage privacy implement করে সব required check পাসে�
 ## যাচাই
 
 - `bash tests/focused.sh`: **153/153 পাস**—default-এ mount না হওয়া, নির্দিষ্ট path mount, tampered grant rejection, stale grant revoke, install-এ permission prompt না আসা, alias refresh ও host isolation অন্তর্ভুক্ত।
-- `python3 tests/docs_check.py`: **3116 assertion, 314 internal link, 20 bilingual page pair পাস**।
+- `python3 tests/docs_check.py`: **3120 assertion, 314 internal link, 20 bilingual page pair পাস**।
 - `python3 tests/release_gates.py --self-test` এবং `--check`: পাস; ১৯ gate `NOT_READY`, ছয় blocker উপরে তালিকাভুক্ত।
 - Bash syntax, `git diff --check`, JSON parse: পাস।
 - PR #139 head `53344d9a69a7f7a3019b10840a7495aaf56f548d`: Validate `42897454459`, unsigned package artifact `42897454586`, repo-contract `42897311193` ও `42897454513`, Repo Knowledge Sync/test `42897454842`: সব পাস।
-- Exact-main `eaf97fc`: unsigned package artifact `42897720810` পাস। Report লেখার সময় Validate `42897720583` এবং Repository State Contract `42897720730` চলছিল; Repo Knowledge Sync `42897720595` শেষ হয়নি।
+- Exact product head `eaf97fc`: Validate `42897720583`, unsigned package artifact `42897720810`, Repository State Contract `42897720730`, এবং Repo Knowledge Sync `42897720595`—সব পাস। Generated-state PR #140 head `e8754415c25fce38ab9bfd7011e990a5000b7fb8`-এর Validate `42898005440`, unsigned package artifact `42898005215`, repo-contract `42898005314`, Repo Knowledge Sync/test `42898005386`—সব পাস; merge SHA `3c03dffa4ba07a2c0355613560c0768b45022c96`।
 - Local Astro build পাওয়া যায়নি: Termux `node` binary `_ZNSt6__ndk113__hash_memoryEPKvm` symbol link করতে পারে না। Ubuntu CI Astro site build করে; exact-main ফল pending। Live GUI/service restart বা পরিবর্তন করা হয়নি।
 
 ## Device ও release exclusion
