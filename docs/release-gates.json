@@ -23,7 +23,8 @@
       "evidence": [
         "tests/stable_diffusion_license_bundle_test.py",
         "packaging/stable-diffusion/components.json: Ternux component correctly declares Apache-2.0; regression test verifies declared license and bundled TERNUX-LICENSE/TERNUX-NOTICE.",
-        "Exact-head Stable Diffusion ARM64 build and independent license audit passed on product commit f4bb945576f03a9d8979d7d89553660471dafbaf (run 42773827441); current head retains the same verified build inputs."
+        "Exact-head Stable Diffusion ARM64 build and independent license audit passed on product commit f4bb945576f03a9d8979d7d89553660471dafbaf (run 42773827441); current head retains the same verified build inputs.",
+        "Exact product-source head 5e41401dd60bf5261f6a638c62b4ad94eea98812 ARM64 Stable Diffusion CPU + Vulkan build, binary inspection, and independent license-bundle audit passed in run 42863263043 (job 129994744714; 2026-11-10 17:22 UTC). Artifact ternux-stable-diffusion-vulkan-linux-arm64-master-1053-candidate uploaded (27,381,115 bytes); publish_prerelease=false and preview publication was skipped. Exact main differs only by generated .repo state commit 0940a31e1a44d06442813c5c0061388b708877a1."
       ],
       "required_tests": [
         "ARM64 build",
@@ -50,7 +51,8 @@
         "PR #106 exact head 9f84ae1100d2de5d498ca44ed0b0491037ec610c passed all five required checks (Validate 42819629282, package 42819629144, repo-contract 42819629057, Repo Knowledge Sync test/sync 42819629146); merged main ea33209 passed Validate 42820001846, package 42820001935, Repo Knowledge Sync 42820001824. PR #107 generated state for ea33209 passed all five checks (Validate 42820215882, package 42820215769, repo-contract 42820215978, Repo Knowledge Sync 42820215777 test/sync). Post-merge main 5760a1f7 exact-SHA workflows passed: Validate 42820744142, package 42820743872, Repository State Contract 42820743837.",
         "No separate v2.0.0 release tag exists. Pages run 42816692044 from the earlier PR #103 merge was cancelled after actions/deploy-pages began; deployment history is inaccessible, so a partial website side effect remains unverified. A fresh check on 2026-11-10 found all four canonical GitHub Pages APT paths still return 404. Manual-only Pages workflow did not start on later main pushes #104–#109. No owner-requested v2 release publication occurred.",
         "Live reconciliation 2026-11-10: active checkout is clean at main 55936a0fdd2c9790fe6bf746092fd562e5fa09a1; PR #97 merged as 394d0d12e972dd977cd7ec8c639caaead84b1b40; current main Validate 42833554547, package artifact 42833554364, and repository contract 42833554254 passed.",
-        "Current main reconciliation 2026-11-10 15:52 UTC: PR #119 and generated-state PR #120 merged. Main 43416ffd6bbb15b573d0d3657a51a4cba0a35752 passed exact-SHA Validate 42848059523, package artifact 42848059530, and Repository State Contract 42848059536. Product-source diff from report baseline 87879976 is empty; the intervening merge only synced generated .repo state."
+        "Current main reconciliation 2026-11-10 15:52 UTC: PR #119 and generated-state PR #120 merged. Main 43416ffd6bbb15b573d0d3657a51a4cba0a35752 passed exact-SHA Validate 42848059523, package artifact 42848059530, and Repository State Contract 42848059536. Product-source diff from report baseline 87879976 is empty; the intervening merge only synced generated .repo state.",
+        "Current exact product-source PR #127 merged as 5e41401dd60bf5261f6a638c62b4ad94eea98812. Exact PR checks passed: Validate 42859849676, package 42859849734, repo-contract 42859849685, Repo Knowledge Sync 42859849726 test/sync. Generated-state PR #126 merged as 0940a31e1a44d06442813c5c0061388b708877a1 with only .repo changes. Exact-main Validate 42863611485, package artifact 42863611730, Repository State Contract 42863611641 passed."
       ],
       "required_tests": [
         "exact-head required CI",
@@ -107,7 +109,8 @@
         "Read-only source-module `status --json` on 2026-11-10 14:09 UTC reports lifecycle READY, functional X11, and `pulseaudio_ready=yes`; no desktop stop/restart was performed. Current `tests/focused.sh` passes 145/145, including lifecycle fixtures; physical stop/crash recovery on the updated installed package remains unverified.",
         "Live native status at 2026-11-10 14:36 UTC reports running, functional X11, PulseAudio running, managed PID 16987. Current source lib/desktop.sh SHA-256 b3f0753a771f54c2c337310b2f23485926c9fded314ace818d76828c96af8ea3 differs from installed $PREFIX/lib/ternux/desktop.sh SHA-256 02c5f6175f45c94c4ec68f323294f1c633bd7e4f501430b243f72132ed0950cb; do not count this old session as updated-package lifecycle verification. Live GUI was left running.",
         "Live device read-only recheck 2026-11-10 15:31 UTC: installed and source-module status report READY with X11/PulseAudio; verify passes. Current desktop.sh source hash b3f0753a differs from installed hash 02c5f617; no stop/restart performed, so updated-package recovery remains open.",
-        "Live read-only recheck 2026-11-10 15:52 UTC: installed status is READY with X11/PulseAudio; current-source verify passes. Source desktop.sh SHA-256 b3f0753a771f54c2c337310b2f23485926c9fded314ace818d76828c96af8ea3 differs from installed 02c5f6175f45c94c4ec68f323294f1c633bd7e4f501430b243f72132ed0950cb. No restart or installed-file mutation; updated-package recovery stays open."
+        "Live read-only recheck 2026-11-10 15:52 UTC: installed status is READY with X11/PulseAudio; current-source verify passes. Source desktop.sh SHA-256 b3f0753a771f54c2c337310b2f23485926c9fded314ace818d76828c96af8ea3 differs from installed 02c5f6175f45c94c4ec68f323294f1c633bd7e4f501430b243f72132ed0950cb. No restart or installed-file mutation; updated-package recovery stays open.",
+        "Fresh read-only device check 2026-11-10 17:03 UTC: ternux status reports running, X11 yes and PulseAudio running (PID 16987); ternux verify passes on Android 16 / Adreno 825. Source desktop.sh SHA-256 b3f0753a771f54c2c337310b2f23485926c9fded314ace818d76828c96af8ea3 differs from installed 02c5f6175f45c94c4ec68f323294f1c633bd7e4f501430b243f72132ed0950cb. No stop/restart or PREFIX mutation was performed."
       ],
       "required_tests": [
         "overlap/start-stop/crash-recovery fixtures",
@@ -161,7 +164,7 @@
         "A published v2 release and actual native-device v1.4.0 migration remain unverified because no v2 stable publication exists.",
         "Fresh standalone bootstrap now downloads the immutable source archive for commit 614d3b7d1ceda1ecd96107333b5d03795c4d5b7a and verifies SHA-256 f55737a18eedff270ce32416ab55fbc070132dd02d41f0234f509f03f99cbf8c before extraction. Focused tests verify the exact commit URL and reject modified bytes. Published v2 and native-device v1.4.0 migration remain unverified.",
         "Current-main `bash tests/update_transaction.sh` passed pinned-source, staging, rollback, interrupted-update recovery, concurrency, symlink, and exact v1.4.0-to-v2 source-migration fixtures. This is still a local source fixture; published-v2/native-device migration remains unverified.",
-        "Source audit also found the Debian guest companion fallback downloading refs/heads/main without integrity verification. The fallback now requests bin/ternux-guest from the same immutable source commit, checks its dedicated SHA-256 before syntax validation or guest installation, and tests matching-file success plus modified-file rejection. Local focused suite passed 150/150; exact updated-head PR CI pending. Published release/device migration remains unverified."
+        "The Debian guest companion fallback is also pinned to the immutable source commit and verifies a dedicated SHA-256 before syntax checking or installation. Matching-file success and tamper rejection tests passed; local focused suite passed 150/150. PR #127 merged as 5e41401dd60bf5261f6a638c62b4ad94eea98812 after exact-head Validate 42859849676, package 42859849734, repo-contract 42859849685 and Repo Knowledge Sync 42859849726 test/sync passed. Main exact-SHA Validate 42860196252, package 42860196300 and Repo Knowledge Sync 42860196265 passed. Published v2/native-device migration remains unverified."
       ],
       "required_tests": [
         "pinning/downgrade/staging/rollback/crash/concurrency/symlink fixtures",
@@ -248,7 +251,9 @@
         "Exact-head llama CPU/Vulkan ARM64 artifact run 42707570564 passed; Adreno Vulkan verified on device.",
         "SM8735/Adreno 825 CPU and Vulkan known-answer, layer offload, bounded cancellation and reopen evidence is recorded; broad sustained/memory-pressure qualification remains open.",
         "2026-11-10 native Ternux Debian guest used the preinstalled llama-vulkan b11582 extension and existing shared-storage models (no model download/copy). Correctness smoke returned 4 on CPU and Vulkan for Qwen2.5 0.5B Q4_0 and 1.5B Q4_0. Bundled llama-bench ran 16 prompt + 64 generation tokens, 2 repetitions, 8 threads: 0.5B CPU-only (-ngl 0) 5.99 ± 1.47 tok/s vs Adreno 825 Vulkan0 (-ngl 99) 32.46 ± 0.45 tok/s; 1.5B CPU-only 4.48 ± 0.12 tok/s vs Vulkan0 21.27 ± 0.02 tok/s. 1.5B Vulkan prompt processing was 45.33 ± 0.14 tok/s. Verbose logs assigned layers 0–27 to Vulkan0 and showed 885 MiB model memory. These are short repeated decode benchmarks on one device; sustained thermal/memory-pressure and broad-model qualification remain open.",
-        "Current-device doctor at 2026-11-10 15:51 UTC reports 45 C battery temperature and recommends pausing sustained heavy inference/rendering. Existing Qwen2.5 0.5B/1.5B CPU/Vulkan correctness plus short repeated-throughput evidence remains valid; no sustained run was attempted in the hot state."
+        "Current-device doctor at 2026-11-10 15:51 UTC reports 45 C battery temperature and recommends pausing sustained heavy inference/rendering. Existing Qwen2.5 0.5B/1.5B CPU/Vulkan correctness plus short repeated-throughput evidence remains valid; no sustained run was attempted in the hot state.",
+        "Fresh device battery report 2026-11-10 17:03 UTC: 41.8 C and discharging. No sustained inference/render run was performed during this check; short one-device evidence does not close broad-model or sustained thermal/memory-pressure qualification.",
+        "Fresh bounded device rerun 2026-11-10 17:24–17:28 UTC using existing model files in place: Qwen2.5 0.5B Q4_0 (SHA-256 7671c0c304e6ce5a7fc577bcb12aba01e2c155cc2efd29b2213c95b18edaf6ed) and 1.5B Q4_K_M (SHA-256 6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e) both returned 4 with exit 0 on CPU and Vulkan0. Current llama-vulkan CLI is 0.6.0-dev / af50f2f, binary SHA-256 4827f62ac89a442d76e9461c18115fa37d2c6cced0a887bf559b8ee615046eb5. Verbose Vulkan output identified Adreno 825 and assigned 25/25 layers for 0.5B, 29/29 for 1.5B; model/KV/compute buffers were 330/384/67.51 MiB and 934/896/96.51 MiB. Battery rose from 36.3 C to 37.4 C; desktop PID 16987 remained running. Single-turn smoke is not a speed benchmark or sustained/memory-pressure qualification."
       ],
       "required_tests": [
         "correctness, fallback, memory, repeated and cancellation workload matrix"
@@ -326,7 +331,8 @@
         "Non-deploy signing verification workflow run 42831035262 passed on exact main commit 97e2ac6524d2b206d6e24c0e813f9656eda13941: signed repository build and verification succeeded, ephemeral key material was removed, and website build/upload/deploy steps were skipped. Fresh direct checks still return HTTP 404 for the four canonical APT URLs; public installation remains blocked.",
         "Fresh HTTPS GET recheck 2026-11-10 14:37 UTC: apt/bootstrap.sh, apt/ternux-archive-key.asc, apt/dists/stable/InRelease, and apt/dists/stable/main/binary-all/Packages each returned HTTP 404; website root returned 200. No publication was performed.",
         "Fresh HTTPS GET at 2026-11-10 15:30 UTC: canonical bootstrap, archive key, InRelease, and Packages endpoints each returned HTTP 404. No publication was run; release_approved remains false.",
-        "Fresh HTTPS GET recheck at 2026-11-10 15:51 UTC: canonical bootstrap, archive key, InRelease and Packages all returned HTTP 404. Latest stable remains v1.4.0; no v2 tag/release and no publish occurred."
+        "Fresh HTTPS GET recheck at 2026-11-10 15:51 UTC: canonical bootstrap, archive key, InRelease and Packages all returned HTTP 404. Latest stable remains v1.4.0; no v2 tag/release and no publish occurred.",
+        "Signing-only workflow run 42863371746 passed on source commit 5e41401dd60bf5261f6a638c62b4ad94eea98812; signed repository verification succeeded, ephemeral key material was removed, and website/deploy steps were skipped. This does not change the four hosted HTTP 404s."
       ],
       "required_tests": [
         "signed repository publish after approval",
@@ -357,7 +363,8 @@
         "Current main exact-SHA package artifact run 42833554364 succeeded on 55936a0fdd2c9790fe6bf746092fd562e5fa09a1. Hosted signed APT endpoints still return HTTP 404, so clean native repository install/upgrade/uninstall are NOT_TESTED.",
         "Native dpkg-query reports ternux 2.0.0 installed and dpkg -V reports no changed packaged files; this is not a clean install/update/repair/uninstall test. Native PREFIX mutation was outside the execution sandbox writable scope.",
         "Exact-main package artifact run 42842486265 produced unsigned-CI artifact ID 13776242896 (2.0.0, Architecture: all); .deb SHA-256 596a6bde0134372ac8c2233a6d8a4d80a73e93c0125b1cd558d4de26efe6b1b0 matches its sidecar. Extracted desktop.sh, extension.sh, and workload-registry.sh match the PR #116 source. This is content-integrity evidence, not a native package lifecycle test.",
-        "Current installed `ternux` is 2.0.0 and `dpkg -V ternux` emits no modification lines. This does not prove clean install/update/repair/uninstall. Native PREFIX writes are outside this session sandbox; exact-main package/contract/validate CI passes on 43416ffd6bbb15b573d0d3657a51a4cba0a35752."
+        "Current installed `ternux` is 2.0.0 and `dpkg -V ternux` emits no modification lines. This does not prove clean install/update/repair/uninstall. Native PREFIX writes are outside this session sandbox; exact-main package/contract/validate CI passes on 43416ffd6bbb15b573d0d3657a51a4cba0a35752.",
+        "Exact-main unsigned package artifact run 42860196300 passed on 5e41401dd60bf5261f6a638c62b4ad94eea98812. Native `dpkg -V ternux` shows no packaged-file modifications, but clean install/update/repair/uninstall remains unverified; this sandbox cannot write native PREFIX."
       ],
       "required_tests": [
         "clean install/update/repair/uninstall in native Termux",
@@ -513,5 +520,5 @@
       "release_exclusion": "Qualify only the documented Redmi Turbo 4 Pro / SM8735 target; all other device-specific acceleration remains unqualified."
     }
   ],
-  "observed_head_commit": "6cee9af49864003a8c4fc5e038e041075ba6fe20"
+  "observed_head_commit": "0940a31e1a44d06442813c5c0061388b708877a1"
 }
