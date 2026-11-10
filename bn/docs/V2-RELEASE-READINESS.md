@@ -120,7 +120,7 @@ HTP stable support হিসেবে qualified হয় না।
 - Hermes ও OpenClaw-এর optional setup এখন পরিবর্তনশীল URL-এর script সরাসরি Bash-এ pipe করে না। Script unique temporary file-এ download হয়, ২ MB সীমা, `bash -n`, এবং pinned SHA-256 pass করলেই execute হয়।
 - Hermes-এর official `v0.23.1` release commit `3b421578588243f920886e6fe79a6faa87ea026e`-এ pinned; official bootstrap SHA-256 `abf338605dae6dd28d101673ac6aed7995c955745db46d47676bc591a7957209`।
 - OpenClaw-এর official `v2026.11.2` release pinned; official bootstrap SHA-256 `5b46a876404005229ee62fc2615ddeb1c3f510a434ced47dbbed06b93849c704`।
-- [`tests/pinned_optional_installers.sh`](../../tests/pinned_optional_installers.sh) সঠিক checksum-এ execution, mismatch-এ refusal, source allowlist, এবং temporary file cleanup যাচাই করে। Upstream script বদলালে reviewed version ও digest update না হওয়া পর্যন্ত install বন্ধ থাকবে।
+- `tests/pinned_optional_installers.sh` সঠিক checksum-এ execution, mismatch-এ refusal, source allowlist, এবং temporary file cleanup যাচাই করে। Upstream script বদলালে reviewed version ও digest update না হওয়া পর্যন্ত install বন্ধ থাকবে।
 - ২০২৬-১১-১০-এ first-party [Hermes install guide](https://github.com/NousResearch/hermes-agent/blob/main/website/docs/getting-started/installation.md), [Hermes installer source](https://github.com/NousResearch/hermes-agent/blob/v0.23.1/scripts/install.sh), এবং [OpenClaw install guide](https://docs.openclaw.ai/install)-এর সঙ্গে pin মেলানো হয়েছে।
 
 ### Vulkan ও renderer detection
