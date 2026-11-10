@@ -46,10 +46,10 @@
       "ci_status": "PASS",
       "device_status": "N_A",
       "evidence": [
-        "PR #97 targets main; origin/main 8e24062589e81c20095c875fa4d19dd5cb928554 is an ancestor. Current head a5bb1c14ffdd94514ea1157335821ff873d4d764 is 172 commits ahead; GitHub reports 576 changed files. PR remains open/draft and requires owner/CODEOWNERS review; no review has been submitted.",
-        "All five required checks pass on exact PR head a5bb1c14ffdd94514ea1157335821ff873d4d764: Validate 42789181678; Termux APT package 42789181372; repository contract 42789181989; Repo Knowledge Sync 42789184215 (sync and test).",
-        "Four source-run refresh workflows passed provenance/checksum checks, skipped compilation and publication, and extended exact-artifact retention through 2027-02-08. HTP candidate run 42783356495 / artifact 13747701121 was downloaded and its sidecar SHA-256 verified as a139a6248356a44e89348ddbe1334edaad33f81a9efbe8f5b8fe3c5733dcf3de (15,691,323 bytes).",
-        "The existing public HTP prerelease still serves its older 2026-10-13 archive (SHA-256 dffcf83fa969f3ccfad238217b4ca7f3d47040e5e5b2fa834ebd3f123d144ea5); main-only publication can reuse the retained run after integration without rebuilding. Release readiness remains NOT_READY with eight incomplete blockers."
+        "PR #97 targets main; origin/main 8e24062589e81c20095c875fa4d19dd5cb928554 is an ancestor. Audited head before this documentation-only refresh, 025f3f8a56bd26013aa2ce7340a183b1fe876697, was 172 commits ahead; GitHub reports 576 changed files. PR is open and ready for review, but requires owner/CODEOWNERS review; no review has been submitted.",
+        "All five required checks pass on exact PR head 025f3f8a56bd26013aa2ce7340a183b1fe876697: Validate 42791752634; Termux APT package 42791752738; repository contract 42791752506; Repo Knowledge Sync 42791752499 (sync and test).",
+        "Four source-run refresh workflows passed provenance/checksum checks, skipped compilation and publication, and extended exact-artifact retention through 2027-02-08. HTP candidate run 42783356495 / artifact 13747701121 was downloaded and its sidecar SHA-256 verified as a139a6248356a44e89348ddbe1334edaad33f81a9efbe8f5b8fe3c5733dcf3de (15,691,323 bytes). The exact no-rebuild publisher verifier passed against current PR head 025f3f8a56bd26013aa2ce7340a183b1fe876697, confirming run/artifact provenance, ancestry, unchanged build definition/package inputs, and non-expired artifact.",
+        "The existing public HTP prerelease still serves its older 2026-10-13 archive (SHA-256 dffcf83fa969f3ccfad238217b4ca7f3d47040e5e5b2fa834ebd3f123d144ea5); main-only publication can reuse the retained run after integration without rebuilding. PR #97 is now ready for review, but publication still requires owner/CODEOWNERS review and merge; release readiness remains NOT_READY with eight incomplete blockers."
       ],
       "required_tests": [
         "exact-head required CI",
@@ -475,5 +475,5 @@
       "release_exclusion": "Qualify only the documented Redmi Turbo 4 Pro / SM8735 target; all other device-specific acceleration remains unqualified."
     }
   ],
-  "observed_head_commit": "a5bb1c14ffdd94514ea1157335821ff873d4d764"
+  "observed_head_commit": "025f3f8a56bd26013aa2ce7340a183b1fe876697"
 }

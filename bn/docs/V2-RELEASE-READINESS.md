@@ -11,16 +11,19 @@ alt_url: "/docs/V2-RELEASE-READINESS.html"
 
 **Ternux v2.0.0 tag/publication:** তৈরি করা হয়নি
 
-**সক্রিয় pull request:** [#97](https://github.com/soobujmiah/ternux/pull/97), draft
+**সক্রিয় pull request:** [#97](https://github.com/soobujmiah/ternux/pull/97), review-এর জন্য প্রস্তুত
 
 ### সর্বশেষ continuation snapshot — ২০২৬-১১-১০
 
-বর্তমান PR head `a5bb1c14ffdd94514ea1157335821ff873d4d764`, `main`
+এই documentation-only refresh-এর আগে audited PR head ছিল `025f3f8a56bd26013aa2ce7340a183b1fe876697`, `main`
 (`8e24062589e81c20095c875fa4d19dd5cb928554`)-এর চেয়ে ১৭২ commit এগিয়ে;
-GitHub এখনো ৫৭৬টি changed file, draft state ও `REVIEW_REQUIRED` দেখায়। এই exact
-head-এ পাঁচটি required check-ই pass করেছে: Validate `42789181678`, Termux APT
-package `42789181372`, repository contract `42789181989`, এবং Repo Knowledge Sync
-`42789184215`-এর `sync` ও `test` check।
+GitHub ৫৭৬টি changed file, review-ready state ও `REVIEW_REQUIRED` দেখায়। এই exact
+head-এ পাঁচটি required check-ই pass করেছে: Validate `42791752634`, Termux APT
+package `42791752738`, repository contract `42791752506`, এবং Repo Knowledge Sync
+`42791752499`-এর `sync` ও `test` check। HTP candidate run `42783356495` পুনর্ব্যবহারের
+exact publisher verifier-ও pass করেছে: source ancestry, build definition, package input,
+run/artifact provenance ও expiry যাচাই হয়েছে। Public prerelease-এ এখনো পুরোনো archive;
+প্রকাশনা `main`-এ owner/CODEOWNERS review ও merge-এর অপেক্ষায়।
 
 Public experimental HTP prerelease আছে, তবে এখনো ২০২৬-১০-১৩-এর পুরোনো archive
 serve করছে (SHA-256 `dffcf83fa969f3ccfad238217b4ca7f3d47040e5e5b2fa834ebd3f123d144ea5`)।
@@ -210,7 +213,7 @@ Provenance verifier pinned build job ও package input তুলনা করে
 workflow change অনুমোদন করে। Focused regression-এ ভুল workflow, expired artifact,
 বদলানো package input/build definition, reuse এবং manual-only trigger-ও যাচাই হয়।
 
-Artifact-reuse commit `89802f73408a1638221c0b3f62c26d212385b2ea`-এ Validate `42779265831`, Termux APT `42779265743`, Repository State Contract `42779266172`, Repo Knowledge Sync `42779266194` pass করেছে। বর্তমান exact PR head `a5bb1c14ffdd94514ea1157335821ff873d4d764`-এ পাঁচটি required check pass করেছে: Validate `42789181678`, Termux APT package `42789181372`, Repository State Contract `42789181989`, এবং Repo Knowledge Sync `42789184215`-এর `sync` ও `test`। চারটি source-run refresh workflow-ও pass করেছে; সব compile ও publish job skip হয়েছে।
+Artifact-reuse commit `89802f73408a1638221c0b3f62c26d212385b2ea`-এ Validate `42779265831`, Termux APT `42779265743`, Repository State Contract `42779266172`, Repo Knowledge Sync `42779266194` pass করেছে। বর্তমান exact PR head `025f3f8a56bd26013aa2ce7340a183b1fe876697`-এ পাঁচটি required check pass করেছে: Validate `42791752634`, Termux APT package `42791752738`, Repository State Contract `42791752506`, এবং Repo Knowledge Sync `42791752499`-এর `sync` ও `test`; HTP candidate reuse verifier-ও pass করেছে। চারটি source-run refresh workflow-ও pass করেছে; সব compile ও publish job skip হয়েছে।
 
 ## v2.0.0-এর আগে বাকি blocker
 
@@ -230,4 +233,4 @@ HTP/HMX ও QNN numerical/stage-tensor qualification pass না করা প�
 
 ## চূড়ান্ত সুপারিশ
 
-**NOT_READY.** P0-01, P0-03 ও P1-05 complete, কিন্তু আটটি release-blocking gate অসম্পূর্ণ। Product commit `f4bb945576f03a9d8979d7d89553660471dafbaf`-এ আটটি build/test workflow pass করেছে। বর্তমান exact PR head `a5bb1c14ffdd94514ea1157335821ff873d4d764`-এ পাঁচটি required check pass করেছে: Validate `42789181678`, Termux APT package `42789181372`, Repository State Contract `42789181989`, এবং Repo Knowledge Sync `42789184215`-এর `sync` ও `test`। চারটি manual artifact refresh provenance/checksum pass করেছে, build/publish skip করে একই artifact 2027-02-08 পর্যন্ত সংরক্ষণ করেছে। এতে source/build check প্রমাণ হয়, public repository, installed package migration, live updated-desktop lifecycle বা owner review নয়। v2.0.0 tag/release, v2 APT package publication, PR merge বা live desktop restart হয়নি। Existing optional HTP prerelease-এর asset এখনো পুরোনো; latest retained archive-এর checksum ও no-rebuild reuse path উপরে নথিবদ্ধ। `main` branch-protection settings authorization অনুযায়ী বদলে verify করা হয়েছে; actual v2 release এখনো প্রস্তুত নয়।
+**NOT_READY.** P0-01, P0-03 ও P1-05 complete, কিন্তু আটটি release-blocking gate অসম্পূর্ণ। Product commit `f4bb945576f03a9d8979d7d89553660471dafbaf`-এ আটটি build/test workflow pass করেছে। বর্তমান exact PR head `025f3f8a56bd26013aa2ce7340a183b1fe876697`-এ পাঁচটি required check pass করেছে: Validate `42791752634`, Termux APT package `42791752738`, Repository State Contract `42791752506`, এবং Repo Knowledge Sync `42791752499`-এর `sync` ও `test`; HTP candidate reuse verifier-ও pass করেছে। চারটি manual artifact refresh provenance/checksum pass করেছে, build/publish skip করে একই artifact 2027-02-08 পর্যন্ত সংরক্ষণ করেছে। এতে source/build check প্রমাণ হয়, public repository, installed package migration, live updated-desktop lifecycle বা owner review নয়। v2.0.0 tag/release, v2 APT package publication, PR merge বা live desktop restart হয়নি। Existing optional HTP prerelease-এর asset এখনো পুরোনো; latest retained archive-এর checksum ও no-rebuild reuse path উপরে নথিবদ্ধ। `main` branch-protection settings authorization অনুযায়ী বদলে verify করা হয়েছে; actual v2 release এখনো প্রস্তুত নয়।

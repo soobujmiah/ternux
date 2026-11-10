@@ -742,13 +742,14 @@ byte। Retained latest candidate Actions run `42783356495`, artifact `137477011
 ২০২৭-০২-০৮ পর্যন্ত আছে; downloaded archive-এর sidecar যাচাইয়ে SHA-256
 `a139a6248356a44e89348ddbe1334edaad33f81a9efbe8f5b8fe3c5733dcf3de` এবং size
 ১৫,৬৯১,৩২৩ byte মেলে। PR #97 integrate হওয়ার পর main-only publisher এই run ID
-নিয়ে existing prerelease-এ latest archive দিতে পারবে, rebuild লাগবে না। Exact
-artifact-এর device qualification ও প্রযোজ্য release gate pass না হওয়া পর্যন্ত
-public asset refresh করা হবে না।
+নিয়ে existing prerelease-এ latest archive দিতে পারবে, rebuild লাগবে না। এই experimental prerelease refresh stable HTP qualification বা v2.0.0 gate বন্ধ করে না;
+পরিচিত failure release note-এ স্পষ্ট থাকবে।
 
 
 এই requested update শুধু experimental HTP prerelease-এর জন্য; এটি stable HTP
-support বা v2.0.0 publication দাবি করে না। PR #97 owner/CODEOWNERS review পেয়ে
+support বা v2.0.0 publication দাবি করে না। Current PR head-এ exact publisher provenance
+verifier run `42783356495`-এর ancestry, unchanged build definition/package input,
+run/artifact provenance ও expiry pass করেছে। PR #97 owner/CODEOWNERS review পেয়ে
 `main`-এ integrate হলেই retained run `42783356495` পুনর্ব্যবহার করে existing
 prerelease asset rebuild ছাড়া update করা যাবে। Release note-এ HMX/attention-এর
 পরিচিত failure ও experimental status রাখতে হবে। Archive-এর checksum ও inventory
