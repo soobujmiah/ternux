@@ -64,9 +64,11 @@ spinner-এর আড়ালে না রেখে যেমন আসে ত
 প্রতিটি লাইন লগ ফাইলে লেখা হয়। রেন্ডারার mode ও সেগুলো বদলানোর উপায়
 [ইনস্টলার স্ক্রিন](#the-installer-screen)-এ আছে।
 
-Standalone loader bounded retry-সহ একটি validated source snapshot নামায়, তারপর
-আলাদা করে প্রতিটি module request না করে bootstrap library, Termux host CLI ও
-Debian guest companion-এর জন্য একই snapshot reuse করে। Package setup বর্তমান apt
+Standalone loader bounded retry-সহ একটি immutable source snapshot নামিয়ে
+extract বা source করার আগে pinned SHA-256 যাচাই করে। Host CLI fallback-ও একই
+commit ও digest ব্যবহার করে; byte বদলালে extraction-এর আগেই reject করে। যাচাই করা
+একই snapshot bootstrap library, Termux host CLI ও Debian guest companion-এ reuse
+হয়; আলাদা করে প্রতিটি module request করতে হয় না। Package setup বর্তমান apt
 source-ই রাখে এবং frame-এর ভেতর `termux-change-repo` খোলে না; source unreachable
 হলে নিজে mirror বেছে `--resume` দিয়ে আবার চালান।
 
