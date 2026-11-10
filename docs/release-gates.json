@@ -46,16 +46,16 @@
       "ci_status": "PASS",
       "device_status": "N_A",
       "evidence": [
-        "PR #97 (v2 feature integration) merged into main as 394d0d12e972dd977cd7ec8c639caaead84b1b40. PR #103 generated-state sync merged as 195304de13dce6e7c2c0d12163b6cba80e571030; it changed only CI-collected .repo state. Main remains the v2 integration baseline.",
-        "All five required PR checks passed for PR #103 generated-state head 316cf535ae724f60984cb83219f27ccdfa4e8e85. After merge, package artifact run 42816692114, Validate run 42816691833, and Repository State Contract run 42816691795 passed on main commit 195304de13dce6e7c2c0d12163b6cba80e571030; the PR-head Repo Knowledge Sync `test` and `sync` contexts also passed.",
-        "No separate v2.0.0 release tag exists. Main push from PR #103 unexpectedly started Pages deployment run 42816692044; it was cancelled after actions/deploy-pages began. Root URL returns HTTP 200, but GitHub Pages deployment-history API returned 404, so whether this run caused a partial external update is UNVERIFIED. No owner-requested v2 release publication was performed. Seven other blocking gates remain incomplete."
+        "PR #97 (v2 source integration) merged as 394d0d12e972dd977cd7ec8c639caaead84b1b40. PR #104 manual-only deployment and readiness correction merged as 87cf37304e350a5e74ff7d5458e27928fa852d11. PR #105 generated-state sync merged as 3c1a28d724a5a27d28aaf4eb9e52c65a71b7c470; current main is the v2 integration baseline.",
+        "PR #104 exact head 82425705e3248ee024c29a7e85cef5016a045715 passed all five required checks: Validate 42818230722, Termux APT package 42818230539, Repository State Contract 42818230660, Repo Knowledge Sync test and sync in 42818230597. PR #105 generated-state update passed all five required PR checks; current main 3c1a28d724a5a27d28aaf4eb9e52c65a71b7c470 then passed Validate 42819072679, package 42819072756, repo-contract 42819072717, and Repo Knowledge Sync 42818593252 (test and sync).",
+        "No separate v2.0.0 release tag exists. Pages deployment run 42816692044 from the earlier PR #103 merge was cancelled after actions/deploy-pages began; deployment history is inaccessible, so a partial website side effect is unverified. All four APT paths still return 404. PR #104 changed future production deployment to manual-only; no later main push started Pages deployment. No owner-requested v2 release publication occurred."
       ],
       "required_tests": [
         "exact-head required CI",
         "final branch and PR diff review"
       ],
       "acceptance_criteria": [
-        "All identified v2 source changes are integrated on the main release baseline and exact-main required CI passes; release qualification remains governed by the other blocking gates."
+        "All identified v2 source changes are integrated on main and the exact change tree passes all required CI; release qualification remains governed by remaining blocking gates."
       ],
       "release_blocking": true,
       "release_exclusion": null
@@ -72,7 +72,7 @@
       "evidence": [
         "docs/V2-RELEASE-READINESS.md",
         "docs/release-gates.json",
-        "Current inventory has 19 gates; release_gates.py derives NOT_READY with seven incomplete blockers. The validator does not permit readiness while any release-blocking gate is incomplete."
+        "Current inventory has 19 gates; release_gates.py derives NOT_READY with six incomplete blockers. The validator does not permit readiness while any release-blocking gate is incomplete."
       ],
       "required_tests": [
         "release-gate validator",
@@ -348,27 +348,22 @@
       "issue_id": "P1-DOCS",
       "severity": "P1",
       "owner": "engineering",
-      "status": "PARTIAL",
+      "status": "COMPLETE",
       "source_status": "PASS",
       "ci_status": "PASS",
       "device_status": "N_A",
       "evidence": [
-        "README.md",
-        "docs/INSTALLATION.md",
-        "docs/QUICK-START.md",
-        "docs/USAGE.md",
-        "docs/V2-RELEASE-READINESS.md",
-        "On exact report-only head b5cf839bdb5597392022ec21438cc45b9cf4e83c, Validate 42712474036 passed; local docs check passed 3041 assertions, 312 internal links and 20 bilingual page pairs; repo knowledge verify returned zero findings. Native package lifecycle and owner release review remain open.",
-        "Exact report head 8041c33939fc00639fe3296779ba840a352f82a3 passed Validate 42792959040, Termux APT package 42792958963, Repository State Contract 42792959029, and Repo Knowledge Sync 42792959241 (sync and test). Owner release review remains open.",
-        "Current-main review found stale PR #97/reviewer/protection snapshots in both readiness reports and this gate inventory; the reconciliation update records the merged PR, live zero-approval rule, current main SHA and current CI. Bilingual docs checks must pass on the updated head.",
-        "2026-11-10 reconciliation corrects historical PR #97, branch-protection, and main-SHA claims in the bilingual release-readiness reports. Pages workflow now requires manual dispatch; tests/release_artifact_workflow_contract.py enforces that ordinary source pushes cannot deploy production."
+        "Documentation audit: README and CHANGELOG report source version 2.0.0 as unreleased; lib/core.sh is the version source and packaging/termux/build.sh derives package metadata from it. No v2.0.0 tag/public release exists and the report says so.",
+        "Required user guidance exists: docs/INSTALLATION.md contains install/update/uninstall flows; docs/TROUBLESHOOTING.md covers desktop, audio, graphics and package issues; docs/ACCELERATOR-RELEASE-PLAN.md distinguishes qualified, experimental and unqualified AI paths; docs/USAGE.md, docs/FAQ.md and SECURITY.md cover workloads, limitations, and storage/security. English/Bengali counterparts are maintained.",
+        "PR #104 exact-head Validate run 42818230722 passed, including bilingual docs and site checks; local tests/docs_check.py passed 3,060 assertions, 312 links and 20 bilingual pairs. The current release report and README documentation explain that Pages production deployment is manual-only.",
+        "Version, package, tag and release surfaces consistently describe the current v2 source as unreleased 2.0.0; README badge is 2.0.0, package build derives version from source, changelog entry remains Unreleased, and no v2 tag is present."
       ],
       "required_tests": [
         "version/package/tag/release metadata audit",
         "bilingual docs/link checks"
       ],
       "acceptance_criteria": [
-        "Docs accurately distinguish stable, supported, experimental and unsupported features and match package metadata."
+        "Documentation matches the current implementation and unreleased status, clearly labels supported versus experimental workloads, and passes bilingual/link checks."
       ],
       "release_blocking": true,
       "release_exclusion": null
@@ -485,5 +480,5 @@
       "release_exclusion": "Qualify only the documented Redmi Turbo 4 Pro / SM8735 target; all other device-specific acceleration remains unqualified."
     }
   ],
-  "observed_head_commit": "195304de13dce6e7c2c0d12163b6cba80e571030"
+  "observed_head_commit": "3c1a28d724a5a27d28aaf4eb9e52c65a71b7c470"
 }
