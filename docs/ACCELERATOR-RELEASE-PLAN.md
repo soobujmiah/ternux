@@ -785,9 +785,12 @@ prerelease asset already exists, but it is older than this candidate: the
 `ternux-llama-htp-sm8735-b11582` release currently serves the 2026-10-13 archive
 with SHA-256 `dffcf83fa969f3ccfad238217b4ca7f3d47040e5e5b2fa834ebd3f123d144ea5`
 (15,519,631 bytes). The retained 2026-11-10 HTP candidate is Actions run
-`42783356495`, artifact `13747701121`, expiring 2027-02-08. Its refresh validated
-the original successful build run and archive checksum, then re-uploaded the
-same archive without compiling. After PR #97 is merged, the main-only publisher
+`42783356495`, artifact `13747701121`, expiring 2027-02-08. Downloading that
+retained artifact and checking its sidecar verified archive SHA-256
+`a139a6248356a44e89348ddbe1334edaad33f81a9efbe8f5b8fe3c5733dcf3de`
+(15,691,323 bytes). Its refresh validated the original successful build run and
+archive checksum, then re-uploaded the same archive without compiling. After
+PR #97 is merged, the main-only publisher
 can reuse run `42783356495` with `publish=true` to replace the existing
 prerelease asset without rebuilding; its provenance check requires the source
 commit to be an ancestor of `main` and the package inputs/build definition to
