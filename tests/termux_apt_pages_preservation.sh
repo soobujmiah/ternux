@@ -26,8 +26,16 @@ import sys
 root, portfile = sys.argv[1:]
 os.chdir(root)
 class QuietHandler(http.server.SimpleHTTPRequestHandler):
+    transient_503_seen = set()
     def log_message(self, *_args):
         pass
+    def do_GET(self):
+        if self.path.endswith("/dists/stable/InRelease") and self.path not in self.transient_503_seen:
+            self.transient_503_seen.add(self.path)
+            self.send_response(503)
+            self.end_headers()
+            return
+        super().do_GET()
 server = http.server.ThreadingHTTPServer(
     ("127.0.0.1", 0), functools.partial(QuietHandler, directory=root)
 )
