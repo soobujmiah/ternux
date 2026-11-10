@@ -407,6 +407,7 @@ tnx_phase_debian() {
     fi
     install -m 0644 "\$asset_stage/applications/ternux-app-center.desktop" /usr/local/share/applications/ternux-app-center.desktop
     install -m 0644 "\$asset_stage/applications/synaptic.desktop" /usr/local/share/applications/synaptic.desktop
+    install -m 0644 "\$asset_stage/applications/ternux-sdcard.desktop" /usr/share/applications/ternux-sdcard.desktop
     rm -f /usr/share/backgrounds/ternux/aurora.svg
     cp -a "\$asset_stage/wallpapers/." /usr/share/backgrounds/ternux/
     rm -rf "\$asset_stage"
@@ -540,7 +541,6 @@ Categories=Graphics;Photography;
 StartupNotify=true
 DESKTOP
     chmod 0644 /usr/share/applications/ternux-photos.desktop
-    install -m 0644 "\$asset_stage/applications/ternux-sdcard.desktop" /usr/share/applications/ternux-sdcard.desktop
     install -d -m 0755 /usr/local/share/applications
     for vlc_entry in /usr/share/applications/vlc*.desktop; do
       [ -f "\$vlc_entry" ] || continue

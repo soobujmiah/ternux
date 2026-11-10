@@ -697,7 +697,12 @@ sdcard_desktop = root / "lib/ternux-assets/applications/ternux-sdcard.desktop"
 assert "Name=SD Card" in sdcard_desktop.read_text()
 assert "Exec=thunar /sdcard" in sdcard_desktop.read_text()
 assert "Icon=drive-removable-media" in sdcard_desktop.read_text()
-assert r'install -m 0644 "\$asset_stage/applications/ternux-sdcard.desktop"' in desktop_phase
+sdcard_asset_install = r'install -m 0644 "\$asset_stage/applications/ternux-sdcard.desktop" /usr/share/applications/ternux-sdcard.desktop'
+assert sdcard_asset_install in desktop_phase
+assert desktop_phase.index(sdcard_asset_install) < desktop_phase.index(r'rm -rf "\$asset_stage"')
+user_setup_phase = desktop_phase[desktop_phase.index("U='${user_name}'"):]
+assert r'"\$asset_stage/applications/ternux-sdcard.desktop"' not in user_setup_phase
+assert r'cp /usr/share/applications/ternux-sdcard.desktop "\$H/Desktop/SD-Card.desktop"' in user_setup_phase
 assert 'Desktop/SD-Card.desktop' in desktop_phase
 assert "runuser -u \"\\$U\" -- env HOME=\"\\$H\" xdg-mime default org.gnome.Evince.desktop application/pdf" in desktop_phase
 assert 'xdg-mime default thunderbird.desktop x-scheme-handler/mailto' not in desktop_phase
