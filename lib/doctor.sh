@@ -290,10 +290,11 @@ _tnx_dr_graphics() {
   if tnx_debian_installed; then
     renderer="$(tnx_detect_renderer)"
     if [ -n "$renderer" ] && [ "$renderer" != "unknown" ]; then
-      case "$renderer" in
-        *llvmpipe*) _tnx_dr_add warn graphics software_rendering "Renderer: $renderer" "CPU rendering is much slower than the GPU path" "Reinstall GPU driver: ternux repair" ;;
-        *) _tnx_dr_add ok graphics renderer "Renderer: $renderer" ;;
-      esac
+      if tnx_renderer_is_software "$renderer"; then
+        _tnx_dr_add warn graphics software_rendering "Renderer: $renderer" "Software rendering is much slower than the GPU path" "Reinstall GPU driver: ternux repair"
+      else
+        _tnx_dr_add ok graphics renderer "Renderer: $renderer"
+      fi
       tnx_state_set "renderer" "$renderer"
     fi
   fi

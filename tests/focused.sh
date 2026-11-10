@@ -1955,6 +1955,49 @@ else
   not_ok "Vulkan state confirms hardware enumeration and rejects CPU-only fallback"
 fi
 
+# Renderer names from software OpenGL implementations must never be reported
+# as accelerated merely because glxinfo returned a non-empty string.
+if env TERNUX_STATE_DIR="$TMP/state-software-renderers" HOME="$TMP/home-software-renderers" bash -c '
+  . "$1/lib/detect.sh"
+  for renderer in "Software Rasterizer" swrast "Google SwiftShader" "GDI Generic" \
+                  llvmpipe lavapipe softpipe; do
+    [ "$(tnx_detect_graphics_state VULKAN_READY "$renderer")" = SOFTWARE_FALLBACK ] || exit 1
+  done
+  [ "$(tnx_detect_graphics_state VULKAN_READY "zink Vulkan 1.4 Adreno 825")" = OPENGL_ACCELERATION_READY ] &&
+  [ "$(tnx_detect_graphics_state VULKAN_READY unknown)" = VULKAN_READY ]
+' _ "$ROOT"; then
+  ok "OpenGL detection rejects common software renderers and preserves hardware states"
+else
+  not_ok "OpenGL detection rejects common software renderers and preserves hardware states"
+fi
+
+# Doctor must surface software renderer names as a warning instead of a
+# successful accelerated-renderer check.
+if env TERNUX_STATE_DIR="$TMP/state-doctor-software-renderer" HOME="$TMP/home-doctor-software-renderer" \
+  TERNUX_KGSL_DEVICE="$TMP/kgsl-doctor-software" bash -c '
+  : > "$TERNUX_KGSL_DEVICE"
+  . "$1/lib/doctor.sh"
+  tnx_detect_vulkan_state(){ echo VULKAN_READY; }
+  tnx_detect_gpu(){ echo "Adreno (TM) 825"; }
+  tnx_detect_backend(){ echo zink; }
+  tnx_state_get(){ [ "$1" = backend ] && echo zink; }
+  tnx_state_set(){ :; }
+  tnx_debian_installed(){ return 0; }
+  tnx_detect_renderer(){ echo "Google SwiftShader"; }
+  _TNX_DR_GUEST[guest.turnip]=managed
+  _tnx_dr_graphics
+  found=0
+  for row in "${_TNX_DR_ROWS[@]}"; do
+    [[ "$row" == warn*software_rendering* ]] && found=1
+    [[ "$row" == ok*renderer* ]] && exit 1
+  done
+  [ "$found" = 1 ]
+' _ "$ROOT"; then
+  ok "doctor reports SwiftShader as software rendering, not accelerated graphics"
+else
+  not_ok "doctor reports SwiftShader as software rendering, not accelerated graphics"
+fi
+
 # The standalone one-click path downloads one complete snapshot, retries a
 # transient transfer, and reuses the extracted files instead of fetching raw
 # modules independently.
@@ -2408,7 +2451,16 @@ tar -czf "$EXT_FIXTURE/$SD_EXT_TAG.tar.gz" -C "$EXT_FIXTURE" "$SD_EXT_TAG"
 (cd "$EXT_FIXTURE" && sha256sum "$SD_EXT_TAG.tar.gz" > "$SD_EXT_TAG.tar.gz.sha256")
 EXT_TEST_LIB="$TMP/extension-test-lib"
 mkdir -p "$EXT_TEST_LIB"
-for libfile in "$ROOT"/lib/*.sh; do ln -sf "$libfile" "$EXT_TEST_LIB/$(basename "$libfile")"; done
+for libfile in "$ROOT"/lib/*.sh; do
+  target="$EXT_TEST_LIB/$(basename "$libfile")"
+  if [ "$(basename "$libfile")" = workload-registry.sh ]; then
+    # The workload generator writes its output. Keep this fixture independent
+    # so it cannot follow a symlink and overwrite the checked-in source file.
+    cp "$libfile" "$target"
+  else
+    ln -sf "$libfile" "$target"
+  fi
+done
 python3 - "$ROOT/packaging/workloads.json" "$TMP/workloads-test.json" "$EXT_FIXTURE" <<'PYWORKLOAD'
 import hashlib, json, pathlib, sys
 source, target, fixture = map(pathlib.Path, sys.argv[1:])

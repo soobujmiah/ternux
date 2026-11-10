@@ -133,7 +133,8 @@
         "lib/detect.sh",
         "docs/V2-RELEASE-READINESS.md#physical-device-vulkan-observation",
         "Adreno 825 guest Vulkan/Turnip/Zink observed. Parser/failure-path regressions pass in Validate 42707570617; other GPU families are not qualified.",
-        "Native Termux `ternux doctor --quick --json` on 2026-11-10: 17 ok, 0 warn, 0 fail; Adreno 825, Vulkan yes, configured Zink, renderer `zink Vulkan 1.4 (Adreno (TM) 825 (MESA_TURNIP))`. Full `ternux doctor --json`: 31 ok, 0 warn, 0 fail, 1 informational; Debian 13 aarch64 guest, glibc 2.41, Turnip in apt-safe layout. This verifies this device stack only; no universal GPU claim."
+        "Native Termux `ternux doctor --quick --json` on 2026-11-10: 17 ok, 0 warn, 0 fail; Adreno 825, Vulkan yes, configured Zink, renderer `zink Vulkan 1.4 (Adreno (TM) 825 (MESA_TURNIP))`. Full `ternux doctor --json`: 31 ok, 0 warn, 0 fail, 1 informational; Debian 13 aarch64 guest, glibc 2.41, Turnip in apt-safe layout. This verifies this device stack only; no universal GPU claim.",
+        "2026-11-10 source regression: live renderer names for llvmpipe, lavapipe, softpipe, swrast, SwiftShader, Software Rasterizer and GDI Generic now map to SOFTWARE_FALLBACK; doctor warns instead of reporting successful accelerated rendering. `bash tests/focused.sh` passed 146/146, including detector and doctor assertions. Device qualification remains limited to the documented Adreno 825 stack."
       ],
       "required_tests": [
         "mocked missing-loader/ICD/device cases",
@@ -511,5 +512,5 @@
       "release_exclusion": "Qualify only the documented Redmi Turbo 4 Pro / SM8735 target; all other device-specific acceleration remains unqualified."
     }
   ],
-  "observed_head_commit": "43416ffd6bbb15b573d0d3657a51a4cba0a35752"
+  "observed_head_commit": "818b2d4e3cc01973b55843763ad1c98da37b6342"
 }

@@ -178,8 +178,8 @@ The separate owner checkout contains modified bilingual accelerator plans, QNN e
 
 - KGSL visibility and loader/ICD file presence no longer imply Vulkan readiness.
 - Ternux probes `vulkaninfo --summary` in Debian with the available KGSL node bound in and checks each physical device’s type and driver. CPU-only llvmpipe is `SOFTWARE_FALLBACK`, even when it appears beside a real Turnip GPU.
-- `vulkan_state` distinguishes `NOT_DETECTED`, `HARDWARE_AVAILABLE`, `LOADER_MISSING`, `DRIVER_MISSING`, `ICD_MISSING`, `DEVICE_ENUMERATION_FAILED`, `VULKAN_READY`, and `SOFTWARE_FALLBACK`. `graphics_state` reports `OPENGL_ACCELERATION_READY` only for a live non-software `glxinfo` renderer.
-- Renderer identification no longer falls back to Turnip file existence when no live OpenGL renderer can be queried.
+- `vulkan_state` distinguishes `NOT_DETECTED`, `HARDWARE_AVAILABLE`, `LOADER_MISSING`, `DRIVER_MISSING`, `ICD_MISSING`, `DEVICE_ENUMERATION_FAILED`, `VULKAN_READY`, and `SOFTWARE_FALLBACK`. `graphics_state` reports `OPENGL_ACCELERATION_READY` only for a live renderer outside the known software set: llvmpipe, lavapipe, softpipe, swrast, SwiftShader, Software Rasterizer, and GDI Generic. Unknown renderer output does not imply OpenGL acceleration.
+- Renderer identification no longer falls back to Turnip file existence when no live OpenGL renderer can be queried. A regression review also found that SwiftShader, `swrast`, and generic software renderer names could be misreported as accelerated; they now resolve to `SOFTWARE_FALLBACK`, and `doctor` reports a warning.
 - English and Bangla GPU documentation explain these states and the device evidence.
 
 ### Preserve the signed APT repository during routine Pages deploys
