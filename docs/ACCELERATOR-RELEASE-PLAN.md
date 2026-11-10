@@ -780,9 +780,20 @@ Read-only Actions metadata and the verifier confirmed that the already-built
 2027-02-08; Stable Diffusion and HTP expire 2026-11-24. HMX candidate run
 `42773827449`, artifact `13743875024`, also remains available until
 2026-11-24. The HMX workflow can re-upload its exact verified candidate without compiling and renew its 90-day Actions retention. Workflow retention changes do not extend already-uploaded artifacts.
-These are temporary Actions artifacts, not permanent GitHub Release assets; the
-owner must explicitly dispatch the publisher after merge when distribution is
-intended. No artifact contents were downloaded during this audit.
+These Actions artifacts are temporary CI copies. A permanent public HTP
+prerelease asset already exists, but it is older than this candidate: the
+`ternux-llama-htp-sm8735-b11582` release currently serves the 2026-10-13 archive
+with SHA-256 `dffcf83fa969f3ccfad238217b4ca7f3d47040e5e5b2fa834ebd3f123d144ea5`
+(15,519,631 bytes). The retained 2026-11-10 HTP candidate is Actions run
+`42783356495`, artifact `13747701121`, expiring 2027-02-08. Its refresh validated
+the original successful build run and archive checksum, then re-uploaded the
+same archive without compiling. After PR #97 is merged, the main-only publisher
+can reuse run `42783356495` with `publish=true` to replace the existing
+prerelease asset without rebuilding; its provenance check requires the source
+commit to be an ancestor of `main` and the package inputs/build definition to
+remain unchanged. Do not refresh the public asset until exact-artifact device
+qualification and the applicable release gate are satisfied. No artifact
+contents were downloaded during this audit.
 
 
 The artifact-reuse workflow commit `89802f73408a1638221c0b3f62c26d212385b2ea` passed Validate `42779265831`, Termux APT `42779265743`, Repository State Contract `42779266172`, and Repo Knowledge Sync `42779266194`. No accelerator build ran on that PR update.
