@@ -8,16 +8,17 @@ WORKFLOW = ROOT / ".github/workflows/repo-knowledge-sync.yml"
 
 
 class RepoKnowledgeWorkflowContractTests(unittest.TestCase):
-    def test_state_updates_use_a_pr_and_dispatch_required_checks(self):
+    def test_state_updates_use_a_pr_and_approve_only_its_expected_checks(self):
         workflow = WORKFLOW.read_text()
         self.assertIn("uses: peter-evans/create-pull-request@v7", workflow)
         self.assertIn("add-paths: .repo/", workflow)
         self.assertIn("pull-requests: write", workflow)
         self.assertIn("actions: write", workflow)
-        self.assertIn(
-            "for workflow in ci.yml repo-contract.yml termux-apt-package.yml repo-knowledge-sync.yml; do",
-            workflow,
-        )
+        self.assertIn("name: Approve checks for generated state pull request", workflow)
+        self.assertIn('gh api -X POST "repos/$GITHUB_REPOSITORY/actions/runs/$run_id/approve"', workflow)
+        self.assertIn('select(.head_sha == $sha and .conclusion == "action_required"', workflow)
+        for expected_workflow in ("Validate", "Repository State Contract", "Termux APT package artifact", "Repo Knowledge Sync"):
+            self.assertIn(f'\"{expected_workflow}\"', workflow)
         self.assertNotIn("git push origin HEAD:", workflow)
 
 
