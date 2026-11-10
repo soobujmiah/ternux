@@ -52,6 +52,19 @@ retrieval sample-এ তিন Qwen variant ভুল record দিয়েছ�
 4096-token context input থেকে Llama 3.2 3B exact marker দিয়েছে। তাই ছোট
 model-গুলোর long-context reliability এখনো প্রতিষ্ঠিত নয়।
 
+### Memory-pressure retrieval ও recovery (2026-11-10)
+
+Native memory-তে 768 MiB reserve করে প্রতিটি page touch করার সময় Llama 3.2
+3B Q4_K_M, 30-record support queue থেকে সঠিক record ও recovery token CPU এবং
+Adreno 825 Vulkan—দুই পথেই বের করেছে। CPU-তে 42.1 সেকেন্ড, Vulkan-এ 30.5
+সেকেন্ড লেগেছে। Reservation ছাড়ার পর Ternux status, verify ও quick doctor
+pass করেছে; desktop PID 16987, X11 ও PulseAudio চালু ছিল, `llama-cli` process
+অবশিষ্ট ছিল না। এই bounded check ওই model/device-এর memory-pressure recovery
+যাচাই করে; দীর্ঘ thermal soak বা অন্য model/device-এর প্রমাণ নয়। একই pressure
+পর্বের আলাদা invoice task-এ CPU 39.50-এর বদলে 24.75 দিয়েছে—এটি correctness
+failure। তিন Qwen model-এর retrieval miss-ও failure হিসেবেই আছে; P1-06 এখনো
+partial।
+
 SM7635 target-এর local Gemma 4 QNN model এই SM8735 device-এ চালানো হয়নি;
 compatible managed text-QNN runner নেই। AbsoluteReality 8gen2 QNN image
 archive GGUF text model নয়, এবং আলাদা আগের 25-image QNN run-এর প্রমাণ উপরে

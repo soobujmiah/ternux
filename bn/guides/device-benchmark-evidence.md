@@ -1182,3 +1182,25 @@ llama.cpp-এর GGUF input নয় বা CPU/Vulkan measurement হিসে
 Model file সরানো বা বদলানো হয়নি। পুরো workload-এর পর desktop running ছিল;
 status-এ PID 16987, X11 ও PulseAudio running, battery 40°C এবং available RAM
 5372 MB দেখা গেছে। প্রমাণ এক device-এ সীমিত।
+
+### 2026-11-10 768 MiB memory-pressure retrieval ও recovery (Llama 3.2 3B)
+
+Redmi Turbo 4 Pro / SM8735 / Adreno 825-এ existing
+`/sdcard/LAI/models/llama-3.2-3b-instruct-q4_k_m.gguf` অক্ষত রেখে native memory-তে
+768 MiB allocate ও প্রতিটি page touch করেছি। 30-record synthetic support queue-তে
+Mira Solis-এর repeated display-wake failure-এর exact case ID ও recovery token
+চাওয়া হয়। CPU (`-ngl 0`) 42.1 সেকেন্ডে exit 0 দিয়ে
+`CASE-8417-QW6P | recovery token: RESTORE-73KQ-2M` দিয়েছে; Adreno Vulkan
+(`-dev Vulkan0 -ngl 99`) 30.5 সেকেন্ডে একই exact result ও exit 0 দিয়েছে। দুই
+run-এই চার thread, context 1024, batch/ubatch 64, temperature 0 ও seed 42 ছিল।
+
+Inference শেষে reservation ছেড়ে দেওয়া হয়েছে। Native Ternux status running,
+desktop PID 16987, X11 ও PulseAudio active ছিল; `ternux verify --json` pass;
+quick doctor-এ 17 OK, 0 warning, 0 failure, 5079 MB available RAM ও battery 40 C
+দেখায়। `llama-cli` process অবশিষ্ট ছিল না। Model file সরানো বা বদলানো হয়নি।
+এটি শুধু এই model/device-এর bounded pressure/recovery check; thermal soak বা
+বিস্তৃত model/device qualification নয়।
+
+একই pressure-এ আলাদা CPU invoice task 39.50-এর বদলে 24.75 দিয়েছে—এটি
+correctness failure। উপরে থাকা তিন Qwen structured retrieval miss-ও failure।
+তাই P1-06 এখনো partial; prompt পুনরায় চালানো হয়নি।
