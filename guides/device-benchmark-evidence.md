@@ -1486,3 +1486,78 @@ reported the existing desktop running with X11 and PulseAudio, PID 16987. No
 desktop, service, or model file was changed. This rerun does not test sustained
 thermals, artificial memory pressure, broader model compatibility, or other
 devices.
+
+### 2026-11-10 Llama 3.2 3B repeated correctness and cancellation
+
+On the Redmi Turbo 4 Pro, I repeated the known-answer prompt twice on CPU
+(`-ngl 0`) and twice on Vulkan0 (`-ngl 99`), keeping `-c 512 -b 64
+-ub 64`, four threads, greedy decoding, and the same model file and binary
+build. All four runs exited successfully and returned the exact answer `4`.
+Verbose Vulkan runs assigned 29/29 layers; CPU runs assigned 0/29. These are
+repeatability checks of the bounded prompt, not a long-context or throughput
+qualification.
+
+I then ran a bounded Vulkan generation with a 6-second SIGINT timeout and a
+3-second forced-stop grace period. `timeout` returned its expected status 124,
+llama.cpp logged `Exiting...`, and a follow-up exact-name process check found
+no `llama-cli` process. This verifies cancellation cleanup for this
+process/build and command path; it does not verify cancellation under memory
+pressure.
+
+At 18:20 UTC, native `ternux status --json` still reported desktop PID 16987,
+X11 `yes`, and PulseAudio `running`; `ternux verify --json` passed. The quick
+doctor reported battery 40 C and 4,103 MB available memory after the test.
+No desktop/audio service was stopped or restarted, and no model file was
+copied, changed, or removed. Long-context, artificial memory-pressure,
+sustained thermal, and additional-device tests remain outstanding.
+
+### 2026-11-10 Llama 3.2 3B bounded longer-input retrieval
+
+Using the same authorized 3B Q4_K_M file and Vulkan build, I placed a unique
+marker near the start of a prompt, followed it with 820 repeated filler words,
+then asked the model to return that marker. With a 2048-token context cap,
+llama.cpp reported 860 prompt tokens, assigned 29/29 layers to Adreno 825,
+returned the marker, and exited 0. A separate raw stdout capture confirmed the exact returned line was `TERNux-5841`. Prompt evaluation took 15.57 seconds
+(55.23 tokens/s); generation took 0.38 seconds (13.13 tokens/s).
+
+Afterward, doctor reported 40 C battery temperature and 4,371 MB available
+memory; native status/verify passed, and desktop PID 16987, X11, and PulseAudio
+remained running. No llama-cli process remained. This is one bounded
+longer-input retrieval sample, not sustained or artificial memory-pressure
+qualification.
+
+### 2026-11-10 full local GGUF CPU/Vulkan benchmark and retrieval matrix
+
+On the Redmi Turbo 4 Pro / SM8735 / Adreno 825, I benchmarked every GGUF
+model file found directly in the two model folders the owner named. Each CPU
+and Vulkan configuration ran three repetitions with four threads, 512 prompt
+tokens, 128 generated tokens, batch/ubatch 64, and flash attention off.
+Values are mean ± standard deviation in tokens per second.
+
+| Model file | CPU prompt | CPU generation | Vulkan prompt | Vulkan generation |
+|---|---:|---:|---:|---:|
+| qwen2.5-0.5b-instruct-q4_0.gguf (runtime reports 630M parameters) | 65.0 ± 3.2 | 15.37 ± 0.08 | 319.8 ± 0.7 | 34.55 ± 0.09 |
+| qwen2.5-1.5b-instruct-q4-0.gguf | 17.38 ± 0.92 | 7.47 ± 0.24 | 101.93 ± 0.44 | 19.83 ± 0.04 |
+| qwen2.5-1.5b-instruct-q4_k_m.gguf | 19.07 ± 0.08 | 7.92 ± 0.18 | 96.73 ± 0.28 | 17.57 ± 0.04 |
+| llama-3.2-3b-instruct-q4_k_m.gguf | 8.93 ± 0.23 | 5.15 ± 0.18 | 46.26 ± 0.01 | 10.68 ± 0.23 |
+
+The same Vulkan CLI ran one synthetic structured-retrieval task per model. A
+100-record, 2461–2463-token prompt returned the wrong record on all three Qwen
+variants: Qwen 0.5B-named Q4_0 returned A0049-B49 instead of Q05-L4096-7A3C;
+Qwen 1.5B Q4_0 returned A0059-B59 instead of Q15Q0-L4096-6B2D; and Qwen 1.5B
+Q4_K_M returned A0049-B49 instead of Q15KM-L4096-3C8F. A separate 180-record
+prompt returned the exact marker on Llama 3.2
+3B with a 4096 context cap. These are narrow retrieval samples, not a general
+quality benchmark. The smaller-model misses are recorded as failures; throughput
+does not imply correct long-context recall.
+
+The Gemma 4 QNN file for SM7635 was present but not executed: the target
+SM7635 does not match this SM8735 / Adreno 825 device, and the managed Ternux
+extensions do not include a compatible text-QNN runner. The AbsoluteReality
+8gen2 QNN image archive was not rerun in this text-model session; its separate
+QNN image pipeline already has a documented 25-image device run and remains
+outside this CPU/Vulkan LLM matrix. Neither QNN asset is a GGUF input for
+llama.cpp or represented as a CPU/Vulkan measurement. The model files were left in
+place. The desktop stayed running through the workload; post-run status showed
+PID 16987, X11 and PulseAudio running, 40°C battery, and 5372 MB available RAM.
+This is one-device evidence only.

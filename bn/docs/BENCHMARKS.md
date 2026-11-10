@@ -3,7 +3,7 @@ title: "বেঞ্চমার্ক ও ডিভাইস প্রমাণ
 description: "Ternux graphics ও accelerator workload-এর পরিমাপ করা সংক্ষিপ্ত ফল এবং স্পষ্ট evidence boundary।"
 lang: "bn"
 alt_url: "/docs/BENCHMARKS.html"
-evidence_through: "2026-11-07"
+evidence_through: "2026-11-10"
 ---
 
 এই পৃষ্ঠায় একটি configured Redmi Turbo 4 Pro / SM8735 / Adreno 825 device-এর
@@ -32,6 +32,31 @@ evidence_through: "2026-11-07"
 | llama.cpp Hexagon HTP | **Experimental:** Qwen2.5 0.5B নামে থাকা Q4_0 GGUF-এ তিন-run matched test-এ HTP median 46.2 tok/s, Vulkan 24.8 এবং চার-thread CPU 8.0 tok/s; llama.cpp metadata-তে model type Qwen2 1B, 630.17M parameter। Qwen2.5 1.5B Q4_K_M-এর তিন interleaved round-এ median ছিল CPU 7.6, Vulkan 18.2 ও HTP 18.9 tok/s; সব route-এ `4` এসেছে। | এক device-এর স্বল্পমেয়াদি পরীক্ষা; quality, energy বা sustained-use claim নয়। HTP operator failure ও বিস্তৃত qualification বাকি; HTP supported route নয়। HMX ও attention correctness এখনো unqualified। |
 | `stable-diffusion.cpp` Vulkan | **Verified:** managed extension tiled Vulkan VAE দিয়ে 10-step 512×512 image 92.91 s-এ তৈরি করেছে; একই output hash clean guest-এ আবার মিলেছে। | Redmi Turbo 4 Pro / SM8735 / Adreno 825, user-provided SD1.5 Q8_0 model, seed 42। একটি model/device/workload; CPU image quality unqualified। |
 | আলাদা QNN SD1.5 runner | **Measured:** পরপর ২৫টি ২০-step 512×512 image; প্রতি image-এর median 29.76 s, mean 31.12 s। HTP UNet-এর ২০ denoise step-এর median 15.96 s। | CLIP CPU-তে; UNet ও VAE decoder HTP-তে চলে। একটি SM8735 device; একই model-এ CPU/GPU তুলনা নয়। `stable-diffusion.cpp` নয়; independent stage-tensor correctness এখনো যাচাই হয়নি। |
+
+### বর্তমান llama.cpp multi-model ফল (2026-11-10)
+
+একটি Redmi Turbo 4 Pro / SM8735 device-এ চারটি local GGUF file CPU ও Adreno
+825 Vulkan-এ benchmark করা হয়েছে। প্রতিটি মান তিন run-এর mean ± standard
+deviation; চার thread, 512-token prompt, 128 generated token, batch/ubatch 64,
+flash attention বন্ধ।
+
+| Model | CPU prompt / generation | Vulkan prompt / generation |
+|---|---:|---:|
+| Qwen 0.5B-named Q4_0 (runtime: 630M parameter) | 65.0 ± 3.2 / 15.37 ± 0.08 tok/s | 319.8 ± 0.7 / 34.55 ± 0.09 tok/s |
+| Qwen 1.5B Q4_0 | 17.38 ± 0.92 / 7.47 ± 0.24 tok/s | 101.93 ± 0.44 / 19.83 ± 0.04 tok/s |
+| Qwen 1.5B Q4_K_M | 19.07 ± 0.08 / 7.92 ± 0.18 tok/s | 96.73 ± 0.28 / 17.57 ± 0.04 tok/s |
+| Llama 3.2 3B Q4_K_M | 8.93 ± 0.23 / 5.15 ± 0.18 tok/s | 46.26 ± 0.01 / 10.68 ± 0.23 tok/s |
+
+এগুলো throughput result, model quality score নয়। একটি synthetic structured
+retrieval sample-এ তিন Qwen variant ভুল record দিয়েছে; আলাদা 180-record,
+4096-token context input থেকে Llama 3.2 3B exact marker দিয়েছে। তাই ছোট
+model-গুলোর long-context reliability এখনো প্রতিষ্ঠিত নয়।
+
+SM7635 target-এর local Gemma 4 QNN model এই SM8735 device-এ চালানো হয়নি;
+compatible managed text-QNN runner নেই। AbsoluteReality 8gen2 QNN image
+archive GGUF text model নয়, এবং আলাদা আগের 25-image QNN run-এর প্রমাণ উপরে
+আছে। এই দুই asset CPU/Vulkan LLM table-এর বাইরে। পূর্ণ log ও পুনরুৎপাদন ধাপ
+linked device benchmark record-এ আছে।
 
 ### Clean-idle llama.cpp throughput
 
