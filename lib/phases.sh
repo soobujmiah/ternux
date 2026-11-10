@@ -1335,6 +1335,35 @@ ALIASEOF
 # ---------------------------------------------------------------------------
 # Phase 9 — optional workloads
 # ---------------------------------------------------------------------------
+# Optional third-party installer scripts are pinned by content digest and
+# product version. Fail closed when an upstream URL changes until Ternux
+# reviews and updates the pin.
+tnx_run_pinned_optional_installer() {
+  local user_name="${1:?missing Debian user}" url="${2:?missing installer URL}"
+  local sha256="${3:?missing installer SHA-256}"
+  shift 3
+  [[ "$sha256" =~ ^[0-9a-f]{64}$ ]] || { tnx_warn "Optional installer has no valid pinned SHA-256."; return 2; }
+  case "$url" in
+    https://hermes-agent.nousresearch.com/install.sh|https://openclaw.ai/install.sh) ;;
+    *) tnx_warn "Refusing an unapproved optional installer source: $url"; return 2 ;;
+  esac
+
+  tnx_guest_login --shared-tmp --user "$user_name" -- bash -lc '
+    set -euo pipefail
+    url="$1"; expected_sha256="$2"; shift 2
+    installer="$(mktemp "${TMPDIR:-/tmp}/ternux-optional-installer.XXXXXX")"
+    trap "rm -f -- \"$installer\"" EXIT
+    curl -fsSL --proto "=https" --tlsv1.2 --connect-timeout 15 --max-time 180 --max-filesize 2000000 \
+      --retry 2 --retry-delay 2 --output "$installer" "$url"
+    if ! printf "%s  %s\n" "$expected_sha256" "$installer" | sha256sum --check --status; then
+      echo "Optional installer SHA-256 mismatch; refusing to execute it." >&2
+      exit 1
+    fi
+    bash -n "$installer"
+    bash "$installer" "$@"
+  ' _ "$url" "$sha256" "$@"
+}
+
 tnx_phase_extras() {
   local user_name="${1:-ternux}"; shift
   local rc=0 opt selected node_selected=0 go_version="" cores jobs htp_selected=0 adt_selected=0 celestia_selected=0
@@ -1537,19 +1566,12 @@ tnx_phase_extras() {
         else tnx_warn "OpenAI API CLI needs Go 1.26 or newer; install a supported Go toolchain, then run go install github.com/openai/openai-cli/cmd/openai@latest."; rc=1; fi
         ;;
       hermes)
-        if tnx_guest_login --shared-tmp --user "$user_name" -- bash -lc '
-          set -o pipefail
-          for attempt in 1 2 3; do
-            echo "Hermes Agent install attempt $attempt/3"
-            if curl -fsSL --retry 2 --retry-delay 2 --connect-timeout 15 https://hermes-agent.nousresearch.com/install.sh | bash -s -- --non-interactive; then
-              exit 0
-            fi
-            [ "$attempt" -lt 3 ] && sleep $((attempt * 3))
-          done
-          exit 1
-        '; then
-          tnx_ok "Hermes Agent installed; run hermes setup when ready"
-        else tnx_warn "Hermes Agent install failed after three attempts; see the network error and retry from the official guide."; rc=1; fi
+        if tnx_run_pinned_optional_installer "$user_name" \
+          https://hermes-agent.nousresearch.com/install.sh \
+          abf338605dae6dd28d101673ac6aed7995c955745db46d47676bc591a7957209 \
+          --commit 3b421578588243f920886e6fe79a6faa87ea026e --non-interactive; then
+          tnx_ok "Hermes Agent v0.23.1 installed from its pinned upstream commit; run hermes setup when ready"
+        else tnx_warn "Hermes Agent installer failed verification or installation; see the network error and retry after updating Ternux."; rc=1; fi
         ;;
       evolution)
         if tnx_guest_login --shared-tmp -- bash -c '
@@ -1566,9 +1588,12 @@ tnx_phase_extras() {
         ;;
       celestia) tnx_ok "Celestia installed as an optional astronomy app" ;;
       openclaw)
-        if tnx_guest_login --shared-tmp --user "$user_name" -- bash -lc 'curl -fsSL --proto https --tlsv1.2 https://openclaw.ai/install.sh | bash -s -- --no-onboard --verify'; then
-          tnx_ok "OpenClaw installed; run openclaw onboard when ready"
-        else tnx_warn "OpenClaw installer failed; its setup can be retried from the official guide."; rc=1; fi
+        if tnx_run_pinned_optional_installer "$user_name" \
+          https://openclaw.ai/install.sh \
+          5b46a876404005229ee62fc2615ddeb1c3f510a434ced47dbbed06b93849c704 \
+          --version v2026.11.2 --no-onboard --verify; then
+          tnx_ok "OpenClaw v2026.11.2 installed from its pinned upstream installer; run openclaw onboard when ready"
+        else tnx_warn "OpenClaw installer failed verification or installation; see the network error and retry after updating Ternux."; rc=1; fi
         ;;
       # Backward-compatible grouped flags remain supported for scripts and --all.
       blender) : ;;

@@ -56,6 +56,9 @@ jobs:
             bash -n "$file"
           done
 
+      - name: Verify pinned optional installer execution
+        run: bash tests/pinned_optional_installers.sh
+
       - name: Run focused regressions
         run: bash tests/focused.sh
 

@@ -180,11 +180,13 @@
         "Normal PRoot use of Android shared storage at /sdcard is expected and verified; managed desktop, generic guest wrapper, and generated db/droot aliases keep Termux HOME isolated. /tmp remains explicitly requested.",
         "Device probe through the current wrapper verified /sdcard readable and Termux HOME files hidden without restarting the live desktop; prior isolated X11/PulseAudio/mic-status/camera-info probes are recorded here.",
         "Exact-head Validate 42707570617 passed the generic-wrapper isolation regression. Full XFCE/app smoke under the updated launcher remains open.",
-        "2026-11-10 source-module device check: TERNUX_LIB_DIR=$PWD/lib TERNUX_JSON=1 bash bin/ternux verify --json returned passed; termux-x11, proot-distro, PulseAudio, setsid, launcher, Debian services and Turnip were present/ok. No GUI/service restart."
+        "2026-11-10 source-module device check: TERNUX_LIB_DIR=$PWD/lib TERNUX_JSON=1 bash bin/ternux verify --json returned passed; termux-x11, proot-distro, PulseAudio, setsid, launcher, Debian services and Turnip were present/ok. No GUI/service restart.",
+        "Optional Hermes/OpenClaw setup now downloads first-party bootstrap scripts to a unique temporary file, enforces HTTPS and a 2 MB cap, syntax-checks, verifies a reviewed SHA-256, and runs only the pinned product version/commit. Pins: Hermes v0.23.1 commit 3b421578588243f920886e6fe79a6faa87ea026e, SHA-256 abf338605dae6dd28d101673ac6aed7995c955745db46d47676bc591a7957209; OpenClaw v2026.11.2, SHA-256 5b46a876404005229ee62fc2615ddeb1c3f510a434ced47dbbed06b93849c704. tests/pinned_optional_installers.sh verifies execution, mismatch rejection, host allowlisting, and staging cleanup; it is wired into CI."
       ],
       "required_tests": [
         "verify generated generic aliases preserve /sdcard and shared tmp while excluding Termux HOME",
-        "full XFCE startup and user-facing app smoke through updated launcher (current live GUI was not restarted)"
+        "full XFCE startup and user-facing app smoke through updated launcher (current live GUI was not restarted)",
+        "pinned optional installer checksum/argument/cleanup regression"
       ],
       "acceptance_criteria": [
         "Preserve normal /sdcard access while granting only the host paths needed for Ternux integrations."

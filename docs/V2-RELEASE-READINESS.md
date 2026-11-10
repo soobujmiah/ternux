@@ -100,6 +100,14 @@ The separate owner checkout contains modified bilingual accelerator plans, QNN e
 - Uninstall now reuses the same ownership-checked stop path. The direct-pipe uninstaller fetches and syntax-checks the required desktop module.
 - The current generated launcher contract is version 19; earlier audit commits used version 18. English and Bangla manual examples and the `killx` alias are synchronized to `ternux stop`.
 
+### Pinned optional AI installers
+
+- Hermes and OpenClaw optional setup no longer pipes the current contents of a mutable URL directly into Bash. The installer is downloaded to a unique temporary file, limited to 2 MB, checked with `bash -n`, and executed only after its SHA-256 matches the reviewed pin.
+- Hermes is pinned to official release `v0.23.1` at commit `3b421578588243f920886e6fe79a6faa87ea026e`; the official hosted bootstrap digest is `abf338605dae6dd28d101673ac6aed7995c955745db46d47676bc591a7957209`.
+- OpenClaw is pinned to official release `v2026.11.2`; the official hosted bootstrap digest is `5b46a876404005229ee62fc2615ddeb1c3f510a434ced47dbbed06b93849c704`.
+- The [`tests/pinned_optional_installers.sh`](../tests/pinned_optional_installers.sh) regression checks valid execution, checksum-mismatch rejection, source allowlisting, and staging cleanup. If upstream changes either hosted script, installation fails closed until the version and digest are reviewed and updated.
+- Pins were checked against the first-party [Hermes install guide](https://github.com/NousResearch/hermes-agent/blob/main/website/docs/getting-started/installation.md), [Hermes installer source](https://github.com/NousResearch/hermes-agent/blob/v0.23.1/scripts/install.sh), and [OpenClaw install guide](https://docs.openclaw.ai/install) on 2026-11-10.
+
 ### Vulkan and renderer detection
 
 - KGSL visibility and loader/ICD file presence no longer imply Vulkan readiness.
