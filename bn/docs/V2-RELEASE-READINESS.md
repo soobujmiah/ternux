@@ -170,7 +170,7 @@ Report-only head `e1212bbc10078ec761dd5911f7858dbdc9b22c19`-এও আটটি 
 - 2026-11-10-এ repo source module দিয়ে `TERNUX_LIB_DIR=$PWD/lib TERNUX_JSON=1 bash bin/ternux verify --json` চালিয়ে `status=passed` পাওয়া গেছে; Termux:X11, PRoot-Distro, PulseAudio, `setsid`, launcher, Debian service ও Turnip present/OK ছিল। GUI বা service restart হয়নি।
 - আগের isolated desktop probe-এ X11 query, PulseAudio, mic status ও camera-info pass করেছে। তবে updated launcher-এ fresh XFCE/app visual smoke এখনো হয়নি।
 - 2026-11-10-এ repository source-এর `start --json` চালু desktop-টিই reuse করেছে (`already_running`, PID 16987); এরপর source `status --json`-এ `READY`, সীমিত সময়ের guest X11 query pass, এবং `pulseaudio_ready=yes` এসেছে। Installed CLI-ও একই desktop running দেখিয়েছে। Stop/restart, app close বা installed file বদলানো হয়নি। এতে safe reuse এবং live X11/audio-route probe যাচাই হয়েছে; updated package-এর stop/crash recovery বা managed PID identity নয়।
-- Lifecycle implementation এখন session live বলার আগে guest-এর ভেতর সীমিত সময়ের X11 query চায়, query ব্যর্থ হলে JSON mode-এ duplicate start আটকায়, এবং PulseAudio daemon ও guest TCP route আলাদাভাবে দেখায়। Focused regression local-এ 140/140 pass; বর্তমান change-এর exact-head hosted CI এখনো pending।
+- Lifecycle implementation এখন session live বলার আগে guest-এর ভেতর সীমিত সময়ের X11 query চায়, query ব্যর্থ হলে JSON mode-এ duplicate start আটকায়, এবং PulseAudio daemon ও guest TCP route আলাদাভাবে দেখায়। Focused regression local-এ 140/140 pass; lifecycle update commit `f4bb945`-এ Validate run `42773827524`-ও pass করেছে।
 - SM8735 / Adreno 825 CPU ও Vulkan known-answer, Vulkan layer offload, bounded cancel ও reopen result `guides/device-benchmark-evidence.md`-এ আছে। Memory-pressure ও দীর্ঘ thermal test বাকি। HTP/HMX numerical failure স্পষ্ট রাখা হয়েছে; HTP ও QNN experimental, stable acceleration claim থেকে বাদ।
 - Hosted signed APT bootstrap, public key, `InRelease`, `Packages`—চার URL-ই 2026-11-10-এ HTTP 404 দিয়েছে। Native `dpkg-query`-তে Ternux 2.0.0 installed, কিন্তু Ternux APT source configured নেই। Pages deploy আগে পুরো site tree upload করত, ফলে প্রকাশিত `/apt` মুছে যেতে পারত। `preserve-pages-apt.sh` এখন pinned key, signed `InRelease`, signed index checksum ও package checksum যাচাই করে APT tree ধরে রাখে। Signed-fixture integration test valid preserve pass করেছে এবং partial publish/tampering প্রত্যাখ্যান করেছে। Hosted path এখনো 404, তাই live redeploy preservation ও `pkg install ternux` lifecycle এখনো unverified।
 - Read-only GitHub check-এ `main` branch protection নেই, repository ruleset শূন্য। Setting বদলানো হয়নি। `ternux-package-audit`-এর পুরোনো `ci-artifact/` ও owner-modified `ternux-tools` file release diff-এর বাইরে এবং অক্ষত।
@@ -189,6 +189,8 @@ workflow এখন শুধু manual dispatch-এ চলে। তিনটি
 তাদের expiry অপরিবর্তিত। Focused provenance এবং workflow-contract regression-এ
 ভুল workflow, expired artifact, বদলানো package input/build definition, reuse ও
 manual-only trigger যাচাই হয়। এই workflow পরিবর্তনের hosted CI এখনো বাকি।
+
+Artifact-reuse commit `89802f73408a1638221c0b3f62c26d212385b2ea`-এ Validate `42779265831`, Termux APT package `42779265743`, Repository State Contract `42779266172`, এবং Repo Knowledge Sync `42779266194` pass করেছে। এই PR update-এ ARM64/Vulkan, Stable Diffusion, HTP বা HMX build workflow trigger হয়নি।
 
 ## v2.0.0-এর আগে বাকি blocker
 
