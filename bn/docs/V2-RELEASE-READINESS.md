@@ -17,29 +17,29 @@ alt_url: "/docs/V2-RELEASE-READINESS.html"
 
 ## Stage 0: ২০২৬-১১-১০-এর বর্তমান repository reconciliation
 
-এই report-only refresh-এর আগের validated code snapshot-এ `ternux-task-fix` clean ও remote-এর সঙ্গে synced ছিল, head `e7654d261a795817ed5ac22edce83143da2adf25`; `origin/main` (`8e24062589e81c20095c875fa4d19dd5cb928554`)-এর চেয়ে ১৬৮ commit এগিয়ে। PR #97 open ও draft, merge state clean, কোনো review decision নেই; GitHub-এ ৫৭৬টি changed file দেখা যাচ্ছে। v2 tag নেই। Diff মূলত Ternux CLI/assets, Debian packaging, bilingual docs, test/CI ও AI experiment। পুরো ৫৭৬-file review এবং owner review বাকি।
+এই report-only refresh-এর আগের validated PR snapshot-এ `ternux-task-fix` clean ও remote-এর সঙ্গে synced ছিল, head `6fd2772e4245be0069bf8777ee00c01a16c51aac`; `origin/main` (`8e24062589e81c20095c875fa4d19dd5cb928554`)-এর চেয়ে ১৬৯ commit এগিয়ে। PR #97 open/draft, ৫৭৬টি changed file; নতুন branch protection অনুযায়ী GitHub `REVIEW_REQUIRED` দেখায়। v2 tag নেই। Diff মূলত Ternux CLI/assets, Debian packaging, bilingual docs, test/CI ও AI experiment। পুরো ৫৭৬-file review এবং owner review বাকি।
 
 | স্থান | বর্তমান অবস্থা | সমন্বয় |
 |---|---|---|
-| `ternux-task-fix` | `e7654d2`-এ clean; ১৬৮ commit এগিয়ে; PR-এ ৫৭৬ file | Release blocker থাকায় PR #97 draft থাকবে; merge, tag বা publication করা হয়নি। |
+| `ternux-task-fix` | `6fd2772`-এ clean; ১৬৯ commit এগিয়ে; PR-এ ৫৭৬ file | PR #97 draft; owner/CODEOWNERS review না হওয়া পর্যন্ত merge হবে না; v2 tag/publication হয়নি। |
 | `ternux-package-audit` | detached `727726a6`; untracked `ci-artifact/` ৭৪৭ KB | metadata অনুযায়ী এটি ৭ Nov-এর unsigned package/rootfs, source `b3a0f894…`; পুরোনো evidence হিসেবে রাখা হয়েছে, release diff-এ যোগ করা হয়নি। |
 | `ternux-tools` | `main`-এ ছয়টি owner-modified/untracked QNN qualification entry | সব অপরিবর্তিত রাখা হয়েছে; এগুলো আলাদা research artifact, release source নয়। |
 | `skb` | canonical checkout যাচাই করা; owner change আছে | শুধু guidance পড়া হয়েছে; file পরিবর্তন হয়নি। |
 | `.repo/STATUS.md` | `main` থেকে generated snapshot; ৭ Nov-এ `aadc925`-এ sync | `python3 -m tools.repo_knowledge verify`-তে কোনো finding নেই। হাতে edit করা হয়নি; PR head-এর state exact-head CI-তে আছে। |
 | চলমান Termux:X11 desktop | active; session restart করা হয়নি | session অক্ষত রাখা হয়েছে; desktop, audio বা Android service restart করা হয়নি। |
 
-অন্য কোনো Codex agent সক্রিয় নেই। PR #35 আলাদা draft license proposal; owner review-এর অপেক্ষায়, v2 source-এর অংশ নয়। পাঁচটি open Dependabot PR action version update নিয়ে, release diff-এর বাইরে। Read-only GitHub check-এ `main` branch protection নেই, ruleset শূন্য। Report-only commit-এর আগে `e8dab0a` implementation tree clean ছিল; সর্বশেষ product-code commit `aa2c5f1`; এতে routine website deploy-তে signed APT tree যাচাই করে ধরে রাখার ব্যবস্থা আছে।
+এই session-এ subagent spawn করা হয়নি। PR #35 আলাদা draft license proposal; owner review-এর অপেক্ষায়, v2 source-এর অংশ নয়। পাঁচটি open Dependabot PR action version update নিয়ে, release diff-এর বাইরে। Owner-authorized `main` branch protection এখন সক্রিয়: পাঁচটি exact CI context, ১টি approval, CODEOWNERS review, stale approval dismiss, latest-push approval, admin enforcement, conversation resolution, force-push ও deletion নিষিদ্ধ। Ruleset শূন্য, তবে branch protection আলাদাভাবে সক্রিয়। PR #97-তে owner review বাকি।
 
 | Finding | সমন্বিত অবস্থা | Evidence/বাকি কাজ |
 |---|---|---|
 | P0-01 SD Vulkan license inventory | COMPLETE | Deterministic component manifest ও bundle regression test আছে; Ternux license সঠিকভাবে Apache-2.0। Exact-head ARM64 audit নিচে আছে। |
-| P0-02 release branch consistency | PARTIAL | `main` ancestor; draft PR #97-এ ১৬৮ commit ও ৫৭৬-file diff আছে। Current checks pass; release acceptance ও owner review/integration বাকি। |
-| P0-03 machine release gate | COMPLETE | ১৯টি gate; blocker থাকলে readiness `NOT_READY` থাকে। |
+| P0-02 release branch consistency | PARTIAL | `main` ancestor; draft PR #97-এ ১৬৯ commit ও ৫৭৬-file diff আছে। Current checks pass; branch protection owner/CODEOWNERS review বাধ্যতামূলক করেছে। |
+| P0-03 machine release gate | COMPLETE | ১৯টি gate; blocking item থাকলে readiness `NOT_READY`; এখন ৮টি blocker incomplete। |
 | P1-01 desktop lifecycle | PARTIAL | ownership/state handling ও host fixture pass; updated package-এ device start/stop/crash recovery বাকি। |
 | P1-02 Vulkan/renderer detection | পরীক্ষিত Adreno 825 stack-এ COMPLETE | Enumeration ও live Zink/Turnip evidence আছে; অন্য GPU family qualify হয়নি। |
 | P1-03 updater | PARTIAL | stage, integrity, rollback, interruption, concurrency fixture pass; published v2 ও v1.4.0 migration এখনো test করা যায়নি। |
 | P1-04 storage ও desktop | PARTIAL | PRoot থেকে Android shared storage-এর স্বাভাবিক `/sdcard` access verified; Termux HOME isolated, `/tmp` explicit। বাকি শুধু updated launcher-এ full XFCE/app smoke। |
-| P1-05 repository governance | BLOCKED | required review/branch rule নেই। Settings বদলাতে owner authorization দরকার; কিছু বদলানো হয়নি। |
+| P1-05 repository governance | COMPLETE | Owner-authorized `main` protection-এ ১টি CODEOWNERS approval ও পাঁচটি CI context লাগে; admin-দেরও মানতে হবে, force-push/deletion বন্ধ। PR #97 `REVIEW_REQUIRED`; সেটি P0-02। |
 | P1-06 CPU/Vulkan LLM | PARTIAL | known-answer, offload, cancel, reopen evidence আছে; model breadth, sustained thermal ও memory-pressure qualification বাকি। |
 | P1-07 HTP/HMX | PARTIAL, experimental এবং release থেকে বাদ | Build evidence আছে; operator numerical qualification অসম্পূর্ণ/ব্যর্থ হওয়ায় stable claim/default নয়। |
 | P1-08 QNN Stable Diffusion | PARTIAL, experimental এবং release থেকে বাদ | Device artifact আছে; পূর্ণ stage-tensor/reference qualification হয়নি। |
@@ -140,7 +140,7 @@ Core implementation ও regression fix `e8dab0a3cdb795826b3f583efbaef4a9a9320e51
 | Snapdragon HTP artifact | `42693350490` | Build pass; draft PR-এ publication skip |
 | Snapdragon HMX capability candidate | `42693350221` | Build pass; draft PR-এ publication skip |
 
-একই code-এ local `bash tests/focused.sh` **134/134** pass; `python3 tests/docs_check.py` **3,041 assertion, 312 internal link, 20 bilingual page pair** pass। `tests/release_gates.py --self-test`, JSON parser, shell syntax ও `git diff --check` pass করেছে। Astro production build-ও Validate workflow-তে pass। Machine inventory-তে ১৯ gate; নয়টি অসম্পূর্ণ blocker থাকায় verdict `NOT_READY`।
+একই code-এ local `bash tests/focused.sh` **134/134** pass; `python3 tests/docs_check.py` **3,041 assertion, 312 internal link, 20 bilingual page pair** pass। `tests/release_gates.py --self-test`, JSON parser, shell syntax ও `git diff --check` pass করেছে। Astro production build-ও Validate workflow-তে pass। সেই পুরোনো code snapshot-এ ১৯ gate-এর মধ্যে নয়টি blocker অসম্পূর্ণ ছিল; P1-05 governance complete হওয়ার পর বর্তমান inventory-তে আটটি blocker আছে।
 
 Latest product-code head `aa2c5f1aeeed14e252c6c6d0669ceb745f6150f1`-এ আটটি workflow pass করেছে। Validate-এ signed APT preservation fixture-ও আছে। Deployment workflow শুধু `main` push বা manual dispatch-এ চলে; তাই publication-এর পরে live Pages redeploy এখনো যাচাই হয়নি।
 
@@ -157,7 +157,7 @@ Latest product-code head `aa2c5f1aeeed14e252c6c6d0669ceb745f6150f1`-এ আট�
 
 Report-only head `e1212bbc10078ec761dd5911f7858dbdc9b22c19`-এও আটটি required workflow pass করেছে: Validate `42707570617`, Termux APT package `42707570582`, repository contract `42707570627`, knowledge sync `42707570460`, llama CPU/Vulkan `42707570564`, Stable Diffusion/license `42707570566`, HTP `42707570651`, এবং HMX `42707570549`। Draft PR হওয়ায় APT ও accelerator artifact publication job যথাযথভাবে skip করেছে। Branch ওই head-এ clean এবং remote-এর সঙ্গে synced.
 
-সর্বশেষ report-only head `b5cf839bdb5597392022ec21438cc45b9cf4e83c`-এ আটটি required workflow-ই pass করেছে: Validate `42712474036`, Termux APT package `42712474219`, repository contract `42712474435`, knowledge sync `42712474995`, llama CPU/Vulkan `42712474493`, Stable Diffusion/license `42712473855`, HTP `42712474195`, এবং HMX `42712474393`। Snapdragon build দুটিই সফল; PR #97 draft থাকায় publication job skip হয়েছে। এই evidence state-এ local docs check-এ ৩,০৪১ assertion, ৩১২ internal link ও ২০টি bilingual page pair pass করেছে; repo knowledge verification-এ কোনো issue পাওয়া যায়নি। CI/build pass হলেও device, hosted APT, package lifecycle ও owner-review blocker নয়টি এখনো খোলা।
+সর্বশেষ report-only head `b5cf839bdb5597392022ec21438cc45b9cf4e83c`-এ আটটি required workflow-ই pass করেছে: Validate `42712474036`, Termux APT package `42712474219`, repository contract `42712474435`, knowledge sync `42712474995`, llama CPU/Vulkan `42712474493`, Stable Diffusion/license `42712473855`, HTP `42712474195`, এবং HMX `42712474393`। Snapdragon build দুটিই সফল; PR #97 draft থাকায় publication job skip হয়েছে। এই evidence state-এ local docs check-এ ৩,০৪১ assertion, ৩১২ internal link ও ২০টি bilingual page pair pass করেছে; repo knowledge verification-এ কোনো issue পাওয়া যায়নি। সেই historical snapshot-এ নয়টি blocker খোলা ছিল; branch governance complete হওয়ার পর বর্তমান inventory-তে আটটি আছে।
 
 ### Lifecycle update-এর exact-head যাচাই
 
@@ -190,7 +190,7 @@ Provenance verifier pinned build job ও package input তুলনা করে
 workflow change অনুমোদন করে। Focused regression-এ ভুল workflow, expired artifact,
 বদলানো package input/build definition, reuse এবং manual-only trigger-ও যাচাই হয়।
 
-Artifact-reuse commit `89802f73408a1638221c0b3f62c26d212385b2ea`-এ Validate `42779265831`, Termux APT `42779265743`, Repository State Contract `42779266172`, Repo Knowledge Sync `42779266194` pass করেছে। Latest code head `e7654d2`-এ Validate `42783161375`, Termux APT `42783161248`, Repository State Contract `42783160978`, Repo Knowledge Sync `42783161055` pass করেছে। চারটি source-run refresh workflow-ও pass করেছে; সব compile ও publish job skip হয়েছে।
+Artifact-reuse commit `89802f73408a1638221c0b3f62c26d212385b2ea`-এ Validate `42779265831`, Termux APT `42779265743`, Repository State Contract `42779266172`, Repo Knowledge Sync `42779266194` pass করেছে। Latest validated PR head `6fd2772`-এ Validate `42783758067`, Termux APT `42783758176`, Repository State Contract `42783758291`, Repo Knowledge Sync `42783758217` pass করেছে। চারটি source-run refresh workflow-ও pass করেছে; সব compile ও publish job skip হয়েছে।
 
 ## v2.0.0-এর আগে বাকি blocker
 
@@ -200,7 +200,7 @@ Artifact-reuse commit `89802f73408a1638221c0b3f62c26d212385b2ea`-এ Validate `4
 | P1-01 desktop lifecycle | **PARTIAL** | বর্তমান session না ভেঙে updated package-এ repeated/concurrent start, stop, stale/crash recovery, socket ownership ও audio readiness যাচাই। |
 | P1-03 updater migration | **PARTIAL** | Published v2 update ও প্রথম v1.4.0 migration native Termux-এ পরীক্ষা; publication-এর আগে এটি সম্ভব নয়। |
 | P1-04 storage ও desktop | **PARTIAL** | PRoot-এর ভেতর স্বাভাবিক `/sdcard` ব্যবহার verified ও expected; Termux HOME isolated থাকে। Updated launcher-এ controlled/separate session-এ full XFCE ও app smoke বাকি। |
-| P1-05 repository governance | **BLOCKED** | Owner-এর সিদ্ধান্ত ও অনুমতি নিয়ে required review এবং branch-protection rule। |
+
 | P1-06 CPU/Vulkan qualification | **PARTIAL** | Supported hardware-এ memory-pressure, sustained thermal ও আরও model correctness evidence। |
 | P1-APT public repository | **BLOCKED** | `aa2c5f1`-এ signed APT preservation code ও CI pass; owner-approved signed publish, hosted bootstrap/key/index verify, তারপর normal website redeploy ও clean `pkg install ternux` test বাকি। Canonical GitHub Pages-এর চারটি APT path এখনো HTTP 404 দিচ্ছে। |
 | P1-PKG native package lifecycle | **PARTIAL** | Published APT route ও standalone route দিয়ে supported device-এ clean install, upgrade, repair, uninstall verify। |
@@ -210,4 +210,4 @@ HTP/HMX ও QNN numerical/stage-tensor qualification pass না করা প�
 
 ## চূড়ান্ত সুপারিশ
 
-**NOT_READY.** P0-01 ও P0-03 complete, কিন্তু নয়টি release-blocking gate অসম্পূর্ণ। Product commit `f4bb945576f03a9d8979d7d89553660471dafbaf`-এ আটটি build/test workflow pass করেছে। Latest code head `e7654d2`-এ Validate `42783161375`, Termux APT `42783161248`, Repository State Contract `42783160978`, এবং Repo Knowledge Sync `42783161055` pass। চারটি manual artifact refresh provenance/checksum pass করেছে, build/publish skip করে একই artifact 2027-02-08 পর্যন্ত সংরক্ষণ করেছে। এতে source/build check প্রমাণ হয়, public repository, installed package migration, live updated-desktop lifecycle বা owner review নয়। v2 tag, release, package publication, PR merge, repository setting change বা live desktop restart হয়নি। Actual release শুধু repository owner authorize করতে পারেন।
+**NOT_READY.** P0-01, P0-03 ও P1-05 complete, কিন্তু আটটি release-blocking gate অসম্পূর্ণ। Product commit `f4bb945576f03a9d8979d7d89553660471dafbaf`-এ আটটি build/test workflow pass করেছে। Latest validated PR head `6fd2772`-এ Validate `42783758067`, Termux APT `42783758176`, Repository State Contract `42783758291`, এবং Repo Knowledge Sync `42783758217` pass। চারটি manual artifact refresh provenance/checksum pass করেছে, build/publish skip করে একই artifact 2027-02-08 পর্যন্ত সংরক্ষণ করেছে। এতে source/build check প্রমাণ হয়, public repository, installed package migration, live updated-desktop lifecycle বা owner review নয়। v2 tag, release, package publication, PR merge বা live desktop restart হয়নি। `main` branch-protection settings authorization অনুযায়ী বদলে verify করা হয়েছে; actual v2 release এখনো প্রস্তুত নয়।
