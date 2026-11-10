@@ -11,11 +11,20 @@ alt_url: "/docs/V2-RELEASE-READINESS.html"
 
 **Ternux v2.0.0 tag/publication:** তৈরি করা হয়নি
 
-**সর্বশেষ source baseline:** `main` commit `97e2ac6524d2b206d6e24c0e813f9656eda13941` (2026-11-10 14:09 UTC audit)
+**সর্বশেষ source baseline:** `main` commit `55936a0fdd2c9790fe6bf746092fd562e5fa09a1` (2026-11-10 14:35 UTC recheck)
 
 **সর্বশেষ v2 integration PR:** [#97](https://github.com/soobujmiah/ternux/pull/97), merge commit `394d0d12e972dd977cd7ec8c639caaead84b1b40`
 
 **বর্তমান blocker:** release-blocking ছয়টি gate অসম্পূর্ণ; signed public APT endpoint চারটিই HTTP 404। v2.0.0 tag বা owner-requested release নেই। PR #103 ভুল করে Pages run `42816692044` শুরু করেছিল; deploy action চলার সময় cancel হয়েছে, external result unverified। PR #104 main-push trigger সরিয়ে manual-only করেছে; PR #104–#109 merge-এ Pages deploy শুরু হয়নি।
+
+### সর্বশেষ live reconciliation — 2026-11-10 14:37 UTC
+
+- **Source ও worktree:** `origin` যাচাই করা হয়েছে: `https://github.com/soobujmiah/ternux.git`। Audit intake-এ checkout clean ছিল, commit `55936a0fdd2c9790fe6bf746092fd562e5fa09a1`, এবং `origin/main`-এর সমান; এই report refresh-এ শুধু bilingual readiness report ও machine-readable gate evidence বদলেছে। একমাত্র অন্য worktree হলো detached `ternux-package-audit` (`727726a6`), যেখানে আগের untracked CI artifact আছে। আলাদা `ternux-tools` checkout-এ owner-modified accelerator document এবং QNN/native qualification file রয়েছে; সব preserve করা হয়েছে। Ternux source checkout-এ অন্য agent session বা local change সক্রিয় ছিল না।
+- **PR #97 ও governance:** PR #97 `394d0d12e972dd977cd7ec8c639caaead84b1b40` commit-এ `MERGED` (2026-11-10 11:32 UTC)। Main protection-এ PR ও পাঁচটি strict CI context বাধ্যতামূলক, required approval শূন্য, CODEOWNERS/latest-push approval বন্ধ, admin enforcement চালু, force-push/deletion বন্ধ। Reviewer blocker নেই; self-review করা হয়নি। Open PR #45/#44/#42 Dependabot update এবং draft #35 license proposal; কোনোটিই v2 integration change নয়।
+- **বর্তমান CI:** exact main SHA `55936a0`-এ Validate run `42833554547`, package-artifact run `42833554364`, repository-contract run `42833554254` pass। PR #113 merge হওয়ার আগে তার পাঁচটি required check pass করেছিল। এগুলো CI/package build প্রমাণ করে, device install বা release readiness নয়।
+- **Live Termux desktop:** `ternux status --json` v2.0.0, running, X11 yes, PulseAudio running, managed PID `16987` জানায়। Repository-র `lib/desktop.sh` SHA-256 `b3f0753a771f54c2c337310b2f23485926c9fded314ace818d76828c96af8ea3`; installed `$PREFIX/lib/ternux/desktop.sh` SHA-256 `02c5f6175f45c94c4ec68f323294f1c633bd7e4f501430b243f72132ed0950cb`। Live session এই source-এর আগের; updated-package stop/start ও crash recovery তাই এখনও যাচাই হয়নি। GUI চালু রাখা হয়েছে; কোনো app/service restart করা হয়নি।
+- **Hosted repository:** 2026-11-10 14:37 UTC-তে HTTPS GET করে `apt/bootstrap.sh`, `apt/ternux-archive-key.asc`, `apt/dists/stable/InRelease`, `apt/dists/stable/main/binary-all/Packages`—চারটিই HTTP 404; website root HTTP 200। সব release gate বন্ধ এবং owner-এর explicit publication approval না পাওয়া পর্যন্ত production `publish-v2` deployment বা v2 tag/release করা যাবে না।
+- **Readiness:** machine-readable matrix-এ ১৯টি gate; readiness `NOT_READY`। ছয়টি অসম্পূর্ণ blocker: P1-01, P1-03, P1-04, P1-06, P1-APT, P1-PKG। P2-03 workload schema শুরু হয়নি, তবে release blocker নয়।
 
 > বর্তমান অবস্থার নোট (2026-11-10): নিচের reconciliation ও gate matrix এই রিপোর্টের আগের snapshot-গুলোকে supersede করে, যেখানে PR #97 open, independent reviewer বাধ্যতামূলক, বা পুরোনো `main` commit দেখানো হয়েছে। সেগুলো কেবল historical evidence।
 

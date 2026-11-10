@@ -48,7 +48,8 @@
       "evidence": [
         "PR #97 source integration merged as 394d0d12e972dd977cd7ec8c639caaead84b1b40. PR #104 manual-only deployment/readiness, #105 and #107 generated state, and #106 docs gate closure are merged; current main is 5760a1f7eb98c86f731dcf24a982b929c7e5b018.",
         "PR #106 exact head 9f84ae1100d2de5d498ca44ed0b0491037ec610c passed all five required checks (Validate 42819629282, package 42819629144, repo-contract 42819629057, Repo Knowledge Sync test/sync 42819629146); merged main ea33209 passed Validate 42820001846, package 42820001935, Repo Knowledge Sync 42820001824. PR #107 generated state for ea33209 passed all five checks (Validate 42820215882, package 42820215769, repo-contract 42820215978, Repo Knowledge Sync 42820215777 test/sync). Post-merge main 5760a1f7 exact-SHA workflows passed: Validate 42820744142, package 42820743872, Repository State Contract 42820743837.",
-        "No separate v2.0.0 release tag exists. Pages run 42816692044 from the earlier PR #103 merge was cancelled after actions/deploy-pages began; deployment history is inaccessible, so a partial website side effect remains unverified. A fresh check on 2026-11-10 found all four canonical GitHub Pages APT paths still return 404. Manual-only Pages workflow did not start on later main pushes #104–#109. No owner-requested v2 release publication occurred."
+        "No separate v2.0.0 release tag exists. Pages run 42816692044 from the earlier PR #103 merge was cancelled after actions/deploy-pages began; deployment history is inaccessible, so a partial website side effect remains unverified. A fresh check on 2026-11-10 found all four canonical GitHub Pages APT paths still return 404. Manual-only Pages workflow did not start on later main pushes #104–#109. No owner-requested v2 release publication occurred.",
+        "Live reconciliation 2026-11-10: active checkout is clean at main 55936a0fdd2c9790fe6bf746092fd562e5fa09a1; PR #97 merged as 394d0d12e972dd977cd7ec8c639caaead84b1b40; current main Validate 42833554547, package artifact 42833554364, and repository contract 42833554254 passed."
       ],
       "required_tests": [
         "exact-head required CI",
@@ -102,7 +103,8 @@
         "2026-11-10 non-disruptive device concurrency check: simultaneous source start calls returned starting/already_running for the existing PID 16987; both exited 0, then status reported READY with functional X11 and PulseAudio route. No stop/restart occurred; controlled updated-package stop/crash recovery remains open.",
         "Startup now requires the launcher READY marker plus a bounded host probe of Termux:X11, xfce4-session, xfwm4, xfdesktop, and xdpyinfo; it reports PulseAudio route readiness separately. Restart returns failure without a second start if stop cannot acquire the lifecycle lock. Local focused suite passed 144/144 after these changes; no live session restart or updated-package lifecycle run was performed.",
         "Read-only native Termux status on 2026-11-10 reports Overall running, Termux:X11 running, PulseAudio running, launcher present, managed PID 16987. `ternux doctor --json` passes guest/system prerequisites but does not probe active XFCE readiness; no session, app, audio service, or installed files were restarted or changed. This does not close updated-package stop/crash recovery.",
-        "Read-only source-module `status --json` on 2026-11-10 14:09 UTC reports lifecycle READY, functional X11, and `pulseaudio_ready=yes`; no desktop stop/restart was performed. Current `tests/focused.sh` passes 145/145, including lifecycle fixtures; physical stop/crash recovery on the updated installed package remains unverified."
+        "Read-only source-module `status --json` on 2026-11-10 14:09 UTC reports lifecycle READY, functional X11, and `pulseaudio_ready=yes`; no desktop stop/restart was performed. Current `tests/focused.sh` passes 145/145, including lifecycle fixtures; physical stop/crash recovery on the updated installed package remains unverified.",
+        "Live native status at 2026-11-10 14:36 UTC reports running, functional X11, PulseAudio running, managed PID 16987. Current source lib/desktop.sh SHA-256 b3f0753a771f54c2c337310b2f23485926c9fded314ace818d76828c96af8ea3 differs from installed $PREFIX/lib/ternux/desktop.sh SHA-256 02c5f6175f45c94c4ec68f323294f1c633bd7e4f501430b243f72132ed0950cb; do not count this old session as updated-package lifecycle verification. Live GUI was left running."
       ],
       "required_tests": [
         "overlap/start-stop/crash-recovery fixtures",
@@ -210,7 +212,8 @@
       "device_status": "N_A",
       "evidence": [
         "Live GitHub branch-protection read-back on 2026-11-10: pull request required; required approving review count is 0; CODEOWNERS review and latest-push approval are disabled; strict required checks are Shell, behavior, and documentation; Build and inspect unsigned package artifact; repo-contract; test; sync. Admin enforcement is enabled; force-push and deletion are disabled.",
-        "The sole collaborator and PR author is @soobujmiah. PR #97 merged successfully as 394d0d12e972dd977cd7ec8c639caaead84b1b40 after all required checks passed; no self-review or reviewer impersonation was used."
+        "The sole collaborator and PR author is @soobujmiah. PR #97 merged successfully as 394d0d12e972dd977cd7ec8c639caaead84b1b40 after all required checks passed; no self-review or reviewer impersonation was used.",
+        "Live main branch-protection API read-back 2026-11-10: required approvals 0; strict required checks Shell, behavior, and documentation; Build and inspect unsigned package artifact; repo-contract; test; sync; admin enforcement on; force-push/deletion off. PR #97 merged as 394d0d12e972dd977cd7ec8c639caaead84b1b40 after checks; no reviewer blocker or self-review."
       ],
       "required_tests": [
         "read back branch protection and required contexts",
@@ -312,7 +315,8 @@
         "Rechecked during this reconciliation on 2026-11-10 with HTTP GET: apt/bootstrap.sh, apt/ternux-archive-key.asc, apt/dists/stable/InRelease, and apt/dists/stable/main/binary-all/Packages all returned 404; no APT publication or deploy was performed.",
         "The automatic Pages run 42816692044 after PR #103 was cancelled while actions/deploy-pages was running. Pages deployment history API returned 404; post-cancellation publication state is unverified and the release must not rely on it.",
         "After cancellation of Pages run 42816692044, direct HTTP GET rechecks still returned 404 for apt/bootstrap.sh, apt/ternux-archive-key.asc, apt/dists/stable/InRelease, and apt/dists/stable/main/binary-all/Packages. The website root returns 200; the separate APT repository remains unpublished.",
-        "Non-deploy signing verification workflow run 42831035262 passed on exact main commit 97e2ac6524d2b206d6e24c0e813f9656eda13941: signed repository build and verification succeeded, ephemeral key material was removed, and website build/upload/deploy steps were skipped. Fresh direct checks still return HTTP 404 for the four canonical APT URLs; public installation remains blocked."
+        "Non-deploy signing verification workflow run 42831035262 passed on exact main commit 97e2ac6524d2b206d6e24c0e813f9656eda13941: signed repository build and verification succeeded, ephemeral key material was removed, and website build/upload/deploy steps were skipped. Fresh direct checks still return HTTP 404 for the four canonical APT URLs; public installation remains blocked.",
+        "Fresh HTTPS GET recheck 2026-11-10 14:37 UTC: apt/bootstrap.sh, apt/ternux-archive-key.asc, apt/dists/stable/InRelease, and apt/dists/stable/main/binary-all/Packages each returned HTTP 404; website root returned 200. No publication was performed."
       ],
       "required_tests": [
         "signed repository publish after approval",
@@ -339,7 +343,8 @@
         "Native `dpkg-query` confirms ternux 2.0.0 is installed; public APT source is absent, so clean repository install/upgrade/uninstall remains unverified.",
         "Exact PR head 8041c33939fc00639fe3296779ba840a352f82a3 passed unsigned Termux package build/inspection (run 42792958963); this does not prove clean installation from the unavailable hosted APT source.",
         "Current main bdae6d70c9015f6893bad4f81f79e3f1e059e41d package-artifact workflow run 42813902395 passed; hosted APT clean install/upgrade/uninstall remains unverified because its canonical endpoints return 404.",
-        "Current main exact-SHA package artifact workflow run 42828693381 passed on 97e2ac6524d2b206d6e24c0e813f9656eda13941. The current-main local update transaction suite also passed; clean native Termux APT install/upgrade/uninstall remains unverified while the public endpoints return HTTP 404."
+        "Current main exact-SHA package artifact workflow run 42828693381 passed on 97e2ac6524d2b206d6e24c0e813f9656eda13941. The current-main local update transaction suite also passed; clean native Termux APT install/upgrade/uninstall remains unverified while the public endpoints return HTTP 404.",
+        "Current main exact-SHA package artifact run 42833554364 succeeded on 55936a0fdd2c9790fe6bf746092fd562e5fa09a1. Hosted signed APT endpoints still return HTTP 404, so clean native repository install/upgrade/uninstall are NOT_TESTED."
       ],
       "required_tests": [
         "clean install/update/repair/uninstall in native Termux",
