@@ -15,6 +15,10 @@ alt_url: "/docs/V2-RELEASE-READINESS.html"
 
 ### সর্বশেষ continuation snapshot — ২০২৬-১১-১০
 
+### সর্বশেষ continuation — ২০২৬-১১-১০
+
+Standalone bootstrap এখন commit `614d3b7d1ceda1ecd96107333b5d03795c4d5b7a` এবং archive SHA-256 `f55737a18eedff270ce32416ab55fbc070132dd02d41f0234f509f03f99cbf8c` pin করে। Focused test exact codeload URL verify করে এবং extraction-এর আগে byte-modified archive reject করে; local suite 145/145 pass। Follow-up change-এর আগে PR #97-এর exact-head-এ পাঁচটি required CI check pass ছিল; এই নতুন source change এখনো push বা CI-verified হয়নি। Release এখনও `NOT_READY`; validator আটটি incomplete blocker দেখায়।
+
 ### এই session-এর repository reconciliation — ২০২৬-১১-১০
 
 - **Repository:** `origin/main` হলো `8e24062589e81c20095c875fa4d19dd5cb928554`; active branch `fix/managed-htp-extension-prerequisites` clean head `6f8e8344c13d6cf2013ab7f9a6dc7cf6df836ac8`-এ, এবং `main` তার ancestor। Branch-টি ১৮৩ commit এগিয়ে; PR #97-এ ৫৮১টি file পরিবর্তিত (+১৩,৯৭৫/−১,৩৮৬)। এই continuation-এর desktop change-এর আগে এই checkout-এ staged, unstaged বা untracked কাজ ছিল না।
@@ -73,7 +77,7 @@ HTP stable support হিসেবে qualified হয় না।
 | P0-03 machine release gate | COMPLETE | ১৯টি gate; blocking item থাকলে readiness `NOT_READY`; এখন ৮টি blocker incomplete। |
 | P1-01 desktop lifecycle | PARTIAL | ownership/state handling ও host fixture pass; updated package-এ device start/stop/crash recovery বাকি। |
 | P1-02 Vulkan/renderer detection | পরীক্ষিত Adreno 825 stack-এ COMPLETE | Enumeration ও live Zink/Turnip evidence আছে; অন্য GPU family qualify হয়নি। |
-| P1-03 updater | PARTIAL | exact v1.4.0 CLI fixture থেকে v2 source-level migration pass; publication-এর পর public route ও native-device migration verify করতে হবে। |
+| P1-03 updater | PARTIAL | exact v1.4.0 CLI fixture থেকে v2 source-level migration pass। Standalone installer immutable source archive extract করার আগে verify করে; publication-এর পর public route ও native-device migration verify করতে হবে। |
 | P1-04 storage ও desktop | PARTIAL | PRoot থেকে Android shared storage-এর স্বাভাবিক `/sdcard` access verified; Termux HOME isolated, `/tmp` explicit। বাকি শুধু updated launcher-এ full XFCE/app smoke। |
 | P1-05 repository governance | COMPLETE | Owner-authorized `main` protection-এ ১টি CODEOWNERS approval ও পাঁচটি CI context লাগে; admin-দেরও মানতে হবে, force-push/deletion বন্ধ। PR #97 `REVIEW_REQUIRED`; সেটি P0-02। |
 | P1-06 CPU/Vulkan LLM | PARTIAL | known-answer, offload, cancel, reopen evidence আছে; model breadth, sustained thermal ও memory-pressure qualification বাকি। |
@@ -248,7 +252,7 @@ Artifact-reuse commit `89802f73408a1638221c0b3f62c26d212385b2ea`-এ Validate `4
 |---|---|---|
 | P0-02 branch ও owner review | **PARTIAL** | PR #97 ready, CI green; কিন্তু CODEOWNER/collaborator শুধু PR author। Trusted independent reviewer যোগ/অনুমোদন, ৫৭৬-file diff review ও PR merge বাকি। |
 | P1-01 desktop lifecycle | **PARTIAL** | বর্তমান session না ভেঙে updated package-এ repeated/concurrent start, stop, stale/crash recovery, socket ownership ও audio readiness যাচাই। |
-| P1-03 updater migration | **PARTIAL** | Published v2 update ও প্রথম v1.4.0 migration native Termux-এ পরীক্ষা; publication-এর আগে এটি সম্ভব নয়। |
+| P1-03 updater migration | **PARTIAL** | Published v2 update ও প্রথম v1.4.0 migration native Termux-এ পরীক্ষা; publication-এর আগে এটি সম্ভব নয়। Standalone bootstrap commit ও SHA-256 pin করে, tampered archive reject test সহ focused suite 145/145 pass করেছে। |
 | P1-04 storage ও desktop | **PARTIAL** | PRoot-এর ভেতর স্বাভাবিক `/sdcard` ব্যবহার verified ও expected; Termux HOME isolated থাকে। Updated launcher-এ controlled/separate session-এ full XFCE ও app smoke বাকি। |
 
 | P1-06 CPU/Vulkan qualification | **PARTIAL** | Supported hardware-এ memory-pressure, sustained thermal ও আরও model correctness evidence। |

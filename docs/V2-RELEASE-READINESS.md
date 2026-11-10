@@ -15,6 +15,10 @@ alt_url: "/bn/docs/V2-RELEASE-READINESS.html"
 
 ### Continuation snapshot — 2026-11-10
 
+### Latest continuation — 2026-11-10
+
+The standalone bootstrap source is now pinned to commit `614d3b7d1ceda1ecd96107333b5d03795c4d5b7a`, archive SHA-256 `f55737a18eedff270ce32416ab55fbc070132dd02d41f0234f509f03f99cbf8c`. Focused regression tests verify the exact codeload URL and reject a byte-modified archive before extraction; the suite passed 145/145 locally. PR #97 exact-head CI had all five required checks passing at `614d3b7d1ceda1ecd96107333b5d03795c4d5b7a` before this follow-up change. The source update is not yet pushed or CI-verified. Release remains `NOT_READY`; the validator reports eight incomplete blockers.
+
 ### Current session reconciliation — 2026-11-10
 
 - **Repository:** `origin/main` is `8e24062589e81c20095c875fa4d19dd5cb928554`; the active branch `fix/managed-htp-extension-prerequisites` is clean at `6f8e8344c13d6cf2013ab7f9a6dc7cf6df836ac8`, with `main` as an ancestor. It is 183 commits ahead and PR #97 changes 581 files (+13,975/−1,386). No staged, unstaged, or untracked work existed in this checkout before this continuation's desktop change.
@@ -58,7 +62,7 @@ No subagents were spawned for this session. PR #35 remains a separate draft lice
 | P0-03 machine release gate | COMPLETE | 19 gates; readiness derives `NOT_READY` while any blocking item remains. Eight blockers are currently incomplete. |
 | P1-01 desktop lifecycle | PARTIAL | Ownership/state handling and host fixtures pass; controlled device start/stop/crash recovery on the updated package remains unverified. |
 | P1-02 Vulkan/renderer detection | COMPLETE on the tested Adreno 825 stack | Enumeration and real Zink/Turnip observations exist; other GPU families remain unqualified. |
-| P1-03 updater | PARTIAL | Staging, integrity, rollback, interruption, and concurrency fixtures pass; published v2 and v1.4.0 migration cannot be verified before publication. |
+| P1-03 updater | PARTIAL | Staging, integrity, rollback, interruption, and concurrency fixtures pass. Standalone bootstrap now pins commit `614d3b7d1ceda1ecd96107333b5d03795c4d5b7a` and its codeload SHA-256; tampered-archive rejection is covered by the 145/145 focused suite. Published v2 and native v1.4.0 migration remain unverified. |
 | P1-04 storage isolation | PARTIAL | Normal PRoot access to Android shared storage at `/sdcard` is verified, while Termux HOME stays isolated and `/tmp` remains explicit. The remaining gap is full XFCE/app smoke through the updated launcher. |
 | P1-05 repository governance | COMPLETE | Owner-authorized `main` protection now requires one CODEOWNERS approval and all five current CI contexts, enforces this for admins, and prevents force-push/deletion. PR #97 correctly remains `REVIEW_REQUIRED`; that integration gate is P0-02. |
 | P1-06 CPU/Vulkan LLM | PARTIAL | Known-answer, offload, cancellation, and reopen evidence exists; broad model, sustained thermal, and memory-pressure qualification remains open. |
@@ -234,7 +238,7 @@ On artifact-reuse commit `89802f73408a1638221c0b3f62c26d212385b2ea`, Validate `4
 |---|---|---|
 | P0-02 branch and owner review | **PARTIAL** | PR #97 is ready and CI is green, but only the PR author is a CODEOWNER/collaborator. Add or authorize an independent trusted reviewer, review the 576-file diff, and integrate the PR. |
 | P1-01 desktop lifecycle | **PARTIAL** | Validate repeated/concurrent start, stop, stale/crash recovery, socket ownership and independent audio readiness on the updated package without disturbing the current session. |
-| P1-03 updater migration | **PARTIAL** | Source-level first migration from exact v1.4.0 CLI fixture to v2 passes; verify the published v2 route and native-device migration after publication. |
+| P1-03 updater migration | **PARTIAL** | Source-level first migration from exact v1.4.0 CLI fixture to v2 passes. The standalone installer verifies an immutable source archive before extraction; verify the published v2 route and native-device migration after publication. |
 | P1-04 storage and desktop | **PARTIAL** | Normal `/sdcard` use inside PRoot is verified and expected; Termux HOME remains isolated. Run full XFCE and user-facing app smoke through the updated launcher in a separate/controlled session. |
 
 | P1-06 CPU/Vulkan qualification | **PARTIAL** | Add memory-pressure, sustained thermal and broader model correctness evidence on supported hardware. |

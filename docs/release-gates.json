@@ -154,12 +154,12 @@
         "tests/update_transaction.sh",
         "Local focused suite passed 134/134, including update transaction version/pinning/staging/rollback/crash/concurrency/symlink cases; exact-head Validate 42707570617 passed. On 2026-11-10, bash tests/update_transaction.sh passed with an exact published v1.4.0 dispatcher/core/updater fixture from commit 3e6c07e2afcb5f1e65ecd57af19b0382a948835a, updating against a local bare repository containing the current v2 source. A fake proot-distro keeps the installed Debian guest untouched. This proves source-level migration behavior, not migration through a published v2 release or on-device.",
         "A published v2 release and actual native-device v1.4.0 migration remain unverified because no v2 stable publication exists.",
-        "Audit found the fresh standalone bootstrap still downloads the mutable main-branch codeload archive without a pinned commit/checksum; this is being fixed before release qualification."
+        "Fresh standalone bootstrap now downloads the immutable source archive for commit 614d3b7d1ceda1ecd96107333b5d03795c4d5b7a and verifies SHA-256 f55737a18eedff270ce32416ab55fbc070132dd02d41f0234f509f03f99cbf8c before extraction. Focused tests verify the exact commit URL and reject modified bytes. Published v2 and native-device v1.4.0 migration remain unverified."
       ],
       "required_tests": [
         "pinning/downgrade/staging/rollback/crash/concurrency/symlink fixtures",
         "published v2 and v1.4.0 migration",
-        "fresh bootstrap accepts only the pinned source archive and fails closed on digest mismatch"
+        "fresh bootstrap accepts only the pinned source archive and fails closed on digest mismatch (verified by focused regression suite, 145/145 passed)"
       ],
       "acceptance_criteria": [
         "Never replace a working CLI/modules tree with an incomplete or unpinned update; prove published migration."

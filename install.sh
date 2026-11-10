@@ -35,6 +35,10 @@ set -u
 # Bootstrap: locate or download library modules
 # ---------------------------------------------------------------------------
 _TNX_SRC="$(cd "$(dirname "$0")" && pwd 2>/dev/null || echo "$PWD")"
+# Pin the exact source snapshot and its hosted codeload bytes. Update both only
+# after reviewing a new commit archive and verifying its digest independently.
+_TNX_BOOTSTRAP_COMMIT="614d3b7d1ceda1ecd96107333b5d03795c4d5b7a"
+_TNX_BOOTSTRAP_SHA256="f55737a18eedff270ce32416ab55fbc070132dd02d41f0234f509f03f99cbf8c"
 
 _tnx_load_local() {
   [ -f "$_TNX_SRC/lib/core.sh" ] && [ -f "$_TNX_SRC/lib/phases.sh" ] && [ -f "$_TNX_SRC/lib/ui.sh" ] || return 1
@@ -49,12 +53,16 @@ _tnx_bootstrap_cleanup() {
 }
 
 _tnx_load_remote() {
-  local url="https://codeload.github.com/soobujmiah/ternux/tar.gz/refs/heads/main"
+  local url="https://codeload.github.com/soobujmiah/ternux/tar.gz/$_TNX_BOOTSTRAP_COMMIT"
   local tmpdir="${TMPDIR:-/tmp}/ternux-bootstrap.$$" archive="" listing=""
   local root_name="" root="" lib="" attempt=1 fetched=0
 
   if ! command -v tar >/dev/null 2>&1; then
     echo "[FATAL] tar is required to unpack the ternux source bundle." >&2
+    exit 1
+  fi
+  if ! command -v sha256sum >/dev/null 2>&1; then
+    echo "[FATAL] sha256sum is required to verify the pinned ternux source bundle." >&2
     exit 1
   fi
   if ! command -v curl >/dev/null 2>&1 && ! command -v wget >/dev/null 2>&1; then
@@ -84,6 +92,12 @@ _tnx_load_remote() {
   done
   if [ "$fetched" -ne 1 ]; then
     echo "[FATAL] Failed to download the ternux source bundle after 3 attempts." >&2
+    rm -rf "$tmpdir"
+    exit 1
+  fi
+
+  if ! printf "%s  %s\n" "$_TNX_BOOTSTRAP_SHA256" "$archive" | sha256sum --check --status; then
+    echo "[FATAL] Downloaded ternux source bundle failed its pinned SHA-256 check." >&2
     rm -rf "$tmpdir"
     exit 1
   fi

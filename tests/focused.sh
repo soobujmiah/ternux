@@ -1959,6 +1959,11 @@ cp -R "$ROOT/bin" "$ROOT/lib" "$bundle_tree/"
 tar -czf "$TMP/source-bundle.tar.gz" -C "$TMP/source-bundle" ternux-main
 mkdir -p "$TMP/standalone-bundle" "$TMP/mock-bundle-bin" "$TMP/remote-bundle-tmp"
 cp "$ROOT/install.sh" "$TMP/standalone-bundle/install.sh"
+bootstrap_commit="$(sed -n 's/^_TNX_BOOTSTRAP_COMMIT="\([0-9a-f]*\)"$/\1/p' "$ROOT/install.sh")"
+bootstrap_sha="$(sed -n 's/^_TNX_BOOTSTRAP_SHA256="\([0-9a-f]*\)"$/\1/p' "$ROOT/install.sh")"
+fixture_commit="0123456789abcdef0123456789abcdef01234567"
+fixture_sha="$(sha256sum "$TMP/source-bundle.tar.gz" | awk '{print $1}')"
+sed -i "s/$bootstrap_commit/$fixture_commit/g; s/$bootstrap_sha/$fixture_sha/g" "$TMP/standalone-bundle/install.sh"
 cat > "$TMP/mock-bundle-bin/curl" <<'EOF'
 #!/usr/bin/env bash
 set -u
@@ -1989,11 +1994,32 @@ if env HOME="$TMP/home-standalone-bundle" PREFIX="$TMP/prefix-standalone-bundle"
   bash "$TMP/standalone-bundle/install.sh" --status >/dev/null &&
   [ "$(cat "$TMP/bundle-count")" -eq 2 ] &&
   [ "$(sort -u "$TMP/bundle-urls" | wc -l)" -eq 1 ] &&
-  grep -q '^https://codeload.github.com/soobujmiah/ternux/tar.gz/refs/heads/main$' "$TMP/bundle-urls" &&
+  grep -q "^https://codeload.github.com/soobujmiah/ternux/tar.gz/$fixture_commit$" "$TMP/bundle-urls" &&
   ! compgen -G "$TMP/remote-bundle-tmp/ternux-bootstrap.*" >/dev/null; then
   ok "standalone bootstrap retries and reuses one source bundle"
 else
   not_ok "standalone bootstrap retries and reuses one source bundle"
+fi
+
+# A byte-changed source archive must be rejected before unpacking or loading
+# any downloaded modules, even when the tar listing remains structurally valid.
+cp "$TMP/source-bundle.tar.gz" "$TMP/source-bundle-tampered.tar.gz"
+printf 'tamper' >> "$TMP/source-bundle-tampered.tar.gz"
+mkdir -p "$TMP/standalone-bundle-tampered"
+cp "$ROOT/install.sh" "$TMP/standalone-bundle-tampered/install.sh"
+sed -i "s/$bootstrap_commit/$fixture_commit/g; s/$bootstrap_sha/$fixture_sha/g" "$TMP/standalone-bundle-tampered/install.sh"
+if env HOME="$TMP/home-standalone-bundle-tampered" PREFIX="$TMP/prefix-standalone-bundle-tampered" \
+  TMPDIR="$TMP/remote-bundle-tmp-tampered" MOCK_ARCHIVE="$TMP/source-bundle-tampered.tar.gz" \
+  MOCK_COUNT="$TMP/bundle-count-tampered" MOCK_URLS="$TMP/bundle-urls-tampered" \
+  PATH="$TMP/mock-bundle-bin:$PATH" \
+  bash "$TMP/standalone-bundle-tampered/install.sh" --status >/dev/null 2>&1; then
+  not_ok "standalone bootstrap rejects a source archive with the wrong pinned digest"
+else
+  if ! compgen -G "$TMP/remote-bundle-tmp-tampered/ternux-bootstrap.*" >/dev/null; then
+    ok "standalone bootstrap rejects a source archive with the wrong pinned digest"
+  else
+    not_ok "standalone bootstrap rejects a source archive with the wrong pinned digest"
+  fi
 fi
 
 # The host CLI installer must prove that the exact PREFIX command can load the
