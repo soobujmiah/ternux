@@ -1,0 +1,7 @@
+event_id: commit-297bc5840a90-9a46a26c3b5f10f5
+repository: soobujmiah/ternux
+commit: 297bc5840a90b3879cf71f7e6ae97fe2694a9f10
+kind: commit
+occurred_at: '2026-11-10T19:23:09Z'
+status: completed
+summary: 'docs: record full local CPU Vulkan model benchmark (#134)'
