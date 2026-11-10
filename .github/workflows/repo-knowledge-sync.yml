@@ -199,9 +199,12 @@ jobs:
           # after create-pull-request returns (observed >70 seconds). Keep
           # polling long enough for those runs to become approvable.
           for attempt in $(seq 1 120); do
-            runs=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs?branch=$STATE_BRANCH&event=pull_request&per_page=100")
-            count=$(printf '%s' "$runs" | jq --arg sha "$STATE_HEAD_SHA" '[.workflow_runs[] | select(.head_sha == $sha and (.name == "Validate" or .name == "Repository State Contract" or .name == "Termux APT package artifact" or .name == "Repo Knowledge Sync"))] | unique_by(.name) | length')
-            ids=$(printf '%s' "$runs" | jq -r --arg sha "$STATE_HEAD_SHA" '.workflow_runs[] | select(.head_sha == $sha and .conclusion == "action_required" and (.name == "Validate" or .name == "Repository State Contract" or .name == "Termux APT package artifact" or .name == "Repo Knowledge Sync")) | .id')
+            # GitHub's branch-filtered run list can omit workflows that are
+            # waiting for first-run approval. Query all recent runs, then
+            # select this exact head SHA and branch locally.
+            runs=$(gh api --paginate --slurp "repos/$GITHUB_REPOSITORY/actions/runs?per_page=100" | jq '{workflow_runs: [.[].workflow_runs[]]}')
+            count=$(printf '%s' "$runs" | jq --arg sha "$STATE_HEAD_SHA" --arg branch "$STATE_BRANCH" '[.workflow_runs[] | select(.head_sha == $sha and .head_branch == $branch and (.name == "Validate" or .name == "Repository State Contract" or .name == "Termux APT package artifact" or .name == "Repo Knowledge Sync"))] | unique_by(.name) | length')
+            ids=$(printf '%s' "$runs" | jq -r --arg sha "$STATE_HEAD_SHA" --arg branch "$STATE_BRANCH" '.workflow_runs[] | select(.head_sha == $sha and .head_branch == $branch and .conclusion == "action_required" and (.name == "Validate" or .name == "Repository State Contract" or .name == "Termux APT package artifact" or .name == "Repo Knowledge Sync")) | .id')
             while IFS= read -r run_id; do
               [ -n "$run_id" ] || continue
               gh api -X POST "repos/$GITHUB_REPOSITORY/actions/runs/$run_id/approve"

@@ -16,7 +16,8 @@ assert sleep_match, "generated-state approval loop must have a bounded polling i
 interval = int(sleep_match.group(1))
 window = attempts * interval
 assert 180 <= window <= 600, f"check registration window is {window}s; expected 180–600s"
-assert 'select(.head_sha == $sha and .conclusion == "action_required"' in section
+assert "gh api --paginate --slurp \"repos/$GITHUB_REPOSITORY/actions/runs?per_page=100\" | jq '{workflow_runs: [.[].workflow_runs[]]}'" in section
+assert 'select(.head_sha == $sha and .head_branch == $branch and .conclusion == "action_required"' in section
 assert 'gh api -X POST "repos/$GITHUB_REPOSITORY/actions/runs/$run_id/approve"' in section
 for expected_workflow in (
     "Validate",
