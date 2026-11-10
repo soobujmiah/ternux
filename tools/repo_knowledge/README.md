@@ -51,3 +51,11 @@ python3 -m unittest discover -s tools/repo_knowledge/tests -p 'test_*.py' -v
   existing state. An initial Git commit is required; bootstrap must create it first.
 - Readers must treat the `.repo` directory as one snapshot. Source/build/test data,
   event history and STATUS.md are published together. Optional human phases survive.
+
+## CI publication
+
+The `Repo Knowledge Sync` workflow opens or refreshes a pull request for generated
+`.repo/` state instead of pushing directly to `main`. Since workflow-token pushes do
+not automatically start pull-request workflows, it explicitly dispatches the required
+CI workflows on the generated branch. The state change therefore follows the same
+branch protection and status-check rules as other changes.

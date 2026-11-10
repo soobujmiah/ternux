@@ -20,7 +20,9 @@ on:
   workflow_dispatch:
 
 permissions:
+  actions: write
   contents: write
+  pull-requests: write
 
 concurrency:
   group: repo-state-${{ github.ref }}
@@ -141,25 +143,44 @@ jobs:
         if: always()
         run: python3 -m tools.repo_knowledge verify
 
-      - name: Commit updated .repo/ state
+      - name: Open repository state update pull request
         if: always() && (github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule') && github.ref == 'refs/heads/main'
+        id: state_pr
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: automation/repo-knowledge-state
+          base: main
+          delete-branch: true
+          add-paths: .repo/
+          commit-message: "chore(repo-knowledge): sync deterministic state for ${{ github.sha }}"
+          title: "chore(repo-knowledge): sync deterministic state"
+          body: |
+            Automated deterministic state update from [workflow run ${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}).
+
+            This pull request keeps repository-state updates behind the required pull request and CI protections on `main`.
+
+      - name: Dispatch required checks for state update pull request
+        if: always() && steps.state_pr.outputs.pull-request-number != ''
         env:
-          SKB_DISPATCH_TOKEN: ${{ secrets.SKB_DISPATCH_TOKEN || secrets.SKB_RETURN_TOKEN || '' }}
+          GH_TOKEN: ${{ github.token }}
+          STATE_BRANCH: automation/repo-knowledge-state
         run: |
           set -euo pipefail
-          if git diff --quiet -- .repo; then
-            echo "no .repo/ change to commit"
-            exit 0
-          fi
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add .repo
-          git commit -m "chore(repo-knowledge): sync deterministic state for ${{ github.sha }}"
-          git push origin HEAD:${{ github.ref_name }}
+          for workflow in ci.yml repo-contract.yml termux-apt-package.yml repo-knowledge-sync.yml; do
+            gh workflow run "$workflow" --ref "$STATE_BRANCH"
+          done
+
+      - name: Notify SKB about repository state update
+        if: always() && steps.state_pr.outputs.pull-request-number != ''
+        env:
+          SKB_DISPATCH_TOKEN: ${{ secrets.SKB_DISPATCH_TOKEN || secrets.SKB_RETURN_TOKEN || '' }}
+          STATE_HEAD_SHA: ${{ steps.state_pr.outputs.pull-request-head-sha }}
+        run: |
+          set -euo pipefail
           if [ -n "$SKB_DISPATCH_TOKEN" ]; then
             curl -fsSL -X POST \
               -H "Authorization: Bearer $SKB_DISPATCH_TOKEN" \
               -H "Accept: application/vnd.github+json" \
               https://api.github.com/repos/soobujmiah/skb/dispatches \
-              -d "{\"event_type\":\"repo-state-updated\",\"client_payload\":{\"project_id\":\"ternux\",\"repository\":\"${{ github.repository }}\",\"run_id\":\"${{ github.run_id }}\",\"sha\":\"${{ github.sha }}\"}}" || true
+              -d "{\"event_type\":\"repo-state-updated\",\"client_payload\":{\"project_id\":\"ternux\",\"repository\":\"${{ github.repository }}\",\"run_id\":\"${{ github.run_id }}\",\"sha\":\"$STATE_HEAD_SHA\"}}" || true
           fi
