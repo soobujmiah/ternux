@@ -1,0 +1,7 @@
+event_id: commit-1c66c29cd512-bdd4636e9d8dde91
+repository: soobujmiah/ternux
+commit: 1c66c29cd512428decac4b1598981c4c9f9f3e5c
+kind: commit
+occurred_at: '2026-11-10T22:25:10Z'
+status: completed
+summary: 'docs: reconcile latest v2 release readiness evidence (#151)'
