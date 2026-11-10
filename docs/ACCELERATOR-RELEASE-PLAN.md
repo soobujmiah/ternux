@@ -794,9 +794,12 @@ PR #97 is merged, the main-only publisher
 can reuse run `42783356495` with `publish=true` to replace the existing
 prerelease asset without rebuilding; its provenance check requires the source
 commit to be an ancestor of `main` and the package inputs/build definition to
-remain unchanged. Do not refresh the public asset until exact-artifact device
-qualification and the applicable release gate are satisfied. The latest archive
-was downloaded only for sidecar/hash verification; it was not extracted or run.
+remain unchanged. This requested update is only the experimental HTP prerelease;
+it does not claim stable HTP support or publish v2.0.0. The remaining publication
+boundary is PR #97 owner/CODEOWNERS review and integration into `main`. Keep the
+known HMX/attention failures and experimental status in the release notes. The
+latest archive was downloaded only for sidecar/hash and inventory checks; it was
+not executed on-device.
 
 
 The artifact-reuse workflow commit `89802f73408a1638221c0b3f62c26d212385b2ea` passed Validate `42779265831`, Termux APT `42779265743`, Repository State Contract `42779266172`, and Repo Knowledge Sync `42779266194`. No accelerator build ran on that PR update.

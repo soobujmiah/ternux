@@ -99,7 +99,8 @@
         "Focused fixtures cover bounded functional X11 readiness, stale sockets, duplicate-start rejection, READY-state failure reporting, independent PulseAudio TCP-route readiness, and lifecycle stop/start/reuse/concurrency; 142/142 pass locally on 2026-11-10. Latest Validate 42783758067 passed these regressions on head 6fd2772. Exact current-head Validate 42789181678 passed.",
         "2026-11-10 source-module device check reused the existing desktop: TERNUX_LIB_DIR=$PWD/lib TERNUX_JSON=1 bash bin/ternux start --json returned already_running for PID 16987; subsequent source status reported READY, X11 functional, and pulseaudio_ready=yes. No stop, restart, app close, or installed-file replacement occurred.",
         "The previously installed CLI independently still reported running PID 16987. Updated-package controlled stop/crash recovery and managed identity remain unverified.",
-        "Exact-head commit f4bb945576f03a9d8979d7d89553660471dafbaf passed all eight required CI workflows on 2026-11-10: Validate 42773827524; Termux APT 42773827442; repository contract 42773827490; knowledge sync 42773827401; llama CPU/Vulkan 42773827384; Stable Diffusion CPU/Vulkan 42773827441; HTP 42773827791; HTP/HMX candidate 42773827449."
+        "Exact-head commit f4bb945576f03a9d8979d7d89553660471dafbaf passed all eight required CI workflows on 2026-11-10: Validate 42773827524; Termux APT 42773827442; repository contract 42773827490; knowledge sync 42773827401; llama CPU/Vulkan 42773827384; Stable Diffusion CPU/Vulkan 42773827441; HTP 42773827791; HTP/HMX candidate 42773827449.",
+        "2026-11-10 non-disruptive device concurrency check: simultaneous source start calls returned starting/already_running for the existing PID 16987; both exited 0, then status reported READY with functional X11 and PulseAudio route. No stop/restart occurred; controlled updated-package stop/crash recovery remains open."
       ],
       "required_tests": [
         "overlap/start-stop/crash-recovery fixtures",
@@ -248,7 +249,8 @@
       "device_status": "VERIFIED_ON_DEVICE",
       "evidence": [
         "docs/ACCELERATOR-RELEASE-PLAN.md: HMX MUL_MAT and FLASH_ATTN_EXT numerical failures remain visible.",
-        "Exact-head HTP artifact 42707570651 and HMX capability build 42707570549 passed; publication skipped on draft PR. Build evidence does not clear numerical qualification failures."
+        "Exact-head HTP artifact 42707570651 and HMX capability build 42707570549 passed; publication skipped on draft PR. Build evidence does not clear numerical qualification failures.",
+        "The retained candidate archive (Actions run 42783356495, artifact 13747701121; SHA-256 a139a6248356a44e89348ddbe1334edaad33f81a9efbe8f5b8fe3c5733dcf3de) was checksum/inventory verified but not executed on-device. Preflight battery was 35.7 C and peak sampled CPU thermal zone was 50.8 C; exact-archive inference is NOT_TESTED. Prior VERIFIED_ON_DEVICE evidence concerns earlier installed artifacts. HTP remains experimental and stable-release-excluded."
       ],
       "required_tests": [
         "operator/reference/tolerance matrix",

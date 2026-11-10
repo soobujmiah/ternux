@@ -1386,3 +1386,24 @@ This verifies bounded cancellation and reopen on this installed build/model. It 
 - [Blender 4.3 GPU rendering](https://docs.blender.org/manual/en/4.3/render/cycles/gpu_rendering.html)
 - [llama.cpp Vulkan build](https://github.com/ggml-org/llama.cpp/blob/master/docs/build.md#vulkan)
 - [stable-diffusion.cpp Vulkan build](https://github.com/leejet/stable-diffusion.cpp/blob/master/docs/build.md#build-with-vulkan)
+
+
+### 2026-11-10 retained HTP prerelease archive preflight
+
+The no-rebuild candidate from Actions run `42783356495`, artifact `13747701121`,
+was downloaded and its sidecar verified: archive SHA-256
+`a139a6248356a44e89348ddbe1334edaad33f81a9efbe8f5b8fe3c5733dcf3de`,
+15,691,323 bytes. Its build manifest targets Linux AArch64 / SM8735 HTP V73;
+archive inventory includes `bin/htp-run`, `bin/llama-cli`,
+`lib/libggml-htp-v73.so`, the broker shim/client, and the indexed upstream
+license bundle. This is artifact-integrity and inventory evidence, not runtime
+qualification.
+
+Before a candidate inference run, Termux battery status reported 35.7°C; sampled
+CPU thermal zones reached 50.8°C (`cpu-2-0-1`). No HTP inference was started. The
+existing Qwen2.5 0.5B-named model remained at its original path and retained
+SHA-256 `7671c0c304e6ce5a7fc577bcb12aba01e2c155cc2efd29b2213c95b18edaf6ed`.
+No desktop process or model file was changed. Exact retained-archive device
+execution remains **NOT_TESTED**; the previously recorded HTP device results
+refer to earlier installed/build artifacts and are not silently transferred to
+this archive.

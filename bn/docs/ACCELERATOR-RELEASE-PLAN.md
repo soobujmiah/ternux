@@ -745,3 +745,11 @@ byte। Retained latest candidate Actions run `42783356495`, artifact `137477011
 নিয়ে existing prerelease-এ latest archive দিতে পারবে, rebuild লাগবে না। Exact
 artifact-এর device qualification ও প্রযোজ্য release gate pass না হওয়া পর্যন্ত
 public asset refresh করা হবে না।
+
+
+এই requested update শুধু experimental HTP prerelease-এর জন্য; এটি stable HTP
+support বা v2.0.0 publication দাবি করে না। PR #97 owner/CODEOWNERS review পেয়ে
+`main`-এ integrate হলেই retained run `42783356495` পুনর্ব্যবহার করে existing
+prerelease asset rebuild ছাড়া update করা যাবে। Release note-এ HMX/attention-এর
+পরিচিত failure ও experimental status রাখতে হবে। Archive-এর checksum ও inventory
+যাচাই হয়েছে, কিন্তু এটি device-এ চালানো হয়নি।
