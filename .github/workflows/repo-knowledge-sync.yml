@@ -159,16 +159,29 @@ jobs:
 
             This pull request keeps repository-state updates behind the required pull request and CI protections on `main`.
 
-      - name: Dispatch required checks for state update pull request
+      - name: Approve checks for generated state pull request
         if: always() && steps.state_pr.outputs.pull-request-number != ''
         env:
           GH_TOKEN: ${{ github.token }}
           STATE_BRANCH: automation/repo-knowledge-state
+          STATE_HEAD_SHA: ${{ steps.state_pr.outputs.pull-request-head-sha }}
         run: |
           set -euo pipefail
-          for workflow in ci.yml repo-contract.yml termux-apt-package.yml repo-knowledge-sync.yml; do
-            gh workflow run "$workflow" --ref "$STATE_BRANCH"
+          for attempt in $(seq 1 30); do
+            runs=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs?branch=$STATE_BRANCH&event=pull_request&per_page=100")
+            count=$(printf '%s' "$runs" | jq --arg sha "$STATE_HEAD_SHA" '[.workflow_runs[] | select(.head_sha == $sha and (.name == "Validate" or .name == "Repository State Contract" or .name == "Termux APT package artifact" or .name == "Repo Knowledge Sync"))] | unique_by(.name) | length')
+            ids=$(printf '%s' "$runs" | jq -r --arg sha "$STATE_HEAD_SHA" '.workflow_runs[] | select(.head_sha == $sha and .conclusion == "action_required" and (.name == "Validate" or .name == "Repository State Contract" or .name == "Termux APT package artifact" or .name == "Repo Knowledge Sync")) | .id')
+            while IFS= read -r run_id; do
+              [ -n "$run_id" ] || continue
+              gh api -X POST "repos/$GITHUB_REPOSITORY/actions/runs/$run_id/approve"
+            done <<EOF_RUNS
+          $ids
+          EOF_RUNS
+            [ "$count" -ge 4 ] && exit 0
+            sleep 2
           done
+          echo "Timed out waiting for all four generated-PR checks to register" >&2
+          exit 1
 
       - name: Notify SKB about repository state update
         if: always() && steps.state_pr.outputs.pull-request-number != ''

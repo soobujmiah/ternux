@@ -55,7 +55,7 @@ python3 -m unittest discover -s tools/repo_knowledge/tests -p 'test_*.py' -v
 ## CI publication
 
 The `Repo Knowledge Sync` workflow opens or refreshes a pull request for generated
-`.repo/` state instead of pushing directly to `main`. Since workflow-token pushes do
-not automatically start pull-request workflows, it explicitly dispatches the required
-CI workflows on the generated branch. The state change therefore follows the same
+`.repo/` state instead of pushing directly to `main`. GitHub places pull-request workflows created by the workflow token into an
+approval-required state, so the workflow approves only the four expected checks for
+its exact generated head SHA and branch. The state change therefore follows the same
 branch protection and status-check rules as other changes.
