@@ -48,7 +48,7 @@
       "evidence": [
         "PR #97 source integration merged as 394d0d12e972dd977cd7ec8c639caaead84b1b40. PR #104 manual-only deployment/readiness, #105 and #107 generated state, and #106 docs gate closure are merged; current main is 5760a1f7eb98c86f731dcf24a982b929c7e5b018.",
         "PR #106 exact head 9f84ae1100d2de5d498ca44ed0b0491037ec610c passed all five required checks (Validate 42819629282, package 42819629144, repo-contract 42819629057, Repo Knowledge Sync test/sync 42819629146); merged main ea33209 passed Validate 42820001846, package 42820001935, Repo Knowledge Sync 42820001824. PR #107 generated state for ea33209 passed all five checks (Validate 42820215882, package 42820215769, repo-contract 42820215978, Repo Knowledge Sync 42820215777 test/sync). Post-merge main 5760a1f7 exact-SHA workflows passed: Validate 42820744142, package 42820743872, Repository State Contract 42820743837.",
-        "No separate v2.0.0 release tag exists. Pages run 42816692044 from the earlier PR #103 merge was cancelled after actions/deploy-pages began; deployment history is inaccessible, so a partial website side effect remains unverified. A fresh check on 2026-11-10 found all four canonical GitHub Pages APT paths still return 404. Manual-only Pages workflow did not start on later main pushes #104–#107. No owner-requested v2 release publication occurred."
+        "No separate v2.0.0 release tag exists. Pages run 42816692044 from the earlier PR #103 merge was cancelled after actions/deploy-pages began; deployment history is inaccessible, so a partial website side effect remains unverified. A fresh check on 2026-11-10 found all four canonical GitHub Pages APT paths still return 404. Manual-only Pages workflow did not start on later main pushes #104–#109. No owner-requested v2 release publication occurred."
       ],
       "required_tests": [
         "exact-head required CI",
@@ -233,7 +233,8 @@
         "docs/ACCELERATOR-RELEASE-PLAN.md",
         "guides/device-benchmark-evidence.md",
         "Exact-head llama CPU/Vulkan ARM64 artifact run 42707570564 passed; Adreno Vulkan verified on device.",
-        "SM8735/Adreno 825 CPU and Vulkan known-answer, layer offload, bounded cancellation and reopen evidence is recorded; broad sustained/memory-pressure qualification remains open."
+        "SM8735/Adreno 825 CPU and Vulkan known-answer, layer offload, bounded cancellation and reopen evidence is recorded; broad sustained/memory-pressure qualification remains open.",
+        "2026-11-10 native Ternux Debian guest used the preinstalled llama-vulkan b11582 extension and existing shared-storage models (no model download/copy). Correctness smoke returned 4 on CPU and Vulkan for Qwen2.5 0.5B Q4_0 and 1.5B Q4_0. Bundled llama-bench ran 16 prompt + 64 generation tokens, 2 repetitions, 8 threads: 0.5B CPU-only (-ngl 0) 5.99 ± 1.47 tok/s vs Adreno 825 Vulkan0 (-ngl 99) 32.46 ± 0.45 tok/s; 1.5B CPU-only 4.48 ± 0.12 tok/s vs Vulkan0 21.27 ± 0.02 tok/s. 1.5B Vulkan prompt processing was 45.33 ± 0.14 tok/s. Verbose logs assigned layers 0–27 to Vulkan0 and showed 885 MiB model memory. These are short repeated decode benchmarks on one device; sustained thermal/memory-pressure and broad-model qualification remain open."
       ],
       "required_tests": [
         "correctness, fallback, memory, repeated and cancellation workload matrix"
@@ -482,5 +483,5 @@
       "release_exclusion": "Qualify only the documented Redmi Turbo 4 Pro / SM8735 target; all other device-specific acceleration remains unqualified."
     }
   ],
-  "observed_head_commit": "5760a1f7eb98c86f731dcf24a982b929c7e5b018"
+  "observed_head_commit": "7536e291b5a846f1b6c38665c834b19782dab624"
 }
