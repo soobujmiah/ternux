@@ -803,3 +803,24 @@ not executed on-device.
 
 
 The artifact-reuse workflow commit `89802f73408a1638221c0b3f62c26d212385b2ea` passed Validate `42779265831`, Termux APT `42779265743`, Repository State Contract `42779266172`, and Repo Knowledge Sync `42779266194`. No accelerator build ran on that PR update.
+
+
+## 2026-11-10 CPU/Vulkan qualification closeout — declared profile only
+
+The qualified profile is Redmi Turbo 4 Pro / SM8735 / Adreno 825, managed
+llama-vulkan CLI build `0.6.0-dev` commit `af50f2f`, and the existing Llama 3.2
+3B Q4_K_M model. Known-answer, exact 180-record retrieval, 30-record support
+queue retrieval under 768 MiB memory pressure, bounded CPU/Vulkan cancellation
+and reopen, and repeated CPU/Vulkan benchmarks are documented in the
+[device evidence](../guides/device-benchmark-evidence.md#2026-11-10-llama-32-3b-cpu-sustained-generation-check).
+A new sustained-generation run completed five 512-token CPU runs and four
+Vulkan runs; each completed process exited 0. Further inference stopped at the
+42°C battery guard. The desktop and audio service remained running, and
+`ternux verify --json` passed afterward.
+
+This closes P1-06 for the declared runtime/model/device workload profile only.
+Three tested Qwen variants failed 100-record exact retrieval, and a pressure-time
+invoice task returned 24.75 rather than 39.50. Do not claim those tasks, other
+models/devices, or general factual/numeric correctness as qualified. HTP/HMX and
+QNN remain separate experimental/research exclusions. The test did not modify
+models or restart the desktop.

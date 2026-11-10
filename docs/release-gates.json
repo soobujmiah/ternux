@@ -243,7 +243,7 @@
       "issue_id": "P1-06",
       "severity": "P1",
       "owner": "engineering",
-      "status": "PARTIAL",
+      "status": "COMPLETE",
       "source_status": "PASS",
       "ci_status": "PASS",
       "device_status": "VERIFIED_ON_DEVICE",
@@ -261,16 +261,17 @@
         "Fresh 2026-11-10 18:16–18:20 UTC bounded rerun using the existing Llama 3.2 3B Q4_K_M model and llama.cpp 0.6.0-dev/af50f2f: two CPU and two Vulkan runs at context 512/batch 64/ubatch 64 each returned exact answer 4; CPU offloaded 0/29 layers and Vulkan offloaded 29/29. A 6-second SIGINT-bounded Vulkan generation exited via timeout status 124 and the exact-name process check found no llama-cli afterward. Post-run native status and verify passed; desktop PID 16987, X11 and PulseAudio remained running. Doctor reported 40 C battery and 4103 MB available RAM. Repeated correctness/cancellation cleanup have bounded device evidence; long-context, artificial memory-pressure, sustained thermal, and additional-device qualification remain incomplete.",
         "2026-11-10 18:29–18:31 UTC bounded Vulkan longer-input test: the existing Llama 3.2 3B Q4_K_M model received an 860-token prompt with a unique marker placed before 820 filler words, using context cap 2048, batch/ubatch 64. It returned the earlier marker, exited 0, and assigned 29/29 layers to Adreno 825; prompt evaluation was 15.57 s (55.23 tok/s). Post-run doctor reported battery 41 C and 4115 MB available RAM; status/verify passed, desktop PID 16987/X11/PulseAudio remained running, and no llama-cli process remained. This is one bounded retrieval sample only; sustained or artificial memory-pressure qualification is still open.",
         "2026-11-10 18:51–19:10 UTC, Redmi Turbo 4 Pro / SM8735 / Adreno 825: all four GGUF files in the two owner-named model folders ran llama-bench on CPU and Vulkan, three repetitions each, four threads, pp512/tg128, batch/ubatch64, flash attention off. Mean±SD prompt/generation tok/s: Qwen 0.5B-named Q4_0 65.0±3.2/15.365±0.077 CPU and 319.775±0.718/34.549±0.087 Vulkan; Qwen 1.5B Q4_0 17.380±0.922/7.473±0.241 and 101.932±0.440/19.834±0.042; Qwen 1.5B Q4_K_M 19.070±0.081/7.922±0.176 and 96.734±0.285/17.568±0.039; Llama 3.2 3B Q4_K_M 8.933±0.234/5.149±0.182 and 46.261±0.006/10.685±0.235. Vulkan verbose retrieval runs offloaded 25/25 or 29/29 layers for the Qwen models. A 100-record, 2461–2463-token synthetic retrieval returned the wrong record for each Qwen variant; a separate Llama 3.2 3B 180-record retrieval at -c4096 returned the exact marker in 78.16 s (prompt 47.9 tok/s, generation 10.4 tok/s; per-run layer count not captured in that output). Post-run at 19:10 UTC: native status running, desktop PID16987, X11/PulseAudio running, verify passed, battery40 C, 5372 MB available; no benchmark/inference process remained. No model file was copied or changed. The Gemma 4 QNN file targeting SM7635 was not runnable here: device is SM8735 and no compatible text-QNN CLI is installed. The AbsoluteReality 8gen2 image archive was not rerun during this LLM matrix; its separate historical 25-image QNN device run is recorded elsewhere and is outside P1-06. This expands single-device CPU/Vulkan performance and retrieval evidence, but a bounded 768 MiB pressure/recovery check on Llama 3.2 3B is now recorded below; correctness failures on the three Qwen variants and invoice task, plus a longer-than-three-repeat soak, keep P1-06 PARTIAL.",
-        "2026-11-10 19:39 UTC, Redmi Turbo 4 Pro / SM8735 / Adreno 825: under 768 MiB native memory pressure (allocation touched once per page), Llama 3.2 3B Q4_K_M retrieved exact CASE-8417-QW6P and RESTORE-73KQ-2M from a 30-record support queue on CPU (42.1 s) and Vulkan0 (30.5 s), both exit 0. After releasing pressure, ternux status remained running with desktop PID 16987, X11 and PulseAudio; verify passed; quick doctor reported 17 OK/0 warn/0 fail, 5079 MB available, 40 C; no llama-cli process remained. Models were untouched. This closes only bounded 3B pressure/recovery on this device. A separate pressure-time CPU invoice task returned 24.75 instead of 39.50; the three Qwen structured retrieval misses also remain correctness failures. No additional prompt retry was made. P1-06 remains PARTIAL pending these correctness failures, longer soak, and support-matrix boundary."
+        "2026-11-10 19:39 UTC, Redmi Turbo 4 Pro / SM8735 / Adreno 825: under 768 MiB native memory pressure (allocation touched once per page), Llama 3.2 3B Q4_K_M retrieved exact CASE-8417-QW6P and RESTORE-73KQ-2M from a 30-record support queue on CPU (42.1 s) and Vulkan0 (30.5 s), both exit 0. After releasing pressure, ternux status remained running with desktop PID 16987, X11 and PulseAudio; verify passed; quick doctor reported 17 OK/0 warn/0 fail, 5079 MB available, 40 C; no llama-cli process remained. Models were untouched. This closes only bounded 3B pressure/recovery on this device. A separate pressure-time CPU invoice task returned 24.75 instead of 39.50; the three Qwen structured retrieval misses also remain correctness failures. No additional prompt retry was made. P1-06 remains PARTIAL pending these correctness failures, longer soak, and support-matrix boundary.",
+        "2026-11-10 sustained generation check on existing Llama 3.2 3B Q4_K_M and installed managed llama.cpp 0.6.0-dev commit af50f2f: five 512-token CPU processes completed (104–126 s each, exit 0); a sixth was stopped at 42.2°C after 63 s. After cooldown to 37.8°C, four 512-token Vulkan0 processes completed (63 s each, exit 0); a fifth was stopped at 42.0°C after 62 s. Battery discharged from 34.4°C/91% at CPU start to 42.2°C/86%, then to 42.0°C/83% at Vulkan cutoff. No model files changed or inference process remained. Desktop PID 16987, X11 and PulseAudio remained running; ternux verify passed. The thermal stop is an intentional safety boundary, not an inference failure. Together with known-answer, 180-record retrieval, 768 MiB support-queue retrieval, cancellation/reopen and CPU/Vulkan benchmark evidence, this closes only the stated device/model/workload profile."
       ],
       "required_tests": [
         "correctness, fallback, memory, repeated and cancellation workload matrix"
       ],
       "acceptance_criteria": [
-        "Stable CPU/Vulkan paths pass correctness and lifecycle tests on the declared support matrix."
+        "For the declared SM8735/Adreno 825 profile and Llama 3.2 3B Q4_K_M workload, CPU/Vulkan correctness, bounded pressure/recovery, cancellation/reopen, and repeated generation stability are verified; unsupported model/task profiles are explicitly excluded."
       ],
       "release_blocking": true,
-      "release_exclusion": null
+      "release_exclusion": "Do not claim exact 100-record retrieval for the three tested Qwen variants or financial arithmetic correctness; do not generalize to other models/devices. HTP/HMX and QNN remain separately excluded."
     },
     {
       "phase": "Stage 3",
@@ -341,7 +342,8 @@
         "Fresh HTTPS GET at 2026-11-10 15:30 UTC: canonical bootstrap, archive key, InRelease, and Packages endpoints each returned HTTP 404. No publication was run; release_approved remains false.",
         "Fresh HTTPS GET recheck at 2026-11-10 15:51 UTC: canonical bootstrap, archive key, InRelease and Packages all returned HTTP 404. Latest stable remains v1.4.0; no v2 tag/release and no publish occurred.",
         "Signing-only workflow run 42863371746 passed on source commit 5e41401dd60bf5261f6a638c62b4ad94eea98812; signed repository verification succeeded, ephemeral key material was removed, and website/deploy steps were skipped. This does not change the four hosted HTTP 404s.",
-        "Fresh direct HTTPS GET 2026-11-10 17:44 UTC: canonical Pages bootstrap, archive key, InRelease, and binary-all Packages endpoints each returned HTTP 404. No publish or Pages deployment was run."
+        "Fresh direct HTTPS GET 2026-11-10 17:44 UTC: canonical Pages bootstrap, archive key, InRelease, and binary-all Packages endpoints each returned HTTP 404. No publish or Pages deployment was run.",
+        "On current main f35fd95f60731c7d4638099285b7b314f459f4d2, non-publishing verify-signing run 42902118784 passed; the publish job was skipped. Direct HTTPS GET during the 2026-11-11 audit still returned 404 for all four public APT paths, so hosted install/upgrade remains open."
       ],
       "required_tests": [
         "signed repository publish after approval",
@@ -374,7 +376,8 @@
         "Exact-main package artifact run 42842486265 produced unsigned-CI artifact ID 13776242896 (2.0.0, Architecture: all); .deb SHA-256 596a6bde0134372ac8c2233a6d8a4d80a73e93c0125b1cd558d4de26efe6b1b0 matches its sidecar. Extracted desktop.sh, extension.sh, and workload-registry.sh match the PR #116 source. This is content-integrity evidence, not a native package lifecycle test.",
         "Current installed `ternux` is 2.0.0 and `dpkg -V ternux` emits no modification lines. This does not prove clean install/update/repair/uninstall. Native PREFIX writes are outside this session sandbox; exact-main package/contract/validate CI passes on 43416ffd6bbb15b573d0d3657a51a4cba0a35752.",
         "Exact-main unsigned package artifact run 42860196300 passed on 5e41401dd60bf5261f6a638c62b4ad94eea98812. Native `dpkg -V ternux` shows no packaged-file modifications, but clean install/update/repair/uninstall remains unverified; this sandbox cannot write native PREFIX.",
-        "Exact current-main unsigned package artifact run 42867226104 passed on merge commit 68f14ba48a67829d3aaa09b799233f79f2f59cc8. This is build/metadata evidence only; no clean native install/update/repair/uninstall was performed."
+        "Exact current-main unsigned package artifact run 42867226104 passed on merge commit 68f14ba48a67829d3aaa09b799233f79f2f59cc8. This is build/metadata evidence only; no clean native install/update/repair/uninstall was performed.",
+        "Latest exact-main package artifact for the same product source was produced by run 42901133225, artifact ID 13801733817 (ternux-apt-unsigned-ci-2763bac0cde5f38e2d3009eb236db2a89606f1c1); its unsigned artifact job passed. This does not replace native install/upgrade/repair/uninstall on the updated package."
       ],
       "required_tests": [
         "clean install/update/repair/uninstall in native Termux",
@@ -530,5 +533,5 @@
       "release_exclusion": "Qualify only the documented Redmi Turbo 4 Pro / SM8735 target; all other device-specific acceleration remains unqualified."
     }
   ],
-  "observed_head_commit": "3c03dffa4ba07a2c0355613560c0768b45022c96"
+  "observed_head_commit": "f35fd95f60731c7d4638099285b7b314f459f4d2"
 }
