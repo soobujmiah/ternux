@@ -1407,3 +1407,49 @@ No desktop process or model file was changed. Exact retained-archive device
 execution remains **NOT_TESTED**; the previously recorded HTP device results
 refer to earlier installed/build artifacts and are not silently transferred to
 this archive.
+
+
+### 2026-11-10 short Qwen2.5 CPU/Vulkan correctness rerun
+
+At 17:24–17:28 UTC on the Redmi Turbo 4 Pro (Android 16, SM8735 / Adreno
+825), I ran a single-turn greedy `2 + 2` prompt against the existing models in
+place. No model was downloaded, copied, moved, or deleted. Model hashes were
+verified before inference:
+
+- Qwen2.5 0.5B Instruct Q4_0 at `/sdcard/Llms/qwen2.5-0.5b-instruct-q4_0.gguf`,
+  SHA-256 `7671c0c304e6ce5a7fc577bcb12aba01e2c155cc2efd29b2213c95b18edaf6ed`.
+- Qwen2.5 1.5B Instruct Q4_K_M at
+  `/sdcard/LAI/models/qwen2.5-1.5b-instruct-q4_k_m.gguf`, SHA-256
+  `6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e`.
+
+The installed llama-vulkan CLI reports llama.cpp `0.6.0-dev`, build commit
+`af50f2f`, binary SHA-256
+`4827f62ac89a442d76e9461c18115fa37d2c6cced0a887bf559b8ee615046eb5`. The
+reproducible command form was:
+
+```bash
+source "$HOME/.local/opt/ternux-extensions/llama-vulkan/env.sh"
+MODEL=/sdcard/Llms/qwen2.5-0.5b-instruct-q4_0.gguf
+llama-cli -m "$MODEL" -ngl 0 -t 4 \
+  -p 'What is 2 + 2? Answer with the number only.' -n 8 --temp 0 --seed 1234 \
+  --single-turn --verbosity 1
+llama-cli -m "$MODEL" -dev Vulkan0 -ngl 99 -t 4 \
+  -p 'What is 2 + 2? Answer with the number only.' -n 8 --temp 0 --seed 1234 \
+  --single-turn --verbosity 4
+```
+
+The same commands were repeated with the 1.5B model path. All four runs exited
+successfully and returned `4`. Verbose Vulkan logs identified `Vulkan0: Adreno
+(TM) 825`, confirmed `offloaded 25/25 layers` for the 0.5B model and `29/29`
+for 1.5B. The 0.5B Vulkan allocation used about 330 MiB model, 384 MiB KV and
+67.51 MiB compute buffers; 1.5B used about 934 MiB model, 896 MiB KV and 96.51
+MiB compute buffers. This is short correctness/offload evidence, not a
+representative speed benchmark. One-token generation rates varied across these
+brief invocations and are deliberately not presented as performance claims.
+
+Battery temperature was 36.3°C before and 37.4°C after; the phone remained
+unplugged and discharging. Native `ternux status --json` afterward still
+reported the existing desktop running with X11 and PulseAudio, PID 16987. No
+desktop, service, or model file was changed. This rerun does not test sustained
+thermals, artificial memory pressure, broader model compatibility, or other
+devices.
