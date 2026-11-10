@@ -96,7 +96,8 @@
         "lib/desktop.sh",
         "Focused fixtures cover bounded functional X11 readiness, stale sockets, duplicate-start rejection, READY-state failure reporting, independent PulseAudio TCP-route readiness, and lifecycle stop/start/reuse/concurrency; 140/140 pass locally on 2026-11-10.",
         "2026-11-10 source-module device check reused the existing desktop: TERNUX_LIB_DIR=$PWD/lib TERNUX_JSON=1 bash bin/ternux start --json returned already_running for PID 16987; subsequent source status reported READY, X11 functional, and pulseaudio_ready=yes. No stop, restart, app close, or installed-file replacement occurred.",
-        "The previously installed CLI independently still reported running PID 16987. Updated-package controlled stop/crash recovery and managed identity remain unverified."
+        "The previously installed CLI independently still reported running PID 16987. Updated-package controlled stop/crash recovery and managed identity remain unverified.",
+        "Exact-head commit f4bb945576f03a9d8979d7d89553660471dafbaf passed all eight required CI workflows on 2026-11-10: Validate 42773827524; Termux APT 42773827442; repository contract 42773827490; knowledge sync 42773827401; llama CPU/Vulkan 42773827384; Stable Diffusion CPU/Vulkan 42773827441; HTP 42773827791; HTP/HMX candidate 42773827449."
       ],
       "required_tests": [
         "overlap/start-stop/crash-recovery fixtures",

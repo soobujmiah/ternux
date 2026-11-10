@@ -159,6 +159,10 @@ Report-only head `e1212bbc10078ec761dd5911f7858dbdc9b22c19`-এও আটটি 
 
 সর্বশেষ report-only head `b5cf839bdb5597392022ec21438cc45b9cf4e83c`-এ আটটি required workflow-ই pass করেছে: Validate `42712474036`, Termux APT package `42712474219`, repository contract `42712474435`, knowledge sync `42712474995`, llama CPU/Vulkan `42712474493`, Stable Diffusion/license `42712473855`, HTP `42712474195`, এবং HMX `42712474393`। Snapdragon build দুটিই সফল; PR #97 draft থাকায় publication job skip হয়েছে। এই evidence state-এ local docs check-এ ৩,০৪১ assertion, ৩১২ internal link ও ২০টি bilingual page pair pass করেছে; repo knowledge verification-এ কোনো issue পাওয়া যায়নি। CI/build pass হলেও device, hosted APT, package lifecycle ও owner-review blocker নয়টি এখনো খোলা।
 
+### Lifecycle update-এর exact-head যাচাই
+
+`f4bb945576f03a9d8979d7d89553660471dafbaf` commit 2026-11-10-এ আটটি required workflow-ই pass করেছে। Validate `42773827524`, Termux APT package `42773827442`, repository state `42773827490`, repo knowledge sync `42773827401`, llama CPU/Vulkan `42773827384`, Stable Diffusion CPU/Vulkan `42773827441`, HTP artifact `42773827791`, এবং HTP/HMX candidate `42773827449`—সব success। PR #97 draft থাকায় publication skip হয়েছে। Validate job-এ বর্তমান 140 focused regression এবং docs/gate check আছে। PR open, merge state clean, 573টি changed file, review decision এখনো নেই।
+
 ### Device ও distribution evidence
 
 - Live Termux host-এ Ternux `2.0.0` installed; X11 ও PulseAudio চলছিল। চলমান desktop অক্ষত রাখা হয়েছে, service restart করা হয়নি।
