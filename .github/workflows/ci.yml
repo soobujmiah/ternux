@@ -68,6 +68,9 @@ jobs:
       - name: Validate machine-readable release gates
         run: python3 tests/release_gates.py --self-test
 
+      - name: Verify generated repository-state check wait window
+        run: python3 tests/repo_state_sync_workflow_test.py
+
       - name: Test QNN CLIP tokenizer and input conditioning
         run: python3 -m unittest discover -s experiments/qnn-native -p 'test_clip*.py' -v
 
