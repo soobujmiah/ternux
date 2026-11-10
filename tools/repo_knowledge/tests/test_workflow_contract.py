@@ -10,6 +10,17 @@ WORKFLOW = ROOT / ".github/workflows/repo-knowledge-sync.yml"
 class RepoKnowledgeWorkflowContractTests(unittest.TestCase):
     def test_state_updates_use_a_pr_and_approve_only_its_expected_checks(self):
         workflow = WORKFLOW.read_text()
+        import yaml
+        parsed = yaml.safe_load(workflow)
+        self.assertEqual(parsed["permissions"], {"contents": "read"})
+        self.assertEqual(parsed["jobs"]["sync"]["permissions"], {"contents": "read"})
+        self.assertEqual(
+            parsed["jobs"]["publish_state"]["permissions"],
+            {"actions": "write", "contents": "write", "pull-requests": "write"},
+        )
+        self.assertIn("uses: actions/upload-artifact@v6", workflow)
+        self.assertIn("include-hidden-files: true", workflow)
+        self.assertIn("uses: actions/download-artifact@v7", workflow)
         self.assertIn("uses: peter-evans/create-pull-request@v7", workflow)
         self.assertIn("add-paths: .repo/", workflow)
         self.assertIn("pull-requests: write", workflow)

@@ -20,9 +20,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  actions: write
-  contents: write
-  pull-requests: write
+  contents: read
 
 concurrency:
   group: repo-state-${{ github.ref }}
@@ -45,6 +43,8 @@ jobs:
     if: always()
     runs-on: ubuntu-24.04
     timeout-minutes: 15
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v5
         with:
@@ -140,8 +140,37 @@ jobs:
             --run-url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
       - name: Verify .repo/ against schemas
+        id: verify
         if: always()
         run: python3 -m tools.repo_knowledge verify
+
+      - name: Upload validated repository state
+        if: always() && steps.verify.outcome == 'success' && github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
+        id: state_artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: repo-state-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .repo/
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 1
+
+
+  publish_state:
+    needs: sync
+    if: needs.sync.result == 'success' && github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
+    runs-on: ubuntu-24.04
+    permissions:
+      actions: write
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/download-artifact@v7
+        with:
+          name: repo-state-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .repo/
 
       - name: Open repository state update pull request
         if: always() && (github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule') && github.ref == 'refs/heads/main'
