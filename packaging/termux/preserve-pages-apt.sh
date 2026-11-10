@@ -40,9 +40,14 @@ tmp="$(mktemp -d "${TMPDIR:-/tmp}/ternux-pages-apt.XXXXXX")"
 cleanup() { rm -rf -- "$tmp"; }
 trap cleanup EXIT INT TERM
 
+# Pages may briefly return 5xx responses while its edge is updating. Retry
+# transient network/server errors, while still treating 4xx and repository
+# verification failures as final errors.
+curl_retry=(--retry 4 --retry-all-errors --retry-delay 2 --retry-max-time 30)
+
 fetch() {
   local path=$1 output=$2 max_size=${3:-10485760} code
-  code="$(curl --silent --show-error --location --connect-timeout 15 --max-time 120 \
+  code="$(curl "${curl_retry[@]}" --silent --show-error --location --connect-timeout 15 --max-time 120 \
     --max-filesize "$max_size" "${curl_proto[@]}" \
     --output "$output" --write-out '%{http_code}' "$base_url/$path")" || {
     printf 'Network error while retrieving published APT path: %s\n' "$path" >&2
@@ -55,7 +60,7 @@ fetch() {
 }
 
 # A 404 is the expected state before the first signed repository publication.
-code="$(curl --silent --show-error --location --connect-timeout 15 --max-time 120 \
+code="$(curl "${curl_retry[@]}" --silent --show-error --location --connect-timeout 15 --max-time 120 \
   --max-filesize 10485760 "${curl_proto[@]}" \
   --output "$tmp/InRelease" --write-out '%{http_code}' \
   "$base_url/dists/stable/InRelease")" || {
@@ -64,7 +69,7 @@ code="$(curl --silent --show-error --location --connect-timeout 15 --max-time 12
 }
 if [[ "$code" == 404 ]]; then
   for companion in ternux-archive-key.asc bootstrap.sh; do
-    companion_code="$(curl --silent --show-error --location --connect-timeout 15 --max-time 120 \
+    companion_code="$(curl "${curl_retry[@]}" --silent --show-error --location --connect-timeout 15 --max-time 120 \
       --max-filesize 1048576 "${curl_proto[@]}" \
       --output /dev/null --write-out '%{http_code}' "$base_url/$companion")" || {
       printf 'Could not confirm that no prior APT repository is published.\n' >&2
