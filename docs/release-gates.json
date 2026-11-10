@@ -101,7 +101,8 @@
         "Exact-head commit f4bb945576f03a9d8979d7d89553660471dafbaf passed all eight required CI workflows on 2026-11-10: Validate 42773827524; Termux APT 42773827442; repository contract 42773827490; knowledge sync 42773827401; llama CPU/Vulkan 42773827384; Stable Diffusion CPU/Vulkan 42773827441; HTP 42773827791; HTP/HMX candidate 42773827449.",
         "2026-11-10 non-disruptive device concurrency check: simultaneous source start calls returned starting/already_running for the existing PID 16987; both exited 0, then status reported READY with functional X11 and PulseAudio route. No stop/restart occurred; controlled updated-package stop/crash recovery remains open.",
         "Startup now requires the launcher READY marker plus a bounded host probe of Termux:X11, xfce4-session, xfwm4, xfdesktop, and xdpyinfo; it reports PulseAudio route readiness separately. Restart returns failure without a second start if stop cannot acquire the lifecycle lock. Local focused suite passed 144/144 after these changes; no live session restart or updated-package lifecycle run was performed.",
-        "Read-only native Termux status on 2026-11-10 reports Overall running, Termux:X11 running, PulseAudio running, launcher present, managed PID 16987. `ternux doctor --json` passes guest/system prerequisites but does not probe active XFCE readiness; no session, app, audio service, or installed files were restarted or changed. This does not close updated-package stop/crash recovery."
+        "Read-only native Termux status on 2026-11-10 reports Overall running, Termux:X11 running, PulseAudio running, launcher present, managed PID 16987. `ternux doctor --json` passes guest/system prerequisites but does not probe active XFCE readiness; no session, app, audio service, or installed files were restarted or changed. This does not close updated-package stop/crash recovery.",
+        "Read-only source-module `status --json` on 2026-11-10 14:09 UTC reports lifecycle READY, functional X11, and `pulseaudio_ready=yes`; no desktop stop/restart was performed. Current `tests/focused.sh` passes 145/145, including lifecycle fixtures; physical stop/crash recovery on the updated installed package remains unverified."
       ],
       "required_tests": [
         "overlap/start-stop/crash-recovery fixtures",
@@ -152,7 +153,8 @@
         "tests/update_transaction.sh",
         "Local focused suite passed 134/134, including update transaction version/pinning/staging/rollback/crash/concurrency/symlink cases; exact-head Validate 42707570617 passed. On 2026-11-10, bash tests/update_transaction.sh passed with an exact published v1.4.0 dispatcher/core/updater fixture from commit 3e6c07e2afcb5f1e65ecd57af19b0382a948835a, updating against a local bare repository containing the current v2 source. A fake proot-distro keeps the installed Debian guest untouched. This proves source-level migration behavior, not migration through a published v2 release or on-device.",
         "A published v2 release and actual native-device v1.4.0 migration remain unverified because no v2 stable publication exists.",
-        "Fresh standalone bootstrap now downloads the immutable source archive for commit 614d3b7d1ceda1ecd96107333b5d03795c4d5b7a and verifies SHA-256 f55737a18eedff270ce32416ab55fbc070132dd02d41f0234f509f03f99cbf8c before extraction. Focused tests verify the exact commit URL and reject modified bytes. Published v2 and native-device v1.4.0 migration remain unverified."
+        "Fresh standalone bootstrap now downloads the immutable source archive for commit 614d3b7d1ceda1ecd96107333b5d03795c4d5b7a and verifies SHA-256 f55737a18eedff270ce32416ab55fbc070132dd02d41f0234f509f03f99cbf8c before extraction. Focused tests verify the exact commit URL and reject modified bytes. Published v2 and native-device v1.4.0 migration remain unverified.",
+        "Current-main `bash tests/update_transaction.sh` passed pinned-source, staging, rollback, interrupted-update recovery, concurrency, symlink, and exact v1.4.0-to-v2 source-migration fixtures. This is still a local source fixture; published-v2/native-device migration remains unverified."
       ],
       "required_tests": [
         "pinning/downgrade/staging/rollback/crash/concurrency/symlink fixtures",
@@ -183,7 +185,8 @@
         "Device probe through the current wrapper verified /sdcard readable and Termux HOME files hidden without restarting the live desktop; prior isolated X11/PulseAudio/mic-status/camera-info probes are recorded here.",
         "Exact-head Validate 42707570617 passed the generic-wrapper isolation regression. Full XFCE/app smoke under the updated launcher remains open.",
         "2026-11-10 source-module device check: TERNUX_LIB_DIR=$PWD/lib TERNUX_JSON=1 bash bin/ternux verify --json returned passed; termux-x11, proot-distro, PulseAudio, setsid, launcher, Debian services and Turnip were present/ok. No GUI/service restart.",
-        "Optional Hermes/OpenClaw setup now downloads first-party bootstrap scripts to a unique temporary file, enforces HTTPS and a 2 MB cap, syntax-checks, verifies a reviewed SHA-256, and runs only the pinned product version/commit. Pins: Hermes v0.23.1 commit 3b421578588243f920886e6fe79a6faa87ea026e, SHA-256 abf338605dae6dd28d101673ac6aed7995c955745db46d47676bc591a7957209; OpenClaw v2026.11.2, SHA-256 5b46a876404005229ee62fc2615ddeb1c3f510a434ced47dbbed06b93849c704. tests/pinned_optional_installers.sh verifies execution, mismatch rejection, host allowlisting, and staging cleanup; it is wired into CI."
+        "Optional Hermes/OpenClaw setup now downloads first-party bootstrap scripts to a unique temporary file, enforces HTTPS and a 2 MB cap, syntax-checks, verifies a reviewed SHA-256, and runs only the pinned product version/commit. Pins: Hermes v0.23.1 commit 3b421578588243f920886e6fe79a6faa87ea026e, SHA-256 abf338605dae6dd28d101673ac6aed7995c955745db46d47676bc591a7957209; OpenClaw v2026.11.2, SHA-256 5b46a876404005229ee62fc2615ddeb1c3f510a434ced47dbbed06b93849c704. tests/pinned_optional_installers.sh verifies execution, mismatch rejection, host allowlisting, and staging cleanup; it is wired into CI.",
+        "Current-main `bash tests/focused.sh` passed 145/145, including generic guest HOME isolation and `/sdcard` preservation regressions. Device status confirms the running desktop only; full GUI/app smoke through a newly installed package remains unverified, and no service was restarted."
       ],
       "required_tests": [
         "verify generated generic aliases preserve /sdcard and shared tmp while excluding Termux HOME",
@@ -308,7 +311,8 @@
         "Exact PR head 8041c33939fc00639fe3296779ba840a352f82a3 passed Validate 42792959040 and unsigned Termux package build/inspection 42792958963. Fresh checks on 2026-11-10 still return HTTP 404 for all four hosted APT endpoints; no deployment was performed.",
         "Rechecked during this reconciliation on 2026-11-10 with HTTP GET: apt/bootstrap.sh, apt/ternux-archive-key.asc, apt/dists/stable/InRelease, and apt/dists/stable/main/binary-all/Packages all returned 404; no APT publication or deploy was performed.",
         "The automatic Pages run 42816692044 after PR #103 was cancelled while actions/deploy-pages was running. Pages deployment history API returned 404; post-cancellation publication state is unverified and the release must not rely on it.",
-        "After cancellation of Pages run 42816692044, direct HTTP GET rechecks still returned 404 for apt/bootstrap.sh, apt/ternux-archive-key.asc, apt/dists/stable/InRelease, and apt/dists/stable/main/binary-all/Packages. The website root returns 200; the separate APT repository remains unpublished."
+        "After cancellation of Pages run 42816692044, direct HTTP GET rechecks still returned 404 for apt/bootstrap.sh, apt/ternux-archive-key.asc, apt/dists/stable/InRelease, and apt/dists/stable/main/binary-all/Packages. The website root returns 200; the separate APT repository remains unpublished.",
+        "Non-deploy signing verification workflow run 42831035262 passed on exact main commit 97e2ac6524d2b206d6e24c0e813f9656eda13941: signed repository build and verification succeeded, ephemeral key material was removed, and website build/upload/deploy steps were skipped. Fresh direct checks still return HTTP 404 for the four canonical APT URLs; public installation remains blocked."
       ],
       "required_tests": [
         "signed repository publish after approval",
@@ -334,7 +338,8 @@
         "Exact-head unsigned Termux package build/inspection passed run 42707570582.",
         "Native `dpkg-query` confirms ternux 2.0.0 is installed; public APT source is absent, so clean repository install/upgrade/uninstall remains unverified.",
         "Exact PR head 8041c33939fc00639fe3296779ba840a352f82a3 passed unsigned Termux package build/inspection (run 42792958963); this does not prove clean installation from the unavailable hosted APT source.",
-        "Current main bdae6d70c9015f6893bad4f81f79e3f1e059e41d package-artifact workflow run 42813902395 passed; hosted APT clean install/upgrade/uninstall remains unverified because its canonical endpoints return 404."
+        "Current main bdae6d70c9015f6893bad4f81f79e3f1e059e41d package-artifact workflow run 42813902395 passed; hosted APT clean install/upgrade/uninstall remains unverified because its canonical endpoints return 404.",
+        "Current main exact-SHA package artifact workflow run 42828693381 passed on 97e2ac6524d2b206d6e24c0e813f9656eda13941. The current-main local update transaction suite also passed; clean native Termux APT install/upgrade/uninstall remains unverified while the public endpoints return HTTP 404."
       ],
       "required_tests": [
         "clean install/update/repair/uninstall in native Termux",
@@ -359,7 +364,8 @@
         "Documentation audit: README and CHANGELOG report source version 2.0.0 as unreleased; lib/core.sh is the version source and packaging/termux/build.sh derives package metadata from it. No v2.0.0 tag/public release exists and the report says so.",
         "Required user guidance exists: docs/INSTALLATION.md contains install/update/uninstall flows; docs/TROUBLESHOOTING.md covers desktop, audio, graphics and package issues; docs/ACCELERATOR-RELEASE-PLAN.md distinguishes qualified, experimental and unqualified AI paths; docs/USAGE.md, docs/FAQ.md and SECURITY.md cover workloads, limitations, and storage/security. English/Bengali counterparts are maintained.",
         "PR #104 exact-head Validate run 42818230722 passed, including bilingual docs and site checks; local tests/docs_check.py passed 3,060 assertions, 312 links and 20 bilingual pairs. The current release report and README documentation explain that Pages production deployment is manual-only.",
-        "Version, package, tag and release surfaces consistently describe the current v2 source as unreleased 2.0.0; README badge is 2.0.0, package build derives version from source, changelog entry remains Unreleased, and no v2 tag is present."
+        "Version, package, tag and release surfaces consistently describe the current v2 source as unreleased 2.0.0; README badge is 2.0.0, package build derives version from source, changelog entry remains Unreleased, and no v2 tag is present.",
+        "Against source baseline 97e2ac6, `python3 tests/docs_check.py` passed 3,072 assertions, 312 links, and 20 bilingual page pairs after these readiness-report edits."
       ],
       "required_tests": [
         "version/package/tag/release metadata audit",
@@ -483,5 +489,5 @@
       "release_exclusion": "Qualify only the documented Redmi Turbo 4 Pro / SM8735 target; all other device-specific acceleration remains unqualified."
     }
   ],
-  "observed_head_commit": "7536e291b5a846f1b6c38665c834b19782dab624"
+  "observed_head_commit": "97e2ac6524d2b206d6e24c0e813f9656eda13941"
 }
