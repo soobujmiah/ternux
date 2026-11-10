@@ -27,7 +27,7 @@ Android soft keyboard থেকে terminal ও অন্য X11 app-এ text �
 
 | কমান্ড | কী করে |
 |---|---|
-| `x` | `ternux start` দিয়ে ডেস্কটপ background-এ শুরু (অডিও → ডিসপ্লে → Debian → Xfce4) |
+| `x` | `ternux start` দিয়ে ডেস্কটপ শুরু করে Termux:X11 সামনে আনে (অডিও → ডিসপ্লে → Debian → Xfce4) |
 | `xgo` | Termux:X11 অ্যাপ স্বয়ংক্রিয় খুলে ডেস্কটপ শুরু |
 | `killx` | সেশন পরিষ্কারভাবে বন্ধ + পুরনো সকেট মুছে ফেলা |
 | `db` | আপনার ইউজার হিসেবে Debian শেল |
@@ -57,7 +57,7 @@ source ব্যবহৃত হয়। Volume Control খোলা থাক�
 সেটিও source পড়ে; app বন্ধ করলে stream ছেড়ে দেয় এবং source আবার idle হয়। Idle
 desktop mic record করতে থাকে না। Termux:API-এর `termux-microphone-record` কেবল
 file-এ record করে, live PulseAudio input stream দেয় না—তাই desktop-এর mic source
-সেটি নয়। Capture চলার সময় Android-এর microphone privacy indicator দেখা যায়।
+সেটি নয়। Capture চলার সময় Android-এর microphone privacy indicator দেখা যায়। Default Ternux Sound Recorder Start চাপার পরই capture করে; AAC/M4A default, চাইলে Debian-এর FFmpeg দিয়ে local MP3 export করে। File `~/Music/Ternux`-এ থাকে।
 
 Install-এর সময় Android Termux:API app-এর microphone permission চাওয়ার জন্য
 একবার private temporary file-এ সর্বোচ্চ এক সেকেন্ডের probe চলে; শেষে probe থেমে
@@ -72,7 +72,11 @@ unavailable হিসেবে দেখানো হয়।
 
 ### অডিও ও VLC কন্ট্রোল
 
-Ternux পুরো Xfce desktop-এ একই Adwaita Dark GTK theme প্রয়োগ করে। PulseAudio Volume Control Debian-এর packaged application entry দিয়ে চলে এবং একই desktop environment পায়; Ternux আলাদা theme বা backend চাপায় না। Termux:X11 session-এ Xfwm compositing বন্ধ থাকে, কারণ এটি চালু থাকলে পুরো desktop black হতে পারে। VLC ডিফল্টে full interface চালায়, তাই playback control দেখা যায়।
+Fresh install-এ Xfce জুড়ে Ternux-এর graphite-emerald GTK 2/3/4 ও Xfwm theme এবং Qt 5 GTK platform theme, neutral Adwaita fallback-সহ branded app, folder, Thunar action, category ও panel icon, Ternux panel এবং wallpaper default apply হয়। Firefox ESR, Blender, GIMP, Krita, Inkscape, Audacity, Geany ও LibreOffice-এর মতো optional GUI app-এর branded icon alias আছে; base Evince PDF reader-এরও নিজস্ব icon আছে। Common Thunar action-গুলো নিজস্ব icon context-এ থাকে। পনেরোটি portrait-first wallpaper landscape-এ aspect ratio ঠিক রাখে। অন্য toolkit ব্যবহার করা app নিজস্ব styling রাখতে পারে। PulseAudio Volume Control Debian-এর packaged application entry ও একই desktop session ব্যবহার করে। Termux:X11 session-এ Xfwm compositing বন্ধ থাকে, কারণ এটি চালু থাকলে পুরো desktop black হতে পারে। VLC ডিফল্টে full interface চালায়, তাই playback control দেখা যায়। Desktop-এর **SD Card** shortcut দিয়ে Thunar-এ Android shared storage খোলা যায়।
+
+## XFCE Task Manager-এর performance
+
+কম resource-এর Android device-এ process scan কমাতে Task Manager শুরুতে বর্তমান user-এর process list, flat view এবং এক সেকেন্ডের refresh interval ব্যবহার করে। System বা অন্য user-এর process দেখতে **Show all processes** চালু করুন। এই default একবারই apply হয়; পরের preference overwrite করে না।
 
 ---
 
@@ -96,7 +100,7 @@ ternux profile save     # বর্তমান কনফিগ সেভ
 ternux backend          # GPU ব্যাকএন্ড দেখা/বদলানো
 ternux backend set virgl    # VirGL-এ স্যুইচ
 ternux gpu update           # যাচাইকৃত Debian Turnip driver refresh
-ternux update           # ternux CLI আপডেট
+ternux update           # সর্বশেষ stable release tag থেকে CLI আপডেট
 ternux logs             # লগ ফাইল দেখা
 ternux info             # সিস্টেম তথ্য
 ternux info --json      # machine-readable তথ্য

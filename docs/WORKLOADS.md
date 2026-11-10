@@ -37,8 +37,7 @@ build llama.cpp from source; it is separate from the managed CPU + Vulkan
 extension. `--yes` and non-interactive runs keep the base profile unless flags
 select workloads.
 
-The catalog also includes Go, PHP, SQLite, ripgrep, jq, htop, tree, Micro,
-Thonny, Thunderbird, Evince, and LibreOffice Calc, grouped with related tools.
+The base desktop includes Synaptic Package Manager, branded with the Ternux icon and theme for browsing, installing, upgrading, and removing Debian packages. It uses Debian's APT package metadata and runs without requiring a system polkit daemon. Galculator provides scientific calculations, and Evince is the lightweight default PDF reader. LibreOffice Draw is available as an optional tool for editing PDF pages and exporting documents to other formats. No mail client is installed or assigned as the default. Evolution Mail is available as an optional workload; common providers can use OAuth and other hosts support manual IMAP/POP setup. OAuth opens Firefox ESR when installed, or the Android default browser through the Ternux browser bridge. The optional catalog also offers LibreOffice Writer, Calc, and Draw as separate choices, along with Go, PHP, SQLite, ripgrep, jq, htop, tree, Micro, and Thonny. Celestia is also available as an optional astronomy simulator; it is not part of the default desktop. The chooser follows the [Celestia project’s Debian install guidance](https://github.com/CelestiaProject/Celestia/blob/master/INSTALL.md#basic-installation-instructions) and uses its documented Debian 13 OBS feed (currently a 1.7 development snapshot). It verifies the feed key fingerprint, signed package index, and each ARM64 package checksum before install, then removes the temporary APT source.
 
 Before installation, Ternux shows a rough storage estimate based on the selected
 optional software, including temporary download and setup space. In a sufficiently
@@ -73,7 +72,7 @@ Termux:X11 has its [own official project](https://github.com/termux/termux-x11).
 They are not Debian packages and cannot be installed from this guest selector.
 
 The base desktop — Xfce4, terminal, VLC, archive tools, Mesa utilities, Vulkan
-tools — uses about 4–4.5 GB and is always installed. VLC is also listed in the
+tools — uses about 4–4.6 GB and is always installed. VLC is also listed in the
 catalog so it can be selected explicitly; choosing it does not add a second copy.
 
 ## Automatic

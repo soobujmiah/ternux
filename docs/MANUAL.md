@@ -79,6 +79,9 @@ command -v proot-distro && command -v termux-x11 && command -v pulseaudio
 
 ---
 
+
+Ternux Camera and Ternux Sound Recorder are included in the Debian desktop. For Android front/rear photo capture, install the **Termux:API Android app from the same source as Termux** and allow Camera permission to Termux:API when prompted. Ternux Camera stages a capture in Termux app-private storage, validates it, then saves it inside Debian at `/home/ternux/Pictures/Ternux` (or the selected guest user’s home). It does not add photos to Android Gallery. The in-app photo preview follows EXIF orientation and uses compact capture controls. Termux:API currently provides camera information and still photos, not a continuous camera stream; the app therefore does not show a live feed before capture. Ternux Sound Recorder uses the same Termux:API bridge only after the user presses Start; Android microphone permission is requested during installation when Termux:API is available; otherwise Android prompts on first use. Choose AAC/M4A (default) or MP3 before recording. Stop and save writes the selected format into the Debian user’s `~/Music/Ternux` folder. MP3 is encoded locally with FFmpeg; Android microphone capture itself is AAC.
+
 ## Step 3 — Install Debian
 
 ```bash
@@ -105,7 +108,7 @@ export DEBIAN_FRONTEND=noninteractive
 apt update
 
 # Core desktop + GL/audio plumbing. Must succeed.
-apt install -y sudo nano mousepad fonts-noto-core python3-gi gir1.2-gtk-3.0 ibus ibus-avro devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol x11-utils mesa-utils libgl1-mesa-dri adwaita-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc arc-theme colord
+apt install -y sudo nano mousepad fonts-noto-core python3-gi gir1.2-gtk-3.0 ibus ibus-avro devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol x11-utils mesa-utils libgl1-mesa-dri adwaita-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc ristretto qt5-gtk-platformtheme arc-theme colord
 
 # PolicyKit: polkitd = trixie+, policykit-1 = bookworm. Best effort.
 apt install -y polkitd || apt install -y policykit-1 || true
@@ -400,188 +403,32 @@ exit
 
 ---
 
-<h2 id="create-launcher">Step 8 — The launcher (<code>~/x.sh</code>)</h2>
+<h2 id="create-launcher">Step 8 — Start the managed desktop</h2>
 
-This is the file the installer generates. Create it by hand:
-
-```bash
-nano ~/x.sh
-```
-
-Paste the content for your route, save, then:
+The installer creates and maintains `~/x.sh`. Start the desktop through the
+Ternux lifecycle manager so it can validate readiness and refresh an older
+launcher safely:
 
 ```bash
-chmod +x ~/x.sh
+ternux start
 ```
 
-### 8a — Zink (Adreno) launcher
-
-```bash
-#!/data/data/com.termux/files/usr/bin/bash
-# ternux launcher — Zink/Turnip route (Adreno)
-set -u
-
-TMPDIR="${TMPDIR:-/data/data/com.termux/files/usr/tmp}"
-
-cleanup() {
-  pkill -9 -f "^termux-x11 com\.termux\.x11([[:space:]]|$)" 2>/dev/null || true
-  pkill -9 -f '(^|/)virgl_test_server(_android)?([[:space:]]|$)' 2>/dev/null || true
-  pulseaudio --kill 2>/dev/null || pkill -KILL -x pulseaudio 2>/dev/null || true
-  rm -f "$TMPDIR"/.X11-unix/X* "$TMPDIR"/.X*-lock "$TMPDIR"/pulse-socket "$TMPDIR"/.pulse-*/native 2>/dev/null || true
-  termux-wake-unlock 2>/dev/null || true
-}
-trap cleanup EXIT
-trap 'exit 130' INT
-trap 'exit 143' TERM
-
-# Clean up any previous session
-pkill -9 -f "^termux-x11 com\.termux\.x11([[:space:]]|$)" 2>/dev/null || true
-pkill -9 -f '(^|/)virgl_test_server(_android)?([[:space:]]|$)' 2>/dev/null || true
-pulseaudio --kill 2>/dev/null || pkill -KILL -x pulseaudio 2>/dev/null || true
-rm -f "$TMPDIR"/.X11-unix/X* "$TMPDIR"/.X*-lock "$TMPDIR"/pulse-socket "$TMPDIR"/.pulse-*/native 2>/dev/null || true
-
-# Keep Android from suspending the session
-termux-wake-lock 2>/dev/null || true
-
-# Audio
-unset PULSE_SERVER
-pulseaudio --start --exit-idle-time=-1 --daemonize 2>/dev/null || true
-sleep 0.3
-PULSE_PORT=""
-for ((candidate=4713; candidate<=4722; candidate++)); do
-  if pactl load-module module-native-protocol-tcp listen=127.0.0.1 auth-ip-acl=127.0.0.1 auth-anonymous=1 port="$candidate" >/dev/null 2>&1; then
-    PULSE_PORT="$candidate"
-    break
-  fi
-done
-if [ -z "$PULSE_PORT" ]; then
-  echo "ERROR: Could not open the loopback PulseAudio bridge on ports 4713-4722."
-  exit 1
-fi
-export PULSE_SERVER="tcp:127.0.0.1:$PULSE_PORT"
-
-# Display
-termux-x11 :0 -ac &
-X11_PID=$!
-echo "Waiting for Termux-X11 display socket..."
-WAITED=0
-while [ ! -e "$TMPDIR/.X11-unix/X0" ]; do
-  if ! kill -0 "$X11_PID" 2>/dev/null; then
-    echo "ERROR: termux-x11 exited before creating its socket."
-    echo "       Open the Termux:X11 app once, then run this again."
-    exit 1
-  fi
-  if [ "$WAITED" -ge 300 ]; then
-    echo "ERROR: timed out after 30s waiting for display :0."
-    exit 1
-  fi
-  WAITED=$((WAITED + 1))
-  sleep 0.1
-done
-echo "Display :0 ready."
-
-# Desktop
-proot-distro login debian --shared-tmp \
-  --bind /dev/kgsl-3d0:/dev/kgsl \
-  --bind /dev/dri \
-  --user ternux \
-  --env DISPLAY=:0 \
-  --env PULSE_SERVER="$PULSE_SERVER" \
-  --env MESA_LOADER_DRIVER_OVERRIDE=zink \
-  --env TU_DEBUG=noconform \
-  --env MESA_VK_WSI_DEBUG=sw \
-  --env MESA_DISK_CACHE_SINGLE_FILE=1 \
-  --env MESA_SHADER_CACHE_MAX_SIZE=2048M \
-  --env QT_X11_NO_MITSHM=1 \
-  --env XDG_RUNTIME_DIR=/home/ternux/.runtime \
-  --env LANG=en_US.UTF-8 \
-  --env LC_ALL=en_US.UTF-8 \
-  -- bash -c '
-    set -u
-    mkdir -p ~/.runtime
-    chmod 700 ~/.runtime
-
-    until xdpyinfo -display :0 >/dev/null 2>&1; do sleep 0.1; done
-
-    sudo -n mkdir -p /var/run/dbus /run/dbus /run/user/$(id -u) 2>/dev/null || true
-    sudo -n dbus-uuidgen --ensure >/dev/null 2>&1 || true
-    sudo -n rm -f /etc/xdg/autostart/light-locker.desktop 2>/dev/null || true
-
-    xfconf-query -c xfwm4 -p /general/use_compositing -s false >/dev/null 2>&1 || true
-    exec dbus-launch --exit-with-session startxfce4
-  '
-
-# The EXIT trap performs teardown on success, failure, Ctrl+C or termination.
-```
-
-### 8b — VirGL variant: two changes only
-
-Start from the file above and make **two edits**:
-
-1. Insert this block between `echo "Display :0 ready."` and `# Desktop`:
-
-```bash
-virgl_test_server_android >/dev/null 2>&1 &
-VIRGL_PID=$!
-sleep 1
-if ! kill -0 "$VIRGL_PID" 2>/dev/null; then
-  echo "WARNING: virgl_test_server_android failed to start."
-  echo "         Rendering will fall back to software (llvmpipe)."
-fi
-```
-
-2. Remove the two `--bind` lines and replace the argument block through the
-`-- bash -c` separator with:
-
-```bash
-  --user ternux \
-  --env DISPLAY=:0 \
-  --env PULSE_SERVER="$PULSE_SERVER" \
-  --env GALLIUM_DRIVER=virpipe \
-  --env MESA_GL_VERSION_OVERRIDE=4.3COMPAT \
-  --env QT_X11_NO_MITSHM=1 \
-  --env XDG_RUNTIME_DIR=/home/ternux/.runtime \
-  --env LANG=en_US.UTF-8 \
-  --env LC_ALL=en_US.UTF-8 \
-  -- bash -c '
-```
-
-`--env` is intentionally repeated: PRoot-Distro defines it as a repeatable
-single `VAR=VALUE` option.
-
-Syntax-check the finished file:
-
-```bash
-bash -n ~/x.sh && echo "launcher ok"
-```
+The `x` shortcut runs the same command. The managed desktop keeps Android
+shared storage available at `/sdcard`, while its PRoot session uses isolated
+binds for Termux integration. Do not copy older `proot-distro login
+--shared-tmp` launcher examples into `~/x.sh`; those use PRoot-Distro's broader
+host mounts. If `ternux start` says the launcher is missing, resume the Ternux
+installer with `ternux install`.
 
 ---
 
 ## Step 9 — Shell shortcuts
 
-```bash
-cat >> ~/.bashrc << 'EOF'
-
-# ==== TERNUX ALIASES ====
-alias x='~/x.sh'
-alias killx='pkill -f "^termux-x11 com\\.termux\\.x11([[:space:]]|$)" || true; pulseaudio --kill 2>/dev/null || \
-  pkill -KILL -x pulseaudio || true; rm -f $TMPDIR/.X11-unix/X* \
-  $TMPDIR/.X*-lock $TMPDIR/.pulse-*/native'
-alias db='proot-distro login debian --shared-tmp --user ternux'
-alias droot='proot-distro login debian --shared-tmp'
-alias xgo='am start -n com.termux.x11/com.termux.x11.MainActivity 2>/dev/null; sleep 1; ~/x.sh'
-clean-mesa() {
-  proot-distro login debian --user ternux -- bash -c 'rm -rf -- ~/.cache/mesa ~/.cache/mesa_shader_cache ~/.cache/mesa_shader_cache_db ~/.cache/mesa_shader_cache_sf'
-  echo "Mesa cache cleared."
-}
-sysmon() {
-  echo "--- CPU & Memory ---"; free -h
-  echo ""; echo "--- GPU / KGSL Nodes ---"
-  ls -l /dev/kgsl-3d0 /dev/dri 2>/dev/null || echo "Direct GPU nodes not available."
-}
-# ==== END TERNUX ALIASES ====
-EOF
-```
+The installer creates and maintains the `x`, `killx`, `db`, `droot`, `xgo`,
+`clean-mesa` and `sysmon` shortcuts. The guest aliases use isolated PRoot
+bindings, keep `/sdcard` available, and share `/tmp` only for commands that need
+it. Run `ternux install` to create or refresh the generated aliases; do not
+copy an older alias block from a previous guide.
 
 Reload and start:
 

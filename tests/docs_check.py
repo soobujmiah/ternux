@@ -379,6 +379,18 @@ for path in (ROOT / "guides/device-benchmark-evidence.md", ROOT / "bn/guides/dev
     for required in ("**140**", "**364**", "zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP))", "45 FPS", "465 FPS"):
         check(required in text, f"{path.relative_to(ROOT)}: missing benchmark invariant {required}")
 
+# Published compute/benchmark copy must match the current device evidence.
+compute_site = read(ROOT / "src/components/ComputeBench.astro")
+check("0.5B-NAMED GGUF · Q4_0" in compute_site, "compute panel must disclose the 0.5B filename label")
+check("630.17M parameters" in compute_site, "compute panel must disclose llama.cpp's 630.17M parameter metadata")
+check("QWEN2.5 · 1.5B · Q4_K_M" in compute_site, "compute panel must identify the matched 1.5B model")
+for rate in ("7.6", "18.2", "18.9"):
+    check(rate in compute_site, f"compute panel missing matched Q4_K_M generation rate {rate}")
+for benchmark_path in (ROOT / "docs/BENCHMARKS.md", ROOT / "bn/docs/BENCHMARKS.md"):
+    benchmark_text = read(benchmark_path)
+    check("| `stable-diffusion.cpp` Vulkan | **Verified:**" in benchmark_text, f"{benchmark_path.relative_to(ROOT)} must report the completed Vulkan image workload")
+    check("Inference, image output, and seconds/image are **untested**" not in benchmark_text, f"{benchmark_path.relative_to(ROOT)} retains superseded Stable Diffusion status")
+
 # Sitemap and canonical-host configuration.
 config = read(ROOT / "_config.yml")
 check(re.search(r"^url:\s+https://soobujmiah\.github\.io\s*$", config, re.M) is not None, "_config.yml: url must not duplicate baseurl")
@@ -387,7 +399,7 @@ try:
     sitemap = ET.parse(ROOT / "dist/sitemap.xml").getroot()
     namespace = {"s": "http://www.sitemaps.org/schemas/sitemap/0.9", "x": "http://www.w3.org/1999/xhtml"}
     entries = sitemap.findall("s:url", namespace)
-    check(len(entries) == 36, "dist/sitemap.xml: expected 36 bilingual URLs")
+    check(len(entries) == 38, "dist/sitemap.xml: expected 38 bilingual URLs")
     for entry in entries:
         check(len(entry.findall("x:link", namespace)) == 3, "dist/sitemap.xml: every URL needs en, bn, and x-default alternates")
 except (ET.ParseError, OSError) as exc:

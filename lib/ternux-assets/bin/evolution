@@ -1,0 +1,5 @@
+#!/bin/sh
+# WebKitGTK's nested bubblewrap sandbox cannot start inside a Ternux PRoot guest.
+# PRoot itself is not a security boundary; remote message content stays disabled by default.
+export WEBKIT_DISABLE_SANDBOX_THIS_IS_DANGEROUS=1
+exec /usr/bin/evolution "$@"

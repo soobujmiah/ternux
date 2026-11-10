@@ -64,7 +64,6 @@ tnx_optional_storage_mb() {
       thonny) total=$((total + 150)) ;;
       gh) total=$((total + 100)) ;;
       firefox) total=$((total + 350)) ;;
-      thunderbird) total=$((total + 600)) ;;
       adt-build-tools|adt-platform-tools) total=$((total + 60)) ;;
       adt-ndk|adt-cmake) total=$((total + 20)) ;;
       adt-cmdline) total=$((total + 250)) ;;
@@ -81,9 +80,11 @@ tnx_optional_storage_mb() {
       inkscape) total=$((total + 500)) ;;
       audacity) total=$((total + 300)) ;;
       imagemagick) total=$((total + 100)) ;;
-      evince) total=$((total + 150)) ;;
       libreoffice-writer) total=$((total + 900)) ;;
       libreoffice-calc) total=$((total + 400)) ;;
+      libreoffice-draw) total=$((total + 900)) ;;
+      evolution) total=$((total + 450)) ;;
+      celestia) total=$((total + 700)) ;;
       blender) total=$((total + 600)) ;;
       claude|codex) total=$((total + 350)) ;;
       openai-cli) total=$((total + 150)) ;;
@@ -97,7 +98,7 @@ tnx_optional_storage_mb() {
 tnx_storage_estimate() {
   local optional_mb installed_mb peak_mb
   optional_mb="$(tnx_optional_storage_mb "$@")"
-  installed_mb=$((4000 + optional_mb))
+  installed_mb=$((4575 + optional_mb))
   peak_mb=$((installed_mb + 2048))
   awk -v installed="$installed_mb" -v peak="$peak_mb" 'BEGIN {
     printf "about %.1f GB installed; keep about %.1f GB free during downloads and setup (rough estimate)", installed/1024, peak/1024
@@ -137,24 +138,24 @@ tnx_phase_preflight() {
     esac
   fi
 
-  local free target_free=6 profile="${TERNUX_INSTALL_PROFILE:-base}" size_label="~4–4.5 GB"
+  local free target_free=6 profile="${TERNUX_INSTALL_PROFILE:-base}" size_label="~4–4.6 GB"
   local -a selected_extras=()
   if [ -n "${TERNUX_SELECTED_EXTRAS:-}" ]; then IFS=',' read -r -a selected_extras <<< "$TERNUX_SELECTED_EXTRAS"; fi
   local optional_mb estimate
   optional_mb="$(tnx_optional_storage_mb "${selected_extras[@]}")"
-  target_free=$(((4000 + optional_mb + 2048 + 1023) / 1024))
+  target_free=$(((4575 + optional_mb + 2048 + 1023) / 1024))
   if [ "$profile" = "full" ] && [ "$target_free" -lt 14 ]; then target_free=14; fi
   estimate="$(tnx_storage_estimate "${selected_extras[@]}")"
   size_label="$estimate"
   free="$(df -Pk "$HOME" 2>/dev/null | awk 'NR==2{print int($4/1024/1024)}')"
-  tnx_info "Installed-size baseline: base desktop ~4–4.5 GB; complete --all profile ~10.5–12.5 GB."
+  tnx_info "Installed-size baseline: base desktop ~4–4.6 GB; complete --all profile ~10.5–12.5 GB."
   tnx_info "Selected install estimate: $estimate. Includes the base desktop, chosen optional items and temporary setup headroom."
   if [ -n "$free" ] && [ "$free" -lt "$target_free" ]; then
     tnx_warn "Only ~${free} GB free. The ${profile} profile uses ${size_label}; keep ~${target_free} GB free before installation for downloads and package-cache headroom."
   elif [ -n "$free" ]; then
     tnx_ok "Storage: ~${free} GB free (${profile} profile; installed use ${size_label})"
   else
-    tnx_warn "Could not measure free storage; base uses ~4–4.5 GB and the complete profile ~10.5–12.5 GB."
+    tnx_warn "Could not measure free storage; base uses ~4–4.6 GB and the complete profile ~10.5–12.5 GB."
   fi
 
   if tnx_has_cmd curl && curl -s --max-time 5 https://1.1.1.1 >/dev/null 2>&1; then
@@ -332,17 +333,24 @@ tnx_install_guest_cli() {
 tnx_phase_debian() {
   local user_name="${1:-ternux}"
   local resource_dir="${BASH_SOURCE[0]%/*}"
-  local welcome_b64 welcome_gui_b64 window_fit_b64 wallpaper_b64 resource
-  for resource in ternux-welcome.sh ternux-welcome-gui.py ternux-window-fit.lua ternux-wallpaper.svg; do
+  local welcome_b64 welcome_gui_b64 window_fit_b64 camera_gui_b64 recorder_gui_b64 panel_shortcuts_b64 ternux_assets_b64 resource
+  for resource in ternux-welcome.sh ternux-welcome-gui.py ternux-window-fit.lua ternux-camera.py ternux-recorder.py ternux-panel-shortcuts.sh; do
     if [ ! -s "$resource_dir/$resource" ] || [ ! -r "$resource_dir/$resource" ]; then
       tnx_fail "Required Debian desktop resource is missing or unreadable: $resource_dir/$resource"
       return 1
     fi
   done
+  if [ ! -d "$resource_dir/ternux-assets/icons/Ternux" ] || [ ! -d "$resource_dir/ternux-assets/wallpapers" ] || [ ! -d "$resource_dir/ternux-assets/themes/Ternux" ]; then
+    tnx_fail "Required Ternux desktop branding assets are missing under $resource_dir/ternux-assets"
+    return 1
+  fi
   welcome_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-welcome.sh" | tr -d '\n')" || return 1
   welcome_gui_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-welcome-gui.py" | tr -d '\n')" || return 1
   window_fit_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-window-fit.lua" | tr -d '\n')" || return 1
-  wallpaper_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-wallpaper.svg" | tr -d '\n')" || return 1
+  camera_gui_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-camera.py" | tr -d '\n')" || return 1
+  recorder_gui_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-recorder.py" | tr -d '\n')" || return 1
+  panel_shortcuts_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-panel-shortcuts.sh" | tr -d '\n')" || return 1
+  ternux_assets_b64="$(set -o pipefail; tar -czf - -C "$resource_dir/ternux-assets" icons wallpapers themes applications bin | base64 | tr -d '\n')" || return 1
 
   if tnx_debian_installed; then
     tnx_warn "Debian container already installed; reusing it."
@@ -356,7 +364,71 @@ tnx_phase_debian() {
     DPKG_FORCE=\"-o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -o APT::Color=1 -o Dpkg::Progress-Fancy=1\"
     apt update -o APT::Color=1
     dpkg --configure -a --force-confold --force-confdef || true
-    apt install -y \$DPKG_FORCE sudo nano mousepad fonts-noto-core python3-gi gir1.2-gtk-3.0 ibus ibus-avro devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol x11-utils mesa-utils libgl1-mesa-dri adwaita-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc arc-theme colord
+    apt install -y \$DPKG_FORCE sudo nano mousepad galculator evince fonts-noto-core python3-gi gir1.2-gtk-3.0 ibus ibus-avro devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol x11-utils mesa-utils libgl1-mesa-dri adwaita-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc ffmpeg ristretto qt5-gtk-platformtheme colord
+    apt install -y \$DPKG_FORCE --no-install-recommends synaptic
+    apt remove -y \$DPKG_FORCE guvcview >/dev/null 2>&1 || true
+    rm -f /usr/local/share/applications/guvcview.desktop
+    asset_stage=\$(mktemp -d /tmp/ternux-assets.XXXXXX)
+    printf '%s' '$ternux_assets_b64' | base64 -d | tar -xz -C "\$asset_stage"
+    find "\$asset_stage" -type d -exec chmod 0755 {} +
+    find "\$asset_stage" -type f -exec chmod 0644 {} +
+    install -d -m 0755 /usr/share/icons /usr/share/themes/Ternux /usr/share/backgrounds/ternux
+    # Replace the managed theme as one staged tree. Overlay copies leave old
+    # icon aliases behind when an asset moves between contexts or is retired.
+    icon_stage=\$(mktemp -d /usr/share/icons/.Ternux-stage.XXXXXX)
+    icon_backup="/usr/share/icons/.Ternux-backup.\$\$"
+    if ! cp -a "\$asset_stage/icons/Ternux/." "\$icon_stage/"; then
+      rm -rf "\$icon_stage"
+      exit 1
+    fi
+    chmod 0755 "\$icon_stage"
+    if [ -e "\$icon_backup" ]; then
+      rm -rf "\$icon_stage"
+      printf '%s\\n' 'A Ternux icon rollback directory already exists; refusing to replace the theme.' >&2
+      exit 1
+    fi
+    if [ -e /usr/share/icons/Ternux ]; then
+      mv -T /usr/share/icons/Ternux "\$icon_backup"
+    fi
+    if mv -T "\$icon_stage" /usr/share/icons/Ternux; then
+      [ ! -e "\$icon_backup" ] || rm -rf "\$icon_backup"
+    else
+      [ ! -e "\$icon_backup" ] || mv -T "\$icon_backup" /usr/share/icons/Ternux
+      exit 1
+    fi
+    cp -a "\$asset_stage/themes/Ternux/." /usr/share/themes/Ternux/
+    install -m 0755 "\$asset_stage/bin/ternux-open-url" /usr/local/bin/ternux-open-url
+    install -m 0755 "\$asset_stage/bin/ternux-app-center" /usr/local/bin/ternux-app-center
+    install -m 0755 "\$asset_stage/bin/evolution" /usr/local/bin/evolution
+    install -m 0755 "\$asset_stage/bin/ternux-install-celestia" /usr/local/bin/ternux-install-celestia
+    if [ -f /usr/share/applications/org.gnome.Evolution.desktop ]; then
+      sed 's#^Exec=evolution#Exec=/usr/local/bin/evolution#' /usr/share/applications/org.gnome.Evolution.desktop > /usr/local/share/applications/org.gnome.Evolution.desktop
+      chmod 0644 /usr/local/share/applications/org.gnome.Evolution.desktop
+    fi
+    install -m 0644 "\$asset_stage/applications/ternux-app-center.desktop" /usr/local/share/applications/ternux-app-center.desktop
+    install -m 0644 "\$asset_stage/applications/synaptic.desktop" /usr/local/share/applications/synaptic.desktop
+    install -m 0644 "\$asset_stage/applications/ternux-sdcard.desktop" /usr/share/applications/ternux-sdcard.desktop
+    rm -f /usr/share/backgrounds/ternux/aurora.svg
+    cp -a "\$asset_stage/wallpapers/." /usr/share/backgrounds/ternux/
+    rm -rf "\$asset_stage"
+    gtk-update-icon-cache -f /usr/share/icons/Ternux >/dev/null 2>&1 || true
+    install -d -m 0755 /usr/local/share/applications
+    for icon_pair in \
+      'ibus-setup-ibus-avro.desktop ternux-avro' \
+      'python3.13.desktop ternux-python' \
+      'im-config.desktop ternux-keyboard' \
+      'panel-desktop-handler.desktop ternux-launcher' \
+      'xfce4-web-browser.desktop org.xfce.webbrowser'; do
+      set -- \${icon_pair% *} \${icon_pair#* }
+      source_entry="/usr/share/applications/\$1"
+      if [ -r "\$source_entry" ]; then
+        sed "s#^Icon=.*#Icon=\$2#" "\$source_entry" > "/usr/local/share/applications/\$1"
+        if [ "\$1" = xfce4-web-browser.desktop ]; then
+          sed -i 's#^Exec=.*#Exec=/usr/local/bin/ternux-open-url %u#' "/usr/local/share/applications/\$1"
+        fi
+        chmod 0644 "/usr/local/share/applications/\$1"
+      fi
+    done
     apt install -y \$DPKG_FORCE polkitd || apt install -y \$DPKG_FORCE policykit-1 || true
     apt install -y \$DPKG_FORCE libvulkan1 vulkan-tools || true
     apt install -y \$DPKG_FORCE zip unzip xarchiver unrar-free || true
@@ -373,6 +445,29 @@ tnx_phase_debian() {
     if visudo -cf \"\$T\" >/dev/null 2>&1; then install -m 0440 -o root -g root \"\$T\" \"\$F\"; else rm -f \"\$T\"; exit 1; fi
     rm -f \"\$T\"
     H=\"\$(getent passwd \"\$U\" | cut -d: -f6)\"
+    install -d -o \"\$U\" -g \"\$U\" -m 0755 \"\$H/Pictures\"
+    if [ -L \"\$H/Pictures/Ternux\" ] && [ \"\$(readlink \"\$H/Pictures/Ternux\")\" = /sdcard/Pictures/Ternux ]; then
+      rm \"\$H/Pictures/Ternux\"
+    fi
+    install -d -o \"\$U\" -g \"\$U\" -m 0755 \"\$H/Pictures/Ternux\"
+    install -d -o \"\$U\" -g \"\$U\" -m 0755 \"\$H/Music/Ternux\"
+    install -d -o \"\$U\" -g \"\$U\" -m 0755 \"\$H/.config/xfce4/terminal\"
+    if [ ! -e \"\$H/.config/xfce4/terminal/terminalrc\" ]; then
+      cat > \"\$H/.config/xfce4/terminal/terminalrc\" <<'TERMINAL'
+[Configuration]
+ColorForeground=#e4f3eb
+ColorBackground=#101816
+ColorCursor=#39e68c
+ColorSelection=#08784c
+ColorPalette=#26332d;#ff5c57;#5af78e;#f3f99d;#57c7ff;#ff6ac1;#9aedfe;#e4f3eb;#4b5b52;#ff5c57;#5af78e;#f3f99d;#57c7ff;#ff6ac1;#9aedfe;#ffffff
+BackgroundMode=TERMINAL_BACKGROUND_SOLID
+BackgroundDarkness=0.97
+FontName=Monospace 10
+MiscBell=FALSE
+TERMINAL
+      chown \"\$U:\$U\" \"\$H/.config/xfce4/terminal/terminalrc\"
+      chmod 0644 \"\$H/.config/xfce4/terminal/terminalrc\"
+    fi
     install -d -o \"\$U\" -g \"\$U\" -m 0755 \"\$H/.config/vlc\"
     touch \"\$H/.config/vlc/vlcrc\"
     sed -i '/^[[:space:]]*vout=/d' \"\$H/.config/vlc/vlcrc\"
@@ -401,6 +496,74 @@ tnx_phase_debian() {
     runuser -u \"\$U\" -- env HOME=\"\$H\" dbus-run-session -- gsettings set org.freedesktop.ibus.general.hotkey next-engine-in-menu \"['Control+space']\"
     install -d -o \"\$U\" -g \"\$U\" -m 0755 \"\$H/.config/autostart\"
     install -d -o root -g root -m 0755 /usr/local/bin
+    printf '%s' '${camera_gui_b64}' | base64 -d > /usr/local/bin/ternux-camera
+    chown root:root /usr/local/bin/ternux-camera
+    chmod 0755 /usr/local/bin/ternux-camera
+    printf '%s' '${recorder_gui_b64}' | base64 -d > /usr/local/bin/ternux-recorder
+    chown root:root /usr/local/bin/ternux-recorder
+    chmod 0755 /usr/local/bin/ternux-recorder
+    printf '%s' '${panel_shortcuts_b64}' | base64 -d > /usr/local/bin/ternux-panel-shortcuts
+    chown root:root /usr/local/bin/ternux-panel-shortcuts
+    chmod 0755 /usr/local/bin/ternux-panel-shortcuts
+    cat > /usr/share/applications/ternux-camera.desktop <<'DESKTOP'
+[Desktop Entry]
+Type=Application
+Name=Ternux Camera
+Comment=Capture photos with the Android front or rear camera
+Exec=/usr/local/bin/ternux-camera
+Icon=ternux-camera
+Terminal=false
+Categories=AudioVideo;Photography;
+StartupNotify=true
+DESKTOP
+    chmod 0644 /usr/share/applications/ternux-camera.desktop
+    cat > /usr/share/applications/ternux-recorder.desktop <<'DESKTOP'
+[Desktop Entry]
+Type=Application
+Name=Ternux Sound Recorder
+Comment=Record on demand from the Android microphone
+Exec=/usr/local/bin/ternux-recorder
+Icon=ternux-recorder
+Terminal=false
+Categories=AudioVideo;Audio;Recorder;
+StartupNotify=true
+DESKTOP
+    chmod 0644 /usr/share/applications/ternux-recorder.desktop
+    cat > /usr/share/applications/ternux-photos.desktop <<DESKTOP
+[Desktop Entry]
+Type=Application
+Name=Ternux Photos
+Comment=Browse captured photos in the Ternux Pictures folder
+Exec=ristretto /home/${user_name}/Pictures/Ternux
+Icon=org.xfce.ristretto
+Terminal=false
+Categories=Graphics;Photography;
+StartupNotify=true
+DESKTOP
+    chmod 0644 /usr/share/applications/ternux-photos.desktop
+    install -d -m 0755 /usr/local/share/applications
+    for vlc_entry in /usr/share/applications/vlc*.desktop; do
+      [ -f "\$vlc_entry" ] || continue
+      sed 's#^Exec=#Exec=env QT_QPA_PLATFORMTHEME=gtk3 #' "\$vlc_entry" > "/usr/local/share/applications/\${vlc_entry##*/}"
+      chmod 0644 "/usr/local/share/applications/\${vlc_entry##*/}"
+    done
+    update-desktop-database /usr/local/share/applications >/dev/null 2>&1 || true
+    install -d -o "\$U" -g "\$U" -m 0755 "\$H/Desktop"
+    cp /usr/share/applications/ternux-camera.desktop "\$H/Desktop/Ternux-Camera.desktop"
+    cp /usr/share/applications/ternux-photos.desktop "\$H/Desktop/Ternux-Photos.desktop"
+    chown "\$U:\$U" "\$H/Desktop/Ternux-Camera.desktop" "\$H/Desktop/Ternux-Photos.desktop"
+    chmod 0755 "\$H/Desktop/Ternux-Camera.desktop" "\$H/Desktop/Ternux-Photos.desktop"
+    if [ ! -e "\$H/Desktop/SD-Card.desktop" ]; then
+      cp /usr/share/applications/ternux-sdcard.desktop "\$H/Desktop/SD-Card.desktop"
+      chown "\$U:\$U" "\$H/Desktop/SD-Card.desktop"
+      chmod 0755 "\$H/Desktop/SD-Card.desktop"
+    fi
+    for mime in image/jpeg image/png image/gif image/webp image/tiff image/bmp; do
+      runuser -u "\$U" -- env HOME="\$H" xdg-mime default org.xfce.ristretto.desktop "\$mime" || true
+    done
+    runuser -u "\$U" -- env HOME="\$H" xdg-mime default org.gnome.Evince.desktop application/pdf || true
+    runuser -u "\$U" -- env HOME="\$H" xdg-mime default xfce4-web-browser.desktop x-scheme-handler/http || true
+    runuser -u "\$U" -- env HOME="\$H" xdg-mime default xfce4-web-browser.desktop x-scheme-handler/https || true
     cat > /usr/bin/pm-is-supported <<'PM'
 #!/bin/sh
 # PRoot has no permission to suspend or hibernate the Android host.
@@ -412,9 +575,7 @@ PM
     chown root:root /usr/local/bin/ternux-welcome
     chmod 0755 /usr/local/bin/ternux-welcome
     install -d -o root -g root -m 0755 /usr/share/backgrounds/ternux
-    printf '%s' '${wallpaper_b64}' | base64 -d > /usr/share/backgrounds/ternux/aurora.svg
-    chown root:root /usr/share/backgrounds/ternux/aurora.svg
-    chmod 0644 /usr/share/backgrounds/ternux/aurora.svg
+    chmod 0644 /usr/share/backgrounds/ternux/*.svg
     cat > \"\$H/.config/autostart/ternux-window-fit.desktop\" <<'DESKTOP'
 [Desktop Entry]
 Type=Application
@@ -455,6 +616,7 @@ DESKTOP
 [Desktop Entry]
 Type=Application
 Name=Ternux Welcome
+Icon=ternux-welcome
 Comment=Show the Ternux first-run guide or open the project website
 Exec=/usr/local/bin/ternux-welcome
 Terminal=false
@@ -818,14 +980,8 @@ tnx_phase_launcher() {
   local distro; distro="$(tnx_distro)"
   local LAUNCHER="$HOME/x.sh"
 
-  [[ "$user_name" =~ ^[a-z_][a-z0-9_-]{0,31}$ ]] || {
-    tnx_fail "Launcher user name is invalid."; return 2;
-  }
-  [[ "$locale" =~ ^[A-Za-z0-9_.@-]+$ ]] || {
-    tnx_fail "Launcher locale is invalid."; return 2;
-  }
-
-  # Resolve backend
+  [[ "$user_name" =~ ^[a-z_][a-z0-9_-]{0,31}$ ]] || { tnx_fail "Launcher user name is invalid."; return 2; }
+  [[ "$locale" =~ ^[A-Za-z0-9_.@-]+$ ]] || { tnx_fail "Launcher locale is invalid."; return 2; }
   case "$backend" in
     zink|zink-turnip) backend="zink" ;;
     virgl) backend="virgl" ;;
@@ -833,13 +989,27 @@ tnx_phase_launcher() {
     *) tnx_fail "Launcher backend must be auto, zink or virgl."; return 2 ;;
   esac
 
-  # Write launcher
-  cat > "$LAUNCHER" << 'LAUNCHEOF'
+  # The guest desktop lives in a standalone script. Keeping it out of nested
+  # `bash -c`/`sh -c` quoting prevents theme values such as `|HMC` from
+  # truncating the command and triggering teardown before XFCE starts.
+  cat > "$LAUNCHER" <<'LAUNCHEOF'
 #!/data/data/com.termux/files/usr/bin/bash
-# TERNUX_DESKTOP_LAUNCHER=14
+# TERNUX_DESKTOP_LAUNCHER=19
 set -u
 TMPDIR="${TMPDIR:-/data/data/com.termux/files/usr/tmp}"
+PREFIX="${PREFIX:-/data/data/com.termux/files/usr}"
+TERMUX_HOST_HOME="/data/data/com.termux/files/home"
 TNX_PID_FILE="${TNX_PID_FILE:-$HOME/.local/share/ternux/session/desktop.pid}"
+TNX_IDENTITY_FILE="${TNX_PID_FILE}.identity"
+TNX_READY_FILE="${TNX_PID_FILE}.ready"
+proc_start_identity() { awk '{ sub(/^.*\) /, ""); print $20 }' "/proc/$1/stat" 2>/dev/null; }
+TNX_START_ID="$(proc_start_identity "$$")"
+TNX_PGID="$(ps -o pgid= -p "$$" 2>/dev/null | tr -d '[:space:]')"
+printf '%s\n' "$$" > "$TNX_PID_FILE" 2>/dev/null || true
+if [ -n "$TNX_START_ID" ] && [ "$TNX_PGID" = "$$" ]; then
+  printf '%s %s %s\n' "$$" "$TNX_START_ID" "$TNX_PGID" > "${TNX_IDENTITY_FILE}.tmp" && mv -f "${TNX_IDENTITY_FILE}.tmp" "$TNX_IDENTITY_FILE" 2>/dev/null || true
+fi
+TNX_GUEST_SESSION_SCRIPT="$TMPDIR/ternux-desktop-session-$$.sh"
 TNX_CPUINFO_FILE="$TMPDIR/ternux-cpuinfo-$$"
 TNX_CPU_MODEL_MAP="$TMPDIR/ternux-cpu-models-$$"
 write_cpuinfo_with_model_names() {
@@ -859,264 +1029,226 @@ write_cpuinfo_with_model_names() {
         if (soc != "") model = model " (SoC " soc ")"
         print "model name\t: " model
       }
-      has_model = 0
-      part = ""
+      has_model = 0; part = ""
     }
-    FILENAME == models {
-      if ($0 !~ /^#/) { split($0, fields, "\t"); model_by_cpu[fields[1]] = fields[2] }
-      next
-    }
-    /^processor[[:space:]]*:/ {
-      if (have_processor) add_model()
-      processor = $2
-      gsub(/[[:space:]]/, "", processor)
-      have_processor = 1
-      print
-      next
-    }
+    FILENAME == models { if ($0 !~ /^#/) { split($0, fields, "\t"); model_by_cpu[fields[1]] = fields[2] }; next }
+    /^processor[[:space:]]*:/ { if (have_processor) add_model(); processor = $2; gsub(/[[:space:]]/, "", processor); have_processor = 1; print; next }
     /^(model name|cpu|Model Name|Processor)[[:space:]]*:/ { has_model = 1 }
     /^CPU part[[:space:]]*:/ { part = $2; gsub(/[[:space:]]/, "", part) }
     /^$/ { if (have_processor) { add_model(); have_processor = 0 }; print; next }
     { print }
     END { if (have_processor) add_model() }
-  ' "$TNX_CPU_MODEL_MAP" /proc/cpuinfo > "$tmp" && [ -s "$tmp" ] && mv -f "$tmp" "$TNX_CPUINFO_FILE" || {
-    cp /proc/cpuinfo "$TNX_CPUINFO_FILE" 2>/dev/null || :
-    rm -f "$tmp"
-  }
+  ' "$TNX_CPU_MODEL_MAP" /proc/cpuinfo > "$tmp" && [ -s "$tmp" ] && mv -f "$tmp" "$TNX_CPUINFO_FILE" || { cp /proc/cpuinfo "$TNX_CPUINFO_FILE" 2>/dev/null || :; rm -f "$tmp"; }
   rm -f "$TNX_CPU_MODEL_MAP"
 }
-stop_legacy_ternuxx_audio() {
-  local stale_pid
-  while IFS= read -r stale_pid; do
-    [ -n "$stale_pid" ] || continue
-    kill -TERM "$stale_pid" 2>/dev/null || true
-  done < <(ps -A -o pid=,args= 2>/dev/null | awk '$2 ~ /pulseaudio$/ && /\/.local\/share\/ternuxx\/audio\/default\.pa/ {print $1}')
+guest_login_isolated() {
+  local distro="${1:?missing PRoot distribution}"; shift
+  local prefix="${PREFIX:-/data/data/com.termux/files/usr}"
+  local host_home="${TERMUX_HOST_HOME:-/data/data/com.termux/files/home}"
+  local -a login_args=(--isolated --shared-x11)
+  local -a android_env=() env_args=()
+  local key pair bind_path
+  local -a keys=(ANDROID_ART_ROOT ANDROID_ASSETS ANDROID_DATA ANDROID_I18N_ROOT ANDROID_ROOT ANDROID_STORAGE ANDROID_TZDATA_ROOT ANDROID__BUILD_VERSION_SDK ASEC_MOUNTPOINT BOOTCLASSPATH DEX2OATBOOTCLASSPATH EXTERNAL_STORAGE SYSTEMSERVERCLASSPATH TERMUX_APP__PACKAGE_NAME TERMUX__UID TERMUX__USER_ID TERMUX__HOME TERMUX__PREFIX)
+  local -a host_bind_paths=(/apex /system /system_ext /vendor /odm /product /linkerconfig/ld.config.txt /linkerconfig/com.android.art/ld.config.txt)
+  local -a api_cache_paths=("$host_home/.cache/ternux-camera" "$host_home/.cache/ternux-recorder")
+
+  # Shared Android storage is an intentional user-facing feature. Keep /sdcard
+  # visible while avoiding PRoot-Distro's default bind of all Termux HOME.
+  if [ -e /sdcard ]; then login_args+=(--bind /sdcard:/sdcard); fi
+  login_args+=(--bind "$prefix:$prefix")
+  for bind_path in "${host_bind_paths[@]}"; do
+    [ -e "$bind_path" ] && login_args+=(--bind "$bind_path:$bind_path")
+  done
+  [ ! -L "$host_home" ] && [ ! -L "$host_home/.cache" ] || { echo "Refusing symlinked Termux home/cache path." >&2; return 1; }
+  mkdir -p -- "$host_home/.cache" || return 1
+  for bind_path in "${api_cache_paths[@]}"; do
+    [ ! -L "$bind_path" ] || { echo "Refusing symlinked Termux API staging directory: $bind_path" >&2; return 1; }
+    mkdir -p -- "$bind_path" || return 1
+    login_args+=(--bind "$bind_path:$bind_path")
+  done
+  if [ -r "$prefix/etc/termux/termux.env" ]; then
+    while IFS= read -r -d '' pair; do android_env+=("$pair"); done < <(
+      (
+        . "$prefix/etc/termux/termux.env"
+        for key in "${keys[@]}"; do
+          [ -n "${!key-}" ] && printf '%s=%s\0' "$key" "${!key}"
+        done
+      )
+    )
+  fi
+  for pair in "${android_env[@]}"; do env_args+=(--env "$pair"); done
+  proot-distro login "$distro" "${login_args[@]}" "${env_args[@]}" "$@"
+}
+kill_owned_child() {
+  local child_pid="${1:-}" child_start="${2:-}" current_start=""
+  [[ "$child_pid" =~ ^[0-9]+$ ]] && [ -n "$child_start" ] || return 0
+  current_start="$(proc_start_identity "$child_pid")"
+  [ "$current_start" = "$child_start" ] || return 0
+  kill -TERM "$child_pid" 2>/dev/null || true
+  local attempt=0
+  while [ "$attempt" -lt 20 ] && kill -0 "$child_pid" 2>/dev/null; do
+    current_start="$(proc_start_identity "$child_pid")"
+    [ "$current_start" = "$child_start" ] || return 0
+    sleep 0.1; attempt=$((attempt+1))
+  done
+  current_start="$(proc_start_identity "$child_pid")"
+  [ "$current_start" = "$child_start" ] && kill -KILL "$child_pid" 2>/dev/null || true
 }
 cleanup() {
-  stop_legacy_ternuxx_audio
-  pkill -9 -f "^termux-x11 com\.termux\.x11([[:space:]]|$)" 2>/dev/null || true
-  pkill -9 -f '(^|/)virgl_test_server(_android)?([[:space:]]|$)' 2>/dev/null || true
-  pulseaudio --kill 2>/dev/null || pkill -KILL -x pulseaudio 2>/dev/null || true
-  rm -f "$TMPDIR"/.X11-unix/X* "$TMPDIR"/.X*-lock "$TMPDIR"/pulse-socket "$TMPDIR"/.pulse-*/native 2>/dev/null || true
-  rm -f "$TNX_CPUINFO_FILE" "$TNX_CPU_MODEL_MAP" "$TNX_CPUINFO_FILE.tmp" 2>/dev/null || true
+  kill_owned_child "${X11_PID:-}" "${X11_START_ID:-}"
+  kill_owned_child "${VIRGL_PID:-}" "${VIRGL_START_ID:-}"
+  if [[ "${PULSE_MODULE_ID:-}" =~ ^[0-9]+$ ]]; then pactl unload-module "$PULSE_MODULE_ID" >/dev/null 2>&1 || true; fi
+  rm -f "$TNX_CPUINFO_FILE" "$TNX_CPU_MODEL_MAP" "$TNX_CPUINFO_FILE.tmp" "$TNX_GUEST_SESSION_SCRIPT" "$TNX_READY_FILE" "${TNX_IDENTITY_FILE}.tmp" 2>/dev/null || true
   termux-wake-unlock 2>/dev/null || true
   if [ -n "$TNX_PID_FILE" ] && [ "$(cat "$TNX_PID_FILE" 2>/dev/null || true)" = "$$" ]; then
-    rm -f "$TNX_PID_FILE"
+    rm -f "$TNX_PID_FILE" "$TNX_IDENTITY_FILE"
   fi
 }
 trap cleanup EXIT
 trap 'exit 130' INT
 trap 'exit 143' TERM
-# Cleanup any previous session
-pkill -9 -f "^termux-x11 com\.termux\.x11([[:space:]]|$)" 2>/dev/null || true
-pkill -9 -f '(^|/)virgl_test_server(_android)?([[:space:]]|$)' 2>/dev/null || true
-pulseaudio --kill 2>/dev/null || pkill -KILL -x pulseaudio 2>/dev/null || true
-rm -f "$TMPDIR"/.X11-unix/X* "$TMPDIR"/.X*-lock "$TMPDIR"/pulse-socket "$TMPDIR"/.pulse-*/native 2>/dev/null || true
-# Wake lock
 termux-wake-lock 2>/dev/null || true
-# Termux:X11 uses key:value syntax; enable Android IME text delivery even when
-# users start this generated launcher directly instead of calling `ternux start`.
-if command -v termux-x11-preference >/dev/null 2>&1; then
-  termux-x11-preference enforceCharBasedInput:true >/dev/null 2>&1 || \
-    echo "WARNING: could not enable Termux:X11 character-based keyboard input."
-fi
-# Retire the orphaned Ternuxx audio daemon left behind by uninstall, then find
-# a loopback port that is actually free. A stale server may retain the Android
-# sink and otherwise leave the new guest bridge silent.
-stop_legacy_ternuxx_audio
-# Provide model names to Xfce About from live ARM IDs plus util-linux decoding.
+if command -v termux-x11-preference >/dev/null 2>&1; then termux-x11-preference enforceCharBasedInput:true >/dev/null 2>&1 || echo "WARNING: could not enable Termux:X11 character-based keyboard input."; fi
 write_cpuinfo_with_model_names
-# Another Android service may own 4713; silently ignoring that collision leaves
-# guest clients pointed at the wrong server and typically produces Access denied.
 unset PULSE_SERVER; pulseaudio --start --exit-idle-time=-1 --daemonize 2>/dev/null || true
 sleep 0.3
 PULSE_PORT=""
 PULSE_MODULE_ID=""
 for ((candidate=4713; candidate<=4722; candidate++)); do
-  if PULSE_MODULE_ID="$(pactl load-module module-native-protocol-tcp listen=127.0.0.1 auth-ip-acl=127.0.0.1 auth-anonymous=1 port="$candidate" 2>/dev/null)"; then
-    PULSE_PORT="$candidate"
-    break
-  fi
+  if PULSE_MODULE_ID="$(pactl load-module module-native-protocol-tcp listen=127.0.0.1 auth-ip-acl=127.0.0.1 auth-anonymous=1 port="$candidate" 2>/dev/null)"; then PULSE_PORT="$candidate"; break; fi
   PULSE_MODULE_ID=""
 done
-if [ -z "$PULSE_PORT" ]; then
-  echo "ERROR: Could not open the loopback PulseAudio bridge on ports 4713-4722."
-  exit 1
-fi
+if [ -z "$PULSE_PORT" ]; then echo "ERROR: Could not open the loopback PulseAudio bridge on ports 4713-4722."; exit 1; fi
 echo "PulseAudio bridge ready on 127.0.0.1:$PULSE_PORT."
 # Display
-# Termux:X11 documents -legacy-drawing as the fix for devices that render
-# only a black screen with a cursor. Keep it enabled in the managed launcher.
 termux-x11 :0 -legacy-drawing -ac &
 X11_PID=$!
+X11_START_ID="$(proc_start_identity "$X11_PID")"
 echo "Waiting for Termux-X11..."
 WAITED=0
 while [ ! -e "$TMPDIR/.X11-unix/X0" ]; do
   if ! kill -0 "$X11_PID" 2>/dev/null; then echo "ERROR: termux-x11 exited."; exit 1; fi
-  if [ "$WAITED" -ge 300 ]; then echo "ERROR: timed out."; exit 1; fi
+  if [ "$WAITED" -ge 300 ]; then echo "ERROR: timed out waiting for Termux:X11."; exit 1; fi
   WAITED=$((WAITED+1)); sleep 0.1
 done
 echo "Display :0 ready."
+cat > "$TNX_GUEST_SESSION_SCRIPT" <<'TERNUX_GUEST_EOF'
+#!/usr/bin/env bash
+set -u
+export HOME="/home/${TERNUX_GUEST_USER:-ternux}"
+export GTK_IM_MODULE=ibus QT_IM_MODULE=ibus QT_QPA_PLATFORMTHEME=gtk3 XMODIFIERS=@im=ibus
+unset IBUS_ADDRESS
+mkdir -p "$HOME/.runtime"
+chmod 700 "$HOME/.runtime"
+sudo -n mkdir -p /var/run/dbus /run/dbus "/run/user/$(id -u)" 2>/dev/null || true
+sudo -n dbus-uuidgen --ensure >/dev/null 2>&1 || true
+sudo -n rm -f /etc/xdg/autostart/light-locker.desktop 2>/dev/null || true
+exec dbus-run-session -- bash -c '
+  set -u
+  until xdpyinfo -display :0 >/dev/null 2>&1; do sleep 0.1; done
+  # --replace targets the selected account session bus; process-wide pkill would
+  # disrupt other PRoot desktops sharing the guest process namespace.
+  ibus-daemon --daemonize --xim --replace
+  ibus_tries=0
+  until ibus address 2>/dev/null | grep -q "^unix:" || [ "$ibus_tries" -ge 20 ]; do ibus_tries=$((ibus_tries + 1)); sleep 0.1; done
+  startxfce4 &
+  session_pid=$!
+  tries=0
+  until { xfconf-query -c xsettings -l >/dev/null 2>&1 && pgrep -x xfdesktop >/dev/null 2>&1 && pgrep -x xfwm4 >/dev/null 2>&1; } || [ "$tries" -ge 100 ] || ! kill -0 "$session_pid" 2>/dev/null; do tries=$((tries + 1)); sleep 0.2; done
+  if ! kill -0 "$session_pid" 2>/dev/null || ! pgrep -x xfdesktop >/dev/null 2>&1 || ! pgrep -x xfwm4 >/dev/null 2>&1; then echo "ERROR: XFCE session, window manager, or desktop did not become ready."; exit 1; fi
+  defaults_marker="$HOME/.config/ternux/desktop-defaults-v1"
+  if [ ! -e "$defaults_marker" ]; then
+    xfconf-query -c xsettings -p /Net/ThemeName --create -t string -s Ternux
+    xfconf-query -c xsettings -p /Net/IconThemeName --create -t string -s Ternux
+    xfconf-query -c xfwm4 -p /general/theme --create -t string -s Ternux
+    xfconf-query -c xsettings -p /Gtk/CursorThemeName --create -t string -s Adwaita
+    xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-path --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg
+    xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/last-image --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg
+    xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-show --create -t bool -s true
+    xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-style --create -t int -s 4
+    xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg
+    xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/workspace0/image-style --create -t int -s 4
+    xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-path --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg >/dev/null 2>&1 || true
+    xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/last-image --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg >/dev/null 2>&1 || true
+    xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-show --create -t bool -s true >/dev/null 2>&1 || true
+    xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-style --create -t int -s 4 >/dev/null 2>&1 || true
+    xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg >/dev/null 2>&1 || true
+    xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/workspace0/image-style --create -t int -s 4 >/dev/null 2>&1 || true
+    xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitorbuiltin/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg
+    xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitorbuiltin/workspace0/image-style --create -t int -s 5
+    xfconf-query -c xfwm4 -p /general/button_layout --create -t string -s "|HMC"
+    for panel_id in $(xfconf-query -c xfce4-panel -l 2>/dev/null | sed -n "s#^/panels/\(panel-[0-9][0-9]*\)/.*#\1#p" | sort -u); do xfconf-query -c xfce4-panel -p "/panels/$panel_id/background-style" --create -t int -s 0 >/dev/null 2>&1 || true; done
+    xfconf-query -c xfwm4 -p /general/use_compositing -s false >/dev/null 2>&1 || true
+    xfdesktop --reload >/dev/null 2>&1 || true
+    install -d -m 0755 "$HOME/.config/ternux"
+    : > "$defaults_marker"
+  fi
+  wallpaper_migration_marker="$HOME/.config/ternux/monitorbuiltin-wallpaper-v1"
+  if [ ! -e "$wallpaper_migration_marker" ]; then
+    current_wallpaper=$(xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitorbuiltin/workspace0/last-image 2>/dev/null || true)
+    if [ -z "$current_wallpaper" ] || [ ! -r "$current_wallpaper" ] || [ "$current_wallpaper" = /usr/share/images/desktop-base/default ]; then
+      xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitorbuiltin/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg
+      xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitorbuiltin/workspace0/image-style --create -t int -s 5
+      xfdesktop --reload >/dev/null 2>&1 || true
+    fi
+    install -d -m 0755 "$HOME/.config/ternux"; : > "$wallpaper_migration_marker"
+  fi
+  icon_migration_marker="$HOME/.config/ternux/desktop-icons-v2"
+  if [ ! -e "$icon_migration_marker" ]; then
+    current_icon_theme=$(xfconf-query -c xsettings -p /Net/IconThemeName 2>/dev/null || true)
+    if [ "$current_icon_theme" = Adwaita ]; then xfconf-query -c xsettings -p /Net/IconThemeName --create -t string -s Ternux; fi
+    install -d -m 0755 "$HOME/.config/ternux"; : > "$icon_migration_marker"
+  fi
+  wm_controls_marker="$HOME/.config/ternux/window-controls-v2"
+  if [ ! -e "$wm_controls_marker" ]; then xfconf-query -c xfwm4 -p /general/button_layout --create -t string -s "|HMC" >/dev/null 2>&1 || true; install -d -m 0755 "$HOME/.config/ternux"; : > "$wm_controls_marker"; fi
+  taskmanager_marker="$HOME/.config/ternux/taskmanager-performance-v1"
+  if [ ! -e "$taskmanager_marker" ]; then
+    xfconf-query -c xfce4-taskmanager -p /interface/show-all-processes --create -t bool -s false >/dev/null 2>&1 || true
+    xfconf-query -c xfce4-taskmanager -p /interface/process-tree --create -t bool -s false >/dev/null 2>&1 || true
+    xfconf-query -c xfce4-taskmanager -p /interface/refresh-rate --create -t int -s 1000 >/dev/null 2>&1 || true
+    install -d -m 0755 "$HOME/.config/ternux"; : > "$taskmanager_marker"
+  fi
+  /usr/local/bin/ternux-panel-shortcuts >/dev/null 2>&1 || true
+  printf "READY\n" > "$TERNUX_READY_FILE"
+  wait "$session_pid"
+'
+TERNUX_GUEST_EOF
+chmod 700 "$TNX_GUEST_SESSION_SCRIPT"
 LAUNCHEOF
 
-  # Backend-specific launcher additions
   if [ "$backend" = "zink" ]; then
-    # Zink talks to Turnip/KGSL directly; the VirGL host server belongs only
-    # to the fallback route below.
     cat >> "$LAUNCHER" << EOF
-proot-distro login $distro --shared-tmp --bind /dev/kgsl-3d0:/dev/kgsl --bind /dev/dri --bind "\$TNX_CPUINFO_FILE:/proc/cpuinfo" --user $user_name \\
+ : > "\$TNX_READY_FILE"
+chmod 666 "\$TNX_READY_FILE"
+guest_login_isolated $distro --bind /dev/kgsl-3d0:/dev/kgsl --bind /dev/dri --bind "\$TNX_CPUINFO_FILE:/proc/cpuinfo" --bind "\$TNX_GUEST_SESSION_SCRIPT:/tmp/ternux-desktop-session.sh" --bind "\$TNX_READY_FILE:/tmp/ternux-desktop-ready" --user $user_name \\
   --env DISPLAY=:0 --env PULSE_SERVER="tcp:127.0.0.1:\$PULSE_PORT" \\
-  --env MESA_LOADER_DRIVER_OVERRIDE=zink \\
-  --env TU_DEBUG=noconform --env MESA_VK_WSI_DEBUG=sw \\
+  --env TERNUX_GUEST_USER=$user_name --env TERNUX_READY_FILE=/tmp/ternux-desktop-ready \\
+  --env MESA_LOADER_DRIVER_OVERRIDE=zink --env TU_DEBUG=noconform --env MESA_VK_WSI_DEBUG=sw \\
   --env MESA_DISK_CACHE_SINGLE_FILE=1 --env MESA_SHADER_CACHE_MAX_SIZE=2048M \\
   --env QT_X11_NO_MITSHM=1 --env XDG_RUNTIME_DIR=/home/$user_name/.runtime \\
   --env LANG=$locale --env LC_ALL=$locale \\
-  -- bash -c '
-    set -u
-    mkdir -p ~/.runtime
-    chmod 700 ~/.runtime
-    until xdpyinfo -display :0 >/dev/null 2>&1; do sleep 0.1; done
-    sudo -n mkdir -p /var/run/dbus /run/dbus /run/user/\$(id -u) 2>/dev/null || true
-    sudo -n dbus-uuidgen --ensure >/dev/null 2>&1 || true
-    sudo -n rm -f /etc/xdg/autostart/light-locker.desktop 2>/dev/null || true
-    exec dbus-run-session -- sh -c "
-      export GTK_IM_MODULE=ibus QT_IM_MODULE=ibus XMODIFIERS=@im=ibus
-      unset IBUS_ADDRESS
-      # Retire IBus daemons left by earlier detached Xfce sessions. Their
-      # private D-Bus sessions prevent --replace from finding/replacing them.
-      pkill -TERM -x ibus-daemon 2>/dev/null || true
-      pkill -TERM -x ibus-ui-gtk3 2>/dev/null || true
-      pkill -TERM -x ibus-extension-gtk3 2>/dev/null || true
-      pkill -TERM -x ibus-memconf 2>/dev/null || true
-      pkill -TERM -x ibus-x11 2>/dev/null || true
-      pkill -TERM -x ibus-portal 2>/dev/null || true
-      pkill -TERM -x ibus-engine-simple 2>/dev/null || true
-      pkill -TERM -f '[/]usr/share/ibus-avro/main-gjs.js' 2>/dev/null || true
-      sleep 0.2
-      rm -f ~/.config/ibus/bus/*
-      ibus-daemon --daemonize --xim --replace
-      ibus_tries=0
-      until ibus address 2>/dev/null | grep -q '^unix:' || [ \\\$ibus_tries -ge 20 ]; do
-        ibus_tries=\\\$((ibus_tries + 1)); sleep 0.1
-      done
-      startxfce4 & session_pid=\\\$!
-      tries=0
-      until xfconf-query -c xsettings -l >/dev/null 2>&1 && pgrep -x xfdesktop >/dev/null 2>&1 || [ \\\$tries -ge 50 ]; do
-        tries=\\\$((tries + 1)); sleep 0.2
-      done
-      # Apply branded defaults once per guest user. Reapplying these on every
-      # launch spawned many xfconf clients, reloaded the wallpaper, and erased
-      # later user theme choices. Keep the desktop lightweight with compositor
-      # effects disabled, while allowing users to customize after first login.
-      defaults_marker="/home/$user_name/.config/ternux/desktop-defaults-v1"
-      if [ ! -e "\\\$defaults_marker" ]; then
-        xfconf-query -c xsettings -p /Net/ThemeName --create -t string -s Adwaita-dark
-        xfconf-query -c xsettings -p /Net/IconThemeName --create -t string -s Adwaita
-        xfconf-query -c xsettings -p /Gtk/CursorThemeName --create -t string -s Adwaita
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-path --create -t string -s /usr/share/backgrounds/ternux/aurora.svg
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/last-image --create -t string -s /usr/share/backgrounds/ternux/aurora.svg
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-show --create -t bool -s true
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-style --create -t int -s 5
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/aurora.svg
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/workspace0/image-style --create -t int -s 5
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-path --create -t string -s /usr/share/backgrounds/ternux/aurora.svg >/dev/null 2>&1 || true
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/last-image --create -t string -s /usr/share/backgrounds/ternux/aurora.svg >/dev/null 2>&1 || true
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-show --create -t bool -s true >/dev/null 2>&1 || true
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-style --create -t int -s 5 >/dev/null 2>&1 || true
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/aurora.svg >/dev/null 2>&1 || true
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/workspace0/image-style --create -t int -s 5 >/dev/null 2>&1 || true
-        xfconf-query -c xfwm4 -p /general/theme --create -t string -s Default
-        xfconf-query -c xfwm4 -p /general/use_compositing -s false >/dev/null 2>&1 || true
-        xfdesktop --reload >/dev/null 2>&1 || true
-        install -d -m 0755 "/home/$user_name/.config/ternux"
-        : > "\\\$defaults_marker"
-      fi
-      wait \\\$session_pid
-    "
-  '
+  -- /tmp/ternux-desktop-session.sh
 EOF
   else
     cat >> "$LAUNCHER" << 'VIRGLEOF'
 virgl_test_server_android >/dev/null 2>&1 &
 VIRGL_PID=$!
+VIRGL_START_ID="$(proc_start_identity "$VIRGL_PID")"
 sleep 1
-if ! kill -0 "$VIRGL_PID" 2>/dev/null; then
-  echo "WARNING: virgl_test_server_android failed to start; check for llvmpipe."
-fi
+if ! kill -0 "$VIRGL_PID" 2>/dev/null; then echo "WARNING: virgl_test_server_android failed to start; check for llvmpipe."; fi
 VIRGLEOF
     cat >> "$LAUNCHER" << EOF
-proot-distro login $distro --shared-tmp --bind "\$TNX_CPUINFO_FILE:/proc/cpuinfo" --user $user_name \\
+ : > "\$TNX_READY_FILE"
+chmod 666 "\$TNX_READY_FILE"
+guest_login_isolated $distro --bind "\$TNX_CPUINFO_FILE:/proc/cpuinfo" --bind "\$TNX_GUEST_SESSION_SCRIPT:/tmp/ternux-desktop-session.sh" --bind "\$TNX_READY_FILE:/tmp/ternux-desktop-ready" --user $user_name \\
   --env DISPLAY=:0 --env PULSE_SERVER="tcp:127.0.0.1:\$PULSE_PORT" \\
+  --env TERNUX_GUEST_USER=$user_name --env TERNUX_READY_FILE=/tmp/ternux-desktop-ready \\
   --env GALLIUM_DRIVER=virpipe --env MESA_GL_VERSION_OVERRIDE=4.3COMPAT \\
   --env QT_X11_NO_MITSHM=1 --env XDG_RUNTIME_DIR=/home/$user_name/.runtime \\
   --env LANG=$locale --env LC_ALL=$locale \\
-  -- bash -c '
-    set -u
-    mkdir -p ~/.runtime
-    chmod 700 ~/.runtime
-    until xdpyinfo -display :0 >/dev/null 2>&1; do sleep 0.1; done
-    sudo -n mkdir -p /var/run/dbus /run/dbus /run/user/\$(id -u) 2>/dev/null || true
-    sudo -n dbus-uuidgen --ensure >/dev/null 2>&1 || true
-    exec dbus-run-session -- sh -c "
-      export GTK_IM_MODULE=ibus QT_IM_MODULE=ibus XMODIFIERS=@im=ibus
-      unset IBUS_ADDRESS
-      # Retire IBus daemons left by earlier detached Xfce sessions. Their
-      # private D-Bus sessions prevent --replace from finding/replacing them.
-      pkill -TERM -x ibus-daemon 2>/dev/null || true
-      pkill -TERM -x ibus-ui-gtk3 2>/dev/null || true
-      pkill -TERM -x ibus-extension-gtk3 2>/dev/null || true
-      pkill -TERM -x ibus-memconf 2>/dev/null || true
-      pkill -TERM -x ibus-x11 2>/dev/null || true
-      pkill -TERM -x ibus-portal 2>/dev/null || true
-      pkill -TERM -x ibus-engine-simple 2>/dev/null || true
-      pkill -TERM -f '[/]usr/share/ibus-avro/main-gjs.js' 2>/dev/null || true
-      sleep 0.2
-      rm -f ~/.config/ibus/bus/*
-      ibus-daemon --daemonize --xim --replace
-      ibus_tries=0
-      until ibus address 2>/dev/null | grep -q '^unix:' || [ \\\$ibus_tries -ge 20 ]; do
-        ibus_tries=\\\$((ibus_tries + 1)); sleep 0.1
-      done
-      startxfce4 & session_pid=\\\$!
-      tries=0
-      until xfconf-query -c xsettings -l >/dev/null 2>&1 && pgrep -x xfdesktop >/dev/null 2>&1 || [ \\\$tries -ge 50 ]; do
-        tries=\\\$((tries + 1)); sleep 0.2
-      done
-      # Apply branded defaults once per guest user. Reapplying these on every
-      # launch spawned many xfconf clients, reloaded the wallpaper, and erased
-      # later user theme choices. Keep the desktop lightweight with compositor
-      # effects disabled, while allowing users to customize after first login.
-      defaults_marker="/home/$user_name/.config/ternux/desktop-defaults-v1"
-      if [ ! -e "\\\$defaults_marker" ]; then
-        xfconf-query -c xsettings -p /Net/ThemeName --create -t string -s Adwaita-dark
-        xfconf-query -c xsettings -p /Net/IconThemeName --create -t string -s Adwaita
-        xfconf-query -c xsettings -p /Gtk/CursorThemeName --create -t string -s Adwaita
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-path --create -t string -s /usr/share/backgrounds/ternux/aurora.svg
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/last-image --create -t string -s /usr/share/backgrounds/ternux/aurora.svg
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-show --create -t bool -s true
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-style --create -t int -s 5
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/aurora.svg
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/workspace0/image-style --create -t int -s 5
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-path --create -t string -s /usr/share/backgrounds/ternux/aurora.svg >/dev/null 2>&1 || true
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/last-image --create -t string -s /usr/share/backgrounds/ternux/aurora.svg >/dev/null 2>&1 || true
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-show --create -t bool -s true >/dev/null 2>&1 || true
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-style --create -t int -s 5 >/dev/null 2>&1 || true
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/aurora.svg >/dev/null 2>&1 || true
-        xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/workspace0/image-style --create -t int -s 5 >/dev/null 2>&1 || true
-        xfconf-query -c xfwm4 -p /general/theme --create -t string -s Default
-        xfconf-query -c xfwm4 -p /general/use_compositing -s false >/dev/null 2>&1 || true
-        xfdesktop --reload >/dev/null 2>&1 || true
-        install -d -m 0755 "/home/$user_name/.config/ternux"
-        : > "\\\$defaults_marker"
-      fi
-      wait \\\$session_pid
-    "
-  '
+  -- /tmp/ternux-desktop-session.sh
 EOF
   fi
-
-  # The EXIT trap defined near the top performs teardown on success, failure,
-  # Ctrl+C, or termination.
 
   chmod +x "$LAUNCHER"
   if bash -n "$LAUNCHER" 2>/dev/null; then
@@ -1185,10 +1317,15 @@ tnx_phase_aliases() {
 # ==== TERNUX ALIASES ====
 alias x='ternux start'
 alias killx='ternux stop'
-alias db='proot-distro login $distro --shared-tmp --user $user_name'
-alias droot='proot-distro login $distro --shared-tmp'
+_ternux_guest_login() {
+  local -a login_args=(--isolated)
+  [ ! -e /sdcard ] || login_args+=(--bind /sdcard:/sdcard)
+  proot-distro login $distro "${login_args[@]}" "$@"
+}
+alias db='_ternux_guest_login --shared-tmp --user $user_name'
+alias droot='_ternux_guest_login --shared-tmp'
 alias xgo='am start -n com.termux.x11/com.termux.x11.MainActivity 2>/dev/null; sleep 1; ternux start'
-clean-mesa() { proot-distro login $distro --user $user_name -- bash -c 'rm -rf -- ~/.cache/mesa ~/.cache/mesa_shader_cache ~/.cache/mesa_shader_cache_db ~/.cache/mesa_shader_cache_sf'; echo "Mesa cache cleared."; }
+clean-mesa() { _ternux_guest_login --user $user_name -- bash -c 'rm -rf -- ~/.cache/mesa ~/.cache/mesa_shader_cache ~/.cache/mesa_shader_cache_db ~/.cache/mesa_shader_cache_sf'; echo "Mesa cache cleared."; }
 sysmon() { echo "--- CPU & Memory ---"; free -h; echo ""; echo "--- GPU / KGSL ---"; ls -l /dev/kgsl-3d0 /dev/dri 2>/dev/null || echo "No GPU nodes."; }
 # ==== END TERNUX ALIASES ====
 ALIASEOF
@@ -1198,9 +1335,38 @@ ALIASEOF
 # ---------------------------------------------------------------------------
 # Phase 9 — optional workloads
 # ---------------------------------------------------------------------------
+# Optional third-party installer scripts are pinned by content digest and
+# product version. Fail closed when an upstream URL changes until Ternux
+# reviews and updates the pin.
+tnx_run_pinned_optional_installer() {
+  local user_name="${1:?missing Debian user}" url="${2:?missing installer URL}"
+  local sha256="${3:?missing installer SHA-256}"
+  shift 3
+  [[ "$sha256" =~ ^[0-9a-f]{64}$ ]] || { tnx_warn "Optional installer has no valid pinned SHA-256."; return 2; }
+  case "$url" in
+    https://hermes-agent.nousresearch.com/install.sh|https://openclaw.ai/install.sh) ;;
+    *) tnx_warn "Refusing an unapproved optional installer source: $url"; return 2 ;;
+  esac
+
+  tnx_guest_login --shared-tmp --user "$user_name" -- bash -lc '
+    set -euo pipefail
+    url="$1"; expected_sha256="$2"; shift 2
+    installer="$(mktemp "${TMPDIR:-/tmp}/ternux-optional-installer.XXXXXX")"
+    trap "rm -f -- \"$installer\"" EXIT
+    curl -fsSL --proto "=https" --tlsv1.2 --connect-timeout 15 --max-time 180 --max-filesize 2000000 \
+      --retry 2 --retry-delay 2 --output "$installer" "$url"
+    if ! printf "%s  %s\n" "$expected_sha256" "$installer" | sha256sum --check --status; then
+      echo "Optional installer SHA-256 mismatch; refusing to execute it." >&2
+      exit 1
+    fi
+    bash -n "$installer"
+    bash "$installer" "$@"
+  ' _ "$url" "$sha256" "$@"
+}
+
 tnx_phase_extras() {
   local user_name="${1:-ternux}"; shift
-  local rc=0 opt selected node_selected=0 go_version="" cores jobs htp_selected=0 adt_selected=0
+  local rc=0 opt selected node_selected=0 go_version="" cores jobs htp_selected=0 adt_selected=0 celestia_selected=0
   local -a apt_packages=() unique_packages=() install_opts=()
   local APT="sudo apt update -o APT::Color=1 && sudo DEBIAN_FRONTEND=noninteractive apt install -y -o APT::Color=1 -o Dpkg::Progress-Fancy=1"
 
@@ -1231,10 +1397,11 @@ tnx_phase_extras() {
       thonny) apt_packages+=(thonny) ;;
       gh) apt_packages+=(gh) ;;
       firefox) apt_packages+=(firefox-esr) ;;
-      thunderbird) apt_packages+=(thunderbird) ;;
+      evolution) apt_packages+=(evolution gnome-online-accounts-gtk) ;;
+      celestia) celestia_selected=1; apt_packages+=(python3 gnupg ca-certificates) ;;
       adt-build-tools|adt-platform-tools|adt-ndk|adt-cmake) apt_packages+=(git curl ca-certificates) ;;
       adt-cmdline|adt-platform) apt_packages+=(git curl ca-certificates default-jdk-headless unzip) ;;
-      llama-htp-experimental)
+      llama-htp-experimental|htp-runtime)
         htp_selected=1
         apt_packages+=(libgbinder1 libglibutil1 libfastrpc1 libfastrpc-dev)
         ;;
@@ -1248,9 +1415,9 @@ tnx_phase_extras() {
       inkscape) apt_packages+=(inkscape) ;;
       audacity) apt_packages+=(audacity) ;;
       imagemagick) apt_packages+=(imagemagick) ;;
-      evince) apt_packages+=(evince) ;;
       libreoffice-writer) apt_packages+=(libreoffice-writer) ;;
       libreoffice-calc) apt_packages+=(libreoffice-calc) ;;
+      libreoffice-draw) apt_packages+=(libreoffice-draw) ;;
       blender) apt_packages+=(blender xvfb) ;;
     esac
   done
@@ -1277,6 +1444,15 @@ tnx_phase_extras() {
   fi
   if [ ${#unique_packages[@]} -gt 0 ]; then
     tnx_guest_login --shared-tmp --user "$user_name" -- bash -c "$APT ${unique_packages[*]}" || { tnx_warn "One or more selected Debian packages failed to install."; rc=1; }
+  fi
+  if [ "$celestia_selected" -eq 1 ]; then
+    if [ "$(tnx_distro)" != debian ]; then
+      tnx_warn "Celestia optional install currently supports the Debian guest only."
+      rc=1
+    elif ! tnx_guest_login --shared-tmp --user "$user_name" -- bash -lc 'sudo /usr/local/bin/ternux-install-celestia'; then
+      tnx_warn "Celestia could not be installed; its repository signature/package checks failed, or a dependency failed."
+      rc=1
+    fi
   fi
 
   if [ "$node_selected" = 1 ]; then
@@ -1315,7 +1491,7 @@ tnx_phase_extras() {
   done
   for opt in "${install_opts[@]}"; do
     case "$opt" in
-      dev|llm|network|media|git|python|node|build|rust|java|golang|php|sqlite3|ripgrep|jq|htop|tree|godot|geany|neovim|micro|thonny|gh|firefox|thunderbird|nmap|tmux|ffmpeg|vlc|mpv|gimp|krita|inkscape|audacity|imagemagick|evince|libreoffice-writer|libreoffice-calc|blender) ;;
+      dev|llm|network|media|git|python|node|build|rust|java|golang|php|sqlite3|ripgrep|jq|htop|tree|godot|geany|neovim|micro|thonny|gh|firefox|nmap|tmux|ffmpeg|vlc|mpv|gimp|krita|inkscape|audacity|imagemagick|libreoffice-writer|libreoffice-calc|libreoffice-draw|blender) ;;
       adt-build-tools|adt-platform-tools|adt-ndk|adt-cmake|adt-cmdline|adt-platform)
         if tnx_guest_login --shared-tmp --user "$user_name" -- bash -lc '
           set -e
@@ -1358,6 +1534,7 @@ tnx_phase_extras() {
           tnx_ok "stable-diffusion release installed and validated"
         else tnx_warn "stable-diffusion release could not be installed; check device/runtime support and the extension guide."; rc=1; fi
         ;;
+      htp-runtime) : ;; # Internal dependency-only path used by the managed extension command.
       llama-vulkan|llama-htp-experimental)
         if [ -f "${_TNX_SRC:-}/lib/extension.sh" ] && ( . "${_TNX_SRC}/lib/extension.sh"; tnx_cmd_extension install "$opt" ); then
           tnx_ok "$opt release installed and validated"
@@ -1389,24 +1566,34 @@ tnx_phase_extras() {
         else tnx_warn "OpenAI API CLI needs Go 1.26 or newer; install a supported Go toolchain, then run go install github.com/openai/openai-cli/cmd/openai@latest."; rc=1; fi
         ;;
       hermes)
-        if tnx_guest_login --shared-tmp --user "$user_name" -- bash -lc '
-          set -o pipefail
-          for attempt in 1 2 3; do
-            echo "Hermes Agent install attempt $attempt/3"
-            if curl -fsSL --retry 2 --retry-delay 2 --connect-timeout 15 https://hermes-agent.nousresearch.com/install.sh | bash -s -- --non-interactive; then
-              exit 0
-            fi
-            [ "$attempt" -lt 3 ] && sleep $((attempt * 3))
-          done
-          exit 1
-        '; then
-          tnx_ok "Hermes Agent installed; run hermes setup when ready"
-        else tnx_warn "Hermes Agent install failed after three attempts; see the network error and retry from the official guide."; rc=1; fi
+        if tnx_run_pinned_optional_installer "$user_name" \
+          https://hermes-agent.nousresearch.com/install.sh \
+          abf338605dae6dd28d101673ac6aed7995c955745db46d47676bc591a7957209 \
+          --commit 3b421578588243f920886e6fe79a6faa87ea026e --non-interactive; then
+          tnx_ok "Hermes Agent v0.23.1 installed from its pinned upstream commit; run hermes setup when ready"
+        else tnx_warn "Hermes Agent installer failed verification or installation; see the network error and retry after updating Ternux."; rc=1; fi
         ;;
+      evolution)
+        if tnx_guest_login --shared-tmp -- bash -c '
+          set -e
+          entry=/usr/share/applications/org.gnome.Evolution.desktop
+          [ -x /usr/bin/evolution ] && [ -x /usr/local/bin/evolution ] && [ -r "$entry" ]
+          install -d -m 0755 /usr/local/share/applications
+          sed "s#^Exec=evolution#Exec=/usr/local/bin/evolution#" "$entry" > /usr/local/share/applications/org.gnome.Evolution.desktop
+          chmod 0644 /usr/local/share/applications/org.gnome.Evolution.desktop
+          update-desktop-database /usr/local/share/applications >/dev/null 2>&1 || true
+        '; then
+          tnx_ok "Evolution Mail installed as an optional app; choose your own mail defaults"
+        else tnx_warn "Evolution Mail package installed, but its managed launcher could not be configured."; rc=1; fi
+        ;;
+      celestia) tnx_ok "Celestia installed as an optional astronomy app" ;;
       openclaw)
-        if tnx_guest_login --shared-tmp --user "$user_name" -- bash -lc 'curl -fsSL --proto https --tlsv1.2 https://openclaw.ai/install.sh | bash -s -- --no-onboard --verify'; then
-          tnx_ok "OpenClaw installed; run openclaw onboard when ready"
-        else tnx_warn "OpenClaw installer failed; its setup can be retried from the official guide."; rc=1; fi
+        if tnx_run_pinned_optional_installer "$user_name" \
+          https://openclaw.ai/install.sh \
+          5b46a876404005229ee62fc2615ddeb1c3f510a434ced47dbbed06b93849c704 \
+          --version v2026.11.2 --no-onboard --verify; then
+          tnx_ok "OpenClaw v2026.11.2 installed from its pinned upstream installer; run openclaw onboard when ready"
+        else tnx_warn "OpenClaw installer failed verification or installation; see the network error and retry after updating Ternux."; rc=1; fi
         ;;
       # Backward-compatible grouped flags remain supported for scripts and --all.
       blender) : ;;
@@ -1806,9 +1993,9 @@ tnx_prompt_username() {
 
 # Item catalogue for the interactive optional-software checklist. Keep this
 # list aligned with the case labels in tnx_phase_extras.
-TNX_OPTIONAL_ITEMS=(git python node build rust java golang php ripgrep jq gh sqlite3 htop tree geany neovim micro thonny godot firefox thunderbird adt-build-tools adt-platform-tools adt-ndk adt-cmake adt-cmdline adt-platform llama-vulkan stable-diffusion llama-htp-experimental nmap tmux ffmpeg vlc mpv audacity gimp krita inkscape imagemagick evince libreoffice-writer libreoffice-calc blender claude codex openai-cli hermes openclaw)
-TNX_OPTIONAL_GROUPS=(DEV DEV DEV DEV LANG LANG LANG LANG DEV DEV DEV DATA SYSTEM SYSTEM IDE IDE IDE IDE GAME WEB WEB ANDROID ANDROID ANDROID ANDROID ANDROID ANDROID AI AI AI NET NET MEDIA MEDIA MEDIA MEDIA DESIGN DESIGN DESIGN DESIGN OFFICE OFFICE OFFICE 3D AGENT AGENT AGENT AGENT AGENT)
-TNX_OPTIONAL_LABELS=("Git" "Python" "Node.js" "C/C++ tools" "Rust" "Java JDK" "Go toolchain" "PHP CLI" "ripgrep" "jq" "GitHub CLI" "SQLite" "htop" "tree" "Geany" "Neovim" "Micro editor" "Thonny IDE" "Godot" "Firefox ESR" "Thunderbird" "ADT Build Tools" "ADT Platform Tools / ADB" "ADT NDK" "ADT CMake" "SDK Manager" "Android API 36" "llama.cpp Vulkan" "Stable Diffusion CPU + Vulkan" "llama.cpp HTP (experimental)" "Nmap" "tmux" "FFmpeg" "VLC" "mpv" "Audacity" "GIMP" "Krita" "Inkscape" "ImageMagick" "Evince PDF" "LibreOffice Writer" "LibreOffice Calc" "Blender" "Claude Code" "Codex CLI" "OpenAI API CLI" "Hermes" "OpenClaw")
+TNX_OPTIONAL_ITEMS=(git python node build rust java golang php ripgrep jq gh sqlite3 htop tree geany neovim micro thonny godot firefox adt-build-tools adt-platform-tools adt-ndk adt-cmake adt-cmdline adt-platform llama-vulkan stable-diffusion llama-htp-experimental nmap tmux ffmpeg vlc mpv audacity gimp krita inkscape imagemagick libreoffice-writer libreoffice-calc libreoffice-draw evolution blender celestia claude codex openai-cli hermes openclaw)
+TNX_OPTIONAL_GROUPS=(DEV DEV DEV DEV LANG LANG LANG LANG DEV DEV DEV DATA SYSTEM SYSTEM IDE IDE IDE IDE GAME WEB ANDROID ANDROID ANDROID ANDROID ANDROID ANDROID AI AI AI NET NET MEDIA MEDIA MEDIA MEDIA DESIGN DESIGN DESIGN DESIGN OFFICE OFFICE OFFICE OFFICE 3D 3D AGENT AGENT AGENT AGENT AGENT)
+TNX_OPTIONAL_LABELS=("Git" "Python" "Node.js" "C/C++ tools" "Rust" "Java JDK" "Go toolchain" "PHP CLI" "ripgrep" "jq" "GitHub CLI" "SQLite" "htop" "tree" "Geany" "Neovim" "Micro editor" "Thonny IDE" "Godot" "Firefox ESR" "ADT Build Tools" "ADT Platform Tools / ADB" "ADT NDK" "ADT CMake" "SDK Manager" "Android API 36" "llama.cpp Vulkan" "Stable Diffusion CPU + Vulkan" "llama.cpp HTP (experimental)" "Nmap" "tmux" "FFmpeg" "VLC" "mpv" "Audacity" "GIMP" "Krita" "Inkscape" "ImageMagick" "LibreOffice Writer" "LibreOffice Calc" "LibreOffice Draw" "Evolution Mail" "Blender" "Celestia astronomy simulator" "Claude Code" "Codex CLI" "OpenAI API CLI" "Hermes" "OpenClaw")
 
 # Parse number lists used when a TTY key-reading menu is unavailable.
 tnx_parse_workload_selection() {
@@ -2137,7 +2324,12 @@ tnx_install() {
         golang) workload_label="Go toolchain" ;;
         php) workload_label="PHP CLI" ;;
         sqlite3) workload_label="SQLite" ;;
-        ripgrep|jq|htop|tree|micro|thonny|thunderbird|evince|libreoffice-calc) workload_label="$workload" ;;
+        ripgrep|jq|htop|tree|micro|thonny) workload_label="$workload" ;;
+        libreoffice-writer) workload_label="LibreOffice Writer" ;;
+        libreoffice-calc) workload_label="LibreOffice Calc" ;;
+        libreoffice-draw) workload_label="LibreOffice Draw (PDF editing and export)" ;;
+        evolution) workload_label="Evolution Mail (optional; no mail default)" ;;
+        celestia) workload_label="Celestia astronomy simulator" ;;
         llama-vulkan) workload_label="llama.cpp Vulkan release" ;;
         stable-diffusion) workload_label="Stable Diffusion CPU + Vulkan image generator" ;;
         llama-htp-experimental) workload_label="llama.cpp HTP experimental release" ;;

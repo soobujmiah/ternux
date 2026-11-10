@@ -8,6 +8,130 @@
 # =============================================================================
 set -u
 
+# Recover an interrupted non-APT self-update before loading any modules. The
+# journal contains only validated scalar identifiers; all restore paths are
+# derived beneath PREFIX so a damaged journal cannot select arbitrary files.
+_tnx_update_proc_identity() {
+  local pid="${1:-}" state="" start=""
+  [[ "$pid" =~ ^[0-9]+$ ]] || return 1
+  [ -r "/proc/$pid/stat" ] || return 1
+  read -r state start < <(awk '{ sub(/^.*\) /, ""); print $1, $20 }' "/proc/$pid/stat" 2>/dev/null) || return 1
+  [[ "$pid" =~ ^[0-9]+$ && "$state" != Z && "$state" != X && "$start" =~ ^[0-9]+$ ]] || return 1
+  printf '%s\n' "$start"
+}
+
+_tnx_update_recover_interrupted() {
+  local prefix="$1" journal="" owner_pid="" owner_start="" backup_id="" had_lib="" had_bin="" extra=""
+  local backup_root="" backup="" lib_target="" bin_target="" current_start="" restore_tmp="" failed_lib="" force_recovery=0
+  journal="$prefix/lib/.ternux-update-journal"
+  backup_root="$prefix/lib/ternux-update-backups"
+  lib_target="$prefix/lib/ternux"
+  bin_target="$prefix/bin/ternux"
+  [ -e "$journal" ] || return 0
+  if [ -L "$prefix/lib" ] || [ -L "$prefix/bin" ] || [ -L "$backup_root" ]; then
+    echo "[FATAL] Ternux update recovery paths contain a symlink; preserve them for inspection." >&2
+    return 70
+  fi
+  if [ -L "$journal" ] || [ ! -f "$journal" ]; then
+    echo "[FATAL] Ternux update journal is not a regular file; preserve it and inspect $journal." >&2
+    return 70
+  fi
+  if ! IFS=' ' read -r owner_pid owner_start backup_id had_lib had_bin extra < "$journal"; then
+    echo "[FATAL] Ternux update journal is unreadable; preserve it and inspect $journal." >&2
+    return 70
+  fi
+  if [[ ! "$owner_pid" =~ ^[0-9]+$ || ! "$owner_start" =~ ^[0-9]+$ ||
+        ! "$backup_id" =~ ^[0-9a-f]{40}-[0-9]+-[0-9]+$ ||
+        ( "$had_lib" != 0 && "$had_lib" != 1 ) ||
+        ( "$had_bin" != 0 && "$had_bin" != 1 ) || -n "$extra" ]]; then
+    echo "[FATAL] Ternux update journal has invalid fields; preserve it and inspect $journal." >&2
+    return 70
+  fi
+  backup="$backup_root/$backup_id"
+  if [ ! -d "$backup" ] || [ -L "$backup" ] ||
+     { [ "$had_lib" = 1 ] && { [ ! -d "$backup/lib" ] || [ -L "$backup/lib" ]; }; } ||
+     { [ "$had_bin" = 1 ] && { [ ! -f "$backup/bin/ternux" ] || [ -L "$backup/bin/ternux" ]; }; }; then
+    echo "[FATAL] Ternux update backup is missing or unsafe; preserve it and inspect $backup." >&2
+    return 70
+  fi
+  current_start="$(_tnx_update_proc_identity "$owner_pid" 2>/dev/null || true)"
+  if [ "${TERNUX_UPDATE_FORCE_RECOVERY:-0}" = 1 ] &&
+     [ "${TERNUX_UPDATE_OWNER_PID:-}" = "$owner_pid" ] &&
+     [ "${TERNUX_UPDATE_OWNER_START:-}" = "$owner_start" ] &&
+     [ "$current_start" = "$owner_start" ]; then
+    force_recovery=1
+  fi
+  if [ "${TERNUX_UPDATE_OWNER_PID:-}" = "$owner_pid" ] &&
+     [ "${TERNUX_UPDATE_OWNER_START:-}" = "$owner_start" ] &&
+     [ "$force_recovery" != 1 ]; then
+    return 0
+  fi
+  if [ -n "$current_start" ] && [ "$current_start" = "$owner_start" ] &&
+     [ "$force_recovery" != 1 ]; then
+    echo "[ERROR] Ternux update is still running (PID $owner_pid); retry after it finishes." >&2
+    return 75
+  fi
+
+  mkdir -p "$prefix/bin" "$prefix/lib" || return 70
+  if [ "$had_lib" = 1 ]; then
+    restore_tmp="$prefix/lib/.ternux-recover-$backup_id"
+    if [ -L "$restore_tmp" ]; then
+      echo "[FATAL] Update recovery path is a symlink: $restore_tmp" >&2
+      return 70
+    fi
+    [ ! -e "$restore_tmp" ] || rm -rf -- "$restore_tmp"
+    cp -a "$backup/lib" "$restore_tmp" || return 70
+    if [ -e "$lib_target" ] || [ -L "$lib_target" ]; then
+      failed_lib="$backup/failed-lib-$owner_pid"
+      local failed_suffix=0
+      while [ -e "$failed_lib" ] || [ -L "$failed_lib" ]; do
+        failed_suffix=$((failed_suffix + 1))
+        failed_lib="$backup/failed-lib-$owner_pid-$failed_suffix"
+      done
+      mv "$lib_target" "$failed_lib" || return 70
+    fi
+    mv "$restore_tmp" "$lib_target" || return 70
+  elif [ -e "$lib_target" ] || [ -L "$lib_target" ]; then
+    failed_lib="$backup/failed-lib-$owner_pid"
+    local failed_suffix=0
+    while [ -e "$failed_lib" ] || [ -L "$failed_lib" ]; do
+      failed_suffix=$((failed_suffix + 1))
+      failed_lib="$backup/failed-lib-$owner_pid-$failed_suffix"
+    done
+    mv "$lib_target" "$failed_lib" || return 70
+  fi
+
+  if [ "$had_bin" = 1 ]; then
+    restore_tmp="$prefix/bin/.ternux-recover-$backup_id"
+    if [ -L "$restore_tmp" ]; then
+      echo "[FATAL] Update recovery path is a symlink: $restore_tmp" >&2
+      return 70
+    fi
+    [ ! -e "$restore_tmp" ] || rm -f -- "$restore_tmp"
+    cp -p "$backup/bin/ternux" "$restore_tmp" || return 70
+    chmod 0755 "$restore_tmp" || return 70
+    mv -f "$restore_tmp" "$bin_target" || return 70
+  elif [ -e "$bin_target" ] || [ -L "$bin_target" ]; then
+    rm -f "$bin_target" || return 70
+  fi
+
+  rm -f "$journal" || return 70
+  rm -f "$prefix/lib/.ternux-update-lock/owner" 2>/dev/null || true
+  rmdir "$prefix/lib/.ternux-update-lock" 2>/dev/null || true
+  echo "[WARN] Recovered the previous Ternux version after an interrupted update." >&2
+}
+
+_TNX_PREFIX="${PREFIX:-/data/data/com.termux/files/usr}"
+_TNX_PREFIX="${_TNX_PREFIX%/}"
+_TNX_BIN_DIR="$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]:-$0}")" 2>/dev/null && pwd -P)"
+if [ "$_TNX_BIN_DIR" = "$_TNX_PREFIX/bin" ]; then
+  if [ "${1:-}" = "--__ternux-recover-update" ]; then
+    _tnx_update_recover_interrupted "$_TNX_PREFIX"
+    exit $?
+  fi
+  _tnx_update_recover_interrupted "$_TNX_PREFIX" || exit $?
+fi
+
 # --- Locate libraries -------------------------------------------------------
 # The repository and installed command deliberately use different layouts:
 #   checkout:  bin/ternux + lib/core.sh

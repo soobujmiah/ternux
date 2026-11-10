@@ -60,3 +60,8 @@ use the source installer in the README until the release workflow publishes
 v2. The project cannot make a brand-new Termux installation resolve
 `pkg install ternux` before this one-time trust setup unless Termux accepts
 Ternux into one of its own official package repositories.
+
+After publication, routine website deployments verify the currently published
+APT signature and every index/package checksum, then carry that signed tree into
+the new Pages artifact. A failed or incomplete verification stops the website
+deployment so it cannot silently remove or replace the package repository.

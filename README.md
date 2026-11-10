@@ -52,7 +52,7 @@ If `curl` is unavailable, use:
 wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
 ```
 
-The base install needs about 4–4.5 GB of storage. Keep extra temporary space for
+The base install needs about 4–4.6 GB of storage. Keep extra temporary space for
 downloads and package caches.
 
 ## Start and use
@@ -82,9 +82,31 @@ available at `/sdcard` inside Debian.
 **Base desktop:** Debian 13 (Trixie) in a user-space PRoot container, Xfce4,
 Termux:X11 display integration, and PulseAudio audio routing. The default setup
 includes Bangla-capable Noto fonts, Avro phonetic input (Ctrl+Space), VLC,
-PulseAudio Volume Control, Xfce Task Manager and Mousepad. A one-time first-run
-welcome opens the project website in Firefox ESR when installed; without a
-browser it shows an in-desktop welcome guide. Firefox is optional.
+PulseAudio Volume Control, Xfce Task Manager, Mousepad, Galculator, Evince PDF
+reader, Ternux Camera, Ternux Sound Recorder,
+Ristretto image viewer, and Synaptic Package Manager. Synaptic uses Ternux
+branding and can search, install, upgrade, or remove Debian packages. Evince is
+the default PDF reader; LibreOffice Draw is optional for editing PDF pages and exporting documents to other formats.
+Celestia is available as an optional astronomy simulator and is not installed by default. No mail client is installed or set as default. Evolution is available as an optional
+mail client; common providers can use OAuth, and other hosts support manual IMAP/POP
+setup. OAuth opens Firefox ESR when installed or the Android default browser through
+the Ternux bridge. One-click Camera, Photos, and Sound Recorder shortcuts
+are on the Xfce panel. Qt5 applications such as VLC use the matching GTK platform theme. The systemwide graphite-and-emerald Ternux GTK theme covers apps, menus,
+and panel; custom Ternux Xfwm frames cover window borders and title bars. The
+Ternux icon theme uses original app, folder, Thunar-action, category, and panel
+icons, plus branded aliases for optional GUI apps such as Firefox ESR, Blender, GIMP,
+Krita, Inkscape, Audacity, Geany, and LibreOffice; Evince is a base app; Evolution has a branded icon when selected from optional software. Thunar actions have their own
+icon context. Adwaita remains the neutral fallback for uncommon or newly installed apps;
+Papirus is not inherited. Fifteen selectable portrait-first branded wallpapers preserve
+their proportions in landscape. Ternux Camera lists
+Android front/rear cameras and captures photos through Termux:API after Camera
+permission is granted to the Termux:API app. Each photo appears in the app preview after capture with its EXIF orientation corrected; compact controls fit the window. Photos save inside Debian at `~/Pictures/Ternux`. A validated capture is staged in Termux app storage, then copied into PRoot; no Gallery scan is performed. Ristretto is the
+default image viewer. Termux:API provides still-photo capture; it does not expose a continuous camera stream for live preview.
+Ternux Sound Recorder captures only after you press Start. Save as AAC/M4A by default, or choose MP3; MP3 is encoded locally with Debian FFmpeg. Recordings stay inside Debian at `~/Music/Ternux`.
+
+A one-time first-run welcome opens the project website in Firefox ESR when
+installed; without a browser it shows an in-desktop welcome guide. Firefox is
+optional.
 
 **Graphics:** automatic Zink + Turnip setup for supported Adreno/KGSL devices,
 with VirGL as a compatibility route. Use `ternux verify` and
@@ -95,7 +117,7 @@ does not by itself prove hardware acceleration. `ternux gpu` and
 
 **Optional software:** the interactive installer lets you choose individual
 packages or workload groups. Choices include developer toolchains and editors,
-Android SDK/NDK tools, Firefox and Thunderbird, local AI runtimes, network
+Android SDK/NDK tools, Firefox, local AI runtimes, network
 utilities, media and graphics apps, office tools, and Blender. The base install
 stays smaller; choose only what you need. The `--all` profile needs roughly
 10.5–12.5 GB installed and about 14 GB free during setup. See

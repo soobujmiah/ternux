@@ -16,16 +16,16 @@ concurrency:
 jobs:
   build:
     name: Build and inspect unsigned package artifact
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
       - name: Check out Ternux
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           persist-credentials: false
 
       - name: Check out pinned Termux package builder
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: termux/termux-create-package
           ref: a7e20f92cfc9664a6ab6232bc826e86da73a8524
@@ -33,7 +33,7 @@ jobs:
           persist-credentials: false
 
       - name: Check out pinned Termux APT repository builder
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: termux/termux-apt-repo
           ref: f2bf088281248e8817b913cc778750796ea5dc19
@@ -46,7 +46,7 @@ jobs:
           sudo apt-get install --yes --no-install-recommends xz-utils binutils dpkg-dev
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
@@ -82,7 +82,7 @@ jobs:
           } > artifacts/ternux-apt/build-info.txt
 
       - name: Upload unsigned CI artifact for review
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ternux-apt-unsigned-ci-${{ github.sha }}
           path: artifacts/ternux-apt/

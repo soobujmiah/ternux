@@ -97,7 +97,16 @@ battery management আছে। Termux ও Termux:X11 battery use *Unrestricted*
 যে নকশা সিদ্ধান্তগুলো গুরুত্বপূর্ণ:
 
 - **root নেই** — privileged Android access চাওয়া হয় না; PRoot Termux app
-  permission-এর মধ্যেই থাকে, কিন্তু নিজে আলাদা security boundary নয়।
+  permission-এর মধ্যেই থাকে, কিন্তু নিজে আলাদা security boundary নয়। Android
+  shared storage `/sdcard` Debian-এর স্বাভাবিক user feature হিসেবে ব্যবহারযোগ্য
+  থাকে। Managed desktop isolated PRoot bind ব্যবহার করে: `/sdcard`, Termux prefix
+  ও Android runtime path রাখা হয়, আর Termux HOME থেকে শুধু camera/recorder staging
+  folder bind হয়। Ternux-এর `db`/`droot` alias ও managed guest command-ও
+  isolated bind ব্যবহার করে, `/sdcard` রাখে এবং চাইলে শুধু `/tmp` share করে।
+  হাতে চালানো সরাসরি `proot-distro login` PRoot-Distro-এর নিজস্ব default মেনে চলে।
+  Guest code একই Termux Android app identity-তে চলে; তাই untrusted program
+  sandbox করতে এটি ব্যবহার করবেন না।
+  Termux-কে শুধু সেই Android storage permission দিন যা Ternux program-কে দিতে চান।
 - **Loopback default/example** — audio bridge ও documented model server
   `127.0.0.1` ব্যবহার করে, তাই LAN-এ expose হয় না। একই ফোনের অন্য client
   loopback listener-এ পৌঁছাতে পারে; anonymous service-কে authenticated ভাববেন না।

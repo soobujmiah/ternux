@@ -39,7 +39,7 @@ keys match.
 
 ## How much storage will it really use?
 
-The corrected approximate **installed footprint** is **4–4.5 GB for the base
+The corrected approximate **installed footprint** is **4–4.6 GB for the base
 installation** and **10.5–12.5 GB for a complete `--all` installation**. Actual use
 varies with Debian package versions, filesystem accounting, optional tools and
 cache retention. Models and your own projects are additional.
@@ -106,7 +106,17 @@ changing any system-wide Android safeguard.
 The design choices that matter:
 
 - **No root** — no privileged Android access is requested; PRoot remains within
-  Termux's app permissions and is not a separate security boundary.
+  Termux's app permissions and is not a separate security boundary. Android
+  shared storage at `/sdcard` remains available inside Debian as an ordinary
+  user feature. The managed desktop uses isolated PRoot binds: it keeps `/sdcard`,
+  the Termux prefix and Android runtime paths available, and binds only the
+  camera/recorder staging folders from Termux HOME. Ternux's `db`/`droot`
+  aliases and managed guest commands also use isolated binds, preserve `/sdcard`,
+  and share `/tmp` only when requested. A direct, manually invoked
+  `proot-distro login` still follows PRoot-Distro's own defaults. Guest code
+  runs under the same Termux Android app identity; do not use
+  it to sandbox untrusted programs. Grant Termux only the Android storage
+  permissions you want Ternux programs to use.
 - **Loopback-only defaults/examples** — the audio bridge and documented model
   servers use `127.0.0.1`, keeping them off the LAN. Other same-device clients
   may still reach loopback listeners, so do not treat anonymous services as authenticated.

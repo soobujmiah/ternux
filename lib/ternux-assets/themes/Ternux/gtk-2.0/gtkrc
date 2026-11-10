@@ -1,0 +1,11 @@
+# Ternux GTK2 fallback palette
+gtk-color-scheme = "base_color:#101816\ntext_color:#e4f3eb\nbg_color:#17221e\nfg_color:#e4f3eb\nselected_bg_color:#08784c\nselected_fg_color:#ffffff\ntooltip_bg_color:#202e28\ntooltip_fg_color:#e4f3eb"
+style "ternux-default" {
+  bg[NORMAL] = "#101816"
+  fg[NORMAL] = "#e4f3eb"
+  bg[SELECTED] = "#08784c"
+  fg[SELECTED] = "#ffffff"
+  base[NORMAL] = "#0c1311"
+  text[NORMAL] = "#e4f3eb"
+}
+class "*" style "ternux-default"

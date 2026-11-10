@@ -8,13 +8,11 @@ on:
         required: true
         type: boolean
         default: false
-  pull_request:
-    paths:
-      - '.github/workflows/llama-htp-artifact.yml'
-      - 'tools/llama-htp/**'
-      - 'LICENSE'
-      - 'NOTICE'
-
+      source_run_id:
+        description: Reuse an inspected artifact from this successful workflow run ID; leave empty to build now
+        required: false
+        type: string
+        default: ''
 permissions:
   contents: read
 
@@ -24,15 +22,16 @@ concurrency:
 
 jobs:
   build:
+    if: github.event_name != 'workflow_dispatch' || inputs.source_run_id == ''
     name: Build pinned Snapdragon Linux package
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 120
     steps:
       - name: Check out Ternux release metadata
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Check out pinned llama.cpp source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: ggml-org/llama.cpp
           ref: af50f2f248b475d9760f8e67503d01c0f194f5f4
@@ -95,8 +94,10 @@ jobs:
               name = Path(raw_path.decode("utf-8")).name.upper()
               if name.endswith(".CMAKE"):
                   return False
-              return (name in {"LICENSE", "COPYING"} or
-                      name.startswith(("LICENSE.", "LICENSE-", "COPYING.", "COPYING-")))
+              stems = ("LICENSE", "LICENCE", "COPYING", "NOTICE", "COPYRIGHT",
+                       "AUTHORS", "PATENTS", "UNLICENSE")
+              return any(name == stem or name.startswith((stem + ".", stem + "-"))
+                         for stem in stems)
 
           licenses = sorted(path.decode("utf-8") for path in paths if path and is_license_file(path))
           if not licenses:
@@ -106,9 +107,19 @@ jobs:
               target.parent.mkdir(parents=True, exist_ok=True)
               shutil.copyfile(Path("llama.cpp") / relative, target)
           (destination / "INDEX.txt").write_text("\n".join(licenses) + "\n", encoding="utf-8")
+          import hashlib
+          checksums = []
+          for relative in licenses:
+              content = (destination / relative).read_bytes()
+              checksums.append(f"{hashlib.sha256(content).hexdigest()}  {relative}")
+          (destination / "SHA256SUMS").write_text("\n".join(checksums) + "\n", encoding="utf-8")
           PY_LICENSES
-          test -s release/ternux-llama-htp-sm8735-b11582/upstream-licenses/licenses/LICENSE-jsonhpp
-          test -s release/ternux-llama-htp-sm8735-b11582/upstream-licenses/vendor/cpp-httplib/LICENSE
+          license_dir=release/ternux-llama-htp-sm8735-b11582/upstream-licenses
+          test -s "$license_dir/AUTHORS"
+          test -s "$license_dir/licenses/LICENSE-jsonhpp"
+          test -s "$license_dir/vendor/cpp-httplib/LICENSE"
+          grep -Fxq AUTHORS "$license_dir/INDEX.txt"
+          (cd "$license_dir" && sha256sum -c SHA256SUMS)
           install -D -m 0755 tools/llama-htp/htp-run \
             release/ternux-llama-htp-sm8735-b11582/bin/htp-run
           install -D -m 0644 tools/llama-htp/htp-broker.py \
@@ -158,7 +169,7 @@ jobs:
             "experimental_adapter": ["bin/htp-run", "libexec/htp-broker.py", "lib/libternux-htp-broker.so"],
             "runtime_dependencies": ["libgbinder.so.1", "libglibutil.so.1", "libcdsprpc.so.1", "libcdsprpc.so", "python3"],
             "debian_packages": ["libgbinder1", "libglibutil1", "libfastrpc1", "libfastrpc-dev", "python3"],
-            "license_files": ["LLAMA-CPP-LICENSE", "upstream-licenses/INDEX.txt", "TERNUX-LICENSE", "TERNUX-NOTICE"]
+            "license_files": ["LLAMA-CPP-LICENSE", "upstream-licenses/INDEX.txt", "upstream-licenses/SHA256SUMS", "TERNUX-LICENSE", "TERNUX-NOTICE"]
           }
           EOF
           tar -C release -czf ternux-llama-htp-sm8735-b11582.tar.gz ternux-llama-htp-sm8735-b11582
@@ -167,10 +178,12 @@ jobs:
           while IFS= read -r license_path; do
             grep -Fqx "ternux-llama-htp-sm8735-b11582/upstream-licenses/$license_path" archive-contents.txt
           done < release/ternux-llama-htp-sm8735-b11582/upstream-licenses/INDEX.txt
+          grep -Fqx 'ternux-llama-htp-sm8735-b11582/upstream-licenses/AUTHORS' archive-contents.txt
+          grep -Fqx 'ternux-llama-htp-sm8735-b11582/upstream-licenses/SHA256SUMS' archive-contents.txt
           sed -n '1,40p' archive-contents.txt
 
       - name: Upload build artifact for review
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ternux-llama-htp-sm8735-b11582
           path: |
@@ -180,19 +193,85 @@ jobs:
             htp-broker-file.txt
             llama-cli-file.txt
           if-no-files-found: error
-          retention-days: 14
+          retention-days: 90
 
-  publish:
-    if: github.event_name == 'workflow_dispatch' && inputs.publish == true && github.ref == 'refs/heads/main'
-    needs: build
-    runs-on: ubuntu-latest
+  verify_source:
+    if: github.event_name == 'workflow_dispatch' && inputs.source_run_id != ''
+    runs-on: ubuntu-24.04
     permissions:
-      contents: write
+      actions: read
+      contents: read
+    outputs:
+      source_sha: ${{ steps.provenance.outputs.source_sha }}
     steps:
-      - name: Download the exact build artifact
-        uses: actions/download-artifact@v4
+      - name: Check out release source for provenance checks
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Validate the previous build run
+        id: provenance
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_RUN_ID: ${{ inputs.source_run_id }}
+        run: >-
+          tools/verify_release_artifact_run.sh "$SOURCE_RUN_ID"
+          ".github/workflows/llama-htp-artifact.yml" "ternux-llama-htp-sm8735-b11582" "tools/llama-htp" "LICENSE" "NOTICE"
+
+  refresh_artifact:
+    if: github.event_name == 'workflow_dispatch' && inputs.source_run_id != ''
+    needs: verify_source
+    runs-on: ubuntu-24.04
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - name: Download the verified HTP artifact without rebuilding
+        uses: actions/download-artifact@v7
         with:
           name: ternux-llama-htp-sm8735-b11582
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ inputs.source_run_id }}
+          path: candidate
+      - name: Verify archive checksum
+        run: (cd candidate && sha256sum --check ternux-llama-htp-sm8735-b11582.tar.gz.sha256)
+      - name: Re-upload the exact inspected artifact with extended retention
+        uses: actions/upload-artifact@v6
+        with:
+          name: ternux-llama-htp-sm8735-b11582
+          path: |
+            candidate/ternux-llama-htp-sm8735-b11582.tar.gz
+            candidate/ternux-llama-htp-sm8735-b11582.tar.gz.sha256
+            candidate/archive-contents.txt
+            candidate/htp-broker-file.txt
+            candidate/llama-cli-file.txt
+          if-no-files-found: error
+          retention-days: 90
+
+  publish:
+    if: >-
+      ${{ always() && github.event_name == 'workflow_dispatch' && inputs.publish == true && github.ref == 'refs/heads/main' && ((needs.build.result == 'success' && inputs.source_run_id == '') || (needs.build.result == 'skipped' && inputs.source_run_id != '')) && ((needs.verify_source.result == 'success' && inputs.source_run_id != '') || (needs.verify_source.result == 'skipped' && inputs.source_run_id == '')) }}
+    needs: [build, verify_source]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      actions: read
+    env:
+      SOURCE_ARTIFACT_SHA: ${{ needs.verify_source.outputs.source_sha || github.sha }}
+    steps:
+      - name: Check out release source for provenance checks
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Download the exact build artifact
+        uses: actions/download-artifact@v7
+        with:
+          name: ternux-llama-htp-sm8735-b11582
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ inputs.source_run_id || github.run_id }}
           path: release
 
       - name: Create or refresh draft experimental release
@@ -228,6 +307,7 @@ jobs:
           firmware and does not change device permissions. Its broker is
           experimental; cancellation/fallback remain unqualified.
           EOF
+          printf '\nTernux artifact build source commit: `%s`.\n' "$SOURCE_ARTIFACT_SHA" >> release-notes.md
           if gh release view "$tag" >/dev/null 2>&1; then
             gh release upload "$tag" \
               release/ternux-llama-htp-sm8735-b11582.tar.gz \

@@ -1,7 +1,7 @@
 """Stream SD1.5 CLIP tables from the authorized ZIP into anonymous memory.
 
-Requires the Python `tokenizers` package. No ZIP member is extracted to disk.
-The output is CLIP input_embedding, not the CLIP model's hidden state.
+Uses a small standard-library CLIP byte-BPE implementation. No ZIP member is
+extracted to disk. The output is CLIP input_embedding, not the model hidden state.
 """
 
 import argparse
@@ -12,6 +12,7 @@ import zipfile
 from pathlib import Path
 
 from clip_conditioning import ROWS, WIDTH, build_input, padded_ids
+from clip_tokenizer import ClipBpeTokenizer
 
 
 PREFIX = "output_512/qnn_models_8gen2/"
@@ -53,11 +54,6 @@ def main():
     parser.add_argument("--output", type=Path, required=True,
                         help="new scratch path for 77x768 FP32 binary")
     args = parser.parse_args()
-    try:
-        from tokenizers import Tokenizer
-    except ImportError as error:
-        parser.error(f"Python tokenizers package is required: {error}")
-
     with zipfile.ZipFile(args.archive) as archive:
         tokenizer_name = PREFIX + "tokenizer.json"
         if archive.getinfo(tokenizer_name).file_size != EXPECTED_SIZES["tokenizer.json"]:
@@ -65,8 +61,8 @@ def main():
         tokenizer_blob = archive.read(tokenizer_name)
         if hashlib.sha256(tokenizer_blob).hexdigest() != EXPECTED_SHA256["tokenizer.json"]:
             raise ValueError("unexpected tokenizer SHA-256")
-        tokenizer = Tokenizer.from_str(tokenizer_blob.decode("utf-8"))
-        content_ids = tokenizer.encode(args.prompt, add_special_tokens=False).ids
+        tokenizer = ClipBpeTokenizer.from_json(tokenizer_blob)
+        content_ids = tokenizer.encode(args.prompt)
         ids = padded_ids(content_ids)
         token_fd = stream_memfd(archive, "token_emb.bin")
         try:

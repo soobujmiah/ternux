@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+ <defs><linearGradient id="g" x1="8" y1="12" x2="54" y2="59" gradientUnits="userSpaceOnUse"><stop stop-color="#39e68c"/><stop offset="1" stop-color="#078b55"/></linearGradient><linearGradient id="d" x1="18" y1="20" x2="45" y2="52" gradientUnits="userSpaceOnUse"><stop stop-color="#263a34"/><stop offset="1" stop-color="#111b19"/></linearGradient></defs>
+ <path fill="#07120f" d="M5 16a7 7 0 0 1 7-7h14l7 7h19a7 7 0 0 1 7 7v25a8 8 0 0 1-8 8H13a8 8 0 0 1-8-8z"/>
+ <path fill="url(#g)" d="M5 21a6 6 0 0 1 6-6h16l6 6h20a6 6 0 0 1 6 6v20a7 7 0 0 1-7 7H12a7 7 0 0 1-7-7z"/>
+ <path fill="url(#d)" d="M11 27a4 4 0 0 1 4-4h34a4 4 0 0 1 4 4v18a4 4 0 0 1-4 4H15a4 4 0 0 1-4-4z"/>
+ <g fill="none" stroke="#8bf3bd" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="22" y="29" width="20" height="16" rx="2"/><path d="M27 49h10m-5-4v4m-5-11h10m-3-3 3 3-3 3"/></g>
+ <path fill="none" stroke="#b5ffd7" stroke-opacity=".56" stroke-width="1.5" d="M7 26a5 5 0 0 1 5-5h15l6 6h20"/>
+</svg>

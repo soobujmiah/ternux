@@ -81,8 +81,11 @@ XDG_RUNTIME_DIR=~/.runtime         dbus/GTK অ্যাপের জন্য �
 Mesa shader cache Debian user-এর cache directory-তে desktop restart-এর পরও থাকে; launcher সেটিকে shared `/tmp`-তে পাঠায় না। Graphics repair-এর সময় `ternux repair` cache মুছতে পারে।
 
 প্রতিটি Debian user-এর জন্য ডেস্কটপ bundled theme, wallpaper ও compositor-off
-ডিফল্ট একবারই বসায়। পরের start-এ এই সেটিং ও wallpaper reload বাদ যায়,
-তাই startup-এ কম কাজ হয় এবং user-এর নিজের theme বদল বজায় থাকে।
+ডিফল্ট একবারই বসায়। Termux:X11-এ default wallpaper Xfce-এর সক্রিয় `builtin`
+output-এ সেট হয়। একবারের migration শুধু খালি, মুছে যাওয়া বা Debian-এর stock
+wallpaper path ঠিক করে; user-এর readable custom wallpaper অপরিবর্তিত থাকে।
+পরের start-এ এই সেটিং ও wallpaper reload বাদ যায়, তাই startup-এ কম কাজ হয়
+এবং user-এর নিজের theme বদল বজায় থাকে।
 
 *কেন ক্যাশ টিউনিং?* ফোনের স্টোরেজ ধীর ফ্ল্যাশ; এক-ফাইল, সাইজ-ক্যাপড ক্যাশ
 অ্যাপের ওয়ার্ম-স্টার্ট দ্রুত রাখে, আর Mesa-কে নিঃশব্দে গিগাবাইট গিলতে দেয় না।

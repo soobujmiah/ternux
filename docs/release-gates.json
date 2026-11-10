@@ -1,0 +1,488 @@
+{
+  "schema_version": 1,
+  "project": "Ternux",
+  "target_release": "2.0.0",
+  "audit_date": "2026-11-10",
+  "derived_readiness": "NOT_READY",
+  "release_approved": false,
+  "status_axes": {
+    "source": "Implementation and compatibility evidence",
+    "ci": "Dated snapshot only: workflow runs must be matched to the proposed release commit before any READY verdict.",
+    "device": "Physical-device evidence; never inferred from CI"
+  },
+  "gates": [
+    {
+      "phase": "Stage 1",
+      "issue_id": "P0-01",
+      "severity": "P0",
+      "owner": "engineering",
+      "status": "COMPLETE",
+      "source_status": "PASS",
+      "ci_status": "PASS",
+      "device_status": "CI_ONLY",
+      "evidence": [
+        "tests/stable_diffusion_license_bundle_test.py",
+        "packaging/stable-diffusion/components.json: Ternux component correctly declares Apache-2.0; regression test verifies declared license and bundled TERNUX-LICENSE/TERNUX-NOTICE.",
+        "Exact-head Stable Diffusion ARM64 build and independent license audit passed on product commit f4bb945576f03a9d8979d7d89553660471dafbaf (run 42773827441); current head retains the same verified build inputs."
+      ],
+      "required_tests": [
+        "ARM64 build",
+        "independent license bundle audit",
+        "missing/duplicate license fixtures"
+      ],
+      "acceptance_criteria": [
+        "Exact release head compiles and independently accounts for every redistributed dependency notice."
+      ],
+      "release_blocking": true,
+      "release_exclusion": null
+    },
+    {
+      "phase": "Stage 1",
+      "issue_id": "P0-02",
+      "severity": "P0",
+      "owner": "engineering",
+      "status": "PARTIAL",
+      "source_status": "PASS",
+      "ci_status": "PASS",
+      "device_status": "N_A",
+      "evidence": [
+        "PR #97 targets main; origin/main 8e24062589e81c20095c875fa4d19dd5cb928554 is an ancestor. Audited head before this documentation-only refresh, 025f3f8a56bd26013aa2ce7340a183b1fe876697, was 172 commits ahead; GitHub reports 576 changed files. PR is open and ready for review, but requires owner/CODEOWNERS review; no review has been submitted.",
+        "Follow-up on PR head 3cc8e2cdafa7d9cd93d27d48ec3ce674f91aaaa8: all five required checks pass (Validate 42796372115; Termux APT package 42796372208; repository contract 42796372131; Repo Knowledge Sync 42796372536 sync and test). GitHub shows REVIEW_REQUIRED with no review requests. CODEOWNERS lists only @soobujmiah, who authored the PR; collaborator enumeration lists only the owner. Branch protection requires one approval plus CODEOWNERS, so there is no independent eligible reviewer until the owner adds/authorizes one. The main-only publisher cannot run before the protected merge.",
+        "All five required checks pass on exact PR head 025f3f8a56bd26013aa2ce7340a183b1fe876697: Validate 42791752634; Termux APT package 42791752738; repository contract 42791752506; Repo Knowledge Sync 42791752499 (sync and test).",
+        "Four source-run refresh workflows passed provenance/checksum checks, skipped compilation and publication, and extended exact-artifact retention through 2027-02-08. HTP candidate run 42783356495 / artifact 13747701121 was downloaded and its sidecar SHA-256 verified as a139a6248356a44e89348ddbe1334edaad33f81a9efbe8f5b8fe3c5733dcf3de (15,691,323 bytes). The exact no-rebuild publisher verifier passed against current PR head 025f3f8a56bd26013aa2ce7340a183b1fe876697, confirming run/artifact provenance, ancestry, unchanged build definition/package inputs, and non-expired artifact.",
+        "The existing public HTP prerelease still serves its older 2026-10-13 archive (SHA-256 dffcf83fa969f3ccfad238217b4ca7f3d47040e5e5b2fa834ebd3f123d144ea5); main-only publication can reuse the retained run after integration without rebuilding. PR #97 is now ready for review, but publication still requires owner/CODEOWNERS review and merge; release readiness remains NOT_READY with eight incomplete blockers.",
+        "Latest exact PR head 2d19b4566e2cf9aa40edb5f71011b011604651d7 passes all five required checks: Validate 42797563217; Termux APT package 42797562831; repository contract 42797563017; Repo Knowledge Sync 42797562765 sync and test. GitHub still reports REVIEW_REQUIRED/BLOCKED with no approval or review request. The PR author is the only collaborator/CODEOWNER; other recorded review entries are bot comments, so an independent human reviewer is still required before merge and the main-only publisher.",
+        "Latest exact PR head b97ea9965865c602d0119f8f8916e0430e06d847 passes all five required checks: Validate 42798314264; Termux APT package 42798314373; repository contract 42798315057; Repo Knowledge Sync 42798315019 sync and test. The no-rebuild verifier passes against this head for HTP source run 42783356495; Actions artifact 13747701121 is unexpired through 2027-02-08. No artifact download or rebuild was performed. The public prerelease still has the older asset; protected merge/review remains required."
+      ],
+      "required_tests": [
+        "exact-head required CI",
+        "final branch and PR diff review"
+      ],
+      "acceptance_criteria": [
+        "All release fixes are on the intended branch and final review approves a coherent release commit."
+      ],
+      "release_blocking": true,
+      "release_exclusion": null
+    },
+    {
+      "phase": "Stage 1",
+      "issue_id": "P0-03",
+      "severity": "P0",
+      "owner": "engineering",
+      "status": "COMPLETE",
+      "source_status": "PASS",
+      "ci_status": "PASS",
+      "device_status": "N_A",
+      "evidence": [
+        "docs/V2-RELEASE-READINESS.md",
+        "docs/release-gates.json",
+        "Current inventory has 19 gates; release_gates.py derives NOT_READY with eight incomplete blockers. The validator does not permit readiness while any release-blocking gate is incomplete."
+      ],
+      "required_tests": [
+        "release-gate validator",
+        "exact-head CI and owner review"
+      ],
+      "acceptance_criteria": [
+        "No release is READY unless every blocking gate has authoritative passing evidence."
+      ],
+      "release_blocking": true,
+      "release_exclusion": null
+    },
+    {
+      "phase": "Stage 2",
+      "issue_id": "P1-01",
+      "severity": "P1",
+      "owner": "engineering",
+      "status": "PARTIAL",
+      "source_status": "PARTIAL",
+      "ci_status": "PASS",
+      "device_status": "VERIFIED_ON_DEVICE",
+      "evidence": [
+        "lib/desktop.sh",
+        "Focused fixtures cover bounded functional X11 readiness, stale sockets, duplicate-start rejection, READY-state failure reporting, independent PulseAudio TCP-route readiness, and lifecycle stop/start/reuse/concurrency; 142/142 pass locally on 2026-11-10. Latest Validate 42783758067 passed these regressions on head 6fd2772. Exact current-head Validate 42792959040 passed.",
+        "2026-11-10 source-module device check reused the existing desktop: TERNUX_LIB_DIR=$PWD/lib TERNUX_JSON=1 bash bin/ternux start --json returned already_running for PID 16987; subsequent source status reported READY, X11 functional, and pulseaudio_ready=yes. No stop, restart, app close, or installed-file replacement occurred.",
+        "The previously installed CLI independently still reported running PID 16987. Updated-package controlled stop/crash recovery and managed identity remain unverified.",
+        "Exact-head commit f4bb945576f03a9d8979d7d89553660471dafbaf passed all eight required CI workflows on 2026-11-10: Validate 42773827524; Termux APT 42773827442; repository contract 42773827490; knowledge sync 42773827401; llama CPU/Vulkan 42773827384; Stable Diffusion CPU/Vulkan 42773827441; HTP 42773827791; HTP/HMX candidate 42773827449.",
+        "2026-11-10 non-disruptive device concurrency check: simultaneous source start calls returned starting/already_running for the existing PID 16987; both exited 0, then status reported READY with functional X11 and PulseAudio route. No stop/restart occurred; controlled updated-package stop/crash recovery remains open.",
+        "Startup now requires the launcher READY marker plus a bounded host probe of Termux:X11, xfce4-session, xfwm4, xfdesktop, and xdpyinfo; it reports PulseAudio route readiness separately. Restart returns failure without a second start if stop cannot acquire the lifecycle lock. Local focused suite passed 144/144 after these changes; no live session restart or updated-package lifecycle run was performed."
+      ],
+      "required_tests": [
+        "overlap/start-stop/crash-recovery fixtures",
+        "controlled device lifecycle matrix",
+        "bounded functional startup readiness, independent audio status, and restart lock-contention regression"
+      ],
+      "acceptance_criteria": [
+        "Track only Ternux-owned process identities and prove readiness, stop, recovery, X11 ownership and independent audio status; status must use a bounded functional X11 check and distinguish daemon presence from an answering audio route."
+      ],
+      "release_blocking": true,
+      "release_exclusion": null
+    },
+    {
+      "phase": "Stage 2",
+      "issue_id": "P1-02",
+      "severity": "P1",
+      "owner": "engineering",
+      "status": "COMPLETE",
+      "source_status": "PASS",
+      "ci_status": "PASS",
+      "device_status": "VERIFIED_ON_DEVICE",
+      "evidence": [
+        "lib/detect.sh",
+        "docs/V2-RELEASE-READINESS.md#physical-device-vulkan-observation",
+        "Adreno 825 guest Vulkan/Turnip/Zink observed. Parser/failure-path regressions pass in Validate 42707570617; other GPU families are not qualified."
+      ],
+      "required_tests": [
+        "mocked missing-loader/ICD/device cases",
+        "device renderer and Vulkan enumeration"
+      ],
+      "acceptance_criteria": [
+        "Report hardware, loader, ICD, enumeration, renderer and acceleration as distinct verified states; no device-node false positive."
+      ],
+      "release_blocking": true,
+      "release_exclusion": null
+    },
+    {
+      "phase": "Stage 2",
+      "issue_id": "P1-03",
+      "severity": "P1",
+      "owner": "engineering",
+      "status": "PARTIAL",
+      "source_status": "PARTIAL",
+      "ci_status": "PASS",
+      "device_status": "NOT_TESTED",
+      "evidence": [
+        "tests/update_transaction.sh",
+        "Local focused suite passed 134/134, including update transaction version/pinning/staging/rollback/crash/concurrency/symlink cases; exact-head Validate 42707570617 passed. On 2026-11-10, bash tests/update_transaction.sh passed with an exact published v1.4.0 dispatcher/core/updater fixture from commit 3e6c07e2afcb5f1e65ecd57af19b0382a948835a, updating against a local bare repository containing the current v2 source. A fake proot-distro keeps the installed Debian guest untouched. This proves source-level migration behavior, not migration through a published v2 release or on-device.",
+        "A published v2 release and actual native-device v1.4.0 migration remain unverified because no v2 stable publication exists.",
+        "Fresh standalone bootstrap now downloads the immutable source archive for commit 614d3b7d1ceda1ecd96107333b5d03795c4d5b7a and verifies SHA-256 f55737a18eedff270ce32416ab55fbc070132dd02d41f0234f509f03f99cbf8c before extraction. Focused tests verify the exact commit URL and reject modified bytes. Published v2 and native-device v1.4.0 migration remain unverified."
+      ],
+      "required_tests": [
+        "pinning/downgrade/staging/rollback/crash/concurrency/symlink fixtures",
+        "published v2 and v1.4.0 migration",
+        "fresh bootstrap accepts only the pinned source archive and fails closed on digest mismatch (verified by focused regression suite, 145/145 passed)"
+      ],
+      "acceptance_criteria": [
+        "Never replace a working CLI/modules tree with an incomplete or unpinned update; prove published migration."
+      ],
+      "release_blocking": true,
+      "release_exclusion": null
+    },
+    {
+      "phase": "Stage 2",
+      "issue_id": "P1-04",
+      "severity": "P1",
+      "owner": "engineering",
+      "status": "PARTIAL",
+      "source_status": "PARTIAL",
+      "ci_status": "PASS",
+      "device_status": "VERIFIED_ON_DEVICE",
+      "evidence": [
+        "docs/FAQ.md",
+        "bn/docs/FAQ.md",
+        "docs/MANUAL.md",
+        "bn/docs/MANUAL.md",
+        "Normal PRoot use of Android shared storage at /sdcard is expected and verified; managed desktop, generic guest wrapper, and generated db/droot aliases keep Termux HOME isolated. /tmp remains explicitly requested.",
+        "Device probe through the current wrapper verified /sdcard readable and Termux HOME files hidden without restarting the live desktop; prior isolated X11/PulseAudio/mic-status/camera-info probes are recorded here.",
+        "Exact-head Validate 42707570617 passed the generic-wrapper isolation regression. Full XFCE/app smoke under the updated launcher remains open.",
+        "2026-11-10 source-module device check: TERNUX_LIB_DIR=$PWD/lib TERNUX_JSON=1 bash bin/ternux verify --json returned passed; termux-x11, proot-distro, PulseAudio, setsid, launcher, Debian services and Turnip were present/ok. No GUI/service restart.",
+        "Optional Hermes/OpenClaw setup now downloads first-party bootstrap scripts to a unique temporary file, enforces HTTPS and a 2 MB cap, syntax-checks, verifies a reviewed SHA-256, and runs only the pinned product version/commit. Pins: Hermes v0.23.1 commit 3b421578588243f920886e6fe79a6faa87ea026e, SHA-256 abf338605dae6dd28d101673ac6aed7995c955745db46d47676bc591a7957209; OpenClaw v2026.11.2, SHA-256 5b46a876404005229ee62fc2615ddeb1c3f510a434ced47dbbed06b93849c704. tests/pinned_optional_installers.sh verifies execution, mismatch rejection, host allowlisting, and staging cleanup; it is wired into CI."
+      ],
+      "required_tests": [
+        "verify generated generic aliases preserve /sdcard and shared tmp while excluding Termux HOME",
+        "full XFCE startup and user-facing app smoke through updated launcher (current live GUI was not restarted)",
+        "pinned optional installer checksum/argument/cleanup regression"
+      ],
+      "acceptance_criteria": [
+        "Preserve normal /sdcard access while granting only the host paths needed for Ternux integrations."
+      ],
+      "release_blocking": true,
+      "release_exclusion": null
+    },
+    {
+      "phase": "Stage 2",
+      "issue_id": "P1-05",
+      "severity": "P1",
+      "owner": "engineering",
+      "status": "COMPLETE",
+      "source_status": "PASS",
+      "ci_status": "PASS",
+      "device_status": "N_A",
+      "evidence": [
+        "Owner-authorized GitHub branch protection is active on main. Strict required checks are Shell, behavior, and documentation; Build and inspect unsigned package artifact; repo-contract; test; sync.",
+        "Live read-back confirms one approving review and CODEOWNERS review, dismissal of stale approvals, approval after latest push, admin enforcement, conversation resolution, force-push disabled, and deletion disabled.",
+        ".github/CODEOWNERS assigns @soobujmiah as default owner. PR #97 is still draft with REVIEW_REQUIRED and no submitted reviews; this remaining integration/review is tracked by P0-02."
+      ],
+      "required_tests": [
+        "read back branch protection and required contexts",
+        "match required contexts against successful Actions check runs",
+        "verify CODEOWNERS and outstanding PR review state"
+      ],
+      "acceptance_criteria": [
+        "Required PR review/checks, CODEOWNERS ownership and release protections are reviewed and approved."
+      ],
+      "release_blocking": true,
+      "release_exclusion": null
+    },
+    {
+      "phase": "Stage 3",
+      "issue_id": "P1-06",
+      "severity": "P1",
+      "owner": "engineering",
+      "status": "PARTIAL",
+      "source_status": "PASS",
+      "ci_status": "PASS",
+      "device_status": "VERIFIED_ON_DEVICE",
+      "evidence": [
+        "docs/ACCELERATOR-RELEASE-PLAN.md",
+        "guides/device-benchmark-evidence.md",
+        "Exact-head llama CPU/Vulkan ARM64 artifact run 42707570564 passed; Adreno Vulkan verified on device.",
+        "SM8735/Adreno 825 CPU and Vulkan known-answer, layer offload, bounded cancellation and reopen evidence is recorded; broad sustained/memory-pressure qualification remains open."
+      ],
+      "required_tests": [
+        "correctness, fallback, memory, repeated and cancellation workload matrix"
+      ],
+      "acceptance_criteria": [
+        "Stable CPU/Vulkan paths pass correctness and lifecycle tests on the declared support matrix."
+      ],
+      "release_blocking": true,
+      "release_exclusion": null
+    },
+    {
+      "phase": "Stage 3",
+      "issue_id": "P1-07",
+      "severity": "P1",
+      "owner": "engineering",
+      "status": "PARTIAL",
+      "source_status": "PARTIAL",
+      "ci_status": "PASS",
+      "device_status": "VERIFIED_ON_DEVICE",
+      "evidence": [
+        "docs/ACCELERATOR-RELEASE-PLAN.md: HMX MUL_MAT and FLASH_ATTN_EXT numerical failures remain visible.",
+        "Exact-head HTP artifact 42707570651 and HMX capability build 42707570549 passed; publication skipped on draft PR. Build evidence does not clear numerical qualification failures.",
+        "The retained candidate archive (Actions run 42783356495, artifact 13747701121; SHA-256 a139a6248356a44e89348ddbe1334edaad33f81a9efbe8f5b8fe3c5733dcf3de) was checksum/inventory verified but not executed on-device. Preflight battery was 35.7 C and peak sampled CPU thermal zone was 50.8 C; exact-archive inference is NOT_TESTED. Prior VERIFIED_ON_DEVICE evidence concerns earlier installed artifacts. HTP remains experimental and stable-release-excluded."
+      ],
+      "required_tests": [
+        "operator/reference/tolerance matrix",
+        "sustained, cancellation and memory qualification"
+      ],
+      "acceptance_criteria": [
+        "Experimental HTP remains disabled as stable default until numerical matrix passes."
+      ],
+      "release_blocking": false,
+      "release_exclusion": "HTP/HMX is explicitly experimental and excluded from stable workload claims; known failing operators remain disabled."
+    },
+    {
+      "phase": "Stage 3",
+      "issue_id": "P1-08",
+      "severity": "P1",
+      "owner": "engineering",
+      "status": "PARTIAL",
+      "source_status": "PARTIAL",
+      "ci_status": "NOT_RUN",
+      "device_status": "VERIFIED_ON_DEVICE",
+      "evidence": [
+        "docs/ACCELERATOR-RELEASE-PLAN.md: QNN generation repeatability; independent stage tensors unverified",
+        "Research generation ran on-device; production stage correctness remains unverified"
+      ],
+      "required_tests": [
+        "CLIP/UNet/VAE stage tensor oracle",
+        "model/runtime/memory/repeat/failure-recovery checks"
+      ],
+      "acceptance_criteria": [
+        "Do not claim production NPU image generation without stage correctness and runtime qualification."
+      ],
+      "release_blocking": false,
+      "release_exclusion": "QNN Stable Diffusion remains experimental/research-only; no production correctness or speed claim."
+    },
+    {
+      "phase": "Stage 5",
+      "issue_id": "P1-APT",
+      "severity": "P1",
+      "owner": "engineering",
+      "status": "BLOCKED",
+      "source_status": "BLOCKED",
+      "ci_status": "PASS",
+      "device_status": "NOT_TESTED",
+      "evidence": [
+        "Exact-head unsigned Termux package artifact passed run 42707570582; protected-key non-deploy signing verification passed earlier on main.",
+        "2026-11-10 direct checks of canonical GitHub Pages URLs apt/bootstrap.sh, apt/ternux-archive-key.asc, apt/dists/stable/InRelease, and apt/dists/stable/main/binary-all/Packages each returned HTTP 404; native Termux has Ternux 2.0.0 installed without a Ternux APT source.",
+        "Ordinary Pages deploy previously uploaded only the Astro site and could erase a published /apt tree. New preserve-pages-apt.sh verifies the pinned archive key, signed InRelease, Release index hashes/sizes, and every package hash/size before copying the existing signed tree; deployment fails closed on partial publication or integrity errors. Exact-head Validate 42707570617 on e1212bbc10078ec761dd5911f7858dbdc9b22c19 passed the signed-fixture integration test for first publish, valid preservation, partial publication, package tampering, and signed path traversal.",
+        "Exact PR head 8041c33939fc00639fe3296779ba840a352f82a3 passed Validate 42792959040 and unsigned Termux package build/inspection 42792958963. Fresh checks on 2026-11-10 still return HTTP 404 for all four hosted APT endpoints; no deployment was performed."
+      ],
+      "required_tests": [
+        "signed repository publish after approval",
+        "routine Pages redeploy preserves the published signed repository",
+        "clean pkg install, upgrade, uninstall on Termux"
+      ],
+      "acceptance_criteria": [
+        "Both supported install routes produce compatible installs; signed public index survives website deploys and clean device flow succeeds."
+      ],
+      "release_blocking": true,
+      "release_exclusion": null
+    },
+    {
+      "phase": "Stage 5",
+      "issue_id": "P1-PKG",
+      "severity": "P1",
+      "owner": "engineering",
+      "status": "PARTIAL",
+      "source_status": "PASS",
+      "ci_status": "PASS",
+      "device_status": "NOT_TESTED",
+      "evidence": [
+        "Exact-head unsigned Termux package build/inspection passed run 42707570582.",
+        "Native `dpkg-query` confirms ternux 2.0.0 is installed; public APT source is absent, so clean repository install/upgrade/uninstall remains unverified.",
+        "Exact PR head 8041c33939fc00639fe3296779ba840a352f82a3 passed unsigned Termux package build/inspection (run 42792958963); this does not prove clean installation from the unavailable hosted APT source."
+      ],
+      "required_tests": [
+        "clean install/update/repair/uninstall in native Termux",
+        "metadata and checksum verification"
+      ],
+      "acceptance_criteria": [
+        "Reproducible package metadata/integrity and clean lifecycle install pass on supported Termux."
+      ],
+      "release_blocking": true,
+      "release_exclusion": null
+    },
+    {
+      "phase": "Stage 5",
+      "issue_id": "P1-DOCS",
+      "severity": "P1",
+      "owner": "engineering",
+      "status": "PARTIAL",
+      "source_status": "PASS",
+      "ci_status": "PASS",
+      "device_status": "N_A",
+      "evidence": [
+        "README.md",
+        "docs/INSTALLATION.md",
+        "docs/QUICK-START.md",
+        "docs/USAGE.md",
+        "docs/V2-RELEASE-READINESS.md",
+        "On exact report-only head b5cf839bdb5597392022ec21438cc45b9cf4e83c, Validate 42712474036 passed; local docs check passed 3041 assertions, 312 internal links and 20 bilingual page pairs; repo knowledge verify returned zero findings. Native package lifecycle and owner release review remain open.",
+        "Exact report head 8041c33939fc00639fe3296779ba840a352f82a3 passed Validate 42792959040, Termux APT package 42792958963, Repository State Contract 42792959029, and Repo Knowledge Sync 42792959241 (sync and test). Owner release review remains open."
+      ],
+      "required_tests": [
+        "version/package/tag/release metadata audit",
+        "bilingual docs/link checks"
+      ],
+      "acceptance_criteria": [
+        "Docs accurately distinguish stable, supported, experimental and unsupported features and match package metadata."
+      ],
+      "release_blocking": true,
+      "release_exclusion": null
+    },
+    {
+      "phase": "Stage 4",
+      "issue_id": "P2-01",
+      "severity": "P2",
+      "owner": "engineering",
+      "status": "NOT_STARTED",
+      "source_status": "NOT_STARTED",
+      "ci_status": "NOT_RUN",
+      "device_status": "N_A",
+      "evidence": [
+        "lib/phases.sh",
+        "docs/V2-RELEASE-READINESS.md"
+      ],
+      "required_tests": [
+        "module boundary/contract tests before incremental extraction"
+      ],
+      "acceptance_criteria": [
+        "Incrementally separate installer responsibilities without contract regressions."
+      ],
+      "release_blocking": false,
+      "release_exclusion": "Maintain current tested installer; defer modularization as a documented maintainability task."
+    },
+    {
+      "phase": "Stage 4",
+      "issue_id": "P2-02",
+      "severity": "P2",
+      "owner": "engineering",
+      "status": "PARTIAL",
+      "source_status": "PARTIAL",
+      "ci_status": "PASS",
+      "device_status": "N_A",
+      "evidence": [
+        "tests/focused.sh and tests/update_transaction.sh",
+        "Exact-head Validate 42707570617 passed focused regressions (134/134), including generic guest isolation and managed desktop process reaping. Further test-suite decomposition remains maintainability work."
+      ],
+      "required_tests": [
+        "split remaining core/installer/desktop/GPU/extension/package/security/docs suites"
+      ],
+      "acceptance_criteria": [
+        "Separate suites preserve all existing regression coverage and have clear ownership."
+      ],
+      "release_blocking": false,
+      "release_exclusion": "Existing focused suite remains the authoritative regression suite until safe incremental split."
+    },
+    {
+      "phase": "Stage 4",
+      "issue_id": "P2-03",
+      "severity": "P2",
+      "owner": "engineering",
+      "status": "NOT_STARTED",
+      "source_status": "NOT_STARTED",
+      "ci_status": "NOT_RUN",
+      "device_status": "N_A",
+      "evidence": [
+        "packaging/termux/manifest.json is a package file list, not a workload schema"
+      ],
+      "required_tests": [
+        "schema validation and migration tests for each managed workload"
+      ],
+      "acceptance_criteria": [
+        "One workload schema records versions, architecture, backend, dependencies, provenance, licenses, permissions, verification, cleanup and experimental state."
+      ],
+      "release_blocking": false,
+      "release_exclusion": "Existing workload code remains in use; do not claim manifest standardization until migrated."
+    },
+    {
+      "phase": "Stage 4",
+      "issue_id": "P2-04",
+      "severity": "P2",
+      "owner": "engineering",
+      "status": "COMPLETE",
+      "source_status": "PASS",
+      "ci_status": "PASS",
+      "device_status": "N_A",
+      "evidence": [
+        "docs/release-gates.json",
+        "tests/release_gates.py",
+        "Exact-head Validate 42707570617 passed release-gate schema and readiness fixtures; inventory truthfully derives NOT_READY."
+      ],
+      "required_tests": [
+        "schema, duplicate-ID, failure and exclusion validator fixtures",
+        "exact-head CI"
+      ],
+      "acceptance_criteria": [
+        "Machine-readable gates validate and keep source, CI and device state separate; blocking incomplete gates derive NOT_READY."
+      ],
+      "release_blocking": true,
+      "release_exclusion": null
+    },
+    {
+      "phase": "Stage 6",
+      "issue_id": "P2-DEVICE",
+      "severity": "P2",
+      "owner": "engineering",
+      "status": "PARTIAL",
+      "source_status": "PARTIAL",
+      "ci_status": "N_A",
+      "device_status": "VERIFIED_ON_DEVICE",
+      "evidence": [
+        "docs/ACCELERATOR-RELEASE-PLAN.md",
+        "docs/V2-RELEASE-READINESS.md: one SM8735/Adreno 825 device"
+      ],
+      "required_tests": [
+        "multi-device Android/GPU/NPU qualification matrix"
+      ],
+      "acceptance_criteria": [
+        "Claims are limited to tested hardware; all other device paths are explicitly NOT_TESTED or experimental."
+      ],
+      "release_blocking": false,
+      "release_exclusion": "Qualify only the documented Redmi Turbo 4 Pro / SM8735 target; all other device-specific acceleration remains unqualified."
+    }
+  ],
+  "observed_head_commit": "985c5c5ae1c942315c5e3d0a85a9ffb3d3682a9d"
+}

@@ -1,18 +1,18 @@
 name: Stable Diffusion CPU + Vulkan extension artifact
 
 on:
-  pull_request:
-    paths:
-      - .github/workflows/stable-diffusion-vulkan-artifact.yml
-      - tests/stable_diffusion_abi_audit.py
-      - lib/extension.sh
   workflow_dispatch:
     inputs:
       publish_prerelease:
         description: Publish or refresh the pinned optional prerelease asset
         required: true
-        default: false
         type: boolean
+        default: false
+      source_run_id:
+        description: Reuse an inspected artifact from this successful workflow run ID; leave empty to build now
+        required: false
+        type: string
+        default: ''
 
 permissions:
   contents: read
@@ -23,12 +23,13 @@ concurrency:
 
 jobs:
   build:
+    if: github.event_name != 'workflow_dispatch' || inputs.source_run_id == ''
     name: Build and inspect pinned Linux ARM64 CPU + Vulkan package
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 120
     steps:
       - name: Check out Ternux metadata
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Install build and runtime dependencies
         run: |
@@ -39,7 +40,7 @@ jobs:
             python3 binutils file
 
       - name: Check out pinned stable-diffusion.cpp source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: leejet/stable-diffusion.cpp
           ref: 5a1ba5d895bec4e07deab80d6d791721cd59d9c2
@@ -51,14 +52,14 @@ jobs:
           set -euo pipefail
           test "$(git -C stable-diffusion.cpp rev-parse HEAD)" = \
             5a1ba5d895bec4e07deab80d6d791721cd59d9c2
+          test "$(git -C stable-diffusion.cpp/ggml rev-parse HEAD)" = \
+            135ce1e0e3f2b0693d3de93d4f6b5fa0a1947820
           test "$(uname -m)" = aarch64
 
-      - name: Configure, build, install, and inspect
+      - name: Configure and compile the pinned ARM64 target
         shell: bash
         run: |
           set -euo pipefail
-          tag=ternux-stable-diffusion-vulkan-linux-arm64-master-1053
-          package="$GITHUB_WORKSPACE/package/$tag"
           cmake -S stable-diffusion.cpp -B build -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
             -DSD_VULKAN=ON \
@@ -68,20 +69,15 @@ jobs:
             -DSD_WEBP=OFF \
             -DSD_WEBM=OFF
           cmake --build build --target sd-cli --parallel 4
-          install -D -m 0755 build/bin/sd-cli "$package/bin/sd-cli"
-          install -d "$package/share/licenses"
-          cp stable-diffusion.cpp/LICENSE "$package/share/licenses/stable-diffusion.cpp-LICENSE"
-          for tree in stable-diffusion.cpp build/_deps; do
-            [ -d "$tree" ] || continue
-            while IFS= read -r -d '' license; do
-              rel="${license#"$tree"/}"
-              case "$rel" in LICENSE|COPYING|NOTICE) continue ;; esac
-              mkdir -p "$package/share/licenses/$tree/$(dirname "$rel")"
-              cp -p "$license" "$package/share/licenses/$tree/$rel"
-            done < <(find "$tree" -type f \( -iname 'license*' -o -iname 'licence*' -o -iname 'copying*' -o -iname 'notice*' \) -print0)
-          done
-          find "$package/share/licenses" -type f ! -name SHA256SUMS -print0 | sort -z | xargs -0 sha256sum \
-            | sed "s|$package/share/licenses/||" > "$package/share/licenses/SHA256SUMS"
+          install -D -m 0755 build/bin/sd-cli \
+            "$GITHUB_WORKSPACE/package/ternux-stable-diffusion-vulkan-linux-arm64-master-1053/bin/sd-cli"
+
+      - name: Inspect ARM64 binary and record runtime build metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag=ternux-stable-diffusion-vulkan-linux-arm64-master-1053
+          package="$GITHUB_WORKSPACE/package/$tag"
           test -s "$package/bin/sd-cli"
           chmod 0755 "$package/bin/sd-cli"
           file "$package/bin/sd-cli" | tee sd-cli-file.txt
@@ -137,17 +133,40 @@ jobs:
             "minimum_glibc": "2.39",
             "system_runtime_dependencies": ["libgomp.so.1", "libvulkan.so.1"],
             "license_bundle": "share/licenses/SHA256SUMS",
+            "license_index": "share/licenses/INDEX.txt",
+            "license_components": "share/licenses/COMPONENTS.json",
             "weights_included": false,
             "device_validation": "SM8735 Adreno 825: tiled Vulkan 512x512/10-step image completed in 101.9s; untiled VAE lost device; CPU output quality unqualified; broader stability and performance not claimed"
           }
           MANIFEST
+
+      - name: Build and independently audit component license bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag=ternux-stable-diffusion-vulkan-linux-arm64-master-1053
+          package="$GITHUB_WORKSPACE/package/$tag"
+          python3 tools/build_stable_diffusion_license_bundle.py \
+            --tree "stable-diffusion.cpp=stable-diffusion.cpp" \
+            --optional-tree "cmake-deps=build/_deps" \
+            --components packaging/stable-diffusion/components.json \
+            --extra "LICENSE=TERNUX-LICENSE" \
+            --extra "NOTICE=TERNUX-NOTICE" \
+            --require "stable-diffusion.cpp/LICENSE" \
+            --require "stable-diffusion.cpp/ggml/AUTHORS" \
+            --require "stable-diffusion.cpp/thirdparty/LICENSE.darts_clone.txt" \
+            --require "stable-diffusion.cpp/thirdparty/oniguruma/COPYING" \
+            --require "stable-diffusion.cpp/thirdparty/utf8proc/LICENSE.md" \
+            --require "TERNUX-LICENSE" \
+            --require "TERNUX-NOTICE" \
+            --output "$package/share/licenses"
           python3 tests/stable_diffusion_abi_audit.py "$package"
           tar -C package -czf "$tag.tar.gz" "$tag"
           sha256sum "$tag.tar.gz" > "$tag.tar.gz.sha256"
           tar -tzf "$tag.tar.gz" > release-contents.txt
 
       - name: Upload inspected prerelease candidate
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ternux-stable-diffusion-vulkan-linux-arm64-master-1053-candidate
           path: |
@@ -155,20 +174,84 @@ jobs:
             ternux-stable-diffusion-vulkan-linux-arm64-master-1053.tar.gz.sha256
             release-contents.txt
           if-no-files-found: error
-          retention-days: 14
+          retention-days: 90
+
+  verify_source:
+    if: github.event_name == 'workflow_dispatch' && inputs.source_run_id != ''
+    runs-on: ubuntu-24.04
+    permissions:
+      actions: read
+      contents: read
+    outputs:
+      source_sha: ${{ steps.provenance.outputs.source_sha }}
+    steps:
+      - name: Check out release source for provenance checks
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Validate the previous build run
+        id: provenance
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_RUN_ID: ${{ inputs.source_run_id }}
+        run: >-
+          tools/verify_release_artifact_run.sh "$SOURCE_RUN_ID"
+          ".github/workflows/stable-diffusion-vulkan-artifact.yml" "ternux-stable-diffusion-vulkan-linux-arm64-master-1053-candidate" "tests/stable_diffusion_abi_audit.py" "tests/stable_diffusion_license_bundle_test.py" "tools/build_stable_diffusion_license_bundle.py" "packaging/stable-diffusion/components.json" "LICENSE" "NOTICE" "lib/extension.sh"
+
+  refresh_artifact:
+    if: github.event_name == 'workflow_dispatch' && inputs.source_run_id != ''
+    needs: verify_source
+    runs-on: ubuntu-24.04
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - name: Download the verified candidate without rebuilding
+        uses: actions/download-artifact@v7
+        with:
+          name: ternux-stable-diffusion-vulkan-linux-arm64-master-1053-candidate
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ inputs.source_run_id }}
+          path: candidate
+      - name: Verify archive checksum
+        run: (cd candidate && sha256sum --check ternux-stable-diffusion-vulkan-linux-arm64-master-1053.tar.gz.sha256)
+      - name: Re-upload the exact inspected artifact with extended retention
+        uses: actions/upload-artifact@v6
+        with:
+          name: ternux-stable-diffusion-vulkan-linux-arm64-master-1053-candidate
+          path: |
+            candidate/ternux-stable-diffusion-vulkan-linux-arm64-master-1053.tar.gz
+            candidate/ternux-stable-diffusion-vulkan-linux-arm64-master-1053.tar.gz.sha256
+            candidate/release-contents.txt
+          if-no-files-found: error
+          retention-days: 90
 
   publish:
     name: Publish the optional preview archive
-    if: github.event_name == 'workflow_dispatch' && inputs.publish_prerelease
-    needs: build
-    runs-on: ubuntu-latest
+    if: >-
+      ${{ always() && github.event_name == 'workflow_dispatch' && inputs.publish_prerelease == true && github.ref == 'refs/heads/main' && ((needs.build.result == 'success' && inputs.source_run_id == '') || (needs.build.result == 'skipped' && inputs.source_run_id != '')) && ((needs.verify_source.result == 'success' && inputs.source_run_id != '') || (needs.verify_source.result == 'skipped' && inputs.source_run_id == '')) }}
+    needs: [build, verify_source]
+    runs-on: ubuntu-24.04
     permissions:
       contents: write
+      actions: read
+    env:
+      SOURCE_ARTIFACT_SHA: ${{ needs.verify_source.outputs.source_sha || github.sha }}
     steps:
+      - name: Check out release source for provenance checks
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
       - name: Download inspected prerelease candidate
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: ternux-stable-diffusion-vulkan-linux-arm64-master-1053-candidate
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ inputs.source_run_id || github.run_id }}
 
       - name: Publish optional prerelease
         env:
@@ -194,6 +277,7 @@ jobs:
           and sustained-use qualification remain open. Keep CPU use diagnostic
           until its image quality is independently established.
           NOTES
+          printf '\nTernux artifact build source commit: `%s`.\n' "$SOURCE_ARTIFACT_SHA" >> release-notes.md
           if gh release view "$tag" >/dev/null 2>&1; then
             gh release upload "$tag" "$tag.tar.gz" "$tag.tar.gz.sha256" --clobber
             gh release edit "$tag" --title 'Ternux Stable Diffusion CPU + Vulkan (ARM64)' \

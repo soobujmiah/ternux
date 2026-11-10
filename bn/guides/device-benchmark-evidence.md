@@ -1060,6 +1060,51 @@ proot-distro login --shared-tmp ternux-clean-apt -- bash -lc '
 
 Paired batch চালাতে নতুন output path দিয়ে `--count 2` যোগ করুন। সংরক্ষিত image রাখতে একই seed/path overwrite করবেন না।
 
+### ২০২৬-১১-০৯ দুইটি Qwen GGUF-এ managed HTP known-answer smoke check
+
+Redmi Turbo 4 Pro / SM8735-এ আগে থেকে installed managed
+`llama-htp-experimental` extension (`b1-af50f2f`, HVX matmul, flash attention
+off) ব্যবহার করে প্রতিটি model-এ একবার আট-token, temperature-zero
+known-answer check করেছি। বিদ্যমান model file একই জায়গায় ছিল:
+
+| Model path | Prompt tok/s | Generation tok/s | Answer | Broker child | CDSP close |
+|---|---:|---:|---|---:|---|
+| `/sdcard/Llms/qwen2.5-0.5b-instruct-q4_0.gguf` | 107.3 | 38.3 | `4` | 0 | `[0, 0]` |
+| `/sdcard/LAI/models/qwen2.5-1.5b-instruct-q4_k_m.gguf` | 32.5 | 13.2 | `4` | 0 | `[0, 0]` |
+
+দুটিতে চারটি thread, context 512, batch/ubatch 128, seed 42, এবং একই prompt
+`What is 2 + 2? Reply with only the number.` ব্যবহার করেছি। প্রতিটি ছিল একবারের
+cold-start run, আট-token cap-সহ; throughput একবারের spot reading, model comparison
+বা performance claim নয়। Launcher HTP service ও `/dev/fastrpc-cdsp` access পেয়েছে;
+দুই broker child-ই স্বাভাবিকভাবে exit করেছে এবং CDSP session পরিষ্কারভাবে বন্ধ
+হয়েছে। Model file copy বা modify করা হয়নি।
+
+দুই ছোট run-এর আগে battery temperature 45.1°C, পরে 45.2°C ছিল। Run-এর পর doctor
+`battery_hot` warning দিয়েছে, তাই আর model/graphics load চালাইনি। এটি installed
+experimental package ও এই দুই model file-এ short known answer যাচাই করে; current
+CI candidate, model quality, HTP operator coverage বা দীর্ঘ thermal behavior
+qualify করে না।
+
+Debian-এর `ternux` user হিসেবে পুনরায় চালাতে:
+
+```bash
+RUNNER="$HOME/.local/opt/ternux-extensions/llama-htp-experimental/bin/htp-run"
+for MODEL in /sdcard/Llms/qwen2.5-0.5b-instruct-q4_0.gguf \
+  /sdcard/LAI/models/qwen2.5-1.5b-instruct-q4_k_m.gguf; do
+  timeout 60 "$RUNNER" -m "$MODEL" -t 4 -tb 4 \
+    -p "What is 2 + 2? Reply with only the number." -n 8 -c 512 \
+    -b 128 -ub 128 --temp 0 --seed 42
+done
+```
+
+### ২০২৬-১১-১০ CPU/Vulkan cancellation ও reopen check
+
+Redmi Turbo 4 Pro (SM8735 / Adreno 825)-এ আগে থেকে installed managed `llama-vulkan` CLI-এর version `0.6.0-dev`, build commit `af50f2f`; binary SHA-256 `4827f62ac89a442d76e9461c18115fa37d2c6cced0a887bf559b8ee615046eb5`। `/sdcard/Llms/qwen2.5-0.5b-instruct-q4_0.gguf` model একই জায়গায় ছিল; SHA-256 `7671c0c304e6ce5a7fc577bcb12aba01e2c155cc2efd29b2213c95b18edaf6ed`।
+
+CPU (`-ngl 0`) ও Vulkan0 (`-ngl 99`) — দুই ক্ষেত্রেই ৪,০৯৬-token counting generation-এ ৫-second SIGINT timeout পাঠিয়েছি। দুটোই প্রত্যাশিত timeout status 124 দিয়ে ফিরেছে, `Exiting...` log করেছে, এবং পরে `llama-cli` process অবশিষ্ট ছিল না। Vulkan log-এ Adreno 825 শনাক্ত ও model layer Vulkan0-তে assign দেখা গেছে। এরপর fresh CPU ও Vulkan launch-এ একই known-answer `4` এসেছে। চলমান desktop ও PulseAudio session চালু ছিল।
+
+এটি এই installed build/model-এ bounded cancellation ও reopen verify করে। Memory-pressure cancellation, দীর্ঘ thermal run, অন্য model বা অন্য device qualify করে না। Run-এর পর memory snapshot-এ 4.3 GiB available ছিল; কৃত্রিম memory pressure তৈরি করা হয়নি। পরীক্ষা চলাকালে log Termux temporary storage-এ রাখা হয়েছিল; model copy বা modify করা হয়নি।
+
 ## রেফারেন্স
 
 - [glmark2](https://github.com/glmark2/glmark2)

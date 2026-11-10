@@ -42,7 +42,7 @@ _tnx_profile_path() {
 
 _tnx_profile_show() {
   # Gather all device info
-  local android_ver arch model manuf ram storage termux_ver gpu vulkan backend phantom
+  local android_ver arch model manuf ram storage termux_ver gpu vulkan vulkan_state backend phantom
 
   android_ver="$(tnx_detect_android_version)"
   arch="$(tnx_detect_arch)"
@@ -52,7 +52,8 @@ _tnx_profile_show() {
   storage="$(tnx_detect_storage_gb)"
   termux_ver="$(tnx_detect_termux_version)"
   gpu="$(tnx_detect_gpu)"
-  vulkan="$(tnx_detect_vulkan)"
+  vulkan_state="$(tnx_detect_vulkan_state)"
+  vulkan="$(tnx_vulkan_legacy_status "$vulkan_state")"
   backend="$(tnx_detect_backend)"
   phantom="$(tnx_detect_phantom_killer)"
 
@@ -65,7 +66,7 @@ _tnx_profile_show() {
       "model" "$model" "manufacturer" "$manuf" \
       "ram_gb" "$ram" "storage_gb" "$storage" \
       "termux_version" "$termux_ver" \
-      "gpu" "$gpu" "vulkan" "$vulkan" "backend" "$backend" \
+      "gpu" "$gpu" "vulkan" "$vulkan" "vulkan_state" "$vulkan_state" "backend" "$backend" \
       "phantom_process_killer" "$phantom"
     return 0
   }
@@ -79,6 +80,7 @@ _tnx_profile_show() {
   printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "Termux:" "$termux_ver"
   printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "GPU:" "$gpu"
   printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "Vulkan:" "$vulkan"
+  printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "Vulkan state:" "$vulkan_state"
   printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "Backend:" "$backend"
   printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "Phantom:" "$phantom"
   echo ""

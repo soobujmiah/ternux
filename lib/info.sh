@@ -19,7 +19,7 @@ tnx_cmd_info() {
     tnx_warn "Not running in Termux — limited information."
   fi
 
-  local android_ver arch model manufacturer ram storage termux_ver gpu vulkan backend phantom renderer
+  local android_ver arch model manufacturer ram storage termux_ver gpu vulkan vulkan_state graphics_state backend phantom renderer
 
   android_ver="$(tnx_detect_android_version)"
   arch="$(tnx_detect_arch)"
@@ -29,10 +29,12 @@ tnx_cmd_info() {
   storage="$(tnx_detect_storage_gb)"
   termux_ver="$(tnx_detect_termux_version)"
   gpu="$(tnx_detect_gpu)"
-  vulkan="$(tnx_detect_vulkan)"
+  vulkan_state="$(tnx_detect_vulkan_state)"
+  vulkan="$(tnx_vulkan_legacy_status "$vulkan_state")"
   backend="$(tnx_canonical_backend "$(tnx_state_get "backend" || tnx_detect_backend)")"
   phantom="$(tnx_detect_phantom_killer)"
   renderer="$(tnx_detect_renderer)"
+  graphics_state="$(tnx_detect_graphics_state "$vulkan_state" "$renderer")"
 
   # JSON output
   if [ "${TERNUX_JSON:-0}" = "1" ]; then
@@ -46,6 +48,8 @@ tnx_cmd_info() {
       "termux_version" "$termux_ver" \
       "gpu" "$gpu" \
       "vulkan" "$vulkan" \
+      "vulkan_state" "$vulkan_state" \
+      "graphics_state" "$graphics_state" \
       "backend" "$backend" \
       "renderer" "${renderer:-unknown}" \
       "phantom_process_killer" "$phantom"
@@ -62,6 +66,8 @@ tnx_cmd_info() {
   printf "  ${TNX_CW}%-22s${TNX_C0} %s\n" "Termux:" "$termux_ver"
   printf "  ${TNX_CW}%-22s${TNX_C0} %s\n" "GPU:" "$gpu"
   printf "  ${TNX_CW}%-22s${TNX_C0} %s\n" "Vulkan:" "$vulkan"
+  printf "  ${TNX_CW}%-22s${TNX_C0} %s\n" "Vulkan state:" "$vulkan_state"
+  printf "  ${TNX_CW}%-22s${TNX_C0} %s\n" "Graphics state:" "$graphics_state"
   printf "  ${TNX_CW}%-22s${TNX_C0} %s\n" "Backend:" "$backend"
   printf "  ${TNX_CW}%-22s${TNX_C0} %s\n" "Renderer:" "${renderer:-unknown}"
   printf "  ${TNX_CW}%-22s${TNX_C0} %s\n" "Phantom killer:" "$phantom"

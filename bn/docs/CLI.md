@@ -84,9 +84,7 @@ experimental SM8735/V73 HTP আছে। `--with-llm` আলাদা source থ
 
 ### `ternux start`
 
-Xfce4 desktop-কে আলাদা detached session-এ চালু করে, তাই shell বন্ধ হলেও desktop চলে। Termux:X11 display `:0` ready হলে
-command ফিরে আসে; startup output `~/.local/share/ternux/session/desktop.log`-এ
-থাকে। `ternux status` বা `ternux logs desktop tail` দিয়ে দেখুন। CLI package update-এর পর `ternux start` পুরোনো generated `~/x.sh` নিজে refresh করে।
+Xfce4 desktop-কে আলাদা detached session-এ চালু করে, তাই shell বন্ধ হলেও desktop চলে। Termux:X11-এর সঙ্গে XFCE session, window manager ও desktop প্রস্তুত হলে Termux:X11 app-টিও সামনে আনে। আবার চালালে নতুন session না বানিয়ে চলমান desktop-টাই সামনে আনে; supervisor marker না থাকলেও live XFCE session শনাক্ত করে। startup ব্যর্থ হলে error দেখিয়ে `~/.local/share/ternux/session/desktop.log`-এর ঠিকানা দেয়। `ternux status` বা `ternux logs desktop tail` দিয়ে session দেখুন। CLI package update-এর পর `ternux start` পুরোনো generated `~/x.sh` নিজে refresh করে।
 
 ```bash
 ternux start
@@ -254,6 +252,21 @@ ternux info [--json]
 ```bash
 ternux state [--json]
 ```
+
+### `ternux status`
+
+Desktop lifecycle এবং host service-এর অবস্থা দেখায়। `running` দেখানোর আগে
+guest-এর ভেতর সীমিত সময়ে X11 query সফল হতে হয়; শুধু socket বা process থাকলেই
+desktop usable ধরা হয় না। `pulseaudio` host daemon process আছে কি না জানায়;
+`pulseaudio_ready` Debian app-এর জন্য loopback TCP audio route আলাদাভাবে যাচাই
+করে।
+
+```bash
+ternux status [--json]
+```
+
+JSON output-এ `lifecycle`, `x11_running`, `pulseaudio`, `pulseaudio_ready`,
+`virgl`, `launcher` এবং `desktop_pid` থাকে।
 
 ### `ternux logs`
 

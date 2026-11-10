@@ -47,7 +47,7 @@ The installer:
 6. writes the `x` launcher and shell shortcuts;
 7. verifies everything landed.
 
-Expect about **4–4.5 GB installed** for base or **10.5–12.5 GB** with `--all`; keep
+Expect about **4–4.6 GB installed** for base or **10.5–12.5 GB** with `--all`; keep
 additional temporary space for downloads and caches. One persistent screen shows
 the device panel, step progress and a live log window until the final status; a
 terminal that cannot host it gets a plain framed log instead. Both record the
@@ -118,10 +118,13 @@ command. This happens once per guest user; later desktop boots do not redirect
 to the website. Firefox remains optional; choose it from the installer’s
 optional software list.
 
-Noto Bengali fonts and the Avro IBus phonetic keyboard are installed by default. The IBus **Next input method** shortcut is set to **Ctrl+Space** to cycle between English and Bangla. VLC, PulseAudio Volume Control, the Xfce Task
-Manager, and Mousepad text editor are included in the base desktop. The global Adwaita Dark GTK theme and lightweight stock Adwaita icons are selected by
-default for a modern, high-contrast desktop, with a custom Aurora wallpaper. The first-run guide adapts to the available screen and uses a reliable software renderer. VLC defaults to a compact mobile view, X11 `xcb_x11` output and software decoding because PRoot does not provide VAAPI/VDPAU; this
-avoids blank video caused by selecting unavailable host decoder paths.
+Noto Bengali fonts and the Avro IBus phonetic keyboard are installed by default. The IBus **Next input method** shortcut is **Ctrl+Space**, cycling between English and Bangla. VLC, PulseAudio Volume Control, Xfce Task Manager, Mousepad, Galculator, Evince PDF reader, Ternux Camera, Ternux Sound Recorder, Ristretto, and **Synaptic Package Manager** are included in the base desktop. Synaptic uses the Ternux icon and theme; open it from the Applications menu to browse, install, upgrade, or remove Debian packages. Evince opens PDFs by default; optional LibreOffice Draw provides PDF page editing and export to other formats. No mail client is installed or set as default. Evolution Mail is optional; choose it from the workload selector when needed. It supports common-provider OAuth and manual IMAP/POP setup, opening Firefox ESR or the Android default browser through Ternux for OAuth. One-click Camera, Photos, and Sound Recorder shortcuts are on the Xfce panel.
+
+The systemwide Ternux graphite-and-emerald GTK 2/3/4 theme styles applications, menus, and the Xfce panel; Qt 5 apps use the GTK platform theme; custom Ternux Xfwm frames style window borders and title bars. Original Ternux icons cover the base apps, folders, Thunar actions, categories, and panel. Adwaita supplies neutral fallback icons for uncommon or newly installed applications; Papirus is not inherited. Fifteen original portrait-first Ternux wallpapers are selectable in Xfce Desktop settings. Xfce keeps their aspect ratio in landscape; Aurora Circuit is the default.
+
+Ternux Camera lists Android front and rear cameras and captures photos through Termux:API. Grant Camera permission to the Termux:API Android app; the app previews each photo after capture with EXIF orientation corrected and saves it inside Debian at `~/Pictures/Ternux`; its capture is staged privately in Termux home and copied into PRoot. No Android Gallery scan is performed. Ristretto opens the photos. Termux:API provides still-photo capture, not a continuous camera stream, so the app does not show a live camera feed before capture. Ternux Sound Recorder requests microphone access only when you press Start (Android permission is requested during setup when the API is available; otherwise it prompts on first use). Choose AAC/M4A (default) or MP3, then press Stop and save; files stay at `~/Music/Ternux` inside Debian. MP3 export uses FFmpeg locally.
+
+The first-run guide adapts to the available screen and uses a reliable software renderer. VLC defaults to a compact mobile view, X11 `xcb_x11` output, and software decoding because PRoot does not provide VAAPI/VDPAU; this avoids blank video caused by selecting unavailable host decoder paths.
 
 ### Ternux CLI — the management interface
 
@@ -224,9 +227,10 @@ The extension does not bundle models or GPU drivers; see the [extension guide](h
 
 Ternux also lists a separate experimental HTP extension for the Redmi Turbo 4
 Pro / SM8735. It is not a supported release feature. Install from Termux with
-`ternux extension install llama-htp-experimental`; the Debian guest needs
-`libgbinder1`, `libglibutil1`, `libfastrpc1`, and `libfastrpc-dev`. Selecting HTP
-in the installer provisions these packages from Debian Trixie Backports. Its
+`ternux extension install llama-htp-experimental`; the managed command first
+provisions `libgbinder1`, `libglibutil1`, `libfastrpc1`, and `libfastrpc-dev`
+from Debian Trixie Backports, then verifies and installs the extension. Selecting
+HTP in the installer uses the same dependency setup. Its
 known-answer-safe settings,
 current failures, and device qualification status are in the
 [repository HTP guide](https://github.com/soobujmiah/ternux/blob/main/guides/llama-htp-experimental.md).

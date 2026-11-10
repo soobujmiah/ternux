@@ -12,29 +12,34 @@ permissions:
 
 concurrency:
   group: pages
-  cancel-in-progress: true
+  # Keep the combined signed APT publication and regular website deployment serialized.
+  cancel-in-progress: false
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
       - uses: actions/configure-pages@v5
       - run: npm ci
       - run: npm run build
-      - uses: actions/upload-pages-artifact@v3
+      - name: Install signed-repository verification tools
+        run: sudo apt-get update && sudo apt-get install --yes --no-install-recommends curl gnupg xz-utils
+      - name: Preserve the previously published signed APT repository
+        run: bash packaging/termux/preserve-pages-apt.sh dist
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: dist
   deploy:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: build
     steps:
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5

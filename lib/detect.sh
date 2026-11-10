@@ -42,9 +42,14 @@ tnx_detect_storage_gb() {
 }
 
 tnx_detect_termux_version() {
-  dpkg -s com.termux 2>/dev/null | grep '^Version:' | awk '{print $2}' || \
-  tnx_termux_apt_cache policy com.termux 2>/dev/null | grep 'Installed:' | awk '{print $2}' || \
-  echo "unknown"
+  local version="${TERMUX_APP__APP_VERSION_NAME:-${TERMUX_VERSION:-}}"
+  [ -n "$version" ] && { echo "$version"; return 0; }
+
+  version="$(dpkg-query -W -f='${Version}' com.termux 2>/dev/null || true)"
+  [ -n "$version" ] && { echo "$version"; return 0; }
+
+  version="$(tnx_termux_apt_cache policy com.termux 2>/dev/null | awk '/Installed:/ {print $2; exit}')"
+  [ -n "$version" ] && echo "$version" || echo "unknown"
 }
 
 # ---------------------------------------------------------------------------
@@ -78,28 +83,93 @@ tnx_detect_gpu() {
   echo "unknown"
 }
 
-tnx_detect_vulkan() {
-  # Check for an actual Vulkan loader/library in the active Termux prefix.
-  # Do not use `ls ... | head`: without pipefail, head can make a missing glob
-  # look successful.
-  local prefix="${PREFIX:-/data/data/com.termux/files/usr}"
-  if compgen -G "$prefix/lib/libvulkan*.so*" >/dev/null; then
-    echo "yes"
-    return 0
-  fi
-  # Check if proot-debian has Vulkan
-  if tnx_has_cmd proot-distro; then
-    if tnx_guest_login -- bash -c 'ldconfig -p 2>/dev/null | grep -q libvulkan' 2>/dev/null; then
-      echo "yes"
-      return 0
+tnx_vulkan_probe_guest() {
+  local bind_args=()
+  [ -e "${TERNUX_KGSL_DEVICE:-/dev/kgsl-3d0}" ] && bind_args+=(--bind "${TERNUX_KGSL_DEVICE:-/dev/kgsl-3d0}:/dev/kgsl")
+  tnx_guest_login --shared-tmp "${bind_args[@]}" -- bash -c '
+    loader=no; icd=no; enum_rc=127; report=""
+    ldconfig -p 2>/dev/null | grep -q libvulkan && loader=yes
+    for d in /etc/vulkan/icd.d /usr/share/vulkan/icd.d /usr/local/share/vulkan/icd.d /usr/local/lib/aarch64-linux-gnu/vulkan/icd.d; do
+      if [ -d "$d" ] && find "$d" -maxdepth 1 -type f -name "*.json" -print -quit 2>/dev/null | grep -q .; then icd=yes; break; fi
+    done
+    if command -v timeout >/dev/null 2>&1 && command -v vulkaninfo >/dev/null 2>&1; then
+      report="$(timeout 10s vulkaninfo --summary 2>&1)"; enum_rc=$?
     fi
+    printf "TNX_LOADER=%s\\nTNX_ICD=%s\\nTNX_ENUM_RC=%s\\n%s\\n" "$loader" "$icd" "$enum_rc" "$report"
+  ' 2>/dev/null
+}
+
+tnx_vulkan_probe_host() {
+  local prefix="${PREFIX:-/data/data/com.termux/files/usr}" report="" rc=127 loader=no icd=no
+  compgen -G "$prefix/lib/libvulkan*.so*" >/dev/null && loader=yes
+  for d in "$prefix/share/vulkan/icd.d" "$prefix/lib/vulkan/icd.d"; do
+    if [ -d "$d" ] && find "$d" -maxdepth 1 -type f -name "*.json" -print -quit 2>/dev/null | grep -q .; then icd=yes; break; fi
+  done
+  if tnx_has_cmd timeout && tnx_has_cmd vulkaninfo; then report="$(timeout 10s vulkaninfo --summary 2>&1)"; rc=$?; fi
+  printf 'TNX_LOADER=%s\nTNX_ICD=%s\nTNX_ENUM_RC=%s\n%s\n' "$loader" "$icd" "$rc" "$report"
+}
+
+tnx_vulkan_probe_has_hardware() {
+  printf '%s\n' "${1:-}" | awk '
+    function flush_device() {
+      if (hardware && driver !~ /(llvmpipe|lavapipe|softpipe)/) found=1
+    }
+    /^GPU[0-9]+:/ { flush_device(); hardware=0; driver="" }
+    /deviceType[[:space:]]*=[[:space:]]*PHYSICAL_DEVICE_TYPE_(INTEGRATED_GPU|DISCRETE_GPU)/ { hardware=1 }
+    /driverName[[:space:]]*=/ { driver=$0 }
+    END { flush_device(); exit !found }
+  '
+}
+
+tnx_detect_vulkan_state() {
+  local probe="" loader="no" icd="no" enum_rc=127 gpu
+  if tnx_has_cmd proot-distro; then
+    probe="$(tnx_vulkan_probe_guest 2>/dev/null || true)"
   fi
-  # Check /dev/kgsl which implies Vulkan support on Adreno
-  if [ -e "${TERNUX_KGSL_DEVICE:-/dev/kgsl-3d0}" ]; then
-    echo "yes (Adreno)"
-    return 0
+  if [ -z "$probe" ]; then probe="$(tnx_vulkan_probe_host 2>/dev/null || true)"; fi
+  loader="$(printf '%s\n' "$probe" | sed -n 's/^TNX_LOADER=//p' | head -1)"
+  icd="$(printf '%s\n' "$probe" | sed -n 's/^TNX_ICD=//p' | head -1)"
+  enum_rc="$(printf '%s\n' "$probe" | sed -n 's/^TNX_ENUM_RC=//p' | head -1)"
+  gpu="$(tnx_detect_gpu)"
+
+  if tnx_vulkan_probe_has_hardware "$probe"; then
+    echo VULKAN_READY
+  elif printf '%s\n' "$probe" | grep -Eqi 'deviceName[[:space:]]*=[[:space:]]*(llvmpipe|lavapipe|softpipe)' ||
+       printf '%s\n' "$probe" | grep -Eq 'deviceType[[:space:]]*=[[:space:]]*PHYSICAL_DEVICE_TYPE_CPU'; then
+    echo SOFTWARE_FALLBACK
+  elif [ "$loader" != yes ]; then
+    if [ "$gpu" = unknown ]; then echo NOT_DETECTED
+    elif [ -e "${TERNUX_KGSL_DEVICE:-/dev/kgsl-3d0}" ]; then echo LOADER_MISSING
+    else echo HARDWARE_AVAILABLE
+    fi
+  elif [ "$icd" != yes ]; then
+    if [ -e "${TERNUX_KGSL_DEVICE:-/dev/kgsl-3d0}" ]; then echo DRIVER_MISSING; else echo ICD_MISSING; fi
+  elif [ "$enum_rc" != 0 ]; then
+    echo DEVICE_ENUMERATION_FAILED
+  else
+    echo DEVICE_ENUMERATION_FAILED
   fi
-  echo "no"
+}
+
+tnx_vulkan_legacy_status() {
+  case "${1:-$(tnx_detect_vulkan_state)}" in
+    VULKAN_READY) echo yes ;;
+    SOFTWARE_FALLBACK) echo "no (software fallback)" ;;
+    *) echo "no ($1)" ;;
+  esac
+}
+
+tnx_detect_vulkan() {
+  tnx_vulkan_legacy_status "$(tnx_detect_vulkan_state)"
+}
+
+tnx_detect_graphics_state() {
+  local vulkan_state="${1:-$(tnx_detect_vulkan_state)}" renderer="${2:-$(tnx_detect_renderer)}"
+  case "$renderer" in
+    *llvmpipe*|*lavapipe*|*softpipe*) echo SOFTWARE_FALLBACK ;;
+    unknown|"") echo "$vulkan_state" ;;
+    *) echo OPENGL_ACCELERATION_READY ;;
+  esac
 }
 
 tnx_detect_backend() {
@@ -128,15 +198,15 @@ tnx_detect_renderer() {
     display=:0
   fi
   renderer="$(tnx_guest_login --shared-tmp -- env "DISPLAY=$display" bash -c '
-    if [ -n "${DISPLAY:-}" ] && command -v glxinfo >/dev/null 2>&1; then
-      glxinfo 2>/dev/null | grep "renderer string" | head -1 | sed "s/.*: //"
-    elif [ ! -x /usr/bin/glxinfo ] &&
-         { [ -f /usr/local/lib/aarch64-linux-gnu/libvulkan_freedreno.so ] ||
-           [ -f /usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so ]; }; then
-      echo "zink Vulkan (Adreno via Turnip)"
-    else
-      echo "unknown"
+    renderer=""
+    if [ -n "${DISPLAY:-}" ] && command -v glxinfo >/dev/null 2>&1 &&
+       command -v timeout >/dev/null 2>&1; then
+      renderer="$(timeout 5s glxinfo 2>/dev/null |
+        sed -n "s/^OpenGL renderer string: //p" | head -1 || true)"
     fi
+    # Driver/ICD files are installation evidence only. Report a renderer only
+    # when glxinfo queries the selected X11 display successfully.
+    [ -n "$renderer" ] && printf "%s\n" "$renderer" || echo "unknown"
   ' 2>/dev/null)" || renderer=unknown
   [ -n "$renderer" ] && echo "$renderer" || echo "unknown"
 }
@@ -171,7 +241,9 @@ tnx_profile() {
   storage="$(tnx_detect_storage_gb)"
   termux_ver="$(tnx_detect_termux_version)"
   gpu="$(tnx_detect_gpu)"
-  vulkan="$(tnx_detect_vulkan)"
+  local vulkan_state
+  vulkan_state="$(tnx_detect_vulkan_state)"
+  vulkan="$(tnx_vulkan_legacy_status "$vulkan_state")"
   backend="$(tnx_detect_backend)"
   phantom="$(tnx_detect_phantom_killer)"
 
@@ -199,6 +271,8 @@ tnx_profile() {
       "termux_version" "$termux_ver" \
       "gpu" "$gpu" \
       "vulkan" "$vulkan" \
+      "vulkan_state" "$vulkan_state" \
+      "graphics_state" "$(tnx_detect_graphics_state "$vulkan_state" unknown)" \
       "backend" "$backend" \
       "phantom_process_killer" "$phantom"
     return 0

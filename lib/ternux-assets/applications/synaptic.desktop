@@ -1,0 +1,16 @@
+[Desktop Entry]
+Type=Application
+Name=Synaptic Package Manager
+Name[bn]=Synaptic Package Manager
+GenericName=Package Manager
+GenericName[bn]=প্যাকেজ ম্যানেজার
+Comment=Browse, install, upgrade, and remove Debian packages
+Comment[bn]=Debian package খুঁজুন, install, upgrade ও remove করুন
+Exec=/usr/local/bin/ternux-app-center
+TryExec=/usr/local/bin/ternux-app-center
+Icon=ternux-app-center
+Terminal=false
+StartupNotify=true
+StartupWMClass=synaptic
+Categories=System;
+Keywords=software;store;packages;apt;

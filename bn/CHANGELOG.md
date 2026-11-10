@@ -12,9 +12,16 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 
 ## [Unreleased]
 
+### ডেস্কটপ অভিজ্ঞতা
+
+- ARM64-এর optional workload হিসেবে Celestia astronomy simulator যোগ হয়েছে। Install-এর আগে publisher-signed package metadata ও package hash যাচাই হয়; astronomy data opt-in, তাই default desktop হালকা থাকে।
+- Ternux Camera এখন EXIF rotation ঠিক করে এবং phone-sized compact দুই-row layout-এ capture action দেখায়। Minimize/maximize/close-এর জন্য original বড় touch target এবং hard-coded icon path থাকা audited base app-গুলোর branded icon mapping যোগ হয়েছে। Selector-এ ১৫টি original portrait-first wallpaper থাকে।
+- Base desktop ও panel-এ on-demand low-resource GTK Sound Recorder যোগ হয়েছে। Start না চাপা পর্যন্ত mic capture শুরু হয় না; AAC/M4A অথবা local FFmpeg encode করা MP3 Debian-এর `~/Music/Ternux`-এ সেভ হয়।
+
+
 ### AI artifact delivery
 
-- Installable CPU/GPU/NPU LLM ও Stable Diffusion tool, fresh-install optional selection, checksum, license, runtime dependency এবং target-device verification-এর জন্য v2 release gate যোগ হয়েছে। বর্তমান Stable Diffusion route experiment; installable release extension নয়।
+- Managed checksum-verified llama.cpp CPU/Vulkan ও Stable Diffusion CPU/Vulkan extension, এবং device-specific experimental HTP artifact যোগ হয়েছে। Fresh install-এ উপযুক্ত workload opt-in করা যায়; model weight ব্যবহারকারী নিজে রাখেন। এগুলো preview/experimental, production-qualified AI product নয়; বর্তমান সীমা release plan-এ আছে।
 
 
 ### CLI reliability
@@ -23,6 +30,7 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 
 ### Desktop reliability
 
+- GTK 4 theme-এর ভুল built-in stylesheet resource path ঠিক হয়েছে। Debian Trixie GTK 4-এ আগের Adwaita resource ছিল না, তাই theme parser error হতো; এখন GTK-এর bundled dark stylesheet import হয়। Live pavucontrol launch-এ আর ওই parser error আসেনি এবং OpenSL ES Output controls দেখা গেছে। Xfce menu থেকে বারবার চালিয়ে যাচাই এখনও বাকি।
 - Xfce desktop entry দিয়ে চালানো PulseAudio Volume Control connected phone-এ verify: একই dark theme-এ Playback controls ও OpenSL input readable; app বন্ধ করলে microphone source idle হয়।
 - `GALLIUM_DRIVER=zink` সব desktop app-এ export না করে GPU workload-এ সীমিত করায় PulseAudio Volume Control-এর intermittent black window ঠিক হয়েছে; accelerated desktop Zink `MESA_LOADER_DRIVER_OVERRIDE=zink` দিয়ে selected থাকে।
 
@@ -38,9 +46,11 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 
 ### ডেস্কটপ welcome ও media
 
+- Xfce panel-এ এক-ক্লিক Ternux Camera ও Photos launcher এবং default image viewer Ristretto যোগ হয়েছে। Camera capture JPEG যাচাই করে আগে Termux app storage-এ রাখে, পরে Debian-এর `~/Pictures/Ternux`-এ সেভ করে; capture-এর পর app-এ photo preview আসে। Termux:API continuous live preview stream দেয় না। Selector-এ এখন আলাদা artwork-এর ১৫টি portrait-first branded wallpaper আছে।
+
 - Firefox ESR থাকুক বা না থাকুক, প্রথম GUI run-এর welcome flow এখন guest user-পিছু একবার চলে। প্রথমবার Firefox project website খোলে, অথবা browser না থাকলে welcome guide দেখায়; পরের boot-এ আর redirect হয় না।
 - Fresh install ও upgrade-এ browser-হীন welcome dialog পাওয়ার জন্য Debian desktop base-এ Zenity যোগ হয়েছে; নতুন font, IBus, theme ও window-fit helper ধরতে base install estimate প্রায় ৪ GB করা হয়েছে।
-- Noto Bengali font ও Avro IBus phonetic keyboard default-এ যোগ হয়েছে (English আগে, Ctrl+Space-এ বদল); Xfce Task Manager, Mousepad editor এবং সব app-এ প্রয়োগ করা Adwaita Dark GTK theme-এর সঙ্গে Adwaita icon default-এ যোগ হয়েছে। ডিফল্ট Aurora Xfce wallpaper এবং Live X11 screen মেপে বড় normal/dialog window maximize ও screen-এর বাইরে থাকা window center করতে event-driven Devilspie2 rule যোগ হয়েছে। First-run guide GTK Cairo renderer ও live screen অনুযায়ী scrollable layout ব্যবহার করে। Base desktop-এ PulseAudio Volume Control-ও আছে। VLC-তে XCB output, software decoding ও compact mobile UI default। Base install থেকে অপ্রয়োজনীয় host-suspend helper বাদ, আর PRoot startup error কমাতে system D-Bus ও সঠিক ICE socket যোগ হয়েছে।
+- Noto Bengali font ও Avro IBus phonetic keyboard default-এ যোগ হয়েছে (English আগে, Ctrl+Space-এ বদল); সঙ্গে Xfce Task Manager ও Mousepad। Graphite-and-emerald Ternux theme GTK app, menu, panel ও window frame জুড়ে থাকে; app, folder, Thunar action ও panel-এর branded icon আছে। Unmapped app-এ Adwaita neutral fallback। Event-driven Devilspie2 বড় window live X11 screen-এর মধ্যে রাখে। First-run guide display অনুযায়ী layout বদলায়। VLC-তে XCB output ও compact mobile layout default। PRoot startup error কমাতে system D-Bus ও সঠিক ICE socket যোগ হয়েছে।
 
 ### Termux APT package ও installation
 
@@ -48,7 +58,7 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 - Optional Firefox-এ website welcome এখন guest user-পিছু প্রথম GUI run-এ একবার চলে; পরের boot-এ redirect হয় না। PulseAudio Volume Control এখন per-app launcher override ছাড়া Debian-এর stock menu entry ব্যবহার করে। Detached session bus-এর বদলে supervised `dbus-run-session` এবং IBus helper cleanup আছে, যাতে restart-এর পর orphan desktop process জমে না থাকে।
 
 - Installer-এর বড় duplicate wordmark ও patterned frame বাদ দিয়ে compact mobile header এবং পরিষ্কার separator করা হয়েছে; portrait screen-এ log-এর জায়গা বাড়ানো হয়েছে, routine APT chatter full log-এ রাখা হয়েছে এবং renderer assertion যোগ হয়েছে।
-- Termux:X11-এর black screen-এর জন্য documented legacy drawing mode চালু হয়েছে; managed XFCE launcher session bus ready হলে Adwaita dark GTK theme ও Adwaita icon theme সেট করে।
+- Termux:X11-এর black screen-এর জন্য documented legacy drawing mode চালু হয়েছে; managed XFCE launcher session bus ready হলে shared Ternux GTK ও icon theme apply করে।
 - PulseAudio bridge port collision ঠিক করা হয়েছে: desktop launcher এখন 4713–4722 loopback port চেষ্টা করে, পাওয়া port Debian-এ পাঠায়; ভুল listener-এ নীরবে যুক্ত হয় না।
 - Termux `ternux` package manifest ও পুনরুৎপাদনযোগ্য local APT repository builder যোগ হয়েছে। এটি package পরিচয় ও SHA-256 মেলায়, নির্দিষ্ট primary-key fingerprint দিয়ে sign যাচাই করে, শুধু public key export করে, symlink করা artifact root ও stale package প্রত্যাখ্যান করে এবং unsigned rebuild-এ পুরোনো signature সরায়। CI unsigned review artifact বানায়; manual release workflow কেবল source version 2.0.0 হলে v2 publish করতে পারে। `pkg install ternux` host CLI install করে; desktop setup আলাদা করে `ternux install` চালালে শুরু হয়।
 - Package-manager call এখন এমন wrapper দিয়ে চলে যা inherited `LD_LIBRARY_PATH` খালি করে। ফলে বাইরের CLI bundle-এর C++ library Termux APT-কে আর ভাঙতে পারে না।

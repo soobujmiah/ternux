@@ -22,7 +22,7 @@ alt_url: "/docs/INSTALLATION.html"
 |---|---|---|
 | **Android** | ১০ বা নতুন | পুরনো বিল্ডে Termux/X11-এর দরকারি API নেই |
 | **CPU** | `aarch64` (৬৪-বিট ARM) | PRoot নেটিভ বাইনারি চালায়; ৩২-বিট ARM আপস্ট্রিমে অসমর্থিত |
-| **স্টোরেজ** | Installed footprint: বেস ~৪–৪.৫ GB; `--all`-সহ ~১০.৫–১২.৫ GB | Download, package cache, build tree, model ও project-এর জন্য অতিরিক্ত ফাঁকা জায়গা দিয়ে শুরু করুন |
+| **স্টোরেজ** | Installed footprint: বেস ~৪–৪.৬ GB; `--all`-সহ ~১০.৫–১২.৬ GB | Download, package cache, build tree, model ও project-এর জন্য অতিরিক্ত ফাঁকা জায়গা দিয়ে শুরু করুন |
 | **RAM** | ন্যূনতম ৪ GB, ৬–৮ GB ভালো | ডেস্কটপ আর Android একই মেমরি ভাগ করে; কম RAM = বেশি প্রসেস-কিল |
 | **গ্রাফিক্স** | Adreno হলে Zink/Turnip; অন্য ক্ষেত্রে VirGL candidate | Adreno route-টি মাপা; VirGL compatibility ও গতি device/Android build অনুযায়ী যাচাই করতে হবে |
 | **প্রয়োজনীয় অ্যাপ** | [Termux](https://github.com/termux/termux-app/releases) + [Termux:X11](https://github.com/termux/termux-x11/releases) | দুটো compatible source থেকে ইনস্টল করুন; Ternux চালুর আগে Termux:X11 একবার খুলুন |
@@ -374,7 +374,7 @@ Adreno hardware-এ সেটি Debian-এর দেওয়া driver-এর 
 ```text
 +=========================================================+
 |           ternux v2.0.0 - ONE-CLICK INSTALLER           |
-| by Sobuj Miah  -  base ~4-4.5 GB  -  complete ~10.5-12.5 GB   |
+| by Sobuj Miah  -  base ~4-4.6 GB  -  complete ~10.5-12.5 GB   |
 +=========================================================+
 | Device    Redmi Turbo 4 Pro - Android 15 (SDK 35)       |
 | Graphics  Adreno 825 - backend zink - Vulkan 1.4        |
@@ -467,7 +467,7 @@ proot-distro backup debian --output ~/debian-backup.tar.gz
 
 ## আপডেট
 
-- **ternux CLI:** `ternux update` GitHub থেকে সর্বশেষ ভার্সন নিয়ে আসে।
+- **ternux CLI:** `ternux update` সর্বশেষ প্রকাশিত stable release tag ব্যবহার করে। নির্দিষ্ট Git commit resolve ও fetch করে, সম্পূর্ণ staged module tree যাচাই করে, তারপর recovery journal-সহ CLI ও module switch করে। আগের ভার্সন backup-এ থাকে; verification ব্যর্থ হলে সেটি restore হয়। নতুন development build-কে পুরোনো stable tag-এ downgrade করে না।
 - **Interrupted installer run:** একই reviewed script আবার download করে
   `--resume` দিন; শুধু successful হিসেবে recorded phase বাদ যাবে। এটি completed
   phase update/repair করে না—CLI-এর জন্য `ternux update`, managed artifact-এর

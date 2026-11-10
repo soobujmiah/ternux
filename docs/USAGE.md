@@ -26,7 +26,7 @@ Ternux enables Termux:X11 `enforceCharBasedInput` before starting the desktop so
 
 | Command | What it does |
 |---|---|
-| `x` | Start the desktop in the background through `ternux start` (audio → display → Debian → Xfce4) |
+| `x` | Start the desktop through `ternux start` and bring Termux:X11 to the foreground (audio → display → Debian → Xfce4) |
 | `xgo` | Open the Termux:X11 app automatically, then start the desktop |
 | `killx` | Stop the session cleanly and clear stale sockets |
 | `db` | Shell inside Debian as your user |
@@ -57,7 +57,7 @@ while it is open to display the live input meter; closing the app releases that
 stream and the source returns to idle. An idle desktop does not keep recording.
 Termux:API's `termux-microphone-record` records to a file and cannot act as a
 live PulseAudio input stream, so it is not the desktop's source. Android shows
-its microphone privacy indicator while capture is active.
+its microphone privacy indicator while capture is active. The default Ternux Sound Recorder app captures only after Start, saves AAC/M4A by default, and can export MP3 locally with FFmpeg; files are saved in `~/Music/Ternux`.
 
 The Xfce **About → System** page reads CPU model names from `/proc/cpuinfo`.
 Android may expose only ARM part IDs there, so the Ternux launcher supplies
@@ -66,9 +66,13 @@ Unknown models remain labeled as unavailable instead of being guessed.
 
 ### Audio and VLC controls
 
-Ternux applies one Adwaita Dark GTK theme across the Xfce desktop. PulseAudio Volume Control uses Debian’s packaged application entry and inherits the same desktop environment; Ternux does not assign it a separate theme or backend. Xfwm compositing stays disabled because enabling it can make the whole Termux:X11 desktop black. VLC uses its full interface by default so playback controls remain visible.
+Fresh installs apply Ternux's graphite-and-emerald GTK 2/3/4 and Xfwm theme, Qt 5 GTK platform theme, branded app, folder, Thunar-action, category, and panel icon mappings with neutral Adwaita fallbacks, and the Ternux panel defaults across Xfce. Optional GUI apps such as Firefox ESR, Blender, GIMP, Krita, Inkscape, Audacity, Geany, and LibreOffice also have branded icon aliases; the base Evince PDF reader has one too. Common Thunar actions are stored in their own icon context. Fifteen portrait-first wallpapers preserve their aspect ratio in landscape. Apps using other toolkits may keep their own styling. PulseAudio Volume Control uses Debian's packaged application entry and the same desktop session. Xfwm compositing stays disabled because enabling it can make the whole Termux:X11 desktop black. VLC uses its full interface by default so playback controls remain visible. A **SD Card** desktop shortcut opens Android shared storage in Thunar.
 
 ---
+
+## XFCE Task Manager performance
+
+Ternux defaults the Task Manager to the current user's process list, flat view, and a one-second refresh interval to reduce repeated process scans on low-resource Android devices. Use the Task Manager's **Show all processes** option when you need to inspect system or other-user processes. The defaults are applied once and do not overwrite later preferences.
 
 ## Ternux CLI — the permanent interface
 
@@ -89,7 +93,7 @@ ternux benchmark        # Run GPU benchmarks (glmark2, vkmark)
 ternux profile          # Show or save device hardware profile
 ternux backend set virgl    # Switch to VirGL backend
 ternux gpu update           # Refresh validated Debian Turnip driver (Zink)
-ternux update           # Self-update ternux CLI
+ternux update           # Update the CLI from the latest stable release tag
 ternux logs             # View and manage log files
 ternux info --json      # machine-readable system info
 ternux state            # Show installation state

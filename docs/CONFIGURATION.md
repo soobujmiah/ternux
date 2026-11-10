@@ -81,8 +81,10 @@ XDG_RUNTIME_DIR=~/.runtime         Required by dbus/GTK apps
 Mesa keeps its shader cache in the Debian user cache across desktop restarts; the launcher does not redirect it into shared `/tmp`. `ternux repair` can clear that cache when repairing a graphics issue.
 
 The desktop applies its bundled theme, wallpaper and no-compositor defaults
-once for each Debian user. Later starts skip those settings and wallpaper reload,
-so startup does less work and personal theme changes remain in place.
+once for each Debian user. On Termux:X11, the default wallpaper targets Xfce's
+active `builtin` output. A one-time migration repairs only an empty, missing, or Debian stock wallpaper
+path; a readable custom wallpaper remains untouched. Later starts skip these settings and wallpaper reload, so startup does
+less work and personal theme changes remain in place.
 
 *Why the cache tweaks?* The phone's storage is slow flash; a single-file,
 size-capped cache keeps app warm-starts fast without letting Mesa silently

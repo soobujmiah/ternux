@@ -2,9 +2,20 @@ name: llama.cpp CPU + Vulkan artifact
 
 on:
   workflow_dispatch:
+    inputs:
+      publish_preview:
+        description: Update the public optional prerelease after the artifact audit
+        required: true
+        type: boolean
+        default: false
+      source_run_id:
+        description: Reuse an inspected artifact from this successful workflow run ID; leave empty to build now
+        required: false
+        type: string
+        default: ''
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: llama-vulkan-b11582
@@ -12,12 +23,13 @@ concurrency:
 
 jobs:
   build:
+    if: github.event_name != 'workflow_dispatch' || inputs.source_run_id == ''
     name: Build pinned Linux ARM64 CPU + Vulkan package
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 90
     steps:
       - name: Check out Ternux metadata
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Install Vulkan build dependencies
         run: |
@@ -28,7 +40,7 @@ jobs:
             libssl-dev libgomp1 libvulkan1
 
       - name: Check out pinned llama.cpp source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: ggml-org/llama.cpp
           ref: af50f2f248b475d9760f8e67503d01c0f194f5f4
@@ -58,6 +70,62 @@ jobs:
           cmake --build build --parallel 4
           cmake --install build --prefix "$package"
           install -m 0644 llama.cpp/LICENSE "$package/LLAMA-CPP-LICENSE"
+          python3 - "$package" <<'PY_LICENSES'
+          from pathlib import Path
+          import hashlib
+          import shutil
+          import subprocess
+          import sys
+
+          source = Path("llama.cpp")
+          destination = Path(sys.argv[1]) / "share/licenses/upstream"
+          paths = subprocess.run(
+              ["git", "-C", str(source), "ls-files", "-z"],
+              check=True, capture_output=True,
+          ).stdout.split(b"\0")
+
+          def is_license_file(raw_path: bytes) -> bool:
+              name = Path(raw_path.decode("utf-8")).name.upper()
+              if name.endswith(".CMAKE"):
+                  return False
+              stems = ("LICENSE", "LICENCE", "COPYING", "NOTICE", "COPYRIGHT",
+                       "AUTHORS", "PATENTS", "UNLICENSE")
+              return any(name == stem or name.startswith((stem + ".", stem + "-"))
+                         for stem in stems)
+
+          licenses = sorted(path.decode("utf-8") for path in paths if path and is_license_file(path))
+          if not licenses:
+              raise SystemExit("pinned upstream source contains no tracked license files")
+          for relative in licenses:
+              target = destination / relative
+              target.parent.mkdir(parents=True, exist_ok=True)
+              shutil.copyfile(source / relative, target)
+          (destination / "INDEX.txt").write_text("\n".join(licenses) + "\n", encoding="utf-8")
+          entries = []
+          for relative in licenses:
+              content = (destination / relative).read_bytes()
+              entries.append(f"{hashlib.sha256(content).hexdigest()}  {relative}")
+          (destination / "SHA256SUMS").write_text("\n".join(entries) + "\n", encoding="utf-8")
+          (destination / "README.txt").write_text(
+              "Upstream license, notice, attribution and patent files copied from "
+              "tracked llama.cpp source at the pinned build commit. INDEX.txt lists "
+              "source-relative paths; SHA256SUMS verifies each copied file.\n",
+              encoding="utf-8")
+          PY_LICENSES
+          python3 - "$package" <<'PY_CHECK_LICENSES'
+          from pathlib import Path
+          import sys
+
+          package = Path(sys.argv[1])
+          bundle = package / "share/licenses/upstream"
+          expected = ("licenses/LICENSE-jsonhpp", "vendor/cpp-httplib/LICENSE")
+          for relative in expected:
+              path = bundle / relative
+              if not path.is_file() or path.stat().st_size == 0:
+                  indexed = (bundle / "INDEX.txt").read_text(encoding="utf-8") if (bundle / "INDEX.txt").exists() else "<missing index>"
+                  raise SystemExit(f"required upstream notice is missing: {relative}; index: {indexed}")
+          print(f"Bundled {len((bundle / 'INDEX.txt').read_text(encoding='utf-8').splitlines())} tracked upstream license/notice files.")
+          PY_CHECK_LICENSES
           file "$package/bin/llama-cli" | tee llama-cli-file.txt
           grep -q 'ARM aarch64' llama-cli-file.txt
           readelf -d "$package/bin/llama-cli" | grep -F '$ORIGIN/../lib'
@@ -111,6 +179,7 @@ jobs:
             "upstream": "https://github.com/ggml-org/llama.cpp",
             "upstream_tag": "b11582",
             "upstream_commit": "$package_commit",
+            "ternux_commit": "$GITHUB_SHA",
             "build_runner": "GitHub-hosted ubuntu-24.04-arm",
             "cmake_options": {
               "CMAKE_BUILD_TYPE": "Release",
@@ -126,9 +195,12 @@ jobs:
               "libssl.so.3", "libcrypto.so.3", "libgomp.so.1", "libvulkan.so.1"
             ],
             "license_file": "LLAMA-CPP-LICENSE",
+            "upstream_license_bundle": "share/licenses/upstream/INDEX.txt",
+            "upstream_license_checksums": "share/licenses/upstream/SHA256SUMS",
             "device_validation": "CPU and Vulkan known-answer passed on SM8735/Adreno 825; see release notes"
           }
           EOF
+          python3 tools/generate_llama_vulkan_component_manifest.py "$package" llama.cpp .
           python3 tests/llama_vulkan_abi_audit.py "$package"
           tar -C package -czf \
             ternux-llama-vulkan-linux-arm64-b11582.tar.gz \
@@ -137,6 +209,104 @@ jobs:
             > ternux-llama-vulkan-linux-arm64-b11582.tar.gz.sha256
           tar -tzf ternux-llama-vulkan-linux-arm64-b11582.tar.gz \
             > release-contents.txt
+          (cd "$package/share/licenses/upstream" && sha256sum -c SHA256SUMS)
+          while IFS= read -r license_path; do
+            grep -Fqx "ternux-llama-vulkan-linux-arm64-b11582/share/licenses/upstream/$license_path" \
+              release-contents.txt
+          done < "$package/share/licenses/upstream/INDEX.txt"
+
+      - name: Upload inspected candidate artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: ternux-llama-vulkan-linux-arm64-b11582-candidate
+          path: |
+            ternux-llama-vulkan-linux-arm64-b11582.tar.gz
+            ternux-llama-vulkan-linux-arm64-b11582.tar.gz.sha256
+          if-no-files-found: error
+          retention-days: 90
+
+  verify_source:
+    if: github.event_name == 'workflow_dispatch' && inputs.source_run_id != ''
+    runs-on: ubuntu-24.04
+    permissions:
+      actions: read
+      contents: read
+    outputs:
+      source_sha: ${{ steps.provenance.outputs.source_sha }}
+    steps:
+      - name: Check out release source for provenance checks
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Validate the previous build run
+        id: provenance
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_RUN_ID: ${{ inputs.source_run_id }}
+        run: >-
+          tools/verify_release_artifact_run.sh "$SOURCE_RUN_ID"
+          ".github/workflows/llama-vulkan-artifact.yml" "ternux-llama-vulkan-linux-arm64-b11582-candidate" "tools/generate_llama_vulkan_component_manifest.py" "tests/llama_vulkan_abi_audit.py" "LICENSE" "NOTICE"
+
+  refresh_artifact:
+    if: github.event_name == 'workflow_dispatch' && inputs.source_run_id != ''
+    needs: verify_source
+    runs-on: ubuntu-24.04
+    permissions:
+      actions: read
+      contents: read
+    steps:
+      - name: Download the verified candidate without rebuilding
+        uses: actions/download-artifact@v7
+        with:
+          name: ternux-llama-vulkan-linux-arm64-b11582-candidate
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ inputs.source_run_id }}
+          path: candidate
+      - name: Verify archive checksum
+        run: (cd candidate && sha256sum --check ternux-llama-vulkan-linux-arm64-b11582.tar.gz.sha256)
+      - name: Re-upload the exact inspected artifact with extended retention
+        uses: actions/upload-artifact@v6
+        with:
+          name: ternux-llama-vulkan-linux-arm64-b11582-candidate
+          path: |
+            candidate/ternux-llama-vulkan-linux-arm64-b11582.tar.gz
+            candidate/ternux-llama-vulkan-linux-arm64-b11582.tar.gz.sha256
+          if-no-files-found: error
+          retention-days: 90
+
+  publish-preview:
+    if: >-
+      ${{ always() && github.event_name == 'workflow_dispatch' && inputs.publish_preview == true && github.ref == 'refs/heads/main' && ((needs.build.result == 'success' && inputs.source_run_id == '') || (needs.build.result == 'skipped' && inputs.source_run_id != '')) && ((needs.verify_source.result == 'success' && inputs.source_run_id != '') || (needs.verify_source.result == 'skipped' && inputs.source_run_id == '')) }}
+    needs: [build, verify_source]
+    runs-on: ubuntu-24.04
+    permissions:
+      actions: read
+      contents: write
+    env:
+      SOURCE_ARTIFACT_SHA: ${{ needs.verify_source.outputs.source_sha || github.sha }}
+    steps:
+      - name: Check out release source for provenance checks
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Require main before updating the public prerelease
+        run: |
+          if [ "$GITHUB_REF" != refs/heads/main ]; then
+            echo 'Publishing the public prerelease is restricted to main.' >&2
+            exit 1
+          fi
+
+      - name: Download inspected candidate
+        uses: actions/download-artifact@v7
+        with:
+          name: ternux-llama-vulkan-linux-arm64-b11582-candidate
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ inputs.source_run_id || github.run_id }}
+          path: candidate
 
       - name: Create or refresh the draft device-validation release
         env:
@@ -159,20 +329,22 @@ jobs:
           llama-vulkan`: Qwen2.5 1.5B Q4_0 returned `4` on CPU and Vulkan, and
           verbose Vulkan output identified Adreno 825 with all 29/29 layers
           offloaded. This is an optional prerelease artifact, not a stable
-          Ternux version release. See the build manifest and checksum included
+          Ternux version release. See the build manifest, source-component map, and checksum included
           in the archive.
           EOF
+          printf '\nTernux artifact build source commit: `%s`.\n' "$SOURCE_ARTIFACT_SHA" >> release-notes.md
+          archive=candidate/ternux-llama-vulkan-linux-arm64-b11582.tar.gz
+          checksum=candidate/ternux-llama-vulkan-linux-arm64-b11582.tar.gz.sha256
+          test -s "$archive"
+          test -s "$checksum"
+          (cd candidate && sha256sum --check ternux-llama-vulkan-linux-arm64-b11582.tar.gz.sha256)
           if gh release view "$tag" >/dev/null 2>&1; then
-            gh release upload "$tag" \
-              ternux-llama-vulkan-linux-arm64-b11582.tar.gz \
-              ternux-llama-vulkan-linux-arm64-b11582.tar.gz.sha256 --clobber
+            gh release upload "$tag" "$archive" "$checksum" --clobber
             gh release edit "$tag" \
               --title 'Ternux llama.cpp CPU + Vulkan (ARM64, b11582)' \
               --notes-file release-notes.md --prerelease
           else
-            gh release create "$tag" \
-              ternux-llama-vulkan-linux-arm64-b11582.tar.gz \
-              ternux-llama-vulkan-linux-arm64-b11582.tar.gz.sha256 \
+            gh release create "$tag" "$archive" "$checksum" \
               --draft --prerelease \
               --title 'Ternux llama.cpp CPU + Vulkan (ARM64, b11582)' \
               --notes-file release-notes.md \

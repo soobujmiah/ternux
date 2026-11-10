@@ -248,11 +248,18 @@ _tnx_dr_guest() {
 }
 
 _tnx_dr_graphics() {
-  local vulkan gpu backend configured_backend renderer="" current_backend kgsl
-  vulkan="$(tnx_detect_vulkan)"
-  case "$vulkan" in
-    yes*|"yes (Adreno)") _tnx_dr_add ok graphics vulkan "Vulkan: $vulkan" ;;
-    *) _tnx_dr_add warn graphics vulkan_unavailable "Vulkan: ${vulkan:-no}" "" "Install Vulkan loader" ;;
+  local vulkan vulkan_state gpu backend configured_backend renderer="" current_backend kgsl
+  vulkan_state="$(tnx_detect_vulkan_state)"
+  vulkan="$(tnx_vulkan_legacy_status "$vulkan_state")"
+  case "$vulkan_state" in
+    VULKAN_READY) _tnx_dr_add ok graphics vulkan "Vulkan hardware device enumerated" ;;
+    SOFTWARE_FALLBACK) _tnx_dr_add warn graphics vulkan_software "Vulkan reports software rendering" "No hardware Vulkan device was enumerated" "Check KGSL access and the selected ICD" ;;
+    HARDWARE_AVAILABLE) _tnx_dr_add warn graphics vulkan_device_unavailable "GPU model is detected but its device node is unavailable" "Hardware detection alone does not prove Vulkan support" "Check Android GPU device access" ;;
+    DRIVER_MISSING) _tnx_dr_add warn graphics vulkan_driver_missing "KGSL is visible but no usable Vulkan ICD is installed" "Turnip or the device driver is missing" "Run: ternux repair" ;;
+    ICD_MISSING) _tnx_dr_add warn graphics vulkan_icd_missing "Vulkan loader is present but no ICD was found" "The loader cannot enumerate a device without an ICD" "Run: ternux repair" ;;
+    LOADER_MISSING) _tnx_dr_add warn graphics vulkan_loader_missing "GPU device is visible but the Vulkan loader is missing" "" "Install the guest Vulkan loader" ;;
+    DEVICE_ENUMERATION_FAILED) _tnx_dr_add warn graphics vulkan_enumeration_failed "Vulkan loader and ICD did not enumerate a hardware device" "" "Check: vulkaninfo --summary" ;;
+    *) _tnx_dr_add info graphics vulkan_not_detected "Vulkan hardware was not detected" ;;
   esac
   gpu="$(tnx_detect_gpu)"
   configured_backend="$(tnx_canonical_backend "$(tnx_state_get "backend")")"

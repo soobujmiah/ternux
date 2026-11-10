@@ -106,7 +106,7 @@ sha256sum -c "$ASSET.sha256"
 এই প্রকাশিত build-এর প্রত্যাশিত archive SHA-256:
 
 ```text
-3753fa3044ec258732cc52729eafc42c0cbf5b476f27fd247be3619617611d9e  ternux-llama-vulkan-linux-arm64-b11582.tar.gz
+bf5e80362620c52e43837949953c00aee6d80be5d87fc45f44911d8624cc3871  ternux-llama-vulkan-linux-arm64-b11582.tar.gz
 ```
 
 Extract করার আগে archive-এর path দেখুন এবং নিশ্চিত করুন সব entry নির্দিষ্ট
@@ -196,10 +196,13 @@ Extract করা archive-এর ৬৯টি ELF file offline audit করি: 
 Audit package-এর local dependency ও upstream license-ও যাচাই করেছে। System
 runtime-এ OpenSSL 3 (`libssl3` বা `libssl3t64`), `libgomp1`, ও `libvulkan1`
 লাগে; installer download-এর আগে shared library ও glibc minimum পরীক্ষা করে।
-বর্তমান release workflow-তে এই ABI audit আছে, তবে সর্বশেষ সফল artifact run-টি
-audit ধাপ যোগ হওয়ার আগের। [Run #3](https://github.com/soobujmiah/ternux/actions/runs/38457240250)
-2026-10-13-এ commit `b568b9f`-এ সফল হয়েছিল; এটি নতুন audit ধাপ পাশের প্রমাণ
-নয়। নতুন artifact build এখনো বাকি।
+বর্তমান workflow pinned upstream license/notice bundle করে এবং upload-এর আগে
+ABI ও license audit চালায়। Candidate run
+[42511869708](https://github.com/soobujmiah/ternux/actions/runs/42511869708)
+commit `2837c8f`-এ pass করেছে; এটি candidate artifact-এর build, ABI ও bundled
+notice যাচাই, device behavior নয়। আলাদা publisher skip হওয়ায় public
+prerelease এখনো আগের asset। এই candidate নতুন করে device-এ install করে
+known-answer যাচাই করা বাকি।
 
 আগের জায়গায় থাকা model দিয়ে install করা package CPU-তে (`-ngl 0`) এবং Vulkan-এ
 (`-dev Vulkan0 -ngl 99`) একই greedy `2 + 2` prompt-এর উত্তর `4` দেয়। Verbose

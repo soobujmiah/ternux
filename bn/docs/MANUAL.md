@@ -78,6 +78,9 @@ command -v proot-distro && command -v termux-x11 && command -v pulseaudio
 
 ---
 
+
+Debian desktop-এ Ternux Camera ও Ternux Sound Recorder থাকে। Android front/rear camera দিয়ে photo তুলতে Termux-এর **একই source থেকে Termux:API Android app** ইনস্টল করুন এবং প্রথম capture-এ Termux:API-কে Camera permission দিন। ছবি যাচাইয়ের পর Debian PRoot-এর `/home/ternux/Pictures/Ternux`-এ (অথবা নির্বাচিত guest user-এর home-এ) সেভ হয়। preview-তে ছবির EXIF orientation মানা হয় এবং নিচের action button compact রাখা হয়েছে। Android Gallery-তে যোগ করা হয় না। Termux:API camera info ও still photo দেয়, continuous camera stream দেয় না। Sound Recorder-এর Start চাপলে তবেই Termux:API mic চালু হয়; setup-এর সময় Termux:API permission চাওয়া হয়; না পেলে প্রথম ব্যবহারে Android permission চাইতে পারে। Record করার আগে AAC/M4A (default) অথবা MP3 বেছে নিন। Stop and save করলে নির্বাচিত format Debian user-এর `~/Music/Ternux`-এ সেভ হয়। Android mic capture AAC-তে হয়; MP3 Debian-এর FFmpeg দিয়ে local-এ encode হয়।
+
 ## ধাপ ৩ — Debian ইনস্টল
 
 ```bash
@@ -103,7 +106,7 @@ export DEBIAN_FRONTEND=noninteractive
 apt update
 
 # কোর ডেস্কটপ + GL/অডিও। এটি সফল হতেই হবে।
-apt install -y sudo nano mousepad fonts-noto-core python3-gi gir1.2-gtk-3.0 ibus ibus-avro devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol x11-utils mesa-utils libgl1-mesa-dri adwaita-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc arc-theme colord
+apt install -y sudo nano mousepad fonts-noto-core python3-gi gir1.2-gtk-3.0 ibus ibus-avro devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol x11-utils mesa-utils libgl1-mesa-dri adwaita-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc ristretto qt5-gtk-platformtheme arc-theme colord
 
 # PolicyKit: polkitd = trixie+, policykit-1 = bookworm। বেস্ট-এফোর্ট।
 apt install -y polkitd || apt install -y policykit-1 || true
@@ -381,188 +384,31 @@ exit
 
 ---
 
-## ধাপ ৮ — লঞ্চার (`~/x.sh`)
+## ধাপ ৮ — managed desktop চালু করুন
 
-ইনস্টলার যে ফাইলটি তৈরি করে, এটি সেই ফাইল। হাতে বানান:
-
-```bash
-nano ~/x.sh
-```
-
-আপনার পথের কনটেন্ট পেস্ট করুন, সেভ করুন, তারপর:
+ইনস্টলার `~/x.sh` তৈরি ও রক্ষণাবেক্ষণ করে। readiness যাচাই এবং পুরোনো
+launcher নিরাপদে refresh করার জন্য Ternux lifecycle manager দিয়ে desktop
+চালু করুন:
 
 ```bash
-chmod +x ~/x.sh
+ternux start
 ```
 
-### ৮ক — Zink (Adreno) লঞ্চার
-
-```bash
-#!/data/data/com.termux/files/usr/bin/bash
-# ternux launcher — Zink/Turnip route (Adreno)
-set -u
-
-TMPDIR="${TMPDIR:-/data/data/com.termux/files/usr/tmp}"
-
-cleanup() {
-  pkill -9 -f "^termux-x11 com\.termux\.x11([[:space:]]|$)" 2>/dev/null || true
-  pkill -9 -f '(^|/)virgl_test_server(_android)?([[:space:]]|$)' 2>/dev/null || true
-  pulseaudio --kill 2>/dev/null || pkill -KILL -x pulseaudio 2>/dev/null || true
-  rm -f "$TMPDIR"/.X11-unix/X* "$TMPDIR"/.X*-lock "$TMPDIR"/pulse-socket "$TMPDIR"/.pulse-*/native 2>/dev/null || true
-  termux-wake-unlock 2>/dev/null || true
-}
-trap cleanup EXIT
-trap 'exit 130' INT
-trap 'exit 143' TERM
-
-# Clean up any previous session
-pkill -9 -f "^termux-x11 com\.termux\.x11([[:space:]]|$)" 2>/dev/null || true
-pkill -9 -f '(^|/)virgl_test_server(_android)?([[:space:]]|$)' 2>/dev/null || true
-pulseaudio --kill 2>/dev/null || pkill -KILL -x pulseaudio 2>/dev/null || true
-rm -f "$TMPDIR"/.X11-unix/X* "$TMPDIR"/.X*-lock "$TMPDIR"/pulse-socket "$TMPDIR"/.pulse-*/native 2>/dev/null || true
-
-# Keep Android from suspending the session
-termux-wake-lock 2>/dev/null || true
-
-# Audio
-unset PULSE_SERVER
-pulseaudio --start --exit-idle-time=-1 --daemonize 2>/dev/null || true
-sleep 0.3
-PULSE_PORT=""
-for ((candidate=4713; candidate<=4722; candidate++)); do
-  if pactl load-module module-native-protocol-tcp listen=127.0.0.1 auth-ip-acl=127.0.0.1 auth-anonymous=1 port="$candidate" >/dev/null 2>&1; then
-    PULSE_PORT="$candidate"
-    break
-  fi
-done
-if [ -z "$PULSE_PORT" ]; then
-  echo "ERROR: Could not open the loopback PulseAudio bridge on ports 4713-4722."
-  exit 1
-fi
-export PULSE_SERVER="tcp:127.0.0.1:$PULSE_PORT"
-
-# Display
-termux-x11 :0 -ac &
-X11_PID=$!
-echo "Waiting for Termux-X11 display socket..."
-WAITED=0
-while [ ! -e "$TMPDIR/.X11-unix/X0" ]; do
-  if ! kill -0 "$X11_PID" 2>/dev/null; then
-    echo "ERROR: termux-x11 exited before creating its socket."
-    echo "       Open the Termux:X11 app once, then run this again."
-    exit 1
-  fi
-  if [ "$WAITED" -ge 300 ]; then
-    echo "ERROR: timed out after 30s waiting for display :0."
-    exit 1
-  fi
-  WAITED=$((WAITED + 1))
-  sleep 0.1
-done
-echo "Display :0 ready."
-
-# Desktop
-proot-distro login debian --shared-tmp \
-  --bind /dev/kgsl-3d0:/dev/kgsl \
-  --bind /dev/dri \
-  --user ternux \
-  --env DISPLAY=:0 \
-  --env PULSE_SERVER="$PULSE_SERVER" \
-  --env MESA_LOADER_DRIVER_OVERRIDE=zink \
-  --env TU_DEBUG=noconform \
-  --env MESA_VK_WSI_DEBUG=sw \
-  --env MESA_DISK_CACHE_SINGLE_FILE=1 \
-  --env MESA_SHADER_CACHE_MAX_SIZE=2048M \
-  --env QT_X11_NO_MITSHM=1 \
-  --env XDG_RUNTIME_DIR=/home/ternux/.runtime \
-  --env LANG=en_US.UTF-8 \
-  --env LC_ALL=en_US.UTF-8 \
-  -- bash -c '
-    set -u
-    mkdir -p ~/.runtime
-    chmod 700 ~/.runtime
-
-    until xdpyinfo -display :0 >/dev/null 2>&1; do sleep 0.1; done
-
-    sudo -n mkdir -p /var/run/dbus /run/dbus /run/user/$(id -u) 2>/dev/null || true
-    sudo -n dbus-uuidgen --ensure >/dev/null 2>&1 || true
-    sudo -n rm -f /etc/xdg/autostart/light-locker.desktop 2>/dev/null || true
-
-    xfconf-query -c xfwm4 -p /general/use_compositing -s false >/dev/null 2>&1 || true
-    exec dbus-launch --exit-with-session startxfce4
-  '
-
-# The EXIT trap performs teardown on success, failure, Ctrl+C or termination.
-```
-
-### ৮খ — VirGL সংস্করণ: মাত্র দুটি বদল
-
-ওপরের ফাইলটি থেকে শুরু করে **দুটি এডিট** করুন:
-
-1. `echo "Display :0 ready."` আর `# Desktop`-এর মাঝে এই ব্লকটি ঢোকান:
-
-```bash
-virgl_test_server_android >/dev/null 2>&1 &
-VIRGL_PID=$!
-sleep 1
-if ! kill -0 "$VIRGL_PID" 2>/dev/null; then
-  echo "WARNING: virgl_test_server_android failed to start."
-  echo "         Rendering will fall back to software (llvmpipe)."
-fi
-```
-
-2. দুটি `--bind` line সরান এবং argument block থেকে `-- bash -c` separator
-পর্যন্ত নিচের অংশ দিয়ে বদলান:
-
-```bash
-  --user ternux \
-  --env DISPLAY=:0 \
-  --env PULSE_SERVER="$PULSE_SERVER" \
-  --env GALLIUM_DRIVER=virpipe \
-  --env MESA_GL_VERSION_OVERRIDE=4.3COMPAT \
-  --env QT_X11_NO_MITSHM=1 \
-  --env XDG_RUNTIME_DIR=/home/ternux/.runtime \
-  --env LANG=en_US.UTF-8 \
-  --env LC_ALL=en_US.UTF-8 \
-  -- bash -c '
-```
-
-`--env` ইচ্ছাকৃতভাবে প্রতিটি variable-এর জন্য repeat করা হয়েছে: PRoot-Distro
-এটিকে repeatable single `VAR=VALUE` option হিসেবে define করে।
-
-শেষ ফাইলটি সিনট্যাক্স-চেক করুন:
-
-```bash
-bash -n ~/x.sh && echo "launcher ok"
-```
+`x` shortcut একই command চালায়। Managed desktop-এ Android shared storage
+`/sdcard`-এ ব্যবহার করা যায়; PRoot session Termux integration-এর জন্য isolated
+bind ব্যবহার করে। পুরোনো `proot-distro login --shared-tmp` launcher example
+`~/x.sh`-এ কপি করবেন না—ওগুলো PRoot-Distro-এর বিস্তৃত host mount ব্যবহার করে।
+`ternux start` launcher missing বললে Ternux installer `ternux install` দিয়ে
+resume করুন।
 
 ---
 
 ## ধাপ ৯ — শেল শর্টকাট
 
-```bash
-cat >> ~/.bashrc << 'EOF'
-
-# ==== TERNUX ALIASES ====
-alias x='~/x.sh'
-alias killx='pkill -f "^termux-x11 com\\.termux\\.x11([[:space:]]|$)" || true; pulseaudio --kill 2>/dev/null || \
-  pkill -KILL -x pulseaudio || true; rm -f $TMPDIR/.X11-unix/X* \
-  $TMPDIR/.X*-lock $TMPDIR/.pulse-*/native'
-alias db='proot-distro login debian --shared-tmp --user ternux'
-alias droot='proot-distro login debian --shared-tmp'
-alias xgo='am start -n com.termux.x11/com.termux.x11.MainActivity 2>/dev/null; sleep 1; ~/x.sh'
-clean-mesa() {
-  proot-distro login debian --user ternux -- bash -c 'rm -rf -- ~/.cache/mesa ~/.cache/mesa_shader_cache ~/.cache/mesa_shader_cache_db ~/.cache/mesa_shader_cache_sf'
-  echo "Mesa cache cleared."
-}
-sysmon() {
-  echo "--- CPU & Memory ---"; free -h
-  echo ""; echo "--- GPU / KGSL Nodes ---"
-  ls -l /dev/kgsl-3d0 /dev/dri 2>/dev/null || echo "Direct GPU nodes not available."
-}
-# ==== END TERNUX ALIASES ====
-EOF
-```
+ইনস্টলার `x`, `killx`, `db`, `droot`, `xgo`, `clean-mesa` এবং `sysmon`
+shortcut তৈরি ও রক্ষণাবেক্ষণ করে। Guest alias isolated PRoot binding ব্যবহার
+করে, `/sdcard` রাখে এবং দরকার হলে শুধু `/tmp` share করে। Alias তৈরি বা refresh
+করতে `ternux install` চালান; পুরোনো guide-এর alias block কপি করবেন না।
 
 রিলোড করে শুরু করুন:
 

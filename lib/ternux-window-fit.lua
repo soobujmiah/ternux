@@ -3,9 +3,9 @@ local kind = get_window_type()
 if kind == "WINDOW_TYPE_NORMAL" or kind == "WINDOW_TYPE_DIALOG" then
     local screen_width, screen_height = get_screen_geometry()
     local x, y, width, height = get_window_geometry()
-    local margin = 8
-    local top = 28
-    local bottom = 48
+    local margin = 3
+    local top = 24
+    local bottom = 42
     local max_width = math.max(1, screen_width - margin * 2)
     local max_height = math.max(1, screen_height - top - bottom - margin * 2)
 

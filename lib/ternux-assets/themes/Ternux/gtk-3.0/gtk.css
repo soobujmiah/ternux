@@ -1,0 +1,44 @@
+@import url("resource:///org/gtk/libgtk/theme/Adwaita/gtk-contained-dark.css");
+/* Ternux: graphite surfaces, emerald actions, high-contrast text. */
+/* Semantic GTK colors keep dialogs and third-party GTK applications aligned. */
+@define-color theme_bg_color #101816;
+@define-color theme_fg_color #e4f3eb;
+@define-color theme_base_color #0c1311;
+@define-color theme_text_color #e4f3eb;
+@define-color theme_selected_bg_color #08784c;
+@define-color theme_selected_fg_color #ffffff;
+@define-color borders #34483e;
+@define-color wm_title #e4f3eb;
+@define-color wm_unfocused_title #a4b8ad;
+@define-color wm_bg #17221e;
+@define-color wm_unfocused_bg #101816;
+
+@define-color ternux_bg #101816;
+@define-color ternux_surface #17221e;
+@define-color ternux_surface2 #202e28;
+@define-color ternux_fg #e4f3eb;
+@define-color ternux_muted #a4b8ad;
+@define-color ternux_green #39e68c;
+@define-color ternux_green_dark #08784c;
+@define-color ternux_border #34483e;
+* { -gtk-secondary-caret-color: @ternux_green; }
+window, .background, dialog, .view, .sidebar, .sidebar row { background-color: @ternux_bg; color: @ternux_fg; }
+headerbar, .titlebar, .toolbar, .primary-toolbar { background-image: none; background-color: @ternux_surface; color: @ternux_fg; border-color: @ternux_border; }
+menubar, menu, .context-menu, popover, tooltip, notebook > header { background-color: @ternux_surface; color: @ternux_fg; }
+button, combobox, entry, spinbutton, scrollbar trough, frame, paned > separator { border-color: @ternux_border; }
+button { background-image: none; background-color: @ternux_surface2; color: @ternux_fg; }
+button:hover, row:hover, treeview.view:hover { background-color: #293c32; }
+button:checked, button:active, selection, *:selected { background-color: @ternux_green_dark; color: #ffffff; }
+entry, textview text, view, treeview.view { background-color: #0c1311; color: @ternux_fg; caret-color: @ternux_green; }
+*:disabled { color: @ternux_muted; }
+progressbar progress, scale highlight, switch:checked, levelbar block.filled { background-color: @ternux_green; }
+check, radio { -gtk-icon-palette: success @ternux_green; }
+
+/* Xfce panel and window shell */
+#XfcePanelWindow, .xfce4-panel, .xfce4-panel.background { background-image: none; background-color: #101816; color: #e4f3eb; border-color: #34483e; }
+#XfcePanelWindow button, .xfce4-panel button { background-image: none; background-color: transparent; color: #e4f3eb; border-color: transparent; border-radius: 3px; box-shadow: none; }
+#XfcePanelWindow button:hover, .xfce4-panel button:hover { background-image: none; background-color: #202e28; color: #39e68c; border-color: transparent; box-shadow: none; }
+#XfcePanelWindow button:checked, #XfcePanelWindow button:active,
+.xfce4-panel button:checked, .xfce4-panel button:active { background-image: none; background-color: #202e28; color: #39e68c; border-color: transparent; box-shadow: none; }
+#XfcePanelWindow button:backdrop, .xfce4-panel button:backdrop { background-image: none; box-shadow: none; }
+#XfcePanelWindow menu, .xfce4-panel menu { background-color: #17221e; color: #e4f3eb; }

@@ -81,10 +81,33 @@ Termux-এ `db` চালান। Debian-এর ভেতরে Android shared 
 **বেস desktop:** user-space PRoot container-এ Debian 13 (Trixie), Xfce4,
 Termux:X11 display integration এবং PulseAudio audio routing। বেস setup-এ
 Bangla-capable Noto font, Avro phonetic input (Ctrl+Space), VLC, PulseAudio
-Volume Control, Xfce Task Manager ও Mousepad থাকে। প্রথমবার GUI চালালে Firefox
-ESR থাকলে project website একবার খোলে; browser না থাকলে desktop-এর ভেতর welcome
-guide দেখায়। Firefox optional।
+Volume Control, Xfce Task Manager, Mousepad, Galculator, Evince PDF reader,
+Ternux Camera, Ternux Sound Recorder, Ristretto image viewer এবং নিজস্ব
+Ternux theme/icon-সহ Synaptic Package Manager থাকে। Synaptic দিয়ে Debian
+package খুঁজে install, upgrade ও remove করা যায়। Evince default PDF reader;
+PDF page edit ও অন্য format-এ export করতে optional LibreOffice Draw নিন।
+Celestia optional astronomy app। Fresh install-এ mail client install বা default
+করা হয় না; Evolution Mail optional, common provider-এ OAuth এবং অন্য server-এ
+manual IMAP/POP সমর্থন করে। OAuth-এর জন্য Firefox ESR থাকলে সেটি, না থাকলে
+Ternux bridge Android-এর default browser খোলে।
 
+Graphite-and-emerald GTK theme, custom window border/titlebar এবং ১৫টি আলাদা
+portrait-first wallpaper desktop branding-এর অংশ; landscape-এ wallpaper-এর
+অনুপাত ঠিক থাকে। App, folder, Thunar action, category ও panel-এর original
+Ternux icon আছে; Firefox ESR, Blender, GIMP, Krita, Inkscape, Audacity, Geany,
+Evolution Mail ও LibreOffice-এর মতো optional app-ও branded icon পায়। পরে যোগ
+করা uncommon app-এ neutral Adwaita fallback থাকে। Papirus theme inherit করে না।
+
+Xfce panel-এ Camera, Photos ও Sound Recorder-এর one-click shortcut থাকে।
+Ternux Camera Android front/rear camera দেখায়; Termux:API app ও matching
+`termux-api` package লাগবে। প্রথম capture-এ Android Camera permission চায়।
+তোলা ছবি EXIF orientation ঠিক রেখে app-এ preview হয় এবং Debian-এর
+`~/Pictures/Ternux`-এ save হয়; Android Gallery-তে পাঠানো হয় না। এটি still-photo
+capture; live camera stream এখনো দেয় না। প্রথম GUI চালু হলে project website
+একবার খোলে; browser না থাকলে desktop welcome guide দেখায়। Sound Recorder-এ
+Start চাপলেই microphone চালু হয়; AAC/M4A default, MP3-ও বেছে নেওয়া যায়
+(স্থানীয় Debian FFmpeg দিয়ে encode হয়)। Recording Debian-এর
+`~/Music/Ternux`-এ থাকে।
 **Graphics:** সমর্থিত Adreno/KGSL device-এ স্বয়ংক্রিয় Zink + Turnip setup;
 অন্য ক্ষেত্রে VirGL compatibility route। সক্রিয় renderer দেখতে `ternux verify`
 এবং Debian-এর ভেতরে `glxinfo -B` চালান। Desktop চালু হওয়া একাই hardware
@@ -92,7 +115,7 @@ acceleration-এর প্রমাণ নয়। `ternux gpu` ও `ternux bac
 ও পরিচালনা করে। বিস্তারিত [graphics persistence](../docs/GRAPHICS-PERSISTENCE.md)।
 
 **ঐচ্ছিক software:** installer-এর numbered তালিকা থেকে package বা workload বেছে নিতে
-পারবেন। Developer toolchain ও editor, Android SDK/NDK, Firefox ও Thunderbird,
+পারবেন। Developer toolchain ও editor, Android SDK/NDK ও Firefox,
 local AI runtime, network utility, media/graphics app, office tool এবং Blender
 পছন্দ করা যায়। শুধু দরকারি জিনিস নিলে base install ছোট থাকে। `--all` profile
 install-এর পর প্রায় ১০.৫–১২.৫ GB নেয় এবং setup চলাকালে প্রায় ১৪ GB খালি জায়গা

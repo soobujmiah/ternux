@@ -85,10 +85,7 @@ keeps the base profile.
 
 ### `ternux start`
 
-Start the Xfce4 desktop session in its own detached session so it survives the launching shell closing. The command returns when
-Termux:X11 display `:0` is ready; startup output is kept in
-`~/.local/share/ternux/session/desktop.log`. Use `ternux status` or
-`ternux logs desktop tail` to inspect it. After a CLI package update, `ternux start` refreshes an older generated `~/x.sh` automatically. The launcher (`~/x.sh`):
+Start the Xfce4 desktop session in its own detached session so it survives the launching shell closing. The command returns only after Termux:X11 and the XFCE session, window manager, and desktop are ready, then brings the Termux:X11 app to the foreground. Re-running it focuses the existing desktop instead of starting a duplicate, including when its supervisor marker is missing but the live XFCE session remains. If startup fails, it returns an error and points to `~/.local/share/ternux/session/desktop.log`. Use `ternux status` or `ternux logs desktop tail` to inspect the session. After a CLI package update, `ternux start` refreshes an older generated `~/x.sh` automatically. The launcher (`~/x.sh`):
 1. Cleans up any previous session
 2. Starts PulseAudio with TCP bridge
 3. Launches Termux:X11 display
@@ -111,6 +108,21 @@ Stops the managed Xfce, Termux:X11, PulseAudio and VirGL processes. Independent
 D-Bus sessions are left alone.
 Removes: stale X11 sockets, pulse socket.
 Releases: wake-lock.
+
+### `ternux status`
+
+Report desktop lifecycle and host service state. `running` requires the guest
+to complete a bounded X11 query; a stale socket and surviving process names do
+not qualify. `pulseaudio` reports whether the host daemon process exists, while
+`pulseaudio_ready` independently verifies the configured loopback TCP route
+used by Debian applications.
+
+```bash
+ternux status [--json]
+```
+
+The JSON object includes `lifecycle`, `x11_running`, `pulseaudio`,
+`pulseaudio_ready`, `virgl`, `launcher`, and `desktop_pid`.
 
 ### `ternux restart`
 

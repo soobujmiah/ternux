@@ -122,9 +122,11 @@ command-সহ একবারের welcome guide দেখাবে। প্�
 optional software তালিকা থেকে বেছে নেওয়া যায়।
 
 Noto Bengali font ও Avro IBus phonetic keyboard default-এ থাকে। English ও
-বাংলার মধ্যে cycle করতে IBus-এর **Next input method** shortcut **Ctrl+Space** করা থাকে। VLC, PulseAudio Volume Control, Xfce Task Manager ও Mousepad
-text editor base desktop-এ থাকে। আধুনিক,
-পরিপাটি dark desktop-এর জন্য সব app-এ একই global Adwaita Dark GTK theme, Adwaita icon ও Aurora wallpaper default। ছোট X11 screen-এ welcome guide scrollable layout ও Cairo renderer ব্যবহার করে।
+বাংলার মধ্যে cycle করতে IBus-এর **Next input method** shortcut **Ctrl+Space** করা থাকে। VLC, PulseAudio Volume Control, Xfce Task Manager, Mousepad text editor, Galculator, Evince PDF reader, Ternux Camera, Ternux Sound Recorder ও Ristretto image viewer base desktop-এ থাকে। Package browse/install/upgrade/remove করার Synaptic-based **Synaptic Package Manager**-ও Applications menu-তে থাকে। PDF default-এ Evince-এ খোলে; optional LibreOffice Draw দিয়ে PDF page edit ও অন্য format-এ export করা যায়। Fresh install-এ কোনো mail client install বা default নয়। দরকার হলে optional workload থেকে Evolution Mail বেছে নিন; common provider-এ OAuth ও অন্য host-এ manual IMAP/POP setup আছে। OAuth-এর জন্য Firefox ESR, অথবা Ternux bridge দিয়ে Android default browser খোলে। Xfce panel-এ Camera, Photos ও Sound Recorder-এর one-click shortcut থাকে। Systemwide graphite-emerald Ternux GTK 2/3/4 theme, Qt 5 app-এর জন্য GTK platform theme, Xfwm
+window frame, Xfce panel styling ও Ternux icon theme default। Base app, folder, Thunar action, category ও panel-এর জন্য original Ternux icon থাকে।
+Uncommon বা পরে install করা app-এর neutral fallback হিসেবে Adwaita ব্যবহৃত হয়;
+Papirus inheritance নেই। Xfce Desktop settings থেকে বেছে নেওয়ার জন্য ১৫টি portrait-first Ternux wallpaper থাকে; landscape করলেও aspect ratio ঠিক থাকে;
+Aurora Circuit default। Ternux Camera Termux:API দিয়ে Android-এর front/rear camera থেকে photo তোলে এবং capture-এর পর EXIF orientation ঠিক রেখে app-এ preview দেখায়; নিচের capture control-গুলো ছোট ও গোছানো থাকে। Termux:API app-কে Camera permission দিতে হবে। ছবি Debian PRoot-এর `~/Pictures/Ternux`-এ থাকে। Termux:API-তে সাময়িকভাবে capture তৈরি করে যাচাইয়ের পর PRoot-এ কপি করা হয়; Android Gallery-তে scan করা হয় না। Ristretto ছবিগুলো খোলে। Termux:API still photo দেয়, continuous camera stream দেয় না; তাই capture-এর আগে live feed দেখানো হয় না। Sound Recorder-এ Start চাপার আগে mic চালু হয় না; প্রথমবার Android permission চাইতে পারে। AAC/M4A (default) অথবা MP3 বেছে নিয়ে Stop and save চাপুন; MP3 Debian-এর FFmpeg দিয়ে local-এ encode হয়। Recording `~/Music/Ternux`-এ সেভ হয়। ছোট X11 screen-এ welcome guide scrollable layout ও Cairo renderer ব্যবহার করে।
 PRoot-এ VAAPI/VDPAU না থাকায় VLC-তে X11 `xcb_x11` output ও software decoding
 default; ছোট screen-এ compact player view ব্যবহার করে। এতে অনুপস্থিত host decoder বেছে নিয়ে video blank হওয়া এড়ায়।
 

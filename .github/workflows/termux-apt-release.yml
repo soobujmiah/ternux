@@ -25,12 +25,12 @@ jobs:
   build:
     if: github.ref == 'refs/heads/main' && (inputs.mode == 'verify-signing' || inputs.mode == 'publish-v2')
     name: Verify signing setup or build the signed v2 APT repository
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     environment: apt-release
     steps:
       - name: Check out Ternux
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           persist-credentials: false
 
@@ -44,7 +44,7 @@ jobs:
           }
 
       - name: Check out pinned Termux package builder
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: termux/termux-create-package
           ref: a7e20f92cfc9664a6ab6232bc826e86da73a8524
@@ -52,7 +52,7 @@ jobs:
           persist-credentials: false
 
       - name: Check out pinned Termux APT repository builder
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: termux/termux-apt-repo
           ref: f2bf088281248e8817b913cc778750796ea5dc19
@@ -65,7 +65,7 @@ jobs:
           sudo apt-get install --yes --no-install-recommends xz-utils binutils dpkg-dev gnupg
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
@@ -137,14 +137,14 @@ jobs:
 
       - name: Upload Pages artifact
         if: inputs.mode == 'publish-v2'
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v5
         with:
           path: dist
 
   deploy:
     if: github.ref == 'refs/heads/main' && inputs.mode == 'publish-v2'
     name: Publish website and signed APT repository
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: build
     environment:
       name: github-pages
@@ -152,4 +152,4 @@ jobs:
     steps:
       - name: Deploy Pages artifact
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5

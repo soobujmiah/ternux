@@ -717,11 +717,27 @@ recovery after forced termination, not graceful cancellation. Logs:
 `htp-smollm135-cancel-close-2026-10-14.log` and
 `htp-smollm135-hvx-faoff-restart-kat-2026-10-14.log` in the same scratch directory.
 
-### Stable Diffusion evaluation (`stable-diffusion.cpp` inference untested)
+### Managed Stable Diffusion Vulkan inference (2026-11-07)
 
-The supplied Vulkan-enabled `stable-diffusion.cpp` build is an observation only.
-No compatible model/backend inference run, completed image, or seconds-per-image
-measurement is recorded here. Do not infer inference support from build success.
+The pinned `stable-diffusion.cpp` ARM64 extension (upstream commit
+`5a1ba5d895bec4e07deab80d6d791721cd59d9c2`) generated a valid 512×512 image
+with 10 steps, seed 42 and tiled Vulkan VAE on the Redmi Turbo 4 Pro / SM8735 /
+Adreno 825. The user-provided SD1.5 Q8_0 model SHA-256 is
+`d0555243938c62faeefb4ac93f6c7a053ad373a4290c5256bce229aeb193bf94`. The
+managed-extension run took 92.91 s; a second clean Debian guest run took 91.18 s
+and produced the same PNG SHA-256
+`b59b0b3e43226b4ae484b433aadf4d681eb87de7ee300b78a9adc1029a2ec65a`. The
+model remained outside the extension. This verifies one model/device/settings
+combination, not broad quality or performance. CPU image output remains
+unqualified. Full reproduction and dependency details: [Stable Diffusion
+CPU/Vulkan qualification](../handoffs/stable-diffusion-cpu-vulkan-qualification-2026-11-07.md).
+
+### Historical build-only observation (superseded)
+
+The initial Vulkan-enabled `stable-diffusion.cpp` build report did not include a
+model run. That observation was superseded by the managed-extension device
+qualification below: a pinned ARM64 build generated a valid tiled-Vulkan image
+on Adreno 825. The old build report alone is not the inference evidence.
 
 The separate QNN SD1.5 runner has since completed a bounded 20-step 512×512
 prompt-to-image run. Same-seed outputs repeated exactly (SHA-256
@@ -845,8 +861,9 @@ in `/home/sbj/npu-probe-2026-10-13/`.
 | Blender Cycles GPU rendering | **Untested / not established** |
 | llama.cpp CPU + Vulkan inference | **Verified — known-answer pass on both backends** |
 | llama.cpp CPU + Vulkan throughput | **Measured — bounded repeated short and long workloads; one device/model** |
-| stable-diffusion.cpp Vulkan build | **Observed only — build report, no inference run** |
-| stable-diffusion.cpp inference / seconds per image | **Untested** |
+| stable-diffusion.cpp Vulkan build | **Verified — pinned managed extension installed and launched** |
+| stable-diffusion.cpp Vulkan inference | **Verified — 512×512 / 10-step tiled-VAE image on Adreno 825; repeated hash in clean guest** |
+| stable-diffusion.cpp CPU image quality | **Unqualified — severe artifacts in tested Q8_0 output** |
 | Are sustained thermals/power measured? | **No** |
 | Is same-device VirGL versus Zink measured? | **No** |
 
@@ -1316,6 +1333,52 @@ proot-distro login --shared-tmp ternux-clean-apt -- bash -lc '
 
 Add `--count 2` and use a new output path to reproduce a paired batch. Do not reuse these seeds/paths if preserving the captured files.
 
+### 2026-11-09 short managed HTP known-answer check (two existing Qwen GGUFs)
+
+On the Redmi Turbo 4 Pro / SM8735, I ran one eight-token, temperature-zero
+known-answer check per model using the already-installed managed
+`llama-htp-experimental` extension (`b1-af50f2f`, HVX matmul, flash attention
+off). The existing files stayed in place:
+
+| Model path | Prompt tok/s | Generation tok/s | Answer | Broker child | CDSP close |
+|---|---:|---:|---|---:|---|
+| `/sdcard/Llms/qwen2.5-0.5b-instruct-q4_0.gguf` | 107.3 | 38.3 | `4` | 0 | `[0, 0]` |
+| `/sdcard/LAI/models/qwen2.5-1.5b-instruct-q4_k_m.gguf` | 32.5 | 13.2 | `4` | 0 | `[0, 0]` |
+
+Both used four threads, context 512, batch/ubatch 128, seed 42, and the prompt
+`What is 2 + 2? Reply with only the number.` Each was one cold-start run with
+an eight-token cap; throughput is a spot reading, not a model comparison or
+performance claim. The launcher reported HTP service discovery and access to
+`/dev/fastrpc-cdsp`; both brokered children exited normally and their CDSP
+sessions closed cleanly. The files were neither copied nor modified.
+
+Battery temperature was 45.1°C before and 45.2°C after the two short runs. The
+post-run doctor emitted its `battery_hot` warning, so further model/graphics
+load was stopped. This validates a short known answer on the installed
+experimental package and these two existing model files; it does not qualify
+the current CI candidate, model quality, HTP operator coverage, or sustained
+thermal behavior.
+
+Reproduction, as Debian user `ternux`:
+
+```bash
+RUNNER="$HOME/.local/opt/ternux-extensions/llama-htp-experimental/bin/htp-run"
+for MODEL in /sdcard/Llms/qwen2.5-0.5b-instruct-q4_0.gguf \
+  /sdcard/LAI/models/qwen2.5-1.5b-instruct-q4_k_m.gguf; do
+  timeout 60 "$RUNNER" -m "$MODEL" -t 4 -tb 4 \
+    -p "What is 2 + 2? Reply with only the number." -n 8 -c 512 \
+    -b 128 -ub 128 --temp 0 --seed 42
+done
+```
+
+### 2026-11-10 bounded CPU/Vulkan cancellation and reopen check
+
+On the Redmi Turbo 4 Pro (SM8735 / Adreno 825), the currently installed managed `llama-vulkan` CLI reports llama.cpp `0.6.0-dev`, build commit `af50f2f`, SHA-256 `4827f62ac89a442d76e9461c18115fa37d2c6cced0a887bf559b8ee615046eb5`. The unchanged Qwen2.5 0.5B Q4_0 model at `/sdcard/Llms/qwen2.5-0.5b-instruct-q4_0.gguf` has SHA-256 `7671c0c304e6ce5a7fc577bcb12aba01e2c155cc2efd29b2213c95b18edaf6ed`.
+
+On CPU (`-ngl 0`) and Vulkan0 (`-ngl 99`), a 4,096-token counting generation was interrupted by a five-second SIGINT timeout. Both processes returned the expected timeout status 124, logged normal `Exiting...`, and left no `llama-cli` process. The Vulkan log identified Adreno 825 and showed model layers assigned to Vulkan0. Fresh CPU and Vulkan launches immediately afterward both returned the known answer `4`. The existing desktop and PulseAudio session stayed running.
+
+This verifies bounded cancellation and reopen on this installed build/model. It does not qualify memory-pressure cancellation, sustained thermals, other models, or other devices. A post-run memory snapshot showed 4.3 GiB available; no artificial memory pressure was induced. Full output was captured in Termux temporary logs during the check; no model files were copied or modified.
+
 ## References
 
 - [glmark2](https://github.com/glmark2/glmark2)
@@ -1323,3 +1386,24 @@ Add `--count 2` and use a new output path to reproduce a paired batch. Do not re
 - [Blender 4.3 GPU rendering](https://docs.blender.org/manual/en/4.3/render/cycles/gpu_rendering.html)
 - [llama.cpp Vulkan build](https://github.com/ggml-org/llama.cpp/blob/master/docs/build.md#vulkan)
 - [stable-diffusion.cpp Vulkan build](https://github.com/leejet/stable-diffusion.cpp/blob/master/docs/build.md#build-with-vulkan)
+
+
+### 2026-11-10 retained HTP prerelease archive preflight
+
+The no-rebuild candidate from Actions run `42783356495`, artifact `13747701121`,
+was downloaded and its sidecar verified: archive SHA-256
+`a139a6248356a44e89348ddbe1334edaad33f81a9efbe8f5b8fe3c5733dcf3de`,
+15,691,323 bytes. Its build manifest targets Linux AArch64 / SM8735 HTP V73;
+archive inventory includes `bin/htp-run`, `bin/llama-cli`,
+`lib/libggml-htp-v73.so`, the broker shim/client, and the indexed upstream
+license bundle. This is artifact-integrity and inventory evidence, not runtime
+qualification.
+
+Before a candidate inference run, Termux battery status reported 35.7°C; sampled
+CPU thermal zones reached 50.8°C (`cpu-2-0-1`). No HTP inference was started. The
+existing Qwen2.5 0.5B-named model remained at its original path and retained
+SHA-256 `7671c0c304e6ce5a7fc577bcb12aba01e2c155cc2efd29b2213c95b18edaf6ed`.
+No desktop process or model file was changed. Exact retained-archive device
+execution remains **NOT_TESTED**; the previously recorded HTP device results
+refer to earlier installed/build artifacts and are not silently transferred to
+this archive.
