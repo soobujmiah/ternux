@@ -174,6 +174,21 @@ Commit `f4bb945576f03a9d8979d7d89553660471dafbaf` passed all eight required work
 - On 2026-11-10, direct checks of the canonical GitHub Pages URLs for `apt/bootstrap.sh`, `apt/ternux-archive-key.asc`, `apt/dists/stable/InRelease`, and `apt/dists/stable/main/binary-all/Packages` returned HTTP 404. Native `dpkg-query` shows Ternux 2.0.0 installed, but no Ternux APT source is configured. A Pages deploy previously replaced the whole site tree and could erase `/apt`; `preserve-pages-apt.sh` now validates the pinned key, signed `InRelease`, signed index checksums, and package checksums before retaining the repository. Its local signed-fixture integration test passes for valid preservation and rejects partial publication, package tampering, and signed path traversal. The host still returns 404, so live post-publish preservation and `pkg install ternux` lifecycle remain unverified.
 - GitHub read-only inspection found no `main` branch protection and zero repository rulesets. No settings were changed. The old `ci-artifact/` in `ternux-package-audit` and owner-modified `ternux-tools` files remain outside the release diff and were preserved.
 
+### Heavy artifact build repeat prevention — 2026-11-10
+
+PR #97's artifact workflows had broad `pull_request` triggers. Since their path
+filters match the overall PR diff, each `synchronize` event could rerun ARM64/HTP
+compilation even when the newly pushed commit only changed documentation. The
+repeat runs on head `9016bf9` were canceled: llama Vulkan `42774732346`, Stable
+Diffusion `42774732436`, HTP `42774732564`, and integer-HMX `42774732544`.
+Those four heavy workflows are now manual-dispatch only. The three publishable
+workflows can validate and reuse a prior successful artifact by run ID, and new
+uploads retain for 90 days. Existing f4 artifacts were metadata-verified as
+reusable without downloading them; their current expiry dates remain unchanged.
+Focused provenance and workflow-contract regressions cover wrong workflow,
+expired artifacts, changed package inputs/build definitions, reuse, and manual-only
+triggers. Exact-hosted validation of this workflow change is pending.
+
 ## Remaining blockers before v2.0.0
 
 | Gate | Status | Required evidence |

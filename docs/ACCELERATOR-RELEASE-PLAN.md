@@ -750,3 +750,36 @@ Release gate 10 remains **HELD**. Exact current-head CI archives have not been t
 ### Stable Diffusion extension component-license audit — 2026-11-09
 
 The exact upstream source pin is `5a1ba5d895bec4e07deab80d6d791721cd59d9c2`; its `ggml` gitlink resolves to `135ce1e0e3f2b0693d3de93d4f6b5fa0a1947820`. CMake inspection found no `FetchContent` or `ExternalProject` dependency acquisition for this build. The `sd-cli` statically includes the pinned GGML submodule, Oniguruma 6.9.10, utf8proc, darts-clone tokenizer data, miniz, nlohmann JSON, and the stb image load/write/resize headers. The exact component and license-source map now lives in `packaging/stable-diffusion/components.json`; the workflow checks the GGML pin, requires Oniguruma/utf8proc/darts/GGML/upstream and Ternux notices, and preserves embedded header notices under `source-notices/`. The optional CMake `_deps` tree is scanned only when present; its presence is recorded, so a missing directory cannot break bundling or be misreported as an existing empty dependency tree. Bundle index and SHA-256 inventory cover every copied notice, source header, and component manifest entry. Local regression checks include absent optional trees, missing component licenses, duplicates, and escaping symlinks. The source/bundle audit passes locally; CI for the updated implementation is pending. This audit covers the pinned Stable Diffusion build configuration; the wider Mesa and other release-artifact transitive-license review remains open.
+
+
+### Artifact rebuild prevention and reuse — 2026-11-10
+
+The ARM64/Vulkan, Stable Diffusion ARM64, HTP ARM64, and integer-HMX candidate
+workflows no longer build on pull-request events. Their former `pull_request`
+triggers also included `synchronize`; GitHub evaluates path filters against the
+whole PR diff, so later documentation-only pushes still matched workflow or
+package-input files already present in PR #97. On head `9016bf9`, runs
+`42774732346` (llama Vulkan), `42774732436` (Stable Diffusion),
+`42774732564` (HTP), and `42774732544` (HMX candidate) were therefore canceled
+after the duplicate builds were detected. Heavy candidate builds are now manual
+workflow-dispatch operations.
+
+The three publishable workflows and the HMX candidate workflow accept an optional successful
+`source_run_id`. Supplying it skips compilation, checks run/workflow/repository,
+artifact name and expiry, and compares the build-job definition and package
+inputs against the selected build before cross-run artifact download. Leaving it
+empty builds a fresh candidate. New candidate uploads retain for 90 days.
+Publishing remains a separate explicit workflow input restricted to `main`;
+this change has not published any asset.
+
+Read-only Actions metadata and the verifier confirmed that the already-built
+`f4bb945576f03a9d8979d7d89553660471dafbaf` artifacts can be reused from runs
+`42773827384` (llama Vulkan), `42773827441` (Stable Diffusion), and
+`42773827791` (HTP), with no compilation. Their artifact IDs are respectively
+`13743217082`, `13743396792`, and `13742783760`. The Vulkan artifact expires
+2027-02-08; Stable Diffusion and HTP expire 2026-11-24. HMX candidate run
+`42773827449`, artifact `13743875024`, also remains available until
+2026-11-24. The HMX workflow can re-upload its exact verified candidate without compiling and renew its 90-day Actions retention. Workflow retention changes do not extend already-uploaded artifacts.
+These are temporary Actions artifacts, not permanent GitHub Release assets; the
+owner must explicitly dispatch the publisher after merge when distribution is
+intended. No artifact contents were downloaded during this audit.

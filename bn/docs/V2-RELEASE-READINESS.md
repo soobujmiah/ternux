@@ -175,6 +175,21 @@ Report-only head `e1212bbc10078ec761dd5911f7858dbdc9b22c19`-এও আটটি 
 - Hosted signed APT bootstrap, public key, `InRelease`, `Packages`—চার URL-ই 2026-11-10-এ HTTP 404 দিয়েছে। Native `dpkg-query`-তে Ternux 2.0.0 installed, কিন্তু Ternux APT source configured নেই। Pages deploy আগে পুরো site tree upload করত, ফলে প্রকাশিত `/apt` মুছে যেতে পারত। `preserve-pages-apt.sh` এখন pinned key, signed `InRelease`, signed index checksum ও package checksum যাচাই করে APT tree ধরে রাখে। Signed-fixture integration test valid preserve pass করেছে এবং partial publish/tampering প্রত্যাখ্যান করেছে। Hosted path এখনো 404, তাই live redeploy preservation ও `pkg install ternux` lifecycle এখনো unverified।
 - Read-only GitHub check-এ `main` branch protection নেই, repository ruleset শূন্য। Setting বদলানো হয়নি। `ternux-package-audit`-এর পুরোনো `ci-artifact/` ও owner-modified `ternux-tools` file release diff-এর বাইরে এবং অক্ষত।
 
+### Heavy artifact build বারবার চালানো বন্ধ — ২০২৬-১১-১০
+
+PR #97-এর artifact workflow-গুলোতে broad `pull_request` trigger ছিল। Path filter
+পুরো PR diff match করায়, নতুন commit শুধু documentation বদলালেও প্রতিটি
+`synchronize` event ARM64/HTP compile আবার চালাতে পারত। Head `9016bf9`-এর repeat
+run-গুলো cancel করা হয়েছে: llama Vulkan `42774732346`, Stable Diffusion
+`42774732436`, HTP `42774732564`, integer-HMX `42774732544`। চারটি heavy
+workflow এখন শুধু manual dispatch-এ চলে। তিনটি publishable workflow run ID দিয়ে
+আগের successful artifact reuse করে; HMX candidate-ও যাচাই করে পুনরায় upload
+করতে পারে। নতুন upload ৯০ দিন থাকবে।
+আগের f4 artifact metadata download না করেই reuse করার উপযোগী বলে verify হয়েছে;
+তাদের expiry অপরিবর্তিত। Focused provenance এবং workflow-contract regression-এ
+ভুল workflow, expired artifact, বদলানো package input/build definition, reuse ও
+manual-only trigger যাচাই হয়। এই workflow পরিবর্তনের hosted CI এখনো বাকি।
+
 ## v2.0.0-এর আগে বাকি blocker
 
 | Gate | অবস্থা | দরকারি evidence |

@@ -8,13 +8,11 @@ on:
         required: true
         type: boolean
         default: false
-  pull_request:
-    paths:
-      - '.github/workflows/llama-htp-artifact.yml'
-      - 'tools/llama-htp/**'
-      - 'LICENSE'
-      - 'NOTICE'
-
+      source_run_id:
+        description: Reuse an inspected artifact from this successful workflow run ID; leave empty to build now
+        required: false
+        type: string
+        default: ''
 permissions:
   contents: read
 
@@ -24,6 +22,7 @@ concurrency:
 
 jobs:
   build:
+    if: github.event_name != 'workflow_dispatch' || inputs.source_run_id == ''
     name: Build pinned Snapdragon Linux package
     runs-on: ubuntu-24.04
     timeout-minutes: 120
@@ -194,19 +193,54 @@ jobs:
             htp-broker-file.txt
             llama-cli-file.txt
           if-no-files-found: error
-          retention-days: 14
+          retention-days: 90
+
+  verify_source:
+    if: github.event_name == 'workflow_dispatch' && inputs.source_run_id != ''
+    runs-on: ubuntu-24.04
+    permissions:
+      actions: read
+      contents: read
+    outputs:
+      source_sha: ${{ steps.provenance.outputs.source_sha }}
+    steps:
+      - name: Check out release source for provenance checks
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Validate the previous build run
+        id: provenance
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_RUN_ID: ${{ inputs.source_run_id }}
+        run: >-
+          tools/verify_release_artifact_run.sh "$SOURCE_RUN_ID"
+          ".github/workflows/llama-htp-artifact.yml" "ternux-llama-htp-sm8735-b11582" "tools/llama-htp" "LICENSE" "NOTICE"
 
   publish:
-    if: github.event_name == 'workflow_dispatch' && inputs.publish == true && github.ref == 'refs/heads/main'
-    needs: build
+    if: >-
+      ${{ always() && github.event_name == 'workflow_dispatch' && inputs.publish == true && github.ref == 'refs/heads/main' && ((needs.build.result == 'success' && inputs.source_run_id == '') || (needs.build.result == 'skipped' && inputs.source_run_id != '')) && ((needs.verify_source.result == 'success' && inputs.source_run_id != '') || (needs.verify_source.result == 'skipped' && inputs.source_run_id == '')) }}
+    needs: [build, verify_source]
     runs-on: ubuntu-24.04
     permissions:
       contents: write
+      actions: read
+    env:
+      SOURCE_ARTIFACT_SHA: ${{ needs.verify_source.outputs.source_sha || github.sha }}
     steps:
+      - name: Check out release source for provenance checks
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
       - name: Download the exact build artifact
         uses: actions/download-artifact@v7
         with:
           name: ternux-llama-htp-sm8735-b11582
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ inputs.source_run_id || github.run_id }}
           path: release
 
       - name: Create or refresh draft experimental release
@@ -242,6 +276,7 @@ jobs:
           firmware and does not change device permissions. Its broker is
           experimental; cancellation/fallback remain unqualified.
           EOF
+          printf '\nTernux artifact build source commit: `%s`.\n' "$SOURCE_ARTIFACT_SHA" >> release-notes.md
           if gh release view "$tag" >/dev/null 2>&1; then
             gh release upload "$tag" \
               release/ternux-llama-htp-sm8735-b11582.tar.gz \

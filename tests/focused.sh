@@ -2925,8 +2925,12 @@ check "Stable Diffusion artifact bundles nested upstream and project notices saf
 check "HTP candidate operator wrapper resolves package-root test binary and loader paths" \
   python3 "$ROOT/tests/htp_candidate_launcher_test.py"
 
-check "llama.cpp source-map build runs on PRs without release-write permissions" \
+check "llama.cpp source-map artifact is manually built and published only from main" \
   python3 "$ROOT/tests/llama_vulkan_workflow_contract.py" "$ROOT"
+check "prior release artifacts are reused only when successful, unexpired, and source-identical" \
+  python3 "$ROOT/tests/release_artifact_run_test.py"
+check "artifact workflows retain builds and avoid documentation-only rebuilds" \
+  python3 "$ROOT/tests/release_artifact_workflow_contract.py"
 
 check "interactive workload selector returns the selected Stable Diffusion ID" \
   python3 "$ROOT/tests/workload_menu_pty.py" "$ROOT"

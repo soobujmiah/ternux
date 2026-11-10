@@ -700,3 +700,34 @@ Release gate ১০ এখনো **HELD**। Exact current-head CI archive ন�
 ### Stable Diffusion extension component-license audit — ২০২৬-১১-০৯
 
 Exact upstream source pin `5a1ba5d895bec4e07deab80d6d791721cd59d9c2`; এর `ggml` gitlink `135ce1e0e3f2b0693d3de93d4f6b5fa0a1947820`। CMake review-এ এই build-এর জন্য `FetchContent` বা `ExternalProject` dependency download পাওয়া যায়নি। `sd-cli` pinned GGML submodule, Oniguruma 6.9.10, utf8proc, darts-clone tokenizer data, miniz, nlohmann JSON এবং stb image load/write/resize header staticভাবে যুক্ত করে। Exact component ও license-source map `packaging/stable-diffusion/components.json`-এ; workflow GGML pin যাচাই করে, Oniguruma/utf8proc/darts/GGML/upstream ও Ternux notice বাধ্যতামূলক করে, এবং embedded header notice `source-notices/`-এ অক্ষত রাখে। Optional CMake `_deps` tree কেবল থাকলে scan হয়; তার উপস্থিতি metadata-তে লেখা হয়—তাই directory না থাকলে bundle fail করে না বা অনুপস্থিত tree-কে খালি উপস্থিত directory বলে না। Bundle index ও SHA-256 তালিকা প্রতিটি notice, source header ও component manifest entry-র checksum ধরে। Local regression check অনুপস্থিত optional tree, missing component license, duplicate এবং source-tree escape symlink যাচাই করে। Local source/bundle audit pass করেছে; updated implementation-এর CI এখন pending। এই audit শুধু pinned Stable Diffusion build configuration cover করে; Mesa ও অন্য release artifact-এর বিস্তৃত transitive-license review এখনো বাকি।
+
+
+### Artifact rebuild বন্ধ ও আগের build reuse — ২০২৬-১১-১০
+
+ARM64/Vulkan, Stable Diffusion ARM64, HTP ARM64 এবং integer-HMX candidate
+workflow এখন pull request event-এ build করে না। আগের `pull_request` trigger-এর
+default event-এর মধ্যে `synchronize` ছিল। GitHub path filter পুরো PR diff দেখে;
+তাই PR #97-এ workflow বা package input আগে থেকেই থাকলে পরের documentation-only
+push-ও সেই heavy build আবার চালাত। Head `9016bf9`-এ duplicate build শনাক্তের পর
+`42774732346` (llama Vulkan), `42774732436` (Stable Diffusion),
+`42774732564` (HTP) এবং `42774732544` (HMX candidate) cancel করা হয়। এখন heavy
+candidate build শুধু manual workflow dispatch-এ চলে।
+
+তিনটি publishable workflow এবং HMX candidate workflow-তে ঐচ্ছিক successful `source_run_id` দেওয়া যায়। এটি দিলে compile job skip হয়; workflow/repository, run success, artifact
+name ও expiry যাচাই করা হয়; পাশাপাশি build-job definition এবং package input
+একই আছে কি না মিলিয়ে তারপর আগের run থেকে artifact download হয়। ID খালি রাখলে
+নতুন candidate build হয়। নতুন upload ৯০ দিন রাখা হবে। আলাদা explicit workflow
+input ছাড়া publication হয় না; publisher শুধু `main`-এ চলে। এই পরিবর্তনে কোনো
+asset publish করা হয়নি।
+
+GitHub Actions-এর read-only metadata এবং verifier দিয়ে নিশ্চিত হয়েছে যে আগে
+built `f4bb945576f03a9d8979d7d89553660471dafbaf`-এর artifact পুনরায় compile ছাড়া
+ব্যবহার করা যাবে: run `42773827384` (llama Vulkan), `42773827441` (Stable
+Diffusion), এবং `42773827791` (HTP)। Artifact ID যথাক্রমে `13743217082`,
+`13743396792`, `13742783760`। Vulkan artifact ২০২৭-০২-০৮-এ expire হবে; Stable
+Diffusion ও HTP ২০২৬-১১-২৪-এ। HMX candidate run `42773827449`, artifact
+`13743875024`, ২০২৬-১১-২৪ পর্যন্ত আছে। HMX workflow আগের যাচাইকৃত candidate compile না করে আবার upload করে ৯০ দিনের Actions retention দিতে পারে। Workflow-এর retention setting আগে upload
+হওয়া artifact-এর expiry বদলায় না। এগুলো সাময়িক Actions artifact, স্থায়ী
+GitHub Release asset নয়; merge-এর পর distribution দরকার হলে owner-কে publisher
+স্পষ্টভাবে dispatch করতে হবে। এই audit-এ artifact-এর ভেতরের ফাইল download করা
+হয়নি।
