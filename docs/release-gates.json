@@ -46,9 +46,9 @@
       "ci_status": "PASS",
       "device_status": "N_A",
       "evidence": [
-        "PR #97 (v2 source integration) merged as 394d0d12e972dd977cd7ec8c639caaead84b1b40. PR #104 manual-only deployment and readiness correction merged as 87cf37304e350a5e74ff7d5458e27928fa852d11. PR #105 generated-state sync merged as 3c1a28d724a5a27d28aaf4eb9e52c65a71b7c470; current main is the v2 integration baseline.",
-        "PR #104 exact head 82425705e3248ee024c29a7e85cef5016a045715 passed all five required checks: Validate 42818230722, Termux APT package 42818230539, Repository State Contract 42818230660, Repo Knowledge Sync test and sync in 42818230597. PR #105 generated-state update passed all five required PR checks; current main 3c1a28d724a5a27d28aaf4eb9e52c65a71b7c470 then passed Validate 42819072679, package 42819072756, repo-contract 42819072717, and Repo Knowledge Sync 42818593252 (test and sync).",
-        "No separate v2.0.0 release tag exists. Pages deployment run 42816692044 from the earlier PR #103 merge was cancelled after actions/deploy-pages began; deployment history is inaccessible, so a partial website side effect is unverified. All four APT paths still return 404. PR #104 changed future production deployment to manual-only; no later main push started Pages deployment. No owner-requested v2 release publication occurred."
+        "PR #97 source integration merged as 394d0d12e972dd977cd7ec8c639caaead84b1b40. PR #104 manual-only deployment/readiness, #105 and #107 generated state, and #106 docs gate closure are merged; current main is 5760a1f7eb98c86f731dcf24a982b929c7e5b018.",
+        "PR #106 exact head 9f84ae1100d2de5d498ca44ed0b0491037ec610c passed all five required checks (Validate 42819629282, package 42819629144, repo-contract 42819629057, Repo Knowledge Sync test/sync 42819629146); merged main ea33209 passed Validate 42820001846, package 42820001935, Repo Knowledge Sync 42820001824. PR #107 generated state for ea33209 passed all five checks (Validate 42820215882, package 42820215769, repo-contract 42820215978, Repo Knowledge Sync 42820215777 test/sync). Post-merge main 5760a1f7 exact-SHA workflows passed: Validate 42820744142, package 42820743872, Repository State Contract 42820743837.",
+        "No separate v2.0.0 release tag exists. Pages run 42816692044 from the earlier PR #103 merge was cancelled after actions/deploy-pages began; deployment history is inaccessible, so a partial website side effect remains unverified. A fresh check on 2026-11-10 found all four canonical GitHub Pages APT paths still return 404. Manual-only Pages workflow did not start on later main pushes #104–#107. No owner-requested v2 release publication occurred."
       ],
       "required_tests": [
         "exact-head required CI",
@@ -100,7 +100,8 @@
         "The previously installed CLI independently still reported running PID 16987. Updated-package controlled stop/crash recovery and managed identity remain unverified.",
         "Exact-head commit f4bb945576f03a9d8979d7d89553660471dafbaf passed all eight required CI workflows on 2026-11-10: Validate 42773827524; Termux APT 42773827442; repository contract 42773827490; knowledge sync 42773827401; llama CPU/Vulkan 42773827384; Stable Diffusion CPU/Vulkan 42773827441; HTP 42773827791; HTP/HMX candidate 42773827449.",
         "2026-11-10 non-disruptive device concurrency check: simultaneous source start calls returned starting/already_running for the existing PID 16987; both exited 0, then status reported READY with functional X11 and PulseAudio route. No stop/restart occurred; controlled updated-package stop/crash recovery remains open.",
-        "Startup now requires the launcher READY marker plus a bounded host probe of Termux:X11, xfce4-session, xfwm4, xfdesktop, and xdpyinfo; it reports PulseAudio route readiness separately. Restart returns failure without a second start if stop cannot acquire the lifecycle lock. Local focused suite passed 144/144 after these changes; no live session restart or updated-package lifecycle run was performed."
+        "Startup now requires the launcher READY marker plus a bounded host probe of Termux:X11, xfce4-session, xfwm4, xfdesktop, and xdpyinfo; it reports PulseAudio route readiness separately. Restart returns failure without a second start if stop cannot acquire the lifecycle lock. Local focused suite passed 144/144 after these changes; no live session restart or updated-package lifecycle run was performed.",
+        "Read-only native Termux status on 2026-11-10 reports Overall running, Termux:X11 running, PulseAudio running, launcher present, managed PID 16987. `ternux doctor --json` passes guest/system prerequisites but does not probe active XFCE readiness; no session, app, audio service, or installed files were restarted or changed. This does not close updated-package stop/crash recovery."
       ],
       "required_tests": [
         "overlap/start-stop/crash-recovery fixtures",
@@ -125,7 +126,8 @@
       "evidence": [
         "lib/detect.sh",
         "docs/V2-RELEASE-READINESS.md#physical-device-vulkan-observation",
-        "Adreno 825 guest Vulkan/Turnip/Zink observed. Parser/failure-path regressions pass in Validate 42707570617; other GPU families are not qualified."
+        "Adreno 825 guest Vulkan/Turnip/Zink observed. Parser/failure-path regressions pass in Validate 42707570617; other GPU families are not qualified.",
+        "Native Termux `ternux doctor --quick --json` on 2026-11-10: 17 ok, 0 warn, 0 fail; Adreno 825, Vulkan yes, configured Zink, renderer `zink Vulkan 1.4 (Adreno (TM) 825 (MESA_TURNIP))`. Full `ternux doctor --json`: 31 ok, 0 warn, 0 fail, 1 informational; Debian 13 aarch64 guest, glibc 2.41, Turnip in apt-safe layout. This verifies this device stack only; no universal GPU claim."
       ],
       "required_tests": [
         "mocked missing-loader/ICD/device cases",
@@ -480,5 +482,5 @@
       "release_exclusion": "Qualify only the documented Redmi Turbo 4 Pro / SM8735 target; all other device-specific acceleration remains unqualified."
     }
   ],
-  "observed_head_commit": "3c1a28d724a5a27d28aaf4eb9e52c65a71b7c470"
+  "observed_head_commit": "5760a1f7eb98c86f731dcf24a982b929c7e5b018"
 }
