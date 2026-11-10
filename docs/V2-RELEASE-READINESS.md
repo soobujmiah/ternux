@@ -11,11 +11,20 @@ alt_url: "/bn/docs/V2-RELEASE-READINESS.html"
 
 **Ternux v2.0.0 tag/publication:** not created
 
-**Latest source baseline:** `main` at `97e2ac6524d2b206d6e24c0e813f9656eda13941` (2026-11-10 14:09 UTC audit)
+**Latest source baseline:** `main` at `55936a0fdd2c9790fe6bf746092fd562e5fa09a1` (2026-11-10 14:35 UTC recheck)
 
 **Latest v2 integration PR:** [#97](https://github.com/soobujmiah/ternux/pull/97), merged as `394d0d12e972dd977cd7ec8c639caaead84b1b40`
 
 **Current blockers:** six release-blocking gates remain incomplete; the signed public APT endpoints return HTTP 404. No v2.0.0 tag or owner-requested release exists. PR #103 accidentally triggered Pages run `42816692044`; it was cancelled while the deploy action was running, and the external result is unverified. PR #104 merged the manual-only trigger; later main pushes (#104–#111) have not started Pages deployment. Non-deploy signing verification passed run `42831035262` on the current main commit.
+
+### Latest live reconciliation — 2026-11-10 14:37 UTC
+
+- **Source and worktrees:** verified `origin` is `https://github.com/soobujmiah/ternux.git`. At audit intake, the checkout was clean at `55936a0fdd2c9790fe6bf746092fd562e5fa09a1`, equal to `origin/main`; this report refresh changes only the bilingual readiness report and machine-readable gate evidence; the only other worktree is detached `ternux-package-audit` at `727726a6` with its existing untracked CI artifact. The separate `ternux-tools` checkout contains owner-modified accelerator documents and QNN/native qualification files; all were preserved. No other agent session or local change was active in the Ternux source checkout.
+- **PR #97 and governance:** PR #97 is `MERGED` as `394d0d12e972dd977cd7ec8c639caaead84b1b40` (2026-11-10 11:32 UTC). Main protection requires a PR and five strict CI contexts, has zero required approvals, disables CODEOWNERS/latest-push approval, enforces admins, and blocks force-push/deletion. No reviewer blocker remains and no self-review was used. Open PRs are #45/#44/#42 Dependabot updates and draft #35 license proposal; none is a v2 integration change.
+- **Current CI:** on exact main SHA `55936a0`, Validate run `42833554547`, package-artifact run `42833554364`, and repository-contract run `42833554254` succeeded. PR #113's five required checks passed before its merge. These results establish CI/package build, not device install or release readiness.
+- **Live Termux desktop:** `ternux status --json` reports v2.0.0, running, X11 yes, PulseAudio running, managed PID `16987`. Current repository `lib/desktop.sh` SHA-256 is `b3f0753a771f54c2c337310b2f23485926c9fded314ace818d76828c96af8ea3`, while installed `$PREFIX/lib/ternux/desktop.sh` is `02c5f6175f45c94c4ec68f323294f1c633bd7e4f501430b243f72132ed0950cb`. The live session predates this source; updated-package stop/start and crash recovery therefore remain unverified. It was left running. No GUI app or service was restarted.
+- **Hosted repository:** fresh HTTPS GETs at 2026-11-10 14:37 UTC returned HTTP 404 for `apt/bootstrap.sh`, `apt/ternux-archive-key.asc`, `apt/dists/stable/InRelease`, and `apt/dists/stable/main/binary-all/Packages`; website root returned HTTP 200. Do not run the production `publish-v2` deployment or create a v2 tag/release until every release gate is closed and the owner explicitly authorizes publication.
+- **Readiness:** the machine-readable matrix has 19 gates and derives `NOT_READY`, with six incomplete release blockers: P1-01, P1-03, P1-04, P1-06, P1-APT, P1-PKG. P2-03 workload schema remains not started and non-blocking.
 
 > Current-state note (2026-11-10): the reconciliation and gate matrix below supersede earlier snapshots in this report that describe PR #97 as open, require an independent reviewer, or show earlier `main` commits. Those statements are retained only as historical evidence.
 
