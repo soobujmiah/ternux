@@ -25,7 +25,9 @@ exact publisher verifier-ও pass করেছে: source ancestry, build defini
 run/artifact provenance ও expiry যাচাই হয়েছে। Public prerelease-এ এখনো পুরোনো archive;
 প্রকাশনা `main`-এ owner/CODEOWNERS review ও merge-এর অপেক্ষায়।
 
-সর্বশেষ exact-head follow-up: PR #97 এখন `2d19b4566e2cf9aa40edb5f71011b011604651d7` commit-এ। পাঁচটি required check-ই pass করেছে: Validate `42797563217`, Termux APT package `42797562831`, repository contract `42797563017`, Repo Knowledge Sync `42797562765`-এর `sync` ও `test`। GitHub এখনো `REVIEW_REQUIRED`, `BLOCKED`; কোনো review request বা approval নেই। `.github/CODEOWNERS`-এ শুধু PR author `@soobujmiah`; collaborator তালিকায় শুধু owner, আর non-owner review entry-গুলো bot comment। PR merge ও main-only HTP publisher চালাতে independent human reviewer লাগবে.
+সর্বশেষ exact-head follow-up: PR #97 এখন `b97ea9965865c602d0119f8f8916e0430e06d847` commit-এ। পাঁচটি required check-ই pass করেছে: Validate `42798314264`, Termux APT package `42798314373`, repository contract `42798315057`, Repo Knowledge Sync `42798315019`-এর `sync` ও `test`। GitHub এখনো `REVIEW_REQUIRED`, `BLOCKED`; কোনো review request বা approval নেই। `.github/CODEOWNERS`-এ শুধু PR author `@soobujmiah`; collaborator তালিকায় শুধু owner, আর non-owner review entry-গুলো bot comment। PR merge ও main-only HTP publisher চালাতে independent human reviewer লাগবে।
+
+এই exact head-এ HTP source run `42783356495`-এর জন্য no-rebuild verifier আবার চালিয়ে pass করেছে; source ancestry, artifact provenance, অপরিবর্তিত build input, এবং successful source run যাচাই হয়েছে। Actions artifact `13747701121` এখনো ২০২৭-০২-০৮ পর্যন্ত মেয়াদোত্তীর্ণ নয়। এই যাচাইয়ে artifact download বা rebuild করা হয়নি। Public prerelease-এ এখনো পুরোনো archive; protected merge না হওয়া পর্যন্ত retained candidate publish করা যাবে না.
 
 Public experimental HTP prerelease আছে, তবে এখনো ২০২৬-১০-১৩-এর পুরোনো archive
 serve করছে (SHA-256 `dffcf83fa969f3ccfad238217b4ca7f3d47040e5e5b2fa834ebd3f123d144ea5`)।
