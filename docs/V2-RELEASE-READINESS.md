@@ -5,9 +5,9 @@ lang: "en"
 alt_url: "/bn/docs/V2-RELEASE-READINESS.html"
 ---
 **Status: NOT_READY**
-**Audit:** 2026-11-10 17:44 UTC
+**Audit:** 2026-11-10 18:02 UTC
 **Release tag/publication:** no v2.0.0 tag or release; GitHub latest stable is v1.4.0.
-**Latest `main` at this audit:** `68f14ba48a67829d3aaa09b799233f79f2f59cc8`, generated-state merge over documentation PR #128 (`d87919f`). Product source remains `5e41401dd60bf5261f6a638c62b4ad94eea98812`.
+**Latest `main` at this audit:** `926836fb7435cd62e695cf921a2d848fac319829`, generated-state merge over report PR #130 (`56b8e62`). Product source remains `5e41401dd60bf5261f6a638c62b4ad94eea98812`.
 **Machine gate:** `docs/release-gates.json` derives `NOT_READY`: six P1 release-blocking gates remain incomplete.
 
 ## Executive recommendation
@@ -33,14 +33,14 @@ Fresh direct HTTPS checks at 2026-11-10 17:44 UTC returned HTTP 404 for all four
 | Finding | Status | Current evidence / remaining acceptance |
 |---|---|---|
 | P0-01 Stable Diffusion Vulkan license CI | **COMPLETE** | Deterministic component manifest, source/header notices, missing/duplicate/path regressions, and exact product-source ARM64 build/license audit all pass. Run `42863263043` built and inspected the ARM64 artifact and independently audited the license bundle on `5e41401`; prerelease publication was disabled. |
-| P0-02 release branch consistency | **COMPLETE** | v2 source is integrated on `main`; PR #127 source checks and latest exact-main checks on `68f14ba` passed. PR #128 docs and generated-state PR #129 are merged. No v2 tag exists. |
+| P0-02 release branch consistency | **COMPLETE** | v2 source is integrated on `main`; PR #127 source checks and latest exact-main checks on `68f14ba` passed. PR #128 docs, generated-state PR #129, report PR #130 and generated-state PR #131 are merged. Exact-main checks on `926836f` pass. No v2 tag exists. |
 | P0-03 release gate | **COMPLETE** | 19 machine-readable gates; validator returns `NOT_READY` while any blocking gate is incomplete. |
 | P1-01 desktop lifecycle | **PARTIAL** | Source lifecycle fixtures and current live READY status pass. Installed `desktop.sh` differs from current source; updated-package stop/restart/crash-recovery and managed-process identity are not verified. |
 | P1-02 GPU/Vulkan detection | **COMPLETE for tested Adreno 825 only** | Physical device reports Adreno 825, Vulkan/Turnip and Zink renderer; software renderer false positives have regression coverage. Other GPU/device families are not qualified. |
 | P1-03 installer/updater reliability | **PARTIAL** | Bootstrap archive, host CLI archive, and guest CLI fallback use immutable commit pins and SHA-256 checks; tamper regressions pass on merged PR #127. Local v1.4.0 migration/rollback fixtures pass. Published-v2 native migration remains untested. |
 | P1-04 storage isolation | **PARTIAL** | `/sdcard` is intentionally available in PRoot; generic guest tests preserve it while isolating Termux HOME. Full updated-package XFCE/app smoke remains unverified. |
 | P1-05 repository protection | **COMPLETE** | Main branch protection read-back showed required PR checks, admin enforcement, and force-push/deletion disabled; required approval count is zero to support the owner-only repository. |
-| P1-06 CPU/Vulkan LLM | **PARTIAL** | Qwen2.5 0.5B/1.5B CPU/Vulkan correctness, 25/25 and 29/29 layer offload, short repeated throughput, cancellation and reopen evidence exists on one Adreno 825. Fresh single-turn runs returned 4 on both models/backends. Broad-model and sustained/memory-pressure qualification remains. |
+| P1-06 CPU/Vulkan LLM | **PARTIAL** | Qwen2.5 0.5B/1.5B and Llama 3.2 3B known-answer smoke pass on CPU/Vulkan; 3B Vulkan assigned 29/29 layers with `-c 512 -b 64 -ub 64`. The 3B default-context CPU load was killed before output; cause is unconfirmed. Sustained, long-context, and memory-pressure qualification remains. |
 | P1-07 HTP/HMX | **PARTIAL, experimental and release-excluded** | Numerical operator failures/incomplete qualification remain; no stable default or claim. |
 | P1-08 QNN Stable Diffusion | **PARTIAL, experimental and release-excluded** | Stage-tensor/reference correctness and production qualification remain incomplete. |
 | P1-APT public repository | **BLOCKED** | All four canonical signed APT URLs return 404. Publish, hosted verification, Pages preservation, and clean Termux install/upgrade/uninstall remain. |
@@ -75,7 +75,7 @@ Fresh direct HTTPS checks at 2026-11-10 17:44 UTC returned HTTP 404 for all four
 | PR #127 exact-head required checks | Validate, package artifact, repo-contract, Repo Knowledge Sync test/sync all passed. |
 | Main `5e41401` exact-SHA CI | Validate `42860196252`, package artifact `42860196300`, Repo Knowledge Sync `42860196265` passed. |
 | Stable Diffusion ARM64 and license bundle | Exact product-source build, binary inspection, and independent license audit passed in run `42863263043`; 27,381,115-byte candidate artifact uploaded, prerelease publication skipped. |
-| Device CPU/Vulkan smoke | Qwen2.5 0.5B/1.5B known-answer passed on CPU and Vulkan0; verbose logs confirmed full layer offload. Battery rose 36.3°C → 37.4°C; no sustained run. |
+| Device CPU/Vulkan smoke | Qwen2.5 0.5B/1.5B known-answer passed on CPU and Vulkan0; fresh Llama 3.2 3B bounded-context run returned 4 on both backends, with 29/29 Vulkan layers. The 3B default-context CPU attempt was killed during load. Battery was 40°C; no sustained/memory-pressure run. |
 
 ### Device and distribution
 
@@ -101,4 +101,4 @@ HTP/HMX and QNN Stable Diffusion remain explicitly experimental/research-only an
 
 ## Final recommendation
 
-**NOT_READY.** Current source and exact-main CI on `68f14ba` are verified, but six release-blocking acceptance checks remain incomplete. The public APT repository is absent, and the running installed package does not contain the current desktop lifecycle module. Do not tag or publish v2.0.0 until the device/package gates close and the repository owner explicitly approves publication.
+**NOT_READY.** Current source and exact-main CI on `926836f` are verified, but six release-blocking acceptance checks remain incomplete. The public APT repository is absent, and the running installed package does not contain the current desktop lifecycle module. Do not tag or publish v2.0.0 until the device/package gates close and the repository owner explicitly approves publication.

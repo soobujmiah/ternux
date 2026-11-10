@@ -124,8 +124,9 @@ install-এর পর প্রায় ১০.৫–১২.৫ GB নেয়
 **Local AI ও GPU tool:** ঐচ্ছিক llama.cpp CPU + Vulkan extension আলাদা করে
 `ternux extension install llama-vulkan` দিয়ে install হয়। Hexagon HTP extension
 আলাদা, device-specific এবং experimental; কোনো extension-এ model file থাকে না।
-Blender ও headless EEVEE tool-ও optional। সমর্থন ও qualification সীমা
-[release plan](../docs/ACCELERATOR-RELEASE-PLAN.md)-এ আছে।
+Blender ও headless EEVEE tool-ও optional। Model setup ও কম RAM-এ context
+সীমিত রাখার জন্য [llama.cpp extension guide](../guides/llama-vulkan-extension.md),
+আর support/qualification সীমার জন্য [release plan](../docs/ACCELERATOR-RELEASE-PLAN.md) দেখুন।
 
 ## পরিচালনা ও সমস্যা সমাধান
 
