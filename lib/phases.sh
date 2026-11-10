@@ -269,6 +269,7 @@ tnx_phase_packages() {
 # status/verification and explicitly redirects host-only operations to Termux.
 tnx_install_guest_cli() {
   local user_name="${1:-ternux}" guest_src="" cleanup=0 try=""
+  local source_commit="${TERNUX_SOURCE_COMMIT:-}" guest_sha256="${TERNUX_GUEST_CLI_SHA256:-}"
   if [ -n "${_TNX_SRC:-}" ] && [ -f "$_TNX_SRC/bin/ternux-guest" ]; then
     guest_src="$_TNX_SRC/bin/ternux-guest"
   else
@@ -281,12 +282,27 @@ tnx_install_guest_cli() {
   if [ -z "$guest_src" ]; then
     guest_src="${TMPDIR:-/tmp}/ternux-guest.$$"
     cleanup=1
-    tnx_info "Downloading the Debian guest companion..."
-    tnx_download "https://raw.githubusercontent.com/soobujmiah/ternux/main/bin/ternux-guest" "$guest_src" || {
+    if [[ ! "$source_commit" =~ ^[a-f0-9]{40}$ || ! "$guest_sha256" =~ ^[a-f0-9]{64}$ ]]; then
+      tnx_fail "Pinned Debian guest companion identity is missing or invalid."
+      rm -f "$guest_src"
+      return 1
+    fi
+    tnx_has_cmd sha256sum || {
+      tnx_fail "sha256sum is required to verify the Debian guest companion."
+      rm -f "$guest_src"
+      return 1
+    }
+    tnx_info "Downloading pinned Debian guest companion ($source_commit)..."
+    tnx_download "https://raw.githubusercontent.com/soobujmiah/ternux/$source_commit/bin/ternux-guest" "$guest_src" || {
       tnx_fail "Could not download the Debian guest companion."
       rm -f "$guest_src"
       return 1
     }
+    if ! printf "%s  %s\n" "$guest_sha256" "$guest_src" | sha256sum --check --status; then
+      tnx_fail "Downloaded Debian guest companion failed its pinned SHA-256 check."
+      rm -f "$guest_src"
+      return 1
+    fi
   fi
 
   if ! bash -n "$guest_src" 2>/dev/null; then

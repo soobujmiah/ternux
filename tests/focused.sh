@@ -2223,6 +2223,57 @@ else
   not_ok "Debian companion installation rejects a stale version response"
 fi
 
+# The Debian guest CLI fallback must be immutable and digest-verified when the
+# installer modules are invoked without their source checkout.
+mkdir -p "$TMP/guest-pinned-modules" "$TMP/guest-pinned-tmp"
+cp "$ROOT/lib/core.sh" "$ROOT/lib/phases.sh" "$TMP/guest-pinned-modules/"
+if env TERNUX_STATE_DIR="$TMP/state-guest-pinned" HOME="$TMP/home-guest-pinned" \
+  TMPDIR="$TMP/guest-pinned-tmp" MOCK_GUEST="$TMP/guest-pinned-installed" \
+  MOCK_URL="$TMP/guest-pinned-url" MOCK_SOURCE="$ROOT/bin/ternux-guest" \
+  bash -c '
+    mkdir -p "$HOME"
+    cd "$HOME" || exit
+    . "$1/phases.sh"
+    _TNX_SRC=""
+    tnx_download(){ printf "%s\n" "$1" > "$MOCK_URL"; cp "$MOCK_SOURCE" "$2"; }
+    tnx_guest_login(){
+      case "$*" in
+        *"/usr/local/bin/.ternux.new"*) cat > "$MOCK_GUEST"; chmod +x "$MOCK_GUEST" ;;
+        *) printf "ternux guest v%s\n" "$TERNUX_VERSION" ;;
+      esac
+    }
+    tnx_install_guest_cli alice >/dev/null &&
+      [ "$(cat "$MOCK_URL")" = "https://raw.githubusercontent.com/soobujmiah/ternux/$TERNUX_SOURCE_COMMIT/bin/ternux-guest" ] &&
+      "$MOCK_GUEST" --version | grep -q "ternux guest v" &&
+      [ "$(tnx_state_get guest_cli_installed)" = yes ]
+  ' _ "$TMP/guest-pinned-modules"; then
+  ok "guest CLI fallback downloads the immutable pinned file and verifies its digest"
+else
+  not_ok "guest CLI fallback downloads the immutable pinned file and verifies its digest"
+fi
+
+cp "$ROOT/bin/ternux-guest" "$TMP/guest-pinned-tampered"
+printf 'tamper' >> "$TMP/guest-pinned-tampered"
+mkdir -p "$TMP/guest-pinned-tampered-modules" "$TMP/guest-pinned-tampered-tmp"
+cp "$ROOT/lib/core.sh" "$ROOT/lib/phases.sh" "$TMP/guest-pinned-tampered-modules/"
+if env TERNUX_STATE_DIR="$TMP/state-guest-pinned-tampered" HOME="$TMP/home-guest-pinned-tampered" \
+  TMPDIR="$TMP/guest-pinned-tampered-tmp" MOCK_GUEST="$TMP/guest-pinned-tampered-installed" \
+  MOCK_SOURCE="$TMP/guest-pinned-tampered" MOCK_URL="$TMP/guest-pinned-tampered-url" \
+  bash -c '
+    mkdir -p "$HOME"
+    cd "$HOME" || exit
+    . "$1/phases.sh"
+    _TNX_SRC=""
+    tnx_download(){ printf "%s\n" "$1" > "$MOCK_URL"; cp "$MOCK_SOURCE" "$2"; }
+    tnx_guest_login(){ : > "$MOCK_GUEST"; }
+    if tnx_install_guest_cli alice >/dev/null 2>&1; then exit 1; fi
+    [ ! -e "$MOCK_GUEST" ] && [ "$(tnx_state_get guest_cli_installed 2>/dev/null || true)" != yes ]
+  ' _ "$TMP/guest-pinned-tampered-modules"; then
+  ok "guest CLI fallback rejects a modified file before guest installation"
+else
+  not_ok "guest CLI fallback rejects a modified file before guest installation"
+fi
+
 # Reduced-capability terminals receive the same persistent identity, storage
 # guidance and line-at-a-time log feed without cursor-control dependencies.
 frame_out="$TMP/frame-output"

@@ -75,8 +75,9 @@ The standalone loader fetches one immutable source snapshot with bounded
 retries and verifies its pinned SHA-256 before extracting or sourcing it. The
 host CLI fallback uses that same commit and digest and rejects changed bytes
 before extraction. The validated snapshot is reused for the bootstrap libraries,
-the Termux host CLI and the Debian guest companion instead of requesting every
-module separately. Package
+the Termux host CLI and the Debian guest companion in the normal installer path.
+If the guest companion is requested without that local snapshot, its fallback
+fetches the file from the same immutable commit and verifies its own SHA-256. Package
 setup keeps the current apt source and never opens `termux-change-repo` inside
 the frame; if that source is unreachable, select a mirror manually and re-run
 with `--resume`.
