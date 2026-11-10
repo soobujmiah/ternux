@@ -12,6 +12,10 @@ Notable changes to ternux. Dates are ISO 8601.
 
 ## [Unreleased]
 
+### Release operations
+
+- Production Pages deployment now requires an explicit `workflow_dispatch`; merging routine source or documentation changes no longer deploys the live site automatically.
+
 ### Desktop experience
 
 - Added Celestia astronomy simulator as an optional ARM64 workload. Its publisher-signed package metadata and package hashes are verified before install; astronomy data is opt-in and the default desktop stays lean.

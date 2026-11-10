@@ -12,6 +12,10 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 
 ## [Unreleased]
 
+### Release operation
+
+- Production Pages deploy এখন explicit `workflow_dispatch` চায়; routine source বা documentation merge live site-এ automatic deployment করবে না।
+
 ### ডেস্কটপ অভিজ্ঞতা
 
 - ARM64-এর optional workload হিসেবে Celestia astronomy simulator যোগ হয়েছে। Install-এর আগে publisher-signed package metadata ও package hash যাচাই হয়; astronomy data opt-in, তাই default desktop হালকা থাকে।
