@@ -377,7 +377,8 @@
         "Current installed `ternux` is 2.0.0 and `dpkg -V ternux` emits no modification lines. This does not prove clean install/update/repair/uninstall. Native PREFIX writes are outside this session sandbox; exact-main package/contract/validate CI passes on 43416ffd6bbb15b573d0d3657a51a4cba0a35752.",
         "Exact-main unsigned package artifact run 42860196300 passed on 5e41401dd60bf5261f6a638c62b4ad94eea98812. Native `dpkg -V ternux` shows no packaged-file modifications, but clean install/update/repair/uninstall remains unverified; this sandbox cannot write native PREFIX.",
         "Exact current-main unsigned package artifact run 42867226104 passed on merge commit 68f14ba48a67829d3aaa09b799233f79f2f59cc8. This is build/metadata evidence only; no clean native install/update/repair/uninstall was performed.",
-        "Latest exact-main package artifact for the same product source was produced by run 42901133225, artifact ID 13801733817 (ternux-apt-unsigned-ci-2763bac0cde5f38e2d3009eb236db2a89606f1c1); its unsigned artifact job passed. This does not replace native install/upgrade/repair/uninstall on the updated package."
+        "Latest exact-main package artifact for the same product source was produced by run 42901133225, artifact ID 13801733817 (ternux-apt-unsigned-ci-2763bac0cde5f38e2d3009eb236db2a89606f1c1); its unsigned artifact job passed. This does not replace native install/upgrade/repair/uninstall on the updated package.",
+        "Current-main artifact run 42906685681 produced artifact ID 13805237072 for the same product source; GitHub reports it retained through 2027-02-08 under the updated 90-day workflow policy. This still is not a native package lifecycle test."
       ],
       "required_tests": [
         "clean install/update/repair/uninstall in native Termux",
