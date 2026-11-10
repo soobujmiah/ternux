@@ -195,7 +195,10 @@ jobs:
           STATE_HEAD_SHA: ${{ steps.state_pr.outputs.pull-request-head-sha }}
         run: |
           set -euo pipefail
-          for attempt in $(seq 1 30); do
+          # GitHub may delay registering first-run PR workflows until well
+          # after create-pull-request returns (observed >70 seconds). Keep
+          # polling long enough for those runs to become approvable.
+          for attempt in $(seq 1 120); do
             runs=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs?branch=$STATE_BRANCH&event=pull_request&per_page=100")
             count=$(printf '%s' "$runs" | jq --arg sha "$STATE_HEAD_SHA" '[.workflow_runs[] | select(.head_sha == $sha and (.name == "Validate" or .name == "Repository State Contract" or .name == "Termux APT package artifact" or .name == "Repo Knowledge Sync"))] | unique_by(.name) | length')
             ids=$(printf '%s' "$runs" | jq -r --arg sha "$STATE_HEAD_SHA" '.workflow_runs[] | select(.head_sha == $sha and .conclusion == "action_required" and (.name == "Validate" or .name == "Repository State Contract" or .name == "Termux APT package artifact" or .name == "Repo Knowledge Sync")) | .id')
