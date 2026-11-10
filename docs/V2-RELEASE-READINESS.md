@@ -17,6 +17,8 @@ alt_url: "/bn/docs/V2-RELEASE-READINESS.html"
 
 Audited PR head before this report-only refresh was `8041c33939fc00639fe3296779ba840a352f82a3`, 172 commits ahead of `main` (`8e24062589e81c20095c875fa4d19dd5cb928554`); GitHub reports 576 changed files, ready-for-review state, and `REVIEW_REQUIRED`. All five required checks pass on this exact head: Validate `42792959040`, Termux APT package `42792958963`, repository contract `42792959029`, and Repo Knowledge Sync `42792959241` (`sync` and `test`). The retained HTP candidate reuse verifier also passes on this head for run `42783356495`: source commit ancestry, build-job definition, package-input diff, run/artifact provenance, and artifact expiry all verify. The public experimental prerelease still serves the older archive; publication is gated on owner/CODEOWNERS review and merge into `main`.
 
+Follow-up on PR head `3cc8e2cdafa7d9cd93d27d48ec3ce674f91aaaa8`: all five required checks pass (Validate `42796372115`, Termux APT `42796372208`, repository contract `42796372131`, Repo Knowledge Sync `42796372536` `sync` and `test`). GitHub reports `REVIEW_REQUIRED` and no review requests. `.github/CODEOWNERS` names only `@soobujmiah`, the PR author; GitHub lists only the owner as collaborator. Branch protection requires one approval and CODEOWNERS review, so no independent eligible reviewer is currently available. The owner must add/authorize a trusted reviewer before PR #97 can merge and the main-only HTP publisher can run.
+
 The public experimental HTP prerelease exists but still serves its older 2026-10-13 archive (SHA-256 `dffcf83fa969f3ccfad238217b4ca7f3d47040e5e5b2fa834ebd3f123d144ea5`). The latest retained candidate is run `42783356495`, artifact `13747701121`, archive SHA-256 `a139a6248356a44e89348ddbe1334edaad33f81a9efbe8f5b8fe3c5733dcf3de` (15,691,323 bytes), retained through 2027-02-08. Its checksum was verified by downloading the artifact and checking the sidecar. Once the PR is integrated, the main-only publisher can reuse this run to update the existing experimental prerelease without another compile. This does not qualify HTP for stable support.
 
 This report separates source and CI evidence from physical-device qualification. A green build does not establish release readiness for the GPU, desktop, package installation, or accelerator workloads.
@@ -206,7 +208,7 @@ On artifact-reuse commit `89802f73408a1638221c0b3f62c26d212385b2ea`, Validate `4
 
 | Gate | Status | Required evidence |
 |---|---|---|
-| P0-02 branch and owner review | **PARTIAL** | Review the 576-file PR diff and integrate PR #97 into the intended release branch. Owner approval is still absent. |
+| P0-02 branch and owner review | **PARTIAL** | PR #97 is ready and CI is green, but only the PR author is a CODEOWNER/collaborator. Add or authorize an independent trusted reviewer, review the 576-file diff, and integrate the PR. |
 | P1-01 desktop lifecycle | **PARTIAL** | Validate repeated/concurrent start, stop, stale/crash recovery, socket ownership and independent audio readiness on the updated package without disturbing the current session. |
 | P1-03 updater migration | **PARTIAL** | Source-level first migration from exact v1.4.0 CLI fixture to v2 passes; verify the published v2 route and native-device migration after publication. |
 | P1-04 storage and desktop | **PARTIAL** | Normal `/sdcard` use inside PRoot is verified and expected; Termux HOME remains isolated. Run full XFCE and user-facing app smoke through the updated launcher in a separate/controlled session. |

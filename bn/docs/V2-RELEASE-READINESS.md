@@ -25,6 +25,8 @@ exact publisher verifier-ও pass করেছে: source ancestry, build defini
 run/artifact provenance ও expiry যাচাই হয়েছে। Public prerelease-এ এখনো পুরোনো archive;
 প্রকাশনা `main`-এ owner/CODEOWNERS review ও merge-এর অপেক্ষায়।
 
+PR head `3cc8e2cdafa7d9cd93d27d48ec3ce674f91aaaa8`-এ পাঁচটি required check pass: Validate `42796372115`, Termux APT `42796372208`, repository contract `42796372131`, Repo Knowledge Sync `42796372536`-এর `sync` ও `test`। GitHub `REVIEW_REQUIRED` দেখায়, review request নেই। `.github/CODEOWNERS`-এ শুধু `@soobujmiah`, যিনি PR author; GitHub collaborator তালিকাতেও শুধু owner। Branch protection-এ ১টি approval ও CODEOWNERS review লাগে, তাই owner trusted independent reviewer যোগ/অনুমোদন না করা পর্যন্ত eligible reviewer নেই। PR merge না হলে main-only HTP publisher চালানো যাবে না।
+
 Public experimental HTP prerelease আছে, তবে এখনো ২০২৬-১০-১৩-এর পুরোনো archive
 serve করছে (SHA-256 `dffcf83fa969f3ccfad238217b4ca7f3d47040e5e5b2fa834ebd3f123d144ea5`)।
 সর্বশেষ retained candidate run `42783356495`, artifact `13747701121`; archive
@@ -220,7 +222,7 @@ Artifact-reuse commit `89802f73408a1638221c0b3f62c26d212385b2ea`-এ Validate `4
 
 | Gate | অবস্থা | দরকারি evidence |
 |---|---|---|
-| P0-02 branch ও owner review | **PARTIAL** | ৫৭৬-file PR diff review করে PR #97 intended release branch-এ integrate করতে হবে; owner approval নেই। |
+| P0-02 branch ও owner review | **PARTIAL** | PR #97 ready, CI green; কিন্তু CODEOWNER/collaborator শুধু PR author। Trusted independent reviewer যোগ/অনুমোদন, ৫৭৬-file diff review ও PR merge বাকি। |
 | P1-01 desktop lifecycle | **PARTIAL** | বর্তমান session না ভেঙে updated package-এ repeated/concurrent start, stop, stale/crash recovery, socket ownership ও audio readiness যাচাই। |
 | P1-03 updater migration | **PARTIAL** | Published v2 update ও প্রথম v1.4.0 migration native Termux-এ পরীক্ষা; publication-এর আগে এটি সম্ভব নয়। |
 | P1-04 storage ও desktop | **PARTIAL** | PRoot-এর ভেতর স্বাভাবিক `/sdcard` ব্যবহার verified ও expected; Termux HOME isolated থাকে। Updated launcher-এ controlled/separate session-এ full XFCE ও app smoke বাকি। |
