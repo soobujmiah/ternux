@@ -1562,6 +1562,46 @@ place. The desktop stayed running through the workload; post-run status showed
 PID 16987, X11 and PulseAudio running, 40°C battery, and 5372 MB available RAM.
 This is one-device evidence only.
 
+### 2026-11-10 Llama 3.2 3B CPU sustained-generation check
+
+On the Redmi Turbo 4 Pro / SM8735 / Adreno 825, I used the existing
+`/sdcard/LAI/models/llama-3.2-3b-instruct-q4_k_m.gguf` in place with the
+managed llama-vulkan extension's `llama-cli` (`0.6.0-dev`, commit `af50f2f`).
+The CPU route (`-ngl 0`, four threads, context 2048, batch/ubatch 64, greedy
+seed 42) generated five complete 512-token outputs in separate CLI processes.
+The runs took 104–126 seconds each and exited 0. A sixth run was stopped after
+63 seconds when the battery sensor reached 42.2°C; its output was partial. The
+thermal guard was configured to stop at 42°C and sampled every 20 seconds.
+Battery started at 34.4°C / 91% and ended at 42.2°C / 86%, discharging.
+
+After stopping, no `llama-cli` process remained. Native `ternux status --json`
+reported desktop PID 16987 with X11 and PulseAudio running; `ternux verify
+--json` passed. No service or model file was changed. This records about ten
+minutes of cumulative CPU generation and clean process exits for this model on
+this device; it is not an uninterrupted soak, a performance result, or evidence
+for other models/devices. The Vulkan sustained-generation follow-up is recorded
+separately below.
+
+### 2026-11-10 Llama 3.2 3B Vulkan sustained-generation check
+
+After the CPU check and a cooldown to 37.8°C battery temperature, I used the
+same model and managed llama-vulkan CLI/build on Vulkan0 (`-ngl 99`, four
+threads, context 2048, batch/ubatch 64, greedy seed 42). Four separate
+512-token generation processes exited 0 in 63 seconds each. The fifth run was
+stopped at the 42.0°C thermal guard after 62 seconds; it is not counted as a
+completed run. Battery was 37.8°C / 86% at start and 42.0°C / 83% at cutoff,
+discharging. The guard sampled every 20 seconds. No `llama-cli` process
+remained afterward; `ternux status --json` still reported desktop PID 16987,
+X11, and PulseAudio running, and `ternux verify --json` passed. No model or
+service was changed.
+
+Together with the CPU test above, this is bounded repeated-generation stability
+evidence for this model/build/device. The thermal stop is intentional safety
+behavior; it does not indicate an inference error. It is not a multi-hour soak,
+quality benchmark, or qualification for other models/devices. Exact Qwen
+retrieval and invoice arithmetic failures remain outside this qualified
+workload profile.
+
 ### 2026-11-10 768 MiB memory-pressure retrieval and recovery (Llama 3.2 3B)
 
 On the Redmi Turbo 4 Pro / SM8735 / Adreno 825, I allocated and touched 768 MiB

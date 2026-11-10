@@ -1183,6 +1183,44 @@ Model file সরানো বা বদলানো হয়নি। পু�
 status-এ PID 16987, X11 ও PulseAudio running, battery 40°C এবং available RAM
 5372 MB দেখা গেছে। প্রমাণ এক device-এ সীমিত।
 
+### 2026-11-10 Llama 3.2 3B CPU sustained-generation check
+
+Redmi Turbo 4 Pro / SM8735 / Adreno 825-এ আগে থেকে থাকা
+`/sdcard/LAI/models/llama-3.2-3b-instruct-q4_k_m.gguf` model-টি managed
+llama-vulkan extension-এর `llama-cli` (`0.6.0-dev`, commit `af50f2f`) দিয়ে
+ব্যবহার করেছি; model সরানো বা বদলানো হয়নি। CPU route (`-ngl 0`, চার thread,
+context 2048, batch/ubatch 64, greedy seed 42) ছয়টি আলাদা CLI process-এ
+প্রতিবার 512-token output চেয়েছে। প্রথম পাঁচটি run সম্পূর্ণ হয়, প্রতিটি 104–126
+second লাগে এবং exit code 0 দেয়। Battery sensor 42.2°C দেখালে ষষ্ঠ run 63
+second পর থামানো হয়; ওই output অসম্পূর্ণ ছিল। Thermal guard 42°C-এ stop করার
+জন্য ছিল এবং প্রতি 20 second-এ sample নিয়েছে। শুরুতে battery 34.4°C / 91%, শেষে
+42.2°C / 86% এবং discharge হচ্ছিল।
+
+শেষে কোনো `llama-cli` process চলছিল না। Native `ternux status --json` desktop PID
+16987, X11 ও PulseAudio running দেখায়; `ternux verify --json` pass করেছে। কোনো
+service বা model file পরিবর্তন করা হয়নি। এই পরীক্ষায় এই device/model-এ মোটামুটি
+দশ মিনিটের CPU generation ও clean process exit দেখা গেছে; এটি uninterrupted soak,
+performance result, বা অন্য model/device-এর প্রমাণ নয়। Vulkan sustained-generation
+follow-up নিচে আলাদাভাবে নথিবদ্ধ হবে।
+
+### 2026-11-10 Llama 3.2 3B Vulkan sustained-generation check
+
+CPU পরীক্ষার পর battery 37.8°C-এ নামলে একই model এবং managed llama-vulkan
+CLI/build দিয়ে Vulkan0 (`-ngl 99`, চার thread, context 2048, batch/ubatch 64,
+greedy seed 42) চালাই। আলাদা process-এ চারটি 512-token generation সম্পূর্ণ হয়;
+প্রতিটি exit 0 এবং সময় 63 second। পঞ্চম run 62 second পর battery 42.0°C
+thermal guard-এ থামানো হয়; একে complete run ধরা হয়নি। শুরুতে battery 37.8°C /
+86%, cutoff-এ 42.0°C / 83%, discharge হচ্ছিল। Guard প্রতি 20 second-এ sample
+নিয়েছে। শেষে `llama-cli` process ছিল না; `ternux status --json` desktop PID
+16987, X11 ও PulseAudio running দেখায়; `ternux verify --json` pass। Model বা
+service বদলানো হয়নি।
+
+উপরের CPU run-সহ এটি এই model/build/device-এর bounded repeated-generation
+stability evidence। Thermal stop ইচ্ছাকৃত safety behavior; inference error নয়।
+এটি বহু ঘণ্টার soak, quality benchmark বা অন্য model/device-এর qualification
+নয়। Qwen exact-retrieval এবং invoice arithmetic-এর পরিচিত failure এই qualified
+workload profile-এর বাইরে।
+
 ### 2026-11-10 768 MiB memory-pressure retrieval ও recovery (Llama 3.2 3B)
 
 Redmi Turbo 4 Pro / SM8735 / Adreno 825-এ existing

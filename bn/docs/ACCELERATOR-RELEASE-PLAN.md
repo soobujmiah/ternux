@@ -754,3 +754,23 @@ run/artifact provenance ও expiry pass করেছে। PR #97 owner/CODEOWNE
 prerelease asset rebuild ছাড়া update করা যাবে। Release note-এ HMX/attention-এর
 পরিচিত failure ও experimental status রাখতে হবে। Archive-এর checksum ও inventory
 যাচাই হয়েছে, কিন্তু এটি device-এ চালানো হয়নি।
+
+
+## ২০২৬-১১-১০ CPU/Vulkan qualification closeout — ঘোষিত profile-এর মধ্যে
+
+Qualified profile: Redmi Turbo 4 Pro / SM8735 / Adreno 825, managed
+llama-vulkan CLI build `0.6.0-dev` commit `af50f2f`, এবং আগে থেকে থাকা Llama
+3.2 3B Q4_K_M model। Known-answer, exact 180-record retrieval, 768 MiB memory
+pressure-এ 30-record support-queue retrieval, সীমিত CPU/Vulkan cancellation ও
+reopen এবং repeated CPU/Vulkan benchmark-এর প্রমাণ
+[device evidence](../guides/device-benchmark-evidence.md#2026-11-10-llama-32-3b-cpu-sustained-generation-check)-এ আছে।
+নতুন sustained-generation run-এ পাঁচটি 512-token CPU এবং চারটি Vulkan run
+সম্পূর্ণ হয়েছে; প্রতিটি complete process exit 0। Battery 42°C guard-এ পরের
+inference থামানো হয়েছে। Desktop ও audio service চালু ছিল এবং পরে
+`ternux verify --json` pass করেছে।
+
+এতে P1-06 শুধু ঘোষিত runtime/model/device workload profile-এর জন্য complete।
+পরীক্ষিত তিন Qwen variant 100-record exact retrieval-এ ব্যর্থ; pressure-time
+invoice task-এ 39.50-এর বদলে 24.75 এসেছে। এই task, অন্য model/device, বা
+সাধারণ তথ্য/সংখ্যাগত সঠিকতার qualification দাবি করা যাবে না। HTP/HMX ও QNN
+আলাদা experimental/research exclusion। Model বদলানো বা desktop restart করা হয়নি।

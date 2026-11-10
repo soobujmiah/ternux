@@ -40,6 +40,10 @@ for filename, (workflow, artifact, publisher) in workflows.items():
     assert "actions/upload-artifact@v6" in text, filename
     assert "  " + publisher + ":" in text, filename
 
+package_artifact = (ROOT / ".github/workflows/termux-apt-package.yml").read_text(encoding="utf-8")
+assert "name: ternux-apt-unsigned-ci-${{ github.sha }}" in package_artifact
+assert "retention-days: 90" in package_artifact, "unsigned Termux package artifact must remain available for release qualification"
+
 deploy = (ROOT / ".github/workflows/deploy.yml").read_text(encoding="utf-8")
 deploy_triggers = deploy.split("permissions:", 1)[0]
 assert "workflow_dispatch:" in deploy_triggers

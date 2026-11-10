@@ -87,4 +87,4 @@ jobs:
           name: ternux-apt-unsigned-ci-${{ github.sha }}
           path: artifacts/ternux-apt/
           if-no-files-found: error
-          retention-days: 14
+          retention-days: 90
