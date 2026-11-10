@@ -104,7 +104,8 @@
         "Startup now requires the launcher READY marker plus a bounded host probe of Termux:X11, xfce4-session, xfwm4, xfdesktop, and xdpyinfo; it reports PulseAudio route readiness separately. Restart returns failure without a second start if stop cannot acquire the lifecycle lock. Local focused suite passed 144/144 after these changes; no live session restart or updated-package lifecycle run was performed.",
         "Read-only native Termux status on 2026-11-10 reports Overall running, Termux:X11 running, PulseAudio running, launcher present, managed PID 16987. `ternux doctor --json` passes guest/system prerequisites but does not probe active XFCE readiness; no session, app, audio service, or installed files were restarted or changed. This does not close updated-package stop/crash recovery.",
         "Read-only source-module `status --json` on 2026-11-10 14:09 UTC reports lifecycle READY, functional X11, and `pulseaudio_ready=yes`; no desktop stop/restart was performed. Current `tests/focused.sh` passes 145/145, including lifecycle fixtures; physical stop/crash recovery on the updated installed package remains unverified.",
-        "Live native status at 2026-11-10 14:36 UTC reports running, functional X11, PulseAudio running, managed PID 16987. Current source lib/desktop.sh SHA-256 b3f0753a771f54c2c337310b2f23485926c9fded314ace818d76828c96af8ea3 differs from installed $PREFIX/lib/ternux/desktop.sh SHA-256 02c5f6175f45c94c4ec68f323294f1c633bd7e4f501430b243f72132ed0950cb; do not count this old session as updated-package lifecycle verification. Live GUI was left running."
+        "Live native status at 2026-11-10 14:36 UTC reports running, functional X11, PulseAudio running, managed PID 16987. Current source lib/desktop.sh SHA-256 b3f0753a771f54c2c337310b2f23485926c9fded314ace818d76828c96af8ea3 differs from installed $PREFIX/lib/ternux/desktop.sh SHA-256 02c5f6175f45c94c4ec68f323294f1c633bd7e4f501430b243f72132ed0950cb; do not count this old session as updated-package lifecycle verification. Live GUI was left running.",
+        "Live device read-only recheck 2026-11-10 15:31 UTC: installed and source-module status report READY with X11/PulseAudio; verify passes. Current desktop.sh source hash b3f0753a differs from installed hash 02c5f617; no stop/restart performed, so updated-package recovery remains open."
       ],
       "required_tests": [
         "overlap/start-stop/crash-recovery fixtures",
@@ -188,7 +189,8 @@
         "Exact-head Validate 42707570617 passed the generic-wrapper isolation regression. Full XFCE/app smoke under the updated launcher remains open.",
         "2026-11-10 source-module device check: TERNUX_LIB_DIR=$PWD/lib TERNUX_JSON=1 bash bin/ternux verify --json returned passed; termux-x11, proot-distro, PulseAudio, setsid, launcher, Debian services and Turnip were present/ok. No GUI/service restart.",
         "Optional Hermes/OpenClaw setup now downloads first-party bootstrap scripts to a unique temporary file, enforces HTTPS and a 2 MB cap, syntax-checks, verifies a reviewed SHA-256, and runs only the pinned product version/commit. Pins: Hermes v0.23.1 commit 3b421578588243f920886e6fe79a6faa87ea026e, SHA-256 abf338605dae6dd28d101673ac6aed7995c955745db46d47676bc591a7957209; OpenClaw v2026.11.2, SHA-256 5b46a876404005229ee62fc2615ddeb1c3f510a434ced47dbbed06b93849c704. tests/pinned_optional_installers.sh verifies execution, mismatch rejection, host allowlisting, and staging cleanup; it is wired into CI.",
-        "Current-main `bash tests/focused.sh` passed 145/145, including generic guest HOME isolation and `/sdcard` preservation regressions. Device status confirms the running desktop only; full GUI/app smoke through a newly installed package remains unverified, and no service was restarted."
+        "Current-main `bash tests/focused.sh` passed 145/145, including generic guest HOME isolation and `/sdcard` preservation regressions. Device status confirms the running desktop only; full GUI/app smoke through a newly installed package remains unverified, and no service was restarted.",
+        "Read-only current-source verify passes on Android 16 / Xiaomi 25053RT47C; prior guest tests verify /sdcard preservation and Termux HOME isolation. Full visual/app smoke against a newly installed package remains unverified."
       ],
       "required_tests": [
         "verify generated generic aliases preserve /sdcard and shared tmp while excluding Termux HOME",
@@ -316,7 +318,8 @@
         "The automatic Pages run 42816692044 after PR #103 was cancelled while actions/deploy-pages was running. Pages deployment history API returned 404; post-cancellation publication state is unverified and the release must not rely on it.",
         "After cancellation of Pages run 42816692044, direct HTTP GET rechecks still returned 404 for apt/bootstrap.sh, apt/ternux-archive-key.asc, apt/dists/stable/InRelease, and apt/dists/stable/main/binary-all/Packages. The website root returns 200; the separate APT repository remains unpublished.",
         "Non-deploy signing verification workflow run 42831035262 passed on exact main commit 97e2ac6524d2b206d6e24c0e813f9656eda13941: signed repository build and verification succeeded, ephemeral key material was removed, and website build/upload/deploy steps were skipped. Fresh direct checks still return HTTP 404 for the four canonical APT URLs; public installation remains blocked.",
-        "Fresh HTTPS GET recheck 2026-11-10 14:37 UTC: apt/bootstrap.sh, apt/ternux-archive-key.asc, apt/dists/stable/InRelease, and apt/dists/stable/main/binary-all/Packages each returned HTTP 404; website root returned 200. No publication was performed."
+        "Fresh HTTPS GET recheck 2026-11-10 14:37 UTC: apt/bootstrap.sh, apt/ternux-archive-key.asc, apt/dists/stable/InRelease, and apt/dists/stable/main/binary-all/Packages each returned HTTP 404; website root returned 200. No publication was performed.",
+        "Fresh HTTPS GET at 2026-11-10 15:30 UTC: canonical bootstrap, archive key, InRelease, and Packages endpoints each returned HTTP 404. No publication was run; release_approved remains false."
       ],
       "required_tests": [
         "signed repository publish after approval",
@@ -344,7 +347,9 @@
         "Exact PR head 8041c33939fc00639fe3296779ba840a352f82a3 passed unsigned Termux package build/inspection (run 42792958963); this does not prove clean installation from the unavailable hosted APT source.",
         "Current main bdae6d70c9015f6893bad4f81f79e3f1e059e41d package-artifact workflow run 42813902395 passed; hosted APT clean install/upgrade/uninstall remains unverified because its canonical endpoints return 404.",
         "Current main exact-SHA package artifact workflow run 42828693381 passed on 97e2ac6524d2b206d6e24c0e813f9656eda13941. The current-main local update transaction suite also passed; clean native Termux APT install/upgrade/uninstall remains unverified while the public endpoints return HTTP 404.",
-        "Current main exact-SHA package artifact run 42833554364 succeeded on 55936a0fdd2c9790fe6bf746092fd562e5fa09a1. Hosted signed APT endpoints still return HTTP 404, so clean native repository install/upgrade/uninstall are NOT_TESTED."
+        "Current main exact-SHA package artifact run 42833554364 succeeded on 55936a0fdd2c9790fe6bf746092fd562e5fa09a1. Hosted signed APT endpoints still return HTTP 404, so clean native repository install/upgrade/uninstall are NOT_TESTED.",
+        "Native dpkg-query reports ternux 2.0.0 installed and dpkg -V reports no changed packaged files; this is not a clean install/update/repair/uninstall test. Native PREFIX mutation was outside the execution sandbox writable scope.",
+        "Exact-main package artifact run 42842486265 produced unsigned-CI artifact ID 13776242896 (2.0.0, Architecture: all); .deb SHA-256 596a6bde0134372ac8c2233a6d8a4d80a73e93c0125b1cd558d4de26efe6b1b0 matches its sidecar. Extracted desktop.sh, extension.sh, and workload-registry.sh match the PR #116 source. This is content-integrity evidence, not a native package lifecycle test."
       ],
       "required_tests": [
         "clean install/update/repair/uninstall in native Termux",
@@ -500,5 +505,5 @@
       "release_exclusion": "Qualify only the documented Redmi Turbo 4 Pro / SM8735 target; all other device-specific acceleration remains unqualified."
     }
   ],
-  "observed_head_commit": "97e2ac6524d2b206d6e24c0e813f9656eda13941"
+  "observed_head_commit": "bacb6dc35246deccb6473fb6ba4737b0e9b244b5"
 }
