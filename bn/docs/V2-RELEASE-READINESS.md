@@ -7,7 +7,7 @@ alt_url: "/docs/V2-RELEASE-READINESS.html"
 **অবস্থা: NOT_READY**
 **Audit date:** 2026-11-11
 **লক্ষ্য:** Ternux 2.0.0
-**বর্তমান `main`:** `f35fd95f60731c7d4638099285b7b314f459f4d2`
+**Audit baseline `main`:** `f35fd95f60731c7d4638099285b7b314f459f4d2`
 **সর্বশেষ stable release:** v1.4.0; v2.0.0 tag বা release নেই।
 **Machine gate:** ১৯টি gate-এর মধ্যে P1-01, P1-03, P1-04, P1-APT, P1-PKG—এই পাঁচটি release-blocking gate অসম্পূর্ণ।
 
@@ -19,7 +19,7 @@ alt_url: "/docs/V2-RELEASE-READINESS.html"
 
 Audit শুরুতে পরিষ্কার `main` ছিল `bcf363e10bc52a87fe2806a28f44dfdd220cf98f`। Open PR #137 ছিল CI-generated `.repo/` state update। সেখানে `Repo Knowledge Sync` first-run approval-এর অপেক্ষায় থাকলেও branch-filtered API query run-টি খুঁজে পায়নি, ফলে workflow timeout হয়। PR #138-এ unfiltered সাম্প্রতিক ১০০টি run থেকে exact SHA/branch মেলানো হয়েছে; bounded polling-সহ সব দরকারি check পাস করে এটি `5d4be243e8d3` হিসেবে merge হয়েছে। এরপর generated-state PR #137 check পাস করে `aff6aae40f8fa22bfe76a2a91e56f1ee10c51b60` হিসেবে merge হয়েছে। `.repo/` হাতে edit করা হয়নি।
 
-PR #139 storage privacy implement করে সব required check পাসের পর `eaf97fc514c045193e7ef5968a95d1b26c449f9c` হিসেবে merge হয়েছে। Generated-state PR #140 সব check পাস করে `3c03dffa4ba07a2c0355613560c0768b45022c96` হিসেবে merge হয়েছে। এই audit PR #141 (`2763bac0cde5f38e2d3009eb236db2a89606f1c1`) এবং generated-state PR #142 (`f35fd95f60731c7d4638099285b7b314f459f4d2`) merge হয়েছে। Session-এর শুরুতে যাচাইকৃত SKB checkout-এ আগের dirty change ছিল; সেটি স্পর্শ করা হয়নি। অন্য কোনো active agent কাজ ছিল না। Open PR #42, #44, #45 Dependabot action update; PR #35 owner-review-এর licensing proposal, merge করা হয়নি।
+PR #139 storage privacy implement করে সব required check পাসের পর `eaf97fc514c045193e7ef5968a95d1b26c449f9c` হিসেবে merge হয়েছে। Generated-state PR #140 সব check পাস করে `3c03dffa4ba07a2c0355613560c0768b45022c96` হিসেবে merge হয়েছে। এই audit PR #141 (`2763bac0cde5f38e2d3009eb236db2a89606f1c1`) এবং generated-state PR #142 (`f35fd95f60731c7d4638099285b7b314f459f4d2`) merge হয়েছে। Follow-up PR #143-তে bounded CPU/Vulkan model profile ও 90-day package-artifact retention নথিবদ্ধ; current-main merge `30bea68ff4440a97fc98a3f2c8b4d041e13c15f8`। Generated-state PR #144 check পাস করে `de52efcf5d4666dfa872c248d9370607a209c1ed` হিসেবে merge হয়েছে। Session-এর শুরুতে যাচাইকৃত SKB checkout-এ আগের dirty change ছিল; সেটি স্পর্শ করা হয়নি। অন্য কোনো active agent কাজ ছিল না। Open PR #42, #44, #45 Dependabot action update; PR #35 owner-review-এর licensing proposal, merge করা হয়নি।
 
 ## Finding-ভিত্তিক অবস্থা
 
@@ -37,7 +37,7 @@ PR #139 storage privacy implement করে সব required check পাসে�
 | P1-07 HTP/HMX | **PARTIAL; experimental, release-excluded** | Numerical/operator failure বাকি; failing operator stable default নয়, production claim নেই। |
 | P1-08 QNN Stable Diffusion | **PARTIAL; research-only, release-excluded** | Stage-tensor correctness ও production qualification বাকি। |
 | P1-APT public repository | **BLOCKED** | 2026-11-11-এ bootstrap, archive key, `InRelease`, `Packages`—চারটি public path-ই 404। Signed publication, hosted verification ও clean Termux install/upgrade/uninstall বাকি। |
-| P1-PKG native package lifecycle | **PARTIAL** | Exact-main unsigned package artifact CI-তে তৈরি হয়। Native clean install, upgrade, repair ও uninstall যাচাই বাকি। |
+| P1-PKG native package lifecycle | **PARTIAL** | Current-main package artifact run `42906685681` থেকে artifact `13805237072` তৈরি হয়েছে; নতুন policy অনুযায়ী 2027-02-08 পর্যন্ত retained। Native clean install, upgrade, repair ও uninstall যাচাই বাকি। |
 | P1-DOCS | **source documentation-এ COMPLETE** | README, CLI, install, usage, security, accelerator, release-readiness English ও Bengali-তে আপডেট। Pages publication explicit main-only deployment workflow দিয়ে হয়। |
 | P2-01 installer modularization | **NOT_STARTED; non-blocking** | Qualification চলাকালে বড় refactor এড়িয়ে incremental কাজ রাখুন। |
 | P2-02 test decomposition | **PARTIAL; non-blocking** | Focused regression বেড়েছে; `tests/focused.sh` এখনো বড়। |

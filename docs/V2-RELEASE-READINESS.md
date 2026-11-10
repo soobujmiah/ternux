@@ -7,7 +7,7 @@ alt_url: "/bn/docs/V2-RELEASE-READINESS.html"
 **Status: NOT_READY**
 **Audit date:** 2026-11-11
 **Target:** Ternux 2.0.0
-**Current `main`:** `f35fd95f60731c7d4638099285b7b314f459f4d2`
+**Audited `main` baseline:** `f35fd95f60731c7d4638099285b7b314f459f4d2`
 **Latest stable release:** v1.4.0; no v2.0.0 tag or release exists.
 **Machine gates:** 19 gates; five release-blocking gates remain incomplete: P1-01, P1-03, P1-04, P1-APT, P1-PKG.
 
@@ -19,7 +19,7 @@ Do not publish v2.0.0 yet. The generated-state CI timeout is fixed and Android s
 
 The audit began with a clean `main` at `bcf363e10bc52a87fe2806a28f44dfdd220cf98f`. Open PR #137 was a CI-generated `.repo/` state update. It had three checks registered while the `Repo Knowledge Sync` run waited for first-run approval; the workflow's branch-filtered API query hid that fourth run and timed out. PR #138 fixed discovery, bounded polling to one newest-100 API page, passed all required checks, and merged as `5d4be243e8d3`. Its main-triggered state PR #137 then passed its exact-head checks and merged as `aff6aae40f8fa22bfe76a2a91e56f1ee10c51b60`. No `.repo/` files were edited by hand.
 
-PR #139 implemented storage privacy and merged with all required checks as `eaf97fc514c045193e7ef5968a95d1b26c449f9c`. The generated-state PR #140 passed its checks and merged as `3c03dffa4ba07a2c0355613560c0768b45022c96`. This audit update merged as PR #141 (`2763bac0cde5f38e2d3009eb236db2a89606f1c1`), followed by generated-state PR #142 (`f35fd95f60731c7d4638099285b7b314f459f4d2`). The verified SKB checkout was dirty at session start and was left untouched; no other active agent work was present. Open PRs #42, #44 and #45 are Dependabot action updates; PR #35 is an owner-review licensing proposal and was not merged.
+PR #139 implemented storage privacy and merged with all required checks as `eaf97fc514c045193e7ef5968a95d1b26c449f9c`. The generated-state PR #140 passed its checks and merged as `3c03dffa4ba07a2c0355613560c0768b45022c96`. This audit update merged as PR #141 (`2763bac0cde5f38e2d3009eb236db2a89606f1c1`), followed by generated-state PR #142 (`f35fd95f60731c7d4638099285b7b314f459f4d2`). Follow-up PR #143 recorded the bounded CPU/Vulkan model profile and 90-day package-artifact retention; its current-main merge is `30bea68ff4440a97fc98a3f2c8b4d041e13c15f8`. Generated-state PR #144 then passed checks and merged as `de52efcf5d4666dfa872c248d9370607a209c1ed`. The verified SKB checkout was dirty at session start and was left untouched; no other active agent work was present. Open PRs #42, #44 and #45 are Dependabot action updates; PR #35 is an owner-review licensing proposal and was not merged.
 
 ## Finding reconciliation
 
@@ -37,7 +37,7 @@ PR #139 implemented storage privacy and merged with all required checks as `eaf9
 | P1-07 HTP/HMX | **PARTIAL; experimental and release-excluded** | Known numerical/operator failures remain. Failing operators are not stable defaults; no production claim is made. |
 | P1-08 QNN Stable Diffusion | **PARTIAL; research-only and release-excluded** | Stage-tensor reference correctness and production qualification are incomplete. |
 | P1-APT public repository | **BLOCKED** | On 2026-11-11 all four public paths returned 404: bootstrap, archive key, `InRelease`, and `Packages`. Signed publication, hosted verification, and clean Termux install/upgrade/uninstall remain. |
-| P1-PKG native package lifecycle | **PARTIAL** | Exact-main unsigned package artifact builds in CI. Native clean install, upgrade, repair and uninstall remain unverified. |
+| P1-PKG native package lifecycle | **PARTIAL** | Current-main package artifact run `42906685681` produced artifact `13805237072`, retained until 2027-02-08 under the new 90-day policy. Native clean install, upgrade, repair and uninstall remain unverified. |
 | P1-DOCS | **COMPLETE for source documentation** | README, CLI, install, usage, security, accelerator and release-readiness docs are updated in English and Bengali. Pages publication uses the explicit main-only deployment workflow. |
 | P2-01 installer modularization | **NOT_STARTED; non-blocking** | Keep future work incremental; avoid a broad refactor during qualification. |
 | P2-02 test decomposition | **PARTIAL; non-blocking** | Focused regressions expanded; `tests/focused.sh` remains large. |
@@ -61,7 +61,9 @@ PR #139 implemented storage privacy and merged with all required checks as `eaf9
 - On-device Llama 3.2 3B CPU/Vulkan bounded sustained-generation evidence and the tested profile exclusions are recorded in the accelerator plan and benchmark guide.
 - Bash syntax checks, `git diff --check`, and JSON parsing: pass.
 - PR #139 head `53344d9a69a7f7a3019b10840a7495aaf56f548d`: Validate `42897454459`, unsigned package artifact `42897454586`, repo-contract `42897311193` and `42897454513`, Repo Knowledge Sync/test `42897454842`: all passed.
-- Current-main `verify-signing` workflow `42902118784` passed on `f35fd95f60731c7d4638099285b7b314f459f4d2`; the publish job was skipped. The four public APT endpoints still return 404.
+- Current-main `verify-signing` workflow `42902118784` passed on the audited baseline `f35fd95f60731c7d4638099285b7b314f459f4d2`; the publish job was skipped. The four public APT endpoints still return 404.
+- PR #143 head `fe2a990af4c335e834c1eba8a99bffa616706096` passed Validate `42906330663`, unsigned package build `42906330771`, repo-contract `42906330855`, and Repo Knowledge Sync/test `42906330849`. Its main push produced the retained artifact listed above.
+- Generated-state PR #144 passed Validate `42906921938`, package artifact `42906921774`, repo-contract `42906921815`, and Repo Knowledge Sync/test `42906921733`; merged as `de52efcf5d4666dfa872c248d9370607a209c1ed`.
 - Exact product head `eaf97fc514c045193e7ef5968a95d1b26c449f9c`: Validate `42897720583`, unsigned package artifact `42897720810`, Repository State Contract `42897720730`, Repo Knowledge Sync `42897720595`: all passed.
 - Main package artifact run `42901133225` produced reusable CI artifact `13801733817`; this is unsigned build evidence, not a native package lifecycle test.
 - Generated-state PR #140 head `e8754415c25fce38ab9bfd7011e990a5000b7fb8` passed Validate `42898005440`, unsigned package artifact `42898005215`, repo-contract `42898005314`, and Repo Knowledge Sync/test `42898005386`; merged as `3c03dffa4ba07a2c0355613560c0768b45022c96`.
