@@ -431,9 +431,9 @@
       "issue_id": "P2-03",
       "severity": "P2",
       "owner": "engineering",
-      "status": "PARTIAL",
+      "status": "COMPLETE",
       "source_status": "PASS",
-      "ci_status": "PENDING",
+      "ci_status": "PASS",
       "device_status": "N_A",
       "evidence": [
         "packaging/workloads.schema.json",
@@ -451,7 +451,7 @@
         "One workload schema records versions, architecture, backend, dependencies, provenance, licenses, permissions, verification, cleanup and experimental state."
       ],
       "release_blocking": false,
-      "release_exclusion": "Non-blocking; exact-head CI and merge remain before marking complete."
+      "release_exclusion": null
     },
     {
       "phase": "Stage 4",
