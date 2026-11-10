@@ -9,9 +9,15 @@ alt_url: "/bn/docs/V2-RELEASE-READINESS.html"
 
 **Audit date:** 2026-11-10
 
-**Release tag/publication:** not created
+**Ternux v2.0.0 tag/publication:** not created
 
 **Active pull request:** [#97](https://github.com/soobujmiah/ternux/pull/97), draft
+
+### Continuation snapshot — 2026-11-10
+
+Current PR head is `a5bb1c14ffdd94514ea1157335821ff873d4d764`, 172 commits ahead of `main` (`8e24062589e81c20095c875fa4d19dd5cb928554`); GitHub still reports 576 changed files, draft state, and `REVIEW_REQUIRED`. All five required checks pass on this exact head: Validate `42789181678`, Termux APT package `42789181372`, repository contract `42789181989`, and Repo Knowledge Sync `42789184215` (`sync` and `test`).
+
+The public experimental HTP prerelease exists but still serves its older 2026-10-13 archive (SHA-256 `dffcf83fa969f3ccfad238217b4ca7f3d47040e5e5b2fa834ebd3f123d144ea5`). The latest retained candidate is run `42783356495`, artifact `13747701121`, archive SHA-256 `a139a6248356a44e89348ddbe1334edaad33f81a9efbe8f5b8fe3c5733dcf3de` (15,691,323 bytes), retained through 2027-02-08. Its checksum was verified by downloading the artifact and checking the sidecar. Once the PR is integrated, the main-only publisher can reuse this run to update the existing experimental prerelease without another compile. This does not qualify HTP for stable support.
 
 This report separates source and CI evidence from physical-device qualification. A green build does not establish release readiness for the GPU, desktop, package installation, or accelerator workloads.
 
@@ -211,4 +217,4 @@ HTP/HMX and QNN remain experimental/research-only until their numerical or stage
 
 ## Final recommendation
 
-**NOT_READY.** P0-01, P0-03, and P1-05 are complete, but eight release-blocking gates remain incomplete. All eight build/test workflows passed on product commit `f4bb945576f03a9d8979d7d89553660471dafbaf`. On latest validated PR head `6fd2772`, Validate `42783758067`, Termux APT package `42783758176`, Repository State Contract `42783758291`, and Repo Knowledge Sync `42783758217` passed. Four manual artifact refresh runs passed provenance/checksum checks, skipped builds and publishers, and extended the exact artifacts through 2027-02-08. This proves source/build checks, not public repository availability, installed-package migration, live updated-desktop lifecycle, or owner review. No v2 tag, release, package publication, PR merge, or live desktop restart was performed. The `main` branch-protection settings were changed as authorized and verified. Only the repository owner can authorize the actual release.
+**NOT_READY.** P0-01, P0-03, and P1-05 are complete, but eight release-blocking gates remain incomplete. All eight build/test workflows passed on product commit `f4bb945576f03a9d8979d7d89553660471dafbaf`. On the current exact PR head `a5bb1c14ffdd94514ea1157335821ff873d4d764`, all five required checks passed: Validate `42789181678`, Termux APT package `42789181372`, Repository State Contract `42789181989`, and Repo Knowledge Sync `42789184215` (`sync` and `test`). Four manual artifact refresh runs passed provenance/checksum checks, skipped builds and publishers, and extended the exact artifacts through 2027-02-08. This proves source/build checks, not public repository availability, installed-package migration, live updated-desktop lifecycle, or owner review. No v2.0.0 tag/release, v2 APT package publication, PR merge, or live desktop restart was performed. The optional HTP prerelease still has its older asset; the latest retained archive checksum and no-rebuild reuse path are recorded above. The `main` branch-protection settings were changed as authorized and verified. Only the repository owner can authorize the actual release.

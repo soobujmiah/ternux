@@ -734,3 +734,14 @@ GitHub Release asset নয়; merge-এর পর distribution দরকার
 
 
 Artifact-reuse workflow commit `89802f73408a1638221c0b3f62c26d212385b2ea` Validate `42779265831`, Termux APT `42779265743`, Repository State Contract `42779266172`, এবং Repo Knowledge Sync `42779266194` pass করেছে। ওই PR update-এ accelerator build চলেনি।
+
+
+Public HTP prerelease-এ এখনো পুরোনো ২০২৬-১০-১৩ archive আছে: SHA-256
+`dffcf83fa969f3ccfad238217b4ca7f3d47040e5e5b2fa834ebd3f123d144ea5`, ১৫,৫১৯,৬৩১
+byte। Retained latest candidate Actions run `42783356495`, artifact `13747701121`,
+২০২৭-০২-০৮ পর্যন্ত আছে; downloaded archive-এর sidecar যাচাইয়ে SHA-256
+`a139a6248356a44e89348ddbe1334edaad33f81a9efbe8f5b8fe3c5733dcf3de` এবং size
+১৫,৬৯১,৩২৩ byte মেলে। PR #97 integrate হওয়ার পর main-only publisher এই run ID
+নিয়ে existing prerelease-এ latest archive দিতে পারবে, rebuild লাগবে না। Exact
+artifact-এর device qualification ও প্রযোজ্য release gate pass না হওয়া পর্যন্ত
+public asset refresh করা হবে না।

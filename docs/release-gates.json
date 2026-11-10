@@ -46,10 +46,10 @@
       "ci_status": "PASS",
       "device_status": "N_A",
       "evidence": [
-        "PR #97 targets main; origin/main 8e24062589e81c20095c875fa4d19dd5cb928554 is an ancestor. Current head 6fd2772e4245be0069bf8777ee00c01a16c51aac is 169 commits ahead; GitHub reports 576 changed files. PR remains open/draft and is blocked only by REVIEW_REQUIRED; no reviews have been submitted.",
-        "All eight build/test workflows passed on product commit f4bb945576f03a9d8979d7d89553660471dafbaf. Latest PR head 6fd2772 passed Validate 42783758067; Termux APT package 42783758176; repository contract 42783758291; knowledge sync 42783758217.",
-        "Four source-run refresh workflows passed provenance/checksum checks, skipped all compile and publish jobs, and extended exact-artifact retention through 2027-02-08.",
-        "Release readiness remains NOT_READY with eight incomplete blockers; branch review/integration is not complete."
+        "PR #97 targets main; origin/main 8e24062589e81c20095c875fa4d19dd5cb928554 is an ancestor. Current head a5bb1c14ffdd94514ea1157335821ff873d4d764 is 172 commits ahead; GitHub reports 576 changed files. PR remains open/draft and requires owner/CODEOWNERS review; no review has been submitted.",
+        "All five required checks pass on exact PR head a5bb1c14ffdd94514ea1157335821ff873d4d764: Validate 42789181678; Termux APT package 42789181372; repository contract 42789181989; Repo Knowledge Sync 42789184215 (sync and test).",
+        "Four source-run refresh workflows passed provenance/checksum checks, skipped compilation and publication, and extended exact-artifact retention through 2027-02-08. HTP candidate run 42783356495 / artifact 13747701121 was downloaded and its sidecar SHA-256 verified as a139a6248356a44e89348ddbe1334edaad33f81a9efbe8f5b8fe3c5733dcf3de (15,691,323 bytes).",
+        "The existing public HTP prerelease still serves its older 2026-10-13 archive (SHA-256 dffcf83fa969f3ccfad238217b4ca7f3d47040e5e5b2fa834ebd3f123d144ea5); main-only publication can reuse the retained run after integration without rebuilding. Release readiness remains NOT_READY with eight incomplete blockers."
       ],
       "required_tests": [
         "exact-head required CI",
@@ -96,7 +96,7 @@
       "device_status": "VERIFIED_ON_DEVICE",
       "evidence": [
         "lib/desktop.sh",
-        "Focused fixtures cover bounded functional X11 readiness, stale sockets, duplicate-start rejection, READY-state failure reporting, independent PulseAudio TCP-route readiness, and lifecycle stop/start/reuse/concurrency; 142/142 pass locally on 2026-11-10. Latest Validate 42783758067 passed these regressions on head 6fd2772.",
+        "Focused fixtures cover bounded functional X11 readiness, stale sockets, duplicate-start rejection, READY-state failure reporting, independent PulseAudio TCP-route readiness, and lifecycle stop/start/reuse/concurrency; 142/142 pass locally on 2026-11-10. Latest Validate 42783758067 passed these regressions on head 6fd2772. Exact current-head Validate 42789181678 passed.",
         "2026-11-10 source-module device check reused the existing desktop: TERNUX_LIB_DIR=$PWD/lib TERNUX_JSON=1 bash bin/ternux start --json returned already_running for PID 16987; subsequent source status reported READY, X11 functional, and pulseaudio_ready=yes. No stop, restart, app close, or installed-file replacement occurred.",
         "The previously installed CLI independently still reported running PID 16987. Updated-package controlled stop/crash recovery and managed identity remain unverified.",
         "Exact-head commit f4bb945576f03a9d8979d7d89553660471dafbaf passed all eight required CI workflows on 2026-11-10: Validate 42773827524; Termux APT 42773827442; repository contract 42773827490; knowledge sync 42773827401; llama CPU/Vulkan 42773827384; Stable Diffusion CPU/Vulkan 42773827441; HTP 42773827791; HTP/HMX candidate 42773827449."
@@ -198,9 +198,9 @@
       "ci_status": "PASS",
       "device_status": "N_A",
       "evidence": [
-        "Owner-authorized GitHub branch protection is active on main: strict required checks are Shell, behavior, and documentation; Build and inspect unsigned package artifact; repo-contract; test; sync.",
-        "Read-back confirms one approving review, CODEOWNERS review, stale-review dismissal, approval after the latest push, admin enforcement, conversation resolution, and force-push/deletion disabled.",
-        ".github/CODEOWNERS assigns @soobujmiah as default owner. PR #97 is still draft with REVIEW_REQUIRED and no reviews; this remaining integration/review is tracked by P0-02."
+        "Owner-authorized GitHub branch protection is active on main. Strict required checks are Shell, behavior, and documentation; Build and inspect unsigned package artifact; repo-contract; test; sync.",
+        "Live read-back confirms one approving review and CODEOWNERS review, dismissal of stale approvals, approval after latest push, admin enforcement, conversation resolution, force-push disabled, and deletion disabled.",
+        ".github/CODEOWNERS assigns @soobujmiah as default owner. PR #97 is still draft with REVIEW_REQUIRED and no submitted reviews; this remaining integration/review is tracked by P0-02."
       ],
       "required_tests": [
         "read back branch protection and required contexts",
@@ -296,7 +296,7 @@
         "Exact-head unsigned Termux package artifact passed run 42707570582; protected-key non-deploy signing verification passed earlier on main.",
         "2026-11-10 direct checks of canonical GitHub Pages URLs apt/bootstrap.sh, apt/ternux-archive-key.asc, apt/dists/stable/InRelease, and apt/dists/stable/main/binary-all/Packages each returned HTTP 404; native Termux has Ternux 2.0.0 installed without a Ternux APT source.",
         "Ordinary Pages deploy previously uploaded only the Astro site and could erase a published /apt tree. New preserve-pages-apt.sh verifies the pinned archive key, signed InRelease, Release index hashes/sizes, and every package hash/size before copying the existing signed tree; deployment fails closed on partial publication or integrity errors. Exact-head Validate 42707570617 on e1212bbc10078ec761dd5911f7858dbdc9b22c19 passed the signed-fixture integration test for first publish, valid preservation, partial publication, package tampering, and signed path traversal.",
-        "Latest exact PR head 6fd2772 passed Validate 42783758067 and the unsigned Termux package build/inspection 42783758176; hosted signed APT endpoints still return 404 and no deployment was performed."
+        "Latest exact PR head a5bb1c14ffdd94514ea1157335821ff873d4d764 passed Validate 42789181678 and unsigned Termux package build/inspection 42789181372; hosted signed APT endpoints still return 404 and no deployment was performed."
       ],
       "required_tests": [
         "signed repository publish after approval",
@@ -321,7 +321,7 @@
       "evidence": [
         "Exact-head unsigned Termux package build/inspection passed run 42707570582.",
         "Native `dpkg-query` confirms ternux 2.0.0 is installed; public APT source is absent, so clean repository install/upgrade/uninstall remains unverified.",
-        "Latest exact PR head 6fd2772 passed the unsigned Termux package build/inspection (run 42783758176); this does not prove clean install from the unavailable hosted APT source."
+        "Latest exact PR head a5bb1c14ffdd94514ea1157335821ff873d4d764 passed unsigned Termux package build/inspection (run 42789181372); this does not prove clean installation from the unavailable hosted APT source."
       ],
       "required_tests": [
         "clean install/update/repair/uninstall in native Termux",
@@ -349,7 +349,7 @@
         "docs/USAGE.md",
         "docs/V2-RELEASE-READINESS.md",
         "On exact report-only head b5cf839bdb5597392022ec21438cc45b9cf4e83c, Validate 42712474036 passed; local docs check passed 3041 assertions, 312 internal links and 20 bilingual page pairs; repo knowledge verify returned zero findings. Native package lifecycle and owner release review remain open.",
-        "Latest report head 6fd2772 passed Validate 42783758067, Termux APT package 42783758176, Repository State Contract 42783758291, and Repo Knowledge Sync 42783758217. Owner release review remains open."
+        "Latest exact report head a5bb1c14ffdd94514ea1157335821ff873d4d764 passed Validate 42789181678, Termux APT package 42789181372, Repository State Contract 42789181989, and Repo Knowledge Sync 42789184215 (sync and test). Owner release review remains open."
       ],
       "required_tests": [
         "version/package/tag/release metadata audit",
@@ -473,5 +473,5 @@
       "release_exclusion": "Qualify only the documented Redmi Turbo 4 Pro / SM8735 target; all other device-specific acceleration remains unqualified."
     }
   ],
-  "observed_head_commit": "6fd2772e4245be0069bf8777ee00c01a16c51aac"
+  "observed_head_commit": "a5bb1c14ffdd94514ea1157335821ff873d4d764"
 }
