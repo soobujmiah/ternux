@@ -41,40 +41,53 @@ cleanup() { rm -rf -- "$tmp"; }
 trap cleanup EXIT INT TERM
 
 # Pages may briefly return 5xx responses while its edge is updating. Retry
-# transient network/server errors, while still treating 4xx and repository
+# transient network/server errors, while treating 4xx and repository
 # verification failures as final errors.
-curl_retry=(--retry 4 --retry-all-errors --retry-delay 2 --retry-max-time 30)
+request() {
+  local path=$1 output=$2 max_size=$3 response attempt curl_status
+  for attempt in 1 2 3 4 5; do
+    curl_status=0
+    response="$(curl --silent --show-error --location --connect-timeout 15 --max-time 120 \
+      --max-filesize "$max_size" "${curl_proto[@]}" \
+      --output "$output" --write-out '%{http_code}' "$base_url/$path")" || curl_status=$?
+    if ((curl_status == 0)) && [[ ! "$response" =~ ^5[0-9][0-9]$ ]]; then
+      REQUEST_CODE=$response
+      return 0
+    fi
+    if ((attempt < 5)); then sleep "$attempt"; fi
+  done
+  if ((curl_status != 0)); then
+    printf 'Network error retrieving published APT path %s after %s attempts (curl exit %s).\n' \
+      "$path" "$attempt" "$curl_status" >&2
+  else
+    printf 'Transient HTTP %s retrieving published APT path %s after %s attempts.\n' \
+      "$response" "$path" "$attempt" >&2
+  fi
+  return 1
+}
 
 fetch() {
-  local path=$1 output=$2 max_size=${3:-10485760} code
-  code="$(curl "${curl_retry[@]}" --silent --show-error --location --connect-timeout 15 --max-time 120 \
-    --max-filesize "$max_size" "${curl_proto[@]}" \
-    --output "$output" --write-out '%{http_code}' "$base_url/$path")" || {
-    printf 'Network error while retrieving published APT path: %s\n' "$path" >&2
-    return 1
-  }
-  if [[ "$code" != 200 ]]; then
-    printf 'Expected HTTP 200 for published APT path %s; received %s.\n' "$path" "$code" >&2
+  local path=$1 output=$2 max_size=${3:-10485760}
+  request "$path" "$output" "$max_size" || return 1
+  if [[ "$REQUEST_CODE" != 200 ]]; then
+    printf 'Expected HTTP 200 for published APT path %s; received %s.\n' "$path" "$REQUEST_CODE" >&2
     return 1
   fi
 }
 
 # A 404 is the expected state before the first signed repository publication.
-code="$(curl "${curl_retry[@]}" --silent --show-error --location --connect-timeout 15 --max-time 120 \
-  --max-filesize 10485760 "${curl_proto[@]}" \
-  --output "$tmp/InRelease" --write-out '%{http_code}' \
-  "$base_url/dists/stable/InRelease")" || {
+if ! request dists/stable/InRelease "$tmp/InRelease" 10485760; then
   printf 'Could not check the currently published APT repository.\n' >&2
   exit 1
-}
+fi
+code=$REQUEST_CODE
 if [[ "$code" == 404 ]]; then
   for companion in ternux-archive-key.asc bootstrap.sh; do
-    companion_code="$(curl "${curl_retry[@]}" --silent --show-error --location --connect-timeout 15 --max-time 120 \
-      --max-filesize 1048576 "${curl_proto[@]}" \
-      --output /dev/null --write-out '%{http_code}' "$base_url/$companion")" || {
+    if ! request "$companion" /dev/null 1048576; then
       printf 'Could not confirm that no prior APT repository is published.\n' >&2
       exit 1
-    }
+    fi
+    companion_code=$REQUEST_CODE
     if [[ "$companion_code" != 404 ]]; then
       printf 'Published APT paths are inconsistent (InRelease=404, %s=%s); refusing website deploy.\n' \
         "$companion" "$companion_code" >&2

@@ -30,7 +30,7 @@ class QuietHandler(http.server.SimpleHTTPRequestHandler):
     def log_message(self, *_args):
         pass
     def do_GET(self):
-        if self.path.endswith("/dists/stable/InRelease") and self.path not in self.transient_503_seen:
+        if (self.path.endswith("/dists/stable/InRelease") or self.path.endswith("/ternux-archive-key.asc")) and self.path not in self.transient_503_seen:
             self.transient_503_seen.add(self.path)
             self.send_response(503)
             self.end_headers()
