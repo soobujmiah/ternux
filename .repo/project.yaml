@@ -1,13 +1,13 @@
 schema_version: 1
 project_id: ternux
 repository: soobujmiah/ternux
-generated_at: '2026-11-07T15:40:05Z'
+generated_at: '2026-11-10T11:46:13Z'
 generated_by: tools/repo_knowledge collect
-version: ternux-stable-diffusion-vulkan-linux-arm64-master-1053-88-gaadc925
+version: ternux-stable-diffusion-vulkan-linux-arm64-master-1053-279-gd697fda
 head:
-  commit: aadc9255ca10f93476fdbda13f673c2465beae7d
+  commit: d697fdac605549ba1548239c925d539bca2a0195
   branch: main
-  committed_at: '2026-11-07T15:39:09Z'
+  committed_at: '2026-11-10T11:42:04Z'
 phases:
   source: not_configured
   completed: []
@@ -15,34 +15,34 @@ phases:
   next: null
 build:
   status: passed
-  run_id: '42387413846'
-  commit: aadc9255ca10f93476fdbda13f673c2465beae7d
+  run_id: '42809926057'
+  commit: d697fdac605549ba1548239c925d539bca2a0195
   run_attempt: '1'
-  at: '2026-11-07T15:40:05Z'
+  at: '2026-11-10T11:46:13Z'
   timestamp_source: observed
   workflow_name: Repo Knowledge Sync
-  event_type: push
+  event_type: workflow_dispatch
   actor: soobujmiah
-  run_url: https://github.com/soobujmiah/ternux/actions/runs/42387413846
+  run_url: https://github.com/soobujmiah/ternux/actions/runs/42809926057
 test:
   status: passed
-  run_id: '42387413846'
-  commit: aadc9255ca10f93476fdbda13f673c2465beae7d
+  run_id: '42809926057'
+  commit: d697fdac605549ba1548239c925d539bca2a0195
   run_attempt: '1'
-  at: '2026-11-07T15:40:05Z'
+  at: '2026-11-10T11:46:13Z'
   timestamp_source: observed
   workflow_name: Repo Knowledge Sync
-  event_type: push
+  event_type: workflow_dispatch
   actor: soobujmiah
-  run_url: https://github.com/soobujmiah/ternux/actions/runs/42387413846
+  run_url: https://github.com/soobujmiah/ternux/actions/runs/42809926057
   summary: focused regressions + Bats + UI + site build + docs + JavaScript syntax
     + whitespace + repo knowledge tests (ci.yml)
 last_successful_build:
-  commit: aadc9255ca10f93476fdbda13f673c2465beae7d
-  at: '2026-11-07T15:40:05Z'
-  run_id: '42387413846'
+  commit: d697fdac605549ba1548239c925d539bca2a0195
+  at: '2026-11-10T11:46:13Z'
+  run_id: '42809926057'
 last_failed_build: null
 sync:
   status: ok
-  last_synced_at: '2026-11-07T15:40:05Z'
+  last_synced_at: '2026-11-10T11:46:13Z'
   source: ci
