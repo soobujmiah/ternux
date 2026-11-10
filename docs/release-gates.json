@@ -55,7 +55,8 @@
         "Current exact product-source PR #127 merged as 5e41401dd60bf5261f6a638c62b4ad94eea98812. Exact PR checks passed: Validate 42859849676, package 42859849734, repo-contract 42859849685, Repo Knowledge Sync 42859849726 test/sync. Generated-state PR #126 merged as 0940a31e1a44d06442813c5c0061388b708877a1 with only .repo changes. Exact-main Validate 42863611485, package artifact 42863611730, Repository State Contract 42863611641 passed.",
         "Post-report reconciliation: PR #128 documentation/readiness update merged as d87919f18882016caa0a6d668d4bb770f0f1feb3; generated-state PR #129 merged as 68f14ba48a67829d3aaa09b799233f79f2f59cc8 with only .repo changes. Exact-main Validate 42867226542, unsigned package artifact 42867226104, and Repository State Contract 42867226155 all passed. Repo Knowledge Sync PR #129 checks (Validate 42866918007, package 42866918400, repo-contract 42866918105, sync/test 42866918304) passed before merge.",
         "Post-refresh exact main: report PR #130 merged as 56b8e628bb9318164260ceb831db15ec688dab4b; generated-state PR #131 merged as 926836fb7435cd62e695cf921a2d848fac319829 with only .repo changes. On exact main 926836f, Validate 42869979685, unsigned package artifact 42869979571, and Repository State Contract 42869979732 passed.",
-        "Latest exact-main SHA 159806ff395a34349086504ae3055ddef21ddbec passed Validate 42911714807, package artifact 42911714820, and Repository State Contract 42911714662. PR #147/#149 fix Pages 5xx preservation retries; generated-state PR #150 merged. No v2 release/tag exists."
+        "Latest exact-main SHA 159806ff395a34349086504ae3055ddef21ddbec passed Validate 42911714807, package artifact 42911714820, and Repository State Contract 42911714662. PR #147/#149 fix Pages 5xx preservation retries; generated-state PR #150 merged. No v2 release/tag exists.",
+        "Latest exact main 7bfac09c026ecd093da1e2ac1b7426bd36a6a0b5 (generated-state-only PR #152 after docs PR #151) passed Validate 42914923141, package artifact 42914923198, and Repository State Contract 42914923230. Product source remains the already tested 159806ff audit base."
       ],
       "required_tests": [
         "exact-head required CI",
@@ -381,7 +382,8 @@
         "Exact current-main unsigned package artifact run 42867226104 passed on merge commit 68f14ba48a67829d3aaa09b799233f79f2f59cc8. This is build/metadata evidence only; no clean native install/update/repair/uninstall was performed.",
         "Latest exact-main package artifact for the same product source was produced by run 42901133225, artifact ID 13801733817 (ternux-apt-unsigned-ci-2763bac0cde5f38e2d3009eb236db2a89606f1c1); its unsigned artifact job passed. This does not replace native install/upgrade/repair/uninstall on the updated package.",
         "Current-main artifact run 42906685681 produced artifact ID 13805237072 for the same product source; GitHub reports it retained through 2027-02-08 under the updated 90-day workflow policy. This still is not a native package lifecycle test.",
-        "Latest exact-main package artifact run 42911714820 passed on 159806ff395a34349086504ae3055ddef21ddbec. This session observes the existing desktop running, but its managed filesystem scope excludes native $PREFIX writes; no Termux package was changed and no native package lifecycle was claimed."
+        "Latest exact-main package artifact run 42911714820 passed on 159806ff395a34349086504ae3055ddef21ddbec. This session observes the existing desktop running, but its managed filesystem scope excludes native $PREFIX writes; no Termux package was changed and no native package lifecycle was claimed.",
+        "Post-reconciliation exact-main package artifact run 42914923198 passed on 7bfac09c026ecd093da1e2ac1b7426bd36a6a0b5; this remains CI package evidence and does not close native install/update/repair/uninstall."
       ],
       "required_tests": [
         "clean install/update/repair/uninstall in native Termux",
@@ -537,5 +539,5 @@
       "release_exclusion": "Qualify only the documented Redmi Turbo 4 Pro / SM8735 target; all other device-specific acceleration remains unqualified."
     }
   ],
-  "observed_head_commit": "159806ff395a34349086504ae3055ddef21ddbec"
+  "observed_head_commit": "7bfac09c026ecd093da1e2ac1b7426bd36a6a0b5"
 }
