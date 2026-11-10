@@ -23,7 +23,7 @@
       "evidence": [
         "tests/stable_diffusion_license_bundle_test.py",
         "packaging/stable-diffusion/components.json: Ternux component correctly declares Apache-2.0; regression test verifies declared license and bundled TERNUX-LICENSE/TERNUX-NOTICE.",
-        "Exact-head Stable Diffusion ARM64 build and independent license audit passed (run 42707570566; source e1212bbc10078ec761dd5911f7858dbdc9b22c19)."
+        "Exact-head Stable Diffusion ARM64 build and independent license audit passed on product commit f4bb945576f03a9d8979d7d89553660471dafbaf (run 42773827441); current head retains the same verified build inputs."
       ],
       "required_tests": [
         "ARM64 build",
@@ -46,8 +46,9 @@
       "ci_status": "PASS",
       "device_status": "N_A",
       "evidence": [
-        "PR #97 targets main; origin/main 8e24062589e81c20095c875fa4d19dd5cb928554 is an ancestor. The validated audit snapshot e1212bbc10078ec761dd5911f7858dbdc9b22c19 was synced and 156 commits ahead, with a live 573-file diff; PR remains open/draft with no review decision.",
-        "All eight workflows passed on exact report-only head b5cf839bdb5597392022ec21438cc45b9cf4e83c: Validate 42712474036; Termux APT package 42712474219; repository contract 42712474435; knowledge sync 42712474995; llama CPU/Vulkan 42712474493; Stable Diffusion/license 42712473855; HTP 42712474195; HMX 42712474393. Both Snapdragon builds passed; artifact publication skipped on the draft PR. PR #97 remains open/draft with no review decision and a 573-file diff."
+        "PR #97 targets main; origin/main 8e24062589e81c20095c875fa4d19dd5cb928554 is an ancestor. Current head 54811e2e1c52fa1f4218972bebc44236f2d56e0 is 165 commits ahead; GitHub reports a 576-file diff. PR remains open/draft with no review decision.",
+        "All eight build/test workflows passed on product commit f4bb945576f03a9d8979d7d89553660471dafbaf. Latest report head 54811e2 passed Validate 42779652875; Termux APT package 42779652989; repository contract 42779653015; knowledge sync 42779652947. Accelerator workflows are manual-only and did not run on the report update.",
+        "Release readiness remains NOT_READY with nine incomplete blockers; branch review/integration is not complete."
       ],
       "required_tests": [
         "exact-head required CI",
@@ -94,7 +95,7 @@
       "device_status": "VERIFIED_ON_DEVICE",
       "evidence": [
         "lib/desktop.sh",
-        "Focused fixtures cover bounded functional X11 readiness, stale sockets, duplicate-start rejection, READY-state failure reporting, independent PulseAudio TCP-route readiness, and lifecycle stop/start/reuse/concurrency; 140/140 pass locally on 2026-11-10.",
+        "Focused fixtures cover bounded functional X11 readiness, stale sockets, duplicate-start rejection, READY-state failure reporting, independent PulseAudio TCP-route readiness, and lifecycle stop/start/reuse/concurrency; 142/142 pass locally on 2026-11-10. Latest Validate 42779652875 passed these regressions on head 54811e2.",
         "2026-11-10 source-module device check reused the existing desktop: TERNUX_LIB_DIR=$PWD/lib TERNUX_JSON=1 bash bin/ternux start --json returned already_running for PID 16987; subsequent source status reported READY, X11 functional, and pulseaudio_ready=yes. No stop, restart, app close, or installed-file replacement occurred.",
         "The previously installed CLI independently still reported running PID 16987. Updated-package controlled stop/crash recovery and managed identity remain unverified.",
         "Exact-head commit f4bb945576f03a9d8979d7d89553660471dafbaf passed all eight required CI workflows on 2026-11-10: Validate 42773827524; Termux APT 42773827442; repository contract 42773827490; knowledge sync 42773827401; llama CPU/Vulkan 42773827384; Stable Diffusion CPU/Vulkan 42773827441; HTP 42773827791; HTP/HMX candidate 42773827449."
@@ -290,7 +291,8 @@
       "evidence": [
         "Exact-head unsigned Termux package artifact passed run 42707570582; protected-key non-deploy signing verification passed earlier on main.",
         "2026-11-10 direct checks of canonical GitHub Pages URLs apt/bootstrap.sh, apt/ternux-archive-key.asc, apt/dists/stable/InRelease, and apt/dists/stable/main/binary-all/Packages each returned HTTP 404; native Termux has Ternux 2.0.0 installed without a Ternux APT source.",
-        "Ordinary Pages deploy previously uploaded only the Astro site and could erase a published /apt tree. New preserve-pages-apt.sh verifies the pinned archive key, signed InRelease, Release index hashes/sizes, and every package hash/size before copying the existing signed tree; deployment fails closed on partial publication or integrity errors. Exact-head Validate 42707570617 on e1212bbc10078ec761dd5911f7858dbdc9b22c19 passed the signed-fixture integration test for first publish, valid preservation, partial publication, package tampering, and signed path traversal."
+        "Ordinary Pages deploy previously uploaded only the Astro site and could erase a published /apt tree. New preserve-pages-apt.sh verifies the pinned archive key, signed InRelease, Release index hashes/sizes, and every package hash/size before copying the existing signed tree; deployment fails closed on partial publication or integrity errors. Exact-head Validate 42707570617 on e1212bbc10078ec761dd5911f7858dbdc9b22c19 passed the signed-fixture integration test for first publish, valid preservation, partial publication, package tampering, and signed path traversal.",
+        "Latest exact PR head 54811e2 passed Validate 42779652875 and the unsigned Termux package build/inspection 42779652989; hosted signed APT endpoints still return 404 and no deployment was performed."
       ],
       "required_tests": [
         "signed repository publish after approval",
@@ -314,7 +316,8 @@
       "device_status": "NOT_TESTED",
       "evidence": [
         "Exact-head unsigned Termux package build/inspection passed run 42707570582.",
-        "Native `dpkg-query` confirms ternux 2.0.0 is installed; public APT source is absent, so clean repository install/upgrade/uninstall remains unverified."
+        "Native `dpkg-query` confirms ternux 2.0.0 is installed; public APT source is absent, so clean repository install/upgrade/uninstall remains unverified.",
+        "Latest exact PR head 54811e2 passed the unsigned Termux package build/inspection (run 42779652989); this does not prove clean install from the unavailable hosted APT source."
       ],
       "required_tests": [
         "clean install/update/repair/uninstall in native Termux",
@@ -341,7 +344,8 @@
         "docs/QUICK-START.md",
         "docs/USAGE.md",
         "docs/V2-RELEASE-READINESS.md",
-        "On exact report-only head b5cf839bdb5597392022ec21438cc45b9cf4e83c, Validate 42712474036 passed; local docs check passed 3041 assertions, 312 internal links and 20 bilingual page pairs; repo knowledge verify returned zero findings. Native package lifecycle and owner release review remain open."
+        "On exact report-only head b5cf839bdb5597392022ec21438cc45b9cf4e83c, Validate 42712474036 passed; local docs check passed 3041 assertions, 312 internal links and 20 bilingual page pairs; repo knowledge verify returned zero findings. Native package lifecycle and owner release review remain open.",
+        "Latest head 54811e2 passed Validate 42779652875; exact-head docs checks and the four applicable non-accelerator workflows passed. Owner release review remains open."
       ],
       "required_tests": [
         "version/package/tag/release metadata audit",
@@ -465,5 +469,5 @@
       "release_exclusion": "Qualify only the documented Redmi Turbo 4 Pro / SM8735 target; all other device-specific acceleration remains unqualified."
     }
   ],
-  "observed_head_commit": "e1212bbc10078ec761dd5911f7858dbdc9b22c19"
+  "observed_head_commit": "54811e2e1c52fa1f4218972bebc44236f2d56e0b"
 }

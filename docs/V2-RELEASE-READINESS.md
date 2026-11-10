@@ -17,11 +17,11 @@ This report separates source and CI evidence from physical-device qualification.
 
 ## Stage 0: current repository reconciliation — 2026-11-10
 
-At the start of this pass, the primary worktree was clean at `b9caeeb7a1dda7f0fd20ca1c2477a0e22804aa56`; this audit’s implementation and regression work advanced through `e8dab0a3cdb795826b3f583efbaef4a9a9320e51`. At validated evidence head `e1212bbc10078ec761dd5911f7858dbdc9b22c19`, the branch was synced to `origin` and 156 commits ahead; the live PR diff contains 573 files. PR #97 remains open and draft against `main`, with no review decision. The v2 tag does not exist. The diff covers Ternux CLI/assets and Debian packaging, bilingual docs, tests/CI and AI experiments. No unrelated top-level path was apparent, but the full 573-file diff still needs final review.
+Current snapshot: `ternux-task-fix` is clean at `54811e2e1c52fa1f4218972bebc44236f2d56e0b`, synced with its remote, and 165 commits ahead of `origin/main` (`8e24062589e81c20095c875fa4d19dd5cb928554`). PR #97 is open, draft, cleanly mergeable, and has no review decision; GitHub reports 576 changed files. The v2 tag does not exist. The diff is concentrated in Ternux CLI/assets, Debian packaging, bilingual docs, tests/CI and AI experiments. The complete 576-file review and owner review remain open.
 
 | Location | Current state | Reconciliation |
 |---|---|---|
-| `ternux-task-fix` | implementation head `e8dab0a` before this report refresh | Continue PR #97; do not merge, tag, or publish without owner authorization. |
+| `ternux-task-fix` | clean at `54811e2`; 165 commits ahead; 576 PR files | Continue PR #97; keep it draft while release blockers remain. No merge, tag, or publication performed. |
 | `ternux-package-audit` | detached at `727726a6`; untracked `ci-artifact/` is 747 KB | Build metadata identifies an unsigned Nov 7 package/rootfs from source `b3a0f894…`; preserve as stale evidence, never include it in the release diff. |
 | `ternux-tools` | `main` with six owner-modified/untracked QNN qualification entries | Preserve all entries; they are separate research materials and are not release-source changes. |
 | `skb` | verified canonical checkout; contains owner changes | Guidance only; no files changed. |
@@ -33,7 +33,7 @@ There are no other active Codex agents. PR #35 remains a separate draft license 
 | Finding | Reconciled state | Evidence/remaining gap |
 |---|---|---|
 | P0-01 SD Vulkan license inventory | COMPLETE | Deterministic component manifest and bundle regression tests; Ternux component now correctly says Apache-2.0. Exact-head ARM64 artifact audit is recorded below. |
-| P0-02 release branch consistency | PARTIAL | `main` is an ancestor; 156 commits remain in open draft PR #97 pending review/integration. |
+| P0-02 release branch consistency | PARTIAL | `main` is an ancestor; 165 commits and a 576-file diff remain in draft PR #97. Exact current checks pass, but release-critical acceptance and owner review/integration remain open. |
 | P0-03 machine release gate | COMPLETE | 19 gates; readiness derives `NOT_READY` while blocking items remain. |
 | P1-01 desktop lifecycle | PARTIAL | Ownership/state handling and host fixtures pass; controlled device start/stop/crash recovery on the updated package remains unverified. |
 | P1-02 Vulkan/renderer detection | COMPLETE on the tested Adreno 825 stack | Enumeration and real Zink/Turnip observations exist; other GPU families remain unqualified. |
@@ -187,7 +187,7 @@ uploads retain for 90 days. Existing f4 artifacts were metadata-verified as
 reusable without downloading them; their current expiry dates remain unchanged.
 Focused provenance and workflow-contract regressions cover wrong workflow,
 expired artifacts, changed package inputs/build definitions, reuse, and manual-only
-triggers. Exact-hosted validation of this workflow change is pending.
+triggers. Exact-hosted validation passed on `54811e2` (Validate `42779652875`; all four applicable non-accelerator checks passed).
 
 On artifact-reuse commit `89802f73408a1638221c0b3f62c26d212385b2ea`, Validate `42779265831`, Termux APT package `42779265743`, Repository State Contract `42779266172`, and Repo Knowledge Sync `42779266194` all passed. No ARM64/Vulkan, Stable Diffusion, HTP, or HMX build workflow triggered on this PR update.
 
@@ -195,7 +195,7 @@ On artifact-reuse commit `89802f73408a1638221c0b3f62c26d212385b2ea`, Validate `4
 
 | Gate | Status | Required evidence |
 |---|---|---|
-| P0-02 branch and owner review | **PARTIAL** | Review the 573-file PR diff and integrate PR #97 into the intended release branch. Owner approval is still absent. |
+| P0-02 branch and owner review | **PARTIAL** | Review the 576-file PR diff and integrate PR #97 into the intended release branch. Owner approval is still absent. |
 | P1-01 desktop lifecycle | **PARTIAL** | Validate repeated/concurrent start, stop, stale/crash recovery, socket ownership and independent audio readiness on the updated package without disturbing the current session. |
 | P1-03 updater migration | **PARTIAL** | Exercise the published v2 update and first v1.4.0 migration in native Termux. Until publication, these cannot be verified. |
 | P1-04 storage and desktop | **PARTIAL** | Normal `/sdcard` use inside PRoot is verified and expected; Termux HOME remains isolated. Run full XFCE and user-facing app smoke through the updated launcher in a separate/controlled session. |
@@ -209,4 +209,4 @@ HTP/HMX and QNN remain experimental/research-only until their numerical or stage
 
 ## Final recommendation
 
-**NOT_READY.** P0-01 and P0-03 are complete, but nine release-blocking gates remain incomplete. All eight required CI workflows passed on implementation head `e8dab0a3cdb795826b3f583efbaef4a9a9320e51`; this proves source builds and checks, not public repository availability, installed-package migration, live updated-desktop lifecycle, or owner review. No v2 tag, release, package publication, PR merge, repository-settings change, or live desktop restart was performed. Only the repository owner can authorize the actual release.
+**NOT_READY.** P0-01 and P0-03 are complete, but nine release-blocking gates remain incomplete. All eight build/test workflows passed on product commit `f4bb945576f03a9d8979d7d89553660471dafbaf`. On latest head `54811e2`, the five applicable non-accelerator checks passed; accelerator workflows did not run because they are now manual-only. This proves source/build checks, not public repository availability, installed-package migration, live updated-desktop lifecycle, or owner review. No v2 tag, release, package publication, PR merge, repository-settings change, or live desktop restart was performed. Only the repository owner can authorize the actual release.
