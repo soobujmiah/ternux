@@ -1,0 +1,7 @@
+event_id: commit-5e41401dd60b-00afed616c4b1ea8
+repository: soobujmiah/ternux
+commit: 5e41401dd60bf5261f6a638c62b4ad94eea98812
+kind: commit
+occurred_at: '2026-11-10T16:59:10Z'
+status: completed
+summary: 'fix(installer): verify pinned CLI fallback source (#127)'
