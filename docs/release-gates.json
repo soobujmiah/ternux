@@ -187,13 +187,15 @@
       "owner": "engineering",
       "status": "PARTIAL",
       "source_status": "PARTIAL",
-      "ci_status": "PENDING",
+      "ci_status": "PASS",
       "device_status": "NOT_TESTED",
       "evidence": [
         "lib/core.sh: guest commands load only individually authorized Android storage directories from a private allowlist; absent allowlist means no /sdcard mount.",
         "lib/storage.sh: ternux storage list/grant/revoke validates existing subdirectories, records canonical source and exact guest target, rejects the storage root and unsafe path mappings, and uses atomic private state updates.",
         "lib/phases.sh: install no longer requests shared storage permission; generated desktop launcher and db/droot aliases validate and use the same scoped grants; repeated install refreshes only its marked shell alias block.",
-        "Documentation updated: docs/FAQ.md and bn/docs/FAQ.md, docs/MANUAL.md and bn/docs/MANUAL.md, docs/USAGE.md and bn/docs/USAGE.md, docs/CLI.md and bn/docs/CLI.md, and English/Bengali README and quick-start guides.",
+        "Documentation updated in docs/FAQ.md and bn/docs/FAQ.md, docs/MANUAL.md and bn/docs/MANUAL.md, docs/USAGE.md and bn/docs/USAGE.md, docs/CLI.md and bn/docs/CLI.md, plus both READMEs and quick-start guides.",
+        "PR #139 exact head 53344d9a69a7f7a3019b10840a7495aaf56f548d passed Validate 42897454459, Termux package artifact 42897454586, repo-contract 42897311193 and 42897454513, and Repo Knowledge Sync/test 42897454842.",
+        "Merged product head eaf97fc514c045193e7ef5968a95d1b26c449f9c passed Validate 42897720583, Termux package artifact 42897720810, Repository State Contract 42897720730 and Repo Knowledge Sync 42897720595; generated-state PR #140 then passed all checks and merged as 3c03dffa4ba07a2c0355613560c0768b45022c96.",
         "Historical device evidence on the previously installed v2.0.0 package confirmed its old broad /sdcard bind; the running desktop has not been restarted, and that legacy session remains outside this source change."
       ],
       "required_tests": [
@@ -528,5 +530,5 @@
       "release_exclusion": "Qualify only the documented Redmi Turbo 4 Pro / SM8735 target; all other device-specific acceleration remains unqualified."
     }
   ],
-  "observed_head_commit": "aff6aae40f8fa22bfe76a2a91e56f1ee10c51b60"
+  "observed_head_commit": "3c03dffa4ba07a2c0355613560c0768b45022c96"
 }

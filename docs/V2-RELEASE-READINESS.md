@@ -1,105 +1,84 @@
 ---
 title: "Ternux v2.0.0 release readiness"
-description: "Current repository reconciliation, qualification evidence, and remaining release gates for Ternux v2.0.0."
+description: "Repository reconciliation, implementation evidence, device qualification, and open release gates for Ternux v2.0.0."
 lang: "en"
 alt_url: "/bn/docs/V2-RELEASE-READINESS.html"
 ---
 **Status: NOT_READY**
-**Audit:** 2026-11-10 19:10 UTC
-**Release tag/publication:** no v2.0.0 tag or release; GitHub latest stable is v1.4.0.
-**Latest `main` at this audit:** `f94b83ea0d626c3d873fb9076d0871b42ea990c4`, generated-state merge over PR #132 (`5ddd820`). Product source remains `5e41401dd60bf5261f6a638c62b4ad94eea98812`.
-**Machine gate:** `docs/release-gates.json` derives `NOT_READY`: six P1 release-blocking gates remain incomplete.
+**Audit date:** 2026-11-11
+**Target:** Ternux 2.0.0
+**Current `main`:** `3c03dffa4ba07a2c0355613560c0768b45022c96`
+**Latest stable release:** v1.4.0; no v2.0.0 tag or release exists.
+**Machine gates:** 19 gates; six release-blocking gates remain incomplete: P1-01, P1-03, P1-04, P1-06, P1-APT, P1-PKG.
 
-## Executive recommendation
+## Recommendation
 
-Do not publish Ternux v2.0.0 yet. Source and CI remediation has advanced: the immutable installer, host CLI, and Debian guest CLI fallbacks now verify pinned source; PR #127 merged as `5e41401dd60bf5261f6a638c62b4ad94eea98812`; all required PR checks and the exact-main Validate, package-artifact, and Repo Knowledge Sync runs passed. The exact product-source ARM64 build and independent license audit for P0-01 passed in run `42863263043`; six P1 release-blocking acceptance checks still lack required evidence: updated installed desktop lifecycle, a published v2 migration, updated-package GUI/storage smoke, broader CPU/Vulkan qualification, signed public APT installation, and native package lifecycle.
+Do not publish v2.0.0 yet. The source now fixes the generated-state CI timeout and makes Android storage opt-in and directory-scoped. CI passed for both merged PRs. Exact-main Validate, repository-contract, Repo Knowledge Sync, and unsigned Termux package artifact all passed; the generated-state PR also passed before merge. Native package installation and updated-package desktop validation remain open, the public APT endpoints still return 404, and one tested AI model family failed retrieval correctness.
 
-Fresh direct HTTPS checks at 2026-11-10 17:44 UTC returned HTTP 404 for all four public signed APT paths. The benchmark documentation Pages deployment was later completed; no APT publication, v2 tag, or v2 release was made, and `release_approved` remains false.
+## Stage 0 — reconciliation
 
-## Stage 0 — repository and work reconciliation
+The audit began with a clean `main` at `bcf363e10bc52a87fe2806a28f44dfdd220cf98f`. Open PR #137 was a CI-generated `.repo/` state update. It had three checks registered while the `Repo Knowledge Sync` run waited for first-run approval; the workflow's branch-filtered API query hid that fourth run and timed out. PR #138 fixed discovery, bounded polling to one newest-100 API page, passed all required checks, and merged as `5d4be243e8d3`. Its main-triggered state PR #137 then passed its exact-head checks and merged as `aff6aae40f8fa22bfe76a2a91e56f1ee10c51b60`. No `.repo/` files were edited by hand.
 
-### Repository and active work
+PR #139 implemented storage privacy and merged with all required checks as `3c03dffa4ba07a2c0355613560c0768b45022c96`. The generated-state PR #140 passed its checks and merged as `3c03dffa4ba07a2c0355613560c0768b45022c96`. The verified SKB checkout was dirty at session start and was left untouched; no other active agent work was present. Open PRs #42, #44 and #45 are Dependabot action updates; PR #35 is an owner-review licensing proposal and was not merged.
 
-- Canonical origin is `https://github.com/soobujmiah/ternux.git`.
-- Product-source audit baseline was clean `main` at `5e41401dd60bf5261f6a638c62b4ad94eea98812`; generated-state PR #126 subsequently advanced `main` to `0940a31e1a44d06442813c5c0061388b708877a1` with only `.repo/` changes. The source remediation is already on `main`; PR #128 refreshed this documentation and merged as `d87919f`. Generated-state PR #129 then merged as `68f14ba`; neither changed product source.
-- PR #127 merged as `5e41401`. Its exact head `72a83f50071d5f2d5bc15b1091ce70a34b12ef8f` passed `Validate` run `42859849676`, package-artifact run `42859849734`, repo-contract run `42859849685`, and Repo Knowledge Sync run `42859849726` (`test` and `sync`).
-- After PR #132 merged, generated-state PR #133 passed its required Validate, package-artifact, repo-contract, and Repo Knowledge Sync test/sync checks and merged as `f94b83ea0d626c3d873fb9076d0871b42ea990c4`. Exact-main Validate `42872807131`, Termux package artifact `42872807143`, and Repository State Contract `42872806994` all passed on that SHA. The package is an unsigned CI artifact and is not a public release.
-- Exact-main runs for source commit `5e41401`: Validate `42860196252`, Termux package artifact `42860196300`, and Repo Knowledge Sync `42860196265` passed. Generated-state PR #126 merged as `0940a31`; exact-main Validate `42863611485`, package artifact `42863611730`, and Repository State Contract `42863611641` passed. The package is an unsigned CI artifact and is not a public release. The exact product-source ARM64 Stable Diffusion build, binary inspection, and license audit passed as run `42863263043` on `5e41401`; artifact `ternux-stable-diffusion-vulkan-linux-arm64-master-1053-candidate` (27,381,115 bytes) was uploaded. Prerelease publication was disabled and skipped.
-- PR #126 was the generated `.repo` state synchronization from the Repo Knowledge Sync workflow; it merged as `0940a31` and contains no product-source change. Other open PRs are Dependabot action updates (#42, #44, #45) and the owner-review license proposal (#35); none is an active v2 product implementation PR.
-- Relevant remote branches were inspected. The old `codex/v2-next-stage-2026-11-10` contains only stale report/gate edits; its evidence is superseded here. The Ctrl+Space change from PR #95 is already in current `main`. Workload-manifest code from PR #116 is in `main`. Older APT/deployment branches are stale or superseded. Experimental HTP/QNN branches and owner research artifacts remain excluded from stable claims. No branch was force-pushed or discarded.
-- Local `ternux-task-fix` had no user changes or untracked files at audit start. No other active agent work was present. Separate research/local artifacts were not accessed or modified in this audit.
+## Finding reconciliation
 
-### Reconciliation matrix
-
-| Finding | Status | Current evidence / remaining acceptance |
+| Finding | Status | Evidence and remaining acceptance |
 |---|---|---|
-| P0-01 Stable Diffusion Vulkan license CI | **COMPLETE** | Deterministic component manifest, source/header notices, missing/duplicate/path regressions, and exact product-source ARM64 build/license audit all pass. Run `42863263043` built and inspected the ARM64 artifact and independently audited the license bundle on `5e41401`; prerelease publication was disabled. |
-| P0-02 release branch consistency | **COMPLETE** | v2 source is integrated on `main`; exact-main Validate, package-artifact, and repo-contract checks on `f94b83e` pass. PR #132 and generated-state PR #133 are merged. No v2 tag exists. |
-| P0-03 release gate | **COMPLETE** | 19 machine-readable gates; validator returns `NOT_READY` while any blocking gate is incomplete. |
-| P1-01 desktop lifecycle | **PARTIAL** | Source lifecycle fixtures and current live READY status pass. Installed `desktop.sh` differs from current source; updated-package stop/restart/crash-recovery and managed-process identity are not verified. |
-| P1-02 GPU/Vulkan detection | **COMPLETE for tested Adreno 825 only** | Physical device reports Adreno 825, Vulkan/Turnip and Zink renderer; software renderer false positives have regression coverage. Other GPU/device families are not qualified. |
-| P1-03 installer/updater reliability | **PARTIAL** | Bootstrap archive, host CLI archive, and guest CLI fallback use immutable commit pins and SHA-256 checks; tamper regressions pass on merged PR #127. Local v1.4.0 migration/rollback fixtures pass. Published-v2 native migration remains untested. |
-| P1-04 storage isolation | **IN_PROGRESS** | Default `/sdcard` mounts and automatic install permission prompt are removed; `ternux storage grant DIRECTORY` is path-scoped. Regression and clean guest/app smoke remain. |
-| P1-05 repository protection | **COMPLETE** | Main branch protection read-back showed required PR checks, admin enforcement, and force-push/deletion disabled; required approval count is zero to support the owner-only repository. |
-| P1-06 CPU/Vulkan LLM | **PARTIAL** | Four local GGUF variants completed three-repeat CPU and Adreno Vulkan benchmarks; exact per-file results are on the published benchmark page. Llama 3.2 3B passed 180-record retrieval and a 768 MiB memory-pressure retrieval/recovery check on CPU and Vulkan. The three Qwen variants failed their structured retrieval probes; a separate CPU invoice task under pressure returned 24.75 instead of 39.50. These are correctness failures, so the gate stays partial. Longer thermal soak and other-device qualification remain open. |
-| P1-07 HTP/HMX | **PARTIAL, experimental and release-excluded** | Numerical operator failures/incomplete qualification remain; no stable default or claim. |
-| P1-08 QNN Stable Diffusion | **PARTIAL, experimental and release-excluded** | Stage-tensor/reference correctness and production qualification remain incomplete. |
-| P1-APT public repository | **BLOCKED** | All four canonical signed APT URLs return 404. Publish, hosted verification, Pages preservation, and clean Termux install/upgrade/uninstall remain. |
-| P1-PKG native package lifecycle | **PARTIAL** | Unsigned package artifact and metadata checks pass. Native clean install/update/repair/uninstall remain unverified. |
-| P1-DOCS | **COMPLETE for source documentation** | README, install/update/remove, troubleshooting, accelerator and security docs are present and bilingual checks pass. Release notes must be finalized against the eventual published artifacts. |
-| P2-01 installer modularization | **NOT_STARTED; non-blocking** | Keep as incremental maintainability work; avoid broad refactor during release qualification. |
-| P2-02 test decomposition | **PARTIAL; non-blocking** | `tests/focused.sh` remains large; regression coverage is retained. Split incrementally after critical release gates. |
-| P2-03 workload manifest | **COMPLETE** | Schema, canonical manifest, generated registry and extension lifecycle are in `main`. |
-| P2-04 machine release governance | **COMPLETE** | Schema, duplicate/failure/exclusion tests and readiness derivation are active. |
-| P2-DEVICE multi-device matrix | **PARTIAL; non-blocking** | Qualification is limited to the documented Redmi Turbo 4 Pro / SM8735 / Adreno 825. Other devices remain untested or experimental. |
+| P0-01 Stable Diffusion Vulkan license CI | **COMPLETE** | Deterministic notice manifest and regression checks are present. Exact ARM64 build, binary inspection and independent license audit passed in run `42863263043` on source commit `5e41401dd60bf5261f6a638c62b4ad94eea98812`; prerelease publication was skipped. |
+| P0-02 release branch consistency | **COMPLETE** | Product fixes are on `main`; PR #138, generated-state PRs #137 and #140, and storage PR #139 are merged. Exact-main checks on product head `eaf97fc` all passed; no release tag exists. |
+| P0-03 machine release gate | **COMPLETE** | `docs/release-gates.json` has 19 gates; `tests/release_gates.py` derives `NOT_READY` when a blocking acceptance check is incomplete. |
+| P1-01 desktop lifecycle | **PARTIAL** | Source lifecycle regression coverage and prior live READY status exist. The installed v2.0.0 `desktop.sh` hash differs from current source; updated-package GUI, stop/restart and crash recovery remain unverified. |
+| P1-02 GPU/Vulkan detection | **COMPLETE on the qualified device only** | Redmi Turbo 4 Pro / SM8735 / Adreno 825 reported Vulkan/Turnip and Zink; software-renderer false positives have regression coverage. Other device families are not qualified. |
+| P1-03 installer/updater | **PARTIAL** | Pinned bootstrap, host CLI and guest CLI checks reject tampered source; local rollback and v1.4.0-to-v2 fixtures pass. Published-v2 native migration/rollback remains untested. |
+| P1-04 storage isolation | **PARTIAL** | Default `/sdcard` binds and setup-time storage permission are removed. `ternux storage grant DIRECTORY` records only an existing canonical subdirectory; generic guest commands, desktop launcher, and db/droot aliases validate that same private allowlist. Focused regressions and PR CI pass. Updated-package device verification remains open; the pre-existing live desktop is from the old package and was not restarted. |
+| P1-05 repository protection | **COMPLETE for the owner-only repository** | Live read-back confirms required PR and checks, strict checks, admin enforcement, force-push/deletion disabled, and zero required approvals so the sole owner can merge their own PR without impossible second-person review. `.github/CODEOWNERS` names the owner. |
+| P1-06 CPU/Vulkan LLM | **PARTIAL** | Four local GGUF variants have three-repeat CPU/Vulkan benchmark evidence. Llama 3.2 3B passed a 180-record retrieval and 768 MiB pressure/recovery check on CPU and Vulkan. Three Qwen variants failed their structured retrieval probes; a pressure-time invoice probe returned 24.75 instead of 39.50. Longer soak and explicit supported-model boundary remain open. |
+| P1-07 HTP/HMX | **PARTIAL; experimental and release-excluded** | Known numerical/operator failures remain. Failing operators are not stable defaults; no production claim is made. |
+| P1-08 QNN Stable Diffusion | **PARTIAL; research-only and release-excluded** | Stage-tensor reference correctness and production qualification are incomplete. |
+| P1-APT public repository | **BLOCKED** | On 2026-11-11 all four public paths returned 404: bootstrap, archive key, `InRelease`, and `Packages`. Signed publication, hosted verification, and clean Termux install/upgrade/uninstall remain. |
+| P1-PKG native package lifecycle | **PARTIAL** | Exact-main unsigned package artifact builds in CI. Native clean install, upgrade, repair and uninstall remain unverified. |
+| P1-DOCS | **COMPLETE for source documentation** | README, CLI, install, usage, security, accelerator and release-readiness docs are updated in English and Bengali. Production site deployment has not been run for this change. |
+| P2-01 installer modularization | **NOT_STARTED; non-blocking** | Keep future work incremental; avoid a broad refactor during qualification. |
+| P2-02 test decomposition | **PARTIAL; non-blocking** | Focused regressions expanded; `tests/focused.sh` remains large. |
+| P2-03 workload manifest | **COMPLETE** | Schema, registry and managed workload definitions are present. |
+| P2-04 repository state and gate automation | **COMPLETE** | CI state sync now detects approval-gated checks; machine gate schema and readiness validation pass. |
+| P2-DEVICE multi-device qualification | **PARTIAL; non-blocking** | Physical qualification is limited to Redmi Turbo 4 Pro / SM8735 / Adreno 825. |
 
-## Implemented remediation
+## Changes delivered
 
-- Stable Diffusion license inventory uses an explicit component manifest, deterministic bundle/index/checksum generation, and regression checks for missing, duplicate, unsafe, and embedded notice paths.
-- Installer source acquisition and host CLI fallback use a pinned codeload commit plus SHA-256 verification. The Debian guest CLI fallback now fetches `bin/ternux-guest` from that same immutable commit and verifies its dedicated SHA-256 before syntax validation or installation.
-- Desktop lifecycle uses owned-process/session identity and bounded readiness probes; X11 and audio are reported independently. Source tests cover start/reuse/stop, stale state, concurrency, and lock contention.
-- Renderer detection separates hardware, loader, ICD, device enumeration, renderer and acceleration state, and identifies common software renderers as `SOFTWARE_FALLBACK`.
-- PRoot no longer mounts Android shared storage by default. Explicit directory grants are validated and mounted individually; Termux HOME remains isolated. Shared `/tmp` remains explicit.
-- Main branch protection and release-gate validation are active. Workload metadata and managed extension behavior use the canonical workload schema/registry.
-- Signed APT construction/preservation checks verify key, Release metadata, index/package checksums and safe paths. This makes deployment verifiable; it does not publish a repository.
+- Fixed Repo Knowledge Sync polling so approval-gated runs are visible without paging through repository history; merged PR #138.
+- Removed automatic Android storage permission requests during installation and broad `/sdcard` binds.
+- Added `ternux storage list`, `grant DIRECTORY`, and `revoke DIRECTORY`. The mount source and guest path are validated on every guest login; the storage root, traversal paths, malformed grants and changed identities fail closed.
+- Applied the allowlist to generic guest commands, the generated desktop launcher, and regenerated db/droot aliases. Re-running setup refreshes only Ternux's marked alias block while preserving surrounding shell configuration.
+- Added the storage module to the Termux package manifest, refreshed the English/Bengali docs and changelog, and recorded the remaining device acceptance check.
 
-## Verification evidence
+## Verification
 
-### Current repository and CI
+- `bash tests/focused.sh`: **153/153 passed**, including default no-mount behavior, exact scoped mounts, malformed/out-of-root rejection, stale revocation, no setup-time permission prompt, launcher/alias refresh and host isolation.
+- `python3 tests/docs_check.py`: **3116 assertions, 314 internal links, 20 bilingual page pairs passed**.
+- `python3 tests/release_gates.py --self-test` and `--check`: pass; 19 gates derive `NOT_READY`, with the six blockers listed above.
+- Bash syntax checks, `git diff --check`, and JSON parsing: pass.
+- PR #139 head `53344d9a69a7f7a3019b10840a7495aaf56f548d`: Validate `42897454459`, unsigned package artifact `42897454586`, repo-contract `42897311193` and `42897454513`, Repo Knowledge Sync/test `42897454842`: all passed.
+- Exact product head `3c03dffa4ba07a2c0355613560c0768b45022c96`: Validate `42897720583`, unsigned package artifact `42897720810`, Repository State Contract `42897720730`, Repo Knowledge Sync `42897720595`: all passed.
+- Generated-state PR #140 head `e8754415c25fce38ab9bfd7011e990a5000b7fb8` passed Validate `42898005440`, unsigned package artifact `42898005215`, repo-contract `42898005314`, and Repo Knowledge Sync/test `42898005386`; merged as `3c03dffa4ba07a2c0355613560c0768b45022c96`.
+- Local Astro build was unavailable: the Termux `node` binary fails to link `_ZNSt6__ndk113__hash_memoryEPKvm`. The exact-main Validate workflow passed, including its Ubuntu Astro site build. The running GUI and services were not restarted or modified.
 
-| Evidence | Result |
-|---|---|
-| `bash tests/focused.sh` on the PR #127 source | **150/150 pass**, including pinned CLI/guest fallback success and tampered-byte rejection. |
-| `python3 tests/docs_check.py` | **3112 assertions**, 314 internal links, 20 bilingual page pairs passed. |
-| `python3 tests/release_gates.py --self-test` | 19 gates valid; `NOT_READY`; six incomplete blocking gates, all P1. |
-| `git diff --check`, Bash syntax checks | Passed for the merged installer changes. |
-| PR #127 exact-head required checks | Validate, package artifact, repo-contract, Repo Knowledge Sync test/sync all passed. |
-| Main `5e41401` exact-SHA CI | Validate `42860196252`, package artifact `42860196300`, Repo Knowledge Sync `42860196265` passed. |
-| Stable Diffusion ARM64 and license bundle | Exact product-source build, binary inspection, and independent license audit passed in run `42863263043`; 27,381,115-byte candidate artifact uploaded, prerelease publication skipped. |
-| Device CPU/Vulkan and throughput | Four exact GGUF files were benchmarked on CPU and Vulkan, 3 repetitions each, at 512 prompt / 128 generated tokens. Prompt/generation tok/s: Qwen 0.5B-named Q4_0 65.0/15.4 CPU, 319.8/34.5 Vulkan; Qwen 1.5B Q4_0 17.4/7.47, 101.9/19.8; Qwen 1.5B Q4_K_M 19.1/7.92, 96.7/17.6; Llama 3.2 3B Q4_K_M 8.93/5.15, 46.3/10.7. The synthetic retrieval probe returned the exact marker on the 3B model and wrong record values on all three Qwen variants. A prior bounded 3B Vulkan cancellation exited cleanly. These are single-device results, not universal model quality or sustained thermal claims. Full capture is in the device guide and published Benchmarks page. |
+## Device and release exclusions
 
-### Device and distribution
+The qualified device is Android 16 on Xiaomi 25053RT47C (Redmi Turbo 4 Pro, SM8735, Adreno 825). Earlier native verification reported Ternux 2.0.0 with X11 and PulseAudio active and desktop PID 16987. The currently installed `desktop.sh` differs from source, so that running session does not validate the updated launcher. The storage change has not been installed on-device; the legacy session still has the previous package's mounts until its process exits and a new session starts.
 
-- Native `ternux status --json` at 2026-11-10 18:34 UTC reports version 2.0.0, desktop `running`, X11 `yes`, PulseAudio `running`, launcher present, PID 16987. `ternux verify --json` passed at 18:34 UTC.
-- `ternux verify --json` at 18:34 UTC passed on Android 16, Adreno 825; Termux:X11, PRoot-Distro, PulseAudio, `setsid`, launcher, Debian services and Turnip were present.
-- `dpkg -V ternux` returned no modified packaged files. This does not prove package lifecycle success.
-- Source `lib/desktop.sh` SHA-256 is `b3f0753a771f54c2c337310b2f23485926c9fded314ace818d76828c96af8ea3`; installed `$PREFIX/lib/ternux/desktop.sh` is `02c5f6175f45c94c4ec68f323294f1c633bd7e4f501430b243f72132ed0950cb`. Therefore the current running desktop is not evidence for the updated source lifecycle.
-- After the multi-model benchmark and retrieval runs, native status at 19:10 UTC reported Ternux 2.0.0 running with X11 and PulseAudio, desktop PID 16987. Verify passed; doctor reported 40°C battery temperature and 5372 MB available memory. The same desktop PID was present in repeated checks throughout the workload. The 3-repeat benchmarks measure repeatability and throughput, not a multi-hour soak. A later 768 MiB memory-pressure retrieval/recovery check passed for Llama 3.2 3B on CPU and Vulkan; the separate Qwen and invoice task failures remain open.
-- The provided `adb` binary cannot start because of a missing Android NDK linker symbol. Native `$PREFIX` is outside this session's writable paths, so this session cannot install the CI package or run native package lifecycle changes. The current GUI/service was not stopped, restarted, or modified. Source `desktop.sh` SHA-256 `b3f0753a...` still differs from installed `02c5f617...`. The benchmark documentation Pages deployment subsequently succeeded; it preserved site content, while the four APT repository paths remained 404.
-- Fresh direct HTTPS GET at 2026-11-10 18:34 UTC returned **404** for `apt/bootstrap.sh`, `apt/ternux-archive-key.asc`, `apt/dists/stable/InRelease`, and `apt/dists/stable/main/binary-all/Packages`.
-- Signing-only APT verification run `42863371746` passed and skipped all deployment-related steps. GitHub latest stable is `v1.4.0`; there is no v2.0.0 release tag/publication. The benchmark documentation Pages deployment was completed separately; no APT publish or v2 release action was performed.
+HTP/HMX and QNN remain experimental/research-only. They are excluded from stable v2 claims. CPU/Vulkan support claims must stay within the model/device evidence above. No v2 tag/release, signed APT publication, native package mutation, or production Pages deployment was made in this audit.
 
-## Exact blockers and next acceptance evidence
+## Remaining release blockers
 
-1. **P1-01 desktop lifecycle:** safely install/use the exact package containing current `desktop.sh`; verify owned PID identity, bounded XFCE/X11 readiness, independent audio status, stop/restart, crash recovery, and unrelated-process/socket preservation.
-2. **P1-03 updater migration:** after an approved v2 publication exists, run native v1.4.0 → v2 migration and rollback on the supported Termux device; keep the exact local transaction fixtures passing.
-3. **P1-04 storage/security:** run the focused explicit-grant regressions, then verify a clean guest exposes no shared storage until a scoped directory is granted and continues to hide Termux HOME.
-4. **P1-06 CPU/Vulkan:** CPU/Vulkan fallback and repeated throughput now have evidence for all four local GGUF variants; bounded cancellation passes on the 3B path. Exact retrieval passed on Llama 3.2 3B but failed on the three tested Qwen variants. The 768 MiB memory-pressure retrieval/recovery check now passes on Llama 3.2 3B CPU/Vulkan, but three Qwen retrieval probes and a pressure-time invoice task returned incorrect answers. Gate remains partial pending resolution or explicit support boundaries for those correctness failures, a longer soak, and declared support-matrix checks. Do not infer broader-device support.
-5. **P1-APT:** after owner approval, publish the signed repository, verify all hosted paths and signatures/hashes, confirm a routine Pages deployment preserves `/apt`, then test clean `pkg install`, upgrade and uninstall.
-6. **P1-PKG:** verify native package install/update/repair/uninstall and metadata/checksum on the supported Termux device; CI artifact integrity alone is insufficient.
-
-HTP/HMX and QNN Stable Diffusion remain explicitly experimental/research-only and are not required for the stable Ternux v2 claim. P2 modularization, test-suite splitting and multi-device qualification remain documented non-blocking work.
+1. Install the exact current package on the supported Termux device and verify native install/upgrade/repair/uninstall.
+2. On that package, verify storage is absent by default, an exact granted folder is visible, revocation takes effect on the next session, and Termux HOME stays hidden; run GUI lifecycle/app smoke without touching unrelated processes.
+3. Complete native v1.4.0-to-v2 migration and rollback verification.
+4. Resolve the CPU/Vulkan support boundary with a sustained representative model run and model-specific correctness claims; do not label failing Qwen tasks as passed.
+5. Publish the signed APT repository only after the release candidate is qualified; verify all public paths, signatures and package hashes, then run clean `pkg install`, upgrade and uninstall.
+6. Re-run all required CI on the final intended release commit and update this report. HTP/HMX and QNN remain excluded unless separately qualified.
 
 ## Final recommendation
 
-**NOT_READY.** Current source and exact-main CI on `f94b83e` are verified, but six release-blocking acceptance checks remain incomplete. The public APT repository is absent, and the running installed package does not contain the current desktop lifecycle module. Do not tag or publish v2.0.0 until the device/package gates close and the repository owner explicitly approves publication.
+**NOT_READY.** Core source regressions and CI fixes are integrated, but six release-blocking gates remain incomplete. Do not tag or publish v2.0.0 until the device/package gates close, the APT route is verified, and final exact-commit checks pass.
