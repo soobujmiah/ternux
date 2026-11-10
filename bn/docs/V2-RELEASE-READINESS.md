@@ -5,8 +5,9 @@ lang: "bn"
 alt_url: "/docs/V2-RELEASE-READINESS.html"
 ---
 **অবস্থা: NOT_READY**
-**অডিট:** 2026-11-10 17:22 UTC
+**অডিট:** 2026-11-10 17:44 UTC
 **Release tag/publication:** v2.0.0 tag বা release নেই; GitHub-এর সর্বশেষ stable হলো v1.4.0।
+**এই audit-এর `main`:** `68f14ba48a67829d3aaa09b799233f79f2f59cc8`; product source baseline `5e41401dd60bf5261f6a638c62b4ad94eea98812` অপরিবর্তিত।
 **Machine gate:** `docs/release-gates.json` ছয়টি অসম্পূর্ণ release blocker-সহ `NOT_READY` দেখায়।
 
 ## সুপারিশ
@@ -20,10 +21,10 @@ Public signed APT path চারটিই এখন HTTP 404 দেয়। APT
 ### Repository ও চলমান কাজ
 
 - Canonical origin `https://github.com/soobujmiah/ternux.git`।
-- Audit baseline ছিল clean `main`, commit `5e41401dd60bf5261f6a638c62b4ad94eea98812`। এই report documentation-only branch-এ refresh হচ্ছে; এখানে product-source change নেই।
+- Product-source audit baseline ছিল clean `main`, commit `5e41401dd60bf5261f6a638c62b4ad94eea98812`; current `main` `68f14ba` পর্যন্ত এগিয়েছে। PR #128 শুধু readiness report আপডেট করেছে, PR #129 শুধু generated `.repo` state sync করেছে; product source অপরিবর্তিত।
 - PR #127 `5e41401` হিসেবে merge হয়েছে। Exact head `72a83f50071d5f2d5bc15b1091ce70a34b12ef8f`-এ Validate run `42859849676`, package-artifact `42859849734`, repo-contract `42859849685` এবং Repo Knowledge Sync `42859849726`-এর `test` ও `sync` pass করেছে।
 - Source commit `5e41401`-এর exact-main run: Validate `42860196252`, Termux package artifact `42860196300` এবং Repo Knowledge Sync `42860196265` pass। Generated-state PR #126 `0940a31`-এ merge হয়েছে; exact-main Validate `42863611485`, package artifact `42863611730`, Repository State Contract `42863611641` pass। Package-টি unsigned CI artifact, public release নয়। ARM64 Stable Diffusion build, binary inspection ও license audit `42863263043`-এ pass করেছে; 27,381,115-byte artifact upload হয়েছে এবং prerelease publication skip হয়েছে.
-- PR #126 Repo Knowledge Sync workflow-এর generated `.repo` state ছিল; `0940a31`-এ merge হয়েছে, product-source change নেই। অন্য open PR হলো Dependabot action update (#42, #44, #45) এবং owner-review license proposal (#35); কোনোটিই চলমান v2 product implementation PR নয়।
+- PR #126 Repo Knowledge Sync workflow-এর generated `.repo` state ছিল; `0940a31`-এ merge হয়েছে, product-source change নেই। PR #128 report update `d87919f`-এ এবং generated-state PR #129 `68f14ba`-এ merge হয়েছে; latest exact-main Validate `42867226542`, package artifact `42867226104`, Repository State Contract `42867226155` pass। অন্য open PR হলো Dependabot action update (#42, #44, #45) এবং owner-review license proposal (#35); কোনোটিই চলমান v2 product implementation PR নয়।
 - প্রাসঙ্গিক remote branch পরীক্ষা করা হয়েছে। পুরোনো `codex/v2-next-stage-2026-11-10`-এ কেবল stale report/gate edit; এর evidence এখানে supersede হয়েছে। PR #95-এর Ctrl+Space change current `main`-এ আছে। PR #116-এর workload manifest code-ও `main`-এ আছে। পুরোনো APT/deploy branch stale বা superseded। Experimental HTP/QNN branch ও owner research artifact stable claim থেকে বাদ। কোনো branch force-push বা discard করা হয়নি।
 - Audit শুরুর সময় local `ternux-task-fix`-এ user change বা untracked file ছিল না। অন্য কোনো agent-এর active কাজ ছিল না। আলাদা research/local artifact এই audit-এ access বা modify করা হয়নি।
 
@@ -32,7 +33,7 @@ Public signed APT path চারটিই এখন HTTP 404 দেয়। APT
 | Finding | অবস্থা | বর্তমান প্রমাণ / বাকি acceptance |
 |---|---|---|
 | P0-01 Stable Diffusion Vulkan license CI | **COMPLETE** | Deterministic component manifest, source/header notice, missing/duplicate/path regression এবং exact product-source ARM64 build/license audit pass। Run `42863263043`-এ `5e41401`-এর artifact build ও inspect হয়েছে এবং license bundle independently audit হয়েছে; prerelease publication skip। |
-| P0-02 release branch consistency | **COMPLETE** | v2 source `main`-এ integrated; PR #127 ও exact-main check pass। Generated-state PR #126 আলাদা। v2 tag নেই। Signing-only APT verification run `42863371746` `5e41401`-এ pass; website build, Pages artifact upload ও publish job skip হয়েছে। |
+| P0-02 release branch consistency | **COMPLETE** | v2 source `main`-এ integrated; PR #127 source checks এবং `68f14ba`-এর exact-main Validate `42867226542`, package `42867226104`, Repository State Contract `42867226155` pass। PR #128 ও generated-state PR #129 merge; v2 tag নেই। |
 | P0-03 release gate | **COMPLETE** | ১৯টি machine-readable gate; blocking gate অসম্পূর্ণ থাকলে validator `NOT_READY` রাখে। |
 | P1-01 desktop lifecycle | **PARTIAL** | Source lifecycle fixture ও live READY status pass। Installed `desktop.sh` current source থেকে আলাদা; updated package-এ stop/restart/crash recovery ও managed-process identity যাচাই হয়নি। |
 | P1-02 GPU/Vulkan detection | **শুধু পরীক্ষিত Adreno 825-এর জন্য COMPLETE** | Physical device Adreno 825, Vulkan/Turnip ও Zink renderer দেখায়; software-renderer false positive regression test আছে। অন্য GPU/device qualify হয়নি। |
@@ -78,13 +79,13 @@ Public signed APT path চারটিই এখন HTTP 404 দেয়। APT
 
 ### Device ও distribution
 
-- 2026-11-10 17:03 UTC-তে native `ternux status --json` version 2.0.0, desktop `running`, X11 `yes`, PulseAudio `running`, launcher present, PID 16987 দেখায়।
-- 17:03 UTC-তে `ternux verify --json` Android 16, Adreno 825-এ pass; Termux:X11, PRoot-Distro, PulseAudio, `setsid`, launcher, Debian services ও Turnip present।
+- 2026-11-10 17:42 UTC-তে native `ternux status --json` version 2.0.0, desktop `running`, X11 `yes`, PulseAudio `running`, launcher present, PID 16987 দেখায়; 17:44 UTC-তে `ternux verify --json` pass।
+- 17:44 UTC-তে `ternux verify --json` Android 16, Adreno 825-এ pass; Termux:X11, PRoot-Distro, PulseAudio, `setsid`, launcher, Debian services ও Turnip present।
 - `dpkg -V ternux` packaged file পরিবর্তন দেখায়নি। এটা package lifecycle pass প্রমাণ করে না।
 - Source `lib/desktop.sh` SHA-256 `b3f0753a771f54c2c337310b2f23485926c9fded314ace818d76828c96af8ea3`; installed `$PREFIX/lib/ternux/desktop.sh` SHA-256 `02c5f6175f45c94c4ec68f323294f1c633bd7e4f501430b243f72132ed0950cb`। তাই বর্তমান চলমান desktop updated source lifecycle-এর প্রমাণ নয়।
 - Bounded model smoke-এর আগে battery 36.3°C এবং পরে 37.4°C ছিল, discharging। Sustained inference/rendering বা artificial memory-pressure চালানো হয়নি। সব প্রমাণ এক device-এ সীমিত; broad-model, sustained thermal ও memory-pressure qualification বাকি।
 - `adb` binary missing Android NDK linker symbol-এর কারণে চালু হয় না। Native `$PREFIX` এই session-এর writable path-এর বাইরে; তাই CI package install বা native package lifecycle test করা যায়নি। চলমান GUI/service stop, restart বা modify করা হয়নি।
-- 2026-11-10 17:02 UTC direct HTTPS GET-এ `apt/bootstrap.sh`, `apt/ternux-archive-key.asc`, `apt/dists/stable/InRelease` এবং `apt/dists/stable/main/binary-all/Packages` **404** দিয়েছে।
+- 2026-11-10 17:44 UTC direct HTTPS GET-এ `apt/bootstrap.sh`, `apt/ternux-archive-key.asc`, `apt/dists/stable/InRelease` এবং `apt/dists/stable/main/binary-all/Packages` **404** দিয়েছে।
 - Signing-only APT verification `42863371746` pass করেছে এবং deploy step skip করেছে। GitHub-এর latest stable `v1.4.0`; v2.0.0 release tag/publication নেই। APT publish, production Pages deploy বা v2 release action চালানো হয়নি।
 
 ## সঠিক blocker ও পরের acceptance evidence
@@ -100,4 +101,4 @@ HTP/HMX ও QNN Stable Diffusion experimental/research-only; stable Ternux v2 cl
 
 ## চূড়ান্ত সুপারিশ
 
-**NOT_READY।** Current source ও exact-main CI verified, কিন্তু ছয়টি release-blocking acceptance check অসম্পূর্ণ। Public APT repository নেই, এবং চলমান installed package-এ current desktop lifecycle module নেই। Device/package gate বন্ধ এবং repository owner publication স্পষ্টভাবে approve না করা পর্যন্ত v2.0.0 tag বা publish করবেন না।
+**NOT_READY।** Current source ও `68f14ba`-এর exact-main CI verified, কিন্তু ছয়টি release-blocking acceptance check অসম্পূর্ণ। Public APT repository নেই, এবং চলমান installed package-এ current desktop lifecycle module নেই। Device/package gate বন্ধ এবং repository owner publication স্পষ্টভাবে approve না করা পর্যন্ত v2.0.0 tag বা publish করবেন না।
