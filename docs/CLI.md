@@ -109,6 +109,21 @@ D-Bus sessions are left alone.
 Removes: stale X11 sockets, pulse socket.
 Releases: wake-lock.
 
+### `ternux status`
+
+Report desktop lifecycle and host service state. `running` requires the guest
+to complete a bounded X11 query; a stale socket and surviving process names do
+not qualify. `pulseaudio` reports whether the host daemon process exists, while
+`pulseaudio_ready` independently verifies the configured loopback TCP route
+used by Debian applications.
+
+```bash
+ternux status [--json]
+```
+
+The JSON object includes `lifecycle`, `x11_running`, `pulseaudio`,
+`pulseaudio_ready`, `virgl`, `launcher`, and `desktop_pid`.
+
 ### `ternux restart`
 
 Restart the desktop session (stop + 1 second delay + start).

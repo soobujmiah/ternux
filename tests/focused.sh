@@ -48,6 +48,31 @@ else
   not_ok "generic guest login isolates Termux HOME and preserves available /sdcard"
 fi
 
+# The bounded X11 probe keeps the guest isolated while enabling only shared X11.
+if env TERNUX_STATE_DIR="$TMP/state-guest-x11" HOME="$TMP/home-guest-x11" \
+  PREFIX="$TMP/prefix-guest-x11" LOG="$TMP/guest-x11-args" bash -c '
+    . "$1/lib/core.sh"
+    tnx_distro(){ echo debian; }
+    timeout(){
+      [ "$1" = --signal=TERM ] || return 77; shift
+      [ "$1" = --kill-after=1 ] || return 77; shift
+      [ "$1" = 5 ] || return 77; shift
+      "$@"
+    }
+    proot-distro(){ printf "%s\n" "$@" > "$LOG"; }
+    tnx_guest_login --_tnx-timeout-seconds 5 --shared-x11 --user alice -- env DISPLAY=:0 xdpyinfo -display :0 || exit
+    grep -qx -- "--isolated" "$LOG" || exit
+    grep -qx -- "--shared-x11" "$LOG" || exit
+    grep -qx -- "--user" "$LOG" || exit
+    grep -qx -- "alice" "$LOG" || exit
+    grep -qx -- "xdpyinfo" "$LOG" || exit
+    ! grep -Fq -- "$HOME" "$LOG"
+  ' _ "$ROOT"; then
+  ok "bounded guest probe shares X11 without exposing Termux HOME"
+else
+  not_ok "bounded guest probe shares X11 without exposing Termux HOME"
+fi
+
 # State values may contain URL separators and must update atomically.
 state_url="$TMP/state-url"
 if env TERNUX_STATE_DIR="$state_url" HOME="$TMP/home-state-url" bash -c '
@@ -1619,6 +1644,117 @@ else
   not_ok "desktop status ignores process-name false positives"
 fi
 
+# The shared-X11 diagnostic must run as the configured guest user with a bounded timeout.
+if env TERNUX_STATE_DIR="$TMP/state-x11-probe" HOME="$TMP/home-x11-probe" \
+  X11_PROBE_ARGS="$TMP/x11-probe-args" bash -c '
+    . "$1/lib/desktop.sh"
+    TERNUX_USER=alice
+    tnx_guest_login(){ printf "%s\n" "$*" > "$X11_PROBE_ARGS"; [ "${MOCK_X11_QUERY:-0}" = 1 ]; }
+    MOCK_X11_QUERY=1 tnx_x11_functional || exit
+    grep -Fq -- "--_tnx-timeout-seconds 5 --shared-x11 --user alice -- env DISPLAY=:0 xdpyinfo -display :0" "$X11_PROBE_ARGS" || exit
+    MOCK_X11_QUERY=0 tnx_x11_functional && exit 1
+    exit 0
+  ' _ "$ROOT"; then
+  ok "desktop readiness uses a bounded guest X11 query"
+else
+  not_ok "desktop readiness uses a bounded guest X11 query"
+fi
+
+# An X11 socket and process list do not qualify an unresponsive display as live.
+if env TERNUX_STATE_DIR="$TMP/state-x11-stale" HOME="$TMP/home-x11-stale" \
+  TMPDIR="$TMP/x11-stale-tmp" bash -c '
+    mkdir -p "$TMPDIR/.X11-unix"
+    python3 -c "import socket,sys; s=socket.socket(socket.AF_UNIX); s.bind(sys.argv[1]); s.close()" "$TMPDIR/.X11-unix/X0" || exit
+    . "$1/lib/desktop.sh"
+    pgrep(){ return 0; }
+    tnx_x11_functional(){ return 1; }
+    ! tnx_desktop_session_live
+  ' _ "$ROOT"; then
+  ok "stale X11 socket and live processes fail functional desktop readiness"
+else
+  not_ok "stale X11 socket and live processes fail functional desktop readiness"
+fi
+
+# JSON start must not create a second desktop when an existing X11 server fails
+# the functional query; it returns a machine-readable error instead.
+if env TERNUX_STATE_DIR="$TMP/state-x11-duplicate" HOME="$TMP/home-x11-duplicate" \
+  TMPDIR="$TMP/x11-duplicate-tmp" bash -c '
+    mkdir -p "$HOME" "$TMPDIR/.X11-unix"
+    printf "#!/usr/bin/env bash\n# TERNUX_DESKTOP_LAUNCHER=19\n" > "$HOME/x.sh"
+    python3 -c "import socket,sys; s=socket.socket(socket.AF_UNIX); s.bind(sys.argv[1]); s.close()" "$TMPDIR/.X11-unix/X0" || exit
+    . "$1/lib/desktop.sh"
+    pgrep(){ case "$1" in -f) return 0;; *) return 1;; esac; }
+    tnx_x11_functional(){ return 1; }
+    tnx_has_cmd(){ [ "$1" = flock ]; }
+    TERNUX_JSON=1
+    out="$(tnx_cmd_start)" && exit 1
+    printf "%s\n" "$out" | grep -Fq unresponsive_existing_x11 || exit
+    printf "%s\n" "$out" | grep -Fq error || exit
+    [ ! -e "$TERNUX_STATE_DIR/session/desktop.pid" ]
+  ' _ "$ROOT"; then
+  ok "JSON start refuses to duplicate an unresponsive X11 desktop"
+else
+  not_ok "JSON start refuses to duplicate an unresponsive X11 desktop"
+fi
+
+# A READY marker cannot mask a failed X11 query in desktop status.
+if env TERNUX_STATE_DIR="$TMP/state-x11-status-failed" HOME="$TMP/home-x11-status-failed" \
+  TMPDIR="$TMP/x11-status-failed-tmp" bash -c '
+    mkdir -p "$TERNUX_STATE_DIR/session" "$HOME" "$TMPDIR/.X11-unix"
+    . "$1/lib/desktop.sh"
+    python3 -c "import socket,sys; s=socket.socket(socket.AF_UNIX); s.bind(sys.argv[1]); s.close()" "$TMPDIR/.X11-unix/X0" || exit
+    pid="$$"; identity="$(tnx_process_start_identity "$pid")"
+    printf "%s\n" "$pid" > "$TERNUX_STATE_DIR/session/desktop.pid"
+    printf "%s %s %s\n" "$pid" "$identity" "$pid" > "$TERNUX_STATE_DIR/session/desktop.pid.identity"
+    printf "READY\n" > "$TERNUX_STATE_DIR/session/desktop.pid.ready"
+    printf "READY\n" > "$TERNUX_STATE_DIR/session/desktop.state"
+    pgrep(){ case "$*" in *termux-x11*|*-x\ xfce4-session*|*-x\ xfwm4*|*-x\ xfdesktop*) return 0;; *) return 1;; esac; }
+    tnx_x11_functional(){ return 1; }
+    TERNUX_JSON=1
+    out="$(tnx_cmd_status)" || exit
+    printf "%s\n" "$out" | grep -Fq stopped || exit
+    printf "%s\n" "$out" | grep -Fq FAILED
+  ' _ "$ROOT"; then
+  ok "desktop status marks a READY session failed when X11 is unresponsive"
+else
+  not_ok "desktop status marks a READY session failed when X11 is unresponsive"
+fi
+
+# PulseAudio process presence and the guest TCP protocol route are separate checks.
+if env TERNUX_STATE_DIR="$TMP/state-pulse-ready" HOME="$TMP/home-pulse-ready" \
+  MOCKBIN="$TMP/pulse-mock-bin" PULSE_PROBE_TRACE="$TMP/pulse-probe-trace" bash -c '
+    mkdir -p "$MOCKBIN"
+    cat > "$MOCKBIN/env" <<"ENV"
+#!/bin/sh
+if [ "${1:-}" = -u ]; then shift 2; fi
+case "${1:-}" in PULSE_SERVER=*) export "${1%%=*}"="${1#*=}"; shift;; esac
+exec "$@"
+ENV
+    cat > "$MOCKBIN/timeout" <<"TIMEOUT"
+#!/bin/sh
+shift
+exec "$@"
+TIMEOUT
+    cat > "$MOCKBIN/pactl" <<"PACTL"
+#!/bin/sh
+if [ "${1:-}" = list ]; then
+  printf "17 module-native-protocol-tcp listen=127.0.0.1 auth-anonymous=1 port=4714\n"
+  exit 0
+fi
+[ "${PULSE_SERVER:-}" = tcp:127.0.0.1:4714 ]
+PACTL
+    chmod +x "$MOCKBIN"/*
+    PATH="$MOCKBIN:$PATH"
+    . "$1/lib/desktop.sh"
+    pgrep(){ [ "${2:-}" = pulseaudio ]; }
+    tnx_has_cmd(){ [ "$1" = pactl ]; }
+    tnx_pulseaudio_ready
+  ' _ "$ROOT"; then
+  ok "audio readiness verifies the guest TCP PulseAudio route"
+else
+  not_ok "audio readiness verifies the guest TCP PulseAudio route"
+fi
+
 # Starting a managed desktop must start a new session detached from the caller, persist its PID, and
 # route verbose output to a bounded session log. Stop must signal that PID.
 managed_launcher="$TMP/managed-launcher.sh"
@@ -1699,6 +1835,8 @@ AM
     chmod +x "$mockbin/am"
     . "$1/lib/desktop.sh"
     pgrep(){ case "$*" in *termux-x11*|*xfce4-session*|*xfwm4*|*xfdesktop*) return 0;; esac; return 1; }
+    tnx_x11_functional(){ return 0; }
+    tnx_pulseaudio_ready(){ return 0; }
     tnx_has_cmd(){ [ "$1" = flock ]; }
     tnx_desktop_session_live || exit
     TERNUX_JSON=1

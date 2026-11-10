@@ -94,15 +94,16 @@
       "device_status": "VERIFIED_ON_DEVICE",
       "evidence": [
         "lib/desktop.sh",
-        "Exact-head Validate 42707570617 passed lifecycle stop/start/reuse/concurrency fixtures, including managed process-group reaping.",
-        "Read-only live status: desktop/X11/PulseAudio remained running (supervisor PID 16987); no device lifecycle restart attempted. Controlled updated-launcher recovery remains unverified."
+        "Focused fixtures cover bounded functional X11 readiness, stale sockets, duplicate-start rejection, READY-state failure reporting, independent PulseAudio TCP-route readiness, and lifecycle stop/start/reuse/concurrency; 140/140 pass locally on 2026-11-10.",
+        "2026-11-10 source-module device check reused the existing desktop: TERNUX_LIB_DIR=$PWD/lib TERNUX_JSON=1 bash bin/ternux start --json returned already_running for PID 16987; subsequent source status reported READY, X11 functional, and pulseaudio_ready=yes. No stop, restart, app close, or installed-file replacement occurred.",
+        "The previously installed CLI independently still reported running PID 16987. Updated-package controlled stop/crash recovery and managed identity remain unverified."
       ],
       "required_tests": [
         "overlap/start-stop/crash-recovery fixtures",
         "controlled device lifecycle matrix"
       ],
       "acceptance_criteria": [
-        "Track only Ternux-owned process identities and prove readiness, stop, recovery, X11 ownership and independent audio status."
+        "Track only Ternux-owned process identities and prove readiness, stop, recovery, X11 ownership and independent audio status; status must use a bounded functional X11 check and distinguish daemon presence from an answering audio route."
       ],
       "release_blocking": true,
       "release_exclusion": null

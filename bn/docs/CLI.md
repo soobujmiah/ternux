@@ -253,6 +253,21 @@ ternux info [--json]
 ternux state [--json]
 ```
 
+### `ternux status`
+
+Desktop lifecycle এবং host service-এর অবস্থা দেখায়। `running` দেখানোর আগে
+guest-এর ভেতর সীমিত সময়ে X11 query সফল হতে হয়; শুধু socket বা process থাকলেই
+desktop usable ধরা হয় না। `pulseaudio` host daemon process আছে কি না জানায়;
+`pulseaudio_ready` Debian app-এর জন্য loopback TCP audio route আলাদাভাবে যাচাই
+করে।
+
+```bash
+ternux status [--json]
+```
+
+JSON output-এ `lifecycle`, `x11_running`, `pulseaudio`, `pulseaudio_ready`,
+`virgl`, `launcher` এবং `desktop_pid` থাকে।
+
 ### `ternux logs`
 
 লগ ফাইল দেখা ও ব্যবস্থাপনা।

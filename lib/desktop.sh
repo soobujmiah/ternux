@@ -24,6 +24,32 @@ tnx_signal_process_group() { kill -"$1" -- "-$2" 2>/dev/null; }
 # A valid PID file is not enough to prove the desktop is usable: Android may
 # have killed/recreated the X11 app, and old PIDs can be reused. Check the
 # actual guest session and shared X11 socket before accepting a start request.
+tnx_x11_functional() {
+  local user="${TERNUX_USER:-}"
+  [ -n "$user" ] || user="$(tnx_state_get "user" 2>/dev/null || true)"
+  user="${user:-ternux}"
+  tnx_guest_login --_tnx-timeout-seconds 5 --shared-x11 --user "$user" -- \
+    env DISPLAY=:0 xdpyinfo -display :0 >/dev/null 2>&1
+}
+
+tnx_pulseaudio_ready() {
+  tnx_has_cmd pactl || return 1
+  pgrep -x pulseaudio >/dev/null 2>&1 || return 1
+  local modules line port
+  modules="$(env -u PULSE_SERVER timeout 3 pactl list short modules 2>/dev/null)" || return 1
+  while IFS= read -r line; do
+    [[ "$line" == *module-native-protocol-tcp* && "$line" == *listen=127.0.0.1* ]] || continue
+    port="$(printf '%s\n' "$line" | grep -oE 'port=[0-9]+' | head -n 1 | cut -d= -f2)"
+    [[ "$port" =~ ^47(1[3-9]|2[0-2])$ ]] || continue
+    if env PULSE_SERVER="tcp:127.0.0.1:$port" timeout 2 pactl info >/dev/null 2>&1; then
+      return 0
+    fi
+  done <<< "$modules"
+  return 1
+}
+
+# A socket and live processes can outlast an unusable X server. Confirm that
+# the guest can complete an X11 query before reusing or reporting the session.
 tnx_desktop_session_live() {
   local tmp="${TMPDIR:-/data/data/com.termux/files/usr/tmp}"
   [ -S "$tmp/.X11-unix/X0" ] || return 1
@@ -31,7 +57,7 @@ tnx_desktop_session_live() {
   pgrep -x xfce4-session >/dev/null 2>&1 || return 1
   pgrep -x xfwm4 >/dev/null 2>&1 || return 1
   pgrep -x xfdesktop >/dev/null 2>&1 || return 1
-  return 0
+  tnx_x11_functional
 }
 
 # The X server runs as a background service, but Android only displays its
@@ -130,12 +156,16 @@ tnx_cmd_start() {
   # Check for an unmanaged/legacy session before starting another display.
   # Android truncates the configured nice-name to this 15-character comm.
   if pgrep -f "^termux-x11 com\.termux\.x11([[:space:]]|$)" >/dev/null 2>&1; then
-    if [ "${TERNUX_JSON:-0}" != "1" ]; then
-      tnx_warn "Termux:X11 already running."
-      if ! tnx_confirm "Start another session?"; then
-        tnx_info "Cancelled."
-        return 0
-      fi
+    if [ "${TERNUX_JSON:-0}" = "1" ]; then
+      tnx_fail "Termux:X11 is active but the guest X11 readiness probe failed; refusing to start a duplicate desktop."
+      tnx_json_object "start" "error" "reason" "unresponsive_existing_x11"
+      exec 9>&-
+      return 1
+    fi
+    tnx_warn "Termux:X11 is already active, but the managed desktop did not pass its readiness checks."
+    if ! tnx_confirm "Start another session anyway?"; then
+      tnx_info "Cancelled."
+      return 0
     fi
   fi
 
@@ -295,8 +325,8 @@ tnx_cmd_restart() {
 # tnx_cmd_status (helper — used internally)
 # ---------------------------------------------------------------------------
 tnx_cmd_status() {
-  local x11=0 pa=0 virgl=0 desktop_pid="" lifecycle="STOPPED"
-  local identity_pid="" identity_start="" identity_pgid="" observed_start=""
+  local x11=0 pa=0 pa_ready=0 virgl=0 desktop_pid="" lifecycle="STOPPED"
+  local identity_pid="" identity_start="" identity_pgid="" observed_start="" session_ready=0
   [ -r "$TERNUX_STATE_DIR/session/desktop.pid" ] && desktop_pid="$(cat "$TERNUX_STATE_DIR/session/desktop.pid" 2>/dev/null || true)"
   if [ -r "$TERNUX_STATE_DIR/session/desktop.pid.identity" ]; then
     read -r identity_pid identity_start identity_pgid < "$TERNUX_STATE_DIR/session/desktop.pid.identity" || true
@@ -308,25 +338,31 @@ tnx_cmd_status() {
   if ! [[ "$desktop_pid" =~ ^[0-9]+$ ]] || [ -z "$observed_start" ] || [ "$observed_start" != "$identity_start" ] ||
      ! tnx_process_is_live "$desktop_pid" || ! grep -q '^READY$' "$TERNUX_STATE_DIR/session/desktop.pid.ready" 2>/dev/null; then desktop_pid=""; fi
   pgrep -f "^termux-x11 com\.termux\.x11([[:space:]]|$)" >/dev/null 2>&1 && x11=1
-  tnx_desktop_session_live && desktop_pid="${desktop_pid:-active}"
+  if tnx_desktop_session_live; then
+    session_ready=1
+    desktop_pid="${desktop_pid:-active}"
+  fi
   lifecycle="$(cat "$TERNUX_STATE_DIR/session/desktop.state" 2>/dev/null || echo STOPPED)"
   case "$lifecycle" in STARTING|READY|STOPPING|FAILED|RECOVERING|STOPPED) ;; *) lifecycle=FAILED ;; esac
-  if [ "$x11" -eq 1 ] && [ -n "$desktop_pid" ]; then
-    if [ "$lifecycle" = READY ]; then :; else lifecycle=RECOVERING; fi
+  if [ "$session_ready" -eq 1 ]; then
+    if [ "$lifecycle" != READY ]; then lifecycle=RECOVERING; fi
   elif [ "$lifecycle" = READY ]; then lifecycle=FAILED
   elif [ "$lifecycle" = STARTING ] && { [ -z "$desktop_pid" ] || ! kill -0 "$desktop_pid" 2>/dev/null; }; then lifecycle=FAILED
+  elif [ "$x11" -eq 1 ] && [ "$lifecycle" = STOPPED ]; then lifecycle=RECOVERING
   fi
   pgrep -x pulseaudio >/dev/null 2>&1 && pa=1
+  tnx_pulseaudio_ready && pa_ready=1
   pgrep -f '(^|/)virgl_test_server(_android)?([[:space:]]|$)' >/dev/null 2>&1 && virgl=1
 
   local overall="stopped"
-  [ "$x11" -eq 1 ] && [ -n "$desktop_pid" ] && overall="running"
+  [ "$session_ready" -eq 1 ] && overall="running"
 
   if [ "${TERNUX_JSON:-0}" = "1" ]; then
     tnx_json_object "status" "$overall" \
       "lifecycle" "$lifecycle" \
       "x11_running" "$([ $x11 -eq 1 ] && echo "yes" || echo "no")" \
       "pulseaudio" "$([ $pa -eq 1 ] && echo "running" || echo "stopped")" \
+      "pulseaudio_ready" "$([ $pa_ready -eq 1 ] && echo "yes" || echo "no")" \
       "virgl" "$([ $virgl -eq 1 ] && echo "running" || echo "stopped")" \
       "launcher" "$([ -f "$HOME/x.sh" ] && echo "present" || echo "missing")" \
       "desktop_pid" "${desktop_pid:-none}"
@@ -339,6 +375,7 @@ tnx_cmd_status() {
   [ "$overall" = "running" ] && printf "${TNX_CG}%s${TNX_C0}\n" "$overall" || printf "${TNX_CD}%s${TNX_C0}\n" "$overall"
   printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "Termux:X11:" "$([ $x11 -eq 1 ] && echo "running" || echo "stopped")"
   printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "PulseAudio:" "$([ $pa -eq 1 ] && echo "running" || echo "stopped")"
+  printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "Desktop audio route:" "$([ $pa_ready -eq 1 ] && echo "ready" || echo "unavailable")"
   printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "VirGL:" "$([ $virgl -eq 1 ] && echo "running" || echo "stopped")"
   printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "Launcher:" "$([ -f "$HOME/x.sh" ] && echo "present" || echo "missing")"
   printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "Managed PID:" "${desktop_pid:-none}"
