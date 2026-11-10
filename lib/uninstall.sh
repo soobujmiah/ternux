@@ -13,17 +13,18 @@
 
 _tnx_uninstall_usage() {
   cat <<'EOF'
-Usage: ternux uninstall [session|launcher|state|container|all] [--yes]
+Usage: ternux uninstall [session|launcher|state|container|host-cli|all] [--yes]
 
   session    Stop the Ternux-owned desktop session and remove its state markers
   launcher   Remove ~/x.sh and ternux shell aliases
-  state      Remove ternux logs and state (not the Debian container)
-  container  Delete the Debian PRoot container
-  all        Perform all four scoped actions above
+  state      Remove Ternux state and its logs (not the Debian container)
+  container  Delete the selected Debian PRoot container
+  host-cli   Remove the APT-managed or source-installed Termux CLI
+  all        Remove Ternux desktop, guest, state, caches and host CLI
 
-Numeric aliases 1..5 select the same actions in that order.
-'all' does not remove Termux packages or the installed ternux CLI/libraries.
-Container and all require confirmation unless --yes is explicit.
+Numeric aliases 1..6 select the same actions in that order.
+Termux itself and shared Termux packages are kept. Container and all require
+confirmation unless --yes is explicit.
 EOF
 }
 
@@ -98,9 +99,88 @@ _tnx_uninstall_launcher() {
 }
 
 _tnx_uninstall_state() {
-  rm -rf "$TERNUX_STATE_DIR"
+  local prefix="${PREFIX:-/data/data/com.termux/files/usr}"
+  local log_dir="${TERNUX_LOG_DIR:-${TMPDIR:-$prefix/tmp}/ternux}"
+  local state_dir="${TERNUX_STATE_DIR:-$HOME/.local/share/ternux}"
+  # The override is useful for tests and relocated installs, but never let a
+  # malformed environment variable turn uninstall into an arbitrary rm -rf.
+  case "$state_dir" in
+    "$HOME/.local/share/ternux"|"$HOME/.local/share/ternux-"*)
+      if [ -L "$state_dir" ]; then
+        tnx_warn "Preserving symlink at Ternux state path: $state_dir"
+      else
+        rm -rf "$state_dir"
+      fi
+      ;;
+    *) tnx_warn "Preserving custom Ternux state path outside the managed home locations: $state_dir" ;;
+  esac
   rm -f "$HOME/.ternux-state"
-  tnx_ok "ternux state and logs removed"
+  # Remove only the two log files Ternux owns. If the configured log directory
+  # contains user files, keep it and leave those files untouched.
+  if [ -d "$log_dir" ] && [ ! -L "$log_dir" ]; then
+    rm -f "$log_dir/ternux.log" "$log_dir/install-stream.log"
+    rmdir "$log_dir" 2>/dev/null || true
+  fi
+  # The camera and recorder use these host staging directories. Remove them
+  # only when empty; an unfinished capture is user content and must survive.
+  rmdir "$HOME/.cache/ternux-camera" "$HOME/.cache/ternux-recorder" 2>/dev/null || true
+  tnx_ok "Ternux state and logs removed"
+}
+
+_tnx_uninstall_host_cli() {
+  local prefix="${PREFIX:-/data/data/com.termux/files/usr}"
+  local bin="$prefix/bin/ternux" lib="$prefix/lib/ternux"
+  local completion="$prefix/share/bash-completion/completions/ternux"
+  local docs="$prefix/share/doc/ternux"
+  local status=""
+
+  _tnx_uninstall_update_residue() {
+    local path
+    for path in "$prefix/lib/ternux-update-backups" "$prefix/lib/.ternux-update-journal" "$prefix/lib/.ternux-update-lock"; do
+      [ -e "$path" ] || [ -L "$path" ] || continue
+      if [ -L "$path" ]; then
+        tnx_warn "Preserving symlink at Ternux update cleanup path: $path"
+      elif [ -d "$path" ]; then
+        rm -rf "$path"
+      elif [ -f "$path" ]; then
+        rm -f "$path"
+      fi
+    done
+  }
+
+  if command -v dpkg-query >/dev/null 2>&1; then
+    status="$(dpkg-query -W -f='${Status}' ternux 2>/dev/null || true)"
+  fi
+  if [ "$status" = "install ok installed" ]; then
+    if ! command -v dpkg >/dev/null 2>&1 || ! dpkg --remove ternux; then
+      tnx_fail "Could not remove the APT-managed ternux package; inspect dpkg status."
+      return 1
+    fi
+    _tnx_uninstall_update_residue
+    tnx_ok "APT-managed ternux CLI and its package files removed"
+    return 0
+  fi
+
+  # Compatibility with source-installed v1/v2 setups. Refuse symlinks and
+  # only remove a module tree whose own core identifies it as Ternux.
+  if [ -e "$bin" ] || [ -L "$bin" ]; then
+    if [ -L "$bin" ] || [ ! -f "$bin" ] || ! grep -q 'https://github.com/soobujmiah/ternux' "$bin"; then
+      tnx_fail "Refusing to remove an unrecognized host CLI at $bin"
+      return 1
+    fi
+    rm -f "$bin"
+  fi
+  if [ -e "$lib" ] || [ -L "$lib" ]; then
+    if [ -L "$lib" ] || [ ! -f "$lib/core.sh" ] || ! grep -q '^TERNUX_VERSION=' "$lib/core.sh"; then
+      tnx_fail "Refusing to remove an unrecognized module tree at $lib"
+      return 1
+    fi
+    rm -rf "$lib"
+  fi
+  if [ -f "$completion" ] && [ ! -L "$completion" ] && grep -q 'ternux' "$completion"; then rm -f "$completion"; fi
+  if [ -d "$docs" ] && [ ! -L "$docs" ]; then rm -rf "$docs"; fi
+  _tnx_uninstall_update_residue
+  tnx_ok "Source-installed ternux CLI and recognized files removed"
 }
 
 _tnx_uninstall_container() {
@@ -139,7 +219,8 @@ ternux uninstall
   2) Remove launcher and aliases
   3) Remove state and logs
   4) Delete Debian container
-  5) Remove all ternux-managed components above
+  5) Remove all Ternux-managed components, including its CLI
+  6) Remove only the Termux host CLI
   0) Cancel
 EOF
       printf "Selection: " >/dev/tty
@@ -158,7 +239,7 @@ EOF
     3|state) _tnx_uninstall_state ;;
     4|container) _tnx_uninstall_stop; _tnx_uninstall_container ;;
     5|all)
-      if ! _tnx_uninstall_confirm "Remove the session, launcher, state, and Debian container?"; then
+      if ! _tnx_uninstall_confirm "Remove Ternux, its Termux CLI, state, caches, and Debian container?"; then
         tnx_warn "Removal cancelled"
         return 1
       fi
@@ -170,8 +251,10 @@ EOF
       _tnx_uninstall_launcher || rc=1
       _tnx_uninstall_container || rc=1
       _tnx_uninstall_state || rc=1
+      _tnx_uninstall_host_cli || rc=1
       return "$rc"
       ;;
+    6|host-cli) _tnx_uninstall_host_cli ;;
     *) _tnx_uninstall_usage; tnx_fail "Unknown uninstall action: $action"; return 2 ;;
   esac
 }

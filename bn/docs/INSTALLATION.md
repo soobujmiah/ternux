@@ -492,13 +492,15 @@ curl -fsSL https://soobujmiah.github.io/ternux/uninstall.sh | bash
 bash install.sh --uninstall
 ```
 
-`all` মানে command-এ দেখানো চার scoped target: session বন্ধ, `~/x.sh` ও ternux
-alias block অপসারণ, state/log অপসারণ এবং Debian container delete। এটি Termux
-package বা installed `ternux` CLI/library uninstall করে না, shared-storage access
-revocation বা repository/mirror choice restore করে না, এবং Termux `default.pa`-এর
-loopback PulseAudio line ফিরিয়ে দেয় না—এগুলো আগে থেকেই থাকতে পারে বলে ইচ্ছাকৃতভাবে
-রেখে দেওয়া হয়। Termux storage-এর বাইরের Android file delete হয় না। Termux app
-data clear করা আলাদা nuclear option; তাতেই অবশিষ্ট Termux installation-ও মুছে যায়।
+`all` Ternux desktop বন্ধ করে, launcher ও shell alias, state, log এবং খালি capture
+cache সরায়; নির্বাচিত Debian guest এবং Ternux host CLI/update backup মুছে দেয়।
+Termux নিজে, shared Termux package, অন্য PRoot guest, Termux storage-এর বাইরের
+Android file এবং non-empty capture folder রেখে দেয়। Shared-storage access revoke,
+repository/mirror choice restore বা Termux `default.pa`-এর loopback PulseAudio line
+ফেরতও দেয় না—সেটিংগুলো Ternux-এর আগেও থাকতে পারে। সাধারণ install শুধু নির্বাচিত
+একটি guest তৈরি করে (default `debian`); `ternux-clean-apt`-এর মতো test alias তৈরি
+করে না। Termux app data clear করা আলাদা operation; তাতেই বাকি Termux environment
+মুছে যায়।
 
 ---
 

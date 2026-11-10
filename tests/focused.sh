@@ -1363,6 +1363,46 @@ else
   not_ok "scoped uninstall confirms container deletion and preserves other scopes"
 fi
 
+# State removal deletes only Ternux runtime logs/state and empty app staging
+# directories; unrelated files in the log directory are preserved.
+if env HOME="$TMP/home-uninstall-state" PREFIX="$TMP/prefix-uninstall-state" TERNUX_STATE_DIR="$TMP/home-uninstall-state/.local/share/ternux" TERNUX_LOG_DIR="$TMP/prefix-uninstall-state/tmp/ternux" bash -c '
+  mkdir -p "$TERNUX_STATE_DIR" "$TERNUX_LOG_DIR" "$HOME/.cache/ternux-camera" "$HOME/.cache/ternux-recorder"
+  : > "$TERNUX_STATE_DIR/state"
+  : > "$TERNUX_LOG_DIR/ternux.log"
+  : > "$TERNUX_LOG_DIR/install-stream.log"
+  : > "$TERNUX_LOG_DIR/user-note.txt"
+  . "$1/lib/uninstall.sh"
+  _tnx_uninstall_state >/dev/null &&
+  [ ! -e "$TERNUX_STATE_DIR" ] && [ ! -e "$TERNUX_LOG_DIR/ternux.log" ] &&
+  [ ! -e "$TERNUX_LOG_DIR/install-stream.log" ] && [ -f "$TERNUX_LOG_DIR/user-note.txt" ] &&
+  [ ! -e "$HOME/.cache/ternux-camera" ] && [ ! -e "$HOME/.cache/ternux-recorder" ]
+' _ "$ROOT"; then
+  ok "state uninstall removes owned runtime files and preserves unrelated log data"
+else
+  not_ok "state uninstall removes owned runtime files and preserves unrelated log data"
+fi
+
+# Full uninstall removes only the package-owned CLI plus Ternux's update
+# journal/backup residue; shared host packages are never touched.
+if env HOME="$TMP/home-uninstall-host" PREFIX="$TMP/prefix-uninstall-host" bash -c '
+  mkdir -p "$HOME" "$PREFIX/bin" "$PREFIX/lib/ternux" "$PREFIX/lib/ternux-update-backups/old" "$PREFIX/lib/.ternux-update-lock"
+  : > "$PREFIX/bin/ternux"
+  : > "$PREFIX/lib/ternux/core.sh"
+  : > "$PREFIX/lib/.ternux-update-journal"
+  : > "$PREFIX/lib/.ternux-update-lock/owner"
+  dpkg-query(){ printf "install ok installed"; }
+  dpkg(){ [ "$1" = --remove ] && rm -rf "$PREFIX/bin/ternux" "$PREFIX/lib/ternux"; }
+  . "$1/lib/uninstall.sh"
+  _tnx_uninstall_host_cli >/dev/null &&
+  [ ! -e "$PREFIX/bin/ternux" ] && [ ! -e "$PREFIX/lib/ternux" ] &&
+  [ ! -e "$PREFIX/lib/ternux-update-backups" ] && [ ! -e "$PREFIX/lib/.ternux-update-journal" ] &&
+  [ ! -e "$PREFIX/lib/.ternux-update-lock" ]
+' _ "$ROOT"; then
+  ok "host CLI uninstall removes Ternux package and update residue"
+else
+  not_ok "host CLI uninstall removes Ternux package and update residue"
+fi
+
 # Alias removal uses a same-directory replacement, preserves file mode, and
 # refuses malformed marker order or symlink targets without truncation.
 if env TERNUX_STATE_DIR="$TMP/state-uninstall-alias" HOME="$TMP/home-uninstall-alias" bash -c '

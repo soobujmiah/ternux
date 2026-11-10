@@ -1160,10 +1160,29 @@ tnx_phase_checklist() {
 }
 
 # ── Summary box ------------------------------------------------------------
+_tnx_summary_print_line() {
+  local label="$1" value="$2" inner="$3" labelw="$4" valuew="$5" stacked="$6" first="$7"
+  if [ "$stacked" = "1" ]; then
+    if [ "$first" = "label" ]; then
+      printf '  %s|%s %s%-*.*s%s %s|%s\n' \
+        "$TNX_CM" "$TNX_C0" "$TNX_CC" "$inner" "$inner" "$label" "$TNX_C0" "$TNX_CM" "$TNX_C0"
+    else
+      printf '  %s|%s   %s%-*.*s%s %s|%s\n' \
+        "$TNX_CM" "$TNX_C0" "$TNX_CW" "$valuew" "$valuew" "$value" "$TNX_C0" "$TNX_CM" "$TNX_C0"
+    fi
+  elif [ "$first" = "label" ]; then
+    printf '  %s|%s %s%-*s%s | %s%-*s%s %s|%s\n' \
+      "$TNX_CM" "$TNX_C0" "$TNX_CC" "$labelw" "$label" "$TNX_C0" "$TNX_CW" "$valuew" "$value" "$TNX_C0" "$TNX_CM" "$TNX_C0"
+  else
+    printf '  %s|%s %*s | %s%-*s%s %s|%s\n' \
+      "$TNX_CM" "$TNX_C0" "$labelw" '' "$TNX_CW" "$valuew" "$value" "$TNX_C0" "$TNX_CM" "$TNX_C0"
+  fi
+}
+
 tnx_summary_box() {
   [ "${TERNUX_QUIET:-0}" = "1" ] && return 0
   local title="$1"; shift
-  local pairs=("$@") w=52 i k v row cols maxw prefix remaining word line content
+  local pairs=("$@") w=52 i k v row cols inner labelw valuew remaining word line first stacked
   cols="${COLUMNS:-}"
   if [ -t 1 ]; then cols="$(stty size < /dev/tty 2>/dev/null | awk '{print $2}')"; fi
   [[ "$cols" =~ ^[0-9]+$ ]] || cols=80
@@ -1172,33 +1191,68 @@ tnx_summary_box() {
   # cover the terminal's last few cells without changing the reported width.
   if (( cols >= 48 )); then w=$((cols - 8)); else w=$((cols - 6)); fi
   (( w > 76 )) && w=76; (( w < 10 )) && w=10
-  maxw=$((w - 2))
+  inner=$((w - 2))
+  labelw=0
+  for ((i=0; i<${#pairs[@]}; i+=2)); do
+    k="${pairs[$i]}"
+    (( ${#k} > labelw )) && labelw=${#k}
+  done
+  # Keep complete labels on normal phone widths and switch to stacked rows on
+  # very narrow windows where a two-column layout would hide useful text.
+  stacked=0
+  if (( inner < 20 )); then
+    stacked=1
+    valuew=$((inner - 4))
+    (( valuew < 1 )) && valuew=1
+  else
+    (( labelw > 20 )) && labelw=20
+    (( labelw > inner - 11 )) && labelw=$((inner - 11))
+    valuew=$((inner - labelw - 3))
+  fi
   printf '\n  %s+%s+%s\n' "$TNX_CM" "$(_tnx_repeat '-' "$w")" "$TNX_C0"
   printf -v row '%-*.*s' "$((w - 2))" "$((w - 2))" "$title"
   printf '  %s|%s %s%s%s %s|%s\n' "$TNX_CM" "$TNX_C0" "$TNX_CG" "$row" "$TNX_C0" "$TNX_CM" "$TNX_C0"
   printf '  %s+%s+%s\n' "$TNX_CM" "$(_tnx_repeat '-' "$w")" "$TNX_C0"
   for ((i=0; i<${#pairs[@]}; i+=2)); do
     k="${pairs[$i]}"; v="${pairs[$((i+1))]}"
-    prefix="$k:"
-    if (( ${#prefix} >= maxw )); then prefix="${prefix:0:$((maxw - 1))}"; fi
+    if [ "$stacked" = "1" ]; then
+      _tnx_summary_print_line "$k" "" "$inner" "$labelw" "$valuew" "$stacked" label
+    fi
     remaining="${v:-}"
-    if [ -z "$remaining" ]; then printf '  %s|%s %s%-*s%s %s|%s\n' "$TNX_CM" "$TNX_C0" "$TNX_CW" "$maxw" "$prefix" "$TNX_C0" "$TNX_CM" "$TNX_C0"; continue; fi
-    line="$prefix"
+    if [ -z "$remaining" ]; then
+      _tnx_summary_print_line "$k" "(not selected)" "$inner" "$labelw" "$valuew" "$stacked" "$([ "$stacked" = "1" ] && echo value || echo label)"
+      continue
+    fi
+    line=""
+    first=label
+    [ "$stacked" = "1" ] && first=value
     while [ -n "$remaining" ]; do
       word="${remaining%% *}"
       if [ "$word" = "$remaining" ]; then remaining=""; else remaining="${remaining#* }"; fi
-      if (( ${#line} > 0 && ${#line} + ${#word} + 1 > maxw )); then
-        printf '  %s|%s %s%-*s%s %s|%s\n' "$TNX_CM" "$TNX_C0" "$TNX_CW" "$maxw" "$line" "$TNX_C0" "$TNX_CM" "$TNX_C0"
-        line="  $word"
+      while (( ${#word} > valuew )); do
+        if [ -n "$line" ]; then
+          _tnx_summary_print_line "$k" "$line" "$inner" "$labelw" "$valuew" "$stacked" "$first"
+          first=value
+          line=""
+        fi
+        _tnx_summary_print_line "$k" "${word:0:valuew}" "$inner" "$labelw" "$valuew" "$stacked" "$first"
+        first=value
+        word="${word:valuew}"
+      done
+      if (( ${#line} > 0 && ${#line} + ${#word} + 1 > valuew )); then
+        _tnx_summary_print_line "$k" "$line" "$inner" "$labelw" "$valuew" "$stacked" "$first"
+        first=value
+        line="$word"
       else
-        line+=" "
+        [ -n "$line" ] && line+=" "
         line+="$word"
       fi
     done
-    printf '  %s|%s %s%-*s%s %s|%s\n' "$TNX_CM" "$TNX_C0" "$TNX_CW" "$maxw" "$line" "$TNX_C0" "$TNX_CM" "$TNX_C0"
+    _tnx_summary_print_line "$k" "$line" "$inner" "$labelw" "$valuew" "$stacked" "$first"
   done
   printf '  %s+%s+%s\n' "$TNX_CM" "$(_tnx_repeat '-' "$w")" "$TNX_C0"
 }
+
 
 tnx_celebrate() {
   [ "${TERNUX_QUIET:-0}" = "1" ] && return 0

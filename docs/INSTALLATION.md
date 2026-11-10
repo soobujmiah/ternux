@@ -525,14 +525,16 @@ curl -fsSL https://soobujmiah.github.io/ternux/uninstall.sh | bash
 bash install.sh --uninstall
 ```
 
-`all` means the four scoped targets shown by the command: stop the session,
-remove `~/x.sh` and ternux alias blocks, remove ternux state/logs, and delete the
-Debian container. It **does not** uninstall Termux packages, remove the installed
-`ternux` CLI/libraries, revoke shared-storage access, restore repository/mirror
-choices, or revert the loopback PulseAudio line in Termux's `default.pa`; those
-may predate ternux and are deliberately left alone. Android files outside
-Termux storage are never deleted. Clearing Termux app data is the separate
-nuclear option that removes the remaining Termux installation too.
+`all` stops the Ternux desktop, removes its launcher and shell aliases, state,
+logs and empty capture-cache directories, deletes the selected Debian guest,
+and removes the Ternux host CLI and its update backups. It preserves Termux
+itself, shared Termux packages, other PRoot guests, Android files outside
+Termux storage, and non-empty capture folders. It also does not revoke shared
+storage access, restore repository/mirror choices, or revert the loopback
+PulseAudio line in Termux's `default.pa`; these settings may predate Ternux.
+Normal installation creates only the selected guest (default `debian`); it does
+not create test aliases such as `ternux-clean-apt`. Clearing Termux app data is
+a separate operation that removes the remaining Termux environment.
 
 ---
 

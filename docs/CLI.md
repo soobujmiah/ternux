@@ -379,7 +379,7 @@ Scoped removal of ternux components. With no action, an interactive menu is
 shown. In a non-interactive shell, name the action explicitly.
 
 ```bash
-ternux uninstall [session|launcher|state|container|all] [--yes]
+ternux uninstall [session|launcher|state|container|host-cli|all] [--yes]
 ```
 
 Options menu:
@@ -387,13 +387,15 @@ Options menu:
 - 2 / `launcher` — remove `~/x.sh` and the delimited shell-alias blocks
 - 3 / `state` — remove ternux state and logs (not the container)
 - 4 / `container` — delete the Debian container and everything inside it
-- 5 / `all` — perform all four actions above
+- 5 / `all` — remove Ternux components, including host CLI and its update backups
+- 6 / `host-cli` — remove only the Termux-side Ternux CLI
 - 0 — cancel
 
-`all` does not uninstall Termux packages or the ternux CLI/libraries, revoke
-storage access, reset mirrors, or revert the Termux PulseAudio configuration.
-Container deletion requires confirmation. `--yes` is intended only for a
-caller that deliberately accepts irreversible data loss.
+`all` removes the Ternux CLI and update backups but preserves Termux itself,
+shared Termux packages, other PRoot guests and non-empty capture folders. It does
+not revoke storage access, reset mirrors, or revert the Termux PulseAudio
+configuration. Container deletion requires confirmation. `--yes` is intended
+only for a caller that deliberately accepts irreversible data loss.
 
 ## Shell completion
 
