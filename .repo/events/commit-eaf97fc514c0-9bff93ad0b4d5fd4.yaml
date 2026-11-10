@@ -1,0 +1,7 @@
+event_id: commit-eaf97fc514c0-9bff93ad0b4d5fd4
+repository: soobujmiah/ternux
+commit: eaf97fc514c045193e7ef5968a95d1b26c449f9c
+kind: commit
+occurred_at: '2026-11-10T20:41:13Z'
+status: completed
+summary: 'feat(security): make Android storage opt-in and scoped (#139)'
