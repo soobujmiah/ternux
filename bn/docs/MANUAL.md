@@ -36,9 +36,6 @@ guide-এ `ternux` Debian account ধরা হয়েছে; অন্য ব
 ## ধাপ ২ — Termux বেস প্যাকেজ
 
 ```bash
-# Android একটি স্টোরেজ-অনুমতির ডায়ালগ দেখাবে — অনুমোদন করুন।
-termux-setup-storage
-
 # প্যাকেজ ইনডেক্স রিফ্রেশ ও আপগ্রেড।
 pkg update -y
 pkg upgrade -y
@@ -394,9 +391,10 @@ launcher নিরাপদে refresh করার জন্য Ternux lifecycl
 ternux start
 ```
 
-`x` shortcut একই command চালায়। Managed desktop-এ Android shared storage
-`/sdcard`-এ ব্যবহার করা যায়; PRoot session Termux integration-এর জন্য isolated
-bind ব্যবহার করে। পুরোনো `proot-distro login --shared-tmp` launcher example
+`x` shortcut একই command চালায়। Android shared storage default-এ mount হয়
+না। দরকারি folder-এর জন্য `ternux storage grant /sdcard/Folder` চালান; অনুমতি
+না থাকলে এটি Android storage permission চাইবে এবং নতুন guest session-এ শুধু ওই
+folder mount করবে। নতুন grant চালু করতে চলমান desktop restart করতে হবে। পুরোনো `proot-distro login --shared-tmp` launcher example
 `~/x.sh`-এ কপি করবেন না—ওগুলো PRoot-Distro-এর বিস্তৃত host mount ব্যবহার করে।
 `ternux start` launcher missing বললে Ternux installer `ternux install` দিয়ে
 resume করুন।
@@ -407,7 +405,7 @@ resume করুন।
 
 ইনস্টলার `x`, `killx`, `db`, `droot`, `xgo`, `clean-mesa` এবং `sysmon`
 shortcut তৈরি ও রক্ষণাবেক্ষণ করে। Guest alias isolated PRoot binding ব্যবহার
-করে, `/sdcard` রাখে এবং দরকার হলে শুধু `/tmp` share করে। Alias তৈরি বা refresh
+করে, শুধু `ternux storage grant`-এ থাকা folder mount করে এবং দরকারে `/tmp` share করে। Alias তৈরি বা refresh
 করতে `ternux install` চালান; পুরোনো guide-এর alias block কপি করবেন না।
 
 রিলোড করে শুরু করুন:

@@ -37,6 +37,7 @@ ${TNX_CW}Usage:${TNX_C0}
 ${TNX_CW}Commands:${TNX_C0}
   ${TNX_CG}install${TNX_C0}    Install full desktop environment
   ${TNX_CG}extension${TNX_C0}  Manage checksum-verified guest extensions
+  ${TNX_CG}storage${TNX_C0}    Grant or revoke scoped Android storage access
   ${TNX_CG}guides${TNX_C0}     Installation and ecosystem help links
   ${TNX_CG}start${TNX_C0}      Start the desktop session
   ${TNX_CG}stop${TNX_C0}       Stop the desktop session
@@ -226,5 +227,23 @@ Subcommands:
 
 This updates the guest userspace driver, not Android's vendor driver.
 Supports --json for machine-readable output.
+HELP
+}
+
+
+tnx_help_storage() {
+  cat <<'HELP'
+Usage: ternux storage [list | grant DIRECTORY | revoke DIRECTORY]
+
+Shared Android storage is not mounted by default. Grant an existing subdirectory
+under /sdcard to expose only that directory to Ternux guest commands and desktop
+sessions. The storage root itself cannot be granted. Granting may invoke
+termux-setup-storage if Android storage permission is not configured.
+
+Examples:
+  ternux storage grant /sdcard/Documents
+  ternux storage grant /sdcard/Llms
+  ternux storage list
+  ternux storage revoke /sdcard/Llms
 HELP
 }

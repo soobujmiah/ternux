@@ -72,7 +72,7 @@ unavailable হিসেবে দেখানো হয়।
 
 ### অডিও ও VLC কন্ট্রোল
 
-Fresh install-এ Xfce জুড়ে Ternux-এর graphite-emerald GTK 2/3/4 ও Xfwm theme এবং Qt 5 GTK platform theme, neutral Adwaita fallback-সহ branded app, folder, Thunar action, category ও panel icon, Ternux panel এবং wallpaper default apply হয়। Firefox ESR, Blender, GIMP, Krita, Inkscape, Audacity, Geany ও LibreOffice-এর মতো optional GUI app-এর branded icon alias আছে; base Evince PDF reader-এরও নিজস্ব icon আছে। Common Thunar action-গুলো নিজস্ব icon context-এ থাকে। পনেরোটি portrait-first wallpaper landscape-এ aspect ratio ঠিক রাখে। অন্য toolkit ব্যবহার করা app নিজস্ব styling রাখতে পারে। PulseAudio Volume Control Debian-এর packaged application entry ও একই desktop session ব্যবহার করে। Termux:X11 session-এ Xfwm compositing বন্ধ থাকে, কারণ এটি চালু থাকলে পুরো desktop black হতে পারে। VLC ডিফল্টে full interface চালায়, তাই playback control দেখা যায়। Desktop-এর **SD Card** shortcut দিয়ে Thunar-এ Android shared storage খোলা যায়।
+Fresh install-এ Xfce জুড়ে Ternux-এর graphite-emerald GTK 2/3/4 ও Xfwm theme এবং Qt 5 GTK platform theme, neutral Adwaita fallback-সহ branded app, folder, Thunar action, category ও panel icon, Ternux panel এবং wallpaper default apply হয়। Firefox ESR, Blender, GIMP, Krita, Inkscape, Audacity, Geany ও LibreOffice-এর মতো optional GUI app-এর branded icon alias আছে; base Evince PDF reader-এরও নিজস্ব icon আছে। Common Thunar action-গুলো নিজস্ব icon context-এ থাকে। পনেরোটি portrait-first wallpaper landscape-এ aspect ratio ঠিক রাখে। অন্য toolkit ব্যবহার করা app নিজস্ব styling রাখতে পারে। PulseAudio Volume Control Debian-এর packaged application entry ও একই desktop session ব্যবহার করে। Termux:X11 session-এ Xfwm compositing বন্ধ থাকে, কারণ এটি চালু থাকলে পুরো desktop black হতে পারে। VLC ডিফল্টে full interface চালায়, তাই playback control দেখা যায়। Android storage default-এ mount হয় না। `ternux storage grant /sdcard/Folder` দিয়ে একটি folder অনুমতি দিন; তারপর desktop shortcut শুধু অনুমোদিত folder-গুলো খুলবে।
 
 ## XFCE Task Manager-এর performance
 
@@ -130,15 +130,15 @@ Termux হোস্ট                         PRoot Debian
 ────────────                         ────────────
 ~/x.sh             লঞ্চার            /home/<user>     আপনার হোম
 ~/.ternux-state    ইনস্টল স্টেট      /root            রুটের হোম
-~/storage/shared   Android স্টোরেজ   /sdcard          একই ফাইল, সিমলিংক
+~/storage/shared   Android স্টোরেজ   /sdcard          একই স্টোরেজ; guest access opt-in
 ```
 
 - **Debian হোম** কন্টেইনারের ভেতরে — `proot-distro backup`-এর সাথে যায়,
   কন্টেইনার ডিলিট হলে মুছে যায়।
-- **`~/storage/shared`** (Termux) আর **`/sdcard`** (Debian) *একই* Android
-  স্টোরেজ। অন্য অ্যাপে (গ্যালারি, Drive, WhatsApp) দেখা লাগবে এমন ফাইল এখানে
-  রাখুন। *কেন:* কন্টেইনার Android অ্যাপের কাছে অদৃশ্য; শেয়ার্ড স্টোরেজই
-  হাতবদলের জায়গা।
+- **`~/storage/shared`** (Termux) আর **`/sdcard`** (Debian) Android shared
+  storage-কে বোঝায়। Ternux default-এ এটি mount করে না। নির্দিষ্ট folder-এর জন্য
+  `ternux storage grant /sdcard/Folder` চালান; revoke করতে
+  `ternux storage revoke /sdcard/Folder` ব্যবহার করুন।
 - **দামি সোর্স কোড** Git রিমোটেও রাখুন। ফোন হারানো সহজ, কন্টেইনার ডিলিট
   করা সহজ — GitHub নয়।
 
@@ -247,7 +247,7 @@ peak memory, temperature ও output image record করুন। Low resolution 
 লাইসেন্স শর্ত আপনার আর প্রোভাইডারের মধ্যে।
 
 *টিপস:* কন্টেইনারে (`db`) `git` চালান, তবে যেখান থেকে সুবিধা সেখানে পুশ
-করুন — `/sdcard`-এ ক্লোন করলে দুই পাশই একই ফাইল দেখে।
+করুন। Guest-এ Android shared storage কেবল নির্দিষ্ট directory grant করার পর দেখা যায়।
 
 <h3 id="authorised-security-lab">অনুমোদিত সিকিউরিটি ল্যাব</h3>
 

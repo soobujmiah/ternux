@@ -37,9 +37,6 @@ to be universally idempotent.
 ## Step 2 — Termux base packages
 
 ```bash
-# Android will show a storage-permission dialog — approve it.
-termux-setup-storage
-
 # Refresh the package index and upgrade what's there.
 pkg update -y
 pkg upgrade -y
@@ -413,9 +410,11 @@ launcher safely:
 ternux start
 ```
 
-The `x` shortcut runs the same command. The managed desktop keeps Android
-shared storage available at `/sdcard`, while its PRoot session uses isolated
-binds for Termux integration. Do not copy older `proot-distro login
+The `x` shortcut runs the same command. Android shared storage is not mounted
+by default. Grant only a needed directory with `ternux storage grant
+/sdcard/Folder`; this requests Android storage permission if needed and mounts
+that directory for new guest sessions. Existing desktops need a restart to apply
+a new grant. Do not copy older `proot-distro login
 --shared-tmp` launcher examples into `~/x.sh`; those use PRoot-Distro's broader
 host mounts. If `ternux start` says the launcher is missing, resume the Ternux
 installer with `ternux install`.
@@ -426,8 +425,8 @@ installer with `ternux install`.
 
 The installer creates and maintains the `x`, `killx`, `db`, `droot`, `xgo`,
 `clean-mesa` and `sysmon` shortcuts. The guest aliases use isolated PRoot
-bindings, keep `/sdcard` available, and share `/tmp` only for commands that need
-it. Run `ternux install` to create or refresh the generated aliases; do not
+bindings, mount only directories listed by `ternux storage grant`, and share
+`/tmp` only for commands that need it. Run `ternux install` to create or refresh the generated aliases; do not
 copy an older alias block from a previous guide.
 
 Reload and start:

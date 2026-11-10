@@ -195,7 +195,8 @@ update হবে।
 ### ঐচ্ছিক Stable Diffusion CPU + Vulkan extension
 
 `ternux extension install stable-diffusion` Debian ARM64-e pinned `sd-cli`
-runtime install kore. Model weight user nijer shared storage-e rakhben; Vulkan-er
+runtime install kore. Shared storage-er model use korte age `ternux storage
+grant /sdcard/Llms` চালান; guest-e sudhu granted folder mount hoy. Vulkan-er
 jonno Debian Vulkan ICD cholte hobe. Target device-e image quality o performance
 qualify na howa porjonto eta preview. Install, model path, verify o remove-er
 jonno [Stable Diffusion guide](https://github.com/soobujmiah/ternux/blob/main/bn/guides/stable-diffusion-vulkan-extension.md) dekhun.

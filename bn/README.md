@@ -74,7 +74,7 @@ ternux stop       # desktop বন্ধ
 ```
 
 `x` desktop চালায়; `xgo` Termux:X11 খুলে desktop চালায়। Debian shell-এর জন্য
-Termux-এ `db` চালান। Debian-এর ভেতরে Android shared storage `/sdcard`-এ পাবেন।
+Termux-এ `db` চালান। Android shared storage default-এ mount হয় না। শুধু দরকারি folder grant করুন, যেমন `ternux storage grant /sdcard/Llms`; তারপর desktop restart বা নতুন guest shell-এ folder ব্যবহার করুন।
 
 ## কী কী পাবেন
 

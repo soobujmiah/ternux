@@ -161,8 +161,8 @@ Debian/Xfce terminal-এ `/usr/local/bin/ternux` guest-local `status`, `info`,
 - কন্টেইনারে একটি পূর্ণাঙ্গ **Debian ডেস্কটপ** — এমুলেটেড নয়, ইনস্টলড।
 - নির্বাচিত **OpenGL route** যাচাইয়ের tool; tested Adreno evidence Zink/Turnip দেখায়।
 - ফোনের স্পিকার/হেডফোনে **শব্দ** ব্রিজড।
-- Android ও Debian-এর মধ্যে **শেয়ার্ড স্টোরেজ** (Termux-এ `~/storage` ↔
-  কন্টেইনারে `/sdcard`)।
+- ঐচ্ছিক **শেয়ার্ড স্টোরেজ**: `ternux storage grant /sdcard/Folder` দিয়ে
+  একটি Android folder অনুমতি দিন; default-এ user file guest-এ প্রকাশ হয় না।
 
 ## Android 12+? একটি জরুরি নোট
 
@@ -204,7 +204,13 @@ Termux theke pinned image-generation runtime install korun:
 ternux extension install stable-diffusion
 ```
 
-Debian-e `/sdcard/Llms` theke CPU ba Adreno Vulkan model use korun:
+Termux theke model folder grant korun, tarpor notun guest shell ba desktop restart korun:
+
+```bash
+ternux storage grant /sdcard/Llms
+```
+
+Ebar Debian-e CPU ba Adreno Vulkan model use korun:
 
 ```bash
 source "$HOME/.local/opt/ternux-extensions/stable-diffusion/env.sh"

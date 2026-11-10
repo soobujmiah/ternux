@@ -133,10 +133,12 @@ unauthenticated audio or model service to the local network by default.
 |---|---|
 | Debian home (`/home/<user>`) | Inside the container; travels with backups |
 | Termux home (`~`) | Host side; launcher, state, scripts |
-| Shared storage (`~/storage/shared` ↔ `/sdcard`) | The Android files all apps see |
+| Shared storage (`~/storage/shared` ↔ `/sdcard`) | Android files all apps see; hidden from PRoot until an individual subdirectory is explicitly granted |
 
-Source code and irreplaceable projects belong in shared storage or a Git
-remote — not only inside the container.
+Source code and irreplaceable projects should have a Git remote backup. To work
+with a project in Android storage, grant only its directory with
+`ternux storage grant /sdcard/Folder`; Ternux does not mount the whole storage
+area by default.
 
 ---
 

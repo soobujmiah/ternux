@@ -76,9 +76,26 @@ tnx_distro_profile() {
   esac
 }
 
-# Run a command in an isolated guest. Shared Android storage is an intentional
-# feature; expose it when Android has mounted it, without exposing Termux HOME.
-# Callers may still request specific integrations such as shared X11.
+# Add only directory mounts explicitly granted by the user. The allowlist is
+# validated on every login so stale paths or hand-edited entries fail closed.
+tnx_storage_guest_args() {
+  local -n _tnx_login_args="$1"
+  local file="$TERNUX_STATE_DIR/storage-allowlist" host guest root resolved expected_guest extra
+  [ -e "$file" ] || return 0
+  [ ! -L "$file" ] && [ -f "$file" ] || { echo "Unsafe Ternux storage allowlist; refusing storage mounts." >&2; return 1; }
+  root="$(realpath -e /sdcard 2>/dev/null)" || { echo "Granted Android storage is unavailable; run termux-setup-storage and retry." >&2; return 1; }
+  while IFS=$'\t' read -r host guest extra; do
+    [ -n "$host" ] || continue
+    expected_guest="/sdcard/${host#"$root"/}"
+    [ -z "$extra" ] && [[ "$host" == "$root"/* && "$host" != *:* && "$guest" == "$expected_guest" && "$guest" != *:* ]] || { echo "Out-of-scope Ternux storage grant; refusing storage mounts." >&2; return 1; }
+    resolved="$(realpath -e -- "$host" 2>/dev/null)" || { echo "A granted storage directory is no longer available: $guest" >&2; return 1; }
+    [ "$resolved" = "$host" ] && [ -d "$host" ] || { echo "A granted storage directory changed identity: $guest" >&2; return 1; }
+    _tnx_login_args+=(--bind "$host:$guest")
+  done < "$file"
+}
+
+# Run a command in an isolated guest. Android shared storage is opt-in and
+# scoped to directories recorded by `ternux storage grant`.
 tnx_guest_login() {
   local timeout_seconds=""
   local -a login_args=(--isolated)
@@ -99,7 +116,7 @@ tnx_guest_login() {
       *) break ;;
     esac
   done
-  [ ! -e /sdcard ] || login_args+=(--bind /sdcard:/sdcard)
+  tnx_storage_guest_args login_args || return $?
   if [ -n "$timeout_seconds" ]; then
     tnx_has_cmd timeout || return 127
     timeout --signal=TERM --kill-after=1 "$timeout_seconds" \
