@@ -15,6 +15,17 @@ alt_url: "/bn/docs/V2-RELEASE-READINESS.html"
 
 ### Continuation snapshot — 2026-11-10
 
+### Current session reconciliation — 2026-11-10
+
+- **Repository:** `origin/main` is `8e24062589e81c20095c875fa4d19dd5cb928554`; the active branch `fix/managed-htp-extension-prerequisites` is clean at `6f8e8344c13d6cf2013ab7f9a6dc7cf6df836ac8`, with `main` as an ancestor. It is 183 commits ahead and PR #97 changes 581 files (+13,975/−1,386). No staged, unstaged, or untracked work existed in this checkout before this continuation's desktop change.
+- **Open PRs:** #97 is the v2 branch; #45/#44/#43/#42/#41 are Dependabot action updates; #35 is the separate proposed-license review. PR #96 (signed APT setup) is merged. PR #97 is non-draft, authored by `soobujmiah`, has no review requests, and GitHub reports `REVIEW_REQUIRED`/`BLOCKED`.
+- **CI:** all five required checks pass on exact head `6f8e8344c13d6cf2013ab7f9a6dc7cf6df836ac8`: Validate `42801811480`, Termux package `42801811821`, repository contract `42801811505`, Repo Knowledge Sync `42801811494` (`test` job `129780954399`, `sync` job `129781022516`).
+- **Protection:** read-back confirms strict required checks, one approval including CODEOWNERS review, admin enforcement, stale-approval dismissal, latest-push approval, force-push disabled, and branch deletion disabled. Only collaborator is `soobujmiah`, who authored PR #97; an independent review cannot be supplied through that same account.
+- **Other local state:** `ternux-package-audit` remains detached at `727726a` with its untracked CI artifact; separate `ternux-tools` remains on `main` with owner-modified bilingual accelerator plans and QNN research files. Both are preserved and excluded from PR #97. The live desktop has not been restarted.
+
+The complete reconciliation matrix is: P0-01 COMPLETE; P0-02 PARTIAL; P0-03 COMPLETE; P1-01 PARTIAL; P1-02 COMPLETE for the observed Adreno 825 only; P1-03 PARTIAL; P1-04 PARTIAL; P1-05 protection configured but PR integration remains under P0-02; P1-06 PARTIAL; P1-07 and P1-08 PARTIAL and explicitly release-excluded; P1-APT BLOCKED; P1-PKG/P1-DOCS PARTIAL; P2-01/P2-03 NOT_STARTED and non-blocking; P2-02 PARTIAL; P2-04 COMPLETE; P2-DEVICE PARTIAL. The release validator reports 19 gates and eight incomplete release blockers. The latest retained HTP candidate remains experimental and is not a stable-release claim.
+
+
 Audited PR head before this report-only refresh was `8041c33939fc00639fe3296779ba840a352f82a3`, 172 commits ahead of `main` (`8e24062589e81c20095c875fa4d19dd5cb928554`); GitHub reports 576 changed files, ready-for-review state, and `REVIEW_REQUIRED`. All five required checks pass on this exact head: Validate `42792959040`, Termux APT package `42792958963`, repository contract `42792959029`, and Repo Knowledge Sync `42792959241` (`sync` and `test`). The retained HTP candidate reuse verifier also passes on this head for run `42783356495`: source commit ancestry, build-job definition, package-input diff, run/artifact provenance, and artifact expiry all verify. The public experimental prerelease still serves the older archive; publication is gated on owner/CODEOWNERS review and merge into `main`.
 
 Latest exact-head follow-up: PR #97 is at `b97ea9965865c602d0119f8f8916e0430e06d847`. All five required checks pass: Validate `42798314264`, Termux APT package `42798314373`, repository contract `42798315057`, Repo Knowledge Sync `42798315019` (`sync` and `test`). GitHub still reports `REVIEW_REQUIRED`, `BLOCKED`, no review request, and no approval. `.github/CODEOWNERS` names only `@soobujmiah`, the PR author; collaborator enumeration lists only the owner, and the only non-owner review entries are bot comments. An independent human reviewer remains required before PR #97 can merge and the main-only HTP publisher can run.
@@ -98,6 +109,9 @@ The separate owner checkout contains modified bilingual accelerator plans, QNN e
 - New launcher cleanup terminates only its recorded X11/VirGL child PIDs after checking their start identities, unloads only the PulseAudio module it created, and leaves the shared PulseAudio daemon running.
 - Legacy launcher records without identity are stopped only after verifying the recorded process group, exact launcher path, inherited `TNX_PID_FILE`, and live start identity. They receive SIGKILL to bypass the old launcher’s global cleanup trap.
 - Uninstall now reuses the same ownership-checked stop path. The direct-pipe uninstaller fetches and syntax-checks the required desktop module.
+- Desktop startup now requires the launcher marker plus a bounded host-side verification of the Termux:X11 process, `xfce4-session`, `xfwm4`, `xfdesktop`, and a guest `xdpyinfo` round-trip. The functional check retries at most three times after the marker.
+- `ternux start --json` reports the PulseAudio TCP route independently as `ready` or `unavailable`; audio failure is visible without tearing down a working desktop. `ternux restart` now aborts if the lifecycle lock prevents a safe stop.
+- Focused regressions passed 144/144 locally on this source tree. The running desktop was not restarted; updated-package stop/crash recovery still requires a controlled device run.
 - The current generated launcher contract is version 19; earlier audit commits used version 18. English and Bangla manual examples and the `killx` alias are synchronized to `ternux stop`.
 
 ### Pinned optional AI installers

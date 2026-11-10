@@ -15,6 +15,17 @@ alt_url: "/docs/V2-RELEASE-READINESS.html"
 
 ### সর্বশেষ continuation snapshot — ২০২৬-১১-১০
 
+### এই session-এর repository reconciliation — ২০২৬-১১-১০
+
+- **Repository:** `origin/main` হলো `8e24062589e81c20095c875fa4d19dd5cb928554`; active branch `fix/managed-htp-extension-prerequisites` clean head `6f8e8344c13d6cf2013ab7f9a6dc7cf6df836ac8`-এ, এবং `main` তার ancestor। Branch-টি ১৮৩ commit এগিয়ে; PR #97-এ ৫৮১টি file পরিবর্তিত (+১৩,৯৭৫/−১,৩৮৬)। এই continuation-এর desktop change-এর আগে এই checkout-এ staged, unstaged বা untracked কাজ ছিল না।
+- **Open PR:** #97 হলো v2 branch; #45/#44/#43/#42/#41 Dependabot action update; #35 আলাদা proposed-license review। Signed APT setup-এর PR #96 merged। PR #97 non-draft, author `soobujmiah`, review request নেই; GitHub `REVIEW_REQUIRED`/`BLOCKED` দেখায়।
+- **CI:** exact head `6f8e8344c13d6cf2013ab7f9a6dc7cf6df836ac8`-এ পাঁচটি required check pass: Validate `42801811480`, Termux package `42801811821`, repository contract `42801811505`, Repo Knowledge Sync `42801811494` (`test` job `129780954399`, `sync` job `129781022516`)।
+- **Protection:** live read-back-এ strict required check, একটি approval ও CODEOWNERS review, admin enforcement, stale approval বাতিল, latest-push approval, force-push নিষিদ্ধ এবং branch deletion নিষিদ্ধ দেখা গেছে। একমাত্র collaborator `soobujmiah`, যিনি PR #97-এর author; একই account দিয়ে independent review দেওয়া যায় না।
+- **অন্য local state:** `ternux-package-audit` detached `727726a`-তে এবং untracked CI artifact অক্ষত। আলাদা `ternux-tools` checkout `main`-এ; owner-modified bilingual accelerator plan ও QNN research file অক্ষত। দুটিই PR #97-এর বাইরে। Live desktop restart করা হয়নি।
+
+পূর্ণ reconciliation matrix: P0-01 COMPLETE; P0-02 PARTIAL; P0-03 COMPLETE; P1-01 PARTIAL; P1-02 শুধু পর্যবেক্ষিত Adreno 825-এ COMPLETE; P1-03 PARTIAL; P1-04 PARTIAL; P1-05 protection configured, কিন্তু PR integration P0-02-এর অধীনে বাকি; P1-06 PARTIAL; P1-07 ও P1-08 PARTIAL এবং release থেকে বাদ; P1-APT BLOCKED; P1-PKG/P1-DOCS PARTIAL; non-blocking P2-01/P2-03 NOT_STARTED; P2-02 PARTIAL; P2-04 COMPLETE; P2-DEVICE PARTIAL। Release validator-এ ১৯টি gate এবং ৮টি অসম্পূর্ণ release blocker। Retained HTP candidate experimental-ই থাকবে, stable release claim নয়।
+
+
 এই report-only refresh-এর আগে audited PR head ছিল `8041c33939fc00639fe3296779ba840a352f82a3`, `main`
 (`8e24062589e81c20095c875fa4d19dd5cb928554`)-এর চেয়ে ১৭২ commit এগিয়ে;
 GitHub ৫৭৬টি changed file, review-ready state ও `REVIEW_REQUIRED` দেখায়। এই exact
@@ -113,6 +124,9 @@ HTP stable support হিসেবে qualified হয় না।
 - নতুন launcher নিজের যাচাইকৃত X11/VirGL child বন্ধ করে, নিজের তৈরি PulseAudio module unload করে এবং shared PulseAudio daemon চালু রাখে।
 - পুরোনো launcher-এর identity file না থাকলে process group, launcher path, inherited `TNX_PID_FILE` ও start identity যাচাই করে তবেই stop হয়।
 - Uninstall একই ownership-checked stop path ব্যবহার করে; direct-pipe uninstaller desktop module-ও download ও syntax-check করে।
+- Desktop startup-এ launcher marker-এর পাশাপাশি Termux:X11 process, `xfce4-session`, `xfwm4`, `xfdesktop` এবং guest `xdpyinfo` round-trip boundedভাবে verify হয়; marker আসার পর সর্বোচ্চ তিনবার probe হয়।
+- `ternux start --json` PulseAudio TCP route আলাদাভাবে `ready`/`unavailable` জানায়। Audio ব্যর্থ হলেও working desktop বন্ধ করা হয় না। Lifecycle lock ধরে নিরাপদে stop করা না গেলে `ternux restart` abort করে।
+- এই source tree-তে focused regression ১৪৪/১৪৪ pass। Live desktop restart হয়নি; updated package-এর stop/crash recovery controlled device run এখনও বাকি।
 - বর্তমান generated launcher contract version 19; আগের audit commit-এ version 18 ছিল। English/Bangla manual ও `killx` alias `ternux stop`-এর সঙ্গে মেলানো হয়েছে।
 
 ### যাচাইকৃত optional AI installer

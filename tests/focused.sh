@@ -1660,6 +1660,21 @@ else
   not_ok "desktop readiness uses a bounded guest X11 query"
 fi
 
+# Functional readiness retries are bounded; an unusable X11 server must not
+# leave the lifecycle waiting indefinitely.
+if env TERNUX_STATE_DIR="$TMP/state-x11-readiness-timeout" HOME="$TMP/home-x11-readiness-timeout" bash -c '
+    . "$1/lib/desktop.sh"
+    readiness_probes=0
+    tnx_desktop_session_live(){ readiness_probes=$((readiness_probes+1)); return 1; }
+    sleep(){ :; }
+    tnx_wait_for_desktop_ready && exit 1
+    [ "$readiness_probes" -eq 3 ]
+  ' _ "$ROOT"; then
+  ok "functional desktop readiness gives up after its bounded probe count"
+else
+  not_ok "functional desktop readiness gives up after its bounded probe count"
+fi
+
 # An X11 socket and process list do not qualify an unresponsive display as live.
 if env TERNUX_STATE_DIR="$TMP/state-x11-stale" HOME="$TMP/home-x11-stale" \
   TMPDIR="$TMP/x11-stale-tmp" bash -c '
@@ -1772,12 +1787,20 @@ trap 'rm -f "$TMPDIR/.X11-unix/X0"; exit 0' TERM EXIT
 while :; do sleep 1; done
 LAUNCHER
 if env TERNUX_STATE_DIR="$TMP/state-desktop-start" HOME="$TMP/home-desktop-start" \
-  TMPDIR="$TMP/desktop-start-tmp" bash -c '
+  TMPDIR="$TMP/desktop-start-tmp" READY_PROBE_FILE="$TMP/desktop-ready-probes" bash -c '
     mkdir -p "$HOME"
     cp "$2" "$HOME/legacy-x.sh"
     printf "#!/usr/bin/env bash\n# legacy\n" > "$HOME/x.sh"
     MOCK_LAUNCHER="$2"
     . "$1/lib/desktop.sh"
+    tnx_desktop_session_live(){
+      local probes=0
+      [ -r "$READY_PROBE_FILE" ] && probes="$(cat "$READY_PROBE_FILE")"
+      probes=$((probes+1)); printf "%s\n" "$probes" > "$READY_PROBE_FILE"
+      [ "$probes" -ge 4 ]
+    }
+    tnx_pulseaudio_ready(){ return 1; }
+    tnx_show_x11_activity(){ :; }
     tnx_canonical_backend(){ echo virgl; }
     tnx_state_get(){ case "$1" in backend) echo virgl;; user) echo alice;; locale) echo en_US.UTF-8;; esac; }
     tnx_phase_launcher(){
@@ -1797,8 +1820,11 @@ if env TERNUX_STATE_DIR="$TMP/state-desktop-start" HOME="$TMP/home-desktop-start
     setsid(){ command setsid "$@"; }
     pgrep(){ return 1; }
     start_at=$SECONDS
-    tnx_cmd_start >/dev/null || exit
+    TERNUX_JSON=1
+    start_output="$(tnx_cmd_start)" || exit
     [ "$((SECONDS-start_at))" -le 5 ] || exit
+    JSON_OUT="$start_output" python3 -c "import json,os; result=json.loads(os.environ[\"JSON_OUT\"]); assert result[\"status\"]==\"ok\" and result[\"audio_route\"]==\"unavailable\"" || exit
+    [ "$(cat "$READY_PROBE_FILE")" -eq 4 ] || exit
     pid="$(cat "$TERNUX_STATE_DIR/session/desktop.pid")"
     [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null || exit
     read -r fixture_pid fixture_start fixture_pgid < "$TERNUX_STATE_DIR/session/desktop.pid.identity" || exit
@@ -1872,6 +1898,20 @@ assert obj["command"] == "start" and obj["status"] == "starting"
   ok "concurrent desktop start requests do not spawn a second launcher"
 else
   not_ok "concurrent desktop start requests do not spawn a second launcher"
+fi
+
+# Restart must abort when stop cannot acquire the lifecycle lock; it must not
+# report success while the original startup is still in progress.
+if env TERNUX_STATE_DIR="$TMP/state-desktop-restart-busy" HOME="$TMP/home-desktop-restart-busy" bash -c '
+    . "$1/lib/desktop.sh"
+    tnx_cmd_stop(){ return 1; }
+    tnx_cmd_start(){ : > "$HOME/start-was-called"; }
+    tnx_cmd_restart && exit 1
+    [ ! -e "$HOME/start-was-called" ]
+  ' _ "$ROOT"; then
+  ok "desktop restart aborts when the current lifecycle cannot be stopped"
+else
+  not_ok "desktop restart aborts when the current lifecycle cannot be stopped"
 fi
 
 # Vulkan detection must not turn a missing glob into a false positive.

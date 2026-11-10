@@ -60,6 +60,19 @@ tnx_desktop_session_live() {
   tnx_x11_functional
 }
 
+# The generated launcher writes its READY marker after XFCE startup, but the
+# host also verifies the real guest processes and a bounded X11 round-trip
+# before reporting success. A short retry absorbs startup races without
+# repeatedly probing every 100 ms during the long launcher wait.
+tnx_wait_for_desktop_ready() {
+  local attempt
+  for ((attempt=0; attempt<3; attempt++)); do
+    tnx_desktop_session_live && return 0
+    [ "$attempt" -eq 2 ] || sleep 1
+  done
+  return 1
+}
+
 # The X server runs as a background service, but Android only displays its
 # desktop when Termux:X11's activity is in the foreground.
 tnx_show_x11_activity() {
@@ -203,6 +216,10 @@ tnx_cmd_start() {
     fi
     sleep 0.1
   done
+  if [ "$ready" -eq 1 ] && ! tnx_wait_for_desktop_ready; then
+    tnx_warn "The launcher signaled ready, but XFCE processes or the bounded X11 query did not pass."
+    ready=0
+  fi
   if [ "$ready" -ne 1 ]; then
     local rc=1 failed_identity_pid="" failed_start="" failed_pgid="" failed_current=""
     if [ -r "$pid_file.identity" ]; then read -r failed_identity_pid failed_start failed_pgid < "$pid_file.identity" || true; fi
@@ -225,15 +242,22 @@ tnx_cmd_start() {
     return "$rc"
   fi
 
+  local audio_route="unavailable"
+  if tnx_pulseaudio_ready; then
+    audio_route="ready"
+  else
+    tnx_warn "XFCE is ready, but the Termux PulseAudio route did not answer. Desktop is running; check 'ternux status'."
+  fi
   printf '%s\n' READY > "$state_file"
   exec 9>&-
   if [ "${TERNUX_JSON:-0}" = "1" ]; then
     tnx_show_x11_activity
-    tnx_json_object "start" "ok" "backend" "$configured_backend" "pid" "$pid" "log" "$desktop_log"
+    tnx_json_object "start" "ok" "backend" "$configured_backend" "pid" "$pid" "audio_route" "$audio_route" "log" "$desktop_log"
     return 0
   fi
   tnx_show_x11_activity
   tnx_ok "Desktop is running in the background (PID $pid)."
+  [ "$audio_route" = "ready" ] && tnx_info "Desktop audio route is ready." || true
   tnx_info "Startup output: ternux logs desktop tail"
   return 0
 }
@@ -252,9 +276,13 @@ tnx_cmd_stop() {
   mkdir -p "$session_dir" || { tnx_fail "Could not access desktop state directory."; return 1; }
   exec 8>"$session_dir/start.lock" || { tnx_fail "Could not open the desktop lifecycle lock."; return 1; }
   if ! flock -n 8; then
-    tnx_info "Desktop is still starting; stop was not sent. Check 'ternux status' or 'ternux logs desktop tail'."
+    if [ "${TERNUX_JSON:-0}" = "1" ]; then
+      tnx_json_object "stop" "error" "reason" "desktop_start_in_progress"
+    else
+      tnx_warn "Desktop is still starting; stop was not sent. Check 'ternux status' or 'ternux logs desktop tail'."
+    fi
     exec 8>&-
-    return 0
+    return 1
   fi
   if [ -r "$identity_file" ]; then
     read -r recorded_pid start_id pgid < "$identity_file" || true
@@ -316,7 +344,10 @@ tnx_cmd_stop() {
 # tnx_cmd_restart
 # ---------------------------------------------------------------------------
 tnx_cmd_restart() {
-  tnx_cmd_stop
+  tnx_cmd_stop || {
+    tnx_warn "Restart aborted because the existing desktop could not be stopped safely."
+    return 1
+  }
   sleep 1
   tnx_cmd_start
 }

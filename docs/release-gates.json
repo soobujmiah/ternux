@@ -103,11 +103,13 @@
         "2026-11-10 source-module device check reused the existing desktop: TERNUX_LIB_DIR=$PWD/lib TERNUX_JSON=1 bash bin/ternux start --json returned already_running for PID 16987; subsequent source status reported READY, X11 functional, and pulseaudio_ready=yes. No stop, restart, app close, or installed-file replacement occurred.",
         "The previously installed CLI independently still reported running PID 16987. Updated-package controlled stop/crash recovery and managed identity remain unverified.",
         "Exact-head commit f4bb945576f03a9d8979d7d89553660471dafbaf passed all eight required CI workflows on 2026-11-10: Validate 42773827524; Termux APT 42773827442; repository contract 42773827490; knowledge sync 42773827401; llama CPU/Vulkan 42773827384; Stable Diffusion CPU/Vulkan 42773827441; HTP 42773827791; HTP/HMX candidate 42773827449.",
-        "2026-11-10 non-disruptive device concurrency check: simultaneous source start calls returned starting/already_running for the existing PID 16987; both exited 0, then status reported READY with functional X11 and PulseAudio route. No stop/restart occurred; controlled updated-package stop/crash recovery remains open."
+        "2026-11-10 non-disruptive device concurrency check: simultaneous source start calls returned starting/already_running for the existing PID 16987; both exited 0, then status reported READY with functional X11 and PulseAudio route. No stop/restart occurred; controlled updated-package stop/crash recovery remains open.",
+        "Startup now requires the launcher READY marker plus a bounded host probe of Termux:X11, xfce4-session, xfwm4, xfdesktop, and xdpyinfo; it reports PulseAudio route readiness separately. Restart returns failure without a second start if stop cannot acquire the lifecycle lock. Local focused suite passed 144/144 after these changes; no live session restart or updated-package lifecycle run was performed."
       ],
       "required_tests": [
         "overlap/start-stop/crash-recovery fixtures",
-        "controlled device lifecycle matrix"
+        "controlled device lifecycle matrix",
+        "bounded functional startup readiness, independent audio status, and restart lock-contention regression"
       ],
       "acceptance_criteria": [
         "Track only Ternux-owned process identities and prove readiness, stop, recovery, X11 ownership and independent audio status; status must use a bounded functional X11 check and distinguish daemon presence from an answering audio route."
@@ -145,17 +147,19 @@
       "severity": "P1",
       "owner": "engineering",
       "status": "PARTIAL",
-      "source_status": "PASS",
+      "source_status": "PARTIAL",
       "ci_status": "PASS",
       "device_status": "NOT_TESTED",
       "evidence": [
         "tests/update_transaction.sh",
         "Local focused suite passed 134/134, including update transaction version/pinning/staging/rollback/crash/concurrency/symlink cases; exact-head Validate 42707570617 passed. On 2026-11-10, bash tests/update_transaction.sh passed with an exact published v1.4.0 dispatcher/core/updater fixture from commit 3e6c07e2afcb5f1e65ecd57af19b0382a948835a, updating against a local bare repository containing the current v2 source. A fake proot-distro keeps the installed Debian guest untouched. This proves source-level migration behavior, not migration through a published v2 release or on-device.",
-        "A published v2 release and actual native-device v1.4.0 migration remain unverified because no v2 stable publication exists."
+        "A published v2 release and actual native-device v1.4.0 migration remain unverified because no v2 stable publication exists.",
+        "Audit found the fresh standalone bootstrap still downloads the mutable main-branch codeload archive without a pinned commit/checksum; this is being fixed before release qualification."
       ],
       "required_tests": [
         "pinning/downgrade/staging/rollback/crash/concurrency/symlink fixtures",
-        "published v2 and v1.4.0 migration"
+        "published v2 and v1.4.0 migration",
+        "fresh bootstrap accepts only the pinned source archive and fails closed on digest mismatch"
       ],
       "acceptance_criteria": [
         "Never replace a working CLI/modules tree with an incomplete or unpinned update; prove published migration."
