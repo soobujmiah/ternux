@@ -193,8 +193,8 @@ HTP stable support হিসেবে qualified হয় না।
 
 - KGSL node বা loader/ICD file থাকাকে Vulkan readiness-এর প্রমাণ ধরা বন্ধ হয়েছে।
 - Debian guest-এ `vulkaninfo --summary` চালিয়ে physical device type ও driver যাচাই হয়। আসল Turnip GPU-র পাশে llvmpipe থাকলেও CPU-only llvmpipe `SOFTWARE_FALLBACK`।
-- `vulkan_state`: `NOT_DETECTED`, `HARDWARE_AVAILABLE`, `LOADER_MISSING`, `DRIVER_MISSING`, `ICD_MISSING`, `DEVICE_ENUMERATION_FAILED`, `VULKAN_READY`, `SOFTWARE_FALLBACK`। Live `glxinfo` non-software renderer দেখালেই `OPENGL_ACCELERATION_READY`।
-- Live renderer query না পেলে Turnip file দেখে renderer দাবি করা হয় না। GPU documentation-এর English/Bangla দুই সংস্করণ হালনাগাদ।
+- `vulkan_state`: `NOT_DETECTED`, `HARDWARE_AVAILABLE`, `LOADER_MISSING`, `DRIVER_MISSING`, `ICD_MISSING`, `DEVICE_ENUMERATION_FAILED`, `VULKAN_READY`, `SOFTWARE_FALLBACK`। Live renderer llvmpipe, lavapipe, softpipe, swrast, SwiftShader, Software Rasterizer বা GDI Generic না হলেই শুধু `OPENGL_ACCELERATION_READY`; অজানা renderer-কে acceleration বলা হয় না।
+- Live renderer query না পেলে Turnip file দেখে renderer দাবি করা হয় না। SwiftShader, `swrast` ও generic software renderer ভুল করে accelerated দেখানোর regression-ও ঠিক করা হয়েছে; এগুলো `SOFTWARE_FALLBACK` এবং `doctor` warning দেয়। GPU documentation-এর English/Bangla দুই সংস্করণ হালনাগাদ।
 
 ### সাধারণ Pages deploy-তে signed APT repository অক্ষত রাখা
 

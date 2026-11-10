@@ -163,13 +163,20 @@ tnx_detect_vulkan() {
   tnx_vulkan_legacy_status "$(tnx_detect_vulkan_state)"
 }
 
+tnx_renderer_is_software() {
+  printf '%s\n' "${1:-}" | grep -Eiq \
+    'llvmpipe|lavapipe|softpipe|swrast|swiftshader|software[[:space:]_-]*rasterizer|gdi[[:space:]_-]*generic'
+}
+
 tnx_detect_graphics_state() {
   local vulkan_state="${1:-$(tnx_detect_vulkan_state)}" renderer="${2:-$(tnx_detect_renderer)}"
-  case "$renderer" in
-    *llvmpipe*|*lavapipe*|*softpipe*) echo SOFTWARE_FALLBACK ;;
-    unknown|"") echo "$vulkan_state" ;;
-    *) echo OPENGL_ACCELERATION_READY ;;
-  esac
+  if tnx_renderer_is_software "$renderer"; then
+    echo SOFTWARE_FALLBACK
+  elif [ -z "$renderer" ] || [ "$renderer" = unknown ]; then
+    echo "$vulkan_state"
+  else
+    echo OPENGL_ACCELERATION_READY
+  fi
 }
 
 tnx_detect_backend() {
