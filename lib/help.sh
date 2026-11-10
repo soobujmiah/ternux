@@ -213,7 +213,7 @@ HELP
 
 tnx_help_update()    { echo "Usage: ternux update [check]"; echo "check — inspect the latest stable release without installing. APT installs use pkg upgrade; other installs fetch the exact stable tag commit, stage and verify all CLI modules, and preserve the previous version for rollback."; }
 tnx_help_uninstall() {
-  echo "Usage: ternux uninstall [session|launcher|state|container|all] [--yes]"
+  echo "Usage: ternux uninstall [session|launcher|state|container|host-cli|all] [--yes]"
   echo "Interactive by default; destructive container removal requires confirmation."
 }
 

@@ -495,12 +495,12 @@ confirmation স্পষ্ট রাখতে তার scoped uninstaller ব
 ```bash
 ternux uninstall                 # interactive component choice
 ternux uninstall container       # Debian data delete করার আগে confirm
-ternux uninstall all             # চার scoped target; আগে backup
+ternux uninstall all             # Ternux CLI ও guest-সহ সব managed component
 ```
 
-`container`/`all` Debian-এর ভেতরের সব data ধ্বংস করে। `all` চালালেও Termux
-package, ternux CLI/library, repository/storage choice ও Termux PulseAudio config
-থেকে যায়। Automation-এ `--yes` শুধু explicit irreversible confirmation হিসেবে দিন।
+`container`/`all` Debian-এর ভেতরের সব data ধ্বংস করে। `all` Ternux host CLI ও
+update backup-ও সরায়; Termux নিজে, shared package, অন্য PRoot guest এবং non-empty
+capture folder থাকে। Automation-এ `--yes` শুধু explicit irreversible confirmation হিসেবে দিন।
 
 উপরের manual-only ধাপগুলো CLI install করে না। Manual setup সরাতে Termux থেকে
 scoped uninstaller চালান:
