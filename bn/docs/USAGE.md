@@ -91,6 +91,7 @@ ternux ইনস্টল হলে `ternux` কমান্ডই আপনা�
 
 ```bash
 tx distro list         # সব installed guest ও desktop recipe status
+tx distro search alpine # OCI image খুঁজুন
 ternux install --distros debian,ubuntu  # দুটো আলাদা guest install
 tx start                 # saved guest চালু
 tx start ubuntu         # Ubuntu চালু

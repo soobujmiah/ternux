@@ -46,6 +46,10 @@ tnx_cmd_distro exec debian -- printf '%s' ok
 [ "$(tail -n 1 "$TMP/login-calls")" = 'debian|-- printf %s ok' ]
 tnx_cmd_distro image-install alpine:latest alpine
 [ "$(cat "$TMP/proot-calls")" = 'install --name alpine alpine:latest' ]
+tnx_cmd_distro search 'debian bookworm'
+[ "$(tail -n 1 "$TMP/proot-calls")" = 'search debian bookworm' ]
+if tnx_cmd_distro search >/dev/null 2>&1; then exit 1; fi
+if tnx_cmd_distro search one two >/dev/null 2>&1; then exit 1; fi
 tnx_cmd_distro list > "$TMP/distro-list"
 grep -q 'alpine.*shell/image only' "$TMP/distro-list"
 grep -q 'debian.*Ternux recipe available' "$TMP/distro-list"

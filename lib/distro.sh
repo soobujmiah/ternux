@@ -1,5 +1,5 @@
 # =============================================================================
-# Ternux named guest management (Debian/Ubuntu profiles)
+# Ternux named guest management (desktop profiles and generic OCI guests)
 # =============================================================================
 . "$(dirname "${BASH_SOURCE[0]}")/core.sh"
 
@@ -25,7 +25,13 @@ tnx_cmd_distro() {
         printf '  %-24s %s\n' "$name" "$marker"
       done < <(proot-distro list --quiet 2>/dev/null || true)
       [ "$found" -eq 1 ] || printf '  (none)\n'
-      printf "\nTernux desktop: tx install --distro NAME | tx install --distros debian,ubuntu\nGeneric image:  tx distro image-install IMAGE[:TAG] [NAME]\nShell:          tx distro shell NAME | tx distro exec NAME -- COMMAND\n"
+      printf "\nTernux desktop: tx install --distro NAME | tx install --distros debian,ubuntu\nFind images:    tx distro search QUERY\nGeneric image:  tx distro image-install IMAGE[:TAG] [NAME]\nShell:          tx distro shell NAME | tx distro exec NAME -- COMMAND\n"
+      ;;
+    search|find)
+      [ "$#" -eq 2 ] && [ -n "$2" ] || { tnx_fail "Usage: tx distro search QUERY"; return 2; }
+      tnx_has_cmd proot-distro || { tnx_fail "proot-distro is missing; install the Ternux host packages first."; return 1; }
+      # PRoot-Distro requires a query; pass it as one argument, never eval it.
+      proot-distro search "$2"
       ;;
     install)
       [ "$#" -eq 2 ] || { tnx_fail "Usage: ternux distro install NAME"; return 2; }
@@ -62,6 +68,6 @@ tnx_cmd_distro() {
       fi
       ;;
     *)
-      tnx_fail "Usage: ternux distro [list|install NAME|image-install IMAGE [NAME]|shell NAME|exec NAME -- COMMAND]"; return 2 ;;
+      tnx_fail "Usage: tx distro [list|search QUERY|install NAME|image-install IMAGE [NAME]|shell NAME|exec NAME -- COMMAND]"; return 2 ;;
   esac
 }
