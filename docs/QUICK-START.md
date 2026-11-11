@@ -34,13 +34,13 @@ curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh |
 wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
 ```
 
-With a controlling terminal, the one-command installer also offers a numbered optional-workload chooser. Press Enter for the base desktop, enter a comma-separated selection such as `1,5`, or choose `6` for all optional workloads. In a non-interactive run, use `--yes` to keep the base profile.
+With a controlling terminal, first choose one or more named guest profiles in the checklist: move with Up/Down or `j`/`k`, press Space or a profile number to toggle a selection, then Enter to continue. Debian is the recommended default; the other 14 family-matched profiles are available but not device-verified. The next checklist selects optional workloads; press Enter or `0` for the base desktop, or choose the displayed numbers. In a non-interactive run, `--yes` keeps the Debian base profile. See [all guest profiles and package-family recipes](INSTALLATION.html#choosing-a-guest-distribution).
 
 The installer:
 
 1. checks the device (architecture, Android version, storage, network);
 2. installs the Termux packages (X11, PulseAudio, PRoot);
-3. installs **Debian + Xfce4** inside a PRoot container;
+3. installs the selected guest profile + Xfce4 inside its PRoot container (Debian by default);
 4. detects your GPU and picks the right driver
    (**Adreno → Zink/Turnip** · other → **VirGL**);
 5. configures audio, fonts and locale;
@@ -76,8 +76,8 @@ source ~/.bashrc
 x
 ```
 
-The `x` shortcut launches: audio bridge → display (`Termux:X11`) → Debian →
-**Xfce4**. Switch to the Termux:X11 app — your desktop is there.
+The `x` shortcut launches: audio bridge → display (`Termux:X11`) → selected guest →
+**Xfce4**. Switch to the Termux:X11 app — your selected guest desktop is there.
 
 ## Step 4 — Verify the renderer
 

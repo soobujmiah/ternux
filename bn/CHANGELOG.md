@@ -14,7 +14,7 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 
 ### Guest profile ও installer
 
-- APT, APK, pacman, DNF, Zypper ও XBPS family-তে named guest profile, আলাদা launcher/settings, ধারাবাহিক multi-guest install এবং নাম-নির্দিষ্ট `start/stop/restart DISTRO` যোগ হয়েছে। Installer profile picker এখন optional workload-এর একই keyboard checklist ব্যবহার করে (arrow বা `j`/`k`, Space/number toggle, Enter confirm) এবং device evidence জানায়। Debian-ই একমাত্র device-verified profile; Ubuntu-তে VirGL default এবং snapd pin/hold করা হয়।
+- APT, APK, pacman, DNF, Zypper ও XBPS family-তে named guest profile, আলাদা launcher/settings, ধারাবাহিক multi-guest install এবং নাম-নির্দিষ্ট `start/stop/restart DISTRO` যোগ হয়েছে। Installer profile picker এখন optional workload-এর একই keyboard checklist ব্যবহার করে (arrow বা `j`/`k`, Space/number toggle, Enter confirm) এবং device evidence জানায়। Standalone bootstrap-এ repeatable multi-guest install-এর জন্য `--distros LIST` যোগ হয়েছে এবং help-এ তা দেখায়। দুই homepage-এর copy button-এ exact এক-লাইন installer command কপি হয়। Debian-ই একমাত্র device-verified profile; Ubuntu-তে VirGL default এবং snapd pin/hold করা হয়।
 
 ### Release operation
 

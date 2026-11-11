@@ -331,7 +331,8 @@ bash install.sh --backend virgl     # force the compatibility fallback
 bash install.sh --zsh               # Termux shell -> zsh, with powerlevel10k
 bash install.sh --shell bash        # choose without being asked
 bash install.sh --no-theme          # zsh without powerlevel10k
-bash install.sh --distro ubuntu      # guest distribution (debian is the verified one)
+bash install.sh --distro ubuntu      # one named guest profile
+bash install.sh --distros debian,ubuntu,alpine  # install several profiles
 bash install.sh --with-dev          # Git, Node.js, Python, build tools
 bash install.sh --with-llm          # llama.cpp + Vulkan (local AI)
 bash install.sh --with-network      # nmap, tmux (authorised testing only)
@@ -364,9 +365,9 @@ ternux update           # self-update the CLI
 
 ### Choosing a guest distribution
 
-Everything ternux installs lives inside one PRoot-Distro guest. `--distro`
-selects one profile; `--distros` can install several independently. The choice
-is recorded per guest so `--resume` and `ternux repair` keep using the right
+Each selected guest lives in its own PRoot-Distro container. `--distro`
+selects one profile; `--distros` installs several independently. The choice is
+recorded per guest so `--resume` and `ternux repair` keep using the right
 profile.
 
 | Package manager | Named desktop profiles |

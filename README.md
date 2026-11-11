@@ -181,10 +181,11 @@ render route and run scripts or scenes with the documented EEVEE setup. See the
 - [Benchmarks](docs/BENCHMARKS.md): measured device results and their limits.
 - [Changelog](CHANGELOG.md)
 
-With a terminal attached, the installer offers a numbered optional
-software chooser; Enter keeps the base desktop. `--yes` skips prompts and
-installs the base profile, while explicit `--with-*` flags or `--all` select
-additional workloads. The `pkg install ternux` package route is prepared for
+With a terminal attached, the installer first offers a keyboard checklist for
+one or more guest profiles (Space/number toggles, Enter confirms), then a
+numbered optional software chooser; Enter keeps the base desktop. `--yes` skips
+prompts and installs the Debian base profile, while explicit `--with-*` flags
+or `--all` select additional workloads. The `pkg install ternux` package route is prepared for
 the v2 release but is not published yet; use the installer above for now. After
 publication, a one-time verified bootstrap sets up the signed APT source and
 installs Ternux; later installs and updates use normal `pkg` commands. See the

@@ -308,6 +308,26 @@ for rel in ("dist/index.html", "dist/bn/index.html"):
 check(re.search(r"@media\s*\(prefers-reduced-motion:\s*reduce\)", read(ROOT / "src/styles/site.css")) is not None,
       "site.css: reduced-motion support missing")
 check("data-copy" in read(ROOT / "src/layouts/SiteLayout.astro"), "site shell: command copy control missing")
+install_command = "curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash"
+for source in ("src/pages/index.astro", "src/pages/bn/index.astro"):
+    page = read(ROOT / source)
+    check(f'data-copy-value="{install_command}"' in page,
+          f"{source}: homepage install button must copy the exact one-line command")
+    check(install_command in page,
+          f"{source}: homepage install command display does not match the copy action")
+for page in ("docs/QUICK-START.md", "bn/docs/QUICK-START.md"):
+    text = read(ROOT / page)
+    check("Debian + Xfce4" not in text,
+          f"{page}: quick start still implies Debian is the only selectable guest")
+for page in ("docs/INSTALLATION.md", "bn/docs/INSTALLATION.md"):
+    text = read(ROOT / page)
+    check("--distros debian,ubuntu,alpine" in text,
+          f"{page}: missing copyable multi-profile install example")
+installer_source = read(ROOT / "install.sh")
+check('--distros LIST' in installer_source,
+      "install.sh: help omits multi-profile selection")
+check('    --distros)' in installer_source and 'INSTALL_ARGS+=(--distros "$DISTROS_CHOICE")' in installer_source,
+      "install.sh: --distros is not forwarded to the multi-profile installer")
 check(".js-reveal [data-reveal]" in read(ROOT / "src/styles/site.css"), "site.css: no-JavaScript reveal fallback missing")
 check('document.body.classList.add("js-reveal")' in read(ROOT / "src/layouts/SiteLayout.astro"), "site shell: reveal enhancement marker missing")
 for rel in ("dist/docs/ACCELERATOR-RELEASE-PLAN.html", "dist/bn/docs/ACCELERATOR-RELEASE-PLAN.html", "dist/docs/GRAPHICS-PERSISTENCE.html"):

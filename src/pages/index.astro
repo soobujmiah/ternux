@@ -7,7 +7,7 @@ import RenderBench from "../components/RenderBench.astro";
 
 <SiteLayout
   title="Linux, beyond the desktop"
-  description="Turn an ARM64 Android phone into a no-root Debian or Ubuntu workstation. Termux, PRoot, Xfce and evidence-led Adreno GPU acceleration."
+  description="Turn an ARM64 Android phone into a no-root Linux workstation with 15 package-family guest profiles, Termux, PRoot, Xfce and evidence-led Adreno GPU acceleration."
   canonical="/"
   altUrl="/bn/"
 >
@@ -29,10 +29,10 @@ import RenderBench from "../components/RenderBench.astro";
             </span>
           </h1>
           <p>
-            A complete ARM64 Linux workstation running on Android, with a
-            verified Debian default and a selectable Ubuntu guest. No root. No
-            remote server. Just a carefully engineered stack that turns a phone
-            into a real place to build, render and compute.
+            A complete ARM64 Linux workstation on Android, with 15
+            package-family guest profiles and a verified Debian default. No
+            root. No remote server. Just a carefully engineered stack that
+            turns a phone into a place to build, render and compute.
           </p>
           <div class="hero-actions">
             <a class="button primary" href="/ternux/docs/QUICK-START.html">
@@ -48,7 +48,7 @@ import RenderBench from "../components/RenderBench.astro";
         </div>
         <div
           class="hero-system-route"
-          aria-label="Ternux system route: Android, Termux, Debian or Ubuntu, Adreno"
+          aria-label="Ternux system route: Android, Termux, a PRoot guest, Adreno"
         >
           <span>
             ANDROID <b>HOST</b>
@@ -129,7 +129,7 @@ import RenderBench from "../components/RenderBench.astro";
           </article>
           <article class="arch-stage" data-index="03 / LINUX">
             <span class="arch-pulse"></span>
-            <h3>PRoot · Debian / Ubuntu</h3>
+            <h3>PRoot · 15 guest profiles</h3>
             <p>Independent guests · Xfce</p>
           </article>
           <article class="arch-stage" data-index="04 / DISPLAY">
@@ -170,14 +170,14 @@ import RenderBench from "../components/RenderBench.astro";
           </div>
           <div class="command">
             <small>TERMUX / SHELL</small>
-            <button type="button" data-copy>
+            <button
+              type="button"
+              data-copy
+              data-copy-value="curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash"
+            >
               COPY
             </button>
-            <code>
-              curl -fsSL
-              https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh
-              | bash
-            </code>
+            <code>curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash</code>
           </div>
         </div>
       </div>
@@ -203,8 +203,10 @@ import RenderBench from "../components/RenderBench.astro";
             <span class="eyebrow">04 / ANDROID DEVELOPMENT</span>
             <h2>Ternux runs Linux. ADT develops Android.</h2>
             <p>
-              Ternux supplies the verified Debian desktop by default; Ubuntu is
-              selectable with its own snapd-safe profile. ADT adds the native
+              Ternux offers 15 package-family desktop profiles, with the
+              device-verified Debian desktop as the default. Ubuntu has its own
+              snapd-safe recipe; the other profiles are not device-qualified.
+              ADT adds the native
               Android development toolchain inside that guest: SDK build-tools,
               platform-tools, signing, ADB, Flutter/Dart and native build tools.
               Their device workflows are independently verified; running ADT

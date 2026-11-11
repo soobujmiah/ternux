@@ -20,6 +20,8 @@
 #    --user NAME                     guest user (default: ternux)
 #    --locale LANG                   locale inside the selected guest (default: en_US.UTF-8)
 #    --backend auto|zink|virgl       graphics route (default: auto)
+#    --distro NAME                   select one named guest profile
+#    --distros LIST                  comma-separated profiles for multiple guests
 #    --with-dev  --with-llm  --with-network  --with-media  --with-blender
 #    --all                           all optional workloads
 #    --zsh                           use zsh instead of bash
@@ -179,6 +181,8 @@ SHELL_CHOICE="bash"
 NO_THEME=0
 DISTRO_CHOICE="debian"
 DISTRO_SET=0
+DISTROS_CHOICE=""
+DISTROS_SET=0
 USER_SET=0; LOCALE_SET=0; BACKEND_SET=0; SHELL_SET=0
 WITH_DEV=0; WITH_LLM=0; WITH_NETWORK=0; WITH_MEDIA=0; WITH_BLENDER=0; WITH_ALL=0
 FIX="no"
@@ -212,7 +216,18 @@ while [ $# -gt 0 ]; do
     --zsh) SHELL_CHOICE="zsh"; SHELL_SET=1 ;;
     --shell) SHELL_CHOICE="${2:-}"; SHELL_SET=1; shift ;;
     --no-theme) export TERNUX_THEME=none; NO_THEME=1 ;;
-    --distro) DISTRO_CHOICE="${2:-}"; DISTRO_SET=1; shift ;;
+    --distro)
+      if [ $# -lt 2 ] || [ -z "$2" ] || [[ "$2" == --* ]]; then
+        echo "[FAIL] --distro needs a profile name" >&2
+        exit 2
+      fi
+      DISTRO_CHOICE="$2"; DISTRO_SET=1; shift ;;
+    --distros)
+      if [ $# -lt 2 ] || [ -z "$2" ] || [[ "$2" == --* ]]; then
+        echo "[FAIL] --distros needs a comma-separated profile list" >&2
+        exit 2
+      fi
+      DISTROS_CHOICE="$2"; DISTROS_SET=1; shift ;;
     --with-dev) WITH_DEV=1 ;;
     --with-llm) WITH_LLM=1 ;;
     --with-network) WITH_NETWORK=1 ;;
@@ -237,7 +252,7 @@ while [ $# -gt 0 ]; do
     --status) ACTION="status" ;;
     --uninstall) ACTION="uninstall" ;;
     --version) echo "ternux installer v${TERNUX_VERSION:-2.0.0} — https://github.com/soobujmiah/ternux"; exit 0 ;;
-    -h|--help) sed -n '/^#  Usage/,/^# =====/p' "$0" | sed 's/^# \?//p' | head -n -1; exit 0 ;;
+    -h|--help) sed -n '/^#  Usage/,/^# =====/p' "$0" | sed -n 's/^# \?//p' | head -n -1; exit 0 ;;
     *) echo "[FAIL] Unknown option: $1" >&2; exit 2 ;;
   esac
   shift
@@ -343,7 +358,12 @@ case "${ACTION}" in
     fi
     [ "$SHELL_CHOICE" = "zsh" ] && INSTALL_ARGS+=(--zsh)
     [ "$NO_THEME" = "1" ] && INSTALL_ARGS+=(--no-theme)
+    if [ "$DISTRO_SET" = "1" ] && [ "$DISTROS_SET" = "1" ]; then
+      echo "[FAIL] Use either --distro or --distros, not both." >&2
+      exit 2
+    fi
     [ "$DISTRO_SET" = "1" ] && INSTALL_ARGS+=(--distro "$DISTRO_CHOICE")
+    [ "$DISTROS_SET" = "1" ] && INSTALL_ARGS+=(--distros "$DISTROS_CHOICE")
 
     tnx_install "${INSTALL_ARGS[@]}"
     ;;

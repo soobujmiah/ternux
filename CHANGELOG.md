@@ -14,7 +14,7 @@ Notable changes to ternux. Dates are ISO 8601.
 
 ### Guest profiles and installer
 
-- Expanded named guest profiles across APT, APK, pacman, DNF, Zypper and XBPS families, with independent per-guest launchers/settings, sequential multi-guest installation and guarded `start/stop/restart DISTRO` commands. The installer profile picker now shares the optional-workload keyboard checklist (arrows or `j`/`k`, Space/number toggle, Enter confirm) and identifies device evidence. Debian remains the only device-verified profile; Ubuntu uses VirGL by default and pins/holds snapd.
+- Expanded named guest profiles across APT, APK, pacman, DNF, Zypper and XBPS families, with independent per-guest launchers/settings, sequential multi-guest installation and guarded `start/stop/restart DISTRO` commands. The installer profile picker now shares the optional-workload keyboard checklist (arrows or `j`/`k`, Space/number toggle, Enter confirm) and identifies device evidence. The standalone bootstrap now accepts `--distros LIST` for repeatable multi-guest installs, and its help documents the option. Debian remains the only device-verified profile; Ubuntu uses VirGL by default and pins/holds snapd. The English and Bengali homepage copy buttons both copy the exact one-line installer command.
 
 ### Release operations
 

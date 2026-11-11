@@ -1292,6 +1292,34 @@ else
   not_ok "standalone installer reports missing option values as usage errors"
 fi
 
+# The public standalone bootstrap must preserve the explicit multi-guest list
+# when forwarding to the shared installer without starting any install phase.
+mkdir -p "$TMP/install-multidistro/lib"
+cp "$ROOT/install.sh" "$TMP/install-multidistro/install.sh"
+cat > "$TMP/install-multidistro/lib/core.sh" <<'EOF'
+TERNUX_VERSION=2.0.0
+tnx_info() { :; }
+tnx_ok() { :; }
+tnx_warn() { :; }
+tnx_fail() { :; }
+tnx_step() { :; }
+tnx_confirm() { :; }
+tnx_debug() { :; }
+tnx_require_termux() { :; }
+EOF
+cat > "$TMP/install-multidistro/lib/phases.sh" <<'EOF'
+tnx_install() { printf '%s\n' "$@" > "$TNX_CAPTURE_ARGS"; }
+EOF
+: > "$TMP/install-multidistro/lib/ui.sh"
+: > "$TMP/install-multidistro/lib/detect.sh"
+if TNX_CAPTURE_ARGS="$TMP/install-multidistro/args" \
+  bash "$TMP/install-multidistro/install.sh" --distros debian,ubuntu,alpine >/dev/null 2>&1 &&
+  [ "$(cat "$TMP/install-multidistro/args")" = $'--distros\ndebian,ubuntu,alpine' ]; then
+  ok "standalone installer forwards a copyable multi-guest selection"
+else
+  not_ok "standalone installer forwards a copyable multi-guest selection"
+fi
+
 rm -f "$TMP/doctor-gpu" "$TMP/doctor-verify" "$TMP/doctor-marks"
 env FAIL_PREFLIGHT=1 DOCTOR_GPU="$TMP/doctor-gpu" DOCTOR_VERIFY="$TMP/doctor-verify" \
   DOCTOR_MARKS="$TMP/doctor-marks" HOME="$TMP/home-doctor-wrapper" \
