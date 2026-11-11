@@ -17,7 +17,7 @@
 
 </div>
 
-Ternux sets up Debian and Xfce4 in Termux using PRoot. Termux:X11 displays the
+Ternux sets up a Debian or Ubuntu Xfce4 guest in Termux using PRoot. Debian is the verified default; Ubuntu has its own profile with snapd blocked. Other PRoot-Distro OCI guests can also be installed and used from a shell; desktop readiness depends on a Ternux recipe for that package family. Termux:X11 displays the
 desktop and PulseAudio connects sound. Graphics use Zink/Turnip on supported
 Adreno devices or VirGL as a compatibility route. Results vary by device.
 
@@ -67,14 +67,16 @@ x
 Switch to the Termux:X11 app to see Xfce. Common commands, all run in Termux:
 
 ```bash
-ternux status     # show session and install state
+tx status         # short alias for the Ternux CLI
 ternux verify     # check the installation and graphics route
 ternux doctor     # diagnose common problems
-ternux stop       # stop the desktop session
+tx stop           # choose one/many running guest desktops
+tx distro list    # show every installed PRoot guest
 ```
 
-The `x` shortcut starts the desktop; `xgo` opens Termux:X11 and starts it.
-Inside Debian, use `db` from Termux to open a shell. Shared Android storage is
+Use `tx stop --all` to close every managed Ternux desktop. Debian and Ubuntu each get a tagged Termux:X11 window and can run concurrently. Install both desktop profiles with `tx install --distros debian,ubuntu`; each gets the same Ternux base desktop and separate settings. `xgo` lists every installed guest and asks which desktop to start when there is more than one. Generic images without a Ternux package recipe are shown as shell-only. Debian remains the only device-verified profile.
+
+The `x` shortcut starts the saved desktop; `xgo` opens Termux:X11 and asks which installed desktop guest to start. `tx` is the short CLI command. Use `db`/`dbr` for Debian user/root shells, `ub`/`ubr` for Ubuntu, and `alp`/`alpr` for Alpine when those guests are installed. Use `tx distro shell NAME` or `tx distro exec NAME -- COMMAND` for any installed PRoot guest. Install a generic image with `tx distro image-install alpine:latest` (this provides a guest shell, not a Ternux desktop recipe). Shared Android storage is
 not mounted by default. Grant only a needed folder, then restart the desktop or
 open a new guest shell to use it:
 
@@ -84,7 +86,7 @@ ternux storage grant /sdcard/Llms
 
 ## What you get
 
-**Base desktop:** Debian 13 (Trixie) in a user-space PRoot container, Xfce4,
+**Base desktop:** Debian 13 (Trixie) by default, or an independently installed Ubuntu guest, in user-space PRoot with Xfce4,
 Termux:X11 display integration, and PulseAudio audio routing. The default setup
 includes Bangla-capable Noto fonts, Avro phonetic input (Ctrl+Space), VLC,
 PulseAudio Volume Control, Xfce Task Manager, Mousepad, Galculator, Evince PDF

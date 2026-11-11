@@ -203,6 +203,7 @@ _tnx_dispatch() {
         '' 'Open these links in a browser. This command does not install anything.'
       return 0 ;;
     start|stop|restart|status) lib_map="desktop" ;;
+    distro)                    lib_map="distro" ;;
     gpu)                       lib_map="backend" ;;
     verify)                    lib_map="doctor" ;;
     install)                   lib_map="phases" ;;

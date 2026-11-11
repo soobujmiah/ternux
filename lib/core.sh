@@ -27,10 +27,9 @@ TERNUX_LEGACY_STATE="$HOME/.ternux-state"
 # ---------------------------------------------------------------------------
 # Guest distribution
 #
-# Everything ternux installs lives inside one PRoot-Distro container. Debian is
-# the only verified guest today; this indirection exists so a second one can be
-# added with its own profile rather than another pass over every call site.
-# Resolution order: explicit TERNUX_DISTRO, then recorded state, then debian.
+# Debian and Ubuntu have independent Ternux desktop profiles and share the tested
+# APT base recipe. Other PRoot images can be managed as generic shell guests.
+# Resolution: explicit TERNUX_DISTRO, saved choice, then Debian.
 # ---------------------------------------------------------------------------
 TERNUX_DISTRO_VERIFIED="debian"
 TERNUX_DISTRO_KNOWN="debian ubuntu"
@@ -66,6 +65,71 @@ tnx_distro_known() {
 # Both profiles are apt/dpkg, so the hold and divert mechanisms are shared;
 # Ubuntu additionally ships snapd, which cannot work without systemd inside a
 # PRoot container and must not be pulled in or upgraded.
+tnx_distro_display() {
+  local distro="${1:-$(tnx_distro)}" display=""
+  display="$(tnx_distro_state_get "$distro" display 2>/dev/null || true)"
+  if [[ "$display" =~ ^[0-9]{1,2}$ ]]; then printf '%s' "$display"; return 0; fi
+  case "$distro" in
+    debian) printf '0' ;;
+    ubuntu) printf '1' ;;
+    alpine) printf '2' ;;
+    *) return 1 ;;
+  esac
+}
+
+tnx_distro_tag() {
+  local distro="${1:-$(tnx_distro)}"
+  [[ "$distro" =~ ^[a-zA-Z0-9][a-zA-Z0-9._-]*$ ]] || return 2
+  printf 'ternux-%s' "$distro"
+}
+
+tnx_distro_session_dir() {
+  local distro="${1:-$(tnx_distro)}"
+  if [ "$distro" = debian ]; then printf '%s/session' "$TERNUX_STATE_DIR"
+  else printf '%s/session' "$(tnx_distro_state_dir "$distro")"; fi
+}
+
+tnx_distro_state_dir() {
+  local distro="${1:-$(tnx_distro)}"
+  [[ "$distro" =~ ^[a-zA-Z0-9._-]+$ ]] || return 2
+  printf '%s/distros/%s' "$TERNUX_STATE_DIR" "$distro"
+}
+
+tnx_distro_state_get() {
+  local distro="${1:-$(tnx_distro)}" key="${2:-}" file line
+  [[ "$key" =~ ^[a-zA-Z0-9._-]+$ ]] || return 2
+  file="$(tnx_distro_state_dir "$distro")/profile"
+  [ -f "$file" ] || return 1
+  line="$(grep -sm1 "^${key}=" "$file")" || return 1
+  printf '%s\n' "${line#*=}"
+}
+
+tnx_distro_state_set() {
+  local distro="${1:-$(tnx_distro)}" key="${2:-}" value="${3-}" dir file tmp
+  [[ "$key" =~ ^[a-zA-Z0-9._-]+$ && "$value" != *$'\n'* ]] || return 2
+  dir="$(tnx_distro_state_dir "$distro")" || return 2
+  mkdir -p "$dir" || return 1
+  file="$dir/profile"; tmp="$dir/.profile.tmp.$$"
+  if [ -f "$file" ]; then
+    awk -v key="$key" -v value="$value" 'index($0,key "=")==1 { print key "=" value; found=1; next } { print } END { if (!found) print key "=" value }' "$file" > "$tmp" || { rm -f "$tmp"; return 1; }
+  else
+    printf '%s=%s\n' "$key" "$value" > "$tmp" || { rm -f "$tmp"; return 1; }
+  fi
+  chmod 0600 "$tmp" && mv -f "$tmp" "$file"
+}
+
+tnx_distro_desktop_ready() {
+  local distro="${1:-$(tnx_distro)}" recorded=""
+  recorded="$(tnx_distro_state_get "$distro" status 2>/dev/null || true)"
+  if [ -n "$recorded" ]; then
+    [ "$recorded" = ready ]
+    return $?
+  fi
+  # Upgrade compatibility: older single-Debian installs recorded successful
+  # verification globally before per-guest profiles were introduced.
+  [ "$(tnx_state_get distro 2>/dev/null || true)" = "$distro" ] && tnx_state_done phase_verify
+}
+
 tnx_distro_profile() {
   TNX_DP_FAMILY="apt"
   TNX_DP_MESA_HOLD="mesa-vulkan-drivers libgl1-mesa-dri libglx-mesa0 libgbm1 libegl-mesa0"
@@ -120,9 +184,9 @@ tnx_guest_login() {
   if [ -n "$timeout_seconds" ]; then
     tnx_has_cmd timeout || return 127
     timeout --signal=TERM --kill-after=1 "$timeout_seconds" \
-      proot-distro login "$(tnx_distro)" "${login_args[@]}" "$@"
+      proot-distro login "${login_args[@]}" "$(tnx_distro)" "$@"
   else
-    proot-distro login "$(tnx_distro)" "${login_args[@]}" "$@"
+    proot-distro login "${login_args[@]}" "$(tnx_distro)" "$@"
   fi
 }
 

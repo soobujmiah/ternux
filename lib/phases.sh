@@ -371,7 +371,7 @@ tnx_phase_debian() {
   if tnx_debian_installed; then
     tnx_warn "Debian container already installed; reusing it."
   else
-    proot-distro install "$(tnx_distro)" || { tnx_fail "Debian install failed."; return 1; }
+    proot-distro install "$(tnx_distro)" || { tnx_fail "Guest '$(tnx_distro)' install failed."; return 1; }
   fi
 
   tnx_guest_login --shared-tmp -- bash -c "
@@ -380,8 +380,14 @@ tnx_phase_debian() {
     DPKG_FORCE=\"-o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -o APT::Color=1 -o Dpkg::Progress-Fancy=1\"
     apt update -o APT::Color=1
     dpkg --configure -a --force-confold --force-confdef || true
+    if [ '$(tnx_distro)' = ubuntu ]; then
+      install -d -m 0755 /etc/apt/preferences.d
+      printf 'Package: snapd\nPin: version *\nPin-Priority: -1\n' > /etc/apt/preferences.d/ternux-no-snapd
+      apt-mark hold snapd >/dev/null 2>&1 || true
+    fi
     apt install -y \$DPKG_FORCE sudo nano mousepad galculator evince fonts-noto-core python3-gi gir1.2-gtk-3.0 ibus ibus-avro devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol x11-utils mesa-utils libgl1-mesa-dri adwaita-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc ffmpeg ristretto qt5-gtk-platformtheme colord
     apt install -y \$DPKG_FORCE --no-install-recommends synaptic
+    if [ '$(tnx_distro)' = ubuntu ]; then apt-mark hold snapd >/dev/null 2>&1 || true; fi
     apt remove -y \$DPKG_FORCE guvcview >/dev/null 2>&1 || true
     rm -f /usr/local/share/applications/guvcview.desktop
     asset_stage=\$(mktemp -d /tmp/ternux-assets.XXXXXX)
@@ -686,13 +692,17 @@ tnx_validate_turnip_archive() {
 }
 
 tnx_phase_gpu() {
-  local backend="${1:-auto}"
+  local backend="${1:-auto}" distro="$(tnx_distro)"
 
   # Keep the phase safe when called directly (for example by the legacy
   # install.sh doctor route), not only through the main orchestrator.
   [ "$backend" = "zink-turnip" ] && backend="zink"
   if [ "$backend" = "auto" ]; then
-    [ -e "${TERNUX_KGSL_DEVICE:-/dev/kgsl-3d0}" ] && backend="zink" || backend="virgl"
+    if [ "$distro" = ubuntu ]; then backend="virgl"
+    else [ -e "${TERNUX_KGSL_DEVICE:-/dev/kgsl-3d0}" ] && backend="zink" || backend="virgl"; fi
+  elif [ "$distro" = ubuntu ] && [ "$backend" = zink ]; then
+    tnx_fail "The pinned Zink/Turnip profile targets Debian Trixie. Select --backend virgl for Ubuntu."
+    return 2
   fi
   case "$backend" in
     zink|virgl) ;;
@@ -994,7 +1004,13 @@ tnx_phase_audio_fonts() {
 tnx_phase_launcher() {
   local user_name="${1:-ternux}" backend="${2:-auto}" locale="${3:-en_US.UTF-8}"
   local distro; distro="$(tnx_distro)"
-  local LAUNCHER="$HOME/x.sh"
+  local distro_state_dir LAUNCHER display_num display tag session_pid_rel
+  distro_state_dir="$(tnx_distro_state_dir "$distro")" || return 2
+  display_num="$(tnx_distro_display "$distro")" || { tnx_fail "No X11 display is assigned to guest '$distro'."; return 2; }
+  display=":$display_num"; tag="$(tnx_distro_tag "$distro")" || return 2
+  if [ "$distro" = debian ]; then session_pid_rel="session/desktop.pid"; else session_pid_rel="distros/$distro/session/desktop.pid"; fi
+  LAUNCHER="$distro_state_dir/launcher.sh"
+  mkdir -p "$distro_state_dir" || return 1
 
   [[ "$user_name" =~ ^[a-z_][a-z0-9_-]{0,31}$ ]] || { tnx_fail "Launcher user name is invalid."; return 2; }
   [[ "$locale" =~ ^[A-Za-z0-9_.@-]+$ ]] || { tnx_fail "Launcher locale is invalid."; return 2; }
@@ -1015,7 +1031,9 @@ set -u
 TMPDIR="${TMPDIR:-/data/data/com.termux/files/usr/tmp}"
 PREFIX="${PREFIX:-/data/data/com.termux/files/usr}"
 TERMUX_HOST_HOME="/data/data/com.termux/files/home"
-TNX_PID_FILE="${TNX_PID_FILE:-$HOME/.local/share/ternux/session/desktop.pid}"
+TNX_DISPLAY="__TNX_DISPLAY__"
+TNX_TAG="__TNX_TAG__"
+TNX_PID_FILE="${TNX_PID_FILE:-$HOME/.local/share/ternux/__TNX_SESSION_PID__}"
 TNX_IDENTITY_FILE="${TNX_PID_FILE}.identity"
 TNX_READY_FILE="${TNX_PID_FILE}.ready"
 proc_start_identity() { awk '{ sub(/^.*\) /, ""); print $20 }' "/proc/$1/stat" 2>/dev/null; }
@@ -1104,7 +1122,7 @@ guest_login_isolated() {
     )
   fi
   for pair in "${android_env[@]}"; do env_args+=(--env "$pair"); done
-  proot-distro login "$distro" "${login_args[@]}" "${env_args[@]}" "$@"
+  proot-distro login "${login_args[@]}" "${env_args[@]}" "$distro" "$@"
 }
 kill_owned_child() {
   local child_pid="${1:-}" child_start="${2:-}" current_start=""
@@ -1148,17 +1166,18 @@ done
 if [ -z "$PULSE_PORT" ]; then echo "ERROR: Could not open the loopback PulseAudio bridge on ports 4713-4722."; exit 1; fi
 echo "PulseAudio bridge ready on 127.0.0.1:$PULSE_PORT."
 # Display
-termux-x11 :0 -legacy-drawing -ac &
+termux-x11 "$TNX_DISPLAY" -tag "$TNX_TAG" -legacy-drawing -ac &
 X11_PID=$!
 X11_START_ID="$(proc_start_identity "$X11_PID")"
 echo "Waiting for Termux-X11..."
 WAITED=0
-while [ ! -e "$TMPDIR/.X11-unix/X0" ]; do
+while [ ! -S "$TMPDIR/.X11-unix/X${TNX_DISPLAY#:}" ]; do
   if ! kill -0 "$X11_PID" 2>/dev/null; then echo "ERROR: termux-x11 exited."; exit 1; fi
   if [ "$WAITED" -ge 300 ]; then echo "ERROR: timed out waiting for Termux:X11."; exit 1; fi
   WAITED=$((WAITED+1)); sleep 0.1
 done
-echo "Display :0 ready."
+echo "Display $TNX_DISPLAY ready ($TNX_TAG)."
+am start --user 0 -n com.termux.x11/com.termux.x11.MainActivity -d "$TNX_TAG" >/dev/null 2>&1 || true
 cat > "$TNX_GUEST_SESSION_SCRIPT" <<'TERNUX_GUEST_EOF'
 #!/usr/bin/env bash
 set -u
@@ -1172,7 +1191,7 @@ sudo -n dbus-uuidgen --ensure >/dev/null 2>&1 || true
 sudo -n rm -f /etc/xdg/autostart/light-locker.desktop 2>/dev/null || true
 exec dbus-run-session -- bash -c '
   set -u
-  until xdpyinfo -display :0 >/dev/null 2>&1; do sleep 0.1; done
+  until xdpyinfo -display "$DISPLAY" >/dev/null 2>&1; do sleep 0.1; done
   # --replace targets the selected account session bus; process-wide pkill would
   # disrupt other PRoot desktops sharing the guest process namespace.
   ibus-daemon --daemonize --xim --replace
@@ -1248,7 +1267,7 @@ LAUNCHEOF
  : > "\$TNX_READY_FILE"
 chmod 666 "\$TNX_READY_FILE"
 guest_login_isolated $distro --bind /dev/kgsl-3d0:/dev/kgsl --bind /dev/dri --bind "\$TNX_CPUINFO_FILE:/proc/cpuinfo" --bind "\$TNX_GUEST_SESSION_SCRIPT:/tmp/ternux-desktop-session.sh" --bind "\$TNX_READY_FILE:/tmp/ternux-desktop-ready" --user $user_name \\
-  --env DISPLAY=:0 --env PULSE_SERVER="tcp:127.0.0.1:\$PULSE_PORT" \\
+  --env DISPLAY=__TNX_DISPLAY__ --env PULSE_SERVER="tcp:127.0.0.1:\$PULSE_PORT" \\
   --env TERNUX_GUEST_USER=$user_name --env TERNUX_READY_FILE=/tmp/ternux-desktop-ready \\
   --env MESA_LOADER_DRIVER_OVERRIDE=zink --env TU_DEBUG=noconform --env MESA_VK_WSI_DEBUG=sw \\
   --env MESA_DISK_CACHE_SINGLE_FILE=1 --env MESA_SHADER_CACHE_MAX_SIZE=2048M \\
@@ -1268,7 +1287,7 @@ VIRGLEOF
  : > "\$TNX_READY_FILE"
 chmod 666 "\$TNX_READY_FILE"
 guest_login_isolated $distro --bind "\$TNX_CPUINFO_FILE:/proc/cpuinfo" --bind "\$TNX_GUEST_SESSION_SCRIPT:/tmp/ternux-desktop-session.sh" --bind "\$TNX_READY_FILE:/tmp/ternux-desktop-ready" --user $user_name \\
-  --env DISPLAY=:0 --env PULSE_SERVER="tcp:127.0.0.1:\$PULSE_PORT" \\
+  --env DISPLAY=__TNX_DISPLAY__ --env PULSE_SERVER="tcp:127.0.0.1:\$PULSE_PORT" \\
   --env TERNUX_GUEST_USER=$user_name --env TERNUX_READY_FILE=/tmp/ternux-desktop-ready \\
   --env GALLIUM_DRIVER=virpipe --env MESA_GL_VERSION_OVERRIDE=4.3COMPAT \\
   --env QT_X11_NO_MITSHM=1 --env XDG_RUNTIME_DIR=/home/$user_name/.runtime \\
@@ -1277,10 +1296,17 @@ guest_login_isolated $distro --bind "\$TNX_CPUINFO_FILE:/proc/cpuinfo" --bind "\
 EOF
   fi
 
+  # Replace only fixed, validated display/tag placeholders after composing both
+  # renderer variants, so guest names cannot alter the generated shell syntax.
+  sed -i "s|__TNX_DISPLAY__|$display|g; s|__TNX_TAG__|$tag|g; s|__TNX_SESSION_PID__|$session_pid_rel|g" "$LAUNCHER" || return 1
   chmod +x "$LAUNCHER"
   if bash -n "$LAUNCHER" 2>/dev/null; then
-    tnx_ok "Launcher written: $LAUNCHER"
+    local link_tmp="$HOME/.x.sh.ternux-tmp.$$"
+    ln -s "$LAUNCHER" "$link_tmp" && mv -f "$link_tmp" "$HOME/x.sh" || { rm -f "$link_tmp"; return 1; }
+    tnx_ok "Launcher written for $distro: $LAUNCHER"
     tnx_state_set "backend" "$backend"
+    tnx_distro_state_set "$distro" backend "$backend"
+    tnx_distro_state_set "$distro" display "$display_num"
   else
     tnx_fail "Launcher has a syntax error."; rm -f "$LAUNCHER"; return 1
   fi
@@ -1357,14 +1383,27 @@ tnx_phase_aliases() {
     chmod "$aliases_mode" "$aliases_tmp" && mv -f -- "$aliases_tmp" "$RC_FILE" || { rm -f -- "$aliases_tmp"; return 1; }
   fi
 
+  local gui_profiles="${TERNUX_DISTRO_KNOWN:-debian ubuntu}"
   cat >> "$RC_FILE" << ALIASEOF
 
 # ==== TERNUX ALIASES ====
+alias tx='ternux'
 alias x='ternux start'
 alias killx='ternux stop'
 _ternux_guest_login() {
+  [ -z "\${ZSH_VERSION:-}" ] || emulate -L bash
+  local distro="\$1"; shift
   local -a login_args=(--isolated)
   local allowlist="\$HOME/.local/share/ternux/storage-allowlist" root host guest resolved expected extra
+  while [ "\$#" -gt 0 ]; do
+    case "\$1" in
+      --shared-tmp|--shared-x11) login_args+=("\$1"); shift ;;
+      --user|--bind|--env)
+        [ "\$#" -ge 2 ] || { printf 'Missing value for %s\n' "\$1" >&2; return 2; }
+        login_args+=("\$1" "\$2"); shift 2 ;;
+      *) break ;;
+    esac
+  done
   if [ -e "\$allowlist" ]; then
     [ ! -L "\$allowlist" ] && [ -f "\$allowlist" ] || return 1
     root="\$(realpath -e /sdcard 2>/dev/null)" || return 1
@@ -1377,16 +1416,76 @@ _ternux_guest_login() {
       login_args+=(--bind "\$host:\$guest")
     done < "\$allowlist"
   fi
-  proot-distro login $distro "\${login_args[@]}" "\$@"
+  proot-distro login "\${login_args[@]}" "\$distro" "\$@"
 }
-alias db='_ternux_guest_login --shared-tmp --user $user_name'
-alias droot='_ternux_guest_login --shared-tmp'
-alias xgo='am start -n com.termux.x11/com.termux.x11.MainActivity 2>/dev/null; sleep 1; ternux start'
-clean-mesa() { _ternux_guest_login --user $user_name -- bash -c 'rm -rf -- ~/.cache/mesa ~/.cache/mesa_shader_cache ~/.cache/mesa_shader_cache_db ~/.cache/mesa_shader_cache_sf'; echo "Mesa cache cleared."; }
+_ternux_guest_user() {
+  local profile="\$HOME/.local/share/ternux/distros/\$1/profile" user
+  user="\$(sed -n 's/^user=//p' "\$profile" 2>/dev/null | head -n 1)"
+  printf '%s\n' "\${user:-ternux}"
+}
+db() { _ternux_guest_login debian --shared-tmp --user "\$(_ternux_guest_user debian)" "\$@"; }
+dbr() { _ternux_guest_login debian --shared-tmp "\$@"; }
+droot() { dbr "\$@"; }
+ub() { _ternux_guest_login ubuntu --shared-tmp --user "\$(_ternux_guest_user ubuntu)" "\$@"; }
+ubr() { _ternux_guest_login ubuntu --shared-tmp "\$@"; }
+alp() { _ternux_guest_login alpine --shared-tmp --user "\$(_ternux_guest_user alpine)" "\$@"; }
+alpr() { _ternux_guest_login alpine --shared-tmp "\$@"; }
+_ternux_xgo() {
+  [ -z "\${ZSH_VERSION:-}" ] || emulate -L bash
+  local -a installed=() selectable=()
+  local distro choice label i=0
+  while IFS= read -r distro; do
+    [ -n "\$distro" ] || continue
+    installed+=("\$distro")
+    case " ${gui_profiles} " in
+      *" \$distro "*)
+        if grep -qx 'status=ready' "\$HOME/.local/share/ternux/distros/\$distro/profile" 2>/dev/null ||
+           { [ "\$distro" = debian ] && grep -qx 'distro=debian' "\$HOME/.local/share/ternux/state" 2>/dev/null && grep -qx 'phase_verify' "\$HOME/.local/share/ternux/phases" 2>/dev/null; }; then
+          selectable+=("\$distro")
+        fi ;;
+    esac
+  done < <(proot-distro list --quiet 2>/dev/null)
+  if [ \${#installed[@]} -eq 0 ]; then
+    printf 'No Ternux guest is installed. Run: tx install\n' >&2; return 1
+  fi
+  if [ \${#selectable[@]} -eq 0 ]; then
+    printf 'Installed guests: %s\n' "\${installed[*]}" >&2
+    printf 'None has a Ternux desktop profile yet; use tx distro shell NAME.\n' >&2; return 1
+  fi
+  if [ \${#installed[@]} -eq 1 ]; then
+    choice="\${installed[0]}"
+  else
+    printf 'Installed PRoot guests:\n'
+    for distro in "\${installed[@]}"; do
+      case " ${gui_profiles} " in
+        *" \$distro "*)
+          if [[ " ${selectable[*]} " == *" \$distro "* ]]; then label='Ternux desktop ready'; else label='recipe available; not configured'; fi
+          i=\$((i+1)); printf '  %d) %s — %s\n' "\$i" "\$distro" "\$label" ;;
+        *) i=\$((i+1)); printf '  %d) %s — shell/image only\n' "\$i" "\$distro" ;;
+      esac
+    done
+    printf 'Choose a guest for the GUI (shell-only images cannot start a desktop):\n'
+    while :; do
+      printf 'Selection [1-%d]: ' "\${#installed[@]}"
+      IFS= read -r choice || return 1
+      case "\$choice" in
+        ''|*[!0-9]*) printf 'Enter a number from 1 to %d.\n' "\${#installed[@]}" >&2 ;;
+        *) if [ "\$choice" -ge 1 ] && [ "\$choice" -le \${#installed[@]} ]; then choice="\${installed[choice-1]}"; break; fi
+           printf 'Enter a number from 1 to %d.\n' "\${#installed[@]}" >&2 ;;
+      esac
+    done
+  fi
+  case " ${gui_profiles} " in
+    *" \$choice "*) ternux start "\$choice" ;;
+    *) printf "Guest '%s' is installed, but Ternux has no desktop recipe for it yet. Open a shell with: tx distro shell %s\n" "\$choice" "\$choice" >&2; return 1 ;;
+  esac
+}
+xgo() { _ternux_xgo; }
+clean-mesa() { _ternux_guest_login "\$distro" --user "\$user_name" -- bash -c 'rm -rf -- ~/.cache/mesa ~/.cache/mesa_shader_cache ~/.cache/mesa_shader_cache_db ~/.cache/mesa_shader_cache_sf'; echo "Mesa cache cleared."; }
 sysmon() { echo "--- CPU & Memory ---"; free -h; echo ""; echo "--- GPU / KGSL ---"; ls -l /dev/kgsl-3d0 /dev/dri 2>/dev/null || echo "No GPU nodes."; }
 # ==== END TERNUX ALIASES ====
 ALIASEOF
-  tnx_ok "Aliases installed for Debian user '$user_name': x, killx, db, droot, xgo, clean-mesa, sysmon"
+  tnx_ok "Aliases installed: tx, x, xgo, killx, db/dbr, ub/ubr, alp/alpr, sysmon"
 }
 
 # ---------------------------------------------------------------------------
@@ -1948,8 +2047,9 @@ tnx_prompt_distro() {
     return 0
   fi
 
-  printf "${TNX_CC}?${TNX_C0} Guest distribution — %s? [default: %s, the verified one] (${timeout}s): " \
-    "$(printf '%s' "$TERNUX_DISTRO_KNOWN" | tr ' ' '/')" "$default_distro" >&2
+  printf "${TNX_CW}Guest profiles${TNX_C0}\n" >&2
+  printf "  1) Debian  — recommended; device-verified\n  2) Ubuntu  — snapd pinned/held; device validation pending\n  3) Both     — installs two independent guest containers\n" >&2
+  printf "Choose 1/2/3 or type a profile name [default: %s] (${timeout}s): " "$default_distro" >&2
   if ! IFS= read -r -t "$timeout" -u "$tty_fd" input; then
     printf "\n${TNX_CY}[INFO]${TNX_C0} Guest prompt timed out; using '%s'.\n" "$default_distro" >&2
     printf '%s\n' "$default_distro"
@@ -1957,9 +2057,10 @@ tnx_prompt_distro() {
   fi
 
   input="$(printf '%s' "$input" | tr -d '\r\n' | tr '[:upper:]' '[:lower:]')"
+  case "$input" in 1) input=debian ;; 2) input=ubuntu ;; 3) input=debian,ubuntu ;; esac
   if [ -z "$input" ]; then
     printf '%s\n' "$default_distro"
-  elif tnx_distro_known "$input"; then
+  elif [ "$input" = "debian,ubuntu" ] || tnx_distro_known "$input"; then
     printf '%s\n' "$input"
   else
     printf "${TNX_CY}[INFO]${TNX_C0} '%s' is not one of %s; using '%s'.\n" \
@@ -2251,7 +2352,7 @@ tnx_prompt_workloads() {
 # ---------------------------------------------------------------------------
 # Full installation orchestrator
 # ---------------------------------------------------------------------------
-tnx_install() {
+tnx_install_single() {
   local user_name="ternux" locale="en_US.UTF-8" backend="auto" shell_choice="bash"
   local distro_choice="debian" distro_explicit=0
   local extras=() yes=0 resume=0 full=0 profile="base"
@@ -2322,14 +2423,16 @@ tnx_install() {
       [ "$saved_profile" = "full" ] && full=1
     fi
   else
-    if [ "$user_explicit" -eq 0 ]; then
-      user_name="$(tnx_prompt_username "$user_name" 300)"
-    fi
-    if [ "$shell_explicit" -eq 0 ]; then
-      shell_choice="$(tnx_prompt_shell "$shell_choice" 300)"
-    fi
-    if [ "$distro_explicit" -eq 0 ]; then
-      distro_choice="$(tnx_prompt_distro "$distro_choice" 300)"
+    if [ "$yes" -eq 0 ]; then
+      if [ "$user_explicit" -eq 0 ]; then
+        user_name="$(tnx_prompt_username "$user_name" 300)"
+      fi
+      if [ "$shell_explicit" -eq 0 ]; then
+        shell_choice="$(tnx_prompt_shell "$shell_choice" 300)"
+      fi
+      if [ "$distro_explicit" -eq 0 ]; then
+        distro_choice="$(tnx_prompt_distro "$distro_choice" 300)"
+      fi
     fi
   fi
 
@@ -2360,7 +2463,11 @@ tnx_install() {
   fi
 
   if [ "$backend" = "auto" ]; then
-    [ -e "${TERNUX_KGSL_DEVICE:-/dev/kgsl-3d0}" ] && backend="zink" || backend="virgl"
+    if [ "$distro_choice" = ubuntu ]; then backend="virgl"
+    else [ -e "${TERNUX_KGSL_DEVICE:-/dev/kgsl-3d0}" ] && backend="zink" || backend="virgl"; fi
+  elif [ "$distro_choice" = ubuntu ] && [ "$backend" = zink ]; then
+    tnx_fail "The pinned Zink/Turnip profile targets Debian Trixie. Select --backend virgl for Ubuntu."
+    return 2
   fi
 
   if [ "$resume" -eq 0 ] && [ "$yes" -eq 0 ] && [ "${#extras[@]}" -eq 0 ]; then
@@ -2382,7 +2489,7 @@ tnx_install() {
 
   tnx_banner
 
-  local -a plan_summary=("Desktop" "Debian + Xfce4" "GPU route" "$backend" "User" "$user_name" "Profile" "$profile")
+  local -a plan_summary=("Guest" "$distro_choice + Xfce4" "GPU route" "$backend" "User" "$user_name" "Profile" "$profile")
   local workload workload_label workload_number=0
   if [ "${#extras[@]}" -eq 0 ]; then
     plan_summary+=("Optional" "Base desktop only")
@@ -2452,6 +2559,11 @@ tnx_install() {
   tnx_state_set "install_backend" "$backend"
   tnx_state_set "install_shell" "$shell_choice"
   tnx_state_set "distro" "$distro_choice"
+  tnx_distro_state_set "$distro_choice" status installing
+  tnx_distro_state_set "$distro_choice" user "$user_name"
+  tnx_distro_state_set "$distro_choice" locale "$locale"
+  tnx_distro_state_set "$distro_choice" backend "$backend"
+  tnx_distro_state_set "$distro_choice" install_profile "$profile"
   tnx_state_set "install_profile" "$profile"
   tnx_state_set "install_extras" "$extras_csv"
 
@@ -2507,6 +2619,7 @@ tnx_install() {
   done
 
   if [ "$rc" -eq 0 ]; then
+    tnx_distro_state_set "$distro_choice" status ready || tnx_warn "Could not save the ready state for guest '$distro_choice'."
     if [ "${_TNX_FRAME_ACTIVE:-0}" = "1" ]; then
       {
         tnx_celebrate
@@ -2539,6 +2652,7 @@ tnx_install() {
         "Install tool help: ternux guides  (also inside Debian)"
     fi
   else
+    tnx_distro_state_set "$distro_choice" status incomplete || true
     if [ "${_TNX_FRAME_ACTIVE:-0}" = "1" ]; then
       {
         if [ -n "$failed_phase" ]; then
@@ -2567,7 +2681,7 @@ tnx_phase_title() {
     preflight)   echo "Preflight checks" ;;
     packages)    echo "Base packages (X11, PulseAudio, PRoot)" ;;
     cli)         echo "Installing ternux CLI" ;;
-    debian)      echo "Debian container + Xfce4" ;;
+    debian)      echo "Selected guest + Xfce4" ;;
     gpu)         echo "GPU driver setup" ;;
     audio_fonts) echo "Audio, locale, fonts" ;;
     launcher)    echo "Desktop launcher (~/x.sh)" ;;
@@ -2577,6 +2691,49 @@ tnx_phase_title() {
     verify)      echo "Verification" ;;
     *)           echo "$1" ;;
   esac
+}
+
+
+# Install more than one independently named Debian/Ubuntu guest in sequence.
+# Each pass runs the same base profile and writes a distro-specific launcher;
+# the single Termux:X11 display still runs one guest desktop at a time.
+tnx_install() {
+  local requested="" arg distro seen=" " has_distro=0 wants_yes=0 wants_resume=0
+  local -a forwarded=() choices=() normalized=()
+  while [ "$#" -gt 0 ]; do
+    case "$1" in
+      --distros)
+        [ -n "$requested" ] && { tnx_fail "Use --distros once."; return 2; }
+        [ "$#" -ge 2 ] || { tnx_fail "--distros needs comma-separated names."; return 2; }
+        requested="$2"; shift 2 ;;
+      *)
+        [ "$1" != --distro ] || has_distro=1
+        [ "$1" != --yes ] || wants_yes=1
+        [ "$1" != --resume ] || wants_resume=1
+        forwarded+=("$1"); shift ;;
+    esac
+  done
+  if [ -z "$requested" ] && [ "$has_distro" -eq 0 ] && [ "$wants_yes" -eq 0 ] && [ "$wants_resume" -eq 0 ]; then
+    requested="$(tnx_prompt_distro debian 300)"
+  fi
+  if [ -z "$requested" ]; then tnx_install_single "${forwarded[@]}"; return $?; fi
+  for arg in "${forwarded[@]}"; do
+    [ "$arg" != --resume ] || { tnx_fail "--distros cannot resume multiple guests; resume each with --distro NAME --resume."; return 2; }
+    [ "$arg" != --distro ] || { tnx_fail "Use either --distro NAME or --distros LIST, not both."; return 2; }
+  done
+  IFS=',' read -r -a choices <<< "$requested"
+  [ ${#choices[@]} -gt 0 ] || { tnx_fail "--distros needs at least one name."; return 2; }
+  for distro in "${choices[@]}"; do
+    distro="$(printf '%s' "$distro" | tr '[:upper:]' '[:lower:]' | tr -d '[:space:]')"
+    tnx_distro_known "$distro" || { tnx_fail "Unsupported Ternux profile '$distro'. Supported profiles: $TERNUX_DISTRO_KNOWN"; return 2; }
+    case "$seen" in *" $distro "*) tnx_fail "Duplicate distro in --distros: $distro"; return 2 ;; esac
+    seen+="$distro "
+    normalized+=("$distro")
+  done
+  for distro in "${normalized[@]}"; do
+    tnx_step "Installing $distro profile"
+    tnx_install_single "${forwarded[@]}" --distro "$distro" || return $?
+  done
 }
 
 tnx_cmd_install() { tnx_install "$@"; }

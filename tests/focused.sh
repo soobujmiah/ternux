@@ -36,6 +36,7 @@ if env TERNUX_STATE_DIR="$TMP/state-guest-isolation" HOME="$TMP/home-guest-isola
     grep -qx -- "--isolated" "$LOG" || exit
     grep -qx -- "--shared-tmp" "$LOG" || exit
     grep -qx -- "--user" "$LOG" || exit
+    test "$(grep -n -m1 -- "--isolated" "$LOG" | cut -d: -f1)" -lt "$(grep -n -m1 '^debian$' "$LOG" | cut -d: -f1)" || exit
     ! grep -Fq -- "$HOME" "$LOG" || exit
     ! grep -qx -- "--shared-home" "$LOG" || exit
     ! grep -Fq -- "/sdcard" "$LOG" || exit
@@ -840,7 +841,7 @@ if env TERNUX_STATE_DIR="$TMP/state-launcher" HOME="$launcher_home" bash -c '
   grep -q -- "--user alice" "$HOME/x.sh" &&
   grep -q -- "--env DISPLAY=:0" "$HOME/x.sh" &&
   ! grep -q "pkill -9" "$HOME/x.sh" &&
-  grep -q "termux-x11 :0 -legacy-drawing -ac" "$HOME/x.sh" &&
+  grep -Fq "termux-x11 \"\$TNX_DISPLAY\" -tag \"\$TNX_TAG\" -legacy-drawing -ac" "$HOME/x.sh" &&
   ! grep -q "stop_legacy_ternuxx_audio" "$HOME/x.sh" &&
   grep -q "IconThemeName --create -t string -s Ternux" "$HOME/x.sh" &&
   grep -q "ThemeName --create -t string -s Ternux" "$HOME/x.sh" &&
@@ -903,9 +904,14 @@ if env TERNUX_STATE_DIR="$TMP/state-launcher" HOME="$launcher_home" bash -c '
   ! grep -q "pkill.*dbus" "$HOME/.bashrc" &&
   grep -q "alias x=.*ternux start" "$HOME/.bashrc" &&
   grep -q "alias killx=.*ternux stop" "$HOME/.bashrc" &&
-  grep -q "alias xgo=.*ternux start" "$HOME/.bashrc" &&
-  grep -q "_ternux_guest_login --shared-tmp --user alice" "$HOME/.bashrc" &&
-  grep -q "droot=.*_ternux_guest_login --shared-tmp" "$HOME/.bashrc" &&
+  grep -q "xgo() { _ternux_xgo; }" "$HOME/.bashrc" &&
+  grep -q "alias tx=.*ternux" "$HOME/.bashrc" &&
+  grep -q "db() { _ternux_guest_login debian --shared-tmp --user" "$HOME/.bashrc" &&
+  grep -q "ub() { _ternux_guest_login ubuntu --shared-tmp --user" "$HOME/.bashrc" &&
+  grep -q "alp() { _ternux_guest_login alpine --shared-tmp --user" "$HOME/.bashrc" &&
+  grep -q "dbr() { _ternux_guest_login debian --shared-tmp" "$HOME/.bashrc" &&
+  grep -q "ubr() { _ternux_guest_login ubuntu --shared-tmp" "$HOME/.bashrc" &&
+  grep -q "alpr() { _ternux_guest_login alpine --shared-tmp" "$HOME/.bashrc" &&
   grep -q "login_args=(--isolated)" "$HOME/.bashrc" &&
   grep -q "storage-allowlist" "$HOME/.bashrc" &&
   ! grep -q -- "--bind /sdcard:/sdcard" "$HOME/.bashrc"
@@ -913,6 +919,26 @@ if env TERNUX_STATE_DIR="$TMP/state-launcher" HOME="$launcher_home" bash -c '
   ok "Zink launcher and aliases preserve user and backend boundaries"
 else
   not_ok "Zink launcher and aliases preserve user and backend boundaries"
+fi
+
+# Ubuntu gets an independent tagged display and persisted guest display value.
+if env TERNUX_STATE_DIR="$TMP/state-launcher-ubuntu" HOME="$TMP/home-launcher-ubuntu" TERNUX_DISTRO=ubuntu bash -c '
+  mkdir -p "$HOME"
+  . "$1/lib/phases.sh"
+  tnx_phase_launcher alice virgl en_US.UTF-8 >/dev/null || exit
+  launcher="$TERNUX_STATE_DIR/distros/ubuntu/launcher.sh"
+  bash -n "$launcher" &&
+  grep -q "TNX_DISPLAY=\":1\"" "$launcher" &&
+  grep -q "TNX_TAG=\"ternux-ubuntu\"" "$launcher" &&
+  grep -Fq "distros/ubuntu/session/desktop.pid" "$launcher" &&
+  grep -q "termux-x11 \"\$TNX_DISPLAY\" -tag \"\$TNX_TAG\"" "$launcher" &&
+  grep -q -- "--env DISPLAY=:1" "$launcher" &&
+  grep -q "X\${TNX_DISPLAY#:}" "$launcher" &&
+  test "$(sed -n "s/^display=//p" "$TERNUX_STATE_DIR/distros/ubuntu/profile")" = 1
+' _ "$ROOT"; then
+  ok "Ubuntu launcher uses its own tagged :1 display and persisted DISPLAY"
+else
+  not_ok "Ubuntu launcher uses its own tagged :1 display and persisted DISPLAY"
 fi
 
 # Re-running install replaces only the generated alias block, removing legacy
@@ -1802,6 +1828,7 @@ if env TERNUX_STATE_DIR="$TMP/state-x11-duplicate" HOME="$TMP/home-x11-duplicate
     pgrep(){ case "$1" in -f) return 0;; *) return 1;; esac; }
     tnx_x11_functional(){ return 1; }
     tnx_has_cmd(){ [ "$1" = flock ]; }
+    tnx_proot_container_installed(){ return 0; }
     TERNUX_JSON=1
     out="$(tnx_cmd_start)" && exit 1
     printf "%s\n" "$out" | grep -Fq unresponsive_existing_x11 || exit
@@ -1882,7 +1909,7 @@ pgid="$(ps -o pgid= -p "$$" | tr -d '[:space:]')"
 printf '%s %s %s\n' "$$" "$start_id" "$pgid" > "${TNX_PID_FILE}.identity"
 mkdir -p "$TMPDIR/.X11-unix"
 echo session-started
-: > "$TMPDIR/.X11-unix/X0"
+python3 -c "import socket,sys; s=socket.socket(socket.AF_UNIX); s.bind(sys.argv[1]); s.close()" "$TMPDIR/.X11-unix/X0"
 printf "READY\n" > "${TNX_PID_FILE}.ready"
 trap 'rm -f "$TMPDIR/.X11-unix/X0"; exit 0' TERM EXIT
 while :; do sleep 1; done
@@ -1905,9 +1932,12 @@ if env TERNUX_STATE_DIR="$TMP/state-desktop-start" HOME="$TMP/home-desktop-start
     tnx_canonical_backend(){ echo virgl; }
     tnx_state_get(){ case "$1" in backend) echo virgl;; user) echo alice;; locale) echo en_US.UTF-8;; esac; }
     tnx_phase_launcher(){
-      cp "$MOCK_LAUNCHER" "$HOME/x.sh"
-      sed -i "1a# TERNUX_DESKTOP_LAUNCHER=20" "$HOME/x.sh"
-      chmod +x "$HOME/x.sh"
+      local launcher_dir="$TERNUX_STATE_DIR/distros/debian"
+      mkdir -p "$launcher_dir"
+      cp "$MOCK_LAUNCHER" "$launcher_dir/launcher.sh"
+      sed -i "1a# TERNUX_DESKTOP_LAUNCHER=20" "$launcher_dir/launcher.sh"
+      chmod +x "$launcher_dir/launcher.sh"
+      ln -sfn "$launcher_dir/launcher.sh" "$HOME/x.sh"
     }
     fixture_pid=""; fixture_start=""; fixture_pgid=""
     cleanup_managed_fixture(){
@@ -1918,6 +1948,7 @@ if env TERNUX_STATE_DIR="$TMP/state-desktop-start" HOME="$TMP/home-desktop-start
     }
     trap cleanup_managed_fixture EXIT
     tnx_has_cmd(){ [ "$1" = setsid ] || [ "$1" = flock ]; }
+    tnx_proot_container_installed(){ return 0; }
     setsid(){ command setsid "$@"; }
     pgrep(){ return 1; }
     start_at=$SECONDS
@@ -1965,6 +1996,7 @@ AM
     tnx_x11_functional(){ return 0; }
     tnx_pulseaudio_ready(){ return 0; }
     tnx_has_cmd(){ [ "$1" = flock ]; }
+    tnx_proot_container_installed(){ return 0; }
     tnx_desktop_session_live || exit
     TERNUX_JSON=1
     status="$(tnx_cmd_status)"
@@ -1986,6 +2018,7 @@ if env TERNUX_STATE_DIR="$TMP/state-desktop-concurrent" HOME="$TMP/home-desktop-
   printf "#!/usr/bin/env bash\n# TERNUX_DESKTOP_LAUNCHER=18\n" > "$HOME/x.sh"
   . "$1/lib/desktop.sh"
   tnx_has_cmd(){ [ "$1" = flock ]; }
+  tnx_proot_container_installed(){ return 0; }
   flock(){ return 1; }
   TERNUX_JSON=1
   out="$(tnx_cmd_start)" || exit

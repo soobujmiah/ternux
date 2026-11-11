@@ -12,6 +12,10 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 
 ## [Unreleased]
 
+### Guest profile ও installer
+
+- Debian ও Ubuntu-র আলাদা guest profile, নিজস্ব launcher/settings, ধারাবাহিক multi-guest install এবং নাম-নির্দিষ্ট `start/stop/restart DISTRO` যোগ হয়েছে। Interactive guest picker-এ validation status দেখায়। Ubuntu-তে VirGL default এবং snapd pin/hold করা হয়; device-verified profile এখনো Debian।
+
 ### Release operation
 
 - Production Pages deploy এখন explicit `workflow_dispatch` চায়; routine source বা documentation merge live site-এ automatic deployment করবে না।

@@ -69,7 +69,9 @@ ternux install [options]
 | Option | Description |
 |--------|-------------|
 | `--yes` | Defaults, no questions |
-| `--user NAME` | Debian user name (default: `ternux`) |
+| `--user NAME` | Linux guest user name (default: `ternux`) |
+| `--distro NAME` | Select Debian or Ubuntu; Debian is device-verified. |
+| `--distros LIST` | Install multiple independent guests in sequence, e.g. `debian,ubuntu`. |
 | `--locale LANG` | Locale (default: `en_US.UTF-8`) |
 | `--backend auto\|zink\|virgl` | GPU backend (default: auto) |
 | `--zsh` | Use zsh instead of bash |
@@ -84,6 +86,10 @@ ternux install [options]
 | `--plain` | Shorthand for `--ui plain`: plain scrolling output instead of the dashboard |
 | `--no-anim` | Freeze the spinner and colour cycling |
 
+The guest prompt offers Debian (recommended and device-verified), Ubuntu (snapd pinned and held; device validation pending), or both. Both desktop profiles get the same Ternux base setup and keep separate launchers and user/backend settings. `xgo` lists every installed PRoot guest and asks which desktop profile to start when multiple are present; shell-only images are identified as such. Each supported desktop profile has its own Termux:X11 display and activity tag.
+
+Use `tx` as a short alias for `ternux`. `tx distro list` shows all installed PRoot guests and marks which ones have a Ternux desktop recipe. `tx distro shell NAME` and `tx distro exec NAME -- COMMAND` work with any installed guest. Use `tx distro image-install IMAGE[:TAG] [NAME]` to install a generic OCI image; such an image is shell-ready but needs a matching Ternux recipe before GUI start. Desktop management is `tx start NAME`, `tx stop [NAME|--all]`, `tx restart NAME`, and `tx status NAME`. Debian and Ubuntu desktops open in separate tagged Termux:X11 windows and may run concurrently. With multiple sessions, interactive `tx stop` prompts for one or more guests; `tx stop --all` stops all Ternux desktop sessions. An explicit `tx stop NAME` affects only that guest. Debian and Ubuntu currently have Ternux desktop recipes; Debian alone is device-verified. Short shells: `db`/`dbr` Debian user/root, `ub`/`ubr` Ubuntu user/root, and `alp`/`alpr` Alpine user/root.
+
 With no workload flags, an interactive install opens the categorized checklist.
 Use Up/Down or `j`/`k` to move, Space or an item's number to select multiple
 items, Enter to review the plan, and `q` for the base desktop. Individual
@@ -95,29 +101,33 @@ keeps the base profile.
 
 ### `ternux start`
 
-Start the Xfce4 desktop session in its own detached session so it survives the launching shell closing. The command returns only after Termux:X11 and the XFCE session, window manager, and desktop are ready, then brings the Termux:X11 app to the foreground. Re-running it focuses the existing desktop instead of starting a duplicate, including when its supervisor marker is missing but the live XFCE session remains. If startup fails, it returns an error and points to `~/.local/share/ternux/session/desktop.log`. Use `ternux status` or `ternux logs desktop tail` to inspect the session. After a CLI package update, `ternux start` refreshes an older generated `~/x.sh` automatically. The launcher (`~/x.sh`):
+Start the Xfce4 desktop session in its own detached session so it survives the launching shell closing. The command returns only after Termux:X11 and the XFCE session, window manager, and desktop are ready, then brings the Termux:X11 app to the foreground. Re-running it focuses the existing desktop instead of starting a duplicate, including when its supervisor marker is missing but the live XFCE session remains. If startup fails, it returns an error and points to `~/.local/share/ternux/session/desktop.log`. Use `ternux status` or `ternux logs desktop tail` to inspect the session. Each guest has its own launcher under `~/.local/share/ternux/distros/NAME/launcher.sh`; `~/x.sh` remains a compatibility link for the most recently installed profile. After a CLI update, the selected launcher is refreshed when needed. The launcher:
 1. Cleans up any previous session
 2. Starts PulseAudio with TCP bridge
 3. Launches Termux:X11 display
 4. Starts the VirGL server if needed
-5. Enters the PRoot Debian container and starts Xfce4
+5. Enters the selected PRoot guest and starts Xfce4
 
 ```bash
-ternux start
+ternux start                 # saved guest profile
+ternux start ubuntu          # explicitly start Ubuntu
 ```
 
 ### `ternux stop`
 
-Stop the desktop session and clean up sockets.
+Stop one guest desktop. With multiple running displays, select one or more guests;
+use `--all` to close every managed Ternux desktop. Each stop targets only that
+guest's launcher and tagged X11 window.
 
 ```bash
-ternux stop
+tx stop                      # stop the only session or choose one/many
+ tx stop --all               # stop every managed guest desktop
+ tx stop ubuntu              # explicitly stop Ubuntu
 ```
 
-Stops the managed Xfce, Termux:X11, PulseAudio and VirGL processes. Independent
-D-Bus sessions are left alone.
-Removes: stale X11 sockets, pulse socket.
-Releases: wake-lock.
+The stop operation signals only the selected guest's verified launcher process
+group and removes that guest's state markers. Other displays and shared audio
+services remain available.
 
 ### `ternux status`
 
@@ -140,6 +150,7 @@ Restart the desktop session (stop + 1 second delay + start).
 
 ```bash
 ternux restart
+ternux restart ubuntu
 ```
 
 ### `ternux doctor`

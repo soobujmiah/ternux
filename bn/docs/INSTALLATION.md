@@ -231,9 +231,11 @@ command -v ternux       # $PREFIX/bin/ternux
 ternux --version        # ternux vX.Y.Z
 ternux doctor           # সিস্টেম ডায়াগনস্টিক
 ternux doctor --json    # machine-readable output
-ternux start            # ডেস্কটপ চালু
-ternux stop             # ডেস্কটপ বন্ধ
-ternux restart          # ডেস্কটপ পুনরায় চালু
+tx start                # saved desktop চালু
+tx start ubuntu        # আলাদা X11 window-তে Ubuntu চালু
+tx stop                # একটি বা একাধিক চলমান desktop বাছুন
+tx stop --all          # সব Ternux desktop বন্ধ
+tx restart ubuntu     # Ubuntu restart
 ternux repair           # সাধারণ সমস্যা সমাধান
 ternux verify           # ইনস্টলেশন যাচাই
 ternux benchmark        # GPU বেঞ্চমার্ক
@@ -283,7 +285,7 @@ Structured output শুধু [CLI reference](CLI.html)-এ নথিভুক�
 | ৫ | **GPU ড্রাইভার** | Adreno: Turnip ড্রাইভার ডাউনলোড, আর্কাইভ যাচাই, ইনস্টল, Mesa প্যাকেজ পিন। অন্যান্য: VirGL হোস্ট রেন্ডারার নিশ্চিত | এটি ছাড়া সব GL অ্যাপ CPU-তে চলে (`llvmpipe`)। পিন করা থাকলে সাধারণ `apt upgrade` নিঃশব্দে GPU পথ বদলে দিতে পারে না |
 | ৬ | **অডিও, লোকেল, ফন্ট** | লুপব্যাক-only PulseAudio bridge, OpenSL ES output ও on-demand microphone source সেট করে; private এক-সেকেন্ড Termux:API permission probe চালায়; লোকেল ও emoji/powerline/Nerd font যোগ করে | Guest playback ও capture PulseAudio দিয়ে Android audio-তে পৌঁছায়। Live capture Termux-এর permission ও OpenSL ES source ব্যবহার করে; আলাদা Termux:API probe live stream দেয় না। ফন্ট terminal-এ tofu box ঠেকায় |
 | ৭ | **লঞ্চার** | GPU পথ অনুযায়ী `~/x.sh` লেখা ও সিনট্যাক্স-চেক | এক কমান্ডে (`x`) অডিও → ডিসপ্লে → ডেস্কটপ নির্ভরযোগ্য ক্রমে শুরু হতেই হবে |
-| ৮ | **শর্টকাট** | `x`, `killx`, `db`, `droot`, `xgo`, `sysmon`, `clean-mesa` | প্রতিদিনের কাজের জন্য সহজ ও সরাসরি শর্টকাট তৈরি করে |
+| ৮ | **শর্টকাট** | `tx`, `x`, `killx`, `db`/`dbr`, `ub`/`ubr`, `alp`/`alpr`, `xgo`, `sysmon`, `clean-mesa` | প্রতিদিনের কাজের জন্য সহজ ও সরাসরি শর্টকাট তৈরি করে |
 | ৯ | **ঐচ্ছিক এক্সট্রা** | ডেভ টুলস, llama.cpp, নেটওয়ার্ক টুলস, মিডিয়া টুলস, headless EEVEE-র জন্য Blender + Xvfb — শুধু যা চেয়েছেন | বেস ইনস্টল হালকা থাকুক; প্রতিটি প্রোফাইলের স্টোরেজ/তাপের খরচ আলাদা |
 | ১০ | **Android safeguard check** | readable child-process setting পরীক্ষা ও version-aware guidance | signal 9 memory pressure বা OEM battery policy-ও হতে পারে; system-wide safeguard বদলানোর আগে evidence নিন |
 | ১১ | **যাচাইকরণ** | প্রতিটি গুরুত্বপূর্ণ বাইনারি, ফাইল ও অনুমতি সত্যিই আছে কিনা নিশ্চিত করা | পরিবেশটি চালু হওয়ার উপযোগী কিনা নিশ্চিত করে — `apt` শেষ হলেই ডেস্কটপ চালু হবে এমন নিশ্চয়তা থাকে না |

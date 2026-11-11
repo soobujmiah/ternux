@@ -1,0 +1,126 @@
+#!/usr/bin/env bash
+set -euo pipefail
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+TMP="$(mktemp -d)"
+trap 'rm -rf "$TMP"' EXIT
+export HOME="$TMP/home" TERNUX_STATE_DIR="$TMP/state" PREFIX="$TMP/prefix" NO_COLOR=1 TERM=dumb
+mkdir -p "$HOME" "$TERNUX_STATE_DIR" "$PREFIX"
+. "$ROOT/lib/core.sh"
+. "$ROOT/lib/phases.sh"
+. "$ROOT/lib/desktop.sh"
+. "$ROOT/lib/distro.sh"
+
+[ "$(tnx_distro_state_dir debian)" = "$TERNUX_STATE_DIR/distros/debian" ]
+! tnx_distro_state_dir '../escape' >/dev/null 2>&1
+tnx_distro_state_set debian backend zink
+tnx_distro_state_set ubuntu backend virgl
+[ "$(tnx_distro_state_get debian backend)" = zink ]
+[ "$(tnx_distro_state_get ubuntu backend)" = virgl ]
+[ "$(tnx_distro_state_get debian backend)" != "$(tnx_distro_state_get ubuntu backend)" ]
+
+tnx_distro_profile ubuntu
+[ "$TNX_DP_FAMILY" = apt ] && [ "$TNX_DP_EXTRA_HOLD" = snapd ]
+
+tnx_install_single() { printf '%s\n' "$*" >> "$TMP/install-calls"; }
+proot-distro() {
+  case "$*" in
+    'list --quiet') printf 'alpine\ndebian\nubuntu\n' ;;
+    *) printf '%s\n' "$*" >> "$TMP/proot-calls" ;;
+  esac
+}
+tnx_install --distros debian,ubuntu --yes
+[ "$(wc -l < "$TMP/install-calls")" -eq 2 ]
+grep -qx -- '--yes --distro debian' "$TMP/install-calls"
+grep -qx -- '--yes --distro ubuntu' "$TMP/install-calls"
+if tnx_install --distros debian,arch >/dev/null 2>&1; then exit 1; fi
+if tnx_install --distros debian,debian >/dev/null 2>&1; then exit 1; fi
+
+
+# Guest shell/exec routes through the selected distro and keeps the established
+# isolated-login plus scoped storage behavior.
+tnx_proot_container_installed() { return 0; }
+tnx_guest_login() { printf '%s|%s\n' "$TERNUX_DISTRO" "$*" >> "$TMP/login-calls"; }
+tnx_cmd_distro shell ubuntu
+[ "$(cat "$TMP/login-calls")" = 'ubuntu|' ]
+tnx_cmd_distro exec debian -- printf '%s' ok
+[ "$(tail -n 1 "$TMP/login-calls")" = 'debian|-- printf %s ok' ]
+tnx_cmd_distro image-install alpine:latest alpine
+[ "$(cat "$TMP/proot-calls")" = 'install --name alpine alpine:latest' ]
+tnx_cmd_distro list > "$TMP/distro-list"
+grep -q 'alpine.*shell/image only' "$TMP/distro-list"
+grep -q 'debian.*Ternux recipe available' "$TMP/distro-list"
+
+# A live Debian display must not be reported as an Ubuntu session.
+tnx_desktop_session_live() { [ "$(tnx_distro)" = debian ]; }
+tnx_pulseaudio_ready() { return 1; }
+mkdir -p "$TERNUX_STATE_DIR/session"
+printf 'debian\n' > "$TERNUX_STATE_DIR/session/distro"
+printf 'READY\n' > "$TERNUX_STATE_DIR/session/desktop.state"
+TERNUX_JSON=1 tnx_cmd_status ubuntu > "$TMP/status.json"
+grep -q '"status":"stopped"' "$TMP/status.json"
+
+
+# Generated shortcuts route to per-distro user/root contexts, and xgo prompts
+# across every installed guest while clearly identifying shell-only images.
+tnx_distro_state_set ubuntu status ready
+mkdir -p "$HOME/.local/share/ternux/distros/ubuntu"
+printf 'status=ready\n' > "$HOME/.local/share/ternux/distros/ubuntu/profile"
+TERNUX_DISTRO=ubuntu tnx_phase_aliases alice bash >/dev/null
+bash -n "$HOME/.bashrc"
+grep -q "alias tx='ternux'" "$HOME/.bashrc"
+grep -q 'db() { _ternux_guest_login debian --shared-tmp --user' "$HOME/.bashrc"
+grep -q 'dbr() { _ternux_guest_login debian --shared-tmp' "$HOME/.bashrc"
+grep -q 'ub() { _ternux_guest_login ubuntu --shared-tmp --user' "$HOME/.bashrc"
+grep -q 'ubr() { _ternux_guest_login ubuntu --shared-tmp' "$HOME/.bashrc"
+grep -q 'alp() { _ternux_guest_login alpine --shared-tmp --user' "$HOME/.bashrc"
+grep -q 'alpr() { _ternux_guest_login alpine --shared-tmp' "$HOME/.bashrc"
+cat > "$TMP/check-xgo.sh" <<'EOF'
+proot-distro() { printf 'alpine\ndebian\nubuntu\n'; }
+ternux() { printf 'START:%s\n' "$*"; }
+. "$HOME/.bashrc"
+xgo
+EOF
+printf '3\n' | bash --noprofile --norc "$TMP/check-xgo.sh" > "$TMP/xgo-output"
+grep -q 'shell/image only' "$TMP/xgo-output"
+grep -q 'START:start ubuntu' "$TMP/xgo-output"
+
+# Stopping Ubuntu must not touch Debian's independently stored session.
+mkdir -p "$TERNUX_STATE_DIR/session"
+printf 'debian\n' > "$TERNUX_STATE_DIR/session/distro"
+tnx_cmd_stop ubuntu >/dev/null 2>&1
+[ "$(cat "$TERNUX_STATE_DIR/session/distro")" = debian ]
+
+# With both tagged guest displays ready, stop accepts multiple selections.
+export TMPDIR="$TMP/tmp"
+mkdir -p "$TMPDIR/.X11-unix"
+python3 - "$TMPDIR/.X11-unix" <<'PY_SOCKETS'
+import socket,sys
+for n in ('0','1'):
+ s=socket.socket(socket.AF_UNIX); s.bind(sys.argv[1]+'/X'+n); s.close()
+PY_SOCKETS
+sleep 30 & debian_pid=$!
+sleep 30 & ubuntu_pid=$!
+for distro in debian ubuntu; do
+  session="$(tnx_distro_session_dir "$distro")"
+  mkdir -p "$session"
+  printf 'READY\n' > "$session/desktop.state"
+  printf 'READY\n' > "$session/desktop.pid.ready"
+  printf '%s\n' "$distro" > "$session/distro"
+  if [ "$distro" = debian ]; then pid="$debian_pid"; else pid="$ubuntu_pid"; fi
+  printf '%s\n' "$pid" > "$session/desktop.pid"
+  printf '%s %s %s\n' "$pid" "$(tnx_process_start_identity "$pid")" "$pid" > "$session/desktop.pid.identity"
+done
+stop_calls="$TMP/stop-calls"
+tnx_cmd_stop() { printf '%s\n' "$1" >> "$stop_calls"; }
+printf '2\n' | _tnx_stop_select > "$TMP/stop-single-picker"
+[ "$(cat "$stop_calls")" = ubuntu ]
+: > "$stop_calls"
+printf '1,2\n' | _tnx_stop_select > "$TMP/stop-picker"
+[ "$(cat "$stop_calls")" = $'debian\nubuntu' ]
+grep -q 'Display :0' "$TMP/stop-picker"
+grep -q 'Display :1' "$TMP/stop-picker"
+printf 'all\n' | _tnx_stop_select > "$TMP/stop-all-picker"
+[ "$(wc -l < "$stop_calls")" -eq 4 ]
+kill "$debian_pid" "$ubuntu_pid" 2>/dev/null || true
+wait "$debian_pid" "$ubuntu_pid" 2>/dev/null || true
+echo 'PASS: guest profiles, multi-install, shell shortcuts, xgo picker, multi-display stop picker, and lifecycle guards'
