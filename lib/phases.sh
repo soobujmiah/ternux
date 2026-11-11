@@ -344,15 +344,15 @@ tnx_install_guest_cli() {
 }
 
 # ---------------------------------------------------------------------------
-# Phase 4 — Debian container + Xfce4 + user
+# Phase 4 — selected guest + Xfce4 + user
 # ---------------------------------------------------------------------------
 tnx_phase_debian() {
-  local user_name="${1:-ternux}"
+  local user_name="${1:-ternux}" package_family
   local resource_dir="${BASH_SOURCE[0]%/*}"
   local welcome_b64 welcome_gui_b64 window_fit_b64 camera_gui_b64 recorder_gui_b64 panel_shortcuts_b64 ternux_assets_b64 resource
   for resource in ternux-welcome.sh ternux-welcome-gui.py ternux-window-fit.lua ternux-camera.py ternux-recorder.py ternux-panel-shortcuts.sh; do
     if [ ! -s "$resource_dir/$resource" ] || [ ! -r "$resource_dir/$resource" ]; then
-      tnx_fail "Required Debian desktop resource is missing or unreadable: $resource_dir/$resource"
+      tnx_fail "Required Ternux desktop resource is missing or unreadable: $resource_dir/$resource"
       return 1
     fi
   done
@@ -374,21 +374,48 @@ tnx_phase_debian() {
     proot-distro install "$(tnx_distro)" || { tnx_fail "Guest '$(tnx_distro)' install failed."; return 1; }
   fi
 
+  tnx_distro_profile "$(tnx_distro)" || { tnx_fail "No package recipe for guest '$(tnx_distro)'."; return 2; }
+  package_family="$TNX_DP_FAMILY"
   tnx_guest_login --shared-tmp -- bash -c "
     set -e
+    FAMILY='$package_family'
     export DEBIAN_FRONTEND=noninteractive
     DPKG_FORCE=\"-o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -o APT::Color=1 -o Dpkg::Progress-Fancy=1\"
-    apt update -o APT::Color=1
-    dpkg --configure -a --force-confold --force-confdef || true
-    if [ '$(tnx_distro)' = ubuntu ]; then
-      install -d -m 0755 /etc/apt/preferences.d
-      printf 'Package: snapd\nPin: version *\nPin-Priority: -1\n' > /etc/apt/preferences.d/ternux-no-snapd
-      apt-mark hold snapd >/dev/null 2>&1 || true
-    fi
-    apt install -y \$DPKG_FORCE sudo nano mousepad galculator evince fonts-noto-core python3-gi gir1.2-gtk-3.0 ibus ibus-avro devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol x11-utils mesa-utils libgl1-mesa-dri adwaita-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc ffmpeg ristretto qt5-gtk-platformtheme colord
-    apt install -y \$DPKG_FORCE --no-install-recommends synaptic
-    if [ '$(tnx_distro)' = ubuntu ]; then apt-mark hold snapd >/dev/null 2>&1 || true; fi
-    apt remove -y \$DPKG_FORCE guvcview >/dev/null 2>&1 || true
+    case \"\$FAMILY\" in
+      apt)
+        apt update -o APT::Color=1
+        dpkg --configure -a --force-confold --force-confdef || true
+        if [ '$(tnx_distro)' = ubuntu ]; then
+          install -d -m 0755 /etc/apt/preferences.d
+          printf 'Package: snapd\nPin: version *\nPin-Priority: -1\n' > /etc/apt/preferences.d/ternux-no-snapd
+          apt-mark hold snapd >/dev/null 2>&1 || true
+        fi
+        apt install -y \$DPKG_FORCE sudo nano mousepad galculator evince fonts-noto-core python3-gi gir1.2-gtk-3.0 ibus ibus-avro devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol x11-utils mesa-utils libgl1-mesa-dri adwaita-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc ffmpeg ristretto qt5-gtk-platformtheme colord xdg-utils desktop-file-utils util-linux gsettings-desktop-schemas xfconf
+        apt install -y \$DPKG_FORCE --no-install-recommends synaptic
+        if [ '$(tnx_distro)' = ubuntu ]; then apt-mark hold snapd >/dev/null 2>&1 || true; fi
+        apt remove -y \$DPKG_FORCE guvcview >/dev/null 2>&1 || true
+        ;;
+      apk)
+        apk update
+        apk add sudo bash shadow musl-utils nano mousepad galculator evince font-noto python3 py3-gobject3 gtk+3.0 ibus devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol mesa mesa-dri-gallium mesa-utils xdg-utils desktop-file-utils util-linux fontconfig gsettings-desktop-schemas xfconf adwaita-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc ffmpeg ristretto qt5-qtbase colord
+        ;;
+      pacman)
+        pacman -Syu --noconfirm --needed
+        pacman -S --noconfirm --needed sudo bash nano mousepad galculator evince noto-fonts python-gobject gtk3 ibus devilspie2 xorg-xhost pulseaudio pavucontrol mesa mesa-utils xorg-xdpyinfo xdg-utils desktop-file-utils util-linux fontconfig gsettings-desktop-schemas xfconf adwaita-icon-theme xfce4 xfce4-goodies xfce4-terminal zenity vlc ffmpeg ristretto qt5ct colord
+        ;;
+      dnf)
+        dnf install -y sudo bash nano mousepad galculator evince google-noto-sans-fonts python3-gobject gtk3 ibus devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol mesa-dri-drivers glx-utils xorg-x11-utils xdg-utils desktop-file-utils util-linux fontconfig gsettings-desktop-schemas xfconf adwaita-icon-theme xfce4-panel xfce4-session xfce4-settings xfce4-terminal xfce4-taskmanager zenity vlc ffmpeg ristretto qt5-qtbase colord
+        ;;
+      zypper)
+        zypper --non-interactive refresh
+        zypper --non-interactive install -y sudo bash nano mousepad galculator evince google-noto-sans-fonts python3-gobject gtk3 ibus dbus-1-x11 pulseaudio pulseaudio-utils pavucontrol Mesa-dri Mesa-demo-x xorg-x11-utils xdg-utils desktop-file-utils util-linux fontconfig gsettings-desktop-schemas xfconf adwaita-icon-theme xfce4-panel xfce4-session xfce4-settings xfce4-terminal xfce4-taskmanager zenity vlc ffmpeg ristretto libqt5-qtbase colord
+        ;;
+      xbps)
+        xbps-install -Suy
+        xbps-install -Sy sudo bash nano mousepad galculator evince noto-fonts-ttf python3-gobject gtk+3 ibus dbus pulseaudio pulseaudio-utils pavucontrol mesa-dri mesa-demos xdg-utils desktop-file-utils util-linux fontconfig gsettings-desktop-schemas xfconf adwaita-icon-theme xfce4 xfce4-terminal xfce4-taskmanager zenity vlc ffmpeg ristretto qt5-base colord
+        ;;
+      *) echo \"Unsupported package manager family: \$FAMILY\" >&2; exit 2 ;;
+    esac
     rm -f /usr/local/share/applications/guvcview.desktop
     asset_stage=\$(mktemp -d /tmp/ternux-assets.XXXXXX)
     printf '%s' '$ternux_assets_b64' | base64 -d | tar -xz -C "\$asset_stage"
@@ -420,15 +447,23 @@ tnx_phase_debian() {
     fi
     cp -a "\$asset_stage/themes/Ternux/." /usr/share/themes/Ternux/
     install -m 0755 "\$asset_stage/bin/ternux-open-url" /usr/local/bin/ternux-open-url
-    install -m 0755 "\$asset_stage/bin/ternux-app-center" /usr/local/bin/ternux-app-center
+    if [ "\$FAMILY" = apt ]; then
+      install -m 0755 "\$asset_stage/bin/ternux-app-center" /usr/local/bin/ternux-app-center
+    else
+      rm -f /usr/local/bin/ternux-app-center
+    fi
     install -m 0755 "\$asset_stage/bin/evolution" /usr/local/bin/evolution
     install -m 0755 "\$asset_stage/bin/ternux-install-celestia" /usr/local/bin/ternux-install-celestia
     if [ -f /usr/share/applications/org.gnome.Evolution.desktop ]; then
       sed 's#^Exec=evolution#Exec=/usr/local/bin/evolution#' /usr/share/applications/org.gnome.Evolution.desktop > /usr/local/share/applications/org.gnome.Evolution.desktop
       chmod 0644 /usr/local/share/applications/org.gnome.Evolution.desktop
     fi
-    install -m 0644 "\$asset_stage/applications/ternux-app-center.desktop" /usr/local/share/applications/ternux-app-center.desktop
-    install -m 0644 "\$asset_stage/applications/synaptic.desktop" /usr/local/share/applications/synaptic.desktop
+    if [ "\$FAMILY" = apt ]; then
+      install -m 0644 "\$asset_stage/applications/ternux-app-center.desktop" /usr/local/share/applications/ternux-app-center.desktop
+      install -m 0644 "\$asset_stage/applications/synaptic.desktop" /usr/local/share/applications/synaptic.desktop
+    else
+      rm -f /usr/local/share/applications/ternux-app-center.desktop /usr/local/share/applications/synaptic.desktop
+    fi
     install -m 0644 "\$asset_stage/applications/ternux-sdcard.desktop" /usr/share/applications/ternux-sdcard.desktop
     rm -f /usr/share/backgrounds/ternux/aurora.svg
     cp -a "\$asset_stage/wallpapers/." /usr/share/backgrounds/ternux/
@@ -460,11 +495,22 @@ tnx_phase_debian() {
   tnx_guest_login --shared-tmp -- bash -c "
     set -e
     U='${user_name}'
-    if ! id -u \"\$U\" >/dev/null 2>&1; then adduser --disabled-password --gecos '' \"\$U\"; fi
-    for grp in sudo video render audio; do getent group \"\$grp\" >/dev/null 2>&1 && usermod -aG \"\$grp\" \"\$U\" || true; done
+    FAMILY='${package_family}'
+    if ! id -u \"\$U\" >/dev/null 2>&1; then
+      if [ \"\$FAMILY\" = apk ]; then adduser -D \"\$U\"; else useradd -m -s /bin/bash \"\$U\"; fi
+    fi
+    case \"\$FAMILY\" in pacman|dnf|zypper|xbps) ADMIN_GROUP=wheel ;; *) ADMIN_GROUP=sudo ;; esac
+    for grp in \"\$ADMIN_GROUP\" video render audio; do getent group \"\$grp\" >/dev/null 2>&1 && usermod -aG \"\$grp\" \"\$U\" || true; done
+    install -d -m 0750 /etc/sudoers.d
     F=/etc/sudoers.d/ternux; T=\"\$(mktemp)\"
-    printf '%s ALL=(ALL) NOPASSWD: ALL\n' \"\$U\" > \"\$T\"
-    if visudo -cf \"\$T\" >/dev/null 2>&1; then install -m 0440 -o root -g root \"\$T\" \"\$F\"; else rm -f \"\$T\"; exit 1; fi
+    if grep -Eq '^[[:space:]]*[@#]includedir[[:space:]]+/etc/sudoers[.]d([[:space:]]|$)' /etc/sudoers; then
+      printf '%s ALL=(ALL) NOPASSWD: ALL\n' \"\$U\" > \"\$T\"
+      if visudo -cf \"\$T\" >/dev/null 2>&1; then install -m 0440 -o root -g root \"\$T\" \"\$F\"; else rm -f \"\$T\"; exit 1; fi
+    else
+      cat /etc/sudoers > \"\$T\"
+      printf '\n%s ALL=(ALL) NOPASSWD: ALL\n' \"\$U\" >> \"\$T\"
+      if visudo -cf \"\$T\" >/dev/null 2>&1; then install -m 0440 -o root -g root \"\$T\" /etc/sudoers; else rm -f \"\$T\"; exit 1; fi
+    fi
     rm -f \"\$T\"
     H=\"\$(getent passwd \"\$U\" | cut -d: -f6)\"
     install -d -o \"\$U\" -g \"\$U\" -m 0755 \"\$H/Pictures\"
@@ -655,7 +701,7 @@ DESKTOP
   " || { tnx_fail "User setup failed."; return 1; }
 
   if tnx_guest_login --shared-tmp --user "$user_name" -- sudo -n true >/dev/null 2>&1; then
-    tnx_ok "Debian + Xfce4 + user '$user_name' ready (passwordless sudo)."
+    tnx_ok "Guest '$(tnx_distro)' + Xfce4 + user '$user_name' ready (passwordless sudo)."
   else
     tnx_fail "Passwordless sudo not working for '$user_name'."
     return 1
@@ -698,10 +744,10 @@ tnx_phase_gpu() {
   # install.sh doctor route), not only through the main orchestrator.
   [ "$backend" = "zink-turnip" ] && backend="zink"
   if [ "$backend" = "auto" ]; then
-    if [ "$distro" = ubuntu ]; then backend="virgl"
+    if [ "$distro" != debian ]; then backend="virgl"
     else [ -e "${TERNUX_KGSL_DEVICE:-/dev/kgsl-3d0}" ] && backend="zink" || backend="virgl"; fi
-  elif [ "$distro" = ubuntu ] && [ "$backend" = zink ]; then
-    tnx_fail "The pinned Zink/Turnip profile targets Debian Trixie. Select --backend virgl for Ubuntu."
+  elif [ "$distro" != debian ] && [ "$backend" = zink ]; then
+    tnx_fail "The pinned Zink/Turnip profile targets Debian Trixie. Select --backend virgl for '$distro'."
     return 2
   fi
   case "$backend" in
@@ -963,8 +1009,10 @@ tnx_request_microphone_permission() {
 }
 
 tnx_phase_audio_fonts() {
-  local user_name="${1:-ternux}" locale="${2:-en_US.UTF-8}"
+  local user_name="${1:-ternux}" locale="${2:-en_US.UTF-8}" family=""
 
+  tnx_distro_profile || return 2
+  family="$TNX_DP_FAMILY"
   tnx_request_microphone_permission
   local PA_CONF="${PREFIX:-/data/data/com.termux/files/usr}/etc/pulse/default.pa"
   _tnx_configure_pulse_bridge "$PA_CONF" || return 1
@@ -972,14 +1020,33 @@ tnx_phase_audio_fonts() {
 
   tnx_guest_login --shared-tmp --user "$user_name" -- bash -c "
     set -e
-    DPKG_FORCE=\"-o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -o APT::Color=1 -o Dpkg::Progress-Fancy=1\"
-    sudo apt update -o APT::Color=1
-    sudo DEBIAN_FRONTEND=noninteractive apt install -y \$DPKG_FORCE locales
-    grep -qxF \"${locale} UTF-8\" /etc/locale.gen 2>/dev/null || echo \"${locale} UTF-8\" | sudo tee -a /etc/locale.gen >/dev/null
-    sudo locale-gen \"${locale}\"
+    FAMILY='${family}'
+    case \"\$FAMILY\" in
+      apt)
+        DPKG_FORCE=\"-o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef\"
+        sudo apt update
+        sudo DEBIAN_FRONTEND=noninteractive apt install -y \$DPKG_FORCE locales fonts-symbola fonts-noto-color-emoji fonts-font-awesome fonts-powerline
+        grep -qxF \"${locale} UTF-8\" /etc/locale.gen 2>/dev/null || echo \"${locale} UTF-8\" | sudo tee -a /etc/locale.gen >/dev/null
+        sudo locale-gen \"${locale}\"
+        ;;
+      apk)
+        sudo apk add musl-locales musl-locales-lang font-noto font-noto-emoji font-awesome
+        ;;
+      pacman)
+        sudo pacman -S --noconfirm --needed glibc noto-fonts noto-fonts-emoji ttf-font-awesome
+        ;;
+      dnf)
+        sudo dnf install -y glibc-langpack-en google-noto-sans-fonts google-noto-emoji-fonts fontawesome-fonts
+        ;;
+      zypper)
+        sudo zypper --non-interactive install -y glibc-locale google-noto-sans-fonts google-noto-emoji-fonts fontawesome-fonts
+        ;;
+      xbps)
+        sudo xbps-install -Sy glibc-locales noto-fonts-ttf font-awesome
+        ;;
+    esac
     grep -q \"export LANG='${locale}'\" ~/.bashrc 2>/dev/null || echo \"export LANG='${locale}'\" >> ~/.bashrc
     grep -q \"export LC_ALL='${locale}'\" ~/.bashrc 2>/dev/null || echo \"export LC_ALL='${locale}'\" >> ~/.bashrc
-    sudo apt install -y \$DPKG_FORCE fonts-symbola fonts-noto-color-emoji fonts-font-awesome fonts-powerline
     # The launcher exports the live loopback PulseAudio endpoint for desktop apps.
     mkdir -p ~/.local/share/fonts
     if [ ! -f ~/.local/share/fonts/.ternux-nerdfont-v3.5.1-installed ]; then
@@ -1430,6 +1497,16 @@ ub() { _ternux_guest_login ubuntu --shared-tmp --user "\$(_ternux_guest_user ubu
 ubr() { _ternux_guest_login ubuntu --shared-tmp "\$@"; }
 alp() { _ternux_guest_login alpine --shared-tmp --user "\$(_ternux_guest_user alpine)" "\$@"; }
 alpr() { _ternux_guest_login alpine --shared-tmp "\$@"; }
+archx() { _ternux_guest_login archlinux --shared-tmp --user "\$(_ternux_guest_user archlinux)" "\$@"; }
+archroot() { _ternux_guest_login archlinux --shared-tmp "\$@"; }
+fed() { _ternux_guest_login fedora --shared-tmp --user "\$(_ternux_guest_user fedora)" "\$@"; }
+fedr() { _ternux_guest_login fedora --shared-tmp "\$@"; }
+suse() { _ternux_guest_login opensuse --shared-tmp --user "\$(_ternux_guest_user opensuse)" "\$@"; }
+suser() { _ternux_guest_login opensuse --shared-tmp "\$@"; }
+vsh() { _ternux_guest_login void --shared-tmp --user "\$(_ternux_guest_user void)" "\$@"; }
+vroot() { _ternux_guest_login void --shared-tmp "\$@"; }
+kal() { _ternux_guest_login kali --shared-tmp --user "\$(_ternux_guest_user kali)" "\$@"; }
+kalr() { _ternux_guest_login kali --shared-tmp "\$@"; }
 _ternux_xgo() {
   [ -z "\${ZSH_VERSION:-}" ] || emulate -L bash
   local -a installed=() selectable=()
@@ -1485,7 +1562,7 @@ clean-mesa() { _ternux_guest_login "\$distro" --user "\$user_name" -- bash -c 'r
 sysmon() { echo "--- CPU & Memory ---"; free -h; echo ""; echo "--- GPU / KGSL ---"; ls -l /dev/kgsl-3d0 /dev/dri 2>/dev/null || echo "No GPU nodes."; }
 # ==== END TERNUX ALIASES ====
 ALIASEOF
-  tnx_ok "Aliases installed: tx, x, xgo, killx, db/dbr, ub/ubr, alp/alpr, sysmon"
+  tnx_ok "Aliases installed: tx, x, xgo, killx, distro user/root shells, sysmon"
 }
 
 # ---------------------------------------------------------------------------
@@ -1525,6 +1602,12 @@ tnx_phase_extras() {
   local rc=0 opt selected node_selected=0 go_version="" cores jobs htp_selected=0 adt_selected=0 celestia_selected=0
   local -a apt_packages=() unique_packages=() install_opts=()
   local APT="sudo apt update -o APT::Color=1 && sudo DEBIAN_FRONTEND=noninteractive apt install -y -o APT::Color=1 -o Dpkg::Progress-Fancy=1"
+
+  tnx_distro_profile || { tnx_warn "No package recipe for guest '$(tnx_distro)'."; return 2; }
+  if [ "$TNX_DP_FAMILY" != apt ] && [ "$#" -gt 0 ]; then
+    tnx_warn "Optional workload recipes currently require an APT guest; '$TNX_DP_FAMILY' desktop base remains usable."
+    return 2
+  fi
 
   # Resolve individual software choices and install apt packages in one pass.
   for opt in "$@"; do
@@ -1830,13 +1913,13 @@ tnx_phase_verify() {
   guest_version="$(tnx_guest_login --user "$user_name" -- bash -lc \
     'command -v ternux >/dev/null && ternux --version' 2>&1)" || true
   case "$guest_version" in
-    "ternux guest v${TERNUX_VERSION}"|"ternux guest v${TERNUX_VERSION}"$'\n'*) tnx_ok "Debian/Xfce terminal companion is in PATH and version-verified" ;;
-    *) tnx_fail "Debian/Xfce terminal companion is missing, cannot execute, or returned an unexpected version"; rc=1 ;;
+    "ternux guest v${TERNUX_VERSION}"|"ternux guest v${TERNUX_VERSION}"$'\n'*) tnx_ok "Guest/Xfce terminal companion is in PATH and version-verified" ;;
+    *) tnx_fail "Guest/Xfce terminal companion is missing, cannot execute, or returned an unexpected version"; rc=1 ;;
   esac
 
   if tnx_guest_login --user "$user_name" -- bash -c 'command -v startxfce4 && command -v glxinfo && command -v pactl && sudo -n true' >/dev/null 2>&1; then
-    tnx_ok "Debian core OK"
-  else tnx_fail "Debian core failed"; rc=1; fi
+    tnx_ok "Guest desktop core OK"
+  else tnx_fail "Guest desktop core failed"; rc=1; fi
 
   if [ "$backend" = "zink" ]; then
     if tnx_guest_login -- bash -c '
@@ -2032,39 +2115,47 @@ _tnx_execute_install_phase() {
 # one. Same tty/deadline/default handling as the other prompts. The prompt names
 # which guest is device-verified, because only one is.
 tnx_prompt_distro() {
-  local default_distro="${1:-debian}"
-  local timeout="${2:-20}"
-  local tty_fd="" input=""
+  local default_distro="${1:-debian}" timeout="${2:-20}" tty_fd="" input="" i=0 item bad=0
+  local -a profiles=()
+  read -r -a profiles <<< "$TERNUX_DISTRO_KNOWN"
 
-  if { exec 3<>/dev/tty; } 2>/dev/null; then
-    tty_fd=3
-  elif [ -t 0 ]; then
-    tty_fd=0
+  if { exec 3<>/dev/tty; } 2>/dev/null; then tty_fd=3
+  elif [ -t 0 ]; then tty_fd=0
   fi
+  if [ -z "$tty_fd" ]; then printf '%s\n' "$default_distro"; return 0; fi
 
-  if [ -z "$tty_fd" ]; then
-    printf '%s\n' "$default_distro"
-    return 0
-  fi
-
-  printf "${TNX_CW}Guest profiles${TNX_C0}\n" >&2
-  printf "  1) Debian  — recommended; device-verified\n  2) Ubuntu  — snapd pinned/held; device validation pending\n  3) Both     — installs two independent guest containers\n" >&2
-  printf "Choose 1/2/3 or type a profile name [default: %s] (${timeout}s): " "$default_distro" >&2
+  printf "${TNX_CW}Guest profiles${TNX_C0} (desktop recipes by package-manager family)\n" >&2
+  for item in "${profiles[@]}"; do
+    i=$((i + 1))
+    if tnx_distro_verified "$item"; then
+      printf '  %2d) %-12s device-verified\n' "$i" "$item" >&2
+    else
+      printf '  %2d) %s\n' "$i" "$item" >&2
+    fi
+  done
+  printf "Choose a number, type a profile name, or enter comma-separated names for multiple guests [default: %s] (%ss): " "$default_distro" "$timeout" >&2
   if ! IFS= read -r -t "$timeout" -u "$tty_fd" input; then
     printf "\n${TNX_CY}[INFO]${TNX_C0} Guest prompt timed out; using '%s'.\n" "$default_distro" >&2
+    printf '%s\n' "$default_distro"; return 0
+  fi
+  input="$(printf '%s' "$input" | tr -d '\r\n' | tr '[:upper:]' '[:lower:]')"
+  if [[ "$input" =~ ^[0-9]+$ ]] && [ "$input" -ge 1 ] && [ "$input" -le "${#profiles[@]}" ]; then
+    input="${profiles[input-1]}"
+  fi
+  if [ -z "$input" ]; then
     printf '%s\n' "$default_distro"
     return 0
   fi
-
-  input="$(printf '%s' "$input" | tr -d '\r\n' | tr '[:upper:]' '[:lower:]')"
-  case "$input" in 1) input=debian ;; 2) input=ubuntu ;; 3) input=debian,ubuntu ;; esac
-  if [ -z "$input" ]; then
-    printf '%s\n' "$default_distro"
-  elif [ "$input" = "debian,ubuntu" ] || tnx_distro_known "$input"; then
-    printf '%s\n' "$input"
+  local -a selected=()
+  IFS=',' read -r -a selected <<< "$input"
+  for item in "${selected[@]}"; do
+    item="$(printf '%s' "$item" | tr -d '[:space:]')"
+    tnx_distro_known "$item" || bad=1
+  done
+  if [ "$bad" -eq 0 ]; then
+    printf '%s\n' "$(printf '%s' "$input" | tr -d '[:space:]')"
   else
-    printf "${TNX_CY}[INFO]${TNX_C0} '%s' is not one of %s; using '%s'.\n" \
-      "$input" "$TERNUX_DISTRO_KNOWN" "$default_distro" >&2
+    printf "${TNX_CY}[INFO]${TNX_C0} Choose one of: %s. Using '%s'.\n" "$TERNUX_DISTRO_KNOWN" "$default_distro" >&2
     printf '%s\n' "$default_distro"
   fi
 }
@@ -2443,10 +2534,14 @@ tnx_install_single() {
   [[ "$locale" =~ ^[A-Za-z0-9_.@-]+$ ]] || { tnx_fail "--locale contains unsupported characters."; return 2; }
   case "$backend" in auto|zink|virgl) ;; *) tnx_fail "--backend must be auto, zink or virgl."; return 2 ;; esac
   case "$shell_choice" in bash|zsh) ;; *) tnx_fail "Saved shell choice must be bash or zsh."; return 2 ;; esac
-  tnx_distro_known "$distro_choice" || {
+  tnx_distro_known "$distro_choice" && tnx_distro_profile "$distro_choice" || {
     tnx_fail "--distro must be one of: $TERNUX_DISTRO_KNOWN."
     return 2
   }
+  if [ "$TNX_DP_FAMILY" != apt ] && [ "${#extras[@]}" -gt 0 ]; then
+    tnx_fail "Optional software workloads currently require an APT guest; '$distro_choice' supports the family-matched base desktop only."
+    return 2
+  fi
   # tnx_distro caches its answer, so clear it before changing the environment.
   unset _TNX_DISTRO
   export TERNUX_DISTRO="$distro_choice"
@@ -2463,19 +2558,23 @@ tnx_install_single() {
   fi
 
   if [ "$backend" = "auto" ]; then
-    if [ "$distro_choice" = ubuntu ]; then backend="virgl"
+    if [ "$distro_choice" != debian ]; then backend="virgl"
     else [ -e "${TERNUX_KGSL_DEVICE:-/dev/kgsl-3d0}" ] && backend="zink" || backend="virgl"; fi
-  elif [ "$distro_choice" = ubuntu ] && [ "$backend" = zink ]; then
-    tnx_fail "The pinned Zink/Turnip profile targets Debian Trixie. Select --backend virgl for Ubuntu."
+  elif [ "$distro_choice" != debian ] && [ "$backend" = zink ]; then
+    tnx_fail "The pinned Zink/Turnip profile targets Debian Trixie. Select --backend virgl for '$distro_choice'."
     return 2
   fi
 
   if [ "$resume" -eq 0 ] && [ "$yes" -eq 0 ] && [ "${#extras[@]}" -eq 0 ]; then
-    local workload_selection=""
-    workload_selection="$(tnx_prompt_workloads "$backend")"
-    if [ -n "$workload_selection" ]; then
-      IFS=',' read -r -a extras <<< "$workload_selection"
-      [ "$workload_selection" = "dev,llm,network,media,blender" ] && full=1
+    if [ "$TNX_DP_FAMILY" = apt ]; then
+      local workload_selection=""
+      workload_selection="$(tnx_prompt_workloads "$backend")"
+      if [ -n "$workload_selection" ]; then
+        IFS=',' read -r -a extras <<< "$workload_selection"
+        [ "$workload_selection" = "dev,llm,network,media,blender" ] && full=1
+      fi
+    else
+      tnx_info "Optional workload installer is currently available for APT-family guests only."
     fi
   fi
 
@@ -2725,11 +2824,19 @@ tnx_install() {
   [ ${#choices[@]} -gt 0 ] || { tnx_fail "--distros needs at least one name."; return 2; }
   for distro in "${choices[@]}"; do
     distro="$(printf '%s' "$distro" | tr '[:upper:]' '[:lower:]' | tr -d '[:space:]')"
-    tnx_distro_known "$distro" || { tnx_fail "Unsupported Ternux profile '$distro'. Supported profiles: $TERNUX_DISTRO_KNOWN"; return 2; }
+    tnx_distro_known "$distro" && tnx_distro_profile "$distro" || { tnx_fail "Unsupported Ternux profile '$distro'. Supported profiles: $TERNUX_DISTRO_KNOWN"; return 2; }
     case "$seen" in *" $distro "*) tnx_fail "Duplicate distro in --distros: $distro"; return 2 ;; esac
     seen+="$distro "
     normalized+=("$distro")
   done
+  local has_optional=0 forwarded_arg
+  for forwarded_arg in "${forwarded[@]}"; do case "$forwarded_arg" in --with-*|--all) has_optional=1 ;; esac; done
+  if [ "$has_optional" -eq 1 ]; then
+    for distro in "${normalized[@]}"; do
+      tnx_distro_profile "$distro"
+      [ "$TNX_DP_FAMILY" = apt ] || { tnx_fail "Optional workloads currently require an APT-family guest; '$distro' supports the base desktop profile."; return 2; }
+    done
+  fi
   for distro in "${normalized[@]}"; do
     tnx_step "Installing $distro profile"
     tnx_install_single "${forwarded[@]}" --distro "$distro" || return $?

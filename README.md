@@ -17,7 +17,7 @@
 
 </div>
 
-Ternux sets up a Debian or Ubuntu Xfce4 guest in Termux using PRoot. Debian is the verified default; Ubuntu has its own profile with snapd blocked. Other PRoot-Distro OCI guests can also be installed and used from a shell; desktop readiness depends on a Ternux recipe for that package family. Termux:X11 displays the
+Ternux sets up an Xfce4 guest in Termux using PRoot. Debian is the recommended, device-verified default. Named profiles map Debian-family aliases to APT, Alpine-family aliases to APK, Arch-family aliases to pacman, Fedora-family aliases to DNF, openSUSE to Zypper, and Void to XBPS; arbitrary OCI images remain available as shell guests. Optional workload installs are currently APT-family only. Termux:X11 displays the
 desktop and PulseAudio connects sound. Graphics use Zink/Turnip on supported
 Adreno devices or VirGL as a compatibility route. Results vary by device.
 
@@ -75,9 +75,9 @@ tx distro list    # show every installed PRoot guest
 tx distro search alpine # search available OCI images
 ```
 
-Use `tx stop --all` to close every managed Ternux desktop. Debian and Ubuntu each get a tagged Termux:X11 window and can run concurrently. Install both desktop profiles with `tx install --distros debian,ubuntu`; each gets the same Ternux base desktop and separate settings. `xgo` lists every installed guest and asks which desktop to start when there is more than one. Generic images without a Ternux package recipe are shown as shell-only. Debian remains the only device-verified profile.
+Use `tx stop --all` to close every managed Ternux desktop. Each Ternux desktop guest gets its own tagged Termux:X11 window and separate settings. Install multiple profiles with `tx install --distros debian,ubuntu,alpine`; each receives the family-matched Ternux base desktop. `xgo` lists every installed guest and asks which desktop to start when there is more than one. Generic images without a Ternux package recipe are shown as shell-only. Debian remains the only device-verified profile; other package-family profiles need target-device qualification.
 
-The `x` shortcut starts the saved desktop; `xgo` opens Termux:X11 and asks which installed desktop guest to start. `tx` is the short CLI command. Use `db`/`dbr` for Debian user/root shells, `ub`/`ubr` for Ubuntu, and `alp`/`alpr` for Alpine when those guests are installed. Use `tx distro shell NAME` or `tx distro exec NAME -- COMMAND` for any installed PRoot guest. Search PRoot-Distro images with `tx distro search QUERY`; install a generic OCI image with `tx distro image-install IMAGE[:TAG] [NAME]`. Generic images provide guest shells. Ternux desktop recipes currently exist only for Debian and Ubuntu. Shared Android storage is
+The `x` shortcut starts the saved desktop; `xgo` opens Termux:X11 and asks which installed desktop guest to start. `tx` is the short CLI command. Use `db`/`dbr`, `ub`/`ubr`, `alp`/`alpr`, `archx`/`archroot`, `fed`/`fedr`, `suse`/`suser`, `vsh`/`vroot`, or `kal`/`kalr` for the corresponding user/root shells when those guests are installed. Use `tx distro shell NAME` or `tx distro exec NAME -- COMMAND` for any installed PRoot guest. Search PRoot-Distro images with `tx distro search QUERY`; install a generic OCI image with `tx distro image-install IMAGE[:TAG] [NAME]`. Generic images provide guest shells. Named distro profiles use the matching package-manager recipe; arbitrary OCI images provide guest shells until a family recipe is added. Shared Android storage is
 not mounted by default. Grant only a needed folder, then restart the desktop or
 open a new guest shell to use it:
 
@@ -87,13 +87,13 @@ ternux storage grant /sdcard/Llms
 
 ## What you get
 
-**Base desktop:** Debian 13 (Trixie) by default, or an independently installed Ubuntu guest, in user-space PRoot with Xfce4,
-Termux:X11 display integration, and PulseAudio audio routing. The default setup
-includes Bangla-capable Noto fonts, Avro phonetic input (Ctrl+Space), VLC,
+**Base desktop:** Debian 13 (Trixie) by default, or another named package-family profile, in user-space PRoot with Xfce4,
+Termux:X11 display integration, and PulseAudio audio routing. The Debian/Ubuntu APT profile
+includes Bangla-capable Noto fonts and Avro phonetic input (Ctrl+Space); other
+profiles use their distro font and keyboard packages. The base desktop includes VLC,
 PulseAudio Volume Control, Xfce Task Manager, Mousepad, Galculator, Evince PDF
 reader, Ternux Camera, Ternux Sound Recorder,
-Ristretto image viewer, and Synaptic Package Manager. Synaptic uses Ternux
-branding and can search, install, upgrade, or remove Debian packages. Evince is
+Ristretto image viewer. Debian-family APT guests also include Synaptic Package Manager, which uses Ternux branding and manages guest packages. App availability follows each distro family; optional workloads currently target APT guests. Evince is
 the default PDF reader; LibreOffice Draw is optional for editing PDF pages and exporting documents to other formats.
 Celestia is available as an optional astronomy simulator and is not installed by default. No mail client is installed or set as default. Evolution is available as an optional
 mail client; common providers can use OAuth, and other hosts support manual IMAP/POP
