@@ -161,7 +161,10 @@ tnx_remove_stale_x11_socket() {
   server_pid="${server_pid//[[:space:]]/}"
   [[ "$server_pid" =~ ^[0-9]+$ ]] || return 1
   kill -0 "$server_pid" 2>/dev/null && return 1
-  pgrep -f '^termux-x11 com\.termux\.x11([[:space:]]|$)' >/dev/null 2>&1 && return 1
+  # Other Ternux guests may have their own live X server. Only preserve the
+  # socket when its matching display server is alive; a global process check
+  # makes one stale display block every later distro in a multi-GUI setup.
+  pgrep -f "^termux-x11 com\\.termux\\.x11 :${display_num}([[:space:]]|$)" >/dev/null 2>&1 && return 1
   rm -f -- "$socket" "$lock"
 }
 
@@ -169,9 +172,15 @@ tnx_remove_stale_x11_socket() {
 # tnx_cmd_start
 # ---------------------------------------------------------------------------
 tnx_cmd_start() {
-  local distro="$(tnx_distro_canonical "${1:-$(tnx_distro)}")" launcher_dir launcher_path
+  local distro="" launcher_dir launcher_path
   local display_num display tag
   [ "$#" -le 1 ] || { tnx_fail "Usage: ternux start [DISTRO]"; return 2; }
+  if [ "$#" -eq 0 ]; then
+    if tnx_proot_container_installed debian; then distro=debian
+    else distro="$(tnx_distro)"; fi
+  else
+    distro="$(tnx_distro_canonical "$1")"
+  fi
   tnx_distro_known "$distro" || { tnx_fail "Unsupported Ternux desktop profile '$distro'. Supported profiles: $TERNUX_DISTRO_KNOWN"; return 2; }
   tnx_proot_container_installed "$distro" || { tnx_fail "Guest '$distro' is not installed. Run: ternux install --distro $distro"; return 1; }
   unset _TNX_DISTRO

@@ -404,7 +404,7 @@ tnx_phase_debian() {
           printf 'Package: snapd\nPin: version *\nPin-Priority: -1\n' > /etc/apt/preferences.d/ternux-no-snapd
           apt-mark hold snapd >/dev/null 2>&1 || true
         fi
-        apt install -y \$DPKG_FORCE sudo nano mousepad galculator evince fonts-noto-core python3-gi gir1.2-gtk-3.0 ibus ibus-avro devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol x11-utils mesa-utils libgl1-mesa-dri libvulkan1 mesa-vulkan-drivers vulkan-tools adwaita-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc ffmpeg ristretto qt5-gtk-platformtheme colord xdg-utils desktop-file-utils util-linux gsettings-desktop-schemas xfconf
+        apt install -y -o APT::Install-Recommends=false \$DPKG_FORCE sudo nano mousepad galculator evince fonts-noto-core python3-gi gir1.2-gtk-3.0 ibus ibus-avro devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol x11-utils mesa-utils libgl1-mesa-dri libvulkan1 mesa-vulkan-drivers vulkan-tools adwaita-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc ffmpeg ristretto qt5-gtk-platformtheme colord xdg-utils desktop-file-utils util-linux gsettings-desktop-schemas xfconf
         apt install -y \$DPKG_FORCE --no-install-recommends synaptic
         if [ '$(tnx_distro)' = ubuntu ]; then apt-mark hold snapd >/dev/null 2>&1 || true; fi
         apt remove -y \$DPKG_FORCE guvcview >/dev/null 2>&1 || true
@@ -485,7 +485,7 @@ tnx_phase_debian() {
     install -m 0644 "\$asset_stage/applications/ternux-sdcard.desktop" /usr/share/applications/ternux-sdcard.desktop
     rm -f /usr/share/backgrounds/ternux/aurora.svg
     cp -a "\$asset_stage/wallpapers/." /usr/share/backgrounds/ternux/
-    if [ "\$FAMILY" = apk ] && [ "$(tnx_distro)" = alpine ]; then "\$asset_stage/bin/ternux-install-avro-m17n" "\$asset_stage/input-methods"; fi
+    if [ "\$FAMILY" = apk ] && [ "$(tnx_distro)" = alpine ]; then sh "\$asset_stage/bin/ternux-install-avro-m17n" "\$asset_stage/input-methods"; fi
     if [ "$(tnx_distro)" = alpine ]; then
       install -d -m 0755 /usr/local/share/applications
       cat > /usr/local/share/applications/vlc.desktop <<'VLC_DESKTOP'
@@ -657,7 +657,10 @@ TERMINAL
     runuser -u \"\$U\" -- env HOME=\"\$H\" dbus-run-session -- gsettings set org.freedesktop.ibus.general preload-engines \"['xkb:us::eng', '$input_engine']\"
     # Reserve Ctrl+Space for cycling between English and Avro. Leave the
     # separate enable/disable and menu shortcuts unbound to prevent conflicts.
+    # Older IBus schemas expose a singular trigger key as well as triggers;
+    # clear both so the legacy toggle does not consume Ctrl+Space first.
     runuser -u \"\$U\" -- env HOME=\"\$H\" dbus-run-session -- gsettings set org.freedesktop.ibus.general.hotkey triggers \"[]\"
+    runuser -u \"\$U\" -- env HOME=\"\$H\" dbus-run-session -- sh -c 'gsettings writable org.freedesktop.ibus.general.hotkey trigger >/dev/null 2>&1 && gsettings set org.freedesktop.ibus.general.hotkey trigger "[]" || true'
     runuser -u \"\$U\" -- env HOME=\"\$H\" dbus-run-session -- gsettings set org.freedesktop.ibus.general.hotkey next-engine \"['<Control>space']\"
     runuser -u \"\$U\" -- env HOME=\"\$H\" dbus-run-session -- gsettings set org.freedesktop.ibus.general.hotkey next-engine-in-menu \"[]\"
     runuser -u \"\$U\" -- env HOME=\"\$H\" dbus-run-session -- gsettings set org.gnome.desktop.interface gtk-theme Ternux
@@ -1504,7 +1507,9 @@ if grep -q '^ID=alpine$' /etc/os-release 2>/dev/null && [ "$(uname -m)" = aarch6
   if [ -n "${LD_PRELOAD:-}" ]; then LD_PRELOAD="/usr/local/lib/ternux/libternux-faccessat.so:$LD_PRELOAD"; else LD_PRELOAD=/usr/local/lib/ternux/libternux-faccessat.so; fi
   export LD_PRELOAD
 fi
-unset IBUS_ADDRESS
+ibus_display_key=$(printf '%s' "$DISPLAY" | sed 's/[^A-Za-z0-9_.-]/_/g')
+IBUS_ADDRESS="unix:path=/data/data/com.termux/files/usr/var/lib/ternux/runtime/ibus-${ibus_display_key}.sock"
+export IBUS_ADDRESS
 mkdir -p "$HOME/.runtime"
 chmod 700 "$HOME/.runtime"
 # Repair legacy root-owned cache paths before IBus binds its private socket.
@@ -1560,6 +1565,23 @@ exec /usr/local/bin/ternux-session-bus bash -c '
       xfdesktop --reload >/dev/null 2>&1 || true
     fi
     install -d -m 0755 "$HOME/.config/ternux"; : > "$wallpaper_migration_marker"
+  fi
+  wallpaper_readability_marker="$HOME/.config/ternux/readable-wallpaper-v1"
+  if [ ! -e "$wallpaper_readability_marker" ]; then
+    fallback_wallpaper=/usr/share/backgrounds/ternux/01-aurora-circuit.svg
+    for monitor in monitor0 monitor1 monitorbuiltin; do
+      monitor_path="/backdrop/screen0/$monitor"
+      for wallpaper_property in image-path last-image workspace0/last-image; do
+        property_path="$monitor_path/$wallpaper_property"
+        current_wallpaper=$(xfconf-query -c xfce4-desktop -p "$property_path" 2>/dev/null || true)
+        if [ -z "$current_wallpaper" ] || [ ! -r "$current_wallpaper" ]; then
+          xfconf-query -c xfce4-desktop -p "$property_path" --create -t string -s "$fallback_wallpaper" >/dev/null 2>&1 || true
+        fi
+      done
+      xfconf-query -c xfce4-desktop -p "$monitor_path/image-show" --create -t bool -s true >/dev/null 2>&1 || true
+    done
+    xfdesktop --reload >/dev/null 2>&1 || true
+    install -d -m 0755 "$HOME/.config/ternux"; : > "$wallpaper_readability_marker"
   fi
   icon_migration_marker="$HOME/.config/ternux/desktop-icons-v2"
   if [ ! -e "$icon_migration_marker" ]; then
@@ -2228,7 +2250,7 @@ tnx_phase_cli() {
   local prefix="${PREFIX:-/data/data/com.termux/files/usr}"
   local bin_dir="$prefix/bin" lib_dir="$prefix/lib/ternux"
   local cli_src="" tx_src="" try="" try_tx="" cleanup_dir="" archive="" listing=""
-  local root_name="" source_root="" source_lib_dir="" local_lib=""
+  local root_name="" source_root="" resource_root="" source_lib_dir="" local_lib=""
   local source_commit="${TERNUX_SOURCE_COMMIT:-}" source_sha256="${TERNUX_SOURCE_SHA256:-}"
 
   # APT owns the packaged CLI files. Keep dpkg's file inventory consistent;
@@ -2321,9 +2343,27 @@ tnx_phase_cli() {
     source_root="$cleanup_dir/$root_name"
     cli_src="$source_root/bin/ternux"
     tx_src="$source_root/bin/tx"
+    # Older pinned source snapshots predate the tx entry point. Keep the
+    # archive immutable and synthesize the tiny dispatcher beside it so the
+    # same verified ternux CLI can still be installed under the short command.
+    if [ ! -f "$tx_src" ] && [ -f "$cli_src" ]; then
+      tx_src="$cleanup_dir/tx"
+      cat > "$tx_src" <<'TX_WRAPPER'
+#!/usr/bin/env bash
+set -euo pipefail
+script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
+exec bash "$script_dir/ternux" "$@"
+TX_WRAPPER
+      chmod 0755 "$tx_src" || {
+        tnx_fail "Could not create the short Ternux command wrapper."
+        rm -rf "$cleanup_dir"
+        return 1
+      }
+    fi
   fi
 
   source_lib_dir="$(dirname "$cli_src")/../lib"
+  resource_root="$(cd "$source_lib_dir" 2>/dev/null && pwd -P)"
   local source_libs=("$source_lib_dir/"*.sh)
   mkdir -p "$bin_dir" "$lib_dir" || {
     tnx_fail "Could not create the host CLI directories."
@@ -2350,6 +2390,37 @@ tnx_phase_cli() {
       return 1
     fi
   done
+  # The guest phase consumes these immutable source resources after the CLI
+  # has been installed. Keep them beside the host modules so `tx install`
+  # works the same way as the standalone bootstrap, whose source tree is
+  # available for the whole run.
+  for local_lib in ternux-welcome.sh ternux-welcome-gui.py ternux-window-fit.lua \
+                   ternux-camera.py ternux-recorder.py ternux-panel-shortcuts.sh \
+                   ternux-install-firefox-esr.sh; do
+    if [ -s "$resource_root/$local_lib" ]; then
+      install -m 0644 "$resource_root/$local_lib" "$lib_dir/$local_lib" || {
+        tnx_fail "Could not install required desktop resource: $local_lib"
+        [ -n "$cleanup_dir" ] && rm -rf "$cleanup_dir"
+        return 1
+      }
+    fi
+  done
+  if [ -d "$resource_root/ternux-assets" ]; then
+    mkdir -p "$lib_dir/ternux-assets" &&
+      cp -a "$resource_root/ternux-assets/." "$lib_dir/ternux-assets/" || {
+        tnx_fail "Could not install required Ternux branding assets."
+        [ -n "$cleanup_dir" ] && rm -rf "$cleanup_dir"
+        return 1
+      }
+  fi
+  if [ -d "$resource_root/licenses" ]; then
+    mkdir -p "$lib_dir/licenses" &&
+      cp -a "$resource_root/licenses/." "$lib_dir/licenses/" || {
+        tnx_fail "Could not install pinned upstream license notices."
+        [ -n "$cleanup_dir" ] && rm -rf "$cleanup_dir"
+        return 1
+      }
+  fi
   if ! install -m 755 "$cli_src" "$bin_dir/ternux" 2>/dev/null; then
     tnx_fail "Could not install the host CLI."
     [ -n "$cleanup_dir" ] && rm -rf "$cleanup_dir"

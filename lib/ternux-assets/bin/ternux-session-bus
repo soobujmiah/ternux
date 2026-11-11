@@ -11,9 +11,17 @@ runtime=${XDG_RUNTIME_DIR:-${HOME:-/home/ternux}/.runtime}
 install -d -m 0700 "$runtime"
 chmod 0700 "$runtime"
 display_key=$(printf '%s' "${DISPLAY:-:0}" | sed 's/[^A-Za-z0-9_.-]/_/g')
-socket="$runtime/dbus-session-${display_key}.sock"
+# Keep the bus daemon attached to this PRoot process. A daemonized process can
+# outlive PRoot's path translation and leave a socket that accepts connections
+# but never replies. The PREFIX socket remains visible to other guest logins.
+host_runtime=/data/data/com.termux/files/usr/var/lib/ternux/runtime
+install -d -m 0700 "$host_runtime"
+chmod 0700 "$host_runtime"
+socket="$host_runtime/dbus-${display_key}.sock"
+legacy_socket="$runtime/dbus-session-${display_key}.sock"
 pid_file="$runtime/dbus-session-${display_key}.pid"
 address="unix:path=$socket"
+legacy_address="unix:path=$legacy_socket"
 
 bus_works() {
   [ -S "$socket" ] && DBUS_SESSION_BUS_ADDRESS="$address" \
@@ -29,17 +37,28 @@ if ! bus_works; then
     *)
       stale_command=$(ps -p "$stale_pid" -o args= 2>/dev/null || true)
       case "$stale_command" in
-        *"--address=$address"*) kill "$stale_pid" 2>/dev/null || true ;;
+        *"--address=$address"*|*"--address=$legacy_address"*) kill "$stale_pid" 2>/dev/null || true ;;
       esac
       ;;
   esac
-  rm -f "$socket" "$pid_file"
-  bus_pid=$(dbus-daemon --session --address="$address" --fork --print-pid=1)
-  case "$bus_pid" in
-    ''|*[!0-9]*) echo "Could not start the desktop D-Bus session." >&2; exit 1 ;;
-  esac
+  rm -f "$socket" "$legacy_socket" "$pid_file"
+  log_file="$runtime/dbus-${display_key}.log"
+  : > "$log_file"
+  dbus-daemon --session --address="$address" --nofork >"$log_file" 2>&1 &
+  bus_pid=$!
   printf '%s\n' "$bus_pid" > "$pid_file"
   owned_bus=1
+  tries=0
+  until bus_works || ! kill -0 "$bus_pid" 2>/dev/null || [ "$tries" -ge 30 ]; do
+    tries=$((tries + 1))
+    sleep 0.1
+  done
+  if ! bus_works; then
+    echo "Could not start the desktop D-Bus session." >&2
+    cat "$log_file" >&2 2>/dev/null || true
+    kill "$bus_pid" 2>/dev/null || true
+    exit 1
+  fi
 fi
 
 export DBUS_SESSION_BUS_ADDRESS="$address"

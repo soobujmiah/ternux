@@ -268,6 +268,7 @@ if env TERNUX_STATE_DIR="$TMP/state-welcome" HOME="$TMP/home-welcome" \
       grep -q "/usr/local/bin/ternux-session-bus bash -c" "$1/lib/phases.sh" &&
       grep -q "ternux-ibus-session-init" "$1/lib/phases.sh" &&
       grep -Fq "org.freedesktop.ibus.general.hotkey triggers" "$1/lib/phases.sh" &&
+      grep -Fq "org.freedesktop.ibus.general.hotkey trigger" "$1/lib/phases.sh" &&
       grep -Fq "org.freedesktop.ibus.general.hotkey next-engine" "$1/lib/phases.sh" &&
       grep -Fq "org.freedesktop.ibus.general.hotkey next-engine-in-menu" "$1/lib/phases.sh" &&
       grep -Fq "<Control>space" "$1/lib/phases.sh" && grep -Fq "headerbar button.titlebutton" "$1/lib/ternux-assets/themes/Ternux/gtk-3.0/gtk.css" && grep -Fq "headerbar button.titlebutton" "$1/lib/ternux-assets/themes/Ternux/gtk-4.0/gtk.css" &&
@@ -755,7 +756,7 @@ assert 'with_suffix(".partial" + self.target.suffix)' in recorder
 assert "ffmpeg ristretto" in (root / "lib/phases.sh").read_text()
 assert "mousepad galculator evince fonts-noto-core" in (root / "lib/phases.sh").read_text()
 phase_source = (root / "lib/phases.sh").read_text()
-base_desktop_install = next(line for line in phase_source.splitlines() if "apt install -y \\$DPKG_FORCE sudo nano" in line)
+base_desktop_install = next(line for line in phase_source.splitlines() if "apt install -y -o APT::Install-Recommends=false \\$DPKG_FORCE sudo nano" in line)
 assert "thunderbird" not in base_desktop_install and "evolution" not in base_desktop_install
 assert "evolution) apt_packages+=(evolution gnome-online-accounts-gtk)" in phase_source
 assert "evolution" in phase_source.split("TNX_OPTIONAL_ITEMS=(", 1)[1].split(")", 1)[0]
@@ -833,7 +834,10 @@ assert "m17n:bn:avro-phonetic" in desktop_phase
 assert "2efee03ef5f457f3c7c345c6902c66b137575bea" in (root / "lib/ternux-assets/bin/ternux-install-avro-m17n").read_text()
 core_phase = (root / "lib/core.sh").read_text()
 assert 'ub) printf ubuntu' in core_phase and 'alp) printf alpine' in core_phase
-assert 'local distro="$(tnx_distro_canonical' in (root / "lib/desktop.sh").read_text()
+desktop_cli = (root / "lib/desktop.sh").read_text()
+assert 'if tnx_proot_container_installed debian; then distro=debian' in desktop_cli
+assert 'distro="$(tnx_distro_canonical "$1")"' in desktop_cli
+assert 'db) printf debian ;; ub) printf ubuntu ;; alp) printf alpine' in core_phase
 assert 'ubroot() { _ternux_guest_login ubuntu' in desktop_phase
 assert 'alproot() { _ternux_guest_login alpine' in desktop_phase
 assert "pacman -S --noconfirm --needed sudo bash nano mousepad" in desktop_phase
@@ -855,11 +859,21 @@ assert "guvcview" not in camera and "Webcam" not in camera
 assert "Ternux Sound Recorder" in (root / "lib/phases.sh").read_text()
 assert "ternux-recorder.desktop" in (root / "lib/ternux-panel-shortcuts.sh").read_text()
 assert "ternux-input-method.desktop" in (root / "lib/ternux-panel-shortcuts.sh").read_text()
-assert "panel-shortcuts-v5" in (root / "lib/ternux-panel-shortcuts.sh").read_text()
+assert "panel-shortcuts-v6" in (root / "lib/ternux-panel-shortcuts.sh").read_text()
+ibus_init = (root / "lib/ternux-assets/bin/ternux-ibus-session-init").read_text()
+assert "gsettings set org.freedesktop.ibus.general.hotkey trigger '[]'" in ibus_init
+assert 'next-engine "[\'<Control>space\']"' in ibus_init
+assert "ibus-daemon --daemonize --xim --replace --address=\"$IBUS_ADDRESS\"" in ibus_init
+assert 'if [ -S "$ibus_socket" ] && ! ibus list-engine' in ibus_init
 assert 'env.pop("LD_PRELOAD", None)' in camera
 recorder = (root / "lib/ternux-recorder.py").read_text()
 assert 'env.pop("LD_PRELOAD", None)' in recorder
 assert "ternux-session-bus" in desktop_phase
+session_bus = (root / "lib/ternux-assets/bin/ternux-session-bus").read_text()
+assert "/data/data/com.termux/files/usr/var/lib/ternux/runtime" in session_bus
+assert 'legacy_address="unix:path=$legacy_socket"' in session_bus
+assert "dbus-daemon --session --address=\"$address\" --nofork" in session_bus
+assert "--fork" not in session_bus
 assert "<Control>space" in desktop_phase and ".cache/ibus" in desktop_phase
 PYMANIFEST
 then
@@ -908,7 +922,7 @@ else
   ok "Debian phase fails closed when a packaged resource is missing"
 fi
 
-if sh -n "$ROOT/lib/ternux-panel-shortcuts.sh" && grep -q 'panel-shortcuts-v5' "$ROOT/lib/ternux-panel-shortcuts.sh"; then
+if sh -n "$ROOT/lib/ternux-panel-shortcuts.sh" && grep -q 'panel-shortcuts-v6' "$ROOT/lib/ternux-panel-shortcuts.sh"; then
   ok "Ternux removes the keyboard button and keeps media panel shortcuts"
 else
   not_ok "Ternux removes the keyboard button and keeps media panel shortcuts"
@@ -955,7 +969,7 @@ if env TERNUX_STATE_DIR="$TMP/state-launcher" HOME="$launcher_home" bash -c '
   grep -q "GTK_IM_MODULE=ibus QT_IM_MODULE=ibus QT_QPA_PLATFORMTHEME=gtk3 XMODIFIERS=@im=ibus" "$HOME/x.sh" &&
   grep -Fq "/usr/local/bin/ternux-ibus-session-init" "$HOME/x.sh" &&
   ! grep -Fq "pkill -TERM -x ibus-daemon" "$HOME/x.sh" &&
-  grep -Fq "unset IBUS_ADDRESS" "$HOME/x.sh" &&
+  grep -Fq "export IBUS_ADDRESS" "$HOME/x.sh" &&
   ! grep -q -- "--env IBUS_ADDRESS=" "$HOME/x.sh" &&
   grep -q "image-style --create -t int -s 4" "$1/lib/phases.sh" &&
   grep -Fq "monitor0/workspace0/last-image" "$1/lib/phases.sh" &&
@@ -1985,6 +1999,23 @@ else
   not_ok "stale X11 socket and live processes fail functional desktop readiness"
 fi
 
+# A stale socket on one guest's display must not be retained just because
+# another guest has a live, independent Termux:X11 server.
+if env TERNUX_STATE_DIR="$TMP/state-stale-display-with-peer" HOME="$TMP/home-stale-display-with-peer" \
+  TMPDIR="$TMP/x11-stale-display-with-peer" bash -c '
+    mkdir -p "$TMPDIR/.X11-unix"
+    python3 -c "import socket,sys; s=socket.socket(socket.AF_UNIX); s.bind(sys.argv[1]); s.close()" "$TMPDIR/.X11-unix/X1" || exit
+    printf "999999\\n" > "$TMPDIR/.X1-lock"
+    . "$1/lib/desktop.sh"
+    pgrep(){ case "$*" in *":0"*) return 0 ;; *) return 1 ;; esac; }
+    tnx_remove_stale_x11_socket 1 || exit
+    [ ! -e "$TMPDIR/.X11-unix/X1" ] && [ ! -e "$TMPDIR/.X1-lock" ]
+  ' _ "$ROOT"; then
+  ok "stale guest display is cleaned without disturbing another live X11 display"
+else
+  not_ok "stale guest display is cleaned without disturbing another live X11 display"
+fi
+
 # JSON start must not create a second desktop when an existing X11 server fails
 # the functional query; it returns a machine-readable error instead.
 if env TERNUX_STATE_DIR="$TMP/state-x11-duplicate" HOME="$TMP/home-x11-duplicate" \
@@ -2148,6 +2179,26 @@ fi
 
 # A surviving XFCE session with a missing/stale supervisor marker must be reused,
 # and starting it from Termux must bring the Termux:X11 activity forward.
+if env TERNUX_STATE_DIR="$TMP/state-x11-foreground-selection" HOME="$TMP/home-x11-foreground-selection" \
+  AM_ARGS="$TMP/x11-foreground-args" bash -c '
+    . "$1/lib/desktop.sh"
+    mkdir -p "$TERNUX_STATE_DIR/distros/ubuntu/session"
+    am(){ printf "%s\\n" "$*" >> "$AM_ARGS"; }
+    TERNUX_DISTRO=ubuntu
+    printf "tagged\\n" > "$TERNUX_STATE_DIR/distros/ubuntu/session/x11-display-mode"
+    tnx_show_x11_activity "ternux-ubuntu" || exit
+    grep -Fq -- "-d ternux-ubuntu" "$AM_ARGS" || exit
+    : > "$AM_ARGS"
+    printf "shared\\n" > "$TERNUX_STATE_DIR/distros/ubuntu/session/x11-display-mode"
+    tnx_show_x11_activity "ternux-ubuntu" || exit
+    grep -Fq "com.termux.x11/com.termux.x11.MainActivity" "$AM_ARGS" || exit
+    ! grep -Fq -- "-d ternux-ubuntu" "$AM_ARGS"
+  ' _ "$ROOT"; then
+  ok "selected distro foregrounds its tagged Termux:X11 window and shared-mode activity"
+else
+  not_ok "selected distro foregrounds its tagged Termux:X11 window and shared-mode activity"
+fi
+
 if env TERNUX_STATE_DIR="$TMP/state-desktop-recover" HOME="$TMP/home-desktop-recover" \
   TMPDIR="$TMP/desktop-recover-tmp" PATH="$TMP/desktop-recover-bin:$PATH" bash -c '
     mockbin="${PATH%%:*}"
@@ -2378,6 +2429,10 @@ mkdir -p "$TMP/cli-fallback-source/ternux-pinned-source/bin" \
   "$TMP/cli-fallback-modules" "$TMP/cli-fallback-cwd" "$TMP/cli-fallback-tmp"
 cp "$ROOT/bin/ternux" "$ROOT/bin/tx" "$TMP/cli-fallback-source/ternux-pinned-source/bin/"
 cp "$ROOT"/lib/*.sh "$TMP/cli-fallback-source/ternux-pinned-source/lib/"
+cp "$ROOT"/lib/ternux-welcome-gui.py "$ROOT"/lib/ternux-install-firefox-esr.sh \
+  "$TMP/cli-fallback-source/ternux-pinned-source/lib/"
+cp -a "$ROOT/lib/ternux-assets" "$ROOT/lib/licenses" \
+  "$TMP/cli-fallback-source/ternux-pinned-source/lib/"
 tar -czf "$TMP/cli-fallback-source.tar.gz" -C "$TMP/cli-fallback-source" ternux-pinned-source
 cli_fixture_sha="$(sha256sum "$TMP/cli-fallback-source.tar.gz" | awk '{print $1}')"
 cp "$ROOT/lib/core.sh" "$ROOT/lib/phases.sh" "$TMP/cli-fallback-modules/"
@@ -2397,10 +2452,39 @@ if [ "$cli_pin_commit" = "$boot_pin_commit" ] &&
      ' _ "$TMP/cli-fallback-modules" >/dev/null &&
    [ "$(cat "$TMP/cli-fallback-url")" = "https://codeload.github.com/soobujmiah/ternux/tar.gz/$cli_pin_commit" ] &&
    "$TMP/prefix-cli-fallback/bin/ternux" --version | grep -q "^ternux v2.0.0$" &&
-   "$TMP/prefix-cli-fallback/bin/tx" --version | grep -q "^ternux v2.0.0$"; then
-  ok "CLI source fallback downloads one matching pinned commit and verifies its archive digest"
+   "$TMP/prefix-cli-fallback/bin/tx" --version | grep -q "^ternux v2.0.0$" &&
+   [ -s "$TMP/prefix-cli-fallback/lib/ternux/ternux-welcome-gui.py" ] &&
+   [ -s "$TMP/prefix-cli-fallback/lib/ternux/licenses/mesa-27.0.0-devel-20261025/SHA256SUMS" ] &&
+   [ -d "$TMP/prefix-cli-fallback/lib/ternux/ternux-assets/themes/Ternux" ]; then
+  ok "CLI source fallback verifies one pinned archive and installs its guest resources"
 else
-  not_ok "CLI source fallback downloads one matching pinned commit and verifies its archive digest"
+  not_ok "CLI source fallback verifies one pinned archive and installs its guest resources"
+fi
+
+# Older pinned snapshots may not contain the newer `tx` convenience entry
+# point. The verified CLI fallback must synthesize the wrapper without
+# weakening archive digest validation or changing the pinned source.
+mkdir -p "$TMP/cli-legacy-source/ternux-legacy-source/bin" \
+  "$TMP/cli-legacy-source/ternux-legacy-source/lib"
+cp "$ROOT/bin/ternux" "$TMP/cli-legacy-source/ternux-legacy-source/bin/"
+cp "$ROOT"/lib/*.sh "$TMP/cli-legacy-source/ternux-legacy-source/lib/"
+tar -czf "$TMP/cli-legacy-source.tar.gz" -C "$TMP/cli-legacy-source" ternux-legacy-source
+cli_legacy_sha="$(sha256sum "$TMP/cli-legacy-source.tar.gz" | awk '{print $1}')"
+if env HOME="$TMP/home-cli-legacy" PREFIX="$TMP/prefix-cli-legacy" \
+  TMPDIR="$TMP/cli-legacy-tmp" CLI_CWD="$TMP/cli-fallback-cwd" \
+  CLI_ARCHIVE="$TMP/cli-legacy-source.tar.gz" CLI_EXPECTED_SHA="$cli_legacy_sha" \
+  bash -c '
+    cd "$CLI_CWD" || exit
+    . "$1/core.sh"; . "$1/phases.sh"
+    TERNUX_SOURCE_SHA256="$CLI_EXPECTED_SHA"
+    dpkg-query(){ return 1; }
+    tnx_download(){ cp "$CLI_ARCHIVE" "$2"; }
+    tnx_phase_cli
+  ' _ "$TMP/cli-fallback-modules" >/dev/null &&
+  "$TMP/prefix-cli-legacy/bin/tx" --version | grep -q "^ternux v2.0.0$"; then
+  ok "CLI source fallback synthesizes tx for a verified legacy snapshot"
+else
+  not_ok "CLI source fallback synthesizes tx for a verified legacy snapshot"
 fi
 
 cp "$TMP/cli-fallback-source.tar.gz" "$TMP/cli-fallback-tampered.tar.gz"

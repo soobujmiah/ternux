@@ -2,7 +2,7 @@
 # Build a useful branded dock and migrate away from empty placeholder launchers.
 set -u
 home="${HOME:-/home/ternux}"
-marker="$home/.config/ternux/panel-shortcuts-v5"
+marker="$home/.config/ternux/panel-shortcuts-v6"
 [ -e "$marker" ] && exit 0
 command -v xfconf-query >/dev/null 2>&1 || exit 0
 install -d -m 0755 "$home/.config/xfce4/panel" "$home/.config/ternux"
@@ -42,7 +42,9 @@ remove_empty_launchers() {
   for id in $plugin_ids; do
     kind="$(xfconf-query -c xfce4-panel -p "/plugins/plugin-$id" 2>/dev/null || true)"
     [ "$kind" = launcher ] || continue
-    items="$(xfconf-query -c xfce4-panel -p "/plugins/plugin-$id/items" 2>/dev/null | sed '/^[[:space:]]*$/d' || true)"
+    items="$(xfconf-query -c xfce4-panel -p "/plugins/plugin-$id/items" 2>/dev/null || true)"
+    case "$items" in *'array with 0 items'*) items="" ;; esac
+    items="$(printf '%s\n' "$items" | sed '/^[[:space:]]*$/d; /^Value is an array with [0-9][0-9]* items:$/d')"
     [ -z "$items" ] || continue
     remove_panel_plugin "$id"
     rmdir "$home/.config/xfce4/panel/launcher-$id" 2>/dev/null || true
@@ -92,3 +94,4 @@ for desktop in thunar.desktop xfce4-terminal.desktop vlc.desktop org.xfce.ristre
   add_shortcut "$desktop" || exit 1
 done
 : > "$marker"
+xfce4-panel --restart >/dev/null 2>&1 || true

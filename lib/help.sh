@@ -142,7 +142,7 @@ HELP
 tnx_help_guides() { echo "Usage: ternux guides"; echo "Show installation, ecosystem tool, and daily-use guide links."; }
 
 tnx_help_distro() { echo "Usage: tx distro [list|search QUERY|install NAME|image-install IMAGE [NAME]|shell NAME|exec NAME -- COMMAND]"; echo "List guests, search OCI images, install a desktop profile or OCI image, or open a guest shell."; }
-tnx_help_start()     { echo "Usage: ternux start [DISTRO]"; echo "Start the named guest desktop (default: saved distro)."; }
+tnx_help_start()     { echo "Usage: tx start [db|ub|alp|DISTRO]"; echo "Start Debian by default when installed; otherwise start the saved distro. Use db, ub, or alp to select Debian, Ubuntu, or Alpine."; }
 tnx_help_stop()      { echo "Usage: tx stop [DISTRO|--all]"; echo "With multiple displays, choose one or more guests; --all stops every Ternux desktop."; }
 tnx_help_restart()   { echo "Usage: ternux restart [DISTRO]"; echo "Restart the named guest desktop session."; }
 tnx_help_doctor() {
