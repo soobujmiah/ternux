@@ -1080,6 +1080,18 @@ else
   not_ok "optional failure keeps the base guest ready, shows a warning, and remains nonzero for retry"
 fi
 
+# Help must be printable from both a local script and stdin (curl | bash).
+local_help="$(bash "$ROOT/install.sh" --help)"
+stdin_help="$(cd "$ROOT" && cat install.sh | bash -s -- --help)"
+if [ "$(printf '%s\n' "$local_help" | grep -c '^Usage$')" -eq 1 ] &&
+   printf '%s\n' "$local_help" | grep -q -- '--distros LIST' &&
+   [ "$(printf '%s\n' "$stdin_help" | grep -c '^Usage$')" -eq 1 ] &&
+   printf '%s\n' "$stdin_help" | grep -q -- '--distros LIST'; then
+  ok "standalone installer help is complete in file and stdin modes"
+else
+  not_ok "standalone installer help is complete in file and stdin modes"
+fi
+
 # The wrapper must not silently force --yes for local invocation.
 if grep -q 'tnx_install --yes' "$ROOT/install.sh"; then
   not_ok "install wrapper passes --yes only when requested"

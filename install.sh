@@ -169,6 +169,30 @@ state_clear() { tnx_state_clear; }
 detect_backend() { [ -e "${TERNUX_KGSL_DEVICE:-/dev/kgsl-3d0}" ] && echo "zink" || echo "virgl"; }
 require_termux() { tnx_require_termux; }
 
+tnx_installer_usage() {
+  cat <<'USAGE'
+Usage
+  curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
+  bash install.sh [options]
+
+Options
+  --yes                           run with sensible defaults, no questions
+  --user NAME                     guest user (default: ternux)
+  --locale LANG                   locale inside the selected guest
+  --backend auto|zink|virgl       graphics route (default: auto)
+  --distro NAME                   select one named guest profile
+  --distros LIST                  comma-separated profiles for multiple guests
+  --with-dev --with-llm --with-network --with-media --with-blender
+  --all                           all optional workloads
+  --zsh                           use zsh instead of bash
+  --resume                        continue an interrupted install
+  --ui auto|dashboard|plain|off   choose the installer display
+  --plain                         plain scrolling output, no dashboard
+  --no-anim                       disable spinner and colour cycling
+  --version | --help
+USAGE
+}
+
 # ---------------------------------------------------------------------------
 # Argument parsing
 # ---------------------------------------------------------------------------
@@ -252,7 +276,7 @@ while [ $# -gt 0 ]; do
     --status) ACTION="status" ;;
     --uninstall) ACTION="uninstall" ;;
     --version) echo "ternux installer v${TERNUX_VERSION:-2.0.0} — https://github.com/soobujmiah/ternux"; exit 0 ;;
-    -h|--help) sed -n '/^#  Usage/,/^# =====/p' "$0" | sed -n 's/^# \?//p' | head -n -1; exit 0 ;;
+    -h|--help) tnx_installer_usage; exit 0 ;;
     *) echo "[FAIL] Unknown option: $1" >&2; exit 2 ;;
   esac
   shift
