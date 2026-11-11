@@ -1543,6 +1543,42 @@
     "bin/tx": {
       "source": "bin/tx",
       "perm": "755"
+    },
+    "lib/ternux/ternux-assets/bin/ternux-install-avro-m17n": {
+      "source": "lib/ternux-assets/bin/ternux-install-avro-m17n",
+      "perm": "755"
+    },
+    "lib/ternux/ternux-assets/input-methods/avro-phonetic-COPYRIGHT": {
+      "source": "lib/ternux-assets/input-methods/avro-phonetic-COPYRIGHT",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/input-methods/bn-avro-phonetic.mim": {
+      "source": "lib/ternux-assets/input-methods/bn-avro-phonetic.mim",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/input-methods/bn-avro-phonetic.png": {
+      "source": "lib/ternux-assets/input-methods/bn-avro-phonetic.png",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/bin/ternux-rasterize-icons": {
+      "source": "lib/ternux-assets/bin/ternux-rasterize-icons",
+      "perm": "755"
+    },
+    "lib/ternux/ternux-assets/bin/ternux-proot-faccessat-arm64.so": {
+      "source": "lib/ternux-assets/bin/ternux-proot-faccessat-arm64.so",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/bin/ternux-proot-faccessat.c": {
+      "source": "lib/ternux-assets/bin/ternux-proot-faccessat.c",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/bin/ternux-ibus-session-init": {
+      "source": "lib/ternux-assets/bin/ternux-ibus-session-init",
+      "perm": "755"
+    },
+    "lib/ternux/ternux-assets/bin/ternux-session-bus": {
+      "source": "lib/ternux-assets/bin/ternux-session-bus",
+      "perm": "755"
     }
   }
 }

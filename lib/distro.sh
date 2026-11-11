@@ -6,7 +6,7 @@
 _tnx_distro_installed() { tnx_proot_container_installed "$1"; }
 
 tnx_cmd_distro() {
-  local action="${1:-list}" name installed marker
+  local action="${1:-list}" name installed marker user
   case "$action" in
     list|ls)
       [ "$#" -le 1 ] || { tnx_fail "Usage: ternux distro list"; return 2; }
@@ -70,7 +70,11 @@ tnx_cmd_distro() {
       export TERNUX_DISTRO="$name"
       if [ "$action" = shell ]; then
         [ "$#" -eq 0 ] || { tnx_fail "Usage: ternux distro shell NAME"; return 2; }
-        tnx_guest_login
+        # Desktop profiles create a named unprivileged account. Make the
+        # generic interactive shell honor that account too; root remains an
+        # explicit choice through dbroot/ubroot/alproot and matching aliases.
+        user="$(tnx_distro_state_get "$name" user 2>/dev/null || true)"
+        if [ -n "$user" ]; then tnx_guest_login --user "$user"; else tnx_guest_login; fi
       else
         [ "${1:-}" = -- ] && shift || { tnx_fail "Use '--' before a command."; return 2; }
         [ "$#" -gt 0 ] || { tnx_fail "Usage: ternux distro exec NAME -- COMMAND [ARG ...]"; return 2; }

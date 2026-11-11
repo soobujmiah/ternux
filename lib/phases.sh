@@ -346,16 +346,17 @@ tnx_install_guest_cli() {
 # Phase 4 — selected guest + Xfce4 + user
 # ---------------------------------------------------------------------------
 tnx_phase_debian() {
-  local user_name="${1:-ternux}" package_family
+  local user_name="${1:-ternux}" package_family input_engine=ibus-avro
+  [ "$(tnx_distro)" != alpine ] || input_engine=m17n:bn:avro-phonetic
   local resource_dir="${BASH_SOURCE[0]%/*}"
   local welcome_b64 welcome_gui_b64 window_fit_b64 camera_gui_b64 recorder_gui_b64 panel_shortcuts_b64 ternux_assets_b64 gtk3_user_css_b64 gtk4_user_css_b64 firefox_installer_b64 resource
-  for resource in ternux-welcome.sh ternux-welcome-gui.py ternux-window-fit.lua ternux-camera.py ternux-recorder.py ternux-panel-shortcuts.sh; do
+  for resource in ternux-welcome.sh ternux-welcome-gui.py ternux-window-fit.lua ternux-camera.py ternux-recorder.py ternux-panel-shortcuts.sh ternux-assets/bin/ternux-rasterize-icons ternux-assets/bin/ternux-ibus-session-init ternux-assets/bin/ternux-session-bus; do
     if [ ! -s "$resource_dir/$resource" ] || [ ! -r "$resource_dir/$resource" ]; then
       tnx_fail "Required Ternux desktop resource is missing or unreadable: $resource_dir/$resource"
       return 1
     fi
   done
-  if [ ! -d "$resource_dir/ternux-assets/icons/Ternux" ] || [ ! -d "$resource_dir/ternux-assets/wallpapers" ] || [ ! -d "$resource_dir/ternux-assets/themes/Ternux" ]; then
+  if [ ! -d "$resource_dir/ternux-assets/icons/Ternux" ] || [ ! -d "$resource_dir/ternux-assets/wallpapers" ] || [ ! -d "$resource_dir/ternux-assets/themes/Ternux" ] || [ ! -d "$resource_dir/ternux-assets/input-methods" ] || [ ! -x "$resource_dir/ternux-assets/bin/ternux-install-avro-m17n" ] || [ ! -s "$resource_dir/ternux-assets/bin/ternux-proot-faccessat-arm64.so" ] || [ ! -s "$resource_dir/ternux-assets/bin/ternux-proot-faccessat.c" ]; then
     tnx_fail "Required Ternux desktop branding assets are missing under $resource_dir/ternux-assets"
     return 1
   fi
@@ -365,7 +366,7 @@ tnx_phase_debian() {
   camera_gui_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-camera.py" | tr -d '\n')" || return 1
   recorder_gui_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-recorder.py" | tr -d '\n')" || return 1
   panel_shortcuts_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-panel-shortcuts.sh" | tr -d '\n')" || return 1
-  ternux_assets_b64="$(set -o pipefail; tar -czf - -C "$resource_dir/ternux-assets" icons wallpapers themes applications bin | base64 | tr -d '\n')" || return 1
+  ternux_assets_b64="$(set -o pipefail; tar -czf - -C "$resource_dir/ternux-assets" icons wallpapers themes applications bin input-methods | base64 | tr -d '\n')" || return 1
   gtk3_user_css_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-assets/themes/Ternux/gtk-3.0/gtk-user.css" | tr -d '\n')" || return 1
   gtk4_user_css_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-assets/themes/Ternux/gtk-4.0/gtk-user.css" | tr -d '\n')" || return 1
   firefox_installer_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-install-firefox-esr.sh" | tr -d '\n')" || return 1
@@ -411,6 +412,9 @@ tnx_phase_debian() {
       apk)
         pkg_retry apk update
         pkg_retry apk add sudo bash shadow musl-utils nano mousepad galculator evince font-noto python3 py3-gobject3 gtk+3.0 ibus dbus-x11 pulseaudio pulseaudio-utils pavucontrol mesa mesa-dri-gallium mesa-utils vulkan-loader vulkan-tools desktop-file-utils xdg-utils xdpyinfo util-linux fontconfig gsettings-desktop-schemas xfconf adwaita-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc ffmpeg ristretto qt5-qtbase colord
+        if [ "$(tnx_distro)" = alpine ]; then
+          pkg_retry apk add vlc-qt m17n-lib m17n-db font-noto-bengali rsvg-convert
+        fi
         if [ "$(tnx_distro)" = chimera ]; then pkg_retry apk add mesa-vulkan; elif [ "$(tnx_distro)" = alpine ]; then pkg_retry apk add mesa-vulkan-freedreno; fi
         ;;
       pacman)
@@ -481,6 +485,32 @@ tnx_phase_debian() {
     install -m 0644 "\$asset_stage/applications/ternux-sdcard.desktop" /usr/share/applications/ternux-sdcard.desktop
     rm -f /usr/share/backgrounds/ternux/aurora.svg
     cp -a "\$asset_stage/wallpapers/." /usr/share/backgrounds/ternux/
+    if [ "\$FAMILY" = apk ] && [ "$(tnx_distro)" = alpine ]; then "\$asset_stage/bin/ternux-install-avro-m17n" "\$asset_stage/input-methods"; fi
+    if [ "$(tnx_distro)" = alpine ]; then
+      install -d -m 0755 /usr/local/share/applications
+      cat > /usr/local/share/applications/vlc.desktop <<'VLC_DESKTOP'
+[Desktop Entry]
+Name=VLC media player
+Comment=Play movies and music
+Exec=/usr/bin/vlc --started-from-file %U
+Icon=vlc
+Terminal=false
+Type=Application
+Categories=AudioVideo;Player;
+MimeType=audio/mpeg;audio/ogg;audio/flac;video/mp4;video/mpeg;video/quicktime;video/x-matroska;
+StartupNotify=true
+VLC_DESKTOP
+      chmod 0644 /usr/local/share/applications/vlc.desktop
+      update-desktop-database /usr/local/share/applications >/dev/null 2>&1 || true
+    fi
+    if [ "\$FAMILY" = apk ] && [ "$(tnx_distro)" = alpine ]; then
+      install -m 0755 "\$asset_stage/bin/ternux-rasterize-icons" /usr/local/bin/ternux-rasterize-icons
+      /usr/local/bin/ternux-rasterize-icons /usr/share/icons/Ternux
+      install -d -m 0755 /usr/local/lib/ternux
+      install -m 0644 "\$asset_stage/bin/ternux-proot-faccessat-arm64.so" /usr/local/lib/ternux/libternux-faccessat.so
+    fi
+    install -m 0755 "\$asset_stage/bin/ternux-ibus-session-init" /usr/local/bin/ternux-ibus-session-init
+    install -m 0755 "\$asset_stage/bin/ternux-session-bus" /usr/local/bin/ternux-session-bus
     rm -rf "\$asset_stage"
     gtk-update-icon-cache -f /usr/share/icons/Ternux >/dev/null 2>&1 || true
     for icon_pair in \
@@ -566,6 +596,8 @@ tnx_phase_debian() {
       install -o \"\$U\" -g \"\$U\" -m 0644 \"\$gtk_theme_tmp\" \"\$gtk_theme_file\"
       rm -f \"\$gtk_theme_tmp\"
     }
+    # Prepare the per-user IBus runtime and cache paths.
+    install -d -o "\$U" -g "\$U" -m 0700 "\$H/.cache" "\$H/.cache/ibus" "\$H/.config/ibus"
     gtk_theme_install_override 3.0 '${gtk3_user_css_b64}'
     gtk_theme_install_override 4.0 '${gtk4_user_css_b64}'
     install -d -o \"\$U\" -g \"\$U\" -m 0755 \"\$H/.config/gtk-3.0\"
@@ -609,6 +641,11 @@ TERMINAL
     printf '%s\n' 'qt-video-autoresize=0' >> \"\$H/.config/vlc/vlcrc\"
     sed -i '/^[[:space:]]*qt-system-tray=/d' \"\$H/.config/vlc/vlcrc\"
     printf '%s\n' 'qt-system-tray=0' >> \"\$H/.config/vlc/vlcrc\"
+    # Keep local video startup quiet and skip online metadata lookups.
+    sed -i '/^[[:space:]]*metadata-network-access=/d' "\$H/.config/vlc/vlcrc"
+    printf '%s\n' 'metadata-network-access=0' >> "\$H/.config/vlc/vlcrc"
+    sed -i '/^[[:space:]]*qt-privacy-ask=/d' "\$H/.config/vlc/vlcrc"
+    printf '%s\n' 'qt-privacy-ask=0' >> "\$H/.config/vlc/vlcrc"
     # Use Debian's stock application entry and process so menu launches
     # inherit the same global Xfce theme and environment as other GTK apps.
     rm -f /usr/local/bin/ternux-volume-control /usr/local/bin/pavucontrol \
@@ -617,14 +654,13 @@ TERMINAL
     printf '%s' '${window_fit_b64}' | base64 -d > \"\$H/.config/devilspie2/window-fit.lua\"
     chown \"\$U:\$U\" \"\$H/.config/devilspie2/window-fit.lua\"
     chmod 0644 \"\$H/.config/devilspie2/window-fit.lua\"
-    runuser -u \"\$U\" -- env HOME=\"\$H\" dbus-run-session -- gsettings set org.freedesktop.ibus.general preload-engines \"['xkb:us::eng', 'ibus-avro']\"
+    runuser -u \"\$U\" -- env HOME=\"\$H\" dbus-run-session -- gsettings set org.freedesktop.ibus.general preload-engines \"['xkb:us::eng', '$input_engine']\"
     # Reserve Ctrl+Space for cycling between English and Avro. Leave the
     # separate enable/disable and menu shortcuts unbound to prevent conflicts.
     runuser -u \"\$U\" -- env HOME=\"\$H\" dbus-run-session -- gsettings set org.freedesktop.ibus.general.hotkey triggers \"[]\"
     runuser -u \"\$U\" -- env HOME=\"\$H\" dbus-run-session -- gsettings set org.freedesktop.ibus.general.hotkey next-engine \"['<Control>space']\"
     runuser -u \"\$U\" -- env HOME=\"\$H\" dbus-run-session -- gsettings set org.freedesktop.ibus.general.hotkey next-engine-in-menu \"[]\"
     runuser -u \"\$U\" -- env HOME=\"\$H\" dbus-run-session -- gsettings set org.gnome.desktop.interface gtk-theme Ternux
-    runuser -u \"\$U\" -- env HOME=\"\$H\" dbus-run-session -- gsettings set org.gnome.desktop.wm.preferences button-layout \":minimize,maximize,close\"
     install -d -o \"\$U\" -g \"\$U\" -m 0755 \"\$H/.config/autostart\"
     install -d -o root -g root -m 0755 /usr/local/bin
     printf '%s' '${camera_gui_b64}' | base64 -d > /usr/local/bin/ternux-camera
@@ -1426,14 +1462,20 @@ echo "PulseAudio bridge ready on 127.0.0.1:$PULSE_PORT."
 TNX_TAGGED_DISPLAY=1
 termux-x11 "$TNX_DISPLAY" -tag "$TNX_TAG" -legacy-drawing -ac &
 X11_PID=$!
-sleep 0.5
-if ! kill -0 "$X11_PID" 2>/dev/null; then
+X11_START_ID="$(proc_start_identity "$X11_PID")"
+TAGGED_WAITED=0
+while [ ! -S "$TMPDIR/.X11-unix/X${TNX_DISPLAY#:}" ] && [ "$TAGGED_WAITED" -lt 50 ]; do
+  if ! kill -0 "$X11_PID" 2>/dev/null; then break; fi
+  TAGGED_WAITED=$((TAGGED_WAITED+1)); sleep 0.1
+done
+if [ ! -S "$TMPDIR/.X11-unix/X${TNX_DISPLAY#:}" ]; then
+  kill_owned_child "$X11_PID" "$X11_START_ID"
   TNX_TAGGED_DISPLAY=0
-  echo "WARNING: Termux:X11 APK does not support tagged windows; retrying shared-window mode."
+  echo "WARNING: Termux:X11 APK did not create the tagged display; retrying shared-window mode."
   termux-x11 "$TNX_DISPLAY" -legacy-drawing -ac &
   X11_PID=$!
+  X11_START_ID="$(proc_start_identity "$X11_PID")"
 fi
-X11_START_ID="$(proc_start_identity "$X11_PID")"
 echo "Waiting for Termux-X11..."
 WAITED=0
 while [ ! -S "$TMPDIR/.X11-unix/X${TNX_DISPLAY#:}" ]; do
@@ -1458,27 +1500,25 @@ set -u
 export HOME="/home/${TERNUX_GUEST_USER:-ternux}"
 export GTK_IM_MODULE=ibus QT_IM_MODULE=ibus QT_QPA_PLATFORMTHEME=gtk3 XMODIFIERS=@im=ibus
 export GTK_THEME=Ternux
+if grep -q '^ID=alpine$' /etc/os-release 2>/dev/null && [ "$(uname -m)" = aarch64 ] && [ -r /usr/local/lib/ternux/libternux-faccessat.so ]; then
+  if [ -n "${LD_PRELOAD:-}" ]; then LD_PRELOAD="/usr/local/lib/ternux/libternux-faccessat.so:$LD_PRELOAD"; else LD_PRELOAD=/usr/local/lib/ternux/libternux-faccessat.so; fi
+  export LD_PRELOAD
+fi
 unset IBUS_ADDRESS
 mkdir -p "$HOME/.runtime"
 chmod 700 "$HOME/.runtime"
+# Repair legacy root-owned cache paths before IBus binds its private socket.
+sudo -n install -d -o "$(id -u)" -g "$(id -g)" -m 0700 "$HOME/.cache" "$HOME/.cache/ibus" "$HOME/.config/ibus" 2>/dev/null || true
+sudo -n chown "$(id -u):$(id -g)" "$HOME/.cache" "$HOME/.cache/ibus" "$HOME/.config/ibus" 2>/dev/null || true
 sudo -n mkdir -p /var/run/dbus /run/dbus "/run/user/$(id -u)" 2>/dev/null || true
 sudo -n dbus-uuidgen --ensure >/dev/null 2>&1 || true
 sudo -n rm -f /etc/xdg/autostart/light-locker.desktop 2>/dev/null || true
-exec dbus-run-session -- bash -c '
+exec /usr/local/bin/ternux-session-bus bash -c '
   set -u
   until xdpyinfo -display "$DISPLAY" >/dev/null 2>&1; do sleep 0.1; done
   # --replace targets the selected account session bus; process-wide pkill would
   # disrupt other PRoot desktops sharing the guest process namespace.
-  ibus-daemon --daemonize --xim --replace
-  # Apply the input-switch shortcut in the real desktop session bus.
-  # IBus expects GTK accelerator syntax (<Control>space), not Control+space.
-  gsettings set org.freedesktop.ibus.general preload-engines "[\"xkb:us::eng\", \"ibus-avro\"]" >/dev/null 2>&1 || true
-  gsettings set org.freedesktop.ibus.general.hotkey triggers "[]" >/dev/null 2>&1 || true
-  gsettings set org.freedesktop.ibus.general.hotkey next-engine "[\"<Control>space\"]" >/dev/null 2>&1 || true
-  gsettings set org.freedesktop.ibus.general.hotkey next-engine-in-menu "[]" >/dev/null 2>&1 || true
-    runuser -u \"\$U\" -- env HOME=\"\$H\" dbus-run-session -- gsettings set org.gnome.desktop.wm.preferences button-layout \":minimize,maximize,close\"
-  ibus_tries=0
-  until ibus address 2>/dev/null | grep -q "^unix:" || [ "$ibus_tries" -ge 20 ]; do ibus_tries=$((ibus_tries + 1)); sleep 0.1; done
+  /usr/local/bin/ternux-ibus-session-init || echo "WARNING: IBus session setup failed; Ctrl+Space may not work." >&2
   startxfce4 &
   session_pid=$!
   tries=0

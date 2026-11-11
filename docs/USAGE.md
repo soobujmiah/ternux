@@ -91,7 +91,7 @@ fed                     # Fedora user shell; fedr opens root shell
 suse                    # openSUSE user shell; suser opens root shell
 vsh                     # Void user shell; vroot opens root shell
 kal                     # Kali user shell; kalr opens root shell
-tx distro shell NAME    # Any installed guest
+tx distro shell NAME    # Profile user shell (image default for generic guests)
 tx distro exec ubuntu -- uname -a # Run a guest command
 tx distro image-install alpine:latest # Install a generic Alpine shell guest
 tx install --distros debian,ubuntu,alpine # Install independent desktop guests

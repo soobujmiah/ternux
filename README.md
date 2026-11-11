@@ -81,7 +81,7 @@ tx distro search alpine # search available OCI images
 
 Use `tx stop --all` to close every managed Ternux desktop. Each Ternux desktop guest gets its own tagged Termux:X11 window and separate settings. Install multiple profiles with `tx install --distros debian,ubuntu,alpine`; each receives the family-matched Ternux base desktop. `xgo` lists every installed guest and asks which desktop to start when there is more than one. Generic images without a Ternux package recipe are shown as shell-only. Debian remains the only device-verified profile; other package-family profiles need target-device qualification.
 
-The `x` shortcut starts the saved desktop; `xgo` opens Termux:X11 and asks which installed desktop guest to start. `tx` is the short CLI command. Use `db`/`dbroot`, `ub`/`ubroot`, `alp`/`alproot`, `archx`/`archroot`, `fed`/`fedr`, `suse`/`suser`, `vsh`/`vroot`, or `kal`/`kalr` for the corresponding user/root shells when those guests are installed. Start Ubuntu or Alpine with `tx start ub` or `tx start alp` (full names also work). Use `tx distro shell NAME` or `tx distro exec NAME -- COMMAND` for any installed PRoot guest. Search PRoot-Distro images with `tx distro search QUERY`; install a generic OCI image with `tx distro image-install IMAGE[:TAG] [NAME]`. Generic images provide guest shells. Named distro profiles use the matching package-manager recipe; arbitrary OCI images provide guest shells until a family recipe is added. Android shared storage is mounted at `/sdcard` in every managed guest by default, so
+The `x` shortcut starts the saved desktop; `xgo` opens Termux:X11 and asks which installed desktop guest to start. `tx` is the short CLI command. Use `db`/`dbroot`, `ub`/`ubroot`, `alp`/`alproot`, `archx`/`archroot`, `fed`/`fedr`, `suse`/`suser`, `vsh`/`vroot`, or `kal`/`kalr` for the corresponding user/root shells when those guests are installed. Start Ubuntu or Alpine with `tx start ub` or `tx start alp` (full names also work). Use `tx distro shell NAME` to enter a profile’s configured regular user (generic images keep their image default), or `tx distro exec NAME -- COMMAND` for any installed PRoot guest. Root remains explicit through `dbroot`, `ubroot`, `alproot` and the matching root aliases. Search PRoot-Distro images with `tx distro search QUERY`; install a generic OCI image with `tx distro image-install IMAGE[:TAG] [NAME]`. Generic images provide guest shells. Named distro profiles use the matching package-manager recipe; arbitrary OCI images provide guest shells until a family recipe is added. Android shared storage is mounted at `/sdcard` in every managed guest by default, so
 models and files are available directly. Termux must have Android storage permission;
 use `termux-setup-storage` once if `/sdcard` is missing.
 
@@ -89,8 +89,9 @@ use `termux-setup-storage` once if `/sdcard` is missing.
 
 **Base desktop:** Debian 13 (Trixie) by default, or another named package-family profile, in user-space PRoot with Xfce4,
 Termux:X11 display integration, and PulseAudio audio routing. The Debian/Ubuntu APT profile
-includes Bangla-capable Noto fonts and Avro phonetic input (Ctrl+Space); other
-profiles use their distro font and keyboard packages. The base desktop includes VLC,
+includes Bangla-capable Noto fonts and Avro phonetic input (Ctrl+Space). Alpine
+uses a checksum-pinned IBus m17n Avro phonetic engine because its stable APK
+repositories do not package that engine. Ctrl+Space cycles English and Bangla; no extra keyboard button is added to the panel. The base desktop includes VLC,
 PulseAudio Volume Control, Xfce Task Manager, Mousepad, Galculator, Evince PDF
 reader, Ternux Camera, Ternux Sound Recorder,
 Ristretto image viewer, and Firefox browser. Debian-family APT guests also include Synaptic Package Manager, which uses Ternux branding and manages guest packages. App availability follows each distro family; optional workloads currently target APT guests. Evince is

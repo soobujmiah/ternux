@@ -265,8 +265,8 @@ if env TERNUX_STATE_DIR="$TMP/state-welcome" HOME="$TMP/home-welcome" \
       grep -q "qt-system-tray=0" "$1/lib/phases.sh" &&
       grep -q "rm -f /usr/local/bin/ternux-volume-control /usr/local/bin/pavucontrol" "$1/lib/phases.sh" &&
       grep -q "export GTK_THEME=Ternux" "$1/lib/phases.sh" && ! grep -q "GDK_BACKEND=\\|GTK_MODULES" "$1/lib/phases.sh" &&
-      grep -q "dbus-run-session -- bash -c" "$1/lib/phases.sh" &&
-      grep -q "ibus_tries" "$1/lib/phases.sh" &&
+      grep -q "/usr/local/bin/ternux-session-bus bash -c" "$1/lib/phases.sh" &&
+      grep -q "ternux-ibus-session-init" "$1/lib/phases.sh" &&
       grep -Fq "org.freedesktop.ibus.general.hotkey triggers" "$1/lib/phases.sh" &&
       grep -Fq "org.freedesktop.ibus.general.hotkey next-engine" "$1/lib/phases.sh" &&
       grep -Fq "org.freedesktop.ibus.general.hotkey next-engine-in-menu" "$1/lib/phases.sh" &&
@@ -826,6 +826,11 @@ assert "mktemp /tmp/ternux-sudoers.XXXXXX" in desktop_phase
 assert "mktemp /tmp/ternux-jetbrainsmono.XXXXXX)" in desktop_phase
 assert "XXXXXX.tar.xz" not in desktop_phase
 assert "apk add sudo bash shadow musl-utils nano mousepad galculator evince font-noto python3 py3-gobject3 gtk+3.0 ibus dbus-x11 pulseaudio" in desktop_phase and "desktop-file-utils xdg-utils xdpyinfo util-linux" in desktop_phase
+assert "apk add vlc-qt m17n-lib m17n-db font-noto-bengali" in desktop_phase
+assert "rsvg-convert" in desktop_phase
+assert "gdk-pixbuf=2.42.12-r1 gdk-pixbuf-loaders=2.42.12-r1" not in desktop_phase
+assert "m17n:bn:avro-phonetic" in desktop_phase
+assert "2efee03ef5f457f3c7c345c6902c66b137575bea" in (root / "lib/ternux-assets/bin/ternux-install-avro-m17n").read_text()
 core_phase = (root / "lib/core.sh").read_text()
 assert 'ub) printf ubuntu' in core_phase and 'alp) printf alpine' in core_phase
 assert 'local distro="$(tnx_distro_canonical' in (root / "lib/desktop.sh").read_text()
@@ -849,6 +854,13 @@ assert 'Termux:API returned without creating the photo file.' in camera
 assert "guvcview" not in camera and "Webcam" not in camera
 assert "Ternux Sound Recorder" in (root / "lib/phases.sh").read_text()
 assert "ternux-recorder.desktop" in (root / "lib/ternux-panel-shortcuts.sh").read_text()
+assert "ternux-input-method.desktop" in (root / "lib/ternux-panel-shortcuts.sh").read_text()
+assert "panel-shortcuts-v5" in (root / "lib/ternux-panel-shortcuts.sh").read_text()
+assert 'env.pop("LD_PRELOAD", None)' in camera
+recorder = (root / "lib/ternux-recorder.py").read_text()
+assert 'env.pop("LD_PRELOAD", None)' in recorder
+assert "ternux-session-bus" in desktop_phase
+assert "<Control>space" in desktop_phase and ".cache/ibus" in desktop_phase
 PYMANIFEST
 then
   ok "APT manifest includes all Debian phase resources"
@@ -896,10 +908,10 @@ else
   ok "Debian phase fails closed when a packaged resource is missing"
 fi
 
-if sh -n "$ROOT/lib/ternux-panel-shortcuts.sh" && grep -q 'panel-shortcuts-v2' "$ROOT/lib/ternux-panel-shortcuts.sh"; then
-  ok "one-time Ternux Camera, Photos and Sound Recorder panel shortcuts are valid"
+if sh -n "$ROOT/lib/ternux-panel-shortcuts.sh" && grep -q 'panel-shortcuts-v5' "$ROOT/lib/ternux-panel-shortcuts.sh"; then
+  ok "Ternux removes the keyboard button and keeps media panel shortcuts"
 else
-  not_ok "one-time Ternux Camera, Photos and Sound Recorder panel shortcuts are valid"
+  not_ok "Ternux removes the keyboard button and keeps media panel shortcuts"
 fi
 
 # Generated launchers must target the chosen account, use repeatable --env
@@ -927,7 +939,7 @@ if env TERNUX_STATE_DIR="$TMP/state-launcher" HOME="$launcher_home" bash -c '
   grep -Fq "monitorbuiltin/workspace0/last-image" "$HOME/x.sh" &&
   grep -Fq "monitorbuiltin-wallpaper-v1" "$HOME/x.sh" &&
   grep -q "install -d -m 0755" "$HOME/x.sh" &&
-  grep -q "dbus-run-session -- bash -c" "$HOME/x.sh" &&
+  grep -q "/usr/local/bin/ternux-session-bus bash -c" "$HOME/x.sh" &&
   ! grep -q "dbus-launch --exit-with-session" "$HOME/x.sh" &&
   grep -Fq "session_pid=\$!" "$HOME/x.sh" &&
   grep -Fq "wait \"\$session_pid\"" "$HOME/x.sh" &&
@@ -941,7 +953,7 @@ if env TERNUX_STATE_DIR="$TMP/state-launcher" HOME="$launcher_home" bash -c '
   ! grep -q "adwaita-gtk-theme" "$1/lib/phases.sh" &&
   ! grep -q "pm-utils" "$1/lib/phases.sh" &&
   grep -q "GTK_IM_MODULE=ibus QT_IM_MODULE=ibus QT_QPA_PLATFORMTHEME=gtk3 XMODIFIERS=@im=ibus" "$HOME/x.sh" &&
-  grep -Fq "ibus-daemon --daemonize --xim --replace" "$HOME/x.sh" &&
+  grep -Fq "/usr/local/bin/ternux-ibus-session-init" "$HOME/x.sh" &&
   ! grep -Fq "pkill -TERM -x ibus-daemon" "$HOME/x.sh" &&
   grep -Fq "unset IBUS_ADDRESS" "$HOME/x.sh" &&
   ! grep -q -- "--env IBUS_ADDRESS=" "$HOME/x.sh" &&
@@ -2735,7 +2747,7 @@ else
   not_ok "Evolution workload installs optional packages and managed launcher without assigning mail defaults"
 fi
 
-if env SD_MARKER="$TMP/stable-diffusion-optional-phase" \
+if env TERNUX_DISTRO=debian SD_MARKER="$TMP/stable-diffusion-optional-phase" \
   SD_PHASE_SRC="$TMP/stable-diffusion-phase-src" bash -c '
     . "$1/lib/phases.sh"
     mkdir -p "$SD_PHASE_SRC/lib"

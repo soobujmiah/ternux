@@ -66,7 +66,7 @@ ${TNX_CW}Global options:${TNX_C0}
 ${TNX_CW}Examples:${TNX_C0}
   ternux doctor --json     ${TNX_CD}machine-readable diagnostics${TNX_C0}
   tx start                 ${TNX_CD}Launch the desktop${TNX_C0}
-  tx distro shell alpine   ${TNX_CD}Open a guest shell${TNX_C0}
+  tx distro shell alpine   ${TNX_CD}Open the Alpine user shell; use alproot for root${TNX_C0}
   ternux backend set zink  ${TNX_CD}Switch GPU backend${TNX_C0}
   ternux profile save      ${TNX_CD}Snapshot device config${TNX_C0}
 

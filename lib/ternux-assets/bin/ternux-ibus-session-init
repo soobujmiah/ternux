@@ -1,0 +1,46 @@
+#!/bin/sh
+# Start a working per-session IBus daemon and configure Ctrl+Space switching.
+set -u
+export HOME="${HOME:-/home/ternux}"
+: "${DISPLAY:=:0}"
+current_bus=${DBUS_SESSION_BUS_ADDRESS:-}
+stop_session_daemons() {
+  match_bus=${1:-stale}
+  for pid in $(pgrep -x ibus-daemon 2>/dev/null || true); do
+    proc_env="/proc/$pid/environ"
+    [ -r "$proc_env" ] || continue
+    daemon_home=$(tr '\000' '\n' < "$proc_env" | sed -n 's/^HOME=//p' | head -n 1)
+    daemon_display=$(tr '\000' '\n' < "$proc_env" | sed -n 's/^DISPLAY=//p' | head -n 1)
+    daemon_bus=$(tr '\000' '\n' < "$proc_env" | sed -n 's/^DBUS_SESSION_BUS_ADDRESS=//p' | head -n 1)
+    if [ "$daemon_home" = "$HOME" ] && [ "$daemon_display" = "$DISPLAY" ] && { [ "$match_bus" = all ] || [ "$daemon_bus" != "$current_bus" ]; }; then
+      kill "$pid" 2>/dev/null || true
+    fi
+  done
+}
+wait_for_socket() {
+  tries=0
+  while [ "$tries" -lt 40 ]; do
+    socket=$(ibus address 2>/dev/null | sed -n 's/^unix:path=\([^,]*\).*/\1/p')
+    if [ -n "$socket" ] && [ -S "$socket" ] && ibus list-engine >/dev/null 2>&1; then return 0; fi
+    tries=$((tries + 1))
+    sleep 0.25
+  done
+  return 1
+}
+engine=ibus-avro
+if grep -q '^ID=alpine$' /etc/os-release 2>/dev/null; then engine=m17n:bn:avro-phonetic; fi
+unset IBUS_ADDRESS
+stop_session_daemons stale
+sleep 0.1
+ibus-daemon --daemonize --xim --replace
+gsettings set org.freedesktop.ibus.general preload-engines "['xkb:us::eng', '$engine']" >/dev/null 2>&1 || true
+gsettings set org.freedesktop.ibus.general.hotkey triggers '[]' >/dev/null 2>&1 || true
+gsettings set org.freedesktop.ibus.general.hotkey next-engine "['<Control>space']" >/dev/null 2>&1 || true
+gsettings set org.freedesktop.ibus.general.hotkey next-engine-in-menu '[]' >/dev/null 2>&1 || true
+if ! wait_for_socket; then
+  echo "[WARN] IBus socket did not answer; restarting the scoped desktop daemon." >&2
+  stop_session_daemons all
+  sleep 0.2
+  ibus-daemon --daemonize --xim --replace
+  if ! wait_for_socket; then echo "[WARN] IBus remains unavailable; keyboard switching may not work." >&2; exit 1; fi
+fi

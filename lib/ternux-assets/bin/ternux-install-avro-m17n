@@ -1,0 +1,44 @@
+#!/bin/sh
+# Install a checksum-pinned IBus m17n engine and the Avro phonetic method on Alpine.
+set -eu
+
+assets=${1:?usage: ternux-install-avro-m17n INPUT_METHOD_ASSET_DIR}
+stage="$(mktemp -d /tmp/ternux-avro.XXXXXX)"
+cleanup() {
+  rm -rf "$stage"
+  apk del .ternux-avro-build-deps >/dev/null 2>&1 || true
+}
+trap cleanup EXIT
+trap 'exit 129' HUP
+trap 'exit 130' INT
+trap 'exit 143' TERM
+
+apk add --no-cache m17n-lib m17n-db
+apk add --no-cache --virtual .ternux-avro-build-deps \
+  build-base autoconf automake libtool pkgconf gettext glib-dev ibus-dev m17n-lib-dev
+archive="$stage/ibus-m17n.tar.gz"
+wget -q -O "$archive" \
+  https://codeload.github.com/ibus/ibus-m17n/tar.gz/2efee03ef5f457f3c7c345c6902c66b137575bea
+printf '%s  %s\n' \
+  a45e986d089d72ca4d630a5063d66e231608befa06d5fe2785c2f7d2601098c6 "$archive" | sha256sum -c -
+mkdir "$stage/source"
+tar -xzf "$archive" --strip-components=1 -C "$stage/source"
+cd "$stage/source"
+./autogen.sh --prefix=/usr --with-gtk=no
+make -j2
+mkdir "$stage/root"
+make -C src DESTDIR="$stage/root" install-exec install-data
+install -D -m 0644 "$assets/bn-avro-phonetic.mim" /usr/share/m17n/bn-avro-phonetic.mim
+install -D -m 0644 "$assets/avro-phonetic-COPYRIGHT" /usr/share/m17n/avro-phonetic-COPYRIGHT
+install -D -m 0644 "$assets/bn-avro-phonetic.png" /usr/share/m17n/icons/bn-avro-phonetic.png
+cp -a "$stage/root/usr/libexec/ibus-engine-m17n" /usr/libexec/ibus-engine-m17n
+cp -a "$stage/root/usr/share/ibus/component/m17n.xml" /usr/share/ibus/component/m17n.xml
+if [ -f "$stage/root/usr/share/ibus-m17n/default.xml" ]; then
+  install -D -m 0644 "$stage/root/usr/share/ibus-m17n/default.xml" /usr/share/ibus-m17n/default.xml
+fi
+if [ -f "$stage/root/usr/share/glib-2.0/schemas/org.freedesktop.ibus.engine.m17n.gschema.xml" ]; then
+  install -D -m 0644 "$stage/root/usr/share/glib-2.0/schemas/org.freedesktop.ibus.engine.m17n.gschema.xml" \
+    /usr/share/glib-2.0/schemas/org.freedesktop.ibus.engine.m17n.gschema.xml
+  glib-compile-schemas /usr/share/glib-2.0/schemas
+fi
+printf '%s\n' 'Ternux: Alpine Avro phonetic input method installed.'

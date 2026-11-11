@@ -1,0 +1,67 @@
+#!/bin/sh
+# Give each desktop display a stable D-Bus socket outside shared /tmp.
+set -eu
+
+if [ "$#" -eq 0 ]; then
+  echo "Usage: ternux-session-bus COMMAND [ARG ...]" >&2
+  exit 2
+fi
+
+runtime=${XDG_RUNTIME_DIR:-${HOME:-/home/ternux}/.runtime}
+install -d -m 0700 "$runtime"
+chmod 0700 "$runtime"
+display_key=$(printf '%s' "${DISPLAY:-:0}" | sed 's/[^A-Za-z0-9_.-]/_/g')
+socket="$runtime/dbus-session-${display_key}.sock"
+pid_file="$runtime/dbus-session-${display_key}.pid"
+address="unix:path=$socket"
+
+bus_works() {
+  [ -S "$socket" ] && DBUS_SESSION_BUS_ADDRESS="$address" \
+    dbus-send --session --dest=org.freedesktop.DBus --type=method_call \
+      --print-reply / org.freedesktop.DBus.ListNames >/dev/null 2>&1
+}
+
+owned_bus=0
+if ! bus_works; then
+  stale_pid=$(cat "$pid_file" 2>/dev/null || true)
+  case "$stale_pid" in
+    ''|*[!0-9]*) ;;
+    *)
+      stale_command=$(ps -p "$stale_pid" -o args= 2>/dev/null || true)
+      case "$stale_command" in
+        *"--address=$address"*) kill "$stale_pid" 2>/dev/null || true ;;
+      esac
+      ;;
+  esac
+  rm -f "$socket" "$pid_file"
+  bus_pid=$(dbus-daemon --session --address="$address" --fork --print-pid=1)
+  case "$bus_pid" in
+    ''|*[!0-9]*) echo "Could not start the desktop D-Bus session." >&2; exit 1 ;;
+  esac
+  printf '%s\n' "$bus_pid" > "$pid_file"
+  owned_bus=1
+fi
+
+export DBUS_SESSION_BUS_ADDRESS="$address"
+child_pid=
+cleanup() {
+  if [ "$owned_bus" -eq 1 ]; then
+    current_pid=$(cat "$pid_file" 2>/dev/null || true)
+    if [ "$current_pid" = "${bus_pid:-}" ]; then
+      kill "$bus_pid" 2>/dev/null || true
+      rm -f "$pid_file" "$socket"
+    fi
+  fi
+}
+on_signal() {
+  [ -z "$child_pid" ] || kill -TERM "$child_pid" 2>/dev/null || true
+}
+trap cleanup EXIT HUP INT TERM
+trap on_signal HUP INT TERM
+"$@" &
+child_pid=$!
+set +e
+wait "$child_pid"
+status=$?
+set -e
+exit "$status"

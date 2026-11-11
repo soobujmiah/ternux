@@ -12,7 +12,7 @@ alt_url: "/docs/USAGE.html"
 
 ## ব্যাকগ্রাউন্ড ডেস্কটপ সেশন
 
-`tx` হলো `ternux`-এর ছোট alias। একাধিক guest থাকলে `xgo` installed guest-গুলোর তালিকা দেখিয়ে GUI বাছতে বলে। `db`/`dbroot`, `ub`/`ubroot`, `alp`/`alproot`, `archx`/`archroot`, `fed`/`fedr`, `suse`/`suser`, `vsh`/`vroot`, `kal`/`kalr` user/root shell shortcut। অন্য guest-এ `tx distro shell NAME` ব্যবহার করুন।
+`tx` হলো `ternux`-এর ছোট alias। একাধিক guest থাকলে `xgo` installed guest-গুলোর তালিকা দেখিয়ে GUI বাছতে বলে। `db`/`dbroot`, `ub`/`ubroot`, `alp`/`alproot`, `archx`/`archroot`, `fed`/`fedr`, `suse`/`suser`, `vsh`/`vroot`, `kal`/`kalr` user/root shell shortcut। অন্য guest-এ `tx distro shell NAME` ব্যবহার করুন; Ternux profile-এ এটি configured regular user shell খোলে, generic image-এর ক্ষেত্রে image-এর default user ব্যবহার করে। Root shell চাইলে `dbroot`, `ubroot`, `alproot` বা সংশ্লিষ্ট root shortcut ব্যবহার করুন।
 
 `tx start` desktop-কে managed background session হিসেবে চালু করে এবং নিজের X11
 window ready হলে prompt-এ ফিরে আসে। প্রতিটি configured guest আলাদা tagged display ব্যবহার করে, তাই একাধিক profile পাশাপাশি

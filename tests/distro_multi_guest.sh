@@ -83,12 +83,17 @@ tnx_proot_container_installed() {
   esac
 }
 tnx_guest_login() { printf '%s|%s\n' "$TERNUX_DISTRO" "$*" >> "$TMP/login-calls"; }
+tnx_distro_state_set ubuntu user ubuntu-user
+mkdir -p "$TERNUX_STATE_DIR/distros/alpine"
+printf 'user=ternux\n' > "$TERNUX_STATE_DIR/distros/alpine/profile"
 tnx_cmd_distro shell ubuntu
-[ "$(cat "$TMP/login-calls")" = 'ubuntu|' ]
+[ "$(cat "$TMP/login-calls")" = 'ubuntu|--user ubuntu-user' ]
 tnx_cmd_distro exec debian -- printf '%s' ok
 [ "$(tail -n 1 "$TMP/login-calls")" = 'debian|-- printf %s ok' ]
 tnx_cmd_distro image-install alpine:latest alpine
 [ "$(cat "$TMP/proot-calls")" = 'install --name alpine alpine:latest' ]
+tnx_cmd_distro shell alpine
+[ "$(tail -n 1 "$TMP/login-calls")" = 'alpine|--user ternux' ]
 tnx_cmd_distro search 'debian bookworm'
 [ "$(tail -n 1 "$TMP/proot-calls")" = 'search debian bookworm' ]
 if tnx_cmd_distro search >/dev/null 2>&1; then exit 1; fi

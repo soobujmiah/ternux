@@ -86,7 +86,7 @@ Termux-এ `db` চালান। Android storage permission থাকলে sh
 
 **বেস desktop:** user-space PRoot container-এ Debian 13 (Trixie), Xfce4,
 Termux:X11 display integration এবং PulseAudio audio routing। বেস setup-এ
-Bangla-capable Noto font, Avro phonetic input (Ctrl+Space), VLC, PulseAudio
+Bangla-capable Noto font ও Debian/Ubuntu-তে Avro phonetic input (Ctrl+Space) থাকে। Alpine-এ একই Avro phonetic input IBus m17n engine দিয়ে দেওয়া হয়। VLC, PulseAudio
 Volume Control, Xfce Task Manager, Mousepad, Galculator, Evince PDF reader,
 Ternux Camera, Ternux Sound Recorder, Ristretto image viewer এবং নিজস্ব
 Ternux theme/icon-সহ Synaptic Package Manager থাকে। Synaptic দিয়ে Debian
