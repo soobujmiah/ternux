@@ -80,9 +80,9 @@ source-ই রাখে এবং frame-এর ভেতর `termux-change-repo`
 wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
 ```
 
-### Optional workload সংখ্যা দিয়ে বাছাই
+### Optional workload checklist
 
-কোনো workload flag ছাড়া interactive install-এ installer GPU route দেখে পরামর্শ দেয়, তারপর সংখ্যা চায়। একটি সংখ্যা বা comma দিয়ে একাধিক দিন, যেমন `1,5`; শুধু base desktop-এর জন্য Enter বা `0`, সব optional workload-এর জন্য `6`। `--yes` chooser বাদ দিয়ে base profile রাখে; `--with-*` flag নির্দিষ্ট workload এবং `--all` সবগুলো বেছে নেয়। Detected Adreno/Zink route-এ Blender পরামর্শ দেখাবে—এটি উপযোগিতার পরামর্শ, সব device-এ GPU rendering সমর্থনের নিশ্চয়তা নয়।
+Workload flag ছাড়া interactive install-এ detected GPU route অনুযায়ী পরামর্শ দিয়ে category-সহ keyboard checklist দেখায়। Up/Down বা `j`/`k` দিয়ে চলুন; Space বা item-এর নম্বর দিয়ে একাধিক নির্বাচন toggle করুন; Enter-এ plan review করুন, আর `q` চাপলে base desktop থাকবে। `--yes` checklist বাদ দিয়ে base profile রাখে; `--with-*` flag নির্দিষ্ট workload এবং `--all` সব workload বেছে নেয়। Detected Adreno/Zink route-এ Blender পরামর্শ পেতে পারে—এটি উপযোগিতার পরামর্শ, সব device-এ GPU rendering সমর্থনের নিশ্চয়তা নয়।
 
 ### পদ্ধতি ২ — সব executable অংশ পড়ুন, তারপর চালান
 

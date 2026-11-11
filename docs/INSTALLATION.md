@@ -92,15 +92,16 @@ wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | 
 
 ### Optional workload chooser
 
-On an interactive install without workload flags, the installer suggests a
-route from the detected GPU and asks for numbers. Enter one number or a comma
-separated list, for example `1,5`; press Enter or `0` for the base desktop, or
-choose `6` for all optional workloads. `--yes` skips the chooser and keeps the
-base profile; `--with-*` flags select workloads explicitly and `--all` selects
-every workload. Blender is suggested on the detected Adreno/Zink route; this is
-a fit suggestion, not a guarantee that every device supports GPU rendering.
-The chooser also reports the detected RAM and free storage; the full profile
-targets about 14 GB free for packages, downloads and build cache.
+On an interactive install without workload flags, the installer suggests
+items based on the detected GPU route, then opens a categorized keyboard
+checklist. Use Up/Down or `j`/`k` to move, Space or an item's number to toggle
+multiple choices, Enter to review the plan, and `q` to keep the base desktop.
+`--yes` skips the chooser and keeps the base profile; `--with-*` flags select
+workloads explicitly and `--all` selects every workload. Blender may be
+suggested on the detected Adreno/Zink route; this is a fit suggestion, not a
+guarantee that every device supports GPU rendering. The chooser also reports
+detected RAM and free storage; the full profile targets about 14 GB free for
+packages, downloads and build cache.
 
 ### Method 2 — download, review, then run
 
