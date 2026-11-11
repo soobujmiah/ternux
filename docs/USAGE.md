@@ -14,7 +14,7 @@ Everything you need for day-to-day life with a Linux desktop in your pocket.
 `ternux start` starts the desktop as a managed background session and returns
 when the X11 display is ready. Startup output is kept in
 `~/.local/share/ternux/session/desktop.log` (the previous log is rotated at
-1 MiB). Use `tx status`, `tx stop`, or `tx logs desktop tail` to manage and inspect it. Each configured desktop guest uses its own tagged Termux:X11 display, so multiple profiles can stay open at once. With several running, `tx stop` lets you stop one or select several; `tx stop --all` closes every Ternux desktop. `tx stop NAME` targets one guest directly. Android may still stop background processes under memory pressure;
+1 MiB). Use `tx status`, `tx stop`, or `tx logs desktop tail` to manage and inspect it. Each configured desktop guest uses its own tagged Termux:X11 display, so multiple profiles can stay open at once. `tx stop` lists running guests and displays, then accepts one or more indexes or names separated by spaces or commas; enter `0` to cancel. `tx stop db`, `tx stop ub`, and `tx stop alp` target Debian, Ubuntu, and Alpine individually. `tx stop --all` closes every Ternux desktop. Android may still stop background processes under memory pressure;
 reopen Termux:X11 if Android has reclaimed the session.
 
 ### Keyboard input in Termux:X11

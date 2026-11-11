@@ -276,7 +276,10 @@ if env TERNUX_STATE_DIR="$TMP/state-welcome" HOME="$TMP/home-welcome" \
       grep -Fq "org.freedesktop.ibus.general.hotkey trigger" "$1/lib/phases.sh" &&
       grep -Fq "org.freedesktop.ibus.general.hotkey next-engine" "$1/lib/phases.sh" &&
       grep -Fq "org.freedesktop.ibus.general.hotkey next-engine-in-menu" "$1/lib/phases.sh" &&
-      grep -Fq "<Control>space" "$1/lib/phases.sh" && grep -Fq "headerbar button.titlebutton" "$1/lib/ternux-assets/themes/Ternux/gtk-3.0/gtk.css" && grep -Fq "headerbar button.titlebutton" "$1/lib/ternux-assets/themes/Ternux/gtk-4.0/gtk.css" &&
+      grep -Fq "/commands/custom/<Primary>space" "$1/lib/phases.sh" &&
+      grep -Fq "ternux-ibus-next-engine" "$1/lib/phases.sh" &&
+      grep -Fq "x11-xkb-utils" "$1/lib/phases.sh" && grep -Fq "setxkbmap" "$1/lib/phases.sh" && grep -Fq "xorg-setxkbmap" "$1/lib/phases.sh" &&
+      grep -Fq "headerbar button.titlebutton" "$1/lib/ternux-assets/themes/Ternux/gtk-3.0/gtk.css" && grep -Fq "headerbar button.titlebutton" "$1/lib/ternux-assets/themes/Ternux/gtk-4.0/gtk.css" &&
       grep -q "pm-is-supported" "$1/lib/phases.sh" &&
       grep -q "pavucontrol" "$1/lib/phases.sh" &&
       grep -q "devilspie2" "$1/lib/phases.sh" &&
@@ -831,7 +834,7 @@ assert "pkg_retry apk add firefox-esr" in desktop_phase
 assert "mktemp /tmp/ternux-sudoers.XXXXXX" in desktop_phase
 assert "mktemp /tmp/ternux-jetbrainsmono.XXXXXX)" in desktop_phase
 assert "XXXXXX.tar.xz" not in desktop_phase
-assert "apk add sudo bash shadow musl-utils nano mousepad galculator evince font-noto python3 py3-gobject3 gtk+3.0 ibus dbus-x11 pulseaudio" in desktop_phase and "desktop-file-utils xdg-utils xdpyinfo util-linux" in desktop_phase
+assert "apk add sudo bash shadow musl-utils nano mousepad galculator evince font-noto python3 py3-gobject3 gtk+3.0 ibus dbus-x11 pulseaudio" in desktop_phase and "desktop-file-utils xdg-utils xdpyinfo setxkbmap util-linux" in desktop_phase
 assert "apk add vlc-qt m17n-lib m17n-db font-noto-bengali" in desktop_phase
 assert "rsvg-convert" in desktop_phase
 assert "gdk-pixbuf=2.42.12-r1 gdk-pixbuf-loaders=2.42.12-r1" not in desktop_phase
@@ -867,8 +870,13 @@ assert "ternux-input-method.desktop" in (root / "lib/ternux-panel-shortcuts.sh")
 assert "panel-shortcuts-v6" in (root / "lib/ternux-panel-shortcuts.sh").read_text()
 ibus_init = (root / "lib/ternux-assets/bin/ternux-ibus-session-init").read_text()
 assert "gsettings set org.freedesktop.ibus.general.hotkey trigger '[]'" in ibus_init
-assert 'next-engine "[\'<Control>space\']"' in ibus_init
+assert 'next-engine "[\'Control+space\']"' in ibus_init
+next_engine = (root / "lib/ternux-assets/bin/ternux-ibus-next-engine").read_text()
+assert "gsettings get org.freedesktop.ibus.general engines-order" in next_engine
+assert 'exec ibus engine "$next"' in next_engine
+assert "ternux-ibus-next-engine" in desktop_phase and "/commands/custom/<Primary>space" in desktop_phase
 assert "ibus-daemon --daemonize --xim --replace --address=\"$IBUS_ADDRESS\"" in ibus_init
+assert ibus_init.index("Control+space") < ibus_init.index("ibus-daemon --daemonize --xim --replace --address=\"$IBUS_ADDRESS\"")
 assert 'if [ -S "$ibus_socket" ] && ! ibus list-engine' in ibus_init
 assert 'env.pop("LD_PRELOAD", None)' in camera
 recorder = (root / "lib/ternux-recorder.py").read_text()
@@ -879,7 +887,7 @@ assert "/data/data/com.termux/files/usr/var/lib/ternux/runtime" in session_bus
 assert 'legacy_address="unix:path=$legacy_socket"' in session_bus
 assert "dbus-daemon --session --address=\"$address\" --nofork" in session_bus
 assert "--fork" not in session_bus
-assert "<Control>space" in desktop_phase and ".cache/ibus" in desktop_phase
+assert "next-engine \\\"['Control+space']\\\"" in desktop_phase and "/commands/custom/<Primary>space" in desktop_phase and "ternux-ibus-next-engine" in desktop_phase and ".cache/ibus" in desktop_phase
 PYMANIFEST
 then
   ok "APT manifest includes all Debian phase resources"
@@ -1900,6 +1908,63 @@ else
   not_ok "desktop stop signals its owned process group and preserves shared sockets"
 fi
 
+# The stop menu always presents the live guest list and accepts multi-select,
+# short aliases, safe cancellation, and all-or-nothing validation.
+if env TERNUX_STATE_DIR="$TMP/state-desktop-stop-menu" HOME="$TMP/home-desktop-stop-menu" \
+  bash -c '
+    mkdir -p "$HOME"
+    . "$1/lib/desktop.sh"
+    _tnx_running_guest_sessions(){ printf "%s\n" debian ubuntu alpine; }
+    tnx_distro_display(){ case "$1" in debian) echo 0;; ubuntu) echo 1;; alpine) echo 2;; esac; }
+    tnx_cmd_stop(){ printf "%s\n" "$1" >> "$HOME/stopped"; }
+    printf "1 3\n" | _tnx_stop_select > "$HOME/multi.out" || exit
+    grep -q "debian.*(db).*:0" "$HOME/multi.out" && grep -q "ubuntu.*(ub).*:1" "$HOME/multi.out" &&
+      grep -q "alpine.*(alp).*:2" "$HOME/multi.out" &&
+      [ "$(cat "$HOME/stopped")" = "debian
+alpine" ] || exit
+    : > "$HOME/stopped"
+    printf "db, alp\n" | _tnx_stop_select > "$HOME/aliases.out" || exit
+    [ "$(cat "$HOME/stopped")" = "debian
+alpine" ] || exit
+    : > "$HOME/stopped"
+    printf "0\n" | _tnx_stop_select > "$HOME/cancel.out" || exit
+    [ ! -s "$HOME/stopped" ] && grep -q Cancelled "$HOME/cancel.out" || exit
+    printf "1 nonsense\n" | _tnx_stop_select > "$HOME/invalid.out" 2>&1 && exit 1
+    [ ! -s "$HOME/stopped" ] && grep -q "no desktops were stopped" "$HOME/invalid.out"
+  ' _ "$ROOT"; then
+  ok "desktop stop menu lists sessions, multi-selects by index/alias, and fails safely"
+else
+  not_ok "desktop stop menu lists sessions, multi-selects by index/alias, and fails safely"
+fi
+
+# The global Ctrl+Space target cycles the configured IBus engine order without
+# embedding Debian/Ubuntu/Alpine-specific engine names.
+if env TERNUX_STATE_DIR="$TMP/state-ibus-cycle" HOME="$TMP/home-ibus-cycle" \
+  IBUS_ENGINE_STATE="$TMP/ibus-engine-state" bash -c '
+    mkdir -p "$HOME/bin"
+    cat > "$HOME/bin/ibus" <<'\''MOCK_IBUS'\''
+#!/bin/sh
+if [ "$1" = engine ] && [ "$#" -eq 1 ]; then cat "$IBUS_ENGINE_STATE"; exit; fi
+if [ "$1" = engine ] && [ "$#" -eq 2 ]; then printf "%s\n" "$2" > "$IBUS_ENGINE_STATE"; exit; fi
+exit 2
+MOCK_IBUS
+    cat > "$HOME/bin/gsettings" <<'\''MOCK_GSETTINGS'\''
+#!/bin/sh
+printf "%s\n" "['xkb:us::eng', 'ibus-avro']"
+MOCK_GSETTINGS
+    chmod +x "$HOME/bin/ibus" "$HOME/bin/gsettings"
+    PATH="$HOME/bin:$PATH"; export PATH
+    printf "%s\n" xkb:us::eng > "$IBUS_ENGINE_STATE"
+    sh "$1/lib/ternux-assets/bin/ternux-ibus-next-engine" || exit
+    [ "$(cat "$IBUS_ENGINE_STATE")" = ibus-avro ] || exit
+    sh "$1/lib/ternux-assets/bin/ternux-ibus-next-engine" || exit
+    [ "$(cat "$IBUS_ENGINE_STATE")" = xkb:us::eng ]
+  ' _ "$ROOT"; then
+  ok "global IBus switch helper cycles the active configured engine order"
+else
+  not_ok "global IBus switch helper cycles the active configured engine order"
+fi
+
 # Old launchers have no process identity record and a global EXIT cleanup
 # trap. Stop must verify the command/environment and kill only that process group.
 legacy_script="$TMP/legacy-desktop-launcher.sh"
@@ -1963,6 +2028,10 @@ if env TERNUX_STATE_DIR="$TMP/state-desktop-short-names" HOME="$TMP/home-desktop
   TMPDIR="$TMP/desktop-short-names-tmp" bash -c '
     mkdir -p "$HOME"
     . "$1/lib/desktop.sh"
+    tnx_distro_session_dir(){
+      printf "%s\n" "$1" >> "$HOME/stop-targets"
+      printf "%s/%s/session\n" "$HOME" "$1"
+    }
     pgrep(){ return 1; }
     tnx_desktop_session_live(){ return 1; }
     tnx_pulseaudio_ready(){ return 1; }
@@ -1977,6 +2046,16 @@ assert json.loads(os.environ["STATUS_JSON"])["distro"] == "debian"
 import json, os
 assert json.loads(os.environ["STOP_JSON"])["command"] == "stop"
 '\'' || exit
+    [ "$(tail -n 1 "$HOME/stop-targets")" = ubuntu ] || exit
+    for alias in db ub alp; do
+      stopped="$(tnx_cmd_stop "$alias")" || exit
+      STOP_JSON="$stopped" python3 -c '\''
+import json, os
+assert json.loads(os.environ["STOP_JSON"])["command"] == "stop"
+'\'' || exit
+      case "$alias" in db) expected=debian;; ub) expected=ubuntu;; alp) expected=alpine;; esac
+      [ "$(tail -n 1 "$HOME/stop-targets")" = "$expected" ] || exit
+    done
     tnx_cmd_stop(){ printf "stop:%s\\n" "$1" >> "$HOME/restart.log"; }
     tnx_cmd_start(){ printf "start:%s\\n" "$1" >> "$HOME/restart.log"; }
     sleep(){ :; }

@@ -135,7 +135,10 @@ the full commands below in **Termux** (`$PREFIX/bin/ternux`):
 ```bash
 ternux doctor           # system diagnostics
 ternux start            # start the desktop
-tx stop                 # choose guest desktop(s) to stop
+tx stop                 # list running desktops and choose one or more
+tx stop db              # stop Debian only
+tx stop ub              # stop Ubuntu only
+tx stop alp             # stop Alpine only
 tx stop --all          # stop every Ternux desktop
 ternux repair           # auto-fix common issues
 ternux verify           # verify installation

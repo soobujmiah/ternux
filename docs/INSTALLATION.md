@@ -263,7 +263,10 @@ tx start                # start the saved desktop
 tx start ubuntu        # start Ubuntu in its own Termux:X11 window
 tx start ub             # same Ubuntu profile via its short name
 tx start alp            # start Alpine via its short name
-tx stop                # choose one or more running desktops
+tx stop                # list running desktops; select one or more
+tx stop db             # stop Debian only
+tx stop ub             # stop Ubuntu only
+tx stop alp            # stop Alpine only
 tx stop --all          # stop all Ternux desktops
 tx restart ubuntu     # restart Ubuntu
 ternux repair           # repair common problems

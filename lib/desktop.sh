@@ -120,17 +120,22 @@ _tnx_running_guest_sessions() {
 
 # If several independent displays run, accept one or many indexes/names.
 _tnx_stop_select() {
-  local force_all="${1:-}" input token selected_name rc=0 i duplicate existing
+  local force_all="${1:-}" input token selected_name canonical_name rc=0 i duplicate existing
   local -a running=() selected=()
   while IFS= read -r selected_name; do [ -n "$selected_name" ] && running+=("$selected_name"); done < <(_tnx_running_guest_sessions)
   if [ "${#running[@]}" -eq 0 ]; then tnx_info "No active managed desktop sessions found."; return 0; fi
   if [ "$force_all" = all ]; then
     selected=("${running[@]}")
-  elif [ "${#running[@]}" -eq 1 ]; then
-    selected=("${running[0]}")
   else
     printf 'Running Ternux desktops (separate X11 displays):\n'
-    for i in "${!running[@]}"; do printf '  %d) %-10s Display :%s\n' "$((i+1))" "${running[$i]}" "$(tnx_distro_display "${running[$i]}")"; done
+    for i in "${!running[@]}"; do
+      case "${running[$i]}" in
+        debian) token=db ;; ubuntu) token=ub ;; alpine) token=alp ;;
+        archlinux) token=archx ;; fedora) token=fed ;; opensuse) token=suse ;;
+        void) token=vsh ;; kali) token=kal ;; *) token="${running[$i]}" ;;
+      esac
+      printf '  %d) %-10s (%s)  Display :%s\n' "$((i+1))" "${running[$i]}" "$token" "$(tnx_distro_display "${running[$i]}")"
+    done
     printf 'Select one or more numbers/names (comma or space separated), all, or 0 to cancel: '
     IFS= read -r input || input=0
     input="${input//,/ }"
@@ -142,9 +147,11 @@ _tnx_stop_select() {
         if [[ "$token" =~ ^[0-9]+$ ]] && [ "$token" -ge 1 ] && [ "$token" -le "${#running[@]}" ]; then
           selected_name="${running[$((token-1))]}"
         else
+          canonical_name="$(tnx_distro_canonical "$token")"
           for existing in "${running[@]}"; do [ "$existing" = "$token" ] && selected_name="$existing"; done
+          for existing in "${running[@]}"; do [ "$existing" = "$canonical_name" ] && selected_name="$existing"; done
         fi
-        [ -n "$selected_name" ] || { tnx_warn "Ignoring unknown selection '$token'."; continue; }
+        [ -n "$selected_name" ] || { tnx_warn "Unknown selection '$token'; no desktops were stopped."; return 2; }
         duplicate=0
         for existing in "${selected[@]}"; do [ "$existing" != "$selected_name" ] || duplicate=1; done
         [ "$duplicate" -eq 1 ] || selected+=("$selected_name")

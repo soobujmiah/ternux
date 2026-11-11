@@ -1,0 +1,25 @@
+#!/bin/sh
+# Cycle through this user's configured IBus engines when XFCE receives Ctrl+Space.
+set -eu
+
+current="$(ibus engine 2>/dev/null || true)"
+order="$(gsettings get org.freedesktop.ibus.general engines-order 2>/dev/null || true)"
+[ -n "$current" ] && [ -n "$order" ] || exit 0
+
+engines="$(printf '%s' "$order" | sed 's/^@as //' | tr -d "[]'")"
+first=""
+next=""
+found=0
+while IFS= read -r engine; do
+  engine="$(printf '%s' "$engine" | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')"
+  [ -n "$engine" ] || continue
+  [ -n "$first" ] || first="$engine"
+  if [ "$found" -eq 1 ]; then next="$engine"; break; fi
+  [ "$engine" = "$current" ] && found=1
+done <<EOF
+$(printf '%s' "$engines" | tr ',' '\n')
+EOF
+
+[ -n "$next" ] || next="$first"
+[ -n "$next" ] && [ "$next" != "$current" ] || exit 0
+exec ibus engine "$next"

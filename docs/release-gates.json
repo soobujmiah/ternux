@@ -224,7 +224,7 @@
       "owner": "engineering",
       "status": "PARTIAL",
       "source_status": "PASS",
-      "ci_status": "NOT_TESTED",
+      "ci_status": "NOT_RUN",
       "device_status": "PARTIAL",
       "evidence": [
         "lib/phases.sh installs a default browser in every named package-family desktop profile and fails setup if no usable package route succeeds.",

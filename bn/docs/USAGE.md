@@ -18,7 +18,7 @@ alt_url: "/docs/USAGE.html"
 window ready হলে prompt-এ ফিরে আসে। প্রতিটি configured guest আলাদা tagged display ব্যবহার করে, তাই একাধিক profile পাশাপাশি
 চলতে পারে। Startup output `~/.local/share/ternux/session/desktop.log`-এ থাকে;
 1 MiB হলে আগের log rotate হয়। `tx status`, `tx stop` বা `tx logs desktop tail`
-দিয়ে session দেখুন, বেছে বন্ধ করুন বা log পড়ুন। `tx stop --all` সব বন্ধ করে। Android memory pressure-এ background process বন্ধ
+দিয়ে session দেখুন, বেছে বন্ধ করুন বা log পড়ুন। `tx stop` চলমান guest/display দেখিয়ে space বা comma-separated নাম/নম্বর নিতে পারে; `0` দিলে cancel হয়। `tx stop db`, `tx stop ub` ও `tx stop alp` নির্দিষ্ট guest বন্ধ করে; `tx stop --all` সব বন্ধ করে। Android memory pressure-এ background process বন্ধ
 করতে পারে; এমন হলে Termux:X11 আবার খুলুন।
 
 ### Termux:X11-এ কিবোর্ড ইনপুট

@@ -350,7 +350,7 @@ tnx_phase_debian() {
   [ "$(tnx_distro)" != alpine ] || input_engine=m17n:bn:avro-phonetic
   local resource_dir="${BASH_SOURCE[0]%/*}"
   local welcome_b64 welcome_gui_b64 window_fit_b64 camera_gui_b64 recorder_gui_b64 panel_shortcuts_b64 ternux_assets_b64 gtk3_user_css_b64 gtk4_user_css_b64 firefox_installer_b64 resource
-  for resource in ternux-welcome.sh ternux-welcome-gui.py ternux-window-fit.lua ternux-camera.py ternux-recorder.py ternux-panel-shortcuts.sh ternux-assets/bin/ternux-rasterize-icons ternux-assets/bin/ternux-ibus-session-init ternux-assets/bin/ternux-session-bus; do
+  for resource in ternux-welcome.sh ternux-welcome-gui.py ternux-window-fit.lua ternux-camera.py ternux-recorder.py ternux-panel-shortcuts.sh ternux-assets/bin/ternux-rasterize-icons ternux-assets/bin/ternux-ibus-session-init ternux-assets/bin/ternux-ibus-next-engine ternux-assets/bin/ternux-session-bus; do
     if [ ! -s "$resource_dir/$resource" ] || [ ! -r "$resource_dir/$resource" ]; then
       tnx_fail "Required Ternux desktop resource is missing or unreadable: $resource_dir/$resource"
       return 1
@@ -404,14 +404,14 @@ tnx_phase_debian() {
           printf 'Package: snapd\nPin: version *\nPin-Priority: -1\n' > /etc/apt/preferences.d/ternux-no-snapd
           apt-mark hold snapd >/dev/null 2>&1 || true
         fi
-        apt install -y -o APT::Install-Recommends=false \$DPKG_FORCE sudo nano mousepad galculator evince fonts-noto-core python3-gi gir1.2-gtk-3.0 ibus ibus-avro devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol x11-utils mesa-utils libgl1-mesa-dri libvulkan1 mesa-vulkan-drivers vulkan-tools adwaita-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc ffmpeg ristretto qt5-gtk-platformtheme colord xdg-utils desktop-file-utils util-linux gsettings-desktop-schemas xfconf
+        apt install -y -o APT::Install-Recommends=false \$DPKG_FORCE sudo nano mousepad galculator evince fonts-noto-core python3-gi gir1.2-gtk-3.0 ibus ibus-avro devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol x11-utils x11-xkb-utils mesa-utils libgl1-mesa-dri libvulkan1 mesa-vulkan-drivers vulkan-tools adwaita-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc ffmpeg ristretto qt5-gtk-platformtheme colord xdg-utils desktop-file-utils util-linux gsettings-desktop-schemas xfconf
         apt install -y \$DPKG_FORCE --no-install-recommends synaptic
         if [ '$(tnx_distro)' = ubuntu ]; then apt-mark hold snapd >/dev/null 2>&1 || true; fi
         apt remove -y \$DPKG_FORCE guvcview >/dev/null 2>&1 || true
         ;;
       apk)
         pkg_retry apk update
-        pkg_retry apk add sudo bash shadow musl-utils nano mousepad galculator evince font-noto python3 py3-gobject3 gtk+3.0 ibus dbus-x11 pulseaudio pulseaudio-utils pavucontrol mesa mesa-dri-gallium mesa-utils vulkan-loader vulkan-tools desktop-file-utils xdg-utils xdpyinfo util-linux fontconfig gsettings-desktop-schemas xfconf adwaita-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc ffmpeg ristretto qt5-qtbase colord
+        pkg_retry apk add sudo bash shadow musl-utils nano mousepad galculator evince font-noto python3 py3-gobject3 gtk+3.0 ibus dbus-x11 pulseaudio pulseaudio-utils pavucontrol mesa mesa-dri-gallium mesa-utils vulkan-loader vulkan-tools desktop-file-utils xdg-utils xdpyinfo setxkbmap util-linux fontconfig gsettings-desktop-schemas xfconf adwaita-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc ffmpeg ristretto qt5-qtbase colord
         if [ "$(tnx_distro)" = alpine ]; then
           pkg_retry apk add vlc-qt m17n-lib m17n-db font-noto-bengali rsvg-convert
         fi
@@ -419,18 +419,18 @@ tnx_phase_debian() {
         ;;
       pacman)
         pacman -Syu --noconfirm --needed
-        pacman -S --noconfirm --needed sudo bash nano mousepad galculator evince noto-fonts python-gobject gtk3 ibus devilspie2 xorg-xhost pulseaudio pavucontrol mesa mesa-utils vulkan-icd-loader vulkan-freedreno vulkan-tools xorg-xdpyinfo xdg-utils desktop-file-utils util-linux fontconfig gsettings-desktop-schemas xfconf adwaita-icon-theme xfce4 xfce4-goodies xfce4-terminal zenity vlc ffmpeg ristretto qt5ct colord
+        pacman -S --noconfirm --needed sudo bash nano mousepad galculator evince noto-fonts python-gobject gtk3 ibus devilspie2 xorg-xhost xorg-setxkbmap pulseaudio pavucontrol mesa mesa-utils vulkan-icd-loader vulkan-freedreno vulkan-tools xorg-xdpyinfo xdg-utils desktop-file-utils util-linux fontconfig gsettings-desktop-schemas xfconf adwaita-icon-theme xfce4 xfce4-goodies xfce4-terminal zenity vlc ffmpeg ristretto qt5ct colord
         ;;
       dnf)
-        dnf install -y sudo bash nano mousepad galculator evince google-noto-sans-fonts python3-gobject gtk3 ibus devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol mesa-dri-drivers mesa-vulkan-drivers vulkan-loader vulkan-tools glx-utils xorg-x11-utils xdg-utils desktop-file-utils util-linux fontconfig gsettings-desktop-schemas xfconf adwaita-icon-theme xfce4-panel xfce4-session xfce4-settings xfce4-terminal xfce4-taskmanager zenity vlc ffmpeg ristretto qt5-qtbase colord
+        dnf install -y sudo bash nano mousepad galculator evince google-noto-sans-fonts python3-gobject gtk3 ibus devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol mesa-dri-drivers mesa-vulkan-drivers vulkan-loader vulkan-tools glx-utils xorg-x11-utils setxkbmap xdg-utils desktop-file-utils util-linux fontconfig gsettings-desktop-schemas xfconf adwaita-icon-theme xfce4-panel xfce4-session xfce4-settings xfce4-terminal xfce4-taskmanager zenity vlc ffmpeg ristretto qt5-qtbase colord
         ;;
       zypper)
         zypper --non-interactive refresh
-        zypper --non-interactive install -y sudo bash nano mousepad galculator evince google-noto-sans-fonts python3-gobject gtk3 ibus dbus-1-x11 pulseaudio pulseaudio-utils pavucontrol Mesa-dri Mesa-demo-x libvulkan1 libvulkan_freedreno vulkan-tools xorg-x11-utils xdg-utils desktop-file-utils util-linux fontconfig gsettings-desktop-schemas xfconf adwaita-icon-theme xfce4-panel xfce4-session xfce4-settings xfce4-terminal xfce4-taskmanager zenity vlc ffmpeg ristretto libqt5-qtbase colord
+        zypper --non-interactive install -y sudo bash nano mousepad galculator evince google-noto-sans-fonts python3-gobject gtk3 ibus dbus-1-x11 pulseaudio pulseaudio-utils pavucontrol Mesa-dri Mesa-demo-x libvulkan1 libvulkan_freedreno vulkan-tools xorg-x11-utils setxkbmap xdg-utils desktop-file-utils util-linux fontconfig gsettings-desktop-schemas xfconf adwaita-icon-theme xfce4-panel xfce4-session xfce4-settings xfce4-terminal xfce4-taskmanager zenity vlc ffmpeg ristretto libqt5-qtbase colord
         ;;
       xbps)
         xbps-install -Suy
-        xbps-install -Sy sudo bash nano mousepad galculator evince noto-fonts-ttf python3-gobject gtk+3 ibus dbus pulseaudio pulseaudio-utils pavucontrol mesa-dri mesa-demos vulkan-loader mesa-vulkan-freedreno vulkan-tools xdg-utils desktop-file-utils util-linux fontconfig gsettings-desktop-schemas xfconf adwaita-icon-theme xfce4 xfce4-terminal xfce4-taskmanager zenity vlc ffmpeg ristretto qt5-base colord
+        xbps-install -Sy sudo bash nano mousepad galculator evince noto-fonts-ttf python3-gobject gtk+3 ibus dbus pulseaudio pulseaudio-utils pavucontrol mesa-dri mesa-demos vulkan-loader mesa-vulkan-freedreno vulkan-tools setxkbmap xdg-utils desktop-file-utils util-linux fontconfig gsettings-desktop-schemas xfconf adwaita-icon-theme xfce4 xfce4-terminal xfce4-taskmanager zenity vlc ffmpeg ristretto qt5-base colord
         ;;
       *) echo \"Unsupported package manager family: \$FAMILY\" >&2; exit 2 ;;
     esac
@@ -510,6 +510,7 @@ VLC_DESKTOP
       install -m 0644 "\$asset_stage/bin/ternux-proot-faccessat-arm64.so" /usr/local/lib/ternux/libternux-faccessat.so
     fi
     install -m 0755 "\$asset_stage/bin/ternux-ibus-session-init" /usr/local/bin/ternux-ibus-session-init
+    install -m 0755 "\$asset_stage/bin/ternux-ibus-next-engine" /usr/local/bin/ternux-ibus-next-engine
     install -m 0755 "\$asset_stage/bin/ternux-session-bus" /usr/local/bin/ternux-session-bus
     rm -rf "\$asset_stage"
     gtk-update-icon-cache -f /usr/share/icons/Ternux >/dev/null 2>&1 || true
@@ -655,13 +656,11 @@ TERMINAL
     chown \"\$U:\$U\" \"\$H/.config/devilspie2/window-fit.lua\"
     chmod 0644 \"\$H/.config/devilspie2/window-fit.lua\"
     runuser -u \"\$U\" -- env HOME=\"\$H\" dbus-run-session -- gsettings set org.freedesktop.ibus.general preload-engines \"['xkb:us::eng', '$input_engine']\"
-    # Reserve Ctrl+Space for cycling between English and Avro. Leave the
-    # separate enable/disable and menu shortcuts unbound to prevent conflicts.
-    # Older IBus schemas expose a singular trigger key as well as triggers;
-    # clear both so the legacy toggle does not consume Ctrl+Space first.
+    # Keep Ctrl+Space visible as IBus's Next input method key. XFCE also
+    # routes it globally for apps that do not register an IBus input context.
     runuser -u \"\$U\" -- env HOME=\"\$H\" dbus-run-session -- gsettings set org.freedesktop.ibus.general.hotkey triggers \"[]\"
     runuser -u \"\$U\" -- env HOME=\"\$H\" dbus-run-session -- sh -c 'gsettings writable org.freedesktop.ibus.general.hotkey trigger >/dev/null 2>&1 && gsettings set org.freedesktop.ibus.general.hotkey trigger "[]" || true'
-    runuser -u \"\$U\" -- env HOME=\"\$H\" dbus-run-session -- gsettings set org.freedesktop.ibus.general.hotkey next-engine \"['<Control>space']\"
+    runuser -u \"\$U\" -- env HOME=\"\$H\" dbus-run-session -- gsettings set org.freedesktop.ibus.general.hotkey next-engine \"['Control+space']\"
     runuser -u \"\$U\" -- env HOME=\"\$H\" dbus-run-session -- gsettings set org.freedesktop.ibus.general.hotkey next-engine-in-menu \"[]\"
     runuser -u \"\$U\" -- env HOME=\"\$H\" dbus-run-session -- gsettings set org.gnome.desktop.interface gtk-theme Ternux
     install -d -o \"\$U\" -g \"\$U\" -m 0755 \"\$H/.config/autostart\"
@@ -1529,6 +1528,7 @@ exec /usr/local/bin/ternux-session-bus bash -c '
   tries=0
   until { xfconf-query -c xsettings -l >/dev/null 2>&1 && pgrep -x xfdesktop >/dev/null 2>&1 && pgrep -x xfwm4 >/dev/null 2>&1; } || [ "$tries" -ge 100 ] || ! kill -0 "$session_pid" 2>/dev/null; do tries=$((tries + 1)); sleep 0.2; done
   if ! kill -0 "$session_pid" 2>/dev/null || ! pgrep -x xfdesktop >/dev/null 2>&1 || ! pgrep -x xfwm4 >/dev/null 2>&1; then echo "ERROR: XFCE session, window manager, or desktop did not become ready."; exit 1; fi
+  xfconf-query -c xfce4-keyboard-shortcuts -p "/commands/custom/<Primary>space" --create -t string -s /usr/local/bin/ternux-ibus-next-engine >/dev/null 2>&1 || echo "WARNING: Could not register the global Ctrl+Space IBus switch shortcut." >&2
   defaults_marker="$HOME/.config/ternux/desktop-defaults-v1"
   if [ ! -e "$defaults_marker" ]; then
     xfconf-query -c xsettings -p /Net/ThemeName --create -t string -s Ternux

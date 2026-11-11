@@ -1576,6 +1576,10 @@
       "source": "lib/ternux-assets/bin/ternux-ibus-session-init",
       "perm": "755"
     },
+    "lib/ternux/ternux-assets/bin/ternux-ibus-next-engine": {
+      "source": "lib/ternux-assets/bin/ternux-ibus-next-engine",
+      "perm": "755"
+    },
     "lib/ternux/ternux-assets/bin/ternux-session-bus": {
       "source": "lib/ternux-assets/bin/ternux-session-bus",
       "perm": "755"

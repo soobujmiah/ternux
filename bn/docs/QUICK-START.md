@@ -138,7 +138,10 @@ default; ছোট screen-এ compact player view ব্যবহার কর�
 ternux doctor           # সিস্টেম ডায়াগনস্টিক
 ternux doctor --json    # machine-readable output
 ternux start            # ডেস্কটপ চালু
-tx stop                 # কোন guest desktop বন্ধ করবেন বাছুন
+tx stop                 # চলমান desktop দেখুন, একটি বা একাধিক বাছুন
+tx stop db              # শুধু Debian বন্ধ
+tx stop ub              # শুধু Ubuntu বন্ধ
+tx stop alp             # শুধু Alpine বন্ধ
 tx stop --all          # সব Ternux desktop বন্ধ
 ternux repair           # সাধারণ সমস্যা সমাধান
 ternux verify           # ইনস্টলেশন যাচাই
