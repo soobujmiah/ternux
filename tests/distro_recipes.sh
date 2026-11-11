@@ -44,6 +44,39 @@ for distro in $profiles; do
     opensuse:zypper|void:xbps) ;;
     *) echo "Unexpected manager mapping: $distro=$TNX_DP_FAMILY" >&2; exit 1 ;;
   esac
+  case "$TNX_DP_FAMILY" in
+    apt|apk|pacman|dnf|zypper|xbps) ;;
+    *) echo "No supported package family for graphics: $distro=$TNX_DP_FAMILY" >&2; exit 1 ;;
+  esac
+  # Every named desktop profile must include a browser installation route.
+  case "$distro" in
+    ubuntu) grep -q 'base64 -d | bash' "$TMP/guest-${distro}-"*.sh && grep -q 'firefox-esr-latest' "$ROOT/lib/ternux-install-firefox-esr.sh" ;;
+    debian|kali|deepin|pardus) grep -q 'firefox-esr' "$TMP/guest-${distro}-"*.sh ;;
+    alpine|adelie|chimera) grep -q 'apk add firefox-esr' "$TMP/guest-${distro}-"*.sh ;;
+    archlinux|artix|manjaro) grep -q 'pacman -S.*firefox' "$TMP/guest-${distro}-"*.sh ;;
+    fedora|rockylinux) grep -q 'dnf install -y firefox' "$TMP/guest-${distro}-"*.sh ;;
+    opensuse) grep -q 'MozillaFirefox' "$TMP/guest-${distro}-"*.sh ;;
+    void) grep -q 'xbps-install -Sy firefox' "$TMP/guest-${distro}-"*.sh ;;
+  esac || { echo "Default browser install route missing from $distro recipe" >&2; exit 1; }
+  # Every named desktop recipe must install both a Mesa Gallium driver and a
+  # glxinfo provider so the VirGL route can be inspected in that guest.
+  grep -Eq 'libgl1-mesa-dri|mesa-dri-gallium|mesa-dri-drivers|Mesa-dri|mesa-dri' "$TMP/guest-${distro}-"*.sh || {
+    echo "Mesa GL driver missing from $distro recipe" >&2; exit 1;
+  }
+  grep -Eq 'mesa-utils|glx-utils|Mesa-demo-x|mesa-demos' "$TMP/guest-${distro}-"*.sh || {
+    echo "glxinfo package missing from $distro recipe" >&2; exit 1;
+  }
+  case "$distro" in
+    debian) ;; # Debian uses the separately validated, pinned Turnip payload.
+    ubuntu|kali|deepin|pardus) grep -q 'mesa-vulkan-drivers' "$TMP/guest-${distro}-"*.sh ;;
+    alpine) grep -q 'mesa-vulkan-freedreno' "$TMP/guest-${distro}-"*.sh ;;
+    chimera) grep -q 'apk add mesa-vulkan' "$TMP/guest-${distro}-"*.sh ;;
+    adelie) ;; # Native Freedreno package is not in the supported recipe yet.
+    archlinux|artix|manjaro) grep -q 'vulkan-freedreno' "$TMP/guest-${distro}-"*.sh ;;
+    fedora|rockylinux) grep -q 'mesa-vulkan-drivers' "$TMP/guest-${distro}-"*.sh ;;
+    opensuse) grep -q 'libvulkan_freedreno' "$TMP/guest-${distro}-"*.sh ;;
+    void) grep -q 'mesa-vulkan-freedreno' "$TMP/guest-${distro}-"*.sh ;;
+  esac || { echo "Native Mesa/Freedreno Vulkan package missing from $distro recipe" >&2; exit 1; }
 done
 
-echo "PASS: generated desktop, account, locale and font scripts parse for all 15 named profiles"
+echo "PASS: all 15 named profiles generate valid desktop recipes with a default browser, Mesa GL drivers, native Vulkan packages, and glxinfo providers"

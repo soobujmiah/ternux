@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# Ternux short command entrypoint. Keep this executable so `tx` works
+# in fresh shells and scripts without relying on a shell startup alias.
+set -euo pipefail
+script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
+exec bash "$script_dir/ternux" "$@"

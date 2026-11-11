@@ -44,8 +44,8 @@ Interactive terminal-এ প্রথমে checklist থেকে এক বা
 1. ডিভাইস পরীক্ষা করে (আর্কিটেকচার, Android ভার্সন, স্টোরেজ, নেটওয়ার্ক);
 2. Termux প্যাকেজ ইনস্টল করে (X11, PulseAudio, PRoot);
 3. নির্বাচিত guest profile + Xfce4 তার PRoot কন্টেইনারে ইনস্টল করে (ডিফল্ট Debian);
-4. GPU শনাক্ত করে সঠিক ড্রাইভার বসায়
-   (**Adreno → Zink/Turnip** · অন্যান্য → **VirGL**);
+4. guest profile অনুযায়ী graphics route বেছে নেয়
+   (**Debian Trixie + Adreno/KGSL → Zink/Turnip** · অন্য সব named profile → **VirGL**);
 5. অডিও, ফন্ট ও লোকেল কনফিগার করে;
 6. লঞ্চার ও শেল শর্টকাট লিখে দেয়;
 7. সবকিছু ঠিকমতো বসেছে কিনা যাচাই করে।
@@ -118,15 +118,11 @@ sysmon   ডিভাইসের সারসংক্ষেপ   clean-mesa  �
 
 ### প্রথম GUI চালু, browser ও video
 
-Fresh install-এর পর প্রথম GUI session-এ Firefox ESR থাকলে Ternux project page
-খুলবে। Browser না থাকলে project/developer link, guest command এবং host benchmark
-command-সহ একবারের welcome guide দেখাবে। প্রতি guest user-এর জন্য এটি একবারই হবে;
-পরের desktop boot-এ website redirect হবে না। Firefox optional; installer-এর
-optional software তালিকা থেকে বেছে নেওয়া যায়।
+Fresh install-এর পর প্রতিটি fresh install-এ base desktop-এই Firefox থাকবে; প্রথম GUI session-এ এটি দিয়ে Ternux project page খুলবে। project/developer link, guest command ও host benchmark-সহ welcome guide প্রতি guest user-এর জন্য একবারই দেখায়; পরের boot-এ website redirect হয় না। Ubuntu-তে Mozilla-র official ESR build বসে, কারণ Ubuntu archive-এর Firefox Snap চায় এবং Ternux PRoot-এ Snap বন্ধ রাখে।
 
 Noto Bengali font ও Avro IBus phonetic keyboard default-এ থাকে। English ও
-বাংলার মধ্যে cycle করতে IBus-এর **Next input method** shortcut **Ctrl+Space** করা থাকে। VLC, PulseAudio Volume Control, Xfce Task Manager, Mousepad text editor, Galculator, Evince PDF reader, Ternux Camera, Ternux Sound Recorder ও Ristretto image viewer base desktop-এ থাকে। Package browse/install/upgrade/remove করার Synaptic-based **Synaptic Package Manager**-ও Applications menu-তে থাকে। PDF default-এ Evince-এ খোলে; optional LibreOffice Draw দিয়ে PDF page edit ও অন্য format-এ export করা যায়। Fresh install-এ কোনো mail client install বা default নয়। দরকার হলে optional workload থেকে Evolution Mail বেছে নিন; common provider-এ OAuth ও অন্য host-এ manual IMAP/POP setup আছে। OAuth-এর জন্য Firefox ESR, অথবা Ternux bridge দিয়ে Android default browser খোলে। Xfce panel-এ Camera, Photos ও Sound Recorder-এর one-click shortcut থাকে। Systemwide graphite-emerald Ternux GTK 2/3/4 theme, Qt 5 app-এর জন্য GTK platform theme, Xfwm
-window frame, Xfce panel styling ও Ternux icon theme default। Base app, folder, Thunar action, category ও panel-এর জন্য original Ternux icon থাকে।
+বাংলার মধ্যে cycle করতে IBus-এর **Next input method** shortcut **Ctrl+Space** করা থাকে। Firefox browser, VLC, PulseAudio Volume Control, Xfce Task Manager, Mousepad text editor, Galculator, Evince PDF reader, Ternux Camera, Ternux Sound Recorder ও Ristretto image viewer base desktop-এ থাকে। Package browse/install/upgrade/remove করার Synaptic-based **Synaptic Package Manager**-ও Applications menu-তে থাকে। PDF default-এ Evince-এ খোলে; optional LibreOffice Draw দিয়ে PDF page edit ও অন্য format-এ export করা যায়। Fresh install-এ কোনো mail client install বা default নয়। দরকার হলে optional workload থেকে Evolution Mail বেছে নিন; common provider-এ OAuth ও অন্য host-এ manual IMAP/POP setup আছে। OAuth-এর জন্য Firefox ESR, অথবা Ternux bridge দিয়ে Android default browser খোলে। Xfce panel-এ Camera, Photos ও Sound Recorder-এর one-click shortcut থাকে। Systemwide graphite-emerald Ternux GTK 2/3/4 theme, Qt 5 app-এর জন্য GTK platform theme, Xfwm
+window frame, GTK app-এর নিজস্ব titlebar button-এর Ternux styling, Xfce panel ও Ternux icon theme default। Base app, folder, Thunar action, category ও panel-এর জন্য original Ternux icon থাকে।
 Uncommon বা পরে install করা app-এর neutral fallback হিসেবে Adwaita ব্যবহৃত হয়;
 Papirus inheritance নেই। Xfce Desktop settings থেকে বেছে নেওয়ার জন্য ১৫টি portrait-first Ternux wallpaper থাকে; landscape করলেও aspect ratio ঠিক থাকে;
 Aurora Circuit default। Ternux Camera Termux:API দিয়ে Android-এর front/rear camera থেকে photo তোলে এবং capture-এর পর EXIF orientation ঠিক রেখে app-এ preview দেখায়; নিচের capture control-গুলো ছোট ও গোছানো থাকে। Termux:API app-কে Camera permission দিতে হবে। ছবি Debian PRoot-এর `~/Pictures/Ternux`-এ থাকে। Termux:API-তে সাময়িকভাবে capture তৈরি করে যাচাইয়ের পর PRoot-এ কপি করা হয়; Android Gallery-তে scan করা হয় না। Ristretto ছবিগুলো খোলে। Termux:API still photo দেয়, continuous camera stream দেয় না; তাই capture-এর আগে live feed দেখানো হয় না। Sound Recorder-এ Start চাপার আগে mic চালু হয় না; প্রথমবার Android permission চাইতে পারে। AAC/M4A (default) অথবা MP3 বেছে নিয়ে Stop and save চাপুন; MP3 Debian-এর FFmpeg দিয়ে local-এ encode হয়। Recording `~/Music/Ternux`-এ সেভ হয়। ছোট X11 screen-এ welcome guide scrollable layout ও Cairo renderer ব্যবহার করে।

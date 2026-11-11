@@ -96,7 +96,7 @@ implements Vulkan on Adreno. Together they give desktop apps a genuine
 hardware path. Every layer must agree — a missing loader, ICD file or driver
 binary leaves a desktop that opens but renders on the CPU.
 
-### VirGL — other GPUs (compatibility)
+### VirGL — cross-distro GPU route
 
 ```text
 OpenGL application
@@ -111,12 +111,14 @@ OpenGL application
  Android graphics stack
 ```
 
-VirGL is ternux's compatibility route when the direct Adreno/Turnip path is
-unavailable. GL commands cross the container boundary to a host-side renderer.
-Compatibility, features and speed vary by GPU and Android build, and a software
-fallback can still occur; verify with `glxinfo -B`. Choosing VirGL is not by
-itself a failed setup, but calling it accelerated without renderer evidence
-would be.
+VirGL is the shared graphics route for Ubuntu and the other named desktop
+profiles, and the fallback when Debian cannot use its pinned Adreno/Turnip
+path. Guest Mesa's `virpipe` driver sends GL commands to the Termux host
+renderer, which uses the Android graphics stack. This makes the path available
+across the supported package-manager families; whether it is hardware-backed
+still depends on the host renderer and Android build. Check `glxinfo -B` in
+the guest: a `virpipe` renderer confirms the route, while a software renderer
+means GPU acceleration is not active.
 
 ---
 
@@ -133,12 +135,9 @@ unauthenticated audio or model service to the local network by default.
 |---|---|
 | Debian home (`/home/<user>`) | Inside the container; travels with backups |
 | Termux home (`~`) | Host side; launcher, state, scripts |
-| Shared storage (`~/storage/shared` ↔ `/sdcard`) | Android files all apps see; hidden from PRoot until an individual subdirectory is explicitly granted |
+| Shared storage (`~/storage/shared` ↔ `/sdcard`) | Android files mounted in managed guests when Termux storage permission is available |
 
-Source code and irreplaceable projects should have a Git remote backup. To work
-with a project in Android storage, grant only its directory with
-`ternux storage grant /sdcard/Folder`; Ternux does not mount the whole storage
-area by default.
+Source code and irreplaceable projects should have a Git remote backup. Android shared-storage files are available at `/sdcard` in managed guests when Termux has storage permission; run `termux-setup-storage` if the mount is missing.
 
 ---
 

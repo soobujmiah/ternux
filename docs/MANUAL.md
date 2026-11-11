@@ -410,11 +410,10 @@ launcher safely:
 ternux start
 ```
 
-The `x` shortcut runs the same command. Android shared storage is not mounted
-by default. Grant only a needed directory with `ternux storage grant
-/sdcard/Folder`; this requests Android storage permission if needed and mounts
-that directory for new guest sessions. Existing desktops need a restart to apply
-a new grant. Do not copy older `proot-distro login
+The `x` shortcut runs the same command. Managed guests expose Android shared
+storage at `/sdcard` by default when Termux has storage permission. Run
+`termux-setup-storage` once if the path is missing, then restart the guest. Files
+remain on Android shared storage and are not copied into the container. Do not copy older `proot-distro login
 --shared-tmp` launcher examples into `~/x.sh`; those use PRoot-Distro's broader
 host mounts. If `ternux start` says the launcher is missing, resume the Ternux
 installer with `ternux install`.
@@ -425,8 +424,8 @@ installer with `ternux install`.
 
 The installer creates and maintains the `tx`, `x`, `killx`, `db`/`dbr`, `ub`/`ubr`, `alp`/`alpr`, `xgo`,
 `clean-mesa` and `sysmon` shortcuts. The guest aliases use isolated PRoot
-bindings, mount only directories listed by `ternux storage grant`, and share
-`/tmp` only for commands that need it. Run `ternux install` to create or refresh the generated aliases; do not
+bindings, mount Android shared storage at `/sdcard`, and share `/tmp` only for
+commands that need it. Run `ternux install` to create or refresh the generated aliases; do not
 copy an older alias block from a previous guide.
 
 Reload and start:
@@ -519,13 +518,14 @@ uninstaller:
 
 ```bash
 ternux uninstall                 # interactive component choice
-ternux uninstall container       # confirms before deleting Debian data
-ternux uninstall all             # four scoped targets; back up first
+ternux uninstall container       # confirms before deleting the selected guest
+ternux uninstall all             # removes all Ternux-managed guests, CLI and state
 ```
 
-`container` and `all` destroy every file inside Debian. `all` still leaves
-Termux packages, the ternux CLI/libraries, repository/storage choices and the
-Termux PulseAudio configuration. In automation, pass `--yes` only as an explicit
+`container` removes the selected guest; `all` removes every Ternux-managed
+profile guest and generic image guest registered by Ternux. A failed guest removal
+preserves the CLI/state so cleanup can be retried. Both preserve Termux itself,
+shared Termux packages, unrelated PRoot guests, Android shared storage and user files. In automation, pass `--yes` only as an explicit
 acknowledgement of irreversible container deletion.
 
 The manual-only steps above do not install that CLI. To remove a manual setup,

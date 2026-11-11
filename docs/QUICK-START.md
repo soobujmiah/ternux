@@ -41,8 +41,8 @@ The installer:
 1. checks the device (architecture, Android version, storage, network);
 2. installs the Termux packages (X11, PulseAudio, PRoot);
 3. installs the selected guest profile + Xfce4 inside its PRoot container (Debian by default);
-4. detects your GPU and picks the right driver
-   (**Adreno → Zink/Turnip** · other → **VirGL**);
+4. selects a graphics route for the guest profile
+   (**Adreno/KGSL → native distro Zink/Freedreno where packaged** · Debian uses validated Turnip · VirGL compatibility route);
 5. configures audio, fonts and locale;
 6. writes the `x` launcher and shell shortcuts;
 7. verifies everything landed.
@@ -112,16 +112,16 @@ clean-mesa clear the Mesa shader cache
 
 ### First GUI run, browser and video
 
-After a fresh install, the first GUI session opens the Ternux project page in
-Firefox ESR if it is installed. Without a browser, it shows a one-time welcome
-guide with project/developer links, guest commands and the host benchmark
-command. This happens once per guest user; later desktop boots do not redirect
-to the website. Firefox remains optional; choose it from the installer’s
-optional software list.
+After a fresh install, the first GUI session opens the Ternux project page in the
+included Firefox ESR. The one-time welcome also provides project/developer links,
+guest commands and the host benchmark command. It appears once per guest user;
+later desktop boots do not redirect to the website. Debian-family guests use their
+native Firefox ESR package; Ubuntu uses Mozilla’s official Linux build because its
+archive Firefox package depends on Snap, which Ternux disables in PRoot.
 
-Noto Bengali fonts and the Avro IBus phonetic keyboard are installed by default. The IBus **Next input method** shortcut is **Ctrl+Space**, cycling between English and Bangla. VLC, PulseAudio Volume Control, Xfce Task Manager, Mousepad, Galculator, Evince PDF reader, Ternux Camera, Ternux Sound Recorder, Ristretto, and **Synaptic Package Manager** are included in the base desktop. Synaptic uses the Ternux icon and theme; open it from the Applications menu to browse, install, upgrade, or remove Debian packages. Evince opens PDFs by default; optional LibreOffice Draw provides PDF page editing and export to other formats. No mail client is installed or set as default. Evolution Mail is optional; choose it from the workload selector when needed. It supports common-provider OAuth and manual IMAP/POP setup, opening Firefox ESR or the Android default browser through Ternux for OAuth. One-click Camera, Photos, and Sound Recorder shortcuts are on the Xfce panel.
+Noto Bengali fonts and the Avro IBus phonetic keyboard are installed by default. The IBus **Next input method** shortcut is **Ctrl+Space**, cycling between English and Bangla. Firefox browser, VLC, PulseAudio Volume Control, Xfce Task Manager, Mousepad, Galculator, Evince PDF reader, Ternux Camera, Ternux Sound Recorder, Ristretto, and **Synaptic Package Manager** are included in the base desktop. Synaptic uses the Ternux icon and theme; open it from the Applications menu to browse, install, upgrade, or remove Debian packages. Evince opens PDFs by default; optional LibreOffice Draw provides PDF page editing and export to other formats. No mail client is installed or set as default. Evolution Mail is optional; choose it from the workload selector when needed. It supports common-provider OAuth and manual IMAP/POP setup, opening Firefox ESR or the Android default browser through Ternux for OAuth. One-click Camera, Photos, and Sound Recorder shortcuts are on the Xfce panel.
 
-The systemwide Ternux graphite-and-emerald GTK 2/3/4 theme styles applications, menus, and the Xfce panel; Qt 5 apps use the GTK platform theme; custom Ternux Xfwm frames style window borders and title bars. Original Ternux icons cover the base apps, folders, Thunar actions, categories, and panel. Adwaita supplies neutral fallback icons for uncommon or newly installed applications; Papirus is not inherited. Fifteen original portrait-first Ternux wallpapers are selectable in Xfce Desktop settings. Xfce keeps their aspect ratio in landscape; Aurora Circuit is the default.
+The systemwide Ternux graphite-and-emerald GTK 2/3/4 theme styles applications, menus, and the Xfce panel; Qt 5 apps use the GTK platform theme; custom Ternux Xfwm frames style window borders and title bars; GTK client-side titlebar buttons use matching visible controls too. Original Ternux icons cover the base apps, folders, Thunar actions, categories, and panel. Adwaita supplies neutral fallback icons for uncommon or newly installed applications; Papirus is not inherited. Fifteen original portrait-first Ternux wallpapers are selectable in Xfce Desktop settings. Xfce keeps their aspect ratio in landscape; Aurora Circuit is the default.
 
 Ternux Camera lists Android front and rear cameras and captures photos through Termux:API. Grant Camera permission to the Termux:API Android app; the app previews each photo after capture with EXIF orientation corrected and saves it inside Debian at `~/Pictures/Ternux`; its capture is staged privately in Termux home and copied into PRoot. No Android Gallery scan is performed. Ristretto opens the photos. Termux:API provides still-photo capture, not a continuous camera stream, so the app does not show a live camera feed before capture. Ternux Sound Recorder requests microphone access only when you press Start (Android permission is requested during setup when the API is available; otherwise it prompts on first use). Choose AAC/M4A (default) or MP3, then press Stop and save; files stay at `~/Music/Ternux` inside Debian. MP3 export uses FFmpeg locally.
 
@@ -157,8 +157,9 @@ it is documented in the [CLI Reference](CLI.html).
 - A configured **Zink/Turnip or VirGL graphics route** for OpenGL apps; verify
   the actual renderer rather than assuming acceleration.
 - **Sound** bridged to the phone speakers/headphones.
-- Optional **shared storage**: grant one Android folder with
-  `ternux storage grant /sdcard/Folder`; no user files are exposed by default.
+- **Android shared storage** is available at `/sdcard` in each Ternux guest by
+  default. If it is missing, grant Termux Android storage permission with
+  `termux-setup-storage` and restart the guest.
 
 ## Android 12+? One important note
 

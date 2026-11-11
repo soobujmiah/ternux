@@ -5,8 +5,10 @@ lang: "en"
 alt_url: "/bn/docs/CLI.html"
 ---
 
-The `ternux` CLI is the permanent management interface for installation,
-diagnostics, repair, benchmarking, desktop lifecycle, and system information.
+The host package installs both `tx` and `ternux` in `$PREFIX/bin`; either runs
+the same management CLI for installation, diagnostics, repair, benchmarking,
+desktop lifecycle, and system information. `tx` is an executable wrapper, so it
+works in fresh shells and scripts without relying on a startup-file alias.
 
 This reference describes the full **Termux host** command installed at
 `$PREFIX/bin/ternux`. The Debian/Xfce terminal has a separate guest-aware
@@ -20,7 +22,7 @@ presence by itself is not considered a successful CLI installation.
 ## Usage
 
 ```bash
-ternux <command> [options] [subcommand]
+tx <command> [options] [subcommand]
 ```
 
 ## Global flags
@@ -50,7 +52,7 @@ Run `ternux guides` in the Termux host or Debian/Xfce guest to print direct inst
 
 ### `ternux storage`
 
-Android shared storage is hidden from PRoot by default. Grant an existing directory below `/sdcard` to mount only that directory for generic guest commands and future desktop sessions. The storage root itself is rejected. Granting requests Android storage permission only when needed. Revoke removes the grant; an already-running desktop keeps its current mounts until that session exits.
+Android shared storage is mounted at `/sdcard` for managed guest commands and desktop sessions when Termux has Android storage permission. Run `termux-setup-storage` once if it is unavailable. The `storage grant` command remains available for legacy scoped mounts; an already-running desktop keeps its current mounts until that session exits.
 
 ```bash
 ternux storage list
@@ -88,7 +90,7 @@ ternux install [options]
 
 The 15 named desktop profiles are `debian`, `ubuntu`, `alpine`, `archlinux`, `fedora`, `opensuse`, `void`, `kali`, `artix`, `chimera`, `deepin`, `manjaro`, `pardus`, `rockylinux`, and `adelie`. The guest prompt lists these profiles with family-matched recipes. Debian is recommended and device-verified; all other profiles are currently unverified. Use the checklist for interactive multi-select; for automation, pass comma-separated aliases to `--distros`. Each desktop profile gets independent state and a tagged Termux:X11 display. `xgo` lists installed guests and identifies shell-only images. The distro picker uses the same keyboard checklist as optional apps: Up/Down or `j`/`k` moves, Space or a number toggles, Enter confirms, and `q` keeps the current default profile. Multiple guests are selected in one pass; a numbered comma list is available when raw-key input is unavailable. Before changes, the installer shows the chosen guest, backend, user, workloads, and storage estimate for confirmation. If an optional workload fails after the base desktop verifies, the guest remains marked ready, the UI reports a warning, and `ternux install --resume` retries the unfinished phase while the command returns nonzero.
 
-Use `tx` as a short alias for `ternux`. `tx distro list` shows all installed PRoot guests and marks which ones have a Ternux desktop recipe. `tx distro search QUERY` searches PRoot-Distro OCI images. `tx distro shell NAME` and `tx distro exec NAME -- COMMAND` work with any installed guest. Use `tx distro image-install IMAGE[:TAG] [NAME]` to install a generic OCI image; such an image is shell-ready. Named aliases map to APT (Debian, Ubuntu, Kali, Deepin, Pardus), APK (Alpine, Adelie, Chimera), pacman (Arch Linux, Artix, Manjaro), DNF (Fedora, Rocky Linux), Zypper (openSUSE), or XBPS (Void). Arbitrary OCI images are shell-ready but do not receive a desktop automatically. Optional software workloads currently target APT guests. Desktop management is `tx start NAME`, `tx stop [NAME|--all]`, `tx restart NAME`, and `tx status NAME`. Desktop profiles open in separate tagged Termux:X11 windows and may run concurrently. With multiple sessions, interactive `tx stop` prompts for one or more guests; `tx stop --all` stops all Ternux desktop sessions. An explicit `tx stop NAME` affects only that guest. The named distro aliases in `tx distro list` report which profiles have recipes; Debian alone is device-verified. Short shells: `db`/`dbr` Debian, `ub`/`ubr` Ubuntu, `alp`/`alpr` Alpine, `archx`/`archroot` Arch, `fed`/`fedr` Fedora, `suse`/`suser` openSUSE, `vsh`/`vroot` Void, and `kal`/`kalr` Kali; each pair opens user/root shells.
+Use the installed `tx` command as the short interface; `ternux` remains available for compatibility. `tx distro list` shows all installed PRoot guests and marks which ones have a Ternux desktop recipe. `tx distro search QUERY` searches PRoot-Distro OCI images. `tx distro shell NAME` and `tx distro exec NAME -- COMMAND` work with any installed guest. Use `tx distro image-install IMAGE[:TAG] [NAME]` to install a generic OCI image; such an image is shell-ready. Named aliases map to APT (Debian, Ubuntu, Kali, Deepin, Pardus), APK (Alpine, Adelie, Chimera), pacman (Arch Linux, Artix, Manjaro), DNF (Fedora, Rocky Linux), Zypper (openSUSE), or XBPS (Void). Arbitrary OCI images are shell-ready but do not receive a desktop automatically. Optional software workloads currently target APT guests. Desktop management is `tx start NAME`, `tx stop [NAME|--all]`, `tx restart NAME`, and `tx status NAME`. Desktop profiles open in separate tagged Termux:X11 windows and may run concurrently. With multiple sessions, interactive `tx stop` prompts for one or more guests; `tx stop --all` stops all Ternux desktop sessions. An explicit `tx stop NAME` affects only that guest. The named distro aliases in `tx distro list` report which profiles have recipes; Debian alone is device-verified. Short shells: `db`/`dbr` Debian, `ub`/`ubr` Ubuntu, `alp`/`alpr` Alpine, `archx`/`archroot` Arch, `fed`/`fedr` Fedora, `suse`/`suser` openSUSE, `vsh`/`vroot` Void, and `kal`/`kalr` Kali; each pair opens user/root shells.
 
 With no workload flags, an interactive install opens the categorized checklist.
 Use Up/Down or `j`/`k` to move, Space or an item's number to select multiple

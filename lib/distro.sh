@@ -42,14 +42,24 @@ tnx_cmd_distro() {
       ;;
     image-install)
       [ "$#" -ge 2 ] && [ "$#" -le 3 ] || { tnx_fail "Usage: ternux distro image-install IMAGE[:TAG] [NAME]"; return 2; }
-      local image="$2" alias_name="${3:-}"
+      local image="$2" alias_name="${3:-}" marker_dir marker
       [[ "$image" =~ ^[a-zA-Z0-9._:/@-]+$ ]] || { tnx_fail "Image reference contains unsupported characters."; return 2; }
-      if [ -n "$alias_name" ]; then
-        [[ "$alias_name" =~ ^[a-zA-Z0-9][a-zA-Z0-9._-]*$ ]] || { tnx_fail "Guest name must start with a letter or number and use only letters, numbers, dot, underscore or hyphen."; return 2; }
-        proot-distro install --name "$alias_name" "$image"
-      else
-        proot-distro install "$image"
+      if [ -z "$alias_name" ]; then
+        alias_name="${image##*/}"
+        alias_name="${alias_name%%:*}"
+        alias_name="$(printf '%s' "$alias_name" | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9._-' '-')"
+        alias_name="${alias_name#-}"; alias_name="${alias_name%-}"
       fi
+      [[ "$alias_name" =~ ^[a-zA-Z0-9][a-zA-Z0-9._-]*$ ]] || { tnx_fail "Guest name must start with a letter or number and use only letters, numbers, dot, underscore or hyphen."; return 2; }
+      _tnx_distro_installed "$alias_name" && { tnx_fail "Guest '$alias_name' already exists; choose another name."; return 1; }
+      marker_dir="${TERNUX_STATE_DIR:-$HOME/.local/share/ternux}/managed-guests"
+      [ ! -L "$marker_dir" ] || { tnx_fail "Refusing symlinked Ternux guest registry."; return 1; }
+      mkdir -p "$marker_dir" || { tnx_fail "Could not create the Ternux guest registry."; return 1; }
+      marker="$marker_dir/$alias_name"
+      [ ! -e "$marker" ] && [ ! -L "$marker" ] || { tnx_fail "A Ternux guest registry entry already exists for '$alias_name'."; return 1; }
+      (umask 077; printf '%s\n' "$image" > "$marker") || { tnx_fail "Could not register guest '$alias_name' for uninstall."; return 1; }
+      proot-distro install --name "$alias_name" "$image" || { tnx_warn "Guest install failed or was interrupted; its registry entry is kept so tx uninstall can clean up a partial container."; return 1; }
+      tnx_ok "Generic guest '$alias_name' installed and registered for tx uninstall."
       ;;
     shell|exec)
       [ "$#" -ge 2 ] || { tnx_fail "Usage: ternux distro $action NAME [-- COMMAND ...]"; return 2; }

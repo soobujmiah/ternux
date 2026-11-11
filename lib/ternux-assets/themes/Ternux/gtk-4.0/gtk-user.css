@@ -1,0 +1,13 @@
+/* Ternux managed high-priority GTK4 application styling. */
+* { color: #e4f3eb; background-color: #101816; background-image: none; }
+window, dialog, .background { background-color: #101816; }
+headerbar, .titlebar, toolbar, menubar, menu, popover, tooltip,
+notebook > header, notebook > header > tabs, notebook > header > tabs > tab,
+statusbar, statusbar > box { color: #e4f3eb; background-color: #17221e; background-image: none; }
+button, button.image-button, togglebutton, combobox, combobox button,
+combobox entry, spinbutton, spinbutton button { color: #e4f3eb; background-color: #202e28; background-image: none; border-color: #34483e; }
+button.flat { background-color: transparent; }
+button:hover, togglebutton:hover, notebook > header > tabs > tab:hover { color: #39e68c; background-color: #293c32; }
+button:checked, button:active, togglebutton:checked, *:selected { color: #ffffff; background-color: #08784c; }
+entry, textview text, view, treeview.view, scale trough, progressbar trough { color: #e4f3eb; background-color: #0c1311; }
+scale highlight, progressbar progress, levelbar block.filled { background-color: #39e68c; }

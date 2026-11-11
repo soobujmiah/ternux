@@ -190,29 +190,55 @@
       "severity": "P1",
       "owner": "engineering",
       "status": "PARTIAL",
-      "source_status": "PARTIAL",
+      "source_status": "PASS",
       "ci_status": "PASS",
-      "device_status": "NOT_TESTED",
+      "device_status": "PARTIAL",
       "evidence": [
-        "lib/core.sh: guest commands load only individually authorized Android storage directories from a private allowlist; absent allowlist means no /sdcard mount.",
+        "lib/core.sh: guest commands bind Android shared storage to /sdcard when Termux permission is already available; Termux HOME stays isolated.",
         "lib/storage.sh: ternux storage list/grant/revoke validates existing subdirectories, records canonical source and exact guest target, rejects the storage root and unsafe path mappings, and uses atomic private state updates.",
-        "lib/phases.sh: install no longer requests shared storage permission; generated desktop launcher and db/droot aliases validate and use the same scoped grants; repeated install refreshes only its marked shell alias block.",
+        "lib/phases.sh: managed desktop launcher binds Android shared storage to /sdcard when available; repeated install refreshes only its marked shell alias block.",
         "Documentation updated in docs/FAQ.md and bn/docs/FAQ.md, docs/MANUAL.md and bn/docs/MANUAL.md, docs/USAGE.md and bn/docs/USAGE.md, docs/CLI.md and bn/docs/CLI.md, plus both READMEs and quick-start guides.",
         "PR #139 exact head 53344d9a69a7f7a3019b10840a7495aaf56f548d passed Validate 42897454459, Termux package artifact 42897454586, repo-contract 42897311193 and 42897454513, and Repo Knowledge Sync/test 42897454842.",
         "Merged product head eaf97fc514c045193e7ef5968a95d1b26c449f9c passed Validate 42897720583, Termux package artifact 42897720810, Repository State Contract 42897720730 and Repo Knowledge Sync 42897720595; generated-state PR #140 then passed all checks and merged as 3c03dffa4ba07a2c0355613560c0768b45022c96.",
-        "Historical device evidence on the previously installed v2.0.0 package confirmed its old broad /sdcard bind; the running desktop has not been restarted, and that legacy session remains outside this source change."
+        "Historical device evidence on the previously installed v2.0.0 package confirmed its old broad /sdcard bind; the running desktop has not been restarted, and that legacy session remains outside this source change.",
+        "2026-11-11 source/device follow-up: Ubuntu was the only installed profile; regenerated its managed launcher, restarted the :1 desktop, confirmed GTK_THEME=Ternux in the live xfce4-session environment, checked /sdcard inside the guest, and ran the focused default-mount regression. Exact native package install remains a separate P1-PKG gate."
       ],
       "required_tests": [
-        "verify generic guest login has no shared-storage binds without an allowlist",
-        "verify explicit grants mount only their exact canonical subdirectories and reject tampered/out-of-root entries",
-        "verify generated desktop and db/droot aliases use only scoped grants and preserve Termux HOME isolation",
-        "verify installer does not invoke termux-setup-storage automatically",
-        "install updated package and verify a new guest session has no /sdcard access before an explicit grant"
+        "verify generic guest and managed desktop sessions bind /sdcard when Termux storage permission is available",
+        "verify storage-unavailable sessions report the setup-storage recovery step without exposing other host paths",
+        "install updated package and verify a fresh guest can access its /sdcard mount",
+        "verify default /sdcard is available in the selected managed guest while Termux HOME remains isolated"
       ],
       "acceptance_criteria": [
-        "Shared storage stays unmounted by default; only explicitly granted canonical subdirectories are visible to new guest sessions.",
-        "No automatic Android storage permission prompt; grants and revocations are documented and behave consistently for CLI and desktop sessions.",
+        "When Termux already has Android storage permission, each managed guest exposes Android shared files at /sdcard by default; Ternux does not request permission silently.",
+        "Termux HOME and unrelated host paths remain isolated; a missing Android storage mount has a documented permission recovery path.",
         "Termux HOME remains isolated and updated-package behavior is verified on the supported Termux device."
+      ],
+      "release_blocking": true,
+      "release_exclusion": null
+    },
+    {
+      "phase": "Stage 2",
+      "issue_id": "P1-09",
+      "severity": "P1",
+      "owner": "engineering",
+      "status": "PARTIAL",
+      "source_status": "PASS",
+      "ci_status": "NOT_TESTED",
+      "device_status": "PARTIAL",
+      "evidence": [
+        "lib/phases.sh installs a default browser in every named package-family desktop profile and fails setup if no usable package route succeeds.",
+        "Debian-family guests prefer firefox-esr; Ubuntu uses Mozilla’s official ESR tarball because its archive firefox package is a Snap bridge and Ternux disables Snap in PRoot.",
+        "tests/distro_recipes.sh checks browser routes in all 15 named profile recipes; local run passed on 2026-11-11.",
+        "On 2026-11-11, the live Ubuntu guest reported Mozilla Firefox 153.7.0esr and its desktop entry passed desktop-file-validate. This validates an existing guest install, not a clean first-time browser install on every profile."
+      ],
+      "required_tests": [
+        "verify clean base install resolves and launches Firefox on each package-family profile or reports a direct actionable failure",
+        "verify Ubuntu uses Mozilla ESR without Snap and Firefox opens the first-run project URL only once"
+      ],
+      "acceptance_criteria": [
+        "Every supported fresh desktop has a usable Firefox browser by default; no optional checklist selection is required.",
+        "Ubuntu does not depend on Snap in PRoot; other supported profiles use their native Firefox package manager route."
       ],
       "release_blocking": true,
       "release_exclusion": null
@@ -387,14 +413,17 @@
         "Current-main artifact run 42906685681 produced artifact ID 13805237072 for the same product source; GitHub reports it retained through 2027-02-08 under the updated 90-day workflow policy. This still is not a native package lifecycle test.",
         "Latest exact-main package artifact run 42911714820 passed on 159806ff395a34349086504ae3055ddef21ddbec. This session observes the existing desktop running, but its managed filesystem scope excludes native $PREFIX writes; no Termux package was changed and no native package lifecycle was claimed.",
         "Post-reconciliation exact-main package artifact run 42914923198 passed on 7bfac09c026ecd093da1e2ac1b7426bd36a6a0b5; this remains CI package evidence and does not close native install/update/repair/uninstall.",
-        "Current exact-main package artifact run 42916453776 passed on c3d318dfe9e2e6dadc73c33198b92f2dd4eeb33a; CI artifact evidence does not close native install/update/repair/uninstall."
+        "Current exact-main package artifact run 42916453776 passed on c3d318dfe9e2e6dadc73c33198b92f2dd4eeb33a; CI artifact evidence does not close native install/update/repair/uninstall.",
+        "2026-11-11 source regression: uninstall all enumerates Ternux profile guests and Ternux-registered generic image guests, preserves unrelated PRoot guests, and leaves state/CLI intact after a failed guest removal; tests/focused.sh covers the boundaries."
       ],
       "required_tests": [
         "clean install/update/repair/uninstall in native Termux",
-        "metadata and checksum verification"
+        "metadata and checksum verification",
+        "verify tx uninstall all removes all registered Ternux guests and preserves unrelated PRoot guests and user shared storage"
       ],
       "acceptance_criteria": [
-        "Reproducible package metadata/integrity and clean lifecycle install pass on supported Termux."
+        "Reproducible package metadata/integrity and clean lifecycle install pass on supported Termux.",
+        "Full removal deletes every Ternux-managed guest/container and host-owned file while preserving Termux, shared Termux packages, unrelated PRoot guests, Android shared storage and user-created media."
       ],
       "release_blocking": true,
       "release_exclusion": null

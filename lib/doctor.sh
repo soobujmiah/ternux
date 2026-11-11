@@ -499,63 +499,62 @@ tnx_cmd_verify() {
     fi
   done
 
-  # Launcher
-  if [ -x "$HOME/x.sh" ]; then
+  # Selected guest and its generated launcher
+  local distro launcher backend guest_installed=0
+  distro="$(tnx_distro)"
+  launcher="$(tnx_distro_state_dir "$distro")/launcher.sh"
+  if [ -x "$launcher" ] || { [ "$distro" = debian ] && [ -x "$HOME/x.sh" ]; }; then
     checks+=("launcher:present")
-    [ "${TERNUX_JSON:-0}" != "1" ] && tnx_ok "Launcher executable"
+    [ "${TERNUX_JSON:-0}" != "1" ] && tnx_ok "${distro} launcher executable"
   else
     checks+=("launcher:missing"); rc=1
-    [ "${TERNUX_JSON:-0}" != "1" ] && tnx_fail "Launcher missing"
+    [ "${TERNUX_JSON:-0}" != "1" ] && tnx_fail "${distro} launcher missing"
   fi
 
-  # Debian container
-  if tnx_debian_installed; then
-    checks+=("debian:installed")
+  if tnx_proot_container_installed "$distro"; then
+    guest_installed=1
+    checks+=("${distro}:installed")
     if tnx_guest_login --user "${TERNUX_USER:-ternux}" -- bash -c 'command -v startxfce4 >/dev/null && command -v pactl >/dev/null && sudo -n true >/dev/null' 2>/dev/null; then
-      checks+=("debian_services:ok")
-      [ "${TERNUX_JSON:-0}" != "1" ] && tnx_ok "Debian services verified"
+      checks+=("${distro}_services:ok")
+      [ "${TERNUX_JSON:-0}" != "1" ] && tnx_ok "${distro} desktop services verified"
     else
-      checks+=("debian_services:failed"); rc=1
-      [ "${TERNUX_JSON:-0}" != "1" ] && tnx_fail "Debian desktop services or passwordless sudo are incomplete"
+      checks+=("${distro}_services:failed"); rc=1
+      [ "${TERNUX_JSON:-0}" != "1" ] && tnx_fail "${distro} desktop services or passwordless sudo are incomplete"
     fi
   else
-    checks+=("debian:not_installed"); rc=1
-    [ "${TERNUX_JSON:-0}" != "1" ] && tnx_warn "Debian not installed"
+    checks+=("${distro}:not_installed"); rc=1
+    [ "${TERNUX_JSON:-0}" != "1" ] && tnx_warn "${distro} not installed"
   fi
 
-  # GPU driver
-  local backend
-  backend="$(tnx_canonical_backend "$(tnx_state_get "backend")")"
+  # Check the backend recorded for this guest. Distro-specific GPU payloads
+  # have different managed paths: Debian keeps an apt-safe /usr/local copy,
+  # while exact-match upstream distro archives install their /usr tree payload.
+  backend="$(tnx_canonical_backend "$(tnx_distro_state_get "$distro" backend 2>/dev/null || tnx_state_get "backend")")"
   if [ "$backend" = "zink" ]; then
-    # A Turnip newer than Debian's is what makes the Adreno visible to Vulkan at
-    # all, so where it lives decides whether apt can take it away. The managed
-    # layout keeps it under /usr/local, outside dpkg's reach; the fragile layout
-    # overwrites a dpkg-owned path and is reverted by any mesa upgrade. See
-    # docs/GRAPHICS-PERSISTENCE.md.
-    local turnip_layout="unknown"
-    if tnx_has_cmd proot-distro; then
+    local turnip_layout="missing" asset_kind=""
+    asset_kind="$(tnx_state_get "freedreno_asset_kind" 2>/dev/null || true)"
+    if [ "$guest_installed" -eq 1 ]; then
       turnip_layout="$(tnx_guest_login -- bash -c '
-        if [ -f /usr/local/lib/aarch64-linux-gnu/libvulkan_freedreno.so ] \
-           && [ -f /usr/local/share/vulkan/icd.d/ternux_freedreno_icd.json ]; then
+        if [ -f /usr/local/lib/aarch64-linux-gnu/libvulkan_freedreno.so ] &&
+           [ -f /usr/local/share/vulkan/icd.d/ternux_freedreno_icd.json ] &&
+           [ -f /usr/local/share/doc/ternux/mesa-27.0.0-devel-20261025/README.md ]; then
           echo managed
-        elif [ -f /usr/share/vulkan/icd.d/freedreno_icd.aarch64.json ]; then
-          echo fragile
+        elif find /usr -name zink_dri.so -print -quit 2>/dev/null | grep -q . &&
+             find /usr -name "libvulkan_freedreno.so*" -print -quit 2>/dev/null | grep -q . &&
+             find /usr -path "*/vulkan/icd.d/freedreno_icd*.json" -print -quit 2>/dev/null | grep -q .; then
+          echo distro
         else
           echo missing
         fi' 2>/dev/null)"
     fi
     case "$turnip_layout" in
-      managed)
+      managed|distro)
         checks+=("turnip:present")
-        [ "${TERNUX_JSON:-0}" != "1" ] && tnx_ok "Turnip driver present (apt-safe layout)"
-        ;;
-      fragile)
-        checks+=("turnip:fragile"); rc=1
-        [ "${TERNUX_JSON:-0}" != "1" ] && tnx_warn "Turnip driver is on a dpkg-owned path; a mesa upgrade will revert it. See docs/GRAPHICS-PERSISTENCE.md"
+        [ "${TERNUX_JSON:-0}" != "1" ] && tnx_ok "Turnip driver present (${turnip_layout} Mesa layout)"
         ;;
       *)
         checks+=("turnip:missing"); rc=1
-        [ "${TERNUX_JSON:-0}" != "1" ] && tnx_warn "Turnip files missing"
+        [ "${TERNUX_JSON:-0}" != "1" ] && tnx_warn "Turnip files missing for ${distro}"
         ;;
     esac
   elif [ "$backend" = "virgl" ]; then

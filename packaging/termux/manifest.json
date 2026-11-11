@@ -1515,6 +1515,34 @@
     "lib/ternux/workload-registry.sh": {
       "source": "lib/workload-registry.sh",
       "perm": "644"
+    },
+    "lib/ternux/ternux-install-firefox-esr.sh": {
+      "source": "lib/ternux-install-firefox-esr.sh",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/synaptic.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/synaptic.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/python3.14.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/python3.14.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/actions/document-print-preview.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/actions/document-print-preview.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/gtk-3.0/gtk-user.css": {
+      "source": "lib/ternux-assets/themes/Ternux/gtk-3.0/gtk-user.css",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/gtk-4.0/gtk-user.css": {
+      "source": "lib/ternux-assets/themes/Ternux/gtk-4.0/gtk-user.css",
+      "perm": "644"
+    },
+    "bin/tx": {
+      "source": "bin/tx",
+      "perm": "755"
     }
   }
 }

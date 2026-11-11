@@ -53,6 +53,18 @@ tnx_distro_verified() {
   return 1
 }
 
+# Prefer native Mesa Zink/Turnip on Adreno/KGSL for every distro profile.
+# Each guest installs its own distro-built Mesa/Freedreno packages; Debian's
+# separately pinned asset remains specific to the validated Debian profile.
+tnx_gpu_backend_auto() {
+  local distro="${1:-$(tnx_distro)}"
+  if [ "$distro" != adelie ] && [ -e "${TERNUX_KGSL_DEVICE:-/dev/kgsl-3d0}" ]; then
+    printf 'zink'
+  else
+    printf 'virgl'
+  fi
+}
+
 # True when the name is one ternux has a profile for at all.
 tnx_distro_known() {
   case " $TERNUX_DISTRO_KNOWN " in
@@ -151,16 +163,22 @@ tnx_distro_profile() {
 tnx_storage_guest_args() {
   local -n _tnx_login_args="$1"
   local file="$TERNUX_STATE_DIR/storage-allowlist" host guest root resolved expected_guest extra
+  # Android shared storage is a standard guest mount, matching the default
+  # SD Card desktop shortcut. Termux must already have storage permission.
+  root="$(realpath -e /sdcard 2>/dev/null || true)"
+  if [ -n "$root" ] && [ -d "$root" ]; then
+    _tnx_login_args+=(--bind "$root:/sdcard")
+  fi
   [ -e "$file" ] || return 0
   [ ! -L "$file" ] && [ -f "$file" ] || { echo "Unsafe Ternux storage allowlist; refusing storage mounts." >&2; return 1; }
-  root="$(realpath -e /sdcard 2>/dev/null)" || { echo "Granted Android storage is unavailable; run termux-setup-storage and retry." >&2; return 1; }
+  [ -n "$root" ] && [ -d "$root" ] || { echo "Granted Android storage is unavailable; run termux-setup-storage and retry." >&2; return 1; }
   while IFS=$'\t' read -r host guest extra; do
     [ -n "$host" ] || continue
     expected_guest="/sdcard/${host#"$root"/}"
     [ -z "$extra" ] && [[ "$host" == "$root"/* && "$host" != *:* && "$guest" == "$expected_guest" && "$guest" != *:* ]] || { echo "Out-of-scope Ternux storage grant; refusing storage mounts." >&2; return 1; }
     resolved="$(realpath -e -- "$host" 2>/dev/null)" || { echo "A granted storage directory is no longer available: $guest" >&2; return 1; }
     [ "$resolved" = "$host" ] && [ -d "$host" ] || { echo "A granted storage directory changed identity: $guest" >&2; return 1; }
-    _tnx_login_args+=(--bind "$host:$guest")
+    if [ "$guest" != /sdcard ] || [ -z "$root" ]; then _tnx_login_args+=(--bind "$host:$guest"); fi
   done < "$file"
 }
 

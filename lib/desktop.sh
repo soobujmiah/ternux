@@ -80,9 +80,10 @@ tnx_wait_for_desktop_ready() {
 # The X server runs as a background service, but Android only displays its
 # desktop when Termux:X11's activity is in the foreground.
 tnx_show_x11_activity() {
-  local tag="${1:-}"
+  local tag="${1:-}" distro="$(tnx_distro)" mode_file=""
+  mode_file="$(tnx_distro_session_dir "$distro")/x11-display-mode"
   command -v am >/dev/null 2>&1 || return 0
-  if [ -n "$tag" ]; then
+  if [ -n "$tag" ] && [ "$(cat "$mode_file" 2>/dev/null || true)" != shared ]; then
     am start --user 0 -n com.termux.x11/com.termux.x11.MainActivity -d "$tag" >/dev/null 2>&1 || true
   else
     am start -n com.termux.x11/com.termux.x11.MainActivity >/dev/null 2>&1 || true
@@ -145,6 +146,23 @@ _tnx_stop_select() {
   [ "${#selected[@]}" -gt 0 ] || { tnx_info "No sessions selected."; return 0; }
   for selected_name in "${selected[@]}"; do tnx_cmd_stop "$selected_name" || rc=1; done
   return "$rc"
+}
+
+# Remove only a provably stale display socket left behind after the X11
+# server died. Unknown/unowned sockets and any live server are left untouched.
+tnx_remove_stale_x11_socket() {
+  local display_num="${1:-}" tmpdir="${TMPDIR:-/data/data/com.termux/files/usr/tmp}"
+  local socket lock server_pid
+  [[ "$display_num" =~ ^[0-9]{1,2}$ ]] || return 1
+  socket="$tmpdir/.X11-unix/X$display_num"
+  lock="$tmpdir/.X$display_num-lock"
+  [ -S "$socket" ] && [ ! -L "$socket" ] && [ -f "$lock" ] && [ ! -L "$lock" ] || return 1
+  IFS= read -r server_pid < "$lock" || return 1
+  server_pid="${server_pid//[[:space:]]/}"
+  [[ "$server_pid" =~ ^[0-9]+$ ]] || return 1
+  kill -0 "$server_pid" 2>/dev/null && return 1
+  pgrep -f '^termux-x11 com\.termux\.x11([[:space:]]|$)' >/dev/null 2>&1 && return 1
+  rm -f -- "$socket" "$lock"
 }
 
 # ---------------------------------------------------------------------------
@@ -252,6 +270,9 @@ tnx_cmd_start() {
   # A different tagged display can run concurrently. Refuse only when this
   # guest's own X socket is occupied but its managed desktop is not ready.
   if [ -S "${TMPDIR:-/data/data/com.termux/files/usr/tmp}/.X11-unix/X$display_num" ]; then
+    if tnx_remove_stale_x11_socket "$display_num"; then
+      tnx_info "Removed the stale socket and lock for unused display $display."
+    else
     if [ "${TERNUX_JSON:-0}" = "1" ]; then
       tnx_fail "Display $display is occupied but the Ternux readiness probe failed; refusing to replace it."
       tnx_json_object "start" "error" "reason" "unresponsive_existing_x11"
@@ -261,6 +282,7 @@ tnx_cmd_start() {
     tnx_fail "Display $display is already occupied but did not pass Ternux readiness; refusing to replace it."
     exec 9>&-
     return 1
+    fi
   fi
 
   local configured_backend

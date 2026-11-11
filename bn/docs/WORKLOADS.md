@@ -32,7 +32,7 @@ Model weight user-এর নিজের। `--with-llm` এখনও llama.cpp 
 managed CPU + Vulkan extension থেকে আলাদা। `--yes` ও non-interactive run-এ flag না
 থাকলে শুধু base profile বসে।
 
-Base desktop-এ Debian package browse, install, upgrade ও remove করার Ternux-branded Synaptic Package Manager থাকে। এটি APT package metadata ব্যবহার করে এবং system polkit daemon লাগে না। Scientific calculator Galculator ও lightweight default PDF reader Evince-ও থাকে। PDF page edit ও অন্য format-এ export করতে optional LibreOffice Draw নেওয়া যায়। Fresh install-এ কোনো mail client install বা default করা হয় না। Optional workload থেকে Evolution Mail নিতে পারবেন; common provider-এ OAuth login ব্যবহার করে, আর অন্য mail host-এর জন্য manual IMAP/POP setup দেয়। OAuth Firefox ESR থাকলে সেটি, না থাকলে Ternux browser bridge দিয়ে Android-এর default browser-এ খোলে। Optional catalog-এ LibreOffice Writer, Calc ও Draw আলাদা item হিসেবে আছে। এ ছাড়া Go, PHP, SQLite, ripgrep, jq, htop, tree, Micro ও Thonny-ও পাওয়া যায়। Celestia জ্যোতির্বিজ্ঞানের simulator-ও optional item; default desktop-এ এটি বসে না। Chooser [Celestia project-এর Debian install নির্দেশনা](https://github.com/CelestiaProject/Celestia/blob/master/INSTALL.md#basic-installation-instructions) অনুসরণ করে Debian 13 OBS feed ব্যবহার করে (বর্তমানে 1.7 development snapshot)। Install-এর আগে feed key fingerprint, signed package index এবং প্রতিটি ARM64 package checksum যাচাই করে; কাজ শেষে temporary APT source সরিয়ে দেয়।
+প্রতিটি fresh guest-এর base desktop-এ Firefox থাকে। Debian-family profile native Firefox ESR package নেয়; Ubuntu-তে Snap বন্ধ থাকায় Mozilla-র official Firefox ESR build বসে, কারণ Ubuntu-র `firefox` package Snap bridge। Alpine, Arch, Fedora, openSUSE ও Void-এর native Firefox package ব্যবহৃত হয়। কোনো profile-এ browser package candidate না থাকলে browser ছাড়াই setup complete না করে সরাসরি error দেখায়। Base desktop-এ Debian package browse, install, upgrade ও remove করার Ternux-branded Synaptic Package Manager থাকে। এটি APT package metadata ব্যবহার করে এবং system polkit daemon লাগে না। Scientific calculator Galculator ও lightweight default PDF reader Evince-ও থাকে। PDF page edit ও অন্য format-এ export করতে optional LibreOffice Draw নেওয়া যায়। Fresh install-এ কোনো mail client install বা default করা হয় না। Optional workload থেকে Evolution Mail নিতে পারবেন; common provider-এ OAuth login ব্যবহার করে, আর অন্য mail host-এর জন্য manual IMAP/POP setup দেয়। OAuth-এ default Firefox ESR খোলে; সেটি চালু না হলে Ternux browser bridge দিয়ে Android-এর default browser-এ খোলে। LibreOffice Writer, Calc ও Draw optional catalog-এ আলাদা item হিসেবে আছে। এ ছাড়া Go, PHP, SQLite, ripgrep, jq, htop, tree, Micro ও Thonny-ও পাওয়া যায়। Celestia জ্যোতির্বিজ্ঞানের simulator-ও optional item; default desktop-এ এটি বসে না। Chooser [Celestia project-এর Debian install নির্দেশনা](https://github.com/CelestiaProject/Celestia/blob/master/INSTALL.md#basic-installation-instructions) অনুসরণ করে Debian 13 OBS feed ব্যবহার করে (বর্তমানে 1.7 development snapshot)। Install-এর আগে feed key fingerprint, signed package index এবং প্রতিটি ARM64 package checksum যাচাই করে; কাজ শেষে temporary APT source সরিয়ে দেয়।
 
 Install শুরুর আগে Ternux নির্বাচিত optional software অনুযায়ী আনুমানিক storage
 estimate দেখায়; এতে download ও setup-এর অস্থায়ী জায়গাও ধরা হয়। Terminal যথেষ্ট
@@ -51,7 +51,7 @@ estimate দেখায়; এতে download ও setup-এর অস্থা
 | Blender | `--with-blender` | headless EEVEE render-এর জন্য Blender ও Xvfb (Blender প্রায় ৯৫ MB, `--no-install-recommends` সহ) |
 | সবকিছু | `--all` | পাঁচটিই |
 
-Interactive menu-তে Firefox ESR, Godot, Blender, Neovim, GitHub CLI, Claude Code,
+Interactive menu-তে Godot, Blender, Neovim, GitHub CLI, Claude Code,
 Codex, Hermes, OpenClaw এবং ADT-এর Android component-ও আলাদা item। ADT Platform
 Tools-এর মধ্যে `adb` ও `fastboot` আছে। Ternux এগুলো ADT-র `setup.sh` দিয়ে বসায়;
 Debian-এর আলাদা `android-tools-adb` package ব্যবহার করে না।
@@ -62,7 +62,7 @@ Termux:Widget, Termux:Boot ও Termux:Styling-এর মতো Android companion
 থেকে নয়। [Termux-এর official app ও add-on project](https://github.com/termux/termux-app)
 এবং [Termux:X11-এর official project](https://github.com/termux/termux-x11) দেখুন।
 
-XFCE session শুরু হলে optional Firefox ESR ইনস্টল থাকলে Ternux-এর ওয়েবসাইট খুলবে।
+প্রথম XFCE session-এ default Firefox ESR দিয়ে Ternux-এর ওয়েবসাইট একবার খুলবে।
 
 বেস desktop — Xfce4, terminal, VLC, archive tool, Mesa utility, Vulkan tool —
 সবসময় বসে; এতে প্রায় ৪–৪.৫ GB storage লাগে। VLC catalog-এ আলাদা করে বেছে নেওয়া যায়,
@@ -114,7 +114,7 @@ sudo apt install -y nmap tmux
 sudo apt install -y neovim gh
 ```
 
-Firefox ESR software menu-তে পাওয়া ঐচ্ছিক ARM64 browser package।
+Firefox ESR সব fresh guest-এ default install হবে। Debian-family native package ব্যবহার করে; Ubuntu-তে Mozilla-র official ARM64 ESR build বসে, কারণ Ubuntu archive-এর Firefox Snap shim।
 
 **মিডিয়া**
 

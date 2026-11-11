@@ -13,18 +13,19 @@
 
 _tnx_uninstall_usage() {
   cat <<'EOF'
-Usage: ternux uninstall [session|launcher|state|container|host-cli|all] [--yes]
+Usage: tx uninstall [session|launcher|state|container|host-cli|all] [--yes]
+       ternux uninstall [session|launcher|state|container|host-cli|all] [--yes]
 
   session    Stop the Ternux-owned desktop session and remove its state markers
   launcher   Remove ~/x.sh and ternux shell aliases
-  state      Remove Ternux state and its logs (not the Debian container)
-  container  Delete the selected Debian PRoot container
+  state      Remove Ternux state and its logs (not guest containers)
+  container  Delete the selected Ternux desktop guest
   host-cli   Remove the APT-managed or source-installed Termux CLI
-  all        Remove Ternux desktop, guest, state, caches and host CLI
+  all        Remove Ternux-managed guests, desktop, state, caches and host CLI
 
 Numeric aliases 1..6 select the same actions in that order.
-Termux itself and shared Termux packages are kept. Container and all require
-confirmation unless --yes is explicit.
+Termux itself, shared Termux packages, Android shared storage and unrelated
+PRoot guests are kept. Container and all require confirmation unless --yes.
 EOF
 }
 
@@ -42,7 +43,7 @@ _tnx_uninstall_confirm() {
 _tnx_uninstall_stop() {
   # Reuse the ownership-checked lifecycle path. Shared Termux:X11 and PulseAudio
   # processes/sockets are not terminated or removed during uninstall.
-  tnx_cmd_stop
+  tnx_cmd_stop --all
 }
 
 _tnx_uninstall_launcher() {
@@ -98,6 +99,19 @@ _tnx_uninstall_launcher() {
   return "$rc"
 }
 
+_tnx_uninstall_stale_asset_stages() {
+  local prefix="${PREFIX:-/data/data/com.termux/files/usr}"
+  local temp_root="${TMPDIR:-$prefix/tmp}" stage removed=0
+  [ -d "$temp_root" ] && [ ! -L "$temp_root" ] || return 0
+  for stage in "$temp_root"/ternux-assets.*; do
+    [ -d "$stage" ] && [ ! -L "$stage" ] || continue
+    [ -d "$stage/icons/Ternux" ] && [ -d "$stage/themes/Ternux" ] && [ -d "$stage/wallpapers" ] || continue
+    rm -rf -- "$stage" || return 1
+    removed=$((removed + 1))
+  done
+  [ "$removed" -eq 0 ] || tnx_ok "Removed $removed stale Ternux asset staging director(y/ies)"
+}
+
 _tnx_uninstall_state() {
   local prefix="${PREFIX:-/data/data/com.termux/files/usr}"
   local log_dir="${TERNUX_LOG_DIR:-${TMPDIR:-$prefix/tmp}/ternux}"
@@ -129,7 +143,7 @@ _tnx_uninstall_state() {
 
 _tnx_uninstall_host_cli() {
   local prefix="${PREFIX:-/data/data/com.termux/files/usr}"
-  local bin="$prefix/bin/ternux" lib="$prefix/lib/ternux"
+  local bin="$prefix/bin/ternux" tx="$prefix/bin/tx" lib="$prefix/lib/ternux"
   local completion="$prefix/share/bash-completion/completions/ternux"
   local docs="$prefix/share/doc/ternux"
   local status=""
@@ -170,6 +184,13 @@ _tnx_uninstall_host_cli() {
     fi
     rm -f "$bin"
   fi
+  if [ -e "$tx" ] || [ -L "$tx" ]; then
+    if [ -L "$tx" ] || [ ! -f "$tx" ] || ! grep -q '^# Ternux short command entrypoint\.' "$tx"; then
+      tnx_fail "Refusing to remove an unrecognized short command at $tx"
+      return 1
+    fi
+    rm -f "$tx"
+  fi
   if [ -e "$lib" ] || [ -L "$lib" ]; then
     if [ -L "$lib" ] || [ ! -f "$lib/core.sh" ] || ! grep -q '^TERNUX_VERSION=' "$lib/core.sh"; then
       tnx_fail "Refusing to remove an unrecognized module tree at $lib"
@@ -183,21 +204,66 @@ _tnx_uninstall_host_cli() {
   tnx_ok "Source-installed ternux CLI and recognized files removed"
 }
 
+_tnx_uninstall_remove_guest() {
+  local name="$1"
+  [[ "$name" =~ ^[a-zA-Z0-9][a-zA-Z0-9._-]*$ ]] || { tnx_warn "Skipping invalid managed guest name: $name"; return 1; }
+  if ! tnx_proot_container_installed "$name"; then
+    tnx_info "Managed guest '$name' is already absent"
+    return 0
+  fi
+  if proot-distro remove "$name"; then
+    tnx_ok "Managed guest '$name' removed"
+    return 0
+  fi
+  tnx_fail "Could not remove managed guest '$name'"
+  return 1
+}
+
 _tnx_uninstall_container() {
+  local target="${1:-$(tnx_distro)}"
   if ! tnx_has_cmd proot-distro; then
-    tnx_info "proot-distro is not installed; no Debian container was removed"
+    tnx_info "proot-distro is not installed; no guest container was removed"
     return 0
   fi
-  if ! tnx_debian_installed; then
-    tnx_info "No installed Debian container found"
+  if ! tnx_proot_container_installed "$target"; then
+    tnx_info "Guest '$target' is not installed"
     return 0
   fi
-  if ! _tnx_uninstall_confirm "Permanently delete the Debian container and its files?"; then
-    tnx_warn "Container removal cancelled"
+  if ! _tnx_uninstall_confirm "Permanently delete the Ternux guest '$target' and its files?"; then
+    tnx_warn "Guest removal cancelled"
     return 1
   fi
-  proot-distro remove "$(tnx_distro)" || { tnx_fail "Could not remove the Debian container"; return 1; }
-  tnx_ok "Debian container removed"
+  _tnx_uninstall_remove_guest "$target"
+}
+
+_tnx_uninstall_all_managed_guests() {
+  local name rc=0 marker_dir="${TERNUX_STATE_DIR:-$HOME/.local/share/ternux}/managed-guests"
+  local -a guests=()
+  local known
+  for known in $TERNUX_DISTRO_KNOWN; do
+    [ -f "$(tnx_distro_state_dir "$known")/profile" ] && guests+=("$known")
+  done
+  # Include the old single-profile install only when Ternux's persistent
+  # installation state explicitly names that distro (or carries its legacy
+  # state file). Never treat the default distro name alone as ownership.
+  known="$(tnx_state_get distro 2>/dev/null || true)"
+  if [ -n "$known" ] && { [ -f "$TERNUX_STATE_DIR/state" ] || [ -f "$HOME/.ternux-state" ]; } && tnx_proot_container_installed "$known"; then
+    case " ${guests[*]} " in *" $known "*) ;; *) guests+=("$known") ;; esac
+  fi
+  # Generic OCI guests are managed only when Ternux recorded their explicit
+  # image-install marker. This avoids deleting unrelated proot-distro guests.
+  if [ -d "$marker_dir" ] && [ ! -L "$marker_dir" ]; then
+    while IFS= read -r -d '' marker; do
+      name="${marker##*/}"
+      case " ${guests[*]} " in *" $name "*) ;; *) guests+=("$name") ;; esac
+    done < <(find "$marker_dir" -mindepth 1 -maxdepth 1 -type f -print0 2>/dev/null)
+  fi
+  if [ "${#guests[@]}" -eq 0 ]; then
+    tnx_info "No Ternux-managed guest containers are installed"
+    return 0
+  fi
+  for name in "${guests[@]}"; do _tnx_uninstall_remove_guest "$name" || rc=1; done
+  return "$rc"
 }
 
 tnx_cmd_uninstall() {
@@ -218,8 +284,8 @@ ternux uninstall
   1) Stop desktop services
   2) Remove launcher and aliases
   3) Remove state and logs
-  4) Delete Debian container
-  5) Remove all Ternux-managed components, including its CLI
+  4) Delete selected Ternux guest
+  5) Remove all Ternux-managed components and guests, including its CLI
   6) Remove only the Termux host CLI
   0) Cancel
 EOF
@@ -239,7 +305,7 @@ EOF
     3|state) _tnx_uninstall_state ;;
     4|container) _tnx_uninstall_stop; _tnx_uninstall_container ;;
     5|all)
-      if ! _tnx_uninstall_confirm "Remove Ternux, its Termux CLI, state, caches, and Debian container?"; then
+      if ! _tnx_uninstall_confirm "Remove Ternux, its Termux CLI, state, caches, and all Ternux-managed guest containers?"; then
         tnx_warn "Removal cancelled"
         return 1
       fi
@@ -249,9 +315,14 @@ EOF
       local rc=0
       _tnx_uninstall_stop || rc=1
       _tnx_uninstall_launcher || rc=1
-      _tnx_uninstall_container || rc=1
-      _tnx_uninstall_state || rc=1
-      _tnx_uninstall_host_cli || rc=1
+      if _tnx_uninstall_all_managed_guests; then
+        _tnx_uninstall_stale_asset_stages || rc=1
+        _tnx_uninstall_state || rc=1
+        _tnx_uninstall_host_cli || rc=1
+      else
+        tnx_fail "Some managed guests remain; preserving Ternux state and CLI so cleanup can be retried."
+        rc=1
+      fi
       return "$rc"
       ;;
     6|host-cli) _tnx_uninstall_host_cli ;;

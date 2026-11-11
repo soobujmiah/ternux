@@ -1,8 +1,9 @@
 # Ternux Termux APT package
 
 This package installs the Ternux host CLI and its shell modules. It does not
-run the desktop/container installer during `pkg install`; after installing the
-package, the user explicitly starts provisioning with `ternux install`.
+run the desktop/container installer during `pkg install`; it provides both
+`tx` and `ternux` commands. After installing the package, explicitly start
+provisioning with `tx install`.
 
 ## Build a package
 

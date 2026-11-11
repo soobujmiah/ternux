@@ -18,8 +18,12 @@
 </div>
 
 Ternux sets up an Xfce4 guest in Termux using PRoot. Debian is the recommended, device-verified default. Named profiles map Debian-family aliases to APT, Alpine-family aliases to APK, Arch-family aliases to pacman, Fedora-family aliases to DNF, openSUSE to Zypper, and Void to XBPS; arbitrary OCI images remain available as shell guests. Optional workload installs are currently APT-family only. Termux:X11 displays the
-desktop and PulseAudio connects sound. Graphics use Zink/Turnip on supported
-Adreno devices or VirGL as a compatibility route. Results vary by device.
+desktop and PulseAudio connects sound. All 15 named desktop profiles install Mesa GL support. On Adreno/KGSL, auto
+prefers Zink with each distro’s own Mesa/Freedreno packages where available;
+Debian Trixie uses its validated Turnip payload. VirGL is the compatibility
+route. Android graphics stacks may still fall back to software rendering.
+Android graphics stacks may fall back to software rendering, so inspect
+`glxinfo -B` inside the guest.
 
 Ternux is designed as a lightweight, managed Linux workstation for Android:
 install once, start the desktop in the background, and use the `ternux` CLI to
@@ -77,13 +81,9 @@ tx distro search alpine # search available OCI images
 
 Use `tx stop --all` to close every managed Ternux desktop. Each Ternux desktop guest gets its own tagged Termux:X11 window and separate settings. Install multiple profiles with `tx install --distros debian,ubuntu,alpine`; each receives the family-matched Ternux base desktop. `xgo` lists every installed guest and asks which desktop to start when there is more than one. Generic images without a Ternux package recipe are shown as shell-only. Debian remains the only device-verified profile; other package-family profiles need target-device qualification.
 
-The `x` shortcut starts the saved desktop; `xgo` opens Termux:X11 and asks which installed desktop guest to start. `tx` is the short CLI command. Use `db`/`dbr`, `ub`/`ubr`, `alp`/`alpr`, `archx`/`archroot`, `fed`/`fedr`, `suse`/`suser`, `vsh`/`vroot`, or `kal`/`kalr` for the corresponding user/root shells when those guests are installed. Use `tx distro shell NAME` or `tx distro exec NAME -- COMMAND` for any installed PRoot guest. Search PRoot-Distro images with `tx distro search QUERY`; install a generic OCI image with `tx distro image-install IMAGE[:TAG] [NAME]`. Generic images provide guest shells. Named distro profiles use the matching package-manager recipe; arbitrary OCI images provide guest shells until a family recipe is added. Shared Android storage is
-not mounted by default. Grant only a needed folder, then restart the desktop or
-open a new guest shell to use it:
-
-```bash
-ternux storage grant /sdcard/Llms
-```
+The `x` shortcut starts the saved desktop; `xgo` opens Termux:X11 and asks which installed desktop guest to start. `tx` is the short CLI command. Use `db`/`dbr`, `ub`/`ubr`, `alp`/`alpr`, `archx`/`archroot`, `fed`/`fedr`, `suse`/`suser`, `vsh`/`vroot`, or `kal`/`kalr` for the corresponding user/root shells when those guests are installed. Use `tx distro shell NAME` or `tx distro exec NAME -- COMMAND` for any installed PRoot guest. Search PRoot-Distro images with `tx distro search QUERY`; install a generic OCI image with `tx distro image-install IMAGE[:TAG] [NAME]`. Generic images provide guest shells. Named distro profiles use the matching package-manager recipe; arbitrary OCI images provide guest shells until a family recipe is added. Android shared storage is mounted at `/sdcard` in every managed guest by default, so
+models and files are available directly. Termux must have Android storage permission;
+use `termux-setup-storage` once if `/sdcard` is missing.
 
 ## What you get
 
@@ -93,16 +93,16 @@ includes Bangla-capable Noto fonts and Avro phonetic input (Ctrl+Space); other
 profiles use their distro font and keyboard packages. The base desktop includes VLC,
 PulseAudio Volume Control, Xfce Task Manager, Mousepad, Galculator, Evince PDF
 reader, Ternux Camera, Ternux Sound Recorder,
-Ristretto image viewer. Debian-family APT guests also include Synaptic Package Manager, which uses Ternux branding and manages guest packages. App availability follows each distro family; optional workloads currently target APT guests. Evince is
+Ristretto image viewer, and Firefox browser. Debian-family APT guests also include Synaptic Package Manager, which uses Ternux branding and manages guest packages. App availability follows each distro family; optional workloads currently target APT guests. Evince is
 the default PDF reader; LibreOffice Draw is optional for editing PDF pages and exporting documents to other formats.
 Celestia is available as an optional astronomy simulator and is not installed by default. No mail client is installed or set as default. Evolution is available as an optional
 mail client; common providers can use OAuth, and other hosts support manual IMAP/POP
-setup. OAuth opens Firefox ESR when installed or the Android default browser through
-the Ternux bridge. One-click Camera, Photos, and Sound Recorder shortcuts
+setup. Firefox is installed in every fresh guest and handles OAuth in the guest;
+the Android default browser remains the fallback. One-click Camera, Photos, and Sound Recorder shortcuts
 are on the Xfce panel. Qt5 applications such as VLC use the matching GTK platform theme. The systemwide graphite-and-emerald Ternux GTK theme covers apps, menus,
 and panel; custom Ternux Xfwm frames cover window borders and title bars. The
 Ternux icon theme uses original app, folder, Thunar-action, category, and panel
-icons, plus branded aliases for optional GUI apps such as Firefox ESR, Blender, GIMP,
+icons, plus branded aliases for optional GUI apps such as Blender, GIMP,
 Krita, Inkscape, Audacity, Geany, and LibreOffice; Evince is a base app; Evolution has a branded icon when selected from optional software. Thunar actions have their own
 icon context. Adwaita remains the neutral fallback for uncommon or newly installed apps;
 Papirus is not inherited. Fifteen selectable portrait-first branded wallpapers preserve
@@ -112,15 +112,17 @@ permission is granted to the Termux:API app. Each photo appears in the app previ
 default image viewer. Termux:API provides still-photo capture; it does not expose a continuous camera stream for live preview.
 Ternux Sound Recorder captures only after you press Start. Save as AAC/M4A by default, or choose MP3; MP3 is encoded locally with Debian FFmpeg. Recordings stay inside Debian at `~/Music/Ternux`.
 
-A one-time first-run welcome opens the project website in Firefox ESR when
-installed; without a browser it shows an in-desktop welcome guide. Firefox is
-optional.
+A one-time first-run welcome opens the project website in the included Firefox ESR.
+Ubuntu uses Mozilla’s official ESR build because Ubuntu’s archive Firefox package
+requires Snap, which Ternux disables in PRoot.
 
-**Graphics:** automatic Zink + Turnip setup for supported Adreno/KGSL devices,
-with VirGL as a compatibility route. Use `ternux verify` and
-`glxinfo -B` inside Debian to inspect the active renderer; a desktop opening
-does not by itself prove hardware acceleration. `ternux gpu` and
-`ternux backend` inspect and manage the driver route. See
+**Graphics:** every named desktop profile installs its distro's Mesa GL driver
+and a GPU route. On Adreno/KGSL, auto prefers native distro Mesa Zink and
+Freedreno where packages exist; Debian Trixie uses the tested direct Zink +
+Turnip stack. VirGL is the compatibility route through the Android host graphics
+stack. Hardware acceleration depends on the guest packages, device and Android
+build. Use `ternux verify` and `glxinfo -B` inside the guest to inspect the
+renderer; opening a desktop alone does not prove hardware acceleration. `ternux gpu` and `ternux backend` inspect and manage the route. See
 [graphics persistence](docs/GRAPHICS-PERSISTENCE.md).
 
 **Optional software:** the interactive installer lets you choose individual

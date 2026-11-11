@@ -17,6 +17,36 @@ tnx_distro_state_set ubuntu backend virgl
 [ "$(tnx_distro_state_get debian backend)" = zink ]
 [ "$(tnx_distro_state_get ubuntu backend)" = virgl ]
 [ "$(tnx_distro_state_get debian backend)" != "$(tnx_distro_state_get ubuntu backend)" ]
+# On Adreno, prefer distro-native Zink/Freedreno for profiles with package
+# support; Adélie currently falls back to the shared VirGL/virpipe route.
+TERNUX_KGSL_DEVICE="$TMP/kgsl-present"
+: > "$TERNUX_KGSL_DEVICE"
+[ "$(tnx_gpu_backend_auto debian)" = zink ]
+for distro in $TERNUX_DISTRO_KNOWN; do
+  if [ "$distro" = adelie ]; then
+    [ "$(tnx_gpu_backend_auto "$distro")" = virgl ]
+  else
+    [ "$(tnx_gpu_backend_auto "$distro")" = zink ]
+  fi
+done
+[ "$(tnx_gpu_backend_auto ubuntu)" = zink ]
+[ "$(tnx_gpu_backend_auto alpine)" = zink ]
+# All profiles emit Zink for Adreno/KGSL, with distro-native driver packages
+# installed by their family recipe; VirGL remains the explicit compatibility route.
+for distro in $TERNUX_DISTRO_KNOWN; do
+  unset _TNX_DISTRO
+  export TERNUX_DISTRO="$distro"
+  tnx_phase_launcher ternux auto en_US.UTF-8 >/dev/null
+  launcher="$TERNUX_STATE_DIR/distros/$distro/launcher.sh"
+  if [ "$distro" != adelie ]; then
+    grep -q -- '--env MESA_LOADER_DRIVER_OVERRIDE=zink' "$launcher"
+  else
+    grep -q -- '--env GALLIUM_DRIVER=virpipe' "$launcher"
+    grep -q 'virgl_test_server_android' "$launcher"
+  fi
+done
+rm -f "$TERNUX_KGSL_DEVICE"
+[ "$(tnx_gpu_backend_auto debian)" = virgl ]
 
 tnx_distro_profile ubuntu
 [ "$TNX_DP_FAMILY" = apt ] && [ "$TNX_DP_EXTRA_HOLD" = snapd ]
@@ -24,7 +54,14 @@ tnx_distro_profile ubuntu
 tnx_install_single() { printf '%s\n' "$*" >> "$TMP/install-calls"; }
 proot-distro() {
   case "$*" in
-    'list --quiet') printf 'alpine\ndebian\nubuntu\n' ;;
+    'list --quiet')
+      printf 'debian\nubuntu\n'
+      [ ! -e "$TMP/alpine-image-installed" ] || printf 'alpine\n'
+      ;;
+    'install --name alpine alpine:latest')
+      : > "$TMP/alpine-image-installed"
+      printf '%s\n' "$*" >> "$TMP/proot-calls"
+      ;;
     *) printf '%s\n' "$*" >> "$TMP/proot-calls" ;;
   esac
 }
@@ -38,7 +75,13 @@ if tnx_install --distros debian,debian >/dev/null 2>&1; then exit 1; fi
 
 # Guest shell/exec routes through the selected distro and keeps the established
 # isolated-login plus scoped storage behavior.
-tnx_proot_container_installed() { return 0; }
+tnx_proot_container_installed() {
+  case "$1" in
+    debian|ubuntu) return 0 ;;
+    alpine) [ -e "$TMP/alpine-image-installed" ] ;;
+    *) return 1 ;;
+  esac
+}
 tnx_guest_login() { printf '%s|%s\n' "$TERNUX_DISTRO" "$*" >> "$TMP/login-calls"; }
 tnx_cmd_distro shell ubuntu
 [ "$(cat "$TMP/login-calls")" = 'ubuntu|' ]

@@ -95,7 +95,7 @@ def main():
     add_section(content, "PROJECT & DEVELOPER", "Maintained by Sobuj Miah\nsoobujmiah.github.io/ternux\ngithub.com/soobujmiah/ternux")
     add_section(content, "QUICK USAGE", "Apps: Applications menu · Xfce Terminal\nCommands: ternux info / status / doctor\nBangla Avro: Ctrl+Space switches language.")
     add_section(content, "GPU BENCHMARK", "Termux host: ternux benchmark\nKeep the desktop open while it runs. Scores are measurements, not guarantees.")
-    add_section(content, "MORE", "Firefox ESR is optional; return to Termux with Android Back or the session switcher.")
+    add_section(content, "MORE", "Firefox is included; return to Termux with Android Back or the session switcher.")
 
     footer = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL)
     footer.set_border_width(12)

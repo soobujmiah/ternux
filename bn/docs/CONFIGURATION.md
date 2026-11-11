@@ -18,7 +18,7 @@ ternux যুক্তিসঙ্গত ডিফল্ট নিয়ে ই�
 |---|---|---|
 | `--user NAME` | `ternux` | বেছে নেওয়া প্রতিটি কন্টেইনারে তৈরি guest user |
 | `--locale LANG` | `en_US.UTF-8` | ডেস্কটপ লোকেল (বাংলার জন্য নিচে দেখুন) |
-| `--backend` | `auto` | `auto` Adreno শনাক্ত করে → `zink`, নয়তো `virgl` |
+| `--backend` | `auto` | Adreno/KGSL থাকলে native distro Mesa Zink/Freedreno প্রাধান্য পায়; Debian Trixie-তে validated Turnip payload, অন্য distro-তে তাদের নিজস্ব package, Adélie-তে VirGL |
 | `--zsh` | বন্ধ | Termux শেলও zsh-এ বদলায় |
 | `--with-*` | কিছুই না | ঐচ্ছিক ওয়ার্কলোড প্রোফাইল |
 

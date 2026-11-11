@@ -391,11 +391,11 @@ launcher নিরাপদে refresh করার জন্য Ternux lifecycl
 ternux start
 ```
 
-`x` shortcut একই command চালায়। Android shared storage default-এ mount হয়
-না। দরকারি folder-এর জন্য `ternux storage grant /sdcard/Folder` চালান; অনুমতি
-না থাকলে এটি Android storage permission চাইবে এবং নতুন guest session-এ শুধু ওই
-folder mount করবে। নতুন grant চালু করতে চলমান desktop restart করতে হবে। পুরোনো `proot-distro login --shared-tmp` launcher example
-`~/x.sh`-এ কপি করবেন না—ওগুলো PRoot-Distro-এর বিস্তৃত host mount ব্যবহার করে।
+`x` shortcut একই command চালায়। Termux-এর Android storage permission থাকলে
+managed guest-এ shared storage default-এ `/sdcard` হিসেবে mount হয়। Path না
+থাকলে Termux-এ `termux-setup-storage` চালিয়ে desktop restart করুন। পুরোনো
+`proot-distro login --shared-tmp` launcher example `~/x.sh`-এ কপি করবেন না—ওগুলো
+PRoot-Distro-এর বিস্তৃত host mount ব্যবহার করে।
 `ternux start` launcher missing বললে Ternux installer `ternux install` দিয়ে
 resume করুন।
 
@@ -405,7 +405,7 @@ resume করুন।
 
 ইনস্টলার `tx`, `x`, `killx`, `db`/`dbr`, `ub`/`ubr`, `alp`/`alpr`, `xgo`, `clean-mesa` এবং `sysmon`
 shortcut তৈরি ও রক্ষণাবেক্ষণ করে। Guest alias isolated PRoot binding ব্যবহার
-করে, শুধু `ternux storage grant`-এ থাকা folder mount করে এবং দরকারে `/tmp` share করে। Alias তৈরি বা refresh
+করে, Android shared storage `/sdcard`-এ mount করে এবং দরকারে `/tmp` share করে। Alias তৈরি বা refresh
 করতে `ternux install` চালান; পুরোনো guide-এর alias block কপি করবেন না।
 
 রিলোড করে শুরু করুন:
@@ -494,13 +494,15 @@ confirmation স্পষ্ট রাখতে তার scoped uninstaller ব
 
 ```bash
 ternux uninstall                 # interactive component choice
-ternux uninstall container       # Debian data delete করার আগে confirm
-ternux uninstall all             # Ternux CLI ও guest-সহ সব managed component
+ternux uninstall container       # selected guest delete করার আগে confirm
+ternux uninstall all             # সব Ternux-managed guest, CLI ও state remove করে
 ```
 
-`container`/`all` Debian-এর ভেতরের সব data ধ্বংস করে। `all` Ternux host CLI ও
-update backup-ও সরায়; Termux নিজে, shared package, অন্য PRoot guest এবং non-empty
-capture folder থাকে। Automation-এ `--yes` শুধু explicit irreversible confirmation হিসেবে দিন।
+`container` selected guest মুছে; `all` Ternux-এর managed profile এবং Ternux-র
+নিবন্ধিত generic image guest সরায়। কোনো guest delete ব্যর্থ হলে retry করার জন্য
+CLI ও state রেখে দেয়। Termux নিজে, shared package, unrelated PRoot guest,
+Android shared storage ও user file অক্ষত থাকে। Automation-এ `--yes` explicit
+confirmation হিসেবেই ব্যবহার করুন।
 
 উপরের manual-only ধাপগুলো CLI install করে না। Manual setup সরাতে Termux থেকে
 scoped uninstaller চালান:

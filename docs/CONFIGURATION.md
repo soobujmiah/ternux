@@ -17,7 +17,7 @@ explains every knob, where it lives, and *why* it is set the way it is.
 |---|---|---|
 | `--user NAME` | `ternux` | Guest user created inside each selected container |
 | `--locale LANG` | `en_US.UTF-8` | Desktop locale (see below for Bangla) |
-| `--backend` | `auto` | `auto` detects Adreno → `zink`, else `virgl` |
+| `--backend` | `auto` | `auto` prefers native distro Mesa Zink/Freedreno on Adreno/KGSL where that profile has packages; Debian Trixie uses its validated Turnip payload, other guests use their own distro packages, and Adélie uses VirGL |
 | `--zsh` | off | Switch the Termux shell to zsh as well |
 | `--with-*` | none | Optional workload profiles |
 

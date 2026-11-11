@@ -66,7 +66,7 @@ Unknown models remain labeled as unavailable instead of being guessed.
 
 ### Audio and VLC controls
 
-Fresh installs apply Ternux's graphite-and-emerald GTK 2/3/4 and Xfwm theme, Qt 5 GTK platform theme, branded app, folder, Thunar-action, category, and panel icon mappings with neutral Adwaita fallbacks, and the Ternux panel defaults across Xfce. Optional GUI apps such as Firefox ESR, Blender, GIMP, Krita, Inkscape, Audacity, Geany, and LibreOffice also have branded icon aliases; the base Evince PDF reader has one too. Common Thunar actions are stored in their own icon context. Fifteen portrait-first wallpapers preserve their aspect ratio in landscape. Apps using other toolkits may keep their own styling. PulseAudio Volume Control uses Debian's packaged application entry and the same desktop session. Xfwm compositing stays disabled because enabling it can make the whole Termux:X11 desktop black. VLC uses its full interface by default so playback controls remain visible. Android storage is not mounted by default. Use `ternux storage grant /sdcard/Folder` to expose one folder; the desktop shortcut then opens only granted folders.
+Fresh installs apply Ternux's graphite-and-emerald GTK 2/3/4 and Xfwm theme, Qt 5 GTK platform theme, branded app, folder, Thunar-action, category, and panel icon mappings with neutral Adwaita fallbacks, and the Ternux panel defaults across Xfce. Optional GUI apps such as Firefox ESR, Blender, GIMP, Krita, Inkscape, Audacity, Geany, and LibreOffice also have branded icon aliases; the base Evince PDF reader has one too. Common Thunar actions are stored in their own icon context. Fifteen portrait-first wallpapers preserve their aspect ratio in landscape. Apps using other toolkits may keep their own styling. PulseAudio Volume Control uses Debian's packaged application entry and the same desktop session. Xfwm compositing stays disabled because enabling it can make the whole Termux:X11 desktop black. VLC uses its full interface by default so playback controls remain visible. Android shared storage is mounted at `/sdcard` by default for managed guests, so model paths work without copying. Run `termux-setup-storage` once if the path is unavailable.
 
 ---
 
@@ -146,9 +146,8 @@ Termux host                          PRoot Debian
 - **Debian home** is inside the container — it travels with a
   `proot-distro backup` and is deleted with the container.
 - **`~/storage/shared`** (Termux) and **`/sdcard`** (Debian) refer to Android
-  shared storage. Ternux does not mount it by default. Grant only a specific
-  folder with `ternux storage grant /sdcard/Folder`; revoke it with
-  `ternux storage revoke /sdcard/Folder`.
+  shared storage. Ternux mounts it at `/sdcard` in managed guests when Android storage permission
+  is available. Run `termux-setup-storage` if the mount is missing.
 - **Source code you care about** should also live in a Git remote. A phone is
   easy to lose and containers are easy to delete — GitHub is not.
 
@@ -265,8 +264,8 @@ Terminal-based coding assistants work inside the container; account and
 licence terms are between you and the provider.
 
 *Tip:* run `git` inside the container (`db`), but push from wherever is
-convenient. Android shared storage is only visible to the guest after you grant
-that specific directory.
+convenient. Android shared storage is visible at `/sdcard` in managed guest sessions
+when Termux storage permission is available.
 
 ### Authorised security lab
 
