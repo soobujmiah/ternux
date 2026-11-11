@@ -14,7 +14,7 @@ Everything you need for day-to-day life with a Linux desktop in your pocket.
 `ternux start` starts the desktop as a managed background session and returns
 when the X11 display is ready. Startup output is kept in
 `~/.local/share/ternux/session/desktop.log` (the previous log is rotated at
-1 MiB). Use `tx status`, `tx stop`, or `tx logs desktop tail` to manage and inspect it. Debian and Ubuntu use separate tagged Termux:X11 displays, so both can stay open at once. With several running, `tx stop` lets you stop one or select several; `tx stop --all` closes every Ternux desktop. `tx stop debian` and `tx stop ubuntu` target one guest directly. Android may still stop background processes under memory pressure;
+1 MiB). Use `tx status`, `tx stop`, or `tx logs desktop tail` to manage and inspect it. Each configured desktop guest uses its own tagged Termux:X11 display, so multiple profiles can stay open at once. With several running, `tx stop` lets you stop one or select several; `tx stop --all` closes every Ternux desktop. `tx stop NAME` targets one guest directly. Android may still stop background processes under memory pressure;
 reopen Termux:X11 if Android has reclaimed the session.
 
 ### Keyboard input in Termux:X11
@@ -86,10 +86,15 @@ tx distro list         # Show all installed PRoot guests and desktop recipe stat
 tx distro search alpine # Search available OCI images
 ub                      # Ubuntu user shell; ubr opens root shell
 alp                     # Alpine user shell; alpr opens root shell
+archx                   # Arch Linux user shell; archroot opens root shell
+fed                     # Fedora user shell; fedr opens root shell
+suse                    # openSUSE user shell; suser opens root shell
+vsh                     # Void user shell; vroot opens root shell
+kal                     # Kali user shell; kalr opens root shell
 tx distro shell NAME    # Any installed guest
 tx distro exec ubuntu -- uname -a # Run a guest command
 tx distro image-install alpine:latest # Install a generic Alpine shell guest
-tx install --distros debian,ubuntu  # Install both independent desktop guests
+tx install --distros debian,ubuntu,alpine # Install independent desktop guests
 tx distro image-install alpine:latest # Generic Alpine shell guest
 tx start                 # Start the saved guest desktop
 tx start ubuntu          # Start Ubuntu explicitly

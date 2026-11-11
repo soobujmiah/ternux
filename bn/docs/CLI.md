@@ -77,8 +77,8 @@ ternux install [options]
 |-------|--------|
 | `--yes` | ডিফল্ট, কোনো প্রশ্ন নয় |
 | `--user NAME` | Linux guest ইউজারনেম (ডিফল্ট: `ternux`) |
-| `--distro NAME` | Debian বা Ubuntu guest profile বাছুন; Debian device-verified। |
-| `--distros LIST` | একাধিক আলাদা guest ধারাবাহিকভাবে install, যেমন `debian,ubuntu`। |
+| `--distro NAME` | package-manager family অনুযায়ী recipe থাকা guest বাছুন। |
+| `--distros LIST` | একাধিক আলাদা guest ধারাবাহিকভাবে install, যেমন `debian,ubuntu,alpine`। |
 | `--locale LANG` | লোকেল (ডিফল্ট: `en_US.UTF-8`) |
 | `--backend auto\|zink\|virgl` | GPU ব্যাকএন্ড (ডিফল্ট: auto) |
 | `--zsh` | bash-এর বদলে zsh ব্যবহার |
@@ -90,9 +90,9 @@ ternux install [options]
 | `--all` | সব ঐচ্ছিক ওয়ার্কলোড |
 | `--resume` | completed phase skip এবং interrupted run-এর saved optional workload set restore |
 
-Guest prompt-এ Debian (recommended, device-verified) অথবা Ubuntu (snapd pinned/held, device validation বাকি) বাছুন। দুটিতেই একই Ternux base desktop profile বসে; launcher ও user/backend settings আলাদা থাকে। `tx install --distros debian,ubuntu` দুটো guest আলাদাভাবে install করে। Debian ও Ubuntu আলাদা tagged Termux:X11 display ব্যবহার করে এবং একসাথে চালানো যায়। `tx stop` একাধিক চলমান desktop থাকলে একটি বা একাধিক বাছতে দেয়; `tx stop --all` সব বন্ধ করে।
+Guest prompt-এ recipe থাকা PRoot-Distro profile-গুলো দেখায়। Debian recommended এবং device-verified; অন্য profile-গুলো এখনো device-এ যাচাই হয়নি। একাধিক profile install করতে comma-separated alias দিন, যেমন `tx install --distros debian,ubuntu,alpine`। প্রতিটি guest-এর আলাদা state ও tagged Termux:X11 display থাকে। `tx stop` একাধিক চলমান desktop থাকলে একটি বা একাধিক বাছতে দেয়; `tx stop --all` সব বন্ধ করে।
 
-`tx` হলো `ternux`-এর ছোট alias। `tx distro list` সব installed PRoot guest দেখায় এবং কোনগুলোর Ternux desktop recipe আছে তা চিহ্নিত করে। যেকোনো installed guest-এর জন্য `tx distro shell NAME` ও `tx distro exec NAME -- COMMAND` ব্যবহার করুন। Generic OCI image install: `tx distro image-install alpine:latest`—এটি shell guest। বর্তমানে Ternux desktop recipe শুধু Debian ও Ubuntu-র জন্য; matching recipe implement ও qualify না হওয়া পর্যন্ত generic image desktop-ready নয়। `xgo` একাধিক guest থাকলে তালিকা দেখিয়ে desktop বাছতে বলে। `db`/`dbr`, `ub`/`ubr`, `alp`/`alpr` যথাক্রমে Debian, Ubuntu, Alpine-এর user/root shell shortcut। Desktop command: `tx start NAME`, `tx stop [NAME|--all]`, `tx restart NAME`, `tx status NAME`। `tx stop` একাধিক session থাকলে এক বা একাধিক বাছতে দেয়; প্রতিটি stop শুধু ওই guest-এর launcher ও tagged window-তে সীমিত। এখন Debian ও Ubuntu desktop recipe আছে; device-verified শুধু Debian।
+`tx` হলো `ternux`-এর ছোট alias। `tx distro list` সব installed PRoot guest দেখায় এবং কোনগুলোর Ternux desktop recipe আছে তা চিহ্নিত করে। যেকোনো installed guest-এর জন্য `tx distro shell NAME` ও `tx distro exec NAME -- COMMAND` ব্যবহার করুন। Generic OCI image install: `tx distro image-install alpine:latest`—এটি shell guest। Named recipe APT, APK, pacman, DNF, Zypper ও XBPS family-তে আছে। Arbitrary OCI image shell guest হিসেবে চলে, desktop recipe ছাড়া GUI setup হয় না। Optional software workload এখন APT guest-এর জন্য। `xgo` একাধিক guest থাকলে তালিকা দেখিয়ে desktop বাছতে বলে। `db`/`dbr`, `ub`/`ubr`, `alp`/`alpr` যথাক্রমে Debian, Ubuntu, Alpine-এর user/root shell shortcut। Desktop command: `tx start NAME`, `tx stop [NAME|--all]`, `tx restart NAME`, `tx status NAME`। `tx stop` একাধিক session থাকলে এক বা একাধিক বাছতে দেয়; প্রতিটি stop শুধু ওই guest-এর launcher ও tagged window-তে সীমিত। `tx distro list` profile recipe availability দেখায়; device-verified শুধু Debian।
 
 Workload flag না দিলে interactive install-এ category-সহ checklist আসে। Up/Down
 বা `j`/`k` দিয়ে চলুন, Space বা item-এর নম্বর দিয়ে একাধিক item বাছুন, Enter-এ

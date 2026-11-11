@@ -51,7 +51,7 @@ tnx_cmd_distro search 'debian bookworm'
 if tnx_cmd_distro search >/dev/null 2>&1; then exit 1; fi
 if tnx_cmd_distro search one two >/dev/null 2>&1; then exit 1; fi
 tnx_cmd_distro list > "$TMP/distro-list"
-grep -q 'alpine.*shell/image only' "$TMP/distro-list"
+grep -q 'alpine.*Ternux recipe available' "$TMP/distro-list"
 grep -q 'debian.*Ternux recipe available' "$TMP/distro-list"
 
 # A live Debian display must not be reported as an Ubuntu session.
@@ -78,6 +78,17 @@ grep -q 'ub() { _ternux_guest_login ubuntu --shared-tmp --user' "$HOME/.bashrc"
 grep -q 'ubr() { _ternux_guest_login ubuntu --shared-tmp' "$HOME/.bashrc"
 grep -q 'alp() { _ternux_guest_login alpine --shared-tmp --user' "$HOME/.bashrc"
 grep -q 'alpr() { _ternux_guest_login alpine --shared-tmp' "$HOME/.bashrc"
+grep -q 'archx() { _ternux_guest_login archlinux --shared-tmp --user' "$HOME/.bashrc"
+grep -q 'fed() { _ternux_guest_login fedora --shared-tmp --user' "$HOME/.bashrc"
+grep -q 'suse() { _ternux_guest_login opensuse --shared-tmp --user' "$HOME/.bashrc"
+grep -q 'vsh() { _ternux_guest_login void --shared-tmp --user' "$HOME/.bashrc"
+grep -q 'kal() { _ternux_guest_login kali --shared-tmp --user' "$HOME/.bashrc"
+if command -v script >/dev/null 2>&1; then
+  printf '4\n' | script -qec "bash -c 'source '$ROOT'/lib/phases.sh; tnx_prompt_distro debian 2'" /dev/null > "$TMP/distro-prompt"
+  grep -q 'archlinux' "$TMP/distro-prompt"
+  printf 'debian,alpine\n' | script -qec "bash -c 'source '$ROOT'/lib/phases.sh; tnx_prompt_distro debian 2'" /dev/null > "$TMP/distro-multi-prompt"
+  grep -q 'debian,alpine' "$TMP/distro-multi-prompt"
+fi
 cat > "$TMP/check-xgo.sh" <<'EOF'
 proot-distro() { printf 'alpine\ndebian\nubuntu\n'; }
 ternux() { printf 'START:%s\n' "$*"; }
@@ -85,7 +96,7 @@ ternux() { printf 'START:%s\n' "$*"; }
 xgo
 EOF
 printf '3\n' | bash --noprofile --norc "$TMP/check-xgo.sh" > "$TMP/xgo-output"
-grep -q 'shell/image only' "$TMP/xgo-output"
+grep -q 'recipe available; not configured' "$TMP/xgo-output"
 grep -q 'START:start ubuntu' "$TMP/xgo-output"
 
 # Stopping Ubuntu must not touch Debian's independently stored session.

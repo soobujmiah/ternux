@@ -70,8 +70,8 @@ ternux install [options]
 |--------|-------------|
 | `--yes` | Defaults, no questions |
 | `--user NAME` | Linux guest user name (default: `ternux`) |
-| `--distro NAME` | Select Debian or Ubuntu; Debian is device-verified. |
-| `--distros LIST` | Install multiple independent guests in sequence, e.g. `debian,ubuntu`. |
+| `--distro NAME` | Select any named profile with a family recipe; Debian is device-verified. |
+| `--distros LIST` | Install multiple independent guests in sequence, e.g. `debian,ubuntu,alpine`. |
 | `--locale LANG` | Locale (default: `en_US.UTF-8`) |
 | `--backend auto\|zink\|virgl` | GPU backend (default: auto) |
 | `--zsh` | Use zsh instead of bash |
@@ -86,9 +86,9 @@ ternux install [options]
 | `--plain` | Shorthand for `--ui plain`: plain scrolling output instead of the dashboard |
 | `--no-anim` | Freeze the spinner and colour cycling |
 
-The guest prompt offers Debian (recommended and device-verified), Ubuntu (snapd pinned and held; device validation pending), or both. Both desktop profiles get the same Ternux base setup and keep separate launchers and user/backend settings. `xgo` lists every installed PRoot guest and asks which desktop profile to start when multiple are present; shell-only images are identified as such. Each supported desktop profile has its own Termux:X11 display and activity tag.
+The guest prompt lists named PRoot-Distro profiles with family-matched recipes. Debian is recommended and device-verified; all other profiles are currently unverified. Select several by entering comma-separated aliases. Each desktop profile gets independent state and a tagged Termux:X11 display. `xgo` lists installed guests and identifies shell-only images.
 
-Use `tx` as a short alias for `ternux`. `tx distro list` shows all installed PRoot guests and marks which ones have a Ternux desktop recipe. `tx distro search QUERY` searches PRoot-Distro OCI images. `tx distro shell NAME` and `tx distro exec NAME -- COMMAND` work with any installed guest. Use `tx distro image-install IMAGE[:TAG] [NAME]` to install a generic OCI image; such an image is shell-ready. The current Ternux desktop installer has recipes only for Debian and Ubuntu; a generic image is not desktop-ready until a matching recipe is implemented and qualified. Desktop management is `tx start NAME`, `tx stop [NAME|--all]`, `tx restart NAME`, and `tx status NAME`. Debian and Ubuntu desktops open in separate tagged Termux:X11 windows and may run concurrently. With multiple sessions, interactive `tx stop` prompts for one or more guests; `tx stop --all` stops all Ternux desktop sessions. An explicit `tx stop NAME` affects only that guest. Debian and Ubuntu currently have Ternux desktop recipes; Debian alone is device-verified. Short shells: `db`/`dbr` Debian user/root, `ub`/`ubr` Ubuntu user/root, and `alp`/`alpr` Alpine user/root.
+Use `tx` as a short alias for `ternux`. `tx distro list` shows all installed PRoot guests and marks which ones have a Ternux desktop recipe. `tx distro search QUERY` searches PRoot-Distro OCI images. `tx distro shell NAME` and `tx distro exec NAME -- COMMAND` work with any installed guest. Use `tx distro image-install IMAGE[:TAG] [NAME]` to install a generic OCI image; such an image is shell-ready. Named aliases map to APT (Debian, Ubuntu, Kali, Deepin, Pardus), APK (Alpine, Adelie, Chimera), pacman (Arch Linux, Artix, Manjaro), DNF (Fedora, Rocky Linux), Zypper (openSUSE), or XBPS (Void). Arbitrary OCI images are shell-ready but do not receive a desktop automatically. Optional software workloads currently target APT guests. Desktop management is `tx start NAME`, `tx stop [NAME|--all]`, `tx restart NAME`, and `tx status NAME`. Desktop profiles open in separate tagged Termux:X11 windows and may run concurrently. With multiple sessions, interactive `tx stop` prompts for one or more guests; `tx stop --all` stops all Ternux desktop sessions. An explicit `tx stop NAME` affects only that guest. The named distro aliases in `tx distro list` report which profiles have recipes; Debian alone is device-verified. Short shells: `db`/`dbr` Debian, `ub`/`ubr` Ubuntu, `alp`/`alpr` Alpine, `archx`/`archroot` Arch, `fed`/`fedr` Fedora, `suse`/`suser` openSUSE, `vsh`/`vroot` Void, and `kal`/`kalr` Kali; each pair opens user/root shells.
 
 With no workload flags, an interactive install opens the categorized checklist.
 Use Up/Down or `j`/`k` to move, Space or an item's number to select multiple

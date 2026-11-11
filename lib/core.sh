@@ -27,12 +27,12 @@ TERNUX_LEGACY_STATE="$HOME/.ternux-state"
 # ---------------------------------------------------------------------------
 # Guest distribution
 #
-# Debian and Ubuntu have independent Ternux desktop profiles and share the tested
-# APT base recipe. Other PRoot images can be managed as generic shell guests.
+# Official PRoot-Distro aliases with a supported desktop package manager receive
+# a family-based Ternux recipe; arbitrary OCI images remain shell-only.
 # Resolution: explicit TERNUX_DISTRO, saved choice, then Debian.
 # ---------------------------------------------------------------------------
 TERNUX_DISTRO_VERIFIED="debian"
-TERNUX_DISTRO_KNOWN="debian ubuntu"
+TERNUX_DISTRO_KNOWN="debian ubuntu alpine archlinux fedora opensuse void kali artix chimera deepin manjaro pardus rockylinux adelie"
 
 tnx_distro() {
   if [ -z "${_TNX_DISTRO:-}" ]; then
@@ -61,18 +61,17 @@ tnx_distro_known() {
   return 1
 }
 
-# Per-distribution facts, limited to what actually differs. Sets TNX_DP_*.
-# Both profiles are apt/dpkg, so the hold and divert mechanisms are shared;
-# Ubuntu additionally ships snapd, which cannot work without systemd inside a
-# PRoot container and must not be pulled in or upgraded.
+# Package-manager families for official PRoot-Distro aliases. Sets TNX_DP_*.
+# These recipes share the Ternux desktop assets but remain device-unverified
+# except for the established Debian profile.
 tnx_distro_display() {
   local distro="${1:-$(tnx_distro)}" display=""
   display="$(tnx_distro_state_get "$distro" display 2>/dev/null || true)"
   if [[ "$display" =~ ^[0-9]{1,2}$ ]]; then printf '%s' "$display"; return 0; fi
   case "$distro" in
-    debian) printf '0' ;;
-    ubuntu) printf '1' ;;
-    alpine) printf '2' ;;
+    debian) printf '0' ;; ubuntu) printf '1' ;; alpine) printf '2' ;;
+    archlinux) printf '3' ;; fedora) printf '4' ;; opensuse) printf '5' ;; void) printf '6' ;; kali) printf '7' ;;
+    artix) printf '8' ;; chimera) printf '9' ;; deepin) printf '10' ;; manjaro) printf '11' ;; pardus) printf '12' ;; rockylinux) printf '13' ;; adelie) printf '14' ;;
     *) return 1 ;;
   esac
 }
@@ -131,13 +130,20 @@ tnx_distro_desktop_ready() {
 }
 
 tnx_distro_profile() {
-  TNX_DP_FAMILY="apt"
+  TNX_DP_FAMILY=""
   TNX_DP_MESA_HOLD="mesa-vulkan-drivers libgl1-mesa-dri libglx-mesa0 libgbm1 libegl-mesa0"
   TNX_DP_EXTRA_HOLD=""
   case "${1:-$(tnx_distro)}" in
-    ubuntu) TNX_DP_EXTRA_HOLD="snapd" ;;
-    *)      : ;;
+    debian|ubuntu|kali|deepin|pardus) TNX_DP_FAMILY="apt" ;;
+    alpine|adelie) TNX_DP_FAMILY="apk" ;;
+    archlinux|artix|manjaro) TNX_DP_FAMILY="pacman" ;;
+    fedora|rockylinux) TNX_DP_FAMILY="dnf" ;;
+    opensuse) TNX_DP_FAMILY="zypper" ;;
+    void) TNX_DP_FAMILY="xbps" ;;
+    chimera) TNX_DP_FAMILY="apk" ;;
+    *) return 1 ;;
   esac
+  [ "${1:-$(tnx_distro)}" != ubuntu ] || TNX_DP_EXTRA_HOLD="snapd"
 }
 
 # Add only directory mounts explicitly granted by the user. The allowlist is

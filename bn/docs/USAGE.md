@@ -12,10 +12,10 @@ alt_url: "/docs/USAGE.html"
 
 ## ব্যাকগ্রাউন্ড ডেস্কটপ সেশন
 
-`tx` হলো `ternux`-এর ছোট alias। একাধিক guest থাকলে `xgo` installed guest-গুলোর তালিকা দেখিয়ে GUI বাছতে বলে। `db`/`dbr`, `ub`/`ubr`, `alp`/`alpr` user/root shell shortcut। অন্য guest-এ `tx distro shell NAME` ব্যবহার করুন।
+`tx` হলো `ternux`-এর ছোট alias। একাধিক guest থাকলে `xgo` installed guest-গুলোর তালিকা দেখিয়ে GUI বাছতে বলে। `db`/`dbr`, `ub`/`ubr`, `alp`/`alpr`, `archx`/`archroot`, `fed`/`fedr`, `suse`/`suser`, `vsh`/`vroot`, `kal`/`kalr` user/root shell shortcut। অন্য guest-এ `tx distro shell NAME` ব্যবহার করুন।
 
 `tx start` desktop-কে managed background session হিসেবে চালু করে এবং নিজের X11
-window ready হলে prompt-এ ফিরে আসে। Debian ও Ubuntu আলাদা display-তে পাশাপাশি
+window ready হলে prompt-এ ফিরে আসে। প্রতিটি configured guest আলাদা tagged display ব্যবহার করে, তাই একাধিক profile পাশাপাশি
 চলতে পারে। Startup output `~/.local/share/ternux/session/desktop.log`-এ থাকে;
 1 MiB হলে আগের log rotate হয়। `tx status`, `tx stop` বা `tx logs desktop tail`
 দিয়ে session দেখুন, বেছে বন্ধ করুন বা log পড়ুন। `tx stop --all` সব বন্ধ করে। Android memory pressure-এ background process বন্ধ

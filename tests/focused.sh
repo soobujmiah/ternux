@@ -702,7 +702,7 @@ assert 'with_suffix(".partial" + self.target.suffix)' in recorder
 assert "ffmpeg ristretto" in (root / "lib/phases.sh").read_text()
 assert "mousepad galculator evince fonts-noto-core" in (root / "lib/phases.sh").read_text()
 phase_source = (root / "lib/phases.sh").read_text()
-base_desktop_install = next(line for line in phase_source.splitlines() if line.startswith("    apt install -y \\$DPKG_FORCE sudo nano"))
+base_desktop_install = next(line for line in phase_source.splitlines() if "apt install -y \\$DPKG_FORCE sudo nano" in line)
 assert "thunderbird" not in base_desktop_install and "evolution" not in base_desktop_install
 assert "evolution) apt_packages+=(evolution gnome-online-accounts-gtk)" in phase_source
 assert "evolution" in phase_source.split("TNX_OPTIONAL_ITEMS=(", 1)[1].split(")", 1)[0]
@@ -756,7 +756,11 @@ assert "M32 20v24M20 32h24" not in launcher_icon
 assert 'width="9" height="9"' in launcher_icon
 assert (root / "lib/ternux-assets/icons/Ternux/scalable/devices/drive-removable-media.svg").is_file()
 assert "apt remove -y \\$DPKG_FORCE guvcview" in desktop_phase
-assert not next(line for line in desktop_phase.splitlines() if "apt install -y \\$DPKG_FORCE sudo nano" in line).strip().endswith("guvcview")
+assert "apk add sudo bash shadow musl-utils nano mousepad" in desktop_phase
+assert "pacman -S --noconfirm --needed sudo bash nano mousepad" in desktop_phase
+assert "dnf install -y sudo bash nano mousepad" in desktop_phase
+assert "zypper --non-interactive install -y sudo bash nano mousepad" in desktop_phase
+assert "xbps-install -Sy sudo bash nano mousepad" in desktop_phase
 camera = (root / "lib/ternux-camera.py").read_text()
 assert "GdkPixbuf.Pixbuf.new_from_file_at_scale" in camera
 assert "pixbuf.apply_embedded_orientation()" in camera
@@ -3202,10 +3206,24 @@ check "distro profiles carry only the differences that exist" bash -c '
 ' _ "$ROOT"
 check "known and verified distributions are separate claims" bash -c '
   . "$1/lib/core.sh"
-  tnx_distro_known debian && tnx_distro_known ubuntu || exit 1
-  tnx_distro_known arch && exit 1
+  tnx_distro_known debian && tnx_distro_known ubuntu && tnx_distro_known archlinux || exit 1
+  tnx_distro_known random-oci-image && exit 1
+  tnx_distro_profile archlinux && [ "$TNX_DP_FAMILY" = pacman ] || exit 1
+  tnx_distro_profile alpine && [ "$TNX_DP_FAMILY" = apk ] || exit 1
+  tnx_distro_profile fedora && [ "$TNX_DP_FAMILY" = dnf ] || exit 1
+  tnx_distro_profile opensuse && [ "$TNX_DP_FAMILY" = zypper ] || exit 1
+  tnx_distro_profile void && [ "$TNX_DP_FAMILY" = xbps ] || exit 1
   tnx_distro_verified debian || exit 1
   tnx_distro_verified ubuntu && exit 1
+  exit 0
+' _ "$ROOT"
+check "generated distro desktop and locale scripts parse for all named profiles" bash "$ROOT/tests/distro_recipes.sh"
+check "APT-only optional workloads reject a non-APT guest before guest changes" bash -c '
+  . "$1/lib/phases.sh"
+  export TERNUX_DISTRO=alpine
+  tnx_guest_login() { echo guest-login-should-not-run >&2; return 99; }
+  rc=0; tnx_phase_extras ternux ffmpeg >/dev/null 2>&1 || rc=$?
+  [ "$rc" -eq 2 ] || exit 1
   exit 0
 ' _ "$ROOT"
 check "the GPU phase holds what the profile names, not a fixed list" bash -c '
