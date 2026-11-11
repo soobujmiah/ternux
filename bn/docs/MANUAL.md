@@ -403,7 +403,7 @@ resume করুন।
 
 ## ধাপ ৯ — শেল শর্টকাট
 
-ইনস্টলার `tx`, `x`, `killx`, `db`/`dbr`, `ub`/`ubr`, `alp`/`alpr`, `xgo`, `clean-mesa` এবং `sysmon`
+ইনস্টলার `tx`, `x`, `killx`, `db`/`dbroot`, `ub`/`ubroot`, `alp`/`alproot`, `xgo`, `clean-mesa` এবং `sysmon`
 shortcut তৈরি ও রক্ষণাবেক্ষণ করে। Guest alias isolated PRoot binding ব্যবহার
 করে, Android shared storage `/sdcard`-এ mount করে এবং দরকারে `/tmp` share করে। Alias তৈরি বা refresh
 করতে `ternux install` চালান; পুরোনো guide-এর alias block কপি করবেন না।

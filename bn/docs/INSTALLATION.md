@@ -107,9 +107,9 @@ bash install.sh
 Reproducible review-এর জন্য `git fetch --tags` চালিয়ে release tag checkout করুন
 এবং inspection-এর আগে `git status --short` ফাঁকা আছে কি না দেখুন। Installed result
 একই হওয়ার কথা; local review route একবার confirmation চাইতে পারে। Review-এর পর
-prompt না চাইলে সচেতনভাবে `--yes` দিন। বিঘ্নিত হলে `bash install.sh --resume`
-চালান; successful হিসেবে recorded phase বাদ যাবে এবং interrupted run-এর saved
-optional workload set restore হবে।
+prompt না চাইলে সচেতনভাবে `--yes` দিন। ইনস্টল মাঝপথে থামলে একই one-command installer
+আবার চালালেই saved guest ও পছন্দ থেকে auto-resume হবে। চাইলে `bash install.sh --resume`
+দিয়ে আলাদাভাবেও resume করা যায়; সফল phase বাদ যাবে এবং saved optional workload ফিরবে।
 
 ### পদ্ধতি ৩ — সম্পূর্ণ ম্যানুয়াল, কমান্ডে কমান্ডে
 
@@ -288,7 +288,7 @@ Structured output শুধু [CLI reference](CLI.html)-এ নথিভুক�
 | ৫ | **GPU route** | Debian + Adreno/KGSL: pinned Turnip payload যাচাই করে বসায়। অন্য named profile-এ shared VirGL host renderer ও guest Mesa `virpipe` configure করে | প্রতিটি profile-এ GPU route আছে; `glxinfo -B` দিয়ে hardware rendering ও software fallback আলাদা করে দেখুন |
 | ৬ | **অডিও, লোকেল, ফন্ট** | লুপব্যাক-only PulseAudio bridge, OpenSL ES output ও on-demand microphone source সেট করে; private এক-সেকেন্ড Termux:API permission probe চালায়; লোকেল ও emoji/powerline/Nerd font যোগ করে | Guest playback ও capture PulseAudio দিয়ে Android audio-তে পৌঁছায়। Live capture Termux-এর permission ও OpenSL ES source ব্যবহার করে; আলাদা Termux:API probe live stream দেয় না। ফন্ট terminal-এ tofu box ঠেকায় |
 | ৭ | **লঞ্চার** | GPU পথ অনুযায়ী `~/x.sh` লেখা ও সিনট্যাক্স-চেক | এক কমান্ডে (`x`) অডিও → ডিসপ্লে → ডেস্কটপ নির্ভরযোগ্য ক্রমে শুরু হতেই হবে |
-| ৮ | **শর্টকাট** | `tx`, `x`, `killx`, `db`/`dbr`, `ub`/`ubr`, `alp`/`alpr`, `xgo`, `sysmon`, `clean-mesa` | প্রতিদিনের কাজের জন্য সহজ ও সরাসরি শর্টকাট তৈরি করে |
+| ৮ | **শর্টকাট** | `tx`, `x`, `killx`, `db`/`dbroot`, `ub`/`ubroot`, `alp`/`alproot`, `xgo`, `sysmon`, `clean-mesa` | প্রতিদিনের কাজের জন্য সহজ ও সরাসরি শর্টকাট তৈরি করে |
 | ৯ | **ঐচ্ছিক এক্সট্রা** | ডেভ টুলস, llama.cpp, নেটওয়ার্ক টুলস, মিডিয়া টুলস, headless EEVEE-র জন্য Blender + Xvfb — শুধু যা চেয়েছেন | বেস ইনস্টল হালকা থাকুক; প্রতিটি প্রোফাইলের স্টোরেজ/তাপের খরচ আলাদা |
 | ১০ | **Android safeguard check** | readable child-process setting পরীক্ষা ও version-aware guidance | signal 9 memory pressure বা OEM battery policy-ও হতে পারে; system-wide safeguard বদলানোর আগে evidence নিন |
 | ১১ | **যাচাইকরণ** | প্রতিটি গুরুত্বপূর্ণ বাইনারি, ফাইল ও অনুমতি সত্যিই আছে কিনা নিশ্চিত করা | পরিবেশটি চালু হওয়ার উপযোগী কিনা নিশ্চিত করে — `apt` শেষ হলেই ডেস্কটপ চালু হবে এমন নিশ্চয়তা থাকে না |

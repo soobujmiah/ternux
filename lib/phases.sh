@@ -371,21 +371,32 @@ tnx_phase_debian() {
   firefox_installer_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-install-firefox-esr.sh" | tr -d '\n')" || return 1
 
   if tnx_debian_installed; then
-    tnx_warn "Debian container already installed; reusing it."
+    tnx_warn "Guest '$(tnx_distro)' already installed; reusing it."
   else
     proot-distro install "$(tnx_distro)" || { tnx_fail "Guest '$(tnx_distro)' install failed."; return 1; }
   fi
 
   tnx_distro_profile "$(tnx_distro)" || { tnx_fail "No package recipe for guest '$(tnx_distro)'."; return 2; }
   package_family="$TNX_DP_FAMILY"
-  tnx_guest_login --shared-tmp -- bash -c "
+  # Minimal Alpine images provide POSIX sh but not Bash. This first package
+  # bootstrap installs Bash itself, so it must run through sh.
+  tnx_guest_login --shared-tmp -- sh -c "
     set -e
     FAMILY='$package_family'
     export DEBIAN_FRONTEND=noninteractive
-    DPKG_FORCE=\"-o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -o APT::Color=1 -o Dpkg::Progress-Fancy=1\"
+    pkg_retry() {
+      attempt=1
+      while ! "\$@"; do
+        if [ "\$attempt" -ge 3 ]; then return 1; fi
+        echo \"[WARN] Package command failed; retrying (\$((attempt + 1))/3): \$*\" >&2
+        sleep "\$attempt"
+        attempt=\$((attempt + 1))
+      done
+    }
+    DPKG_FORCE=\"-o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -o APT::Color=1 -o Dpkg::Progress-Fancy=1 -o Acquire::Retries=3\"
     case \"\$FAMILY\" in
       apt)
-        apt update -o APT::Color=1
+        apt update -o APT::Color=1 -o Acquire::Retries=3
         dpkg --configure -a --force-confold --force-confdef || true
         if [ '$(tnx_distro)' = ubuntu ]; then
           install -d -m 0755 /etc/apt/preferences.d
@@ -398,9 +409,9 @@ tnx_phase_debian() {
         apt remove -y \$DPKG_FORCE guvcview >/dev/null 2>&1 || true
         ;;
       apk)
-        apk update
-        apk add sudo bash shadow musl-utils nano mousepad galculator evince font-noto python3 py3-gobject3 gtk+3.0 ibus devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol mesa mesa-dri-gallium mesa-utils vulkan-loader vulkan-tools desktop-file-utils util-linux fontconfig gsettings-desktop-schemas xfconf adwaita-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc ffmpeg ristretto qt5-qtbase colord
-        if [ "$(tnx_distro)" = chimera ]; then apk add mesa-vulkan; elif [ "$(tnx_distro)" = alpine ]; then apk add mesa-vulkan-freedreno; fi
+        pkg_retry apk update
+        pkg_retry apk add sudo bash shadow musl-utils nano mousepad galculator evince font-noto python3 py3-gobject3 gtk+3.0 ibus dbus-x11 pulseaudio pulseaudio-utils pavucontrol mesa mesa-dri-gallium mesa-utils vulkan-loader vulkan-tools desktop-file-utils xdg-utils xdpyinfo util-linux fontconfig gsettings-desktop-schemas xfconf adwaita-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc ffmpeg ristretto qt5-qtbase colord
+        if [ "$(tnx_distro)" = chimera ]; then pkg_retry apk add mesa-vulkan; elif [ "$(tnx_distro)" = alpine ]; then pkg_retry apk add mesa-vulkan-freedreno; fi
         ;;
       pacman)
         pacman -Syu --noconfirm --needed
@@ -488,10 +499,12 @@ tnx_phase_debian() {
         chmod 0644 "/usr/local/share/applications/\$1"
       fi
     done
-    apt install -y \$DPKG_FORCE polkitd || apt install -y \$DPKG_FORCE policykit-1 || true
-    apt install -y \$DPKG_FORCE libvulkan1 vulkan-tools || true
-    apt install -y \$DPKG_FORCE zip unzip xarchiver unrar-free || true
-    apt install -y \$DPKG_FORCE 7zip || apt install -y \$DPKG_FORCE p7zip-full || true
+    if [ "\$FAMILY" = apt ]; then
+      apt install -y \$DPKG_FORCE polkitd || apt install -y \$DPKG_FORCE policykit-1 || true
+      apt install -y \$DPKG_FORCE libvulkan1 vulkan-tools || true
+      apt install -y \$DPKG_FORCE zip unzip xarchiver unrar-free || true
+      apt install -y \$DPKG_FORCE 7zip || apt install -y \$DPKG_FORCE p7zip-full || true
+    fi
     # Every fresh profile gets one usable browser. Ubuntu's archive package is
     # a Snap bridge, so use Mozilla ESR there while Snap remains disabled.
     case "\$FAMILY" in
@@ -507,11 +520,11 @@ tnx_phase_debian() {
           [ "\$browser_installed" -eq 1 ] || { echo 'No usable Firefox package candidate is available in this APT guest.' >&2; exit 1; }
         fi
         ;;
-      apk) apk add firefox-esr || apk add firefox ;;
-      pacman) pacman -S --noconfirm --needed firefox ;;
-      dnf) dnf install -y firefox ;;
-      zypper) zypper --non-interactive install -y MozillaFirefox ;;
-      xbps) xbps-install -Sy firefox ;;
+      apk) pkg_retry apk add firefox-esr || pkg_retry apk add firefox ;;
+      pacman) pkg_retry pacman -S --noconfirm --needed firefox ;;
+      dnf) pkg_retry dnf install -y firefox ;;
+      zypper) pkg_retry zypper --non-interactive install -y MozillaFirefox ;;
+      xbps) pkg_retry xbps-install -Sy firefox ;;
     esac
   " || { tnx_fail "Desktop package installation failed."; return 1; }
 
@@ -525,7 +538,7 @@ tnx_phase_debian() {
     case \"\$FAMILY\" in pacman|dnf|zypper|xbps) ADMIN_GROUP=wheel ;; *) ADMIN_GROUP=sudo ;; esac
     for grp in \"\$ADMIN_GROUP\" video render audio; do getent group \"\$grp\" >/dev/null 2>&1 && usermod -aG \"\$grp\" \"\$U\" || true; done
     install -d -m 0750 /etc/sudoers.d
-    F=/etc/sudoers.d/ternux; T=\"\$(mktemp)\"
+    F=/etc/sudoers.d/ternux; T=\"\$(mktemp /tmp/ternux-sudoers.XXXXXX)\"
     if grep -Eq '^[[:space:]]*[@#]includedir[[:space:]]+/etc/sudoers[.]d([[:space:]]|$)' /etc/sudoers; then
       printf '%s ALL=(ALL) NOPASSWD: ALL\n' \"\$U\" > \"\$T\"
       if visudo -cf \"\$T\" >/dev/null 2>&1; then install -m 0440 -o root -g root \"\$T\" \"\$F\"; else rm -f \"\$T\"; exit 1; fi
@@ -694,6 +707,7 @@ PM
     chmod 0755 /usr/local/bin/ternux-welcome
     install -d -o root -g root -m 0755 /usr/share/backgrounds/ternux
     chmod 0644 /usr/share/backgrounds/ternux/*.svg
+    if command -v devilspie2 >/dev/null 2>&1; then
     cat > \"\$H/.config/autostart/ternux-window-fit.desktop\" <<'DESKTOP'
 [Desktop Entry]
 Type=Application
@@ -706,6 +720,9 @@ X-GNOME-Autostart-enabled=true
 DESKTOP
     chown \"\$U:\$U\" \"\$H/.config/autostart/ternux-window-fit.desktop\"
     chmod 0644 \"\$H/.config/autostart/ternux-window-fit.desktop\"
+    else
+      rm -f \"\$H/.config/autostart/ternux-window-fit.desktop\"
+    fi
     cat > \"\$H/.config/autostart/xiccd.desktop\" <<'DESKTOP'
 [Desktop Entry]
 Type=Application
@@ -1217,7 +1234,7 @@ tnx_phase_audio_fonts() {
     # The launcher exports the live loopback PulseAudio endpoint for desktop apps.
     mkdir -p ~/.local/share/fonts
     if [ ! -f ~/.local/share/fonts/.ternux-nerdfont-v3.5.1-installed ]; then
-      font_archive=\"\$(mktemp /tmp/ternux-jetbrainsmono.XXXXXX.tar.xz)\"
+      font_archive=\"\$(mktemp /tmp/ternux-jetbrainsmono.XXXXXX)\"
       if wget -q -O \"\$font_archive\" \"https://github.com/ryanoasis/nerd-fonts/releases/download/v3.5.1/JetBrainsMono.tar.xz\" \
         && echo \"04d5e8f903693f9dd13e16f867e994834e681eb3c72c0d337a770dcda09010cf  \$font_archive\" | sha256sum -c - >/dev/null \
         && tar -xJf \"\$font_archive\" -C ~/.local/share/fonts/; then
@@ -1689,12 +1706,15 @@ _ternux_guest_user() {
   printf '%s\n' "\${user:-ternux}"
 }
 db() { _ternux_guest_login debian --shared-tmp --user "\$(_ternux_guest_user debian)" "\$@"; }
-dbr() { _ternux_guest_login debian --shared-tmp "\$@"; }
-droot() { dbr "\$@"; }
+dbroot() { _ternux_guest_login debian --shared-tmp "\$@"; }
+dbr() { dbroot "\$@"; }
+droot() { dbroot "\$@"; }
 ub() { _ternux_guest_login ubuntu --shared-tmp --user "\$(_ternux_guest_user ubuntu)" "\$@"; }
-ubr() { _ternux_guest_login ubuntu --shared-tmp "\$@"; }
+ubroot() { _ternux_guest_login ubuntu --shared-tmp "\$@"; }
+ubr() { ubroot "\$@"; }
 alp() { _ternux_guest_login alpine --shared-tmp --user "\$(_ternux_guest_user alpine)" "\$@"; }
-alpr() { _ternux_guest_login alpine --shared-tmp "\$@"; }
+alproot() { _ternux_guest_login alpine --shared-tmp "\$@"; }
+alpr() { alproot "\$@"; }
 archx() { _ternux_guest_login archlinux --shared-tmp --user "\$(_ternux_guest_user archlinux)" "\$@"; }
 archroot() { _ternux_guest_login archlinux --shared-tmp "\$@"; }
 fed() { _ternux_guest_login fedora --shared-tmp --user "\$(_ternux_guest_user fedora)" "\$@"; }
@@ -1760,7 +1780,7 @@ clean-mesa() { _ternux_guest_login "\$distro" --user "\$user_name" -- bash -c 'r
 sysmon() { echo "--- CPU & Memory ---"; free -h; echo ""; echo "--- GPU / KGSL ---"; ls -l /dev/kgsl-3d0 /dev/dri 2>/dev/null || echo "No GPU nodes."; }
 # ==== END TERNUX ALIASES ====
 ALIASEOF
-  tnx_ok "Aliases installed: tx, x, xgo, killx, distro user/root shells, sysmon"
+  tnx_ok "Aliases installed: tx, x, xgo, killx, distro user/root shells (including dbroot/ubroot/alproot), sysmon"
 }
 
 # ---------------------------------------------------------------------------
@@ -2830,6 +2850,16 @@ tnx_prompt_workloads() {
 # ---------------------------------------------------------------------------
 # Full installation orchestrator
 # ---------------------------------------------------------------------------
+tnx_install_auto_resume_distro() {
+  local requested="${1:-}" explicit="${2:-0}" saved status
+  saved="$(tnx_state_get distro 2>/dev/null || true)"
+  [ -n "$saved" ] || return 1
+  status="$(tnx_distro_state_get "$saved" status 2>/dev/null || true)"
+  case "$status" in incomplete|installing) ;; *) return 1 ;; esac
+  if [ "$explicit" -eq 1 ] && [ "$requested" != "$saved" ]; then return 1; fi
+  printf '%s' "$saved"
+}
+
 tnx_install_single() {
   local user_name="ternux" locale="en_US.UTF-8" backend="auto" shell_choice="bash"
   local distro_choice="debian" distro_explicit=0
@@ -2875,6 +2905,18 @@ tnx_install_single() {
       *) tnx_fail "Unknown install option: $1"; return 2 ;;
     esac; shift
   done
+
+  # Re-running the normal one-command installer resumes an interrupted guest
+  # automatically. A different explicitly selected guest starts independently.
+  if [ "$resume" -eq 0 ]; then
+    local auto_resume_distro=""
+    auto_resume_distro="$(tnx_install_auto_resume_distro "$distro_choice" "$distro_explicit" || true)"
+    if [ -n "$auto_resume_distro" ]; then
+      resume=1
+      distro_choice="$auto_resume_distro"
+      tnx_info "An incomplete '$distro_choice' install was found; resuming saved choices automatically."
+    fi
+  fi
 
   # A bare `--resume` continues with the interrupted run’s saved choices.
   # Every explicitly supplied option takes precedence over its saved value.

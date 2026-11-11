@@ -422,7 +422,7 @@ installer with `ternux install`.
 
 ## Step 9 — Shell shortcuts
 
-The installer creates and maintains the `tx`, `x`, `killx`, `db`/`dbr`, `ub`/`ubr`, `alp`/`alpr`, `xgo`,
+The installer creates and maintains the `tx`, `x`, `killx`, `db`/`dbroot`, `ub`/`ubroot`, `alp`/`alproot`, `xgo`,
 `clean-mesa` and `sysmon` shortcuts. The guest aliases use isolated PRoot
 bindings, mount Android shared storage at `/sdcard`, and share `/tmp` only for
 commands that need it. Run `ternux install` to create or refresh the generated aliases; do not

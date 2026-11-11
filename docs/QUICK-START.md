@@ -105,8 +105,8 @@ Jump to [Troubleshooting → renderer says llvmpipe](TROUBLESHOOTING.html#render
 ```text
 x          start the desktop          killx   stop everything cleanly
 tx         short alias for ternux     xgo     choose an installed GUI guest
-db / dbr   Debian user / root shell    ub / ubr Ubuntu user / root shell
-alp/alpr   Alpine user / root shell    sysmon  device resource overview
+db / dbroot   Debian user / root shell    ub / ubroot Ubuntu user / root shell
+alp/alproot   Alpine user / root shell    sysmon  device resource overview
 clean-mesa clear the Mesa shader cache
 ```
 

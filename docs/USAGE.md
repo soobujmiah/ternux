@@ -28,9 +28,9 @@ Ternux enables Termux:X11 `enforceCharBasedInput` before starting the desktop so
 | `x` | Start the desktop through `ternux start` and bring Termux:X11 to the foreground (audio → display → Debian → Xfce4) |
 | `xgo` | List installed guests and select the Ternux desktop to start |
 | `killx` | Open the session picker and stop one or several desktops |
-| `db` / `dbr` | Debian user / root shell |
-| `ub` / `ubr` | Ubuntu user / root shell |
-| `alp` / `alpr` | Alpine user / root shell |
+| `db` / `dbroot` | Debian user / root shell |
+| `ub` / `ubroot` | Ubuntu user / root shell |
+| `alp` / `alproot` | Alpine user / root shell |
 | `tx` | Short alias for the `ternux` CLI |
 | `sysmon` | Quick CPU/RAM/GPU-node overview |
 | `clean-mesa` | Clear the shader cache (after driver changes) |
@@ -84,8 +84,8 @@ management:
 ternux install          # Full installation (delegates to install.sh)
 tx distro list         # Show all installed PRoot guests and desktop recipe status
 tx distro search alpine # Search available OCI images
-ub                      # Ubuntu user shell; ubr opens root shell
-alp                     # Alpine user shell; alpr opens root shell
+ub                      # Ubuntu user shell; ubroot opens root shell
+alp                     # Alpine user shell; alproot opens root shell
 archx                   # Arch Linux user shell; archroot opens root shell
 fed                     # Fedora user shell; fedr opens root shell
 suse                    # openSUSE user shell; suser opens root shell
@@ -98,6 +98,8 @@ tx install --distros debian,ubuntu,alpine # Install independent desktop guests
 tx distro image-install alpine:latest # Generic Alpine shell guest
 tx start                 # Start the saved guest desktop
 tx start ubuntu          # Start Ubuntu explicitly
+tx start ub              # Same Ubuntu desktop using its short name
+tx start alp             # Start Alpine desktop using its short name
 tx stop ubuntu           # Stop Ubuntu explicitly
 ternux restart          # Restart the desktop session
 ternux doctor           # Run system diagnostics

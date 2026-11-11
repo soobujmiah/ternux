@@ -111,8 +111,8 @@ glxinfo | grep "renderer string"
 ```text
 x        ডেস্কটপ চালু          killx  সব পরিষ্কারভাবে বন্ধ
 tx       ternux-এর ছোট alias      xgo    installed GUI বাছুন
-db/dbr   Debian user/root shell  ub/ubr Ubuntu user/root shell
-alp/alpr Alpine user/root shell
+db/dbroot   Debian user/root shell  ub/ubroot Ubuntu user/root shell
+alp/alproot Alpine user/root shell
 sysmon   ডিভাইসের সারসংক্ষেপ   clean-mesa  শেডার ক্যাশ পরিষ্কার
 ```
 

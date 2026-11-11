@@ -73,6 +73,15 @@ tnx_distro_known() {
   return 1
 }
 
+# Stable short names accepted by desktop commands as well as shell aliases.
+tnx_distro_canonical() {
+  case "${1:-}" in
+    db) printf debian ;; ub) printf ubuntu ;; alp) printf alpine ;;
+    archx) printf archlinux ;; fed) printf fedora ;; suse) printf opensuse ;;
+    vsh) printf void ;; kal) printf kali ;; *) printf '%s' "${1:-}" ;;
+  esac
+}
+
 # Package-manager families for official PRoot-Distro aliases. Sets TNX_DP_*.
 # These recipes share the Ternux desktop assets but remain device-unverified
 # except for the established Debian profile.

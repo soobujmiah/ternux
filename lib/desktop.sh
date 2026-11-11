@@ -169,7 +169,7 @@ tnx_remove_stale_x11_socket() {
 # tnx_cmd_start
 # ---------------------------------------------------------------------------
 tnx_cmd_start() {
-  local distro="${1:-$(tnx_distro)}" launcher_dir launcher_path
+  local distro="$(tnx_distro_canonical "${1:-$(tnx_distro)}")" launcher_dir launcher_path
   local display_num display tag
   [ "$#" -le 1 ] || { tnx_fail "Usage: ternux start [DISTRO]"; return 2; }
   tnx_distro_known "$distro" || { tnx_fail "Unsupported Ternux desktop profile '$distro'. Supported profiles: $TERNUX_DISTRO_KNOWN"; return 2; }

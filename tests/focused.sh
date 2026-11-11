@@ -37,6 +37,24 @@ check "core loads persisted Debian user" env -u TERNUX_USER \
   TERNUX_STATE_DIR="$state" HOME="$TMP/home-user" bash -c \
   '. "$1/lib/core.sh"; test "$TERNUX_USER" = alice' _ "$ROOT"
 
+# A normal one-command reinstall resumes an interrupted saved guest, while a
+# newly selected different guest remains an independent install.
+if TERNUX_STATE_DIR="$TMP/state-auto-resume" HOME="$TMP/home-auto-resume" bash -c '
+  . "$1/lib/phases.sh"
+  tnx_state_get(){ [ "$1" = distro ] && printf alpine; }
+  tnx_distro_state_get(){ [ "$2" = status ] && printf incomplete; }
+  [ "$(tnx_install_auto_resume_distro alpine 0)" = alpine ] || exit 1
+  [ "$(tnx_install_auto_resume_distro ubuntu 0)" = alpine ] || exit 1
+  [ "$(tnx_install_auto_resume_distro alpine 1)" = alpine ] || exit 1
+  if tnx_install_auto_resume_distro debian 1 >/dev/null; then exit 1; fi
+  tnx_distro_state_get(){ printf ready; }
+  if tnx_install_auto_resume_distro alpine 0 >/dev/null; then exit 1; fi
+' _ "$ROOT"; then
+  ok "single-command install auto-resumes saved incomplete guests without overriding a different explicit guest"
+else
+  not_ok "single-command install auto-resumes saved incomplete guests without overriding a different explicit guest"
+fi
+
 # Guest commands bind Android shared storage at /sdcard while keeping Termux
 # HOME isolated and honoring caller-requested temporary storage.
 if env TERNUX_STATE_DIR="$TMP/state-guest-isolation" HOME="$TMP/home-guest-isolation" \
@@ -798,6 +816,21 @@ assert 'width="9" height="9"' in launcher_icon
 assert (root / "lib/ternux-assets/icons/Ternux/scalable/devices/drive-removable-media.svg").is_file()
 assert "apt remove -y \\$DPKG_FORCE guvcview" in desktop_phase
 assert "apk add sudo bash shadow musl-utils nano mousepad" in desktop_phase
+assert "apk add sudo bash shadow musl-utils nano mousepad galculator" in desktop_phase
+assert "apk add sudo bash shadow musl-utils nano mousepad galculator evince font-noto python3 py3-gobject3 gtk+3.0 ibus devilspie2" not in desktop_phase
+assert "if command -v devilspie2 >/dev/null 2>&1; then" in desktop_phase
+assert "tnx_guest_login --shared-tmp -- sh -c" in desktop_phase
+assert "pkg_retry()" in desktop_phase and "Acquire::Retries=3" in desktop_phase
+assert "pkg_retry apk add firefox-esr" in desktop_phase
+assert "mktemp /tmp/ternux-sudoers.XXXXXX" in desktop_phase
+assert "mktemp /tmp/ternux-jetbrainsmono.XXXXXX)" in desktop_phase
+assert "XXXXXX.tar.xz" not in desktop_phase
+assert "apk add sudo bash shadow musl-utils nano mousepad galculator evince font-noto python3 py3-gobject3 gtk+3.0 ibus dbus-x11 pulseaudio" in desktop_phase and "desktop-file-utils xdg-utils xdpyinfo util-linux" in desktop_phase
+core_phase = (root / "lib/core.sh").read_text()
+assert 'ub) printf ubuntu' in core_phase and 'alp) printf alpine' in core_phase
+assert 'local distro="$(tnx_distro_canonical' in (root / "lib/desktop.sh").read_text()
+assert 'ubroot() { _ternux_guest_login ubuntu' in desktop_phase
+assert 'alproot() { _ternux_guest_login alpine' in desktop_phase
 assert "pacman -S --noconfirm --needed sudo bash nano mousepad" in desktop_phase
 assert "dnf install -y sudo bash nano mousepad" in desktop_phase
 assert "zypper --non-interactive install -y sudo bash nano mousepad" in desktop_phase
@@ -954,9 +987,12 @@ if env TERNUX_STATE_DIR="$TMP/state-launcher" HOME="$launcher_home" bash -c '
   grep -q "db() { _ternux_guest_login debian --shared-tmp --user" "$HOME/.bashrc" &&
   grep -q "ub() { _ternux_guest_login ubuntu --shared-tmp --user" "$HOME/.bashrc" &&
   grep -q "alp() { _ternux_guest_login alpine --shared-tmp --user" "$HOME/.bashrc" &&
-  grep -q "dbr() { _ternux_guest_login debian --shared-tmp" "$HOME/.bashrc" &&
-  grep -q "ubr() { _ternux_guest_login ubuntu --shared-tmp" "$HOME/.bashrc" &&
-  grep -q "alpr() { _ternux_guest_login alpine --shared-tmp" "$HOME/.bashrc" &&
+  grep -q "dbroot() { _ternux_guest_login debian --shared-tmp" "$HOME/.bashrc" &&
+  grep -q "ubroot() { _ternux_guest_login ubuntu --shared-tmp" "$HOME/.bashrc" &&
+  grep -q "alproot() { _ternux_guest_login alpine --shared-tmp" "$HOME/.bashrc" &&
+  grep -q "dbr() { dbroot" "$HOME/.bashrc" &&
+  grep -q "ubr() { ubroot" "$HOME/.bashrc" &&
+  grep -q "alpr() { alproot" "$HOME/.bashrc" &&
   grep -q "login_args=(--isolated)" "$HOME/.bashrc" &&
   grep -q "storage-allowlist" "$HOME/.bashrc" &&
   ! grep -q -- "--bind /sdcard:/sdcard" "$HOME/.bashrc"
