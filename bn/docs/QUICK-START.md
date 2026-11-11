@@ -37,11 +37,13 @@ curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh |
 wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
 ```
 
+Interactive terminal-এ প্রথমে checklist থেকে এক বা একাধিক named guest profile বাছুন: Up/Down বা `j`/`k` দিয়ে চলুন, Space বা profile number দিয়ে নির্বাচন toggle করুন, তারপর Enter চাপুন। Debian সুপারিশ করা default; অন্য ১৪টি family-matched profile আছে, তবে device-এ যাচাই হয়নি। পরের checklist-এ optional workload বাছুন; base desktop-এর জন্য Enter বা `0` চাপুন, অথবা দেখানো number দিন। Non-interactive run-এ `--yes` Debian base profile রাখে। [সব guest profile ও package-family recipe](INSTALLATION.html#guest-distribution-বাছাই) দেখুন।
+
 ইনস্টলার:
 
 1. ডিভাইস পরীক্ষা করে (আর্কিটেকচার, Android ভার্সন, স্টোরেজ, নেটওয়ার্ক);
 2. Termux প্যাকেজ ইনস্টল করে (X11, PulseAudio, PRoot);
-3. PRoot কন্টেইনারে **Debian + Xfce4** ইনস্টল করে;
+3. নির্বাচিত guest profile + Xfce4 তার PRoot কন্টেইনারে ইনস্টল করে (ডিফল্ট Debian);
 4. GPU শনাক্ত করে সঠিক ড্রাইভার বসায়
    (**Adreno → Zink/Turnip** · অন্যান্য → **VirGL**);
 5. অডিও, ফন্ট ও লোকেল কনফিগার করে;
@@ -80,7 +82,7 @@ x
 ```
 
 `x` শর্টকাট ধারাবাহিকভাবে চালু করে: অডিও ব্রিজ → ডিসপ্লে (`Termux:X11`) →
-Debian → **Xfce4**। Termux:X11 অ্যাপে যান — আপনার ডেস্কটপ সেখানেই।
+নির্বাচিত guest → **Xfce4**। Termux:X11 অ্যাপে যান — আপনার ডেস্কটপ সেখানেই।
 
 ## ধাপ ৪ — renderer যাচাই করুন
 

@@ -17,6 +17,18 @@ check() {
 
 printf 'TAP version 13\n'
 
+# User-facing CLI help must track the dispatcher and supported guest profiles.
+if cli_help="$(bash "$ROOT/bin/ternux" --help 2>&1)" \
+  && install_help="$(bash "$ROOT/bin/ternux" install --help 2>&1)" \
+  && printf '%s\n' "$cli_help" | grep -Fq -- '--version, -V' \
+  && printf '%s\n' "$install_help" | grep -Fq '15 named guest profiles' \
+  && printf '%s\n' "$install_help" | grep -Fq 'APT-family guests only' \
+  && ! printf '%s\n' "$install_help" | grep -Fq '1 development, 2 llama.cpp'; then
+  ok "runtime help documents global version, current profile selector and workload flow"
+else
+  not_ok "runtime help documents global version, current profile selector and workload flow"
+fi
+
 # Persisted custom user is the default for later CLI modules.
 state="$TMP/state-user"
 mkdir -p "$state"
@@ -1080,6 +1092,18 @@ else
   not_ok "optional failure keeps the base guest ready, shows a warning, and remains nonzero for retry"
 fi
 
+# Help must be printable from both a local script and stdin (curl | bash).
+local_help="$(bash "$ROOT/install.sh" --help)"
+stdin_help="$(cd "$ROOT" && cat install.sh | bash -s -- --help)"
+if [ "$(printf '%s\n' "$local_help" | grep -c '^Usage$')" -eq 1 ] &&
+   printf '%s\n' "$local_help" | grep -q -- '--distros LIST' &&
+   [ "$(printf '%s\n' "$stdin_help" | grep -c '^Usage$')" -eq 1 ] &&
+   printf '%s\n' "$stdin_help" | grep -q -- '--distros LIST'; then
+  ok "standalone installer help is complete in file and stdin modes"
+else
+  not_ok "standalone installer help is complete in file and stdin modes"
+fi
+
 # The wrapper must not silently force --yes for local invocation.
 if grep -q 'tnx_install --yes' "$ROOT/install.sh"; then
   not_ok "install wrapper passes --yes only when requested"
@@ -1290,6 +1314,34 @@ if [ "$user_rc" -eq 2 ] && [ "$locale_rc" -eq 2 ] && [ "$backend_rc" -eq 2 ]; th
   ok "standalone installer reports missing option values as usage errors"
 else
   not_ok "standalone installer reports missing option values as usage errors"
+fi
+
+# The public standalone bootstrap must preserve the explicit multi-guest list
+# when forwarding to the shared installer without starting any install phase.
+mkdir -p "$TMP/install-multidistro/lib"
+cp "$ROOT/install.sh" "$TMP/install-multidistro/install.sh"
+cat > "$TMP/install-multidistro/lib/core.sh" <<'EOF'
+TERNUX_VERSION=2.0.0
+tnx_info() { :; }
+tnx_ok() { :; }
+tnx_warn() { :; }
+tnx_fail() { :; }
+tnx_step() { :; }
+tnx_confirm() { :; }
+tnx_debug() { :; }
+tnx_require_termux() { :; }
+EOF
+cat > "$TMP/install-multidistro/lib/phases.sh" <<'EOF'
+tnx_install() { printf '%s\n' "$@" > "$TNX_CAPTURE_ARGS"; }
+EOF
+: > "$TMP/install-multidistro/lib/ui.sh"
+: > "$TMP/install-multidistro/lib/detect.sh"
+if TNX_CAPTURE_ARGS="$TMP/install-multidistro/args" \
+  bash "$TMP/install-multidistro/install.sh" --distros debian,ubuntu,alpine >/dev/null 2>&1 &&
+  [ "$(cat "$TMP/install-multidistro/args")" = $'--distros\ndebian,ubuntu,alpine' ]; then
+  ok "standalone installer forwards a copyable multi-guest selection"
+else
+  not_ok "standalone installer forwards a copyable multi-guest selection"
 fi
 
 rm -f "$TMP/doctor-gpu" "$TMP/doctor-verify" "$TMP/doctor-marks"

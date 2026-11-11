@@ -6,7 +6,7 @@
 
 # ternux
 
-### ARM64 Android ফোনে Debian + Xfce ডেস্কটপ — root লাগে না
+### ARM64 Android ফোনে Linux ডেস্কটপ — root লাগে না
 
 [![সংস্করণ](https://img.shields.io/badge/version-2.0.0-00e5a0?style=flat-square)](https://github.com/soobujmiah/ternux/releases)
 [![প্ল্যাটফর্ম](https://img.shields.io/badge/platform-Android%20arm64-38bdf8?style=flat-square)](https://github.com/soobujmiah/ternux)
@@ -17,9 +17,12 @@
 
 </div>
 
-Ternux, Termux ও PRoot দিয়ে Debian এবং Xfce4 বসায়। Termux:X11 ডেস্কটপ
-দেখায়, আর PulseAudio শব্দ চালায়। সমর্থিত Adreno ডিভাইসে Zink/Turnip, অন্য
-সামঞ্জস্যপূর্ণ ডিভাইসে VirGL graphics route ব্যবহৃত হয়। ফলাফল device ভেদে
+Ternux, Termux ও PRoot দিয়ে Xfce4 Linux desktop বসায়। Debian সুপারিশ করা
+default এবং একমাত্র device-verified profile; APT, APK, pacman, DNF, Zypper ও
+XBPS family-র ১৫টি named guest profile-ও interactive checklist বা `--distro`
+দিয়ে বেছে নেওয়া যায়। Generic OCI image shell guest হিসেবে চলে। Termux:X11
+desktop দেখায়, আর PulseAudio শব্দ চালায়। সমর্থিত Adreno ডিভাইসে Zink/Turnip,
+অন্য সামঞ্জস্যপূর্ণ ডিভাইসে VirGL graphics route ব্যবহৃত হয়। ফলাফল device ভেদে
 বদলায়।
 
 Ternux Android ফোনে কম resource-এ ব্যবহারযোগ্য একটি managed Linux workstation
@@ -73,7 +76,7 @@ ternux doctor     # সাধারণ সমস্যা খোঁজা
 tx stop           # চলমান guest desktop বাছাই করে বন্ধ
 ```
 
-`x` saved desktop চালায়; একাধিক profile থাকলে `xgo` তালিকা দেখায়। Debian ও Ubuntu আলাদা tagged Termux:X11 window-তে একসাথে চলতে পারে। `tx stop` এক বা একাধিক session বাছতে দেয়; `tx stop --all` সব বন্ধ করে। Debian shell-এর জন্য
+`x` saved desktop চালায়; একাধিক installed profile থাকলে `xgo` তালিকা দেখায়। আলাদা desktop guest নিজস্ব tagged Termux:X11 window-তে চলতে পারে। একাধিক profile একবারে install করতে `tx install --distros debian,ubuntu,alpine` ব্যবহার করুন। `tx stop` এক বা একাধিক session বাছতে দেয়; `tx stop --all` সব বন্ধ করে। Debian shell-এর জন্য
 Termux-এ `db` চালান। Android shared storage default-এ mount হয় না। শুধু দরকারি folder grant করুন, যেমন `ternux storage grant /sdcard/Llms`; তারপর desktop restart বা নতুন guest shell-এ folder ব্যবহার করুন।
 
 ## কী কী পাবেন
@@ -168,5 +171,5 @@ script/scene render করানো যায়। [MCP guide](../tools/blender
 - [Benchmark](../docs/BENCHMARKS.md): মাপা device ফলাফল ও তার সীমা।
 - [পরিবর্তনলগ](../CHANGELOG.md)
 
-এখন `pkg install ternux` package route প্রস্তুত, তবে v2 release-এর আগে প্রকাশিত নয়; আপাতত উপরের installer ব্যবহার করুন। প্রকাশের পরে একবার verified bootstrap signed APT source configure করে Ternux install করবে; পরের install ও update সাধারণ `pkg` command-এ হবে। [Termux APT guide](../docs/TERMUX-APT.md) দেখুন। প্রকাশিত release ও পরীক্ষামূলক CPU/GPU/NPU release gate-এর বর্তমান অবস্থা
+Interactive install-এ প্রথম checklist থেকে Space/number দিয়ে এক বা একাধিক guest profile বেছে Enter চাপুন; পরের numbered chooser-এ optional software বাছুন, Enter দিলে base desktop থাকে। `--yes` prompt বাদ দিয়ে Debian base profile install করে। এখন `pkg install ternux` package route প্রস্তুত, তবে v2 release-এর আগে প্রকাশিত নয়; আপাতত উপরের installer ব্যবহার করুন। প্রকাশের পরে একবার verified bootstrap signed APT source configure করে Ternux install করবে; পরের install ও update সাধারণ `pkg` command-এ হবে। [Termux APT guide](../docs/TERMUX-APT.md) দেখুন। প্রকাশিত release ও পরীক্ষামূলক CPU/GPU/NPU release gate-এর বর্তমান অবস্থা
 [`docs/ACCELERATOR-RELEASE-PLAN.md`](../docs/ACCELERATOR-RELEASE-PLAN.md)-এ।
