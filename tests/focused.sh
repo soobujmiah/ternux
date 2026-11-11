@@ -58,8 +58,13 @@ fi
 # Guest commands bind Android shared storage at /sdcard while keeping Termux
 # HOME isolated and honoring caller-requested temporary storage.
 if env TERNUX_STATE_DIR="$TMP/state-guest-isolation" HOME="$TMP/home-guest-isolation" \
-  PREFIX="$TMP/prefix-guest-isolation" LOG="$TMP/guest-login-args" bash -c '
+  PREFIX="$TMP/prefix-guest-isolation" LOG="$TMP/guest-login-args" \
+  SDCARD_FIXTURE="$TMP/sdcard-guest-isolation" bash -c '
     . "$1/lib/core.sh"
+    # GitHub runners are not Android and do not expose the Termux shared-storage link.
+    # Model the Android shared-storage path this test is specifically checking.
+    mkdir -p "$SDCARD_FIXTURE" || exit
+    realpath(){ if [ "$*" = "-e /sdcard" ]; then printf "%s\\n" "$SDCARD_FIXTURE"; else command realpath "$@"; fi; }
     tnx_distro(){ echo debian; }
     proot-distro(){ printf "%s\n" "$@" > "$LOG"; }
     tnx_guest_login --shared-tmp --user ternux -- bash -c true || exit
@@ -1953,6 +1958,36 @@ else
   not_ok "desktop status ignores process-name false positives"
 fi
 
+# Desktop management commands accept the same short distro names as start.
+if env TERNUX_STATE_DIR="$TMP/state-desktop-short-names" HOME="$TMP/home-desktop-short-names" \
+  TMPDIR="$TMP/desktop-short-names-tmp" bash -c '
+    mkdir -p "$HOME"
+    . "$1/lib/desktop.sh"
+    pgrep(){ return 1; }
+    tnx_desktop_session_live(){ return 1; }
+    tnx_pulseaudio_ready(){ return 1; }
+    TERNUX_JSON=1
+    status="$(tnx_cmd_status db)" || exit
+    STATUS_JSON="$status" python3 -c '\''
+import json, os
+assert json.loads(os.environ["STATUS_JSON"])["distro"] == "debian"
+'\'' || exit
+    stopped="$(tnx_cmd_stop ub)" || exit
+    STOP_JSON="$stopped" python3 -c '\''
+import json, os
+assert json.loads(os.environ["STOP_JSON"])["command"] == "stop"
+'\'' || exit
+    tnx_cmd_stop(){ printf "stop:%s\\n" "$1" >> "$HOME/restart.log"; }
+    tnx_cmd_start(){ printf "start:%s\\n" "$1" >> "$HOME/restart.log"; }
+    sleep(){ :; }
+    tnx_cmd_restart alp || exit
+    grep -qx "stop:alpine" "$HOME/restart.log" && grep -qx "start:alpine" "$HOME/restart.log"
+  ' _ "$ROOT"; then
+  ok "desktop stop, restart and status accept short distro names"
+else
+  not_ok "desktop stop, restart and status accept short distro names"
+fi
+
 # The shared-X11 diagnostic must run as the configured guest user with a bounded timeout.
 if env TERNUX_STATE_DIR="$TMP/state-x11-probe" HOME="$TMP/home-x11-probe" \
   X11_PROBE_ARGS="$TMP/x11-probe-args" bash -c '
@@ -2184,6 +2219,8 @@ if env TERNUX_STATE_DIR="$TMP/state-x11-foreground-selection" HOME="$TMP/home-x1
     . "$1/lib/desktop.sh"
     mkdir -p "$TERNUX_STATE_DIR/distros/ubuntu/session"
     am(){ printf "%s\\n" "$*" >> "$AM_ARGS"; }
+    tnx_warn(){ printf "%s\\n" "$*" >> "$AM_ARGS"; }
+    _tnx_running_guest_sessions(){ printf "debian\\nubuntu\\n"; }
     TERNUX_DISTRO=ubuntu
     printf "tagged\\n" > "$TERNUX_STATE_DIR/distros/ubuntu/session/x11-display-mode"
     tnx_show_x11_activity "ternux-ubuntu" || exit
@@ -2192,11 +2229,12 @@ if env TERNUX_STATE_DIR="$TMP/state-x11-foreground-selection" HOME="$TMP/home-x1
     printf "shared\\n" > "$TERNUX_STATE_DIR/distros/ubuntu/session/x11-display-mode"
     tnx_show_x11_activity "ternux-ubuntu" || exit
     grep -Fq "com.termux.x11/com.termux.x11.MainActivity" "$AM_ARGS" || exit
+    grep -Fq "cannot switch the visible guest" "$AM_ARGS" || exit
     ! grep -Fq -- "-d ternux-ubuntu" "$AM_ARGS"
   ' _ "$ROOT"; then
-  ok "selected distro foregrounds its tagged Termux:X11 window and shared-mode activity"
+  ok "selected distro foregrounds its tagged window and warns for unselectable shared-window mode"
 else
-  not_ok "selected distro foregrounds its tagged Termux:X11 window and shared-mode activity"
+  not_ok "selected distro foregrounds its tagged window and warns for unselectable shared-window mode"
 fi
 
 if env TERNUX_STATE_DIR="$TMP/state-desktop-recover" HOME="$TMP/home-desktop-recover" \

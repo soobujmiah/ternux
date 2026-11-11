@@ -87,6 +87,14 @@ tnx_show_x11_activity() {
     am start --user 0 -n com.termux.x11/com.termux.x11.MainActivity -d "$tag" >/dev/null 2>&1 || true
   else
     am start -n com.termux.x11/com.termux.x11.MainActivity >/dev/null 2>&1 || true
+    if [ "$(cat "$mode_file" 2>/dev/null || true)" = shared ] &&
+       declare -F _tnx_running_guest_sessions >/dev/null 2>&1; then
+      local -a active_sessions=()
+      mapfile -t active_sessions < <(_tnx_running_guest_sessions)
+      if [ "${#active_sessions[@]}" -gt 1 ]; then
+        tnx_warn "Multiple desktops are using one shared Termux:X11 window; this app cannot switch the visible guest. Install the Termux:X11 nightly app, then restart each desktop to enable per-guest windows."
+      fi
+    fi
   fi
 }
 
@@ -381,6 +389,7 @@ tnx_cmd_start() {
 tnx_cmd_stop() {
   local distro="${1:-$(cat "$TERNUX_STATE_DIR/session/distro" 2>/dev/null || tnx_distro)}"
   [ "$#" -le 1 ] || { tnx_fail "Usage: ternux stop [DISTRO|--all]"; return 2; }
+  distro="$(tnx_distro_canonical "$distro")"
   if [ "${1:-}" = "--all" ] || { [ "$#" -eq 0 ] && [ "${TERNUX_JSON:-0}" != 1 ]; }; then
     _tnx_stop_select "$([ "${1:-}" = --all ] && echo all || true)"
     return $?
@@ -468,6 +477,7 @@ tnx_cmd_stop() {
 # ---------------------------------------------------------------------------
 tnx_cmd_restart() {
   local distro="${1:-$(cat "$TERNUX_STATE_DIR/session/distro" 2>/dev/null || tnx_distro)}"
+  distro="$(tnx_distro_canonical "$distro")"
   tnx_cmd_stop "$distro" || {
     tnx_warn "Restart aborted because the existing desktop could not be stopped safely."
     return 1
@@ -483,6 +493,7 @@ tnx_cmd_status() {
   local distro="${1:-$(cat "$TERNUX_STATE_DIR/session/distro" 2>/dev/null || tnx_distro)}"
   local active_distro=""
   [ "$#" -le 1 ] || { tnx_fail "Usage: ternux status [DISTRO]"; return 2; }
+  distro="$(tnx_distro_canonical "$distro")"
   tnx_distro_known "$distro" || { tnx_fail "Unsupported Ternux desktop profile '$distro'."; return 2; }
   active_distro="$(cat "$(tnx_distro_session_dir "$distro")/distro" 2>/dev/null || true)"
   unset _TNX_DISTRO; export TERNUX_DISTRO="$distro"
