@@ -661,6 +661,7 @@ _tnx_frame_draw_dashboard() {
   _tnx_frame_layout
   local state_color="$TNX_CC"
   [ "$state" = "COMPLETE" ] && state_color="$TNX_CG"
+  [ "$state" = "WARNING" ] && state_color="$TNX_CY"
   [ "$state" = "FAILED" ] && state_color="$TNX_CR"
 
   printf '\033[?25l\033[r\033[2J\033[H'
@@ -1054,6 +1055,7 @@ tnx_frame_close() {
   local failed_title="${3:-${_TNX_FRAME_TITLE:-installation phase}}" state="FAILED"
   local reserved=0
   [ "$status" = "success" ] && state="COMPLETE"
+  [ "$status" = "warning" ] && state="WARNING"
   tnx_log_info "Installation frame closed: $status"
 
   if [ "${_TNX_FRAME_MODE:-off}" = "plain" ] && [ "${_TNX_TTY:-0}" = "1" ]; then
@@ -1072,6 +1074,9 @@ tnx_frame_close() {
   if [ "${_TNX_FRAME_MODE:-off}" = "dashboard" ]; then
     if [ "$status" = "success" ]; then
       _TNX_FRAME_TITLE="Installation complete"
+      _TNX_FRAME_CUR="$_TNX_FRAME_TOTAL"
+    elif [ "$status" = "warning" ]; then
+      _TNX_FRAME_TITLE="Ready with optional setup warnings"
       _TNX_FRAME_CUR="$_TNX_FRAME_TOTAL"
     else
       _TNX_FRAME_TITLE="Failed: $failed_title"
@@ -1097,16 +1102,19 @@ tnx_frame_close() {
     if [ "$status" = "success" ]; then
       printf '\033[K%s[ OK ]%s  Installation complete - %s/%s phases.\n' \
         "$TNX_CG" "$TNX_C0" "$_TNX_FRAME_CUR" "$_TNX_FRAME_TOTAL"
+    elif [ "$status" = "warning" ]; then
+      printf '\033[K%s[WARN]%s  Base desktop ready; optional setup needs attention.\n' "$TNX_CY" "$TNX_C0"
     else
       printf '\033[K%s[FAIL]%s  Stopped at phase %s/%s: %s\n' \
         "$TNX_CR" "$TNX_C0" "$failed_cur" "$_TNX_FRAME_TOTAL" "$failed_title"
     fi
     printf '\033[K%sFull log:%s %s\n' "$TNX_CD" "$TNX_C0" "$TERNUX_LOG_FILE"
   elif [ "${_TNX_FRAME_MODE:-off}" = "plain" ]; then
-    local color="$TNX_CR"
-    [ "$status" = "success" ] && color="$TNX_CG"
+    local color="$TNX_CR" outcome="failed"
+    if [ "$status" = "success" ]; then color="$TNX_CG"; outcome="complete"
+    elif [ "$status" = "warning" ]; then color="$TNX_CY"; outcome="complete with warnings"; fi
     _tnx_plain_cols >/dev/null
-    printf '%s|%s %sInstallation %s%s\n' "$TNX_CM" "$TNX_C0" "$color" "$status" "$TNX_C0"
+    printf '%s|%s %sInstallation %s%s\n' "$TNX_CM" "$TNX_C0" "$color" "$outcome" "$TNX_C0"
     printf '%s+%s+%s\n' "$TNX_CM" "$_TNX_RULE" "$TNX_C0"
     printf '%sFull log:%s %s\n' "$TNX_CD" "$TNX_C0" "$TERNUX_LOG_FILE"
   fi
@@ -1257,8 +1265,13 @@ tnx_summary_box() {
 tnx_celebrate() {
   [ "${TERNUX_QUIET:-0}" = "1" ] && return 0
   _tnx_sigv 0
-  printf '\n  %s== %sI N S T A L L   C O M P L E T E%s ==%s\n' "$TNX_CG" "$TNX_CW" "$TNX_CG" "$TNX_C0"
-  printf '  %sdesktop - GPU - audio - host CLI - guest companion verified%s\n' "$TNX_CD" "$TNX_C0"
+  if [ "${1:-success}" = "warning" ]; then
+    printf '\n  %s== %sB A S E   D E S K T O P   R E A D Y%s ==%s\n' "$TNX_CY" "$TNX_CW" "$TNX_CY" "$TNX_C0"
+    printf '  %sRequired install phases passed; selected optional setup needs attention.%s\n' "$TNX_CD" "$TNX_C0"
+  else
+    printf '\n  %s== %sI N S T A L L   C O M P L E T E%s ==%s\n' "$TNX_CG" "$TNX_CW" "$TNX_CG" "$TNX_C0"
+    printf '  %sRequired install phases and final verification completed.%s\n' "$TNX_CD" "$TNX_C0"
+  fi
   printf '  %sbuilt with <3 by %s%s%s\n' "$TNX_CD" "$TNX_C0" "$_TNX_SIG" "$TNX_C0"
 }
 

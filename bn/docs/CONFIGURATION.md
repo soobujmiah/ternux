@@ -16,7 +16,7 @@ ternux যুক্তিসঙ্গত ডিফল্ট নিয়ে ই�
 
 | সেটিং | ডিফল্ট | নোট |
 |---|---|---|
-| `--user NAME` | `ternux` | কন্টেইনারে তৈরি Debian ইউজার |
+| `--user NAME` | `ternux` | বেছে নেওয়া প্রতিটি কন্টেইনারে তৈরি guest user |
 | `--locale LANG` | `en_US.UTF-8` | ডেস্কটপ লোকেল (বাংলার জন্য নিচে দেখুন) |
 | `--backend` | `auto` | `auto` Adreno শনাক্ত করে → `zink`, নয়তো `virgl` |
 | `--zsh` | বন্ধ | Termux শেলও zsh-এ বদলায় |
@@ -42,6 +42,14 @@ bash install.sh --locale bn_BD.UTF-8
 
 ইনস্টলারের রেন্ডারার কেবল প্রদর্শনের পছন্দ। স্ক্রিন যা-ই দেখাতে পারুক, প্রতিটি
 ফেজের পুরো আউটপুট `$TERNUX_LOG_DIR/ternux.log`-এ যোগ হয়।
+
+Guest profile এবং optional workload picker একই keyboard checklist ব্যবহার করে:
+Up/Down বা `j`/`k` দিয়ে চলুন, Space বা number দিয়ে item toggle করুন, Enter-এ
+নিশ্চিত করুন। Raw-key input না থাকলে profile picker comma-separated number বা
+name নেয়। ইনস্টলের আগে dashboard নির্বাচিত guest ও workload-এর সারাংশ দেখায়।
+Optional workload ব্যর্থ হলেও base guest-এর verification সফল হলে সেটি ready থাকে;
+UI warning দেখায় এবং `ternux install --resume` দিয়ে অসমাপ্ত ধাপ retry করা যায়।
+Optional failure automation-এ ধরা যায় বলে command nonzero ফেরায়।
 
 | ভেরিয়েবল | ডিফল্ট | কাজ |
 |---|---|---|
@@ -162,7 +170,7 @@ test একটি প্রকৃত installation-এ পৌঁছাতে ন�
 
 | ভেরিয়েবল | ডিফল্ট | প্রভাব |
 |---|---|---|
-| `TERNUX_DISTRO` | `debian` | সবকিছু যে PRoot-Distro guest-এ বসে; `--distro` এটি সেট করে। `debian` ও `ubuntu`-র profile আছে, কিন্তু **ডিভাইসে যাচাই করা কেবল `debian`**। অন্য কিছু প্রত্যাখ্যাত হয়। |
+| `TERNUX_DISTRO` | `debian` | ইনস্টলেশনের PRoot-Distro guest; `--distro` এটি সেট করে। APT (Debian, Ubuntu, Kali, Deepin, Pardus), APK (Alpine, Adelie, Chimera), pacman (Arch Linux, Artix, Manjaro), DNF (Fedora, Rocky Linux), Zypper (openSUSE) এবং XBPS (Void)-এর জন্য family-matched desktop recipe আছে। **ডিভাইসে যাচাই করা কেবল Debian।** যেকোনো OCI image shell guest হিসেবে ব্যবহার করা যায়, তবে তার জন্য স্বয়ংক্রিয় desktop recipe নেই। |
 | `TERNUX_THEME` | `p10k` | `none` দিলে powerlevel10k ছাড়া zsh বসে। `--no-theme` এটি সেট করে। |
 | `TERNUX_KGSL_DEVICE` | `/dev/kgsl-3d0` | GPU, Vulkan ও backend detection যে device node পরীক্ষা করে। অনুপস্থিত একটি path-এ নির্দেশ করলে `auto` VirGL-এ নামে — যা একটি non-Adreno ডিভাইস দেখে। |
 | `TERNUX_HOST_PREFIX` | `/data/data/com.termux/files/usr` | Local checkout বা download-এ নামার আগে `uninstall.sh` কোথায় installed host CLI খোঁজে। |

@@ -1063,6 +1063,7 @@ if env TERNUX_STATE_DIR="$TMP/state-optional" HOME="$TMP/home-optional" bash -c 
     eval "tnx_phase_${name}(){ echo ${name} >> \"\$order\"; }"
   done
   tnx_phase_extras(){ echo extras >> "$order"; return 9; }
+  tnx_frame_close(){ printf "%s\n" "$1" > "$order.close"; }
   set +e
   tnx_install --yes --with-dev >/dev/null 2>&1
   rc=$?
@@ -1070,11 +1071,13 @@ if env TERNUX_STATE_DIR="$TMP/state-optional" HOME="$TMP/home-optional" bash -c 
   test "$rc" -eq 9 &&
   grep -qx verify "$order" &&
   ! tnx_state_done phase_extras &&
-  tnx_state_done phase_verify
+  tnx_state_done phase_verify &&
+  [ "$(tnx_distro_state_get debian status)" = ready ] &&
+  [ "$(cat "$order.close")" = warning ]
 ' _ "$ROOT" "$TMP"; then
-  ok "optional failure continues to verification and remains nonzero"
+  ok "optional failure keeps the base guest ready, shows a warning, and remains nonzero for retry"
 else
-  not_ok "optional failure continues to verification and remains nonzero"
+  not_ok "optional failure keeps the base guest ready, shows a warning, and remains nonzero for retry"
 fi
 
 # The wrapper must not silently force --yes for local invocation.
@@ -2452,6 +2455,23 @@ if printf '%s\n' "$failed_frame_out" | grep -q '^FAILED|4|11|Failed: Debian cont
   ok "failed dashboard retains the actual failed phase index"
 else
   not_ok "failed dashboard retains the actual failed phase index"
+fi
+warning_frame_out="$(env NO_COLOR=1 TERNUX_STATE_DIR="$TMP/state-frame-warning" \
+  TERNUX_LOG_DIR="$TMP/log-frame-warning" HOME="$TMP/home-frame-warning" bash -c '
+    mkdir -p "$HOME"
+    . "$1/lib/ui.sh"
+    _TNX_FRAME_MODE=dashboard; _TNX_FRAME_ACTIVE=1
+    _TNX_FRAME_CUR=9; _TNX_FRAME_TOTAL=11; _TNX_FRAME_ROWS=24
+    _TNX_FRAME_TITLE="Optional setup needs attention"
+    _tnx_frame_draw_dashboard(){ printf "%s|%s|%s|%s\n" "$1" "$_TNX_FRAME_CUR" "$_TNX_FRAME_TOTAL" "$_TNX_FRAME_TITLE"; }
+    tnx_frame_restore_terminal(){ :; }
+    tnx_frame_close warning 9 "Optional setup needs attention"
+  ' _ "$ROOT")"
+if printf '%s\n' "$warning_frame_out" | grep -q '^WARNING|11|11|Ready with optional setup warnings$' &&
+   printf '%s\n' "$warning_frame_out" | grep -q 'Base desktop ready; optional setup needs attention'; then
+  ok "warning dashboard distinguishes ready base desktop from failed required install"
+else
+  not_ok "warning dashboard distinguishes ready base desktop from failed required install"
 fi
 
 # Storage copy must distinguish installed size from temporary free-space

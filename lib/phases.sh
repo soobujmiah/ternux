@@ -2114,50 +2114,180 @@ _tnx_execute_install_phase() {
 # Prompt for the guest distribution when neither a flag nor saved state chose
 # one. Same tty/deadline/default handling as the other prompts. The prompt names
 # which guest is device-verified, because only one is.
+_TNX_SELECTED_DISTROS=()
+
+_tnx_profile_toggle() {
+  local distro="$1" i
+  for i in "${!_TNX_SELECTED_DISTROS[@]}"; do
+    if [ "${_TNX_SELECTED_DISTROS[$i]}" = "$distro" ]; then
+      unset '_TNX_SELECTED_DISTROS[i]'
+      _TNX_SELECTED_DISTROS=("${_TNX_SELECTED_DISTROS[@]}")
+      return 0
+    fi
+  done
+  _TNX_SELECTED_DISTROS+=("$distro")
+}
+
+_tnx_profile_menu_draw() {
+  local cursor="$1" size="${2:-}" rows cols visible first last i distro family mark pointer color selected_count=0 info controls1 controls2 line summary_rows=0
+  local -a profiles=() summary_lines=()
+  read -r -a profiles <<< "$TERNUX_DISTRO_KNOWN"
+  [ -n "$size" ] || size="$(stty size <&3 2>/dev/null || true)"
+  read -r rows cols <<< "$size"
+  [[ "$rows" =~ ^[0-9]+$ ]] || rows=24
+  [[ "$cols" =~ ^[0-9]+$ ]] || cols=80
+  (( cols > 200 )) && cols=200
+  (( cols < 24 )) && cols=24
+  selected_count=${#_TNX_SELECTED_DISTROS[@]}
+  line='Selected:'
+  for distro in "${_TNX_SELECTED_DISTROS[@]}"; do
+    local separator=' '
+    [ "$line" = 'Selected:' ] || separator=', '
+    if [ "$line" != 'Selected:' ] && (( ${#line} + ${#separator} + ${#distro} > cols - 2 )); then
+      summary_lines+=("$line"); line='         '; separator=''
+    fi
+    line+="$separator$distro"
+  done
+  summary_lines+=("$line"); summary_rows=${#summary_lines[@]}
+  visible=$((rows - 10 - summary_rows)); (( visible < 1 )) && visible=1
+  (( visible > 15 )) && visible=15
+  (( visible > ${#profiles[@]} )) && visible=${#profiles[@]}
+  first=0; (( cursor >= visible )) && first=$((cursor - visible + 1))
+  last=$((first + visible)); (( last > ${#profiles[@]} )) && last=${#profiles[@]}
+
+  printf '\033[?25l\033[r\033[H\033[2J%s+%s+%s\n' "$TNX_CM" "$(printf '%*s' "$((cols - 2))" '' | tr ' ' '=')" "$TNX_C0" >&2
+  printf '%s%s%s\n' "$TNX_CG" "TERNUX DESKTOP PROFILES" "$TNX_C0" >&2
+  printf '%s%s%s\n' "$TNX_CC" "${selected_count} selected  |  ${#profiles[@]} recipes" "$TNX_C0" >&2
+  info='* selected | + device-verified | remaining recipes unverified'
+  printf '%s%s%s\n' "$TNX_CD" "${info:0:cols-2}" "$TNX_C0" >&2
+  for line in "${summary_lines[@]}"; do printf '%s%s%s\n' "$TNX_CG" "${line:0:cols-2}" "$TNX_C0" >&2; done
+  printf '\n' >&2
+  for ((i=first; i<last; i++)); do
+    distro="${profiles[$i]}"
+    tnx_distro_profile "$distro"; family="${TNX_DP_FAMILY^^}"
+    mark='o'; color="$TNX_CD"
+    [[ " ${_TNX_SELECTED_DISTROS[*]} " == *" $distro "* ]] && { mark='*'; color="$TNX_CG"; }
+    pointer=' '; [ "$i" = "$cursor" ] && { pointer='>'; color="$TNX_CY"; }
+    tnx_distro_verified "$distro" && family+='+'
+    printf '%s%s%s %s%s%s %02d %-12.12s %s\n' \
+      "$color" "$pointer" "$TNX_C0" "$color" "$mark" "$TNX_C0" "$((i + 1))" "$distro" "$family" >&2
+  done
+  if (( first > 0 || last < ${#profiles[@]} )); then
+    printf '%sShowing %d-%d of %d%s\n' "$TNX_CD" "$((first + 1))" "$last" "${#profiles[@]}" "$TNX_C0" >&2
+  fi
+  if (( cols >= 44 )); then
+    controls1='UP/DOWN or J/K move | SPACE/number toggle'
+    controls2='ENTER continue | Q keeps default'
+  else
+    controls1='J/K move | Space toggle'
+    controls2='Enter select | Q default'
+  fi
+  printf '\n%s%s%s\n%s%s%s\n' "$TNX_CY" "${controls1:0:cols-2}" "$TNX_C0" "$TNX_CY" "${controls2:0:cols-2}" "$TNX_C0" >&2
+  printf '%s+%s+%s\n' "$TNX_CM" "$(printf '%*s' "$((cols - 2))" '' | tr ' ' '=')" "$TNX_C0" >&2
+}
+
 tnx_prompt_distro() {
-  local default_distro="${1:-debian}" timeout="${2:-20}" tty_fd="" input="" i=0 item bad=0
+  local default_distro="${1:-debian}" timeout="${2:-20}" tty_fd="" cursor=0 key seq number idx next pending_key="" old_stty="" menu_size="" size="" read_status
   local -a profiles=()
   read -r -a profiles <<< "$TERNUX_DISTRO_KNOWN"
+  _TNX_SELECTED_DISTROS=("$default_distro")
+  for idx in "${!profiles[@]}"; do [ "${profiles[$idx]}" = "$default_distro" ] && cursor=$idx; done
 
   if { exec 3<>/dev/tty; } 2>/dev/null; then tty_fd=3
   elif [ -t 0 ]; then tty_fd=0
+  else printf '%s\n' "$default_distro"; return 0
   fi
-  if [ -z "$tty_fd" ]; then printf '%s\n' "$default_distro"; return 0; fi
 
-  printf "${TNX_CW}Guest profiles${TNX_C0} (desktop recipes by package-manager family)\n" >&2
-  for item in "${profiles[@]}"; do
-    i=$((i + 1))
-    if tnx_distro_verified "$item"; then
-      printf '  %2d) %-12s device-verified\n' "$i" "$item" >&2
-    else
-      printf '  %2d) %s\n' "$i" "$item" >&2
+  if [ "$tty_fd" = 3 ] && [ -t 3 ] && [ "${TERM:-}" != dumb ]; then
+    old_stty="$(stty -g <&3 2>/dev/null || true)"
+    menu_size="$(stty size <&3 2>/dev/null || true)"
+    local menu_rows=0 menu_cols=0
+    read -r menu_rows menu_cols <<< "$menu_size" || true
+    [[ "$menu_rows" =~ ^[0-9]+$ && "$menu_cols" =~ ^[0-9]+$ ]] || old_stty=""
+    (( ${menu_rows:-0} >= 14 && ${menu_cols:-0} >= 32 )) || old_stty=""
+  fi
+  if [ -n "$old_stty" ]; then
+    menu_size="$(stty size <&3 2>/dev/null || true)"
+    _tnx_profile_menu_draw "$cursor" "$menu_size"
+    if ! stty -echo -icanon min 1 time 0 <&3 2>/dev/null; then
+      stty "$old_stty" <&3 2>/dev/null || true
+      old_stty=""
+      printf '\033[?25h\033[H\033[2J' >&2
     fi
-  done
-  printf "Choose a number, type a profile name, or enter comma-separated names for multiple guests [default: %s] (%ss): " "$default_distro" "$timeout" >&2
-  if ! IFS= read -r -t "$timeout" -u "$tty_fd" input; then
-    printf "\n${TNX_CY}[INFO]${TNX_C0} Guest prompt timed out; using '%s'.\n" "$default_distro" >&2
-    printf '%s\n' "$default_distro"; return 0
   fi
-  input="$(printf '%s' "$input" | tr -d '\r\n' | tr '[:upper:]' '[:lower:]')"
-  if [[ "$input" =~ ^[0-9]+$ ]] && [ "$input" -ge 1 ] && [ "$input" -le "${#profiles[@]}" ]; then
-    input="${profiles[input-1]}"
-  fi
-  if [ -z "$input" ]; then
-    printf '%s\n' "$default_distro"
-    return 0
-  fi
-  local -a selected=()
-  IFS=',' read -r -a selected <<< "$input"
-  for item in "${selected[@]}"; do
-    item="$(printf '%s' "$item" | tr -d '[:space:]')"
-    tnx_distro_known "$item" || bad=1
-  done
-  if [ "$bad" -eq 0 ]; then
-    printf '%s\n' "$(printf '%s' "$input" | tr -d '[:space:]')"
+  if [ -n "$old_stty" ]; then
+    trap 'stty "$old_stty" <&3 2>/dev/null || true; printf "\\033[?25h" >&2; exit 130' INT
+    trap 'stty "$old_stty" <&3 2>/dev/null || true; printf "\\033[?25h" >&2; exit 143' TERM
+    while :; do
+      if [ -n "$pending_key" ]; then key="$pending_key"; pending_key=""
+      elif IFS= read -r -s -n 1 -t 0.5 -u 3 key; then :
+      else
+        read_status=$?
+        if (( read_status > 128 )); then
+          size="$(stty size <&3 2>/dev/null || true)"
+          if [ "$size" != "$menu_size" ]; then menu_size="$size"; _tnx_profile_menu_draw "$cursor" "$menu_size"; fi
+          continue
+        fi
+        break
+      fi
+      case "$key" in
+        $'\033') IFS= read -r -s -n 2 -t 1 -u 3 seq || seq=""; case "$seq" in '[A') (( cursor > 0 )) && cursor=$((cursor - 1)) ;; '[B') (( cursor + 1 < ${#profiles[@]} )) && cursor=$((cursor + 1)) ;; esac ;;
+        k) (( cursor > 0 )) && cursor=$((cursor - 1)) ;;
+        j) (( cursor + 1 < ${#profiles[@]} )) && cursor=$((cursor + 1)) ;;
+        ' ') _tnx_profile_toggle "${profiles[$cursor]}" ;;
+        [0-9])
+          number="$key"
+          while :; do
+            next=""
+            if IFS= read -r -s -n 1 -t 0.18 -u 3 next; then
+              if [[ "$next" =~ ^[0-9]$ ]]; then number+="$next"
+              else pending_key="${next:-$'\r'}"; break
+              fi
+            else break
+            fi
+          done
+          number=$((10#$number)); idx=$((number - 1))
+          (( idx >= 0 && idx < ${#profiles[@]} )) && _tnx_profile_toggle "${profiles[$idx]}"
+          ;;
+        ''|$'\r'|$'\n') break ;;
+        q|Q) _TNX_SELECTED_DISTROS=("$default_distro"); break ;;
+      esac
+      size="$(stty size <&3 2>/dev/null || true)"
+      [ -n "$size" ] && menu_size="$size"
+      _tnx_profile_menu_draw "$cursor" "$menu_size"
+    done
+    [ -n "$old_stty" ] && stty "$old_stty" <&3 2>/dev/null || true
+    trap - INT TERM
+    printf '\033[?25h\033[H\033[2J' >&2
   else
-    printf "${TNX_CY}[INFO]${TNX_C0} Choose one of: %s. Using '%s'.\n" "$TERNUX_DISTRO_KNOWN" "$default_distro" >&2
-    printf '%s\n' "$default_distro"
+    printf '\n%sGuest profiles%s (desktop recipes by package-manager family)\n' "$TNX_CW" "$TNX_C0" >&2
+    for idx in "${!profiles[@]}"; do printf '  %2d) %s\n' "$((idx + 1))" "${profiles[$idx]}" >&2; done
+    while :; do
+      printf 'Choose numbers or names separated by commas [default: %s; q keeps default]: ' "$default_distro" >&2
+      if ! IFS= read -r -u "$tty_fd" input; then break; fi
+      [ -n "$input" ] || break
+      case "${input,,}" in q) _TNX_SELECTED_DISTROS=("$default_distro"); break ;; esac
+      local -a choices=() picked=()
+      local bad=0 item seen=" "
+      IFS=',' read -r -a choices <<< "$input"
+      for item in "${choices[@]}"; do
+        item="$(printf '%s' "$item" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')"
+        if [[ "$item" =~ ^[0-9]+$ ]]; then
+          item=$((10#$item)); (( item >= 1 && item <= ${#profiles[@]} )) || { bad=1; break; }
+          item="${profiles[item-1]}"
+        fi
+        tnx_distro_known "$item" || { bad=1; break; }
+        case "$seen" in *" $item "*) bad=1; break ;; esac
+        seen+="$item "; picked+=("$item")
+      done
+      if [ "$bad" -eq 0 ] && [ "${#picked[@]}" -gt 0 ]; then _TNX_SELECTED_DISTROS=("${picked[@]}"); break; fi
+      printf '%s[WARN]%s Select listed numbers or names; duplicate entries are not allowed.\n' "$TNX_CY" "$TNX_C0" >&2
+    done
+    [ "$tty_fd" = 3 ] && exec 3>&-
   fi
+  local result="" distro
+  for distro in "${_TNX_SELECTED_DISTROS[@]}"; do result+="${result:+,}$distro"; done
+  printf '%s\n' "${result:-$default_distro}"
 }
 
 # Prompt for the Termux host shell when neither a flag nor saved state chose
@@ -2402,9 +2532,13 @@ tnx_prompt_workloads() {
         ' ') _tnx_checklist_toggle "${TNX_OPTIONAL_ITEMS[$cursor]}" ;;
         [0-9])
           number="$key"
-          while IFS= read -r -s -n 1 -t 0.18 -u 3 next; do
-            if [[ "$next" =~ ^[0-9]$ ]]; then number+="$next"
-            else pending_key="$next"; break
+          while :; do
+            next=""
+            if IFS= read -r -s -n 1 -t 0.18 -u 3 next; then
+              if [[ "$next" =~ ^[0-9]$ ]]; then number+="$next"
+              else pending_key="${next:-$'\r'}"; break
+              fi
+            else break
             fi
           done
           idx=$((10#$number - 1))
@@ -2640,7 +2774,8 @@ tnx_install_single() {
   fi
 
   local phases="preflight packages cli debian gpu audio_fonts launcher aliases extras phantom verify"
-  local total=11 rc=0 current=0 phase_rc=0 failed_phase="" failed_current=0 phase="" title=""
+  local total=11 rc=0 current=0 phase_rc=0 required_failed=0 failed_phase="" failed_current=0 phase="" title=""
+  local -a warning_phases=()
 
   tnx_frame_open "$total" "$backend" "$user_name" "$profile"
   # The standalone loader may own one extracted source snapshot. Preserve its
@@ -2695,12 +2830,11 @@ tnx_install_single() {
       continue
     fi
 
-    rc="$phase_rc"
-    failed_phase="$phase"
-    failed_current="$current"
     tnx_log_error "Installation phase '$phase' failed with status $phase_rc"
 
     if [ "$phase" = "extras" ] || [ "$phase" = "phantom" ]; then
+      rc="$phase_rc"
+      warning_phases+=("$phase")
       if [ "${_TNX_FRAME_ACTIVE:-0}" = "1" ]; then
         printf '[WARN] Optional/advisory phase %s had issues; continuing to verification.\n' "$phase" | tnx_frame_stream
       else
@@ -2709,6 +2843,10 @@ tnx_install_single() {
       continue
     fi
 
+    rc="$phase_rc"
+    required_failed=1
+    failed_phase="$phase"
+    failed_current="$current"
     if [ "${_TNX_FRAME_ACTIVE:-0}" = "1" ]; then
       printf '[FAIL] Required phase %s failed; stopping before dependent phases.\n' "$phase" | tnx_frame_stream
     else
@@ -2717,38 +2855,62 @@ tnx_install_single() {
     break
   done
 
-  if [ "$rc" -eq 0 ]; then
+  if [ "$required_failed" -eq 0 ]; then
     tnx_distro_state_set "$distro_choice" status ready || tnx_warn "Could not save the ready state for guest '$distro_choice'."
+    local install_status="success" optional_summary=""
+    local -a install_summary=("Version" "$TERNUX_VERSION" "Backend" "$backend" "User" "$user_name" "Profile" "$profile")
+    if [ "${#warning_phases[@]}" -gt 0 ]; then
+      install_status="warning"
+      optional_summary="$(IFS=', '; printf '%s' "${warning_phases[*]}")"
+      install_summary+=("Optional setup" "$optional_summary")
+    fi
     if [ "${_TNX_FRAME_ACTIVE:-0}" = "1" ]; then
       {
+        if [ "$install_status" = "warning" ]; then
+          tnx_celebrate warning
+          tnx_warn "Base desktop is ready; optional setup needs attention: $optional_summary."
+        else
+          tnx_celebrate
+        fi
+        install_summary+=("Device" "$(getprop ro.product.model 2>/dev/null || echo '?')" "Android" "$(getprop ro.build.version.release 2>/dev/null || echo '?')" "Host CLI" "${PREFIX:-/data/data/com.termux/files/usr}/bin/ternux" "Guest CLI" "/usr/local/bin/ternux")
+        tnx_summary_box "Install Complete" "${install_summary[@]}"
+        if [ "$install_status" = "warning" ]; then
+          tnx_next_steps \
+            "Base desktop is ready; retry optional setup with: ternux install --resume" \
+            "Full installer log: $TERNUX_LOG_FILE" \
+            "Start the desktop with: ternux start"
+        else
+          tnx_next_steps \
+            "Open the Termux:X11 app once and leave it running" \
+            "Start from Termux: ternux start  (or: x)" \
+            "In Xfce Terminal:  ternux status" \
+            "Host diagnostics: ternux doctor" \
+            "Install tool help: ternux guides  (also inside Debian)"
+        fi
+      } 2>&1 | tnx_frame_stream
+      tnx_frame_close "$install_status" "$current" "Optional setup needs attention"
+    else
+      if [ "$install_status" = "warning" ]; then
+        tnx_celebrate warning
+        tnx_warn "Base desktop is ready; optional setup needs attention: $optional_summary."
+      else
         tnx_celebrate
-        tnx_summary_box "Install Complete" \
-          "Version" "$TERNUX_VERSION" "Backend" "$backend" "User" "$user_name" \
-          "Profile" "$profile" \
-          "Device" "$(getprop ro.product.model 2>/dev/null || echo '?')" \
-          "Android" "$(getprop ro.build.version.release 2>/dev/null || echo '?')" \
-          "Host CLI" "${PREFIX:-/data/data/com.termux/files/usr}/bin/ternux" \
-          "Guest CLI" "/usr/local/bin/ternux"
+      fi
+      install_summary+=("Host CLI" "${PREFIX:-/data/data/com.termux/files/usr}/bin/ternux" "Guest CLI" "/usr/local/bin/ternux")
+      tnx_summary_box "Install Complete" "${install_summary[@]}"
+      if [ "$install_status" = "warning" ]; then
+        tnx_next_steps \
+          "Base desktop is ready; retry optional setup with: ternux install --resume" \
+          "Full installer log: $TERNUX_LOG_FILE" \
+          "Start the desktop with: ternux start"
+      else
         tnx_next_steps \
           "Open the Termux:X11 app once and leave it running" \
           "Start from Termux: ternux start  (or: x)" \
           "In Xfce Terminal:  ternux status" \
           "Host diagnostics: ternux doctor" \
           "Install tool help: ternux guides  (also inside Debian)"
-      } 2>&1 | tnx_frame_stream
-      tnx_frame_close success
-    else
-      tnx_celebrate
-      tnx_summary_box "Install Complete" \
-        "Version" "$TERNUX_VERSION" "Backend" "$backend" "User" "$user_name" \
-        "Profile" "$profile" "Host CLI" "${PREFIX:-/data/data/com.termux/files/usr}/bin/ternux" \
-        "Guest CLI" "/usr/local/bin/ternux"
-      tnx_next_steps \
-        "Open the Termux:X11 app once and leave it running" \
-        "Start from Termux: ternux start  (or: x)" \
-        "In Xfce Terminal:  ternux status" \
-        "Host diagnostics: ternux doctor" \
-        "Install tool help: ternux guides  (also inside Debian)"
+      fi
     fi
   else
     tnx_distro_state_set "$distro_choice" status incomplete || true
@@ -2760,7 +2922,7 @@ tnx_install_single() {
           tnx_warn "Installation did not complete cleanly."
         fi
         tnx_info "Full log: $TERNUX_LOG_FILE"
-        tnx_info "Fix the reported error, then run 'bash install.sh --resume' or the Termux-host 'ternux doctor'."
+        tnx_info "Fix the reported error, then run 'ternux install --resume' or the Termux-host 'ternux doctor'."
       } 2>&1 | tnx_frame_stream
       tnx_frame_close failed "$failed_current" "$(tnx_phase_title "$failed_phase")"
     else
@@ -2769,7 +2931,7 @@ tnx_install_single() {
       else
         tnx_warn "Installation did not complete cleanly."
       fi
-      tnx_info "Fix the reported error, then run 'bash install.sh --resume' or 'ternux doctor'."
+      tnx_info "Fix the reported error, then run 'ternux install --resume' or 'ternux doctor'."
     fi
   fi
   return "$rc"
@@ -2793,7 +2955,7 @@ tnx_phase_title() {
 }
 
 
-# Install more than one independently named Debian/Ubuntu guest in sequence.
+# Install more than one independently named guest profile in sequence.
 # Each pass runs the same base profile and writes a distro-specific launcher;
 # the single Termux:X11 display still runs one guest desktop at a time.
 tnx_install() {
