@@ -83,6 +83,7 @@ management:
 ```bash
 ternux install          # Full installation (delegates to install.sh)
 tx distro list         # Show all installed PRoot guests and desktop recipe status
+tx distro search alpine # Search available OCI images
 ub                      # Ubuntu user shell; ubr opens root shell
 alp                     # Alpine user shell; alpr opens root shell
 tx distro shell NAME    # Any installed guest

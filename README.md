@@ -72,11 +72,12 @@ ternux verify     # check the installation and graphics route
 ternux doctor     # diagnose common problems
 tx stop           # choose one/many running guest desktops
 tx distro list    # show every installed PRoot guest
+tx distro search alpine # search available OCI images
 ```
 
 Use `tx stop --all` to close every managed Ternux desktop. Debian and Ubuntu each get a tagged Termux:X11 window and can run concurrently. Install both desktop profiles with `tx install --distros debian,ubuntu`; each gets the same Ternux base desktop and separate settings. `xgo` lists every installed guest and asks which desktop to start when there is more than one. Generic images without a Ternux package recipe are shown as shell-only. Debian remains the only device-verified profile.
 
-The `x` shortcut starts the saved desktop; `xgo` opens Termux:X11 and asks which installed desktop guest to start. `tx` is the short CLI command. Use `db`/`dbr` for Debian user/root shells, `ub`/`ubr` for Ubuntu, and `alp`/`alpr` for Alpine when those guests are installed. Use `tx distro shell NAME` or `tx distro exec NAME -- COMMAND` for any installed PRoot guest. Install a generic image with `tx distro image-install alpine:latest` (this provides a guest shell, not a Ternux desktop recipe). Shared Android storage is
+The `x` shortcut starts the saved desktop; `xgo` opens Termux:X11 and asks which installed desktop guest to start. `tx` is the short CLI command. Use `db`/`dbr` for Debian user/root shells, `ub`/`ubr` for Ubuntu, and `alp`/`alpr` for Alpine when those guests are installed. Use `tx distro shell NAME` or `tx distro exec NAME -- COMMAND` for any installed PRoot guest. Search PRoot-Distro images with `tx distro search QUERY`; install a generic OCI image with `tx distro image-install IMAGE[:TAG] [NAME]`. Generic images provide guest shells. Ternux desktop recipes currently exist only for Debian and Ubuntu. Shared Android storage is
 not mounted by default. Grant only a needed folder, then restart the desktop or
 open a new guest shell to use it:
 
