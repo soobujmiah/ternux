@@ -17,6 +17,18 @@ check() {
 
 printf 'TAP version 13\n'
 
+# User-facing CLI help must track the dispatcher and supported guest profiles.
+if cli_help="$(bash "$ROOT/bin/ternux" --help 2>&1)" \
+  && install_help="$(bash "$ROOT/bin/ternux" install --help 2>&1)" \
+  && printf '%s\n' "$cli_help" | grep -Fq -- '--version, -V' \
+  && printf '%s\n' "$install_help" | grep -Fq '15 named guest profiles' \
+  && printf '%s\n' "$install_help" | grep -Fq 'APT-family guests only' \
+  && ! printf '%s\n' "$install_help" | grep -Fq '1 development, 2 llama.cpp'; then
+  ok "runtime help documents global version, current profile selector and workload flow"
+else
+  not_ok "runtime help documents global version, current profile selector and workload flow"
+fi
+
 # Persisted custom user is the default for later CLI modules.
 state="$TMP/state-user"
 mkdir -p "$state"

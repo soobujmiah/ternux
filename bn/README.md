@@ -6,7 +6,7 @@
 
 # ternux
 
-### ARM64 Android ফোনে Debian + Xfce ডেস্কটপ — root লাগে না
+### ARM64 Android ফোনে Linux ডেস্কটপ — root লাগে না
 
 [![সংস্করণ](https://img.shields.io/badge/version-2.0.0-00e5a0?style=flat-square)](https://github.com/soobujmiah/ternux/releases)
 [![প্ল্যাটফর্ম](https://img.shields.io/badge/platform-Android%20arm64-38bdf8?style=flat-square)](https://github.com/soobujmiah/ternux)

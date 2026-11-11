@@ -58,6 +58,7 @@ ${TNX_CW}Commands:${TNX_C0}
 
 ${TNX_CW}Global options:${TNX_C0}
   --help, -h    Show help for any command
+  --version, -V Show version information
   --json        Machine-readable JSON output
   --verbose     Show detailed debug output
   --quiet       Suppress non-critical messages
@@ -108,14 +109,14 @@ Install or reinstall the full ternux desktop environment.
 
 Options:
   --yes                Defaults, no questions
-  --user NAME          Debian user name (default: ternux)
+  --user NAME          Guest user name (default: ternux)
   --locale LANG        Locale (default: en_US.UTF-8)
   --backend zink|virgl|auto  GPU backend (default: auto)
   --zsh                Use zsh instead of bash (installs powerlevel10k)
   --shell bash|zsh     Choose the Termux shell without being asked
   --no-theme           Skip powerlevel10k when zsh is chosen
-  --distro NAME        Guest profile: debian (verified) or ubuntu
-  --distros LIST       Install multiple named guests, e.g. debian,ubuntu
+  --distro NAME        One of 15 named guest profiles (Debian verified)
+  --distros LIST       Install multiple profiles, e.g. debian,ubuntu,alpine
   --with-dev           Install development tools
   --with-llm           Build llama.cpp with Vulkan
   --with-network       Install network tools
@@ -127,8 +128,13 @@ Options:
   --plain              Plain scrolling output instead of the dashboard
   --no-anim            Freeze the spinner and colour cycling
 
-With no workload flags, an interactive install shows a numbered chooser:
-1 development, 2 llama.cpp, 3 network, 4 media, 5 Blender, 6 all, 0 base only.
+Interactive install first shows a keyboard checklist of the 15 named profiles:
+Up/Down or j/k moves, Space or a number toggles, Enter confirms; multiple
+profiles can be selected in one pass. Debian is the recommended, device-verified
+default; the other profiles are not device-qualified. Arbitrary OCI images are
+shell-only. Optional workload selection follows for APT-family guests only.
+Workload checklist: Space or an item's number toggles; Enter reviews the plan;
+q keeps the base desktop only. Use --yes for non-interactive defaults.
 Run 'bash install.sh' for a fresh setup or 'ternux install' from the host CLI.
 HELP
 }

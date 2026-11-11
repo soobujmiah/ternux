@@ -77,7 +77,7 @@ ternux install [options]
 |-------|--------|
 | `--yes` | ডিফল্ট, কোনো প্রশ্ন নয় |
 | `--user NAME` | Linux guest ইউজারনেম (ডিফল্ট: `ternux`) |
-| `--distro NAME` | package-manager family অনুযায়ী recipe থাকা guest বাছুন। |
+| `--distro NAME` | ১৫টি named package-family profile-এর একটি বাছুন; device-verified শুধু Debian। |
 | `--distros LIST` | একাধিক আলাদা guest ধারাবাহিকভাবে install, যেমন `debian,ubuntu,alpine`। |
 | `--locale LANG` | লোকেল (ডিফল্ট: `en_US.UTF-8`) |
 | `--backend auto\|zink\|virgl` | GPU ব্যাকএন্ড (ডিফল্ট: auto) |
@@ -117,8 +117,8 @@ ternux start ubuntu       # Ubuntu explicitly
 
 ```bash
 tx stop                   # একটি বা একাধিক চলমান session বাছুন
- tx stop --all            # সব managed desktop বন্ধ
- tx stop ubuntu           # Ubuntu explicitly
+tx stop --all            # সব managed desktop বন্ধ
+tx stop ubuntu           # Ubuntu explicitly
 ```
 
 ### `ternux restart`
