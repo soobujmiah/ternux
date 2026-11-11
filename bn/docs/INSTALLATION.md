@@ -335,21 +335,34 @@ ternux update           # CLI আপডেট
 
 ### Guest distribution বাছাই
 
-ternux যা বসায় সব একটি PRoot-Distro container-এর ভেতরে থাকে। `--distro` সেটি বেছে
-নেয়, এবং পছন্দটি লিপিবদ্ধ হয় যাতে `--resume` ও `ternux repair` একই guest ব্যবহার করে।
+ternux যা বসায় সব একটি PRoot-Distro guest-এর ভেতরে থাকে। `--distro` একটি profile
+বেছে নেয়; একাধিক স্বাধীন guest বসাতে `--distros` ব্যবহার করা যায়। প্রতিটি guest-এর
+পছন্দ আলাদাভাবে লেখা হয়, তাই `--resume` ও `ternux repair` সঠিক profile-এই কাজ করে।
 
-| Guest | অবস্থা | নোট |
-|---|---|---|
-| `debian` | **ডিভাইসে যাচাই করা** | ডিফল্ট, এবং [প্রমাণ ও বেঞ্চমার্ক](BENCHMARKS.html)-এ মাপা ফলাফল আছে কেবল এটিরই |
-| `ubuntu` | profile লেখা, **ডিভাইসে যাচাই করা নয়** | একই apt/dpkg সরঞ্জাম, তাই hold ও diversion একইভাবে কাজ করে। অতিরিক্তভাবে `snapd` hold করা হয়: container-এ systemd ছাড়া সেটি চলতে পারে না, আর কেবল snap হিসেবে থাকা package সেখানে বসানোই যায় না |
+| Package manager | নামযুক্ত desktop profile |
+|---|---|
+| APT | Debian, Ubuntu, Kali, Deepin, Pardus |
+| APK | Alpine, Adelie, Chimera |
+| pacman | Arch Linux, Artix, Manjaro |
+| DNF | Fedora, Rocky Linux |
+| Zypper | openSUSE |
+| XBPS | Void |
 
-`--distro` না দিলে interactive install জিজ্ঞেস করে কোন guest ব্যবহার হবে — user name
-ও shell prompt-এর পাশেই — এবং কোনটি যাচাই করা তা জানায়। প্রতিটি prompt পাঁচ মিনিট
-অপেক্ষা করে; উত্তর না এলে দেখানো default নেয়। Unattended run সঙ্গে সঙ্গেই default নেয়।
+Debian সুপারিশ করা, ডিফল্ট এবং ডিভাইসে যাচাই করা profile। অন্য নামযুক্ত profile-এ
+family-matched recipe আছে, তবে সেগুলো ডিভাইসে যাচাই করা হয়নি। যেকোনো PRoot-Distro
+OCI image shell guest হিসেবে বসানো যায়; তার জন্য স্বয়ংক্রিয় Ternux desktop recipe
+নেই। ঐচ্ছিক software workload-এর জন্য বর্তমানে APT guest দরকার।
 
-অন্য যে কোনো নাম চেষ্টা না করে প্রত্যাখ্যান করা হয়। যাচাই-না-করা guest বাছলে একটি
-warning আসে এবং installer-এর দাবি বদলায় না: নিজের ডিভাইসে মাপা না হওয়া পর্যন্ত
-ফলাফলকে unverified ধরুন।
+`--distro` বা `--distros` না দিলে interactive profile picker optional workload-এর
+একই checklist ব্যবহার করে: Up/Down বা `j`/`k` দিয়ে চলুন, Space বা profile number
+দিয়ে নির্বাচন toggle করুন, Enter-এ নিশ্চিত করুন, আর `q` দিলে বর্তমান default থাকে।
+একবারে একাধিক guest বাছা যায়। সীমিত terminal-এ comma-separated number/name prompt
+দেখায়। ইনস্টলের আগে dashboard নির্বাচিত profile ও configuration নিশ্চিত করতে দেখায়।
+Prompt পাঁচ মিনিট অপেক্ষা করে; উত্তর না এলে দেখানো default নেয়। Unattended run-এ
+সঙ্গে সঙ্গে default নেওয়া হয়।
+
+ডিভাইস-প্রমাণ নেই এমন profile বাছলে warning আসে। নিজের ডিভাইসে মেপে না দেখা পর্যন্ত
+ফলাফলকে যাচাই-না-করা হিসেবে ধরুন।
 
 ### GPU ব্যাকএন্ড বাছাই
 
