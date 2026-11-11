@@ -14,7 +14,7 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 
 ### Guest profile ও installer
 
-- Debian ও Ubuntu-র আলাদা guest profile, নিজস্ব launcher/settings, ধারাবাহিক multi-guest install এবং নাম-নির্দিষ্ট `start/stop/restart DISTRO` যোগ হয়েছে। Interactive guest picker-এ validation status দেখায়। Ubuntu-তে VirGL default এবং snapd pin/hold করা হয়; device-verified profile এখনো Debian।
+- APT, APK, pacman, DNF, Zypper ও XBPS family-তে named guest profile, আলাদা launcher/settings, ধারাবাহিক multi-guest install এবং নাম-নির্দিষ্ট `start/stop/restart DISTRO` যোগ হয়েছে। Installer profile picker এখন optional workload-এর একই keyboard checklist ব্যবহার করে (arrow বা `j`/`k`, Space/number toggle, Enter confirm) এবং device evidence জানায়। Debian-ই একমাত্র device-verified profile; Ubuntu-তে VirGL default এবং snapd pin/hold করা হয়।
 
 ### Release operation
 
@@ -39,7 +39,7 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 ### CLI reliability
 
 - State-এ সংরক্ষিত URL ও path update-এর bug ঠিক হয়েছে; `sed` replacement error ছাড়াই GPU updater আবার চালানো যায়। Focused regression check যোগ হয়েছে।
-- Standalone host-CLI fallback-কে installer bootstrap-এর একই reviewed source commit ও SHA-256-এ pin করা হয়েছে; hash না মিললে extraction বা installation-এর আগেই থেমে যায়।
+- Standalone host-CLI fallback-কে installer bootstrap-এর একই reviewed source commit ও SHA-256-এ pin করা হয়েছে; hash না মিললে extraction বা installation-এর আগেই থেমে যায়। Interactive profile checklist যুক্ত হওয়ার পর দুই pin-ই refresh করা হয়েছে, যাতে one-command `curl | bash` পথ পুরোনো Debian/Ubuntu-only prompt না চালিয়ে বর্তমান installer আনে।
 
 ### Desktop reliability
 

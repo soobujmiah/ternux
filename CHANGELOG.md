@@ -14,7 +14,7 @@ Notable changes to ternux. Dates are ISO 8601.
 
 ### Guest profiles and installer
 
-- Added named Debian/Ubuntu guest management, independent per-guest launcher and profile settings, sequential multi-guest installation, and guarded `start/stop/restart DISTRO` commands. The interactive guest picker now states validation status. Ubuntu uses VirGL by default and pins/holds snapd; Debian remains the only device-verified profile.
+- Expanded named guest profiles across APT, APK, pacman, DNF, Zypper and XBPS families, with independent per-guest launchers/settings, sequential multi-guest installation and guarded `start/stop/restart DISTRO` commands. The installer profile picker now shares the optional-workload keyboard checklist (arrows or `j`/`k`, Space/number toggle, Enter confirm) and identifies device evidence. Debian remains the only device-verified profile; Ubuntu uses VirGL by default and pins/holds snapd.
 
 ### Release operations
 
@@ -39,7 +39,7 @@ Notable changes to ternux. Dates are ISO 8601.
 ### CLI reliability
 
 - Fixed state updates for stored URLs and paths; the GPU updater can now be rerun without `sed` replacement errors. Added a focused regression check.
-- Pinned the standalone host-CLI fallback to the reviewed source commit and SHA-256 already used by the installer bootstrap; mismatched archives now fail before extraction or installation.
+- Pinned the standalone host-CLI fallback to the reviewed source commit and SHA-256 already used by the installer bootstrap; mismatched archives now fail before extraction or installation. Refreshed both pins when the interactive profile checklist landed so the one-command `curl | bash` path loads the current installer instead of a stale Debian/Ubuntu-only prompt.
 
 ### Desktop reliability
 
