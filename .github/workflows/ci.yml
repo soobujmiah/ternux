@@ -95,6 +95,13 @@ jobs:
       - name: Check JavaScript syntax
         run: node --check scripts/finalize-site.mjs
 
+      - name: Diagnose homepage formatting (temporary)
+        if: always()
+        run: |
+          npx prettier --plugin prettier-plugin-astro src/pages/index.astro > "$RUNNER_TEMP/index.formatted.astro"
+          diff -u src/pages/index.astro "$RUNNER_TEMP/index.formatted.astro" || true
+          npx prettier --plugin prettier-plugin-astro src/pages/bn/index.astro > "$RUNNER_TEMP/bn-index.formatted.astro"
+          diff -u src/pages/bn/index.astro "$RUNNER_TEMP/bn-index.formatted.astro" || true
       - name: Check website source formatting
         run: npm run format:check
 
