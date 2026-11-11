@@ -84,10 +84,20 @@ grep -q 'suse() { _ternux_guest_login opensuse --shared-tmp --user' "$HOME/.bash
 grep -q 'vsh() { _ternux_guest_login void --shared-tmp --user' "$HOME/.bashrc"
 grep -q 'kal() { _ternux_guest_login kali --shared-tmp --user' "$HOME/.bashrc"
 if command -v script >/dev/null 2>&1; then
-  printf '4\n' | script -qec "bash -c 'source '$ROOT'/lib/phases.sh; tnx_prompt_distro debian 2'" /dev/null > "$TMP/distro-prompt"
-  grep -q 'archlinux' "$TMP/distro-prompt"
-  printf 'debian,alpine\n' | script -qec "bash -c 'source '$ROOT'/lib/phases.sh; tnx_prompt_distro debian 2'" /dev/null > "$TMP/distro-multi-prompt"
+  printf 'jj \r' | script -qec "stty rows 30 cols 80; TERM=xterm-256color bash -c 'source '$ROOT'/lib/phases.sh; tnx_prompt_distro debian 20'" /dev/null > "$TMP/distro-multi-prompt"
+  grep -q 'SPACE/number toggle' "$TMP/distro-multi-prompt"
   grep -q 'debian,alpine' "$TMP/distro-multi-prompt"
+  printf '3\r' | script -qec "stty rows 30 cols 80; TERM=xterm-256color bash -c 'source '$ROOT'/lib/phases.sh; tnx_prompt_distro debian 20'" /dev/null > "$TMP/distro-number-toggle"
+  grep -q 'debian,alpine' "$TMP/distro-number-toggle"
+  printf '10\r' | script -qec "stty rows 30 cols 80; TERM=xterm-256color bash -c 'source '$ROOT'/lib/phases.sh; tnx_prompt_distro debian 20'" /dev/null > "$TMP/distro-number-multidigit"
+  grep -q 'debian,chimera' "$TMP/distro-number-multidigit"
+  printf 'jjjjjjjjj \r' | script -qec "stty rows 16 cols 32; TERM=xterm-256color bash -c 'source '$ROOT'/lib/phases.sh; tnx_prompt_distro debian 20'" /dev/null > "$TMP/distro-compact-menu"
+  grep -q 'Selected: debian, chimera' "$TMP/distro-compact-menu"
+  grep -q 'J/K move | Space toggle' "$TMP/distro-compact-menu"
+  printf 'q' | script -qec "stty rows 30 cols 80; TERM=xterm-256color bash -c 'source '$ROOT'/lib/phases.sh; tnx_prompt_distro debian 20'" /dev/null > "$TMP/distro-menu-default"
+  grep -q 'debian' "$TMP/distro-menu-default"
+  printf '1,3\n' | script -qec "stty rows 10 cols 24; TERM=xterm-256color bash -c 'source '$ROOT'/lib/phases.sh; tnx_prompt_distro debian 20'" /dev/null > "$TMP/distro-small-terminal"
+  grep -q 'debian,alpine' "$TMP/distro-small-terminal"
 fi
 cat > "$TMP/check-xgo.sh" <<'EOF'
 proot-distro() { printf 'alpine\ndebian\nubuntu\n'; }

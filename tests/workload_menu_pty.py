@@ -57,4 +57,14 @@ if not output.rstrip().endswith(target.encode()):
     raise SystemExit(f"selector did not return the {target} workload ID")
 if labels[target].encode() not in output:
     raise SystemExit(f"selector did not render the selected {target} label")
-print(f"interactive workload menu PTY selection passed: {target}")
+# Number selection must work for both single and multi-digit catalog indices.
+numeric = subprocess.run(
+    [script, "-qec", command, "/dev/null"],
+    input=f"{index + 1}\r".encode(),
+    capture_output=True,
+    timeout=15,
+)
+numeric_output = numeric.stdout + numeric.stderr
+if numeric.returncode != 0 or not numeric_output.rstrip().endswith(target.encode()):
+    raise SystemExit(f"numeric selector did not return {target}: {numeric_output[-300:]!r}")
+print(f"interactive workload menu PTY selection passed: {target} (navigation and number toggle)")

@@ -15,7 +15,7 @@ explains every knob, where it lives, and *why* it is set the way it is.
 
 | Setting | Default | Notes |
 |---|---|---|
-| `--user NAME` | `ternux` | Debian user created inside the container |
+| `--user NAME` | `ternux` | Guest user created inside each selected container |
 | `--locale LANG` | `en_US.UTF-8` | Desktop locale (see below for Bangla) |
 | `--backend` | `auto` | `auto` detects Adreno → `zink`, else `virgl` |
 | `--zsh` | off | Switch the Termux shell to zsh as well |
@@ -56,6 +56,14 @@ the complete output of every phase is appended to `$TERNUX_LOG_DIR/ternux.log`.
 
 Renderer selection is explained in
 [Installation → The installer screen](INSTALLATION.html#the-installer-screen).
+The guest-profile and optional-workload pickers share one keyboard checklist:
+Up/Down or `j`/`k` moves, Space or a number toggles an item, and Enter confirms.
+When raw-key input is unavailable, the profile picker accepts comma-separated
+numbers or names. Before installation, the dashboard summarizes the selected
+guests and workloads. A failed optional workload leaves a successfully verified
+base guest ready, displays a warning, and can be retried with
+`ternux install --resume`; the command still returns nonzero so automation can
+detect the optional failure.
 
 ---
 
@@ -162,7 +170,7 @@ that no test can reach an actual installation. Production defaults are unchanged
 
 | Variable | Default | Effect |
 |---|---|---|
-| `TERNUX_DISTRO` | `debian` | The PRoot-Distro guest everything is installed into; `--distro` sets it. `debian` and `ubuntu` have profiles, but **only `debian` has a device-verified result**. Anything else is refused. |
+| `TERNUX_DISTRO` | `debian` | The PRoot-Distro guest selected for installation; `--distro` sets it. Named profiles provide family-matched desktop recipes for APT (Debian, Ubuntu, Kali, Deepin, Pardus), APK (Alpine, Adelie, Chimera), pacman (Arch Linux, Artix, Manjaro), DNF (Fedora, Rocky Linux), Zypper (openSUSE), and XBPS (Void). **Only Debian has a device-verified result.** Arbitrary OCI images are supported as shell guests without an automatic desktop recipe. |
 | `TERNUX_THEME` | `p10k` | `none` installs zsh without powerlevel10k. `--no-theme` sets it. |
 | `TERNUX_KGSL_DEVICE` | `/dev/kgsl-3d0` | The device node that GPU, Vulkan and backend detection probe. Pointing it at a path that does not exist makes `auto` resolve to VirGL — what a non-Adreno device sees. |
 | `TERNUX_HOST_PREFIX` | `/data/data/com.termux/files/usr` | Where `uninstall.sh` looks for an installed host CLI before falling back to a local checkout or a download. |
