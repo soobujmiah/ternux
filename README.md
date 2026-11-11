@@ -183,12 +183,13 @@ render route and run scripts or scenes with the documented EEVEE setup. See the
 
 With a terminal attached, the installer first offers a keyboard checklist for
 one or more guest profiles (Space/number toggles, Enter confirms), then a
-numbered optional software chooser; Enter keeps the base desktop. `--yes` skips
-prompts and installs the Debian base profile, while explicit `--with-*` flags
-or `--all` select additional workloads. The `pkg install ternux` package route is prepared for
-the v2 release but is not published yet; use the installer above for now. After
-publication, a one-time verified bootstrap sets up the signed APT source and
-installs Ternux; later installs and updates use normal `pkg` commands. See the
-[Termux APT guide](docs/TERMUX-APT.md). Review the linked guides for
-requirements and exact commands. The published release and experimental CPU/GPU/NPU gates are tracked
-in [`docs/ACCELERATOR-RELEASE-PLAN.md`](docs/ACCELERATOR-RELEASE-PLAN.md).
+categorized keyboard checklist for optional software; Space or item numbers
+toggle multiple choices, Enter reviews the plan, and `q` keeps the base desktop.
+`--yes` skips prompts and installs the Debian base profile, while explicit
+`--with-*` flags or `--all` select additional workloads. The `pkg install ternux`
+package route is prepared for the v2 release but is not published yet; use the
+installer above for now. After publication, a one-time verified bootstrap sets
+up the signed APT source and installs Ternux; later installs and updates use
+normal `pkg` commands. See the [Termux APT guide](docs/TERMUX-APT.md). Review
+the linked guides for requirements and exact commands. The published release and
+experimental CPU/GPU/NPU gates are tracked in [`docs/ACCELERATOR-RELEASE-PLAN.md`](docs/ACCELERATOR-RELEASE-PLAN.md).

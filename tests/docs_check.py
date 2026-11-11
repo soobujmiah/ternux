@@ -323,6 +323,13 @@ for page in ("docs/INSTALLATION.md", "bn/docs/INSTALLATION.md"):
     text = read(ROOT / page)
     check("--distros debian,ubuntu,alpine" in text,
           f"{page}: missing copyable multi-profile install example")
+profile_match = re.search(r'^TERNUX_DISTRO_KNOWN="([^"]+)"', read(ROOT / "lib/core.sh"), re.M)
+known_profiles = profile_match.group(1).split() if profile_match else []
+for page in ("docs/CLI.md", "bn/docs/CLI.md"):
+    text = read(ROOT / page)
+    missing = [profile for profile in known_profiles if f"`{profile}`" not in text]
+    check(len(known_profiles) == 15 and not missing,
+          f"{page}: CLI profile list differs from runtime profile catalog ({missing})")
 installer_source = read(ROOT / "install.sh")
 check('--distros LIST' in installer_source,
       "install.sh: help omits multi-profile selection")
