@@ -70,10 +70,10 @@ Xfce দেখতে Termux:X11 app-এ যান। সাধারণ command-
 ternux status     # session ও install-এর অবস্থা
 ternux verify     # install ও graphics route পরীক্ষা
 ternux doctor     # সাধারণ সমস্যা খোঁজা
-ternux stop       # desktop বন্ধ
+tx stop           # চলমান guest desktop বাছাই করে বন্ধ
 ```
 
-`x` desktop চালায়; `xgo` Termux:X11 খুলে desktop চালায়। Debian shell-এর জন্য
+`x` saved desktop চালায়; একাধিক profile থাকলে `xgo` তালিকা দেখায়। Debian ও Ubuntu আলাদা tagged Termux:X11 window-তে একসাথে চলতে পারে। `tx stop` এক বা একাধিক session বাছতে দেয়; `tx stop --all` সব বন্ধ করে। Debian shell-এর জন্য
 Termux-এ `db` চালান। Android shared storage default-এ mount হয় না। শুধু দরকারি folder grant করুন, যেমন `ternux storage grant /sdcard/Llms`; তারপর desktop restart বা নতুন guest shell-এ folder ব্যবহার করুন।
 
 ## কী কী পাবেন

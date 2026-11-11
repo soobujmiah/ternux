@@ -104,8 +104,9 @@ Jump to [Troubleshooting → renderer says llvmpipe](TROUBLESHOOTING.html#render
 
 ```text
 x          start the desktop          killx   stop everything cleanly
-db         shell inside Debian (user) droot   shell as root
-xgo        auto-open Termux:X11 + x   sysmon  device resource overview
+tx         short alias for ternux     xgo     choose an installed GUI guest
+db / dbr   Debian user / root shell    ub / ubr Ubuntu user / root shell
+alp/alpr   Alpine user / root shell    sysmon  device resource overview
 clean-mesa clear the Mesa shader cache
 ```
 
@@ -134,7 +135,8 @@ the full commands below in **Termux** (`$PREFIX/bin/ternux`):
 ```bash
 ternux doctor           # system diagnostics
 ternux start            # start the desktop
-ternux stop             # stop the desktop
+tx stop                 # choose guest desktop(s) to stop
+tx stop --all          # stop every Ternux desktop
 ternux repair           # auto-fix common issues
 ternux verify           # verify installation
 ternux benchmark        # GPU benchmarks

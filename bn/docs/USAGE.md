@@ -12,11 +12,13 @@ alt_url: "/docs/USAGE.html"
 
 ## ব্যাকগ্রাউন্ড ডেস্কটপ সেশন
 
-`ternux start` desktop-কে managed background session হিসেবে চালু করে এবং
-X11 display ready হলে prompt-এ ফিরে আসে। Startup output
-`~/.local/share/ternux/session/desktop.log`-এ থাকে; 1 MiB হলে আগের log rotate
-হয়। `ternux status`, `ternux stop` বা `ternux logs desktop tail` দিয়ে session দেখুন,
-বন্ধ করুন বা log পড়ুন। Android memory pressure-এ background process বন্ধ
+`tx` হলো `ternux`-এর ছোট alias। একাধিক guest থাকলে `xgo` installed guest-গুলোর তালিকা দেখিয়ে GUI বাছতে বলে। `db`/`dbr`, `ub`/`ubr`, `alp`/`alpr` user/root shell shortcut। অন্য guest-এ `tx distro shell NAME` ব্যবহার করুন।
+
+`tx start` desktop-কে managed background session হিসেবে চালু করে এবং নিজের X11
+window ready হলে prompt-এ ফিরে আসে। Debian ও Ubuntu আলাদা display-তে পাশাপাশি
+চলতে পারে। Startup output `~/.local/share/ternux/session/desktop.log`-এ থাকে;
+1 MiB হলে আগের log rotate হয়। `tx status`, `tx stop` বা `tx logs desktop tail`
+দিয়ে session দেখুন, বেছে বন্ধ করুন বা log পড়ুন। `tx stop --all` সব বন্ধ করে। Android memory pressure-এ background process বন্ধ
 করতে পারে; এমন হলে Termux:X11 আবার খুলুন।
 
 ### Termux:X11-এ কিবোর্ড ইনপুট
@@ -28,10 +30,12 @@ Android soft keyboard থেকে terminal ও অন্য X11 app-এ text �
 | কমান্ড | কী করে |
 |---|---|
 | `x` | `ternux start` দিয়ে ডেস্কটপ শুরু করে Termux:X11 সামনে আনে (অডিও → ডিসপ্লে → Debian → Xfce4) |
-| `xgo` | Termux:X11 অ্যাপ স্বয়ংক্রিয় খুলে ডেস্কটপ শুরু |
-| `killx` | সেশন পরিষ্কারভাবে বন্ধ + পুরনো সকেট মুছে ফেলা |
-| `db` | আপনার ইউজার হিসেবে Debian শেল |
-| `droot` | রুট হিসেবে Debian শেল — সাবধানে |
+| `xgo` | Installed guest দেখিয়ে Ternux desktop বাছতে দেয় |
+| `killx` | চলমান desktop থেকে একটি বা একাধিক বেছে বন্ধ |
+| `db` / `dbr` | Debian user / root shell |
+| `ub` / `ubr` | Ubuntu user / root shell |
+| `alp` / `alpr` | Alpine user / root shell |
+| `tx` | `ternux` CLI-র ছোট alias |
 | `sysmon` | CPU/RAM/GPU-নোডের দ্রুত চিত্র |
 | `clean-mesa` | শেডার ক্যাশ পরিষ্কার (ড্রাইভার বদলের পর) |
 
@@ -86,10 +90,12 @@ ternux ইনস্টল হলে `ternux` কমান্ডই আপনা�
 ডায়াগনস্টিক, মেরামত, বেঞ্চমার্ক ও দৈনিক ডেস্কটপ ব্যবস্থাপনার জন্য।
 
 ```bash
-ternux install          # সম্পূর্ণ ইনস্টলেশন
-ternux start            # ডেস্কটপ চালু
-ternux stop             # ডেস্কটপ বন্ধ
-ternux restart          # ডেস্কটপ পুনরায় চালু
+tx distro list         # সব installed guest ও desktop recipe status
+ternux install --distros debian,ubuntu  # দুটো আলাদা guest install
+tx start                 # saved guest চালু
+tx start ubuntu         # Ubuntu চালু
+tx stop ubuntu           # Ubuntu বন্ধ
+tx restart               # ডেস্কটপ পুনরায় চালু
 ternux doctor           # সিস্টেম ডায়াগনস্টিক
 ternux doctor --json    # machine-readable diagnostic
 ternux repair           # সাধারণ সমস্যা সমাধান

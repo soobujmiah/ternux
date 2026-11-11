@@ -14,8 +14,7 @@ Everything you need for day-to-day life with a Linux desktop in your pocket.
 `ternux start` starts the desktop as a managed background session and returns
 when the X11 display is ready. Startup output is kept in
 `~/.local/share/ternux/session/desktop.log` (the previous log is rotated at
-1 MiB). Use `ternux status`, `ternux stop`, or `ternux logs desktop tail` to manage and
-inspect it. Android may still stop background processes under memory pressure;
+1 MiB). Use `tx status`, `tx stop`, or `tx logs desktop tail` to manage and inspect it. Debian and Ubuntu use separate tagged Termux:X11 displays, so both can stay open at once. With several running, `tx stop` lets you stop one or select several; `tx stop --all` closes every Ternux desktop. `tx stop debian` and `tx stop ubuntu` target one guest directly. Android may still stop background processes under memory pressure;
 reopen Termux:X11 if Android has reclaimed the session.
 
 ### Keyboard input in Termux:X11
@@ -27,10 +26,12 @@ Ternux enables Termux:X11 `enforceCharBasedInput` before starting the desktop so
 | Command | What it does |
 |---|---|
 | `x` | Start the desktop through `ternux start` and bring Termux:X11 to the foreground (audio → display → Debian → Xfce4) |
-| `xgo` | Open the Termux:X11 app automatically, then start the desktop |
-| `killx` | Stop the session cleanly and clear stale sockets |
-| `db` | Shell inside Debian as your user |
-| `droot` | Shell inside Debian as root — careful in there |
+| `xgo` | List installed guests and select the Ternux desktop to start |
+| `killx` | Open the session picker and stop one or several desktops |
+| `db` / `dbr` | Debian user / root shell |
+| `ub` / `ubr` | Ubuntu user / root shell |
+| `alp` / `alpr` | Alpine user / root shell |
+| `tx` | Short alias for the `ternux` CLI |
 | `sysmon` | Quick CPU/RAM/GPU-node overview |
 | `clean-mesa` | Clear the shader cache (after driver changes) |
 
@@ -38,13 +39,12 @@ Ternux enables Termux:X11 `enforceCharBasedInput` before starting the desktop so
 
 1. Start with `xgo` (or open Termux:X11 first, then `x`).
 2. Close apps normally inside the desktop.
-3. When done: log out of Xfce4 (Applications → Log Out), or run `killx` from
-   the Termux side. This clears sockets so the next start is clean.
+3. When done: log out of Xfce4 (Applications → Log Out), or run `tx stop` from
+   Termux and choose which guest display to close. `tx stop --all` closes both.
 
 *Why bother?* A leftover X11 socket or zombie PulseAudio process makes the
 next session "start" against a dead service — the desktop appears but audio
-or display behaves oddly. `x` cleans these up at every start, so a clean stop
-mainly saves battery.
+or display behaves oddly. Ternux now owns one tagged display and session record per desktop, so stopping one guest leaves another guest display running.
 
 ### Android microphone input
 
@@ -82,8 +82,17 @@ management:
 
 ```bash
 ternux install          # Full installation (delegates to install.sh)
-ternux start            # Start the desktop session
-ternux stop             # Stop the desktop session
+tx distro list         # Show all installed PRoot guests and desktop recipe status
+ub                      # Ubuntu user shell; ubr opens root shell
+alp                     # Alpine user shell; alpr opens root shell
+tx distro shell NAME    # Any installed guest
+tx distro exec ubuntu -- uname -a # Run a guest command
+tx distro image-install alpine:latest # Install a generic Alpine shell guest
+tx install --distros debian,ubuntu  # Install both independent desktop guests
+tx distro image-install alpine:latest # Generic Alpine shell guest
+tx start                 # Start the saved guest desktop
+tx start ubuntu          # Start Ubuntu explicitly
+tx stop ubuntu           # Stop Ubuntu explicitly
 ternux restart          # Restart the desktop session
 ternux doctor           # Run system diagnostics
 ternux doctor --json    # machine-readable structured diagnostics

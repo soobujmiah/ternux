@@ -36,6 +36,7 @@ ${TNX_CW}Usage:${TNX_C0}
 
 ${TNX_CW}Commands:${TNX_C0}
   ${TNX_CG}install${TNX_C0}    Install full desktop environment
+  ${TNX_CG}distro${TNX_C0}     List installed guests, open shells, install images
   ${TNX_CG}extension${TNX_C0}  Manage checksum-verified guest extensions
   ${TNX_CG}storage${TNX_C0}    Grant or revoke scoped Android storage access
   ${TNX_CG}guides${TNX_C0}     Installation and ecosystem help links
@@ -63,7 +64,8 @@ ${TNX_CW}Global options:${TNX_C0}
 
 ${TNX_CW}Examples:${TNX_C0}
   ternux doctor --json     ${TNX_CD}machine-readable diagnostics${TNX_C0}
-  ternux start             ${TNX_CD}Launch the desktop${TNX_C0}
+  tx start                 ${TNX_CD}Launch the desktop${TNX_C0}
+  tx distro shell alpine   ${TNX_CD}Open a guest shell${TNX_C0}
   ternux backend set zink  ${TNX_CD}Switch GPU backend${TNX_C0}
   ternux profile save      ${TNX_CD}Snapshot device config${TNX_C0}
 
@@ -112,7 +114,8 @@ Options:
   --zsh                Use zsh instead of bash (installs powerlevel10k)
   --shell bash|zsh     Choose the Termux shell without being asked
   --no-theme           Skip powerlevel10k when zsh is chosen
-  --distro NAME        Guest distribution: debian (verified) or ubuntu
+  --distro NAME        Guest profile: debian (verified) or ubuntu
+  --distros LIST       Install multiple named guests, e.g. debian,ubuntu
   --with-dev           Install development tools
   --with-llm           Build llama.cpp with Vulkan
   --with-network       Install network tools
@@ -132,9 +135,10 @@ HELP
 
 tnx_help_guides() { echo "Usage: ternux guides"; echo "Show installation, ecosystem tool, and daily-use guide links."; }
 
-tnx_help_start()     { echo "Usage: ternux start"; echo "Start the Xfce4 desktop session."; }
-tnx_help_stop()      { echo "Usage: ternux stop"; echo "Stop the desktop session and clean up."; }
-tnx_help_restart()   { echo "Usage: ternux restart"; echo "Restart the desktop session."; }
+tnx_help_distro() { echo "Usage: tx distro [list|install NAME|image-install IMAGE [NAME]|shell NAME|exec NAME -- COMMAND]"; echo "List guests, install a desktop profile or OCI image, or open a guest shell."; }
+tnx_help_start()     { echo "Usage: ternux start [DISTRO]"; echo "Start the named guest desktop (default: saved distro)."; }
+tnx_help_stop()      { echo "Usage: tx stop [DISTRO|--all]"; echo "With multiple displays, choose one or more guests; --all stops every Ternux desktop."; }
+tnx_help_restart()   { echo "Usage: ternux restart [DISTRO]"; echo "Restart the named guest desktop session."; }
 tnx_help_doctor() {
   cat << HELP
 Usage: ternux doctor [CATEGORY...] [--quick] [--strict] [--json]

@@ -256,9 +256,11 @@ command -v ternux       # $PREFIX/bin/ternux
 ternux --version        # ternux vX.Y.Z
 ternux doctor           # system diagnostics
 ternux doctor --json    # machine-readable diagnostics
-ternux start            # start the desktop
-ternux stop             # stop the desktop
-ternux restart          # restart the desktop
+tx start                # start the saved desktop
+tx start ubuntu        # start Ubuntu in its own Termux:X11 window
+tx stop                # choose one or more running desktops
+tx stop --all          # stop all Ternux desktops
+tx restart ubuntu     # restart Ubuntu
 ternux repair           # repair common problems
 ternux verify           # verify the installation
 ternux benchmark        # installation health and renderer check
@@ -310,7 +312,7 @@ message instead of producing a half-broken desktop.
 | 5 | **GPU driver** | Adreno: resolves the current Debian ARM64 Turnip asset, rejects unsafe paths, validates the two target members as regular files, records URL/SHA-256, and installs only those members. Other: confirms the VirGL host renderer | Target-only extraction avoids executing archive layout assumptions. Pinning paired Mesa packages reduces the chance of a routine upgrade replacing the tested path |
 | 6 | **Audio, locale, fonts** | Configures the loopback-only PulseAudio bridge, OpenSL ES output and on-demand microphone source; runs a private one-second Termux:API permission probe; generates your locale and installs emoji/powerline/Nerd fonts | Guest playback and capture reach Android audio through PulseAudio. Live capture uses Termux's permission and OpenSL ES source; the separate Termux:API probe does not carry a live stream. Fonts avoid tofu boxes in the terminal |
 | 7 | **Launcher** | Writes `~/x.sh` tuned to your GPU route, syntax-checks it | One command (`x`) must reliably start audio → display → desktop in the right order |
-| 8 | **Shortcuts** | Installs `x`, `killx`, `db`, `droot`, `xgo`, `sysmon`, `clean-mesa` for the selected Debian user | Sets up quick shortcuts so everyday operations need only a single command |
+| 8 | **Shortcuts** | Installs `tx`, `x`, `killx`, `db`/`dbr`, `ub`/`ubr`, `alp`/`alpr`, `xgo`, `sysmon`, `clean-mesa` | Sets up quick shortcuts so everyday operations need only a single command |
 | 9 | **Optional extras** | Dev tools, llama.cpp, network tools, media tools, Blender + Xvfb for headless EEVEE — only what you asked for | Keep the base install lean; each profile has different storage/thermal costs |
 | 10 | **Android safeguard check** | Reads the Android child-process setting when available and prints version-aware guidance | Signal 9 can also come from memory pressure or OEM battery policy; collect evidence before changing a system-wide safeguard |
 | 11 | **Verification** | Confirms every critical binary, file and permission actually landed | Confirms the environment is runnable — `apt` completing without errors does not guarantee the desktop will launch |

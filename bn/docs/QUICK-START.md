@@ -108,8 +108,9 @@ glxinfo | grep "renderer string"
 
 ```text
 x        ডেস্কটপ চালু          killx  সব পরিষ্কারভাবে বন্ধ
-db       Debian শেল (ইউজার)    droot  রুট শেল
-xgo      Termux:X11 + x একসাথে
+tx       ternux-এর ছোট alias      xgo    installed GUI বাছুন
+db/dbr   Debian user/root shell  ub/ubr Ubuntu user/root shell
+alp/alpr Alpine user/root shell
 sysmon   ডিভাইসের সারসংক্ষেপ   clean-mesa  শেডার ক্যাশ পরিষ্কার
 ```
 
@@ -139,7 +140,8 @@ default; ছোট screen-এ compact player view ব্যবহার কর�
 ternux doctor           # সিস্টেম ডায়াগনস্টিক
 ternux doctor --json    # machine-readable output
 ternux start            # ডেস্কটপ চালু
-ternux stop             # ডেস্কটপ বন্ধ
+tx stop                 # কোন guest desktop বন্ধ করবেন বাছুন
+tx stop --all          # সব Ternux desktop বন্ধ
 ternux repair           # সাধারণ সমস্যা সমাধান
 ternux verify           # ইনস্টলেশন যাচাই
 ternux benchmark        # GPU বেঞ্চমার্ক

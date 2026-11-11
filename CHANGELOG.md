@@ -12,6 +12,10 @@ Notable changes to ternux. Dates are ISO 8601.
 
 ## [Unreleased]
 
+### Guest profiles and installer
+
+- Added named Debian/Ubuntu guest management, independent per-guest launcher and profile settings, sequential multi-guest installation, and guarded `start/stop/restart DISTRO` commands. The interactive guest picker now states validation status. Ubuntu uses VirGL by default and pins/holds snapd; Debian remains the only device-verified profile.
+
 ### Release operations
 
 - Production Pages deployment now requires an explicit `workflow_dispatch`; merging routine source or documentation changes no longer deploys the live site automatically.

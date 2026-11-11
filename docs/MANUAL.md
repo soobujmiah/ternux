@@ -423,7 +423,7 @@ installer with `ternux install`.
 
 ## Step 9 — Shell shortcuts
 
-The installer creates and maintains the `x`, `killx`, `db`, `droot`, `xgo`,
+The installer creates and maintains the `tx`, `x`, `killx`, `db`/`dbr`, `ub`/`ubr`, `alp`/`alpr`, `xgo`,
 `clean-mesa` and `sysmon` shortcuts. The guest aliases use isolated PRoot
 bindings, mount only directories listed by `ternux storage grant`, and share
 `/tmp` only for commands that need it. Run `ternux install` to create or refresh the generated aliases; do not
