@@ -30,12 +30,10 @@ import RenderBench from "../components/RenderBench.astro";
           </h1>
           <p>
             A complete ARM64 Linux workstation on Android, with 15
-            package-family guest profiles and a recommended Debian default.
-            Debian, Ubuntu and Alpine have partial runtime integration evidence
-            on one Adreno 825 phone; clean-install and full-app qualification
-            remain open. No
-            root. No remote server. Just a carefully engineered stack that turns
-            a phone into a place to build, render and compute.
+            package-family guest profiles and Debian as the recommended default.
+            Debian, Ubuntu, and Alpine have partial runtime integration evidence
+            on one Adreno 825 phone. Clean-install and full-app qualification
+            remain open. No root or remote server is needed.
           </p>
           <div class="hero-actions">
             <a class="button primary" href="/ternux/docs/QUICK-START.html">
@@ -143,7 +141,10 @@ import RenderBench from "../components/RenderBench.astro";
           <article class="arch-stage" data-index="05 / GPU">
             <span class="arch-pulse"></span>
             <h3>VirGL · Zink</h3>
-            <p>Native distro Mesa · Debian, Ubuntu, Alpine tested on Adreno 825</p>
+            <p>
+              Native distro Mesa · Debian, Ubuntu, and Alpine tested on Adreno
+              825
+            </p>
           </article>
           <article class="arch-stage" data-index="06 / READY">
             <span class="arch-pulse"></span>
@@ -165,14 +166,14 @@ import RenderBench from "../components/RenderBench.astro";
             <p>
               Install Termux from a trusted source, then follow the quick-start
               guide. The setup is explicit, inspectable and designed around the
-              phone's real boundaries. The
+              phone's real boundaries. The{' '}
               <a href="https://github.com/termux/termux-x11/releases/tag/nightly">
                 Termux:X11 shared-UID debug APK
               </a>
-              can reduce Android background throttling while the X11 desktop is
-              foreground; it requires the GitHub-signed Termux app. F-Droid and
-              Google Play users should use the standard universal debug APK from
-              that same release page.
+              can reduce Android background throttling while the X11 desktop
+              is foreground; it requires the GitHub-signed Termux app. F-Droid
+              and Google Play users should use the standard universal debug APK
+              from the same release page.
             </p>
             <a class="home-section-link" href="/ternux/docs/INSTALLATION.html">
               READ INSTALLATION NOTES ↗
