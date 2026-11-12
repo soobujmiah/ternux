@@ -1,0 +1,7 @@
+event_id: commit-cdf882009324-14b2bee93ac57180
+repository: soobujmiah/ternux
+commit: cdf882009324cf3e902fdea337f209900b2dce72
+kind: commit
+occurred_at: '2026-11-12T21:03:03Z'
+status: completed
+summary: 'fix: correct guest window fitting and v2 qualification scope (#181)'
