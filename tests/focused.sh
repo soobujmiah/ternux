@@ -705,6 +705,11 @@ assert "apt-cache policy \"$package\"" in phase_source
 assert "continuing with the remaining selections" in phase_source
 assert "product=firefox-esr-latest&os=$os" in firefox_installer
 assert "linux64-aarch64" in firefox_installer
+assert "--proto '=https' --proto-redir '=https'" in firefox_installer
+assert "--max-filesize 250000000" in firefox_installer
+assert "--retry 3 --retry-delay 2 --retry-all-errors" in firefox_installer
+assert "--progress-bar" in firefox_installer and "Python's urllib" in firefox_installer
+assert "apt install -y \\$DPKG_FORCE curl" in phase_source
 assert "sudo apt install" not in firefox_installer
 for icon in ("synaptic", "python3.14"):
     assert (root / f"lib/ternux-assets/icons/Ternux/scalable/apps/{icon}.svg").is_file()

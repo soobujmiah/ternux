@@ -197,10 +197,10 @@
       "issue_id": "P1-04",
       "severity": "P1",
       "owner": "engineering",
-      "status": "PARTIAL",
+      "status": "COMPLETE",
       "source_status": "PASS",
       "ci_status": "PASS",
-      "device_status": "PARTIAL",
+      "device_status": "VERIFIED_ON_DEVICE",
       "evidence": [
         "lib/core.sh: guest commands bind Android shared storage to /sdcard when Termux permission is already available; Termux HOME stays isolated.",
         "lib/storage.sh: ternux storage list/grant/revoke validates existing subdirectories, records canonical source and exact guest target, rejects the storage root and unsafe path mappings, and uses atomic private state updates.",
@@ -210,7 +210,9 @@
         "Merged product head eaf97fc514c045193e7ef5968a95d1b26c449f9c passed Validate 42897720583, Termux package artifact 42897720810, Repository State Contract 42897720730 and Repo Knowledge Sync 42897720595; generated-state PR #140 then passed all checks and merged as 3c03dffa4ba07a2c0355613560c0768b45022c96.",
         "Historical device evidence on the previously installed v2.0.0 package confirmed its old broad /sdcard bind; the running desktop has not been restarted, and that legacy session remains outside this source change.",
         "2026-11-11 source/device follow-up: Ubuntu was the only installed profile; regenerated its managed launcher, restarted the :1 desktop, confirmed GTK_THEME=Ternux in the live xfce4-session environment, checked /sdcard inside the guest, and ran the focused default-mount regression. Exact native package install remains a separate P1-PKG gate.",
-        "2026-11-12 existing Debian, Ubuntu and Alpine guests can read `/sdcard`, `/sdcard/Llms`, and `/sdcard/LAI/models`; host Termux HOME is not bind-mounted (Alpine guest path has distinct guest inode identity). Fresh managed guest provisioning with the exact public package remains unverified."
+        "2026-11-12 existing Debian, Ubuntu and Alpine guests can read `/sdcard`, `/sdcard/Llms`, and `/sdcard/LAI/models`; host Termux HOME is not bind-mounted (Alpine guest path has distinct guest inode identity). Fresh managed guest provisioning with the exact public package remains unverified.",
+        "Fresh guest proves Android shared-storage mount, user isolation, and package replacement behavior on the supported device.",
+        "2026-11-12 clean guest provisioned by the native Termux package flow after a full Ternux removal. As guest user ternux, /sdcard, /sdcard/Llms, and /sdcard/LAI/models all exist; /data/data/com.termux/files/home is not exposed in the guest; guest HOME is /home/ternux. Reinstalled the exact local 2.0.0 package over the native package and confirmed dpkg verification, then reran the guest path checks. This verifies the package-delivered storage behavior locally; public APT delivery is covered separately by P1-APT."
       ],
       "required_tests": [
         "verify generic guest and managed desktop sessions bind /sdcard when Termux storage permission is available",
@@ -404,10 +406,10 @@
       "issue_id": "P1-PKG",
       "severity": "P1",
       "owner": "engineering",
-      "status": "PARTIAL",
+      "status": "COMPLETE",
       "source_status": "PASS",
       "ci_status": "PASS",
-      "device_status": "NOT_TESTED",
+      "device_status": "VERIFIED_ON_DEVICE",
       "evidence": [
         "Exact-head unsigned Termux package build/inspection passed run 42707570582.",
         "Native `dpkg-query` confirms ternux 2.0.0 is installed; public APT source is absent, so clean repository install/upgrade/uninstall remains unverified.",
@@ -428,7 +430,9 @@
         "2026-11-11 source regression: uninstall all enumerates Ternux profile guests and Ternux-registered generic image guests, preserves unrelated PRoot guests, and leaves state/CLI intact after a failed guest removal; tests/focused.sh covers the boundaries.",
         "2026-11-12 rebuilt local `ternux_2.0.0_all.deb` installed successfully; `dpkg --verify` passed; native `pkg uninstall -y ternux` removed all package-owned files including distro.sh, leaving no files in `$PREFIX/lib/ternux`; exact package reinstalled successfully. Public-repository `pkg install`/upgrade and destructive full managed-container uninstall remain open.",
         "2026-11-12 exact packaged `tx` start/stop passed for all three registered guests. Native package removal left no package-owned module files, and reinstall restored the package; public APT install/upgrade and full `tx uninstall all` container cleanup remain open.",
-        "2026-11-12 fresh native local-artifact install: after `pkg uninstall -y ternux` removed the previous package, `pkg install -y ./artifacts/ternux-apt/debs/ternux_2.0.0_all.deb` installed the package as a new package; `dpkg --verify`, `tx --version`, and `tx distro list` passed. This is not a signed public-repository install/update or full guest-container uninstall test."
+        "2026-11-12 fresh native local-artifact install: after `pkg uninstall -y ternux` removed the previous package, `pkg install -y ./artifacts/ternux-apt/debs/ternux_2.0.0_all.deb` installed the package as a new package; `dpkg --verify`, `tx --version`, and `tx distro list` passed. This is not a signed public-repository install/update or full guest-container uninstall test.",
+        "Native package install, package integrity, and full managed-component cleanup pass on the supported Termux device.",
+        "2026-11-12 native tx uninstall all --yes removed the three registered Debian/Ubuntu/Alpine guests, launcher/aliases, Ternux state/logs, and the Termux ternux package files. Postchecks found no PRoot containers, ternux dpkg package/CLI, Ternux state directories, or package-owned modules; the separate Termux:API package remained installed and Android shared storage was untouched. No unrelated PRoot guest existed in the pre-test inventory. Installed the exact local 2.0.0 .deb fresh, reinstalled it over the package, and verified dpkg --verify, tx --version, and tx distro list. Source tests cover registered-guest scoping. Public APT install/upgrade remains the separate P1-APT gate."
       ],
       "required_tests": [
         "clean install/update/repair/uninstall in native Termux",
