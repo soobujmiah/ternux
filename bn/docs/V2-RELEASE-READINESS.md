@@ -7,7 +7,7 @@ alt_url: "/docs/V2-RELEASE-READINESS.html"
 **অবস্থা: NOT_READY**
 **Audit date:** 2026-11-12
 **লক্ষ্য:** Ternux 2.0.0
-**বর্তমান qualification source:** বর্তমান audit branch-এর PR #167; review-এর সময় pull request থেকে exact head SHA ও check run যাচাই করতে হবে।
+**বর্তমান qualification source:** main `90be23e4168d21f934da2d50c0991903cc35cd85` (PR #167 merged); exact-main Validate, package artifact, repo-contract ও Repo Knowledge Sync pass করেছে।
 **Product source audit base:** `159806ff395a34349086504ae3055ddef21ddbec`
 **সর্বশেষ stable release:** v1.4.0; v2.0.0 tag বা release নেই।
 **Machine gate:** ২০টি gate-এর মধ্যে P1-01, P1-03, P1-04, P1-09, P1-APT, P1-PKG—এই ছয়টি release-blocking gate অসম্পূর্ণ।
@@ -24,7 +24,7 @@ Redmi Turbo 4 Pro / SM8735 / Adreno 825-এ Debian (`:0`), Ubuntu (`:1`) এব�
 
 ## সুপারিশ
 
-এখনই v2.0.0 প্রকাশ করবেন না। Generated-state CI timeout ঠিক হয়েছে এবং Android storage এখন opt-in ও নির্দিষ্ট directory-তে সীমিত। Product PR #138/#139, audit PR #141 এবং generated-state PR #137/#140/#142 required CI পাস করে merge হয়েছে। Native package lifecycle ও updated-package desktop যাচাই বাকি, public APT-এর চারটি endpoint 404, আর পরীক্ষিত Qwen model-গুলো structured retrieval-এ ব্যর্থ হয়েছে।
+এখনই v2.0.0 প্রকাশ করবেন না। Generated-state CI timeout ঠিক হয়েছে এবং Android storage এখন opt-in ও নির্দিষ্ট directory-তে সীমিত। Product PR #138/#139, audit PR #141 এবং generated-state PR #137/#140/#142 required CI পাস করে merge হয়েছে। Exact packaged CLI দিয়ে তিনটি desktop-এর start/stop ও package uninstall/reinstall pass করেছে। এখনো device crash recovery, v1.4.0 migration, clean guest, full managed cleanup ও signed public APT install/upgrade বাকি; public APT endpoint 404।
 
 ## Stage 0 — repo ও কাজের পুনর্মিলন
 
@@ -41,17 +41,17 @@ PR #139 storage privacy implement করে সব required check পাসে�
 | P0-01 Stable Diffusion Vulkan license CI | **COMPLETE** | Deterministic notice manifest ও regression আছে। Exact ARM64 build, binary inspection, independent license audit run `42863263043`-এ source `5e41401dd60bf5261f6a638c62b4ad94eea98812`-এ পাস; prerelease প্রকাশ বন্ধ ছিল। |
 | P0-02 release branch consistency | **COMPLETE** | Product fix `main`-এ আছে; PR #138, generated PR #137, storage PR #139 merge হয়েছে। product head `eaf97fc`-এর সব exact-main check এবং generated-state PR #140-এর check পাস; release tag নেই। |
 | P0-03 machine release gate | **COMPLETE** | `docs/release-gates.json`-এ ১৯ gate; blocker অসম্পূর্ণ থাকলে validator `NOT_READY` দেয়। |
-| P1-01 desktop lifecycle | **PARTIAL** | বর্তমান managed source দিয়ে Debian, Ubuntu, Alpine session চালিয়ে পরীক্ষা ও বন্ধ করা হয়েছে; তিনটিই এখন STOPPED। এতে distro runtime evidence আছে, তবে native package migration, crash recovery ও exact package lifecycle এখনো বাকি। |
+| P1-01 desktop lifecycle | **PARTIAL** | Exact native package দিয়ে Debian `:0`, Ubuntu `:1`, Alpine `:2` READY হয়েছে, PulseAudio route ready ছিল, এবং clean stop-এর পর তিনটিই STOPPED। Device crash recovery ও published v1.4.0 migration এখনো বাকি। |
 | P1-02 GPU/Vulkan detection | **শুধু tested Adreno device-এ COMPLETE** | Redmi Turbo 4 Pro / SM8735 / Adreno 825-এ Debian, Ubuntu ও Alpine—তিনটিতেই Vulkan/Turnip-backed Zink দেখা গেছে; software renderer false-positive regression আছে। অন্য device qualify নয়। |
 | P1-03 installer/updater | **PARTIAL** | Pinned bootstrap, host CLI, guest CLI tampered source reject করে; local rollback ও v1.4.0-to-v2 fixture পাস। Published v2 native migration/rollback বাকি। |
-| P1-04 storage isolation | **PARTIAL** | Default `/sdcard` bind ও setup-time permission prompt সরানো হয়েছে। `ternux storage grant DIRECTORY` কেবল canonical subdirectory রেকর্ড করে; generic guest, desktop launcher, db/droot একই allowlist যাচাই করে। Focused regression ও PR CI পাস। Updated-package device check বাকি; পুরোনো package-এর live desktop restart করা হয়নি। |
-| P1-09 default browser | **PARTIAL** | সব ১৫টি generated profile-এ Firefox install route local check pass; live Ubuntu-তে Firefox ESR 153.7.0। প্রতিটি distro-র clean first install browser test বাকি। |
+| P1-04 storage isolation | **PARTIAL** | Exact packaged CLI-সহ Debian, Ubuntu, Alpine guest `/sdcard`, `/sdcard/Llms`, `/sdcard/LAI/models` পড়তে পারে; host Termux HOME bind হয়নি। Alpine-এর একই path guest-এর আলাদা inode। Fresh managed guest-এ acceptance বাকি। |
+| P1-09 default browser | **PARTIAL** | সব ১৫টি recipe-তে Firefox route pass; installed Debian/Ubuntu/Alpine-এ ESR যথাক্রমে 153.6.0esr, 153.7.0esr, 140.12.0esr। Clean first-install browser test এখনো বাকি। |
 | P1-05 repository protection | **owner-only repo-র জন্য COMPLETE** | Live read-back-এ PR ও required check, strict check, admin enforcement, force-push/delete বন্ধ; second-person review অসম্ভব হওয়ায় approval count শূন্য। `.github/CODEOWNERS`-এ owner নির্ধারিত। |
 | P1-06 CPU/Vulkan LLM | **ঘোষিত device/model/workload profile-এর জন্য COMPLETE** | SM8735 / Adreno 825-এ Llama 3.2 3B Q4_K_M CPU/Vulkan known-answer ও 768 MiB pressure-সহ support-queue retrieval পাস করেছে; bounded cancel/reopen এবং CPU/Vulkan generation stability যাচাই হয়েছে। পাঁচটি 512-token CPU run ও চারটি Vulkan run সম্পূর্ণ; battery 42°C guard-এ পরের কাজ থামানো হয়েছে। তিন Qwen variant 100-record exact retrieval-এ ব্যর্থ এবং চাপের সময় invoice ফল 24.75, প্রত্যাশিত 39.50। এই model/task, অন্য device ও general correctness claim qualification-এর বাইরে। |
 | P1-07 HTP/HMX | **PARTIAL; experimental, release-excluded** | Numerical/operator failure বাকি; failing operator stable default নয়, production claim নেই। |
 | P1-08 QNN Stable Diffusion | **PARTIAL; research-only, release-excluded** | Stage-tensor correctness ও production qualification বাকি। |
 | P1-APT public repository | **BLOCKED** | 2026-11-11-এ bootstrap, archive key, `InRelease`, `Packages`—চারটি public path-ই 404। Signed publication, hosted verification ও clean Termux install/upgrade/uninstall বাকি। |
-| P1-PKG native package lifecycle | **PARTIAL** | Exact-main package artifact workflow পাস। 2026-11-11-এ আগে থেকে installed Ternux 2.0.0 package native `dpkg --remove` দিয়ে সরানো হয়েছে; পরে `dpkg-query`-এ Ternux package নেই, `proot-distro list`-এ guest নেই, এবং Ternux CLI/state/log path অনুপস্থিত ছিল। `pkg uninstall -y ternux` Termux APT-এর `libapt-pkg.so` load error (`_ZNSt6__ndk113__hash_memoryEPKvm` অনুপস্থিত) দিয়ে চলেনি; এটিকে clean package lifecycle pass ধরা হয়নি। Fresh `pkg install`, upgrade ও repair এখনো যাচাই বাকি। |
+| P1-PKG native package lifecycle | **PARTIAL** | Exact local Ternux 2.0.0 package install ও `dpkg --verify` pass। `pkg uninstall -y ternux` package-owned সব file সরিয়েছে, `lib/ternux/distro.sh`-সহ; module directory ফাঁকা ছিল। Package reinstall করে তিন guest-এই exact CLI READY/audio-route ও clean stop দেখা গেছে। Public repo `pkg install`/upgrade এবং full `tx uninstall all` cleanup বাকি। |
 | P1-DOCS | **source documentation-এ COMPLETE** | README, CLI, install, usage, security, accelerator, release-readiness English ও Bengali-তে আপডেট। Pages publication explicit main-only deployment workflow দিয়ে হয়। |
 | P2-01 installer modularization | **NOT_STARTED; non-blocking** | Qualification চলাকালে বড় refactor এড়িয়ে incremental কাজ রাখুন। |
 | P2-02 test decomposition | **PARTIAL; non-blocking** | Focused regression বেড়েছে; `tests/focused.sh` এখনো বড়। |
@@ -71,7 +71,7 @@ PR #139 storage privacy implement করে সব required check পাসে�
 
 - `bash tests/focused.sh`: **153/153 পাস**—default-এ mount না হওয়া, নির্দিষ্ট path mount, tampered grant rejection, stale grant revoke, install-এ permission prompt না আসা, alias refresh ও host isolation অন্তর্ভুক্ত।
 - `python3 tests/docs_check.py`: documentation, internal-link ও bilingual consistency check পাস।
-- `python3 tests/release_gates.py --self-test` এবং `--check`: পাস; ১৯ gate `NOT_READY`, পাঁচ blocker উপরে তালিকাভুক্ত।
+- `python3 tests/release_gates.py --self-test` এবং `--check`: পাস; ২০ gate, ছয় release blocker, readiness `NOT_READY`.
 - On-device Llama 3.2 3B CPU/Vulkan bounded sustained-generation evidence এবং tested profile exclusion accelerator plan ও benchmark guide-এ আছে।
 - Bash syntax, `git diff --check`, JSON parse: পাস।
 - PR #139 head `53344d9a69a7f7a3019b10840a7495aaf56f548d`: Validate `42897454459`, unsigned package artifact `42897454586`, repo-contract `42897311193` ও `42897454513`, Repo Knowledge Sync/test `42897454842`: সব পাস।
@@ -87,12 +87,15 @@ HTP/HMX ও QNN stable v2 claim-এর অংশ নয়। CPU/Vulkan claim-�
 
 ## বাকি release blocker
 
-1. Supported Termux device-এ current package install করে native install/upgrade/repair/uninstall যাচাই।
-2. Updated package-এ default storage বন্ধ, নির্দিষ্ট grant visible, revoke পরের session-এ প্রযোজ্য, Termux HOME hidden—এসব এবং GUI lifecycle/app smoke যাচাই; unrelated process স্পর্শ নয়।
-3. Native v1.4.0 থেকে v2 migration এবং rollback যাচাই।
-4. Candidate qualify হওয়ার পরই signed APT publish; public URL, signature, hash এবং clean `pkg install`, upgrade, uninstall যাচাই।
-5. চূড়ান্ত release commit-এ সব required CI পুনরায় চালিয়ে এই report আপডেট। HTP/HMX এবং QNN qualification না হওয়া পর্যন্ত বাদ।
+1. **P1-01 lifecycle:** exact packaged CLI-তে crash recovery ও restart verify; তিন guest start/stop ইতিমধ্যে pass।
+2. **P1-03 updater:** device-এ native v1.4.0-to-v2 migration, interrupted update recovery ও rollback verify।
+3. **P1-04 storage:** release package দিয়ে fresh guest provision করে `/sdcard`, model path ও Termux HOME isolation যাচাই।
+4. **P1-09 browser:** fresh supported profile-এ browser প্রথমবার install ও launch verify; ১৫ recipe pass, তিন live guest-এ Firefox ESR আছে।
+5. **P1-PKG:** `tx uninstall all` full cleanup চালিয়ে preserved Termux/Android user data ছাড়া Ternux residue নেই যাচাই; public `pkg install`/upgrade APT-এর পরে।
+6. **P1-APT:** বাকি candidate gate pass হলে signed repository publish, public URL/signature/hash যাচাই, তারপর native `pkg install`/upgrade/uninstall।
+
+Final intended release commit-এ required CI আবার চালাতে হবে। আলাদা qualification না হওয়া পর্যন্ত HTP/HMX ও QNN বাদ।
 
 ## চূড়ান্ত সুপারিশ
 
-**NOT_READY।** Core source regression ও CI fix merge হয়েছে, কিন্তু পাঁচটি release-blocking gate বাকি। Device/package gate, APT route এবং final exact-commit CI pass না হওয়া পর্যন্ত v2.0.0 tag বা publish করবেন না।
+**NOT_READY।** PR #167 merge হয়েছে এবং exact-main check pass; উপরের ছয় blocker এখনো অসম্পূর্ণ। Device migration, fresh guest, cleanup এবং public APT evidence সম্পূর্ণ না হওয়া পর্যন্ত v2.0.0 tag বা publish করবেন না।
