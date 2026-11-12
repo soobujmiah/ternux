@@ -152,13 +152,17 @@ Debian-এর ভেতরে ইনস্টল হয়:
 
 | পথ | উদ্দেশ্য |
 |---|---|
-| `~/.ternux-state` | কোন ইনস্টলার ধাপ শেষ হয়েছে (`--resume`, `--status` এর ভিত্তি) |
-| `~/.ternux-state`-এই আরও আছে | ডাউনলোড করা Turnip ড্রাইভারের SHA-256 |
-| `$TMPDIR/ternux-install.log` | শেষ ইনস্টলার রানের পূর্ণ লগ |
+| `~/.local/share/ternux/state` | সংরক্ষিত install পছন্দ ও shared configuration |
+| `~/.local/share/ternux/phases` | shared host phase এবং aggregate compatibility marker |
+| `~/.local/share/ternux/distros/<name>/phases` | ওই guest-এর `--resume`-এ ব্যবহৃত সফল phase |
+| `~/.local/share/ternux/distros/<name>/profile` | guest-এর readiness, user, display ও backend |
+| `$TMPDIR/ternux/ternux.log` | শেষ installer রানের পূর্ণ log (default: `$PREFIX/tmp/ternux/ternux.log`) |
 
-`~/.ternux-state` মুছলে completion record হারায়। শুধু phase আবার চালাতে
-`--resume` ব্যবহার করবেন না; সংশ্লিষ্ট `ternux repair` বা `--resume`-ছাড়া
-installer route বেছে নিন এবং আগে backup রাখুন।
+`~/.local/share/ternux` মুছলে saved configuration ও guest completion record
+হারায়। `--resume` সফল guest phase কেবল সেই একই guest-এর জন্য বাদ দেয়; পুরোনো
+install-এ guest phase file না থাকলে guest setup নিরাপদে আবার চলে। সম্পন্ন artifact
+repair করতে `--resume` নয়; প্রাসঙ্গিক `ternux repair` বা backup নিয়ে `--resume`
+ছাড়া installer ব্যবহার করুন।
 
 ---
 

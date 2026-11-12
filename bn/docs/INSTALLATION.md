@@ -110,7 +110,11 @@ Reproducible review-এর জন্য `git fetch --tags` চালিয়ে
 একই হওয়ার কথা; local review route একবার confirmation চাইতে পারে। Review-এর পর
 prompt না চাইলে সচেতনভাবে `--yes` দিন। ইনস্টল মাঝপথে থামলে একই one-command installer
 আবার চালালেই saved guest ও পছন্দ থেকে auto-resume হবে। চাইলে `bash install.sh --resume`
-দিয়ে আলাদাভাবেও resume করা যায়; সফল phase বাদ যাবে এবং saved optional workload ফিরবে।
+দিয়ে আলাদাভাবেও resume করা যায়। Shared host setup phase একবার record হয়; desktop
+phase প্রতিটি guest-এর state directory-তে আলাদা থাকে। তাই resume-এ শুধু সেই guest-এর
+সফল phase বাদ যায়—Debian-এর শেষ phase Ubuntu বা Alpine-এর অসমাপ্ত setup ঢেকে দিতে
+পারে না। পুরোনো install-এ guest phase ledger না থাকলে aggregate marker বিশ্বাস না করে
+guest phase নিরাপদে আবার চালায়। Saved optional workload-ও ফিরে আসে।
 
 ### পদ্ধতি ৩ — সম্পূর্ণ ম্যানুয়াল, কমান্ডে কমান্ডে
 

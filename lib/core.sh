@@ -481,6 +481,45 @@ tnx_state_mark() {
   tnx_state_done "$phase" || echo "$phase" >> "$TERNUX_STATE_DIR/phases"
 }
 
+# Host bootstrap phases are shared, while desktop configuration is owned by
+# each named guest. Keep the old aggregate phase file for existing readers,
+# but use a per-guest ledger when deciding what an interrupted install may skip.
+tnx_distro_phase_done() {
+  local distro="${1:-$(tnx_distro)}" phase="${2:-}" file
+  [[ "$phase" =~ ^[a-z][a-z0-9_]*$ ]] || return 2
+  file="$(tnx_distro_state_dir "$distro")/phases"
+  [ -f "$file" ] && grep -qsx "phase_$phase" "$file"
+}
+
+tnx_distro_phase_mark() {
+  local distro="${1:-$(tnx_distro)}" phase="${2:-}" dir file tmp
+  [[ "$phase" =~ ^[a-z][a-z0-9_]*$ ]] || return 2
+  dir="$(tnx_distro_state_dir "$distro")" || return 2
+  mkdir -p "$dir" || return 1
+  file="$dir/phases"
+  tnx_distro_phase_done "$distro" "$phase" && return 0
+  tmp="$dir/.phases.tmp.$$"
+  { [ ! -f "$file" ] || cat "$file"; printf 'phase_%s\n' "$phase"; } > "$tmp" || { rm -f "$tmp"; return 1; }
+  chmod 0600 "$tmp" && mv -f "$tmp" "$file"
+}
+
+tnx_install_phase_done() {
+  local phase="${1#phase_}" distro="${2:-$(tnx_distro)}"
+  case "$phase" in
+    preflight|packages|cli) tnx_state_done "phase_$phase" ;;
+    *) tnx_distro_phase_done "$distro" "$phase" ;;
+  esac
+}
+
+tnx_install_phase_mark() {
+  local phase="${1#phase_}" distro="${2:-$(tnx_distro)}"
+  tnx_state_mark "phase_$phase" || return 1
+  case "$phase" in
+    preflight|packages|cli) return 0 ;;
+    *) tnx_distro_phase_mark "$distro" "$phase" ;;
+  esac
+}
+
 tnx_state_clear() {
   rm -rf "$TERNUX_STATE_DIR"
   rm -f "$TERNUX_LEGACY_STATE"

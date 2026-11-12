@@ -176,7 +176,11 @@ GPU acceleration সক্রিয় নয়।
 ডাউনলোড বিঘ্নিত হয়। পেশাদার ইনস্টলারকে বিঘ্নকে *প্রত্যাশিত অবস্থা* ধরতে হয়:
 
 - **আইডেমপোটেন্সি** — শেষ হওয়া ধাপ চেক বা পুনঃপ্রবেশযোগ্য, কনফিগ নকল হয় না।
-- **রেকর্ডেড রিজিউম** — `--resume` successful phase বাদ দিয়ে interrupted run-এর saved optional workload set restore করে; repair নয়।
+- **রেকর্ডেড রিজিউম** — host bootstrap phase-গুলো একটি ledger ভাগ করে, আর desktop
+  phase প্রতিটি guest-এর অধীনে আলাদা record হয়। `--resume` নির্বাচিত guest-এর
+  সফল phase-ই বাদ দেয়; অন্য guest-এর সফল phase অসমাপ্ত setup ঢাকতে পারে না। পুরোনো
+  aggregate-only state নিরাপদভাবে ধরে guest setup আবার চালায় এবং saved optional
+  workload ফিরিয়ে আনে। Resume repair নয়।
 - **লক্ষ্যভিত্তিক মেরামত** — `--doctor` ব্যর্থতাকে তার ধাপে ম্যাপ করে।
 - **অগ্রগতির আগে যাচাই** — প্রতিটি গুরুত্বপূর্ণ ফাইল ও বাইনারির উপস্থিতি
   পরের ধাপ শুরুর আগে নিশ্চিত হয়।

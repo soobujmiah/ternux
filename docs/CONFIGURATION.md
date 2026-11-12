@@ -152,13 +152,17 @@ Add more fonts any time: drop the files in `~/.local/share/fonts` and run
 
 | Path | Purpose |
 |---|---|
-| `~/.ternux-state` | Which installer phases completed (powers `--resume`, `--status`) |
-| `~/.ternux-state` also records | The SHA-256 of the downloaded Turnip driver |
-| `$TMPDIR/ternux-install.log` | Full log of the last installer run |
+| `~/.local/share/ternux/state` | Saved install choices and shared configuration |
+| `~/.local/share/ternux/phases` | Shared host phases plus aggregate compatibility markers |
+| `~/.local/share/ternux/distros/<name>/phases` | Successful guest phases used by `--resume` for that guest only |
+| `~/.local/share/ternux/distros/<name>/profile` | Per-guest readiness, user, display and backend settings |
+| `$TMPDIR/ternux/ternux.log` | Full log of the last installer run (default: `$PREFIX/tmp/ternux/ternux.log`) |
 
-Deleting `~/.ternux-state` discards completion records. Do not use `--resume`
-to reapply a completed phase; use the relevant `ternux repair` path or rerun
-the installer without `--resume`, with a backup first.
+Deleting `~/.local/share/ternux` discards saved configuration and all guest
+completion records. `--resume` skips a successful guest phase only for the same
+guest; older installs without a per-guest phase file rerun guest setup safely.
+Do not use `--resume` to repair an already completed artifact; use the relevant
+`ternux repair` path or rerun the installer without `--resume`, with a backup first.
 
 ---
 

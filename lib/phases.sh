@@ -3211,7 +3211,7 @@ tnx_install_single() {
     tnx_frame_phase "$current" "$total" "$title"
     export _TNX_PHASE_CUR=$current _TNX_PHASE_TOT=$total
 
-    if [ "$resume" -eq 1 ] && tnx_state_done "phase_${phase}"; then
+    if [ "$resume" -eq 1 ] && tnx_install_phase_done "$phase" "$distro_choice"; then
       if [ "${_TNX_FRAME_ACTIVE:-0}" = "1" ]; then
         printf '[SKIP] %s already completed\n' "$title" | tnx_frame_stream
       else
@@ -3230,7 +3230,7 @@ tnx_install_single() {
     fi
 
     if [ "$phase_rc" -eq 0 ]; then
-      tnx_state_mark "phase_${phase}"
+      tnx_install_phase_mark "$phase" "$distro_choice"
       continue
     fi
 
