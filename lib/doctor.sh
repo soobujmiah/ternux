@@ -46,10 +46,10 @@ _tnx_dr_jesc() {
   printf '%s' "$v"
 }
 
-# Runs inside the Debian guest (serialised with `declare -f`). It only reads
+# Runs inside the selected PRoot guest (serialised with `declare -f`). It only reads
 # state and prints `key=value` lines; it never installs or changes anything.
 _tnx_doctor_guest_probe() {
-  local one root="$HOME/.local/opt/ternux-extensions" e name manifest artifact out libs binary
+  local one root="$HOME/.local/opt/ternux-extensions" e name manifest artifact out libs binary overlay overlay_libdir
   _p() { printf '%s=%s\n' "$1" "$(printf '%s' "$2" | tr '\n\r' '  ')"; }
   _p guest.arch "$(uname -m 2>/dev/null)"
   _p guest.glibc "$(getconf GNU_LIBC_VERSION 2>/dev/null | awk '{print $2}')"
@@ -60,9 +60,21 @@ _tnx_doctor_guest_probe() {
   done
   _p guest.dpkg_audit "$(dpkg --audit 2>/dev/null | grep -c . )"
   _p guest.disk_free_gb "$(df -Pk "$HOME" 2>/dev/null | awk 'NR==2{print int($4/1024/1024)}')"
-  if [ -f /usr/local/lib/aarch64-linux-gnu/libvulkan_freedreno.so ] \
+  overlay="$(cat /etc/ternux/mesa-overlay 2>/dev/null || true)"
+  overlay_libdir="$(cat /etc/ternux/mesa-overlay-libdir 2>/dev/null || true)"
+  if [ -n "$overlay" ] && [ "${overlay#/usr/local/lib/ternux/}" != "$overlay" ] \
+     && [ "${overlay_libdir#"$overlay"/}" != "$overlay_libdir" ] \
+     && [ -f "$overlay_libdir/libvulkan_freedreno.so" ] \
+     && [ -f "$overlay/share/vulkan/icd.d/ternux_freedreno_icd.json" ] \
+     && python3 -m json.tool "$overlay/share/vulkan/icd.d/ternux_freedreno_icd.json" >/dev/null 2>&1 \
+     && grep -F "$overlay_libdir/libvulkan_freedreno.so" "$overlay/share/vulkan/icd.d/ternux_freedreno_icd.json" >/dev/null; then
+    _p guest.turnip overlay
+  elif [ -f /usr/local/lib/aarch64-linux-gnu/libvulkan_freedreno.so ] \
      && [ -f /usr/local/share/vulkan/icd.d/ternux_freedreno_icd.json ]; then
     _p guest.turnip managed
+  elif find /usr -name zink_dri.so -print -quit 2>/dev/null | grep -q . \
+       && find /usr -name 'libvulkan_freedreno.so*' -print -quit 2>/dev/null | grep -q .; then
+    _p guest.turnip distro
   elif [ -f /usr/share/vulkan/icd.d/freedreno_icd.aarch64.json ]; then
     _p guest.turnip fragile
   else
@@ -282,6 +294,8 @@ _tnx_dr_graphics() {
     else _tnx_dr_add warn graphics kgsl_missing "Zink is configured but $kgsl is not visible" "Zink/Turnip cannot reach the GPU without it" "ternux backend set virgl && ternux repair"; fi
     case "${_TNX_DR_GUEST["guest.turnip"]:-}" in
       managed) _tnx_dr_add ok graphics turnip "Turnip driver present (apt-safe layout)" ;;
+      overlay) _tnx_dr_add ok graphics turnip "Turnip driver present (isolated Ternux Mesa overlay)" ;;
+      distro) _tnx_dr_add ok graphics turnip "Turnip driver present (distro package layout)" ;;
       fragile) _tnx_dr_add warn graphics turnip_fragile "Turnip is on a dpkg-owned path" "A mesa upgrade will revert it (docs/GRAPHICS-PERSISTENCE.md)" "Run: ternux repair" ;;
       missing) _tnx_dr_add warn graphics turnip_missing "Turnip driver files missing" "" "Run: ternux repair" ;;
     esac
@@ -527,15 +541,25 @@ tnx_cmd_verify() {
   fi
 
   # Check the backend recorded for this guest. Distro-specific GPU payloads
-  # have different managed paths: Debian keeps an apt-safe /usr/local copy,
-  # while exact-match upstream distro archives install their /usr tree payload.
+  # use either Debian's apt-safe Turnip copy, an isolated exact-match Mesa
+  # overlay, or the guest's native package stack.
   backend="$(tnx_canonical_backend "$(tnx_distro_state_get "$distro" backend 2>/dev/null || tnx_state_get "backend")")"
   if [ "$backend" = "zink" ]; then
     local turnip_layout="missing" asset_kind=""
     asset_kind="$(tnx_state_get "freedreno_asset_kind" 2>/dev/null || true)"
     if [ "$guest_installed" -eq 1 ]; then
       turnip_layout="$(tnx_guest_login -- bash -c '
-        if [ -f /usr/local/lib/aarch64-linux-gnu/libvulkan_freedreno.so ] &&
+        overlay="$(cat /etc/ternux/mesa-overlay 2>/dev/null || true)"
+        overlay_libdir="$(cat /etc/ternux/mesa-overlay-libdir 2>/dev/null || true)"
+        if [ -n "$overlay" ] && [ "${overlay#/usr/local/lib/ternux/}" != "$overlay" ] &&
+           [ "${overlay_libdir#"$overlay"/}" != "$overlay_libdir" ] &&
+           [ -f "$overlay_libdir/libvulkan_freedreno.so" ] &&
+           [ -f "$overlay_libdir/dri/zink_dri.so" ] &&
+           [ -f "$overlay/share/vulkan/icd.d/ternux_freedreno_icd.json" ] &&
+           python3 -m json.tool "$overlay/share/vulkan/icd.d/ternux_freedreno_icd.json" >/dev/null 2>&1 &&
+           grep -F "$overlay_libdir/libvulkan_freedreno.so" "$overlay/share/vulkan/icd.d/ternux_freedreno_icd.json" >/dev/null; then
+          echo overlay
+        elif [ -f /usr/local/lib/aarch64-linux-gnu/libvulkan_freedreno.so ] &&
            [ -f /usr/local/share/vulkan/icd.d/ternux_freedreno_icd.json ] &&
            [ -f /usr/local/share/doc/ternux/mesa-27.0.0-devel-20261025/README.md ]; then
           echo managed
@@ -548,7 +572,7 @@ tnx_cmd_verify() {
         fi' 2>/dev/null)"
     fi
     case "$turnip_layout" in
-      managed|distro)
+      managed|overlay|distro)
         checks+=("turnip:present")
         [ "${TERNUX_JSON:-0}" != "1" ] && tnx_ok "Turnip driver present (${turnip_layout} Mesa layout)"
         ;;

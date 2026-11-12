@@ -4,11 +4,12 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: Verify signing setup without deployment, or publish after every release gate is closed
+        description: Verify signing, publish an isolated RC channel, or publish stable v2 after every gate passes
         required: true
         type: choice
         options:
           - verify-signing
+          - publish-rc
           - publish-v2
         default: verify-signing
 
@@ -23,7 +24,7 @@ concurrency:
 
 jobs:
   build:
-    if: github.ref == 'refs/heads/main' && (inputs.mode == 'verify-signing' || inputs.mode == 'publish-v2')
+    if: github.ref == 'refs/heads/main' && (inputs.mode == 'verify-signing' || inputs.mode == 'publish-rc' || inputs.mode == 'publish-v2')
     name: Verify signing setup or build the signed v2 APT repository
     runs-on: ubuntu-24.04
     timeout-minutes: 15
@@ -120,12 +121,30 @@ jobs:
           fi
 
       - name: Build Ternux website
-        if: inputs.mode == 'publish-v2'
+        if: inputs.mode == 'publish-rc' || inputs.mode == 'publish-v2'
         run: |
           npm ci
           npm run build
 
-      - name: Add signed APT repository after the site build
+      - name: Preserve stable APT while publishing the RC channel
+        if: inputs.mode == 'publish-rc'
+        run: bash packaging/termux/preserve-pages-apt.sh dist stable
+
+      - name: Add the signed candidate repository under apt-rc
+        if: inputs.mode == 'publish-rc'
+        run: |
+          set -euo pipefail
+          install -d dist/apt-rc
+          cp -a artifacts/ternux-apt/repository/. dist/apt-rc/
+          test -s dist/apt-rc/dists/stable/InRelease
+          test -s dist/apt-rc/ternux-archive-key.asc
+          test -x dist/apt-rc/bootstrap.sh
+
+      - name: Preserve the RC channel while publishing stable v2
+        if: inputs.mode == 'publish-v2'
+        run: bash packaging/termux/preserve-pages-apt.sh dist rc
+
+      - name: Add signed stable APT repository after the site build
         if: inputs.mode == 'publish-v2'
         run: |
           set -euo pipefail
@@ -136,14 +155,14 @@ jobs:
           test -x dist/apt/bootstrap.sh
 
       - name: Upload Pages artifact
-        if: inputs.mode == 'publish-v2'
+        if: inputs.mode == 'publish-rc' || inputs.mode == 'publish-v2'
         uses: actions/upload-pages-artifact@v5
         with:
           path: dist
 
   deploy:
-    if: github.ref == 'refs/heads/main' && inputs.mode == 'publish-v2'
-    name: Publish website and signed APT repository
+    if: github.ref == 'refs/heads/main' && (inputs.mode == 'publish-rc' || inputs.mode == 'publish-v2')
+    name: Publish website and signed APT channel
     runs-on: ubuntu-24.04
     needs: build
     environment:

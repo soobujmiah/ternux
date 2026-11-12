@@ -207,14 +207,14 @@ tnx_cmd_start() {
   launcher_path="$launcher_dir/launcher.sh"
   # Upgrade the former single-Debian launcher in place on first use.
   if [ "$distro" = debian ] && [ ! -f "$launcher_path" ] &&
-     [ -f "$HOME/x.sh" ] && grep -q '^# TERNUX_DESKTOP_LAUNCHER=20$' "$HOME/x.sh"; then
+     [ -f "$HOME/x.sh" ] && grep -q '^# TERNUX_DESKTOP_LAUNCHER=21$' "$HOME/x.sh"; then
     mkdir -p "$launcher_dir" && cp -p "$HOME/x.sh" "$launcher_path" || return 1
   fi
   if [ "${TERNUX_JSON:-0}" != "1" ]; then
     tnx_step "Starting ternux desktop..."
   fi
 
-  if [ ! -f "$launcher_path" ] || ! grep -q '^# TERNUX_DESKTOP_LAUNCHER=20$' "$launcher_path"; then
+  if [ ! -f "$launcher_path" ] || ! grep -q '^# TERNUX_DESKTOP_LAUNCHER=21$' "$launcher_path"; then
     # CLI package upgrades must refresh the generated launcher too. It carries
     # process matching, audio routing and narrowed guest bind behavior.
     if ! declare -F tnx_phase_launcher >/dev/null 2>&1; then
@@ -230,7 +230,7 @@ tnx_cmd_start() {
     tnx_info "Refreshing the generated desktop launcher..."
     tnx_phase_launcher "$launcher_user" "$launcher_backend" "$launcher_locale" || return 1
     if [ ! -f "$launcher_path" ] && [ "$distro" = debian ] &&
-       [ -f "$HOME/x.sh" ] && grep -q '^# TERNUX_DESKTOP_LAUNCHER=20$' "$HOME/x.sh"; then
+       [ -f "$HOME/x.sh" ] && grep -q '^# TERNUX_DESKTOP_LAUNCHER=21$' "$HOME/x.sh"; then
       mkdir -p "$launcher_dir" && cp -p "$HOME/x.sh" "$launcher_path" || return 1
     fi
   fi

@@ -39,15 +39,16 @@ acceleration বলা হয় না। Ternux Debian guest-এর ভেত�
 `zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP))` শনাক্ত করেছে। এগুলো এই
 ডিভাইসের বর্তমান observation; অন্য ডিভাইসের জন্য দাবি নয়।
 
-## দুটি layout, এবং কেন শুধু একটি apt-এর পরেও টেকে
+## তিনটি layout: Debian, distro overlay, এবং package-এ লেখা driver
 
-| | Managed layout | Fragile layout |
+| | Debian Turnip layout | Distro bundle overlay | Fragile layout |
 |---|---|---|
-| Driver | `/usr/local/lib/aarch64-linux-gnu/libvulkan_freedreno.so` | `/usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so` |
-| ICD manifest | `/usr/local/share/vulkan/icd.d/ternux_freedreno_icd.json` | `/usr/share/vulkan/icd.d/freedreno_icd.aarch64.json` |
-| কোনো package-এর মালিকানায়? | না — `/usr/local` dpkg-এর আওতার বাইরে | হ্যাঁ — path-টি `mesa-vulkan-drivers`-এর |
-| `apt upgrade`-এর পরে | অপরিবর্তিত | Debian-এর সংস্করণ দিয়ে প্রতিস্থাপিত |
-| `dpkg -V mesa-vulkan-drivers` | চুপ | driver-এর জন্য `??5??????` জানায় |
+| Driver | `/usr/local/lib/aarch64-linux-gnu/libvulkan_freedreno.so` | `/usr/local/lib/ternux/<Mesa bundle>/lib/aarch64-linux-gnu/libvulkan_freedreno.so` | `/usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so` |
+| ICD manifest | `/usr/local/share/vulkan/icd.d/ternux_freedreno_icd.json` | `<overlay>/share/vulkan/icd.d/ternux_freedreno_icd.json` | `/usr/share/vulkan/icd.d/freedreno_icd.aarch64.json` |
+| distro package-এর মালিকানায়? | না — `/usr/local` dpkg-এর আওতার বাইরে | না — versioned bundle `/usr/local/lib/ternux`-এ থাকে | হ্যাঁ — path-টি `mesa-vulkan-drivers`-এর |
+| runtime selection | Loader search path | Ternux desktop matching Mesa-এর জন্য `LD_LIBRARY_PATH`, `LIBGL_DRIVERS_PATH`, `VK_DRIVER_FILES` সেট করে | distro default |
+| `apt upgrade`-এর পরে | অপরিবর্তিত | অপরিবর্তিত; distro Mesa file-এ হাত দেয় না | distro সংস্করণ দিয়ে প্রতিস্থাপিত |
+| `dpkg -V mesa-vulkan-drivers` | চুপ | চুপ | driver-এর জন্য `??5??????` জানায় |
 
 Fragile layout ততক্ষণ কাজ করে যতক্ষণ `mesa-vulkan-drivers` স্পর্শ করে এমন প্রথম
 package operation না ঘটে — একটি upgrade, একটি security update, কিংবা
@@ -55,7 +56,30 @@ package operation না ঘটে — একটি upgrade, একটি securi
 driver চলে যায়।
 
 Vulkan loader `/usr/share/vulkan/icd.d`-এর পাশাপাশি `/usr/local/share/vulkan/icd.d`-ও
-খোঁজে, তাই managed layout-এ কোনো environment variable বা launcher পরিবর্তন লাগে না।
+খোঁজে, তাই Debian layout-এ environment variable লাগে না। Ubuntu ও অন্য যে
+profile-এ full distro-matched Mesa bundle লাগে, সেগুলো versioned
+`/usr/local/lib/ternux` overlay-তে থাকে। Ternux desktop matching Mesa library,
+GL driver directory ও একটিমাত্র Vulkan ICD বেছে নেয়। Archive কখনো `/`-এ extract
+হয় না, package-owned driver বদলায় না, system-wide loader config-ও বদলায় না।
+
+> **Ubuntu 26.04 live verification, 2026-11-12:** যোগ্য Redmi Turbo 4 Pro-তে
+> Ubuntu Turnip asset Ternux overlay-তে install করা হয়েছে। এরপর Ubuntu-র
+> `mesa-vulkan-drivers` package পুনরায় install করে `dpkg -V mesa-vulkan-drivers`
+> চালালে কোনো পার্থক্য দেখায়নি; কোনো Mesa package hold-ও ছিল না। Overlay-এর
+> ICD বেছে `vulkaninfo --summary` একটিমাত্র Adreno 825 integrated GPU দেখিয়েছে,
+> আর `glxinfo -B` direct rendering ও
+> `zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP))` দেখিয়েছে।
+> `ternux doctor --json` overlay-কে managed এবং renderer-কে accelerated বলেছে।
+> এটি একটি device-এর observation; অন্য Ubuntu release আলাদাভাবে পরীক্ষা করা বাকি।
+
+> **Alpine 3.24 live verification, 2026-11-12:** pinned archive-এ Debian-family
+> `/usr/lib/aarch64-linux-gnu`-এর বদলে `/usr/lib` path আছে। এখন installer
+> archive-এর আসল library directory `/etc/ternux/mesa-overlay-libdir`-এ লিখে
+> validate করে; overlay isolated থাকে এবং শুধু Ternux session-এ select হয়।
+> Fresh managed install complete হয়েছে, `tx doctor --json` Adreno 825 Vulkan
+> device enumerate করেছে, আর Alpine desktop `:2` live অবস্থায় Mesa Turnip-এর
+> ওপর Zink দেখিয়েছে। এই পরীক্ষা শুধু এই device/profile-এর জন্য; সব Alpine
+> version-এর qualification নয়।
 
 ## আপনার কোন layout তা যাচাই করুন
 

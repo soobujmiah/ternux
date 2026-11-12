@@ -52,6 +52,23 @@ else
   exit 1
 fi
 if env PATH="$tmp/bin:$PATH" PREFIX="$prefix" TMPDIR="$prefix/tmp" \
+  MOCK_FINGERPRINT="$expected" PKG_LOG="$tmp/pkg.log" \
+  bash "$root/packaging/termux/bootstrap-repository.sh" --channel rc --configure-only \
+  > "$tmp/rc.log"; then
+  grep -Fxq "deb [signed-by=$prefix/etc/apt/keyrings/ternux.gpg] https://soobujmiah.github.io/ternux/apt-rc stable main" \
+    "$prefix/etc/apt/sources.list.d/ternux-rc.list"
+else
+  echo 'RC channel configure-only path failed' >&2
+  exit 1
+fi
+if env PATH="$tmp/bin:$PATH" PREFIX="$prefix" TMPDIR="$prefix/tmp" \
+  MOCK_FINGERPRINT="$expected" PKG_LOG="$tmp/pkg.log" \
+  bash "$root/packaging/termux/bootstrap-repository.sh" --channel unknown --configure-only \
+  > /dev/null 2>&1; then
+  echo 'unknown APT channel was accepted' >&2
+  exit 1
+fi
+if env PATH="$tmp/bin:$PATH" PREFIX="$prefix" TMPDIR="$prefix/tmp" \
   MOCK_FINGERPRINT=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA PKG_LOG="$tmp/pkg.log" \
   bash "$root/packaging/termux/bootstrap-repository.sh" --configure-only \
   > /dev/null 2>&1; then

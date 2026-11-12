@@ -119,6 +119,16 @@ cmp "$repo/InRelease" "$tmp/dist/apt/dists/stable/InRelease"
 cmp "$fixture/ternux-archive-key.asc" "$tmp/dist/apt/ternux-archive-key.asc"
 [[ -x "$tmp/dist/apt/bootstrap.sh" ]] || { printf 'Preserved bootstrap is not executable.\n' >&2; exit 1; }
 
+# The same integrity checks preserve an isolated RC channel at apt-rc/.
+mkdir -p "$tmp/webroot/apt-rc" "$tmp/rc-dist"
+cp -a "$fixture/." "$tmp/webroot/apt-rc/"
+TERNUX_APT_BASE_URL="http://127.0.0.1:$TEST_SERVER_PORT/apt-rc" \
+TERNUX_APT_TEST_HTTP=1 TERNUX_APT_EXPECTED_FINGERPRINT="$fingerprint" \
+  bash "$helper" "$tmp/rc-dist" rc
+cmp "$fixture/$package_rel" "$tmp/rc-dist/apt-rc/$package_rel"
+cmp "$repo/InRelease" "$tmp/rc-dist/apt-rc/dists/stable/InRelease"
+[[ -x "$tmp/rc-dist/apt-rc/bootstrap.sh" ]] || { printf 'RC bootstrap is not executable.\n' >&2; exit 1; }
+
 # A modified package must not be copied into the rebuilt website, even with
 # the previously valid signed index still present.
 printf 'tampered package\n' > "$fixture/$package_rel"

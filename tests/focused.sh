@@ -229,12 +229,12 @@ if env TERNUX_STATE_DIR="$TMP/state-renderer-display" HOME="$TMP/home-renderer-d
     export LOG="$2/renderer-display.log"
     unset DISPLAY
     [ "$(tnx_detect_renderer)" = "Adreno (TM) 825" ] || exit
-    grep -q -- "--shared-tmp -- env DISPLAY=:0 bash -c" "$LOG" || exit
+    grep -q -- "--shared-tmp --shared-x11 -- env DISPLAY=:0 bash -c" "$LOG" || exit
     grep -q "timeout 5s glxinfo" "$LOG" || exit
     ! grep -q "zink Vulkan (Adreno via Turnip)" "$LOG" || exit
     : > "$LOG"; DISPLAY=:7
     [ "$(tnx_detect_renderer)" = "Adreno (TM) 825" ] &&
-    grep -q -- "--shared-tmp -- env DISPLAY=:7 bash -c" "$LOG" &&
+    grep -q -- "--shared-tmp --shared-x11 -- env DISPLAY=:7 bash -c" "$LOG" &&
     grep -q "timeout 5s glxinfo" "$LOG"
   ' _ "$ROOT" "$TMP"; then
   ok "renderer detection passes the active display into the Debian guest"
@@ -564,6 +564,26 @@ else
   ok "Turnip validator rejects a selected symlink"
 fi
 
+
+# Non-Debian Turnip bundles must stay outside distro package ownership and be
+# selected only for the Ternux Zink desktop session.
+if python3 - "$ROOT/lib/phases.sh" "$ROOT/lib/doctor.sh" <<'MESAOVERLAY'
+import pathlib, sys
+phase = pathlib.Path(sys.argv[1]).read_text()
+doctor = pathlib.Path(sys.argv[2]).read_text()
+assert 'tar -xzf /tmp/mesa-freedreno.tar.gz -C /' not in phase
+assert 'tar -xzf /tmp/mesa-freedreno.tar.gz -C "\\$overlay" --strip-components=2 --no-same-owner' in phase
+assert 'mesa-overlay' in phase and 'LIBGL_DRIVERS_PATH' in phase
+assert 'mesa-overlay-libdir' in phase and '\\$overlay/lib"' in phase
+assert 'overlay_libdir/dri/zink_dri.so' in phase and 'overlay_libdir/libvulkan_freedreno.so' in phase
+assert 'VK_DRIVER_FILES' in phase and 'VK_ICD_FILENAMES' in phase
+assert 'echo overlay' in doctor and '/etc/ternux/mesa-overlay' in doctor
+MESAOVERLAY
+then
+  ok "Non-Debian Turnip uses an isolated apt-safe Mesa overlay"
+else
+  not_ok "Non-Debian Turnip uses an isolated apt-safe Mesa overlay"
+fi
 
 # Pavucontrol uses Debian’s stock desktop entry without environment overrides.
 if python3 - "$ROOT/lib/phases.sh" <<'PAVUCHECK'
@@ -988,7 +1008,7 @@ if env TERNUX_STATE_DIR="$TMP/state-launcher" HOME="$launcher_home" bash -c '
   bash -n "$HOME/x.sh" &&
   awk "/cat > .*TERNUX_GUEST_EOF/ {guest=1; next} guest && /^TERNUX_GUEST_EOF$/ {exit} guest {print}" "$HOME/x.sh" > "$HOME/guest-session.sh" &&
   bash -n "$HOME/guest-session.sh" &&
-  grep -q "^# TERNUX_DESKTOP_LAUNCHER=20$" "$HOME/x.sh" &&
+  grep -q "^# TERNUX_DESKTOP_LAUNCHER=21$" "$HOME/x.sh" &&
   grep -q -- "--env MESA_LOADER_DRIVER_OVERRIDE=zink" "$HOME/x.sh" &&
   ! grep -q -- "--env GALLIUM_DRIVER=zink" "$HOME/x.sh" &&
   grep -q -- "--user alice" "$HOME/x.sh" &&
@@ -1349,6 +1369,7 @@ EOF
       tnx_state_set(){ :; }
       proot-distro(){
         case "$*" in
+          *ternux_freedreno_icd.json*) echo "expected-icd  file" ;;
           *libvulkan_freedreno.so*) [ "$hash_case" = matching ] && echo "expected-driver  file" || echo "changed-driver  file" ;;
           *freedreno_icd.aarch64.json*) echo "expected-icd  file" ;;
         esac
@@ -2232,7 +2253,7 @@ fi
 if env TERNUX_STATE_DIR="$TMP/state-x11-duplicate" HOME="$TMP/home-x11-duplicate" \
   TMPDIR="$TMP/x11-duplicate-tmp" bash -c '
     mkdir -p "$HOME" "$TMPDIR/.X11-unix"
-    printf "#!/usr/bin/env bash\n# TERNUX_DESKTOP_LAUNCHER=20\n" > "$HOME/x.sh"
+    printf "#!/usr/bin/env bash\n# TERNUX_DESKTOP_LAUNCHER=21\n" > "$HOME/x.sh"
     python3 -c "import socket,sys; s=socket.socket(socket.AF_UNIX); s.bind(sys.argv[1]); s.close()" "$TMPDIR/.X11-unix/X0" || exit
     . "$1/lib/desktop.sh"
     pgrep(){ case "$1" in -f) return 0;; *) return 1;; esac; }
@@ -2345,7 +2366,7 @@ if env TERNUX_STATE_DIR="$TMP/state-desktop-start" HOME="$TMP/home-desktop-start
       local launcher_dir="$TERNUX_STATE_DIR/distros/debian"
       mkdir -p "$launcher_dir"
       cp "$MOCK_LAUNCHER" "$launcher_dir/launcher.sh"
-      sed -i "1a# TERNUX_DESKTOP_LAUNCHER=20" "$launcher_dir/launcher.sh"
+      sed -i "1a# TERNUX_DESKTOP_LAUNCHER=21" "$launcher_dir/launcher.sh"
       chmod +x "$launcher_dir/launcher.sh"
       ln -sfn "$launcher_dir/launcher.sh" "$HOME/x.sh"
     }
@@ -2371,7 +2392,7 @@ if env TERNUX_STATE_DIR="$TMP/state-desktop-start" HOME="$TMP/home-desktop-start
     [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null || exit
     read -r fixture_pid fixture_start fixture_pgid < "$TERNUX_STATE_DIR/session/desktop.pid.identity" || exit
     grep -q session-started "$TERNUX_STATE_DIR/session/desktop.log" || exit
-    grep -q "^# TERNUX_DESKTOP_LAUNCHER=20$" "$HOME/x.sh" || exit
+    grep -q "^# TERNUX_DESKTOP_LAUNCHER=21$" "$HOME/x.sh" || exit
     grep -q "util-linux zsh git curl" "$1/lib/phases.sh" || exit
     tnx_cmd_stop >/dev/null || exit
     [ ! -e "$TERNUX_STATE_DIR/session/desktop.pid" ] || exit

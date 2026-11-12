@@ -5,14 +5,14 @@ lang: "en"
 alt_url: "/bn/docs/V2-RELEASE-READINESS.html"
 ---
 **Status: NOT_READY**
-**Audit date:** 2026-11-12 (rechecked after PR #177 and fresh native package lifecycle run)
+**Audit date:** 2026-11-12 (rechecked after PR #178; candidate fixes in this branch are not merged)
 **Target:** Ternux 2.0.0
-**Current qualification source:** main `8762b7fb4fd8270b44448098d7f1dbc9e064f5bf` (PR #177). Exact-main Validate `43233710017`, package artifact `43233710039`, and Repo Knowledge Sync `43233709991` passed.
+**Current qualification source:** main `bad334de607718cb6a171bb1806bc6fb8e1a9b38` (PR #178). This audit branch adds an apt-safe non-Debian Mesa overlay and an isolated signed APT RC channel; these changes still need exact-head CI and publication.
 **Product source audit base:** `159806ff395a34349086504ae3055ddef21ddbec`
 **Latest stable release:** v1.4.0; no v2.0.0 tag or release exists.
-**Machine gates:** 20 gates; P1-01, P1-04, and P1-PKG are complete. Three release blockers remain: P1-03, P1-09, and P1-APT.
+**Machine gates:** 20 gates; P1-01, P1-02, P1-04, and P1-PKG are complete. Three release blockers remain: P1-03, P1-09, and P1-APT.
 
-**Fresh release check:** `python3 tests/release_gates.py --check` reports `NOT_READY` with those three blockers. GitHub still lists v1.4.0 as the latest stable release; no v2.0.0 tag or release exists. Direct HTTPS GET on 2026-11-12 returned HTTP 404 for the public APT bootstrap, archive key, `InRelease`, and `Packages` paths. V3 proposals are tracked separately in [Ternux v3 proposals](V3-PROPOSALS.md); they are not part of v2 release acceptance.
+**Fresh release check:** `python3 tests/release_gates.py --check` reports `NOT_READY` with those three blockers. GitHub still lists v1.4.0 as the latest stable release; no v2.0.0 tag or release exists. The stable APT bootstrap, archive key, `InRelease`, and `Packages` are unpublished. Local RC bootstrap and signed Pages-preservation tests pass, but the RC tree has not been published or tested via native `pkg`. V3 proposals are tracked separately in [Ternux v3 proposals](V3-PROPOSALS.md); they are not part of v2 release acceptance.
 
 ## Current three-profile device check (2026-11-12)
 
@@ -22,11 +22,11 @@ On the Redmi Turbo 4 Pro / SM8735 / Adreno 825, Debian (`:0`), Ubuntu (`:1`), an
 
 Native package and clean-guest evidence (2026-11-12): `tx uninstall all --yes` removed all three registered Debian/Ubuntu/Alpine guests, Ternux launcher/aliases, state/logs, and the Termux `ternux` package files. Postchecks found no PRoot containers, Ternux dpkg package/CLI, Ternux state directories, or package-owned modules; Termux:API remained installed and Android shared storage was untouched. No unrelated PRoot guest existed in the pre-test inventory. The exact local `ternux_2.0.0_all.deb` was then installed fresh, replaced over the installed package, and passed `dpkg --verify`; `tx --version` and `tx distro list` passed. This closes native package lifecycle cleanup/install; public-repository install/upgrade is separate P1-APT evidence. A fresh Debian guest created by this package reads `/sdcard`, `/sdcard/Llms`, and `/sdcard/LAI/models`; guest HOME is `/home/ternux`, and Termux HOME is not exposed. The same path checks passed after reinstalling the package. The Termux shell injects `LD_LIBRARY_PATH`, so package operations use a cleared value. No unrelated Termux packages were upgraded.
 
-Current package regression checks: `bash tests/focused.sh` passed 177/177; `bash tests/distro_multi_guest.sh`, `bash tests/distro_recipes.sh`, signed-APT bootstrap/preservation tests, and `npm run format:check` (with `LD_LIBRARY_PATH=`) passed. Local `tests/docs_check.py` found the checked-in generated sitemap snapshot has 38 URLs while its current source contract expects 40; local Astro build cannot run with this Termux Node binary, so final site validation must come from CI. `bats` is not installed in this runtime, so `tests/smoke.bats` could not run locally; CI remains required. `python3 tests/release_gates.py --check` correctly remains NOT_READY with three blockers. The desktop crash-recovery gate P1-01 is now complete.
+Current package regression checks: `bash tests/focused.sh` passed 178/178; multi-guest, all 15 recipe generators, signed-APT bootstrap/preservation (including RC channel), updater migration/rollback, and release-gate self-tests pass. Fresh Debian, Ubuntu, and Alpine browser provisioning is qualified; Alpine’s clean install also exposed and helped fix its archive-specific `/usr/lib` Turnip layout, then passed Vulkan and live Zink checks. Arch, RPM, openSUSE, and Void browser routes remain open. `npm run format:check` and exact-head CI are required on the final PR. Local `tests/docs_check.py` found the generated sitemap snapshot has 38 URLs while its current source contract expects 40; the Termux Node binary cannot run the local Astro build, so final site validation must come from CI. `bats` is not installed in this runtime; CI remains required. `python3 tests/release_gates.py --check` correctly remains NOT_READY with three blockers.
 
 ## Recommendation
 
-Do not publish v2.0.0 yet. PR #177 is merged and all three exact-main checks passed. Public APT endpoints remain unpublished (404); native package install/removal, full Ternux cleanup, and clean Debian storage isolation pass. Remaining gates are published v1.4.0-to-v2 migration/rollback, clean browser qualification across distro families, and signed public APT install/upgrade verification. The v3 proposal document is a planning note only; it does not change v2 scope or gate status.
+Do not publish v2.0.0 yet. PR #178 is merged and all three exact-main checks passed; the candidate changes described here are still unmerged. Native package install/removal, full Ternux cleanup, and clean Debian storage isolation pass. Remaining gates are RC-backed v1.4.0-to-v2 migration/rollback, clean browser qualification across package-manager families, and signed public APT install/upgrade verification. The v3 proposal document is a planning note only; it does not change v2 scope or gate status.
 
 ## Stage 0 — reconciliation
 
@@ -47,12 +47,12 @@ Latest reconciliation: PRs #147/#149 fix transient Pages 5xx retries and merge a
 | P1-02 GPU/Vulkan detection | **COMPLETE on the qualified device only** | Debian, Ubuntu, and Alpine each reported Vulkan/Turnip-backed Zink on Redmi Turbo 4 Pro / SM8735 / Adreno 825; software-renderer false positives have regression coverage. Other device families are not qualified. |
 | P1-03 installer/updater | **PARTIAL** | Pinned bootstrap, host CLI and guest CLI checks reject tampered source; local rollback and v1.4.0-to-v2 fixtures pass. Published-v2 native migration/rollback remains untested. |
 | P1-04 storage availability | **COMPLETE** | A fresh Debian guest created by the native package flow reads `/sdcard`, `/sdcard/Llms`, and `/sdcard/LAI/models`; guest HOME is `/home/ternux`, and Termux HOME is not exposed. Replacing the exact local package and rechecking the paths passes. |
-| P1-09 default browser | **PARTIAL** | Firefox is mandatory in every fresh profile and all 15 recipe routes pass. Existing Debian/Ubuntu/Alpine guests report Firefox ESR 153.6.0esr, 153.7.0esr, and 140.12.0esr. Clean first-install verification across all distro families remains open. |
+| P1-09 default browser | **PARTIAL** | Firefox is mandatory in every fresh profile and all 15 recipe routes pass. Fresh Debian and Ubuntu installs passed; Ubuntu ESR 153.7.0esr passed desktop-file validation and a headless PNG launch check. Fresh Alpine 3.24 installed Firefox ESR 140.12.0, passed desktop-file validation and generated a valid 1366×768 headless PNG; Arch, RPM, openSUSE, and Void package-manager families remain unqualified. |
 | P1-05 repository protection | **COMPLETE for the owner-only repository** | Live read-back confirms required PR and checks, strict checks, admin enforcement, force-push/deletion disabled, and zero required approvals so the sole owner can merge their own PR without impossible second-person review. `.github/CODEOWNERS` names the owner. |
 | P1-06 CPU/Vulkan LLM | **COMPLETE for the declared device/model/workload profile** | On SM8735 / Adreno 825, Llama 3.2 3B Q4_K_M passed CPU/Vulkan known-answer and support-queue retrieval under 768 MiB pressure; bounded cancellation/reopen and CPU/Vulkan generation stability are verified. Five 512-token CPU runs and four Vulkan runs completed; each route stopped further work at the 42°C battery guard. Three Qwen variants failed 100-record exact retrieval, and the pressure-time invoice probe returned 24.75 instead of 39.50. These model/task combinations, other devices, and general correctness claims are explicitly excluded. |
 | P1-07 HTP/HMX | **PARTIAL; experimental and release-excluded** | Known numerical/operator failures remain. Failing operators are not stable defaults; no production claim is made. |
 | P1-08 QNN Stable Diffusion | **PARTIAL; research-only and release-excluded** | Stage-tensor reference correctness and production qualification are incomplete. |
-| P1-APT public repository | **BLOCKED** | On 2026-11-12 all four canonical public paths returned 404: bootstrap, archive key, `InRelease`, and `Packages`. PR #149 fixes transient 5xx preservation retries; it does not publish the repository. Signed publication, hosted verification, and clean Termux install/upgrade/uninstall remain. |
+| P1-APT public repository | **BLOCKED** | The stable endpoints still need their signed release publication. A separate signed `/apt-rc` candidate channel, bootstrap selector, and stable/RC Pages preservation path are implemented; local signature, index, package hash, and channel-bootstrap tests pass. Publish the RC after merge, then verify hosted URLs and native `pkg` install/upgrade/uninstall before stable v2. |
 | P1-PKG native package lifecycle | **COMPLETE** | Native `tx uninstall all --yes` removed all registered Ternux guests and owned host state/CLI files while Termux:API and Android shared storage remained. Fresh local `.deb` install/replacement, `dpkg --verify`, `tx --version`, and `tx distro list` pass. Public APT is tracked separately in P1-APT. |
 | P1-DOCS | **COMPLETE for source documentation** | README, CLI, install, usage, security, accelerator and release-readiness docs are updated in English and Bengali. Pages publication uses the explicit main-only deployment workflow. |
 | P2-01 installer modularization | **NOT_STARTED; non-blocking** | Keep future work incremental; avoid a broad refactor during qualification. |
@@ -96,9 +96,9 @@ HTP/HMX and QNN remain experimental/research-only. They are excluded from stable
 
 ## Remaining release blockers
 
-1. **P1-03 updater:** verify published v1.4.0-to-v2 migration, interrupted update recovery, and rollback on device. Local source-fixture migration tests pass.
-2. **P1-09 browser:** complete clean first-install browser verification across supported distro families; 15 generated recipes pass and a fresh Debian browser install passes, while Ubuntu fresh install is still being qualified.
-3. **P1-APT:** publish the signed repository after candidate gates pass, then verify public URLs, signatures, hashes, and native `pkg install`/upgrade/uninstall. All four current public APT paths return 404.
+1. **P1-03 updater:** publish the RC metadata/tag and verify v1.4.0-to-v2 migration, interrupted-update recovery, and rollback on device. Local migration/rollback fixtures pass.
+2. **P1-09 browser:** finish clean-install browser qualification for the Arch, RPM, openSUSE, and Void package-manager families; 15 generated recipe routes pass, and fresh Debian, Ubuntu, and Alpine browser launches pass.
+3. **P1-APT:** merge and publish `/apt-rc`, verify hosted signatures and hashes, then exercise native `pkg install`, `pkg upgrade`, and `pkg uninstall`. Stable `/apt` publication remains gated on the final release.
 
 Re-run required CI on the final intended release commit. HTP/HMX and QNN remain excluded unless separately qualified.
 

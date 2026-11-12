@@ -2,18 +2,24 @@
 set -Eeuo pipefail
 
 usage() {
-  printf 'Usage: %s <built-site-dist-directory>\n' "${0##*/}" >&2
+  printf 'Usage: %s <built-site-dist-directory> [stable|rc]\n' "${0##*/}" >&2
 }
 
-if (($# != 1)); then usage; exit 2; fi
+if (($# < 1 || $# > 2)); then usage; exit 2; fi
 dist_input=$1
+channel=${2:-stable}
+case "$channel" in
+  stable) repo_path=apt ;;
+  rc) repo_path=apt-rc ;;
+  *) printf 'Unsupported APT channel: %s\n' "$channel" >&2; usage; exit 2 ;;
+esac
 if [[ ! -d "$dist_input" || -L "$dist_input" ]]; then
   printf 'Refusing missing or symlinked website output directory: %s\n' "$dist_input" >&2
   exit 1
 fi
 dist="$(cd -- "$dist_input" && pwd -P)"
-if [[ -e "$dist/apt" || -L "$dist/apt" ]]; then
-  printf 'Refusing to overwrite an existing website apt/ path.\n' >&2
+if [[ -e "$dist/$repo_path" || -L "$dist/$repo_path" ]]; then
+  printf 'Refusing to overwrite an existing website %s/ path.\n' "$repo_path" >&2
   exit 1
 fi
 
@@ -24,7 +30,7 @@ if [[ ! -f "$bootstrap" || -L "$bootstrap" ]]; then
   exit 1
 fi
 
-default_base_url='https://soobujmiah.github.io/ternux/apt'
+default_base_url="https://soobujmiah.github.io/ternux/$repo_path"
 base_url="${TERNUX_APT_BASE_URL:-$default_base_url}"
 while [[ "$base_url" == */ ]]; do base_url="${base_url%/}"; done
 if [[ "$base_url" == "$default_base_url" ]]; then
@@ -230,8 +236,8 @@ mkdir -p "$tmp/repo/apt-root"
 install -m 0644 "$tmp/InRelease" "$tmp/repo/dists/stable/InRelease"
 install -m 0644 "$key" "$tmp/repo/apt-root/ternux-archive-key.asc"
 install -m 0755 "$bootstrap" "$tmp/repo/apt-root/bootstrap.sh"
-mkdir -p "$dist/apt"
-cp -a "$tmp/repo/dists" "$dist/apt/"
-cp -a "$tmp/repo/apt-root/." "$dist/apt/"
+mkdir -p "$dist/$repo_path"
+cp -a "$tmp/repo/dists" "$dist/$repo_path/"
+cp -a "$tmp/repo/apt-root/." "$dist/$repo_path/"
 printf 'Verified and preserved signed APT repository (%s package record(s)).\n' \
   "$(wc -l < "$tmp/packages.tsv" | tr -d '[:space:]')"

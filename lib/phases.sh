@@ -979,16 +979,49 @@ tnx_phase_gpu() {
         pacman -U --noconfirm --needed "\$@"
       else
         tar -xzf /tmp/mesa-freedreno.tar.gz -C "\$stage"
-        tar -xzf /tmp/mesa-freedreno.tar.gz -C /
-        command -v ldconfig >/dev/null 2>&1 && ldconfig || true
+        overlay=/usr/local/lib/ternux/mesa-27.0.0-devel-20261025-r2-$distro-$guest_codename
+        mkdir -p "\$overlay"
+        tar -xzf /tmp/mesa-freedreno.tar.gz -C "\$overlay" --strip-components=2 --no-same-owner
+        libdir="\$overlay/lib/aarch64-linux-gnu"
+        [ -d "\$libdir" ] || libdir="\$overlay/lib"
+        driver="\$libdir/libvulkan_freedreno.so"
+        source_icd="\$overlay/share/vulkan/icd.d/freedreno_icd.aarch64.json"
+        runtime_icd="\$overlay/share/vulkan/icd.d/ternux_freedreno_icd.json"
+        [ -f "\$driver" ] && [ -f "\$source_icd" ] && [ -f "\$libdir/dri/zink_dri.so" ] && [ -f "\$libdir/libgallium-27.0.0-devel.so" ]
+        printf '{\\n  \\042ICD\\042: {\\n    \\042api_version\\042: \\0421.4.0\\042,\\n    \\042library_arch\\042: \\04264\\042,\\n    \\042library_path\\042: \\042%s\\042\\n  },\\n  \\042file_format_version\\042: \\0421.0.1\\042\\n}\\n' \\
+          "\$driver" > "\$runtime_icd"
+        chmod 0644 "\$runtime_icd"
+        mkdir -p /etc/ternux
+        printf '%s\\n' "\$overlay" > /etc/ternux/mesa-overlay
+        printf '%s\\n' "\$libdir" > /etc/ternux/mesa-overlay-libdir
       fi
       find "\$stage" -mindepth 1 -delete 2>/dev/null || true
-      find /usr -name zink_dri.so -print -quit 2>/dev/null | grep -q .
-      find /usr -name kgsl_dri.so -print -quit 2>/dev/null | grep -q .
-      find /usr -name '*freedreno*.json' -print -quit 2>/dev/null | grep -q .
-      find /usr -name 'libvulkan_freedreno.so*' -print -quit 2>/dev/null | grep -q .
+      if [ '$asset_kind' = arch ]; then
+        find /usr -name zink_dri.so -print -quit 2>/dev/null | grep -q .
+        find /usr -name kgsl_dri.so -print -quit 2>/dev/null | grep -q .
+        find /usr -name '*freedreno*.json' -print -quit 2>/dev/null | grep -q .
+        find /usr -name 'libvulkan_freedreno.so*' -print -quit 2>/dev/null | grep -q .
+      else
+        [ -s /etc/ternux/mesa-overlay ]
+        overlay=\$(cat /etc/ternux/mesa-overlay)
+        overlay_libdir=\$(cat /etc/ternux/mesa-overlay-libdir)
+        case "\$overlay_libdir" in "\$overlay"/*) ;; *) exit 1 ;; esac
+        [ -f "\$overlay_libdir/dri/zink_dri.so" ]
+        [ -f "\$overlay_libdir/dri/kgsl_dri.so" ]
+        [ -f "\$overlay/share/vulkan/icd.d/ternux_freedreno_icd.json" ]
+        [ -f "\$overlay_libdir/libvulkan_freedreno.so" ]
+        python3 -m json.tool "\$overlay/share/vulkan/icd.d/ternux_freedreno_icd.json" >/dev/null
+        grep -F "\$overlay_libdir/libvulkan_freedreno.so" "\$overlay/share/vulkan/icd.d/ternux_freedreno_icd.json" >/dev/null
+      fi
     " || { tnx_fail "Could not install or verify the matching $distro Mesa/Turnip asset."; rm -f "$tarball" "$notice_tarball"; return 1; }
     rm -f "$tarball" "$notice_tarball"
+    if [ "$asset_kind" != arch ]; then
+      local overlay_driver_sha overlay_icd_sha
+      overlay_driver_sha="$(tnx_guest_login -- bash -c 'overlay="$(cat /etc/ternux/mesa-overlay 2>/dev/null || true)"; libdir="$(cat /etc/ternux/mesa-overlay-libdir 2>/dev/null || true)"; [ -n "$overlay" ] && [ "${libdir#"$overlay"/}" != "$libdir" ] && sha256sum "$libdir/libvulkan_freedreno.so" "$overlay/share/vulkan/icd.d/ternux_freedreno_icd.json" 2>/dev/null' | awk 'NR==1{print $1}')"
+      overlay_icd_sha="$(tnx_guest_login -- bash -c 'overlay="$(cat /etc/ternux/mesa-overlay 2>/dev/null || true)"; [ -n "$overlay" ] && sha256sum "$overlay/share/vulkan/icd.d/ternux_freedreno_icd.json" 2>/dev/null' | awk 'NR==1{print $1}')"
+      [ -n "$overlay_driver_sha" ] && tnx_state_set "freedreno_driver_sha" "$overlay_driver_sha"
+      [ -n "$overlay_icd_sha" ] && tnx_state_set "freedreno_icd_sha" "$overlay_icd_sha"
+    fi
     tnx_ok "Distro-matched Mesa Zink/Turnip asset installed, checksummed and license-noticed ($asset_name)."
     return 0
   fi
@@ -1337,7 +1370,7 @@ tnx_phase_launcher() {
   # truncating the command and triggering teardown before XFCE starts.
   cat > "$LAUNCHER" <<'LAUNCHEOF'
 #!/data/data/com.termux/files/usr/bin/bash
-# TERNUX_DESKTOP_LAUNCHER=20
+# TERNUX_DESKTOP_LAUNCHER=21
 set -u
 TMPDIR="${TMPDIR:-/data/data/com.termux/files/usr/tmp}"
 PREFIX="${PREFIX:-/data/data/com.termux/files/usr}"
@@ -1530,6 +1563,31 @@ set -u
 export HOME="/home/${TERNUX_GUEST_USER:-ternux}"
 export GTK_IM_MODULE=ibus QT_IM_MODULE=ibus QT_QPA_PLATFORMTHEME=gtk3 XMODIFIERS=@im=ibus
 export GTK_THEME=Ternux
+if [ -r /etc/ternux/mesa-overlay ]; then
+  read -r ternux_mesa_overlay < /etc/ternux/mesa-overlay || ternux_mesa_overlay=
+  case "$ternux_mesa_overlay" in
+    /usr/local/lib/ternux/*)
+      if [ -r /etc/ternux/mesa-overlay-libdir ]; then
+        read -r ternux_mesa_lib < /etc/ternux/mesa-overlay-libdir || ternux_mesa_lib=
+      else
+        ternux_mesa_lib="$ternux_mesa_overlay/lib/aarch64-linux-gnu"
+      fi
+      ternux_mesa_icd="$ternux_mesa_overlay/share/vulkan/icd.d/ternux_freedreno_icd.json"
+      case "$ternux_mesa_lib" in "$ternux_mesa_overlay"/*)
+      if [ -d "$ternux_mesa_lib/dri" ] && [ -r "$ternux_mesa_icd" ]; then
+        export LD_LIBRARY_PATH="$ternux_mesa_lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+        export LIBGL_DRIVERS_PATH="$ternux_mesa_lib/dri"
+        export VK_DRIVER_FILES="$ternux_mesa_icd" VK_ICD_FILENAMES="$ternux_mesa_icd"
+      else
+        echo "WARNING: Ternux Mesa overlay is incomplete; GPU acceleration may be unavailable." >&2
+      fi
+      ;;
+      *) echo "WARNING: Ignoring an invalid Ternux Mesa library path." >&2 ;;
+      esac
+      ;;
+    *) echo "WARNING: Ignoring an invalid Ternux Mesa overlay path." >&2 ;;
+  esac
+fi
 if grep -q '^ID=alpine$' /etc/os-release 2>/dev/null && [ "$(uname -m)" = aarch64 ] && [ -r /usr/local/lib/ternux/libternux-faccessat.so ]; then
   if [ -n "${LD_PRELOAD:-}" ]; then LD_PRELOAD="/usr/local/lib/ternux/libternux-faccessat.so:$LD_PRELOAD"; else LD_PRELOAD=/usr/local/lib/ternux/libternux-faccessat.so; fi
   export LD_PRELOAD
@@ -2252,7 +2310,17 @@ tnx_phase_verify() {
   else tnx_fail "Guest desktop core failed"; rc=1; fi
 
   if [ "$backend" = "zink" ]; then
-    if [ "$(tnx_distro)" != debian ] && tnx_guest_login -- bash -c '
+    if tnx_guest_login -- bash -c '
+      overlay="$(cat /etc/ternux/mesa-overlay 2>/dev/null || true)"
+      [ -n "$overlay" ] && [ "${overlay#/usr/local/lib/ternux/}" != "$overlay" ] &&
+      overlay_libdir="$(cat /etc/ternux/mesa-overlay-libdir 2>/dev/null || true)" &&
+      [ "${overlay_libdir#"$overlay"/}" != "$overlay_libdir" ] &&
+      [ -f "$overlay_libdir/dri/zink_dri.so" ] &&
+      [ -f "$overlay_libdir/libvulkan_freedreno.so" ] &&
+      [ -f "$overlay/share/vulkan/icd.d/ternux_freedreno_icd.json" ]
+    ' >/dev/null 2>&1; then
+      tnx_ok "Managed isolated Mesa Zink/Turnip overlay present"
+    elif [ "$(tnx_distro)" != debian ] && tnx_guest_login -- bash -c '
       find /usr -name zink_dri.so -print -quit 2>/dev/null | grep -q . &&
       find /usr -name "libvulkan_freedreno.so*" -print -quit 2>/dev/null | grep -q .
     ' >/dev/null 2>&1; then

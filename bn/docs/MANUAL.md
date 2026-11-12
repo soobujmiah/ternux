@@ -173,113 +173,18 @@ ls -l /dev/kgsl-3d0
 
 ### ৬ক — Zink + Turnip (Adreno)
 
-[lfdevs/mesa-for-android-container → Releases](https://github.com/lfdevs/mesa-for-android-container/releases/latest)
-থেকে বর্তমান **Debian Trixie ARM64** asset resolve করুন। Fedora, Ubuntu,
-Alpine বা Arch archive বদলি করবেন না। আগে guest distribution মিলিয়ে নিন:
+Debian-এ Ternux matching ARM64 Turnip archive বেছে checksum যাচাই করে,
+upstream license notice সংরক্ষণ করে, এবং managed `/usr/local` layout-এ install
+করে। স্বাভাবিক installer চালান:
 
 ```bash
-proot-distro login debian -- bash -c '. /etc/os-release; echo "$VERSION_CODENAME"'
-# এই documented asset route-এ প্রত্যাশিত ফল: trixie
+tx install --distro debian
 ```
 
-`trixie` না এলে থামুন; অন্য distribution-এর Mesa file overwrite করবেন না।
-
-```bash
-DRIVER_API=https://api.github.com/repos/lfdevs/mesa-for-android-container/releases/latest
-DRIVER_TARBALL="$TMPDIR/mesa-freedreno.tar.gz"
-
-DRIVER_URL="$(curl -fsSL "$DRIVER_API" \
-  | grep -o '"browser_download_url": *"[^"]*debian[^"]*trixie[^"]*arm64\.tar\.gz"' \
-  | head -n 1 \
-  | sed 's/.*"browser_download_url": *"//; s/"$//')"
-
-[ -n "$DRIVER_URL" ] || { echo "No Debian Trixie ARM64 release asset found"; exit 1; }
-printf 'Resolved: %s\n' "$DRIVER_URL"
-curl -fL --retry 3 "$DRIVER_URL" -o "$DRIVER_TARBALL"
-```
-
-Partial upgrade-এর পরে curl link না হলে শেষ line-এর বদলে চালান:
-
-```bash
-wget -O "$DRIVER_TARBALL" "$DRIVER_URL"
-```
-
-Extract করার আগে validate করুন—truncated download বা HTML error page root
-হিসেবে unpack করা যাবে না:
-
-```bash
-# ১. আসল gzip tarball:
-tar -tzf "$DRIVER_TARBALL" >/dev/null && echo "valid tarball"
-
-# ২. absolute path বা path traversal নয়:
-tar -tzf "$DRIVER_TARBALL" \
-  | grep -E '^/|(^|/)\.\.(/|$)' \
-  && { echo "UNSAFE - STOP"; exit 1; } \
-  || echo "paths ok"
-
-# ৩. যে target দুটি extract হবে, প্রতিটি ঠিক একবার regular file হতে হবে।
-#    অন্য Mesa member বৈধ symlink হতে পারে; সেগুলো extract হবে না।
-tar -tvzf "$DRIVER_TARBALL" | awk '
-  /\/usr\/lib\/aarch64-linux-gnu\/libvulkan_freedreno[.]so$/ {
-    if (substr($1,1,1) != "-") bad=1
-    driver++
-  }
-  /\/usr\/share\/vulkan\/icd[.]d\/freedreno_icd[.]aarch64[.]json$/ {
-    if (substr($1,1,1) != "-") bad=1
-    icd++
-  }
-  END { if (bad || driver != 1 || icd != 1) exit 1 }
-' && echo "one regular driver and one regular ICD found" \
-  || { echo "unexpected archive layout"; exit 1; }
-
-# ৪. troubleshooting/reproduction record:
-sha256sum "$DRIVER_TARBALL"
-```
-
-ternux-এর দরকারি **শুধু দুটি file**—Turnip driver ও ICD manifest—staging
-folder-এ extract করুন, তারপর mode-সহ install ও Mesa package hold করুন:
-
-```bash
-proot-distro login debian --shared-tmp
-```
-
-```bash
-set -e
-stage=/tmp/ternux-driver-stage
-rm -rf "$stage"; mkdir -p "$stage"
-trap 'rm -rf "$stage"' EXIT
-
-tar -xzf /tmp/mesa-freedreno.tar.gz -C "$stage" \
-  --wildcards "*/usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so" \
-              "*/usr/share/vulkan/icd.d/freedreno_icd.aarch64.json"
-
-driver="$(find "$stage" -type f \
-  -path '*/usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so' -print -quit)"
-icd="$(find "$stage" -type f \
-  -path '*/usr/share/vulkan/icd.d/freedreno_icd.aarch64.json' -print -quit)"
-[ -n "$driver" ] && [ -n "$icd" ] \
-  || { echo "Turnip target files missing after staged extraction"; exit 1; }
-
-install -m 0755 "$driver" /usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so
-mkdir -p /usr/share/vulkan/icd.d
-install -m 0644 "$icd" \
-  /usr/share/vulkan/icd.d/freedreno_icd.aarch64.json
-ldconfig
-
-apt-mark hold mesa-vulkan-drivers libgl1-mesa-dri libglx-mesa0 \
-             libgbm1 libegl-mesa0
-
-exit
-```
-
-Target ও hold যাচাই করুন:
-
-```bash
-proot-distro login debian -- bash -c '
-  test -f /usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so &&
-  test -f /usr/share/vulkan/icd.d/freedreno_icd.aarch64.json &&
-  apt-mark showhold && echo "Turnip targets installed"'
-```
+Mesa bundle কখনো `/usr`-এ extract করবেন না বা guest package manager-এর মালিকানার
+file বদলাবেন না। পুরোনো install হাতে repair করতে হলে
+[apt-safe graphics migration guide](GRAPHICS-PERSISTENCE.html) অনুসরণ করুন;
+সেখানে package integrity ও সক্রিয় Vulkan renderer যাচাই করার ধাপ আছে।
 
 ### ৬খ — VirGL (অন্যান্য GPU)
 
