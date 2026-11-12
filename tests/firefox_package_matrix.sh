@@ -67,7 +67,7 @@ for profile in "${profiles[@]}"; do
       desktop-file-validate /usr/local/share/applications/firefox-esr.desktop 2>/dev/null ||
         desktop-file-validate /usr/share/applications/firefox-esr.desktop 2>/dev/null ||
         desktop-file-validate /usr/share/applications/firefox.desktop
-      su -s /bin/sh browser -c "/firefox_xvfb_probe.sh \"$browser\""
+      su -s /bin/sh browser -c "sh /firefox_xvfb_probe.sh \"$browser\""
       test -s /out/firefox.png
     '
   python3 - "$output/firefox.png" "$distro" <<'PY'
