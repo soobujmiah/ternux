@@ -5,9 +5,9 @@ lang: "bn"
 alt_url: "/docs/V2-RELEASE-READINESS.html"
 ---
 **অবস্থা: NOT_READY**
-**Audit date:** 2026-11-12 (PR #178-এর পর পুনরায় যাচাই; এই branch-এর candidate fix এখনো merge হয়নি)
+**Audit date:** 2026-11-13 (PR #179 merge হওয়ার পর পুনরায় যাচাই)
 **লক্ষ্য:** Ternux 2.0.0
-**বর্তমান qualification source:** main `bad334de607718cb6a171bb1806bc6fb8e1a9b38` (PR #178); এই audit branch-এ apt-safe non-Debian Mesa overlay এবং আলাদা signed APT RC channel যোগ হয়েছে—merge ও exact-head CI এখনো বাকি।
+**বর্তমান qualification source:** main `d2f525e6177146e2a9253f9cc17f5f022bed8f04` (PR #179)। Mesa overlay, আলাদা signed APT RC channel, cross-distro IBus/window-fit fix এবং exact-head check merge হয়েছে। এখনো RC বা stable APT প্রকাশ হয়নি।
 **Product source audit base:** `159806ff395a34349086504ae3055ddef21ddbec`
 **সর্বশেষ stable release:** v1.4.0; v2.0.0 tag বা release নেই।
 **Machine gate:** ২০ gate-এর মধ্যে P1-01, P1-02, P1-04 ও P1-PKG complete; P1-03, P1-09, P1-APT—এই তিন blocker এখনো বাকি।
@@ -26,7 +26,7 @@ Redmi Turbo 4 Pro / SM8735 / Adreno 825-এ Debian (`:0`), Ubuntu (`:1`) এব�
 
 `tx uninstall all --yes` তিনটি registered Debian/Ubuntu/Alpine guest, Ternux launcher/alias, state/log এবং Termux-এর `ternux` package files সরিয়েছে। পরে PRoot container, Ternux dpkg package/CLI, state directory বা package-owned module পাওয়া যায়নি; Termux:API installed ছিল এবং Android shared storage অক্ষত ছিল। আগের inventory-তে unrelated PRoot guest ছিল না। এরপর exact local `ternux_2.0.0_all.deb` fresh install ও package replacement করা হয়েছে; `dpkg --verify`, `tx --version`, `tx distro list` pass। Fresh Debian guest `/sdcard`, `/sdcard/Llms`, `/sdcard/LAI/models` পড়েছে; guest HOME `/home/ternux`, Termux HOME guest-এ expose হয়নি। Package replacement-এর পরেও একই path check pass। Public repo install/upgrade আলাদা P1-APT gate। Termux package command-এ shell-এর injected `LD_LIBRARY_PATH` খালি রাখতে হয়েছে; অন্য Termux package upgrade হয়নি।
 
-বর্তমান regression check: `bash tests/focused.sh` 178/178 pass; multi-guest, ১৫টি distro recipe, signed-APT bootstrap/preservation, updater migration/rollback ও release-gate self-test pass। Fresh Debian, Ubuntu এবং Alpine browser provisioning pass। Alpine-এর clean install-এ archive-এর `/usr/lib` layout ধরা পড়ে; path-aware overlay fix-এর পর fresh resume, Vulkan এবং live Zink check pass। Arch, RPM, openSUSE ও Void package-manager family-তে clean browser check এখনো বাকি। Local `tests/docs_check.py` generated sitemap snapshot-এ 38 URL পেয়েছে, source contract 40 চায়; এই Termux Node binary দিয়ে Astro build সম্ভব হয়নি, তাই final site validation CI-তে লাগবে। `bats` নেই, তাই `tests/smoke.bats` local-এ চালানো যায়নি। Release gate তিন blocker-সহ NOT_READY।
+বর্তমান regression check: `bash tests/focused.sh` 178/178 pass; multi-guest, ১৫টি distro recipe, signed-APT bootstrap/preservation, updater migration/rollback ও release-gate self-test pass। Fresh Debian, Ubuntu এবং Alpine browser provisioning pass। Alpine-এর clean install-এ archive-এর `/usr/lib` layout ধরা পড়ে; path-aware overlay fix-এর পর fresh resume, Vulkan এবং live Zink check pass। Debian, Ubuntu Mozilla ESR, Alpine, Arch, Fedora, openSUSE এবং Void-এ clean package install ও headless Firefox launch-এর জন্য required CI matrix যোগ হয়েছে; exact-head result এখনো pending। এই container test full fresh Ternux device install-এর বিকল্প নয়। PR #179-এর exact-head website build ও docs check pass। `python3 tests/release_gates.py --check` তিন blocker-সহ NOT_READY দেখায়।
 
 ## সুপারিশ
 
@@ -51,7 +51,7 @@ PR #139 storage privacy implement করে সব required check পাসে�
 | P1-02 GPU/Vulkan detection | **শুধু tested Adreno device-এ COMPLETE** | Redmi Turbo 4 Pro / SM8735 / Adreno 825-এ Debian, Ubuntu ও Alpine—তিনটিতেই Vulkan/Turnip-backed Zink দেখা গেছে; software renderer false-positive regression আছে। অন্য device qualify নয়। |
 | P1-03 installer/updater | **PARTIAL** | Pinned bootstrap, host CLI, guest CLI tampered source reject করে; local rollback ও v1.4.0-to-v2 fixture পাস। Published v2 native migration/rollback বাকি। |
 | P1-04 storage isolation | **COMPLETE** | Native package flow-তে তৈরি fresh Debian guest `/sdcard`, `/sdcard/Llms`, `/sdcard/LAI/models` পড়েছে; guest HOME `/home/ternux`, Termux HOME expose হয়নি। Package replacement-এর পরেও path check pass। |
-| P1-09 default browser | **PARTIAL** | সব ১৫ recipe-তে Firefox route pass। Fresh Debian ও Ubuntu install pass; Alpine 3.24-এ Firefox ESR 140.12.0 install, desktop entry validation এবং 1366×768 headless PNG pass। Arch, RPM, openSUSE ও Void-এর clean browser qualification বাকি। |
+| P1-09 default browser | **PARTIAL** | সব ১৫ recipe-তে Firefox route pass। Fresh Debian, Ubuntu ও Alpine install on-device pass। Required CI-তে Debian, Ubuntu Mozilla ESR, Alpine, Arch, Fedora, openSUSE ও Void clean container-এ browser install এবং headless launch যোগ হয়েছে; exact-head result pending। Container test পূর্ণ device provisioning নয়। |
 | P1-05 repository protection | **owner-only repo-র জন্য COMPLETE** | Live read-back-এ PR ও required check, strict check, admin enforcement, force-push/delete বন্ধ; second-person review অসম্ভব হওয়ায় approval count শূন্য। `.github/CODEOWNERS`-এ owner নির্ধারিত। |
 | P1-06 CPU/Vulkan LLM | **ঘোষিত device/model/workload profile-এর জন্য COMPLETE** | SM8735 / Adreno 825-এ Llama 3.2 3B Q4_K_M CPU/Vulkan known-answer ও 768 MiB pressure-সহ support-queue retrieval পাস করেছে; bounded cancel/reopen এবং CPU/Vulkan generation stability যাচাই হয়েছে। পাঁচটি 512-token CPU run ও চারটি Vulkan run সম্পূর্ণ; battery 42°C guard-এ পরের কাজ থামানো হয়েছে। তিন Qwen variant 100-record exact retrieval-এ ব্যর্থ এবং চাপের সময় invoice ফল 24.75, প্রত্যাশিত 39.50। এই model/task, অন্য device ও general correctness claim qualification-এর বাইরে। |
 | P1-07 HTP/HMX | **PARTIAL; experimental, release-excluded** | Numerical/operator failure বাকি; failing operator stable default নয়, production claim নেই। |
@@ -94,7 +94,7 @@ HTP/HMX ও QNN stable v2 claim-এর অংশ নয়। CPU/Vulkan claim-�
 ## বাকি release blocker
 
 1. **P1-03 updater:** device-এ published v1.4.0-to-v2 migration, interrupted update recovery ও rollback verify। Local source fixture pass।
-2. **P1-09 browser:** Arch, RPM, openSUSE ও Void package-manager family-তে clean browser install qualify; ১৫ recipe pass, fresh Debian, Ubuntu ও Alpine browser launch pass।
+2. **P1-09 browser:** নতুন clean package-family Firefox CI matrix pass করে exact run record করতে হবে; ১৫ recipe pass, fresh Debian, Ubuntu ও Alpine browser launch on-device pass।
 3. **P1-APT:** candidate gate pass হলে signed repo publish, public URL/signature/hash ও native `pkg install`/upgrade/uninstall verify; এখনো চারটি public path 404।
 
 Final intended release commit-এ required CI আবার চালাতে হবে। আলাদা qualification না হওয়া পর্যন্ত HTP/HMX ও QNN বাদ।

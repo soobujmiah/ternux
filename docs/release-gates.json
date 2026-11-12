@@ -246,10 +246,12 @@
         "On 2026-11-11, the live Ubuntu guest reported Mozilla Firefox 153.7.0esr and its desktop entry passed desktop-file-validate. This validates an existing guest install, not a clean first-time browser install on every profile.",
         "2026-11-12 all 15 desktop recipe generators pass; existing Debian/Ubuntu/Alpine guests have Firefox ESR available (153.6.0esr, 153.7.0esr, and 140.12.0esr respectively). Clean first-time browser installation for every distro family remains unverified.",
         "2026-11-12 clean Ubuntu 26.04 profile provisioned by the native Ternux 2.0.0 installer: Firefox ESR 153.7.0esr installed without Snap, desktop-file-validate passed, and firefox-esr --headless --screenshot on about:blank produced a valid PNG. This closes the Ubuntu clean-install route only; fresh Alpine and the other package-manager families remain under qualification.",
-        "2026-11-12 fresh managed Alpine 3.24 provisioning installed firefox-esr 140.12.0, passed desktop-file-validate, and generated a valid 1366x768 PNG with firefox-esr --headless --screenshot. This closes the APK-family route on this device; Arch, RPM, openSUSE, and Void clean routes remain unverified."
+        "2026-11-12 fresh managed Alpine 3.24 provisioning installed firefox-esr 140.12.0, passed desktop-file-validate, and generated a valid 1366x768 PNG with firefox-esr --headless --screenshot. This closes the APK-family route on this device; Arch, RPM, openSUSE, and Void clean routes remain unverified.",
+        "A required clean package-family matrix has been added to .github/workflows/ci.yml and tests/firefox_package_matrix.sh. It installs and headless-launches Firefox in Debian, Ubuntu (the same Mozilla ESR installer), Alpine, Arch, Fedora, openSUSE, and Void containers. The exact-head result is pending; this is package-family evidence, not full fresh Ternux provisioning on the Android device."
       ],
       "required_tests": [
         "verify clean base install resolves and launches Firefox on each package-family profile or reports a direct actionable failure",
+        "required CI installs and headless-launches Firefox in clean Debian, Ubuntu, Alpine, Arch, Fedora, openSUSE, and Void package-family containers",
         "verify Ubuntu uses Mozilla ESR without Snap and Firefox opens the first-run project URL only once"
       ],
       "acceptance_criteria": [
