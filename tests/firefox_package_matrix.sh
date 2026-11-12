@@ -27,6 +27,7 @@ for profile in "${profiles[@]}"; do
   docker run --rm \
     --shm-size=1g \
     --volume "$ROOT/lib/ternux-install-firefox-esr.sh:/ternux-install-firefox-esr.sh:ro" \
+    --volume "$ROOT/tests/firefox_xvfb_probe.sh:/firefox_xvfb_probe.sh:ro" \
     --volume "$output:/out" \
     --env "TNX_BROWSER_PROFILE=$distro" \
     "$image" sh -ec '
@@ -69,23 +70,7 @@ for profile in "${profiles[@]}"; do
       chmod 0700 /tmp/firefox-run
       browser="$(command -v firefox-esr || command -v firefox || true)"
       [ -n "$browser" ] && [ -x "$browser" ] || { echo "Firefox executable missing for $TNX_BROWSER_PROFILE" >&2; exit 1; }
-      cat > /tmp/ternux-firefox-probe <<'PROBE'
-#!/bin/sh
-set -eu
-browser="$1"
-Xvfb :99 -screen 0 1280x768x24 -nolisten tcp >/tmp/ternux-xvfb.log 2>&1 &
-xvfb_pid=$!
-trap 'kill "$xvfb_pid" 2>/dev/null || true' EXIT
-for attempt in 1 2 3 4 5 6 7 8 9 10; do
-  [ -S /tmp/.X11-unix/X99 ] && break
-  sleep 0.2
-done
-[ -S /tmp/.X11-unix/X99 ] || { cat /tmp/ternux-xvfb.log >&2; exit 1; }
-export DISPLAY=:99 HOME=/tmp/firefox-home XDG_RUNTIME_DIR=/tmp/firefox-run
-dbus-run-session -- timeout 90 "$browser" --no-remote --screenshot /out/firefox.png about:blank
-PROBE
-      chmod 0755 /tmp/ternux-firefox-probe
-      su -s /bin/sh browser -c "/tmp/ternux-firefox-probe '$browser'"
+      su -s /bin/sh browser -c "/firefox_xvfb_probe.sh \"$browser\""
       test -s /out/firefox.png
     '
   python3 - "$output/firefox.png" "$distro" <<'PY'
