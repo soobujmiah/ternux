@@ -1549,7 +1549,7 @@ fi
 # Scoped uninstall is validated only in a temporary home with mocked container
 # operations: cancellation preserves data, and explicit --yes removes only the
 # requested mocked container.
-if env TERNUX_STATE_DIR="$TMP/state-uninstall" HOME="$TMP/home-uninstall" bash -c '
+if env PREFIX="$TMP/prefix-uninstall" TERNUX_STATE_DIR="$TMP/state-uninstall" HOME="$TMP/home-uninstall" bash -c '
   mkdir -p "$HOME" "$TERNUX_STATE_DIR" "$2"
   : > "$HOME/x.sh"
   . "$1/lib/uninstall.sh"
@@ -1579,21 +1579,31 @@ fi
 
 # Full managed cleanup removes registered Ternux profile and generic guests,
 # while leaving unregistered PRoot guests alone.
-if env TERNUX_STATE_DIR="$TMP/state-uninstall-multi" HOME="$TMP/home-uninstall-multi" TERNUX_DISTRO=debian bash -c '
-  mkdir -p "$HOME" "$TERNUX_STATE_DIR/distros/ubuntu" "$TERNUX_STATE_DIR/managed-guests"
+if env PREFIX="$TMP/prefix-uninstall-multi" TERNUX_STATE_DIR="$TMP/state-uninstall-multi" HOME="$TMP/home-uninstall-multi" TERNUX_DISTRO=debian bash -c '
+  mkdir -p "$HOME" "$TERNUX_STATE_DIR/distros/ubuntu" "$TERNUX_STATE_DIR/managed-guests" "$PREFIX/var/lib/proot-distro/sessions"
   : > "$TERNUX_STATE_DIR/distros/ubuntu/profile"
   printf "%s\n" alpine:latest > "$TERNUX_STATE_DIR/managed-guests/alpine"
+  sessions="$PREFIX/var/lib/proot-distro/sessions"
+  printf "{\"container\":\"ubuntu\",\"pid\":2147483647,\"start_time\":1}\n" > "$sessions/stale.json"
+  printf "{\"container\":\"ubuntu\",\"pid\":%s,\"start_time\":1}\n" "$BASHPID" > "$sessions/reused.json"
+  printf "{\"container\":\"ubuntu\",\"pid\":%s,\"start_time\":%s}\n" "$BASHPID" "$(date +%s)" > "$sessions/live.json"
+  printf "{\"container\":\"fedora\",\"pid\":2147483647,\"start_time\":1}\n" > "$sessions/unrelated.json"
+  printf "{\"container\":\"fedora\",\"pid\":2147483647,\"start_time\":1}\n" > "$sessions/linked-target.json"
+  ln -s "$sessions/linked-target.json" "$sessions/linked.json"
   . "$1/lib/uninstall.sh"
   log="$2/multi-uninstall.log"
   tnx_proot_container_installed(){ case "$1" in ubuntu|alpine|debian|fedora) return 0;; *) return 1;; esac; }
   proot-distro(){ [ "$1" = remove ] && { printf "%s\n" "$2" >> "$log"; return 0; }; return 1; }
   _tnx_uninstall_all_managed_guests &&
   grep -qx ubuntu "$log" && grep -qx alpine "$log" &&
-  ! grep -qx debian "$log" && ! grep -qx fedora "$log"
+  ! grep -qx debian "$log" && ! grep -qx fedora "$log" &&
+  [ ! -e "$sessions/stale.json" ] && [ ! -e "$sessions/reused.json" ] &&
+  [ -f "$sessions/live.json" ] && [ -f "$sessions/unrelated.json" ] &&
+  [ -L "$sessions/linked.json" ] && [ -f "$sessions/linked-target.json" ]
 ' _ "$ROOT" "$TMP"; then
-  ok "full uninstall targets registered Ternux guests only"
+  ok "full uninstall targets registered guests and prunes only stale matching session records"
 else
-  not_ok "full uninstall targets registered Ternux guests only"
+  not_ok "full uninstall targets registered guests and prunes only stale matching session records"
 fi
 
 # State removal deletes only Ternux runtime logs/state and empty app staging
