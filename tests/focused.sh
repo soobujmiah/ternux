@@ -306,6 +306,25 @@ else
   not_ok "first-run welcome, default browser, Zenity, VLC XCB output are guest-managed"
 fi
 
+# Termux:X11 preference IPC is unavailable before the X11 app has created its
+# display. Keep character-based soft-keyboard mode after display startup.
+if python3 - "$ROOT/lib/phases.sh" "$ROOT/lib/desktop.sh" <<'PYX11PREF'
+import pathlib, sys
+phases = pathlib.Path(sys.argv[1]).read_text()
+desktop = pathlib.Path(sys.argv[2]).read_text()
+x11_start = phases.index('termux-x11 "$TNX_DISPLAY" -tag')
+socket_ready = phases.index('while [ ! -S "$TMPDIR/.X11-unix/X${TNX_DISPLAY#:}" ]; do')
+activity_start = phases.index('am start --user 0 -n com.termux.x11/com.termux.x11.MainActivity -d "$TNX_TAG"')
+preference = phases.index('termux-x11-preference enforceCharBasedInput:true')
+assert x11_start < socket_ready < activity_start < preference
+assert 'termux-x11-preference' not in desktop
+PYX11PREF
+then
+  ok "Termux:X11 keyboard preference is applied only after the X11 app starts"
+else
+  not_ok "Termux:X11 keyboard preference is applied only after the X11 app starts"
+fi
+
 # The default base browser receives the welcome URL only on first guest login.
 welcome_bin="$TMP/welcome-bin"
 welcome_state="$TMP/welcome-state"

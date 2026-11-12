@@ -236,15 +236,6 @@ tnx_cmd_start() {
   fi
   chmod +x "$launcher_path" 2>/dev/null || true
 
-  # Termux:X11 expects key:value arguments (not key=value). Character-based
-  # input lets Android IMEs deliver committed text to X11 clients that do not
-  # receive corresponding hardware key events.
-  if tnx_has_cmd termux-x11-preference; then
-    if ! timeout 3 termux-x11-preference enforceCharBasedInput:true >/dev/null 2>&1; then
-      tnx_warn "Could not enable Termux:X11 character-based keyboard input."
-    fi
-  fi
-
   local session_dir; session_dir="$(tnx_distro_session_dir "$distro")"
   local pid_file="$session_dir/desktop.pid" ready_file="$session_dir/desktop.pid.ready"
   local state_file="$session_dir/desktop.state"
