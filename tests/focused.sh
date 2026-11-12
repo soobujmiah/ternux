@@ -873,7 +873,8 @@ assert "gsettings set org.freedesktop.ibus.general.hotkey trigger '[]'" in ibus_
 assert 'next-engine "[\'Control+space\']"' in ibus_init
 next_engine = (root / "lib/ternux-assets/bin/ternux-ibus-next-engine").read_text()
 assert "gsettings get org.freedesktop.ibus.general engines-order" in next_engine
-assert 'exec ibus engine "$next"' in next_engine
+assert 'ibus engine "$next" >/dev/null 2>&1 || true' in next_engine
+assert 'active="$(ibus engine 2>/dev/null || true)"' in next_engine
 assert "ternux-ibus-next-engine" in desktop_phase and "/commands/custom/<Primary>space" in desktop_phase
 assert "ibus-daemon --daemonize --xim --replace --address=\"$IBUS_ADDRESS\"" in ibus_init
 assert ibus_init.index("Control+space") < ibus_init.index("ibus-daemon --daemonize --xim --replace --address=\"$IBUS_ADDRESS\"")
@@ -1601,6 +1602,7 @@ if env HOME="$TMP/home-uninstall-host" PREFIX="$TMP/prefix-uninstall-host" bash 
   : > "$PREFIX/lib/.ternux-update-journal"
   : > "$PREFIX/lib/.ternux-update-lock/owner"
   dpkg-query(){ return 1; }
+  tnx_ok(){ :; }
   . "$1/lib/uninstall.sh"
   _tnx_uninstall_host_cli >/dev/null &&
   [ ! -e "$PREFIX/bin/ternux" ] && [ ! -e "$PREFIX/bin/tx" ] && [ ! -e "$PREFIX/lib/ternux" ] &&
@@ -1945,7 +1947,11 @@ if env TERNUX_STATE_DIR="$TMP/state-ibus-cycle" HOME="$TMP/home-ibus-cycle" \
     cat > "$HOME/bin/ibus" <<'\''MOCK_IBUS'\''
 #!/bin/sh
 if [ "$1" = engine ] && [ "$#" -eq 1 ]; then cat "$IBUS_ENGINE_STATE"; exit; fi
-if [ "$1" = engine ] && [ "$#" -eq 2 ]; then printf "%s\n" "$2" > "$IBUS_ENGINE_STATE"; exit; fi
+if [ "$1" = engine ] && [ "$#" -eq 2 ]; then
+  printf "%s\n" "$2" > "$IBUS_ENGINE_STATE"
+  [ "$2" != ibus-avro ] || exit 1
+  exit 0
+fi
 exit 2
 MOCK_IBUS
     cat > "$HOME/bin/gsettings" <<'\''MOCK_GSETTINGS'\''
