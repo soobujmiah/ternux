@@ -28,8 +28,10 @@ jobs:
       - run: npm run build
       - name: Install signed-repository verification tools
         run: sudo apt-get update && sudo apt-get install --yes --no-install-recommends curl gnupg xz-utils
-      - name: Preserve the previously published signed APT repository
-        run: bash packaging/termux/preserve-pages-apt.sh dist
+      - name: Preserve both previously published signed APT channels
+        run: |
+          bash packaging/termux/preserve-pages-apt.sh dist stable
+          bash packaging/termux/preserve-pages-apt.sh dist rc
       - uses: actions/upload-pages-artifact@v5
         with:
           path: dist

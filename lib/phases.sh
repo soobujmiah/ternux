@@ -350,7 +350,7 @@ tnx_phase_debian() {
   [ "$(tnx_distro)" != alpine ] || input_engine=m17n:bn:avro-phonetic
   local resource_dir="${BASH_SOURCE[0]%/*}"
   local welcome_b64 welcome_gui_b64 window_fit_b64 camera_gui_b64 recorder_gui_b64 panel_shortcuts_b64 ternux_assets_b64 proot_bwrap_b64 gtk3_user_css_b64 gtk4_user_css_b64 firefox_installer_b64 resource
-  for resource in ternux-welcome.sh ternux-welcome-gui.py ternux-window-fit.lua ternux-camera.py ternux-recorder.py ternux-panel-shortcuts.sh ternux-assets/bin/ternux-proot-bwrap ternux-assets/bin/ternux-rasterize-icons ternux-assets/bin/ternux-ibus-session-init ternux-assets/bin/ternux-ibus-next-engine ternux-assets/bin/ternux-session-bus; do
+  for resource in ternux-welcome.sh ternux-welcome-gui.py ternux-window-fit.lua ternux-camera.py ternux-recorder.py ternux-panel-shortcuts.sh ternux-assets/bin/ternux-proot-bwrap ternux-assets/bin/ternux-rasterize-icons ternux-assets/bin/ternux-ibus-session-init ternux-assets/bin/ternux-ibus-next-engine ternux-assets/bin/ternux-window-fit-x11 ternux-assets/bin/ternux-session-bus; do
     if [ ! -s "$resource_dir/$resource" ] || [ ! -r "$resource_dir/$resource" ]; then
       tnx_fail "Required Ternux desktop resource is missing or unreadable: $resource_dir/$resource"
       return 1
@@ -413,7 +413,7 @@ tnx_phase_debian() {
           printf 'Package: snapd\nPin: version *\nPin-Priority: -1\n' > /etc/apt/preferences.d/ternux-no-snapd
           apt-mark hold snapd >/dev/null 2>&1 || true
         fi
-        apt install -y -o APT::Install-Recommends=false \$DPKG_FORCE sudo nano ca-certificates mousepad galculator evince fonts-noto-core python3-gi gir1.2-gtk-3.0 ibus ibus-avro devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol x11-utils x11-xkb-utils mesa-utils libgl1-mesa-dri libvulkan1 mesa-vulkan-drivers vulkan-tools adwaita-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc ffmpeg ristretto qt5-gtk-platformtheme colord xdg-utils desktop-file-utils util-linux libglib2.0-bin gsettings-desktop-schemas xfconf
+        apt install -y -o APT::Install-Recommends=false \$DPKG_FORCE sudo nano ca-certificates mousepad galculator evince fonts-noto-core python3-gi python3-xlib gir1.2-gtk-3.0 ibus ibus-avro devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol x11-utils x11-xkb-utils mesa-utils libgl1-mesa-dri libvulkan1 mesa-vulkan-drivers vulkan-tools adwaita-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc ffmpeg ristretto qt5-gtk-platformtheme colord xdg-utils desktop-file-utils util-linux libglib2.0-bin gsettings-desktop-schemas xfconf
         apt install -y \$DPKG_FORCE --no-install-recommends synaptic
         if [ '$(tnx_distro)' = ubuntu ]; then apt-mark hold snapd >/dev/null 2>&1 || true; fi
         apt remove -y \$DPKG_FORCE guvcview >/dev/null 2>&1 || true
@@ -421,9 +421,9 @@ tnx_phase_debian() {
       apk)
         pkg_retry apk update
         if [ '$(tnx_distro)' = alpine ]; then install_proot_bwrap_shim; fi
-        pkg_retry apk add sudo bash shadow musl-utils nano mousepad galculator evince font-noto python3 py3-gobject3 gtk+3.0 glib ibus dbus-x11 pulseaudio pulseaudio-utils pavucontrol mesa mesa-dri-gallium mesa-utils vulkan-loader vulkan-tools desktop-file-utils xdg-utils xdpyinfo setxkbmap util-linux fontconfig gsettings-desktop-schemas xfconf adwaita-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc ffmpeg ristretto qt5-qtbase colord
+        pkg_retry apk add sudo bash shadow musl-utils nano mousepad galculator evince font-noto python3 py3-xlib py3-gobject3 gtk+3.0 glib ibus dbus-x11 pulseaudio pulseaudio-utils pavucontrol mesa mesa-dri-gallium mesa-utils vulkan-loader vulkan-tools desktop-file-utils xdg-utils xdpyinfo setxkbmap util-linux fontconfig gsettings-desktop-schemas xfconf adwaita-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc ffmpeg ristretto qt5-qtbase colord
         if [ "$(tnx_distro)" = alpine ]; then
-          pkg_retry apk add vlc-qt m17n-lib m17n-db font-noto-bengali rsvg-convert xrdb py3-xlib
+          pkg_retry apk add vlc-qt m17n-lib m17n-db font-noto-bengali rsvg-convert xrdb
         fi
         if [ "$(tnx_distro)" = chimera ]; then pkg_retry apk add mesa-vulkan; elif [ "$(tnx_distro)" = alpine ]; then pkg_retry apk add mesa-vulkan-freedreno; fi
         ;;
@@ -672,6 +672,7 @@ TERMINAL
     chown \"\$U:\$U\" \"\$H/.config/devilspie2/window-fit.lua\"
     chmod 0644 \"\$H/.config/devilspie2/window-fit.lua\"
     runuser -u \"\$U\" -- env HOME=\"\$H\" dbus-run-session -- gsettings set org.freedesktop.ibus.general preload-engines \"['xkb:us::eng', '$input_engine']\"
+    runuser -u \"\$U\" -- env HOME=\"\$H\" dbus-run-session -- gsettings set org.freedesktop.ibus.general engines-order \"['xkb:us::eng', '$input_engine']\"
     # Keep Ctrl+Space visible as IBus's Next input method key. XFCE also
     # routes it globally for apps that do not register an IBus input context.
     runuser -u \"\$U\" -- env HOME=\"\$H\" dbus-run-session -- gsettings set org.freedesktop.ibus.general.hotkey triggers \"[]\"
@@ -761,11 +762,11 @@ PM
     chmod 0755 /usr/local/bin/ternux-welcome
     install -d -o root -g root -m 0755 /usr/share/backgrounds/ternux
     chmod 0644 /usr/share/backgrounds/ternux/*.svg
-    window_fit_exec=\"\"
-    if command -v devilspie2 >/dev/null 2>&1; then
-      window_fit_exec=\"devilspie2 --folder=/home/$user_name/.config/devilspie2\"
-    elif [ \"$(tnx_distro)\" = alpine ] && python3 -c 'import Xlib' >/dev/null 2>&1; then
+    window_fit_exec=\"devilspie2 --folder=/home/$user_name/.config/devilspie2\"
+    if python3 -c 'import Xlib' >/dev/null 2>&1; then
       window_fit_exec=/usr/local/bin/ternux-window-fit-x11
+    elif ! command -v devilspie2 >/dev/null 2>&1; then
+      window_fit_exec=\"\"
     fi
     if [ -n \"\$window_fit_exec\" ]; then
     cat > \"\$H/.config/autostart/ternux-window-fit.desktop\" <<DESKTOP
@@ -979,16 +980,49 @@ tnx_phase_gpu() {
         pacman -U --noconfirm --needed "\$@"
       else
         tar -xzf /tmp/mesa-freedreno.tar.gz -C "\$stage"
-        tar -xzf /tmp/mesa-freedreno.tar.gz -C /
-        command -v ldconfig >/dev/null 2>&1 && ldconfig || true
+        overlay=/usr/local/lib/ternux/mesa-27.0.0-devel-20261025-r2-$distro-$guest_codename
+        mkdir -p "\$overlay"
+        tar -xzf /tmp/mesa-freedreno.tar.gz -C "\$overlay" --strip-components=2 --no-same-owner
+        libdir="\$overlay/lib/aarch64-linux-gnu"
+        [ -d "\$libdir" ] || libdir="\$overlay/lib"
+        driver="\$libdir/libvulkan_freedreno.so"
+        source_icd="\$overlay/share/vulkan/icd.d/freedreno_icd.aarch64.json"
+        runtime_icd="\$overlay/share/vulkan/icd.d/ternux_freedreno_icd.json"
+        [ -f "\$driver" ] && [ -f "\$source_icd" ] && [ -f "\$libdir/dri/zink_dri.so" ] && [ -f "\$libdir/libgallium-27.0.0-devel.so" ]
+        printf '{\\n  \\042ICD\\042: {\\n    \\042api_version\\042: \\0421.4.0\\042,\\n    \\042library_arch\\042: \\04264\\042,\\n    \\042library_path\\042: \\042%s\\042\\n  },\\n  \\042file_format_version\\042: \\0421.0.1\\042\\n}\\n' \\
+          "\$driver" > "\$runtime_icd"
+        chmod 0644 "\$runtime_icd"
+        mkdir -p /etc/ternux
+        printf '%s\\n' "\$overlay" > /etc/ternux/mesa-overlay
+        printf '%s\\n' "\$libdir" > /etc/ternux/mesa-overlay-libdir
       fi
       find "\$stage" -mindepth 1 -delete 2>/dev/null || true
-      find /usr -name zink_dri.so -print -quit 2>/dev/null | grep -q .
-      find /usr -name kgsl_dri.so -print -quit 2>/dev/null | grep -q .
-      find /usr -name '*freedreno*.json' -print -quit 2>/dev/null | grep -q .
-      find /usr -name 'libvulkan_freedreno.so*' -print -quit 2>/dev/null | grep -q .
+      if [ '$asset_kind' = arch ]; then
+        find /usr -name zink_dri.so -print -quit 2>/dev/null | grep -q .
+        find /usr -name kgsl_dri.so -print -quit 2>/dev/null | grep -q .
+        find /usr -name '*freedreno*.json' -print -quit 2>/dev/null | grep -q .
+        find /usr -name 'libvulkan_freedreno.so*' -print -quit 2>/dev/null | grep -q .
+      else
+        [ -s /etc/ternux/mesa-overlay ]
+        overlay=\$(cat /etc/ternux/mesa-overlay)
+        overlay_libdir=\$(cat /etc/ternux/mesa-overlay-libdir)
+        case "\$overlay_libdir" in "\$overlay"/*) ;; *) exit 1 ;; esac
+        [ -f "\$overlay_libdir/dri/zink_dri.so" ]
+        [ -f "\$overlay_libdir/dri/kgsl_dri.so" ]
+        [ -f "\$overlay/share/vulkan/icd.d/ternux_freedreno_icd.json" ]
+        [ -f "\$overlay_libdir/libvulkan_freedreno.so" ]
+        python3 -m json.tool "\$overlay/share/vulkan/icd.d/ternux_freedreno_icd.json" >/dev/null
+        grep -F "\$overlay_libdir/libvulkan_freedreno.so" "\$overlay/share/vulkan/icd.d/ternux_freedreno_icd.json" >/dev/null
+      fi
     " || { tnx_fail "Could not install or verify the matching $distro Mesa/Turnip asset."; rm -f "$tarball" "$notice_tarball"; return 1; }
     rm -f "$tarball" "$notice_tarball"
+    if [ "$asset_kind" != arch ]; then
+      local overlay_driver_sha overlay_icd_sha
+      overlay_driver_sha="$(tnx_guest_login -- bash -c 'overlay="$(cat /etc/ternux/mesa-overlay 2>/dev/null || true)"; libdir="$(cat /etc/ternux/mesa-overlay-libdir 2>/dev/null || true)"; [ -n "$overlay" ] && [ "${libdir#"$overlay"/}" != "$libdir" ] && sha256sum "$libdir/libvulkan_freedreno.so" "$overlay/share/vulkan/icd.d/ternux_freedreno_icd.json" 2>/dev/null' | awk 'NR==1{print $1}')"
+      overlay_icd_sha="$(tnx_guest_login -- bash -c 'overlay="$(cat /etc/ternux/mesa-overlay 2>/dev/null || true)"; [ -n "$overlay" ] && sha256sum "$overlay/share/vulkan/icd.d/ternux_freedreno_icd.json" 2>/dev/null' | awk 'NR==1{print $1}')"
+      [ -n "$overlay_driver_sha" ] && tnx_state_set "freedreno_driver_sha" "$overlay_driver_sha"
+      [ -n "$overlay_icd_sha" ] && tnx_state_set "freedreno_icd_sha" "$overlay_icd_sha"
+    fi
     tnx_ok "Distro-matched Mesa Zink/Turnip asset installed, checksummed and license-noticed ($asset_name)."
     return 0
   fi
@@ -1337,7 +1371,7 @@ tnx_phase_launcher() {
   # truncating the command and triggering teardown before XFCE starts.
   cat > "$LAUNCHER" <<'LAUNCHEOF'
 #!/data/data/com.termux/files/usr/bin/bash
-# TERNUX_DESKTOP_LAUNCHER=20
+# TERNUX_DESKTOP_LAUNCHER=21
 set -u
 TMPDIR="${TMPDIR:-/data/data/com.termux/files/usr/tmp}"
 PREFIX="${PREFIX:-/data/data/com.termux/files/usr}"
@@ -1530,6 +1564,31 @@ set -u
 export HOME="/home/${TERNUX_GUEST_USER:-ternux}"
 export GTK_IM_MODULE=ibus QT_IM_MODULE=ibus QT_QPA_PLATFORMTHEME=gtk3 XMODIFIERS=@im=ibus
 export GTK_THEME=Ternux
+if [ -r /etc/ternux/mesa-overlay ]; then
+  read -r ternux_mesa_overlay < /etc/ternux/mesa-overlay || ternux_mesa_overlay=
+  case "$ternux_mesa_overlay" in
+    /usr/local/lib/ternux/*)
+      if [ -r /etc/ternux/mesa-overlay-libdir ]; then
+        read -r ternux_mesa_lib < /etc/ternux/mesa-overlay-libdir || ternux_mesa_lib=
+      else
+        ternux_mesa_lib="$ternux_mesa_overlay/lib/aarch64-linux-gnu"
+      fi
+      ternux_mesa_icd="$ternux_mesa_overlay/share/vulkan/icd.d/ternux_freedreno_icd.json"
+      case "$ternux_mesa_lib" in "$ternux_mesa_overlay"/*)
+      if [ -d "$ternux_mesa_lib/dri" ] && [ -r "$ternux_mesa_icd" ]; then
+        export LD_LIBRARY_PATH="$ternux_mesa_lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+        export LIBGL_DRIVERS_PATH="$ternux_mesa_lib/dri"
+        export VK_DRIVER_FILES="$ternux_mesa_icd" VK_ICD_FILENAMES="$ternux_mesa_icd"
+      else
+        echo "WARNING: Ternux Mesa overlay is incomplete; GPU acceleration may be unavailable." >&2
+      fi
+      ;;
+      *) echo "WARNING: Ignoring an invalid Ternux Mesa library path." >&2 ;;
+      esac
+      ;;
+    *) echo "WARNING: Ignoring an invalid Ternux Mesa overlay path." >&2 ;;
+  esac
+fi
 if grep -q '^ID=alpine$' /etc/os-release 2>/dev/null && [ "$(uname -m)" = aarch64 ] && [ -r /usr/local/lib/ternux/libternux-faccessat.so ]; then
   if [ -n "${LD_PRELOAD:-}" ]; then LD_PRELOAD="/usr/local/lib/ternux/libternux-faccessat.so:$LD_PRELOAD"; else LD_PRELOAD=/usr/local/lib/ternux/libternux-faccessat.so; fi
   export LD_PRELOAD
@@ -1556,7 +1615,16 @@ exec /usr/local/bin/ternux-session-bus bash -c '
   tries=0
   until { xfconf-query -c xsettings -l >/dev/null 2>&1 && pgrep -x xfdesktop >/dev/null 2>&1 && pgrep -x xfwm4 >/dev/null 2>&1; } || [ "$tries" -ge 100 ] || ! kill -0 "$session_pid" 2>/dev/null; do tries=$((tries + 1)); sleep 0.2; done
   if ! kill -0 "$session_pid" 2>/dev/null || ! pgrep -x xfdesktop >/dev/null 2>&1 || ! pgrep -x xfwm4 >/dev/null 2>&1; then echo "ERROR: XFCE session, window manager, or desktop did not become ready."; exit 1; fi
-  xfconf-query -c xfce4-keyboard-shortcuts -p "/commands/custom/<Primary>space" --create -t string -s /usr/local/bin/ternux-ibus-next-engine >/dev/null 2>&1 || echo "WARNING: Could not register the global Ctrl+Space IBus switch shortcut." >&2
+  shortcut_path="/commands/custom/<Primary>space"
+  shortcut_ready=0
+  shortcut_attempt=0
+  while [ "$shortcut_attempt" -lt 10 ]; do
+    xfconf-query -c xfce4-keyboard-shortcuts -p "$shortcut_path" --create -t string -s /usr/local/bin/ternux-ibus-next-engine >/dev/null 2>&1 || true
+    if [ "$(xfconf-query -c xfce4-keyboard-shortcuts -p "$shortcut_path" 2>/dev/null || true)" = /usr/local/bin/ternux-ibus-next-engine ]; then shortcut_ready=1; break; fi
+    shortcut_attempt=$((shortcut_attempt + 1))
+    sleep 0.2
+  done
+  [ "$shortcut_ready" -eq 1 ] || echo "WARNING: Could not register the global Ctrl+Space IBus switch shortcut." >&2
   defaults_marker="$HOME/.config/ternux/desktop-defaults-v1"
   if [ ! -e "$defaults_marker" ]; then
     xfconf-query -c xsettings -p /Net/ThemeName --create -t string -s Ternux
@@ -2252,7 +2320,17 @@ tnx_phase_verify() {
   else tnx_fail "Guest desktop core failed"; rc=1; fi
 
   if [ "$backend" = "zink" ]; then
-    if [ "$(tnx_distro)" != debian ] && tnx_guest_login -- bash -c '
+    if tnx_guest_login -- bash -c '
+      overlay="$(cat /etc/ternux/mesa-overlay 2>/dev/null || true)"
+      [ -n "$overlay" ] && [ "${overlay#/usr/local/lib/ternux/}" != "$overlay" ] &&
+      overlay_libdir="$(cat /etc/ternux/mesa-overlay-libdir 2>/dev/null || true)" &&
+      [ "${overlay_libdir#"$overlay"/}" != "$overlay_libdir" ] &&
+      [ -f "$overlay_libdir/dri/zink_dri.so" ] &&
+      [ -f "$overlay_libdir/libvulkan_freedreno.so" ] &&
+      [ -f "$overlay/share/vulkan/icd.d/ternux_freedreno_icd.json" ]
+    ' >/dev/null 2>&1; then
+      tnx_ok "Managed isolated Mesa Zink/Turnip overlay present"
+    elif [ "$(tnx_distro)" != debian ] && tnx_guest_login -- bash -c '
       find /usr -name zink_dri.so -print -quit 2>/dev/null | grep -q . &&
       find /usr -name "libvulkan_freedreno.so*" -print -quit 2>/dev/null | grep -q .
     ' >/dev/null 2>&1; then

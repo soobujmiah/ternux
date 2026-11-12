@@ -21,6 +21,26 @@ tnx_process_is_live() { kill -0 "${1:-}" 2>/dev/null; }
 tnx_process_group_id() { ps -o pgid= -p "${1:-}" 2>/dev/null | tr -d '[:space:]'; }
 tnx_signal_process_group() { kill -"$1" -- "-$2" 2>/dev/null; }
 
+# Remove any explicitly detached Ternux window-fit login attached to this
+# guest. Normal XFCE autostart copies are children of the managed desktop and
+# exit with its process group; this covers device-session repairs launched
+# independently while keeping every other PRoot login untouched.
+tnx_cleanup_window_fit_sessions() {
+  local distro="${1:-}" line pid container type user command
+  [ -n "$distro" ] && tnx_has_cmd proot-distro || return 0
+  while IFS= read -r line; do
+    [[ "$line" =~ ^[[:space:]]*([0-9]+)[[:space:]]+ ]] || continue
+    pid="${BASH_REMATCH[1]}"
+    container="$(awk '{print $2}' <<< "$line")"
+    type="$(awk '{print $3}' <<< "$line")"
+    user="$(awk '{print $4}' <<< "$line")"
+    command="$(awk '{for (i=6; i<=NF; i++) printf "%s%s", (i==6 ? "" : " "), $i}' <<< "$line")"
+    [ "$container" = "$distro" ] && [[ "$type" == login* ]] && [ "$user" = ternux ] &&
+      [[ "$command" == *"/usr/local/bin/ternux-window-fit-x11"* ]] || continue
+    proot-distro kill "$pid" >/dev/null 2>&1 || true
+  done < <(proot-distro ps 2>/dev/null)
+}
+
 # A valid PID file is not enough to prove the desktop is usable: Android may
 # have killed/recreated the X11 app, and old PIDs can be reused. Check the
 # actual guest session and shared X11 socket before accepting a start request.
@@ -207,14 +227,14 @@ tnx_cmd_start() {
   launcher_path="$launcher_dir/launcher.sh"
   # Upgrade the former single-Debian launcher in place on first use.
   if [ "$distro" = debian ] && [ ! -f "$launcher_path" ] &&
-     [ -f "$HOME/x.sh" ] && grep -q '^# TERNUX_DESKTOP_LAUNCHER=20$' "$HOME/x.sh"; then
+     [ -f "$HOME/x.sh" ] && grep -q '^# TERNUX_DESKTOP_LAUNCHER=21$' "$HOME/x.sh"; then
     mkdir -p "$launcher_dir" && cp -p "$HOME/x.sh" "$launcher_path" || return 1
   fi
   if [ "${TERNUX_JSON:-0}" != "1" ]; then
     tnx_step "Starting ternux desktop..."
   fi
 
-  if [ ! -f "$launcher_path" ] || ! grep -q '^# TERNUX_DESKTOP_LAUNCHER=20$' "$launcher_path"; then
+  if [ ! -f "$launcher_path" ] || ! grep -q '^# TERNUX_DESKTOP_LAUNCHER=21$' "$launcher_path"; then
     # CLI package upgrades must refresh the generated launcher too. It carries
     # process matching, audio routing and narrowed guest bind behavior.
     if ! declare -F tnx_phase_launcher >/dev/null 2>&1; then
@@ -230,7 +250,7 @@ tnx_cmd_start() {
     tnx_info "Refreshing the generated desktop launcher..."
     tnx_phase_launcher "$launcher_user" "$launcher_backend" "$launcher_locale" || return 1
     if [ ! -f "$launcher_path" ] && [ "$distro" = debian ] &&
-       [ -f "$HOME/x.sh" ] && grep -q '^# TERNUX_DESKTOP_LAUNCHER=20$' "$HOME/x.sh"; then
+       [ -f "$HOME/x.sh" ] && grep -q '^# TERNUX_DESKTOP_LAUNCHER=21$' "$HOME/x.sh"; then
       mkdir -p "$launcher_dir" && cp -p "$HOME/x.sh" "$launcher_path" || return 1
     fi
   fi
@@ -454,6 +474,8 @@ tnx_cmd_stop() {
       found=1
     fi
   fi
+
+  tnx_cleanup_window_fit_sessions "$distro"
 
   # Remove only Ternux's own session markers. X11/Pulse sockets and daemons may
   # be shared with other Termux sessions; their owners clean them up themselves.

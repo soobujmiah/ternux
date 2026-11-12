@@ -1,8 +1,8 @@
 #!/data/data/com.termux/files/usr/bin/bash
 set -euo pipefail
 
-readonly repo_url='https://soobujmiah.github.io/ternux/apt'
-readonly key_url="$repo_url/ternux-archive-key.asc"
+readonly stable_repo_url='https://soobujmiah.github.io/ternux/apt'
+readonly rc_repo_url='https://soobujmiah.github.io/ternux/apt-rc'
 readonly expected_fingerprint='E5527F4D5B83037FF77B65AE5E894BBB81168B1D'
 
 # A caller's toolchain LD_LIBRARY_PATH can shadow Termux's Bionic libraries.
@@ -13,21 +13,32 @@ usage() {
 Configure the signed Ternux Termux APT repository and install its CLI.
 
 Usage:
-  bash bootstrap-repository.sh [--configure-only]
+  bash bootstrap-repository.sh [--channel stable|rc] [--configure-only]
 
 Requires curl, gpg, pkg, and a native Termux PREFIX. The downloaded primary
 key is checked against the embedded full fingerprint before APT trusts it.
+The default channel is stable. The rc channel is for pre-release qualification.
 HELP
 }
 
 configure_only=0
-case "${1:-}" in
-  '') ;;
-  --configure-only) configure_only=1 ;;
-  -h|--help) usage; exit 0 ;;
-  *) printf 'Unknown option: %s\n' "$1" >&2; usage >&2; exit 2 ;;
+channel=stable
+while (($#)); do
+  case "$1" in
+    --channel)
+      (($# >= 2)) || { printf '%s\n' 'Missing value for --channel.' >&2; usage >&2; exit 2; }
+      channel=$2; shift 2 ;;
+    --configure-only) configure_only=1; shift ;;
+    -h|--help) usage; exit 0 ;;
+    *) printf 'Unknown option: %s\n' "$1" >&2; usage >&2; exit 2 ;;
+  esac
+done
+case "$channel" in
+  stable) repo_url=$stable_repo_url; source_name=ternux.list ;;
+  rc) repo_url=$rc_repo_url; source_name=ternux-rc.list ;;
+  *) printf 'Unsupported APT channel: %s\n' "$channel" >&2; exit 2 ;;
 esac
-if (($# > 1)); then usage >&2; exit 2; fi
+key_url="$repo_url/ternux-archive-key.asc"
 
 if [[ -z "${PREFIX:-}" || ! -d "$PREFIX/etc/apt" ]]; then
   printf 'Run this script in native Termux; PREFIX/etc/apt was not found.\n' >&2
@@ -43,7 +54,7 @@ done
 keyring_dir="$PREFIX/etc/apt/keyrings"
 source_dir="$PREFIX/etc/apt/sources.list.d"
 keyring="$keyring_dir/ternux.gpg"
-source_file="$source_dir/ternux.list"
+source_file="$source_dir/$source_name"
 if [[ -L "$keyring_dir" || -L "$source_dir" || -L "$keyring" || -L "$source_file" ]]; then
   printf 'Refusing symlinked APT configuration paths.\n' >&2
   exit 1

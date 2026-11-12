@@ -105,7 +105,7 @@ export DEBIAN_FRONTEND=noninteractive
 apt update
 
 # Core desktop + GL/audio plumbing. Must succeed.
-apt install -y sudo nano mousepad fonts-noto-core python3-gi gir1.2-gtk-3.0 ibus ibus-avro devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol x11-utils mesa-utils libgl1-mesa-dri adwaita-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc ristretto qt5-gtk-platformtheme arc-theme colord
+apt install -y sudo nano mousepad fonts-noto-core python3-gi python3-xlib gir1.2-gtk-3.0 ibus ibus-avro devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol x11-utils mesa-utils libgl1-mesa-dri adwaita-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc ristretto qt5-gtk-platformtheme arc-theme colord
 
 # PolicyKit: polkitd = trixie+, policykit-1 = bookworm. Best effort.
 apt install -y polkitd || apt install -y policykit-1 || true
@@ -174,119 +174,18 @@ ls -l /dev/kgsl-3d0
 
 <h3 id="zink-turnip-adreno">6a — Zink + Turnip (Adreno)</h3>
 
-Download the Debian/arm64 driver asset from
-[lfdevs/mesa-for-android-container → Releases](https://github.com/lfdevs/mesa-for-android-container/releases/latest).
-Use GitHub's release API to resolve the current **Debian Trixie ARM64** asset,
-then save it under the fixed name expected through PRoot's shared `/tmp` mapping.
-Do not substitute the Fedora, Ubuntu, Alpine or Arch archive. First confirm that
-the guest and archive distribution match:
+On Debian, Ternux selects and checksum-verifies the matching ARM64 Turnip
+archive, records its upstream license notices, and installs it in the managed
+`/usr/local` layout. Use the normal installer:
 
 ```bash
-proot-distro login debian -- bash -c '. /etc/os-release; echo "$VERSION_CODENAME"'
-# This documented asset path expects: trixie
+tx install --distro debian
 ```
 
-If it does not print `trixie`, stop rather than overwriting a different
-distribution's Mesa files.
-
-```bash
-DRIVER_API=https://api.github.com/repos/lfdevs/mesa-for-android-container/releases/latest
-DRIVER_TARBALL="$TMPDIR/mesa-freedreno.tar.gz"
-
-DRIVER_URL="$(curl -fsSL "$DRIVER_API" \
-  | grep -o '"browser_download_url": *"[^"]*debian[^"]*trixie[^"]*arm64\.tar\.gz"' \
-  | head -n 1 \
-  | sed 's/.*"browser_download_url": *"//; s/"$//')"
-
-[ -n "$DRIVER_URL" ] || { echo "No Debian ARM64 release asset found"; exit 1; }
-printf 'Resolved: %s\n' "$DRIVER_URL"
-curl -fL --retry 3 "$DRIVER_URL" -o "$DRIVER_TARBALL"
-```
-
-If curl cannot link after a partial upgrade, replace the last line with:
-
-```bash
-wget -O "$DRIVER_TARBALL" "$DRIVER_URL"
-```
-
-Validate before extracting — a truncated download or an HTML error page must
-never be unpacked as root:
-
-```bash
-# 1. It must be a real gzip tarball:
-tar -tzf "$DRIVER_TARBALL" >/dev/null && echo "valid tarball"
-
-# 2. No absolute paths, no path traversal:
-tar -tzf "$DRIVER_TARBALL" \
-  | grep -E '^/|(^|/)\.\.(/|$)' \
-  && { echo "UNSAFE - STOP"; exit 1; } \
-  || echo "paths ok"
-
-# 3. The two members we will extract must exist exactly once as regular files.
-#    Other Mesa members may legitimately be symlinks; they are not extracted.
-tar -tvzf "$DRIVER_TARBALL" | awk '
-  /\/usr\/lib\/aarch64-linux-gnu\/libvulkan_freedreno[.]so$/ {
-    if (substr($1,1,1) != "-") bad=1
-    driver++
-  }
-  /\/usr\/share\/vulkan\/icd[.]d\/freedreno_icd[.]aarch64[.]json$/ {
-    if (substr($1,1,1) != "-") bad=1
-    icd++
-  }
-  END { if (bad || driver != 1 || icd != 1) exit 1 }
-' && echo "one regular driver and one regular ICD found" \
-  || { echo "unexpected archive layout"; exit 1; }
-
-# 4. Record this release artifact for troubleshooting/reproduction:
-sha256sum "$DRIVER_TARBALL"
-```
-
-Extract **only the two files ternux needs** — the Turnip driver and its ICD
-manifest — then install them and hold Mesa so a routine `apt upgrade` cannot
-silently revert the GPU path:
-
-```bash
-proot-distro login debian --shared-tmp
-```
-
-```bash
-set -e
-stage=/tmp/ternux-driver-stage
-rm -rf "$stage"; mkdir -p "$stage"
-trap 'rm -rf "$stage"' EXIT
-
-tar -xzf /tmp/mesa-freedreno.tar.gz -C "$stage" \
-  --wildcards "*/usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so" \
-              "*/usr/share/vulkan/icd.d/freedreno_icd.aarch64.json"
-
-driver="$(find "$stage" -type f \
-  -path '*/usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so' -print -quit)"
-icd="$(find "$stage" -type f \
-  -path '*/usr/share/vulkan/icd.d/freedreno_icd.aarch64.json' -print -quit)"
-[ -n "$driver" ] && [ -n "$icd" ] \
-  || { echo "Turnip target files missing after staged extraction"; exit 1; }
-
-install -m 0755 "$driver" /usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so
-mkdir -p /usr/share/vulkan/icd.d
-install -m 0644 "$icd" \
-  /usr/share/vulkan/icd.d/freedreno_icd.aarch64.json
-ldconfig
-
-# Hold the Debian Mesa packages that are paired with this staged driver.
-apt-mark hold mesa-vulkan-drivers libgl1-mesa-dri libglx-mesa0 \
-             libgbm1 libegl-mesa0
-
-exit
-```
-
-Confirm the files landed:
-
-```bash
-proot-distro login debian -- bash -c '
-  test -f /usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so &&
-  test -f /usr/share/vulkan/icd.d/freedreno_icd.aarch64.json &&
-  echo "Turnip installed"'
-```
+Do not extract a Mesa bundle into `/usr` or overwrite files owned by the guest
+package manager. For a manually repaired or older install, follow the
+[apt-safe graphics migration guide](GRAPHICS-PERSISTENCE.html), which includes
+checks for package integrity and the active Vulkan renderer.
 
 ### 6b — VirGL (other GPUs)
 

@@ -87,6 +87,17 @@ tnx_vulkan_probe_guest() {
   local bind_args=()
   [ -e "${TERNUX_KGSL_DEVICE:-/dev/kgsl-3d0}" ] && bind_args+=(--bind "${TERNUX_KGSL_DEVICE:-/dev/kgsl-3d0}:/dev/kgsl")
   tnx_guest_login --shared-tmp "${bind_args[@]}" -- bash -c '
+    overlay="$(cat /etc/ternux/mesa-overlay 2>/dev/null || true)"
+    overlay_libdir="$(cat /etc/ternux/mesa-overlay-libdir 2>/dev/null || true)"
+    case "$overlay" in /usr/local/lib/ternux/*)
+      case "$overlay_libdir" in "$overlay"/*)
+      export LD_LIBRARY_PATH="$overlay_libdir${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+      export VK_DRIVER_FILES="$overlay/share/vulkan/icd.d/ternux_freedreno_icd.json"
+      export VK_ICD_FILENAMES="$VK_DRIVER_FILES"
+      ;;
+      esac
+      ;;
+    esac
     loader=no; icd=no; enum_rc=127; report=""
     ldconfig -p 2>/dev/null | grep -q libvulkan && loader=yes
     for d in /etc/vulkan/icd.d /usr/share/vulkan/icd.d /usr/local/share/vulkan/icd.d /usr/local/lib/aarch64-linux-gnu/vulkan/icd.d; do
@@ -186,7 +197,7 @@ tnx_detect_backend() {
 }
 
 tnx_detect_renderer() {
-  local display="${DISPLAY:-}" renderer
+  local display="${DISPLAY:-}" renderer display_num=""
   if ! tnx_has_cmd proot-distro; then
     echo "unknown"
     return 0
@@ -195,11 +206,24 @@ tnx_detect_renderer() {
   # A doctor command launched from Termux does not inherit the guest desktop's
   # DISPLAY. Probe the live Termux:X11 display when it is running so the result
   # reflects the renderer actually used by Xfce, rather than "unknown".
-  if [ -z "$display" ] &&
-     pgrep -f "^termux-x11 com\\.termux\\.x11([[:space:]]|$)" >/dev/null 2>&1; then
-    display=:0
+  if [ -z "$display" ] && pgrep -f "^termux-x11 com\\.termux\\.x11([[:space:]]|$)" >/dev/null 2>&1; then
+    display_num="$(tnx_distro_display 2>/dev/null || true)"
+    [ -n "$display_num" ] || display_num=0
+    display=:$display_num
   fi
-  renderer="$(tnx_guest_login --shared-tmp -- env "DISPLAY=$display" bash -c '
+  renderer="$(tnx_guest_login --shared-tmp --shared-x11 -- env "DISPLAY=$display" bash -c '
+    overlay="$(cat /etc/ternux/mesa-overlay 2>/dev/null || true)"
+    overlay_libdir="$(cat /etc/ternux/mesa-overlay-libdir 2>/dev/null || true)"
+    case "$overlay" in /usr/local/lib/ternux/*)
+      case "$overlay_libdir" in "$overlay"/*)
+      export LD_LIBRARY_PATH="$overlay_libdir${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+      export LIBGL_DRIVERS_PATH="$overlay_libdir/dri"
+      export VK_DRIVER_FILES="$overlay/share/vulkan/icd.d/ternux_freedreno_icd.json"
+      export VK_ICD_FILENAMES="$VK_DRIVER_FILES"
+      ;;
+      esac
+      ;;
+    esac
     renderer=""
     if [ -n "${DISPLAY:-}" ] && command -v glxinfo >/dev/null 2>&1 &&
        command -v timeout >/dev/null 2>&1; then

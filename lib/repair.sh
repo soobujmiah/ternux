@@ -136,9 +136,8 @@ _tnx_repair_backend() {
       expected_driver_sha="$(tnx_state_get "freedreno_driver_sha")"
       expected_icd_sha="$(tnx_state_get "freedreno_icd_sha")"
       if tnx_has_cmd proot-distro; then
-        # Prefer the apt-safe layout, fall back to a pre-migration install.
-        current_driver_sha="$(tnx_guest_login -- bash -c 'for f in /usr/local/lib/aarch64-linux-gnu/libvulkan_freedreno.so /usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so; do [ -f "$f" ] && { sha256sum "$f"; break; }; done' 2>/dev/null | awk '{print $1}')"
-        current_icd_sha="$(tnx_guest_login -- bash -c 'for f in /usr/local/share/vulkan/icd.d/ternux_freedreno_icd.json /usr/share/vulkan/icd.d/freedreno_icd.aarch64.json; do [ -f "$f" ] && { sha256sum "$f"; break; }; done' 2>/dev/null | awk '{print $1}')"
+        current_driver_sha="$(tnx_guest_login -- bash -c 'overlay="$(cat /etc/ternux/mesa-overlay 2>/dev/null || true)"; libdir="$(cat /etc/ternux/mesa-overlay-libdir 2>/dev/null || true)"; if [ -n "$overlay" ] && [ "${libdir#"$overlay"/}" != "$libdir" ]; then sha256sum "$libdir/libvulkan_freedreno.so" 2>/dev/null; else for f in /usr/local/lib/aarch64-linux-gnu/libvulkan_freedreno.so /usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so; do [ -f "$f" ] && { sha256sum "$f"; break; }; done; fi' 2>/dev/null | awk '{print $1}')"
+        current_icd_sha="$(tnx_guest_login -- bash -c 'overlay="$(cat /etc/ternux/mesa-overlay 2>/dev/null || true)"; libdir="$(cat /etc/ternux/mesa-overlay-libdir 2>/dev/null || true)"; if [ -n "$overlay" ] && [ "${libdir#"$overlay"/}" != "$libdir" ]; then f="$overlay/share/vulkan/icd.d/ternux_freedreno_icd.json"; driver="$libdir/libvulkan_freedreno.so"; python3 -m json.tool "$f" >/dev/null 2>&1 && grep -F "$driver" "$f" >/dev/null && sha256sum "$f" 2>/dev/null; else for f in /usr/local/share/vulkan/icd.d/ternux_freedreno_icd.json /usr/share/vulkan/icd.d/freedreno_icd.aarch64.json; do [ -f "$f" ] && { sha256sum "$f"; break; }; done; fi' 2>/dev/null | awk '{print $1}')"
       fi
       if [ -n "$expected_driver_sha" ] && [ -n "$expected_icd_sha" ] && \
          [ "$current_driver_sha" = "$expected_driver_sha" ] && \
@@ -193,7 +192,7 @@ _tnx_repair_backend() {
 
 _tnx_repair_launcher() {
   [ -x "$HOME/x.sh" ] && bash -n "$HOME/x.sh" 2>/dev/null &&
-    grep -q '^# TERNUX_DESKTOP_LAUNCHER=20$' "$HOME/x.sh" &&
+    grep -q '^# TERNUX_DESKTOP_LAUNCHER=21$' "$HOME/x.sh" &&
     grep -q '^PULSE_PORT=""$' "$HOME/x.sh" && { tnx_ok "Launcher OK"; return 0; }
 
   local backend user_name locale

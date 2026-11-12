@@ -41,13 +41,14 @@ observations, not claims for other devices.
 
 ## Two layouts, and why only one survives apt
 
-| | Managed layout | Fragile layout |
-|---|---|---|
-| Driver | `/usr/local/lib/aarch64-linux-gnu/libvulkan_freedreno.so` | `/usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so` |
-| ICD manifest | `/usr/local/share/vulkan/icd.d/ternux_freedreno_icd.json` | `/usr/share/vulkan/icd.d/freedreno_icd.aarch64.json` |
-| Owned by a package? | No — `/usr/local` is outside dpkg's reach | Yes — the path belongs to `mesa-vulkan-drivers` |
-| After `apt upgrade` | Unchanged | Replaced by Debian's version |
-| `dpkg -V mesa-vulkan-drivers` | quiet | reports `??5??????` for the driver |
+| | Debian Turnip layout | Distro bundle overlay | Fragile layout |
+|---|---|---|---|
+| Driver | `/usr/local/lib/aarch64-linux-gnu/libvulkan_freedreno.so` | `/usr/local/lib/ternux/<Mesa bundle>/lib/aarch64-linux-gnu/libvulkan_freedreno.so` | `/usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so` |
+| ICD manifest | `/usr/local/share/vulkan/icd.d/ternux_freedreno_icd.json` | `<overlay>/share/vulkan/icd.d/ternux_freedreno_icd.json` | `/usr/share/vulkan/icd.d/freedreno_icd.aarch64.json` |
+| Owned by a distro package? | No — `/usr/local` is outside dpkg's reach | No — the exact-match Mesa bundle stays under `/usr/local/lib/ternux` | Yes — the path belongs to `mesa-vulkan-drivers` |
+| Runtime selection | Loader search path | Ternux desktop sets `LD_LIBRARY_PATH`, `LIBGL_DRIVERS_PATH`, and `VK_DRIVER_FILES` to the matching overlay | Distro default |
+| After package upgrade | Unchanged | Unchanged; distro Mesa files remain package-owned and untouched | Replaced by the distro package version |
+| `dpkg -V mesa-vulkan-drivers` | quiet | quiet | reports `??5??????` for an overwritten driver |
 
 The fragile layout works until the first package operation that touches
 `mesa-vulkan-drivers` — an upgrade, a security update, or
@@ -59,7 +60,12 @@ The Vulkan loader searches `/usr/local/share/vulkan/icd.d` as well as
 and no launcher changes.
 
 Ternux's GPU phase installs the upstream Debian Trixie arm64 Turnip archive in
-this managed layout. The source pins release `mesa-27.0.0-devel-20261025` and
+the Debian managed layout. For Ubuntu and other supported profiles that use a
+full distro-matched Mesa archive, it extracts the bundle to a versioned
+`/usr/local/lib/ternux` overlay and selects that matching Mesa stack only in
+the Ternux desktop session. It does not extract the archive into `/`, replace
+dpkg-owned driver files, or globally change the system loader configuration.
+The source pins release `mesa-27.0.0-devel-20261025` and
 checks SHA-256 `b711d1d9ab5537ee9085da8896dfe2115e791b33aa317fe37538f276c967d687`
 before extraction. On 2026-11-07, this exact archive's checksum matched the
 upstream release manifest; its staged AArch64 driver resolved dynamic
@@ -68,6 +74,25 @@ GLX identified Adreno 825. A short interleaved Qwen2.5 0.5B Vulkan run measured
 27.2 tok/s median on staged 27.0 versus 26.6 on the installed 26.3 driver. This
 three-run, one-device sample is not a sustained performance claim. Ternux
 downloads the archive from its upstream project; it does not build or host Mesa.
+
+> **Ubuntu 26.04 live verification, 2026-11-12:** on the qualified Redmi Turbo
+> 4 Pro, the Ubuntu Turnip asset was installed into its Ternux overlay. The
+> distro package `mesa-vulkan-drivers` was then reinstalled from Ubuntu and
+> `dpkg -V mesa-vulkan-drivers` returned no differences; no Mesa packages were
+> held. With the overlay-selected ICD, `vulkaninfo --summary` enumerated one
+> Adreno 825 integrated GPU and `glxinfo -B` reported direct rendering with
+> `zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP))`. `ternux doctor --json`
+> reported the overlay as managed and the renderer as accelerated. This is a
+> one-device observation; other Ubuntu releases still need their own live test.
+
+> **Alpine 3.24 live verification, 2026-11-12:** its pinned archive uses
+> `/usr/lib` instead of Debian-family `/usr/lib/aarch64-linux-gnu`. The
+> installer now records and validates the archive's actual library directory
+> in `/etc/ternux/mesa-overlay-libdir`, while retaining the isolated overlay
+> and selecting it only for Ternux sessions. A fresh managed install
+> completed, `tx doctor --json` enumerated the Adreno 825 Vulkan device, and
+> live Alpine desktop `:2` reported Zink on Mesa Turnip. This qualifies this
+> device/profile only, not every Alpine version.
 
 ## Check which layout you have
 

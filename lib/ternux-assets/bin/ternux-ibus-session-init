@@ -43,6 +43,9 @@ fi
 sleep 0.1
 ibus_log="$HOME/.runtime/ibus-${display_key}.log"
 gsettings set org.freedesktop.ibus.general preload-engines "['xkb:us::eng', '$engine']" >/dev/null 2>&1 || true
+# The IBus switcher and Ternux's XFCE fallback both consume engines-order.
+# Keeping only preload-engines configured leaves Ctrl+Space with no next item.
+gsettings set org.freedesktop.ibus.general engines-order "['xkb:us::eng', '$engine']" >/dev/null 2>&1 || true
 gsettings set org.freedesktop.ibus.general.hotkey triggers '[]' >/dev/null 2>&1 || true
 if gsettings writable org.freedesktop.ibus.general.hotkey trigger >/dev/null 2>&1; then
   gsettings set org.freedesktop.ibus.general.hotkey trigger '[]' >/dev/null 2>&1 || true

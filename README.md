@@ -102,7 +102,7 @@ use `termux-setup-storage` once if `/sdcard` is missing.
 Termux:X11 display integration, and PulseAudio audio routing. The Debian/Ubuntu APT profile
 includes Bangla-capable Noto fonts and Avro phonetic input (Ctrl+Space). Alpine
 uses a checksum-pinned IBus m17n Avro phonetic engine because its stable APK
-repositories do not package that engine. Ctrl+Space cycles English and Bangla; no extra keyboard button is added to the panel. The base desktop includes VLC,
+repositories do not package that engine. Ctrl+Space cycles English and Bangla; Ternux syncs IBus's engine order with the preload list and adds an XFCE fallback for apps without an IBus input context. A shared X11 window-fit service keeps new windows inside each guest's phone-sized work area. No extra keyboard button is added to the panel. The base desktop includes VLC,
 PulseAudio Volume Control, Xfce Task Manager, Mousepad, Galculator, Evince PDF
 reader, Ternux Camera, Ternux Sound Recorder,
 Ristretto image viewer, and Firefox browser. Debian-family APT guests also include Synaptic Package Manager, which uses Ternux branding and manages guest packages. App availability follows each distro family; optional workloads currently target APT guests. Evince is
@@ -112,7 +112,7 @@ mail client; common providers can use OAuth, and other hosts support manual IMAP
 setup. Firefox is installed in every fresh guest and handles OAuth in the guest;
 the Android default browser remains the fallback. One-click Camera, Photos, and Sound Recorder shortcuts
 are on the Xfce panel. Qt5 applications such as VLC use the matching GTK platform theme. The systemwide graphite-and-emerald Ternux GTK theme covers apps, menus,
-and panel; custom Ternux Xfwm frames cover window borders and title bars. The
+and panel; custom Ternux Xfwm frames cover window borders and title bars. GTK client-side titlebar buttons, including Firefox controls, use visible Ternux styling. The
 Ternux icon theme uses original app, folder, Thunar-action, category, and panel
 icons, plus branded aliases for optional GUI apps such as Blender, GIMP,
 Krita, Inkscape, Audacity, Geany, and LibreOffice; Evince is a base app; Evolution has a branded icon when selected from optional software. Thunar actions have their own
