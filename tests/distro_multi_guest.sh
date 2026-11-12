@@ -72,6 +72,42 @@ grep -qx -- '--yes --distro ubuntu' "$TMP/install-calls"
 if tnx_install --distros debian,arch >/dev/null 2>&1; then exit 1; fi
 if tnx_install --distros debian,debian >/dev/null 2>&1; then exit 1; fi
 
+# Legacy/global phase markers from a completed Debian install must not make an
+# interrupted Ubuntu install look complete when it is resumed.
+if (
+  . "$ROOT/lib/phases.sh"
+  export TERNUX_STATE_DIR="$TMP/resume-state" TERNUX_UI=off
+  mkdir -p "$TERNUX_STATE_DIR"
+  tnx_state_set user ternux
+  tnx_state_set locale en_US.UTF-8
+  tnx_state_set install_backend auto
+  tnx_state_set install_shell bash
+  tnx_state_set distro ubuntu
+  tnx_distro_state_set debian status ready
+  tnx_distro_state_set ubuntu status incomplete
+  for phase in preflight packages cli; do tnx_state_mark "phase_$phase"; done
+  for phase in debian gpu audio_fonts launcher aliases extras phantom verify; do
+    tnx_state_mark "phase_$phase"
+    tnx_distro_phase_mark debian "$phase"
+  done
+  order="$TMP/ubuntu-resume-order"
+  tnx_require_termux(){ :; }; tnx_confirm(){ :; }; tnx_banner(){ :; }
+  tnx_phase_header(){ :; }; tnx_celebrate(){ :; }; tnx_summary_box(){ :; }
+  tnx_next_steps(){ :; }; tnx_log_error(){ :; }
+  for phase in preflight packages cli debian gpu audio_fonts launcher aliases extras phantom verify; do
+    eval "tnx_phase_${phase}(){ printf '%s\\n' '${phase}' >> '$order'; }"
+  done
+  tnx_install --distro ubuntu --resume --yes >/dev/null 2>&1 || exit 1
+  [ "$(tr '\n' ' ' < "$order")" = 'debian gpu audio_fonts launcher aliases phantom verify ' ] || exit 1
+  [ "$(tnx_distro_state_get ubuntu status)" = ready ] || exit 1
+  tnx_state_done phase_debian && tnx_distro_phase_done debian debian && tnx_distro_phase_done ubuntu debian
+); then
+  echo 'PASS: resuming one guest does not skip its phases because another guest completed them'
+else
+  echo 'FAIL: guest-scoped install resume phases' >&2
+  exit 1
+fi
+
 
 # Guest shell/exec routes through the selected distro and keeps the established
 # isolated-login plus scoped storage behavior.

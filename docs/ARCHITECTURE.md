@@ -181,7 +181,11 @@ state*:
 
 - **Idempotency** — a completed phase can be checked or re-entered without
   duplicating configuration.
-- **Recorded resume** — `--resume` skips successful phases and restores the interrupted run’s saved optional workload set; it is not repair.
+- **Recorded resume** — host bootstrap phases share one ledger, while desktop
+  phases are recorded under each guest. `--resume` skips only phases completed
+  for the selected guest, so a different guest's successful phase cannot mask
+  an interrupted setup. Older aggregate-only state is treated conservatively
+  and reruns guest setup; saved optional workloads are restored. Resume is not repair.
 - **Targeted repair** — `--doctor` maps a failure to its phase.
 - **Verification before progression** — every critical file and binary is
   confirmed present before the next phase runs.

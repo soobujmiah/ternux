@@ -1158,9 +1158,9 @@ tnx_spin_run() {
 tnx_phase_checklist() {
   [ "${TERNUX_QUIET:-0}" = "1" ] && return 0
   local phases=("$@") short=("pre" "pkg" "cli" "deb" "gpu" "aud" "lnc" "als" "ext" "phm" "ver")
-  local i mark out=""
+  local i mark out="" distro="$(tnx_distro)"
   for i in "${!phases[@]}"; do
-    if tnx_state_done "phase_${phases[$i]}" 2>/dev/null; then mark="${TNX_CG}x${TNX_C0}"
+    if tnx_install_phase_done "${phases[$i]}" "$distro" 2>/dev/null; then mark="${TNX_CG}x${TNX_C0}"
     else mark="${TNX_CD}.${TNX_C0}"; fi
     out+="${TNX_CD}${short[$i]:-$i}${TNX_C0}${mark}  "
   done

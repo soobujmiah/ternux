@@ -129,7 +129,12 @@ intended to be the same, but this local-terminal route asks for one confirmation
 Add `--yes` only after review when you deliberately want no prompt. If interrupted,
 rerunning the same one-command installer automatically resumes the saved guest and
 choices; `bash install.sh --resume` remains available when you want to request it
-explicitly. Successful phases are skipped and saved optional workloads are restored.
+explicitly. Shared host setup phases are recorded once; desktop phases are kept
+under each guest's state directory. Resume skips a guest phase only when that
+same guest completed it, so a finished Debian phase cannot hide unfinished
+Ubuntu or Alpine setup. Older installs without a guest phase ledger rerun the
+guest phases safely instead of trusting aggregate legacy markers. Saved optional
+workloads are restored.
 
 ### Method 3 — fully manual
 
