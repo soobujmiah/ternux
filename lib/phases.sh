@@ -1446,7 +1446,6 @@ trap cleanup EXIT
 trap 'exit 130' INT
 trap 'exit 143' TERM
 termux-wake-lock 2>/dev/null || true
-if command -v termux-x11-preference >/dev/null 2>&1; then termux-x11-preference enforceCharBasedInput:true >/dev/null 2>&1 || echo "WARNING: could not enable Termux:X11 character-based keyboard input."; fi
 write_cpuinfo_with_model_names
 unset PULSE_SERVER; pulseaudio --start --exit-idle-time=-1 --daemonize 2>/dev/null || true
 sleep 0.3
@@ -1495,6 +1494,13 @@ else
   mkdir -p "$(dirname "$TNX_PID_FILE")"
   printf 'shared\n' > "$(dirname "$TNX_PID_FILE")/x11-display-mode"
   am start -n com.termux.x11/com.termux.x11.MainActivity >/dev/null 2>&1 || true
+fi
+# The preference service is provided by the live Termux:X11 app. Calling it
+# before starting that app waits until timeout and silently leaves soft-keyboard
+# input disabled, so apply the preference only after the display is ready.
+if command -v termux-x11-preference >/dev/null 2>&1; then
+  termux-x11-preference enforceCharBasedInput:true >/dev/null 2>&1 ||
+    echo "WARNING: could not enable Termux:X11 character-based keyboard input."
 fi
 cat > "$TNX_GUEST_SESSION_SCRIPT" <<'TERNUX_GUEST_EOF'
 #!/usr/bin/env bash

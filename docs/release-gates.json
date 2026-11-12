@@ -82,7 +82,7 @@
       "evidence": [
         "docs/V2-RELEASE-READINESS.md",
         "docs/release-gates.json",
-        "Current inventory has 20 gates; release_gates.py derives NOT_READY with six incomplete blockers. The validator does not permit readiness while any release-blocking gate is incomplete."
+        "Current inventory has 20 gates; release_gates.py derives NOT_READY with five incomplete blockers. The validator does not permit readiness while any release-blocking gate is incomplete."
       ],
       "required_tests": [
         "release-gate validator",
@@ -99,8 +99,8 @@
       "issue_id": "P1-01",
       "severity": "P1",
       "owner": "engineering",
-      "status": "PARTIAL",
-      "source_status": "PARTIAL",
+      "status": "COMPLETE",
+      "source_status": "PASS",
       "ci_status": "PASS",
       "device_status": "VERIFIED_ON_DEVICE",
       "evidence": [
@@ -121,7 +121,9 @@
         "Latest read-only native check in this audit: ternux status reported existing desktop PID 16987, Termux:X11 and PulseAudio running; ternux verify passed. Installed desktop module remains different from current source, and no restart/package mutation occurred, so updated-package stop/start/crash recovery stays open.",
         "2026-11-12 multi-profile device pass on Redmi Turbo 4 Pro / SM8735 / Adreno 825: Debian :0, Ubuntu :1, Alpine :2 each started; functional desktop and Zink/Turnip renderer observed; guest PulseAudio playback completed and microphone capture returned data; IBus Ctrl+Space/engine switching and Ternux theme/wallpaper assets checked. `tx stop --all` stopped all three and `tx status db|ub|alp` reported STOPPED. This verifies existing source-managed runtime sessions, not exact package migration, fresh install, or crash recovery; gate remains PARTIAL.",
         "2026-11-12 packaged-device follow-up: exact local ternux 2.0.0 package was installed and `dpkg --verify` was clean; Debian, Ubuntu, Alpine statuses were STOPPED after the package lifecycle check. Focused suite passes 173/173, including stale lifecycle recovery/stop regressions. Existing-session start/stop and renderer/audio/input checks are recorded above. Native v1.4.0 migration and clean-install acceptance remain open.",
-        "2026-11-12 exact package-device lifecycle: native `ternux_2.0.0_all.deb` was reinstalled; its packaged `tx` started Debian :0, Ubuntu :1 and Alpine :2 to READY with each guest PulseAudio route ready, then stopped each cleanly. Final lifecycle was STOPPED for all three. Native crash-recovery acceptance remains open."
+        "2026-11-12 exact package-device lifecycle: native `ternux_2.0.0_all.deb` was reinstalled; its packaged `tx` started Debian :0, Ubuntu :1 and Alpine :2 to READY with each guest PulseAudio route ready, then stopped each cleanly. Final lifecycle was STOPPED for all three. Native crash-recovery acceptance remains open.",
+        "2026-11-12 controlled exact-package crash-recovery on Android: the Debian managed process group was signaled only after PID/start-time/PGID identity matched; status changed to FAILED, `tx start db` removed the stale display and reached READY with PulseAudio route ready, and `tx stop db` returned STOPPED. Follow-up exact-package matrix started/stopped Debian :0, Ubuntu :1 and Alpine :2 with audio route ready; final status was STOPPED on all three.",
+        "2026-11-12 Termux:X11 soft-keyboard preference failure was diagnosed: the preference IPC timed out before X11 startup, but succeeded after display readiness. The launcher now applies it after starting the X11 app; device output confirms `enforceCharBasedInput=true` and no startup warning."
       ],
       "required_tests": [
         "overlap/start-stop/crash-recovery fixtures",
@@ -425,7 +427,8 @@
         "Current exact-main package artifact run 42916453776 passed on c3d318dfe9e2e6dadc73c33198b92f2dd4eeb33a; CI artifact evidence does not close native install/update/repair/uninstall.",
         "2026-11-11 source regression: uninstall all enumerates Ternux profile guests and Ternux-registered generic image guests, preserves unrelated PRoot guests, and leaves state/CLI intact after a failed guest removal; tests/focused.sh covers the boundaries.",
         "2026-11-12 rebuilt local `ternux_2.0.0_all.deb` installed successfully; `dpkg --verify` passed; native `pkg uninstall -y ternux` removed all package-owned files including distro.sh, leaving no files in `$PREFIX/lib/ternux`; exact package reinstalled successfully. Public-repository `pkg install`/upgrade and destructive full managed-container uninstall remain open.",
-        "2026-11-12 exact packaged `tx` start/stop passed for all three registered guests. Native package removal left no package-owned module files, and reinstall restored the package; public APT install/upgrade and full `tx uninstall all` container cleanup remain open."
+        "2026-11-12 exact packaged `tx` start/stop passed for all three registered guests. Native package removal left no package-owned module files, and reinstall restored the package; public APT install/upgrade and full `tx uninstall all` container cleanup remain open.",
+        "2026-11-12 fresh native local-artifact install: after `pkg uninstall -y ternux` removed the previous package, `pkg install -y ./artifacts/ternux-apt/debs/ternux_2.0.0_all.deb` installed the package as a new package; `dpkg --verify`, `tx --version`, and `tx distro list` passed. This is not a signed public-repository install/update or full guest-container uninstall test."
       ],
       "required_tests": [
         "clean install/update/repair/uninstall in native Termux",
