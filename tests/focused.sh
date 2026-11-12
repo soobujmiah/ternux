@@ -254,7 +254,8 @@ fi
 # Every base guest gets a browser; welcome content is guest-managed and
 # one-time. VLC uses XCB output.
 if env TERNUX_STATE_DIR="$TMP/state-welcome" HOME="$TMP/home-welcome" \
-  PREFIX="$TMP/prefix-welcome" MARKER="$TMP/welcome-script" bash -c '
+  PREFIX="$TMP/prefix-welcome" MARKER="$TMP/welcome-script" \
+  PYTHONPYCACHEPREFIX="$TMP/pycache" bash -c '
     . "$1/lib/phases.sh"
     tnx_debian_installed(){ return 0; }
     tnx_install_guest_cli(){ :; }
@@ -289,6 +290,10 @@ if env TERNUX_STATE_DIR="$TMP/state-welcome" HOME="$TMP/home-welcome" \
       grep -q "fonts-noto-core" "$1/lib/phases.sh" &&
       grep -q "ternux-window-fit.desktop" "$MARKER" &&
       grep -q "set_window_geometry" "$1/lib/ternux-window-fit.lua" &&
+      grep -Fq "translated = root.translate_coords(window, 0, 0)" "$1/lib/ternux-assets/bin/ternux-window-fit-x11" &&
+      grep -Fq "window_ids(root, atoms_by_name[\"_NET_CLIENT_LIST\"])" "$1/lib/ternux-assets/bin/ternux-window-fit-x11" &&
+      grep -Fq "screen_width, screen_height = screen.width_in_pixels, screen.height_in_pixels" "$1/lib/ternux-assets/bin/ternux-window-fit-x11" &&
+      grep -Fq "if atoms_by_name[\"_NET_WM_STATE_FULLSCREEN\"] in state:" "$1/lib/ternux-assets/bin/ternux-window-fit-x11" &&
       grep -q "Every fresh profile gets one usable browser" "$1/lib/phases.sh" &&
       sh -n "$1/lib/ternux-welcome.sh" &&
       grep -q "firefox-esr --new-window" "$1/lib/ternux-welcome.sh" &&

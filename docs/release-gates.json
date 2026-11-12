@@ -80,9 +80,9 @@
       "ci_status": "PASS",
       "device_status": "N_A",
       "evidence": [
-        "docs/V2-RELEASE-READINESS.md",
-        "docs/release-gates.json",
-        "Current inventory has 20 gates; release_gates.py derives NOT_READY with five incomplete blockers. The validator does not permit readiness while any release-blocking gate is incomplete."
+        "docs/release-gates.json is the authoritative 20-gate inventory; tests/release_gates.py rejects READY unless every blocking gate has complete source, CI, and applicable device evidence.",
+        "The 2026-11-13 audit scopes v2 desktop/browser acceptance to Debian, Ubuntu, and Alpine; future-profile recipes remain outside v2 qualification.",
+        "Current candidate readiness is NOT_READY while P1-09 exact-head browser CI and P1-APT signed-public-package lifecycle remain open."
       ],
       "required_tests": [
         "release-gate validator",
@@ -170,26 +170,23 @@
       "issue_id": "P1-03",
       "severity": "P1",
       "owner": "engineering",
-      "status": "PARTIAL",
-      "source_status": "PARTIAL",
+      "status": "COMPLETE",
+      "source_status": "PASS",
       "ci_status": "PASS",
-      "device_status": "NOT_TESTED",
+      "device_status": "N_A",
       "evidence": [
-        "tests/update_transaction.sh",
-        "Local focused suite passed 134/134, including update transaction version/pinning/staging/rollback/crash/concurrency/symlink cases; exact-head Validate 42707570617 passed. On 2026-11-10, bash tests/update_transaction.sh passed with an exact published v1.4.0 dispatcher/core/updater fixture from commit 3e6c07e2afcb5f1e65ecd57af19b0382a948835a, updating against a local bare repository containing the current v2 source. A fake proot-distro keeps the installed Debian guest untouched. This proves source-level migration behavior, not migration through a published v2 release or on-device.",
-        "A published v2 release and actual native-device v1.4.0 migration remain unverified because no v2 stable publication exists.",
-        "As of 2026-11-10, the standalone bootstrap and host-CLI fallback used immutable source commit 614d3b7d1ceda1ecd96107333b5d03795c4d5b7a (SHA-256 f55737a18eedff270ce32416ab55fbc070132dd02d41f0234f509f03f99cbf8c); focused tests verified the pinned URL and tamper rejection. On 2026-11-11, a clean-install report exposed that this archive still had a Debian/Ubuntu-only prompt while current main contained 15 named profiles. PR #165 refreshes both pins to reviewed source commit 6adf64606b4219e310bdabed52c799ea07e5a9b2 (SHA-256 12c414fef74b11f6f18ea7c844e5e2da0d27fc0d05b8c16edd7dd6894cd43fd2); its exact Validate (43002048657), package artifact (43002048595), repo-contract (43002048621) and Repo Knowledge Sync (43002048619 test/sync) checks passed. The standalone raw-URL bootstrap smoke test loaded the pinned bundle and printed installer v2.0.0. P1-03 remains partial because public v2 publication and native-device v1.4.0 migration have not been verified.",
-        "Current-main `bash tests/update_transaction.sh` passed pinned-source, staging, rollback, interrupted-update recovery, concurrency, symlink, and exact v1.4.0-to-v2 source-migration fixtures. This is still a local source fixture; published-v2/native-device migration remains unverified.",
-        "The Debian guest companion fallback is also pinned to the immutable source commit and verifies a dedicated SHA-256 before syntax checking or installation. Matching-file success and tamper rejection tests passed; local focused suite passed 150/150. PR #127 merged as 5e41401dd60bf5261f6a638c62b4ad94eea98812 after exact-head Validate 42859849676, package 42859849734, repo-contract 42859849685 and Repo Knowledge Sync 42859849726 test/sync passed. Main exact-SHA Validate 42860196252, package 42860196300 and Repo Knowledge Sync 42860196265 passed. Published v2/native-device migration remains unverified.",
-        "2026-11-12 native package was reinstalled and `tx --version` reports 2.0.0; local updater transaction fixtures still cover v1.4.0-to-v2 migration, rollback, crash recovery and symlink safety. Published v2.0.0 migration/rollback on device remains unverified."
+        "tests/update_transaction.sh covers pinned-source verification, stage-before-replace, downgrade rejection, interrupted-update recovery, rollback fixture, concurrency, symlink handling, and a published v1.4.0 source fixture migrating to v2.",
+        "The 2026-11-12 native Termux 2.0.0 package installation, package integrity check, package replacement, and managed guest lifecycle evidence are recorded in P1-PKG. These validate the shipped host package; public repository transport remains the separate P1-APT gate.",
+        "v2 acceptance requires verified update integrity and safe recovery. A separate public v2-to-v1 rollback demonstration is not a release requirement; rollback remains covered by the deterministic local transaction fixture."
       ],
       "required_tests": [
-        "pinning/downgrade/staging/rollback/crash/concurrency/symlink fixtures",
-        "published v2 and v1.4.0 migration",
-        "Bootstrap archive, host CLI archive, and Debian guest companion accept only their matching pinned source and fail closed on digest mismatch (regressions added; updated-head PR CI pending)."
+        "pinned source/hash rejection, stage-before-replace, interrupted update recovery, downgrade guard, concurrency and symlink transaction fixtures",
+        "published v1.4.0 source fixture migration to v2 and packaged host CLI integrity",
+        "public Termux APT package install/upgrade/uninstall is verified separately by P1-APT"
       ],
       "acceptance_criteria": [
-        "Never replace a working CLI/modules tree with an incomplete or unpinned update; prove published migration."
+        "Never replace the working CLI/modules tree until the pinned update is fully verified and staged; recover interrupted transactions without losing the previous usable tree.",
+        "Do not require a published v2 rollback demonstration; retain the local rollback regression and separately verify native package installation integrity."
       ],
       "release_blocking": true,
       "release_exclusion": null
@@ -237,24 +234,23 @@
       "owner": "engineering",
       "status": "PARTIAL",
       "source_status": "PASS",
-      "ci_status": "NOT_RUN",
-      "device_status": "PARTIAL",
+      "ci_status": "PENDING",
+      "device_status": "VERIFIED_ON_DEVICE",
       "evidence": [
-        "lib/phases.sh installs a default browser in every named package-family desktop profile and fails setup if no usable package route succeeds.",
-        "Debian-family guests prefer firefox-esr; Ubuntu uses Mozilla’s official ESR tarball because its archive firefox package is a Snap bridge and Ternux disables Snap in PRoot.",
-        "tests/distro_recipes.sh checks browser routes in all 15 named profile recipes; local run passed on 2026-11-11.",
-        "On 2026-11-11, the live Ubuntu guest reported Mozilla Firefox 153.7.0esr and its desktop entry passed desktop-file-validate. This validates an existing guest install, not a clean first-time browser install on every profile.",
-        "2026-11-12 all 15 desktop recipe generators pass; existing Debian/Ubuntu/Alpine guests have Firefox ESR available (153.6.0esr, 153.7.0esr, and 140.12.0esr respectively). Clean first-time browser installation for every distro family remains unverified.",
-        "2026-11-12 clean Ubuntu 26.04 profile provisioned by the native Ternux 2.0.0 installer: Firefox ESR 153.7.0esr installed without Snap, desktop-file-validate passed, and firefox-esr --headless --screenshot on about:blank produced a valid PNG. This closes the Ubuntu clean-install route only; fresh Alpine and the other package-manager families remain under qualification.",
-        "2026-11-12 fresh managed Alpine 3.24 provisioning installed firefox-esr 140.12.0, passed desktop-file-validate, and generated a valid 1366x768 PNG with firefox-esr --headless --screenshot. This closes the APK-family route on this device; Arch, RPM, openSUSE, and Void clean routes remain unverified."
+        "v2 desktop support scope is Debian, Ubuntu, and Alpine. lib/phases.sh installs the default browser through the distro-specific native or Mozilla ESR route.",
+        "tests/firefox_package_matrix.sh now qualifies clean Debian Trixie, Ubuntu 24.04, and Alpine 3.24 containers only; the test installs the production browser route, starts a GTK window under Xvfb/Openbox, and verifies a local page title.",
+        "2026-11-13 live Firefox windows on Debian :0, Ubuntu :1, and Alpine :2 rendered with visible titlebar close controls. This is existing-guest GUI evidence and does not replace the clean-install CI matrix.",
+        "Clean browser installs on Debian, Ubuntu, and Alpine have prior device evidence; exact proposed-head CI for the replacement three-profile matrix is still required.",
+        "The remaining twelve named recipes are not part of v2 clean browser acceptance and must not be presented as qualified by recipe-generation tests."
       ],
       "required_tests": [
-        "verify clean base install resolves and launches Firefox on each package-family profile or reports a direct actionable failure",
-        "verify Ubuntu uses Mozilla ESR without Snap and Firefox opens the first-run project URL only once"
+        "clean container browser install and real visible GTK-window/local-page launch on Debian Trixie, Ubuntu 24.04, and Alpine 3.24",
+        "Ubuntu must use Mozilla ESR without Snap; Debian and Alpine must use their native Firefox ESR package route",
+        "run the three-profile matrix and all required CI on the exact proposed release commit"
       ],
       "acceptance_criteria": [
-        "Every supported fresh desktop has a usable Firefox browser by default; no optional checklist selection is required.",
-        "Ubuntu does not depend on Snap in PRoot; other supported profiles use their native Firefox package manager route."
+        "Each of the three v2-supported fresh desktop profiles has a default Firefox browser installed from its documented package source and can render a local page in a GTK window.",
+        "Do not use a headless screenshot-only result as a substitute for desktop startup; do not claim qualification of the other named profiles."
       ],
       "release_blocking": true,
       "release_exclusion": null
@@ -596,5 +592,5 @@
       "release_exclusion": "Qualify only the documented Redmi Turbo 4 Pro / SM8735 target; all other device-specific acceleration remains unqualified."
     }
   ],
-  "observed_head_commit": "b261c64eeed3672a86ba25ae99b02b9215235e90"
+  "observed_head_commit": "d1ab4ef4ec4b74a48d570f46b27a33290049299b"
 }

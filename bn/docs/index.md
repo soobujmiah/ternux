@@ -43,6 +43,7 @@ alt_url: "/docs/"
 
 <div class="doc-grid">
   <a class="doc-card" href="ARCHITECTURE.html"><span class="doc-card__icon">→</span><strong>আর্কিটেকচার</strong><span>Display, audio, filesystem, process, Zink/Turnip ও VirGL data path।</span></a>
+  <a class="doc-card" href="V2-RELEASE-READINESS.html"><span class="doc-card__icon">v2</span><strong>v2 release readiness</strong><span>তিনটি supported guest profile, বর্তমান release gate ও তারিখসহ device evidence।</span></a>
   <a class="doc-card" href="ACCELERATOR-RELEASE-PLAN.html"><span class="doc-card__icon">NPU</span><strong>Accelerator release plan</strong><span>CPU, GPU, HTP ও QNN-এর বর্তমান release gate এবং পরে করার কাজ।</span></a>
   <a class="doc-card" href="BENCHMARKS.html"><span class="doc-card__icon">∿</span><strong>প্রমাণ ও বেঞ্চমার্ক</strong><span>সব captured scene value, caveat, boundary ও reproduction step।</span></a>
   <a class="doc-card" href="FAQ.html"><span class="doc-card__icon">?</span><strong>সাধারণ প্রশ্ন</strong><span>ternux কী support করে, কী রক্ষা করে এবং ইচ্ছাকৃতভাবে কী করে না—সরাসরি উত্তর।</span></a>

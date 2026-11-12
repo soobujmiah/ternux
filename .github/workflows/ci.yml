@@ -68,6 +68,9 @@ jobs:
       - name: Run multi-distro lifecycle and shortcut matrix
         run: bash tests/distro_multi_guest.sh
 
+      - name: Qualify default browser in clean v2 distro guests
+        run: bash tests/firefox_package_matrix.sh
+
       - name: Validate machine-readable release gates
         run: python3 tests/release_gates.py --self-test
 

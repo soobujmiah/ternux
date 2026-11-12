@@ -57,19 +57,36 @@ def main() -> int:
 
     def work_area() -> tuple[int, int, int, int]:
         screen = dpy.screen()
-        width, height = screen.width_in_pixels, screen.height_in_pixels
+        screen_width, screen_height = screen.width_in_pixels, screen.height_in_pixels
         desktops = cardinals(root, atoms_by_name["_NET_WORKAREA"])
         current = cardinals(root, atoms_by_name["_NET_CURRENT_DESKTOP"])
         index = current[0] if current else 0
         offset = index * 4
         if len(desktops) >= offset + 4:
-            x, y, width, height = desktops[offset : offset + 4]
+            x, y, width, height = (int(value) for value in desktops[offset : offset + 4])
+            # Termux:X11 can resize its root window before XFCE refreshes its
+            # cached EWMH work area after rotation or a viewport change. Never
+            # let stale panel geometry extend beyond the real X screen.
+            left = max(0, min(screen_width - 1, x))
+            top = max(0, min(screen_height - 1, y))
+            right = min(screen_width, x + width)
+            bottom = min(screen_height, y + height)
+            if right > left and bottom > top:
+                return left, top, right - left, bottom - top
+            x, y, width, height = 0, 0, screen_width, max(1, screen_height - 66)
         else:
             # XFCE publishes _NET_WORKAREA; this fallback keeps a small
             # breathing room for panels when a different WM omits that hint.
-            x, y = 0, 0
-            height = max(1, height - 66)
+            x, y, width, height = 0, 0, screen_width, max(1, screen_height - 66)
         return int(x), int(y), int(width), int(height)
+
+    def fit_clients() -> None:
+        # XFWM emits MapNotify for both client and decoration windows.  When
+        # the event is for a frame, fit() correctly rejects it; the root's
+        # _NET_CLIENT_LIST update is the reliable signal that a new managed
+        # application window is ready to inspect.
+        for client_id in window_ids(root, atoms_by_name["_NET_CLIENT_LIST"]):
+            fit(client_id)
 
     def fit(window_id: int) -> None:
         try:
@@ -91,31 +108,36 @@ def main() -> int:
             if type_atoms and not type_atoms.intersection(allowed):
                 return
             state = atoms(window, atoms_by_name["_NET_WM_STATE"])
-            if state.intersection(
-                {
-                    atoms_by_name["_NET_WM_STATE_FULLSCREEN"],
-                    atoms_by_name["_NET_WM_STATE_MAXIMIZED_HORZ"],
-                    atoms_by_name["_NET_WM_STATE_MAXIMIZED_VERT"],
-                }
-            ):
+            if atoms_by_name["_NET_WM_STATE_FULLSCREEN"] in state:
                 return
+            maximized_horizontally = atoms_by_name["_NET_WM_STATE_MAXIMIZED_HORZ"] in state
+            maximized_vertically = atoms_by_name["_NET_WM_STATE_MAXIMIZED_VERT"] in state
 
             x, y, area_width, area_height = work_area()
             margin = 4
             extents = cardinals(window, atoms_by_name["_NET_FRAME_EXTENTS"])
             left, right, top, bottom = (extents + [0, 0, 0, 0])[:4]
             geometry = window.get_geometry()
-            translated = window.translate_coords(root, 0, 0)
+            # XTranslateCoordinates is invoked on the destination window.
+            # Translate the client origin into root coordinates (the reverse
+            # direction produces negative offsets and clips the title bar).
+            translated = root.translate_coords(window, 0, 0)
             outer_x = translated.x - left
             outer_y = translated.y - top
             outer_width = geometry.width + left + right
             outer_height = geometry.height + top + bottom
             max_outer_width = max(1, area_width - margin * 2)
             max_outer_height = max(1, area_height - margin * 2)
-            new_outer_width = min(outer_width, max_outer_width)
-            new_outer_height = min(outer_height, max_outer_height)
-            new_x = min(max(outer_x, x + margin), x + area_width - margin - new_outer_width)
-            new_y = min(max(outer_y, y + margin), y + area_height - margin - new_outer_height)
+            if maximized_horizontally and x <= outer_x and outer_x + outer_width <= x + area_width:
+                new_outer_width, new_x = outer_width, outer_x
+            else:
+                new_outer_width = min(outer_width, max_outer_width)
+                new_x = min(max(outer_x, x + margin), x + area_width - margin - new_outer_width)
+            if maximized_vertically and y <= outer_y and outer_y + outer_height <= y + area_height:
+                new_outer_height, new_y = outer_height, outer_y
+            else:
+                new_outer_height = min(outer_height, max_outer_height)
+                new_y = min(max(outer_y, y + margin), y + area_height - margin - new_outer_height)
 
             if (new_x, new_y, new_outer_width, new_outer_height) == (
                 outer_x,
@@ -147,23 +169,25 @@ def main() -> int:
     root.change_attributes(event_mask=X.SubstructureNotifyMask | X.PropertyChangeMask | X.StructureNotifyMask)
     dpy.sync()
     time.sleep(0.4)
-    clients = cardinals(root, atoms_by_name["_NET_CLIENT_LIST"])
-    for client in clients:
-        fit(client)
+    fit_clients()
 
     while True:
         event = dpy.next_event()
         if event.type == X.MapNotify:
             time.sleep(0.2)
             fit(event.window.id)
+            fit_clients()
         elif event.type == X.ConfigureNotify and event.window.id == root.id:
             time.sleep(0.2)
-            for client in cardinals(root, atoms_by_name["_NET_CLIENT_LIST"]):
-                fit(client)
+            fit_clients()
         elif event.type == X.PropertyNotify and event.window.id == root.id:
-            if event.atom in (atoms_by_name["_NET_WORKAREA"], atoms_by_name["_NET_CURRENT_DESKTOP"]):
-                for client in cardinals(root, atoms_by_name["_NET_CLIENT_LIST"]):
-                    fit(client)
+            if event.atom in (
+                atoms_by_name["_NET_CLIENT_LIST"],
+                atoms_by_name["_NET_WORKAREA"],
+                atoms_by_name["_NET_CURRENT_DESKTOP"],
+            ):
+                time.sleep(0.15)
+                fit_clients()
 
 
 if __name__ == "__main__":

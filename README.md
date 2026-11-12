@@ -17,8 +17,8 @@
 
 </div>
 
-Ternux sets up an Xfce4 guest in Termux using PRoot. Debian is the recommended default. Debian, Ubuntu, and Alpine have been exercised on one Adreno 825 Android device for desktop start/stop, Zink/Turnip rendering, audio playback and microphone routing, IBus, and theme setup; this is not a clean-install or every-app qualification. The other 12 named profiles remain unqualified on a physical device. Named profiles map Debian-family aliases to APT, Alpine-family aliases to APK, Arch-family aliases to pacman, Fedora-family aliases to DNF, openSUSE to Zypper, and Void to XBPS; arbitrary OCI images remain available as shell guests. Optional workload installs are currently APT-family only. Termux:X11 displays the
-desktop and PulseAudio connects sound. All 15 named desktop profiles install Mesa GL support. On Adreno/KGSL, auto
+Ternux sets up an Xfce4 guest in Termux using PRoot. Debian is the recommended default. **Ternux v2 qualifies Debian, Ubuntu, and Alpine only.** These three have been exercised on one Adreno 825 Android device for desktop lifecycle, Zink/Turnip rendering, audio routing, IBus, and theme setup; this does not imply every clean-install path or every app is qualified. The other 12 named profiles remain available as recipes, but are not v2-supported. Named profiles map Debian-family aliases to APT, Alpine-family aliases to APK, Arch-family aliases to pacman, Fedora-family aliases to DNF, openSUSE to Zypper, and Void to XBPS; arbitrary OCI images remain available as shell guests. Optional workload installs are currently APT-family only. Termux:X11 displays the
+desktop and PulseAudio connects sound. All 15 named recipes install Mesa GL support, but only Debian, Ubuntu, and Alpine are v2-qualified. On Adreno/KGSL, auto
 prefers Zink with each distro’s own Mesa/Freedreno packages where available;
 Debian Trixie uses its validated Turnip payload. VirGL is the compatibility
 route. Android graphics stacks may still fall back to software rendering.
@@ -98,7 +98,7 @@ use `termux-setup-storage` once if `/sdcard` is missing.
 
 ## What you get
 
-**Base desktop:** Debian 13 (Trixie) by default, or another named package-family profile, in user-space PRoot with Xfce4,
+**Base desktop:** Debian 13 (Trixie) by default, or another named package-family recipe, in user-space PRoot with Xfce4,
 Termux:X11 display integration, and PulseAudio audio routing. The Debian/Ubuntu APT profile
 includes Bangla-capable Noto fonts and Avro phonetic input (Ctrl+Space). Alpine
 uses a checksum-pinned IBus m17n Avro phonetic engine because its stable APK
@@ -128,7 +128,7 @@ A one-time first-run welcome opens the project website in the included Firefox E
 Ubuntu uses Mozilla’s official ESR build because Ubuntu’s archive Firefox package
 requires Snap, which Ternux disables in PRoot.
 
-**Graphics:** every named desktop profile installs its distro's Mesa GL driver
+**Graphics:** every named desktop recipe installs its distro's Mesa GL driver
 and a GPU route. On Adreno/KGSL, auto prefers native distro Mesa Zink and
 Freedreno where packages exist; Debian Trixie uses the tested direct Zink +
 Turnip stack. VirGL is the compatibility route through the Android host graphics
