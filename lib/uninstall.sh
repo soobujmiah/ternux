@@ -208,15 +208,51 @@ _tnx_uninstall_remove_guest() {
   local name="$1"
   [[ "$name" =~ ^[a-zA-Z0-9][a-zA-Z0-9._-]*$ ]] || { tnx_warn "Skipping invalid managed guest name: $name"; return 1; }
   if ! tnx_proot_container_installed "$name"; then
+    _tnx_uninstall_prune_guest_sessions "$name"
     tnx_info "Managed guest '$name' is already absent"
     return 0
   fi
   if proot-distro remove "$name"; then
+    _tnx_uninstall_prune_guest_sessions "$name"
     tnx_ok "Managed guest '$name' removed"
     return 0
   fi
   tnx_fail "Could not remove managed guest '$name'"
   return 1
+}
+
+# PRoot-Distro keeps per-login JSON under its shared data directory. A forced
+# desktop stop or Android process kill can leave those records after a Ternux
+# guest is deleted. Prune only regular records for that exact guest, and only
+# when the recorded PID is gone or has clearly been reused since the session
+# timestamp. Keep live session records and all unrelated distro records.
+_tnx_uninstall_prune_guest_sessions() {
+  local name="$1" prefix="${PREFIX:-/data/data/com.termux/files/usr}"
+  local session_dir="$prefix/var/lib/proot-distro/sessions" file session_guest pid started now age elapsed removed=0
+  [[ "$name" =~ ^[a-zA-Z0-9][a-zA-Z0-9._-]*$ ]] || return 1
+  [ -d "$session_dir" ] && [ ! -L "$session_dir" ] || return 0
+  now="$(date +%s 2>/dev/null || true)"
+  [[ "$now" =~ ^[0-9]+$ ]] || return 0
+  for file in "$session_dir"/*.json; do
+    [ -f "$file" ] && [ ! -L "$file" ] || continue
+    session_guest="$(sed -n 's/.*"container"[[:space:]]*:[[:space:]]*"\([A-Za-z0-9._-]*\)".*/\1/p' "$file" | head -n 1)"
+    [ "$session_guest" = "$name" ] || continue
+    pid="$(sed -n 's/.*"pid"[[:space:]]*:[[:space:]]*\([0-9][0-9]*\).*/\1/p' "$file" | head -n 1)"
+    started="$(sed -n 's/.*"start_time"[[:space:]]*:[[:space:]]*\([0-9][0-9]*\)\(\.[0-9][0-9]*\)\{0,1\}.*/\1/p' "$file" | head -n 1)"
+    [[ "$pid" =~ ^[0-9]+$ && "$started" =~ ^[0-9]+$ ]] || continue
+    if kill -0 "$pid" 2>/dev/null; then
+      elapsed="$(ps -o etimes= -p "$pid" 2>/dev/null | tr -d '[:space:]')"
+      [[ "$elapsed" =~ ^[0-9]+$ ]] || continue
+      age=$((now - started))
+      [ "$age" -ge 0 ] || age=0
+      # A currently live process can be retained only if it predates or
+      # plausibly belongs to the recorded PRoot session (60 s startup margin).
+      [ $((elapsed + 60)) -lt "$age" ] || continue
+    fi
+    if rm -f -- "$file"; then removed=$((removed + 1)); fi
+  done
+  [ "$removed" -gt 0 ] && tnx_info "Removed $removed stale PRoot session record(s) for managed guest '$name'"
+  return 0
 }
 
 _tnx_uninstall_container() {
