@@ -5,16 +5,26 @@ lang: "en"
 alt_url: "/bn/docs/V2-RELEASE-READINESS.html"
 ---
 **Status: NOT_READY**
-**Audit date:** 2026-11-11
+**Audit date:** 2026-11-12
 **Target:** Ternux 2.0.0
-**Audited exact `main` snapshot:** `c3d318dfe9e2e6dadc73c33198b92f2dd4eeb33a` (2026-11-11)
+**Current qualification source:** PR #167 on the current audit branch; query the pull request for its exact head SHA and check runs at review time.
 **Product source audit base:** `159806ff395a34349086504ae3055ddef21ddbec`
 **Latest stable release:** v1.4.0; no v2.0.0 tag or release exists.
-**Machine gates:** 19 gates; five release-blocking gates remain incomplete: P1-01, P1-03, P1-04, P1-APT, P1-PKG.
+**Machine gates:** 20 gates; six release-blocking gates remain incomplete: P1-01, P1-03, P1-04, P1-09, P1-APT, P1-PKG.
+
+## Current three-profile device check (2026-11-12)
+
+On the Redmi Turbo 4 Pro / SM8735 / Adreno 825, Debian (`:0`), Ubuntu (`:1`), and Alpine (`:2`) were each started and checked on the current managed setup. All three reported Zink on Mesa Turnip, PulseAudio playback completed, microphone capture returned data, IBus Ctrl+Space configuration/engine switching was checked, and the shared Ternux theme/wallpaper assets were present. This is partial runtime integration evidence for these three profiles on this one device; it does not establish clean installation, browser installation, every desktop app, upgrade/migration, or support for the other 12 profiles. `tx stop --all` then stopped all three. `tx status db`, `ub`, and `alp` each report `STOPPED`; the host PulseAudio daemon remains running without a guest route, which is expected after desktop shutdown.
+
+### Native package follow-up (2026-11-12)
+
+The exact local Termux package was rebuilt from this worktree and installed with `dpkg`; `dpkg --verify ternux` was clean, `tx --version` reported 2.0.0, and `tx distro list` loaded the package-shipped profile module. `pkg uninstall -y ternux` removed the package and all package-owned launchers/modules, including the previously orphaned `lib/ternux/distro.sh`; no files remained in `$PREFIX/lib/ternux`. The package was then reinstalled and verified, leaving Debian, Ubuntu, and Alpine installed and all three desktop sessions STOPPED. This closes the discovered package-manifest omission and supplies native package removal evidence, but not a public-repository `pkg install`/upgrade or full `tx uninstall all` clean-container proof. The device shell's injected `LD_LIBRARY_PATH` must be cleared when invoking Termux package tools; sanitized `pkg update` and `pkg uninstall` succeeded. No unrelated packages were upgraded.
+
+Current package regression checks: `bash tests/focused.sh` passed 173/173; `bash tests/distro_multi_guest.sh`, `bash tests/distro_recipes.sh`, `python3 tests/docs_check.py`, signed-APT bootstrap/preservation tests, and `npm run format:check` (with `LD_LIBRARY_PATH=`) passed. `bats` is not installed in this runtime, so `tests/smoke.bats` could not run locally; CI remains required. `python3 tests/release_gates.py --check` correctly remains NOT_READY with six blockers.
 
 ## Recommendation
 
-Do not publish v2.0.0 yet. The generated-state CI timeout is fixed and Android storage is opt-in and directory-scoped. Product PRs #138 and #139, audit PR #141, and generated-state PRs #137, #140, and #142 merged with required CI passing. Native package lifecycle and updated-package desktop validation remain open, all four public APT endpoints returned 404, and tested Qwen variants failed structured retrieval.
+Do not publish v2.0.0 yet. The generated-state CI timeout is fixed and Android storage is opt-in and directory-scoped. Product PRs #138 and #139, audit PR #141, and generated-state PRs #137, #140, and #142 merged with required CI passing. Public APT endpoints remain unpublished (404); native package removal and reinstall now pass locally, while public-repository install/upgrade and clean-container removal remain open. Exact native v1.4.0-to-v2 migration also remains unverified.
 
 ## Stage 0 — reconciliation
 
@@ -30,11 +40,12 @@ Latest reconciliation: PRs #147/#149 fix transient Pages 5xx retries and merge a
 |---|---|---|
 | P0-01 Stable Diffusion Vulkan license CI | **COMPLETE** | Deterministic notice manifest and regression checks are present. Exact ARM64 build, binary inspection and independent license audit passed in run `42863263043` on source commit `5e41401dd60bf5261f6a638c62b4ad94eea98812`; prerelease publication was skipped. |
 | P0-02 release branch consistency | **COMPLETE** | Product fixes are on `main`; PR #138, generated-state PRs #137 and #140, and storage PR #139 are merged. Exact-main checks on product head `eaf97fc` all passed; no release tag exists. |
-| P0-03 machine release gate | **COMPLETE** | `docs/release-gates.json` has 19 gates; `tests/release_gates.py` derives `NOT_READY` when a blocking acceptance check is incomplete. |
-| P1-01 desktop lifecycle | **PARTIAL** | Source lifecycle regression coverage and prior live READY status exist. The installed v2.0.0 `desktop.sh` hash differs from current source; updated-package GUI, stop/restart and crash recovery remain unverified. |
-| P1-02 GPU/Vulkan detection | **COMPLETE on the qualified device only** | Redmi Turbo 4 Pro / SM8735 / Adreno 825 reported Vulkan/Turnip and Zink; software-renderer false positives have regression coverage. Other device families are not qualified. |
+| P0-03 machine release gate | **COMPLETE** | `docs/release-gates.json` has 20 gates; `tests/release_gates.py` derives `NOT_READY` when a blocking acceptance check is incomplete. |
+| P1-01 desktop lifecycle | **PARTIAL** | Current source-managed Debian, Ubuntu, and Alpine sessions were started, checked, and stopped; all three now report STOPPED. This supplies profile-level runtime evidence, but current native package migration, crash recovery, and exact package lifecycle remain unverified. |
+| P1-02 GPU/Vulkan detection | **COMPLETE on the qualified device only** | Debian, Ubuntu, and Alpine each reported Vulkan/Turnip-backed Zink on Redmi Turbo 4 Pro / SM8735 / Adreno 825; software-renderer false positives have regression coverage. Other device families are not qualified. |
 | P1-03 installer/updater | **PARTIAL** | Pinned bootstrap, host CLI and guest CLI checks reject tampered source; local rollback and v1.4.0-to-v2 fixtures pass. Published-v2 native migration/rollback remains untested. |
-| P1-04 storage isolation | **PARTIAL** | Default `/sdcard` binds and setup-time storage permission are removed. `ternux storage grant DIRECTORY` records only an existing canonical subdirectory; generic guest commands, desktop launcher, and db/droot aliases validate that same private allowlist. Focused regressions and PR CI pass. Updated-package device verification remains open; the pre-existing live desktop is from the old package and was not restarted. |
+| P1-04 storage availability | **PARTIAL** | The current source binds Android shared storage at `/sdcard` by default, checks permission without prompting, and keeps Termux HOME isolated. Focused regression passes. On 2026-11-11, regenerated the live Ubuntu launcher, restarted XFCE on `:1`, and verified `/sdcard` from inside that guest. Exact native package lifecycle remains open. |
+| P1-09 default browser | **PARTIAL** | Firefox is now mandatory in every fresh profile; all 15 generated family recipes pass the local browser-route check. Ubuntu's live guest reports Firefox ESR 153.7.0. Clean first-install browser verification for each distro remains open. |
 | P1-05 repository protection | **COMPLETE for the owner-only repository** | Live read-back confirms required PR and checks, strict checks, admin enforcement, force-push/deletion disabled, and zero required approvals so the sole owner can merge their own PR without impossible second-person review. `.github/CODEOWNERS` names the owner. |
 | P1-06 CPU/Vulkan LLM | **COMPLETE for the declared device/model/workload profile** | On SM8735 / Adreno 825, Llama 3.2 3B Q4_K_M passed CPU/Vulkan known-answer and support-queue retrieval under 768 MiB pressure; bounded cancellation/reopen and CPU/Vulkan generation stability are verified. Five 512-token CPU runs and four Vulkan runs completed; each route stopped further work at the 42°C battery guard. Three Qwen variants failed 100-record exact retrieval, and the pressure-time invoice probe returned 24.75 instead of 39.50. These model/task combinations, other devices, and general correctness claims are explicitly excluded. |
 | P1-07 HTP/HMX | **PARTIAL; experimental and release-excluded** | Known numerical/operator failures remain. Failing operators are not stable defaults; no production claim is made. |
@@ -60,7 +71,7 @@ Latest reconciliation: PRs #147/#149 fix transient Pages 5xx retries and merge a
 
 - `bash tests/focused.sh`: **153/153 passed**, including default no-mount behavior, exact scoped mounts, malformed/out-of-root rejection, stale revocation, no setup-time permission prompt, launcher/alias refresh and host isolation.
 - `python3 tests/docs_check.py`: documentation, internal-link, and bilingual consistency checks passed.
-- `python3 tests/release_gates.py --self-test` and `--check`: pass; 19 gates derive `NOT_READY`, with the five blockers listed above.
+- `python3 tests/release_gates.py --self-test` and `--check`: pass; all 20 gates derive `NOT_READY`, with the six blockers listed above.
 - On-device Llama 3.2 3B CPU/Vulkan bounded sustained-generation evidence and the tested profile exclusions are recorded in the accelerator plan and benchmark guide.
 - Bash syntax checks, `git diff --check`, and JSON parsing: pass.
 - PR #139 head `53344d9a69a7f7a3019b10840a7495aaf56f548d`: Validate `42897454459`, unsigned package artifact `42897454586`, repo-contract `42897311193` and `42897454513`, Repo Knowledge Sync/test `42897454842`: all passed.
@@ -77,18 +88,18 @@ Latest reconciliation: PRs #147/#149 fix transient Pages 5xx retries and merge a
 
 ## Device and release exclusions
 
-The qualified device is Android 16 on Xiaomi 25053RT47C (Redmi Turbo 4 Pro, SM8735, Adreno 825). Earlier native verification reported Ternux 2.0.0 with X11 and PulseAudio active and desktop PID 16987. The currently installed `desktop.sh` differs from source, so that running session does not validate the updated launcher. The storage change has not been installed on-device; the legacy session still has the previous package's mounts until its process exits and a new session starts.
+The qualified device is Android 16 on Xiaomi 25053RT47C (Redmi Turbo 4 Pro, SM8735, Adreno 825). Earlier native verification reported Ternux 2.0.0 with X11 and PulseAudio active and desktop PID 16987. The currently installed `desktop.sh` differs from source, so that running session does not validate the updated launcher. The current three-profile check on 2026-11-12 started Debian :0, Ubuntu :1, and Alpine :2 and checked Zink/Turnip, audio playback and microphone routing, IBus, and theme assets; all sessions were then stopped and report STOPPED. These are runtime checks on the existing managed guests, not clean-install tests. Exact package migration/lifecycle is not inferred from this source run.
 
-HTP/HMX and QNN remain experimental/research-only. They are excluded from stable v2 claims. CPU/Vulkan support claims must stay within the model/device evidence above. No v2 tag/release, signed APT publication, or native package mutation was made in this audit.
+HTP/HMX and QNN remain experimental/research-only. They are excluded from stable v2 claims. CPU/Vulkan support claims must stay within the model/device evidence above. No v2 tag/release, signed APT publication, or native package mutation was made in this audit. Browser installation routes were checked across all 15 generated profile recipes, and multi-guest cleanup boundaries were added to focused tests. Exact-current-package native lifecycle and clean first-install browser runs across all distro families remain open.
 
 ## Remaining release blockers
 
 1. Install the exact current package on the supported Termux device and verify native install/upgrade/repair/uninstall.
-2. On that package, verify storage is absent by default, an exact granted folder is visible, revocation takes effect on the next session, and Termux HOME stays hidden; run GUI lifecycle/app smoke without touching unrelated processes.
+2. On that package, verify `/sdcard` is mounted in a fresh managed guest when Termux permission exists, model paths are readable, and Termux HOME stays isolated; run GUI lifecycle/app smoke without touching unrelated processes.
 3. Complete native v1.4.0-to-v2 migration and rollback verification.
 4. Publish the signed APT repository only after the release candidate is qualified; verify all public paths, signatures and package hashes, then run clean `pkg install`, upgrade and uninstall.
 5. Re-run all required CI on the final intended release commit and update this report. HTP/HMX and QNN remain excluded unless separately qualified.
 
 ## Final recommendation
 
-**NOT_READY.** Core source regressions and CI fixes are integrated, but five release-blocking gates remain incomplete. Do not tag or publish v2.0.0 until the device/package gates close, the APT route is verified, and final exact-commit checks pass.
+**NOT_READY.** Core source regressions and CI fixes are integrated, but six release-blocking gates remain incomplete. Do not tag or publish v2.0.0 until the device/package gates close, the APT route is verified, and final exact-commit checks pass.

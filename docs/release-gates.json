@@ -2,7 +2,7 @@
   "schema_version": 1,
   "project": "Ternux",
   "target_release": "2.0.0",
-  "audit_date": "2026-11-11",
+  "audit_date": "2026-11-12",
   "derived_readiness": "NOT_READY",
   "release_approved": false,
   "status_axes": {
@@ -81,7 +81,7 @@
       "evidence": [
         "docs/V2-RELEASE-READINESS.md",
         "docs/release-gates.json",
-        "Current inventory has 19 gates; release_gates.py derives NOT_READY with six incomplete blockers. The validator does not permit readiness while any release-blocking gate is incomplete."
+        "Current inventory has 20 gates; release_gates.py derives NOT_READY with six incomplete blockers. The validator does not permit readiness while any release-blocking gate is incomplete."
       ],
       "required_tests": [
         "release-gate validator",
@@ -117,7 +117,9 @@
         "Live read-only recheck 2026-11-10 15:52 UTC: installed status is READY with X11/PulseAudio; current-source verify passes. Source desktop.sh SHA-256 b3f0753a771f54c2c337310b2f23485926c9fded314ace818d76828c96af8ea3 differs from installed 02c5f6175f45c94c4ec68f323294f1c633bd7e4f501430b243f72132ed0950cb. No restart or installed-file mutation; updated-package recovery stays open.",
         "Fresh read-only device check 2026-11-10 17:03 UTC: ternux status reports running, X11 yes and PulseAudio running (PID 16987); ternux verify passes on Android 16 / Adreno 825. Source desktop.sh SHA-256 b3f0753a771f54c2c337310b2f23485926c9fded314ace818d76828c96af8ea3 differs from installed 02c5f6175f45c94c4ec68f323294f1c633bd7e4f501430b243f72132ed0950cb. No stop/restart or PREFIX mutation was performed.",
         "Fresh read-only native check 2026-11-10 17:42–17:44 UTC: Ternux status remains running, X11 and PulseAudio running, managed PID 16987; verify passed on Android 16 / Adreno 825. Doctor reports 42 C battery temperature and 3646 MB available memory. Source desktop.sh SHA-256 b3f0753a771f54c2c337310b2f23485926c9fded314ace818d76828c96af8ea3 still differs from installed SHA-256 02c5f6175f45c94c4ec68f323294f1c633bd7e4f501430b243f72132ed0950cb. No restart or native PREFIX mutation was performed; updated-package lifecycle remains unverified.",
-        "Latest read-only native check in this audit: ternux status reported existing desktop PID 16987, Termux:X11 and PulseAudio running; ternux verify passed. Installed desktop module remains different from current source, and no restart/package mutation occurred, so updated-package stop/start/crash recovery stays open."
+        "Latest read-only native check in this audit: ternux status reported existing desktop PID 16987, Termux:X11 and PulseAudio running; ternux verify passed. Installed desktop module remains different from current source, and no restart/package mutation occurred, so updated-package stop/start/crash recovery stays open.",
+        "2026-11-12 multi-profile device pass on Redmi Turbo 4 Pro / SM8735 / Adreno 825: Debian :0, Ubuntu :1, Alpine :2 each started; functional desktop and Zink/Turnip renderer observed; guest PulseAudio playback completed and microphone capture returned data; IBus Ctrl+Space/engine switching and Ternux theme/wallpaper assets checked. `tx stop --all` stopped all three and `tx status db|ub|alp` reported STOPPED. This verifies existing source-managed runtime sessions, not exact package migration, fresh install, or crash recovery; gate remains PARTIAL.",
+        "2026-11-12 packaged-device follow-up: exact local ternux 2.0.0 package was installed and `dpkg --verify` was clean; Debian, Ubuntu, Alpine statuses were STOPPED after the package lifecycle check. Focused suite passes 173/173, including stale lifecycle recovery/stop regressions. Existing-session start/stop and renderer/audio/input checks are recorded above. Native v1.4.0 migration and clean-install acceptance remain open."
       ],
       "required_tests": [
         "overlap/start-stop/crash-recovery fixtures",
@@ -144,7 +146,8 @@
         "docs/V2-RELEASE-READINESS.md#physical-device-vulkan-observation",
         "Adreno 825 guest Vulkan/Turnip/Zink observed. Parser/failure-path regressions pass in Validate 42707570617; other GPU families are not qualified.",
         "Native Termux `ternux doctor --quick --json` on 2026-11-10: 17 ok, 0 warn, 0 fail; Adreno 825, Vulkan yes, configured Zink, renderer `zink Vulkan 1.4 (Adreno (TM) 825 (MESA_TURNIP))`. Full `ternux doctor --json`: 31 ok, 0 warn, 0 fail, 1 informational; Debian 13 aarch64 guest, glibc 2.41, Turnip in apt-safe layout. This verifies this device stack only; no universal GPU claim.",
-        "2026-11-10 source regression: live renderer names for llvmpipe, lavapipe, softpipe, swrast, SwiftShader, Software Rasterizer and GDI Generic now map to SOFTWARE_FALLBACK; doctor warns instead of reporting successful accelerated rendering. `bash tests/focused.sh` passed 146/146, including detector and doctor assertions. Device qualification remains limited to the documented Adreno 825 stack."
+        "2026-11-10 source regression: live renderer names for llvmpipe, lavapipe, softpipe, swrast, SwiftShader, Software Rasterizer and GDI Generic now map to SOFTWARE_FALLBACK; doctor warns instead of reporting successful accelerated rendering. `bash tests/focused.sh` passed 146/146, including detector and doctor assertions. Device qualification remains limited to the documented Adreno 825 stack.",
+        "2026-11-12 physical-device renderer check: Debian, Ubuntu, and Alpine each reported direct rendering with Mesa Zink on Vulkan Turnip / Adreno 825 on the same Android 16 SM8735 device. Qualification remains device-specific; other GPU families remain untested."
       ],
       "required_tests": [
         "mocked missing-loader/ICD/device cases",
@@ -171,7 +174,8 @@
         "A published v2 release and actual native-device v1.4.0 migration remain unverified because no v2 stable publication exists.",
         "As of 2026-11-10, the standalone bootstrap and host-CLI fallback used immutable source commit 614d3b7d1ceda1ecd96107333b5d03795c4d5b7a (SHA-256 f55737a18eedff270ce32416ab55fbc070132dd02d41f0234f509f03f99cbf8c); focused tests verified the pinned URL and tamper rejection. On 2026-11-11, a clean-install report exposed that this archive still had a Debian/Ubuntu-only prompt while current main contained 15 named profiles. PR #165 refreshes both pins to reviewed source commit 6adf64606b4219e310bdabed52c799ea07e5a9b2 (SHA-256 12c414fef74b11f6f18ea7c844e5e2da0d27fc0d05b8c16edd7dd6894cd43fd2); its exact Validate (43002048657), package artifact (43002048595), repo-contract (43002048621) and Repo Knowledge Sync (43002048619 test/sync) checks passed. The standalone raw-URL bootstrap smoke test loaded the pinned bundle and printed installer v2.0.0. P1-03 remains partial because public v2 publication and native-device v1.4.0 migration have not been verified.",
         "Current-main `bash tests/update_transaction.sh` passed pinned-source, staging, rollback, interrupted-update recovery, concurrency, symlink, and exact v1.4.0-to-v2 source-migration fixtures. This is still a local source fixture; published-v2/native-device migration remains unverified.",
-        "The Debian guest companion fallback is also pinned to the immutable source commit and verifies a dedicated SHA-256 before syntax checking or installation. Matching-file success and tamper rejection tests passed; local focused suite passed 150/150. PR #127 merged as 5e41401dd60bf5261f6a638c62b4ad94eea98812 after exact-head Validate 42859849676, package 42859849734, repo-contract 42859849685 and Repo Knowledge Sync 42859849726 test/sync passed. Main exact-SHA Validate 42860196252, package 42860196300 and Repo Knowledge Sync 42860196265 passed. Published v2/native-device migration remains unverified."
+        "The Debian guest companion fallback is also pinned to the immutable source commit and verifies a dedicated SHA-256 before syntax checking or installation. Matching-file success and tamper rejection tests passed; local focused suite passed 150/150. PR #127 merged as 5e41401dd60bf5261f6a638c62b4ad94eea98812 after exact-head Validate 42859849676, package 42859849734, repo-contract 42859849685 and Repo Knowledge Sync 42859849726 test/sync passed. Main exact-SHA Validate 42860196252, package 42860196300 and Repo Knowledge Sync 42860196265 passed. Published v2/native-device migration remains unverified.",
+        "2026-11-12 native package was reinstalled and `tx --version` reports 2.0.0; local updater transaction fixtures still cover v1.4.0-to-v2 migration, rollback, crash recovery and symlink safety. Published v2.0.0 migration/rollback on device remains unverified."
       ],
       "required_tests": [
         "pinning/downgrade/staging/rollback/crash/concurrency/symlink fixtures",
@@ -190,29 +194,57 @@
       "severity": "P1",
       "owner": "engineering",
       "status": "PARTIAL",
-      "source_status": "PARTIAL",
+      "source_status": "PASS",
       "ci_status": "PASS",
-      "device_status": "NOT_TESTED",
+      "device_status": "PARTIAL",
       "evidence": [
-        "lib/core.sh: guest commands load only individually authorized Android storage directories from a private allowlist; absent allowlist means no /sdcard mount.",
+        "lib/core.sh: guest commands bind Android shared storage to /sdcard when Termux permission is already available; Termux HOME stays isolated.",
         "lib/storage.sh: ternux storage list/grant/revoke validates existing subdirectories, records canonical source and exact guest target, rejects the storage root and unsafe path mappings, and uses atomic private state updates.",
-        "lib/phases.sh: install no longer requests shared storage permission; generated desktop launcher and db/droot aliases validate and use the same scoped grants; repeated install refreshes only its marked shell alias block.",
+        "lib/phases.sh: managed desktop launcher binds Android shared storage to /sdcard when available; repeated install refreshes only its marked shell alias block.",
         "Documentation updated in docs/FAQ.md and bn/docs/FAQ.md, docs/MANUAL.md and bn/docs/MANUAL.md, docs/USAGE.md and bn/docs/USAGE.md, docs/CLI.md and bn/docs/CLI.md, plus both READMEs and quick-start guides.",
         "PR #139 exact head 53344d9a69a7f7a3019b10840a7495aaf56f548d passed Validate 42897454459, Termux package artifact 42897454586, repo-contract 42897311193 and 42897454513, and Repo Knowledge Sync/test 42897454842.",
         "Merged product head eaf97fc514c045193e7ef5968a95d1b26c449f9c passed Validate 42897720583, Termux package artifact 42897720810, Repository State Contract 42897720730 and Repo Knowledge Sync 42897720595; generated-state PR #140 then passed all checks and merged as 3c03dffa4ba07a2c0355613560c0768b45022c96.",
-        "Historical device evidence on the previously installed v2.0.0 package confirmed its old broad /sdcard bind; the running desktop has not been restarted, and that legacy session remains outside this source change."
+        "Historical device evidence on the previously installed v2.0.0 package confirmed its old broad /sdcard bind; the running desktop has not been restarted, and that legacy session remains outside this source change.",
+        "2026-11-11 source/device follow-up: Ubuntu was the only installed profile; regenerated its managed launcher, restarted the :1 desktop, confirmed GTK_THEME=Ternux in the live xfce4-session environment, checked /sdcard inside the guest, and ran the focused default-mount regression. Exact native package install remains a separate P1-PKG gate.",
+        "2026-11-12 existing Debian, Ubuntu and Alpine guests can read `/sdcard`, `/sdcard/Llms`, and `/sdcard/LAI/models`; host Termux HOME is not bind-mounted (Alpine guest path has distinct guest inode identity). Fresh managed guest provisioning with the exact public package remains unverified."
       ],
       "required_tests": [
-        "verify generic guest login has no shared-storage binds without an allowlist",
-        "verify explicit grants mount only their exact canonical subdirectories and reject tampered/out-of-root entries",
-        "verify generated desktop and db/droot aliases use only scoped grants and preserve Termux HOME isolation",
-        "verify installer does not invoke termux-setup-storage automatically",
-        "install updated package and verify a new guest session has no /sdcard access before an explicit grant"
+        "verify generic guest and managed desktop sessions bind /sdcard when Termux storage permission is available",
+        "verify storage-unavailable sessions report the setup-storage recovery step without exposing other host paths",
+        "install updated package and verify a fresh guest can access its /sdcard mount",
+        "verify default /sdcard is available in the selected managed guest while Termux HOME remains isolated"
       ],
       "acceptance_criteria": [
-        "Shared storage stays unmounted by default; only explicitly granted canonical subdirectories are visible to new guest sessions.",
-        "No automatic Android storage permission prompt; grants and revocations are documented and behave consistently for CLI and desktop sessions.",
+        "When Termux already has Android storage permission, each managed guest exposes Android shared files at /sdcard by default; Ternux does not request permission silently.",
+        "Termux HOME and unrelated host paths remain isolated; a missing Android storage mount has a documented permission recovery path.",
         "Termux HOME remains isolated and updated-package behavior is verified on the supported Termux device."
+      ],
+      "release_blocking": true,
+      "release_exclusion": null
+    },
+    {
+      "phase": "Stage 2",
+      "issue_id": "P1-09",
+      "severity": "P1",
+      "owner": "engineering",
+      "status": "PARTIAL",
+      "source_status": "PASS",
+      "ci_status": "NOT_RUN",
+      "device_status": "PARTIAL",
+      "evidence": [
+        "lib/phases.sh installs a default browser in every named package-family desktop profile and fails setup if no usable package route succeeds.",
+        "Debian-family guests prefer firefox-esr; Ubuntu uses Mozilla’s official ESR tarball because its archive firefox package is a Snap bridge and Ternux disables Snap in PRoot.",
+        "tests/distro_recipes.sh checks browser routes in all 15 named profile recipes; local run passed on 2026-11-11.",
+        "On 2026-11-11, the live Ubuntu guest reported Mozilla Firefox 153.7.0esr and its desktop entry passed desktop-file-validate. This validates an existing guest install, not a clean first-time browser install on every profile.",
+        "2026-11-12 all 15 desktop recipe generators pass; existing Debian/Ubuntu/Alpine guests have Firefox ESR available (153.6.0esr, 153.7.0esr, and 140.12.0esr respectively). Clean first-time browser installation for every distro family remains unverified."
+      ],
+      "required_tests": [
+        "verify clean base install resolves and launches Firefox on each package-family profile or reports a direct actionable failure",
+        "verify Ubuntu uses Mozilla ESR without Snap and Firefox opens the first-run project URL only once"
+      ],
+      "acceptance_criteria": [
+        "Every supported fresh desktop has a usable Firefox browser by default; no optional checklist selection is required.",
+        "Ubuntu does not depend on Snap in PRoot; other supported profiles use their native Firefox package manager route."
       ],
       "release_blocking": true,
       "release_exclusion": null
@@ -349,7 +381,8 @@
         "Fresh direct HTTPS GET 2026-11-10 17:44 UTC: canonical Pages bootstrap, archive key, InRelease, and binary-all Packages endpoints each returned HTTP 404. No publish or Pages deployment was run.",
         "On current main f35fd95f60731c7d4638099285b7b314f459f4d2, non-publishing verify-signing run 42902118784 passed; the publish job was skipped. Direct HTTPS GET during the 2026-11-11 audit still returned 404 for all four public APT paths, so hosted install/upgrade remains open.",
         "Fresh HTTPS GET reconciliation 2026-11-11: bootstrap.sh, archive key, dists/stable/InRelease, and binary-all Packages each returned HTTP 404 after successful Pages deployment 42911190557; PR #149 only adds retry handling. Signed publish remains unrun because core release gates are open.",
-        "Current-main non-publishing signing verification run 42916703212 succeeded: signed repository built and verified, ephemeral signing key removed, publish/deploy steps skipped. This does not alter the public 404 endpoints or close native pkg install/upgrade."
+        "Current-main non-publishing signing verification run 42916703212 succeeded: signed repository built and verified, ephemeral signing key removed, publish/deploy steps skipped. This does not alter the public 404 endpoints or close native pkg install/upgrade.",
+        "2026-11-12 exact canonical GitHub Pages APT bootstrap, key, InRelease, and Packages paths remain HTTP 404. Local signed-APT bootstrap/preservation tests pass, but signed public publication and `pkg install ternux` from that repository have not occurred."
       ],
       "required_tests": [
         "signed repository publish after approval",
@@ -387,14 +420,18 @@
         "Current-main artifact run 42906685681 produced artifact ID 13805237072 for the same product source; GitHub reports it retained through 2027-02-08 under the updated 90-day workflow policy. This still is not a native package lifecycle test.",
         "Latest exact-main package artifact run 42911714820 passed on 159806ff395a34349086504ae3055ddef21ddbec. This session observes the existing desktop running, but its managed filesystem scope excludes native $PREFIX writes; no Termux package was changed and no native package lifecycle was claimed.",
         "Post-reconciliation exact-main package artifact run 42914923198 passed on 7bfac09c026ecd093da1e2ac1b7426bd36a6a0b5; this remains CI package evidence and does not close native install/update/repair/uninstall.",
-        "Current exact-main package artifact run 42916453776 passed on c3d318dfe9e2e6dadc73c33198b92f2dd4eeb33a; CI artifact evidence does not close native install/update/repair/uninstall."
+        "Current exact-main package artifact run 42916453776 passed on c3d318dfe9e2e6dadc73c33198b92f2dd4eeb33a; CI artifact evidence does not close native install/update/repair/uninstall.",
+        "2026-11-11 source regression: uninstall all enumerates Ternux profile guests and Ternux-registered generic image guests, preserves unrelated PRoot guests, and leaves state/CLI intact after a failed guest removal; tests/focused.sh covers the boundaries.",
+        "2026-11-12 rebuilt local `ternux_2.0.0_all.deb` installed successfully; `dpkg --verify` passed; native `pkg uninstall -y ternux` removed all package-owned files including distro.sh, leaving no files in `$PREFIX/lib/ternux`; exact package reinstalled successfully. Public-repository `pkg install`/upgrade and destructive full managed-container uninstall remain open."
       ],
       "required_tests": [
         "clean install/update/repair/uninstall in native Termux",
-        "metadata and checksum verification"
+        "metadata and checksum verification",
+        "verify tx uninstall all removes all registered Ternux guests and preserves unrelated PRoot guests and user shared storage"
       ],
       "acceptance_criteria": [
-        "Reproducible package metadata/integrity and clean lifecycle install pass on supported Termux."
+        "Reproducible package metadata/integrity and clean lifecycle install pass on supported Termux.",
+        "Full removal deletes every Ternux-managed guest/container and host-owned file while preserving Termux, shared Termux packages, unrelated PRoot guests, Android shared storage and user-created media."
       ],
       "release_blocking": true,
       "release_exclusion": null
@@ -543,5 +580,5 @@
       "release_exclusion": "Qualify only the documented Redmi Turbo 4 Pro / SM8735 target; all other device-specific acceleration remains unqualified."
     }
   ],
-  "observed_head_commit": "c3d318dfe9e2e6dadc73c33198b92f2dd4eeb33a"
+  "observed_head_commit": "b261c64eeed3672a86ba25ae99b02b9215235e90"
 }

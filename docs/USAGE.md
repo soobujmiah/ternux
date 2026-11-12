@@ -14,7 +14,7 @@ Everything you need for day-to-day life with a Linux desktop in your pocket.
 `ternux start` starts the desktop as a managed background session and returns
 when the X11 display is ready. Startup output is kept in
 `~/.local/share/ternux/session/desktop.log` (the previous log is rotated at
-1 MiB). Use `tx status`, `tx stop`, or `tx logs desktop tail` to manage and inspect it. Each configured desktop guest uses its own tagged Termux:X11 display, so multiple profiles can stay open at once. With several running, `tx stop` lets you stop one or select several; `tx stop --all` closes every Ternux desktop. `tx stop NAME` targets one guest directly. Android may still stop background processes under memory pressure;
+1 MiB). Use `tx status`, `tx stop`, or `tx logs desktop tail` to manage and inspect it. Each configured desktop guest uses its own tagged Termux:X11 display, so multiple profiles can stay open at once. `tx stop` lists running guests and displays, then accepts one or more indexes or names separated by spaces or commas; enter `0` to cancel. `tx stop db`, `tx stop ub`, and `tx stop alp` target Debian, Ubuntu, and Alpine individually. `tx stop --all` closes every Ternux desktop. Android may still stop background processes under memory pressure;
 reopen Termux:X11 if Android has reclaimed the session.
 
 ### Keyboard input in Termux:X11
@@ -28,9 +28,9 @@ Ternux enables Termux:X11 `enforceCharBasedInput` before starting the desktop so
 | `x` | Start the desktop through `ternux start` and bring Termux:X11 to the foreground (audio → display → Debian → Xfce4) |
 | `xgo` | List installed guests and select the Ternux desktop to start |
 | `killx` | Open the session picker and stop one or several desktops |
-| `db` / `dbr` | Debian user / root shell |
-| `ub` / `ubr` | Ubuntu user / root shell |
-| `alp` / `alpr` | Alpine user / root shell |
+| `db` / `dbroot` | Debian user / root shell |
+| `ub` / `ubroot` | Ubuntu user / root shell |
+| `alp` / `alproot` | Alpine user / root shell |
 | `tx` | Short alias for the `ternux` CLI |
 | `sysmon` | Quick CPU/RAM/GPU-node overview |
 | `clean-mesa` | Clear the shader cache (after driver changes) |
@@ -66,7 +66,7 @@ Unknown models remain labeled as unavailable instead of being guessed.
 
 ### Audio and VLC controls
 
-Fresh installs apply Ternux's graphite-and-emerald GTK 2/3/4 and Xfwm theme, Qt 5 GTK platform theme, branded app, folder, Thunar-action, category, and panel icon mappings with neutral Adwaita fallbacks, and the Ternux panel defaults across Xfce. Optional GUI apps such as Firefox ESR, Blender, GIMP, Krita, Inkscape, Audacity, Geany, and LibreOffice also have branded icon aliases; the base Evince PDF reader has one too. Common Thunar actions are stored in their own icon context. Fifteen portrait-first wallpapers preserve their aspect ratio in landscape. Apps using other toolkits may keep their own styling. PulseAudio Volume Control uses Debian's packaged application entry and the same desktop session. Xfwm compositing stays disabled because enabling it can make the whole Termux:X11 desktop black. VLC uses its full interface by default so playback controls remain visible. Android storage is not mounted by default. Use `ternux storage grant /sdcard/Folder` to expose one folder; the desktop shortcut then opens only granted folders.
+Fresh installs apply Ternux's graphite-and-emerald GTK 2/3/4 and Xfwm theme, Qt 5 GTK platform theme, branded app, folder, Thunar-action, category, and panel icon mappings with neutral Adwaita fallbacks, and the Ternux panel defaults across Xfce. Optional GUI apps such as Firefox ESR, Blender, GIMP, Krita, Inkscape, Audacity, Geany, and LibreOffice also have branded icon aliases; the base Evince PDF reader has one too. Common Thunar actions are stored in their own icon context. Fifteen portrait-first wallpapers preserve their aspect ratio in landscape. Apps using other toolkits may keep their own styling. PulseAudio Volume Control uses Debian's packaged application entry and the same desktop session. Xfwm compositing stays disabled because enabling it can make the whole Termux:X11 desktop black. VLC uses its full interface by default so playback controls remain visible. Android shared storage is mounted at `/sdcard` by default for managed guests, so model paths work without copying. Run `termux-setup-storage` once if the path is unavailable.
 
 ---
 
@@ -84,20 +84,22 @@ management:
 ternux install          # Full installation (delegates to install.sh)
 tx distro list         # Show all installed PRoot guests and desktop recipe status
 tx distro search alpine # Search available OCI images
-ub                      # Ubuntu user shell; ubr opens root shell
-alp                     # Alpine user shell; alpr opens root shell
+ub                      # Ubuntu user shell; ubroot opens root shell
+alp                     # Alpine user shell; alproot opens root shell
 archx                   # Arch Linux user shell; archroot opens root shell
 fed                     # Fedora user shell; fedr opens root shell
 suse                    # openSUSE user shell; suser opens root shell
 vsh                     # Void user shell; vroot opens root shell
 kal                     # Kali user shell; kalr opens root shell
-tx distro shell NAME    # Any installed guest
+tx distro shell NAME    # Profile user shell (image default for generic guests)
 tx distro exec ubuntu -- uname -a # Run a guest command
 tx distro image-install alpine:latest # Install a generic Alpine shell guest
 tx install --distros debian,ubuntu,alpine # Install independent desktop guests
 tx distro image-install alpine:latest # Generic Alpine shell guest
 tx start                 # Start the saved guest desktop
 tx start ubuntu          # Start Ubuntu explicitly
+tx start ub              # Same Ubuntu desktop using its short name
+tx start alp             # Start Alpine desktop using its short name
 tx stop ubuntu           # Stop Ubuntu explicitly
 ternux restart          # Restart the desktop session
 ternux doctor           # Run system diagnostics
@@ -146,9 +148,8 @@ Termux host                          PRoot Debian
 - **Debian home** is inside the container — it travels with a
   `proot-distro backup` and is deleted with the container.
 - **`~/storage/shared`** (Termux) and **`/sdcard`** (Debian) refer to Android
-  shared storage. Ternux does not mount it by default. Grant only a specific
-  folder with `ternux storage grant /sdcard/Folder`; revoke it with
-  `ternux storage revoke /sdcard/Folder`.
+  shared storage. Ternux mounts it at `/sdcard` in managed guests when Android storage permission
+  is available. Run `termux-setup-storage` if the mount is missing.
 - **Source code you care about** should also live in a Git remote. A phone is
   easy to lose and containers are easy to delete — GitHub is not.
 
@@ -265,8 +266,8 @@ Terminal-based coding assistants work inside the container; account and
 licence terms are between you and the provider.
 
 *Tip:* run `git` inside the container (`db`), but push from wherever is
-convenient. Android shared storage is only visible to the guest after you grant
-that specific directory.
+convenient. Android shared storage is visible at `/sdcard` in managed guest sessions
+when Termux storage permission is available.
 
 ### Authorised security lab
 

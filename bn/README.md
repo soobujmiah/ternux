@@ -18,12 +18,15 @@
 </div>
 
 Ternux, Termux ও PRoot দিয়ে Xfce4 Linux desktop বসায়। Debian সুপারিশ করা
-default এবং একমাত্র device-verified profile; APT, APK, pacman, DNF, Zypper ও
+default। Debian, Ubuntu ও Alpine-এ একটি Adreno 825 Android device-এ desktop start/stop, Zink/Turnip, audio playback ও microphone route, IBus এবং theme setup পরীক্ষা করা হয়েছে; এটি clean install বা সব app-এর পূর্ণ qualification নয়। বাকি ১২টি profile physical device-এ qualify হয়নি; APT, APK, pacman, DNF, Zypper ও
 XBPS family-র ১৫টি named guest profile-ও interactive checklist বা `--distro`
 দিয়ে বেছে নেওয়া যায়। Generic OCI image shell guest হিসেবে চলে। Termux:X11
-desktop দেখায়, আর PulseAudio শব্দ চালায়। সমর্থিত Adreno ডিভাইসে Zink/Turnip,
-অন্য সামঞ্জস্যপূর্ণ ডিভাইসে VirGL graphics route ব্যবহৃত হয়। ফলাফল device ভেদে
-বদলায়।
+desktop দেখায়, আর PulseAudio শব্দ চালায়। ১৫টি named desktop profile-এই distro-র
+Mesa GL support আছে। Adreno/KGSL থাকলে auto প্রতিটি distro-র নিজস্ব
+Mesa/Freedreno package দিয়ে Zink-কে অগ্রাধিকার দেয়; Debian Trixie-তে
+validated Turnip payload চলে। VirGL compatibility route। Android graphics
+stack বা guest package অনুযায়ী software rendering-এ fallback হতে পারে; তাই
+guest-এ `glxinfo -B` দিয়ে active renderer দেখুন।
 
 Ternux Android ফোনে কম resource-এ ব্যবহারযোগ্য একটি managed Linux workstation
 হিসেবে তৈরি: একবার install করুন, background-এ desktop চালান, আর `ternux` CLI
@@ -36,7 +39,15 @@ Ternux Android ফোনে কম resource-এ ব্যবহারযোগ�
 
 ১. একই বিশ্বস্ত source থেকে [Termux](https://github.com/termux/termux-app/releases)
    ও [Termux:X11](https://github.com/termux/termux-x11/releases) ইনস্টল করুন।
-   Termux:X11 একবার খুলুন। অতিরিক্ত companion app হিসেবে
+   একাধিক GUI আলাদা Android window-তে দেখাতে nightly build নিন। Termux সামনে
+   বা পেছনে থাকলে Android যেন Linux workload কম throttle করে, সে জন্য GitHub-এর
+   Termux ব্যবহারকারীরা upstream
+   [shared-UID debug APK](https://github.com/termux/termux-x11/releases/tag/nightly)
+   (`termux-x11-universal-sharedUid-debug.apk`) নিতে পারেন; এটি Termux-এর
+   shared Android UID-তে চলে। এটি শুধু GitHub-signed Termux-এর সঙ্গে কাজ করে।
+   F-Droid বা Google Play Termux হলে একই release page-এর সাধারণ
+   [`termux-x11-universal-debug.apk`](https://github.com/termux/termux-x11/releases/tag/nightly)
+   ব্যবহার করুন। Termux:X11 একবার খুলুন। অতিরিক্ত companion app হিসেবে
    [Termux:Boot](https://github.com/termux/termux-boot/releases) reboot-এর পর
    নির্ধারিত script চালায়, [Termux:API](https://github.com/termux/termux-api/releases)
    Android utility দেয় (Termux-এ matching `termux-api` package-ও লাগবে), আর
@@ -77,13 +88,13 @@ tx stop           # চলমান guest desktop বাছাই করে ব�
 ```
 
 `x` saved desktop চালায়; একাধিক installed profile থাকলে `xgo` তালিকা দেখায়। আলাদা desktop guest নিজস্ব tagged Termux:X11 window-তে চলতে পারে। একাধিক profile একবারে install করতে `tx install --distros debian,ubuntu,alpine` ব্যবহার করুন। `tx stop` এক বা একাধিক session বাছতে দেয়; `tx stop --all` সব বন্ধ করে। Debian shell-এর জন্য
-Termux-এ `db` চালান। Android shared storage default-এ mount হয় না। শুধু দরকারি folder grant করুন, যেমন `ternux storage grant /sdcard/Llms`; তারপর desktop restart বা নতুন guest shell-এ folder ব্যবহার করুন।
+Termux-এ `db` চালান। Android storage permission থাকলে shared storage managed guest-এ `/sdcard` হিসেবে default-এ mount হয়। path না থাকলে `termux-setup-storage` চালিয়ে desktop restart করুন।
 
 ## কী কী পাবেন
 
 **বেস desktop:** user-space PRoot container-এ Debian 13 (Trixie), Xfce4,
 Termux:X11 display integration এবং PulseAudio audio routing। বেস setup-এ
-Bangla-capable Noto font, Avro phonetic input (Ctrl+Space), VLC, PulseAudio
+Bangla-capable Noto font ও Debian/Ubuntu-তে Avro phonetic input (Ctrl+Space) থাকে। Alpine-এ একই Avro phonetic input IBus m17n engine দিয়ে দেওয়া হয়। VLC, PulseAudio
 Volume Control, Xfce Task Manager, Mousepad, Galculator, Evince PDF reader,
 Ternux Camera, Ternux Sound Recorder, Ristretto image viewer এবং নিজস্ব
 Ternux theme/icon-সহ Synaptic Package Manager থাকে। Synaptic দিয়ে Debian
@@ -91,8 +102,7 @@ package খুঁজে install, upgrade ও remove করা যায়। Ev
 PDF page edit ও অন্য format-এ export করতে optional LibreOffice Draw নিন।
 Celestia optional astronomy app। Fresh install-এ mail client install বা default
 করা হয় না; Evolution Mail optional, common provider-এ OAuth এবং অন্য server-এ
-manual IMAP/POP সমর্থন করে। OAuth-এর জন্য Firefox ESR থাকলে সেটি, না থাকলে
-Ternux bridge Android-এর default browser খোলে।
+manual IMAP/POP সমর্থন করে। OAuth-এর জন্য base desktop-এ থাকা Firefox ESR ব্যবহার হয়; সেটি চালু না হলে Ternux bridge Android-এর default browser খোলে।
 
 Graphite-and-emerald GTK theme, custom window border/titlebar এবং ১৫টি আলাদা
 portrait-first wallpaper desktop branding-এর অংশ; landscape-এ wallpaper-এর
@@ -107,15 +117,18 @@ Ternux Camera Android front/rear camera দেখায়; Termux:API app ও m
 তোলা ছবি EXIF orientation ঠিক রেখে app-এ preview হয় এবং Debian-এর
 `~/Pictures/Ternux`-এ save হয়; Android Gallery-তে পাঠানো হয় না। এটি still-photo
 capture; live camera stream এখনো দেয় না। প্রথম GUI চালু হলে project website
-একবার খোলে; browser না থাকলে desktop welcome guide দেখায়। Sound Recorder-এ
+একবার খোলে; fresh install-এ Firefox ESR default-এ থাকে। Ubuntu-তে Mozilla-র official ESR build বসে, কারণ Ubuntu archive-এর Firefox Snap চায় এবং Ternux PRoot-এ Snap বন্ধ রাখে। Sound Recorder-এ
 Start চাপলেই microphone চালু হয়; AAC/M4A default, MP3-ও বেছে নেওয়া যায়
 (স্থানীয় Debian FFmpeg দিয়ে encode হয়)। Recording Debian-এর
 `~/Music/Ternux`-এ থাকে।
-**Graphics:** সমর্থিত Adreno/KGSL device-এ স্বয়ংক্রিয় Zink + Turnip setup;
-অন্য ক্ষেত্রে VirGL compatibility route। সক্রিয় renderer দেখতে `ternux verify`
-এবং Debian-এর ভেতরে `glxinfo -B` চালান। Desktop চালু হওয়া একাই hardware
-acceleration-এর প্রমাণ নয়। `ternux gpu` ও `ternux backend` driver route দেখায়
-ও পরিচালনা করে। বিস্তারিত [graphics persistence](../docs/GRAPHICS-PERSISTENCE.md)।
+**Graphics:** প্রতিটি named desktop profile-এ distro-র Mesa GL driver ও GPU
+route ইনস্টল হয়। Adreno/KGSL থাকলে auto প্রতিটি distro-র Mesa/Freedreno
+package থেকে Zink বেছে নেয়; Debian Trixie-তে পরীক্ষিত direct Zink + Turnip
+চলে, VirGL compatibility route। Hardware acceleration guest package, device ও
+Android build-এর উপর নির্ভর করে। `ternux verify` এবং guest-এর `glxinfo -B` দিয়ে renderer দেখুন;
+desktop খুললেই hardware acceleration প্রমাণ হয় না। `ternux gpu` ও
+`ternux backend` route দেখায় ও পরিচালনা করে। বিস্তারিত
+[graphics persistence](../docs/GRAPHICS-PERSISTENCE.md)।
 
 **ঐচ্ছিক software:** installer-এর numbered তালিকা থেকে package বা workload বেছে নিতে
 পারবেন। Developer toolchain ও editor, Android SDK/NDK ও Firefox,

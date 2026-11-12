@@ -1,0 +1,59 @@
+#!/bin/sh
+# Start a working per-session IBus daemon and configure Ctrl+Space switching.
+set -u
+export HOME="${HOME:-/home/ternux}"
+: "${DISPLAY:=:0}"
+current_bus=${DBUS_SESSION_BUS_ADDRESS:-}
+stop_session_daemons() {
+  match_bus=${1:-stale}
+  for pid in $(pgrep -x ibus-daemon 2>/dev/null || true); do
+    proc_env="/proc/$pid/environ"
+    [ -r "$proc_env" ] || continue
+    daemon_home=$(tr '\000' '\n' < "$proc_env" | sed -n 's/^HOME=//p' | head -n 1)
+    daemon_display=$(tr '\000' '\n' < "$proc_env" | sed -n 's/^DISPLAY=//p' | head -n 1)
+    daemon_bus=$(tr '\000' '\n' < "$proc_env" | sed -n 's/^DBUS_SESSION_BUS_ADDRESS=//p' | head -n 1)
+    daemon_ibus=$(tr '\000' '\n' < "$proc_env" | sed -n 's/^IBUS_ADDRESS=//p' | head -n 1)
+    if [ "$daemon_home" = "$HOME" ] && [ "$daemon_display" = "$DISPLAY" ] && { [ "$match_bus" = all ] || [ "$daemon_bus" != "$current_bus" ] || [ "$daemon_ibus" != "$IBUS_ADDRESS" ]; }; then
+      kill "$pid" 2>/dev/null || true
+    fi
+  done
+}
+wait_for_socket() {
+  tries=0
+  while [ "$tries" -lt 40 ]; do
+    socket=$(ibus address 2>/dev/null | sed -n 's/^unix:path=\([^,]*\).*/\1/p')
+    if [ -n "$socket" ] && [ -S "$socket" ] && ibus list-engine >/dev/null 2>&1; then return 0; fi
+    tries=$((tries + 1))
+    sleep 0.25
+  done
+  return 1
+}
+display_key=$(printf '%s' "$DISPLAY" | sed 's/[^A-Za-z0-9_.-]/_/g')
+ibus_socket="/data/data/com.termux/files/usr/var/lib/ternux/runtime/ibus-${display_key}.sock"
+IBUS_ADDRESS="unix:path=$ibus_socket"
+export IBUS_ADDRESS
+engine=ibus-avro
+if grep -q '^ID=alpine$' /etc/os-release 2>/dev/null; then engine=m17n:bn:avro-phonetic; fi
+stop_session_daemons stale
+if [ -S "$ibus_socket" ] && ! ibus list-engine >/dev/null 2>&1; then
+  # Recover a socket left behind by an IBus daemon that exited outside PRoot.
+  stop_session_daemons all
+  rm -f "$ibus_socket"
+fi
+sleep 0.1
+ibus_log="$HOME/.runtime/ibus-${display_key}.log"
+gsettings set org.freedesktop.ibus.general preload-engines "['xkb:us::eng', '$engine']" >/dev/null 2>&1 || true
+gsettings set org.freedesktop.ibus.general.hotkey triggers '[]' >/dev/null 2>&1 || true
+if gsettings writable org.freedesktop.ibus.general.hotkey trigger >/dev/null 2>&1; then
+  gsettings set org.freedesktop.ibus.general.hotkey trigger '[]' >/dev/null 2>&1 || true
+fi
+gsettings set org.freedesktop.ibus.general.hotkey next-engine "['Control+space']" >/dev/null 2>&1 || true
+gsettings set org.freedesktop.ibus.general.hotkey next-engine-in-menu '[]' >/dev/null 2>&1 || true
+ibus-daemon --daemonize --xim --replace --address="$IBUS_ADDRESS" >"$ibus_log" 2>&1
+if ! wait_for_socket; then
+  echo "[WARN] IBus socket did not answer; restarting the scoped desktop daemon." >&2
+  stop_session_daemons all
+  sleep 0.2
+  ibus-daemon --daemonize --xim --replace --address="$IBUS_ADDRESS" >>"$ibus_log" 2>&1
+  if ! wait_for_socket; then echo "[WARN] IBus remains unavailable; keyboard switching may not work." >&2; cat "$ibus_log" >&2 2>/dev/null || true; exit 1; fi
+fi

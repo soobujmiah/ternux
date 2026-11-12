@@ -17,6 +17,13 @@ CAMERA_INFO = "/data/data/com.termux/files/usr/bin/termux-camera-info"
 CAMERA_PHOTO = "/data/data/com.termux/files/usr/bin/termux-camera-photo"
 TERMUX_HOME = Path("/data/data/com.termux/files/home")
 API_CAPTURE_DIR = TERMUX_HOME / ".cache" / "ternux-camera"
+
+def termux_api_environment():
+    """Run Android-side Termux:API binaries without the guest's ELF preload."""
+    env = os.environ.copy()
+    env.pop("LD_PRELOAD", None)
+    return env
+
 OUTPUT_DIR = Path.home() / "Pictures" / "Ternux"
 LEGACY_SHARED_DIR = Path("/sdcard/Pictures/Ternux")
 
@@ -135,7 +142,7 @@ class TernuxCamera(Gtk.Window):
         def work():
             try:
                 result = subprocess.run([CAMERA_INFO], check=True, capture_output=True,
-                                        text=True, timeout=30)
+                                        text=True, timeout=30, env=termux_api_environment())
                 data = json.loads(result.stdout)
                 entries = data if isinstance(data, list) else data.get("cameras", [])
                 cameras = []
@@ -205,7 +212,8 @@ class TernuxCamera(Gtk.Window):
                 api_partial = API_CAPTURE_DIR / (".Ternux-" + stamp + ".capture.jpg")
                 local_partial = OUTPUT_DIR / (".Ternux-" + stamp + ".capture.jpg")
                 result = subprocess.run([CAMERA_PHOTO, "-c", cid, self.api_path_for(api_partial)],
-                                        check=True, capture_output=True, text=True, timeout=90)
+                                        check=True, capture_output=True, text=True, timeout=90,
+                                        env=termux_api_environment())
                 if not api_partial.is_file():
                     raise RuntimeError(result.stderr.strip() or result.stdout.strip() or
                                        "Termux:API returned without creating the photo file.")

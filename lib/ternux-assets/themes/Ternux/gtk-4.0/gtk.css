@@ -21,7 +21,25 @@
   --theme_selected_bg_color: #08784c;
   --theme_selected_fg_color: #ffffff;
 }
-window, .background { background-color: #101816; color: #e4f3eb; }
+* { color: #e4f3eb; }
+window, .background, dialog, .view, viewport, scrolledwindow, notebook,
+notebook > stack, paned, list, list row, row { background-color: #101816; color: #e4f3eb; }
 headerbar, .titlebar { background-color: #17221e; color: #e4f3eb; }
 button, entry, .card, popover, menu { border-color: #34483e; }
 button:checked, button:active, *:selected { background-color: #08784c; color: #ffffff; }
+scale trough, progressbar trough, levelbar trough { background-color: #202e28; }
+scale highlight, progressbar progress, levelbar block.filled { background-color: #39e68c; }
+
+/* Keep client-side window controls visible and branded in GTK 4 apps. */
+headerbar button.titlebutton,
+.titlebar button.titlebutton {
+  min-width: 24px; min-height: 24px; padding: 4px;
+  color: #e4f3eb; background: transparent; border: 1px solid transparent;
+  border-radius: 4px; box-shadow: none;
+}
+headerbar button.titlebutton:hover, .titlebar button.titlebutton:hover {
+  color: #39e68c; background: #202e28;
+}
+headerbar button.titlebutton.close:hover, .titlebar button.titlebutton.close:hover {
+  color: #ffffff; background: #b42336;
+}

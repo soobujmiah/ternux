@@ -80,12 +80,21 @@ tnx_wait_for_desktop_ready() {
 # The X server runs as a background service, but Android only displays its
 # desktop when Termux:X11's activity is in the foreground.
 tnx_show_x11_activity() {
-  local tag="${1:-}"
+  local tag="${1:-}" distro="$(tnx_distro)" mode_file=""
+  mode_file="$(tnx_distro_session_dir "$distro")/x11-display-mode"
   command -v am >/dev/null 2>&1 || return 0
-  if [ -n "$tag" ]; then
+  if [ -n "$tag" ] && [ "$(cat "$mode_file" 2>/dev/null || true)" != shared ]; then
     am start --user 0 -n com.termux.x11/com.termux.x11.MainActivity -d "$tag" >/dev/null 2>&1 || true
   else
     am start -n com.termux.x11/com.termux.x11.MainActivity >/dev/null 2>&1 || true
+    if [ "$(cat "$mode_file" 2>/dev/null || true)" = shared ] &&
+       declare -F _tnx_running_guest_sessions >/dev/null 2>&1; then
+      local -a active_sessions=()
+      mapfile -t active_sessions < <(_tnx_running_guest_sessions)
+      if [ "${#active_sessions[@]}" -gt 1 ]; then
+        tnx_warn "Multiple desktops are using one shared Termux:X11 window; this app cannot switch the visible guest. Install the Termux:X11 nightly app, then restart each desktop to enable per-guest windows."
+      fi
+    fi
   fi
 }
 
@@ -111,17 +120,22 @@ _tnx_running_guest_sessions() {
 
 # If several independent displays run, accept one or many indexes/names.
 _tnx_stop_select() {
-  local force_all="${1:-}" input token selected_name rc=0 i duplicate existing
+  local force_all="${1:-}" input token selected_name canonical_name rc=0 i duplicate existing
   local -a running=() selected=()
   while IFS= read -r selected_name; do [ -n "$selected_name" ] && running+=("$selected_name"); done < <(_tnx_running_guest_sessions)
   if [ "${#running[@]}" -eq 0 ]; then tnx_info "No active managed desktop sessions found."; return 0; fi
   if [ "$force_all" = all ]; then
     selected=("${running[@]}")
-  elif [ "${#running[@]}" -eq 1 ]; then
-    selected=("${running[0]}")
   else
     printf 'Running Ternux desktops (separate X11 displays):\n'
-    for i in "${!running[@]}"; do printf '  %d) %-10s Display :%s\n' "$((i+1))" "${running[$i]}" "$(tnx_distro_display "${running[$i]}")"; done
+    for i in "${!running[@]}"; do
+      case "${running[$i]}" in
+        debian) token=db ;; ubuntu) token=ub ;; alpine) token=alp ;;
+        archlinux) token=archx ;; fedora) token=fed ;; opensuse) token=suse ;;
+        void) token=vsh ;; kali) token=kal ;; *) token="${running[$i]}" ;;
+      esac
+      printf '  %d) %-10s (%s)  Display :%s\n' "$((i+1))" "${running[$i]}" "$token" "$(tnx_distro_display "${running[$i]}")"
+    done
     printf 'Select one or more numbers/names (comma or space separated), all, or 0 to cancel: '
     IFS= read -r input || input=0
     input="${input//,/ }"
@@ -133,9 +147,11 @@ _tnx_stop_select() {
         if [[ "$token" =~ ^[0-9]+$ ]] && [ "$token" -ge 1 ] && [ "$token" -le "${#running[@]}" ]; then
           selected_name="${running[$((token-1))]}"
         else
+          canonical_name="$(tnx_distro_canonical "$token")"
           for existing in "${running[@]}"; do [ "$existing" = "$token" ] && selected_name="$existing"; done
+          for existing in "${running[@]}"; do [ "$existing" = "$canonical_name" ] && selected_name="$existing"; done
         fi
-        [ -n "$selected_name" ] || { tnx_warn "Ignoring unknown selection '$token'."; continue; }
+        [ -n "$selected_name" ] || { tnx_warn "Unknown selection '$token'; no desktops were stopped."; return 2; }
         duplicate=0
         for existing in "${selected[@]}"; do [ "$existing" != "$selected_name" ] || duplicate=1; done
         [ "$duplicate" -eq 1 ] || selected+=("$selected_name")
@@ -147,13 +163,39 @@ _tnx_stop_select() {
   return "$rc"
 }
 
+# Remove only a provably stale display socket left behind after the X11
+# server died. Unknown/unowned sockets and any live server are left untouched.
+tnx_remove_stale_x11_socket() {
+  local display_num="${1:-}" tmpdir="${TMPDIR:-/data/data/com.termux/files/usr/tmp}"
+  local socket lock server_pid
+  [[ "$display_num" =~ ^[0-9]{1,2}$ ]] || return 1
+  socket="$tmpdir/.X11-unix/X$display_num"
+  lock="$tmpdir/.X$display_num-lock"
+  [ -S "$socket" ] && [ ! -L "$socket" ] && [ -f "$lock" ] && [ ! -L "$lock" ] || return 1
+  IFS= read -r server_pid < "$lock" || return 1
+  server_pid="${server_pid//[[:space:]]/}"
+  [[ "$server_pid" =~ ^[0-9]+$ ]] || return 1
+  kill -0 "$server_pid" 2>/dev/null && return 1
+  # Other Ternux guests may have their own live X server. Only preserve the
+  # socket when its matching display server is alive; a global process check
+  # makes one stale display block every later distro in a multi-GUI setup.
+  pgrep -f "^termux-x11 com\\.termux\\.x11 :${display_num}([[:space:]]|$)" >/dev/null 2>&1 && return 1
+  rm -f -- "$socket" "$lock"
+}
+
 # ---------------------------------------------------------------------------
 # tnx_cmd_start
 # ---------------------------------------------------------------------------
 tnx_cmd_start() {
-  local distro="${1:-$(tnx_distro)}" launcher_dir launcher_path
+  local distro="" launcher_dir launcher_path
   local display_num display tag
   [ "$#" -le 1 ] || { tnx_fail "Usage: ternux start [DISTRO]"; return 2; }
+  if [ "$#" -eq 0 ]; then
+    if tnx_proot_container_installed debian; then distro=debian
+    else distro="$(tnx_distro)"; fi
+  else
+    distro="$(tnx_distro_canonical "$1")"
+  fi
   tnx_distro_known "$distro" || { tnx_fail "Unsupported Ternux desktop profile '$distro'. Supported profiles: $TERNUX_DISTRO_KNOWN"; return 2; }
   tnx_proot_container_installed "$distro" || { tnx_fail "Guest '$distro' is not installed. Run: ternux install --distro $distro"; return 1; }
   unset _TNX_DISTRO
@@ -252,6 +294,9 @@ tnx_cmd_start() {
   # A different tagged display can run concurrently. Refuse only when this
   # guest's own X socket is occupied but its managed desktop is not ready.
   if [ -S "${TMPDIR:-/data/data/com.termux/files/usr/tmp}/.X11-unix/X$display_num" ]; then
+    if tnx_remove_stale_x11_socket "$display_num"; then
+      tnx_info "Removed the stale socket and lock for unused display $display."
+    else
     if [ "${TERNUX_JSON:-0}" = "1" ]; then
       tnx_fail "Display $display is occupied but the Ternux readiness probe failed; refusing to replace it."
       tnx_json_object "start" "error" "reason" "unresponsive_existing_x11"
@@ -261,6 +306,7 @@ tnx_cmd_start() {
     tnx_fail "Display $display is already occupied but did not pass Ternux readiness; refusing to replace it."
     exec 9>&-
     return 1
+    fi
   fi
 
   local configured_backend
@@ -350,6 +396,7 @@ tnx_cmd_start() {
 tnx_cmd_stop() {
   local distro="${1:-$(cat "$TERNUX_STATE_DIR/session/distro" 2>/dev/null || tnx_distro)}"
   [ "$#" -le 1 ] || { tnx_fail "Usage: ternux stop [DISTRO|--all]"; return 2; }
+  distro="$(tnx_distro_canonical "$distro")"
   if [ "${1:-}" = "--all" ] || { [ "$#" -eq 0 ] && [ "${TERNUX_JSON:-0}" != 1 ]; }; then
     _tnx_stop_select "$([ "${1:-}" = --all ] && echo all || true)"
     return $?
@@ -420,9 +467,10 @@ tnx_cmd_stop() {
   # Remove only Ternux's own session markers. X11/Pulse sockets and daemons may
   # be shared with other Termux sessions; their owners clean them up themselves.
   rm -f "$pid_file" "${pid_file}.ready" "$identity_file" "$session_dir/distro"
-  if [ "$found" -eq 1 ] || [ "$(cat "$session_dir/desktop.state" 2>/dev/null || true)" = STOPPING ]; then
-    printf '%s\n' STOPPED > "$session_dir/desktop.state"
-  fi
+  # Once the verified process-group stop (if any) is complete, the owned
+  # markers above are gone. Normalize stale FAILED/RECOVERING states too, so a
+  # later status/start does not keep reporting a dead session indefinitely.
+  printf '%s\n' STOPPED > "$session_dir/desktop.state"
   exec 8>&-
 
   if [ "${TERNUX_JSON:-0}" = "1" ]; then
@@ -437,6 +485,7 @@ tnx_cmd_stop() {
 # ---------------------------------------------------------------------------
 tnx_cmd_restart() {
   local distro="${1:-$(cat "$TERNUX_STATE_DIR/session/distro" 2>/dev/null || tnx_distro)}"
+  distro="$(tnx_distro_canonical "$distro")"
   tnx_cmd_stop "$distro" || {
     tnx_warn "Restart aborted because the existing desktop could not be stopped safely."
     return 1
@@ -452,6 +501,7 @@ tnx_cmd_status() {
   local distro="${1:-$(cat "$TERNUX_STATE_DIR/session/distro" 2>/dev/null || tnx_distro)}"
   local active_distro=""
   [ "$#" -le 1 ] || { tnx_fail "Usage: ternux status [DISTRO]"; return 2; }
+  distro="$(tnx_distro_canonical "$distro")"
   tnx_distro_known "$distro" || { tnx_fail "Unsupported Ternux desktop profile '$distro'."; return 2; }
   active_distro="$(cat "$(tnx_distro_session_dir "$distro")/distro" 2>/dev/null || true)"
   unset _TNX_DISTRO; export TERNUX_DISTRO="$distro"
@@ -485,7 +535,8 @@ tnx_cmd_status() {
     if [ "$lifecycle" != READY ]; then lifecycle=RECOVERING; fi
   elif [ "$lifecycle" = READY ]; then lifecycle=FAILED
   elif [ "$lifecycle" = STARTING ] && { [ -z "$desktop_pid" ] || ! kill -0 "$desktop_pid" 2>/dev/null; }; then lifecycle=FAILED
-  elif [ "$x11" -eq 1 ] && [ "$lifecycle" = STOPPED ]; then lifecycle=RECOVERING
+  elif [ "$x11" -eq 1 ] && [ "$lifecycle" = STOPPED ] &&
+       { [ ! -e "$session_dir/desktop.state" ] || [ "$active_distro" = "$distro" ]; }; then lifecycle=RECOVERING
   fi
   pgrep -x pulseaudio >/dev/null 2>&1 && pa=1
   tnx_pulseaudio_ready && pa_ready=1

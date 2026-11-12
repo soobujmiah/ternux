@@ -106,10 +106,7 @@ changing any system-wide Android safeguard.
 The design choices that matter:
 
 - **No root** — no privileged Android access is requested; PRoot remains within
-  Termux's app permissions and is not a separate security boundary. Android
-  shared storage is not mounted by default. `ternux storage grant DIRECTORY`
-  requests access only after the user chooses a directory under `/sdcard`; the
-  managed desktop, `db`/`droot`, and guest commands bind only those exact paths.
+  Termux's app permissions and is not a separate security boundary. Android shared storage is mounted at `/sdcard` in managed guests when Termux has permission. `termux-setup-storage` requests Android access if it has not been granted. The desktop and guest commands keep Termux HOME isolated; shared storage is ordinary user data, not a PRoot security boundary.
   They keep Termux HOME isolated and share `/tmp` only when requested. A direct, manually invoked
   `proot-distro login` still follows PRoot-Distro's own defaults. Guest code
   runs under the same Termux Android app identity; do not use

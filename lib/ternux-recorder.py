@@ -15,6 +15,13 @@ gi.require_version("Gtk", "3.0")
 from gi.repository import Gio, Gtk, GLib
 
 TERMUX_API = "/data/data/com.termux/files/usr/bin/termux-microphone-record"
+
+def termux_api_environment():
+    """Run Android-side Termux:API binaries without the guest's ELF preload."""
+    env = os.environ.copy()
+    env.pop("LD_PRELOAD", None)
+    return env
+
 FFMPEG = "/usr/bin/ffmpeg"
 FFPROBE = "/usr/bin/ffprobe"
 TERMUX_HOME = Path("/data/data/com.termux/files/home")
@@ -142,10 +149,11 @@ class Recorder(Gtk.Window):
             try:
                 STAGING.mkdir(parents=True, exist_ok=True)
                 result = subprocess.run([TERMUX_API, "-f", str(self.partial), "-e", "aac", "-c", "1"],
-                                        check=True, capture_output=True, text=True, timeout=20)
+                                        check=True, capture_output=True, text=True, timeout=20,
+                                        env=termux_api_environment())
                 threading.Event().wait(0.3)
                 info = subprocess.run([TERMUX_API, "-i"], check=True, capture_output=True,
-                                      text=True, timeout=15)
+                                      text=True, timeout=15, env=termux_api_environment())
                 try:
                     state = json.loads(info.stdout)
                     recording = (state.get("isRecording") is True and
@@ -183,7 +191,7 @@ class Recorder(Gtk.Window):
                 if not self.partial or not self.target:
                     raise RuntimeError("Recording state was lost.")
                 current = subprocess.run([TERMUX_API, "-i"], check=True, capture_output=True,
-                                         text=True, timeout=15)
+                                         text=True, timeout=15, env=termux_api_environment())
                 try:
                     state = json.loads(current.stdout)
                 except json.JSONDecodeError as exc:
@@ -192,7 +200,7 @@ class Recorder(Gtk.Window):
                     if state.get("outputFile") != str(self.partial):
                         raise RuntimeError("Another recording is active; it was left untouched.")
                     subprocess.run([TERMUX_API, "-q"], check=True, capture_output=True,
-                                   text=True, timeout=20)
+                                   text=True, timeout=20, env=termux_api_environment())
                 if not self.partial or not self.target:
                     raise RuntimeError("Recording state was lost.")
                 # Termux:API returns before Android writes the MP4 moov atom.

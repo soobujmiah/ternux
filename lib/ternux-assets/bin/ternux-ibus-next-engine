@@ -1,0 +1,37 @@
+#!/bin/sh
+# Cycle through this user's configured IBus engines when XFCE receives Ctrl+Space.
+set -eu
+
+current="$(ibus engine 2>/dev/null || true)"
+order="$(gsettings get org.freedesktop.ibus.general engines-order 2>/dev/null || true)"
+[ -n "$current" ] && [ -n "$order" ] || exit 0
+
+engines="$(printf '%s' "$order" | sed 's/^@as //' | tr -d "[]'")"
+first=""
+next=""
+found=0
+while IFS= read -r engine; do
+  engine="$(printf '%s' "$engine" | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')"
+  [ -n "$engine" ] || continue
+  [ -n "$first" ] || first="$engine"
+  if [ "$found" -eq 1 ]; then next="$engine"; break; fi
+  [ "$engine" = "$current" ] && found=1
+done <<EOF
+$(printf '%s' "$engines" | tr ',' '\n')
+EOF
+
+[ -n "$next" ] || next="$first"
+[ -n "$next" ] && [ "$next" != "$current" ] || exit 0
+ibus engine "$next" >/dev/null 2>&1 || true
+
+# Some engines (notably Alpine's m17n Avro engine) become active even though
+# `ibus engine` exits nonzero while the engine is reloading. Treat the switch
+# as successful only after the daemon reports the requested engine.
+attempt=0
+while [ "$attempt" -lt 10 ]; do
+  active="$(ibus engine 2>/dev/null || true)"
+  [ "$active" = "$next" ] && exit 0
+  attempt=$((attempt + 1))
+  sleep 0.1
+done
+exit 1

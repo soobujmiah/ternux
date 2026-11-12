@@ -18,7 +18,7 @@ ternux যুক্তিসঙ্গত ডিফল্ট নিয়ে ই�
 |---|---|---|
 | `--user NAME` | `ternux` | বেছে নেওয়া প্রতিটি কন্টেইনারে তৈরি guest user |
 | `--locale LANG` | `en_US.UTF-8` | ডেস্কটপ লোকেল (বাংলার জন্য নিচে দেখুন) |
-| `--backend` | `auto` | `auto` Adreno শনাক্ত করে → `zink`, নয়তো `virgl` |
+| `--backend` | `auto` | Adreno/KGSL থাকলে native distro Mesa Zink/Freedreno প্রাধান্য পায়; Debian Trixie-তে validated Turnip payload, অন্য distro-তে তাদের নিজস্ব package, Adélie-তে VirGL |
 | `--zsh` | বন্ধ | Termux শেলও zsh-এ বদলায় |
 | `--with-*` | কিছুই না | ঐচ্ছিক ওয়ার্কলোড প্রোফাইল |
 
@@ -170,7 +170,7 @@ test একটি প্রকৃত installation-এ পৌঁছাতে ন�
 
 | ভেরিয়েবল | ডিফল্ট | প্রভাব |
 |---|---|---|
-| `TERNUX_DISTRO` | `debian` | ইনস্টলেশনের PRoot-Distro guest; `--distro` এটি সেট করে। APT (Debian, Ubuntu, Kali, Deepin, Pardus), APK (Alpine, Adelie, Chimera), pacman (Arch Linux, Artix, Manjaro), DNF (Fedora, Rocky Linux), Zypper (openSUSE) এবং XBPS (Void)-এর জন্য family-matched desktop recipe আছে। **ডিভাইসে যাচাই করা কেবল Debian।** যেকোনো OCI image shell guest হিসেবে ব্যবহার করা যায়, তবে তার জন্য স্বয়ংক্রিয় desktop recipe নেই। |
+| `TERNUX_DISTRO` | `debian` | ইনস্টলেশনের PRoot-Distro guest; `--distro` এটি সেট করে। APT (Debian, Ubuntu, Kali, Deepin, Pardus), APK (Alpine, Adelie, Chimera), pacman (Arch Linux, Artix, Manjaro), DNF (Fedora, Rocky Linux), Zypper (openSUSE) এবং XBPS (Void)-এর জন্য family-matched desktop recipe আছে। Debian, Ubuntu ও Alpine-এ একটি Adreno 825 device-এ partial integration evidence আছে; clean install ও সব app qualification বাকি, অন্য profile physical-device unqualified। যেকোনো OCI image shell guest হিসেবে ব্যবহার করা যায়, তবে তার জন্য স্বয়ংক্রিয় desktop recipe নেই। |
 | `TERNUX_THEME` | `p10k` | `none` দিলে powerlevel10k ছাড়া zsh বসে। `--no-theme` এটি সেট করে। |
 | `TERNUX_KGSL_DEVICE` | `/dev/kgsl-3d0` | GPU, Vulkan ও backend detection যে device node পরীক্ষা করে। অনুপস্থিত একটি path-এ নির্দেশ করলে `auto` VirGL-এ নামে — যা একটি non-Adreno ডিভাইস দেখে। |
 | `TERNUX_HOST_PREFIX` | `/data/data/com.termux/files/usr` | Local checkout বা download-এ নামার আগে `uninstall.sh` কোথায় installed host CLI খোঁজে। |

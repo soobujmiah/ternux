@@ -180,14 +180,9 @@ tnx_detect_graphics_state() {
 }
 
 tnx_detect_backend() {
-  local gpu
-  gpu="$(tnx_detect_gpu)"
-  case "$gpu" in
-    # Keep the state/CLI name aligned with install.sh and lib/phases.sh.
-    # "zink-turnip" is accepted as a legacy input alias by the backend command.
-    Adreno*) echo "zink" ;;
-    *)       echo "virgl" ;;
-  esac
+  # Backend recommendations depend on both the host GPU and the selected
+  # guest: the pinned Zink/Turnip payload is only qualified for Debian.
+  tnx_gpu_backend_auto "$(tnx_distro)"
 }
 
 tnx_detect_renderer() {

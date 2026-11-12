@@ -63,7 +63,6 @@ tnx_optional_storage_mb() {
       micro) total=$((total + 30)) ;;
       thonny) total=$((total + 150)) ;;
       gh) total=$((total + 100)) ;;
-      firefox) total=$((total + 350)) ;;
       adt-build-tools|adt-platform-tools) total=$((total + 60)) ;;
       adt-ndk|adt-cmake) total=$((total + 20)) ;;
       adt-cmdline) total=$((total + 250)) ;;
@@ -242,7 +241,7 @@ tnx_phase_packages() {
   tnx_spin_run "Install PulseAudio, PRoot, VirGL and core tools" _tnx_install_core_packages "$APT_FORCE" || rc=1
 
   local backend="${1:-auto}"
-  if [ "$backend" = "zink" ] || { [ "$backend" = "auto" ] && [ -e "${TERNUX_KGSL_DEVICE:-/dev/kgsl-3d0}" ]; }; then
+  if [ "$backend" = "zink" ] || { [ "$backend" = "auto" ] && [ "$(tnx_distro)" = debian ] && [ -e "${TERNUX_KGSL_DEVICE:-/dev/kgsl-3d0}" ]; }; then
     tnx_spin_run "Install the Freedreno Vulkan ICD" tnx_termux_pkg install -y $APT_FORCE mesa-vulkan-icd-freedreno || \
       tnx_warn "Freedreno ICD unavailable"
   fi
@@ -319,7 +318,7 @@ tnx_install_guest_cli() {
     chmod 0755 "$tmp"
     mv -f "$tmp" /usr/local/bin/ternux
   ' < "$guest_src"; then
-    tnx_fail "Could not install /usr/local/bin/ternux inside Debian."
+    tnx_fail "Could not install /usr/local/bin/ternux inside guest '$(tnx_distro)'."
     [ "$cleanup" -eq 1 ] && rm -f "$guest_src"
     return 1
   fi
@@ -327,18 +326,18 @@ tnx_install_guest_cli() {
 
   local guest_version=""
   guest_version="$(tnx_guest_login --user "$user_name" -- bash -lc \
-    'command -v ternux >/dev/null && ternux --version' 2>&1)" || {
-    tnx_fail "Debian guest companion was written but could not execute for '$user_name': ${guest_version:-unknown error}"
+    'command -v ternux >/dev/null && ternux --version' 2>/dev/null)" || {
+    tnx_fail "Guest companion was written but could not execute for '$user_name': ${guest_version:-unknown error}"
     return 1
   }
   case "$guest_version" in
     "ternux guest v${TERNUX_VERSION}"|"ternux guest v${TERNUX_VERSION}"$'\n'*) ;;
     *)
-      tnx_fail "Debian guest companion returned an unexpected version response: $guest_version"
+      tnx_fail "Guest companion returned an unexpected version response: $guest_version"
       return 1
       ;;
   esac
-  tnx_ok "Debian guest companion installed and verified: /usr/local/bin/ternux"
+  tnx_ok "Guest companion installed and verified for '$(tnx_distro)': /usr/local/bin/ternux"
   tnx_state_set "guest_cli_installed" "yes"
   return 0
 }
@@ -347,16 +346,17 @@ tnx_install_guest_cli() {
 # Phase 4 — selected guest + Xfce4 + user
 # ---------------------------------------------------------------------------
 tnx_phase_debian() {
-  local user_name="${1:-ternux}" package_family
+  local user_name="${1:-ternux}" package_family input_engine=ibus-avro
+  [ "$(tnx_distro)" != alpine ] || input_engine=m17n:bn:avro-phonetic
   local resource_dir="${BASH_SOURCE[0]%/*}"
-  local welcome_b64 welcome_gui_b64 window_fit_b64 camera_gui_b64 recorder_gui_b64 panel_shortcuts_b64 ternux_assets_b64 resource
-  for resource in ternux-welcome.sh ternux-welcome-gui.py ternux-window-fit.lua ternux-camera.py ternux-recorder.py ternux-panel-shortcuts.sh; do
+  local welcome_b64 welcome_gui_b64 window_fit_b64 camera_gui_b64 recorder_gui_b64 panel_shortcuts_b64 ternux_assets_b64 gtk3_user_css_b64 gtk4_user_css_b64 firefox_installer_b64 resource
+  for resource in ternux-welcome.sh ternux-welcome-gui.py ternux-window-fit.lua ternux-camera.py ternux-recorder.py ternux-panel-shortcuts.sh ternux-assets/bin/ternux-rasterize-icons ternux-assets/bin/ternux-ibus-session-init ternux-assets/bin/ternux-ibus-next-engine ternux-assets/bin/ternux-session-bus; do
     if [ ! -s "$resource_dir/$resource" ] || [ ! -r "$resource_dir/$resource" ]; then
       tnx_fail "Required Ternux desktop resource is missing or unreadable: $resource_dir/$resource"
       return 1
     fi
   done
-  if [ ! -d "$resource_dir/ternux-assets/icons/Ternux" ] || [ ! -d "$resource_dir/ternux-assets/wallpapers" ] || [ ! -d "$resource_dir/ternux-assets/themes/Ternux" ]; then
+  if [ ! -d "$resource_dir/ternux-assets/icons/Ternux" ] || [ ! -d "$resource_dir/ternux-assets/wallpapers" ] || [ ! -d "$resource_dir/ternux-assets/themes/Ternux" ] || [ ! -d "$resource_dir/ternux-assets/input-methods" ] || [ ! -x "$resource_dir/ternux-assets/bin/ternux-install-avro-m17n" ] || [ ! -s "$resource_dir/ternux-assets/bin/ternux-proot-faccessat-arm64.so" ] || [ ! -s "$resource_dir/ternux-assets/bin/ternux-proot-faccessat.c" ]; then
     tnx_fail "Required Ternux desktop branding assets are missing under $resource_dir/ternux-assets"
     return 1
   fi
@@ -366,53 +366,71 @@ tnx_phase_debian() {
   camera_gui_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-camera.py" | tr -d '\n')" || return 1
   recorder_gui_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-recorder.py" | tr -d '\n')" || return 1
   panel_shortcuts_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-panel-shortcuts.sh" | tr -d '\n')" || return 1
-  ternux_assets_b64="$(set -o pipefail; tar -czf - -C "$resource_dir/ternux-assets" icons wallpapers themes applications bin | base64 | tr -d '\n')" || return 1
+  ternux_assets_b64="$(set -o pipefail; tar -czf - -C "$resource_dir/ternux-assets" icons wallpapers themes applications bin input-methods | base64 | tr -d '\n')" || return 1
+  gtk3_user_css_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-assets/themes/Ternux/gtk-3.0/gtk-user.css" | tr -d '\n')" || return 1
+  gtk4_user_css_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-assets/themes/Ternux/gtk-4.0/gtk-user.css" | tr -d '\n')" || return 1
+  firefox_installer_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-install-firefox-esr.sh" | tr -d '\n')" || return 1
 
   if tnx_debian_installed; then
-    tnx_warn "Debian container already installed; reusing it."
+    tnx_warn "Guest '$(tnx_distro)' already installed; reusing it."
   else
     proot-distro install "$(tnx_distro)" || { tnx_fail "Guest '$(tnx_distro)' install failed."; return 1; }
   fi
 
   tnx_distro_profile "$(tnx_distro)" || { tnx_fail "No package recipe for guest '$(tnx_distro)'."; return 2; }
   package_family="$TNX_DP_FAMILY"
-  tnx_guest_login --shared-tmp -- bash -c "
+  # Minimal Alpine images provide POSIX sh but not Bash. This first package
+  # bootstrap installs Bash itself, so it must run through sh.
+  tnx_guest_login --shared-tmp -- sh -c "
     set -e
     FAMILY='$package_family'
     export DEBIAN_FRONTEND=noninteractive
-    DPKG_FORCE=\"-o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -o APT::Color=1 -o Dpkg::Progress-Fancy=1\"
+    pkg_retry() {
+      attempt=1
+      while ! "\$@"; do
+        if [ "\$attempt" -ge 3 ]; then return 1; fi
+        echo \"[WARN] Package command failed; retrying (\$((attempt + 1))/3): \$*\" >&2
+        sleep "\$attempt"
+        attempt=\$((attempt + 1))
+      done
+    }
+    DPKG_FORCE=\"-o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -o APT::Color=1 -o Dpkg::Progress-Fancy=1 -o Acquire::Retries=3\"
     case \"\$FAMILY\" in
       apt)
-        apt update -o APT::Color=1
+        apt update -o APT::Color=1 -o Acquire::Retries=3
         dpkg --configure -a --force-confold --force-confdef || true
         if [ '$(tnx_distro)' = ubuntu ]; then
           install -d -m 0755 /etc/apt/preferences.d
           printf 'Package: snapd\nPin: version *\nPin-Priority: -1\n' > /etc/apt/preferences.d/ternux-no-snapd
           apt-mark hold snapd >/dev/null 2>&1 || true
         fi
-        apt install -y \$DPKG_FORCE sudo nano mousepad galculator evince fonts-noto-core python3-gi gir1.2-gtk-3.0 ibus ibus-avro devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol x11-utils mesa-utils libgl1-mesa-dri adwaita-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc ffmpeg ristretto qt5-gtk-platformtheme colord xdg-utils desktop-file-utils util-linux gsettings-desktop-schemas xfconf
+        apt install -y -o APT::Install-Recommends=false \$DPKG_FORCE sudo nano mousepad galculator evince fonts-noto-core python3-gi gir1.2-gtk-3.0 ibus ibus-avro devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol x11-utils x11-xkb-utils mesa-utils libgl1-mesa-dri libvulkan1 mesa-vulkan-drivers vulkan-tools adwaita-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc ffmpeg ristretto qt5-gtk-platformtheme colord xdg-utils desktop-file-utils util-linux gsettings-desktop-schemas xfconf
         apt install -y \$DPKG_FORCE --no-install-recommends synaptic
         if [ '$(tnx_distro)' = ubuntu ]; then apt-mark hold snapd >/dev/null 2>&1 || true; fi
         apt remove -y \$DPKG_FORCE guvcview >/dev/null 2>&1 || true
         ;;
       apk)
-        apk update
-        apk add sudo bash shadow musl-utils nano mousepad galculator evince font-noto python3 py3-gobject3 gtk+3.0 ibus devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol mesa mesa-dri-gallium mesa-utils xdg-utils desktop-file-utils util-linux fontconfig gsettings-desktop-schemas xfconf adwaita-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc ffmpeg ristretto qt5-qtbase colord
+        pkg_retry apk update
+        pkg_retry apk add sudo bash shadow musl-utils nano mousepad galculator evince font-noto python3 py3-gobject3 gtk+3.0 ibus dbus-x11 pulseaudio pulseaudio-utils pavucontrol mesa mesa-dri-gallium mesa-utils vulkan-loader vulkan-tools desktop-file-utils xdg-utils xdpyinfo setxkbmap util-linux fontconfig gsettings-desktop-schemas xfconf adwaita-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc ffmpeg ristretto qt5-qtbase colord
+        if [ "$(tnx_distro)" = alpine ]; then
+          pkg_retry apk add vlc-qt m17n-lib m17n-db font-noto-bengali rsvg-convert
+        fi
+        if [ "$(tnx_distro)" = chimera ]; then pkg_retry apk add mesa-vulkan; elif [ "$(tnx_distro)" = alpine ]; then pkg_retry apk add mesa-vulkan-freedreno; fi
         ;;
       pacman)
         pacman -Syu --noconfirm --needed
-        pacman -S --noconfirm --needed sudo bash nano mousepad galculator evince noto-fonts python-gobject gtk3 ibus devilspie2 xorg-xhost pulseaudio pavucontrol mesa mesa-utils xorg-xdpyinfo xdg-utils desktop-file-utils util-linux fontconfig gsettings-desktop-schemas xfconf adwaita-icon-theme xfce4 xfce4-goodies xfce4-terminal zenity vlc ffmpeg ristretto qt5ct colord
+        pacman -S --noconfirm --needed sudo bash nano mousepad galculator evince noto-fonts python-gobject gtk3 ibus devilspie2 xorg-xhost xorg-setxkbmap pulseaudio pavucontrol mesa mesa-utils vulkan-icd-loader vulkan-freedreno vulkan-tools xorg-xdpyinfo xdg-utils desktop-file-utils util-linux fontconfig gsettings-desktop-schemas xfconf adwaita-icon-theme xfce4 xfce4-goodies xfce4-terminal zenity vlc ffmpeg ristretto qt5ct colord
         ;;
       dnf)
-        dnf install -y sudo bash nano mousepad galculator evince google-noto-sans-fonts python3-gobject gtk3 ibus devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol mesa-dri-drivers glx-utils xorg-x11-utils xdg-utils desktop-file-utils util-linux fontconfig gsettings-desktop-schemas xfconf adwaita-icon-theme xfce4-panel xfce4-session xfce4-settings xfce4-terminal xfce4-taskmanager zenity vlc ffmpeg ristretto qt5-qtbase colord
+        dnf install -y sudo bash nano mousepad galculator evince google-noto-sans-fonts python3-gobject gtk3 ibus devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol mesa-dri-drivers mesa-vulkan-drivers vulkan-loader vulkan-tools glx-utils xorg-x11-utils setxkbmap xdg-utils desktop-file-utils util-linux fontconfig gsettings-desktop-schemas xfconf adwaita-icon-theme xfce4-panel xfce4-session xfce4-settings xfce4-terminal xfce4-taskmanager zenity vlc ffmpeg ristretto qt5-qtbase colord
         ;;
       zypper)
         zypper --non-interactive refresh
-        zypper --non-interactive install -y sudo bash nano mousepad galculator evince google-noto-sans-fonts python3-gobject gtk3 ibus dbus-1-x11 pulseaudio pulseaudio-utils pavucontrol Mesa-dri Mesa-demo-x xorg-x11-utils xdg-utils desktop-file-utils util-linux fontconfig gsettings-desktop-schemas xfconf adwaita-icon-theme xfce4-panel xfce4-session xfce4-settings xfce4-terminal xfce4-taskmanager zenity vlc ffmpeg ristretto libqt5-qtbase colord
+        zypper --non-interactive install -y sudo bash nano mousepad galculator evince google-noto-sans-fonts python3-gobject gtk3 ibus dbus-1-x11 pulseaudio pulseaudio-utils pavucontrol Mesa-dri Mesa-demo-x libvulkan1 libvulkan_freedreno vulkan-tools xorg-x11-utils setxkbmap xdg-utils desktop-file-utils util-linux fontconfig gsettings-desktop-schemas xfconf adwaita-icon-theme xfce4-panel xfce4-session xfce4-settings xfce4-terminal xfce4-taskmanager zenity vlc ffmpeg ristretto libqt5-qtbase colord
         ;;
       xbps)
         xbps-install -Suy
-        xbps-install -Sy sudo bash nano mousepad galculator evince noto-fonts-ttf python3-gobject gtk+3 ibus dbus pulseaudio pulseaudio-utils pavucontrol mesa-dri mesa-demos xdg-utils desktop-file-utils util-linux fontconfig gsettings-desktop-schemas xfconf adwaita-icon-theme xfce4 xfce4-terminal xfce4-taskmanager zenity vlc ffmpeg ristretto qt5-base colord
+        xbps-install -Sy sudo bash nano mousepad galculator evince noto-fonts-ttf python3-gobject gtk+3 ibus dbus pulseaudio pulseaudio-utils pavucontrol mesa-dri mesa-demos vulkan-loader mesa-vulkan-freedreno vulkan-tools setxkbmap xdg-utils desktop-file-utils util-linux fontconfig gsettings-desktop-schemas xfconf adwaita-icon-theme xfce4 xfce4-terminal xfce4-taskmanager zenity vlc ffmpeg ristretto qt5-base colord
         ;;
       *) echo \"Unsupported package manager family: \$FAMILY\" >&2; exit 2 ;;
     esac
@@ -454,12 +472,12 @@ tnx_phase_debian() {
     fi
     install -m 0755 "\$asset_stage/bin/evolution" /usr/local/bin/evolution
     install -m 0755 "\$asset_stage/bin/ternux-install-celestia" /usr/local/bin/ternux-install-celestia
+    install -d -m 0755 /usr/local/share/applications
     if [ -f /usr/share/applications/org.gnome.Evolution.desktop ]; then
       sed 's#^Exec=evolution#Exec=/usr/local/bin/evolution#' /usr/share/applications/org.gnome.Evolution.desktop > /usr/local/share/applications/org.gnome.Evolution.desktop
       chmod 0644 /usr/local/share/applications/org.gnome.Evolution.desktop
     fi
     if [ "\$FAMILY" = apt ]; then
-      install -m 0644 "\$asset_stage/applications/ternux-app-center.desktop" /usr/local/share/applications/ternux-app-center.desktop
       install -m 0644 "\$asset_stage/applications/synaptic.desktop" /usr/local/share/applications/synaptic.desktop
     else
       rm -f /usr/local/share/applications/ternux-app-center.desktop /usr/local/share/applications/synaptic.desktop
@@ -467,9 +485,35 @@ tnx_phase_debian() {
     install -m 0644 "\$asset_stage/applications/ternux-sdcard.desktop" /usr/share/applications/ternux-sdcard.desktop
     rm -f /usr/share/backgrounds/ternux/aurora.svg
     cp -a "\$asset_stage/wallpapers/." /usr/share/backgrounds/ternux/
+    if [ "\$FAMILY" = apk ] && [ "$(tnx_distro)" = alpine ]; then sh "\$asset_stage/bin/ternux-install-avro-m17n" "\$asset_stage/input-methods"; fi
+    if [ "$(tnx_distro)" = alpine ]; then
+      install -d -m 0755 /usr/local/share/applications
+      cat > /usr/local/share/applications/vlc.desktop <<'VLC_DESKTOP'
+[Desktop Entry]
+Name=VLC media player
+Comment=Play movies and music
+Exec=/usr/bin/vlc --started-from-file %U
+Icon=vlc
+Terminal=false
+Type=Application
+Categories=AudioVideo;Player;
+MimeType=audio/mpeg;audio/ogg;audio/flac;video/mp4;video/mpeg;video/quicktime;video/x-matroska;
+StartupNotify=true
+VLC_DESKTOP
+      chmod 0644 /usr/local/share/applications/vlc.desktop
+      update-desktop-database /usr/local/share/applications >/dev/null 2>&1 || true
+    fi
+    if [ "\$FAMILY" = apk ] && [ "$(tnx_distro)" = alpine ]; then
+      install -m 0755 "\$asset_stage/bin/ternux-rasterize-icons" /usr/local/bin/ternux-rasterize-icons
+      /usr/local/bin/ternux-rasterize-icons /usr/share/icons/Ternux
+      install -d -m 0755 /usr/local/lib/ternux
+      install -m 0644 "\$asset_stage/bin/ternux-proot-faccessat-arm64.so" /usr/local/lib/ternux/libternux-faccessat.so
+    fi
+    install -m 0755 "\$asset_stage/bin/ternux-ibus-session-init" /usr/local/bin/ternux-ibus-session-init
+    install -m 0755 "\$asset_stage/bin/ternux-ibus-next-engine" /usr/local/bin/ternux-ibus-next-engine
+    install -m 0755 "\$asset_stage/bin/ternux-session-bus" /usr/local/bin/ternux-session-bus
     rm -rf "\$asset_stage"
     gtk-update-icon-cache -f /usr/share/icons/Ternux >/dev/null 2>&1 || true
-    install -d -m 0755 /usr/local/share/applications
     for icon_pair in \
       'ibus-setup-ibus-avro.desktop ternux-avro' \
       'python3.13.desktop ternux-python' \
@@ -486,10 +530,33 @@ tnx_phase_debian() {
         chmod 0644 "/usr/local/share/applications/\$1"
       fi
     done
-    apt install -y \$DPKG_FORCE polkitd || apt install -y \$DPKG_FORCE policykit-1 || true
-    apt install -y \$DPKG_FORCE libvulkan1 vulkan-tools || true
-    apt install -y \$DPKG_FORCE zip unzip xarchiver unrar-free || true
-    apt install -y \$DPKG_FORCE 7zip || apt install -y \$DPKG_FORCE p7zip-full || true
+    if [ "\$FAMILY" = apt ]; then
+      apt install -y \$DPKG_FORCE polkitd || apt install -y \$DPKG_FORCE policykit-1 || true
+      apt install -y \$DPKG_FORCE libvulkan1 vulkan-tools || true
+      apt install -y \$DPKG_FORCE zip unzip xarchiver unrar-free || true
+      apt install -y \$DPKG_FORCE 7zip || apt install -y \$DPKG_FORCE p7zip-full || true
+    fi
+    # Every fresh profile gets one usable browser. Ubuntu's archive package is
+    # a Snap bridge, so use Mozilla ESR there while Snap remains disabled.
+    case "\$FAMILY" in
+      apt)
+        if [ '$(tnx_distro)' = ubuntu ]; then
+          printf '%s' '$firefox_installer_b64' | base64 -d | bash
+        else
+          browser_installed=0
+          for browser_package in firefox-esr firefox; do
+            browser_candidate=\"\$(apt-cache policy \"\$browser_package\" 2>/dev/null | awk '/^[[:space:]]*Candidate:/ {print \$2; exit}')\"
+            if [ -n "\$browser_candidate" ] && [ "\$browser_candidate" != '(none)' ] && apt install -y \$DPKG_FORCE "\$browser_package"; then browser_installed=1; break; fi
+          done
+          [ "\$browser_installed" -eq 1 ] || { echo 'No usable Firefox package candidate is available in this APT guest.' >&2; exit 1; }
+        fi
+        ;;
+      apk) pkg_retry apk add firefox-esr || pkg_retry apk add firefox ;;
+      pacman) pkg_retry pacman -S --noconfirm --needed firefox ;;
+      dnf) pkg_retry dnf install -y firefox ;;
+      zypper) pkg_retry zypper --non-interactive install -y MozillaFirefox ;;
+      xbps) pkg_retry xbps-install -Sy firefox ;;
+    esac
   " || { tnx_fail "Desktop package installation failed."; return 1; }
 
   tnx_guest_login --shared-tmp -- bash -c "
@@ -502,7 +569,7 @@ tnx_phase_debian() {
     case \"\$FAMILY\" in pacman|dnf|zypper|xbps) ADMIN_GROUP=wheel ;; *) ADMIN_GROUP=sudo ;; esac
     for grp in \"\$ADMIN_GROUP\" video render audio; do getent group \"\$grp\" >/dev/null 2>&1 && usermod -aG \"\$grp\" \"\$U\" || true; done
     install -d -m 0750 /etc/sudoers.d
-    F=/etc/sudoers.d/ternux; T=\"\$(mktemp)\"
+    F=/etc/sudoers.d/ternux; T=\"\$(mktemp /tmp/ternux-sudoers.XXXXXX)\"
     if grep -Eq '^[[:space:]]*[@#]includedir[[:space:]]+/etc/sudoers[.]d([[:space:]]|$)' /etc/sudoers; then
       printf '%s ALL=(ALL) NOPASSWD: ALL\n' \"\$U\" > \"\$T\"
       if visudo -cf \"\$T\" >/dev/null 2>&1; then install -m 0440 -o root -g root \"\$T\" \"\$F\"; else rm -f \"\$T\"; exit 1; fi
@@ -513,6 +580,33 @@ tnx_phase_debian() {
     fi
     rm -f \"\$T\"
     H=\"\$(getent passwd \"\$U\" | cut -d: -f6)\"
+    gtk_theme_install_override() {
+      gtk_theme_version=\"\$1\"
+      gtk_theme_payload=\"\$2\"
+      gtk_theme_dir=\"\$H/.config/gtk-\$gtk_theme_version\"
+      gtk_theme_file=\"\$gtk_theme_dir/gtk.css\"
+      [ ! -L \"\$gtk_theme_dir\" ] && [ ! -L \"\$gtk_theme_file\" ] || { echo \"Refusing symlinked GTK theme config for user \$U\" >&2; return 1; }
+      install -d -o \"\$U\" -g \"\$U\" -m 0755 \"\$gtk_theme_dir\"
+      gtk_theme_tmp=\"\$(mktemp \"\$gtk_theme_dir/.ternux-gtk.css.XXXXXX\")\"
+      if [ -f \"\$gtk_theme_file\" ]; then
+        sed '/^\/\* TERNUX MANAGED GTK OVERRIDE BEGIN \*\/$/,/^\/\* TERNUX MANAGED GTK OVERRIDE END \*\/$/d' \"\$gtk_theme_file\" > \"\$gtk_theme_tmp\"
+      fi
+      printf '%s\n' '/* TERNUX MANAGED GTK OVERRIDE BEGIN */' >> \"\$gtk_theme_tmp\"
+      printf '%s' \"\$gtk_theme_payload\" | base64 -d >> \"\$gtk_theme_tmp\"
+      printf '\n%s\n' '/* TERNUX MANAGED GTK OVERRIDE END */' >> \"\$gtk_theme_tmp\"
+      install -o \"\$U\" -g \"\$U\" -m 0644 \"\$gtk_theme_tmp\" \"\$gtk_theme_file\"
+      rm -f \"\$gtk_theme_tmp\"
+    }
+    # Prepare the per-user IBus runtime and cache paths.
+    install -d -o "\$U" -g "\$U" -m 0700 "\$H/.cache" "\$H/.cache/ibus" "\$H/.config/ibus"
+    gtk_theme_install_override 3.0 '${gtk3_user_css_b64}'
+    gtk_theme_install_override 4.0 '${gtk4_user_css_b64}'
+    install -d -o \"\$U\" -g \"\$U\" -m 0755 \"\$H/.config/gtk-3.0\"
+    bookmarks=\"\$H/.config/gtk-3.0/bookmarks\"
+    touch \"\$bookmarks\"
+    grep -Fxq 'file:///sdcard SD Card' \"\$bookmarks\" || printf '%s\n' 'file:///sdcard SD Card' >> \"\$bookmarks\"
+    chown \"\$U:\$U\" \"\$bookmarks\"
+    chmod 0644 \"\$bookmarks\"
     install -d -o \"\$U\" -g \"\$U\" -m 0755 \"\$H/Pictures\"
     if [ -L \"\$H/Pictures/Ternux\" ] && [ \"\$(readlink \"\$H/Pictures/Ternux\")\" = /sdcard/Pictures/Ternux ]; then
       rm \"\$H/Pictures/Ternux\"
@@ -548,6 +642,11 @@ TERMINAL
     printf '%s\n' 'qt-video-autoresize=0' >> \"\$H/.config/vlc/vlcrc\"
     sed -i '/^[[:space:]]*qt-system-tray=/d' \"\$H/.config/vlc/vlcrc\"
     printf '%s\n' 'qt-system-tray=0' >> \"\$H/.config/vlc/vlcrc\"
+    # Keep local video startup quiet and skip online metadata lookups.
+    sed -i '/^[[:space:]]*metadata-network-access=/d' "\$H/.config/vlc/vlcrc"
+    printf '%s\n' 'metadata-network-access=0' >> "\$H/.config/vlc/vlcrc"
+    sed -i '/^[[:space:]]*qt-privacy-ask=/d' "\$H/.config/vlc/vlcrc"
+    printf '%s\n' 'qt-privacy-ask=0' >> "\$H/.config/vlc/vlcrc"
     # Use Debian's stock application entry and process so menu launches
     # inherit the same global Xfce theme and environment as other GTK apps.
     rm -f /usr/local/bin/ternux-volume-control /usr/local/bin/pavucontrol \
@@ -556,12 +655,14 @@ TERMINAL
     printf '%s' '${window_fit_b64}' | base64 -d > \"\$H/.config/devilspie2/window-fit.lua\"
     chown \"\$U:\$U\" \"\$H/.config/devilspie2/window-fit.lua\"
     chmod 0644 \"\$H/.config/devilspie2/window-fit.lua\"
-    runuser -u \"\$U\" -- env HOME=\"\$H\" dbus-run-session -- gsettings set org.freedesktop.ibus.general preload-engines \"['xkb:us::eng', 'ibus-avro']\"
-    # Make Ctrl+Space cycle between English and Avro instead of competing with
-    # IBus's separate on/off trigger, which may also be bound to Ctrl+Space.
+    runuser -u \"\$U\" -- env HOME=\"\$H\" dbus-run-session -- gsettings set org.freedesktop.ibus.general preload-engines \"['xkb:us::eng', '$input_engine']\"
+    # Keep Ctrl+Space visible as IBus's Next input method key. XFCE also
+    # routes it globally for apps that do not register an IBus input context.
     runuser -u \"\$U\" -- env HOME=\"\$H\" dbus-run-session -- gsettings set org.freedesktop.ibus.general.hotkey triggers \"[]\"
+    runuser -u \"\$U\" -- env HOME=\"\$H\" dbus-run-session -- sh -c 'gsettings writable org.freedesktop.ibus.general.hotkey trigger >/dev/null 2>&1 && gsettings set org.freedesktop.ibus.general.hotkey trigger "[]" || true'
     runuser -u \"\$U\" -- env HOME=\"\$H\" dbus-run-session -- gsettings set org.freedesktop.ibus.general.hotkey next-engine \"['Control+space']\"
-    runuser -u \"\$U\" -- env HOME=\"\$H\" dbus-run-session -- gsettings set org.freedesktop.ibus.general.hotkey next-engine-in-menu \"['Control+space']\"
+    runuser -u \"\$U\" -- env HOME=\"\$H\" dbus-run-session -- gsettings set org.freedesktop.ibus.general.hotkey next-engine-in-menu \"[]\"
+    runuser -u \"\$U\" -- env HOME=\"\$H\" dbus-run-session -- gsettings set org.gnome.desktop.interface gtk-theme Ternux
     install -d -o \"\$U\" -g \"\$U\" -m 0755 \"\$H/.config/autostart\"
     install -d -o root -g root -m 0755 /usr/local/bin
     printf '%s' '${camera_gui_b64}' | base64 -d > /usr/local/bin/ternux-camera
@@ -644,6 +745,7 @@ PM
     chmod 0755 /usr/local/bin/ternux-welcome
     install -d -o root -g root -m 0755 /usr/share/backgrounds/ternux
     chmod 0644 /usr/share/backgrounds/ternux/*.svg
+    if command -v devilspie2 >/dev/null 2>&1; then
     cat > \"\$H/.config/autostart/ternux-window-fit.desktop\" <<'DESKTOP'
 [Desktop Entry]
 Type=Application
@@ -656,6 +758,9 @@ X-GNOME-Autostart-enabled=true
 DESKTOP
     chown \"\$U:\$U\" \"\$H/.config/autostart/ternux-window-fit.desktop\"
     chmod 0644 \"\$H/.config/autostart/ternux-window-fit.desktop\"
+    else
+      rm -f \"\$H/.config/autostart/ternux-window-fit.desktop\"
+    fi
     cat > \"\$H/.config/autostart/xiccd.desktop\" <<'DESKTOP'
 [Desktop Entry]
 Type=Application
@@ -744,11 +849,7 @@ tnx_phase_gpu() {
   # install.sh doctor route), not only through the main orchestrator.
   [ "$backend" = "zink-turnip" ] && backend="zink"
   if [ "$backend" = "auto" ]; then
-    if [ "$distro" != debian ]; then backend="virgl"
-    else [ -e "${TERNUX_KGSL_DEVICE:-/dev/kgsl-3d0}" ] && backend="zink" || backend="virgl"; fi
-  elif [ "$distro" != debian ] && [ "$backend" = zink ]; then
-    tnx_fail "The pinned Zink/Turnip profile targets Debian Trixie. Select --backend virgl for '$distro'."
-    return 2
+    backend="$(tnx_gpu_backend_auto "$distro")"
   fi
   case "$backend" in
     zink|virgl) ;;
@@ -763,33 +864,58 @@ tnx_phase_gpu() {
 
   [ -e "${TERNUX_KGSL_DEVICE:-/dev/kgsl-3d0}" ] || { tnx_fail "Zink needs /dev/kgsl-3d0 (Adreno GPU)."; return 1; }
 
-  local guest_codename
-  guest_codename="$(tnx_guest_login -- bash -c '. /etc/os-release; printf "%s" "${VERSION_CODENAME:-}"' 2>/dev/null || true)"
-  [ "$guest_codename" = "trixie" ] || {
-    tnx_fail "The validated Turnip asset targets Debian Trixie; guest reports '${guest_codename:-unknown}'."
-    return 1
-  }
-
-  local url
-  url="$(tnx_resolve_freedreno_asset)"
-  [ -n "$url" ] || { tnx_fail "Could not resolve Freedreno driver asset."; return 1; }
-
-  tnx_distro_profile
-  local tarball="${TMPDIR:-/data/data/com.termux/files/usr/tmp}/mesa-freedreno.tar.gz"
-  rm -f "$tarball"
-  tnx_download "$url" "$tarball" || { tnx_fail "Failed to download Freedreno driver."; return 1; }
-
-  if ! tnx_validate_turnip_archive "$tarball"; then
-    tnx_fail "Archive must have safe paths and exactly one regular driver and ICD target."
-    rm -f "$tarball"
+  local guest_os release_url="" asset_name="" asset_kind="" guest_id="" guest_version="" guest_codename=""
+  guest_os="$(tnx_guest_login -- bash -c '. /etc/os-release; printf "%s\t%s\t%s\n" "${ID:-}" "${VERSION_ID:-}" "${VERSION_CODENAME:-}"' 2>/dev/null || true)"
+  IFS=$'\t' read -r guest_id guest_version guest_codename <<< "$guest_os"
+  asset_name="$(tnx_freedreno_asset_name "$distro" "$guest_id" "$guest_version" "$guest_codename" 2>/dev/null || true)"
+  if [ -z "$asset_name" ]; then
+    if tnx_guest_login -- bash -c '
+      find /usr -name zink_dri.so -print -quit 2>/dev/null | grep -q . &&
+      find /usr -name "*freedreno*.json" -print -quit 2>/dev/null | grep -q . &&
+      find /usr -name "libvulkan_freedreno.so*" -print -quit 2>/dev/null | grep -q .
+    ' >/dev/null 2>&1; then
+      tnx_info "Using $distro native Mesa Zink/Freedreno package stack; runtime renderer still needs display verification."
+      return 0
+    fi
+    tnx_fail "No upstream Turnip asset matches '$distro' ($guest_id ${guest_version:-unknown} ${guest_codename:-}). Install a supported distro Mesa/Freedreno stack or select VirGL."
     return 1
   fi
+  release_url="$(tnx_resolve_freedreno_asset "$asset_name")"
+  [ -n "$release_url" ] || { tnx_fail "Could not resolve Freedreno asset '$asset_name'."; return 1; }
+  case "$asset_name" in *.tar) asset_kind=arch ;; *) asset_kind=root ;; esac
+  if [ "$distro" = debian ]; then
+    [ "$guest_codename" = trixie ] || {
+      tnx_fail "The validated Debian Turnip asset targets Trixie; guest reports '${guest_codename:-unknown}'."
+      return 1
+    }
+    asset_kind=debian
+  fi
+
+  tnx_distro_profile
+  local tar_suffix="tar.gz"
+  [ "$asset_kind" = arch ] && tar_suffix="tar"
+  local tarball="${TMPDIR:-/data/data/com.termux/files/usr/tmp}/mesa-freedreno.${tar_suffix}"
+  rm -f "$tarball"
+  tnx_download "$release_url" "$tarball" || { tnx_fail "Failed to download Freedreno driver."; return 1; }
 
   local sha expected_sha module_dir notice_source notice_tarball
   sha="$(sha256sum "$tarball" | cut -d' ' -f1)"
-  expected_sha="$(tnx_expected_freedreno_sha)"
-  if [ "$sha" != "$expected_sha" ]; then
-    tnx_fail "Freedreno archive SHA-256 mismatch (expected pinned release)."
+  expected_sha="$(tnx_expected_freedreno_sha "$asset_name")"
+  if [ -z "$expected_sha" ] || [ "$sha" != "$expected_sha" ]; then
+    tnx_fail "Freedreno archive SHA-256 mismatch or missing pin for '$asset_name'."
+    rm -f "$tarball"
+    return 1
+  fi
+  if [ "$asset_kind" = debian ] && ! tnx_validate_turnip_archive "$tarball"; then
+    tnx_fail "Debian driver archive must have safe paths and exactly one regular driver and ICD target."
+    rm -f "$tarball"
+    return 1
+  elif [ "$asset_kind" = root ] && ! tnx_validate_full_mesa_archive "$tarball"; then
+    tnx_fail "Distro Mesa archive has unsafe paths or is missing Zink/Freedreno driver files."
+    rm -f "$tarball"
+    return 1
+  elif [ "$asset_kind" = arch ] && ! tnx_validate_arch_mesa_archive "$tarball"; then
+    tnx_fail "Arch Mesa archive is invalid or does not contain the pinned Mesa/Freedreno packages."
     rm -f "$tarball"
     return 1
   fi
@@ -810,7 +936,40 @@ tnx_phase_gpu() {
   fi
 
   tnx_state_set "freedreno_sha" "$sha"
-  tnx_state_set "freedreno_url" "$url"
+  tnx_state_set "freedreno_url" "$release_url"
+  tnx_state_set "freedreno_asset" "$asset_name"
+  tnx_state_set "freedreno_asset_kind" "$asset_kind"
+
+  if [ "$asset_kind" != debian ]; then
+    local release_notice_dir="mesa-27.0.0-devel-20261025-r2"
+    tnx_guest_login --shared-tmp -- bash -c "
+      set -e
+      stage=/tmp/ternux-mesa-stage; rm -rf "\$stage"; mkdir -p "\$stage"
+      trap 'rm -rf \"\$stage\"' EXIT
+      notice_dest=/usr/local/share/doc/ternux/$release_notice_dir
+      mkdir -p "\$notice_dest"
+      tar -xzf /tmp/ternux-mesa-notices.tar.gz -C "\$notice_dest"
+      (cd "\$notice_dest" && sha256sum -c SHA256SUMS)
+      if [ '$asset_kind' = arch ]; then
+        tar -xf /tmp/mesa-freedreno.tar -C "\$stage"
+        set -- "\$stage"/*.pkg.tar.xz
+        [ -f "\$1" ]
+        pacman -U --noconfirm --needed "\$@"
+      else
+        tar -xzf /tmp/mesa-freedreno.tar.gz -C "\$stage"
+        tar -xzf /tmp/mesa-freedreno.tar.gz -C /
+        command -v ldconfig >/dev/null 2>&1 && ldconfig || true
+      fi
+      find "\$stage" -mindepth 1 -delete 2>/dev/null || true
+      find /usr -name zink_dri.so -print -quit 2>/dev/null | grep -q .
+      find /usr -name kgsl_dri.so -print -quit 2>/dev/null | grep -q .
+      find /usr -name '*freedreno*.json' -print -quit 2>/dev/null | grep -q .
+      find /usr -name 'libvulkan_freedreno.so*' -print -quit 2>/dev/null | grep -q .
+    " || { tnx_fail "Could not install or verify the matching $distro Mesa/Turnip asset."; rm -f "$tarball" "$notice_tarball"; return 1; }
+    rm -f "$tarball" "$notice_tarball"
+    tnx_ok "Distro-matched Mesa Zink/Turnip asset installed, checksummed and license-noticed ($asset_name)."
+    return 0
+  fi
 
   tnx_guest_login --shared-tmp -- bash -c "
     set -e
@@ -863,12 +1022,75 @@ tnx_phase_gpu() {
   fi
 }
 
+tnx_freedreno_asset_name() {
+  local distro="${1:-$(tnx_distro)}" id="${2:-}" version="${3:-}" codename="${4:-}" asset=""
+  case "$distro:$id:$codename" in
+    debian:debian:trixie) asset='mesa-for-android-container_27.0.0-devel-20261025-r2_debian_trixie_arm64.tar.gz' ;;
+    debian:debian:*) [ "$codename" = testing ] && asset='mesa-for-android-container_27.0.0-devel-20261025-r2_debian_testing_arm64.tar.gz' ;;
+    ubuntu:ubuntu:noble) asset='mesa-for-android-container_27.0.0-devel-20261025-r2_ubuntu_noble_arm64.tar.gz' ;;
+    ubuntu:ubuntu:questing) asset='mesa-for-android-container_27.0.0-devel-20261025-r2_ubuntu_questing_arm64.tar.gz' ;;
+    ubuntu:ubuntu:resolute) asset='mesa-for-android-container_27.0.0-devel-20261025-r2_ubuntu_resolute_arm64.tar.gz' ;;
+    ubuntu:ubuntu:rolling) asset='mesa-for-android-container_27.0.0-devel-20261025-r2_ubuntu_rolling_arm64.tar.gz' ;;
+    alpine:alpine:*) case "$version" in 3.24*) asset='mesa-for-android-container_27.0.0-devel-20261025-r2_alpine_3.24_arm64.tar.gz' ;; esac ;;
+    archlinux:arch:*) asset='mesa-for-android-container_27.0.0-devel-20261025-r2_archlinux_arm64.tar' ;;
+    fedora:fedora:*) case "$version" in 43|44|45) asset="mesa-for-android-container_27.0.0-devel-20261025-r2_fedora_${version}_arm64.tar.gz" ;; esac ;;
+    opensuse:opensuse-tumbleweed:*) asset='mesa-for-android-container_27.0.0-devel-20261025-r2_opensuse_tumbleweed_arm64.tar.gz' ;;
+    void:void:*) asset='mesa-for-android-container_27.0.0-devel-20261025-r2_void_arm64.tar.gz' ;;
+    deepin:deepin:*) case "$codename:$version" in crimson:*|*:25*) asset='mesa-for-android-container_27.0.0-devel-20261025-r2_deepin_crimson_arm64.tar.gz' ;; esac ;;
+  esac
+  [ -n "$asset" ] || return 1
+  printf '%s\n' "$asset"
+}
+
 tnx_resolve_freedreno_asset() {
-  printf '%s\n' 'https://github.com/lfdevs/mesa-for-android-container/releases/download/mesa-27.0.0-devel-20261025/mesa-for-android-container_27.0.0-devel-20261025_debian_trixie_arm64.tar.gz'
+  local asset="${1:-}"
+  [ -n "$asset" ] || return 1
+  [[ "$asset" =~ ^mesa-for-android-container_[A-Za-z0-9._-]+_arm64[.]tar([.]gz)?$ ]] || return 2
+  case "$asset" in
+    *)
+      printf '%s\n' "https://github.com/lfdevs/mesa-for-android-container/releases/download/mesa-27.0.0-devel-20261025-r2/$asset" ;;
+  esac
 }
 
 tnx_expected_freedreno_sha() {
-  printf '%s\n' 'b711d1d9ab5537ee9085da8896dfe2115e791b33aa317fe37538f276c967d687'
+  case "${1:-}" in
+    mesa-for-android-container_27.0.0-devel-20261025-r2_debian_trixie_arm64.tar.gz) printf '%s\n' 79e1aaf5a49e204fae68a5c87c76248701ba723f4349bda87d310f456c5705cf ;;
+    mesa-for-android-container_27.0.0-devel-20261025-r2_alpine_3.24_arm64.tar.gz) printf '%s\n' 452bc884459dc74e8ba7ac72232628be03b0870a5904bafb8a0a14ee154d2fd4 ;;
+    mesa-for-android-container_27.0.0-devel-20261025-r2_archlinux_arm64.tar) printf '%s\n' 62c58f5ba71aa8a010adc750870c3ff555f2d58cf7d39723e340a6f5a8d83da9 ;;
+    mesa-for-android-container_27.0.0-devel-20261025-r2_debian_testing_arm64.tar.gz) printf '%s\n' 25a05d624bb215b656b8446d1b559e36af24e8f7d9c1529445fe97f6f777dc73 ;;
+    mesa-for-android-container_27.0.0-devel-20261025-r2_deepin_crimson_arm64.tar.gz) printf '%s\n' 6b51771ed4a9f6baf8d352d3ecf211fa8fffc97c3fd973d1debc05db98f13a4c ;;
+    mesa-for-android-container_27.0.0-devel-20261025-r2_fedora_43_arm64.tar.gz) printf '%s\n' e6d381bf2b88aaf30364d07e65d08db45d4b3b232cbcf03fb42204be5b4f7ca2 ;;
+    mesa-for-android-container_27.0.0-devel-20261025-r2_fedora_44_arm64.tar.gz) printf '%s\n' 3dac82afea18d843dc827f455a8fe251c4ce0541dc8a7b3910b5fd10577be910 ;;
+    mesa-for-android-container_27.0.0-devel-20261025-r2_fedora_45_arm64.tar.gz) printf '%s\n' b98f251b3f03b77ac68e230865bcddc6c35de7aa26a7aac650ea5adf8f13f6f1 ;;
+    mesa-for-android-container_27.0.0-devel-20261025-r2_opensuse_tumbleweed_arm64.tar.gz) printf '%s\n' c62c13ccc7829d259f864b7172d85a465e02a868fd8b7dfaa6b1b7de99adc9fd ;;
+    mesa-for-android-container_27.0.0-devel-20261025-r2_ubuntu_noble_arm64.tar.gz) printf '%s\n' 6c456733fe9d3ef7a7a2d6c5519a42d55023f634842c16b48a8b9a817927f846 ;;
+    mesa-for-android-container_27.0.0-devel-20261025-r2_ubuntu_questing_arm64.tar.gz) printf '%s\n' f0a18561df2ffb2a15a5a18f9c37d28263c7aaa61a28a4f67af52e1d32169f08 ;;
+    mesa-for-android-container_27.0.0-devel-20261025-r2_ubuntu_resolute_arm64.tar.gz) printf '%s\n' 4798c8e3b6063142b6d484b85cb91e30b97eff8833efde32655f9a6e0e8a929c ;;
+    mesa-for-android-container_27.0.0-devel-20261025-r2_ubuntu_rolling_arm64.tar.gz) printf '%s\n' f3c6e4ab786b885868967cf9e63ed894d84a2a63d264ba0c26887de1f1a30bf8 ;;
+    mesa-for-android-container_27.0.0-devel-20261025-r2_void_arm64.tar.gz) printf '%s\n' e72db7385cebcde133fb0aaa983db17aff0c5417ab4748ab7162fefcfd1c6d0e ;;
+    *) return 1 ;;
+  esac
+}
+
+tnx_validate_full_mesa_archive() {
+  local archive="$1" listing=""
+  listing="$(tar -tzf "$archive" 2>/dev/null)" || return 1
+  printf '%s\n' "$listing" | awk '
+    /^\// || /(^|\/)\.\.($|\/)/ { bad=1 }
+    END { if (bad) exit 1 }
+  ' || return 1
+  printf '%s\n' "$listing" | grep -Eq '(^|/)dri/zink_dri[.]so$' &&
+    printf '%s\n' "$listing" | grep -Eq '(^|/)dri/kgsl_dri[.]so$' &&
+    printf '%s\n' "$listing" | grep -Eq '(^|/)libvulkan_freedreno[.]so$' &&
+    printf '%s\n' "$listing" | grep -Eq '(^|/)vulkan/icd[.]d/freedreno_icd[.]aarch64[.]json$'
+}
+
+tnx_validate_arch_mesa_archive() {
+  local archive="$1" listing=""
+  listing="$(tar -tf "$archive" 2>/dev/null)" || return 1
+  printf '%s\n' "$listing" | awk '/^\// || /(^|\/)\.\.($|\/)/ { bad=1 } END { if (bad) exit 1 }' || return 1
+  printf '%s\n' "$listing" | grep -q '^mesa-.*-aarch64[.]pkg[.]tar[.]xz$' &&
+    printf '%s\n' "$listing" | grep -q '^vulkan-freedreno-.*-aarch64[.]pkg[.]tar[.]xz$'
 }
 
 # ---------------------------------------------------------------------------
@@ -1025,24 +1247,24 @@ tnx_phase_audio_fonts() {
       apt)
         DPKG_FORCE=\"-o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef\"
         sudo apt update
-        sudo DEBIAN_FRONTEND=noninteractive apt install -y \$DPKG_FORCE locales fonts-symbola fonts-noto-color-emoji fonts-font-awesome fonts-powerline
+        sudo DEBIAN_FRONTEND=noninteractive apt install -y \$DPKG_FORCE locales wget fonts-symbola fonts-noto-color-emoji fonts-font-awesome fonts-powerline
         grep -qxF \"${locale} UTF-8\" /etc/locale.gen 2>/dev/null || echo \"${locale} UTF-8\" | sudo tee -a /etc/locale.gen >/dev/null
         sudo locale-gen \"${locale}\"
         ;;
       apk)
-        sudo apk add musl-locales musl-locales-lang font-noto font-noto-emoji font-awesome
+        sudo apk add musl-locales musl-locales-lang wget font-noto font-noto-emoji font-awesome
         ;;
       pacman)
-        sudo pacman -S --noconfirm --needed glibc noto-fonts noto-fonts-emoji ttf-font-awesome
+        sudo pacman -S --noconfirm --needed glibc wget noto-fonts noto-fonts-emoji ttf-font-awesome
         ;;
       dnf)
-        sudo dnf install -y glibc-langpack-en google-noto-sans-fonts google-noto-emoji-fonts fontawesome-fonts
+        sudo dnf install -y glibc-langpack-en wget google-noto-sans-fonts google-noto-emoji-fonts fontawesome-fonts
         ;;
       zypper)
-        sudo zypper --non-interactive install -y glibc-locale google-noto-sans-fonts google-noto-emoji-fonts fontawesome-fonts
+        sudo zypper --non-interactive install -y glibc-locale wget google-noto-sans-fonts google-noto-emoji-fonts fontawesome-fonts
         ;;
       xbps)
-        sudo xbps-install -Sy glibc-locales noto-fonts-ttf font-awesome
+        sudo xbps-install -Sy glibc-locales wget noto-fonts-ttf font-awesome
         ;;
     esac
     grep -q \"export LANG='${locale}'\" ~/.bashrc 2>/dev/null || echo \"export LANG='${locale}'\" >> ~/.bashrc
@@ -1050,7 +1272,7 @@ tnx_phase_audio_fonts() {
     # The launcher exports the live loopback PulseAudio endpoint for desktop apps.
     mkdir -p ~/.local/share/fonts
     if [ ! -f ~/.local/share/fonts/.ternux-nerdfont-v3.5.1-installed ]; then
-      font_archive=\"\$(mktemp /tmp/ternux-jetbrainsmono.XXXXXX.tar.xz)\"
+      font_archive=\"\$(mktemp /tmp/ternux-jetbrainsmono.XXXXXX)\"
       if wget -q -O \"\$font_archive\" \"https://github.com/ryanoasis/nerd-fonts/releases/download/v3.5.1/JetBrainsMono.tar.xz\" \
         && echo \"04d5e8f903693f9dd13e16f867e994834e681eb3c72c0d337a770dcda09010cf  \$font_archive\" | sha256sum -c - >/dev/null \
         && tar -xJf \"\$font_archive\" -C ~/.local/share/fonts/; then
@@ -1084,7 +1306,7 @@ tnx_phase_launcher() {
   case "$backend" in
     zink|zink-turnip) backend="zink" ;;
     virgl) backend="virgl" ;;
-    auto) [ -e "${TERNUX_KGSL_DEVICE:-/dev/kgsl-3d0}" ] && backend="zink" || backend="virgl" ;;
+    auto) backend="$(tnx_gpu_backend_auto "$distro")" ;;
     *) tnx_fail "Launcher backend must be auto, zink or virgl."; return 2 ;;
   esac
 
@@ -1154,17 +1376,21 @@ guest_login_isolated() {
   local -a api_cache_paths=("$host_home/.cache/ternux-camera" "$host_home/.cache/ternux-recorder")
 
   local storage_allowlist="$HOME/.local/share/ternux/storage-allowlist"
+  local storage_root storage_host storage_guest storage_real storage_expected storage_extra
+  # Expose Android storage at the documented /sdcard path in every managed
+  # desktop. The Termux app must already have Android storage permission.
+  storage_root="$(realpath -e /sdcard 2>/dev/null || true)"
+  if [ -n "$storage_root" ] && [ -d "$storage_root" ]; then login_args+=(--bind "$storage_root:/sdcard"); fi
   if [ -e "$storage_allowlist" ]; then
     [ ! -L "$storage_allowlist" ] && [ -f "$storage_allowlist" ] || { echo "Unsafe Ternux storage allowlist; refusing storage mounts." >&2; return 1; }
-    local storage_root storage_host storage_guest storage_real storage_expected storage_extra
-    storage_root="$(realpath -e /sdcard 2>/dev/null)" || { echo "Granted Android storage is unavailable." >&2; return 1; }
+    [ -n "$storage_root" ] && [ -d "$storage_root" ] || { echo "Granted Android storage is unavailable." >&2; return 1; }
     while IFS=$'\t' read -r storage_host storage_guest storage_extra; do
       [ -n "$storage_host" ] || continue
       storage_expected="/sdcard/${storage_host#"$storage_root"/}"
       [ -z "$storage_extra" ] && [[ "$storage_host" == "$storage_root"/* && "$storage_host" != *:* && "$storage_guest" == "$storage_expected" && "$storage_guest" != *:* ]] || { echo "Out-of-scope Ternux storage grant." >&2; return 1; }
       storage_real="$(realpath -e -- "$storage_host" 2>/dev/null)" || return 1
       [ "$storage_real" = "$storage_host" ] && [ -d "$storage_host" ] || return 1
-      login_args+=(--bind "$storage_host:$storage_guest")
+      if [ "$storage_guest" != /sdcard ] || [ -z "$storage_root" ]; then login_args+=(--bind "$storage_host:$storage_guest"); fi
     done < "$storage_allowlist"
   fi
   login_args+=(--bind "$prefix:$prefix")
@@ -1232,10 +1458,26 @@ for ((candidate=4713; candidate<=4722; candidate++)); do
 done
 if [ -z "$PULSE_PORT" ]; then echo "ERROR: Could not open the loopback PulseAudio bridge on ports 4713-4722."; exit 1; fi
 echo "PulseAudio bridge ready on 127.0.0.1:$PULSE_PORT."
-# Display
+# Display: tagged windows need a matching recent Termux:X11 Android APK.
+# Older installed APKs reject -tag even when the Termux nightly companion is
+# present, so retry on the same display in its shared-window compatibility mode.
+TNX_TAGGED_DISPLAY=1
 termux-x11 "$TNX_DISPLAY" -tag "$TNX_TAG" -legacy-drawing -ac &
 X11_PID=$!
 X11_START_ID="$(proc_start_identity "$X11_PID")"
+TAGGED_WAITED=0
+while [ ! -S "$TMPDIR/.X11-unix/X${TNX_DISPLAY#:}" ] && [ "$TAGGED_WAITED" -lt 50 ]; do
+  if ! kill -0 "$X11_PID" 2>/dev/null; then break; fi
+  TAGGED_WAITED=$((TAGGED_WAITED+1)); sleep 0.1
+done
+if [ ! -S "$TMPDIR/.X11-unix/X${TNX_DISPLAY#:}" ]; then
+  kill_owned_child "$X11_PID" "$X11_START_ID"
+  TNX_TAGGED_DISPLAY=0
+  echo "WARNING: Termux:X11 APK did not create the tagged display; retrying shared-window mode."
+  termux-x11 "$TNX_DISPLAY" -legacy-drawing -ac &
+  X11_PID=$!
+  X11_START_ID="$(proc_start_identity "$X11_PID")"
+fi
 echo "Waiting for Termux-X11..."
 WAITED=0
 while [ ! -S "$TMPDIR/.X11-unix/X${TNX_DISPLAY#:}" ]; do
@@ -1243,32 +1485,50 @@ while [ ! -S "$TMPDIR/.X11-unix/X${TNX_DISPLAY#:}" ]; do
   if [ "$WAITED" -ge 300 ]; then echo "ERROR: timed out waiting for Termux:X11."; exit 1; fi
   WAITED=$((WAITED+1)); sleep 0.1
 done
-echo "Display $TNX_DISPLAY ready ($TNX_TAG)."
-am start --user 0 -n com.termux.x11/com.termux.x11.MainActivity -d "$TNX_TAG" >/dev/null 2>&1 || true
+if [ "$TNX_TAGGED_DISPLAY" = 1 ]; then
+  echo "Display $TNX_DISPLAY ready ($TNX_TAG)."
+  mkdir -p "$(dirname "$TNX_PID_FILE")"
+  printf 'tagged\n' > "$(dirname "$TNX_PID_FILE")/x11-display-mode"
+  am start --user 0 -n com.termux.x11/com.termux.x11.MainActivity -d "$TNX_TAG" >/dev/null 2>&1 || true
+else
+  echo "Display $TNX_DISPLAY ready (shared Termux:X11 window; install the matching nightly APK for separate guest windows)."
+  mkdir -p "$(dirname "$TNX_PID_FILE")"
+  printf 'shared\n' > "$(dirname "$TNX_PID_FILE")/x11-display-mode"
+  am start -n com.termux.x11/com.termux.x11.MainActivity >/dev/null 2>&1 || true
+fi
 cat > "$TNX_GUEST_SESSION_SCRIPT" <<'TERNUX_GUEST_EOF'
 #!/usr/bin/env bash
 set -u
 export HOME="/home/${TERNUX_GUEST_USER:-ternux}"
 export GTK_IM_MODULE=ibus QT_IM_MODULE=ibus QT_QPA_PLATFORMTHEME=gtk3 XMODIFIERS=@im=ibus
-unset IBUS_ADDRESS
+export GTK_THEME=Ternux
+if grep -q '^ID=alpine$' /etc/os-release 2>/dev/null && [ "$(uname -m)" = aarch64 ] && [ -r /usr/local/lib/ternux/libternux-faccessat.so ]; then
+  if [ -n "${LD_PRELOAD:-}" ]; then LD_PRELOAD="/usr/local/lib/ternux/libternux-faccessat.so:$LD_PRELOAD"; else LD_PRELOAD=/usr/local/lib/ternux/libternux-faccessat.so; fi
+  export LD_PRELOAD
+fi
+ibus_display_key=$(printf '%s' "$DISPLAY" | sed 's/[^A-Za-z0-9_.-]/_/g')
+IBUS_ADDRESS="unix:path=/data/data/com.termux/files/usr/var/lib/ternux/runtime/ibus-${ibus_display_key}.sock"
+export IBUS_ADDRESS
 mkdir -p "$HOME/.runtime"
 chmod 700 "$HOME/.runtime"
+# Repair legacy root-owned cache paths before IBus binds its private socket.
+sudo -n install -d -o "$(id -u)" -g "$(id -g)" -m 0700 "$HOME/.cache" "$HOME/.cache/ibus" "$HOME/.config/ibus" 2>/dev/null || true
+sudo -n chown "$(id -u):$(id -g)" "$HOME/.cache" "$HOME/.cache/ibus" "$HOME/.config/ibus" 2>/dev/null || true
 sudo -n mkdir -p /var/run/dbus /run/dbus "/run/user/$(id -u)" 2>/dev/null || true
 sudo -n dbus-uuidgen --ensure >/dev/null 2>&1 || true
 sudo -n rm -f /etc/xdg/autostart/light-locker.desktop 2>/dev/null || true
-exec dbus-run-session -- bash -c '
+exec /usr/local/bin/ternux-session-bus bash -c '
   set -u
   until xdpyinfo -display "$DISPLAY" >/dev/null 2>&1; do sleep 0.1; done
   # --replace targets the selected account session bus; process-wide pkill would
   # disrupt other PRoot desktops sharing the guest process namespace.
-  ibus-daemon --daemonize --xim --replace
-  ibus_tries=0
-  until ibus address 2>/dev/null | grep -q "^unix:" || [ "$ibus_tries" -ge 20 ]; do ibus_tries=$((ibus_tries + 1)); sleep 0.1; done
+  /usr/local/bin/ternux-ibus-session-init || echo "WARNING: IBus session setup failed; Ctrl+Space may not work." >&2
   startxfce4 &
   session_pid=$!
   tries=0
   until { xfconf-query -c xsettings -l >/dev/null 2>&1 && pgrep -x xfdesktop >/dev/null 2>&1 && pgrep -x xfwm4 >/dev/null 2>&1; } || [ "$tries" -ge 100 ] || ! kill -0 "$session_pid" 2>/dev/null; do tries=$((tries + 1)); sleep 0.2; done
   if ! kill -0 "$session_pid" 2>/dev/null || ! pgrep -x xfdesktop >/dev/null 2>&1 || ! pgrep -x xfwm4 >/dev/null 2>&1; then echo "ERROR: XFCE session, window manager, or desktop did not become ready."; exit 1; fi
+  xfconf-query -c xfce4-keyboard-shortcuts -p "/commands/custom/<Primary>space" --create -t string -s /usr/local/bin/ternux-ibus-next-engine >/dev/null 2>&1 || echo "WARNING: Could not register the global Ctrl+Space IBus switch shortcut." >&2
   defaults_marker="$HOME/.config/ternux/desktop-defaults-v1"
   if [ ! -e "$defaults_marker" ]; then
     xfconf-query -c xsettings -p /Net/ThemeName --create -t string -s Ternux
@@ -1306,6 +1566,23 @@ exec dbus-run-session -- bash -c '
     fi
     install -d -m 0755 "$HOME/.config/ternux"; : > "$wallpaper_migration_marker"
   fi
+  wallpaper_readability_marker="$HOME/.config/ternux/readable-wallpaper-v1"
+  if [ ! -e "$wallpaper_readability_marker" ]; then
+    fallback_wallpaper=/usr/share/backgrounds/ternux/01-aurora-circuit.svg
+    for monitor in monitor0 monitor1 monitorbuiltin; do
+      monitor_path="/backdrop/screen0/$monitor"
+      for wallpaper_property in image-path last-image workspace0/last-image; do
+        property_path="$monitor_path/$wallpaper_property"
+        current_wallpaper=$(xfconf-query -c xfce4-desktop -p "$property_path" 2>/dev/null || true)
+        if [ -z "$current_wallpaper" ] || [ ! -r "$current_wallpaper" ]; then
+          xfconf-query -c xfce4-desktop -p "$property_path" --create -t string -s "$fallback_wallpaper" >/dev/null 2>&1 || true
+        fi
+      done
+      xfconf-query -c xfce4-desktop -p "$monitor_path/image-show" --create -t bool -s true >/dev/null 2>&1 || true
+    done
+    xfdesktop --reload >/dev/null 2>&1 || true
+    install -d -m 0755 "$HOME/.config/ternux"; : > "$wallpaper_readability_marker"
+  fi
   icon_migration_marker="$HOME/.config/ternux/desktop-icons-v2"
   if [ ! -e "$icon_migration_marker" ]; then
     current_icon_theme=$(xfconf-query -c xsettings -p /Net/IconThemeName 2>/dev/null || true)
@@ -1333,7 +1610,7 @@ LAUNCHEOF
     cat >> "$LAUNCHER" << EOF
  : > "\$TNX_READY_FILE"
 chmod 666 "\$TNX_READY_FILE"
-guest_login_isolated $distro --bind /dev/kgsl-3d0:/dev/kgsl --bind /dev/dri --bind "\$TNX_CPUINFO_FILE:/proc/cpuinfo" --bind "\$TNX_GUEST_SESSION_SCRIPT:/tmp/ternux-desktop-session.sh" --bind "\$TNX_READY_FILE:/tmp/ternux-desktop-ready" --user $user_name \\
+guest_login_isolated $distro --bind /dev/kgsl-3d0:/dev/kgsl-3d0 --bind /dev/kgsl-3d0:/dev/kgsl --bind /dev/dri --bind "\$TNX_CPUINFO_FILE:/proc/cpuinfo" --bind "\$TNX_GUEST_SESSION_SCRIPT:/tmp/ternux-desktop-session.sh" --bind "\$TNX_READY_FILE:/tmp/ternux-desktop-ready" --user $user_name \\
   --env DISPLAY=__TNX_DISPLAY__ --env PULSE_SERVER="tcp:127.0.0.1:\$PULSE_PORT" \\
   --env TERNUX_GUEST_USER=$user_name --env TERNUX_READY_FILE=/tmp/ternux-desktop-ready \\
   --env MESA_LOADER_DRIVER_OVERRIDE=zink --env TU_DEBUG=noconform --env MESA_VK_WSI_DEBUG=sw \\
@@ -1491,12 +1768,15 @@ _ternux_guest_user() {
   printf '%s\n' "\${user:-ternux}"
 }
 db() { _ternux_guest_login debian --shared-tmp --user "\$(_ternux_guest_user debian)" "\$@"; }
-dbr() { _ternux_guest_login debian --shared-tmp "\$@"; }
-droot() { dbr "\$@"; }
+dbroot() { _ternux_guest_login debian --shared-tmp "\$@"; }
+dbr() { dbroot "\$@"; }
+droot() { dbroot "\$@"; }
 ub() { _ternux_guest_login ubuntu --shared-tmp --user "\$(_ternux_guest_user ubuntu)" "\$@"; }
-ubr() { _ternux_guest_login ubuntu --shared-tmp "\$@"; }
+ubroot() { _ternux_guest_login ubuntu --shared-tmp "\$@"; }
+ubr() { ubroot "\$@"; }
 alp() { _ternux_guest_login alpine --shared-tmp --user "\$(_ternux_guest_user alpine)" "\$@"; }
-alpr() { _ternux_guest_login alpine --shared-tmp "\$@"; }
+alproot() { _ternux_guest_login alpine --shared-tmp "\$@"; }
+alpr() { alproot "\$@"; }
 archx() { _ternux_guest_login archlinux --shared-tmp --user "\$(_ternux_guest_user archlinux)" "\$@"; }
 archroot() { _ternux_guest_login archlinux --shared-tmp "\$@"; }
 fed() { _ternux_guest_login fedora --shared-tmp --user "\$(_ternux_guest_user fedora)" "\$@"; }
@@ -1562,7 +1842,7 @@ clean-mesa() { _ternux_guest_login "\$distro" --user "\$user_name" -- bash -c 'r
 sysmon() { echo "--- CPU & Memory ---"; free -h; echo ""; echo "--- GPU / KGSL ---"; ls -l /dev/kgsl-3d0 /dev/dri 2>/dev/null || echo "No GPU nodes."; }
 # ==== END TERNUX ALIASES ====
 ALIASEOF
-  tnx_ok "Aliases installed: tx, x, xgo, killx, distro user/root shells, sysmon"
+  tnx_ok "Aliases installed: tx, x, xgo, killx, distro user/root shells (including dbroot/ubroot/alproot), sysmon"
 }
 
 # ---------------------------------------------------------------------------
@@ -1635,7 +1915,6 @@ tnx_phase_extras() {
       micro) apt_packages+=(micro) ;;
       thonny) apt_packages+=(thonny) ;;
       gh) apt_packages+=(gh) ;;
-      firefox) apt_packages+=(firefox-esr) ;;
       evolution) apt_packages+=(evolution gnome-online-accounts-gtk) ;;
       celestia) celestia_selected=1; apt_packages+=(python3 gnupg ca-certificates) ;;
       adt-build-tools|adt-platform-tools|adt-ndk|adt-cmake) apt_packages+=(git curl ca-certificates) ;;
@@ -1682,7 +1961,29 @@ tnx_phase_extras() {
     fi
   fi
   if [ ${#unique_packages[@]} -gt 0 ]; then
-    tnx_guest_login --shared-tmp --user "$user_name" -- bash -c "$APT ${unique_packages[*]}" || { tnx_warn "One or more selected Debian packages failed to install."; rc=1; }
+    # Resolve package availability first, then install each selected package in
+    # its own transaction. A distro-specific missing package must not prevent
+    # unrelated selected tools from being installed.
+    if ! tnx_guest_login --shared-tmp --user "$user_name" -- bash -s -- "${unique_packages[@]}" <<'TNX_APT_OPTIONAL_INSTALL'
+set -u
+export DEBIAN_FRONTEND=noninteractive
+sudo apt update -o APT::Color=1 || exit 1
+failed=0
+for package in "$@"; do
+  candidate="$(apt-cache policy "$package" 2>/dev/null | awk '/^[[:space:]]*Candidate:/ {print $2; exit}')"
+  if [ -z "$candidate" ] || [ "$candidate" = '(none)' ]; then
+    printf 'Ternux: no repository candidate for optional package %s; continuing with the remaining selections.\n' "$package" >&2
+    failed=1
+    continue
+  fi
+  if ! sudo DEBIAN_FRONTEND=noninteractive apt install -y -o APT::Color=1 -o Dpkg::Progress-Fancy=1 "$package"; then
+    printf 'Ternux: optional package %s failed; continuing with the remaining selections.\n' "$package" >&2
+    failed=1
+  fi
+done
+exit "$failed"
+TNX_APT_OPTIONAL_INSTALL
+    then tnx_warn "One or more selected packages were unavailable or failed; other selected packages were still attempted."; rc=1; fi
   fi
   if [ "$celestia_selected" -eq 1 ]; then
     if [ "$(tnx_distro)" != debian ]; then
@@ -1730,7 +2031,7 @@ tnx_phase_extras() {
   done
   for opt in "${install_opts[@]}"; do
     case "$opt" in
-      dev|llm|network|media|git|python|node|build|rust|java|golang|php|sqlite3|ripgrep|jq|htop|tree|godot|geany|neovim|micro|thonny|gh|firefox|nmap|tmux|ffmpeg|vlc|mpv|gimp|krita|inkscape|audacity|imagemagick|libreoffice-writer|libreoffice-calc|libreoffice-draw|blender) ;;
+      dev|llm|network|media|git|python|node|build|rust|java|golang|php|sqlite3|ripgrep|jq|htop|tree|godot|geany|neovim|micro|thonny|gh|nmap|tmux|ffmpeg|vlc|mpv|gimp|krita|inkscape|audacity|imagemagick|libreoffice-writer|libreoffice-calc|libreoffice-draw|blender) ;;
       adt-build-tools|adt-platform-tools|adt-ndk|adt-cmake|adt-cmdline|adt-platform)
         if tnx_guest_login --shared-tmp --user "$user_name" -- bash -lc '
           set -e
@@ -1893,6 +2194,7 @@ tnx_phase_phantom() {
 tnx_phase_verify() {
   local user_name="${1:-ternux}" backend="${2:-auto}"
   local rc=0
+  [ "$backend" = auto ] && backend="$(tnx_gpu_backend_auto "$(tnx_distro)")"
 
   tnx_has_cmd termux-x11  && tnx_ok "termux-x11 found"  || { tnx_fail "termux-x11 missing"; rc=1; }
   tnx_has_cmd proot-distro && tnx_ok "proot-distro found" || { tnx_fail "proot-distro missing"; rc=1; }
@@ -1911,7 +2213,7 @@ tnx_phase_verify() {
   esac
 
   guest_version="$(tnx_guest_login --user "$user_name" -- bash -lc \
-    'command -v ternux >/dev/null && ternux --version' 2>&1)" || true
+    'command -v ternux >/dev/null && ternux --version' 2>/dev/null)" || true
   case "$guest_version" in
     "ternux guest v${TERNUX_VERSION}"|"ternux guest v${TERNUX_VERSION}"$'\n'*) tnx_ok "Guest/Xfce terminal companion is in PATH and version-verified" ;;
     *) tnx_fail "Guest/Xfce terminal companion is missing, cannot execute, or returned an unexpected version"; rc=1 ;;
@@ -1922,7 +2224,12 @@ tnx_phase_verify() {
   else tnx_fail "Guest desktop core failed"; rc=1; fi
 
   if [ "$backend" = "zink" ]; then
-    if tnx_guest_login -- bash -c '
+    if [ "$(tnx_distro)" != debian ] && tnx_guest_login -- bash -c '
+      find /usr -name zink_dri.so -print -quit 2>/dev/null | grep -q . &&
+      find /usr -name "libvulkan_freedreno.so*" -print -quit 2>/dev/null | grep -q .
+    ' >/dev/null 2>&1; then
+      tnx_ok "Native Mesa Zink/Freedreno driver packages present"
+    elif tnx_guest_login -- bash -c '
       { [ -f /usr/local/lib/aarch64-linux-gnu/libvulkan_freedreno.so ] &&
         [ -f /usr/local/share/vulkan/icd.d/ternux_freedreno_icd.json ]; } ||
       { [ -f /usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so ] &&
@@ -1942,8 +2249,8 @@ tnx_phase_verify() {
 tnx_phase_cli() {
   local prefix="${PREFIX:-/data/data/com.termux/files/usr}"
   local bin_dir="$prefix/bin" lib_dir="$prefix/lib/ternux"
-  local cli_src="" try="" cleanup_dir="" archive="" listing=""
-  local root_name="" source_root="" source_lib_dir="" local_lib=""
+  local cli_src="" tx_src="" try="" try_tx="" cleanup_dir="" archive="" listing=""
+  local root_name="" source_root="" resource_root="" source_lib_dir="" local_lib=""
   local source_commit="${TERNUX_SOURCE_COMMIT:-}" source_sha256="${TERNUX_SOURCE_SHA256:-}"
 
   # APT owns the packaged CLI files. Keep dpkg's file inventory consistent;
@@ -1957,7 +2264,11 @@ tnx_phase_cli() {
     }
     case "$managed_version" in
       "ternux v${TERNUX_VERSION}"|"ternux v${TERNUX_VERSION}"$'\n'*)
-        tnx_ok "APT-managed Ternux CLI is installed and version-verified: ${TERNUX_VERSION}"
+        if [ ! -x "$bin_dir/tx" ] || [ "$("$bin_dir/tx" --version 2>&1)" != "$managed_version" ]; then
+          tnx_fail "APT-managed short command is missing or stale. Repair with: pkg reinstall ternux"
+          return 1
+        fi
+        tnx_ok "APT-managed Ternux CLI and tx command are installed and version-verified: ${TERNUX_VERSION}"
         return 0 ;;
       *)
         tnx_fail "APT-managed CLI version mismatch (${managed_version}). Upgrade or reinstall with: pkg upgrade ternux"
@@ -1971,6 +2282,15 @@ tnx_phase_cli() {
     for try in "$(dirname "${BASH_SOURCE[0]}")/../bin/ternux" \
                 "$(dirname "$0")/bin/ternux"; do
       [ -f "$try" ] && { cli_src="$try"; break; }
+    done
+  fi
+
+  if [ -n "${_TNX_SRC:-}" ] && [ -f "$_TNX_SRC/bin/tx" ]; then
+    tx_src="$_TNX_SRC/bin/tx"
+  else
+    for try_tx in "$(dirname "${BASH_SOURCE[0]}")/../bin/tx" \
+                  "$(dirname "$0")/bin/tx"; do
+      [ -f "$try_tx" ] && { tx_src="$try_tx"; break; }
     done
   fi
 
@@ -2022,17 +2342,36 @@ tnx_phase_cli() {
     fi
     source_root="$cleanup_dir/$root_name"
     cli_src="$source_root/bin/ternux"
+    tx_src="$source_root/bin/tx"
+    # Older pinned source snapshots predate the tx entry point. Keep the
+    # archive immutable and synthesize the tiny dispatcher beside it so the
+    # same verified ternux CLI can still be installed under the short command.
+    if [ ! -f "$tx_src" ] && [ -f "$cli_src" ]; then
+      tx_src="$cleanup_dir/tx"
+      cat > "$tx_src" <<'TX_WRAPPER'
+#!/usr/bin/env bash
+set -euo pipefail
+script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
+exec bash "$script_dir/ternux" "$@"
+TX_WRAPPER
+      chmod 0755 "$tx_src" || {
+        tnx_fail "Could not create the short Ternux command wrapper."
+        rm -rf "$cleanup_dir"
+        return 1
+      }
+    fi
   fi
 
   source_lib_dir="$(dirname "$cli_src")/../lib"
+  resource_root="$(cd "$source_lib_dir" 2>/dev/null && pwd -P)"
   local source_libs=("$source_lib_dir/"*.sh)
   mkdir -p "$bin_dir" "$lib_dir" || {
     tnx_fail "Could not create the host CLI directories."
     [ -n "$cleanup_dir" ] && rm -rf "$cleanup_dir"
     return 1
   }
-  if [ ! -f "$cli_src" ] || [ ! -e "${source_libs[0]}" ] ||
-     ! bash -n "$cli_src" 2>/dev/null; then
+  if [ ! -f "$cli_src" ] || [ ! -f "$tx_src" ] || [ ! -e "${source_libs[0]}" ] ||
+     ! bash -n "$cli_src" 2>/dev/null || ! bash -n "$tx_src" 2>/dev/null; then
     tnx_fail "CLI source snapshot is incomplete or failed shell syntax validation."
     [ -n "$cleanup_dir" ] && rm -rf "$cleanup_dir"
     return 1
@@ -2051,8 +2390,44 @@ tnx_phase_cli() {
       return 1
     fi
   done
+  # The guest phase consumes these immutable source resources after the CLI
+  # has been installed. Keep them beside the host modules so `tx install`
+  # works the same way as the standalone bootstrap, whose source tree is
+  # available for the whole run.
+  for local_lib in ternux-welcome.sh ternux-welcome-gui.py ternux-window-fit.lua \
+                   ternux-camera.py ternux-recorder.py ternux-panel-shortcuts.sh \
+                   ternux-install-firefox-esr.sh; do
+    if [ -s "$resource_root/$local_lib" ]; then
+      install -m 0644 "$resource_root/$local_lib" "$lib_dir/$local_lib" || {
+        tnx_fail "Could not install required desktop resource: $local_lib"
+        [ -n "$cleanup_dir" ] && rm -rf "$cleanup_dir"
+        return 1
+      }
+    fi
+  done
+  if [ -d "$resource_root/ternux-assets" ]; then
+    mkdir -p "$lib_dir/ternux-assets" &&
+      cp -a "$resource_root/ternux-assets/." "$lib_dir/ternux-assets/" || {
+        tnx_fail "Could not install required Ternux branding assets."
+        [ -n "$cleanup_dir" ] && rm -rf "$cleanup_dir"
+        return 1
+      }
+  fi
+  if [ -d "$resource_root/licenses" ]; then
+    mkdir -p "$lib_dir/licenses" &&
+      cp -a "$resource_root/licenses/." "$lib_dir/licenses/" || {
+        tnx_fail "Could not install pinned upstream license notices."
+        [ -n "$cleanup_dir" ] && rm -rf "$cleanup_dir"
+        return 1
+      }
+  fi
   if ! install -m 755 "$cli_src" "$bin_dir/ternux" 2>/dev/null; then
     tnx_fail "Could not install the host CLI."
+    [ -n "$cleanup_dir" ] && rm -rf "$cleanup_dir"
+    return 1
+  fi
+  if ! install -m 755 "$tx_src" "$bin_dir/tx" 2>/dev/null; then
+    tnx_fail "Could not install the short Ternux command."
     [ -n "$cleanup_dir" ] && rm -rf "$cleanup_dir"
     return 1
   fi
@@ -2078,6 +2453,15 @@ tnx_phase_cli() {
       return 1
       ;;
   esac
+  local tx_version=""
+  tx_version="$("$bin_dir/tx" --version 2>&1)" || {
+    tnx_fail "Installed tx command cannot load its Ternux CLI: ${tx_version:-unknown error}"
+    return 1
+  }
+  [ "$tx_version" = "$installed_version" ] || {
+    tnx_fail "Installed tx command returned an unexpected version response: $tx_version"
+    return 1
+  }
   tnx_ok "Termux host CLI loaded its installed libraries: $bin_dir/ternux"
   tnx_state_set "cli_installed" "yes"
   return 0
@@ -2388,9 +2772,9 @@ tnx_prompt_username() {
 
 # Item catalogue for the interactive optional-software checklist. Keep this
 # list aligned with the case labels in tnx_phase_extras.
-TNX_OPTIONAL_ITEMS=(git python node build rust java golang php ripgrep jq gh sqlite3 htop tree geany neovim micro thonny godot firefox adt-build-tools adt-platform-tools adt-ndk adt-cmake adt-cmdline adt-platform llama-vulkan stable-diffusion llama-htp-experimental nmap tmux ffmpeg vlc mpv audacity gimp krita inkscape imagemagick libreoffice-writer libreoffice-calc libreoffice-draw evolution blender celestia claude codex openai-cli hermes openclaw)
-TNX_OPTIONAL_GROUPS=(DEV DEV DEV DEV LANG LANG LANG LANG DEV DEV DEV DATA SYSTEM SYSTEM IDE IDE IDE IDE GAME WEB ANDROID ANDROID ANDROID ANDROID ANDROID ANDROID AI AI AI NET NET MEDIA MEDIA MEDIA MEDIA DESIGN DESIGN DESIGN DESIGN OFFICE OFFICE OFFICE OFFICE 3D 3D AGENT AGENT AGENT AGENT AGENT)
-TNX_OPTIONAL_LABELS=("Git" "Python" "Node.js" "C/C++ tools" "Rust" "Java JDK" "Go toolchain" "PHP CLI" "ripgrep" "jq" "GitHub CLI" "SQLite" "htop" "tree" "Geany" "Neovim" "Micro editor" "Thonny IDE" "Godot" "Firefox ESR" "ADT Build Tools" "ADT Platform Tools / ADB" "ADT NDK" "ADT CMake" "SDK Manager" "Android API 36" "llama.cpp Vulkan" "Stable Diffusion CPU + Vulkan" "llama.cpp HTP (experimental)" "Nmap" "tmux" "FFmpeg" "VLC" "mpv" "Audacity" "GIMP" "Krita" "Inkscape" "ImageMagick" "LibreOffice Writer" "LibreOffice Calc" "LibreOffice Draw" "Evolution Mail" "Blender" "Celestia astronomy simulator" "Claude Code" "Codex CLI" "OpenAI API CLI" "Hermes" "OpenClaw")
+TNX_OPTIONAL_ITEMS=(git python node build rust java golang php ripgrep jq gh sqlite3 htop tree geany neovim micro thonny godot adt-build-tools adt-platform-tools adt-ndk adt-cmake adt-cmdline adt-platform llama-vulkan stable-diffusion llama-htp-experimental nmap tmux ffmpeg vlc mpv audacity gimp krita inkscape imagemagick libreoffice-writer libreoffice-calc libreoffice-draw evolution blender celestia claude codex openai-cli hermes openclaw)
+TNX_OPTIONAL_GROUPS=(DEV DEV DEV DEV LANG LANG LANG LANG DEV DEV DEV DATA SYSTEM SYSTEM IDE IDE IDE IDE GAME ANDROID ANDROID ANDROID ANDROID ANDROID ANDROID AI AI AI NET NET MEDIA MEDIA MEDIA MEDIA DESIGN DESIGN DESIGN DESIGN OFFICE OFFICE OFFICE OFFICE 3D 3D AGENT AGENT AGENT AGENT AGENT)
+TNX_OPTIONAL_LABELS=("Git" "Python" "Node.js" "C/C++ tools" "Rust" "Java JDK" "Go toolchain" "PHP CLI" "ripgrep" "jq" "GitHub CLI" "SQLite" "htop" "tree" "Geany" "Neovim" "Micro editor" "Thonny IDE" "Godot" "ADT Build Tools" "ADT Platform Tools / ADB" "ADT NDK" "ADT CMake" "SDK Manager" "Android API 36" "llama.cpp Vulkan" "Stable Diffusion CPU + Vulkan" "llama.cpp HTP (experimental)" "Nmap" "tmux" "FFmpeg" "VLC" "mpv" "Audacity" "GIMP" "Krita" "Inkscape" "ImageMagick" "LibreOffice Writer" "LibreOffice Calc" "LibreOffice Draw" "Evolution Mail" "Blender" "Celestia astronomy simulator" "Claude Code" "Codex CLI" "OpenAI API CLI" "Hermes" "OpenClaw")
 
 # Parse number lists used when a TTY key-reading menu is unavailable.
 tnx_parse_workload_selection() {
@@ -2577,6 +2961,16 @@ tnx_prompt_workloads() {
 # ---------------------------------------------------------------------------
 # Full installation orchestrator
 # ---------------------------------------------------------------------------
+tnx_install_auto_resume_distro() {
+  local requested="${1:-}" explicit="${2:-0}" saved status
+  saved="$(tnx_state_get distro 2>/dev/null || true)"
+  [ -n "$saved" ] || return 1
+  status="$(tnx_distro_state_get "$saved" status 2>/dev/null || true)"
+  case "$status" in incomplete|installing) ;; *) return 1 ;; esac
+  if [ "$explicit" -eq 1 ] && [ "$requested" != "$saved" ]; then return 1; fi
+  printf '%s' "$saved"
+}
+
 tnx_install_single() {
   local user_name="ternux" locale="en_US.UTF-8" backend="auto" shell_choice="bash"
   local distro_choice="debian" distro_explicit=0
@@ -2622,6 +3016,18 @@ tnx_install_single() {
       *) tnx_fail "Unknown install option: $1"; return 2 ;;
     esac; shift
   done
+
+  # Re-running the normal one-command installer resumes an interrupted guest
+  # automatically. A different explicitly selected guest starts independently.
+  if [ "$resume" -eq 0 ]; then
+    local auto_resume_distro=""
+    auto_resume_distro="$(tnx_install_auto_resume_distro "$distro_choice" "$distro_explicit" || true)"
+    if [ -n "$auto_resume_distro" ]; then
+      resume=1
+      distro_choice="$auto_resume_distro"
+      tnx_info "An incomplete '$distro_choice' install was found; resuming saved choices automatically."
+    fi
+  fi
 
   # A bare `--resume` continues with the interrupted run’s saved choices.
   # Every explicitly supplied option takes precedence over its saved value.
@@ -2691,13 +3097,6 @@ tnx_install_single() {
     . "$(dirname "${BASH_SOURCE[0]}")/ui.sh"
   fi
 
-  if [ "$backend" = "auto" ]; then
-    if [ "$distro_choice" != debian ]; then backend="virgl"
-    else [ -e "${TERNUX_KGSL_DEVICE:-/dev/kgsl-3d0}" ] && backend="zink" || backend="virgl"; fi
-  elif [ "$distro_choice" != debian ] && [ "$backend" = zink ]; then
-    tnx_fail "The pinned Zink/Turnip profile targets Debian Trixie. Select --backend virgl for '$distro_choice'."
-    return 2
-  fi
 
   if [ "$resume" -eq 0 ] && [ "$yes" -eq 0 ] && [ "${#extras[@]}" -eq 0 ]; then
     if [ "$TNX_DP_FAMILY" = apt ]; then
@@ -2746,7 +3145,6 @@ tnx_install_single() {
         llama-vulkan) workload_label="llama.cpp Vulkan release" ;;
         stable-diffusion) workload_label="Stable Diffusion CPU + Vulkan image generator" ;;
         llama-htp-experimental) workload_label="llama.cpp HTP experimental release" ;;
-        firefox) workload_label="Firefox ESR (latest Debian package)" ;;
         neovim) workload_label="Neovim editor" ;;
         gh) workload_label="GitHub CLI" ;;
         nmap|tmux|ffmpeg|vlc|gimp|audacity|imagemagick) workload_label="$workload" ;;

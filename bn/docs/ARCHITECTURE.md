@@ -94,7 +94,7 @@ OpenGL ড্রাইভার নেই। Zink ডেস্কটপ GL ক�
 Adreno-তে Vulkan বাস্তবায়ন করে। পরীক্ষিত Adreno সেটআপে দুজনে মিলে ডেস্কটপ অ্যাপকে সরাসরি GPU route দেয়। প্রতিটি স্তরের সম্মতি দরকার — লোডার, ICD ফাইল বা
 ড্রাইভার বাইনারির একটি না থাকলেই ডেস্কটপ খোলে ঠিকই, কিন্তু রেন্ডার চলে CPU-তে।
 
-### VirGL — অন্যান্য GPU (সামঞ্জস্য)
+### VirGL — সব distro-র GPU পথ
 
 ```text
 OpenGL অ্যাপ্লিকেশন
@@ -109,11 +109,13 @@ OpenGL অ্যাপ্লিকেশন
  Android গ্রাফিক্স স্ট্যাক
 ```
 
-Turnip route না থাকলে VirGL হলো ternux-এর compatibility route। GL command
-কন্টেইনার সীমানা পেরিয়ে host-side renderer-এ যায়। GPU, Android build ও host
-renderer অনুযায়ী feature, acceleration এবং গতি বদলায়; software fallback-ও
-হতে পারে। তাই `glxinfo -B` ও বাস্তব workload দিয়ে যাচাই করুন। VirGL বেছে
-নেওয়া নিজে ব্যর্থতা নয়, কিন্তু renderer evidence ছাড়া accelerated বলা ঠিক নয়।
+Ubuntu ও অন্য named desktop profile-গুলোতে, এবং Debian-এ pinned Adreno/Turnip
+পথ অনুপলভ্য হলে VirGL হলো shared graphics route। Guest Mesa-র `virpipe` driver
+GL command Termux host renderer-এ পাঠায়, যা Android graphics stack ব্যবহার
+করে। এতে সমর্থিত package-manager family-গুলোতে একই GPU পথ থাকে; তবে hardware
+ব্যবহার হবে কি না তা host renderer ও Android build-এর উপর নির্ভর করে। Guest-এ
+`glxinfo -B` চালিয়ে দেখুন: `virpipe` route নিশ্চিত করে, software renderer হলে
+GPU acceleration সক্রিয় নয়।
 
 ---
 

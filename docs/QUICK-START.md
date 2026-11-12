@@ -34,15 +34,15 @@ curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh |
 wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
 ```
 
-With a controlling terminal, first choose one or more named guest profiles in the checklist: move with Up/Down or `j`/`k`, press Space or a profile number to toggle a selection, then Enter to continue. Debian is the recommended default; the other 14 family-matched profiles are available but not device-verified. The next checklist selects optional workloads; press Enter or `0` for the base desktop, or choose the displayed numbers. In a non-interactive run, `--yes` keeps the Debian base profile. See [all guest profiles and package-family recipes](INSTALLATION.html#choosing-a-guest-distribution).
+With a controlling terminal, first choose one or more named guest profiles in the checklist: move with Up/Down or `j`/`k`, press Space or a profile number to toggle a selection, then Enter to continue. Debian is the recommended default. Debian, Ubuntu, and Alpine have partial integration evidence on one Adreno 825 device; clean-install and full-app qualification remain open, and the other 12 profiles are unqualified on a physical device. The next checklist selects optional workloads; press Enter or `0` for the base desktop, or choose the displayed numbers. In a non-interactive run, `--yes` keeps the Debian base profile. See [all guest profiles and package-family recipes](INSTALLATION.html#choosing-a-guest-distribution).
 
 The installer:
 
 1. checks the device (architecture, Android version, storage, network);
 2. installs the Termux packages (X11, PulseAudio, PRoot);
 3. installs the selected guest profile + Xfce4 inside its PRoot container (Debian by default);
-4. detects your GPU and picks the right driver
-   (**Adreno → Zink/Turnip** · other → **VirGL**);
+4. selects a graphics route for the guest profile
+   (**Adreno/KGSL → native distro Zink/Freedreno where packaged** · Debian uses validated Turnip · VirGL compatibility route);
 5. configures audio, fonts and locale;
 6. writes the `x` launcher and shell shortcuts;
 7. verifies everything landed.
@@ -105,23 +105,23 @@ Jump to [Troubleshooting → renderer says llvmpipe](TROUBLESHOOTING.html#render
 ```text
 x          start the desktop          killx   stop everything cleanly
 tx         short alias for ternux     xgo     choose an installed GUI guest
-db / dbr   Debian user / root shell    ub / ubr Ubuntu user / root shell
-alp/alpr   Alpine user / root shell    sysmon  device resource overview
+db / dbroot   Debian user / root shell    ub / ubroot Ubuntu user / root shell
+alp/alproot   Alpine user / root shell    sysmon  device resource overview
 clean-mesa clear the Mesa shader cache
 ```
 
 ### First GUI run, browser and video
 
-After a fresh install, the first GUI session opens the Ternux project page in
-Firefox ESR if it is installed. Without a browser, it shows a one-time welcome
-guide with project/developer links, guest commands and the host benchmark
-command. This happens once per guest user; later desktop boots do not redirect
-to the website. Firefox remains optional; choose it from the installer’s
-optional software list.
+After a fresh install, the first GUI session opens the Ternux project page in the
+included Firefox ESR. The one-time welcome also provides project/developer links,
+guest commands and the host benchmark command. It appears once per guest user;
+later desktop boots do not redirect to the website. Debian-family guests use their
+native Firefox ESR package; Ubuntu uses Mozilla’s official Linux build because its
+archive Firefox package depends on Snap, which Ternux disables in PRoot.
 
-Noto Bengali fonts and the Avro IBus phonetic keyboard are installed by default. The IBus **Next input method** shortcut is **Ctrl+Space**, cycling between English and Bangla. VLC, PulseAudio Volume Control, Xfce Task Manager, Mousepad, Galculator, Evince PDF reader, Ternux Camera, Ternux Sound Recorder, Ristretto, and **Synaptic Package Manager** are included in the base desktop. Synaptic uses the Ternux icon and theme; open it from the Applications menu to browse, install, upgrade, or remove Debian packages. Evince opens PDFs by default; optional LibreOffice Draw provides PDF page editing and export to other formats. No mail client is installed or set as default. Evolution Mail is optional; choose it from the workload selector when needed. It supports common-provider OAuth and manual IMAP/POP setup, opening Firefox ESR or the Android default browser through Ternux for OAuth. One-click Camera, Photos, and Sound Recorder shortcuts are on the Xfce panel.
+Noto Bengali fonts and Avro phonetic input are installed by default. The IBus **Next input method** shortcut is **Ctrl+Space**, cycling between English and Bangla. Alpine installs the Avro-compatible m17n engine from a checksum-pinned upstream source because Alpine does not publish an IBus Avro package; Ctrl+Space is the keyboard switch, with no extra panel button. Firefox browser, VLC, PulseAudio Volume Control, Xfce Task Manager, Mousepad, Galculator, Evince PDF reader, Ternux Camera, Ternux Sound Recorder, Ristretto, and **Synaptic Package Manager** are included in the base desktop. Synaptic uses the Ternux icon and theme; open it from the Applications menu to browse, install, upgrade, or remove Debian packages. Evince opens PDFs by default; optional LibreOffice Draw provides PDF page editing and export to other formats. No mail client is installed or set as default. Evolution Mail is optional; choose it from the workload selector when needed. It supports common-provider OAuth and manual IMAP/POP setup, opening Firefox ESR or the Android default browser through Ternux for OAuth. One-click Camera, Photos, and Sound Recorder shortcuts are on the Xfce panel.
 
-The systemwide Ternux graphite-and-emerald GTK 2/3/4 theme styles applications, menus, and the Xfce panel; Qt 5 apps use the GTK platform theme; custom Ternux Xfwm frames style window borders and title bars. Original Ternux icons cover the base apps, folders, Thunar actions, categories, and panel. Adwaita supplies neutral fallback icons for uncommon or newly installed applications; Papirus is not inherited. Fifteen original portrait-first Ternux wallpapers are selectable in Xfce Desktop settings. Xfce keeps their aspect ratio in landscape; Aurora Circuit is the default.
+The systemwide Ternux graphite-and-emerald GTK 2/3/4 theme styles applications, menus, and the Xfce panel; Qt 5 apps use the GTK platform theme; custom Ternux Xfwm frames style window borders and title bars; GTK client-side titlebar buttons use matching visible controls too. Original Ternux icons cover the base apps, folders, Thunar actions, categories, and panel. Adwaita supplies neutral fallback icons for uncommon or newly installed applications; Papirus is not inherited. Fifteen original portrait-first Ternux wallpapers are selectable in Xfce Desktop settings. Xfce keeps their aspect ratio in landscape; Aurora Circuit is the default.
 
 Ternux Camera lists Android front and rear cameras and captures photos through Termux:API. Grant Camera permission to the Termux:API Android app; the app previews each photo after capture with EXIF orientation corrected and saves it inside Debian at `~/Pictures/Ternux`; its capture is staged privately in Termux home and copied into PRoot. No Android Gallery scan is performed. Ristretto opens the photos. Termux:API provides still-photo capture, not a continuous camera stream, so the app does not show a live camera feed before capture. Ternux Sound Recorder requests microphone access only when you press Start (Android permission is requested during setup when the API is available; otherwise it prompts on first use). Choose AAC/M4A (default) or MP3, then press Stop and save; files stay at `~/Music/Ternux` inside Debian. MP3 export uses FFmpeg locally.
 
@@ -135,7 +135,10 @@ the full commands below in **Termux** (`$PREFIX/bin/ternux`):
 ```bash
 ternux doctor           # system diagnostics
 ternux start            # start the desktop
-tx stop                 # choose guest desktop(s) to stop
+tx stop                 # list running desktops and choose one or more
+tx stop db              # stop Debian only
+tx stop ub              # stop Ubuntu only
+tx stop alp             # stop Alpine only
 tx stop --all          # stop every Ternux desktop
 ternux repair           # auto-fix common issues
 ternux verify           # verify installation
@@ -157,8 +160,9 @@ it is documented in the [CLI Reference](CLI.html).
 - A configured **Zink/Turnip or VirGL graphics route** for OpenGL apps; verify
   the actual renderer rather than assuming acceleration.
 - **Sound** bridged to the phone speakers/headphones.
-- Optional **shared storage**: grant one Android folder with
-  `ternux storage grant /sdcard/Folder`; no user files are exposed by default.
+- **Android shared storage** is available at `/sdcard` in each Ternux guest by
+  default. If it is missing, grant Termux Android storage permission with
+  `termux-setup-storage` and restart the guest.
 
 ## Android 12+? One important note
 

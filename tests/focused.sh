@@ -37,11 +37,34 @@ check "core loads persisted Debian user" env -u TERNUX_USER \
   TERNUX_STATE_DIR="$state" HOME="$TMP/home-user" bash -c \
   '. "$1/lib/core.sh"; test "$TERNUX_USER" = alice' _ "$ROOT"
 
-# Generic guest commands expose no Android shared storage by default, while
-# retaining isolation and honoring caller-requested temporary storage.
+# A normal one-command reinstall resumes an interrupted saved guest, while a
+# newly selected different guest remains an independent install.
+if TERNUX_STATE_DIR="$TMP/state-auto-resume" HOME="$TMP/home-auto-resume" bash -c '
+  . "$1/lib/phases.sh"
+  tnx_state_get(){ [ "$1" = distro ] && printf alpine; }
+  tnx_distro_state_get(){ [ "$2" = status ] && printf incomplete; }
+  [ "$(tnx_install_auto_resume_distro alpine 0)" = alpine ] || exit 1
+  [ "$(tnx_install_auto_resume_distro ubuntu 0)" = alpine ] || exit 1
+  [ "$(tnx_install_auto_resume_distro alpine 1)" = alpine ] || exit 1
+  if tnx_install_auto_resume_distro debian 1 >/dev/null; then exit 1; fi
+  tnx_distro_state_get(){ printf ready; }
+  if tnx_install_auto_resume_distro alpine 0 >/dev/null; then exit 1; fi
+' _ "$ROOT"; then
+  ok "single-command install auto-resumes saved incomplete guests without overriding a different explicit guest"
+else
+  not_ok "single-command install auto-resumes saved incomplete guests without overriding a different explicit guest"
+fi
+
+# Guest commands bind Android shared storage at /sdcard while keeping Termux
+# HOME isolated and honoring caller-requested temporary storage.
 if env TERNUX_STATE_DIR="$TMP/state-guest-isolation" HOME="$TMP/home-guest-isolation" \
-  PREFIX="$TMP/prefix-guest-isolation" LOG="$TMP/guest-login-args" bash -c '
+  PREFIX="$TMP/prefix-guest-isolation" LOG="$TMP/guest-login-args" \
+  SDCARD_FIXTURE="$TMP/sdcard-guest-isolation" bash -c '
     . "$1/lib/core.sh"
+    # GitHub runners are not Android and do not expose the Termux shared-storage link.
+    # Model the Android shared-storage path this test is specifically checking.
+    mkdir -p "$SDCARD_FIXTURE" || exit
+    realpath(){ if [ "$*" = "-e /sdcard" ]; then printf "%s\\n" "$SDCARD_FIXTURE"; else command realpath "$@"; fi; }
     tnx_distro(){ echo debian; }
     proot-distro(){ printf "%s\n" "$@" > "$LOG"; }
     tnx_guest_login --shared-tmp --user ternux -- bash -c true || exit
@@ -51,15 +74,15 @@ if env TERNUX_STATE_DIR="$TMP/state-guest-isolation" HOME="$TMP/home-guest-isola
     test "$(grep -n -m1 -- "--isolated" "$LOG" | cut -d: -f1)" -lt "$(grep -n -m1 '^debian$' "$LOG" | cut -d: -f1)" || exit
     ! grep -Fq -- "$HOME" "$LOG" || exit
     ! grep -qx -- "--shared-home" "$LOG" || exit
-    ! grep -Fq -- "/sdcard" "$LOG" || exit
+    grep -Fq -- "/sdcard" "$LOG" || exit
   ' _ "$ROOT"; then
-  ok "generic guest login isolates Termux HOME and does not mount shared storage by default"
+  ok "guest login exposes Android shared storage at /sdcard without sharing Termux HOME"
 else
-  not_ok "generic guest login isolates Termux HOME and does not mount shared storage by default"
+  not_ok "guest login exposes Android shared storage at /sdcard without sharing Termux HOME"
 fi
 
-# Explicit storage grants bind only the requested directory and reject a
-# tampered allowlist that points outside the shared-storage root.
+# The default shared-storage bind is present alongside a validated optional
+# subdirectory grant; tampered entries outside the root fail closed.
 if env TERNUX_STATE_DIR="$TMP/state-storage-grant" HOME="$TMP/home-storage-grant" \
   PREFIX="$TMP/prefix-storage-grant" FIXTURE="$TMP/shared-storage" LOG="$TMP/guest-storage-args" bash -c '
     mkdir -p "$FIXTURE/Models" "$TERNUX_STATE_DIR"
@@ -72,13 +95,14 @@ if env TERNUX_STATE_DIR="$TMP/state-storage-grant" HOME="$TMP/home-storage-grant
     tnx_distro(){ echo debian; }
     proot-distro(){ printf "%s\n" "$@" > "$LOG"; }
     tnx_guest_login --user alice -- true || exit
+    grep -Fqx -- "$FIXTURE:/sdcard" "$LOG" || exit
     grep -Fqx -- "$FIXTURE/Models:/sdcard/Models" "$LOG" || exit
     printf "/data/private\t/sdcard/Private\n" > "$TERNUX_STATE_DIR/storage-allowlist"
     ! tnx_guest_login -- true 2>/dev/null
   ' _ "$ROOT"; then
-  ok "guest login binds only explicitly granted, validated storage directories"
+  ok "guest login exposes shared storage and validates optional subdirectory grants"
 else
-  not_ok "guest login binds only explicitly granted, validated storage directories"
+  not_ok "guest login exposes shared storage and validates optional subdirectory grants"
 fi
 
 # Storage CLI refuses root/traversal grants and can revoke a previously granted
@@ -227,8 +251,8 @@ else
   not_ok "device info reports the Termux app version from Android runtime metadata"
 fi
 
-# The Debian base keeps VLC + Zenity; Firefox stays optional. Welcome content is
-# guest-managed and one-time with or without a browser; VLC uses XCB output.
+# Every base guest gets a browser; welcome content is guest-managed and
+# one-time. VLC uses XCB output.
 if env TERNUX_STATE_DIR="$TMP/state-welcome" HOME="$TMP/home-welcome" \
   PREFIX="$TMP/prefix-welcome" MARKER="$TMP/welcome-script" bash -c '
     . "$1/lib/phases.sh"
@@ -245,13 +269,17 @@ if env TERNUX_STATE_DIR="$TMP/state-welcome" HOME="$TMP/home-welcome" \
       grep -q "qt-video-autoresize=0" "$1/lib/phases.sh" &&
       grep -q "qt-system-tray=0" "$1/lib/phases.sh" &&
       grep -q "rm -f /usr/local/bin/ternux-volume-control /usr/local/bin/pavucontrol" "$1/lib/phases.sh" &&
-      ! grep -q "GTK_THEME=\\|GDK_BACKEND=\\|GTK_MODULES" "$1/lib/phases.sh" &&
-      grep -q "dbus-run-session -- bash -c" "$1/lib/phases.sh" &&
-      grep -q "ibus_tries" "$1/lib/phases.sh" &&
+      grep -q "export GTK_THEME=Ternux" "$1/lib/phases.sh" && ! grep -q "GDK_BACKEND=\\|GTK_MODULES" "$1/lib/phases.sh" &&
+      grep -q "/usr/local/bin/ternux-session-bus bash -c" "$1/lib/phases.sh" &&
+      grep -q "ternux-ibus-session-init" "$1/lib/phases.sh" &&
       grep -Fq "org.freedesktop.ibus.general.hotkey triggers" "$1/lib/phases.sh" &&
+      grep -Fq "org.freedesktop.ibus.general.hotkey trigger" "$1/lib/phases.sh" &&
       grep -Fq "org.freedesktop.ibus.general.hotkey next-engine" "$1/lib/phases.sh" &&
       grep -Fq "org.freedesktop.ibus.general.hotkey next-engine-in-menu" "$1/lib/phases.sh" &&
-      grep -Fq "Control+space" "$1/lib/phases.sh" &&
+      grep -Fq "/commands/custom/<Primary>space" "$1/lib/phases.sh" &&
+      grep -Fq "ternux-ibus-next-engine" "$1/lib/phases.sh" &&
+      grep -Fq "x11-xkb-utils" "$1/lib/phases.sh" && grep -Fq "setxkbmap" "$1/lib/phases.sh" && grep -Fq "xorg-setxkbmap" "$1/lib/phases.sh" &&
+      grep -Fq "headerbar button.titlebutton" "$1/lib/ternux-assets/themes/Ternux/gtk-3.0/gtk.css" && grep -Fq "headerbar button.titlebutton" "$1/lib/ternux-assets/themes/Ternux/gtk-4.0/gtk.css" &&
       grep -q "pm-is-supported" "$1/lib/phases.sh" &&
       grep -q "pavucontrol" "$1/lib/phases.sh" &&
       grep -q "devilspie2" "$1/lib/phases.sh" &&
@@ -260,7 +288,7 @@ if env TERNUX_STATE_DIR="$TMP/state-welcome" HOME="$TMP/home-welcome" \
       grep -q "fonts-noto-core" "$1/lib/phases.sh" &&
       grep -q "ternux-window-fit.desktop" "$MARKER" &&
       grep -q "set_window_geometry" "$1/lib/ternux-window-fit.lua" &&
-      ! grep -q "xfce4-terminal vlc firefox-esr" "$1/lib/phases.sh" &&
+      grep -q "Every fresh profile gets one usable browser" "$1/lib/phases.sh" &&
       sh -n "$1/lib/ternux-welcome.sh" &&
       grep -q "firefox-esr --new-window" "$1/lib/ternux-welcome.sh" &&
       grep -q "welcome-seen" "$1/lib/ternux-welcome.sh" &&
@@ -273,12 +301,12 @@ if env TERNUX_STATE_DIR="$TMP/state-welcome" HOME="$TMP/home-welcome" \
       grep -q "apt remove -y.*guvcview" "$1/lib/phases.sh" && ! grep -q "vlc ffmpeg guvcview" "$1/lib/phases.sh" && grep -q "ristretto" "$1/lib/phases.sh" && grep -q "QT_QPA_PLATFORMTHEME=gtk3" "$1/lib/phases.sh" && grep -q "ternux-panel-shortcuts" "$1/lib/phases.sh" && grep -q "01-aurora-circuit.svg" "$1/lib/phases.sh" &&
       grep -q "/Net/ThemeName" "$1/lib/phases.sh"
   ' _ "$ROOT"; then
-  ok "first-run welcome, optional Firefox, Zenity, VLC XCB output are guest-managed"
+  ok "first-run welcome, default browser, Zenity, VLC XCB output are guest-managed"
 else
-  not_ok "first-run welcome, optional Firefox, Zenity, VLC XCB output are guest-managed"
+  not_ok "first-run welcome, default browser, Zenity, VLC XCB output are guest-managed"
 fi
 
-# The optional browser receives the welcome URL only on its first guest login.
+# The default base browser receives the welcome URL only on first guest login.
 welcome_bin="$TMP/welcome-bin"
 welcome_state="$TMP/welcome-state"
 mkdir -p "$welcome_bin"
@@ -524,7 +552,10 @@ import pathlib, sys
 source = pathlib.Path(sys.argv[1]).read_text()
 assert "rm -f /usr/local/bin/ternux-volume-control /usr/local/bin/pavucontrol" in source
 assert "Exec=/usr/local/bin/ternux-volume-control" not in source
-assert "GTK_THEME=" not in source and "GDK_BACKEND=" not in source
+assert "export GTK_THEME=Ternux" in source and "GDK_BACKEND=" not in source
+assert "gtk_theme_install_override 3.0" in source and "gtk_theme_install_override 4.0" in source
+assert "TERNUX MANAGED GTK OVERRIDE BEGIN" in source
+assert "gtk-user.css" in source
 PAVUCHECK
 then
   ok "Pavucontrol inherits the shared desktop theme and launch environment"
@@ -546,7 +577,13 @@ required = {
     "lib/ternux/ternux-camera.py": "lib/ternux-camera.py",
     "lib/ternux/ternux-recorder.py": "lib/ternux-recorder.py",
     "lib/ternux/ternux-panel-shortcuts.sh": "lib/ternux-panel-shortcuts.sh",
+    "lib/ternux/ternux-install-firefox-esr.sh": "lib/ternux-install-firefox-esr.sh",
+    "bin/tx": "bin/tx",
 }
+required.update({
+    f"lib/ternux/{module.name}": module.relative_to(root).as_posix()
+    for module in (root / "lib").glob("*.sh")
+})
 assert all(files.get(dest, {}).get("source") == source for dest, source in required.items())
 assert all((root / source).is_file() for source in required.values())
 for asset in (root / "lib/ternux-assets").rglob("*"):
@@ -626,6 +663,7 @@ base_desktop_icon_ids = (
     "org.xfce.panel.launcher", "org.xfce.panel.separator", "org.xfce.panel.systray", "org.xfce.panel.tasklist",
     "org.xfce.panel.windowmenu", "xfce4-pulseaudio-plugin", "ternux-camera",
     "ternux-keyboard", "ternux-recorder", "vlc", "xarchiver", "xfsm-logout",
+    "synaptic", "python3.14", "document-print-preview",
 )
 theme_icon_root = root / "lib/ternux-assets/icons/Ternux"
 theme_icon_ids = {asset.stem for asset in theme_icon_root.rglob("*.svg")}
@@ -635,6 +673,22 @@ phase_source = (root / "lib/phases.sh").read_text()
 assert 'icon_stage=\\$(mktemp -d /usr/share/icons/.Ternux-stage.XXXXXX)' in phase_source
 assert 'mv -T /usr/share/icons/Ternux "\\$icon_backup"' in phase_source
 assert 'cp -a "\\$asset_stage/icons/Ternux/." /usr/share/icons/Ternux/' not in phase_source
+# Ubuntu blocks snapd in PRoot, so its required base desktop browser uses Mozilla's
+# official ARM64 tarball. Ordinary APT choices are resolved and attempted
+# independently so one absent package does not cancel the selected set.
+phase_source = (root / "lib/phases.sh").read_text()
+firefox_installer = (root / "lib/ternux-install-firefox-esr.sh").read_text()
+assert "firefox) firefox_selected=1 ;;" not in phase_source
+assert "TNX_OPTIONAL_ITEMS=(" in phase_source and "godot adt-build-tools" in phase_source.split("TNX_OPTIONAL_ITEMS=(", 1)[1].split(")", 1)[0]
+assert "apt-cache policy \"$package\"" in phase_source
+assert "continuing with the remaining selections" in phase_source
+assert "product=firefox-esr-latest&os=$os" in firefox_installer
+assert "linux64-aarch64" in firefox_installer
+assert "sudo apt install" not in firefox_installer
+for icon in ("synaptic", "python3.14"):
+    assert (root / f"lib/ternux-assets/icons/Ternux/scalable/apps/{icon}.svg").is_file()
+assert (root / "lib/ternux-assets/icons/Ternux/scalable/actions/document-print-preview.svg").is_file()
+
 optional_app_icons = ("firefox", "firefox-esr", "blender", "gimp", "krita", "inkscape",
                       "audacity", "mpv", "geany", "thonny", "libreoffice-writer",
                       "libreoffice-calc", "libreoffice-draw", "libreoffice-impress", "evolution", "gnome-online-accounts-gtk", "zenity")
@@ -714,7 +768,7 @@ assert 'with_suffix(".partial" + self.target.suffix)' in recorder
 assert "ffmpeg ristretto" in (root / "lib/phases.sh").read_text()
 assert "mousepad galculator evince fonts-noto-core" in (root / "lib/phases.sh").read_text()
 phase_source = (root / "lib/phases.sh").read_text()
-base_desktop_install = next(line for line in phase_source.splitlines() if "apt install -y \\$DPKG_FORCE sudo nano" in line)
+base_desktop_install = next(line for line in phase_source.splitlines() if "apt install -y -o APT::Install-Recommends=false \\$DPKG_FORCE sudo nano" in line)
 assert "thunderbird" not in base_desktop_install and "evolution" not in base_desktop_install
 assert "evolution) apt_packages+=(evolution gnome-online-accounts-gtk)" in phase_source
 assert "evolution" in phase_source.split("TNX_OPTIONAL_ITEMS=(", 1)[1].split(")", 1)[0]
@@ -734,6 +788,12 @@ assert "Name=Synaptic Package Manager" in (root / "lib/ternux-assets/application
 assert "Exec=/usr/local/bin/ternux-app-center" in (root / "lib/ternux-assets/applications/synaptic.desktop").read_text()
 assert "Categories=System;" in (root / "lib/ternux-assets/applications/synaptic.desktop").read_text()
 assert not (root / "lib/ternux-assets/applications/ternux-app-center.desktop").exists()
+phase_source = (root / "lib/phases.sh").read_text()
+assert 'asset_stage/applications/ternux-app-center.desktop' not in phase_source
+assert 'asset_stage/applications/synaptic.desktop' in phase_source
+assert phase_source.index('install -d -m 0755 /usr/local/share/applications') < phase_source.index('asset_stage/applications/synaptic.desktop')
+assert "locales wget fonts-symbola" in phase_source
+assert "ternux --version' 2>/dev/null)" in phase_source
 assert "NoDisplay=true" not in (root / "lib/ternux-assets/applications/synaptic.desktop").read_text()
 assert (root / "lib/ternux-assets/icons/Ternux/scalable/apps/ternux-app-center.svg").is_file()
 assert (root / "packaging/termux/icons/Ternux/scalable/apps/ternux-app-center.svg").read_bytes() == (root / "lib/ternux-assets/icons/Ternux/scalable/apps/ternux-app-center.svg").read_bytes()
@@ -769,6 +829,29 @@ assert 'width="9" height="9"' in launcher_icon
 assert (root / "lib/ternux-assets/icons/Ternux/scalable/devices/drive-removable-media.svg").is_file()
 assert "apt remove -y \\$DPKG_FORCE guvcview" in desktop_phase
 assert "apk add sudo bash shadow musl-utils nano mousepad" in desktop_phase
+assert "apk add sudo bash shadow musl-utils nano mousepad galculator" in desktop_phase
+assert "apk add sudo bash shadow musl-utils nano mousepad galculator evince font-noto python3 py3-gobject3 gtk+3.0 ibus devilspie2" not in desktop_phase
+assert "if command -v devilspie2 >/dev/null 2>&1; then" in desktop_phase
+assert "tnx_guest_login --shared-tmp -- sh -c" in desktop_phase
+assert "pkg_retry()" in desktop_phase and "Acquire::Retries=3" in desktop_phase
+assert "pkg_retry apk add firefox-esr" in desktop_phase
+assert "mktemp /tmp/ternux-sudoers.XXXXXX" in desktop_phase
+assert "mktemp /tmp/ternux-jetbrainsmono.XXXXXX)" in desktop_phase
+assert "XXXXXX.tar.xz" not in desktop_phase
+assert "apk add sudo bash shadow musl-utils nano mousepad galculator evince font-noto python3 py3-gobject3 gtk+3.0 ibus dbus-x11 pulseaudio" in desktop_phase and "desktop-file-utils xdg-utils xdpyinfo setxkbmap util-linux" in desktop_phase
+assert "apk add vlc-qt m17n-lib m17n-db font-noto-bengali" in desktop_phase
+assert "rsvg-convert" in desktop_phase
+assert "gdk-pixbuf=2.42.12-r1 gdk-pixbuf-loaders=2.42.12-r1" not in desktop_phase
+assert "m17n:bn:avro-phonetic" in desktop_phase
+assert "2efee03ef5f457f3c7c345c6902c66b137575bea" in (root / "lib/ternux-assets/bin/ternux-install-avro-m17n").read_text()
+core_phase = (root / "lib/core.sh").read_text()
+assert 'ub) printf ubuntu' in core_phase and 'alp) printf alpine' in core_phase
+desktop_cli = (root / "lib/desktop.sh").read_text()
+assert 'if tnx_proot_container_installed debian; then distro=debian' in desktop_cli
+assert 'distro="$(tnx_distro_canonical "$1")"' in desktop_cli
+assert 'db) printf debian ;; ub) printf ubuntu ;; alp) printf alpine' in core_phase
+assert 'ubroot() { _ternux_guest_login ubuntu' in desktop_phase
+assert 'alproot() { _ternux_guest_login alpine' in desktop_phase
 assert "pacman -S --noconfirm --needed sudo bash nano mousepad" in desktop_phase
 assert "dnf install -y sudo bash nano mousepad" in desktop_phase
 assert "zypper --non-interactive install -y sudo bash nano mousepad" in desktop_phase
@@ -787,6 +870,29 @@ assert 'Termux:API returned without creating the photo file.' in camera
 assert "guvcview" not in camera and "Webcam" not in camera
 assert "Ternux Sound Recorder" in (root / "lib/phases.sh").read_text()
 assert "ternux-recorder.desktop" in (root / "lib/ternux-panel-shortcuts.sh").read_text()
+assert "ternux-input-method.desktop" in (root / "lib/ternux-panel-shortcuts.sh").read_text()
+assert "panel-shortcuts-v6" in (root / "lib/ternux-panel-shortcuts.sh").read_text()
+ibus_init = (root / "lib/ternux-assets/bin/ternux-ibus-session-init").read_text()
+assert "gsettings set org.freedesktop.ibus.general.hotkey trigger '[]'" in ibus_init
+assert 'next-engine "[\'Control+space\']"' in ibus_init
+next_engine = (root / "lib/ternux-assets/bin/ternux-ibus-next-engine").read_text()
+assert "gsettings get org.freedesktop.ibus.general engines-order" in next_engine
+assert 'ibus engine "$next" >/dev/null 2>&1 || true' in next_engine
+assert 'active="$(ibus engine 2>/dev/null || true)"' in next_engine
+assert "ternux-ibus-next-engine" in desktop_phase and "/commands/custom/<Primary>space" in desktop_phase
+assert "ibus-daemon --daemonize --xim --replace --address=\"$IBUS_ADDRESS\"" in ibus_init
+assert ibus_init.index("Control+space") < ibus_init.index("ibus-daemon --daemonize --xim --replace --address=\"$IBUS_ADDRESS\"")
+assert 'if [ -S "$ibus_socket" ] && ! ibus list-engine' in ibus_init
+assert 'env.pop("LD_PRELOAD", None)' in camera
+recorder = (root / "lib/ternux-recorder.py").read_text()
+assert 'env.pop("LD_PRELOAD", None)' in recorder
+assert "ternux-session-bus" in desktop_phase
+session_bus = (root / "lib/ternux-assets/bin/ternux-session-bus").read_text()
+assert "/data/data/com.termux/files/usr/var/lib/ternux/runtime" in session_bus
+assert 'legacy_address="unix:path=$legacy_socket"' in session_bus
+assert "dbus-daemon --session --address=\"$address\" --nofork" in session_bus
+assert "--fork" not in session_bus
+assert "next-engine \\\"['Control+space']\\\"" in desktop_phase and "/commands/custom/<Primary>space" in desktop_phase and "ternux-ibus-next-engine" in desktop_phase and ".cache/ibus" in desktop_phase
 PYMANIFEST
 then
   ok "APT manifest includes all Debian phase resources"
@@ -834,10 +940,10 @@ else
   ok "Debian phase fails closed when a packaged resource is missing"
 fi
 
-if sh -n "$ROOT/lib/ternux-panel-shortcuts.sh" && grep -q 'panel-shortcuts-v2' "$ROOT/lib/ternux-panel-shortcuts.sh"; then
-  ok "one-time Ternux Camera, Photos and Sound Recorder panel shortcuts are valid"
+if sh -n "$ROOT/lib/ternux-panel-shortcuts.sh" && grep -q 'panel-shortcuts-v6' "$ROOT/lib/ternux-panel-shortcuts.sh"; then
+  ok "Ternux removes the keyboard button and keeps media panel shortcuts"
 else
-  not_ok "one-time Ternux Camera, Photos and Sound Recorder panel shortcuts are valid"
+  not_ok "Ternux removes the keyboard button and keeps media panel shortcuts"
 fi
 
 # Generated launchers must target the chosen account, use repeatable --env
@@ -865,7 +971,7 @@ if env TERNUX_STATE_DIR="$TMP/state-launcher" HOME="$launcher_home" bash -c '
   grep -Fq "monitorbuiltin/workspace0/last-image" "$HOME/x.sh" &&
   grep -Fq "monitorbuiltin-wallpaper-v1" "$HOME/x.sh" &&
   grep -q "install -d -m 0755" "$HOME/x.sh" &&
-  grep -q "dbus-run-session -- bash -c" "$HOME/x.sh" &&
+  grep -q "/usr/local/bin/ternux-session-bus bash -c" "$HOME/x.sh" &&
   ! grep -q "dbus-launch --exit-with-session" "$HOME/x.sh" &&
   grep -Fq "session_pid=\$!" "$HOME/x.sh" &&
   grep -Fq "wait \"\$session_pid\"" "$HOME/x.sh" &&
@@ -879,9 +985,9 @@ if env TERNUX_STATE_DIR="$TMP/state-launcher" HOME="$launcher_home" bash -c '
   ! grep -q "adwaita-gtk-theme" "$1/lib/phases.sh" &&
   ! grep -q "pm-utils" "$1/lib/phases.sh" &&
   grep -q "GTK_IM_MODULE=ibus QT_IM_MODULE=ibus QT_QPA_PLATFORMTHEME=gtk3 XMODIFIERS=@im=ibus" "$HOME/x.sh" &&
-  grep -Fq "ibus-daemon --daemonize --xim --replace" "$HOME/x.sh" &&
+  grep -Fq "/usr/local/bin/ternux-ibus-session-init" "$HOME/x.sh" &&
   ! grep -Fq "pkill -TERM -x ibus-daemon" "$HOME/x.sh" &&
-  grep -Fq "unset IBUS_ADDRESS" "$HOME/x.sh" &&
+  grep -Fq "export IBUS_ADDRESS" "$HOME/x.sh" &&
   ! grep -q -- "--env IBUS_ADDRESS=" "$HOME/x.sh" &&
   grep -q "image-style --create -t int -s 4" "$1/lib/phases.sh" &&
   grep -Fq "monitor0/workspace0/last-image" "$1/lib/phases.sh" &&
@@ -925,9 +1031,12 @@ if env TERNUX_STATE_DIR="$TMP/state-launcher" HOME="$launcher_home" bash -c '
   grep -q "db() { _ternux_guest_login debian --shared-tmp --user" "$HOME/.bashrc" &&
   grep -q "ub() { _ternux_guest_login ubuntu --shared-tmp --user" "$HOME/.bashrc" &&
   grep -q "alp() { _ternux_guest_login alpine --shared-tmp --user" "$HOME/.bashrc" &&
-  grep -q "dbr() { _ternux_guest_login debian --shared-tmp" "$HOME/.bashrc" &&
-  grep -q "ubr() { _ternux_guest_login ubuntu --shared-tmp" "$HOME/.bashrc" &&
-  grep -q "alpr() { _ternux_guest_login alpine --shared-tmp" "$HOME/.bashrc" &&
+  grep -q "dbroot() { _ternux_guest_login debian --shared-tmp" "$HOME/.bashrc" &&
+  grep -q "ubroot() { _ternux_guest_login ubuntu --shared-tmp" "$HOME/.bashrc" &&
+  grep -q "alproot() { _ternux_guest_login alpine --shared-tmp" "$HOME/.bashrc" &&
+  grep -q "dbr() { dbroot" "$HOME/.bashrc" &&
+  grep -q "ubr() { ubroot" "$HOME/.bashrc" &&
+  grep -q "alpr() { alproot" "$HOME/.bashrc" &&
   grep -q "login_args=(--isolated)" "$HOME/.bashrc" &&
   grep -q "storage-allowlist" "$HOME/.bashrc" &&
   ! grep -q -- "--bind /sdcard:/sdcard" "$HOME/.bashrc"
@@ -1032,12 +1141,12 @@ fi
 # lifecycle, whose launcher carries the isolated bind policy.
 if grep -q 'ternux start' "$ROOT/docs/MANUAL.md" &&
    grep -q 'ternux start' "$ROOT/bn/docs/MANUAL.md" &&
-   grep -q 'ternux storage grant' "$ROOT/docs/MANUAL.md" &&
-   grep -q 'ternux storage grant' "$ROOT/bn/docs/MANUAL.md" &&
+   grep -q 'termux-setup-storage' "$ROOT/docs/MANUAL.md" &&
+   grep -q 'termux-setup-storage' "$ROOT/bn/docs/MANUAL.md" &&
    ! grep -q '^# TERNUX_DESKTOP_LAUNCHER=' "$ROOT/docs/MANUAL.md" "$ROOT/bn/docs/MANUAL.md"; then
-  ok "English and Bengali manuals use the managed, isolated desktop launcher"
+  ok "English and Bengali manuals use the managed launcher and document default storage"
 else
-  not_ok "English and Bengali manuals use the managed, isolated desktop launcher"
+  not_ok "English and Bengali manuals use the managed launcher and document default storage"
 fi
 
 # Required failure must stop dependants and only successful phases are marked.
@@ -1428,9 +1537,10 @@ if env TERNUX_STATE_DIR="$TMP/state-uninstall" HOME="$TMP/home-uninstall" bash -
   scratch="$2"
   _tnx_uninstall_stop(){ echo stopped >> "$scratch/uninstall-log"; }
   tnx_has_cmd(){ [ "$1" = proot-distro ]; }
+  tnx_proot_container_installed(){ [ "$1" = debian ]; }
   proot-distro(){
-    [ "$1" = list ] && { echo "debian installed"; return; }
-    [ "$1" = remove ] && echo removed >> "$scratch/uninstall-log"
+    [ "$1" = remove ] && { echo "removed:$2" >> "$scratch/uninstall-log"; return 0; }
+    return 1
   }
   _tnx_uninstall_confirm(){ [ "${TERNUX_YES:-0}" = 1 ]; }
   set +e
@@ -1440,12 +1550,31 @@ if env TERNUX_STATE_DIR="$TMP/state-uninstall" HOME="$TMP/home-uninstall" bash -
   ! grep -q removed "$scratch/uninstall-log" || exit
   : > "$scratch/uninstall-log"
   tnx_cmd_uninstall container --yes >/dev/null &&
-  grep -qx stopped "$scratch/uninstall-log" && grep -qx removed "$scratch/uninstall-log" &&
+  grep -qx stopped "$scratch/uninstall-log" && grep -qx "removed:debian" "$scratch/uninstall-log" &&
   [ -e "$HOME/x.sh" ] && [ -d "$TERNUX_STATE_DIR" ]
 ' _ "$ROOT" "$TMP"; then
-  ok "scoped uninstall confirms container deletion and preserves other scopes"
+  ok "scoped uninstall confirms selected guest deletion and preserves other scopes"
 else
-  not_ok "scoped uninstall confirms container deletion and preserves other scopes"
+  not_ok "scoped uninstall confirms selected guest deletion and preserves other scopes"
+fi
+
+# Full managed cleanup removes registered Ternux profile and generic guests,
+# while leaving unregistered PRoot guests alone.
+if env TERNUX_STATE_DIR="$TMP/state-uninstall-multi" HOME="$TMP/home-uninstall-multi" TERNUX_DISTRO=debian bash -c '
+  mkdir -p "$HOME" "$TERNUX_STATE_DIR/distros/ubuntu" "$TERNUX_STATE_DIR/managed-guests"
+  : > "$TERNUX_STATE_DIR/distros/ubuntu/profile"
+  printf "%s\n" alpine:latest > "$TERNUX_STATE_DIR/managed-guests/alpine"
+  . "$1/lib/uninstall.sh"
+  log="$2/multi-uninstall.log"
+  tnx_proot_container_installed(){ case "$1" in ubuntu|alpine|debian|fedora) return 0;; *) return 1;; esac; }
+  proot-distro(){ [ "$1" = remove ] && { printf "%s\n" "$2" >> "$log"; return 0; }; return 1; }
+  _tnx_uninstall_all_managed_guests &&
+  grep -qx ubuntu "$log" && grep -qx alpine "$log" &&
+  ! grep -qx debian "$log" && ! grep -qx fedora "$log"
+' _ "$ROOT" "$TMP"; then
+  ok "full uninstall targets registered Ternux guests only"
+else
+  not_ok "full uninstall targets registered Ternux guests only"
 fi
 
 # State removal deletes only Ternux runtime logs/state and empty app staging
@@ -1471,21 +1600,34 @@ fi
 # journal/backup residue; shared host packages are never touched.
 if env HOME="$TMP/home-uninstall-host" PREFIX="$TMP/prefix-uninstall-host" bash -c '
   mkdir -p "$HOME" "$PREFIX/bin" "$PREFIX/lib/ternux" "$PREFIX/lib/ternux-update-backups/old" "$PREFIX/lib/.ternux-update-lock"
-  : > "$PREFIX/bin/ternux"
-  : > "$PREFIX/lib/ternux/core.sh"
+  printf '%s\n' '#!/usr/bin/env bash' '# https://github.com/soobujmiah/ternux' > "$PREFIX/bin/ternux"
+  printf '%s\n' '# Ternux short command entrypoint.' > "$PREFIX/bin/tx"
+  printf '%s\n' 'TERNUX_VERSION="2.0.0"' > "$PREFIX/lib/ternux/core.sh"
   : > "$PREFIX/lib/.ternux-update-journal"
   : > "$PREFIX/lib/.ternux-update-lock/owner"
-  dpkg-query(){ printf "install ok installed"; }
-  dpkg(){ [ "$1" = --remove ] && rm -rf "$PREFIX/bin/ternux" "$PREFIX/lib/ternux"; }
+  dpkg-query(){ return 1; }
+  tnx_ok(){ :; }
   . "$1/lib/uninstall.sh"
   _tnx_uninstall_host_cli >/dev/null &&
-  [ ! -e "$PREFIX/bin/ternux" ] && [ ! -e "$PREFIX/lib/ternux" ] &&
+  [ ! -e "$PREFIX/bin/ternux" ] && [ ! -e "$PREFIX/bin/tx" ] && [ ! -e "$PREFIX/lib/ternux" ] &&
   [ ! -e "$PREFIX/lib/ternux-update-backups" ] && [ ! -e "$PREFIX/lib/.ternux-update-journal" ] &&
   [ ! -e "$PREFIX/lib/.ternux-update-lock" ]
 ' _ "$ROOT"; then
-  ok "host CLI uninstall removes Ternux package and update residue"
+  ok "source CLI uninstall removes ternux, tx and update residue"
 else
-  not_ok "host CLI uninstall removes Ternux package and update residue"
+  not_ok "source CLI uninstall removes ternux, tx and update residue"
+fi
+
+# Full uninstall removes only recognizable interrupted Ternux asset stages.
+if env HOME="$TMP/home-uninstall-assets" PREFIX="$TMP/prefix-uninstall-assets" TMPDIR="$TMP/tmp-uninstall-assets" bash -c '
+  mkdir -p "$HOME" "$TMPDIR/ternux-assets.fixture/icons/Ternux" "$TMPDIR/ternux-assets.fixture/themes/Ternux" "$TMPDIR/ternux-assets.fixture/wallpapers" "$TMPDIR/ternux-assets-user"
+  . "$1/lib/uninstall.sh"
+  _tnx_uninstall_stale_asset_stages >/dev/null &&
+  [ ! -e "$TMPDIR/ternux-assets.fixture" ] && [ -d "$TMPDIR/ternux-assets-user" ]
+' _ "$ROOT"; then
+  ok "uninstall removes interrupted Ternux asset stages and preserves unrelated temp directories"
+else
+  not_ok "uninstall removes interrupted Ternux asset stages and preserves unrelated temp directories"
 fi
 
 # Alias removal uses a same-directory replacement, preserves file mode, and
@@ -1772,6 +1914,105 @@ else
   not_ok "desktop stop signals its owned process group and preserves shared sockets"
 fi
 
+# Stopping a crash-recovered session with no verifiable PID must clear the
+# stale lifecycle state without touching shared X11 or PulseAudio services.
+if env TERNUX_STATE_DIR="$TMP/state-stale-stop" HOME="$TMP/home-stale-stop" bash -c '
+    mkdir -p "$TERNUX_STATE_DIR/distros/ubuntu/session"
+    printf "RECOVERING\\n" > "$TERNUX_STATE_DIR/distros/ubuntu/session/desktop.state"
+    . "$1/lib/desktop.sh"
+    TERNUX_JSON=1
+    out="$(tnx_cmd_stop ubuntu)" || exit
+    JSON_OUT="$out" python3 -c '\''import json, os; assert json.loads(os.environ["JSON_OUT"])["cleaned"] == "no"'\'' || exit
+    [ "$(cat "$TERNUX_STATE_DIR/distros/ubuntu/session/desktop.state")" = STOPPED ] || exit
+    [ ! -e "$TERNUX_STATE_DIR/distros/ubuntu/session/desktop.pid" ] || exit
+    [ ! -e "$TERNUX_STATE_DIR/distros/ubuntu/session/desktop.pid.identity" ] || exit
+  ' _ "$ROOT"; then
+  ok "stop normalizes a stale crash-recovery state without signaling an unverified process"
+else
+  not_ok "stop normalizes a stale crash-recovery state without signaling an unverified process"
+fi
+
+# A shared Termux:X11 server may outlive a stopped desktop. An explicit
+# STOPPED marker must take precedence over that shared server's presence.
+if env TERNUX_STATE_DIR="$TMP/state-stopped-x11" HOME="$TMP/home-stopped-x11" \
+  TMPDIR="$TMP/tmp-stopped-x11" bash -c '
+    mkdir -p "$TERNUX_STATE_DIR/session" "$TMPDIR/.X11-unix"
+    printf "STOPPED\\n" > "$TERNUX_STATE_DIR/session/desktop.state"
+    python3 -c "import socket,sys; s=socket.socket(socket.AF_UNIX); s.bind(sys.argv[1]); s.close()" "$TMPDIR/.X11-unix/X0" || exit
+    . "$1/lib/desktop.sh"
+    pgrep(){ case "$*" in *termux-x11*) return 0;; *) return 1;; esac; }
+    tnx_desktop_session_live(){ return 1; }
+    tnx_pulseaudio_ready(){ return 1; }
+    TERNUX_JSON=1
+    out="$(tnx_cmd_status debian)" || exit
+    JSON_OUT="$out" python3 -c '\''import json, os; v=json.loads(os.environ["JSON_OUT"]); assert v["lifecycle"] == "STOPPED" and v["x11_running"] == "yes"'\''
+  ' _ "$ROOT"; then
+  ok "desktop status keeps an explicitly stopped guest stopped while shared X11 remains available"
+else
+  not_ok "desktop status keeps an explicitly stopped guest stopped while shared X11 remains available"
+fi
+
+# The stop menu always presents the live guest list and accepts multi-select,
+# short aliases, safe cancellation, and all-or-nothing validation.
+if env TERNUX_STATE_DIR="$TMP/state-desktop-stop-menu" HOME="$TMP/home-desktop-stop-menu" \
+  bash -c '
+    mkdir -p "$HOME"
+    . "$1/lib/desktop.sh"
+    _tnx_running_guest_sessions(){ printf "%s\n" debian ubuntu alpine; }
+    tnx_distro_display(){ case "$1" in debian) echo 0;; ubuntu) echo 1;; alpine) echo 2;; esac; }
+    tnx_cmd_stop(){ printf "%s\n" "$1" >> "$HOME/stopped"; }
+    printf "1 3\n" | _tnx_stop_select > "$HOME/multi.out" || exit
+    grep -q "debian.*(db).*:0" "$HOME/multi.out" && grep -q "ubuntu.*(ub).*:1" "$HOME/multi.out" &&
+      grep -q "alpine.*(alp).*:2" "$HOME/multi.out" &&
+      [ "$(cat "$HOME/stopped")" = "debian
+alpine" ] || exit
+    : > "$HOME/stopped"
+    printf "db, alp\n" | _tnx_stop_select > "$HOME/aliases.out" || exit
+    [ "$(cat "$HOME/stopped")" = "debian
+alpine" ] || exit
+    : > "$HOME/stopped"
+    printf "0\n" | _tnx_stop_select > "$HOME/cancel.out" || exit
+    [ ! -s "$HOME/stopped" ] && grep -q Cancelled "$HOME/cancel.out" || exit
+    printf "1 nonsense\n" | _tnx_stop_select > "$HOME/invalid.out" 2>&1 && exit 1
+    [ ! -s "$HOME/stopped" ] && grep -q "no desktops were stopped" "$HOME/invalid.out"
+  ' _ "$ROOT"; then
+  ok "desktop stop menu lists sessions, multi-selects by index/alias, and fails safely"
+else
+  not_ok "desktop stop menu lists sessions, multi-selects by index/alias, and fails safely"
+fi
+
+# The global Ctrl+Space target cycles the configured IBus engine order without
+# embedding Debian/Ubuntu/Alpine-specific engine names.
+if env TERNUX_STATE_DIR="$TMP/state-ibus-cycle" HOME="$TMP/home-ibus-cycle" \
+  IBUS_ENGINE_STATE="$TMP/ibus-engine-state" bash -c '
+    mkdir -p "$HOME/bin"
+    cat > "$HOME/bin/ibus" <<'\''MOCK_IBUS'\''
+#!/bin/sh
+if [ "$1" = engine ] && [ "$#" -eq 1 ]; then cat "$IBUS_ENGINE_STATE"; exit; fi
+if [ "$1" = engine ] && [ "$#" -eq 2 ]; then
+  printf "%s\n" "$2" > "$IBUS_ENGINE_STATE"
+  [ "$2" != ibus-avro ] || exit 1
+  exit 0
+fi
+exit 2
+MOCK_IBUS
+    cat > "$HOME/bin/gsettings" <<'\''MOCK_GSETTINGS'\''
+#!/bin/sh
+printf "%s\n" "['xkb:us::eng', 'ibus-avro']"
+MOCK_GSETTINGS
+    chmod +x "$HOME/bin/ibus" "$HOME/bin/gsettings"
+    PATH="$HOME/bin:$PATH"; export PATH
+    printf "%s\n" xkb:us::eng > "$IBUS_ENGINE_STATE"
+    sh "$1/lib/ternux-assets/bin/ternux-ibus-next-engine" || exit
+    [ "$(cat "$IBUS_ENGINE_STATE")" = ibus-avro ] || exit
+    sh "$1/lib/ternux-assets/bin/ternux-ibus-next-engine" || exit
+    [ "$(cat "$IBUS_ENGINE_STATE")" = xkb:us::eng ]
+  ' _ "$ROOT"; then
+  ok "global IBus switch helper cycles the active configured engine order"
+else
+  not_ok "global IBus switch helper cycles the active configured engine order"
+fi
+
 # Old launchers have no process identity record and a global EXIT cleanup
 # trap. Stop must verify the command/environment and kill only that process group.
 legacy_script="$TMP/legacy-desktop-launcher.sh"
@@ -1830,6 +2071,50 @@ else
   not_ok "desktop status ignores process-name false positives"
 fi
 
+# Desktop management commands accept the same short distro names as start.
+if env TERNUX_STATE_DIR="$TMP/state-desktop-short-names" HOME="$TMP/home-desktop-short-names" \
+  TMPDIR="$TMP/desktop-short-names-tmp" bash -c '
+    mkdir -p "$HOME"
+    . "$1/lib/desktop.sh"
+    tnx_distro_session_dir(){
+      printf "%s\n" "$1" >> "$HOME/stop-targets"
+      printf "%s/%s/session\n" "$HOME" "$1"
+    }
+    pgrep(){ return 1; }
+    tnx_desktop_session_live(){ return 1; }
+    tnx_pulseaudio_ready(){ return 1; }
+    TERNUX_JSON=1
+    status="$(tnx_cmd_status db)" || exit
+    STATUS_JSON="$status" python3 -c '\''
+import json, os
+assert json.loads(os.environ["STATUS_JSON"])["distro"] == "debian"
+'\'' || exit
+    stopped="$(tnx_cmd_stop ub)" || exit
+    STOP_JSON="$stopped" python3 -c '\''
+import json, os
+assert json.loads(os.environ["STOP_JSON"])["command"] == "stop"
+'\'' || exit
+    [ "$(tail -n 1 "$HOME/stop-targets")" = ubuntu ] || exit
+    for alias in db ub alp; do
+      stopped="$(tnx_cmd_stop "$alias")" || exit
+      STOP_JSON="$stopped" python3 -c '\''
+import json, os
+assert json.loads(os.environ["STOP_JSON"])["command"] == "stop"
+'\'' || exit
+      case "$alias" in db) expected=debian;; ub) expected=ubuntu;; alp) expected=alpine;; esac
+      [ "$(tail -n 1 "$HOME/stop-targets")" = "$expected" ] || exit
+    done
+    tnx_cmd_stop(){ printf "stop:%s\\n" "$1" >> "$HOME/restart.log"; }
+    tnx_cmd_start(){ printf "start:%s\\n" "$1" >> "$HOME/restart.log"; }
+    sleep(){ :; }
+    tnx_cmd_restart alp || exit
+    grep -qx "stop:alpine" "$HOME/restart.log" && grep -qx "start:alpine" "$HOME/restart.log"
+  ' _ "$ROOT"; then
+  ok "desktop stop, restart and status accept short distro names"
+else
+  not_ok "desktop stop, restart and status accept short distro names"
+fi
+
 # The shared-X11 diagnostic must run as the configured guest user with a bounded timeout.
 if env TERNUX_STATE_DIR="$TMP/state-x11-probe" HOME="$TMP/home-x11-probe" \
   X11_PROBE_ARGS="$TMP/x11-probe-args" bash -c '
@@ -1874,6 +2159,23 @@ if env TERNUX_STATE_DIR="$TMP/state-x11-stale" HOME="$TMP/home-x11-stale" \
   ok "stale X11 socket and live processes fail functional desktop readiness"
 else
   not_ok "stale X11 socket and live processes fail functional desktop readiness"
+fi
+
+# A stale socket on one guest's display must not be retained just because
+# another guest has a live, independent Termux:X11 server.
+if env TERNUX_STATE_DIR="$TMP/state-stale-display-with-peer" HOME="$TMP/home-stale-display-with-peer" \
+  TMPDIR="$TMP/x11-stale-display-with-peer" bash -c '
+    mkdir -p "$TMPDIR/.X11-unix"
+    python3 -c "import socket,sys; s=socket.socket(socket.AF_UNIX); s.bind(sys.argv[1]); s.close()" "$TMPDIR/.X11-unix/X1" || exit
+    printf "999999\\n" > "$TMPDIR/.X1-lock"
+    . "$1/lib/desktop.sh"
+    pgrep(){ case "$*" in *":0"*) return 0 ;; *) return 1 ;; esac; }
+    tnx_remove_stale_x11_socket 1 || exit
+    [ ! -e "$TMPDIR/.X11-unix/X1" ] && [ ! -e "$TMPDIR/.X1-lock" ]
+  ' _ "$ROOT"; then
+  ok "stale guest display is cleaned without disturbing another live X11 display"
+else
+  not_ok "stale guest display is cleaned without disturbing another live X11 display"
 fi
 
 # JSON start must not create a second desktop when an existing X11 server fails
@@ -2039,6 +2341,29 @@ fi
 
 # A surviving XFCE session with a missing/stale supervisor marker must be reused,
 # and starting it from Termux must bring the Termux:X11 activity forward.
+if env TERNUX_STATE_DIR="$TMP/state-x11-foreground-selection" HOME="$TMP/home-x11-foreground-selection" \
+  AM_ARGS="$TMP/x11-foreground-args" bash -c '
+    . "$1/lib/desktop.sh"
+    mkdir -p "$TERNUX_STATE_DIR/distros/ubuntu/session"
+    am(){ printf "%s\\n" "$*" >> "$AM_ARGS"; }
+    tnx_warn(){ printf "%s\\n" "$*" >> "$AM_ARGS"; }
+    _tnx_running_guest_sessions(){ printf "debian\\nubuntu\\n"; }
+    TERNUX_DISTRO=ubuntu
+    printf "tagged\\n" > "$TERNUX_STATE_DIR/distros/ubuntu/session/x11-display-mode"
+    tnx_show_x11_activity "ternux-ubuntu" || exit
+    grep -Fq -- "-d ternux-ubuntu" "$AM_ARGS" || exit
+    : > "$AM_ARGS"
+    printf "shared\\n" > "$TERNUX_STATE_DIR/distros/ubuntu/session/x11-display-mode"
+    tnx_show_x11_activity "ternux-ubuntu" || exit
+    grep -Fq "com.termux.x11/com.termux.x11.MainActivity" "$AM_ARGS" || exit
+    grep -Fq "cannot switch the visible guest" "$AM_ARGS" || exit
+    ! grep -Fq -- "-d ternux-ubuntu" "$AM_ARGS"
+  ' _ "$ROOT"; then
+  ok "selected distro foregrounds its tagged window and warns for unselectable shared-window mode"
+else
+  not_ok "selected distro foregrounds its tagged window and warns for unselectable shared-window mode"
+fi
+
 if env TERNUX_STATE_DIR="$TMP/state-desktop-recover" HOME="$TMP/home-desktop-recover" \
   TMPDIR="$TMP/desktop-recover-tmp" PATH="$TMP/desktop-recover-bin:$PATH" bash -c '
     mockbin="${PATH%%:*}"
@@ -2267,8 +2592,12 @@ boot_pin_sha="$(sed -n 's/^_TNX_BOOTSTRAP_SHA256="\([0-9a-f]*\)"$/\1/p' "$ROOT/i
 mkdir -p "$TMP/cli-fallback-source/ternux-pinned-source/bin" \
   "$TMP/cli-fallback-source/ternux-pinned-source/lib" \
   "$TMP/cli-fallback-modules" "$TMP/cli-fallback-cwd" "$TMP/cli-fallback-tmp"
-cp "$ROOT/bin/ternux" "$TMP/cli-fallback-source/ternux-pinned-source/bin/"
+cp "$ROOT/bin/ternux" "$ROOT/bin/tx" "$TMP/cli-fallback-source/ternux-pinned-source/bin/"
 cp "$ROOT"/lib/*.sh "$TMP/cli-fallback-source/ternux-pinned-source/lib/"
+cp "$ROOT"/lib/ternux-welcome-gui.py "$ROOT"/lib/ternux-install-firefox-esr.sh \
+  "$TMP/cli-fallback-source/ternux-pinned-source/lib/"
+cp -a "$ROOT/lib/ternux-assets" "$ROOT/lib/licenses" \
+  "$TMP/cli-fallback-source/ternux-pinned-source/lib/"
 tar -czf "$TMP/cli-fallback-source.tar.gz" -C "$TMP/cli-fallback-source" ternux-pinned-source
 cli_fixture_sha="$(sha256sum "$TMP/cli-fallback-source.tar.gz" | awk '{print $1}')"
 cp "$ROOT/lib/core.sh" "$ROOT/lib/phases.sh" "$TMP/cli-fallback-modules/"
@@ -2287,10 +2616,40 @@ if [ "$cli_pin_commit" = "$boot_pin_commit" ] &&
        tnx_phase_cli
      ' _ "$TMP/cli-fallback-modules" >/dev/null &&
    [ "$(cat "$TMP/cli-fallback-url")" = "https://codeload.github.com/soobujmiah/ternux/tar.gz/$cli_pin_commit" ] &&
-   "$TMP/prefix-cli-fallback/bin/ternux" --version | grep -q "^ternux v2.0.0$"; then
-  ok "CLI source fallback downloads one matching pinned commit and verifies its archive digest"
+   "$TMP/prefix-cli-fallback/bin/ternux" --version | grep -q "^ternux v2.0.0$" &&
+   "$TMP/prefix-cli-fallback/bin/tx" --version | grep -q "^ternux v2.0.0$" &&
+   [ -s "$TMP/prefix-cli-fallback/lib/ternux/ternux-welcome-gui.py" ] &&
+   [ -s "$TMP/prefix-cli-fallback/lib/ternux/licenses/mesa-27.0.0-devel-20261025/SHA256SUMS" ] &&
+   [ -d "$TMP/prefix-cli-fallback/lib/ternux/ternux-assets/themes/Ternux" ]; then
+  ok "CLI source fallback verifies one pinned archive and installs its guest resources"
 else
-  not_ok "CLI source fallback downloads one matching pinned commit and verifies its archive digest"
+  not_ok "CLI source fallback verifies one pinned archive and installs its guest resources"
+fi
+
+# Older pinned snapshots may not contain the newer `tx` convenience entry
+# point. The verified CLI fallback must synthesize the wrapper without
+# weakening archive digest validation or changing the pinned source.
+mkdir -p "$TMP/cli-legacy-source/ternux-legacy-source/bin" \
+  "$TMP/cli-legacy-source/ternux-legacy-source/lib"
+cp "$ROOT/bin/ternux" "$TMP/cli-legacy-source/ternux-legacy-source/bin/"
+cp "$ROOT"/lib/*.sh "$TMP/cli-legacy-source/ternux-legacy-source/lib/"
+tar -czf "$TMP/cli-legacy-source.tar.gz" -C "$TMP/cli-legacy-source" ternux-legacy-source
+cli_legacy_sha="$(sha256sum "$TMP/cli-legacy-source.tar.gz" | awk '{print $1}')"
+if env HOME="$TMP/home-cli-legacy" PREFIX="$TMP/prefix-cli-legacy" \
+  TMPDIR="$TMP/cli-legacy-tmp" CLI_CWD="$TMP/cli-fallback-cwd" \
+  CLI_ARCHIVE="$TMP/cli-legacy-source.tar.gz" CLI_EXPECTED_SHA="$cli_legacy_sha" \
+  bash -c '
+    cd "$CLI_CWD" || exit
+    . "$1/core.sh"; . "$1/phases.sh"
+    TERNUX_SOURCE_SHA256="$CLI_EXPECTED_SHA"
+    dpkg-query(){ return 1; }
+    tnx_download(){ cp "$CLI_ARCHIVE" "$2"; }
+    tnx_phase_cli
+  ' _ "$TMP/cli-fallback-modules" >/dev/null &&
+  "$TMP/prefix-cli-legacy/bin/tx" --version | grep -q "^ternux v2.0.0$"; then
+  ok "CLI source fallback synthesizes tx for a verified legacy snapshot"
+else
+  not_ok "CLI source fallback synthesizes tx for a verified legacy snapshot"
 fi
 
 cp "$TMP/cli-fallback-source.tar.gz" "$TMP/cli-fallback-tampered.tar.gz"
@@ -2326,7 +2685,9 @@ if env TERNUX_STATE_DIR="$TMP/state-cli-layout" HOME="$TMP/home-cli-layout" \
     tnx_phase_cli >/dev/null &&
     [ -x "$PREFIX/bin/ternux" ] &&
     [ -f "$PREFIX/lib/ternux/core.sh" ] &&
-    "$PREFIX/bin/ternux" --version | grep -q "^ternux v"
+    "$PREFIX/bin/ternux" --version | grep -q "^ternux v" &&
+    [ -x "$PREFIX/bin/tx" ] &&
+    [ "$("$PREFIX/bin/tx" --version)" = "$("$PREFIX/bin/ternux" --version)" ]
   ' _ "$ROOT"; then
   ok "CLI phase executes the installed flat-module layout"
 else
@@ -2608,10 +2969,10 @@ check "optional llama workload pins a safe llama.cpp revision" bash -c '
 if env TERNUX_STATE_DIR="$TMP/state-blender-xvfb" HOME="$TMP/home-blender-xvfb" \
   MARKER="$TMP/blender-xvfb-command" bash -c '
     . "$1/lib/phases.sh"
-    tnx_guest_login(){ printf "%s\n" "$*" > "$MARKER"; }
+    tnx_guest_login(){ printf "%s\n" "$*" > "$MARKER"; cat >> "$MARKER"; }
     tnx_ok(){ :; }
     tnx_warn(){ :; }
-    tnx_phase_extras ternux blender && grep -Eq "apt install .*blender xvfb" "$MARKER"
+    tnx_phase_extras ternux blender && grep -Fq "bash -s -- blender xvfb" "$MARKER" && grep -Fq "apt install" "$MARKER" && grep -Fq "apt-cache policy" "$MARKER"
   ' _ "$ROOT"; then
   ok "Blender workload installs Xvfb for headless GPU rendering"
 else
@@ -2635,7 +2996,7 @@ else
   not_ok "Evolution workload installs optional packages and managed launcher without assigning mail defaults"
 fi
 
-if env SD_MARKER="$TMP/stable-diffusion-optional-phase" \
+if env TERNUX_DISTRO=debian SD_MARKER="$TMP/stable-diffusion-optional-phase" \
   SD_PHASE_SRC="$TMP/stable-diffusion-phase-src" bash -c '
     . "$1/lib/phases.sh"
     mkdir -p "$SD_PHASE_SRC/lib"
@@ -3145,7 +3506,7 @@ fi
 gpu_phase="$(sed -n '/stage=\/tmp\/ternux-driver-stage/,/apt-mark hold/p' "$ROOT/lib/phases.sh")"
 check "GPU phase pins the upstream release URL and archive checksum" bash -c '
   grep -Fq "mesa-27.0.0-devel-20261025" "$1/lib/phases.sh" &&
-  grep -Fq "b711d1d9ab5537ee9085da8896dfe2115e791b33aa317fe37538f276c967d687" "$1/lib/phases.sh" &&
+  grep -Fq "79e1aaf5" "$1/lib/phases.sh" &&
   grep -Fq "Freedreno archive SHA-256 mismatch" "$1/lib/phases.sh"
 ' _ "$ROOT"
 check "pinned Mesa license bundle matches its source hashes" bash -c '

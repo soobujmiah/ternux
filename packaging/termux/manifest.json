@@ -44,6 +44,10 @@
       "source": "lib/detect.sh",
       "perm": "644"
     },
+    "lib/ternux/distro.sh": {
+      "source": "lib/distro.sh",
+      "perm": "644"
+    },
     "lib/ternux/doctor.sh": {
       "source": "lib/doctor.sh",
       "perm": "644"
@@ -1515,6 +1519,74 @@
     "lib/ternux/workload-registry.sh": {
       "source": "lib/workload-registry.sh",
       "perm": "644"
+    },
+    "lib/ternux/ternux-install-firefox-esr.sh": {
+      "source": "lib/ternux-install-firefox-esr.sh",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/synaptic.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/synaptic.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/python3.14.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/python3.14.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/actions/document-print-preview.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/actions/document-print-preview.svg",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/gtk-3.0/gtk-user.css": {
+      "source": "lib/ternux-assets/themes/Ternux/gtk-3.0/gtk-user.css",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/themes/Ternux/gtk-4.0/gtk-user.css": {
+      "source": "lib/ternux-assets/themes/Ternux/gtk-4.0/gtk-user.css",
+      "perm": "644"
+    },
+    "bin/tx": {
+      "source": "bin/tx",
+      "perm": "755"
+    },
+    "lib/ternux/ternux-assets/bin/ternux-install-avro-m17n": {
+      "source": "lib/ternux-assets/bin/ternux-install-avro-m17n",
+      "perm": "755"
+    },
+    "lib/ternux/ternux-assets/input-methods/avro-phonetic-COPYRIGHT": {
+      "source": "lib/ternux-assets/input-methods/avro-phonetic-COPYRIGHT",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/input-methods/bn-avro-phonetic.mim": {
+      "source": "lib/ternux-assets/input-methods/bn-avro-phonetic.mim",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/input-methods/bn-avro-phonetic.png": {
+      "source": "lib/ternux-assets/input-methods/bn-avro-phonetic.png",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/bin/ternux-rasterize-icons": {
+      "source": "lib/ternux-assets/bin/ternux-rasterize-icons",
+      "perm": "755"
+    },
+    "lib/ternux/ternux-assets/bin/ternux-proot-faccessat-arm64.so": {
+      "source": "lib/ternux-assets/bin/ternux-proot-faccessat-arm64.so",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/bin/ternux-proot-faccessat.c": {
+      "source": "lib/ternux-assets/bin/ternux-proot-faccessat.c",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/bin/ternux-ibus-session-init": {
+      "source": "lib/ternux-assets/bin/ternux-ibus-session-init",
+      "perm": "755"
+    },
+    "lib/ternux/ternux-assets/bin/ternux-ibus-next-engine": {
+      "source": "lib/ternux-assets/bin/ternux-ibus-next-engine",
+      "perm": "755"
+    },
+    "lib/ternux/ternux-assets/bin/ternux-session-bus": {
+      "source": "lib/ternux-assets/bin/ternux-session-bus",
+      "perm": "755"
     }
   }
 }

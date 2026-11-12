@@ -3,7 +3,7 @@ set -eu
 SITE=https://soobujmiah.github.io/ternux/
 STATE="${XDG_STATE_HOME:-$HOME/.local/state}/ternux/welcome-seen"
 
-# Run this welcome flow once per guest user, whether Firefox is installed or not.
+# Run this welcome flow once per guest user, with the base desktop browser.
 [ ! -e "$STATE" ] || exit 0
 mkdir -p "$(dirname "$STATE")"
 # Record before launching so a slow or still-running browser cannot repeat the
@@ -14,7 +14,7 @@ if command -v firefox-esr >/dev/null 2>&1; then
     exec firefox-esr --new-window "$SITE"
 fi
 
-# Without a browser, show the responsive first-run guide.
+# Show the responsive first-run guide when no graphical session is available.
 if [ -x /usr/local/libexec/ternux-welcome-gui.py ]; then
     exec /usr/local/libexec/ternux-welcome-gui.py
 fi

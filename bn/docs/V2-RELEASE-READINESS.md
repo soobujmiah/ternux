@@ -5,12 +5,22 @@ lang: "bn"
 alt_url: "/docs/V2-RELEASE-READINESS.html"
 ---
 **অবস্থা: NOT_READY**
-**Audit date:** 2026-11-11
+**Audit date:** 2026-11-12
 **লক্ষ্য:** Ternux 2.0.0
-**Audit-এর exact `main` snapshot:** `c3d318dfe9e2e6dadc73c33198b92f2dd4eeb33a` (2026-11-11)
+**বর্তমান qualification source:** বর্তমান audit branch-এর PR #167; review-এর সময় pull request থেকে exact head SHA ও check run যাচাই করতে হবে।
 **Product source audit base:** `159806ff395a34349086504ae3055ddef21ddbec`
 **সর্বশেষ stable release:** v1.4.0; v2.0.0 tag বা release নেই।
-**Machine gate:** ১৯টি gate-এর মধ্যে P1-01, P1-03, P1-04, P1-APT, P1-PKG—এই পাঁচটি release-blocking gate অসম্পূর্ণ।
+**Machine gate:** ২০টি gate-এর মধ্যে P1-01, P1-03, P1-04, P1-09, P1-APT, P1-PKG—এই ছয়টি release-blocking gate অসম্পূর্ণ।
+
+## বর্তমান তিন distro-র device check (2026-11-12)
+
+Redmi Turbo 4 Pro / SM8735 / Adreno 825-এ Debian (`:0`), Ubuntu (`:1`) এবং Alpine (`:2`) managed setup-এ একে একে চালিয়ে পরীক্ষা করা হয়েছে। তিনটিতেই Mesa Turnip-সহ Zink দেখা গেছে; PulseAudio playback সম্পন্ন হয়েছে, microphone capture-এ data এসেছে, IBus Ctrl+Space configuration/engine switching এবং Ternux theme/wallpaper asset পরীক্ষা হয়েছে। এটি শুধু এই একটি device-এ এই তিন profile-এর partial runtime integration evidence; clean install, browser install, প্রতিটি GUI app, upgrade/migration বা বাকি ১২টি profile qualify হয়েছে—এ প্রমাণ নয়। README ও English/Bengali website-এ এখন upstream shared-UID debug APK link, background throttling কমানোর কাজ এবং GitHub signature requirement ব্যাখ্যা করা আছে। এরপর `tx stop --all`-এ তিনটি বন্ধ হয়েছে; `tx status db`, `ub`, `alp` তিনটিই `STOPPED`। Guest route ছাড়া host PulseAudio daemon চালু থাকা স্বাভাবিক।
+
+### Native package follow-up (2026-11-12)
+
+এই worktree থেকে exact Termux package rebuild করে `dpkg` দিয়ে install করা হয়েছে; `dpkg --verify ternux` clean, `tx --version` 2.0.0 দেখিয়েছে, এবং `tx distro list` package-এর profile module load করেছে। এরপর `pkg uninstall -y ternux` package-owned launcher/module-সহ সব file সরিয়েছে; আগে orphan হয়ে থাকা `lib/ternux/distro.sh`-সহ `$PREFIX/lib/ternux` ফাঁকা ছিল। Package আবার install ও verify করা হয়েছে; Debian, Ubuntu, Alpine guest রাখা হয়েছে এবং তিনটি desktop-ই STOPPED। এতে manifest omission ও native package removal পরীক্ষা পাস, তবে public repository থেকে `pkg install`/upgrade বা `tx uninstall all` দিয়ে clean-container প্রমাণ এখনো হয়নি। Termux package command চালাতে device shell-এর injected `LD_LIBRARY_PATH` খালি করতে হয়েছে; sanitized `pkg update` ও `pkg uninstall` সফল। অন্য কোনো package upgrade করা হয়নি।
+
+বর্তমান regression check: `bash tests/focused.sh` 173/173 pass; `bash tests/distro_multi_guest.sh`, `bash tests/distro_recipes.sh`, `python3 tests/docs_check.py`, signed-APT bootstrap/preservation test এবং `LD_LIBRARY_PATH=` দিয়ে `npm run format:check` pass করেছে। এই runtime-এ `bats` নেই, তাই `tests/smoke.bats` local-এ চালানো যায়নি; CI check লাগবে। `python3 tests/release_gates.py --check` ছয় blocker-সহ NOT_READY দেখাচ্ছে।
 
 ## সুপারিশ
 
@@ -31,10 +41,11 @@ PR #139 storage privacy implement করে সব required check পাসে�
 | P0-01 Stable Diffusion Vulkan license CI | **COMPLETE** | Deterministic notice manifest ও regression আছে। Exact ARM64 build, binary inspection, independent license audit run `42863263043`-এ source `5e41401dd60bf5261f6a638c62b4ad94eea98812`-এ পাস; prerelease প্রকাশ বন্ধ ছিল। |
 | P0-02 release branch consistency | **COMPLETE** | Product fix `main`-এ আছে; PR #138, generated PR #137, storage PR #139 merge হয়েছে। product head `eaf97fc`-এর সব exact-main check এবং generated-state PR #140-এর check পাস; release tag নেই। |
 | P0-03 machine release gate | **COMPLETE** | `docs/release-gates.json`-এ ১৯ gate; blocker অসম্পূর্ণ থাকলে validator `NOT_READY` দেয়। |
-| P1-01 desktop lifecycle | **PARTIAL** | Source regression ও আগের live READY status আছে। Installed v2.0.0 `desktop.sh` বর্তমান source থেকে আলাদা; updated-package GUI, stop/restart ও crash recovery বাকি। |
-| P1-02 GPU/Vulkan detection | **শুধু tested Adreno device-এ COMPLETE** | Redmi Turbo 4 Pro / SM8735 / Adreno 825-এ Vulkan/Turnip ও Zink শনাক্ত হয়েছে; software renderer false-positive regression আছে। অন্য device qualify নয়। |
+| P1-01 desktop lifecycle | **PARTIAL** | বর্তমান managed source দিয়ে Debian, Ubuntu, Alpine session চালিয়ে পরীক্ষা ও বন্ধ করা হয়েছে; তিনটিই এখন STOPPED। এতে distro runtime evidence আছে, তবে native package migration, crash recovery ও exact package lifecycle এখনো বাকি। |
+| P1-02 GPU/Vulkan detection | **শুধু tested Adreno device-এ COMPLETE** | Redmi Turbo 4 Pro / SM8735 / Adreno 825-এ Debian, Ubuntu ও Alpine—তিনটিতেই Vulkan/Turnip-backed Zink দেখা গেছে; software renderer false-positive regression আছে। অন্য device qualify নয়। |
 | P1-03 installer/updater | **PARTIAL** | Pinned bootstrap, host CLI, guest CLI tampered source reject করে; local rollback ও v1.4.0-to-v2 fixture পাস। Published v2 native migration/rollback বাকি। |
 | P1-04 storage isolation | **PARTIAL** | Default `/sdcard` bind ও setup-time permission prompt সরানো হয়েছে। `ternux storage grant DIRECTORY` কেবল canonical subdirectory রেকর্ড করে; generic guest, desktop launcher, db/droot একই allowlist যাচাই করে। Focused regression ও PR CI পাস। Updated-package device check বাকি; পুরোনো package-এর live desktop restart করা হয়নি। |
+| P1-09 default browser | **PARTIAL** | সব ১৫টি generated profile-এ Firefox install route local check pass; live Ubuntu-তে Firefox ESR 153.7.0। প্রতিটি distro-র clean first install browser test বাকি। |
 | P1-05 repository protection | **owner-only repo-র জন্য COMPLETE** | Live read-back-এ PR ও required check, strict check, admin enforcement, force-push/delete বন্ধ; second-person review অসম্ভব হওয়ায় approval count শূন্য। `.github/CODEOWNERS`-এ owner নির্ধারিত। |
 | P1-06 CPU/Vulkan LLM | **ঘোষিত device/model/workload profile-এর জন্য COMPLETE** | SM8735 / Adreno 825-এ Llama 3.2 3B Q4_K_M CPU/Vulkan known-answer ও 768 MiB pressure-সহ support-queue retrieval পাস করেছে; bounded cancel/reopen এবং CPU/Vulkan generation stability যাচাই হয়েছে। পাঁচটি 512-token CPU run ও চারটি Vulkan run সম্পূর্ণ; battery 42°C guard-এ পরের কাজ থামানো হয়েছে। তিন Qwen variant 100-record exact retrieval-এ ব্যর্থ এবং চাপের সময় invoice ফল 24.75, প্রত্যাশিত 39.50। এই model/task, অন্য device ও general correctness claim qualification-এর বাইরে। |
 | P1-07 HTP/HMX | **PARTIAL; experimental, release-excluded** | Numerical/operator failure বাকি; failing operator stable default নয়, production claim নেই। |

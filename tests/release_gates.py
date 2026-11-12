@@ -17,8 +17,8 @@ GATE_FIELDS = {
 }
 STATUSES = {"COMPLETE", "PARTIAL", "BLOCKED", "NOT_STARTED", "REGRESSION"}
 SOURCE = {"PASS", "PARTIAL", "BLOCKED", "NOT_STARTED"}
-CI = {"PASS", "PENDING", "FAIL", "NOT_RUN", "N_A"}
-DEVICE = {"VERIFIED_ON_DEVICE", "CI_ONLY", "NOT_TESTED", "BLOCKED", "N_A"}
+CI = {"PASS", "PARTIAL", "PENDING", "FAIL", "NOT_RUN", "N_A"}
+DEVICE = {"VERIFIED_ON_DEVICE", "PARTIAL", "CI_ONLY", "NOT_TESTED", "BLOCKED", "N_A"}
 SEVERITIES = {"P0", "P1", "P2"}
 
 
@@ -85,7 +85,7 @@ def validate(data: object) -> list[str]:
         status = gate.get("status")
         source_ok = gate.get("source_status") == "PASS" and bool(gate.get("evidence"))
         ci_ok = gate.get("ci_status") in {"PASS", "N_A"}
-        device_ok = gate.get("device_status") not in {"NOT_TESTED", "BLOCKED"}
+        device_ok = gate.get("device_status") not in {"PARTIAL", "NOT_TESTED", "BLOCKED"}
         gate_complete = status == "COMPLETE" and source_ok and ci_ok and device_ok
         if status == "COMPLETE" and not gate_complete:
             errors.append(f"{issue_id} cannot be COMPLETE without passing source, CI, and required device evidence")
@@ -95,8 +95,8 @@ def validate(data: object) -> list[str]:
             errors.append(f"{issue_id} is non-blocking but incomplete without a release_exclusion")
         if gate.get("ci_status") == "FAIL" and status == "COMPLETE":
             errors.append(f"{issue_id} cannot be COMPLETE with failing CI")
-        if gate.get("device_status") == "NOT_TESTED" and status == "COMPLETE" and gate.get("severity") in {"P0", "P1"}:
-            errors.append(f"{issue_id} cannot be COMPLETE for P0/P1 without device evidence")
+        if gate.get("device_status") in {"PARTIAL", "NOT_TESTED", "BLOCKED"} and status == "COMPLETE" and gate.get("severity") in {"P0", "P1"}:
+            errors.append(f"{issue_id} cannot be COMPLETE for P0/P1 without complete device evidence")
 
     expected = "NOT_READY" if blocking_incomplete else "READY_FOR_OWNER_APPROVAL"
     if data.get("derived_readiness") != expected:
@@ -116,7 +116,7 @@ def self_test(data: object) -> list[str]:
         gate["status"] = "COMPLETE"
         gate["source_status"] = "PASS"
         gate["ci_status"] = "PASS"
-        if gate["device_status"] in {"NOT_TESTED", "BLOCKED"}:
+        if gate["device_status"] in {"PARTIAL", "NOT_TESTED", "BLOCKED"}:
             gate["device_status"] = "VERIFIED_ON_DEVICE"
     if validate(ready):
         errors.append("validator rejected a fully evidenced owner-approval-ready fixture")
@@ -127,6 +127,9 @@ def self_test(data: object) -> list[str]:
     ready["gates"][0]["device_status"] = "NOT_TESTED"
     if not any("derived_readiness must be NOT_READY" in issue for issue in validate(ready)):
         errors.append("validator allowed untested device requirements to produce a READY_FOR_OWNER_APPROVAL verdict")
+    ready["gates"][0]["device_status"] = "PARTIAL"
+    if not any("complete device evidence" in issue for issue in validate(ready)):
+        errors.append("validator allowed partial device evidence to complete a P0/P1 gate")
     bad = copy.deepcopy(data)
     bad["gates"][0]["evidence"] = ["docs/not-a-real-file.md"]
     if not any("references missing evidence file" in issue for issue in validate(bad)):

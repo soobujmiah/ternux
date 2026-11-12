@@ -26,6 +26,7 @@ alt_url: "/docs/INSTALLATION.html"
 | **RAM** | ন্যূনতম ৪ GB, ৬–৮ GB ভালো | ডেস্কটপ আর Android একই মেমরি ভাগ করে; কম RAM = বেশি প্রসেস-কিল |
 | **গ্রাফিক্স** | Adreno হলে Zink/Turnip; অন্য ক্ষেত্রে VirGL candidate | Adreno route-টি মাপা; VirGL compatibility ও গতি device/Android build অনুযায়ী যাচাই করতে হবে |
 | **প্রয়োজনীয় অ্যাপ** | [Termux](https://github.com/termux/termux-app/releases) + [Termux:X11](https://github.com/termux/termux-x11/releases) | দুটো compatible source থেকে ইনস্টল করুন; Ternux চালুর আগে Termux:X11 একবার খুলুন |
+| **X11 performance option** | [Termux:X11 nightly shared-UID debug APK](https://github.com/termux/termux-x11/releases/tag/nightly) (`termux-x11-universal-sharedUid-debug.apk`) | Termux-এর Android UID ভাগ করে; X11 সামনে থাকলে Android যেন Linux workload কম background-throttle করে। শুধু GitHub-signed Termux-এর সঙ্গে চলে। F-Droid/Google Play Termux হলে একই release page-এর `termux-x11-universal-debug.apk` নিন। |
 | **ঐচ্ছিক companion app** | [Termux:Boot](https://github.com/termux/termux-boot/releases), [Termux:API](https://github.com/termux/termux-api/releases), [Termux:Styling](https://github.com/termux/termux-styling/releases) | Boot reboot-এর পর নির্ধারিত startup script চালাতে পারে; API Android utility দেয় এবং matching `termux-api` package install-time permission probe চালায়। Desktop-এর live mic Termux-এর on-demand OpenSL ES source ব্যবহার করে, API-র file recorder নয়। Styling terminal theme ও font দেয়। Termux ও add-on একই source থেকে নিন |
 
 শুরু করার আগে ডিভাইস পরীক্ষা করুন (শুধু পড়ে, কিছুই বদলায় না):
@@ -36,11 +37,14 @@ getprop ro.product.manufacturer       # যেমন Qualcomm
 getprop ro.product.model
 getprop ro.build.version.release      # যেমন 14
 df -h "$HOME"                         # ফাঁকা জায়গা
-ls -l /dev/kgsl-3d0 2>&1              # থাকলে → Adreno → Zink/Turnip পথ
+ls -l /dev/kgsl-3d0 2>&1              # Debian + Adreno/KGSL হলে → Zink/Turnip পথ
 ```
 
-`/dev/kgsl-3d0` থাকলে ইনস্টলার দ্রুত Zink/Turnip পথ বেছে নেবে। না থাকলে
-VirGL সামঞ্জস্য পথ। এর acceleration, feature coverage ও গতি ডিভাইসভেদে যাচাই করতে হবে।
+`/dev/kgsl-3d0` থাকলে `auto` Zink-কে অগ্রাধিকার দেয়। Debian Trixie-তে
+Ternux-এর validated Turnip payload লাগে; Ubuntu, Alpine, Arch, Fedora,
+openSUSE ও Void-এ প্রতিটি distro-র নিজস্ব Mesa/Freedreno package ব্যবহৃত হয়।
+অন্য profile-এ family package থাকলে সেটি নেওয়া হয়; Adélie আপাতত VirGL বেছে
+নেয়। `glxinfo -B` দিয়ে renderer যাচাই করুন; `llvmpipe` হলো CPU rendering।
 
 উপরের storage সংখ্যা আনুমানিক **installed footprint**, temporary headroom-এর
 minimum নয়। Package version ও filesystem accounting বদলায়। Clean run-এর জন্য
@@ -104,9 +108,9 @@ bash install.sh
 Reproducible review-এর জন্য `git fetch --tags` চালিয়ে release tag checkout করুন
 এবং inspection-এর আগে `git status --short` ফাঁকা আছে কি না দেখুন। Installed result
 একই হওয়ার কথা; local review route একবার confirmation চাইতে পারে। Review-এর পর
-prompt না চাইলে সচেতনভাবে `--yes` দিন। বিঘ্নিত হলে `bash install.sh --resume`
-চালান; successful হিসেবে recorded phase বাদ যাবে এবং interrupted run-এর saved
-optional workload set restore হবে।
+prompt না চাইলে সচেতনভাবে `--yes` দিন। ইনস্টল মাঝপথে থামলে একই one-command installer
+আবার চালালেই saved guest ও পছন্দ থেকে auto-resume হবে। চাইলে `bash install.sh --resume`
+দিয়ে আলাদাভাবেও resume করা যায়; সফল phase বাদ যাবে এবং saved optional workload ফিরবে।
 
 ### পদ্ধতি ৩ — সম্পূর্ণ ম্যানুয়াল, কমান্ডে কমান্ডে
 
@@ -281,11 +285,11 @@ Structured output শুধু [CLI reference](CLI.html)-এ নথিভুক�
 | ১ | **প্রিফ্লাইট** | Termux, আর্কিটেকচার, Android ভার্সন, স্টোরেজ, নেটওয়ার্ক পরীক্ষা | এখানে ব্যর্থ হলে ডাউনলোডও নষ্ট হয় না; পরের সব ধাপ এই তথ্যের ওপর নির্ভর করে |
 | ২ | **বেস প্যাকেজ** | `x11-repo`, `termux-x11-nightly`, `pulseaudio`, `proot-distro`, `virglrenderer-android`, টুলস ইনস্টল; স্টোরেজ অনুমতি | কন্টেইনারের দরকারি হোস্ট-সাইড সার্ভিস: ডিসপ্লে, শব্দ ও কন্টেইনার ইঞ্জিন |
 | ৩ | **Host CLI ইনস্টলেশন** | `$PREFIX/bin/ternux` ও `$PREFIX/lib/ternux/`-এর module install করে, তারপর exact path execute করে version যাচাই | Library missing থাকলেও file থাকতে পারে; সফল execution-ই আসল host-side check |
-| ৪ | **Debian + Xfce4** | Debian rootfs/desktop package ও passwordless sudo-সহ user তৈরি, `/usr/local/bin/ternux` install ও guest companion execute | Nested PRoot ছাড়াই desktop-এ safe local diagnostics; sudo ও guest command দুটোই যাচাই হয় |
-| ৫ | **GPU ড্রাইভার** | Adreno: Turnip ড্রাইভার ডাউনলোড, আর্কাইভ যাচাই, ইনস্টল, Mesa প্যাকেজ পিন। অন্যান্য: VirGL হোস্ট রেন্ডারার নিশ্চিত | এটি ছাড়া সব GL অ্যাপ CPU-তে চলে (`llvmpipe`)। পিন করা থাকলে সাধারণ `apt upgrade` নিঃশব্দে GPU পথ বদলে দিতে পারে না |
+| ৪ | **নির্বাচিত guest + Xfce4** | নির্বাচিত distro rootfs ও family-matched desktop package বসায়; passwordless sudo-সহ user, `/usr/local/bin/ternux` ও guest companion তৈরি করে | প্রতিটি named profile-এ আলাদা desktop recipe ও nested PRoot ছাড়া local diagnostics থাকে |
+| ৫ | **GPU route** | Debian + Adreno/KGSL: pinned Turnip payload যাচাই করে বসায়। অন্য named profile-এ shared VirGL host renderer ও guest Mesa `virpipe` configure করে | প্রতিটি profile-এ GPU route আছে; `glxinfo -B` দিয়ে hardware rendering ও software fallback আলাদা করে দেখুন |
 | ৬ | **অডিও, লোকেল, ফন্ট** | লুপব্যাক-only PulseAudio bridge, OpenSL ES output ও on-demand microphone source সেট করে; private এক-সেকেন্ড Termux:API permission probe চালায়; লোকেল ও emoji/powerline/Nerd font যোগ করে | Guest playback ও capture PulseAudio দিয়ে Android audio-তে পৌঁছায়। Live capture Termux-এর permission ও OpenSL ES source ব্যবহার করে; আলাদা Termux:API probe live stream দেয় না। ফন্ট terminal-এ tofu box ঠেকায় |
 | ৭ | **লঞ্চার** | GPU পথ অনুযায়ী `~/x.sh` লেখা ও সিনট্যাক্স-চেক | এক কমান্ডে (`x`) অডিও → ডিসপ্লে → ডেস্কটপ নির্ভরযোগ্য ক্রমে শুরু হতেই হবে |
-| ৮ | **শর্টকাট** | `tx`, `x`, `killx`, `db`/`dbr`, `ub`/`ubr`, `alp`/`alpr`, `xgo`, `sysmon`, `clean-mesa` | প্রতিদিনের কাজের জন্য সহজ ও সরাসরি শর্টকাট তৈরি করে |
+| ৮ | **শর্টকাট** | `tx`, `x`, `killx`, `db`/`dbroot`, `ub`/`ubroot`, `alp`/`alproot`, `xgo`, `sysmon`, `clean-mesa` | প্রতিদিনের কাজের জন্য সহজ ও সরাসরি শর্টকাট তৈরি করে |
 | ৯ | **ঐচ্ছিক এক্সট্রা** | ডেভ টুলস, llama.cpp, নেটওয়ার্ক টুলস, মিডিয়া টুলস, headless EEVEE-র জন্য Blender + Xvfb — শুধু যা চেয়েছেন | বেস ইনস্টল হালকা থাকুক; প্রতিটি প্রোফাইলের স্টোরেজ/তাপের খরচ আলাদা |
 | ১০ | **Android safeguard check** | readable child-process setting পরীক্ষা ও version-aware guidance | signal 9 memory pressure বা OEM battery policy-ও হতে পারে; system-wide safeguard বদলানোর আগে evidence নিন |
 | ১১ | **যাচাইকরণ** | প্রতিটি গুরুত্বপূর্ণ বাইনারি, ফাইল ও অনুমতি সত্যিই আছে কিনা নিশ্চিত করা | পরিবেশটি চালু হওয়ার উপযোগী কিনা নিশ্চিত করে — `apt` শেষ হলেই ডেস্কটপ চালু হবে এমন নিশ্চয়তা থাকে না |
@@ -367,11 +371,11 @@ Prompt পাঁচ মিনিট অপেক্ষা করে; উত্�
 
 ### GPU ব্যাকএন্ড বাছাই
 
-| আপনার GPU | ব্যাকএন্ড | প্রত্যাশা |
+| Guest profile / host | ব্যাকএন্ড | প্রত্যাশা |
 |---|---|---|
-| Qualcomm Adreno | `auto` → **zink** | Supplied Adreno setup-এ মাপা route: OpenGL → Zink → Vulkan → Turnip; নিজের renderer/workload যাচাই করুন |
-| Mali / Xclipse / PowerVR / অন্যান্য | `auto` → **virgl** | সামঞ্জস্যের সম্ভাব্য পথ; renderer, acceleration ও workload ডিভাইসে যাচাই করুন |
-| Adreno, কিন্তু driver route ব্যর্থ | `--backend virgl` | পরীক্ষা করার বিকল্প route; `llvmpipe` fallback হয়নি নিশ্চিত করুন |
+| KGSL-সহ Adreno এবং native package-সহ profile | `auto` → **zink** | Debian-এ validated Turnip; অন্য profile-এ নিজস্ব Mesa/Freedreno package; renderer ও workload পরীক্ষা করুন |
+| Adélie বা Zink অনুপলভ্য / explicit VirGL | `auto` → **virgl** | Host VirGL + guest Mesa `virpipe` compatibility পথ; active renderer `glxinfo -B` দিয়ে যাচাই করুন |
+| যেকোনো profile-এ Zink অনুপলভ্য | `--backend virgl` | Cross-distro compatibility পথ; renderer ও গতি host graphics stack-এর উপর নির্ভর করে |
 
 `/dev/kgsl-3d0`-বিহীন ডিভাইসে `zink` জোর করলে GPU phase-এ launcher তৈরির
 আগেই স্পষ্টভাবে ব্যর্থ হয়—নিঃশব্দে software desktop বানায় না। এই ব্যর্থতা

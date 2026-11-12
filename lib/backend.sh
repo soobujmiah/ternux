@@ -97,7 +97,7 @@ _tnx_backend_show() {
   printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "Renderer:" "${renderer:-unknown}"
   printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "Vulkan:" "$(tnx_detect_vulkan)"
   echo ""
-  printf "  Available: zink (Zink/Turnip on Adreno), virgl (compatibility route)\n"
+  printf "  Preference: native distro Mesa Zink/Freedreno on Adreno, then VirGL, then software rendering\n"
   echo ""
 }
 
@@ -112,7 +112,7 @@ _tnx_backend_set() {
       backend="zink"
       [ ! -e "${TERNUX_KGSL_DEVICE:-/dev/kgsl-3d0}" ] && {
         [ "${TERNUX_JSON:-0}" = "1" ] && { tnx_json_object "backend" "error" "reason" "no_kgsl_device"; return 1; }
-        tnx_fail "Zink/Turnip requires Adreno GPU (/dev/kgsl-3d0). Use 'ternux backend set virgl' instead."
+        tnx_fail "Native Zink/Turnip requires an Adreno KGSL device (/dev/kgsl-3d0). Use 'ternux backend set virgl' instead."
         return 1
       } ;;
     virgl)

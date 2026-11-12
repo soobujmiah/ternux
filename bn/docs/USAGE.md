@@ -12,13 +12,13 @@ alt_url: "/docs/USAGE.html"
 
 ## ব্যাকগ্রাউন্ড ডেস্কটপ সেশন
 
-`tx` হলো `ternux`-এর ছোট alias। একাধিক guest থাকলে `xgo` installed guest-গুলোর তালিকা দেখিয়ে GUI বাছতে বলে। `db`/`dbr`, `ub`/`ubr`, `alp`/`alpr`, `archx`/`archroot`, `fed`/`fedr`, `suse`/`suser`, `vsh`/`vroot`, `kal`/`kalr` user/root shell shortcut। অন্য guest-এ `tx distro shell NAME` ব্যবহার করুন।
+`tx` হলো `ternux`-এর ছোট alias। একাধিক guest থাকলে `xgo` installed guest-গুলোর তালিকা দেখিয়ে GUI বাছতে বলে। `db`/`dbroot`, `ub`/`ubroot`, `alp`/`alproot`, `archx`/`archroot`, `fed`/`fedr`, `suse`/`suser`, `vsh`/`vroot`, `kal`/`kalr` user/root shell shortcut। অন্য guest-এ `tx distro shell NAME` ব্যবহার করুন; Ternux profile-এ এটি configured regular user shell খোলে, generic image-এর ক্ষেত্রে image-এর default user ব্যবহার করে। Root shell চাইলে `dbroot`, `ubroot`, `alproot` বা সংশ্লিষ্ট root shortcut ব্যবহার করুন।
 
 `tx start` desktop-কে managed background session হিসেবে চালু করে এবং নিজের X11
 window ready হলে prompt-এ ফিরে আসে। প্রতিটি configured guest আলাদা tagged display ব্যবহার করে, তাই একাধিক profile পাশাপাশি
 চলতে পারে। Startup output `~/.local/share/ternux/session/desktop.log`-এ থাকে;
 1 MiB হলে আগের log rotate হয়। `tx status`, `tx stop` বা `tx logs desktop tail`
-দিয়ে session দেখুন, বেছে বন্ধ করুন বা log পড়ুন। `tx stop --all` সব বন্ধ করে। Android memory pressure-এ background process বন্ধ
+দিয়ে session দেখুন, বেছে বন্ধ করুন বা log পড়ুন। `tx stop` চলমান guest/display দেখিয়ে space বা comma-separated নাম/নম্বর নিতে পারে; `0` দিলে cancel হয়। `tx stop db`, `tx stop ub` ও `tx stop alp` নির্দিষ্ট guest বন্ধ করে; `tx stop --all` সব বন্ধ করে। Android memory pressure-এ background process বন্ধ
 করতে পারে; এমন হলে Termux:X11 আবার খুলুন।
 
 ### Termux:X11-এ কিবোর্ড ইনপুট
@@ -32,9 +32,9 @@ Android soft keyboard থেকে terminal ও অন্য X11 app-এ text �
 | `x` | `ternux start` দিয়ে ডেস্কটপ শুরু করে Termux:X11 সামনে আনে (অডিও → ডিসপ্লে → Debian → Xfce4) |
 | `xgo` | Installed guest দেখিয়ে Ternux desktop বাছতে দেয় |
 | `killx` | চলমান desktop থেকে একটি বা একাধিক বেছে বন্ধ |
-| `db` / `dbr` | Debian user / root shell |
-| `ub` / `ubr` | Ubuntu user / root shell |
-| `alp` / `alpr` | Alpine user / root shell |
+| `db` / `dbroot` | Debian user / root shell |
+| `ub` / `ubroot` | Ubuntu user / root shell |
+| `alp` / `alproot` | Alpine user / root shell |
 | `tx` | `ternux` CLI-র ছোট alias |
 | `sysmon` | CPU/RAM/GPU-নোডের দ্রুত চিত্র |
 | `clean-mesa` | শেডার ক্যাশ পরিষ্কার (ড্রাইভার বদলের পর) |
@@ -76,7 +76,7 @@ unavailable হিসেবে দেখানো হয়।
 
 ### অডিও ও VLC কন্ট্রোল
 
-Fresh install-এ Xfce জুড়ে Ternux-এর graphite-emerald GTK 2/3/4 ও Xfwm theme এবং Qt 5 GTK platform theme, neutral Adwaita fallback-সহ branded app, folder, Thunar action, category ও panel icon, Ternux panel এবং wallpaper default apply হয়। Firefox ESR, Blender, GIMP, Krita, Inkscape, Audacity, Geany ও LibreOffice-এর মতো optional GUI app-এর branded icon alias আছে; base Evince PDF reader-এরও নিজস্ব icon আছে। Common Thunar action-গুলো নিজস্ব icon context-এ থাকে। পনেরোটি portrait-first wallpaper landscape-এ aspect ratio ঠিক রাখে। অন্য toolkit ব্যবহার করা app নিজস্ব styling রাখতে পারে। PulseAudio Volume Control Debian-এর packaged application entry ও একই desktop session ব্যবহার করে। Termux:X11 session-এ Xfwm compositing বন্ধ থাকে, কারণ এটি চালু থাকলে পুরো desktop black হতে পারে। VLC ডিফল্টে full interface চালায়, তাই playback control দেখা যায়। Android storage default-এ mount হয় না। `ternux storage grant /sdcard/Folder` দিয়ে একটি folder অনুমতি দিন; তারপর desktop shortcut শুধু অনুমোদিত folder-গুলো খুলবে।
+Fresh install-এ Xfce জুড়ে Ternux-এর graphite-emerald GTK 2/3/4 ও Xfwm theme এবং Qt 5 GTK platform theme, neutral Adwaita fallback-সহ branded app, folder, Thunar action, category ও panel icon, Ternux panel এবং wallpaper default apply হয়। Firefox ESR, Blender, GIMP, Krita, Inkscape, Audacity, Geany ও LibreOffice-এর মতো optional GUI app-এর branded icon alias আছে; base Evince PDF reader-এরও নিজস্ব icon আছে। Common Thunar action-গুলো নিজস্ব icon context-এ থাকে। পনেরোটি portrait-first wallpaper landscape-এ aspect ratio ঠিক রাখে। অন্য toolkit ব্যবহার করা app নিজস্ব styling রাখতে পারে। PulseAudio Volume Control Debian-এর packaged application entry ও একই desktop session ব্যবহার করে। Termux:X11 session-এ Xfwm compositing বন্ধ থাকে, কারণ এটি চালু থাকলে পুরো desktop black হতে পারে। VLC ডিফল্টে full interface চালায়, তাই playback control দেখা যায়। Android shared storage managed guest-এ default-এ `/sdcard` হিসেবে mount হয়; model সরাসরি ওই path থেকে ব্যবহার করা যায়। path না থাকলে Termux-এ `termux-setup-storage` চালান।
 
 ## XFCE Task Manager-এর performance
 
@@ -95,6 +95,8 @@ tx distro search alpine # OCI image খুঁজুন
 ternux install --distros debian,ubuntu  # দুটো আলাদা guest install
 tx start                 # saved guest চালু
 tx start ubuntu         # Ubuntu চালু
+tx start ub              # একই Ubuntu profile-এর ছোট নাম
+tx start alp             # Alpine চালু
 tx stop ubuntu           # Ubuntu বন্ধ
 tx restart               # ডেস্কটপ পুনরায় চালু
 ternux doctor           # সিস্টেম ডায়াগনস্টিক
@@ -137,15 +139,13 @@ Termux হোস্ট                         PRoot Debian
 ────────────                         ────────────
 ~/x.sh             লঞ্চার            /home/<user>     আপনার হোম
 ~/.ternux-state    ইনস্টল স্টেট      /root            রুটের হোম
-~/storage/shared   Android স্টোরেজ   /sdcard          একই স্টোরেজ; guest access opt-in
+~/storage/shared   Android স্টোরেজ   /sdcard          একই storage; guest-এ default mount
 ```
 
 - **Debian হোম** কন্টেইনারের ভেতরে — `proot-distro backup`-এর সাথে যায়,
   কন্টেইনার ডিলিট হলে মুছে যায়।
 - **`~/storage/shared`** (Termux) আর **`/sdcard`** (Debian) Android shared
-  storage-কে বোঝায়। Ternux default-এ এটি mount করে না। নির্দিষ্ট folder-এর জন্য
-  `ternux storage grant /sdcard/Folder` চালান; revoke করতে
-  `ternux storage revoke /sdcard/Folder` ব্যবহার করুন।
+  storage-কে বোঝায়। Ternux permission থাকলে managed guest-এ `/sdcard` হিসেবে এটি mount করে। mount না থাকলে Termux-এ `termux-setup-storage` চালান।
 - **দামি সোর্স কোড** Git রিমোটেও রাখুন। ফোন হারানো সহজ, কন্টেইনার ডিলিট
   করা সহজ — GitHub নয়।
 
@@ -254,7 +254,7 @@ peak memory, temperature ও output image record করুন। Low resolution 
 লাইসেন্স শর্ত আপনার আর প্রোভাইডারের মধ্যে।
 
 *টিপস:* কন্টেইনারে (`db`) `git` চালান, তবে যেখান থেকে সুবিধা সেখানে পুশ
-করুন। Guest-এ Android shared storage কেবল নির্দিষ্ট directory grant করার পর দেখা যায়।
+করুন। Termux permission থাকলে guest-এ Android shared storage `/sdcard` হিসেবে দেখা যায়।
 
 <h3 id="authorised-security-lab">অনুমোদিত সিকিউরিটি ল্যাব</h3>
 

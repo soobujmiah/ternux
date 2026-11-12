@@ -1,0 +1,38 @@
+#!/bin/sh
+# Add fixed-size PNG copies so GTK themes remain usable without an SVG loader.
+set -eu
+root="${1:-/usr/share/icons/Ternux}"
+[ -f "$root/index.theme" ] || { echo "Missing icon theme index: $root/index.theme" >&2; exit 1; }
+command -v rsvg-convert >/dev/null 2>&1 || { echo "rsvg-convert is required to rasterize Ternux icons" >&2; exit 1; }
+tmp="$root/.index.theme.ternux.$$"
+cp "$root/index.theme" "$tmp"
+for pair in 'apps:Applications' 'places:Places' 'actions:Actions' 'categories:Categories' 'devices:Devices' 'status:Status' 'mimetypes:MimeTypes'; do
+  context=${pair%%:*}
+  label=${pair#*:}
+  source_dir="$root/scalable/$context"
+  [ -d "$source_dir" ] || continue
+  output_dir="$root/48x48/$context"
+  install -d -m 0755 "$output_dir"
+  found=0
+  for source in "$source_dir"/*.svg; do
+    [ -f "$source" ] || continue
+    name=${source##*/}
+    name=${name%.svg}
+    rsvg-convert --width 48 --height 48 "$source" > "$output_dir/$name.png"
+    found=1
+  done
+  [ "$found" -eq 1 ] || continue
+  if ! grep -Fq "48x48/$context" "$tmp"; then
+    sed -i "s#^Directories=#Directories=48x48/$context,#" "$tmp"
+    cat >> "$tmp" <<SECTION
+
+[48x48/$context]
+Size=48
+Type=Fixed
+Context=$label
+SECTION
+  fi
+done
+chmod 0644 "$tmp"
+mv "$tmp" "$root/index.theme"
+gtk-update-icon-cache -f "$root" >/dev/null 2>&1 || true

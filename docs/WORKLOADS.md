@@ -24,10 +24,12 @@ opens; items use short names and category tags. Move
 with arrow keys or `j`/`k`, press Space or the item's number to toggle it, then
 press Enter to review the plan. Press
 `q` for the base desktop only. The plan screen starts installation when you
-press Enter; type `n` to cancel. Each tool is separate, so you can choose
-Firefox without the other desktop tools, or ADT's ADB without the rest of the
-Android toolchain. Debian packages use the latest version available from the
-configured Debian repositories after `apt update`. ADT choices use its latest
+press Enter; type `n` to cancel. Each optional tool is separate, so you can choose ADT's ADB without the rest of the
+Android toolchain. Fresh guests include Firefox ESR: Debian-family guests use the
+native package; Ubuntu uses the official Mozilla ARM64 build because Ubuntu
+archive Firefox depends on Snap, which is disabled in PRoot. Optional packages are
+resolved against the selected guest's current repositories; Ternux reports missing
+candidates and continues attempting the rest of the selected packages. ADT choices use its latest
 verified release registry; llama.cpp CPU + Vulkan, Stable Diffusion CPU + Vulkan,
 and experimental HTP are managed prereleases installed through Ternux's
 checksum verifier. The chooser lists them individually. Stable Diffusion is a
@@ -37,7 +39,7 @@ build llama.cpp from source; it is separate from the managed CPU + Vulkan
 extension. `--yes` and non-interactive runs keep the base profile unless flags
 select workloads.
 
-The base desktop includes Synaptic Package Manager, branded with the Ternux icon and theme for browsing, installing, upgrading, and removing Debian packages. It uses Debian's APT package metadata and runs without requiring a system polkit daemon. Galculator provides scientific calculations, and Evince is the lightweight default PDF reader. LibreOffice Draw is available as an optional tool for editing PDF pages and exporting documents to other formats. No mail client is installed or assigned as the default. Evolution Mail is available as an optional workload; common providers can use OAuth and other hosts support manual IMAP/POP setup. OAuth opens Firefox ESR when installed, or the Android default browser through the Ternux browser bridge. The optional catalog also offers LibreOffice Writer, Calc, and Draw as separate choices, along with Go, PHP, SQLite, ripgrep, jq, htop, tree, Micro, and Thonny. Celestia is also available as an optional astronomy simulator; it is not part of the default desktop. The chooser follows the [Celestia project’s Debian install guidance](https://github.com/CelestiaProject/Celestia/blob/master/INSTALL.md#basic-installation-instructions) and uses its documented Debian 13 OBS feed (currently a 1.7 development snapshot). It verifies the feed key fingerprint, signed package index, and each ARM64 package checksum before install, then removes the temporary APT source.
+Every fresh guest profile installs Firefox in its base desktop. Debian-family guests use the native Firefox ESR package; Ubuntu uses Mozilla's official Firefox ESR build because the Ubuntu `firefox` package is a Snap bridge, while Ternux disables Snap in PRoot. Alpine, Arch, Fedora, openSUSE and Void use their native Firefox package. A missing browser candidate fails base setup with a direct error instead of leaving a browserless desktop. The base desktop includes Synaptic Package Manager, branded with the Ternux icon and theme for browsing, installing, upgrading, and removing Debian packages. It uses Debian's APT package metadata and runs without requiring a system polkit daemon. Galculator provides scientific calculations, and Evince is the lightweight default PDF reader. LibreOffice Draw is available as an optional tool for editing PDF pages and exporting documents to other formats. No mail client is installed or assigned as the default. Evolution Mail is available as an optional workload; common providers can use OAuth and other hosts support manual IMAP/POP setup. OAuth opens the included Firefox ESR, or the Android default browser through the Ternux browser bridge if guest Firefox cannot start. The optional catalog offers LibreOffice Writer, Calc, and Draw as separate choices, along with Go, PHP, SQLite, ripgrep, jq, htop, tree, Micro, and Thonny. Celestia is also available as an optional astronomy simulator; it is not part of the default desktop. The chooser follows the [Celestia project’s Debian install guidance](https://github.com/CelestiaProject/Celestia/blob/master/INSTALL.md#basic-installation-instructions) and uses its documented Debian 13 OBS feed (currently a 1.7 development snapshot). It verifies the feed key fingerprint, signed package index, and each ARM64 package checksum before install, then removes the temporary APT source.
 
 Before installation, Ternux shows a rough storage estimate based on the selected
 optional software, including temporary download and setup space. In a sufficiently
@@ -56,7 +58,7 @@ If CPU counters are restricted, it shows the available core count and load avera
 | Blender | `--with-blender` | Blender and Xvfb for headless EEVEE rendering (about 95 MB for Blender with `--no-install-recommends`) |
 | Everything | `--all` | all five |
 
-The interactive menu also offers individual tools such as Firefox ESR, Godot, Blender,
+The interactive menu also offers individual tools such as Godot, Blender,
 Neovim, GitHub CLI, Claude Code, Codex, Hermes, OpenClaw, and ADT
 Android components. ADT Platform Tools provides `adb` and `fastboot`; Ternux
 installs these by invoking ADT's own `setup.sh`, never Debian's separate
@@ -122,9 +124,9 @@ ternux is asking you to do.
 sudo apt install -y neovim gh
 ```
 
-Firefox ESR is an optional ARM64 browser package available in the software menu.
+Firefox ESR is installed in every fresh guest profile. Debian-family guests use the native package manager; Ubuntu uses Mozilla's official ARM64 ESR tarball because Ubuntu's `firefox` package is a Snap shim and Ternux keeps `snapd` disabled.
 
-After a fresh install, the first XFCE login opens the project website in Firefox ESR when that optional browser is installed. It runs once per guest user.
+After a fresh install, Firefox is already available in the base desktop. The first XFCE login opens the project website once per guest user.
 
 VLC is included with the base desktop. If needed, the catalog's separate VLC
 choice simply verifies or reinstalls the Debian package.

@@ -77,7 +77,7 @@ ternux install [options]
 |-------|--------|
 | `--yes` | ডিফল্ট, কোনো প্রশ্ন নয় |
 | `--user NAME` | Linux guest ইউজারনেম (ডিফল্ট: `ternux`) |
-| `--distro NAME` | ১৫টি named package-family profile-এর একটি বাছুন; device-verified শুধু Debian। |
+| `--distro NAME` | ১৫টি named package-family profile-এর একটি বাছুন; Debian, Ubuntu ও Alpine-এ partial integration evidence আছে; অন্য ১২টি profile physical-device unqualified। |
 | `--distros LIST` | একাধিক আলাদা guest ধারাবাহিকভাবে install, যেমন `debian,ubuntu,alpine`। |
 | `--locale LANG` | লোকেল (ডিফল্ট: `en_US.UTF-8`) |
 | `--backend auto\|zink\|virgl` | GPU ব্যাকএন্ড (ডিফল্ট: auto) |
@@ -92,9 +92,9 @@ ternux install [options]
 
 ১৫টি named desktop profile হলো `debian`, `ubuntu`, `alpine`, `archlinux`, `fedora`,
 `opensuse`, `void`, `kali`, `artix`, `chimera`, `deepin`, `manjaro`, `pardus`,
-`rockylinux` ও `adelie`। Guest prompt-এ recipe থাকা PRoot-Distro profile-গুলো দেখায়। Debian recommended এবং device-verified; অন্য profile-গুলো এখনো device-এ যাচাই হয়নি। ইন্টারেক্টিভভাবে একাধিক profile বাছতে checklist ব্যবহার করুন; automation-এ `--distros`-এর সঙ্গে comma-separated alias দিন, যেমন `tx install --distros debian,ubuntu,alpine`। প্রতিটি guest-এর আলাদা state ও tagged Termux:X11 display থাকে। `tx stop` একাধিক চলমান desktop থাকলে একটি বা একাধিক বাছতে দেয়; `tx stop --all` সব বন্ধ করে। Distro picker optional app-এর একই keyboard checklist ব্যবহার করে: Up/Down বা `j`/`k` দিয়ে চলুন, Space বা number দিয়ে toggle করুন, Enter-এ confirm করুন, আর `q` দিলে Debian default থাকে। একবারেই একাধিক guest বাছা যায়; raw-key input না থাকলে comma-separated number list চলে। Install শুরুর আগে guest, backend, user, workload এবং storage estimate দেখিয়ে নিশ্চিত করে। Base desktop verify হলেও optional workload ব্যর্থ হলে guest ready থাকে, UI warning দেখায় এবং command nonzero ফেরায়; অসমাপ্ত ধাপ retry করতে `tx install --resume` চালান।
+`rockylinux` ও `adelie`। Guest prompt-এ recipe থাকা PRoot-Distro profile-গুলো দেখায়। Debian recommended। Debian, Ubuntu ও Alpine-এ একটি Adreno 825 device-এ desktop, Zink/Turnip, audio routing, IBus ও theme setup-এর partial evidence আছে; clean install ও সব app qualification বাকি। অন্য ১২টি profile physical device-এ qualify হয়নি। ইন্টারেক্টিভভাবে একাধিক profile বাছতে checklist ব্যবহার করুন; automation-এ `--distros`-এর সঙ্গে comma-separated alias দিন, যেমন `tx install --distros debian,ubuntu,alpine`। প্রতিটি guest-এর আলাদা state ও tagged Termux:X11 display থাকে। `tx stop` চলমান guest ও display-এর তালিকা দেখিয়ে নম্বর, short name বা full name দিয়ে এক বা একাধিক বাছতে দেয়; space বা comma দিয়ে আলাদা করুন, `0` দিলে cancel হয়। `tx stop db`, `tx stop ub`, `tx stop alp` শুধু সংশ্লিষ্ট distro বন্ধ করে; `tx stop --all` সব বন্ধ করে। Distro picker optional app-এর একই keyboard checklist ব্যবহার করে: Up/Down বা `j`/`k` দিয়ে চলুন, Space বা number দিয়ে toggle করুন, Enter-এ confirm করুন, আর `q` দিলে Debian default থাকে। একবারেই একাধিক guest বাছা যায়; raw-key input না থাকলে comma-separated number list চলে। Install শুরুর আগে guest, backend, user, workload এবং storage estimate দেখিয়ে নিশ্চিত করে। Base desktop verify হলেও optional workload ব্যর্থ হলে guest ready থাকে, UI warning দেখায় এবং command nonzero ফেরায়; অসমাপ্ত ধাপ retry করতে `tx install --resume` চালান।
 
-`tx` হলো `ternux`-এর ছোট alias। `tx distro list` সব installed PRoot guest দেখায় এবং কোনগুলোর Ternux desktop recipe আছে তা চিহ্নিত করে। যেকোনো installed guest-এর জন্য `tx distro shell NAME` ও `tx distro exec NAME -- COMMAND` ব্যবহার করুন। Generic OCI image install: `tx distro image-install alpine:latest`—এটি shell guest। Named recipe APT, APK, pacman, DNF, Zypper ও XBPS family-তে আছে। Arbitrary OCI image shell guest হিসেবে চলে, desktop recipe ছাড়া GUI setup হয় না। Optional software workload এখন APT guest-এর জন্য। `xgo` একাধিক guest থাকলে তালিকা দেখিয়ে desktop বাছতে বলে। `db`/`dbr`, `ub`/`ubr`, `alp`/`alpr` যথাক্রমে Debian, Ubuntu, Alpine-এর user/root shell shortcut। Desktop command: `tx start NAME`, `tx stop [NAME|--all]`, `tx restart NAME`, `tx status NAME`। `tx stop` একাধিক session থাকলে এক বা একাধিক বাছতে দেয়; প্রতিটি stop শুধু ওই guest-এর launcher ও tagged window-তে সীমিত। `tx distro list` profile recipe availability দেখায়; device-verified শুধু Debian।
+`tx` হলো `ternux`-এর ছোট alias। `tx distro list` সব installed PRoot guest দেখায় এবং কোনগুলোর Ternux desktop recipe আছে তা চিহ্নিত করে। Ternux profile-এর configured regular user shell খুলতে `tx distro shell NAME` ব্যবহার করুন; generic image image-এর default user রাখে। Root-এর জন্য `dbroot`, `ubroot`, `alproot`-এর মতো root shortcut ব্যবহার করুন। যেকোনো installed guest-এ command চালাতে `tx distro exec NAME -- COMMAND` ব্যবহার করুন। Generic OCI image install: `tx distro image-install alpine:latest`—এটি shell guest। Named recipe APT, APK, pacman, DNF, Zypper ও XBPS family-তে আছে। Arbitrary OCI image shell guest হিসেবে চলে, desktop recipe ছাড়া GUI setup হয় না। Optional software workload এখন APT guest-এর জন্য। `xgo` একাধিক guest থাকলে তালিকা দেখিয়ে desktop বাছতে বলে। `db`/`dbroot`, `ub`/`ubroot`, `alp`/`alproot` যথাক্রমে Debian, Ubuntu, Alpine-এর user/root shell shortcut। পুরোনো `dbr`, `ubr`, `alpr` root alias-ও থাকবে। Desktop command: `tx start NAME` (Ubuntu-এর `ub` ও Alpine-এর `alp` short name-ও চলে), `tx stop [NAME|--all]`, `tx restart NAME`, `tx status NAME`। `tx stop` চলমান guest ও display-এর তালিকা দেখিয়ে নম্বর, short name বা full name দিয়ে এক বা একাধিক বাছতে দেয়; space বা comma দিয়ে আলাদা করুন, `0` দিলে cancel হয়। `tx stop db`, `tx stop ub`, `tx stop alp` শুধু ওই guest বন্ধ করে; প্রতিটি stop কেবল ওই guest-এর launcher ও tagged window-তে সীমিত। `tx stop --all` সব বন্ধ করে। `tx distro list` profile recipe availability দেখায়; Debian, Ubuntu ও Alpine-এ partial integration evidence আছে; অন্য ১২টি profile physical-device unqualified।
 
 Workload flag না দিলে interactive install-এ category-সহ checklist আসে। Up/Down
 বা `j`/`k` দিয়ে চলুন, Space বা item-এর নম্বর দিয়ে একাধিক item বাছুন, Enter-এ
@@ -115,12 +115,14 @@ ternux start ubuntu       # Ubuntu explicitly
 
 ### `ternux stop`
 
-একটি guest desktop বন্ধ করে। একাধিক display চললে একটি বা একাধিক বাছুন; `--all` সব Ternux desktop বন্ধ করে। অন্য guest display ও shared PulseAudio চলতে থাকে।
+চলমান guest ও display-এর তালিকা দেখিয়ে নম্বর, short name বা full name দিয়ে একটি বা একাধিক বাছুন। Space বা comma দিয়ে আলাদা করুন; `0` দিলে cancel হয়। `--all` সব Ternux desktop বন্ধ করে। অন্য guest display ও shared PulseAudio চলতে থাকে।
 
 ```bash
-tx stop                   # একটি বা একাধিক চলমান session বাছুন
+tx stop                   # চলমান session দেখুন, একটি বা একাধিক বাছুন
 tx stop --all            # সব managed desktop বন্ধ
-tx stop ubuntu           # Ubuntu explicitly
+tx stop db                # শুধু Debian বন্ধ
+tx stop ub                # শুধু Ubuntu বন্ধ
+tx stop alp               # শুধু Alpine বন্ধ
 ```
 
 ### `ternux restart`
