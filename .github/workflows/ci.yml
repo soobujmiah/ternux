@@ -96,7 +96,7 @@ jobs:
         run: node --check scripts/finalize-site.mjs
 
       - name: Check website source formatting
-        run: npx prettier --plugin prettier-plugin-astro --write src/pages/bn/index.astro src/pages/index.astro && git diff -- src/pages/bn/index.astro src/pages/index.astro && npm run format:check
+        run: npm run format:check
 
       - name: Reject whitespace errors in the committed change
         run: git show --check --format= HEAD
