@@ -17,7 +17,7 @@
 
 </div>
 
-Ternux sets up an Xfce4 guest in Termux using PRoot. Debian is the recommended, device-verified default. Named profiles map Debian-family aliases to APT, Alpine-family aliases to APK, Arch-family aliases to pacman, Fedora-family aliases to DNF, openSUSE to Zypper, and Void to XBPS; arbitrary OCI images remain available as shell guests. Optional workload installs are currently APT-family only. Termux:X11 displays the
+Ternux sets up an Xfce4 guest in Termux using PRoot. Debian is the recommended default. Debian, Ubuntu, and Alpine have been exercised on one Adreno 825 Android device for desktop start/stop, Zink/Turnip rendering, audio playback and microphone routing, IBus, and theme setup; this is not a clean-install or every-app qualification. The other 12 named profiles remain unqualified on a physical device. Named profiles map Debian-family aliases to APT, Alpine-family aliases to APK, Arch-family aliases to pacman, Fedora-family aliases to DNF, openSUSE to Zypper, and Void to XBPS; arbitrary OCI images remain available as shell guests. Optional workload installs are currently APT-family only. Termux:X11 displays the
 desktop and PulseAudio connects sound. All 15 named desktop profiles install Mesa GL support. On Adreno/KGSL, auto
 prefers Zink with each distro’s own Mesa/Freedreno packages where available;
 Debian Trixie uses its validated Turnip payload. VirGL is the compatibility
@@ -39,6 +39,14 @@ same graphics performance on every phone.
    from compatible sources. The nightly app enables each concurrently running
    guest to open in its own Android window when selected with `tx start NAME`;
    older X11 apps fall back to one shared window. Open Termux:X11 once.
+   For better foreground/background CPU scheduling while X11 is open, GitHub
+   Termux users can choose the upstream
+   [shared-UID debug APK](https://github.com/termux/termux-x11/releases/tag/nightly)
+   (`termux-x11-universal-sharedUid-debug.apk`). It runs under Termux's shared
+   Android UID so Android is less likely to throttle the Linux workload when
+   Termux is behind X11. This APK requires the GitHub-signed Termux app; with
+   F-Droid or Google Play Termux, use the standard
+   [`termux-x11-universal-debug.apk`](https://github.com/termux/termux-x11/releases/tag/nightly).
    Optional companion apps:
    [Termux:Boot](https://github.com/termux/termux-boot/releases) starts configured
    scripts after reboot, [Termux:API](https://github.com/termux/termux-api/releases)
@@ -82,7 +90,7 @@ tx distro list    # show every installed PRoot guest
 tx distro search alpine # search available OCI images
 ```
 
-Use `tx stop --all` to close every managed Ternux desktop. With the Termux:X11 nightly app, each Ternux desktop guest gets its own tagged Android window and separate settings; `tx start db`, `tx start ub`, or `tx start alp` brings the selected window forward. Older X11 apps use one shared window and cannot reliably switch among concurrently running guests. Install multiple profiles with `tx install --distros debian,ubuntu,alpine`; each receives the family-matched Ternux base desktop. `xgo` lists every installed guest and asks which desktop to start when there is more than one. Generic images without a Ternux package recipe are shown as shell-only. Debian remains the only device-verified profile; other package-family profiles need target-device qualification.
+Use `tx stop --all` to close every managed Ternux desktop. With the Termux:X11 nightly app, each Ternux desktop guest gets its own tagged Android window and separate settings; `tx start db`, `tx start ub`, or `tx start alp` brings the selected window forward. Older X11 apps use one shared window and cannot reliably switch among concurrently running guests. Install multiple profiles with `tx install --distros debian,ubuntu,alpine`; each receives the family-matched Ternux base desktop. `xgo` lists every installed guest and asks which desktop to start when there is more than one. Generic images without a Ternux package recipe are shown as shell-only. See [the release-readiness report](docs/V2-RELEASE-READINESS.md) for the exact scope and remaining qualification gates.
 
 The `x` shortcut starts the saved desktop; `xgo` opens Termux:X11 and asks which installed desktop guest to start. `tx` is the short CLI command. Use `db`/`dbroot`, `ub`/`ubroot`, `alp`/`alproot`, `archx`/`archroot`, `fed`/`fedr`, `suse`/`suser`, `vsh`/`vroot`, or `kal`/`kalr` for the corresponding user/root shells when those guests are installed. Start Ubuntu or Alpine with `tx start ub` or `tx start alp` (full names also work). Use `tx distro shell NAME` to enter a profile’s configured regular user (generic images keep their image default), or `tx distro exec NAME -- COMMAND` for any installed PRoot guest. Root remains explicit through `dbroot`, `ubroot`, `alproot` and the matching root aliases. Search PRoot-Distro images with `tx distro search QUERY`; install a generic OCI image with `tx distro image-install IMAGE[:TAG] [NAME]`. Generic images provide guest shells. Named distro profiles use the matching package-manager recipe; arbitrary OCI images provide guest shells until a family recipe is added. Android shared storage is mounted at `/sdcard` in every managed guest by default, so
 models and files are available directly. Termux must have Android storage permission;

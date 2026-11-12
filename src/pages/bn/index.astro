@@ -31,8 +31,10 @@ import RenderBench from "../../components/RenderBench.astro";
           </h1>
           <p>
             অ্যান্ড্রয়েড ফোনেই ১৫টি প্যাকেজ-পরিবারভিত্তিক guest profile-সহ
-            সম্পূর্ণ এআরএম৬৪ লিনাক্স ওয়ার্কস্টেশন; ডিফল্ট ডেবিয়ান profile
-            ডিভাইসে যাচাই করা। রুট বা রিমোট সার্ভার দরকার নেই। যত্ন করে তৈরি এই
+            সম্পূর্ণ এআরএম৬৪ লিনাক্স ওয়ার্কস্টেশন এবং সুপারিশ করা ডেবিয়ান
+            default profile। একটি Adreno 825 ফোনে ডেবিয়ান, উবুন্টু ও অ্যালপাইনের
+            partial runtime integration evidence আছে; clean install ও সব app-এর
+            qualification বাকি। রুট বা রিমোট সার্ভার দরকার নেই। যত্ন করে তৈরি এই
             স্তরবিন্যাস ফোনকে সফটওয়্যার তৈরি, ত্রিমাত্রিক দৃশ্য render ও গণনার
             বাস্তব পরিবেশে রূপ দেয়।
           </p>
@@ -138,12 +140,12 @@ import RenderBench from "../../components/RenderBench.astro";
           <article class="arch-stage" data-index="০৪ / স্ক্রিন">
             <span class="arch-pulse"></span>
             <h3>টার্মাক্স:এক্স১১</h3>
-            <p>অ্যান্ড্রয়েডের স্ক্রিন-সংযোগ</p>
+            <p>অ্যান্ড্রয়েড X server · আলাদা guest window</p>
           </article>
           <article class="arch-stage" data-index="০৫ / জিপিইউ">
             <span class="arch-pulse"></span>
             <h3>জিঙ্ক · টার্নিপ</h3>
-            <p>ভলকানের ওপর ওপেনজিএল</p>
+            <p>অ্যাড্রেনো ৮২৫-এ Debian, Ubuntu ও Alpine যাচাই</p>
           </article>
           <article class="arch-stage" data-index="০৬ / প্রস্তুত">
             <span class="arch-pulse"></span>
@@ -165,7 +167,13 @@ import RenderBench from "../../components/RenderBench.astro";
             <p>
               বিশ্বস্ত উৎস থেকে টার্মাক্স বসিয়ে দ্রুত-শুরুর নির্দেশনা অনুসরণ
               করুন। প্রতিটি ধাপ স্পষ্ট, যাচাইযোগ্য এবং ফোনের বাস্তব সীমা মাথায়
-              রেখে তৈরি।
+              রেখে তৈরি। X11 desktop সামনে থাকলে Android-এর background
+              throttling কমাতে
+              <a href="https://github.com/termux/termux-x11/releases/tag/nightly">
+                Termux:X11 shared-UID debug APK
+              </a>
+              ব্যবহার করা যায়; এটি GitHub-signed Termux চায়। F-Droid ও Google
+              Play-এর Termux হলে একই release page-এর সাধারণ universal debug APK নিন।
             </p>
             <a
               class="home-section-link"
@@ -211,9 +219,11 @@ import RenderBench from "../../components/RenderBench.astro";
               টার্নাক্সে লিনাক্স চলে। এডিটি দিয়ে অ্যান্ড্রয়েড অ্যাপ তৈরি হয়।
             </h2>
             <p>
-              টার্নাক্সে package-family অনুযায়ী ১৫টি desktop profile আছে;
-              ডিভাইসে যাচাইকৃত ডেবিয়ান ডেস্কটপ ডিফল্ট। উবুন্টুর আলাদা
-              snapd-নিরাপদ recipe আছে, অন্য profile-গুলো device-qualified নয়।
+              টার্নাক্সে package-family অনুযায়ী ১৫টি desktop profile আছে এবং
+              ডেবিয়ান সুপারিশ করা default। একটি Adreno 825 ফোনে ডেবিয়ান,
+              উবুন্টু ও অ্যালপাইনের partial runtime integration evidence আছে;
+              clean install ও সব app qualification বাকি। অন্য ১২টি profile
+              device-qualified নয়। উবুন্টুর আলাদা snapd-নিরাপদ recipe আছে।
               এডিটি সেই guest ব্যবস্থায় অ্যান্ড্রয়েড অ্যাপ তৈরির সরঞ্জাম যোগ
               করে: এসডিকে নির্মাণ-সরঞ্জাম, প্ল্যাটফর্ম-সরঞ্জাম, স্বাক্ষর, এডিবি,
               ফ্লাটার/ডার্ট এবং নিজস্ব নির্মাণ-সরঞ্জাম। দুই প্রকল্পের

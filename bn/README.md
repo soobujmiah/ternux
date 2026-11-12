@@ -18,7 +18,7 @@
 </div>
 
 Ternux, Termux ও PRoot দিয়ে Xfce4 Linux desktop বসায়। Debian সুপারিশ করা
-default এবং একমাত্র device-verified profile; APT, APK, pacman, DNF, Zypper ও
+default। Debian, Ubuntu ও Alpine-এ একটি Adreno 825 Android device-এ desktop start/stop, Zink/Turnip, audio playback ও microphone route, IBus এবং theme setup পরীক্ষা করা হয়েছে; এটি clean install বা সব app-এর পূর্ণ qualification নয়। বাকি ১২টি profile physical device-এ qualify হয়নি; APT, APK, pacman, DNF, Zypper ও
 XBPS family-র ১৫টি named guest profile-ও interactive checklist বা `--distro`
 দিয়ে বেছে নেওয়া যায়। Generic OCI image shell guest হিসেবে চলে। Termux:X11
 desktop দেখায়, আর PulseAudio শব্দ চালায়। ১৫টি named desktop profile-এই distro-র
@@ -39,7 +39,15 @@ Ternux Android ফোনে কম resource-এ ব্যবহারযোগ�
 
 ১. একই বিশ্বস্ত source থেকে [Termux](https://github.com/termux/termux-app/releases)
    ও [Termux:X11](https://github.com/termux/termux-x11/releases) ইনস্টল করুন।
-   Termux:X11 একবার খুলুন। অতিরিক্ত companion app হিসেবে
+   একাধিক GUI আলাদা Android window-তে দেখাতে nightly build নিন। Termux সামনে
+   বা পেছনে থাকলে Android যেন Linux workload কম throttle করে, সে জন্য GitHub-এর
+   Termux ব্যবহারকারীরা upstream
+   [shared-UID debug APK](https://github.com/termux/termux-x11/releases/tag/nightly)
+   (`termux-x11-universal-sharedUid-debug.apk`) নিতে পারেন; এটি Termux-এর
+   shared Android UID-তে চলে। এটি শুধু GitHub-signed Termux-এর সঙ্গে কাজ করে।
+   F-Droid বা Google Play Termux হলে একই release page-এর সাধারণ
+   [`termux-x11-universal-debug.apk`](https://github.com/termux/termux-x11/releases/tag/nightly)
+   ব্যবহার করুন। Termux:X11 একবার খুলুন। অতিরিক্ত companion app হিসেবে
    [Termux:Boot](https://github.com/termux/termux-boot/releases) reboot-এর পর
    নির্ধারিত script চালায়, [Termux:API](https://github.com/termux/termux-api/releases)
    Android utility দেয় (Termux-এ matching `termux-api` package-ও লাগবে), আর

@@ -34,7 +34,7 @@ curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh |
 wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
 ```
 
-With a controlling terminal, first choose one or more named guest profiles in the checklist: move with Up/Down or `j`/`k`, press Space or a profile number to toggle a selection, then Enter to continue. Debian is the recommended default; the other 14 family-matched profiles are available but not device-verified. The next checklist selects optional workloads; press Enter or `0` for the base desktop, or choose the displayed numbers. In a non-interactive run, `--yes` keeps the Debian base profile. See [all guest profiles and package-family recipes](INSTALLATION.html#choosing-a-guest-distribution).
+With a controlling terminal, first choose one or more named guest profiles in the checklist: move with Up/Down or `j`/`k`, press Space or a profile number to toggle a selection, then Enter to continue. Debian is the recommended default. Debian, Ubuntu, and Alpine have partial integration evidence on one Adreno 825 device; clean-install and full-app qualification remain open, and the other 12 profiles are unqualified on a physical device. The next checklist selects optional workloads; press Enter or `0` for the base desktop, or choose the displayed numbers. In a non-interactive run, `--yes` keeps the Debian base profile. See [all guest profiles and package-family recipes](INSTALLATION.html#choosing-a-guest-distribution).
 
 The installer:
 

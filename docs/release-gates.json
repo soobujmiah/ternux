@@ -2,7 +2,7 @@
   "schema_version": 1,
   "project": "Ternux",
   "target_release": "2.0.0",
-  "audit_date": "2026-11-11",
+  "audit_date": "2026-11-12",
   "derived_readiness": "NOT_READY",
   "release_approved": false,
   "status_axes": {
@@ -117,7 +117,8 @@
         "Live read-only recheck 2026-11-10 15:52 UTC: installed status is READY with X11/PulseAudio; current-source verify passes. Source desktop.sh SHA-256 b3f0753a771f54c2c337310b2f23485926c9fded314ace818d76828c96af8ea3 differs from installed 02c5f6175f45c94c4ec68f323294f1c633bd7e4f501430b243f72132ed0950cb. No restart or installed-file mutation; updated-package recovery stays open.",
         "Fresh read-only device check 2026-11-10 17:03 UTC: ternux status reports running, X11 yes and PulseAudio running (PID 16987); ternux verify passes on Android 16 / Adreno 825. Source desktop.sh SHA-256 b3f0753a771f54c2c337310b2f23485926c9fded314ace818d76828c96af8ea3 differs from installed 02c5f6175f45c94c4ec68f323294f1c633bd7e4f501430b243f72132ed0950cb. No stop/restart or PREFIX mutation was performed.",
         "Fresh read-only native check 2026-11-10 17:42–17:44 UTC: Ternux status remains running, X11 and PulseAudio running, managed PID 16987; verify passed on Android 16 / Adreno 825. Doctor reports 42 C battery temperature and 3646 MB available memory. Source desktop.sh SHA-256 b3f0753a771f54c2c337310b2f23485926c9fded314ace818d76828c96af8ea3 still differs from installed SHA-256 02c5f6175f45c94c4ec68f323294f1c633bd7e4f501430b243f72132ed0950cb. No restart or native PREFIX mutation was performed; updated-package lifecycle remains unverified.",
-        "Latest read-only native check in this audit: ternux status reported existing desktop PID 16987, Termux:X11 and PulseAudio running; ternux verify passed. Installed desktop module remains different from current source, and no restart/package mutation occurred, so updated-package stop/start/crash recovery stays open."
+        "Latest read-only native check in this audit: ternux status reported existing desktop PID 16987, Termux:X11 and PulseAudio running; ternux verify passed. Installed desktop module remains different from current source, and no restart/package mutation occurred, so updated-package stop/start/crash recovery stays open.",
+        "2026-11-12 multi-profile device pass on Redmi Turbo 4 Pro / SM8735 / Adreno 825: Debian :0, Ubuntu :1, Alpine :2 each started; functional desktop and Zink/Turnip renderer observed; guest PulseAudio playback completed and microphone capture returned data; IBus Ctrl+Space/engine switching and Ternux theme/wallpaper assets checked. `tx stop --all` stopped all three and `tx status db|ub|alp` reported STOPPED. This verifies existing source-managed runtime sessions, not exact package migration, fresh install, or crash recovery; gate remains PARTIAL."
       ],
       "required_tests": [
         "overlap/start-stop/crash-recovery fixtures",
@@ -144,7 +145,8 @@
         "docs/V2-RELEASE-READINESS.md#physical-device-vulkan-observation",
         "Adreno 825 guest Vulkan/Turnip/Zink observed. Parser/failure-path regressions pass in Validate 42707570617; other GPU families are not qualified.",
         "Native Termux `ternux doctor --quick --json` on 2026-11-10: 17 ok, 0 warn, 0 fail; Adreno 825, Vulkan yes, configured Zink, renderer `zink Vulkan 1.4 (Adreno (TM) 825 (MESA_TURNIP))`. Full `ternux doctor --json`: 31 ok, 0 warn, 0 fail, 1 informational; Debian 13 aarch64 guest, glibc 2.41, Turnip in apt-safe layout. This verifies this device stack only; no universal GPU claim.",
-        "2026-11-10 source regression: live renderer names for llvmpipe, lavapipe, softpipe, swrast, SwiftShader, Software Rasterizer and GDI Generic now map to SOFTWARE_FALLBACK; doctor warns instead of reporting successful accelerated rendering. `bash tests/focused.sh` passed 146/146, including detector and doctor assertions. Device qualification remains limited to the documented Adreno 825 stack."
+        "2026-11-10 source regression: live renderer names for llvmpipe, lavapipe, softpipe, swrast, SwiftShader, Software Rasterizer and GDI Generic now map to SOFTWARE_FALLBACK; doctor warns instead of reporting successful accelerated rendering. `bash tests/focused.sh` passed 146/146, including detector and doctor assertions. Device qualification remains limited to the documented Adreno 825 stack.",
+        "2026-11-12 physical-device renderer check: Debian, Ubuntu, and Alpine each reported direct rendering with Mesa Zink on Vulkan Turnip / Adreno 825 on the same Android 16 SM8735 device. Qualification remains device-specific; other GPU families remain untested."
       ],
       "required_tests": [
         "mocked missing-loader/ICD/device cases",
@@ -572,5 +574,5 @@
       "release_exclusion": "Qualify only the documented Redmi Turbo 4 Pro / SM8735 target; all other device-specific acceleration remains unqualified."
     }
   ],
-  "observed_head_commit": "c3d318dfe9e2e6dadc73c33198b92f2dd4eeb33a"
+  "observed_head_commit": "b261c64eeed3672a86ba25ae99b02b9215235e90"
 }

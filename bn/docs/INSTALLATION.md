@@ -26,6 +26,7 @@ alt_url: "/docs/INSTALLATION.html"
 | **RAM** | ন্যূনতম ৪ GB, ৬–৮ GB ভালো | ডেস্কটপ আর Android একই মেমরি ভাগ করে; কম RAM = বেশি প্রসেস-কিল |
 | **গ্রাফিক্স** | Adreno হলে Zink/Turnip; অন্য ক্ষেত্রে VirGL candidate | Adreno route-টি মাপা; VirGL compatibility ও গতি device/Android build অনুযায়ী যাচাই করতে হবে |
 | **প্রয়োজনীয় অ্যাপ** | [Termux](https://github.com/termux/termux-app/releases) + [Termux:X11](https://github.com/termux/termux-x11/releases) | দুটো compatible source থেকে ইনস্টল করুন; Ternux চালুর আগে Termux:X11 একবার খুলুন |
+| **X11 performance option** | [Termux:X11 nightly shared-UID debug APK](https://github.com/termux/termux-x11/releases/tag/nightly) (`termux-x11-universal-sharedUid-debug.apk`) | Termux-এর Android UID ভাগ করে; X11 সামনে থাকলে Android যেন Linux workload কম background-throttle করে। শুধু GitHub-signed Termux-এর সঙ্গে চলে। F-Droid/Google Play Termux হলে একই release page-এর `termux-x11-universal-debug.apk` নিন। |
 | **ঐচ্ছিক companion app** | [Termux:Boot](https://github.com/termux/termux-boot/releases), [Termux:API](https://github.com/termux/termux-api/releases), [Termux:Styling](https://github.com/termux/termux-styling/releases) | Boot reboot-এর পর নির্ধারিত startup script চালাতে পারে; API Android utility দেয় এবং matching `termux-api` package install-time permission probe চালায়। Desktop-এর live mic Termux-এর on-demand OpenSL ES source ব্যবহার করে, API-র file recorder নয়। Styling terminal theme ও font দেয়। Termux ও add-on একই source থেকে নিন |
 
 শুরু করার আগে ডিভাইস পরীক্ষা করুন (শুধু পড়ে, কিছুই বদলায় না):

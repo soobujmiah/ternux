@@ -170,7 +170,7 @@ that no test can reach an actual installation. Production defaults are unchanged
 
 | Variable | Default | Effect |
 |---|---|---|
-| `TERNUX_DISTRO` | `debian` | The PRoot-Distro guest selected for installation; `--distro` sets it. Named profiles provide family-matched desktop recipes for APT (Debian, Ubuntu, Kali, Deepin, Pardus), APK (Alpine, Adelie, Chimera), pacman (Arch Linux, Artix, Manjaro), DNF (Fedora, Rocky Linux), Zypper (openSUSE), and XBPS (Void). **Only Debian has a device-verified result.** Arbitrary OCI images are supported as shell guests without an automatic desktop recipe. |
+| `TERNUX_DISTRO` | `debian` | The PRoot-Distro guest selected for installation; `--distro` sets it. Named profiles provide family-matched desktop recipes for APT (Debian, Ubuntu, Kali, Deepin, Pardus), APK (Alpine, Adelie, Chimera), pacman (Arch Linux, Artix, Manjaro), DNF (Fedora, Rocky Linux), Zypper (openSUSE), and XBPS (Void). Debian, Ubuntu, and Alpine have partial integration evidence on one Adreno 825 device; clean installation and all-app qualification are open. Other profiles remain physically unqualified. Arbitrary OCI images are supported as shell guests without an automatic desktop recipe. |
 | `TERNUX_THEME` | `p10k` | `none` installs zsh without powerlevel10k. `--no-theme` sets it. |
 | `TERNUX_KGSL_DEVICE` | `/dev/kgsl-3d0` | The device node that GPU, Vulkan and backend detection probe. Pointing it at a path that does not exist makes `auto` resolve to VirGL — what a non-Adreno device sees. |
 | `TERNUX_HOST_PREFIX` | `/data/data/com.termux/files/usr` | Where `uninstall.sh` looks for an installed host CLI before falling back to a local checkout or a download. |

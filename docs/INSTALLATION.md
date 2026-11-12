@@ -25,6 +25,7 @@ Detailed installation walkthrough. For the concise path, see
 | **RAM** | 4 GB min, 6–8 GB preferred | The desktop + Android share memory; less RAM = more killing |
 | **Graphics** | Adreno/KGSL prefers Zink with each guest distro’s own Mesa/Freedreno packages where available; VirGL is the compatibility route | The active renderer depends on the guest package set and Android host stack; verify with `glxinfo -B` |
 | **Required apps** | [Termux](https://github.com/termux/termux-app/releases) + [Termux:X11](https://github.com/termux/termux-x11/releases) | Install both from compatible sources; open Termux:X11 once before starting Ternux |
+| **X11 performance option** | [Termux:X11 nightly shared-UID debug APK](https://github.com/termux/termux-x11/releases/tag/nightly) (`termux-x11-universal-sharedUid-debug.apk`) | Shares Termux's Android UID so Android is less likely to background-throttle the Linux workload while X11 is foreground. Requires the GitHub-signed Termux app. F-Droid/Google Play Termux should use `termux-x11-universal-debug.apk` from the same release page. |
 | **Optional companion apps** | [Termux:Boot](https://github.com/termux/termux-boot/releases), [Termux:API](https://github.com/termux/termux-api/releases), [Termux:Styling](https://github.com/termux/termux-styling/releases) | Boot can run configured startup scripts after reboot; API provides Android utilities and its matching `termux-api` package enables the install-time permission probe. Live desktop mic uses Termux's on-demand OpenSL ES source, not the API's file recorder. Styling provides terminal themes and fonts. Keep Termux and each add-on from the same source |
 
 Check your device first (read-only, changes nothing):
@@ -387,8 +388,11 @@ profile.
 | Zypper | openSUSE |
 | XBPS | Void |
 
-Debian is the recommended, device-verified default. Other named profiles have
-family-matched recipes but are not device-verified. Arbitrary PRoot-Distro OCI
+Debian is the recommended default. Debian, Ubuntu, and Alpine have partial
+physical-device integration evidence on one Adreno 825 phone (desktop,
+Zink/Turnip, audio routing, IBus and theme setup); this does not qualify clean
+installation or every application. The remaining named profiles have
+family-matched recipes but no physical-device qualification. Arbitrary PRoot-Distro OCI
 images can be installed as shell guests; they do not receive an automatic
 Ternux desktop recipe. Optional software workloads currently require an APT
 guest.
