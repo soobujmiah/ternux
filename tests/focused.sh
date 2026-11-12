@@ -788,6 +788,10 @@ assert "ffmpeg ristretto" in (root / "lib/phases.sh").read_text()
 assert "mousepad galculator evince fonts-noto-core" in (root / "lib/phases.sh").read_text()
 phase_source = (root / "lib/phases.sh").read_text()
 base_desktop_install = next(line for line in phase_source.splitlines() if "apt install -y -o APT::Install-Recommends=false \\$DPKG_FORCE sudo nano" in line)
+assert "libglib2.0-bin" in base_desktop_install
+assert "gtk3 glib2 ibus" in phase_source
+assert "gtk3 glib2-tools ibus" in phase_source
+assert "gtk+3 glib ibus" in phase_source
 assert "thunderbird" not in base_desktop_install and "evolution" not in base_desktop_install
 assert "evolution) apt_packages+=(evolution gnome-online-accounts-gtk)" in phase_source
 assert "evolution" in phase_source.split("TNX_OPTIONAL_ITEMS=(", 1)[1].split(")", 1)[0]
@@ -857,7 +861,7 @@ assert "pkg_retry apk add firefox-esr" in desktop_phase
 assert "mktemp /tmp/ternux-sudoers.XXXXXX" in desktop_phase
 assert "mktemp /tmp/ternux-jetbrainsmono.XXXXXX)" in desktop_phase
 assert "XXXXXX.tar.xz" not in desktop_phase
-assert "apk add sudo bash shadow musl-utils nano mousepad galculator evince font-noto python3 py3-gobject3 gtk+3.0 ibus dbus-x11 pulseaudio" in desktop_phase and "desktop-file-utils xdg-utils xdpyinfo setxkbmap util-linux" in desktop_phase
+assert "apk add sudo bash shadow musl-utils nano mousepad galculator evince font-noto python3 py3-gobject3 gtk+3.0 glib ibus dbus-x11 pulseaudio" in desktop_phase and "desktop-file-utils xdg-utils xdpyinfo setxkbmap util-linux" in desktop_phase
 assert "apk add vlc-qt m17n-lib m17n-db font-noto-bengali" in desktop_phase
 assert "rsvg-convert" in desktop_phase
 assert "gdk-pixbuf=2.42.12-r1 gdk-pixbuf-loaders=2.42.12-r1" not in desktop_phase
