@@ -44,6 +44,10 @@ jobs:
             exit 1
           }
 
+      - name: Require all release gates before stable publication
+        if: inputs.mode == 'publish-v2'
+        run: python3 tests/release_gates.py --check
+
       - name: Check out pinned Termux package builder
         uses: actions/checkout@v5
         with:

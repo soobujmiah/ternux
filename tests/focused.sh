@@ -254,7 +254,8 @@ fi
 # Every base guest gets a browser; welcome content is guest-managed and
 # one-time. VLC uses XCB output.
 if env TERNUX_STATE_DIR="$TMP/state-welcome" HOME="$TMP/home-welcome" \
-  PREFIX="$TMP/prefix-welcome" MARKER="$TMP/welcome-script" bash -c '
+  PREFIX="$TMP/prefix-welcome" MARKER="$TMP/welcome-script" \
+  PYTHONPYCACHEPREFIX="$TMP/pycache" bash -c '
     . "$1/lib/phases.sh"
     tnx_debian_installed(){ return 0; }
     tnx_install_guest_cli(){ :; }
@@ -289,6 +290,10 @@ if env TERNUX_STATE_DIR="$TMP/state-welcome" HOME="$TMP/home-welcome" \
       grep -q "fonts-noto-core" "$1/lib/phases.sh" &&
       grep -q "ternux-window-fit.desktop" "$MARKER" &&
       grep -q "set_window_geometry" "$1/lib/ternux-window-fit.lua" &&
+      grep -Fq "translated = root.translate_coords(window, 0, 0)" "$1/lib/ternux-assets/bin/ternux-window-fit-x11" &&
+      grep -Fq "window_ids(root, atoms_by_name[\"_NET_CLIENT_LIST\"])" "$1/lib/ternux-assets/bin/ternux-window-fit-x11" &&
+      grep -Fq "screen_width, screen_height = screen.width_in_pixels, screen.height_in_pixels" "$1/lib/ternux-assets/bin/ternux-window-fit-x11" &&
+      grep -Fq "if atoms_by_name[\"_NET_WM_STATE_FULLSCREEN\"] in state:" "$1/lib/ternux-assets/bin/ternux-window-fit-x11" &&
       grep -q "Every fresh profile gets one usable browser" "$1/lib/phases.sh" &&
       sh -n "$1/lib/ternux-welcome.sh" &&
       grep -q "firefox-esr --new-window" "$1/lib/ternux-welcome.sh" &&
@@ -398,6 +403,23 @@ check "Termux APT artifacts live outside the website dist directory" bash -c '
 
 # Repository builds must bind the exact package checksum to a verified full
 # signing fingerprint, export only the public key, and remove stale signatures.
+if python3 - "$ROOT/.github/workflows/termux-apt-release.yml" <<'PYAPTGUARD'
+from pathlib import Path
+import sys
+
+workflow = Path(sys.argv[1]).read_text()
+marker = "      - name: Require all release gates before stable publication\n"
+assert marker in workflow
+step = workflow.split(marker, 1)[1].split("      - name:", 1)[0]
+assert "if: inputs.mode == 'publish-v2'" in step
+assert "python3 tests/release_gates.py --check" in step
+PYAPTGUARD
+then
+  ok "stable APT publication is rejected until every blocking release gate passes"
+else
+  not_ok "stable APT publication is rejected until every blocking release gate passes"
+fi
+
 apt_fixture="$TMP/apt-fixture"
 mkdir -p "$apt_fixture/packaging/termux" "$apt_fixture/artifacts/ternux-apt/debs" "$apt_fixture/lib"
 cp "$ROOT/packaging/termux/build-repository.sh" "$apt_fixture/packaging/termux/"

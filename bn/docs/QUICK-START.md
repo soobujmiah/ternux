@@ -37,7 +37,7 @@ curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh |
 wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
 ```
 
-Interactive terminal-এ প্রথমে checklist থেকে এক বা একাধিক named guest profile বাছুন: Up/Down বা `j`/`k` দিয়ে চলুন, Space বা profile number দিয়ে নির্বাচন toggle করুন, তারপর Enter চাপুন। Debian সুপারিশ করা default। Debian, Ubuntu ও Alpine-এ একটি Adreno 825 device-এ partial integration evidence আছে; clean install ও সব app qualification বাকি, অন্য ১২টি profile physical-device unqualified। পরের checklist-এ optional workload বাছুন; base desktop-এর জন্য Enter বা `0` চাপুন, অথবা দেখানো number দিন। Non-interactive run-এ `--yes` Debian base profile রাখে। [সব guest profile ও package-family recipe](INSTALLATION.html#guest-distribution-বাছাই) দেখুন।
+Interactive terminal-এ প্রথমে checklist থেকে এক বা একাধিক named guest profile বাছুন: Up/Down বা `j`/`k` দিয়ে চলুন, Space বা profile number দিয়ে selection toggle করুন, তারপর Enter চাপুন। Debian সুপারিশ করা default। **Ternux v2 শুধু Debian, Ubuntu ও Alpine support করে।** একটি Adreno 825 device-এ এই তিনটির desktop, graphics, audio routing, IBus ও theme evidence আছে; clean browser install exact-head CI release gate এবং এই evidence সব app qualify করে না। অন্য ১২টি recipe আছে, কিন্তু v2-supported নয়। পরের checklist-এ optional workload বাছুন; base desktop-এর জন্য Enter বা `0` চাপুন, অথবা দেখানো number দিন। Non-interactive run-এ `--yes` Debian base profile রাখে। [সব guest profile ও package-family recipe](INSTALLATION.html#guest-distribution-বাছাই) দেখুন।
 
 ইনস্টলার:
 
