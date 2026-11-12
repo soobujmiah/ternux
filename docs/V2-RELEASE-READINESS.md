@@ -30,7 +30,7 @@ Current package regression checks: `bash tests/focused.sh` passed 178/178; multi
 
 ## Recommendation
 
-Do not publish v2.0.0 yet. PR #178 is merged and all three exact-main checks passed; the candidate changes described here are still unmerged. Native package install/removal, full Ternux cleanup, and clean Debian storage isolation pass. Remaining gates are RC-backed v1.4.0-to-v2 migration/rollback, clean browser qualification across package-manager families, and signed public APT install/upgrade verification. The v3 proposal document is a planning note only; it does not change v2 scope or gate status.
+Do not publish v2.0.0 yet. PR #179 is merged at `d2f525e`; its Validate, package artifact, repository-contract, test, and sync checks passed. Native package install/removal, managed guest cleanup, and clean Debian storage isolation pass. Remaining gates are RC-backed v1.4.0-to-v2 migration/rollback, clean browser qualification across package-manager families, and signed public APT install/upgrade verification. The v3 proposal document is a planning note only; it does not change v2 scope or gate status.
 
 ## Stage 0 — reconciliation
 
@@ -96,7 +96,7 @@ Latest reconciliation: PRs #147/#149 fix transient Pages 5xx retries and merge a
 
 The qualified device is Android 16 on Xiaomi 25053RT47C (Redmi Turbo 4 Pro, SM8735, Adreno 825). The exact native 2.0.0 package was installed from the local package artifact and passed `dpkg --verify`; its CLI started and stopped Debian :0, Ubuntu :1, and Alpine :2 with READY and PulseAudio route status. A verified Debian process-group crash produced FAILED, then packaged `tx start db` recovered to READY and `tx stop db` returned STOPPED. Package removal and fresh local-file `pkg install` passed. This is existing-guest device evidence, not clean guest provisioning or public APT installation.
 
-HTP/HMX and QNN remain experimental/research-only. They are excluded from stable v2 claims. CPU/Vulkan support claims must stay within the model/device evidence above. No v2 tag/release or signed APT publication was made. Native package install/removal and exact-package desktop lifecycle were exercised. Browser routes pass in all 15 generated profiles, while clean first-install browser runs, native package update/repair, and full managed-container cleanup remain open.
+HTP/HMX and QNN remain experimental/research-only. They are excluded from stable v2 claims. CPU/Vulkan support claims must stay within the model/device evidence above. No v2 tag/release or signed APT publication was made. Native package install/removal and exact-package desktop lifecycle were exercised. Browser routes pass in all 15 generated profiles; clean first-install package-family launch checks are pending in PR #180. Published RC migration/rollback and native package-source upgrade remain open.
 
 ## Remaining release blockers
 
@@ -108,4 +108,4 @@ Re-run required CI on the final intended release commit. HTP/HMX and QNN remain 
 
 ## Final recommendation
 
-**NOT_READY.** PR #177 is merged; P1-01, P1-04, and P1-PKG are complete. P1-03, P1-09, and P1-APT remain open. Do not tag or publish v2.0.0 until migration, clean browser qualification, and signed public APT evidence pass.
+**NOT_READY.** PR #179 is merged; P1-01, P1-04, and P1-PKG are complete. P1-03, P1-09, and P1-APT remain open. Do not tag or publish v2.0.0 until migration, clean browser qualification, and signed public APT evidence pass.

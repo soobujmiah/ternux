@@ -25,6 +25,7 @@ for profile in "${profiles[@]}"; do
   chmod 0777 "$output"
   echo "==> Firefox clean package route: $distro ($image)"
   docker run --rm \
+    --shm-size=1g \
     --volume "$ROOT/lib/ternux-install-firefox-esr.sh:/ternux-install-firefox-esr.sh:ro" \
     --volume "$output:/out" \
     --env "TNX_BROWSER_PROFILE=$distro" \

@@ -30,7 +30,7 @@ Redmi Turbo 4 Pro / SM8735 / Adreno 825-এ Debian (`:0`), Ubuntu (`:1`) এব�
 
 ## সুপারিশ
 
-এখনই v2.0.0 প্রকাশ করবেন না। P1-04 clean-guest storage ও P1-PKG full cleanup complete। Local updater migration/rollback fixture pass করলেও published RC-ভিত্তিক device migration বাকি; clean browser qualification এবং signed public APT install/upgrade-ও বাকি। এই branch-এর candidate পরিবর্তন merge ও exact-head CI-তে pass করাতে হবে।
+এখনই v2.0.0 প্রকাশ করবেন না। PR #179 `d2f525e` commit-এ merge হয়েছে; Validate, package artifact, repository-contract, test ও sync check pass। P1-04 clean-guest storage ও P1-PKG full cleanup complete। Local updater migration/rollback fixture pass করলেও published RC-ভিত্তিক device migration বাকি; clean browser family qualification এবং signed public APT install/upgrade-ও বাকি।
 
 ## Stage 0 — repo ও কাজের পুনর্মিলন
 
@@ -89,7 +89,7 @@ PR #139 storage privacy implement করে সব required check পাসে�
 
 Qualified device Android 16, Xiaomi 25053RT47C (Redmi Turbo 4 Pro, SM8735, Adreno 825)। Exact native Ternux 2.0.0 package local artifact থেকে install করে `dpkg --verify` pass হয়েছে; package CLI Debian :0, Ubuntu :1, Alpine :2 READY করেছে এবং PulseAudio route ready দেখিয়েছে। Verified Debian process-group crash-এ FAILED, তারপর packaged `tx start db`-এ READY, `tx stop db`-এ STOPPED হয়েছে। Package uninstall ও local-file fresh `pkg install` pass; এটি existing guest evidence, clean guest provisioning বা public APT install নয়।
 
-HTP/HMX ও QNN stable v2 claim-এর অংশ নয়। CPU/Vulkan claim-ও উপরের model/device evidence-এর মধ্যে সীমিত। v2 tag/release বা signed APT publication হয়নি। Native package install/removal ও exact-package desktop lifecycle পরীক্ষা হয়েছে।
+HTP/HMX ও QNN stable v2 claim-এর অংশ নয়। CPU/Vulkan claim-ও উপরের model/device evidence-এর মধ্যে সীমিত। v2 tag/release বা signed APT publication হয়নি। Native package install/removal ও exact-package desktop lifecycle পরীক্ষা হয়েছে। Clean package-family browser launch check PR #180-তে pending; RC migration ও native package-source upgrade বাকি।
 
 ## বাকি release blocker
 
@@ -101,4 +101,4 @@ Final intended release commit-এ required CI আবার চালাতে �
 
 ## চূড়ান্ত সুপারিশ
 
-**NOT_READY।** PR #178 merge হয়েছে; P1-01, P1-02, P1-04 ও P1-PKG complete। P1-03, P1-09, P1-APT বাকি। RC migration, fresh browser qualification এবং signed public APT evidence pass না হওয়া পর্যন্ত v2.0.0 tag বা publish করবেন না।
+**NOT_READY।** PR #179 merge হয়েছে; P1-01, P1-02, P1-04 ও P1-PKG complete। P1-03, P1-09, P1-APT বাকি। RC migration, fresh browser qualification এবং signed public APT evidence pass না হওয়া পর্যন্ত v2.0.0 tag বা publish করবেন না।
