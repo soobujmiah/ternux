@@ -404,14 +404,14 @@ tnx_phase_debian() {
           printf 'Package: snapd\nPin: version *\nPin-Priority: -1\n' > /etc/apt/preferences.d/ternux-no-snapd
           apt-mark hold snapd >/dev/null 2>&1 || true
         fi
-        apt install -y -o APT::Install-Recommends=false \$DPKG_FORCE sudo nano mousepad galculator evince fonts-noto-core python3-gi gir1.2-gtk-3.0 ibus ibus-avro devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol x11-utils x11-xkb-utils mesa-utils libgl1-mesa-dri libvulkan1 mesa-vulkan-drivers vulkan-tools adwaita-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc ffmpeg ristretto qt5-gtk-platformtheme colord xdg-utils desktop-file-utils util-linux gsettings-desktop-schemas xfconf
+        apt install -y -o APT::Install-Recommends=false \$DPKG_FORCE sudo nano mousepad galculator evince fonts-noto-core python3-gi gir1.2-gtk-3.0 ibus ibus-avro devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol x11-utils x11-xkb-utils mesa-utils libgl1-mesa-dri libvulkan1 mesa-vulkan-drivers vulkan-tools adwaita-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc ffmpeg ristretto qt5-gtk-platformtheme colord xdg-utils desktop-file-utils util-linux libglib2.0-bin gsettings-desktop-schemas xfconf
         apt install -y \$DPKG_FORCE --no-install-recommends synaptic
         if [ '$(tnx_distro)' = ubuntu ]; then apt-mark hold snapd >/dev/null 2>&1 || true; fi
         apt remove -y \$DPKG_FORCE guvcview >/dev/null 2>&1 || true
         ;;
       apk)
         pkg_retry apk update
-        pkg_retry apk add sudo bash shadow musl-utils nano mousepad galculator evince font-noto python3 py3-gobject3 gtk+3.0 ibus dbus-x11 pulseaudio pulseaudio-utils pavucontrol mesa mesa-dri-gallium mesa-utils vulkan-loader vulkan-tools desktop-file-utils xdg-utils xdpyinfo setxkbmap util-linux fontconfig gsettings-desktop-schemas xfconf adwaita-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc ffmpeg ristretto qt5-qtbase colord
+        pkg_retry apk add sudo bash shadow musl-utils nano mousepad galculator evince font-noto python3 py3-gobject3 gtk+3.0 glib ibus dbus-x11 pulseaudio pulseaudio-utils pavucontrol mesa mesa-dri-gallium mesa-utils vulkan-loader vulkan-tools desktop-file-utils xdg-utils xdpyinfo setxkbmap util-linux fontconfig gsettings-desktop-schemas xfconf adwaita-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc ffmpeg ristretto qt5-qtbase colord
         if [ "$(tnx_distro)" = alpine ]; then
           pkg_retry apk add vlc-qt m17n-lib m17n-db font-noto-bengali rsvg-convert
         fi
@@ -419,18 +419,18 @@ tnx_phase_debian() {
         ;;
       pacman)
         pacman -Syu --noconfirm --needed
-        pacman -S --noconfirm --needed sudo bash nano mousepad galculator evince noto-fonts python-gobject gtk3 ibus devilspie2 xorg-xhost xorg-setxkbmap pulseaudio pavucontrol mesa mesa-utils vulkan-icd-loader vulkan-freedreno vulkan-tools xorg-xdpyinfo xdg-utils desktop-file-utils util-linux fontconfig gsettings-desktop-schemas xfconf adwaita-icon-theme xfce4 xfce4-goodies xfce4-terminal zenity vlc ffmpeg ristretto qt5ct colord
+        pacman -S --noconfirm --needed sudo bash nano mousepad galculator evince noto-fonts python-gobject gtk3 glib2 ibus devilspie2 xorg-xhost xorg-setxkbmap pulseaudio pavucontrol mesa mesa-utils vulkan-icd-loader vulkan-freedreno vulkan-tools xorg-xdpyinfo xdg-utils desktop-file-utils util-linux fontconfig gsettings-desktop-schemas xfconf adwaita-icon-theme xfce4 xfce4-goodies xfce4-terminal zenity vlc ffmpeg ristretto qt5ct colord
         ;;
       dnf)
-        dnf install -y sudo bash nano mousepad galculator evince google-noto-sans-fonts python3-gobject gtk3 ibus devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol mesa-dri-drivers mesa-vulkan-drivers vulkan-loader vulkan-tools glx-utils xorg-x11-utils setxkbmap xdg-utils desktop-file-utils util-linux fontconfig gsettings-desktop-schemas xfconf adwaita-icon-theme xfce4-panel xfce4-session xfce4-settings xfce4-terminal xfce4-taskmanager zenity vlc ffmpeg ristretto qt5-qtbase colord
+        dnf install -y sudo bash nano mousepad galculator evince google-noto-sans-fonts python3-gobject gtk3 glib2 ibus devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol mesa-dri-drivers mesa-vulkan-drivers vulkan-loader vulkan-tools glx-utils xorg-x11-utils setxkbmap xdg-utils desktop-file-utils util-linux fontconfig gsettings-desktop-schemas xfconf adwaita-icon-theme xfce4-panel xfce4-session xfce4-settings xfce4-terminal xfce4-taskmanager zenity vlc ffmpeg ristretto qt5-qtbase colord
         ;;
       zypper)
         zypper --non-interactive refresh
-        zypper --non-interactive install -y sudo bash nano mousepad galculator evince google-noto-sans-fonts python3-gobject gtk3 ibus dbus-1-x11 pulseaudio pulseaudio-utils pavucontrol Mesa-dri Mesa-demo-x libvulkan1 libvulkan_freedreno vulkan-tools xorg-x11-utils setxkbmap xdg-utils desktop-file-utils util-linux fontconfig gsettings-desktop-schemas xfconf adwaita-icon-theme xfce4-panel xfce4-session xfce4-settings xfce4-terminal xfce4-taskmanager zenity vlc ffmpeg ristretto libqt5-qtbase colord
+        zypper --non-interactive install -y sudo bash nano mousepad galculator evince google-noto-sans-fonts python3-gobject gtk3 glib2-tools ibus dbus-1-x11 pulseaudio pulseaudio-utils pavucontrol Mesa-dri Mesa-demo-x libvulkan1 libvulkan_freedreno vulkan-tools xorg-x11-utils setxkbmap xdg-utils desktop-file-utils util-linux fontconfig gsettings-desktop-schemas xfconf adwaita-icon-theme xfce4-panel xfce4-session xfce4-settings xfce4-terminal xfce4-taskmanager zenity vlc ffmpeg ristretto libqt5-qtbase colord
         ;;
       xbps)
         xbps-install -Suy
-        xbps-install -Sy sudo bash nano mousepad galculator evince noto-fonts-ttf python3-gobject gtk+3 ibus dbus pulseaudio pulseaudio-utils pavucontrol mesa-dri mesa-demos vulkan-loader mesa-vulkan-freedreno vulkan-tools setxkbmap xdg-utils desktop-file-utils util-linux fontconfig gsettings-desktop-schemas xfconf adwaita-icon-theme xfce4 xfce4-terminal xfce4-taskmanager zenity vlc ffmpeg ristretto qt5-base colord
+        xbps-install -Sy sudo bash nano mousepad galculator evince noto-fonts-ttf python3-gobject gtk+3 glib ibus dbus pulseaudio pulseaudio-utils pavucontrol mesa-dri mesa-demos vulkan-loader mesa-vulkan-freedreno vulkan-tools setxkbmap xdg-utils desktop-file-utils util-linux fontconfig gsettings-desktop-schemas xfconf adwaita-icon-theme xfce4 xfce4-terminal xfce4-taskmanager zenity vlc ffmpeg ristretto qt5-base colord
         ;;
       *) echo \"Unsupported package manager family: \$FAMILY\" >&2; exit 2 ;;
     esac
