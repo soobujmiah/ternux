@@ -83,7 +83,8 @@ Qualification does not extend to other GPUs or devices.
    lifecycle without deleting the owner's Debian, Ubuntu, or Alpine guests.
 4. Recompute the machine gates against exact current evidence. Publish stable
    v2 only when every blocking gate is complete and readiness is
-   `READY_FOR_OWNER_APPROVAL`.
+   `READY_FOR_OWNER_APPROVAL`. The stable APT workflow now runs this validator
+   and refuses `publish-v2` while any blocking gate remains incomplete.
 5. After v2 closes, publish and review the full v3 architecture and acceptance
    plan. The v3 system design is not a v2 deliverable.
 

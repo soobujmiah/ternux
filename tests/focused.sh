@@ -403,6 +403,23 @@ check "Termux APT artifacts live outside the website dist directory" bash -c '
 
 # Repository builds must bind the exact package checksum to a verified full
 # signing fingerprint, export only the public key, and remove stale signatures.
+if python3 - "$ROOT/.github/workflows/termux-apt-release.yml" <<'PYAPTGUARD'
+from pathlib import Path
+import sys
+
+workflow = Path(sys.argv[1]).read_text()
+marker = "      - name: Require all release gates before stable publication\n"
+assert marker in workflow
+step = workflow.split(marker, 1)[1].split("      - name:", 1)[0]
+assert "if: inputs.mode == 'publish-v2'" in step
+assert "python3 tests/release_gates.py --check" in step
+PYAPTGUARD
+then
+  ok "stable APT publication is rejected until every blocking release gate passes"
+else
+  not_ok "stable APT publication is rejected until every blocking release gate passes"
+fi
+
 apt_fixture="$TMP/apt-fixture"
 mkdir -p "$apt_fixture/packaging/termux" "$apt_fixture/artifacts/ternux-apt/debs" "$apt_fixture/lib"
 cp "$ROOT/packaging/termux/build-repository.sh" "$apt_fixture/packaging/termux/"

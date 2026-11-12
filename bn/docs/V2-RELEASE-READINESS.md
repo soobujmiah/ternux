@@ -77,7 +77,8 @@ qualification নয়।
    package index ও package checksum যাচাই করো। Owner-এর Debian, Ubuntu বা Alpine
    guest মুছে না দিয়ে native package lifecycle পরীক্ষা করো।
 4. Exact current evidence দিয়ে machine gate পুনর্নির্ণয় করো। সব blocker সম্পূর্ণ
-   এবং status `READY_FOR_OWNER_APPROVAL` হলেই stable v2 প্রকাশ করো।
+   এবং status `READY_FOR_OWNER_APPROVAL` হলেই stable v2 প্রকাশ করো। Stable APT
+   workflow-ও validator চালায় এবং blocker থাকলে `publish-v2` বন্ধ করে।
 5. v2 শেষ হলে পূর্ণ v3 architecture ও acceptance plan প্রকাশ ও review করো। v3
    design v2 deliverable নয়।
 

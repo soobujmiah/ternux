@@ -30,7 +30,9 @@
   This is not evidence of fetching the package from the public signed index.
 - Release workflow `termux-apt-release.yml` exposes `verify-signing`,
   `publish-rc`, and `publish-v2`. The RC route must be published and exercised
-  before stable publication.
+  before stable publication. The stable `publish-v2` mode now runs the machine
+  release-gate validator and exits before building a Pages artifact unless all
+  blocking gates pass.
 
 ## Scope and release blockers
 
