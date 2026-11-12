@@ -31,6 +31,6 @@ supported v2 profile.
 
 The exact current blockers are maintained in [`../release-gates.json`](../release-gates.json)
 and summarized in [the v2 report](../V2-RELEASE-READINESS.md). Stable publication
-requires exact-head CI, the three-profile browser matrix, a signed RC APT
-publication with hosted native package lifecycle evidence, and a machine gate
-result of `READY_FOR_OWNER_APPROVAL`.
+requires signed RC APT publication with hosted native package lifecycle evidence
+and a machine gate result of `READY_FOR_OWNER_APPROVAL`. The exact merged-main
+three-profile browser matrix passed in Validate run `43307868038`.

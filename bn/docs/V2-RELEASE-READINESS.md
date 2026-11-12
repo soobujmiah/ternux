@@ -13,15 +13,16 @@ alt_url: "/docs/V2-RELEASE-READINESS.html"
 Ternux v2 desktop support কেবল **Debian, Ubuntu ও Alpine**-এর জন্য। CLI-তে
 অন্য distro recipe থাকলেও সেগুলো v2-qualified নয়।
 [`release-gates.json`](https://github.com/soobujmiah/ternux/blob/main/docs/release-gates.json)-এর 20টি gate বর্তমানে
-`NOT_READY`; দুটি blocker হলো exact-head browser CI এবং public signed Termux APT
-repository প্রকাশ ও lifecycle যাচাই।
+`NOT_READY`; একমাত্র blocker হলো public signed Termux APT repository প্রকাশ ও
+lifecycle যাচাই। Exact merged-main commit `f963832fb4acf9c3adb873430408ce21ddd29a37`-এর
+Validate run `43307868038`-এ তিন-guest browser matrix pass করেছে।
 
 ## বর্তমান acceptance gate
 
 | Gate | অবস্থা | কী করলে বন্ধ হবে |
 |---|---|---|
 | P1-03 updater safety | **সম্পূর্ণ** | Source/hash pinning, replace করার আগে staging, interrupted update recovery, downgrade guard, concurrency ও symlink fixture pass; v1.4.0 source fixture থেকে v2 migration pass। প্রকাশিত v2 rollback demonstration আবশ্যক নয়। Public package upgrade P1-APT-তে যাচাই হবে। |
-| P1-09 default browser | **আংশিক** | Clean Debian Trixie, Ubuntu 24.04 ও Alpine 3.24 install-এ exact proposed commit-এর CI-তে দৃশ্যমান Firefox X11 window চালু হতে হবে। Ubuntu Snap ছাড়া Mozilla ESR ব্যবহার করে। |
+| P1-09 default browser | **সম্পূর্ণ** | Clean Debian Trixie, Ubuntu 24.04 ও Alpine 3.24-এর Firefox X11 window check `f963832fb4acf9c3adb873430408ce21ddd29a37` exact merged-main commit-এর Validate run `43307868038`-এ pass করেছে। Ubuntu Snap ছাড়া Mozilla ESR ব্যবহার করে। |
 | P1-APT signed Termux package | **আটকে আছে** | Signed RC tree প্রকাশ, public key/index/package hash যাচাই, তারপর native `pkg` install, upgrade ও uninstall পরীক্ষা। বাকি gate pass হলেই stable v2 প্রকাশ করা হবে। |
 
 HTP/HMX ও QNN experimental বা research-only; stable v2 প্রতিশ্রুতির বাইরে।
@@ -56,21 +57,23 @@ qualification নয়।
   interrupted update, recovery, rollback fixture, concurrency ও symlink পরীক্ষা
   pass করেছে।
 - `python3 tests/release_gates.py --check` এবং `--self-test`: inventory valid;
-  `NOT_READY`, blocker P1-09 ও P1-APT।
+  `NOT_READY`, শুধু P1-APT blocker; exact merged-main CI-তে P1-09 সম্পূর্ণ।
 - `bash tests/firefox_package_matrix.sh`: Debian, Ubuntu ও Alpine-এর জন্য exact-
   head CI-তে যোগ হয়েছে। এটি Xvfb/Openbox-এ GTK Firefox window চালিয়ে দৃশ্যমান X11
-  application window map হয়েছে কি না যাচাই করে। এই Termux host-এ Docker নেই; তাই container matrix CI থেকে pass
-হতে হবে, local pass দাবি করা যাবে না।
+  application window map হয়েছে কি না যাচাই করে। Exact merged-main Validate run
+  `43307868038`-এ matrix pass করেছে। এই Termux host-এ Docker নেই; তাই local
+  container pass দাবি করা হচ্ছে না।
 - `bash tests/focused.sh`: audit-এ test-hygiene issue পাওয়া গেছে—`py_compile`
   packaged asset-এর ভেতর `__pycache__` লিখছিল। এখন bytecode temporary directory-তে
-  যায়। Release-এর আগে exact candidate commit-এ সম্পূর্ণ suite আবার pass লাগবে।
+  যায়। Focused suite exact merged-main Validate run `43307868038`-এ pass করেছে;
+  stable release candidate-এর final CI-ও বাধ্যতামূলক।
 - Public `/apt` এবং `/apt-rc` আগে HTTP 404 দিয়েছে। শুধু signed repository build
   pass করলে public install প্রমাণ হয় না; প্রকাশের পর endpoint যাচাই করতে হবে।
 
 ## Release ধাপ
 
-1. Exact-head CI সম্পূর্ণ pass করো: তিন-profile browser matrix, focused test,
-   docs/site build, package build, repository contract এবং generated state।
+1. Exact merged-main Validate run `43307868038`-এ তিন-profile browser matrix,
+   focused test, docs/site build, package checks, repository contract ও generated state pass করেছে।
 2. Reviewed product change merge করে deterministic `.repo/` workflow-কে state
    update বানাতে দাও। `.repo/` হাতে edit করবে না।
 3. `/apt-rc` প্রকাশ করে public bootstrap, key fingerprint, signed `InRelease`,

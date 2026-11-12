@@ -2,7 +2,7 @@
 
 **Audit date:** 2026-11-13 (UTC)
 **Repository:** `soobujmiah/ternux`
-**Audit base:** `main` at `d1ab4ef4ec4b74a48d570f46b27a33290049299b`
+**Audit base:** `main` at `f963832fb4acf9c3adb873430408ce21ddd29a37`
 **Target:** finish v2.0.0 for Debian, Ubuntu, and Alpine; publish the complete v3 architecture only after v2 acceptance.
 
 This page is the concise current-state index. Evidence, device checks, and the
@@ -15,10 +15,11 @@ never edited by hand.
 
 **v2 is not ready to publish.** The public signed Termux APT endpoints return
 404, so a clean `pkg install ternux` from Ternux's own repository has not been
-verified. The clean three-profile browser qualification is now an explicit CI
-test and must pass on the final change. The in-place updater's staged migration,
-integrity, interrupted-update, and recovery fixtures pass; a physical rollback
-demonstration is not a v2 acceptance requirement.
+verified. This is the only remaining blocking gate. The exact merged-main
+Validate run `43307868038` passed on `f963832fb4acf9c3adb873430408ce21ddd29a37`,
+including the clean Debian/Ubuntu/Alpine Firefox X11 matrix. The in-place
+updater's staged migration, integrity, interrupted-update, and recovery fixtures
+pass; a physical rollback demonstration is not a v2 acceptance requirement.
 
 The v2 support statement is limited to Debian, Ubuntu, and Alpine guest profiles
 on the documented Android/ARM64 device stack. Other named guest recipes remain
@@ -47,7 +48,8 @@ recorded separately; no universal GPU claim is made.
 
 ## Delivery order
 
-1. Close the three-profile browser CI gate and the exact-head CI checks.
+1. The exact merged-main browser matrix and required Validate checks passed in
+   run `43307868038`.
 2. Publish the signed RC repository, verify hosted signatures/indexes, and test
    native Termux package install/upgrade/uninstall without removing user guests
    or unrelated packages.
