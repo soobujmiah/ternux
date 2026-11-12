@@ -276,6 +276,7 @@ if env TERNUX_STATE_DIR="$TMP/state-welcome" HOME="$TMP/home-welcome" \
       grep -Fq "org.freedesktop.ibus.general.hotkey trigger" "$1/lib/phases.sh" &&
       grep -Fq "org.freedesktop.ibus.general.hotkey next-engine" "$1/lib/phases.sh" &&
       grep -Fq "org.freedesktop.ibus.general.hotkey next-engine-in-menu" "$1/lib/phases.sh" &&
+      grep -Fq "org.freedesktop.ibus.general engines-order" "$1/lib/phases.sh" &&
       grep -Fq "/commands/custom/<Primary>space" "$1/lib/phases.sh" &&
       grep -Fq "ternux-ibus-next-engine" "$1/lib/phases.sh" &&
       grep -Fq "x11-xkb-utils" "$1/lib/phases.sh" && grep -Fq "setxkbmap" "$1/lib/phases.sh" && grep -Fq "xorg-setxkbmap" "$1/lib/phases.sh" &&
@@ -760,11 +761,17 @@ for icon_dir in ("apps", "actions", "categories", "places", "devices", "status",
 xfwm_config = (root / "lib/ternux-assets/themes/Ternux/xfwm4/themerc").read_text()
 assert "button_offset=2" in xfwm_config and "button_spacing=1" in xfwm_config
 assert "frame_border_top=4" in xfwm_config
+window_fit = (root / "lib/ternux-assets/bin/ternux-window-fit-x11").read_text()
+assert '"_NET_CLIENT_LIST"' in window_fit and "client_ids = set(window_ids(root" in window_fit
+assert "def window_ids(window, atom: int) -> list[int]:" in window_fit
 xfwm_generator = (root / "tools/generate_ternux_xfwm.py").read_text()
 assert 'xpm_name = Path(name).with_suffix(".xpm")' in xfwm_generator
 assert 'state_button("maximize", state, inactive=inactive, toggled=True)' in xfwm_generator
 assert "image-style --create -t int -s 4" in (root / "lib/phases.sh").read_text()
 phases = (root / "lib/phases.sh").read_text()
+desktop_lifecycle = (root / "lib/desktop.sh").read_text()
+assert "tnx_cleanup_window_fit_sessions \"$distro\"" in desktop_lifecycle
+assert "ternux-window-fit-x11" in desktop_lifecycle and "proot-distro kill \"$pid\"" in desktop_lifecycle
 assert phases.count("taskmanager-performance-v1") == 1
 assert phases.count("/interface/show-all-processes --create -t bool -s false") == 1
 assert phases.count("/interface/process-tree --create -t bool -s false") == 1
@@ -882,14 +889,16 @@ assert "apt remove -y \\$DPKG_FORCE guvcview" in desktop_phase
 assert "apk add sudo bash shadow musl-utils nano mousepad" in desktop_phase
 assert "apk add sudo bash shadow musl-utils nano mousepad galculator" in desktop_phase
 assert "apk add sudo bash shadow musl-utils nano mousepad galculator evince font-noto python3 py3-gobject3 gtk+3.0 ibus devilspie2" not in desktop_phase
-assert "if command -v devilspie2 >/dev/null 2>&1; then" in desktop_phase
+assert "if python3 -c 'import Xlib' >/dev/null 2>&1; then" in desktop_phase
+assert "window_fit_exec=/usr/local/bin/ternux-window-fit-x11" in desktop_phase
+assert "python3-xlib" in desktop_phase and "py3-xlib" in desktop_phase
 assert "tnx_guest_login --shared-tmp -- sh -c" in desktop_phase
 assert "pkg_retry()" in desktop_phase and "Acquire::Retries=3" in desktop_phase
 assert "pkg_retry apk add firefox-esr" in desktop_phase
 assert "mktemp /tmp/ternux-sudoers.XXXXXX" in desktop_phase
 assert "mktemp /tmp/ternux-jetbrainsmono.XXXXXX)" in desktop_phase
 assert "XXXXXX.tar.xz" not in desktop_phase
-assert "apk add sudo bash shadow musl-utils nano mousepad galculator evince font-noto python3 py3-gobject3 gtk+3.0 glib ibus dbus-x11 pulseaudio" in desktop_phase and "desktop-file-utils xdg-utils xdpyinfo setxkbmap util-linux" in desktop_phase
+assert "apk add sudo bash shadow musl-utils nano mousepad galculator evince font-noto python3 py3-xlib py3-gobject3 gtk+3.0 glib ibus dbus-x11 pulseaudio" in desktop_phase and "desktop-file-utils xdg-utils xdpyinfo setxkbmap util-linux" in desktop_phase
 assert "apk add vlc-qt m17n-lib m17n-db font-noto-bengali" in desktop_phase
 assert "rsvg-convert" in desktop_phase
 assert "gdk-pixbuf=2.42.12-r1 gdk-pixbuf-loaders=2.42.12-r1" not in desktop_phase
@@ -925,6 +934,7 @@ assert "ternux-input-method.desktop" in (root / "lib/ternux-panel-shortcuts.sh")
 assert "panel-shortcuts-v6" in (root / "lib/ternux-panel-shortcuts.sh").read_text()
 ibus_init = (root / "lib/ternux-assets/bin/ternux-ibus-session-init").read_text()
 assert "gsettings set org.freedesktop.ibus.general.hotkey trigger '[]'" in ibus_init
+assert "gsettings set org.freedesktop.ibus.general engines-order" in ibus_init
 assert 'next-engine "[\'Control+space\']"' in ibus_init
 next_engine = (root / "lib/ternux-assets/bin/ternux-ibus-next-engine").read_text()
 assert "gsettings get org.freedesktop.ibus.general engines-order" in next_engine
@@ -944,6 +954,7 @@ assert 'legacy_address="unix:path=$legacy_socket"' in session_bus
 assert "dbus-daemon --session --address=\"$address\" --nofork" in session_bus
 assert "--fork" not in session_bus
 assert "next-engine \\\"['Control+space']\\\"" in desktop_phase and "/commands/custom/<Primary>space" in desktop_phase and "ternux-ibus-next-engine" in desktop_phase and ".cache/ibus" in desktop_phase
+assert "org.freedesktop.ibus.general engines-order" in desktop_phase
 PYMANIFEST
 then
   ok "APT manifest includes all Debian phase resources"

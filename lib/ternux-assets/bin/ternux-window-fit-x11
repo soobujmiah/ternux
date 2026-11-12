@@ -23,6 +23,11 @@ def atoms(window, atom: int) -> set[int]:
     return set(value.value) if value is not None else set()
 
 
+def window_ids(window, atom: int) -> list[int]:
+    value = window.get_full_property(atom, X.AnyPropertyType)
+    return list(value.value) if value is not None else []
+
+
 def main() -> int:
     global Xatom_CARDINAL
     dpy = display.Display()
@@ -68,6 +73,12 @@ def main() -> int:
 
     def fit(window_id: int) -> None:
         try:
+            # Substructure notifications include XFWM's decoration windows.
+            # Only act on EWMH client windows, or the watcher can resize a
+            # titlebar button/frame as if it were an application window.
+            client_ids = set(window_ids(root, atoms_by_name["_NET_CLIENT_LIST"]))
+            if window_id not in client_ids:
+                return
             window = dpy.create_resource_object("window", window_id)
             if window.get_attributes().map_state != X.IsViewable:
                 return

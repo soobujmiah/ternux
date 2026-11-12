@@ -5,7 +5,7 @@ lang: "en"
 alt_url: "/bn/docs/V2-RELEASE-READINESS.html"
 ---
 **Status: NOT_READY**
-**Audit date:** 2026-11-12 (rechecked after PR #178; candidate fixes in this branch are not merged)
+**Audit date:** 2026-11-13 (rechecked on the PR #179 work branch; candidate fixes remain unmerged)
 **Target:** Ternux 2.0.0
 **Current qualification source:** main `bad334de607718cb6a171bb1806bc6fb8e1a9b38` (PR #178). This audit branch adds an apt-safe non-Debian Mesa overlay and an isolated signed APT RC channel; these changes still need exact-head CI and publication.
 **Product source audit base:** `159806ff395a34349086504ae3055ddef21ddbec`
@@ -18,7 +18,11 @@ alt_url: "/bn/docs/V2-RELEASE-READINESS.html"
 
 On the Redmi Turbo 4 Pro / SM8735 / Adreno 825, Debian (`:0`), Ubuntu (`:1`), and Alpine (`:2`) were each started and checked on the current managed setup. All three reported Zink on Mesa Turnip, PulseAudio playback completed, microphone capture returned data, IBus Ctrl+Space configuration/engine switching was checked, and the shared Ternux theme/wallpaper assets were present. This is partial runtime integration evidence for these three profiles on this one device; it does not establish clean installation, browser installation, every desktop app, upgrade/migration, or support for the other 12 profiles. `tx stop --all` then stopped all three. `tx status db`, `ub`, and `alp` each report `STOPPED`; the host PulseAudio daemon remains running without a guest route, which is expected after desktop shutdown.
 
-### Native package follow-up (2026-11-12)
+## Three-profile desktop UX recheck (2026-11-13)
+
+The live Debian, Ubuntu, and Alpine guests were left running. Their XFCE GTK, icon, and window-manager themes all report `Ternux`, and all three use the visible `|HMC` minimize/maximize/close layout. A synthetic Ctrl+Space event sent to a focused GTK entry switched English to the configured Bengali engine in all three guests. The cause of the earlier no-op was an unset IBus `engines-order` list; the fresh-install recipe and session initializer now synchronize it with `preload-engines` and verify the XFCE fallback binding. Debian and Ubuntu now install `python3-xlib`; Alpine installs `py3-xlib`, so fresh profiles use the same X11 window-fit watcher. The watcher now reads EWMH's `_NET_CLIENT_LIST` as a WINDOW property and ignores window-manager decoration windows. Live placement probes showed XFCE keeping oversized or off-screen test windows inside the current phone viewport. Firefox screenshots from Ubuntu and Alpine show the Ternux styling and visible close controls. Existing Ternux icons cover the base apps and common shell actions; uncommon and newly installed app icons still use the documented Adwaita fallback. This is one device and synthetic UI coverage, not a guarantee for every possible third-party application or a physical keyboard typing test. The three v2 blockers remain unchanged.
+
+## Native package follow-up (2026-11-12)
 
 Native package and clean-guest evidence (2026-11-12): `tx uninstall all --yes` removed all three registered Debian/Ubuntu/Alpine guests, Ternux launcher/aliases, state/logs, and the Termux `ternux` package files. Postchecks found no PRoot containers, Ternux dpkg package/CLI, Ternux state directories, or package-owned modules; Termux:API remained installed and Android shared storage was untouched. No unrelated PRoot guest existed in the pre-test inventory. The exact local `ternux_2.0.0_all.deb` was then installed fresh, replaced over the installed package, and passed `dpkg --verify`; `tx --version` and `tx distro list` passed. This closes native package lifecycle cleanup/install; public-repository install/upgrade is separate P1-APT evidence. A fresh Debian guest created by this package reads `/sdcard`, `/sdcard/Llms`, and `/sdcard/LAI/models`; guest HOME is `/home/ternux`, and Termux HOME is not exposed. The same path checks passed after reinstalling the package. The Termux shell injects `LD_LIBRARY_PATH`, so package operations use a cleared value. No unrelated Termux packages were upgraded.
 

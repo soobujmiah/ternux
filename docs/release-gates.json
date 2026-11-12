@@ -2,7 +2,7 @@
   "schema_version": 1,
   "project": "Ternux",
   "target_release": "2.0.0",
-  "audit_date": "2026-11-12",
+  "audit_date": "2026-11-13",
   "derived_readiness": "NOT_READY",
   "release_approved": false,
   "status_axes": {
@@ -583,7 +583,8 @@
       "device_status": "VERIFIED_ON_DEVICE",
       "evidence": [
         "docs/ACCELERATOR-RELEASE-PLAN.md",
-        "docs/V2-RELEASE-READINESS.md: one SM8735/Adreno 825 device"
+        "docs/V2-RELEASE-READINESS.md: one SM8735/Adreno 825 device",
+        "2026-11-13 live Debian :0, Ubuntu :1, Alpine :2 UX recheck on the same Redmi Turbo 4 Pro / SM8735 / Adreno 825: a synthetic Ctrl+Space event in a focused GTK entry switched to each guest’s Bengali engine; Ternux GTK/icon/Xfwm settings and window controls were checked; Ubuntu and Alpine Firefox screenshots showed visible close buttons; viewport probes stayed within the current display. This does not cover physical keyboard typing, every third-party app, other hardware, or close any v2 gate."
       ],
       "required_tests": [
         "multi-device Android/GPU/NPU qualification matrix"

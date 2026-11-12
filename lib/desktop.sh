@@ -21,6 +21,26 @@ tnx_process_is_live() { kill -0 "${1:-}" 2>/dev/null; }
 tnx_process_group_id() { ps -o pgid= -p "${1:-}" 2>/dev/null | tr -d '[:space:]'; }
 tnx_signal_process_group() { kill -"$1" -- "-$2" 2>/dev/null; }
 
+# Remove any explicitly detached Ternux window-fit login attached to this
+# guest. Normal XFCE autostart copies are children of the managed desktop and
+# exit with its process group; this covers device-session repairs launched
+# independently while keeping every other PRoot login untouched.
+tnx_cleanup_window_fit_sessions() {
+  local distro="${1:-}" line pid container type user command
+  [ -n "$distro" ] && tnx_has_cmd proot-distro || return 0
+  while IFS= read -r line; do
+    [[ "$line" =~ ^[[:space:]]*([0-9]+)[[:space:]]+ ]] || continue
+    pid="${BASH_REMATCH[1]}"
+    container="$(awk '{print $2}' <<< "$line")"
+    type="$(awk '{print $3}' <<< "$line")"
+    user="$(awk '{print $4}' <<< "$line")"
+    command="$(awk '{for (i=6; i<=NF; i++) printf "%s%s", (i==6 ? "" : " "), $i}' <<< "$line")"
+    [ "$container" = "$distro" ] && [[ "$type" == login* ]] && [ "$user" = ternux ] &&
+      [[ "$command" == *"/usr/local/bin/ternux-window-fit-x11"* ]] || continue
+    proot-distro kill "$pid" >/dev/null 2>&1 || true
+  done < <(proot-distro ps 2>/dev/null)
+}
+
 # A valid PID file is not enough to prove the desktop is usable: Android may
 # have killed/recreated the X11 app, and old PIDs can be reused. Check the
 # actual guest session and shared X11 socket before accepting a start request.
@@ -454,6 +474,8 @@ tnx_cmd_stop() {
       found=1
     fi
   fi
+
+  tnx_cleanup_window_fit_sessions "$distro"
 
   # Remove only Ternux's own session markers. X11/Pulse sockets and daemons may
   # be shared with other Termux sessions; their owners clean them up themselves.
