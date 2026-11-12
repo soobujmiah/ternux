@@ -70,6 +70,13 @@ done
     *'Ternux Browser Probe'*) ;;
     *) false ;;
   esac || {
+    echo 'Visible X11 windows at Firefox probe failure:' >&2
+    for visible_id in $(xdotool search --onlyvisible --name '.*' 2>/dev/null || true); do
+      printf '  window %s: ' "$visible_id" >&2
+      xdotool getwindowname "$visible_id" 2>/dev/null >&2 || true
+    done
+    echo 'Firefox-related process state:' >&2
+    ps -eo pid,ppid,stat,args | grep -E '[f]irefox|[W]eb Content|[X]vfb|[o]penbox' >&2 || true
     cat /tmp/ternux-firefox.log >&2
     echo 'Firefox did not render the expected local page title within 60 seconds' >&2
     exit 1
