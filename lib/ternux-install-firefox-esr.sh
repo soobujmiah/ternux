@@ -13,30 +13,19 @@ esac
 work="$(mktemp -d "${TMPDIR:-/tmp}/ternux-firefox-esr.XXXXXX")"
 trap 'rm -rf -- "$work"' EXIT
 archive="$work/firefox-esr.tar.xz"
-python3 - "$archive" "https://download.mozilla.org/?product=firefox-esr-latest&os=$os&lang=en-US" <<'PYDOWNLOAD'
-import sys
-from urllib.parse import urlparse
-from urllib.request import urlopen
-
-destination, url = sys.argv[1:]
-maximum = 250_000_000
-with urlopen(url, timeout=30) as response:
-    if urlparse(response.geturl()).scheme != "https":
-        raise SystemExit("Mozilla redirected the download away from HTTPS; refusing it.")
-    declared = response.headers.get("Content-Length")
-    if declared and int(declared) > maximum:
-        raise SystemExit("Firefox ESR archive exceeds the 250 MB download limit.")
-    total = 0
-    with open(destination, "wb") as output:
-        while True:
-            chunk = response.read(1024 * 128)
-            if not chunk:
-                break
-            total += len(chunk)
-            if total > maximum:
-                raise SystemExit("Firefox ESR archive exceeds the 250 MB download limit.")
-            output.write(chunk)
-PYDOWNLOAD
+url="https://download.mozilla.org/?product=firefox-esr-latest&os=$os&lang=en-US"
+# curl's native transfer path is substantially faster than Python's urllib in
+# PRoot on Android. Keep the same HTTPS-only redirect policy and hard size cap.
+command -v curl >/dev/null 2>&1 || {
+  echo "Firefox ESR setup requires curl; install it in the guest first." >&2
+  exit 2
+}
+curl --fail --location --show-error --progress-bar \
+  --proto '=https' --proto-redir '=https' \
+  --connect-timeout 30 --max-time 1800 --max-filesize 250000000 \
+  --retry 3 --retry-delay 2 --retry-all-errors \
+  --output "$archive" "$url"
+test -s "$archive"
 tar -tJf "$archive" | grep -F -x 'firefox/firefox' >/dev/null
 
 install -d -m 0755 /opt/ternux

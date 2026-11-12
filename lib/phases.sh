@@ -556,6 +556,7 @@ VLC_DESKTOP
     case "\$FAMILY" in
       apt)
         if [ '$(tnx_distro)' = ubuntu ]; then
+          apt install -y \$DPKG_FORCE curl
           printf '%s' '$firefox_installer_b64' | base64 -d | bash
         else
           browser_installed=0
