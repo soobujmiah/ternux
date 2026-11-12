@@ -789,6 +789,7 @@ assert "mousepad galculator evince fonts-noto-core" in (root / "lib/phases.sh").
 phase_source = (root / "lib/phases.sh").read_text()
 base_desktop_install = next(line for line in phase_source.splitlines() if "apt install -y -o APT::Install-Recommends=false \\$DPKG_FORCE sudo nano" in line)
 assert "libglib2.0-bin" in base_desktop_install
+assert "ca-certificates" in base_desktop_install
 assert "gtk3 glib2 ibus" in phase_source
 assert "gtk3 glib2-tools ibus" in phase_source
 assert "gtk+3 glib ibus" in phase_source
