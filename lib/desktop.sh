@@ -467,9 +467,10 @@ tnx_cmd_stop() {
   # Remove only Ternux's own session markers. X11/Pulse sockets and daemons may
   # be shared with other Termux sessions; their owners clean them up themselves.
   rm -f "$pid_file" "${pid_file}.ready" "$identity_file" "$session_dir/distro"
-  if [ "$found" -eq 1 ] || [ "$(cat "$session_dir/desktop.state" 2>/dev/null || true)" = STOPPING ]; then
-    printf '%s\n' STOPPED > "$session_dir/desktop.state"
-  fi
+  # Once the verified process-group stop (if any) is complete, the owned
+  # markers above are gone. Normalize stale FAILED/RECOVERING states too, so a
+  # later status/start does not keep reporting a dead session indefinitely.
+  printf '%s\n' STOPPED > "$session_dir/desktop.state"
   exec 8>&-
 
   if [ "${TERNUX_JSON:-0}" = "1" ]; then
@@ -534,7 +535,8 @@ tnx_cmd_status() {
     if [ "$lifecycle" != READY ]; then lifecycle=RECOVERING; fi
   elif [ "$lifecycle" = READY ]; then lifecycle=FAILED
   elif [ "$lifecycle" = STARTING ] && { [ -z "$desktop_pid" ] || ! kill -0 "$desktop_pid" 2>/dev/null; }; then lifecycle=FAILED
-  elif [ "$x11" -eq 1 ] && [ "$lifecycle" = STOPPED ]; then lifecycle=RECOVERING
+  elif [ "$x11" -eq 1 ] && [ "$lifecycle" = STOPPED ] &&
+       { [ ! -e "$session_dir/desktop.state" ] || [ "$active_distro" = "$distro" ]; }; then lifecycle=RECOVERING
   fi
   pgrep -x pulseaudio >/dev/null 2>&1 && pa=1
   tnx_pulseaudio_ready && pa_ready=1

@@ -580,6 +580,10 @@ required = {
     "lib/ternux/ternux-install-firefox-esr.sh": "lib/ternux-install-firefox-esr.sh",
     "bin/tx": "bin/tx",
 }
+required.update({
+    f"lib/ternux/{module.name}": module.relative_to(root).as_posix()
+    for module in (root / "lib").glob("*.sh")
+})
 assert all(files.get(dest, {}).get("source") == source for dest, source in required.items())
 assert all((root / source).is_file() for source in required.values())
 for asset in (root / "lib/ternux-assets").rglob("*"):
@@ -1908,6 +1912,44 @@ assert obj["command"] == "stop" and obj["status"] == "ok" and obj["cleaned"] == 
   ok "desktop stop signals its owned process group and preserves shared sockets"
 else
   not_ok "desktop stop signals its owned process group and preserves shared sockets"
+fi
+
+# Stopping a crash-recovered session with no verifiable PID must clear the
+# stale lifecycle state without touching shared X11 or PulseAudio services.
+if env TERNUX_STATE_DIR="$TMP/state-stale-stop" HOME="$TMP/home-stale-stop" bash -c '
+    mkdir -p "$TERNUX_STATE_DIR/distros/ubuntu/session"
+    printf "RECOVERING\\n" > "$TERNUX_STATE_DIR/distros/ubuntu/session/desktop.state"
+    . "$1/lib/desktop.sh"
+    TERNUX_JSON=1
+    out="$(tnx_cmd_stop ubuntu)" || exit
+    JSON_OUT="$out" python3 -c '\''import json, os; assert json.loads(os.environ["JSON_OUT"])["cleaned"] == "no"'\'' || exit
+    [ "$(cat "$TERNUX_STATE_DIR/distros/ubuntu/session/desktop.state")" = STOPPED ] || exit
+    [ ! -e "$TERNUX_STATE_DIR/distros/ubuntu/session/desktop.pid" ] || exit
+    [ ! -e "$TERNUX_STATE_DIR/distros/ubuntu/session/desktop.pid.identity" ] || exit
+  ' _ "$ROOT"; then
+  ok "stop normalizes a stale crash-recovery state without signaling an unverified process"
+else
+  not_ok "stop normalizes a stale crash-recovery state without signaling an unverified process"
+fi
+
+# A shared Termux:X11 server may outlive a stopped desktop. An explicit
+# STOPPED marker must take precedence over that shared server's presence.
+if env TERNUX_STATE_DIR="$TMP/state-stopped-x11" HOME="$TMP/home-stopped-x11" \
+  TMPDIR="$TMP/tmp-stopped-x11" bash -c '
+    mkdir -p "$TERNUX_STATE_DIR/session" "$TMPDIR/.X11-unix"
+    printf "STOPPED\\n" > "$TERNUX_STATE_DIR/session/desktop.state"
+    python3 -c "import socket,sys; s=socket.socket(socket.AF_UNIX); s.bind(sys.argv[1]); s.close()" "$TMPDIR/.X11-unix/X0" || exit
+    . "$1/lib/desktop.sh"
+    pgrep(){ case "$*" in *termux-x11*) return 0;; *) return 1;; esac; }
+    tnx_desktop_session_live(){ return 1; }
+    tnx_pulseaudio_ready(){ return 1; }
+    TERNUX_JSON=1
+    out="$(tnx_cmd_status debian)" || exit
+    JSON_OUT="$out" python3 -c '\''import json, os; v=json.loads(os.environ["JSON_OUT"]); assert v["lifecycle"] == "STOPPED" and v["x11_running"] == "yes"'\''
+  ' _ "$ROOT"; then
+  ok "desktop status keeps an explicitly stopped guest stopped while shared X11 remains available"
+else
+  not_ok "desktop status keeps an explicitly stopped guest stopped while shared X11 remains available"
 fi
 
 # The stop menu always presents the live guest list and accepts multi-select,

@@ -44,6 +44,10 @@
       "source": "lib/detect.sh",
       "perm": "644"
     },
+    "lib/ternux/distro.sh": {
+      "source": "lib/distro.sh",
+      "perm": "644"
+    },
     "lib/ternux/doctor.sh": {
       "source": "lib/doctor.sh",
       "perm": "644"

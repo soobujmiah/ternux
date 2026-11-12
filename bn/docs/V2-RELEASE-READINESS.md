@@ -7,7 +7,7 @@ alt_url: "/docs/V2-RELEASE-READINESS.html"
 **অবস্থা: NOT_READY**
 **Audit date:** 2026-11-12
 **লক্ষ্য:** Ternux 2.0.0
-**বর্তমান qualification source:** PR #167-এর exact head `b261c64eeed3672a86ba25ae99b02b9215235e90` (2026-11-12); PR check পাস, PR এখনো open।
+**বর্তমান qualification source:** বর্তমান audit branch-এর PR #167; review-এর সময় pull request থেকে exact head SHA ও check run যাচাই করতে হবে।
 **Product source audit base:** `159806ff395a34349086504ae3055ddef21ddbec`
 **সর্বশেষ stable release:** v1.4.0; v2.0.0 tag বা release নেই।
 **Machine gate:** ২০টি gate-এর মধ্যে P1-01, P1-03, P1-04, P1-09, P1-APT, P1-PKG—এই ছয়টি release-blocking gate অসম্পূর্ণ।
@@ -15,6 +15,12 @@ alt_url: "/docs/V2-RELEASE-READINESS.html"
 ## বর্তমান তিন distro-র device check (2026-11-12)
 
 Redmi Turbo 4 Pro / SM8735 / Adreno 825-এ Debian (`:0`), Ubuntu (`:1`) এবং Alpine (`:2`) managed setup-এ একে একে চালিয়ে পরীক্ষা করা হয়েছে। তিনটিতেই Mesa Turnip-সহ Zink দেখা গেছে; PulseAudio playback সম্পন্ন হয়েছে, microphone capture-এ data এসেছে, IBus Ctrl+Space configuration/engine switching এবং Ternux theme/wallpaper asset পরীক্ষা হয়েছে। এটি শুধু এই একটি device-এ এই তিন profile-এর partial runtime integration evidence; clean install, browser install, প্রতিটি GUI app, upgrade/migration বা বাকি ১২টি profile qualify হয়েছে—এ প্রমাণ নয়। README ও English/Bengali website-এ এখন upstream shared-UID debug APK link, background throttling কমানোর কাজ এবং GitHub signature requirement ব্যাখ্যা করা আছে। এরপর `tx stop --all`-এ তিনটি বন্ধ হয়েছে; `tx status db`, `ub`, `alp` তিনটিই `STOPPED`। Guest route ছাড়া host PulseAudio daemon চালু থাকা স্বাভাবিক।
+
+### Native package follow-up (2026-11-12)
+
+এই worktree থেকে exact Termux package rebuild করে `dpkg` দিয়ে install করা হয়েছে; `dpkg --verify ternux` clean, `tx --version` 2.0.0 দেখিয়েছে, এবং `tx distro list` package-এর profile module load করেছে। এরপর `pkg uninstall -y ternux` package-owned launcher/module-সহ সব file সরিয়েছে; আগে orphan হয়ে থাকা `lib/ternux/distro.sh`-সহ `$PREFIX/lib/ternux` ফাঁকা ছিল। Package আবার install ও verify করা হয়েছে; Debian, Ubuntu, Alpine guest রাখা হয়েছে এবং তিনটি desktop-ই STOPPED। এতে manifest omission ও native package removal পরীক্ষা পাস, তবে public repository থেকে `pkg install`/upgrade বা `tx uninstall all` দিয়ে clean-container প্রমাণ এখনো হয়নি। Termux package command চালাতে device shell-এর injected `LD_LIBRARY_PATH` খালি করতে হয়েছে; sanitized `pkg update` ও `pkg uninstall` সফল। অন্য কোনো package upgrade করা হয়নি।
+
+বর্তমান regression check: `bash tests/focused.sh` 173/173 pass; `bash tests/distro_multi_guest.sh`, `bash tests/distro_recipes.sh`, `python3 tests/docs_check.py`, signed-APT bootstrap/preservation test এবং `LD_LIBRARY_PATH=` দিয়ে `npm run format:check` pass করেছে। এই runtime-এ `bats` নেই, তাই `tests/smoke.bats` local-এ চালানো যায়নি; CI check লাগবে। `python3 tests/release_gates.py --check` ছয় blocker-সহ NOT_READY দেখাচ্ছে।
 
 ## সুপারিশ
 
