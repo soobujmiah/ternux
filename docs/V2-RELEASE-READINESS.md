@@ -13,15 +13,16 @@ alt_url: "/bn/docs/V2-RELEASE-READINESS.html"
 Ternux v2 desktop support is limited to **Debian, Ubuntu, and Alpine**. Other
 named distro recipes remain in the CLI but are not v2-qualified. The machine
 inventory in [`release-gates.json`](https://github.com/soobujmiah/ternux/blob/main/docs/release-gates.json) currently derives
-`NOT_READY` with two blocking gates: the exact-head browser CI matrix and public
-signed Termux APT publication/lifecycle verification.
+`NOT_READY` with one remaining blocker: public signed Termux APT
+publication/lifecycle verification. Exact merged-main browser CI passed on
+commit `f963832fb4acf9c3adb873430408ce21ddd29a37` (run `43307868038`).
 
 ## Current acceptance gates
 
 | Gate | Status | What closes it |
 |---|---|---|
 | P1-03 updater safety | **COMPLETE** | Source/hash pinning, stage-before-replace, interrupted-update recovery, downgrade guard, concurrency and symlink fixtures pass; the v1.4.0 source fixture upgrades to v2. A published v2 rollback demonstration is not required. Public package upgrade remains under P1-APT. |
-| P1-09 default browser | **PARTIAL** | Clean Debian Trixie, Ubuntu 24.04, and Alpine 3.24 installs must each launch a visible Firefox X11 window on the exact proposed commit. Ubuntu uses Mozilla ESR without Snap. |
+| P1-09 default browser | **COMPLETE** | Clean Debian Trixie, Ubuntu 24.04, and Alpine 3.24 Firefox X11 window checks passed in exact merged-main Validate run `43307868038` on `f963832fb4acf9c3adb873430408ce21ddd29a37`; Ubuntu uses Mozilla ESR without Snap. |
 | P1-APT signed Termux package | **BLOCKED** | Publish the signed RC tree, verify hosted key/index/package hashes, then verify native `pkg` install, upgrade, and uninstall. Stable v2 publication follows only after the remaining gates pass. |
 
 HTP/HMX and QNN remain experimental or research-only and are excluded from
@@ -57,10 +58,10 @@ Qualification does not extend to other GPUs or devices.
   interrupted-update, recovery, rollback-fixture, concurrency, and symlink
   checks during this audit.
 - `python3 tests/release_gates.py --check` and `--self-test`: valid inventory;
-  `NOT_READY`, with P1-09 and P1-APT blocking.
+  `NOT_READY`, with only P1-APT blocking; P1-09 is complete on exact merged main.
 - `bash tests/firefox_package_matrix.sh`: added to exact-head CI for Debian,
-  Ubuntu, and Alpine. It starts a GTK Firefox window in Xvfb/Openbox and checks
-  the mapped visible application window. This Termux host has no Docker executable, so
+  Ubuntu, and Alpine. It starts Firefox in Xvfb/Openbox and checks
+  the mapped visible application window; exact merged-main run `43307868038` passed. This Termux host has no Docker executable, so
   the container matrix must be established by CI, not claimed as a local pass.
 - `bash tests/focused.sh`: the audit exposed a test-hygiene regression because
   its `py_compile` step wrote `__pycache__` into packaged assets; the test now
@@ -72,9 +73,9 @@ Qualification does not extend to other GPUs or devices.
 
 ## Release sequence
 
-1. Pass the complete exact-head CI suite, including the three-profile browser
-   matrix, focused tests, docs/site build, package build, repository contracts,
-   and generated-state checks.
+1. Exact merged-main Validate run `43307868038` on
+   `f963832fb4acf9c3adb873430408ce21ddd29a37` passed the three-profile browser
+   matrix, focused tests, docs/site build, package tests, and required CI checks.
 2. Merge the reviewed product changes, then allow the deterministic `.repo/`
    workflow to generate and validate its state update. Do not edit `.repo/`
    manually.

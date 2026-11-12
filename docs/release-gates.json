@@ -232,21 +232,21 @@
       "issue_id": "P1-09",
       "severity": "P1",
       "owner": "engineering",
-      "status": "PARTIAL",
+      "status": "COMPLETE",
       "source_status": "PASS",
-      "ci_status": "PENDING",
+      "ci_status": "PASS",
       "device_status": "VERIFIED_ON_DEVICE",
       "evidence": [
         "v2 desktop support scope is Debian, Ubuntu, and Alpine. lib/phases.sh installs the default browser through the distro-specific native or Mozilla ESR route.",
-        "tests/firefox_package_matrix.sh now qualifies clean Debian Trixie, Ubuntu 24.04, and Alpine 3.24 containers only; the test installs the production browser route, starts Firefox in Xvfb/Openbox, and verifies a visible X11 application window.",
-        "2026-11-13 live Firefox windows on Debian :0, Ubuntu :1, and Alpine :2 rendered with visible titlebar close controls. This is existing-guest GUI evidence and does not replace the clean-install CI matrix.",
-        "Clean browser installs on Debian, Ubuntu, and Alpine have prior device evidence; exact proposed-head CI for the replacement three-profile matrix is still required.",
-        "The remaining twelve named recipes are not part of v2 clean browser acceptance and must not be presented as qualified by recipe-generation tests."
+        "tests/firefox_package_matrix.sh qualifies clean Debian Trixie, Ubuntu 24.04, and Alpine 3.24 containers using the production Firefox route and verifies a visible X11 application window under Xvfb/Openbox.",
+        "Exact merged-main commit f963832fb4acf9c3adb873430408ce21ddd29a37 passed Validate run 43307868038 on 2026-11-12; its clean Debian/Ubuntu/Alpine browser matrix, focused regressions, distro lifecycle checks, release gate validation, package tests, Bats, installer UI, and bilingual docs/site checks all passed.",
+        "2026-11-13 live Firefox windows on Debian :0, Ubuntu :1, and Alpine :2 showed titlebar close controls. This existing-guest evidence complements but does not substitute for clean-install CI.",
+        "The remaining twelve named recipes are outside v2 browser acceptance and must not be presented as qualified by recipe-generation tests."
       ],
       "required_tests": [
         "clean container browser install and visible Firefox X11 application window on Debian Trixie, Ubuntu 24.04, and Alpine 3.24",
         "Ubuntu must use Mozilla ESR without Snap; Debian and Alpine must use their native Firefox ESR package route",
-        "run the three-profile matrix and all required CI on the exact proposed release commit"
+        "exact merged-main Validate run 43307868038 passed on f963832fb4acf9c3adb873430408ce21ddd29a37"
       ],
       "acceptance_criteria": [
         "Each of the three v2-supported fresh desktop profiles has a default Firefox browser installed from its documented package source and maps a visible X11 application window.",
@@ -389,7 +389,8 @@
         "Fresh HTTPS GET reconciliation 2026-11-11: bootstrap.sh, archive key, dists/stable/InRelease, and binary-all Packages each returned HTTP 404 after successful Pages deployment 42911190557; PR #149 only adds retry handling. Signed publish remains unrun because core release gates are open.",
         "Current-main non-publishing signing verification run 42916703212 succeeded: signed repository built and verified, ephemeral signing key removed, publish/deploy steps skipped. This does not alter the public 404 endpoints or close native pkg install/upgrade.",
         "2026-11-12 exact canonical GitHub Pages APT bootstrap, key, InRelease, and Packages paths remain HTTP 404. Local signed-APT bootstrap/preservation tests pass, but signed public publication and `pkg install ternux` from that repository have not occurred.",
-        "The candidate-only signed APT route is implemented as /apt-rc, with bootstrap-repository.sh --channel rc, explicit publish-rc and preservation of both stable and RC trees during website deployment. Local bootstrap and signed index/hash/preservation fixtures pass for both channels. It has not yet been published or tested with native pkg on the device; the stable /apt channel remains unpublished."
+        "The candidate-only signed APT route is implemented as /apt-rc, with bootstrap-repository.sh --channel rc, explicit publish-rc and preservation of both stable and RC trees during website deployment. Local bootstrap and signed index/hash/preservation fixtures pass for both channels. It has not yet been published or tested with native pkg on the device; the stable /apt channel remains unpublished.",
+        "On 2026-11-13, after product/docs PR #181 and generated repository-state PR #182 merged to main f963832fb4acf9c3adb873430408ce21ddd29a37, public /apt and /apt-rc endpoints still returned HTTP 404. Exact-main unsigned package build passed run 43307867978; no signed repository has been publicly deployed and native pkg lifecycle remains untested."
       ],
       "required_tests": [
         "signed repository publish after approval",
@@ -592,5 +593,5 @@
       "release_exclusion": "Qualify only the documented Redmi Turbo 4 Pro / SM8735 target; all other device-specific acceleration remains unqualified."
     }
   ],
-  "observed_head_commit": "d1ab4ef4ec4b74a48d570f46b27a33290049299b"
+  "observed_head_commit": "f963832fb4acf9c3adb873430408ce21ddd29a37"
 }

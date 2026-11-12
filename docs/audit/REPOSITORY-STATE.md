@@ -2,15 +2,15 @@
 
 **Audit date:** 2026-11-13
 **Canonical repository:** `https://github.com/soobujmiah/ternux`
-**Audit base:** `main` at `d1ab4ef4ec4b74a48d570f46b27a33290049299b`
+**Audit base:** `main` at `f963832fb4acf9c3adb873430408ce21ddd29a37`
 
 ## Git and review
 
 - The local source worktree is isolated from the original checkout and preserves
   `.tmp/`, `tests/.distro_recipes.keep.sh`, and `tests/distro-debug/`.
-- PR #170 merged generated repository-state output. Its merge advanced main to
-  `d1ab4ef4ec4b74a48d570f46b27a33290049299b`; the generated `.repo/` snapshot
-  recorded the pre-merge commit and awaits the next workflow synchronization.
+- PR #181 merged the product/docs changes; generated-state PR #182 then advanced main to
+  `f963832fb4acf9c3adb873430408ce21ddd29a37` and refreshed `.repo/` through its
+  generated workflow. No `.repo/` files were hand-edited.
 - PR #180's seven-package-family Firefox matrix is outside the v2 support
   contract. The v2 replacement matrix qualifies only Debian, Ubuntu, and Alpine.
 - Dependabot PRs #42, #44, and #45 and owner-review licensing PR #35 are
@@ -39,11 +39,9 @@
 The only v2 clean-desktop guest profiles are Debian, Ubuntu, and Alpine.
 `lib/core.sh` still has fifteen named recipes, but the other twelve are not
 thereby v2-qualified. The machine release inventory currently has 20 gates.
-The intended current blockers are:
+The current release blocker is:
 
-1. **P1-09 browser:** the new exact three-profile clean install and real GTK
-   launch CI matrix must pass on the final commit.
-2. **P1-APT:** publish the signed RC tree, verify signatures/index/checksums at
+1. **P1-APT:** publish the signed RC tree, verify signatures/index/checksums at
    the public URL, and test native Termux package install/upgrade/uninstall.
 
 P1-03's rollback-fixture gate is being narrowed to the actual safety contract:
