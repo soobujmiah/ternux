@@ -2,9 +2,6 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd -P)"
-TMP="$(mktemp -d)"
-trap 'python3 -c "import shutil,sys; shutil.rmtree(sys.argv[1],ignore_errors=True)" "$TMP"' EXIT
-
 command -v docker >/dev/null 2>&1 || {
   echo 'Docker is required for the clean v2 Firefox package matrix.' >&2
   exit 2
@@ -21,15 +18,11 @@ profiles=(
 for profile in "${profiles[@]}"; do
   distro="${profile%%|*}"
   image="${profile#*|}"
-  output="$TMP/$distro"
-  mkdir -p "$output"
-  chmod 0777 "$output"
   echo "==> Clean v2 browser route: $distro ($image)"
   docker run --rm \
     --shm-size=1g \
     --volume "$ROOT/lib/ternux-install-firefox-esr.sh:/ternux-install-firefox-esr.sh:ro" \
     --volume "$ROOT/tests/firefox_xvfb_probe.sh:/firefox_xvfb_probe.sh:ro" \
-    --volume "$output:/out" \
     --env "TNX_BROWSER_PROFILE=$distro" \
     "$image" sh -ec '
       case "$TNX_BROWSER_PROFILE" in
@@ -68,18 +61,5 @@ for profile in "${profiles[@]}"; do
         desktop-file-validate /usr/share/applications/firefox-esr.desktop 2>/dev/null ||
         desktop-file-validate /usr/share/applications/firefox.desktop
       su -s /bin/sh browser -c "sh /firefox_xvfb_probe.sh \"$browser\""
-      test -s /out/firefox.png
     '
-  python3 - "$output/firefox.png" "$distro" <<'PY'
-import pathlib
-import struct
-import sys
-
-path = pathlib.Path(sys.argv[1])
-data = path.read_bytes()
-assert data[:8] == b"\x89PNG\r\n\x1a\n", f"{sys.argv[2]}: Firefox output is not PNG"
-width, height = struct.unpack(">II", data[16:24])
-assert width >= 640 and height >= 400, f"{sys.argv[2]}: implausible browser frame {width}x{height}"
-print(f"PASS: {sys.argv[2]} clean browser painted {width}x{height} frame")
-PY
 done

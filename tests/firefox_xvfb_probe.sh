@@ -32,6 +32,12 @@ openbox >/tmp/ternux-firefox-wm.log 2>&1 &
 wm_pid=$!
 export HOME=/tmp/firefox-home
 export XDG_RUNTIME_DIR=/tmp/firefox-run
+# GitHub's container runner blocks unprivileged user namespaces (clone returns
+# EPERM), so Firefox cannot create its content sandbox there. Keep the browser
+# test in a disposable, network-isolated CI container and disable only that
+# sandbox layer for this probe. Real guest installations retain Firefox's
+# normal sandbox settings.
+export MOZ_DISABLE_CONTENT_SANDBOX=1
 mkdir -p "$HOME" "$XDG_RUNTIME_DIR"
 chmod 0700 "$XDG_RUNTIME_DIR"
 cat >/tmp/ternux-browser-probe.html <<'HTML'
