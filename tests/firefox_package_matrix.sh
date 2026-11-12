@@ -33,30 +33,30 @@ for profile in "${profiles[@]}"; do
       case "$TNX_BROWSER_PROFILE" in
         debian)
           apt-get update
-          DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends firefox-esr passwd
+          DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends dbus-daemon dbus-x11 firefox-esr passwd
           ;;
         ubuntu)
           apt-get update
-          DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends ca-certificates curl desktop-file-utils libasound2t64 libdbus-glib-1-2 libgbm1 libgtk-3-0t64 libnss3 libpango-1.0-0 libx11-xcb1 libxcomposite1 libxdamage1 libxfixes3 libxrandr2 libxrender1 libxss1 libxt6 passwd xz-utils
+          DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends ca-certificates curl dbus-daemon dbus-x11 desktop-file-utils libasound2t64 libdbus-glib-1-2 libgbm1 libgtk-3-0t64 libnss3 libpango-1.0-0 libx11-xcb1 libxcomposite1 libxdamage1 libxfixes3 libxrandr2 libxrender1 libxss1 libxt6 passwd xz-utils
           bash /ternux-install-firefox-esr.sh
           ;;
         alpine)
-          apk add --no-cache firefox-esr shadow
+          apk add --no-cache dbus-x11 firefox-esr shadow
           ;;
         archlinux)
           pacman -Sy --noconfirm archlinux-keyring
-          pacman -Sy --noconfirm firefox shadow
+          pacman -Sy --noconfirm dbus firefox shadow
           ;;
         fedora)
-          dnf install -y firefox shadow-utils
+          dnf install -y dbus-daemon firefox shadow-utils
           ;;
         opensuse)
           zypper --non-interactive --gpg-auto-import-keys refresh
-          zypper --non-interactive --gpg-auto-import-keys install -y MozillaFirefox shadow
+          zypper --non-interactive --gpg-auto-import-keys install -y MozillaFirefox dbus-1 shadow
           ;;
         void)
           xbps-install -Suy xbps
-          xbps-install -y firefox shadow
+          xbps-install -y dbus firefox shadow
           ;;
         *) echo "Unknown profile: $TNX_BROWSER_PROFILE" >&2; exit 2 ;;
       esac
@@ -65,10 +65,11 @@ for profile in "${profiles[@]}"; do
       else
         useradd -m browser
       fi
-      install -d -o browser -g browser /tmp/firefox-home
+      install -d -o browser -g browser /tmp/firefox-home /tmp/firefox-run
+      chmod 0700 /tmp/firefox-run
       browser="$(command -v firefox-esr || command -v firefox || true)"
       [ -n "$browser" ] && [ -x "$browser" ] || { echo "Firefox executable missing for $TNX_BROWSER_PROFILE" >&2; exit 1; }
-      su -s /bin/sh browser -c "HOME=/tmp/firefox-home MOZ_HEADLESS=1 timeout 90 $browser --headless --no-remote --screenshot /out/firefox.png --window-size 1024,768 about:blank"
+      su -s /bin/sh browser -c "HOME=/tmp/firefox-home XDG_RUNTIME_DIR=/tmp/firefox-run MOZ_HEADLESS=1 dbus-run-session -- timeout 90 $browser --headless --no-remote --screenshot /out/firefox.png --window-size 1024,768 about:blank"
       test -s /out/firefox.png
     '
   python3 - "$output/firefox.png" "$distro" <<'PY'
