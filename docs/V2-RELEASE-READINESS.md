@@ -5,12 +5,14 @@ lang: "en"
 alt_url: "/bn/docs/V2-RELEASE-READINESS.html"
 ---
 **Status: NOT_READY**
-**Audit date:** 2026-11-12
+**Audit date:** 2026-11-12 (rechecked after PR #176)
 **Target:** Ternux 2.0.0
-**Current qualification source:** main `a91ed6245fad3ecb0731e2a801e0ed05fed123f9`; exact-main Validate `43179863661`, package artifact `43179863587`, Repository State Contract `43179863658`, and PR #163 Repo Knowledge Sync checks passed.
+**Current qualification source:** main `31b6619f7bd2238baae8ed1fd51903c965b93a65` (PR #176). Exact-main Validate `43227030519`, package artifact `43227030325`, Repository State Contract `43227030563`, and Repo Knowledge Sync `43227030471` passed.
 **Product source audit base:** `159806ff395a34349086504ae3055ddef21ddbec`
 **Latest stable release:** v1.4.0; no v2.0.0 tag or release exists.
 **Machine gates:** 20 gates; P1-01 is now complete. Five release blockers remain: P1-03, P1-04, P1-09, P1-APT, and P1-PKG.
+
+**Fresh release check:** `python3 tests/release_gates.py --check` reports `NOT_READY` with those five blockers. GitHub still lists v1.4.0 as the latest stable release; no v2.0.0 tag or release exists. Direct HTTPS GET on 2026-11-12 returned HTTP 404 for the public APT bootstrap, archive key, `InRelease`, and `Packages` paths. V3 proposals are tracked separately in [Ternux v3 proposals](V3-PROPOSALS.md); they are not part of v2 release acceptance.
 
 ## Current three-profile device check (2026-11-12)
 
@@ -24,7 +26,7 @@ Current package regression checks: `bash tests/focused.sh` passed 174/174; `bash
 
 ## Recommendation
 
-Do not publish v2.0.0 yet. The generated-state CI timeout is fixed and Android storage is opt-in and directory-scoped. Product PRs #138 and #139, audit PR #141, and generated-state PRs #137, #140, and #142 merged with required CI passing. Public APT endpoints remain unpublished (404); exact-package GUI lifecycle, verified crash recovery, and native local-file package install/removal now pass. The remaining gates are published v1.4.0-to-v2 migration/rollback, fresh-guest storage/browser acceptance, package update/repair, full `tx uninstall all` cleanup, and signed public APT install/upgrade verification.
+Do not publish v2.0.0 yet. PR #176 is merged and all four exact-main checks passed. Public APT endpoints remain unpublished (404); native local-artifact install/removal and the three installed guest lifecycle checks pass. Remaining gates are published v1.4.0-to-v2 migration/rollback, fresh-guest storage/browser acceptance, package update/repair, full `tx uninstall all` cleanup, and signed public APT install/upgrade verification. The v3 proposal document is a planning note only; it does not change v2 scope or gate status.
 
 ## Stage 0 — reconciliation
 
