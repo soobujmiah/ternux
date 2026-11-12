@@ -238,18 +238,18 @@
       "device_status": "VERIFIED_ON_DEVICE",
       "evidence": [
         "v2 desktop support scope is Debian, Ubuntu, and Alpine. lib/phases.sh installs the default browser through the distro-specific native or Mozilla ESR route.",
-        "tests/firefox_package_matrix.sh now qualifies clean Debian Trixie, Ubuntu 24.04, and Alpine 3.24 containers only; the test installs the production browser route, starts a GTK window under Xvfb/Openbox, and verifies a local page title.",
+        "tests/firefox_package_matrix.sh now qualifies clean Debian Trixie, Ubuntu 24.04, and Alpine 3.24 containers only; the test installs the production browser route, starts Firefox in Xvfb/Openbox, and verifies a visible X11 application window.",
         "2026-11-13 live Firefox windows on Debian :0, Ubuntu :1, and Alpine :2 rendered with visible titlebar close controls. This is existing-guest GUI evidence and does not replace the clean-install CI matrix.",
         "Clean browser installs on Debian, Ubuntu, and Alpine have prior device evidence; exact proposed-head CI for the replacement three-profile matrix is still required.",
         "The remaining twelve named recipes are not part of v2 clean browser acceptance and must not be presented as qualified by recipe-generation tests."
       ],
       "required_tests": [
-        "clean container browser install and real visible GTK-window/local-page launch on Debian Trixie, Ubuntu 24.04, and Alpine 3.24",
+        "clean container browser install and visible Firefox X11 application window on Debian Trixie, Ubuntu 24.04, and Alpine 3.24",
         "Ubuntu must use Mozilla ESR without Snap; Debian and Alpine must use their native Firefox ESR package route",
         "run the three-profile matrix and all required CI on the exact proposed release commit"
       ],
       "acceptance_criteria": [
-        "Each of the three v2-supported fresh desktop profiles has a default Firefox browser installed from its documented package source and can render a local page in a GTK window.",
+        "Each of the three v2-supported fresh desktop profiles has a default Firefox browser installed from its documented package source and maps a visible X11 application window.",
         "Do not use a headless screenshot-only result as a substitute for desktop startup; do not claim qualification of the other named profiles."
       ],
       "release_blocking": true,

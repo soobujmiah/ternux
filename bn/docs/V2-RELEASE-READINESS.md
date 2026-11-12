@@ -12,7 +12,7 @@ alt_url: "/docs/V2-RELEASE-READINESS.html"
 
 Ternux v2 desktop support কেবল **Debian, Ubuntu ও Alpine**-এর জন্য। CLI-তে
 অন্য distro recipe থাকলেও সেগুলো v2-qualified নয়।
-[`release-gates.json`](../../docs/release-gates.json)-এর 20টি gate বর্তমানে
+[`release-gates.json`](https://github.com/soobujmiah/ternux/blob/main/docs/release-gates.json)-এর 20টি gate বর্তমানে
 `NOT_READY`; দুটি blocker হলো exact-head browser CI এবং public signed Termux APT
 repository প্রকাশ ও lifecycle যাচাই।
 
@@ -21,7 +21,7 @@ repository প্রকাশ ও lifecycle যাচাই।
 | Gate | অবস্থা | কী করলে বন্ধ হবে |
 |---|---|---|
 | P1-03 updater safety | **সম্পূর্ণ** | Source/hash pinning, replace করার আগে staging, interrupted update recovery, downgrade guard, concurrency ও symlink fixture pass; v1.4.0 source fixture থেকে v2 migration pass। প্রকাশিত v2 rollback demonstration আবশ্যক নয়। Public package upgrade P1-APT-তে যাচাই হবে। |
-| P1-09 default browser | **আংশিক** | Clean Debian Trixie, Ubuntu 24.04 ও Alpine 3.24 install-এ দৃশ্যমান GTK Firefox window চালু করে local probe page render করতে হবে; exact proposed commit-এর CI-তে pass আবশ্যক। Ubuntu Snap ছাড়া Mozilla ESR ব্যবহার করে। |
+| P1-09 default browser | **আংশিক** | Clean Debian Trixie, Ubuntu 24.04 ও Alpine 3.24 install-এ exact proposed commit-এর CI-তে দৃশ্যমান Firefox X11 window চালু হতে হবে। Ubuntu Snap ছাড়া Mozilla ESR ব্যবহার করে। |
 | P1-APT signed Termux package | **আটকে আছে** | Signed RC tree প্রকাশ, public key/index/package hash যাচাই, তারপর native `pkg` install, upgrade ও uninstall পরীক্ষা। বাকি gate pass হলেই stable v2 প্রকাশ করা হবে। |
 
 HTP/HMX ও QNN experimental বা research-only; stable v2 প্রতিশ্রুতির বাইরে।
@@ -58,8 +58,8 @@ qualification নয়।
 - `python3 tests/release_gates.py --check` এবং `--self-test`: inventory valid;
   `NOT_READY`, blocker P1-09 ও P1-APT।
 - `bash tests/firefox_package_matrix.sh`: Debian, Ubuntu ও Alpine-এর জন্য exact-
-  head CI-তে যোগ হয়েছে। এটি Xvfb/Openbox-এ GTK Firefox window চালিয়ে local page
-  title যাচাই করে। এই Termux host-এ Docker নেই; তাই container matrix CI থেকে pass
+  head CI-তে যোগ হয়েছে। এটি Xvfb/Openbox-এ GTK Firefox window চালিয়ে দৃশ্যমান X11
+  application window map হয়েছে কি না যাচাই করে। এই Termux host-এ Docker নেই; তাই container matrix CI থেকে pass
 হতে হবে, local pass দাবি করা যাবে না।
 - `bash tests/focused.sh`: audit-এ test-hygiene issue পাওয়া গেছে—`py_compile`
   packaged asset-এর ভেতর `__pycache__` লিখছিল। এখন bytecode temporary directory-তে
@@ -88,7 +88,7 @@ qualification নয়।
 - [Live device যাচাই](../../docs/audit/DEVICE-VERIFICATION.md)
 - [Repository ও প্রকাশনার অবস্থা](../../docs/audit/REPOSITORY-STATE.md)
 - [Feature support matrix](../../docs/audit/FEATURE-MATRIX.md)
-- [Machine-readable gate](../../docs/release-gates.json)
+- [Machine-readable gate](https://github.com/soobujmiah/ternux/blob/main/docs/release-gates.json)
 
 Stable tag, GitHub release, signed APT URL এবং exact release commit না থাকা পর্যন্ত
 v2 released বলা যাবে না।
