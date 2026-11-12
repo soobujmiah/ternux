@@ -61,6 +61,15 @@ Android-এর Termux app sandbox পার হয় না। PRoot নিজ�
   **চলে না** — কন্টেইনারে আসল init সিস্টেম নেই।
 - কন্টেইনার মানেই ফাইল: ব্যাকআপ = আর্কাইভ, আনইনস্টল = ডিলিট।
 
+Alpine-এর বর্তমান Glycin image loader Bubblewrap namespace ব্যবহার করে, যা
+PRoot দিতে পারে না। তাই Xfce-র icon decode সচল রাখতে শুধু Alpine profile-এ
+নির্দিষ্ট Glycin loader-এর জন্য সীমিত launcher থাকে; অন্য সব Bubblewrap call
+system binary-তেই যায়। এই compatibility পথে image loader-এর Bubblewrap
+isolation থাকে না: guest user হিসেবে এটি guest filesystem-এর access পায়।
+Alpine-এ খোলা image-কে ওই guest-এর মধ্যে চলা code-এর input হিসেবে ধরুন; guest
+user ও shared-storage grant শুধু বিশ্বাসযোগ্য প্রয়োজনেই সীমিত রাখুন। অন্য
+distro profile-এ এই shim install হয় না।
+
 ### Termux:X11
 
 Termux:X11 হলো সেই Android অ্যাপ যা X11 সেশন *রেন্ডার* করে — এটি নিজে ডেস্কটপ

@@ -1,0 +1,163 @@
+#!/usr/bin/env python3
+"""Keep newly mapped Xfce application windows inside the current work area."""
+
+from __future__ import annotations
+
+import sys
+import time
+
+from Xlib import X, display, protocol
+from Xlib.error import BadWindow, XError
+
+
+def cardinals(window, atom: int) -> list[int]:
+    value = window.get_full_property(atom, Xatom_CARDINAL)
+    return list(value.value) if value is not None else []
+
+
+Xatom_CARDINAL = None
+
+
+def atoms(window, atom: int) -> set[int]:
+    value = window.get_full_property(atom, X.AnyPropertyType)
+    return set(value.value) if value is not None else set()
+
+
+def main() -> int:
+    global Xatom_CARDINAL
+    dpy = display.Display()
+    Xatom_CARDINAL = dpy.intern_atom("CARDINAL")
+    root = dpy.screen().root
+    atoms_by_name = {
+        name: dpy.intern_atom(name)
+        for name in (
+            "_NET_CLIENT_LIST",
+            "_NET_CURRENT_DESKTOP",
+            "_NET_WORKAREA",
+            "_NET_WM_WINDOW_TYPE",
+            "_NET_WM_WINDOW_TYPE_NORMAL",
+            "_NET_WM_WINDOW_TYPE_DIALOG",
+            "_NET_WM_WINDOW_TYPE_UTILITY",
+            "_NET_WM_WINDOW_TYPE_DOCK",
+            "_NET_WM_WINDOW_TYPE_DESKTOP",
+            "_NET_WM_WINDOW_TYPE_NOTIFICATION",
+            "_NET_WM_STATE",
+            "_NET_WM_STATE_FULLSCREEN",
+            "_NET_WM_STATE_MAXIMIZED_HORZ",
+            "_NET_WM_STATE_MAXIMIZED_VERT",
+            "_NET_FRAME_EXTENTS",
+            "_NET_MOVERESIZE_WINDOW",
+        )
+    }
+
+    def work_area() -> tuple[int, int, int, int]:
+        screen = dpy.screen()
+        width, height = screen.width_in_pixels, screen.height_in_pixels
+        desktops = cardinals(root, atoms_by_name["_NET_WORKAREA"])
+        current = cardinals(root, atoms_by_name["_NET_CURRENT_DESKTOP"])
+        index = current[0] if current else 0
+        offset = index * 4
+        if len(desktops) >= offset + 4:
+            x, y, width, height = desktops[offset : offset + 4]
+        else:
+            # XFCE publishes _NET_WORKAREA; this fallback keeps a small
+            # breathing room for panels when a different WM omits that hint.
+            x, y = 0, 0
+            height = max(1, height - 66)
+        return int(x), int(y), int(width), int(height)
+
+    def fit(window_id: int) -> None:
+        try:
+            window = dpy.create_resource_object("window", window_id)
+            if window.get_attributes().map_state != X.IsViewable:
+                return
+            type_atoms = atoms(window, atoms_by_name["_NET_WM_WINDOW_TYPE"])
+            allowed = {
+                atoms_by_name["_NET_WM_WINDOW_TYPE_NORMAL"],
+                atoms_by_name["_NET_WM_WINDOW_TYPE_DIALOG"],
+                atoms_by_name["_NET_WM_WINDOW_TYPE_UTILITY"],
+            }
+            if type_atoms and not type_atoms.intersection(allowed):
+                return
+            state = atoms(window, atoms_by_name["_NET_WM_STATE"])
+            if state.intersection(
+                {
+                    atoms_by_name["_NET_WM_STATE_FULLSCREEN"],
+                    atoms_by_name["_NET_WM_STATE_MAXIMIZED_HORZ"],
+                    atoms_by_name["_NET_WM_STATE_MAXIMIZED_VERT"],
+                }
+            ):
+                return
+
+            x, y, area_width, area_height = work_area()
+            margin = 4
+            extents = cardinals(window, atoms_by_name["_NET_FRAME_EXTENTS"])
+            left, right, top, bottom = (extents + [0, 0, 0, 0])[:4]
+            geometry = window.get_geometry()
+            translated = window.translate_coords(root, 0, 0)
+            outer_x = translated.x - left
+            outer_y = translated.y - top
+            outer_width = geometry.width + left + right
+            outer_height = geometry.height + top + bottom
+            max_outer_width = max(1, area_width - margin * 2)
+            max_outer_height = max(1, area_height - margin * 2)
+            new_outer_width = min(outer_width, max_outer_width)
+            new_outer_height = min(outer_height, max_outer_height)
+            new_x = min(max(outer_x, x + margin), x + area_width - margin - new_outer_width)
+            new_y = min(max(outer_y, y + margin), y + area_height - margin - new_outer_height)
+
+            if (new_x, new_y, new_outer_width, new_outer_height) == (
+                outer_x,
+                outer_y,
+                outer_width,
+                outer_height,
+            ):
+                return
+
+            # StaticGravity uses frame coordinates, so the target includes
+            # decorations without relying on a hard-coded title-bar height.
+            flags = 10 | (0xF << 8) | (1 << 12)
+            event = protocol.event.ClientMessage(
+                window=window,
+                client_type=atoms_by_name["_NET_MOVERESIZE_WINDOW"],
+                data=(32, [flags, new_x, new_y, max(1, new_outer_width - left - right), max(1, new_outer_height - top - bottom)]),
+            )
+            root.send_event(event, event_mask=X.SubstructureRedirectMask | X.SubstructureNotifyMask)
+            dpy.flush()
+            print(
+                f"Ternux window-fit: constrained 0x{window_id:x} to "
+                f"{new_outer_width}x{new_outer_height}+{new_x}+{new_y}",
+                file=sys.stderr,
+                flush=True,
+            )
+        except (BadWindow, XError):
+            return
+
+    root.change_attributes(event_mask=X.SubstructureNotifyMask | X.PropertyChangeMask | X.StructureNotifyMask)
+    dpy.sync()
+    time.sleep(0.4)
+    clients = cardinals(root, atoms_by_name["_NET_CLIENT_LIST"])
+    for client in clients:
+        fit(client)
+
+    while True:
+        event = dpy.next_event()
+        if event.type == X.MapNotify:
+            time.sleep(0.2)
+            fit(event.window.id)
+        elif event.type == X.ConfigureNotify and event.window.id == root.id:
+            time.sleep(0.2)
+            for client in cardinals(root, atoms_by_name["_NET_CLIENT_LIST"]):
+                fit(client)
+        elif event.type == X.PropertyNotify and event.window.id == root.id:
+            if event.atom in (atoms_by_name["_NET_WORKAREA"], atoms_by_name["_NET_CURRENT_DESKTOP"]):
+                for client in cardinals(root, atoms_by_name["_NET_CLIENT_LIST"]):
+                    fit(client)
+
+
+if __name__ == "__main__":
+    try:
+        raise SystemExit(main())
+    except (OSError, XError) as exc:
+        print(f"Ternux window-fit: {exc}", file=sys.stderr)
+        raise SystemExit(1)

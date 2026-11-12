@@ -25,7 +25,7 @@ tnx_cmd_distro() {
         printf '  %-24s %s\n' "$name" "$marker"
       done < <(proot-distro list --quiet 2>/dev/null || true)
       [ "$found" -eq 1 ] || printf '  (none)\n'
-      printf "\nTernux desktop: tx install --distro NAME | tx install --distros debian,ubuntu\nFind images:    tx distro search QUERY\nGeneric image:  tx distro image-install IMAGE[:TAG] [NAME]\nShell:          tx distro shell NAME | tx distro exec NAME -- COMMAND\n"
+      printf "\nTernux desktop: tx install --distro NAME | tx install --distros debian,ubuntu\nFind images:    tx distro search QUERY\nGeneric image:  tx distro image-install IMAGE[:TAG] [NAME]\nShell:          tx distro shell NAME | tx distro root NAME | tx distro exec NAME -- COMMAND\nShortcuts:      db/dbr/dbroot, ub/ubr/ubroot, alp/alpr/alproot (user/root)\n"
       ;;
     search|find)
       [ "$#" -eq 2 ] && [ -n "$2" ] || { tnx_fail "Usage: tx distro search QUERY"; return 2; }
@@ -61,7 +61,7 @@ tnx_cmd_distro() {
       proot-distro install --name "$alias_name" "$image" || { tnx_warn "Guest install failed or was interrupted; its registry entry is kept so tx uninstall can clean up a partial container."; return 1; }
       tnx_ok "Generic guest '$alias_name' installed and registered for tx uninstall."
       ;;
-    shell|exec)
+    shell|root|exec)
       [ "$#" -ge 2 ] || { tnx_fail "Usage: ternux distro $action NAME [-- COMMAND ...]"; return 2; }
       name="$2"; shift 2
       [[ "$name" =~ ^[a-zA-Z0-9][a-zA-Z0-9._-]*$ ]] || { tnx_fail "Invalid guest name '$name'."; return 2; }
@@ -69,12 +69,26 @@ tnx_cmd_distro() {
       unset _TNX_DISTRO
       export TERNUX_DISTRO="$name"
       if [ "$action" = shell ]; then
-        [ "$#" -eq 0 ] || { tnx_fail "Usage: ternux distro shell NAME"; return 2; }
+        if [ "$#" -gt 0 ]; then
+          [ "${1:-}" = -- ] && shift || { tnx_fail "Use '--' before a guest command."; return 2; }
+          [ "$#" -gt 0 ] || { tnx_fail "Usage: ternux distro shell NAME [-- COMMAND ...]"; return 2; }
+        fi
         # Desktop profiles create a named unprivileged account. Make the
-        # generic interactive shell honor that account too; root remains an
-        # explicit choice through dbroot/ubroot/alproot and matching aliases.
+        # generic interactive shell honor that account too.
         user="$(tnx_distro_state_get "$name" user 2>/dev/null || true)"
-        if [ -n "$user" ]; then tnx_guest_login --user "$user"; else tnx_guest_login; fi
+        if [ -n "$user" ]; then
+          if [ "$#" -gt 0 ]; then tnx_guest_login --user "$user" -- "$@"; else tnx_guest_login --user "$user"; fi
+        else
+          if [ "$#" -gt 0 ]; then tnx_guest_login -- "$@"; else tnx_guest_login; fi
+        fi
+      elif [ "$action" = root ]; then
+        if [ "$#" -gt 0 ]; then
+          [ "${1:-}" = -- ] && shift || { tnx_fail "Use '--' before a guest command."; return 2; }
+          [ "$#" -gt 0 ] || { tnx_fail "Usage: ternux distro root NAME [-- COMMAND ...]"; return 2; }
+          tnx_guest_login -- "$@"
+        else
+          tnx_guest_login
+        fi
       else
         [ "${1:-}" = -- ] && shift || { tnx_fail "Use '--' before a command."; return 2; }
         [ "$#" -gt 0 ] || { tnx_fail "Usage: ternux distro exec NAME -- COMMAND [ARG ...]"; return 2; }
@@ -82,6 +96,6 @@ tnx_cmd_distro() {
       fi
       ;;
     *)
-      tnx_fail "Usage: tx distro [list|search QUERY|install NAME|image-install IMAGE [NAME]|shell NAME|exec NAME -- COMMAND]"; return 2 ;;
+      tnx_fail "Usage: tx distro [list|search QUERY|install NAME|image-install IMAGE [NAME]|shell NAME [-- COMMAND]|root NAME [-- COMMAND]|exec NAME -- COMMAND]"; return 2 ;;
   esac
 }

@@ -349,8 +349,8 @@ tnx_phase_debian() {
   local user_name="${1:-ternux}" package_family input_engine=ibus-avro
   [ "$(tnx_distro)" != alpine ] || input_engine=m17n:bn:avro-phonetic
   local resource_dir="${BASH_SOURCE[0]%/*}"
-  local welcome_b64 welcome_gui_b64 window_fit_b64 camera_gui_b64 recorder_gui_b64 panel_shortcuts_b64 ternux_assets_b64 gtk3_user_css_b64 gtk4_user_css_b64 firefox_installer_b64 resource
-  for resource in ternux-welcome.sh ternux-welcome-gui.py ternux-window-fit.lua ternux-camera.py ternux-recorder.py ternux-panel-shortcuts.sh ternux-assets/bin/ternux-rasterize-icons ternux-assets/bin/ternux-ibus-session-init ternux-assets/bin/ternux-ibus-next-engine ternux-assets/bin/ternux-session-bus; do
+  local welcome_b64 welcome_gui_b64 window_fit_b64 camera_gui_b64 recorder_gui_b64 panel_shortcuts_b64 ternux_assets_b64 proot_bwrap_b64 gtk3_user_css_b64 gtk4_user_css_b64 firefox_installer_b64 resource
+  for resource in ternux-welcome.sh ternux-welcome-gui.py ternux-window-fit.lua ternux-camera.py ternux-recorder.py ternux-panel-shortcuts.sh ternux-assets/bin/ternux-proot-bwrap ternux-assets/bin/ternux-rasterize-icons ternux-assets/bin/ternux-ibus-session-init ternux-assets/bin/ternux-ibus-next-engine ternux-assets/bin/ternux-session-bus; do
     if [ ! -s "$resource_dir/$resource" ] || [ ! -r "$resource_dir/$resource" ]; then
       tnx_fail "Required Ternux desktop resource is missing or unreadable: $resource_dir/$resource"
       return 1
@@ -367,6 +367,7 @@ tnx_phase_debian() {
   recorder_gui_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-recorder.py" | tr -d '\n')" || return 1
   panel_shortcuts_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-panel-shortcuts.sh" | tr -d '\n')" || return 1
   ternux_assets_b64="$(set -o pipefail; tar -czf - -C "$resource_dir/ternux-assets" icons wallpapers themes applications bin input-methods | base64 | tr -d '\n')" || return 1
+  proot_bwrap_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-assets/bin/ternux-proot-bwrap" | tr -d '\n')" || return 1
   gtk3_user_css_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-assets/themes/Ternux/gtk-3.0/gtk-user.css" | tr -d '\n')" || return 1
   gtk4_user_css_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-assets/themes/Ternux/gtk-4.0/gtk-user.css" | tr -d '\n')" || return 1
   firefox_installer_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-install-firefox-esr.sh" | tr -d '\n')" || return 1
@@ -384,7 +385,14 @@ tnx_phase_debian() {
   tnx_guest_login --shared-tmp -- sh -c "
     set -e
     FAMILY='$package_family'
+    BWRAP_SHIM_B64='$proot_bwrap_b64'
     export DEBIAN_FRONTEND=noninteractive
+    install_proot_bwrap_shim() {
+      install -d -m 0755 /usr/local/bin
+      printf '%s' "\$BWRAP_SHIM_B64" | base64 -d > /usr/local/bin/.ternux-bwrap.new
+      chmod 0755 /usr/local/bin/.ternux-bwrap.new
+      mv -f /usr/local/bin/.ternux-bwrap.new /usr/local/bin/bwrap
+    }
     pkg_retry() {
       attempt=1
       while ! "\$@"; do
@@ -399,6 +407,7 @@ tnx_phase_debian() {
       apt)
         apt update -o APT::Color=1 -o Acquire::Retries=3
         dpkg --configure -a --force-confold --force-confdef || true
+        install_proot_bwrap_shim
         if [ '$(tnx_distro)' = ubuntu ]; then
           install -d -m 0755 /etc/apt/preferences.d
           printf 'Package: snapd\nPin: version *\nPin-Priority: -1\n' > /etc/apt/preferences.d/ternux-no-snapd
@@ -411,25 +420,30 @@ tnx_phase_debian() {
         ;;
       apk)
         pkg_retry apk update
+        if [ '$(tnx_distro)' = alpine ]; then install_proot_bwrap_shim; fi
         pkg_retry apk add sudo bash shadow musl-utils nano mousepad galculator evince font-noto python3 py3-gobject3 gtk+3.0 glib ibus dbus-x11 pulseaudio pulseaudio-utils pavucontrol mesa mesa-dri-gallium mesa-utils vulkan-loader vulkan-tools desktop-file-utils xdg-utils xdpyinfo setxkbmap util-linux fontconfig gsettings-desktop-schemas xfconf adwaita-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc ffmpeg ristretto qt5-qtbase colord
         if [ "$(tnx_distro)" = alpine ]; then
-          pkg_retry apk add vlc-qt m17n-lib m17n-db font-noto-bengali rsvg-convert
+          pkg_retry apk add vlc-qt m17n-lib m17n-db font-noto-bengali rsvg-convert xrdb py3-xlib
         fi
         if [ "$(tnx_distro)" = chimera ]; then pkg_retry apk add mesa-vulkan; elif [ "$(tnx_distro)" = alpine ]; then pkg_retry apk add mesa-vulkan-freedreno; fi
         ;;
       pacman)
         pacman -Syu --noconfirm --needed
+        install_proot_bwrap_shim
         pacman -S --noconfirm --needed sudo bash nano mousepad galculator evince noto-fonts python-gobject gtk3 glib2 ibus devilspie2 xorg-xhost xorg-setxkbmap pulseaudio pavucontrol mesa mesa-utils vulkan-icd-loader vulkan-freedreno vulkan-tools xorg-xdpyinfo xdg-utils desktop-file-utils util-linux fontconfig gsettings-desktop-schemas xfconf adwaita-icon-theme xfce4 xfce4-goodies xfce4-terminal zenity vlc ffmpeg ristretto qt5ct colord
         ;;
       dnf)
+        install_proot_bwrap_shim
         dnf install -y sudo bash nano mousepad galculator evince google-noto-sans-fonts python3-gobject gtk3 glib2 ibus devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol mesa-dri-drivers mesa-vulkan-drivers vulkan-loader vulkan-tools glx-utils xorg-x11-utils setxkbmap xdg-utils desktop-file-utils util-linux fontconfig gsettings-desktop-schemas xfconf adwaita-icon-theme xfce4-panel xfce4-session xfce4-settings xfce4-terminal xfce4-taskmanager zenity vlc ffmpeg ristretto qt5-qtbase colord
         ;;
       zypper)
         zypper --non-interactive refresh
+        install_proot_bwrap_shim
         zypper --non-interactive install -y sudo bash nano mousepad galculator evince google-noto-sans-fonts python3-gobject gtk3 glib2-tools ibus dbus-1-x11 pulseaudio pulseaudio-utils pavucontrol Mesa-dri Mesa-demo-x libvulkan1 libvulkan_freedreno vulkan-tools xorg-x11-utils setxkbmap xdg-utils desktop-file-utils util-linux fontconfig gsettings-desktop-schemas xfconf adwaita-icon-theme xfce4-panel xfce4-session xfce4-settings xfce4-terminal xfce4-taskmanager zenity vlc ffmpeg ristretto libqt5-qtbase colord
         ;;
       xbps)
         xbps-install -Suy
+        install_proot_bwrap_shim
         xbps-install -Sy sudo bash nano mousepad galculator evince noto-fonts-ttf python3-gobject gtk+3 glib ibus dbus pulseaudio pulseaudio-utils pavucontrol mesa-dri mesa-demos vulkan-loader mesa-vulkan-freedreno vulkan-tools setxkbmap xdg-utils desktop-file-utils util-linux fontconfig gsettings-desktop-schemas xfconf adwaita-icon-theme xfce4 xfce4-terminal xfce4-taskmanager zenity vlc ffmpeg ristretto qt5-base colord
         ;;
       *) echo \"Unsupported package manager family: \$FAMILY\" >&2; exit 2 ;;
@@ -512,6 +526,7 @@ VLC_DESKTOP
     install -m 0755 "\$asset_stage/bin/ternux-ibus-session-init" /usr/local/bin/ternux-ibus-session-init
     install -m 0755 "\$asset_stage/bin/ternux-ibus-next-engine" /usr/local/bin/ternux-ibus-next-engine
     install -m 0755 "\$asset_stage/bin/ternux-session-bus" /usr/local/bin/ternux-session-bus
+    install -m 0755 "\$asset_stage/bin/ternux-window-fit-x11" /usr/local/bin/ternux-window-fit-x11
     rm -rf "\$asset_stage"
     gtk-update-icon-cache -f /usr/share/icons/Ternux >/dev/null 2>&1 || true
     for icon_pair in \
@@ -745,13 +760,19 @@ PM
     chmod 0755 /usr/local/bin/ternux-welcome
     install -d -o root -g root -m 0755 /usr/share/backgrounds/ternux
     chmod 0644 /usr/share/backgrounds/ternux/*.svg
+    window_fit_exec=\"\"
     if command -v devilspie2 >/dev/null 2>&1; then
-    cat > \"\$H/.config/autostart/ternux-window-fit.desktop\" <<'DESKTOP'
+      window_fit_exec=\"devilspie2 --folder=/home/$user_name/.config/devilspie2\"
+    elif [ \"$(tnx_distro)\" = alpine ] && python3 -c 'import Xlib' >/dev/null 2>&1; then
+      window_fit_exec=/usr/local/bin/ternux-window-fit-x11
+    fi
+    if [ -n \"\$window_fit_exec\" ]; then
+    cat > \"\$H/.config/autostart/ternux-window-fit.desktop\" <<DESKTOP
 [Desktop Entry]
 Type=Application
 Name=Ternux Window Fit
 Comment=Keep application windows inside the current X11 screen
-Exec=devilspie2 --folder=/home/$user_name/.config/devilspie2
+Exec=\$window_fit_exec
 Terminal=false
 OnlyShowIn=XFCE;
 X-GNOME-Autostart-enabled=true
@@ -2256,7 +2277,7 @@ tnx_phase_cli() {
   local prefix="${PREFIX:-/data/data/com.termux/files/usr}"
   local bin_dir="$prefix/bin" lib_dir="$prefix/lib/ternux"
   local cli_src="" tx_src="" try="" try_tx="" cleanup_dir="" archive="" listing=""
-  local root_name="" source_root="" resource_root="" source_lib_dir="" local_lib=""
+  local root_name="" source_root="" resource_root="" source_lib_dir="" local_lib="" shortcut_src="" shortcut="" shortcut_tmp=""
   local source_commit="${TERNUX_SOURCE_COMMIT:-}" source_sha256="${TERNUX_SOURCE_SHA256:-}"
 
   # APT owns the packaged CLI files. Keep dpkg's file inventory consistent;
@@ -2274,6 +2295,13 @@ tnx_phase_cli() {
           tnx_fail "APT-managed short command is missing or stale. Repair with: pkg reinstall ternux"
           return 1
         fi
+        for shortcut in db dbr dbroot ub ubr ubroot alp alpr alproot; do
+          if [ ! -x "$bin_dir/$shortcut" ] ||
+             ! grep -qx '# TERNUX_GUEST_SHELL_SHORTCUT=1' "$bin_dir/$shortcut" 2>/dev/null; then
+            tnx_fail "APT-managed guest shell shortcut '$shortcut' is missing or stale. Repair with: pkg reinstall ternux"
+            return 1
+          fi
+        done
         tnx_ok "APT-managed Ternux CLI and tx command are installed and version-verified: ${TERNUX_VERSION}"
         return 0 ;;
       *)
@@ -2299,7 +2327,6 @@ tnx_phase_cli() {
       [ -f "$try_tx" ] && { tx_src="$try_tx"; break; }
     done
   fi
-
   # A normal one-click run reaches this branch with the already-extracted
   # bootstrap snapshot beside phases.sh, so phase 3 performs no network work.
   # If the module is invoked without that snapshot, fetch one retryable archive
@@ -2366,6 +2393,13 @@ TX_WRAPPER
         return 1
       }
     fi
+  fi
+
+  shortcut_src="$(dirname -- "$cli_src")/ternux-shell-shortcut"
+  if [ ! -s "$shortcut_src" ]; then
+    tnx_fail "Guest shell command helper is missing from the verified CLI source snapshot."
+    [ -n "$cleanup_dir" ] && rm -rf "$cleanup_dir"
+    return 1
   fi
 
   source_lib_dir="$(dirname "$cli_src")/../lib"
@@ -2436,6 +2470,26 @@ TX_WRAPPER
     tnx_fail "Could not install the short Ternux command."
     [ -n "$cleanup_dir" ] && rm -rf "$cleanup_dir"
     return 1
+  fi
+  if [ -s "$shortcut_src" ]; then
+    for shortcut in db dbr dbroot ub ubr ubroot alp alpr alproot; do
+      if [ -e "$bin_dir/$shortcut" ] || [ -L "$bin_dir/$shortcut" ]; then
+        if [ -L "$bin_dir/$shortcut" ] || [ ! -f "$bin_dir/$shortcut" ] ||
+           ! grep -qx '# TERNUX_GUEST_SHELL_SHORTCUT=1' "$bin_dir/$shortcut"; then
+          tnx_warn "Preserving the existing command at $bin_dir/$shortcut; use the shell shortcut from a newly opened Termux shell."
+          continue
+        fi
+      fi
+      shortcut_tmp="$(umask 077; mktemp "$bin_dir/.ternux-shell-shortcut.XXXXXX")" || {
+        tnx_fail "Could not stage guest shell shortcut '$shortcut'."
+        return 1
+      }
+      if ! install -m 755 "$shortcut_src" "$shortcut_tmp" || ! mv -f -- "$shortcut_tmp" "$bin_dir/$shortcut"; then
+        rm -f -- "$shortcut_tmp"
+        tnx_fail "Could not install guest shell shortcut '$shortcut'."
+        return 1
+      fi
+    done
   fi
   [ -n "$cleanup_dir" ] && rm -rf "$cleanup_dir"
 

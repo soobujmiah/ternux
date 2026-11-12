@@ -78,7 +78,10 @@ tnx_distro_canonical() {
   case "${1:-}" in
     db) printf debian ;; ub) printf ubuntu ;; alp) printf alpine ;;
     archx) printf archlinux ;; fed) printf fedora ;; suse) printf opensuse ;;
-    vsh) printf void ;; kal) printf kali ;; *) printf '%s' "${1:-}" ;;
+    vsh) printf void ;; kal) printf kali ;; art) printf artix ;;
+    chim) printf chimera ;; deep) printf deepin ;; manj) printf manjaro ;;
+    par) printf pardus ;; rock) printf rockylinux ;; adel) printf adelie ;;
+    *) printf '%s' "${1:-}" ;;
   esac
 }
 

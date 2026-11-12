@@ -1,0 +1,37 @@
+#!/bin/bash
+# Alpine's PRoot cannot provide bubblewrap's Linux namespace mounts. Keep real
+# bwrap for every other caller, but run only Glycin's image loaders directly.
+# This removes their bwrap isolation: loaders run as the guest user with access
+# to the guest filesystem. Preserve the inherited D-Bus fd required by Glycin.
+set -u
+
+args=("$@")
+
+for ((i = 0; i < ${#args[@]}; i++)); do
+  case "${args[i]}" in
+    /usr/libexec/glycin-loaders/*/glycin-*|/usr/lib/glycin-loaders/*/glycin-*)
+      loader="${args[i]}"
+      loader_args=("${args[@]:i + 1}")
+      dbus_fd_found=0
+
+      for ((j = 0; j < ${#loader_args[@]}; j++)); do
+        if [[ "${loader_args[j]}" = --dbus-fd && "${loader_args[j + 1]-}" =~ ^[0-9]+$ ]]; then
+          source_fd="${loader_args[j + 1]}"
+          exec {preserved_fd}<&"$source_fd" || exit 125
+          loader_args[j + 1]="$preserved_fd"
+          dbus_fd_found=1
+          break
+        fi
+      done
+
+      if [ "$dbus_fd_found" -ne 1 ]; then
+        printf '%s\n' 'Ternux: refusing to launch an unsandboxed Glycin loader without its D-Bus file descriptor.' >&2
+        exit 125
+      fi
+
+      exec "$loader" "${loader_args[@]}"
+      ;;
+  esac
+done
+
+exec /usr/bin/bwrap "${args[@]}"

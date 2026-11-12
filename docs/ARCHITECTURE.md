@@ -62,6 +62,15 @@ security boundary: Termux-accessible and explicitly bound paths remain reachable
   **not** — there is no real init system inside the container.
 - The container is just files: backup = archive, uninstall = delete.
 
+Alpine's current Glycin image loaders use Bubblewrap namespaces that PRoot
+cannot provide. The Alpine profile therefore uses a narrowly scoped launcher
+for those Glycin loaders so Xfce can decode its icons; all other Bubblewrap
+commands still use the system binary. This compatibility path removes the
+image loader's Bubblewrap isolation: it runs as the guest user with access to
+the guest filesystem. Treat image files opened in Alpine as input to code
+running inside that guest, and keep the guest user and shared-storage grants
+limited to what you trust. Other distro profiles do not install this shim.
+
 ### Termux:X11
 
 Termux:X11 is the Android app that *renders* the X11 session — it is not the

@@ -598,6 +598,8 @@ required = {
     "lib/ternux/ternux-panel-shortcuts.sh": "lib/ternux-panel-shortcuts.sh",
     "lib/ternux/ternux-install-firefox-esr.sh": "lib/ternux-install-firefox-esr.sh",
     "bin/tx": "bin/tx",
+    **{f"bin/{name}": "bin/ternux-shell-shortcut" for name in
+       ("db", "dbr", "dbroot", "ub", "ubr", "ubroot", "alp", "alpr", "alproot")},
 }
 required.update({
     f"lib/ternux/{module.name}": module.relative_to(root).as_posix()
@@ -2634,7 +2636,8 @@ boot_pin_sha="$(sed -n 's/^_TNX_BOOTSTRAP_SHA256="\([0-9a-f]*\)"$/\1/p' "$ROOT/i
 mkdir -p "$TMP/cli-fallback-source/ternux-pinned-source/bin" \
   "$TMP/cli-fallback-source/ternux-pinned-source/lib" \
   "$TMP/cli-fallback-modules" "$TMP/cli-fallback-cwd" "$TMP/cli-fallback-tmp"
-cp "$ROOT/bin/ternux" "$ROOT/bin/tx" "$TMP/cli-fallback-source/ternux-pinned-source/bin/"
+cp "$ROOT/bin/ternux" "$ROOT/bin/tx" "$ROOT/bin/ternux-shell-shortcut" \
+  "$TMP/cli-fallback-source/ternux-pinned-source/bin/"
 cp "$ROOT"/lib/*.sh "$TMP/cli-fallback-source/ternux-pinned-source/lib/"
 cp "$ROOT"/lib/ternux-welcome-gui.py "$ROOT"/lib/ternux-install-firefox-esr.sh \
   "$TMP/cli-fallback-source/ternux-pinned-source/lib/"
@@ -2661,6 +2664,12 @@ if [ "$cli_pin_commit" = "$boot_pin_commit" ] &&
    "$TMP/prefix-cli-fallback/bin/ternux" --version | grep -q "^ternux v2.0.0$" &&
    "$TMP/prefix-cli-fallback/bin/tx" --version | grep -q "^ternux v2.0.0$" &&
    [ -s "$TMP/prefix-cli-fallback/lib/ternux/ternux-welcome-gui.py" ] &&
+   [ -x "$TMP/prefix-cli-fallback/bin/db" ] &&
+   [ -x "$TMP/prefix-cli-fallback/bin/dbroot" ] &&
+   [ -x "$TMP/prefix-cli-fallback/bin/ub" ] &&
+   [ -x "$TMP/prefix-cli-fallback/bin/ubroot" ] &&
+   [ -x "$TMP/prefix-cli-fallback/bin/alp" ] &&
+   [ -x "$TMP/prefix-cli-fallback/bin/alproot" ] &&
    [ -s "$TMP/prefix-cli-fallback/lib/ternux/licenses/mesa-27.0.0-devel-20261025/SHA256SUMS" ] &&
    [ -d "$TMP/prefix-cli-fallback/lib/ternux/ternux-assets/themes/Ternux" ]; then
   ok "CLI source fallback verifies one pinned archive and installs its guest resources"
@@ -2673,7 +2682,8 @@ fi
 # weakening archive digest validation or changing the pinned source.
 mkdir -p "$TMP/cli-legacy-source/ternux-legacy-source/bin" \
   "$TMP/cli-legacy-source/ternux-legacy-source/lib"
-cp "$ROOT/bin/ternux" "$TMP/cli-legacy-source/ternux-legacy-source/bin/"
+cp "$ROOT/bin/ternux" "$ROOT/bin/ternux-shell-shortcut" \
+  "$TMP/cli-legacy-source/ternux-legacy-source/bin/"
 cp "$ROOT"/lib/*.sh "$TMP/cli-legacy-source/ternux-legacy-source/lib/"
 tar -czf "$TMP/cli-legacy-source.tar.gz" -C "$TMP/cli-legacy-source" ternux-legacy-source
 cli_legacy_sha="$(sha256sum "$TMP/cli-legacy-source.tar.gz" | awk '{print $1}')"
@@ -2729,6 +2739,10 @@ if env TERNUX_STATE_DIR="$TMP/state-cli-layout" HOME="$TMP/home-cli-layout" \
     [ -f "$PREFIX/lib/ternux/core.sh" ] &&
     "$PREFIX/bin/ternux" --version | grep -q "^ternux v" &&
     [ -x "$PREFIX/bin/tx" ] &&
+    for shortcut in db dbr dbroot ub ubr ubroot alp alpr alproot; do
+      [ -x "$PREFIX/bin/$shortcut" ] &&
+        grep -qx "# TERNUX_GUEST_SHELL_SHORTCUT=1" "$PREFIX/bin/$shortcut" || exit 1
+    done &&
     [ "$("$PREFIX/bin/tx" --version)" = "$("$PREFIX/bin/ternux" --version)" ]
   ' _ "$ROOT"; then
   ok "CLI phase executes the installed flat-module layout"
@@ -3693,6 +3707,9 @@ check "known and verified distributions are separate claims" bash -c '
   exit 0
 ' _ "$ROOT"
 check "generated distro desktop and locale scripts parse for all named profiles" bash "$ROOT/tests/distro_recipes.sh"
+check "PRoot Glycin shim preserves the loader fd and delegates unrelated bwrap calls" bash "$ROOT/tests/proot_bwrap.sh"
+check "Debian, Ubuntu and Alpine shell command files dispatch user/root shortcuts" bash "$ROOT/tests/guest_shell_shortcuts.sh"
+check "distro shell/root commands preserve identity and explicit command boundaries" bash "$ROOT/tests/distro_shell_commands.sh"
 check "APT-only optional workloads reject a non-APT guest before guest changes" bash -c '
   . "$1/lib/phases.sh"
   export TERNUX_DISTRO=alpine

@@ -35,6 +35,20 @@ for distro in $profiles; do
   tnx_phase_audio_fonts ternux en_US.UTF-8 >/dev/null
   [ "$script_num" -eq 3 ] || { echo "Expected three guest scripts for $distro, found $script_num" >&2; exit 1; }
   for generated in "$TMP/guest-${distro}-"*.sh; do bash -n "$generated"; done
+  if [ "$distro" = alpine ]; then
+    grep -Fq "if [ 'alpine' = alpine ]; then install_proot_bwrap_shim; fi" "$TMP/guest-${distro}-1.sh" || {
+      echo "PRoot Glycin compatibility shim missing from Alpine package setup" >&2; exit 1;
+    }
+    grep -Fq 'py3-xlib' "$TMP/guest-${distro}-1.sh" &&
+      grep -Fq 'install -m 0755 $asset_stage/bin/ternux-window-fit-x11 /usr/local/bin/ternux-window-fit-x11' "$TMP"/guest-${distro}-*.sh &&
+      grep -Fq 'window_fit_exec=/usr/local/bin/ternux-window-fit-x11' "$TMP"/guest-${distro}-*.sh || {
+      echo "Alpine X11 window-fit fallback is missing from the desktop recipe" >&2; exit 1;
+    }
+  elif grep -Fq "if [ '$distro' = alpine ]; then install_proot_bwrap_shim; fi" "$TMP/guest-${distro}-1.sh"; then
+    : # The distro-specific condition keeps this Alpine-only shim inactive here.
+  else
+    echo "Alpine-only Glycin compatibility guard missing from $distro package setup" >&2; exit 1
+  fi
   tnx_distro_profile "$distro"
   case "$distro:$TNX_DP_FAMILY" in
     debian:apt|ubuntu:apt|kali:apt|deepin:apt|pardus:apt|\
@@ -77,6 +91,11 @@ for distro in $profiles; do
     opensuse) grep -q 'libvulkan_freedreno' "$TMP/guest-${distro}-"*.sh ;;
     void) grep -q 'mesa-vulkan-freedreno' "$TMP/guest-${distro}-"*.sh ;;
   esac || { echo "Native Mesa/Freedreno Vulkan package missing from $distro recipe" >&2; exit 1; }
+  if [ "$distro" = alpine ]; then
+    grep -q 'rsvg-convert xrdb' "$TMP/guest-${distro}-1.sh" || {
+      echo "Alpine XFCE startup dependency xrdb missing from package recipe" >&2; exit 1;
+    }
+  fi
 done
 
 echo "PASS: all 15 named profiles generate valid desktop recipes with a default browser, Mesa GL drivers, native Vulkan packages, and glxinfo providers"

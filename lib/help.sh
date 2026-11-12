@@ -66,7 +66,9 @@ ${TNX_CW}Global options:${TNX_C0}
 ${TNX_CW}Examples:${TNX_C0}
   ternux doctor --json     ${TNX_CD}machine-readable diagnostics${TNX_C0}
   tx start                 ${TNX_CD}Launch the desktop${TNX_C0}
-  tx distro shell alpine   ${TNX_CD}Open the Alpine user shell; use alproot for root${TNX_C0}
+  alp                       ${TNX_CD}Alpine user shell; alpr or alproot opens root${TNX_C0}
+  db / dbr / dbroot         ${TNX_CD}Debian user / root shell${TNX_C0}
+  ub / ubr / ubroot         ${TNX_CD}Ubuntu user / root shell${TNX_C0}
   ternux backend set zink  ${TNX_CD}Switch GPU backend${TNX_C0}
   ternux profile save      ${TNX_CD}Snapshot device config${TNX_C0}
 
@@ -141,7 +143,7 @@ HELP
 
 tnx_help_guides() { echo "Usage: ternux guides"; echo "Show installation, ecosystem tool, and daily-use guide links."; }
 
-tnx_help_distro() { echo "Usage: tx distro [list|search QUERY|install NAME|image-install IMAGE [NAME]|shell NAME|exec NAME -- COMMAND]"; echo "List guests, search OCI images, install a desktop profile or OCI image, or open a guest shell."; }
+tnx_help_distro() { echo "Usage: tx distro [list|search QUERY|install NAME|image-install IMAGE [NAME]|shell NAME [-- COMMAND]|root NAME [-- COMMAND]|exec NAME -- COMMAND]"; echo "List guests, search OCI images, install a desktop profile or OCI image, or open a guest user/root shell."; }
 tnx_help_start()     { echo "Usage: tx start [db|ub|alp|DISTRO]"; echo "Start Debian by default when installed; otherwise start the saved distro. Use db, ub, or alp to select Debian, Ubuntu, or Alpine."; }
 tnx_help_stop()      { echo "Usage: tx stop [DISTRO|--all]"; echo "Interactive mode lists running guests; choose one or more by number or name (space/comma separated), or 0 to cancel. --all stops every Ternux desktop."; }
 tnx_help_restart()   { echo "Usage: ternux restart [DISTRO]"; echo "Restart the named guest desktop session."; }

@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# TERNUX_GUEST_SHELL_SHORTCUT=1
+set -euo pipefail
+
+command_name="${0##*/}"
+case "$command_name" in
+  db) distro=debian; action=shell ;;
+  dbr|dbroot) distro=debian; action=root ;;
+  ub) distro=ubuntu; action=shell ;;
+  ubr|ubroot) distro=ubuntu; action=root ;;
+  alp) distro=alpine; action=shell ;;
+  alpr|alproot) distro=alpine; action=root ;;
+  *) printf 'Unknown Ternux guest shell shortcut: %s\n' "$command_name" >&2; exit 2 ;;
+esac
+
+script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
+exec "$script_dir/ternux" distro "$action" "$distro" "$@"
