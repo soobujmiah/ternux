@@ -32,9 +32,9 @@ Android soft keyboard থেকে terminal ও অন্য X11 app-এ text �
 | `x` | `ternux start` দিয়ে ডেস্কটপ শুরু করে Termux:X11 সামনে আনে (অডিও → ডিসপ্লে → Debian → Xfce4) |
 | `xgo` | Installed guest দেখিয়ে Ternux desktop বাছতে দেয় |
 | `killx` | চলমান desktop থেকে একটি বা একাধিক বেছে বন্ধ |
-| `db` / `dbroot` | Debian user / root shell |
-| `ub` / `ubroot` | Ubuntu user / root shell |
-| `alp` / `alproot` | Alpine user / root shell |
+| `db` / `dbr` / `dbroot` | Debian user / root shell |
+| `ub` / `ubr` / `ubroot` | Ubuntu user / root shell |
+| `alp` / `alpr` / `alproot` | Alpine user / root shell |
 | `tx` | `ternux` CLI-র ছোট alias |
 | `sysmon` | CPU/RAM/GPU-নোডের দ্রুত চিত্র |
 | `clean-mesa` | শেডার ক্যাশ পরিষ্কার (ড্রাইভার বদলের পর) |

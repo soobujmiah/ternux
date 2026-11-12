@@ -146,7 +146,7 @@ _tnx_uninstall_host_cli() {
   local bin="$prefix/bin/ternux" tx="$prefix/bin/tx" lib="$prefix/lib/ternux"
   local completion="$prefix/share/bash-completion/completions/ternux"
   local docs="$prefix/share/doc/ternux"
-  local status=""
+  local status="" shortcut
 
   _tnx_uninstall_update_residue() {
     local path
@@ -174,6 +174,17 @@ _tnx_uninstall_host_cli() {
     tnx_ok "APT-managed ternux CLI and its package files removed"
     return 0
   fi
+
+  for shortcut in db dbr dbroot ub ubr ubroot alp alpr alproot; do
+    if [ -e "$prefix/bin/$shortcut" ] || [ -L "$prefix/bin/$shortcut" ]; then
+      if [ -L "$prefix/bin/$shortcut" ] || [ ! -f "$prefix/bin/$shortcut" ] ||
+         ! grep -qx '# TERNUX_GUEST_SHELL_SHORTCUT=1' "$prefix/bin/$shortcut"; then
+        tnx_warn "Preserving unrecognized guest shell command: $prefix/bin/$shortcut"
+      else
+        rm -f -- "$prefix/bin/$shortcut"
+      fi
+    fi
+  done
 
   # Compatibility with source-installed v1/v2 setups. Refuse symlinks and
   # only remove a module tree whose own core identifies it as Ternux.

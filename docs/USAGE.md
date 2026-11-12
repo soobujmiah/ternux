@@ -28,9 +28,9 @@ Ternux enables Termux:X11 `enforceCharBasedInput` before starting the desktop so
 | `x` | Start the desktop through `ternux start` and bring Termux:X11 to the foreground (audio → display → Debian → Xfce4) |
 | `xgo` | List installed guests and select the Ternux desktop to start |
 | `killx` | Open the session picker and stop one or several desktops |
-| `db` / `dbroot` | Debian user / root shell |
-| `ub` / `ubroot` | Ubuntu user / root shell |
-| `alp` / `alproot` | Alpine user / root shell |
+| `db` / `dbr` / `dbroot` | Debian user / root shell |
+| `ub` / `ubr` / `ubroot` | Ubuntu user / root shell |
+| `alp` / `alpr` / `alproot` | Alpine user / root shell |
 | `tx` | Short alias for the `ternux` CLI |
 | `sysmon` | Quick CPU/RAM/GPU-node overview |
 | `clean-mesa` | Clear the shader cache (after driver changes) |

@@ -20,6 +20,30 @@
   "files_dir": ".",
   "deb_dir": "artifacts/ternux-apt/debs",
   "data_files": {
+    "bin/alp": {
+      "source": "bin/ternux-shell-shortcut",
+      "perm": "755"
+    },
+    "bin/alpr": {
+      "source": "bin/ternux-shell-shortcut",
+      "perm": "755"
+    },
+    "bin/alproot": {
+      "source": "bin/ternux-shell-shortcut",
+      "perm": "755"
+    },
+    "bin/db": {
+      "source": "bin/ternux-shell-shortcut",
+      "perm": "755"
+    },
+    "bin/dbr": {
+      "source": "bin/ternux-shell-shortcut",
+      "perm": "755"
+    },
+    "bin/dbroot": {
+      "source": "bin/ternux-shell-shortcut",
+      "perm": "755"
+    },
     "bin/ternux": {
       "source": "bin/ternux",
       "perm": "755"
@@ -1548,6 +1572,18 @@
       "source": "bin/tx",
       "perm": "755"
     },
+    "bin/ub": {
+      "source": "bin/ternux-shell-shortcut",
+      "perm": "755"
+    },
+    "bin/ubr": {
+      "source": "bin/ternux-shell-shortcut",
+      "perm": "755"
+    },
+    "bin/ubroot": {
+      "source": "bin/ternux-shell-shortcut",
+      "perm": "755"
+    },
     "lib/ternux/ternux-assets/bin/ternux-install-avro-m17n": {
       "source": "lib/ternux-assets/bin/ternux-install-avro-m17n",
       "perm": "755"
@@ -1586,6 +1622,14 @@
     },
     "lib/ternux/ternux-assets/bin/ternux-session-bus": {
       "source": "lib/ternux-assets/bin/ternux-session-bus",
+      "perm": "755"
+    },
+    "lib/ternux/ternux-assets/bin/ternux-proot-bwrap": {
+      "source": "lib/ternux-assets/bin/ternux-proot-bwrap",
+      "perm": "755"
+    },
+    "lib/ternux/ternux-assets/bin/ternux-window-fit-x11": {
+      "source": "lib/ternux-assets/bin/ternux-window-fit-x11",
       "perm": "755"
     }
   }
