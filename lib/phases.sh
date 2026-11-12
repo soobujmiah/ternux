@@ -404,7 +404,7 @@ tnx_phase_debian() {
           printf 'Package: snapd\nPin: version *\nPin-Priority: -1\n' > /etc/apt/preferences.d/ternux-no-snapd
           apt-mark hold snapd >/dev/null 2>&1 || true
         fi
-        apt install -y -o APT::Install-Recommends=false \$DPKG_FORCE sudo nano mousepad galculator evince fonts-noto-core python3-gi gir1.2-gtk-3.0 ibus ibus-avro devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol x11-utils x11-xkb-utils mesa-utils libgl1-mesa-dri libvulkan1 mesa-vulkan-drivers vulkan-tools adwaita-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc ffmpeg ristretto qt5-gtk-platformtheme colord xdg-utils desktop-file-utils util-linux libglib2.0-bin gsettings-desktop-schemas xfconf
+        apt install -y -o APT::Install-Recommends=false \$DPKG_FORCE sudo nano ca-certificates mousepad galculator evince fonts-noto-core python3-gi gir1.2-gtk-3.0 ibus ibus-avro devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol x11-utils x11-xkb-utils mesa-utils libgl1-mesa-dri libvulkan1 mesa-vulkan-drivers vulkan-tools adwaita-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc ffmpeg ristretto qt5-gtk-platformtheme colord xdg-utils desktop-file-utils util-linux libglib2.0-bin gsettings-desktop-schemas xfconf
         apt install -y \$DPKG_FORCE --no-install-recommends synaptic
         if [ '$(tnx_distro)' = ubuntu ]; then apt-mark hold snapd >/dev/null 2>&1 || true; fi
         apt remove -y \$DPKG_FORCE guvcview >/dev/null 2>&1 || true
