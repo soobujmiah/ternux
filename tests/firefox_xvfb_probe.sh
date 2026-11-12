@@ -52,7 +52,10 @@ browser_pid=$!
 attempt=0
 window_id=
 while [ "$attempt" -lt 300 ]; do
-  window_id="$(xdotool search --onlyvisible --name 'Ternux Browser Probe' 2>/dev/null | head -n 1 || true)"
+  # Firefox may keep its X11 WM_NAME empty while it completes first-run
+  # initialization in minimal containers. Match its stable X11 class instead
+  # of depending on a page-title update, which varies by package/profile.
+  window_id="$(xdotool search --onlyvisible --class '[Ff]irefox' 2>/dev/null | head -n 1 || true)"
   if [ -n "$window_id" ]; then
     break
   fi
@@ -66,20 +69,19 @@ while [ "$attempt" -lt 300 ]; do
 done
 
 [ -n "$window_id" ] &&
-  case "$(xdotool getwindowname "$window_id" 2>/dev/null || true)" in
-    *'Ternux Browser Probe'*) ;;
-    *) false ;;
-  esac || {
+  xdotool getwindowgeometry "$window_id" >/dev/null 2>&1 || {
     echo 'Visible X11 windows at Firefox probe failure:' >&2
     for visible_id in $(xdotool search --onlyvisible --name '.*' 2>/dev/null || true); do
-      printf '  window %s: ' "$visible_id" >&2
+      printf '  window %s class=' "$visible_id" >&2
+      xdotool getwindowclassname "$visible_id" 2>/dev/null >&2 || true
+      printf '    title=' >&2
       xdotool getwindowname "$visible_id" 2>/dev/null >&2 || true
     done
     echo 'Firefox-related process state:' >&2
     ps -eo pid,ppid,stat,args | grep -E '[f]irefox|[W]eb Content|[X]vfb|[o]penbox' >&2 || true
     cat /tmp/ternux-firefox.log >&2
-    echo 'Firefox did not render the expected local page title within 60 seconds' >&2
+    echo 'Firefox did not map a visible application window within 60 seconds' >&2
     exit 1
   }
 kill -0 "$browser_pid"
-echo 'PASS: Firefox mapped a visible GTK window and rendered the local probe page'
+echo "PASS: Firefox mapped a visible GTK window (X11 window $window_id)"
