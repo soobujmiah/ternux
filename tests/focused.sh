@@ -1592,18 +1592,26 @@ if env PREFIX="$TMP/prefix-uninstall-multi" TERNUX_STATE_DIR="$TMP/state-uninsta
   ln -s "$sessions/linked-target.json" "$sessions/linked.json"
   . "$1/lib/uninstall.sh"
   log="$2/multi-uninstall.log"
+  tnx_has_cmd(){ [ "$1" = proot-distro ]; }
   tnx_proot_container_installed(){ case "$1" in ubuntu|alpine|debian|fedora) return 0;; *) return 1;; esac; }
-  proot-distro(){ [ "$1" = remove ] && { printf "%s\n" "$2" >> "$log"; return 0; }; return 1; }
+  proot-distro(){
+    case "$1" in
+      remove) printf "%s\n" "$2" >> "$log"; return 0 ;;
+      ps) printf "%s\n" ps >> "$log"; return 0 ;;
+      *) return 1 ;;
+    esac
+  }
   _tnx_uninstall_all_managed_guests &&
   grep -qx ubuntu "$log" && grep -qx alpine "$log" &&
   ! grep -qx debian "$log" && ! grep -qx fedora "$log" &&
-  [ ! -e "$sessions/stale.json" ] && [ ! -e "$sessions/reused.json" ] &&
+  [ "$(grep -c '^ps$' "$log")" -eq 2 ] &&
+  [ -f "$sessions/stale.json" ] && [ -f "$sessions/reused.json" ] &&
   [ -f "$sessions/live.json" ] && [ -f "$sessions/unrelated.json" ] &&
   [ -L "$sessions/linked.json" ] && [ -f "$sessions/linked-target.json" ]
 ' _ "$ROOT" "$TMP"; then
-  ok "full uninstall targets registered guests and prunes only stale matching session records"
+  ok "full uninstall delegates shared session cleanup to PRoot-Distro and targets registered guests only"
 else
-  not_ok "full uninstall targets registered guests and prunes only stale matching session records"
+  not_ok "full uninstall delegates shared session cleanup to PRoot-Distro and targets registered guests only"
 fi
 
 # State removal deletes only Ternux runtime logs/state and empty app staging
