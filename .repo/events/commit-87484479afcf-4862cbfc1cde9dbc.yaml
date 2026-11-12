@@ -1,0 +1,7 @@
+event_id: commit-87484479afcf-4862cbfc1cde9dbc
+repository: soobujmiah/ternux
+commit: 87484479afcf9324975796a015b7f0293fb69c88
+kind: commit
+occurred_at: '2026-11-12T07:59:48Z'
+status: completed
+summary: 'docs: reconcile release gates with packaged device checks (#168)'
