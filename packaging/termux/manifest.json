@@ -92,6 +92,10 @@
       "source": "lib/logs.sh",
       "perm": "644"
     },
+    "lib/ternux/manager.sh": {
+      "source": "lib/manager.sh",
+      "perm": "644"
+    },
     "lib/ternux/profile.sh": {
       "source": "lib/profile.sh",
       "perm": "644"

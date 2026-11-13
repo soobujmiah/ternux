@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://soobujmiah.github.io/ternux/schemas/manager-status-v1.schema.json",
+  "title": "Ternux Manager Status v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "command",
+    "status",
+    "timestamp",
+    "version",
+    "runtime",
+    "management_mode",
+    "guest_manager_available",
+    "installed_guest_count",
+    "running_desktops"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "command": { "const": "manager.status" },
+    "status": { "const": "available" },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+" },
+    "runtime": { "const": "termux" },
+    "management_mode": { "const": "direct-cli" },
+    "guest_manager_available": { "type": "boolean" },
+    "installed_guest_count": {
+      "oneOf": [
+        { "type": "integer", "minimum": 0 },
+        { "type": "null" }
+      ]
+    },
+    "running_desktops": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$" }
+    }
+  },
+  "allOf": [
+    {
+      "if": { "properties": { "guest_manager_available": { "const": true } } },
+      "then": { "properties": { "installed_guest_count": { "type": "integer", "minimum": 0 } } },
+      "else": { "properties": { "installed_guest_count": { "type": "null" } } }
+    }
+  ]
+}

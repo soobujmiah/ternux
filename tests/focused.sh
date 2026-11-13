@@ -17,6 +17,8 @@ check() {
 
 printf 'TAP version 13\n'
 
+check "native read-only manager JSON schemas and empty-host behavior" bash "$ROOT/tests/manager_api.sh"
+
 # User-facing CLI help must track the dispatcher and supported guest profiles.
 if cli_help="$(bash "$ROOT/bin/ternux" --help 2>&1)" \
   && install_help="$(bash "$ROOT/bin/ternux" install --help 2>&1)" \
