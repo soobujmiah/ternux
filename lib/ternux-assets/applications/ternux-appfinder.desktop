@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Application Finder
+Comment=Find and launch applications
+Exec=xfce4-appfinder
+Icon=org.xfce.appfinder
+Terminal=false
+Categories=System;
+StartupNotify=true

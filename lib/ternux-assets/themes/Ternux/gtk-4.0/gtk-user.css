@@ -9,5 +9,7 @@ combobox entry, spinbutton, spinbutton button { color: #e4f3eb; background-color
 button.flat { background-color: transparent; }
 button:hover, togglebutton:hover, notebook > header > tabs > tab:hover { color: #39e68c; background-color: #293c32; }
 button:checked, button:active, togglebutton:checked, *:selected { color: #ffffff; background-color: #08784c; }
+/* Keep drag-selection overlays translucent despite the global surface rule. */
+.rubberband { color: #e4f3eb; background-color: rgba(57, 230, 140, 0.24); background-image: none; border: 1px solid rgba(57, 230, 140, 0.9); }
 entry, textview text, view, treeview.view, scale trough, progressbar trough { color: #e4f3eb; background-color: #0c1311; }
 scale highlight, progressbar progress, levelbar block.filled { background-color: #39e68c; }

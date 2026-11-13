@@ -50,6 +50,9 @@ button, combobox, entry, spinbutton, scrollbar trough, frame, paned > separator 
 button { background-image: none; background-color: @ternux_surface2; color: @ternux_fg; }
 button:hover, row:hover, treeview.view:hover { background-color: #293c32; }
 button:checked, button:active, selection, *:selected { background-color: @ternux_green_dark; color: #ffffff; }
+/* Keep drag-selection overlays readable while showing the items underneath. */
+.rubberband { background-color: rgba(57, 230, 140, 0.24); border: 1px solid rgba(57, 230, 140, 0.9); }
+XfdesktopIconView.view.rubberband { background-color: rgba(57, 230, 140, 0.24); border: 1px solid rgba(57, 230, 140, 0.9); }
 entry, textview text, view, treeview.view { background-color: #0c1311; color: @ternux_fg; caret-color: @ternux_green; }
 *:disabled { color: @ternux_muted; }
 progressbar progress, scale highlight, switch:checked, levelbar block.filled { background-color: @ternux_green; }

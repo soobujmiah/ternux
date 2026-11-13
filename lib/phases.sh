@@ -349,8 +349,8 @@ tnx_phase_debian() {
   local user_name="${1:-ternux}" package_family input_engine=ibus-avro
   [ "$(tnx_distro)" != alpine ] || input_engine=m17n:bn:avro-phonetic
   local resource_dir="${BASH_SOURCE[0]%/*}"
-  local welcome_b64 welcome_gui_b64 window_fit_b64 camera_gui_b64 recorder_gui_b64 panel_shortcuts_b64 ternux_assets_b64 proot_bwrap_b64 gtk3_user_css_b64 gtk4_user_css_b64 firefox_installer_b64 resource
-  for resource in ternux-welcome.sh ternux-welcome-gui.py ternux-window-fit.lua ternux-camera.py ternux-recorder.py ternux-panel-shortcuts.sh ternux-assets/bin/ternux-proot-bwrap ternux-assets/bin/ternux-rasterize-icons ternux-assets/bin/ternux-ibus-session-init ternux-assets/bin/ternux-ibus-next-engine ternux-assets/bin/ternux-window-fit-x11 ternux-assets/bin/ternux-session-bus; do
+  local welcome_b64 welcome_gui_b64 window_fit_b64 camera_gui_b64 recorder_gui_b64 flashlight_gui_b64 panel_shortcuts_b64 ternux_assets_b64 proot_bwrap_b64 gtk3_user_css_b64 gtk4_user_css_b64 firefox_installer_b64 resource
+  for resource in ternux-welcome.sh ternux-welcome-gui.py ternux-window-fit.lua ternux-camera.py ternux-recorder.py ternux-flashlight.py ternux-panel-shortcuts.sh ternux-assets/bin/ternux-proot-bwrap ternux-assets/bin/ternux-rasterize-icons ternux-assets/bin/ternux-ibus-session-init ternux-assets/bin/ternux-ibus-next-engine ternux-assets/bin/ternux-window-fit-x11 ternux-assets/bin/ternux-session-bus; do
     if [ ! -s "$resource_dir/$resource" ] || [ ! -r "$resource_dir/$resource" ]; then
       tnx_fail "Required Ternux desktop resource is missing or unreadable: $resource_dir/$resource"
       return 1
@@ -365,6 +365,7 @@ tnx_phase_debian() {
   window_fit_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-window-fit.lua" | tr -d '\n')" || return 1
   camera_gui_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-camera.py" | tr -d '\n')" || return 1
   recorder_gui_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-recorder.py" | tr -d '\n')" || return 1
+  flashlight_gui_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-flashlight.py" | tr -d '\n')" || return 1
   panel_shortcuts_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-panel-shortcuts.sh" | tr -d '\n')" || return 1
   ternux_assets_b64="$(set -o pipefail; tar -czf - -C "$resource_dir/ternux-assets" icons wallpapers themes applications bin input-methods | base64 | tr -d '\n')" || return 1
   proot_bwrap_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-assets/bin/ternux-proot-bwrap" | tr -d '\n')" || return 1
@@ -497,6 +498,10 @@ tnx_phase_debian() {
       rm -f /usr/local/share/applications/ternux-app-center.desktop /usr/local/share/applications/synaptic.desktop
     fi
     install -m 0644 "\$asset_stage/applications/ternux-sdcard.desktop" /usr/share/applications/ternux-sdcard.desktop
+    install -m 0644 "\$asset_stage/applications/ternux-flashlight.desktop" /usr/share/applications/ternux-flashlight.desktop
+    for panel_entry in ternux-file-manager.desktop ternux-terminal.desktop ternux-web-browser.desktop ternux-appfinder.desktop; do
+      install -m 0644 "\$asset_stage/applications/\$panel_entry" "/usr/share/applications/\$panel_entry"
+    done
     rm -f /usr/share/backgrounds/ternux/aurora.svg
     cp -a "\$asset_stage/wallpapers/." /usr/share/backgrounds/ternux/
     if [ "\$FAMILY" = apk ] && [ "$(tnx_distro)" = alpine ]; then sh "\$asset_stage/bin/ternux-install-avro-m17n" "\$asset_stage/input-methods"; fi
@@ -688,6 +693,9 @@ TERMINAL
     printf '%s' '${recorder_gui_b64}' | base64 -d > /usr/local/bin/ternux-recorder
     chown root:root /usr/local/bin/ternux-recorder
     chmod 0755 /usr/local/bin/ternux-recorder
+    printf '%s' '${flashlight_gui_b64}' | base64 -d > /usr/local/bin/ternux-flashlight
+    chown root:root /usr/local/bin/ternux-flashlight
+    chmod 0755 /usr/local/bin/ternux-flashlight
     printf '%s' '${panel_shortcuts_b64}' | base64 -d > /usr/local/bin/ternux-panel-shortcuts
     chown root:root /usr/local/bin/ternux-panel-shortcuts
     chmod 0755 /usr/local/bin/ternux-panel-shortcuts
@@ -737,8 +745,9 @@ DESKTOP
     install -d -o "\$U" -g "\$U" -m 0755 "\$H/Desktop"
     cp /usr/share/applications/ternux-camera.desktop "\$H/Desktop/Ternux-Camera.desktop"
     cp /usr/share/applications/ternux-photos.desktop "\$H/Desktop/Ternux-Photos.desktop"
-    chown "\$U:\$U" "\$H/Desktop/Ternux-Camera.desktop" "\$H/Desktop/Ternux-Photos.desktop"
-    chmod 0755 "\$H/Desktop/Ternux-Camera.desktop" "\$H/Desktop/Ternux-Photos.desktop"
+    cp /usr/share/applications/ternux-flashlight.desktop "\$H/Desktop/Ternux-Flashlight.desktop"
+    chown "\$U:\$U" "\$H/Desktop/Ternux-Camera.desktop" "\$H/Desktop/Ternux-Photos.desktop" "\$H/Desktop/Ternux-Flashlight.desktop"
+    chmod 0755 "\$H/Desktop/Ternux-Camera.desktop" "\$H/Desktop/Ternux-Photos.desktop" "\$H/Desktop/Ternux-Flashlight.desktop"
     if [ ! -e "\$H/Desktop/SD-Card.desktop" ]; then
       cp /usr/share/applications/ternux-sdcard.desktop "\$H/Desktop/SD-Card.desktop"
       chown "\$U:\$U" "\$H/Desktop/SD-Card.desktop"
@@ -1631,19 +1640,19 @@ exec /usr/local/bin/ternux-session-bus bash -c '
     xfconf-query -c xsettings -p /Net/IconThemeName --create -t string -s Ternux
     xfconf-query -c xfwm4 -p /general/theme --create -t string -s Ternux
     xfconf-query -c xsettings -p /Gtk/CursorThemeName --create -t string -s Adwaita
-    xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-path --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg
-    xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/last-image --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg
+    xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-path --create -t string -s /usr/share/backgrounds/ternux/05-quantum-grid.svg
+    xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/last-image --create -t string -s /usr/share/backgrounds/ternux/05-quantum-grid.svg
     xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-show --create -t bool -s true
     xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-style --create -t int -s 4
-    xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg
+    xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/05-quantum-grid.svg
     xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/workspace0/image-style --create -t int -s 4
-    xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-path --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg >/dev/null 2>&1 || true
-    xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/last-image --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg >/dev/null 2>&1 || true
+    xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-path --create -t string -s /usr/share/backgrounds/ternux/05-quantum-grid.svg >/dev/null 2>&1 || true
+    xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/last-image --create -t string -s /usr/share/backgrounds/ternux/05-quantum-grid.svg >/dev/null 2>&1 || true
     xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-show --create -t bool -s true >/dev/null 2>&1 || true
     xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/image-style --create -t int -s 4 >/dev/null 2>&1 || true
-    xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg >/dev/null 2>&1 || true
+    xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/05-quantum-grid.svg >/dev/null 2>&1 || true
     xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor1/workspace0/image-style --create -t int -s 4 >/dev/null 2>&1 || true
-    xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitorbuiltin/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg
+    xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitorbuiltin/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/05-quantum-grid.svg
     xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitorbuiltin/workspace0/image-style --create -t int -s 5
     xfconf-query -c xfwm4 -p /general/button_layout --create -t string -s "|HMC"
     for panel_id in $(xfconf-query -c xfce4-panel -l 2>/dev/null | sed -n "s#^/panels/\(panel-[0-9][0-9]*\)/.*#\1#p" | sort -u); do xfconf-query -c xfce4-panel -p "/panels/$panel_id/background-style" --create -t int -s 0 >/dev/null 2>&1 || true; done
@@ -1656,7 +1665,7 @@ exec /usr/local/bin/ternux-session-bus bash -c '
   if [ ! -e "$wallpaper_migration_marker" ]; then
     current_wallpaper=$(xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitorbuiltin/workspace0/last-image 2>/dev/null || true)
     if [ -z "$current_wallpaper" ] || [ ! -r "$current_wallpaper" ] || [ "$current_wallpaper" = /usr/share/images/desktop-base/default ]; then
-      xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitorbuiltin/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/01-aurora-circuit.svg
+      xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitorbuiltin/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/05-quantum-grid.svg
       xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitorbuiltin/workspace0/image-style --create -t int -s 5
       xfdesktop --reload >/dev/null 2>&1 || true
     fi
@@ -1664,7 +1673,7 @@ exec /usr/local/bin/ternux-session-bus bash -c '
   fi
   wallpaper_readability_marker="$HOME/.config/ternux/readable-wallpaper-v1"
   if [ ! -e "$wallpaper_readability_marker" ]; then
-    fallback_wallpaper=/usr/share/backgrounds/ternux/01-aurora-circuit.svg
+    fallback_wallpaper=/usr/share/backgrounds/ternux/05-quantum-grid.svg
     for monitor in monitor0 monitor1 monitorbuiltin; do
       monitor_path="/backdrop/screen0/$monitor"
       for wallpaper_property in image-path last-image workspace0/last-image; do
