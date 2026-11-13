@@ -312,12 +312,12 @@ import RenderBench from "../../components/RenderBench.astro";
               Ternux 2.0.0 বর্তমান stable release। Debian, Ubuntu ও Alpine v2-এর
               তিন desktop profile; device evidence Redmi Turbo 4 Pro-তে করা,
               পরীক্ষার সীমানা audit report-এ দেওয়া আছে। আরও ১২টি named recipe
-              আছে, তবে সেগুলো v2-qualified নয়। Current main source-এ তিনটি
-              read-only manager CLI command আছে; stable 2.0.0 package-এ নেই।
-              Native service ও graphical Control Center এখনো বাস্তবায়িত হয়নি। v3
-              design-এ native Termux workspace :0, Debian :1, Ubuntu :2 এবং
-              Alpine :3 পাবে; staged migration তৈরি না হওয়া পর্যন্ত v2-এর চলমান
-              display assignment অপরিবর্তিত থাকবে।
+              আছে, তবে সেগুলো v2-qualified নয়। Current main source-এ চারটি
+              read-only manager CLI command এবং foreground Unix-socket service
+              আছে; stable 2.0.0 package-এ নেই। Background supervision, native
+              workspace, graphical Control Center ও staged migration এখনো বাকি।
+              নতুন profile-এ :0 native Termux-এর জন্য; Debian :1, Ubuntu :2,
+              Alpine :3 পাবে। Existing v2 display assignment সংরক্ষিত থাকে।
             </p>
           </div>
           <div class="profile-grid">

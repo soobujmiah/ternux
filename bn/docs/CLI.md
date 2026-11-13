@@ -149,7 +149,7 @@ experimental SM8735/V73 HTP আছে। `--with-llm` আলাদা source থ
 
 ### `ternux start`
 
-Xfce4 desktop-কে আলাদা detached session-এ চালু করে, তাই shell বন্ধ হলেও desktop চলে। Termux:X11-এর সঙ্গে XFCE session, window manager ও desktop প্রস্তুত হলে Termux:X11 app-টিও সামনে আনে। আবার চালালে নতুন session না বানিয়ে চলমান desktop-টাই সামনে আনে; supervisor marker না থাকলেও live XFCE session শনাক্ত করে। startup ব্যর্থ হলে error দেখিয়ে `~/.local/share/ternux/session/desktop.log`-এর ঠিকানা দেয়। `ternux status` বা `ternux logs desktop tail` দিয়ে session দেখুন। CLI package update-এর পর প্রতিটি guest-এর launcher আলাদা `~/.local/share/ternux/distros/NAME/launcher.sh`-এ থাকে; `~/x.sh` সর্বশেষ install করা profile-এর compatibility link।
+Xfce4 desktop-কে আলাদা detached session-এ চালু করে, তাই shell বন্ধ হলেও desktop চলে। Termux:X11-এর সঙ্গে XFCE session, window manager ও desktop প্রস্তুত হলে Termux:X11 app-টিও সামনে আনে। নতুন profile-এ `:0` native Termux workspace-এর জন্য সংরক্ষিত; Debian `:1`, Ubuntu `:2`, Alpine `:3`, আর অন্য named profile `:4` থেকে serial display পায়। আগে থেকে save করা v2 display ID explicit migration না হওয়া পর্যন্ত অপরিবর্তিত থাকে। target socket বা Termux:X11 server occupied থাকলে start refuse করে; নিশ্চিত না হয়ে কোনো socket মুছে না। আবার চালালে নতুন session না বানিয়ে চলমান desktop-টাই সামনে আনে; supervisor marker না থাকলেও live XFCE session শনাক্ত করে। startup ব্যর্থ হলে error দেখিয়ে `~/.local/share/ternux/session/desktop.log`-এর ঠিকানা দেয়। `ternux status` বা `ternux logs desktop tail` দিয়ে session দেখুন। CLI package update-এর পর প্রতিটি guest-এর launcher আলাদা `~/.local/share/ternux/distros/NAME/launcher.sh`-এ থাকে; `~/x.sh` সর্বশেষ install করা profile-এর compatibility link।
 
 ```bash
 ternux start              # saved guest profile

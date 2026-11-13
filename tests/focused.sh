@@ -19,6 +19,7 @@ printf 'TAP version 13\n'
 
 check "native read-only manager JSON schemas and empty-host behavior" bash "$ROOT/tests/manager_api.sh"
 check "v3 manager request, response, and error envelope contract" python3 "$ROOT/tests/manager_protocol.py"
+check "v3 guest display identities and saved v2 mapping preservation" bash "$ROOT/tests/display_registry.sh"
 
 # User-facing CLI help must track the dispatcher and supported guest profiles.
 if cli_help="$(bash "$ROOT/bin/ternux" --help 2>&1)" \
@@ -254,7 +255,7 @@ if env TERNUX_STATE_DIR="$TMP/state-renderer-display" HOME="$TMP/home-renderer-d
     export LOG="$2/renderer-display.log"
     unset DISPLAY
     [ "$(tnx_detect_renderer)" = "Adreno (TM) 825" ] || exit
-    grep -q -- "--shared-tmp --shared-x11 -- env DISPLAY=:0 bash -c" "$LOG" || exit
+    grep -q -- "--shared-tmp --shared-x11 -- env DISPLAY=:1 bash -c" "$LOG" || exit
     grep -q "timeout 5s glxinfo" "$LOG" || exit
     ! grep -q "zink Vulkan (Adreno via Turnip)" "$LOG" || exit
     : > "$LOG"; DISPLAY=:7
@@ -1129,7 +1130,7 @@ if env TERNUX_STATE_DIR="$TMP/state-launcher" HOME="$launcher_home" bash -c '
   grep -q -- "--env MESA_LOADER_DRIVER_OVERRIDE=zink" "$HOME/x.sh" &&
   ! grep -q -- "--env GALLIUM_DRIVER=zink" "$HOME/x.sh" &&
   grep -q -- "--user alice" "$HOME/x.sh" &&
-  grep -q -- "--env DISPLAY=:0" "$HOME/x.sh" &&
+  grep -q -- "--env DISPLAY=:1" "$HOME/x.sh" &&
   ! grep -q "pkill -9" "$HOME/x.sh" &&
   grep -Fq "termux-x11 \"\$TNX_DISPLAY\" -tag \"\$TNX_TAG\" -legacy-drawing -ac" "$HOME/x.sh" &&
   ! grep -q "stop_legacy_ternuxx_audio" "$HOME/x.sh" &&
@@ -1221,17 +1222,17 @@ if env TERNUX_STATE_DIR="$TMP/state-launcher-ubuntu" HOME="$TMP/home-launcher-ub
   tnx_phase_launcher alice virgl en_US.UTF-8 >/dev/null || exit
   launcher="$TERNUX_STATE_DIR/distros/ubuntu/launcher.sh"
   bash -n "$launcher" &&
-  grep -q "TNX_DISPLAY=\":1\"" "$launcher" &&
+  grep -q "TNX_DISPLAY=\":2\"" "$launcher" &&
   grep -q "TNX_TAG=\"ternux-ubuntu\"" "$launcher" &&
   grep -Fq "distros/ubuntu/session/desktop.pid" "$launcher" &&
   grep -q "termux-x11 \"\$TNX_DISPLAY\" -tag \"\$TNX_TAG\"" "$launcher" &&
-  grep -q -- "--env DISPLAY=:1" "$launcher" &&
+  grep -q -- "--env DISPLAY=:2" "$launcher" &&
   grep -q "X\${TNX_DISPLAY#:}" "$launcher" &&
-  test "$(sed -n "s/^display=//p" "$TERNUX_STATE_DIR/distros/ubuntu/profile")" = 1
+  test "$(sed -n "s/^display=//p" "$TERNUX_STATE_DIR/distros/ubuntu/profile")" = 2
 ' _ "$ROOT"; then
-  ok "Ubuntu launcher uses its own tagged :1 display and persisted DISPLAY"
+  ok "fresh Ubuntu profile uses its v3 :2 display and persists DISPLAY"
 else
-  not_ok "Ubuntu launcher uses its own tagged :1 display and persisted DISPLAY"
+  not_ok "fresh Ubuntu profile uses its v3 :2 display and persists DISPLAY"
 fi
 
 # Re-running install replaces only the generated alias block, removing legacy
@@ -2151,7 +2152,7 @@ if env TERNUX_STATE_DIR="$TMP/state-stopped-x11" HOME="$TMP/home-stopped-x11" \
   TMPDIR="$TMP/tmp-stopped-x11" bash -c '
     mkdir -p "$TERNUX_STATE_DIR/session" "$TMPDIR/.X11-unix"
     printf "STOPPED\\n" > "$TERNUX_STATE_DIR/session/desktop.state"
-    python3 -c "import socket,sys; s=socket.socket(socket.AF_UNIX); s.bind(sys.argv[1]); s.close()" "$TMPDIR/.X11-unix/X0" || exit
+    python3 -c "import socket,sys; s=socket.socket(socket.AF_UNIX); s.bind(sys.argv[1]); s.close()" "$TMPDIR/.X11-unix/X1" || exit
     . "$1/lib/desktop.sh"
     pgrep(){ case "$*" in *termux-x11*) return 0;; *) return 1;; esac; }
     tnx_desktop_session_live(){ return 1; }
@@ -2172,11 +2173,11 @@ if env TERNUX_STATE_DIR="$TMP/state-desktop-stop-menu" HOME="$TMP/home-desktop-s
     mkdir -p "$HOME"
     . "$1/lib/desktop.sh"
     _tnx_running_guest_sessions(){ printf "%s\n" debian ubuntu alpine; }
-    tnx_distro_display(){ case "$1" in debian) echo 0;; ubuntu) echo 1;; alpine) echo 2;; esac; }
+    tnx_distro_display(){ case "$1" in debian) echo 1;; ubuntu) echo 2;; alpine) echo 3;; esac; }
     tnx_cmd_stop(){ printf "%s\n" "$1" >> "$HOME/stopped"; }
     printf "1 3\n" | _tnx_stop_select > "$HOME/multi.out" || exit
-    grep -q "debian.*(db).*:0" "$HOME/multi.out" && grep -q "ubuntu.*(ub).*:1" "$HOME/multi.out" &&
-      grep -q "alpine.*(alp).*:2" "$HOME/multi.out" &&
+    grep -q "debian.*(db).*:1" "$HOME/multi.out" && grep -q "ubuntu.*(ub).*:2" "$HOME/multi.out" &&
+      grep -q "alpine.*(alp).*:3" "$HOME/multi.out" &&
       [ "$(cat "$HOME/stopped")" = "debian
 alpine" ] || exit
     : > "$HOME/stopped"
@@ -2335,7 +2336,7 @@ if env TERNUX_STATE_DIR="$TMP/state-x11-probe" HOME="$TMP/home-x11-probe" \
     TERNUX_USER=alice
     tnx_guest_login(){ printf "%s\n" "$*" > "$X11_PROBE_ARGS"; [ "${MOCK_X11_QUERY:-0}" = 1 ]; }
     MOCK_X11_QUERY=1 tnx_x11_functional || exit
-    grep -Fq -- "--_tnx-timeout-seconds 5 --shared-x11 --user alice -- env DISPLAY=:0 xdpyinfo -display :0" "$X11_PROBE_ARGS" || exit
+    grep -Fq -- "--_tnx-timeout-seconds 5 --shared-x11 --user alice -- env DISPLAY=:1 xdpyinfo -display :1" "$X11_PROBE_ARGS" || exit
     MOCK_X11_QUERY=0 tnx_x11_functional && exit 1
     exit 0
   ' _ "$ROOT"; then
@@ -2363,7 +2364,7 @@ fi
 if env TERNUX_STATE_DIR="$TMP/state-x11-stale" HOME="$TMP/home-x11-stale" \
   TMPDIR="$TMP/x11-stale-tmp" bash -c '
     mkdir -p "$TMPDIR/.X11-unix"
-    python3 -c "import socket,sys; s=socket.socket(socket.AF_UNIX); s.bind(sys.argv[1]); s.close()" "$TMPDIR/.X11-unix/X0" || exit
+    python3 -c "import socket,sys; s=socket.socket(socket.AF_UNIX); s.bind(sys.argv[1]); s.close()" "$TMPDIR/.X11-unix/X1" || exit
     . "$1/lib/desktop.sh"
     pgrep(){ return 0; }
     tnx_x11_functional(){ return 1; }
@@ -2397,7 +2398,7 @@ if env TERNUX_STATE_DIR="$TMP/state-x11-duplicate" HOME="$TMP/home-x11-duplicate
   TMPDIR="$TMP/x11-duplicate-tmp" bash -c '
     mkdir -p "$HOME" "$TMPDIR/.X11-unix"
     printf "#!/usr/bin/env bash\n# TERNUX_DESKTOP_LAUNCHER=21\n" > "$HOME/x.sh"
-    python3 -c "import socket,sys; s=socket.socket(socket.AF_UNIX); s.bind(sys.argv[1]); s.close()" "$TMPDIR/.X11-unix/X0" || exit
+    python3 -c "import socket,sys; s=socket.socket(socket.AF_UNIX); s.bind(sys.argv[1]); s.close()" "$TMPDIR/.X11-unix/X1" || exit
     . "$1/lib/desktop.sh"
     pgrep(){ case "$1" in -f) return 0;; *) return 1;; esac; }
     tnx_x11_functional(){ return 1; }
@@ -2419,7 +2420,7 @@ if env TERNUX_STATE_DIR="$TMP/state-x11-status-failed" HOME="$TMP/home-x11-statu
   TMPDIR="$TMP/x11-status-failed-tmp" bash -c '
     mkdir -p "$TERNUX_STATE_DIR/session" "$HOME" "$TMPDIR/.X11-unix"
     . "$1/lib/desktop.sh"
-    python3 -c "import socket,sys; s=socket.socket(socket.AF_UNIX); s.bind(sys.argv[1]); s.close()" "$TMPDIR/.X11-unix/X0" || exit
+    python3 -c "import socket,sys; s=socket.socket(socket.AF_UNIX); s.bind(sys.argv[1]); s.close()" "$TMPDIR/.X11-unix/X1" || exit
     pid="$$"; identity="$(tnx_process_start_identity "$pid")"
     printf "%s\n" "$pid" > "$TERNUX_STATE_DIR/session/desktop.pid"
     printf "%s %s %s\n" "$pid" "$identity" "$pid" > "$TERNUX_STATE_DIR/session/desktop.pid.identity"
@@ -2483,9 +2484,9 @@ pgid="$(ps -o pgid= -p "$$" | tr -d '[:space:]')"
 printf '%s %s %s\n' "$$" "$start_id" "$pgid" > "${TNX_PID_FILE}.identity"
 mkdir -p "$TMPDIR/.X11-unix"
 echo session-started
-python3 -c "import socket,sys; s=socket.socket(socket.AF_UNIX); s.bind(sys.argv[1]); s.close()" "$TMPDIR/.X11-unix/X0"
+python3 -c "import socket,sys; s=socket.socket(socket.AF_UNIX); s.bind(sys.argv[1]); s.close()" "$TMPDIR/.X11-unix/X1"
 printf "READY\n" > "${TNX_PID_FILE}.ready"
-trap 'rm -f "$TMPDIR/.X11-unix/X0"; exit 0' TERM EXIT
+trap 'rm -f "$TMPDIR/.X11-unix/X1"; exit 0' TERM EXIT
 while :; do sleep 1; done
 LAUNCHER
 if env TERNUX_STATE_DIR="$TMP/state-desktop-start" HOME="$TMP/home-desktop-start" \
@@ -2589,6 +2590,7 @@ printf "%s\n" "$*" > "$HOME/am-invoked"
 AM
     chmod +x "$mockbin/am"
     . "$1/lib/desktop.sh"
+    tnx_distro_state_set debian display 0 || exit
     pgrep(){ case "$*" in *termux-x11*|*xfce4-session*|*xfwm4*|*xfdesktop*) return 0;; esac; return 1; }
     tnx_x11_functional(){ return 0; }
     tnx_pulseaudio_ready(){ return 0; }

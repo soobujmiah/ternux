@@ -33,6 +33,7 @@ TERNUX_LEGACY_STATE="$HOME/.ternux-state"
 # ---------------------------------------------------------------------------
 TERNUX_DISTRO_VERIFIED="debian ubuntu alpine"
 TERNUX_DISTRO_KNOWN="debian ubuntu alpine archlinux fedora opensuse void kali artix chimera deepin manjaro pardus rockylinux adelie"
+TERNUX_NATIVE_DISPLAY=0
 
 tnx_distro() {
   if [ -z "${_TNX_DISTRO:-}" ]; then
@@ -88,16 +89,24 @@ tnx_distro_canonical() {
 # Package-manager families for official PRoot-Distro aliases. Sets TNX_DP_*.
 # These recipes share the Ternux desktop assets but remain device-unverified
 # except for the established Debian profile.
-tnx_distro_display() {
-  local distro="${1:-$(tnx_distro)}" display=""
-  display="$(tnx_distro_state_get "$distro" display 2>/dev/null || true)"
-  if [[ "$display" =~ ^[0-9]{1,2}$ ]]; then printf '%s' "$display"; return 0; fi
+tnx_distro_target_display() {
+  local distro="${1:-$(tnx_distro)}"
+  # v3 reserves :0 for the native Termux workspace. Keep profile identities
+  # stable so installing/removing a different guest never renumbers these.
   case "$distro" in
-    debian) printf '0' ;; ubuntu) printf '1' ;; alpine) printf '2' ;;
-    archlinux) printf '3' ;; fedora) printf '4' ;; opensuse) printf '5' ;; void) printf '6' ;; kali) printf '7' ;;
-    artix) printf '8' ;; chimera) printf '9' ;; deepin) printf '10' ;; manjaro) printf '11' ;; pardus) printf '12' ;; rockylinux) printf '13' ;; adelie) printf '14' ;;
+    debian) printf '1' ;; ubuntu) printf '2' ;; alpine) printf '3' ;;
+    archlinux) printf '4' ;; fedora) printf '5' ;; opensuse) printf '6' ;; void) printf '7' ;; kali) printf '8' ;;
+    artix) printf '9' ;; chimera) printf '10' ;; deepin) printf '11' ;; manjaro) printf '12' ;; pardus) printf '13' ;; rockylinux) printf '14' ;; adelie) printf '15' ;;
     *) return 1 ;;
   esac
+}
+
+tnx_distro_display() {
+  local distro="${1:-$(tnx_distro)}" display=""
+  # Existing v2 assignments are authoritative until an explicit migration.
+  display="$(tnx_distro_state_get "$distro" display 2>/dev/null || true)"
+  if [[ "$display" =~ ^[0-9]{1,2}$ ]]; then printf '%s' "$display"; return 0; fi
+  tnx_distro_target_display "$distro"
 }
 
 tnx_distro_tag() {

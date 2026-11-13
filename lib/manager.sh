@@ -11,11 +11,13 @@ TNX_MANAGER_GUESTS=()
 
 declare -Ag TNX_MANAGER_OPERATION_HANDLER=(
   [manager.capabilities]=tnx_manager_capabilities
+  [manager.displays]=tnx_manager_displays
   [manager.guests]=tnx_manager_guests
   [manager.status]=tnx_manager_status
 )
 declare -Ag TNX_MANAGER_OPERATION_DESCRIPTION=(
   [manager.capabilities]="List implemented manager operations."
+  [manager.displays]="Read current and planned workspace display assignments."
   [manager.guests]="List installed PRoot guests and their desktop profiles."
   [manager.status]="Read Native Termux manager and desktop status."
 )
@@ -43,6 +45,60 @@ tnx_manager_guest_json() {
     "$name" "$profile" "$display" "$qualification"
 }
 
+tnx_manager_display_entry_json() {
+  local name="$1" current target socket_present=false lock_present=false server_running=false running=false
+  local target_conflict=false migration_required=false occupied=false
+  local -n running_guest_ref="$2"
+  current="$(tnx_distro_state_get "$name" display 2>/dev/null || true)"
+  [[ "$current" =~ ^[0-9]{1,2}$ ]] || current=null
+  target="$(tnx_distro_target_display "$name" 2>/dev/null || true)"
+  [[ "$target" =~ ^[0-9]{1,2}$ ]] || return 1
+  [ "${running_guest_ref[$name]:-0}" = 1 ] && running=true
+  if [[ -e "${TMPDIR:-/data/data/com.termux/files/usr/tmp}/.X11-unix/X$target" || -L "${TMPDIR:-/data/data/com.termux/files/usr/tmp}/.X11-unix/X$target" ]]; then
+    socket_present=true; occupied=true
+  fi
+  if [[ -e "${TMPDIR:-/data/data/com.termux/files/usr/tmp}/.X$target-lock" || -L "${TMPDIR:-/data/data/com.termux/files/usr/tmp}/.X$target-lock" ]]; then
+    lock_present=true; occupied=true
+  fi
+  if tnx_x11_server_running_on_display "$target"; then server_running=true; occupied=true; fi
+  if [ "$current" != null ] && [ "$current" != "$target" ]; then migration_required=true; fi
+  if [ "$occupied" = true ] && ! { [ "$current" = "$target" ] && [ "$running" = true ] && [ "$server_running" = true ]; }; then target_conflict=true; fi
+  printf '{"name":"%s","current_display":%s,"target_display":%s,"running":%s,"target_socket_present":%s,"target_lock_present":%s,"target_server_running":%s,"target_conflict":%s,"migration_required":%s}' \
+    "$name" "$current" "$target" "$running" "$socket_present" "$lock_present" "$server_running" "$target_conflict" "$migration_required"
+}
+
+tnx_manager_displays_json() {
+  local name first=1 native_socket=false native_lock=false native_server=false native_occupied=false count=0
+  local guests_json="["
+  local -a running_names=()
+  local -A running_map=()
+  mapfile -t running_names < <(_tnx_running_guest_sessions)
+  for name in "${running_names[@]}"; do [[ "$name" =~ ^[a-zA-Z0-9][a-zA-Z0-9._-]*$ ]] && running_map["$name"]=1; done
+  for name in "${TNX_MANAGER_GUESTS[@]}"; do
+    tnx_distro_known "$name" || continue
+    [ "$first" -eq 1 ] || guests_json+=","; first=0
+    guests_json+="$(tnx_manager_display_entry_json "$name" running_map)" || return 1
+    count=$((count+1))
+  done
+  guests_json+="]"
+  if [[ -e "${TMPDIR:-/data/data/com.termux/files/usr/tmp}/.X11-unix/X$TERNUX_NATIVE_DISPLAY" || -L "${TMPDIR:-/data/data/com.termux/files/usr/tmp}/.X11-unix/X$TERNUX_NATIVE_DISPLAY" ]]; then native_socket=true; native_occupied=true; fi
+  if [[ -e "${TMPDIR:-/data/data/com.termux/files/usr/tmp}/.X$TERNUX_NATIVE_DISPLAY-lock" || -L "${TMPDIR:-/data/data/com.termux/files/usr/tmp}/.X$TERNUX_NATIVE_DISPLAY-lock" ]]; then native_lock=true; native_occupied=true; fi
+  if tnx_x11_server_running_on_display "$TERNUX_NATIVE_DISPLAY"; then native_server=true; native_occupied=true; fi
+  tnx_json_init
+  tnx_json_add "schema_version" "1.0.0"
+  tnx_json_add "command" "manager.displays"
+  tnx_json_add "status" "ok"
+  tnx_json_add "timestamp" "$( __tnx_ts )"
+  tnx_json_add_raw "native_display" "$TERNUX_NATIVE_DISPLAY"
+  tnx_json_add_raw "native_socket_present" "$native_socket"
+  tnx_json_add_raw "native_lock_present" "$native_lock"
+  tnx_json_add_raw "native_server_running" "$native_server"
+  tnx_json_add_raw "native_occupied" "$native_occupied"
+  tnx_json_add_raw "count" "$count"
+  tnx_json_add_raw "guests" "$guests_json"
+  tnx_json_end
+}
+
 tnx_manager_running_json() {
   local name first=1 output="["
   local -a running=()
@@ -59,9 +115,9 @@ tnx_manager_running_json() {
 
 _tnx_manager_action() {
   local action="${1:-}" name guests_json="[" first=1 rc count guest_manager=true running_json
-  [ "$#" -ge 1 ] || { tnx_fail "Usage: tx manager status|guests|capabilities [--json]"; return 2; }
+  [ "$#" -ge 1 ] || { tnx_fail "Usage: tx manager status|guests|displays|capabilities [--json]"; return 2; }
   shift
-  [ "$#" -eq 0 ] || { tnx_fail "Usage: tx manager status|guests [--json]"; return 2; }
+  [ "$#" -eq 0 ] || { tnx_fail "Usage: tx manager status|guests|displays|capabilities [--json]"; return 2; }
   case "$action" in
     status)
       rc=0
@@ -149,7 +205,46 @@ _tnx_manager_action() {
         fi
       fi
       ;;
-    *) tnx_fail "Usage: tx manager status|guests [--json]"; return 2 ;;
+    displays)
+      tnx_manager_load_guests || {
+        rc=$?
+        if [ "${TERNUX_JSON:-0}" = 1 ]; then
+          tnx_json_init
+          tnx_json_add "schema_version" "1.0.0"
+          tnx_json_add "command" "manager.displays"
+          tnx_json_add "status" "error"
+          tnx_json_add "timestamp" "$( __tnx_ts )"
+          if [ "$rc" -eq 69 ]; then
+            tnx_json_add "code" "GUEST_MANAGER_UNAVAILABLE"
+            tnx_json_add "message" "proot-distro is not installed."
+          else
+            tnx_json_add "code" "GUEST_LIST_FAILED"
+            tnx_json_add "message" "Could not read the installed PRoot guest list."
+          fi
+          tnx_json_end
+        elif [ "$rc" -eq 69 ]; then tnx_fail "proot-distro is not installed."; else tnx_fail "Could not read the installed PRoot guest list."; fi
+        return 1
+      }
+      if [ "${TERNUX_JSON:-0}" = 1 ]; then
+        tnx_manager_displays_json
+      else
+        tnx_header "Workspace Displays"
+        printf '  Native Termux workspace: :%s (reserved; %s)\n' "$TERNUX_NATIVE_DISPLAY" \
+          "$(if tnx_x11_server_running_on_display "$TERNUX_NATIVE_DISPLAY" || [[ -e "${TMPDIR:-/data/data/com.termux/files/usr/tmp}/.X11-unix/X$TERNUX_NATIVE_DISPLAY" ]]; then printf occupied; else printf available; fi)"
+        printf '  %-12s %-9s %-9s %-10s %-18s\n' Guest Current Target State
+        for name in "${TNX_MANAGER_GUESTS[@]}"; do
+          tnx_distro_known "$name" || continue
+          local current target status
+          current="$(tnx_distro_state_get "$name" display 2>/dev/null || true)"; [[ "$current" =~ ^[0-9]{1,2}$ ]] || current=unset
+          target="$(tnx_distro_target_display "$name")"
+          status=ready
+          if [ "$current" != unset ] && [ "$current" != "$target" ]; then status=migration-required; fi
+          if { tnx_x11_server_running_on_display "$target" || [[ -e "${TMPDIR:-/data/data/com.termux/files/usr/tmp}/.X11-unix/X$target" || -e "${TMPDIR:-/data/data/com.termux/files/usr/tmp}/.X$target-lock" ]]; } && [ "$current" != "$target" ]; then status=target-occupied; fi
+          printf '  %-12s :%-8s :%-8s %-18s\n' "$name" "$current" "$target" "$status"
+        done
+      fi
+      ;;
+    *) tnx_fail "Usage: tx manager status|guests|displays|capabilities [--json]"; return 2 ;;
   esac
 }
 
@@ -172,6 +267,7 @@ tnx_manager_error() {
 
 tnx_manager_status() { _tnx_manager_action status; }
 tnx_manager_guests() { _tnx_manager_action guests; }
+tnx_manager_displays() { _tnx_manager_action displays; }
 
 tnx_manager_capabilities() {
   local operation first=1 operations="["
@@ -207,7 +303,7 @@ tnx_manager_dispatch() {
 
 tnx_cmd_manager() {
   local action="${1:-}"
-  [ -n "$action" ] || { tnx_fail "Usage: tx manager status|guests|capabilities [--json]"; return 2; }
+  [ -n "$action" ] || { tnx_fail "Usage: tx manager status|guests|displays|capabilities [--json]"; return 2; }
   shift
   if [ "$action" = serve ]; then
     [ "$#" -eq 0 ] || { tnx_fail "Usage: tx manager serve"; return 2; }

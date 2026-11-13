@@ -6,7 +6,7 @@ lang: "en"
 
 ## Project roadmap
 
-**Last reviewed:** 2026-11-13 14:07 UTC. **State:** living project record.
+**Last reviewed:** 2026-11-13 14:42 UTC. **State:** living project record.
 
 ## Released
 
@@ -22,12 +22,14 @@ lang: "en"
 ## In progress: v3 foundation
 
 1. Architecture, API, security, UX, acceptance documents, and five ADRs are
-   published. ADR-0005 reserves native `:0` and assigns Debian/Ubuntu/Alpine
-   guest displays `:1`/`:2`/`:3` for v3; existing v2 sessions are preserved. Keep reviewing these contracts as the implementation proves
-   assumptions against the live native Termux runtime.
-2. Current source has three read-only native manager CLI operations and a
+   published. New guest profiles default to Debian/Ubuntu/Alpine `:1`/`:2`/`:3`
+   with native `:0` reserved; saved v2 assignments remain unchanged. Startup
+   rejects occupied X11 paths and does not reclaim unproven sockets. Keep
+   validating these contracts against the live native Termux runtime.
+2. Current source has four read-only native manager CLI operations and a
    device-tested foreground Unix-socket transport; released 2.0.0 does not
-   include them. Next build display allocation and the native Control Center.
+   include them. Central display registry, manager API reporting, staged
+   migration, native workspace, and Control Center remain open.
 3. Add a secured native Control Center client while preserving CLI parity.
 4. Connect workspace, compute, AI, and Device Bridge through versioned
    interfaces; qualify each capability independently.
@@ -38,5 +40,5 @@ The phase gates are in the [v3 roadmap](../v3/IMPLEMENTATION-ROADMAP.md).
 
 ## Current next action
 
-Build the v3 display registry and native Termux workspace without changing
+Complete the display registry/API and staged migration design without changing
 live v2 guest displays. See [next actions](NEXT-ACTIONS.md).

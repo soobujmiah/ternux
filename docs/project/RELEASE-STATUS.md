@@ -28,7 +28,7 @@ lang: "en"
   guest and recover the Ubuntu Mesa-overlay path when optional marker metadata
   is missing. Merged in main commit `b26010d`; the installed package remains
   v2.0.0, so the correction is source-side until a separately versioned update.
-- **Native manager CLI:** the three read-only JSON commands are present in
+- **Native manager CLI:** the four read-only JSON commands are present in
   current repository source and passed source-side invocation; they are not in
   the released 2.0.0 `.deb`. The installed `tx manager` command is unavailable.
 - **Experimental:** HTP/HMX and QNN artifacts are not stable release claims.

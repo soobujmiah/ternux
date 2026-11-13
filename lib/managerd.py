@@ -24,6 +24,7 @@ MAX_RESPONSE = 262144
 MAX_CLIENTS = 8
 READ_TIMEOUT = 5.0
 OPERATIONS = {
+    "manager.displays": "displays",
     "manager.status": "status",
     "manager.guests": "guests",
     "manager.capabilities": "capabilities",

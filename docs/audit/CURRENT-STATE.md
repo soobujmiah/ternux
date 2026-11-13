@@ -1,8 +1,9 @@
 # Ternux current-state audit
 
-**Audit snapshot:** 2026-11-13, 14:07 UTC
+**Audit snapshot:** 2026-11-13, 15:17 UTC
 **Repository:** `soobujmiah/ternux`
-**Main at snapshot:** `087f93358c92def86e55baa89ffeac6979e7a588`
+**Main at snapshot:** `b63916c` (generated-state sync for PR #209)
+**Work branch:** `codex/v3-display-registry` (unmerged changes based on this main)
 **Latest stable release:** `v2.0.0`, tag target `9106b04fc8627ae98b1d63c9912a28c8a4677441`
 
 This is a dated audit, not a claim that the device or repository remains in this
@@ -28,20 +29,19 @@ release tag remains pinned to its release commit even though `main` has advanced
 
 ## Source, package, and website state
 
-At the snapshot, remote `main` was
-`087f93358c92def86e55baa89ffeac6979e7a588`, after PR #207 synchronized
+At the snapshot, remote `main` was `b63916c`, after PR #209 synchronized
 generated repository state. PR #204 merged the doctor active-guest and Ubuntu
-Mesa-overlay detection fixes. Exact-main validation and the Pages deployment
-completed successfully at that source head. The current working tree adds the
-foreground read-only service and its tests; that change is not on `main` until
-review and merge.
+Mesa-overlay detection fixes. The exact-main CI state is tracked by GitHub.
+The current work branch adds the display registry defaults, startup collision
+guards, read-only display reporting, schemas, docs and tests; it is not on
+`main` until its PR passes review and required checks.
 
 The released 2.0.0 host package does **not** contain the newer source-side
-`tx manager` JSON interface. On the device, `tx manager status --json` returns
-`Unknown command: manager`. The current checkout adds three read-only manager
-operations and an explicit foreground Unix-socket service. This is source
-implementation only; the graphical Control Center and service supervisor are
-not implemented.
+`tx manager` JSON interface. On the device, the installed `tx manager`
+continues to return `Unknown command: manager`. The source branch adds four
+read-only manager operations, including `tx manager displays`, and the
+explicit foreground Unix-socket service. These are source-only features; the
+graphical Control Center and service supervisor are not implemented.
 
 ## Device snapshot
 
@@ -66,11 +66,15 @@ The product, system, component, Control Center, compute, AI runtime, Device
 Bridge, workspace, security, API, UX, roadmap, and acceptance documents exist,
 with five ADRs. ADR-0005 reserves `:0` for the native Termux workspace and
 assigns Debian/Ubuntu/Alpine `:1`/`:2`/`:3` for v3; current v2 sessions remain
-on their existing displays until explicit migration. The source includes three read-only native manager CLI
-operations. The stable installed 2.0.0 package does not include those newer
-source operations. The socket service is now implemented and verified from
-source; authorization/session runtime, GUI, supervisor integration, and guest
-lifecycle mutations remain open.
+on their existing displays until explicit migration. The work branch includes
+four read-only native manager CLI operations. The stable
+installed 2.0.0 package does not include those source operations. A source
+invocation at 15:17 UTC observed native display `:0` occupied and all three
+managed desktops still running on their saved v2 displays (Debian `:0`,
+Ubuntu `:1`, Alpine `:2`). It reported migration required for Debian/Ubuntu,
+without changing any state. The socket service is implemented and verified
+from source; authorization/session runtime, GUI, supervisor integration, and
+guest lifecycle mutations remain open.
 
 The doctor active-guest selection and Ubuntu Mesa-overlay detection fixes
 merged in PR #204 and are in main; the installed stable package remains v2.0.0

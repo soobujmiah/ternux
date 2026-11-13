@@ -6,12 +6,14 @@ lang: "en"
 
 ## Next actions
 
-**Last reviewed:** 2026-11-13 14:07 UTC. This list is ordered by dependency and includes
+**Last reviewed:** 2026-11-13 15:17 UTC. This list is ordered by dependency and includes
 only work that remains open.
 
-1. Implement the collision-checked display registry for native Termux `:0`,
-   Debian `:1`, Ubuntu `:2`, Alpine `:3`, and serial future assignments. Test
-   collisions and stale records without changing current live display IDs.
+1. Complete the display registry: identify owners for socket/lock/server
+   collisions, persist registry identity, and implement staged migration.
+   New-profile defaults, fail-closed startup guards, and read-only current/target
+   reporting are implemented in the unmerged branch; live display IDs remain
+   unchanged pending the migration gate.
 2. Build the native Termux workspace and mobile-first Control Center client on
    `:0`, starting with read-only status and guest selection. Preserve the
    running v2 guest sessions until an explicit staged migration is ready.
