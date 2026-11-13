@@ -1,13 +1,13 @@
 schema_version: 1
 project_id: ternux
 repository: soobujmiah/ternux
-generated_at: '2026-11-13T05:21:35Z'
+generated_at: '2026-11-13T06:48:59Z'
 generated_by: tools/repo_knowledge collect
-version: ternux-stable-diffusion-vulkan-linux-arm64-master-1053-417-g1ca00d3
+version: v2.0.0-1-gad69104
 head:
-  commit: 1ca00d3cd28ec78ae2339d2f974a7db1523f7c7b
+  commit: ad691043d308e4b7e611ea57c095689b57e4b325
   branch: main
-  committed_at: '2026-11-13T05:16:38Z'
+  committed_at: '2026-11-13T06:46:29Z'
 phases:
   source: not_configured
   completed: []
@@ -15,34 +15,34 @@ phases:
   next: null
 build:
   status: passed
-  run_id: '43370967023'
-  commit: 1ca00d3cd28ec78ae2339d2f974a7db1523f7c7b
+  run_id: '43381042653'
+  commit: ad691043d308e4b7e611ea57c095689b57e4b325
   run_attempt: '1'
-  at: '2026-11-13T05:21:35Z'
+  at: '2026-11-13T06:48:59Z'
   timestamp_source: observed
   workflow_name: Repo Knowledge Sync
   event_type: push
   actor: soobujmiah
-  run_url: https://github.com/soobujmiah/ternux/actions/runs/43370967023
+  run_url: https://github.com/soobujmiah/ternux/actions/runs/43381042653
 test:
   status: passed
-  run_id: '43370967023'
-  commit: 1ca00d3cd28ec78ae2339d2f974a7db1523f7c7b
+  run_id: '43381042653'
+  commit: ad691043d308e4b7e611ea57c095689b57e4b325
   run_attempt: '1'
-  at: '2026-11-13T05:21:35Z'
+  at: '2026-11-13T06:48:59Z'
   timestamp_source: observed
   workflow_name: Repo Knowledge Sync
   event_type: push
   actor: soobujmiah
-  run_url: https://github.com/soobujmiah/ternux/actions/runs/43370967023
+  run_url: https://github.com/soobujmiah/ternux/actions/runs/43381042653
   summary: focused regressions + Bats + UI + site build + docs + JavaScript syntax
     + whitespace + repo knowledge tests (ci.yml)
 last_successful_build:
-  commit: 1ca00d3cd28ec78ae2339d2f974a7db1523f7c7b
-  at: '2026-11-13T05:21:35Z'
-  run_id: '43370967023'
+  commit: ad691043d308e4b7e611ea57c095689b57e4b325
+  at: '2026-11-13T06:48:59Z'
+  run_id: '43381042653'
 last_failed_build: null
 sync:
   status: ok
-  last_synced_at: '2026-11-13T05:21:35Z'
+  last_synced_at: '2026-11-13T06:48:59Z'
   source: ci
