@@ -173,6 +173,23 @@ import RenderBench from "../components/RenderBench.astro";
               Google Play users should use the standard universal debug APK from
               the same release page.
             </p>
+            <p class="install-links">
+              <a href="https://github.com/termux/termux-app/releases">
+                Termux app ↗
+              </a>
+              <a href="https://github.com/termux/termux-api/releases">
+                Termux:API ↗
+              </a>
+              <a href="https://github.com/termux/termux-boot/releases">
+                Termux:Boot ↗
+              </a>
+              <a href="https://github.com/termux/termux-styling/releases">
+                Termux:Styling ↗
+              </a>
+              <a href="https://github.com/termux/termux-x11/releases">
+                Termux:X11 ↗
+              </a>
+            </p>
             <a class="home-section-link" href="/ternux/docs/INSTALLATION.html">
               READ INSTALLATION NOTES ↗
             </a>
@@ -198,6 +215,26 @@ import RenderBench from "../components/RenderBench.astro";
             </code>
           </div>
           <div class="command">
+            <small>SIGNED APT / ONE-TIME SETUP</small>
+            <button
+              type="button"
+              data-copy
+              data-copy-value="pkg update -y && pkg install -y curl gnupg && curl -fsSLo $TMPDIR/ternux-bootstrap.sh https://soobujmiah.github.io/ternux/apt/bootstrap.sh && bash $TMPDIR/ternux-bootstrap.sh"
+            >
+              COPY
+            </button>
+            <code>
+              pkg update -y && pkg install -y curl gnupg && curl -fsSLo
+              $TMPDIR/ternux-bootstrap.sh
+              https://soobujmiah.github.io/ternux/apt/bootstrap.sh && bash
+              $TMPDIR/ternux-bootstrap.sh
+            </code>
+            <small>
+              Then run <code>pkg install ternux</code>. Wget and key
+              verification steps: APT guide.
+            </small>
+          </div>
+          <div class="command">
             <small>IF YOU PREFER WGET</small>
             <button
               type="button"
@@ -211,6 +248,46 @@ import RenderBench from "../components/RenderBench.astro";
               https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh
               | bash
             </code>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="section" id="project-status" data-reveal>
+      <div class="container">
+        <div class="device-panel profile-panel status-panel">
+          <div class="device-copy">
+            <span class="eyebrow">PROJECT STATUS · 13 NOV 2026</span>
+            <h2>v2 is stable. The v3 foundation is published.</h2>
+            <p>
+              Ternux 2.0.0 is the current stable release. Debian, Ubuntu and
+              Alpine are the three v2-qualified desktop guests; twelve
+              additional recipes are available without that qualification. The
+              v3 architecture and roadmap are published. Its native manager
+              service and graphical control center are not implemented yet.
+            </p>
+          </div>
+          <div class="profile-grid">
+            <a
+              class="profile-card"
+              href="https://github.com/soobujmiah/ternux/releases/latest"
+            >
+              <small>STABLE RELEASE</small>
+              <strong>v2.0.0</strong>
+              <span>Release notes & packages ↗</span>
+            </a>
+            <a
+              class="profile-card"
+              href="/ternux/docs/project/PROJECT-ROADMAP.html"
+            >
+              <small>PROJECT ROADMAP</small>
+              <strong>v3</strong>
+              <span>Current status & next steps ↗</span>
+            </a>
+            <a class="profile-card" href="https://github.com/soobujmiah/ternux">
+              <small>REPOSITORY</small>
+              <strong>main</strong>
+              <span>Source, issues & changes ↗</span>
+            </a>
           </div>
         </div>
       </div>

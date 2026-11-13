@@ -315,7 +315,7 @@ for path in site_pages:
         check(required in source, f"{path.relative_to(ROOT)}: missing SEO metadata {required}")
 
 LANDING_SECTIONS = [
-    "supported-guests", "system-map", "install", "android-development",
+    "supported-guests", "system-map", "install", "project-status", "android-development",
     "local-inference", "engine-cpu", "engine-gpu", "engine-htp", "benchmarks",
 ]
 for rel in ("dist/index.html", "dist/bn/index.html"):
@@ -328,6 +328,7 @@ check("data-copy" in read(ROOT / "src/layouts/SiteLayout.astro"), "site shell: c
 install_commands = (
     "pkg update -y && pkg install -y curl && curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash",
     "pkg update -y && pkg install -y wget && wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash",
+    "pkg update -y && pkg install -y curl gnupg && curl -fsSLo $TMPDIR/ternux-bootstrap.sh https://soobujmiah.github.io/ternux/apt/bootstrap.sh && bash $TMPDIR/ternux-bootstrap.sh",
 )
 for source in ("src/pages/index.astro", "src/pages/bn/index.astro"):
     page = read(ROOT / source)
