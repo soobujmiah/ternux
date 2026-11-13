@@ -24,11 +24,12 @@ it does not upgrade a design status into an implementation claim.
 | Camera/microphone Device Bridge v3 | DESIGNED; no v3 broker implementation | Existing v2 limitations remain in the audit docs |
 | v3 distro-profile framework | DESIGNED; not implemented | v2 Debian/Ubuntu/Alpine behavior remains the compatibility baseline |
 
-The current working branch includes unmerged fixes for stale-distro doctor
-selection and Ubuntu Mesa-overlay detection. Focused suite passes 185/185; a
-source-only on-device `doctor --quick --json` returned status `ok` for the
-default active Debian guest and an explicit Ubuntu selection. These fixes are
-not in current main or the installed stable v2 package.
+The stale-distro doctor selection and Ubuntu Mesa-overlay detection fixes
+merged to `main` as `b26010d17694b4b18ebc757d1001dc48f3d9ab6a`. Exact-main
+hosted validation passed, the focused suite passed 185/185, and source-only
+on-device `doctor --quick --json` returned status `ok` for both default active
+Debian and explicit Ubuntu selections. The installed stable v2.0.0 package
+remains unchanged and does not yet contain these fixes.
 
 ## Active limitations
 
