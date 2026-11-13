@@ -219,15 +219,15 @@ import RenderBench from "../components/RenderBench.astro";
             <button
               type="button"
               data-copy
-              data-copy-value='pkg update -y && pkg install -y curl gnupg && curl -fsSLo "$TMPDIR/ternux-bootstrap.sh" https://soobujmiah.github.io/ternux/apt/bootstrap.sh && bash "$TMPDIR/ternux-bootstrap.sh"'
+              data-copy-value="pkg update -y && pkg install -y curl gnupg && curl -fsSLo $TMPDIR/ternux-bootstrap.sh https://soobujmiah.github.io/ternux/apt/bootstrap.sh && bash $TMPDIR/ternux-bootstrap.sh"
             >
               COPY
             </button>
             <code>
               pkg update -y && pkg install -y curl gnupg && curl -fsSLo
-              "$TMPDIR/ternux-bootstrap.sh"
+              $TMPDIR/ternux-bootstrap.sh
               https://soobujmiah.github.io/ternux/apt/bootstrap.sh && bash
-              "$TMPDIR/ternux-bootstrap.sh"
+              $TMPDIR/ternux-bootstrap.sh
             </code>
             <small>
               Then run <code>pkg install ternux</code>. Wget and key
