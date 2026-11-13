@@ -1,17 +1,18 @@
 ---
 title: Accelerator ও ecosystem release completion plan
-description: পরবর্তী Ternux release-এর আগে accelerator, package বিতরণ ও artifact installation gate।
+description: v2 release-এর পর accelerator research ও qualification plan; experimental HTP/HMX এবং QNN stable support-এর বাইরে।
 lang: bn
 alt_url: /docs/ACCELERATOR-RELEASE-PLAN.html
 ---
 
-Owner direction, ২০২৬-১০-১৪: পরবর্তী stable Ternux release-এর আগে CPU, GPU ও
-NPU qualification এবং release preparation শেষ করতে হবে। মূল HTP কাজের পাশাপাশি
-standalone QNN image route-টি আলাদা gate হিসেবে থাকবে। অন্য device-এ Ubuntu
-install স্থগিত; এটি release blocker নয়। এই plan pending কাজ নথিভুক্ত করে,
-shipped capability দাবি করে না। Owner request, ২০২৬-১১-০৬: `pkg install ternux`-এর
-জন্য signed Termux APT distribution channel প্রস্তুত করতে হবে; এই নতুন gate
-accelerator qualification gate-গুলোর বিকল্প নয়।
+**বর্তমান অবস্থা (২০২৬-১১-১৩): Ternux v2.0.0 প্রকাশিত।** এই নথি এখন
+post-v2 accelerator research ও qualification plan। নিচের তারিখযুক্ত অংশগুলো
+সেই সময়কার historical audit snapshot; এগুলো বর্তমান v2 release blocker নয়।
+Stable v2 support-এর সীমা [v2 release report](V2-RELEASE-REPORT.md)-এ আছে।
+HTP/HMX ও QNN experimental বা research-only; এগুলোকে stable v2 support বলা যাবে
+না। ভবিষ্যৎ release-এর জন্য model correctness, license, compatibility, performance
+ও sustained-use qualification চালিয়ে যান; standalone QNN image route আলাদা করে
+qualify করতে হবে।
 
 | ক্রম | কাজ | বর্তমান অবস্থা | Completion evidence |
 |---|---|---|---|
@@ -25,13 +26,13 @@ accelerator qualification gate-গুলোর বিকল্প নয়।
 | ৮ | Signed Termux APT distribution (`pkg install ternux`) | Local package ও signed-index fixture check pass; প্রকাশিত website APT endpoint-এ v2 InRelease নেই। ফোনে Termux ও Termux:API—দুই app-এই RECORD_AUDIO granted। সীমিত এক-সেকেন্ড Termux:API Opus recording থেকে valid 16 kHz mono Ogg file তৈরি হয়েছে, পরে temporary file মুছে গেছে। আলাদাভাবে Debian guest PulseAudio `Ternux_Microphone` OpenSL source থেকে 119,972 byte audio পেয়েছে (16 kHz mono; peak 1,144, RMS 84.2); client বন্ধ হলে source আবার SUSPENDED। Volume Control input meter খোলা থাকলে source-output তৈরি হয়; app বন্ধ করলে source-output চলে যায় এবং `Ternux_Microphone` IDLE হয়। Idle desktop mic stream খোলা রাখে না। এটি PulseAudio দিয়ে on-demand desktop input যাচাই করে, live Termux:API-to-guest stream নয়। Signing-only workflow run [42311346876](https://github.com/soobujmiah/ternux/actions/runs/42311346876)-এ exact `ternux` 2.0.0 package ও signed repository তৈরি হয় এবং `InRelease` fingerprint `E5527F4D5B83037FF77B65AE5E894BBB81168B1D` দিয়ে verify হয়; publish job skip ছিল। সর্বশেষ non-publishing check [run 42489816303](https://github.com/soobujmiah/ternux/actions/runs/42489816303)-এও protected APT key দিয়ে 2.0.0 package build এবং signed repository verify pass হয়েছে; deployment skip করা হয়েছে। Termux dpkg-তে 2.0.0 installed দেখায়, কিন্তু host-এ Ternux APT source নেই; তাই এটি signed repository থেকে `pkg install` হওয়ার প্রমাণ নয়। Signed v2 repository এখনও প্রকাশিত নয়; hosted clean install/upgrade যাচাই হয়নি। | API ও OpenSL-এর সীমা স্পষ্ট রাখা; owner-visible mic control ও exact installed artifact qualify; অন্য সব gate বন্ধ হলে signed workflow-এ publish করে hosted clean install/upgrade verify
 
 | ৯ | Model/accelerator artifact coverage ও optional install | OPEN। llama.cpp CPU/Vulkan ও experimental SM8735/V73 HTP artifact আছে। Public HTP archive-এ manager-এর প্রয়োজনীয় broker/launcher layout নেই; সর্বশেষ PR candidate সরাসরি stage করে সীমিত SM8735 known-answer এবং interrupt/reopen check pass করেছে, কিন্তু public asset এখনো প্রকাশিত নয়। Merged PR `#59`-এর CPU/Vulkan Stable Diffusion extension build/ABI ও public prerelease pass; Ternux manager checksum verify করে install করেছে এবং doctor OK দেখায়। Installed package Adreno 825-এ tiled Vulkan দিয়ে 512×512/10-step image 92.91s-এ করেছে। CPU image quality unqualified, CPU capability claim নয়। Active guest-এ managed repair/remove/reinstall model অক্ষত রেখে pass। Clean guest-এ dependency provisioning ও pinned artifact installation pass; doctor extension OK, binary help ও `ldd -r` pass। আরেকটি isolated Debian 13 guest-এ বাস্তব desktop phase-এর পর GPU phase চালানো হয়েছে; guest doctor-এ ১০টি OK, ০ warning, ০ failure এসেছে এবং XFCE, terminal, task manager, Mousepad, pavucontrol ও VLC executable ছিল। Private 1280×720 Xvfb session-এ XFCE চালু হয়েছে এবং terminal ও pavucontrol window খুলেছে; configured audio server না থাকায় pavucontrol 1×1 window দিয়েছে। তাই এটি শুধু startup যাচাই—readable control, audio বা physical Termux:X11 rendering নয়। Interactive checklist থেকে PTY regression test-এ Stable Diffusion নির্বাচন ও `stable-diffusion` workload ID ফেরত যাচাই হয়েছে; fresh-install-এর সম্পূর্ণ managed flow ও physical X11 visual review বাকি। Cancellation/restart ও sustained/device coverage-ও বাকি। User-provided model external ও অপরিবর্তিত আছে: GGUF file `/sdcard/LAI/models` ও `/sdcard/Llms`-এ; এর মধ্যে Qwen 1.5B/0.5B, SD1.5 Q8_0 এবং QNN archive আছে। User-provided SD1.5 Q8_0 GGUF `/sdcard/Llms/ternux-v2-validation/stable-diffusion-v1-5-pruned-emaonly-Q8_0.gguf`-এ আছে (1,763,578,176 byte; SHA-256 `d0555243938c62faeefb4ac93f6c7a053ad373a4290c5256bce229aeb193bf94`)। QNN SD1.5 runner/helper packaged নয়; independent stage-tensor correctness, quality ও performance বাকি। User-provided `/sdcard/Llms/gemma4-e2b-sm7635.qnn` হলো SM7635 (Hexagon v73/Int16)-এর জন্য convert করা; target SM8735-এর জন্য নয়। [Ailia-র QNN guide](https://docs.ailia.ai/en/llm/qnn.html) exact SoC-এর model বাধ্যতামূলক বলেছে, SM8735 model তালিকায় নেই, এবং matching QAIRT version-সহ proprietary ailia LLM runtime লাগে। তাই এই file Ternux text-NPU inference qualify করতে পারে না; সঠিক SM8735 conversion ও license-compatible runtime এখনও বাকি। | প্রতিটি intended CPU/GPU/NPU LLM ও Stable Diffusion route-এর versioned, checksummed, licensed tool artifact, fresh-install menu selection, clean-guest GPU workload verified; fresh X11 desktop, post-install repair/remove, cancellation/restart ও sustained target-device workload যাচাই; model weights external রেখে evidence limit স্পষ্ট রাখা |
-| ১০ | Ternux version release সম্পূর্ণ করা | HELD। Release criteria এখনও খোলা: independent QNN model-stage correctness ও performance target, HTP numerical failure/operator coverage, বিস্তৃত sustained/failure-restart qualification, dependency-license review, model/accelerator artifact coverage, owner visual review এবং hosted signed APT install/upgrade। Unqualified HTP/QNN route-কে stable support claim-এর বাইরে রাখতে হবে। | আগের প্রতিটি gate বন্ধ ও পুনর্মূল্যায়ন করে installed artifact, public repository, website ও documentation-এর final audit করা
+| ১০ | Ternux v2.0.0 প্রকাশ | **সম্পূর্ণ।** Stable release, signed APT distribution, website ও release record প্রকাশিত। ১–৯ নম্বর row-এর experimental accelerator কাজ future research/qualification; সেগুলো v2 blocker নয়। | Validated main commit `9106b04fc8627ae98b1d63c9912a28c8a4677441`-এর `v2.0.0` tag, stable repository এবং চূড়ান্ত [release report](V2-RELEASE-REPORT.md) |
 
 ### PR #97-এর বর্তমান CI ও distribution snapshot — ২০২৬-১১-০৮
 
-Source head `a2c3c67c7763e04d1259c1b558f29a1f32eff7fd`-এ সাতটি workflow-ই pass করেছে: Validate `42499196599`, APT package `42499196408`, llama.cpp CPU/Vulkan `42499196415`, Stable Diffusion CPU/Vulkan `42499196575`, HTP candidate `42499196468`, repository contract `42499196565`, এবং knowledge sync `42499196430`। APT candidate artifact `13624359615` (263,679 byte); llama Vulkan `13624424898` (21,326,390 byte); HTP `13625047288` (15,530,589 byte); Stable Diffusion `13625151469` (27,029,970 byte)। শুধু artifact metadata দেখা হয়েছে; exact artifact download বা install হয়নি। Owner handoff-এর folder `artifacts/{ternux-apt,htp-qualification,ternux-extensions}/incoming/` প্রস্তুত; শেষবার যাচাইয়ে খালি ছিল। Base desktop-এ upstream app name **Synaptic Package Manager** অক্ষুণ্ণ রেখে Ternux icon/theme আছে। Benchmark source-এ matched 1.5B CPU/Vulkan/HTP result এবং verified tiled-Vulkan image workload আছে। Public site এখনো আগের main-branch build দিচ্ছে; signed APT endpoint `apt/dists/stable/InRelease` ও `apt/bootstrap.sh` HTTP 404, hosted signed repository unpublished। PR #97 draft-ই আছে। আগের সব gate বন্ধ না হওয়া পর্যন্ত release gate ১০ held থাকবে.
+Source head `a2c3c67c7763e04d1259c1b558f29a1f32eff7fd`-এ সাতটি workflow-ই pass করেছে: Validate `42499196599`, APT package `42499196408`, llama.cpp CPU/Vulkan `42499196415`, Stable Diffusion CPU/Vulkan `42499196575`, HTP candidate `42499196468`, repository contract `42499196565`, এবং knowledge sync `42499196430`। APT candidate artifact `13624359615` (263,679 byte); llama Vulkan `13624424898` (21,326,390 byte); HTP `13625047288` (15,530,589 byte); Stable Diffusion `13625151469` (27,029,970 byte)। শুধু artifact metadata দেখা হয়েছে; exact artifact download বা install হয়নি। Owner handoff-এর folder `artifacts/{ternux-apt,htp-qualification,ternux-extensions}/incoming/` প্রস্তুত; শেষবার যাচাইয়ে খালি ছিল। Base desktop-এ upstream app name **Synaptic Package Manager** অক্ষুণ্ণ রেখে Ternux icon/theme আছে। Benchmark source-এ matched 1.5B CPU/Vulkan/HTP result এবং verified tiled-Vulkan image workload আছে। Public site এখনো আগের main-branch build দিচ্ছে; signed APT endpoint `apt/dists/stable/InRelease` ও `apt/bootstrap.sh` HTTP 404, hosted signed repository unpublished। PR #97 draft-ই আছে। এই historical snapshot v2.0.0 প্রকাশের আগের। Release gate ১০ এখন সম্পূর্ণ; HTP/QNN research ও বিস্তৃত qualification future release-এর কাজ।
 
-আগের PR head `8d332484dce4b48d2fe385694d3397682b380da9`-এ সব প্রয়োজনীয় check আবার pass করেছে: Validate `42503534731`, Termux APT package `42503534742`, CPU/Vulkan llama.cpp `42503534757`, Stable Diffusion `42503534870`, HTP candidate `42503534721`, repository contract `42503534682`, এবং knowledge sync `42503534687`। Protected APT signing setup-এর non-publishing `verify-signing` run `42504581740`-ও pass করেছে; এতে configured key দিয়ে signed repository build ও verify হয়, কিন্তু publish হয়নি। সরাসরি check-এ hosted APT endpoint দুটিই এখনো HTTP 404, তাই public `pkg install ternux` এখনো verify হয়নি। Handoff folder-গুলোও খালি ছিল। Local focused test ১২২/১২২ এবং documentation check-এ ৩,০১৭টি assertion, ৩১০টি internal link ও ১৯টি bilingual page pair pass করেছে। PR #97 এখনো draft এবং release gate ১০ held.
+আগের PR head `8d332484dce4b48d2fe385694d3397682b380da9`-এ সব প্রয়োজনীয় check আবার pass করেছে: Validate `42503534731`, Termux APT package `42503534742`, CPU/Vulkan llama.cpp `42503534757`, Stable Diffusion `42503534870`, HTP candidate `42503534721`, repository contract `42503534682`, এবং knowledge sync `42503534687`। Protected APT signing setup-এর non-publishing `verify-signing` run `42504581740`-ও pass করেছে; এতে configured key দিয়ে signed repository build ও verify হয়, কিন্তু publish হয়নি। সরাসরি check-এ hosted APT endpoint দুটিই এখনো HTTP 404, তাই public `pkg install ternux` এখনো verify হয়নি। Handoff folder-গুলোও খালি ছিল। Local focused test ১২২/১২২ এবং documentation check-এ ৩,০১৭টি assertion, ৩১০টি internal link ও ১৯টি bilingual page pair pass করেছে। PR #97 এখনো draft এবং এই historical snapshot v2.0.0 প্রকাশের আগের; release gate ১০ এখন সম্পূর্ণ। HTP/QNN research future release-এর জন্য খোলা আছে।
 
 ### প্রকাশিত accelerator prerelease audit — ২০২৬-১১-০৯
 
@@ -65,7 +66,7 @@ archive membership পরীক্ষা করে। Run `42512876240`-এ এ�
 test করা হয়নি। Public HTP prerelease-এ আগের asset ও malformed known-answer
 output-ই আছে, তাই workflow fix HTP inference qualify করে না বা public release
 update করে না। বাকি তিনটি accelerator prerelease-ও v2 থেকে আলাদা। PR #97
-draft-ই আছে; hosted signed APT endpoint এখনো 404 দেয় এবং release gate ১০ held।
+এই ২০২৬-১১-০৯ snapshot v2.0.0 প্রকাশের আগের; তখন PR draft ছিল, endpoint 404 দিচ্ছিল। v2 release gate ১০ এখন সম্পূর্ণ।
 
 ### HTP prerelease install ও SM8735 known-answer check — ২০২৬-১১-০৯
 
@@ -90,7 +91,7 @@ copy করে; নতুন focused regression test asset inventory, NOTICE att
 bilingual page pair। Self-hosted webfont inventory gate বন্ধ হয়েছে; wider
 binary dependency-license review এখনো বাকি। Mesa binary-র exact static
 component/source mapping ও transitive third-party inventory এখনো open, তাই
-release gate ১০ held থাকবে।
+এই ২০২৬-১১-০৯ snapshot v2.0.0 প্রকাশের আগের; release gate ১০ এখন সম্পূর্ণ।
 
 ### Optional mail client — ২০২৬-১১-০৮/০৯
 

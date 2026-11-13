@@ -426,7 +426,9 @@ try:
     sitemap = ET.parse(ROOT / "dist/sitemap.xml").getroot()
     namespace = {"s": "http://www.sitemaps.org/schemas/sitemap/0.9", "x": "http://www.w3.org/1999/xhtml"}
     entries = sitemap.findall("s:url", namespace)
-    check(len(entries) == 40, "dist/sitemap.xml: expected 40 bilingual URLs")
+    source_only = {ROOT / "docs/SEO.md", ROOT / "docs/index.md"}
+    expected_urls = 2 + 2 * sum(english not in source_only for english, _ in pairs)
+    check(len(entries) == expected_urls, f"dist/sitemap.xml: expected {expected_urls} bilingual URLs")
     for entry in entries:
         check(len(entry.findall("x:link", namespace)) == 3, "dist/sitemap.xml: every URL needs en, bn, and x-default alternates")
 except (ET.ParseError, OSError) as exc:

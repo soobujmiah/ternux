@@ -2636,7 +2636,7 @@ _tnx_execute_install_phase() {
 
 # Prompt for the guest distribution when neither a flag nor saved state chose
 # one. Same tty/deadline/default handling as the other prompts. The prompt names
-# which guest is device-verified, because only one is.
+# which profiles have device qualification, rather than implying every recipe does.
 _TNX_SELECTED_DISTROS=()
 
 _tnx_profile_toggle() {
@@ -2681,7 +2681,7 @@ _tnx_profile_menu_draw() {
   printf '\033[?25l\033[r\033[H\033[2J%s+%s+%s\n' "$TNX_CM" "$(printf '%*s' "$((cols - 2))" '' | tr ' ' '=')" "$TNX_C0" >&2
   printf '%s%s%s\n' "$TNX_CG" "TERNUX DESKTOP PROFILES" "$TNX_C0" >&2
   printf '%s%s%s\n' "$TNX_CC" "${selected_count} selected  |  ${#profiles[@]} recipes" "$TNX_C0" >&2
-  info='* selected | + device-verified | remaining recipes unverified'
+  info='* selected | + v2-qualified | remaining recipes unverified'
   printf '%s%s%s\n' "$TNX_CD" "${info:0:cols-2}" "$TNX_C0" >&2
   for line in "${summary_lines[@]}"; do printf '%s%s%s\n' "$TNX_CG" "${line:0:cols-2}" "$TNX_C0" >&2; done
   printf '\n' >&2

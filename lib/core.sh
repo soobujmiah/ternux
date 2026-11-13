@@ -31,7 +31,7 @@ TERNUX_LEGACY_STATE="$HOME/.ternux-state"
 # a family-based Ternux recipe; arbitrary OCI images remain shell-only.
 # Resolution: explicit TERNUX_DISTRO, saved choice, then Debian.
 # ---------------------------------------------------------------------------
-TERNUX_DISTRO_VERIFIED="debian"
+TERNUX_DISTRO_VERIFIED="debian ubuntu alpine"
 TERNUX_DISTRO_KNOWN="debian ubuntu alpine archlinux fedora opensuse void kali artix chimera deepin manjaro pardus rockylinux adelie"
 
 tnx_distro() {

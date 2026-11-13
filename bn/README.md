@@ -13,7 +13,7 @@
 [![NPU](https://img.shields.io/badge/NPU-experimental%20(QNN%20HTP)-f59e0b?style=flat-square)](../docs/ACCELERATOR-RELEASE-PLAN.md)
 [![লাইসেন্স](https://img.shields.io/badge/license-Apache--2.0-22c55e?style=flat-square)](../LICENSE)
 
-[ওয়েবসাইট](https://soobujmiah.github.io/ternux/) · [বিস্তারিত ডকুমেন্টেশন](../docs/README.md) · [English](../README.md) · [সোর্স কোড](https://github.com/soobujmiah/ternux)
+[ওয়েবসাইট](https://soobujmiah.github.io/ternux/) · [v2.0.0 release](https://github.com/soobujmiah/ternux/releases/tag/v2.0.0) · [Release report](../docs/V2-RELEASE-REPORT.md) · [বিস্তারিত ডকুমেন্টেশন](../docs/README.md) · [English](../README.md) · [সোর্স কোড](https://github.com/soobujmiah/ternux)
 
 </div>
 
@@ -201,9 +201,10 @@ profile বেছে Enter চাপুন; পরের category-ভিত্�
 বাছুন; Space বা item-এর
 নম্বর দিয়ে একাধিক নির্বাচন toggle করুন, Enter-এ plan review করুন, `q` দিলে
 শুধু base desktop থাকে। `--yes` prompt বাদ দিয়ে Debian base profile install করে।
-এখন `pkg install ternux` package route প্রস্তুত, তবে v2 release-এর আগে প্রকাশিত
-নয়; আপাতত উপরের installer ব্যবহার করুন। প্রকাশের পরে একবার verified bootstrap
-signed APT source configure করে Ternux install করবে; পরের install ও update সাধারণ
-`pkg` command-এ হবে। [Termux APT guide](../docs/TERMUX-APT.md) দেখুন। প্রকাশিত
-release ও পরীক্ষামূলক CPU/GPU/NPU release gate-এর বর্তমান অবস্থা
-[`docs/ACCELERATOR-RELEASE-PLAN.md`](../docs/ACCELERATOR-RELEASE-PLAN.md)-এ।
+Ternux v2.0.0 প্রকাশিত এবং signed stable APT repository চালু আছে। উপরের
+command দিয়ে একবার bootstrap করুন; পরের install ও update সাধারণ `pkg` command-এ
+হবে। GitHub release-এ `.deb` package ও checksum manifest-ও আছে। Channel-এর
+বিস্তারিত [Termux APT guide](../docs/TERMUX-APT.md), আর publication evidence
+[v2 release report](../docs/V2-RELEASE-REPORT.md)-এ দেখুন। HTP/HMX, QNN এবং
+বিস্তৃত accelerator qualification experimental বা follow-up কাজ; [accelerator
+plan](../docs/ACCELERATOR-RELEASE-PLAN.md)-এ বর্তমান সীমা আছে।

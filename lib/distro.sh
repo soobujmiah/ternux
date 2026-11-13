@@ -17,7 +17,9 @@ tnx_cmd_distro() {
         found=1
         if tnx_distro_known "$name"; then
           if tnx_distro_desktop_ready "$name"; then
-            if tnx_distro_verified "$name"; then marker='Ternux desktop ready; device verified'; else marker='Ternux desktop ready; not device verified'; fi
+            if tnx_distro_verified "$name"; then
+              if [ "$name" = alpine ]; then marker='Ternux v2-qualified; Ctrl+Space event caveat'; else marker='Ternux v2-qualified; device evidence recorded'; fi
+            else marker='Ternux desktop ready; not device verified'; fi
           else marker='Ternux recipe available; run tx install --distro NAME'; fi
         else
           marker='shell/image only; no Ternux desktop recipe'

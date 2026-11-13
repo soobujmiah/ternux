@@ -117,7 +117,7 @@ Options:
   --zsh                Use zsh instead of bash (installs powerlevel10k)
   --shell bash|zsh     Choose the Termux shell without being asked
   --no-theme           Skip powerlevel10k when zsh is chosen
-  --distro NAME        One of 15 named guest profiles (Debian verified)
+  --distro NAME        One of 15 named guest profiles (Debian/Ubuntu/Alpine qualified)
   --distros LIST       Install multiple profiles, e.g. debian,ubuntu,alpine
   --with-dev           Install development tools
   --with-llm           Build llama.cpp with Vulkan
@@ -132,8 +132,9 @@ Options:
 
 Interactive install first shows a keyboard checklist of the 15 named profiles:
 Up/Down or j/k moves, Space or a number toggles, Enter confirms; multiple
-profiles can be selected in one pass. Debian is the recommended, device-verified
-default; the other profiles are not device-qualified. Arbitrary OCI images are
+profiles can be selected in one pass. Debian is the recommended default; Debian,
+Ubuntu, and Alpine have device qualification, with a documented Alpine keyboard
+input limitation. The remaining profiles are not device-qualified. Arbitrary OCI images are
 shell-only. Optional workload selection follows for APT-family guests only.
 Workload checklist: Space or an item's number toggles; Enter reviews the plan;
 q keeps the base desktop only. Use --yes for non-interactive defaults.

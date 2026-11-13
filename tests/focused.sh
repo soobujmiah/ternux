@@ -3763,10 +3763,8 @@ else
   not_ok "zsh selection installs an optional, non-fatal powerlevel10k theme"
 fi
 
-# Only Debian has a device-verified result, and nothing may claim otherwise.
-# Ubuntu has a profile because its differences are known — apt and dpkg are the
-# same, but snapd cannot work without systemd inside a PRoot container and must
-# not be pulled in or upgraded.
+# Debian, Ubuntu, and Alpine have device qualification on the reference device.
+# Other package recipes remain unqualified; Ubuntu still needs its snapd hold.
 check "distro profiles carry only the differences that exist" bash -c '
   . "$1/lib/core.sh"
   tnx_distro_profile debian
@@ -3783,8 +3781,8 @@ check "known and verified distributions are separate claims" bash -c '
   tnx_distro_profile fedora && [ "$TNX_DP_FAMILY" = dnf ] || exit 1
   tnx_distro_profile opensuse && [ "$TNX_DP_FAMILY" = zypper ] || exit 1
   tnx_distro_profile void && [ "$TNX_DP_FAMILY" = xbps ] || exit 1
-  tnx_distro_verified debian || exit 1
-  tnx_distro_verified ubuntu && exit 1
+  tnx_distro_verified debian && tnx_distro_verified ubuntu && tnx_distro_verified alpine || exit 1
+  tnx_distro_verified archlinux && exit 1
   exit 0
 ' _ "$ROOT"
 check "generated distro desktop and locale scripts parse for all named profiles" bash "$ROOT/tests/distro_recipes.sh"
