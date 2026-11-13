@@ -6,14 +6,15 @@ lang: "en"
 
 ## Next actions
 
-**Last reviewed:** 2026-11-13 16:11 UTC. This list is ordered by dependency and includes
+**Last reviewed:** 2026-11-13 16:55 UTC. This list is ordered by dependency and includes
 only work that remains open.
 
-1. Complete the display registry: identify owners for socket/lock/server
-   collisions, persist registry identity, and implement staged migration.
-   New-profile defaults, fail-closed startup guards, and read-only current/target
-   reporting are implemented in `main` by PR #210; live display IDs remain
-   unchanged pending the migration gate.
+1. Complete the display registry: persist workspace identity and lifecycle
+   state, then implement staged migration. This source revision's read-only
+   report matches occupied targets to a unique running guest's saved display
+   assignment and labels other collisions as native-reserved or unidentified.
+   This is not OS-level socket-owner proof. Live display IDs remain unchanged
+   pending the migration gate.
 2. Build the native Termux workspace and mobile-first Control Center client on
    `:0`, starting with read-only status and guest selection. Preserve the
    running v2 guest sessions until an explicit staged migration is ready.

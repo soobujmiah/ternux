@@ -87,7 +87,7 @@ optional socket service and do not start or modify guest sessions.
 
   tx manager status --json   Manager availability and active desktop names
   tx manager guests --json   Installed guests, desktop profile and display
-  tx manager displays --json Current and v3-target displays plus collisions
+  tx manager displays --json Current/target, collisions, and JSON owner detail
   tx manager capabilities   List the operations implemented by this CLI core
   tx manager serve          Run the optional read-only local API in foreground
 

@@ -47,7 +47,7 @@ tnx_manager_guest_json() {
 
 tnx_manager_display_entry_json() {
   local name="$1" current target socket_present=false lock_present=false server_running=false running=false
-  local target_conflict=false migration_required=false occupied=false
+  local target_conflict=false migration_required=false occupied=false target_owner=null target_owner_kind=unoccupied
   local -n running_guest_ref="$2"
   current="$(tnx_distro_state_get "$name" display 2>/dev/null || true)"
   [[ "$current" =~ ^[0-9]{1,2}$ ]] || current=null
@@ -63,8 +63,27 @@ tnx_manager_display_entry_json() {
   if tnx_x11_server_running_on_display "$target"; then server_running=true; occupied=true; fi
   if [ "$current" != null ] && [ "$current" != "$target" ]; then migration_required=true; fi
   if [ "$occupied" = true ] && ! { [ "$current" = "$target" ] && [ "$running" = true ] && [ "$server_running" = true ]; }; then target_conflict=true; fi
-  printf '{"name":"%s","current_display":%s,"target_display":%s,"running":%s,"target_socket_present":%s,"target_lock_present":%s,"target_server_running":%s,"target_conflict":%s,"migration_required":%s}' \
-    "$name" "$current" "$target" "$running" "$socket_present" "$lock_present" "$server_running" "$target_conflict" "$migration_required"
+  if [ "$occupied" = true ]; then
+    local candidate candidate_display owner_count=0
+    local -a owners=()
+    for candidate in "${!running_guest_ref[@]}"; do
+      candidate_display="$(tnx_distro_state_get "$candidate" display 2>/dev/null || true)"
+      [ "$candidate_display" = "$target" ] && owners+=("$candidate")
+    done
+    owner_count="${#owners[@]}"
+    if [ "$owner_count" -gt 1 ]; then target_conflict=true; fi
+    if [ "$owner_count" -eq 1 ]; then
+      target_owner="\"${owners[0]}\""
+      target_owner_kind=active-guest-assignment
+    elif [ "$target" = "$TERNUX_NATIVE_DISPLAY" ]; then
+      # The reservation is known; this does not claim the native UI owns it.
+      target_owner_kind=reserved-native-slot
+    else
+      target_owner_kind=unidentified
+    fi
+  fi
+  printf '{"name":"%s","current_display":%s,"target_display":%s,"running":%s,"target_socket_present":%s,"target_lock_present":%s,"target_server_running":%s,"target_conflict":%s,"migration_required":%s,"target_owner":%s,"target_owner_kind":"%s"}' \
+    "$name" "$current" "$target" "$running" "$socket_present" "$lock_present" "$server_running" "$target_conflict" "$migration_required" "$target_owner" "$target_owner_kind"
 }
 
 tnx_manager_displays_json() {
@@ -85,7 +104,7 @@ tnx_manager_displays_json() {
   if [[ -e "${TMPDIR:-/data/data/com.termux/files/usr/tmp}/.X$TERNUX_NATIVE_DISPLAY-lock" || -L "${TMPDIR:-/data/data/com.termux/files/usr/tmp}/.X$TERNUX_NATIVE_DISPLAY-lock" ]]; then native_lock=true; native_occupied=true; fi
   if tnx_x11_server_running_on_display "$TERNUX_NATIVE_DISPLAY"; then native_server=true; native_occupied=true; fi
   tnx_json_init
-  tnx_json_add "schema_version" "1.0.0"
+  tnx_json_add "schema_version" "1.1.0"
   tnx_json_add "command" "manager.displays"
   tnx_json_add "status" "ok"
   tnx_json_add "timestamp" "$( __tnx_ts )"

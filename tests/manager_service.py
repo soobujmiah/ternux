@@ -109,6 +109,8 @@ class ManagerServiceTest(unittest.TestCase):
                 reply = self.send(self.request(operation))
                 self.assertEqual(reply["status"], "ok")
                 self.assertEqual(reply["result"]["command"], operation)
+                if operation == "manager.displays":
+                    self.assertEqual(reply["result"]["schema_version"], "1.1.0")
 
     def test_invalid_schema_operation_arguments_and_framing_fail_closed(self):
         cases = [

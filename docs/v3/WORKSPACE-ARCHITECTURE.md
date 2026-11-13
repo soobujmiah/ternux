@@ -31,9 +31,12 @@ matching Termux:X11 server, refuses occupied paths, and removes only a socket
 proven stale by its lock PID and process checks. The display number is persisted
 with the guest profile. Existing stored assignments remain authoritative: the
 current v2 device's Debian `:0`, Ubuntu `:1`, Alpine `:2` sessions are not
-changed by this code. A full collision registry and explicit staged migration
-still need to validate every target, record owner and lifecycle state, and
-switch only after all sessions can be moved safely.
+changed by this code. The read-only report matches occupied targets to one
+running guest's saved display assignment when possible; this does not prove
+OS-level socket ownership. Otherwise it labels the reserved native slot or an
+unidentified owner. A persistent collision registry and explicit staged
+migration still need to validate every target, record owner and lifecycle
+state, and switch only after all sessions can be moved safely.
 
 ## Per-guest recipe
 

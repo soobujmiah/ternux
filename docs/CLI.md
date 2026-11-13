@@ -80,6 +80,11 @@ tx manager displays [--json]
 tx manager capabilities [--json]
 ```
 
+The display JSON uses schema `1.1.0`. For an occupied target it reports a
+uniquely matched active guest's saved display assignment when available; this
+is not OS-level socket-owner proof. Otherwise it reports `reserved-native-slot`
+or `unidentified` rather than guessing.
+
 ### `ternux guides`
 
 Run `ternux guides` in the Termux host or Debian/Xfce guest to print direct installation, workload, ecosystem tool, graphics-persistence, and daily-use links. It performs no install or browser action.
