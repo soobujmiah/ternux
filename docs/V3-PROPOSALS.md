@@ -5,10 +5,13 @@ lang: "en"
 alt_url: "/bn/docs/V3-PROPOSALS.html"
 ---
 
-This page records candidate work for discussion after Ternux 2.0.0. It is a
-proposal backlog, not an approved v3 specification. A proposal should move into
-an implementation plan only after its user outcome, device requirements,
-maintenance cost, and acceptance tests are agreed.
+This page preserves the early post-v2 proposal backlog. The owner has since
+authorized a broader v3 direction, now recorded as a design baseline in the
+[v3 architecture overview](V3-ARCHITECTURE.html) and its
+[implementation roadmap](v3/IMPLEMENTATION-ROADMAP.html). Those documents are
+design, not proof of implementation or release qualification. The candidate
+items below remain historical context and do not override the canonical v3
+scope or acceptance criteria.
 
 ## Candidate proposals
 

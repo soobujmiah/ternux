@@ -5,10 +5,12 @@ lang: "bn"
 alt_url: "/docs/V3-PROPOSALS.html"
 ---
 
-এই পাতায় Ternux 2.0.0-এর পরে বিবেচনার জন্য কিছু কাজ রাখা হয়েছে। এটি
-প্রস্তাবনার তালিকা, অনুমোদিত v3 specification নয়। কোনো প্রস্তাব implementation
-plan-এ নেওয়ার আগে ব্যবহারকারীর উপকার, device requirement, maintenance cost ও
-acceptance test ঠিক করতে হবে।
+এই পাতাটি v2-পরবর্তী প্রাথমিক প্রস্তাবনার ইতিহাস ধরে রেখেছে। পরে মালিকের
+অনুমোদিত বিস্তৃত v3 দিকনির্দেশ এখন [v3 architecture overview](V3-ARCHITECTURE.html)
+ও [implementation roadmap](../../docs/v3/IMPLEMENTATION-ROADMAP.html)-এ design
+baseline হিসেবে নথিভুক্ত হয়েছে। ওই নথি design; implementation বা release
+qualification-এর প্রমাণ নয়। নিচের প্রস্তাবগুলো ঐতিহাসিক প্রেক্ষাপট, canonical
+v3 scope বা acceptance criteria-কে প্রতিস্থাপন করে না।
 
 ## প্রস্তাবিত কাজ
 
