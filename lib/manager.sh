@@ -9,6 +9,17 @@
 
 TNX_MANAGER_GUESTS=()
 
+declare -Ag TNX_MANAGER_OPERATION_HANDLER=(
+  [manager.capabilities]=tnx_manager_capabilities
+  [manager.guests]=tnx_manager_guests
+  [manager.status]=tnx_manager_status
+)
+declare -Ag TNX_MANAGER_OPERATION_DESCRIPTION=(
+  [manager.capabilities]="List implemented manager operations."
+  [manager.guests]="List installed PRoot guests and their desktop profiles."
+  [manager.status]="Read Native Termux manager and desktop status."
+)
+
 tnx_manager_load_guests() {
   local listing="" name
   tnx_has_cmd proot-distro || return 69
@@ -46,9 +57,9 @@ tnx_manager_running_json() {
   printf '%s' "$output"
 }
 
-tnx_cmd_manager() {
+_tnx_manager_action() {
   local action="${1:-}" name guests_json="[" first=1 rc count guest_manager=true running_json
-  [ "$#" -ge 1 ] || { tnx_fail "Usage: tx manager status|guests [--json]"; return 2; }
+  [ "$#" -ge 1 ] || { tnx_fail "Usage: tx manager status|guests|capabilities [--json]"; return 2; }
   shift
   [ "$#" -eq 0 ] || { tnx_fail "Usage: tx manager status|guests [--json]"; return 2; }
   case "$action" in
@@ -140,4 +151,63 @@ tnx_cmd_manager() {
       ;;
     *) tnx_fail "Usage: tx manager status|guests [--json]"; return 2 ;;
   esac
+}
+
+tnx_manager_error() {
+  local code="$1" message="$2" status="${3:-2}"
+  if [ "${TERNUX_JSON:-0}" = 1 ]; then
+    tnx_json_init
+    tnx_json_add "schema_version" "1.0.0"
+    tnx_json_add "command" "manager.error"
+    tnx_json_add "status" "error"
+    tnx_json_add "timestamp" "$( __tnx_ts )"
+    tnx_json_add "code" "$code"
+    tnx_json_add "message" "$message"
+    tnx_json_end
+  else
+    tnx_fail "$message"
+  fi
+  return "$status"
+}
+
+tnx_manager_status() { _tnx_manager_action status; }
+tnx_manager_guests() { _tnx_manager_action guests; }
+
+tnx_manager_capabilities() {
+  local operation first=1 operations="["
+  local -a ids=()
+  mapfile -t ids < <(printf '%s\n' "${!TNX_MANAGER_OPERATION_HANDLER[@]}" | LC_ALL=C sort)
+  for operation in "${ids[@]}"; do
+    [ "$first" -eq 1 ] || operations+=","; first=0
+    operations+="{\"id\":\"$operation\",\"access\":\"read-only\",\"argument_count\":0,\"description\":\"${TNX_MANAGER_OPERATION_DESCRIPTION[$operation]}\"}"
+  done
+  operations+="]"
+  if [ "${TERNUX_JSON:-0}" = 1 ]; then
+    tnx_json_init
+    tnx_json_add "schema_version" "1.0.0"
+    tnx_json_add "command" "manager.capabilities"
+    tnx_json_add "status" "ok"
+    tnx_json_add "timestamp" "$( __tnx_ts )"
+    tnx_json_add_raw "count" "${#ids[@]}"
+    tnx_json_add_raw "operations" "$operations"
+    tnx_json_end
+  else
+    tnx_header "Native Manager Operations"
+    for operation in "${ids[@]}"; do printf '  %-24s %s\n' "$operation" "${TNX_MANAGER_OPERATION_DESCRIPTION[$operation]}"; done
+  fi
+}
+
+tnx_manager_dispatch() {
+  local operation="$1" handler="${TNX_MANAGER_OPERATION_HANDLER[${1:-}]:-}"
+  shift || true
+  [ -n "$handler" ] || { tnx_manager_error "UNKNOWN_OPERATION" "Unsupported manager operation '${operation:-}'."; return $?; }
+  [ "$#" -eq 0 ] || { tnx_manager_error "INVALID_ARGUMENTS" "Manager operation '$operation' accepts no arguments."; return $?; }
+  "$handler"
+}
+
+tnx_cmd_manager() {
+  local action="${1:-}"
+  [ -n "$action" ] || { tnx_fail "Usage: tx manager status|guests|capabilities [--json]"; return 2; }
+  shift
+  tnx_manager_dispatch "manager.$action" "$@"
 }

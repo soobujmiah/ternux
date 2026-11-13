@@ -50,12 +50,16 @@ load হওয়ার আগের failure JSON বানাতে পার�
 দেখুন। এই প্রথম v3 slice installed PRoot guest এবং পরিচিত Ternux desktop profile
 দেখায়; install, start, stop বা repair করে না। v1 JSON payload schema হলো
 `docs/v3/schemas/manager-status-v1.schema.json` এবং
-`docs/v3/schemas/manager-guests-v1.schema.json`। এগুলো CLI payload; local
-manager API service এখনও implement করা হয়নি।
+`docs/v3/schemas/manager-guests-v1.schema.json` এবং
+`docs/v3/schemas/manager-capabilities-v1.schema.json`। Capability list dispatch-এর
+একই operation allowlist থেকে তৈরি হয়। অচেনা operation বা অপ্রত্যাশিত argument
+নিরাপদভাবে প্রত্যাখ্যান করা হয়। এগুলো CLI payload; local manager API service
+এখনও implement করা হয়নি।
 
 ```bash
 tx manager status [--json]
 tx manager guests [--json]
+tx manager capabilities [--json]
 ```
 
 ### `ternux guides`

@@ -7,8 +7,8 @@ lang: "en"
 ## API design
 
 **Status: IMPLEMENTED (read-only CLI payloads only).** `tx manager status`
-and `tx manager guests` now expose versioned JSON snapshots validated against
-the schemas in `schemas/`. They run directly in native Termux and do not need
+`tx manager guests`, and `tx manager capabilities` now expose versioned JSON
+snapshots validated against the schemas in `schemas/`. They run directly in native Termux and do not need
 the future Control Center service or an installed guest. The socket transport,
 HTTP adapter, event stream, jobs, and mutation endpoints below remain designed
 contracts; no service endpoint is implemented yet. The independent shared-core
