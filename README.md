@@ -67,6 +67,19 @@ If `curl` is unavailable, use:
 wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
 ```
 
+To use Termux's native package manager instead, bootstrap the signed stable
+APT source once. The script verifies the repository key and installs the host
+CLI; then run `tx install` to provision a guest desktop. See the
+[APT installation guide](docs/TERMUX-APT.md) for updates and the separate RC
+channel.
+
+```bash
+pkg install curl gnupg
+curl -fsSLo "$TMPDIR/ternux-bootstrap.sh" \
+  https://soobujmiah.github.io/ternux/apt/bootstrap.sh
+bash "$TMPDIR/ternux-bootstrap.sh"
+```
+
 The base install needs about 4–4.6 GB of storage. Keep extra temporary space for
 downloads and package caches.
 
@@ -90,7 +103,7 @@ tx distro list    # show every installed PRoot guest
 tx distro search alpine # search available OCI images
 ```
 
-Use `tx stop --all` to close every managed Ternux desktop. With the Termux:X11 nightly app, each Ternux desktop guest gets its own tagged Android window and separate settings; `tx start db`, `tx start ub`, or `tx start alp` brings the selected window forward. Older X11 apps use one shared window and cannot reliably switch among concurrently running guests. Install multiple profiles with `tx install --distros debian,ubuntu,alpine`; each receives the family-matched Ternux base desktop. `xgo` lists every installed guest and asks which desktop to start when there is more than one. Generic images without a Ternux package recipe are shown as shell-only. See [the release-readiness report](docs/V2-RELEASE-READINESS.md) for the exact scope and remaining qualification gates.
+Use `tx stop --all` to close every managed Ternux desktop. With the Termux:X11 nightly app, each Ternux desktop guest gets its own tagged Android window and separate settings; `tx start db`, `tx start ub`, or `tx start alp` brings the selected window forward. Older X11 apps use one shared window and cannot reliably switch among concurrently running guests. Install multiple profiles with `tx install --distros debian,ubuntu,alpine`; each receives the family-matched Ternux base desktop. `xgo` lists every installed guest and asks which desktop to start when there is more than one. Generic images without a Ternux package recipe are shown as shell-only. See [the release-readiness report](docs/V2-RELEASE-READINESS.md) for the exact v2 scope, evidence, and publication status.
 
 The `x` shortcut starts the saved desktop; `xgo` opens Termux:X11 and asks which installed desktop guest to start. `tx` is the short CLI command. Use `db`/`dbr`/`dbroot`, `ub`/`ubr`/`ubroot`, `alp`/`alpr`/`alproot`, `archx`/`archroot`, `fed`/`fedr`, `suse`/`suser`, `vsh`/`vroot`, or `kal`/`kalr` for the corresponding user/root shells when those guests are installed. Start Ubuntu or Alpine with `tx start ub` or `tx start alp` (full names also work). Use `tx distro shell NAME` to enter a profile’s configured regular user (generic images keep their image default), or `tx distro exec NAME -- COMMAND` for any installed PRoot guest. Root remains explicit through `dbroot`, `ubroot`, `alproot` and the matching root aliases. Search PRoot-Distro images with `tx distro search QUERY`; install a generic OCI image with `tx distro image-install IMAGE[:TAG] [NAME]`. Generic images provide guest shells. Named distro profiles use the matching package-manager recipe; arbitrary OCI images provide guest shells until a family recipe is added. Android shared storage is mounted at `/sdcard` in every managed guest by default, so
 models and files are available directly. Termux must have Android storage permission;

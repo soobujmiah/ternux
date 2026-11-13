@@ -66,6 +66,18 @@ curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh |
 wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
 ```
 
+Termux-এর নিজস্ব package manager দিয়ে install করতে signed stable APT source
+একবার bootstrap করুন। Script key যাচাই করে host CLI install করবে; এরপর guest
+desktop setup করতে `tx install` চালান। Update ও আলাদা RC channel-এর জন্য
+[APT installation guide](docs/TERMUX-APT.md) দেখুন।
+
+```bash
+pkg install curl gnupg
+curl -fsSLo "$TMPDIR/ternux-bootstrap.sh" \
+  https://soobujmiah.github.io/ternux/apt/bootstrap.sh
+bash "$TMPDIR/ternux-bootstrap.sh"
+```
+
 বেস ইনস্টলে প্রায় ৪–৪.৫ GB storage লাগে। Download ও package cache-এর জন্য আরও
 কিছু খালি জায়গা রাখুন।
 

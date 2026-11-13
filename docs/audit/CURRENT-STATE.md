@@ -2,7 +2,7 @@
 
 **Audit date:** 2026-11-13 (UTC)
 **Repository:** `soobujmiah/ternux`
-**Audit base:** `main` at `db9fe4a70177641b1e1312d2db47462191daf582`
+**Audit base:** `main` at `faa5f0c4733e82fa0e82c88c6a2cd4531a1c3442`
 **Target:** finish v2.0.0 for Debian, Ubuntu, and Alpine; publish the complete v3 architecture only after v2 acceptance.
 
 This page is the concise current-state index. Evidence, device checks, and the
@@ -13,14 +13,14 @@ never edited by hand.
 
 ## Current outcome
 
-**All blocking v2 acceptance gates are complete.** Signed `/apt-rc` publication,
-signature/index/hash checks, a routine website redeploy, and native Termux
-install/reinstall/removal tests passed, and the updated multi-distro `verify`
-selector was reinstalled from the signed RC package and verified on device. The owner authorized stable publication;
-the stable APT tree, `v2.0.0` tag, and GitHub release are now the remaining
-publication steps. Exact-main Validate run `43359028809` passed on
-`db9fe4a70177641b1e1312d2db47462191daf582`; it includes the clean
-Debian/Ubuntu/Alpine Firefox X11 matrix. The in-place updater's staged migration,
+**All blocking v2 acceptance gates are complete.** Signed `/apt-rc` and stable
+`/apt` publication, signature/index/hash checks, routine website preservation,
+and native Termux clean install/reinstall/removal tests passed. The updated
+multi-distro `verify` selector is installed from the stable APT package and
+verified on device. The owner authorized release; only the `v2.0.0` GitHub tag,
+GitHub release and final release report remain. Exact-main Validate run
+`43362104082` passed on `faa5f0c4733e82fa0e82c88c6a2cd4531a1c3442`; it includes
+the clean Debian/Ubuntu/Alpine Firefox X11 matrix. The in-place updater's staged migration,
 integrity, interrupted-update, and recovery fixtures pass; a physical rollback
 demonstration is not a v2 acceptance requirement.
 
@@ -35,10 +35,12 @@ SM8735, Adreno 825, Android 16.
 The owner's Debian `:0`, Ubuntu `:1`, and Alpine `:2` desktops remain READY at
 the same managed PIDs 18218, 14129, and 26946. The 2026-11-13 live check queried
 each X11 display at 640×1386 and confirmed its current Ternux GTK, icon, and
-XFWM theme, `|HMC` titlebar controls, and Ctrl+Space helper binding. The helper
-cycled to the other installed IBus engine and restored the original engine in
-each guest. This invocation proves the command route, not physical keyboard
-delivery.
+XFWM theme, `|HMC` titlebar controls, and Ctrl+Space helper binding. Direct
+helper calls cycle to the other installed IBus engine in each guest. A fresh
+host-generated key event switched engines on Debian and Ubuntu; Alpine stayed
+on English in the same probe although its helper works directly. This conflicts
+with the earlier focused GTK/XTest result and is recorded for follow-up. It does
+not verify a physical Android keyboard.
 
 An oversized 1800×1900 test window was created separately on each existing
 display. The active watcher constrained each client to 640×1339 and kept its
@@ -53,9 +55,11 @@ already-open XFCE About window was brought inside its phone viewport without
 closing it or restarting XFCE, Termux:X11, PulseAudio, or IBus. The managed
 window-fit helper is the only desktop-related process that was refreshed.
 
-The GTK test entry accepted a synthetic XTest Ctrl+Space event and switched
-between the current English/Bengali engines in all three guests. This is a
-synthetic event check, not physical-keyboard typing evidence. Firefox test
+Earlier GTK test evidence recorded a synthetic XTest Ctrl+Space switch in all
+three guests. The newest host-generated probe changed Debian and Ubuntu engines
+but not Alpine; the direct Alpine helper still switches correctly, so current
+keyboard-event behavior needs another focused check before making a universal
+input claim. This is not physical-keyboard typing evidence. Firefox test
 windows showed the close control on all three live desktops and were closed
 after their own launch checks; user-owned windows were left untouched. Existing
 desktop status is READY for all three guests with Termux:X11 and PulseAudio
@@ -65,10 +69,10 @@ recorded separately; no universal GPU claim is made.
 ## Delivery order
 
 1. Exact-main browser matrix and required Validate checks passed in run
-   `43359028809`; updated signed RC and native package verification passed.
-2. Publish stable `/apt`, verify the hosted signature and package index, switch
-   the native source to stable, and confirm `pkg` resolves v2.0.0.
-3. Create the `v2.0.0` tag and GitHub release only after stable endpoints pass.
+   `43362104082`; stable signed package and native verification passed.
+2. Create the `v2.0.0` tag and GitHub release on the validated main commit.
+3. Publish the final v2 release report and verify the public stable APT and
+   GitHub release assets.
 4. After v2 is complete, publish the v3 architecture and its versioned
    acceptance plan. V3 work must not be described as part of v2.
 

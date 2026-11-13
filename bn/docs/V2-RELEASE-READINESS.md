@@ -5,28 +5,28 @@ lang: "bn"
 alt_url: "/docs/V2-RELEASE-READINESS.html"
 ---
 
-**অবস্থা: stable release প্রকাশের জন্য প্রস্তুত**
+**অবস্থা: GitHub release তৈরির জন্য প্রস্তুত**
 **Audit তারিখ:** 2026-11-13
 **লক্ষ্য:** Ternux 2.0.0
-**সর্বশেষ stable release:** v1.4.0; v2.0.0 stable APT ও GitHub release প্রকাশের ধাপে আছে।
+**সর্বশেষ GitHub release:** v1.4.0। Ternux 2.0.0 signed stable APT repository-তে প্রকাশিত; GitHub tag ও release এখনো তৈরি হয়নি।
 
 Ternux v2 desktop support কেবল **Debian, Ubuntu ও Alpine**-এর জন্য। CLI-তে
 অন্য distro recipe থাকলেও সেগুলো v2-qualified নয়।
 [`release-gates.json`](https://github.com/soobujmiah/ternux/blob/main/docs/release-gates.json)-এর 20টি gate বর্তমানে
-`READY_FOR_OWNER_APPROVAL`; owner stable release অনুমোদন করেছেন। Signed RC
-repository, website redeploy-এ repository preservation এবং native Termux
-install/remove/reinstall পরীক্ষা pass। Stable `/apt`, v2 tag ও GitHub release
-এখন শেষ publication ধাপ। Exact-main Validate run `43359028809`
-`db9fe4a70177641b1e1312d2db47462191daf582` commit-এ pass; এতে clean
-Debian/Ubuntu/Alpine Firefox matrix ও পূর্ণ documentation suite আছে।
+`READY_FOR_OWNER_APPROVAL`; owner release অনুমোদন করেছেন। Signed RC ও stable
+repository, website preservation, native Termux package lifecycle এবং তিন
+profile-এর browser CI pass করেছে। Stable APT publication সম্পন্ন; এখন শুধু
+`v2.0.0` GitHub tag/release ও final release report বাকি। Exact-main Validate
+run `43362104082` commit `faa5f0c4733e82fa0e82c88c6a2cd4531a1c3442`-এ pass করেছে;
+এতে তিন-profile browser matrix ও পূর্ণ documentation suite আছে।
 
 ## বর্তমান acceptance gate
 
 | Gate | অবস্থা | কী করলে বন্ধ হবে |
 |---|---|---|
 | P1-03 updater safety | **সম্পূর্ণ** | Source/hash pinning, replace করার আগে staging, interrupted update recovery, downgrade guard, concurrency ও symlink fixture pass; v1.4.0 source fixture থেকে v2 migration pass। প্রকাশিত v2 rollback demonstration আবশ্যক নয়। |
-| P1-09 default browser | **সম্পূর্ণ** | Clean Debian Trixie, Ubuntu 24.04 ও Alpine 3.24 Firefox X11 window check `db9fe4a70177641b1e1312d2db47462191daf582` exact merged-main commit-এর Validate run `43359028809`-এ pass করেছে। Ubuntu Snap ছাড়া Mozilla ESR ব্যবহার করে। |
-| P1-APT signed Termux package | **সম্পূর্ণ** | Updated signed RC tree-এর package hash pass; native APT updated package reinstall করেছে; active guest default এবং `db`/`ub`/`alp` JSON verify pass। v2.0.0 প্রথম package release, তাই আগের version থেকে version-delta upgrade নেই। Evidence `release-gates.json` ও `audit/REPOSITORY-STATE.md`-তে আছে। |
+| P1-09 default browser | **সম্পূর্ণ** | Clean Debian Trixie, Ubuntu 24.04 ও Alpine 3.24 Firefox X11 window check exact-main Validate run `43362104082`, commit `faa5f0c4733e82fa0e82c88c6a2cd4531a1c3442`-এ pass করেছে। Ubuntu Snap ছাড়া Mozilla ESR ব্যবহার করে। |
+| P1-APT signed Termux package | **সম্পূর্ণ** | Exact main `faa5f0c4733e82fa0e82c88c6a2cd4531a1c3442`-এর stable signed APT publish workflow `43362569559` সফল। Public `InRelease` fingerprint `E5527F4D5B83037FF77B65AE5E894BBB81168B1D` দিয়ে যাচাই হয়েছে; `Packages.xz` SHA-256 `3bbab20f0119b3c038e14c9a49714e499325b0c7036a899c3304e67b3b39e137`, package SHA-256 `4ef03210c71e3d5671671e9a49fc83f6aebf7cdb5e5a28cb32db61d49e85c89f`। Native `pkg update`, clean package uninstall/install, `dpkg --verify`, এবং default/`db`/`ub`/`alp` JSON verify pass। Evidence `release-gates.json` ও `audit/REPOSITORY-STATE.md`-তে আছে। |
 
 HTP/HMX ও QNN experimental বা research-only; stable v2 প্রতিশ্রুতির বাইরে।
 CPU/Vulkan দাবি accelerator plan-এ থাকা নির্দিষ্ট model, task ও SM8735/Adreno
@@ -71,28 +71,31 @@ qualification নয়।
 - `bash tests/firefox_package_matrix.sh`: Debian, Ubuntu ও Alpine-এর জন্য exact-
   head CI-তে যোগ হয়েছে। এটি Xvfb/Openbox-এ GTK Firefox window চালিয়ে দৃশ্যমান X11
   application window map হয়েছে কি না যাচাই করে। Exact merged-main Validate run
-  `43359028809`-এ matrix pass করেছে। এই Termux host-এ Docker নেই; তাই local
+  `43362104082`-এ matrix pass করেছে। এই Termux host-এ Docker নেই; তাই local
   container pass দাবি করা হচ্ছে না।
 - `bash tests/focused.sh`: audit-এ test-hygiene issue পাওয়া গেছে—`py_compile`
   packaged asset-এর ভেতর `__pycache__` লিখছিল। এখন bytecode temporary directory-তে
-  যায়। Focused suite ও পূর্ণ required CI exact-main run `43359028809`-এ pass।
-- Signed RC run `43359599505`-এর পর public path HTTP 200; `InRelease` pinned
-  fingerprint দিয়ে valid। Native Termux updated candidate package install
-  করেছে, `ternux verify --json` ও Debian/Ubuntu/Alpine-specific verify pass।
-  Stable `/apt` ও v2 tag/release এখনো প্রকাশের বাকি।
+  যায়। Focused suite ও পূর্ণ required CI exact-main run `43362104082`-এ pass।
+- Stable publish run `43362569559` exact-main package
+  `faa5f0c4733e82fa0e82c88c6a2cd4531a1c3442` sign ও deploy করেছে। Public
+  bootstrap, key, `InRelease` এবং `Packages.xz` endpoint HTTP 200; `gpgv`
+  signature pinned fingerprint দিয়ে যাচাই করেছে। Native Termux stable index
+  নিয়েছে, `ternux` clean uninstall ও install করেছে, `dpkg --verify` এবং default
+  plus `db`/`ub`/`alp` verify pass। তিনটি guest আগের PID-তে READY ছিল। GitHub
+  tag/release এখনো বাকি।
 
 ## Release ধাপ
 
-1. Exact merged-main Validate run `43359028809`-এ তিন-profile browser matrix,
+1. Exact-main Validate run `43362104082`-এ তিন-profile browser matrix,
    focused test, docs/site build, package checks ও repository contract pass করেছে।
 2. Reviewed product change merge করে deterministic `.repo/` workflow-কে state
    update বানাতে দাও। `.repo/` হাতে edit করবে না।
-3. Signed `/apt-rc`, signature/index/checksum, regular website redeploy, native
-   Termux package lifecycle ও exact-main CI pass করেছে। Debian, Ubuntu ও Alpine
-   guest installed এবং running আছে।
-4. Stable `/apt` প্রকাশ করে native source stable-এ বদলাও, signature/index verify
-   করো, তারপর `v2.0.0` tag ও GitHub release তৈরি করো। Blocking gate incomplete
-   থাকলে stable APT workflow publish বন্ধ করে।
+3. Signed `/apt-rc` ও stable `/apt` publication, signature/index/checksum,
+   native clean package install, guest-specific verify এবং exact-main CI pass
+   করেছে। Debian, Ubuntu ও Alpine guest আগের PID-তে installed ও running আছে।
+4. Exact validated main commit-এ `v2.0.0` tag ও GitHub release তৈরি করে verified
+   Termux package ও checksum attach করুন; এরপর final release report publish
+   করুন। Blocking gate অসম্পূর্ণ হলে stable APT workflow publish বন্ধ করে।
 5. v2 শেষ হলে পূর্ণ v3 architecture ও acceptance plan প্রকাশ ও review করো। v3
    design v2 deliverable নয়।
 
