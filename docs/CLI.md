@@ -229,12 +229,18 @@ ternux repair
 
 ### `ternux verify`
 
-Verify installation completeness. Checks binaries, launcher, Debian
-container, and GPU driver files. A failed verification returns a nonzero exit
-status in both human and `--json` modes.
+Verify installation completeness for the active guest, or select a guest by
+full name or its short command. Without an active guest, verification uses the
+saved installed profile, then Debian, then another installed Ternux profile. It
+checks host binaries, the selected launcher, guest services, and GPU driver
+files. A failed verification returns a nonzero exit status in both human and
+`--json` modes.
 
 ```bash
-ternux verify [--json]
+ternux verify [DISTRO] [--json]
+tx verify db --json
+tx verify ub --json
+tx verify alp --json
 ```
 
 ### `ternux benchmark`

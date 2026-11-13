@@ -21,12 +21,34 @@ printf 'TAP version 13\n'
 if cli_help="$(bash "$ROOT/bin/ternux" --help 2>&1)" \
   && install_help="$(bash "$ROOT/bin/ternux" install --help 2>&1)" \
   && printf '%s\n' "$cli_help" | grep -Fq -- '--version, -V' \
+  && verify_help="$(bash "$ROOT/bin/ternux" verify --help 2>&1)" \
+  && printf '%s\n' "$verify_help" | grep -Fq 'verify [DISTRO] [--json]' \
   && printf '%s\n' "$install_help" | grep -Fq '15 named guest profiles' \
   && printf '%s\n' "$install_help" | grep -Fq 'APT-family guests only' \
   && ! printf '%s\n' "$install_help" | grep -Fq '1 development, 2 llama.cpp'; then
   ok "runtime help documents global version, current profile selector and workload flow"
 else
   not_ok "runtime help documents global version, current profile selector and workload flow"
+fi
+
+# Verification follows the active guest, skips stale saved selections, and
+# supports the stable short names used by desktop and shell commands.
+if env TERNUX_STATE_DIR="$TMP/state-verify-selection" HOME="$TMP/home-verify-selection" bash -c '
+  mkdir -p "$TERNUX_STATE_DIR/session" "$HOME"
+  printf "distro=archlinux\\n" > "$TERNUX_STATE_DIR/state"
+  printf "ubuntu\\n" > "$TERNUX_STATE_DIR/session/distro"
+  . "$1/lib/doctor.sh"
+  tnx_proot_container_installed(){ case "$1" in ubuntu|debian|fedora) return 0;; *) return 1;; esac; }
+  [ "$(tnx_verify_select_distro)" = ubuntu ] &&
+  [ "$(tnx_verify_select_distro db)" = debian ] &&
+  [ "$(tnx_verify_select_distro ub)" = ubuntu ] || exit
+  printf "stale\\n" > "$TERNUX_STATE_DIR/session/distro"
+  [ "$(tnx_verify_select_distro)" = debian ] || exit
+  if tnx_verify_select_distro unsupported >/dev/null; then exit 1; fi
+' _ "$ROOT"; then
+  ok "verification selects the active or available guest and accepts distro shortcuts"
+else
+  not_ok "verification selects the active or available guest and accepts distro shortcuts"
 fi
 
 # Persisted custom user is the default for later CLI modules.
@@ -1703,9 +1725,9 @@ fi
 # journal/backup residue; shared host packages are never touched.
 if env HOME="$TMP/home-uninstall-host" PREFIX="$TMP/prefix-uninstall-host" bash -c '
   mkdir -p "$HOME" "$PREFIX/bin" "$PREFIX/lib/ternux" "$PREFIX/lib/ternux-update-backups/old" "$PREFIX/lib/.ternux-update-lock"
-  printf '%s\n' '#!/usr/bin/env bash' '# https://github.com/soobujmiah/ternux' > "$PREFIX/bin/ternux"
-  printf '%s\n' '# Ternux short command entrypoint.' > "$PREFIX/bin/tx"
-  printf '%s\n' 'TERNUX_VERSION="2.0.0"' > "$PREFIX/lib/ternux/core.sh"
+  printf "%s\\n" "#!/usr/bin/env bash" "# https://github.com/soobujmiah/ternux" > "$PREFIX/bin/ternux"
+  printf "%s\\n" "# Ternux short command entrypoint." > "$PREFIX/bin/tx"
+  printf "%s\\n" "TERNUX_VERSION=\\"2.0.0\\"" > "$PREFIX/lib/ternux/core.sh"
   : > "$PREFIX/lib/.ternux-update-journal"
   : > "$PREFIX/lib/.ternux-update-lock/owner"
   dpkg-query(){ return 1; }

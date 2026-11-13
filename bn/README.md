@@ -82,7 +82,7 @@ Xfce দেখতে Termux:X11 app-এ যান। সাধারণ command-
 
 ```bash
 ternux status     # session ও install-এর অবস্থা
-ternux verify     # install ও graphics route পরীক্ষা
+ternux verify     # active guest যাচাই; db/ub/alp দিয়ে guest বেছে নিন
 ternux doctor     # সাধারণ সমস্যা খোঁজা
 tx stop           # চলমান guest desktop বাছাই করে বন্ধ
 ```
