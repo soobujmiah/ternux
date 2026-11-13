@@ -499,9 +499,11 @@ proot-distro backup debian --output ~/debian-backup.tar.gz
 
 - **ternux CLI:** `ternux update` সর্বশেষ প্রকাশিত stable release tag ব্যবহার করে। নির্দিষ্ট Git commit resolve ও fetch করে, সম্পূর্ণ staged module tree যাচাই করে, তারপর recovery journal-সহ CLI ও module switch করে। আগের ভার্সন backup-এ থাকে; verification ব্যর্থ হলে সেটি restore হয়। নতুন development build-কে পুরোনো stable tag-এ downgrade করে না।
 - **Interrupted installer run:** একই reviewed script আবার download করে
-  `--resume` দিন; শুধু successful হিসেবে recorded phase বাদ যাবে। এটি completed
-  phase update/repair করে না—CLI-এর জন্য `ternux update`, managed artifact-এর
-  জন্য `ternux repair` ব্যবহার করুন। গুরুত্বপূর্ণ data আগে backup নিন।
+  `--resume` দিন; সফলভাবে recorded phase বাদ যাবে। তবে বর্তমান installer-এর
+  source identity আলাদা হলে host CLI phase আবার চলবে। অন্য completed desktop
+  বা managed-artifact phase এটি repair করে না—প্রকাশিত CLI update-এর জন্য
+  `ternux update`, managed artifact-এর জন্য `ternux repair` ব্যবহার করুন।
+  গুরুত্বপূর্ণ data আগে backup নিন।
 - **Debian প্যাকেজ:** ডেস্কটপে `sudo apt update && sudo apt upgrade`।
   Zink পথে Mesa প্যাকেজ ইচ্ছাকৃতভাবে হোল্ড করা (`apt-mark hold`) — আপগ্রেডে
   নিঃশব্দে সফটওয়্যার রেন্ডারিংয়ে ফিরে যাওয়া ঠেকাতে। ইচ্ছা করে আনহোল্ড করুন:

@@ -86,6 +86,9 @@ if (
   tnx_distro_state_set debian status ready
   tnx_distro_state_set ubuntu status incomplete
   for phase in preflight packages cli; do tnx_state_mark "phase_$phase"; done
+  tnx_state_set cli_source_identity 'pin:0000000000000000000000000000000000000000'
+  tnx_install_phase_done cli && exit 1
+  tnx_state_set cli_source_identity "$(tnx_cli_source_identity)"
   for phase in debian gpu audio_fonts launcher aliases extras phantom verify; do
     tnx_state_mark "phase_$phase"
     tnx_distro_phase_mark debian "$phase"
