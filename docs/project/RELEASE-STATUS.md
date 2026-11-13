@@ -6,7 +6,7 @@ lang: "en"
 
 ## Release status
 
-**Last checked:** 2026-11-13 12:26 UTC.
+**Last checked:** 2026-11-13 12:52 UTC.
 
 ## Ternux v2.0.0
 
@@ -20,9 +20,14 @@ lang: "en"
   (Android 16, SM8735 / Adreno 825) and explicitly recorded tests.
 - **Current source/site:** `main` has advanced beyond the release tag. The
   current homepage deployment completed in
-  [Pages run 43421466805](https://github.com/soobujmiah/ternux/actions/runs/43421466805).
+  [Pages run 43428844492](https://github.com/soobujmiah/ternux/actions/runs/43428844492).
   It reflects curl, wget, signed APT setup, Termux companion links, and the v2/v3
-  status snapshot. This does not change the installed v2.0.0 package.
+  status snapshot, including the planned v3 native display allocation. This
+  does not change the installed v2.0.0 package.
+- **Post-release source maintenance:** doctor diagnostics now follow the active
+  guest and recover the Ubuntu Mesa-overlay path when optional marker metadata
+  is missing. Merged in main commit `b26010d`; the installed package remains
+  v2.0.0, so the correction is source-side until a separately versioned update.
 - **Native manager CLI:** the three read-only JSON commands are present in
   current repository source and passed source-side invocation; they are not in
   the released 2.0.0 `.deb`. The installed `tx manager` command is unavailable.

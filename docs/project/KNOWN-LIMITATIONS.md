@@ -30,8 +30,8 @@ lang: "en"
   are absent from the released v2.0.0 package.
 - The installed v2.0.0 doctor can select a stale saved distro instead of the
   active guest, and Ubuntu's default renderer diagnostic can miss its isolated
-  Mesa overlay when an optional path marker is absent. Source fixes are under
-  review; they are not in the installed stable package yet.
+  Mesa overlay when an optional path marker is absent. The fix is in current
+  main, but the installed stable v2.0.0 package has not been updated.
 
 See [device verification](DEVICE-VERIFICATION.md) and the
 [current v2 report](../release/V2-RELEASE-REPORT.md) and
