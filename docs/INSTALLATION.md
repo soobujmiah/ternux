@@ -539,9 +539,11 @@ proot-distro backup debian --output ~/debian-backup.tar.gz
 
 - **The ternux CLI:** `ternux update` uses the latest published stable release tag. It resolves and fetches that exact Git commit, validates a complete staged module tree, then switches the CLI and modules with a recovery journal. The previous version remains backed up; failed verification restores it. A newer development build is never downgraded to an older stable tag.
 - **An interrupted installer run:** re-download the same reviewed script and use
-  `--resume`; it skips only successfully recorded phases. This does **not**
-  update or repair phases already complete—use `ternux update` for the CLI and
-  `ternux repair` for managed artifacts. Back up before driver or distribution changes.
+  `--resume`; successfully recorded phases are skipped, except the host CLI phase
+  runs again when its recorded source identity differs from the current installer.
+  Resume does not repair other completed desktop or managed-artifact phases—use
+  `ternux update` for a published CLI update and `ternux repair` for managed
+  artifacts. Back up before driver or distribution changes.
 - **Debian packages:** `sudo apt update && sudo apt upgrade` inside the
   desktop. Mesa packages are held (`apt-mark hold`) on the Zink route on
   purpose — upgrading them can silently switch you back to software

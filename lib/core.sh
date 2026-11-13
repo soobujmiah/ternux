@@ -557,6 +557,24 @@ tnx_state_mark() {
   tnx_state_done "$phase" || echo "$phase" >> "$TERNUX_STATE_DIR/phases"
 }
 
+# Identify the CLI source used by the current installer. A checkout uses its
+# actual Git revision; standalone archives use the verified pinned source commit.
+# This lets --resume detect CLI phases completed by an older installer build,
+# even when both builds report the same user-facing version.
+tnx_cli_source_identity() {
+  local source_root="${_TNX_SRC:-}" identity=""
+  if [ -n "$source_root" ] && command -v git >/dev/null 2>&1; then
+    identity="$(git -C "$source_root" rev-parse --verify HEAD 2>/dev/null || true)"
+    if [[ "$identity" =~ ^[a-f0-9]{40}$ ]]; then
+      printf 'git:%s\n' "$identity"
+      return 0
+    fi
+  fi
+  identity="${TERNUX_SOURCE_COMMIT:-}"
+  [[ "$identity" =~ ^[a-f0-9]{40}$ ]] || return 1
+  printf 'pin:%s\n' "$identity"
+}
+
 # Host bootstrap phases are shared, while desktop configuration is owned by
 # each named guest. Keep the old aggregate phase file for existing readers,
 # but use a per-guest ledger when deciding what an interrupted install may skip.
@@ -582,7 +600,14 @@ tnx_distro_phase_mark() {
 tnx_install_phase_done() {
   local phase="${1#phase_}" distro="${2:-$(tnx_distro)}"
   case "$phase" in
-    preflight|packages|cli) tnx_state_done "phase_$phase" ;;
+    preflight|packages) tnx_state_done "phase_$phase" ;;
+    cli)
+      local expected="" recorded=""
+      tnx_state_done phase_cli || return 1
+      expected="$(tnx_cli_source_identity 2>/dev/null)" || return 1
+      recorded="$(tnx_state_get cli_source_identity 2>/dev/null || true)"
+      [ -n "$recorded" ] && [ "$recorded" = "$expected" ]
+      ;;
     *) tnx_distro_phase_done "$distro" "$phase" ;;
   esac
 }
@@ -591,7 +616,12 @@ tnx_install_phase_mark() {
   local phase="${1#phase_}" distro="${2:-$(tnx_distro)}"
   tnx_state_mark "phase_$phase" || return 1
   case "$phase" in
-    preflight|packages|cli) return 0 ;;
+    preflight|packages) return 0 ;;
+    cli)
+      local identity=""
+      identity="$(tnx_cli_source_identity)" || return 1
+      tnx_state_set cli_source_identity "$identity"
+      ;;
     *) tnx_distro_phase_mark "$distro" "$phase" ;;
   esac
 }
