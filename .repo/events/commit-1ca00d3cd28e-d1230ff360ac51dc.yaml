@@ -1,0 +1,7 @@
+event_id: commit-1ca00d3cd28e-d1230ff360ac51dc
+repository: soobujmiah/ternux
+commit: 1ca00d3cd28ec78ae2339d2f974a7db1523f7c7b
+kind: commit
+occurred_at: '2026-11-13T05:16:38Z'
+status: completed
+summary: 'docs: record stable v2 APT release state (#189)'
