@@ -1,6 +1,6 @@
 # Ternux feature and qualification matrix
 
-**Audit snapshot:** 2026-11-13, 14:07 UTC. This matrix applies to Ternux
+**Audit snapshot:** 2026-11-13, 15:17 UTC. This matrix applies to Ternux
 v2.0.0 on the documented Redmi Turbo 4 Pro reference device unless a row says
 otherwise. “Installed”, “detected”, “initialized”, “executed correctly”, and
 “measured” are separate evidence levels.
@@ -33,7 +33,8 @@ and are in current main; the released package remains unchanged.
 | IBus Bengali/English switching | XFCE config/helper and earlier synthetic probes exist | Alpine synthetic event probes conflict; physical Android keyboard delivery is not certified |
 | Theme, window fit, and application UI | Earlier live evidence covers GTK/XFCE, titlebar, oversized-window fitting, and tested Firefox controls | Not every toolkit, custom titlebar, menu icon, or future third-party app is covered; not visually rechecked in this snapshot |
 | Android camera still capture and microphone recording apps | Host Termux:API-backed app implementations and permission/lifecycle code exist | This audit did not capture a photo or record audio; no continuous camera stream or guest webcam device is established |
-| Native manager read-only JSON CLI | Current `main` source successfully returns status, guest, and capability payloads; schema-focused tests pass | The installed v2.0.0 package returns `Unknown command: manager`; source checkout evidence does not promote the released package |
+| Native manager read-only JSON CLI | `main` has status, guest and capability payloads; unmerged work branch adds display reporting, source-device invoked | The installed v2.0.0 package returns `Unknown command: manager`; the branch remains unmerged and does not promote the released package |
+| v3 workspace display allocation | Branch defaults target native `:0`, Debian `:1`, Ubuntu `:2`, Alpine `:3`; collision guards and read-only current/target report implemented and tested | Live v2 mapping remains `:0/:1/:2`; migration is required and intentionally not performed |
 | Native Unix-socket manager service | Explicit foreground, read-only service implemented in the working source; device and integration-tested | Not in released v2.0.0 package; no supervisor or GUI |
 | CPU/Vulkan LLM workload | Optional installer path and separate device evidence exist for the declared workload/model profile | Preview/optional scope; no broad model, memory, performance, or device guarantee |
 

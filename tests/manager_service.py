@@ -31,6 +31,11 @@ class ManagerServiceTest(unittest.TestCase):
         proot_stub.chmod(0o755)
         self.env = os.environ.copy()
         self.env["PREFIX"] = str(self.prefix)
+        self.env["TMPDIR"] = str(self.prefix / "tmp")
+        (self.prefix / "tmp").mkdir()
+        self.env["HOME"] = str(self.prefix / "home")
+        self.env["TERNUX_STATE_DIR"] = str(self.prefix / "state")
+        Path(self.env["HOME"]).mkdir()
         self.env["TERNUX_LIB_DIR"] = str(ROOT / "lib")
         self.env["PATH"] = str(self.prefix / "bin") + os.pathsep + self.env.get("PATH", "")
         self.socket_path = self.prefix / "var/lib/ternux/control/manager.sock"
@@ -99,7 +104,7 @@ class ManagerServiceTest(unittest.TestCase):
         self.assertEqual(reply["result"]["command"], "manager.capabilities")
 
     def test_all_read_only_operations_are_served(self):
-        for operation in ("manager.status", "manager.guests", "manager.capabilities"):
+        for operation in ("manager.status", "manager.guests", "manager.displays", "manager.capabilities"):
             with self.subTest(operation=operation):
                 reply = self.send(self.request(operation))
                 self.assertEqual(reply["status"], "ok")

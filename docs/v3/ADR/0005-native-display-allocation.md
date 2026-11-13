@@ -6,7 +6,7 @@ lang: "en"
 
 ## ADR-0005: Native-first display allocation
 
-- **Status:** Accepted for v3 design; implementation pending.
+- **Status:** Accepted; initial defaults and startup collision guards implemented, migration pending.
 - **Date:** 2026-11-13.
 - **Decision owners:** Ternux project owner.
 
@@ -47,3 +47,11 @@ The manager needs a persistent, collision-checked display registry and a
 migration path. Guest display IDs remain stable through install-order changes;
 unrecognized or externally occupied displays cause a clear allocation error
 instead of being terminated or reused.
+
+The current implementation provides stable defaults for newly configured
+profiles and preserves each existing profile's saved display. Desktop startup
+checks for an occupied socket, X lock, or matching server process and refuses
+to reuse it. The read-only `tx manager displays` command reports current and
+target assignments, occupied target paths, and whether migration is required.
+The live v2 mapping is not migrated automatically. A centralized registry,
+native workspace lifecycle, and staged migration remain open.

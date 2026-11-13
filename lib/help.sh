@@ -37,7 +37,7 @@ ${TNX_CW}Usage:${TNX_C0}
 ${TNX_CW}Commands:${TNX_C0}
   ${TNX_CG}install${TNX_C0}    Install full desktop environment
   ${TNX_CG}distro${TNX_C0}     List installed guests, open shells, install images
-  ${TNX_CG}manager${TNX_C0}    Read host status, guests and manager capabilities
+  ${TNX_CG}manager${TNX_C0}    Read host status, guests, displays and capabilities
   ${TNX_CG}extension${TNX_C0}  Manage checksum-verified guest extensions
   ${TNX_CG}storage${TNX_C0}    Grant or revoke scoped Android storage access
   ${TNX_CG}guides${TNX_C0}     Installation and ecosystem help links
@@ -79,7 +79,7 @@ HELPEOF
 
 tnx_help_manager() {
   cat <<'HELP'
-Usage: tx manager status|guests|capabilities [--json]
+Usage: tx manager status|guests|displays|capabilities [--json]
        tx manager serve
 
 Read-only native Termux manager operations. Direct commands work without the
@@ -87,6 +87,7 @@ optional socket service and do not start or modify guest sessions.
 
   tx manager status --json   Manager availability and active desktop names
   tx manager guests --json   Installed guests, desktop profile and display
+  tx manager displays --json Current and v3-target displays plus collisions
   tx manager capabilities   List the operations implemented by this CLI core
   tx manager serve          Run the optional read-only local API in foreground
 

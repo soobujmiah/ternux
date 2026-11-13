@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://soobujmiah.github.io/ternux/schemas/manager-displays-v1.schema.json",
+  "title": "Ternux Manager Workspace Displays v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "command", "status", "timestamp", "native_display", "native_socket_present", "native_lock_present", "native_server_running", "native_occupied", "count", "guests"],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "command": { "const": "manager.displays" },
+    "status": { "const": "ok" },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "native_display": { "const": 0 },
+    "native_socket_present": { "type": "boolean" },
+    "native_lock_present": { "type": "boolean" },
+    "native_server_running": { "type": "boolean" },
+    "native_occupied": { "type": "boolean" },
+    "count": { "type": "integer", "minimum": 0 },
+    "guests": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/guest" }
+    }
+  },
+  "$defs": {
+    "guest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "current_display", "target_display", "running", "target_socket_present", "target_lock_present", "target_server_running", "target_conflict", "migration_required"],
+      "properties": {
+        "name": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$" },
+        "current_display": {
+          "oneOf": [
+            { "type": "integer", "minimum": 0, "maximum": 99 },
+            { "type": "null" }
+          ]
+        },
+        "target_display": { "type": "integer", "minimum": 1, "maximum": 99 },
+        "running": { "type": "boolean" },
+        "target_socket_present": { "type": "boolean" },
+        "target_lock_present": { "type": "boolean" },
+        "target_server_running": { "type": "boolean" },
+        "target_conflict": { "type": "boolean" },
+        "migration_required": { "type": "boolean" }
+      }
+    }
+  }
+}

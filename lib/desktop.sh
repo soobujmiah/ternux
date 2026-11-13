@@ -203,6 +203,14 @@ tnx_remove_stale_x11_socket() {
   rm -f -- "$socket" "$lock"
 }
 
+# A server process can own a display before its socket is visible, so socket
+# checks alone are not enough to protect a concurrently starting workspace.
+tnx_x11_server_running_on_display() {
+  local display_num="${1:-}"
+  [[ "$display_num" =~ ^[0-9]{1,2}$ ]] || return 1
+  pgrep -f "^termux-x11 com\.termux\.x11 :${display_num}([[:space:]]|$)" >/dev/null 2>&1
+}
+
 # ---------------------------------------------------------------------------
 # tnx_cmd_start
 # ---------------------------------------------------------------------------
@@ -302,10 +310,14 @@ tnx_cmd_start() {
   fi
   rm -f "$pid_file" "$ready_file"
 
-  # A different tagged display can run concurrently. Refuse only when this
-  # guest's own X socket is occupied but its managed desktop is not ready.
-  if [ -S "${TMPDIR:-/data/data/com.termux/files/usr/tmp}/.X11-unix/X$display_num" ]; then
-    if tnx_remove_stale_x11_socket "$display_num"; then
+  # A different tagged display can run concurrently, but never replace an
+  # unknown socket, lock, or server. Only remove a socket proven stale by the
+  # matching X lock PID and server-process checks above.
+  local display_tmp="${TMPDIR:-/data/data/com.termux/files/usr/tmp}"
+  local display_socket="$display_tmp/.X11-unix/X$display_num"
+  local display_lock="$display_tmp/.X$display_num-lock"
+  if [[ -e "$display_socket" || -L "$display_socket" || -e "$display_lock" || -L "$display_lock" ]] || tnx_x11_server_running_on_display "$display_num"; then
+    if [ -S "$display_socket" ] && tnx_remove_stale_x11_socket "$display_num"; then
       tnx_info "Removed the stale socket and lock for unused display $display."
     else
     if [ "${TERNUX_JSON:-0}" = "1" ]; then

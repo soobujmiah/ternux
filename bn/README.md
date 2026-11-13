@@ -240,8 +240,9 @@ profile বেছে Enter চাপুন; পরের category-ভিত্�
 Ternux v2.0.0 প্রকাশিত এবং signed stable APT repository চালু আছে। উপরের
 command দিয়ে একবার bootstrap করুন; পরের install ও update সাধারণ `pkg` command-এ
 হবে। GitHub release-এ `.deb` package ও checksum manifest-ও আছে। Current
-`main` source-এর তিনটি read-only `tx manager` command v2.0.0 package-এ নেই;
-background service ও graphical Control Center-ও এখনো implemented নয়। Channel-এর
+`main` source-এর চারটি read-only `tx manager` command v2.0.0 package-এ নেই;
+foreground Unix-socket service আছে, তবে background supervisor ও graphical
+Control Center এখনো implemented নয়। Channel-এর
 বিস্তারিত [Termux APT guide](../docs/TERMUX-APT.md), আর publication evidence
 [v2 release ও বর্তমান audit](../docs/release/V2-RELEASE-REPORT.md)-এ দেখুন। HTP/HMX, QNN এবং
 বিস্তৃত accelerator qualification experimental বা follow-up কাজ; [accelerator

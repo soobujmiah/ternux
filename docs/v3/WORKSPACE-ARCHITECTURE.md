@@ -24,14 +24,16 @@ which display happens to be running.
 
 `tx stop [guest...]` targets selected guests. An interactive no-argument stop
 lists active sessions and supports one or more selections. In v3, display
-`:0` is reserved for the native Termux workspace/Control Center. Guest displays
-come from a collision-checked registry: Debian `:1`, Ubuntu `:2`, Alpine
-`:3`, followed by the next free display for additional distros. Manual
-assignments must not collide with the native workspace, an active X server, or
-another managed guest. The current v2 device's Debian `:0`, Ubuntu `:1`,
-Alpine `:2` sessions are preserved; migration happens only through an
-explicit, staged v3 migration that validates all sockets and session records
-before switching.
+`:0` is reserved for the native Termux workspace/Control Center. New guest
+profiles receive stable defaults: Debian `:1`, Ubuntu `:2`, Alpine `:3`, then
+other named profiles in serial order. Startup checks the target X11 socket and
+matching Termux:X11 server, refuses occupied paths, and removes only a socket
+proven stale by its lock PID and process checks. The display number is persisted
+with the guest profile. Existing stored assignments remain authoritative: the
+current v2 device's Debian `:0`, Ubuntu `:1`, Alpine `:2` sessions are not
+changed by this code. A full collision registry and explicit staged migration
+still need to validate every target, record owner and lifecycle state, and
+switch only after all sessions can be moved safely.
 
 ## Per-guest recipe
 

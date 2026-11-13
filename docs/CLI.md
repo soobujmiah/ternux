@@ -49,10 +49,14 @@ before `lib/core.sh` can load is necessarily plain stderr, not JSON.
 ### `tx manager`
 
 Read the Native Termux manager snapshot without starting a service or guest.
-This first v3 slice reports installed PRoot guests and verified Ternux desktop
-profiles; it does not install, start, stop, or repair anything. The v1 JSON
-payload schemas are `docs/v3/schemas/manager-status-v1.schema.json`,
-`docs/v3/schemas/manager-guests-v1.schema.json`, and
+This first v3 slice reports installed PRoot guests, verified Ternux desktop
+profiles, and current/planned display assignments; it does not install, start,
+stop, or repair anything. `displays` reports socket/lock/server occupancy and flags
+when a v2 display migration is needed. Its planned target is diagnostic only;
+it never edits an assignment or moves a live session. The v1 JSON payload
+schemas are `docs/v3/schemas/manager-status-v1.schema.json`,
+`docs/v3/schemas/manager-guests-v1.schema.json`,
+`docs/v3/schemas/manager-displays-v1.schema.json`, and
 `docs/v3/schemas/manager-capabilities-v1.schema.json`. The capability list is
 generated from the same operation allowlist used by dispatch. Unknown
 operations and unexpected arguments fail closed. For a local read-only socket
@@ -72,6 +76,7 @@ TERNUX_LIB_DIR="$PWD/lib" bash ./bin/ternux manager status --json
 ```bash
 tx manager status [--json]
 tx manager guests [--json]
+tx manager displays [--json]
 tx manager capabilities [--json]
 ```
 
@@ -132,7 +137,7 @@ keeps the base profile.
 
 ### `ternux start`
 
-Start the Xfce4 desktop session in its own detached session so it survives the launching shell closing. The command returns only after Termux:X11 and the XFCE session, window manager, and desktop are ready, then brings the Termux:X11 app to the foreground. Re-running it focuses the existing desktop instead of starting a duplicate, including when its supervisor marker is missing but the live XFCE session remains. If startup fails, it returns an error and points to `~/.local/share/ternux/session/desktop.log`. Use `ternux status` or `ternux logs desktop tail` to inspect the session. Each guest has its own launcher under `~/.local/share/ternux/distros/NAME/launcher.sh`; `~/x.sh` remains a compatibility link for the most recently installed profile. After a CLI update, the selected launcher is refreshed when needed. The launcher:
+Start the Xfce4 desktop session in its own detached session so it survives the launching shell closing. The command returns only after Termux:X11 and the XFCE session, window manager, and desktop are ready, then brings the Termux:X11 app to the foreground. New profile defaults reserve `:0` for the future native Termux workspace, then assign Debian `:1`, Ubuntu `:2`, Alpine `:3`, and the remaining named profiles `:4` through `:15`. Existing profiles keep their saved display IDs until an explicit migration; this preserves current v2 installs. Startup refuses an occupied socket or matching Termux:X11 server and never removes an unproven socket. Re-running it focuses the existing desktop instead of starting a duplicate, including when its supervisor marker is missing but the live XFCE session remains. If startup fails, it returns an error and points to `~/.local/share/ternux/session/desktop.log`. Use `ternux status` or `ternux logs desktop tail` to inspect the session. Each guest has its own launcher under `~/.local/share/ternux/distros/NAME/launcher.sh`; `~/x.sh` remains a compatibility link for the most recently installed profile. After a CLI update, the selected launcher is refreshed when needed. The launcher:
 1. Cleans up any previous session
 2. Starts PulseAudio with TCP bridge
 3. Launches Termux:X11 display

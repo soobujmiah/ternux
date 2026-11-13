@@ -7,16 +7,19 @@ lang: "en"
 ## API design
 
 **Status: IMPLEMENTED (read-only CLI and explicit Unix-socket transport).**
-`tx manager status`, `tx manager guests`, and `tx manager capabilities` expose
-versioned JSON snapshots. They run directly in native Termux and do not need an
-installed guest. The HTTP adapter, event stream, jobs, and mutation endpoints
+`tx manager status`, `tx manager guests`, `tx manager displays`, and
+`tx manager capabilities` expose versioned JSON snapshots. The display snapshot
+distinguishes a guest's saved current display from its v3 target, records live
+socket/lock/server occupancy, and flags migration conflicts; it never changes or
+starts a session. These commands run directly in native Termux and do not need
+an installed guest. The HTTP adapter, event stream, jobs, and mutation endpoints
 remain designed contracts. The independent shared-core decision is recorded
 in [ADR-0004](ADR/0004-shared-manager-contract.md).
 
 Run `tx manager serve` to start the optional foreground socket service. It
 accepts one newline-terminated JSON request per connection, enforces the v1
 request envelope, bounds requests and responses, checks Linux peer credentials,
-and delegates only the three existing read-only operations to the CLI core.
+and delegates only the four existing read-only operations to the CLI core.
 The private socket directory is mode `0700`, the socket and startup lock are
 `0600`, and the service exits on Ctrl-C. An advisory lock prevents concurrent
 service starts from removing a socket during startup. Python 3 is optional
@@ -32,7 +35,7 @@ Use a Unix-domain socket for manager requests, with one bounded JSON request
 and response per connection. Long-running jobs use newline-delimited JSON
 events. The request envelope carries the exact schema version, a UUIDv4
 `request_id`, a catalogued operation name, and operation-typed arguments. The
-v1 schema exposes only the three implemented read-only operations and empty
+v1 schema exposes only the four implemented read-only operations and empty
 argument objects. Unknown operations, unknown envelope fields, and
 operation-inappropriate arguments fail closed. A future v1 minor may add
 response fields; incompatible request changes require a new major version.
@@ -93,6 +96,9 @@ environment maps, or unrestricted filesystem paths.
 
 - [Request envelope v1 JSON schema](https://github.com/soobujmiah/ternux/blob/main/docs/v3/schemas/manager-request-v1.schema.json) defines the
   supported read-only operation calls.
+- [Workspace display snapshot v1 schema](https://github.com/soobujmiah/ternux/blob/main/docs/v3/schemas/manager-displays-v1.schema.json)
+  defines current assignments, planned targets, socket/server occupancy, and
+  migration flags without enabling workspace mutations.
 - [Response envelope v1 JSON schema](https://github.com/soobujmiah/ternux/blob/main/docs/v3/schemas/manager-response-v1.schema.json) correlates
   each reply to its request and contains exactly one result or error.
 - [Error object v1 JSON schema](https://github.com/soobujmiah/ternux/blob/main/docs/v3/schemas/manager-error-v1.schema.json) provides stable

@@ -6,7 +6,7 @@ lang: "en"
 
 ## Implementation status
 
-**Last reviewed:** 2026-11-13 14:07 UTC. This page reports repository and device state;
+**Last reviewed:** 2026-11-13 15:17 UTC. This page reports repository and device state;
 it does not upgrade a design status into an implementation claim.
 
 | Area | State | Evidence / next gate |
@@ -17,9 +17,9 @@ it does not upgrade a design status into an implementation claim.
 | Window viewport helper | IMPLEMENTED and deployed in all three guests | Identical SHA-256 `a990edf3a929eb1633e70ad86d4d2044f841677531e770fdff953cc81aed4017`; prior oversized-window evidence is linked in device audit |
 | IBus engine switch command | IMPLEMENTED | Direct helper cycles each guest's configured engine and restores original; physical Ctrl+Space delivery remains separately qualified |
 | Native Control Center | PARTIAL; read-only Unix-socket service implemented, GUI not implemented | Explicit `tx manager serve`; source only until a separately versioned package ships |
-| Native manager read-only CLI payloads | IMPLEMENTED in current source; source-device verified | `TERNUX_LIB_DIR="$PWD/lib" bash ./bin/ternux manager ... --json` returned status/guest/capability payloads on this device. The released stable APT package remains 2.0.0 and `tx manager` there returns `Unknown command: manager`; source verification does not imply package delivery |
+| Native manager read-only CLI payloads | IMPLEMENTED in current source; display snapshot verified on device branch | `TERNUX_LIB_DIR="$PWD/lib" bash ./bin/ternux manager ... --json` returned status/guest/capability payloads; the branch also returned current/target display state on-device. The released stable APT package remains 2.0.0 and `tx manager` there returns `Unknown command: manager`; source verification does not imply package delivery |
 | Native manager API service / Control Center | PARTIAL; read-only Unix socket implemented and integration-tested on this Termux runtime | `python3 tests/manager_service.py` exercises the private socket, peer UID, malformed/oversized requests, concurrency, shutdown, and stale recovery; HTTP adapter, session authorization, supervisor, and graphical client remain open |
-| v3 display allocation | ACCEPTED DESIGN; not implemented | Native workspace `:0`; Debian/Ubuntu/Alpine `:1`/`:2`/`:3`; migration must preserve current v2 sessions until staged validation |
+| v3 display allocation | PARTIAL in unmerged work branch | New profiles default to native reservation `:0`, Debian `:1`, Ubuntu `:2`, Alpine `:3`, and stable serial slots for the other 12 recipes. Start refuses occupied socket/lock/server paths; `tx manager displays` reports current/target assignments and conflicts. Live v2 `:0/:1/:2` values remain saved and unmigrated. Central registry ownership, native workspace, and staged migration remain open; see [next actions](NEXT-ACTIONS.md) |
 | Compute/AI orchestration v3 | DESIGNED; existing v2 optional artifacts remain separate | No v3 runtime qualification claim |
 | Camera/microphone Device Bridge v3 | DESIGNED; no v3 broker implementation | Existing v2 limitations remain in the audit docs |
 | v3 distro-profile framework | DESIGNED; not implemented | v2 Debian/Ubuntu/Alpine behavior remains the compatibility baseline |

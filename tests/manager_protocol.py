@@ -15,8 +15,12 @@ failed = 0
 def validate(value, schema, root_schema=None):
     root_schema = root_schema or schema
     if "$ref" in schema:
-        name = schema["$ref"].split("/")[-1]
-        referenced = json.loads((SCHEMAS / name).read_text())
+        reference = schema["$ref"]
+        name = reference.split("/")[-1]
+        if reference.startswith("#/$defs/"):
+            referenced = root_schema["$defs"][name]
+        else:
+            referenced = json.loads((SCHEMAS / name).read_text())
         return validate(value, referenced, referenced)
     if "oneOf" in schema:
         matches = 0
@@ -107,6 +111,7 @@ def load(name):
 status = load("manager-status-v1.schema.json")
 guests = load("manager-guests-v1.schema.json")
 capabilities = load("manager-capabilities-v1.schema.json")
+displays = load("manager-displays-v1.schema.json")
 request_schema = load("manager-request-v1.schema.json")
 response_schema = load("manager-response-v1.schema.json")
 error_schema = load("manager-error-v1.schema.json")
@@ -117,12 +122,26 @@ status_result = {
     "management_mode": "direct-cli", "guest_manager_available": True,
     "installed_guest_count": 0, "running_desktops": [],
 }
+display_result = {
+    "schema_version": "1.0.0", "command": "manager.displays", "status": "ok",
+    "timestamp": "2026-11-13T09:00:00Z", "native_display": 0,
+    "native_socket_present": False, "native_lock_present": False,
+    "native_server_running": False,
+    "native_occupied": False, "count": 1,
+    "guests": [{
+        "name": "debian", "current_display": 0, "target_display": 1,
+        "running": True, "target_socket_present": True, "target_lock_present": False,
+        "target_server_running": True, "target_conflict": True,
+        "migration_required": True,
+    }],
+}
 base_request = {
     "schema_version": "1.0.0", "request_id": request_id,
     "operation": "manager.status", "arguments": {},
 }
 
 check("valid read-only request envelope", lambda: validate(base_request, request_schema))
+check("workspace display snapshot is an allowed read-only operation", lambda: validate({**base_request, "operation": "manager.displays"}, request_schema))
 check("request ID is required", lambda: validate({k: v for k, v in base_request.items() if k != "request_id"}, request_schema), False)
 check("unsupported major/minor schema versions are rejected", lambda: validate({**base_request, "schema_version": "2.0.0"}, request_schema), False)
 check("operation must exist in v1 catalog", lambda: validate({**base_request, "operation": "guest.remove"}, request_schema), False)
@@ -131,6 +150,7 @@ check("v1 read-only operations reject untyped arguments", lambda: validate({**ba
 
 error = {"code": "UNSUPPORTED_VERSION", "message": "Request version is unsupported.", "retryable": False}
 check("valid stable error object", lambda: validate(error, error_schema))
+check("display snapshot distinguishes current v2 state from v3 target", lambda: validate(display_result, displays))
 check("error message is required", lambda: validate({"code": "FAILED", "retryable": False}, error_schema), False)
 check("error code must be a stable uppercase identifier", lambda: validate({**error, "code": "bad code"}, error_schema), False)
 

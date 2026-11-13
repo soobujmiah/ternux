@@ -203,3 +203,21 @@ the lock prevents a duplicate service start and leaves the active socket
 intact. The request/response schema fixture suite passed 14/14, the focused
 regression suite passed 186/186, and repository-knowledge verification found
 zero findings. No guest data was changed.
+
+## v3 workspace display snapshot — 2026-11-13 15:17 UTC
+
+The unmerged `codex/v3-display-registry` source branch ran
+`TERNUX_LIB_DIR="$PWD/lib" env -u LD_LIBRARY_PATH bash ./bin/ternux manager displays --json`
+on the Termux host. It reported native display `:0` occupied (socket, lock and
+Termux:X11 server present), with Debian/Ubuntu/Alpine all still running on
+their saved v2 assignments `:0`/`:1`/`:2`. The planned v3 targets were
+`:1`/`:2`/`:3`; Debian and Ubuntu target conflicts were flagged, and migration
+was required for all three guests. The command did not change assignments,
+start or stop a guest, or launch the manager socket service. This is read-only
+registry reporting evidence, not a migration or native-workspace readiness
+test.
+
+On this branch, the focused shell suite passed 187/187, display registry,
+manager API 5/5, manager protocol 16/16, manager service 7/7, and the
+multi-guest lifecycle test. These tests used isolated fixtures; no live guest
+session was changed.

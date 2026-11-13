@@ -229,8 +229,8 @@ printf '2\n' | _tnx_stop_select > "$TMP/stop-single-picker"
 : > "$stop_calls"
 printf '1,2\n' | _tnx_stop_select > "$TMP/stop-picker"
 [ "$(cat "$stop_calls")" = $'debian\nubuntu' ]
-grep -q 'Display :0' "$TMP/stop-picker"
 grep -q 'Display :1' "$TMP/stop-picker"
+grep -q 'Display :2' "$TMP/stop-picker"
 printf 'all\n' | _tnx_stop_select > "$TMP/stop-all-picker"
 [ "$(wc -l < "$stop_calls")" -eq 4 ]
 kill "$debian_pid" "$ubuntu_pid" 2>/dev/null || true
