@@ -6,11 +6,11 @@ alt_url: "/bn/docs/TERMUX-APT.html"
 ---
 
 
-The signed Termux APT repository is prepared for the Ternux 2.0.0 release. The
-repository has **not been published yet**, so `pkg install ternux` is not
-available until the release gates are closed and the publishing workflow runs.
-The package installs the host CLI; it does not provision Debian/Xfce by itself.
-After package installation, run `ternux install` to set up the desktop.
+The signed Ternux 2.0.0 **release-candidate** repository is published at
+`/apt-rc` for qualification. The stable `/apt` repository and v2.0.0 release
+are published separately after final release checks. The package installs the
+host CLI; it does not provision Debian/Xfce by itself. After package
+installation, run `ternux install` to set up the desktop.
 
 ## Trust fingerprint
 
@@ -27,7 +27,7 @@ The key is an RSA 4096 signing key created on 2026-11-06 and expires on
 2031-11-05. The protected private key is held in the `apt-release` GitHub
 Actions environment; only the public key will be published with the repository.
 
-## One-command install after the repository is published
+## Install the release candidate
 
 Install the small bootstrap prerequisites from the normal Termux repository,
 then let the project script verify the pinned primary-key fingerprint, configure
@@ -36,8 +36,8 @@ APT with `signed-by`, refresh indexes, and install Ternux:
 ```bash
 pkg install curl gnupg
 curl -fsSLo "$TMPDIR/ternux-bootstrap.sh" \
-  https://soobujmiah.github.io/ternux/apt/bootstrap.sh
-bash "$TMPDIR/ternux-bootstrap.sh"
+  https://soobujmiah.github.io/ternux/apt-rc/bootstrap.sh
+bash "$TMPDIR/ternux-bootstrap.sh" --channel rc
 ```
 
 After this one-time setup, updates and reinstall use ordinary Termux commands:
@@ -49,17 +49,17 @@ pkg upgrade ternux
 pkg install ternux
 ```
 
-To configure the verified repository without installing the package yet, run
-`bash "$TMPDIR/ternux-bootstrap.sh" --configure-only`, then use `pkg install
-ternux` when ready. The script is idempotent and refuses symlinked APT
+To configure the verified candidate repository without installing the package
+yet, run `bash "$TMPDIR/ternux-bootstrap.sh" --channel rc --configure-only`,
+then use `pkg install ternux` when ready. The script is idempotent and refuses symlinked APT
 configuration paths or a signing key whose primary fingerprint does not match
 the value above. It never uses `[trusted=yes]`.
 
-Before the signed repository is published, the bootstrap URL will return 404;
-use the source installer in the README until the release workflow publishes
-v2. The project cannot make a brand-new Termux installation resolve
-`pkg install ternux` before this one-time trust setup unless Termux accepts
-Ternux into one of its own official package repositories.
+The RC bootstrap is for qualification. After stable publication, use
+`https://soobujmiah.github.io/ternux/apt/bootstrap.sh` without `--channel rc`.
+The project cannot make a brand-new Termux installation resolve `pkg install
+ternux` before this one-time trust setup unless Termux accepts Ternux into one
+of its own official package repositories.
 
 After publication, routine website deployments verify the currently published
 APT signature and every index/package checksum, then carry that signed tree into

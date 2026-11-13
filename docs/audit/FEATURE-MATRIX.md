@@ -29,8 +29,9 @@ supported v2 profile.
 
 ## Release gates
 
-The exact current blockers are maintained in [`../release-gates.json`](../release-gates.json)
-and summarized in [the v2 report](../V2-RELEASE-READINESS.md). Stable publication
-requires signed RC APT publication with hosted native package lifecycle evidence
-and a machine gate result of `READY_FOR_OWNER_APPROVAL`. The exact merged-main
-three-profile browser matrix passed in Validate run `43307868038`.
+The exact current acceptance status is maintained in [`../release-gates.json`](../release-gates.json)
+and summarized in [the v2 report](../V2-RELEASE-READINESS.md). Signed RC APT
+publication, hosted signature/index/hash verification, routine website
+preservation, native package lifecycle, and owner approval are complete. Stable
+`/apt` publication and the v2 tag/release remain. The exact merged-main
+three-profile browser matrix passed in Validate run `43311661213`.

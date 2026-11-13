@@ -175,7 +175,7 @@ Examples:
 HELP
 }
 tnx_help_repair()    { echo "Usage: ternux repair"; echo "Auto-fix common issues: broken curl, missing X11, backend mismatch, stale cache."; }
-tnx_help_verify()    { echo "Usage: ternux verify [--json]"; echo "Verify installation completeness. Checks binaries, launcher, container, GPU driver."; }
+tnx_help_verify()    { echo "Usage: ternux verify [DISTRO] [--json]"; echo "Verify the active guest by default, or select one with db, ub, alp, or its distro name. Checks host binaries, launcher, guest services, and GPU driver."; }
 tnx_help_benchmark() { echo "Usage: ternux benchmark [--json]"; echo "Run GPU benchmarks (glmark2, vkmark) and renderer verification."; }
 
 tnx_help_profile() {

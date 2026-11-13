@@ -491,8 +491,44 @@ tnx_cmd_doctor() {
 # ---------------------------------------------------------------------------
 # tnx_cmd_verify — installation completeness check
 # ---------------------------------------------------------------------------
+tnx_verify_select_distro() {
+  local requested="${1:-}" active="" selected="" candidate
+  if [ -n "$requested" ]; then
+    selected="$(tnx_distro_canonical "$requested")"
+    tnx_distro_known "$selected" || return 2
+    printf '%s' "$selected"
+    return 0
+  fi
+
+  # Multi-guest installs need verification to follow the currently selected
+  # desktop when an older saved install choice points at an incomplete guest.
+  active="$(cat "$TERNUX_STATE_DIR/session/distro" 2>/dev/null || true)"
+  if [ -n "$active" ] && tnx_distro_known "$active" && tnx_proot_container_installed "$active"; then
+    printf '%s' "$active"
+    return 0
+  fi
+
+  selected="$(tnx_distro)"
+  if tnx_distro_known "$selected" && tnx_proot_container_installed "$selected"; then
+    printf '%s' "$selected"
+    return 0
+  fi
+  if tnx_proot_container_installed debian; then
+    printf debian
+    return 0
+  fi
+  for candidate in $TERNUX_DISTRO_KNOWN; do
+    if tnx_proot_container_installed "$candidate"; then
+      printf '%s' "$candidate"
+      return 0
+    fi
+  done
+  printf '%s' "${selected:-debian}"
+}
+
 tnx_cmd_verify() {
   tnx_step "Verifying installation..."
+  [ "$#" -le 1 ] || { tnx_fail "Usage: ternux verify [DISTRO] [--json]"; return 2; }
 
   # Verification is safe to run anywhere: outside Termux the normal checks
   # report missing components instead of replacing structured output with a
@@ -515,7 +551,13 @@ tnx_cmd_verify() {
 
   # Selected guest and its generated launcher
   local distro launcher backend guest_installed=0
-  distro="$(tnx_distro)"
+  local TERNUX_DISTRO="" _TNX_DISTRO=""
+  distro="$(tnx_verify_select_distro "${1:-}")" || {
+    tnx_fail "Unknown guest profile '$1'. Run 'tx distro list' to see supported names."
+    return 2
+  }
+  TERNUX_DISTRO="$distro"
+  _TNX_DISTRO="$distro"
   launcher="$(tnx_distro_state_dir "$distro")/launcher.sh"
   if [ -x "$launcher" ] || { [ "$distro" = debian ] && [ -x "$HOME/x.sh" ]; }; then
     checks+=("launcher:present")

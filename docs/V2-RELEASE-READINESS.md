@@ -5,25 +5,28 @@ lang: "en"
 alt_url: "/bn/docs/V2-RELEASE-READINESS.html"
 ---
 
-**Status: NOT READY**
+**Status: READY FOR STABLE PUBLICATION**
 **Audit date:** 2026-11-13
 **Target:** Ternux 2.0.0
-**Latest stable release:** v1.4.0; v2.0.0 is not tagged or published.
+**Latest stable release:** v1.4.0; v2.0.0 stable APT publication and GitHub release are in progress.
 
 Ternux v2 desktop support is limited to **Debian, Ubuntu, and Alpine**. Other
 named distro recipes remain in the CLI but are not v2-qualified. The machine
 inventory in [`release-gates.json`](https://github.com/soobujmiah/ternux/blob/main/docs/release-gates.json) currently derives
-`NOT_READY` with one remaining blocker: public signed Termux APT
-publication/lifecycle verification. Exact merged-main browser CI passed on
-commit `f963832fb4acf9c3adb873430408ce21ddd29a37` (run `43307868038`).
+`READY_FOR_OWNER_APPROVAL`; the owner has authorized the release. The signed RC
+repository, website preservation, and native Termux install/remove/reinstall
+checks passed. Stable `/apt` publication and the v2 tag/release are the remaining
+release actions, not open acceptance gates. The exact current main Validate run
+`43311661213` passed on `ca0bba9093ecbe838df4b09f09dfee3197814845`; the
+three-profile browser gate passed in run `43307868038`.
 
 ## Current acceptance gates
 
 | Gate | Status | What closes it |
 |---|---|---|
-| P1-03 updater safety | **COMPLETE** | Source/hash pinning, stage-before-replace, interrupted-update recovery, downgrade guard, concurrency and symlink fixtures pass; the v1.4.0 source fixture upgrades to v2. A published v2 rollback demonstration is not required. Public package upgrade remains under P1-APT. |
+| P1-03 updater safety | **COMPLETE** | Source/hash pinning, stage-before-replace, interrupted-update recovery, downgrade guard, concurrency and symlink fixtures pass; the v1.4.0 source fixture upgrades to v2. A published v2 rollback demonstration is not required. |
 | P1-09 default browser | **COMPLETE** | Clean Debian Trixie, Ubuntu 24.04, and Alpine 3.24 Firefox X11 window checks passed in exact merged-main Validate run `43307868038` on `f963832fb4acf9c3adb873430408ce21ddd29a37`; Ubuntu uses Mozilla ESR without Snap. |
-| P1-APT signed Termux package | **BLOCKED** | Publish the signed RC tree, verify hosted key/index/package hashes, then verify native `pkg` install, upgrade, and uninstall. Stable v2 publication follows only after the remaining gates pass. |
+| P1-APT signed Termux package | **COMPLETE** | Signed RC public tree verified before and after a regular Pages redeploy; native Termux clean install, repository replacement, removal, and no-op upgrade resolution passed. v2.0.0 is the first published package version, so no older APT package exists for a version-delta upgrade. Evidence is in `release-gates.json` and `audit/REPOSITORY-STATE.md`. |
 
 HTP/HMX and QNN remain experimental or research-only and are excluded from
 stable v2 promises. CPU/Vulkan claims are limited to the named model, task, and
@@ -57,35 +60,38 @@ Qualification does not extend to other GPUs or devices.
 - `bash tests/update_transaction.sh`: passed the pinned update, migration,
   interrupted-update, recovery, rollback-fixture, concurrency, and symlink
   checks during this audit.
-- `python3 tests/release_gates.py --check` and `--self-test`: valid inventory;
-  `NOT_READY`, with only P1-APT blocking; P1-09 is complete on exact merged main.
+- `python3 tests/release_gates.py --check --self-test`: valid 20-gate inventory;
+  all blocking gates complete; recorded owner authorization is accepted only
+  after the gate inventory is ready.
 - `bash tests/firefox_package_matrix.sh`: added to exact-head CI for Debian,
   Ubuntu, and Alpine. It starts Firefox in Xvfb/Openbox and checks
-  the mapped visible application window; exact merged-main run `43307868038` passed. This Termux host has no Docker executable, so
-  the container matrix must be established by CI, not claimed as a local pass.
+  the mapped visible application window; exact merged-main run `43307868038`
+  passed. This Termux host has no Docker executable, so the container matrix is
+  established by CI, not claimed as a local pass.
 - `bash tests/focused.sh`: the audit exposed a test-hygiene regression because
   its `py_compile` step wrote `__pycache__` into packaged assets; the test now
-  directs bytecode to its temporary directory. Re-run the complete suite on the
-  exact candidate commit before release.
-- Public `/apt` and `/apt-rc` endpoints previously returned 404. Publishing is
-  still required; the signed repository build alone is not public installation
-  evidence.
+  directs bytecode to its temporary directory. The complete suite passed on
+  exact main in run `43311661213`.
+- Signed `/apt-rc` paths returned HTTP 200 and the InRelease signature verified
+  after candidate publication and routine website redeploy. Native Termux fetched
+  and installed the indexed package. Stable `/apt` and the v2 tag/release remain
+  the final publication steps.
 
 ## Release sequence
 
-1. Exact merged-main Validate run `43307868038` on
-   `f963832fb4acf9c3adb873430408ce21ddd29a37` passed the three-profile browser
-   matrix, focused tests, docs/site build, package tests, and required CI checks.
+1. Exact merged-main Validate run `43311661213` on
+   `ca0bba9093ecbe838df4b09f09dfee3197814845` passed the required CI; the
+   three-profile browser matrix passed earlier in Validate run `43307868038`.
 2. Merge the reviewed product changes, then allow the deterministic `.repo/`
    workflow to generate and validate its state update. Do not edit `.repo/`
    manually.
-3. Publish `/apt-rc`; verify the public bootstrap, key fingerprint, signed
-   `InRelease`, package index, and package checksums. Test the native package
-   lifecycle without deleting the owner's Debian, Ubuntu, or Alpine guests.
-4. Recompute the machine gates against exact current evidence. Publish stable
-   v2 only when every blocking gate is complete and readiness is
-   `READY_FOR_OWNER_APPROVAL`. The stable APT workflow now runs this validator
-   and refuses `publish-v2` while any blocking gate remains incomplete.
+3. Signed `/apt-rc` publication, signature/index/checksum verification, a
+   routine website redeploy, native Termux package lifecycle, and exact-main CI
+   have all passed. The Debian, Ubuntu, and Alpine guests remain installed and
+   running.
+4. Publish stable `/apt`, switch the native bootstrap source to stable, verify
+   its signature and index, then create the `v2.0.0` tag and GitHub release. The
+   stable APT workflow refuses publication if any blocking gate is incomplete.
 5. After v2 closes, publish and review the full v3 architecture and acceptance
    plan. The v3 system design is not a v2 deliverable.
 

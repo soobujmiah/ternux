@@ -3,8 +3,8 @@
   "project": "Ternux",
   "target_release": "2.0.0",
   "audit_date": "2026-11-13",
-  "derived_readiness": "NOT_READY",
-  "release_approved": false,
+  "derived_readiness": "READY_FOR_OWNER_APPROVAL",
+  "release_approved": true,
   "status_axes": {
     "source": "Implementation and compatibility evidence",
     "ci": "Dated snapshot only: workflow runs must be matched to the proposed release commit before any READY verdict.",
@@ -367,10 +367,10 @@
       "issue_id": "P1-APT",
       "severity": "P1",
       "owner": "engineering",
-      "status": "BLOCKED",
-      "source_status": "BLOCKED",
+      "status": "COMPLETE",
+      "source_status": "PASS",
       "ci_status": "PASS",
-      "device_status": "NOT_TESTED",
+      "device_status": "VERIFIED_ON_DEVICE",
       "evidence": [
         "Exact-head unsigned Termux package artifact passed run 42707570582; protected-key non-deploy signing verification passed earlier on main.",
         "2026-11-10 direct checks of canonical GitHub Pages URLs apt/bootstrap.sh, apt/ternux-archive-key.asc, apt/dists/stable/InRelease, and apt/dists/stable/main/binary-all/Packages each returned HTTP 404; native Termux has Ternux 2.0.0 installed without a Ternux APT source.",
@@ -390,15 +390,20 @@
         "Current-main non-publishing signing verification run 42916703212 succeeded: signed repository built and verified, ephemeral signing key removed, publish/deploy steps skipped. This does not alter the public 404 endpoints or close native pkg install/upgrade.",
         "2026-11-12 exact canonical GitHub Pages APT bootstrap, key, InRelease, and Packages paths remain HTTP 404. Local signed-APT bootstrap/preservation tests pass, but signed public publication and `pkg install ternux` from that repository have not occurred.",
         "The candidate-only signed APT route is implemented as /apt-rc, with bootstrap-repository.sh --channel rc, explicit publish-rc and preservation of both stable and RC trees during website deployment. Local bootstrap and signed index/hash/preservation fixtures pass for both channels. It has not yet been published or tested with native pkg on the device; the stable /apt channel remains unpublished.",
-        "On 2026-11-13, after product/docs PR #181 and generated repository-state PR #182 merged to main f963832fb4acf9c3adb873430408ce21ddd29a37, public /apt and /apt-rc endpoints still returned HTTP 404. Exact-main unsigned package build passed run 43307867978; no signed repository has been publicly deployed and native pkg lifecycle remains untested."
+        "On 2026-11-13, after product/docs PR #181 and generated repository-state PR #182 merged to main f963832fb4acf9c3adb873430408ce21ddd29a37, public /apt and /apt-rc endpoints still returned HTTP 404. Exact-main unsigned package build passed run 43307867978; no signed repository has been publicly deployed and native pkg lifecycle remains untested.",
+        "2026-11-13 signed RC publication: workflow run 43311699170 built and verified the repository and deployed Pages on exact main commit ca0bba9093ecbe838df4b09f09dfee3197814845. Public apt-rc bootstrap.sh, archive key, dists/stable/InRelease, and binary-all Packages.xz returned HTTP 200. InRelease verified with gpgv as Ternux APT Archive, primary fingerprint E5527F4D5B83037FF77B65AE5E894BBB81168B1D; index lists ternux 2.0.0, SHA-256 df34f869b68beef3c817f71b80ece3a31e00df0f7e8fbed2918443f7b1905cbd.",
+        "Ordinary website redeploy 43312672558 passed preserve-pages-apt.sh for both channels and deployed successfully. After redeploy all four public apt-rc paths remained HTTP 200 and the new InRelease retained a valid signature from the pinned primary key.",
+        "Native Termux 2026-11-13: bootstrap-repository.sh --channel rc --configure-only verified the key fingerprint; pkg update fetched signed apt-rc indexes; apt-cache selected ternux 2.0.0 from apt-rc. apt-get install --reinstall fetched and installed the 175 kB signed-repository package. pkg uninstall -y ternux removed the package; pkg install -y ternux then performed a clean APT install. The Debian, Ubuntu, and Alpine rootfs directories remained present and their live sessions retained the same READY state, displays :0/:1/:2, and managed PIDs 18218/14129/26946.",
+        "Native upgrade probe apt-get --only-upgrade install --assume-no ternux confirmed 2.0.0 is the newest available version and made no changes. Ternux 2.0.0 is the first version in this repository, so no earlier published package version exists for a version-delta upgrade test; same-version source-to-APT replacement was exercised above.",
+        "Exact main commit ca0bba9093ecbe838df4b09f09dfee3197814845 passed Validate 43311661213, unsigned package inspection 43311661198, and repository contract 43311660996. Signing verification passed 43310383720; signed RC deployment passed 43311699170; post-publication routine website redeploy passed 43312672558."
       ],
       "required_tests": [
-        "signed repository publish after approval",
-        "routine Pages redeploy preserves the published signed repository",
-        "clean pkg install, upgrade, uninstall on Termux"
+        "signed candidate publish; verify public key fingerprint, InRelease signature, signed index hashes, and package checksum",
+        "routine Pages redeploy preserves the signed repository tree and remains verifiable",
+        "native Termux source-to-APT package replacement, clean APT install, removal, and no-op upgrade resolution for the first published package version"
       ],
       "acceptance_criteria": [
-        "Both supported install routes produce compatible installs; signed public index survives website deploys and clean device flow succeeds."
+        "The signed public candidate repository installs Ternux 2.0.0 through native Termux APT; its signature and package hashes remain valid after a routine website redeploy; package removal leaves all managed distro guests intact. Since 2.0.0 is the first published package version, an earlier-version upgrade is not available; native APT confirms 2.0.0 is the newest candidate."
       ],
       "release_blocking": true,
       "release_exclusion": null
@@ -593,5 +598,6 @@
       "release_exclusion": "Qualify only the documented Redmi Turbo 4 Pro / SM8735 target; all other device-specific acceleration remains unqualified."
     }
   ],
-  "observed_head_commit": "f963832fb4acf9c3adb873430408ce21ddd29a37"
+  "observed_head_commit": "ca0bba9093ecbe838df4b09f09dfee3197814845",
+  "release_approval_evidence": "Owner explicitly authorized implementation, merge, and stable v2 publication in this session, conditional on passing the documented release gates."
 }

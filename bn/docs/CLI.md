@@ -218,11 +218,17 @@ ternux repair
 
 ### `ternux verify`
 
-ইনস্টলেশন সম্পূর্ণতা যাচাই করে। যাচাই ব্যর্থ হলে human এবং `--json`—দুই
-mode-এই nonzero exit status দেয়।
+বর্তমানে active guest-এর installation যাচাই করে; চাইলে full distro name বা
+short command দিয়ে নির্দিষ্ট guest বেছে নিন। Active guest না থাকলে saved
+installed profile, তারপর Debian, তারপর অন্য installed Ternux profile নেওয়া হয়।
+এটি host binary, launcher, guest service ও GPU driver যাচাই করে। Human এবং
+`--json`—দুই mode-এই ব্যর্থ verification nonzero exit status দেয়।
 
 ```bash
-ternux verify [--json]
+ternux verify [DISTRO] [--json]
+tx verify db --json
+tx verify ub --json
+tx verify alp --json
 ```
 
 ### `ternux benchmark`

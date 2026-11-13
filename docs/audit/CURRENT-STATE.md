@@ -2,7 +2,7 @@
 
 **Audit date:** 2026-11-13 (UTC)
 **Repository:** `soobujmiah/ternux`
-**Audit base:** `main` at `f963832fb4acf9c3adb873430408ce21ddd29a37`
+**Audit base:** `main` at `ca0bba9093ecbe838df4b09f09dfee3197814845`
 **Target:** finish v2.0.0 for Debian, Ubuntu, and Alpine; publish the complete v3 architecture only after v2 acceptance.
 
 This page is the concise current-state index. Evidence, device checks, and the
@@ -13,13 +13,15 @@ never edited by hand.
 
 ## Current outcome
 
-**v2 is not ready to publish.** The public signed Termux APT endpoints return
-404, so a clean `pkg install ternux` from Ternux's own repository has not been
-verified. This is the only remaining blocking gate. The exact merged-main
-Validate run `43307868038` passed on `f963832fb4acf9c3adb873430408ce21ddd29a37`,
-including the clean Debian/Ubuntu/Alpine Firefox X11 matrix. The in-place
-updater's staged migration, integrity, interrupted-update, and recovery fixtures
-pass; a physical rollback demonstration is not a v2 acceptance requirement.
+**All blocking v2 acceptance gates are complete.** Signed `/apt-rc` publication,
+signature/index/hash checks, a routine website redeploy, and native Termux
+install/reinstall/removal tests passed. The owner authorized stable publication;
+the stable APT tree, `v2.0.0` tag, and GitHub release are now the remaining
+publication steps. Exact-main Validate run `43311661213` passed on
+`ca0bba9093ecbe838df4b09f09dfee3197814845`; it includes the clean
+Debian/Ubuntu/Alpine Firefox X11 matrix. The in-place updater's staged migration,
+integrity, interrupted-update, and recovery fixtures pass; a physical rollback
+demonstration is not a v2 acceptance requirement.
 
 The v2 support statement is limited to Debian, Ubuntu, and Alpine guest profiles
 on the documented Android/ARM64 device stack. Other named guest recipes remain
@@ -48,14 +50,11 @@ recorded separately; no universal GPU claim is made.
 
 ## Delivery order
 
-1. The exact merged-main browser matrix and required Validate checks passed in
-   run `43307868038`.
-2. Publish the signed RC repository, verify hosted signatures/indexes, and test
-   native Termux package install/upgrade/uninstall without removing user guests
-   or unrelated packages.
-3. Recompute every blocking v2 gate from current evidence. Publish v2.0.0 only
-   when the machine validator reports `READY_FOR_OWNER_APPROVAL` and the owner
-   authorizes the stable release.
+1. Exact-main browser matrix and required Validate checks passed in run
+   `43311661213`; signed RC and native package lifecycle passed.
+2. Publish stable `/apt`, verify the hosted signature and package index, switch
+   the native source to stable, and confirm `pkg` resolves v2.0.0.
+3. Create the `v2.0.0` tag and GitHub release only after stable endpoints pass.
 4. After v2 is complete, publish the v3 architecture and its versioned
    acceptance plan. V3 work must not be described as part of v2.
 

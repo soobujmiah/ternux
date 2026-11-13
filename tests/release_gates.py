@@ -101,8 +101,19 @@ def validate(data: object) -> list[str]:
     expected = "NOT_READY" if blocking_incomplete else "READY_FOR_OWNER_APPROVAL"
     if data.get("derived_readiness") != expected:
         errors.append(f"derived_readiness must be {expected}; incomplete blocking gates: {', '.join(blocking_incomplete) or 'none'}")
-    if data.get("release_approved") is not False:
-        errors.append("release_approved must remain false until owner authorization")
+    approved = data.get("release_approved")
+    if not isinstance(approved, bool):
+        errors.append("release_approved must be boolean")
+    approval_evidence = data.get("release_approval_evidence", "")
+    if not isinstance(approval_evidence, str):
+        errors.append("release_approval_evidence must be a string")
+    elif approved:
+        if expected != "READY_FOR_OWNER_APPROVAL":
+            errors.append("release_approved requires every blocking gate to be complete")
+        if not approval_evidence.strip():
+            errors.append("release_approved requires explicit owner-authorization evidence")
+    elif approval_evidence.strip():
+        errors.append("release_approval_evidence must be empty until release_approved is true")
     return errors
 
 
@@ -120,6 +131,21 @@ def self_test(data: object) -> list[str]:
             gate["device_status"] = "VERIFIED_ON_DEVICE"
     if validate(ready):
         errors.append("validator rejected a fully evidenced owner-approval-ready fixture")
+    authorized = copy.deepcopy(ready)
+    authorized["release_approved"] = True
+    authorized["release_approval_evidence"] = "Owner explicitly authorized stable v2 publication after all release gates pass."
+    if validate(authorized):
+        errors.append("validator rejected explicit owner authorization after all gates passed")
+    unauthorized = copy.deepcopy(authorized)
+    unauthorized["release_approval_evidence"] = ""
+    if not any("explicit owner-authorization evidence" in issue for issue in validate(unauthorized)):
+        errors.append("validator allowed release approval without owner-authorization evidence")
+    premature = copy.deepcopy(data)
+    premature["gates"][0]["status"] = "PARTIAL"
+    premature["release_approved"] = True
+    premature["release_approval_evidence"] = "Owner authorized release."
+    if not any("every blocking gate" in issue for issue in validate(premature)):
+        errors.append("validator allowed release approval before blocking gates passed")
     ready["gates"][0]["ci_status"] = "PENDING"
     if not any("derived_readiness must be NOT_READY" in issue for issue in validate(ready)):
         errors.append("validator allowed pending CI to produce a READY_FOR_OWNER_APPROVAL verdict")
