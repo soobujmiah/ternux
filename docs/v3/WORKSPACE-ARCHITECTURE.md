@@ -34,9 +34,11 @@ current v2 device's Debian `:0`, Ubuntu `:1`, Alpine `:2` sessions are not
 changed by this code. The read-only report matches occupied targets to one
 running guest's saved display assignment when possible; this does not prove
 OS-level socket ownership. Otherwise it labels the reserved native slot or an
-unidentified owner. A persistent collision registry and explicit staged
-migration still need to validate every target, record owner and lifecycle
-state, and switch only after all sessions can be moved safely.
+unidentified owner. The persistent registry records workspace identity,
+saved/target displays, last lifecycle, and update time; socket-owner details
+remain runtime probes rather than persisted claims. Explicit staged migration
+still needs to validate every target and switch only after all sessions can be
+moved safely.
 
 ## Per-guest recipe
 

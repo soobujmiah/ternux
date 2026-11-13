@@ -6,7 +6,7 @@ lang: "en"
 
 ## ADR-0005: Native-first display allocation
 
-- **Status:** Accepted; initial defaults and startup collision guards implemented, migration pending.
+- **Status:** Accepted; defaults, startup collision guards, and lifecycle registry implemented; migration pending.
 - **Date:** 2026-11-13.
 - **Decision owners:** Ternux project owner.
 
@@ -49,9 +49,13 @@ unrecognized or externally occupied displays cause a clear allocation error
 instead of being terminated or reused.
 
 The current implementation provides stable defaults for newly configured
-profiles and preserves each existing profile's saved display. Desktop startup
+profiles and preserves each existing profile's saved display. A versioned,
+lock-protected registry atomically stores workspace ID, current and target
+display, last lifecycle state, and update time. Socket paths, locks, server
+processes, and inferred owner class remain live observations; the registry does
+not claim OS-level socket ownership. Desktop startup
 checks for an occupied socket, X lock, or matching server process and refuses
 to reuse it. The read-only `tx manager displays` command reports current and
 target assignments, occupied target paths, and whether migration is required.
-The live v2 mapping is not migrated automatically. A centralized registry,
-native workspace lifecycle, and staged migration remain open.
+The live v2 mapping is not migrated automatically. Native workspace lifecycle
+and staged migration remain open.

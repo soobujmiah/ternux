@@ -6,11 +6,13 @@ lang: "en"
 
 ## Next actions
 
-**Last reviewed:** 2026-11-13 16:55 UTC. This list is ordered by dependency and includes
+**Last reviewed:** 2026-11-13 17:30 UTC. This list is ordered by dependency and includes
 only work that remains open.
 
-1. Complete the display registry: persist workspace identity and lifecycle
-   state, then implement staged migration. This source revision's read-only
+1. Display registry persistence is implemented: it stores workspace identity,
+   current/target display, last lifecycle, and update time, with saved display
+   and lifecycle exposed in the read-only snapshot. Implement staged migration
+   next. This source revision's read-only
    report matches occupied targets to a unique running guest's saved display
    assignment and labels other collisions as native-reserved or unidentified.
    This is not OS-level socket-owner proof. Live display IDs remain unchanged
