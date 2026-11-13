@@ -109,6 +109,69 @@ tnx_distro_display() {
   tnx_distro_target_display "$distro"
 }
 
+# Durable workspace display/lifecycle registry. Profile files remain the
+# source of saved assignments; this index is an atomically refreshed record
+# for manager clients and staged migration diagnostics. Never infer ownership
+# from this file alone: live socket/process probes remain authoritative.
+TNX_WORKSPACE_REGISTRY_VERSION=1
+tnx_workspace_registry_path() { printf '%s/workspaces.tsv' "$TERNUX_STATE_DIR"; }
+
+tnx_workspace_registry_validate() {
+  local file="${1:-$(tnx_workspace_registry_path)}"
+  [ -f "$file" ] || return 0
+  awk -F '\t' '
+    NR == 1 { if ($0 != "ternux-workspace-registry-v1") exit 1; next }
+    NF != 6 || $1 !~ /^[A-Za-z0-9][A-Za-z0-9._-]*$/ || $1 != $2 ||
+      $3 !~ /^[0-9]{1,2}$/ || $4 !~ /^[1-9][0-9]?$/ ||
+      $5 !~ /^(STOPPED|STARTING|READY|STOPPING|FAILED|RECOVERING)$/ ||
+      $6 !~ /^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$/ ||
+      seen[$1]++ { exit 1 }
+    END { if (NR == 0) exit 1 }
+  ' "$file"
+}
+
+tnx_workspace_registry_get() {
+  local distro="${1:-}" key="${2:-}" file column
+  case "$key" in id) column=1 ;; name) column=2 ;; display) column=3 ;; target) column=4 ;; lifecycle) column=5 ;; updated_at) column=6 ;; *) return 2 ;; esac
+  [[ "$distro" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ ]] || return 2
+  file="$(tnx_workspace_registry_path)"
+  [ -f "$file" ] || return 1
+  tnx_workspace_registry_validate "$file" || return 2
+  awk -F '\t' -v id="$distro" -v column="$column" '$1 == id { print $column; found=1 } END { if (!found) exit 1 }' "$file"
+}
+
+tnx_workspace_registry_update() {
+  local distro="${1:-}" lifecycle="${2:-}" display registry dir tmp now target lock_fd
+  [[ "$distro" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ ]] || return 2
+  tnx_distro_known "$distro" || return 2
+  case "$lifecycle" in STOPPED|STARTING|READY|STOPPING|FAILED|RECOVERING) ;; *) return 2 ;; esac
+  display="${3:-$(tnx_distro_display "$distro")}"; target="$(tnx_distro_target_display "$distro")" || return 2
+  [[ "$display" =~ ^[0-9]{1,2}$ && "$target" =~ ^[1-9][0-9]?$ ]] || return 2
+  dir="$TERNUX_STATE_DIR"; registry="$(tnx_workspace_registry_path)"
+  mkdir -p "$dir" || return 1
+  exec {lock_fd}>"$dir/workspaces.lock" || return 1
+  flock -x "$lock_fd" || { exec {lock_fd}>&-; return 1; }
+  if ! tnx_workspace_registry_validate "$registry"; then
+    tnx_warn "Workspace registry is malformed; refusing to overwrite it: $registry"
+    exec {lock_fd}>&-
+    return 1
+  fi
+  tmp="$(mktemp "$dir/.workspaces.XXXXXX")" || { exec {lock_fd}>&-; return 1; }
+  now="$(date -u '+%Y-%m-%dT%H:%M:%SZ')" || { rm -f "$tmp"; exec {lock_fd}>&-; return 1; }
+  if [ -f "$registry" ]; then
+    awk -F '\t' -v OFS='\t' -v id="$distro" -v display="$display" -v target="$target" -v lifecycle="$lifecycle" -v now="$now" '
+      NR == 1 { print; next }
+      $1 == id { print id,id,display,target,lifecycle,now; found=1; next }
+      { print }
+      END { if (!found) print id,id,display,target,lifecycle,now }
+    ' "$registry" > "$tmp" || { rm -f "$tmp"; exec {lock_fd}>&-; return 1; }
+  else
+    printf 'ternux-workspace-registry-v1\n%s\t%s\t%s\t%s\t%s\t%s\n' "$distro" "$distro" "$display" "$target" "$lifecycle" "$now" > "$tmp" || { rm -f "$tmp"; exec {lock_fd}>&-; return 1; }
+  fi
+  chmod 0600 "$tmp" && mv -f "$tmp" "$registry" || { rm -f "$tmp"; exec {lock_fd}>&-; return 1; }
+  exec {lock_fd}>&-
+}
+
 tnx_distro_tag() {
   local distro="${1:-$(tnx_distro)}"
   [[ "$distro" =~ ^[a-zA-Z0-9][a-zA-Z0-9._-]*$ ]] || return 2

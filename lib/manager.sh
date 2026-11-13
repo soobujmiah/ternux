@@ -48,9 +48,18 @@ tnx_manager_guest_json() {
 tnx_manager_display_entry_json() {
   local name="$1" current target socket_present=false lock_present=false server_running=false running=false
   local target_conflict=false migration_required=false occupied=false target_owner=null target_owner_kind=unoccupied
+  local registry_display=null registry_lifecycle=unregistered registry_rc=0
   local -n running_guest_ref="$2"
   current="$(tnx_distro_state_get "$name" display 2>/dev/null || true)"
   [[ "$current" =~ ^[0-9]{1,2}$ ]] || current=null
+  local registry_value
+  if registry_value="$(tnx_workspace_registry_get "$name" display 2>/dev/null)"; then
+    [[ "$registry_value" =~ ^[0-9]{1,2}$ ]] && registry_display="$registry_value"
+    registry_lifecycle="$(tnx_workspace_registry_get "$name" lifecycle 2>/dev/null || echo invalid)"
+  else
+    registry_rc=$?
+    [ "$registry_rc" -eq 2 ] && registry_lifecycle=invalid
+  fi
   target="$(tnx_distro_target_display "$name" 2>/dev/null || true)"
   [[ "$target" =~ ^[0-9]{1,2}$ ]] || return 1
   [ "${running_guest_ref[$name]:-0}" = 1 ] && running=true
@@ -82,8 +91,8 @@ tnx_manager_display_entry_json() {
       target_owner_kind=unidentified
     fi
   fi
-  printf '{"name":"%s","current_display":%s,"target_display":%s,"running":%s,"target_socket_present":%s,"target_lock_present":%s,"target_server_running":%s,"target_conflict":%s,"migration_required":%s,"target_owner":%s,"target_owner_kind":"%s"}' \
-    "$name" "$current" "$target" "$running" "$socket_present" "$lock_present" "$server_running" "$target_conflict" "$migration_required" "$target_owner" "$target_owner_kind"
+  printf '{"name":"%s","current_display":%s,"target_display":%s,"registry_display":%s,"registry_lifecycle":"%s","running":%s,"target_socket_present":%s,"target_lock_present":%s,"target_server_running":%s,"target_conflict":%s,"migration_required":%s,"target_owner":%s,"target_owner_kind":"%s"}' \
+    "$name" "$current" "$target" "$registry_display" "$registry_lifecycle" "$running" "$socket_present" "$lock_present" "$server_running" "$target_conflict" "$migration_required" "$target_owner" "$target_owner_kind"
 }
 
 tnx_manager_displays_json() {
@@ -104,7 +113,7 @@ tnx_manager_displays_json() {
   if [[ -e "${TMPDIR:-/data/data/com.termux/files/usr/tmp}/.X$TERNUX_NATIVE_DISPLAY-lock" || -L "${TMPDIR:-/data/data/com.termux/files/usr/tmp}/.X$TERNUX_NATIVE_DISPLAY-lock" ]]; then native_lock=true; native_occupied=true; fi
   if tnx_x11_server_running_on_display "$TERNUX_NATIVE_DISPLAY"; then native_server=true; native_occupied=true; fi
   tnx_json_init
-  tnx_json_add "schema_version" "1.1.0"
+  tnx_json_add "schema_version" "1.2.0"
   tnx_json_add "command" "manager.displays"
   tnx_json_add "status" "ok"
   tnx_json_add "timestamp" "$( __tnx_ts )"

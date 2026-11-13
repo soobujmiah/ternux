@@ -13,8 +13,11 @@ distinguishes a guest's saved current display from its v3 target, records live
 socket/lock/server occupancy, reports the uniquely matched active guest's
 saved display assignment where possible, and labels unresolved ownership
 explicitly. This is not OS-level socket-owner proof. Display payload schema is
-1.1.0; other manager payloads remain 1.0.0. It never changes or
-starts a session. These commands run directly in native Termux and do not need
+1.2.0. A lock-protected registry persists workspace ID, saved/target display,
+last lifecycle, and update time. The snapshot exposes its saved display and
+last recorded lifecycle. Socket ownership remains a runtime observation, never
+a persisted claim. Other manager payloads remain 1.0.0. The command never
+changes or starts a session. These commands run directly in native Termux and do not need
 an installed guest. The HTTP adapter, event stream, jobs, and mutation endpoints
 remain designed contracts. The independent shared-core decision is recorded
 in [ADR-0004](ADR/0004-shared-manager-contract.md).

@@ -289,6 +289,7 @@ tnx_cmd_start() {
        [ "$(tnx_process_start_identity "$old_pid" 2>/dev/null || true)" = "$old_start" ] &&
        grep -q '^READY$' "$ready_file" 2>/dev/null && tnx_desktop_session_live; then
       printf '%s\n' READY > "$session_dir/desktop.state"
+      tnx_workspace_registry_update "$distro" READY "$display_num" || tnx_warn "Could not update the workspace registry for '$distro'."
       tnx_show_x11_activity "$tag"
       tnx_info "Desktop is already running on $display (PID $old_pid). Use 'ternux status' or 'ternux logs desktop tail'."
       [ "${TERNUX_JSON:-0}" = "1" ] && tnx_json_object "start" "already_running" "pid" "$old_pid"
@@ -302,6 +303,7 @@ tnx_cmd_start() {
   if tnx_desktop_session_live; then
     local active_pid="$(cat "$pid_file" 2>/dev/null || true)"
     printf '%s\n' READY > "$state_file"
+    tnx_workspace_registry_update "$distro" READY "$display_num" || tnx_warn "Could not update the workspace registry for '$distro'."
     tnx_show_x11_activity "$tag"
     tnx_info "Desktop is already active on $display${active_pid:+ (PID $active_pid)}. Use 'ternux status' or 'ternux logs desktop tail'."
     [ "${TERNUX_JSON:-0}" = "1" ] && tnx_json_object "start" "already_running" "pid" "${active_pid:-unknown}"
@@ -345,6 +347,12 @@ tnx_cmd_start() {
     return 1
   fi
   printf '%s\n' STARTING > "$state_file" || { tnx_fail "Could not record desktop startup state."; exec 9>&-; return 1; }
+  if ! tnx_workspace_registry_update "$distro" STARTING "$display_num"; then
+    printf '%s\n' FAILED > "$state_file"
+    exec 9>&-
+    tnx_fail "Could not persist workspace identity before startup; no desktop was launched."
+    return 1
+  fi
   tnx_info "Starting $distro desktop on $display (backend: $configured_backend)..."
   setsid env LD_LIBRARY_PATH= TNX_PID_FILE="$pid_file" nohup bash "$launcher_path" >>"$desktop_log" 2>&1 </dev/null 9>&- &
   local spawn_pid=$! pid="$!"
@@ -386,6 +394,7 @@ tnx_cmd_start() {
     wait "$spawn_pid" 2>/dev/null || rc=$?
     rm -f "$pid_file" "$pid_file.identity"
     printf '%s\n' FAILED > "$state_file"
+    tnx_workspace_registry_update "$distro" FAILED "$display_num" || tnx_warn "Could not update the workspace registry for '$distro'."
     exec 9>&-
     tnx_fail "Desktop did not complete XFCE startup. See 'ternux logs show' for details."
     [ "${TERNUX_JSON:-0}" = "1" ] && tnx_json_object "start" "error" "backend" "$configured_backend" "log" "$desktop_log"
@@ -400,6 +409,7 @@ tnx_cmd_start() {
   fi
   printf '%s\n' READY > "$state_file"
   printf '%s\n' "$distro" > "$session_dir/distro"
+  tnx_workspace_registry_update "$distro" READY "$display_num" || tnx_warn "Could not update the workspace registry for '$distro'."
   exec 9>&-
   if [ "${TERNUX_JSON:-0}" = "1" ]; then
     tnx_show_x11_activity "$tag"
@@ -446,6 +456,7 @@ tnx_cmd_stop() {
     exec 8>&-
     return 1
   fi
+  tnx_workspace_registry_update "$distro" STOPPING "$(tnx_distro_display "$distro")" || tnx_warn "Could not update the workspace registry for '$distro'."
   if [ -r "$identity_file" ]; then
     read -r recorded_pid start_id pgid < "$identity_file" || true
   fi
@@ -496,6 +507,7 @@ tnx_cmd_stop() {
   # markers above are gone. Normalize stale FAILED/RECOVERING states too, so a
   # later status/start does not keep reporting a dead session indefinitely.
   printf '%s\n' STOPPED > "$session_dir/desktop.state"
+  tnx_workspace_registry_update "$distro" STOPPED "$(tnx_distro_display "$distro")" || tnx_warn "Could not update the workspace registry for '$distro'."
   exec 8>&-
 
   if [ "${TERNUX_JSON:-0}" = "1" ]; then

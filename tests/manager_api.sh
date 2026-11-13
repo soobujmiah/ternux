@@ -14,6 +14,8 @@ if env TERNUX_STATE_DIR="$TMP/state" HOME="$TMP/home" TMPDIR="$TMP/tmp" bash -c 
   pgrep(){ return 1; }
   proot-distro(){ printf "ubuntu\ndebian\ndebian\nunsafe/name\nalpine\nimage_1\n"; }
   _tnx_running_guest_sessions(){ printf "debian\nalpine\n"; }
+  tnx_distro_state_set debian display 0 || exit 1
+  tnx_workspace_registry_update debian READY 0 || exit 1
   guests="$(TERNUX_JSON=1 tnx_cmd_manager guests)" || exit 1
   displays="$(TERNUX_JSON=1 tnx_cmd_manager displays)" || exit 1
   status="$(TERNUX_JSON=1 tnx_cmd_manager status)" || exit 1
@@ -76,8 +78,12 @@ assert all(x['state']=='installed' for x in g['guests'])
 assert d['command']=='manager.displays' and d['native_display']==0 and d['native_occupied'] is False
 assert d['count']==3 and [x['name'] for x in d['guests']]==['alpine','debian','ubuntu']
 assert [(x['name'],x['target_display']) for x in d['guests']]==[('alpine',3),('debian',1),('ubuntu',2)]
-assert all(x['current_display'] is None and x['migration_required'] is False for x in d['guests'])
+assert all(x['current_display'] is None and x['migration_required'] is False for x in d['guests'] if x['name']!='debian')
 assert all(x['target_owner'] is None and x['target_owner_kind']=='unoccupied' for x in d['guests'])
+debian=next(x for x in d['guests'] if x['name']=='debian')
+assert debian['registry_display']==0 and debian['registry_lifecycle']=='READY'
+assert debian['current_display']==0 and debian['migration_required'] is True
+assert all(x['registry_display'] is None and x['registry_lifecycle']=='unregistered' for x in d['guests'] if x['name']!='debian')
 assert s['management_mode']=='direct-cli' and s['guest_manager_available'] is True
 assert s['installed_guest_count']==4 and s['running_desktops']==['debian','alpine']
 assert c['command']=='manager.capabilities'

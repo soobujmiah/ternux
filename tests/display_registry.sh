@@ -33,6 +33,25 @@ env TERNUX_STATE_DIR="$TMP/state" HOME="$TMP/home" bash -c '
   [ "$(tnx_distro_target_display alpine)" = 3 ] || exit
 ' _ "$ROOT"
 
+# Registry updates preserve stable IDs and are atomic, locked, and fail-closed
+# on corruption. This runs only in a disposable fixture state directory.
+env TERNUX_STATE_DIR="$TMP/state-registry" HOME="$TMP/home-registry" bash -c '
+  . "$1/lib/core.sh"
+  tnx_workspace_registry_update debian STARTING 0 || exit 1
+  tnx_workspace_registry_update ubuntu READY 1 || exit 1
+  tnx_workspace_registry_update debian STOPPED 0 || exit 1
+  file="$(tnx_workspace_registry_path)"
+  tnx_workspace_registry_validate "$file" || exit 1
+  [ "$(wc -l < "$file")" -eq 3 ] || exit 1
+  awk -F "\t" '\''NR==2 { if ($1!="debian" || $2!="debian" || $3!=0 || $4!=1 || $5!="STOPPED") exit 1 } NR==3 { if ($1!="ubuntu" || $2!="ubuntu" || $3!=1 || $4!=2 || $5!="READY") exit 1 } END { if (NR!=3) exit 1 }'\'' "$file" || exit 1
+  chmod 0600 "$file"
+  cp "$file" "$file.before"
+  echo corrupt > "$file"
+  if tnx_workspace_registry_update debian READY 0; then exit 1; fi
+  grep -q "^corrupt$" "$file" || exit 1
+  [ ! -e "$(dirname "$file")/.workspaces.tmp" ] || exit 1
+' _ "$ROOT"
+
 env TERNUX_STATE_DIR="$TMP/state-collision" HOME="$TMP/home-collision" bash -c '
   . "$1/lib/desktop.sh"
   pgrep() {

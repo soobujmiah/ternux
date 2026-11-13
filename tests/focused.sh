@@ -2532,6 +2532,8 @@ if env TERNUX_STATE_DIR="$TMP/state-desktop-start" HOME="$TMP/home-desktop-start
     [ "$((SECONDS-start_at))" -le 5 ] || exit
     JSON_OUT="$start_output" python3 -c "import json,os; result=json.loads(os.environ[\"JSON_OUT\"]); assert result[\"status\"]==\"ok\" and result[\"audio_route\"]==\"unavailable\"" || exit
     [ "$(cat "$READY_PROBE_FILE")" -eq 4 ] || exit
+    [ "$(tnx_workspace_registry_get debian lifecycle)" = READY ] || exit
+    [ "$(tnx_workspace_registry_get debian display)" = 1 ] || exit
     pid="$(cat "$TERNUX_STATE_DIR/session/desktop.pid")"
     [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null || exit
     read -r fixture_pid fixture_start fixture_pgid < "$TERNUX_STATE_DIR/session/desktop.pid.identity" || exit
@@ -2539,6 +2541,7 @@ if env TERNUX_STATE_DIR="$TMP/state-desktop-start" HOME="$TMP/home-desktop-start
     grep -q "^# TERNUX_DESKTOP_LAUNCHER=21$" "$HOME/x.sh" || exit
     grep -q "util-linux zsh git curl" "$1/lib/phases.sh" || exit
     tnx_cmd_stop >/dev/null || exit
+    [ "$(tnx_workspace_registry_get debian lifecycle)" = STOPPED ] || exit
     [ ! -e "$TERNUX_STATE_DIR/session/desktop.pid" ] || exit
     state=""
     for attempt in $(seq 1 30); do
