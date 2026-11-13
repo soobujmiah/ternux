@@ -1,0 +1,7 @@
+event_id: commit-1107f790e5b5-13697effa7ca7519
+repository: soobujmiah/ternux
+commit: 1107f790e5b5368530b7218c41121d055cf39ccd
+kind: commit
+occurred_at: '2026-11-13T11:59:32Z'
+status: completed
+summary: 'docs(site): reconcile release state and polish install paths (#202)'
