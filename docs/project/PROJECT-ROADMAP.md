@@ -6,7 +6,7 @@ lang: "en"
 
 ## Project roadmap
 
-**Last reviewed:** 2026-11-13 14:42 UTC. **State:** living project record.
+**Last reviewed:** 2026-11-13 16:11 UTC. **State:** living project record.
 
 ## Released
 
@@ -24,12 +24,13 @@ lang: "en"
 1. Architecture, API, security, UX, acceptance documents, and five ADRs are
    published. New guest profiles default to Debian/Ubuntu/Alpine `:1`/`:2`/`:3`
    with native `:0` reserved; saved v2 assignments remain unchanged. Startup
-   rejects occupied X11 paths and does not reclaim unproven sockets. Keep
-   validating these contracts against the live native Termux runtime.
-2. Current source has four read-only native manager CLI operations and a
+   rejects occupied socket/lock/server paths and does not reclaim unproven
+   sockets. PR #210 merged initial targets and a read-only current/target report;
+   central display ownership and staged migration remain open.
+2. Current `main` has four read-only native manager CLI operations and a
    device-tested foreground Unix-socket transport; released 2.0.0 does not
-   include them. Central display registry, manager API reporting, staged
-   migration, native workspace, and Control Center remain open.
+   include them. Staged migration, native workspace, and Control Center remain
+   open.
 3. Add a secured native Control Center client while preserving CLI parity.
 4. Connect workspace, compute, AI, and Device Bridge through versioned
    interfaces; qualify each capability independently.
@@ -40,5 +41,5 @@ The phase gates are in the [v3 roadmap](../v3/IMPLEMENTATION-ROADMAP.md).
 
 ## Current next action
 
-Complete the display registry/API and staged migration design without changing
-live v2 guest displays. See [next actions](NEXT-ACTIONS.md).
+Implement display ownership and staged migration without changing live v2 guest
+displays before its migration gate. See [next actions](NEXT-ACTIONS.md).

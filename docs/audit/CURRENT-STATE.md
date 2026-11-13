@@ -1,9 +1,8 @@
 # Ternux current-state audit
 
-**Audit snapshot:** 2026-11-13, 15:17 UTC
+**Audit snapshot:** 2026-11-13, 16:11 UTC
 **Repository:** `soobujmiah/ternux`
-**Main at snapshot:** `b63916c` (generated-state sync for PR #209)
-**Work branch:** `codex/v3-display-registry` (unmerged changes based on this main)
+**Main at snapshot:** `9a35bac2e9d47e5699de8bead4029c95bb16a0cf` (generated-state PR #211)
 **Latest stable release:** `v2.0.0`, tag target `9106b04fc8627ae98b1d63c9912a28c8a4677441`
 
 This is a dated audit, not a claim that the device or repository remains in this
@@ -29,19 +28,23 @@ release tag remains pinned to its release commit even though `main` has advanced
 
 ## Source, package, and website state
 
-At the snapshot, remote `main` was `b63916c`, after PR #209 synchronized
-generated repository state. PR #204 merged the doctor active-guest and Ubuntu
-Mesa-overlay detection fixes. The exact-main CI state is tracked by GitHub.
-The current work branch adds the display registry defaults, startup collision
-guards, read-only display reporting, schemas, docs and tests; it is not on
-`main` until its PR passes review and required checks.
+At the snapshot, remote `main` was
+`9a35bac2e9d47e5699de8bead4029c95bb16a0cf`, after PR #210 merged the v3
+display defaults, startup collision guards, read-only display reporting,
+schemas, docs and tests. PR #211 then merged the deterministic generated state
+for product commit `7b7ea438b96ef11debfa3555852a6619b51be4d8`; its workflow
+created all `.repo/` files, none were hand-edited. The feature commit's PR
+checks and exact-main workflows passed. Post-generated-state Validate, APT
+artifact, and repository-state workflows also passed for `9a35bac` (runs
+`43457455444`, `43457455294`, and `43457455258`). The production website deploy
+for product commit `7b7ea43` succeeded (run `43456239621`).
 
 The released 2.0.0 host package does **not** contain the newer source-side
 `tx manager` JSON interface. On the device, the installed `tx manager`
-continues to return `Unknown command: manager`. The source branch adds four
-read-only manager operations, including `tx manager displays`, and the
-explicit foreground Unix-socket service. These are source-only features; the
-graphical Control Center and service supervisor are not implemented.
+continues to return `Unknown command: manager`. Current `main` has four
+read-only manager operations, including `tx manager displays`, and the explicit
+foreground Unix-socket service. These are source-only features; the graphical
+Control Center and service supervisor are not implemented.
 
 ## Device snapshot
 
@@ -51,7 +54,9 @@ Termux:X11 are installed. Debian `:0`, Ubuntu `:1`, and Alpine `:2` were already
 running with PIDs 18218, 14129, and 26946. Read-only `tx status` reported all
 three lifecycle states `READY`, X11 active, and PulseAudio routes ready.
 `tx verify` returned `passed` for all three and reported the Turnip payload
-present. This presence/service check does not by itself prove current renderer
+present. A new read-only status check at 15:52 UTC confirmed the same three
+PIDs, READY state, X11 and PulseAudio route readiness. This presence/service
+check does not by itself prove current renderer
 selection, Vulkan workload correctness, microphone capture, camera capture, or
 visual GUI quality; those claims require their separate evidence.
 
@@ -66,15 +71,16 @@ The product, system, component, Control Center, compute, AI runtime, Device
 Bridge, workspace, security, API, UX, roadmap, and acceptance documents exist,
 with five ADRs. ADR-0005 reserves `:0` for the native Termux workspace and
 assigns Debian/Ubuntu/Alpine `:1`/`:2`/`:3` for v3; current v2 sessions remain
-on their existing displays until explicit migration. The work branch includes
-four read-only native manager CLI operations. The stable
-installed 2.0.0 package does not include those source operations. A source
-invocation at 15:17 UTC observed native display `:0` occupied and all three
-managed desktops still running on their saved v2 displays (Debian `:0`,
-Ubuntu `:1`, Alpine `:2`). It reported migration required for Debian/Ubuntu,
-without changing any state. The socket service is implemented and verified
-from source; authorization/session runtime, GUI, supervisor integration, and
-guest lifecycle mutations remain open.
+on their existing displays until explicit migration. Current main includes four
+read-only native manager CLI operations. The stable installed 2.0.0 package
+does not include them. An on-device source invocation at 15:56 UTC from current
+`main` again observed native display `:0` occupied and all three managed
+desktops still running on their saved v2 displays (Debian `:0`, Ubuntu `:1`,
+Alpine `:2`). It reported migration required for Debian/Ubuntu, without
+changing any state. The explicit
+socket service is implemented and verified from source; authorization/session
+runtime, GUI, supervisor integration, central display ownership, staged
+migration, and guest lifecycle mutations remain open.
 
 The doctor active-guest selection and Ubuntu Mesa-overlay detection fixes
 merged in PR #204 and are in main; the installed stable package remains v2.0.0
