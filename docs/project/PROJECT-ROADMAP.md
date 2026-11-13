@@ -8,6 +8,12 @@ lang: "en"
 
 **Last reviewed:** 2026-11-13 16:11 UTC. **State:** living project record.
 
+The owner's complete v2/v3 assignment is preserved verbatim in the
+[repository-only master goal](../../engineering/MASTER-GOAL.md). This is the scope/specification source; current
+implementation and qualification status are tracked separately in this roadmap,
+the [implementation status](IMPLEMENTATION-STATUS.md), and the dated
+[current-state audit](../audit/CURRENT-STATE.md).
+
 ## Released
 
 - Ternux v2.0.0 is published with a signed Termux APT package and stable
