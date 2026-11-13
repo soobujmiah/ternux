@@ -1,12 +1,28 @@
 # Ternux repository and release state
 
-**Audit snapshot:** 2026-11-13, 12:26 UTC
+**Audit snapshot:** 2026-11-13, 16:11 UTC
 **Canonical repository:** `https://github.com/soobujmiah/ternux`
-**Main at snapshot:** `13f966eb987fddcb720809d07dbbe89c78860fc9`
+**Main at snapshot:** `9a35bac2e9d47e5699de8bead4029c95bb16a0cf`
 **Released v2 source:** `9106b04fc8627ae98b1d63c9912a28c8a4677441`
 
 ## GitHub state
 
+- PR #210 merged the v3 display target defaults, collision guards, read-only
+  display report, schemas, tests and site/docs updates as
+  `7b7ea438b96ef11debfa3555852a6619b51be4d8`. Its exact-head required checks
+  all passed. Generated-state PR #211 then merged as
+  `9a35bac2e9d47e5699de8bead4029c95bb16a0cf`; its changes are deterministic
+  `.repo/` output from the configured workflow.
+- Exact-main Validate, APT artifact, repository-state and repo-knowledge checks
+  passed for `7b7ea43`. After PR #211 merged, exact-main Validate, APT artifact,
+  and repository-state checks also passed for `9a35bac` (runs `43457455444`,
+  `43457455294`, and `43457455258`). The website deployment at run
+  [`43456239621`](https://github.com/soobujmiah/ternux/actions/runs/43456239621)
+  succeeded; the homepage and v3 API page both returned HTTP 200 with the new
+  display status and schema reference.
+- Open PRs at this snapshot: generated-state Dependabot updates #42, #44, #45,
+  and the owner-review license-terms PR #35. The license proposal is unrelated
+  to this v3 display milestone and remains outside this change.
 - The `v2.0.0` release is published and remains the latest stable release.
 - The current main source adds v3 read-only manager JSON commands and refreshed
   website/docs after the release tag; these changes do not alter the immutable
@@ -45,7 +61,7 @@
   succeeded for the updated site and preserved both published signed APT
   channels. The bootstrap endpoint returned HTTP 200 in the post-deploy check.
 
-## Exact-main CI and generated-state evidence
+## Earlier repository history
 
 For product source commit `1107f790e5b5368530b7218c41121d055cf39ccd`, the website
 PR checks passed, including the full `Validate` workflow and hosted Astro

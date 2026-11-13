@@ -97,7 +97,7 @@ environment maps, or unrestricted filesystem paths.
 - [Request envelope v1 JSON schema](https://github.com/soobujmiah/ternux/blob/main/docs/v3/schemas/manager-request-v1.schema.json) defines the
   supported read-only operation calls.
 - [Workspace display snapshot v1 schema](https://github.com/soobujmiah/ternux/blob/main/docs/v3/schemas/manager-displays-v1.schema.json)
-  defines current assignments, planned targets, socket/server occupancy, and
+  defines current assignments, planned targets, socket/lock/server occupancy, and
   migration flags without enabling workspace mutations.
 - [Response envelope v1 JSON schema](https://github.com/soobujmiah/ternux/blob/main/docs/v3/schemas/manager-response-v1.schema.json) correlates
   each reply to its request and contains exactly one result or error.
