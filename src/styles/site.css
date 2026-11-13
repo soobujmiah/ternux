@@ -759,6 +759,28 @@ a:focus-visible,
   background: #070c10;
   overflow: auto;
 }
+.install-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin: 14px 0 20px;
+  font: 11px var(--mono);
+}
+.install-links a {
+  color: #9fe1bf;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+.status-panel .profile-grid {
+  grid-template-columns: 1fr;
+  padding: 22px;
+}
+.status-panel .profile-card {
+  text-decoration: none;
+}
+.status-panel .profile-card span {
+  color: var(--muted);
+}
 .command small {
   display: block;
   margin-bottom: 14px;
