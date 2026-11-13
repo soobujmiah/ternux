@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://soobujmiah.github.io/ternux/schemas/manager-guests-v1.schema.json",
+  "title": "Ternux Manager Guests v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "command", "status", "timestamp", "count", "guests"],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "command": { "const": "manager.guests" },
+    "status": { "const": "ok" },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "count": { "type": "integer", "minimum": 0 },
+    "guests": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/guest" }
+    }
+  },
+  "$defs": {
+    "guest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "state", "desktop_profile", "display", "qualification"],
+      "properties": {
+        "name": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$" },
+        "state": { "const": "installed" },
+        "desktop_profile": { "type": "boolean" },
+        "display": {
+          "oneOf": [
+            { "type": "integer", "minimum": 0, "maximum": 99 },
+            { "type": "null" }
+          ]
+        },
+        "qualification": {
+          "enum": ["device-qualified", "not-device-qualified", "no-desktop-profile"]
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "desktop_profile": { "const": true } } },
+          "then": { "properties": { "display": { "type": "integer" }, "qualification": { "enum": ["device-qualified", "not-device-qualified"] } } },
+          "else": { "properties": { "display": { "type": "null" }, "qualification": { "const": "no-desktop-profile" } } }
+        }
+      ]
+    }
+  }
+}

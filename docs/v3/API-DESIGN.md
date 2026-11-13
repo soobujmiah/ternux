@@ -6,9 +6,18 @@ lang: "en"
 
 ## API design
 
-**Status: DESIGNED; endpoint names are a proposal until their first
-implementation ADR is accepted.** The API is local-only and mirrors operations
-available through `tx`.
+**Status: IMPLEMENTED (read-only CLI payloads only).** `tx manager status`
+and `tx manager guests` now expose versioned JSON snapshots validated against
+the schemas in `schemas/`. They run directly in native Termux and do not need
+the future Control Center service or an installed guest. The socket transport,
+HTTP adapter, event stream, jobs, and mutation endpoints below remain designed
+contracts; no service endpoint is implemented yet. The independent shared-core
+decision is recorded in [ADR-0004](ADR/0004-shared-manager-contract.md).
+
+These first commands are a CLI contract, not a claim of a running manager API
+server. JSON consumers should key compatibility off `schema_version` and
+`command`; error objects are separate from the success schemas and include a
+stable error code and timestamp.
 
 ## Transport
 
@@ -44,6 +53,15 @@ not arbitrary path.
 Every mutation includes an idempotency key. Delete methods only remove the
 identified Ternux-owned record; guest or model data removal has a separate
 explicit endpoint and confirmation token.
+
+Before adding mutations, the core must own a typed operation allowlist, input
+validation, authorization, execution, and result recording. Client menus and
+capability listings must be derived from implemented operations, not maintain
+their own parallel list. A mutation must preview the exact immutable plan,
+require confirmation bound to that plan, and record recoverable progress.
+Direct CLI status and recovery must remain usable when the optional service or
+graphical clients are stopped. No operation may accept arbitrary shell text,
+caller-provided environment maps, or unrestricted filesystem paths.
 
 ## Errors and compatibility
 

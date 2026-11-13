@@ -44,6 +44,20 @@ load হওয়ার আগের failure JSON বানাতে পার�
 
 ## কমান্ডসমূহ
 
+### `tx manager`
+
+কোনো service বা guest চালু না করেই Native Termux manager-এর read-only snapshot
+দেখুন। এই প্রথম v3 slice installed PRoot guest এবং পরিচিত Ternux desktop profile
+দেখায়; install, start, stop বা repair করে না। v1 JSON payload schema হলো
+`docs/v3/schemas/manager-status-v1.schema.json` এবং
+`docs/v3/schemas/manager-guests-v1.schema.json`। এগুলো CLI payload; local
+manager API service এখনও implement করা হয়নি।
+
+```bash
+tx manager status [--json]
+tx manager guests [--json]
+```
+
 ### `ternux guides`
 
 Termux host অথবা Debian/Xfce guest-এ `ternux guides` চালালে installation,

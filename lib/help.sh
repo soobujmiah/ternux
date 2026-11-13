@@ -37,6 +37,7 @@ ${TNX_CW}Usage:${TNX_C0}
 ${TNX_CW}Commands:${TNX_C0}
   ${TNX_CG}install${TNX_C0}    Install full desktop environment
   ${TNX_CG}distro${TNX_C0}     List installed guests, open shells, install images
+  ${TNX_CG}manager${TNX_C0}    Read host manager status and installed guests
   ${TNX_CG}extension${TNX_C0}  Manage checksum-verified guest extensions
   ${TNX_CG}storage${TNX_C0}    Grant or revoke scoped Android storage access
   ${TNX_CG}guides${TNX_C0}     Installation and ecosystem help links
@@ -74,6 +75,21 @@ ${TNX_CW}Examples:${TNX_C0}
 
 ${TNX_CD}Run 'ternux <command> --help' for detailed help.${TNX_C0}
 HELPEOF
+}
+
+tnx_help_manager() {
+  cat <<'HELP'
+Usage: tx manager status|guests [--json]
+
+Read-only native Termux manager snapshot. This direct CLI path works without
+the future Control Center service and does not start or modify guest sessions.
+
+  tx manager status --json   Manager availability and active desktop names
+  tx manager guests --json   Installed guests, desktop profile and display
+
+JSON payloads use schema version 1.0.0. A missing proot-distro command is
+reported as unavailable, not as an empty guest list.
+HELP
 }
 
 # --- Command-specific help -------------------------------------------------
