@@ -16,17 +16,18 @@ inventory in [`release-gates.json`](https://github.com/soobujmiah/ternux/blob/ma
 `READY_FOR_OWNER_APPROVAL`; the owner has authorized the release. The signed RC
 repository, website preservation, and native Termux install/remove/reinstall
 checks passed. Stable `/apt` publication and the v2 tag/release are the remaining
-release actions, not open acceptance gates. The exact current main Validate run
-`43311661213` passed on `ca0bba9093ecbe838df4b09f09dfee3197814845`; the
-three-profile browser gate passed in run `43307868038`.
+release actions, not open acceptance gates. Exact-main Validate run
+`43359028809` passed on `db9fe4a70177641b1e1312d2db47462191daf582`, including
+clean Debian/Ubuntu/Alpine Firefox qualification and the full documentation
+suite.
 
 ## Current acceptance gates
 
 | Gate | Status | What closes it |
 |---|---|---|
 | P1-03 updater safety | **COMPLETE** | Source/hash pinning, stage-before-replace, interrupted-update recovery, downgrade guard, concurrency and symlink fixtures pass; the v1.4.0 source fixture upgrades to v2. A published v2 rollback demonstration is not required. |
-| P1-09 default browser | **COMPLETE** | Clean Debian Trixie, Ubuntu 24.04, and Alpine 3.24 Firefox X11 window checks passed in exact merged-main Validate run `43307868038` on `f963832fb4acf9c3adb873430408ce21ddd29a37`; Ubuntu uses Mozilla ESR without Snap. |
-| P1-APT signed Termux package | **COMPLETE** | Signed RC public tree verified before and after a regular Pages redeploy; native Termux clean install, repository replacement, removal, and no-op upgrade resolution passed. v2.0.0 is the first published package version, so no older APT package exists for a version-delta upgrade. Evidence is in `release-gates.json` and `audit/REPOSITORY-STATE.md`. |
+| P1-09 default browser | **COMPLETE** | Clean Debian Trixie, Ubuntu 24.04, and Alpine 3.24 Firefox X11 window checks passed in exact merged-main Validate run `43359028809` on `db9fe4a70177641b1e1312d2db47462191daf582`; Ubuntu uses Mozilla ESR without Snap. |
+| P1-APT signed Termux package | **COMPLETE** | Latest signed RC tree and package hash verified after the verify-selector fix; Termux APT reinstalled the exact 2.0.0 candidate and active-default plus `db`/`ub`/`alp` JSON verification passed. The first Ternux APT version has no earlier candidate for a version-delta upgrade. Evidence is in `release-gates.json` and `audit/REPOSITORY-STATE.md`. |
 
 HTP/HMX and QNN remain experimental or research-only and are excluded from
 stable v2 promises. CPU/Vulkan claims are limited to the named model, task, and
@@ -41,6 +42,13 @@ sessions were observed READY with Termux:X11 and PulseAudio routes. The sessions
 were left running. Live Firefox titlebars showed visible close controls, and a
 synthetic XTest Ctrl+Space switched the configured Bengali input engines in all
 three guests. Synthetic key input does not prove physical keyboard behavior.
+
+On 2026-11-13, runtime D-Bus queries confirmed the GTK, icon, and XFWM themes,
+`|HMC` titlebar controls, and active Ctrl+Space binding in every guest. The
+assigned IBus helper switched to the other installed language and restored the
+original engine. Temporary 1800×1900 X11 clients were constrained inside each
+640×1386 display, then only those test clients were destroyed. This tests the
+managed switch command, not a physical Android keyboard event.
 
 The window-fit helper now translates client coordinates in the correct
 direction, reads EWMH `_NET_CLIENT_LIST` as WINDOW IDs, clamps a stale work area
@@ -65,30 +73,35 @@ Qualification does not extend to other GPUs or devices.
   after the gate inventory is ready.
 - `bash tests/firefox_package_matrix.sh`: added to exact-head CI for Debian,
   Ubuntu, and Alpine. It starts Firefox in Xvfb/Openbox and checks
-  the mapped visible application window; exact merged-main run `43307868038`
-  passed. This Termux host has no Docker executable, so the container matrix is
-  established by CI, not claimed as a local pass.
+  the mapped visible application window; exact merged-main run `43359028809`
+  passed on `db9fe4a70177641b1e1312d2db47462191daf582`. This Termux host has no
+  Docker executable, so the container matrix is established by CI, not claimed
+  as a local pass.
 - `bash tests/focused.sh`: the audit exposed a test-hygiene regression because
   its `py_compile` step wrote `__pycache__` into packaged assets; the test now
-  directs bytecode to its temporary directory. The complete suite passed on
-  exact main in run `43311661213`.
-- Signed `/apt-rc` paths returned HTTP 200 and the InRelease signature verified
-  after candidate publication and routine website redeploy. Native Termux fetched
-  and installed the indexed package. Stable `/apt` and the v2 tag/release remain
-  the final publication steps.
+  directs bytecode to its temporary directory. The complete exact-main suite
+  passed in `43359028809`.
+- Signed RC publication run `43359599505` deployed the updated 2.0.0 package
+  from exact main. The four public RC paths returned HTTP 200; the InRelease
+  signature verified against fingerprint
+  `E5527F4D5B83037FF77B65AE5E894BBB81168B1D`. The signed package index listed
+  archive SHA-256 `f2862526cd5cfdd91bac163632e2c9e8600288926c4acb2b2c5dcffbca271be2`.
+  Native `pkg update` and Termux APT reinstall succeeded; `ternux verify --json`
+  and explicit `db`, `ub`, and `alp` checks passed. Stable `/apt` and the v2
+  tag/release remain the final publication steps.
 
 ## Release sequence
 
-1. Exact merged-main Validate run `43311661213` on
-   `ca0bba9093ecbe838df4b09f09dfee3197814845` passed the required CI; the
-   three-profile browser matrix passed earlier in Validate run `43307868038`.
+1. Exact merged-main Validate run `43359028809` on
+   `db9fe4a70177641b1e1312d2db47462191daf582` passed required CI and the
+   clean three-profile browser matrix.
 2. Merge the reviewed product changes, then allow the deterministic `.repo/`
    workflow to generate and validate its state update. Do not edit `.repo/`
    manually.
-3. Signed `/apt-rc` publication, signature/index/checksum verification, a
-   routine website redeploy, native Termux package lifecycle, and exact-main CI
-   have all passed. The Debian, Ubuntu, and Alpine guests remain installed and
-   running.
+3. Signed `/apt-rc` publication, signature/index/checksum verification,
+   native installation of the updated candidate package, per-guest `verify`,
+   and exact-main CI have passed. The Debian, Ubuntu, and Alpine guests remain
+   installed and running with their original PIDs.
 4. Publish stable `/apt`, switch the native bootstrap source to stable, verify
    its signature and index, then create the `v2.0.0` tag and GitHub release. The
    stable APT workflow refuses publication if any blocking gate is incomplete.

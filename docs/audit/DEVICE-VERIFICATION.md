@@ -20,6 +20,26 @@ All three desktops were already running during these checks. No desktop, X11,
 audio, or IBus service was restarted. The user was told to keep GUI sessions
 available; the active sessions were preserved.
 
+On 2026-11-13, the managed session records still reported READY with the same
+Debian/Ubuntu/Alpine PIDs (18218/14129/26946). Read-only X11 queries connected
+to each existing display and reported 640×1386 pixels. The XFCE runtime
+configuration returned `Ternux` for GTK, icon and XFWM themes, with titlebar
+layout `|HMC`; Ctrl+Space resolves to
+`/usr/local/bin/ternux-ibus-next-engine` on all three sessions. The IBus daemon
+answered on every display. Calling the assigned switch helper once and again
+returned each guest to its original engine:
+
+| Guest | Before | After one switch | After second switch |
+|---|---|---|---|
+| Debian | `ibus-avro` | `xkb:us::eng` | `ibus-avro` |
+| Ubuntu | `ibus-avro` | `xkb:us::eng` | `ibus-avro` |
+| Alpine | `xkb:us::eng` | `m17n:bn:avro-phonetic` | `xkb:us::eng` |
+
+This validates the runtime command, its live XFCE binding, and both configured
+engines. The command was invoked directly; this run does not prove a physical
+Android keyboard delivers the Ctrl+Space event. Earlier per-display synthetic
+XTest evidence is recorded below.
+
 ## Window fit and theme
 
 The X11 helper's coordinate translation was reversed in source, and its old
@@ -38,6 +58,14 @@ edge. The running helper moved that window into the available work area without
 closing it. On this audit, source and live tests cover the existing applications
 and known common GTK/Firefox titlebar behavior; they do not certify every
 third-party toolkit or future desktop application.
+
+On 2026-11-13, a temporary oversized normal X11 client (1800×1900) was mapped
+on each existing display. The active helper constrained each to a 640×1339
+client in the 640×1359 XFCE work area, accounting for the 20-pixel titlebar;
+all outer frames remained within 640×1386. Only the temporary verification
+windows were destroyed. No desktop process or existing application was
+stopped. This qualifies the helper's live viewport behavior on all three
+displays; it does not guarantee every toolkit's custom client-side decorations.
 
 Debian, Ubuntu, and Alpine report the Ternux GTK, icon, and XFWM themes. The
 common titlebar layout is `|HMC` (minimize, maximize, close). A live Firefox
@@ -68,8 +96,9 @@ and Alpine `:2`, and must record loader/device enumeration and renderer together
 
 Firefox ESR is installed on the three active guests. Live GUI launch checks on
 all three displayed a Firefox window with the Ternux titlebar close control.
-Separate clean installation qualification is CI work and remains pending until
-the new three-profile matrix passes on the proposed commit.
+The clean Debian/Ubuntu/Alpine browser matrix passed in exact-main Validate run
+`43359028809` on commit `db9fe4a70177641b1e1312d2db47462191daf582`. This is CI
+evidence; it is distinct from the live existing-guest launches above.
 
 ## Evidence boundaries
 
