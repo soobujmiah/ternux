@@ -9,6 +9,14 @@ alt_url: "/docs/"
 প্রথমবার এলে নিচ থেকে একটি পথ বেছে নিন। কিছু ইতিমধ্যে নষ্ট হলে সরাসরি
 [সমস্যা সমাধান](TROUBLESHOOTING.html)-এ যান।
 
+## Guest support সংক্ষেপে
+
+| v2 desktop support     | আরও distro recipe                                | Default profile |
+| ---------------------- | ------------------------------------------------ | --------------- |
+| Debian, Ubuntu, Alpine | অতিরিক্ত ১২টি named profile; v2-তে qualified নয় | Debian          |
+
+প্রতিটি named recipe-তে তার package family অনুযায়ী desktop setup আছে। Ternux desktop recipe না থাকলে generic OCI image shell guest থাকে। [Install ও guest নির্বাচন](INSTALLATION.html) এবং [v2 support matrix](../../docs/audit/FEATURE-MATRIX.html) দেখুন।
+
 ## ইনস্টলেশনের পথ বেছে নিন
 
 <div class="path-chooser">

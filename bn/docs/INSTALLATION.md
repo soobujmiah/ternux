@@ -290,7 +290,7 @@ Structured output শুধু [CLI reference](CLI.html)-এ নথিভুক�
 | ২ | **বেস প্যাকেজ** | `x11-repo`, `termux-x11-nightly`, `pulseaudio`, `proot-distro`, `virglrenderer-android`, টুলস ইনস্টল; স্টোরেজ অনুমতি | কন্টেইনারের দরকারি হোস্ট-সাইড সার্ভিস: ডিসপ্লে, শব্দ ও কন্টেইনার ইঞ্জিন |
 | ৩ | **Host CLI ইনস্টলেশন** | `$PREFIX/bin/ternux` ও `$PREFIX/lib/ternux/`-এর module install করে, তারপর exact path execute করে version যাচাই | Library missing থাকলেও file থাকতে পারে; সফল execution-ই আসল host-side check |
 | ৪ | **নির্বাচিত guest + Xfce4** | নির্বাচিত distro rootfs ও family-matched desktop package বসায়; passwordless sudo-সহ user, `/usr/local/bin/ternux` ও guest companion তৈরি করে | প্রতিটি named profile-এ আলাদা desktop recipe ও nested PRoot ছাড়া local diagnostics থাকে |
-| ৫ | **GPU route** | Debian + Adreno/KGSL: pinned Turnip payload যাচাই করে বসায়। অন্য named profile-এ shared VirGL host renderer ও guest Mesa `virpipe` configure করে | প্রতিটি profile-এ GPU route আছে; `glxinfo -B` দিয়ে hardware rendering ও software fallback আলাদা করে দেখুন |
+| ৫ | **GPU route** | Adreno/KGSL-এ Zink route ও distro-matched Mesa/Freedreno বা Turnip payload; KGSL না থাকলে VirGL compatibility route | `glxinfo -B` দিয়ে active renderer দেখুন; device ও Android host অনুযায়ী software fallback হতে পারে |
 | ৬ | **অডিও, লোকেল, ফন্ট** | লুপব্যাক-only PulseAudio bridge, OpenSL ES output ও on-demand microphone source সেট করে; private এক-সেকেন্ড Termux:API permission probe চালায়; লোকেল ও emoji/powerline/Nerd font যোগ করে | Guest playback ও capture PulseAudio দিয়ে Android audio-তে পৌঁছায়। Live capture Termux-এর permission ও OpenSL ES source ব্যবহার করে; আলাদা Termux:API probe live stream দেয় না। ফন্ট terminal-এ tofu box ঠেকায় |
 | ৭ | **লঞ্চার** | GPU পথ অনুযায়ী `~/x.sh` লেখা ও সিনট্যাক্স-চেক | এক কমান্ডে (`x`) অডিও → ডিসপ্লে → ডেস্কটপ নির্ভরযোগ্য ক্রমে শুরু হতেই হবে |
 | ৮ | **শর্টকাট** | `tx`, `x`, `killx`, `db`/`dbroot`, `ub`/`ubroot`, `alp`/`alproot`, `xgo`, `sysmon`, `clean-mesa` | প্রতিদিনের কাজের জন্য সহজ ও সরাসরি শর্টকাট তৈরি করে |
@@ -357,10 +357,13 @@ ternux যা বসায় সব একটি PRoot-Distro guest-এর ভ�
 | Zypper | openSUSE |
 | XBPS | Void |
 
-Debian সুপারিশ করা, ডিফল্ট এবং ডিভাইসে যাচাই করা profile। অন্য নামযুক্ত profile-এ
-family-matched recipe আছে, তবে সেগুলো ডিভাইসে যাচাই করা হয়নি। যেকোনো PRoot-Distro
-OCI image shell guest হিসেবে বসানো যায়; তার জন্য স্বয়ংক্রিয় Ternux desktop recipe
-নেই। ঐচ্ছিক software workload-এর জন্য বর্তমানে APT guest দরকার।
+Debian recommended default। Debian, Ubuntu ও Alpine হলো v2-supported desktop
+profile। Release qualification-এ clean guest lifecycle check ও একটি Adreno 825
+phone-এর device evidence আছে; অন্য Android device-এ একই ফলের নিশ্চয়তা নয়।
+অন্য ১২টি named profile-এর family-matched recipe আছে, তবে v2 desktop support-এর
+জন্য qualified নয়। যেকোনো PRoot-Distro OCI image shell guest হিসেবে বসানো যায়;
+তার জন্য Ternux desktop recipe নেই। ঐচ্ছিক software workload-এর জন্য বর্তমানে
+APT guest দরকার।
 
 `--distro` বা `--distros` না দিলে interactive profile picker optional workload-এর
 একই checklist ব্যবহার করে: Up/Down বা `j`/`k` দিয়ে চলুন, Space বা profile number
@@ -377,8 +380,8 @@ Prompt পাঁচ মিনিট অপেক্ষা করে; উত্�
 
 | Guest profile / host | ব্যাকএন্ড | প্রত্যাশা |
 |---|---|---|
-| KGSL-সহ Adreno এবং native package-সহ profile | `auto` → **zink** | Debian-এ validated Turnip; অন্য profile-এ নিজস্ব Mesa/Freedreno package; renderer ও workload পরীক্ষা করুন |
-| Adélie বা Zink অনুপলভ্য / explicit VirGL | `auto` → **virgl** | Host VirGL + guest Mesa `virpipe` compatibility পথ; active renderer `glxinfo -B` দিয়ে যাচাই করুন |
+| KGSL-সহ Adreno, Zink route-সহ profile | `auto` → **zink** | Distro-matched Mesa/Freedreno বা Turnip payload যেখানে আছে; Debian, Ubuntu ও Alpine-এ reference-device evidence আছে; active renderer যাচাই করুন |
+| KGSL device নেই, অথবা Adélie guest | `auto` → **virgl** | Host VirGL + guest Mesa `virpipe` compatibility পথ; Android host GPU না দিলে software fallback হতে পারে |
 | যেকোনো profile-এ Zink অনুপলভ্য | `--backend virgl` | Cross-distro compatibility পথ; renderer ও গতি host graphics stack-এর উপর নির্ভর করে |
 
 `/dev/kgsl-3d0`-বিহীন ডিভাইসে `zink` জোর করলে GPU phase-এ launcher তৈরির

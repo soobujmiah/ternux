@@ -8,27 +8,43 @@
 
 ### A Linux desktop for ARM64 Android — no root required
 
-[![Version](https://img.shields.io/badge/version-2.0.0-00e5a0?style=flat-square)](https://github.com/soobujmiah/ternux/releases)
-[![Platform](https://img.shields.io/badge/platform-Android%20arm64-38bdf8?style=flat-square)](https://github.com/soobujmiah/ternux)
-[![NPU](https://img.shields.io/badge/NPU-experimental%20(QNN%20HTP)-f59e0b?style=flat-square)](docs/ACCELERATOR-RELEASE-PLAN.md)
+[![Version](https://img.shields.io/badge/version-2.0.0-00e5a0?style=flat-square)](https://github.com/soobujmiah/ternux/releases/tag/v2.0.0)
+[![Android ARM64](https://img.shields.io/badge/Android-ARM64-38bdf8?style=flat-square)](docs/INSTALLATION.md)
+[![No root](https://img.shields.io/badge/root-not%20required-22c55e?style=flat-square)](docs/FAQ.md)
+[![Desktop guests](https://img.shields.io/badge/v2%20desktop-guests%203-77e3ad?style=flat-square)](docs/audit/FEATURE-MATRIX.md)
+[![Adreno evidence](https://img.shields.io/badge/GPU-Adreno%20825%20measured-8bf5a6?style=flat-square)](docs/BENCHMARKS.md)
+[![Distro recipes](https://img.shields.io/badge/distro%20recipes-15-b9ff72?style=flat-square)](docs/INSTALLATION.md#choosing-a-guest-distribution)
+[![NPU](https://img.shields.io/badge/NPU-experimental%20only-f59e0b?style=flat-square)](docs/ACCELERATOR-RELEASE-PLAN.md)
 [![License](https://img.shields.io/badge/license-Apache--2.0-22c55e?style=flat-square)](LICENSE)
 
-[Website](https://soobujmiah.github.io/ternux/) · [v2.0.0 release](https://github.com/soobujmiah/ternux/releases/tag/v2.0.0) · [Release report](docs/V2-RELEASE-REPORT.md) · [Deep documentation](docs/README.md) · [বাংলা](bn/README.md) · [Source](https://github.com/soobujmiah/ternux)
+[Website](https://soobujmiah.github.io/ternux/) · [Quick start](docs/QUICK-START.md) · [All documentation](docs/README.md) · [CLI guide](docs/CLI.md) · [Benchmarks](docs/BENCHMARKS.md) · [v2 release report](docs/V2-RELEASE-REPORT.md) · [বাংলা](bn/README.md) · [Source](https://github.com/soobujmiah/ternux)
 
 </div>
 
-Ternux sets up an Xfce4 guest in Termux using PRoot. Debian is the recommended default. **Ternux v2 qualifies Debian, Ubuntu, and Alpine only.** These three have been exercised on one Adreno 825 Android device for desktop lifecycle, Zink/Turnip rendering, audio routing, IBus, and theme setup; this does not imply every clean-install path or every app is qualified. The other 12 named profiles remain available as recipes, but are not v2-supported. Named profiles map Debian-family aliases to APT, Alpine-family aliases to APK, Arch-family aliases to pacman, Fedora-family aliases to DNF, openSUSE to Zypper, and Void to XBPS; arbitrary OCI images remain available as shell guests. Optional workload installs are currently APT-family only. Termux:X11 displays the
-desktop and PulseAudio connects sound. All 15 named recipes install Mesa GL support, but only Debian, Ubuntu, and Alpine are v2-qualified. On Adreno/KGSL, auto
-prefers Zink with each distro’s own Mesa/Freedreno packages where available;
-Debian Trixie uses its validated Turnip payload. VirGL is the compatibility
-route. Android graphics stacks may still fall back to software rendering.
-Android graphics stacks may fall back to software rendering, so inspect
+## About Ternux
+
+Ternux turns an ARM64 Android phone into a managed Linux desktop. It installs a
+Linux guest in Termux with PRoot, starts Xfce through Termux:X11, routes audio
+through PulseAudio, and provides one CLI for installation, desktop sessions,
+graphics, diagnostics and optional workloads. It needs no Android root and
+keeps Android as the host operating system.
+
+**Debian, Ubuntu and Alpine are the three v2-qualified desktop profiles.**
+Debian is the recommended default. Twelve additional named distro recipes are
+available to try, but are not qualified for the v2 desktop support promise;
+arbitrary OCI images are shell guests until a Ternux desktop recipe is added.
+All 15 named recipes include distro-specific Mesa GL packages. On Adreno/KGSL,
+Ternux prefers the guest's supported Zink/Freedreno path; Debian Trixie also has
+a validated Turnip payload. VirGL is the compatibility route. The selected
+renderer depends on the device and Android graphics stack, so check it with
 `glxinfo -B` inside the guest.
 
-Ternux is designed as a lightweight, managed Linux workstation for Android:
-install once, start the desktop in the background, and use the `ternux` CLI to
-inspect or repair it. It does not need root, replace Android, or promise the
-same graphics performance on every phone.
+### Start here
+
+- **New to Ternux?** Follow the [quick start](docs/QUICK-START.md).
+- **Want to understand the supported guests?** Read the [v2 support matrix](docs/audit/FEATURE-MATRIX.md).
+- **Want measurements?** Read [benchmarks and their limits](docs/BENCHMARKS.md).
+- **Need a command?** Open the [CLI reference](docs/CLI.md).
 
 ![Ternux workstation layers and verified CPU, GPU, and experimental NPU status](docs/assets/ternux-overview.svg)
 
@@ -133,9 +149,9 @@ icon context. Adwaita remains the neutral fallback for uncommon or newly install
 Papirus is not inherited. Fifteen selectable portrait-first branded wallpapers preserve
 their proportions in landscape. Ternux Camera lists
 Android front/rear cameras and captures photos through Termux:API after Camera
-permission is granted to the Termux:API app. Each photo appears in the app preview after capture with its EXIF orientation corrected; compact controls fit the window. Photos save inside Debian at `~/Pictures/Ternux`. A validated capture is staged in Termux app storage, then copied into PRoot; no Gallery scan is performed. Ristretto is the
+permission is granted to the Termux:API app. Each photo appears in the app preview after capture with its EXIF orientation corrected; compact controls fit the window. Photos save in the active guest at `~/Pictures/Ternux`. A validated capture is staged in Termux app storage, then copied into PRoot; no Gallery scan is performed. Ristretto is the
 default image viewer. Termux:API provides still-photo capture; it does not expose a continuous camera stream for live preview.
-Ternux Sound Recorder captures only after you press Start. Save as AAC/M4A by default, or choose MP3; MP3 is encoded locally with Debian FFmpeg. Recordings stay inside Debian at `~/Music/Ternux`.
+Ternux Sound Recorder captures only after you press Start. Save as AAC/M4A by default, or choose MP3; MP3 is encoded with the guest FFmpeg. Recordings stay in the active guest at `~/Music/Ternux`.
 
 A one-time first-run welcome opens the project website in the included Firefox ESR.
 Ubuntu uses Mozilla’s official ESR build because Ubuntu’s archive Firefox package

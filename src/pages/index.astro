@@ -7,7 +7,7 @@ import RenderBench from "../components/RenderBench.astro";
 
 <SiteLayout
   title="Linux, beyond the desktop"
-  description="Turn an ARM64 Android phone into a no-root Linux workstation with 15 package-family guest profiles, Termux, PRoot, Xfce and evidence-led Adreno GPU acceleration."
+  description="A no-root Linux workstation for Android ARM64: Debian, Ubuntu, and Alpine are supported in v2, with 15 named distro recipes available."
   canonical="/"
   altUrl="/bn/"
 >
@@ -29,11 +29,10 @@ import RenderBench from "../components/RenderBench.astro";
             </span>
           </h1>
           <p>
-            A complete ARM64 Linux workstation on Android, with 15
-            package-family guest profiles and Debian as the recommended default.
-            Debian, Ubuntu, and Alpine have partial runtime integration evidence
-            on one Adreno 825 phone. Clean-install and full-app qualification
-            remain open. No root or remote server is needed.
+            Run a Linux desktop on Android without root. Debian, Ubuntu, and
+            Alpine are the three supported v2 desktop profiles, with Debian as
+            the recommended default. Twelve more named distro recipes are
+            available, but are not qualified for v2 support.
           </p>
           <div class="hero-actions">
             <a class="button primary" href="/ternux/docs/QUICK-START.html">
@@ -49,7 +48,7 @@ import RenderBench from "../components/RenderBench.astro";
         </div>
         <div
           class="hero-system-route"
-          aria-label="Ternux system route: Android, Termux, a PRoot guest, Adreno"
+          aria-label="Ternux system route: Android, Termux, a PRoot guest, Termux:X11"
         >
           <span>
             ANDROID <b>HOST</b>
@@ -58,42 +57,41 @@ import RenderBench from "../components/RenderBench.astro";
             TERMUX <b>SHELL</b>
           </span>
           <span>
-            DEBIAN <b>GUEST</b>
+            PRoot <b>DEBIAN · UBUNTU · ALPINE</b>
           </span>
           <span>
-            ADRENO <b>GRAPHICS</b>
+            TERMUX:X11 <b>DISPLAY · AUDIO</b>
           </span>
         </div>
       </div>
     </section>
-    <section class="section" id="device-profile" data-reveal>
+    <section class="section" id="supported-guests" data-reveal>
       <div class="container">
-        <div class="device-panel">
+        <div class="device-panel profile-panel">
           <div class="device-copy">
-            <span class="eyebrow">01 / HOST DEVICE</span>
-            <h2>Redmi Turbo 4 Pro</h2>
+            <span class="eyebrow">01 / V2 SUPPORTED DESKTOP GUESTS</span>
+            <h2>Choose your Linux guest.</h2>
             <p>
-              Start with the verified Android phone used for the measurements
-              below. The results describe this configured device only.
+              These three profiles are covered by v2 desktop support. Debian is
+              the default; twelve more recipes are available but not qualified.
             </p>
           </div>
-          <div class="device-data">
-            <div>
-              <small>System on chip</small>
-              <strong>Snapdragon 8s Gen 4</strong>
-            </div>
-            <div>
-              <small>Graphics</small>
-              <strong>Adreno 825</strong>
-            </div>
-            <div>
-              <small>Host OS</small>
-              <strong>Android</strong>
-            </div>
-            <div>
-              <small>Architecture</small>
-              <strong>ARM64</strong>
-            </div>
+          <div class="profile-grid">
+            <article class="profile-card is-recommended">
+              <small>RECOMMENDED DEFAULT</small>
+              <strong>Debian</strong>
+              <span>Xfce · APT · Avro</span>
+            </article>
+            <article class="profile-card">
+              <small>SUPPORTED GUEST</small>
+              <strong>Ubuntu</strong>
+              <span>Xfce · APT · snap-safe</span>
+            </article>
+            <article class="profile-card">
+              <small>SUPPORTED GUEST</small>
+              <strong>Alpine</strong>
+              <span>Xfce · APK · Avro m17n</span>
+            </article>
           </div>
         </div>
       </div>
@@ -238,16 +236,13 @@ import RenderBench from "../components/RenderBench.astro";
             <span class="eyebrow">04 / ANDROID DEVELOPMENT</span>
             <h2>Ternux runs Linux. ADT develops Android.</h2>
             <p>
-              Ternux offers 15 package-family desktop profiles and recommends
-              Debian by default. Debian, Ubuntu and Alpine have partial runtime
-              integration evidence on one Adreno 825 phone; clean installation
-              and full application qualification remain open. The other 12
-              profiles are not device-qualified. Ubuntu has its own snapd-safe
-              recipe. ADT adds the native Android development toolchain inside
-              that guest: SDK build-tools, platform-tools, signing, ADB,
-              Flutter/Dart and native build tools. Their device workflows are
-              independently verified; running ADT from an Xfce terminal is
-              observed, not formally qualified as a combined workflow.
+              Ternux v2 supports Debian, Ubuntu and Alpine desktop guests;
+              Debian is the recommended default. Twelve more named distro
+              recipes are available but not v2-qualified. Ubuntu has its own
+              snap-safe setup. ADT adds Android SDK build-tools, platform-tools,
+              signing, ADB, Flutter/Dart and native build tools inside the
+              guest. ADT's Android development workflow is documented
+              separately.
             </p>
             <div class="ecosystem-tags" aria-label="ADT toolchain">
               <span>ANDROID SDK</span>
@@ -270,9 +265,9 @@ import RenderBench from "../components/RenderBench.astro";
           <div>
             <h2>One model. Three compute paths.</h2>
             <p>
-              Switch between measured CPU, Adreno Vulkan and experimental
-              Hexagon HTP results from the Redmi Turbo 4 Pro. Every number keeps
-              its model and evidence boundary attached.
+              Compare CPU and Adreno Vulkan measurements from one Android
+              reference device. Hexagon HTP appears separately as experimental;
+              these results are not performance guarantees for other devices.
             </p>
           </div>
         </header>

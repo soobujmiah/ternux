@@ -9,12 +9,14 @@ lang: "en"
 **Last reviewed:** 2026-11-13. This list is ordered by dependency and includes
 only work that remains open.
 
-1. Add the v3 architecture docs to the site with correct nested routes and
-   English/Bangla entry-point links; build and inspect the generated pages.
-2. Review architecture and ADR content against current source and remove any
-   accidental claim that v3 designs are already implemented.
-3. Design and test service authorization, request compatibility, errors,
-   idempotency, and owner-scoped filesystem access before enabling mutations.
+1. Implement and test the native Unix-socket service for read-only manager
+   operations, enforcing the v1 request/response schemas and private socket
+   permissions without starting it automatically.
+2. Add service authorization/session runtime and verify local Web UI origin,
+   token, and CSRF behavior before any mutation endpoint exists.
+3. Implement durable request idempotency and owner-rooted path resolution;
+   test duplicate requests, traversal, symlink races, service restart, and
+   client disconnects before enabling mutations.
 4. Update this page, implementation status, technical debt, and README/site
    navigation in the same change as each visible capability.
 5. After the native core and service boundary pass acceptance, choose the
