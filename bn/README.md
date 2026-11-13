@@ -57,13 +57,13 @@ Ternux Android ফোনে কম resource-এ ব্যবহারযোগ�
 ২. Termux-এ চালান:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
+pkg update -y && pkg install -y curl && curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
 ```
 
 `curl` না থাকলে চালান:
 
 ```bash
-wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
+pkg update -y && pkg install -y wget && wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
 ```
 
 Termux-এর নিজস্ব package manager দিয়ে install করতে signed stable APT source

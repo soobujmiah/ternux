@@ -15,13 +15,16 @@ if env TERNUX_STATE_DIR="$TMP/state" HOME="$TMP/home" bash -c '
   _tnx_running_guest_sessions(){ printf "debian\nalpine\n"; }
   guests="$(TERNUX_JSON=1 tnx_cmd_manager guests)" || exit 1
   status="$(TERNUX_JSON=1 tnx_cmd_manager status)" || exit 1
-  printf "%s\n---STATUS---\n%s\n" "$guests" "$status"
+  capabilities="$(TERNUX_JSON=1 tnx_cmd_manager capabilities)" || exit 1
+  printf "%s\n---STATUS---\n%s\n---CAPS---\n%s\n" "$guests" "$status" "$capabilities"
 ' _ "$ROOT" > "$TMP/output" 2>/dev/null && python3 - "$TMP/output" "$ROOT" <<'PY'
 import datetime,json,re,sys
-text=open(sys.argv[1]).read(); guests,status=text.split('\n---STATUS---\n')
-g=json.loads(guests); s=json.loads(status); root=sys.argv[2]
+text=open(sys.argv[1]).read(); guests,rest=text.split('\n---STATUS---\n')
+status_part,capabilities=rest.split('\n---CAPS---\n')
+g=json.loads(guests); s=json.loads(status_part); c=json.loads(capabilities); root=sys.argv[2]
 status_schema=json.load(open(root+'/docs/v3/schemas/manager-status-v1.schema.json'))
 guests_schema=json.load(open(root+'/docs/v3/schemas/manager-guests-v1.schema.json'))
+capabilities_schema=json.load(open(root+'/docs/v3/schemas/manager-capabilities-v1.schema.json'))
 def validate(value,schema,document):
     if '$ref' in schema:
         return validate(value,document['$defs'][schema['$ref'].split('/')[-1]],document)
@@ -59,6 +62,7 @@ def validate(value,schema,document):
         else: validate(value,condition,document)
     return True
 validate(g,guests_schema,guests_schema); validate(s,status_schema,status_schema)
+validate(c,capabilities_schema,capabilities_schema)
 assert g['schema_version']=='1.0.0' and g['command']=='manager.guests' and g['status']=='ok'
 assert g['count']==4 and [x['name'] for x in g['guests']]==['alpine','debian','image_1','ubuntu']
 generic=next(x for x in g['guests'] if x['name']=='image_1')
@@ -67,8 +71,30 @@ assert generic['qualification']=='no-desktop-profile'
 assert all(x['state']=='installed' for x in g['guests'])
 assert s['management_mode']=='direct-cli' and s['guest_manager_available'] is True
 assert s['installed_guest_count']==4 and s['running_desktops']==['debian','alpine']
+assert c['command']=='manager.capabilities'
+assert [x['id'] for x in c['operations']]==['manager.capabilities','manager.guests','manager.status']
+assert c['count']==len(c['operations']) and len({x['id'] for x in c['operations']})==c['count']
+assert all(x['access']=='read-only' and x['argument_count']==0 for x in c['operations'])
 PY
-then ok 'v1 manager outputs validate against JSON Schemas, including generic guests and timestamps'; else not_ok 'v1 manager outputs validate against JSON Schemas, including generic guests and timestamps'; fi
+then ok 'v1 manager outputs validate against schemas; capability list matches dispatch allowlist'; else not_ok 'v1 manager outputs validate against schemas; capability list matches dispatch allowlist'; fi
+
+if env TERNUX_STATE_DIR="$TMP/state-errors" HOME="$TMP/home-errors" bash -c '
+  . "$1/lib/manager.sh"
+  run_error(){
+    local output="" rc=0
+    output="$(TERNUX_JSON=1 tnx_manager_dispatch "$1" "${@:2}")" || rc=$?
+    [ "$rc" -eq 2 ] || return 1
+    printf "%s\n" "$output"
+  }
+  run_error manager.unknown >"$2/unknown"
+  run_error manager.status unexpected >"$2/arguments"
+' _ "$ROOT" "$TMP" && python3 - "$TMP/unknown" "$TMP/arguments" <<'PY'
+import json,sys
+unknown=json.load(open(sys.argv[1])); arguments=json.load(open(sys.argv[2]))
+assert unknown['code']=='UNKNOWN_OPERATION' and unknown['command']=='manager.error'
+assert arguments['code']=='INVALID_ARGUMENTS' and arguments['status']=='error'
+PY
+then ok 'manager dispatch denies unknown operations and extra arguments with typed errors'; else not_ok 'manager dispatch denies unknown operations and extra arguments with typed errors'; fi
 
 if env TERNUX_STATE_DIR="$TMP/state-empty" HOME="$TMP/home-empty" bash -c '
   . "$1/lib/manager.sh"; tnx_has_cmd(){ return 0; }; proot-distro(){ :; }; _tnx_running_guest_sessions(){ :; }

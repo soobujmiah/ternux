@@ -51,13 +51,17 @@ before `lib/core.sh` can load is necessarily plain stderr, not JSON.
 Read the Native Termux manager snapshot without starting a service or guest.
 This first v3 slice reports installed PRoot guests and verified Ternux desktop
 profiles; it does not install, start, stop, or repair anything. The v1 JSON
-payload schemas are `docs/v3/schemas/manager-status-v1.schema.json` and
-`docs/v3/schemas/manager-guests-v1.schema.json`. These are CLI payloads; a
+payload schemas are `docs/v3/schemas/manager-status-v1.schema.json`,
+`docs/v3/schemas/manager-guests-v1.schema.json`, and
+`docs/v3/schemas/manager-capabilities-v1.schema.json`. The capability list is
+generated from the same operation allowlist used by dispatch. Unknown
+operations and unexpected arguments fail closed. These are CLI payloads; a
 local manager API service is not implemented yet.
 
 ```bash
 tx manager status [--json]
 tx manager guests [--json]
+tx manager capabilities [--json]
 ```
 
 ### `ternux guides`

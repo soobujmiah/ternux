@@ -17,6 +17,17 @@ while (($#)); do
 done
 exit 2
 STUB
+cat > "$tmp/bin/wget" <<'STUB'
+#!/usr/bin/env bash
+set -euo pipefail
+for arg in "$@"; do
+  if [[ "$arg" == --output-document=* ]]; then
+    printf 'mock public key\n' > "${arg#*=}"
+    exit 0
+  fi
+done
+exit 2
+STUB
 cat > "$tmp/bin/gpg" <<'STUB'
 #!/usr/bin/env bash
 set -euo pipefail
@@ -37,6 +48,14 @@ cat > "$tmp/bin/pkg" <<'STUB'
 printf '%s|%s\n' "$*" "${LD_LIBRARY_PATH-unset}" >> "$PKG_LOG"
 STUB
 chmod +x "$tmp/bin/"*
+no_curl_path="$tmp/no-curl-bin"
+mkdir -p "$no_curl_path"
+for tool in env bash awk mktemp install chmod rm mkdir; do
+  ln -s "$(command -v "$tool")" "$no_curl_path/$tool"
+done
+ln -s "$tmp/bin/wget" "$no_curl_path/wget"
+ln -s "$tmp/bin/gpg" "$no_curl_path/gpg"
+ln -s "$tmp/bin/pkg" "$no_curl_path/pkg"
 expected=E5527F4D5B83037FF77B65AE5E894BBB81168B1D
 if env PATH="$tmp/bin:$PATH" PREFIX="$prefix" TMPDIR="$prefix/tmp" \
   MOCK_FINGERPRINT="$expected" PKG_LOG="$tmp/pkg.log" \
@@ -49,6 +68,18 @@ if env PATH="$tmp/bin:$PATH" PREFIX="$prefix" TMPDIR="$prefix/tmp" \
   test ! -s "$tmp/pkg.log"
 else
   echo 'valid fingerprint configure-only path failed' >&2
+  exit 1
+fi
+mkdir -p "$tmp/prefix-wget/etc/apt" "$tmp/prefix-wget/tmp"
+if env PATH="$no_curl_path" PREFIX="$tmp/prefix-wget" TMPDIR="$tmp/prefix-wget/tmp" \
+  MOCK_FINGERPRINT="$expected" PKG_LOG="$tmp/pkg-wget.log" \
+  bash "$root/packaging/termux/bootstrap-repository.sh" --configure-only \
+  > "$tmp/wget.log"; then
+  test -s "$tmp/prefix-wget/etc/apt/keyrings/ternux.gpg"
+  grep -Fxq "deb [signed-by=$tmp/prefix-wget/etc/apt/keyrings/ternux.gpg] https://soobujmiah.github.io/ternux/apt stable main" \
+    "$tmp/prefix-wget/etc/apt/sources.list.d/ternux.list"
+else
+  echo 'wget-only fingerprint configure-only path failed' >&2
   exit 1
 fi
 if env PATH="$tmp/bin:$PATH" PREFIX="$prefix" TMPDIR="$prefix/tmp" \

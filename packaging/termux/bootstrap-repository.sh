@@ -15,7 +15,7 @@ Configure the signed Ternux Termux APT repository and install its CLI.
 Usage:
   bash bootstrap-repository.sh [--channel stable|rc] [--configure-only]
 
-Requires curl, gpg, pkg, and a native Termux PREFIX. The downloaded primary
+Requires curl or wget, gpg, pkg, and a native Termux PREFIX. The downloaded primary
 key is checked against the embedded full fingerprint before APT trusts it.
 The default channel is stable. The rc channel is for pre-release qualification.
 HELP
@@ -44,12 +44,16 @@ if [[ -z "${PREFIX:-}" || ! -d "$PREFIX/etc/apt" ]]; then
   printf 'Run this script in native Termux; PREFIX/etc/apt was not found.\n' >&2
   exit 1
 fi
-for tool in curl gpg pkg; do
+for tool in gpg pkg; do
   if ! command -v "$tool" >/dev/null 2>&1; then
     printf 'Missing %s. Install prerequisites with: pkg install curl gnupg\n' "$tool" >&2
     exit 127
   fi
 done
+if ! command -v curl >/dev/null 2>&1 && ! command -v wget >/dev/null 2>&1; then
+  printf 'Missing curl and wget. Install one with: pkg install curl  (or: pkg install wget)\n' >&2
+  exit 127
+fi
 
 keyring_dir="$PREFIX/etc/apt/keyrings"
 source_dir="$PREFIX/etc/apt/sources.list.d"
@@ -64,8 +68,13 @@ work_dir="$(mktemp -d "${TMPDIR:-$PREFIX/tmp}/ternux-apt-bootstrap.XXXXXX")"
 cleanup() { rm -rf -- "$work_dir"; }
 trap cleanup EXIT
 
-curl --fail --silent --show-error --location --proto '=https' --tlsv1.2 \
-  --output "$work_dir/ternux-archive-key.asc" "$key_url"
+if command -v curl >/dev/null 2>&1; then
+  curl --fail --silent --show-error --location --proto '=https' --tlsv1.2 \
+    --output "$work_dir/ternux-archive-key.asc" "$key_url"
+else
+  wget --https-only --quiet --timeout=30 --tries=3 \
+    --output-document="$work_dir/ternux-archive-key.asc" "$key_url"
+fi
 primary_fingerprints="$(gpg --batch --with-colons --show-keys --fingerprint \
   "$work_dir/ternux-archive-key.asc" |
   awk -F: '$1 == "pub" {want=1; next} want && $1 == "fpr" {print toupper($10); want=0}')"

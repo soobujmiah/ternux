@@ -189,12 +189,27 @@ import RenderBench from "../components/RenderBench.astro";
             <button
               type="button"
               data-copy
-              data-copy-value="curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash"
+              data-copy-value="pkg update -y && pkg install -y curl && curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash"
             >
               COPY
             </button>
             <code>
-              curl -fsSL
+              pkg update -y && pkg install -y curl && curl -fsSL
+              https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh
+              | bash
+            </code>
+          </div>
+          <div class="command">
+            <small>IF YOU PREFER WGET</small>
+            <button
+              type="button"
+              data-copy
+              data-copy-value="pkg update -y && pkg install -y wget && wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash"
+            >
+              COPY
+            </button>
+            <code>
+              pkg update -y && pkg install -y wget && wget -qO-
               https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh
               | bash
             </code>
