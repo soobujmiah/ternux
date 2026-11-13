@@ -1,0 +1,7 @@
+event_id: commit-40af2ba1249f-1948a12ea0cf04fa
+repository: soobujmiah/ternux
+commit: 40af2ba1249f717fea88a5b982dcfe2e736e9b27
+kind: commit
+occurred_at: '2026-11-13T03:46:44Z'
+status: completed
+summary: Refresh v2 device and package qualification evidence (#187)
