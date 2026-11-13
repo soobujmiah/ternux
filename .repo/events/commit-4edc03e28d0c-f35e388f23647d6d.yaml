@@ -1,0 +1,7 @@
+event_id: commit-4edc03e28d0c-f35e388f23647d6d
+repository: soobujmiah/ternux
+commit: 4edc03e28d0c27a01e137bf69f4c383347a8e503
+kind: commit
+occurred_at: '2026-11-13T03:17:19Z'
+status: completed
+summary: Complete signed RC APT lifecycle evidence (#185)
