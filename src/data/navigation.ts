@@ -25,6 +25,8 @@ export const nav = {
       label: "Understand",
       items: [
         ["Architecture", "/docs/ARCHITECTURE.html"],
+        ["V3 design & roadmap", "/docs/V3-ARCHITECTURE.html"],
+        ["Project status", "/docs/project/PROJECT-ROADMAP.html"],
         ["Evidence & benchmarks", "/docs/BENCHMARKS.html"],
         ["FAQ", "/docs/FAQ.html"],
       ],
@@ -64,6 +66,8 @@ export const nav = {
       label: "বুঝে নিন",
       items: [
         ["আর্কিটেকচার", "/bn/docs/ARCHITECTURE.html"],
+        ["V3 নকশা ও রোডম্যাপ", "/bn/docs/V3-ARCHITECTURE.html"],
+        ["প্রকল্পের অবস্থা", "/bn/docs/V3-ARCHITECTURE.html"],
         ["প্রমাণ ও বেঞ্চমার্ক", "/bn/docs/BENCHMARKS.html"],
         ["সাধারণ প্রশ্ন", "/bn/docs/FAQ.html"],
       ],

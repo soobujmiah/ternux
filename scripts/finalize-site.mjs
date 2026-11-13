@@ -31,10 +31,12 @@ function walk(dir) {
     if (entry.isDirectory()) walk(file);
     else if (entry.name.endsWith(".html")) {
       const rel = path.relative(dist, file).split(path.sep).join("/");
+      const html = fs.readFileSync(file, "utf8");
       if (
         rel.includes("/SEO.") ||
         rel.includes("/ACCELERATOR-RELEASE-PLAN.") ||
-        ["docs.html", "bn.html", "bn/docs.html"].includes(rel)
+        ["docs.html", "bn.html", "bn/docs.html"].includes(rel) ||
+        /<meta\s+name="robots"\s+content="noindex,follow"/i.test(html)
       )
         continue;
       publicRoutes.push(rel === "index.html" ? "/" : `/${rel}`);

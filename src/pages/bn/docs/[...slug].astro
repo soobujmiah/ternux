@@ -6,12 +6,15 @@ export function getStaticPaths() {
   return allPages("bn")
     .filter((page) => !page.route.endsWith("/index.md"))
     .map((page) => ({
-      params: { slug: page.route.split("/").pop()!.replace(/\.md$/, "") },
+      params: {
+        slug: page.route.replace(/^bn\/docs\//, "").replace(/\.md$/, ""),
+      },
       props: { page },
     }));
 }
 const { page } = Astro.props;
 const path = pageUrl(page);
+const noIndex = page.route.endsWith("ACCELERATOR-RELEASE-PLAN.md");
 ---
 
 <SiteLayout
@@ -21,7 +24,7 @@ const path = pageUrl(page);
   canonical={path.replace("/ternux", "")}
   altUrl={page.alt_url}
   article={true}
-  noIndex={page.route.endsWith("ACCELERATOR-RELEASE-PLAN.md")}
+  noIndex={noIndex}
 >
   <div class="article-shell">
     <aside class="sidebar">

@@ -1,0 +1,31 @@
+---
+title: "Ternux known limitations"
+description: "Current product and verification limits, with the exact scope of each claim."
+lang: "en"
+---
+
+## Known limitations
+
+**Last reviewed:** 2026-11-13.
+
+- v2 device qualification is for one named Android/Adreno device. It does not
+  establish equivalent behavior on other SoCs, GPUs, Android versions, or
+  keyboards.
+- Physical Android Ctrl+Space delivery was not certified by the current
+  automated/configuration audit; prior synthetic results disagree for Alpine.
+- Ternux's GTK and XFWM theme does not guarantee a third-party app's
+  client-side decorations, Qt theme, custom drawing, or icon-name coverage.
+- An X11 app window can be observed and constrained by the window-fit helper;
+  the helper cannot correct a window that draws its own oversized content.
+- PRoot provides a userland compatibility environment, not kernel container
+  isolation or root privileges.
+- Termux:API still-photo capability does not by itself provide continuous
+  camera streaming or a `/dev/video*` webcam device. These are separate,
+  unqualified capabilities.
+- HTP/HMX and QNN artifacts remain experimental unless a later release
+  explicitly changes that status with hardware and correctness evidence.
+- The v3 Native Control Center, manager API, Device Bridge, and workload
+  architecture are designed but not implemented as of this record.
+
+See [device verification](DEVICE-VERIFICATION.md) and the
+[v2 release report](../V2-RELEASE-REPORT.md) for dated evidence.

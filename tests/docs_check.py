@@ -239,9 +239,26 @@ if len(nav_sections) == 2:
     en_urls = re.findall(r'\[\s*"[^"]+"\s*,\s*"([^"]+)"\s*\]', en_part)
     bn_urls = re.findall(r'\[\s*"[^"]+"\s*,\s*"([^"]+)"\s*\]', bn_part)
     check(len(en_groups) == len(bn_groups) == 4, "documentation navigation must have four mirrored groups")
-    check(len(en_urls) == len(bn_urls) == 17, "documentation navigation must have 17 destinations per language")
+    check(len(en_urls) == len(bn_urls) == 19, "documentation navigation must have 19 destinations per language")
     expected_bn = ["/bn" + url for url in en_urls]
+    expected_bn[expected_bn.index("/bn/docs/project/PROJECT-ROADMAP.html")] = "/bn/docs/V3-ARCHITECTURE.html"
     check(expected_bn == bn_urls, "English/Bengali navigation destinations are not structural mirrors")
+
+# Nested v3/project pages are public routes with a Bengali architecture
+# overview as their language counterpart. Validate the source and built route
+# instead of silently publishing files that the site's former flat route could
+# not serve.
+nested_pages = [
+    *sorted((ROOT / "docs/v3").rglob("*.md")),
+    *sorted((ROOT / "docs/project").rglob("*.md")),
+]
+bn_v3_overview = ROOT / "bn/docs/V3-ARCHITECTURE.md"
+check(bn_v3_overview.exists(), "missing Bengali v3 architecture overview")
+for source in nested_pages:
+    route = ROOT / "dist" / source.relative_to(ROOT).with_suffix(".html")
+    check(route.is_file(), f"missing built nested documentation route: {route.relative_to(ROOT)}")
+bn_route = ROOT / "dist/bn/docs/V3-ARCHITECTURE.html"
+check(bn_route.is_file(), "missing built Bengali v3 architecture route")
 
 # Internal links and fragments.
 links_checked = 0

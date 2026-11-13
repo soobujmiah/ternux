@@ -202,6 +202,10 @@ render route and run scripts or scenes with the documented EEVEE setup. See the
 
 ## More help
 
+- [Ternux v3 architecture and implementation roadmap](docs/v3/README.md):
+  native manager, workspaces, compute, AI, Device Bridge, security, and gates.
+- [Current project status](docs/project/PROJECT-ROADMAP.md): implementation,
+  release, device evidence, technical debt, and next actions.
 - [Deep documentation index](docs/README.md): install paths, setup, daily use,
   configuration, workloads, troubleshooting, architecture and CLI.
 - [Quick start](docs/QUICK-START.md): first install, launch and renderer check.

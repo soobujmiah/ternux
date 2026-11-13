@@ -43,6 +43,8 @@ For CPU + Vulkan AI tools, see the optional [Stable Diffusion image-generation g
 
 <div class="doc-grid">
   <a class="doc-card" href="ARCHITECTURE.html"><span class="doc-card__icon">→</span><strong>Architecture</strong><span>Follow display, audio, filesystem, process, Zink/Turnip, and VirGL paths.</span></a>
+  <a class="doc-card" href="V3-ARCHITECTURE.html"><span class="doc-card__icon">v3</span><strong>V3 architecture</strong><span>Read the Native Control Center, workspace, compute, AI, Device Bridge, security, and acceptance design.</span></a>
+  <a class="doc-card" href="project/PROJECT-ROADMAP.html"><span class="doc-card__icon">→</span><strong>Project status</strong><span>See current implementation, release state, device evidence, debt, limits, and next actions.</span></a>
   <a class="doc-card" href="V2-RELEASE-READINESS.html"><span class="doc-card__icon">v2</span><strong>v2 release readiness</strong><span>See the three supported guest profiles, current release gates, and dated device evidence.</span></a>
   <a class="doc-card" href="ACCELERATOR-RELEASE-PLAN.html"><span class="doc-card__icon">NPU</span><strong>Accelerator release plan</strong><span>Current CPU, GPU, HTP, and QNN release gates and deferred work.</span></a>
   <a class="doc-card" href="BENCHMARKS.html"><span class="doc-card__icon">∿</span><strong>Evidence &amp; benchmarks</strong><span>Inspect all captured scene values, caveats, boundaries, and reproduction steps.</span></a>

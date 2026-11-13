@@ -23,6 +23,7 @@ function rewriteHtml(html: string, route: string) {
           /^(docs|bn\/docs)\/(?!README|SEO\.md|ACCELERATOR-RELEASE-PLAN\.md)[^/]+\.md$/.test(
             relative,
           ) ||
+          /^(docs|bn\/docs)\/(v3|project)\/.+\.md$/.test(relative) ||
           /^(CHANGELOG|CONTRIBUTING|bn\/CHANGELOG|bn\/CONTRIBUTING)\.md$/.test(
             relative,
           );
@@ -78,12 +79,32 @@ export function getPage(route: string): Page {
 }
 export function allPages(lang: "en" | "bn") {
   const dir = path.join(root, lang === "bn" ? "bn/docs" : "docs");
-  return fs
-    .readdirSync(dir)
-    .filter(
-      (name) => name.endsWith(".md") && !["README.md", "SEO.md"].includes(name),
-    )
-    .map((name) => getPage(`${lang === "bn" ? "bn/" : ""}docs/${name}`));
+  const files: string[] = [];
+  function visit(current: string) {
+    const currentRelative = path
+      .relative(dir, current)
+      .split(path.sep)
+      .join("/");
+    const inPublishedTree =
+      currentRelative === "v3" || currentRelative.startsWith("v3/");
+    for (const entry of fs.readdirSync(current, { withFileTypes: true })) {
+      const absolute = path.join(current, entry.name);
+      if (
+        entry.isDirectory() &&
+        (current === dir
+          ? ["v3", "project"].includes(entry.name)
+          : inPublishedTree)
+      ) {
+        visit(absolute);
+      } else if (entry.isFile() && entry.name.endsWith(".md")) {
+        const relative = path.relative(dir, absolute).split(path.sep).join("/");
+        if (["README.md", "SEO.md"].includes(relative)) continue;
+        files.push(path.relative(root, absolute).split(path.sep).join("/"));
+      }
+    }
+  }
+  visit(dir);
+  return files.map((route) => getPage(route));
 }
 export function baseUrl(pathname: string) {
   return `${base}${pathname.startsWith("/") ? pathname : `/${pathname}`}`;

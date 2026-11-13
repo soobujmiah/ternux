@@ -16,6 +16,7 @@ basic-usage path, then link here for details.
 |---|---|
 | Start here | `index.md`, `QUICK-START.md`, `INSTALLATION.md`, `MANUAL.md` |
 | Release status and roadmap | [`V2-RELEASE-REPORT.md`](V2-RELEASE-REPORT.md), [`V2-RELEASE-READINESS.md`](V2-RELEASE-READINESS.md), [`V3-PROPOSALS.md`](V3-PROPOSALS.md), and `ACCELERATOR-RELEASE-PLAN.md` (the canonical accelerator/release plan) |
+| V3 architecture and living project status | [`V3-ARCHITECTURE.md`](V3-ARCHITECTURE.md), [`v3/`](v3/README.md), and [`project/`](project/PROJECT-ROADMAP.md) |
 | Repository-only audit evidence | [`audit/`](audit/CURRENT-STATE.md) holds dated device, repository, and feature qualification detail; it is not a public website claim |
 | Package distribution | [`TERMUX-APT.md`](TERMUX-APT.md) (repository trust and install); [`../packaging/termux/README.md`](../packaging/termux/README.md) (build and publish) |
 | Repository deep guides | [`../guides/device-benchmark-evidence.md`](../guides/device-benchmark-evidence.md), [`../guides/llama-vulkan-extension.md`](../guides/llama-vulkan-extension.md), [`../guides/stable-diffusion-vulkan-extension.md`](../guides/stable-diffusion-vulkan-extension.md), [`../guides/llama-htp-experimental.md`](../guides/llama-htp-experimental.md), matching `../bn/guides/` pages (source repository only; not rendered on the website) |
