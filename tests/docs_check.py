@@ -466,6 +466,13 @@ try:
     entries = sitemap.findall("s:url", namespace)
     source_only = {ROOT / "docs/SEO.md", ROOT / "docs/index.md"}
     expected_urls = 2 + 2 * sum(english not in source_only for english, _ in pairs)
+    # Public nested release pages are indexable; v3/project pages stay noindex.
+    release_pages = [
+        page
+        for page in (ROOT / "docs/release").rglob("*.md")
+        if page.name not in {"README.md", "SEO.md"}
+    ]
+    expected_urls += 2 * len(release_pages)
     check(len(entries) == expected_urls, f"dist/sitemap.xml: expected {expected_urls} bilingual URLs")
     for entry in entries:
         check(len(entry.findall("x:link", namespace)) == 3, "dist/sitemap.xml: every URL needs en, bn, and x-default alternates")

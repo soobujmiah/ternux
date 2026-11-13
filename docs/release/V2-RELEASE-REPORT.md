@@ -24,8 +24,9 @@ Redmi Turbo 4 Pro (`25053RT47C`), Android 16, SM8735 / Adreno 825.
 
 The release-time report at [`../V2-RELEASE-REPORT.md`](../V2-RELEASE-REPORT.md)
 preserves the original publication record. The machine-readable release gates
-are [`../release-gates.json`](../release-gates.json), and the owner-approved
-scope is summarized in [release readiness](../V2-RELEASE-READINESS.md).
+are in the [repository gate inventory](https://github.com/soobujmiah/ternux/blob/main/docs/release-gates.json),
+and the owner-approved scope is summarized in
+[release readiness](../V2-RELEASE-READINESS.md).
 
 ## Release assets and package channel
 

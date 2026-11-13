@@ -23,7 +23,8 @@ Debian-এর পরীক্ষার প্রমাণ সবচেয়ে ব
 Redmi Turbo 4 Pro (`25053RT47C`), Android 16, SM8735 / Adreno 825-এ সীমিত।
 
 প্রকাশের সময়কার মূল রেকর্ড [পুরোনো release report](../../../docs/V2-RELEASE-REPORT.md)-এ
-রাখা আছে। Machine-readable gate হলো [`release-gates.json`](../../../docs/release-gates.json),
+রাখা আছে। Machine-readable gate হলো
+[repository gate inventory](https://github.com/soobujmiah/ternux/blob/main/docs/release-gates.json),
 আর owner-approved পরিধি আছে [release readiness report](../../../docs/V2-RELEASE-READINESS.md)-এ।
 
 ## Release package ও repository
