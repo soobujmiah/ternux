@@ -15,6 +15,7 @@ from gi.repository import Gdk, GdkPixbuf, Gio, Gtk, GLib
 
 CAMERA_INFO = "/data/data/com.termux/files/usr/bin/termux-camera-info"
 CAMERA_PHOTO = "/data/data/com.termux/files/usr/bin/termux-camera-photo"
+TORCH = "/data/data/com.termux/files/usr/bin/termux-torch"
 TERMUX_HOME = Path("/data/data/com.termux/files/home")
 API_CAPTURE_DIR = TERMUX_HOME / ".cache" / "ternux-camera"
 
@@ -36,6 +37,8 @@ class TernuxCamera(Gtk.Window):
         self.set_icon_name("ternux-camera")
         self.set_position(Gtk.WindowPosition.CENTER)
         self.last_photo = None
+        self.torch_busy = False
+        self.torch_on = False
 
         # Keep the photo library inside the Debian home. Termux:API can only
         # write to Termux-accessible storage, so captures stage in Termux home
@@ -94,6 +97,11 @@ class TernuxCamera(Gtk.Window):
         camera_row.pack_start(self.refresh, False, False, 0)
         root.pack_start(camera_row, False, False, 0)
 
+        self.flashlight = Gtk.ToggleButton(label="Flashlight off")
+        self.flashlight.set_tooltip_text("Toggle the Android camera flashlight")
+        self.flashlight_handler = self.flashlight.connect("toggled", self.toggle_flashlight)
+        root.pack_start(self.flashlight, False, False, 0)
+
         location = Gtk.Label(label="Saved inside Debian: Home → Pictures → Ternux")
         location.set_xalign(0)
         location.set_line_wrap(True)
@@ -134,6 +142,70 @@ class TernuxCamera(Gtk.Window):
         self.refresh.set_sensitive(not busy)
         if message:
             self.status.set_text(message)
+
+    @staticmethod
+    def api_error_text(*outputs):
+        for output in outputs:
+            detail = (output or "").strip()
+            if not detail:
+                continue
+            try:
+                payload = json.loads(detail)
+                if isinstance(payload, dict):
+                    detail = str(payload.get("error") or payload.get("message") or detail)
+            except json.JSONDecodeError:
+                pass
+            if "android.permission.CAMERA" in detail or "Please grant" in detail:
+                return ("Termux:API needs Android Camera permission. Open Android Settings → Apps → "
+                        "Termux:API → Permissions → Camera, allow access, then retry.")
+            return detail
+        return ""
+
+    def toggle_flashlight(self, button):
+        if self.torch_busy:
+            return
+        requested = button.get_active()
+        self.torch_busy = True
+        button.set_sensitive(False)
+
+        def work():
+            error = ""
+            try:
+                result = subprocess.run([TORCH, "on" if requested else "off"],
+                                        check=True, capture_output=True, text=True,
+                                        timeout=15, env=termux_api_environment())
+                error = self.api_error_text(result.stderr, result.stdout)
+            except (OSError, subprocess.SubprocessError) as exc:
+                error = self.api_error_text(getattr(exc, "stderr", ""),
+                                            getattr(exc, "stdout", ""), str(exc))
+            GLib.idle_add(self.flashlight_ready, button, requested, error)
+
+        threading.Thread(target=work, daemon=True).start()
+
+    def flashlight_ready(self, button, requested, error):
+        self.torch_busy = False
+        button.set_sensitive(True)
+        if error:
+            button.handler_block(self.flashlight_handler)
+            button.set_active(False)
+            button.set_label("Flashlight off")
+            button.handler_unblock(self.flashlight_handler)
+            self.status.set_text(error)
+        else:
+            self.torch_on = requested
+            button.set_label("Flashlight on" if requested else "Flashlight off")
+            self.status.set_text("Flashlight command sent to Android." if requested else
+                                 "Flashlight off command sent to Android.")
+        return GLib.SOURCE_REMOVE
+
+    def switch_flashlight_off_on_close(self, *_):
+        if self.torch_on:
+            try:
+                subprocess.Popen([TORCH, "off"], env=termux_api_environment(),
+                                 stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                                 start_new_session=True)
+            except OSError:
+                pass
 
     def load_cameras(self):
         self.camera.remove_all()
@@ -204,7 +276,19 @@ class TernuxCamera(Gtk.Window):
         def work():
             api_partial = None
             local_partial = None
+            photo_note = ""
             try:
+                if self.torch_on:
+                    torch_result = subprocess.run([TORCH, "off"], check=True,
+                                                  capture_output=True, text=True, timeout=15,
+                                                  env=termux_api_environment())
+                    torch_error = self.api_error_text(torch_result.stderr, torch_result.stdout)
+                    if torch_error:
+                        raise RuntimeError(torch_error)
+                    self.torch_on = False
+                    photo_note = ("Flashlight was turned off for this photo. Termux:API still-photo "
+                                  "capture does not provide a flash setting.")
+                    GLib.idle_add(self.reset_flashlight_after_capture)
                 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
                 API_CAPTURE_DIR.mkdir(parents=True, exist_ok=True)
                 stamp = datetime.now().strftime("%Y%m%d-%H%M%S-%f")
@@ -214,9 +298,11 @@ class TernuxCamera(Gtk.Window):
                 result = subprocess.run([CAMERA_PHOTO, "-c", cid, self.api_path_for(api_partial)],
                                         check=True, capture_output=True, text=True, timeout=90,
                                         env=termux_api_environment())
+                api_error = self.api_error_text(result.stderr, result.stdout)
+                if api_error:
+                    raise RuntimeError(api_error)
                 if not api_partial.is_file():
-                    raise RuntimeError(result.stderr.strip() or result.stdout.strip() or
-                                       "Termux:API returned without creating the photo file.")
+                    raise RuntimeError("Termux:API returned without creating the photo file.")
                 with api_partial.open("rb") as photo:
                     signature = photo.read(3)
                 if api_partial.stat().st_size < 1024 or signature != b"\xff\xd8\xff":
@@ -233,14 +319,15 @@ class TernuxCamera(Gtk.Window):
                     os.fsync(destination.fileno())
                 os.chmod(local_partial, 0o644)
                 os.replace(local_partial, target)
-                GLib.idle_add(self.capture_ready, target, None)
+                GLib.idle_add(self.capture_ready, target, photo_note)
             except (OSError, ValueError, subprocess.SubprocessError, RuntimeError) as exc:
                 if local_partial is not None:
                     try:
                         local_partial.unlink(missing_ok=True)
                     except OSError:
                         pass
-                detail = getattr(exc, "stderr", "") or str(exc)
+                detail = (self.api_error_text(getattr(exc, "stderr", ""),
+                                              getattr(exc, "stdout", "")) or str(exc))
                 GLib.idle_add(self.capture_failed, f"Capture failed: {detail[:320]}")
             finally:
                 if api_partial is not None:
@@ -250,7 +337,14 @@ class TernuxCamera(Gtk.Window):
                         pass
         threading.Thread(target=work, daemon=True).start()
 
-    def capture_ready(self, target, _unused):
+    def reset_flashlight_after_capture(self):
+        self.flashlight.handler_block(self.flashlight_handler)
+        self.flashlight.set_active(False)
+        self.flashlight.set_label("Flashlight off")
+        self.flashlight.handler_unblock(self.flashlight_handler)
+        return GLib.SOURCE_REMOVE
+
+    def capture_ready(self, target, photo_note):
         self.last_photo = target
         self.open_photo.set_sensitive(True)
         try:
@@ -266,7 +360,8 @@ class TernuxCamera(Gtk.Window):
             pixbuf = pixbuf.scale_simple(width, height, GdkPixbuf.InterpType.BILINEAR)
             self.preview.set_from_pixbuf(pixbuf)
             self.preview_hint.set_text(target.name)
-            self.status.set_text(f"Photo saved: {target}\nFind it in Home → Pictures → Ternux.")
+            note = f"\n{photo_note}" if photo_note else ""
+            self.status.set_text(f"Photo saved: {target}\nFind it in Home → Pictures → Ternux.{note}")
         except GLib.Error as exc:
             self.status.set_text(f"Photo saved at {target}, but preview failed: {exc.message}")
         self.set_busy(False)
@@ -299,5 +394,6 @@ class TernuxCamera(Gtk.Window):
 
 if __name__ == "__main__":
     win = TernuxCamera()
+    win.connect("destroy", win.switch_flashlight_off_on_close)
     win.connect("destroy", Gtk.main_quit)
     Gtk.main()

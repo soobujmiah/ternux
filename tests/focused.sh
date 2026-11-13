@@ -890,6 +890,12 @@ assert 'resource:///org/gtk/libgtk/theme/Adwaita/gtk.css' not in gtk4_theme
 assert (root / "lib/ternux-assets/icons/Ternux/scalable/apps/org.xfce.ristretto.svg").is_file()
 gtk3_theme = (root / "lib/ternux-assets/themes/Ternux/gtk-3.0/gtk.css").read_text()
 assert "button:checked" in gtk3_theme and "button:active" in gtk3_theme
+assert ".rubberband" in gtk3_theme and "rgba(57, 230, 140, 0.24)" in gtk3_theme
+assert "XfdesktopIconView.view.rubberband" in gtk3_theme
+assert "XfdesktopIconView.view.rubberband" in (root / "lib/ternux-assets/themes/Ternux/gtk-3.0/gtk-user.css").read_text()
+for version in ("3.0", "4.0"):
+    user_css = (root / f"lib/ternux-assets/themes/Ternux/gtk-{version}/gtk-user.css").read_text()
+    assert ".rubberband" in user_css and "rgba(57, 230, 140, 0.24)" in user_css
 assert "border-radius: 3px" in gtk3_theme and "box-shadow: none" in gtk3_theme
 for icon in ("ternux-recorder", "ternux-avro", "ternux-python", "ternux-keyboard",
              "ternux-launcher", "org.xfce.webbrowser"):
@@ -1034,6 +1040,12 @@ assert 'OUTPUT_DIR = Path.home() / "Pictures" / "Ternux"' in camera
 assert 'API_CAPTURE_DIR = TERMUX_HOME / ".cache" / "ternux-camera"' in camera
 assert 'Back camera selected' in camera and 'self.camera.set_active_id(back)' in camera
 assert 'Termux:API returned without creating the photo file.' in camera
+assert 'android.permission.CAMERA' in camera and 'Termux:API needs Android Camera permission.' in camera
+assert 'Gtk.ToggleButton(label="Flashlight off")' in camera
+assert 'TORCH = "/data/data/com.termux/files/usr/bin/termux-torch"' in camera
+assert 'Flashlight was turned off for this photo.' in camera
+assert 'does not provide a flash setting.' in camera
+assert camera.index('if self.torch_on:') < camera.index('subprocess.run([CAMERA_PHOTO')
 assert "guvcview" not in camera and "Webcam" not in camera
 assert "Ternux Sound Recorder" in (root / "lib/phases.sh").read_text()
 assert "ternux-recorder.desktop" in (root / "lib/ternux-panel-shortcuts.sh").read_text()
