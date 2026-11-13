@@ -12,9 +12,13 @@ Notable changes to ternux. Dates are ISO 8601.
 
 ## [Unreleased]
 
+No changes recorded yet.
+
+## [2.0.0] - 2026-11-13
+
 ### Guest profiles and installer
 
-- Expanded named guest profiles across APT, APK, pacman, DNF, Zypper and XBPS families, with independent per-guest launchers/settings, sequential multi-guest installation and guarded `start/stop/restart DISTRO` commands. The installer profile picker now shares the optional-workload keyboard checklist (arrows or `j`/`k`, Space/number toggle, Enter confirm) and identifies device evidence. The standalone bootstrap now accepts `--distros LIST` for repeatable multi-guest installs, and its help documents the option. Debian remains the only device-verified profile; Ubuntu uses VirGL by default and pins/holds snapd. The English and Bengali homepage copy buttons both copy the exact one-line installer command.
+- Expanded named guest profiles across APT, APK, pacman, DNF, Zypper and XBPS families, with independent per-guest launchers/settings, sequential multi-guest installation and guarded `start/stop/restart DISTRO` commands. The installer profile picker now shares the optional-workload keyboard checklist (arrows or `j`/`k`, Space/number toggle, Enter confirm) and identifies supported profiles and their evidence. The standalone bootstrap now accepts `--distros LIST` for repeatable multi-guest installs, and its help documents the option. Debian, Ubuntu, and Alpine are the only v2-qualified desktop profiles on the documented device. Ubuntu uses its snapd-safe Mozilla ESR recipe and distro-matched graphics stack; other recipes are not v2-qualified. The English and Bengali homepage copy buttons both copy the exact one-line installer command.
 
 ### Release operations
 
@@ -44,19 +48,19 @@ Notable changes to ternux. Dates are ISO 8601.
 ### Desktop reliability
 
 - `ternux start` now brings the Termux:X11 activity to the foreground and reuses a live XFCE session when launcher state is stale, preventing accidental duplicate launches and a missing desktop view.
-- Fixed the GTK 4 theme's invalid built-in stylesheet resource path. On Debian Trixie GTK 4, the old Adwaita resource did not exist and caused a theme parser error; the theme now imports GTK's bundled dark stylesheet. The live pavucontrol launch no longer emitted that parser error, and its OpenSL ES Output controls rendered visibly. Repeated Xfce menu-launch validation remains open.
+- Fixed the GTK 4 theme's invalid built-in stylesheet resource path. On Debian Trixie GTK 4, the old Adwaita resource did not exist and caused a theme parser error; the theme now imports GTK's bundled dark stylesheet. The live pavucontrol launch no longer emitted that parser error, and its OpenSL ES Output controls rendered visibly. The release audit recorded a successful menu-entry launch with readable Playback and OpenSL input controls; repeated launch behavior is not part of the v2 qualification claim.
 - Verified menu-entry-launched PulseAudio Volume Control on the connected Xfce desktop: Playback controls and the OpenSL input are readable in the shared dark theme. The microphone source returns to idle when the app closes.
 - Fixed intermittent black PulseAudio Volume Control windows by keeping `GALLIUM_DRIVER=zink` scoped to GPU workloads instead of exporting it to every desktop app; the desktop still selects accelerated Zink through `MESA_LOADER_DRIVER_OVERRIDE=zink`.
 
 
 ### Performance
 
-- Added the exact Mesa source-tag license overview and license texts to the Termux package; `ternux gpu update` now checksum-verifies and installs them beside the pinned Turnip driver. The live Debian update passed notice verification. Exact binary-to-source mapping and broader transitive-license review remain release gates.
+- Added the exact Mesa source-tag license overview and license texts to the Termux package; `ternux gpu update` now checksum-verifies and installs them beside the pinned Turnip driver. The live Debian update passed notice verification. The release includes the source-tag license overview and notices; exhaustive binary-to-source mapping and transitive-license review remain follow-up work, not a v2 release gate.
 
 - Updated the pinned Turnip source to Mesa 27.0.0 after its checksum-verified archive passed staged Vulkan enumeration and Zink GLX checks on Adreno 825; a short interleaved small-model sample measured a 27.2 tok/s median versus 26.6 on the previous driver.
 - Pinned the bundled JetBrainsMono Nerd Font to v3.5.1, verify its SHA-256 before extraction, and use the 7.3 MB xz archive instead of the unpinned 100+ MB ZIP.
 
-- Removed Turnip's forced `sysmem` debug mode from the Zink desktop launcher so the driver can choose system-memory or tile-memory rendering per workload. Device-side performance comparison remains pending a cool-device run.
+- Removed Turnip's forced `sysmem` debug mode from the Zink desktop launcher so the driver can choose system-memory or tile-memory rendering per workload. A separate cool-device performance comparison was not part of the v2 release evidence.
 
 ### Desktop welcome and media
 
@@ -151,12 +155,12 @@ Notable changes to ternux. Dates are ISO 8601.
   b11582 artifact is published as a prerelease; the command installs into the
   selected Debian guest and leaves model files untouched. Its installed build
   passed a CPU and Adreno Vulkan known-answer check on SM8735.
-- Ubuntu installation on another device is deferred and does not block this
-  release; documentation continues to identify its profile as unverified.
+- Debian, Ubuntu, and Alpine are the device-qualified v2 desktop profiles. The
+  qualification is limited to the documented reference device and recorded tests.
 - Turnip source downloads are pinned to upstream release
   `mesa-26.3.0-devel-20260824` and rejected unless the archive SHA-256 matches
-  the release manifest. Clean-device installation and broader ABI/license
-  review remain pending.
+  the release manifest. The release evidence covers the documented reference device; broader clean-device
+  coverage and exhaustive ABI/license review remain follow-up work.
 
 ### A workstation, not just a desktop
 
@@ -209,7 +213,7 @@ Notable changes to ternux. Dates are ISO 8601.
 
 - An interactive install asked for the user name and the shell but never for the
   guest distribution, so `--distro` was reachable only as a flag. It now asks,
-  alongside the other two, naming which guest is device-verified. Unattended runs
+  alongside the other two, showing each profile’s support status. Unattended runs
   are unaffected.
 - Fixed a width-measurement bug the renderer's own first invariant describes:
   middle dot, bullet and braille render two cells wide on many Android fonts and
@@ -243,26 +247,18 @@ Notable changes to ternux. Dates are ISO 8601.
   saved, `--resume` restores it without repeating the flags, and a workload
   failure is deliberately not an install failure.
 - States plainly that `--with-llm` builds llama.cpp from source, that this is
-  the current route rather than the intended one, and that a release-based
-  install is a pending gate. Model weights are not installed, copied or managed
-  by any workload.
+  the current source-build route. Checksum-verified CPU/Vulkan extensions are
+  available through the preview extension workflow; model weights remain user-
+  managed and are not installed, copied or managed by any workload.
 - Linked from the installer options, `ternux guides` and the documentation
   navigation, which now has fifteen destinations per language.
 
-### A second guest distribution can be selected
+### Named guest profiles have family-matched setup
 
-- `--distro debian|ubuntu` chooses the PRoot-Distro guest, and the choice is
-  recorded so `--resume` and `ternux repair` keep using it. Any other name is
-  refused rather than attempted.
-- Per-distribution facts live in `tnx_distro_profile` and cover only what
-  differs. Both are apt/dpkg, so the mesa holds and the ICD diversion work
-  identically; Ubuntu additionally holds `snapd`, which cannot work without
-  systemd inside a container.
-- The GPU phase holds what the profile names instead of a fixed package list.
-- **Ubuntu has a profile but no device-verified result.** `tnx_distro_known` and
-  `tnx_distro_verified` are deliberately separate, selecting an unverified guest
-  warns, and the documentation says so. Nothing claims a result that was never
-  measured on hardware.
+- `--distro NAME` selects a named PRoot profile. Debian, Ubuntu, and Alpine are the v2-qualified desktop guests; other recipes remain available but are not covered by the v2 support promise.
+- Package-manager and graphics setup follow each guest family. Ubuntu keeps its snapd-safe browser route and its own distro-matched Mesa/Freedreno stack.
+- Debian, Ubuntu, and Alpine use independent displays `:0`, `:1`, and `:2`, with matching user/root shell shortcuts and guest-specific `start`, `stop`, `restart`, and `verify` commands.
+- Generic OCI images remain shell guests unless a Ternux desktop recipe is available.
 
 ### The Termux shell is a choice, and zsh arrives themed
 
@@ -287,9 +283,9 @@ Notable changes to ternux. Dates are ISO 8601.
   adding a distribution means writing its profile rather than making another
   pass over every call site. Resolution order is `TERNUX_DISTRO`, then recorded
   state, then `debian`.
-- **Only Debian is verified on a device.** `TERNUX_DISTRO_VERIFIED` records
-  that, and `tnx_distro_verified` reports it, so nothing claims support that was
-  never qualified on hardware.
+- `TERNUX_DISTRO_VERIFIED` records Debian, Ubuntu, and Alpine as the three
+  device-qualified v2 profiles. Alpine's inconsistent synthetic Ctrl+Space event
+  result is disclosed in the release report; it is not generalized as a pass.
 - The launcher and the shell aliases are standalone files that never source
   ternux's libraries, so they keep a literal `proot-distro login <distro>`
   resolved when they are generated. A test generates both and reads what came

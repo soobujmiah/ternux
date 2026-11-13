@@ -12,9 +12,13 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 
 ## [Unreleased]
 
+No changes recorded yet.
+
+## [2.0.0] - 2026-11-13
+
 ### Guest profile ও installer
 
-- APT, APK, pacman, DNF, Zypper ও XBPS family-তে named guest profile, আলাদা launcher/settings, ধারাবাহিক multi-guest install এবং নাম-নির্দিষ্ট `start/stop/restart DISTRO` যোগ হয়েছে। Installer profile picker এখন optional workload-এর একই keyboard checklist ব্যবহার করে (arrow বা `j`/`k`, Space/number toggle, Enter confirm) এবং device evidence জানায়। Standalone bootstrap-এ repeatable multi-guest install-এর জন্য `--distros LIST` যোগ হয়েছে এবং help-এ তা দেখায়। দুই homepage-এর copy button-এ exact এক-লাইন installer command কপি হয়। Debian-ই একমাত্র device-verified profile; Ubuntu-তে VirGL default এবং snapd pin/hold করা হয়।
+- APT, APK, pacman, DNF, Zypper ও XBPS family-তে named guest profile, আলাদা launcher/settings, ধারাবাহিক multi-guest install এবং নাম-নির্দিষ্ট `start/stop/restart DISTRO` যোগ হয়েছে। Installer profile picker এখন optional workload-এর একই keyboard checklist ব্যবহার করে (arrow বা `j`/`k`, Space/number toggle, Enter confirm) এবং device evidence জানায়। Standalone bootstrap-এ repeatable multi-guest install-এর জন্য `--distros LIST` যোগ হয়েছে এবং help-এ তা দেখায়। দুই homepage-এর copy button-এ exact এক-লাইন installer command কপি হয়। এই release-এ Debian, Ubuntu ও Alpine-ই reference device-এ qualified desktop profile। Ubuntu snapd-safe Mozilla ESR route ও নিজস্ব distro-matched graphics stack ব্যবহার করে; অন্য recipe v2 support promise-এর বাইরে।
 
 ### Release operation
 
@@ -43,19 +47,19 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 
 ### Desktop reliability
 
-- GTK 4 theme-এর ভুল built-in stylesheet resource path ঠিক হয়েছে। Debian Trixie GTK 4-এ আগের Adwaita resource ছিল না, তাই theme parser error হতো; এখন GTK-এর bundled dark stylesheet import হয়। Live pavucontrol launch-এ আর ওই parser error আসেনি এবং OpenSL ES Output controls দেখা গেছে। Xfce menu থেকে বারবার চালিয়ে যাচাই এখনও বাকি।
+- GTK 4 theme-এর ভুল built-in stylesheet resource path ঠিক হয়েছে। Debian Trixie GTK 4-এ আগের Adwaita resource ছিল না, তাই theme parser error হতো; এখন GTK-এর bundled dark stylesheet import হয়। Live pavucontrol launch-এ আর ওই parser error আসেনি এবং OpenSL ES Output controls দেখা গেছে। Release audit-এ Xfce menu entry দিয়ে চালালে readable Playback ও OpenSL input controls নিশ্চিত হয়েছে; repeated launch behavior v2 qualification claim-এর অংশ নয়।
 - Xfce desktop entry দিয়ে চালানো PulseAudio Volume Control connected phone-এ verify: একই dark theme-এ Playback controls ও OpenSL input readable; app বন্ধ করলে microphone source idle হয়।
 - `GALLIUM_DRIVER=zink` সব desktop app-এ export না করে GPU workload-এ সীমিত করায় PulseAudio Volume Control-এর intermittent black window ঠিক হয়েছে; accelerated desktop Zink `MESA_LOADER_DRIVER_OVERRIDE=zink` দিয়ে selected থাকে।
 
 
 ### Performance
 
-- Termux package-এ exact Mesa source-tag-এর license overview ও সব license text যোগ হয়েছে; `ternux gpu update` এখন hash যাচাই করে pinned Turnip driver-এর পাশে notice install করে। Live Debian update-এ notice verification pass করেছে। Binary-to-source mapping ও বিস্তৃত transitive-license review release gate হিসেবে বাকি।
+- Termux package-এ exact Mesa source-tag-এর license overview ও সব license text যোগ হয়েছে; `ternux gpu update` এখন hash যাচাই করে pinned Turnip driver-এর পাশে notice install করে। Live Debian update-এ notice verification pass করেছে। সম্পূর্ণ binary-to-source mapping ও transitive-license review follow-up কাজ; এগুলো v2 release gate ছিল না।
 
 - Checksum-verified staged archive দিয়ে Mesa 27.0.0 Turnip pin update; Adreno 825-এ Vulkan enumeration ও Zink GLX pass করেছে। ছোট interleaved model test-এ staged driver-এর median 27.2 tok/s, আগের driver-এ 26.6 tok/s।
 - Bundled JetBrainsMono Nerd Font v3.5.1 pin করা হয়েছে; extract-এর আগে SHA-256 যাচাই হয় এবং 100+ MB ZIP-এর বদলে 7.3 MB xz archive ব্যবহৃত হয়।
 
-- Zink desktop launcher থেকে Turnip-এর forced `sysmem` debug mode বাদ, যাতে driver workload অনুযায়ী system-memory বা tile-memory rendering বেছে নিতে পারে। ঠান্ডা device-এ performance comparison এখনও বাকি।
+- Zink desktop launcher থেকে Turnip-এর forced `sysmem` debug mode বাদ, যাতে driver workload অনুযায়ী system-memory বা tile-memory rendering বেছে নিতে পারে। আলাদা cool-device performance comparison v2 release evidence-এর অংশ ছিল না।
 
 ### ডেস্কটপ welcome ও media
 
@@ -135,21 +139,20 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 ### Accelerator qualification update
 
 - Pinned llama.cpp b11582 package-এ Qwen2.5 1.5B Q4_0 arithmetic known-answer prompt
-  আবার চালানো হয়েছে: CPU ও Adreno 825 Vulkan—দুটোতেই `4` এসেছে। Vulkan device-ও
-  Adreno 825 নামে শনাক্ত হয়েছে।
-- Blender-এর একটি process-এ 1280x720, ১৬ sample-এ পরপর ৬০০টি EEVEE frame render হয়েছে।
-  সব frame সম্পন্ন; median 1.49 সেকেন্ড, Android thermal status 0 এবং নমুনায় skin
+  CPU ও Adreno 825 Vulkan—দুটোতেই `4` দিয়েছে।
+- Blender-এর একটি process-এ 1280x720, ১৬ sample-এ ৬০০টি EEVEE frame render হয়েছে।
+  সব frame সম্পন্ন; median 1.49 সেকেন্ড, Android thermal status 0 এবং skin
   temperature সর্বোচ্চ 44.5 C। এটি প্রায় ১৫ মিনিটের run, multi-hour qualification নয়।
-- Pinned Linux ARM64 llama.cpp CPU + Vulkan build workflow এবং checksum-যাচাই করা
+- Pinned Linux ARM64 llama.cpp CPU + Vulkan build ও checksum-যাচাইকৃত
   `ternux extension list/install llama-vulkan` পথ যোগ হয়েছে। b11582 artifact
   prerelease হিসেবে প্রকাশিত; command নির্বাচিত Debian guest-এ install করে এবং
   model file ছোঁয় না। Installed build SM8735-এ CPU ও Adreno Vulkan known-answer
   check pass করেছে।
-- অন্য ডিভাইসে Ubuntu installation স্থগিত; এটি এই release-এর blocker নয়। নথিতে
-  Ubuntu profile-কে এখনো device-এ unverified বলা আছে।
+- Debian, Ubuntu ও Alpine reference device-এ v2 desktop profile হিসেবে qualify করেছে;
+  এই ফল ওই device ও নথিভুক্ত test-এর মধ্যেই সীমিত।
 - Turnip source download upstream release `mesa-26.3.0-devel-20260824`-এ pin করা;
-  release manifest-এর SHA-256 না মিললে archive প্রত্যাখ্যান হয়। Clean-device install
-  এবং বিস্তৃত ABI/license review এখনো বাকি।
+  release manifest-এর SHA-256 না মিললে archive প্রত্যাখ্যান হয়। বিস্তৃত clean-device
+  coverage ও সম্পূর্ণ ABI/license review follow-up কাজ হিসেবে রয়ে গেছে।
 
 ### শুধু desktop নয়, একটি workstation
 
@@ -199,8 +202,7 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 ### Installer এখন কোন guest জিজ্ঞেস করে, আর চওড়া glyph ঠিকভাবে মাপে
 
 - Interactive install user name ও shell চাইত, কিন্তু guest distribution কখনো চাইত না —
-  `--distro` কেবল flag হিসেবেই পৌঁছানো যেত। এখন অন্য দুটোর পাশেই জিজ্ঞেস করে, এবং কোন
-  guest ডিভাইসে যাচাই করা তা জানায়। Unattended run অপরিবর্তিত।
+  `--distro` কেবল flag হিসেবেই পৌঁছানো যেত। এখন অন্য দুটোর পাশেই guest বাছাইয়ের prompt দেখায় এবং profile-এর support status জানায়। Unattended run অপরিবর্তিত।
 - Renderer-এর নিজের প্রথম invariant যে width-measurement bug বর্ণনা করে, সেটি সংশোধন
   করা হলো: middle dot, bullet ও braille অনেক Android ফন্টে দুই cell চওড়া render হয়, আর
   তিনটিই CJK পরিসরের **নিচে** — তাই একমাত্র "U+2E7F-এর উপরে চওড়া" threshold সেগুলোকে এক
@@ -220,31 +222,17 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 
 ### প্রতিটি workload নথিভুক্ত — স্বয়ংক্রিয়ভাবে ও হাতে
 
-- নতুন গাইড, [ওয়ার্কলোড](docs/WORKLOADS.md): প্রতিটি `--with-*` flag ঠিক কোন
-  package সেট বসায় — installer থেকেই পড়া — এবং প্রত্যেকটির manual সমতুল্য। দুটি পথকেই
-  সমান বৈধ হিসেবে দেখানো হয়েছে, যাতে চালানোর আগে workload পড়ে নেওয়া যায় এবং ব্যর্থ
-  একটি গোড়া থেকে শুরু না করে হাতে শেষ করা যায়।
-- স্বয়ংক্রিয় পথ বসানো ছাড়া আর কী করে তাও লেখা আছে: সেটটি সংরক্ষিত হয়, `--resume`
-  flag আবার না লিখেই সেটি ফিরিয়ে আনে, আর একটি workload-এর ব্যর্থতা ইচ্ছাকৃতভাবেই
-  install-এর ব্যর্থতা নয়।
-- স্পষ্ট করে বলা আছে `--with-llm` llama.cpp source থেকে build করে, এটি বর্তমান পথ —
-  উদ্দিষ্ট পথ নয় — আর release-ভিত্তিক install একটি pending gate। Model weight কোনো
-  workload বসায়, কপি করে বা ব্যবস্থাপনা করে না।
-- Installer option, `ternux guides` ও documentation navigation থেকে link করা, আর
-  navigation-এ এখন প্রতি ভাষায় পনেরোটি destination।
+- নতুন গাইড, [ওয়ার্কলোড](docs/WORKLOADS.md): প্রতিটি `--with-*` flag ঠিক কোন package সেট বসায় — installer থেকেই পড়া — এবং প্রত্যেকটির manual সমতুল্য।
+- `--resume` workload নির্বাচন ফিরিয়ে আনে; workload-এর ব্যর্থতা base install-কে ইচ্ছাকৃতভাবে ব্যর্থ করে না।
+- `--with-llm` llama.cpp source থেকে build করে। Checksum-যাচাইকৃত CPU/Vulkan extension preview workflow-তে পাওয়া যায়; model weight ব্যবহারকারী নিজে রাখেন এবং কোনো workload সেগুলো install বা copy করে না।
+- Installer option, `ternux guides` ও documentation navigation থেকে link করা হয়েছে।
 
-### দ্বিতীয় একটি guest distribution বেছে নেওয়া যায়
+### Named guest profile ও পরিবারভিত্তিক setup
 
-- `--distro debian|ubuntu` PRoot-Distro guest বেছে নেয়, এবং পছন্দটি লিপিবদ্ধ হয় যাতে
-  `--resume` ও `ternux repair` একই guest ব্যবহার করে। অন্য যে কোনো নাম চেষ্টা না করে
-  প্রত্যাখ্যান করা হয়।
-- প্রতি-distribution তথ্য `tnx_distro_profile`-এ থাকে এবং কেবল যা আলাদা তাই রাখে।
-  দুটোই apt/dpkg, তাই mesa hold ও ICD diversion একইভাবে কাজ করে; Ubuntu অতিরিক্তভাবে
-  `snapd` hold করে, যা container-এ systemd ছাড়া চলতে পারে না।
-- GPU phase এখন নির্দিষ্ট একটি package তালিকার বদলে profile যা বলে তাই hold করে।
-- **Ubuntu-র profile আছে, কিন্তু ডিভাইসে যাচাই করা ফল নেই।** `tnx_distro_known` ও
-  `tnx_distro_verified` ইচ্ছাকৃতভাবে আলাদা, যাচাই-না-করা guest বাছলে warning আসে, আর
-  ডকুমেন্টেশনেও তাই লেখা। hardware-এ কখনো মাপা হয়নি এমন ফল কোথাও দাবি করা হয় না।
+- `--distro NAME` দিয়ে named PRoot profile বেছে নেওয়া যায়। Debian, Ubuntu ও Alpine v2-qualified desktop guest; অন্য recipe v2 support promise-এর অংশ নয়।
+- Package manager ও graphics setup guest family অনুযায়ী চলে। Ubuntu snapd-safe browser route এবং নিজস্ব distro-matched Mesa/Freedreno stack ব্যবহার করে।
+- Debian, Ubuntu ও Alpine আলাদা `:0`, `:1`, `:2` display, user/root shell shortcut এবং guest-specific `start`, `stop`, `restart`, `verify` command ব্যবহার করে।
+- Generic OCI image-এ Ternux desktop recipe না থাকলে shell guest হিসেবেই থাকে।
 
 ### Termux শেল এখন একটি পছন্দ, আর zsh থিম নিয়েই আসে
 
@@ -267,9 +255,9 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
   ব্যবহৃত হয়, `proot-distro login debian`-এর ৩৫টি কপির বদলে। তাই একটি distribution
   যোগ করা মানে তার profile লেখা, প্রতিটি call site আবার ঘেঁটে দেখা নয়। নির্ধারণের ক্রম:
   `TERNUX_DISTRO`, তারপর লিপিবদ্ধ state, তারপর `debian`।
-- **ডিভাইসে কেবল Debian যাচাই করা।** `TERNUX_DISTRO_VERIFIED` সেটি লিপিবদ্ধ রাখে ও
-  `tnx_distro_verified` জানায়, যাতে hardware-এ কখনো qualify না হওয়া support দাবি করা
-  না হয়।
+- `TERNUX_DISTRO_VERIFIED` Debian, Ubuntu ও Alpine-কে v2-এর তিনটি device-qualified
+  profile হিসেবে রাখে। Alpine-এর synthetic Ctrl+Space event-এর অমিল release report-এ
+  স্পষ্ট আছে; এটিকে সফল input test বলা হয়নি।
 - Launcher ও shell alias standalone file, ternux-এর library কখনো source করে না, তাই
   সেগুলোতে তৈরির সময়েই নির্ধারিত literal `proot-distro login <distro>` থাকে। একটি test
   দুটোই generate করে পড়ে দেখে — ঠিক ওই জায়গার একটি regression এভাবেই ধরা পড়েছে।

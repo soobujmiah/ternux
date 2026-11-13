@@ -243,7 +243,7 @@
         "Latest exact-main commit db9fe4a70177641b1e1312d2db47462191daf582 passed Validate run 43359028809 on 2026-11-13; the clean Debian/Ubuntu/Alpine Firefox package and mapped-window matrix passed again with the full required CI.",
         "2026-11-13 live Firefox windows on Debian :0, Ubuntu :1, and Alpine :2 showed titlebar close controls. This existing-guest evidence complements but does not substitute for clean-install CI.",
         "The remaining twelve named recipes are outside v2 browser acceptance and must not be presented as qualified by recipe-generation tests.",
-        "Latest exact main faa5f0c4733e82fa0e82c88c6a2cd4531a1c3442 passed Validate run 43362104082 on 2026-11-13; the clean Debian/Ubuntu/Alpine Firefox package and mapped-window matrix passed on the current package/repository release head."
+        "Release commit 9106b04fc8627ae98b1d63c9912a28c8a4677441 passed exact-main Validate run 43372097795 on 2026-11-13; the clean Debian Trixie, Ubuntu 24.04, and Alpine 3.24 Firefox install and mapped-window matrix passed."
       ],
       "required_tests": [
         "clean container browser install and visible Firefox X11 application window on Debian Trixie, Ubuntu 24.04, and Alpine 3.24",
@@ -467,19 +467,19 @@
       "ci_status": "PASS",
       "device_status": "N_A",
       "evidence": [
-        "Documentation audit: README and CHANGELOG report source version 2.0.0 as unreleased; lib/core.sh is the version source and packaging/termux/build.sh derives package metadata from it. No v2.0.0 tag/public release exists and the report says so.",
+        "Pre-publication documentation audit snapshot: source version 2.0.0 was awaiting tag/release; see the subsequent publication evidence below. The v2.0.0 tag and GitHub release are now published.",
         "Required user guidance exists: docs/INSTALLATION.md contains install/update/uninstall flows; docs/TROUBLESHOOTING.md covers desktop, audio, graphics and package issues; docs/ACCELERATOR-RELEASE-PLAN.md distinguishes qualified, experimental and unqualified AI paths; docs/USAGE.md, docs/FAQ.md and SECURITY.md cover workloads, limitations, and storage/security. English/Bengali counterparts are maintained.",
         "PR #104 exact-head Validate run 42818230722 passed, including bilingual docs and site checks; local tests/docs_check.py passed 3,060 assertions, 312 links and 20 bilingual pairs. The current release report and README documentation explain that Pages production deployment is manual-only.",
-        "Version, package, tag and release surfaces consistently describe the current v2 source as unreleased 2.0.0; README badge is 2.0.0, package build derives version from source, changelog entry remains Unreleased, and no v2 tag is present.",
+        "The release surfaces now identify v2.0.0 as released; README links to the release/report, both changelogs date v2.0.0 to 2026-11-13, and the package version is derived from lib/core.sh.",
         "Against source baseline 97e2ac6, `python3 tests/docs_check.py` passed 3,072 assertions, 312 links, and 20 bilingual page pairs after these readiness-report edits.",
-        "Current exact main faa5f0c4733e82fa0e82c88c6a2cd4531a1c3442 passed Validate run 43362104082, Termux APT artifact run 43362104168, and Repository State Contract run 43362104084. Stable signed publication run 43362569559 succeeded; no v2.0.0 GitHub tag or release exists yet."
+        "Final release commit 9106b04fc8627ae98b1d63c9912a28c8a4677441 passed Validate 43372097795, APT artifact 43372097797, and Repository State Contract 43372097798. Tag v2.0.0 and its package/checksum assets are published; post-publication website preservation is verified by run 43371001392."
       ],
       "required_tests": [
         "version/package/tag/release metadata audit",
         "bilingual docs/link checks"
       ],
       "acceptance_criteria": [
-        "Documentation matches the current implementation and unreleased status, clearly labels supported versus experimental workloads, and passes bilingual/link checks."
+        "Documentation matches the released version, supported versus experimental workloads, known qualification limits, and passes bilingual/link checks."
       ],
       "release_blocking": true,
       "release_exclusion": null

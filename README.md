@@ -13,7 +13,7 @@
 [![NPU](https://img.shields.io/badge/NPU-experimental%20(QNN%20HTP)-f59e0b?style=flat-square)](docs/ACCELERATOR-RELEASE-PLAN.md)
 [![License](https://img.shields.io/badge/license-Apache--2.0-22c55e?style=flat-square)](LICENSE)
 
-[Website](https://soobujmiah.github.io/ternux/) · [Deep documentation](docs/README.md) · [বাংলা](bn/README.md) · [Source](https://github.com/soobujmiah/ternux)
+[Website](https://soobujmiah.github.io/ternux/) · [v2.0.0 release](https://github.com/soobujmiah/ternux/releases/tag/v2.0.0) · [Release report](docs/V2-RELEASE-REPORT.md) · [Deep documentation](docs/README.md) · [বাংলা](bn/README.md) · [Source](https://github.com/soobujmiah/ternux)
 
 </div>
 
@@ -213,10 +213,11 @@ one or more guest profiles (Space/number toggles, Enter confirms), then a
 categorized keyboard checklist for optional software; Space or item numbers
 toggle multiple choices, Enter reviews the plan, and `q` keeps the base desktop.
 `--yes` skips prompts and installs the Debian base profile, while explicit
-`--with-*` flags or `--all` select additional workloads. The `pkg install ternux`
-package route is prepared for the v2 release but is not published yet; use the
-installer above for now. After publication, a one-time verified bootstrap sets
-up the signed APT source and installs Ternux; later installs and updates use
-normal `pkg` commands. See the [Termux APT guide](docs/TERMUX-APT.md). Review
-the linked guides for requirements and exact commands. The published release and
-experimental CPU/GPU/NPU gates are tracked in [`docs/ACCELERATOR-RELEASE-PLAN.md`](docs/ACCELERATOR-RELEASE-PLAN.md).
+`--with-*` flags or `--all` select additional workloads. Ternux v2.0.0 is
+released, and the signed stable APT repository is live. Bootstrap it once with
+the commands above; later installs and updates use normal `pkg` commands. The
+GitHub release also includes the `.deb` and checksum manifest. See the
+[Termux APT guide](docs/TERMUX-APT.md) for channel details and the
+[v2 release report](docs/V2-RELEASE-REPORT.md) for publication evidence. HTP/HMX,
+QNN and wider accelerator qualification remain experimental or follow-up work;
+see the [accelerator plan](docs/ACCELERATOR-RELEASE-PLAN.md).
