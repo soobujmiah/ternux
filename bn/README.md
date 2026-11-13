@@ -129,6 +129,7 @@ ternux status     # session ও install-এর অবস্থা
 ternux verify     # active guest যাচাই; db/ub/alp দিয়ে guest বেছে নিন
 ternux doctor     # সাধারণ সমস্যা খোঁজা
 tx stop           # চলমান guest desktop বাছাই করে বন্ধ
+tx distro uninstall NAME # Ternux-managed guest সরান
 ```
 
 `x` saved desktop চালায়; একাধিক installed profile থাকলে `xgo` তালিকা দেখায়। আলাদা desktop guest নিজস্ব tagged Termux:X11 window-তে চলতে পারে। একাধিক profile একবারে install করতে `tx install --distros debian,ubuntu,alpine` ব্যবহার করুন। `tx stop` এক বা একাধিক session বাছতে দেয়; `tx stop --all` সব বন্ধ করে। Debian shell-এর জন্য

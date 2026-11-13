@@ -94,6 +94,7 @@ kal                     # Kali user shell; kalr opens root shell
 tx distro shell NAME    # Profile user shell (image default for generic guests)
 tx distro exec ubuntu -- uname -a # Run a guest command
 tx distro image-install alpine:latest # Install a generic Alpine shell guest
+tx distro uninstall NAME [--yes]   # Remove a registered Ternux guest
 tx install --distros debian,ubuntu,alpine # Install independent desktop guests
 tx distro image-install alpine:latest # Generic Alpine shell guest
 tx start                 # Start the saved guest desktop

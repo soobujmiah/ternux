@@ -137,6 +137,7 @@ ternux doctor     # diagnose common problems
 tx stop           # choose one/many running guest desktops
 tx distro list    # show every installed PRoot guest
 tx distro search alpine # search available OCI images
+tx distro uninstall NAME # remove a Ternux-managed guest
 ```
 
 Use `tx stop --all` to close every managed Ternux desktop. With the Termux:X11 nightly app, each Ternux desktop guest gets its own tagged Android window and separate settings; `tx start db`, `tx start ub`, or `tx start alp` brings the selected window forward. Older X11 apps use one shared window and cannot reliably switch among concurrently running guests. Install multiple profiles with `tx install --distros debian,ubuntu,alpine`; each receives the family-matched Ternux base desktop. `xgo` lists every installed guest and asks which desktop to start when there is more than one. Generic images without a Ternux package recipe are shown as shell-only. See [the release-readiness report](docs/V2-RELEASE-READINESS.md) for the exact v2 scope, evidence, and publication status.
