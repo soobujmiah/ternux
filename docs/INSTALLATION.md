@@ -323,7 +323,7 @@ message instead of producing a half-broken desktop.
 | 2 | **Base packages** | Installs `x11-repo`, `termux-x11`, `pulseaudio`, `proot-distro`, `virglrenderer-android`, tools; requests storage permission | These are the host-side services the container needs: display, sound, and the container engine |
 | 3 | **Host CLI installation** | Installs `$PREFIX/bin/ternux` plus modules in `$PREFIX/lib/ternux/`, then executes its exact path and checks its version | A file can exist while its libraries are missing; successful execution is the real host-side check |
 | 4 | **Selected guest + Xfce4** | Installs the selected distro rootfs and family-matched desktop packages, creates your user with passwordless sudo, installs `/usr/local/bin/ternux`, and executes the guest companion | Each named profile gets its own desktop recipe and local diagnostics without nesting PRoot |
-| 5 | **GPU route** | Debian + Adreno/KGSL: validates and installs the pinned Turnip payload. Every other named profile: configures the shared VirGL host renderer with its guest Mesa `virpipe` driver | Each profile has a GPU route; inspect `glxinfo -B` to distinguish hardware rendering from a software fallback |
+| 5 | **GPU route** | Adreno/KGSL selects Zink with the profile-matched Mesa/Freedreno or Turnip payload; without KGSL, or on Adélie, auto selects host VirGL with guest Mesa `virpipe` | Check `glxinfo -B`; the renderer and hardware acceleration depend on the device and Android host stack |
 | 6 | **Audio, locale, fonts** | Configures the loopback-only PulseAudio bridge, OpenSL ES output and on-demand microphone source; runs a private one-second Termux:API permission probe; generates your locale and installs emoji/powerline/Nerd fonts | Guest playback and capture reach Android audio through PulseAudio. Live capture uses Termux's permission and OpenSL ES source; the separate Termux:API probe does not carry a live stream. Fonts avoid tofu boxes in the terminal |
 | 7 | **Launcher** | Writes `~/x.sh` tuned to your GPU route, syntax-checks it | One command (`x`) must reliably start audio → display → desktop in the right order |
 | 8 | **Shortcuts** | Installs `tx`, `x`, `killx`, `db`/`dbroot`, `ub`/`ubroot`, `alp`/`alproot`, `xgo`, `sysmon`, `clean-mesa` | Sets up quick shortcuts so everyday operations need only a single command |
@@ -393,11 +393,12 @@ profile.
 | Zypper | openSUSE |
 | XBPS | Void |
 
-Debian is the recommended default. Debian, Ubuntu, and Alpine have partial
-physical-device integration evidence on one Adreno 825 phone (desktop,
-Zink/Turnip, audio routing, IBus and theme setup); this does not qualify clean
-installation or every application. The remaining named profiles have
-family-matched recipes but no physical-device qualification. Arbitrary PRoot-Distro OCI
+Debian is the recommended default. Debian, Ubuntu, and Alpine are the three
+v2-supported desktop profiles. The release qualification includes clean guest
+lifecycle checks and device evidence from one Adreno 825 phone; it does not
+promise identical results on other Android devices or qualify the remaining
+named profiles. The other twelve named profiles have family-matched recipes
+but are outside the v2 desktop support claim. Arbitrary PRoot-Distro OCI
 images can be installed as shell guests; they do not receive an automatic
 Ternux desktop recipe. Optional software workloads currently require an APT
 guest.
@@ -418,8 +419,8 @@ unverified until it is measured on your own device.
 
 | Guest profile / host | Backend | Expectation |
 |---|---|---|
-| Adreno with KGSL and a native package profile | `auto` → **zink** | Debian uses the validated Turnip payload; other supported profiles install their own Mesa/Freedreno packages. Check the guest renderer and workload |
-| Ubuntu and every other named desktop profile | `auto` → **virgl** | Shared host VirGL + guest Mesa `virpipe` path; it can use Android's GPU stack when the host renderer exposes hardware, but verify `glxinfo -B` because a software fallback is possible |
+| Adreno with KGSL, except profiles without a Zink route | `auto` → **zink** | Uses a distro-matched Mesa/Freedreno or Turnip payload where available. Debian, Ubuntu, and Alpine have reference-device evidence; verify the active renderer and workload |
+| No detected KGSL device, or an Adélie guest | `auto` → **virgl** | Shared host VirGL + guest Mesa `virpipe` compatibility route; hardware acceleration depends on Android's host renderer and may fall back to software |
 | Any profile where Zink is unavailable | `--backend virgl` | Cross-distro compatibility route; renderer and performance depend on the host graphics stack |
 
 Forcing `zink` on a device without `/dev/kgsl-3d0` fails loudly at the GPU phase

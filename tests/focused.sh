@@ -18,6 +18,7 @@ check() {
 printf 'TAP version 13\n'
 
 check "native read-only manager JSON schemas and empty-host behavior" bash "$ROOT/tests/manager_api.sh"
+check "v3 manager request, response, and error envelope contract" python3 "$ROOT/tests/manager_protocol.py"
 
 # User-facing CLI help must track the dispatcher and supported guest profiles.
 if cli_help="$(bash "$ROOT/bin/ternux" --help 2>&1)" \

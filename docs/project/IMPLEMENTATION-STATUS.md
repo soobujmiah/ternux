@@ -18,7 +18,7 @@ it does not upgrade a design status into an implementation claim.
 | IBus engine switch command | IMPLEMENTED | Direct helper cycles each guest's configured engine and restores original; physical Ctrl+Space delivery remains separately qualified |
 | Native Control Center | DESIGNED; not implemented | v3 architecture docs |
 | Native manager read-only CLI payloads | IMPLEMENTED; locally verified | `tx manager status`, `tx manager guests`, and allowlist-derived `tx manager capabilities` expose versioned v1 JSON; focused output-contract tests pass and live read-only host output reports three qualified guests |
-| Native manager API service / Control Center | DESIGNED; not implemented | No Unix socket service, HTTP adapter, authorization/session layer, or graphical client is implemented |
+| Native manager API service / Control Center | DESIGNED; not implemented | v1 request/response/error schemas and negative contract fixtures are tested; no Unix socket service, HTTP adapter, authorization/session runtime, or graphical client is implemented |
 | Compute/AI orchestration v3 | DESIGNED; existing v2 optional artifacts remain separate | No v3 runtime qualification claim |
 | Camera/microphone Device Bridge v3 | DESIGNED; no v3 broker implementation | Existing v2 limitations remain in the audit docs |
 | v3 distro-profile framework | DESIGNED; not implemented | v2 Debian/Ubuntu/Alpine behavior remains the compatibility baseline |

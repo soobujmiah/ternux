@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://soobujmiah.github.io/ternux/schemas/manager-request-v1.schema.json",
+  "title": "Ternux Manager Request v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "request_id", "operation", "arguments"],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "request_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "operation": {
+      "enum": ["manager.status", "manager.guests", "manager.capabilities"]
+    },
+    "arguments": {
+      "type": "object",
+      "maxProperties": 0,
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://soobujmiah.github.io/ternux/schemas/manager-response-v1.schema.json",
+  "title": "Ternux Manager Response v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "request_id", "status"],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "request_id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+    },
+    "status": { "enum": ["ok", "error"] },
+    "result": { "oneOf": [
+      { "$ref": "manager-status-v1.schema.json" },
+      { "$ref": "manager-guests-v1.schema.json" },
+      { "$ref": "manager-capabilities-v1.schema.json" }
+    ] },
+    "error": { "$ref": "manager-error-v1.schema.json" }
+  },
+  "oneOf": [
+    {
+      "properties": { "status": { "const": "ok" } },
+      "required": ["result"],
+      "not": { "required": ["error"] }
+    },
+    {
+      "properties": { "status": { "const": "error" } },
+      "required": ["error"],
+      "not": { "required": ["result"] }
+    }
+  ]
+}

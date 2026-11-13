@@ -15,18 +15,31 @@ contracts; no service endpoint is implemented yet. The independent shared-core
 decision is recorded in [ADR-0004](ADR/0004-shared-manager-contract.md).
 
 These first commands are a CLI contract, not a claim of a running manager API
-server. JSON consumers should key compatibility off `schema_version` and
-`command`; error objects are separate from the success schemas and include a
-stable error code and timestamp.
+server. Transport envelopes are specified by the v1 request, response, and
+error schemas. Their negative fixtures are tested, but no server currently
+enforces them. Direct CLI JSON snapshots keep their existing command-specific
+schemas. JSON consumers should key compatibility off `schema_version` and
+`command`; service responses echo `request_id` for correlation.
 
 ## Transport
 
-Use a Unix-domain socket for manager requests, with JSON request/response
-objects and newline-delimited JSON events for long-running jobs. The local web
-client may use an HTTP loopback adapter owned by the service; it must not
-expose the socket as a network port. Protocol version is negotiated with
-`GET /v1/meta` or the equivalent socket method. Unknown fields are ignored
-where safe; unknown major versions fail clearly.
+Use a Unix-domain socket for manager requests, with one bounded JSON request
+and response per connection. Long-running jobs use newline-delimited JSON
+events. The request envelope carries the exact schema version, a UUIDv4
+`request_id`, a catalogued operation name, and operation-typed arguments. The
+v1 schema exposes only the three implemented read-only operations and empty
+argument objects. Unknown operations, unknown envelope fields, and
+operation-inappropriate arguments fail closed. A future v1 minor may add
+response fields; incompatible request changes require a new major version.
+
+The optional web client may use an HTTP loopback adapter owned by the service;
+it must not expose the Unix socket as a network port or bind to LAN interfaces.
+Protocol version is negotiated with `GET /v1/meta` or the equivalent socket
+method. Unix socket parent directories are private to the Termux UID (mode
+`0700`) and the socket is mode `0600`; clients cannot nominate a socket path.
+Web mutations additionally require a short-lived session token, same-origin
+checks, and CSRF protection. The service remains stopped until the owner asks
+to start it.
 
 ## Resource shapes
 
@@ -50,18 +63,39 @@ not arbitrary path.
 - `GET /v1/device/grants`, `POST /v1/device/grants`, `DELETE /v1/device/grants/{id}`
 - `GET /v1/diagnostics`, `POST /v1/diagnostics/repair-plan`
 
-Every mutation includes an idempotency key. Delete methods only remove the
-identified Ternux-owned record; guest or model data removal has a separate
-explicit endpoint and confirmation token.
+Every future mutation includes an idempotency key scoped to the authenticated
+client and operation. The service stores a digest of the canonical request:
+replaying the same key and body returns the existing job/result, while reusing
+the key with a different body returns `IDEMPOTENCY_CONFLICT`. Mutation
+execution itself must be desired-state/idempotent and journaled before side
+effects. Delete methods only remove the identified Ternux-owned record; guest
+or model data removal has a separate explicit endpoint and confirmation token
+bound to the exact preview plan.
 
 Before adding mutations, the core must own a typed operation allowlist, input
 validation, authorization, execution, and result recording. Client menus and
 capability listings must be derived from implemented operations, not maintain
-their own parallel list. A mutation must preview the exact immutable plan,
-require confirmation bound to that plan, and record recoverable progress.
-Direct CLI status and recovery must remain usable when the optional service or
-graphical clients are stopped. No operation may accept arbitrary shell text,
-caller-provided environment maps, or unrestricted filesystem paths.
+their own parallel list. Filesystem operations accept opaque resource IDs or
+relative paths rooted beneath an explicit Ternux-owned directory; they resolve
+the root and reject traversal, symlink substitution, and paths outside that
+root. A mutation must preview the exact immutable plan, require confirmation
+bound to that plan, and record recoverable progress. Direct CLI status and
+recovery must remain usable when the optional service or graphical clients are
+stopped. No operation may accept arbitrary shell text, caller-provided
+environment maps, or unrestricted filesystem paths.
+
+## Request and error schemas
+
+- [Request envelope v1 JSON schema](https://github.com/soobujmiah/ternux/blob/main/docs/v3/schemas/manager-request-v1.schema.json) defines the
+  supported read-only operation calls.
+- [Response envelope v1 JSON schema](https://github.com/soobujmiah/ternux/blob/main/docs/v3/schemas/manager-response-v1.schema.json) correlates
+  each reply to its request and contains exactly one result or error.
+- [Error object v1 JSON schema](https://github.com/soobujmiah/ternux/blob/main/docs/v3/schemas/manager-error-v1.schema.json) provides stable
+  machine codes, localized-client-ready messages, and retry guidance.
+
+`tests/manager_protocol.py` checks valid examples and rejection cases using
+the JSON Schemas. It verifies the contract fixtures; it does not claim a
+network or socket service exists.
 
 ## Errors and compatibility
 

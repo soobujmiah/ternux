@@ -12,26 +12,68 @@ evidence_through: "2026-11-10"
 
 ## Evidence class
 
-| Class | অর্থ |
-|---|---|
-| **Measured** | সম্পন্ন workload থেকে সংখ্যাসহ ফল পাওয়া গেছে। |
+| Class        | অর্থ                                                        |
+| ------------ | ----------------------------------------------------------- |
+| **Measured** | সম্পন্ন workload থেকে সংখ্যাসহ ফল পাওয়া গেছে।              |
 | **Observed** | build, launch, বা renderer/backend শনাক্তকরণ রেকর্ড হয়েছে। |
-| **Verified** | সীমাবদ্ধ functional check প্রত্যাশিত ফল দিয়েছে। |
-| **Untested** | যোগ্য workload চালিয়ে দেখা হয়নি। |
+| **Verified** | সীমাবদ্ধ functional check প্রত্যাশিত ফল দিয়েছে।            |
+| **Untested** | যোগ্য workload চালিয়ে দেখা হয়নি।                          |
+
+## স্থানীয় AI পরীক্ষার প্রতিবেদন
+
+মডেল, গণনাপথ, ফল ও qualification সীমা সহজে তুলনা করতে সব AI ফল একই summary format-এ সাজানো। বিস্তারিত command ও পুরোনো record নিচে আছে।
+
+<div class="ai-report-grid">
+  <article class="ai-report-card" data-status="measured">
+    <div class="ai-report-card__top"><span>২০২৬-১১-১০ · LLAMA.CPP</span><span class="ai-report-card__status">মাপা</span></div>
+    <h3>CPU ও Adreno Vulkan · চারটি GGUF মডেল</h3>
+    <div class="ai-report-card__meta"><span>Redmi Turbo 4 Pro · SM8735</span><span>প্রতি পথে ৩ রান</span></div>
+    <strong class="ai-report-card__result">Generation: CPU ৫.১৫–১৫.৩৭ · Vulkan ১০.৬৮–৩৪.৫৫ tok/s</strong>
+    <p>এটি শুধু throughput। তিন Qwen model একটি synthetic retrieval target মিস করেছে; Llama 3.2 3B নির্দিষ্ট marker পেয়েছে। সাধারণ মানের নিশ্চয়তা নয়।</p>
+  </article>
+  <article class="ai-report-card" data-status="experimental">
+    <div class="ai-report-card__top"><span>২০২৬-১১-০৭ · LLAMA.CPP</span><span class="ai-report-card__status">পরীক্ষামূলক HTP</span></div>
+    <h3>একই ছোট মডেলে CPU / Vulkan / HTP</h3>
+    <div class="ai-report-card__meta"><span>Qwen2.5 0.5B-named Q4_0</span><span>SM8735 · প্রতি পথে ৩ রান</span></div>
+    <strong class="ai-report-card__result">Median generation: ৮.০ · ২৪.৮ · ৪৬.২ tok/s</strong>
+    <p>ফাইলের নাম ও model metadata এক নয়; HTP operator ও numerical correctness gate বাকি। এটি Ternux-এর supported accelerator path নয়।</p>
+  </article>
+  <article class="ai-report-card" data-status="verified">
+    <div class="ai-report-card__top"><span>একটি সম্পন্ন run · STABLE-DIFFUSION.CPP</span><span class="ai-report-card__status">Output যাচাই</span></div>
+    <h3>Vulkan-এ ছবি তৈরি</h3>
+    <div class="ai-report-card__meta"><span>৫১২ × ৫১২ · ১০ ধাপ</span><span>Adreno 825 Vulkan</span></div>
+    <strong class="ai-report-card__result">সঠিক ছবি · ৯২.৯১ সেকেন্ড</strong>
+    <p>একটি user-provided SD1.5 model ও একটি device। পরিষ্কার guest-এ দ্বিতীয় run-এর output hash মিলে গেছে; অন্য model বা ছবির মান qualified নয়।</p>
+  </article>
+  <article class="ai-report-card" data-status="experimental">
+    <div class="ai-report-card__top"><span>২০২৬-১০-১৪ · আলাদা QNN runner</span><span class="ai-report-card__status">গবেষণামূলক</span></div>
+    <h3>SD1.5 ছবি তৈরির batch</h3>
+    <div class="ai-report-card__meta"><span>৫১২ × ৫১২ · ২০ ধাপ</span><span>২৫ ছবি · SM8735</span></div>
+    <strong class="ai-report-card__result">প্রতি ছবিতে median ২৯.৭৬ সেকেন্ড</strong>
+    <p>CLIP CPU-তে, UNet ও VAE QNN HTP-তে চলেছে। এটি managed Stable Diffusion extension নয়, একই model-এর GPU তুলনাও নয়; stage correctness যাচাই বাকি।</p>
+  </article>
+  <article class="ai-report-card" data-status="experimental">
+    <div class="ai-report-card__top"><span>২০২৬-১১-০৭ · QNN setup reuse</span><span class="ai-report-card__status">পরীক্ষামূলক</span></div>
+    <h3>আলাদা single run বনাম দুই-ছবির batch</h3>
+    <div class="ai-report-card__meta"><span>SD1.5 · ৫১২ × ৫১২</span><span>৩ জোড়া run</span></div>
+    <strong class="ai-report-card__result">Batch ৪৬.৯০ · single ৫৯.২০ সেকেন্ড</strong>
+    <p>একই seed-এর output hash মিলে গেছে। ছোট, দৈবচয়িত নয় এমন নমুনা performance guarantee নয়; ৩–৫ সেকেন্ডের লক্ষ্য পূরণ হয়নি।</p>
+  </article>
+</div>
 
 ## বর্তমান ফলাফল
 
-| Workload | Evidence | সীমা |
-|---|---|---|
-| `glmark2` OpenGL | **Measured:** score 140। | একটি 800×600 configured session; desktop বা game FPS নয়। |
-| `glmark2-es2 --off-screen` | **Measured:** score 364, caveat-সহ। | Off-screen command হলেও DRI3 warning ও windowed header এসেছিল। |
-| Blender EEVEE Next | **Measured:** ৬০০ frame, গড়ে 1.49 s/frame; ৬৪৮-frame short, 1.126 s/frame; ১,৪৪০-frame গল্প, 1.944 s/frame। | Zink/Turnip দিয়ে Adreno GPU offload, headless Xvfb-সহ। সীমাবদ্ধ render; বহু ঘণ্টার thermal claim নয়। |
-| MPFB2 human-character build | **Measured:** `create_human` 0.4 s; পুরো rigged rebuild 3.9 s; 540×960 frame 3.8 s; ১২০-frame, ৫ s shot প্রায় ৭.৫ min। | Adreno 825-তে Zink দিয়ে EEVEE Next; MPFB2 2.0.18 / Blender 4.3.2। একটি device run; sustained thermal claim নয়। |
-| Blender viewport | **Observed:** Adreno 825-তে Zink/Turnip। | Renderer শনাক্তকরণ EEVEE render time থেকে আলাদা। Cycles GPU **প্রমাণিত নয়**। |
-| llama.cpp CPU + Vulkan | **Verified:** দুটো backend-ই সীমাবদ্ধ known-answer prompt-এ `4` দিয়েছে; Vulkan Adreno 825-এ 29/29 layer assign করেছে। **Measured:** নিচে clean-idle long run। | একটি device ও workload-এ Qwen2.5 1.5B Q4_0। |
-| llama.cpp Hexagon HTP | **Experimental:** Qwen2.5 0.5B নামে থাকা Q4_0 GGUF-এ তিন-run matched test-এ HTP median 46.2 tok/s, Vulkan 24.8 এবং চার-thread CPU 8.0 tok/s; llama.cpp metadata-তে model type Qwen2 1B, 630.17M parameter। Qwen2.5 1.5B Q4_K_M-এর তিন interleaved round-এ median ছিল CPU 7.6, Vulkan 18.2 ও HTP 18.9 tok/s; সব route-এ `4` এসেছে। | এক device-এর স্বল্পমেয়াদি পরীক্ষা; quality, energy বা sustained-use claim নয়। HTP operator failure ও বিস্তৃত qualification বাকি; HTP supported route নয়। HMX ও attention correctness এখনো unqualified। |
-| `stable-diffusion.cpp` Vulkan | **Verified:** managed extension tiled Vulkan VAE দিয়ে 10-step 512×512 image 92.91 s-এ তৈরি করেছে; একই output hash clean guest-এ আবার মিলেছে। | Redmi Turbo 4 Pro / SM8735 / Adreno 825, user-provided SD1.5 Q8_0 model, seed 42। একটি model/device/workload; CPU image quality unqualified। |
-| আলাদা QNN SD1.5 runner | **Measured:** পরপর ২৫টি ২০-step 512×512 image; প্রতি image-এর median 29.76 s, mean 31.12 s। HTP UNet-এর ২০ denoise step-এর median 15.96 s। | CLIP CPU-তে; UNet ও VAE decoder HTP-তে চলে। একটি SM8735 device; একই model-এ CPU/GPU তুলনা নয়। `stable-diffusion.cpp` নয়; independent stage-tensor correctness এখনো যাচাই হয়নি। |
+| Workload                      | Evidence                                                                                                                                                                                                                                                                                                                          | সীমা                                                                                                                                                                                                      |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `glmark2` OpenGL              | **Measured:** score 140।                                                                                                                                                                                                                                                                                                          | একটি 800×600 configured session; desktop বা game FPS নয়।                                                                                                                                                 |
+| `glmark2-es2 --off-screen`    | **Measured:** score 364, caveat-সহ।                                                                                                                                                                                                                                                                                               | Off-screen command হলেও DRI3 warning ও windowed header এসেছিল।                                                                                                                                            |
+| Blender EEVEE Next            | **Measured:** ৬০০ frame, গড়ে 1.49 s/frame; ৬৪৮-frame short, 1.126 s/frame; ১,৪৪০-frame গল্প, 1.944 s/frame।                                                                                                                                                                                                                      | Zink/Turnip দিয়ে Adreno GPU offload, headless Xvfb-সহ। সীমাবদ্ধ render; বহু ঘণ্টার thermal claim নয়।                                                                                                    |
+| MPFB2 human-character build   | **Measured:** `create_human` 0.4 s; পুরো rigged rebuild 3.9 s; 540×960 frame 3.8 s; ১২০-frame, ৫ s shot প্রায় ৭.৫ min।                                                                                                                                                                                                           | Adreno 825-তে Zink দিয়ে EEVEE Next; MPFB2 2.0.18 / Blender 4.3.2। একটি device run; sustained thermal claim নয়।                                                                                          |
+| Blender viewport              | **Observed:** Adreno 825-তে Zink/Turnip।                                                                                                                                                                                                                                                                                          | Renderer শনাক্তকরণ EEVEE render time থেকে আলাদা। Cycles GPU **প্রমাণিত নয়**।                                                                                                                             |
+| llama.cpp CPU + Vulkan        | **Verified:** দুটো backend-ই সীমাবদ্ধ known-answer prompt-এ `4` দিয়েছে; Vulkan Adreno 825-এ 29/29 layer assign করেছে। **Measured:** নিচে clean-idle long run।                                                                                                                                                                    | একটি device ও workload-এ Qwen2.5 1.5B Q4_0।                                                                                                                                                               |
+| llama.cpp Hexagon HTP         | **Experimental:** Qwen2.5 0.5B নামে থাকা Q4_0 GGUF-এ তিন-run matched test-এ HTP median 46.2 tok/s, Vulkan 24.8 এবং চার-thread CPU 8.0 tok/s; llama.cpp metadata-তে model type Qwen2 1B, 630.17M parameter। Qwen2.5 1.5B Q4_K_M-এর তিন interleaved round-এ median ছিল CPU 7.6, Vulkan 18.2 ও HTP 18.9 tok/s; সব route-এ `4` এসেছে। | এক device-এর স্বল্পমেয়াদি পরীক্ষা; quality, energy বা sustained-use claim নয়। HTP operator failure ও বিস্তৃত qualification বাকি; HTP supported route নয়। HMX ও attention correctness এখনো unqualified। |
+| `stable-diffusion.cpp` Vulkan | **Verified:** managed extension tiled Vulkan VAE দিয়ে 10-step 512×512 image 92.91 s-এ তৈরি করেছে; একই output hash clean guest-এ আবার মিলেছে।                                                                                                                                                                                     | Redmi Turbo 4 Pro / SM8735 / Adreno 825, user-provided SD1.5 Q8_0 model, seed 42। একটি model/device/workload; CPU image quality unqualified।                                                              |
+| আলাদা QNN SD1.5 runner        | **Measured:** পরপর ২৫টি ২০-step 512×512 image; প্রতি image-এর median 29.76 s, mean 31.12 s। HTP UNet-এর ২০ denoise step-এর median 15.96 s।                                                                                                                                                                                        | CLIP CPU-তে; UNet ও VAE decoder HTP-তে চলে। একটি SM8735 device; একই model-এ CPU/GPU তুলনা নয়। `stable-diffusion.cpp` নয়; independent stage-tensor correctness এখনো যাচাই হয়নি।                         |
 
 ### বর্তমান llama.cpp multi-model ফল (2026-11-10)
 
@@ -40,12 +82,12 @@ evidence_through: "2026-11-10"
 deviation; চার thread, 512-token prompt, 128 generated token, batch/ubatch 64,
 flash attention বন্ধ।
 
-| Model | CPU prompt / generation | Vulkan prompt / generation |
-|---|---:|---:|
-| Qwen 0.5B-named Q4_0 (runtime: 630M parameter) | 65.0 ± 3.2 / 15.37 ± 0.08 tok/s | 319.8 ± 0.7 / 34.55 ± 0.09 tok/s |
-| Qwen 1.5B Q4_0 | 17.38 ± 0.92 / 7.47 ± 0.24 tok/s | 101.93 ± 0.44 / 19.83 ± 0.04 tok/s |
-| Qwen 1.5B Q4_K_M | 19.07 ± 0.08 / 7.92 ± 0.18 tok/s | 96.73 ± 0.28 / 17.57 ± 0.04 tok/s |
-| Llama 3.2 3B Q4_K_M | 8.93 ± 0.23 / 5.15 ± 0.18 tok/s | 46.26 ± 0.01 / 10.68 ± 0.23 tok/s |
+| Model                                          |          CPU prompt / generation |         Vulkan prompt / generation |
+| ---------------------------------------------- | -------------------------------: | ---------------------------------: |
+| Qwen 0.5B-named Q4_0 (runtime: 630M parameter) |  65.0 ± 3.2 / 15.37 ± 0.08 tok/s |   319.8 ± 0.7 / 34.55 ± 0.09 tok/s |
+| Qwen 1.5B Q4_0                                 | 17.38 ± 0.92 / 7.47 ± 0.24 tok/s | 101.93 ± 0.44 / 19.83 ± 0.04 tok/s |
+| Qwen 1.5B Q4_K_M                               | 19.07 ± 0.08 / 7.92 ± 0.18 tok/s |  96.73 ± 0.28 / 17.57 ± 0.04 tok/s |
+| Llama 3.2 3B Q4_K_M                            |  8.93 ± 0.23 / 5.15 ± 0.18 tok/s |  46.26 ± 0.01 / 10.68 ± 0.23 tok/s |
 
 এগুলো throughput result, model quality score নয়। একটি synthetic structured
 retrieval sample-এ তিন Qwen variant ভুল record দিয়েছে; আলাদা 180-record,
@@ -76,11 +118,11 @@ linked device benchmark record-এ আছে।
 Configured device-এ পরপর চালানো একটি Qwen2.5 1.5B Q4_0 run-এর prompt
 processing ও generation rate:
 
-| Backend | Prompt processing | Generation | মোট সময় |
-|---|---:|---:|---:|
-| CPU | 59.04 tok/s | 2.38 tok/s | 264.39 s |
-| Adreno 825 Vulkan | 92.19 tok/s | 13.27 tok/s | 71.30 s |
-| Hexagon HTP, HVX / flash attention off | 34.20 tok/s | 12.02 tok/s | 129.46 s |
+| Backend                                | Prompt processing |  Generation | মোট সময় |
+| -------------------------------------- | ----------------: | ----------: | -------: |
+| CPU                                    |       59.04 tok/s |  2.38 tok/s | 264.39 s |
+| Adreno 825 Vulkan                      |       92.19 tok/s | 13.27 tok/s |  71.30 s |
+| Hexagon HTP, HVX / flash attention off |       34.20 tok/s | 12.02 tok/s | 129.46 s |
 
 এটি একটি device-এর সীমিত তুলনা। HTP-তে known-answer pass-করা conservative
 configuration ব্যবহার হয়েছে; সেটি Vulkan-এর চেয়ে ধীর ছিল। এটি sustained

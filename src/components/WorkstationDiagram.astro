@@ -9,8 +9,8 @@ const bn = lang === "bn";
   role="img"
   aria-label={
     bn
-      ? "অ্যান্ড্রয়েড ফোনের ভেতরে টার্মাক্স, ডেবিয়ান, এডিটি এবং অ্যাড্রেনো জিপিইউ-সহ টার্নাক্স ওয়ার্কস্টেশনের চিত্র"
-      : "Ternux workstation diagram: an Android phone running Termux, Debian, ADT and Adreno GPU workloads"
+      ? "অ্যান্ড্রয়েড, টার্মাক্স, ডেবিয়ান-উবুন্টু-অ্যালপাইন PRoot guest, Xfce ও Termux:X11-সহ টার্নাক্স ওয়ার্কস্টেশনের চিত্র"
+      : "Ternux workstation diagram: Android, Termux, a selectable Debian, Ubuntu or Alpine PRoot guest, Xfce and Termux:X11"
   }
 >
   <div class="orbit orbit-one" aria-hidden="true"></div>
@@ -29,8 +29,8 @@ const bn = lang === "bn";
   <div class="signal-chip chip-gpu" aria-hidden="true">
     <span class="chip-mark gpu-mark">{bn ? "জি" : "G"}</span>
     <span>
-      <b>{bn ? "অ্যাড্রেনো ৮২৫" : "ADRENO 825"}</b>
-      <small>{bn ? "ভলকান · জিঙ্ক" : "VULKAN · ZINK"}</small>
+      <b>{bn ? "জিপিইউ" : "GPU"}</b>
+      <small>{bn ? "মেসা · ডিভাইসভেদে" : "MESA · DEVICE-DEPENDENT"}</small>
     </span>
     <i></i>
   </div>
@@ -56,14 +56,14 @@ const bn = lang === "bn";
         </div>
         <div class="screen-brand">
           <span>&gt;_</span> {bn ? "টার্নাক্স" : "TERNUX"}{" "}
-          <i>{bn ? "ডেবিয়ান ওয়ার্কস্টেশন" : "DEBIAN WORKSTATION"}</i>
+          <i>{bn ? "Linux ওয়ার্কস্টেশন" : "LINUX WORKSTATION"}</i>
         </div>
         <div class="terminal-window">
           <div class="terminal-title">
             <i></i>
             <i></i>
             <i></i>
-            <span>{bn ? "ডেবিয়ান — জেডশ" : "debian — zsh"}</span>
+            <span>{bn ? "guest — zsh" : "guest — zsh"}</span>
           </div>
           <code>
             <span>{bn ? "সবুজ@রেডমি" : "sbj@redmi"}</span>:~${" "}
@@ -71,7 +71,9 @@ const bn = lang === "bn";
           </code>
           <div class="terminal-rule"></div>
           <div class="terminal-info">
-            <b>{bn ? "ডেবিয়ান ১৩" : "Debian 13"}</b>
+            <b>
+              {bn ? "Debian · Ubuntu · Alpine" : "Debian · Ubuntu · Alpine"}
+            </b>
             <small>{bn ? "প্রুট · এআরএম৬৪" : "PRoot · aarch64"}</small>
           </div>
           <div class="terminal-info">
@@ -79,9 +81,9 @@ const bn = lang === "bn";
             <small>{bn ? "টার্মাক্স:এক্স১১" : "Termux:X11"}</small>
           </div>
           <div class="terminal-info">
-            <b>{bn ? "এডিটি নির্মাণ-সরঞ্জাম" : "ADT toolchain"}</b>
+            <b>{bn ? "Ternux guest" : "Ternux guest"}</b>
             <small>
-              {bn ? "অ্যান্ড্রয়েড এসডিকে · এনডিকে" : "Android SDK · NDK"}
+              {bn ? "Debian · Ubuntu · Alpine" : "Debian · Ubuntu · Alpine"}
             </small>
           </div>
           <div class="terminal-prompt">
