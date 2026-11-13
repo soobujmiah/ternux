@@ -18,7 +18,7 @@ Usage: tx uninstall [session|launcher|state|container|host-cli|all] [--yes]
 
   session    Stop the Ternux-owned desktop session and remove its state markers
   launcher   Remove ~/x.sh and ternux shell aliases
-  state      Remove Ternux state and its logs (not guest containers)
+  state      Remove Ternux state, logs and stopped manager socket state
   container  Delete the selected Ternux desktop guest
   host-cli   Remove the APT-managed or source-installed Termux CLI
   all        Remove Ternux-managed guests, desktop, state, caches and host CLI
@@ -112,10 +112,96 @@ _tnx_uninstall_stale_asset_stages() {
   [ "$removed" -eq 0 ] || tnx_ok "Removed $removed stale Ternux asset staging director(y/ies)"
 }
 
+_tnx_uninstall_manager_runtime() {
+  local prefix="${PREFIX:-/data/data/com.termux/files/usr}"
+  local control="$prefix/var/lib/ternux/control"
+  [ -e "$control" ] || [ -L "$control" ] || return 0
+  if ! command -v python3 >/dev/null 2>&1; then
+    tnx_warn "Preserving manager socket state because python3 is unavailable: $control"
+    return 1
+  fi
+  if ! python3 - "$control" "$prefix" <<'PY'
+import errno
+import fcntl
+import os
+import socket
+import stat
+import sys
+from pathlib import Path
+
+control = Path(sys.argv[1])
+prefix = Path(sys.argv[2])
+expected = prefix / "var/lib/ternux/control"
+if control != expected or control.is_symlink() or not control.is_dir():
+    raise SystemExit("refusing an unexpected or symlinked manager state directory")
+if control.stat().st_uid != os.getuid():
+    raise SystemExit("manager state directory is not owned by this Termux user")
+
+lock_path = control / "manager.lock"
+socket_path = control / "manager.sock"
+lock_fd = None
+try:
+    if lock_path.is_symlink():
+        raise SystemExit("preserving a symlinked manager lock")
+    if lock_path.exists():
+        lock_fd = os.open(lock_path, os.O_RDWR | getattr(os, "O_NOFOLLOW", 0))
+        lock_stat = os.fstat(lock_fd)
+        if not stat.S_ISREG(lock_stat.st_mode) or lock_stat.st_uid != os.getuid():
+            raise SystemExit("preserving an unexpected manager lock file")
+        try:
+            fcntl.flock(lock_fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            raise SystemExit("manager service is still running; stop it before uninstall")
+
+    if socket_path.is_symlink():
+        raise SystemExit("preserving a symlinked manager socket path")
+    if socket_path.exists():
+        socket_stat = socket_path.lstat()
+        if not stat.S_ISSOCK(socket_stat.st_mode):
+            raise SystemExit("preserving a non-socket manager path")
+        probe = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        try:
+            probe.settimeout(0.25)
+            probe.connect(str(socket_path))
+        except OSError as exc:
+            if exc.errno not in (errno.ECONNREFUSED, errno.ENOENT):
+                raise SystemExit("cannot prove manager socket is stale; preserving it")
+            current = socket_path.lstat()
+            if (current.st_dev, current.st_ino) != (socket_stat.st_dev, socket_stat.st_ino):
+                raise SystemExit("manager socket changed during uninstall; preserving it")
+            socket_path.unlink()
+        else:
+            raise SystemExit("manager service is still accepting connections; stop it before uninstall")
+        finally:
+            probe.close()
+
+    if lock_fd is not None:
+        current_lock = lock_path.lstat()
+        if (current_lock.st_dev, current_lock.st_ino) != (lock_stat.st_dev, lock_stat.st_ino):
+            raise SystemExit("manager lock changed during uninstall; preserving it")
+        lock_path.unlink()
+    try:
+        control.rmdir()
+    except OSError:
+        if any(control.iterdir()):
+            raise SystemExit("preserving unrelated files in manager state directory")
+        raise
+finally:
+    if lock_fd is not None:
+        os.close(lock_fd)
+PY
+  then
+    tnx_warn "Could not safely remove Ternux manager runtime state at $control"
+    return 1
+  fi
+  return 0
+}
+
 _tnx_uninstall_state() {
   local prefix="${PREFIX:-/data/data/com.termux/files/usr}"
   local log_dir="${TERNUX_LOG_DIR:-${TMPDIR:-$prefix/tmp}/ternux}"
   local state_dir="${TERNUX_STATE_DIR:-$HOME/.local/share/ternux}"
+  local rc=0
   # The override is useful for tests and relocated installs, but never let a
   # malformed environment variable turn uninstall into an arbitrary rm -rf.
   case "$state_dir" in
@@ -138,7 +224,10 @@ _tnx_uninstall_state() {
   # The camera and recorder use these host staging directories. Remove them
   # only when empty; an unfinished capture is user content and must survive.
   rmdir "$HOME/.cache/ternux-camera" "$HOME/.cache/ternux-recorder" 2>/dev/null || true
-  tnx_ok "Ternux state and logs removed"
+  _tnx_uninstall_manager_runtime || rc=1
+  if [ "$rc" -eq 0 ]; then tnx_ok "Ternux state and logs removed"
+  else tnx_warn "Some Ternux runtime state was preserved for safety"; fi
+  return "$rc"
 }
 
 _tnx_uninstall_host_cli() {

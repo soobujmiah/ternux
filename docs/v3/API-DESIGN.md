@@ -6,20 +6,25 @@ lang: "en"
 
 ## API design
 
-**Status: IMPLEMENTED (read-only CLI payloads only).** `tx manager status`
-`tx manager guests`, and `tx manager capabilities` now expose versioned JSON
-snapshots validated against the schemas in `schemas/`. They run directly in native Termux and do not need
-the future Control Center service or an installed guest. The socket transport,
-HTTP adapter, event stream, jobs, and mutation endpoints below remain designed
-contracts; no service endpoint is implemented yet. The independent shared-core
-decision is recorded in [ADR-0004](ADR/0004-shared-manager-contract.md).
+**Status: IMPLEMENTED (read-only CLI and explicit Unix-socket transport).**
+`tx manager status`, `tx manager guests`, and `tx manager capabilities` expose
+versioned JSON snapshots. They run directly in native Termux and do not need an
+installed guest. The HTTP adapter, event stream, jobs, and mutation endpoints
+remain designed contracts. The independent shared-core decision is recorded
+in [ADR-0004](ADR/0004-shared-manager-contract.md).
 
-These first commands are a CLI contract, not a claim of a running manager API
-server. Transport envelopes are specified by the v1 request, response, and
-error schemas. Their negative fixtures are tested, but no server currently
-enforces them. Direct CLI JSON snapshots keep their existing command-specific
-schemas. JSON consumers should key compatibility off `schema_version` and
-`command`; service responses echo `request_id` for correlation.
+Run `tx manager serve` to start the optional foreground socket service. It
+accepts one newline-terminated JSON request per connection, enforces the v1
+request envelope, bounds requests and responses, checks Linux peer credentials,
+and delegates only the three existing read-only operations to the CLI core.
+The private socket directory is mode `0700`, the socket and startup lock are
+`0600`, and the service exits on Ctrl-C. An advisory lock prevents concurrent
+service starts from removing a socket during startup. Python 3 is optional
+and needed only when the service is explicitly started (`pkg install python`).
+The service does not auto-start or expose a TCP/HTTP listener.
+Direct CLI JSON snapshots keep their existing command-specific schemas.
+JSON consumers should key compatibility off `schema_version` and `command`;
+service responses echo `request_id` for correlation.
 
 ## Transport
 
@@ -38,8 +43,8 @@ Protocol version is negotiated with `GET /v1/meta` or the equivalent socket
 method. Unix socket parent directories are private to the Termux UID (mode
 `0700`) and the socket is mode `0600`; clients cannot nominate a socket path.
 Web mutations additionally require a short-lived session token, same-origin
-checks, and CSRF protection. The service remains stopped until the owner asks
-to start it.
+checks, and CSRF protection. The service remains stopped until the user
+explicitly runs `tx manager serve`.
 
 ## Resource shapes
 
@@ -93,9 +98,11 @@ environment maps, or unrestricted filesystem paths.
 - [Error object v1 JSON schema](https://github.com/soobujmiah/ternux/blob/main/docs/v3/schemas/manager-error-v1.schema.json) provides stable
   machine codes, localized-client-ready messages, and retry guidance.
 
-`tests/manager_protocol.py` checks valid examples and rejection cases using
-the JSON Schemas. It verifies the contract fixtures; it does not claim a
-network or socket service exists.
+`tests/manager_protocol.py` checks schema fixtures; `tests/manager_service.py`
+exercises the real Unix socket, including malformed input, oversized requests,
+concurrent clients, graceful shutdown, stale-socket recovery, and safe
+duplicate-service refusal. No HTTP
+adapter, mutation endpoint, or graphical client is claimed.
 
 ## Errors and compatibility
 

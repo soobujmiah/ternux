@@ -6,7 +6,7 @@ lang: "en"
 
 ## Known limitations
 
-**Last reviewed:** 2026-11-13 12:26 UTC.
+**Last reviewed:** 2026-11-13 14:07 UTC.
 
 - v2 device qualification is for one named Android/Adreno device. It does not
   establish equivalent behavior on other SoCs, GPUs, Android versions, or
@@ -24,10 +24,10 @@ lang: "en"
   unqualified capabilities.
 - HTP/HMX and QNN artifacts remain experimental unless a later release
   explicitly changes that status with hardware and correctness evidence.
-- The v3 Native Control Center, manager API, Device Bridge, and workload
-  architecture are designed but not implemented as of this record. Three
-  read-only manager JSON operations exist in the current source checkout, but
-  are absent from the released v2.0.0 package.
+- The v3 read-only manager API is implemented as direct CLI operations and an
+  explicit foreground Unix-socket service in current source. It is absent from
+  the released v2.0.0 package. The graphical Control Center, service
+  supervisor, Device Bridge, and v3 workload orchestration remain unimplemented.
 - The installed v2.0.0 doctor can select a stale saved distro instead of the
   active guest, and Ubuntu's default renderer diagnostic can miss its isolated
   Mesa overlay when an optional path marker is absent. The fix is in current

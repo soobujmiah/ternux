@@ -1767,20 +1767,46 @@ fi
 # State removal deletes only Ternux runtime logs/state and empty app staging
 # directories; unrelated files in the log directory are preserved.
 if env HOME="$TMP/home-uninstall-state" PREFIX="$TMP/prefix-uninstall-state" TERNUX_STATE_DIR="$TMP/home-uninstall-state/.local/share/ternux" TERNUX_LOG_DIR="$TMP/prefix-uninstall-state/tmp/ternux" bash -c '
-  mkdir -p "$TERNUX_STATE_DIR" "$TERNUX_LOG_DIR" "$HOME/.cache/ternux-camera" "$HOME/.cache/ternux-recorder"
+  mkdir -p "$TERNUX_STATE_DIR" "$TERNUX_LOG_DIR" "$HOME/.cache/ternux-camera" "$HOME/.cache/ternux-recorder" "$PREFIX/var/lib/ternux/control"
   : > "$TERNUX_STATE_DIR/state"
   : > "$TERNUX_LOG_DIR/ternux.log"
   : > "$TERNUX_LOG_DIR/install-stream.log"
   : > "$TERNUX_LOG_DIR/user-note.txt"
+  : > "$PREFIX/var/lib/ternux/control/manager.lock"
+  chmod 600 "$PREFIX/var/lib/ternux/control/manager.lock"
   . "$1/lib/uninstall.sh"
   _tnx_uninstall_state >/dev/null &&
   [ ! -e "$TERNUX_STATE_DIR" ] && [ ! -e "$TERNUX_LOG_DIR/ternux.log" ] &&
   [ ! -e "$TERNUX_LOG_DIR/install-stream.log" ] && [ -f "$TERNUX_LOG_DIR/user-note.txt" ] &&
-  [ ! -e "$HOME/.cache/ternux-camera" ] && [ ! -e "$HOME/.cache/ternux-recorder" ]
+  [ ! -e "$HOME/.cache/ternux-camera" ] && [ ! -e "$HOME/.cache/ternux-recorder" ] &&
+  [ ! -e "$PREFIX/var/lib/ternux/control" ]
 ' _ "$ROOT"; then
   ok "state uninstall removes owned runtime files and preserves unrelated log data"
 else
   not_ok "state uninstall removes owned runtime files and preserves unrelated log data"
+fi
+
+# A live read-only manager service keeps its lock and socket during state
+# cleanup; uninstall must ask the caller to stop it rather than orphan it.
+if env HOME="$TMP/home-uninstall-manager-live" PREFIX="$TMP/prefix-uninstall-manager-live" bash -c '
+  mkdir -p "$HOME" "$PREFIX/var/lib/ternux/control"
+  control="$PREFIX/var/lib/ternux/control"
+  python3 -c '\''import fcntl,sys,time; f=open(sys.argv[1],"w"); fcntl.flock(f,fcntl.LOCK_EX|fcntl.LOCK_NB); open(sys.argv[2],"w").close(); time.sleep(15)'\'' "$control/manager.lock" "$control/ready" &
+  holder=$!
+  for _ in $(seq 1 100); do [ -e "$control/ready" ] && break; sleep 0.02; done
+  [ -e "$control/ready" ] || { kill "$holder" 2>/dev/null || true; wait "$holder" 2>/dev/null || true; exit 1; }
+  . "$1/lib/uninstall.sh"
+  tnx_warn(){ :; }
+  set +e
+  _tnx_uninstall_manager_runtime >/dev/null 2>&1; result=$?
+  set -e
+  kill "$holder" 2>/dev/null || true
+  wait "$holder" 2>/dev/null || true
+  [ "$result" -ne 0 ] && [ -f "$control/manager.lock" ]
+' _ "$ROOT"; then
+  ok "state uninstall preserves an actively locked manager runtime"
+else
+  not_ok "state uninstall preserves an actively locked manager runtime"
 fi
 
 # Full uninstall removes only the package-owned CLI plus Ternux's update

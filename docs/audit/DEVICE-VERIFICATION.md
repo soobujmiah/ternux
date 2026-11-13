@@ -171,14 +171,35 @@ known `lib/aarch64-linux-gnu` directory; detection did not.
 
 The global saved distro setting contained stale `archlinux`, while the active
 session state selected Debian and all three managed desktop records were
-READY. Consequently, default doctor could incorrectly say the Debian
-container was missing and fail Vulkan enumeration. Explicit
-`TERNUX_DISTRO=debian tx doctor --quick --json` returned OK. The source fix
-now follows the active installed guest and recovers the isolated Mesa overlay
-path. It is covered by focused regression tests on the working branch; it has
-not yet been merged or installed on the device.
+READY. Consequently, the installed v2.0.0 doctor could incorrectly say the
+Debian container was missing and fail Vulkan enumeration. The source fix
+follows the active installed guest and recovers the isolated Mesa overlay
+path; it merged in PR #204 and is covered by focused regression tests. It is
+not installed in the released v2.0.0 package.
 
 The v3 display proposal is separate from these live observations: native
 Termux `:0`, Debian `:1`, Ubuntu `:2`, Alpine `:3`. The current v2
 sessions remain Debian `:0`, Ubuntu `:1`, Alpine `:2` until a staged v3
 migration is implemented and validated.
+
+## Native manager socket service — 2026-11-13 14:07 UTC
+
+From the current source checkout, `TERNUX_LIB_DIR="$PWD/lib" bash
+./bin/ternux manager serve` started the explicit foreground service on the
+Android Termux host. The socket was
+`$PREFIX/var/lib/ternux/control/manager.sock`; its parent mode was `0700`,
+startup lock `0600`, and socket `0600`. Requests from the Termux UID for `manager.status`,
+`manager.guests`, and `manager.capabilities` each returned `status: ok`, the
+matching request UUID, and the expected operation payload. Ctrl-C stopped the
+service and removed the socket. The GUI guest sessions were not restarted or
+modified. The installed signed package remained v2.0.0; this source test does
+not represent package delivery or a graphical Control Center.
+
+`python3 tests/manager_service.py` passed 7/7 integration cases on this device,
+covering all three operations, malformed and oversized input, concurrent
+clients, graceful shutdown, stale-socket recovery, and refusal to remove a
+live service socket. A second source run on the real Termux prefix verified
+the lock prevents a duplicate service start and leaves the active socket
+intact. The request/response schema fixture suite passed 14/14, the focused
+regression suite passed 186/186, and repository-knowledge verification found
+zero findings. No guest data was changed.
