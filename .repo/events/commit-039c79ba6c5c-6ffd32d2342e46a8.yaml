@@ -1,0 +1,7 @@
+event_id: commit-039c79ba6c5c-6ffd32d2342e46a8
+repository: soobujmiah/ternux
+commit: 039c79ba6c5c9e3409e78fc138e36b69222c219c
+kind: commit
+occurred_at: '2026-11-13T08:45:55Z'
+status: completed
+summary: 'feat(v3): add native read-only manager snapshots (#195)'
