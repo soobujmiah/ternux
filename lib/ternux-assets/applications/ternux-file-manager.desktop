@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=File Manager
+Comment=Browse files
+Exec=exo-open --launch FileManager %u
+Icon=org.xfce.filemanager
+Terminal=false
+Categories=System;FileTools;
+StartupNotify=true

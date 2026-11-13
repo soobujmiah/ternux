@@ -389,7 +389,7 @@ if env TERNUX_STATE_DIR="$TMP/state-welcome" HOME="$TMP/home-welcome" \
       grep -q "Sobuj Miah" "$1/lib/ternux-welcome-gui.py" &&
       python3 -m py_compile "$1/lib/ternux-welcome-gui.py" &&
       grep -q "ternux_assets_b64" "$1/lib/phases.sh" && grep -q "ternux-camera.py" "$1/lib/phases.sh" &&
-      grep -q "apt remove -y.*guvcview" "$1/lib/phases.sh" && ! grep -q "vlc ffmpeg guvcview" "$1/lib/phases.sh" && grep -q "ristretto" "$1/lib/phases.sh" && grep -q "QT_QPA_PLATFORMTHEME=gtk3" "$1/lib/phases.sh" && grep -q "ternux-panel-shortcuts" "$1/lib/phases.sh" && grep -q "01-aurora-circuit.svg" "$1/lib/phases.sh" &&
+      grep -q "apt remove -y.*guvcview" "$1/lib/phases.sh" && ! grep -q "vlc ffmpeg guvcview" "$1/lib/phases.sh" && grep -q "ristretto" "$1/lib/phases.sh" && grep -q "QT_QPA_PLATFORMTHEME=gtk3" "$1/lib/phases.sh" && grep -q "ternux-panel-shortcuts" "$1/lib/phases.sh" && grep -q "05-quantum-grid.svg" "$1/lib/phases.sh" &&
       grep -q "/Net/ThemeName" "$1/lib/phases.sh"
   ' _ "$ROOT"; then
   ok "first-run welcome, default browser, Zenity, VLC XCB output are guest-managed"
@@ -1041,16 +1041,26 @@ assert 'API_CAPTURE_DIR = TERMUX_HOME / ".cache" / "ternux-camera"' in camera
 assert 'Back camera selected' in camera and 'self.camera.set_active_id(back)' in camera
 assert 'Termux:API returned without creating the photo file.' in camera
 assert 'android.permission.CAMERA' in camera and 'Termux:API needs Android Camera permission.' in camera
-assert 'Gtk.ToggleButton(label="Flashlight off")' in camera
-assert 'TORCH = "/data/data/com.termux/files/usr/bin/termux-torch"' in camera
+assert 'Gtk.ToggleButton(label="Flashlight off" if self.torch_on else "Flashlight off")' in camera or 'Gtk.ToggleButton(label="Flashlight on" if self.torch_on else "Flashlight off")' in camera
+assert 'FLASHLIGHT = "/usr/local/bin/ternux-flashlight"' in camera
+flashlight = (root / "lib/ternux-flashlight.py").read_text()
+assert 'android.permission.CAMERA' in flashlight and 'fcntl.flock' in flashlight
+assert 'ternux-flashlight.desktop' in (root / "lib/phases.sh").read_text()
+assert (root / "lib/ternux-assets/applications/ternux-flashlight.desktop").is_file()
+assert (root / "lib/ternux-assets/icons/Ternux/scalable/apps/ternux-flashlight.svg").is_file()
+for panel_entry in ("ternux-terminal.desktop", "ternux-file-manager.desktop",
+                    "ternux-web-browser.desktop", "ternux-appfinder.desktop"):
+    assert (root / "lib/ternux-assets/applications" / panel_entry).is_file()
+panel_shortcuts = (root / "lib/ternux-panel-shortcuts.sh").read_text()
+assert "panel-shortcuts-v7" in panel_shortcuts
+assert "ternux-web-browser.desktop" in panel_shortcuts and "ternux-appfinder.desktop" in panel_shortcuts
 assert 'Flashlight was turned off for this photo.' in camera
 assert 'does not provide a flash setting.' in camera
-assert camera.index('if self.torch_on:') < camera.index('subprocess.run([CAMERA_PHOTO')
+assert camera.index('if self.torch_on or self.flashlight_state_is_on():') < camera.index('subprocess.run([CAMERA_PHOTO')
 assert "guvcview" not in camera and "Webcam" not in camera
 assert "Ternux Sound Recorder" in (root / "lib/phases.sh").read_text()
 assert "ternux-recorder.desktop" in (root / "lib/ternux-panel-shortcuts.sh").read_text()
 assert "ternux-input-method.desktop" in (root / "lib/ternux-panel-shortcuts.sh").read_text()
-assert "panel-shortcuts-v6" in (root / "lib/ternux-panel-shortcuts.sh").read_text()
 ibus_init = (root / "lib/ternux-assets/bin/ternux-ibus-session-init").read_text()
 assert "gsettings set org.freedesktop.ibus.general.hotkey trigger '[]'" in ibus_init
 assert "gsettings set org.freedesktop.ibus.general engines-order" in ibus_init
@@ -1121,7 +1131,7 @@ else
   ok "Debian phase fails closed when a packaged resource is missing"
 fi
 
-if sh -n "$ROOT/lib/ternux-panel-shortcuts.sh" && grep -q 'panel-shortcuts-v6' "$ROOT/lib/ternux-panel-shortcuts.sh"; then
+if sh -n "$ROOT/lib/ternux-panel-shortcuts.sh" && grep -q 'panel-shortcuts-v7' "$ROOT/lib/ternux-panel-shortcuts.sh"; then
   ok "Ternux removes the keyboard button and keeps media panel shortcuts"
 else
   not_ok "Ternux removes the keyboard button and keeps media panel shortcuts"

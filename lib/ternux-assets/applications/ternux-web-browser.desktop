@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Web Browser
+Comment=Open a web address
+Exec=/usr/local/bin/ternux-open-url %u
+Icon=org.xfce.webbrowser
+Terminal=false
+Categories=Network;WebBrowser;
+StartupNotify=true

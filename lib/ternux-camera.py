@@ -15,7 +15,8 @@ from gi.repository import Gdk, GdkPixbuf, Gio, Gtk, GLib
 
 CAMERA_INFO = "/data/data/com.termux/files/usr/bin/termux-camera-info"
 CAMERA_PHOTO = "/data/data/com.termux/files/usr/bin/termux-camera-photo"
-TORCH = "/data/data/com.termux/files/usr/bin/termux-torch"
+FLASHLIGHT = "/usr/local/bin/ternux-flashlight"
+FLASHLIGHT_STATE = Path.home() / ".cache" / "ternux" / "flashlight.json"
 TERMUX_HOME = Path("/data/data/com.termux/files/home")
 API_CAPTURE_DIR = TERMUX_HOME / ".cache" / "ternux-camera"
 
@@ -38,7 +39,7 @@ class TernuxCamera(Gtk.Window):
         self.set_position(Gtk.WindowPosition.CENTER)
         self.last_photo = None
         self.torch_busy = False
-        self.torch_on = False
+        self.torch_on = self.flashlight_state_is_on()
 
         # Keep the photo library inside the Debian home. Termux:API can only
         # write to Termux-accessible storage, so captures stage in Termux home
@@ -97,7 +98,8 @@ class TernuxCamera(Gtk.Window):
         camera_row.pack_start(self.refresh, False, False, 0)
         root.pack_start(camera_row, False, False, 0)
 
-        self.flashlight = Gtk.ToggleButton(label="Flashlight off")
+        self.flashlight = Gtk.ToggleButton(label="Flashlight on" if self.torch_on else "Flashlight off")
+        self.flashlight.set_active(self.torch_on)
         self.flashlight.set_tooltip_text("Toggle the Android camera flashlight")
         self.flashlight_handler = self.flashlight.connect("toggled", self.toggle_flashlight)
         root.pack_start(self.flashlight, False, False, 0)
@@ -144,6 +146,13 @@ class TernuxCamera(Gtk.Window):
             self.status.set_text(message)
 
     @staticmethod
+    def flashlight_state_is_on():
+        try:
+            return json.loads(FLASHLIGHT_STATE.read_text()).get("on") is True
+        except (OSError, ValueError, AttributeError):
+            return False
+
+    @staticmethod
     def api_error_text(*outputs):
         for output in outputs:
             detail = (output or "").strip()
@@ -171,10 +180,10 @@ class TernuxCamera(Gtk.Window):
         def work():
             error = ""
             try:
-                result = subprocess.run([TORCH, "on" if requested else "off"],
+                result = subprocess.run([FLASHLIGHT, "on" if requested else "off"],
                                         check=True, capture_output=True, text=True,
                                         timeout=15, env=termux_api_environment())
-                error = self.api_error_text(result.stderr, result.stdout)
+                error = self.api_error_text(result.stderr)
             except (OSError, subprocess.SubprocessError) as exc:
                 error = self.api_error_text(getattr(exc, "stderr", ""),
                                             getattr(exc, "stdout", ""), str(exc))
@@ -199,9 +208,9 @@ class TernuxCamera(Gtk.Window):
         return GLib.SOURCE_REMOVE
 
     def switch_flashlight_off_on_close(self, *_):
-        if self.torch_on:
+        if self.torch_on or self.flashlight_state_is_on():
             try:
-                subprocess.Popen([TORCH, "off"], env=termux_api_environment(),
+                subprocess.Popen([FLASHLIGHT, "off"], env=termux_api_environment(),
                                  stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
                                  start_new_session=True)
             except OSError:
@@ -278,11 +287,11 @@ class TernuxCamera(Gtk.Window):
             local_partial = None
             photo_note = ""
             try:
-                if self.torch_on:
-                    torch_result = subprocess.run([TORCH, "off"], check=True,
+                if self.torch_on or self.flashlight_state_is_on():
+                    torch_result = subprocess.run([FLASHLIGHT, "off"], check=True,
                                                   capture_output=True, text=True, timeout=15,
                                                   env=termux_api_environment())
-                    torch_error = self.api_error_text(torch_result.stderr, torch_result.stdout)
+                    torch_error = self.api_error_text(torch_result.stderr)
                     if torch_error:
                         raise RuntimeError(torch_error)
                     self.torch_on = False

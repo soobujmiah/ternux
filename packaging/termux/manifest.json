@@ -1639,6 +1639,30 @@
     "lib/ternux/ternux-assets/bin/ternux-window-fit-x11": {
       "source": "lib/ternux-assets/bin/ternux-window-fit-x11",
       "perm": "755"
+    },
+    "lib/ternux/ternux-assets/applications/ternux-appfinder.desktop": {
+      "source": "lib/ternux-assets/applications/ternux-appfinder.desktop",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/applications/ternux-file-manager.desktop": {
+      "source": "lib/ternux-assets/applications/ternux-file-manager.desktop",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/applications/ternux-flashlight.desktop": {
+      "source": "lib/ternux-assets/applications/ternux-flashlight.desktop",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/applications/ternux-terminal.desktop": {
+      "source": "lib/ternux-assets/applications/ternux-terminal.desktop",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/applications/ternux-web-browser.desktop": {
+      "source": "lib/ternux-assets/applications/ternux-web-browser.desktop",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/ternux-flashlight.svg": {
+      "source": "lib/ternux-assets/icons/Ternux/scalable/apps/ternux-flashlight.svg",
+      "perm": "644"
     }
   }
 }
