@@ -242,7 +242,8 @@
         "Exact merged-main commit f963832fb4acf9c3adb873430408ce21ddd29a37 passed Validate run 43307868038 on 2026-11-12; its clean Debian/Ubuntu/Alpine browser matrix, focused regressions, distro lifecycle checks, release gate validation, package tests, Bats, installer UI, and bilingual docs/site checks all passed.",
         "Latest exact-main commit db9fe4a70177641b1e1312d2db47462191daf582 passed Validate run 43359028809 on 2026-11-13; the clean Debian/Ubuntu/Alpine Firefox package and mapped-window matrix passed again with the full required CI.",
         "2026-11-13 live Firefox windows on Debian :0, Ubuntu :1, and Alpine :2 showed titlebar close controls. This existing-guest evidence complements but does not substitute for clean-install CI.",
-        "The remaining twelve named recipes are outside v2 browser acceptance and must not be presented as qualified by recipe-generation tests."
+        "The remaining twelve named recipes are outside v2 browser acceptance and must not be presented as qualified by recipe-generation tests.",
+        "Latest exact main faa5f0c4733e82fa0e82c88c6a2cd4531a1c3442 passed Validate run 43362104082 on 2026-11-13; the clean Debian/Ubuntu/Alpine Firefox package and mapped-window matrix passed on the current package/repository release head."
       ],
       "required_tests": [
         "clean container browser install and visible Firefox X11 application window on Debian Trixie, Ubuntu 24.04, and Alpine 3.24",
@@ -397,7 +398,8 @@
         "Native Termux 2026-11-13: bootstrap-repository.sh --channel rc --configure-only verified the key fingerprint; pkg update fetched signed apt-rc indexes; apt-cache selected ternux 2.0.0 from apt-rc. apt-get install --reinstall fetched and installed the 175 kB signed-repository package. pkg uninstall -y ternux removed the package; pkg install -y ternux then performed a clean APT install. The Debian, Ubuntu, and Alpine rootfs directories remained present and their live sessions retained the same READY state, displays :0/:1/:2, and managed PIDs 18218/14129/26946.",
         "Native upgrade probe apt-get --only-upgrade install --assume-no ternux confirmed 2.0.0 is the newest available version and made no changes. Ternux 2.0.0 is the first version in this repository, so no earlier published package version exists for a version-delta upgrade test; same-version source-to-APT replacement was exercised above.",
         "Exact main commit ca0bba9093ecbe838df4b09f09dfee3197814845 passed Validate 43311661213, unsigned package inspection 43311661198, and repository contract 43311660996. Signing verification passed 43310383720; signed RC deployment passed 43311699170; post-publication routine website redeploy passed 43312672558.",
-        "2026-11-13 updated RC build run 43359599505 published the package containing the multi-distro `verify` selector from exact main db9fe4a70177641b1e1312d2db47462191daf582. Public bootstrap, key, InRelease, and Packages.xz endpoints returned HTTP 200. The InRelease signature verified against primary fingerprint E5527F4D5B83037FF77B65AE5E894BBB81168B1D; signed Packages.xz SHA-256 was f1b1529a8ba9f766b92d36dc0da763f47565648bcc1f68cbb2b51858ba3f8390; indexed Ternux 2.0.0 package SHA-256 was f2862526cd5cfdd91bac163632e2c9e8600288926c4acb2b2c5dcffbca271be2. Native Termux `pkg update` fetched the signed RC index, `apt-cache policy` selected 2.0.0 from apt-rc, and APT reinstalled its 175 kB package. `ternux verify --json`, `ternux verify db --json`, `tx verify ub --json`, and `tx verify alp --json` passed; `dpkg --verify ternux` was clean. Debian/Ubuntu/Alpine remained READY with the same managed PIDs 18218/14129/26946 and displays :0/:1/:2."
+        "2026-11-13 updated RC build run 43359599505 published the package containing the multi-distro `verify` selector from exact main db9fe4a70177641b1e1312d2db47462191daf582. Public bootstrap, key, InRelease, and Packages.xz endpoints returned HTTP 200. The InRelease signature verified against primary fingerprint E5527F4D5B83037FF77B65AE5E894BBB81168B1D; signed Packages.xz SHA-256 was f1b1529a8ba9f766b92d36dc0da763f47565648bcc1f68cbb2b51858ba3f8390; indexed Ternux 2.0.0 package SHA-256 was f2862526cd5cfdd91bac163632e2c9e8600288926c4acb2b2c5dcffbca271be2. Native Termux `pkg update` fetched the signed RC index, `apt-cache policy` selected 2.0.0 from apt-rc, and APT reinstalled its 175 kB package. `ternux verify --json`, `ternux verify db --json`, `tx verify ub --json`, and `tx verify alp --json` passed; `dpkg --verify ternux` was clean. Debian/Ubuntu/Alpine remained READY with the same managed PIDs 18218/14129/26946 and displays :0/:1/:2.",
+        "2026-11-13 stable APT publication: workflow 43362569559 succeeded on exact main faa5f0c4733e82fa0e82c88c6a2cd4531a1c3442. Public bootstrap, archive key, InRelease and Packages.xz returned HTTP 200; gpgv verified primary fingerprint E5527F4D5B83037FF77B65AE5E894BBB81168B1D. Stable Packages.xz SHA-256 3bbab20f0119b3c038e14c9a49714e499325b0c7036a899c3304e67b3b39e137; indexed ternux_2.0.0_all.deb SHA-256 4ef03210c71e3d5671671e9a49fc83f6aebf7cdb5e5a28cb32db61d49e85c89f. Native Termux `pkg update` fetched the stable index; `pkg uninstall --yes ternux` then `pkg install --yes ternux` succeeded; `dpkg --verify ternux` was clean; active default and explicit db/ub/alp JSON verify all passed. Debian/Ubuntu/Alpine remained READY at their original managed PIDs and displays."
       ],
       "required_tests": [
         "signed candidate publish; verify public key fingerprint, InRelease signature, signed index hashes, and package checksum",
@@ -405,7 +407,7 @@
         "native Termux source-to-APT package replacement, clean APT install, removal, and no-op upgrade resolution for the first published package version"
       ],
       "acceptance_criteria": [
-        "The signed public candidate repository installs Ternux 2.0.0 through native Termux APT; its signature and package hashes remain valid after a routine website redeploy; package removal leaves all managed distro guests intact. Since 2.0.0 is the first published package version, an earlier-version upgrade is not available; native APT confirms 2.0.0 is the newest candidate."
+        "The signed public stable repository installs Ternux 2.0.0 through native Termux APT; its signature and package hashes remain valid after a routine website redeploy; package removal leaves all managed distro guests intact. Since 2.0.0 is the first published package version, an earlier-version upgrade is not available; native APT confirms 2.0.0 is the newest candidate."
       ],
       "release_blocking": true,
       "release_exclusion": null
@@ -469,7 +471,8 @@
         "Required user guidance exists: docs/INSTALLATION.md contains install/update/uninstall flows; docs/TROUBLESHOOTING.md covers desktop, audio, graphics and package issues; docs/ACCELERATOR-RELEASE-PLAN.md distinguishes qualified, experimental and unqualified AI paths; docs/USAGE.md, docs/FAQ.md and SECURITY.md cover workloads, limitations, and storage/security. English/Bengali counterparts are maintained.",
         "PR #104 exact-head Validate run 42818230722 passed, including bilingual docs and site checks; local tests/docs_check.py passed 3,060 assertions, 312 links and 20 bilingual pairs. The current release report and README documentation explain that Pages production deployment is manual-only.",
         "Version, package, tag and release surfaces consistently describe the current v2 source as unreleased 2.0.0; README badge is 2.0.0, package build derives version from source, changelog entry remains Unreleased, and no v2 tag is present.",
-        "Against source baseline 97e2ac6, `python3 tests/docs_check.py` passed 3,072 assertions, 312 links, and 20 bilingual page pairs after these readiness-report edits."
+        "Against source baseline 97e2ac6, `python3 tests/docs_check.py` passed 3,072 assertions, 312 links, and 20 bilingual page pairs after these readiness-report edits.",
+        "Current exact main faa5f0c4733e82fa0e82c88c6a2cd4531a1c3442 passed Validate run 43362104082, Termux APT artifact run 43362104168, and Repository State Contract run 43362104084. Stable signed publication run 43362569559 succeeded; no v2.0.0 GitHub tag or release exists yet."
       ],
       "required_tests": [
         "version/package/tag/release metadata audit",
@@ -588,7 +591,8 @@
       "evidence": [
         "docs/ACCELERATOR-RELEASE-PLAN.md",
         "docs/V2-RELEASE-READINESS.md: one SM8735/Adreno 825 device",
-        "2026-11-13 live Debian :0, Ubuntu :1, Alpine :2 UX recheck on the same Redmi Turbo 4 Pro / SM8735 / Adreno 825: a synthetic Ctrl+Space event in a focused GTK entry switched to each guest’s Bengali engine; Ternux GTK/icon/Xfwm settings and window controls were checked; Ubuntu and Alpine Firefox screenshots showed visible close buttons; viewport probes stayed within the current display. This does not cover physical keyboard typing, every third-party app, other hardware, or close any v2 gate."
+        "2026-11-13 live Debian :0, Ubuntu :1, Alpine :2 UX recheck on the same Redmi Turbo 4 Pro / SM8735 / Adreno 825: a synthetic Ctrl+Space event in a focused GTK entry switched to each guest’s Bengali engine; Ternux GTK/icon/Xfwm settings and window controls were checked; Ubuntu and Alpine Firefox screenshots showed visible close buttons; viewport probes stayed within the current display. This does not cover physical keyboard typing, every third-party app, other hardware, or close any v2 gate.",
+        "2026-11-13 keyboard-event follow-up on the already-running guests: runtime theme/titlebar values and helper binding matched; direct helper switched Alpine's engine. A host-generated Ctrl+Space event changed Debian and Ubuntu but not Alpine, while an earlier focused GTK/XTest record had passed all three. Config was restored; no session or service restart occurred. This discrepancy does not establish physical Android keyboard behavior and is recorded in docs/audit/DEVICE-VERIFICATION.md."
       ],
       "required_tests": [
         "multi-device Android/GPU/NPU qualification matrix"
@@ -600,6 +604,6 @@
       "release_exclusion": "Qualify only the documented Redmi Turbo 4 Pro / SM8735 target; all other device-specific acceleration remains unqualified."
     }
   ],
-  "observed_head_commit": "db9fe4a70177641b1e1312d2db47462191daf582",
+  "observed_head_commit": "faa5f0c4733e82fa0e82c88c6a2cd4531a1c3442",
   "release_approval_evidence": "Owner explicitly authorized implementation, merge, and stable v2 publication in this session, conditional on passing the documented release gates."
 }

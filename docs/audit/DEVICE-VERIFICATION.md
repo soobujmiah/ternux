@@ -86,6 +86,17 @@ received a synthetic XTest Control+Space and switched engines in each guest.
 This verifies the X11/IBus path; it does not establish physical keyboard input
 on every Android soft keyboard or hardware keyboard.
 
+On a later 2026-11-13 recheck, the GTK/icon/XFWM theme values, XFCE shortcut
+binding, IBus engine order, and daemon response still matched in all guests.
+Calling the assigned helper directly switched Alpine from English to its m17n
+Avro engine. A host-generated Ctrl+Space event switched Debian and Ubuntu in
+the current focused window, but did not change Alpine's engine; a temporary
+Alpine GTK entry probe also did not switch. The earlier Alpine GTK/XTest pass
+and this recheck disagree. The live config was restored to the original
+Ctrl+Space setup, temporary test files were removed, and no IBus, XFCE, X11,
+audio, or desktop session was restarted. This Alpine event discrepancy remains
+unresolved; no physical Android keyboard claim is made.
+
 ## Graphics and browser
 
 The documented device profile has observed Mesa Turnip Vulkan and Zink on the
