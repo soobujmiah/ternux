@@ -15,7 +15,7 @@ do not own the manager, Android permission flow, or host-wide lifecycle.
 ```text
 Android OS and Termux companion apps
   ├─ Termux:API broker (camera, microphone, notifications, battery, etc.)
-  └─ Termux:X11 app / Android input and display
+  └─ Termux:X11 app / Android input and display; native workspace owns `:0`
        │ explicit IPC, app grants, X11 socket
 Termux host ($PREFIX)
   ├─ tx CLI and native manager core
@@ -31,6 +31,12 @@ Linux guest (Debian / Ubuntu / Alpine / qualified profiles)
        │ optional, explicit LAI API integration
 LAI runtime and model store (separate project/service)
 ```
+
+For v3, native Termux owns display `:0`; guest displays begin at Debian `:1`,
+Ubuntu `:2`, Alpine `:3`, then continue through collision-checked serial
+allocations. This is a v3 target. Existing v2 display assignments remain
+unchanged until a staged migration succeeds; see
+[ADR-0005](ADR/0005-native-display-allocation.md).
 
 PRoot is a compatibility boundary, not a security boundary equivalent to a
 kernel container. The manager must not describe it as one. Android's app

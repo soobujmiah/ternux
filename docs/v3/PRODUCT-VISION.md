@@ -23,8 +23,9 @@ devices.
 - Add CPU, GPU, or device-specific NPU workloads only when desired, understand
   their model/runtime/space requirements, and remove them without damaging the
   base workstation.
-- Use camera, microphone, shared storage, and hardware acceleration only
-  through explicit, inspectable grants.
+- Use camera and microphone only through explicit, inspectable, point-of-use
+  requests. Use Android shared storage when Termux already has permission, with
+  additional directory grants visible and scoped.
 - Diagnose a problem from one place with evidence and recovery steps that do
   not require deleting the user's guest or model data.
 

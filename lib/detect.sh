@@ -90,6 +90,15 @@ tnx_vulkan_probe_guest() {
     overlay="$(cat /etc/ternux/mesa-overlay 2>/dev/null || true)"
     overlay_libdir="$(cat /etc/ternux/mesa-overlay-libdir 2>/dev/null || true)"
     case "$overlay" in /usr/local/lib/ternux/*)
+      case "$overlay_libdir" in
+        "$overlay"/*) [ -d "$overlay_libdir" ] || overlay_libdir="" ;;
+        *) overlay_libdir="" ;;
+      esac
+      if [ -z "$overlay_libdir" ]; then
+        for candidate in "$overlay/lib/aarch64-linux-gnu" "$overlay/lib"; do
+          if [ -d "$candidate" ]; then overlay_libdir="$candidate"; break; fi
+        done
+      fi
       case "$overlay_libdir" in "$overlay"/*)
       export LD_LIBRARY_PATH="$overlay_libdir${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
       export VK_DRIVER_FILES="$overlay/share/vulkan/icd.d/ternux_freedreno_icd.json"
@@ -215,6 +224,15 @@ tnx_detect_renderer() {
     overlay="$(cat /etc/ternux/mesa-overlay 2>/dev/null || true)"
     overlay_libdir="$(cat /etc/ternux/mesa-overlay-libdir 2>/dev/null || true)"
     case "$overlay" in /usr/local/lib/ternux/*)
+      case "$overlay_libdir" in
+        "$overlay"/*) [ -d "$overlay_libdir" ] || overlay_libdir="" ;;
+        *) overlay_libdir="" ;;
+      esac
+      if [ -z "$overlay_libdir" ]; then
+        for candidate in "$overlay/lib/aarch64-linux-gnu" "$overlay/lib"; do
+          if [ -d "$candidate" ]; then overlay_libdir="$candidate"; break; fi
+        done
+      fi
       case "$overlay_libdir" in "$overlay"/*)
       export LD_LIBRARY_PATH="$overlay_libdir${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
       export LIBGL_DRIVERS_PATH="$overlay_libdir/dri"

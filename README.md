@@ -239,7 +239,8 @@ render route and run scripts or scenes with the documented EEVEE setup. See the
 ## More help
 
 - [Ternux v3 architecture and implementation roadmap](docs/v3/README.md):
-  native manager, workspaces, compute, AI, Device Bridge, security, and gates.
+  native manager (native workspace `:0`; Debian/Ubuntu/Alpine `:1`/`:2`/`:3`
+  by design), workspaces, compute, AI, Device Bridge, security, and gates.
   Three read-only manager CLI commands are in current `main` source; they are
   not in the stable v2.0.0 package. The socket service and Control Center are
   still unimplemented.

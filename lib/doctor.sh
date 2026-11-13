@@ -62,6 +62,15 @@ _tnx_doctor_guest_probe() {
   _p guest.disk_free_gb "$(df -Pk "$HOME" 2>/dev/null | awk 'NR==2{print int($4/1024/1024)}')"
   overlay="$(cat /etc/ternux/mesa-overlay 2>/dev/null || true)"
   overlay_libdir="$(cat /etc/ternux/mesa-overlay-libdir 2>/dev/null || true)"
+  case "$overlay_libdir" in
+    "$overlay"/*) [ -d "$overlay_libdir" ] || overlay_libdir="" ;;
+    *) overlay_libdir="" ;;
+  esac
+  if [ -n "$overlay" ] && [ -z "$overlay_libdir" ]; then
+    for candidate in "$overlay/lib/aarch64-linux-gnu" "$overlay/lib"; do
+      if [ -d "$candidate" ]; then overlay_libdir="$candidate"; break; fi
+    done
+  fi
   if [ -n "$overlay" ] && [ "${overlay#/usr/local/lib/ternux/}" != "$overlay" ] \
      && [ "${overlay_libdir#"$overlay"/}" != "$overlay_libdir" ] \
      && [ -f "$overlay_libdir/libvulkan_freedreno.so" ] \
@@ -186,9 +195,9 @@ _tnx_dr_host() {
   if tnx_has_cmd proot-distro; then
     _tnx_dr_add ok host proot_distro "proot-distro installed"
     if tnx_debian_installed; then
-      _tnx_dr_add ok host debian "Debian container installed"
+      _tnx_dr_add ok host guest_container "$(tnx_distro) container installed"
     else
-      _tnx_dr_add warn host debian_not_installed "Debian container missing" "" "Run: ternux install"
+      _tnx_dr_add warn host guest_container_not_installed "$(tnx_distro) container missing" "" "Run: ternux install"
     fi
   else
     _tnx_dr_add warn host proot_distro_missing "proot-distro missing" "" "pkg install proot-distro"
@@ -216,7 +225,7 @@ _tnx_dr_host() {
 _tnx_dr_guest() {
   local k v glibc_minor
   if ! tnx_debian_installed; then
-    _tnx_dr_add info guest guest_absent "Guest checks skipped: Debian container is not installed"
+    _tnx_dr_add info guest guest_absent "Guest checks skipped: $(tnx_distro) container is not installed"
     return 0
   fi
   if [ "${_TNX_DR_QUICK:-0}" = 1 ]; then
@@ -224,7 +233,7 @@ _tnx_dr_guest() {
     return 0
   fi
   if [ ${#_TNX_DR_GUEST[@]} -eq 0 ]; then
-    _tnx_dr_add info guest guest_probe_unavailable "Could not query the Debian guest" "The probe could not log in; this is not necessarily a fault" "Try: ternux start, then rerun doctor"
+    _tnx_dr_add info guest guest_probe_unavailable "Could not query the $(tnx_distro) guest" "The probe could not log in; this is not necessarily a fault" "Try: ternux start, then rerun doctor"
     return 0
   fi
   _tnx_dr_add ok guest guest_os "Guest: ${_TNX_DR_GUEST["guest.os"]:-unknown} (${_TNX_DR_GUEST["guest.arch"]:-?})"
@@ -370,7 +379,7 @@ _tnx_dr_extensions() {
 }
 
 tnx_cmd_doctor() {
-  local strict=0 quick=0 arg c valid
+  local strict=0 quick=0 arg c valid _TNX_DISTRO=""
   _TNX_DR_ROWS=(); _TNX_DR_FILTER=(); _TNX_DR_GUEST=(); _TNX_DR_QUICK=0
   _DR_GPU=""; _DR_BACKEND_RECOMMENDED=""; _DR_BACKEND_CONFIGURED=""; _DR_VULKAN=""; _DR_RENDERER=""
   for arg in "$@"; do
@@ -390,6 +399,19 @@ tnx_cmd_doctor() {
     esac
   done
   _TNX_DR_QUICK="$quick"
+  # Prefer the active installed guest over an old saved install choice so
+  # diagnostics inspect the desktop that is actually running.
+  if [ -n "${TERNUX_DISTRO:-}" ]; then
+    local requested_distro
+    requested_distro="$(tnx_distro_canonical "$TERNUX_DISTRO")"
+    if tnx_distro_known "$requested_distro"; then
+      _TNX_DISTRO="$requested_distro"
+    else
+      _TNX_DISTRO="$(tnx_verify_select_distro 2>/dev/null || true)"
+    fi
+  else
+    _TNX_DISTRO="$(tnx_verify_select_distro 2>/dev/null || true)"
+  fi
 
   tnx_step "Running diagnostics..."
   tnx_require_termux

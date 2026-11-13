@@ -6,7 +6,7 @@ lang: "en"
 
 ## Release status
 
-**Last checked:** 2026-11-13 11:04 UTC.
+**Last checked:** 2026-11-13 12:26 UTC.
 
 ## Ternux v2.0.0
 
@@ -20,7 +20,7 @@ lang: "en"
   (Android 16, SM8735 / Adreno 825) and explicitly recorded tests.
 - **Current source/site:** `main` has advanced beyond the release tag. The
   current homepage deployment completed in
-  [Pages run 43411586659](https://github.com/soobujmiah/ternux/actions/runs/43411586659).
+  [Pages run 43421466805](https://github.com/soobujmiah/ternux/actions/runs/43421466805).
   It reflects curl, wget, signed APT setup, Termux companion links, and the v2/v3
   status snapshot. This does not change the installed v2.0.0 package.
 - **Native manager CLI:** the three read-only JSON commands are present in

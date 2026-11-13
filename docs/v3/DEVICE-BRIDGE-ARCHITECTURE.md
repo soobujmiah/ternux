@@ -26,12 +26,15 @@ target guest before invoking an API.
 
 ## Storage grants
 
-The existing scoped `/sdcard` exposure remains a user-visible grant. v3 adds
-path-level grant records with owner, guest, access mode, created time, and
-revocation state. Read-only is the default; write access is limited to a
-selected directory. `/sdcard` remains available to guests when explicitly
-granted. Revocation stops new accesses and removes the corresponding mount on
-the next guest start; it does not erase user files.
+When Termux already has Android shared-storage permission, the canonical
+shared-storage directory is mounted at guest `/sdcard` by default, matching
+the v2 behavior and desktop shortcut. Ternux never silently requests Android
+permission. v3 records this inherited permission state and adds path-level
+grants for extra directories, with owner, guest, access mode, created time,
+and revocation state. Extra directory access is read-only by default; write
+access is limited to a selected directory. Revocation stops new accesses and
+removes the corresponding mount on the next guest start; it does not erase
+user files. Termux HOME and private app data remain isolated.
 
 ## Camera and microphone
 

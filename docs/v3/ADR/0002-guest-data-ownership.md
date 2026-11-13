@@ -20,8 +20,10 @@ that belongs to a separate workload, LAI, or Android user directory.
 Every managed file, guest, runtime pack, model copy, and storage grant has an
 owner ID and lifecycle record. Default guest uninstall removes only the
 selected rootfs and its explicitly Ternux-owned guest state. Models and shared
-media require a separate user selection. `/sdcard` remains available when
-explicitly granted and is not treated as guest-owned data.
+media require a separate user selection. When Termux already has Android
+shared-storage permission, `/sdcard` is mounted into guests by default; it is
+external user data and is never treated as guest-owned or removed on uninstall.
+Additional directory grants remain explicit and revocable.
 
 ## Consequences
 

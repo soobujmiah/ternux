@@ -34,8 +34,13 @@ supporting, not sufficient, evidence.
   themes, titlebar controls, viewport fitting, audio, graphics backend,
   browser, storage permissions, and application menu on the named guest and
   device. Record third-party CSD/toolkit exceptions.
-- Confirm `/sdcard` exposure is explicitly granted, read/write scope matches
-  the grant, and revocation does not delete Android files.
+- Confirm `/sdcard` is available when Termux already has storage permission;
+  Ternux does not silently request it. Verify extra directory grants are
+  scoped, and revocation does not delete Android files.
+- Verify native Termux workspace owns display `:0`; Debian/Ubuntu/Alpine
+  default to `:1`/`:2`/`:3`, and later guests receive collision-checked
+  serial slots. Verify migration preserves existing v2 sessions until an
+  explicit staged switch.
 - Guest removal reports and removes only the selected guest and its
   Ternux-owned state; model stores and unrelated guests survive.
 

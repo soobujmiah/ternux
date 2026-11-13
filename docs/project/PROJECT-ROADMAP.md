@@ -6,7 +6,7 @@ lang: "en"
 
 ## Project roadmap
 
-**Last reviewed:** 2026-11-13 11:04 UTC. **State:** living project record.
+**Last reviewed:** 2026-11-13 12:26 UTC. **State:** living project record.
 
 ## Released
 
@@ -21,8 +21,9 @@ lang: "en"
 
 ## In progress: v3 foundation
 
-1. Architecture, API, security, UX, acceptance documents, and four ADRs are
-   published. Keep reviewing these contracts as the implementation proves
+1. Architecture, API, security, UX, acceptance documents, and five ADRs are
+   published. ADR-0005 reserves native `:0` and assigns Debian/Ubuntu/Alpine
+   guest displays `:1`/`:2`/`:3` for v3; existing v2 sessions are preserved. Keep reviewing these contracts as the implementation proves
    assumptions against the live native Termux runtime.
 2. The current source has three read-only native manager CLI operations; the
    released 2.0.0 APT package does not include them. Implement the opt-in native

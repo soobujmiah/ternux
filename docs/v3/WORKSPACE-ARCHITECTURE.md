@@ -23,10 +23,15 @@ multi-choice prompt. It never silently changes the default guest based on
 which display happens to be running.
 
 `tx stop [guest...]` targets selected guests. An interactive no-argument stop
-lists active sessions and supports one or more selections. Displays are
-allocated from a collision-checked registry; defaults are Debian `:0`, Ubuntu
-`:1`, Alpine `:2`, then subsequent free displays. A manually assigned display
-must not collide with Termux:X11 or another managed guest.
+lists active sessions and supports one or more selections. In v3, display
+`:0` is reserved for the native Termux workspace/Control Center. Guest displays
+come from a collision-checked registry: Debian `:1`, Ubuntu `:2`, Alpine
+`:3`, followed by the next free display for additional distros. Manual
+assignments must not collide with the native workspace, an active X server, or
+another managed guest. The current v2 device's Debian `:0`, Ubuntu `:1`,
+Alpine `:2` sessions are preserved; migration happens only through an
+explicit, staged v3 migration that validates all sockets and session records
+before switching.
 
 ## Per-guest recipe
 
@@ -40,7 +45,9 @@ from the same checked source bundle.
 ## Isolation and persistence
 
 Each guest gets only declared binds: `/dev`, required `/proc` and `/sys`
-views, Termux:X11 socket, PulseAudio route, and user-granted storage. Host
+views, Termux:X11 socket, PulseAudio route, Android shared storage at
+`/sdcard` when Termux already has permission, and user-granted extra
+subdirectories. Host
 `$PREFIX` and Termux home are not exposed by default. Guest packages and home
 data persist across Ternux CLI updates. Guest deletion is a separate,
 explicitly confirmed destructive action that reports the exact rootfs and

@@ -16,3 +16,4 @@ instead of rewriting history.
 - [ADR-0002: Explicit guest and data ownership](0002-guest-data-ownership.md)
 - [ADR-0003: Integrate with LAI through a versioned adapter](0003-lai-adapter.md)
 - [ADR-0004: Shared typed manager contract](0004-shared-manager-contract.md)
+- [ADR-0005: Native-first display allocation](0005-native-display-allocation.md)

@@ -153,3 +153,32 @@ service probes only; it is not a fresh renderer, Vulkan workload, audio
 playback, microphone, or camera test. The three sessions retained PIDs
 18218/14129/26946. No GUI, X11, PulseAudio, IBus, or Android process was
 restarted, and no guest or user data was changed.
+
+## Diagnostic and renderer recheck — 2026-11-13 12:20 UTC
+
+The installed stable APT package remained Ternux 2.0.0. All three existing
+guest desktops remained running; `tx verify debian|ubuntu|alpine --json`
+returned passed. No desktop, Termux:X11, PulseAudio, IBus, or Termux process
+was restarted.
+
+Per-display read-only GLX/Vulkan probes returned Zink Vulkan 1.4 on Adreno 825
+through Mesa Turnip for Debian `:0`, Ubuntu `:1`, and Alpine `:2`. Ubuntu
+required the exact environment of its already-running XFCE process; with that
+environment its renderer was accelerated. The default host doctor path
+incorrectly reported software fallback because Ubuntu's valid overlay directory
+had no `mesa-overlay-libdir` marker. Its launcher already falls back to the
+known `lib/aarch64-linux-gnu` directory; detection did not.
+
+The global saved distro setting contained stale `archlinux`, while the active
+session state selected Debian and all three managed desktop records were
+READY. Consequently, default doctor could incorrectly say the Debian
+container was missing and fail Vulkan enumeration. Explicit
+`TERNUX_DISTRO=debian tx doctor --quick --json` returned OK. The source fix
+now follows the active installed guest and recovers the isolated Mesa overlay
+path. It is covered by focused regression tests on the working branch; it has
+not yet been merged or installed on the device.
+
+The v3 display proposal is separate from these live observations: native
+Termux `:0`, Debian `:1`, Ubuntu `:2`, Alpine `:3`. The current v2
+sessions remain Debian `:0`, Ubuntu `:1`, Alpine `:2` until a staged v3
+migration is implemented and validated.

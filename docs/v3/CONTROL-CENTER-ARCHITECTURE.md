@@ -11,6 +11,10 @@ and local service. It is not an XFCE app and never runs inside PRoot. The
 manager and CLI remain functional if the Control Center is stopped or
 uninstalled.
 
+The native workspace reserves display `:0`; guest desktop displays begin at
+`:1` and are allocated independently. See
+[display allocation ADR](ADR/0005-native-display-allocation.md).
+
 ## Process model
 
 - `txd` is a per-Termux-user, foreground-capable service managed by Termux

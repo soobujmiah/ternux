@@ -1,8 +1,8 @@
 # Ternux current-state audit
 
-**Audit snapshot:** 2026-11-13, 11:04 UTC
+**Audit snapshot:** 2026-11-13, 12:26 UTC
 **Repository:** `soobujmiah/ternux`
-**Main at snapshot:** `ed326b58d76b8abba05434eb516135b84d7d3858`
+**Main at snapshot:** `13f966eb987fddcb720809d07dbbe89c78860fc9`
 **Latest stable release:** `v2.0.0`, tag target `9106b04fc8627ae98b1d63c9912a28c8a4677441`
 
 This is a dated audit, not a claim that the device or repository remains in this
@@ -28,21 +28,21 @@ release tag remains pinned to its release commit even though `main` has advanced
 
 ## Source, package, and website state
 
-At the snapshot, `main` was `ed326b58d76b8abba05434eb516135b84d7d3858`. The
+At the snapshot, `main` was `13f966eb987fddcb720809d07dbbe89c78860fc9`. The
 product source commit immediately before the generated-state-only merge was
-`4b44e5a7799e8518f89edb910c6b7b79f938b6de`; it added the bilingual installation
-paths and current v2/v3 status section to the website. The Pages deployment
-[`43411586659`](https://github.com/soobujmiah/ternux/actions/runs/43411586659)
-completed successfully for that source commit and preserved the signed stable
-and RC APT trees. The current live pages expose curl, wget, and signed-APT
-bootstrap commands, the Termux companion-app links, and the release/roadmap
-status links. Generated PR #201 synchronized that product commit's machine
-state. On state-merge main commit `ed326b5`, Validate run
-[`43412683916`](https://github.com/soobujmiah/ternux/actions/runs/43412683916),
+`1107f790e5b5368530b7218c41121d055cf39ccd`; it added bilingual installation
+paths and current v2/v3 status to the website. Pages deployment
+[`43421466805`](https://github.com/soobujmiah/ternux/actions/runs/43421466805)
+completed successfully and preserved the signed stable and RC APT trees. The
+current live pages expose curl, wget, signed-APT bootstrap commands, Termux
+companion-app links, and release/roadmap status. Generated PR #203 synchronized
+that source commit's machine state. On merge commit `13f966e`, exact-main
+Validate run
+[`43421436113`](https://github.com/soobujmiah/ternux/actions/runs/43421436113),
 Termux APT artifact run
-[`43412683743`](https://github.com/soobujmiah/ternux/actions/runs/43412683743),
+[`43421436061`](https://github.com/soobujmiah/ternux/actions/runs/43421436061),
 and repository-state contract run
-[`43412683675`](https://github.com/soobujmiah/ternux/actions/runs/43412683675)
+[`43421436003`](https://github.com/soobujmiah/ternux/actions/runs/43421436003)
 passed.
 
 The released 2.0.0 host package does **not** contain the newer source-side
@@ -73,10 +73,14 @@ part of this snapshot. The detailed test boundaries are in
 
 The product, system, component, Control Center, compute, AI runtime, Device
 Bridge, workspace, security, API, UX, roadmap, and acceptance documents exist,
-with four ADRs. The source includes three read-only native manager CLI
+with five ADRs. ADR-0005 reserves `:0` for the native Termux workspace and
+assigns Debian/Ubuntu/Alpine `:1`/`:2`/`:3` for v3; current v2 sessions remain
+on their existing displays until explicit migration. The source includes three read-only native manager CLI
 operations. The stable installed 2.0.0 package does not include those newer
 source operations. The socket service, authorization/session runtime, GUI, and
 guest lifecycle mutations remain designed or deferred, not implemented.
+
+A source audit also found two diagnostic defects now under correction: doctor can follow stale saved distro state instead of the active guest, and Ubuntu renderer/Vulkan detection can miss the isolated Mesa overlay when its optional library-path marker is absent. The fix is in the working branch and has focused regression coverage; it is not yet part of main or the installed package.
 
 The next implementation milestone is the native read-only Unix-socket service
 with private socket permissions, schema validation, explicit opt-in startup,

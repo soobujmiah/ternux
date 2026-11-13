@@ -6,7 +6,7 @@ lang: "en"
 
 ## Technical debt
 
-**Last reviewed:** 2026-11-13 11:04 UTC. This list separates verified constraints from
+**Last reviewed:** 2026-11-13 12:26 UTC. This list separates verified constraints from
 future architectural work.
 
 | Item | Impact | Evidence / disposition |
@@ -19,6 +19,7 @@ future architectural work.
 | Existing device tests partly rely on owner-visible GUI state | Not fully reproducible in CI | Preserve exact commands, window IDs, timestamps, and state; add automated probes where safe |
 | Released v2.0.0 package differs from post-release `main` source | Users of the stable package do not have newer read-only manager JSON commands | Keep stable-package/source boundaries explicit; any package delivery needs a separately versioned release and exact-head validation |
 | Package metadata describes the original Debian-first scope | The installed package description can imply a Debian-only manager despite v2's three supported profiles | Correct package metadata in a separately versioned, fully validated follow-up package; do not republish changed bytes under version 2.0.0 |
+| Stable doctor does not reliably follow the active guest | Stale saved distro state can produce false missing-container and GPU warnings | Working-branch fix selects the active guest by default, honors explicit `TERNUX_DISTRO`, and recovers Ubuntu's markerless overlay path; 184 focused checks pass, pending hosted CI and merge |
 
 Debt is removed only when a change and its regression test land. Reclassify
 closed rows in the next review rather than deleting their history.

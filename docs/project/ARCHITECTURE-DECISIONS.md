@@ -14,6 +14,7 @@ Accepted v3 decisions:
 - Explicit guest and data ownership: [ADR-0002](../v3/ADR/0002-guest-data-ownership.md)
 - LAI integration through a versioned adapter: [ADR-0003](../v3/ADR/0003-lai-adapter.md)
 - Shared typed manager contract: [ADR-0004](../v3/ADR/0004-shared-manager-contract.md)
+- Native-first display allocation: [ADR-0005](../v3/ADR/0005-native-display-allocation.md)
 
 These decisions are accepted as architecture for v3, not proof that their
 components are implemented. Existing v2 behavior remains described by
