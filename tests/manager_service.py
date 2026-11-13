@@ -26,9 +26,13 @@ class ManagerServiceTest(unittest.TestCase):
             f"exec bash {str(CLI)!r} \"$@\"\n"
         )
         wrapper.chmod(0o755)
+        proot_stub = self.prefix / "bin/proot-distro"
+        proot_stub.write_text("#!/bin/sh\n[ \"$#\" -eq 2 ] && [ \"$1\" = list ] && [ \"$2\" = --quiet ]\n")
+        proot_stub.chmod(0o755)
         self.env = os.environ.copy()
         self.env["PREFIX"] = str(self.prefix)
         self.env["TERNUX_LIB_DIR"] = str(ROOT / "lib")
+        self.env["PATH"] = str(self.prefix / "bin") + os.pathsep + self.env.get("PATH", "")
         self.socket_path = self.prefix / "var/lib/ternux/control/manager.sock"
         self.proc = self.start_server()
         deadline = time.monotonic() + 5
