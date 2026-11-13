@@ -14,6 +14,10 @@
 [![v2 desktop guest](https://img.shields.io/badge/v2%20desktop-3%20guest-77e3ad?style=flat-square)](../docs/audit/FEATURE-MATRIX.md)
 [![Adreno evidence](https://img.shields.io/badge/GPU-Adreno%20825%20measured-8bf5a6?style=flat-square)](../docs/BENCHMARKS.md)
 [![Distro recipe](https://img.shields.io/badge/distro%20recipe-15-b9ff72?style=flat-square)](../docs/INSTALLATION.md#choosing-a-guest-distribution)
+[![Desktop](https://img.shields.io/badge/desktop-Xfce%20%2B%20Termux%3AX11-55c2ff?style=flat-square)](../docs/QUICK-START.md)
+[![Audio](https://img.shields.io/badge/audio-PulseAudio-8b9dff?style=flat-square)](../docs/USAGE.md#android-microphone-input)
+[![Camera and recorder](https://img.shields.io/badge/camera%20%26%20recorder-Android%20integration-ffb86b?style=flat-square)](../docs/QUICK-START.md#first-gui-run-browser-and-video)
+[![Optional AI](https://img.shields.io/badge/local%20AI-optional%20extensions-c084fc?style=flat-square)](../docs/WORKLOADS.md#the-workloads)
 [![NPU](https://img.shields.io/badge/NPU-shudhu%20experimental-f59e0b?style=flat-square)](../docs/ACCELERATOR-RELEASE-PLAN.md)
 [![লাইসেন্স](https://img.shields.io/badge/license-Apache--2.0-22c55e?style=flat-square)](../LICENSE)
 
@@ -23,16 +27,25 @@
 
 ## Ternux সম্পর্কে
 
-Ternux ARM64 Android ফোনকে একটি managed Linux desktop-এ রূপ দেয়। Termux-এর
-মধ্যে PRoot guest install হয়, Termux:X11 দিয়ে Xfce চলে, PulseAudio দিয়ে
-sound route হয়। Install, GUI session, graphics, diagnose ও optional workload
-পরিচালনার জন্য একটি CLI থাকে। Android root লাগে না এবং Android-ই host থাকে।
+Ternux ARM64 Android ফোনে root ছাড়াই Linux desktop চালায়; Android-ই host
+থাকে। Termux-এর মধ্যে PRoot guest চলে, Termux:X11-এ Xfce desktop দেখা যায়,
+আর PulseAudio guest-এর sound Android-এ route করে। একটি CLI দিয়ে guest,
+desktop session, graphics, diagnostics ও optional workload পরিচালনা করা যায়।
+
+দৈনন্দিন browsing, document, media, photo ও audio recording-এর app-সহ Ternux-এর
+নিজস্ব theme এবং phone-sized window ব্যবস্থা থাকে। Developer tools ও local
+CPU/Vulkan AI workload দরকার হলে optional হিসেবে install করা যায়। Termux-কে
+storage permission দিলে guest থেকে Android shared storage-এর file ও model
+সরাসরি ব্যবহার করা যায়।
 
 **v2 desktop-এর জন্য Debian, Ubuntu ও Alpine—এই তিনটি guest qualified।**
 Debian recommended default। আরও ১২টি named distro recipe চেষ্টা করা যায়, তবে
 v2 desktop support হিসেবে সেগুলো qualified নয়। Ternux desktop recipe না থাকলে
-arbitrary OCI image shell guest হিসেবে চলে। ১৫টি named recipe-তেই distro-specific
-Mesa GL package আছে। Adreno/KGSL-এ distro সমর্থন করলে Zink/Freedreno-কে
+arbitrary OCI image shell guest হিসেবে চলে।
+
+### Graphics ও guest support
+
+১৫টি named recipe-তেই distro-specific Mesa GL package আছে। Adreno/KGSL-এ distro সমর্থন করলে Zink/Freedreno-কে
 অগ্রাধিকার দেয়; Debian Trixie-তে validated Turnip payload-ও আছে। VirGL হলো
 compatibility route। কোন renderer চলছে তা guest-এর `glxinfo -B` দিয়ে দেখুন।
 

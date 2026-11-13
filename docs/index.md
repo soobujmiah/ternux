@@ -15,7 +15,7 @@ something is already broken, go directly to [Troubleshooting](TROUBLESHOOTING.ht
 | ---------------------- | ---------------------------------------------- | --------------- |
 | Debian, Ubuntu, Alpine | 12 additional named profiles; not v2-qualified | Debian          |
 
-Every named recipe has a family-specific desktop setup. Generic OCI images are shell guests unless Ternux has a desktop recipe for them. See [installation and guest selection](INSTALLATION.html#choosing-a-guest-distribution) and the [v2 support matrix](audit/FEATURE-MATRIX.html).
+Every named recipe has a family-specific desktop setup. Generic OCI images are shell guests unless Ternux has a desktop recipe for them. See [installation and guest selection](INSTALLATION.html#choosing-a-guest-distribution) and the [repository v2 support matrix](https://github.com/soobujmiah/ternux/blob/main/docs/audit/FEATURE-MATRIX.md).
 
 ## Choose your installation path
 

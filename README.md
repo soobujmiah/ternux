@@ -14,6 +14,10 @@
 [![Desktop guests](https://img.shields.io/badge/v2%20desktop-guests%203-77e3ad?style=flat-square)](docs/audit/FEATURE-MATRIX.md)
 [![Adreno evidence](https://img.shields.io/badge/GPU-Adreno%20825%20measured-8bf5a6?style=flat-square)](docs/BENCHMARKS.md)
 [![Distro recipes](https://img.shields.io/badge/distro%20recipes-15-b9ff72?style=flat-square)](docs/INSTALLATION.md#choosing-a-guest-distribution)
+[![Desktop](https://img.shields.io/badge/desktop-Xfce%20%2B%20Termux%3AX11-55c2ff?style=flat-square)](docs/QUICK-START.md)
+[![Audio](https://img.shields.io/badge/audio-PulseAudio-8b9dff?style=flat-square)](docs/USAGE.md#android-microphone-input)
+[![Camera and recorder](https://img.shields.io/badge/camera%20%26%20recorder-Android%20integration-ffb86b?style=flat-square)](docs/QUICK-START.md#first-gui-run-browser-and-video)
+[![Optional AI](https://img.shields.io/badge/local%20AI-optional%20extensions-c084fc?style=flat-square)](docs/WORKLOADS.md#the-workloads)
 [![NPU](https://img.shields.io/badge/NPU-experimental%20only-f59e0b?style=flat-square)](docs/ACCELERATOR-RELEASE-PLAN.md)
 [![License](https://img.shields.io/badge/license-Apache--2.0-22c55e?style=flat-square)](LICENSE)
 
@@ -23,16 +27,25 @@
 
 ## About Ternux
 
-Ternux turns an ARM64 Android phone into a managed Linux desktop. It installs a
-Linux guest in Termux with PRoot, starts Xfce through Termux:X11, routes audio
-through PulseAudio, and provides one CLI for installation, desktop sessions,
-graphics, diagnostics and optional workloads. It needs no Android root and
-keeps Android as the host operating system.
+Ternux turns an ARM64 Android phone into a Linux desktop without rooting or
+replacing Android. Termux hosts the Linux guest in PRoot, Termux:X11 displays
+the Xfce desktop, and PulseAudio connects guest audio to Android. A single CLI
+installs and manages guest systems, desktop sessions, graphics, diagnostics,
+and optional workloads.
+
+The desktop comes with everyday tools for browsing, documents, media, photos,
+and audio recording, alongside Ternux's branded theme and phone-sized window
+handling. Developer tools and local CPU/Vulkan AI workloads are available as
+optional installs. Guest files and model weights can be read from Android
+shared storage when Termux storage access is enabled.
 
 **Debian, Ubuntu and Alpine are the three v2-qualified desktop profiles.**
 Debian is the recommended default. Twelve additional named distro recipes are
 available to try, but are not qualified for the v2 desktop support promise;
 arbitrary OCI images are shell guests until a Ternux desktop recipe is added.
+
+### Graphics and guest support
+
 All 15 named recipes include distro-specific Mesa GL packages. On Adreno/KGSL,
 Ternux prefers the guest's supported Zink/Freedreno path; Debian Trixie also has
 a validated Turnip payload. VirGL is the compatibility route. The selected

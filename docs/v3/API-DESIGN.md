@@ -86,11 +86,11 @@ environment maps, or unrestricted filesystem paths.
 
 ## Request and error schemas
 
-- [Request envelope v1](schemas/manager-request-v1.schema.json) defines the
+- [Request envelope v1 JSON schema](https://github.com/soobujmiah/ternux/blob/main/docs/v3/schemas/manager-request-v1.schema.json) defines the
   supported read-only operation calls.
-- [Response envelope v1](schemas/manager-response-v1.schema.json) correlates
+- [Response envelope v1 JSON schema](https://github.com/soobujmiah/ternux/blob/main/docs/v3/schemas/manager-response-v1.schema.json) correlates
   each reply to its request and contains exactly one result or error.
-- [Error object v1](schemas/manager-error-v1.schema.json) provides stable
+- [Error object v1 JSON schema](https://github.com/soobujmiah/ternux/blob/main/docs/v3/schemas/manager-error-v1.schema.json) provides stable
   machine codes, localized-client-ready messages, and retry guidance.
 
 `tests/manager_protocol.py` checks valid examples and rejection cases using

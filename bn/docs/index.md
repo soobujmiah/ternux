@@ -15,7 +15,7 @@ alt_url: "/docs/"
 | ---------------------- | ------------------------------------------------ | --------------- |
 | Debian, Ubuntu, Alpine | অতিরিক্ত ১২টি named profile; v2-তে qualified নয় | Debian          |
 
-প্রতিটি named recipe-তে তার package family অনুযায়ী desktop setup আছে। Ternux desktop recipe না থাকলে generic OCI image shell guest থাকে। [Install ও guest নির্বাচন](INSTALLATION.html) এবং [v2 support matrix](../../docs/audit/FEATURE-MATRIX.html) দেখুন।
+প্রতিটি named recipe-তে তার package family অনুযায়ী desktop setup আছে। Ternux desktop recipe না থাকলে generic OCI image shell guest থাকে। [Install ও guest নির্বাচন](INSTALLATION.html) এবং [repository-র v2 support matrix](https://github.com/soobujmiah/ternux/blob/main/docs/audit/FEATURE-MATRIX.md) দেখুন।
 
 ## ইনস্টলেশনের পথ বেছে নিন
 
