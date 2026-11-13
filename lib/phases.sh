@@ -213,6 +213,15 @@ _tnx_install_core_packages() {
   return 1
 }
 
+_tnx_host_download_tools_smoke() {
+  local tool
+  for tool in curl wget; do
+    command -v "$tool" >/dev/null 2>&1 || { tnx_fail "Required Termux download tool is missing: $tool"; return 1; }
+    "$tool" --version >/dev/null 2>&1 || { tnx_fail "Termux $tool cannot start; its linked libraries need repair."; return 1; }
+  done
+  return 0
+}
+
 # ---------------------------------------------------------------------------
 # Phase 2 — base Termux packages
 # ---------------------------------------------------------------------------
@@ -231,14 +240,30 @@ tnx_phase_packages() {
   # Android shared storage permission is requested only when the user runs
   # `ternux storage grant DIRECTORY`; setup itself does not expose user files.
 
-  tnx_spin_run "Refresh Termux repositories" tnx_termux_pkg update -y $APT_FORCE || rc=1
-  tnx_spin_run "Upgrade installed Termux packages" tnx_termux_pkg upgrade -y $APT_FORCE || {
-    tnx_warn "pkg upgrade incomplete — repairing dpkg before continuing."
-    tnx_spin_run "Repair interrupted dpkg configuration" dpkg --configure -a --force-confold --force-confdef || true
-  }
+  if ! tnx_spin_run "Refresh Termux repositories" tnx_termux_pkg update -y $APT_FORCE; then
+    tnx_warn "pkg update failed; retrying the configured Termux source through apt-get."
+    tnx_spin_run "Refresh Termux repositories with apt-get" tnx_termux_apt_get update -y $APT_FORCE || rc=1
+  fi
+  if ! tnx_spin_run "Upgrade installed Termux packages" tnx_termux_pkg upgrade -y $APT_FORCE; then
+    tnx_warn "pkg upgrade failed; repairing the complete Termux package set with apt-get full-upgrade."
+    if ! tnx_spin_run "Repair Termux packages with full-upgrade" tnx_termux_apt_get full-upgrade -y $APT_FORCE; then
+      tnx_warn "apt-get full-upgrade failed; repairing interrupted dpkg configuration and retrying once."
+      tnx_spin_run "Repair interrupted dpkg configuration" dpkg --configure -a --force-confold --force-confdef || true
+      tnx_spin_run "Retry Termux full-upgrade" tnx_termux_apt_get full-upgrade -y $APT_FORCE || rc=1
+    fi
+  fi
   tnx_spin_run "Enable X11 and TUR repositories" tnx_termux_pkg install -y $APT_FORCE x11-repo tur-repo || rc=1
   tnx_spin_run "Install the Termux:X11 client" bash -c "LD_LIBRARY_PATH= pkg install -y $APT_FORCE termux-x11-nightly || LD_LIBRARY_PATH= pkg install -y $APT_FORCE termux-x11" || rc=1
   tnx_spin_run "Install PulseAudio, PRoot, VirGL and core tools" _tnx_install_core_packages "$APT_FORCE" || rc=1
+  if ! tnx_spin_run "Verify Termux download tools" _tnx_host_download_tools_smoke; then
+    tnx_warn "A Termux download tool still fails to start; running apt-get full-upgrade to repair library versions."
+    if tnx_spin_run "Refresh Termux repositories with apt-get" tnx_termux_apt_get update -y $APT_FORCE &&
+       tnx_spin_run "Repair Termux packages with full-upgrade" tnx_termux_apt_get full-upgrade -y $APT_FORCE; then
+      tnx_spin_run "Recheck Termux download tools" _tnx_host_download_tools_smoke || rc=1
+    else
+      rc=1
+    fi
+  fi
 
   local backend="${1:-auto}"
   if [ "$backend" = "zink" ] || { [ "$backend" = "auto" ] && [ "$(tnx_distro)" = debian ] && [ -e "${TERNUX_KGSL_DEVICE:-/dev/kgsl-3d0}" ]; }; then
@@ -2863,6 +2888,7 @@ tnx_prompt_shell() {
 tnx_prompt_username() {
   local default_user="${1:-ternux}"
   local timeout="${2:-30}"
+  local guest_label="${3:-}"
   local tty_fd=""
   local chosen=""
   local start_time=0 now=0 elapsed=0 remaining=0
@@ -2890,7 +2916,11 @@ tnx_prompt_username() {
       break
     fi
 
-    printf "${TNX_CC}?${TNX_C0} Enter your TERNUX username [default: %s] (${remaining}s remaining): " "$default_user" >&2
+    if [ -n "$guest_label" ]; then
+      printf "${TNX_CC}?${TNX_C0} Username for %s [default: %s] (${remaining}s remaining): " "$guest_label" "$default_user" >&2
+    else
+      printf "${TNX_CC}?${TNX_C0} Enter your TERNUX username [default: %s] (${remaining}s remaining): " "$default_user" >&2
+    fi
 
     local input=""
     if ! IFS= read -r -t "$remaining" -u "$tty_fd" input; then
@@ -3124,6 +3154,7 @@ tnx_install_single() {
   local distro_choice="debian" distro_explicit=0
   local extras=() yes=0 resume=0 full=0 profile="base"
   local user_explicit=0 locale_explicit=0 backend_explicit=0 shell_explicit=0
+  local workloads_explicit=0 batch_confirmed=0 workload_csv=""
 
   while [ $# -gt 0 ]; do
     case "$1" in
@@ -3140,6 +3171,10 @@ tnx_install_single() {
         ;;
       --zsh) shell_choice="zsh"; shell_explicit=1 ;;
       --shell) shell_choice="${2:-}"; shell_explicit=1; shift ;;
+      --workloads)
+        [ $# -ge 2 ] || { tnx_fail "--workloads needs a comma-separated list or 'none'."; return 2; }
+        workload_csv="$2"; workloads_explicit=1; shift ;;
+      --batch-confirmed) batch_confirmed=1 ;;
       --no-theme) export TERNUX_THEME=none ;;
       --distro)
         [ $# -ge 2 ] || { tnx_fail "--distro needs a value."; return 2; }
@@ -3164,6 +3199,23 @@ tnx_install_single() {
       *) tnx_fail "Unknown install option: $1"; return 2 ;;
     esac; shift
   done
+
+  if [ "$workloads_explicit" -eq 1 ]; then
+    extras=()
+    if [ "$workload_csv" != none ] && [ -n "$workload_csv" ]; then
+      local workload_item known_workload duplicate_workload known
+      local -a parsed_workloads=()
+      IFS=',' read -r -a parsed_workloads <<< "$workload_csv"
+      for workload_item in "${parsed_workloads[@]}"; do
+        known_workload=0; duplicate_workload=0
+        for known in "${TNX_OPTIONAL_ITEMS[@]}"; do [ "$known" = "$workload_item" ] && { known_workload=1; break; }; done
+        [ "$known_workload" -eq 1 ] || { tnx_fail "Unknown optional workload '$workload_item'."; return 2; }
+        for known in "${extras[@]}"; do [ "$known" = "$workload_item" ] && duplicate_workload=1; done
+        [ "$duplicate_workload" -eq 0 ] || { tnx_fail "Duplicate optional workload '$workload_item'."; return 2; }
+        extras+=("$workload_item")
+      done
+    fi
+  fi
 
   # Re-running the normal one-command installer resumes an interrupted guest
   # automatically. A different explicitly selected guest starts independently.
@@ -3246,7 +3298,7 @@ tnx_install_single() {
   fi
 
 
-  if [ "$resume" -eq 0 ] && [ "$yes" -eq 0 ] && [ "${#extras[@]}" -eq 0 ]; then
+  if [ "$resume" -eq 0 ] && [ "$yes" -eq 0 ] && [ "$workloads_explicit" -eq 0 ] && [ "${#extras[@]}" -eq 0 ]; then
     if [ "$TNX_DP_FAMILY" = apt ]; then
       local workload_selection=""
       workload_selection="$(tnx_prompt_workloads "$backend")"
@@ -3314,7 +3366,7 @@ tnx_install_single() {
   export TERNUX_SELECTED_EXTRAS
   tnx_summary_box "Install Plan" "${plan_summary[@]}"
 
-  if ! tnx_confirm "Plan ready. Press Enter to install, or type n to cancel (backend '$backend', user '$user_name')?" yes; then
+  if [ "$batch_confirmed" -eq 0 ] && ! tnx_confirm "Plan ready. Press Enter to install, or type n to cancel (backend '$backend', user '$user_name')?" yes; then
     tnx_info "Installation cancelled; no phase was started."
     return 0
   fi
@@ -3545,9 +3597,83 @@ tnx_install() {
       [ "$TNX_DP_FAMILY" = apt ] || { tnx_fail "Optional workloads currently require an APT-family guest; '$distro' supports the base desktop profile."; return 2; }
     done
   fi
+  # Collect the shared Termux shell and every guest username before the first
+  # guest transaction. A selected incomplete profile keeps its saved account.
+  local requested_user="" requested_shell="" requested_backend="auto" batch_shell="bash" saved_user="" status="" workload_csv=""
+  local forwarded_index=0 forwarded_arg="" workload_flags=0
+  local -a batch_users=() batch_workloads=() batch_summary=() batch_args=()
+  for ((forwarded_index=0; forwarded_index<${#forwarded[@]}; forwarded_index++)); do
+    forwarded_arg="${forwarded[forwarded_index]}"
+    case "$forwarded_arg" in
+      --user) (( forwarded_index + 1 < ${#forwarded[@]} )) && requested_user="${forwarded[forwarded_index+1]}" ;;
+      --shell) (( forwarded_index + 1 < ${#forwarded[@]} )) && requested_shell="${forwarded[forwarded_index+1]}" ;;
+      --backend) (( forwarded_index + 1 < ${#forwarded[@]} )) && requested_backend="${forwarded[forwarded_index+1]}" ;;
+      --zsh) requested_shell=zsh ;;
+      --with-*|--all) workload_flags=1 ;;
+    esac
+  done
+  if [ -z "$requested_shell" ]; then
+    requested_shell="$(tnx_state_get install_shell 2>/dev/null || true)"
+    requested_shell="${requested_shell:-bash}"
+  fi
+  batch_shell="$requested_shell"
+  if [ "$wants_yes" -eq 0 ] && ! printf '%s\n' "${forwarded[@]}" | grep -Eq -- '(^|[[:space:]])(--shell|--zsh)([[:space:]]|$)'; then
+    batch_shell="$(tnx_prompt_shell "$requested_shell" 300)"
+  fi
+
   for distro in "${normalized[@]}"; do
+    status="$(tnx_distro_state_get "$distro" status 2>/dev/null || true)"
+    saved_user="$(tnx_distro_state_get "$distro" user 2>/dev/null || true)"
+    if [ -z "$saved_user" ] && [ "$distro" = "$(tnx_state_get distro 2>/dev/null || true)" ]; then
+      saved_user="$(tnx_state_get user 2>/dev/null || true)"
+    fi
+    if [ -n "$requested_user" ]; then
+      batch_users+=("$requested_user")
+    elif [ -n "$saved_user" ] && { [ "$status" = incomplete ] || [ "$status" = installing ]; }; then
+      batch_users+=("$saved_user")
+    elif [ "$wants_yes" -eq 1 ]; then
+      batch_users+=(ternux)
+    else
+      batch_users+=("$(tnx_prompt_username ternux 300 "$distro")")
+    fi
+
+    tnx_distro_profile "$distro"
+    if [ "$workload_flags" -eq 1 ]; then
+      batch_workloads+=(none)
+    elif [ "$status" = incomplete ] || [ "$status" = installing ]; then
+      saved_user="$(tnx_state_get install_extras 2>/dev/null || true)"
+      batch_workloads+=("${saved_user:-none}")
+    elif [ "$wants_yes" -eq 1 ] || [ "$TNX_DP_FAMILY" != apt ]; then
+      batch_workloads+=(none)
+    else
+      tnx_info "Choose optional workloads for $distro before installation starts."
+      workload_csv="$(tnx_prompt_workloads "$requested_backend")"
+      batch_workloads+=("${workload_csv:-none}")
+    fi
+  done
+
+  if [ "$wants_yes" -eq 0 ]; then
+    batch_summary=("Termux shell" "$batch_shell")
+    for forwarded_index in "${!normalized[@]}"; do
+      if [ "${batch_workloads[forwarded_index]}" = none ]; then
+        batch_summary+=("Guest $((forwarded_index + 1))" "${normalized[forwarded_index]} — user ${batch_users[forwarded_index]} — base desktop")
+      else
+        batch_summary+=("Guest $((forwarded_index + 1))" "${normalized[forwarded_index]} — user ${batch_users[forwarded_index]} — workloads ${batch_workloads[forwarded_index]}")
+      fi
+    done
+    tnx_summary_box "Multi-guest install plan" "${batch_summary[@]}"
+    if ! tnx_confirm "Start the complete multi-guest installation?" yes; then
+      tnx_info "Installation cancelled; no guest installation was started."
+      return 0
+    fi
+  fi
+
+  for forwarded_index in "${!normalized[@]}"; do
+    distro="${normalized[forwarded_index]}"
     tnx_step "Installing $distro profile"
-    tnx_install_single "${forwarded[@]}" --distro "$distro" || return $?
+    batch_args=("${forwarded[@]}" --distro "$distro" --user "${batch_users[forwarded_index]}" --shell "$batch_shell" --batch-confirmed)
+    if [ "$workload_flags" -eq 0 ]; then batch_args+=(--workloads "${batch_workloads[forwarded_index]}"); fi
+    tnx_install_single "${batch_args[@]}" || return $?
   done
 }
 

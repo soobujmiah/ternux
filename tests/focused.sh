@@ -20,6 +20,7 @@ printf 'TAP version 13\n'
 check "native read-only manager JSON schemas and empty-host behavior" bash "$ROOT/tests/manager_api.sh"
 check "v3 manager request, response, and error envelope contract" python3 "$ROOT/tests/manager_protocol.py"
 check "v3 guest display identities and saved v2 mapping preservation" bash "$ROOT/tests/display_registry.sh"
+check "Termux host package repair recovers broken download-tool linkage" bash "$ROOT/tests/termux_pkg_recovery.sh"
 
 # User-facing CLI help must track the dispatcher and supported guest profiles.
 if cli_help="$(bash "$ROOT/bin/ternux" --help 2>&1)" \
@@ -1723,26 +1724,34 @@ fi
 # operations: cancellation preserves data, and explicit --yes removes only the
 # requested mocked container.
 if env PREFIX="$TMP/prefix-uninstall" TERNUX_STATE_DIR="$TMP/state-uninstall" HOME="$TMP/home-uninstall" bash -c '
-  mkdir -p "$HOME" "$TERNUX_STATE_DIR" "$2"
+  mkdir -p "$HOME" "$TERNUX_STATE_DIR/distros/debian" "$2"
   : > "$HOME/x.sh"
+  printf "status=ready\n" > "$TERNUX_STATE_DIR/distros/debian/profile"
   . "$1/lib/uninstall.sh"
+  TERNUX_YES=0
   scratch="$2"
+  rm -f "$scratch/uninstall-log"
   _tnx_uninstall_stop(){ echo stopped >> "$scratch/uninstall-log"; }
+  tnx_cmd_stop(){ echo "stopped:$1" >> "$scratch/uninstall-log"; }
   tnx_has_cmd(){ [ "$1" = proot-distro ]; }
-  tnx_proot_container_installed(){ [ "$1" = debian ]; }
+  tnx_proot_container_installed(){ case "$1" in debian|fedora) return 0;; *) return 1;; esac; }
   proot-distro(){
     [ "$1" = remove ] && { echo "removed:$2" >> "$scratch/uninstall-log"; return 0; }
     return 1
   }
   _tnx_uninstall_confirm(){ [ "${TERNUX_YES:-0}" = 1 ]; }
   set +e
+  _tnx_uninstall_container fedora >/dev/null 2>&1; unregistered=$?
   tnx_cmd_uninstall container >/dev/null; cancelled=$?
   set -e
-  [ "$cancelled" -eq 1 ] && grep -qx stopped "$scratch/uninstall-log" &&
-  ! grep -q removed "$scratch/uninstall-log" || exit
-  : > "$scratch/uninstall-log"
+  [ "$unregistered" -eq 1 ] && [ "$cancelled" -eq 1 ] &&
+  [ ! -e "$scratch/uninstall-log" ] || exit
   tnx_cmd_uninstall container --yes >/dev/null &&
-  grep -qx stopped "$scratch/uninstall-log" && grep -qx "removed:debian" "$scratch/uninstall-log" &&
+  grep -qx stopped:debian "$scratch/uninstall-log" && grep -qx "removed:debian" "$scratch/uninstall-log" &&
+  mkdir -p "$TERNUX_STATE_DIR/managed-guests" &&
+  printf "alpine:latest\n" > "$TERNUX_STATE_DIR/managed-guests/generic-test" &&
+  _tnx_uninstall_container generic-test >/dev/null &&
+  [ ! -e "$TERNUX_STATE_DIR/managed-guests/generic-test" ] &&
   [ -e "$HOME/x.sh" ] && [ -d "$TERNUX_STATE_DIR" ]
 ' _ "$ROOT" "$TMP"; then
   ok "scoped uninstall confirms selected guest deletion and preserves other scopes"
@@ -1780,7 +1789,8 @@ if env PREFIX="$TMP/prefix-uninstall-multi" TERNUX_STATE_DIR="$TMP/state-uninsta
   [ "$(grep -c '^ps$' "$log")" -eq 2 ] &&
   [ -f "$sessions/stale.json" ] && [ -f "$sessions/reused.json" ] &&
   [ -f "$sessions/live.json" ] && [ -f "$sessions/unrelated.json" ] &&
-  [ -L "$sessions/linked.json" ] && [ -f "$sessions/linked-target.json" ]
+  [ -L "$sessions/linked.json" ] && [ -f "$sessions/linked-target.json" ] &&
+  [ ! -e "$TERNUX_STATE_DIR/managed-guests/alpine" ]
 ' _ "$ROOT" "$TMP"; then
   ok "full uninstall delegates shared session cleanup to PRoot-Distro and targets registered guests only"
 else

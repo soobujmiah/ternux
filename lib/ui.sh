@@ -349,7 +349,13 @@ _tnx_plain_cols() {
 _tnx_frame_layout() {
   local R="$_TNX_FRAME_ROWS" C="$_TNX_FRAME_COLS"
   _TNX_LY_DEV_ON=0
-  if (( R >= 26 && C >= 44 )); then
+  if (( R >= 32 && C >= 44 )); then
+    _TNX_LY_LOGO_ROWS=5
+    _TNX_LY_TITLE=2; _TNX_LY_TITLE2=7; _TNX_LY_TITLE3=0; _TNX_LY_TITLE4=0; _TNX_LY_TITLE5=0
+    _TNX_LY_IDENT=0; _TNX_LY_VER=8; _TNX_LY_BY=0; _TNX_LY_DIV1=9
+    _TNX_LY_DEV_ON=1; _TNX_LY_DEV0=10
+    _TNX_LY_PROG=16; _TNX_LY_BAR=17; _TNX_LY_TASK=18; _TNX_LY_DIV2=19; _TNX_LY_LOGTOP=20
+  elif (( R >= 26 && C >= 44 )); then
     _TNX_LY_LOGO_ROWS=0
     _TNX_LY_TITLE=2; _TNX_LY_TITLE2=3; _TNX_LY_TITLE3=0; _TNX_LY_TITLE4=0; _TNX_LY_TITLE5=0
     _TNX_LY_IDENT=0; _TNX_LY_VER=4; _TNX_LY_BY=0; _TNX_LY_DIV1=5
@@ -466,7 +472,16 @@ _tnx_frame_box_row() {
 }
 
 _tnx_frame_paint_header() {
-  _tnx_frame_center_line "$_TNX_LY_TITLE" 'Ternux' "$TNX_CG"
+  if (( ${_TNX_LY_LOGO_ROWS:-0} == 5 )); then
+    local tick="${1:-${_TNX_FRAME_TICK:-0}}"
+    _tnx_frame_logo_line "$(( _TNX_LY_TITLE + 0 ))" '### ### ##. #.# #.# #.#' "$tick"
+    _tnx_frame_logo_line "$(( _TNX_LY_TITLE + 1 ))" '#.. #.. #.# ### #.# #.#' "$tick"
+    _tnx_frame_logo_line "$(( _TNX_LY_TITLE + 2 ))" '#.. ### ##. #.# #.# .#.' "$tick"
+    _tnx_frame_logo_line "$(( _TNX_LY_TITLE + 3 ))" '#.. #.. #.# #.# #.# #.#' "$tick"
+    _tnx_frame_logo_line "$(( _TNX_LY_TITLE + 4 ))" '#.. ### #.# #.# ### #.#' "$tick"
+  else
+    _tnx_frame_center_line "$_TNX_LY_TITLE" 'Ternux' "$TNX_CG"
+  fi
   (( _TNX_LY_TITLE2 > 0 )) && _tnx_frame_center_line "$_TNX_LY_TITLE2" 'Linux workstation in your pocket' "$TNX_CD"
   _tnx_frame_center_line "$_TNX_LY_VER" "v${TERNUX_VERSION}  |  ${_TNX_FRAME_PROFILE^^} INSTALL" "$TNX_CY"
 }
@@ -496,7 +511,7 @@ _tnx_frame_logo_line() {
   for ((i=0; i<${#_TNX_CLIP}; i++)); do
     ch="${_TNX_CLIP:i:1}"
     case "$ch" in
-      '▩') phase=$(( (i + tick) % ${#colors[@]} )); color="${colors[$phase]}" ;;
+      '#') phase=$(( (i + tick) % ${#colors[@]} )); color="${colors[$phase]}" ;;
       *) color="$TNX_C0" ;;
     esac
     content+="${color}${ch}"

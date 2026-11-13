@@ -14,17 +14,18 @@
 _tnx_uninstall_usage() {
   cat <<'EOF'
 Usage: tx uninstall [session|launcher|state|container|host-cli|all] [--yes]
+       tx distro uninstall NAME [--yes]
        ternux uninstall [session|launcher|state|container|host-cli|all] [--yes]
 
   session    Stop the Ternux-owned desktop session and remove its state markers
   launcher   Remove ~/x.sh and ternux shell aliases
   state      Remove Ternux state, logs and stopped manager socket state
-  container  Delete the selected Ternux desktop guest
+  container  Delete the selected registered Ternux guest
   host-cli   Remove the APT-managed or source-installed Termux CLI
   all        Remove Ternux-managed guests, desktop, state, caches and host CLI
 
 Numeric aliases 1..6 select the same actions in that order.
-Termux itself, shared Termux packages, Android shared storage and unrelated
+Termux itself, shared Termux packages, Android shared storage and unregistered
 PRoot guests are kept. Container and all require confirmation unless --yes.
 EOF
 }
@@ -307,12 +308,23 @@ _tnx_uninstall_host_cli() {
 _tnx_uninstall_remove_guest() {
   local name="$1"
   [[ "$name" =~ ^[a-zA-Z0-9][a-zA-Z0-9._-]*$ ]] || { tnx_warn "Skipping invalid managed guest name: $name"; return 1; }
+  local state_dir="${TERNUX_STATE_DIR:-$HOME/.local/share/ternux}" marker_dir marker
+  marker_dir="$state_dir/managed-guests"
+  marker="$marker_dir/$name"
   if ! tnx_proot_container_installed "$name"; then
+    if [ -e "$marker" ] || [ -L "$marker" ]; then
+      [ ! -L "$state_dir" ] && [ ! -L "$marker_dir" ] && [ ! -L "$marker" ] && [ -f "$marker" ] || { tnx_fail "Refusing unsafe Ternux guest registry path for '$name'."; return 1; }
+      rm -f -- "$marker" || { tnx_fail "Could not clear the stale registry entry for '$name'."; return 1; }
+    fi
     _tnx_uninstall_reap_stale_sessions
     tnx_info "Managed guest '$name' is already absent"
     return 0
   fi
   if proot-distro remove "$name"; then
+    if [ -e "$marker" ] || [ -L "$marker" ]; then
+      [ ! -L "$state_dir" ] && [ ! -L "$marker_dir" ] && [ ! -L "$marker" ] && [ -f "$marker" ] || { tnx_fail "Guest '$name' was removed, but its registry path is unsafe and needs manual review."; return 1; }
+      rm -f -- "$marker" || { tnx_fail "Guest '$name' was removed, but its registry entry could not be cleared."; return 1; }
+    fi
     _tnx_uninstall_reap_stale_sessions
     tnx_ok "Managed guest '$name' removed"
     return 0
@@ -331,19 +343,43 @@ _tnx_uninstall_reap_stale_sessions() {
   return 0
 }
 
+_tnx_uninstall_guest_is_registered() {
+  local target="$1" state_dir="${TERNUX_STATE_DIR:-$HOME/.local/share/ternux}"
+  local profile="$state_dir/distros/$target/profile" marker_dir="$state_dir/managed-guests" marker="$state_dir/managed-guests/$target"
+  if tnx_distro_known "$target" && [ ! -L "$state_dir" ] && [ ! -L "$state_dir/distros" ] && [ ! -L "$profile" ] && [ -f "$profile" ] && grep -Eq '^status=(installing|incomplete|ready)$' "$profile"; then
+    return 0
+  fi
+  [ ! -L "$state_dir" ] && [ ! -L "$marker_dir" ] && [ ! -L "$marker" ] && [ -f "$marker" ] || return 1
+  local image
+  IFS= read -r image < "$marker" || return 1
+  [[ "$image" =~ ^[a-zA-Z0-9._:/@-]+$ ]]
+}
+
 _tnx_uninstall_container() {
   local target="${1:-$(tnx_distro)}"
+  [[ "$target" =~ ^[a-zA-Z0-9][a-zA-Z0-9._-]*$ ]] || { tnx_fail "Invalid guest name '$target'."; return 2; }
   if ! tnx_has_cmd proot-distro; then
     tnx_info "proot-distro is not installed; no guest container was removed"
     return 0
   fi
   if ! tnx_proot_container_installed "$target"; then
+    if _tnx_uninstall_guest_is_registered "$target"; then
+      _tnx_uninstall_remove_guest "$target"
+      return $?
+    fi
     tnx_info "Guest '$target' is not installed"
     return 0
   fi
-  if ! _tnx_uninstall_confirm "Permanently delete the Ternux guest '$target' and its files?"; then
+  if ! _tnx_uninstall_guest_is_registered "$target"; then
+    tnx_fail "Refusing to remove unregistered PRoot guest '$target'. Use Ternux-managed install/uninstall so ownership can be verified."
+    return 1
+  fi
+  if ! _tnx_uninstall_confirm "Permanently delete the registered Ternux guest '$target' and its files?"; then
     tnx_warn "Guest removal cancelled"
     return 1
+  fi
+  if tnx_distro_known "$target"; then
+    tnx_cmd_stop "$target" || { tnx_fail "Could not stop the selected Ternux desktop '$target'; guest files were preserved."; return 1; }
   fi
   _tnx_uninstall_remove_guest "$target"
 }
@@ -415,7 +451,7 @@ EOF
     1|session) _tnx_uninstall_stop ;;
     2|launcher) _tnx_uninstall_launcher ;;
     3|state) _tnx_uninstall_state ;;
-    4|container) _tnx_uninstall_stop; _tnx_uninstall_container ;;
+    4|container) _tnx_uninstall_container ;;
     5|all)
       if ! _tnx_uninstall_confirm "Remove Ternux, its Termux CLI, state, caches, and all Ternux-managed guest containers?"; then
         tnx_warn "Removal cancelled"

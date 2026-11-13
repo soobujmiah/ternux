@@ -301,6 +301,7 @@ tnx_guest_login() {
 
 # Avoid a host toolchain override shadowing Termux libraries in APT.
 tnx_termux_pkg() { LD_LIBRARY_PATH= pkg "$@"; }
+tnx_termux_apt_get() { LD_LIBRARY_PATH= apt-get "$@"; }
 tnx_termux_apt_cache() { LD_LIBRARY_PATH= apt-cache "$@"; }
 
 # ---------------------------------------------------------------------------

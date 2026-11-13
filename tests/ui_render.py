@@ -429,7 +429,14 @@ def analyse(tap: Tap, screen: Screen, log: str, raw: str, label: str, expect_cle
         f"{label}: compact brand header appears with a clear product descriptor",
         visible,
     )
-    tap.check("▩" not in raw, f"{label}: brand header avoids oversized multi-line glyph art")
+    tap.check("▩" not in raw, f"{label}: brand header uses terminal-safe ASCII art")
+    if label == "portrait 58x34":
+        logo_text = "### ### ##. #.# #.# #.#"
+        device_below = any(
+            logo_text in snapshot and "Device" in snapshot and snapshot.index("Device") > snapshot.index(logo_text)
+            for _elapsed, snapshot, _html in screen.snapshots
+        )
+        tap.check(device_below, f"{label}: ASCII TERNUX logo appears above the device panel", visible)
     if cols:
         left, right = cols
         rule_rows = [r for r in range(screen.rows) if screen.line(r).lstrip().startswith("+")]
