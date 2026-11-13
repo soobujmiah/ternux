@@ -28,13 +28,23 @@ Actions environment; only the public key will be published with the repository.
 
 ## Install the stable package
 
-Install the small bootstrap prerequisites from the normal Termux repository,
-then let the project script verify the pinned primary-key fingerprint, configure
-APT with `signed-by`, refresh indexes, and install Ternux:
+Install the small bootstrap prerequisites from the normal Termux repository.
+You do not need to run `apt full-upgrade` manually first: the bootstrap refreshes
+the package index, and `tx install` performs the normal Termux update/upgrade
+and dependency setup. Use curl or wget to fetch the same bootstrap:
 
 ```bash
-pkg install curl gnupg
+pkg update -y && pkg install -y curl gnupg
 curl -fsSLo "$TMPDIR/ternux-bootstrap.sh" \
+  https://soobujmiah.github.io/ternux/apt/bootstrap.sh
+bash "$TMPDIR/ternux-bootstrap.sh"
+```
+
+If you prefer wget:
+
+```bash
+pkg update -y && pkg install -y wget gnupg
+wget -qO "$TMPDIR/ternux-bootstrap.sh" \
   https://soobujmiah.github.io/ternux/apt/bootstrap.sh
 bash "$TMPDIR/ternux-bootstrap.sh"
 ```

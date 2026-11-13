@@ -28,12 +28,22 @@ private key GitHub Actions-এর `apt-release` environment-এ আছে; repos
 ## Stable package install
 
 প্রথমে Termux-এর স্বাভাবিক repository থেকে bootstrap-এর ছোট prerequisite
-install করুন। এরপর project script pinned primary-key fingerprint যাচাই করে,
-`signed-by` দিয়ে APT configure করে, index refresh ও Ternux install করবে:
+install করুন। আগে হাতে `apt full-upgrade` চালানো দরকার নেই: bootstrap package
+index refresh করে, আর `tx install` প্রয়োজনীয় Termux update/upgrade ও dependency
+setup চালায়। একই bootstrap curl অথবা wget—দুইভাবেই পাওয়া যায়:
 
 ```bash
-pkg install curl gnupg
+pkg update -y && pkg install -y curl gnupg
 curl -fsSLo "$TMPDIR/ternux-bootstrap.sh" \
+  https://soobujmiah.github.io/ternux/apt/bootstrap.sh
+bash "$TMPDIR/ternux-bootstrap.sh"
+```
+
+`wget` ব্যবহার করলেও একই bootstrap কাজ করে:
+
+```bash
+pkg update -y && pkg install -y wget gnupg
+wget -qO "$TMPDIR/ternux-bootstrap.sh" \
   https://soobujmiah.github.io/ternux/apt/bootstrap.sh
 bash "$TMPDIR/ternux-bootstrap.sh"
 ```

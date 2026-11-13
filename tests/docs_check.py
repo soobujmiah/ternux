@@ -325,13 +325,17 @@ for rel in ("dist/index.html", "dist/bn/index.html"):
 check(re.search(r"@media\s*\(prefers-reduced-motion:\s*reduce\)", read(ROOT / "src/styles/site.css")) is not None,
       "site.css: reduced-motion support missing")
 check("data-copy" in read(ROOT / "src/layouts/SiteLayout.astro"), "site shell: command copy control missing")
-install_command = "curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash"
+install_commands = (
+    "pkg update -y && pkg install -y curl && curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash",
+    "pkg update -y && pkg install -y wget && wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash",
+)
 for source in ("src/pages/index.astro", "src/pages/bn/index.astro"):
     page = read(ROOT / source)
-    check(f'data-copy-value="{install_command}"' in page,
-          f"{source}: homepage install button must copy the exact one-line command")
-    check(install_command in page,
-          f"{source}: homepage install command display does not match the copy action")
+    for command in install_commands:
+        check(f'data-copy-value="{command}"' in page,
+              f"{source}: homepage install button must copy the exact one-line command")
+        check(command in page,
+              f"{source}: homepage install command display does not match the copy action")
 for page in ("docs/QUICK-START.md", "bn/docs/QUICK-START.md"):
     text = read(ROOT / page)
     check("Debian + Xfce4" not in text,
