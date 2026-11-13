@@ -6,7 +6,7 @@
   "additionalProperties": false,
   "required": ["schema_version", "command", "status", "timestamp", "native_display", "native_socket_present", "native_lock_present", "native_server_running", "native_occupied", "count", "guests"],
   "properties": {
-    "schema_version": { "const": "1.0.0" },
+    "schema_version": { "const": "1.1.0" },
     "command": { "const": "manager.displays" },
     "status": { "const": "ok" },
     "timestamp": { "type": "string", "format": "date-time" },
@@ -25,7 +25,7 @@
     "guest": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["name", "current_display", "target_display", "running", "target_socket_present", "target_lock_present", "target_server_running", "target_conflict", "migration_required"],
+      "required": ["name", "current_display", "target_display", "running", "target_socket_present", "target_lock_present", "target_server_running", "target_conflict", "migration_required", "target_owner", "target_owner_kind"],
       "properties": {
         "name": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$" },
         "current_display": {
@@ -40,7 +40,16 @@
         "target_lock_present": { "type": "boolean" },
         "target_server_running": { "type": "boolean" },
         "target_conflict": { "type": "boolean" },
-        "migration_required": { "type": "boolean" }
+        "migration_required": { "type": "boolean" },
+        "target_owner": {
+          "oneOf": [
+            { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$" },
+            { "type": "null" }
+          ]
+        },
+        "target_owner_kind": {
+          "enum": ["active-guest-assignment", "reserved-native-slot", "unidentified", "unoccupied"]
+        }
       }
     }
   }

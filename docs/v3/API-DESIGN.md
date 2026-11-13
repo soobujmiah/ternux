@@ -10,7 +10,10 @@ lang: "en"
 `tx manager status`, `tx manager guests`, `tx manager displays`, and
 `tx manager capabilities` expose versioned JSON snapshots. The display snapshot
 distinguishes a guest's saved current display from its v3 target, records live
-socket/lock/server occupancy, and flags migration conflicts; it never changes or
+socket/lock/server occupancy, reports the uniquely matched active guest's
+saved display assignment where possible, and labels unresolved ownership
+explicitly. This is not OS-level socket-owner proof. Display payload schema is
+1.1.0; other manager payloads remain 1.0.0. It never changes or
 starts a session. These commands run directly in native Termux and do not need
 an installed guest. The HTTP adapter, event stream, jobs, and mutation endpoints
 remain designed contracts. The independent shared-core decision is recorded

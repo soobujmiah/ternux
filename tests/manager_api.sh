@@ -77,6 +77,7 @@ assert d['command']=='manager.displays' and d['native_display']==0 and d['native
 assert d['count']==3 and [x['name'] for x in d['guests']]==['alpine','debian','ubuntu']
 assert [(x['name'],x['target_display']) for x in d['guests']]==[('alpine',3),('debian',1),('ubuntu',2)]
 assert all(x['current_display'] is None and x['migration_required'] is False for x in d['guests'])
+assert all(x['target_owner'] is None and x['target_owner_kind']=='unoccupied' for x in d['guests'])
 assert s['management_mode']=='direct-cli' and s['guest_manager_available'] is True
 assert s['installed_guest_count']==4 and s['running_desktops']==['debian','alpine']
 assert c['command']=='manager.capabilities'
@@ -84,7 +85,7 @@ assert [x['id'] for x in c['operations']]==['manager.capabilities','manager.disp
 assert c['count']==len(c['operations']) and len({x['id'] for x in c['operations']})==c['count']
 assert all(x['access']=='read-only' and x['argument_count']==0 for x in c['operations'])
 PY
-then ok 'v1 manager outputs validate against schemas; capability list matches dispatch allowlist'; else not_ok 'v1 manager outputs validate against schemas; capability list matches dispatch allowlist'; fi
+then ok 'manager snapshots validate against schemas; capability list matches dispatch allowlist'; else not_ok 'v1 manager outputs validate against schemas; capability list matches dispatch allowlist'; fi
 
 if env TERNUX_STATE_DIR="$TMP/state-collisions" HOME="$TMP/home-collisions" TMPDIR="$TMP/collision-tmp" bash -c '
   mkdir -p "$TMPDIR/.X11-unix"
@@ -105,13 +106,35 @@ assert obj['native_display']==0 and obj['native_occupied'] is True
 assert obj['native_lock_present'] is False
 assert guests['debian']['current_display']==0 and guests['debian']['target_display']==1
 assert guests['debian']['target_socket_present'] is True and guests['debian']['target_conflict'] is True
+assert guests['debian']['target_owner'] == 'ubuntu' and guests['debian']['target_owner_kind'] == 'active-guest-assignment'
 assert guests['ubuntu']['target_display']==2 and guests['ubuntu']['target_server_running'] is True
 assert guests['ubuntu']['target_conflict'] is True
+assert guests['ubuntu']['target_owner'] == 'alpine' and guests['ubuntu']['target_owner_kind'] == 'active-guest-assignment'
 assert guests['alpine']['current_display']==2 and guests['alpine']['target_display']==3
 assert guests['alpine']['target_lock_present'] is True
 assert guests['alpine']['migration_required'] is True and guests['alpine']['target_conflict'] is True
+assert guests['alpine']['target_owner'] is None and guests['alpine']['target_owner_kind'] == 'unidentified'
 PY
 then ok 'display snapshot identifies occupied targets and required migration without changing assignments'; else not_ok 'display snapshot identifies occupied targets and required migration without changing assignments'; fi
+
+if env TERNUX_STATE_DIR="$TMP/state-owner-ambiguous" HOME="$TMP/home-owner-ambiguous" TMPDIR="$TMP/tmp-owner-ambiguous" bash -c '
+  mkdir -p "$TMPDIR/.X11-unix"; : > "$TMPDIR/.X11-unix/X1"
+  . "$1/lib/manager.sh"
+  tnx_has_cmd(){ [ "$1" = proot-distro ]; }
+  proot-distro(){ printf "debian\nubuntu\nalpine\n"; }
+  _tnx_running_guest_sessions(){ printf "ubuntu\nalpine\n"; }
+  pgrep(){ return 1; }
+  tnx_distro_state_set debian display 0 || exit
+  tnx_distro_state_set ubuntu display 1 || exit
+  tnx_distro_state_set alpine display 1 || exit
+  TERNUX_JSON=1 tnx_cmd_manager displays
+' _ "$ROOT" > "$TMP/displays-owner-ambiguous" 2>/dev/null && python3 - "$TMP/displays-owner-ambiguous" <<'PY'
+import json,sys
+obj=json.load(open(sys.argv[1])); debian=next(x for x in obj['guests'] if x['name']=='debian')
+assert debian['target_conflict'] is True
+assert debian['target_owner'] is None and debian['target_owner_kind']=='unidentified'
+PY
+then ok 'ambiguous display ownership is reported without selecting a guest'; else not_ok 'ambiguous display ownership is reported without selecting a guest'; fi
 
 if env TERNUX_STATE_DIR="$TMP/state-errors" HOME="$TMP/home-errors" bash -c '
   . "$1/lib/manager.sh"

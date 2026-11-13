@@ -15,6 +15,7 @@
     "result": { "oneOf": [
       { "$ref": "manager-status-v1.schema.json" },
       { "$ref": "manager-guests-v1.schema.json" },
+      { "$ref": "manager-displays-v1.schema.json" },
       { "$ref": "manager-capabilities-v1.schema.json" }
     ] },
     "error": { "$ref": "manager-error-v1.schema.json" }

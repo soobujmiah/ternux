@@ -123,7 +123,7 @@ status_result = {
     "installed_guest_count": 0, "running_desktops": [],
 }
 display_result = {
-    "schema_version": "1.0.0", "command": "manager.displays", "status": "ok",
+    "schema_version": "1.1.0", "command": "manager.displays", "status": "ok",
     "timestamp": "2026-11-13T09:00:00Z", "native_display": 0,
     "native_socket_present": False, "native_lock_present": False,
     "native_server_running": False,
@@ -132,7 +132,8 @@ display_result = {
         "name": "debian", "current_display": 0, "target_display": 1,
         "running": True, "target_socket_present": True, "target_lock_present": False,
         "target_server_running": True, "target_conflict": True,
-        "migration_required": True,
+        "migration_required": True, "target_owner": "debian",
+        "target_owner_kind": "active-guest-assignment",
     }],
 }
 base_request = {
@@ -155,8 +156,10 @@ check("error message is required", lambda: validate({"code": "FAILED", "retryabl
 check("error code must be a stable uppercase identifier", lambda: validate({**error, "code": "bad code"}, error_schema), False)
 
 success = {"schema_version": "1.0.0", "request_id": request_id, "status": "ok", "result": status_result}
+display_success = {"schema_version": "1.0.0", "request_id": request_id, "status": "ok", "result": display_result}
 failure = {"schema_version": "1.0.0", "request_id": request_id, "status": "error", "error": error}
 check("successful response echoes request ID and typed result", lambda: validate(success, response_schema))
+check("successful display response supports payload schema 1.1.0", lambda: validate(display_success, response_schema))
 check("error response echoes request ID and stable error", lambda: validate(failure, response_schema))
 check("response requires request ID for correlation", lambda: validate({k: v for k, v in success.items() if k != "request_id"}, response_schema), False)
 check("response cannot contain both result and error", lambda: validate({**success, "error": error}, response_schema), False)

@@ -68,8 +68,14 @@ TERNUX_LIB_DIR="$PWD/lib" bash ./bin/ternux manager status --json
 ```bash
 tx manager status [--json]
 tx manager guests [--json]
+tx manager displays [--json]
 tx manager capabilities [--json]
 ```
+
+Display JSON schema `1.1.0`। target occupied হলে চলমান Ternux guest-এর saved
+display assignment একটিমাত্র guest-এর সাথে মিললে তার নাম দেখায়; এটি OS-level
+socket মালিকানার প্রমাণ নয়। অন্যথায় অনুমান না করে `reserved-native-slot` বা
+`unidentified` দেখায়।
 
 ### `ternux guides`
 
