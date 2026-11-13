@@ -96,6 +96,10 @@
       "source": "lib/manager.sh",
       "perm": "644"
     },
+    "lib/ternux/managerd.py": {
+      "source": "lib/managerd.py",
+      "perm": "755"
+    },
     "lib/ternux/profile.sh": {
       "source": "lib/profile.sh",
       "perm": "644"

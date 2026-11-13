@@ -241,9 +241,9 @@ render route and run scripts or scenes with the documented EEVEE setup. See the
 - [Ternux v3 architecture and implementation roadmap](docs/v3/README.md):
   native manager (native workspace `:0`; Debian/Ubuntu/Alpine `:1`/`:2`/`:3`
   by design), workspaces, compute, AI, Device Bridge, security, and gates.
-  Three read-only manager CLI commands are in current `main` source; they are
-  not in the stable v2.0.0 package. The socket service and Control Center are
-  still unimplemented.
+  Three read-only manager CLI commands and an explicit foreground Unix-socket
+  service are in the current source checkout; they are not in the stable v2.0.0
+  package. The native Control Center UI and service supervision remain open.
 - [Current project status](docs/project/PROJECT-ROADMAP.md): implementation,
   release, device evidence, technical debt, and next actions.
 - [Deep documentation index](docs/README.md): install paths, setup, daily use,
@@ -261,9 +261,10 @@ toggle multiple choices, Enter reviews the plan, and `q` keeps the base desktop.
 released, and the signed stable APT repository is live. Bootstrap it once with
 the commands above; later installs and updates use normal `pkg` commands. The
 GitHub release also includes the `.deb` and checksum manifest. The current
-`main` source adds three read-only `tx manager` commands, but the stable v2.0.0
-package does not include them; a background manager service and graphical
-Control Center are not implemented. See the
+Current source adds three read-only `tx manager` commands and `tx manager serve`
+for a foreground-only local Unix-socket API. The stable v2.0.0 package does
+not include them; a background supervisor and graphical Control Center are
+not implemented. See the
 [Termux APT guide](docs/TERMUX-APT.md) for channel details and the
 [v2 release report](docs/release/V2-RELEASE-REPORT.md) for publication and current-state evidence. HTP/HMX,
 QNN and wider accelerator qualification remain experimental or follow-up work;

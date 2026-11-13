@@ -6,10 +6,12 @@ lang: "en"
 
 ## Native Control Center
 
-**Status: DESIGNED.** The Control Center is a Termux-native host application
-and local service. It is not an XFCE app and never runs inside PRoot. The
-manager and CLI remain functional if the Control Center is stopped or
-uninstalled.
+**Status: PARTIAL IMPLEMENTATION.** The read-only manager service is available
+as an explicit foreground Unix-socket process (`tx manager serve`). The
+graphical Control Center, HTTP adapter, and supervisor integration remain
+unimplemented. The Control Center is a Termux-native host application, not an
+XFCE app inside PRoot. The manager and CLI remain functional if the service is
+stopped.
 
 The native workspace reserves display `:0`; guest desktop displays begin at
 `:1` and are allocated independently. See
@@ -17,9 +19,10 @@ The native workspace reserves display `:0`; guest desktop displays begin at
 
 ## Process model
 
-- `txd` is a per-Termux-user, foreground-capable service managed by Termux
-  runit where available. It binds only to a Unix-domain socket under a
-  private `$PREFIX/var/lib/ternux/control/` directory.
+- The current service runs in the foreground only when explicitly invoked by
+  `tx manager serve`. It binds a Unix-domain socket under the private
+  `$PREFIX/var/lib/ternux/control/` directory. Termux runit integration is a
+  later, opt-in milestone.
 - The local web UI binds to loopback only and obtains a short-lived session
   token from the service. No public or LAN listener is enabled by default.
 - Native Android UI is a future client of the same versioned manager API; it
@@ -44,7 +47,7 @@ require a session token and an origin check. Socket/file permissions are
 limited to the Termux app UID. The service never accepts a guest-provided
 filesystem path without resolving it beneath an allowlisted root.
 
-## Startup and recovery
+## Future startup and recovery
 
 `txd` starts only after Termux is available; it does not start a desktop or
 load a model. Health checks are bounded and do not poll sensors. If the UI

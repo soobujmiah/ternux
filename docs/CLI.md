@@ -55,11 +55,13 @@ payload schemas are `docs/v3/schemas/manager-status-v1.schema.json`,
 `docs/v3/schemas/manager-guests-v1.schema.json`, and
 `docs/v3/schemas/manager-capabilities-v1.schema.json`. The capability list is
 generated from the same operation allowlist used by dispatch. Unknown
-operations and unexpected arguments fail closed. These are CLI payloads; a
-local manager API service is not implemented yet.
+operations and unexpected arguments fail closed. For a local read-only socket
+API, run `tx manager serve`; it stays in the foreground until Ctrl-C, uses a
+private Unix socket, and exposes no network listener. It does not auto-start
+and requires the optional Termux package `python`.
 
-**Availability:** these commands are in the current `main` source checkout;
-they are not in the released v2.0.0 APT package. On a v2.0.0 installation,
+**Availability:** these commands and the socket service are in the current
+source checkout; they are not in the released v2.0.0 APT package. On a v2.0.0 installation,
 `tx manager` returns `Unknown command: manager`. To inspect the current source
 from the repository root, run:
 
@@ -434,7 +436,7 @@ ternux uninstall [session|launcher|state|container|host-cli|all] [--yes]
 Options menu:
 - 1 / `session` — stop the desktop and remove stale sockets
 - 2 / `launcher` — remove `~/x.sh` and the delimited shell-alias blocks
-- 3 / `state` — remove ternux state and logs (not the container)
+- 3 / `state` — remove Ternux state, logs and stopped manager socket data (not the containers)
 - 4 / `container` — delete the Debian container and everything inside it
 - 5 / `all` — remove Ternux components, including host CLI and its update backups
 - 6 / `host-cli` — remove only the Termux-side Ternux CLI

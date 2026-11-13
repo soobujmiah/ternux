@@ -1,8 +1,8 @@
 # Ternux current-state audit
 
-**Audit snapshot:** 2026-11-13, 12:26 UTC
+**Audit snapshot:** 2026-11-13, 14:07 UTC
 **Repository:** `soobujmiah/ternux`
-**Main at snapshot:** `13f966eb987fddcb720809d07dbbe89c78860fc9`
+**Main at snapshot:** `087f93358c92def86e55baa89ffeac6979e7a588`
 **Latest stable release:** `v2.0.0`, tag target `9106b04fc8627ae98b1d63c9912a28c8a4677441`
 
 This is a dated audit, not a claim that the device or repository remains in this
@@ -28,29 +28,20 @@ release tag remains pinned to its release commit even though `main` has advanced
 
 ## Source, package, and website state
 
-At the snapshot, `main` was `13f966eb987fddcb720809d07dbbe89c78860fc9`. The
-product source commit immediately before the generated-state-only merge was
-`1107f790e5b5368530b7218c41121d055cf39ccd`; it added bilingual installation
-paths and current v2/v3 status to the website. Pages deployment
-[`43421466805`](https://github.com/soobujmiah/ternux/actions/runs/43421466805)
-completed successfully and preserved the signed stable and RC APT trees. The
-current live pages expose curl, wget, signed-APT bootstrap commands, Termux
-companion-app links, and release/roadmap status. Generated PR #203 synchronized
-that source commit's machine state. On merge commit `13f966e`, exact-main
-Validate run
-[`43421436113`](https://github.com/soobujmiah/ternux/actions/runs/43421436113),
-Termux APT artifact run
-[`43421436061`](https://github.com/soobujmiah/ternux/actions/runs/43421436061),
-and repository-state contract run
-[`43421436003`](https://github.com/soobujmiah/ternux/actions/runs/43421436003)
-passed.
+At the snapshot, remote `main` was
+`087f93358c92def86e55baa89ffeac6979e7a588`, after PR #207 synchronized
+generated repository state. PR #204 merged the doctor active-guest and Ubuntu
+Mesa-overlay detection fixes. Exact-main validation and the Pages deployment
+completed successfully at that source head. The current working tree adds the
+foreground read-only service and its tests; that change is not on `main` until
+review and merge.
 
 The released 2.0.0 host package does **not** contain the newer source-side
 `tx manager` JSON interface. On the device, `tx manager status --json` returns
-`Unknown command: manager`. Running `bin/ternux manager status|guests|capabilities
---json` from the audited `main` checkout succeeds and reports three read-only
-operations. Neither result is a running manager service: no Unix-socket service
-or graphical Control Center is implemented.
+`Unknown command: manager`. The current checkout adds three read-only manager
+operations and an explicit foreground Unix-socket service. This is source
+implementation only; the graphical Control Center and service supervisor are
+not implemented.
 
 ## Device snapshot
 
@@ -77,14 +68,18 @@ with five ADRs. ADR-0005 reserves `:0` for the native Termux workspace and
 assigns Debian/Ubuntu/Alpine `:1`/`:2`/`:3` for v3; current v2 sessions remain
 on their existing displays until explicit migration. The source includes three read-only native manager CLI
 operations. The stable installed 2.0.0 package does not include those newer
-source operations. The socket service, authorization/session runtime, GUI, and
-guest lifecycle mutations remain designed or deferred, not implemented.
+source operations. The socket service is now implemented and verified from
+source; authorization/session runtime, GUI, supervisor integration, and guest
+lifecycle mutations remain open.
 
-A source audit also found two diagnostic defects now under correction: doctor can follow stale saved distro state instead of the active guest, and Ubuntu renderer/Vulkan detection can miss the isolated Mesa overlay when its optional library-path marker is absent. The fix is in the working branch and has focused regression coverage; it is not yet part of main or the installed package.
+The doctor active-guest selection and Ubuntu Mesa-overlay detection fixes
+merged in PR #204 and are in main; the installed stable package remains v2.0.0
+and does not contain them. The socket transport was exercised on-device at
+13:39 UTC and in six integration tests; no existing guest session was
+restarted. See the device verification record for the exact scope.
 
-The next implementation milestone is the native read-only Unix-socket service
-with private socket permissions, schema validation, explicit opt-in startup,
-and device verification that does not disturb existing guest sessions.
+The next implementation milestone is the native Control Center client and
+service lifecycle, preserving v2 guest displays until staged migration.
 
 ## Audit index
 

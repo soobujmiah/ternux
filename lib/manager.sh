@@ -209,5 +209,15 @@ tnx_cmd_manager() {
   local action="${1:-}"
   [ -n "$action" ] || { tnx_fail "Usage: tx manager status|guests|capabilities [--json]"; return 2; }
   shift
+  if [ "$action" = serve ]; then
+    [ "$#" -eq 0 ] || { tnx_fail "Usage: tx manager serve"; return 2; }
+    local daemon="${_TNX_LIB_DIR}/managerd.py"
+    [ -f "$daemon" ] || { tnx_fail "Manager service is missing: $daemon"; return 69; }
+    if ! command -v python3 >/dev/null 2>&1; then
+      tnx_fail "The optional manager service needs Python 3. Install it with: pkg install python"
+      return 69
+    fi
+    exec python3 "$daemon" serve
+  fi
   tnx_manager_dispatch "manager.$action" "$@"
 }

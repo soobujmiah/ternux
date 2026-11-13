@@ -6,7 +6,7 @@ lang: "en"
 
 ## Project roadmap
 
-**Last reviewed:** 2026-11-13 12:26 UTC. **State:** living project record.
+**Last reviewed:** 2026-11-13 14:07 UTC. **State:** living project record.
 
 ## Released
 
@@ -25,9 +25,9 @@ lang: "en"
    published. ADR-0005 reserves native `:0` and assigns Debian/Ubuntu/Alpine
    guest displays `:1`/`:2`/`:3` for v3; existing v2 sessions are preserved. Keep reviewing these contracts as the implementation proves
    assumptions against the live native Termux runtime.
-2. The current source has three read-only native manager CLI operations; the
-   released 2.0.0 APT package does not include them. Implement the opt-in native
-   manager service/API without a guest dependency.
+2. Current source has three read-only native manager CLI operations and a
+   device-tested foreground Unix-socket transport; released 2.0.0 does not
+   include them. Next build display allocation and the native Control Center.
 3. Add a secured native Control Center client while preserving CLI parity.
 4. Connect workspace, compute, AI, and Device Bridge through versioned
    interfaces; qualify each capability independently.
@@ -38,7 +38,5 @@ The phase gates are in the [v3 roadmap](../v3/IMPLEMENTATION-ROADMAP.md).
 
 ## Current next action
 
-Start the native read-only Unix-socket service as an explicit, non-autostarting
-vertical slice. Enforce the existing request/response schemas and private
-socket permissions, then verify it on device without restarting the three
-existing guest sessions. See [next actions](NEXT-ACTIONS.md).
+Build the v3 display registry and native Termux workspace without changing
+live v2 guest displays. See [next actions](NEXT-ACTIONS.md).

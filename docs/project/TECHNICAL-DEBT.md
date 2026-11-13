@@ -6,12 +6,12 @@ lang: "en"
 
 ## Technical debt
 
-**Last reviewed:** 2026-11-13 12:26 UTC. This list separates verified constraints from
+**Last reviewed:** 2026-11-13 14:07 UTC. This list separates verified constraints from
 future architectural work.
 
 | Item | Impact | Evidence / disposition |
 |---|---|---|
-| Ternux CLI is a shell-oriented host manager | Harder to expose a rich local API and structured jobs | v3 native manager contract is designed; no service implementation yet |
+| Ternux CLI is a shell-oriented host manager | Rich local UI and structured jobs are not yet available | Read-only foreground Unix-socket transport now exists; HTTP adapter, service supervision, jobs, and UI remain open |
 | Distro installation logic contains package-family-specific branching | New profiles can regress existing guests | Keep Debian/Ubuntu/Alpine as regression matrix; v3 recipe adapter is designed |
 | IBus physical Ctrl+Space evidence is inconclusive | Config/helper can work while the physical key route fails | Preserve as a release limitation until physical-device event evidence closes it |
 | Theme coverage differs by toolkit and client-side decorations | A selected GTK/XFWM theme does not guarantee every app's custom UI | Add per-toolkit acceptance probes; don't claim universal coverage |

@@ -1,6 +1,6 @@
 # Ternux feature and qualification matrix
 
-**Audit snapshot:** 2026-11-13, 12:26 UTC. This matrix applies to Ternux
+**Audit snapshot:** 2026-11-13, 14:07 UTC. This matrix applies to Ternux
 v2.0.0 on the documented Redmi Turbo 4 Pro reference device unless a row says
 otherwise. “Installed”, “detected”, “initialized”, “executed correctly”, and
 “measured” are separate evidence levels.
@@ -11,8 +11,8 @@ Zink/Turnip. Ubuntu also reported Zink/Turnip when queried with the running
 session's environment; the default doctor path falsely reported software
 fallback because its optional overlay library-path marker was absent. An older
 saved `archlinux` selection also caused default doctor to report Debian
-missing, despite the active Debian desktop. Regression fixes are in the current
-working branch, not yet in main or the released package.
+missing, despite the active Debian desktop. Regression fixes merged in PR #204
+and are in current main; the released package remains unchanged.
 
 ## Implemented and verified
 
@@ -34,13 +34,13 @@ working branch, not yet in main or the released package.
 | Theme, window fit, and application UI | Earlier live evidence covers GTK/XFCE, titlebar, oversized-window fitting, and tested Firefox controls | Not every toolkit, custom titlebar, menu icon, or future third-party app is covered; not visually rechecked in this snapshot |
 | Android camera still capture and microphone recording apps | Host Termux:API-backed app implementations and permission/lifecycle code exist | This audit did not capture a photo or record audio; no continuous camera stream or guest webcam device is established |
 | Native manager read-only JSON CLI | Current `main` source successfully returns status, guest, and capability payloads; schema-focused tests pass | The installed v2.0.0 package returns `Unknown command: manager`; source checkout evidence does not promote the released package |
+| Native Unix-socket manager service | Explicit foreground, read-only service implemented in the working source; device and integration-tested | Not in released v2.0.0 package; no supervisor or GUI |
 | CPU/Vulkan LLM workload | Optional installer path and separate device evidence exist for the declared workload/model profile | Preview/optional scope; no broad model, memory, performance, or device guarantee |
 
 ## Documented but not implemented
 
 | Capability | Current state |
 |---|---|
-| Native Unix-socket manager service | API and security contract designed; no running service or socket endpoint |
 | Native Termux Control Center GUI | Mobile-first host-side architecture and UX specified; graphical client not implemented |
 | Service authorization/session and HTTP loopback adapter | Designed; no service runtime, session token enforcement, CSRF handling, or web client |
 | Guest lifecycle mutations through the v3 API | Designed; current v3 CLI payloads are read-only |

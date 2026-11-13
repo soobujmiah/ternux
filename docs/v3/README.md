@@ -6,12 +6,13 @@ lang: "en"
 
 ## Ternux v3 architecture baseline
 
-**Document status: DESIGNED — implementation is not implied.** This set turns
-the owner-approved v3 direction into reviewable component boundaries,
-interfaces, security rules, and acceptance criteria. It does not change the
-v2 release contract. Current implementation and release evidence are tracked
-in the [project status](../project/IMPLEMENTATION-STATUS.md) and [v2 release
-record](../V2-RELEASE-REPORT.md).
+**Architecture status: ACCEPTED DESIGN; implementation is partial.** This set
+turns the owner-approved v3 direction into reviewable component boundaries,
+interfaces, security rules, and acceptance criteria. The read-only manager
+CLI and explicit Unix-socket service now exist in source; the Control Center
+UI and remaining v3 phases do not. It does not change the v2 release contract.
+Current implementation and release evidence are tracked in the [project
+status](../project/IMPLEMENTATION-STATUS.md) and [v2 release record](../V2-RELEASE-REPORT.md).
 
 ## Documents
 

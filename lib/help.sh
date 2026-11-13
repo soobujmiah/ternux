@@ -80,18 +80,23 @@ HELPEOF
 tnx_help_manager() {
   cat <<'HELP'
 Usage: tx manager status|guests|capabilities [--json]
+       tx manager serve
 
-Read-only native Termux manager operations. This direct CLI path works without
-the future Control Center service and does not start or modify guest sessions.
+Read-only native Termux manager operations. Direct commands work without the
+optional socket service and do not start or modify guest sessions.
 
   tx manager status --json   Manager availability and active desktop names
   tx manager guests --json   Installed guests, desktop profile and display
   tx manager capabilities   List the operations implemented by this CLI core
+  tx manager serve          Run the optional read-only local API in foreground
 
 JSON payloads use schema version 1.0.0. A missing proot-distro command is
 reported as unavailable, not as an empty guest list.
 Unknown operations and arguments are rejected. The capability list is built
 from the same operation registry used by dispatch.
+The service listens only on a private Termux Unix socket and exits on Ctrl-C.
+It needs the optional Termux Python package (`pkg install python`). It does not
+auto-start, expose a network port, or mutate guests.
 HELP
 }
 

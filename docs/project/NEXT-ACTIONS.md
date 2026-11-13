@@ -6,31 +6,26 @@ lang: "en"
 
 ## Next actions
 
-**Last reviewed:** 2026-11-13 12:26 UTC. This list is ordered by dependency and includes
+**Last reviewed:** 2026-11-13 14:07 UTC. This list is ordered by dependency and includes
 only work that remains open.
 
-1. Preserve the accepted native-first display contract: native Termux `:0`,
-   Debian `:1`, Ubuntu `:2`, Alpine `:3`; build the collision-checked
-   registry and staged migration before changing any live v2 display.
-2. Implement and test the native Unix-socket service for the three existing
-   read-only manager operations. Enforce the v1 request/response/error schemas,
-   bounded input, one-response-per-connection behavior, and Termux-UID-private
-   socket directory/file permissions. Keep service start explicit; do not add
-   boot autostart in this milestone. Test malformed and oversized requests,
-   wrong schema versions, unknown operations, concurrent clients, client
-   disconnects, stale socket cleanup, and restart recovery.
-3. Add service authorization/session runtime and verify local Web UI origin,
-   token, and CSRF behavior before any mutation endpoint exists.
-4. Implement durable request idempotency and owner-rooted path resolution;
-   test duplicate requests, traversal, symlink races, service restart, and
-   client disconnects before enabling mutations.
-5. Update this page, implementation status, technical debt, and README/site
-   navigation in the same change as each visible capability.
-6. After the native core and service boundary pass acceptance, choose the
-   first guest lifecycle action and exercise start/status/stop against a
-   disposable test guest.
+1. Implement the collision-checked display registry for native Termux `:0`,
+   Debian `:1`, Ubuntu `:2`, Alpine `:3`, and serial future assignments. Test
+   collisions and stale records without changing current live display IDs.
+2. Build the native Termux workspace and mobile-first Control Center client on
+   `:0`, starting with read-only status and guest selection. Preserve the
+   running v2 guest sessions until an explicit staged migration is ready.
+3. Add an opt-in supervisor/lifecycle for the manager socket, with startup,
+   stop, crash recovery, and update tests that never restart guest sessions.
+4. Before adding mutations or a browser adapter, finish authorization, session
+   token, origin, and CSRF checks; then implement idempotent guest lifecycle
+   jobs with durable progress and safe cancellation.
+5. Update this page, implementation status, technical debt, README/site
+   navigation, and evidence reports with each capability.
+6. Continue Workspace, Compute, AI, and Device Bridge implementation under
+   their existing acceptance criteria and separate release evidence.
 
-The current checkout already implements the read-only JSON operations in the
-source CLI; the released 2.0.0 package does not yet include them. Keep that
-source/package boundary visible. This list does not imply that a release or
-publication has been approved.
+The read-only Unix-socket service is source-implemented and device-verified,
+but is not included in released 2.0.0. Keep that source/package boundary
+visible. This list does not imply that a release or publication has been
+approved.

@@ -65,6 +65,9 @@ jobs:
       - name: Run focused regressions
         run: bash tests/focused.sh
 
+      - name: Exercise the read-only manager socket
+        run: python3 tests/manager_service.py
+
       - name: Run multi-distro lifecycle and shortcut matrix
         run: bash tests/distro_multi_guest.sh
 
