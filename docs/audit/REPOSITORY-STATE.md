@@ -1,8 +1,8 @@
 # Ternux repository and release state
 
-**Audit snapshot:** 2026-11-13, 11:04 UTC
+**Audit snapshot:** 2026-11-13, 12:26 UTC
 **Canonical repository:** `https://github.com/soobujmiah/ternux`
-**Main at snapshot:** `ed326b58d76b8abba05434eb516135b84d7d3858`
+**Main at snapshot:** `13f966eb987fddcb720809d07dbbe89c78860fc9`
 **Released v2 source:** `9106b04fc8627ae98b1d63c9912a28c8a4677441`
 
 ## GitHub state
@@ -11,10 +11,12 @@
 - The current main source adds v3 read-only manager JSON commands and refreshed
   website/docs after the release tag; these changes do not alter the immutable
   v2.0.0 tag or stable package.
-- PR #200 added installation routes and current project state to both homepages.
-  It merged as `4b44e5a7799e8518f89edb910c6b7b79f938b6de` after required checks
-  passed.
-- Generated-state PR #201 merged as `ed326b58d76b8abba05434eb516135b84d7d3858`.
+- PR #202 added bilingual installation routes and current v2/v3 state to both
+  homepages. It merged as `1107f790e5b5368530b7218c41121d055cf39ccd` after
+  required checks passed; Pages deployment
+  [43421466805](https://github.com/soobujmiah/ternux/actions/runs/43421466805)
+  succeeded.
+- Generated-state PR #203 merged as `13f966eb987fddcb720809d07dbbe89c78860fc9`.
   Its diff contained only deterministic `.repo/` files. The generated state
   describes the source commit that triggered the sync; it was not hand-edited.
 - At the snapshot, unrelated open PRs were Dependabot #42, #44, #45 and the
@@ -39,22 +41,24 @@
   package before the trust bootstrap unless Ternux is accepted into an official
   Termux repository.
 - Public website deployment
-  [`43411586659`](https://github.com/soobujmiah/ternux/actions/runs/43411586659)
+  [`43421466805`](https://github.com/soobujmiah/ternux/actions/runs/43421466805)
   succeeded for the updated site and preserved both published signed APT
   channels. The bootstrap endpoint returned HTTP 200 in the post-deploy check.
 
 ## Exact-main CI and generated-state evidence
 
-For source commit `4b44e5a7799e8518f89edb910c6b7b79f938b6de`, the website-change
-PR checks passed, including the full `Validate` workflow and hosted Astro build.
-The main-branch `Validate` run was
-[`43411550433`](https://github.com/soobujmiah/ternux/actions/runs/43411550433),
-the Termux package artifact run was
-[`43411550393`](https://github.com/soobujmiah/ternux/actions/runs/43411550393),
-and Repo Knowledge Sync run
-[`43411550426`](https://github.com/soobujmiah/ternux/actions/runs/43411550426)
-completed successfully. Generated PR #201 synchronized that commit's machine
-state. On generated-state merge `ed326b58d76b8abba05434eb516135b84d7d3858`,
+For product source commit `1107f790e5b5368530b7218c41121d055cf39ccd`, the website
+PR checks passed, including the full `Validate` workflow and hosted Astro
+build. Exact-commit Validate run
+[`43421436113`](https://github.com/soobujmiah/ternux/actions/runs/43421436113),
+Termux package artifact run
+[`43421436061`](https://github.com/soobujmiah/ternux/actions/runs/43421436061),
+repository contract run
+[`43421436003`](https://github.com/soobujmiah/ternux/actions/runs/43421436003),
+and knowledge sync run
+[`43421436238`](https://github.com/soobujmiah/ternux/actions/runs/43421436238)
+passed. Generated PR #203 synchronized that commit's machine state. On
+generated-state merge `13f966eb987fddcb720809d07dbbe89c78860fc9`,
 exact-main Validate run
 [`43412683916`](https://github.com/soobujmiah/ternux/actions/runs/43412683916),
 Termux APT artifact run
@@ -62,7 +66,8 @@ Termux APT artifact run
 and repository-state contract run
 [`43412683675`](https://github.com/soobujmiah/ternux/actions/runs/43412683675)
 passed. The generated snapshot intentionally records the triggering product
-commit `4b44e5a...`; its state-only PR is the subsequent main commit.
+commit `1107f790e5b5368530b7218c41121d055cf39ccd`; its state-only PR is the
+subsequent main commit.
 
 At this audit, local `python3 -m tools.repo_knowledge verify` returned
 `VERIFY: 0 findings`. The machine-generated `.repo/STATUS.md` is governed by

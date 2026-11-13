@@ -6,7 +6,7 @@ lang: "en"
 
 ## Known limitations
 
-**Last reviewed:** 2026-11-13 11:04 UTC.
+**Last reviewed:** 2026-11-13 12:26 UTC.
 
 - v2 device qualification is for one named Android/Adreno device. It does not
   establish equivalent behavior on other SoCs, GPUs, Android versions, or
@@ -28,6 +28,10 @@ lang: "en"
   architecture are designed but not implemented as of this record. Three
   read-only manager JSON operations exist in the current source checkout, but
   are absent from the released v2.0.0 package.
+- The installed v2.0.0 doctor can select a stale saved distro instead of the
+  active guest, and Ubuntu's default renderer diagnostic can miss its isolated
+  Mesa overlay when an optional path marker is absent. Source fixes are under
+  review; they are not in the installed stable package yet.
 
 See [device verification](DEVICE-VERIFICATION.md) and the
 [current v2 report](../release/V2-RELEASE-REPORT.md) and

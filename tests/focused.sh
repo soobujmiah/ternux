@@ -267,6 +267,65 @@ else
   not_ok "renderer detection passes the active display into the Debian guest"
 fi
 
+# Doctor follows an active guest even when an older global selection is stale.
+if env TERNUX_STATE_DIR="$TMP/state-doctor-active-guest" HOME="$TMP/home-doctor-active-guest" \
+  bash -c '
+    mkdir -p "$TERNUX_STATE_DIR/session"
+    printf "distro=archlinux\\n" > "$TERNUX_STATE_DIR/state"
+    printf "ubuntu\\n" > "$TERNUX_STATE_DIR/session/distro"
+    . "$1/lib/doctor.sh"
+    tnx_proot_container_installed(){ [ "$1" = ubuntu ]; }
+    tnx_has_cmd(){ return 0; }
+    tnx_detect_phantom_killer(){ echo disabled; }
+    tnx_require_termux(){ return 0; }
+    TERNUX_JSON=1
+    out="$(tnx_cmd_doctor host --quick)" || exit
+    printf "%s" "$out" | grep -Fq "ubuntu container installed" || exit
+    ! printf "%s" "$out" | grep -Fq "Debian container missing"
+  ' _ "$ROOT"; then
+  ok "doctor diagnostics follow the active Ubuntu guest instead of stale saved distro state"
+else
+  not_ok "doctor diagnostics follow the active Ubuntu guest instead of stale saved distro state"
+fi
+
+# A deliberate per-command selection overrides the active-session default.
+if env TERNUX_STATE_DIR="$TMP/state-doctor-explicit-guest" HOME="$TMP/home-doctor-explicit-guest" \
+  TERNUX_DISTRO=debian bash -c '
+    mkdir -p "$TERNUX_STATE_DIR/session"
+    printf "ubuntu\\n" > "$TERNUX_STATE_DIR/session/distro"
+    . "$1/lib/doctor.sh"
+    tnx_proot_container_installed(){ [ "$1" = debian ]; }
+    tnx_has_cmd(){ return 0; }
+    tnx_detect_phantom_killer(){ echo disabled; }
+    tnx_require_termux(){ return 0; }
+    TERNUX_JSON=1
+    out="$(tnx_cmd_doctor host --quick)" || exit
+    printf "%s" "$out" | grep -Fq "debian container installed" || exit
+    ! printf "%s" "$out" | grep -Fq "ubuntu container installed"
+  ' _ "$ROOT"; then
+  ok "doctor honors an explicit TERNUX_DISTRO over the active session"
+else
+  not_ok "doctor honors an explicit TERNUX_DISTRO over the active session"
+fi
+
+# Ubuntu's overlay detector must recover its known library layout when the
+# optional mesa-overlay-libdir marker is absent or points outside the overlay.
+if python3 - "$ROOT/lib/detect.sh" "$ROOT/lib/doctor.sh" <<'PY'
+import pathlib, sys
+detect = pathlib.Path(sys.argv[1]).read_text()
+doctor = pathlib.Path(sys.argv[2]).read_text()
+fallback = 'for candidate in "$overlay/lib/aarch64-linux-gnu" "$overlay/lib"; do'
+assert detect.count(fallback) == 2
+assert fallback in doctor
+assert detect.count('VK_DRIVER_FILES="$overlay/share/vulkan/icd.d/ternux_freedreno_icd.json"') >= 2
+assert 'LIBGL_DRIVERS_PATH="$overlay_libdir/dri"' in detect
+PY
+then
+  ok "renderer and Vulkan probes recover the isolated Mesa overlay library path"
+else
+  not_ok "renderer and Vulkan probes recover the isolated Mesa overlay library path"
+fi
+
 if env TERMUX_APP__APP_VERSION_NAME= TERMUX_VERSION=0.119.0-beta.3 \
   bash -c '. "$1/lib/detect.sh"; [ "$(tnx_detect_termux_version)" = "0.119.0-beta.3" ]' _ "$ROOT" &&
   env TERMUX_APP__APP_VERSION_NAME=0.119.0-beta.4 TERMUX_VERSION=0.119.0-beta.3 \

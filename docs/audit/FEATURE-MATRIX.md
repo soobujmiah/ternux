@@ -1,9 +1,18 @@
 # Ternux feature and qualification matrix
 
-**Audit snapshot:** 2026-11-13, 11:04 UTC. This matrix applies to Ternux
+**Audit snapshot:** 2026-11-13, 12:26 UTC. This matrix applies to Ternux
 v2.0.0 on the documented Redmi Turbo 4 Pro reference device unless a row says
 otherwise. “Installed”, “detected”, “initialized”, “executed correctly”, and
 “measured” are separate evidence levels.
+
+The 12:20 UTC read-only diagnostic recheck confirmed all three live guests
+remain READY. Debian and Alpine probes used their session displays and reported
+Zink/Turnip. Ubuntu also reported Zink/Turnip when queried with the running
+session's environment; the default doctor path falsely reported software
+fallback because its optional overlay library-path marker was absent. An older
+saved `archlinux` selection also caused default doctor to report Debian
+missing, despite the active Debian desktop. Regression fixes are in the current
+working branch, not yet in main or the released package.
 
 ## Implemented and verified
 

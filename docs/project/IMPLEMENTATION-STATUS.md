@@ -6,7 +6,7 @@ lang: "en"
 
 ## Implementation status
 
-**Last reviewed:** 2026-11-13 11:04 UTC. This page reports repository and device state;
+**Last reviewed:** 2026-11-13 12:26 UTC. This page reports repository and device state;
 it does not upgrade a design status into an implementation claim.
 
 | Area | State | Evidence / next gate |
@@ -19,9 +19,16 @@ it does not upgrade a design status into an implementation claim.
 | Native Control Center | DESIGNED; not implemented | v3 architecture docs |
 | Native manager read-only CLI payloads | IMPLEMENTED in current source; source-device verified | `TERNUX_LIB_DIR="$PWD/lib" bash ./bin/ternux manager ... --json` returned status/guest/capability payloads on this device. The released stable APT package remains 2.0.0 and `tx manager` there returns `Unknown command: manager`; source verification does not imply package delivery |
 | Native manager API service / Control Center | DESIGNED; not implemented | v1 request/response/error schemas and negative contract fixtures are tested; no Unix socket service, HTTP adapter, authorization/session runtime, or graphical client is implemented |
+| v3 display allocation | ACCEPTED DESIGN; not implemented | Native workspace `:0`; Debian/Ubuntu/Alpine `:1`/`:2`/`:3`; migration must preserve current v2 sessions until staged validation |
 | Compute/AI orchestration v3 | DESIGNED; existing v2 optional artifacts remain separate | No v3 runtime qualification claim |
 | Camera/microphone Device Bridge v3 | DESIGNED; no v3 broker implementation | Existing v2 limitations remain in the audit docs |
 | v3 distro-profile framework | DESIGNED; not implemented | v2 Debian/Ubuntu/Alpine behavior remains the compatibility baseline |
+
+The current working branch includes unmerged fixes for stale-distro doctor
+selection and Ubuntu Mesa-overlay detection. Focused suite passes 185/185; a
+source-only on-device `doctor --quick --json` returned status `ok` for the
+default active Debian guest and an explicit Ubuntu selection. These fixes are
+not in current main or the installed stable v2 package.
 
 ## Active limitations
 

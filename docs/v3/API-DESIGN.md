@@ -44,7 +44,7 @@ to start it.
 ## Resource shapes
 
 ```json
-{"id":"guest-opaque-id","name":"debian","distro":"debian","state":"RUNNING","display":0}
+{"id":"guest-opaque-id","name":"debian","distro":"debian","state":"RUNNING","display":1}
 {"id":"job-opaque-id","kind":"guest.start","state":"RUNNING","phase":"desktop-ready","progress":0.8,"cancelable":false}
 {"code":"GUEST_NOT_FOUND","message":"Guest 'name' is not installed.","retry":"install-or-select-another","request_id":"opaque-id"}
 ```

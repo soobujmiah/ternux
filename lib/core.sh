@@ -194,8 +194,9 @@ tnx_storage_guest_args() {
   done < "$file"
 }
 
-# Run a command in an isolated guest. Android shared storage is opt-in and
-# scoped to directories recorded by `ternux storage grant`.
+# Run a command in an isolated guest. The canonical Android shared-storage
+# mount is available at /sdcard when Termux already has Android permission;
+# additional subdirectory grants remain scoped to explicit user selections.
 tnx_guest_login() {
   local timeout_seconds=""
   local -a login_args=(--isolated)
