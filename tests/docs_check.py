@@ -239,18 +239,18 @@ if len(nav_sections) == 2:
     en_urls = re.findall(r'\[\s*"[^"]+"\s*,\s*"([^"]+)"\s*\]', en_part)
     bn_urls = re.findall(r'\[\s*"[^"]+"\s*,\s*"([^"]+)"\s*\]', bn_part)
     check(len(en_groups) == len(bn_groups) == 4, "documentation navigation must have four mirrored groups")
-    check(len(en_urls) == len(bn_urls) == 19, "documentation navigation must have 19 destinations per language")
+    check(len(en_urls) == len(bn_urls) == 20, "documentation navigation must have 20 destinations per language")
     expected_bn = ["/bn" + url for url in en_urls]
     expected_bn[expected_bn.index("/bn/docs/project/PROJECT-ROADMAP.html")] = "/bn/docs/V3-ARCHITECTURE.html"
     check(expected_bn == bn_urls, "English/Bengali navigation destinations are not structural mirrors")
 
-# Nested v3/project pages are public routes with a Bengali architecture
-# overview as their language counterpart. Validate the source and built route
+# Nested v3/project/release pages are public routes. Validate the source and built route
 # instead of silently publishing files that the site's former flat route could
 # not serve.
 nested_pages = [
     *sorted((ROOT / "docs/v3").rglob("*.md")),
     *sorted((ROOT / "docs/project").rglob("*.md")),
+    *sorted((ROOT / "docs/release").rglob("*.md")),
 ]
 bn_v3_overview = ROOT / "bn/docs/V3-ARCHITECTURE.md"
 check(bn_v3_overview.exists(), "missing Bengali v3 architecture overview")
@@ -328,7 +328,8 @@ check("data-copy" in read(ROOT / "src/layouts/SiteLayout.astro"), "site shell: c
 install_commands = (
     "pkg update -y && pkg install -y curl && curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash",
     "pkg update -y && pkg install -y wget && wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash",
-    "pkg update -y && pkg install -y curl gnupg && curl -fsSLo $TMPDIR/ternux-bootstrap.sh https://soobujmiah.github.io/ternux/apt/bootstrap.sh && bash $TMPDIR/ternux-bootstrap.sh",
+    "pkg update -y && pkg install -y curl gnupg && curl -fsSLo $TMPDIR/ternux-bootstrap.sh https://soobujmiah.github.io/ternux/apt/bootstrap.sh && bash $TMPDIR/ternux-bootstrap.sh && pkg install ternux",
+    "pkg update -y && pkg install -y wget gnupg && wget -qO $TMPDIR/ternux-bootstrap.sh https://soobujmiah.github.io/ternux/apt/bootstrap.sh && bash $TMPDIR/ternux-bootstrap.sh && pkg install ternux",
 )
 for source in ("src/pages/index.astro", "src/pages/bn/index.astro"):
     page = read(ROOT / source)
@@ -337,6 +338,21 @@ for source in ("src/pages/index.astro", "src/pages/bn/index.astro"):
               f"{source}: homepage install button must copy the exact one-line command")
         check(command in page,
               f"{source}: homepage install command display does not match the copy action")
+    for expected in (
+        "https://f-droid.org/packages/com.termux/",
+        "https://f-droid.org/packages/com.termux.api/",
+        "https://f-droid.org/packages/com.termux.boot/",
+        "https://f-droid.org/packages/com.termux.styling/",
+        "https://github.com/termux/termux-x11/releases/tag/nightly",
+        "/docs/MANUAL.html",
+        "/docs/TERMUX-APT.html",
+    ):
+        check(expected in page,
+              f"{source}: missing direct installation resource {expected}")
+check("three read-only manager CLI commands" in read(ROOT / "src/pages/index.astro"),
+      "English homepage status must distinguish current source from released package")
+check("read-only manager CLI command" in read(ROOT / "src/pages/bn/index.astro"),
+      "Bengali homepage status must distinguish current source from released package")
 for page in ("docs/QUICK-START.md", "bn/docs/QUICK-START.md"):
     text = read(ROOT / page)
     check("Debian + Xfce4" not in text,
@@ -450,6 +466,13 @@ try:
     entries = sitemap.findall("s:url", namespace)
     source_only = {ROOT / "docs/SEO.md", ROOT / "docs/index.md"}
     expected_urls = 2 + 2 * sum(english not in source_only for english, _ in pairs)
+    # Public nested release pages are indexable; v3/project pages stay noindex.
+    release_pages = [
+        page
+        for page in (ROOT / "docs/release").rglob("*.md")
+        if page.name not in {"README.md", "SEO.md"}
+    ]
+    expected_urls += 2 * len(release_pages)
     check(len(entries) == expected_urls, f"dist/sitemap.xml: expected {expected_urls} bilingual URLs")
     for entry in entries:
         check(len(entry.findall("x:link", namespace)) == 3, "dist/sitemap.xml: every URL needs en, bn, and x-default alternates")

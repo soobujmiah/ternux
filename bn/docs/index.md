@@ -53,6 +53,7 @@ alt_url: "/docs/"
   <a class="doc-card" href="ARCHITECTURE.html"><span class="doc-card__icon">→</span><strong>আর্কিটেকচার</strong><span>Display, audio, filesystem, process, Zink/Turnip ও VirGL data path।</span></a>
   <a class="doc-card" href="V3-ARCHITECTURE.html"><span class="doc-card__icon">v3</span><strong>V3 architecture</strong><span>Native Control Center, workspace, compute, AI, Device Bridge, security ও acceptance design-এর পরিচিতি।</span></a>
   <a class="doc-card" href="/docs/project/PROJECT-ROADMAP.html"><span class="doc-card__icon">→</span><strong>Project status</strong><span>Implementation, release, device evidence, debt, limitation ও next action-এর live record।</span></a>
+  <a class="doc-card" href="release/V2-RELEASE-REPORT.html"><span class="doc-card__icon">v2</span><strong>Release ও বর্তমান audit</strong><span>মূল release, বর্তমান package, source, website ও device snapshot আলাদা করে দেখুন।</span></a>
   <a class="doc-card" href="V2-RELEASE-READINESS.html"><span class="doc-card__icon">v2</span><strong>v2 release readiness</strong><span>তিনটি supported guest profile, বর্তমান release gate ও তারিখসহ device evidence।</span></a>
   <a class="doc-card" href="ACCELERATOR-RELEASE-PLAN.html"><span class="doc-card__icon">NPU</span><strong>Accelerator release plan</strong><span>CPU, GPU, HTP ও QNN-এর বর্তমান release gate এবং পরে করার কাজ।</span></a>
   <a class="doc-card" href="BENCHMARKS.html"><span class="doc-card__icon">∿</span><strong>প্রমাণ ও বেঞ্চমার্ক</strong><span>সব captured scene value, caveat, boundary ও reproduction step।</span></a>

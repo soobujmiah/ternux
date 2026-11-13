@@ -7,7 +7,7 @@ import RenderBench from "../components/RenderBench.astro";
 
 <SiteLayout
   title="Linux, beyond the desktop"
-  description="A no-root Linux workstation for Android ARM64: Debian, Ubuntu, and Alpine are supported in v2, with 15 named distro recipes available."
+  description="Ternux v2.0.0 is a no-root ARM64 Android Linux workstation with Debian, Ubuntu, and Alpine desktop profiles, copyable installation paths, and a published v3 roadmap."
   canonical="/"
   altUrl="/bn/"
 >
@@ -32,11 +32,13 @@ import RenderBench from "../components/RenderBench.astro";
             Run a Linux desktop on Android without root. Debian, Ubuntu, and
             Alpine are the three supported v2 desktop profiles, with Debian as
             the recommended default. Twelve more named distro recipes are
-            available, but are not qualified for v2 support.
+            available, but are not qualified for v2 support. Device evidence is
+            from one Redmi Turbo 4 Pro; the release report lists its exact
+            coverage.
           </p>
           <div class="hero-actions">
-            <a class="button primary" href="/ternux/docs/QUICK-START.html">
-              DEPLOY YOUR WORKSTATION <span>↗</span>
+            <a class="button primary" href="#install">
+              CHOOSE AN INSTALL PATH <span>↓</span>
             </a>
             <a class="button" href="/ternux/docs/ARCHITECTURE.html">
               EXPLORE THE STACK <span>→</span>
@@ -162,9 +164,10 @@ import RenderBench from "../components/RenderBench.astro";
             <span class="eyebrow">03 / FIRST BOOT</span>
             <h2>Bring your Linux workstation online.</h2>
             <p>
-              Install Termux from a trusted source, then follow the quick-start
-              guide. The setup is explicit, inspectable and designed around the
-              phone's real boundaries. The{" "}
+              Install Termux and Termux:X11 from compatible sources, then use
+              one of the copyable installation paths below. Add-on downloads are
+              linked here too. Keep Termux and its add-ons from the same signing
+              source. The{" "}
               <a href="https://github.com/termux/termux-x11/releases/tag/nightly">
                 Termux:X11 shared-UID debug APK
               </a>
@@ -173,34 +176,60 @@ import RenderBench from "../components/RenderBench.astro";
               Google Play users should use the standard universal debug APK from
               the same release page.
             </p>
-            <p class="install-links">
+            <p
+              class="install-links"
+              aria-label="Termux and companion app downloads"
+            >
+              <a href="https://f-droid.org/packages/com.termux/">
+                Termux · F-Droid ↗
+              </a>
               <a href="https://github.com/termux/termux-app/releases">
-                Termux app ↗
+                Termux · GitHub ↗
               </a>
               <a href="https://github.com/termux/termux-api/releases">
-                Termux:API ↗
+                Termux:API · GitHub ↗
+              </a>
+              <a href="https://f-droid.org/packages/com.termux.api/">
+                Termux:API · F-Droid ↗
               </a>
               <a href="https://github.com/termux/termux-boot/releases">
-                Termux:Boot ↗
+                Termux:Boot · GitHub ↗
+              </a>
+              <a href="https://f-droid.org/packages/com.termux.boot/">
+                Termux:Boot · F-Droid ↗
               </a>
               <a href="https://github.com/termux/termux-styling/releases">
-                Termux:Styling ↗
+                Termux:Styling · GitHub ↗
               </a>
-              <a href="https://github.com/termux/termux-x11/releases">
-                Termux:X11 ↗
+              <a href="https://f-droid.org/packages/com.termux.styling/">
+                Termux:Styling · F-Droid ↗
+              </a>
+              <a href="https://github.com/termux/termux-x11/releases/tag/nightly">
+                Termux:X11 APKs ↗
               </a>
             </p>
             <a class="home-section-link" href="/ternux/docs/INSTALLATION.html">
               READ INSTALLATION NOTES ↗
             </a>
+            <a class="home-section-link" href="/ternux/docs/MANUAL.html">
+              REVIEW THE MANUAL INSTALL ↗
+            </a>
+            <a class="home-section-link" href="/ternux/docs/QUICK-START.html">
+              QUICK START ↗
+            </a>
             <p>
-              Prefer Termux's package manager? Use the signed APT repository for{" "}
-              <code>pkg install ternux</code> after its one-time bootstrap.{" "}
-              <a href="/ternux/docs/TERMUX-APT.html">APT setup guide ↗</a>
+              The signed APT route adds Ternux to Termux's package manager. Its
+              one-time bootstrap verifies the signing key; after that, install
+              the host CLI with <code>pkg install ternux</code>, then provision
+              a guest with <code>tx install</code>. It does not silently install
+              a guest as part of the package command. See the{" "}
+              <a href="/ternux/docs/TERMUX-APT.html">APT setup guide ↗</a>.
+              Termux:API also needs the matching <code>termux-api</code> package
+              inside Termux.
             </p>
           </div>
           <div class="command">
-            <small>TERMUX / SHELL</small>
+            <small>ONE COMMAND · CURL</small>
             <button
               type="button"
               data-copy
@@ -215,11 +244,11 @@ import RenderBench from "../components/RenderBench.astro";
             </code>
           </div>
           <div class="command">
-            <small>SIGNED APT / ONE-TIME SETUP</small>
+            <small>SIGNED APT · CURL BOOTSTRAP</small>
             <button
               type="button"
               data-copy
-              data-copy-value="pkg update -y && pkg install -y curl gnupg && curl -fsSLo $TMPDIR/ternux-bootstrap.sh https://soobujmiah.github.io/ternux/apt/bootstrap.sh && bash $TMPDIR/ternux-bootstrap.sh"
+              data-copy-value="pkg update -y && pkg install -y curl gnupg && curl -fsSLo $TMPDIR/ternux-bootstrap.sh https://soobujmiah.github.io/ternux/apt/bootstrap.sh && bash $TMPDIR/ternux-bootstrap.sh && pkg install ternux"
             >
               COPY
             </button>
@@ -227,15 +256,15 @@ import RenderBench from "../components/RenderBench.astro";
               pkg update -y && pkg install -y curl gnupg && curl -fsSLo
               $TMPDIR/ternux-bootstrap.sh
               https://soobujmiah.github.io/ternux/apt/bootstrap.sh && bash
-              $TMPDIR/ternux-bootstrap.sh
+              $TMPDIR/ternux-bootstrap.sh && pkg install ternux
             </code>
             <small>
-              Then run <code>pkg install ternux</code>. Wget and key
-              verification steps: APT guide.
+              Installs the host CLI; run <code>tx install</code> to choose guest
+              desktops.
             </small>
           </div>
           <div class="command">
-            <small>IF YOU PREFER WGET</small>
+            <small>ONE COMMAND · WGET</small>
             <button
               type="button"
               data-copy
@@ -249,6 +278,26 @@ import RenderBench from "../components/RenderBench.astro";
               | bash
             </code>
           </div>
+          <div class="command">
+            <small>SIGNED APT · WGET BOOTSTRAP</small>
+            <button
+              type="button"
+              data-copy
+              data-copy-value="pkg update -y && pkg install -y wget gnupg && wget -qO $TMPDIR/ternux-bootstrap.sh https://soobujmiah.github.io/ternux/apt/bootstrap.sh && bash $TMPDIR/ternux-bootstrap.sh && pkg install ternux"
+            >
+              COPY
+            </button>
+            <code>
+              pkg update -y && pkg install -y wget gnupg && wget -qO
+              $TMPDIR/ternux-bootstrap.sh
+              https://soobujmiah.github.io/ternux/apt/bootstrap.sh && bash
+              $TMPDIR/ternux-bootstrap.sh && pkg install ternux
+            </code>
+            <small>
+              Installs the host CLI; run <code>tx install</code> to choose guest
+              desktops.
+            </small>
+          </div>
         </div>
       </div>
     </section>
@@ -260,10 +309,13 @@ import RenderBench from "../components/RenderBench.astro";
             <h2>v2 is stable. The v3 foundation is published.</h2>
             <p>
               Ternux 2.0.0 is the current stable release. Debian, Ubuntu and
-              Alpine are the three v2-qualified desktop guests; twelve
-              additional recipes are available without that qualification. The
-              v3 architecture and roadmap are published. Its native manager
-              service and graphical control center are not implemented yet.
+              Alpine are the three v2-supported desktop profiles; physical
+              evidence is from the Redmi Turbo 4 Pro and its tested scope is
+              recorded in the audit. Twelve additional named recipes are
+              available but are not v2-qualified. Current main source includes
+              three read-only manager CLI commands; the stable 2.0.0 package
+              does not. A native service and graphical Control Center are not
+              implemented.
             </p>
           </div>
           <div class="profile-grid">
@@ -287,6 +339,14 @@ import RenderBench from "../components/RenderBench.astro";
               <small>REPOSITORY</small>
               <strong>main</strong>
               <span>Source, issues & changes ↗</span>
+            </a>
+            <a
+              class="profile-card"
+              href="/ternux/docs/release/V2-RELEASE-REPORT.html"
+            >
+              <small>LIVE AUDIT SNAPSHOT</small>
+              <strong>13 Nov</strong>
+              <span>Package, device and website evidence ↗</span>
             </a>
           </div>
         </div>

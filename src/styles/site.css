@@ -167,6 +167,24 @@ a:focus-visible,
 .toplinks a:hover {
   color: var(--cyan);
 }
+.toplinks .install-nav-link {
+  padding: 9px 12px;
+  border: 1px solid #4b8d5e;
+  border-radius: 6px;
+  background: #102217;
+  color: #a9efb9;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    transform 160ms ease;
+}
+.toplinks .install-nav-link:hover {
+  transform: translateY(-1px);
+  border-color: #8bf5a6;
+  background: #16321e;
+  color: #c5ffd1;
+  text-decoration: none;
+}
 .lang-switch {
   border: 1px solid #35515c;
   padding: 6px 10px;
@@ -4579,17 +4597,16 @@ body.lang-bn
   color: #d4c7ff;
 }
 
-/* Lightweight v2 product polish: one-shot reveals, no background animation loops. */
+/* One-shot motion keeps the landing page responsive without perpetual loops. */
 @media (prefers-reduced-motion: no-preference) {
   .js-reveal [data-reveal] {
-    transform: translateY(10px);
+    transform: translateY(14px);
     filter: none;
     transition:
-      opacity 360ms ease-out,
-      transform 360ms cubic-bezier(0.2, 0.8, 0.2, 1);
+      opacity 460ms ease-out,
+      transform 460ms cubic-bezier(0.2, 0.8, 0.2, 1);
   }
   .matrix-field *,
-  .home-hero *,
   .home-hero::after,
   .hero-system-route::before,
   .system-visual *,
@@ -4600,6 +4617,53 @@ body.lang-bn
   .section-head h2::after,
   .article h1::after {
     animation: none !important;
+  }
+  .home-hero .hero-copy > * {
+    opacity: 0;
+    animation: hero-enter 620ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+  .home-hero .hero-copy > :nth-child(2) {
+    animation-delay: 70ms;
+  }
+  .home-hero .hero-copy > :nth-child(3) {
+    animation-delay: 130ms;
+  }
+  .home-hero .hero-copy > :nth-child(4) {
+    animation-delay: 190ms;
+  }
+  .home-hero .hero-copy > :nth-child(5) {
+    animation-delay: 250ms;
+  }
+  .home-hero .matrix-title-text {
+    animation: title-signal 900ms ease-out 180ms 1 both !important;
+  }
+  .home-hero .hero-system-route > span {
+    opacity: 0;
+    animation: hero-enter 480ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+  .home-hero .hero-system-route > span:nth-child(2) {
+    animation-delay: 90ms;
+  }
+  .home-hero .hero-system-route > span:nth-child(3) {
+    animation-delay: 180ms;
+  }
+  .home-hero .hero-system-route > span:nth-child(4) {
+    animation-delay: 270ms;
+  }
+  #install.visible .install-panel .command {
+    animation: hero-enter 520ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+  #install.visible .install-panel .command:nth-of-type(2) {
+    animation-delay: 70ms;
+  }
+  #install.visible .install-panel .command:nth-of-type(3) {
+    animation-delay: 140ms;
+  }
+  #install.visible .install-panel .command:nth-of-type(4) {
+    animation-delay: 210ms;
+  }
+  #install.visible .install-panel .command:nth-of-type(5) {
+    animation-delay: 280ms;
   }
 }
 
@@ -4656,6 +4720,66 @@ body.lang-bn
 .profile-card span {
   color: var(--muted);
   font-size: 11px;
+}
+.install-panel > div:first-child {
+  grid-column: 1 / -1;
+  max-width: 92ch;
+  padding: 0;
+}
+.install-panel > .command {
+  align-self: stretch;
+  min-width: 0;
+  border-radius: 9px;
+  box-shadow: 0 16px 46px #0003;
+}
+.install-panel .command code {
+  display: block;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+.install-panel .command button {
+  border-radius: 6px;
+  transition:
+    color 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease,
+    transform 160ms ease;
+}
+.install-panel .command button:hover,
+.install-panel .command button:focus-visible {
+  color: #07150f;
+  border-color: var(--mint);
+  background: var(--mint);
+  transform: translateY(-1px);
+}
+.install-panel .command button:focus-visible,
+.install-panel .install-links a:focus-visible,
+.install-panel .home-section-link:focus-visible {
+  outline: 2px solid var(--mint);
+  outline-offset: 3px;
+}
+.install-panel .install-links {
+  gap: 10px;
+}
+.install-panel .install-links a {
+  display: inline-flex;
+  min-height: 36px;
+  align-items: center;
+  padding: 7px 10px;
+  border: 1px solid #2a4935;
+  border-radius: 7px;
+  background: #0b1710;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease,
+    transform 160ms ease;
+}
+.install-panel .install-links a:hover {
+  transform: translateY(-1px);
+  border-color: #70c88b;
+  background: #102217;
+  text-decoration: none;
 }
 .ai-report-grid {
   display: grid;
@@ -4738,6 +4862,20 @@ body.lang-bn
   }
   .ai-report-grid {
     grid-template-columns: 1fr;
+  }
+  .install-panel {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .install-panel > div:first-child {
+    grid-column: auto;
+    padding: 0;
+  }
+  .install-panel > .command {
+    padding: 21px 15px;
+  }
+  .install-panel .command code {
+    font-size: 11px;
   }
 }
 @media (prefers-reduced-motion: reduce) {

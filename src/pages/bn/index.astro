@@ -7,7 +7,7 @@ import RenderBench from "../../components/RenderBench.astro";
 
 <SiteLayout
   title="পকেটেই লিনাক্স ওয়ার্কস্টেশন"
-  description="রুট ছাড়া Android ARM64 Linux workstation: v2-তে Debian, Ubuntu ও Alpine সমর্থিত; ১৫টি named distro recipe আছে।"
+  description="Ternux v2.0.0 হলো root ছাড়া ARM64 Android Linux workstation: Debian, Ubuntu ও Alpine desktop profile, copyable install path এবং প্রকাশিত v3 roadmap-সহ।"
   lang="bn"
   canonical="/bn/"
   altUrl="/"
@@ -33,11 +33,12 @@ import RenderBench from "../../components/RenderBench.astro";
             Android ফোনে root ছাড়া Linux desktop চালান। v2-তে Debian, Ubuntu ও
             Alpine—এই তিনটি desktop profile supported; Debian recommended
             default। আরও ১২টি named distro recipe আছে, তবে সেগুলো v2-তে
-            qualified নয়।
+            qualified নয়। Device evidence এক Redmi Turbo 4 Pro থেকে; exact
+            coverage release report-এ আছে।
           </p>
           <div class="hero-actions">
-            <a class="button primary" href="/ternux/bn/docs/QUICK-START.html">
-              ওয়ার্কস্টেশন চালু করুন <span>↗</span>
+            <a class="button primary" href="#install">
+              install পদ্ধতি বেছে নিন <span>↓</span>
             </a>
             <a class="button" href="/ternux/bn/docs/ARCHITECTURE.html">
               স্তরবিন্যাস দেখুন <span>→</span>
@@ -161,10 +162,10 @@ import RenderBench from "../../components/RenderBench.astro";
             <span class="eyebrow">০৩ / প্রথমবার চালু</span>
             <h2>লিনাক্স ওয়ার্কস্টেশন চালু করুন।</h2>
             <p>
-              বিশ্বস্ত উৎস থেকে টার্মাক্স বসিয়ে দ্রুত-শুরুর নির্দেশনা অনুসরণ
-              করুন। প্রতিটি ধাপ স্পষ্ট, যাচাইযোগ্য এবং ফোনের বাস্তব সীমা মাথায়
-              রেখে তৈরি। X11 desktop সামনে থাকলে Android-এর background
-              throttling কমাতে{" "}
+              একই signing source থেকে Termux ও Termux:X11 install করুন, তারপর
+              নিচের copyable installation path বেছে নিন। প্রয়োজনীয় add-on-এর
+              download link-ও এখানে আছে। X11 desktop সামনে থাকলে Android-এর
+              background throttling কমাতে{" "}
               <a href="https://github.com/termux/termux-x11/releases/tag/nightly">
                 Termux:X11 shared-UID debug APK
               </a>
@@ -172,21 +173,36 @@ import RenderBench from "../../components/RenderBench.astro";
               Play-এর Termux হলে একই release page-এর সাধারণ universal debug APK
               নিন।
             </p>
-            <p class="install-links">
+            <p
+              class="install-links"
+              aria-label="Termux ও companion app download"
+            >
+              <a href="https://f-droid.org/packages/com.termux/">
+                Termux · F-Droid ↗
+              </a>
               <a href="https://github.com/termux/termux-app/releases">
-                Termux app ↗
+                Termux · GitHub ↗
               </a>
               <a href="https://github.com/termux/termux-api/releases">
-                Termux:API ↗
+                Termux:API · GitHub ↗
+              </a>
+              <a href="https://f-droid.org/packages/com.termux.api/">
+                Termux:API · F-Droid ↗
               </a>
               <a href="https://github.com/termux/termux-boot/releases">
-                Termux:Boot ↗
+                Termux:Boot · GitHub ↗
+              </a>
+              <a href="https://f-droid.org/packages/com.termux.boot/">
+                Termux:Boot · F-Droid ↗
               </a>
               <a href="https://github.com/termux/termux-styling/releases">
-                Termux:Styling ↗
+                Termux:Styling · GitHub ↗
               </a>
-              <a href="https://github.com/termux/termux-x11/releases">
-                Termux:X11 ↗
+              <a href="https://f-droid.org/packages/com.termux.styling/">
+                Termux:Styling · F-Droid ↗
+              </a>
+              <a href="https://github.com/termux/termux-x11/releases/tag/nightly">
+                Termux:X11 APKs ↗
               </a>
             </p>
             <a
@@ -195,14 +211,28 @@ import RenderBench from "../../components/RenderBench.astro";
             >
               স্থাপনের নির্দেশিকা ↗
             </a>
+            <a class="home-section-link" href="/ternux/bn/docs/MANUAL.html">
+              হাতে install-এর ধাপ দেখুন ↗
+            </a>
+            <a
+              class="home-section-link"
+              href="/ternux/bn/docs/QUICK-START.html"
+            >
+              দ্রুত শুরু ↗
+            </a>
             <p>
-              Termux package manager ব্যবহার করতে চান? একবার signed APT
-              repository bootstrap করে `pkg install ternux` চালান।
-              <a href="/ternux/bn/docs/TERMUX-APT.html">APT setup guide ↗</a>
+              Signed APT path Ternux-কে Termux package manager-এ যোগ করে।
+              একবারের bootstrap signing key যাচাই করে; এরপর host CLI-র জন্য
+              <code>pkg install ternux</code>, তারপর guest বাছতে
+              <code>tx install</code> চালান। Package command নিজে guest install
+              করে না। ধাপগুলো{" "}
+              <a href="/ternux/bn/docs/TERMUX-APT.html">APT setup guide ↗</a>-এ
+              আছে। Termux:API-এর জন্য Termux-এর ভিতরে matching{" "}
+              <code>termux-api</code> package-ও লাগবে।
             </p>
           </div>
           <div class="command">
-            <small>টার্মাক্স / শেল</small>
+            <small>এক command · curl</small>
             <button
               type="button"
               data-copy
@@ -216,11 +246,11 @@ import RenderBench from "../../components/RenderBench.astro";
             </code>
           </div>
           <div class="command">
-            <small>SIGNED APT / একবারের সেটআপ</small>
+            <small>Signed APT · curl bootstrap</small>
             <button
               type="button"
               data-copy
-              data-copy-value="pkg update -y && pkg install -y curl gnupg && curl -fsSLo $TMPDIR/ternux-bootstrap.sh https://soobujmiah.github.io/ternux/apt/bootstrap.sh && bash $TMPDIR/ternux-bootstrap.sh"
+              data-copy-value="pkg update -y && pkg install -y curl gnupg && curl -fsSLo $TMPDIR/ternux-bootstrap.sh https://soobujmiah.github.io/ternux/apt/bootstrap.sh && bash $TMPDIR/ternux-bootstrap.sh && pkg install ternux"
             >
               কপি
             </button>
@@ -228,15 +258,15 @@ import RenderBench from "../../components/RenderBench.astro";
               pkg update -y && pkg install -y curl gnupg && curl -fsSLo
               $TMPDIR/ternux-bootstrap.sh
               https://soobujmiah.github.io/ternux/apt/bootstrap.sh && bash
-              $TMPDIR/ternux-bootstrap.sh
+              $TMPDIR/ternux-bootstrap.sh && pkg install ternux
             </code>
             <small>
-              এরপর <code>pkg install ternux</code>। wget ও signing key যাচাইয়ের
-              ধাপ APT guide-এ আছে।
+              এতে host CLI install হবে; guest desktop বেছে নিতে{" "}
+              <code>tx install</code> চালান।
             </small>
           </div>
           <div class="command">
-            <small>WGET পছন্দ হলে</small>
+            <small>এক command · wget</small>
             <button
               type="button"
               data-copy
@@ -249,6 +279,26 @@ import RenderBench from "../../components/RenderBench.astro";
               bash
             </code>
           </div>
+          <div class="command">
+            <small>Signed APT · wget bootstrap</small>
+            <button
+              type="button"
+              data-copy
+              data-copy-value="pkg update -y && pkg install -y wget gnupg && wget -qO $TMPDIR/ternux-bootstrap.sh https://soobujmiah.github.io/ternux/apt/bootstrap.sh && bash $TMPDIR/ternux-bootstrap.sh && pkg install ternux"
+            >
+              কপি
+            </button>
+            <code>
+              pkg update -y && pkg install -y wget gnupg && wget -qO
+              $TMPDIR/ternux-bootstrap.sh
+              https://soobujmiah.github.io/ternux/apt/bootstrap.sh && bash
+              $TMPDIR/ternux-bootstrap.sh && pkg install ternux
+            </code>
+            <small>
+              এতে host CLI install হবে; guest desktop বেছে নিতে{" "}
+              <code>tx install</code> চালান।
+            </small>
+          </div>
         </div>
       </div>
     </section>
@@ -259,11 +309,12 @@ import RenderBench from "../../components/RenderBench.astro";
             <span class="eyebrow">প্রকল্পের অবস্থা · ১৩ নভেম্বর ২০২৬</span>
             <h2>v2 স্থিতিশীল release। v3-এর ভিত্তি প্রকাশিত।</h2>
             <p>
-              Ternux 2.0.0 বর্তমান stable release। Debian, Ubuntu ও Alpine—এই
-              তিনটি v2-তে qualified desktop guest; আরও ১২টি recipe আছে, তবে
-              সেগুলো qualified নয়। v3-এর architecture ও roadmap প্রকাশিত হয়েছে;
-              native manager service এবং graphical control center এখনো
-              বাস্তবায়িত হয়নি।
+              Ternux 2.0.0 বর্তমান stable release। Debian, Ubuntu ও Alpine v2-এর
+              তিন desktop profile; device evidence Redmi Turbo 4 Pro-তে করা,
+              পরীক্ষার সীমানা audit report-এ দেওয়া আছে। আরও ১২টি named recipe
+              আছে, তবে সেগুলো v2-qualified নয়। Current main source-এ তিনটি
+              read-only manager CLI command আছে; stable 2.0.0 package-এ নেই।
+              Native service ও graphical Control Center এখনো বাস্তবায়িত হয়নি।
             </p>
           </div>
           <div class="profile-grid">
@@ -284,6 +335,14 @@ import RenderBench from "../../components/RenderBench.astro";
               <small>REPOSITORY</small>
               <strong>main</strong>
               <span>Source, issue ও পরিবর্তন ↗</span>
+            </a>
+            <a
+              class="profile-card"
+              href="/ternux/bn/docs/release/V2-RELEASE-REPORT.html"
+            >
+              <small>LIVE AUDIT SNAPSHOT</small>
+              <strong>১৩ Nov</strong>
+              <span>Package, device ও website evidence ↗</span>
             </a>
           </div>
         </div>

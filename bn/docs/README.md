@@ -11,7 +11,7 @@ command ও evidence boundary aligned রাখতে হবে।
 | Section | Page |
 |---|---|
 | শুরু করুন | `index.md`, `QUICK-START.md`, `INSTALLATION.md`, `MANUAL.md` |
-| Release অবস্থা ও roadmap | [`V2-RELEASE-REPORT.md`](V2-RELEASE-REPORT.md), [`V2-RELEASE-READINESS.md`](V2-RELEASE-READINESS.md), [`V3-PROPOSALS.md`](V3-PROPOSALS.md), এবং `ACCELERATOR-RELEASE-PLAN.md` (accelerator/release-এর canonical plan) |
+| Release অবস্থা ও roadmap | [`release/V2-RELEASE-REPORT.md`](release/V2-RELEASE-REPORT.md) (বর্তমান release/device reconciliation), [`V2-RELEASE-REPORT.md`](V2-RELEASE-REPORT.md) (প্রকাশের সময়কার snapshot), [`V2-RELEASE-READINESS.md`](V2-RELEASE-READINESS.md), [`V3-PROPOSALS.md`](V3-PROPOSALS.md), এবং `ACCELERATOR-RELEASE-PLAN.md` |
 | Repository-only audit evidence | [`audit/`](../../docs/audit/CURRENT-STATE.md)-এ তারিখসহ device, repository ও feature qualification বিস্তারিত আছে; এটি public website claim নয় |
 | Package বিতরণ | [`TERMUX-APT.md`](TERMUX-APT.md) (repository trust ও install); [`../packaging/termux/README.md`](../packaging/termux/README.md) (build ও publish) |
 | Repository deep guide | [`../guides/device-benchmark-evidence.md`](../guides/device-benchmark-evidence.md), [`../guides/llama-vulkan-extension.md`](../guides/llama-vulkan-extension.md), matching English pages under `../guides/` (শুধু source repository-তে; website-এ প্রকাশিত নয়) |

@@ -6,24 +6,29 @@ lang: "en"
 
 ## Project roadmap
 
-**Last reviewed:** 2026-11-13. **State:** living project record.
+**Last reviewed:** 2026-11-13 11:04 UTC. **State:** living project record.
 
 ## Released
 
 - Ternux v2.0.0 is published with a signed Termux APT package and stable
   release record. Its exact claims and dated evidence are in the
-  [v2 release report](../V2-RELEASE-REPORT.md).
+  [current v2 report](../release/V2-RELEASE-REPORT.md) and
+  [release-time record](../V2-RELEASE-REPORT.md).
 - Debian, Ubuntu, and Alpine are the v2-supported desktop profiles on the
-  documented reference device. The current installed v2 CLI's device
-  verification labels may lag newer source evidence; see
-  [release status](RELEASE-STATUS.md).
+  documented reference device. The installed v2.0.0 package and current `main`
+  source are distinct artifacts; see [release status](RELEASE-STATUS.md) and
+  [implementation status](IMPLEMENTATION-STATUS.md).
 
 ## In progress: v3 foundation
 
-1. Finish and review the v3 architecture/specification set.
-2. Implement the native manager core/API without guest dependency.
+1. Architecture, API, security, UX, acceptance documents, and four ADRs are
+   published. Keep reviewing these contracts as the implementation proves
+   assumptions against the live native Termux runtime.
+2. The current source has three read-only native manager CLI operations; the
+   released 2.0.0 APT package does not include them. Implement the opt-in native
+   manager service/API without a guest dependency.
 3. Add a secured native Control Center client while preserving CLI parity.
-4. Refactor workspace, compute, AI, and Device Bridge behind versioned
+4. Connect workspace, compute, AI, and Device Bridge through versioned
    interfaces; qualify each capability independently.
 5. Publish verified device and workload evidence before changing stable
    support claims.
@@ -32,6 +37,7 @@ The phase gates are in the [v3 roadmap](../v3/IMPLEMENTATION-ROADMAP.md).
 
 ## Current next action
 
-Complete the architecture/docs baseline, verify its site build and links, then
-select the first native-manager vertical slice with a focused acceptance test.
-See [next actions](NEXT-ACTIONS.md).
+Start the native read-only Unix-socket service as an explicit, non-autostarting
+vertical slice. Enforce the existing request/response schemas and private
+socket permissions, then verify it on device without restarting the three
+existing guest sessions. See [next actions](NEXT-ACTIONS.md).
