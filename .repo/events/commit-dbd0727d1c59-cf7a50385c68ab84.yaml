@@ -1,0 +1,7 @@
+event_id: commit-dbd0727d1c59-cf7a50385c68ab84
+repository: soobujmiah/ternux
+commit: dbd0727d1c593dca02e158c388573ef15d8c4705
+kind: commit
+occurred_at: '2026-11-13T14:24:42Z'
+status: completed
+summary: 'feat(manager): add read-only Unix socket service (#208)'
