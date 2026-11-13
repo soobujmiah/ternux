@@ -1,0 +1,7 @@
+event_id: commit-4b44e5a7799e-7be48e09479909a8
+repository: soobujmiah/ternux
+commit: 4b44e5a7799e8518f89edb910c6b7b79f938b6de
+kind: commit
+occurred_at: '2026-11-13T10:45:26Z'
+status: completed
+summary: 'site: expose all installation paths and current project status (#200)'
