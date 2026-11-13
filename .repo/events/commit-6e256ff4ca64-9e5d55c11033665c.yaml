@@ -1,0 +1,7 @@
+event_id: commit-6e256ff4ca64-9e5d55c11033665c
+repository: soobujmiah/ternux
+commit: 6e256ff4ca645e1818ff46f229aecf7f257ab0cc
+kind: commit
+occurred_at: '2026-11-13T08:02:57Z'
+status: completed
+summary: 'docs: establish Ternux v3 architecture baseline (#193)'
