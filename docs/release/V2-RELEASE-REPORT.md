@@ -5,9 +5,9 @@ lang: "en"
 alt_url: "/bn/docs/release/V2-RELEASE-REPORT.html"
 ---
 
-**Release:** published 2026-11-13 05:31 UTC  
-**Tag target:** `9106b04fc8627ae98b1d63c9912a28c8a4677441`  
-**Current-state audit snapshot:** 2026-11-13 11:04 UTC  
+**Release:** published 2026-11-13 05:31 UTC
+**Tag target:** `9106b04fc8627ae98b1d63c9912a28c8a4677441`
+**Current-state audit snapshot:** 2026-11-13 11:04 UTC
 **Main at that snapshot:** `ed326b58d76b8abba05434eb516135b84d7d3858`
 
 This report separates the immutable release from post-release source and device
