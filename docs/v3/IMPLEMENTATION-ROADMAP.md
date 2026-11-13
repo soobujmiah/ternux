@@ -12,7 +12,7 @@ omitted until the baseline and device capacity are measured.
 
 | Phase | Scope | Exit gate |
 |---|---|---|
-| 0. Baseline | v2 release, repository, device state, known limitations | Exact release facts, evidence links, rollback and support boundary reviewed |
+| 0. Baseline | v2 release, repository, device state, known limitations | Exact release facts, evidence links, recovery/support boundary reviewed; a v1.4.0-to-v2 rollback demonstration is not required |
 | 1. Contracts | Component ownership, state model, API, security, ADR process | API schemas and threat review accepted; no unresolved ownership conflicts |
 | 2. Native core | Guest registry, manager service, structured jobs, CLI parity | Service optional; CLI works offline; lifecycle is per-guest and idempotent |
 | 3. Control Center | Local UI, status, start/stop, logs, diagnostics | Loopback/socket security tests, accessibility, low-resource idle profile |

@@ -1,30 +1,75 @@
-# v2 feature and qualification matrix
+# Ternux feature and qualification matrix
 
-**Audit date:** 2026-11-13. Ternux v2.0.0 is released. Scope: the documented Android ARM64 reference device. A recipe existing in source does not mean it is a supported v2 profile.
+**Audit snapshot:** 2026-11-13, 11:04 UTC. This matrix applies to Ternux
+v2.0.0 on the documented Redmi Turbo 4 Pro reference device unless a row says
+otherwise. “Installed”, “detected”, “initialized”, “executed correctly”, and
+“measured” are separate evidence levels.
 
-| Area | Debian | Ubuntu | Alpine | v2 statement |
-|---|---|---|---|---|
-| Clean guest and XFCE provisioning | Verified in clean CI and prior fresh-device run | Verified in clean CI and prior fresh-device run | Verified in clean CI and prior fresh-device run | These are the only v2 desktop profiles |
-| Independent desktop display | `:0` live READY | `:1` live READY | `:2` live READY | Device verified, separate from clean install |
-| Mesa Turnip/Zink on SM8735 | Device qualified | Device qualified | Device qualified | Exact device only; no universal GPU promise |
-| PulseAudio route | Live READY | Live READY | Live READY | Device route verified; broad hardware coverage deferred |
-| Firefox package source | Native `firefox-esr` | Mozilla ESR tarball; no Snap dependency | Native `firefox-esr` | Clean three-profile CI window matrix passed in exact release Validate run `43372097795`; existing-device GUI launches also observed |
-| IBus Control+Space | Configured; latest XTest changed engine | Configured; latest XTest changed engine | Configured; helper works directly, latest key event did not switch | Alpine event probes conflict; physical Android keyboard path is unverified |
-| Ternux theme/titlebar | GTK, icon and XFWM themes active | GTK, icon and XFWM themes active | GTK, icon and XFWM themes active | Runtime theme values and `|HMC` controls queried on each live display; Firefox close controls visible in prior live checks |
-| Window viewport fitting | Oversized test window constrained live | Oversized test window constrained live | Oversized test window constrained live | 1800×1900 test clients fit within each 640×1386 display; future client-side decorations are not guaranteed |
-| Storage isolation | Existing fresh-package evidence | Existing package evidence | Existing package evidence | `/sdcard` is exposed when granted; Termux HOME stays isolated |
+## Implemented and verified
 
-## Experimental or excluded from stable v2
+| Capability | Evidence | Scope |
+|---|---|---|
+| v2.0.0 release and signed Termux APT channel | Published tag, `.deb`, checksum manifest, signed stable index; native `apt-cache policy` resolves 2.0.0 | Termux ARM64 host package; repository bootstrap is required once before `pkg install ternux` |
+| Debian, Ubuntu, Alpine provisioning and management | Clean-guest CI and release records; current live `tx status` and `tx verify` pass for all three | These are the only v2-supported desktop guests; Debian has deeper qualification evidence |
+| Firefox package/runtime qualification | Clean CI browser matrix for exactly Debian, Ubuntu, Alpine; prior live desktop launches observed on all three | Does not qualify other guest recipes or every browser update indefinitely |
+| Separate live desktop sessions | Current `tx status`: Debian `:0`, Ubuntu `:1`, Alpine `:2`, all `READY`; X11 and PulseAudio route checks report ready | Existing device sessions only; not a clean reinstall test |
+| Guest shared-storage behavior | Installer and release documentation preserve default Android shared-storage exposure; scoped grant/revoke commands are implemented | Does not expose Termux private application data; path grants remain explicit where used |
 
-| Capability | Status |
+## Implemented but partially verified
+
+| Capability | Evidence | Remaining limit |
+|---|---|---|
+| Adreno graphics stack | Current `tx verify` reports Turnip present in all three guests; earlier device records document Zink/Turnip and graphics workload checks | This audit did not rerun `glxinfo`, Vulkan workload correctness, or performance; driver presence alone is not renderer qualification |
+| Audio integration | Current per-guest status reports PulseAudio running and route-ready | No playback/capture workload was run in this read-only audit; route status is not proof every GUI mixer or app renders correctly |
+| IBus Bengali/English switching | XFCE config/helper and earlier synthetic probes exist | Alpine synthetic event probes conflict; physical Android keyboard delivery is not certified |
+| Theme, window fit, and application UI | Earlier live evidence covers GTK/XFCE, titlebar, oversized-window fitting, and tested Firefox controls | Not every toolkit, custom titlebar, menu icon, or future third-party app is covered; not visually rechecked in this snapshot |
+| Android camera still capture and microphone recording apps | Host Termux:API-backed app implementations and permission/lifecycle code exist | This audit did not capture a photo or record audio; no continuous camera stream or guest webcam device is established |
+| Native manager read-only JSON CLI | Current `main` source successfully returns status, guest, and capability payloads; schema-focused tests pass | The installed v2.0.0 package returns `Unknown command: manager`; source checkout evidence does not promote the released package |
+| CPU/Vulkan LLM workload | Optional installer path and separate device evidence exist for the declared workload/model profile | Preview/optional scope; no broad model, memory, performance, or device guarantee |
+
+## Documented but not implemented
+
+| Capability | Current state |
 |---|---|
-| HTP/HMX LLM acceleration | Experimental; known operator/numerical failures; excluded from stable support claims |
-| QNN Stable Diffusion | Research-only; correctness and production qualification incomplete |
-| Other Android SoCs/GPUs | Not qualified by the SM8735 device result |
-| Other twelve named guest profiles | Recipes remain, but clean desktop/browser support is not part of v2 |
-| Physical keyboard input across Android keyboards | Not verified by synthetic XTest |
-| Every possible third-party app theme/window behavior | Not guaranteed; GTK/XFCE and tested Firefox path only |
+| Native Unix-socket manager service | API and security contract designed; no running service or socket endpoint |
+| Native Termux Control Center GUI | Mobile-first host-side architecture and UX specified; graphical client not implemented |
+| Service authorization/session and HTTP loopback adapter | Designed; no service runtime, session token enforcement, CSRF handling, or web client |
+| Guest lifecycle mutations through the v3 API | Designed; current v3 CLI payloads are read-only |
+| Unified v3 Compute, AI, Device Bridge, and Workspace orchestration | Architecture exists; no v3 orchestrator or broker implementation |
+| Model registry, metadata/checksum lifecycle, local inference server management | Architecture and LAI boundary specified; no unified v3 model manager/service |
+| Workspace templates, snapshot/recovery UI, and extension SDK | Roadmap/design only; no v3 implementation |
 
-## Release record
+## Experimental
 
-The [Ternux v2.0.0 release report](../V2-RELEASE-REPORT.md) records the tag, package, exact CI, stable APT publication, website-preservation evidence, and known limits. The machine acceptance inventory is [`../release-gates.json`](../release-gates.json). Exact release Validate run `43372097795` passed the clean Debian/Ubuntu/Alpine Firefox qualification. The current live Alpine synthetic-key discrepancy is recorded in the [device verification report](DEVICE-VERIFICATION.md).
+| Capability | Evidence and boundary |
+|---|---|
+| llama.cpp HTP/HMX | Experimental SM8735/V73 artifacts; known operator/numerical limitations exclude stable support |
+| QNN image generation | Research-only artifact; production correctness and performance gates remain open |
+| Stable Diffusion CPU/Vulkan | Preview extension; constrained successful runs do not qualify general image quality, stability, or performance |
+| Additional AI artifacts | Prerelease status and per-artifact evidence are listed in release history; do not imply they ship as the stable base package |
+
+## Deferred
+
+| Capability | Disposition |
+|---|---|
+| Twelve additional named PRoot distro recipes | Keep source implementations; defer clean desktop/browser qualification to v3, one profile at a time |
+| Other Android SoCs, GPUs, and Android versions | Build a device matrix in v3; Redmi Turbo 4 Pro evidence is not universal compatibility |
+| Broader sustained thermal/resource qualification | Use measured per-device workloads in the v3 Compute program; no synthetic thermal promises |
+| Full third-party toolkit/theme coverage | Add targeted toolkit probes as real compatibility needs arise; no blanket promise |
+
+## Unsupported
+
+| Capability | Boundary |
+|---|---|
+| Direct `/dev/video*` webcam streaming from Android camera hardware into a PRoot guest | Ternux Camera uses on-demand Termux:API still capture; it does not create a V4L2 webcam or continuous preview stream |
+| General Android NPU/QNN acceleration | Device presence or package installation does not establish an accessible, correct NPU backend; only isolated experimental artifacts are documented |
+| Kernel-level containers or root privileges | PRoot is a userland compatibility environment inside Termux, not root or kernel-container isolation |
+
+## Evidence index
+
+- [Current v2 and post-release report](../release/V2-RELEASE-REPORT.md)
+- [Release-time v2 report](../V2-RELEASE-REPORT.md)
+- [Device verification](DEVICE-VERIFICATION.md)
+- [Repository state](REPOSITORY-STATE.md)
+- [v2 machine gate inventory](../release-gates.json)
+- [v3 implementation status](../project/IMPLEMENTATION-STATUS.md)

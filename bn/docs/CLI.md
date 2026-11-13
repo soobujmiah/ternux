@@ -56,6 +56,15 @@ load হওয়ার আগের failure JSON বানাতে পার�
 নিরাপদভাবে প্রত্যাখ্যান করা হয়। এগুলো CLI payload; local manager API service
 এখনও implement করা হয়নি।
 
+**কোন সংস্করণে আছে:** command-গুলো বর্তমান `main` source checkout-এ আছে;
+প্রকাশিত v2.0.0 APT package-এ নেই। v2.0.0 install-এ `tx manager` চালালে
+`Unknown command: manager` আসে। Repository root থেকে বর্তমান source পরীক্ষা
+করতে চালান:
+
+```bash
+TERNUX_LIB_DIR="$PWD/lib" bash ./bin/ternux manager status --json
+```
+
 ```bash
 tx manager status [--json]
 tx manager guests [--json]

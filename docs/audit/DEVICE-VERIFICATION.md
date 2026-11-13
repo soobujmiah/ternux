@@ -118,3 +118,38 @@ evidence; it is distinct from the live existing-guest launches above.
 - One SM8735 device is not a universal Android/GPU qualification.
 - The active live guests are owner data; they were not deleted or reinstalled.
 - No full Android reboot or critical desktop/audio service restart was performed.
+
+## Native Termux snapshot — 2026-11-13 10:49 UTC
+
+This is a new read-only snapshot; it does not replace the earlier workload and
+GUI evidence above. `termux-info` identified F-Droid Termux 0.119.0-beta.3,
+Android 16, ARM64, Xiaomi model `25053RT47C`. Termux:API (1002), Termux:Boot
+(1000), Termux:Styling (1000), and Termux:X11 (15) were installed. The Ternux
+stable signed source was configured alongside the Termux main, X11, and TUR
+sources.
+
+`dpkg-query` reported `ternux 2.0.0 install ok installed`; read-only
+`apt-cache policy ternux` reported version 2.0.0 installed and as the stable
+repository candidate. The installed package's `tx manager status --json`
+returned a structured fatal `Unknown command: manager` result. The newer
+read-only manager CLI exists in the current source checkout and was invoked
+there separately:
+
+| Source command | Observed result |
+|---|---|
+| `TERNUX_LIB_DIR="$PWD/lib" bash ./bin/ternux manager status --json` | `available`, direct CLI mode, 3 installed guests and running desktops Debian/Ubuntu/Alpine |
+| `TERNUX_LIB_DIR="$PWD/lib" bash ./bin/ternux manager guests --json` | 3 guests, displays 0/1/2, qualification field `device-qualified` |
+| `TERNUX_LIB_DIR="$PWD/lib" bash ./bin/ternux manager capabilities --json` | 3 allowlisted read-only operations |
+
+The checkout-source result does not imply that the released `.deb` contains the
+new CLI, that a manager service runs, or that a Control Center exists. No
+socket/service was started.
+
+At 10:49 UTC, live commands `tx status db|ub|alp --json` reported lifecycle
+`READY`, the expected display, X11 running, and PulseAudio running/route-ready.
+`tx verify db|ub|alp --json` returned `passed` and included each guest's
+service check and `turnip:present`. This verifies the CLI's current presence and
+service probes only; it is not a fresh renderer, Vulkan workload, audio
+playback, microphone, or camera test. The three sessions retained PIDs
+18218/14129/26946. No GUI, X11, PulseAudio, IBus, or Android process was
+restarted, and no guest or user data was changed.

@@ -9,6 +9,9 @@
 ### ARM64 Android ফোনে Linux desktop — root লাগে না
 
 [![সংস্করণ](https://img.shields.io/badge/version-2.0.0-00e5a0?style=flat-square)](https://github.com/soobujmiah/ternux/releases/tag/v2.0.0)
+[![Signed Termux APT](https://img.shields.io/badge/Termux-APT%20package-58c98d?style=flat-square)](../docs/TERMUX-APT.md)
+[![Debian · Ubuntu · Alpine](https://img.shields.io/badge/v2%20desktop-Debian%20%7C%20Ubuntu%20%7C%20Alpine-77e3ad?style=flat-square)](../docs/audit/FEATURE-MATRIX.md)
+[![v3 roadmap](https://img.shields.io/badge/v3-roadmap%20published-38bdf8?style=flat-square)](../docs/v3/README.md)
 [![Android ARM64](https://img.shields.io/badge/Android-ARM64-38bdf8?style=flat-square)](../docs/INSTALLATION.md)
 [![Root](https://img.shields.io/badge/root-lage%20na-22c55e?style=flat-square)](../docs/FAQ.md)
 [![v2 desktop guest](https://img.shields.io/badge/v2%20desktop-3%20guest-77e3ad?style=flat-square)](../docs/audit/FEATURE-MATRIX.md)
@@ -21,7 +24,7 @@
 [![NPU](https://img.shields.io/badge/NPU-shudhu%20experimental-f59e0b?style=flat-square)](../docs/ACCELERATOR-RELEASE-PLAN.md)
 [![লাইসেন্স](https://img.shields.io/badge/license-Apache--2.0-22c55e?style=flat-square)](../LICENSE)
 
-[ওয়েবসাইট](https://soobujmiah.github.io/ternux/) · [দ্রুত শুরু](../docs/QUICK-START.md) · [সব ডকুমেন্টেশন](../docs/README.md) · [CLI নির্দেশিকা](../docs/CLI.md) · [Benchmark](../docs/BENCHMARKS.md) · [v2 release report](../docs/V2-RELEASE-REPORT.md) · [English](../README.md) · [Source](https://github.com/soobujmiah/ternux)
+[ওয়েবসাইট](https://soobujmiah.github.io/ternux/) · [দ্রুত শুরু](../docs/QUICK-START.md) · [সব ডকুমেন্টেশন](../docs/README.md) · [CLI নির্দেশিকা](../docs/CLI.md) · [Benchmark](../docs/BENCHMARKS.md) · [v2 release ও বর্তমান audit](../docs/release/V2-RELEASE-REPORT.md) · [English](../README.md) · [Source](https://github.com/soobujmiah/ternux)
 
 </div>
 
@@ -38,7 +41,9 @@ CPU/Vulkan AI workload দরকার হলে optional হিসেবে ins
 storage permission দিলে guest থেকে Android shared storage-এর file ও model
 সরাসরি ব্যবহার করা যায়।
 
-**v2 desktop-এর জন্য Debian, Ubuntu ও Alpine—এই তিনটি guest qualified।**
+**v2-তে Debian, Ubuntu ও Alpine—এই তিনটি desktop profile supported।** Device
+evidence Redmi Turbo 4 Pro / Android 16 / Adreno 825-এর; ঠিক কোন পরীক্ষা হয়েছে
+তা feature matrix ও current audit-এ দেখুন।
 Debian recommended default। আরও ১২টি named distro recipe চেষ্টা করা যায়, তবে
 v2 desktop support হিসেবে সেগুলো qualified নয়। Ternux desktop recipe না থাকলে
 arbitrary OCI image shell guest হিসেবে চলে।
@@ -60,8 +65,9 @@ compatibility route। কোন renderer চলছে তা guest-এর `glxi
 
 ## ইনস্টল
 
-১. একই বিশ্বস্ত source থেকে [Termux](https://github.com/termux/termux-app/releases)
-ও [Termux:X11](https://github.com/termux/termux-x11/releases) ইনস্টল করুন।
+১. [F-Droid থেকে Termux](https://f-droid.org/packages/com.termux/) অথবা
+[GitHub release](https://github.com/termux/termux-app/releases) নিন, সঙ্গে
+[Termux:X11](https://github.com/termux/termux-x11/releases) ইনস্টল করুন।
 একাধিক GUI আলাদা Android window-তে দেখাতে nightly build নিন। Termux সামনে
 বা পেছনে থাকলে Android যেন Linux workload কম throttle করে, সে জন্য GitHub-এর
 Termux ব্যবহারকারীরা upstream
@@ -71,11 +77,14 @@ shared Android UID-তে চলে। এটি শুধু GitHub-signed Term
 F-Droid বা Google Play Termux হলে একই release page-এর সাধারণ
 [`termux-x11-universal-debug.apk`](https://github.com/termux/termux-x11/releases/tag/nightly)
 ব্যবহার করুন। Termux:X11 একবার খুলুন। অতিরিক্ত companion app হিসেবে
-[Termux:Boot](https://github.com/termux/termux-boot/releases) reboot-এর পর
-নির্ধারিত script চালায়, [Termux:API](https://github.com/termux/termux-api/releases)
-Android utility দেয় (Termux-এ matching `termux-api` package-ও লাগবে), আর
-[Termux:Styling](https://github.com/termux/termux-styling/releases) terminal
-theme ও font যোগ করে। Desktop app-এর live mic on-demand Termux OpenSL ES
+[Termux:Boot-এর F-Droid](https://f-droid.org/packages/com.termux.boot/) অথবা
+[GitHub](https://github.com/termux/termux-boot/releases) version reboot-এর পর
+নির্ধারিত script চালায়; [Termux:API-এর F-Droid](https://f-droid.org/packages/com.termux.api/)
+অথবা [GitHub](https://github.com/termux/termux-api/releases) Android utility দেয়
+(সঙ্গে Termux-এ `pkg install termux-api` চালাতে হবে); আর
+[Termux:Styling-এর F-Droid](https://f-droid.org/packages/com.termux.styling/)
+অথবা [GitHub](https://github.com/termux/termux-styling/releases) terminal theme
+ও font যোগ করে। Desktop app-এর live mic on-demand Termux OpenSL ES
 source দিয়ে চলে; API recorder file তৈরি করে। Termux ও add-on একই source থেকে নিন।
 ২. Termux-এ চালান:
 
@@ -215,6 +224,10 @@ script/scene render করানো যায়। [MCP guide](../tools/blender
 
 - [বিস্তারিত ডকুমেন্টেশন](../docs/README.md): install option, হাতে setup,
   দৈনন্দিন ব্যবহার, configuration, troubleshooting, architecture ও CLI।
+- [v3 architecture ও roadmap](../docs/v3/README.md): manager, workspace,
+  compute, AI, Device Bridge, security ও gate। Current `main` source-এ তিনটি
+  read-only manager CLI command আছে, কিন্তু stable v2.0.0 package-এ নেই; socket
+  service ও Control Center এখনো তৈরি হয়নি।
 - [দ্রুত শুরু](../docs/QUICK-START.md): প্রথম install, launch ও renderer check।
 - [Benchmark](../docs/BENCHMARKS.md): মাপা device ফলাফল ও তার সীমা।
 - [পরিবর্তনলগ](../CHANGELOG.md)
@@ -226,8 +239,10 @@ profile বেছে Enter চাপুন; পরের category-ভিত্�
 শুধু base desktop থাকে। `--yes` prompt বাদ দিয়ে Debian base profile install করে।
 Ternux v2.0.0 প্রকাশিত এবং signed stable APT repository চালু আছে। উপরের
 command দিয়ে একবার bootstrap করুন; পরের install ও update সাধারণ `pkg` command-এ
-হবে। GitHub release-এ `.deb` package ও checksum manifest-ও আছে। Channel-এর
+হবে। GitHub release-এ `.deb` package ও checksum manifest-ও আছে। Current
+`main` source-এর তিনটি read-only `tx manager` command v2.0.0 package-এ নেই;
+background service ও graphical Control Center-ও এখনো implemented নয়। Channel-এর
 বিস্তারিত [Termux APT guide](../docs/TERMUX-APT.md), আর publication evidence
-[v2 release report](../docs/V2-RELEASE-REPORT.md)-এ দেখুন। HTP/HMX, QNN এবং
+[v2 release ও বর্তমান audit](../docs/release/V2-RELEASE-REPORT.md)-এ দেখুন। HTP/HMX, QNN এবং
 বিস্তৃত accelerator qualification experimental বা follow-up কাজ; [accelerator
 plan](../docs/ACCELERATOR-RELEASE-PLAN.md)-এ বর্তমান সীমা আছে।

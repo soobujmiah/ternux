@@ -152,6 +152,12 @@ const matrixFallback = (lang === "bn" ? "টার্নাক্স" : "TERNUX"
         class="toplinks"
         aria-label={lang === "bn" ? "প্রধান নেভিগেশন" : "Primary navigation"}
       >
+        <a
+          class="install-nav-link"
+          href={baseUrl(lang === "bn" ? "/bn/" : "/") + "#install"}
+        >
+          {lang === "bn" ? "ইনস্টল" : "Install"}
+        </a>
         <a href={baseUrl(lang === "bn" ? "/bn/docs/" : "/docs/")}>
           {lang === "bn" ? "নথি" : "Docs"}
         </a>
@@ -200,6 +206,9 @@ const matrixFallback = (lang === "bn" ? "টার্নাক্স" : "TERNUX"
           >
             <a href={baseUrl(lang === "bn" ? "/bn/" : "/")}>
               {lang === "bn" ? "হোম" : "Home"}
+            </a>
+            <a href={baseUrl(lang === "bn" ? "/bn/" : "/") + "#install"}>
+              {lang === "bn" ? "ইনস্টলেশন" : "Install options"}
             </a>
             <a href={baseUrl(lang === "bn" ? "/bn/docs/" : "/docs/")}>
               {lang === "bn" ? "নথি" : "Docs"}

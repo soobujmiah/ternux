@@ -9,6 +9,9 @@
 ### A Linux desktop for ARM64 Android — no root required
 
 [![Version](https://img.shields.io/badge/version-2.0.0-00e5a0?style=flat-square)](https://github.com/soobujmiah/ternux/releases/tag/v2.0.0)
+[![Signed Termux APT](https://img.shields.io/badge/Termux-APT%20package-58c98d?style=flat-square)](docs/TERMUX-APT.md)
+[![Debian · Ubuntu · Alpine](https://img.shields.io/badge/v2%20desktop-Debian%20%7C%20Ubuntu%20%7C%20Alpine-77e3ad?style=flat-square)](docs/audit/FEATURE-MATRIX.md)
+[![v3 roadmap](https://img.shields.io/badge/v3-roadmap%20published-38bdf8?style=flat-square)](docs/v3/README.md)
 [![Android ARM64](https://img.shields.io/badge/Android-ARM64-38bdf8?style=flat-square)](docs/INSTALLATION.md)
 [![No root](https://img.shields.io/badge/root-not%20required-22c55e?style=flat-square)](docs/FAQ.md)
 [![Desktop guests](https://img.shields.io/badge/v2%20desktop-guests%203-77e3ad?style=flat-square)](docs/audit/FEATURE-MATRIX.md)
@@ -21,7 +24,7 @@
 [![NPU](https://img.shields.io/badge/NPU-experimental%20only-f59e0b?style=flat-square)](docs/ACCELERATOR-RELEASE-PLAN.md)
 [![License](https://img.shields.io/badge/license-Apache--2.0-22c55e?style=flat-square)](LICENSE)
 
-[Website](https://soobujmiah.github.io/ternux/) · [Quick start](docs/QUICK-START.md) · [All documentation](docs/README.md) · [CLI guide](docs/CLI.md) · [Benchmarks](docs/BENCHMARKS.md) · [v2 release report](docs/V2-RELEASE-REPORT.md) · [বাংলা](bn/README.md) · [Source](https://github.com/soobujmiah/ternux)
+[Website](https://soobujmiah.github.io/ternux/) · [Quick start](docs/QUICK-START.md) · [All documentation](docs/README.md) · [CLI guide](docs/CLI.md) · [Benchmarks](docs/BENCHMARKS.md) · [v2 release and current audit](docs/release/V2-RELEASE-REPORT.md) · [বাংলা](bn/README.md) · [Source](https://github.com/soobujmiah/ternux)
 
 </div>
 
@@ -39,7 +42,9 @@ handling. Developer tools and local CPU/Vulkan AI workloads are available as
 optional installs. Guest files and model weights can be read from Android
 shared storage when Termux storage access is enabled.
 
-**Debian, Ubuntu and Alpine are the three v2-qualified desktop profiles.**
+**Debian, Ubuntu and Alpine are the three v2-supported desktop profiles.** The
+physical-device evidence represents the Redmi Turbo 4 Pro / Android 16 / Adreno
+825; see the feature matrix and current audit for the exact tested scope.
 Debian is the recommended default. Twelve additional named distro recipes are
 available to try, but are not qualified for the v2 desktop support promise;
 arbitrary OCI images are shell guests until a Ternux desktop recipe is added.
@@ -63,7 +68,8 @@ renderer depends on the device and Android graphics stack, so check it with
 
 ## Install
 
-1. Install [Termux](https://github.com/termux/termux-app/releases) and the
+1. Install [Termux from F-Droid](https://f-droid.org/packages/com.termux/) or
+   [Termux GitHub releases](https://github.com/termux/termux-app/releases), and the
    [Termux:X11 nightly app](https://github.com/termux/termux-x11/releases/tag/nightly)
    from compatible sources. The nightly app enables each concurrently running
    guest to open in its own Android window when selected with `tx start NAME`;
@@ -76,12 +82,13 @@ renderer depends on the device and Android graphics stack, so check it with
    Termux is behind X11. This APK requires the GitHub-signed Termux app; with
    F-Droid or Google Play Termux, use the standard
    [`termux-x11-universal-debug.apk`](https://github.com/termux/termux-x11/releases/tag/nightly).
-   Optional companion apps:
-   [Termux:Boot](https://github.com/termux/termux-boot/releases) starts configured
-   scripts after reboot, [Termux:API](https://github.com/termux/termux-api/releases)
-   adds Android utilities (install the matching `termux-api` package too), and
-   [Termux:Styling](https://github.com/termux/termux-styling/releases) adds
-   terminal themes and fonts. Ternux desktop apps capture live microphone audio
+   Optional companion apps: [Termux:Boot on F-Droid](https://f-droid.org/packages/com.termux.boot/)
+   or [GitHub](https://github.com/termux/termux-boot/releases) starts configured
+   scripts after reboot; [Termux:API on F-Droid](https://f-droid.org/packages/com.termux.api/)
+   or [GitHub](https://github.com/termux/termux-api/releases) adds Android
+   utilities (also install `pkg install termux-api`); and [Termux:Styling on
+   F-Droid](https://f-droid.org/packages/com.termux.styling/) or [GitHub](https://github.com/termux/termux-styling/releases)
+   adds terminal themes and fonts. Ternux desktop apps capture live microphone audio
    on demand through Termux's OpenSL ES source; the API's recorder is file-based.
    Install Termux and its add-ons from the same source.
 2. In Termux, run:
@@ -233,6 +240,9 @@ render route and run scripts or scenes with the documented EEVEE setup. See the
 
 - [Ternux v3 architecture and implementation roadmap](docs/v3/README.md):
   native manager, workspaces, compute, AI, Device Bridge, security, and gates.
+  Three read-only manager CLI commands are in current `main` source; they are
+  not in the stable v2.0.0 package. The socket service and Control Center are
+  still unimplemented.
 - [Current project status](docs/project/PROJECT-ROADMAP.md): implementation,
   release, device evidence, technical debt, and next actions.
 - [Deep documentation index](docs/README.md): install paths, setup, daily use,
@@ -249,8 +259,11 @@ toggle multiple choices, Enter reviews the plan, and `q` keeps the base desktop.
 `--with-*` flags or `--all` select additional workloads. Ternux v2.0.0 is
 released, and the signed stable APT repository is live. Bootstrap it once with
 the commands above; later installs and updates use normal `pkg` commands. The
-GitHub release also includes the `.deb` and checksum manifest. See the
+GitHub release also includes the `.deb` and checksum manifest. The current
+`main` source adds three read-only `tx manager` commands, but the stable v2.0.0
+package does not include them; a background manager service and graphical
+Control Center are not implemented. See the
 [Termux APT guide](docs/TERMUX-APT.md) for channel details and the
-[v2 release report](docs/V2-RELEASE-REPORT.md) for publication evidence. HTP/HMX,
+[v2 release report](docs/release/V2-RELEASE-REPORT.md) for publication and current-state evidence. HTP/HMX,
 QNN and wider accelerator qualification remain experimental or follow-up work;
 see the [accelerator plan](docs/ACCELERATOR-RELEASE-PLAN.md).

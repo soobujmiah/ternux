@@ -6,7 +6,7 @@ lang: "en"
 
 ## Known limitations
 
-**Last reviewed:** 2026-11-13.
+**Last reviewed:** 2026-11-13 11:04 UTC.
 
 - v2 device qualification is for one named Android/Adreno device. It does not
   establish equivalent behavior on other SoCs, GPUs, Android versions, or
@@ -25,7 +25,10 @@ lang: "en"
 - HTP/HMX and QNN artifacts remain experimental unless a later release
   explicitly changes that status with hardware and correctness evidence.
 - The v3 Native Control Center, manager API, Device Bridge, and workload
-  architecture are designed but not implemented as of this record.
+  architecture are designed but not implemented as of this record. Three
+  read-only manager JSON operations exist in the current source checkout, but
+  are absent from the released v2.0.0 package.
 
 See [device verification](DEVICE-VERIFICATION.md) and the
-[v2 release report](../V2-RELEASE-REPORT.md) for dated evidence.
+[current v2 report](../release/V2-RELEASE-REPORT.md) and
+[release-time report](../V2-RELEASE-REPORT.md) for dated evidence.

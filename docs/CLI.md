@@ -58,6 +58,15 @@ generated from the same operation allowlist used by dispatch. Unknown
 operations and unexpected arguments fail closed. These are CLI payloads; a
 local manager API service is not implemented yet.
 
+**Availability:** these commands are in the current `main` source checkout;
+they are not in the released v2.0.0 APT package. On a v2.0.0 installation,
+`tx manager` returns `Unknown command: manager`. To inspect the current source
+from the repository root, run:
+
+```bash
+TERNUX_LIB_DIR="$PWD/lib" bash ./bin/ternux manager status --json
+```
+
 ```bash
 tx manager status [--json]
 tx manager guests [--json]

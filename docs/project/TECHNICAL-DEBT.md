@@ -6,7 +6,7 @@ lang: "en"
 
 ## Technical debt
 
-**Last reviewed:** 2026-11-13. This list separates verified constraints from
+**Last reviewed:** 2026-11-13 11:04 UTC. This list separates verified constraints from
 future architectural work.
 
 | Item | Impact | Evidence / disposition |
@@ -17,7 +17,8 @@ future architectural work.
 | Theme coverage differs by toolkit and client-side decorations | A selected GTK/XFWM theme does not guarantee every app's custom UI | Add per-toolkit acceptance probes; don't claim universal coverage |
 | Hardware acceleration qualification is device-specific | Device names and driver presence do not prove correct/fast execution | Capability, correctness, performance, and release qualification stay separate |
 | Existing device tests partly rely on owner-visible GUI state | Not fully reproducible in CI | Preserve exact commands, window IDs, timestamps, and state; add automated probes where safe |
-| Legacy generated docs and project status need a single v3 index | Readers can confuse proposal/design/released status | New v3 index and living pages added; site routing and navigation remain to verify |
+| Released v2.0.0 package differs from post-release `main` source | Users of the stable package do not have newer read-only manager JSON commands | Keep stable-package/source boundaries explicit; any package delivery needs a separately versioned release and exact-head validation |
+| Package metadata describes the original Debian-first scope | The installed package description can imply a Debian-only manager despite v2's three supported profiles | Correct package metadata in a separately versioned, fully validated follow-up package; do not republish changed bytes under version 2.0.0 |
 
 Debt is removed only when a change and its regression test land. Reclassify
 closed rows in the next review rather than deleting their history.
