@@ -16,17 +16,17 @@ Ternux v2 desktop support কেবল **Debian, Ubuntu ও Alpine**-এর জ�
 `READY_FOR_OWNER_APPROVAL`; owner stable release অনুমোদন করেছেন। Signed RC
 repository, website redeploy-এ repository preservation এবং native Termux
 install/remove/reinstall পরীক্ষা pass। Stable `/apt`, v2 tag ও GitHub release
-এখন শেষ publication ধাপ। Current exact-main Validate run `43311661213`
-`ca0bba9093ecbe838df4b09f09dfee3197814845` commit-এ pass; তিন-guest browser
-matrix `43307868038` run-এ pass করেছে।
+এখন শেষ publication ধাপ। Exact-main Validate run `43359028809`
+`db9fe4a70177641b1e1312d2db47462191daf582` commit-এ pass; এতে clean
+Debian/Ubuntu/Alpine Firefox matrix ও পূর্ণ documentation suite আছে।
 
 ## বর্তমান acceptance gate
 
 | Gate | অবস্থা | কী করলে বন্ধ হবে |
 |---|---|---|
 | P1-03 updater safety | **সম্পূর্ণ** | Source/hash pinning, replace করার আগে staging, interrupted update recovery, downgrade guard, concurrency ও symlink fixture pass; v1.4.0 source fixture থেকে v2 migration pass। প্রকাশিত v2 rollback demonstration আবশ্যক নয়। |
-| P1-09 default browser | **সম্পূর্ণ** | Clean Debian Trixie, Ubuntu 24.04 ও Alpine 3.24-এর Firefox X11 window check `f963832fb4acf9c3adb873430408ce21ddd29a37` exact merged-main commit-এর Validate run `43307868038`-এ pass করেছে। Ubuntu Snap ছাড়া Mozilla ESR ব্যবহার করে। |
-| P1-APT signed Termux package | **সম্পূর্ণ** | Signed RC public tree ও redeploy-এর পর signature/index/hash pass; native Termux install, repository package replacement, removal এবং no-op upgrade resolution pass। v2.0.0 এই repository-র প্রথম package release, তাই আগের APT version থেকে version-delta upgrade নেই। Evidence `release-gates.json` ও `audit/REPOSITORY-STATE.md`-তে আছে। |
+| P1-09 default browser | **সম্পূর্ণ** | Clean Debian Trixie, Ubuntu 24.04 ও Alpine 3.24 Firefox X11 window check `db9fe4a70177641b1e1312d2db47462191daf582` exact merged-main commit-এর Validate run `43359028809`-এ pass করেছে। Ubuntu Snap ছাড়া Mozilla ESR ব্যবহার করে। |
+| P1-APT signed Termux package | **সম্পূর্ণ** | Updated signed RC tree-এর package hash pass; native APT updated package reinstall করেছে; active guest default এবং `db`/`ub`/`alp` JSON verify pass। v2.0.0 প্রথম package release, তাই আগের version থেকে version-delta upgrade নেই। Evidence `release-gates.json` ও `audit/REPOSITORY-STATE.md`-তে আছে। |
 
 HTP/HMX ও QNN experimental বা research-only; stable v2 প্রতিশ্রুতির বাইরে।
 CPU/Vulkan দাবি accelerator plan-এ থাকা নির্দিষ্ট model, task ও SM8735/Adreno
@@ -41,6 +41,13 @@ Termux:X11 ও PulseAudio route-সহ READY দেখা গেছে। Sessio
 guest-এ live Firefox titlebar-এ close control দেখা গেছে; synthetic XTest
 Ctrl+Space দিয়ে বাংলা input engine বদলেছে। Synthetic key event physical keyboard
 behavior প্রমাণ করে না।
+
+2026-11-13 live runtime query-তে তিন guest-এ GTK, icon, XFWM theme, `|HMC`
+titlebar controls ও Ctrl+Space switch helper binding নিশ্চিত হয়েছে। Assigned
+helper প্রতিটি guest-এ IBus engine বদলে আবার আগের engine-এ ফিরেছে। 1800×1900
+test window তিন display-এর 640×1386 viewport-এর ভেতরে resize হয়েছে; শুধু
+নিজস্ব temporary test window-গুলো বন্ধ হয়েছে। Physical keyboard event delivery
+এখনো আলাদা করে unverified।
 
 Window-fit helper-এর client coordinate translation ঠিক করা হয়েছে, EWMH
 `_NET_CLIENT_LIST`-কে WINDOW ID হিসেবে পড়ে, stale work area-কে বর্তমান screen
@@ -64,20 +71,20 @@ qualification নয়।
 - `bash tests/firefox_package_matrix.sh`: Debian, Ubuntu ও Alpine-এর জন্য exact-
   head CI-তে যোগ হয়েছে। এটি Xvfb/Openbox-এ GTK Firefox window চালিয়ে দৃশ্যমান X11
   application window map হয়েছে কি না যাচাই করে। Exact merged-main Validate run
-  `43307868038`-এ matrix pass করেছে। এই Termux host-এ Docker নেই; তাই local
+  `43359028809`-এ matrix pass করেছে। এই Termux host-এ Docker নেই; তাই local
   container pass দাবি করা হচ্ছে না।
 - `bash tests/focused.sh`: audit-এ test-hygiene issue পাওয়া গেছে—`py_compile`
   packaged asset-এর ভেতর `__pycache__` লিখছিল। এখন bytecode temporary directory-তে
-  যায়। Focused suite exact merged-main Validate run `43307868038`-এ pass করেছে;
-  stable release candidate-এর final CI-ও বাধ্যতামূলক।
-- `/apt-rc`-এর public path HTTP 200; InRelease signature publish ও regular
-  website redeploy-এর পরেও pinned key দিয়ে valid। Native Termux ওই index থেকে
-  package এনেছে। Stable `/apt` ও v2 tag/release এখনো প্রকাশের বাকি।
+  যায়। Focused suite ও পূর্ণ required CI exact-main run `43359028809`-এ pass।
+- Signed RC run `43359599505`-এর পর public path HTTP 200; `InRelease` pinned
+  fingerprint দিয়ে valid। Native Termux updated candidate package install
+  করেছে, `ternux verify --json` ও Debian/Ubuntu/Alpine-specific verify pass।
+  Stable `/apt` ও v2 tag/release এখনো প্রকাশের বাকি।
 
 ## Release ধাপ
 
-1. Exact merged-main Validate run `43307868038`-এ তিন-profile browser matrix,
-   focused test, docs/site build, package checks, repository contract ও generated state pass করেছে।
+1. Exact merged-main Validate run `43359028809`-এ তিন-profile browser matrix,
+   focused test, docs/site build, package checks ও repository contract pass করেছে।
 2. Reviewed product change merge করে deterministic `.repo/` workflow-কে state
    update বানাতে দাও। `.repo/` হাতে edit করবে না।
 3. Signed `/apt-rc`, signature/index/checksum, regular website redeploy, native

@@ -2,7 +2,7 @@
 
 **Audit date:** 2026-11-13 (UTC)
 **Repository:** `soobujmiah/ternux`
-**Audit base:** `main` at `ca0bba9093ecbe838df4b09f09dfee3197814845`
+**Audit base:** `main` at `db9fe4a70177641b1e1312d2db47462191daf582`
 **Target:** finish v2.0.0 for Debian, Ubuntu, and Alpine; publish the complete v3 architecture only after v2 acceptance.
 
 This page is the concise current-state index. Evidence, device checks, and the
@@ -15,10 +15,11 @@ never edited by hand.
 
 **All blocking v2 acceptance gates are complete.** Signed `/apt-rc` publication,
 signature/index/hash checks, a routine website redeploy, and native Termux
-install/reinstall/removal tests passed. The owner authorized stable publication;
+install/reinstall/removal tests passed, and the updated multi-distro `verify`
+selector was reinstalled from the signed RC package and verified on device. The owner authorized stable publication;
 the stable APT tree, `v2.0.0` tag, and GitHub release are now the remaining
-publication steps. Exact-main Validate run `43311661213` passed on
-`ca0bba9093ecbe838df4b09f09dfee3197814845`; it includes the clean
+publication steps. Exact-main Validate run `43359028809` passed on
+`db9fe4a70177641b1e1312d2db47462191daf582`; it includes the clean
 Debian/Ubuntu/Alpine Firefox X11 matrix. The in-place updater's staged migration,
 integrity, interrupted-update, and recovery fixtures pass; a physical rollback
 demonstration is not a v2 acceptance requirement.
@@ -30,6 +31,19 @@ a v2 support guarantee. Hardware evidence is specific to Redmi Turbo 4 Pro,
 SM8735, Adreno 825, Android 16.
 
 ## Active device work
+
+The owner's Debian `:0`, Ubuntu `:1`, and Alpine `:2` desktops remain READY at
+the same managed PIDs 18218, 14129, and 26946. The 2026-11-13 live check queried
+each X11 display at 640×1386 and confirmed its current Ternux GTK, icon, and
+XFWM theme, `|HMC` titlebar controls, and Ctrl+Space helper binding. The helper
+cycled to the other installed IBus engine and restored the original engine in
+each guest. This invocation proves the command route, not physical keyboard
+delivery.
+
+An oversized 1800×1900 test window was created separately on each existing
+display. The active watcher constrained each client to 640×1339 and kept its
+framed geometry inside the available work area; only those temporary test
+windows were destroyed. The desktops were not restarted.
 
 The owner's Debian `:0`, Ubuntu `:1`, and Alpine `:2` desktops were kept running.
 The X11 window-fit watcher fix was applied to the source and copied to all three
@@ -51,7 +65,7 @@ recorded separately; no universal GPU claim is made.
 ## Delivery order
 
 1. Exact-main browser matrix and required Validate checks passed in run
-   `43311661213`; signed RC and native package lifecycle passed.
+   `43359028809`; updated signed RC and native package verification passed.
 2. Publish stable `/apt`, verify the hosted signature and package index, switch
    the native source to stable, and confirm `pkg` resolves v2.0.0.
 3. Create the `v2.0.0` tag and GitHub release only after stable endpoints pass.
