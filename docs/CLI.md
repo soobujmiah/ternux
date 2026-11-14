@@ -73,7 +73,7 @@ tx manager migrate --recover
 ```
 
 `tx manager displays --json` includes a per-guest migration preview. It labels
-assignments as `initialize`, `keep`, or `move` and reports active-session,
+assignments as `initialize`, `keep`, or `move` and reports active-session, other-active-session,
 target-conflict, invalid-registry, or registry-mismatch blockers. The preview itself is read-only and includes a state-bound `plan_id`. Apply only
 a ready plan copied from the current snapshot with `tx manager migrate --apply
 sha256:PLAN_ID`. Apply refuses stale plans, active sessions, occupied targets,
@@ -85,15 +85,16 @@ or restarted by migration.
 
 ### `tx control`
 
-Open the mobile-first, read-only Control Center in a browser on this device. It
-shows manager health, installed guests, active desktops, display conflicts, a
-read-only display migration preview with blockers, and copyable host commands.
-It reads through the same Termux CLI payloads; it does
-not start or stop guests or edit state. The page is served from a random
-loopback-only port, uses a one-hour in-memory bearer token, rejects unexpected
-Host/Origin headers, and exposes no mutation routes. Press Ctrl-C in Termux to
-stop it. Python 3 is optional: `pkg install python`. Use `--no-open` to print
-the local link without launching a browser.
+Open the mobile-first Control Center in a browser on this device. It shows
+manager health, installed guests, active desktops, display conflicts, a display
+migration preview, and copyable host commands. For installed Ternux desktop
+guests, it can request start or stop through a state-bound plan, explicit browser
+confirmation, and a durable local job record. It does not manage generic OCI
+images or perform install/uninstall. The loopback-only server uses a one-hour
+in-memory bearer token, same-origin and CSRF checks for actions, and fixed typed
+CLI arguments. Press Ctrl-C in Termux to stop it; unfinished jobs are marked for
+status reconciliation on the next launch. Python 3 is optional: `pkg install
+python`. Use `--no-open` to print the local link without launching a browser.
 
 ```bash
 tx control

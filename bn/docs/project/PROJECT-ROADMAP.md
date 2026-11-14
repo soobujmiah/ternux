@@ -39,17 +39,15 @@ alt_url: "/docs/project/PROJECT-ROADMAP.html"
 ## বর্তমান implementation evidence
 
 বর্তমান source-এ native manager operation, foreground Unix-socket service,
-loopback-only read-only tx control dashboard এবং explicit journaled display
-migration executor আছে। Migration focused tests, তিন guest-এর lifecycle/browser
-CI এবং exact-main post-merge CI pass করেছে। Debian, Ubuntu ও Alpine live device-এ
-running থাকায় display assignment switch চালানো হয়নি। Multi-guest setup প্রথম
-guest transaction-এর আগে shared shell, সব username ও workload choice সংগ্রহ
-করে। Installer-এর 80x24 screen বড় ASCII wordmark ও compact device/graphics
-panel দেখায়; package bootstrap broken curl হলে wget fallback করে। Reference
-device-এর তিন guest install করা ও running; clean lifecycle qualification-এর
-বাকি সীমা রয়েছে। 2026-11-14-এ main source দিয়ে তিন guest managed restart,
-synthetic GUI input ও short soak pass করেছে; clean browser matrix-ও CI-তে pass
-করেছে। এগুলো পূর্ণ lifecycle বা release gate শেষ করে না। বিস্তারিত
+confirmation-সহ desktop start/stop-যুক্ত loopback dashboard এবং journaled display
+migration আছে। 2026-11-14-এ সব guest থামিয়ে reference device-এ migration করা হয়:
+Debian `:1`-এ যায়, তারপর Debian, Ubuntu ও Alpine `:1/:2/:3`-এ READY হয়। অন্য
+managed guest shared lifecycle lock ধরে রাখলে migration এখন planner-এ block হয়।
+এটি এক device-এ একটি migration/restart-এর evidence; পূর্ণ clean install/update/
+recovery/uninstall matrix নয়। Control Center backend-এ Ubuntu ও Alpine live
+stop/start, এবং migration-এর পর Debian-এর live CLI restart evidence আছে; browser
+rendered interaction এখনো যাচাই হয়নি। পূর্ণ Control Center, service supervision
+ও workspace gate বাকি। বিস্তারিত
 [implementation status](/bn/docs/project/IMPLEMENTATION-STATUS.html),
 [current-state audit](https://github.com/soobujmiah/ternux/blob/main/docs/audit/CURRENT-STATE.md)
 এবং [device verification](https://github.com/soobujmiah/ternux/blob/main/docs/audit/DEVICE-VERIFICATION.md)-এ আছে।

@@ -12,7 +12,9 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 
 ## [Unreleased]
 
-No changes recorded yet.
+### Control Center
+
+- Installed Ternux desktop guest-এর জন্য loopback-only, confirmation-bound start/stop action যোগ হয়েছে। এতে idempotent durable job record, restart reconciliation, terminal job-এর ৩০ দিনের retention এবং display migration safety guard আছে। আংশিক implementation শুধু source-এ; withdrawn v2.0.0 package-এ নেই। Device browser-এ rendered UI এখনো verify হয়নি।
 
 ## [2.0.0] - 2026-11-13
 

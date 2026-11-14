@@ -55,7 +55,7 @@ tnx_manager_guest_json() {
 tnx_manager_display_entry_json() {
   local name="$1" current target socket_present=false lock_present=false server_running=false running=false
   local target_conflict=false migration_required=false occupied=false target_owner=null target_owner_kind=unoccupied
-  local migration_action=initialize migration_blockers="[" blocker_first=1 blocker
+  local migration_action=initialize migration_blockers="[" blocker_first=1 blocker other_active=0 candidate
   local -a blockers=()
   local registry_display=null registry_lifecycle=unregistered registry_rc=0
   local -n running_guest_ref="$2"
@@ -102,8 +102,12 @@ tnx_manager_display_entry_json() {
       target_owner_kind=unidentified
     fi
   fi
+  for candidate in "${!running_guest_ref[@]}"; do
+    if [ "$candidate" != "$name" ]; then other_active=1; break; fi
+  done
   if [ "$migration_action" = move ]; then
-    if [ "$running" = true ]; then blockers+=("active-session"); fi
+    if [ "$running" = true ]; then blockers+=("active-session")
+    elif [ "$other_active" -eq 1 ]; then blockers+=("other-active-session"); fi
     if [ "$target_conflict" = true ]; then blockers+=("target-conflict"); fi
     if [ "$registry_lifecycle" = invalid ]; then blockers+=("invalid-registry")
     elif [ "$registry_display" != null ] && [ "$registry_display" != "$current" ]; then blockers+=("registry-mismatch"); fi
