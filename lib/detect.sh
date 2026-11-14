@@ -164,6 +164,8 @@ tnx_detect_vulkan_state() {
     fi
   elif [ "$icd" != yes ]; then
     if [ -e "${TERNUX_KGSL_DEVICE:-/dev/kgsl-3d0}" ]; then echo DRIVER_MISSING; else echo ICD_MISSING; fi
+  elif [ "$enum_rc" = 127 ]; then
+    echo PROBE_UNAVAILABLE
   elif [ "$enum_rc" != 0 ]; then
     echo DEVICE_ENUMERATION_FAILED
   else
@@ -174,6 +176,7 @@ tnx_detect_vulkan_state() {
 tnx_vulkan_legacy_status() {
   case "${1:-$(tnx_detect_vulkan_state)}" in
     VULKAN_READY) echo yes ;;
+    PROBE_UNAVAILABLE) echo "unverified (vulkaninfo missing)" ;;
     SOFTWARE_FALLBACK) echo "no (software fallback)" ;;
     *) echo "no ($1)" ;;
   esac

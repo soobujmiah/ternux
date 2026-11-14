@@ -77,12 +77,17 @@ source-ই রাখে এবং frame-এর ভেতর `termux-change-repo`
 হলে নিজে mirror বেছে `--resume` দিয়ে আবার চালান।
 
 **আপগ্রেডের পর curl ভেঙে গেছে?** (`CANNOT LINK … SSL_set_quic_tls_transport_params`)
-আংশিক আপগ্রেডে curl ও openssl সামঞ্জস্য হারিয়েছে। wget ব্যবহার করুন — একই
-ইনস্টলার, আর স্ক্রিপ্ট আপনার curl নিজেই মেরামত করে দেবে:
+আংশিক আপগ্রেডে curl ও OpenSSL-এর সামঞ্জস্য নষ্ট হতে পারে। সরাসরি wget ব্যবহার
+করুন—ইনস্টলার একই থাকবে:
 
 ```bash
 wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
 ```
+
+curl বা wget কোনোটিই চালু না হলে `apt update && apt full-upgrade` দিয়ে
+Termux-এর package upgrade শেষ করুন, তারপর উপরের installer command আবার চালান।
+আংশিক upgrade-এ curl ও OpenSSL-এর অমিল হতে পারে; তাই শুরুতেই `pkg update` দেবেন
+না। wget অনুপস্থিত থাকলে upgrade-এর পর `apt install wget` চালান।
 
 ### Optional workload checklist
 
