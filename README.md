@@ -91,23 +91,25 @@ renderer depends on the device and Android graphics stack, so check it with
    adds terminal themes and fonts. Ternux desktop apps capture live microphone audio
    on demand through Termux's OpenSL ES source; the API's recorder is file-based.
    Install Termux and its add-ons from the same source.
-2. Termux uses a rolling package set. The one-command bootstrap completes a
-   full upgrade before it installs curl and runs Ternux; `pkg update` alone
-   does not upgrade linked libraries:
+2. On a healthy, current Termux install, use `pkg` to update packages, install
+   a downloader, and run the source installer:
 
 ```bash
-apt update && apt full-upgrade -y && apt install curl -y && bash -o pipefail -c 'curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'
+pkg update -y && pkg upgrade -y && pkg install -y curl && bash -o pipefail -c 'curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'
 ```
 
 If curl is unavailable, use wget instead:
 
 ```bash
-apt update && apt full-upgrade -y && apt install wget -y && bash -o pipefail -c 'wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'
+pkg update -y && pkg upgrade -y && pkg install -y wget && bash -o pipefail -c 'wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'
 ```
 
-If an earlier `pkg install curl` left curl unable to start, run
-`apt update && apt full-upgrade -y` before trying `pkg` again. Termux's `pkg`
-wrapper depends on curl, while `apt` can repair the complete package set.
+If a partial upgrade left `pkg` or curl unable to start, finish the repair with
+`apt update && apt full-upgrade -y`, then retry the `pkg` command. The standalone
+source installer is the supported install route. `pkg install ternux` is
+currently unavailable because the stable signed APT repository was withdrawn;
+the RC package channel is for candidate testing and its hosted availability is
+not currently verified.
 
 The Ternux v2.0.0 GitHub release and stable APT distribution were withdrawn
 on 2026-11-14. The `v2.0.0` source tag remains available for provenance. Use

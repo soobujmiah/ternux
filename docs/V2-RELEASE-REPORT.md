@@ -31,18 +31,7 @@ APT repository:
   `4ef03210c71e3d5671671e9a49fc83f6aebf7cdb5e5a28cb32db61d49e85c89f`
 - `SHA256SUMS` — checksum manifest for the package.
 
-To use `pkg install ternux`, first bootstrap the signed stable repository once:
-
-```sh
-pkg install curl gnupg
-curl -fsSLo "$TMPDIR/ternux-bootstrap.sh" \
-  https://soobujmiah.github.io/ternux/apt/bootstrap.sh
-bash "$TMPDIR/ternux-bootstrap.sh"
-tx install
-```
-
-The [Termux APT guide](TERMUX-APT.md) covers updates, key verification, and the
-separate opt-in release-candidate channel.
+The signed repository and package route described below were withdrawn on 2026-11-14. This section records the historical v2 install flow; its bootstrap URL now returns HTTP 404. `pkg install ternux` is not currently available. Use the source installer in the [current installation guide](INSTALLATION.md).
 
 ## Release verification
 

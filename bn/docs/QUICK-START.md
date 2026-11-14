@@ -28,18 +28,19 @@ mirror এবং network অনুযায়ী বদলাবে।
 Termux খুলে পেস্ট করুন:
 
 ```bash
-apt update && apt full-upgrade -y && apt install curl -y && bash -o pipefail -c 'curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'
+pkg update -y && pkg upgrade -y && pkg install -y curl && bash -o pipefail -c 'curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'
 ```
 
 আপগ্রেডের পর curl ভেঙে গেছে? wget দিয়েও একই কাজ:
 
 ```bash
-apt update && apt full-upgrade -y && apt install wget -y && bash -o pipefail -c 'wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'
+pkg update -y && pkg upgrade -y && pkg install -y wget && bash -o pipefail -c 'wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'
 ```
 
-curl ও wget দুটিই চালু না হলে Termux-এ `apt update && apt full-upgrade` দিয়ে
-package upgrade শেষ করে installer আবার চালান। আংশিক upgrade-এ curl ও OpenSSL-এর
-অমিল হতে পারে.
+আংশিক upgrade-এ `pkg` বা curl চালু না হলে `apt update && apt full-upgrade -y`
+চালিয়ে Termux repair করে আবার চেষ্টা করুন। Stable signed APT repository বন্ধ,
+তাই `pkg install ternux` এখন পাওয়া যাচ্ছে না; RC package channel শুধু candidate
+test-এর জন্য এবং hosted availability এখন যাচাই করা যায়নি।
 
 Interactive terminal-এ প্রথমে checklist থেকে এক বা একাধিক named guest profile বাছুন: Up/Down বা `j`/`k` দিয়ে চলুন, Space বা profile number দিয়ে selection toggle করুন, তারপর Enter চাপুন। Debian সুপারিশ করা default। **Ternux v2 শুধু Debian, Ubuntu ও Alpine support করে।** একটি Adreno 825 device-এ এই তিনটির desktop, graphics, audio routing, IBus setup ও theme evidence আছে; clean Firefox install exact-main CI-তে pass করেছে। Alpine-এর synthetic Ctrl+Space event-এ অমিল আছে এবং এই evidence সব app qualify করে না। অন্য ১২টি recipe আছে, কিন্তু v2-supported নয়। পরের checklist-এ optional workload বাছুন; base desktop-এর জন্য Enter বা `0` চাপুন, অথবা দেখানো number দিন। Non-interactive run-এ `--yes` Debian base profile রাখে। [সব guest profile ও package-family recipe](INSTALLATION.html#guest-distribution-বাছাই) দেখুন।
 

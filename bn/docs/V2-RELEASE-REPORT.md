@@ -30,19 +30,7 @@ GitHub release-এ signed APT repository-তে থাকা একই stable pa
   `4ef03210c71e3d5671671e9a49fc83f6aebf7cdb5e5a28cb32db61d49e85c89f`
 - `SHA256SUMS` — package checksum manifest।
 
-`pkg install ternux` ব্যবহার করতে প্রথমে signed stable repository একবার
-bootstrap করুন:
-
-```sh
-pkg install curl gnupg
-curl -fsSLo "$TMPDIR/ternux-bootstrap.sh" \
-  https://soobujmiah.github.io/ternux/apt/bootstrap.sh
-bash "$TMPDIR/ternux-bootstrap.sh"
-tx install
-```
-
-[Termux APT guide](TERMUX-APT.md)-এ update, key verification এবং আলাদা opt-in
-release-candidate channel-এর নির্দেশনা আছে।
+নিচের signed repository ও package install পথ 2026-11-14-এ প্রত্যাহার করা হয়েছে। এই অংশে v2-এর পুরোনো install পদ্ধতি নথিভুক্ত; bootstrap URL এখন HTTP 404 দেয়। `pkg install ternux` বর্তমানে পাওয়া যাচ্ছে না। [বর্তমান install guide](INSTALLATION.md)-এর source installer ব্যবহার করুন।
 
 ## Release যাচাই
 

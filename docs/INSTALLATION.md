@@ -56,7 +56,7 @@ the finished installation itself is approximately **4–4.6 GB** or **10.5–12.
 ## Method 1 — One command (recommended)
 
 ```bash
-apt update && apt full-upgrade -y && apt install curl -y && bash -o pipefail -c 'curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'
+pkg update -y && pkg upgrade -y && pkg install -y curl && bash -o pipefail -c 'curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'
 ```
 
 This downloads the installer over HTTPS and runs it. With an attached terminal,
@@ -90,16 +90,16 @@ Termux package upgrade first. A partial upgrade can leave curl and OpenSSL out
 of sync, and starting with `pkg update` may repeat the failure:
 
 ```bash
-apt update && apt full-upgrade -y && apt install wget -y && bash -o pipefail -c 'wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'
+pkg update -y && pkg upgrade -y && pkg install -y wget && bash -o pipefail -c 'wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'
 ```
 
-The copied commands first run `apt update && apt full-upgrade -y`, then install
-the selected downloader and use `pipefail` so a failed download cannot look
-like a successful empty Bash run. Termux is rolling-release: do not install
-curl with `pkg install curl` before completing the full upgrade. If an earlier
-partial upgrade already broke curl, the `apt` preflight repairs the complete
-package set before the downloader is used. Termux's `pkg` wrapper depends on
-curl and may fail until that repair completes.
+The commands update Termux, complete the rolling-release package upgrade, then
+install the selected downloader. `pipefail` ensures a failed download cannot
+look like a successful empty Bash run. If a partial upgrade left `pkg` or curl
+unable to start, run `apt update && apt full-upgrade -y` to repair Termux, then
+retry. `pkg install ternux` is currently unavailable: the stable signed APT
+repository was withdrawn. The RC channel is only for candidate testing and its
+hosted availability is not currently verified.
 
 ### Optional workload chooser
 
@@ -579,7 +579,7 @@ presence before trusting old guest phase records.
 ```bash
 ternux uninstall                    # preferred — interactive removal
 # or
-curl -fsSL https://soobujmiah.github.io/ternux/uninstall.sh | bash
+curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/uninstall.sh | bash
 # or
 bash install.sh --uninstall
 ```

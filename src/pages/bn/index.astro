@@ -233,12 +233,12 @@ import RenderBench from "../../components/RenderBench.astro";
             <button
               type="button"
               data-copy
-              data-copy-value="apt update && apt full-upgrade -y && apt install curl -y && bash -o pipefail -c 'curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'"
+              data-copy-value="pkg update -y && pkg upgrade -y && pkg install -y curl && bash -o pipefail -c 'curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'"
             >
               কপি
             </button>
             <code>
-              apt update && apt full-upgrade -y && apt install curl -y && bash
+              pkg update -y && pkg upgrade -y && pkg install -y curl && bash
               -o pipefail -c 'curl -fsSL
               https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh
               | bash'
@@ -249,25 +249,23 @@ import RenderBench from "../../components/RenderBench.astro";
             <button
               type="button"
               data-copy
-              data-copy-value="apt update && apt full-upgrade -y && apt install wget -y && bash -o pipefail -c 'wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'"
+              data-copy-value="pkg update -y && pkg upgrade -y && pkg install -y wget && bash -o pipefail -c 'wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'"
             >
               কপি
             </button>
             <code>
-              apt update && apt full-upgrade -y && apt install wget -y && bash
+              pkg update -y && pkg upgrade -y && pkg install -y wget && bash
               -o pipefail -c 'wget -qO-
               https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh
               | bash'
             </code>
           </div>
           <p class="install-note">
-            এই command-গুলো downloader install-এর আগে{" "}
-            <code>apt full-upgrade</code> সম্পন্ন করে এবং <code>pipefail</code>{" "}
-            চালু রাখে—তাই download ব্যর্থ হলে সফল দেখাবে না। Termux-এর{" "}
-            <code>pkg</code> wrapper curl চায়; full upgrade-এর আগে{" "}
-            <code>pkg install curl</code> দেবেন না। আগের partial upgrade-এ curl
-            ভেঙে থাকলে উপরের apt-first command সেটি repair করে। Stable APT
-            channel withdrawn;{" "}
+            এই command-গুলো Termux package upgrade শেষ করে downloader install করে
+            এবং <code>pipefail</code> চালু রাখে—তাই download ব্যর্থ হলে সফল দেখাবে
+            না। Partial upgrade-এ <code>pkg</code> বা curl চালু না হলে উপরের
+            apt-first command দিয়ে repair করুন। Stable APT channel বন্ধ, তাই{" "}
+            <code>pkg install ternux</code> এখন পাওয়া যাচ্ছে না;{" "}
             <a href="/ternux/bn/docs/TERMUX-APT.html">
               বর্তমান channel status দেখুন ↗
             </a>

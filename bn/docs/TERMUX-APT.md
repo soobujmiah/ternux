@@ -12,11 +12,12 @@ withdraw হয়েছে। Public `/apt` bootstrap, key, index ও package p
 তথ্য historical record। আগে থেকে install করা package অক্ষত আছে, তবে stable APT
 থেকে Ternux update আর পাওয়া যায় না।
 
-Signed `/apt-rc` channel কেবল opt-in candidate test-এর জন্য আছে; production
-install source হিসেবে এটি সমর্থিত নয়। পরের stable release v2 major-এই থাকবে।
-আগে v3 নামে পরিকল্পিত সম্পূর্ণ platform architecture ও acceptance gate শেষ হলে
-নতুন 2.x stable release হবে। বিস্তারিত [project roadmap](/bn/docs/project/PROJECT-ROADMAP.html)
-দেখুন; ততদিন [main installation guide](../README.md)-এর source installer ব্যবহার করুন।
+এখন source installer-ই সমর্থিত install পথ; [main installation
+guide](../README.md) দেখুন। 2026-11-15 তারিখে যাচাই করে Pages-এর `/apt-rc`
+bootstrap ও signed index-ও HTTP 404 পাওয়া গেছে। তাই hosted stable বা RC
+repository থেকে `pkg install ternux` বর্তমানে পাওয়া যাচ্ছে না। RC channel আবার
+প্রকাশিত হলে সেটি শুধু opt-in candidate test-এর জন্য থাকবে। পরের stable release
+v2 major-এই থাকবে; বিস্তারিত [project roadmap](/bn/docs/project/PROJECT-ROADMAP.html)।
 
 ## Trust fingerprint
 
@@ -38,42 +39,13 @@ Withdraw হওয়া stable repository-তে `ternux_2.0.0_all.deb` ছি�
 `4ef03210c71e3d5671671e9a49fc83f6aebf7cdb5e5a28cb32db61d49e85c89f`। এগুলো
 audit-এর জন্য রাখা, বর্তমান download route নয়।
 
-## Opt-in RC channel
+## RC channel
 
-শুধু candidate package ইচ্ছাকৃতভাবে test করলে RC bootstrap ব্যবহার করুন। আলাদা
-path থেকে নামিয়ে উপরের fingerprint যাচাই করে RC source configure করুন:
+নিচের RC setup নির্দেশগুলো পুরোনো। 2026-11-15 তারিখে hosted bootstrap ও index
+যাচাই করে HTTP 404 পাওয়া গেছে, তাই এগুলো দিয়ে এখন কার্যকর package source যোগ
+হবে না। Stable বা RC—কোনো hosted source থেকেই `pkg install ternux` এখন install
+করবে না। Candidate channel আবার প্রকাশিত হলে এই নির্দেশ ফেরানোর আগে bootstrap
+URL ও signed index যাচাই করতে হবে।
 
-RC source যোগ করার আগে Termux-এর pending package upgrade শেষ করুন, যাতে downloader
-ও OpenSSL একই package generation-এর থাকে। `curl --version` ব্যর্থ হলে সচল `wget`
-ব্যবহার করুন, অথবা আগে সম্পূর্ণ `apt` upgrade চালান। ভাঙা curl repair করতে
-`pkg update` দেবেন না—Termux-এর `pkg` wrapper নিজেই curl-এর ওপর নির্ভর করে।
-`pkg update` curl চালাতে না পেরে ব্যর্থ হলে bootstrap এখন `apt-get` দিয়ে
-package set repair করে।
-
-```bash
-apt update && apt full-upgrade -y
-apt install curl gnupg -y
-curl -fsSLo "$TMPDIR/ternux-rc-bootstrap.sh" \
-  https://soobujmiah.github.io/ternux/apt-rc/bootstrap.sh
-bash "$TMPDIR/ternux-rc-bootstrap.sh" --channel rc --configure-only
-pkg update && pkg install ternux
-```
-
-Upgrade-এর পরে curl চালু না হলে wget দিয়ে একই bootstrap নামান:
-
-```bash
-apt update && apt full-upgrade -y
-apt install wget gnupg -y
-wget -qO "$TMPDIR/ternux-rc-bootstrap.sh" \
-  https://soobujmiah.github.io/ternux/apt-rc/bootstrap.sh
-bash "$TMPDIR/ternux-rc-bootstrap.sh" --channel rc --configure-only
-pkg update && pkg install ternux
-```
-
-RC repository stable channel থেকে আলাদা এবং এতে pre-release package থাকতে পারে;
-এটিকে stable update source হিসেবে ব্যবহার করবেন না। Project-এর `main` branch-এর
-source installer ব্যবহার করা যায়।
-
-সাধারণ website deploy-তে শুধু বর্তমানে প্রকাশিত APT channel থাকে। v2 stable
-signed tree ইচ্ছাকৃতভাবে অনুপস্থিত; opt-in RC tree সংরক্ষণের আগে signature ও
-checksum যাচাই হয়।
+আপাতত project-এর `main` branch-এর source installer ব্যবহার করুন। Website deploy-এ
+শুধু প্রকাশিত এবং signature ও checksum যাচাই করা APT channel রাখা হয়।
