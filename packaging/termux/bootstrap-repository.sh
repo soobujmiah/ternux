@@ -82,7 +82,8 @@ download_key() {
 
     case "$tool" in
       curl)
-        if curl --fail --silent --show-error --location --proto '=https' --tlsv1.2 \
+        if curl --fail --silent --show-error --location --connect-timeout 15 --max-time 30 \
+          --retry 2 --retry-delay 1 --proto '=https' --tlsv1.2 \
           --output "$work_dir/ternux-archive-key.asc" "$key_url"; then
           return 0
         fi

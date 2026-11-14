@@ -283,7 +283,7 @@ feed_phase_three() {
   echo "[FAIL] GPU driver setup (status 100)"
 }
 
-tnx_frame_open 3 zink ternux base
+tnx_frame_open 3 zink ternux base "Debian + Xfce"
 tnx_frame_phase 1 3 "Base packages (X11, PulseAudio, PRoot)"
 feed_phase_one 2>&1 | tnx_frame_stream
 tnx_frame_phase 2 3 "Debian container + Xfce4"
@@ -421,23 +421,18 @@ def analyse(tap: Tap, screen: Screen, log: str, raw: str, label: str, expect_cle
     tap.check(cols is not None, f"{label}: frame has a top rule", screen.text())
     visible = screen.text()
     branded_frame = any(
-        ("Ternux" in snapshot and "Linux workstation in your pocket" in snapshot)
-        or "### ### ##. #.# #.# #.#" in snapshot
+        "Ternux installer" in snapshot and "Debian + Xfce" in snapshot
         for _elapsed, snapshot, _html in screen.snapshots
     )
     tap.check(
         branded_frame,
-        f"{label}: compact brand header appears with a clear product descriptor",
+        f"{label}: compact header names the installer and selected guest",
         visible,
     )
-    tap.check("▩" not in raw, f"{label}: brand header uses terminal-safe ASCII art")
-    if label == "portrait 58x34":
-        logo_text = "### ### ##. #.# #.# #.#"
-        device_below = any(
-            logo_text in snapshot and "Device" in snapshot and snapshot.index("Device") > snapshot.index(logo_text)
-            for _elapsed, snapshot, _html in screen.snapshots
-        )
-        tap.check(device_below, f"{label}: ASCII TERNUX logo appears above the device panel", visible)
+    tap.check(
+        any("Debian" in snapshot for _elapsed, snapshot, _html in screen.snapshots),
+        f"{label}: selected guest is visible during installation",
+    )
     if cols:
         left, right = cols
         rule_rows = [r for r in range(screen.rows) if screen.line(r).lstrip().startswith("+")]
@@ -525,16 +520,14 @@ def main() -> int:
         print(screen.text())
         print("--- end ---\n")
 
-    # 2. Standard phone terminal keeps the large wordmark and compact device panel.
+    # 2. Standard phone terminal keeps the compact guest header and device panel.
     screen2, log2, raw2 = run(args.lib, 24, 80)
     analyse(tap, screen2, log2, raw2, "phone 80x24", expect_clears=3)
-    logo_text = "### ### ##. #.# #.# #.#"
     compact_device = any(
-        logo_text in snapshot and "Device" in snapshot and "Graphics" in snapshot
-        and snapshot.index("Device") > snapshot.index(logo_text)
+        "Ternux installer" in snapshot and "Debian" in snapshot and "Device" in snapshot and "Graphics" in snapshot
         for _elapsed, snapshot, _html in screen2.snapshots
     )
-    tap.check(compact_device, "phone 80x24: large ASCII wordmark precedes device and graphics details", screen2.text())
+    tap.check(compact_device, "phone 80x24: guest header and device details are visible", screen2.text())
 
     # 3. Compact portrait still shows hardware and backend status.
     screen3, log3, raw3 = run(args.lib, 18, 41)

@@ -59,7 +59,18 @@ apt install curl gnupg -y
 curl -fsSLo "$TMPDIR/ternux-rc-bootstrap.sh" \
   https://soobujmiah.github.io/ternux/apt-rc/bootstrap.sh
 bash "$TMPDIR/ternux-rc-bootstrap.sh" --channel rc --configure-only
-bash "$TMPDIR/ternux-rc-bootstrap.sh" --channel rc
+pkg update && pkg install ternux
+```
+
+If curl cannot start after the upgrade, download the same bootstrap with wget:
+
+```bash
+apt update && apt full-upgrade -y
+apt install wget gnupg -y
+wget -qO "$TMPDIR/ternux-rc-bootstrap.sh" \
+  https://soobujmiah.github.io/ternux/apt-rc/bootstrap.sh
+bash "$TMPDIR/ternux-rc-bootstrap.sh" --channel rc --configure-only
+pkg update && pkg install ternux
 ```
 
 The RC repository is separate from stable and may contain pre-release packages.

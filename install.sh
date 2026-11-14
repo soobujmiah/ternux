@@ -71,11 +71,11 @@ _tnx_download_archive() {
     echo "[INFO] Downloading the pinned source bundle with $tool..."
     case "$tool" in
       curl)
-        curl -fL --retry 3 --retry-delay 2 --connect-timeout 15 --max-time 900 \
+        curl -fL --retry 2 --retry-delay 2 --connect-timeout 15 --max-time 180 \
           "$url" -o "$archive" 2>/dev/null && return 0
         ;;
       wget)
-        wget -q --timeout=900 --tries=3 "$url" -O "$archive" 2>/dev/null && return 0
+        wget -q --timeout=60 --tries=2 "$url" -O "$archive" 2>/dev/null && return 0
         ;;
     esac
     rm -f "$archive"

@@ -7,3 +7,4 @@ Icon=org.xfce.webbrowser
 Terminal=false
 Categories=Network;WebBrowser;
 StartupNotify=true
+NoDisplay=true
