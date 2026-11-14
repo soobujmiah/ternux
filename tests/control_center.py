@@ -15,7 +15,7 @@ import urllib.parse
 import urllib.request
 import time
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 ROOT = Path(__file__).resolve().parents[1]
 SPEC = importlib.util.spec_from_file_location("ternux_control_center", ROOT / "lib/control_center.py")
@@ -144,6 +144,22 @@ class ControlCenterTest(unittest.TestCase):
     def test_only_one_control_center_service_owns_durable_job_recovery(self):
         with self.assertRaises(RuntimeError):
             control.LocalServer(("127.0.0.1", 0), control.Handler, "another-session-token", ROOT / "lib" / "control-center")
+
+    def test_client_disconnect_during_response_is_closed_without_traceback(self):
+        handler = object.__new__(control.Handler)
+        handler.command = "GET"
+        handler.close_connection = False
+        handler.send_response = Mock()
+        handler.send_header = Mock()
+        handler.end_headers = Mock()
+        handler.wfile = Mock()
+        handler.wfile.write.side_effect = BrokenPipeError("peer closed")
+
+        handler._write(200, b"response", "text/plain")
+
+        self.assertTrue(handler.close_connection)
+        handler.end_headers.assert_called_once()
+        handler.wfile.write.assert_called_once_with(b"response")
 
     def test_cli_starts_loopback_dashboard_and_stops_cleanly(self):
         self.server.shutdown()
