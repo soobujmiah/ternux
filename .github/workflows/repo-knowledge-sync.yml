@@ -147,7 +147,7 @@ jobs:
       - name: Upload validated repository state
         if: always() && steps.verify.outcome == 'success' && github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
         id: state_artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: repo-state-${{ github.run_id }}-${{ github.run_attempt }}
           path: .repo/
@@ -166,7 +166,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v8
         with:
           name: repo-state-${{ github.run_id }}-${{ github.run_attempt }}
           path: .repo/

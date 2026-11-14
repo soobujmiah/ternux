@@ -166,7 +166,7 @@ jobs:
           tar -tzf "$tag.tar.gz" > release-contents.txt
 
       - name: Upload inspected prerelease candidate
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: ternux-stable-diffusion-vulkan-linux-arm64-master-1053-candidate
           path: |
@@ -208,7 +208,7 @@ jobs:
       contents: read
     steps:
       - name: Download the verified candidate without rebuilding
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: ternux-stable-diffusion-vulkan-linux-arm64-master-1053-candidate
           github-token: ${{ github.token }}
@@ -218,7 +218,7 @@ jobs:
       - name: Verify archive checksum
         run: (cd candidate && sha256sum --check ternux-stable-diffusion-vulkan-linux-arm64-master-1053.tar.gz.sha256)
       - name: Re-upload the exact inspected artifact with extended retention
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: ternux-stable-diffusion-vulkan-linux-arm64-master-1053-candidate
           path: |
@@ -246,7 +246,7 @@ jobs:
           fetch-depth: 0
 
       - name: Download inspected prerelease candidate
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: ternux-stable-diffusion-vulkan-linux-arm64-master-1053-candidate
           github-token: ${{ github.token }}

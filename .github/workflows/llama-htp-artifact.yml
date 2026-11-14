@@ -183,7 +183,7 @@ jobs:
           sed -n '1,40p' archive-contents.txt
 
       - name: Upload build artifact for review
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: ternux-llama-htp-sm8735-b11582
           path: |
@@ -227,7 +227,7 @@ jobs:
       contents: read
     steps:
       - name: Download the verified HTP artifact without rebuilding
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: ternux-llama-htp-sm8735-b11582
           github-token: ${{ github.token }}
@@ -237,7 +237,7 @@ jobs:
       - name: Verify archive checksum
         run: (cd candidate && sha256sum --check ternux-llama-htp-sm8735-b11582.tar.gz.sha256)
       - name: Re-upload the exact inspected artifact with extended retention
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: ternux-llama-htp-sm8735-b11582
           path: |
@@ -266,7 +266,7 @@ jobs:
           fetch-depth: 0
 
       - name: Download the exact build artifact
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: ternux-llama-htp-sm8735-b11582
           github-token: ${{ github.token }}
