@@ -8,6 +8,12 @@ mkdir -p "$prefix/etc/apt" "$prefix/tmp" "$tmp/bin"
 cat > "$tmp/bin/curl" <<'STUB'
 #!/usr/bin/env bash
 set -euo pipefail
+if [[ " ${*} " == *' --version '* ]]; then
+  [[ "${MOCK_CURL_BROKEN:-0}" != 1 ]] || exit 127
+  printf 'mock curl 1.0\n'
+  exit 0
+fi
+[[ "${MOCK_CURL_DOWNLOAD_FAIL:-0}" != 1 ]] || exit 22
 while (($#)); do
   if [[ "$1" == --output ]]; then
     printf 'mock public key\n' > "$2"
@@ -20,6 +26,10 @@ STUB
 cat > "$tmp/bin/wget" <<'STUB'
 #!/usr/bin/env bash
 set -euo pipefail
+if [[ " ${*} " == *' --version '* ]]; then
+  printf 'mock wget 1.0\n'
+  exit 0
+fi
 for arg in "$@"; do
   if [[ "$arg" == --output-document=* ]]; then
     printf 'mock public key\n' > "${arg#*=}"
@@ -80,6 +90,30 @@ if env PATH="$no_curl_path" PREFIX="$tmp/prefix-wget" TMPDIR="$tmp/prefix-wget/t
     "$tmp/prefix-wget/etc/apt/sources.list.d/ternux.list"
 else
   echo 'wget-only fingerprint configure-only path failed' >&2
+  exit 1
+fi
+mkdir -p "$tmp/prefix-broken-curl/etc/apt" "$tmp/prefix-broken-curl/tmp"
+if env PATH="$tmp/bin:$PATH" PREFIX="$tmp/prefix-broken-curl" TMPDIR="$tmp/prefix-broken-curl/tmp" \
+  MOCK_FINGERPRINT="$expected" MOCK_CURL_BROKEN=1 PKG_LOG="$tmp/pkg-broken-curl.log" \
+  bash "$root/packaging/termux/bootstrap-repository.sh" --configure-only \
+  > "$tmp/broken-curl.log" 2> "$tmp/broken-curl.err"; then
+  test -s "$tmp/prefix-broken-curl/etc/apt/keyrings/ternux.gpg"
+  grep -Fxq "deb [signed-by=$tmp/prefix-broken-curl/etc/apt/keyrings/ternux.gpg] https://soobujmiah.github.io/ternux/apt stable main" \
+    "$tmp/prefix-broken-curl/etc/apt/sources.list.d/ternux.list"
+  grep -q 'curl is installed but cannot start' "$tmp/broken-curl.err"
+else
+  echo 'broken-curl wget fallback failed' >&2
+  exit 1
+fi
+mkdir -p "$tmp/prefix-curl-download-fail/etc/apt" "$tmp/prefix-curl-download-fail/tmp"
+if env PATH="$tmp/bin:$PATH" PREFIX="$tmp/prefix-curl-download-fail" TMPDIR="$tmp/prefix-curl-download-fail/tmp" \
+  MOCK_FINGERPRINT="$expected" MOCK_CURL_DOWNLOAD_FAIL=1 PKG_LOG="$tmp/pkg-curl-fail.log" \
+  bash "$root/packaging/termux/bootstrap-repository.sh" --configure-only \
+  > "$tmp/curl-fail.log" 2> "$tmp/curl-fail.err"; then
+  test -s "$tmp/prefix-curl-download-fail/etc/apt/keyrings/ternux.gpg"
+  grep -q 'curl could not download the repository key' "$tmp/curl-fail.err"
+else
+  echo 'curl download-failure wget fallback failed' >&2
   exit 1
 fi
 if env PATH="$tmp/bin:$PATH" PREFIX="$prefix" TMPDIR="$prefix/tmp" \

@@ -6,7 +6,7 @@ alt_url: "/bn/docs/V3-PROPOSALS.html"
 ---
 
 This page preserves the early post-v2 proposal backlog. The owner has since
-authorized a broader v3 direction, now recorded as a design baseline in the
+moved the required platform direction into the next v2-major release, documented in the
 [v3 architecture overview](V3-ARCHITECTURE.html) and its
 [implementation roadmap](v3/IMPLEMENTATION-ROADMAP.html). Those documents are
 design, not proof of implementation or release qualification. The candidate
@@ -58,8 +58,8 @@ full-featured XFCE option.
 
 ## Proposal status
 
-All five items are **proposed**. None is represented as implemented or
-committed for v3. Current v2 behavior and limitations remain documented in the
+These five entries are historical proposals, not the canonical scope for the
+next v2-major release. Required platform work is tracked in the [project roadmap](project/PROJECT-ROADMAP.html) and [acceptance criteria](v3/ACCEPTANCE-CRITERIA.html). Current implementation and limitations are documented in the
 [v2 release-readiness report](V2-RELEASE-READINESS.md),
 [installation guide](INSTALLATION.md), and
 [accelerator release plan](ACCELERATOR-RELEASE-PLAN.md).

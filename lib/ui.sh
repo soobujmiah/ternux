@@ -73,7 +73,7 @@ _TNX_ANIM=1
 _TNX_NEED_NL=0
 
 # Layout row indices (computed from the current terminal size).
-_TNX_LY_TITLE=2; _TNX_LY_TITLE2=0; _TNX_LY_TITLE3=0; _TNX_LY_TITLE4=0; _TNX_LY_TITLE5=0; _TNX_LY_IDENT=3; _TNX_LY_VER=4; _TNX_LY_BY=5; _TNX_LY_DIV1=6; _TNX_LY_DEV0=7; _TNX_LY_DEV_ON=1
+_TNX_LY_TITLE=2; _TNX_LY_TITLE2=0; _TNX_LY_TITLE3=0; _TNX_LY_TITLE4=0; _TNX_LY_TITLE5=0; _TNX_LY_IDENT=3; _TNX_LY_VER=4; _TNX_LY_BY=5; _TNX_LY_DIV1=6; _TNX_LY_DEV0=7; _TNX_LY_DEV_ON=1; _TNX_LY_DEV_COMPACT=0
 _TNX_LY_PROG=12; _TNX_LY_BAR=13; _TNX_LY_TASK=14; _TNX_LY_DIV2=15; _TNX_LY_LOGTOP=16
 _TNX_LY_LOGBOT=21; _TNX_LY_DIV3=22; _TNX_LY_FOOTER=23; _TNX_LY_BOT=24
 # Device panel content.
@@ -348,25 +348,26 @@ _tnx_plain_cols() {
 # deliberately leaves more vertical space for install output on phone screens.
 _tnx_frame_layout() {
   local R="$_TNX_FRAME_ROWS" C="$_TNX_FRAME_COLS"
-  _TNX_LY_DEV_ON=0
+  _TNX_LY_DEV_ON=0; _TNX_LY_DEV_COMPACT=0
   if (( R >= 32 && C >= 44 )); then
     _TNX_LY_LOGO_ROWS=5
     _TNX_LY_TITLE=2; _TNX_LY_TITLE2=7; _TNX_LY_TITLE3=0; _TNX_LY_TITLE4=0; _TNX_LY_TITLE5=0
     _TNX_LY_IDENT=0; _TNX_LY_VER=8; _TNX_LY_BY=0; _TNX_LY_DIV1=9
     _TNX_LY_DEV_ON=1; _TNX_LY_DEV0=10
     _TNX_LY_PROG=16; _TNX_LY_BAR=17; _TNX_LY_TASK=18; _TNX_LY_DIV2=19; _TNX_LY_LOGTOP=20
-  elif (( R >= 26 && C >= 44 )); then
+  elif (( R >= 24 && C >= 44 )); then
+    _TNX_LY_LOGO_ROWS=5
+    _TNX_LY_TITLE=2; _TNX_LY_TITLE2=0; _TNX_LY_TITLE3=0; _TNX_LY_TITLE4=0; _TNX_LY_TITLE5=0
+    _TNX_LY_IDENT=0; _TNX_LY_VER=7; _TNX_LY_BY=0; _TNX_LY_DIV1=8
+    _TNX_LY_DEV_ON=1; _TNX_LY_DEV_COMPACT=1; _TNX_LY_DEV0=9
+    _TNX_LY_PROG=12; _TNX_LY_BAR=13; _TNX_LY_TASK=14; _TNX_LY_DIV2=15; _TNX_LY_LOGTOP=16
+  elif (( R >= 18 && C >= 39 )); then
     _TNX_LY_LOGO_ROWS=0
     _TNX_LY_TITLE=2; _TNX_LY_TITLE2=3; _TNX_LY_TITLE3=0; _TNX_LY_TITLE4=0; _TNX_LY_TITLE5=0
     _TNX_LY_IDENT=0; _TNX_LY_VER=4; _TNX_LY_BY=0; _TNX_LY_DIV1=5
-    _TNX_LY_DEV_ON=1; _TNX_LY_DEV0=6
-    _TNX_LY_PROG=12; _TNX_LY_BAR=13; _TNX_LY_TASK=14; _TNX_LY_DIV2=15; _TNX_LY_LOGTOP=16
-  elif (( R >= 18 && C >= 44 )); then
-    _TNX_LY_LOGO_ROWS=0
-    _TNX_LY_TITLE=2; _TNX_LY_TITLE2=3; _TNX_LY_TITLE3=0; _TNX_LY_TITLE4=0; _TNX_LY_TITLE5=0
-    _TNX_LY_IDENT=0; _TNX_LY_VER=4; _TNX_LY_BY=0; _TNX_LY_DIV1=5; _TNX_LY_DEV0=0
-    _TNX_LY_PROG=6; _TNX_LY_BAR=7; _TNX_LY_TASK=8; _TNX_LY_DIV2=9; _TNX_LY_LOGTOP=10
-  elif (( R >= 18 && C >= 39 )); then
+    _TNX_LY_DEV_ON=1; _TNX_LY_DEV_COMPACT=1; _TNX_LY_DEV0=6
+    _TNX_LY_PROG=9; _TNX_LY_BAR=0; _TNX_LY_TASK=0; _TNX_LY_DIV2=10; _TNX_LY_LOGTOP=11
+  elif (( R >= 18 && C >= 27 )); then
     _TNX_LY_LOGO_ROWS=0
     _TNX_LY_TITLE=2; _TNX_LY_TITLE2=3; _TNX_LY_TITLE3=0; _TNX_LY_TITLE4=0; _TNX_LY_TITLE5=0
     _TNX_LY_IDENT=0; _TNX_LY_VER=4; _TNX_LY_BY=0; _TNX_LY_DIV1=5; _TNX_LY_DEV0=0
@@ -545,6 +546,21 @@ _tnx_frame_logo_line() {
 
 _tnx_frame_paint_device() {
   local i row label value inner=$(( _TNX_FRAME_COLS - 4 )) content
+  if [ "${_TNX_LY_DEV_COMPACT:-0}" = "1" ]; then
+    local device_value="${_TNX_FRAME_DEV_VALUES[0]} | ${_TNX_FRAME_DEV_VALUES[1]}"
+    local graphics_value="${_TNX_FRAME_DEV_VALUES[2]} | ${_TNX_FRAME_DEV_VALUES[3]}"
+    _tnx_clipv $(( inner - 10 )) "$device_value"
+    _tnx_pad $(( inner - 10 - _TNX_CLIPW ))
+    printf -v content '%s%-9s%s %s%s%s%s' \
+      "$TNX_CC" "Device" "$TNX_C0" "$TNX_CW" "$_TNX_CLIP" "$_TNX_SP" "$TNX_C0"
+    _tnx_frame_box_row "$_TNX_LY_DEV0" "$content"
+    _tnx_clipv $(( inner - 10 )) "$graphics_value"
+    _tnx_pad $(( inner - 10 - _TNX_CLIPW ))
+    printf -v content '%s%-9s%s %s%s%s%s' \
+      "$TNX_CC" "Graphics" "$TNX_C0" "$TNX_CW" "$_TNX_CLIP" "$_TNX_SP" "$TNX_C0"
+    _tnx_frame_box_row "$((_TNX_LY_DEV0 + 1))" "$content"
+    return 0
+  fi
   for i in 0 1 2 3 4; do
     row=$(( _TNX_LY_DEV0 + i ))
     label="${_TNX_FRAME_DEV_LABELS[$i]:-}"

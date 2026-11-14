@@ -20,7 +20,7 @@ alt_url: "/docs/project/PROJECT-ROADMAP.html"
 - Implementation ও exact-release gate শেষ না হওয়া পর্যন্ত stable APT channel
   withdrawn থাকবে। `/apt-rc` কেবল candidate testing-এর জন্য।
 - Supported desktop guest হলো Debian, Ubuntu ও Alpine। Dated evidence-কে বর্তমান
-  state ধরা যাবে না; 2026-11-14-এর live inventory-তে শুধু Debian ছিল।
+  state ধরা যাবে না; 2026-11-14-এর live inventory-তে Debian, Ubuntu ও Alpine—তিনটিই READY ছিল।
 
 ## বাধ্যতামূলক platform scope
 
@@ -38,11 +38,21 @@ alt_url: "/docs/project/PROJECT-ROADMAP.html"
 
 ## বর্তমান implementation evidence
 
-বর্তমান source-এ read-only native manager operation, foreground Unix-socket service এবং `tx control`-এর loopback-only read-only browser dashboard আছে। পূর্ণ Control Center, service supervision ও staged migration অসম্পূর্ণ। Guest desktop এবং GPU/AI integration-এর অবস্থা আলাদা; live source ও নির্দিষ্ট device-এ পরীক্ষা করতে হবে। [Implementation status](/docs/project/IMPLEMENTATION-STATUS.html), [current-state audit](https://github.com/soobujmiah/ternux/blob/main/docs/audit/CURRENT-STATE.md) এবং [device verification](https://github.com/soobujmiah/ternux/blob/main/docs/audit/DEVICE-VERIFICATION.md) দেখুন।
+বর্তমান source-এ native manager operation, foreground Unix-socket service,
+loopback-only read-only tx control dashboard এবং explicit journaled display
+migration executor আছে। Migration focused tests, তিন guest-এর lifecycle/browser
+CI এবং exact-main post-merge CI pass করেছে। Debian, Ubuntu ও Alpine live device-এ
+running থাকায় display assignment switch চালানো হয়নি। Multi-guest setup প্রথম
+guest transaction-এর আগে shared shell, সব username ও workload choice সংগ্রহ
+করে। Installer-এর 80x24 screen বড় ASCII wordmark ও compact device/graphics
+panel দেখায়; package bootstrap broken curl হলে wget fallback করে। Reference
+device-এর তিন guest install করা ও running; clean lifecycle qualification-এর
+বাকি সীমা [implementation status](/bn/docs/project/IMPLEMENTATION-STATUS.html),
+[current-state audit](https://github.com/soobujmiah/ternux/blob/main/docs/audit/CURRENT-STATE.md)
+এবং [device verification](https://github.com/soobujmiah/ternux/blob/main/docs/audit/DEVICE-VERIFICATION.md)-এ আছে।
 
 ## পরবর্তী কাজ
 
-1. Architecture-এর প্রতিটি phase-এর implementation ও acceptance audit সম্পূর্ণ করে পরীক্ষিত component সংরক্ষণ।
-2. Debian, Ubuntu ও Alpine-এর জন্য clean profile precollection, install/update/recovery/uninstall test শেষ করা।
-3. বাকি Control Center, manager supervision, migration, Device Bridge ও extension gate implement করা।
-4. নতুন 2.x release candidate-এর সব বাধ্যতামূলক gate pass না হওয়া পর্যন্ত stable channel withdrawn রাখা।
+Dependency-ordered implementation list [next actions](/bn/docs/project/NEXT-ACTIONS.html)-এ
+আছে। সব বাধ্যতামূলক gate exact 2.x release candidate-এ pass না হওয়া পর্যন্ত
+stable channel withdrawn থাকবে।

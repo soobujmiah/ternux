@@ -86,14 +86,14 @@ pkg install ternux
 APT source URL ebong keyring path published repository configuration-er sathe
 milte hobe. Release guide-e `[trusted=yes]` source line deya jabe na.
 
-Owner signing key publish kore ebong independent channel-e fingerprint
-confirm korar por client setup-er udahoron:
+Owner signing key publish করে এবং independent channel-এ fingerprint
+confirm করার পর client setup-এর উদাহরণ:
 
 ```bash
 pkg install gnupg
 curl -fsSLo "$TMPDIR/ternux-archive-key.asc" https://<host>/<path>/ternux-archive-key.asc
 gpg --show-keys --with-fingerprint "$TMPDIR/ternux-archive-key.asc"
-# Dekhano fingerprint-ta independently published fingerprint-er sathe melabe.
+# দেখানো fingerprint independently published fingerprint-এর সঙ্গে মেলান।
 gpg --dearmor --output "$TMPDIR/ternux.gpg" "$TMPDIR/ternux-archive-key.asc"
 install -Dm600 "$TMPDIR/ternux.gpg" "$PREFIX/etc/apt/keyrings/ternux.gpg"
 printf 'deb [signed-by=%s/etc/apt/keyrings/ternux.gpg] https://<host>/<path> stable main\n' "$PREFIX" \

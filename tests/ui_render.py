@@ -421,7 +421,8 @@ def analyse(tap: Tap, screen: Screen, log: str, raw: str, label: str, expect_cle
     tap.check(cols is not None, f"{label}: frame has a top rule", screen.text())
     visible = screen.text()
     branded_frame = any(
-        "Ternux" in snapshot and "Linux workstation in your pocket" in snapshot
+        ("Ternux" in snapshot and "Linux workstation in your pocket" in snapshot)
+        or "### ### ##. #.# #.# #.#" in snapshot
         for _elapsed, snapshot, _html in screen.snapshots
     )
     tap.check(
@@ -524,17 +525,34 @@ def main() -> int:
         print(screen.text())
         print("--- end ---\n")
 
-    # 2. Small landscape terminal that still fits a dashboard.
-    screen2, log2, _ = run(args.lib, 16, 92)
-    analyse(tap, screen2, log2, "", "landscape 92x16", expect_clears=3)
+    # 2. Standard phone terminal keeps the large wordmark and compact device panel.
+    screen2, log2, raw2 = run(args.lib, 24, 80)
+    analyse(tap, screen2, log2, raw2, "phone 80x24", expect_clears=3)
+    logo_text = "### ### ##. #.# #.# #.#"
+    compact_device = any(
+        logo_text in snapshot and "Device" in snapshot and "Graphics" in snapshot
+        and snapshot.index("Device") > snapshot.index(logo_text)
+        for _elapsed, snapshot, _html in screen2.snapshots
+    )
+    tap.check(compact_device, "phone 80x24: large ASCII wordmark precedes device and graphics details", screen2.text())
 
-    # 3. Live resize in the middle of a phase.
-    screen3, log3, _ = run(args.lib, 30, 64, resize_to=(22, 46))
-    analyse(tap, screen3, log3, "", "resize 64x30 -> 46x22", expect_clears=5, expect_width=45)
+    # 3. Compact portrait still shows hardware and backend status.
+    screen3, log3, raw3 = run(args.lib, 18, 41)
+    analyse(tap, screen3, log3, raw3, "compact phone 41x18", expect_clears=3)
+    compact_visible = any("Device" in snapshot and "Graphics" in snapshot for _elapsed, snapshot, _html in screen3.snapshots)
+    tap.check(compact_visible, "compact phone 41x18: device and graphics remain visible", screen3.text())
+
+    # 4. Small landscape terminal that still fits a dashboard.
+    screen4, log4, _ = run(args.lib, 16, 92)
+    analyse(tap, screen4, log4, "", "landscape 92x16", expect_clears=3)
+
+    # 5. Live resize in the middle of a phase.
+    screen5, log5, _ = run(args.lib, 30, 64, resize_to=(22, 46))
+    analyse(tap, screen5, log5, "", "resize 64x30 -> 46x22", expect_clears=5, expect_width=45)
 
     if args.dump:
         print("--- final screen after resize (46x22) ---")
-        print(screen3.text())
+        print(screen5.text())
         print("--- end ---")
 
     if args.html:

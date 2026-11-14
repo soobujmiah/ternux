@@ -43,7 +43,12 @@ audit-এর জন্য রাখা, বর্তমান download route ন
 শুধু candidate package ইচ্ছাকৃতভাবে test করলে RC bootstrap ব্যবহার করুন। আলাদা
 path থেকে নামিয়ে উপরের fingerprint যাচাই করে RC source configure করুন:
 
+RC source যোগ করার আগে Termux-এর pending package upgrade শেষ করুন, যাতে downloader
+ও OpenSSL একই package generation-এর থাকে। `curl --version` ব্যর্থ হলে সচল `wget`
+ব্যবহার করুন, অথবা আগে `apt update && apt full-upgrade` চালান।
+
 ```bash
+apt update && apt full-upgrade
 pkg install curl gnupg
 curl -fsSLo "$TMPDIR/ternux-rc-bootstrap.sh" \
   https://soobujmiah.github.io/ternux/apt-rc/bootstrap.sh

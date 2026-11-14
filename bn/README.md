@@ -89,20 +89,25 @@ source দিয়ে চলে; API recorder file তৈরি করে। Te
 ২. Termux-এ চালান:
 
 ```bash
-pkg update -y && pkg install -y curl && curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
 ```
 
-`curl` না থাকলে চালান:
+`curl` চালু না হলে আগে `wget` চেষ্টা করুন:
 
 ```bash
-pkg update -y && pkg install -y wget && wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
+wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
 ```
+
+দুটো downloader-ই চালু না হলে `apt update && apt full-upgrade` দিয়ে Termux-এর
+package upgrade শেষ করে আবার চেষ্টা করুন। শুধু `pkg update` করে আংশিক upgrade
+রেখে দিলে curl ও OpenSSL-এর library version mismatch হতে পারে। `wget` না থাকলে
+full upgrade-এর পরে `apt install wget` চালান।
 
 Ternux v2.0.0 GitHub release ও stable APT distribution 2026-11-14-এ
 withdraw করা হয়েছে। Provenance-এর জন্য `v2.0.0` source tag রাখা হয়েছে।
 উপরের source installer ব্যবহার করুন; signed `/apt-rc` channel কেবল opt-in
 candidate test-এর জন্য, production install source নয়। Architecture ও acceptance
-gate সম্পূর্ণ হলে পরের stable release target v3। [APT channel status](../docs/TERMUX-APT.md)
+gate সম্পূর্ণ হলে পরের stable release v2 major-এই থাকবে; আগে v3 নামে পরিকল্পিত full platform scope-ও তাতে থাকবে। [APT channel status](../docs/TERMUX-APT.md)
 ও [v2 release record](../docs/V2-RELEASE-READINESS.md) দেখুন।
 
 বেস ইনস্টলে প্রায় ৪–৪.৫ GB storage লাগে। Download ও package cache-এর জন্য আরও

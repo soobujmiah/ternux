@@ -68,13 +68,37 @@ work_dir="$(mktemp -d "${TMPDIR:-$PREFIX/tmp}/ternux-apt-bootstrap.XXXXXX")"
 cleanup() { rm -rf -- "$work_dir"; }
 trap cleanup EXIT
 
-if command -v curl >/dev/null 2>&1; then
-  curl --fail --silent --show-error --location --proto '=https' --tlsv1.2 \
-    --output "$work_dir/ternux-archive-key.asc" "$key_url"
-else
-  wget --https-only --quiet --timeout=30 --tries=3 \
-    --output-document="$work_dir/ternux-archive-key.asc" "$key_url"
-fi
+download_key() {
+  local tool
+  for tool in curl wget; do
+    command -v "$tool" >/dev/null 2>&1 || continue
+    if ! "$tool" --version >/dev/null 2>&1; then
+      printf 'Warning: %s is installed but cannot start; trying the other downloader.\n' "$tool" >&2
+      continue
+    fi
+
+    case "$tool" in
+      curl)
+        if curl --fail --silent --show-error --location --proto '=https' --tlsv1.2 \
+          --output "$work_dir/ternux-archive-key.asc" "$key_url"; then
+          return 0
+        fi
+        ;;
+      wget)
+        if wget --https-only --quiet --timeout=30 --tries=3 \
+          --output-document="$work_dir/ternux-archive-key.asc" "$key_url"; then
+          return 0
+        fi
+        ;;
+    esac
+    rm -f -- "$work_dir/ternux-archive-key.asc"
+    printf 'Warning: %s could not download the repository key; trying the other downloader.\n' "$tool" >&2
+  done
+  printf 'Could not download the Ternux signing key: neither curl nor wget is usable.\n' >&2
+  return 1
+}
+
+download_key
 primary_fingerprints="$(gpg --batch --with-colons --show-keys --fingerprint \
   "$work_dir/ternux-archive-key.asc" |
   awk -F: '$1 == "pub" {want=1; next} want && $1 == "fpr" {print toupper($10); want=0}')"

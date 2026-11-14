@@ -5,12 +5,12 @@ lang: "bn"
 alt_url: "/docs/V3-PROPOSALS.html"
 ---
 
-এই পাতাটি v2-পরবর্তী প্রাথমিক প্রস্তাবনার ইতিহাস ধরে রেখেছে। পরে মালিকের
-অনুমোদিত বিস্তৃত v3 দিকনির্দেশ এখন [v3 architecture overview](V3-ARCHITECTURE.html)
-ও [implementation roadmap](../../docs/v3/IMPLEMENTATION-ROADMAP.html)-এ design
-baseline হিসেবে নথিভুক্ত হয়েছে। ওই নথি design; implementation বা release
-qualification-এর প্রমাণ নয়। নিচের প্রস্তাবগুলো ঐতিহাসিক প্রেক্ষাপট, canonical
-v3 scope বা acceptance criteria-কে প্রতিস্থাপন করে না।
+এই পাতাটি v2-পরবর্তী প্রাথমিক proposal-এর ইতিহাস ধরে রেখেছে। Owner-এর নির্দেশে
+আগে v3-এর জন্য পরিকল্পিত required platform scope এখন পরের v2-major release-এ
+অন্তর্ভুক্ত। বিস্তারিত [project roadmap](/bn/docs/project/PROJECT-ROADMAP.html),
+[architecture overview](V3-ARCHITECTURE.html) ও
+[implementation roadmap](../../docs/v3/IMPLEMENTATION-ROADMAP.html)-এ আছে।
+নিচের proposal-গুলো ঐতিহাসিক প্রেক্ষাপট; canonical release scope নয়।
 
 ## প্রস্তাবিত কাজ
 
@@ -53,7 +53,9 @@ RAM/CPU ব্যবহার মাপতে হবে, পাশাপাশ�
 
 ## প্রস্তাবনার অবস্থা
 
-এই পাঁচটি বিষয়ই **প্রস্তাবিত**; কোনোটি v3-তে বাস্তবায়িত বা নিশ্চিত—এমন দাবি
-করা হচ্ছে না। v2-এর বর্তমান আচরণ ও সীমাবদ্ধতা [v2 release-readiness report](V2-RELEASE-READINESS.md),
+নিচের পাঁচটি বিষয় ঐতিহাসিক proposal, পরের v2-major release-এর canonical scope নয়।
+Required platform কাজ [project roadmap](/bn/docs/project/PROJECT-ROADMAP.html) ও
+[acceptance criteria](../../docs/v3/ACCEPTANCE-CRITERIA.md)-তে tracked. Current
+implementation ও সীমাবদ্ধতা [v2 release-readiness report](V2-RELEASE-READINESS.md),
 [installation guide](INSTALLATION.md) এবং
 [accelerator release plan](ACCELERATOR-RELEASE-PLAN.md)-এ আছে।
