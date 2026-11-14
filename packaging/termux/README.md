@@ -60,24 +60,27 @@ unset TERNUX_APT_SIGNING_PASSPHRASE
 Keep private signing material in an owner-managed secure signing environment;
 never put it in the repository, package artifacts, website, or shared storage.
 
-## Publish and sign
+## Release workflow
 
-The release-only GitHub Actions workflow `termux-apt-release.yml` publishes
-the signed tree under `/apt/` on the project Pages site. It accepts manual
-runs only from `main` with the selected workflow mode and refuses to build
-unless the project version is exactly `2.0.0`. Configure the protected
-`apt-release` environment with the armored private signing key and optional
-passphrase secrets, plus the full primary-key fingerprint variable. The
-`verify-signing` mode signs and validates a repository without deployment. Use
-`publish-v2` only after every release-plan gate closes; the workflow does not
-run on pushes.
+The release-only GitHub Actions workflow `termux-apt-release.yml` accepts
+manual runs from `main`. `verify-signing` validates signing setup without
+deployment; `publish-rc` publishes an isolated candidate under `/apt-rc/` and
+preserves an existing stable tree. The v2 stable channel is retired: the
+`withdraw-v2` mode deploys the website with the signed RC tree preserved and
+`/apt/` omitted. There is no mode to republish v2 stable. A future v3 stable
+publisher requires a separately reviewed versioned workflow and gates.
+
+Configure the protected `apt-release` environment with the armored private
+signing key and optional passphrase secrets, plus the full primary-key
+fingerprint variable. The workflow publishes only the public key and never
+includes private signing material in the Pages artifact.
 
 The v2 primary-key fingerprint is published independently from GitHub Pages
 in [`docs/TERMUX-APT.md`](../../docs/TERMUX-APT.md):
 `E5527F4D5B83037FF77B65AE5E894BBB81168B1D`. The workflow publishes the public
 key at `apt/ternux-archive-key.asc`; it never publishes private signing
-material. The repository is not deployed until the release workflow runs after
-every release-plan gate closes.
+material. Publishing RC requires an explicit workflow dispatch after the relevant
+candidate checks pass.
 
 ## Install from a published repository
 
