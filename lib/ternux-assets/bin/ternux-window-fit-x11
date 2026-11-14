@@ -16,6 +16,11 @@ def cardinals(window, atom: int) -> list[int]:
 
 
 Xatom_CARDINAL = None
+# Remember the geometry inputs for each client. XFWM may publish several
+# root property changes while placing one window; retry only when its size,
+# decorations, state, or work area actually changes. Position is deliberately
+# excluded so our own move cannot trigger another correction.
+_fit_signatures: dict[int, tuple[object, ...]] = {}
 
 
 def atoms(window, atom: int) -> set[int]:
@@ -126,6 +131,14 @@ def main() -> int:
             outer_y = translated.y - top
             outer_width = geometry.width + left + right
             outer_height = geometry.height + top + bottom
+            signature = (
+                geometry.width, geometry.height, left, right, top, bottom,
+                tuple(sorted(state)), x, y, area_width, area_height,
+                maximized_horizontally, maximized_vertically,
+            )
+            if _fit_signatures.get(window_id) == signature:
+                return
+            _fit_signatures[window_id] = signature
             max_outer_width = max(1, area_width - margin * 2)
             max_outer_height = max(1, area_height - margin * 2)
             if maximized_horizontally and x <= outer_x and outer_x + outer_width <= x + area_width:

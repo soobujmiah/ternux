@@ -881,6 +881,15 @@ assert "frame_border_top=4" in xfwm_config
 window_fit = (root / "lib/ternux-assets/bin/ternux-window-fit-x11").read_text()
 assert '"_NET_CLIENT_LIST"' in window_fit and "client_ids = set(window_ids(root" in window_fit
 assert "def window_ids(window, atom: int) -> list[int]:" in window_fit
+assert "_fit_signatures: dict[int, tuple[object, ...]]" in window_fit
+assert "if _fit_signatures.get(window_id) == signature:" in window_fit
+assert "NoDisplay=true" in (root / "lib/ternux-assets/applications/ternux-web-browser.desktop").read_text()
+assert "NoDisplay=true" in (root / "lib/phases.sh").read_text()
+assert "tnx_request_camera_permission()" in (root / "lib/phases.sh").read_text()
+camera_permission = (root / "lib/phases.sh").read_text().split("tnx_request_camera_permission() {", 1)[1].split("tnx_phase_audio_fonts() {", 1)[0]
+assert 'TERNUX_YES' in camera_permission and '[ ! -t 0 ]' in camera_permission
+assert 'ternux-camera-permission.XXXXXX' in camera_permission and 'rm -f -- "$probe"' in camera_permission
+assert '"$camera" -c 0 "$probe"' in camera_permission and 'tnx_confirm' in camera_permission
 xfwm_generator = (root / "tools/generate_ternux_xfwm.py").read_text()
 assert 'xpm_name = Path(name).with_suffix(".xpm")' in xfwm_generator
 assert 'state_button("maximize", state, inactive=inactive, toggled=True)' in xfwm_generator
@@ -2105,6 +2114,29 @@ else
   not_ok "microphone permission probe handles fast completion and preserves existing recordings"
 fi
 
+# Camera permission needs an explicit interactive opt-in because Android's
+# camera permission dialog is available only while taking a photo.
+camera_tmp="$TMP/camera-permission-test"
+mkdir -p "$camera_tmp/bin" "$camera_tmp/private"
+cat > "$camera_tmp/bin/termux-camera-photo" <<'CAMERA'
+#!/bin/sh
+printf 'capture\n' >> "$CAMERA_CAPTURE_MARKER"
+printf 'temporary photo' > "$3"
+CAMERA
+chmod 0755 "$camera_tmp/bin/termux-camera-photo"
+export CAMERA_CAPTURE_MARKER="$camera_tmp/captures"
+if env PATH="$camera_tmp/bin:$PATH" script -qec \
+  "env ROOT=\"$ROOT\" TMPDIR=\"$camera_tmp/private\" bash -c '. \"$ROOT/lib/phases.sh\"; tnx_confirm(){ return 0; }; tnx_request_camera_permission'" /dev/null >/dev/null 2>&1 &&
+  [ "$(cat "$CAMERA_CAPTURE_MARKER")" = capture ] &&
+  ! find "$camera_tmp/private" \( -type f -o -name 'ternux-camera-permission.*' \) -print -quit | grep -q . &&
+  env TERNUX_YES=1 TMPDIR="$camera_tmp/private" PATH="$camera_tmp/bin:$PATH" \
+    bash -c '. "$1/lib/phases.sh"; tnx_request_camera_permission' _ "$ROOT" >/dev/null &&
+  [ "$(wc -l < "$CAMERA_CAPTURE_MARKER")" -eq 1 ]; then
+  ok "camera permission probe requires opt-in, uses and deletes a private photo, and skips unattended installs"
+else
+  not_ok "camera permission probe requires opt-in, uses and deletes a private photo, and skips unattended installs"
+fi
+
 # Pulse setup covers a fresh file, exact legacy migration, idempotence, custom
 # listener refusal (even beside a secure line), and atomic write failure.
 if env TERNUX_STATE_DIR="$TMP/state-pulse" HOME="$TMP/home-pulse" bash -c '
@@ -3161,14 +3193,13 @@ if env TERM=dumb NO_COLOR=1 TERNUX_STATE_DIR="$TMP/state-frame" \
   TERNUX_LOG_DIR="$TMP/log-frame" HOME="$TMP/home-frame" bash -c '
     mkdir -p "$HOME"
     . "$1/lib/ui.sh"
-    tnx_frame_open 2 virgl ternux base
+    tnx_frame_open 2 virgl ternux base "Debian + Xfce"
     tnx_frame_phase 1 2 "Core package installation"
     printf "Get: package-one\nSetting up package-one\nERROR: sample failure\n" | tnx_frame_stream
     tnx_frame_close failed
   ' _ "$ROOT" > "$frame_out" &&
-  grep -q "Sobuj Miah" "$frame_out" &&
-  grep -q "base ~4-4.6 GB" "$frame_out" &&
-  grep -q "complete ~10.5-12.5 GB" "$frame_out" &&
+  grep -q "TERNUX  |  Desktop installer" "$frame_out" &&
+  grep -q "Debian + Xfce" "$frame_out" &&
   grep -q "Get: package-one" "$frame_out" &&
   grep -q "ERROR: sample failure" "$TMP/log-frame/ternux.log"; then
   ok "persistent install frame has a readable line-stream fallback"
@@ -4041,6 +4072,8 @@ if grep -Eq 'nerd-fonts/releases/download/v3\.5\.1/JetBrainsMono\.tar\.xz' "$ROO
   && grep -Fq '04d5e8f903693f9dd13e16f867e994834e681eb3c72c0d337a770dcda09010cf' "$ROOT/lib/phases.sh" \
   && grep -Fq 'sha256sum -c' "$ROOT/lib/phases.sh" \
   && grep -Fq 'tar -xJf' "$ROOT/lib/phases.sh" \
+  && grep -Fq 'timeout 180 wget -q -T 20 -t 3' "$ROOT/lib/phases.sh" \
+  && grep -Fq 'Downloading optional JetBrainsMono Nerd Font' "$ROOT/lib/phases.sh" \
   && ! grep -Fq 'releases/latest/download/JetBrainsMono.zip' "$ROOT/lib/phases.sh"; then
   ok "base Nerd Font download is pinned, checksummed and compact"
 else

@@ -621,6 +621,7 @@ VLC_DESKTOP
         sed "s#^Icon=.*#Icon=\$2#" "\$source_entry" > "/usr/local/share/applications/\$1"
         if [ "\$1" = xfce4-web-browser.desktop ]; then
           sed -i 's#^Exec=.*#Exec=/usr/local/bin/ternux-open-url %u#' "/usr/local/share/applications/\$1"
+          sed -i '/^Type=/a NoDisplay=true' "/usr/local/share/applications/\$1"
         fi
         chmod 0644 "/usr/local/share/applications/\$1"
       fi
@@ -1370,12 +1371,50 @@ tnx_request_microphone_permission() {
   return 0
 }
 
+tnx_request_camera_permission() {
+  local camera="termux-camera-photo" tmpdir="${TMPDIR:-/data/data/com.termux/files/usr/tmp}"
+  local probe_dir probe capture_rc=1
+
+  # Camera permission can only be requested by Termux:API while opening the
+  # camera. Be explicit because Android permission flow captures one photo.
+  # Batch installs and redirected stdin never capture without a person's opt-in.
+  if [ "${TERNUX_YES:-0}" = "1" ] || [ ! -t 0 ]; then
+    tnx_info "Camera permission prompt skipped for unattended install; it will be requested on first camera use."
+    return 0
+  fi
+  if ! tnx_has_cmd "$camera" || ! tnx_has_cmd timeout; then
+    tnx_warn "Termux:API camera or timeout is unavailable; camera permission will be requested on first camera use."
+    return 0
+  fi
+  if ! tnx_confirm "Take one temporary photo to show Android's camera permission prompt? The photo will be deleted immediately." no; then
+    tnx_info "Camera permission prompt deferred; installation continues."
+    return 0
+  fi
+
+  probe_dir="$(mktemp -d "$tmpdir/ternux-camera-permission.XXXXXX" 2>/dev/null)" || {
+    tnx_warn "Could not create a private camera permission probe directory."
+    return 0
+  }
+  chmod 700 "$probe_dir" 2>/dev/null || true
+  probe="$probe_dir/permission.jpg"
+  timeout 20 "$camera" -c 0 "$probe" >/dev/null 2>&1 && capture_rc=0 || true
+  rm -f -- "$probe" 2>/dev/null || true
+  rmdir -- "$probe_dir" 2>/dev/null || true
+  if [ "$capture_rc" -eq 0 ]; then
+    tnx_ok "Camera permission is available; the temporary photo was deleted."
+  else
+    tnx_warn "Camera permission was not confirmed; installation continues and the prompt can appear on first camera use."
+  fi
+  return 0
+}
+
 tnx_phase_audio_fonts() {
   local user_name="${1:-ternux}" locale="${2:-en_US.UTF-8}" family=""
 
   tnx_distro_profile || return 2
   family="$TNX_DP_FAMILY"
   tnx_request_microphone_permission
+  tnx_request_camera_permission
   local PA_CONF="${PREFIX:-/data/data/com.termux/files/usr}/etc/pulse/default.pa"
   _tnx_configure_pulse_bridge "$PA_CONF" || return 1
   [ "$_TNX_PULSE_CHANGED" = "1" ] && tnx_ok "PulseAudio TCP bridge bound to loopback."
@@ -1383,6 +1422,7 @@ tnx_phase_audio_fonts() {
   tnx_guest_login --shared-tmp --user "$user_name" -- bash -c "
     set -e
     FAMILY='${family}'
+    echo \"Installing locale and system fonts...\"
     case \"\$FAMILY\" in
       apt)
         DPKG_FORCE=\"-o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef\"
@@ -1413,7 +1453,8 @@ tnx_phase_audio_fonts() {
     mkdir -p ~/.local/share/fonts
     if [ ! -f ~/.local/share/fonts/.ternux-nerdfont-v3.5.1-installed ]; then
       font_archive=\"\$(mktemp /tmp/ternux-jetbrainsmono.XXXXXX)\"
-      if wget -q -O \"\$font_archive\" \"https://github.com/ryanoasis/nerd-fonts/releases/download/v3.5.1/JetBrainsMono.tar.xz\" \
+      echo \"Downloading optional JetBrainsMono Nerd Font (bounded transfer; checksum verified)...\"
+      if timeout 180 wget -q -T 20 -t 3 -O \"\$font_archive\" \"https://github.com/ryanoasis/nerd-fonts/releases/download/v3.5.1/JetBrainsMono.tar.xz\" \
         && echo \"04d5e8f903693f9dd13e16f867e994834e681eb3c72c0d337a770dcda09010cf  \$font_archive\" | sha256sum -c - >/dev/null \
         && tar -xJf \"\$font_archive\" -C ~/.local/share/fonts/; then
         touch ~/.local/share/fonts/.ternux-nerdfont-v3.5.1-installed
@@ -3425,7 +3466,14 @@ tnx_install_single() {
   local total=11 rc=0 current=0 phase_rc=0 required_failed=0 failed_phase="" failed_current=0 phase="" title=""
   local -a warning_phases=()
 
-  tnx_frame_open "$total" "$backend" "$user_name" "$profile"
+  local guest_label
+  case "$distro_choice" in
+    debian) guest_label="Debian + Xfce" ;;
+    ubuntu) guest_label="Ubuntu + Xfce" ;;
+    alpine) guest_label="Alpine + Xfce" ;;
+    *) guest_label="$distro_choice + Xfce" ;;
+  esac
+  tnx_frame_open "$total" "$backend" "$user_name" "$profile" "$guest_label"
   # The standalone loader may own one extracted source snapshot. Preserve its
   # cleanup when this installer installs frame/signal traps of its own.
   trap 'tnx_frame_restore_terminal; if type _tnx_bootstrap_cleanup >/dev/null 2>&1; then _tnx_bootstrap_cleanup; fi' EXIT
@@ -3458,7 +3506,7 @@ tnx_install_single() {
 
   for phase in $phases; do
     current=$((current + 1))
-    title="$(tnx_phase_title "$phase")"
+    title="$(tnx_phase_title "$phase" "$distro_choice")"
     tnx_frame_phase "$current" "$total" "$title"
     export _TNX_PHASE_CUR=$current _TNX_PHASE_TOT=$total
 
@@ -3599,7 +3647,14 @@ tnx_phase_title() {
     preflight)   echo "Preflight checks" ;;
     packages)    echo "Base packages (X11, PulseAudio, PRoot)" ;;
     cli)         echo "Installing ternux CLI" ;;
-    debian)      echo "Selected guest + Xfce4" ;;
+    debian)
+      case "${2:-$(tnx_distro)}" in
+        debian) echo "Debian + Xfce" ;;
+        ubuntu) echo "Ubuntu + Xfce" ;;
+        alpine) echo "Alpine + Xfce" ;;
+        *) echo "${2:-$(tnx_distro)} + Xfce" ;;
+      esac
+      ;;
     gpu)         echo "GPU driver setup" ;;
     audio_fonts) echo "Audio, locale, fonts" ;;
     launcher)    echo "Desktop launcher (~/x.sh)" ;;

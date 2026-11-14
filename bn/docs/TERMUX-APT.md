@@ -56,7 +56,18 @@ apt install curl gnupg -y
 curl -fsSLo "$TMPDIR/ternux-rc-bootstrap.sh" \
   https://soobujmiah.github.io/ternux/apt-rc/bootstrap.sh
 bash "$TMPDIR/ternux-rc-bootstrap.sh" --channel rc --configure-only
-bash "$TMPDIR/ternux-rc-bootstrap.sh" --channel rc
+pkg update && pkg install ternux
+```
+
+Upgrade-এর পরে curl চালু না হলে wget দিয়ে একই bootstrap নামান:
+
+```bash
+apt update && apt full-upgrade -y
+apt install wget gnupg -y
+wget -qO "$TMPDIR/ternux-rc-bootstrap.sh" \
+  https://soobujmiah.github.io/ternux/apt-rc/bootstrap.sh
+bash "$TMPDIR/ternux-rc-bootstrap.sh" --channel rc --configure-only
+pkg update && pkg install ternux
 ```
 
 RC repository stable channel থেকে আলাদা এবং এতে pre-release package থাকতে পারে;

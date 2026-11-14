@@ -350,17 +350,17 @@ _tnx_frame_layout() {
   local R="$_TNX_FRAME_ROWS" C="$_TNX_FRAME_COLS"
   _TNX_LY_DEV_ON=0; _TNX_LY_DEV_COMPACT=0
   if (( R >= 32 && C >= 44 )); then
-    _TNX_LY_LOGO_ROWS=5
-    _TNX_LY_TITLE=2; _TNX_LY_TITLE2=7; _TNX_LY_TITLE3=0; _TNX_LY_TITLE4=0; _TNX_LY_TITLE5=0
-    _TNX_LY_IDENT=0; _TNX_LY_VER=8; _TNX_LY_BY=0; _TNX_LY_DIV1=9
-    _TNX_LY_DEV_ON=1; _TNX_LY_DEV0=10
-    _TNX_LY_PROG=16; _TNX_LY_BAR=17; _TNX_LY_TASK=18; _TNX_LY_DIV2=19; _TNX_LY_LOGTOP=20
-  elif (( R >= 24 && C >= 44 )); then
-    _TNX_LY_LOGO_ROWS=5
-    _TNX_LY_TITLE=2; _TNX_LY_TITLE2=0; _TNX_LY_TITLE3=0; _TNX_LY_TITLE4=0; _TNX_LY_TITLE5=0
-    _TNX_LY_IDENT=0; _TNX_LY_VER=7; _TNX_LY_BY=0; _TNX_LY_DIV1=8
-    _TNX_LY_DEV_ON=1; _TNX_LY_DEV_COMPACT=1; _TNX_LY_DEV0=9
+    _TNX_LY_LOGO_ROWS=0
+    _TNX_LY_TITLE=2; _TNX_LY_TITLE2=3; _TNX_LY_TITLE3=0; _TNX_LY_TITLE4=0; _TNX_LY_TITLE5=0
+    _TNX_LY_IDENT=0; _TNX_LY_VER=4; _TNX_LY_BY=0; _TNX_LY_DIV1=5
+    _TNX_LY_DEV_ON=1; _TNX_LY_DEV0=6
     _TNX_LY_PROG=12; _TNX_LY_BAR=13; _TNX_LY_TASK=14; _TNX_LY_DIV2=15; _TNX_LY_LOGTOP=16
+  elif (( R >= 24 && C >= 44 )); then
+    _TNX_LY_LOGO_ROWS=0
+    _TNX_LY_TITLE=2; _TNX_LY_TITLE2=3; _TNX_LY_TITLE3=0; _TNX_LY_TITLE4=0; _TNX_LY_TITLE5=0
+    _TNX_LY_IDENT=0; _TNX_LY_VER=4; _TNX_LY_BY=0; _TNX_LY_DIV1=5
+    _TNX_LY_DEV_ON=1; _TNX_LY_DEV_COMPACT=1; _TNX_LY_DEV0=6
+    _TNX_LY_PROG=9; _TNX_LY_BAR=10; _TNX_LY_TASK=11; _TNX_LY_DIV2=12; _TNX_LY_LOGTOP=13
   elif (( R >= 18 && C >= 39 )); then
     _TNX_LY_LOGO_ROWS=0
     _TNX_LY_TITLE=2; _TNX_LY_TITLE2=3; _TNX_LY_TITLE3=0; _TNX_LY_TITLE4=0; _TNX_LY_TITLE5=0
@@ -493,18 +493,12 @@ _tnx_frame_box_row() {
 }
 
 _tnx_frame_paint_header() {
-  if (( ${_TNX_LY_LOGO_ROWS:-0} == 5 )); then
-    local tick="${1:-${_TNX_FRAME_TICK:-0}}"
-    _tnx_frame_logo_line "$(( _TNX_LY_TITLE + 0 ))" '### ### ##. #.# #.# #.#' "$tick"
-    _tnx_frame_logo_line "$(( _TNX_LY_TITLE + 1 ))" '#.. #.. #.# ### #.# #.#' "$tick"
-    _tnx_frame_logo_line "$(( _TNX_LY_TITLE + 2 ))" '#.. ### ##. #.# #.# .#.' "$tick"
-    _tnx_frame_logo_line "$(( _TNX_LY_TITLE + 3 ))" '#.. #.. #.# #.# #.# #.#' "$tick"
-    _tnx_frame_logo_line "$(( _TNX_LY_TITLE + 4 ))" '#.. ### #.# #.# ### #.#' "$tick"
+  _tnx_frame_center_line "$_TNX_LY_TITLE" "Ternux installer  |  ${_TNX_FRAME_GUEST:-Linux desktop}" "$TNX_CG"
+  if (( _TNX_LY_TITLE2 > 0 )); then
+    _tnx_frame_center_line "$_TNX_LY_TITLE2" "v${TERNUX_VERSION}  |  ${_TNX_FRAME_PROFILE^^}  |  ${_TNX_FRAME_BACKEND^^}" "$TNX_CY"
   else
-    _tnx_frame_center_line "$_TNX_LY_TITLE" 'Ternux' "$TNX_CG"
+    _tnx_frame_center_line "$_TNX_LY_VER" "v${TERNUX_VERSION}  |  ${_TNX_FRAME_PROFILE^^}  |  ${_TNX_FRAME_BACKEND^^}" "$TNX_CY"
   fi
-  (( _TNX_LY_TITLE2 > 0 )) && _tnx_frame_center_line "$_TNX_LY_TITLE2" 'Linux workstation in your pocket' "$TNX_CD"
-  _tnx_frame_center_line "$_TNX_LY_VER" "v${TERNUX_VERSION}  |  ${_TNX_FRAME_PROFILE^^} INSTALL" "$TNX_CY"
 }
 
 _tnx_frame_center_line() {
@@ -777,7 +771,7 @@ _tnx_frame_refit() {
 # status. Full-screen dashboards are used only on capable interactive
 # terminals; every other environment gets an append-only framed stream.
 tnx_frame_open() {
-  local total="${1:-11}" backend="${2:-auto}" user_name="${3:-ternux}" profile="${4:-base}"
+  local total="${1:-11}" backend="${2:-auto}" user_name="${3:-ternux}" profile="${4:-base}" guest="${5:-Linux desktop}"
   local want="${TERNUX_UI:-auto}"
   if [ "${TERNUX_QUIET:-0}" = "1" ] || [ "${TERNUX_JSON:-0}" = "1" ] || [ "$want" = "off" ]; then
     _TNX_FRAME_ACTIVE=0; _TNX_FRAME_MODE="off"
@@ -801,6 +795,7 @@ tnx_frame_open() {
   _TNX_FRAME_BACKEND="$backend"
   _TNX_FRAME_USER="$user_name"
   _TNX_FRAME_PROFILE="$profile"
+  _TNX_FRAME_GUEST="$guest"
   _TNX_FRAME_TICK=0
   _TNX_FRAME_T0=$SECONDS
   _TNX_FRAME_STORAGE="$(tnx_detect_storage_gb 2>/dev/null || echo '?')"
@@ -819,7 +814,7 @@ tnx_frame_open() {
   fi
 
   export _TNX_FRAME_ACTIVE _TNX_FRAME_MODE _TNX_FRAME_TOTAL _TNX_FRAME_CUR
-  export _TNX_FRAME_TITLE _TNX_FRAME_BACKEND _TNX_FRAME_USER _TNX_FRAME_PROFILE
+  export _TNX_FRAME_TITLE _TNX_FRAME_BACKEND _TNX_FRAME_USER _TNX_FRAME_PROFILE _TNX_FRAME_GUEST
   export _TNX_FRAME_COLS _TNX_FRAME_ROWS _TNX_TERM_COLS _TNX_TERM_ROWS
   export _TNX_SIZE_OK _TNX_FRAME_T0 _TNX_STREAM_LOG _TNX_ANIM
 
@@ -833,29 +828,12 @@ tnx_frame_open() {
     cols="$(_tnx_plain_cols)"
     inner=$(( cols - 4 ))
     printf '%s+%s+%s\n' "$TNX_CM" "$_TNX_RULE" "$TNX_C0"
-    if (( inner >= 35 )); then
-      _tnx_clipv "$inner" '***** ***** ****  *   * *   * *   *'
-      printf '%s|%s %s%s%s\n' "$TNX_CM" "$TNX_CG" "$TNX_CW" "$_TNX_CLIP" "$TNX_C0"
-      _tnx_clipv "$inner" '  *   *     *   * **  * *   *  * * '
-      printf '%s|%s %s%s%s\n' "$TNX_CM" "$TNX_CC" "$TNX_CW" "$_TNX_CLIP" "$TNX_C0"
-      _tnx_clipv "$inner" '  *   ***** *  ** * * * ***** *   *'
-      printf '%s|%s %s%s%s\n' "$TNX_CM" "$TNX_CG" "$TNX_CW" "$_TNX_CLIP" "$TNX_C0"
-    else
-      _tnx_clipv "$inner" '*<== T E R N U X ==>*'
-      printf '%s|%s %s%s%s\n' "$TNX_CM" "$TNX_CG" "$TNX_CW" "$_TNX_CLIP" "$TNX_C0"
-    fi
-    _tnx_clipv "$inner" 'Linux Workstation In Your Pocket'
+    _tnx_clipv "$inner" 'TERNUX  |  Desktop installer'
+    printf '%s|%s %s%s%s\n' "$TNX_CM" "$TNX_CG" "$TNX_CW" "$_TNX_CLIP" "$TNX_C0"
+    _tnx_clipv "$inner" "$guest"
+    printf '%s|%s %s%s%s\n' "$TNX_CM" "$TNX_CC" "$TNX_CW" "$_TNX_CLIP" "$TNX_C0"
+    _tnx_clipv "$inner" "v${TERNUX_VERSION}  |  ${profile^^}  |  ${backend^^}"
     printf '%s|%s %s%s%s\n' "$TNX_CM" "$TNX_CD" "$TNX_CW" "$_TNX_CLIP" "$TNX_C0"
-    _tnx_clipv "$inner" "v${TERNUX_VERSION}"
-    printf '%s|%s %s%s%s\n' "$TNX_CM" "$TNX_CY" "$TNX_CW" "$_TNX_CLIP" "$TNX_C0"
-    _tnx_clipv "$inner" 'by Sobuj Miah (@soobujmiah)'
-    printf '%s|%s %s%s%s\n' "$TNX_CM" "$TNX_CD" "$TNX_CW" "$_TNX_CLIP" "$TNX_C0"
-    _TNX_CLIP=""
-    printf '%s|%s %s%s%s\n' "$TNX_CM" "$TNX_CD" "$TNX_CW" "$_TNX_CLIP" "$TNX_C0"
-    _tnx_clipv "$inner" 'Storage estimate: base ~4-4.6 GB; complete ~10.5-12.5 GB'
-    printf '%s|%s %s%s%s\n' "$TNX_CM" "$TNX_CD" "$TNX_CW" "$_TNX_CLIP" "$TNX_C0"
-    _tnx_clipv "$inner" 'Portfolio: soobujmiah.github.io'
-    printf '%s|%s %s%s%s\n' "$TNX_CM" "$TNX_CY" "$TNX_CW" "$_TNX_CLIP" "$TNX_C0"
     printf '%s+%s+%s\n' "$TNX_CM" "$_TNX_RULE" "$TNX_C0"
   fi
 }
