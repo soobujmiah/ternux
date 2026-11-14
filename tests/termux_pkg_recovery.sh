@@ -77,7 +77,7 @@ tnx_fail() { printf '%s\n' "$*" >> "$LOG"; }
 _TNX_REPAIR_CHANGED=0
 _tnx_repair_curl
 test "$_TNX_REPAIR_CHANGED" = 1
-grep -q '^repair-apt:update -y$' "$LOG"
-grep -q '^repair-apt:full-upgrade -y$' "$LOG"
+grep -q '^repair-apt:update -y -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef$' "$LOG"
+grep -q '^repair-apt:full-upgrade -y -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef$' "$LOG"
 ! grep -q '^pkg:' "$LOG"
 printf 'PASS: curl repair recovers a broken Termux host from apt-get without invoking broken pkg/curl paths\n'
