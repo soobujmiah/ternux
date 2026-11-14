@@ -69,3 +69,13 @@ No GUI, X11, PulseAudio, IBus, or Termux session was restarted. This snapshot
 does not re-measure GPU performance, audio recording, camera capture, live
 preview, thermal behavior, or physical keyboard input. See the historical
 [feature matrix](../audit/FEATURE-MATRIX.md) for prior evidence and limits.
+
+
+## 2026-11-14 local migration executor qualification
+
+The source worktree now implements `tx manager migrate --apply sha256:PLAN_ID`
+and `--recover`. Disposable state tests cover exact plan matching, stale-plan
+refusal, active blockers, profile/registry rollback, interrupted-journal restore,
+and blocking starts while recovery is pending. These tests do not apply the
+reference device's Debian `:0 → :1` move: that guest was active in the recorded
+snapshot, and this local implementation has not yet been device-qualified.

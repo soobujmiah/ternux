@@ -23,11 +23,12 @@
     "migration_preview": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["status", "executor_implemented", "ready_to_execute"],
+      "required": ["status", "executor_implemented", "ready_to_execute", "plan_id"],
       "properties": {
         "status": { "const": "preview-only" },
-        "executor_implemented": { "const": false },
-        "ready_to_execute": { "const": false }
+        "executor_implemented": { "const": true },
+        "ready_to_execute": { "type": "boolean" },
+        "plan_id": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
       }
     }
   },
@@ -73,7 +74,7 @@
         "migration_blockers": {
           "type": "array",
           "uniqueItems": true,
-          "items": { "enum": ["active-session", "target-conflict", "invalid-registry", "registry-mismatch"] }
+          "items": { "enum": ["active-session", "target-conflict", "invalid-registry", "registry-mismatch", "lifecycle-not-stopped"] }
         }
       }
     }

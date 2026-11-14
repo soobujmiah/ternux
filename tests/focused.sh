@@ -2682,7 +2682,7 @@ if env TERNUX_STATE_DIR="$TMP/state-desktop-concurrent" HOME="$TMP/home-desktop-
   . "$1/lib/desktop.sh"
   tnx_has_cmd(){ [ "$1" = flock ]; }
   tnx_proot_container_installed(){ return 0; }
-  flock(){ return 1; }
+  flock(){ [ "${1:-}" = -s ] && return 0; return 1; }
   TERNUX_JSON=1
   out="$(tnx_cmd_start)" || exit
   JSON_OUT="$out" python3 -c '\''

@@ -93,10 +93,12 @@ HELP
 tnx_help_manager() {
   cat <<'HELP'
 Usage: tx manager status|guests|displays|capabilities [--json]
+       tx manager migrate --apply sha256:PLAN_ID | --recover
        tx manager serve
 
-Read-only native Termux manager operations. Direct commands work without the
-optional socket service and do not start or modify guest sessions.
+Status, guest, display, and capability snapshots are read-only. Direct commands
+work without the optional socket service. Migration apply is an explicit,
+state-bound transaction that never starts or stops a desktop.
 
   tx manager status --json   Manager availability and active desktop names
   tx manager guests --json   Installed guests, desktop profile and display
@@ -105,7 +107,10 @@ optional socket service and do not start or modify guest sessions.
   tx manager serve          Run the optional read-only local API in foreground
 
 Status, guest, and capability payloads use schema version 1.0.0; display
-payloads use schema version 1.3.0 and include a non-executable migration preview.
+payloads use schema version 1.3.0 and include a read-only migration preview.
+Apply only a ready plan copied from the current snapshot; stale plans and active,
+occupied, malformed, mismatched, or non-stopped guests are refused. Recover an
+interrupted journal with --recover before starting guests.
 A missing proot-distro command is
 reported as unavailable, not as an empty guest list.
 Unknown operations and arguments are rejected. The capability list is built

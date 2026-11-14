@@ -6,16 +6,15 @@ lang: "en"
 
 ## ADR-0005: Native-first display allocation
 
-- **Status:** Accepted; defaults, startup collision guards, lifecycle registry, and read-only migration preview implemented; migration executor pending.
+- **Status:** Accepted; defaults, startup collision guards, lifecycle registry, read-only preview, and journaled explicit migration executor implemented in source; device apply remains unverified.
 - **Date:** 2026-11-13.
 - **Decision owners:** Ternux project owner.
 
 ## Context
 
-Ternux v3 adds a native Termux management GUI alongside the Linux guest
-desktops. Display ownership must be deterministic so that the manager and each
-guest can run concurrently without stealing or reusing another workspace's
-X11 display.
+Ternux includes a native Termux manager alongside the Linux guest desktops.
+Display ownership must be deterministic so the manager and each guest can run
+concurrently without stealing or reusing another workspace's X11 display.
 
 ## Decision
 
@@ -27,14 +26,15 @@ and lifecycle state. Allocation checks both registry records and live X
 sockets/processes; stale records may be reclaimed only after proving no server
 owns the display.
 
-The current v2 mapping on the reference device (Debian `:0`, Ubuntu `:1`,
-Alpine `:2`) remains untouched. v3 migration stages new assignments, checks
-all target displays and sessions, and switches only after validation; failed
-migration retains the working v2 assignments.
+The saved mapping on the reference device (Debian `:0`, Ubuntu `:2`, Alpine
+`:3` in the latest source snapshot) remains untouched until an operator applies a
+ready state-bound plan. Migration checks all targets and sessions, records exact
+profile and registry backups in a private journal, and restores them on write
+failure or interrupted execution.
 
 ## Alternatives
 
-- Keep guest Debian on `:0`: rejected for v3 because native Termux GUI would
+- Keep guest Debian on `:0`: rejected for the prior layout because native Termux GUI would
   have no reserved first display and could collide with the default guest.
 - Allocate arbitrary free displays on every start: rejected because display
   identity would change unpredictably across restarts.
@@ -56,9 +56,11 @@ processes, and inferred owner class remain live observations; the registry does
 not claim OS-level socket ownership. Desktop startup
 checks for an occupied socket, X lock, or matching server process and refuses
 to reuse it. The read-only `tx manager displays` command reports current and
-target assignments, occupied target paths, and whether migration is required. Schema 1.3.0 includes a per-guest
-read-only preview action and blockers. It is explicitly not executable; active
-guests, occupied target displays, and malformed registry state remain visible
-as blockers. A profile/registry mismatch is also reported without reconciling
-or overwriting either record. The live v2 mapping is not migrated automatically. Native
-workspace lifecycle and migration execution remain open.
+target assignments, occupied target paths, blockers, and a state-bound plan ID.
+Schema 1.3.0 exposes whether the explicit executor is ready. `tx manager migrate
+--apply sha256:PLAN_ID` rechecks the exact snapshot while holding the migration
+lock; it never stops or restarts guests and refuses active sessions, occupied
+targets, invalid or mismatched registry data, and non-stopped lifecycle states.
+Profiles and the registry are backed up before writes. Failed writes restore both;
+interrupted writes block guest startup until `tx manager migrate --recover`
+restores the journal. The live mapping is not changed automatically.

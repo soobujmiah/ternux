@@ -23,6 +23,7 @@ if env TERNUX_STATE_DIR="$TMP/state" HOME="$TMP/home" TMPDIR="$TMP/tmp" bash -c 
   [ "$(tnx_distro_state_get debian display)" = 0 ] || exit 1
   [ "$(tnx_workspace_registry_get debian display)" = 0 ] || exit 1
   [ "$(tnx_workspace_registry_get debian lifecycle)" = READY ] || exit 1
+  [ ! -e "$TERNUX_STATE_DIR/display-migration.lock" ] || exit 1
   printf "%s\n---DISPLAYS---\n%s\n---STATUS---\n%s\n---CAPS---\n%s\n" "$guests" "$displays" "$status" "$capabilities"
 ' _ "$ROOT" > "$TMP/output" 2>/dev/null && python3 - "$TMP/output" "$ROOT" <<'PY'
 import datetime,json,re,sys
@@ -79,7 +80,8 @@ assert generic['desktop_profile'] is False and generic['display'] is None
 assert generic['qualification']=='no-desktop-profile'
 assert all(x['state']=='installed' for x in g['guests'])
 assert d['command']=='manager.displays' and d['schema_version']=='1.3.0' and d['native_display']==0 and d['native_occupied'] is False
-assert d['migration_preview']=={'status':'preview-only','executor_implemented':False,'ready_to_execute':False}
+assert d['migration_preview']['status']=='preview-only' and d['migration_preview']['executor_implemented'] is True and d['migration_preview']['ready_to_execute'] is False
+assert re.fullmatch(r'sha256:[a-f0-9]{64}', d['migration_preview']['plan_id'])
 assert d['count']==3 and [x['name'] for x in d['guests']]==['alpine','debian','ubuntu']
 assert [(x['name'],x['target_display']) for x in d['guests']]==[('alpine',3),('debian',1),('ubuntu',2)]
 assert all(x['current_display'] is None and x['migration_required'] is False for x in d['guests'] if x['name']!='debian')
@@ -87,7 +89,7 @@ assert all(x['target_owner'] is None and x['target_owner_kind']=='unoccupied' fo
 debian=next(x for x in d['guests'] if x['name']=='debian')
 assert debian['registry_display']==0 and debian['registry_lifecycle']=='READY'
 assert debian['current_display']==0 and debian['migration_required'] is True
-assert debian['migration_action']=='move' and debian['migration_blockers']==['active-session']
+assert debian['migration_action']=='move' and debian['migration_blockers']==['active-session','lifecycle-not-stopped']
 assert all(x['migration_action']=='initialize' for x in d['guests'] if x['name'] in ('alpine','ubuntu'))
 assert all(x['registry_display'] is None and x['registry_lifecycle']=='unregistered' for x in d['guests'] if x['name']!='debian')
 assert s['management_mode']=='direct-cli' and s['guest_manager_available'] is True
@@ -98,6 +100,28 @@ assert c['count']==len(c['operations']) and len({x['id'] for x in c['operations'
 assert all(x['access']=='read-only' and x['argument_count']==0 for x in c['operations'])
 PY
 then ok 'manager snapshots validate against schemas; capability list matches dispatch allowlist'; else not_ok 'v1 manager outputs validate against schemas; capability list matches dispatch allowlist'; fi
+
+if env TERNUX_STATE_DIR="$TMP/state-plan-id" HOME="$TMP/home-plan-id" TMPDIR="$TMP/tmp-plan-id" bash -c '
+  . "$1/lib/manager.sh"
+  tnx_distro_state_set debian display 0 || exit 1
+  TNX_MANAGER_GUESTS=(debian)
+  _tnx_running_guest_sessions(){ :; }
+  pgrep(){ return 1; }
+  first="$(TERNUX_JSON=1 tnx_manager_displays_json)" || exit 1
+  second="$(TERNUX_JSON=1 tnx_manager_displays_json)" || exit 1
+  tnx_distro_state_set debian display 4 || exit 1
+  changed="$(TERNUX_JSON=1 tnx_manager_displays_json)" || exit 1
+  printf "%s\n---SECOND---\n%s\n---CHANGED---\n%s\n" "$first" "$second" "$changed"
+' _ "$ROOT" > "$TMP/displays-plan-id" 2>/dev/null && python3 - "$TMP/displays-plan-id" <<'PY2'
+import json,sys
+first,rest=open(sys.argv[1]).read().split('\n---SECOND---\n')
+second,changed=rest.split('\n---CHANGED---\n')
+a=json.loads(first)['migration_preview']['plan_id']
+b=json.loads(second)['migration_preview']['plan_id']
+c=json.loads(changed)['migration_preview']['plan_id']
+assert a==b and a!=c
+PY2
+then ok 'display plan IDs are stable for unchanged state and change when saved assignments change'; else not_ok 'display plan IDs are stable for unchanged state and change when saved assignments change'; fi
 
 if env TERNUX_STATE_DIR="$TMP/state-collisions" HOME="$TMP/home-collisions" TMPDIR="$TMP/collision-tmp" bash -c '
   mkdir -p "$TMPDIR/.X11-unix"
@@ -189,6 +213,122 @@ assert guest['migration_blockers']==['registry-mismatch']
 assert guest['current_display']==0 and guest['registry_display']==1
 PY
 then ok 'migration preview blocks profile/registry mismatch without reconciling either source'; else not_ok 'migration preview blocks profile/registry mismatch without reconciling either source'; fi
+
+if env TERNUX_STATE_DIR="$TMP/state-migration-apply" HOME="$TMP/home-migration-apply" TMPDIR="$TMP/tmp-migration-apply" bash -c '
+  . "$1/lib/manager.sh"
+  tnx_has_cmd(){ [ "$1" = proot-distro ] || command -v "$1" >/dev/null 2>&1; }
+  proot-distro(){ printf "debian\n"; }
+  _tnx_running_guest_sessions(){ :; }
+  pgrep(){ return 1; }
+  tnx_distro_state_set debian display 0 || exit 1
+  tnx_workspace_registry_update debian STOPPED 0 || exit 1
+  tnx_manager_load_guests || exit 1
+  TERNUX_JSON=1 tnx_manager_displays_json >/dev/null || exit 1
+  [ "$(tnx_cmd_manager migrate --apply "sha256:$TNX_MANAGER_PLAN_ID")" ] || exit 1
+  [ "$(tnx_distro_state_get debian display)" = 1 ] || exit 1
+  [ "$(tnx_workspace_registry_get debian display)" = 1 ] || exit 1
+  [ "$(tnx_workspace_registry_get debian lifecycle)" = STOPPED ] || exit 1
+  [ ! -d "$TERNUX_STATE_DIR/migrations" ] || [ -z "$(ls -A "$TERNUX_STATE_DIR/migrations")" ]
+' _ "$ROOT" >/dev/null 2>&1
+then ok 'explicit migration apply updates a stopped guest profile and registry together'; else not_ok 'explicit migration apply updates a stopped guest profile and registry together'; fi
+
+if env TERNUX_STATE_DIR="$TMP/state-migration-stale" HOME="$TMP/home-migration-stale" TMPDIR="$TMP/tmp-migration-stale" bash -c '
+  . "$1/lib/manager.sh"
+  tnx_has_cmd(){ [ "$1" = proot-distro ] || command -v "$1" >/dev/null 2>&1; }
+  proot-distro(){ printf "debian\n"; }
+  _tnx_running_guest_sessions(){ :; }
+  pgrep(){ return 1; }
+  tnx_distro_state_set debian display 0 || exit 1
+  tnx_manager_load_guests || exit 1
+  TERNUX_JSON=1 tnx_manager_displays_json >/dev/null || exit 1
+  old="sha256:$TNX_MANAGER_PLAN_ID"
+  tnx_distro_state_set debian display 4 || exit 1
+  if tnx_manager_migration_apply "$old"; then exit 1; fi
+  [ "$(tnx_distro_state_get debian display)" = 4 ]
+' _ "$ROOT" >/dev/null 2>&1
+then ok 'stale migration plan is refused without changing the profile'; else not_ok 'stale migration plan is refused without changing the profile'; fi
+
+if env TERNUX_STATE_DIR="$TMP/state-migration-lock" HOME="$TMP/home-migration-lock" TMPDIR="$TMP/tmp-migration-lock" bash -c '
+  . "$1/lib/manager.sh"
+  tnx_has_cmd(){ [ "$1" = proot-distro ] || command -v "$1" >/dev/null 2>&1; }
+  proot-distro(){ printf "debian\n"; }
+  _tnx_running_guest_sessions(){ :; }
+  pgrep(){ return 1; }
+  tnx_distro_state_set debian display 0 || exit 1
+  tnx_workspace_registry_update debian STOPPED 0 || exit 1
+  tnx_manager_load_guests || exit 1
+  TERNUX_JSON=1 tnx_manager_displays_json >/dev/null || exit 1
+  plan="sha256:$TNX_MANAGER_PLAN_ID"
+  exec 8<"$TERNUX_STATE_DIR"
+  flock -s 8 || exit 1
+  if tnx_manager_migration_apply "$plan"; then exit 1; fi
+  [ "$(tnx_distro_state_get debian display)" = 0 ]
+' _ "$ROOT" >/dev/null 2>&1
+then ok 'migration fails fast without writes while a managed start/stop holds the shared lock'; else not_ok 'migration fails fast without writes while a managed start/stop holds the shared lock'; fi
+
+if env TERNUX_STATE_DIR="$TMP/state-migration-active" HOME="$TMP/home-migration-active" TMPDIR="$TMP/tmp-migration-active" bash -c '
+  . "$1/lib/manager.sh"
+  tnx_has_cmd(){ [ "$1" = proot-distro ] || command -v "$1" >/dev/null 2>&1; }
+  proot-distro(){ printf "debian\n"; }
+  _tnx_running_guest_sessions(){ printf "debian\n"; }
+  pgrep(){ return 1; }
+  tnx_distro_state_set debian display 0 || exit 1
+  tnx_workspace_registry_update debian STOPPED 0 || exit 1
+  tnx_manager_load_guests || exit 1
+  TERNUX_JSON=1 tnx_manager_displays_json >/dev/null || exit 1
+  [ "$TNX_MANAGER_PLAN_BLOCKED" = true ] || exit 1
+  [ "${TNX_MANAGER_BLOCKED_NAMES[0]}" = debian ] || exit 1
+  if tnx_manager_migration_apply "sha256:$TNX_MANAGER_PLAN_ID"; then exit 1; fi
+  [ "$(tnx_distro_state_get debian display)" = 0 ]
+' _ "$ROOT" >/dev/null 2>&1
+then ok 'active managed desktop blocks migration and preserves its saved display'; else not_ok 'active managed desktop blocks migration and preserves its saved display'; fi
+
+if env TERNUX_STATE_DIR="$TMP/state-migration-rollback" HOME="$TMP/home-migration-rollback" TMPDIR="$TMP/tmp-migration-rollback" bash -c '
+  . "$1/lib/manager.sh"
+  tnx_has_cmd(){ [ "$1" = proot-distro ] || command -v "$1" >/dev/null 2>&1; }
+  proot-distro(){ printf "debian\n"; }
+  _tnx_running_guest_sessions(){ :; }
+  pgrep(){ return 1; }
+  tnx_distro_state_set debian display 0 || exit 1
+  tnx_workspace_registry_update debian STOPPED 0 || exit 1
+  tnx_manager_load_guests || exit 1
+  TERNUX_JSON=1 tnx_manager_displays_json >/dev/null || exit 1
+  plan="sha256:$TNX_MANAGER_PLAN_ID"
+  tnx_workspace_registry_update(){ return 1; }
+  if tnx_manager_migration_apply "$plan"; then exit 1; fi
+  [ "$(tnx_distro_state_get debian display)" = 0 ] || exit 1
+  [ "$(cat "$(tnx_workspace_registry_path)" | tail -n 1 | cut -f3)" = 0 ]
+' _ "$ROOT" >/dev/null 2>&1
+then ok 'registry write failure rolls the profile back to its original assignment'; else not_ok 'registry write failure rolls the profile back to its original assignment'; fi
+
+if env TERNUX_STATE_DIR="$TMP/state-migration-recovery" HOME="$TMP/home-migration-recovery" TMPDIR="$TMP/tmp-migration-recovery" bash -c '
+  . "$1/lib/manager.sh"
+  tnx_distro_state_set debian display 0 || exit 1
+  tnx_workspace_registry_update debian STOPPED 0 || exit 1
+  journal="$TERNUX_STATE_DIR/migrations/applying-interrupted"
+  mkdir -p "$journal" || exit 1
+  cp "$(tnx_distro_state_dir debian)/profile" "$journal/debian.profile" || exit 1
+  cp "$(tnx_workspace_registry_path)" "$journal/workspaces.tsv" || exit 1
+  printf yes > "$journal/registry_existed"
+  printf "debian\n" > "$journal/guests"
+  printf applying > "$journal/status"
+  tnx_distro_state_set debian display 1 || exit 1
+  tnx_workspace_registry_update debian STOPPED 1 || exit 1
+  tnx_cmd_manager migrate --recover >/dev/null || exit 1
+  [ "$(tnx_distro_state_get debian display)" = 0 ] || exit 1
+  [ "$(tnx_workspace_registry_get debian display)" = 0 ]
+' _ "$ROOT" >/dev/null 2>&1
+then ok 'interrupted migration journal restores exact profile and registry snapshots'; else not_ok 'interrupted migration journal restores exact profile and registry snapshots'; fi
+
+if env TERNUX_STATE_DIR="$TMP/state-migration-start-guard" HOME="$TMP/home-migration-start-guard" TMPDIR="$TMP/tmp-migration-start-guard" bash -c '
+  . "$1/lib/desktop.sh"
+  tnx_cmd_start_impl(){ echo launched; }
+  mkdir -p "$TERNUX_STATE_DIR/migrations/test"
+  printf applying > "$TERNUX_STATE_DIR/migrations/test/status"
+  if output="$(tnx_cmd_start debian 2>&1)"; then exit 1; fi
+  [[ "$output" == *"tx manager migrate --recover"* ]]
+' _ "$ROOT" >/dev/null 2>&1
+then ok 'guest start is blocked while an interrupted migration journal needs recovery'; else not_ok 'guest start is blocked while an interrupted migration journal needs recovery'; fi
 
 if env TERNUX_STATE_DIR="$TMP/state-errors" HOME="$TMP/home-errors" bash -c '
   . "$1/lib/manager.sh"

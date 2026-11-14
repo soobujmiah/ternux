@@ -128,7 +128,7 @@ display_result = {
     "native_socket_present": False, "native_lock_present": False,
     "native_server_running": False,
     "native_occupied": False, "count": 1,
-    "migration_preview": {"status": "preview-only", "executor_implemented": False, "ready_to_execute": False},
+    "migration_preview": {"status": "preview-only", "executor_implemented": True, "ready_to_execute": True, "plan_id": "sha256:" + "0" * 64},
     "guests": [{
         "name": "debian", "current_display": 0, "target_display": 1,
         "registry_display": 0, "registry_lifecycle": "READY",
