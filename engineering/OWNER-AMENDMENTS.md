@@ -1,7 +1,7 @@
 # Owner amendments to the Ternux master assignment
 
-**Last updated:** 2026-11-14  
-**Authority:** Owner instruction in the active Ternux work session.  
+**Last updated:** 2026-11-14
+**Authority:** Owner instruction in the active Ternux work session.
 **Original scope:** [`MASTER-GOAL.md`](MASTER-GOAL.md) is retained verbatim as the original assignment. This file records later direction changes without rewriting that source.
 
 ## 2026-11-14 — Keep the next stable release in the v2 major
