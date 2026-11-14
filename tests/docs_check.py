@@ -348,9 +348,9 @@ for source in ("src/pages/index.astro", "src/pages/bn/index.astro"):
     ):
         check(expected in page,
               f"{source}: missing direct installation resource {expected}")
-check("four read-only manager CLI commands" in read(ROOT / "src/pages/index.astro"),
+check("four read-only manager CLI commands" in re.sub(r"\s+", " ", read(ROOT / "src/pages/index.astro")),
       "English homepage status must distinguish current source from released package")
-check("read-only manager CLI command" in read(ROOT / "src/pages/bn/index.astro"),
+check("read-only manager CLI command" in re.sub(r"\s+", " ", read(ROOT / "src/pages/bn/index.astro")),
       "Bengali homepage status must distinguish current source from released package")
 for page in ("docs/QUICK-START.md", "bn/docs/QUICK-START.md"):
     text = read(ROOT / page)
