@@ -1,0 +1,7 @@
+event_id: commit-27842cd03270-d20d39cb017dde10
+repository: soobujmiah/ternux
+commit: 27842cd03270a93b9191bbf7518e1a6df524b1dd
+kind: commit
+occurred_at: '2026-11-14T15:40:44Z'
+status: completed
+summary: 'docs: clarify withdrawn release and next major gates (#243)'
