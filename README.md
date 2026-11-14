@@ -108,8 +108,8 @@ If a partial upgrade left `pkg` or curl unable to start, finish the repair with
 `apt update && apt full-upgrade -y`, then retry the `pkg` command. The standalone
 source installer is the supported install route. `pkg install ternux` is
 currently unavailable because the stable signed APT repository was withdrawn;
-the RC package channel is for candidate testing and its hosted availability is
-not currently verified.
+the RC bootstrap is published for candidate testing, but its signing key and
+signed index are not available, so that package channel is not installable now.
 
 The Ternux v2.0.0 GitHub release and stable APT distribution were withdrawn
 on 2026-11-14. The `v2.0.0` source tag remains available for provenance. Use
