@@ -4,9 +4,9 @@
   "title": "Ternux Manager Workspace Displays v1",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema_version", "command", "status", "timestamp", "native_display", "native_socket_present", "native_lock_present", "native_server_running", "native_occupied", "count", "guests"],
+  "required": ["schema_version", "command", "status", "timestamp", "native_display", "native_socket_present", "native_lock_present", "native_server_running", "native_occupied", "count", "guests", "migration_preview"],
   "properties": {
-    "schema_version": { "const": "1.2.0" },
+    "schema_version": { "const": "1.3.0" },
     "command": { "const": "manager.displays" },
     "status": { "const": "ok" },
     "timestamp": { "type": "string", "format": "date-time" },
@@ -19,13 +19,23 @@
     "guests": {
       "type": "array",
       "items": { "$ref": "#/$defs/guest" }
+    },
+    "migration_preview": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "executor_implemented", "ready_to_execute"],
+      "properties": {
+        "status": { "const": "preview-only" },
+        "executor_implemented": { "const": false },
+        "ready_to_execute": { "const": false }
+      }
     }
   },
   "$defs": {
     "guest": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["name", "current_display", "target_display", "registry_display", "registry_lifecycle", "running", "target_socket_present", "target_lock_present", "target_server_running", "target_conflict", "migration_required", "target_owner", "target_owner_kind"],
+      "required": ["name", "current_display", "target_display", "registry_display", "registry_lifecycle", "running", "target_socket_present", "target_lock_present", "target_server_running", "target_conflict", "migration_required", "target_owner", "target_owner_kind", "migration_action", "migration_blockers"],
       "properties": {
         "name": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$" },
         "current_display": {
@@ -58,6 +68,12 @@
         },
         "target_owner_kind": {
           "enum": ["active-guest-assignment", "reserved-native-slot", "unidentified", "unoccupied"]
+        },
+        "migration_action": { "enum": ["initialize", "keep", "move"] },
+        "migration_blockers": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "enum": ["active-session", "target-conflict", "invalid-registry", "registry-mismatch"] }
         }
       }
     }

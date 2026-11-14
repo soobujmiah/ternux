@@ -57,7 +57,7 @@ foreground-এ চলে, private socket ব্যবহার করে এব�
 
 **কোন সংস্করণে আছে:** read-only manager command ও socket service বর্তমান source-এ
 আছে; withdrawn v2.0.0 APT package-এ নেই। JSON compatibility-র জন্য
-`schema_version` ও `command` দেখুন। Display JSON schema `1.2.0`; কোনো running guest-এর
+`schema_version` ও `command` দেখুন। Display JSON schema `1.3.0`; কোনো running guest-এর
 সাথে মিল পাওয়া assignment OS-level socket ownership-এর প্রমাণ নয়।
 
 ```bash
@@ -67,11 +67,17 @@ tx manager displays [--json]
 tx manager capabilities [--json]
 ```
 
+`tx manager displays --json`-এ guest-পিছু read-only migration preview থাকে। এতে
+`initialize`, `keep` বা `move` plan এবং active session, target conflict অথবা
+invalid registry blocker দেখা যায়। Preview execute করা যায় না; কোনো guest-এর
+assignment বা session বদলায় না।
+
 ### `tx control`
 
 এই device-এর browser-এ mobile-first read-only Control Center খুলুন। এতে manager-এর
-স্বাস্থ্য, installed guest, active desktop, display conflict এবং copy করার host command
-দেখায়। তথ্য Termux CLI payload থেকে আসে; এটি guest start/stop বা state পরিবর্তন করে
+স্বাস্থ্য, installed guest, active desktop, display conflict, read-only migration preview
+এবং copy করার host command দেখায়। তথ্য Termux CLI payload থেকে আসে; এটি guest
+start/stop বা state পরিবর্তন করে
 না। Page-টি random loopback-only port-এ চলে, এক ঘণ্টার in-memory bearer token ব্যবহার
 করে, অপ্রত্যাশিত Host/Origin header প্রত্যাখ্যান করে এবং কোনো mutation route রাখে না।
 বন্ধ করতে Termux-এ Ctrl-C চাপুন। Python 3 optional: `pkg install python`। Browser না

@@ -100,11 +100,13 @@ optional socket service and do not start or modify guest sessions.
 
   tx manager status --json   Manager availability and active desktop names
   tx manager guests --json   Installed guests, desktop profile and display
-  tx manager displays --json Current/target, collisions, and JSON owner detail
+  tx manager displays --json Current/target, conflicts, migration preview
   tx manager capabilities   List the operations implemented by this CLI core
   tx manager serve          Run the optional read-only local API in foreground
 
-JSON payloads use schema version 1.0.0. A missing proot-distro command is
+Status, guest, and capability payloads use schema version 1.0.0; display
+payloads use schema version 1.3.0 and include a non-executable migration preview.
+A missing proot-distro command is
 reported as unavailable, not as an empty guest list.
 Unknown operations and arguments are rejected. The capability list is built
 from the same operation registry used by dispatch.
