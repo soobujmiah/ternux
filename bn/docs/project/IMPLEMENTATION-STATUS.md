@@ -23,8 +23,9 @@ device evidence আলাদা করে; historical v2.0.0 package-এর আ�
 | Termux package downloader | বর্তমান source-এ fallback fix | Package bootstrap curl চালু কি না পরীক্ষা করে; curl ভাঙা বা download fail হলে wget চেষ্টা করে। Partial Termux upgrade ঠিক করতে apt update && apt full-upgrade নির্দেশনা আছে। |
 
 Focused migration, multi-distro lifecycle, browser, package bootstrap, UI render ও
-documentation tests current source-এ pass করেছে। PR CI pending না হওয়া পর্যন্ত
-এই follow-up-কে main-এ merged ধরা যাবে না। Stable channel withdrawn-ই থাকবে।
+documentation tests current source-এ pass করেছে। Installer/UI change PR #235 এবং
+generated-state PR #236 main-এ merge হয়েছে; exact-main Validate, package ও
+repository-contract checks pass করেছে। Stable channel withdrawn-ই থাকবে।
 
 ## সীমাবদ্ধতা
 

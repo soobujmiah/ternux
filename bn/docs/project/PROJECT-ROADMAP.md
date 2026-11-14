@@ -47,7 +47,10 @@ guest transaction-এর আগে shared shell, সব username ও workload ch
 করে। Installer-এর 80x24 screen বড় ASCII wordmark ও compact device/graphics
 panel দেখায়; package bootstrap broken curl হলে wget fallback করে। Reference
 device-এর তিন guest install করা ও running; clean lifecycle qualification-এর
-বাকি সীমা [implementation status](/bn/docs/project/IMPLEMENTATION-STATUS.html),
+বাকি সীমা রয়েছে। 2026-11-14-এ main source দিয়ে তিন guest managed restart,
+synthetic GUI input ও short soak pass করেছে; clean browser matrix-ও CI-তে pass
+করেছে। এগুলো পূর্ণ lifecycle বা release gate শেষ করে না। বিস্তারিত
+[implementation status](/bn/docs/project/IMPLEMENTATION-STATUS.html),
 [current-state audit](https://github.com/soobujmiah/ternux/blob/main/docs/audit/CURRENT-STATE.md)
 এবং [device verification](https://github.com/soobujmiah/ternux/blob/main/docs/audit/DEVICE-VERIFICATION.md)-এ আছে।
 

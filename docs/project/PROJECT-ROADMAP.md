@@ -55,8 +55,10 @@ reference-device switch remains unapplied while its guest sessions run. The full
 Control Center and service supervision remain incomplete. Multi-guest onboarding
 collects the shared shell, each selected guest username, and workload choice
 before the first guest transaction. Debian, Ubuntu, and Alpine are installed and
-currently running on the reference device; restart/soak and clean browser matrix
-evidence is tracked separately. Details are in [implementation status](IMPLEMENTATION-STATUS.md),
+currently running on the reference device. The 2026-11-14 main-source managed restart,
+synthetic GUI input, and short three-guest soak passed; the clean browser matrix
+also passed in CI. These checks do not complete the broader clean lifecycle or
+release gates. Details are in [implementation status](IMPLEMENTATION-STATUS.md),
 [current-state audit](../audit/CURRENT-STATE.md), and [device verification](../audit/DEVICE-VERIFICATION.md).
 
 ## Next actions

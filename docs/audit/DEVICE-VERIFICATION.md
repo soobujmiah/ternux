@@ -8,6 +8,27 @@ This record separates physical-device observation from source tests and CI.
 It does not claim qualification on other GPUs, Android builds, or Termux:X11
 versions.
 
+## 2026-11-14 main-source managed restart and GUI soak
+
+**Repository code head:** `1128ba6843e5283fe356e151255cc7d9fbfa67dc`.
+**Device:** Xiaomi 25053RT47C (Redmi Turbo 4 Pro), Android 16, ARM64,
+SM8735 / Adreno 825. The restart and status commands used the Ternux source
+at this exact main commit.
+
+| Check | Result |
+|---|---|
+| Managed restart | Debian, Ubuntu, and Alpine were restarted serially with `ternux restart <guest>`. Each stop completed, then its desktop returned to `READY`; final displays were Debian `:0`, Ubuntu `:2`, Alpine `:3`. |
+| GUI input | In each guest, a uniquely titled temporary XFCE terminal was opened on its active X11 display. `xdotool` focused the window and typed a guest-specific command; its marker output was observed. The temporary window and marker files were then removed. All three passed. |
+| Post-restart soak | Six status/X11 samples over approximately four minutes checked all three guests. Every sample reported lifecycle `READY`, X11 running, PulseAudio route ready, and `xfce4-session`, `xfwm4`, and `xfdesktop` alive. Desktop PIDs remained Debian 21984, Ubuntu 19425, Alpine 7037. |
+
+This establishes a managed restart followed by synthetic GUI input and a short
+bounded soak on this device. No spontaneous close was observed in this interval.
+It is not an Android reboot test, a long-duration soak, a physical keyboard test,
+or qualification for other devices. Startup logs still included
+`Failure: Module initialization failed` before the desktops became ready; the
+warning's source and impact were not established, so this evidence does not
+claim an error-free startup.
+
 ## 2026-11-14 managed three-distro qualification follow-up
 
 **Device:** Xiaomi 25053RT47C (Redmi Turbo 4 Pro), Android 16, ARM64, Adreno 825.
