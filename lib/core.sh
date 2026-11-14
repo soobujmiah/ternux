@@ -14,8 +14,8 @@ TERNUX_DESC="Linux desktop for Android with Zink and VirGL graphics routes"
 TERNUX_REPO="https://github.com/soobujmiah/ternux"
 # Immutable source snapshot shared by the standalone bootstrap and CLI fallback.
 # Keep these values aligned with install.sh; refresh only from a reviewed archive.
-TERNUX_SOURCE_COMMIT="f416fcb3b5693b7c98e1465f0cd1537d875d717b"
-TERNUX_SOURCE_SHA256="8f1821189a5833a535f55322fbed07116f15d563ccc41dcf0effd6f21317d980"
+TERNUX_SOURCE_COMMIT="30a109c6e412f6b0514592c8928adba650b064d5"
+TERNUX_SOURCE_SHA256="27be90807e6f86f80f17ffdc41ac98ed346b09c4b6eaa8381b1a9901b85503da"
 TERNUX_GUEST_CLI_SHA256="305f3b0642b4fd948fb022fec08a8c569b18909a34eedd80ac0e6f8ab0cbbe67"
 TERNUX_STATE_DIR="${TERNUX_STATE_DIR:-$HOME/.local/share/ternux}"
 TERNUX_LOG_DIR="${TERNUX_LOG_DIR:-${TMPDIR:-/data/data/com.termux/files/usr/tmp}/ternux}"
@@ -474,6 +474,18 @@ tnx_proot_container_installed() {
   '
 }
 
+# A guest phase ledger is meaningful only for the container it configured.
+# If the PRoot container was removed outside Ternux, discard guest-only state
+# before a managed reinstall so stale entries cannot skip setup in a new rootfs.
+tnx_install_reset_missing_guest_state() {
+  local distro="${1:-$(tnx_distro)}" dir
+  tnx_proot_container_installed "$distro" && return 0
+  dir="$(tnx_distro_state_dir "$distro")" || return 2
+  [ -d "$dir" ] || return 0
+  rm -f -- "$dir/phases" || return 1
+  rm -rf -- "$dir/session" || return 1
+}
+
 tnx_debian_installed() { tnx_proot_container_installed "$(tnx_distro)"; }
 
 # Preserve compatibility with state written before the backend names were
@@ -609,7 +621,13 @@ tnx_install_phase_done() {
       recorded="$(tnx_state_get cli_source_identity 2>/dev/null || true)"
       [ -n "$recorded" ] && [ "$recorded" = "$expected" ]
       ;;
-    *) tnx_distro_phase_done "$distro" "$phase" ;;
+    *)
+      # A removed guest may still have a phase ledger from an older Ternux
+      # release. Never let that stale ledger make --resume report success
+      # without an actual PRoot container to configure and verify.
+      tnx_proot_container_installed "$distro" || return 1
+      tnx_distro_phase_done "$distro" "$phase"
+      ;;
   esac
 }
 

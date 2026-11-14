@@ -15,8 +15,9 @@ unaffected, but stable APT no longer offers Ternux updates.
 The signed `/apt-rc` channel remains available only for opt-in candidate tests.
 It is not a supported production install source. Use the source installer in
 the [main installation guide](../README.md) until the next stable release.
-The next stable release target is v3, after its architecture and acceptance
-gates are complete.
+The next stable release remains in the v2 major. The complete platform
+architecture formerly planned for v3 is required before a new 2.x stable
+release; see the [project roadmap](project/PROJECT-ROADMAP.html).
 
 ## Trust fingerprint
 

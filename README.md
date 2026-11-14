@@ -111,8 +111,10 @@ the upgrade can reproduce that mismatch.
 The Ternux v2.0.0 GitHub release and stable APT distribution were withdrawn
 on 2026-11-14. The `v2.0.0` source tag remains available for provenance. Use
 the source installer above; the signed `/apt-rc` channel remains for opt-in
-candidate testing and is not a production install source. The next stable
-release target is v3 after its architecture and acceptance gates are complete.
+candidate testing and is not a production install source. The next stable release
+remains in the v2 major. The planned v3 platform architecture and acceptance
+gates are now required for the next 2.x release; no stable release will be
+published until they pass.
 See the [APT channel status](docs/TERMUX-APT.md) and [v2 release record](docs/V2-RELEASE-READINESS.md).
 
 The base install needs about 4–4.6 GB of storage. Keep extra temporary space for
@@ -242,8 +244,9 @@ render route and run scripts or scenes with the documented EEVEE setup. See the
   native manager (native workspace `:0`; Debian/Ubuntu/Alpine `:1`/`:2`/`:3`
   by design), workspaces, compute, AI, Device Bridge, security, and gates.
   Four read-only manager CLI commands and an explicit foreground Unix-socket
-  service are in the current source checkout; they are not in the stable v2.0.0
-  package. The native Control Center UI and service supervision remain open.
+  service are in the current source checkout; they are not in the withdrawn
+  v2.0.0 package. The native Control Center UI and service supervision are
+  required before the next v2-major stable release.
 - [Current project status](docs/project/PROJECT-ROADMAP.md): implementation,
   release, device evidence, technical debt, and next actions.
 - [Deep documentation index](docs/README.md): install paths, setup, daily use,
@@ -260,8 +263,10 @@ toggle multiple choices, Enter reviews the plan, and `q` keeps the base desktop.
 `--with-*` flags or `--all` select additional workloads. The v2.0.0 GitHub
 release and stable APT distribution were withdrawn on 2026-11-14; its source tag
 and package checksums remain in the historical [release report](docs/V2-RELEASE-REPORT.md).
-The next stable target is v3, which includes the Control Center and manager
-platform work described in the [v3 architecture](docs/V3-ARCHITECTURE.md).
+The next stable release remains in the v2 major. The Control Center and the full
+platform scope formerly planned for v3 are required for the next 2.x release;
+see the [architecture dossier](docs/V3-ARCHITECTURE.md) and [current roadmap]
+(docs/project/PROJECT-ROADMAP.md).
 Current source has four read-only `tx manager` commands and `tx manager serve`
 for a foreground-only local Unix-socket API. A background supervisor and
 graphical Control Center are not implemented yet. See the [APT channel status](docs/TERMUX-APT.md).

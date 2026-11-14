@@ -728,6 +728,7 @@ required = {
     "lib/ternux/ternux-wallpaper.svg": "lib/ternux-wallpaper.svg",
     "lib/ternux/ternux-camera.py": "lib/ternux-camera.py",
     "lib/ternux/ternux-recorder.py": "lib/ternux-recorder.py",
+    "lib/ternux/ternux-flashlight.py": "lib/ternux-flashlight.py",
     "lib/ternux/ternux-panel-shortcuts.sh": "lib/ternux-panel-shortcuts.sh",
     "lib/ternux/ternux-install-firefox-esr.sh": "lib/ternux-install-firefox-esr.sh",
     "bin/tx": "bin/tx",
@@ -1728,9 +1729,11 @@ fi
 # operations: cancellation preserves data, and explicit --yes removes only the
 # requested mocked container.
 if env PREFIX="$TMP/prefix-uninstall" TERNUX_STATE_DIR="$TMP/state-uninstall" HOME="$TMP/home-uninstall" bash -c '
-  mkdir -p "$HOME" "$TERNUX_STATE_DIR/distros/debian" "$2"
+  mkdir -p "$HOME" "$TERNUX_STATE_DIR/distros/debian/session" "$2"
   : > "$HOME/x.sh"
   printf "status=ready\n" > "$TERNUX_STATE_DIR/distros/debian/profile"
+  printf "phase_debian\nphase_gpu\n" > "$TERNUX_STATE_DIR/distros/debian/phases"
+  printf "STOPPED\n" > "$TERNUX_STATE_DIR/distros/debian/session/desktop.state"
   . "$1/lib/uninstall.sh"
   TERNUX_YES=0
   scratch="$2"
@@ -1752,10 +1755,28 @@ if env PREFIX="$TMP/prefix-uninstall" TERNUX_STATE_DIR="$TMP/state-uninstall" HO
   [ ! -e "$scratch/uninstall-log" ] || exit
   tnx_cmd_uninstall container --yes >/dev/null &&
   grep -qx stopped:debian "$scratch/uninstall-log" && grep -qx "removed:debian" "$scratch/uninstall-log" &&
+  [ "$(tnx_distro_state_get debian status)" = uninstalled ] &&
+  [ ! -e "$TERNUX_STATE_DIR/distros/debian/phases" ] &&
+  [ ! -e "$TERNUX_STATE_DIR/distros/debian/session" ] &&
+  tnx_distro_state_set debian status ready &&
+  tnx_distro_state_set debian user debian-user &&
   mkdir -p "$TERNUX_STATE_DIR/managed-guests" &&
   printf "alpine:latest\n" > "$TERNUX_STATE_DIR/managed-guests/generic-test" &&
   _tnx_uninstall_container generic-test >/dev/null &&
   [ ! -e "$TERNUX_STATE_DIR/managed-guests/generic-test" ] &&
+  mkdir -p "$TERNUX_STATE_DIR/distros/ubuntu/session" &&
+  printf "status=ready\nuser=ubuntu-user\n" > "$TERNUX_STATE_DIR/distros/ubuntu/profile" &&
+  printf "phase_debian\nphase_verify\n" > "$TERNUX_STATE_DIR/distros/ubuntu/phases" &&
+  : > "$TERNUX_STATE_DIR/distros/ubuntu/session/desktop.state" &&
+  printf "ternux-workspace-registry-v1\ndebian\tdebian\t0\t1\tSTOPPED\t2026-11-14T00:00:00Z\nubuntu\tubuntu\t1\t2\tSTOPPED\t2026-11-14T00:00:00Z\n" > "$TERNUX_STATE_DIR/workspaces.tsv" &&
+  tnx_state_set distro ubuntu &&
+  _tnx_uninstall_container ubuntu &&
+  [ "$(tnx_distro_state_get ubuntu status)" = uninstalled ] &&
+  [ ! -e "$TERNUX_STATE_DIR/distros/ubuntu/phases" ] &&
+  [ ! -e "$TERNUX_STATE_DIR/distros/ubuntu/session" ] &&
+  [ "$(tnx_state_get distro)" = debian ] &&
+  ! awk -F "\\t" "\$1 == \"ubuntu\" { found = 1 } END { exit found ? 0 : 1 }" "$TERNUX_STATE_DIR/workspaces.tsv" &&
+  awk -F "\\t" "\$1 == \"debian\" { found = 1 } END { exit found ? 0 : 1 }" "$TERNUX_STATE_DIR/workspaces.tsv" &&
   [ -e "$HOME/x.sh" ] && [ -d "$TERNUX_STATE_DIR" ]
 ' _ "$ROOT" "$TMP"; then
   ok "scoped uninstall confirms selected guest deletion and preserves other scopes"
@@ -2875,7 +2896,8 @@ mkdir -p "$TMP/cli-fallback-source/ternux-pinned-source/bin" \
 cp "$ROOT/bin/ternux" "$ROOT/bin/tx" "$ROOT/bin/ternux-shell-shortcut" \
   "$TMP/cli-fallback-source/ternux-pinned-source/bin/"
 cp "$ROOT"/lib/*.sh "$TMP/cli-fallback-source/ternux-pinned-source/lib/"
-cp "$ROOT"/lib/ternux-welcome-gui.py "$ROOT"/lib/ternux-install-firefox-esr.sh \
+cp "$ROOT"/lib/ternux-welcome-gui.py "$ROOT"/lib/ternux-flashlight.py \
+  "$ROOT"/lib/ternux-install-firefox-esr.sh \
   "$TMP/cli-fallback-source/ternux-pinned-source/lib/"
 cp -a "$ROOT/lib/ternux-assets" "$ROOT/lib/licenses" \
   "$TMP/cli-fallback-source/ternux-pinned-source/lib/"
@@ -2900,6 +2922,7 @@ if [ "$cli_pin_commit" = "$boot_pin_commit" ] &&
    "$TMP/prefix-cli-fallback/bin/ternux" --version | grep -q "^ternux v2.0.0$" &&
    "$TMP/prefix-cli-fallback/bin/tx" --version | grep -q "^ternux v2.0.0$" &&
    [ -s "$TMP/prefix-cli-fallback/lib/ternux/ternux-welcome-gui.py" ] &&
+   [ -s "$TMP/prefix-cli-fallback/lib/ternux/ternux-flashlight.py" ] &&
    [ -x "$TMP/prefix-cli-fallback/bin/db" ] &&
    [ -x "$TMP/prefix-cli-fallback/bin/dbroot" ] &&
    [ -x "$TMP/prefix-cli-fallback/bin/ub" ] &&
@@ -3951,6 +3974,9 @@ check "APT-only optional workloads reject a non-APT guest before guest changes" 
   rc=0; tnx_phase_extras ternux ffmpeg >/dev/null 2>&1 || rc=$?
   [ "$rc" -eq 2 ] || exit 1
   exit 0
+' _ "$ROOT"
+check "Alpine installs AppStream without its unsupported PRoot cache hook" bash -c '
+  grep -Fq "pkg_retry apk add --no-scripts appstream" "$1/lib/phases.sh"
 ' _ "$ROOT"
 check "the GPU phase holds what the profile names, not a fixed list" bash -c '
   phase="$(sed -n "/stage=\/tmp\/ternux-driver-stage/,/apt-mark hold/p" "$1/lib/phases.sh")"

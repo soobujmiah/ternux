@@ -1663,6 +1663,10 @@
     "lib/ternux/ternux-assets/icons/Ternux/scalable/apps/ternux-flashlight.svg": {
       "source": "lib/ternux-assets/icons/Ternux/scalable/apps/ternux-flashlight.svg",
       "perm": "644"
+    },
+    "lib/ternux/ternux-flashlight.py": {
+      "source": "lib/ternux-flashlight.py",
+      "perm": "644"
     }
   }
 }

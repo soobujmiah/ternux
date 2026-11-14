@@ -834,6 +834,7 @@ tnx_frame_open() {
     printf '%s|%s %s%s%s\n' "$TNX_CM" "$TNX_CY" "$TNX_CW" "$_TNX_CLIP" "$TNX_C0"
     _tnx_clipv "$inner" 'by Sobuj Miah (@soobujmiah)'
     printf '%s|%s %s%s%s\n' "$TNX_CM" "$TNX_CD" "$TNX_CW" "$_TNX_CLIP" "$TNX_C0"
+    _TNX_CLIP=""
     printf '%s|%s %s%s%s\n' "$TNX_CM" "$TNX_CD" "$TNX_CW" "$_TNX_CLIP" "$TNX_C0"
     _tnx_clipv "$inner" 'Storage estimate: base ~4-4.6 GB; complete ~10.5-12.5 GB'
     printf '%s|%s %s%s%s\n' "$TNX_CM" "$TNX_CD" "$TNX_CW" "$_TNX_CLIP" "$TNX_C0"

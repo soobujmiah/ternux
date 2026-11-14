@@ -6,7 +6,9 @@ lang: "en"
 
 ## Acceptance criteria
 
-**Status: DESIGNED.** All criteria are release gates for the named capability.
+**Status: DESIGNED. Owner direction (2026-11-14): these former v3 criteria
+are required gates for the next v2-major stable release; there will be no
+separate v3 stable release.** All criteria are release gates for the named capability.
 Evidence is attached to an exact commit and environment. `PASS` requires the
 stated behavior; screenshots or logs without reproducible setup are
 supporting, not sufficient, evidence.

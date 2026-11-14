@@ -1,51 +1,61 @@
 ---
 title: "Ternux project roadmap"
-description: "Living roadmap for released v2 maintenance and Ternux v3 development."
+description: "Living roadmap for the next v2-major platform release."
 lang: "en"
+alt_url: "/bn/docs/project/PROJECT-ROADMAP.html"
 ---
 
 ## Project roadmap
 
-**Last reviewed:** 2026-11-13 16:11 UTC. **State:** living project record.
+**Last reviewed:** 2026-11-14. **State:** active owner-directed release plan.
 
-The owner's complete v2/v3 assignment is preserved verbatim in the
-[repository-only master goal](../../engineering/MASTER-GOAL.md). This is the scope/specification source; current
-implementation and qualification status are tracked separately in this roadmap,
-the [implementation status](IMPLEMENTATION-STATUS.md), and the dated
-[current-state audit](../audit/CURRENT-STATE.md).
+The owner directs the next stable release to remain in the v2 major and include
+the complete platform architecture formerly planned for v3. This page tracks
+implementation and qualification against that scope.
 
-## Released
+## Release status
 
-- Ternux v2.0.0 is published with a signed Termux APT package and stable
-  release record. Its exact claims and dated evidence are in the
-  [current v2 report](../release/V2-RELEASE-REPORT.md) and
-  [release-time record](../V2-RELEASE-REPORT.md).
-- Debian, Ubuntu, and Alpine are the v2-supported desktop profiles on the
-  documented reference device. The installed v2.0.0 package and current `main`
-  source are distinct artifacts; see [release status](RELEASE-STATUS.md) and
-  [implementation status](IMPLEMENTATION-STATUS.md).
+- Ternux v2.0.0 was withdrawn on 2026-11-14. The GitHub Release object is
+  absent and the public stable APT index returns HTTP 404. The `v2.0.0` source
+  tag remains for provenance and must not be reused.
+- The next stable release stays in the v2 major. The planned v3 platform
+  architecture and its acceptance gates are now required scope for that next
+  2.x release; there will be no separate v3 stable release.
+- The stable APT channel stays withdrawn until the implementation and
+  exact-release gates are complete. The opt-in `/apt-rc` channel remains a
+  candidate-testing channel.
+- The supported desktop matrix remains Debian, Ubuntu, and Alpine. Current
+  device state must be checked independently of dated evidence; the
+  2026-11-14 live inventory contained Debian only.
 
-## In progress: v3 foundation
+## Required platform scope
 
-1. Architecture, API, security, UX, acceptance documents, and five ADRs are
-   published. New guest profiles default to Debian/Ubuntu/Alpine `:1`/`:2`/`:3`
-   with native `:0` reserved; saved v2 assignments remain unchanged. Startup
-   rejects occupied socket/lock/server paths and does not reclaim unproven
-   sockets. PR #210 merged initial targets and a read-only current/target report;
-   central display ownership and staged migration remain open.
-2. Current `main` has four read-only native manager CLI operations and a
-   device-tested foreground Unix-socket transport; released 2.0.0 does not
-   include them. Staged migration, native workspace, and Control Center remain
-   open.
-3. Add a secured native Control Center client while preserving CLI parity.
-4. Connect workspace, compute, AI, and Device Bridge through versioned
-   interfaces; qualify each capability independently.
-5. Publish verified device and workload evidence before changing stable
-   support claims.
+The architecture dossier under [`../v3/`](../v3/README.md) remains the detailed
+specification. Its work is sequenced by dependencies and is release-blocking for
+the next v2-major stable release:
 
-The phase gates are in the [v3 roadmap](../v3/IMPLEMENTATION-ROADMAP.md).
+1. **Native manager and migration:** host-owned registry, structured jobs, CLI parity, optional supervised service, safe display/session ownership, and staged migration that preserves working guests.
+2. **Control Center:** secured local status, start/stop, logs, diagnostics, accessibility, and low-resource behavior; CLI remains usable without it.
+3. **Workspace:** collect every selected guest's username and shell before any guest install begins; then install/update/recover/remove Debian, Ubuntu, and Alpine independently, with user data and unrelated guests preserved.
+4. **Compute and AI:** capability registry, backend and workload ownership, CPU/GPU correctness, failure recovery, resource policy, and LAI integration through its documented interface.
+5. **Android Device Bridge:** permission-aware camera, microphone, and scoped storage operations, including deny/cancel/failure paths.
+6. **Extensions:** validated manifests, scoped permissions, integrity/provenance checks, rollback, repair, and safe uninstall.
+7. **Release integration:** align package metadata, CLI help, bilingual docs/site, security review, exact-commit CI, clean device installation, and three-guest lifecycle evidence.
 
-## Current next action
+A phase is complete only when its acceptance criteria have reproducible evidence. A source implementation, build, installer completion, or one-device check does not qualify the whole platform.
 
-Implement display ownership and staged migration without changing live v2 guest
-displays before its migration gate. See [next actions](NEXT-ACTIONS.md).
+## Current implementation evidence
+
+Current source contains read-only native manager operations and a foreground
+Unix-socket service. The graphical Control Center, service supervision, and
+staged migration remain incomplete. Guest desktop support and GPU/AI integrations
+exist in varying states and must be checked against the live source and the exact
+target device. Details are in [implementation status](IMPLEMENTATION-STATUS.md),
+[current-state audit](../audit/CURRENT-STATE.md), and [device verification](../audit/DEVICE-VERIFICATION.md).
+
+## Next actions
+
+1. Complete the implementation and acceptance audit for every architecture phase; preserve completed, tested components.
+2. Finish clean per-guest profile precollection and install/update/recovery/uninstall runs for Debian, Ubuntu, and Alpine.
+3. Implement the native Control Center, manager supervision, migration, Device Bridge, and extension gates that remain open.
+4. Keep the stable channel withdrawn until every required gate passes on the exact new 2.x release candidate.

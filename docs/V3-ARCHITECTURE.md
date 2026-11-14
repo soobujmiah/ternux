@@ -7,10 +7,12 @@ alt_url: "/bn/docs/V3-ARCHITECTURE.html"
 
 ## V3 architecture overview
 
-Ternux v3 is designed as a native Termux manager for independent Linux
-workspaces, optional compute and AI workloads, a permission-aware Android
-Device Bridge, and a local Control Center. The detailed specifications are
-linked below. **Designed does not mean implemented or device-verified.**
+This architecture was originally organized as the Ternux v3 plan. On
+2026-11-14, the owner directed that its full planned scope be included in the
+next v2-major stable release; there will be no separate v3 stable release. It
+describes a native Termux manager for independent Linux workspaces, optional
+compute and AI workloads, a permission-aware Android Device Bridge, and a
+local Control Center. **Designed does not mean implemented or device-verified.**
 
 ## Product boundary
 
@@ -37,7 +39,8 @@ linked below. **Designed does not mean implemented or device-verified.**
 
 ## Design decisions
 
-The v3 design records a native manager, explicit guest/data ownership, and
-LAI integration through an adapter. See the [ADR index](v3/ADR/README.html)
-for rationale and consequences. The release evidence for the already-shipped
-v2 remains in the [v2 release report](V2-RELEASE-REPORT.html).
+The architecture design records a native manager, explicit guest/data
+ownership, and LAI integration through an adapter. See the [ADR index]
+(v3/ADR/README.html) for rationale and consequences. The evidence for the
+withdrawn v2.0.0 release remains in the [v2 release report]
+(V2-RELEASE-REPORT.html).

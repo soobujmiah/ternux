@@ -545,9 +545,11 @@ proot-distro backup debian --output ~/debian-backup.tar.gz
 - **An interrupted installer run:** re-download the same reviewed script and use
   `--resume`; successfully recorded phases are skipped, except the host CLI phase
   runs again when its recorded source identity differs from the current installer.
-  Resume does not repair other completed desktop or managed-artifact phases—use
-  `ternux update` for a published CLI update and `ternux repair` for managed
-  artifacts. Back up before driver or distribution changes.
+  Guest phases are skipped only while that guest's PRoot container is still
+  installed. A removed guest's old phase ledger is not treated as a completed
+  install. Resume does not repair other completed desktop or managed-artifact
+  phases—use `ternux update` for a published CLI update and `ternux repair` for
+  managed artifacts. Back up before driver or distribution changes.
 - **Debian packages:** `sudo apt update && sudo apt upgrade` inside the
   desktop. Mesa packages are held (`apt-mark hold`) on the Zink route on
   purpose — upgrading them can silently switch you back to software
@@ -557,6 +559,17 @@ proot-distro backup debian --output ~/debian-backup.tar.gz
 ---
 
 ## Uninstalling
+
+Remove one named guest through Ternux so its stopped session, install ledger,
+profile state and workspace record are cleared together:
+
+```bash
+ternux distro uninstall ubuntu --yes
+```
+
+Then reinstall it with `ternux install --distro ubuntu`. Use `--resume` only
+for a guest that still has its PRoot container; the installer checks container
+presence before trusting old guest phase records.
 
 ```bash
 ternux uninstall                    # preferred — interactive removal

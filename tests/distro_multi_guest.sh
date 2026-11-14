@@ -106,6 +106,7 @@ if (
   tnx_state_set cli_source_identity 'pin:0000000000000000000000000000000000000000'
   tnx_install_phase_done cli && exit 1
   tnx_state_set cli_source_identity "$(tnx_cli_source_identity)"
+  tnx_proot_container_installed(){ return 0; }
   for phase in debian gpu audio_fonts launcher aliases extras phantom verify; do
     tnx_state_mark "phase_$phase"
     tnx_distro_phase_mark debian "$phase"
@@ -128,6 +129,48 @@ else
   exit 1
 fi
 
+
+# A removed profile may retain an old guest ledger; resume must verify the
+# actual PRoot container before trusting any guest phase marker.
+if (
+  . "$ROOT/lib/core.sh"
+  export TERNUX_STATE_DIR="$TMP/stale-guest-state"
+  mkdir -p "$TERNUX_STATE_DIR/distros/ubuntu"
+  printf 'phase_gpu\nphase_verify\n' > "$TERNUX_STATE_DIR/distros/ubuntu/phases"
+  tnx_proot_container_installed(){ return 1; }
+  tnx_install_phase_done gpu ubuntu && exit 1
+  tnx_proot_container_installed(){ return 0; }
+  tnx_install_phase_done gpu ubuntu
+); then
+  echo 'PASS: resume never trusts a guest phase ledger after its PRoot container is removed'
+else
+  echo 'FAIL: resume accepted stale phase markers for a removed guest' >&2
+  exit 1
+fi
+
+# A managed install must clear a removed guest's ledger before recreating its
+# rootfs, so stale GPU/verification markers cannot skip work on the new guest.
+if (
+  . "$ROOT/lib/core.sh"
+  export TERNUX_STATE_DIR="$TMP/reset-missing-guest-state"
+  dir="$TERNUX_STATE_DIR/distros/ubuntu"
+  mkdir -p "$dir/session"
+  printf 'phase_gpu\nphase_verify\n' > "$dir/phases"
+  : > "$dir/session/desktop.state"
+  tnx_proot_container_installed(){ return 1; }
+  tnx_install_reset_missing_guest_state ubuntu || exit 1
+  [ ! -e "$dir/phases" ] && [ ! -e "$dir/session" ] || exit 1
+  printf 'phase_gpu\n' > "$dir/phases"
+  mkdir -p "$dir/session"
+  tnx_proot_container_installed(){ return 0; }
+  tnx_install_reset_missing_guest_state ubuntu || exit 1
+  [ -e "$dir/phases" ] && [ -e "$dir/session" ]
+); then
+  echo 'PASS: managed reinstall resets guest ledger only when its PRoot container is absent'
+else
+  echo 'FAIL: missing-container install did not safely reset stale guest state' >&2
+  exit 1
+fi
 
 # Guest shell/exec routes through the selected distro and keeps the established
 # isolated-login plus scoped storage behavior.

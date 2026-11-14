@@ -7,7 +7,7 @@ import RenderBench from "../components/RenderBench.astro";
 
 <SiteLayout
   title="Linux, beyond the desktop"
-  description="Ternux v2.0.0 is a no-root ARM64 Android Linux workstation with Debian, Ubuntu, and Alpine desktop profiles, copyable installation paths, and a published v3 roadmap."
+  description="Ternux is a no-root ARM64 Android Linux workspace. The withdrawn v2.0.0 release is being rebuilt with Debian, Ubuntu, Alpine, and the complete planned platform architecture before the next stable v2-major release."
   canonical="/"
   altUrl="/bn/"
 >
@@ -275,15 +275,20 @@ import RenderBench from "../components/RenderBench.astro";
         <div class="device-panel profile-panel status-panel">
           <div class="device-copy">
             <span class="eyebrow">PROJECT STATUS · 14 NOV 2026</span>
-            <h2>v2 distribution withdrawn. Release work continues.</h2>
+            <h2>
+              v2.0.0 withdrawn. The next v2 platform release is in progress.
+            </h2>
             <p>
               The v2.0.0 GitHub release and stable APT distribution were
               withdrawn on 2026-11-14; the source tag is retained for
-              provenance. Debian, Ubuntu and Alpine remain the supported v2
+              provenance. Debian, Ubuntu and Alpine remain the three supported
               guest profiles. Current main source contains four read-only
-              manager CLI commands; the withdrawn v2.0.0 package does not. The
-              next stable release target is v3, after its manager, Control
-              Center and migration acceptance gates pass.
+              manager CLI commands and a foreground Unix-socket service; these
+              are not in the withdrawn v2.0.0 package. The next stable release
+              remains in the v2 major and includes the full platform
+              architecture formerly planned for v3: manager, Control Center,
+              workspace, compute, AI, Device Bridge and extensions. Each
+              acceptance gate must pass before publication.
             </p>
           </div>
           <div class="profile-grid">
@@ -300,7 +305,7 @@ import RenderBench from "../components/RenderBench.astro";
               href="/ternux/docs/project/PROJECT-ROADMAP.html"
             >
               <small>PROJECT ROADMAP</small>
-              <strong>v3</strong>
+              <strong>Next v2 release</strong>
               <span>Current status & next steps ↗</span>
             </a>
             <a class="profile-card" href="https://github.com/soobujmiah/ternux">

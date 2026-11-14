@@ -7,7 +7,7 @@ import RenderBench from "../../components/RenderBench.astro";
 
 <SiteLayout
   title="পকেটেই লিনাক্স ওয়ার্কস্টেশন"
-  description="Ternux v2.0.0 হলো root ছাড়া ARM64 Android Linux workstation: Debian, Ubuntu ও Alpine desktop profile, copyable install path এবং প্রকাশিত v3 roadmap-সহ।"
+  description="Ternux হলো root ছাড়া ARM64 Android Linux workspace। withdrawn v2.0.0-এর পর Debian, Ubuntu, Alpine এবং সম্পূর্ণ platform architecture যোগ করে পরের stable v2-major release প্রস্তুত হচ্ছে।"
   lang="bn"
   canonical="/bn/"
   altUrl="/"
@@ -277,15 +277,17 @@ import RenderBench from "../../components/RenderBench.astro";
         <div class="device-panel profile-panel status-panel">
           <div class="device-copy">
             <span class="eyebrow">প্রকল্পের অবস্থা · ১৪ নভেম্বর ২০২৬</span>
-            <h2>v2 distribution withdrawn। Release-এর কাজ চলছে।</h2>
+            <h2>v2.0.0 withdrawn। পরের v2 platform release তৈরি হচ্ছে।</h2>
             <p>
               v2.0.0 GitHub release ও stable APT distribution 2026-11-14-এ
               withdrawn হয়েছে; provenance-এর জন্য source tag রাখা হয়েছে।
-              Debian, Ubuntu ও Alpine v2-এর supported guest profile। Current
-              main source-এ read-only manager CLI command আছে; withdrawn v2.0.0
-              package-এ সেগুলো নেই। পরের stable release target v3; manager,
-              Control Center ও migration acceptance gate pass করার পর সেটি
-              প্রকাশ করা হবে।
+              Debian, Ubuntu ও Alpine—এই তিনটি supported guest profile। Current
+              main source-এ read-only manager CLI command ও foreground
+              Unix-socket service আছে; withdrawn v2.0.0 package-এ সেগুলো নেই।
+              পরের stable release v2 major-এই থাকবে। আগে v3 নামে পরিকল্পিত
+              manager, Control Center, workspace, compute, AI, Device Bridge ও
+              extension-এর পুরো scope এবং সব acceptance gate সম্পন্ন হলে তবেই
+              প্রকাশ হবে।
             </p>
           </div>
           <div class="profile-grid">
@@ -299,7 +301,7 @@ import RenderBench from "../../components/RenderBench.astro";
             </a>
             <a class="profile-card" href="/ternux/bn/docs/V3-ARCHITECTURE.html">
               <small>PROJECT ROADMAP</small>
-              <strong>v3</strong>
+              <strong>পরের v2 release</strong>
               <span>বর্তমান অবস্থা ও পরবর্তী কাজ ↗</span>
             </a>
             <a class="profile-card" href="https://github.com/soobujmiah/ternux">

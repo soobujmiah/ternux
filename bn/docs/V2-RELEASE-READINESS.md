@@ -86,7 +86,7 @@ qualification নয়।
 2. Repository workflow `.repo/` state PR #190-এ তৈরি করেছে; check pass করে merge হয়েছে, কোনো generated file হাতে edit হয়নি।
 3. Stable APT signature/index/package, native package lifecycle, guest-specific verification ও website redeploy-তে signed repository preservation pass করেছে।
 4. `v2.0.0` tag validated main `9106b04fc8627ae98b1d63c9912a28c8a4677441`-এ প্রকাশিত।
-5. চূড়ান্ত প্রমাণ [v2.0.0 release report](V2-RELEASE-REPORT.md)-এ আছে। Architecture ও acceptance plan review-এর পরে v3 implementation শুরু হবে.
+5. চূড়ান্ত প্রমাণ [v2.0.0 release report](V2-RELEASE-REPORT.md)-এ আছে। ২০২৬-১১-১৪ তারিখে owner-এর direction অনুযায়ী former v3 platform scope পরের v2-major stable release-এর জন্য বাধ্যতামূলক; আলাদা v3 stable release হবে না। বর্তমান পরিকল্পনা [project roadmap](project/PROJECT-ROADMAP.md)-এ আছে।
 ## বিস্তারিত audit
 
 - [বর্তমান state ও সিদ্ধান্ত](../../docs/audit/CURRENT-STATE.md)
@@ -96,6 +96,7 @@ qualification নয়।
 - [Machine-readable gate](https://github.com/soobujmiah/ternux/blob/main/docs/release-gates.json)
 
 `v2.0.0` source tag provenance-এর জন্য রাখা হয়েছে; GitHub release ও signed
-stable APT channel withdrawn। পরের stable target v3, manager, Control Center ও
-migration acceptance gate সম্পূর্ণ হওয়ার পরে। Historical প্রমাণ [release
-report](V2-RELEASE-REPORT.md)-এ আছে।
+stable APT channel withdrawn। পরের stable release v2 major-এ থাকবে। আগে v3 নামে
+পরিকল্পিত সম্পূর্ণ platform architecture ও acceptance gate শেষ হলে নতুন 2.x release
+হবে; আলাদা v3 stable release হবে না। Historical প্রমাণ [release report](V2-RELEASE-REPORT.md)-এ আছে; বর্তমান scope
+[project roadmap](project/PROJECT-ROADMAP.md)-এ লেখা আছে।

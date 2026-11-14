@@ -14,7 +14,9 @@ export function getStaticPaths() {
 }
 const { page } = Astro.props;
 const path = pageUrl(page);
-const noIndex = page.route.endsWith("ACCELERATOR-RELEASE-PLAN.md");
+const noIndex =
+  page.route.endsWith("ACCELERATOR-RELEASE-PLAN.md") ||
+  /^(?:bn\/)?docs\/(?:v3|project)\//.test(page.route);
 ---
 
 <SiteLayout
