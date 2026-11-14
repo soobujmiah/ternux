@@ -39,8 +39,8 @@ set -u
 _TNX_SRC="$(cd "$(dirname "$0")" && pwd 2>/dev/null || echo "$PWD")"
 # Pin the exact source snapshot and its hosted codeload bytes. Keep this aligned
 # with lib/core.sh; refresh both after reviewing the archive and verifying its digest.
-_TNX_BOOTSTRAP_COMMIT="6adf64606b4219e310bdabed52c799ea07e5a9b2"
-_TNX_BOOTSTRAP_SHA256="12c414fef74b11f6f18ea7c844e5e2da0d27fc0d05b8c16edd7dd6894cd43fd2"
+_TNX_BOOTSTRAP_COMMIT="f416fcb3b5693b7c98e1465f0cd1537d875d717b"
+_TNX_BOOTSTRAP_SHA256="8f1821189a5833a535f55322fbed07116f15d563ccc41dcf0effd6f21317d980"
 
 _tnx_load_local() {
   [ -f "$_TNX_SRC/lib/core.sh" ] && [ -f "$_TNX_SRC/lib/phases.sh" ] && [ -f "$_TNX_SRC/lib/ui.sh" ] || return 1
@@ -54,10 +54,40 @@ _tnx_bootstrap_cleanup() {
   fi
 }
 
+# Select a downloader that can actually start. A Termux package operation can
+# leave curl present on PATH but unable to load its just-upgraded libraries;
+# in that state an already-working wget must remain usable as the bootstrap.
+_tnx_download_archive() {
+  local url="${1:?missing archive URL}" archive="${2:?missing archive path}"
+  local tool
+
+  for tool in curl wget; do
+    command -v "$tool" >/dev/null 2>&1 || continue
+    if ! "$tool" --version >/dev/null 2>&1; then
+      echo "[WARN] $tool is installed but cannot start; trying another downloader." >&2
+      continue
+    fi
+
+    echo "[INFO] Downloading the pinned source bundle with $tool..."
+    case "$tool" in
+      curl)
+        curl -fL --retry 3 --retry-delay 2 --connect-timeout 15 --max-time 900 \
+          "$url" -o "$archive" 2>/dev/null && return 0
+        ;;
+      wget)
+        wget -q --timeout=900 --tries=3 "$url" -O "$archive" 2>/dev/null && return 0
+        ;;
+    esac
+    rm -f "$archive"
+    echo "[WARN] $tool could not download the source bundle; trying another downloader." >&2
+  done
+  return 1
+}
+
 _tnx_load_remote() {
   local url="https://codeload.github.com/soobujmiah/ternux/tar.gz/$_TNX_BOOTSTRAP_COMMIT"
   local tmpdir="${TMPDIR:-/tmp}/ternux-bootstrap.$$" archive="" listing=""
-  local root_name="" root="" lib="" attempt=1 fetched=0
+  local root_name="" root="" lib=""
 
   if ! command -v tar >/dev/null 2>&1; then
     echo "[FATAL] tar is required to unpack the ternux source bundle." >&2
@@ -67,11 +97,6 @@ _tnx_load_remote() {
     echo "[FATAL] sha256sum is required to verify the pinned ternux source bundle." >&2
     exit 1
   fi
-  if ! command -v curl >/dev/null 2>&1 && ! command -v wget >/dev/null 2>&1; then
-    echo "[FATAL] Neither curl nor wget is available. Cannot download ternux." >&2
-    exit 1
-  fi
-
   mkdir -p "$tmpdir" || exit 1
   archive="$tmpdir/ternux.tar.gz"
   listing="$tmpdir/archive.list"
@@ -79,21 +104,8 @@ _tnx_load_remote() {
   # One retryable, atomic source snapshot replaces four bootstrap requests and
   # the later per-module CLI requests. The extracted bin/ and lib/ files remain
   # available to every install phase and are removed by the EXIT cleanup.
-  while [ "$attempt" -le 3 ]; do
-    echo "[INFO] Downloading ternux source bundle (attempt $attempt/3)..."
-    if command -v curl >/dev/null 2>&1; then
-      curl -fL --retry 3 --retry-delay 2 --connect-timeout 15 --max-time 900 \
-        "$url" -o "$archive" 2>/dev/null && fetched=1
-    else
-      wget -q --timeout=900 --tries=3 "$url" -O "$archive" 2>/dev/null && fetched=1
-    fi
-    [ "$fetched" -eq 1 ] && break
-    rm -f "$archive"
-    attempt=$((attempt + 1))
-    [ "$attempt" -le 3 ] && sleep "$attempt"
-  done
-  if [ "$fetched" -ne 1 ]; then
-    echo "[FATAL] Failed to download the ternux source bundle after 3 attempts." >&2
+  if ! _tnx_download_archive "$url" "$archive"; then
+    echo "[FATAL] Neither curl nor wget could download the ternux source bundle." >&2
     rm -rf "$tmpdir"
     exit 1
   fi
