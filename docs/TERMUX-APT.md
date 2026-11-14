@@ -14,8 +14,8 @@ unaffected, but stable APT no longer offers Ternux updates.
 
 The source installer is the supported install route; see the [main
 installation guide](../README.md). As checked on 2026-11-15, the stable APT
-bootstrap/key/index return HTTP 404. The RC bootstrap itself returns HTTP 200,
-but its signing key and signed index return HTTP 404. Therefore `pkg install
+bootstrap/key/index return HTTP 404. The RC bootstrap and key return HTTP 200,
+but its signed index returns HTTP 404. Therefore `pkg install
 ternux` is currently unavailable from either hosted repository. The RC channel
 is reserved for opt-in candidate testing once its signed repository is published.
 The next stable release remains in the v2 major. The complete platform
@@ -45,9 +45,9 @@ values are retained for audit and do not provide a current download route.
 
 ## RC channel
 
-The RC bootstrap URL currently returns HTTP 200, but the hosted signing key and
-signed index return HTTP 404. These commands therefore cannot configure a working
-package source. Do not run `pkg install ternux` expecting it to install from
+The RC bootstrap and key URLs currently return HTTP 200, but the signed index
+returns HTTP 404. These commands therefore cannot configure a working package
+source. Do not run `pkg install ternux` expecting it to install from
 stable or RC. Once a candidate channel is published, verify its key and signed
 index before restoring runnable instructions.
 

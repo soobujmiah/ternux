@@ -105,7 +105,7 @@ pkg update -y && pkg upgrade -y && pkg install -y wget && bash -o pipefail -c 'w
 Ternux v2.0.0 GitHub release ও stable APT distribution 2026-11-14-এ
 withdraw করা হয়েছে। Provenance-এর জন্য `v2.0.0` source tag রাখা হয়েছে।
 উপরের source installer ব্যবহার করুন। Stable signed APT repository প্রত্যাহার
-করা হয়েছে; `pkg install ternux` এখন পাওয়া যাচ্ছে না। RC bootstrap পাওয়া গেলেও signing key ও signed index HTTP 404 দেয়, তাই ওই channel-ও
+করা হয়েছে; `pkg install ternux` এখন পাওয়া যাচ্ছে না। RC bootstrap ও key পাওয়া গেলেও signed index HTTP 404 দেয়, তাই ওই channel-ও
 install করা যায় না। Architecture ও acceptance
 gate সম্পূর্ণ হলে পরের stable release v2 major-এই থাকবে; আগে v3 নামে পরিকল্পিত full platform scope-ও তাতে থাকবে। [APT channel status](../docs/TERMUX-APT.md)
 ও [v2 release record](../docs/V2-RELEASE-READINESS.md) দেখুন।
