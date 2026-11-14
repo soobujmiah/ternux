@@ -18,8 +18,7 @@ const groups = nav[lang];
 const indexPath = baseUrl(lang === "bn" ? "/bn/docs/" : "/docs/");
 const noIndex =
   page.route.endsWith("ACCELERATOR-RELEASE-PLAN.md") ||
-  page.route.startsWith("docs/v3/") ||
-  page.route.startsWith("docs/project/");
+  /^(?:bn\/)?docs\/(?:v3|project)\//.test(page.route);
 ---
 
 <SiteLayout
