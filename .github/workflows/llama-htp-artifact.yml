@@ -227,7 +227,7 @@ jobs:
       contents: read
     steps:
       - name: Download the verified HTP artifact without rebuilding
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: ternux-llama-htp-sm8735-b11582
           github-token: ${{ github.token }}
@@ -266,7 +266,7 @@ jobs:
           fetch-depth: 0
 
       - name: Download the exact build artifact
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: ternux-llama-htp-sm8735-b11582
           github-token: ${{ github.token }}

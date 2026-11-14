@@ -21,7 +21,7 @@ assert "github.event_name == 'workflow_dispatch'" in publisher
 assert "inputs.publish_preview == true" in publisher
 assert "github.ref == 'refs/heads/main'" in publisher
 assert "contents: write" in publisher and "actions: read" in publisher
-assert "actions/download-artifact@v7" in publisher
+assert "actions/download-artifact@v8" in publisher
 assert "sha256sum --check" in publisher
 assert "gh release upload" in publisher and "gh release create" in publisher
 print("llama.cpp manually dispatched source-map candidate, reusable artifact, and explicit main-only publisher contract passed")
