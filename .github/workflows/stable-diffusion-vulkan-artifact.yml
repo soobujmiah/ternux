@@ -208,7 +208,7 @@ jobs:
       contents: read
     steps:
       - name: Download the verified candidate without rebuilding
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: ternux-stable-diffusion-vulkan-linux-arm64-master-1053-candidate
           github-token: ${{ github.token }}
@@ -246,7 +246,7 @@ jobs:
           fetch-depth: 0
 
       - name: Download inspected prerelease candidate
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: ternux-stable-diffusion-vulkan-linux-arm64-master-1053-candidate
           github-token: ${{ github.token }}

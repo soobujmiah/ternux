@@ -166,7 +166,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v8
         with:
           name: repo-state-${{ github.run_id }}-${{ github.run_attempt }}
           path: .repo/
