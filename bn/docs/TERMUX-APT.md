@@ -13,9 +13,10 @@ withdraw হয়েছে। Public `/apt` bootstrap, key, index ও package p
 থেকে Ternux update আর পাওয়া যায় না।
 
 Signed `/apt-rc` channel কেবল opt-in candidate test-এর জন্য আছে; production
-install source হিসেবে এটি সমর্থিত নয়। পরের stable release target v3—এর
-architecture ও acceptance gate সম্পূর্ণ হওয়ার পরে। ততদিন [main installation
-guide](../README.md)-এর source installer ব্যবহার করুন।
+install source হিসেবে এটি সমর্থিত নয়। পরের stable release v2 major-এই থাকবে।
+আগে v3 নামে পরিকল্পিত সম্পূর্ণ platform architecture ও acceptance gate শেষ হলে
+নতুন 2.x stable release হবে। বিস্তারিত [project roadmap](/bn/docs/project/PROJECT-ROADMAP.html)
+দেখুন; ততদিন [main installation guide](../README.md)-এর source installer ব্যবহার করুন।
 
 ## Trust fingerprint
 

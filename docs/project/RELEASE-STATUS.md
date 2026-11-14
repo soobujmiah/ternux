@@ -1,16 +1,16 @@
 ---
 title: "Ternux release status"
-description: "Published v2 release facts, support boundary, and current package/site state."
+description: "Historical v2 release facts, support boundary, and current package/site state."
 lang: "en"
 ---
 
 ## Release status
 
-**Last checked:** 2026-11-13 12:52 UTC.
+**Release history checked:** 2026-11-14. The release facts below are historical; the current target is described in the project roadmap.
 
 ## Ternux v2.0.0
 
-- **State:** released on 2026-11-13.
+- **Historical state:** released on 2026-11-13; distribution withdrawn on 2026-11-14.
 - **Source:** tag `v2.0.0`; release commit `9106b04fc8627ae98b1d63c9912a28c8a4677441`.
 - **Termux package:** signed stable APT publication is recorded in the
   [current v2 report](../release/V2-RELEASE-REPORT.md),
@@ -40,6 +40,9 @@ are installed on the device.
 
 ## Next release
 
-No v2.0.1 or v3 release is declared by this document. A new release requires
-an explicit version, exact source commit, package/artifact digests, CI run,
-upgrade/recovery evidence, and synchronized README/site/release notes.
+The owner directs the next stable release to remain in the v2 major and to
+include the complete platform scope formerly planned for v3. No new 2.x version
+number is assigned yet. The next release requires an explicit version, exact
+source commit, package/artifact digests, CI run, upgrade/recovery evidence, and
+synchronized README/site/release notes. There will be no separate v3 stable
+release.

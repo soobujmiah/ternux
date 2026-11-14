@@ -96,7 +96,7 @@ Qualification does not extend to other GPUs or devices.
 2. Repository workflow generated `.repo/` state in PR #190; its checks passed and it was merged without manual edits.
 3. Stable APT signature/index/package, native package lifecycle, per-guest verification, and post-publication website preservation passed.
 4. Tag `v2.0.0` was published on validated main `9106b04fc8627ae98b1d63c9912a28c8a4677441`.
-5. The final publication and qualification record is the [v2.0.0 release report](V2-RELEASE-REPORT.md). V3 implementation begins after the architecture and acceptance plan are reviewed.
+5. The final publication and qualification record is the [v2.0.0 release report](V2-RELEASE-REPORT.md). On 2026-11-14 the owner moved the full former v3 platform plan into the next v2-major release; see the [current project roadmap](project/PROJECT-ROADMAP.md).
 ## Detailed audit records
 
 - [Current state and decisions](audit/CURRENT-STATE.md)
@@ -107,5 +107,7 @@ Qualification does not extend to other GPUs or devices.
 
 The `v2.0.0` source tag is retained for provenance. Its GitHub release was
 removed and its signed stable APT paths were withdrawn on 2026-11-14; only the
-opt-in RC channel remains public. Recommendation: make v3 the next stable release
-after its manager, Control Center, and migration acceptance gates are complete.
+opt-in RC channel remains public. The original recommendation was superseded on
+2026-11-14: the former v3 platform scope is now required for the next v2-major
+stable release, with no separate v3 stable release. See the current
+[project roadmap](project/PROJECT-ROADMAP.md).

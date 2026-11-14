@@ -6,7 +6,9 @@ lang: "en"
 
 ## Implementation roadmap
 
-**Status: DESIGNED.** Sequence is dependency-driven. A phase closes only when
+**Status: DESIGNED. Owner direction (2026-11-14): every phase in this former
+v3 roadmap is required before the next v2-major stable release; there will be
+no separate v3 stable release.** Sequence is dependency-driven. A phase closes only when
 its acceptance evidence is recorded; schedule estimates are intentionally
 omitted until the baseline and device capacity are measured.
 

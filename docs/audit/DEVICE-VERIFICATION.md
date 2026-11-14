@@ -1,12 +1,51 @@
 # Device verification record
 
-**Date:** 2026-11-13
+**Baseline date:** 2026-11-13; **follow-up:** 2026-11-14
 **Device:** Xiaomi 25053RT47C (Redmi Turbo 4 Pro), Android 16, ARM64,
 SM8735 / Adreno 825.
 
 This record separates physical-device observation from source tests and CI.
 It does not claim qualification on other GPUs, Android builds, or Termux:X11
 versions.
+
+## 2026-11-14 managed Debian resume and GUI follow-up
+
+**Device:** Xiaomi 25053RT47C (Redmi Turbo 4 Pro), Android 16, ARM64, Adreno 825.
+**Repository code head at test time:** `0797d31130e73593183926b48244057815397dd4`.
+**Installed CLI:** Ternux `2.0.0`; `dpkg-query -S "$PREFIX/bin/ternux"` found no package owner, so this was not a signed APT clean-install test.
+
+| Check | Result |
+|---|---|
+| Resume command | `bash ./install.sh --resume --yes --ui plain` completed all 11 phases. Existing Debian was reused; no guest reset/removal occurred. |
+| Guest | Debian 13.7 (Trixie), Xfce4, user `sbj`, locale `en_US.UTF-8`, backend `zink`. |
+| Installer verification | Passed host tools, launcher, CLI library load, guest companion, Debian desktop core, and Turnip checks. All 23 installed shell modules matched the source checkout byte-for-byte. |
+| Standalone bootstrap | A temporary copy of `install.sh` loaded the pinned codeload snapshot `30a109c6e412f6b0514592c8928adba650b064d5`; SHA-256 `27be90807e6f86f80f17ffdc41ac98ed346b09c4b6eaa8381b1a9901b85503da` matched and `--status` completed. No install phase ran. |
+| Native host verification | `ternux verify --json` passed on Android 16 / Adreno 825. |
+| Desktop startup | `ternux start debian` reached `READY` on display `:0`; X11 functional and PulseAudio route ready. |
+| X11 application observation | Via the explicitly authorized xdotool test, `DISPLAY=:0` reported 312×640, a visible Firefox ESR window titled `Linux, beyond the desktop · Ternux — Mozilla Firefox`, and an Escape key event completed. This was a live window query, not a screenshot or a test of physical Android touch/keyboard input. |
+| Later status | `ternux status --json` reported `READY`, X11 yes, PulseAudio ready yes, managed desktop PID 21290. No spontaneous close was observed during this run; it was not a controlled long-duration soak. |
+| Clean stop | `ternux stop debian` returned STOPPED; subsequent host `ternux verify --json` passed. |
+
+The first start attempt correctly refused to replace a display socket created
+by a manually launched Termux:X11 process that did not pass Ternux readiness.
+After that process exited, the managed start removed the now-proven stale socket
+and started XFCE successfully. This supports the lifecycle safety behavior; it
+does not identify the cause of the earlier cross-distro GUI closures.
+
+During resume, Termux:API microphone permission was not confirmed, so its
+optional microphone feature was skipped. Android's child-process setting could
+not be read; the installer displayed its warning and did not claim that setting
+was enabled. These remain device-side checks, not installer failures.
+
+The live guest inventory before the disposable test contained Debian only. A
+generic Alpine 3.24.4 OCI guest was then installed with
+`ternux distro image-install alpine:latest ternux-test-disposable`, queried via
+`ternux distro exec` (`id` returned root), and removed with
+`ternux distro uninstall ternux-test-disposable --yes`. Follow-up checks found
+neither its container nor Ternux registry entry. This tests generic guest
+lifecycle only; it does **not** qualify the Alpine desktop recipe. Ubuntu and
+fresh Ternux desktop installs for Ubuntu/Alpine remain unverified in this
+follow-up.
 
 ## Live guest sessions
 

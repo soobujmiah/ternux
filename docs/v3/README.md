@@ -1,16 +1,17 @@
 ---
 title: "Ternux v3 architecture"
-description: "The approved architecture baseline and phased delivery plan for Ternux v3."
+description: "The platform architecture dossier whose full scope is required for the next v2-major stable release."
 lang: "en"
 ---
 
 ## Ternux v3 architecture baseline
 
-**Architecture status: ACCEPTED DESIGN; implementation is partial.** This set
-turns the owner-approved v3 direction into reviewable component boundaries,
-interfaces, security rules, and acceptance criteria. The read-only manager
-CLI and explicit Unix-socket service now exist in source; the Control Center
-UI and remaining v3 phases do not. It does not change the v2 release contract.
+**Architecture status: ACCEPTED DESIGN; implementation is partial.** These
+documents retain the platform architecture originally planned for v3. On
+2026-11-14, the owner moved that full scope into the next v2-major stable
+release; this is a required v2 release contract now. The read-only manager
+CLI and foreground Unix-socket service exist in source; the Control Center UI
+and other phases remain incomplete.
 Current implementation and release evidence are tracked in the [project
 status](../project/IMPLEMENTATION-STATUS.md) and [v2 release record](../V2-RELEASE-REPORT.md).
 

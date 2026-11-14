@@ -7,8 +7,10 @@ otherwise. “Installed”, “detected”, “initialized”, “executed corre
 
 **Current distribution decision (2026-11-14):** v2.0.0 GitHub release removed;
 its Git tag retained. Stable APT withdrawn in Pages run `43532161200` (stable
-paths HTTP 404, opt-in signed RC HTTP 200). Do not republish stable v2. The next
-stable target is v3 after its architecture and acceptance gates are complete.
+paths HTTP 404, opt-in signed RC HTTP 200). Do not republish the withdrawn
+v2.0.0 release. The next stable release remains in the v2 major and requires
+the complete platform scope formerly planned for v3. This is a direction update,
+not a claim that those capabilities are implemented or qualified.
 
 The 12:20 UTC read-only diagnostic recheck confirmed all three live guests
 remain READY. Debian and Alpine probes used their session displays and reported

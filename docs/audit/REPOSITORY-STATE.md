@@ -14,10 +14,12 @@
 - The v2.0.0 GitHub release was removed earlier; the `v2.0.0` tag remains for
   provenance. Existing package installations and guest roots were not changed by
   the Pages withdrawal.
-- The v2 stable package will not be republished. Recommendation: make v3 the
-  next stable release after manager, Control Center, and migration acceptance
-  gates are complete. Until then, use the source installer; RC APT is for
-  explicit candidate testing only.
+- The v2 stable package will not be republished. The owner amended the release
+  direction on 2026-11-14: all former v3 platform scope is required for the next
+  v2-major stable release, with no separate v3 stable release. Until that release,
+  use the source installer; RC APT is for explicit candidate testing only. The
+  [current project roadmap](../project/PROJECT-ROADMAP.md) supersedes earlier
+  recommendations in this historical audit.
 
 ## GitHub state
 
