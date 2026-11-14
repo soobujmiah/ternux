@@ -50,7 +50,7 @@
         <section id="guest-list" class="guest-grid" aria-label="Installed guest workspaces"></section>
         <section class="panel migration-panel" aria-labelledby="migration-title">
           <div class="panel-title"><span class="panel-icon">⇢</span><div><p class="eyebrow">DISPLAY MIGRATION</p><h2 id="migration-title">Read-only preview</h2></div></div>
-          <p class="panel-copy">This preview never changes guest assignments. Migration execution is not available.</p>
+          <p class="panel-copy">This preview is read-only. To apply a reviewed plan, use <code>tx manager migrate --apply</code> in Termux; the manager rechecks current state and records the change.</p>
           <div id="migration-list" class="migration-list" aria-live="polite"><span>Waiting for display status…</span></div>
         </section>
 
