@@ -67,6 +67,8 @@ jobs:
 
       - name: Exercise the read-only manager socket
         run: python3 tests/manager_service.py
+      - name: Exercise the local read-only Control Center
+        run: python3 tests/control_center.py
 
       - name: Run multi-distro lifecycle and shortcut matrix
         run: bash tests/distro_multi_guest.sh
@@ -102,7 +104,9 @@ jobs:
         run: python3 tests/docs_check.py
 
       - name: Check JavaScript syntax
-        run: node --check scripts/finalize-site.mjs
+        run: |
+          node --check scripts/finalize-site.mjs
+          node --check lib/control-center/app.js
 
       - name: Check website source formatting
         run: npm run format:check

@@ -49,29 +49,19 @@ before `lib/core.sh` can load is necessarily plain stderr, not JSON.
 ### `tx manager`
 
 Read the Native Termux manager snapshot without starting a service or guest.
-This first v3 slice reports installed PRoot guests, verified Ternux desktop
-profiles, and current/planned display assignments; it does not install, start,
-stop, or repair anything. `displays` reports socket/lock/server occupancy and flags
-when a v2 display migration is needed. Its planned target is diagnostic only;
-it never edits an assignment or moves a live session. The v1 JSON payload
-schemas are `docs/v3/schemas/manager-status-v1.schema.json`,
-`docs/v3/schemas/manager-guests-v1.schema.json`,
-`docs/v3/schemas/manager-displays-v1.schema.json`, and
-`docs/v3/schemas/manager-capabilities-v1.schema.json`. The capability list is
-generated from the same operation allowlist used by dispatch. Unknown
-operations and unexpected arguments fail closed. For a local read-only socket
-API, run `tx manager serve`; it stays in the foreground until Ctrl-C, uses a
-private Unix socket, and exposes no network listener. It does not auto-start
-and requires the optional Termux package `python`.
+The read-only commands report installed PRoot guests, known desktop profiles,
+and current/planned display assignments. `displays` reports socket/lock/server
+occupancy and flags when a v2 display migration is needed. It never edits an
+assignment or moves a live session. The schemas are documented under
+`docs/v3/schemas/manager-*.schema.json`. For a local Unix-socket API, run
+`tx manager serve`; it stays in the foreground until Ctrl-C, uses a private
+socket and exposes no TCP listener. Python 3 is optional for this command.
 
-**Availability:** these commands and the socket service are in the current
-source checkout; they are not in the released v2.0.0 APT package. On a v2.0.0 installation,
-`tx manager` returns `Unknown command: manager`. To inspect the current source
-from the repository root, run:
-
-```bash
-TERNUX_LIB_DIR="$PWD/lib" bash ./bin/ternux manager status --json
-```
+**Availability:** the read-only commands and socket service are in current
+source; they are not in the withdrawn v2.0.0 APT package. JSON payloads use
+`schema_version` and `command` for compatibility. The display JSON uses schema
+`1.2.0`; a reported active guest assignment is not OS-level socket-owner
+proof.
 
 ```bash
 tx manager status [--json]
@@ -80,10 +70,24 @@ tx manager displays [--json]
 tx manager capabilities [--json]
 ```
 
-The display JSON uses schema `1.1.0`. For an occupied target it reports a
-uniquely matched active guest's saved display assignment when available; this
-is not OS-level socket-owner proof. Otherwise it reports `reserved-native-slot`
-or `unidentified` rather than guessing.
+### `tx control`
+
+Open the mobile-first, read-only Control Center in a browser on this device. It
+shows manager health, installed guests, active desktops, display conflicts, and
+copyable host commands. It reads through the same Termux CLI payloads; it does
+not start or stop guests or edit state. The page is served from a random
+loopback-only port, uses a one-hour in-memory bearer token, rejects unexpected
+Host/Origin headers, and exposes no mutation routes. Press Ctrl-C in Termux to
+stop it. Python 3 is optional: `pkg install python`. Use `--no-open` to print
+the local link without launching a browser.
+
+```bash
+tx control
+tx control --no-open
+```
+
+The dashboard and manager commands are source-only until the next stable v2-major
+release; they are not part of the withdrawn v2.0.0 package.
 
 ### `ternux guides`
 

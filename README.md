@@ -243,10 +243,12 @@ render route and run scripts or scenes with the documented EEVEE setup. See the
 - [Ternux v3 architecture and implementation roadmap](docs/v3/README.md):
   native manager (native workspace `:0`; Debian/Ubuntu/Alpine `:1`/`:2`/`:3`
   by design), workspaces, compute, AI, Device Bridge, security, and gates.
-  Four read-only manager CLI commands and an explicit foreground Unix-socket
-  service are in the current source checkout; they are not in the withdrawn
-  v2.0.0 package. The native Control Center UI and service supervision are
-  required before the next v2-major stable release.
+  The current main source adds `tx control`, a read-only local browser dashboard,
+  alongside the four manager CLI commands and foreground Unix-socket service.
+  Run `pkg install python` once if needed, then `tx control`; the screen stays
+  on loopback and stops with Ctrl-C. These source changes are not in withdrawn
+  v2.0.0. Mutations, service supervision, and the remaining v2-major platform
+  scope are still release gates.
 - [Current project status](docs/project/PROJECT-ROADMAP.md): implementation,
   release, device evidence, technical debt, and next actions.
 - [Deep documentation index](docs/README.md): install paths, setup, daily use,
@@ -263,13 +265,14 @@ toggle multiple choices, Enter reviews the plan, and `q` keeps the base desktop.
 `--with-*` flags or `--all` select additional workloads. The v2.0.0 GitHub
 release and stable APT distribution were withdrawn on 2026-11-14; its source tag
 and package checksums remain in the historical [release report](docs/V2-RELEASE-REPORT.md).
-The next stable release remains in the v2 major. The Control Center and the full
-platform scope formerly planned for v3 are required for the next 2.x release;
-see the [architecture dossier](docs/V3-ARCHITECTURE.md) and [current roadmap]
-(docs/project/PROJECT-ROADMAP.md).
-Current source has four read-only `tx manager` commands and `tx manager serve`
-for a foreground-only local Unix-socket API. A background supervisor and
-graphical Control Center are not implemented yet. See the [APT channel status](docs/TERMUX-APT.md).
+The next stable release remains in the v2 major. The full Control Center and platform scope
+formerly planned for v3 are required for the next 2.x release; see the
+[architecture dossier](docs/V3-ARCHITECTURE.md) and [current roadmap](docs/project/PROJECT-ROADMAP.md).
+Current main source has four read-only `tx manager` commands, `tx manager serve`
+for a foreground-only local Unix-socket API, and `tx control` for a read-only
+loopback browser dashboard (Python 3 optional). Guest mutations, the service
+supervisor, and the full Control Center remain incomplete. None of these source
+changes is in withdrawn v2.0.0. See the [APT channel status](docs/TERMUX-APT.md).
 HTP/HMX,
 QNN and wider accelerator qualification remain experimental or follow-up work;
 see the [accelerator plan](docs/ACCELERATOR-RELEASE-PLAN.md).

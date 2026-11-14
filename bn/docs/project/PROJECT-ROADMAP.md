@@ -38,7 +38,7 @@ alt_url: "/docs/project/PROJECT-ROADMAP.html"
 
 ## বর্তমান implementation evidence
 
-বর্তমান source-এ read-only native manager operation ও foreground Unix-socket service আছে। Graphical Control Center, service supervision ও staged migration অসম্পূর্ণ। Guest desktop এবং GPU/AI integration-এর অবস্থা আলাদা; live source ও নির্দিষ্ট device-এ পরীক্ষা করতে হবে। [Implementation status](/docs/project/IMPLEMENTATION-STATUS.html), [current-state audit](https://github.com/soobujmiah/ternux/blob/main/docs/audit/CURRENT-STATE.md) এবং [device verification](https://github.com/soobujmiah/ternux/blob/main/docs/audit/DEVICE-VERIFICATION.md) দেখুন।
+বর্তমান source-এ read-only native manager operation, foreground Unix-socket service এবং `tx control`-এর loopback-only read-only browser dashboard আছে। পূর্ণ Control Center, service supervision ও staged migration অসম্পূর্ণ। Guest desktop এবং GPU/AI integration-এর অবস্থা আলাদা; live source ও নির্দিষ্ট device-এ পরীক্ষা করতে হবে। [Implementation status](/docs/project/IMPLEMENTATION-STATUS.html), [current-state audit](https://github.com/soobujmiah/ternux/blob/main/docs/audit/CURRENT-STATE.md) এবং [device verification](https://github.com/soobujmiah/ternux/blob/main/docs/audit/DEVICE-VERIFICATION.md) দেখুন।
 
 ## পরবর্তী কাজ
 

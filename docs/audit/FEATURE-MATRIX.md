@@ -21,6 +21,16 @@ saved `archlinux` selection also caused default doctor to report Debian
 missing, despite the active Debian desktop. Regression fixes merged in PR #204
 and are in current main; the released package remains unchanged.
 
+## Source update after the 2026-11-13 audit snapshot
+
+On 2026-11-14, the managed reference-device follow-up freshly installed Ubuntu
+and Alpine, retained Debian, and verified all three with Turnip/Zink and
+synthetic xdotool terminal input. The complete live evidence is in
+[DEVICE-VERIFICATION.md](DEVICE-VERIFICATION.md). The current source branch also
+adds `tx control`, a read-only loopback browser snapshot; its local security and
+CLI integration tests pass. This does not add it to the withdrawn v2.0.0
+package, and it does not qualify physical Android keyboard input.
+
 ## Implemented and verified
 
 | Capability | Evidence | Scope |
@@ -42,15 +52,16 @@ and are in current main; the released package remains unchanged.
 | Android camera still capture and microphone recording apps | Host Termux:API-backed app implementations and permission/lifecycle code exist | This audit did not capture a photo or record audio; no continuous camera stream or guest webcam device is established |
 | Native manager read-only JSON CLI | `main` has status, guest, capability, and display payloads; display reporting was source-device invoked | The installed v2.0.0 package returns `Unknown command: manager`; source evidence does not promote the released package |
 | v3 workspace display allocation | `main` defaults target native `:0`, Debian `:1`, Ubuntu `:2`, Alpine `:3`; collision guards and read-only current/target report implemented and tested | Live v2 mapping remains `:0/:1/:2`; migration is required and intentionally not performed |
-| Native Unix-socket manager service | Explicit foreground, read-only service implemented in the working source; device and integration-tested | Not in released v2.0.0 package; no supervisor or GUI |
+| Native Unix-socket manager service | Explicit foreground, read-only service implemented in current source; device and integration-tested | Not in released v2.0.0 package; no supervisor; the source dashboard is separate from this socket service |
+| Local Control Center dashboard | `tx control` provides a read-only browser snapshot on loopback; source integration tests cover token, Host/Origin, CSP, and CLI reads | Not in released v2.0.0 package; no native Android UI, guest mutations, supervisor, or device-browser visual test |
 | CPU/Vulkan LLM workload | Optional installer path and separate device evidence exist for the declared workload/model profile | Preview/optional scope; no broad model, memory, performance, or device guarantee |
 
 ## Documented but not implemented
 
 | Capability | Current state |
 |---|---|
-| Native Termux Control Center GUI | Mobile-first host-side architecture and UX specified; graphical client not implemented |
-| Service authorization/session and HTTP loopback adapter | Designed; no service runtime, session token enforcement, CSRF handling, or web client |
+| Full native Control Center | First read-only browser dashboard exists in current source; full dashboard, native Android client, service-backed sessions, actions and diagnostics remain incomplete |
+| Manager-service authorization and service-owned HTTP adapter | Unix peer-UID authorization exists; the separate read-only dashboard has a one-hour session key and Host/Origin checks. Mutating service sessions, CSRF protection, and service-owned HTTP adapter are unimplemented |
 | Guest lifecycle mutations through the v3 API | Designed; current v3 CLI payloads are read-only |
 | Unified v3 Compute, AI, Device Bridge, and Workspace orchestration | Architecture exists; no v3 orchestrator or broker implementation |
 | Model registry, metadata/checksum lifecycle, local inference server management | Architecture and LAI boundary specified; no unified v3 model manager/service |

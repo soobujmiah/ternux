@@ -6,46 +6,57 @@ lang: "en"
 
 ## Native Control Center
 
-**Status: PARTIAL IMPLEMENTATION.** The read-only manager service is available
-as an explicit foreground Unix-socket process (`tx manager serve`). The
-graphical Control Center, HTTP adapter, and supervisor integration remain
-unimplemented. The Control Center is a Termux-native host application, not an
-XFCE app inside PRoot. The manager and CLI remain functional if the service is
-stopped.
+**Status: PARTIAL IMPLEMENTATION.** `tx control` now starts a mobile-first,
+read-only local browser dashboard from Termux. It uses a random loopback port, a
+one-hour in-memory bearer token, strict Host/Origin checks, restrictive CSP,
+and exposes GET-only snapshots through the existing manager CLI. It does not
+use the Unix-socket service, expose mutation endpoints, start/stop guests, or
+provide a native Android APK. The dashboard is source-only; it is not in the
+withdrawn v2.0.0 package. The full Control Center, typed manager operations,
+service supervisor, durable jobs, and native Android UI remain incomplete.
 
+The manager CLI remains usable when the optional UI or socket service is
+stopped. Python 3 is optional and required only to run `tx control` or
+`tx manager serve`.
 The native workspace reserves display `:0`; guest desktop displays begin at
 `:1` and are allocated independently. See
 [display allocation ADR](ADR/0005-native-display-allocation.md).
 
 ## Process model
 
-- The current service runs in the foreground only when explicitly invoked by
-  `tx manager serve`. It binds a Unix-domain socket under the private
-  `$PREFIX/var/lib/ternux/control/` directory. Termux runit integration is a
-  later, opt-in milestone.
-- The local web UI binds to loopback only and obtains a short-lived session
-  token from the service. No public or LAN listener is enabled by default.
-- Native Android UI is a future client of the same versioned manager API; it
-  does not receive broader host privileges than the local web UI.
+- The manager socket runs in the foreground only when explicitly invoked by
+  `tx manager serve`. It binds under the private
+  `$PREFIX/var/lib/ternux/control/` directory and never opens a TCP port.
+- `tx control` separately starts a temporary HTTP server on `127.0.0.1` and a
+  random port. Its session key is held in memory for at most one hour and sent
+  to the page in the URL fragment, never in an HTTP request or referrer. The
+client removes the fragment immediately and keeps the key only in the current
+browser tab's session storage so reloads work; closing the tab discards it.
+- The first dashboard only reads existing manager CLI JSON. It has no guest
+  mutation routes and does not require the socket service. Native Android UI
+  and service-backed web transport remain future clients of the versioned API.
 - The CLI can call the core directly when the service is stopped, so recovery
   does not depend on `txd`.
 
 ## Dashboard scope
 
-The first screen shows guest state, active displays, backend status, audio
-route, storage grants, optional workload state, recent jobs, and explicit
-permission state. It must distinguish detected, installed, active, and
-verified states. Long actions show named phases, usable cancellation where
-safe, and a durable job record. Errors include one next action and a copyable
-diagnostic reference.
+The current first screen shows manager health, installed guests, active desktop
+assignments, display conflicts, device-qualification records, and copyable CLI
+commands. It labels itself read-only and does not imply that profile
+qualification is a live verification. Graphics/audio, storage grants, optional
+workloads, recent jobs, diagnostics, mutations, named progress, cancellation,
+and durable job records remain future dashboard work.
 
 ## Local API and browser safety
 
-The browser client uses same-origin requests, restrictive content security
-policy, CSRF-resistant action tokens, and no wildcard CORS. Mutating endpoints
-require a session token and an origin check. Socket/file permissions are
-limited to the Termux app UID. The service never accepts a guest-provided
-filesystem path without resolving it beneath an allowlisted root.
+The current browser client has no mutation endpoints, uses a restrictive
+content security policy, same-origin/Host checks, a short-lived bearer token,
+no wildcard CORS, and no query-string token. The HTTP adapter is loopback-only.
+Future mutations still require typed authorization, same-origin checks,
+CSRF-resistant tokens, idempotency, immutable preview plans, and durable
+journaling. Socket/file permissions stay limited to the Termux app UID. The
+service must never accept a guest-provided path without resolving it beneath
+an allowlisted root.
 
 ## Future startup and recovery
 

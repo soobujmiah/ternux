@@ -24,9 +24,10 @@ implementation and qualification against that scope.
 - The stable APT channel stays withdrawn until the implementation and
   exact-release gates are complete. The opt-in `/apt-rc` channel remains a
   candidate-testing channel.
-- The supported desktop matrix remains Debian, Ubuntu, and Alpine. Current
-  device state must be checked independently of dated evidence; the
-  2026-11-14 live inventory contained Debian only.
+- The supported desktop matrix remains Debian, Ubuntu, and Alpine. The latest
+  managed reference-device follow-up reinstalled Ubuntu and Alpine, retained
+  Debian, and observed all three sessions concurrently READY; see the updated
+  [device verification record](../audit/DEVICE-VERIFICATION.md).
 
 ## Required platform scope
 
@@ -46,9 +47,10 @@ A phase is complete only when its acceptance criteria have reproducible evidence
 
 ## Current implementation evidence
 
-Current source contains read-only native manager operations and a foreground
-Unix-socket service. The graphical Control Center, service supervision, and
-staged migration remain incomplete. Guest desktop support and GPU/AI integrations
+Current source contains read-only native manager operations, a foreground
+Unix-socket service, and an initial loopback-only read-only browser dashboard
+(`tx control`). The full Control Center, service supervision, and staged
+migration remain incomplete. Guest desktop support and GPU/AI integrations
 exist in varying states and must be checked against the live source and the exact
 target device. Details are in [implementation status](IMPLEMENTATION-STATUS.md),
 [current-state audit](../audit/CURRENT-STATE.md), and [device verification](../audit/DEVICE-VERIFICATION.md).
