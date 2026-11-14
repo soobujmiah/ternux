@@ -5,8 +5,15 @@ lang: "en"
 alt_url: "/bn/docs/V2-RELEASE-REPORT.html"
 ---
 
+**Current distribution status (2026-11-14):** The v2.0.0 GitHub release was
+removed, its tag is retained for provenance, and the stable APT channel was
+withdrawn by Pages run [43532161200](https://github.com/soobujmiah/ternux/actions/runs/43532161200).
+Stable `/apt` paths return HTTP 404; signed RC paths remain HTTP 200 for
+opt-in candidate tests. This file records the original publication; its install
+commands are historical and no longer install the stable package.
+
 **Status:** Released 2026-11-13 05:31 UTC
-**GitHub release:** [v2.0.0](https://github.com/soobujmiah/ternux/releases/tag/v2.0.0)
+**GitHub release:** [v2.0.0](https://github.com/soobujmiah/ternux/tree/v2.0.0)
 **Release tag target:** `9106b04fc8627ae98b1d63c9912a28c8a4677441`
 **Supported desktop guests:** Debian, Ubuntu, Alpine
 

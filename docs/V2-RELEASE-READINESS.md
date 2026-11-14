@@ -5,16 +5,17 @@ lang: "en"
 alt_url: "/bn/docs/V2-RELEASE-READINESS.html"
 ---
 
-**Status: RELEASED**
-**Audit date:** 2026-11-13
+**Status: WITHDRAWN from public distribution**
+**Audit date:** 2026-11-14
 **Target:** Ternux 2.0.0
-**Latest GitHub release:** [v2.0.0](https://github.com/soobujmiah/ternux/releases/tag/v2.0.0), published 2026-11-13. The signed stable APT repository is also live.
+**v2 GitHub release:** withdrawn 2026-11-14; [tag retained for provenance](https://github.com/soobujmiah/ternux/tree/v2.0.0). Stable APT paths return HTTP 404 after withdrawal run [43532161200](https://github.com/soobujmiah/ternux/actions/runs/43532161200); signed RC remains available.
 
 Ternux v2 desktop support is limited to **Debian, Ubuntu, and Alpine**; other
 named distro recipes are not v2-qualified. The 20-gate inventory records the
 pre-publication approval state; all blocking gates passed before release. The
-`v2.0.0` tag and GitHub release are published. See the [final v2.0.0 release
-report](V2-RELEASE-REPORT.md) for the exact tag, package hashes, CI runs,
+source tag remains, while the GitHub release and stable APT channel were
+withdrawn on 2026-11-14. See the historical [v2.0.0 release report](V2-RELEASE-REPORT.md)
+for the exact tag, package hashes, CI runs,
 post-publication APT preservation, supported scope, and device limits. Exact-main
 Validate run `43372097795` passed on release commit
 `9106b04fc8627ae98b1d63c9912a28c8a4677441`.
@@ -24,7 +25,7 @@ Validate run `43372097795` passed on release commit
 |---|---|---|
 | P1-03 updater safety | **COMPLETE** | Source/hash pinning, stage-before-replace, interrupted-update recovery, downgrade guard, concurrency and symlink fixtures pass; the v1.4.0 source fixture upgrades to v2. A published v2 rollback demonstration is not required. |
 | P1-09 default browser | **COMPLETE** | Clean Debian Trixie, Ubuntu 24.04, and Alpine 3.24 Firefox X11 window checks passed in exact-main Validate run `43372097795` on release commit `9106b04fc8627ae98b1d63c9912a28c8a4677441`; Ubuntu uses Mozilla ESR without Snap. |
-| P1-APT signed Termux package | **COMPLETE** | Stable signed APT publication workflow `43362569559` succeeded on exact main `faa5f0c4733e82fa0e82c88c6a2cd4531a1c3442`. Public stable `InRelease` verifies against fingerprint `E5527F4D5B83037FF77B65AE5E894BBB81168B1D`; `Packages.xz` SHA-256 is `3bbab20f0119b3c038e14c9a49714e499325b0c7036a899c3304e67b3b39e137` and the indexed package SHA-256 is `4ef03210c71e3d5671671e9a49fc83f6aebf7cdb5e5a28cb32db61d49e85c89f`. Native `pkg update`, clean package uninstall/install, `dpkg --verify`, active-default and explicit `db`/`ub`/`alp` JSON verification passed. Evidence is in `release-gates.json` and `audit/REPOSITORY-STATE.md`. |
+| P1-APT signed Termux package | **PASSED AT RELEASE; CHANNEL WITHDRAWN** | Stable signed APT publication workflow `43362569559` succeeded on exact main `faa5f0c4733e82fa0e82c88c6a2cd4531a1c3442`. Public stable `InRelease` verifies against fingerprint `E5527F4D5B83037FF77B65AE5E894BBB81168B1D`; `Packages.xz` SHA-256 is `3bbab20f0119b3c038e14c9a49714e499325b0c7036a899c3304e67b3b39e137` and the indexed package SHA-256 is `4ef03210c71e3d5671671e9a49fc83f6aebf7cdb5e5a28cb32db61d49e85c89f`. Native `pkg update`, clean package uninstall/install, `dpkg --verify`, active-default and explicit `db`/`ub`/`alp` JSON verification passed. Evidence is in `release-gates.json` and `audit/REPOSITORY-STATE.md`. |
 
 HTP/HMX and QNN remain experimental or research-only and are excluded from
 stable v2 promises. CPU/Vulkan claims are limited to the named model, task, and
@@ -87,14 +88,14 @@ Qualification does not extend to other GPUs or devices.
   Termux fetched the stable index, removed and freshly reinstalled `ternux`, and
   passed `dpkg --verify`, `ternux verify --json`, `ternux verify db --json`,
   `tx verify ub --json`, and `tx verify alp --json`. The three existing guests
-  remained READY with their original PIDs. The stable GitHub release is `v2.0.0`; see the [final release report](V2-RELEASE-REPORT.md).
+  remained READY with their original PIDs. The GitHub release and stable APT channel were withdrawn on 2026-11-14; see the historical [release report](V2-RELEASE-REPORT.md) and current [APT channel status](TERMUX-APT.md).
 
 ## Completed release sequence
 
 1. PR #189 updated English/Bengali install and release documentation; its checks passed and it was merged.
 2. Repository workflow generated `.repo/` state in PR #190; its checks passed and it was merged without manual edits.
 3. Stable APT signature/index/package, native package lifecycle, per-guest verification, and post-publication website preservation passed.
-4. Tag `v2.0.0` and its GitHub release assets were published on validated main `9106b04fc8627ae98b1d63c9912a28c8a4677441`.
+4. Tag `v2.0.0` was published on validated main `9106b04fc8627ae98b1d63c9912a28c8a4677441`.
 5. The final publication and qualification record is the [v2.0.0 release report](V2-RELEASE-REPORT.md). V3 implementation begins after the architecture and acceptance plan are reviewed.
 ## Detailed audit records
 
@@ -104,5 +105,7 @@ Qualification does not extend to other GPUs or devices.
 - [Feature support matrix](audit/FEATURE-MATRIX.md)
 - [Machine-readable gate inventory](https://github.com/soobujmiah/ternux/blob/main/docs/release-gates.json)
 
-The v2.0.0 tag, GitHub release assets, signed stable APT repository, and exact
-release commit are published and recorded in the final release report.
+The `v2.0.0` source tag is retained for provenance. Its GitHub release was
+removed and its signed stable APT paths were withdrawn on 2026-11-14; only the
+opt-in RC channel remains public. Recommendation: make v3 the next stable release
+after its manager, Control Center, and migration acceptance gates are complete.
