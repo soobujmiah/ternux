@@ -25,14 +25,18 @@ Four steps from Android apps to an installed desktop and renderer check. Downloa
 Open Termux and paste:
 
 ```bash
-pkg update -y && pkg install -y curl && curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
 ```
 
-**curl broken after an upgrade?** Use wget — same installer:
+**curl broken after an upgrade?** Try wget directly; it runs the same installer:
 
 ```bash
-pkg update -y && pkg install -y wget && wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
+wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
 ```
+
+If neither downloader starts, run `apt update && apt full-upgrade` to finish
+the Termux package upgrade, then retry. A partial upgrade can leave curl and
+its OpenSSL libraries out of sync.
 
 With a controlling terminal, first choose one or more named guest profiles in the checklist: move with Up/Down or `j`/`k`, press Space or a profile number to toggle a selection, then Enter to continue. Debian is the recommended default. **Ternux v2 supports Debian, Ubuntu, and Alpine only.** Those three have desktop, graphics, audio routing, IBus setup and theme evidence on one Adreno 825 device; clean Firefox installation passed exact-main CI. Alpine has an unresolved synthetic Ctrl+Space event discrepancy, and this does not qualify every app. The other 12 recipes remain available but are not v2-supported. The next checklist selects optional workloads; press Enter or `0` for the base desktop, or choose the displayed numbers. In a non-interactive run, `--yes` keeps the Debian base profile. See [all guest profiles and package-family recipes](INSTALLATION.html#choosing-a-guest-distribution).
 

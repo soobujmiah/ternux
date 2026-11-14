@@ -221,14 +221,11 @@ import RenderBench from "../../components/RenderBench.astro";
               দ্রুত শুরু ↗
             </a>
             <p>
-              Signed APT path Ternux-কে Termux package manager-এ যোগ করে।
-              একবারের bootstrap signing key যাচাই করে; এরপর host CLI-র জন্য
-              <code>pkg install ternux</code>, তারপর guest বাছতে
-              <code>tx install</code> চালান। Package command নিজে guest install
-              করে না। ধাপগুলো{" "}
-              <a href="/ternux/bn/docs/TERMUX-APT.html">APT setup guide ↗</a>-এ
-              আছে। Termux:API-এর জন্য Termux-এর ভিতরে matching{" "}
-              <code>termux-api</code> package-ও লাগবে।
+              Ternux v2.0.0 GitHub release ও stable APT distribution
+              2026-11-14-এ withdrawn হয়েছে; provenance-এর জন্য source tag রাখা
+              হয়েছে। নিচের source installer ব্যবহার করুন; <code>/apt-rc</code>
+              শুধু opt-in candidate test-এর জন্য। Termux:API-এর জন্য Termux-এর
+              ভিতরে matching <code>termux-api</code> package-ও লাগবে।
             </p>
           </div>
           <div class="command">
@@ -236,69 +233,42 @@ import RenderBench from "../../components/RenderBench.astro";
             <button
               type="button"
               data-copy
-              data-copy-value="pkg update -y && pkg install -y curl && curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash"
+              data-copy-value="curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash"
             >
               কপি
             </button>
             <code>
-              pkg update -y && pkg install -y curl && curl -fsSL …/install.sh |
-              bash
+              curl -fsSL
+              https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh
+              | bash
             </code>
-          </div>
-          <div class="command">
-            <small>Signed APT · curl bootstrap</small>
-            <button
-              type="button"
-              data-copy
-              data-copy-value="pkg update -y && pkg install -y curl gnupg && curl -fsSLo $TMPDIR/ternux-bootstrap.sh https://soobujmiah.github.io/ternux/apt/bootstrap.sh && bash $TMPDIR/ternux-bootstrap.sh && pkg install ternux"
-            >
-              কপি
-            </button>
-            <code>
-              pkg update -y && pkg install -y curl gnupg && curl -fsSLo
-              $TMPDIR/ternux-bootstrap.sh
-              https://soobujmiah.github.io/ternux/apt/bootstrap.sh && bash
-              $TMPDIR/ternux-bootstrap.sh && pkg install ternux
-            </code>
-            <small>
-              এতে host CLI install হবে; guest desktop বেছে নিতে{" "}
-              <code>tx install</code> চালান।
-            </small>
           </div>
           <div class="command">
             <small>এক command · wget</small>
             <button
               type="button"
               data-copy
-              data-copy-value="pkg update -y && pkg install -y wget && wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash"
+              data-copy-value="wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash"
             >
               কপি
             </button>
             <code>
-              pkg update -y && pkg install -y wget && wget -qO- …/install.sh |
-              bash
+              wget -qO-
+              https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh
+              | bash
             </code>
           </div>
-          <div class="command">
-            <small>Signed APT · wget bootstrap</small>
-            <button
-              type="button"
-              data-copy
-              data-copy-value="pkg update -y && pkg install -y wget gnupg && wget -qO $TMPDIR/ternux-bootstrap.sh https://soobujmiah.github.io/ternux/apt/bootstrap.sh && bash $TMPDIR/ternux-bootstrap.sh && pkg install ternux"
-            >
-              কপি
-            </button>
-            <code>
-              pkg update -y && pkg install -y wget gnupg && wget -qO
-              $TMPDIR/ternux-bootstrap.sh
-              https://soobujmiah.github.io/ternux/apt/bootstrap.sh && bash
-              $TMPDIR/ternux-bootstrap.sh && pkg install ternux
-            </code>
-            <small>
-              এতে host CLI install হবে; guest desktop বেছে নিতে{" "}
-              <code>tx install</code> চালান।
-            </small>
-          </div>
+          <p class="install-note">
+            curl ইনস্টল থাকলেও চালু না হলে wget-ও চালু কি না দেখুন। ইনস্টলার দুই
+            downloader-ই পরীক্ষা করে এবং curl ভাঙা থাকলে wget-এ যায়। দুটিই চালু
+            না হলে আগে <code>apt update && apt full-upgrade</code> চালান; তারপর{" "}
+            <code>curl --version</code> বা <code>wget --version</code> দিয়ে
+            পরীক্ষা করুন। Stable APT channel withdrawn;{" "}
+            <a href="/ternux/bn/docs/TERMUX-APT.html">
+              বর্তমান channel status দেখুন ↗
+            </a>
+            ।
+          </p>
         </div>
       </div>
     </section>
@@ -306,28 +276,26 @@ import RenderBench from "../../components/RenderBench.astro";
       <div class="container">
         <div class="device-panel profile-panel status-panel">
           <div class="device-copy">
-            <span class="eyebrow">প্রকল্পের অবস্থা · ১৩ নভেম্বর ২০২৬</span>
-            <h2>v2 স্থিতিশীল release। v3-এর ভিত্তি প্রকাশিত।</h2>
+            <span class="eyebrow">প্রকল্পের অবস্থা · ১৪ নভেম্বর ২০২৬</span>
+            <h2>v2 distribution withdrawn। Release-এর কাজ চলছে।</h2>
             <p>
-              Ternux 2.0.0 বর্তমান stable release। Debian, Ubuntu ও Alpine v2-এর
-              তিন desktop profile; device evidence Redmi Turbo 4 Pro-তে করা,
-              পরীক্ষার সীমানা audit report-এ দেওয়া আছে। আরও ১২টি named recipe
-              আছে, তবে সেগুলো v2-qualified নয়। Current main source-এ চারটি
-              read-only manager CLI command এবং foreground Unix-socket service
-              আছে; stable 2.0.0 package-এ নেই। Background supervision, native
-              workspace, graphical Control Center ও staged migration এখনো বাকি।
-              নতুন profile-এ :0 native Termux-এর জন্য; Debian :1, Ubuntu :2,
-              Alpine :3 পাবে। Existing v2 display assignment সংরক্ষিত থাকে।
+              v2.0.0 GitHub release ও stable APT distribution 2026-11-14-এ
+              withdrawn হয়েছে; provenance-এর জন্য source tag রাখা হয়েছে।
+              Debian, Ubuntu ও Alpine v2-এর supported guest profile। Current
+              main source-এ read-only manager CLI command আছে; withdrawn v2.0.0
+              package-এ সেগুলো নেই। পরের stable release target v3; manager,
+              Control Center ও migration acceptance gate pass করার পর সেটি
+              প্রকাশ করা হবে।
             </p>
           </div>
           <div class="profile-grid">
             <a
               class="profile-card"
-              href="https://github.com/soobujmiah/ternux/releases/latest"
+              href="/ternux/bn/docs/V2-RELEASE-READINESS.html"
             >
-              <small>STABLE RELEASE</small>
-              <strong>v2.0.0</strong>
-              <span>Release notes ও package ↗</span>
+              <small>V2 DISTRIBUTION STATUS</small>
+              <strong>Withdrawn</strong>
+              <span>Release record দেখুন ↗</span>
             </a>
             <a class="profile-card" href="/ternux/bn/docs/V3-ARCHITECTURE.html">
               <small>PROJECT ROADMAP</small>
@@ -343,9 +311,9 @@ import RenderBench from "../../components/RenderBench.astro";
               class="profile-card"
               href="/ternux/bn/docs/release/V2-RELEASE-REPORT.html"
             >
-              <small>LIVE AUDIT SNAPSHOT</small>
-              <strong>১৩ Nov</strong>
-              <span>Package, device ও website evidence ↗</span>
+              <small>WITHDRAWAL RECORD</small>
+              <strong>১৪ Nov</strong>
+              <span>Channel status ও historical evidence ↗</span>
             </a>
           </div>
         </div>

@@ -5,8 +5,15 @@ lang: "bn"
 alt_url: "/docs/V2-RELEASE-REPORT.html"
 ---
 
+**বর্তমান distribution অবস্থা (2026-11-14):** v2.0.0 GitHub release সরানো
+হয়েছে, provenance-এর জন্য tag রাখা হয়েছে, এবং Pages run
+[43532161200](https://github.com/soobujmiah/ternux/actions/runs/43532161200)-এ
+stable APT channel withdrawn হয়েছে। Stable `/apt` path HTTP 404; signed RC path
+opt-in candidate test-এর জন্য HTTP 200 দেয়। এই নথি initial publication-এর
+historical record; এখানকার install command দিয়ে stable package আর install হয় না।
+
 **অবস্থা:** 2026-11-13 05:31 UTC-তে প্রকাশিত
-**GitHub release:** [v2.0.0](https://github.com/soobujmiah/ternux/releases/tag/v2.0.0)
+**GitHub release:** [v2.0.0](https://github.com/soobujmiah/ternux/tree/v2.0.0)
 **Release tag target:** `9106b04fc8627ae98b1d63c9912a28c8a4677441`
 **সমর্থিত desktop guest:** Debian, Ubuntu, Alpine
 

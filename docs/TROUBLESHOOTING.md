@@ -283,24 +283,26 @@ does not export.
 **Fix — two options:**
 
 ```bash
-# Option A: let pkg bring everything back in sync:
-pkg upgrade -y -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef
-pkg reinstall -y curl openssl openssl-tool libngtcp2 libnghttp3
+# Option A: finish the complete Termux package upgrade:
+apt update && apt full-upgrade
 
-# Option B: skip curl entirely and fetch the installer with wget
-# (wget links openssl directly and usually still works):
+# Option B: if wget still starts, fetch the installer with it:
 wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
 ```
 
-> **Already upgraded curl and it STILL fails?** The missing symbol is
-> exported by **openssl**, not curl — a newer curl against an older openssl
-> keeps failing no matter how many times curl is reinstalled. The whole
-> chain must move together: the `pkg reinstall` line above (or a full
-> `pkg upgrade -y` to completion) is the deterministic fix.
+`pkg update` refreshes package indexes; it does not finish an interrupted
+package upgrade. If both curl and wget are unusable, run Option A directly in
+Termux, then retry the installer. If curl still cannot start after the full
+upgrade, reinstall the linked packages from the refreshed index:
 
-The installer detects a broken curl during preflight and upgrades the entire
-chain (`curl openssl openssl-tool libngtcp2 libnghttp3`) on its own, so
-Option B alone is enough to get going.
+```bash
+apt install --reinstall curl libcurl openssl openssl-tool
+```
+
+`ternux repair` uses the Termux `apt-get` wrapper to refresh indexes and run a
+full upgrade when curl is missing or cannot start, then verifies curl again.
+The standalone installer also checks that curl can start and falls back to
+wget when curl is broken or cannot fetch its pinned source archive.
 
 ---
 

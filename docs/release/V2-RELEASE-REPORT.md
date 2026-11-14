@@ -5,6 +5,13 @@ lang: "en"
 alt_url: "/bn/docs/release/V2-RELEASE-REPORT.html"
 ---
 
+**Current distribution status (2026-11-14):** The v2.0.0 GitHub release was
+removed, its tag is retained for provenance, and the stable APT channel was
+withdrawn by Pages run [43532161200](https://github.com/soobujmiah/ternux/actions/runs/43532161200).
+Stable `/apt` paths return HTTP 404; signed RC paths remain HTTP 200 for
+opt-in candidate tests. This report preserves release-time evidence; use the
+current [APT channel guide](../TERMUX-APT.md) for installation status.
+
 **Release:** published 2026-11-13 05:31 UTC
 **Tag target:** `9106b04fc8627ae98b1d63c9912a28c8a4677441`
 **Current-state audit snapshot:** 2026-11-13 11:04 UTC
@@ -30,7 +37,7 @@ and the owner-approved scope is summarized in
 
 ## Release assets and package channel
 
-- GitHub release: [Ternux v2.0.0](https://github.com/soobujmiah/ternux/releases/tag/v2.0.0)
+- GitHub release: [Ternux v2.0.0](https://github.com/soobujmiah/ternux/tree/v2.0.0)
 - Tag target: `9106b04fc8627ae98b1d63c9912a28c8a4677441`
 - Package: `ternux_2.0.0_all.deb`
 - Package SHA-256: `4ef03210c71e3d5671671e9a49fc83f6aebf7cdb5e5a28cb32db61d49e85c89f`
