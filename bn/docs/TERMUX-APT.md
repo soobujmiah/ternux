@@ -14,8 +14,9 @@ withdraw হয়েছে। Public `/apt` bootstrap, key, index ও package p
 
 এখন source installer-ই সমর্থিত install পথ; [main installation
 guide](../README.md) দেখুন। 2026-11-15 তারিখে stable APT bootstrap/key/index
-HTTP 404 দিয়েছে। RC bootstrap HTTP 200 দিলেও signing key ও signed index HTTP 404
-দেয়। তাই hosted stable বা RC repository থেকে `pkg install ternux` এখন install
+HTTP 404 দিয়েছে। RC bootstrap ও signing key HTTP 200 দিলেও signed index HTTP 404
+দেয়। RC signing key HTTP 200 দেয়, কিন্তু signed index HTTP 404। তাই hosted stable বা
+RC repository থেকে `pkg install ternux` এখন install
 হবে না। Signed repository প্রকাশিত হলে তবেই RC channel opt-in candidate test-এর
 জন্য ব্যবহার করা যাবে। পরের stable release v2 major-এই থাকবে; বিস্তারিত [project
 roadmap](/bn/docs/project/PROJECT-ROADMAP.html)।
