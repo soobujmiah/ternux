@@ -37,6 +37,10 @@ curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh |
 wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
 ```
 
+curl ও wget দুটিই চালু না হলে Termux-এ `apt update && apt full-upgrade` দিয়ে
+package upgrade শেষ করে installer আবার চালান। আংশিক upgrade-এ curl ও OpenSSL-এর
+অমিল হতে পারে.
+
 Interactive terminal-এ প্রথমে checklist থেকে এক বা একাধিক named guest profile বাছুন: Up/Down বা `j`/`k` দিয়ে চলুন, Space বা profile number দিয়ে selection toggle করুন, তারপর Enter চাপুন। Debian সুপারিশ করা default। **Ternux v2 শুধু Debian, Ubuntu ও Alpine support করে।** একটি Adreno 825 device-এ এই তিনটির desktop, graphics, audio routing, IBus setup ও theme evidence আছে; clean Firefox install exact-main CI-তে pass করেছে। Alpine-এর synthetic Ctrl+Space event-এ অমিল আছে এবং এই evidence সব app qualify করে না। অন্য ১২টি recipe আছে, কিন্তু v2-supported নয়। পরের checklist-এ optional workload বাছুন; base desktop-এর জন্য Enter বা `0` চাপুন, অথবা দেখানো number দিন। Non-interactive run-এ `--yes` Debian base profile রাখে। [সব guest profile ও package-family recipe](INSTALLATION.html#guest-distribution-বাছাই) দেখুন।
 
 ইনস্টলার:

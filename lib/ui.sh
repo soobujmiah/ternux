@@ -403,13 +403,33 @@ _tnx_frame_fits() {
 # contain non-ASCII (from getprop), so they are clipped by display width at
 # paint time.
 _tnx_frame_gather_device() {
-  local model android sdk arch gpu vulkan ram storage backend
+  local model android sdk arch gpu gpu_short vulkan_state vulkan_summary ram storage backend
   model="$(tnx_detect_model 2>/dev/null || echo '?')";    model="${model:-unknown}"
   android="$(tnx_detect_android_version 2>/dev/null || echo '?')"; android="${android:-?}"
   sdk="$(tnx_detect_android_sdk 2>/dev/null || echo '?')"; sdk="${sdk:-?}"
   arch="$(tnx_detect_arch 2>/dev/null || echo '?')";      arch="${arch:-?}"
   gpu="$(tnx_detect_gpu 2>/dev/null || echo 'unknown')";  gpu="${gpu:-unknown}"
-  vulkan="$(tnx_detect_vulkan 2>/dev/null || echo '?')";  vulkan="${vulkan:-?}"
+  gpu_short="$gpu"
+  case "$gpu_short" in
+    Adreno\ \(*)
+      gpu_short="${gpu_short#Adreno (}"
+      gpu_short="${gpu_short%)}"
+      gpu_short="${gpu_short//TM/}"
+      gpu_short="${gpu_short// /}"
+      gpu_short="${gpu_short//)/}"
+      case "$gpu_short" in Adreno*) ;; *) gpu_short="Adreno${gpu_short}" ;; esac
+      ;;
+  esac
+  vulkan_state="$(tnx_detect_vulkan_state 2>/dev/null || echo UNKNOWN)"
+  case "$vulkan_state" in
+    VULKAN_READY) vulkan_summary="ready" ;;
+    PROBE_UNAVAILABLE) vulkan_summary="probe n/a" ;;
+    DEVICE_ENUMERATION_FAILED) vulkan_summary="probe failed" ;;
+    SOFTWARE_FALLBACK) vulkan_summary="software" ;;
+    LOADER_MISSING|DRIVER_MISSING|ICD_MISSING) vulkan_summary="not ready" ;;
+    HARDWARE_AVAILABLE) vulkan_summary="hardware only" ;;
+    *) vulkan_summary="unknown" ;;
+  esac
   ram="$(tnx_detect_ram_gb 2>/dev/null || echo '?')";     ram="${ram:-?}"
   storage="$(tnx_detect_storage_gb 2>/dev/null || echo '?')"; storage="${storage:-?}"
   _TNX_FRAME_STORAGE="$storage"
@@ -418,7 +438,7 @@ _tnx_frame_gather_device() {
   _TNX_FRAME_DEV_VALUES=(
     "${model} - ${arch}"
     "Android ${android} (SDK ${sdk})"
-    "${gpu} - ${backend} - Vulkan ${vulkan}"
+    "${gpu_short} | ${backend} | Vk ${vulkan_summary}"
     "${ram} GB RAM - ${storage} GB free; base ~4-4.6 GB"
     "sampling..."
   )

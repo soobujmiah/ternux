@@ -5,23 +5,26 @@ lang: "bn"
 alt_url: "/docs/V2-RELEASE-READINESS.html"
 ---
 
-**অবস্থা: প্রকাশিত**
-**Audit তারিখ:** 2026-11-13
+**অবস্থা: Public distribution থেকে withdrawn**
+**Audit তারিখ:** 2026-11-14
 **লক্ষ্য:** Ternux 2.0.0
-**সর্বশেষ GitHub release:** [v2.0.0](https://github.com/soobujmiah/ternux/releases/tag/v2.0.0), 2026-11-13-এ প্রকাশিত। Signed stable APT repository-ও live।
+**v2 GitHub release:** 2026-11-14-এ withdrawn; [provenance-এর জন্য tag রাখা হয়েছে](https://github.com/soobujmiah/ternux/tree/v2.0.0)। Withdrawal run [43532161200](https://github.com/soobujmiah/ternux/actions/runs/43532161200)-এর পর stable APT path HTTP 404; signed RC এখনো আছে।
 
 Ternux v2 desktop support কেবল **Debian, Ubuntu ও Alpine**-এর জন্য; অন্য named
 distro recipe v2-qualified নয়। 20-gate inventory pre-publication approval
-state রেকর্ড করে; release-এর আগে সব blocking gate pass করেছে। `v2.0.0` tag ও
-GitHub release প্রকাশিত। Exact tag, package hash, CI run, post-publication APT
-preservation, support scope এবং device limit জানতে পূর্ণ [v2.0.0 release report](V2-RELEASE-REPORT.md) দেখুন। Exact-main Validate run `43372097795` release commit `9106b04fc8627ae98b1d63c9912a28c8a4677441`-এ pass করেছে.
+state রেকর্ড করে; release-এর আগে সব blocking gate pass করেছে। `v2.0.0` source
+tag রাখা হয়েছে; GitHub release ও stable APT distribution 2026-11-14-এ withdrawn
+হয়েছে। Exact tag, package hash, CI run, support scope ও device limit জানতে
+historical [v2.0.0 release report](V2-RELEASE-REPORT.md) দেখুন। Exact-main
+Validate run `43372097795` release commit
+`9106b04fc8627ae98b1d63c9912a28c8a4677441`-এ pass করেছে।
 ## বর্তমান acceptance gate
 
 | Gate | অবস্থা | কী করলে বন্ধ হবে |
 |---|---|---|
 | P1-03 updater safety | **সম্পূর্ণ** | Source/hash pinning, replace করার আগে staging, interrupted update recovery, downgrade guard, concurrency ও symlink fixture pass; v1.4.0 source fixture থেকে v2 migration pass। প্রকাশিত v2 rollback demonstration আবশ্যক নয়। |
 | P1-09 default browser | **সম্পূর্ণ** | Clean Debian Trixie, Ubuntu 24.04 ও Alpine 3.24 Firefox X11 window check exact-main Validate run `43372097795`, commit `9106b04fc8627ae98b1d63c9912a28c8a4677441`-এ pass করেছে। Ubuntu Snap ছাড়া Mozilla ESR ব্যবহার করে। |
-| P1-APT signed Termux package | **সম্পূর্ণ** | Exact main `faa5f0c4733e82fa0e82c88c6a2cd4531a1c3442`-এর stable signed APT publish workflow `43362569559` সফল। Public `InRelease` fingerprint `E5527F4D5B83037FF77B65AE5E894BBB81168B1D` দিয়ে যাচাই হয়েছে; `Packages.xz` SHA-256 `3bbab20f0119b3c038e14c9a49714e499325b0c7036a899c3304e67b3b39e137`, package SHA-256 `4ef03210c71e3d5671671e9a49fc83f6aebf7cdb5e5a28cb32db61d49e85c89f`। Native `pkg update`, clean package uninstall/install, `dpkg --verify`, এবং default/`db`/`ub`/`alp` JSON verify pass। Evidence `release-gates.json` ও `audit/REPOSITORY-STATE.md`-তে আছে। |
+| P1-APT signed Termux package | **Release-এ pass; channel withdrawn** | Exact main `faa5f0c4733e82fa0e82c88c6a2cd4531a1c3442`-এর stable signed APT publish workflow `43362569559` সফল। Public `InRelease` fingerprint `E5527F4D5B83037FF77B65AE5E894BBB81168B1D` দিয়ে যাচাই হয়েছে; `Packages.xz` SHA-256 `3bbab20f0119b3c038e14c9a49714e499325b0c7036a899c3304e67b3b39e137`, package SHA-256 `4ef03210c71e3d5671671e9a49fc83f6aebf7cdb5e5a28cb32db61d49e85c89f`। Native `pkg update`, clean package uninstall/install, `dpkg --verify`, এবং default/`db`/`ub`/`alp` JSON verify pass। Evidence `release-gates.json` ও `audit/REPOSITORY-STATE.md`-তে আছে। |
 
 HTP/HMX ও QNN experimental বা research-only; stable v2 প্রতিশ্রুতির বাইরে।
 CPU/Vulkan দাবি accelerator plan-এ থাকা নির্দিষ্ট model, task ও SM8735/Adreno
@@ -74,15 +77,15 @@ qualification নয়।
   bootstrap, key, `InRelease` এবং `Packages.xz` endpoint HTTP 200; `gpgv`
   signature pinned fingerprint দিয়ে যাচাই করেছে। Native Termux stable index
   নিয়েছে, `ternux` clean uninstall ও install করেছে, `dpkg --verify` এবং default
-  plus `db`/`ub`/`alp` verify pass। তিনটি guest আগের PID-তে READY ছিল। GitHub
-  v2.0.0 GitHub release এখন প্রকাশিত; [release report](V2-RELEASE-REPORT.md) দেখুন।
+  plus `db`/`ub`/`alp` verify pass। তিনটি guest আগের PID-তে READY ছিল। GitHub v2.0.0 release ও stable APT channel 2026-11-14-এ withdrawn হয়েছে;
+বর্তমান channel status [APT guide](TERMUX-APT.md)-এ দেখুন।
 
 ## সম্পন্ন release ধাপ
 
 1. PR #189 English/Bengali install ও release documentation update করেছে; সব check pass করে merge হয়েছে।
 2. Repository workflow `.repo/` state PR #190-এ তৈরি করেছে; check pass করে merge হয়েছে, কোনো generated file হাতে edit হয়নি।
 3. Stable APT signature/index/package, native package lifecycle, guest-specific verification ও website redeploy-তে signed repository preservation pass করেছে।
-4. `v2.0.0` tag ও GitHub release asset validated main `9106b04fc8627ae98b1d63c9912a28c8a4677441`-এ প্রকাশিত।
+4. `v2.0.0` tag validated main `9106b04fc8627ae98b1d63c9912a28c8a4677441`-এ প্রকাশিত।
 5. চূড়ান্ত প্রমাণ [v2.0.0 release report](V2-RELEASE-REPORT.md)-এ আছে। Architecture ও acceptance plan review-এর পরে v3 implementation শুরু হবে.
 ## বিস্তারিত audit
 
@@ -92,5 +95,7 @@ qualification নয়।
 - [Feature support matrix](../../docs/audit/FEATURE-MATRIX.md)
 - [Machine-readable gate](https://github.com/soobujmiah/ternux/blob/main/docs/release-gates.json)
 
-v2.0.0 tag, GitHub release, signed stable APT এবং exact release commit প্রকাশিত।
-বিস্তারিত প্রমাণ [release report](V2-RELEASE-REPORT.md)-এ আছে।
+`v2.0.0` source tag provenance-এর জন্য রাখা হয়েছে; GitHub release ও signed
+stable APT channel withdrawn। পরের stable target v3, manager, Control Center ও
+migration acceptance gate সম্পূর্ণ হওয়ার পরে। Historical প্রমাণ [release
+report](V2-RELEASE-REPORT.md)-এ আছে।

@@ -5,6 +5,13 @@ lang: "bn"
 alt_url: "/docs/release/V2-RELEASE-REPORT.html"
 ---
 
+**বর্তমান distribution অবস্থা (2026-11-14):** v2.0.0 GitHub release সরানো
+হয়েছে, provenance-এর জন্য tag রাখা হয়েছে, এবং Pages run
+[43532161200](https://github.com/soobujmiah/ternux/actions/runs/43532161200)-এ
+stable APT channel withdrawn হয়েছে। Stable `/apt` path HTTP 404; signed RC path
+opt-in candidate test-এর জন্য HTTP 200 দেয়। এই report release-time evidence
+রেখেছে; install status-এর জন্য বর্তমান [APT guide](../TERMUX-APT.md) দেখুন।
+
 **Release:** 2026-11-13 05:31 UTC-তে প্রকাশিত
 **Tag target:** `9106b04fc8627ae98b1d63c9912a28c8a4677441`
 **বর্তমান-state audit snapshot:** 2026-11-13 11:04 UTC
@@ -29,7 +36,7 @@ Redmi Turbo 4 Pro (`25053RT47C`), Android 16, SM8735 / Adreno 825-এ সীম�
 
 ## Release package ও repository
 
-- GitHub release: [Ternux v2.0.0](https://github.com/soobujmiah/ternux/releases/tag/v2.0.0)
+- GitHub release: [Ternux v2.0.0](https://github.com/soobujmiah/ternux/tree/v2.0.0)
 - Tag target: `9106b04fc8627ae98b1d63c9912a28c8a4677441`
 - Package: `ternux_2.0.0_all.deb`
 - Package SHA-256: `4ef03210c71e3d5671671e9a49fc83f6aebf7cdb5e5a28cb32db61d49e85c89f`
@@ -41,7 +48,7 @@ Redmi Turbo 4 Pro (`25053RT47C`), Android 16, SM8735 / Adreno 825-এ সীম�
 
 `.deb` package Termux host CLI install করে। `pkg install ternux`-এর আগে একবার
 signed repository bootstrap করতে হয়; package install-এর পরে নির্বাচিত guest
-তৈরি করতে `tx install` চালান। [Signed APT guide](../../docs/TERMUX-APT.md)
+তৈরি করতে `tx install` চালান। [Signed APT guide](../TERMUX-APT.md)
 দেখুন। Stable repository opt-in RC channel থেকে আলাদা।
 
 ## Release যাচাই
