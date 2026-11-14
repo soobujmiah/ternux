@@ -216,7 +216,7 @@ jobs:
           done < "$package/share/licenses/upstream/INDEX.txt"
 
       - name: Upload inspected candidate artifact
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: ternux-llama-vulkan-linux-arm64-b11582-candidate
           path: |
@@ -267,7 +267,7 @@ jobs:
       - name: Verify archive checksum
         run: (cd candidate && sha256sum --check ternux-llama-vulkan-linux-arm64-b11582.tar.gz.sha256)
       - name: Re-upload the exact inspected artifact with extended retention
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: ternux-llama-vulkan-linux-arm64-b11582-candidate
           path: |

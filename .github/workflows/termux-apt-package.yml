@@ -82,7 +82,7 @@ jobs:
           } > artifacts/ternux-apt/build-info.txt
 
       - name: Upload unsigned CI artifact for review
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: ternux-apt-unsigned-ci-${{ github.sha }}
           path: artifacts/ternux-apt/

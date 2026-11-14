@@ -183,7 +183,7 @@ jobs:
           sed -n '1,40p' archive-contents.txt
 
       - name: Upload build artifact for review
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: ternux-llama-htp-sm8735-b11582
           path: |
@@ -237,7 +237,7 @@ jobs:
       - name: Verify archive checksum
         run: (cd candidate && sha256sum --check ternux-llama-htp-sm8735-b11582.tar.gz.sha256)
       - name: Re-upload the exact inspected artifact with extended retention
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: ternux-llama-htp-sm8735-b11582
           path: |
