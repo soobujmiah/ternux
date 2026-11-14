@@ -47,17 +47,20 @@ A phase is complete only when its acceptance criteria have reproducible evidence
 
 ## Current implementation evidence
 
-Current source contains read-only native manager operations, a foreground
-Unix-socket service, and an initial loopback-only read-only browser dashboard
-(`tx control`). The full Control Center, service supervision, and staged
-migration remain incomplete. Guest desktop support and GPU/AI integrations
-exist in varying states and must be checked against the live source and the exact
-target device. Details are in [implementation status](IMPLEMENTATION-STATUS.md),
+Current source contains native manager operations, a foreground Unix-socket
+service, an initial loopback-only read-only browser dashboard (tx control),
+and an explicit journaled display migration executor. Migration focused tests,
+three-guest lifecycle/browser CI, and exact-main post-merge CI passed; the live
+reference-device switch remains unapplied while its guest sessions run. The full
+Control Center and service supervision remain incomplete. Multi-guest onboarding
+collects the shared shell, each selected guest username, and workload choice
+before the first guest transaction. Debian, Ubuntu, and Alpine are installed and
+currently running on the reference device; restart/soak and clean browser matrix
+evidence is tracked separately. Details are in [implementation status](IMPLEMENTATION-STATUS.md),
 [current-state audit](../audit/CURRENT-STATE.md), and [device verification](../audit/DEVICE-VERIFICATION.md).
 
 ## Next actions
 
-1. Complete the implementation and acceptance audit for every architecture phase; preserve completed, tested components.
-2. Finish clean per-guest profile precollection and install/update/recovery/uninstall runs for Debian, Ubuntu, and Alpine.
-3. Implement the native Control Center, manager supervision, migration, Device Bridge, and extension gates that remain open.
-4. Keep the stable channel withdrawn until every required gate passes on the exact new 2.x release candidate.
+The dependency-ordered engineering list is maintained in [next actions](NEXT-ACTIONS.md).
+The stable channel remains withdrawn until every required gate passes on the
+exact new 2.x release candidate.

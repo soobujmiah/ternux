@@ -81,6 +81,8 @@ tnx_prompt_workloads() { printf 'workload:%s\n' "$1" >> "$TMP/precollect-order";
 tnx_summary_box() { printf 'summary\n' >> "$TMP/precollect-order"; }
 tnx_confirm() { printf 'confirm\n' >> "$TMP/precollect-order"; return 0; }
 tnx_install_single() { printf 'install:%s\n' "$*" >> "$TMP/precollect-order"; }
+tnx_header() { :; }
+tnx_next_steps() { printf 'next:%s\n' "$@" >> "$TMP/precollect-order"; }
 tnx_install --distros debian,ubuntu,alpine >/dev/null
 expected_precollect=(shell:bash user:debian workload:auto user:ubuntu workload:auto user:alpine summary confirm)
 for i in "${!expected_precollect[@]}"; do
@@ -88,6 +90,9 @@ for i in "${!expected_precollect[@]}"; do
 done
 grep -q '^install:--distro ubuntu --user user-ubuntu --shell zsh --batch-confirmed --workloads none$' "$TMP/precollect-order"
 grep -q '^install:--distro alpine --user user-alpine --shell zsh --batch-confirmed --workloads none$' "$TMP/precollect-order"
+grep -q '^next:Start debian desktop: ternux start debian$' "$TMP/precollect-order"
+grep -q '^next:Open ubuntu shell: ternux distro shell ubuntu$' "$TMP/precollect-order"
+grep -q '^next:Open alpine shell: ternux distro shell alpine$' "$TMP/precollect-order"
 
 # Legacy/global phase markers from a completed Debian install must not make an
 # interrupted Ubuntu install look complete when it is resumed.

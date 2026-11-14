@@ -6,9 +6,9 @@ lang: "en"
 
 ## Architecture decisions
 
-The v3 decision record lives in [Architecture Decision Records](../v3/ADR/README.md).
+The former v3 platform decision record lives in [Architecture Decision Records](../v3/ADR/README.md).
 
-Accepted v3 decisions:
+Accepted platform decisions for the next v2-major release:
 
 - Native Termux manager and optional Control Center: [ADR-0001](../v3/ADR/0001-native-manager.md)
 - Explicit guest and data ownership: [ADR-0002](../v3/ADR/0002-guest-data-ownership.md)
@@ -16,6 +16,6 @@ Accepted v3 decisions:
 - Shared typed manager contract: [ADR-0004](../v3/ADR/0004-shared-manager-contract.md)
 - Native-first display allocation: [ADR-0005](../v3/ADR/0005-native-display-allocation.md)
 
-These decisions are accepted as architecture for v3, not proof that their
-components are implemented. Existing v2 behavior remains described by
+These decisions define required architecture for the next v2-major release, not
+proof that their components are implemented. The withdrawn 2.0.0 behavior remains described by
 [Architecture](../ARCHITECTURE.md) and [release status](RELEASE-STATUS.md).

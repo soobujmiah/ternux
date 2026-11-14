@@ -3489,12 +3489,13 @@ tnx_install_single() {
           tnx_next_steps \
             "Base desktop is ready; retry optional setup with: ternux install --resume" \
             "Full installer log: $TERNUX_LOG_FILE" \
-            "Start the desktop with: ternux start"
+            "Start this desktop with: ternux start $distro_choice"
         else
           tnx_next_steps \
             "Open the Termux:X11 app once and leave it running" \
-            "Start from Termux: ternux start  (or: x)" \
-            "In Xfce Terminal:  ternux status" \
+            "Start this desktop: ternux start $distro_choice" \
+            "Open this guest shell: ternux distro shell $distro_choice" \
+            "In Xfce Terminal: ternux status" \
             "Host diagnostics: ternux doctor" \
             "Install tool help: ternux guides  (also inside Debian)"
         fi
@@ -3513,12 +3514,13 @@ tnx_install_single() {
         tnx_next_steps \
           "Base desktop is ready; retry optional setup with: ternux install --resume" \
           "Full installer log: $TERNUX_LOG_FILE" \
-          "Start the desktop with: ternux start"
+          "Start this desktop with: ternux start $distro_choice"
       else
         tnx_next_steps \
           "Open the Termux:X11 app once and leave it running" \
-          "Start from Termux: ternux start  (or: x)" \
-          "In Xfce Terminal:  ternux status" \
+          "Start this desktop: ternux start $distro_choice" \
+          "Open this guest shell: ternux distro shell $distro_choice" \
+          "In Xfce Terminal: ternux status" \
           "Host diagnostics: ternux doctor" \
           "Install tool help: ternux guides  (also inside Debian)"
       fi
@@ -3688,6 +3690,16 @@ tnx_install() {
     if [ "$workload_flags" -eq 0 ]; then batch_args+=(--workloads "${batch_workloads[forwarded_index]}"); fi
     tnx_install_single "${batch_args[@]}" || return $?
   done
+
+  if [ "${TERNUX_JSON:-0}" != 1 ]; then
+    local -a finish_steps=()
+    for distro in "${normalized[@]}"; do
+      finish_steps+=("Start $distro desktop: ternux start $distro" "Open $distro shell: ternux distro shell $distro")
+    done
+    finish_steps+=("Review all guests: ternux status" "Run host checks: ternux doctor" "Read guides: ternux guides")
+    tnx_header "Multi-guest installation complete"
+    tnx_next_steps "${finish_steps[@]}"
+  fi
 }
 
 tnx_cmd_install() { tnx_install "$@"; }
