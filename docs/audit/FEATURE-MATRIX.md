@@ -80,9 +80,9 @@ package, and it does not qualify physical Android keyboard input.
 
 | Capability | Disposition |
 |---|---|
-| Twelve additional named PRoot distro recipes | Keep source implementations; defer clean desktop/browser qualification to v3, one profile at a time |
-| Other Android SoCs, GPUs, and Android versions | Build a device matrix in v3; Redmi Turbo 4 Pro evidence is not universal compatibility |
-| Broader sustained thermal/resource qualification | Use measured per-device workloads in the v3 Compute program; no synthetic thermal promises |
+| Twelve additional named PRoot distro recipes | Still unqualified; the next v2-major release must apply its acceptance gates to every profile it advertises, with no qualification deferred to a later major |
+| Other Android SoCs, GPUs, and Android versions | No compatibility claim follows from this device snapshot; any device advertised by the next stable release needs its own evidence |
+| Broader sustained thermal/resource qualification | Former v3 Compute scope remains part of the next v2-major acceptance work; use measured per-device workloads and make no synthetic thermal promises |
 | Full third-party toolkit/theme coverage | Add targeted toolkit probes as real compatibility needs arise; no blanket promise |
 
 ## Unsupported

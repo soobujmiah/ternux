@@ -9,11 +9,16 @@ alt_url: "/docs/"
 প্রথমবার এলে নিচ থেকে একটি পথ বেছে নিন। কিছু ইতিমধ্যে নষ্ট হলে সরাসরি
 [সমস্যা সমাধান](TROUBLESHOOTING.html)-এ যান।
 
+> **Release status:** Ternux v2.0.0 প্রত্যাহার করা হয়েছে এবং stable APT
+> channel সরানো হয়েছে। পরের stable release v2 major-এই থাকবে এবং আগে v3-এর
+> জন্য পরিকল্পিত সম্পূর্ণ platform acceptance scope পূরণ করতে হবে।
+> [বর্তমান release status](/docs/project/RELEASE-STATUS.html) দেখুন।
+
 ## Guest support সংক্ষেপে
 
-| v2 desktop support     | আরও distro recipe                                | Default profile |
-| ---------------------- | ------------------------------------------------ | --------------- |
-| Debian, Ubuntu, Alpine | অতিরিক্ত ১২টি named profile; v2-তে qualified নয় | Debian          |
+| প্রত্যাহৃত v2.0.0 desktop record | আরও distro recipe                                | Default profile |
+| -------------------------------- | ------------------------------------------------ | --------------- |
+| Debian, Ubuntu, Alpine           | অতিরিক্ত ১২টি named profile; qualified নয়       | Debian          |
 
 প্রতিটি named recipe-তে তার package family অনুযায়ী desktop setup আছে। Ternux desktop recipe না থাকলে generic OCI image shell guest থাকে। [Install ও guest নির্বাচন](INSTALLATION.html) এবং [repository-র v2 support matrix](https://github.com/soobujmiah/ternux/blob/main/docs/audit/FEATURE-MATRIX.md) দেখুন।
 
