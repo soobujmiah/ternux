@@ -140,7 +140,7 @@ tnx_workspace_registry_get() {
   awk -F '\t' -v id="$distro" -v column="$column" '$1 == id { print $column; found=1 } END { if (!found) exit 1 }' "$file"
 }
 
-tnx_workspace_registry_update() {
+tnx_workspace_registry_update_impl() {
   local distro="${1:-}" lifecycle="${2:-}" display registry dir tmp now target lock_fd
   [[ "$distro" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ ]] || return 2
   tnx_distro_known "$distro" || return 2
@@ -199,7 +199,7 @@ tnx_distro_state_get() {
   printf '%s\n' "${line#*=}"
 }
 
-tnx_distro_state_set() {
+tnx_distro_state_set_impl() {
   local distro="${1:-$(tnx_distro)}" key="${2:-}" value="${3-}" dir file tmp
   [[ "$key" =~ ^[a-zA-Z0-9._-]+$ && "$value" != *$'\n'* ]] || return 2
   dir="$(tnx_distro_state_dir "$distro")" || return 2
@@ -211,6 +211,31 @@ tnx_distro_state_set() {
     printf '%s=%s\n' "$key" "$value" > "$tmp" || { rm -f "$tmp"; return 1; }
   fi
   chmod 0600 "$tmp" && mv -f "$tmp" "$file"
+}
+
+
+tnx_display_migration_shared_call() {
+  local callback="$1" lock_fd rc
+  shift
+  if [ "${TERNUX_DISPLAY_MIGRATION_LOCK_HELD:-0}" = 1 ]; then
+    "$callback" "$@"
+    return $?
+  fi
+  command -v flock >/dev/null 2>&1 || return 1
+  mkdir -p "$TERNUX_STATE_DIR" || return 1
+  exec {lock_fd}<"$TERNUX_STATE_DIR" || return 1
+  flock -s "$lock_fd" || { exec {lock_fd}>&-; return 1; }
+  TERNUX_DISPLAY_MIGRATION_LOCK_HELD=1 "$callback" "$@"; rc=$?
+  exec {lock_fd}>&-
+  return "$rc"
+}
+
+tnx_workspace_registry_update() {
+  tnx_display_migration_shared_call tnx_workspace_registry_update_impl "$@"
+}
+
+tnx_distro_state_set() {
+  tnx_display_migration_shared_call tnx_distro_state_set_impl "$@"
 }
 
 tnx_distro_desktop_ready() {

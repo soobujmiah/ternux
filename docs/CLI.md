@@ -68,12 +68,20 @@ tx manager status [--json]
 tx manager guests [--json]
 tx manager displays [--json]
 tx manager capabilities [--json]
+tx manager migrate --apply sha256:PLAN_ID
+tx manager migrate --recover
 ```
 
 `tx manager displays --json` includes a per-guest migration preview. It labels
 assignments as `initialize`, `keep`, or `move` and reports active-session,
-target-conflict, invalid-registry, or registry-mismatch blockers. The preview
-is not executable; it changes no guest assignment or session.
+target-conflict, invalid-registry, or registry-mismatch blockers. The preview itself is read-only and includes a state-bound `plan_id`. Apply only
+a ready plan copied from the current snapshot with `tx manager migrate --apply
+sha256:PLAN_ID`. Apply refuses stale plans, active sessions, occupied targets,
+malformed or mismatched registries, and guests whose lifecycle is not stopped.
+Profile and registry files are journaled before the write; a failed write rolls
+both back. If the process is interrupted, guest starts are blocked until
+`tx manager migrate --recover` restores the prior files. No desktop is stopped
+or restarted by migration.
 
 ### `tx control`
 

@@ -214,7 +214,7 @@ tnx_x11_server_running_on_display() {
 # ---------------------------------------------------------------------------
 # tnx_cmd_start
 # ---------------------------------------------------------------------------
-tnx_cmd_start() {
+tnx_cmd_start_impl() {
   local distro="" launcher_dir launcher_path
   local display_num display tag
   [ "$#" -le 1 ] || { tnx_fail "Usage: ternux start [DISTRO]"; return 2; }
@@ -423,10 +423,31 @@ tnx_cmd_start() {
   return 0
 }
 
+
+tnx_cmd_start() {
+  local migration_lock_fd rc
+  mkdir -p "$TERNUX_STATE_DIR" || return 1
+  exec {migration_lock_fd}<"$TERNUX_STATE_DIR" || return 1
+  # The detached desktop inherits this shared lock. Migration cannot race a
+  # running managed session even if process discovery briefly misses it.
+  flock -s "$migration_lock_fd" || { exec {migration_lock_fd}>&-; return 1; }
+  if [ -d "$TERNUX_STATE_DIR/migrations" ] && compgen -G "$TERNUX_STATE_DIR/migrations/*" >/dev/null; then
+    . "$(dirname "${BASH_SOURCE[0]}")/manager.sh"
+    if tnx_manager_migration_pending; then
+      tnx_fail "An interrupted display migration must be recovered first: tx manager migrate --recover"
+      exec {migration_lock_fd}>&-
+      return 1
+    fi
+  fi
+  tnx_cmd_start_impl "$@"; rc=$?
+  exec {migration_lock_fd}>&-
+  return "$rc"
+}
+
 # ---------------------------------------------------------------------------
 # tnx_cmd_stop
 # ---------------------------------------------------------------------------
-tnx_cmd_stop() {
+tnx_cmd_stop_impl() {
   local distro="${1:-$(cat "$TERNUX_STATE_DIR/session/distro" 2>/dev/null || tnx_distro)}"
   [ "$#" -le 1 ] || { tnx_fail "Usage: ternux stop [DISTRO|--all]"; return 2; }
   distro="$(tnx_distro_canonical "$distro")"
@@ -515,6 +536,17 @@ tnx_cmd_stop() {
     return 0
   fi
   [ "$found" -eq 1 ] && tnx_ok "Managed desktop session stopped." || tnx_info "No active managed session found."
+}
+
+
+tnx_cmd_stop() {
+  local migration_lock_fd rc
+  mkdir -p "$TERNUX_STATE_DIR" || return 1
+  exec {migration_lock_fd}<"$TERNUX_STATE_DIR" || return 1
+  flock -s "$migration_lock_fd" || { exec {migration_lock_fd}>&-; return 1; }
+  tnx_cmd_stop_impl "$@"; rc=$?
+  exec {migration_lock_fd}>&-
+  return "$rc"
 }
 
 # ---------------------------------------------------------------------------

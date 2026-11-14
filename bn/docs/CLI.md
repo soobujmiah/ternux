@@ -65,12 +65,19 @@ tx manager status [--json]
 tx manager guests [--json]
 tx manager displays [--json]
 tx manager capabilities [--json]
+tx manager migrate --apply sha256:PLAN_ID
+tx manager migrate --recover
 ```
 
 `tx manager displays --json`-এ guest-পিছু read-only migration preview থাকে। এতে
 `initialize`, `keep` বা `move` plan এবং active session, target conflict অথবা
-invalid registry blocker দেখা যায়। Preview execute করা যায় না; কোনো guest-এর
-assignment বা session বদলায় না।
+invalid registry blocker দেখা যায়। Preview read-only এবং এতে state-bound `plan_id` থাকে। শুধু বর্তমান snapshot থেকে
+ready plan দেখে `tx manager migrate --apply sha256:PLAN_ID` চালিয়ে apply করা যায়।
+পুরোনো plan, active session, occupied target, malformed বা mismatch registry, এবং
+STOPPED নয় এমন lifecycle থাকলে apply প্রত্যাখ্যান করে। লেখার আগে profile ও registry
+backup journal-এ থাকে; write ব্যর্থ হলে দুটোই rollback হয়। মাঝপথে process বন্ধ হলে
+আগে `tx manager migrate --recover` চালাতে হবে; তার আগে guest start আটকে থাকে।
+Migration নিজে desktop stop বা restart করে না।
 
 ### `tx control`
 
