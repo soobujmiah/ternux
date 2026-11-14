@@ -223,7 +223,7 @@ class TernuxCamera(Gtk.Window):
         def work():
             try:
                 result = subprocess.run([CAMERA_INFO], check=True, capture_output=True,
-                                        text=True, timeout=30, env=termux_api_environment())
+                                        text=True, timeout=5, env=termux_api_environment())
                 data = json.loads(result.stdout)
                 entries = data if isinstance(data, list) else data.get("cameras", [])
                 cameras = []
@@ -243,11 +243,11 @@ class TernuxCamera(Gtk.Window):
                     "Termux:API is missing. Install the Termux:API app and `pkg install termux-api` in Termux.")
             except subprocess.TimeoutExpired:
                 GLib.idle_add(self.cameras_ready, [],
-                    "Camera service timed out. Unlock the phone and check Termux:API camera permission.")
+                    "Termux:API camera service did not respond within 5 seconds. Check that its app is installed and has Camera permission. Without it, take photos with Android Camera and open /sdcard/DCIM/Camera in Thunar.")
             except (subprocess.CalledProcessError, json.JSONDecodeError, OSError) as exc:
                 detail = getattr(exc, "stderr", "") or str(exc)
                 GLib.idle_add(self.cameras_ready, [],
-                    f"Camera access failed. Check Termux:API and Android camera permission. {detail[:240]}")
+                    f"Termux:API camera is unavailable or permission was denied. Install the Termux:API app from the same source as Termux and allow Camera permission. Or use Android Camera, then open /sdcard/DCIM/Camera in Thunar. {detail[:160]}")
         threading.Thread(target=work, daemon=True).start()
 
     def cameras_ready(self, cameras, error):

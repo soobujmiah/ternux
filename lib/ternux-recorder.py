@@ -171,7 +171,10 @@ class Recorder(Gtk.Window):
             except (OSError, subprocess.SubprocessError, RuntimeError) as exc:
                 detail = getattr(exc, "stderr", "") or str(exc)
                 # Preserve any bytes captured before an API/start failure for recovery.
-                GLib.idle_add(self.recording_failed, f"Could not start recording: {detail[:240]}")
+                hint = (" Check that the Termux:API app is installed from the same source as Termux "
+                        "and has Microphone permission. Without the companion, desktop apps can still "
+                        "use the live Ternux_Microphone input; Android asks Termux for permission on first capture.")
+                GLib.idle_add(self.recording_failed, f"Could not start recording: {detail[:200]}{hint}")
         threading.Thread(target=work, daemon=True).start()
 
     def recording_started(self):

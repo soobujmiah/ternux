@@ -1298,11 +1298,22 @@ _tnx_configure_pulse_bridge() {
   return 0
 }
 
+tnx_termux_api_app_installed() {
+  local android_cmd
+  android_cmd="$(command -v cmd 2>/dev/null || true)"
+  [ -n "$android_cmd" ] && tnx_has_cmd timeout || return 1
+  timeout 3 "$android_cmd" package path com.termux.api 2>/dev/null | grep -q '^package:'
+}
+
 tnx_request_microphone_permission() {
   local recorder="termux-microphone-record"
   local tmpdir="${TMPDIR:-/data/data/com.termux/files/usr/tmp}"
   local probe_dir probe info="" active=0 attempt output_file record_rc=1
 
+  if ! tnx_termux_api_app_installed; then
+    tnx_info "Termux:API companion app is not installed; skipping its optional microphone permission probe. Desktop live microphone access uses Termux's built-in audio bridge and requests Termux permission when first used."
+    return 0
+  fi
   if ! tnx_has_cmd "$recorder"; then
     tnx_warn "Termux:API microphone recorder is unavailable; Android microphone permission was not requested."
     return 0
@@ -1379,6 +1390,10 @@ tnx_request_camera_permission() {
   local camera="termux-camera-photo" tmpdir="${TMPDIR:-/data/data/com.termux/files/usr/tmp}"
   local probe_dir probe capture_rc=1
 
+  if ! tnx_termux_api_app_installed; then
+    tnx_info "Termux:API companion app is not installed; skipping the camera permission prompt. Use Android Camera and open /sdcard/DCIM/Camera in Thunar, or install Termux:API for Ternux Camera."
+    return 0
+  fi
   # Camera permission can only be requested by Termux:API while opening the
   # camera. Be explicit because Android permission flow captures one photo.
   # Batch installs and redirected stdin never capture without a person's opt-in.
@@ -1430,8 +1445,17 @@ tnx_phase_audio_fonts() {
     case \"\$FAMILY\" in
       apt)
         DPKG_FORCE=\"-o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef\"
-        sudo apt update
-        sudo DEBIAN_FRONTEND=noninteractive apt install -y \$DPKG_FORCE locales wget fonts-symbola fonts-noto-color-emoji fonts-font-awesome fonts-powerline
+        APT_NETWORK=\"-o Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20\"
+        echo \"Refreshing APT indexes (5 minute limit)...\"
+        timeout --signal=TERM --kill-after=10 300 sudo apt update \$APT_NETWORK || {
+          echo \"APT index refresh failed or exceeded 5 minutes; rerun install to resume this phase.\" >&2
+          exit 1
+        }
+        echo \"Installing locale and system fonts (10 minute limit)...\"
+        timeout --signal=TERM --kill-after=10 600 sudo DEBIAN_FRONTEND=noninteractive apt install -y \$DPKG_FORCE \$APT_NETWORK locales wget fonts-symbola fonts-noto-color-emoji fonts-font-awesome fonts-powerline || {
+          echo \"Locale/font package installation failed or exceeded 10 minutes; rerun install to resume this phase.\" >&2
+          exit 1
+        }
         grep -qxF \"${locale} UTF-8\" /etc/locale.gen 2>/dev/null || echo \"${locale} UTF-8\" | sudo tee -a /etc/locale.gen >/dev/null
         sudo locale-gen \"${locale}\"
         ;;

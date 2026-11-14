@@ -886,10 +886,15 @@ assert "if _fit_signatures.get(window_id) == signature:" in window_fit
 assert "NoDisplay=true" in (root / "lib/ternux-assets/applications/ternux-web-browser.desktop").read_text()
 assert "NoDisplay=true" in (root / "lib/phases.sh").read_text()
 assert "tnx_request_camera_permission()" in (root / "lib/phases.sh").read_text()
+assert "tnx_termux_api_app_installed()" in (root / "lib/phases.sh").read_text()
 camera_permission = (root / "lib/phases.sh").read_text().split("tnx_request_camera_permission() {", 1)[1].split("tnx_phase_audio_fonts() {", 1)[0]
 assert 'TERNUX_YES' in camera_permission and '[ ! -t 0 ]' in camera_permission
 assert 'ternux-camera-permission.XXXXXX' in camera_permission and 'rm -f -- "$probe"' in camera_permission
 assert '"$camera" -c 0 "$probe"' in camera_permission and 'tnx_confirm' in camera_permission
+audio_phase = (root / "lib/phases.sh").read_text().split("tnx_phase_audio_fonts() {", 1)[1].split("# Phase 7", 1)[0]
+assert "timeout --signal=TERM --kill-after=10 300 sudo apt update" in audio_phase
+assert "timeout --signal=TERM --kill-after=10 600 sudo DEBIAN_FRONTEND=noninteractive apt install" in audio_phase
+assert "Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20" in audio_phase
 xfwm_generator = (root / "tools/generate_ternux_xfwm.py").read_text()
 assert 'xpm_name = Path(name).with_suffix(".xpm")' in xfwm_generator
 assert 'state_button("maximize", state, inactive=inactive, toggled=True)' in xfwm_generator
@@ -2063,8 +2068,9 @@ if env TERNUX_STATE_DIR="$TMP/state-mic-permission" HOME="$TMP/home-mic-permissi
   PREFIX="$TMP/prefix-mic-permission" TMPDIR="$TMP/mic-permission-tmp" bash -c '
     mkdir -p "$HOME" "$TMPDIR"
     . "$1/lib/phases.sh"
-    mode=idle output_file="" fast=0 log="$TMPDIR/commands.log"
+    mode=idle output_file="" fast=0 api_present=0 log="$TMPDIR/commands.log"
     tnx_has_cmd(){ [[ "$1" == termux-microphone-record || "$1" == timeout ]]; }
+    tnx_termux_api_app_installed(){ [ "$api_present" = 1 ]; }
     timeout(){ printf "TIMEOUT:%s\n" "$1" >> "$log"; shift; "$@"; }
     sleep(){ :; }
     tnx_ok(){ printf "OK:%s\\n" "$*" >> "$log"; }
@@ -2093,6 +2099,9 @@ if env TERNUX_STATE_DIR="$TMP/state-mic-permission" HOME="$TMP/home-mic-permissi
         *) return 2 ;;
       esac
     }
+    tnx_request_microphone_permission || exit
+    grep -q "companion app is not installed; skipping" "$log" && ! grep -Eq "^-i$|^-f " "$log" || exit
+    : > "$log"; api_present=1
     tnx_request_microphone_permission || exit
     [ "$mode" = idle ] &&
     grep -q -- "-f .*permission.m4a -l 1" "$log" &&
@@ -2127,15 +2136,19 @@ CAMERA
 chmod 0755 "$camera_tmp/bin/termux-camera-photo"
 export CAMERA_CAPTURE_MARKER="$camera_tmp/captures"
 if env PATH="$camera_tmp/bin:$PATH" script -qec \
-  "env ROOT=\"$ROOT\" TMPDIR=\"$camera_tmp/private\" bash -c '. \"$ROOT/lib/phases.sh\"; tnx_confirm(){ return 0; }; tnx_request_camera_permission'" /dev/null >/dev/null 2>&1 &&
+  "env ROOT=\"$ROOT\" TMPDIR=\"$camera_tmp/private\" bash -c '. \"$ROOT/lib/phases.sh\"; tnx_termux_api_app_installed(){ return 0; }; tnx_confirm(){ return 0; }; tnx_request_camera_permission'" /dev/null >/dev/null 2>&1 &&
   [ "$(cat "$CAMERA_CAPTURE_MARKER")" = capture ] &&
+  env ROOT="$ROOT" TMPDIR="$camera_tmp/private" PATH="$camera_tmp/bin:$PATH" bash -c \
+    '. "$ROOT/lib/phases.sh"; tnx_termux_api_app_installed(){ return 1; }; tnx_request_camera_permission' 2>&1 |
+      grep -q "companion app is not installed; skipping the camera permission prompt" &&
+  [ "$(wc -l < "$CAMERA_CAPTURE_MARKER")" -eq 1 ] &&
   ! find "$camera_tmp/private" \( -type f -o -name 'ternux-camera-permission.*' \) -print -quit | grep -q . &&
   env TERNUX_YES=1 TMPDIR="$camera_tmp/private" PATH="$camera_tmp/bin:$PATH" \
-    bash -c '. "$1/lib/phases.sh"; tnx_request_camera_permission' _ "$ROOT" >/dev/null &&
+    bash -c '. "$1/lib/phases.sh"; tnx_termux_api_app_installed(){ return 0; }; tnx_request_camera_permission' _ "$ROOT" >/dev/null &&
   [ "$(wc -l < "$CAMERA_CAPTURE_MARKER")" -eq 1 ]; then
-  ok "camera permission probe requires opt-in, uses and deletes a private photo, and skips unattended installs"
+  ok "camera permission probe requires opt-in, skips cleanly without Termux:API, deletes its photo, and skips unattended installs"
 else
-  not_ok "camera permission probe requires opt-in, uses and deletes a private photo, and skips unattended installs"
+  not_ok "camera permission probe requires opt-in, skips cleanly without Termux:API, deletes its photo, and skips unattended installs"
 fi
 
 # Pulse setup covers a fresh file, exact legacy migration, idempotence, custom
