@@ -238,8 +238,8 @@ import RenderBench from "../../components/RenderBench.astro";
               কপি
             </button>
             <code>
-              pkg update -y && pkg upgrade -y && pkg install -y curl && bash
-              -o pipefail -c 'curl -fsSL
+              pkg update -y && pkg upgrade -y && pkg install -y curl && bash -o
+              pipefail -c 'curl -fsSL
               https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh
               | bash'
             </code>
@@ -254,8 +254,8 @@ import RenderBench from "../../components/RenderBench.astro";
               কপি
             </button>
             <code>
-              pkg update -y && pkg upgrade -y && pkg install -y wget && bash
-              -o pipefail -c 'wget -qO-
+              pkg update -y && pkg upgrade -y && pkg install -y wget && bash -o
+              pipefail -c 'wget -qO-
               https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh
               | bash'
             </code>
@@ -265,8 +265,7 @@ import RenderBench from "../../components/RenderBench.astro";
             করে এবং <code>pipefail</code> চালু রাখে—তাই download ব্যর্থ হলে সফল
             দেখাবে না। Partial upgrade-এ <code>pkg</code> বা curl চালু না হলে
             উপরের apt-first command দিয়ে repair করুন। Stable APT channel বন্ধ,
-            তাই{" "}
-            <code>pkg install ternux</code> এখন পাওয়া যাচ্ছে না;{" "}
+            তাই <code>pkg install ternux</code> এখন পাওয়া যাচ্ছে না;{" "}
             <a href="/ternux/bn/docs/TERMUX-APT.html">
               বর্তমান channel status দেখুন ↗
             </a>
