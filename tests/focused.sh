@@ -1044,6 +1044,7 @@ assert "2efee03ef5f457f3c7c345c6902c66b137575bea" in (root / "lib/ternux-assets/
 core_phase = (root / "lib/core.sh").read_text()
 assert 'ub) printf ubuntu' in core_phase and 'alp) printf alpine' in core_phase
 desktop_cli = (root / "lib/desktop.sh").read_text()
+assert "See 'ternux logs desktop' for details." in desktop_cli
 assert 'if tnx_proot_container_installed debian; then distro=debian' in desktop_cli
 assert 'distro="$(tnx_distro_canonical "$1")"' in desktop_cli
 assert 'db) printf debian ;; ub) printf ubuntu ;; alp) printf alpine' in core_phase
