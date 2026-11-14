@@ -218,14 +218,11 @@ import RenderBench from "../components/RenderBench.astro";
               QUICK START ↗
             </a>
             <p>
-              The signed APT route adds Ternux to Termux's package manager. Its
-              one-time bootstrap verifies the signing key; after that, install
-              the host CLI with <code>pkg install ternux</code>, then provision
-              a guest with <code>tx install</code>. It does not silently install
-              a guest as part of the package command. See the{" "}
-              <a href="/ternux/docs/TERMUX-APT.html">APT setup guide ↗</a>.
-              Termux:API also needs the matching <code>termux-api</code> package
-              inside Termux.
+              Ternux v2.0.0 and its stable APT distribution were withdrawn on
+              2026-11-14. The source tag remains for provenance. Use the source
+              installer below; <code>/apt-rc</code> is reserved for opt-in
+              candidate testing. Termux:API also needs the matching
+              <code>termux-api</code> package inside Termux.
             </p>
           </div>
           <div class="command">
@@ -233,71 +230,43 @@ import RenderBench from "../components/RenderBench.astro";
             <button
               type="button"
               data-copy
-              data-copy-value="pkg update -y && pkg install -y curl && curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash"
+              data-copy-value="curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash"
             >
               COPY
             </button>
             <code>
-              pkg update -y && pkg install -y curl && curl -fsSL
+              curl -fsSL
               https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh
               | bash
             </code>
-          </div>
-          <div class="command">
-            <small>SIGNED APT · CURL BOOTSTRAP</small>
-            <button
-              type="button"
-              data-copy
-              data-copy-value="pkg update -y && pkg install -y curl gnupg && curl -fsSLo $TMPDIR/ternux-bootstrap.sh https://soobujmiah.github.io/ternux/apt/bootstrap.sh && bash $TMPDIR/ternux-bootstrap.sh && pkg install ternux"
-            >
-              COPY
-            </button>
-            <code>
-              pkg update -y && pkg install -y curl gnupg && curl -fsSLo
-              $TMPDIR/ternux-bootstrap.sh
-              https://soobujmiah.github.io/ternux/apt/bootstrap.sh && bash
-              $TMPDIR/ternux-bootstrap.sh && pkg install ternux
-            </code>
-            <small>
-              Installs the host CLI; run <code>tx install</code> to choose guest
-              desktops.
-            </small>
           </div>
           <div class="command">
             <small>ONE COMMAND · WGET</small>
             <button
               type="button"
               data-copy
-              data-copy-value="pkg update -y && pkg install -y wget && wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash"
+              data-copy-value="wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash"
             >
               COPY
             </button>
             <code>
-              pkg update -y && pkg install -y wget && wget -qO-
+              wget -qO-
               https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh
               | bash
             </code>
           </div>
-          <div class="command">
-            <small>SIGNED APT · WGET BOOTSTRAP</small>
-            <button
-              type="button"
-              data-copy
-              data-copy-value="pkg update -y && pkg install -y wget gnupg && wget -qO $TMPDIR/ternux-bootstrap.sh https://soobujmiah.github.io/ternux/apt/bootstrap.sh && bash $TMPDIR/ternux-bootstrap.sh && pkg install ternux"
-            >
-              COPY
-            </button>
-            <code>
-              pkg update -y && pkg install -y wget gnupg && wget -qO
-              $TMPDIR/ternux-bootstrap.sh
-              https://soobujmiah.github.io/ternux/apt/bootstrap.sh && bash
-              $TMPDIR/ternux-bootstrap.sh && pkg install ternux
-            </code>
-            <small>
-              Installs the host CLI; run <code>tx install</code> to choose guest
-              desktops.
-            </small>
-          </div>
+          <p class="install-note">
+            If curl is installed but cannot start, use wget if it works. The
+            installer tests both downloaders and falls back from a broken curl.
+            If neither can start, first run{" "}
+            <code>apt update && apt full-upgrade</code>, then verify a
+            downloader with <code>curl --version</code> or
+            <code>wget --version</code>. The stable APT channel is withdrawn;
+            <a href="/ternux/docs/TERMUX-APT.html">
+              see current channel status ↗
+            </a>
+            .
+          </p>
         </div>
       </div>
     </section>
@@ -305,31 +274,24 @@ import RenderBench from "../components/RenderBench.astro";
       <div class="container">
         <div class="device-panel profile-panel status-panel">
           <div class="device-copy">
-            <span class="eyebrow">PROJECT STATUS · 13 NOV 2026</span>
-            <h2>v2 is stable. The v3 foundation is published.</h2>
+            <span class="eyebrow">PROJECT STATUS · 14 NOV 2026</span>
+            <h2>v2 distribution withdrawn. Release work continues.</h2>
             <p>
-              Ternux 2.0.0 is the current stable release. Debian, Ubuntu and
-              Alpine are the three v2-supported desktop profiles; physical
-              evidence is from the Redmi Turbo 4 Pro and its tested scope is
-              recorded in the audit. Twelve additional named recipes are
-              available but are not v2-qualified. Current main source includes
-              four read-only manager CLI commands; the stable 2.0.0 package does
-              not. Source now has a read-only foreground Unix-socket service and
-              a current-versus-target display report; background supervision,
-              native workspace, graphical Control Center and staged v2 display
-              migration remain open. New profiles reserve :0 for native Termux
-              and assign Debian :1, Ubuntu :2 and Alpine :3; current v2 sessions
-              keep their saved displays.
+              The v2.0.0 GitHub release and stable APT distribution were
+              withdrawn on 2026-11-14; the source tag is retained for
+              provenance. Debian, Ubuntu and Alpine remain the supported v2
+              guest profiles. The next stable release target is v3, after its
+              manager, Control Center and migration acceptance gates pass.
             </p>
           </div>
           <div class="profile-grid">
             <a
               class="profile-card"
-              href="https://github.com/soobujmiah/ternux/releases/latest"
+              href="/ternux/docs/V2-RELEASE-READINESS.html"
             >
-              <small>STABLE RELEASE</small>
-              <strong>v2.0.0</strong>
-              <span>Release notes & packages ↗</span>
+              <small>V2 DISTRIBUTION STATUS</small>
+              <strong>Withdrawn</strong>
+              <span>Read the release record ↗</span>
             </a>
             <a
               class="profile-card"
@@ -348,9 +310,9 @@ import RenderBench from "../components/RenderBench.astro";
               class="profile-card"
               href="/ternux/docs/release/V2-RELEASE-REPORT.html"
             >
-              <small>LIVE AUDIT SNAPSHOT</small>
-              <strong>13 Nov</strong>
-              <span>Package, device and website evidence ↗</span>
+              <small>WITHDRAWAL RECORD</small>
+              <strong>14 Nov</strong>
+              <span>Channel status and historical evidence ↗</span>
             </a>
           </div>
         </div>

@@ -326,11 +326,10 @@ check(re.search(r"@media\s*\(prefers-reduced-motion:\s*reduce\)", read(ROOT / "s
       "site.css: reduced-motion support missing")
 check("data-copy" in read(ROOT / "src/layouts/SiteLayout.astro"), "site shell: command copy control missing")
 install_commands = (
-    "pkg update -y && pkg install -y curl && curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash",
-    "pkg update -y && pkg install -y wget && wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash",
-    "pkg update -y && pkg install -y curl gnupg && curl -fsSLo $TMPDIR/ternux-bootstrap.sh https://soobujmiah.github.io/ternux/apt/bootstrap.sh && bash $TMPDIR/ternux-bootstrap.sh && pkg install ternux",
-    "pkg update -y && pkg install -y wget gnupg && wget -qO $TMPDIR/ternux-bootstrap.sh https://soobujmiah.github.io/ternux/apt/bootstrap.sh && bash $TMPDIR/ternux-bootstrap.sh && pkg install ternux",
+    "curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash",
+    "wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash",
 )
+
 for source in ("src/pages/index.astro", "src/pages/bn/index.astro"):
     page = read(ROOT / source)
     for command in install_commands:

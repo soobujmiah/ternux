@@ -94,14 +94,19 @@ renderer depends on the device and Android graphics stack, so check it with
 2. In Termux, run:
 
 ```bash
-pkg update -y && pkg install -y curl && curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
 ```
 
 If `curl` is unavailable, use:
 
 ```bash
-pkg update -y && pkg install -y wget && wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
+wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
 ```
+
+If neither downloader can run, repair Termux packages first with
+`apt update && apt full-upgrade`, then retry. A partial upgrade can leave curl
+unable to load its OpenSSL libraries; running `pkg update` before completing
+the upgrade can reproduce that mismatch.
 
 The Ternux v2.0.0 GitHub release and stable APT distribution were withdrawn
 on 2026-11-14. The `v2.0.0` source tag remains available for provenance. Use

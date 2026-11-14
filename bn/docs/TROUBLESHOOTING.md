@@ -251,24 +251,26 @@ replacement mechanism নয়।
 **সমাধান — দুটি পথ:**
 
 ```bash
-# পথ ক: pkg-কেই আবার সামঞ্জস্যে আনতে দিন:
-pkg upgrade -y -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef
-pkg reinstall -y curl openssl openssl-tool libngtcp2 libnghttp3
+# পথ ক: Termux-এর সম্পূর্ণ package upgrade শেষ করুন:
+apt update && apt full-upgrade
 
-# পথ খ: curl বাদ দিয়ে wget দিয়ে ইনস্টলার নামান
-# (wget সরাসরি openssl-এর সাথে লিংক হয়, সাধারণত চলে):
+# পথ খ: wget চালু থাকলে সেটি দিয়ে installer নামান:
 wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
 ```
 
-> **curl আপগ্রেড করেও STILL ব্যর্থ?** হারানো সিম্বলটি **openssl** দেয়, curl
-> নয় — নতুন curl আর পুরনো openssl যতবারই curl রি-ইনস্টল করুন না কেন,
-> ব্যর্থই থাকবে। পুরো চেইন একসাথে চলতে হবে: ওপরের `pkg reinstall` লাইন (বা
-> শেষ পর্যন্ত `pkg upgrade -y` — আপনার আরও বিঘ্নিত আপগ্রেড থাকতে পারে) হলো
-> নিশ্চিত সমাধান।
+`pkg update` শুধু package index রিফ্রেশ করে; আটকে থাকা package upgrade শেষ করে
+না। curl ও wget দুটিই অচল হলে Termux-এ সরাসরি পথ ক চালান, তারপর installer
+আবার চেষ্টা করুন। সম্পূর্ণ upgrade-এর পরও curl না চললে refreshed index থেকে
+যুক্ত package-গুলো reinstall করুন:
 
-বর্তমান ইনস্টলার preflight-এই ভাঙা curl শনাক্ত করে পুরো chain
-(`curl openssl openssl-tool libngtcp2 libnghttp3`) আপগ্রেড করে, তাই পথ খ-ই
-শুরু করার জন্য যথেষ্ট।
+```bash
+apt install --reinstall curl libcurl openssl openssl-tool
+```
+
+`ternux repair` curl অনুপস্থিত বা চালু না হলে Termux `apt-get` wrapper দিয়ে
+index রিফ্রেশ ও full upgrade চালায়, তারপর curl আবার যাচাই করে। Standalone
+installer-ও curl চালু কি না পরীক্ষা করে; curl ভাঙা বা pinned source archive
+নামাতে ব্যর্থ হলে wget-এ fallback করে।
 
 ---
 

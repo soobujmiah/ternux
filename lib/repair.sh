@@ -91,21 +91,43 @@ tnx_cmd_repair() {
 }
 
 _tnx_repair_curl() {
-  if ! tnx_has_cmd curl; then
-    tnx_termux_pkg install -y curl 2>/dev/null || { tnx_fail "Could not install curl"; return 1; }
-    _TNX_REPAIR_CHANGED=1
-    tnx_ok "curl installed"
+  if tnx_has_cmd curl && curl --version >/dev/null 2>&1; then
+    tnx_ok "curl working"
     return 0
   fi
-  curl --version >/dev/null 2>&1 && { tnx_ok "curl working"; return 0; }
-  tnx_warn "curl broken — repairing..."
-  tnx_termux_pkg install -y curl openssl openssl-tool libngtcp2 libnghttp3 2>/dev/null || true
+
+  tnx_warn "curl is missing or cannot start; repairing Termux package/library state with apt-get full-upgrade..."
+  if ! tnx_termux_apt_get update -y; then
+    tnx_fail "Could not refresh Termux package indexes with apt-get. Check the configured Termux mirror and retry."
+    return 1
+  fi
+  if ! tnx_termux_apt_get full-upgrade -y; then
+    tnx_warn "Termux full-upgrade was interrupted; configuring pending packages and retrying once."
+    LD_LIBRARY_PATH= dpkg --configure -a --force-confold --force-confdef || true
+    tnx_termux_apt_get update -y && tnx_termux_apt_get full-upgrade -y || {
+      tnx_fail "Could not complete Termux package recovery with apt-get full-upgrade."
+      return 1
+    }
+  fi
+
+  if ! tnx_has_cmd curl; then
+    tnx_termux_apt_get install -y curl || {
+      tnx_fail "Termux package recovery finished, but curl could not be installed."
+      return 1
+    }
+  fi
+  if ! curl --version >/dev/null 2>&1; then
+    # Reinstall the tightly-coupled downloader and TLS runtime from the same
+    # refreshed index if a full upgrade alone did not restore the executable.
+    tnx_termux_apt_get install -y --reinstall curl libcurl openssl openssl-tool || true
+  fi
   if curl --version >/dev/null 2>&1; then
     _TNX_REPAIR_CHANGED=1
-    tnx_ok "curl repaired"
+    tnx_ok "curl repaired and verified"
     return 0
   fi
-  tnx_warn "curl still broken; wget can be used as a temporary fallback"
+
+  tnx_fail "curl still cannot start after Termux package recovery; run 'apt update && apt full-upgrade' and inspect the package output."
   return 1
 }
 
