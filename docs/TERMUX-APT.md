@@ -48,11 +48,14 @@ the RC source explicitly:
 
 Before adding the RC source, finish any pending Termux upgrade so the downloader
 and its OpenSSL libraries stay from one package generation. If `curl --version`
-fails, use a working `wget` or run `apt update && apt full-upgrade` first.
+fails, use a working `wget` or run the complete `apt` upgrade before retrying.
+Do not run `pkg update` to repair a broken curl: the Termux `pkg` wrapper itself
+depends on curl. The bootstrap falls back to `apt-get` when its `pkg update`
+fails because curl cannot start.
 
 ```bash
-apt update && apt full-upgrade
-pkg install curl gnupg
+apt update && apt full-upgrade -y
+apt install curl gnupg -y
 curl -fsSLo "$TMPDIR/ternux-rc-bootstrap.sh" \
   https://soobujmiah.github.io/ternux/apt-rc/bootstrap.sh
 bash "$TMPDIR/ternux-rc-bootstrap.sh" --channel rc --configure-only

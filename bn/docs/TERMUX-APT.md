@@ -45,11 +45,14 @@ path থেকে নামিয়ে উপরের fingerprint যাচা
 
 RC source যোগ করার আগে Termux-এর pending package upgrade শেষ করুন, যাতে downloader
 ও OpenSSL একই package generation-এর থাকে। `curl --version` ব্যর্থ হলে সচল `wget`
-ব্যবহার করুন, অথবা আগে `apt update && apt full-upgrade` চালান।
+ব্যবহার করুন, অথবা আগে সম্পূর্ণ `apt` upgrade চালান। ভাঙা curl repair করতে
+`pkg update` দেবেন না—Termux-এর `pkg` wrapper নিজেই curl-এর ওপর নির্ভর করে।
+`pkg update` curl চালাতে না পেরে ব্যর্থ হলে bootstrap এখন `apt-get` দিয়ে
+package set repair করে।
 
 ```bash
-apt update && apt full-upgrade
-pkg install curl gnupg
+apt update && apt full-upgrade -y
+apt install curl gnupg -y
 curl -fsSLo "$TMPDIR/ternux-rc-bootstrap.sh" \
   https://soobujmiah.github.io/ternux/apt-rc/bootstrap.sh
 bash "$TMPDIR/ternux-rc-bootstrap.sh" --channel rc --configure-only

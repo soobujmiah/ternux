@@ -57,7 +57,7 @@ installer base-এ প্রায় **৬ GB free** এবং `--all`-এ **�
 ## পদ্ধতি ১ — এক কমান্ড (প্রস্তাবিত)
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
+apt update && apt full-upgrade -y && apt install curl -y && bash -o pipefail -c 'curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'
 ```
 
 এটি HTTPS-এ ইনস্টলার নামিয়ে চালায়। সাথে terminal থাকলে script pipe হলেও installer `/dev/tty` দিয়ে prompt এবং optional workload chooser দেখায়। Controlling terminal না থাকলে base profile install হয়। Prompt ছাড়া base install চাইলে `--yes` দিন। এই রিপোজিটরির সেই একই স্ক্রিপ্ট — লুকানো কিছু নেই, compiled কিছু নেই।
@@ -81,13 +81,15 @@ source-ই রাখে এবং frame-এর ভেতর `termux-change-repo`
 করুন—ইনস্টলার একই থাকবে:
 
 ```bash
-wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
+apt update && apt full-upgrade -y && apt install wget -y && bash -o pipefail -c 'wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'
 ```
 
-curl বা wget কোনোটিই চালু না হলে `apt update && apt full-upgrade` দিয়ে
-Termux-এর package upgrade শেষ করুন, তারপর উপরের installer command আবার চালান।
-আংশিক upgrade-এ curl ও OpenSSL-এর অমিল হতে পারে; তাই শুরুতেই `pkg update` দেবেন
-না। wget অনুপস্থিত থাকলে upgrade-এর পর `apt install wget` চালান।
+কপি করা command-গুলো প্রথমে `apt update && apt full-upgrade -y` চালায়, তারপর
+downloader install করে। `pipefail` থাকায় download ব্যর্থ হলে খালি Bash run-কে
+সফল বলা হবে না। Termux rolling-release; সম্পূর্ণ upgrade করার আগে
+`pkg install curl` চালাবেন না। Partial upgrade-এ curl ভেঙে গেলে `apt` preflight
+আগে পুরো package set repair করে। curl সচল না হওয়া পর্যন্ত Termux-এর `pkg`
+wrapper-ও ব্যর্থ হতে পারে।
 
 ### Optional workload checklist
 
@@ -100,7 +102,7 @@ snapshot নামিয়ে source করে। তাই entry point ও sou
 clone করে দেখুন:
 
 ```bash
-pkg update -y && pkg install git -y
+apt update && apt full-upgrade -y && apt install git -y
 git clone https://github.com/soobujmiah/ternux.git
 cd ternux
 git log -1 --oneline                 # exact commit লিখে রাখুন

@@ -56,7 +56,7 @@ the finished installation itself is approximately **4–4.6 GB** or **10.5–12.
 ## Method 1 — One command (recommended)
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
+apt update && apt full-upgrade -y && apt install curl -y && bash -o pipefail -c 'curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'
 ```
 
 This downloads the installer over HTTPS and runs it. With an attached terminal,
@@ -90,11 +90,16 @@ Termux package upgrade first. A partial upgrade can leave curl and OpenSSL out
 of sync, and starting with `pkg update` may repeat the failure:
 
 ```bash
-wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
+apt update && apt full-upgrade -y && apt install wget -y && bash -o pipefail -c 'wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'
 ```
 
-Run `apt update && apt full-upgrade`, then retry one of the installer commands.
-If wget is missing, install it after the upgrade with `apt install wget`.
+The copied commands first run `apt update && apt full-upgrade -y`, then install
+the selected downloader and use `pipefail` so a failed download cannot look
+like a successful empty Bash run. Termux is rolling-release: do not install
+curl with `pkg install curl` before completing the full upgrade. If an earlier
+partial upgrade already broke curl, the `apt` preflight repairs the complete
+package set before the downloader is used. Termux's `pkg` wrapper depends on
+curl and may fail until that repair completes.
 
 ### Optional workload chooser
 
@@ -117,7 +122,7 @@ Clone the repository instead of inspecting only a standalone `install.sh`, which
 would still download and source one complete repository snapshot when it starts:
 
 ```bash
-pkg update -y && pkg install git -y
+apt update && apt full-upgrade -y && apt install git -y
 git clone https://github.com/soobujmiah/ternux.git
 cd ternux
 git log -1 --oneline                 # record the exact commit

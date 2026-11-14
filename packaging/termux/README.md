@@ -10,8 +10,8 @@ provisioning with `tx install`.
 Run this in native Termux from a clean checkout:
 
 ```bash
-pkg update
-pkg install termux-create-package
+apt update && apt full-upgrade -y
+apt install termux-create-package -y
 bash packaging/termux/build.sh
 ```
 
@@ -23,7 +23,7 @@ so a new CLI module must be added to `manifest.json` when introduced.
 ## Build and verify the APT repository tree
 
 ```bash
-pkg install termux-apt-repo
+apt install termux-apt-repo -y
 bash packaging/termux/build-repository.sh
 ```
 
@@ -84,12 +84,16 @@ candidate checks pass.
 
 ## Install from a published repository
 
-The signed release tree includes `bootstrap.sh`. After installing `curl` and
-`gnupg` from Termux's normal repository, users download and run it; it verifies
+The signed release tree includes `bootstrap.sh`. Before installing `curl` and
+`gnupg`, users should run `apt update && apt full-upgrade -y`, then install the
+prerequisites with `apt install curl gnupg -y`. This avoids upgrading only
+libcurl and leaving its linked Termux libraries behind. Users can then download
+and run the bootstrap; it verifies
 the pinned primary-key fingerprint, writes a `signed-by` source, refreshes APT,
-and installs Ternux. The script also supports `--configure-only`. Future
-updates use normal `pkg update` / `pkg upgrade ternux` commands. It never uses
-`[trusted=yes]`.
+and installs Ternux. If `pkg update` fails because curl cannot start, the script
+uses `apt-get update` and `apt-get full-upgrade` to repair the package set, then
+installs through `apt-get`. The script also supports `--configure-only`. It
+never uses `[trusted=yes]`.
 
 The bootstrap URL is `https://soobujmiah.github.io/ternux/apt/bootstrap.sh` and
 exists only after the signed release is published. See the paired

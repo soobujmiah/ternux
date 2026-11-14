@@ -28,13 +28,13 @@ mirror এবং network অনুযায়ী বদলাবে।
 Termux খুলে পেস্ট করুন:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
+apt update && apt full-upgrade -y && apt install curl -y && bash -o pipefail -c 'curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'
 ```
 
 আপগ্রেডের পর curl ভেঙে গেছে? wget দিয়েও একই কাজ:
 
 ```bash
-wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
+apt update && apt full-upgrade -y && apt install wget -y && bash -o pipefail -c 'wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'
 ```
 
 curl ও wget দুটিই চালু না হলে Termux-এ `apt update && apt full-upgrade` দিয়ে
@@ -66,7 +66,7 @@ cache-এর জন্য অতিরিক্ত temporary space রাখু�
 route runtime-এ library module download করে।
 
 ```bash
-pkg install git -y
+apt update && apt full-upgrade -y && apt install git -y
 git clone https://github.com/soobujmiah/ternux.git
 cd ternux
 git log -1 --oneline

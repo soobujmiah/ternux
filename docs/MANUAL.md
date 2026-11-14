@@ -38,8 +38,7 @@ to be universally idempotent.
 
 ```bash
 # Refresh the package index and upgrade what's there.
-pkg update -y
-pkg upgrade -y
+apt update && apt full-upgrade -y
 
 # Repositories that carry the X11 and graphics packages.
 pkg install x11-repo tur-repo -y
