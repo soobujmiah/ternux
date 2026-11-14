@@ -21,6 +21,7 @@ check "native read-only manager JSON schemas and empty-host behavior" bash "$ROO
 check "v3 manager request, response, and error envelope contract" python3 "$ROOT/tests/manager_protocol.py"
 check "v3 guest display identities and saved v2 mapping preservation" bash "$ROOT/tests/display_registry.sh"
 check "Termux host package repair recovers broken download-tool linkage" bash "$ROOT/tests/termux_pkg_recovery.sh"
+check "standalone bootstrap falls back from broken or unreachable curl to wget" bash "$ROOT/tests/bootstrap_downloader.sh"
 
 # User-facing CLI help must track the dispatcher and supported guest profiles.
 if cli_help="$(bash "$ROOT/bin/ternux" --help 2>&1)" \
@@ -2696,11 +2697,27 @@ if env TERNUX_STATE_DIR="$TMP/state-vulkan" HOME="$TMP/home-vulkan" \
     [ "$(tnx_detect_vulkan)" = "no (HARDWARE_AVAILABLE)" ] || exit
     : > "$TERNUX_KGSL_DEVICE"
     [ "$(tnx_detect_vulkan_state)" = LOADER_MISSING ] &&
-    [ "$(tnx_detect_vulkan)" = "no (LOADER_MISSING)" ]
+    [ "$(tnx_detect_vulkan)" = "no (LOADER_MISSING)" ] || exit
+    tnx_vulkan_probe_host(){ printf "TNX_LOADER=yes\nTNX_ICD=yes\nTNX_ENUM_RC=127\n"; }
+    [ "$(tnx_detect_vulkan_state)" = PROBE_UNAVAILABLE ] &&
+    [ "$(tnx_detect_vulkan)" = "unverified (vulkaninfo missing)" ] || exit
+    tnx_vulkan_probe_host(){ printf "TNX_LOADER=yes\nTNX_ICD=yes\nTNX_ENUM_RC=1\n"; }
+    [ "$(tnx_detect_vulkan_state)" = DEVICE_ENUMERATION_FAILED ] || exit
+    . "$1/lib/ui.sh"
+    tnx_detect_model(){ echo 25053RT47C; }
+    tnx_detect_android_version(){ echo 16; }; tnx_detect_android_sdk(){ echo 36; }
+    tnx_detect_arch(){ echo aarch64; }; tnx_detect_gpu(){ echo "Adreno (Adreno825)"; }
+    tnx_detect_vulkan_state(){ echo PROBE_UNAVAILABLE; }
+    tnx_detect_ram_gb(){ echo 12; }; tnx_detect_storage_gb(){ echo 80; }
+    _tnx_frame_cpu_sample(){ :; }
+    _TNX_FRAME_BACKEND=auto
+    _tnx_frame_gather_device
+    [ "${_TNX_FRAME_DEV_VALUES[2]}" = "Adreno825 | auto | Vk probe n/a" ] || exit
+    ! [[ "${_TNX_FRAME_DEV_VALUES[2]}" == *DEVICE_ENUMERATION* ]]
   ' _ "$ROOT"; then
-  ok "Vulkan detection distinguishes hardware, KGSL, and loader availability"
+  ok "Vulkan detection distinguishes missing probe tools from failed enumeration and keeps installer graphics text concise"
 else
-  not_ok "Vulkan detection distinguishes hardware, KGSL, and loader availability"
+  not_ok "Vulkan detection distinguishes missing probe tools from failed enumeration and keeps installer graphics text concise"
 fi
 
 
@@ -2781,6 +2798,10 @@ sed -i "s/$bootstrap_commit/$fixture_commit/g; s/$bootstrap_sha/$fixture_sha/g" 
 cat > "$TMP/mock-bundle-bin/curl" <<'EOF'
 #!/usr/bin/env bash
 set -u
+if [ "${1:-}" = --version ]; then
+  printf 'curl mock 1.0\n'
+  exit 0
+fi
 url=""; dest=""
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -2793,6 +2814,12 @@ count=0
 [ ! -f "$MOCK_COUNT" ] || count="$(cat "$MOCK_COUNT")"
 count=$((count + 1)); printf '%s\n' "$count" > "$MOCK_COUNT"
 printf '%s\n' "$url" >> "$MOCK_URLS"
+# curl --retry performs its retry inside one process invocation; model the
+# transient first response and successful retry in this command mock.
+if [ "$count" -eq 1 ]; then
+  count=2; printf '%s\n' "$count" > "$MOCK_COUNT"
+  printf '%s\n' "$url" >> "$MOCK_URLS"
+fi
 [ "$count" -gt 1 ] || exit 22
 cp "$MOCK_ARCHIVE" "$dest"
 EOF

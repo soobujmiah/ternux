@@ -56,3 +56,28 @@ grep -q '^apt:update ' "$LOG"
 grep -q '^apt:full-upgrade ' "$LOG"
 grep -q '^smoke:2$' "$LOG"
 echo 'PASS: Termux package failures and broken download-tool linkage recover through apt-get full-upgrade'
+
+# A user with an already-installed Ternux host CLI must be able to repair the
+# exact curl/OpenSSL mismatch without first relying on the broken curl binary.
+. "$ROOT/lib/repair.sh"
+repair_curl=broken
+: > "$LOG"
+tnx_has_cmd() { [ "$1" = curl ]; }
+curl() { [ "$repair_curl" = working ]; }
+tnx_termux_apt_get() {
+  printf 'repair-apt:%s\n' "$*" >> "$LOG"
+  case "$*" in
+    *full-upgrade*) repair_curl=working ;;
+  esac
+  return 0
+}
+tnx_ok() { :; }
+tnx_warn() { :; }
+tnx_fail() { printf '%s\n' "$*" >> "$LOG"; }
+_TNX_REPAIR_CHANGED=0
+_tnx_repair_curl
+test "$_TNX_REPAIR_CHANGED" = 1
+grep -q '^repair-apt:update -y -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef$' "$LOG"
+grep -q '^repair-apt:full-upgrade -y -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef$' "$LOG"
+! grep -q '^pkg:' "$LOG"
+printf 'PASS: curl repair recovers a broken Termux host from apt-get without invoking broken pkg/curl paths\n'

@@ -280,6 +280,7 @@ _tnx_dr_graphics() {
     ICD_MISSING) _tnx_dr_add warn graphics vulkan_icd_missing "Vulkan loader is present but no ICD was found" "The loader cannot enumerate a device without an ICD" "Run: ternux repair" ;;
     LOADER_MISSING) _tnx_dr_add warn graphics vulkan_loader_missing "GPU device is visible but the Vulkan loader is missing" "" "Install the guest Vulkan loader" ;;
     DEVICE_ENUMERATION_FAILED) _tnx_dr_add warn graphics vulkan_enumeration_failed "Vulkan loader and ICD did not enumerate a hardware device" "" "Check: vulkaninfo --summary" ;;
+    PROBE_UNAVAILABLE) _tnx_dr_add info graphics vulkan_probe_unavailable "Vulkan hardware was not checked because vulkaninfo is missing" "This is not a failed hardware enumeration" "Install Vulkan tools in the selected host or guest, then rerun: ternux doctor graphics" ;;
     *) _tnx_dr_add info graphics vulkan_not_detected "Vulkan hardware was not detected" ;;
   esac
   gpu="$(tnx_detect_gpu)"

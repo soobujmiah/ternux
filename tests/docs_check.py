@@ -326,11 +326,10 @@ check(re.search(r"@media\s*\(prefers-reduced-motion:\s*reduce\)", read(ROOT / "s
       "site.css: reduced-motion support missing")
 check("data-copy" in read(ROOT / "src/layouts/SiteLayout.astro"), "site shell: command copy control missing")
 install_commands = (
-    "pkg update -y && pkg install -y curl && curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash",
-    "pkg update -y && pkg install -y wget && wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash",
-    "pkg update -y && pkg install -y curl gnupg && curl -fsSLo $TMPDIR/ternux-bootstrap.sh https://soobujmiah.github.io/ternux/apt/bootstrap.sh && bash $TMPDIR/ternux-bootstrap.sh && pkg install ternux",
-    "pkg update -y && pkg install -y wget gnupg && wget -qO $TMPDIR/ternux-bootstrap.sh https://soobujmiah.github.io/ternux/apt/bootstrap.sh && bash $TMPDIR/ternux-bootstrap.sh && pkg install ternux",
+    "curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash",
+    "wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash",
 )
+
 for source in ("src/pages/index.astro", "src/pages/bn/index.astro"):
     page = read(ROOT / source)
     for command in install_commands:
@@ -349,9 +348,9 @@ for source in ("src/pages/index.astro", "src/pages/bn/index.astro"):
     ):
         check(expected in page,
               f"{source}: missing direct installation resource {expected}")
-check("four read-only manager CLI commands" in read(ROOT / "src/pages/index.astro"),
+check("four read-only manager CLI commands" in re.sub(r"\s+", " ", read(ROOT / "src/pages/index.astro")),
       "English homepage status must distinguish current source from released package")
-check("read-only manager CLI command" in read(ROOT / "src/pages/bn/index.astro"),
+check("read-only manager CLI command" in re.sub(r"\s+", " ", read(ROOT / "src/pages/bn/index.astro")),
       "Bengali homepage status must distinguish current source from released package")
 for page in ("docs/QUICK-START.md", "bn/docs/QUICK-START.md"):
     text = read(ROOT / page)

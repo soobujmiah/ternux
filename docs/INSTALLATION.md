@@ -56,7 +56,7 @@ the finished installation itself is approximately **4–4.6 GB** or **10.5–12.
 ## Method 1 — One command (recommended)
 
 ```bash
-pkg update -y && pkg install -y curl && curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
 ```
 
 This downloads the installer over HTTPS and runs it. With an attached terminal,
@@ -84,13 +84,17 @@ setup keeps the current apt source and never opens `termux-change-repo` inside
 the frame; if that source is unreachable, select a mirror manually and re-run
 with `--resume`.
 
-**curl broken after an upgrade?** A partial upgrade can leave curl and
-openssl out of sync. Use wget — same installer, and the script repairs curl
-for you:
+**curl broken after an upgrade?** Try wget directly; the installer can fetch
+its source with either working downloader. If neither can run, complete the
+Termux package upgrade first. A partial upgrade can leave curl and OpenSSL out
+of sync, and starting with `pkg update` may repeat the failure:
 
 ```bash
-pkg update -y && pkg install -y wget && wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
+wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
 ```
+
+Run `apt update && apt full-upgrade`, then retry one of the installer commands.
+If wget is missing, install it after the upgrade with `apt install wget`.
 
 ### Optional workload chooser
 
