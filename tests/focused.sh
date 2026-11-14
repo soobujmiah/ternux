@@ -487,23 +487,26 @@ check "Termux APT artifacts live outside the website dist directory" bash -c '
   ! grep -R -q "dist/ternux-apt" "$1/packaging/termux"
 ' _ "$ROOT"
 
-# Repository builds must bind the exact package checksum to a verified full
-# signing fingerprint, export only the public key, and remove stale signatures.
+# v2 stable distribution is withdrawn through an explicit Pages deploy. The
+# mode preserves signed RC, omits stable APT, and cannot invoke the v2 publisher.
 if python3 - "$ROOT/.github/workflows/termux-apt-release.yml" <<'PYAPTGUARD'
 from pathlib import Path
 import sys
 
 workflow = Path(sys.argv[1]).read_text()
-marker = "      - name: Require all release gates before stable publication\n"
-assert marker in workflow
-step = workflow.split(marker, 1)[1].split("      - name:", 1)[0]
-assert "if: inputs.mode == 'publish-v2'" in step
-assert "python3 tests/release_gates.py --check" in step
+assert "          - withdraw-v2" in workflow
+assert "          - publish-v2" not in workflow
+job = workflow.split("  withdraw_v2:", 1)[1].split("  deploy:", 1)[0]
+assert "preserve-pages-apt.sh dist rc" in job
+assert "test ! -e dist/apt" in job and "test ! -L dist/apt" in job
+assert "dist/apt-rc/dists/stable/InRelease" in job
+assert "uses: actions/upload-pages-artifact@v5" in job
+assert "needs.withdraw_v2.result == 'success'" in workflow
 PYAPTGUARD
 then
-  ok "stable APT publication is rejected until every blocking release gate passes"
+  ok "stable v2 APT withdrawal preserves RC and cannot republish v2"
 else
-  not_ok "stable APT publication is rejected until every blocking release gate passes"
+  not_ok "stable v2 APT withdrawal preserves RC and cannot republish v2"
 fi
 
 apt_fixture="$TMP/apt-fixture"
