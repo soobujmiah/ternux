@@ -9,7 +9,7 @@
     "format:check": "prettier --plugin prettier-plugin-astro --check \"src/**/*.astro\" \"src/**/*.ts\" src/styles/site.css scripts/finalize-site.mjs astro.config.mjs package.json .github/workflows/deploy.yml .github/workflows/ci.yml .github/workflows/termux-apt-package.yml .github/workflows/termux-apt-release.yml .github/workflows/repo-knowledge-sync.yml"
   },
   "dependencies": {
-    "astro": "^7.3.8",
+    "astro": "^7.4.7",
     "marked": "^18.0.1",
     "marked-gfm-heading-id": "^4.1.4"
   },
