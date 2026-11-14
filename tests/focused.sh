@@ -1346,6 +1346,10 @@ if env TERNUX_STATE_DIR="$TMP/state-virgl" HOME="$TMP/home-virgl" bash -c '
   tnx_phase_launcher bob virgl bn_BD.UTF-8 >/dev/null
   bash -n "$HOME/x.sh" &&
   grep -q "^virgl_test_server_android " "$HOME/x.sh" &&
+  grep -Fq 'VIRGL_SOCKET="$PREFIX/tmp/.virgl_test"' "$HOME/x.sh" &&
+  grep -Fq 'guest_login_isolated debian --bind "$VIRGL_SOCKET:/tmp/.virgl_test"' "$HOME/x.sh" &&
+  grep -q 'VirGL server socket was not created' "$HOME/x.sh" &&
+  ! grep -q -- '--shared-tmp' "$HOME/x.sh" &&
   ! grep -q "MESA_LOADER_DRIVER_OVERRIDE=zink" "$HOME/x.sh"
 ' _ "$ROOT"; then
   ok "VirGL launcher starts only the fallback renderer"

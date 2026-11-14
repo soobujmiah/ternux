@@ -1870,16 +1870,24 @@ guest_login_isolated $distro --bind /dev/kgsl-3d0:/dev/kgsl-3d0 --bind /dev/kgsl
 EOF
   else
     cat >> "$LAUNCHER" << 'VIRGLEOF'
-virgl_test_server_android >/dev/null 2>&1 &
+VIRGL_SOCKET="$PREFIX/tmp/.virgl_test"
+virgl_test_server_android &
 VIRGL_PID=$!
 VIRGL_START_ID="$(proc_start_identity "$VIRGL_PID")"
-sleep 1
-if ! kill -0 "$VIRGL_PID" 2>/dev/null; then echo "WARNING: virgl_test_server_android failed to start; check for llvmpipe."; fi
+for socket_attempt in {1..30}; do
+  [ -S "$VIRGL_SOCKET" ] && break
+  kill -0 "$VIRGL_PID" 2>/dev/null || break
+  sleep 0.1
+done
+if [ ! -S "$VIRGL_SOCKET" ]; then
+  echo "ERROR: VirGL server socket was not created at $VIRGL_SOCKET. Check virgl_test_server_android output above."
+  exit 1
+fi
 VIRGLEOF
     cat >> "$LAUNCHER" << EOF
  : > "\$TNX_READY_FILE"
 chmod 666 "\$TNX_READY_FILE"
-guest_login_isolated $distro --bind "\$TNX_CPUINFO_FILE:/proc/cpuinfo" --bind "\$TNX_GUEST_SESSION_SCRIPT:/tmp/ternux-desktop-session.sh" --bind "\$TNX_READY_FILE:/tmp/ternux-desktop-ready" --user $user_name \\
+guest_login_isolated $distro --bind "\$VIRGL_SOCKET:/tmp/.virgl_test" --bind "\$TNX_CPUINFO_FILE:/proc/cpuinfo" --bind "\$TNX_GUEST_SESSION_SCRIPT:/tmp/ternux-desktop-session.sh" --bind "\$TNX_READY_FILE:/tmp/ternux-desktop-ready" --user $user_name \\
   --env DISPLAY=__TNX_DISPLAY__ --env PULSE_SERVER="tcp:127.0.0.1:\$PULSE_PORT" \\
   --env TERNUX_GUEST_USER=$user_name --env TERNUX_READY_FILE=/tmp/ternux-desktop-ready \\
   --env GALLIUM_DRIVER=virpipe --env MESA_GL_VERSION_OVERRIDE=4.3COMPAT \\
