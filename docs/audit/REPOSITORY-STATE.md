@@ -5,6 +5,20 @@
 **Main at snapshot:** `9a35bac2e9d47e5699de8bead4029c95bb16a0cf`
 **Released v2 source:** `9106b04fc8627ae98b1d63c9912a28c8a4677441`
 
+## Current distribution decision (2026-11-14)
+
+- Main is `216201f` after PR #222. The signed stable v2 APT path was removed
+  by Pages deployment run [43532161200](https://github.com/soobujmiah/ternux/actions/runs/43532161200).
+  Public `/apt/bootstrap.sh`, `/apt/ternux-archive-key.asc`, stable `InRelease`,
+  and `Packages.xz` return HTTP 404; the equivalent `/apt-rc` paths return HTTP 200.
+- The v2.0.0 GitHub release was removed earlier; the `v2.0.0` tag remains for
+  provenance. Existing package installations and guest roots were not changed by
+  the Pages withdrawal.
+- The v2 stable package will not be republished. Recommendation: make v3 the
+  next stable release after manager, Control Center, and migration acceptance
+  gates are complete. Until then, use the source installer; RC APT is for
+  explicit candidate testing only.
+
 ## GitHub state
 
 - PR #210 merged the v3 display target defaults, collision guards, read-only
@@ -23,7 +37,7 @@
 - Open PRs at this snapshot: generated-state Dependabot updates #42, #44, #45,
   and the owner-review license-terms PR #35. The license proposal is unrelated
   to this v3 display milestone and remains outside this change.
-- The `v2.0.0` release is published and remains the latest stable release.
+- At this historical snapshot, the `v2.0.0` release was published and was the latest stable release.
 - The current main source adds v3 read-only manager JSON commands and refreshed
   website/docs after the release tag; these changes do not alter the immutable
   v2.0.0 tag or stable package.
@@ -41,7 +55,7 @@
 
 ## Release and package integrity
 
-- GitHub release [v2.0.0](https://github.com/soobujmiah/ternux/releases/tag/v2.0.0)
+- GitHub release [v2.0.0](https://github.com/soobujmiah/ternux/tree/v2.0.0)
   was published 2026-11-13. Its tag points to
   `9106b04fc8627ae98b1d63c9912a28c8a4677441`.
 - Assets: `ternux_2.0.0_all.deb` and `SHA256SUMS`. The `.deb` SHA-256 is
@@ -51,15 +65,14 @@
   `apt-cache policy ternux` showed installed and candidate version 2.0.0 from
   the signed `stable/main` source; `dpkg --verify ternux` produced no findings
   in the earlier lifecycle audit.
-- `pkg install ternux` requires the documented one-time signed repository
-  bootstrap. The package installs the Termux host CLI; `tx install` provisions
-  one or more guest environments. A fresh Termux install cannot resolve the
-  package before the trust bootstrap unless Ternux is accepted into an official
-  Termux repository.
-- Public website deployment
+- At release time, `pkg install ternux` required the documented one-time signed
+  repository bootstrap. That stable APT route is now withdrawn; see the current
+  distribution decision above. The package installs the Termux host CLI;
+  `tx install` provisions one or more guest environments.
+- The 2026-11-13 public website deployment
   [`43421466805`](https://github.com/soobujmiah/ternux/actions/runs/43421466805)
-  succeeded for the updated site and preserved both published signed APT
-  channels. The bootstrap endpoint returned HTTP 200 in the post-deploy check.
+  preserved both then-published signed APT channels. The stable bootstrap endpoint
+  returned HTTP 200 in that historical post-deploy check.
 
 ## Earlier repository history
 
@@ -116,4 +129,4 @@ not stable v2 claims.
 See the [current v2 report](../release/V2-RELEASE-REPORT.md),
 [release-time report](../V2-RELEASE-REPORT.md),
 [machine gate inventory](../release-gates.json), and
-[public release](https://github.com/soobujmiah/ternux/releases/tag/v2.0.0).
+[public release](https://github.com/soobujmiah/ternux/tree/v2.0.0).

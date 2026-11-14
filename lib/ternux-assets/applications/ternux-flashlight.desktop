@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Ternux Flashlight
+Comment=Toggle the Android camera flashlight
+Exec=/usr/local/bin/ternux-flashlight toggle
+Icon=ternux-flashlight
+Terminal=false
+Categories=Utility;HardwareSettings;
+StartupNotify=false

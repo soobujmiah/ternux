@@ -42,6 +42,17 @@ tnx_cmd_distro() {
       if ! declare -F tnx_install >/dev/null 2>&1; then . "$(dirname "${BASH_SOURCE[0]}")/phases.sh"; fi
       tnx_install --distro "$name"
       ;;
+    uninstall|remove)
+      [ "$#" -ge 2 ] && [ "$#" -le 3 ] || { tnx_fail "Usage: tx distro uninstall NAME [--yes]"; return 2; }
+      name="$2"
+      [[ "$name" =~ ^[a-zA-Z0-9][a-zA-Z0-9._-]*$ ]] || { tnx_fail "Invalid guest name '$name'."; return 2; }
+      if [ "$#" -eq 3 ]; then
+        [ "$3" = --yes ] || { tnx_fail "Unexpected argument: $3"; return 2; }
+        TERNUX_YES=1
+      fi
+      if ! declare -F _tnx_uninstall_container >/dev/null 2>&1; then . "$(dirname "${BASH_SOURCE[0]}")/uninstall.sh"; fi
+      _tnx_uninstall_container "$name"
+      ;;
     image-install)
       [ "$#" -ge 2 ] && [ "$#" -le 3 ] || { tnx_fail "Usage: ternux distro image-install IMAGE[:TAG] [NAME]"; return 2; }
       local image="$2" alias_name="${3:-}" marker_dir marker
@@ -98,6 +109,6 @@ tnx_cmd_distro() {
       fi
       ;;
     *)
-      tnx_fail "Usage: tx distro [list|search QUERY|install NAME|image-install IMAGE [NAME]|shell NAME [-- COMMAND]|root NAME [-- COMMAND]|exec NAME -- COMMAND]"; return 2 ;;
+      tnx_fail "Usage: tx distro [list|search QUERY|install NAME|uninstall NAME [--yes]|image-install IMAGE [NAME]|shell NAME [-- COMMAND]|root NAME [-- COMMAND]|exec NAME -- COMMAND]"; return 2 ;;
   esac
 }

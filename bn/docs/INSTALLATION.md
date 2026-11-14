@@ -77,12 +77,17 @@ source-ই রাখে এবং frame-এর ভেতর `termux-change-repo`
 হলে নিজে mirror বেছে `--resume` দিয়ে আবার চালান।
 
 **আপগ্রেডের পর curl ভেঙে গেছে?** (`CANNOT LINK … SSL_set_quic_tls_transport_params`)
-আংশিক আপগ্রেডে curl ও openssl সামঞ্জস্য হারিয়েছে। wget ব্যবহার করুন — একই
-ইনস্টলার, আর স্ক্রিপ্ট আপনার curl নিজেই মেরামত করে দেবে:
+আংশিক আপগ্রেডে curl ও OpenSSL-এর সামঞ্জস্য নষ্ট হতে পারে। সরাসরি wget ব্যবহার
+করুন—ইনস্টলার একই থাকবে:
 
 ```bash
 wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
 ```
+
+curl বা wget কোনোটিই চালু না হলে `apt update && apt full-upgrade` দিয়ে
+Termux-এর package upgrade শেষ করুন, তারপর উপরের installer command আবার চালান।
+আংশিক upgrade-এ curl ও OpenSSL-এর অমিল হতে পারে; তাই শুরুতেই `pkg update` দেবেন
+না। wget অনুপস্থিত থাকলে upgrade-এর পর `apt install wget` চালান।
 
 ### Optional workload checklist
 
@@ -499,9 +504,11 @@ proot-distro backup debian --output ~/debian-backup.tar.gz
 
 - **ternux CLI:** `ternux update` সর্বশেষ প্রকাশিত stable release tag ব্যবহার করে। নির্দিষ্ট Git commit resolve ও fetch করে, সম্পূর্ণ staged module tree যাচাই করে, তারপর recovery journal-সহ CLI ও module switch করে। আগের ভার্সন backup-এ থাকে; verification ব্যর্থ হলে সেটি restore হয়। নতুন development build-কে পুরোনো stable tag-এ downgrade করে না।
 - **Interrupted installer run:** একই reviewed script আবার download করে
-  `--resume` দিন; শুধু successful হিসেবে recorded phase বাদ যাবে। এটি completed
-  phase update/repair করে না—CLI-এর জন্য `ternux update`, managed artifact-এর
-  জন্য `ternux repair` ব্যবহার করুন। গুরুত্বপূর্ণ data আগে backup নিন।
+  `--resume` দিন; সফলভাবে recorded phase বাদ যাবে। তবে বর্তমান installer-এর
+  source identity আলাদা হলে host CLI phase আবার চলবে। অন্য completed desktop
+  বা managed-artifact phase এটি repair করে না—প্রকাশিত CLI update-এর জন্য
+  `ternux update`, managed artifact-এর জন্য `ternux repair` ব্যবহার করুন।
+  গুরুত্বপূর্ণ data আগে backup নিন।
 - **Debian প্যাকেজ:** ডেস্কটপে `sudo apt update && sudo apt upgrade`।
   Zink পথে Mesa প্যাকেজ ইচ্ছাকৃতভাবে হোল্ড করা (`apt-mark hold`) — আপগ্রেডে
   নিঃশব্দে সফটওয়্যার রেন্ডারিংয়ে ফিরে যাওয়া ঠেকাতে। ইচ্ছা করে আনহোল্ড করুন:

@@ -67,10 +67,27 @@ proot-distro() {
 }
 tnx_install --distros debian,ubuntu --yes
 [ "$(wc -l < "$TMP/install-calls")" -eq 2 ]
-grep -qx -- '--yes --distro debian' "$TMP/install-calls"
-grep -qx -- '--yes --distro ubuntu' "$TMP/install-calls"
+grep -q -- '^--yes --distro debian --user ternux --shell bash --batch-confirmed --workloads none$' "$TMP/install-calls"
+grep -q -- '^--yes --distro ubuntu --user ternux --shell bash --batch-confirmed --workloads none$' "$TMP/install-calls"
 if tnx_install --distros debian,arch >/dev/null 2>&1; then exit 1; fi
 if tnx_install --distros debian,debian >/dev/null 2>&1; then exit 1; fi
+
+# Interactive multi-guest identity choices are collected before any profile
+# installation, and the host shell is asked only once for the whole batch.
+: > "$TMP/precollect-order"
+tnx_prompt_shell() { printf 'shell:%s\n' "$1" >> "$TMP/precollect-order"; printf 'zsh\n'; }
+tnx_prompt_username() { printf 'user:%s\n' "$3" >> "$TMP/precollect-order"; printf 'user-%s\n' "$3"; }
+tnx_prompt_workloads() { printf 'workload:%s\n' "$1" >> "$TMP/precollect-order"; printf '\n'; }
+tnx_summary_box() { printf 'summary\n' >> "$TMP/precollect-order"; }
+tnx_confirm() { printf 'confirm\n' >> "$TMP/precollect-order"; return 0; }
+tnx_install_single() { printf 'install:%s\n' "$*" >> "$TMP/precollect-order"; }
+tnx_install --distros debian,ubuntu,alpine >/dev/null
+expected_precollect=(shell:bash user:debian workload:auto user:ubuntu workload:auto user:alpine summary confirm)
+for i in "${!expected_precollect[@]}"; do
+  [ "$(sed -n "$((i + 1))p" "$TMP/precollect-order")" = "${expected_precollect[i]}" ]
+done
+grep -q '^install:--distro ubuntu --user user-ubuntu --shell zsh --batch-confirmed --workloads none$' "$TMP/precollect-order"
+grep -q '^install:--distro alpine --user user-alpine --shell zsh --batch-confirmed --workloads none$' "$TMP/precollect-order"
 
 # Legacy/global phase markers from a completed Debian install must not make an
 # interrupted Ubuntu install look complete when it is resumed.
@@ -86,6 +103,9 @@ if (
   tnx_distro_state_set debian status ready
   tnx_distro_state_set ubuntu status incomplete
   for phase in preflight packages cli; do tnx_state_mark "phase_$phase"; done
+  tnx_state_set cli_source_identity 'pin:0000000000000000000000000000000000000000'
+  tnx_install_phase_done cli && exit 1
+  tnx_state_set cli_source_identity "$(tnx_cli_source_identity)"
   for phase in debian gpu audio_fonts launcher aliases extras phantom verify; do
     tnx_state_mark "phase_$phase"
     tnx_distro_phase_mark debian "$phase"

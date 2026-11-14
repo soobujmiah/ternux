@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Terminal Emulator
+Comment=Open a terminal
+Exec=exo-open --launch TerminalEmulator
+Icon=org.xfce.terminalemulator
+Terminal=false
+Categories=System;TerminalEmulator;
+StartupNotify=true

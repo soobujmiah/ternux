@@ -14,8 +14,8 @@ TERNUX_DESC="Linux desktop for Android with Zink and VirGL graphics routes"
 TERNUX_REPO="https://github.com/soobujmiah/ternux"
 # Immutable source snapshot shared by the standalone bootstrap and CLI fallback.
 # Keep these values aligned with install.sh; refresh only from a reviewed archive.
-TERNUX_SOURCE_COMMIT="6adf64606b4219e310bdabed52c799ea07e5a9b2"
-TERNUX_SOURCE_SHA256="12c414fef74b11f6f18ea7c844e5e2da0d27fc0d05b8c16edd7dd6894cd43fd2"
+TERNUX_SOURCE_COMMIT="f416fcb3b5693b7c98e1465f0cd1537d875d717b"
+TERNUX_SOURCE_SHA256="8f1821189a5833a535f55322fbed07116f15d563ccc41dcf0effd6f21317d980"
 TERNUX_GUEST_CLI_SHA256="305f3b0642b4fd948fb022fec08a8c569b18909a34eedd80ac0e6f8ab0cbbe67"
 TERNUX_STATE_DIR="${TERNUX_STATE_DIR:-$HOME/.local/share/ternux}"
 TERNUX_LOG_DIR="${TERNUX_LOG_DIR:-${TMPDIR:-/data/data/com.termux/files/usr/tmp}/ternux}"
@@ -301,6 +301,7 @@ tnx_guest_login() {
 
 # Avoid a host toolchain override shadowing Termux libraries in APT.
 tnx_termux_pkg() { LD_LIBRARY_PATH= pkg "$@"; }
+tnx_termux_apt_get() { LD_LIBRARY_PATH= apt-get "$@"; }
 tnx_termux_apt_cache() { LD_LIBRARY_PATH= apt-cache "$@"; }
 
 # ---------------------------------------------------------------------------
@@ -557,6 +558,24 @@ tnx_state_mark() {
   tnx_state_done "$phase" || echo "$phase" >> "$TERNUX_STATE_DIR/phases"
 }
 
+# Identify the CLI source used by the current installer. A checkout uses its
+# actual Git revision; standalone archives use the verified pinned source commit.
+# This lets --resume detect CLI phases completed by an older installer build,
+# even when both builds report the same user-facing version.
+tnx_cli_source_identity() {
+  local source_root="${_TNX_SRC:-}" identity=""
+  if [ -n "$source_root" ] && command -v git >/dev/null 2>&1; then
+    identity="$(git -C "$source_root" rev-parse --verify HEAD 2>/dev/null || true)"
+    if [[ "$identity" =~ ^[a-f0-9]{40}$ ]]; then
+      printf 'git:%s\n' "$identity"
+      return 0
+    fi
+  fi
+  identity="${TERNUX_SOURCE_COMMIT:-}"
+  [[ "$identity" =~ ^[a-f0-9]{40}$ ]] || return 1
+  printf 'pin:%s\n' "$identity"
+}
+
 # Host bootstrap phases are shared, while desktop configuration is owned by
 # each named guest. Keep the old aggregate phase file for existing readers,
 # but use a per-guest ledger when deciding what an interrupted install may skip.
@@ -582,7 +601,14 @@ tnx_distro_phase_mark() {
 tnx_install_phase_done() {
   local phase="${1#phase_}" distro="${2:-$(tnx_distro)}"
   case "$phase" in
-    preflight|packages|cli) tnx_state_done "phase_$phase" ;;
+    preflight|packages) tnx_state_done "phase_$phase" ;;
+    cli)
+      local expected="" recorded=""
+      tnx_state_done phase_cli || return 1
+      expected="$(tnx_cli_source_identity 2>/dev/null)" || return 1
+      recorded="$(tnx_state_get cli_source_identity 2>/dev/null || true)"
+      [ -n "$recorded" ] && [ "$recorded" = "$expected" ]
+      ;;
     *) tnx_distro_phase_done "$distro" "$phase" ;;
   esac
 }
@@ -591,7 +617,12 @@ tnx_install_phase_mark() {
   local phase="${1#phase_}" distro="${2:-$(tnx_distro)}"
   tnx_state_mark "phase_$phase" || return 1
   case "$phase" in
-    preflight|packages|cli) return 0 ;;
+    preflight|packages) return 0 ;;
+    cli)
+      local identity=""
+      identity="$(tnx_cli_source_identity)" || return 1
+      tnx_state_set cli_source_identity "$identity"
+      ;;
     *) tnx_distro_phase_mark "$distro" "$phase" ;;
   esac
 }

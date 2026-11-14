@@ -56,7 +56,7 @@ the finished installation itself is approximately **4–4.6 GB** or **10.5–12.
 ## Method 1 — One command (recommended)
 
 ```bash
-pkg update -y && pkg install -y curl && curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
 ```
 
 This downloads the installer over HTTPS and runs it. With an attached terminal,
@@ -84,13 +84,17 @@ setup keeps the current apt source and never opens `termux-change-repo` inside
 the frame; if that source is unreachable, select a mirror manually and re-run
 with `--resume`.
 
-**curl broken after an upgrade?** A partial upgrade can leave curl and
-openssl out of sync. Use wget — same installer, and the script repairs curl
-for you:
+**curl broken after an upgrade?** Try wget directly; the installer can fetch
+its source with either working downloader. If neither can run, complete the
+Termux package upgrade first. A partial upgrade can leave curl and OpenSSL out
+of sync, and starting with `pkg update` may repeat the failure:
 
 ```bash
-pkg update -y && pkg install -y wget && wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
+wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
 ```
+
+Run `apt update && apt full-upgrade`, then retry one of the installer commands.
+If wget is missing, install it after the upgrade with `apt install wget`.
 
 ### Optional workload chooser
 
@@ -539,9 +543,11 @@ proot-distro backup debian --output ~/debian-backup.tar.gz
 
 - **The ternux CLI:** `ternux update` uses the latest published stable release tag. It resolves and fetches that exact Git commit, validates a complete staged module tree, then switches the CLI and modules with a recovery journal. The previous version remains backed up; failed verification restores it. A newer development build is never downgraded to an older stable tag.
 - **An interrupted installer run:** re-download the same reviewed script and use
-  `--resume`; it skips only successfully recorded phases. This does **not**
-  update or repair phases already complete—use `ternux update` for the CLI and
-  `ternux repair` for managed artifacts. Back up before driver or distribution changes.
+  `--resume`; successfully recorded phases are skipped, except the host CLI phase
+  runs again when its recorded source identity differs from the current installer.
+  Resume does not repair other completed desktop or managed-artifact phases—use
+  `ternux update` for a published CLI update and `ternux repair` for managed
+  artifacts. Back up before driver or distribution changes.
 - **Debian packages:** `sudo apt update && sudo apt upgrade` inside the
   desktop. Mesa packages are held (`apt-mark hold`) on the Zink route on
   purpose — upgrading them can silently switch you back to software

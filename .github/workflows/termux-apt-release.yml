@@ -4,13 +4,13 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: Verify signing, publish an isolated RC channel, or publish stable v2 after every gate passes
+        description: Verify signing, publish an isolated RC channel, or withdraw the stable v2 package distribution
         required: true
         type: choice
         options:
           - verify-signing
           - publish-rc
-          - publish-v2
+          - withdraw-v2
         default: verify-signing
 
 permissions:
@@ -24,8 +24,8 @@ concurrency:
 
 jobs:
   build:
-    if: github.ref == 'refs/heads/main' && (inputs.mode == 'verify-signing' || inputs.mode == 'publish-rc' || inputs.mode == 'publish-v2')
-    name: Verify signing setup or build the signed v2 APT repository
+    if: github.ref == 'refs/heads/main' && (inputs.mode == 'verify-signing' || inputs.mode == 'publish-rc')
+    name: Verify signing setup or build the signed RC APT repository
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     environment: apt-release
@@ -43,10 +43,6 @@ jobs:
             printf 'Refusing release build for Ternux %s; expected 2.0.0.\n' "$version" >&2
             exit 1
           }
-
-      - name: Require all release gates before stable publication
-        if: inputs.mode == 'publish-v2'
-        run: python3 tests/release_gates.py --check
 
       - name: Check out pinned Termux package builder
         uses: actions/checkout@v5
@@ -125,7 +121,7 @@ jobs:
           fi
 
       - name: Build Ternux website
-        if: inputs.mode == 'publish-rc' || inputs.mode == 'publish-v2'
+        if: inputs.mode == 'publish-rc'
         run: |
           npm ci
           npm run build
@@ -144,31 +140,60 @@ jobs:
           test -s dist/apt-rc/ternux-archive-key.asc
           test -x dist/apt-rc/bootstrap.sh
 
-      - name: Preserve the RC channel while publishing stable v2
-        if: inputs.mode == 'publish-v2'
-        run: bash packaging/termux/preserve-pages-apt.sh dist rc
+      - name: Upload Pages artifact
+        if: inputs.mode == 'publish-rc'
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: dist
 
-      - name: Add signed stable APT repository after the site build
-        if: inputs.mode == 'publish-v2'
+  withdraw_v2:
+    if: github.ref == 'refs/heads/main' && inputs.mode == 'withdraw-v2'
+    name: Withdraw the stable v2 APT distribution
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out Ternux
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - name: Set up website build runtime
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Build Ternux website
+        run: |
+          npm ci
+          npm run build
+
+      - name: Preserve the signed RC channel and omit stable v2
         run: |
           set -euo pipefail
-          install -d dist/apt
-          cp -a artifacts/ternux-apt/repository/. dist/apt/
-          test -s dist/apt/dists/stable/InRelease
-          test -s dist/apt/ternux-archive-key.asc
-          test -x dist/apt/bootstrap.sh
+          bash packaging/termux/preserve-pages-apt.sh dist rc
+          test ! -e dist/apt
+          test ! -L dist/apt
+          test -s dist/apt-rc/dists/stable/InRelease
+          test -s dist/apt-rc/ternux-archive-key.asc
+          test -x dist/apt-rc/bootstrap.sh
 
       - name: Upload Pages artifact
-        if: inputs.mode == 'publish-rc' || inputs.mode == 'publish-v2'
         uses: actions/upload-pages-artifact@v5
         with:
           path: dist
 
   deploy:
-    if: github.ref == 'refs/heads/main' && (inputs.mode == 'publish-rc' || inputs.mode == 'publish-v2')
-    name: Publish website and signed APT channel
+    if: >-
+      always() && github.ref == 'refs/heads/main' &&
+      ((inputs.mode == 'publish-rc' && needs.build.result == 'success') ||
+       (inputs.mode == 'withdraw-v2' && needs.withdraw_v2.result == 'success'))
+    name: Publish website and requested APT channel state
     runs-on: ubuntu-24.04
-    needs: build
+    needs: [build, withdraw_v2]
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

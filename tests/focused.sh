@@ -20,6 +20,8 @@ printf 'TAP version 13\n'
 check "native read-only manager JSON schemas and empty-host behavior" bash "$ROOT/tests/manager_api.sh"
 check "v3 manager request, response, and error envelope contract" python3 "$ROOT/tests/manager_protocol.py"
 check "v3 guest display identities and saved v2 mapping preservation" bash "$ROOT/tests/display_registry.sh"
+check "Termux host package repair recovers broken download-tool linkage" bash "$ROOT/tests/termux_pkg_recovery.sh"
+check "standalone bootstrap falls back from broken or unreachable curl to wget" bash "$ROOT/tests/bootstrap_downloader.sh"
 
 # User-facing CLI help must track the dispatcher and supported guest profiles.
 if cli_help="$(bash "$ROOT/bin/ternux" --help 2>&1)" \
@@ -389,7 +391,7 @@ if env TERNUX_STATE_DIR="$TMP/state-welcome" HOME="$TMP/home-welcome" \
       grep -q "Sobuj Miah" "$1/lib/ternux-welcome-gui.py" &&
       python3 -m py_compile "$1/lib/ternux-welcome-gui.py" &&
       grep -q "ternux_assets_b64" "$1/lib/phases.sh" && grep -q "ternux-camera.py" "$1/lib/phases.sh" &&
-      grep -q "apt remove -y.*guvcview" "$1/lib/phases.sh" && ! grep -q "vlc ffmpeg guvcview" "$1/lib/phases.sh" && grep -q "ristretto" "$1/lib/phases.sh" && grep -q "QT_QPA_PLATFORMTHEME=gtk3" "$1/lib/phases.sh" && grep -q "ternux-panel-shortcuts" "$1/lib/phases.sh" && grep -q "01-aurora-circuit.svg" "$1/lib/phases.sh" &&
+      grep -q "apt remove -y.*guvcview" "$1/lib/phases.sh" && ! grep -q "vlc ffmpeg guvcview" "$1/lib/phases.sh" && grep -q "ristretto" "$1/lib/phases.sh" && grep -q "QT_QPA_PLATFORMTHEME=gtk3" "$1/lib/phases.sh" && grep -q "ternux-panel-shortcuts" "$1/lib/phases.sh" && grep -q "05-quantum-grid.svg" "$1/lib/phases.sh" &&
       grep -q "/Net/ThemeName" "$1/lib/phases.sh"
   ' _ "$ROOT"; then
   ok "first-run welcome, default browser, Zenity, VLC XCB output are guest-managed"
@@ -486,23 +488,26 @@ check "Termux APT artifacts live outside the website dist directory" bash -c '
   ! grep -R -q "dist/ternux-apt" "$1/packaging/termux"
 ' _ "$ROOT"
 
-# Repository builds must bind the exact package checksum to a verified full
-# signing fingerprint, export only the public key, and remove stale signatures.
+# v2 stable distribution is withdrawn through an explicit Pages deploy. The
+# mode preserves signed RC, omits stable APT, and cannot invoke the v2 publisher.
 if python3 - "$ROOT/.github/workflows/termux-apt-release.yml" <<'PYAPTGUARD'
 from pathlib import Path
 import sys
 
 workflow = Path(sys.argv[1]).read_text()
-marker = "      - name: Require all release gates before stable publication\n"
-assert marker in workflow
-step = workflow.split(marker, 1)[1].split("      - name:", 1)[0]
-assert "if: inputs.mode == 'publish-v2'" in step
-assert "python3 tests/release_gates.py --check" in step
+assert "          - withdraw-v2" in workflow
+assert "          - publish-v2" not in workflow
+job = workflow.split("  withdraw_v2:", 1)[1].split("  deploy:", 1)[0]
+assert "preserve-pages-apt.sh dist rc" in job
+assert "test ! -e dist/apt" in job and "test ! -L dist/apt" in job
+assert "dist/apt-rc/dists/stable/InRelease" in job
+assert "uses: actions/upload-pages-artifact@v5" in job
+assert "needs.withdraw_v2.result == 'success'" in workflow
 PYAPTGUARD
 then
-  ok "stable APT publication is rejected until every blocking release gate passes"
+  ok "stable v2 APT withdrawal preserves RC and cannot republish v2"
 else
-  not_ok "stable APT publication is rejected until every blocking release gate passes"
+  not_ok "stable v2 APT withdrawal preserves RC and cannot republish v2"
 fi
 
 apt_fixture="$TMP/apt-fixture"
@@ -890,6 +895,12 @@ assert 'resource:///org/gtk/libgtk/theme/Adwaita/gtk.css' not in gtk4_theme
 assert (root / "lib/ternux-assets/icons/Ternux/scalable/apps/org.xfce.ristretto.svg").is_file()
 gtk3_theme = (root / "lib/ternux-assets/themes/Ternux/gtk-3.0/gtk.css").read_text()
 assert "button:checked" in gtk3_theme and "button:active" in gtk3_theme
+assert ".rubberband" in gtk3_theme and "rgba(57, 230, 140, 0.24)" in gtk3_theme
+assert "XfdesktopIconView.view.rubberband" in gtk3_theme
+assert "XfdesktopIconView.view.rubberband" in (root / "lib/ternux-assets/themes/Ternux/gtk-3.0/gtk-user.css").read_text()
+for version in ("3.0", "4.0"):
+    user_css = (root / f"lib/ternux-assets/themes/Ternux/gtk-{version}/gtk-user.css").read_text()
+    assert ".rubberband" in user_css and "rgba(57, 230, 140, 0.24)" in user_css
 assert "border-radius: 3px" in gtk3_theme and "box-shadow: none" in gtk3_theme
 for icon in ("ternux-recorder", "ternux-avro", "ternux-python", "ternux-keyboard",
              "ternux-launcher", "org.xfce.webbrowser"):
@@ -1034,11 +1045,27 @@ assert 'OUTPUT_DIR = Path.home() / "Pictures" / "Ternux"' in camera
 assert 'API_CAPTURE_DIR = TERMUX_HOME / ".cache" / "ternux-camera"' in camera
 assert 'Back camera selected' in camera and 'self.camera.set_active_id(back)' in camera
 assert 'Termux:API returned without creating the photo file.' in camera
+assert 'android.permission.CAMERA' in camera and 'Termux:API needs Android Camera permission.' in camera
+assert 'Gtk.ToggleButton(label="Flashlight off" if self.torch_on else "Flashlight off")' in camera or 'Gtk.ToggleButton(label="Flashlight on" if self.torch_on else "Flashlight off")' in camera
+assert 'FLASHLIGHT = "/usr/local/bin/ternux-flashlight"' in camera
+flashlight = (root / "lib/ternux-flashlight.py").read_text()
+assert 'android.permission.CAMERA' in flashlight and 'fcntl.flock' in flashlight
+assert 'ternux-flashlight.desktop' in (root / "lib/phases.sh").read_text()
+assert (root / "lib/ternux-assets/applications/ternux-flashlight.desktop").is_file()
+assert (root / "lib/ternux-assets/icons/Ternux/scalable/apps/ternux-flashlight.svg").is_file()
+for panel_entry in ("ternux-terminal.desktop", "ternux-file-manager.desktop",
+                    "ternux-web-browser.desktop", "ternux-appfinder.desktop"):
+    assert (root / "lib/ternux-assets/applications" / panel_entry).is_file()
+panel_shortcuts = (root / "lib/ternux-panel-shortcuts.sh").read_text()
+assert "panel-shortcuts-v7" in panel_shortcuts
+assert "ternux-web-browser.desktop" in panel_shortcuts and "ternux-appfinder.desktop" in panel_shortcuts
+assert 'Flashlight was turned off for this photo.' in camera
+assert 'does not provide a flash setting.' in camera
+assert camera.index('if self.torch_on or self.flashlight_state_is_on():') < camera.index('subprocess.run([CAMERA_PHOTO')
 assert "guvcview" not in camera and "Webcam" not in camera
 assert "Ternux Sound Recorder" in (root / "lib/phases.sh").read_text()
 assert "ternux-recorder.desktop" in (root / "lib/ternux-panel-shortcuts.sh").read_text()
 assert "ternux-input-method.desktop" in (root / "lib/ternux-panel-shortcuts.sh").read_text()
-assert "panel-shortcuts-v6" in (root / "lib/ternux-panel-shortcuts.sh").read_text()
 ibus_init = (root / "lib/ternux-assets/bin/ternux-ibus-session-init").read_text()
 assert "gsettings set org.freedesktop.ibus.general.hotkey trigger '[]'" in ibus_init
 assert "gsettings set org.freedesktop.ibus.general engines-order" in ibus_init
@@ -1109,7 +1136,7 @@ else
   ok "Debian phase fails closed when a packaged resource is missing"
 fi
 
-if sh -n "$ROOT/lib/ternux-panel-shortcuts.sh" && grep -q 'panel-shortcuts-v6' "$ROOT/lib/ternux-panel-shortcuts.sh"; then
+if sh -n "$ROOT/lib/ternux-panel-shortcuts.sh" && grep -q 'panel-shortcuts-v7' "$ROOT/lib/ternux-panel-shortcuts.sh"; then
   ok "Ternux removes the keyboard button and keeps media panel shortcuts"
 else
   not_ok "Ternux removes the keyboard button and keeps media panel shortcuts"
@@ -1701,26 +1728,34 @@ fi
 # operations: cancellation preserves data, and explicit --yes removes only the
 # requested mocked container.
 if env PREFIX="$TMP/prefix-uninstall" TERNUX_STATE_DIR="$TMP/state-uninstall" HOME="$TMP/home-uninstall" bash -c '
-  mkdir -p "$HOME" "$TERNUX_STATE_DIR" "$2"
+  mkdir -p "$HOME" "$TERNUX_STATE_DIR/distros/debian" "$2"
   : > "$HOME/x.sh"
+  printf "status=ready\n" > "$TERNUX_STATE_DIR/distros/debian/profile"
   . "$1/lib/uninstall.sh"
+  TERNUX_YES=0
   scratch="$2"
+  rm -f "$scratch/uninstall-log"
   _tnx_uninstall_stop(){ echo stopped >> "$scratch/uninstall-log"; }
+  tnx_cmd_stop(){ echo "stopped:$1" >> "$scratch/uninstall-log"; }
   tnx_has_cmd(){ [ "$1" = proot-distro ]; }
-  tnx_proot_container_installed(){ [ "$1" = debian ]; }
+  tnx_proot_container_installed(){ case "$1" in debian|fedora) return 0;; *) return 1;; esac; }
   proot-distro(){
     [ "$1" = remove ] && { echo "removed:$2" >> "$scratch/uninstall-log"; return 0; }
     return 1
   }
   _tnx_uninstall_confirm(){ [ "${TERNUX_YES:-0}" = 1 ]; }
   set +e
+  _tnx_uninstall_container fedora >/dev/null 2>&1; unregistered=$?
   tnx_cmd_uninstall container >/dev/null; cancelled=$?
   set -e
-  [ "$cancelled" -eq 1 ] && grep -qx stopped "$scratch/uninstall-log" &&
-  ! grep -q removed "$scratch/uninstall-log" || exit
-  : > "$scratch/uninstall-log"
+  [ "$unregistered" -eq 1 ] && [ "$cancelled" -eq 1 ] &&
+  [ ! -e "$scratch/uninstall-log" ] || exit
   tnx_cmd_uninstall container --yes >/dev/null &&
-  grep -qx stopped "$scratch/uninstall-log" && grep -qx "removed:debian" "$scratch/uninstall-log" &&
+  grep -qx stopped:debian "$scratch/uninstall-log" && grep -qx "removed:debian" "$scratch/uninstall-log" &&
+  mkdir -p "$TERNUX_STATE_DIR/managed-guests" &&
+  printf "alpine:latest\n" > "$TERNUX_STATE_DIR/managed-guests/generic-test" &&
+  _tnx_uninstall_container generic-test >/dev/null &&
+  [ ! -e "$TERNUX_STATE_DIR/managed-guests/generic-test" ] &&
   [ -e "$HOME/x.sh" ] && [ -d "$TERNUX_STATE_DIR" ]
 ' _ "$ROOT" "$TMP"; then
   ok "scoped uninstall confirms selected guest deletion and preserves other scopes"
@@ -1758,7 +1793,8 @@ if env PREFIX="$TMP/prefix-uninstall-multi" TERNUX_STATE_DIR="$TMP/state-uninsta
   [ "$(grep -c '^ps$' "$log")" -eq 2 ] &&
   [ -f "$sessions/stale.json" ] && [ -f "$sessions/reused.json" ] &&
   [ -f "$sessions/live.json" ] && [ -f "$sessions/unrelated.json" ] &&
-  [ -L "$sessions/linked.json" ] && [ -f "$sessions/linked-target.json" ]
+  [ -L "$sessions/linked.json" ] && [ -f "$sessions/linked-target.json" ] &&
+  [ ! -e "$TERNUX_STATE_DIR/managed-guests/alpine" ]
 ' _ "$ROOT" "$TMP"; then
   ok "full uninstall delegates shared session cleanup to PRoot-Distro and targets registered guests only"
 else
@@ -2661,11 +2697,27 @@ if env TERNUX_STATE_DIR="$TMP/state-vulkan" HOME="$TMP/home-vulkan" \
     [ "$(tnx_detect_vulkan)" = "no (HARDWARE_AVAILABLE)" ] || exit
     : > "$TERNUX_KGSL_DEVICE"
     [ "$(tnx_detect_vulkan_state)" = LOADER_MISSING ] &&
-    [ "$(tnx_detect_vulkan)" = "no (LOADER_MISSING)" ]
+    [ "$(tnx_detect_vulkan)" = "no (LOADER_MISSING)" ] || exit
+    tnx_vulkan_probe_host(){ printf "TNX_LOADER=yes\nTNX_ICD=yes\nTNX_ENUM_RC=127\n"; }
+    [ "$(tnx_detect_vulkan_state)" = PROBE_UNAVAILABLE ] &&
+    [ "$(tnx_detect_vulkan)" = "unverified (vulkaninfo missing)" ] || exit
+    tnx_vulkan_probe_host(){ printf "TNX_LOADER=yes\nTNX_ICD=yes\nTNX_ENUM_RC=1\n"; }
+    [ "$(tnx_detect_vulkan_state)" = DEVICE_ENUMERATION_FAILED ] || exit
+    . "$1/lib/ui.sh"
+    tnx_detect_model(){ echo 25053RT47C; }
+    tnx_detect_android_version(){ echo 16; }; tnx_detect_android_sdk(){ echo 36; }
+    tnx_detect_arch(){ echo aarch64; }; tnx_detect_gpu(){ echo "Adreno (Adreno825)"; }
+    tnx_detect_vulkan_state(){ echo PROBE_UNAVAILABLE; }
+    tnx_detect_ram_gb(){ echo 12; }; tnx_detect_storage_gb(){ echo 80; }
+    _tnx_frame_cpu_sample(){ :; }
+    _TNX_FRAME_BACKEND=auto
+    _tnx_frame_gather_device
+    [ "${_TNX_FRAME_DEV_VALUES[2]}" = "Adreno825 | auto | Vk probe n/a" ] || exit
+    ! [[ "${_TNX_FRAME_DEV_VALUES[2]}" == *DEVICE_ENUMERATION* ]]
   ' _ "$ROOT"; then
-  ok "Vulkan detection distinguishes hardware, KGSL, and loader availability"
+  ok "Vulkan detection distinguishes missing probe tools from failed enumeration and keeps installer graphics text concise"
 else
-  not_ok "Vulkan detection distinguishes hardware, KGSL, and loader availability"
+  not_ok "Vulkan detection distinguishes missing probe tools from failed enumeration and keeps installer graphics text concise"
 fi
 
 
@@ -2746,6 +2798,10 @@ sed -i "s/$bootstrap_commit/$fixture_commit/g; s/$bootstrap_sha/$fixture_sha/g" 
 cat > "$TMP/mock-bundle-bin/curl" <<'EOF'
 #!/usr/bin/env bash
 set -u
+if [ "${1:-}" = --version ]; then
+  printf 'curl mock 1.0\n'
+  exit 0
+fi
 url=""; dest=""
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -2758,6 +2814,12 @@ count=0
 [ ! -f "$MOCK_COUNT" ] || count="$(cat "$MOCK_COUNT")"
 count=$((count + 1)); printf '%s\n' "$count" > "$MOCK_COUNT"
 printf '%s\n' "$url" >> "$MOCK_URLS"
+# curl --retry performs its retry inside one process invocation; model the
+# transient first response and successful retry in this command mock.
+if [ "$count" -eq 1 ]; then
+  count=2; printf '%s\n' "$count" > "$MOCK_COUNT"
+  printf '%s\n' "$url" >> "$MOCK_URLS"
+fi
 [ "$count" -gt 1 ] || exit 22
 cp "$MOCK_ARCHIVE" "$dest"
 EOF

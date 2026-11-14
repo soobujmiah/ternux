@@ -5,6 +5,11 @@ v2.0.0 on the documented Redmi Turbo 4 Pro reference device unless a row says
 otherwise. “Installed”, “detected”, “initialized”, “executed correctly”, and
 “measured” are separate evidence levels.
 
+**Current distribution decision (2026-11-14):** v2.0.0 GitHub release removed;
+its Git tag retained. Stable APT withdrawn in Pages run `43532161200` (stable
+paths HTTP 404, opt-in signed RC HTTP 200). Do not republish stable v2. The next
+stable target is v3 after its architecture and acceptance gates are complete.
+
 The 12:20 UTC read-only diagnostic recheck confirmed all three live guests
 remain READY. Debian and Alpine probes used their session displays and reported
 Zink/Turnip. Ubuntu also reported Zink/Turnip when queried with the running
@@ -18,7 +23,7 @@ and are in current main; the released package remains unchanged.
 
 | Capability | Evidence | Scope |
 |---|---|---|
-| v2.0.0 release and signed Termux APT channel | Published tag, `.deb`, checksum manifest, signed stable index; native `apt-cache policy` resolves 2.0.0 | Termux ARM64 host package; repository bootstrap is required once before `pkg install ternux` |
+| v2.0.0 release and signed Termux APT channel | Historical tag, `.deb`, checksum and signed-index evidence; stable distribution withdrawn 2026-11-14 | Not currently available from stable APT; existing installs remain intact |
 | Debian, Ubuntu, Alpine provisioning and management | Clean-guest CI and release records; current live `tx status` and `tx verify` pass for all three | These are the only v2-supported desktop guests; Debian has deeper qualification evidence |
 | Firefox package/runtime qualification | Clean CI browser matrix for exactly Debian, Ubuntu, Alpine; prior live desktop launches observed on all three | Does not qualify other guest recipes or every browser update indefinitely |
 | Separate live desktop sessions | Current `tx status`: Debian `:0`, Ubuntu `:1`, Alpine `:2`, all `READY`; X11 and PulseAudio route checks report ready | Existing device sessions only; not a clean reinstall test |
