@@ -100,6 +100,22 @@
       "source": "lib/managerd.py",
       "perm": "755"
     },
+    "lib/ternux/control_center.py": {
+      "source": "lib/control_center.py",
+      "perm": "755"
+    },
+    "lib/ternux/control-center/index.html": {
+      "source": "lib/control-center/index.html",
+      "perm": "644"
+    },
+    "lib/ternux/control-center/app.css": {
+      "source": "lib/control-center/app.css",
+      "perm": "644"
+    },
+    "lib/ternux/control-center/app.js": {
+      "source": "lib/control-center/app.js",
+      "perm": "644"
+    },
     "lib/ternux/profile.sh": {
       "source": "lib/profile.sh",
       "perm": "644"

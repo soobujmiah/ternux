@@ -329,6 +329,18 @@ tnx_manager_dispatch() {
   "$handler"
 }
 
+tnx_cmd_control() {
+  local script="${_TNX_LIB_DIR}/control_center.py"
+  [ "$#" -le 1 ] || { tnx_fail "Usage: tx control [--no-open]"; return 2; }
+  [ "$#" -eq 0 ] || [ "$1" = "--no-open" ] || { tnx_fail "Usage: tx control [--no-open]"; return 2; }
+  [ -f "$script" ] || { tnx_fail "Control Center is missing: $script"; return 69; }
+  if ! command -v python3 >/dev/null 2>&1; then
+    tnx_fail "The Control Center needs Python 3. Install it with: pkg install python"
+    return 69
+  fi
+  exec python3 "$script" "$@"
+}
+
 tnx_cmd_manager() {
   local action="${1:-}"
   [ -n "$action" ] || { tnx_fail "Usage: tx manager status|guests|displays|capabilities [--json]"; return 2; }

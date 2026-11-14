@@ -30,10 +30,15 @@ The private socket directory is mode `0700`, the socket and startup lock are
 `0600`, and the service exits on Ctrl-C. An advisory lock prevents concurrent
 service starts from removing a socket during startup. Python 3 is optional
 and needed only when the service is explicitly started (`pkg install python`).
-The service does not auto-start or expose a TCP/HTTP listener.
+The Unix-socket service does not auto-start or expose a TCP/HTTP listener. The
+separate `tx control` process binds a temporary HTTP listener on `127.0.0.1`
+only while the dashboard is open; it serves read-only snapshots and stops on
+Ctrl-C.
 Direct CLI JSON snapshots keep their existing command-specific schemas.
 JSON consumers should key compatibility off `schema_version` and `command`;
-service responses echo `request_id` for correlation.
+service responses echo `request_id` for correlation. The browser snapshot
+wrapper is defined by `schemas/control-center-snapshot-v1.schema.json` and served
+at `GET /api/v1/snapshot`; no POST/PUT/DELETE operations are exposed by `tx control`.
 
 ## Transport
 
@@ -46,8 +51,10 @@ argument objects. Unknown operations, unknown envelope fields, and
 operation-inappropriate arguments fail closed. A future v1 minor may add
 response fields; incompatible request changes require a new major version.
 
-The optional web client may use an HTTP loopback adapter owned by the service;
-it must not expose the Unix socket as a network port or bind to LAN interfaces.
+The current `tx control` web client uses a temporary HTTP listener bound only
+to `127.0.0.1`, rather than exposing the Unix socket or listening on LAN. It
+has no mutation routes. A future service-owned HTTP adapter must retain the
+same boundary.
 Protocol version is negotiated with `GET /v1/meta` or the equivalent socket
 method. Unix socket parent directories are private to the Termux UID (mode
 `0700`) and the socket is mode `0600`; clients cannot nominate a socket path.

@@ -47,23 +47,18 @@ load হওয়ার আগের failure JSON বানাতে পার�
 ### `tx manager`
 
 কোনো service বা guest চালু না করেই Native Termux manager-এর read-only snapshot
-দেখুন। এই প্রথম v3 slice installed PRoot guest এবং পরিচিত Ternux desktop profile
-দেখায়; install, start, stop বা repair করে না। v1 JSON payload schema হলো
-`docs/v3/schemas/manager-status-v1.schema.json` এবং
-`docs/v3/schemas/manager-guests-v1.schema.json` এবং
-`docs/v3/schemas/manager-capabilities-v1.schema.json`। Capability list dispatch-এর
-একই operation allowlist থেকে তৈরি হয়। অচেনা operation বা অপ্রত্যাশিত argument
-নিরাপদভাবে প্রত্যাখ্যান করা হয়। এগুলো CLI payload; local manager API service
-এখনও implement করা হয়নি।
+দেখুন। এই command-গুলো installed PRoot guest, পরিচিত desktop profile এবং বর্তমান/
+পরিকল্পিত display assignment দেখায়। `displays` socket/lock/server occupancy জানায়
+এবং v2 display migration দরকার কি না দেখায়; কোনো assignment বদলায় বা চলমান
+session সরায় না। Schema-গুলো `docs/v3/schemas/manager-*.schema.json`-এ আছে।
+Local Unix-socket API দরকার হলে `tx manager serve` চালান; এটি Ctrl-C না দেওয়া পর্যন্ত
+foreground-এ চলে, private socket ব্যবহার করে এবং TCP listener খোলে না। এই command-এর
+জন্য Python 3 optional।
 
-**কোন সংস্করণে আছে:** command-গুলো বর্তমান `main` source checkout-এ আছে;
-প্রকাশিত v2.0.0 APT package-এ নেই। v2.0.0 install-এ `tx manager` চালালে
-`Unknown command: manager` আসে। Repository root থেকে বর্তমান source পরীক্ষা
-করতে চালান:
-
-```bash
-TERNUX_LIB_DIR="$PWD/lib" bash ./bin/ternux manager status --json
-```
+**কোন সংস্করণে আছে:** read-only manager command ও socket service বর্তমান source-এ
+আছে; withdrawn v2.0.0 APT package-এ নেই। JSON compatibility-র জন্য
+`schema_version` ও `command` দেখুন। Display JSON schema `1.2.0`; কোনো running guest-এর
+সাথে মিল পাওয়া assignment OS-level socket ownership-এর প্রমাণ নয়।
 
 ```bash
 tx manager status [--json]
@@ -72,10 +67,23 @@ tx manager displays [--json]
 tx manager capabilities [--json]
 ```
 
-Display JSON schema `1.1.0`। target occupied হলে চলমান Ternux guest-এর saved
-display assignment একটিমাত্র guest-এর সাথে মিললে তার নাম দেখায়; এটি OS-level
-socket মালিকানার প্রমাণ নয়। অন্যথায় অনুমান না করে `reserved-native-slot` বা
-`unidentified` দেখায়।
+### `tx control`
+
+এই device-এর browser-এ mobile-first read-only Control Center খুলুন। এতে manager-এর
+স্বাস্থ্য, installed guest, active desktop, display conflict এবং copy করার host command
+দেখায়। তথ্য Termux CLI payload থেকে আসে; এটি guest start/stop বা state পরিবর্তন করে
+না। Page-টি random loopback-only port-এ চলে, এক ঘণ্টার in-memory bearer token ব্যবহার
+করে, অপ্রত্যাশিত Host/Origin header প্রত্যাখ্যান করে এবং কোনো mutation route রাখে না।
+বন্ধ করতে Termux-এ Ctrl-C চাপুন। Python 3 optional: `pkg install python`। Browser না
+খুলে local link দেখাতে `--no-open` ব্যবহার করুন।
+
+```bash
+tx control
+tx control --no-open
+```
+
+Dashboard ও manager command পরের stable v2-major release-এর জন্য source-এ আছে;
+withdrawn v2.0.0 package-এ নেই।
 
 ### `ternux guides`
 

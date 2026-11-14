@@ -38,6 +38,7 @@ ${TNX_CW}Commands:${TNX_C0}
   ${TNX_CG}install${TNX_C0}    Install full desktop environment
   ${TNX_CG}distro${TNX_C0}     List installed guests, open shells, install images
   ${TNX_CG}manager${TNX_C0}    Read host status, guests, displays and capabilities
+  ${TNX_CG}control${TNX_C0}    Open the local read-only Control Center
   ${TNX_CG}extension${TNX_C0}  Manage checksum-verified guest extensions
   ${TNX_CG}storage${TNX_C0}    Grant or revoke scoped Android storage access
   ${TNX_CG}guides${TNX_C0}     Installation and ecosystem help links
@@ -75,6 +76,18 @@ ${TNX_CW}Examples:${TNX_C0}
 
 ${TNX_CD}Run 'ternux <command> --help' for detailed help.${TNX_C0}
 HELPEOF
+}
+
+tnx_help_control() {
+  cat <<'HELP'
+Usage: tx control [--no-open]
+
+Open the local, read-only Ternux Control Center in a browser. It binds only to
+127.0.0.1, uses a temporary session key, and reads status through the host CLI.
+It does not start/stop guests or change host state. Press Ctrl-C in Termux to
+close it. Python 3 is optional and can be installed with `pkg install python`.
+Use --no-open to print the local URL without launching a browser.
+HELP
 }
 
 tnx_help_manager() {

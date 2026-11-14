@@ -222,8 +222,8 @@ script/scene render করানো যায়। [MCP guide](../tools/blender
   দৈনন্দিন ব্যবহার, configuration, troubleshooting, architecture ও CLI।
 - [v3 architecture ও roadmap](../docs/v3/README.md): manager, workspace,
   compute, AI, Device Bridge, security ও gate। Current `main` source-এ তিনটি
-  read-only manager CLI command আছে, কিন্তু stable v2.0.0 package-এ নেই; socket
-  service ও Control Center এখনো তৈরি হয়নি।
+  read-only manager CLI command ও `tx control`-এর local browser dashboard আছে,
+  কিন্তু withdrawn v2.0.0 package-এ নেই।
 - [দ্রুত শুরু](../docs/QUICK-START.md): প্রথম install, launch ও renderer check।
 - [Benchmark](../docs/BENCHMARKS.md): মাপা device ফলাফল ও তার সীমা।
 - [পরিবর্তনলগ](../CHANGELOG.md)
@@ -235,11 +235,13 @@ profile বেছে Enter চাপুন; পরের category-ভিত্�
 শুধু base desktop থাকে। `--yes` prompt বাদ দিয়ে Debian base profile install করে।
 Ternux v2.0.0 GitHub release ও stable APT distribution 2026-11-14-এ withdraw
 হয়েছে; source tag ও package checksum historical [release report](../docs/V2-RELEASE-REPORT.md)-এ আছে।
-পরের stable target v3; এতে [v3 architecture](../docs/V3-ARCHITECTURE.md)-এ বর্ণিত
-Control Center ও manager platform কাজ অন্তর্ভুক্ত। Current source-এ চারটি
-read-only `tx manager` command এবং foreground-only local Unix-socket API-এর জন্য
-`tx manager serve` আছে। Background supervisor ও graphical Control Center এখনো
-তৈরি হয়নি। [APT channel status](../docs/TERMUX-APT.md) দেখুন।
+পরের stable target v2 major-এই থাকবে; আগে v3 নামে পরিকল্পিত পুরো platform scope
+এতে অন্তর্ভুক্ত। Current main source-এ চারটি read-only `tx manager` command,
+foreground Unix-socket API-এর জন্য `tx manager serve`, এবং read-only local browser
+dashboard-এর জন্য `tx control` আছে। Dashboard চালাতে Python 3 লাগবে; প্রয়োজনে
+`pkg install python` চালান। Guest mutation, background supervisor ও পূর্ণ
+Control Center এখনো অসম্পূর্ণ। Withdrawn v2.0.0 package-এ এসব source change নেই।
+[APT channel status](../docs/TERMUX-APT.md) দেখুন।
 HTP/HMX, QNN এবং
 বিস্তৃত accelerator qualification experimental বা follow-up কাজ; [accelerator
 plan](../docs/ACCELERATOR-RELEASE-PLAN.md)-এ বর্তমান সীমা আছে।

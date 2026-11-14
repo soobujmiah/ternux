@@ -204,7 +204,7 @@ _tnx_dispatch() {
       return 0 ;;
     start|stop|restart|status) lib_map="desktop" ;;
     distro)                    lib_map="distro" ;;
-    manager)                   lib_map="manager" ;;
+    manager|control)           lib_map="manager" ;;
     gpu)                       lib_map="backend" ;;
     verify)                    lib_map="doctor" ;;
     install)                   lib_map="phases" ;;
