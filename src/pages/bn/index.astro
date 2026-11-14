@@ -32,9 +32,9 @@ import RenderBench from "../../components/RenderBench.astro";
           <p>
             Android ফোনে root ছাড়া Linux desktop চালান। v2-তে Debian, Ubuntu ও
             Alpine—এই তিনটি desktop profile supported; Debian recommended
-            default। আরও ১২টি named distro recipe আছে, তবে সেগুলো v2-তে
-            qualified নয়। Device evidence এক Redmi Turbo 4 Pro থেকে; exact
-            coverage release report-এ আছে।
+            default। আরও ১২টি named distro recipe আছে, তবে সেগুলো v2-তে qualified
+            নয়। Device evidence এক Redmi Turbo 4 Pro থেকে; exact coverage
+            release report-এ আছে।
           </p>
           <div class="hero-actions">
             <a class="button primary" href="#install">
@@ -109,9 +109,8 @@ import RenderBench from "../../components/RenderBench.astro";
               স্তরে সাজানো ওয়ার্কস্টেশন।
             </h2>
             <p>
-              প্রতিটি অংশের কাজ নির্দিষ্ট। টার্নাক্স মূল যন্ত্র, লিনাক্সের
-              পরিবেশ, স্ক্রিন ও গ্রাফিক্সের পথকে একটি যাচাইযোগ্য ব্যবস্থায়
-              সাজায়।
+              প্রতিটি অংশের কাজ নির্দিষ্ট। টার্নাক্স মূল যন্ত্র, লিনাক্সের পরিবেশ, স্ক্রিন
+              ও গ্রাফিক্সের পথকে একটি যাচাইযোগ্য ব্যবস্থায় সাজায়।
             </p>
           </div>
         </header>
@@ -224,8 +223,8 @@ import RenderBench from "../../components/RenderBench.astro";
               Ternux v2.0.0 GitHub release ও stable APT distribution
               2026-11-14-এ withdrawn হয়েছে; provenance-এর জন্য source tag রাখা
               হয়েছে। নিচের source installer ব্যবহার করুন; <code>/apt-rc</code>
-              শুধু opt-in candidate test-এর জন্য। Termux:API-এর জন্য Termux-এর
-              ভিতরে matching <code>termux-api</code> package-ও লাগবে।
+              শুধু opt-in candidate test-এর জন্য। Termux:API-এর জন্য Termux-এর ভিতরে
+              matching <code>termux-api</code> package-ও লাগবে।
             </p>
           </div>
           <div class="command">
@@ -260,8 +259,8 @@ import RenderBench from "../../components/RenderBench.astro";
           </div>
           <p class="install-note">
             curl ইনস্টল থাকলেও চালু না হলে wget-ও চালু কি না দেখুন। ইনস্টলার দুই
-            downloader-ই পরীক্ষা করে এবং curl ভাঙা থাকলে wget-এ যায়। দুটিই চালু
-            না হলে আগে <code>apt update && apt full-upgrade</code> চালান; তারপর{" "}
+            downloader-ই পরীক্ষা করে এবং curl ভাঙা থাকলে wget-এ যায়। দুটিই চালু না
+            হলে আগে <code>apt update && apt full-upgrade</code> চালান; তারপর{" "}
             <code>curl --version</code> বা <code>wget --version</code> দিয়ে
             পরীক্ষা করুন। Stable APT channel withdrawn;{" "}
             <a href="/ternux/bn/docs/TERMUX-APT.html">
@@ -280,14 +279,13 @@ import RenderBench from "../../components/RenderBench.astro";
             <h2>v2.0.0 withdrawn। পরের v2 platform release তৈরি হচ্ছে।</h2>
             <p>
               v2.0.0 GitHub release ও stable APT distribution 2026-11-14-এ
-              withdrawn হয়েছে; provenance-এর জন্য source tag রাখা হয়েছে।
-              Debian, Ubuntu ও Alpine—এই তিনটি supported guest profile। Current
-              main source-এ read-only manager CLI command ও foreground
-              Unix-socket service আছে; withdrawn v2.0.0 package-এ সেগুলো নেই।
-              পরের stable release v2 major-এই থাকবে। আগে v3 নামে পরিকল্পিত
-              manager, Control Center, workspace, compute, AI, Device Bridge ও
-              extension-এর পুরো scope এবং সব acceptance gate সম্পন্ন হলে তবেই
-              প্রকাশ হবে।
+              withdrawn হয়েছে; provenance-এর জন্য source tag রাখা হয়েছে। Debian,
+              Ubuntu ও Alpine—এই তিনটি supported guest profile। Current main
+              source-এ read-only manager CLI command ও foreground Unix-socket
+              service আছে; withdrawn v2.0.0 package-এ সেগুলো নেই। পরের stable
+              release v2 major-এই থাকবে। আগে v3 নামে পরিকল্পিত manager, Control
+              Center, workspace, compute, AI, Device Bridge ও extension-এর পুরো
+              scope এবং সব acceptance gate সম্পন্ন হলে তবেই প্রকাশ হবে।
             </p>
           </div>
           <div class="profile-grid">
@@ -340,9 +338,7 @@ import RenderBench from "../../components/RenderBench.astro";
           </div>
           <div class="ecosystem-copy">
             <span class="eyebrow">০৪ / অ্যান্ড্রয়েড উন্নয়ন</span>
-            <h2>
-              টার্নাক্সে লিনাক্স চলে। এডিটি দিয়ে অ্যান্ড্রয়েড অ্যাপ তৈরি হয়।
-            </h2>
+            <h2>টার্নাক্সে লিনাক্স চলে। এডিটি দিয়ে অ্যান্ড্রয়েড অ্যাপ তৈরি হয়।</h2>
             <p>
               Ternux v2-তে Debian, Ubuntu ও Alpine desktop guest supported;
               Debian recommended default। আরও ১২টি named distro recipe আছে, তবে
@@ -388,8 +384,8 @@ import RenderBench from "../../components/RenderBench.astro";
           <div>
             <h2>ত্রিমাত্রিক মেশ থেকে চলমান দৃশ্য।</h2>
             <p>
-              রেডমি টার্বো ৪ প্রোতে ব্লেন্ডার ৪.৩.২, এমপিএফবি২ ২.০.১৮ ও ইভি
-              নেক্সট দিয়ে মাপা। প্রতিটি ধাপে বাস্তব ফল দেখানো হয়েছে।
+              রেডমি টার্বো ৪ প্রোতে ব্লেন্ডার ৪.৩.২, এমপিএফবি২ ২.০.১৮ ও ইভি নেক্সট
+              দিয়ে মাপা। প্রতিটি ধাপে বাস্তব ফল দেখানো হয়েছে।
             </p>
           </div>
         </header>
@@ -410,9 +406,8 @@ import RenderBench from "../../components/RenderBench.astro";
           </article>
         </div>
         <p class="notice">
-          এমপিএফবি২ দিয়ে শারীরিক গঠনের সঠিক প্রাথমিক মেশ তৈরি হয়। চুলের সাজ,
-          চূড়ান্ত উপকরণ, অভিব্যক্তিপূর্ণ ভঙ্গি ও বাস্তবসম্মত উপস্থাপনার জন্য
-          আরও কাজ দরকার।
+          এমপিএফবি২ দিয়ে শারীরিক গঠনের সঠিক প্রাথমিক মেশ তৈরি হয়। চুলের সাজ, চূড়ান্ত
+          উপকরণ, অভিব্যক্তিপূর্ণ ভঙ্গি ও বাস্তবসম্মত উপস্থাপনার জন্য আরও কাজ দরকার।
         </p>
         <a class="home-section-link" href="/ternux/bn/docs/BENCHMARKS.html">
           সম্পূর্ণ মাপজোখের নথি →

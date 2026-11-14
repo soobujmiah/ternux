@@ -18,11 +18,31 @@ more than one cause, so collect the named evidence before applying a repair.
 | `Waiting for Termux-X11 display socket…` forever | Display :0 never appeared | [Display never appears](#display-never-appears) |
 | `Error: unrecognized option: '-c'` when starting | Old launcher against newer proot-distro | [proot-distro says option -c is unrecognized](#proot-distro-says-option--c-is-unrecognized) |
 | `apt` install fails on some packages | package/repository mismatch for the Debian release | [apt failures](#apt-failures) |
+| `ternux install --resume` skips a guest that was removed | stale per-guest phase metadata from an older install | [Resume after removing a guest](#resume-after-removing-a-guest) |
 | `pkg upgrade` errors on `openssl.cnf`, then **every** install fails | dpkg conffile prompt with closed stdin | [openssl.cnf conffile cascade](#opensslcnf-conffile-cascade) |
 | `No command $ found` after pasting the install command | copied text included the display-only `$` prompt | [Pasted command starts with $](#pasted-command-starts-with) |
 | `curl: CANNOT LINK … SSL_set_quic_tls_transport_params` | partial upgrade — curl/libngtcp2 newer than openssl | [curl cannot link after an upgrade](#curl-cannot-link-after-an-upgrade) |
 | Everything was fine, now it's broken after an upgrade | Mesa packages got replaced | [After an upgrade the GPU path is gone](#after-an-upgrade-the-gpu-path-is-gone) |
 | Installer dashboard flickers, log lines overlap the frame | An installer older than the current renderer, or a terminal whose size cannot be measured | [The installer screen flickers or the frame is broken](#the-installer-screen-flickers-or-the-frame-is-broken) |
+
+---
+
+## Resume after removing a guest
+
+**Symptom:** an interrupted install resumes against a guest that was removed,
+or the selected distro still points at an absent container.
+
+**Fix:** remove the stale Ternux registration through its managed command, then
+start a fresh install. This also clears the old phase and workspace records:
+
+```bash
+ternux distro uninstall ubuntu --yes
+ternux install --distro ubuntu
+```
+
+Ternux checks that the PRoot container still exists before it skips recorded
+guest phases. Do not remove a managed guest with `proot-distro remove`; that
+bypasses Ternux's profile and session cleanup.
 
 ---
 

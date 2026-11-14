@@ -474,6 +474,18 @@ tnx_proot_container_installed() {
   '
 }
 
+# A guest phase ledger is meaningful only for the container it configured.
+# If the PRoot container was removed outside Ternux, discard guest-only state
+# before a managed reinstall so stale entries cannot skip setup in a new rootfs.
+tnx_install_reset_missing_guest_state() {
+  local distro="${1:-$(tnx_distro)}" dir
+  tnx_proot_container_installed "$distro" && return 0
+  dir="$(tnx_distro_state_dir "$distro")" || return 2
+  [ -d "$dir" ] || return 0
+  rm -f -- "$dir/phases" || return 1
+  rm -rf -- "$dir/session" || return 1
+}
+
 tnx_debian_installed() { tnx_proot_container_installed "$(tnx_distro)"; }
 
 # Preserve compatibility with state written before the backend names were
@@ -609,7 +621,13 @@ tnx_install_phase_done() {
       recorded="$(tnx_state_get cli_source_identity 2>/dev/null || true)"
       [ -n "$recorded" ] && [ "$recorded" = "$expected" ]
       ;;
-    *) tnx_distro_phase_done "$distro" "$phase" ;;
+    *)
+      # A removed guest may still have a phase ledger from an older Ternux
+      # release. Never let that stale ledger make --resume report success
+      # without an actual PRoot container to configure and verify.
+      tnx_proot_container_installed "$distro" || return 1
+      tnx_distro_phase_done "$distro" "$phase"
+      ;;
   esac
 }
 

@@ -447,6 +447,12 @@ tnx_phase_debian() {
       apk)
         pkg_retry apk update
         if [ '$(tnx_distro)' = alpine ]; then install_proot_bwrap_shim; fi
+        if [ '$(tnx_distro)' = alpine ]; then
+          # AppStream's optional cache builder calls faccessat flags that
+          # PRoot does not emulate; its post-install hook can segfault while
+          # installing libadwaita. Install it without package hooks first.
+          pkg_retry apk add --no-scripts appstream
+        fi
         pkg_retry apk add sudo bash shadow musl-utils nano mousepad galculator evince font-noto python3 py3-xlib py3-gobject3 gtk+3.0 glib ibus dbus-x11 pulseaudio pulseaudio-utils pavucontrol mesa mesa-dri-gallium mesa-utils vulkan-loader vulkan-tools desktop-file-utils xdg-utils xdpyinfo setxkbmap util-linux fontconfig gsettings-desktop-schemas xfconf adwaita-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc ffmpeg ristretto qt5-qtbase colord
         if [ "$(tnx_distro)" = alpine ]; then
           pkg_retry apk add vlc-qt m17n-lib m17n-db font-noto-bengali rsvg-convert xrdb
@@ -3381,6 +3387,13 @@ tnx_install_single() {
   trap 'tnx_frame_restore_terminal; if type _tnx_bootstrap_cleanup >/dev/null 2>&1; then _tnx_bootstrap_cleanup; fi' EXIT
   trap 'tnx_frame_restore_terminal; exit 130' INT
   trap 'tnx_frame_restore_terminal; exit 143' TERM
+
+  # A missing rootfs means per-guest phase state belongs to a removed
+  # container; clear it before resume can skip setup for the fresh container.
+  tnx_install_reset_missing_guest_state "$distro_choice" || {
+    tnx_fail "Could not reset stale state for the missing $distro_choice guest."
+    return 1
+  }
 
   local extras_csv=""
   if [ ${#extras[@]} -gt 0 ]; then

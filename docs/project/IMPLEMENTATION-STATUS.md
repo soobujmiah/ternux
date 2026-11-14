@@ -6,13 +6,13 @@ lang: "en"
 
 ## Implementation status
 
-**Repository baseline:** 2026-11-13 16:55 UTC; owner release-direction update: 2026-11-14. This page reports repository and device state;
+**Repository baseline:** 2026-11-14; owner release-direction update: 2026-11-14. This page reports repository and device state;
 it does not upgrade a design status into an implementation claim.
 
 | Area | State | Evidence / next gate |
 |---|---|---|
 | v2 Termux manager and distro CLI | 2.0.0 WITHDRAWN FROM DISTRIBUTION | Git tag retained for provenance; GitHub Release object removed and stable APT withdrawn; see [release status](RELEASE-STATUS.md) |
-| Debian / Ubuntu / Alpine desktop profiles | Recipes implemented; qualification is mixed on reference device | Debian host `tx verify` passes; Ubuntu managed install/start/stop passed on 2026-11-14 but window input was not tested; Alpine install stopped on repeated WebKit extraction I/O errors and is not qualified. See [device verification](DEVICE-VERIFICATION.md) |
+| Debian / Ubuntu / Alpine desktop profiles | Recipes implemented; reference-device install, graphics, and synthetic window input passed | Debian retained and verified; Ubuntu and Alpine freshly installed through managed commands, verified with Zink/Turnip, and passed xdotool terminal input. Ubuntu stop/start and >10-minute soak passed. See latest [device verification](DEVICE-VERIFICATION.md) section; physical Android keyboard delivery and other devices remain unqualified |
 | Ternux GTK/icon/XFWM defaults | IMPLEMENTED and observed active in all three live guests | Runtime XFConf queries returned Ternux/Ternux/Ternux and `|HMC`; broad third-party CSD coverage is not claimed |
 | Window viewport helper | IMPLEMENTED and deployed in all three guests | Identical SHA-256 `a990edf3a929eb1633e70ad86d4d2044f841677531e770fdff953cc81aed4017`; prior oversized-window evidence is linked in device audit |
 | IBus engine switch command | IMPLEMENTED | Direct helper cycles each guest's configured engine and restores original; physical Ctrl+Space delivery remains separately qualified |
@@ -24,11 +24,7 @@ it does not upgrade a design status into an implementation claim.
 | Camera/microphone Device Bridge (required next v2 scope) | DESIGNED; no broker implementation | Existing limitations remain in the audit docs |
 | Distro-profile framework (required next v2 scope) | DESIGNED; not implemented | Debian/Ubuntu/Alpine behavior remains the compatibility baseline |
 
-The stale-distro doctor selection and Ubuntu Mesa-overlay detection fixes
-merged to `main` as `b26010d17694b4b18ebc757d1001dc48f3d9ab6a`. Exact-main
-hosted validation passed, the focused suite passed 185/185, and source-only
-on-device `doctor --quick --json` returned status `ok` for both default active
-Debian and explicit Ubuntu selections. The installed stable v2.0.0 package
+The stale-distro doctor selection, Ubuntu Mesa-overlay detection, guest-state resume reset, managed uninstall cleanup, and Alpine AppStream PRoot-hook fixes are covered by the current focused suite (190/190 passed on 2026-11-14). Fresh Ubuntu and Alpine device results are recorded above. Earlier main-branch validation remains historical. The installed stable v2.0.0 package
 remains unchanged and does not yet contain these fixes.
 
 ## Active limitations

@@ -8,6 +8,21 @@ This record separates physical-device observation from source tests and CI.
 It does not claim qualification on other GPUs, Android builds, or Termux:X11
 versions.
 
+## 2026-11-14 managed three-distro qualification follow-up
+
+**Device:** Xiaomi 25053RT47C (Redmi Turbo 4 Pro), Android 16, ARM64, Adreno 825.
+**Code under test:** roadmap/device-evidence branch; managed lifecycle commands used for every guest removal and install.
+
+| Check | Result |
+|---|---|
+| Debian | Retained guest verified; READY on `:0`; `doctor --json` reported 27 OK, 0 warnings, 0 failures. Zink/Turnip and Adreno 825 reported. |
+| Ubuntu | Removed and freshly reinstalled through Ternux-managed commands; all 11 phases and verification passed. `doctor --json`: 27 OK, 0 warnings, 0 failures. Zink/Turnip and Adreno 825 reported. READY on `:2`; explicit stop/start passed and it stayed live for over 10 minutes while other guests were exercised. |
+| Alpine | Removed and freshly reinstalled through Ternux-managed commands; all 11 phases and verification passed. AppStream was installed with scripts disabled before the desktop package batch, avoiding its unsupported PRoot cache hook. `doctor --json`: 26 OK, 0 warnings, 0 failures. Zink/Turnip and Adreno 825 reported. READY on `:3`. |
+| Window input | Installed xdotool inside each guest via `ternux distro exec`; opened a terminal, typed a guest-specific marker command, verified its output, then closed the temporary window. Debian, Ubuntu, and Alpine passed. |
+| Concurrent sessions | Debian `:0`, Ubuntu `:2`, and Alpine `:3` were concurrently READY with working X11 and PulseAudio routes. |
+
+This follow-up supersedes earlier statements in this file that the Ubuntu window-input check was not established and that Alpine desktop install was unqualified. Those earlier paragraphs remain historical records of their respective runs. The current check covers synthetic X11 input only, not physical Android keyboard delivery. It does not qualify other devices or GPUs.
+
 ## 2026-11-14 managed Debian resume and GUI follow-up
 
 **Device:** Xiaomi 25053RT47C (Redmi Turbo 4 Pro), Android 16, ARM64, Adreno 825.

@@ -343,6 +343,68 @@ _tnx_uninstall_reap_stale_sessions() {
   return 0
 }
 
+# Forget only Ternux-generated lifecycle metadata after a managed guest is
+# gone. Keep user data outside the removed PRoot container and shared host state.
+_tnx_uninstall_forget_guest_state() {
+  local name="$1" state_dir="${TERNUX_STATE_DIR:-$HOME/.local/share/ternux}"
+  local distros_dir="$state_dir/distros" guest_dir="$state_dir/distros/$name"
+  local profile="$guest_dir/profile" phases="$guest_dir/phases" session="$guest_dir/session"
+  local registry="$state_dir/workspaces.tsv" lock="$state_dir/workspaces.lock" lock_fd tmp
+  local selected="" fallback="debian" candidate candidate_status saved_user saved_backend
+
+  [ ! -L "$state_dir" ] && [ ! -L "$distros_dir" ] && [ ! -L "$guest_dir" ] || {
+    tnx_fail "Guest '$name' is gone, but its Ternux state path is unsafe; review $guest_dir manually."
+    return 1
+  }
+  if [ -e "$profile" ] || [ -L "$profile" ]; then
+    [ ! -L "$profile" ] && [ -f "$profile" ] || { tnx_fail "Refusing unsafe Ternux profile state for '$name'."; return 1; }
+    tnx_distro_state_set "$name" status uninstalled || { tnx_fail "Could not mark '$name' uninstalled in Ternux state."; return 1; }
+  fi
+  if [ -e "$phases" ] || [ -L "$phases" ]; then
+    [ ! -L "$phases" ] && [ -f "$phases" ] || { tnx_fail "Refusing unsafe Ternux phase state for '$name'."; return 1; }
+    rm -f -- "$phases" || { tnx_fail "Could not clear stale install phases for '$name'."; return 1; }
+  fi
+  if [ -e "$session" ] || [ -L "$session" ]; then
+    [ ! -L "$session" ] && [ -d "$session" ] || { tnx_fail "Refusing unsafe Ternux session state for '$name'."; return 1; }
+    rm -rf -- "$session" || { tnx_fail "Could not clear stopped session state for '$name'."; return 1; }
+  fi
+
+  if [ -e "$registry" ] || [ -L "$registry" ]; then
+    [ ! -L "$registry" ] && [ -f "$registry" ] && [ ! -L "$lock" ] || { tnx_fail "Refusing unsafe Ternux workspace registry while removing '$name'."; return 1; }
+    tnx_workspace_registry_validate "$registry" || { tnx_fail "Ternux workspace registry is malformed; preserving it for review."; return 1; }
+    command -v flock >/dev/null 2>&1 || { tnx_fail "flock is required to update the Ternux workspace registry."; return 1; }
+    exec {lock_fd}>"$lock" || return 1
+    flock -x "$lock_fd" || { exec {lock_fd}>&-; return 1; }
+    tmp="$(mktemp "$state_dir/.workspaces.XXXXXX")" || { exec {lock_fd}>&-; return 1; }
+    awk -F '\t' -v OFS='\t' -v id="$name" 'NR == 1 || $1 != id' "$registry" > "$tmp" || {
+      rm -f -- "$tmp"; exec {lock_fd}>&-; return 1;
+    }
+    chmod 0600 "$tmp" && mv -f -- "$tmp" "$registry" || {
+      rm -f -- "$tmp"; exec {lock_fd}>&-; return 1;
+    }
+    exec {lock_fd}>&-
+  fi
+
+  selected="$(tnx_state_get distro 2>/dev/null || true)"
+  if [ "$selected" = "$name" ] && tnx_distro_known "$name"; then
+    for candidate in $TERNUX_DISTRO_KNOWN; do
+      [ "$candidate" = "$name" ] && continue
+      candidate_status="$(tnx_distro_state_get "$candidate" status 2>/dev/null || true)"
+      if [ "$candidate_status" = ready ] && tnx_proot_container_installed "$candidate"; then
+        fallback="$candidate"
+        break
+      fi
+    done
+    tnx_state_set distro "$fallback" || return 1
+    saved_user="$(tnx_distro_state_get "$fallback" user 2>/dev/null || true)"
+    saved_backend="$(tnx_distro_state_get "$fallback" backend 2>/dev/null || true)"
+    [ -z "$saved_user" ] || tnx_state_set user "$saved_user" || return 1
+    [ -z "$saved_backend" ] || tnx_state_set install_backend "$saved_backend" || return 1
+    tnx_state_set install_profile base || return 1
+    tnx_state_set install_extras "" || return 1
+  fi
+}
+
 _tnx_uninstall_guest_is_registered() {
   local target="$1" state_dir="${TERNUX_STATE_DIR:-$HOME/.local/share/ternux}"
   local profile="$state_dir/distros/$target/profile" marker_dir="$state_dir/managed-guests" marker="$state_dir/managed-guests/$target"
@@ -364,7 +426,8 @@ _tnx_uninstall_container() {
   fi
   if ! tnx_proot_container_installed "$target"; then
     if _tnx_uninstall_guest_is_registered "$target"; then
-      _tnx_uninstall_remove_guest "$target"
+      _tnx_uninstall_remove_guest "$target" || return $?
+      _tnx_uninstall_forget_guest_state "$target"
       return $?
     fi
     tnx_info "Guest '$target' is not installed"
@@ -381,7 +444,8 @@ _tnx_uninstall_container() {
   if tnx_distro_known "$target"; then
     tnx_cmd_stop "$target" || { tnx_fail "Could not stop the selected Ternux desktop '$target'; guest files were preserved."; return 1; }
   fi
-  _tnx_uninstall_remove_guest "$target"
+  _tnx_uninstall_remove_guest "$target" || return $?
+  _tnx_uninstall_forget_guest_state "$target"
 }
 
 _tnx_uninstall_all_managed_guests() {
