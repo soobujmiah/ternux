@@ -230,13 +230,13 @@ import RenderBench from "../components/RenderBench.astro";
             <button
               type="button"
               data-copy
-              data-copy-value="apt update && apt full-upgrade -y && apt install curl -y && bash -o pipefail -c 'curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'"
+              data-copy-value="pkg update -y && pkg upgrade -y && pkg install -y curl && bash -o pipefail -c 'curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'"
             >
               COPY
             </button>
             <code>
-              apt update && apt full-upgrade -y && apt install curl -y && bash
-              -o pipefail -c 'curl -fsSL
+              pkg update -y && pkg upgrade -y && pkg install -y curl && bash -o
+              pipefail -c 'curl -fsSL
               https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh
               | bash'
             </code>
@@ -246,24 +246,24 @@ import RenderBench from "../components/RenderBench.astro";
             <button
               type="button"
               data-copy
-              data-copy-value="apt update && apt full-upgrade -y && apt install wget -y && bash -o pipefail -c 'wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'"
+              data-copy-value="pkg update -y && pkg upgrade -y && pkg install -y wget && bash -o pipefail -c 'wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'"
             >
               COPY
             </button>
             <code>
-              apt update && apt full-upgrade -y && apt install wget -y && bash
-              -o pipefail -c 'wget -qO-
+              pkg update -y && pkg upgrade -y && pkg install -y wget && bash -o
+              pipefail -c 'wget -qO-
               https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh
               | bash'
             </code>
           </div>
           <p class="install-note">
-            These commands complete <code>apt full-upgrade</code> before
-            installing the downloader, then enable <code>pipefail</code> so a
-            failed download cannot appear successful. Termux's <code>pkg</code>{" "}
-            wrapper needs curl; do not run <code>pkg install curl</code> before
-            the full upgrade. If an older partial upgrade broke curl, use the
-            apt-first command above. The stable APT channel is withdrawn;
+            These commands finish the Termux package upgrade before installing a
+            downloader, then enable <code>pipefail</code> so a failed download
+            cannot appear successful. If a partial upgrade broke{" "}
+            <code>pkg</code> or curl, repair it with the apt-first command
+            above. The stable APT channel is withdrawn, so{" "}
+            <code>pkg install ternux</code> is currently unavailable;
             <a href="/ternux/docs/TERMUX-APT.html">
               see current channel status ↗
             </a>

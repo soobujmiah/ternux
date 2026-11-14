@@ -1312,7 +1312,11 @@ tnx_request_microphone_permission() {
     return 0
   fi
 
-  info="$("$recorder" -i 2>/dev/null || true)"
+  tnx_info "Checking whether Termux:API microphone permission is already available..."
+  if ! info="$(timeout 3 "$recorder" -i 2>/dev/null)"; then
+    tnx_warn "Termux:API did not answer the microphone status check; skipping the optional permission probe."
+    return 0
+  fi
   if printf '%s' "$info" | grep -Eq '"isRecording"[[:space:]]*:[[:space:]]*true'; then
     tnx_info "Termux:API is already recording; leaving the existing recording untouched."
     return 0
@@ -1328,8 +1332,8 @@ tnx_request_microphone_permission() {
   # this permission-only probe private and bounded; never stop a recording
   # unless the API confirms that its output path is this probe's unique file.
   timeout 10 "$recorder" -f "$probe" -l 1 >/dev/null 2>&1 && record_rc=0 || true
-  for ((attempt=0; attempt<25; attempt++)); do
-    info="$("$recorder" -i 2>/dev/null || true)"
+  for ((attempt=0; attempt<10; attempt++)); do
+    info="$(timeout 2 "$recorder" -i 2>/dev/null || true)"
     output_file="$(printf '%s\n' "$info" | sed -n 's/.*"outputFile"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p')"
     if printf '%s' "$info" | grep -Eq '"isRecording"[[:space:]]*:[[:space:]]*true' &&
        [ "$output_file" = "$probe" ]; then
@@ -1348,11 +1352,11 @@ tnx_request_microphone_permission() {
   else
     # A one-second API recording may complete before the first status poll.
     # If it is still active, stop it only after matching our unique output path.
-    info="$("$recorder" -i 2>/dev/null || true)"
+    info="$(timeout 2 "$recorder" -i 2>/dev/null || true)"
     output_file="$(printf '%s\n' "$info" | sed -n 's/.*"outputFile"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p')"
     if printf '%s' "$info" | grep -Eq '"isRecording"[[:space:]]*:[[:space:]]*true' &&
        [ "$output_file" = "$probe" ]; then
-      "$recorder" -q >/dev/null 2>&1 || true
+      timeout 2 "$recorder" -q >/dev/null 2>&1 || true
       active=1
     fi
     if [ "$active" -eq 1 ]; then

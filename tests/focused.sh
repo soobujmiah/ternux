@@ -2065,7 +2065,7 @@ if env TERNUX_STATE_DIR="$TMP/state-mic-permission" HOME="$TMP/home-mic-permissi
     . "$1/lib/phases.sh"
     mode=idle output_file="" fast=0 log="$TMPDIR/commands.log"
     tnx_has_cmd(){ [[ "$1" == termux-microphone-record || "$1" == timeout ]]; }
-    timeout(){ shift; "$@"; }
+    timeout(){ printf "TIMEOUT:%s\n" "$1" >> "$log"; shift; "$@"; }
     sleep(){ :; }
     tnx_ok(){ printf "OK:%s\\n" "$*" >> "$log"; }
     tnx_warn(){ printf "WARN:%s\n" "$*" >> "$log"; }
@@ -2098,6 +2098,7 @@ if env TERNUX_STATE_DIR="$TMP/state-mic-permission" HOME="$TMP/home-mic-permissi
     grep -q -- "-f .*permission.m4a -l 1" "$log" &&
     grep -qx -- "-q" "$log" &&
     grep -q "permission probe was stopped" "$log" &&
+    grep -qx "TIMEOUT:3" "$log" && grep -qx "TIMEOUT:2" "$log" &&
     ! compgen -G "$TMPDIR/ternux-mic-permission.*" >/dev/null || exit
 
     : > "$log"; fast=1; mode=idle; output_file=""

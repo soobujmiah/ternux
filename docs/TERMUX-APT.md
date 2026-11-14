@@ -12,9 +12,12 @@ paths now return HTTP 404. The `v2.0.0` Git tag is retained for provenance; its
 package and checksum data below are historical. Existing installations are
 unaffected, but stable APT no longer offers Ternux updates.
 
-The signed `/apt-rc` channel remains available only for opt-in candidate tests.
-It is not a supported production install source. Use the source installer in
-the [main installation guide](../README.md) until the next stable release.
+The source installer is the supported install route; see the [main
+installation guide](../README.md). As checked on 2026-11-15, the Pages-hosted
+`/apt-rc` bootstrap and signed index also return HTTP 404. Therefore neither
+`pkg install ternux` from stable nor RC is currently available from the hosted
+repositories. The RC channel is reserved for opt-in candidate testing when it is
+published again.
 The next stable release remains in the v2 major. The complete platform
 architecture formerly planned for v3 is required before a new 2.x stable
 release; see the [project roadmap](project/PROJECT-ROADMAP.html).
@@ -40,43 +43,14 @@ The withdrawn stable repository contained `ternux_2.0.0_all.deb`, SHA-256
 `4ef03210c71e3d5671671e9a49fc83f6aebf7cdb5e5a28cb32db61d49e85c89f`. These
 values are retained for audit and do not provide a current download route.
 
-## Opt-in RC channel
+## RC channel
 
-Use the RC bootstrap only when deliberately testing a candidate package. Fetch
-it from the separate path, verify the published fingerprint above, and configure
-the RC source explicitly:
+The RC setup instructions below are historical. The hosted bootstrap and index
+returned HTTP 404 on 2026-11-15, so these commands cannot currently configure a
+working package source. Do not run `pkg install ternux` expecting it to install
+from stable or RC. Once a candidate channel is published, its bootstrap URL and
+signed index must be checked before these instructions are restored.
 
-Before adding the RC source, finish any pending Termux upgrade so the downloader
-and its OpenSSL libraries stay from one package generation. If `curl --version`
-fails, use a working `wget` or run the complete `apt` upgrade before retrying.
-Do not run `pkg update` to repair a broken curl: the Termux `pkg` wrapper itself
-depends on curl. The bootstrap falls back to `apt-get` when its `pkg update`
-fails because curl cannot start.
-
-```bash
-apt update && apt full-upgrade -y
-apt install curl gnupg -y
-curl -fsSLo "$TMPDIR/ternux-rc-bootstrap.sh" \
-  https://soobujmiah.github.io/ternux/apt-rc/bootstrap.sh
-bash "$TMPDIR/ternux-rc-bootstrap.sh" --channel rc --configure-only
-pkg update && pkg install ternux
-```
-
-If curl cannot start after the upgrade, download the same bootstrap with wget:
-
-```bash
-apt update && apt full-upgrade -y
-apt install wget gnupg -y
-wget -qO "$TMPDIR/ternux-rc-bootstrap.sh" \
-  https://soobujmiah.github.io/ternux/apt-rc/bootstrap.sh
-bash "$TMPDIR/ternux-rc-bootstrap.sh" --channel rc --configure-only
-pkg update && pkg install ternux
-```
-
-The RC repository is separate from stable and may contain pre-release packages.
-Do not use it as a stable update source. The source installer remains available
-from the project `main` branch.
-
-Routine website deployments preserve only currently published APT channels.
-The signed v2 stable tree is intentionally absent; the opt-in RC tree is
-signature- and checksum-verified before preservation.
+For now, use the source installer from the project `main` branch. Routine
+website deployments preserve only APT channels that are currently published and
+pass signature and checksum verification.

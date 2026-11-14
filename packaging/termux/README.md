@@ -84,21 +84,14 @@ candidate checks pass.
 
 ## Install from a published repository
 
-The signed release tree includes `bootstrap.sh`. Before installing `curl` and
-`gnupg`, users should run `apt update && apt full-upgrade -y`, then install the
-prerequisites with `apt install curl gnupg -y`. This avoids upgrading only
-libcurl and leaving its linked Termux libraries behind. Users can then download
-and run the bootstrap; it verifies
-the pinned primary-key fingerprint, writes a `signed-by` source, refreshes APT,
-and installs Ternux. If `pkg update` fails because curl cannot start, the script
-uses `apt-get update` and `apt-get full-upgrade` to repair the package set, then
-installs through `apt-get`. The script also supports `--configure-only`. It
-never uses `[trusted=yes]`.
+The signed repository bootstrap is conditional on an explicitly published
+channel. The v2 stable repository has been withdrawn, and the Pages-hosted stable
+and RC bootstrap/index URLs returned HTTP 404 on 2026-11-15. Do not present
+`pkg install ternux` as a working install command until a signed repository is
+published and its clean Termux install is verified.
 
-The bootstrap URL is `https://soobujmiah.github.io/ternux/apt/bootstrap.sh` and
-exists only after the signed release is published. See the paired
+When a channel is published, its bootstrap verifies the pinned primary-key
+fingerprint, writes a `signed-by` source, refreshes APT, and installs Ternux. It
+must never use `[trusted=yes]`. See the paired
 [English](../../docs/TERMUX-APT.md) and
-[Bengali](../../bn/docs/TERMUX-APT.md) user guide. A custom repository cannot
-make the first `pkg install ternux` work before APT trusts its signing key;
-zero-bootstrap discovery requires acceptance into an official Termux package
-repository.
+[Bengali](../../bn/docs/TERMUX-APT.md) user guide for current availability.

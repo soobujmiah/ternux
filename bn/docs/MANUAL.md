@@ -412,7 +412,7 @@ confirmation হিসেবেই ব্যবহার করুন।
 scoped uninstaller চালান:
 
 ```bash
-curl -fsSL https://soobujmiah.github.io/ternux/uninstall.sh | bash
+curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/uninstall.sh | bash
 ```
 
 এটি কোন অংশ সরাবেন তা জিজ্ঞেস করবে। Confirm করার আগে প্রতিটি target দেখে নিন।

@@ -57,7 +57,7 @@ installer base-এ প্রায় **৬ GB free** এবং `--all`-এ **�
 ## পদ্ধতি ১ — এক কমান্ড (প্রস্তাবিত)
 
 ```bash
-apt update && apt full-upgrade -y && apt install curl -y && bash -o pipefail -c 'curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'
+pkg update -y && pkg upgrade -y && pkg install -y curl && bash -o pipefail -c 'curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'
 ```
 
 এটি HTTPS-এ ইনস্টলার নামিয়ে চালায়। সাথে terminal থাকলে script pipe হলেও installer `/dev/tty` দিয়ে prompt এবং optional workload chooser দেখায়। Controlling terminal না থাকলে base profile install হয়। Prompt ছাড়া base install চাইলে `--yes` দিন। এই রিপোজিটরির সেই একই স্ক্রিপ্ট — লুকানো কিছু নেই, compiled কিছু নেই।
@@ -81,15 +81,15 @@ source-ই রাখে এবং frame-এর ভেতর `termux-change-repo`
 করুন—ইনস্টলার একই থাকবে:
 
 ```bash
-apt update && apt full-upgrade -y && apt install wget -y && bash -o pipefail -c 'wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'
+pkg update -y && pkg upgrade -y && pkg install -y wget && bash -o pipefail -c 'wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'
 ```
 
-কপি করা command-গুলো প্রথমে `apt update && apt full-upgrade -y` চালায়, তারপর
-downloader install করে। `pipefail` থাকায় download ব্যর্থ হলে খালি Bash run-কে
-সফল বলা হবে না। Termux rolling-release; সম্পূর্ণ upgrade করার আগে
-`pkg install curl` চালাবেন না। Partial upgrade-এ curl ভেঙে গেলে `apt` preflight
-আগে পুরো package set repair করে। curl সচল না হওয়া পর্যন্ত Termux-এর `pkg`
-wrapper-ও ব্যর্থ হতে পারে।
+এই command-গুলো Termux package update ও upgrade শেষ করে তারপর downloader
+install করে। `pipefail` থাকায় download ব্যর্থ হলে খালি Bash run-কে সফল বলা
+হবে না। Partial upgrade-এ `pkg` বা curl চালু না হলে `apt update && apt
+full-upgrade -y` দিয়ে Termux repair করে আবার চেষ্টা করুন। Stable signed APT
+repository বন্ধ, তাই `pkg install ternux` এখন পাওয়া যাচ্ছে না; RC channel শুধু
+candidate test-এর জন্য এবং hosted availability এখন যাচাই করা যায়নি.
 
 ### Optional workload checklist
 
@@ -534,7 +534,7 @@ ternux distro uninstall ubuntu --yes
 ```bash
 ternux uninstall                    # প্রস্তাবিত — ইন্টারঅ্যাক্টিভ অপসারণ
 # বা
-curl -fsSL https://soobujmiah.github.io/ternux/uninstall.sh | bash
+curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/uninstall.sh | bash
 # বা
 bash install.sh --uninstall
 ```

@@ -86,28 +86,27 @@ F-Droid বা Google Play Termux হলে একই release page-এর সা
 অথবা [GitHub](https://github.com/termux/termux-styling/releases) terminal theme
 ও font যোগ করে। Desktop app-এর live mic on-demand Termux OpenSL ES
 source দিয়ে চলে; API recorder file তৈরি করে। Termux ও add-on একই source থেকে নিন।
-২. Termux rolling package set ব্যবহার করে। এক-command bootstrap আগে সব package
-একসঙ্গে upgrade করে, তারপর curl install ও Ternux চালায়; শুধু `pkg update`-এ
-linked library upgrade হয় না:
+২. চলমান ও সুস্থ Termux-এ এই command দিয়ে update, downloader install এবং Ternux
+চালান:
 
 ```bash
-apt update && apt full-upgrade -y && apt install curl -y && bash -o pipefail -c 'curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'
+pkg update -y && pkg upgrade -y && pkg install -y curl && bash -o pipefail -c 'curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'
 ```
 
-curl না থাকলে wget ব্যবহার করুন:
+curl ব্যবহার করতে না পারলে wget নিন:
 
 ```bash
-apt update && apt full-upgrade -y && apt install wget -y && bash -o pipefail -c 'wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'
+pkg update -y && pkg upgrade -y && pkg install -y wget && bash -o pipefail -c 'wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'
 ```
 
-আগে `pkg install curl` চালিয়ে curl start না হলে `pkg` আবার চালানোর আগে
-`apt update && apt full-upgrade -y` চালান। Termux-এর `pkg` wrapper curl-এর ওপর
-নির্ভর করে, কিন্তু `apt` সম্পূর্ণ package set repair করতে পারে।
+আংশিক upgrade-এ `pkg` বা curl চালু না হলে `apt update && apt full-upgrade -y`
+চালিয়ে Termux repair করুন, তারপর আবার চেষ্টা করুন।
 
 Ternux v2.0.0 GitHub release ও stable APT distribution 2026-11-14-এ
 withdraw করা হয়েছে। Provenance-এর জন্য `v2.0.0` source tag রাখা হয়েছে।
-উপরের source installer ব্যবহার করুন; signed `/apt-rc` channel কেবল opt-in
-candidate test-এর জন্য, production install source নয়। Architecture ও acceptance
+উপরের source installer ব্যবহার করুন। Stable signed APT repository প্রত্যাহার
+করা হয়েছে; `pkg install ternux` এখন পাওয়া যাচ্ছে না। RC channel-এর hosted URL-ও
+বর্তমানে HTTP 404 দেয়। Architecture ও acceptance
 gate সম্পূর্ণ হলে পরের stable release v2 major-এই থাকবে; আগে v3 নামে পরিকল্পিত full platform scope-ও তাতে থাকবে। [APT channel status](../docs/TERMUX-APT.md)
 ও [v2 release record](../docs/V2-RELEASE-READINESS.md) দেখুন।
 

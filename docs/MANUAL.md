@@ -430,7 +430,7 @@ The manual-only steps above do not install that CLI. To remove a manual setup,
 run the scoped uninstaller from Termux:
 
 ```bash
-curl -fsSL https://soobujmiah.github.io/ternux/uninstall.sh | bash
+curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/uninstall.sh | bash
 ```
 
 It prompts for the cleanup targets. Review each target before confirming.
