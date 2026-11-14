@@ -40,6 +40,17 @@ restored the original engines (`ibus-avro`, `ibus-avro`, and
 behavior, not physical key delivery. The earlier synthetic probe discrepancy
 remains in [the detailed device report](../audit/DEVICE-VERIFICATION.md).
 
+## 2026-11-14 install and lifecycle follow-up
+
+A later clean Ternux-managed Ubuntu profile install completed and its XFCE
+desktop/audio reached running state on display `:2`; managed stop succeeded.
+Window-level input was not tested because the transient guest command did not
+have the X11 socket available. Alpine 3.24.4 profile installation failed after
+546 packages while extracting the WebKit JavaScriptCore library, despite three
+managed retries. Debian was restored and verified. Ubuntu and partial Alpine
+test guests were removed through `ternux distro uninstall`; see the
+[detailed device record](../audit/DEVICE-VERIFICATION.md).
+
 ## Not re-tested in this audit
 
 No GUI, X11, PulseAudio, IBus, or Termux session was restarted. This snapshot

@@ -47,6 +47,21 @@ lifecycle only; it does **not** qualify the Alpine desktop recipe. Ubuntu and
 fresh Ternux desktop installs for Ubuntu/Alpine remain unverified in this
 follow-up.
 
+## 2026-11-14 Ternux-managed Ubuntu and Alpine install lifecycle
+
+**Repository code head at test time:** `f789097` on the roadmap/device-evidence branch.
+**Installed host CLI:** Ternux `2.0.0`; existing Debian was retained throughout.
+
+| Check | Result |
+|---|---|
+| Clean Ubuntu profile install | `ternux install --yes --user sbj --locale en_US.UTF-8 --backend zink --shell bash --distros ubuntu,alpine --ui plain` completed Ubuntu's 11 phases, including desktop packages, Firefox ESR, Zink overlay, companion, user, launcher, and final verification. The rootfs identified itself as Ubuntu Resolute ARM64. |
+| Ubuntu desktop start/stop | `ternux start ubuntu` reached running XFCE on display `:2`; XFCE session, window manager, panel, and PulseAudio route were observed. `ternux stop ubuntu` returned cleanly. |
+| Window-level input | `xdotool` was installed inside Ubuntu for the authorized smoke test. `ternux distro exec` did not expose the X11 socket to that transient command, so no window enumeration or input event was established. The temporary guest was later removed. |
+| Alpine desktop install | Alpine 3.24.4 installed 546 packages, then failed extracting `usr/lib/libjavascriptcoregtk-4.1.so.0.8.10` from `webkit2gtk-4.1-2.48.7-r0` with `I/O error`. Ternux retried three times and stopped before desktop setup, companion, or launcher completion. Available host storage was ample; the specific extraction cause remains undetermined. |
+| Recovery and cleanup | `ternux install --resume --distro debian --yes ...` restored Debian as the selected guest; `ternux verify --json` passed. The Ubuntu and partial Alpine test guests were removed with `ternux distro uninstall ubuntu --yes` and `ternux distro uninstall alpine --yes`. A final Debian verification passed. |
+
+This run establishes Ubuntu profile installation and managed desktop start/stop on this device, but not window-level GUI input. Alpine's desktop recipe did not install successfully and is **not qualified** by this run. Both test guests were removed through Ternux-managed commands; Debian remains installed and verified.
+
 ## Live guest sessions
 
 | Guest | Display | Lifecycle | Termux:X11 | PulseAudio route | Firefox executable |

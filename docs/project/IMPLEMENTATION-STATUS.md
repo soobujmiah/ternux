@@ -12,7 +12,7 @@ it does not upgrade a design status into an implementation claim.
 | Area | State | Evidence / next gate |
 |---|---|---|
 | v2 Termux manager and distro CLI | 2.0.0 WITHDRAWN FROM DISTRIBUTION | Git tag retained for provenance; GitHub Release object removed and stable APT withdrawn; see [release status](RELEASE-STATUS.md) |
-| Debian / Ubuntu / Alpine desktop profiles | IMPLEMENTED; v2 qualified on reference device | Current live `tx verify` passed all three; device snapshot in [verification](DEVICE-VERIFICATION.md) |
+| Debian / Ubuntu / Alpine desktop profiles | Recipes implemented; qualification is mixed on reference device | Debian host `tx verify` passes; Ubuntu managed install/start/stop passed on 2026-11-14 but window input was not tested; Alpine install stopped on repeated WebKit extraction I/O errors and is not qualified. See [device verification](DEVICE-VERIFICATION.md) |
 | Ternux GTK/icon/XFWM defaults | IMPLEMENTED and observed active in all three live guests | Runtime XFConf queries returned Ternux/Ternux/Ternux and `|HMC`; broad third-party CSD coverage is not claimed |
 | Window viewport helper | IMPLEMENTED and deployed in all three guests | Identical SHA-256 `a990edf3a929eb1633e70ad86d4d2044f841677531e770fdff953cc81aed4017`; prior oversized-window evidence is linked in device audit |
 | IBus engine switch command | IMPLEMENTED | Direct helper cycles each guest's configured engine and restores original; physical Ctrl+Space delivery remains separately qualified |
