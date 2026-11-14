@@ -1,0 +1,7 @@
+event_id: commit-f244f0f3ff35-34fb844220567cf7
+repository: soobujmiah/ternux
+commit: f244f0f3ff3592af963dac8656bf749e4406c6ae
+kind: commit
+occurred_at: '2026-11-14T11:05:01Z'
+status: completed
+summary: 'Merge pull request #237 from soobujmiah/docs/managed-restart-device-evidence'
