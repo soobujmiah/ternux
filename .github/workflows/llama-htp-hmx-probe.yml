@@ -189,7 +189,7 @@ jobs:
           sed -n '1,40p' archive-contents.txt
 
       - name: Upload build artifact for review
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: ternux-llama-htp-sm8735-integer-hmx-v73-candidate
           path: |
@@ -242,7 +242,7 @@ jobs:
           path: candidate
 
       - name: Re-upload the exact candidate with extended retention
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: ternux-llama-htp-sm8735-integer-hmx-v73-candidate
           path: |

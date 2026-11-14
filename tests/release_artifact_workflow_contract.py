@@ -37,7 +37,7 @@ for filename, (workflow, artifact, publisher) in workflows.items():
     assert "needs: verify_source" in text, filename
     assert "Re-upload the exact inspected artifact with extended retention" in text, filename
     assert "actions/download-artifact@v8" in text, filename
-    assert "actions/upload-artifact@v6" in text, filename
+    assert "actions/upload-artifact@v7" in text, filename
     assert "  " + publisher + ":" in text, filename
 
 package_artifact = (ROOT / ".github/workflows/termux-apt-package.yml").read_text(encoding="utf-8")
@@ -57,7 +57,7 @@ assert "if: github.event_name != 'workflow_dispatch' || inputs.source_run_id == 
 assert "tools/verify_release_artifact_run.sh \"$SOURCE_RUN_ID\"" in hmx
 assert "run-id: ${{ inputs.source_run_id }}" in hmx
 assert "actions/download-artifact@v8" in hmx
-assert "actions/upload-artifact@v6" in hmx
+assert "actions/upload-artifact@v7" in hmx
 assert "retention-days: 90" in hmx
 
 print("release artifact workflow contract passed: prior-run reuse, provenance, 90-day retention, manual-only heavy builds and production Pages deploy with reuse")

@@ -15,7 +15,7 @@ build, publisher = jobs.split("  publish-preview:", 1)
 assert 'python3 tools/generate_llama_vulkan_component_manifest.py "$package" llama.cpp .' in build
 assert 'python3 tests/llama_vulkan_abi_audit.py "$package"' in build
 assert "Upload inspected candidate artifact" in build
-assert "actions/upload-artifact@v6" in build
+assert "actions/upload-artifact@v7" in build
 assert "gh release upload" not in build and "gh release create" not in build
 assert "github.event_name == 'workflow_dispatch'" in publisher
 assert "inputs.publish_preview == true" in publisher
