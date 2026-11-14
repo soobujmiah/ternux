@@ -85,8 +85,9 @@ candidate checks pass.
 ## Install from a published repository
 
 The signed repository bootstrap is conditional on an explicitly published
-channel. The v2 stable repository has been withdrawn, and the Pages-hosted stable
-and RC bootstrap/index URLs returned HTTP 404 on 2026-11-15. Do not present
+channel. The v2 stable repository has been withdrawn. The stable bootstrap/key/index
+return HTTP 404; the RC bootstrap returns HTTP 200, but its key/index return
+HTTP 404 as checked on 2026-11-15. Do not present
 `pkg install ternux` as a working install command until a signed repository is
 published and its clean Termux install is verified.
 

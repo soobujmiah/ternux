@@ -13,11 +13,11 @@ package and checksum data below are historical. Existing installations are
 unaffected, but stable APT no longer offers Ternux updates.
 
 The source installer is the supported install route; see the [main
-installation guide](../README.md). As checked on 2026-11-15, the Pages-hosted
-`/apt-rc` bootstrap and signed index also return HTTP 404. Therefore neither
-`pkg install ternux` from stable nor RC is currently available from the hosted
-repositories. The RC channel is reserved for opt-in candidate testing when it is
-published again.
+installation guide](../README.md). As checked on 2026-11-15, the stable APT
+bootstrap/key/index return HTTP 404. The RC bootstrap itself returns HTTP 200,
+but its signing key and signed index return HTTP 404. Therefore `pkg install
+ternux` is currently unavailable from either hosted repository. The RC channel
+is reserved for opt-in candidate testing once its signed repository is published.
 The next stable release remains in the v2 major. The complete platform
 architecture formerly planned for v3 is required before a new 2.x stable
 release; see the [project roadmap](project/PROJECT-ROADMAP.html).
@@ -45,11 +45,11 @@ values are retained for audit and do not provide a current download route.
 
 ## RC channel
 
-The RC setup instructions below are historical. The hosted bootstrap and index
-returned HTTP 404 on 2026-11-15, so these commands cannot currently configure a
-working package source. Do not run `pkg install ternux` expecting it to install
-from stable or RC. Once a candidate channel is published, its bootstrap URL and
-signed index must be checked before these instructions are restored.
+The RC bootstrap URL currently returns HTTP 200, but the hosted signing key and
+signed index return HTTP 404. These commands therefore cannot configure a working
+package source. Do not run `pkg install ternux` expecting it to install from
+stable or RC. Once a candidate channel is published, verify its key and signed
+index before restoring runnable instructions.
 
 For now, use the source installer from the project `main` branch. Routine
 website deployments preserve only APT channels that are currently published and
