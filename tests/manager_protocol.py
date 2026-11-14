@@ -123,11 +123,12 @@ status_result = {
     "installed_guest_count": 0, "running_desktops": [],
 }
 display_result = {
-    "schema_version": "1.2.0", "command": "manager.displays", "status": "ok",
+    "schema_version": "1.3.0", "command": "manager.displays", "status": "ok",
     "timestamp": "2026-11-13T09:00:00Z", "native_display": 0,
     "native_socket_present": False, "native_lock_present": False,
     "native_server_running": False,
     "native_occupied": False, "count": 1,
+    "migration_preview": {"status": "preview-only", "executor_implemented": False, "ready_to_execute": False},
     "guests": [{
         "name": "debian", "current_display": 0, "target_display": 1,
         "registry_display": 0, "registry_lifecycle": "READY",
@@ -135,6 +136,7 @@ display_result = {
         "target_server_running": True, "target_conflict": True,
         "migration_required": True, "target_owner": "debian",
         "target_owner_kind": "active-guest-assignment",
+        "migration_action": "move", "migration_blockers": ["active-session", "target-conflict"],
     }],
 }
 base_request = {
@@ -160,7 +162,7 @@ success = {"schema_version": "1.0.0", "request_id": request_id, "status": "ok", 
 display_success = {"schema_version": "1.0.0", "request_id": request_id, "status": "ok", "result": display_result}
 failure = {"schema_version": "1.0.0", "request_id": request_id, "status": "error", "error": error}
 check("successful response echoes request ID and typed result", lambda: validate(success, response_schema))
-check("successful display response supports payload schema 1.2.0", lambda: validate(display_success, response_schema))
+check("successful display response supports payload schema 1.3.0", lambda: validate(display_success, response_schema))
 check("error response echoes request ID and stable error", lambda: validate(failure, response_schema))
 check("response requires request ID for correlation", lambda: validate({k: v for k, v in success.items() if k != "request_id"}, response_schema), False)
 check("response cannot contain both result and error", lambda: validate({**success, "error": error}, response_schema), False)

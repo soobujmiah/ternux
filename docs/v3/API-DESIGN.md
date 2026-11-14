@@ -13,13 +13,17 @@ distinguishes a guest's saved current display from its v3 target, records live
 socket/lock/server occupancy, reports the uniquely matched active guest's
 saved display assignment where possible, and labels unresolved ownership
 explicitly. This is not OS-level socket-owner proof. Display payload schema is
-1.2.0. A lock-protected registry persists workspace ID, saved/target display,
-last lifecycle, and update time. The snapshot exposes its saved display and
+1.3.0. It includes a read-only per-guest migration preview (`initialize`,
+`keep`, or `move`) and blockers for active sessions, occupied targets,
+malformed registry files, or disagreement between a profile and its registry. The preview always reports that execution is unavailable and
+never changes guest state. A lock-protected registry persists workspace ID,
+saved/target display, last lifecycle, and update time. The snapshot exposes its saved display and
 last recorded lifecycle. Socket ownership remains a runtime observation, never
 a persisted claim. Other manager payloads remain 1.0.0. The command never
 changes or starts a session. These commands run directly in native Termux and do not need
-an installed guest. The HTTP adapter, event stream, jobs, and mutation endpoints
-remain designed contracts. The independent shared-core decision is recorded
+an installed guest. The browser's loopback adapter exposes only its read-only
+snapshot; the service-backed HTTP API, event stream, jobs, and mutation
+endpoints remain designed contracts. The independent shared-core decision is recorded
 in [ADR-0004](ADR/0004-shared-manager-contract.md).
 
 Run `tx manager serve` to start the optional foreground socket service. It
@@ -120,8 +124,8 @@ environment maps, or unrestricted filesystem paths.
 `tests/manager_protocol.py` checks schema fixtures; `tests/manager_service.py`
 exercises the real Unix socket, including malformed input, oversized requests,
 concurrent clients, graceful shutdown, stale-socket recovery, and safe
-duplicate-service refusal. No HTTP
-adapter, mutation endpoint, or graphical client is claimed.
+duplicate-service refusal. No service-backed HTTP adapter, mutation endpoint, or native Android client is
+claimed.
 
 ## Errors and compatibility
 

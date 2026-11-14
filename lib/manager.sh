@@ -48,6 +48,8 @@ tnx_manager_guest_json() {
 tnx_manager_display_entry_json() {
   local name="$1" current target socket_present=false lock_present=false server_running=false running=false
   local target_conflict=false migration_required=false occupied=false target_owner=null target_owner_kind=unoccupied
+  local migration_action=initialize migration_blockers="[" blocker_first=1 blocker
+  local -a blockers=()
   local registry_display=null registry_lifecycle=unregistered registry_rc=0
   local -n running_guest_ref="$2"
   current="$(tnx_distro_state_get "$name" display 2>/dev/null || true)"
@@ -70,7 +72,9 @@ tnx_manager_display_entry_json() {
     lock_present=true; occupied=true
   fi
   if tnx_x11_server_running_on_display "$target"; then server_running=true; occupied=true; fi
-  if [ "$current" != null ] && [ "$current" != "$target" ]; then migration_required=true; fi
+  if [ "$current" = null ]; then migration_action=initialize
+  elif [ "$current" = "$target" ]; then migration_action=keep
+  else migration_action=move; migration_required=true; fi
   if [ "$occupied" = true ] && ! { [ "$current" = "$target" ] && [ "$running" = true ] && [ "$server_running" = true ]; }; then target_conflict=true; fi
   if [ "$occupied" = true ]; then
     local candidate candidate_display owner_count=0
@@ -91,8 +95,19 @@ tnx_manager_display_entry_json() {
       target_owner_kind=unidentified
     fi
   fi
-  printf '{"name":"%s","current_display":%s,"target_display":%s,"registry_display":%s,"registry_lifecycle":"%s","running":%s,"target_socket_present":%s,"target_lock_present":%s,"target_server_running":%s,"target_conflict":%s,"migration_required":%s,"target_owner":%s,"target_owner_kind":"%s"}' \
-    "$name" "$current" "$target" "$registry_display" "$registry_lifecycle" "$running" "$socket_present" "$lock_present" "$server_running" "$target_conflict" "$migration_required" "$target_owner" "$target_owner_kind"
+  if [ "$migration_action" = move ]; then
+    if [ "$running" = true ]; then blockers+=("active-session"); fi
+    if [ "$target_conflict" = true ]; then blockers+=("target-conflict"); fi
+    if [ "$registry_lifecycle" = invalid ]; then blockers+=("invalid-registry")
+    elif [ "$registry_display" != null ] && [ "$registry_display" != "$current" ]; then blockers+=("registry-mismatch"); fi
+  fi
+  for blocker in "${blockers[@]}"; do
+    [ "$blocker_first" -eq 1 ] || migration_blockers+=","; blocker_first=0
+    migration_blockers+="\"$blocker\""
+  done
+  migration_blockers+="]"
+  printf '{"name":"%s","current_display":%s,"target_display":%s,"registry_display":%s,"registry_lifecycle":"%s","running":%s,"target_socket_present":%s,"target_lock_present":%s,"target_server_running":%s,"target_conflict":%s,"migration_required":%s,"target_owner":%s,"target_owner_kind":"%s","migration_action":"%s","migration_blockers":%s}' \
+    "$name" "$current" "$target" "$registry_display" "$registry_lifecycle" "$running" "$socket_present" "$lock_present" "$server_running" "$target_conflict" "$migration_required" "$target_owner" "$target_owner_kind" "$migration_action" "$migration_blockers"
 }
 
 tnx_manager_displays_json() {
@@ -113,7 +128,7 @@ tnx_manager_displays_json() {
   if [[ -e "${TMPDIR:-/data/data/com.termux/files/usr/tmp}/.X$TERNUX_NATIVE_DISPLAY-lock" || -L "${TMPDIR:-/data/data/com.termux/files/usr/tmp}/.X$TERNUX_NATIVE_DISPLAY-lock" ]]; then native_lock=true; native_occupied=true; fi
   if tnx_x11_server_running_on_display "$TERNUX_NATIVE_DISPLAY"; then native_server=true; native_occupied=true; fi
   tnx_json_init
-  tnx_json_add "schema_version" "1.2.0"
+  tnx_json_add "schema_version" "1.3.0"
   tnx_json_add "command" "manager.displays"
   tnx_json_add "status" "ok"
   tnx_json_add "timestamp" "$( __tnx_ts )"
@@ -124,6 +139,7 @@ tnx_manager_displays_json() {
   tnx_json_add_raw "native_occupied" "$native_occupied"
   tnx_json_add_raw "count" "$count"
   tnx_json_add_raw "guests" "$guests_json"
+  tnx_json_add_raw "migration_preview" '{"status":"preview-only","executor_implemented":false,"ready_to_execute":false}'
   tnx_json_end
 }
 

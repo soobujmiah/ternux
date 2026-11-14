@@ -41,7 +41,7 @@ class ControlCenterTest(unittest.TestCase):
             "rows = {\n"
             "'status': {'schema_version':'1.0.0','command':'manager.status','status':'available','guest_manager_available':True,'installed_guest_count':1,'running_desktops':['debian'],'timestamp':'2026-11-14T00:00:00Z'},\n"
             "'guests': {'schema_version':'1.0.0','command':'manager.guests','status':'ok','count':1,'guests':[{'name':'debian','state':'installed','desktop_profile':True,'display':1,'qualification':'device-qualified'}]},\n"
-            "'displays': {'schema_version':'1.2.0','command':'manager.displays','status':'ok','native_display':0,'count':1,'guests':[{'name':'debian','current_display':1,'target_display':1,'running':True,'target_conflict':False}]},\n"
+            "'displays': {'schema_version':'1.3.0','command':'manager.displays','status':'ok','native_display':0,'count':1,'migration_preview':{'status':'preview-only','executor_implemented':False,'ready_to_execute':False},'guests':[{'name':'debian','current_display':1,'target_display':1,'running':True,'target_conflict':False,'migration_action':'keep','migration_blockers':[]}]},\n"
             "'capabilities': {'schema_version':'1.0.0','command':'manager.capabilities','status':'ok','count':4,'operations':[]},\n"
             "}\n"
             "print(json.dumps(rows[command]))\n"
@@ -99,6 +99,7 @@ class ControlCenterTest(unittest.TestCase):
         self.assertEqual(payload["schema_version"], "1.0.0")
         self.assertTrue(payload["read_only"])
         self.assertEqual(payload["snapshot"]["guests"]["guests"][0]["name"], "debian")
+        self.assertEqual(payload["snapshot"]["displays"]["migration_preview"]["status"], "preview-only")
         self.assertEqual(self.log.read_text().splitlines(), [f"manager {name} --json" for name in control.COMMANDS])
 
     def test_manager_command_help_documents_dashboard_and_python_requirement(self):

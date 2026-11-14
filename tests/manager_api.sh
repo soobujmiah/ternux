@@ -20,6 +20,9 @@ if env TERNUX_STATE_DIR="$TMP/state" HOME="$TMP/home" TMPDIR="$TMP/tmp" bash -c 
   displays="$(TERNUX_JSON=1 tnx_cmd_manager displays)" || exit 1
   status="$(TERNUX_JSON=1 tnx_cmd_manager status)" || exit 1
   capabilities="$(TERNUX_JSON=1 tnx_cmd_manager capabilities)" || exit 1
+  [ "$(tnx_distro_state_get debian display)" = 0 ] || exit 1
+  [ "$(tnx_workspace_registry_get debian display)" = 0 ] || exit 1
+  [ "$(tnx_workspace_registry_get debian lifecycle)" = READY ] || exit 1
   printf "%s\n---DISPLAYS---\n%s\n---STATUS---\n%s\n---CAPS---\n%s\n" "$guests" "$displays" "$status" "$capabilities"
 ' _ "$ROOT" > "$TMP/output" 2>/dev/null && python3 - "$TMP/output" "$ROOT" <<'PY'
 import datetime,json,re,sys
@@ -75,7 +78,8 @@ generic=next(x for x in g['guests'] if x['name']=='image_1')
 assert generic['desktop_profile'] is False and generic['display'] is None
 assert generic['qualification']=='no-desktop-profile'
 assert all(x['state']=='installed' for x in g['guests'])
-assert d['command']=='manager.displays' and d['native_display']==0 and d['native_occupied'] is False
+assert d['command']=='manager.displays' and d['schema_version']=='1.3.0' and d['native_display']==0 and d['native_occupied'] is False
+assert d['migration_preview']=={'status':'preview-only','executor_implemented':False,'ready_to_execute':False}
 assert d['count']==3 and [x['name'] for x in d['guests']]==['alpine','debian','ubuntu']
 assert [(x['name'],x['target_display']) for x in d['guests']]==[('alpine',3),('debian',1),('ubuntu',2)]
 assert all(x['current_display'] is None and x['migration_required'] is False for x in d['guests'] if x['name']!='debian')
@@ -83,6 +87,8 @@ assert all(x['target_owner'] is None and x['target_owner_kind']=='unoccupied' fo
 debian=next(x for x in d['guests'] if x['name']=='debian')
 assert debian['registry_display']==0 and debian['registry_lifecycle']=='READY'
 assert debian['current_display']==0 and debian['migration_required'] is True
+assert debian['migration_action']=='move' and debian['migration_blockers']==['active-session']
+assert all(x['migration_action']=='initialize' for x in d['guests'] if x['name'] in ('alpine','ubuntu'))
 assert all(x['registry_display'] is None and x['registry_lifecycle']=='unregistered' for x in d['guests'] if x['name']!='debian')
 assert s['management_mode']=='direct-cli' and s['guest_manager_available'] is True
 assert s['installed_guest_count']==4 and s['running_desktops']==['debian','alpine']
@@ -112,6 +118,7 @@ assert obj['native_display']==0 and obj['native_occupied'] is True
 assert obj['native_lock_present'] is False
 assert guests['debian']['current_display']==0 and guests['debian']['target_display']==1
 assert guests['debian']['target_socket_present'] is True and guests['debian']['target_conflict'] is True
+assert guests['debian']['migration_action']=='move' and guests['debian']['migration_blockers']==['active-session','target-conflict']
 assert guests['debian']['target_owner'] == 'ubuntu' and guests['debian']['target_owner_kind'] == 'active-guest-assignment'
 assert guests['ubuntu']['target_display']==2 and guests['ubuntu']['target_server_running'] is True
 assert guests['ubuntu']['target_conflict'] is True
@@ -119,6 +126,7 @@ assert guests['ubuntu']['target_owner'] == 'alpine' and guests['ubuntu']['target
 assert guests['alpine']['current_display']==2 and guests['alpine']['target_display']==3
 assert guests['alpine']['target_lock_present'] is True
 assert guests['alpine']['migration_required'] is True and guests['alpine']['target_conflict'] is True
+assert guests['alpine']['migration_blockers']==['active-session','target-conflict']
 assert guests['alpine']['target_owner'] is None and guests['alpine']['target_owner_kind'] == 'unidentified'
 PY
 then ok 'display snapshot identifies occupied targets and required migration without changing assignments'; else not_ok 'display snapshot identifies occupied targets and required migration without changing assignments'; fi
@@ -141,6 +149,46 @@ assert debian['target_conflict'] is True
 assert debian['target_owner'] is None and debian['target_owner_kind']=='unidentified'
 PY
 then ok 'ambiguous display ownership is reported without selecting a guest'; else not_ok 'ambiguous display ownership is reported without selecting a guest'; fi
+
+if env TERNUX_STATE_DIR="$TMP/state-invalid-registry" HOME="$TMP/home-invalid-registry" TMPDIR="$TMP/tmp-invalid-registry" bash -c '
+  . "$1/lib/manager.sh"
+  tnx_distro_state_set debian display 0 || exit 1
+  registry="$(tnx_workspace_registry_path)"
+  printf "corrupt\n" > "$registry"
+  TNX_MANAGER_GUESTS=(debian)
+  _tnx_running_guest_sessions(){ :; }
+  pgrep(){ return 1; }
+  TERNUX_JSON=1 tnx_manager_displays_json
+  [ "$(tnx_distro_state_get debian display)" = 0 ] || exit 1
+  [ "$(cat "$registry")" = corrupt ] || exit 1
+' _ "$ROOT" > "$TMP/displays-invalid-registry" 2>/dev/null && python3 - "$TMP/displays-invalid-registry" <<'PY'
+import json,sys
+obj=json.load(open(sys.argv[1])); guest=obj['guests'][0]
+assert guest['migration_action']=='move'
+assert guest['registry_lifecycle']=='invalid'
+assert guest['migration_blockers']==['invalid-registry']
+assert obj['migration_preview']['ready_to_execute'] is False
+PY
+then ok 'migration preview blocks malformed registry without modifying assignments or registry'; else not_ok 'migration preview blocks malformed registry without modifying assignments or registry'; fi
+
+if env TERNUX_STATE_DIR="$TMP/state-registry-mismatch" HOME="$TMP/home-registry-mismatch" TMPDIR="$TMP/tmp-registry-mismatch" bash -c '
+  . "$1/lib/manager.sh"
+  tnx_distro_state_set debian display 0 || exit 1
+  tnx_workspace_registry_update debian STOPPED 1 || exit 1
+  TNX_MANAGER_GUESTS=(debian)
+  _tnx_running_guest_sessions(){ :; }
+  pgrep(){ return 1; }
+  TERNUX_JSON=1 tnx_manager_displays_json
+  [ "$(tnx_distro_state_get debian display)" = 0 ] || exit 1
+  [ "$(tnx_workspace_registry_get debian display)" = 1 ] || exit 1
+' _ "$ROOT" > "$TMP/displays-registry-mismatch" 2>/dev/null && python3 - "$TMP/displays-registry-mismatch" <<'PY'
+import json,sys
+obj=json.load(open(sys.argv[1])); guest=obj['guests'][0]
+assert guest['migration_action']=='move'
+assert guest['migration_blockers']==['registry-mismatch']
+assert guest['current_display']==0 and guest['registry_display']==1
+PY
+then ok 'migration preview blocks profile/registry mismatch without reconciling either source'; else not_ok 'migration preview blocks profile/registry mismatch without reconciling either source'; fi
 
 if env TERNUX_STATE_DIR="$TMP/state-errors" HOME="$TMP/home-errors" bash -c '
   . "$1/lib/manager.sh"

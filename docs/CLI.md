@@ -60,7 +60,7 @@ socket and exposes no TCP listener. Python 3 is optional for this command.
 **Availability:** the read-only commands and socket service are in current
 source; they are not in the withdrawn v2.0.0 APT package. JSON payloads use
 `schema_version` and `command` for compatibility. The display JSON uses schema
-`1.2.0`; a reported active guest assignment is not OS-level socket-owner
+`1.3.0`; a reported active guest assignment is not OS-level socket-owner
 proof.
 
 ```bash
@@ -70,11 +70,17 @@ tx manager displays [--json]
 tx manager capabilities [--json]
 ```
 
+`tx manager displays --json` includes a per-guest migration preview. It labels
+assignments as `initialize`, `keep`, or `move` and reports active-session,
+target-conflict, invalid-registry, or registry-mismatch blockers. The preview
+is not executable; it changes no guest assignment or session.
+
 ### `tx control`
 
 Open the mobile-first, read-only Control Center in a browser on this device. It
-shows manager health, installed guests, active desktops, display conflicts, and
-copyable host commands. It reads through the same Termux CLI payloads; it does
+shows manager health, installed guests, active desktops, display conflicts, a
+read-only display migration preview with blockers, and copyable host commands.
+It reads through the same Termux CLI payloads; it does
 not start or stop guests or edit state. The page is served from a random
 loopback-only port, uses a one-hour in-memory bearer token, rejects unexpected
 Host/Origin headers, and exposes no mutation routes. Press Ctrl-C in Termux to

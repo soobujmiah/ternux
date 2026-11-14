@@ -12,8 +12,8 @@ one-hour in-memory bearer token, strict Host/Origin checks, restrictive CSP,
 and exposes GET-only snapshots through the existing manager CLI. It does not
 use the Unix-socket service, expose mutation endpoints, start/stop guests, or
 provide a native Android APK. The dashboard is source-only; it is not in the
-withdrawn v2.0.0 package. The full Control Center, typed manager operations,
-service supervisor, durable jobs, and native Android UI remain incomplete.
+withdrawn v2.0.0 package. The full Control Center, typed mutation operations, service supervisor,
+durable jobs, and native Android UI remain incomplete.
 
 The manager CLI remains usable when the optional UI or socket service is
 stopped. Python 3 is optional and required only to run `tx control` or
@@ -41,8 +41,9 @@ browser tab's session storage so reloads work; closing the tab discards it.
 ## Dashboard scope
 
 The current first screen shows manager health, installed guests, active desktop
-assignments, display conflicts, device-qualification records, and copyable CLI
-commands. It labels itself read-only and does not imply that profile
+assignments, display conflicts, a non-executable guest display migration
+preview, device-qualification records, and copyable CLI commands. It labels
+itself read-only and does not imply that profile
 qualification is a live verification. Graphics/audio, storage grants, optional
 workloads, recent jobs, diagnostics, mutations, named progress, cancellation,
 and durable job records remain future dashboard work.

@@ -6,7 +6,7 @@ lang: "en"
 
 ## ADR-0005: Native-first display allocation
 
-- **Status:** Accepted; defaults, startup collision guards, and lifecycle registry implemented; migration pending.
+- **Status:** Accepted; defaults, startup collision guards, lifecycle registry, and read-only migration preview implemented; migration executor pending.
 - **Date:** 2026-11-13.
 - **Decision owners:** Ternux project owner.
 
@@ -56,6 +56,9 @@ processes, and inferred owner class remain live observations; the registry does
 not claim OS-level socket ownership. Desktop startup
 checks for an occupied socket, X lock, or matching server process and refuses
 to reuse it. The read-only `tx manager displays` command reports current and
-target assignments, occupied target paths, and whether migration is required.
-The live v2 mapping is not migrated automatically. Native workspace lifecycle
-and staged migration remain open.
+target assignments, occupied target paths, and whether migration is required. Schema 1.3.0 includes a per-guest
+read-only preview action and blockers. It is explicitly not executable; active
+guests, occupied target displays, and malformed registry state remain visible
+as blockers. A profile/registry mismatch is also reported without reconciling
+or overwriting either record. The live v2 mapping is not migrated automatically. Native
+workspace lifecycle and migration execution remain open.

@@ -9,14 +9,14 @@ lang: "en"
 **Last reviewed:** 2026-11-14. This list is ordered by dependency and includes
 only work that remains open.
 
-1. Display registry persistence is implemented: it stores workspace identity,
-   current/target display, last lifecycle, and update time, with saved display
-   and lifecycle exposed in the read-only snapshot. Implement staged migration
-   next. This source revision's read-only
-   report matches occupied targets to a unique running guest's saved display
-   assignment and labels other collisions as native-reserved or unidentified.
-   This is not OS-level socket-owner proof. Live display IDs remain unchanged
-   pending the migration gate.
+1. Display registry persistence and a migration preview are implemented. The
+   preview identifies per-guest `initialize`/`keep`/`move` actions and marks
+   active sessions, occupied targets, or invalid registry state as blockers.
+   It is read-only and cannot execute a migration. Next, design and test a
+   recoverable executor that stages targets, preserves live sessions until an
+   explicit switch, and rolls back without changing existing assignments on
+   failure. The display report's owner classification remains best-effort, not
+   OS-level socket-owner proof.
 2. Extend `tx control` from the read-only browser snapshot into the full
    Control Center: service-backed session handling, diagnostics, graphics/audio,
    storage grants, optional workloads, accessible mobile panels, and native

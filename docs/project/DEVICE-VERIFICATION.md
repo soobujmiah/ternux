@@ -51,6 +51,18 @@ managed retries. Debian was restored and verified. Ubuntu and partial Alpine
 test guests were removed through `ternux distro uninstall`; see the
 [detailed device record](../audit/DEVICE-VERIFICATION.md).
 
+## 2026-11-14 read-only display migration preview
+
+On the Xiaomi Redmi Turbo 4 Pro (Android 16, ARM64, Adreno 825), the source
+implementation at commit `71562a28adced8dd8ad163d1651b961ea3770a4b` was queried
+with `TERNUX_LIB_DIR="$PWD/lib" bash ./bin/ternux manager displays --json`.
+Schema 1.3.0 reported Debian `:0 → :1` as `move` with an `active-session`
+blocker, while Ubuntu `:2` and Alpine `:3` were `keep`. The top-level preview
+reported `preview-only`, `executor_implemented: false`, and
+`ready_to_execute: false`. No guest was stopped, restarted, or reassigned.
+Disposable tests also verified that malformed registry data and a profile /
+registry mismatch are reported without rewriting either record.
+
 ## Not re-tested in this audit
 
 No GUI, X11, PulseAudio, IBus, or Termux session was restarted. This snapshot
