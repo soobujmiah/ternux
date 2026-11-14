@@ -18,7 +18,7 @@
           <span><b>TERN<span>UX</span></b><small>CONTROL CENTER</small></span>
         </a>
         <div class="top-actions">
-          <span class="read-only"><span class="live-dot"></span>READ ONLY</span>
+          <span class="local-control"><span class="live-dot"></span>LOCAL CONTROL</span>
           <button id="refresh" class="refresh" type="button" aria-label="Refresh status">
             <span aria-hidden="true">↻</span><span class="refresh-label">Refresh</span>
           </button>
@@ -57,14 +57,14 @@
         <section class="lower-grid">
           <article class="panel">
             <div class="panel-title"><span class="panel-icon">⌘</span><div><p class="eyebrow">QUICK COMMANDS</p><h2>Manage from Termux</h2></div></div>
-            <p class="panel-copy">This dashboard never starts or stops guests. Run a command in Termux when you are ready.</p>
+            <p class="panel-copy">Start or stop a desktop guest from its card. Ternux shows the current state and asks you to confirm the exact action first.</p>
             <div class="command-row"><code>tx manager status --json</code><button data-copy="tx manager status --json" aria-label="Copy status command">COPY</button></div>
             <div class="command-row"><code>tx manager displays --json</code><button data-copy="tx manager displays --json" aria-label="Copy display command">COPY</button></div>
             <div class="command-row"><code>tx doctor --json</code><button data-copy="tx doctor --json" aria-label="Copy diagnostics command">COPY</button></div>
           </article>
           <article class="panel info-panel">
-            <div class="panel-title"><span class="panel-icon">i</span><div><p class="eyebrow">ABOUT THIS VIEW</p><h2>Read only, by design</h2></div></div>
-            <p>This screen reads local Ternux status. It does not change guest state, storage grants, packages, or device permissions.</p>
+            <div class="panel-title"><span class="panel-icon">i</span><div><p class="eyebrow">ABOUT THIS VIEW</p><h2>Actions stay scoped</h2></div></div>
+            <p>Only installed Ternux desktop profiles can be started or stopped here. Storage grants, packages, guest files, and Android permissions are not changed.</p>
             <div class="security-note"><span class="secure-icon">⌑</span><span><b>On-device connection</b><small>Loopback only · no cloud · no LAN listener</small></span></div>
             <a class="text-link" href="https://soobujmiah.github.io/ternux/docs/USAGE.html">Open the Ternux guide <span aria-hidden="true">↗</span></a>
           </article>

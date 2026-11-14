@@ -325,3 +325,74 @@ READY, X11 running and PulseAudio route-ready for the same guest PIDs
 deployment for main commit `7b7ea43` succeeded in run `43456239621`; the
 homepage and `/docs/v3/API-DESIGN.html` returned HTTP 200 and included the
 updated manager/display status and schema link.
+
+
+## V2 workspace migration recovery — 2026-11-14 12:42 UTC (working branch)
+
+The live v2-to-target display migration preview initially reported Debian as
+ready while Ubuntu and Alpine still held the shared workspace lock. The source
+planner now blocks migration when another managed session is active. After
+stopping all three guests, the exact fresh Debian migration plan applied
+successfully and changed its saved display from `:0` to `:1`.
+
+The first post-migration Debian start exposed a generated-launcher mismatch:
+the profile said `:1`, but its launcher still invoked `:0`, so XFCE startup
+failed safely and Ternux recorded the guest as `FAILED`. The start path now
+regenerates a current launcher whenever its embedded display differs from the
+saved guest assignment. Running the working source regenerated Debian's
+launcher to `TNX_DISPLAY=":1"` and started the desktop successfully. Ubuntu
+and Alpine were then restarted successfully on `:2` and `:3`.
+
+A fresh `manager displays --json` at 12:42 UTC reported Debian, Ubuntu and
+Alpine as `READY` and running on `:1`, `:2` and `:3`, with no target conflicts;
+`ternux verify --json` passed on the Termux host. The focused suite passed
+190/190, the Control Center suite 20/20, documentation checks 5,773 assertions
+with 559 internal links and 23 bilingual pairs, website formatting passed, and
+the static site built 79 pages. The migrated Debian display assertion required
+a quoting correction in the nested-shell test fixture; live launcher behavior
+was already correct. Browser rendering and physical UI confirmation remain
+untested because this Termux runtime has no browser binary or `xdotool`.
+
+## Control Center guest-action adapter — 2026-11-14 12:11 UTC (working branch)
+
+A local Control Center server was started from the uncommitted checkout with
+`TERNUX_LIB_DIR` pointing at the same source, so both its manager snapshots and
+fixed-argument lifecycle invocations used this working tree. An authenticated
+same-origin API harness fetched a state-bound plan, submitted the exact
+one-use confirmation and idempotency key, then polled the durable job record.
+Ubuntu and Alpine each completed `stop` and `start` with terminal job state
+`SUCCEEDED`; after the final singleton-lock and concurrent-confirmation changes,
+Ubuntu completed another `stop`/`start` cycle. A fresh manager display snapshot
+confirmed all three desktops running afterward (Alpine `:3`, Debian's existing session `:0`, Ubuntu `:2`).
+This verifies the local backend against the real Termux host and guests; it is
+not a visual/browser interaction test.
+
+The first Ubuntu restart attempt was refused because its stopped display left
+a stale socket/lock. The source API initially blocked any displayed conflict;
+that was too strict because the manager CLI can prove and remove a stale socket
+safely. The API now delegates that final decision to the manager. Retrying
+through the source CLI removed only the proven stale Ubuntu `:2` socket/lock
+and restored the desktop; the subsequent Control Center API stop/start cycle
+also passed. Debian remains intentionally blocked in the Control Center while
+its saved display migration is pending; no Debian lifecycle action was issued.
+The CLI remains the documented path to stop, apply its migration plan, and
+start Debian on its target display.
+
+`python3 -m unittest tests.control_center -v` passed 20/20 after adding
+concurrent-confirmation and singleton-service coverage. The focused suite passed
+190/190 before the final Control Center refinements; it is being rerun for the
+current change set. `python3 tests/docs_check.py` passed 5,773 assertions, 559
+internal links, and 23 bilingual page pairs. `node --check` and `git diff --check` passed. Android
+`DISPLAY` was unset and no browser binary or `xdotool` was installed, so the
+browser's rendered UI and physical confirmation dialog were not exercised.
+
+## Post-migration Control Center cycle — 2026-11-14 12:56 UTC
+
+From the same source checkout, the authenticated loopback API accepted a fresh
+state-bound plan and one-use confirmation for Debian `stop`, then Debian
+`start`. Both durable jobs reached terminal state `SUCCEEDED`. The subsequent
+`manager displays --json` snapshot reported Debian `:1`, Ubuntu `:2`, and
+Alpine `:3` all READY/running with no target conflicts. This closes the earlier
+12:11 note that Debian actions were guarded pending migration; it exercises the
+API/action path, not a rendered browser click or Android confirmation dialog.
+The Control Center was stopped cleanly after the check.

@@ -53,16 +53,16 @@ package, and it does not qualify physical Android keyboard input.
 | Native manager read-only JSON CLI | `main` has status, guest, capability, and display payloads; display reporting was source-device invoked | The installed v2.0.0 package returns `Unknown command: manager`; source evidence does not promote the released package |
 | v3 workspace display allocation | `main` defaults target native `:0`, Debian `:1`, Ubuntu `:2`, Alpine `:3`; collision guards and read-only current/target report implemented and tested | Live v2 mapping remains `:0/:1/:2`; migration is required and intentionally not performed |
 | Native Unix-socket manager service | Explicit foreground, read-only service implemented in current source; device and integration-tested | Not in released v2.0.0 package; no supervisor; the source dashboard is separate from this socket service |
-| Local Control Center dashboard | `tx control` provides a read-only browser snapshot on loopback; source integration tests cover token, Host/Origin, CSP, and CLI reads | Not in released v2.0.0 package; no native Android UI, guest mutations, supervisor, or device-browser visual test |
+| Local Control Center dashboard | Current working source adds confirmation-bound start/stop for installed Ternux desktops, durable jobs, and job polling alongside loopback snapshots | Not in withdrawn v2.0.0; this working branch has backend integration tests, while device-browser actions, native Android UI, supervisor, and cancellation remain unverified/incomplete |
 | CPU/Vulkan LLM workload | Optional installer path and separate device evidence exist for the declared workload/model profile | Preview/optional scope; no broad model, memory, performance, or device guarantee |
 
 ## Documented but not implemented
 
 | Capability | Current state |
 |---|---|
-| Full native Control Center | First read-only browser dashboard exists in current source; full dashboard, native Android client, service-backed sessions, actions and diagnostics remain incomplete |
-| Manager-service authorization and service-owned HTTP adapter | Unix peer-UID authorization exists; the separate read-only dashboard has a one-hour session key and Host/Origin checks. Mutating service sessions, CSRF protection, and service-owned HTTP adapter are unimplemented |
-| Guest lifecycle mutations through the v3 API | Designed; current v3 CLI payloads are read-only |
+| Full native Control Center | Partial working-source browser dashboard now has typed desktop actions and durable jobs; full dashboard, native Android client, service-backed sessions, and diagnostics remain incomplete |
+| Manager-service authorization and service-owned HTTP adapter | Unix peer-UID authorization exists; the separate browser adapter has a one-hour session key, Host/Origin checks, and action-specific CSRF protection. Service-owned HTTP adapter and authenticated service sessions remain unimplemented |
+| Guest lifecycle mutations through the broader manager API | Limited browser start/stop slice exists in working source; general service/API mutation contracts remain incomplete |
 | Unified v3 Compute, AI, Device Bridge, and Workspace orchestration | Architecture exists; no v3 orchestrator or broker implementation |
 | Model registry, metadata/checksum lifecycle, local inference server management | Architecture and LAI boundary specified; no unified v3 model manager/service |
 | Workspace templates, snapshot/recovery UI, and extension SDK | Roadmap/design only; no v3 implementation |

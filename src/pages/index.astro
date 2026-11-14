@@ -282,16 +282,18 @@ import RenderBench from "../components/RenderBench.astro";
               The v2.0.0 GitHub release and stable APT distribution were
               withdrawn on 2026-11-14; the source tag is retained for
               provenance. Debian, Ubuntu and Alpine remain the three supported
-              guest profiles. Current main source also includes four read-only
+              guest profiles. Current source also includes four read-only
               manager CLI commands, a foreground Unix-socket service, and `tx
-              control`, a read-only browser dashboard bound to loopback
-              (optional Python 3). These are not in the withdrawn v2.0.0
-              package. The next stable release remains in the v2 major and
-              includes the full platform architecture formerly planned for v3: a
-              complete manager and Control Center, workspace, compute, AI,
-              Device Bridge and extensions. The current `tx control` is
-              read-only and covers only the first dashboard slice. Each
-              acceptance gate must pass before publication.
+              control`, a loopback browser dashboard with confirmed desktop
+              start/stop actions and durable local job records (optional Python
+              3). These are not in the withdrawn v2.0.0 package. The next stable
+              release remains in the v2 major and includes the full platform
+              architecture formerly planned for v3: a complete manager and
+              Control Center, workspace, compute, AI, Device Bridge and
+              extensions. The Control Center remains a partial source
+              implementation; device-browser action validation, service
+              supervision, diagnostics and full platform panels remain open.
+              Each acceptance gate must pass before publication.
             </p>
           </div>
           <div class="profile-grid">

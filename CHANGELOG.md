@@ -12,7 +12,9 @@ Notable changes to ternux. Dates are ISO 8601.
 
 ## [Unreleased]
 
-No changes recorded yet.
+### Control Center
+
+- Added loopback-only, confirmation-bound start/stop actions for installed Ternux desktop guests, with idempotent durable job records, restart reconciliation, a 30-day terminal-job retention window, and display-migration safety guards. The partial implementation is source-only and is not in the withdrawn v2.0.0 package; device-browser rendering remains unverified.
 
 ## [2.0.0] - 2026-11-13
 

@@ -6,14 +6,22 @@ lang: "en"
 
 ## Native Control Center
 
-**Status: PARTIAL IMPLEMENTATION.** `tx control` now starts a mobile-first,
-read-only local browser dashboard from Termux. It uses a random loopback port, a
-one-hour in-memory bearer token, strict Host/Origin checks, restrictive CSP,
-and exposes GET-only snapshots through the existing manager CLI. It does not
-use the Unix-socket service, expose mutation endpoints, start/stop guests, or
-provide a native Android APK. The dashboard is source-only; it is not in the
-withdrawn v2.0.0 package. The full Control Center, typed mutation operations, service supervisor,
-durable jobs, and native Android UI remain incomplete.
+**Status: PARTIAL IMPLEMENTATION.** `tx control` starts a mobile-first local
+browser dashboard from Termux. It uses a random loopback port, a one-hour
+in-memory bearer token, restrictive CSP, and existing manager CLI snapshots.
+Installed Ternux desktop profiles also have typed start/stop actions: the client
+requests a state-bound plan, presents an explicit confirmation, submits a
+one-use confirmation with same-origin and CSRF checks, and receives a durable
+local job ID. The adapter invokes only fixed `start|stop GUEST` CLI arguments;
+it does not accept shell text, install/uninstall, generic OCI guests, paths, or
+environment overrides. Durable job records use restrictive permissions and are
+marked `INTERRUPTED` for state reconciliation if the service exits mid-action. Terminal jobs are pruned after 30 days; active jobs are retained. A private
+nonblocking host lock allows only one dashboard service instance so startup
+recovery cannot mark another live instance's jobs interrupted.
+Backend integration tests exist; actual device-browser action validation remains
+open. Native Android UI, service supervision, cancellation, diagnostics, and the
+full panel set are not implemented. This source feature is not in the withdrawn
+v2.0.0 package.
 
 The manager CLI remains usable when the optional UI or socket service is
 stopped. Python 3 is optional and required only to run `tx control` or
@@ -32,30 +40,31 @@ The native workspace reserves display `:0`; guest desktop displays begin at
   to the page in the URL fragment, never in an HTTP request or referrer. The
 client removes the fragment immediately and keeps the key only in the current
 browser tab's session storage so reloads work; closing the tab discards it.
-- The first dashboard only reads existing manager CLI JSON. It has no guest
-  mutation routes and does not require the socket service. Native Android UI
-  and service-backed web transport remain future clients of the versioned API.
+- Dashboard snapshots read existing manager CLI JSON. Lifecycle mutations use
+  separate typed HTTP routes and still do not require the socket service. Native
+  Android UI and service-backed web transport remain future clients of the
+  versioned API.
 - The CLI can call the core directly when the service is stopped, so recovery
   does not depend on `txd`.
 
 ## Dashboard scope
 
-The current first screen shows manager health, installed guests, active desktop
+The current screen shows manager health, installed guests, active desktop
 assignments, display conflicts, a non-executable guest display migration
-preview, device-qualification records, and copyable CLI commands. It labels
-itself read-only and does not imply that profile
-qualification is a live verification. Graphics/audio, storage grants, optional
-workloads, recent jobs, diagnostics, mutations, named progress, cancellation,
-and durable job records remain future dashboard work.
+preview, device-qualification records, and copyable CLI commands. Desktop cards
+can start or stop an installed Ternux desktop and poll its durable job record.
+Qualification labels are records, not live verification. Graphics/audio,
+storage grants, optional workloads, logs, diagnostics, cancellation, and native
+Android UI remain future dashboard work.
 
 ## Local API and browser safety
 
-The current browser client has no mutation endpoints, uses a restrictive
-content security policy, same-origin/Host checks, a short-lived bearer token,
-no wildcard CORS, and no query-string token. The HTTP adapter is loopback-only.
-Future mutations still require typed authorization, same-origin checks,
-CSRF-resistant tokens, idempotency, immutable preview plans, and durable
-journaling. Socket/file permissions stay limited to the Termux app UID. The
+The browser client uses a restrictive content security policy, same-origin/Host
+checks, a short-lived bearer token, no wildcard CORS, and no query-string token.
+Lifecycle POST routes additionally require the bearer token, exact local Origin,
+CSRF header, typed inputs, a state-bound plan, a one-use confirmation, and an
+idempotency key. Journal records are private to the Termux app UID. The HTTP
+adapter is loopback-only; jobs invoke only fixed CLI argv and never shell input. The
 service must never accept a guest-provided path without resolving it beneath
 an allowlisted root.
 

@@ -10,15 +10,16 @@ alt_url: "/docs/project/NEXT-ACTIONS.html"
 **শেষ পর্যালোচনা:** 2026-11-14। Stable channel withdrawn থাকবে; এই তালিকা পরের
 v2-major release-এর অসম্পূর্ণ implementation ও qualification কাজ দেখায়।
 
-1. পূর্ণ native Control Center শেষ করা: authenticated ও confirmation-bound
-   lifecycle action, log, diagnostics, graphics/audio/storage/workload panel,
-   accessible mobile layout এবং কম resource-ব্যবহারের idle profile যোগ করা।
-   Current source dashboard read-only; Python বা browser না থাকলেও CLI চলবে।
+1. আংশিক native Control Center এগিয়ে নেওয়া: working source-এ authenticated,
+   confirmation-bound desktop start/stop ও durable job record আছে। Device browser-এ
+   যাচাই, log, diagnostics, graphics/audio/storage/workload panel, accessible mobile
+   layout ও কম resource-ব্যবহারের idle profile সম্পূর্ণ করা বাকি। Python বা browser
+   না থাকলেও CLI চলবে।
 2. Manager service-এর optional supervision যোগ করা—startup, health, stop ও crash
    recovery-সহ। Service update-এ guest session restart করা যাবে না।
-3. Durable progress, safe cancellation ও confirmation-bound plan-সহ typed,
-   idempotent lifecycle job সম্পূর্ণ করা; service বন্ধ থাকলে CLI দিয়ে recovery
-   চালাতে হবে। Per-guest state ও unrelated PRoot guest অক্ষত রাখতে হবে।
+3. Typed, idempotent lifecycle job-এ durable progress ও interruption recovery
+   আছে; cancellation, retained-job policy এবং service বন্ধ থাকলে CLI recovery
+   সম্পূর্ণ করতে হবে। Per-guest state ও unrelated PRoot guest অক্ষত রাখতে হবে।
 4. Workspace acceptance matrix শেষ করা: Debian, Ubuntu ও Alpine-এ clean install,
    update, resume, restart, stop ও uninstall। Multi-guest install-এর আগে shared
    shell, প্রতিটি username ও workload সংগ্রহের বর্তমান precollection contract
@@ -34,15 +35,13 @@ v2-major release-এর অসম্পূর্ণ implementation ও qualifica
 ## সম্পন্ন source slice: display migration
 
 Native display registry ও explicit migration executor source-এ implement করা
-হয়েছে। `tx manager migrate --apply sha256:PLAN_ID` state-bound plan আবার যাচাই
-করে exclusive lock নেয়; active guest বা unsafe target থাকলে থামে। Journal rollback
-ও `--recover` সমর্থন করে। Focused migration regression এবং তিন guest-এর
-lifecycle/browser CI PR #233 ও merge commit
-`376abe08a936c2fcbf161fc779d3c101e8255e99`-এ pass করেছে। Reference device-এ
-Debian, Ubuntu ও Alpine session তখন চলছিল, তাই live display assignment switch
-চালানো হয়নি; saved `:0/:2/:3` অপরিবর্তিত আছে। Owner classification best-effort,
-OS-level socket ownership-এর প্রমাণ নয়।
+হয়েছে। Plan exclusive lock-এ revalidate হয়; active guest, অন্য managed session-এর
+shared lock বা unsafe target থাকলে থামে। Journal rollback ও `--recover` সমর্থন করে।
+2026-11-14-এ সব guest থামিয়ে reference device-এ migration হয়; Debian launcher
+`:1`-এ refresh করে Debian, Ubuntu, Alpine-কে `:1/:2/:3`-এ READY করা হয়। পূর্ণ
+clean install/update/resume/restart/stop/uninstall matrix বাকি। Owner classification
+best-effort, OS-level socket ownership-এর প্রমাণ নয়.
 
-Read-only Unix-socket service ও browser dashboard source feature; withdrawn
-2.0.0 package-এ নেই। এই roadmap implementation record, release বা publication
+Read-only Unix-socket service ও desktop action-সহ browser dashboard-এর বর্তমান
+working-source slice source feature; withdrawn 2.0.0 package-এ নেই। এই roadmap implementation record, release বা publication
 অনুমোদন নয়।

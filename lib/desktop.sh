@@ -242,7 +242,8 @@ tnx_cmd_start_impl() {
     tnx_step "Starting ternux desktop..."
   fi
 
-  if [ ! -f "$launcher_path" ] || ! grep -q '^# TERNUX_DESKTOP_LAUNCHER=21$' "$launcher_path"; then
+  if [ ! -f "$launcher_path" ] || ! grep -q '^# TERNUX_DESKTOP_LAUNCHER=21$' "$launcher_path" ||
+     ! grep -Fqx -- "TNX_DISPLAY=\"$display\"" "$launcher_path"; then
     # CLI package upgrades must refresh the generated launcher too. It carries
     # process matching, audio routing and narrowed guest bind behavior.
     if ! declare -F tnx_phase_launcher >/dev/null 2>&1; then

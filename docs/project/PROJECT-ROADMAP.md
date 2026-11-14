@@ -48,17 +48,17 @@ A phase is complete only when its acceptance criteria have reproducible evidence
 ## Current implementation evidence
 
 Current source contains native manager operations, a foreground Unix-socket
-service, an initial loopback-only read-only browser dashboard (tx control),
-and an explicit journaled display migration executor. Migration focused tests,
-three-guest lifecycle/browser CI, and exact-main post-merge CI passed; the live
-reference-device switch remains unapplied while its guest sessions run. The full
-Control Center and service supervision remain incomplete. Multi-guest onboarding
-collects the shared shell, each selected guest username, and workload choice
-before the first guest transaction. Debian, Ubuntu, and Alpine are installed and
-currently running on the reference device. The 2026-11-14 main-source managed restart,
-synthetic GUI input, and short three-guest soak passed; the clean browser matrix
-also passed in CI. These checks do not complete the broader clean lifecycle or
-release gates. Details are in [implementation status](IMPLEMENTATION-STATUS.md),
+service, a loopback dashboard with confirmation-bound desktop start/stop, and an
+explicit journaled display migration executor. On 2026-11-14 the reference
+device migration was applied after all guests were stopped: Debian moved to
+`:1`, then Debian, Ubuntu, and Alpine restarted READY on `:1/:2/:3`. The source
+planner now blocks migration while another managed guest holds the shared
+lifecycle lock. This proves one reference-device migration and restart, not the
+full clean install/update/recovery/uninstall matrix. The Control Center backend
+has live stop/start evidence for Ubuntu and Alpine; Debian has live CLI restart
+evidence after migration, while browser-rendered interaction remains unverified.
+The full Control Center, service supervision, and broader workspace gates remain
+incomplete. Details are in [implementation status](IMPLEMENTATION-STATUS.md),
 [current-state audit](../audit/CURRENT-STATE.md), and [device verification](../audit/DEVICE-VERIFICATION.md).
 
 ## Next actions

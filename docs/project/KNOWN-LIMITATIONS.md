@@ -24,11 +24,12 @@ lang: "en"
   unqualified capabilities.
 - HTP/HMX and QNN artifacts remain experimental unless a later release
   explicitly changes that status with hardware and correctness evidence.
-- The read-only manager API is implemented as direct CLI operations and an
-  explicit foreground Unix-socket service in current source. A first
-  loopback-only, read-only browser dashboard is available as `tx control` and
-  requires optional Python 3. Neither is present in the withdrawn v2.0.0 package.
-  The full Control Center, service supervisor, Device Bridge, and platform
+- The manager API currently exposes read-only CLI operations and an explicit
+  foreground Unix-socket service. `tx control` adds a loopback browser dashboard
+  and typed, confirmation-bound start/stop actions for installed desktop profiles,
+  with durable local job records; it requires optional Python 3 and remains
+  source-only, absent from the withdrawn v2.0.0 package. Device-browser action
+  validation, cancellation, service supervision, Device Bridge, and platform
   workload orchestration remain incomplete.
 - The installed v2.0.0 doctor can select a stale saved distro instead of the
   active guest, and Ubuntu's default renderer diagnostic can miss its isolated

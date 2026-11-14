@@ -81,14 +81,15 @@ Migration নিজে desktop stop বা restart করে না।
 
 ### `tx control`
 
-এই device-এর browser-এ mobile-first read-only Control Center খুলুন। এতে manager-এর
-স্বাস্থ্য, installed guest, active desktop, display conflict, read-only migration preview
-এবং copy করার host command দেখায়। তথ্য Termux CLI payload থেকে আসে; এটি guest
-start/stop বা state পরিবর্তন করে
-না। Page-টি random loopback-only port-এ চলে, এক ঘণ্টার in-memory bearer token ব্যবহার
-করে, অপ্রত্যাশিত Host/Origin header প্রত্যাখ্যান করে এবং কোনো mutation route রাখে না।
-বন্ধ করতে Termux-এ Ctrl-C চাপুন। Python 3 optional: `pkg install python`। Browser না
-খুলে local link দেখাতে `--no-open` ব্যবহার করুন।
+এই device-এর browser-এ mobile-first Control Center খুলুন। এতে manager-এর স্বাস্থ্য,
+installed guest, active desktop, display conflict, migration preview এবং copy করার host
+command দেখায়। Installed Ternux desktop guest-এর জন্য state-bound plan ও browser-এ
+স্পষ্ট confirmation নিয়ে start বা stop request করা যায়; প্রতিটি request-এর অগ্রগতি local
+job record-এ থাকে। Generic OCI image install/uninstall এখানে নেই। Loopback-only server
+এক ঘণ্টার in-memory bearer token, action-এর জন্য same-origin ও CSRF check, এবং নির্দিষ্ট
+CLI argument ব্যবহার করে। Termux-এ Ctrl-C দিলে server বন্ধ হয়; অসমাপ্ত job পরেরবার
+চালু হলে status মিলিয়ে দেখার জন্য চিহ্নিত হয়। Python 3 optional: `pkg install python`।
+Browser না খুলে local link দেখাতে `--no-open` ব্যবহার করুন।
 
 ```bash
 tx control

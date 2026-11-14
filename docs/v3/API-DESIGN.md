@@ -21,9 +21,10 @@ saved/target display, last lifecycle, and update time. The snapshot exposes its 
 last recorded lifecycle. Socket ownership remains a runtime observation, never
 a persisted claim. Other manager payloads remain 1.0.0. The command never
 changes or starts a session. These commands run directly in native Termux and do not need
-an installed guest. The browser's loopback adapter exposes only its read-only
-snapshot; the service-backed HTTP API, event stream, jobs, and mutation
-endpoints remain designed contracts. The independent shared-core decision is recorded
+an installed guest. The browser's loopback adapter exposes the read-only snapshot plus a limited
+desktop start/stop action and durable job-status endpoints. The broader
+service-backed HTTP API, event stream, cancellation, and workload/device
+mutation endpoints remain designed contracts. The independent shared-core decision is recorded
 in [ADR-0004](ADR/0004-shared-manager-contract.md).
 
 Run `tx manager serve` to start the optional foreground socket service. It
@@ -36,13 +37,14 @@ service starts from removing a socket during startup. Python 3 is optional
 and needed only when the service is explicitly started (`pkg install python`).
 The Unix-socket service does not auto-start or expose a TCP/HTTP listener. The
 separate `tx control` process binds a temporary HTTP listener on `127.0.0.1`
-only while the dashboard is open; it serves read-only snapshots and stops on
-Ctrl-C.
+only while the dashboard is open; it serves snapshots and typed desktop
+lifecycle routes, and stops on Ctrl-C.
 Direct CLI JSON snapshots keep their existing command-specific schemas.
 JSON consumers should key compatibility off `schema_version` and `command`;
 service responses echo `request_id` for correlation. The browser snapshot
 wrapper is defined by `schemas/control-center-snapshot-v1.schema.json` and served
-at `GET /api/v1/snapshot`; no POST/PUT/DELETE operations are exposed by `tx control`.
+at `GET /api/v1/snapshot`. The limited action API is described below; PUT and
+DELETE are not supported.
 
 ## Transport
 
@@ -56,15 +58,37 @@ operation-inappropriate arguments fail closed. A future v1 minor may add
 response fields; incompatible request changes require a new major version.
 
 The current `tx control` web client uses a temporary HTTP listener bound only
-to `127.0.0.1`, rather than exposing the Unix socket or listening on LAN. It
-has no mutation routes. A future service-owned HTTP adapter must retain the
-same boundary.
+to `127.0.0.1`, rather than exposing the Unix socket or listening on LAN. Its
+lifecycle routes are limited to installed Ternux desktop profiles and fixed
+start/stop operations. A future service-owned HTTP adapter must retain the same
+boundary.
 Protocol version is negotiated with `GET /v1/meta` or the equivalent socket
 method. Unix socket parent directories are private to the Termux UID (mode
 `0700`) and the socket is mode `0600`; clients cannot nominate a socket path.
 Web mutations additionally require a short-lived session token, same-origin
 checks, and CSRF protection. The service remains stopped until the user
 explicitly runs `tx manager serve`.
+
+## Current Control Center lifecycle routes
+
+The current source browser adapter exposes these routes independently of the
+Unix-socket service:
+
+- `POST /api/v1/guest-plans` with exactly `{"operation":"start|stop","guest":"NAME"}` returns a state-bound plan and short-lived confirmation token.
+- `POST /api/v1/guest-actions` with exactly `{"plan_id":"sha256:…","confirmation":"…","idempotency_key":"…"}` validates unchanged state, journals a job, and queues only the fixed `ternux start NAME` or `ternux stop NAME` argv.
+- `GET /api/v1/jobs/{uuid}` returns the bounded public job fields. A server restart marks queued/running records `INTERRUPTED` and requires a status check before retry.
+
+All action requests require the current bearer token, exact local Origin, and
+`X-Ternux-CSRF` token; JSON content type, body size, and duplicate JSON keys are
+validated. Plans fail closed when the guest needs a display migration. Start execution
+remains delegated to the manager CLI, which may remove a proven stale display
+socket and refuses an unsafe live conflict. The
+idempotency key is scoped to the local Termux UID and retained in the private
+job record for the 30-day terminal-job retention period. Old terminal records
+are pruned; active jobs are retained. A private process lock prevents concurrent
+Control Center instances from incorrectly reconciling one another's running
+jobs. Jobs are not cancelable in this slice. These routes are source-only
+and are not included in withdrawn v2.0.0.
 
 ## Resource shapes
 
@@ -124,8 +148,9 @@ environment maps, or unrestricted filesystem paths.
 `tests/manager_protocol.py` checks schema fixtures; `tests/manager_service.py`
 exercises the real Unix socket, including malformed input, oversized requests,
 concurrent clients, graceful shutdown, stale-socket recovery, and safe
-duplicate-service refusal. No service-backed HTTP adapter, mutation endpoint, or native Android client is
-claimed.
+duplicate-service refusal. The limited desktop lifecycle HTTP routes are covered by `tests/control_center.py`;
+no general service-backed HTTP adapter, job event stream, cancellation, workload
+mutation, or native Android client is claimed.
 
 ## Errors and compatibility
 

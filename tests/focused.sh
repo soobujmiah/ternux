@@ -2568,13 +2568,24 @@ if env TERNUX_STATE_DIR="$TMP/state-desktop-start" HOME="$TMP/home-desktop-start
     tnx_canonical_backend(){ echo virgl; }
     tnx_state_get(){ case "$1" in backend) echo virgl;; user) echo alice;; locale) echo en_US.UTF-8;; esac; }
     tnx_phase_launcher(){
-      local launcher_dir="$TERNUX_STATE_DIR/distros/debian"
+      local launcher_dir="$TERNUX_STATE_DIR/distros/debian" display
+      display=":$(tnx_distro_display debian)"
       mkdir -p "$launcher_dir"
-      cp "$MOCK_LAUNCHER" "$launcher_dir/launcher.sh"
-      sed -i "1a# TERNUX_DESKTOP_LAUNCHER=21" "$launcher_dir/launcher.sh"
+      {
+        head -n 1 "$MOCK_LAUNCHER"
+        printf "# TERNUX_DESKTOP_LAUNCHER=21\nTNX_DISPLAY=\"%s\"\n" "$display"
+        tail -n +2 "$MOCK_LAUNCHER"
+      } > "$launcher_dir/launcher.sh"
       chmod +x "$launcher_dir/launcher.sh"
       ln -sfn "$launcher_dir/launcher.sh" "$HOME/x.sh"
     }
+    mkdir -p "$TERNUX_STATE_DIR/distros/debian"
+    tnx_distro_state_set debian display 1 || exit
+    {
+      head -n 1 "$MOCK_LAUNCHER"
+      printf "# TERNUX_DESKTOP_LAUNCHER=21\nTNX_DISPLAY=\":0\"\n"
+      tail -n +2 "$MOCK_LAUNCHER"
+    } > "$TERNUX_STATE_DIR/distros/debian/launcher.sh"
     fixture_pid=""; fixture_start=""; fixture_pgid=""
     cleanup_managed_fixture(){
       if [[ "$fixture_pid" =~ ^[0-9]+$ ]] && [ "$fixture_pgid" = "$fixture_pid" ] &&
@@ -2600,6 +2611,7 @@ if env TERNUX_STATE_DIR="$TMP/state-desktop-start" HOME="$TMP/home-desktop-start
     read -r fixture_pid fixture_start fixture_pgid < "$TERNUX_STATE_DIR/session/desktop.pid.identity" || exit
     grep -q session-started "$TERNUX_STATE_DIR/session/desktop.log" || exit
     grep -q "^# TERNUX_DESKTOP_LAUNCHER=21$" "$HOME/x.sh" || exit
+    grep -Fqx "TNX_DISPLAY=\":1\"" "$HOME/x.sh" || exit
     grep -q "util-linux zsh git curl" "$1/lib/phases.sh" || exit
     tnx_cmd_stop >/dev/null || exit
     [ "$(tnx_workspace_registry_get debian lifecycle)" = STOPPED ] || exit
@@ -2612,9 +2624,9 @@ if env TERNUX_STATE_DIR="$TMP/state-desktop-start" HOME="$TMP/home-desktop-start
     done
     [[ -z "$state" || "$state" == Z* ]]
   ' _ "$ROOT" "$managed_launcher"; then
-  ok "desktop start detaches with session PID/log and stop terminates its process group"
+  ok "desktop start refreshes a migrated display launcher, detaches, logs, and stops by process group"
 else
-  not_ok "desktop start detaches with session PID/log and stop terminates its process group"
+  not_ok "desktop start refreshes a migrated display launcher, detaches, logs, and stops by process group"
 fi
 
 # A surviving XFCE session with a missing/stale supervisor marker must be reused,

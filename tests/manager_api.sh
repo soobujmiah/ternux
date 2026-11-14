@@ -123,6 +123,26 @@ assert a==b and a!=c
 PY2
 then ok 'display plan IDs are stable for unchanged state and change when saved assignments change'; else not_ok 'display plan IDs are stable for unchanged state and change when saved assignments change'; fi
 
+if env TERNUX_STATE_DIR="$TMP/state-other-active" HOME="$TMP/home-other-active" TMPDIR="$TMP/tmp-other-active" bash -c '
+  . "$1/lib/manager.sh"
+  tnx_has_cmd(){ [ "$1" = proot-distro ]; }
+  proot-distro(){ printf "debian\nubuntu\n"; }
+  _tnx_running_guest_sessions(){ printf "ubuntu\n"; }
+  pgrep(){ return 1; }
+  tnx_distro_state_set debian display 0 || exit 1
+  tnx_distro_state_set ubuntu display 2 || exit 1
+  tnx_workspace_registry_update debian STOPPED 0 || exit 1
+  tnx_workspace_registry_update ubuntu READY 2 || exit 1
+  TERNUX_JSON=1 tnx_cmd_manager displays
+' _ "$ROOT" > "$TMP/displays-other-active" 2>/dev/null && python3 - "$TMP/displays-other-active" <<'PY'
+import json,sys
+obj=json.load(open(sys.argv[1])); guests={item['name']:item for item in obj['guests']}
+assert guests['debian']['running'] is False
+assert guests['debian']['migration_blockers']==['other-active-session']
+assert obj['migration_preview']['ready_to_execute'] is False
+PY
+then ok 'display migration plan blocks while a different managed desktop retains the shared lock'; else not_ok 'display migration plan blocks while a different managed desktop retains the shared lock'; fi
+
 if env TERNUX_STATE_DIR="$TMP/state-collisions" HOME="$TMP/home-collisions" TMPDIR="$TMP/collision-tmp" bash -c '
   mkdir -p "$TMPDIR/.X11-unix"
   : > "$TMPDIR/.X11-unix/X0"; : > "$TMPDIR/.X11-unix/X1"; : > "$TMPDIR/.X3-lock"
