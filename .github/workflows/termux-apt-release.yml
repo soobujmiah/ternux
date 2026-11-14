@@ -164,7 +164,7 @@ jobs:
           cache: npm
 
       - name: Configure Pages
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6
 
       - name: Build Ternux website
         run: |
