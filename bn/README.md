@@ -8,8 +8,8 @@
 
 ### ARM64 Android ফোনে Linux desktop — root লাগে না
 
-[![সংস্করণ](https://img.shields.io/badge/version-2.0.0-00e5a0?style=flat-square)](https://github.com/soobujmiah/ternux/releases/tag/v2.0.0)
-[![Signed Termux APT](https://img.shields.io/badge/Termux-APT%20package-58c98d?style=flat-square)](../docs/TERMUX-APT.md)
+[![সংস্করণ](https://img.shields.io/badge/version-2.0.0-00e5a0?style=flat-square)](https://github.com/soobujmiah/ternux/tree/v2.0.0)
+[![Termux APT v2 প্রত্যাহৃত](https://img.shields.io/badge/Termux%20APT-v2%20withdrawn-gray?style=flat-square)](../docs/TERMUX-APT.md)
 [![Debian · Ubuntu · Alpine](https://img.shields.io/badge/v2%20desktop-Debian%20%7C%20Ubuntu%20%7C%20Alpine-77e3ad?style=flat-square)](../docs/audit/FEATURE-MATRIX.md)
 [![v3 roadmap](https://img.shields.io/badge/v3-roadmap%20published-38bdf8?style=flat-square)](../docs/v3/README.md)
 [![Android ARM64](https://img.shields.io/badge/Android-ARM64-38bdf8?style=flat-square)](../docs/INSTALLATION.md)
@@ -98,17 +98,12 @@ pkg update -y && pkg install -y curl && curl -fsSL https://raw.githubusercontent
 pkg update -y && pkg install -y wget && wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
 ```
 
-Termux-এর নিজস্ব package manager দিয়ে install করতে signed stable APT source
-একবার bootstrap করুন। Script key যাচাই করে host CLI install করবে; এরপর guest
-desktop setup করতে `tx install` চালান। Update ও আলাদা RC channel-এর জন্য
-[APT installation guide](docs/TERMUX-APT.md) দেখুন।
-
-```bash
-pkg install curl gnupg
-curl -fsSLo "$TMPDIR/ternux-bootstrap.sh" \
-  https://soobujmiah.github.io/ternux/apt/bootstrap.sh
-bash "$TMPDIR/ternux-bootstrap.sh"
-```
+Ternux v2.0.0 GitHub release ও stable APT distribution 2026-11-14-এ
+withdraw করা হয়েছে। Provenance-এর জন্য `v2.0.0` source tag রাখা হয়েছে।
+উপরের source installer ব্যবহার করুন; signed `/apt-rc` channel কেবল opt-in
+candidate test-এর জন্য, production install source নয়। Architecture ও acceptance
+gate সম্পূর্ণ হলে পরের stable release target v3। [APT channel status](../docs/TERMUX-APT.md)
+ও [v2 release record](../docs/V2-RELEASE-READINESS.md) দেখুন।
 
 বেস ইনস্টলে প্রায় ৪–৪.৫ GB storage লাগে। Download ও package cache-এর জন্য আরও
 কিছু খালি জায়গা রাখুন।
@@ -238,13 +233,13 @@ profile বেছে Enter চাপুন; পরের category-ভিত্�
 বাছুন; Space বা item-এর
 নম্বর দিয়ে একাধিক নির্বাচন toggle করুন, Enter-এ plan review করুন, `q` দিলে
 শুধু base desktop থাকে। `--yes` prompt বাদ দিয়ে Debian base profile install করে।
-Ternux v2.0.0 প্রকাশিত এবং signed stable APT repository চালু আছে। উপরের
-command দিয়ে একবার bootstrap করুন; পরের install ও update সাধারণ `pkg` command-এ
-হবে। GitHub release-এ `.deb` package ও checksum manifest-ও আছে। Current
-`main` source-এর চারটি read-only `tx manager` command v2.0.0 package-এ নেই;
-foreground Unix-socket service আছে, তবে background supervisor ও graphical
-Control Center এখনো implemented নয়। Channel-এর
-বিস্তারিত [Termux APT guide](../docs/TERMUX-APT.md), আর publication evidence
-[v2 release ও বর্তমান audit](../docs/release/V2-RELEASE-REPORT.md)-এ দেখুন। HTP/HMX, QNN এবং
+Ternux v2.0.0 GitHub release ও stable APT distribution 2026-11-14-এ withdraw
+হয়েছে; source tag ও package checksum historical [release report](../docs/V2-RELEASE-REPORT.md)-এ আছে।
+পরের stable target v3; এতে [v3 architecture](../docs/V3-ARCHITECTURE.md)-এ বর্ণিত
+Control Center ও manager platform কাজ অন্তর্ভুক্ত। Current source-এ চারটি
+read-only `tx manager` command এবং foreground-only local Unix-socket API-এর জন্য
+`tx manager serve` আছে। Background supervisor ও graphical Control Center এখনো
+তৈরি হয়নি। [APT channel status](../docs/TERMUX-APT.md) দেখুন।
+HTP/HMX, QNN এবং
 বিস্তৃত accelerator qualification experimental বা follow-up কাজ; [accelerator
 plan](../docs/ACCELERATOR-RELEASE-PLAN.md)-এ বর্তমান সীমা আছে।

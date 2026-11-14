@@ -8,8 +8,8 @@
 
 ### A Linux desktop for ARM64 Android — no root required
 
-[![Version](https://img.shields.io/badge/version-2.0.0-00e5a0?style=flat-square)](https://github.com/soobujmiah/ternux/releases/tag/v2.0.0)
-[![Signed Termux APT](https://img.shields.io/badge/Termux-APT%20package-58c98d?style=flat-square)](docs/TERMUX-APT.md)
+[![Version](https://img.shields.io/badge/version-2.0.0-00e5a0?style=flat-square)](https://github.com/soobujmiah/ternux/tree/v2.0.0)
+[![Termux APT v2 withdrawn](https://img.shields.io/badge/Termux%20APT-v2%20withdrawn-gray?style=flat-square)](docs/TERMUX-APT.md)
 [![Debian · Ubuntu · Alpine](https://img.shields.io/badge/v2%20desktop-Debian%20%7C%20Ubuntu%20%7C%20Alpine-77e3ad?style=flat-square)](docs/audit/FEATURE-MATRIX.md)
 [![v3 roadmap](https://img.shields.io/badge/v3-roadmap%20published-38bdf8?style=flat-square)](docs/v3/README.md)
 [![Android ARM64](https://img.shields.io/badge/Android-ARM64-38bdf8?style=flat-square)](docs/INSTALLATION.md)
@@ -103,18 +103,12 @@ If `curl` is unavailable, use:
 pkg update -y && pkg install -y wget && wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
 ```
 
-To use Termux's native package manager instead, bootstrap the signed stable
-APT source once. The script verifies the repository key and installs the host
-CLI; then run `tx install` to provision a guest desktop. See the
-[APT installation guide](docs/TERMUX-APT.md) for updates and the separate RC
-channel.
-
-```bash
-pkg install curl gnupg
-curl -fsSLo "$TMPDIR/ternux-bootstrap.sh" \
-  https://soobujmiah.github.io/ternux/apt/bootstrap.sh
-bash "$TMPDIR/ternux-bootstrap.sh"
-```
+The Ternux v2.0.0 GitHub release and stable APT distribution were withdrawn
+on 2026-11-14. The `v2.0.0` source tag remains available for provenance. Use
+the source installer above; the signed `/apt-rc` channel remains for opt-in
+candidate testing and is not a production install source. The next stable
+release target is v3 after its architecture and acceptance gates are complete.
+See the [APT channel status](docs/TERMUX-APT.md) and [v2 release record](docs/V2-RELEASE-READINESS.md).
 
 The base install needs about 4–4.6 GB of storage. Keep extra temporary space for
 downloads and package caches.
@@ -258,15 +252,14 @@ one or more guest profiles (Space/number toggles, Enter confirms), then a
 categorized keyboard checklist for optional software; Space or item numbers
 toggle multiple choices, Enter reviews the plan, and `q` keeps the base desktop.
 `--yes` skips prompts and installs the Debian base profile, while explicit
-`--with-*` flags or `--all` select additional workloads. Ternux v2.0.0 is
-released, and the signed stable APT repository is live. Bootstrap it once with
-the commands above; later installs and updates use normal `pkg` commands. The
-GitHub release also includes the `.deb` and checksum manifest. The current
-source adds four read-only `tx manager` commands and `tx manager serve`
-for a foreground-only local Unix-socket API. The stable v2.0.0 package does
-not include them; a background supervisor and graphical Control Center are
-not implemented. See the
-[Termux APT guide](docs/TERMUX-APT.md) for channel details and the
-[v2 release report](docs/release/V2-RELEASE-REPORT.md) for publication and current-state evidence. HTP/HMX,
+`--with-*` flags or `--all` select additional workloads. The v2.0.0 GitHub
+release and stable APT distribution were withdrawn on 2026-11-14; its source tag
+and package checksums remain in the historical [release report](docs/V2-RELEASE-REPORT.md).
+The next stable target is v3, which includes the Control Center and manager
+platform work described in the [v3 architecture](docs/V3-ARCHITECTURE.md).
+Current source has four read-only `tx manager` commands and `tx manager serve`
+for a foreground-only local Unix-socket API. A background supervisor and
+graphical Control Center are not implemented yet. See the [APT channel status](docs/TERMUX-APT.md).
+HTP/HMX,
 QNN and wider accelerator qualification remain experimental or follow-up work;
 see the [accelerator plan](docs/ACCELERATOR-RELEASE-PLAN.md).

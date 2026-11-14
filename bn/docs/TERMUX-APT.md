@@ -1,15 +1,21 @@
 ---
-title: "Signed Termux APT repository থেকে Ternux install"
-description: "Ternux v2 repository signing key যাচাই করে pkg দিয়ে host CLI install করুন।"
+title: "Ternux Termux APT channel-এর বর্তমান অবস্থা"
+description: "Withdrawn Ternux v2 stable channel ও opt-in RC repository-এর বর্তমান অবস্থা।"
 lang: "bn"
 alt_url: "/docs/TERMUX-APT.html"
 ---
 
 
-Ternux 2.0.0-এর signed stable repository `/apt`-এ প্রকাশিত। Signed `/apt-rc`
-repository release-candidate qualification-এর জন্য আলাদা রাখা হয়েছে। Package
-Termux host CLI install করে; Linux guest বা desktop নিজে provision করে না।
-Desktop সেটআপে `tx install` চালান।
+Ternux v2.0.0 GitHub release ও signed stable APT distribution 2026-11-14-এ
+withdraw হয়েছে। Public `/apt` bootstrap, key, index ও package path এখন HTTP 404
+দেয়। Provenance-এর জন্য `v2.0.0` Git tag রাখা হয়েছে; নিচের package ও checksum
+তথ্য historical record। আগে থেকে install করা package অক্ষত আছে, তবে stable APT
+থেকে Ternux update আর পাওয়া যায় না।
+
+Signed `/apt-rc` channel কেবল opt-in candidate test-এর জন্য আছে; production
+install source হিসেবে এটি সমর্থিত নয়। পরের stable release target v3—এর
+architecture ও acceptance gate সম্পূর্ণ হওয়ার পরে। ততদিন [main installation
+guide](../README.md)-এর source installer ব্যবহার করুন।
 
 ## Trust fingerprint
 
@@ -25,60 +31,29 @@ E552 7F4D 5B83 037F F77B 65AE 5E89 4BBB 8116 8B1D
 private key GitHub Actions-এর `apt-release` environment-এ আছে; repository-তে
 শুধু public key প্রকাশ হবে।
 
-## Stable package install
+## Historical stable package তথ্য
 
-প্রথমে Termux-এর স্বাভাবিক repository থেকে bootstrap-এর ছোট prerequisite
-install করুন। আগে হাতে `apt full-upgrade` চালানো দরকার নেই: bootstrap package
-index refresh করে, আর `tx install` প্রয়োজনীয় Termux update/upgrade ও dependency
-setup চালায়। একই bootstrap curl অথবা wget—দুইভাবেই পাওয়া যায়:
+Withdraw হওয়া stable repository-তে `ternux_2.0.0_all.deb` ছিল; SHA-256
+`4ef03210c71e3d5671671e9a49fc83f6aebf7cdb5e5a28cb32db61d49e85c89f`। এগুলো
+audit-এর জন্য রাখা, বর্তমান download route নয়।
 
-```bash
-pkg update -y && pkg install -y curl gnupg
-curl -fsSLo "$TMPDIR/ternux-bootstrap.sh" \
-  https://soobujmiah.github.io/ternux/apt/bootstrap.sh
-bash "$TMPDIR/ternux-bootstrap.sh"
-```
+## Opt-in RC channel
 
-`wget` ব্যবহার করলেও একই bootstrap কাজ করে:
+শুধু candidate package ইচ্ছাকৃতভাবে test করলে RC bootstrap ব্যবহার করুন। আলাদা
+path থেকে নামিয়ে উপরের fingerprint যাচাই করে RC source configure করুন:
 
 ```bash
-pkg update -y && pkg install -y wget gnupg
-wget -qO "$TMPDIR/ternux-bootstrap.sh" \
-  https://soobujmiah.github.io/ternux/apt/bootstrap.sh
-bash "$TMPDIR/ternux-bootstrap.sh"
+pkg install curl gnupg
+curl -fsSLo "$TMPDIR/ternux-rc-bootstrap.sh" \
+  https://soobujmiah.github.io/ternux/apt-rc/bootstrap.sh
+bash "$TMPDIR/ternux-rc-bootstrap.sh" --channel rc --configure-only
+bash "$TMPDIR/ternux-rc-bootstrap.sh" --channel rc
 ```
 
-এই একবারের trust setup-এর পর সাধারণ Termux package command দিয়ে update করুন:
+RC repository stable channel থেকে আলাদা এবং এতে pre-release package থাকতে পারে;
+এটিকে stable update source হিসেবে ব্যবহার করবেন না। Project-এর `main` branch-এর
+source installer ব্যবহার করা যায়।
 
-```bash
-pkg update
-pkg upgrade ternux
-# অন্য Termux-এ repository bootstrap করার পরে:
-pkg install ternux
-```
-
-Script বারবার চালানো নিরাপদ; symlink করা APT configuration path বা উপরের
-fingerprint-এর সঙ্গে না-মেলা primary signing key প্রত্যাখ্যান করে। এটি কখনো
-`[trusted=yes]` ব্যবহার করে না।
-
-RC channel আলাদা এবং opt-in। Release candidate test করতে নিচের command দুটো
-ব্যবহার করুন:
-
-```bash
-bash "$TMPDIR/ternux-bootstrap.sh" --channel rc --configure-only
-bash "$TMPDIR/ternux-bootstrap.sh" --channel rc
-```
-
-Stable channel-এ ফিরতে উপরের stable bootstrap command চালান। Package install-এর
-পরে guest ও desktop
-setup করতে `tx install` চালান। `pkg upgrade ternux` host CLI update করে; guest
-remove বা reinstall করে না।
-
-Termux-এর নিজস্ব official package repository-তে Ternux গ্রহণ না করা পর্যন্ত
-একেবারে নতুন Termux setup-এ trust bootstrap ছাড়া `pkg install ternux` resolve
-করা সম্ভব নয়।
-
-Repository প্রকাশের পর সাধারণ website deploy বর্তমান APT signature ও প্রতিটি
-index/package checksum যাচাই করে signed tree-টি নতুন Pages artifact-এ রেখে দেয়।
-যাচাই ব্যর্থ বা অসম্পূর্ণ হলে website deploy থেমে যায়, তাই package repository
-নীরবে মুছে বা বদলে যায় না।
+সাধারণ website deploy-তে শুধু বর্তমানে প্রকাশিত APT channel থাকে। v2 stable
+signed tree ইচ্ছাকৃতভাবে অনুপস্থিত; opt-in RC tree সংরক্ষণের আগে signature ও
+checksum যাচাই হয়।

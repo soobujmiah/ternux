@@ -1,15 +1,22 @@
 ---
-title: "Install Ternux from the signed Termux APT repository"
-description: "Verify the Ternux v2 repository signing key and install the host CLI with pkg."
+title: "Ternux Termux APT channel status"
+description: "Current status of the withdrawn Ternux v2 stable channel and opt-in RC repository."
 lang: "en"
 alt_url: "/bn/docs/TERMUX-APT.html"
 ---
 
 
-The signed Ternux 2.0.0 stable repository is published at `/apt`. The signed
-`/apt-rc` repository remains available for release-candidate qualification.
-The package installs the Termux host CLI; it does not provision a Linux guest
-or desktop. After package installation, run `tx install` to set up the desktop.
+The Ternux v2.0.0 GitHub release and signed stable APT distribution were
+withdrawn on 2026-11-14. The public `/apt` bootstrap, key, index, and package
+paths now return HTTP 404. The `v2.0.0` Git tag is retained for provenance; its
+package and checksum data below are historical. Existing installations are
+unaffected, but stable APT no longer offers Ternux updates.
+
+The signed `/apt-rc` channel remains available only for opt-in candidate tests.
+It is not a supported production install source. Use the source installer in
+the [main installation guide](../README.md) until the next stable release.
+The next stable release target is v3, after its architecture and acceptance
+gates are complete.
 
 ## Trust fingerprint
 
@@ -26,61 +33,30 @@ The key is an RSA 4096 signing key created on 2026-11-06 and expires on
 2031-11-05. The protected private key is held in the `apt-release` GitHub
 Actions environment; only the public key will be published with the repository.
 
-## Install the stable package
+## Historical stable package details
 
-Install the small bootstrap prerequisites from the normal Termux repository.
-You do not need to run `apt full-upgrade` manually first: the bootstrap refreshes
-the package index, and `tx install` performs the normal Termux update/upgrade
-and dependency setup. Use curl or wget to fetch the same bootstrap:
+The withdrawn stable repository contained `ternux_2.0.0_all.deb`, SHA-256
+`4ef03210c71e3d5671671e9a49fc83f6aebf7cdb5e5a28cb32db61d49e85c89f`. These
+values are retained for audit and do not provide a current download route.
 
-```bash
-pkg update -y && pkg install -y curl gnupg
-curl -fsSLo "$TMPDIR/ternux-bootstrap.sh" \
-  https://soobujmiah.github.io/ternux/apt/bootstrap.sh
-bash "$TMPDIR/ternux-bootstrap.sh"
-```
+## Opt-in RC channel
 
-If you prefer wget:
+Use the RC bootstrap only when deliberately testing a candidate package. Fetch
+it from the separate path, verify the published fingerprint above, and configure
+the RC source explicitly:
 
 ```bash
-pkg update -y && pkg install -y wget gnupg
-wget -qO "$TMPDIR/ternux-bootstrap.sh" \
-  https://soobujmiah.github.io/ternux/apt/bootstrap.sh
-bash "$TMPDIR/ternux-bootstrap.sh"
+pkg install curl gnupg
+curl -fsSLo "$TMPDIR/ternux-rc-bootstrap.sh" \
+  https://soobujmiah.github.io/ternux/apt-rc/bootstrap.sh
+bash "$TMPDIR/ternux-rc-bootstrap.sh" --channel rc --configure-only
+bash "$TMPDIR/ternux-rc-bootstrap.sh" --channel rc
 ```
 
-The script is idempotent and refuses symlinked APT
-configuration paths or a signing key whose primary fingerprint does not match
-the value above. It never uses `[trusted=yes]`.
+The RC repository is separate from stable and may contain pre-release packages.
+Do not use it as a stable update source. The source installer remains available
+from the project `main` branch.
 
-After this one-time setup, manage Ternux with ordinary Termux package commands:
-
-```bash
-pkg update
-pkg upgrade ternux
-# On another Termux installation after bootstrapping the repository:
-pkg install ternux
-```
-
-After package installation, provision the desktop with `tx install` and follow
-the distro selection prompts. `pkg upgrade ternux` updates the host CLI without
-removing or reinstalling guest environments.
-
-The RC channel is opt-in and separate. Use these commands only when testing a
-release candidate:
-
-```bash
-bash "$TMPDIR/ternux-bootstrap.sh" --channel rc --configure-only
-bash "$TMPDIR/ternux-bootstrap.sh" --channel rc
-```
-
-Switch back to stable by rerunning the stable bootstrap command above.
-
-The project cannot make a brand-new Termux installation resolve `pkg install
-ternux` before this one-time trust setup unless Termux accepts Ternux into one
-of its own official package repositories.
-
-After publication, routine website deployments verify the currently published
-APT signature and every index/package checksum, then carry that signed tree into
-the new Pages artifact. A failed or incomplete verification stops the website
-deployment so it cannot silently remove or replace the package repository.
+Routine website deployments preserve only currently published APT channels.
+The signed v2 stable tree is intentionally absent; the opt-in RC tree is
+signature- and checksum-verified before preservation.
