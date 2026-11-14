@@ -2548,7 +2548,7 @@ TX_WRAPPER
   # works the same way as the standalone bootstrap, whose source tree is
   # available for the whole run.
   for local_lib in ternux-welcome.sh ternux-welcome-gui.py ternux-window-fit.lua \
-                   ternux-camera.py ternux-recorder.py ternux-panel-shortcuts.sh \
+                   ternux-camera.py ternux-recorder.py ternux-flashlight.py ternux-panel-shortcuts.sh \
                    ternux-install-firefox-esr.sh; do
     if [ -s "$resource_root/$local_lib" ]; then
       install -m 0644 "$resource_root/$local_lib" "$lib_dir/$local_lib" || {

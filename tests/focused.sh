@@ -728,6 +728,7 @@ required = {
     "lib/ternux/ternux-wallpaper.svg": "lib/ternux-wallpaper.svg",
     "lib/ternux/ternux-camera.py": "lib/ternux-camera.py",
     "lib/ternux/ternux-recorder.py": "lib/ternux-recorder.py",
+    "lib/ternux/ternux-flashlight.py": "lib/ternux-flashlight.py",
     "lib/ternux/ternux-panel-shortcuts.sh": "lib/ternux-panel-shortcuts.sh",
     "lib/ternux/ternux-install-firefox-esr.sh": "lib/ternux-install-firefox-esr.sh",
     "bin/tx": "bin/tx",
@@ -2875,7 +2876,8 @@ mkdir -p "$TMP/cli-fallback-source/ternux-pinned-source/bin" \
 cp "$ROOT/bin/ternux" "$ROOT/bin/tx" "$ROOT/bin/ternux-shell-shortcut" \
   "$TMP/cli-fallback-source/ternux-pinned-source/bin/"
 cp "$ROOT"/lib/*.sh "$TMP/cli-fallback-source/ternux-pinned-source/lib/"
-cp "$ROOT"/lib/ternux-welcome-gui.py "$ROOT"/lib/ternux-install-firefox-esr.sh \
+cp "$ROOT"/lib/ternux-welcome-gui.py "$ROOT"/lib/ternux-flashlight.py \
+  "$ROOT"/lib/ternux-install-firefox-esr.sh \
   "$TMP/cli-fallback-source/ternux-pinned-source/lib/"
 cp -a "$ROOT/lib/ternux-assets" "$ROOT/lib/licenses" \
   "$TMP/cli-fallback-source/ternux-pinned-source/lib/"
@@ -2900,6 +2902,7 @@ if [ "$cli_pin_commit" = "$boot_pin_commit" ] &&
    "$TMP/prefix-cli-fallback/bin/ternux" --version | grep -q "^ternux v2.0.0$" &&
    "$TMP/prefix-cli-fallback/bin/tx" --version | grep -q "^ternux v2.0.0$" &&
    [ -s "$TMP/prefix-cli-fallback/lib/ternux/ternux-welcome-gui.py" ] &&
+   [ -s "$TMP/prefix-cli-fallback/lib/ternux/ternux-flashlight.py" ] &&
    [ -x "$TMP/prefix-cli-fallback/bin/db" ] &&
    [ -x "$TMP/prefix-cli-fallback/bin/dbroot" ] &&
    [ -x "$TMP/prefix-cli-fallback/bin/ub" ] &&
