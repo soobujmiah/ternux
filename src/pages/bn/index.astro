@@ -229,41 +229,45 @@ import RenderBench from "../../components/RenderBench.astro";
             </p>
           </div>
           <div class="command">
-            <small>এক command · curl</small>
+            <small>নিরাপদ bootstrap · curl</small>
             <button
               type="button"
               data-copy
-              data-copy-value="curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash"
+              data-copy-value="apt update && apt full-upgrade -y && apt install curl -y && bash -o pipefail -c 'curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'"
             >
               কপি
             </button>
             <code>
-              curl -fsSL
+              apt update && apt full-upgrade -y && apt install curl -y && bash
+              -o pipefail -c 'curl -fsSL
               https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh
-              | bash
+              | bash'
             </code>
           </div>
           <div class="command">
-            <small>এক command · wget</small>
+            <small>নিরাপদ bootstrap · wget</small>
             <button
               type="button"
               data-copy
-              data-copy-value="wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash"
+              data-copy-value="apt update && apt full-upgrade -y && apt install wget -y && bash -o pipefail -c 'wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'"
             >
               কপি
             </button>
             <code>
-              wget -qO-
+              apt update && apt full-upgrade -y && apt install wget -y && bash
+              -o pipefail -c 'wget -qO-
               https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh
-              | bash
+              | bash'
             </code>
           </div>
           <p class="install-note">
-            curl ইনস্টল থাকলেও চালু না হলে wget-ও চালু কি না দেখুন। ইনস্টলার দুই
-            downloader-ই পরীক্ষা করে এবং curl ভাঙা থাকলে wget-এ যায়। দুটিই চালু
-            না হলে আগে <code>apt update && apt full-upgrade</code> চালান; তারপর{" "}
-            <code>curl --version</code> বা <code>wget --version</code> দিয়ে
-            পরীক্ষা করুন। Stable APT channel withdrawn;{" "}
+            এই command-গুলো downloader install-এর আগে{" "}
+            <code>apt full-upgrade</code> সম্পন্ন করে এবং <code>pipefail</code>{" "}
+            চালু রাখে—তাই download ব্যর্থ হলে সফল দেখাবে না। Termux-এর{" "}
+            <code>pkg</code> wrapper curl চায়; full upgrade-এর আগে{" "}
+            <code>pkg install curl</code> দেবেন না। আগের partial upgrade-এ curl
+            ভেঙে থাকলে উপরের apt-first command সেটি repair করে। Stable APT
+            channel withdrawn;{" "}
             <a href="/ternux/bn/docs/TERMUX-APT.html">
               বর্তমান channel status দেখুন ↗
             </a>

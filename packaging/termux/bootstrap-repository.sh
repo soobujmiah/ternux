@@ -7,6 +7,8 @@ readonly expected_fingerprint='E5527F4D5B83037FF77B65AE5E894BBB81168B1D'
 
 # A caller's toolchain LD_LIBRARY_PATH can shadow Termux's Bionic libraries.
 termux_pkg() { LD_LIBRARY_PATH= pkg "$@"; }
+termux_apt_get() { LD_LIBRARY_PATH= apt-get "$@"; }
+curl_usable() { command -v curl >/dev/null 2>&1 && curl --version >/dev/null 2>&1; }
 
 usage() {
   cat <<'HELP'
@@ -15,8 +17,9 @@ Configure the signed Ternux Termux APT repository and install its CLI.
 Usage:
   bash bootstrap-repository.sh [--channel stable|rc] [--configure-only]
 
-Requires curl or wget, gpg, pkg, and a native Termux PREFIX. The downloaded primary
-key is checked against the embedded full fingerprint before APT trusts it.
+Requires a working curl or wget, gpg, pkg, apt-get, and a native Termux PREFIX.
+The downloaded primary key is checked against the embedded full fingerprint
+before APT trusts it.
 The default channel is stable. The rc channel is for pre-release qualification.
 HELP
 }
@@ -46,12 +49,12 @@ if [[ -z "${PREFIX:-}" || ! -d "$PREFIX/etc/apt" ]]; then
 fi
 for tool in gpg pkg; do
   if ! command -v "$tool" >/dev/null 2>&1; then
-    printf 'Missing %s. Install prerequisites with: pkg install curl gnupg\n' "$tool" >&2
+    printf 'Missing %s. Run apt update && apt full-upgrade -y first, then install the prerequisite with apt.\n' "$tool" >&2
     exit 127
   fi
 done
 if ! command -v curl >/dev/null 2>&1 && ! command -v wget >/dev/null 2>&1; then
-  printf 'Missing curl and wget. Install one with: pkg install curl  (or: pkg install wget)\n' >&2
+  printf 'Missing curl and wget. Run apt update && apt full-upgrade -y, then apt install curl (or wget).\n' >&2
   exit 127
 fi
 
@@ -118,8 +121,29 @@ install -m 600 "$work_dir/ternux.list" "$source_file"
 printf 'Verified and configured the Ternux APT signing key.\n'
 
 if ((configure_only)); then
-  printf 'Next: pkg update && pkg install ternux\n'
+  printf 'Next: apt update && apt full-upgrade -y && apt install ternux\n'
   exit 0
 fi
-termux_pkg update
-termux_pkg install ternux
+if termux_pkg update; then
+  termux_pkg install ternux
+else
+  if curl_usable; then
+    printf 'pkg update failed while curl is runnable; check the configured Termux repository and retry.\n' >&2
+    exit 1
+  fi
+  printf 'pkg update failed and curl cannot start; repairing the rolling Termux package set with apt-get.\n' >&2
+  apt_options=(
+    -o Dpkg::Options::=--force-confold
+    -o Dpkg::Options::=--force-confdef
+  )
+  termux_apt_get update || exit 1
+  termux_apt_get full-upgrade -y "${apt_options[@]}" || exit 1
+  if ! curl_usable; then
+    termux_apt_get install -y "${apt_options[@]}" curl || exit 1
+  fi
+  curl_usable || {
+    printf 'curl is still unusable after apt-get recovery; Ternux was not installed.\n' >&2
+    exit 1
+  }
+  termux_apt_get install -y "${apt_options[@]}" ternux
+fi

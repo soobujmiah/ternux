@@ -272,10 +272,10 @@ replacement mechanism নয়।
 
 ```bash
 # পথ ক: Termux-এর সম্পূর্ণ package upgrade শেষ করুন:
-apt update && apt full-upgrade
+apt update && apt full-upgrade -y
 
 # পথ খ: wget চালু থাকলে সেটি দিয়ে installer নামান:
-wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
+apt update && apt full-upgrade -y && apt install wget -y && bash -o pipefail -c 'wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'
 ```
 
 `pkg update` শুধু package index রিফ্রেশ করে; আটকে থাকা package upgrade শেষ করে

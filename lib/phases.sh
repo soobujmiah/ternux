@@ -201,6 +201,20 @@ _tnx_install_core_packages() {
 
   tnx_termux_pkg install -y $apt_force $pkgs && return 0
 
+  # A package transaction can itself replace curl/OpenSSL and leave the host
+  # linker set inconsistent. Repair through apt-get before retrying pkg, whose
+  # wrapper invokes curl.
+  if ! _tnx_host_curl_smoke; then
+    tnx_warn "Core package installation left curl unusable; repairing Termux through apt-get before retrying pkg."
+    tnx_termux_apt_get update -y $apt_force &&
+      tnx_termux_apt_get full-upgrade -y $apt_force || return 1
+    if ! _tnx_host_curl_smoke; then
+      tnx_termux_apt_get install -y $apt_force curl || return 1
+    fi
+    _tnx_host_curl_smoke || return 1
+    tnx_termux_pkg install -y $apt_force $pkgs && return 0
+  fi
+
   # Retry with refresh and fix-missing on the current repository first
   LD_LIBRARY_PATH= apt-get update -y && tnx_termux_pkg install -y --fix-missing $apt_force $pkgs && return 0
 
@@ -222,11 +236,27 @@ _tnx_host_download_tools_smoke() {
   return 0
 }
 
+_tnx_host_curl_smoke() {
+  tnx_has_cmd curl && curl --version >/dev/null 2>&1
+}
+
+_tnx_repair_termux_package_stack() {
+  local apt_force="$1"
+  tnx_spin_run "Refresh Termux repositories with apt-get" tnx_termux_apt_get update -y $apt_force || return 1
+  tnx_spin_run "Repair Termux packages with full-upgrade" tnx_termux_apt_get full-upgrade -y $apt_force || return 1
+  if ! _tnx_host_curl_smoke; then
+    tnx_warn "curl is missing or still cannot start after full-upgrade; reinstalling it with apt-get."
+    tnx_spin_run "Install a working Termux curl" tnx_termux_apt_get install -y $apt_force curl || return 1
+  fi
+  _tnx_host_curl_smoke
+}
+
 # ---------------------------------------------------------------------------
 # Phase 2 — base Termux packages
 # ---------------------------------------------------------------------------
 tnx_phase_packages() {
   local rc=0
+  local package_stack_repaired=0
   local APT_FORCE="-o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -o APT::Color=1 -o Dpkg::Progress-Fancy=1"
   local TERMUX_PKG_NO_MIRROR_SELECT=1
 
@@ -241,16 +271,30 @@ tnx_phase_packages() {
   # `ternux storage grant DIRECTORY`; setup itself does not expose user files.
 
   if ! tnx_spin_run "Refresh Termux repositories" tnx_termux_pkg update -y $APT_FORCE; then
-    tnx_warn "pkg update failed; retrying the configured Termux source through apt-get."
-    tnx_spin_run "Refresh Termux repositories with apt-get" tnx_termux_apt_get update -y $APT_FORCE || rc=1
+    tnx_warn "pkg update failed; pkg depends on curl, so repairing the complete Termux package set through apt-get."
+    if _tnx_repair_termux_package_stack "$APT_FORCE"; then
+      package_stack_repaired=1
+    else
+      rc=1
+    fi
   fi
-  if ! tnx_spin_run "Upgrade installed Termux packages" tnx_termux_pkg upgrade -y $APT_FORCE; then
+  if [ "$rc" -eq 0 ] && [ "$package_stack_repaired" -eq 0 ] &&
+     ! tnx_spin_run "Upgrade installed Termux packages" tnx_termux_pkg upgrade -y $APT_FORCE; then
     tnx_warn "pkg upgrade failed; repairing the complete Termux package set with apt-get full-upgrade."
     if ! tnx_spin_run "Repair Termux packages with full-upgrade" tnx_termux_apt_get full-upgrade -y $APT_FORCE; then
       tnx_warn "apt-get full-upgrade failed; repairing interrupted dpkg configuration and retrying once."
       tnx_spin_run "Repair interrupted dpkg configuration" dpkg --configure -a --force-confold --force-confdef || true
       tnx_spin_run "Retry Termux full-upgrade" tnx_termux_apt_get full-upgrade -y $APT_FORCE || rc=1
     fi
+    package_stack_repaired=1
+  fi
+  if [ "$rc" -eq 0 ] && ! tnx_spin_run "Verify Termux curl after package upgrade" _tnx_host_curl_smoke; then
+    tnx_warn "curl became unusable during package upgrade; repairing Termux before any further pkg command."
+    _tnx_repair_termux_package_stack "$APT_FORCE" || rc=1
+  fi
+  if [ "$rc" -ne 0 ]; then
+    tnx_fail "Termux package recovery failed; no more pkg operations were attempted."
+    return 1
   fi
   tnx_spin_run "Enable X11 and TUR repositories" tnx_termux_pkg install -y $APT_FORCE x11-repo tur-repo || rc=1
   tnx_spin_run "Install the Termux:X11 client" bash -c "LD_LIBRARY_PATH= pkg install -y $APT_FORCE termux-x11-nightly || LD_LIBRARY_PATH= pkg install -y $APT_FORCE termux-x11" || rc=1

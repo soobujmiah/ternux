@@ -43,19 +43,58 @@ setsid() { return 0; }
 tnx_phase_packages auto
 grep -q '^pkg:update ' "$LOG"
 grep -q '^apt:update ' "$LOG"
-grep -q '^pkg:upgrade ' "$LOG"
 grep -q '^apt:full-upgrade ' "$LOG"
 grep -q '^smoke:1$' "$LOG"
+! grep -q '^pkg:upgrade ' "$LOG"
+
+# A successful pkg upgrade can still leave a new curl/libcurl with mismatched
+# libraries. Detect that before issuing any more pkg commands.
+mode=upgrade-breaks-curl
+curl_state=working
+smoke_count=0
+: > "$LOG"
+tnx_termux_pkg() {
+  printf 'pkg:%s\n' "$*" >> "$LOG"
+  case "$1" in
+    update) return 0 ;;
+    upgrade) curl_state=broken; return 0 ;;
+    install) [ "$curl_state" = working ] ;;
+  esac
+}
+tnx_termux_apt_get() {
+  printf 'apt:%s\n' "$*" >> "$LOG"
+  case "$1" in full-upgrade) curl_state=working ;; esac
+  return 0
+}
+_tnx_host_curl_smoke() {
+  printf 'curl-smoke:%s\n' "$curl_state" >> "$LOG"
+  [ "$curl_state" = working ]
+}
+_tnx_host_download_tools_smoke() { printf 'smoke\n' >> "$LOG"; return 0; }
+tnx_phase_packages auto
+upgrade_line="$(grep -n '^pkg:upgrade ' "$LOG" | head -1 | cut -d: -f1)"
+repair_line="$(grep -n '^apt:full-upgrade ' "$LOG" | head -1 | cut -d: -f1)"
+next_pkg_line="$(grep -n '^pkg:install ' "$LOG" | head -1 | cut -d: -f1)"
+test -n "$upgrade_line" && test -n "$repair_line" && test -n "$next_pkg_line"
+test "$upgrade_line" -lt "$repair_line" && test "$repair_line" -lt "$next_pkg_line"
+grep -q '^curl-smoke:broken$' "$LOG"
+grep -q '^curl-smoke:working$' "$LOG"
 
 mode=smoke-failure
 smoke_count=0
 : > "$LOG"
 tnx_termux_pkg() { printf 'pkg:%s\n' "$*" >> "$LOG"; return 0; }
+_tnx_host_download_tools_smoke() {
+  smoke_count=$((smoke_count + 1))
+  printf 'smoke:%s\n' "$smoke_count" >> "$LOG"
+  if [ "$mode" = smoke-failure ] && [ "$smoke_count" -eq 1 ]; then return 1; fi
+  return 0
+}
 tnx_phase_packages auto
 grep -q '^apt:update ' "$LOG"
 grep -q '^apt:full-upgrade ' "$LOG"
 grep -q '^smoke:2$' "$LOG"
-echo 'PASS: Termux package failures and broken download-tool linkage recover through apt-get full-upgrade'
+echo 'PASS: Termux package failures and curl/library mismatches recover through apt-get before further pkg operations'
 
 # A user with an already-installed Ternux host CLI must be able to repair the
 # exact curl/OpenSSL mismatch without first relying on the broken curl binary.

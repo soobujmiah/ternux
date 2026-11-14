@@ -91,22 +91,23 @@ renderer depends on the device and Android graphics stack, so check it with
    adds terminal themes and fonts. Ternux desktop apps capture live microphone audio
    on demand through Termux's OpenSL ES source; the API's recorder is file-based.
    Install Termux and its add-ons from the same source.
-2. In Termux, run:
+2. Termux uses a rolling package set. The one-command bootstrap completes a
+   full upgrade before it installs curl and runs Ternux; `pkg update` alone
+   does not upgrade linked libraries:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
+apt update && apt full-upgrade -y && apt install curl -y && bash -o pipefail -c 'curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'
 ```
 
-If `curl` is unavailable, use:
+If curl is unavailable, use wget instead:
 
 ```bash
-wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
+apt update && apt full-upgrade -y && apt install wget -y && bash -o pipefail -c 'wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'
 ```
 
-If neither downloader can run, repair Termux packages first with
-`apt update && apt full-upgrade`, then retry. A partial upgrade can leave curl
-unable to load its OpenSSL libraries; running `pkg update` before completing
-the upgrade can reproduce that mismatch.
+If an earlier `pkg install curl` left curl unable to start, run
+`apt update && apt full-upgrade -y` before trying `pkg` again. Termux's `pkg`
+wrapper depends on curl, while `apt` can repair the complete package set.
 
 The Ternux v2.0.0 GitHub release and stable APT distribution were withdrawn
 on 2026-11-14. The `v2.0.0` source tag remains available for provenance. Use

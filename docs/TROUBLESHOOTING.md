@@ -304,10 +304,10 @@ does not export.
 
 ```bash
 # Option A: finish the complete Termux package upgrade:
-apt update && apt full-upgrade
+apt update && apt full-upgrade -y
 
 # Option B: if wget still starts, fetch the installer with it:
-wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
+apt update && apt full-upgrade -y && apt install wget -y && bash -o pipefail -c 'wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'
 ```
 
 `pkg update` refreshes package indexes; it does not finish an interrupted

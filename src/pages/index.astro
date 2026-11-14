@@ -226,42 +226,44 @@ import RenderBench from "../components/RenderBench.astro";
             </p>
           </div>
           <div class="command">
-            <small>ONE COMMAND · CURL</small>
+            <small>SAFE BOOTSTRAP · CURL</small>
             <button
               type="button"
               data-copy
-              data-copy-value="curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash"
+              data-copy-value="apt update && apt full-upgrade -y && apt install curl -y && bash -o pipefail -c 'curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'"
             >
               COPY
             </button>
             <code>
-              curl -fsSL
+              apt update && apt full-upgrade -y && apt install curl -y && bash
+              -o pipefail -c 'curl -fsSL
               https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh
-              | bash
+              | bash'
             </code>
           </div>
           <div class="command">
-            <small>ONE COMMAND · WGET</small>
+            <small>SAFE BOOTSTRAP · WGET</small>
             <button
               type="button"
               data-copy
-              data-copy-value="wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash"
+              data-copy-value="apt update && apt full-upgrade -y && apt install wget -y && bash -o pipefail -c 'wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'"
             >
               COPY
             </button>
             <code>
-              wget -qO-
+              apt update && apt full-upgrade -y && apt install wget -y && bash
+              -o pipefail -c 'wget -qO-
               https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh
-              | bash
+              | bash'
             </code>
           </div>
           <p class="install-note">
-            If curl is installed but cannot start, use wget if it works. The
-            installer tests both downloaders and falls back from a broken curl.
-            If neither can start, first run{" "}
-            <code>apt update && apt full-upgrade</code>, then verify a
-            downloader with <code>curl --version</code> or
-            <code>wget --version</code>. The stable APT channel is withdrawn;
+            These commands complete <code>apt full-upgrade</code> before
+            installing the downloader, then enable <code>pipefail</code> so a
+            failed download cannot appear successful. Termux's <code>pkg</code>{" "}
+            wrapper needs curl; do not run <code>pkg install curl</code> before
+            the full upgrade. If an older partial upgrade broke curl, use the
+            apt-first command above. The stable APT channel is withdrawn;
             <a href="/ternux/docs/TERMUX-APT.html">
               see current channel status ↗
             </a>

@@ -86,22 +86,23 @@ F-Droid বা Google Play Termux হলে একই release page-এর সা
 অথবা [GitHub](https://github.com/termux/termux-styling/releases) terminal theme
 ও font যোগ করে। Desktop app-এর live mic on-demand Termux OpenSL ES
 source দিয়ে চলে; API recorder file তৈরি করে। Termux ও add-on একই source থেকে নিন।
-২. Termux-এ চালান:
+২. Termux rolling package set ব্যবহার করে। এক-command bootstrap আগে সব package
+একসঙ্গে upgrade করে, তারপর curl install ও Ternux চালায়; শুধু `pkg update`-এ
+linked library upgrade হয় না:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
+apt update && apt full-upgrade -y && apt install curl -y && bash -o pipefail -c 'curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'
 ```
 
-`curl` চালু না হলে আগে `wget` চেষ্টা করুন:
+curl না থাকলে wget ব্যবহার করুন:
 
 ```bash
-wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
+apt update && apt full-upgrade -y && apt install wget -y && bash -o pipefail -c 'wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'
 ```
 
-দুটো downloader-ই চালু না হলে `apt update && apt full-upgrade` দিয়ে Termux-এর
-package upgrade শেষ করে আবার চেষ্টা করুন। শুধু `pkg update` করে আংশিক upgrade
-রেখে দিলে curl ও OpenSSL-এর library version mismatch হতে পারে। `wget` না থাকলে
-full upgrade-এর পরে `apt install wget` চালান।
+আগে `pkg install curl` চালিয়ে curl start না হলে `pkg` আবার চালানোর আগে
+`apt update && apt full-upgrade -y` চালান। Termux-এর `pkg` wrapper curl-এর ওপর
+নির্ভর করে, কিন্তু `apt` সম্পূর্ণ package set repair করতে পারে।
 
 Ternux v2.0.0 GitHub release ও stable APT distribution 2026-11-14-এ
 withdraw করা হয়েছে। Provenance-এর জন্য `v2.0.0` source tag রাখা হয়েছে।

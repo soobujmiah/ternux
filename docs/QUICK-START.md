@@ -25,13 +25,13 @@ Four steps from Android apps to an installed desktop and renderer check. Downloa
 Open Termux and paste:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
+apt update && apt full-upgrade -y && apt install curl -y && bash -o pipefail -c 'curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'
 ```
 
 **curl broken after an upgrade?** Try wget directly; it runs the same installer:
 
 ```bash
-wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
+apt update && apt full-upgrade -y && apt install wget -y && bash -o pipefail -c 'wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'
 ```
 
 If neither downloader starts, run `apt update && apt full-upgrade` to finish
@@ -61,7 +61,7 @@ complete output — see
 Prefer to review all code before it runs? Clone the repository; reviewing only the bootstrap is incomplete because it otherwise downloads library modules at runtime.
 
 ```bash
-pkg install git -y
+apt update && apt full-upgrade -y && apt install git -y
 git clone https://github.com/soobujmiah/ternux.git
 cd ternux
 git log -1 --oneline

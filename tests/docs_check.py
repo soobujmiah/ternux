@@ -326,8 +326,8 @@ check(re.search(r"@media\s*\(prefers-reduced-motion:\s*reduce\)", read(ROOT / "s
       "site.css: reduced-motion support missing")
 check("data-copy" in read(ROOT / "src/layouts/SiteLayout.astro"), "site shell: command copy control missing")
 install_commands = (
-    "curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash",
-    "wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash",
+    "apt update && apt full-upgrade -y && apt install curl -y && bash -o pipefail -c 'curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'",
+    "apt update && apt full-upgrade -y && apt install wget -y && bash -o pipefail -c 'wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'",
 )
 
 for source in ("src/pages/index.astro", "src/pages/bn/index.astro"):

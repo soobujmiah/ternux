@@ -37,8 +37,7 @@ guide-এ `ternux` Debian account ধরা হয়েছে; অন্য ব
 
 ```bash
 # প্যাকেজ ইনডেক্স রিফ্রেশ ও আপগ্রেড।
-pkg update -y
-pkg upgrade -y
+apt update && apt full-upgrade -y
 
 # X11 ও গ্রাফিক্স প্যাকেজ বহনকারী রিপোজিটরি।
 pkg install x11-repo tur-repo -y
