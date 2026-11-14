@@ -9,11 +9,16 @@ This documentation is organized around decisions and tasks rather than the
 installer's source tree. If this is your first visit, choose a route below. If
 something is already broken, go directly to [Troubleshooting](TROUBLESHOOTING.html).
 
+> **Release status:** Ternux v2.0.0 was withdrawn and its stable APT channel
+> removed. The next stable release remains in the v2 major and must meet the
+> complete platform acceptance scope formerly planned for v3. See the
+> [current release status](project/RELEASE-STATUS.html).
+
 ## Guest support at a glance
 
-| v2 desktop support     | More distro recipes                            | Default profile |
-| ---------------------- | ---------------------------------------------- | --------------- |
-| Debian, Ubuntu, Alpine | 12 additional named profiles; not v2-qualified | Debian          |
+| Withdrawn v2.0.0 desktop record | More distro recipes                            | Default profile |
+| ------------------------------- | ---------------------------------------------- | --------------- |
+| Debian, Ubuntu, Alpine          | 12 additional named profiles; not qualified   | Debian          |
 
 Every named recipe has a family-specific desktop setup. Generic OCI images are shell guests unless Ternux has a desktop recipe for them. See [installation and guest selection](INSTALLATION.html#choosing-a-guest-distribution) and the [repository v2 support matrix](https://github.com/soobujmiah/ternux/blob/main/docs/audit/FEATURE-MATRIX.md).
 
