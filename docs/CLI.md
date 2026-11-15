@@ -389,8 +389,20 @@ ternux gpu update --json
 
 ### `ternux info`
 
-Show system information summary: device model, Android version, GPU,
-backend, renderer, Vulkan status, and the readable Android child-process setting.
+Show system information summary: device model, Android version, detected GPU,
+selected backend, active OpenGL renderer, Vulkan status, and Android's phantom
+process-killer setting when Termux can read it. `Renderer: not running` means
+Termux:X11 is stopped; `unknown` means a display was available but the guest
+renderer query did not return a name. On Android builds that deny Termux access
+to the Settings provider, the phantom setting is reported as unreadable rather
+than implying that it is enabled or disabled. Use `tx status [DISTRO]` for the
+live desktop lifecycle and `tx doctor --quick` for host readiness.
+
+GPU detection uses Android graphics properties and available kernel interfaces.
+Adreno devices with KGSL use the Zink/Turnip route; other detected GPU families
+use VirGL, where Android's host graphics stack supplies the rendering device.
+The selected backend is configuration, not proof that the desktop is currently
+using hardware acceleration: check the active renderer and `Graphics state`.
 
 ```bash
 ternux info [--json]

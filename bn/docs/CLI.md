@@ -343,7 +343,19 @@ ternux gpu update --json
 
 ### `ternux info`
 
-সিস্টেম তথ্য সারসংক্ষেপ।
+device model, Android version, শনাক্ত GPU, নির্বাচিত backend, চলমান OpenGL
+renderer, Vulkan অবস্থা এবং Termux পড়তে পারলে Android phantom process-killer-এর
+তথ্য দেখায়। `Renderer: not running` মানে Termux:X11 বন্ধ; `unknown` মানে display
+পাওয়া গেছে, কিন্তু guest renderer query নাম দিতে পারেনি। Android-এর কোনো build-এ
+Settings provider-এ Termux-এর প্রবেশাধিকার না থাকলে phantom setting-কে enabled বা
+disabled ধরে না নিয়ে unreadable দেখায়। চলমান desktop lifecycle দেখতে
+`tx status [DISTRO]`; host readiness দেখতে `tx doctor --quick` চালান।
+
+GPU শনাক্তকরণে Android graphics property ও পাওয়া kernel interface দেখা হয়।
+KGSL-সহ Adreno device-এ Zink/Turnip route; অন্য শনাক্ত GPU family-তে VirGL route
+নেওয়া হয়, যেখানে Android host graphics stack rendering device সরবরাহ করে।
+নির্বাচিত backend configuration—এটি desktop-এ hardware acceleration চলছে তার
+প্রমাণ নয়। চলমান renderer ও `Graphics state`-ও দেখুন।
 
 ```bash
 ternux info [--json]

@@ -270,6 +270,34 @@ else
   not_ok "renderer detection passes the active display into the Debian guest"
 fi
 
+# With no DISPLAY and no Termux:X11 server, renderer is an inactive-state
+# diagnosis rather than an unexplained unknown value.
+if env TERNUX_STATE_DIR="$TMP/state-renderer-stopped" HOME="$TMP/home-renderer-stopped" \
+  bash -c '
+    . "$1/lib/detect.sh"
+    tnx_has_cmd(){ [ "$1" = proot-distro ]; }
+    pgrep(){ return 1; }
+    unset DISPLAY
+    [ "$(tnx_detect_renderer)" = "not running (Termux:X11 stopped)" ]
+  ' _ "$ROOT"; then
+  ok "renderer detection explains when the desktop display is stopped"
+else
+  not_ok "renderer detection explains when the desktop display is stopped"
+fi
+
+# GPU vendor detection uses Android EGL/Vulkan properties for devices such as
+# PowerVR systems where a vendor-neutral KGSL node is not available.
+if env TERNUX_STATE_DIR="$TMP/state-gpu-powervr" HOME="$TMP/home-gpu-powervr" \
+  TERNUX_KGSL_DEVICE="$TMP/absent-kgsl-powervr" bash -c '
+    . "$1/lib/detect.sh"
+    getprop(){ case "$1" in ro.hardware.egl) echo "PowerVR Rogue GE8320";; *) :;; esac; }
+    [ "$(tnx_detect_gpu)" = PowerVR ]
+  ' _ "$ROOT"; then
+  ok "GPU detection identifies PowerVR from Android graphics properties"
+else
+  not_ok "GPU detection identifies PowerVR from Android graphics properties"
+fi
+
 # Doctor follows an active guest even when an older global selection is stale.
 if env TERNUX_STATE_DIR="$TMP/state-doctor-active-guest" HOME="$TMP/home-doctor-active-guest" \
   bash -c '
@@ -1478,6 +1506,23 @@ for phantom_case in enabled disabled unknown; do
     not_ok "phantom setting reports $phantom_case conservatively"
   fi
 done
+
+# The read-only Android settings probe distinguishes a denied Settings provider
+# from a readable disabled value and from a setting absent on the build.
+if env TERNUX_STATE_DIR="$TMP/state-phantom-probe" HOME="$TMP/home-phantom-probe" bash -c '
+  . "$1/lib/detect.sh"
+  tnx_detect_android_sdk(){ echo 36; }
+  settings(){ echo "SecurityException: permission denied" >&2; return 1; }
+  [ "$(tnx_detect_phantom_killer)" = "unreadable (Termux cannot access Android settings)" ] || exit
+  settings(){ echo 0; }
+  [ "$(tnx_detect_phantom_killer)" = disabled ] || exit
+  settings(){ :; }
+  [ "$(tnx_detect_phantom_killer)" = "unavailable (setting not exposed)" ]
+' _ "$ROOT"; then
+  ok "phantom process setting reports denied, readable and absent states"
+else
+  not_ok "phantom process setting reports denied, readable and absent states"
+fi
 
 # Doctor must recommend differential diagnosis, not a categorical system-wide
 # safeguard change, when the readable monitor state is enabled.

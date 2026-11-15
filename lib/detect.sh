@@ -69,13 +69,34 @@ tnx_detect_gpu() {
     return 0
   fi
 
-  # Check via /proc or dmesg for other GPUs
-  if grep -qi "mali" /proc/cpuinfo 2>/dev/null || grep -qi "mali" /sys/class/misc/mali*/device/uevent 2>/dev/null; then
+  # Android often exposes the vendor GPU through EGL/Vulkan properties rather
+  # than /proc/cpuinfo. Combine read-only properties with common kernel nodes.
+  local gpu_hints=""
+  gpu_hints="$( {
+    getprop ro.hardware.egl 2>/dev/null
+    getprop ro.hardware.vulkan 2>/dev/null
+    getprop ro.hardware 2>/dev/null
+    getprop ro.board.platform 2>/dev/null
+    grep -hiE '^(DRIVER|OF_COMPATIBLE|PCI_ID|MODALIAS)=.*(mali|powervr|rogue|xclipse|adreno)' /sys/class/drm/card*/device/uevent 2>/dev/null
+    grep -hiE 'mali|powervr|rogue|xclipse|adreno' /sys/class/misc/mali*/device/uevent 2>/dev/null
+  } | tr '[:upper:]' '[:lower:]')"
+
+  if printf '%s\n' "$gpu_hints" | grep -Eq 'powervr|rogue|imagination'; then
+    echo "PowerVR"
+    return 0
+  fi
+
+  if printf '%s\n' "$gpu_hints" | grep -q "mali" || grep -qi "mali" /proc/cpuinfo 2>/dev/null; then
     echo "Mali"
     return 0
   fi
 
-  if getprop ro.hardware 2>/dev/null | grep -qi "exynos"; then
+  if printf '%s\n' "$gpu_hints" | grep -q "xclipse"; then
+    echo "Xclipse"
+    return 0
+  fi
+
+  if printf '%s\n' "$gpu_hints" | grep -qi "exynos"; then
     echo "Xclipse (Exynos)"
     return 0
   fi
@@ -223,6 +244,10 @@ tnx_detect_renderer() {
     [ -n "$display_num" ] || display_num=0
     display=:$display_num
   fi
+  if [ -z "$display" ]; then
+    echo "not running (Termux:X11 stopped)"
+    return 0
+  fi
   renderer="$(tnx_guest_login --shared-tmp --shared-x11 -- env "DISPLAY=$display" bash -c '
     overlay="$(cat /etc/ternux/mesa-overlay 2>/dev/null || true)"
     overlay_libdir="$(cat /etc/ternux/mesa-overlay-libdir 2>/dev/null || true)"
@@ -262,15 +287,22 @@ tnx_detect_renderer() {
 # Detect if phantom process killer is enabled (Android 12+)
 # ---------------------------------------------------------------------------
 tnx_detect_phantom_killer() {
-  local sdk
+  local sdk cur rc
   sdk="$(tnx_detect_android_sdk)"
   [ "$sdk" -lt 31 ] 2>/dev/null && { echo "disabled (pre-Android 12)"; return 0; }
-  local cur
-  cur="$(settings get global settings_enable_monitor_phantom_procs 2>/dev/null || echo "unknown")"
+  if ! command -v settings >/dev/null 2>&1; then
+    echo "unreadable (Android settings command unavailable)"
+    return 0
+  fi
+  cur="$(settings get global settings_enable_monitor_phantom_procs 2>&1)"; rc=$?
+  if [ "$rc" -ne 0 ] || printf '%s' "$cur" | grep -Eqi 'SecurityException|Permission Denial|requires .* permission'; then
+    echo "unreadable (Termux cannot access Android settings)"
+    return 0
+  fi
   case "$cur" in
     0|false) echo "disabled" ;;
     1|true)  echo "enabled" ;;
-    *)       echo "unknown" ;;
+    *)       echo "unavailable (setting not exposed)" ;;
   esac
 }
 
