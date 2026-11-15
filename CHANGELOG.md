@@ -12,6 +12,10 @@ Notable changes to ternux. Dates are ISO 8601.
 
 ## [Unreleased]
 
+### Terfetch
+
+- Native Termux now randomly selects Android, a Ternux Workstation mark, all 15 managed distro logos, or Sobuj's monogram. Guest logos remain fixed to each distro. Added environment, architecture, package-manager, locale, init, privilege and user details; values now fit terminal width, and the information panel is tall enough to preserve the complete Kali logo.
+
 ### Control Center
 
 - Added loopback-only, confirmation-bound start/stop actions for installed Ternux desktop guests, with idempotent durable job records, restart reconciliation, a 30-day terminal-job retention window, and display-migration safety guards. The partial implementation is source-only and is not in the withdrawn v2.0.0 package; device-browser rendering remains unverified.
