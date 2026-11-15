@@ -266,11 +266,9 @@ Extension load করার জন্য এই run-এ Blender-এর saved use
 হয়েছে। `--factory-startup` extension বন্ধ করে, আর `blender-gpu` MCP server এই
 flag ব্যবহার করে; তাই MPFB2 script-এর জন্য আলাদা Blender process দরকার।
 Headless run-এ `DISPLAY=:0` অথবা `GALLIUM_DRIVER=zink`-সহ Xvfb `:9` পরীক্ষা করা
-হয়েছে; আবার ব্যবহারের আগে active display যাচাই করুন। MPFB2 API setup,
-helper-group rigging caveat, fitting sequence, licence ও reproduction notes
-SKB-এর [MPFB2 workflow](https://github.com/soobujmiah/skb/blob/main/engineering/ANIMATION_PRODUCTION_PIPELINE.md#mpfb2-human-character-workflow)
-এবং [device environment record](https://github.com/soobujmiah/skb/blob/main/devices/redmi-turbo-4-pro/current-termux-environment.md#blender-mpfb2-human-generation)-এ
-আছে।
+হয়েছে; আবার ব্যবহারের আগে সক্রিয় ডিসপ্লে যাচাই করুন। আলাদা এমপিএফবি২
+কর্মপ্রবাহ ও ডিভাইস সেটআপের নোট ব্যক্তিগত জ্ঞানভান্ডারে রক্ষিত; সেগুলো এই
+সর্বজনীন টার্নাক্স বেঞ্চমার্ক নথির অংশ নয়।
 
 ## Observed: Blender 4.3.2
 
@@ -426,7 +424,7 @@ output quality এখনও unverified।
 Probe source ও binary scratch artifact; llama.cpp release-এ নেই।
 
 Workflow ও source pin: [llama-htp-artifact.yml](../../.github/workflows/llama-htp-artifact.yml)।
-Device test detail: [SKB investigation](https://github.com/soobujmiah/skb/blob/main/devices/redmi-turbo-4-pro/evidence/debian-proot-npu-investigation-2026-10-13.md)। Exact archive-er retest log local probe scratch-er `gh-artifact-device-test.log`।
+ডেবিয়ান প্রুটে ডিভাইস পরীক্ষার সারাংশ [কিউএনএন নেটিভ পরীক্ষার নথিতে](../../experiments/qnn-native/README.md#verified-on-2026-10-13) আছে। মূল আর্কাইভ পুনঃপরীক্ষার সম্পূর্ণ লগ স্থানীয় অনুসন্ধান-উপকরণে আছে; এটি প্রকাশ-উপকরণ নয়।
 
 ---
 
@@ -699,7 +697,7 @@ bridge দিয়ে Android QNN ব্যবহার করে। GPU-লে
 5.7 s-এ তৈরি হয়েছে। Ternux-এর 29.758 s median একই resolution ও step count-এ
 প্রায় 5.2× বেশি। এটি তদন্ত করার মতো বড় performance gap; model ও runtime আলাদা,
 তাই এটি নিয়ন্ত্রিত A/B comparison নয় এবং Ternux runner-এর QNN DSP execution
-log-কে খণ্ডন করে না। ড্রিম ডিভাইসের ব্যক্তিগত SKB প্রমাণ (সর্বসাধারণের জন্য উন্মুক্ত নয়)।
+log-কে খণ্ডন করে না। তুলনার পূর্ণ সীমাবদ্ধতা [কিউএনএন নেটিভ পরীক্ষার নথিতে](../../experiments/qnn-native/README.md#performance-follow-up) আছে।
 প্রতি image-এ `runner_seconds - unet_20step_seconds` residual-এর median
 13.848 s। এতে CLIP, helper ও QNN context startup, decoder execution এবং PNG লেখা
 আছে; এটি শুধু startup time নয়। Code অনুযায়ী প্রতি denoising step-এ UNet helper-এ

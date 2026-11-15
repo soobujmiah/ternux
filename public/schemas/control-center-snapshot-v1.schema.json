@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://soobujmiah.github.io/ternux/schemas/control-center-snapshot-v1.schema.json",
+  "title": "Ternux Control Center Snapshot v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "read_only",
+    "snapshot"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "read_only": {
+      "const": true
+    },
+    "snapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "guests",
+        "displays",
+        "capabilities"
+      ],
+      "properties": {
+        "status": {
+          "$ref": "#/$defs/managerPayload"
+        },
+        "guests": {
+          "$ref": "#/$defs/managerPayload"
+        },
+        "displays": {
+          "$ref": "#/$defs/managerPayload"
+        },
+        "capabilities": {
+          "$ref": "#/$defs/managerPayload"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "managerPayload": {
+      "type": "object",
+      "required": [
+        "schema_version",
+        "command",
+        "status"
+      ],
+      "properties": {
+        "schema_version": {
+          "type": "string",
+          "pattern": "^1\\.[0-9]+\\.[0-9]+$"
+        },
+        "command": {
+          "type": "string",
+          "enum": [
+            "manager.status",
+            "manager.guests",
+            "manager.displays",
+            "manager.capabilities"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "ok",
+            "available",
+            "error"
+          ]
+        }
+      },
+      "additionalProperties": true
+    }
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://soobujmiah.github.io/ternux/schemas/manager-displays-v1.schema.json",
+  "title": "Ternux Manager Workspace Displays v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "command", "status", "timestamp", "native_display", "native_socket_present", "native_lock_present", "native_server_running", "native_occupied", "count", "guests", "migration_preview"],
+  "properties": {
+    "schema_version": { "const": "1.3.0" },
+    "command": { "const": "manager.displays" },
+    "status": { "const": "ok" },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "native_display": { "const": 0 },
+    "native_socket_present": { "type": "boolean" },
+    "native_lock_present": { "type": "boolean" },
+    "native_server_running": { "type": "boolean" },
+    "native_occupied": { "type": "boolean" },
+    "count": { "type": "integer", "minimum": 0 },
+    "guests": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/guest" }
+    },
+    "migration_preview": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "executor_implemented", "ready_to_execute", "plan_id"],
+      "properties": {
+        "status": { "const": "preview-only" },
+        "executor_implemented": { "const": true },
+        "ready_to_execute": { "type": "boolean" },
+        "plan_id": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
+      }
+    }
+  },
+  "$defs": {
+    "guest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "current_display", "target_display", "registry_display", "registry_lifecycle", "running", "target_socket_present", "target_lock_present", "target_server_running", "target_conflict", "migration_required", "target_owner", "target_owner_kind", "migration_action", "migration_blockers"],
+      "properties": {
+        "name": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$" },
+        "current_display": {
+          "oneOf": [
+            { "type": "integer", "minimum": 0, "maximum": 99 },
+            { "type": "null" }
+          ]
+        },
+        "target_display": { "type": "integer", "minimum": 1, "maximum": 99 },
+        "registry_display": {
+          "oneOf": [
+            { "type": "integer", "minimum": 0, "maximum": 99 },
+            { "type": "null" }
+          ]
+        },
+        "registry_lifecycle": {
+          "enum": ["unregistered", "STOPPED", "STARTING", "READY", "STOPPING", "FAILED", "RECOVERING", "invalid"]
+        },
+        "running": { "type": "boolean" },
+        "target_socket_present": { "type": "boolean" },
+        "target_lock_present": { "type": "boolean" },
+        "target_server_running": { "type": "boolean" },
+        "target_conflict": { "type": "boolean" },
+        "migration_required": { "type": "boolean" },
+        "target_owner": {
+          "oneOf": [
+            { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$" },
+            { "type": "null" }
+          ]
+        },
+        "target_owner_kind": {
+          "enum": ["active-guest-assignment", "reserved-native-slot", "unidentified", "unoccupied"]
+        },
+        "migration_action": { "enum": ["initialize", "keep", "move"] },
+        "migration_blockers": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "enum": ["active-session", "other-active-session", "target-conflict", "invalid-registry", "registry-mismatch", "lifecycle-not-stopped"] }
+        }
+      }
+    }
+  }
+}
