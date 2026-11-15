@@ -11,4 +11,8 @@ grep -Fq 'timeout --signal=TERM --kill-after=10 900 apt install -y' "$PHASES"
 grep -Fq 'Acquire::http::Timeout=30 -o Acquire::https::Timeout=30' "$PHASES"
 grep -Fq 'timeout --signal=TERM --kill-after=10 900 apt install -y \$DPKG_FORCE -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 "\$browser_package"' "$PHASES"
 
-echo 'base and optional guest APT calls have network and wall-clock limits'
+grep -Fq 'timeout --signal=TERM --kill-after=5 90 sudo locale-gen' "$PHASES"
+grep -Fq 'timeout --signal=TERM --kill-after=5 60 fc-cache -f' "$PHASES"
+! sed -n '/tnx_phase_audio_fonts() {/,/^}/p' "$PHASES" | grep -Fq 'sudo locale-gen'
+
+echo 'base and optional guest setup steps have bounded network and wall-clock limits'

@@ -1497,7 +1497,9 @@ tnx_phase_audio_fonts() {
           exit 1
         }
         grep -qxF \"${locale} UTF-8\" /etc/locale.gen 2>/dev/null || echo \"${locale} UTF-8\" | sudo tee -a /etc/locale.gen >/dev/null
-        sudo locale-gen \"${locale}\"
+        if ! timeout --signal=TERM --kill-after=5 90 sudo locale-gen \"${locale}\"; then
+          echo \"Locale generation failed or exceeded 90 seconds; continuing with the system fallback locale.\" >&2
+        fi
         ;;
       apk)
         sudo apk add musl-locales musl-locales-lang wget font-noto font-noto-emoji font-awesome
@@ -1526,7 +1528,7 @@ tnx_phase_audio_fonts() {
         && echo \"04d5e8f903693f9dd13e16f867e994834e681eb3c72c0d337a770dcda09010cf  \$font_archive\" | sha256sum -c - >/dev/null \
         && tar -xJf \"\$font_archive\" -C ~/.local/share/fonts/; then
         touch ~/.local/share/fonts/.ternux-nerdfont-v3.5.1-installed
-        fc-cache -f >/dev/null 2>&1 || true
+        timeout --signal=TERM --kill-after=5 60 fc-cache -f >/dev/null 2>&1 || true
       else
         echo \"JetBrainsMono Nerd Font download or checksum verification failed; continuing without it.\" >&2
       fi
