@@ -13,9 +13,10 @@ terfetch --version
 The native Termux host randomly selects Android, Ternux Workstation, one of all
 15 managed distro logos, or Sobuj's monogram at each login. Other variants show
 a centered `Presented by @soobujmiah` credit below the logo and system facts.
-The special Sobuj monogram puts `Presented by` above its mark and has no second
-credit. Every managed PRoot distro uses its
-own stable official ASCII logo from the built-in catalog. The creator credit
+The special Sobuj mark puts `Presented by` above a large SOBUJ monogram and has no second
+credit. The Workstation mark depicts a compact desk and display. Narrow terminals
+switch to a stacked layout so logos cannot overlap system details. Every managed
+PRoot distro uses its own stable official ASCII logo from the built-in catalog. The creator credit
 is centered below the guest logo and facts. Daily-use host commands or guest
 and distro-specific package-manager commands appear in a colorful footer below.
 Logo rows never continue below the information panel, and long values are

@@ -28,6 +28,8 @@ for index in {0..17}; do
     first_line="$(head -n 1 <<< "$output")"
     [ "$first_line" = '  Presented by' ]
     ! grep -Fq '@soobujmiah' <<< "$output"
+    grep -Fq 'SSSS  OOO  BBB  U   U JJJ' <<< "$output"
+    ! grep -Eq 'M I A H|M     M' <<< "$output"
   else
     grep -Fq 'Presented by @soobujmiah' <<< "$output"
   fi
@@ -40,6 +42,11 @@ for index in {0..17}; do
   [ "$panel_rows" -ge 21 ]
 done
 [ "${#logo_heads[@]}" -eq 18 ]
+# Terminal font zoom can reduce the available columns; use a stacked layout so
+# artwork never intrudes into the information column.
+small_output="$(TERFETCH_TEST_HOST=termux TERFETCH_LOGO_INDEX=1 COLUMNS=60 NO_COLOR=1 "$TERFETCH")"
+! grep -Eq '^  System +Termux$' <<< "$small_output"
+grep -Fq 'System          Termux' <<< "$small_output"
 
 # Every managed distro has a stable distro-specific mark and usable commands.
 for distro in adelie alpine archlinux artix chimera debian deepin fedora kali manjaro opensuse pardus rockylinux ubuntu void; do

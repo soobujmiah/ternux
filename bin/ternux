@@ -190,26 +190,22 @@ _tnx_dispatch() {
   local lib_map=""
   case "$cmd" in
     guides)
-      printf '%s\n' \
-        'Ternux quick guide' \
-        '  1. Install a desktop: tx install --distro debian (or ubuntu, kali, alpine, ...).' \
-        '  2. Start the default desktop: tx start.' \
-        '  3. Start several installed desktops: tx start debian ubuntu kali alpine (or tx start db ub kali alp).' \
-        '  4. Check sessions: tx status; diagnose: tx doctor; repair: tx repair.' \
-        '  5. If installation was interrupted: tx install --resume. Read logs: tx logs desktop tail.' \
-        '  6. List/manage guests: tx distro list; open a guest: tx distro shell debian.' \
-        '  7. Android permissions: tx mic or tx cam; without Termux:API, desktop mic still uses Termux OpenSL and Android Camera remains available.' \
-        '  8. Scoped cleanup: tx uninstall; read the confirmation menu before removing a guest.' \
-        '' 'Reference guides:' \
-        '  Installation: https://soobujmiah.github.io/ternux/docs/INSTALLATION.html' \
-        '  Manual setup: https://soobujmiah.github.io/ternux/docs/MANUAL.html' \
-        '  CPU + Vulkan LLM quick start: https://soobujmiah.github.io/ternux/docs/QUICK-START.html#optional-local-cpu--vulkan-language-model' \
-        '  CPU + Vulkan LLM manual/release guide: https://github.com/soobujmiah/ternux/blob/main/guides/llama-vulkan-extension.md' \
-        '  Ecosystem tools: https://soobujmiah.github.io/ternux/docs/INSTALLATION.html#choose-the-right-project-release' \
-        '  Workloads (auto + manual): https://soobujmiah.github.io/ternux/docs/WORKLOADS.html' \
-        '  Keep the GPU driver: https://soobujmiah.github.io/ternux/docs/GRAPHICS-PERSISTENCE.html' \
-        '  Daily use: https://soobujmiah.github.io/ternux/docs/USAGE.html' \
-        '' 'Open links in a browser when needed. This command only prints guidance.'
+      printf '%s\n' "${TNX_CG}Ternux · Workstation In Your Pocket${TNX_C0}" "${TNX_CD}Linux desktop for Android with Zink and VirGL graphics routes${TNX_C0}" "${TNX_CW}QUICK START${TNX_C0}"
+      printf '  %s1.%s Install a desktop: %stx install --distro debian%s (or ubuntu, kali, alpine).\n' "$TNX_CC" "$TNX_C0" "$TNX_CC" "$TNX_C0"
+      printf '  %s2.%s Start one or more desktops: %stx start db ub kali alp%s.\n' "$TNX_CC" "$TNX_C0" "$TNX_CC" "$TNX_C0"
+      printf '  %s3.%s Check sessions: %stx status%s · Diagnose: %stx doctor%s · Repair: %stx repair%s.\n' "$TNX_CC" "$TNX_C0" "$TNX_CC" "$TNX_C0" "$TNX_CC" "$TNX_C0" "$TNX_CC" "$TNX_C0"
+      printf '  %s4.%s Resume setup: %stx install --resume%s · Logs: %stx logs desktop tail%s.\n' "$TNX_CC" "$TNX_C0" "$TNX_CC" "$TNX_C0" "$TNX_CC" "$TNX_C0"
+      printf '  %s5.%s Open a guest: %stx distro shell debian%s; user/root shortcuts are listed below.\n' "$TNX_CC" "$TNX_C0" "$TNX_CC" "$TNX_C0"
+      printf '     %sDebian%s db/dbr/dbroot   %sUbuntu%s ub/ubr/ubroot   %sKali%s kali/kalir/kaliroot   %sAlpine%s alp/alpr/alproot\n' "$TNX_CC" "$TNX_C0" "$TNX_CC" "$TNX_C0" "$TNX_CC" "$TNX_C0" "$TNX_CC" "$TNX_C0"
+      printf '  %s6.%s Android permissions: %stx mic%s or %stx cam%s; Termux:API is optional.\n' "$TNX_CC" "$TNX_C0" "$TNX_CC" "$TNX_C0" "$TNX_CC" "$TNX_C0"
+      printf '  %s7.%s List guest profiles: %stx distro list%s · Read system details: %stx info%s.\n' "$TNX_CC" "$TNX_C0" "$TNX_CC" "$TNX_C0" "$TNX_CC" "$TNX_C0"
+      printf '\n%sREFERENCE GUIDES%s\n' "$TNX_CW" "$TNX_C0"
+      printf '  %s%-25s%s %s\n' "$TNX_CC" 'Installation' "$TNX_C0" 'https://soobujmiah.github.io/ternux/docs/INSTALLATION.html'
+      printf '  %s%-25s%s %s\n' "$TNX_CC" 'Manual setup' "$TNX_C0" 'https://soobujmiah.github.io/ternux/docs/MANUAL.html'
+      printf '  %s%-25s%s %s\n' "$TNX_CC" 'Daily use' "$TNX_C0" 'https://soobujmiah.github.io/ternux/docs/USAGE.html'
+      printf '  %s%-25s%s %s\n' "$TNX_CC" 'Graphics persistence' "$TNX_C0" 'https://soobujmiah.github.io/ternux/docs/GRAPHICS-PERSISTENCE.html'
+      printf '  %s%-25s%s %s\n' "$TNX_CC" 'Workloads' "$TNX_C0" 'https://soobujmiah.github.io/ternux/docs/WORKLOADS.html'
+      printf '\nOpen a link in a browser when needed. This command only prints guidance.\n'
       return 0 ;;
     start|stop|restart|status) lib_map="desktop" ;;
     distro)                    lib_map="distro" ;;
