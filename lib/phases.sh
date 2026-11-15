@@ -2035,7 +2035,7 @@ _tnx_install_terfetch_hook() {
 if [[ -z ${_TERNUX_TERFETCH_HOOK_LOADED:-} ]]; then
   _TERNUX_TERFETCH_HOOK_LOADED=1
   if [[ $- == *i* ]] && [[ -z ${TERFETCH_NO_AUTORUN:-} ]] && [[ ${_TERNUX_TERFETCH_AUTORUN_DONE:-0} != 1 ]] && command -v terfetch >/dev/null 2>&1; then
-    terfetch
+    TERFETCH_STARTUP_ONCE=1 terfetch
     _TERNUX_TERFETCH_AUTORUN_DONE=1
   fi
 fi

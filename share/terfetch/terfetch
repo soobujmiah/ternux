@@ -26,6 +26,26 @@ case "${1:-}" in
   *) usage >&2; exit 2 ;;
 esac
 
+# Startup hooks opt into one render per terminal session. A process can be
+# restarted on the same TTY (for example after an application aborts); keep a
+# tiny marker keyed by TTY + session ID so that only a genuinely new terminal
+# session gets the automatic greeting. Manual `terfetch` runs never use this
+# guard and always render.
+if [ "${TERFETCH_STARTUP_ONCE:-0}" = 1 ]; then
+  startup_tty="${TERFETCH_TEST_TTY:-$(tty 2>/dev/null || true)}"
+  startup_sid="${TERFETCH_TEST_SESSION:-$(ps -o sid= -p "$$" 2>/dev/null | tr -d ' ')}"
+  case "$startup_tty" in
+    /dev/*) ;;
+    *) exit 0 ;;
+  esac
+  case "$startup_sid" in
+    ''|*[!0-9]*) exit 0 ;;
+  esac
+  startup_key="$(printf '%s\n' "${HOME:-}:$startup_tty:$startup_sid" | cksum | awk '{print $1}')"
+  startup_marker="${TMPDIR:-/tmp}/ternux-terfetch-started-${startup_key}"
+  (umask 077; mkdir "$startup_marker") 2>/dev/null || exit 0
+fi
+
 read_prop() {
   command -v getprop >/dev/null 2>&1 && getprop "$1" 2>/dev/null | head -n 1 || true
 }
@@ -187,8 +207,8 @@ if [ "${1:-}" = '--json' ]; then
   exit 0
 fi
 
-# Prompt hooks call this after a size change. Keep the previous render in
-# scrollback so a tall dashboard never loses its monogram or information.
+# `--refresh` renders against the current terminal size while keeping the
+# previous output in scrollback.
 
 if [ -t 1 ] && [ -z "${NO_COLOR:-}" ]; then
   c1=$'\033[1;38;5;48m'; c2=$'\033[1;38;5;45m'; c3=$'\033[38;5;109m'; c0=$'\033[0m'
@@ -699,8 +719,38 @@ labels=("${visible_labels[@]}")
 values=("${visible_values[@]}")
 row_count="${#labels[@]}"
 block_width="$terminal_columns"
+# Keep the full summary inside the visible terminal height. Leave room for the
+# credit (when present), the daily-commands heading and two command rows, plus
+# the shell prompt that appears immediately after Terfetch exits. Facts are
+# ordered by priority, so a short terminal hides only the trailing fields.
+compact_mode=0
+[ "$terminal_rows" -ge 12 ] || compact_mode=1
+footer_rows=0
+if [ "$compact_mode" -eq 0 ]; then
+  footer_rows=3
+  [ -z "$logo_credit" ] || [ "$logo_presented" -eq 1 ] || footer_rows=$((footer_rows + 1))
+fi
+content_rows=$((terminal_rows - footer_rows - 3))
+[ "$content_rows" -ge 3 ] || content_rows=3
+if [ "$row_count" -gt "$content_rows" ]; then
+  labels=("${labels[@]:0:content_rows}")
+  values=("${values[@]:0:content_rows}")
+  row_count="$content_rows"
+fi
+logo_height_limit="$content_rows"
+[ "$logo_presented" -eq 0 ] || logo_height_limit=$((content_rows - 2))
+[ "$logo_height_limit" -ge 3 ] || logo_height_limit=3
+if [ "${#logo_lines[@]}" -gt "$logo_height_limit" ]; then
+  original_logo_lines=("${logo_lines[@]}")
+  original_logo_height="${#original_logo_lines[@]}"
+  logo_lines=()
+  for ((row=0; row<logo_height_limit; row++)); do
+    source_row=$((row * original_logo_height / logo_height_limit))
+    logo_lines+=("${original_logo_lines[source_row]}")
+  done
+fi
 render_rows="$row_count"
-[ "$render_rows" -ge "${#logo_lines[@]}" ] || render_rows="${#logo_lines[@]}"
+[ "$render_rows" -ge "$((${#logo_lines[@]} + logo_presented * 2))" ] || render_rows="$((${#logo_lines[@]} + logo_presented * 2))"
 logo_start=$(((render_rows - ${#logo_lines[@]}) / 2))
 [ "$logo_start" -ge 0 ] || logo_start=0
 logo_pad=$(((logo_area_width - logo_width) / 2))
@@ -763,19 +813,21 @@ center_commands() {
   done
   printf '\n'
 }
-if [ -n "$logo_credit" ]; then center_plain "$logo_credit" "$c3"; fi
-center_plain 'DAILY COMMANDS' "$c3"
-if [ "$host_termux" -eq 1 ]; then
-  center_commands 'tx guide' 'tx status' 'tx doctor'
-  center_commands 'tx start <distro>' 'tx stop --all'
-else
-  center_commands 'ternux info' 'ternux doctor' 'ternux env'
-  case "$distro" in
-    alpine|adelie|chimera) center_commands 'sudo apk update' 'sudo apk add <pkg>' ;;
-    archlinux|artix|manjaro) center_commands 'sudo pacman -Syu' 'sudo pacman -S <pkg>' ;;
-    fedora|rockylinux) center_commands 'sudo dnf check-update' 'sudo dnf install <pkg>' ;;
-    opensuse) center_commands 'sudo zypper refresh' 'sudo zypper install <pkg>' ;;
-    void) center_commands 'sudo xbps-install -Syu' 'sudo xbps-install <pkg>' ;;
-    *) center_commands 'sudo apt update' 'sudo apt install <pkg>' ;;
-  esac
+if [ "$compact_mode" -eq 0 ]; then
+  if [ -n "$logo_credit" ]; then center_plain "$logo_credit" "$c3"; fi
+  center_plain 'DAILY COMMANDS' "$c3"
+  if [ "$host_termux" -eq 1 ]; then
+    center_commands 'tx guide' 'tx status' 'tx doctor'
+    center_commands 'tx start <distro>' 'tx stop --all'
+  else
+    center_commands 'ternux info' 'ternux doctor' 'ternux env'
+    case "$distro" in
+      alpine|adelie|chimera) center_commands 'sudo apk update' 'sudo apk add <pkg>' ;;
+      archlinux|artix|manjaro) center_commands 'sudo pacman -Syu' 'sudo pacman -S <pkg>' ;;
+      fedora|rockylinux) center_commands 'sudo dnf check-update' 'sudo dnf install <pkg>' ;;
+      opensuse) center_commands 'sudo zypper refresh' 'sudo zypper install <pkg>' ;;
+      void) center_commands 'sudo xbps-install -Syu' 'sudo xbps-install <pkg>' ;;
+      *) center_commands 'sudo apt update' 'sudo apt install <pkg>' ;;
+    esac
+  fi
 fi

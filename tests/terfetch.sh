@@ -3,6 +3,9 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd -P)"
 TERFETCH="$ROOT/share/terfetch/terfetch"
+TMP="$(mktemp -d)"
+trap 'rm -rf -- "$TMP"' EXIT
+export LINES=50
 
 test -x "$TERFETCH"
 bash -n "$TERFETCH"
@@ -56,8 +59,25 @@ for width in 36 40 48 60 100 160; do
 done
 [ "$(grep -Ec 'System +alpine|Distro +alpine|Environment +|Kernel +|Uptime +|Packages +' <<< "$small_output")" -lt "$(grep -Ec 'System +alpine|Distro +alpine|Environment +|Kernel +|Uptime +|Packages +' <<< "$wide_output")" ]
 ! grep -Eq '\.\.\.' <<< "$small_output"
+short_height_output="$(TERFETCH_TEST_DISTRO=debian COLUMNS=80 LINES=12 NO_COLOR=1 "$TERFETCH")"
+[ "$(( $(wc -l <<< "$short_height_output") + 2 ))" -le 11 ]
+grep -Eq 'System +|Distro +debian$|Environment +' <<< "$short_height_output"
+! grep -Eq 'Privilege +|Battery +' <<< "$short_height_output"
+tall_height_output="$(TERFETCH_TEST_DISTRO=debian COLUMNS=80 LINES=48 NO_COLOR=1 "$TERFETCH")"
+grep -Fq 'Privilege' <<< "$tall_height_output"
+grep -Fq 'DAILY COMMANDS' <<< "$tall_height_output"
 refreshed="$(TERFETCH_TEST_DISTRO=alpine COLUMNS=100 LINES=50 NO_COLOR=1 "$TERFETCH" --refresh)"
 grep -Fq 'Distro          alpine' <<< "$refreshed"
+
+# Startup presentation is one per TTY session, while manual runs always show.
+mkdir -p "$TMP/startup-runtime"
+startup_env=(TERFETCH_STARTUP_ONCE=1 TERFETCH_TEST_TTY=/dev/pts/ternux-test TERFETCH_TEST_SESSION=4242 TMPDIR="$TMP/startup-runtime" TERFETCH_TEST_HOST=termux COLUMNS=100 LINES=24 NO_COLOR=1)
+startup_first="$(env "${startup_env[@]}" "$TERFETCH")"
+startup_second="$(env "${startup_env[@]}" "$TERFETCH")"
+[ -n "$startup_first" ]
+[ -z "$startup_second" ]
+manual_after_startup="$(TERFETCH_TEST_HOST=termux COLUMNS=100 LINES=24 NO_COLOR=1 "$TERFETCH")"
+grep -Fq 'System          Termux' <<< "$manual_after_startup"
 
 # Every managed distro has a stable distro-specific mark and usable commands.
 for distro in adelie alpine archlinux artix chimera debian deepin fedora kali manjaro opensuse pardus rockylinux ubuntu void; do
