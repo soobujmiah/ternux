@@ -182,10 +182,40 @@ Calling the assigned helper directly switched Alpine from English to its m17n
 Avro engine. A host-generated Ctrl+Space event switched Debian and Ubuntu in
 the current focused window, but did not change Alpine's engine; a temporary
 Alpine GTK entry probe also did not switch. The earlier Alpine GTK/XTest pass
-and this recheck disagree. The live config was restored to the original
-Ctrl+Space setup, temporary test files were removed, and no IBus, XFCE, X11,
-audio, or desktop session was restarted. This Alpine event discrepancy remains
-unresolved; no physical Android keyboard claim is made.
+and this recheck disagreed. This was an unresolved result at the time.
+
+On 2026-11-16, the owner reported that physical keyboard input switching works
+in all installed distros. In this session, the Alpine desktop was started on
+display `:4`; a live Xfce Terminal was opened and focused, then `xdotool` sent
+Ctrl+Space twice while the IBus engine was queried through that display's
+session sockets. The observed sequence was `xkb:us::eng` →
+`m17n:bn:avro-phonetic` → `xkb:us::eng`. The earlier event discrepancy did not
+reproduce in this focused terminal check. The owner report covers physical
+keyboard use; this session's independent check covers synthetic X11 input on
+the Xiaomi reference device.
+
+The repeatable check on this device is:
+
+```bash
+tx start alpine
+runtime="$PREFIX/var/lib/ternux/runtime"
+proot-distro login --isolated --shared-x11 \
+  --bind "$runtime:$runtime" alpine --user sbj -- \
+  env DISPLAY=:4 \
+  DBUS_SESSION_BUS_ADDRESS="unix:path=$runtime/dbus-_4.sock" \
+  IBUS_ADDRESS="unix:path=$runtime/ibus-_4.sock" \
+  xfce4-terminal --disable-server
+window="$(DISPLAY=:4 xdotool search --onlyvisible --class xfce4-terminal | head -n1)"
+DISPLAY=:4 xdotool windowactivate --sync "$window"
+DISPLAY=:4 xdotool key --clearmodifiers ctrl+space
+proot-distro login --isolated --shared-x11 \
+  --bind "$runtime:$runtime" alpine --user sbj -- \
+  env DBUS_SESSION_BUS_ADDRESS="unix:path=$runtime/dbus-_4.sock" \
+  IBUS_ADDRESS="unix:path=$runtime/ibus-_4.sock" ibus engine
+```
+
+Repeat the last two commands to observe the return to English; then run
+`tx stop alpine` to restore the stopped desktop state.
 
 ## Graphics and browser
 
