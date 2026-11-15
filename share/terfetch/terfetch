@@ -527,6 +527,22 @@ set_logo() {
       '          MMMMo  oMMMM'
       '          oNMm-  -mMNs'
     ) ;;
+    linux) logo_lines=(
+      '                  .----.'
+      '               .-` .--. `-.'
+      '              /  .--.  \'
+      '             |  | (o)(o) |  |'
+      '             |  |   __   |  |'
+      '             |  |  `--`  |  |'
+      '             |   \\      /   |'
+      '             |    `----`    |'
+      '             |    /|  |\\    |'
+      '             |   / |  | \\   |'
+      '              \\ /  |  |  \\ /'
+      '              /_/  |__|  \\_\\'
+      '             /___/      \\___\\'
+      '                 L I N U X'
+    ) ;;
     ternux) logo_lines=(
       '              .-================-.'
       '          .-==.  T E R N U X  .==-.'
@@ -560,16 +576,6 @@ set_logo() {
       '          `-.____________________.-`'
       '                 T E R N U X'
     ) ;;
-    linux) logo_lines=(
-      '        .--.'
-      '       |o_o |'
-      '       |:_/ |'
-      '      //   \\'
-      '     (|     | )'
-      '    /`\_   _/`\'
-      '    \___)=(___/'
-      '       LINUX'
-    ) ;;
     generic) logo_lines=(
       '  .----------------.'
       ' |  Linux guest   |'
@@ -597,7 +603,7 @@ logo_id=linux
 if [ "$host_termux" -eq 1 ]; then
   logo_index="${TERFETCH_LOGO_INDEX:-$((RANDOM % 10))}"
   if [[ ! "$logo_index" =~ ^[0-9]$ ]]; then logo_index=$((RANDOM % 10)); fi
-  native_logo_ids=(android debian ubuntu kali alpine archlinux fedora ternux void)
+  native_logo_ids=(android linux debian ubuntu kali alpine archlinux fedora ternux)
   if [ "$logo_index" -eq 9 ]; then
     logo_id=sobuj
     logo_special=1
