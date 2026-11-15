@@ -17,7 +17,7 @@ explains every knob, where it lives, and *why* it is set the way it is.
 |---|---|---|
 | `--user NAME` | `ternux` | Guest user created inside each selected container |
 | `--locale LANG` | `en_US.UTF-8` | Desktop locale (see below for Bangla) |
-| `--backend` | `auto` | `auto` prefers native distro Mesa Zink/Freedreno on Adreno/KGSL where that profile has packages; Debian Trixie uses its validated Turnip payload, other guests use their own distro packages, and Adélie uses VirGL |
+| `--backend` | `auto` | `auto` selects Mesa Zink/Turnip on Adreno/KGSL only for profiles with pinned assets (Debian, Ubuntu, Kali, Alpine, Arch Linux, Fedora, openSUSE, Void and Deepin); Kali Rolling uses a pinned Debian Testing overlay. Other profiles and GPU families use VirGL, then llvmpipe if its GL preflight cannot confirm VirGL |
 | `--zsh` | off | Switch the Termux shell to zsh as well |
 | `--with-*` | none | Optional workload profiles |
 
@@ -130,7 +130,7 @@ without replacing anonymous access with deliberate authentication and firewallin
 
 To pick a different sink (Bluetooth, headphones), change the
 `set-default-sink` line in `default.pa` and restart the session (`killx`,
-then `x`).
+then `tx start`).
 
 ---
 

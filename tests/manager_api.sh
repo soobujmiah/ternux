@@ -83,7 +83,7 @@ assert d['command']=='manager.displays' and d['schema_version']=='1.3.0' and d['
 assert d['migration_preview']['status']=='preview-only' and d['migration_preview']['executor_implemented'] is True and d['migration_preview']['ready_to_execute'] is False
 assert re.fullmatch(r'sha256:[a-f0-9]{64}', d['migration_preview']['plan_id'])
 assert d['count']==3 and [x['name'] for x in d['guests']]==['alpine','debian','ubuntu']
-assert [(x['name'],x['target_display']) for x in d['guests']]==[('alpine',3),('debian',1),('ubuntu',2)]
+assert [(x['name'],x['target_display']) for x in d['guests']]==[('alpine',4),('debian',1),('ubuntu',2)]
 assert all(x['current_display'] is None and x['migration_required'] is False for x in d['guests'] if x['name']!='debian')
 assert all(x['target_owner'] is None and x['target_owner_kind']=='unoccupied' for x in d['guests'])
 debian=next(x for x in d['guests'] if x['name']=='debian')
@@ -145,7 +145,7 @@ then ok 'display migration plan blocks while a different managed desktop retains
 
 if env TERNUX_STATE_DIR="$TMP/state-collisions" HOME="$TMP/home-collisions" TMPDIR="$TMP/collision-tmp" bash -c '
   mkdir -p "$TMPDIR/.X11-unix"
-  : > "$TMPDIR/.X11-unix/X0"; : > "$TMPDIR/.X11-unix/X1"; : > "$TMPDIR/.X3-lock"
+  : > "$TMPDIR/.X11-unix/X0"; : > "$TMPDIR/.X11-unix/X1"; : > "$TMPDIR/.X4-lock"
   . "$1/lib/manager.sh"
   tnx_has_cmd(){ [ "$1" = proot-distro ]; }
   proot-distro(){ printf "debian\nubuntu\nalpine\n"; }
@@ -167,7 +167,7 @@ assert guests['debian']['target_owner'] == 'ubuntu' and guests['debian']['target
 assert guests['ubuntu']['target_display']==2 and guests['ubuntu']['target_server_running'] is True
 assert guests['ubuntu']['target_conflict'] is True
 assert guests['ubuntu']['target_owner'] == 'alpine' and guests['ubuntu']['target_owner_kind'] == 'active-guest-assignment'
-assert guests['alpine']['current_display']==2 and guests['alpine']['target_display']==3
+assert guests['alpine']['current_display']==2 and guests['alpine']['target_display']==4
 assert guests['alpine']['target_lock_present'] is True
 assert guests['alpine']['migration_required'] is True and guests['alpine']['target_conflict'] is True
 assert guests['alpine']['migration_blockers']==['active-session','target-conflict']

@@ -32,7 +32,7 @@ TERNUX_LEGACY_STATE="$HOME/.ternux-state"
 # Resolution: explicit TERNUX_DISTRO, saved choice, then Debian.
 # ---------------------------------------------------------------------------
 TERNUX_DISTRO_VERIFIED="debian ubuntu alpine"
-TERNUX_DISTRO_KNOWN="debian ubuntu alpine archlinux fedora opensuse void kali artix chimera deepin manjaro pardus rockylinux adelie"
+TERNUX_DISTRO_KNOWN="debian ubuntu kali alpine archlinux fedora opensuse void artix chimera deepin manjaro pardus rockylinux adelie"
 TERNUX_NATIVE_DISPLAY=0
 
 tnx_distro() {
@@ -54,16 +54,15 @@ tnx_distro_verified() {
   return 1
 }
 
-# Prefer native Mesa Zink/Turnip on Adreno/KGSL for every distro profile.
-# Each guest installs its own distro-built Mesa/Freedreno packages; Debian's
-# separately pinned asset remains specific to the validated Debian profile.
+# Prefer Mesa Zink/Turnip on Adreno/KGSL only for profile families with a
+# pinned compatible asset. Other profiles use VirGL and its llvmpipe fallback.
 tnx_gpu_backend_auto() {
   local distro="${1:-$(tnx_distro)}"
-  if [ "$distro" != adelie ] && [ -e "${TERNUX_KGSL_DEVICE:-/dev/kgsl-3d0}" ]; then
-    printf 'zink'
-  else
-    printf 'virgl'
-  fi
+  [ -e "${TERNUX_KGSL_DEVICE:-/dev/kgsl-3d0}" ] || { printf 'virgl'; return; }
+  case "$distro" in
+    debian|ubuntu|kali|alpine|archlinux|fedora|opensuse|void|deepin) printf 'zink' ;;
+    *) printf 'virgl' ;;
+  esac
 }
 
 # True when the name is one ternux has a profile for at all.
@@ -78,12 +77,31 @@ tnx_distro_known() {
 tnx_distro_canonical() {
   case "${1:-}" in
     db) printf debian ;; ub) printf ubuntu ;; alp) printf alpine ;;
-    archx) printf archlinux ;; fed) printf fedora ;; suse) printf opensuse ;;
-    vsh) printf void ;; kal) printf kali ;; art) printf artix ;;
+    kali-linux) printf kali ;; arch|archx) printf archlinux ;; fed) printf fedora ;; suse) printf opensuse ;;
+    vsh) printf void ;; art) printf artix ;;
     chim) printf chimera ;; deep) printf deepin ;; manj) printf manjaro ;;
     par) printf pardus ;; rock) printf rockylinux ;; adel) printf adelie ;;
     *) printf '%s' "${1:-}" ;;
   esac
+}
+
+# Return installed named desktop profiles in the catalog's stable serial order.
+# PRoot-Distro's own list order is an implementation detail and can be lexical.
+tnx_distro_installed_managed_list() {
+  tnx_has_cmd proot-distro || return 0
+  local listing guest
+  listing="$(proot-distro list --quiet 2>/dev/null || true)"
+  local -A installed=()
+  while IFS= read -r guest; do
+    guest="${guest%% *}"
+    [ -n "$guest" ] || continue
+    guest="$(tnx_distro_canonical "$guest")"
+    tnx_distro_known "$guest" && installed["$guest"]=1
+  done <<< "$listing"
+  for guest in $TERNUX_DISTRO_KNOWN; do
+    [ -n "${installed[$guest]+yes}" ] && printf '%s\n' "$guest"
+  done
+  return 0
 }
 
 # Package-manager families for official PRoot-Distro aliases. Sets TNX_DP_*.
@@ -94,8 +112,8 @@ tnx_distro_target_display() {
   # v3 reserves :0 for the native Termux workspace. Keep profile identities
   # stable so installing/removing a different guest never renumbers these.
   case "$distro" in
-    debian) printf '1' ;; ubuntu) printf '2' ;; alpine) printf '3' ;;
-    archlinux) printf '4' ;; fedora) printf '5' ;; opensuse) printf '6' ;; void) printf '7' ;; kali) printf '8' ;;
+    debian) printf '1' ;; ubuntu) printf '2' ;; kali) printf '3' ;; alpine) printf '4' ;;
+    archlinux) printf '5' ;; fedora) printf '6' ;; opensuse) printf '7' ;; void) printf '8' ;;
     artix) printf '9' ;; chimera) printf '10' ;; deepin) printf '11' ;; manjaro) printf '12' ;; pardus) printf '13' ;; rockylinux) printf '14' ;; adelie) printf '15' ;;
     *) return 1 ;;
   esac
@@ -197,6 +215,16 @@ tnx_distro_state_get() {
   [ -f "$file" ] || return 1
   line="$(grep -sm1 "^${key}=" "$file")" || return 1
   printf '%s\n' "${line#*=}"
+}
+
+# Resolve the unprivileged account for the selected managed guest. TERNUX_USER
+# remains the legacy/default account and may belong to another distro.
+tnx_distro_user() {
+  local distro="${1:-$(tnx_distro)}" user=""
+  user="$(tnx_distro_state_get "$distro" user 2>/dev/null || true)"
+  user="${user:-${TERNUX_USER:-}}"
+  user="${user:-$(tnx_state_get user 2>/dev/null || true)}"
+  printf '%s\n' "${user:-ternux}"
 }
 
 tnx_distro_state_set_impl() {

@@ -821,3 +821,19 @@ invoice task returned 24.75 rather than 39.50. Do not claim those tasks, other
 models/devices, or general factual/numeric correctness as qualified. HTP/HMX and
 QNN remain separate experimental/research exclusions. The test did not modify
 models or restart the desktop.
+
+### Installed guest graphics route check — 2026-11-15
+
+On Xiaomi 25053RT47C (Adreno 825), the installed Debian, Ubuntu, Kali, and
+Alpine guests each enumerated the Turnip device through Vulkan and rendered a
+Zink GLX probe on their assigned X11 displays (:1 through :4). This verifies
+the installed Zink route on these four guests; it does not qualify every app
+or the complete Kali desktop profile. Full desktop qualification remains
+Debian, Ubuntu, and Alpine only.
+
+VirGL GLX probes rendered on Debian, Ubuntu, and Kali. Alpine could not create
+a DRI screen. The llvmpipe probe stayed alive on Debian and terminated with
+`SIGILL` on Ubuntu, Kali, and Alpine. The launcher still attempts llvmpipe
+after a failed VirGL preflight, so that software fallback is not usable evidence
+for those three guests. Keep this gap open until a working software renderer is
+verified on each profile.

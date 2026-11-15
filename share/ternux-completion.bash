@@ -10,7 +10,7 @@
 _ternux_completions() {
   local cur="${COMP_WORDS[COMP_CWORD]}"
   local prev="${COMP_WORDS[COMP_CWORD-1]}"
-  local cmds="install start stop restart doctor repair verify benchmark profile backend info state logs update uninstall"
+  local cmds="install distro manager mng manage control extension ext storage guides guide start stop restart status doctor repair verify benchmark profile backend gpu info state logs mic cam update uninstall"
   local global_opts="--help -h --json --verbose --quiet --version -V"
 
   # Top-level: suggest commands and global options
@@ -60,6 +60,9 @@ _ternux_completions() {
         COMPREPLY=($(compgen -W "--yes --user --locale --backend --zsh --with-dev --with-llm --with-network --with-media --with-blender --all --resume --help" -- "$cur"))
       fi
       ;;
+    start)
+      COMPREPLY=($(compgen -W "debian db ubuntu ub kali alpine alp archlinux arch archx fedora fed opensuse suse void vsh artix art chimera chim deepin deep manjaro manj pardus par rockylinux rock adelie adel" -- "$cur"))
+      ;;
     doctor|verify|info|state)
       COMPREPLY=($(compgen -W "--json --help" -- "$cur"))
       ;;
@@ -69,4 +72,4 @@ _ternux_completions() {
   esac
 }
 
-complete -F _ternux_completions ternux
+complete -F _ternux_completions ternux tx

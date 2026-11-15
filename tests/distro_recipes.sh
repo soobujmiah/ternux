@@ -26,7 +26,7 @@ tnx_guest_login() {
   return 0
 }
 
-profiles="debian ubuntu alpine archlinux fedora opensuse void kali artix chimera deepin manjaro pardus rockylinux adelie"
+profiles="debian ubuntu kali alpine archlinux fedora opensuse void artix chimera deepin manjaro pardus rockylinux adelie"
 for distro in $profiles; do
   unset _TNX_DISTRO
   export TERNUX_DISTRO="$distro"
@@ -35,11 +35,18 @@ for distro in $profiles; do
   tnx_phase_audio_fonts ternux en_US.UTF-8 >/dev/null
   [ "$script_num" -eq 3 ] || { echo "Expected three guest scripts for $distro, found $script_num" >&2; exit 1; }
   for generated in "$TMP/guest-${distro}-"*.sh; do bash -n "$generated"; done
+  grep -q 'ternux-configure-prompt' "$TMP/guest-${distro}-"*.sh || {
+    echo "Distro-specific prompt setup missing from $distro recipe" >&2; exit 1;
+  }
+  grep -q "printf '%s' .*base64 -d > /usr/local/bin/terfetch" "$TMP/guest-${distro}-"*.sh || {
+    echo "Terfetch binary setup missing from $distro recipe" >&2; exit 1;
+  }
   if [ "$distro" = alpine ]; then
     grep -Fq "if [ 'alpine' = alpine ]; then install_proot_bwrap_shim; fi" "$TMP/guest-${distro}-1.sh" || {
       echo "PRoot Glycin compatibility shim missing from Alpine package setup" >&2; exit 1;
     }
     grep -Fq 'py3-xlib' "$TMP/guest-${distro}-1.sh" &&
+      grep -Fq 'ibus-gtk3 ibus-gtk4' "$TMP/guest-${distro}-1.sh" &&
       grep -Fq 'install -m 0755 $asset_stage/bin/ternux-window-fit-x11 /usr/local/bin/ternux-window-fit-x11' "$TMP"/guest-${distro}-*.sh &&
       grep -Fq 'window_fit_exec=/usr/local/bin/ternux-window-fit-x11' "$TMP"/guest-${distro}-*.sh || {
       echo "Alpine X11 window-fit fallback is missing from the desktop recipe" >&2; exit 1;
@@ -72,6 +79,14 @@ for distro in $profiles; do
     opensuse) grep -q 'MozillaFirefox' "$TMP/guest-${distro}-"*.sh ;;
     void) grep -q 'xbps-install -Sy firefox' "$TMP/guest-${distro}-"*.sh ;;
   esac || { echo "Default browser install route missing from $distro recipe" >&2; exit 1; }
+  if [ "$distro" = kali ]; then
+    grep -q 'nmap sqlmap hydra john gobuster nikto whois netcat-traditional' "$TMP/guest-kali-"*.sh || {
+      echo 'Curated Kali security tools are missing from the default profile.' >&2; exit 1;
+    }
+    ! grep -q 'kali-linux-default\|kali-tools-top10\|kali-linux-everything' "$TMP/guest-kali-"*.sh || {
+      echo 'The mobile Kali profile must not pull in the large upstream desktop metapackages.' >&2; exit 1;
+    }
+  fi
   # Every named desktop recipe must install both a Mesa Gallium driver and a
   # glxinfo provider so the VirGL route can be inspected in that guest.
   grep -Eq 'libgl1-mesa-dri|mesa-dri-gallium|mesa-dri-drivers|Mesa-dri|mesa-dri' "$TMP/guest-${distro}-"*.sh || {

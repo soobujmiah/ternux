@@ -7,13 +7,17 @@ if kind == "WINDOW_TYPE_NORMAL" or kind == "WINDOW_TYPE_DIALOG" then
     local top = 24
     local bottom = 42
     local max_width = math.max(1, screen_width - margin * 2)
-    local max_height = math.max(1, screen_height - top - bottom - margin * 2)
+    local work_height = math.max(1, screen_height - top - bottom)
+    local max_height = math.max(1, work_height - margin * 2)
+    local target_width = math.min(width, max_width)
+    local target_height = math.min(height, max_height)
+    local target_x = math.floor((screen_width - target_width) / 2)
+    local target_y = top + math.floor((work_height - target_height) / 2)
 
-    if width > max_width or height > max_height then
-        local target_width = math.min(width, max_width)
-        local target_height = math.min(height, max_height)
-        set_window_geometry(margin, top + margin, target_width, target_height)
-    elseif x < margin or y < top or x + width > screen_width - margin or y + height > screen_height - bottom then
-        center()
+    -- Fit every new app window and place it in the center of the visible
+    -- work area. Avoid relying on the window manager's initial placement,
+    -- which can put tall windows above the phone's viewport.
+    if x ~= target_x or y ~= target_y or width ~= target_width or height ~= target_height then
+        set_window_geometry(target_x, target_y, target_width, target_height)
     end
 end

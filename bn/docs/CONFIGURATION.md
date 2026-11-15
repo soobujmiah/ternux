@@ -18,7 +18,7 @@ ternux যুক্তিসঙ্গত ডিফল্ট নিয়ে ই�
 |---|---|---|
 | `--user NAME` | `ternux` | বেছে নেওয়া প্রতিটি কন্টেইনারে তৈরি guest user |
 | `--locale LANG` | `en_US.UTF-8` | ডেস্কটপ লোকেল (বাংলার জন্য নিচে দেখুন) |
-| `--backend` | `auto` | Adreno/KGSL থাকলে native distro Mesa Zink/Freedreno প্রাধান্য পায়; Debian Trixie-তে validated Turnip payload, অন্য distro-তে তাদের নিজস্ব package, Adélie-তে VirGL |
+| `--backend` | `auto` | Adreno/KGSL থাকলে কেবল pinned asset-যুক্ত Debian, Ubuntu, Kali, Alpine, Arch Linux, Fedora, openSUSE, Void ও Deepin profile-এ Zink/Turnip চলে; Kali Rolling-এ pinned Debian Testing overlay ব্যবহৃত হয়। অন্য profile বা GPU-তে VirGL, VirGL-এর GLX পরীক্ষা ব্যর্থ হলে শেষ সফটওয়্যার পথ llvmpipe |
 | `--zsh` | বন্ধ | Termux শেলও zsh-এ বদলায় |
 | `--with-*` | কিছুই না | ঐচ্ছিক ওয়ার্কলোড প্রোফাইল |
 
@@ -130,7 +130,7 @@ client loopback listener-এ পৌঁছাতে পারে। Authenticatio
 listener `0.0.0.0` করবেন না।
 
 ভিন্ন সিঙ্ক (Bluetooth, হেডফোন) চাইলে `default.pa`-র `set-default-sink`
-লাইন বদলে সেশন রিস্টার্ট করুন (`killx`, তারপর `x`)।
+লাইন বদলে সেশন রিস্টার্ট করুন (`killx`, তারপর `tx start`)।
 
 ---
 

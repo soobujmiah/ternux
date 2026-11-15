@@ -236,7 +236,7 @@ _tnx_repair_launcher() {
 _tnx_repair_mesa_cache() {
   local out=""
   if tnx_has_cmd proot-distro; then
-    out="$(tnx_guest_login --user "${TERNUX_USER:-ternux}" -- bash -c '
+    out="$(tnx_guest_login --user "$(tnx_distro_user)" -- bash -c '
       cleared=0
       for cache in ~/.cache/mesa ~/.cache/mesa_shader_cache ~/.cache/mesa_shader_cache_db ~/.cache/mesa_shader_cache_sf; do
         if [ -d "$cache" ] && [ -n "$(ls -A "$cache" 2>/dev/null)" ]; then

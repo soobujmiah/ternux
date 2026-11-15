@@ -297,7 +297,7 @@ launcher নিরাপদে refresh করার জন্য Ternux lifecycl
 ternux start
 ```
 
-`x` shortcut একই command চালায়। Termux-এর Android storage permission থাকলে
+`tx start` একই managed desktop startup flow চালায়। Termux-এর Android storage permission থাকলে
 managed guest-এ shared storage default-এ `/sdcard` হিসেবে mount হয়। Path না
 থাকলে Termux-এ `termux-setup-storage` চালিয়ে desktop restart করুন। পুরোনো
 `proot-distro login --shared-tmp` launcher example `~/x.sh`-এ কপি করবেন না—ওগুলো
@@ -309,7 +309,7 @@ resume করুন।
 
 ## ধাপ ৯ — শেল শর্টকাট
 
-ইনস্টলার `tx`, `x`, `killx`, `db`/`dbroot`, `ub`/`ubroot`, `alp`/`alproot`, `xgo`, `clean-mesa` এবং `sysmon`
+ইনস্টলার `tx`, `killx`, `db`/`dbroot`, `ub`/`ubroot`, `alp`/`alproot`, `xgo`, `clean-mesa` এবং `sysmon`
 shortcut তৈরি ও রক্ষণাবেক্ষণ করে। Guest alias isolated PRoot binding ব্যবহার
 করে, Android shared storage `/sdcard`-এ mount করে এবং দরকারে `/tmp` share করে। Alias তৈরি বা refresh
 করতে `ternux install` চালান; পুরোনো guide-এর alias block কপি করবেন না।
@@ -321,7 +321,7 @@ source ~/.bashrc
 ```
 
 ```bash
-x
+tx start
 ```
 
 ---
@@ -362,7 +362,7 @@ proot-distro login debian --user ternux -- bash -c '
   sudo -n true && echo "Debian core OK"'
 ```
 
-ডেস্কটপ চলার পর (`x` চালিয়ে) ডেস্কটপের টার্মিনাল থেকে GPU প্রমাণ করুন:
+ডেস্কটপ চলার পর (`tx start` চালিয়ে) ডেস্কটপের টার্মিনাল থেকে GPU প্রমাণ করুন:
 
 ```bash
 glxinfo | grep "renderer string"

@@ -49,6 +49,19 @@ _tnx_state_show() {
     echo ""
   fi
 
+  local installed="" distro profile_state
+  installed="$(tnx_distro_installed_managed_list)"
+  if [ -n "$installed" ]; then
+    tnx_info "Installed managed profiles:"
+    while IFS= read -r distro; do
+      [ -n "$distro" ] || continue
+      profile_state="$(tnx_distro_state_get "$distro" status 2>/dev/null || true)"
+      [ -n "$profile_state" ] || profile_state="installed; setup state not recorded"
+      printf "  ${TNX_CD}%-12s${TNX_C0} display :%-2s  %s\n" "$distro" "$(tnx_distro_display "$distro")" "$profile_state"
+    done <<< "$installed"
+    echo ""
+  fi
+
   for hist in benchmarks repairs; do
     [ -f "$TERNUX_STATE_DIR/$hist" ] && {
       tnx_info "${hist} history:"
@@ -66,11 +79,22 @@ _tnx_state_export_json() {
   tnx_json_add "timestamp" "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
   tnx_json_add "version" "$TERNUX_VERSION"
   tnx_json_add "state_dir" "$TERNUX_STATE_DIR"
+  tnx_json_add "distro" "$(tnx_distro)"
+  tnx_json_add "user" "$(tnx_state_get user || echo ternux)"
+  tnx_json_add "locale" "$(tnx_state_get locale || echo en_US.UTF-8)"
 
   local phases=""
   [ -f "$TERNUX_STATE_DIR/phases" ] && phases="$(tr '\n' ',' < "$TERNUX_STATE_DIR/phases" | sed 's/,$//')"
   tnx_json_add "completed_phases" "$phases"
   tnx_json_add "backend" "$(tnx_canonical_backend "$(tnx_state_get "backend" || echo "unknown")")"
   tnx_json_add "renderer" "$(tnx_state_get "renderer" || echo "unknown")"
+  local installed="" profiles="" name profile_state
+  installed="$(tnx_distro_installed_managed_list)"
+  while IFS= read -r name; do
+    [ -n "$name" ] || continue
+    profile_state="$(tnx_distro_state_get "$name" status 2>/dev/null || echo installed)"
+    profiles+="${profiles:+,}${name}:${profile_state}:$(tnx_distro_display "$name")"
+  done <<< "$installed"
+  tnx_json_add "installed_profiles" "$profiles"
   tnx_json_end
 }

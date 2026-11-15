@@ -22,41 +22,45 @@ tnx_help() {
       "tnx_help_${cmd}"
     else
       echo "No help available for '${cmd}'."
-      echo "Run 'ternux --help' for command list."
+      echo "Run 'tx --help' for command list."
     fi
     return 0
   fi
 
   cat << HELPEOF
-${TNX_CG}ternux${TNX_C0} — ${TERNUX_DESC}
+${TNX_CG}tx${TNX_C0} — ${TERNUX_DESC}
 ${TNX_CD}v${TERNUX_VERSION} · ${TERNUX_REPO}${TNX_C0}
 
 ${TNX_CW}Usage:${TNX_C0}
-  ternux <command> [options] [subcommand]
+  tx <command> [options] [subcommand]
 
-${TNX_CW}Commands:${TNX_C0}
-  ${TNX_CG}install${TNX_C0}    Install full desktop environment
-  ${TNX_CG}distro${TNX_C0}     List installed guests, open shells, install images
-  ${TNX_CG}manager${TNX_C0}    Read host status, guests, displays and capabilities
-  ${TNX_CG}control${TNX_C0}    Open the local Control Center
-  ${TNX_CG}extension${TNX_C0}  Manage checksum-verified guest extensions
-  ${TNX_CG}storage${TNX_C0}    Grant or revoke scoped Android storage access
-  ${TNX_CG}guides${TNX_C0}     Installation and ecosystem help links
-  ${TNX_CG}start${TNX_C0}      Start the desktop session
-  ${TNX_CG}stop${TNX_C0}       Stop the desktop session
-  ${TNX_CG}restart${TNX_C0}    Restart the desktop session
-  ${TNX_CG}doctor${TNX_C0}     Run system diagnostics  ${TNX_CD}[--json]${TNX_C0}
-  ${TNX_CG}repair${TNX_C0}     Auto-fix common issues
-  ${TNX_CG}verify${TNX_C0}     Verify installation      ${TNX_CD}[--json]${TNX_C0}
-  ${TNX_CG}benchmark${TNX_C0}  Run GPU benchmarks       ${TNX_CD}[--json]${TNX_C0}
-  ${TNX_CG}profile${TNX_C0}    Device hardware profile  ${TNX_CD}[--json]${TNX_C0}
-  ${TNX_CG}backend${TNX_C0}    GPU backend management   ${TNX_CD}[--json]${TNX_C0}
-  ${TNX_CG}gpu${TNX_C0}        GPU driver status/update
-  ${TNX_CG}info${TNX_C0}       System information       ${TNX_CD}[--json]${TNX_C0}
-  ${TNX_CG}state${TNX_C0}      Installation state       ${TNX_CD}[--json]${TNX_C0}
-  ${TNX_CG}logs${TNX_C0}       View/manage log files
-  ${TNX_CG}update${TNX_C0}     Update Ternux through its install source
-  ${TNX_CG}uninstall${TNX_C0}  Remove ternux components
+${TNX_CW}Complete command tree${TNX_C0} (use "tx COMMAND -h" for flags and details):
+  install [--distro NAME|--distros LIST|--resume|--yes|--all|--with-*]
+  distro [list|search|find|install|uninstall|remove|image-install|shell|root|exec]
+  manager [status|guests|displays|capabilities|migrate --apply PLAN|migrate --recover|serve]
+  control [--no-open]
+  extension [list|ls|install NAME|repair NAME|remove NAME|uninstall NAME]
+  storage [list|grant DIRECTORY|revoke DIRECTORY]
+  guides (alias: guide)
+  start [DISTRO ...]       stop [DISTRO ...|--all]
+  restart [DISTRO]         status [DISTRO]
+  logs [show|tail|clear|list|desktop [show|tail]|session [show|tail]]
+  doctor [CATEGORY|DISTRO ...|--quick|--strict]   repair   verify [DISTRO]
+  benchmark [--json]       profile [show|save|load|list|compare]
+  info [--json]            state [--json]
+  backend [show|set|detect|update]   gpu [show|update]
+  mic                          cam
+  update [run|check]           uninstall [session|launcher|state|container|host-cli|all] [--yes]
+
+Command aliases:
+  mng / manage → manager    guide → guides    ext → extension    doc → doctor
+  Distro aliases: db→debian, ub→ubuntu, kali-linux→kali, alp→alpine,
+  arch/archx→archlinux, fed→fedora, suse→opensuse, vsh→void, art→artix,
+  chim→chimera, deep→deepin, manj→manjaro, par→pardus, rock→rockylinux,
+  adel→adelie. Shell shortcuts: db/dbr/dbroot, ub/ubr/ubroot, kali/kalir/kaliroot,
+  alp/alpr/alproot, archx/archroot, fed/fedr, suse/suser, vsh/vroot.
+  Guest catalog and all accepted names: tx distro list
+  Standalone terminal summary: terfetch [--json|--version|--help]
 
 ${TNX_CW}Global options:${TNX_C0}
   --help, -h    Show help for any command
@@ -66,15 +70,16 @@ ${TNX_CW}Global options:${TNX_C0}
   --quiet       Suppress non-critical messages
 
 ${TNX_CW}Examples:${TNX_C0}
-  ternux doctor --json     ${TNX_CD}machine-readable diagnostics${TNX_C0}
+  tx doctor --json         ${TNX_CD}machine-readable diagnostics${TNX_C0}
   tx start                 ${TNX_CD}Launch the desktop${TNX_C0}
   alp                       ${TNX_CD}Alpine user shell; alpr or alproot opens root${TNX_C0}
   db / dbr / dbroot         ${TNX_CD}Debian user / root shell${TNX_C0}
   ub / ubr / ubroot         ${TNX_CD}Ubuntu user / root shell${TNX_C0}
-  ternux backend set zink  ${TNX_CD}Switch GPU backend${TNX_C0}
-  ternux profile save      ${TNX_CD}Snapshot device config${TNX_C0}
+  tx backend set zink      ${TNX_CD}Switch GPU backend${TNX_C0}
+  tx profile save          ${TNX_CD}Snapshot device config${TNX_C0}
 
-${TNX_CD}Run 'ternux <command> --help' for detailed help.${TNX_C0}
+${TNX_CD}Run 'tx <command> -h' for detailed help.${TNX_C0}
+The compatibility command 'ternux' accepts the same commands, aliases and options.
 HELPEOF
 }
 
@@ -126,7 +131,7 @@ HELP
 # --- Command-specific help -------------------------------------------------
 tnx_help_extension() {
   cat <<'HELP'
-Usage: ternux extension [list|install|repair|remove NAME]
+Usage: tx extension [list|install|repair|remove NAME]
 
 Install or repair a checksum-verified Ternux Linux ARM64 extension release, or
 remove one managed extension from your Debian user's
@@ -152,7 +157,7 @@ HELP
 
 tnx_help_install() {
   cat << HELP
-Usage: ternux install [options]
+Usage: tx install [options]
 
 Install or reinstall the full ternux desktop environment.
 
@@ -164,8 +169,8 @@ Options:
   --zsh                Use zsh instead of bash (installs powerlevel10k)
   --shell bash|zsh     Choose the Termux shell without being asked
   --no-theme           Skip powerlevel10k when zsh is chosen
-  --distro NAME        One of 15 named guest profiles (Debian/Ubuntu/Alpine qualified)
-  --distros LIST       Install multiple profiles, e.g. debian,ubuntu,alpine
+  --distro NAME        One of 15 named guest profiles (Debian/Ubuntu/Alpine device-qualified)
+  --distros LIST       Install multiple profiles, e.g. debian,ubuntu,kali,alpine
   --with-dev           Install development tools
   --with-llm           Build llama.cpp with Vulkan
   --with-network       Install network tools
@@ -177,7 +182,11 @@ Options:
   --plain              Plain scrolling output instead of the dashboard
   --no-anim            Freeze the spinner and colour cycling
 
-Interactive install first shows a keyboard checklist of the 15 named profiles:
+Interactive install first shows a keyboard checklist in this order: Debian,
+Ubuntu, Kali, Alpine, Arch Linux, Fedora, openSUSE, Void, Artix, Chimera,
+Deepin, Manjaro, Pardus, Rocky Linux, Adelie. Use a profile's documented short
+name in non-interactive commands. Kali uses Kali's official rolling OCI image.
+The checklist supports:
 Up/Down or j/k moves, Space or a number toggles, Enter confirms; multiple
 profiles can be selected in one pass. Debian is the recommended default; Debian,
 Ubuntu, and Alpine have device qualification, with a documented Alpine keyboard
@@ -189,25 +198,48 @@ Run 'bash install.sh' for a fresh setup or 'ternux install' from the host CLI.
 HELP
 }
 
-tnx_help_guides() { echo "Usage: ternux guides"; echo "Show installation, ecosystem tool, and daily-use guide links."; }
+tnx_help_distro() { echo "Usage: tx distro [list|search QUERY|install NAME|uninstall NAME [--yes]|image-install IMAGE [NAME]|shell NAME [-- COMMAND]|root NAME [-- COMMAND]|exec NAME -- COMMAND]"; echo "Bare tx distro shows the management overview; tx distro list shows all managed desktop profiles, their short names, display IDs, GPU routes, and install states."; echo "Other operations search OCI images, install/uninstall guests, open user/root shells, or run a command in a guest."; echo "Profiles: debian/db, ubuntu/ub, kali, alpine/alp, archlinux/archx, fedora/fed, opensuse/suse, void/vsh, artix/art, chimera/chim, deepin/deep, manjaro/manj, pardus/par, rockylinux/rock, adelie/adel."; }
+tnx_help_start()     { echo "Usage: tx start [DISTRO ...]"; echo "Start Debian by default when installed; otherwise start the saved distro. Pass one or more full or short guest names to start desktops in sequence."; echo "Catalog order and short names: debian/db, ubuntu/ub, kali, alpine/alp, archlinux/archx, fedora/fed, opensuse/suse, void/vsh, artix/art, chimera/chim, deepin/deep, manjaro/manj, pardus/par, rockylinux/rock, adelie/adel."; echo "Example: tx start db ub kali alp"; }
+tnx_help_guides()    { echo "Usage: tx guide | tx guides"; echo "Print the built-in quick guide and links to the complete documentation."; }
+tnx_help_mic() { cat <<'HELP'
+Usage: tx mic
 
-tnx_help_distro() { echo "Usage: tx distro [list|search QUERY|install NAME|uninstall NAME [--yes]|image-install IMAGE [NAME]|shell NAME [-- COMMAND]|root NAME [-- COMMAND]|exec NAME -- COMMAND]"; echo "List guests, search OCI images, install or uninstall a Ternux-managed profile, or open a guest user/root shell."; }
-tnx_help_start()     { echo "Usage: tx start [db|ub|alp|DISTRO]"; echo "Start Debian by default when installed; otherwise start the saved distro. Use db, ub, or alp to select Debian, Ubuntu, or Alpine."; }
+Request Android microphone access through Termux:API. The permission check
+records for at most one second to a private temporary file, stops the recorder,
+and deletes that file. If Termux:API is not installed, it briefly opens the
+built-in OpenSL microphone path; audio is discarded and Android may ask for
+Termux's microphone permission. A missing companion does not block desktop use.
+Supports --json for a machine-readable result.
+HELP
+}
+tnx_help_cam() { cat <<'HELP'
+Usage: tx cam
+
+Request Android camera access through Termux:API by taking one temporary
+rear-camera photo in a private directory, then deleting it. Run from an
+interactive Termux session so you can answer Android's permission prompt.
+Without the Termux:API app and package, use Android Camera and browse its saved
+photos from the guest file manager. The Ternux desktop remains usable.
+Supports --json for a machine-readable result.
+HELP
+}
 tnx_help_stop()      { echo "Usage: tx stop [DISTRO|--all]"; echo "Interactive mode lists running guests; choose one or more by number or name (space/comma separated), or 0 to cancel. --all stops every Ternux desktop."; }
-tnx_help_restart()   { echo "Usage: ternux restart [DISTRO]"; echo "Restart the named guest desktop session."; }
+tnx_help_restart()   { echo "Usage: tx restart [DISTRO]"; echo "Restart the named guest desktop session."; }
+tnx_help_status()    { echo "Usage: tx status [DISTRO] [--json]"; echo "Without DISTRO, show lifecycle, display, audio and log location for every installed managed desktop guest. Add a name to inspect one guest."; }
 tnx_help_doctor() {
   cat << HELP
-Usage: ternux doctor [CATEGORY...] [--quick] [--strict] [--json]
+Usage: tx doctor [CATEGORY|DISTRO ...] [--quick] [--strict] [--json]
 
 Run categorised diagnostics. Every check is reported as ok, warn, fail or info
 with a fix hint; info is context and never counts as an issue.
 
-Categories (default: all):
+Categories (default: host, system, all installed guests and graphics):
   system       architecture, storage, memory, battery temperature, state directory
   host         proot-distro, Debian container, Termux:X11, PulseAudio, curl,
                Android child-process monitoring
   guest        Debian glibc, passwordless sudo, desktop commands, dpkg state, disk
   graphics     Vulkan, GPU, backend, KGSL node, Turnip layout, renderer, launcher
+  gpu          alias for graphics; checks the GPU route and renderer
   extensions   health of installed extensions (llama-vulkan, stable-diffusion, llama-htp-experimental)
 
 Options:
@@ -219,16 +251,19 @@ Options:
 Examples:
   ternux doctor extensions         ${TNX_CD}only the extension checks${TNX_C0}
   ternux doctor graphics --json    ${TNX_CD}graphics checks for scripts${TNX_C0}
+  tx doctor db                     ${TNX_CD}Debian guest and graphics checks${TNX_C0}
+  tx doc kali                      ${TNX_CD}Kali guest and graphics checks${TNX_C0}
+  tx doctor gpu                    ${TNX_CD}GPU diagnostics only${TNX_C0}
   ternux doctor --quick --strict   ${TNX_CD}fast host-only gate for automation${TNX_C0}
 HELP
 }
-tnx_help_repair()    { echo "Usage: ternux repair"; echo "Auto-fix common issues: broken curl, missing X11, backend mismatch, stale cache."; }
-tnx_help_verify()    { echo "Usage: ternux verify [DISTRO] [--json]"; echo "Verify the active guest by default, or select one with db, ub, alp, or its distro name. Checks host binaries, launcher, guest services, and GPU driver."; }
-tnx_help_benchmark() { echo "Usage: ternux benchmark [--json]"; echo "Run GPU benchmarks (glmark2, vkmark) and renderer verification."; }
+tnx_help_repair()    { echo "Usage: tx repair"; echo "Auto-fix common issues: broken curl, missing X11, backend mismatch, stale cache."; }
+tnx_help_verify()    { echo "Usage: tx verify [DISTRO] [--json]"; echo "Verify the active guest by default, or select one with db, ub, alp, or its distro name. Checks host binaries, launcher, guest services, and GPU driver."; }
+tnx_help_benchmark() { echo "Usage: tx benchmark [--json]"; echo "Run GPU benchmarks (glmark2, vkmark) and renderer verification."; }
 
 tnx_help_profile() {
   cat << HELP
-Usage: ternux profile <subcommand> [name]
+Usage: tx profile <subcommand> [name]
 
 Subcommands:
   show          Display current device profile
@@ -243,7 +278,7 @@ HELP
 
 tnx_help_backend() {
   cat << HELP
-Usage: ternux backend <subcommand> [backend]
+Usage: tx backend <subcommand> [backend]
 
 Subcommands:
   show             Display current backend configuration
@@ -255,31 +290,32 @@ Supports --json for machine-readable output.
 HELP
 }
 
-tnx_help_info()      { echo "Usage: ternux info [--json]"; echo "Show system information summary: device, GPU, backend, renderer."; }
-tnx_help_state()     { echo "Usage: ternux state [--json]"; echo "Show installation state: completed phases, configuration, history."; }
+tnx_help_info()      { echo "Usage: tx info [--json]"; echo "Show Android/Termux versions, device, CPU, memory/storage, GPU/Vulkan/backend, active renderer, and phantom-process setting readability."; }
+tnx_help_state()     { echo "Usage: tx state [--json]"; echo "Show completed installer phases, saved configuration, installed managed profiles and displays, plus recent repair/benchmark history."; }
 
 tnx_help_logs() {
   cat << HELP
-Usage: ternux logs <subcommand>
+Usage: tx logs <subcommand>
 
 Subcommands:
   show [n]     Show last n log lines (default: 50)
   tail         Follow log output in real time
   clear        Clear the CLI/install log file
   list         List available log files
-  desktop [show|tail]  Read or follow the desktop session log
+  desktop [show|tail] [DISTRO]  Read/follow one guest's desktop log
+  session [show|tail] [DISTRO]  Alias for desktop logs
 HELP
 }
 
-tnx_help_update()    { echo "Usage: ternux update [check]"; echo "check — inspect the latest stable release without installing. APT installs use pkg upgrade; other installs fetch the exact stable tag commit, stage and verify all CLI modules, and preserve the previous version for rollback."; }
+tnx_help_update()    { echo "Usage: tx update [check]"; echo "check — inspect the latest stable release without installing. APT installs use pkg upgrade; other installs fetch the exact stable tag commit, stage and verify all CLI modules, and preserve the previous version for rollback."; }
 tnx_help_uninstall() {
-  echo "Usage: ternux uninstall [session|launcher|state|container|host-cli|all] [--yes]"
+  echo "Usage: tx uninstall [session|launcher|state|container|host-cli|all] [--yes]"
   echo "Interactive by default; destructive container removal requires confirmation."
 }
 
 tnx_help_gpu() {
   cat << HELP
-Usage: ternux gpu <subcommand>
+Usage: tx gpu <subcommand>
 
 Subcommands:
   show       Show GPU/backend status
@@ -293,7 +329,7 @@ HELP
 
 tnx_help_storage() {
   cat <<'HELP'
-Usage: ternux storage [list | grant DIRECTORY | revoke DIRECTORY]
+Usage: tx storage [list | grant DIRECTORY | revoke DIRECTORY]
 
 Shared Android storage is not mounted by default. Grant an existing subdirectory
 under /sdcard to expose only that directory to Ternux guest commands and desktop

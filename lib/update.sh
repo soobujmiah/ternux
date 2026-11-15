@@ -494,7 +494,7 @@ _tnx_update_run() {
   rmdir "$prefix/lib/.ternux-update-lock" 2>/dev/null || true
 
   if [ -f "$source_dir/bin/ternux-guest" ] && tnx_debian_installed; then
-    local guest_user="${TERNUX_USER:-ternux}" guest_version="" guest_ok=1
+    local guest_user="$(tnx_distro_user debian)" guest_version="" guest_ok=1
     if ! tnx_guest_login -- bash -c '
       set -e
       tmp=/usr/local/bin/.ternux.new

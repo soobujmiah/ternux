@@ -83,10 +83,10 @@ source ~/.bashrc
 ```
 
 ```bash
-x
+tx start
 ```
 
-`x` শর্টকাট ধারাবাহিকভাবে চালু করে: অডিও ব্রিজ → ডিসপ্লে (`Termux:X11`) →
+`tx start` ধারাবাহিকভাবে চালু করে: অডিও ব্রিজ → ডিসপ্লে (`Termux:X11`) →
 নির্বাচিত guest → **Xfce4**। Termux:X11 অ্যাপে যান — আপনার ডেস্কটপ সেখানেই।
 
 ## ধাপ ৪ — renderer যাচাই করুন
@@ -114,7 +114,7 @@ glxinfo | grep "renderer string"
 ### পুরনো শেল শর্টকাট
 
 ```text
-x        ডেস্কটপ চালু          killx  সব পরিষ্কারভাবে বন্ধ
+tx start ডেস্কটপ চালু          killx  নির্বাচিত desktop session বন্ধ
 tx       ternux-এর ছোট alias      xgo    installed GUI বাছুন
 db/dbr/dbroot Debian user/root shell  ub/ubr/ubroot Ubuntu user/root shell
 alp/alpr/alproot Alpine user/root shell
@@ -125,8 +125,7 @@ sysmon   ডিভাইসের সারসংক্ষেপ   clean-mesa  �
 
 Fresh install-এর পর প্রতিটি fresh install-এ base desktop-এই Firefox থাকবে; প্রথম GUI session-এ এটি দিয়ে Ternux project page খুলবে। project/developer link, guest command ও host benchmark-সহ welcome guide প্রতি guest user-এর জন্য একবারই দেখায়; পরের boot-এ website redirect হয় না। Ubuntu-তে Mozilla-র official ESR build বসে, কারণ Ubuntu archive-এর Firefox Snap চায় এবং Ternux PRoot-এ Snap বন্ধ রাখে।
 
-Noto Bengali font ও Avro IBus phonetic keyboard Debian/Ubuntu-তে default-এ থাকে; Alpine-এ IBus m17n-এর Avro phonetic engine থাকে। English ও
-বাংলার মধ্যে cycle করতে IBus-এর **Next input method** shortcut **Ctrl+Space** করা থাকে। Firefox browser, VLC, PulseAudio Volume Control, Xfce Task Manager, Mousepad text editor, Galculator, Evince PDF reader, Ternux Camera, Ternux Sound Recorder ও Ristretto image viewer base desktop-এ থাকে। Package browse/install/upgrade/remove করার Synaptic-based **Synaptic Package Manager**-ও Applications menu-তে থাকে। PDF default-এ Evince-এ খোলে; optional LibreOffice Draw দিয়ে PDF page edit ও অন্য format-এ export করা যায়। Fresh install-এ কোনো mail client install বা default নয়। দরকার হলে optional workload থেকে Evolution Mail বেছে নিন; common provider-এ OAuth ও অন্য host-এ manual IMAP/POP setup আছে। OAuth-এর জন্য Firefox ESR, অথবা Ternux bridge দিয়ে Android default browser খোলে। Debian, Ubuntu ও Alpine—তিন guest-এর Xfce lower panel-এ একই আটটি launcher থাকে: Terminal, File Manager, Web Browser, Application Finder, VLC, Camera, Photos ও Sound Recorder. Camera, Photos ও Sound Recorder-এর desktop shortcut-ও থাকে; Ternux Flashlight desktop shortcut Android torch চালু/বন্ধ করে. Systemwide graphite-emerald Ternux GTK 2/3/4 theme, Qt 5 app-এর জন্য GTK platform theme, Xfwm
+নটো বাংলা ফন্ট ও আভ্রো ধ্বনিভিত্তিক কিবোর্ড ডেবিয়ান ও উবুন্টুতে আগে থেকেই থাকে; আল্পাইনে থাকে আভ্রো-সামঞ্জস্যপূর্ণ মটুন ইঞ্জিন। আইবাসের **পরের ইনপুট পদ্ধতি** শর্টকাট **কন্ট্রোল+স্পেস** দিয়ে ইংরেজি ও বাংলা লেখার পদ্ধতি বদলানো যায়। আল্পাইনের জন্য আলাদা আইবাস-আভ্রো প্যাকেজ না থাকায় চেকসাম-যাচাইকৃত উৎস থেকে মটুন ইঞ্জিন বসে; অতিরিক্ত প্যানেল বোতাম লাগে না। এক্স-ইলেভেন উইন্ডো-ফিট ব্যবস্থা বড় উইন্ডোকে পর্দার ব্যবহারযোগ্য জায়গার মাপে ছোট করে এবং নতুন উইন্ডোকে মাঝখানে রাখে। ফায়ারফক্স ব্রাউজার, ভিএলসি, পালসঅডিও ভলিউম নিয়ন্ত্রণ, এক্সএফসিই কাজের তালিকা, মাউসপ্যাড, ক্যালকুলেটর, এভিন্স পিডিএফ পাঠক, টার্নাক্স ক্যামেরা, টার্নাক্স শব্দ-রেকর্ডার, রিস্ট্রেটো ছবি-দর্শক ও **সিন্যাপটিক প্যাকেজ ব্যবস্থাপক** মূল ডেস্কটপে থাকে। অ্যাপ্লিকেশন তালিকা থেকে সিন্যাপটিক খুলে ডেবিয়ান প্যাকেজ খোঁজা, বসানো, হালনাগাদ বা সরানো যায়। পিডিএফ ডিফল্টভাবে এভিন্সে খোলে; ঐচ্ছিক লিব্রেঅফিস ড্র দিয়ে পিডিএফ পাতা সম্পাদনা ও অন্য ধরনে রপ্তানি করা যায়। কোনো ডাক-অ্যাপ ডিফল্টভাবে বসে না; দরকার হলে ঐচ্ছিক কাজের তালিকা থেকে ইভল্যুশন মেইল বেছে নিন। এতে জনপ্রিয় সেবার জন্য ওঅথ এবং হাতে আইএমএপি/পিওপি সংযোগের ব্যবস্থা আছে; ওঅথে ফায়ারফক্স ইএসআর অথবা টার্নাক্সের মাধ্যমে অ্যান্ড্রয়েডের ডিফল্ট ব্রাউজার খোলে। ডেবিয়ান, উবুন্টু ও আল্পাইনের এক্সএফসিই নিচের প্যানেলে একই আটটি চালু করার বোতাম থাকে: টার্মিনাল, ফাইল ব্যবস্থাপক, ওয়েব ব্রাউজার, অ্যাপ্লিকেশন খোঁজার সরঞ্জাম, ভিএলসি, ক্যামেরা, ছবি ও শব্দ-রেকর্ডার। ক্যামেরা, ছবি ও শব্দ-রেকর্ডারের ডেস্কটপ শর্টকাটও থাকে; টার্নাক্স ফ্ল্যাশলাইটের শর্টকাট অ্যান্ড্রয়েডের টর্চ চালু বা বন্ধ করে। সিস্টেমজুড়ে টার্নাক্সের গ্রাফাইট-এমেরাল্ড জিটিকে ২/৩/৪ নকশা, কিউটি ৫ অ্যাপের জিটিকে প্ল্যাটফর্ম নকশা, এক্সএফডব্লিউএম
 window frame, GTK app-এর নিজস্ব titlebar button-এর Ternux styling, Xfce panel ও Ternux icon theme default। Base app, folder, Thunar action, category ও panel-এর জন্য original Ternux icon থাকে।
 Uncommon বা পরে install করা app-এর neutral fallback হিসেবে Adwaita ব্যবহৃত হয়;
 Papirus inheritance নেই। Xfce Desktop settings থেকে বেছে নেওয়ার জন্য ১৫টি portrait-first Ternux wallpaper থাকে; landscape করলেও aspect ratio ঠিক থাকে;

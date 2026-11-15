@@ -191,7 +191,16 @@ _tnx_dispatch() {
   case "$cmd" in
     guides)
       printf '%s\n' \
-        'Ternux guides:' \
+        'Ternux quick guide' \
+        '  1. Install a desktop: tx install --distro debian (or ubuntu, kali, alpine, ...).' \
+        '  2. Start the default desktop: tx start.' \
+        '  3. Start several installed desktops: tx start debian ubuntu kali alpine (or tx start db ub kali alp).' \
+        '  4. Check sessions: tx status; diagnose: tx doctor; repair: tx repair.' \
+        '  5. If installation was interrupted: tx install --resume. Read logs: tx logs desktop tail.' \
+        '  6. List/manage guests: tx distro list; open a guest: tx distro shell debian.' \
+        '  7. Android permissions: tx mic or tx cam; without Termux:API, desktop mic still uses Termux OpenSL and Android Camera remains available.' \
+        '  8. Scoped cleanup: tx uninstall; read the confirmation menu before removing a guest.' \
+        '' 'Reference guides:' \
         '  Installation: https://soobujmiah.github.io/ternux/docs/INSTALLATION.html' \
         '  Manual setup: https://soobujmiah.github.io/ternux/docs/MANUAL.html' \
         '  CPU + Vulkan LLM quick start: https://soobujmiah.github.io/ternux/docs/QUICK-START.html#optional-local-cpu--vulkan-language-model' \
@@ -200,7 +209,7 @@ _tnx_dispatch() {
         '  Workloads (auto + manual): https://soobujmiah.github.io/ternux/docs/WORKLOADS.html' \
         '  Keep the GPU driver: https://soobujmiah.github.io/ternux/docs/GRAPHICS-PERSISTENCE.html' \
         '  Daily use: https://soobujmiah.github.io/ternux/docs/USAGE.html' \
-        '' 'Open these links in a browser. This command does not install anything.'
+        '' 'Open links in a browser when needed. This command only prints guidance.'
       return 0 ;;
     start|stop|restart|status) lib_map="desktop" ;;
     distro)                    lib_map="distro" ;;
@@ -208,6 +217,7 @@ _tnx_dispatch() {
     gpu)                       lib_map="backend" ;;
     verify)                    lib_map="doctor" ;;
     install)                   lib_map="phases" ;;
+    mic|cam)                   lib_map="permissions" ;;
     *)                         lib_map="$cmd" ;;
   esac
 
@@ -246,6 +256,22 @@ while [ $# -gt 0 ]; do
 done
 
 set -- "${_TNX_ARGS[@]}"
+
+# Short names are command aliases, not separate implementations. Both the
+# `tx` and compatibility `ternux` entry points resolve to this same registry.
+_tnx_command_canonical() {
+  case "${1:-}" in
+    guide) printf guides ;;
+    mng|manage) printf manager ;;
+    ext) printf extension ;;
+    doc) printf doctor ;;
+    *) printf '%s' "${1:-}" ;;
+  esac
+}
+if [ "$#" -gt 0 ]; then
+  _tnx_command="$( _tnx_command_canonical "$1" )"
+  set -- "$_tnx_command" "${@:2}"
+fi
 
 # --- Handle --help (with or without a command) -----------------------------
 if [ "$_HELP_REQUESTED" -eq 1 ]; then

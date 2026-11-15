@@ -8,10 +8,12 @@ alt_url: "/bn/docs/CLI.html"
 The host package installs both `tx` and `ternux` in `$PREFIX/bin`; either runs
 the same management CLI for installation, diagnostics, repair, benchmarking,
 desktop lifecycle, and system information. `tx` is an executable wrapper, so it
-works in fresh shells and scripts without relying on a startup-file alias.
+works in fresh shells and scripts without relying on a startup-file alias. Use it
+for install/resume, distro management, desktop lifecycle, diagnostics, repair,
+logs, update, and scoped removal.
 
-This reference describes the full **Termux host** command installed at
-`$PREFIX/bin/ternux`. The Debian/Xfce terminal has a separate guest-aware
+This reference uses the primary **Termux host** command `$PREFIX/bin/tx`
+(`$PREFIX/bin/ternux` remains a compatibility name). The Debian/Xfce terminal has a separate guest-aware
 `/usr/local/bin/ternux` companion with only `status`, `info`, `doctor` (`verify`
 is an alias), `env`, `--version`, and help. It rejects host lifecycle commands instead of nesting a
 second PRoot session. Switch to Termux for every host command documented below.
@@ -45,6 +47,22 @@ dispatch/environment failures use `command: "error"`, `status: "fatal"`, and a
 before `lib/core.sh` can load is necessarily plain stderr, not JSON.
 
 ## Commands
+
+### `tx -h` and `tx mic` / `tx cam`
+
+`tx -h` lists every host command, its supported subcommands, global options,
+command aliases and guest short names. `ternux -h` prints the same reference;
+use `tx COMMAND -h` for command-specific details. The built-in `tx guides`
+prints a short usage path and links to the longer guides.
+
+`tx mic` checks Termux:API microphone access with a bounded temporary recording
+and removes the file. Without Termux:API it can briefly open the built-in
+OpenSL input if that source is active; captured audio is discarded. `tx cam`
+requests Termux:API camera access using one temporary rear-camera photo, then
+deletes it. These commands require the `termux-api` package and the companion
+Android app from Termux's same installation source. Without the companion,
+desktop mic remains available through Termux's OpenSL bridge and Android Camera
+is the camera fallback. Termux and Termux:API have separate Android permissions.
 
 ### `tx manager`
 
@@ -104,11 +122,11 @@ tx control --no-open
 The dashboard and manager commands are source-only until the next stable v2-major
 release; they are not part of the withdrawn v2.0.0 package.
 
-### `ternux guides`
+### `tx guides`
 
-Run `ternux guides` in the Termux host or Debian/Xfce guest to print direct installation, workload, ecosystem tool, graphics-persistence, and daily-use links. It performs no install or browser action.
+Run `tx guides` in the Termux host or Debian/Xfce guest to print direct installation, workload, ecosystem tool, graphics-persistence, and daily-use links. It performs no install or browser action.
 
-### `ternux storage`
+### `tx storage`
 
 Android shared storage is mounted at `/sdcard` for managed guest commands and desktop sessions when Termux has Android storage permission. Run `termux-setup-storage` once if it is unavailable. The `storage grant` command remains available for legacy scoped mounts; an already-running desktop keeps its current mounts until that session exits.
 
@@ -118,7 +136,7 @@ ternux storage grant /sdcard/Llms
 ternux storage revoke /sdcard/Llms
 ```
 
-### `ternux install`
+### `tx install`
 
 Install or reinstall the full ternux desktop environment.
 
@@ -131,7 +149,7 @@ ternux install [options]
 | `--yes` | Defaults, no questions |
 | `--user NAME` | Linux guest user name (default: `ternux`) |
 | `--distro NAME` | Select one of 15 named recipes. Ternux v2 support is limited to Debian, Ubuntu, and Alpine. |
-| `--distros LIST` | Install multiple independent guests in sequence, e.g. `debian,ubuntu,alpine`. |
+| `--distros LIST` | Install multiple independent guests in sequence, e.g. `debian,ubuntu,kali,alpine`. |
 | `--locale LANG` | Locale (default: `en_US.UTF-8`) |
 | `--backend auto\|zink\|virgl` | GPU backend (default: auto) |
 | `--zsh` | Use zsh instead of bash |
@@ -146,9 +164,17 @@ ternux install [options]
 | `--plain` | Shorthand for `--ui plain`: plain scrolling output instead of the dashboard |
 | `--no-anim` | Freeze the spinner and colour cycling |
 
-The 15 named recipes are `debian`, `ubuntu`, `alpine`, `archlinux`, `fedora`, `opensuse`, `void`, `kali`, `artix`, `chimera`, `deepin`, `manjaro`, `pardus`, `rockylinux`, and `adelie`. **v2 support is limited to Debian, Ubuntu, and Alpine.** Their desktop, graphics, audio routing, IBus setup and theme have been exercised on one Adreno 825 device; clean Firefox installation passed exact-main CI. Alpine has an unresolved synthetic Ctrl+Space event discrepancy, and the live checks do not qualify every application. The other 12 recipes remain available but are not v2-qualified. Use the checklist for interactive multi-select; for automation, pass comma-separated aliases to `--distros`. Each desktop profile gets independent state and a tagged Termux:X11 display. Separate Android windows require the [Termux:X11 nightly app](https://github.com/termux/termux-x11/releases/tag/nightly); older apps fall back to one shared window and cannot reliably switch between concurrently running guests. `xgo` lists installed guests and identifies shell-only images. The distro picker uses the same keyboard checklist as optional apps: Up/Down or `j`/`k` moves, Space or a number toggles, Enter confirms, and `q` keeps the current default profile. Multiple guests are selected in one pass; a numbered comma list is available when raw-key input is unavailable. Before changes, the installer shows the chosen guest, backend, user, workloads, and storage estimate for confirmation. If an optional workload fails after the base desktop verifies, the guest remains marked ready, the UI reports a warning, and `ternux install --resume` retries the unfinished phase while the command returns nonzero.
+The 15 named recipes follow this stable order: Debian (`debian`/`db`), Ubuntu (`ubuntu`/`ub`), Kali (`kali`), Alpine (`alpine`/`alp`), Arch Linux (`archlinux`/`archx`), Fedora (`fedora`/`fed`), openSUSE (`opensuse`/`suse`), Void (`void`/`vsh`), Artix (`artix`/`art`), Chimera (`chimera`/`chim`), Deepin (`deepin`/`deep`), Manjaro (`manjaro`/`manj`), Pardus (`pardus`/`par`), Rocky Linux (`rockylinux`/`rock`), and Adelie (`adelie`/`adel`). Kali uses the official `kalilinux/kali-rolling` OCI image because Termux's packaged PRoot-Distro does not include a Kali alias. The image is a weekly rolling snapshot; Ternux installs a curated command-line security set by default, while larger Kali metapackages remain an explicit user choice. **Full v2 device qualification currently covers Debian, Ubuntu, and Alpine only.** Their desktop, graphics, audio routing, IBus setup and theme have been exercised on one Adreno 825 device; clean Firefox installation passed exact-main CI. Alpine has an unresolved synthetic Ctrl+Space event discrepancy, and the live checks do not qualify every application. On 2026-11-15, Kali's pinned Debian Testing Mesa overlay enumerated Adreno 825 through Vulkan and rendered Zink on its live :3 X11 display; this verifies the Kali GPU route, not the full Kali desktop profile. Use the checklist for interactive multi-select; for automation, pass comma-separated aliases to `--distros`. Each desktop profile gets independent state and a tagged Termux:X11 display. Separate Android windows require the [Termux:X11 nightly app](https://github.com/termux/termux-x11/releases/tag/nightly); older apps fall back to one shared window and cannot reliably switch between concurrently running guests. `xgo` lists installed guests and identifies shell-only images. The distro picker uses the same keyboard checklist as optional apps: Up/Down or `j`/`k` moves, Space or a number toggles, Enter confirms, and `q` keeps the current default profile. Multiple guests are selected in one pass; a numbered comma list is available when raw-key input is unavailable. Before changes, the installer shows the chosen guest, backend, user, workloads, and storage estimate for confirmation. If an optional workload fails after the base desktop verifies, the guest remains marked ready, the UI reports a warning, and `tx install --resume` retries the unfinished phase while the command returns nonzero.
 
-Use the installed `tx` command as the short interface; `ternux` remains available for compatibility. `tx distro list` shows all installed PRoot guests and marks which ones have a Ternux desktop recipe. `tx distro search QUERY` searches PRoot-Distro OCI images. `tx distro shell NAME` opens the configured regular user for Ternux profiles (generic images keep their image default); `tx distro exec NAME -- COMMAND` works with any installed guest. Root remains explicit through the distro root shortcuts such as `alproot`. Use `tx distro image-install IMAGE[:TAG] [NAME]` to install a generic OCI image; such an image is shell-ready. Remove a registered Ternux guest with `tx distro uninstall NAME [--yes]`; the command refuses unregistered PRoot guests and clears the OCI registry entry after removal. Named aliases map to APT (Debian, Ubuntu, Kali, Deepin, Pardus), APK (Alpine, Adelie, Chimera), pacman (Arch Linux, Artix, Manjaro), DNF (Fedora, Rocky Linux), Zypper (openSUSE), or XBPS (Void). Arbitrary OCI images are shell-ready but do not receive a desktop automatically. Optional software workloads currently target APT guests. Desktop management is `tx start [db|ub|alp|NAME]`, `tx stop [NAME|--all]`, `tx restart NAME`, and `tx status NAME`; bare `tx start` selects Debian when installed. The [Termux:X11 nightly app](https://github.com/termux/termux-x11/releases/tag/nightly) is required for separate tagged windows and reliable switching among concurrently running desktops. Interactive `tx stop` lists every running guest and display, then accepts one or more indexes, short names, or full names separated by spaces or commas; enter `0` to cancel. `tx stop --all` stops all Ternux desktop sessions. Explicit `tx stop db`, `tx stop ub`, and `tx stop alp` target only the named guest. The named distro aliases in `tx distro list` report which profiles have recipes; Debian, Ubuntu, and Alpine are device-qualified v2 profiles on the documented reference device; Alpine has a documented keyboard-event limitation. The remaining 12 profiles lack physical-device qualification. Short shells: `db`/`dbr`/`dbroot` Debian, `ub`/`ubr`/`ubroot` Ubuntu, `alp`/`alpr`/`alproot` Alpine, `archx`/`archroot` Arch, `fed`/`fedr` Fedora, `suse`/`suser` openSUSE, `vsh`/`vroot` Void, and `kal`/`kalr` Kali; each pair opens user/root shells. The previous `ubroot` and `alproot` root aliases remain available. Desktop start accepts the same short guest names: `tx start ub` or `tx start alp`.
+### `tx distro`
+
+Bare `tx distro` prints the management overview and the supported operations.
+`tx distro list` shows the complete managed desktop catalog in install order,
+including short name, default X11 display, package family, recommended graphics
+route, and whether each profile is installed and verified. Generic OCI guests
+appear in a separate section because they do not receive a desktop recipe.
+
+Use the installed `tx` command as the short interface; `ternux` remains available for compatibility. `tx distro search QUERY` searches PRoot-Distro OCI images. `tx distro shell NAME` opens the configured regular user for Ternux profiles (generic images keep their image default); `tx distro exec NAME -- COMMAND` works with any installed guest. Root remains explicit through the distro root shortcuts such as `alproot`. Use `tx distro image-install IMAGE[:TAG] [NAME]` to install a generic OCI image; such an image is shell-ready. Remove a registered Ternux guest with `tx distro uninstall NAME [--yes]`; the command refuses unregistered PRoot guests and clears the OCI registry entry after removal. Named aliases map to APT (Debian, Ubuntu, Kali, Deepin, Pardus), APK (Alpine, Adelie, Chimera), pacman (Arch Linux, Artix, Manjaro), DNF (Fedora, Rocky Linux), Zypper (openSUSE), or XBPS (Void). Arbitrary OCI images are shell-ready but do not receive a desktop automatically. Optional software workloads currently target APT guests. Desktop management is `tx start [NAME ...]`, `tx stop [NAME|--all]`, `tx restart NAME`, and `tx status [NAME]`; bare `tx status` reports every installed managed desktop guest, while a name narrows it to one. Bare `tx start` selects Debian when installed. Pass multiple full or short names to start several desktops sequentially, for example `tx start debian ubuntu kali alpine` or `tx start ub db kali alp`. A failed guest does not prevent later requested guests from starting; the command returns nonzero and reports each result. With `--json`, multi-start returns one JSON object with the requested guests and per-guest outcomes. The [Termux:X11 nightly app](https://github.com/termux/termux-x11/releases/tag/nightly) is required for separate tagged windows and reliable switching among concurrently running desktops. Interactive `tx stop` lists every running guest and display, then accepts one or more indexes, short names, or full names separated by spaces or commas; enter `0` to cancel. `tx stop --all` stops all Ternux desktop sessions. Explicit `tx stop db`, `tx stop ub`, `tx stop kali`, and `tx stop alp` target only the named guest. Debian, Ubuntu, and Alpine are device-qualified v2 profiles on the documented reference device; Alpine has a documented keyboard-event limitation. The remaining 12 profiles lack physical-device qualification. Short shells: `db`/`dbr`/`dbroot` Debian, `ub`/`ubr`/`ubroot` Ubuntu, `kali` for a Kali user shell and `kalir`/`kaliroot` for root, `alp`/`alpr`/`alproot` Alpine, `archx`/`archroot` Arch, `fed`/`fedr` Fedora, `suse`/`suser` openSUSE, and `vsh`/`vroot` Void. The previous `ubroot` and `alproot` root aliases remain available.
 
 With no workload flags, an interactive install opens the categorized checklist.
 Use Up/Down or `j`/`k` to move, Space or an item's number to select multiple
@@ -159,9 +185,9 @@ remains a separate llama.cpp source build. The suggestion uses the detected GPU
 route and reports RAM and free storage limits. `--yes` skips the chooser and
 keeps the base profile.
 
-### `ternux start`
+### `tx start`
 
-Start the Xfce4 desktop session in its own detached session so it survives the launching shell closing. The command returns only after Termux:X11 and the XFCE session, window manager, and desktop are ready, then brings the Termux:X11 app to the foreground. New profile defaults reserve `:0` for the future native Termux workspace, then assign Debian `:1`, Ubuntu `:2`, Alpine `:3`, and the remaining named profiles `:4` through `:15`. Existing profiles keep their saved display IDs until an explicit migration; this preserves current v2 installs. Startup refuses an occupied socket or matching Termux:X11 server and never removes an unproven socket. Re-running it focuses the existing desktop instead of starting a duplicate, including when its supervisor marker is missing but the live XFCE session remains. If startup fails, it returns an error and points to `~/.local/share/ternux/session/desktop.log`. Use `ternux status` or `ternux logs desktop tail` to inspect the session. Each guest has its own launcher under `~/.local/share/ternux/distros/NAME/launcher.sh`; `~/x.sh` remains a compatibility link for the most recently installed profile. After a CLI update, the selected launcher is refreshed when needed. The launcher:
+Start the Xfce4 desktop session in its own detached session so it survives the launching shell closing. The command returns only after Termux:X11 and the XFCE session, window manager, and desktop are ready, then brings the Termux:X11 app to the foreground. New profile defaults reserve `:0` for the future native Termux workspace, then assign Debian `:1`, Ubuntu `:2`, Kali `:3`, Alpine `:4`, and the remaining named profiles `:5` through `:15`. Existing profiles keep their saved display IDs until an explicit migration; use `tx manager displays` and its state-bound migration before starting a newly added profile if an old assignment overlaps. Startup refuses an occupied socket or matching Termux:X11 server and never removes an unproven socket. Re-running it focuses the existing desktop instead of starting a duplicate, including when its supervisor marker is missing but the live XFCE session remains. If startup fails, it returns an error and points to `~/.local/share/ternux/session/desktop.log`. Use `tx status` or `tx logs desktop tail` to inspect the session. Each guest has its own launcher under `~/.local/share/ternux/distros/NAME/launcher.sh`; `~/x.sh` remains a compatibility link for the most recently installed profile. After a CLI update, the selected launcher is refreshed when needed. The launcher:
 1. Cleans up any previous session
 2. Starts PulseAudio with TCP bridge
 3. Launches Termux:X11 display
@@ -169,11 +195,13 @@ Start the Xfce4 desktop session in its own detached session so it survives the l
 5. Enters the selected PRoot guest and starts Xfce4
 
 ```bash
-ternux start                 # saved guest profile
-ternux start ubuntu          # explicitly start Ubuntu
+tx start                         # saved guest profile
+tx start ubuntu                  # explicitly start Ubuntu
+tx start debian ubuntu kali alpine # start all four sequentially
+tx start ub db kali alp            # same, using short names
 ```
 
-### `ternux stop`
+### `tx stop`
 
 Interactive stop lists running guests and displays, then lets you choose one or
 more by number or name. Separate choices with spaces or commas; enter `0` to
@@ -192,22 +220,7 @@ The stop operation signals only the selected guest's verified launcher process
 group and removes that guest's state markers. Other displays and shared audio
 services remain available.
 
-### `ternux status`
-
-Report desktop lifecycle and host service state. `running` requires the guest
-to complete a bounded X11 query; a stale socket and surviving process names do
-not qualify. `pulseaudio` reports whether the host daemon process exists, while
-`pulseaudio_ready` independently verifies the configured loopback TCP route
-used by Debian applications.
-
-```bash
-ternux status [--json]
-```
-
-The JSON object includes `lifecycle`, `x11_running`, `pulseaudio`,
-`pulseaudio_ready`, `virgl`, `launcher`, and `desktop_pid`.
-
-### `ternux restart`
+### `tx restart`
 
 Restart the desktop session (stop + 1 second delay + start).
 
@@ -216,33 +229,41 @@ ternux restart
 ternux restart ubuntu
 ```
 
-### `ternux doctor`
+### `tx doctor`
 
-Run categorised diagnostics. Each check is reported as `ok`, `warn`, `fail` or
-`info` with a fix hint; `info` is context and never counts as an issue.
+Run categorized diagnostics. Each check is reported as `ok`, `warn`, `fail` or
+`info` with a fix hint. A bare command checks host/system state, every installed
+managed guest, graphics and Debian extension health. Pass one guest name or
+short name to scope guest and graphics checks, or pass `gpu` to run graphics
+checks only.
 
 | Category | Checks |
 |---|---|
 | `system` | architecture, storage, memory, battery temperature, state directory |
-| `host` | proot-distro, Debian container, Termux:X11, PulseAudio, curl, Android child-process setting |
-| `guest` | Debian glibc, passwordless sudo, desktop commands, dpkg state, free space |
-| `graphics` | Vulkan, GPU, backend, KGSL node, Turnip layout, renderer, launcher, VirGL |
-| `extensions` | installed extensions: package present, version, runtime libraries and launcher files |
+| `host` | proot-distro, installed guests, Termux:X11, PulseAudio, curl, Android child-process setting |
+| `guest` | OS and architecture, glibc when available, sudo, desktop commands, package database, free space for each installed managed guest |
+| `graphics` / `gpu` | Vulkan, GPU, per-guest backend, KGSL node, Turnip layout, renderer, launcher, VirGL |
+| `extensions` | Debian extension packages, versions, runtime libraries and launcher files |
 
-The `guest`, `graphics` (Turnip layout) and `extensions` checks come from one
-read-only probe that runs inside the Debian guest. An unreachable guest is
-reported as `info`, not as a fault.
+Guest checks run through a read-only probe in each guest. An unreachable guest
+is reported as `info`, not as a fault. `gpu` is an alias for the `graphics`
+category; `tx doctor db gpu` narrows it to Debian.
 
 ```bash
-ternux doctor [CATEGORY...] [--quick] [--strict] [--json]
+tx doctor [CATEGORY|DISTRO ...] [--quick] [--strict] [--json]
+tx doc gpu
+tx doctor kali
+tx doctor db gpu
 ```
 
 | Option | Effect |
 |---|---|
-| `CATEGORY` | run only the named categories, for example `ternux doctor extensions` |
-| `--quick` | skip the Debian guest probe |
+| `CATEGORY` | run one or more categories, for example `tx doctor extensions` |
+| `DISTRO` | inspect one guest by full name or short name, e.g. `kali`, `db`, or `ub` |
+| `gpu` | run GPU and graphics checks only |
+| `--quick` | skip guest login probes |
 | `--strict` | exit `1` when a warning exists and `2` when a check fails; the default exit status stays `0` |
-| `--json` | machine-readable output |
+| `--json` | machine-readable output with one check row per guest |
 
 **JSON output example** (abridged; `schema_version` 2 keeps the original
 `issues` and `recommended_actions` arrays and adds `summary` and `checks`):
@@ -266,7 +287,7 @@ ternux doctor [CATEGORY...] [--quick] [--strict] [--json]
 }
 ```
 
-### `ternux repair`
+### `tx repair`
 
 Inspect and repair common issues in 6 steps:
 1. Repair a broken curl/OpenSSL toolchain
@@ -285,7 +306,7 @@ backend or launcher repair.
 ternux repair
 ```
 
-### `ternux verify`
+### `tx verify`
 
 Verify installation completeness for the active guest, or select a guest by
 full name or its short command. Without an active guest, verification uses the
@@ -301,7 +322,7 @@ tx verify ub --json
 tx verify alp --json
 ```
 
-### `ternux benchmark`
+### `tx benchmark`
 
 Run GPU benchmarks inside the Debian container (requires active desktop).
 
@@ -315,7 +336,7 @@ Benchmarks:
 - **Renderer inspection** — identifies Zink/Turnip, VirGL/virpipe, or software
   rendering; a VirGL name alone does not prove a hardware-backed path
 
-### `ternux profile`
+### `tx profile`
 
 Device hardware profiling and management.
 
@@ -331,7 +352,7 @@ ternux profile <subcommand> [name]
 | `list` | List all saved profiles |
 | `compare [a] [b]` | Compare two profiles (b defaults to `current`) |
 
-**JSON output** (`ternux profile --json`):
+**JSON output** (`tx profile --json`):
 ```json
 {
   "command": "profile",
@@ -344,7 +365,7 @@ ternux profile <subcommand> [name]
 }
 ```
 
-### `ternux backend`
+### `tx backend`
 
 GPU backend management.
 
@@ -359,7 +380,7 @@ ternux backend <subcommand> [backend]
 | `detect` | Auto-detect the correct backend |
 | `update` | Reinstall Ternux's checksum-validated Debian Turnip driver for the configured Zink route; restart the desktop afterward. It does not update Android's vendor driver. |
 
-**JSON output** (`ternux backend --json`):
+**JSON output** (`tx backend --json`):
 ```json
 {
   "command": "backend",
@@ -372,7 +393,7 @@ ternux backend <subcommand> [backend]
 }
 ```
 
-### `ternux gpu`
+### `tx gpu`
 
 Manage the guest GPU userspace driver. `update` refreshes Ternux's pinned,
 SHA-256-validated Debian Turnip driver on the Zink route; restart the desktop
@@ -385,29 +406,98 @@ ternux gpu update
 ternux gpu update --json
 ```
 
-`ternux backend update` remains an equivalent command.
+`tx backend update` remains an equivalent command.
 
-### `ternux info`
+### `tx info`
 
-Show system information summary: device model, Android version, GPU,
-backend, renderer, Vulkan status, and the readable Android child-process setting.
+Show Android SDK, device and CPU details, total and available memory, free
+storage, load average when Android exposes it, GPU/backend, active OpenGL
+renderer, Vulkan state, and whether the phantom process setting is readable.
+`Renderer: not running` means Termux:X11 is stopped; `unknown` means a display
+was available but the guest renderer query did not return a name. Graphics
+state reports `DISPLAY_STOPPED` while no desktop display is active. On Android
+builds that deny Termux access to the Settings provider, the phantom setting is
+reported as unreadable rather than implying that it is enabled or disabled. Use
+`tx status [DISTRO]` for the live desktop lifecycle and `tx doctor --quick` for
+host readiness.
+
+GPU detection uses Android graphics properties and available kernel interfaces.
+Adreno devices with KGSL use Zink/Turnip only for profiles with pinned Mesa
+assets: Debian, Ubuntu, Kali, Alpine, Arch Linux, Fedora, openSUSE, Void and
+Deepin. Kali Rolling uses the pinned Debian Testing Mesa overlay. On
+2026-11-15, Vulkan enumeration and Zink GLX were observed on all four installed
+guests (Debian :1, Ubuntu :2, Kali :3, Alpine :4). Full profile qualification
+remains limited to Debian, Ubuntu and Alpine. Other profiles and GPU families
+select VirGL; when VirGL cannot render, the launcher selects llvmpipe as the
+last software route.
+The selected backend is configuration, not proof that the desktop is currently
+using hardware acceleration: check the active renderer and `Graphics state`.
 
 ```bash
 ternux info [--json]
 ```
 
-### `ternux state`
+### `tx state`
 
-Show installation state: completed phases, configuration, benchmark
-and repair history.
+Show completed installer phases, saved user/distro/locale configuration,
+installed managed profiles with their display IDs and setup state, plus recent
+benchmark and repair history. JSON output includes `installed_profiles`.
 
 ```bash
 ternux state [--json]
 ```
 
-### `ternux logs`
+### `terfetch`
 
-View and manage log files.
+`terfetch` is a standalone system summary installed on the Termux host and in
+each managed guest. Ternux suppresses Termux's stock login banner with the
+supported `~/.hushlogin` switch; interactive Bash and Zsh shells then show
+Terfetch instead. Alpine's Ash login shell uses its profile hook. The native
+Termux host randomly selects one of ten large ASCII monograms on each login.
+Nine variants show a centered `Presented by @soobujmiah` credit below the logo
+and system facts; the special Sobuj monogram puts `Presented by` above the mark
+and has no second credit. PRoot guests use a stable official ASCII logo for
+their distro from Terfetch's built-in catalog, including the managed distro
+profiles. Their creator credit is centered below the logo and facts. Daily-use
+host commands or guest and distro package-manager commands appear as a separate
+colorful footer below the credit. Terfetch does not require Fastfetch at runtime.
+It reports kernel, uptime, package count, shell, terminal, CPU/GPU model,
+memory and storage, plus device and display details when available. Use
+`TERFETCH_NO_AUTORUN=1` to hide the automatic summary in one shell.
+Run `terfetch --json` for structured output, or `terfetch --help` for its
+standalone options. The implementation lives in `share/terfetch/` so it can be
+extracted into its own repository later.
+
+```bash
+terfetch
+terfetch --json
+```
+
+### `tx status`
+
+With no guest name, report every installed managed desktop guest in a single
+workspace overview. Pass a full or short guest name for one session. `running`
+requires the guest to complete a bounded X11 query; a stale socket and surviving
+process names do not qualify. `pulseaudio` reports whether the host daemon process exists, while
+`pulseaudio_ready` independently verifies the configured loopback TCP route
+used by Debian applications.
+
+```bash
+tx status [--json]
+tx status kali --json
+```
+
+A one-guest JSON object includes `lifecycle`, `x11_running`, `pulseaudio`,
+`pulseaudio_ready`, `virgl`, `launcher`, `display`, `desktop_log`, and
+`desktop_pid`. A bare multi-guest query returns `guest_count` and a `guests`
+array with those per-guest objects.
+
+### `tx logs`
+
+View and manage installer, host, and per-guest desktop log files. `list` shows
+their paths and sizes; `desktop show` and `desktop tail` select the active or
+last saved guest. Add a distro name to inspect one guest directly, for example
+`tx logs desktop show kali`.
 
 ```bash
 ternux logs <subcommand> [n]
@@ -420,7 +510,7 @@ ternux logs <subcommand> [n]
 | `clear` | Clear the log file |
 | `list` | List available log files |
 
-### `ternux extension`
+### `tx extension`
 
 List, install, repair, or remove optional release-based Linux ARM64 extensions.
 The host CLI delegates these operations to the selected Debian guest.
@@ -440,7 +530,7 @@ supported release feature and has no automatic CPU/GPU fallback. See the
 [CPU/Vulkan guide](https://github.com/soobujmiah/ternux/blob/main/guides/llama-vulkan-extension.md)
 [Stable Diffusion guide](https://github.com/soobujmiah/ternux/blob/main/guides/stable-diffusion-vulkan-extension.md), and [HTP guide](https://github.com/soobujmiah/ternux/blob/main/guides/llama-htp-experimental.md).
 
-### `ternux update`
+### `tx update`
 
 Update the CLI using its install source. APT-managed installations check and update through APT; other installations self-update from GitHub.
 
@@ -453,7 +543,7 @@ ternux update [check]
 | *(none)* | Update from the configured APT repository when package-managed; otherwise fetch and install the latest GitHub version |
 | `check` | Check for updates without installing; APT-managed installs use the configured package candidate |
 
-### `ternux uninstall`
+### `tx uninstall`
 
 Scoped removal of ternux components. With no action, an interactive menu is
 shown. In a non-interactive shell, name the action explicitly.

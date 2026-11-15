@@ -91,13 +91,13 @@ settings it can read, but it cannot distinguish every OEM process killer.
 
 ## Black screen in Termux:X11
 
-**Symptom:** the `x` command runs, Termux:X11 shows a black or empty window.
+**Symptom:** `tx start` runs, but Termux:X11 shows a black or empty window.
 
 **Cause (in order of likelihood):**
 
 1. The Termux:X11 **app was never opened once** — Android needs that first
    launch to allow the display service.
-2. A **stale socket** from a crashed session — `x` normally cleans these, but
+2. A **stale socket** from a crashed session — `tx start` normally cleans these, but
    a hard kill can leave them.
 3. Xfce4 crashed after the display started.
 
@@ -106,7 +106,7 @@ settings it can read, but it cannot distinguish every OEM process killer.
 ```bash
 killx
 # open Termux:X11 once (the app itself), then:
-x
+tx start
 ```
 
 If it still fails, run `ternux repair` — it checks the Termux-side display
@@ -192,7 +192,7 @@ provides on that device.
 
 ```bash
 # 1. Restart the audio bridge — the launcher rebuilds it every start:
-killx && x
+killx && tx start
 
 # 2. If still silent, check the host-side daemon in Termux:
 pulseaudio --start --exit-idle-time=-1
@@ -260,7 +260,7 @@ by Android.
 **Fix:**
 
 1. Open the Termux:X11 app, let it sit for a second, switch back to Termux.
-2. `killx && x`
+2. `killx && tx start`
 3. Still stuck? Reinstall the maintained Termux-side package:
    `pkg install x11-repo -y && pkg reinstall termux-x11-nightly -y`
 
@@ -268,11 +268,11 @@ by Android.
 
 <h2 id="proot-distro-says-option--c-is-unrecognized">proot-distro says option -c is unrecognized</h2>
 
-**Symptom:** running `x` prints `Error: unrecognized option: '-c'.` followed
+**Symptom:** running `tx start` prints `Error: unrecognized option: '-c'.` followed
 by the proot-distro usage screen.
 
 **Cause:** proot-distro **5.x requires a `--` separator** between the
-container name and the command it should run inside. The `~/x.sh` launcher
+container name and the command it should run inside. The launcher script
 from **older ternux installs** runs `proot-distro login debian … bash -c '…'`
 without that `--`, so proot-distro tries to read `-c` as its own flag.
 
@@ -291,7 +291,7 @@ Do not patch only the visible `-c`: current launchers also repeat each
 then start the desktop again:
 
 ```bash
-x
+tx start
 ```
 
 ---

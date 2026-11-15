@@ -77,6 +77,28 @@ Termux:X11 is the Android app that *renders* the X11 session — it is not the
 desktop itself. A black Termux:X11 view can mean the app is healthy while the
 host service, socket or Xfce4 session is not.
 
+## Shared CLI core and future frontends
+
+`tx` and `ternux` enter the same dispatcher and command libraries. Lifecycle,
+guest selection, validation, state changes, and recovery belong in that shared
+core so a second interface cannot quietly implement different behavior.
+
+The current Control Center follows this model for start and stop: it submits
+fixed CLI arguments through state-bound operations, requires browser
+confirmation for those actions, and records local jobs. The manager JSON and
+local socket currently expose read-only snapshots plus staged display
+migration. They are useful foundations, but most legacy commands do not yet
+have a stable JSON contract.
+
+Future TUI, GUI, and WebUI clients should call named core operations and use
+versioned JSON results. They should not parse human-formatted output or copy
+desktop lifecycle logic. Before a command is exposed to another frontend, give
+it a documented request shape, schema-versioned result, stable status/error
+semantics, and shared operation tests. Interactive CLI prompts should have an
+explicit-argument path so clients can make choices in their own interface;
+destructive operations must retain the core's validation and confirmation
+rules. Keep frontend rendering separate from operation behavior.
+
 ---
 
 ## Graphics routes

@@ -50,7 +50,7 @@ The installer:
 4. selects a graphics route for the guest profile
    (**Adreno/KGSL → native distro Zink/Freedreno where packaged** · Debian uses validated Turnip · VirGL compatibility route);
 5. configures audio, fonts and locale;
-6. writes the `x` launcher and shell shortcuts;
+6. installs the `tx` CLI and shell shortcuts;
 7. verifies everything landed.
 
 Expect about **4–4.6 GB installed** for base or **10.5–12.5 GB** with `--all`; keep
@@ -79,10 +79,10 @@ source ~/.bashrc
 ```
 
 ```bash
-x
+tx start
 ```
 
-The `x` shortcut launches: audio bridge → display (`Termux:X11`) → selected guest →
+`tx start` launches: audio bridge → display (`Termux:X11`) → selected guest →
 **Xfce4**. Switch to the Termux:X11 app — your selected guest desktop is there.
 
 ## Step 4 — Verify the renderer
@@ -109,7 +109,7 @@ Jump to [Troubleshooting → renderer says llvmpipe](TROUBLESHOOTING.html#render
 ### Classic shell shortcuts
 
 ```text
-x          start the desktop          killx   stop everything cleanly
+tx start   start the desktop          killx   stop selected desktop sessions
 tx         short alias for ternux     xgo     choose an installed GUI guest
 db / dbr / dbroot  Debian user / root shell    ub / ubr / ubroot  Ubuntu user / root shell
 alp/alpr/alproot Alpine user / root shell    sysmon  device resource overview
@@ -125,7 +125,7 @@ later desktop boots do not redirect to the website. Debian-family guests use the
 native Firefox ESR package; Ubuntu uses Mozilla’s official Linux build because its
 archive Firefox package depends on Snap, which Ternux disables in PRoot.
 
-Noto Bengali fonts and Avro phonetic input are installed by default. The IBus **Next input method** shortcut is **Ctrl+Space**, cycling between English and Bangla. Ternux synchronizes IBus's engine order with its preload list and registers an XFCE fallback for apps without an IBus input context. Alpine installs the Avro-compatible m17n engine from a checksum-pinned upstream source because Alpine does not publish an IBus Avro package; Ctrl+Space is the keyboard switch, with no extra panel button. A shared X11 window-fit service keeps newly opened windows inside each guest's phone-sized work area. Firefox browser, VLC, PulseAudio Volume Control, Xfce Task Manager, Mousepad, Galculator, Evince PDF reader, Ternux Camera, Ternux Sound Recorder, Ristretto, and **Synaptic Package Manager** are included in the base desktop. Synaptic uses the Ternux icon and theme; open it from the Applications menu to browse, install, upgrade, or remove Debian packages. Evince opens PDFs by default; optional LibreOffice Draw provides PDF page editing and export to other formats. No mail client is installed or set as default. Evolution Mail is optional; choose it from the workload selector when needed. It supports common-provider OAuth and manual IMAP/POP setup, opening Firefox ESR or the Android default browser through Ternux for OAuth. The Xfce lower panel has the same eight launchers in Debian, Ubuntu, and Alpine: Terminal, File Manager, Web Browser, Application Finder, VLC, Camera, Photos, and Sound Recorder. Camera, Photos, and Sound Recorder also have desktop shortcuts; Ternux Flashlight has a desktop shortcut that toggles the Android torch.
+Noto Bengali fonts and Avro phonetic input are installed by default. The IBus **Next input method** shortcut is **Ctrl+Space**, cycling between English and Bangla. Ternux synchronizes IBus's engine order with its preload list and registers an XFCE fallback for apps without an IBus input context. Alpine installs the Avro-compatible m17n engine from a checksum-pinned upstream source because Alpine does not publish an IBus Avro package; Ctrl+Space is the keyboard switch, with no extra panel button. A shared X11 window-fit service scales oversized windows to the available work area and centers newly opened windows on every guest display. Firefox browser, VLC, PulseAudio Volume Control, Xfce Task Manager, Mousepad, Galculator, Evince PDF reader, Ternux Camera, Ternux Sound Recorder, Ristretto, and **Synaptic Package Manager** are included in the base desktop. Synaptic uses the Ternux icon and theme; open it from the Applications menu to browse, install, upgrade, or remove Debian packages. Evince opens PDFs by default; optional LibreOffice Draw provides PDF page editing and export to other formats. No mail client is installed or set as default. Evolution Mail is optional; choose it from the workload selector when needed. It supports common-provider OAuth and manual IMAP/POP setup, opening Firefox ESR or the Android default browser through Ternux for OAuth. The Xfce lower panel has the same eight launchers in Debian, Ubuntu, and Alpine: Terminal, File Manager, Web Browser, Application Finder, VLC, Camera, Photos, and Sound Recorder. Camera, Photos, and Sound Recorder also have desktop shortcuts; Ternux Flashlight has a desktop shortcut that toggles the Android torch.
 
 The systemwide Ternux graphite-and-emerald GTK 2/3/4 theme styles applications, menus, and the Xfce panel; Qt 5 apps use the GTK platform theme; custom Ternux Xfwm frames style window borders and title bars; GTK client-side titlebar buttons use matching visible controls too. Original Ternux icons cover the base apps, folders, Thunar actions, categories, and panel. Adwaita supplies neutral fallback icons for uncommon or newly installed applications; Papirus is not inherited. Fifteen original portrait-first Ternux wallpapers are selectable in Xfce Desktop settings. Xfce keeps their aspect ratio in landscape; 05 Quantum Grid is the default.
 

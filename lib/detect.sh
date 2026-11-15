@@ -69,13 +69,34 @@ tnx_detect_gpu() {
     return 0
   fi
 
-  # Check via /proc or dmesg for other GPUs
-  if grep -qi "mali" /proc/cpuinfo 2>/dev/null || grep -qi "mali" /sys/class/misc/mali*/device/uevent 2>/dev/null; then
+  # Android often exposes the vendor GPU through EGL/Vulkan properties rather
+  # than /proc/cpuinfo. Combine read-only properties with common kernel nodes.
+  local gpu_hints=""
+  gpu_hints="$( {
+    getprop ro.hardware.egl 2>/dev/null
+    getprop ro.hardware.vulkan 2>/dev/null
+    getprop ro.hardware 2>/dev/null
+    getprop ro.board.platform 2>/dev/null
+    grep -hiE '^(DRIVER|OF_COMPATIBLE|PCI_ID|MODALIAS)=.*(mali|powervr|rogue|xclipse|adreno)' /sys/class/drm/card*/device/uevent 2>/dev/null
+    grep -hiE 'mali|powervr|rogue|xclipse|adreno' /sys/class/misc/mali*/device/uevent 2>/dev/null
+  } | tr '[:upper:]' '[:lower:]')"
+
+  if printf '%s\n' "$gpu_hints" | grep -Eq 'powervr|rogue|imagination'; then
+    echo "PowerVR"
+    return 0
+  fi
+
+  if printf '%s\n' "$gpu_hints" | grep -q "mali" || grep -qi "mali" /proc/cpuinfo 2>/dev/null; then
     echo "Mali"
     return 0
   fi
 
-  if getprop ro.hardware 2>/dev/null | grep -qi "exynos"; then
+  if printf '%s\n' "$gpu_hints" | grep -q "xclipse"; then
+    echo "Xclipse"
+    return 0
+  fi
+
+  if printf '%s\n' "$gpu_hints" | grep -qi "exynos"; then
     echo "Xclipse (Exynos)"
     return 0
   fi
@@ -84,9 +105,13 @@ tnx_detect_gpu() {
 }
 
 tnx_vulkan_probe_guest() {
-  local bind_args=()
-  [ -e "${TERNUX_KGSL_DEVICE:-/dev/kgsl-3d0}" ] && bind_args+=(--bind "${TERNUX_KGSL_DEVICE:-/dev/kgsl-3d0}:/dev/kgsl")
-  tnx_guest_login --shared-tmp "${bind_args[@]}" -- bash -c '
+  local bind_args=() display_num="$(tnx_distro_display "$(tnx_distro)")"
+  if [ -e "${TERNUX_KGSL_DEVICE:-/dev/kgsl-3d0}" ]; then
+    bind_args+=(--bind "${TERNUX_KGSL_DEVICE:-/dev/kgsl-3d0}:/dev/kgsl-3d0")
+    bind_args+=(--bind "${TERNUX_KGSL_DEVICE:-/dev/kgsl-3d0}:/dev/kgsl")
+    [ -d /dev/dri ] && bind_args+=(--bind /dev/dri)
+  fi
+  tnx_guest_login --shared-tmp --shared-x11 "${bind_args[@]}" -- env "DISPLAY=:${display_num:-1}" bash -c '
     overlay="$(cat /etc/ternux/mesa-overlay 2>/dev/null || true)"
     overlay_libdir="$(cat /etc/ternux/mesa-overlay-libdir 2>/dev/null || true)"
     case "$overlay" in /usr/local/lib/ternux/*)
@@ -193,7 +218,9 @@ tnx_renderer_is_software() {
 
 tnx_detect_graphics_state() {
   local vulkan_state="${1:-$(tnx_detect_vulkan_state)}" renderer="${2:-$(tnx_detect_renderer)}"
-  if tnx_renderer_is_software "$renderer"; then
+  if printf '%s\n' "$renderer" | grep -Eqi 'not running|display.*stopped'; then
+    echo DISPLAY_STOPPED
+  elif tnx_renderer_is_software "$renderer"; then
     echo SOFTWARE_FALLBACK
   elif [ -z "$renderer" ] || [ "$renderer" = unknown ]; then
     echo "$vulkan_state"
@@ -203,17 +230,20 @@ tnx_detect_graphics_state() {
 }
 
 tnx_detect_backend() {
-  # Backend recommendations depend on both the host GPU and the selected
-  # guest: the pinned Zink/Turnip payload is only qualified for Debian.
+  # Backend recommendations depend on the host GPU and the selected guest;
+  # profile assets are independently pinned and runtime-probed.
   tnx_gpu_backend_auto "$(tnx_distro)"
 }
 
 tnx_detect_renderer() {
-  local display="${DISPLAY:-}" renderer display_num=""
+  local display="${DISPLAY:-}" renderer display_num="" distro backend bind_args=()
   if ! tnx_has_cmd proot-distro; then
     echo "unknown"
     return 0
   fi
+
+  distro="$(tnx_distro)"
+  backend="$(tnx_canonical_backend "$(tnx_distro_state_get "$distro" backend 2>/dev/null || tnx_state_get backend 2>/dev/null || tnx_gpu_backend_auto "$distro")")"
 
   # A doctor command launched from Termux does not inherit the guest desktop's
   # DISPLAY. Probe the live Termux:X11 display when it is running so the result
@@ -223,7 +253,24 @@ tnx_detect_renderer() {
     [ -n "$display_num" ] || display_num=0
     display=:$display_num
   fi
-  renderer="$(tnx_guest_login --shared-tmp --shared-x11 -- env "DISPLAY=$display" bash -c '
+  if [ -z "$display" ]; then
+    echo "not running (Termux:X11 stopped)"
+    return 0
+  fi
+  if [ -e "${TERNUX_KGSL_DEVICE:-/dev/kgsl-3d0}" ]; then
+    bind_args+=(--bind "${TERNUX_KGSL_DEVICE:-/dev/kgsl-3d0}:/dev/kgsl-3d0")
+    bind_args+=(--bind "${TERNUX_KGSL_DEVICE:-/dev/kgsl-3d0}:/dev/kgsl")
+    [ -d /dev/dri ] && bind_args+=(--bind /dev/dri)
+  fi
+  local -a renderer_env=("DISPLAY=$display")
+  if [ "$backend" = virgl ]; then
+    renderer_env+=(GALLIUM_DRIVER=virpipe MESA_GL_VERSION_OVERRIDE=4.3COMPAT MESA_GLES_VERSION_OVERRIDE=3.2 MESA_NO_ERROR=1 LIBGL_DRI3_DISABLE=1)
+    local prefix="${PREFIX:-/data/data/com.termux/files/usr}"
+    [ -S "$prefix/tmp/.virgl_test" ] && bind_args+=(--bind "$prefix/tmp/.virgl_test:/tmp/.virgl_test")
+  elif [ "$backend" = zink ]; then
+    renderer_env+=(MESA_LOADER_DRIVER_OVERRIDE=zink TU_DEBUG=noconform MESA_VK_WSI_DEBUG=sw)
+  fi
+  renderer="$(tnx_guest_login --shared-tmp --shared-x11 "${bind_args[@]}" -- env "${renderer_env[@]}" bash -c '
     overlay="$(cat /etc/ternux/mesa-overlay 2>/dev/null || true)"
     overlay_libdir="$(cat /etc/ternux/mesa-overlay-libdir 2>/dev/null || true)"
     case "$overlay" in /usr/local/lib/ternux/*)
@@ -246,9 +293,14 @@ tnx_detect_renderer() {
       ;;
     esac
     renderer=""
-    if [ -n "${DISPLAY:-}" ] && command -v glxinfo >/dev/null 2>&1 &&
+    if [ "${GALLIUM_DRIVER:-}" = virpipe ] && command -v glxgears >/dev/null 2>&1 &&
        command -v timeout >/dev/null 2>&1; then
-      renderer="$(timeout 5s glxinfo 2>/dev/null |
+      renderer="$(timeout 5s glxgears -info 2>&1 |
+        sed -n "s/^GL_RENDERER[[:space:]]*=[[:space:]]*//p" | head -1 || true)"
+    fi
+    if [ -z "$renderer" ] && [ -n "${DISPLAY:-}" ] && command -v glxinfo >/dev/null 2>&1 &&
+       command -v timeout >/dev/null 2>&1; then
+      renderer="$(timeout 5s glxinfo -B 2>/dev/null |
         sed -n "s/^OpenGL renderer string: //p" | head -1 || true)"
     fi
     # Driver/ICD files are installation evidence only. Report a renderer only
@@ -262,15 +314,22 @@ tnx_detect_renderer() {
 # Detect if phantom process killer is enabled (Android 12+)
 # ---------------------------------------------------------------------------
 tnx_detect_phantom_killer() {
-  local sdk
+  local sdk cur rc
   sdk="$(tnx_detect_android_sdk)"
   [ "$sdk" -lt 31 ] 2>/dev/null && { echo "disabled (pre-Android 12)"; return 0; }
-  local cur
-  cur="$(settings get global settings_enable_monitor_phantom_procs 2>/dev/null || echo "unknown")"
+  if ! command -v settings >/dev/null 2>&1; then
+    echo "unreadable (Android settings command unavailable)"
+    return 0
+  fi
+  cur="$(settings get global settings_enable_monitor_phantom_procs 2>&1)"; rc=$?
+  if [ "$rc" -ne 0 ] || printf '%s' "$cur" | grep -Eqi 'SecurityException|Permission Denial|requires .* permission'; then
+    echo "unreadable (Termux cannot access Android settings)"
+    return 0
+  fi
   case "$cur" in
     0|false) echo "disabled" ;;
     1|true)  echo "enabled" ;;
-    *)       echo "unknown" ;;
+    *)       echo "unavailable (setting not exposed)" ;;
   esac
 }
 

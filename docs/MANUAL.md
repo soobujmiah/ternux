@@ -310,7 +310,7 @@ launcher safely:
 ternux start
 ```
 
-The `x` shortcut runs the same command. Managed guests expose Android shared
+Use `tx start` to run the same managed desktop startup flow. Managed guests expose Android shared
 storage at `/sdcard` by default when Termux has storage permission. Run
 `termux-setup-storage` once if the path is missing, then restart the guest. Files
 remain on Android shared storage and are not copied into the container. Do not copy older `proot-distro login
@@ -322,7 +322,7 @@ installer with `ternux install`.
 
 ## Step 9 — Shell shortcuts
 
-The installer creates and maintains the `tx`, `x`, `killx`, `db`/`dbroot`, `ub`/`ubroot`, `alp`/`alproot`, `xgo`,
+The installer creates and maintains the `tx`, `killx`, `db`/`dbroot`, `ub`/`ubroot`, `alp`/`alproot`, `xgo`,
 `clean-mesa` and `sysmon` shortcuts. The guest aliases use isolated PRoot
 bindings, mount Android shared storage at `/sdcard`, and share `/tmp` only for
 commands that need it. Run `ternux install` to create or refresh the generated aliases; do not
@@ -335,7 +335,7 @@ source ~/.bashrc
 ```
 
 ```bash
-x
+tx start
 ```
 
 ---
@@ -381,7 +381,7 @@ proot-distro login debian --user ternux -- bash -c '
   sudo -n true && echo "Debian core OK"'
 ```
 
-With the desktop running (after `x`), prove the GPU from a desktop terminal:
+With the desktop running (after `tx start`), prove the GPU from a desktop terminal:
 
 ```bash
 glxinfo | grep "renderer string"

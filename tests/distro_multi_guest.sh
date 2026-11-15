@@ -14,37 +14,49 @@ mkdir -p "$HOME" "$TERNUX_STATE_DIR" "$PREFIX"
 ! tnx_distro_state_dir '../escape' >/dev/null 2>&1
 tnx_distro_state_set debian backend zink
 tnx_distro_state_set ubuntu backend virgl
+tnx_state_set user ternux
+tnx_distro_state_set ubuntu user sobuj_dev2
 [ "$(tnx_distro_state_get debian backend)" = zink ]
 [ "$(tnx_distro_state_get ubuntu backend)" = virgl ]
+[ "$(tnx_distro_user ubuntu)" = sobuj_dev2 ]
+[ "$(tnx_distro_user debian)" = ternux ]
 [ "$(tnx_distro_state_get debian backend)" != "$(tnx_distro_state_get ubuntu backend)" ]
-# On Adreno, prefer distro-native Zink/Freedreno for profiles with package
-# support; Adélie currently falls back to the shared VirGL/virpipe route.
+# On Adreno, prefer Zink only for profiles with pinned compatible Mesa assets;
+# the remaining profiles use the VirGL/virpipe route.
 TERNUX_KGSL_DEVICE="$TMP/kgsl-present"
 : > "$TERNUX_KGSL_DEVICE"
 [ "$(tnx_gpu_backend_auto debian)" = zink ]
+zink_profiles="debian ubuntu kali alpine archlinux fedora opensuse void deepin"
 for distro in $TERNUX_DISTRO_KNOWN; do
-  if [ "$distro" = adelie ]; then
-    [ "$(tnx_gpu_backend_auto "$distro")" = virgl ]
-  else
-    [ "$(tnx_gpu_backend_auto "$distro")" = zink ]
-  fi
+  case " $zink_profiles " in
+    *" $distro "*) [ "$(tnx_gpu_backend_auto "$distro")" = zink ] ;;
+    *) [ "$(tnx_gpu_backend_auto "$distro")" = virgl ] ;;
+  esac
 done
 [ "$(tnx_gpu_backend_auto ubuntu)" = zink ]
 [ "$(tnx_gpu_backend_auto alpine)" = zink ]
-# All profiles emit Zink for Adreno/KGSL, with distro-native driver packages
-# installed by their family recipe; VirGL remains the explicit compatibility route.
+[ "$(tnx_gpu_backend_auto kali)" = zink ]
+[ "$(tnx_freedreno_asset_name kali kali 2026.3 kali-rolling)" = mesa-for-android-container_27.0.0-devel-20261025-r2_debian_testing_arm64.tar.gz ]
+[ "$(tnx_expected_freedreno_sha "$(tnx_freedreno_asset_name kali kali 2026.3 kali-rolling)")" = 25a05d624bb215b656b8446d1b559e36af24e8f7d9c1529445fe97f6f777dc73 ]
 for distro in $TERNUX_DISTRO_KNOWN; do
   unset _TNX_DISTRO
   export TERNUX_DISTRO="$distro"
   tnx_phase_launcher ternux auto en_US.UTF-8 >/dev/null
   launcher="$TERNUX_STATE_DIR/distros/$distro/launcher.sh"
-  if [ "$distro" != adelie ]; then
+  case " $zink_profiles " in
+    *" $distro "*)
     grep -q -- '--env MESA_LOADER_DRIVER_OVERRIDE=zink' "$launcher"
-  else
+      ;;
+    *)
     grep -q -- '--env GALLIUM_DRIVER=virpipe' "$launcher"
     grep -q 'virgl_test_server_android' "$launcher"
-  fi
+      ;;
+  esac
 done
+TERNUX_DISTRO=ubuntu
+unset _TNX_DISTRO
+tnx_phase_launcher sobuj_dev2 auto en_US.UTF-8 >/dev/null
+grep -q '/home/sobuj_dev2/' "$TERNUX_STATE_DIR/distros/ubuntu/launcher.sh"
 rm -f "$TERNUX_KGSL_DEVICE"
 [ "$(tnx_gpu_backend_auto debian)" = virgl ]
 
@@ -203,8 +215,13 @@ tnx_cmd_distro search 'debian bookworm'
 if tnx_cmd_distro search >/dev/null 2>&1; then exit 1; fi
 if tnx_cmd_distro search one two >/dev/null 2>&1; then exit 1; fi
 tnx_cmd_distro list > "$TMP/distro-list"
-grep -q 'alpine.*Ternux recipe available' "$TMP/distro-list"
-grep -q 'debian.*Ternux recipe available' "$TMP/distro-list"
+grep -q 'alpine.*installed · setup needed' "$TMP/distro-list"
+grep -q 'debian.*installed · setup needed' "$TMP/distro-list"
+grep -q 'kali.*kali.*:3' "$TMP/distro-list"
+grep -q 'alpine.*alp.*:4' "$TMP/distro-list"
+tnx_cmd_distro > "$TMP/distro-overview"
+! cmp -s "$TMP/distro-list" "$TMP/distro-overview"
+grep -q 'tx distro list.*Show all managed profiles' "$TMP/distro-overview"
 
 # A live Debian display must not be reported as an Ubuntu session.
 tnx_desktop_session_live() { [ "$(tnx_distro)" = debian ]; }
@@ -237,12 +254,15 @@ grep -q 'archx() { _ternux_guest_login archlinux --shared-tmp --user' "$HOME/.ba
 grep -q 'fed() { _ternux_guest_login fedora --shared-tmp --user' "$HOME/.bashrc"
 grep -q 'suse() { _ternux_guest_login opensuse --shared-tmp --user' "$HOME/.bashrc"
 grep -q 'vsh() { _ternux_guest_login void --shared-tmp --user' "$HOME/.bashrc"
-grep -q 'kal() { _ternux_guest_login kali --shared-tmp --user' "$HOME/.bashrc"
+grep -q 'kali() { _ternux_guest_login kali --shared-tmp --user' "$HOME/.bashrc"
+grep -q 'kalir() { _ternux_guest_login kali --shared-tmp' "$HOME/.bashrc"
+grep -q 'kaliroot() { kalir "\$@"; }' "$HOME/.bashrc"
+! grep -q '^kal() {' "$HOME/.bashrc"
 if command -v script >/dev/null 2>&1; then
   printf 'jj \r' | script -qec "stty rows 30 cols 80; TERM=xterm-256color bash -c 'source '$ROOT'/lib/phases.sh; tnx_prompt_distro debian 20'" /dev/null > "$TMP/distro-multi-prompt"
   grep -q 'SPACE/number toggle' "$TMP/distro-multi-prompt"
-  grep -q 'debian,alpine' "$TMP/distro-multi-prompt"
-  printf '3\r' | script -qec "stty rows 30 cols 80; TERM=xterm-256color bash -c 'source '$ROOT'/lib/phases.sh; tnx_prompt_distro debian 20'" /dev/null > "$TMP/distro-number-toggle"
+  grep -q 'debian,kali' "$TMP/distro-multi-prompt"
+  printf '4\r' | script -qec "stty rows 30 cols 80; TERM=xterm-256color bash -c 'source '$ROOT'/lib/phases.sh; tnx_prompt_distro debian 20'" /dev/null > "$TMP/distro-number-toggle"
   grep -q 'debian,alpine' "$TMP/distro-number-toggle"
   printf '10\r' | script -qec "stty rows 30 cols 80; TERM=xterm-256color bash -c 'source '$ROOT'/lib/phases.sh; tnx_prompt_distro debian 20'" /dev/null > "$TMP/distro-number-multidigit"
   grep -q 'debian,chimera' "$TMP/distro-number-multidigit"
@@ -251,16 +271,17 @@ if command -v script >/dev/null 2>&1; then
   grep -q 'J/K move | Space toggle' "$TMP/distro-compact-menu"
   printf 'q' | script -qec "stty rows 30 cols 80; TERM=xterm-256color bash -c 'source '$ROOT'/lib/phases.sh; tnx_prompt_distro debian 20'" /dev/null > "$TMP/distro-menu-default"
   grep -q 'debian' "$TMP/distro-menu-default"
-  printf '1,3\n' | script -qec "stty rows 10 cols 24; TERM=xterm-256color bash -c 'source '$ROOT'/lib/phases.sh; tnx_prompt_distro debian 20'" /dev/null > "$TMP/distro-small-terminal"
+  printf '1,4\n' | script -qec "stty rows 10 cols 24; TERM=xterm-256color bash -c 'source '$ROOT'/lib/phases.sh; tnx_prompt_distro debian 20'" /dev/null > "$TMP/distro-small-terminal"
   grep -q 'debian,alpine' "$TMP/distro-small-terminal"
 fi
 cat > "$TMP/check-xgo.sh" <<'EOF'
 proot-distro() { printf 'alpine\ndebian\nubuntu\n'; }
+tx() { printf 'START:%s\n' "$*"; }
 ternux() { printf 'START:%s\n' "$*"; }
 . "$HOME/.bashrc"
 xgo
 EOF
-printf '3\n' | bash --noprofile --norc "$TMP/check-xgo.sh" > "$TMP/xgo-output"
+printf '2\n' | bash --noprofile --norc "$TMP/check-xgo.sh" > "$TMP/xgo-output"
 grep -q 'recipe available; not configured' "$TMP/xgo-output"
 grep -q 'START:start ubuntu' "$TMP/xgo-output"
 

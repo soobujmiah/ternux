@@ -12,7 +12,7 @@ alt_url: "/docs/USAGE.html"
 
 ## ব্যাকগ্রাউন্ড ডেস্কটপ সেশন
 
-`tx` হলো `ternux`-এর ছোট alias। একাধিক guest থাকলে `xgo` installed guest-গুলোর তালিকা দেখিয়ে GUI বাছতে বলে। `db`/`dbroot`, `ub`/`ubroot`, `alp`/`alproot`, `archx`/`archroot`, `fed`/`fedr`, `suse`/`suser`, `vsh`/`vroot`, `kal`/`kalr` user/root shell shortcut। অন্য guest-এ `tx distro shell NAME` ব্যবহার করুন; Ternux profile-এ এটি configured regular user shell খোলে, generic image-এর ক্ষেত্রে image-এর default user ব্যবহার করে। Root shell চাইলে `dbroot`, `ubroot`, `alproot` বা সংশ্লিষ্ট root shortcut ব্যবহার করুন।
+`tx` হলো `ternux`-এর ছোট alias। একাধিক guest থাকলে `xgo` installed guest-গুলোর তালিকা দেখিয়ে GUI বাছতে বলে। `db`/`dbroot`, `ub`/`ubroot`, `alp`/`alproot`, `archx`/`archroot`, `fed`/`fedr`, `suse`/`suser`, `vsh`/`vroot`, `kali`/`kalir` user/root shell shortcut। অন্য guest-এ `tx distro shell NAME` ব্যবহার করুন; Ternux profile-এ এটি configured regular user shell খোলে, generic image-এর ক্ষেত্রে image-এর default user ব্যবহার করে। Root shell চাইলে `dbroot`, `ubroot`, `alproot` বা সংশ্লিষ্ট root shortcut ব্যবহার করুন।
 
 `tx start` desktop-কে managed background session হিসেবে চালু করে এবং নিজের X11
 window ready হলে prompt-এ ফিরে আসে। প্রতিটি configured guest আলাদা tagged display ব্যবহার করে, তাই একাধিক profile পাশাপাশি
@@ -23,33 +23,41 @@ window ready হলে prompt-এ ফিরে আসে। প্রতিট�
 
 ### Termux:X11-এ কিবোর্ড ইনপুট
 
-Android soft keyboard থেকে terminal ও অন্য X11 app-এ text পাঠাতে Ternux desktop শুরুর আগে Termux:X11-এর `enforceCharBasedInput` চালু করে। `~/x.sh` সরাসরি চালালেও setting-টি apply হয়। Upgrade-এর পরও input না এলে একবার `ternux restart` দিন, যাতে নতুন setting-সহ X11 server শুরু হয়।
+Android soft keyboard থেকে terminal ও অন্য X11 app-এ text পাঠাতে Ternux desktop শুরুর আগে Termux:X11-এর `enforceCharBasedInput` চালু করে। এই setting প্রয়োগ করতে `tx restart` চালান। Upgrade-এর পরও input না এলে একবার `ternux restart` দিন, যাতে নতুন setting-সহ X11 server শুরু হয়।
 
 ## দৈনিক নিয়ন্ত্রণ
 
+ইনস্টলের পর নতুন টার্মাক্স হোস্ট ও পরিচালিত গেস্ট শেলে টারফেচ দেখা যাবে।
+প্রতি লগইনে অ্যান্ড্রয়েড, লিনাক্স ও গেস্টের দশটি চিহ্নের ক্রম বদলায়। সঙ্গে
+কার্নেল, চালুর সময়, প্যাকেজের সংখ্যা, শেল, টার্মিনাল, প্রসেসর ও গ্রাফিক্স
+প্রসেসর, মেমরি এবং সংরক্ষণস্থানের তথ্যও দেখায়। টার্মাক্সের আগের স্বাগত লেখা
+বন্ধ করতে `~/.hushlogin` ব্যবহার হয়। বর্তমান শেলে স্বয়ংক্রিয় তথ্য প্রদর্শন
+না চাইলে `TERFETCH_NO_AUTORUN=1` দিন। যন্ত্রের তথ্য কাঠামোবদ্ধভাবে পেতে
+`terfetch --json` চালান।
+
 | কমান্ড | কী করে |
 |---|---|
-| `x` | `ternux start` দিয়ে ডেস্কটপ শুরু করে Termux:X11 সামনে আনে (অডিও → ডিসপ্লে → Debian → Xfce4) |
 | `xgo` | Installed guest দেখিয়ে Ternux desktop বাছতে দেয় |
 | `killx` | চলমান desktop থেকে একটি বা একাধিক বেছে বন্ধ |
 | `db` / `dbr` / `dbroot` | Debian user / root shell |
 | `ub` / `ubr` / `ubroot` | Ubuntu user / root shell |
+| `kali` / `kalir` / `kaliroot` | Kali user / root shell |
 | `alp` / `alpr` / `alproot` | Alpine user / root shell |
 | `tx` | `ternux` CLI-র ছোট alias |
+| `terfetch` | হোস্ট বা গেস্টের সিস্টেম-তথ্য দেখায়; `--json` কাঠামোবদ্ধ ফল দেয় |
 | `sysmon` | CPU/RAM/GPU-নোডের দ্রুত চিত্র |
 | `clean-mesa` | শেডার ক্যাশ পরিষ্কার (ড্রাইভার বদলের পর) |
 
 **স্বাস্থ্যকর শুরু-শেষ রুটিন:**
 
-1. `xgo` দিয়ে শুরু করুন (বা আগে Termux:X11 খুলে তারপর `x`)।
+1. `xgo` দিয়ে guest বাছুন অথবা `tx start debian` (বা অন্য installed profile) চালান।
 2. ডেস্কটপে অ্যাপগুলো স্বাভাবিকভাবে বন্ধ করুন।
 3. শেষে: Xfce4 থেকে লগ আউট করুন (Applications → Log Out), বা Termux পাশ
    থেকে `killx` চালান। এতে সকেট পরিষ্কার হয়, পরের শুরু নিখুঁত হয়।
 
 *কেন এত কসরত?* পড়ে থাকা X11 সকেট বা জম্বি PulseAudio প্রসেস পরের সেশনকে
 মৃত সার্ভিসের ওপর "শুরু" করিয়ে দেয় — ডেস্কটপ আসে, কিন্তু অডিও বা ডিসপ্লে
-অদ্ভুত আচরণ করে। `x` প্রতিটি শুরুতে এগুলো পরিষ্কার করে, তাই পরিষ্কার শেষ
-করার আসল লাভ ব্যাটারি বাঁচানো।
+অদ্ভুত আচরণ করে। সেশন পরিষ্কারভাবে বন্ধ রাখলে ব্যাটারি বাঁচে এবং পরের start নির্ভরযোগ্য হয়।
 
 ### Android microphone input
 
@@ -68,6 +76,18 @@ Install-এর সময় Android Termux:API app-এর microphone permission 
 file মুছে যায়। এটি Termux:API app-এর permission—Termux app-এর OpenSL ES source
 permission আলাদা। Desktop-এর live input এখনও on-demand OpenSL ES source-ই ব্যবহার
 করে; Termux:API command live PulseAudio stream দেয় না।
+
+টার্মাক্স:এপিআই-এর আলাদা মাইক্রোফোন অনুমতি পরীক্ষা বা চাইতে `tx mic` চালান। এটি
+সর্বোচ্চ এক সেকেন্ডের অস্থায়ী পরীক্ষা-রেকর্ডিং চালিয়ে রেকর্ডার বন্ধ করে এবং
+ব্যক্তিগত অস্থায়ী ফাইল মুছে দেয়। টার্মাক্স:এপিআই না থাকলে ডেস্কটপের
+ওপেনএসএল ইনপুট চালু থাকলে কমান্ডটি অল্প সময়ের জন্য সেটি খোলে; শব্দ সংরক্ষণ
+করা হয় না, তবে অ্যান্ড্রয়েড টার্মাক্সের মাইক্রোফোন অনুমতি চাইতে পারে।
+ডেস্কটপ চালাতে সহায়ক অ্যাপটি আবশ্যক নয়। `tx cam` একটি অস্থায়ী পেছনের
+ক্যামেরার ছবি তুলে টার্মাক্স:এপিআই-এর অনুমতি চায়, তারপর ছবিটি মুছে দেয়। দুই
+কমান্ডের জন্য `termux-api` প্যাকেজ লাগবে; টার্মাক্স:এপিআই অ্যান্ড্রয়েড অ্যাপটি
+টার্মাক্স যে উৎস থেকে ইনস্টল, সেই একই উৎস থেকে নিতে হবে। অ্যাপটি না থাকলে
+অ্যান্ড্রয়েড ক্যামেরা ব্যবহার করে গেস্টের ফাইল ব্যবস্থাপক থেকে তোলা ছবি খুলুন।
+টার্মাক্স এবং টার্মাক্স:এপিআই-এর অ্যান্ড্রয়েড অনুমতি আলাদা।
 
 Xfce-এর **About → System** page CPU model name পড়ে `/proc/cpuinfo` থেকে।
 Android সেখানে শুধু ARM part ID দিলে Ternux launcher live `lscpu` থেকে চেনা

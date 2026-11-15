@@ -1,0 +1,142 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [ "$#" -ne 3 ]; then
+  printf 'Usage: %s DISTRO USER_HOME ROOT_HOME\n' "${0##*/}" >&2
+  exit 2
+fi
+
+distro="$1"
+user_home="$2"
+root_home="$3"
+
+case "$distro" in
+  debian|ubuntu|kali|alpine|archlinux|fedora|opensuse|void|artix|chimera|deepin|manjaro|pardus|rockylinux|adelie) icon="$distro" ;;
+  *) printf 'Unsupported managed distro: %s\n' "$distro" >&2; exit 2 ;;
+esac
+
+write_bash_prompt() {
+  local home="$1" owner="$2" color="$3" rc="$1/.bashrc" tmp
+  [ -d "$home" ] || return 0
+  [ ! -L "$rc" ] || { printf 'Refusing symlinked shell config: %s\n' "$rc" >&2; return 1; }
+  tmp="$(mktemp "$home/.ternux-bashrc.XXXXXX")"
+  if [ -f "$rc" ]; then
+    awk '
+      /^# TERNUX (DISTRO PROMPT|TERFETCH START) BEGIN$/ { skip=1; next }
+      /^# TERNUX (DISTRO PROMPT|TERFETCH START) END$/ { skip=0; next }
+      !skip { print }
+    ' "$rc" > "$tmp"
+  fi
+  cat >> "$tmp" <<EOF
+
+# TERNUX DISTRO PROMPT BEGIN
+if [[ \$- == *i* ]]; then
+  PS1='\[\e[1;${color}m\]┌──(${owner}@${icon})-[\w]\n└─\$\[\e[0m\] '
+fi
+# TERNUX DISTRO PROMPT END
+
+# TERNUX TERFETCH START BEGIN
+if [[ \$- == *i* ]] && [[ -z \${TERFETCH_NO_AUTORUN:-} ]] && command -v terfetch >/dev/null 2>&1; then
+  terfetch
+fi
+# TERNUX TERFETCH START END
+EOF
+  chmod 0644 "$tmp"
+  chown "$owner" "$tmp"
+  mv -f "$tmp" "$rc"
+}
+
+write_zsh_prompt() {
+  local home="$1" owner="$2" color="$3" rc="$1/.zshrc" tmp
+  [ -f "$rc" ] || return 0
+  [ ! -L "$rc" ] || { printf 'Refusing symlinked shell config: %s\n' "$rc" >&2; return 1; }
+  tmp="$(mktemp "$home/.ternux-zshrc.XXXXXX")"
+  awk '
+    /^# TERNUX (DISTRO PROMPT|TERFETCH START) BEGIN$/ { skip=1; next }
+    /^# TERNUX (DISTRO PROMPT|TERFETCH START) END$/ { skip=0; next }
+    !skip { print }
+  ' "$rc" > "$tmp"
+  cat >> "$tmp" <<EOF
+
+# TERNUX DISTRO PROMPT BEGIN
+if [[ -o interactive ]]; then
+  PROMPT='%F{${color}}┌──(%n@${icon})-[%~]%f\n%F{${color}}└─%#%f '
+fi
+# TERNUX DISTRO PROMPT END
+
+# TERNUX TERFETCH START BEGIN
+if [[ -o interactive ]] && [[ -z \${TERFETCH_NO_AUTORUN:-} ]] && (( \$+commands[terfetch] )); then
+  terfetch
+fi
+# TERNUX TERFETCH START END
+EOF
+  chmod 0644 "$tmp"
+  chown "$owner" "$tmp"
+  mv -f "$tmp" "$rc"
+}
+
+write_alpine_profile() {
+  local home="$1" owner="$2" color="$3" rc="$1/.profile" tmp
+  [ -d "$home" ] || return 0
+  [ ! -L "$rc" ] || { printf 'Refusing symlinked shell config: %s\n' "$rc" >&2; return 1; }
+  tmp="$(mktemp "$home/.ternux-profile.XXXXXX")"
+  if [ -f "$rc" ]; then
+    awk '
+      /^# TERNUX DISTRO PROMPT BEGIN$/ { skip=1; next }
+      /^# TERNUX DISTRO PROMPT END$/ { skip=0; next }
+      !skip { print }
+    ' "$rc" > "$tmp"
+  fi
+  cat >> "$tmp" <<EOF
+
+# TERNUX DISTRO PROMPT BEGIN
+if [ -t 0 ]; then
+  PS1="\$(printf '\\033[1;${color}m')${owner}@${icon} \\w\\$ \$(printf '\\033[0m')"
+fi
+if [ -t 0 ] && [ -z "\${TERFETCH_NO_AUTORUN:-}" ] && command -v terfetch >/dev/null 2>&1; then
+  terfetch
+fi
+# TERNUX DISTRO PROMPT END
+EOF
+  chmod 0644 "$tmp"
+  chown "$owner" "$tmp"
+  mv -f "$tmp" "$rc"
+}
+
+configure_terminal_font() {
+  local home="$1" owner="$2" config_dir="$1/.config/xfce4/terminal"
+  local config_file="$config_dir/terminalrc" tmp
+  [ -d "$home" ] || return 0
+  [ ! -L "$config_dir" ] && [ ! -L "$config_file" ] || {
+    printf 'Refusing symlinked terminal configuration for %s\n' "$home" >&2
+    return 1
+  }
+  install -d -m 0755 -o "$owner" -g "$(id -gn "$owner")" "$config_dir"
+  tmp="$(mktemp "$config_dir/.ternux-terminalrc.XXXXXX")"
+  if [ -f "$config_file" ]; then
+    awk '!/^FontName=|^FontUseSystem=/' "$config_file" > "$tmp"
+  else
+    printf '[Configuration]\n' > "$tmp"
+  fi
+  printf 'FontName=Noto Sans Mono 10\nFontUseSystem=FALSE\n' >> "$tmp"
+  chmod 0644 "$tmp"
+  chown "$owner" "$tmp"
+  mv -f "$tmp" "$config_file"
+}
+
+for item in "$user_home:$(basename "$user_home"):$distro-user" \
+            "$root_home:root:$distro-root"; do
+  IFS=: read -r home owner role <<< "$item"
+  [ -d "$home" ] || continue
+  id "$owner" >/dev/null 2>&1 || { printf 'No guest account for shell home %s\n' "$home" >&2; exit 1; }
+  touch "$home/.hushlogin"
+  chown "$owner" "$home/.hushlogin"
+  if [ "$role" = "$distro-root" ]; then color=31; else color=36; fi
+  write_bash_prompt "$home" "$owner" "$color"
+  write_zsh_prompt "$home" "$owner" "$color"
+  [ "$distro" != alpine ] || write_alpine_profile "$home" "$owner" "$color"
+  configure_terminal_font "$home" "$owner"
+done
+
+printf '%s\n' "$distro" > /etc/ternux-distro
+chmod 0644 /etc/ternux-distro
