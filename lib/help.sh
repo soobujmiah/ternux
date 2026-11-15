@@ -297,7 +297,7 @@ Examples:
 HELP
 }
 tnx_help_repair()    { echo "Usage: tx repair"; echo "Auto-fix common issues: broken curl, missing X11, backend mismatch, stale cache."; }
-tnx_help_verify()    { echo "Usage: tx verify [DISTRO] [--json]"; echo "Verify the active guest by default, or select one with db, ub, alp, or its distro name. Checks host binaries, launcher, guest services, and GPU driver."; }
+tnx_help_verify()    { echo "Usage: tx verify [DISTRO] [--json]"; echo "Verify the active guest by default, or select one with db, ub, kali, alp, or its distro name. Checks host binaries, launcher, guest services, and GPU driver."; }
 tnx_help_benchmark() { echo "Usage: tx benchmark [--json]"; echo "Run GPU benchmarks (glmark2, vkmark) and renderer verification."; }
 
 tnx_help_profile() {
