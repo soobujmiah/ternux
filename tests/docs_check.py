@@ -482,6 +482,14 @@ for index, (english_block, bengali_block) in enumerate(zip(english_quickstart, b
     check(shell_without_comments(english_block) == shell_without_comments(bengali_block),
           f"English/Bengali quick-start shell example {index} differs")
 
+english_usage = shell_blocks(ROOT / "docs/USAGE.md")
+bengali_usage = shell_blocks(ROOT / "bn/docs/USAGE.md")
+check(len(english_usage) == len(bengali_usage) > 0,
+      "English/Bengali usage shell example counts differ")
+for index, (english_block, bengali_block) in enumerate(zip(english_usage, bengali_usage), 1):
+    check(shell_without_comments(english_block) == shell_without_comments(bengali_block),
+          f"English/Bengali usage shell example {index} differs")
+
 bengali_manual_text = read(ROOT / "bn/docs/MANUAL.md")
 bengali_manual_text = re.sub(r"^---\n.*?\n---\n", "", bengali_manual_text, count=1, flags=re.S)
 bengali_manual_text = re.sub(r"`[^`]*`", " ", bengali_manual_text, flags=re.S)
@@ -561,6 +569,26 @@ for line in bengali_quickstart_text.splitlines():
     )
 check(not quickstart_latin,
       f"bn/docs/QUICK-START.md: Latin prose remains outside code/identifiers: {sorted(quickstart_latin)}")
+
+bengali_usage_text = read(ROOT / "bn/docs/USAGE.md")
+bengali_usage_text = re.sub(r"^---\n.*?\n---\n", "", bengali_usage_text, count=1, flags=re.S)
+bengali_usage_text = re.sub(r"`[^`]*`", " ", bengali_usage_text, flags=re.S)
+usage_in_fence = False
+usage_latin: set[str] = set()
+for line in bengali_usage_text.splitlines():
+    if re.match(r"^\s*(`{3,}|~{3,})", line):
+        usage_in_fence = not usage_in_fence
+        continue
+    if usage_in_fence:
+        continue
+    line = re.sub(r"!?\[[^\]]*\]\([^)]*\)|https?://\S+|<[^>]*>", " ", line)
+    usage_latin.update(
+        word for word in re.findall(r"\b[A-Za-z][A-Za-z0-9+.#:/_-]*\b", line)
+        if word.lower() not in {"ternux", "copyright", "c", "sobuj", "miah", "soobujmiah", "apache-2.0"}
+        and not re.fullmatch(r"v?\d+(?:\.\d+)*", word.lower())
+    )
+check(not usage_latin,
+      f"bn/docs/USAGE.md: Latin prose remains outside code/identifiers: {sorted(usage_latin)}")
 
 profile_match = re.search(r'^TERNUX_DISTRO_KNOWN="([^"]+)"', read(ROOT / "lib/core.sh"), re.M)
 known_profiles = profile_match.group(1).split() if profile_match else []
