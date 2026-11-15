@@ -452,11 +452,14 @@ ternux state [--json]
 `terfetch` is a standalone system summary installed on the Termux host and in
 each managed guest. Ternux suppresses Termux's stock login banner with the
 supported `~/.hushlogin` switch; interactive Bash and Zsh shells then show
-Terfetch instead. Alpine's Ash login shell uses its profile hook. The output
-pairs a Ternux terminal mark with the Android, Linux, and current distro marks;
-the marks shuffle on each login, and a small `[SM]` credit identifies its creator.
-It reports kernel, uptime, package count, shell, terminal, CPU/GPU model,
-memory and storage, plus device and display details when available. Use
+Terfetch instead. Alpine's Ash login shell uses its profile hook. The native
+Termux host randomly selects one of ten original ASCII monograms on each login.
+Nine variants show a small `Presented by @soobujmiah` credit below; the special
+Sobuj monogram puts `Presented by` above the mark and has no second credit below.
+PRoot guests always use a stable mark for their installed distro, with a small
+creator credit below. The output also lists useful host `tx` or guest `ternux`
+commands. It reports kernel, uptime, package count, shell, terminal, CPU/GPU
+model, memory and storage, plus device and display details when available. Use
 `TERFETCH_NO_AUTORUN=1` to hide the automatic summary in one shell.
 Run `terfetch --json` for structured output, or `terfetch --help` for its
 standalone options. The implementation lives in `share/terfetch/` so it can be

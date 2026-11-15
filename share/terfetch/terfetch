@@ -36,9 +36,19 @@ elif command -v getprop >/dev/null 2>&1 && command -v pkg >/dev/null 2>&1; then
   host_termux=1
 fi
 
+# Narrow test hooks let CI exercise the native and guest renderers without an
+# Android host or an installed proot container.
+if [ "${TERFETCH_TEST_HOST:-}" = termux ]; then
+  host_termux=1
+fi
+
 distro=''
 if [ -r /etc/ternux-distro ]; then
   IFS= read -r distro < /etc/ternux-distro || true
+fi
+if [ -n "${TERFETCH_TEST_DISTRO:-}" ]; then
+  distro="$TERFETCH_TEST_DISTRO"
+  host_termux=0
 fi
 
 if [ -n "$distro" ] && [ -r /etc/os-release ]; then
@@ -58,6 +68,11 @@ else
   fi
   distro='linux'
   environment='Linux host'
+fi
+if [ -n "${TERFETCH_TEST_DISTRO:-}" ]; then
+  distro="$TERFETCH_TEST_DISTRO"
+  system_name="$distro (test guest)"
+  environment='Ternux guest'
 fi
 
 model="$(read_prop ro.product.model)"
@@ -164,48 +179,80 @@ else
   c1=''; c2=''; c3=''; c0=''
 fi
 
-case "$distro" in
-  debian) distro_badge=DEB ;; ubuntu) distro_badge=UBU ;; kali) distro_badge=KALI ;;
-  alpine) distro_badge=ALP ;; archlinux) distro_badge=ARCH ;; fedora) distro_badge=FED ;;
-  opensuse) distro_badge=SUSE ;; void) distro_badge=VOID ;; termux) distro_badge=TMX ;;
-  *) distro_badge="$(printf '%s' "$distro" | tr '[:lower:]' '[:upper:]' | cut -c1-4)" ;;
-esac
-
-# Keep the platform marks visible while changing their order on every login.
-marks=(TNX ANDR LINUX "$distro_badge" X11 XFCE PROOT GPU TERMUX SM)
-for ((i=${#marks[@]}-1; i>0; i--)); do
-  j=$((RANDOM % (i + 1)))
-  tmp="${marks[i]}"; marks[i]="${marks[j]}"; marks[j]="$tmp"
-done
-
 print_pair() {
   printf '  %s%-24s%s  %s%-12s%s %s\n' "$c1" "$1" "$c0" "$c3" "$2" "$c0" "$3"
 }
-print_pair '       .--------------.' 'System' "$system_name"
-print_pair '      / >_ TERNUX    /|' 'Distro' "$distro"
-print_pair '     +--------------+ |' 'Kernel' "$kernel"
-print_pair '     | ANDROID/LINUX | |' 'Uptime' "$uptime_value"
-print_pair "     |   <$distro_badge>       |/" 'Packages' "$packages"
-print_pair '     +--------------+' 'CPU' "$cpu_model ($cpu_count cores)"
-[ -n "$model" ] && print_pair '' 'Device' "${manufacturer:+$manufacturer }$model"
-[ "$android" = 'not detected' ] || print_pair '' 'Android' "$android"
-print_pair '' 'Shell' "$shell_name"
-print_pair '' 'Terminal' "$terminal_name"
-[ "$display_size" = '' ] || print_pair '' 'Display' "$display_size"
-[ "$desktop_name" = unknown ] || print_pair '' 'Desktop' "$desktop_name"
- [ "$gpu_model" = unknown ] || print_pair '' 'GPU' "$gpu_model"
-print_pair '' 'Memory' "$memory_values"
-print_pair '' 'Storage' "$storage_values ($storage_free)"
-[ "$terminal_size" = unknown ] || print_pair '' 'Terminal size' "$terminal_size"
-[ -z "$battery" ] || print_pair '' 'Battery' "$battery"
-print_pair '' 'Ternux' "$ternux_version"
-printf '  %sPresented by%s %s[SM]%s\n' "$c3" "$c0" "$c1" "$c0"
-printf '  '
-for ((i=0; i<${#marks[@]}; i++)); do
-  badge_color="$c2"
-  (( i % 2 == 0 )) && badge_color="$c1"
-  printf '%s[%s]%s ' "$badge_color" "${marks[i]}" "$c0"
-  [ "$i" -ne 4 ] || printf '\n  '
+
+# Each native Termux login gets one of ten compact, original text marks. The
+# Sobuj monogram is one design in that set; it is not appended to every logo.
+# A test override makes every design reproducible in CI.
+logo_lines=()
+logo_credit=''
+logo_special=0
+if [ "$host_termux" -eq 1 ]; then
+  logo_index="${TERFETCH_LOGO_INDEX:-$((RANDOM % 10))}"
+  logo_credit='Presented by @soobujmiah'
+  case "$logo_index" in
+    0) logo_lines=('  .------.' ' / .--. /|' ' |(o  o)|' ' |  --  |' ' |ANDROID|' '  `----`') ;;
+    1) logo_lines=('   .---.' '  ( o o )' ' /  \_/  \' '/|  TUX  |\' '  \_____/') ;;
+    2) logo_lines=('  +------+ ' '  | $ _  |' '  |termux|' '  | shell|' '  +------+') ;;
+    3) logo_lines=('   _______' '  / ____ /|' ' / /___ / |' '| | TNX | |' '| |_____|/' ' \_______\') ;;
+    4) logo_lines=('    .--.' '   |o_o |' '   |:_/ |' '  //   \\' ' (|     |)' ' /\_   _/\\') ;;
+    5) logo_lines=('  .----.' ' / .--. \' '| |<>| |' '| |  | |' ' \ `--` /' '  `----`') ;;
+    6) logo_lines=('  .----.' ' / CPU \' '| 8 core|' '| ARM64 |' ' \ GPU /' '  `----`') ;;
+    7) logo_lines=('  ______' ' /_  __/' '  / /   ' ' / /___ ' '/_____/ ' ' TERNux') ;;
+    8) logo_lines=('  .----.' '  |:  :|' '  |:  :|' '  |:  :|' '  |____|' '  Linux') ;;
+    9) logo_lines=('  .------.' '  |  S M |' '  | SOBUJ|' '  |  TNX |' '  `------`')
+       logo_special=1 ;;
+    *) logo_index=0; logo_lines=('  .------.' ' / .--. /|' ' |(o  o)|' ' |  --  |' ' |ANDROID|' '  `----`') ;;
+  esac
+elif [ -n "$distro" ] && [ "$distro" != linux ]; then
+  # PRoot guests always use a stable logo matching the guest distribution.
+  case "$distro" in
+    debian) logo_lines=('   _____' '  /  __ \' ' |  /  \' ' |  \__/|' '  \____/ ') ;;
+    ubuntu) logo_lines=('    _ _' '  (     )' ' (  o o  )' '  (  ^  )' '   `---`') ;;
+    kali) logo_lines=('  |\\  //|' '  | \\//' '  |  ||' '  | //\\' '  |//  \\') ;;
+    alpine) logo_lines=('    /\\' '   /  \\' '  / /\\ \\' ' /_/  \\_\\' '  ALPINE') ;;
+    archlinux) logo_lines=('    /\\' '   /  \\' '  / /\\ \\' ' /_/  \\_\\' '  ARCH') ;;
+    *) logo_lines=('  .----.' ' / LINUX\\' '|  guest |' '|        |' ' `------`') ;;
+  esac
+  logo_credit='Presented by @soobujmiah'
+else
+  logo_lines=('   .--.' '  |o_o |' '  |:_/ |' ' //   \\' '(|     |)' '/\_   _/\\')
+fi
+
+# The special Sobuj logo has its short credit above the monogram. Other marks
+# keep the creator credit small and below the logo and system details.
+if [ "$logo_special" -eq 1 ]; then
+  printf '  %sPresented by%s\n' "$c3" "$c0"
+fi
+
+# Keep the mark beside the first facts, then continue with clean aligned rows.
+labels=('System' 'Distro' 'Kernel' 'Uptime' 'Packages' 'CPU' 'GPU' 'Memory' 'Storage' 'Shell' 'Terminal' 'Ternux')
+values=("$system_name" "$distro" "$kernel" "$uptime_value" "$packages" "$cpu_model ($cpu_count cores)" "$gpu_model" "$memory_values" "$storage_values ($storage_free)" "$shell_name" "$terminal_name" "$ternux_version")
+if [ -n "$model" ]; then labels+=(Device); values+=("${manufacturer:+$manufacturer }$model"); fi
+if [ "$android" != 'not detected' ]; then labels+=(Android); values+=("$android"); fi
+if [ -n "$display_size" ]; then labels+=(Display); values+=("$display_size"); fi
+if [ "$desktop_name" != unknown ]; then labels+=(Desktop); values+=("$desktop_name"); fi
+if [ -n "$battery" ]; then labels+=(Battery); values+=("$battery"); fi
+if [ "$host_termux" -eq 1 ]; then
+  labels+=(Commands); values+=('tx guide | tx status' 'tx doctor | tx start <distro>')
+else
+  labels+=(Commands); values+=('ternux info | ternux status' 'ternux doctor | ternux env')
+fi
+
+for ((i=0; i<${#labels[@]}; i++)); do
+  mark=''
+  [ "$i" -ge "${#logo_lines[@]}" ] || mark="${logo_lines[i]}"
+  if [ "${labels[i]}" = Commands ]; then
+    print_pair "$mark" 'Commands' "${values[i]}"
+    print_pair '' '' "${values[i+1]}"
+    ((i+=1))
+    continue
+  fi
+  print_pair "$mark" "${labels[i]}" "${values[i]}"
 done
-printf '\n'
+if [ -n "$logo_credit" ] && [ "$logo_special" -eq 0 ]; then
+  printf '  %s%s%s\n' "$c3" "$logo_credit" "$c0"
+fi
 
