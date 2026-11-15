@@ -709,6 +709,14 @@ except (ET.ParseError, OSError) as exc:
     errors.append(f"dist/sitemap.xml: parse failed: {exc}")
 
 # Markdown fence balance and rendered-ID uniqueness catch common documentation regressions.
+for schema in sorted((ROOT / "docs/v3/schemas").glob("*.schema.json")):
+    public_schema = ROOT / "public/schemas" / schema.name
+    built_schema = ROOT / "dist/schemas" / schema.name
+    check(public_schema.is_file() and public_schema.read_bytes() == schema.read_bytes(),
+          f"{public_schema.relative_to(ROOT)}: published schema must match {schema.relative_to(ROOT)}")
+    check(built_schema.is_file() and built_schema.read_bytes() == schema.read_bytes(),
+          f"{built_schema.relative_to(ROOT)}: built schema must match {schema.relative_to(ROOT)}")
+
 for path in [p for p in ROOT.rglob("*.md") if ".git" not in p.parts and not is_local_artifact(p)]:
     text = read(path)
     count = sum(1 for line in text.splitlines() if re.match(r"^\s*```", line))

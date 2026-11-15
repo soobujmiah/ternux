@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://soobujmiah.github.io/ternux/schemas/manager-capabilities-v1.schema.json",
+  "title": "Ternux Manager Capabilities v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "command", "status", "timestamp", "count", "operations"],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "command": { "const": "manager.capabilities" },
+    "status": { "const": "ok" },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "count": { "type": "integer", "minimum": 0 },
+    "operations": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "access", "argument_count", "description"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^manager\\.[a-z][a-z0-9-]*$" },
+          "access": { "const": "read-only" },
+          "argument_count": { "const": 0 },
+          "description": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  }
+}
