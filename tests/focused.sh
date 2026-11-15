@@ -349,6 +349,7 @@ if env TERNUX_STATE_DIR="$TMP/state-doctor-active-guest" HOME="$TMP/home-doctor-
     printf "ubuntu\\n" > "$TERNUX_STATE_DIR/session/distro"
     . "$1/lib/doctor.sh"
     tnx_proot_container_installed(){ [ "$1" = ubuntu ]; }
+    tnx_distro_installed_managed_list(){ printf "ubuntu\\n"; }
     tnx_has_cmd(){ return 0; }
     tnx_detect_phantom_killer(){ echo disabled; }
     tnx_require_termux(){ return 0; }
@@ -369,6 +370,7 @@ if env TERNUX_STATE_DIR="$TMP/state-doctor-explicit-guest" HOME="$TMP/home-docto
     printf "ubuntu\\n" > "$TERNUX_STATE_DIR/session/distro"
     . "$1/lib/doctor.sh"
     tnx_proot_container_installed(){ [ "$1" = debian ]; }
+    tnx_distro_installed_managed_list(){ printf "debian\\n"; }
     tnx_has_cmd(){ return 0; }
     tnx_detect_phantom_killer(){ echo disabled; }
     tnx_require_termux(){ return 0; }
@@ -2958,6 +2960,7 @@ if env TERNUX_STATE_DIR="$TMP/state-doctor-software-renderer" HOME="$TMP/home-do
   tnx_detect_backend(){ echo zink; }
   tnx_state_get(){ [ "$1" = backend ] && echo zink; }
   tnx_state_set(){ :; }
+  tnx_proot_container_installed(){ [ "$1" = debian ]; }
   tnx_debian_installed(){ return 0; }
   tnx_detect_renderer(){ echo "Google SwiftShader"; }
   _TNX_DR_GUEST[guest.turnip]=managed
