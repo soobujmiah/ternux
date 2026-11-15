@@ -111,6 +111,15 @@ if command -v dpkg-query >/dev/null 2>&1; then
 elif command -v apk >/dev/null 2>&1; then
   package_manager=apk
   package_count="$(apk info 2>/dev/null | wc -l | tr -d ' ')"
+elif command -v pacman >/dev/null 2>&1; then
+  package_manager=pacman
+  package_count="$(pacman -Q 2>/dev/null | wc -l | tr -d ' ')"
+elif command -v rpm >/dev/null 2>&1; then
+  package_manager=rpm
+  package_count="$(rpm -qa 2>/dev/null | wc -l | tr -d ' ')"
+elif command -v xbps-query >/dev/null 2>&1; then
+  package_manager=xbps
+  package_count="$(xbps-query -l 2>/dev/null | wc -l | tr -d ' ')"
 fi
 packages="$package_count ($package_manager)"
 
@@ -178,6 +187,9 @@ if [ -t 1 ] && [ -z "${NO_COLOR:-}" ]; then
 else
   c1=''; c2=''; c3=''; c0=''
 fi
+terminal_columns="$(stty size 2>/dev/null | awk 'NR==1 {print $2}')"
+case "$terminal_columns" in ''|*[!0-9]*) terminal_columns="${COLUMNS:-80}" ;; esac
+case "$terminal_columns" in ''|*[!0-9]*) terminal_columns=80 ;; esac
 
 # The bundled distribution ASCII artwork is adapted from Fastfetch.
 # Fastfetch MIT license:
@@ -543,38 +555,32 @@ set_logo() {
       '             /___/      \\___\\'
       '                 L I N U X'
     ) ;;
-    ternux) logo_lines=(
-      '              .-================-.'
-      '          .-==.  T E R N U X  .==-.'
-      '        .==.  .----------------.  .==.'
-      '       /  .==/  .------------.  \==.  \'
-      '      /  /  |  |  TERNux OS  |  |  \  \'
-      '     |  |   |  |   ANDROID   |  |   |  |'
-      '     |  |   |  | WORKSTATION |  |   |  |'
-      '      \  \  |  |  .----------.  |  /  /'
-      '       \  \==\  `----------`  /==/  /'
-      '        `==.  `--------------`  .==`'
-      '           `-================-`'
-      '                [ TNX ]'
+    workstation) logo_lines=(
+      '          +----------------+'
+      '         /  T E R N U X   /|'
+      '        /----------------/ |'
+      '       |   +--------+   |  |'
+      '       |  |  +----+ |  |  |'
+      '       |  | |    | |  |  |'
+      '       |  | |____| |  |  |'
+      '       |  |  DESK  |  |  |'
+      '       |  +--------+  |  |'
+      '       |  ANDROID    | /'
+      '       +------------+/'
+      '          +--------+'
+      '          |  LAB   |'
+      '          +--------+'
+      '     LINUX WORKSTATION'
     ) ;;
     sobuj) logo_lines=(
-      '             .--------------------.'
-      '          .-`                      `-.'
-      '        .`        S O B U J           `.'
-      '       /          M I A H              \'
-      '      |      .----------------.         |'
-      '      |     /      .----.      \        |'
-      '      |    |      /  S M  \      |       |'
-      '      |    |     |   ____   |     |       |'
-      '      |    |     |  / __ \  |     |       |'
-      '      |    |     | | |  | | |     |       |'
-      '      |    |     | | |__| | |     |       |'
-      '      |    |     |  \____/  |     |       |'
-      '      |     \      `----`      /        |'
-      '       \      `--------------`        /'
-      '        `.                          .`'
-      '          `-.____________________.-`'
-      '                 T E R N U X'
+      '       SSSSS    M     M'
+      '      S         MM   MM'
+      '       SSSS     M M M M'
+      '           S    M  M  M'
+      '      SSSSS     M     M'
+      '       S O B U J   M I A H'
+      '          S O B U J'
+      '             M I A H'
     ) ;;
     generic) logo_lines=(
       '  .----------------.'
@@ -594,22 +600,22 @@ set_logo() {
 
 print_pair() {
   local art="$1" label="$2" value="$3"
-  printf '  %s%-*s%s  %s%-12s%s %s\n' "$c1" "$logo_width" "$art" "$c0" "$c3" "$label" "$c0" "$value"
+  printf '  %s%-*s%s  %s%-15s%s %s\n' "$c1" "$logo_width" "$art" "$c0" "$c3" "$label" "$c0" "$value"
 }
 
 logo_credit=''
-logo_special=0
 logo_id=linux
 if [ "$host_termux" -eq 1 ]; then
-  logo_index="${TERFETCH_LOGO_INDEX:-$((RANDOM % 10))}"
-  if [[ ! "$logo_index" =~ ^[0-9]$ ]]; then logo_index=$((RANDOM % 10)); fi
-  native_logo_ids=(android linux debian ubuntu kali alpine archlinux fedora ternux)
-  if [ "$logo_index" -eq 9 ]; then
-    logo_id=sobuj
-    logo_special=1
+  native_logo_ids=(android workstation adelie alpine archlinux artix chimera debian deepin fedora kali manjaro opensuse pardus rockylinux ubuntu void sobuj)
+  logo_count="${#native_logo_ids[@]}"
+  logo_index="${TERFETCH_LOGO_INDEX:-$((RANDOM % logo_count))}"
+  if [[ ! "$logo_index" =~ ^[0-9]+$ ]] || [ "$logo_index" -ge "$logo_count" ]; then
+    logo_index=$((RANDOM % logo_count))
+  fi
+  logo_id="${native_logo_ids[$logo_index]}"
+  if [ "$logo_id" = sobuj ]; then
     printf '  %sPresented by%s\n' "$c3" "$c0"
   else
-    logo_id="${native_logo_ids[$logo_index]}"
     logo_credit='Presented by @soobujmiah'
   fi
 elif [ -n "$distro" ] && [ "$distro" != linux ] && [ "$distro" != termux ]; then
@@ -624,8 +630,16 @@ logo_width=0
 for art in "${logo_lines[@]}"; do
   [ "${#art}" -le "$logo_width" ] || logo_width="${#art}"
 done
-labels=('System' 'Distro' 'Kernel' 'Uptime' 'Packages' 'CPU' 'GPU' 'Memory' 'Storage' 'Shell' 'Terminal' 'Ternux')
-values=("$system_name" "$distro" "$kernel" "$uptime_value" "$packages" "$cpu_model ($cpu_count cores)" "$gpu_model" "$memory_values" "$storage_values ($storage_free)" "$shell_name" "$terminal_name" "$ternux_version")
+current_user="${USER:-$(id -un 2>/dev/null || printf unknown)}"
+locale_name="${LC_ALL:-${LC_CTYPE:-${LANG:-unknown}}}"
+init_name="$(cat /proc/1/comm 2>/dev/null | head -n 1)"
+if [ -z "$init_name" ]; then
+  [ -n "$distro" ] && init_name=proot || init_name=unknown
+fi
+privilege_name="$(id -u 2>/dev/null || printf unknown)"
+[ "$privilege_name" = 0 ] && privilege_name=root || privilege_name=user
+labels=('System' 'Distro' 'Environment' 'Kernel' 'Uptime' 'Packages' 'Package manager' 'Architecture' 'CPU' 'CPU cores' 'GPU' 'Memory' 'Storage' 'Shell' 'Terminal' 'Terminal size' 'Ternux' 'User' 'Locale' 'Init' 'Privilege')
+values=("$system_name" "$distro" "$environment" "$kernel" "$uptime_value" "$packages" "$package_manager" "$architecture" "$cpu_model" "$cpu_count" "$gpu_model" "$memory_values" "$storage_values ($storage_free)" "$shell_name" "$terminal_name" "$terminal_size" "$ternux_version" "$current_user" "$locale_name" "$init_name" "$privilege_name")
 if [ -n "$model" ]; then labels+=(Device); values+=("${manufacturer:+$manufacturer }$model"); fi
 if [ "$android" != 'not detected' ]; then labels+=(Android); values+=("$android"); fi
 if [ -n "$display_size" ]; then labels+=(Display); values+=("$display_size"); fi
@@ -633,12 +647,23 @@ if [ "$desktop_name" != unknown ]; then labels+=(Desktop); values+=("$desktop_na
 if [ -n "$battery" ]; then labels+=(Battery); values+=("$battery"); fi
 
 row_count="${#labels[@]}"
-[ "${#logo_lines[@]}" -le "$row_count" ] || row_count="${#logo_lines[@]}"
+if [ "${#logo_lines[@]}" -gt "$row_count" ]; then
+  logo_lines=("${logo_lines[@]:0:row_count}")
+fi
+value_width=$((terminal_columns - logo_width - 22))
+[ "$value_width" -ge 8 ] || value_width=8
+for ((i=0; i<${#values[@]}; i++)); do
+  value="${values[i]}"
+  if [ "${#value}" -gt "$value_width" ]; then
+    values[i]="${value:0:$((value_width - 3))}..."
+  fi
+done
 max_value_width=0
 for value in "${values[@]}"; do
   [ "${#value}" -le "$max_value_width" ] || max_value_width="${#value}"
 done
-block_width=$((logo_width + 2 + 12 + max_value_width + 4))
+block_width=$((logo_width + 2 + 15 + max_value_width + 4))
+[ "$block_width" -le "$terminal_columns" ] || block_width="$terminal_columns"
 for ((i=0; i<row_count; i++)); do
   art="${logo_lines[i]:-}"
   label="${labels[i]:-}"

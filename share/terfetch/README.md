@@ -10,23 +10,28 @@ terfetch --json
 terfetch --version
 ```
 
-The native Termux host randomly selects one of ten large ASCII monograms at
-each login. Nine variants show a centered `Presented by @soobujmiah` credit
-below the logo and system facts. The special Sobuj monogram puts `Presented by`
-above its mark and has no second credit. Every managed PRoot distro uses its
+The native Termux host randomly selects Android, Ternux Workstation, one of all
+15 managed distro logos, or Sobuj's monogram at each login. Other variants show
+a centered `Presented by @soobujmiah` credit below the logo and system facts.
+The special Sobuj monogram puts `Presented by` above its mark and has no second
+credit. Every managed PRoot distro uses its
 own stable official ASCII logo from the built-in catalog. The creator credit
 is centered below the guest logo and facts. Daily-use host commands or guest
 and distro-specific package-manager commands appear in a colorful footer below.
+Logo rows never continue below the information panel, and long values are
+shortened to fit the terminal width.
 The distro art is adapted from [Fastfetch](https://github.com/fastfetch-cli/fastfetch)
 under its MIT license; the full notice is embedded in the standalone script.
 Terfetch has no Fastfetch runtime dependency. The art uses emerald and cyan
 terminal colors and works without special fonts. `--json` is
 stable machine-readable output for future terminal, TUI, GUI, and web clients.
 The program detects Termux or a managed Linux guest, then reports the OS,
-Android device/release when available, architecture, CPU count, visible memory,
-free space at the current home directory, and Ternux version when installed.
-It also reports kernel, uptime, package count, shell, terminal, CPU/GPU model,
-display and desktop details when available. Unavailable host properties are
+Android device/release when available, architecture, CPU count, user, locale,
+init process, privilege level, package manager and count, visible memory, free
+space at the current home directory, and Ternux version when installed. It also
+reports kernel, uptime, shell, terminal, CPU/GPU model, display and desktop
+details when available.
+Unavailable host properties are
 omitted or reported as unknown; Terfetch does not guess graphics acceleration
 state.
 

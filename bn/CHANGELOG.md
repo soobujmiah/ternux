@@ -12,6 +12,10 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 
 ## [Unreleased]
 
+### টারফেচ
+
+- নেটিভ টার্মাক্সে এখন অ্যান্ড্রয়েড, টার্নাক্স ওয়ার্কস্টেশন, পরিচালিত ১৫টি ডিস্ট্রোর প্রতীক অথবা সোবুজের মনোগ্রাম দৈবভাবে দেখা যায়। প্রতিটি গেস্টে তার নিজস্ব স্থির ডিস্ট্রো-লোগো থাকে। পরিবেশ, স্থাপত্য, প্যাকেজ-ব্যবস্থাপক, ভাষা-পরিবেশ, সূচনাপ্রক্রিয়া, অধিকার-স্তর ও ব্যবহারকারীর তথ্য যোগ হয়েছে; মানগুলো টার্মিনালের প্রস্থে ধরে এবং তথ্য-অংশ কালির সম্পূর্ণ লোগো রাখার মতো লম্বা।
+
 ### Control Center
 
 - Installed Ternux desktop guest-এর জন্য loopback-only, confirmation-bound start/stop action যোগ হয়েছে। এতে idempotent durable job record, restart reconciliation, terminal job-এর ৩০ দিনের retention এবং display migration safety guard আছে। আংশিক implementation শুধু source-এ; withdrawn v2.0.0 package-এ নেই। Device browser-এ rendered UI এখনো verify হয়নি।
