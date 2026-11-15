@@ -34,14 +34,16 @@ if cli_help="$(bash "$ROOT/bin/ternux" --help 2>&1)" \
   && install_help="$(bash "$ROOT/bin/ternux" install --help 2>&1)" \
   && printf '%s\n' "$cli_help" | grep -Fq -- '--version, -V' \
   && printf '%s\n' "$tx_help" | grep -Fq 'tx <command> [options] [subcommand]' \
-  && printf '%s\n' "$tx_help" | grep -Fq 'Complete command tree' \
-  && printf '%s\n' "$tx_help" | grep -Fq 'uninstall [session|launcher|state|container|host-cli|all]' \
+  && printf '%s\n' "$tx_help" | grep -Fq 'Complete command tree:' \
+  && printf '%s\n' "$tx_help" | grep -Fq 'Workstation In Your Pocket' \
+  && printf '%s\n' "$tx_help" | grep -Fq 'kali/kalir/kaliroot' \
+  && printf '%s\n' "$tx_help" | grep -Fq 'uninstall' \
   && printf '%s\n' "$tx_help" | grep -Fq 'The compatibility command' \
   && ternux_help="$(bash "$ROOT/bin/ternux" -h 2>&1)" \
   && printf '%s\n' "$ternux_help" | grep -Fq 'Complete command tree' \
   && printf '%s\n' "$tx_help" | grep -Fq 'mic' \
   && printf '%s\n' "$tx_help" | grep -Fq 'cam' \
-  && printf '%s\n' "$tx_help" | grep -Fq 'db→debian, ub→ubuntu, kali-linux→kali, alp→alpine' \
+  && printf '%s\n' "$tx_help" | grep -Fq 'db → debian' \
   && start_help="$(bash "$ROOT/bin/tx" start --help 2>&1)" \
   && printf '%s\n' "$start_help" | grep -Fq 'tx start [DISTRO ...]' \
   && verify_help="$(bash "$ROOT/bin/ternux" verify --help 2>&1)" \

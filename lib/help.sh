@@ -27,56 +27,62 @@ tnx_help() {
     return 0
   fi
 
+  local title="Ternux" tagline="Workstation In Your Pocket" description="Linux desktop for Android with Zink and VirGL graphics routes"
+  local width="${COLUMNS:-80}"
+  [[ "$width" =~ ^[0-9]+$ ]] || width=80
+  (( width > 72 )) && width=72
+  local line
+  for line in "$title" "$tagline" "$description" "v${TERNUX_VERSION} · ${TERNUX_REPO}"; do
+    printf "%*s%s\n" "$(((width - ${#line}) / 2))" '' "${TNX_CG}${line}${TNX_C0}"
+  done
+  printf '\n'
   cat << HELPEOF
-${TNX_CG}tx${TNX_C0} — ${TERNUX_DESC}
-${TNX_CD}v${TERNUX_VERSION} · ${TERNUX_REPO}${TNX_C0}
-
 ${TNX_CW}Usage:${TNX_C0}
   tx <command> [options] [subcommand]
 
-${TNX_CW}Complete command tree${TNX_C0} (use "tx COMMAND -h" for flags and details):
-  install [--distro NAME|--distros LIST|--resume|--yes|--all|--with-*]
-  distro [list|search|find|install|uninstall|remove|image-install|shell|root|exec]
-  manager [status|guests|displays|capabilities|migrate --apply PLAN|migrate --recover|serve]
-  control [--no-open]
-  extension [list|ls|install NAME|repair NAME|remove NAME|uninstall NAME]
-  storage [list|grant DIRECTORY|revoke DIRECTORY]
-  guides (alias: guide)
-  start [DISTRO ...]       stop [DISTRO ...|--all]
-  restart [DISTRO]         status [DISTRO]
-  logs [show|tail|clear|list|desktop [show|tail]|session [show|tail]]
-  doctor [CATEGORY|DISTRO ...|--quick|--strict]   repair   verify [DISTRO]
-  benchmark [--json]       profile [show|save|load|list|compare]
-  info [--json]            state [--json]
-  backend [show|set|detect|update]   gpu [show|update]
-  mic                          cam
-  update [run|check]           uninstall [session|launcher|state|container|host-cli|all] [--yes]
+${TNX_CW}Complete command tree:${TNX_C0} ${TNX_CD}(use "tx COMMAND -h" for flags and details)${TNX_C0}
+  ${TNX_CC}install${TNX_C0}       [--distro NAME|--distros LIST|--resume|--yes|--all|--with-*]
+  ${TNX_CC}distro${TNX_C0}        [list|search|find|install|uninstall|remove|image-install|shell|root|exec]
+  ${TNX_CC}manager${TNX_C0}       [status|guests|displays|capabilities|migrate --apply PLAN|migrate --recover|serve]
+  ${TNX_CC}control${TNX_C0}       [--no-open]
+  ${TNX_CC}extension${TNX_C0}     [list|ls|install NAME|repair NAME|remove NAME|uninstall NAME]
+  ${TNX_CC}storage${TNX_C0}       [list|grant DIRECTORY|revoke DIRECTORY]
+  ${TNX_CC}guides${TNX_C0}        [alias: guide]
+  ${TNX_CC}start${TNX_C0}         [DISTRO ...]       ${TNX_CC}stop${TNX_C0}       [DISTRO ...|--all]
+  ${TNX_CC}restart${TNX_C0}       [DISTRO]           ${TNX_CC}status${TNX_C0}     [DISTRO]
+  ${TNX_CC}logs${TNX_C0}          [show|tail|clear|list|desktop [show|tail]|session [show|tail]]
+  ${TNX_CC}doctor${TNX_C0}        [CATEGORY|DISTRO ...|--quick|--strict]   ${TNX_CC}repair${TNX_C0}   ${TNX_CC}verify${TNX_C0} [DISTRO]
+  ${TNX_CC}benchmark${TNX_C0}     [--json]           ${TNX_CC}profile${TNX_C0}    [show|save|load|list|compare]
+  ${TNX_CC}info${TNX_C0}          [--json]           ${TNX_CC}state${TNX_C0}      [--json]
+  ${TNX_CC}backend${TNX_C0}       [show|set|detect|update]   ${TNX_CC}gpu${TNX_C0} [show|update]
+  ${TNX_CC}mic${TNX_C0}           ${TNX_CC}cam${TNX_C0}              ${TNX_CC}update${TNX_C0} [run|check]
+  ${TNX_CC}uninstall${TNX_C0}    [session|launcher|state|container|host-cli|all] [--yes]
 
-Command aliases:
-  mng / manage → manager    guide → guides    ext → extension    doc → doctor
-  Distro aliases: db→debian, ub→ubuntu, kali-linux→kali, alp→alpine,
-  arch/archx→archlinux, fed→fedora, suse→opensuse, vsh→void, art→artix,
-  chim→chimera, deep→deepin, manj→manjaro, par→pardus, rock→rockylinux,
-  adel→adelie. Shell shortcuts: db/dbr/dbroot, ub/ubr/ubroot, kali/kalir/kaliroot,
-  alp/alpr/alproot, archx/archroot, fed/fedr, suse/suser, vsh/vroot.
-  Guest catalog and all accepted names: tx distro list
-  Standalone terminal summary: terfetch [--json|--version|--help]
+${TNX_CW}Command aliases:${TNX_C0}
+  ${TNX_CD}Command names${TNX_C0}  mng/manage → manager · guide → guides · ext → extension · doc → doctor
+  ${TNX_CD}Distro names${TNX_C0}   db → debian · ub → ubuntu · alp → alpine · archx → archlinux · fed → fedora
+                  suse → opensuse · vsh → void · art → artix · chim → chimera · deep → deepin
+                  manj → manjaro · par → pardus · rock → rockylinux · adel → adelie
+  ${TNX_CD}Guest shells${TNX_C0}  db/dbr/dbroot · ub/ubr/ubroot · kali/kalir/kaliroot · alp/alpr/alproot
+  ${TNX_CD}Other shells${TNX_C0}  archx/archroot · fed/fedr · suse/suser · vsh/vroot
+  Full catalog and install state: tx distro list
+  Ternux host tools  xgo (choose desktops) · killx (stop desktop sessions) · sysmon (CPU/memory/GPU)
+  Guest utility      clean-mesa (clear the selected guest Mesa shader cache)
+  Standalone summary terfetch [--json|--version|--help]
 
 ${TNX_CW}Global options:${TNX_C0}
-  --help, -h    Show help for any command
-  --version, -V Show version information
-  --json        Machine-readable JSON output
-  --verbose     Show detailed debug output
-  --quiet       Suppress non-critical messages
+  ${TNX_CC}--help, -h${TNX_C0}    Show help for any command
+  ${TNX_CC}--version, -V${TNX_C0} Show version information
+  ${TNX_CC}--json${TNX_C0}        Machine-readable JSON output
+  ${TNX_CC}--verbose${TNX_C0}     Show detailed debug output
+  ${TNX_CC}--quiet${TNX_C0}       Suppress non-critical messages
 
 ${TNX_CW}Examples:${TNX_C0}
-  tx doctor --json         ${TNX_CD}machine-readable diagnostics${TNX_C0}
-  tx start                 ${TNX_CD}Launch the desktop${TNX_C0}
-  alp                       ${TNX_CD}Alpine user shell; alpr or alproot opens root${TNX_C0}
-  db / dbr / dbroot         ${TNX_CD}Debian user / root shell${TNX_C0}
-  ub / ubr / ubroot         ${TNX_CD}Ubuntu user / root shell${TNX_C0}
-  tx backend set zink      ${TNX_CD}Switch GPU backend${TNX_C0}
-  tx profile save          ${TNX_CD}Snapshot device config${TNX_C0}
+  ${TNX_CC}tx doctor --json${TNX_C0}         ${TNX_CD}Machine-readable diagnostics${TNX_C0}
+  ${TNX_CC}tx start db ub kali alp${TNX_C0}  ${TNX_CD}Launch several guest desktops${TNX_C0}
+  ${TNX_CC}db / dbr / dbroot${TNX_C0}       ${TNX_CD}Open Debian user or root shell${TNX_C0}
+  ${TNX_CC}ub / ubr / ubroot${TNX_C0}       ${TNX_CD}Open Ubuntu user or root shell${TNX_C0}
+  ${TNX_CC}tx backend set zink${TNX_C0}     ${TNX_CD}Switch GPU backend${TNX_C0}
 
 ${TNX_CD}Run 'tx <command> -h' for detailed help.${TNX_C0}
 The compatibility command 'ternux' accepts the same commands, aliases and options.
@@ -198,7 +204,15 @@ Run 'bash install.sh' for a fresh setup or 'ternux install' from the host CLI.
 HELP
 }
 
-tnx_help_distro() { echo "Usage: tx distro [list|search QUERY|install NAME|uninstall NAME [--yes]|image-install IMAGE [NAME]|shell NAME [-- COMMAND]|root NAME [-- COMMAND]|exec NAME -- COMMAND]"; echo "Bare tx distro shows the management overview; tx distro list shows all managed desktop profiles, their short names, display IDs, GPU routes, and install states."; echo "Other operations search OCI images, install/uninstall guests, open user/root shells, or run a command in a guest."; echo "Profiles: debian/db, ubuntu/ub, kali, alpine/alp, archlinux/archx, fedora/fed, opensuse/suse, void/vsh, artix/art, chimera/chim, deepin/deep, manjaro/manj, pardus/par, rockylinux/rock, adelie/adel."; }
+tnx_help_distro() {
+  printf '%sUsage:%s tx distro [list|search|install|uninstall|image-install|shell|root|exec]\n\n' "$TNX_CW" "$TNX_C0"
+  printf '%sGuest shell shortcuts:%s\n' "$TNX_CW" "$TNX_C0"
+  printf '  %s%-24s%s %s\n' "$TNX_CC" 'db / dbr / dbroot' "$TNX_C0" 'Debian user / root shell'
+  printf '  %s%-24s%s %s\n' "$TNX_CC" 'ub / ubr / ubroot' "$TNX_C0" 'Ubuntu user / root shell'
+  printf '  %s%-24s%s %s\n' "$TNX_CC" 'kali / kalir / kaliroot' "$TNX_C0" 'Kali user / root shell'
+  printf '  %s%-24s%s %s\n' "$TNX_CC" 'alp / alpr / alproot' "$TNX_C0" 'Alpine user / root shell'
+  printf '\nFull managed catalog, short names, display IDs and install state: tx distro list\n'
+}
 tnx_help_start()     { echo "Usage: tx start [DISTRO ...]"; echo "Start Debian by default when installed; otherwise start the saved distro. Pass one or more full or short guest names to start desktops in sequence."; echo "Catalog order and short names: debian/db, ubuntu/ub, kali, alpine/alp, archlinux/archx, fedora/fed, opensuse/suse, void/vsh, artix/art, chimera/chim, deepin/deep, manjaro/manj, pardus/par, rockylinux/rock, adelie/adel."; echo "Example: tx start db ub kali alp"; }
 tnx_help_guides()    { echo "Usage: tx guide | tx guides"; echo "Print the built-in quick guide and links to the complete documentation."; }
 tnx_help_mic() { cat <<'HELP'

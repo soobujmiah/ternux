@@ -556,31 +556,26 @@ set_logo() {
       '                 L I N U X'
     ) ;;
     workstation) logo_lines=(
-      '          +----------------+'
-      '         /  T E R N U X   /|'
-      '        /----------------/ |'
-      '       |   +--------+   |  |'
-      '       |  |  +----+ |  |  |'
-      '       |  | |    | |  |  |'
-      '       |  | |____| |  |  |'
-      '       |  |  DESK  |  |  |'
-      '       |  +--------+  |  |'
-      '       |  ANDROID    | /'
-      '       +------------+/'
-      '          +--------+'
-      '          |  LAB   |'
-      '          +--------+'
-      '     LINUX WORKSTATION'
+      '       .--------------------.'
+      '      /  T E R N U X       /|'
+      '     /--------------------/ |'
+      '    |  +----------------+ | |'
+      '    |  |                | | |'
+      '    |  |   WORKSTATION  | | |'
+      '    |  |                | | |'
+      '    |  +----------------+ |/'
+      '    +--------------------+/'
+      '        ________________'
+      '       /_______________/|'
+      '      |_______________|/'
+      '        WORKLAB DESK'
     ) ;;
     sobuj) logo_lines=(
-      '       SSSSS    M     M'
-      '      S         MM   MM'
-      '       SSSS     M M M M'
-      '           S    M  M  M'
-      '      SSSSS     M     M'
-      '       S O B U J   M I A H'
-      '          S O B U J'
-      '             M I A H'
+      'SSSS  OOO  BBB  U   U JJJ'
+      'S     O O  B  B U   U   J'
+      'SSS   O O  BBB  U   U   J'
+      '  S   O O  B  B U   U J J'
+      'SSSS  OOO  BBB  UUUUU JJJ'
     ) ;;
     generic) logo_lines=(
       '  .----------------.'
@@ -647,6 +642,8 @@ if [ "$desktop_name" != unknown ]; then labels+=(Desktop); values+=("$desktop_na
 if [ -n "$battery" ]; then labels+=(Battery); values+=("$battery"); fi
 
 row_count="${#labels[@]}"
+compact_panel=0
+if [ "$terminal_columns" -lt 68 ]; then compact_panel=1; fi
 if [ "${#logo_lines[@]}" -gt "$row_count" ]; then
   logo_lines=("${logo_lines[@]:0:row_count}")
 fi
@@ -664,16 +661,24 @@ for value in "${values[@]}"; do
 done
 block_width=$((logo_width + 2 + 15 + max_value_width + 4))
 [ "$block_width" -le "$terminal_columns" ] || block_width="$terminal_columns"
-for ((i=0; i<row_count; i++)); do
-  art="${logo_lines[i]:-}"
-  label="${labels[i]:-}"
-  value="${values[i]:-}"
-  if [ -n "$label" ]; then
-    print_pair "$art" "$label" "$value"
-  else
-    printf '  %s%-*s%s\n' "$c1" "$logo_width" "$art" "$c0"
-  fi
-done
+if [ "$compact_panel" -eq 1 ]; then
+  for art in "${logo_lines[@]}"; do printf '  %s%s%s\n' "$c1" "$art" "$c0"; done
+  printf '\n'
+  for ((i=0; i<row_count; i++)); do
+    printf '  %s%-15s%s %s\n' "$c3" "${labels[i]}" "$c0" "${values[i]}"
+  done
+else
+  for ((i=0; i<row_count; i++)); do
+    art="${logo_lines[i]:-}"
+    label="${labels[i]:-}"
+    value="${values[i]:-}"
+    if [ -n "$label" ]; then
+      print_pair "$art" "$label" "$value"
+    else
+      printf '  %s%-*s%s\n' "$c1" "$logo_width" "$art" "$c0"
+    fi
+  done
+fi
 
 center_plain() {
   local value="$1" color="$2" pad=$(((block_width - ${#1}) / 2))

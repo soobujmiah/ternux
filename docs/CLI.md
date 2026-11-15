@@ -50,10 +50,17 @@ before `lib/core.sh` can load is necessarily plain stderr, not JSON.
 
 ### `tx -h` and `tx mic` / `tx cam`
 
-`tx -h` lists every host command, its supported subcommands, global options,
-command aliases and guest short names. `ternux -h` prints the same reference;
-use `tx COMMAND -h` for command-specific details. The built-in `tx guides`
-prints a short usage path and links to the longer guides.
+`tx -h` presents the centered Ternux name, “Workstation In Your Pocket”
+tagline, version, color-coded command tree, grouped aliases, global options and
+examples. `ternux -h` prints the same reference; use `tx COMMAND -h` for
+command-specific details. The built-in `tx guides` gives a formatted quick-start
+path, guest user/root shell shortcuts, and links to the longer guides.
+
+`xgo` opens the installed guest desktop picker; `killx` stops selected desktop sessions; `sysmon` summarizes CPU, memory and GPU information. The guest-only `clean-mesa` shortcut clears the current guest’s Mesa shader cache. There is no one-letter `x` command.
+
+For example, Debian accepts `db` for a user shell and `dbr` or `dbroot` for a
+root shell; Ubuntu accepts `ub`/`ubr`/`ubroot`, Kali accepts
+`kali`/`kalir`/`kaliroot`, and Alpine accepts `alp`/`alpr`/`alproot`.
 
 `tx mic` checks Termux:API microphone access with a bounded temporary recording
 and removes the file. Without Termux:API it can briefly open the built-in
@@ -124,7 +131,7 @@ release; they are not part of the withdrawn v2.0.0 package.
 
 ### `tx guides`
 
-Run `tx guides` in the Termux host or Debian/Xfce guest to print direct installation, workload, ecosystem tool, graphics-persistence, and daily-use links. It performs no install or browser action.
+Run `tx guides` in the Termux host or a guest for a color-organized quick start, common command examples, guest shell shortcuts, and direct installation, workload, graphics-persistence, and daily-use links. It performs no install or browser action.
 
 ### `tx storage`
 
