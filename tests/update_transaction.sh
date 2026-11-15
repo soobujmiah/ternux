@@ -89,6 +89,12 @@ cat > "$FAKEBIN/curl" <<'EOF_CURL'
 printf '{"tag_name":"%s"}\n' "${TERNUX_TEST_RELEASE_TAG:-v1.4.0}"
 EOF_CURL
 chmod 0755 "$FAKEBIN/dpkg-query" "$FAKEBIN/curl"
+cat > "$FAKEBIN/proot-distro" <<'EOF_PROOT'
+#!/bin/sh
+# Updater fixtures must never write a companion into a real installed guest.
+exit 1
+EOF_PROOT
+chmod 0755 "$FAKEBIN/proot-distro"
 
 # The published stable release is older than this development build; update
 # check must report no downgrade and keep the latest stable version visible.
@@ -202,8 +208,8 @@ grep -q outside-marker "$OUTSIDE/$backup_id/lib/outside.marker" || fail 'symlink
 [ -e "$PREFIX/lib/.ternux-update-journal" ] || fail 'symlinked backup check discarded the recovery journal'
 
 # Migration path: exercise the actual published v1.4.0 dispatcher/core/updater
-# against a local main branch containing the current v2 source. Keep the fake
-# PRoot command fail-closed so this fixture cannot modify the live Debian guest.
+# against a local main branch containing the current v2 source. The fake PRoot
+# command remains fail-closed so no updater fixture can modify a live guest.
 MIGRATION_ORIGIN="$FIXTURE/v2-migration-origin.git"
 MIGRATION_WORK="$FIXTURE/v2-migration-work"
 MIGRATION_PREFIX="$TMP/prefix-v1.4-migration"
