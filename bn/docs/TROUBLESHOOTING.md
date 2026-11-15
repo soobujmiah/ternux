@@ -14,6 +14,7 @@ symptom-এর একাধিক কারণ হতে পারে, তাই
 | ডেস্কটপ নিঃশব্দে মরে যায়, বা `[Process completed (signal 9)]` | Android process policy, memory pressure, বা OEM battery management | [ডেস্কটপ নিঃশব্দে মরে যায়](#the-desktop-dies-silently) |
 | Termux:X11-এ কালো/খালি উইন্ডো | X11 অ্যাপ খোলা হয়নি, বা পুরনো সকেট | [Termux:X11-এ কালো স্ক্রিন](#black-screen-in-termuxx11) |
 | `renderer string: llvmpipe` | সফটওয়্যার ফলব্যাক — GPU পথ সক্রিয় নয় | [রেন্ডারার llvmpipe বলে](#renderer-says-llvmpipe) |
+| XFCE শুরুতে `lost connection to rendering server` | VirGL socket guest-এ নেই, বা Debian Mesa-র VirGL preflight ব্যর্থ | [XFCE শুরুর সময় VirGL ব্যর্থ](#virgl-fails-during-xfce-startup) |
 | ডেস্কটপে শব্দ নেই | PulseAudio ব্রিজ চলছে না | [অডিও নেই](#no-audio) |
 | Debian-এ ইন্টারনেট নেই | PRoot-এ DNS আসেনি | [কন্টেইনারে নেটওয়ার্ক নেই](#no-network-in-the-container) |
 | `Waiting for Termux-X11 display socket…` থেমে থাকে | Display :0 আসেনি | [ডিসপ্লে আসছে না](#display-never-appears) |
@@ -109,6 +110,27 @@ x
 
 তবু ব্যর্থ হলে `ternux repair` চালান — এটি ডিসপ্লে প্যাকেজ,
 লঞ্চার ও কন্টেইনার কোর আবার পরীক্ষা করে।
+
+---
+
+<h2 id="virgl-fails-during-xfce-startup">XFCE শুরুর সময় VirGL ব্যর্থ</h2>
+
+**লক্ষণ:** `tx start`-এ `lost connection to rendering server` আসে এবং
+`startxfce4` থেমে যায়। Termux:X11 display চালু থাকলে
+`X server already running` লাইনটিও দেখা যেতে পারে; আসল ত্রুটির জন্য VirGL ও
+XFCE-এর পরের লাইনগুলো দেখুন।
+
+**কারণ:** isolated guest-এর ভেতরে VirGL host socket দৃশ্যমান থাকতে হয়। কিছু
+Debian Mesa build-এ VirGL `glxinfo` preflight-ও ব্যর্থ হয়।
+
+**সমাধান:** Ternux আপডেট করে `tx repair` চালান, যাতে managed launcher নতুন করে
+তৈরি হয়। এটি শুধু VirGL socket-টি guest-এ bind করে এবং XFCE চালুর আগে
+renderer পরীক্ষা করে। VirGL ব্যর্থ হলে desktop Mesa-র `llvmpipe` software
+renderer-এ চালু হবে; graphics-heavy app ধীর হতে পারে। এই পরীক্ষা শুধু VirGL
+(`virpipe`) session-এ প্রযোজ্য; Zink/Turnip session-কে software-এ বদলায় না।
+PowerVR ও অন্য non-Adreno device-এ এখানে shared VirGL পথ ব্যবহৃত হয়, তবে সেটি
+phone GPU ব্যবহার করতে পারবে কি না Android host renderer-এর ওপর নির্ভর করে।
+বিস্তারিত দেখতে `tx logs desktop` চালান।
 
 ---
 

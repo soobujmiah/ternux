@@ -886,10 +886,15 @@ assert "if _fit_signatures.get(window_id) == signature:" in window_fit
 assert "NoDisplay=true" in (root / "lib/ternux-assets/applications/ternux-web-browser.desktop").read_text()
 assert "NoDisplay=true" in (root / "lib/phases.sh").read_text()
 assert "tnx_request_camera_permission()" in (root / "lib/phases.sh").read_text()
+assert "tnx_termux_api_app_installed()" in (root / "lib/phases.sh").read_text()
 camera_permission = (root / "lib/phases.sh").read_text().split("tnx_request_camera_permission() {", 1)[1].split("tnx_phase_audio_fonts() {", 1)[0]
 assert 'TERNUX_YES' in camera_permission and '[ ! -t 0 ]' in camera_permission
 assert 'ternux-camera-permission.XXXXXX' in camera_permission and 'rm -f -- "$probe"' in camera_permission
 assert '"$camera" -c 0 "$probe"' in camera_permission and 'tnx_confirm' in camera_permission
+audio_phase = (root / "lib/phases.sh").read_text().split("tnx_phase_audio_fonts() {", 1)[1].split("# Phase 7", 1)[0]
+assert "timeout --signal=TERM --kill-after=10 300 sudo apt update" in audio_phase
+assert "timeout --signal=TERM --kill-after=10 600 sudo DEBIAN_FRONTEND=noninteractive apt install" in audio_phase
+assert "Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20" in audio_phase
 xfwm_generator = (root / "tools/generate_ternux_xfwm.py").read_text()
 assert 'xpm_name = Path(name).with_suffix(".xpm")' in xfwm_generator
 assert 'state_button("maximize", state, inactive=inactive, toggled=True)' in xfwm_generator
@@ -1039,6 +1044,7 @@ assert "2efee03ef5f457f3c7c345c6902c66b137575bea" in (root / "lib/ternux-assets/
 core_phase = (root / "lib/core.sh").read_text()
 assert 'ub) printf ubuntu' in core_phase and 'alp) printf alpine' in core_phase
 desktop_cli = (root / "lib/desktop.sh").read_text()
+assert "See 'ternux logs desktop' for details." in desktop_cli
 assert 'if tnx_proot_container_installed debian; then distro=debian' in desktop_cli
 assert 'distro="$(tnx_distro_canonical "$1")"' in desktop_cli
 assert 'db) printf debian ;; ub) printf ubuntu ;; alp) printf alpine' in core_phase
@@ -1340,6 +1346,12 @@ if env TERNUX_STATE_DIR="$TMP/state-virgl" HOME="$TMP/home-virgl" bash -c '
   tnx_phase_launcher bob virgl bn_BD.UTF-8 >/dev/null
   bash -n "$HOME/x.sh" &&
   grep -q "^virgl_test_server_android " "$HOME/x.sh" &&
+  grep -Fq "VIRGL_SOCKET=\"\$PREFIX/tmp/.virgl_test\"" "$HOME/x.sh" &&
+  grep -Fq "guest_login_isolated debian --bind \"\$VIRGL_SOCKET:/tmp/.virgl_test\"" "$HOME/x.sh" &&
+  grep -q "VirGL server socket was not created" "$HOME/x.sh" &&
+  grep -Fq "renderer_info=\"\$(timeout 5s glxinfo -B 2>&1)\" || renderer_info=\"\"" "$HOME/x.sh" &&
+  grep -Fq "export GALLIUM_DRIVER=llvmpipe LIBGL_ALWAYS_SOFTWARE=1" "$HOME/x.sh" &&
+  ! grep -q -- "--shared-tmp" "$HOME/x.sh" &&
   ! grep -q "MESA_LOADER_DRIVER_OVERRIDE=zink" "$HOME/x.sh"
 ' _ "$ROOT"; then
   ok "VirGL launcher starts only the fallback renderer"
@@ -2063,8 +2075,9 @@ if env TERNUX_STATE_DIR="$TMP/state-mic-permission" HOME="$TMP/home-mic-permissi
   PREFIX="$TMP/prefix-mic-permission" TMPDIR="$TMP/mic-permission-tmp" bash -c '
     mkdir -p "$HOME" "$TMPDIR"
     . "$1/lib/phases.sh"
-    mode=idle output_file="" fast=0 log="$TMPDIR/commands.log"
+    mode=idle output_file="" fast=0 api_present=0 log="$TMPDIR/commands.log"
     tnx_has_cmd(){ [[ "$1" == termux-microphone-record || "$1" == timeout ]]; }
+    tnx_termux_api_app_installed(){ [ "$api_present" = 1 ]; }
     timeout(){ printf "TIMEOUT:%s\n" "$1" >> "$log"; shift; "$@"; }
     sleep(){ :; }
     tnx_ok(){ printf "OK:%s\\n" "$*" >> "$log"; }
@@ -2093,6 +2106,9 @@ if env TERNUX_STATE_DIR="$TMP/state-mic-permission" HOME="$TMP/home-mic-permissi
         *) return 2 ;;
       esac
     }
+    tnx_request_microphone_permission || exit
+    grep -q "companion app is not installed; skipping" "$log" && ! grep -Eq "^-i$|^-f " "$log" || exit
+    : > "$log"; api_present=1
     tnx_request_microphone_permission || exit
     [ "$mode" = idle ] &&
     grep -q -- "-f .*permission.m4a -l 1" "$log" &&
@@ -2127,15 +2143,19 @@ CAMERA
 chmod 0755 "$camera_tmp/bin/termux-camera-photo"
 export CAMERA_CAPTURE_MARKER="$camera_tmp/captures"
 if env PATH="$camera_tmp/bin:$PATH" script -qec \
-  "env ROOT=\"$ROOT\" TMPDIR=\"$camera_tmp/private\" bash -c '. \"$ROOT/lib/phases.sh\"; tnx_confirm(){ return 0; }; tnx_request_camera_permission'" /dev/null >/dev/null 2>&1 &&
+  "env ROOT=\"$ROOT\" TMPDIR=\"$camera_tmp/private\" bash -c '. \"$ROOT/lib/phases.sh\"; tnx_termux_api_app_installed(){ return 0; }; tnx_confirm(){ return 0; }; tnx_request_camera_permission'" /dev/null >/dev/null 2>&1 &&
   [ "$(cat "$CAMERA_CAPTURE_MARKER")" = capture ] &&
+  env ROOT="$ROOT" TMPDIR="$camera_tmp/private" PATH="$camera_tmp/bin:$PATH" bash -c \
+    '. "$ROOT/lib/phases.sh"; tnx_termux_api_app_installed(){ return 1; }; tnx_request_camera_permission' 2>&1 |
+      grep -q "companion app is not installed; skipping the camera permission prompt" &&
+  [ "$(wc -l < "$CAMERA_CAPTURE_MARKER")" -eq 1 ] &&
   ! find "$camera_tmp/private" \( -type f -o -name 'ternux-camera-permission.*' \) -print -quit | grep -q . &&
   env TERNUX_YES=1 TMPDIR="$camera_tmp/private" PATH="$camera_tmp/bin:$PATH" \
-    bash -c '. "$1/lib/phases.sh"; tnx_request_camera_permission' _ "$ROOT" >/dev/null &&
+    bash -c '. "$1/lib/phases.sh"; tnx_termux_api_app_installed(){ return 0; }; tnx_request_camera_permission' _ "$ROOT" >/dev/null &&
   [ "$(wc -l < "$CAMERA_CAPTURE_MARKER")" -eq 1 ]; then
-  ok "camera permission probe requires opt-in, uses and deletes a private photo, and skips unattended installs"
+  ok "camera permission probe requires opt-in, skips cleanly without Termux:API, deletes its photo, and skips unattended installs"
 else
-  not_ok "camera permission probe requires opt-in, uses and deletes a private photo, and skips unattended installs"
+  not_ok "camera permission probe requires opt-in, skips cleanly without Termux:API, deletes its photo, and skips unattended installs"
 fi
 
 # Pulse setup covers a fresh file, exact legacy migration, idempotence, custom

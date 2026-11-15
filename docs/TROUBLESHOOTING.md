@@ -13,6 +13,7 @@ more than one cause, so collect the named evidence before applying a repair.
 | Desktop dies silently, or `[Process completed (signal 9)]` | Android process policy, memory pressure, or OEM battery management | [The desktop dies silently](#the-desktop-dies-silently) |
 | Black/empty Termux:X11 window | X11 app not opened, or stale socket | [Black screen in Termux:X11](#black-screen-in-termuxx11) |
 | `renderer string: llvmpipe` | Software fallback — GPU route not active | [Renderer says llvmpipe](#renderer-says-llvmpipe) |
+| `lost connection to rendering server` while starting XFCE | VirGL socket is unavailable to the isolated guest, or its Mesa VirGL preflight fails | [VirGL fails during XFCE startup](#virgl-fails-during-xfce-startup) |
 | No sound in the desktop | PulseAudio bridge not running | [No audio](#no-audio) |
 | No internet inside Debian | DNS not inherited over PRoot | [No network in the container](#no-network-in-the-container) |
 | `Waiting for Termux-X11 display socket…` forever | Display :0 never appeared | [Display never appears](#display-never-appears) |
@@ -111,6 +112,28 @@ x
 If it still fails, run `ternux repair` — it checks the Termux-side display
 package and regenerates a missing, broken or backend-mismatched launcher. Then
 use `ternux verify` to inspect the Debian-side desktop prerequisites.
+
+---
+
+## VirGL fails during XFCE startup
+
+**Symptom:** `tx start` fails with `lost connection to rendering server` and
+`startxfce4` aborts. The `X server already running` line can appear because
+Termux:X11 already owns that display; check the following VirGL and XFCE lines
+for the actual failure.
+
+**Cause:** VirGL's host socket must be visible inside the isolated guest. Some
+Debian Mesa builds also fail the VirGL `glxinfo` preflight.
+
+**Fix:** Update Ternux, then run `tx repair` to regenerate the managed launcher.
+It binds only the VirGL socket into the guest and tests the renderer before
+starting XFCE. If VirGL fails, the desktop starts with Mesa's `llvmpipe`
+software renderer so the session remains usable; graphics-heavy apps will be
+slower. This check is limited to VirGL (`virpipe`) sessions; it does not switch
+a Zink/Turnip session to software. PowerVR and other non-Adreno devices use the
+shared VirGL route here, but whether VirGL reaches the phone GPU depends on the
+Android host renderer. Read the exact probe and XFCE output with
+`tx logs desktop`.
 
 ---
 

@@ -397,7 +397,7 @@ tnx_cmd_start_impl() {
     printf '%s\n' FAILED > "$state_file"
     tnx_workspace_registry_update "$distro" FAILED "$display_num" || tnx_warn "Could not update the workspace registry for '$distro'."
     exec 9>&-
-    tnx_fail "Desktop did not complete XFCE startup. See 'ternux logs show' for details."
+    tnx_fail "Desktop did not complete XFCE startup. See 'ternux logs desktop' for details."
     [ "${TERNUX_JSON:-0}" = "1" ] && tnx_json_object "start" "error" "backend" "$configured_backend" "log" "$desktop_log"
     return "$rc"
   fi
