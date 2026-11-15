@@ -421,12 +421,24 @@ account had been using `/bin/sh`, which skipped its interactive Bash startup
 file; the prompt configurator now selects `/bin/bash` for that managed Alpine
 user and regenerates the Ternux prompt/Terfetch configuration.
 
-The host interactive shell was resized from 100×40 to 36×24. At the next prompt,
-its resize hook refreshed Terfetch, and the compact portrait layout stayed
-within 36 columns. Automated narrow-layout checks also passed at 40, 48, and 60
-columns. The shell refresh runs on the next prompt after resize; it does not
-interrupt a foreground command or redraw while the shell is idle. PTY output was
-verified; this check did not capture a screenshot from every XFCE terminal.
+The host PTY was rendered at 115×77 and then 40×24. The wider layout centers the
+full monogram in roughly one-third of the width and gives the remaining space to
+the information panel. The narrow layout stacks the complete monogram above
+every information row and wraps long values instead of shortening or omitting
+them. Resizing is picked up at the next prompt; refresh keeps prior output in
+scrollback so a tall dashboard does not clear its logo or information. Automated
+layout checks also cover 36, 40, 48, and 60 columns. This verifies PTY output,
+not screenshots from every XFCE terminal.
+
+The live Debian XFCE Terminal was also opened on display `:1`. Synthetic
+Ctrl+plus changed its persistent Xfconf font preference from `Noto Sans Mono
+10` to `Noto Sans Mono 12`, resized the terminal window, and Ctrl+minus restored
+the preference to size 10. A second temporary XFCE Terminal was then opened and
+reported the saved size 12, confirming that the setting carries into a later
+terminal launch. The temporary windows were closed and the original Debian font
+size was restored. The shared helper handles these shortcuts only while an
+XFCE Terminal window is active; the live keypress and next-launch checks were
+directly exercised on Debian.
 
 ## Post-migration Control Center cycle — 2026-11-14 12:56 UTC
 

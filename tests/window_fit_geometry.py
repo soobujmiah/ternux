@@ -2,6 +2,7 @@
 """Exercise the X11 window fitter's display geometry without an X server."""
 
 import ast
+import re
 from pathlib import Path
 
 
@@ -10,13 +11,14 @@ source = root / "lib/ternux-assets/bin/ternux-window-fit-x11"
 tree = ast.parse(source.read_text())
 functions = [
     node for node in tree.body
-    if isinstance(node, ast.FunctionDef) and node.name in {"fitted_geometry", "root_dimensions"}
+    if isinstance(node, ast.FunctionDef) and node.name in {"fitted_geometry", "root_dimensions", "zoomed_font_name"}
 ]
 module = ast.Module(body=functions, type_ignores=[])
-namespace: dict[str, object] = {}
+namespace: dict[str, object] = {"re": re}
 exec(compile(module, str(source), "exec"), namespace)
 fit = namespace["fitted_geometry"]
 dimensions = namespace["root_dimensions"]
+zoom_font = namespace["zoomed_font_name"]
 
 
 def expect(label: str, actual: tuple[int, int, int, int], expected: tuple[int, int, int, int]) -> None:
@@ -46,3 +48,8 @@ assert dimensions(live_root) == (312, 640)
 live_root.width, live_root.height = 640, 1386
 assert dimensions(live_root) == (640, 1386)
 print("ok - root resize is read live instead of using cached display dimensions")
+assert zoom_font("Noto Sans Mono 10", 1) == "Noto Sans Mono 12"
+assert zoom_font("Noto Sans Mono 12", -1) == "Noto Sans Mono 10"
+assert zoom_font("Noto Sans Mono 10", -1) == "Noto Sans Mono 8.33"
+assert zoom_font("not-a-sized-font", 1) is None
+print("ok - terminal zoom updates a persistent Xfce font size")

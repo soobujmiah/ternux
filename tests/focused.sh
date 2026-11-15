@@ -463,6 +463,8 @@ if env TERNUX_STATE_DIR="$TMP/state-welcome" HOME="$TMP/home-welcome" \
       grep -Fq "minimum_width = max(1, int(area_width * 0.58))" "$1/lib/ternux-assets/bin/ternux-window-fit-x11" &&
       grep -Fq "_settle_clients[client_id] = time.monotonic() + 0.65" "$1/lib/ternux-assets/bin/ternux-window-fit-x11" &&
       grep -Fq "select.select([dpy.fileno()]" "$1/lib/ternux-assets/bin/ternux-window-fit-x11" &&
+      grep -Fq "root.grab_key(keycode" "$1/lib/ternux-assets/bin/ternux-window-fit-x11" &&
+      grep -Fq "[\"xfconf-query\", \"-c\", \"xfce4-terminal\"" "$1/lib/ternux-assets/bin/ternux-window-fit-x11" &&
       grep -q "Every fresh profile gets one usable browser" "$1/lib/phases.sh" &&
       sh -n "$1/lib/ternux-welcome.sh" &&
       grep -q "firefox-esr --new-window" "$1/lib/ternux-welcome.sh" &&

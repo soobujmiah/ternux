@@ -142,7 +142,11 @@ battery="$(cat /sys/class/power_supply/battery/capacity 2>/dev/null | head -n 1)
 [ -n "$battery" ] && battery="${battery}%" || battery=''
 
 ternux_version='not detected'
-if command -v ternux >/dev/null 2>&1; then
+if command -v tx >/dev/null 2>&1; then
+  version_output="$(tx --version 2>/dev/null || true)"
+  ternux_version="${version_output%%$'\n'*}"
+  [ -n "$ternux_version" ] || ternux_version=unknown
+elif command -v ternux >/dev/null 2>&1; then
   version_output="$(ternux --version 2>/dev/null || true)"
   ternux_version="${version_output%%$'\n'*}"
   [ -n "$ternux_version" ] || ternux_version=unknown
@@ -183,10 +187,8 @@ if [ "${1:-}" = '--json' ]; then
   exit 0
 fi
 
-# Prompt hooks call this after a size change so the dashboard stays together.
-if [ "${1:-}" = '--refresh' ] && [ -t 1 ]; then
-  printf '\033[H\033[2J'
-fi
+# Prompt hooks call this after a size change. Keep the previous render in
+# scrollback so a tall dashboard never loses its monogram or information.
 
 if [ -t 1 ] && [ -z "${NO_COLOR:-}" ]; then
   c1=$'\033[1;38;5;48m'; c2=$'\033[1;38;5;45m'; c3=$'\033[38;5;109m'; c0=$'\033[0m'
@@ -602,12 +604,8 @@ set_logo() {
 }
 
 
-print_pair() {
-  local art="$1" label="$2" value="$3"
-  printf '  %s%-*s%s  %s%-15s%s %s\n' "$c1" "$logo_width" "$art" "$c0" "$c3" "$label" "$c0" "$value"
-}
-
 logo_credit=''
+logo_presented=0
 logo_id=linux
 if [ "$host_termux" -eq 1 ]; then
   native_logo_ids=(android workstation adelie alpine archlinux artix chimera debian deepin fedora kali manjaro opensuse pardus rockylinux ubuntu void sobuj)
@@ -618,7 +616,7 @@ if [ "$host_termux" -eq 1 ]; then
   fi
   logo_id="${native_logo_ids[$logo_index]}"
   if [ "$logo_id" = sobuj ]; then
-    printf '  %sPresented by%s\n' "$c3" "$c0"
+    logo_presented=1
   else
     logo_credit='Presented by @soobujmiah'
   fi
@@ -651,74 +649,75 @@ if [ "$desktop_name" != unknown ]; then labels+=(Desktop); values+=("$desktop_na
 if [ -n "$battery" ]; then labels+=(Battery); values+=("$battery"); fi
 
 row_count="${#labels[@]}"
+logo_area_width=$((terminal_columns / 3))
+[ "$logo_area_width" -ge "$logo_width" ] || logo_area_width="$logo_width"
 compact_panel=0
-if [ "$terminal_columns" -lt 68 ]; then compact_panel=1; fi
+if [ $((logo_area_width + 28)) -gt "$terminal_columns" ]; then compact_panel=1; fi
 if [ "$compact_panel" -eq 1 ]; then
-  case "$logo_id" in
-    alpine) logo_lines=('   /\ Alpine') ;;
-    archlinux) logo_lines=('   /\ Arch') ;;
-    debian) logo_lines=('   .--. Debian') ;;
-    ubuntu) logo_lines=('   (o) Ubuntu') ;;
-    kali) logo_lines=('   /\ Kali') ;;
-    fedora) logo_lines=('   (F) Fedora') ;;
-    opensuse) logo_lines=('   (S) openSUSE') ;;
-    manjaro) logo_lines=('   || Manjaro') ;;
-    android) logo_lines=('   [::] Android') ;;
-    workstation) logo_lines=('  Ternux Workstation') ;;
-    sobuj) logo_lines=('   SOBUJ') ;;
-    *) logo_lines=("   ${logo_id}") ;;
-  esac
+  value_width=$((terminal_columns - 20))
+  [ "$value_width" -ge 8 ] || value_width=8
+  logo_area_width="$terminal_columns"
+  [ "$logo_area_width" -ge "$logo_width" ] || logo_area_width="$logo_width"
+  info_indent=18
+  block_width="$terminal_columns"
+else
+  value_width=$((terminal_columns - logo_area_width - 22))
+  [ "$value_width" -ge 8 ] || value_width=8
+  info_indent=$((logo_area_width + 20))
+  block_width="$terminal_columns"
 fi
-# In a short portrait terminal, keep the dashboard and command footer in view.
-if [ "$compact_panel" -eq 1 ] && [ "$terminal_rows" -lt 36 ]; then
-  max_rows=$((terminal_rows - ${#logo_lines[@]} - 7))
-  [ "$max_rows" -ge 10 ] || max_rows=10
-  if [ "$row_count" -gt "$max_rows" ]; then
-    compact_labels=() compact_values=()
-    for ((i=0; i<row_count; i++)); do
-      case "${labels[i]}" in
-        System|Distro|Environment|Kernel|Uptime|Packages|Architecture|CPU|GPU|Memory|Storage|Shell|Terminal|Ternux|User|Android|Desktop)
-          compact_labels+=("${labels[i]}")
-          compact_values+=("${values[i]}") ;;
-      esac
-      [ "${#compact_labels[@]}" -lt "$max_rows" ] || break
-    done
-    labels=("${compact_labels[@]}")
-    values=("${compact_values[@]}")
-    row_count="${#labels[@]}"
-  fi
-fi
-if [ "${#logo_lines[@]}" -gt "$row_count" ]; then
-  logo_lines=("${logo_lines[@]:0:row_count}")
-fi
-value_width=$((terminal_columns - logo_width - 22))
-[ "$value_width" -ge 8 ] || value_width=8
-for ((i=0; i<${#values[@]}; i++)); do
-  value="${values[i]}"
-  if [ "${#value}" -gt "$value_width" ]; then
-    values[i]="${value:0:$((value_width - 3))}..."
-  fi
-done
-max_value_width=0
-for value in "${values[@]}"; do
-  [ "${#value}" -le "$max_value_width" ] || max_value_width="${#value}"
-done
-block_width=$((logo_width + 2 + 15 + max_value_width + 4))
-[ "$block_width" -le "$terminal_columns" ] || block_width="$terminal_columns"
 if [ "$compact_panel" -eq 1 ]; then
-  for art in "${logo_lines[@]}"; do printf '  %s%s%s\n' "$c1" "$art" "$c0"; done
+  if [ "$logo_presented" -eq 1 ]; then
+    pad=$(((logo_area_width - 11) / 2))
+    [ "$pad" -ge 0 ] || pad=0
+    printf '%*s%sPresented by%s\n' "$pad" '' "$c3" "$c0"
+  fi
+  logo_pad=$(((logo_area_width - logo_width) / 2))
+  [ "$logo_pad" -ge 0 ] || logo_pad=0
+  for art in "${logo_lines[@]}"; do
+    printf '%*s%s%s%s\n' "$logo_pad" '' "$c1" "$art" "$c0"
+  done
   for ((i=0; i<row_count; i++)); do
-    printf '  %s%-15s%s %s\n' "$c3" "${labels[i]}" "$c0" "${values[i]}"
+    printf '  %s%-15s%s ' "$c3" "${labels[i]}" "$c0"
+    first_value_line=1
+    while IFS= read -r value_line; do
+      if [ "$first_value_line" -eq 1 ]; then
+        printf '%s\n' "$value_line"
+        first_value_line=0
+      else
+        printf '%*s%s\n' "$info_indent" '' "$value_line"
+      fi
+    done < <(fold -sw "$value_width" <<< "${values[i]}")
   done
 else
+  logo_pad=$(((logo_area_width - logo_width) / 2))
+  [ "$logo_pad" -ge 0 ] || logo_pad=0
+  logo_tail=$((logo_area_width - logo_pad - logo_width))
+  [ "$logo_tail" -ge 0 ] || logo_tail=0
+  if [ "$logo_presented" -eq 1 ]; then
+    pad=$(((logo_area_width - 11) / 2))
+    [ "$pad" -ge 0 ] || pad=0
+    printf '  %*s%sPresented by%s\n' "$pad" '' "$c3" "$c0"
+  fi
   for ((i=0; i<row_count; i++)); do
     art="${logo_lines[i]:-}"
     label="${labels[i]:-}"
     value="${values[i]:-}"
     if [ -n "$label" ]; then
-      print_pair "$art" "$label" "$value"
+      printf '  %*s%s%-*s%s%*s  %s%-15s%s ' \
+        "$logo_pad" '' "$c1" "$logo_width" "$art" "$c0" "$logo_tail" '' "$c3" "$label" "$c0"
+      first_value_line=1
+      while IFS= read -r value_line; do
+        if [ "$first_value_line" -eq 1 ]; then
+          printf '%s\n' "$value_line"
+          first_value_line=0
+        else
+          printf '%*s%s\n' "$info_indent" '' "$value_line"
+        fi
+      done < <(fold -sw "$value_width" <<< "$value")
     else
-      printf '  %s%-*s%s\n' "$c1" "$logo_width" "$art" "$c0"
+      printf '  %*s%s%-*s%s%*s\n' \
+        "$logo_pad" '' "$c1" "$logo_width" "$art" "$c0" "$logo_tail" ''
     fi
   done
 fi
