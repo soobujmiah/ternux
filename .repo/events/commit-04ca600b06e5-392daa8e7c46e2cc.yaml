@@ -1,0 +1,7 @@
+event_id: commit-04ca600b06e5-392daa8e7c46e2cc
+repository: soobujmiah/ternux
+commit: 04ca600b06e5f775a2a404c8a86149d542fba9de
+kind: commit
+occurred_at: '2026-11-15T14:10:36Z'
+status: completed
+summary: Polish CLI help, guide, info, and Terfetch layout (#251)
