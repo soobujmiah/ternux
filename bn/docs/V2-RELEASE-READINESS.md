@@ -6,7 +6,7 @@ alt_url: "/docs/V2-RELEASE-READINESS.html"
 ---
 
 **অবস্থা: Public distribution থেকে withdrawn**
-**Audit তারিখ:** 2026-11-14
+**Audit তারিখ:** 2026-11-16
 **লক্ষ্য:** Ternux 2.0.0
 **v2 GitHub release:** 2026-11-14-এ withdrawn; [provenance-এর জন্য tag রাখা হয়েছে](https://github.com/soobujmiah/ternux/tree/v2.0.0)। Withdrawal run [43532161200](https://github.com/soobujmiah/ternux/actions/runs/43532161200)-এর পর stable APT path HTTP 404; signed RC এখনো আছে।
 
@@ -36,7 +36,12 @@ CPU/Vulkan দাবি accelerator plan-এ থাকা নির্দিষ�
 Reference device: Xiaomi 25053RT47C (Redmi Turbo 4 Pro), Android 16, ARM64,
 SM8735 / Adreno 825। Debian `:0`, Ubuntu `:1`, Alpine `:2`-এর আগের session-গুলো
 Termux:X11 ও PulseAudio route-সহ READY দেখা গেছে। Session চালু রাখা হয়েছে। তিন
-guest-এ live Firefox titlebar-এ close control দেখা গেছে; পরের synthetic Ctrl+Space probe Debian ও Ubuntu-তে engine বদলেছে, Alpine-এ বদলায়নি; আগের focused Alpine GTK/XTest probe-এর সঙ্গে অমিল আছে। Alpine-এর direct helper কাজ করে। Physical Android keyboard behavior যাচাই করা হয়নি।
+guest-এ live Firefox titlebar-এ close control দেখা গেছে। ২০২৬-১১-১৬ তারিখে
+ব্যবহারকারী জানান, ইনস্টল করা সব ডিস্ট্রোতে প্রকৃত কিবোর্ড দিয়ে ভাষা বদলানো
+যায়। ওই দিন আল্পাইনের `:4` প্রদর্শনে এক্সএফসিই টার্মিনালকে লক্ষ্য করে কৃত্রিম
+`Ctrl+Space` সংকেত পাঠালে আইবাস ইঞ্জিন `xkb:us::eng` →
+`m17n:bn:avro-phonetic` → `xkb:us::eng` হয়েছে। আগের অমিলটি এই পরীক্ষায় আর
+দেখা যায়নি।
 
 2026-11-13 live runtime query-তে তিন guest-এ GTK, icon, XFWM theme, `|HMC`
 titlebar controls ও Ctrl+Space switch helper binding নিশ্চিত হয়েছে। Assigned

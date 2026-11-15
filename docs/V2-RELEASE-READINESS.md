@@ -6,7 +6,7 @@ alt_url: "/bn/docs/V2-RELEASE-READINESS.html"
 ---
 
 **Status: WITHDRAWN from public distribution**
-**Audit date:** 2026-11-14
+**Audit date:** 2026-11-16
 **Target:** Ternux 2.0.0
 **v2 GitHub release:** withdrawn 2026-11-14; [tag retained for provenance](https://github.com/soobujmiah/ternux/tree/v2.0.0). Stable APT paths return HTTP 404 after withdrawal run [43532161200](https://github.com/soobujmiah/ternux/actions/runs/43532161200); signed RC remains available.
 
@@ -37,10 +37,11 @@ other Android GPU families are not covered by these v2 gates.
 The reference device is Xiaomi 25053RT47C (Redmi Turbo 4 Pro), Android 16,
 ARM64, SM8735 / Adreno 825. Existing Debian `:0`, Ubuntu `:1`, and Alpine `:2`
 sessions were observed READY with Termux:X11 and PulseAudio routes. The sessions were left running. Live Firefox
-titlebars showed visible close controls. A later synthetic Ctrl+Space probe
-switched Debian and Ubuntu but not Alpine, despite Alpine direct-helper success;
-earlier Alpine GTK/XTest evidence conflicts. Physical keyboard behavior remains
-unverified.
+titlebars showed visible close controls. The owner reports that physical
+keyboard input switching works in all installed distros. The latest Alpine
+follow-up on 2026-11-16 started its display at `:4`; a focused Xfce Terminal
+switched IBus with synthetic Ctrl+Space from English to Avro and back to English.
+This supersedes the earlier Alpine event discrepancy for this focused X11 check.
 
 On 2026-11-13, runtime D-Bus queries confirmed the GTK, icon, and XFWM themes,
 `|HMC` titlebar controls, and active Ctrl+Space binding in every guest. The
