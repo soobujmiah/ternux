@@ -1,49 +1,76 @@
-# Stable Diffusion CPU + Vulkan extension (preview)
+# স্টেবল ডিফিউশন সিপিইউ ও ভলকান এক্সটেনশন (পূর্বরূপ)
 
-Ei optional extension Debian ARM64 guest-e `stable-diffusion.cpp`-er `sd-cli` install kore; CPU ebong Vulkan backend thake. Model, Vulkan driver ba Android vendor runtime download kore na. Guest-e kajer Vulkan ICD thakle GPU route cholbe; Vulkan na thakleo CPU use kora jabe.
+এই ঐচ্ছিক এক্সটেনশনটি ডেবিয়ান এআরএম৬৪ গেস্টে `stable-diffusion.cpp`-এর
+`sd-cli` বসায়; এতে সিপিইউ ও ভলকান ব্যাকএন্ড থাকে। এটি মডেল, ভলকান ড্রাইভার
+বা অ্যান্ড্রয়েড নির্মাতা-সরবরাহকৃত রানটাইম নামায় না। গেস্টে সচল ভলকান
+আইসিডি থাকলে জিপিইউ পথ ব্যবহার করা যাবে; ভলকান না থাকলেও সিপিইউ ব্যাকএন্ড
+চলবে।
 
-## Install
+## ইনস্টল
 
-Termux host theke:
+টার্মাক্স হোস্ট থেকে চালান:
 
 ```sh
 ternux extension install stable-diffusion
 ```
 
-Pinned ARM64 prerelease download kore SHA-256, archive path o package identity verify kore atomic install hoy. Debian glibc 2.39 ba notun ebong `libgomp1`, `libvulkan1` runtime package dorkar. Extension-er sathe upstream/dependency license notice-er checksum thake.
+পিন করা এআরএম৬৪ প্রাক্‌প্রকাশনা নামিয়ে এর এসএইচএ-২৫৬, আর্কাইভের পথ এবং
+প্যাকেজের পরিচয় যাচাই করে তারপর পরমাণু-নিরাপদভাবে ইনস্টল করা হয়। ডেবিয়ান
+গ্লিবসি ২.৩৯ বা নতুন সংস্করণ এবং `libgomp1`, `libvulkan1` রানটাইম প্যাকেজ
+প্রয়োজন। এক্সটেনশনে আপস্ট্রিম ও নির্ভরতার লাইসেন্স-নোটিশের যাচাইকৃত চেকসমও
+থাকে।
 
-## Model-er path o use
+## মডেলের অবস্থান ও ব্যবহার
 
-Model extension-er baire rakhun. User-authorized SD 1.5 Q8 GGUF model `/sdcard/Llms/ternux-v2-validation/`-e ache. SHA-256: `d0555243938c62faeefb4ac93f6c7a053ad373a4290c5256bce229aeb193bf94`. Model card-e CreativeML OpenRAIL-M deya ache; oi license ebong base model-er terms mene cholun.
+মডেলের ওজন এক্সটেনশনের বাইরে রাখুন। ব্যবহারকারীর অনুমোদনে স্থানান্তর করা
+যোগ্যতা-পরীক্ষার এসডি ১.৫ কিউ৮ জিজিইউএফ মডেলটি
+`/sdcard/Llms/ternux-v2-validation/`-এ আছে। এর এসএইচএ-২৫৬ হলো
+`d0555243938c62faeefb4ac93f6c7a053ad373a4290c5256bce229aeb193bf94`।
+[মডেল পরিচিতি](https://huggingface.co/second-state/stable-diffusion-v1-5-GGUF/blob/main/README.md)-তে
+ক্রিয়েটিভএমএল ওপেনরেইল-এম লাইসেন্স উল্লেখ আছে; সেই লাইসেন্স ও মূল মডেলের
+শর্ত মেনে চলুন।
 
 ```sh
 source "$HOME/.local/opt/ternux-extensions/stable-diffusion/env.sh"
 MODEL=/sdcard/Llms/ternux-v2-validation/stable-diffusion-v1-5-pruned-emaonly-Q8_0.gguf
 
-# CPU-only, low-resolution diagnostic (slow on this phone)
+# শুধু সিপিইউ, কম রেজোলিউশনের রোগনির্ণয় পরীক্ষা (এই ফোনে ধীর)
 sd-cli --backend cpu --model "$MODEL" \
   --prompt 'a small red robot in a garden, clean illustration' \
   --threads 4 --output /tmp/ternux-sd-cpu.png --width 256 --height 256 --steps 20 --seed 42
 
-# Adreno GPU: tiled VAE is required for reliable 512x512 on SM8735
+# অ্যাড্রেনো জিপিইউ: 512x512 নির্ভরযোগ্যভাবে চালাতে টাইল করা ভিএই প্রয়োজন
 sd-cli --backend vulkan0 --model "$MODEL" \
   --prompt 'a small red robot in a garden, clean illustration' \
   --threads 4 --output /tmp/ternux-sd-vulkan.png --width 512 --height 512 --steps 10 --seed 42 \
   --vae-tiling --vae-tile-size 256x256
 ```
 
-Test-e model card-e CreativeML OpenRAIL-M deya ache; oi license ebong base model-er terms mene cholun. Pinned CLI option `sd-cli --help` diye dekhun.
+অ্যাড্রেনো ৮২৫-এ টাইল ছাড়া ৫১২×৫১২ ভলকান চালালে ভিএই ডিকোডের সময় ডিভাইস
+হারিয়ে গিয়েছিল। `--vae-tiling --vae-tile-size 256x256` দিয়ে একই মাপের
+১০-ধাপের সম্পূর্ণ ভলকান ছবি ১০১.৯ সেকেন্ডে তৈরি হয়েছিল। সিপিইউ ব্যাকএন্ডে
+২৫৬×২৫৬, ১০-ধাপের ছবি ১৯৪.৪ সেকেন্ডে তৈরি হলেও তা ব্লকযুক্ত ছিল; সিপিইউ
+ছবির মান এখনো যোগ্যতা পায়নি। মিশ্র বিকল্প
+`--backend diffusion=vulkan0,te=cpu,vae=cpu` দিয়ে ৫১২×৫১২, ১০-ধাপের ছবি
+তৈরি হয়েছিল, তবে ২২১ সেকেন্ড লেগেছে এবং আরএসএস প্রায় ৩.৪ জিবি হয়েছিল।
+ভলকান আইসিডি `vulkaninfo --summary` দিয়ে পরীক্ষা করুন।
 
-Adreno 825-e 512x512 pure Vulkan tiling chara VAE decode-e device-lost hoyechilo. `--vae-tiling --vae-tile-size 256x256` diye same resolution-er 10-step full-Vulkan image save hoyeche (101.9s). CPU backend 256x256/10-step image save koreche (194.4s), kintu output blocky chilo; CPU quality ekhono qualify hoyni. Mixed fallback `--backend diffusion=vulkan0,te=cpu,vae=cpu` output save koreche, kintu 512x512/10-step-e 221s legeche ebong RSS praye 3.4 GiB hoyechilo. `vulkaninfo --summary` diye Vulkan ICD check korun.
+সম্পূর্ণ কমান্ড, পরিমাপ, মডেলের চেকসম ও যোগ্যতার সিদ্ধান্তের জন্য
+[যন্ত্র-যোগ্যতা হস্তান্তর নথি](../../handoffs/stable-diffusion-cpu-vulkan-qualification-2026-11-07.md)
+দেখুন।
 
-Puro command, measurement, model checksum ebong gate decision [device qualification handoff](../../handoffs/stable-diffusion-cpu-vulkan-qualification-2026-11-07.md)-e ache.
+প্রকাশ্য প্রাক্‌প্রকাশনার চেকসম যাচাই করে
+`ternux extension install stable-diffusion` দিয়ে ইনস্টল করা হয়েছিল;
+`ternux doctor` এক্সটেনশনটি শনাক্ত করে। ইনস্টল করা বাইনারি `/sdcard/Llms` থেকে
+মডেল নিয়ে টাইল করা ভলকান ভিএই ব্যবহার করে ৯২.৯১ সেকেন্ডে সুসংগত
+৫১২×৫১২, ১০-ধাপের ছবি তৈরি করেছে। সিপিইউ-তৈরি ছবির মান এখনো অযোগ্য। ছবির
+বিস্তৃত মান, মেমরির পরিসর, বাতিল, পুনরারম্ভ এবং দীর্ঘক্ষণ ব্যবহারের যোগ্যতা
+পরীক্ষা বাকি; এটি টার্নাক্সের স্থিতিশীল প্রকাশনার অংশ নয়।
 
-Public prerelease checksum verify kore `ternux extension install stable-diffusion` diye install hoyeche; `ternux doctor` extension detect kore. Installed binary `/sdcard/Llms` theke model niye tiled Vulkan VAE-te 512×512/10-step coherent image 92.91s-e generate koreche. CPU image quality unqualified. Broader quality, memory range, cancellation, restart o sustained-use gate khola; eta stable Ternux release noy.
-
-## Remove
+## অপসারণ
 
 ```sh
 rm -rf "$HOME/.local/opt/ternux-extensions/stable-diffusion"
 ```
 
-Eta sudhu extension delete kore; `/sdcard/Llms`-er model thakbe.
+এতে শুধু এক্সটেনশনটি মুছবে; `/sdcard/Llms`-এর মডেল অক্ষত থাকবে।

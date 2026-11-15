@@ -1,38 +1,40 @@
-# Ternux Termux APT package
+# টার্নাক্স টার্মাক্স এপিটি প্যাকেজ
 
-Ei package Ternux host CLI ebong tar shell module install kore. `pkg install`
-cholakaline eta desktop/container setup kore na; package install-er por user
-nije `ternux install` chaliye setup shuru korben.
+এই প্যাকেজটি টার্নাক্সের হোস্ট কমান্ড-লাইন সরঞ্জাম ও তার শেল মডিউল বসায়।
+`pkg install` চলার সময় এটি ডেস্কটপ বা কন্টেইনার ইনস্টলার চালায় না; এতে
+`tx` ও `ternux`—দুই কমান্ডই পাওয়া যায়। প্যাকেজ বসানোর পর স্পষ্টভাবে
+`tx install` চালিয়ে সেটআপ শুরু করুন।
 
-## Package build
+## প্যাকেজ তৈরি
 
-Native Termux-e clean checkout theke chalao:
+পরিষ্কার সংগ্রহস্থল থেকে নেটিভ টার্মাক্সে চালান:
 
 ```bash
-pkg update
-pkg install termux-create-package
+apt update && apt full-upgrade -y
+apt install termux-create-package -y
 bash packaging/termux/build.sh
 ```
 
-Toiri `.deb` file thakbe `artifacts/ternux-apt/debs/`-e. Version neya hoy
-`lib/core.sh` theke; package architecture `all`, karon package-e shudhu shell
-script ache. Manifest-e install file-gulo alada kore deya, tai notun CLI module
-add korle `manifest.json`-eo jog korte hobe.
+তৈরি `.deb` ফাইল `artifacts/ternux-apt/debs/`-এ লেখা হয়। এর সংস্করণ
+`lib/core.sh` থেকে নেওয়া হয়। প্যাকেজে শুধু শেল স্ক্রিপ্ট থাকায় স্থাপত্য
+`all`। ইনস্টল হওয়া ফাইলগুলো ম্যানিফেস্টে স্পষ্টভাবে তালিকাভুক্ত; নতুন
+কমান্ড-লাইন মডিউল যোগ করলে `manifest.json`-এও যোগ করতে হবে।
 
-## APT repository tree build o verify
+## এপিটি সংগ্রহস্থলের সূচি তৈরি ও যাচাই
 
 ```bash
-pkg install termux-apt-repo
+apt install termux-apt-repo -y
 bash packaging/termux/build-repository.sh
 ```
 
-Unsigned tree `artifacts/ternux-apt/repository/`-e toiri hoy; eta shudhu local
-install test-er jonno. Prottek build generated directory notun kore toiri kore
-APT index-e package identity, architecture, filename o SHA-256 mile kina check
-kore. Unsigned tree kokhono publish koro na ba client-e `trusted=yes` use koro na.
+স্বাক্ষরহীন সংগ্রহস্থল-গাছ শুধু স্থানীয় ইনস্টল পরীক্ষার জন্য
+`artifacts/ternux-apt/repository/`-এ তৈরি হয়। প্রতিবার নির্মাণে এই তৈরি
+ডিরেক্টরি নতুন করে বানানো হয় এবং এপিটি সূচিতে প্যাকেজের পরিচয়, স্থাপত্য,
+ফাইলের নাম ও এসএইচএ-২৫৬ মেলে কি না পরীক্ষা করা হয়। স্বাক্ষরহীন গাছ কখনো
+প্রকাশ করবেন না বা ক্লায়েন্টে `trusted=yes` ব্যবহার করবেন না।
 
-Current GnuPG home-e age theke thaka key diye sign korte full fingerprint dekhe
-command chalao:
+বর্তমান জিএনইউ প্রাইভেসি গার্ড হোমে আগে থেকে থাকা চাবি দিয়ে স্বাক্ষর করতে
+আগে পূর্ণ আঙুলের ছাপ দেখুন, তারপর চালান:
 
 ```bash
 gpg --list-secret-keys --fingerprint
@@ -40,11 +42,12 @@ TERNUX_APT_SIGNING_FINGERPRINT='<full fingerprint>' \
   bash packaging/termux/build-repository.sh --sign
 ```
 
-Script `Origin`/`Label` metadata set kore, oi full fingerprint diye
-`InRelease` sign o verify kore, ebong shudhu `ternux-archive-key.asc` public
-key export kore. Eta private key toiri, import, copy ba export kore na.
-Passphrase-protected key hole echo chara passphrase niye environment diye pathao;
-script eta command argument ba file-e na rekhe GnuPG-r stdin-e dey:
+স্ক্রিপ্টটি `Origin` ও `Label` মেটাডেটা লেখে, নির্দিষ্ট পূর্ণ আঙুলের ছাপের
+চাবি দিয়ে `InRelease` স্বাক্ষর ও যাচাই করে, এবং শুধু
+`ternux-archive-key.asc`—প্রকাশ্য চাবিটি—রপ্তানি করে। এটি ব্যক্তিগত চাবি
+তৈরি, আমদানি, নকল বা রপ্তানি করে না। চাবিতে পাসফ্রেজ থাকলে সেটি পর্দায়
+না দেখিয়ে পড়ুন এবং পরিবেশ চলকের মাধ্যমে দিন; স্ক্রিপ্টটি সেটি কমান্ডের
+যুক্তি বা ফাইলে না রেখে জিএনইউ প্রাইভেসি গার্ডের মানক ইনপুটে পাঠায়:
 
 ```bash
 read -r -s -p 'Signing key passphrase: ' TERNUX_APT_SIGNING_PASSPHRASE
@@ -55,52 +58,45 @@ TERNUX_APT_SIGNING_FINGERPRINT='<full signing fingerprint>' \
 unset TERNUX_APT_SIGNING_PASSPHRASE
 ```
 
-Private signing key owner-managed secure signing environment-e rakhbe;
-repository, package artifact, website ba shared storage-e private key rakhbe na.
+ব্যক্তিগত স্বাক্ষর-চাবি মালিক-পরিচালিত সুরক্ষিত স্বাক্ষর-পরিবেশে রাখুন;
+সংগ্রহস্থল, প্যাকেজ, ওয়েবসাইট বা ভাগ করা সংরক্ষণস্থলে রাখবেন না।
 
-## Publish ebong sign
+## প্রকাশনা কর্মপ্রবাহ
 
-Release-only GitHub Actions workflow `termux-apt-release.yml` signed tree
-project Pages site-er `/apt/` path-e publish kore. Eta shudhu `main` theke
-manual run ney, `confirm_release=publish-v2` chai, ebong project version
-`2.0.0` na hole build bondho kore. Protected `apt-release` environment-e
-armored private signing-key secret, optional passphrase secret, ebong full
-primary-key fingerprint variable set korte hobe. Workflow-ti push-e auto-run
-kore na; release-plan-er shob gate bondho howar por-i run koro.
+শুধু প্রকাশনার জন্য থাকা গিটহাব অ্যাকশন `termux-apt-release.yml` থেকে
+`main` শাখায় হাতে চালানো যায়। `verify-signing` স্বাক্ষর-সেটআপ যাচাই করে,
+কিন্তু প্রকাশ করে না; `publish-rc` আলাদা `/apt-rc/` পথে পরীক্ষামূলক
+প্রার্থী প্রকাশ করে এবং বিদ্যমান স্থিতিশীল গাছ অক্ষত রাখে। v2-এর স্থিতিশীল
+চ্যানেল প্রত্যাহার করা হয়েছে: `withdraw-v2` মোড ওয়েবসাইট প্রকাশ করলেও
+স্বাক্ষরিত আরসি গাছ রেখে `/apt/` বাদ দেয়। v2 স্থিতিশীল চ্যানেল আবার চালু করার
+কোনো মোড নেই। ভবিষ্যতের v3 স্থিতিশীল প্রকাশকের জন্য আলাদা পর্যালোচিত
+সংস্করণযুক্ত কর্মপ্রবাহ ও অনুমোদন-দ্বার প্রয়োজন।
 
-Client install chalu korar age public key fingerprint independent channel-e
-publish kore clean Termux environment theke verify koro. Workflow public key
-`apt/ternux-archive-key.asc`-e publish kore; private signing key kokhono
-publish kore na.
+সুরক্ষিত `apt-release` পরিবেশে আর্মার-করা ব্যক্তিগত স্বাক্ষর-চাবি, ঐচ্ছিক
+পাসফ্রেজের গোপন মান এবং পূর্ণ প্রধান-চাবির আঙুলের ছাপ চলক দিন। কর্মপ্রবাহটি
+শুধু প্রকাশ্য চাবি প্রকাশ করে; পেজেসে প্রকাশিত ফাইলে ব্যক্তিগত স্বাক্ষর-তথ্য
+থাকে না।
 
-## Published repository theke install
+v2 প্রধান-চাবির আঙুলের ছাপ গিটহাব পেজেসের বাইরে
+[`docs/TERMUX-APT.md`](../../docs/TERMUX-APT.md)-এ স্বাধীনভাবে প্রকাশিত:
+`E5527F4D5B83037FF77B65AE5E894BBB81168B1D`। কর্মপ্রবাহটি প্রকাশ্য চাবি
+`apt/ternux-archive-key.asc`-এ দেয়; ব্যক্তিগত চাবি কখনো প্রকাশ করে না।
+প্রাসঙ্গিক প্রার্থী-পরীক্ষা পাস করার পর স্পষ্টভাবে কর্মপ্রবাহ চালালেই আরসি
+প্রকাশ করা যায়।
 
-Repository signing key verify kore install korar por, sei key diye APT source
-entry add koro (`signed-by` option shoho), tarpor chalao:
+## প্রকাশিত সংগ্রহস্থল থেকে ইনস্টল
 
-```bash
-pkg update
-pkg install ternux
-```
+স্বাক্ষরিত সংগ্রহস্থল চালুর ব্যবস্থা শুধু কোনো চ্যানেল স্পষ্টভাবে প্রকাশিত
+থাকলেই ব্যবহার করা যায়। v2 স্থিতিশীল সংগ্রহস্থল প্রত্যাহার করা হয়েছে।
+স্থিতিশীল চালু-স্ক্রিপ্ট, চাবি ও সূচি ২০২৬-১১-১৫ তারিখে এইচটিটিপি ৪০৪
+দিয়েছে; আরসি চালু-স্ক্রিপ্ট ও চাবি এইচটিটিপি ২০০ দিলেও তার স্বাক্ষরিত সূচি
+এইচটিটিপি ৪০৪ দিয়েছে। স্বাক্ষরিত সংগ্রহস্থল প্রকাশ ও পরিষ্কার টার্মাক্সে
+ইনস্টল যাচাই না হওয়া পর্যন্ত `pkg install ternux`-কে কার্যকর ইনস্টল
+কমান্ড হিসেবে দেখাবেন না।
 
-APT source URL ebong keyring path published repository configuration-er sathe
-milte hobe. Release guide-e `[trusted=yes]` source line deya jabe na.
-
-Owner signing key publish করে এবং independent channel-এ fingerprint
-confirm করার পর client setup-এর উদাহরণ:
-
-```bash
-pkg install gnupg
-curl -fsSLo "$TMPDIR/ternux-archive-key.asc" https://<host>/<path>/ternux-archive-key.asc
-gpg --show-keys --with-fingerprint "$TMPDIR/ternux-archive-key.asc"
-# দেখানো fingerprint independently published fingerprint-এর সঙ্গে মেলান।
-gpg --dearmor --output "$TMPDIR/ternux.gpg" "$TMPDIR/ternux-archive-key.asc"
-install -Dm600 "$TMPDIR/ternux.gpg" "$PREFIX/etc/apt/keyrings/ternux.gpg"
-printf 'deb [signed-by=%s/etc/apt/keyrings/ternux.gpg] https://<host>/<path> stable main\n' "$PREFIX" \
-  > "$PREFIX/etc/apt/sources.list.d/ternux.list"
-pkg update
-pkg install ternux
-```
-
-Host, path ebong fingerprint placeholder thakbe jotokkhon na owner signed
-repository publish kore ebong independent fingerprint channel verify koren.
+ভবিষ্যতে চ্যানেল প্রকাশিত হলে তার চালু-ব্যবস্থা পিন করা প্রধান-চাবির
+আঙুলের ছাপ যাচাই করবে, `signed-by` উৎস লিখবে, এপিটি সূচি হালনাগাদ করবে এবং
+টার্নাক্স ইনস্টল করবে। এটি কখনো `[trusted=yes]` ব্যবহার করতে পারবে না।
+বর্তমান প্রাপ্যতার জন্য যুগল
+[ইংরেজি](../../../docs/TERMUX-APT.md) ও [বাংলা](../../docs/TERMUX-APT.md)
+নির্দেশিকা দেখুন।
