@@ -389,6 +389,33 @@ def shell_blocks(path: Path) -> list[str]:
     return blocks
 
 
+def tagged_shell_blocks(path: Path) -> list[str]:
+    """Return explicitly tagged shell blocks, excluding unlabeled diagrams."""
+    text = read(path)
+    blocks: list[str] = []
+    current: list[str] = []
+    fence_char: str | None = None
+    collect = False
+    for line in text.splitlines():
+        fence = re.match(r"^\s*(`{3,}|~{3,})(\w*)", line)
+        if fence:
+            marker = fence.group(1)[0]
+            if fence_char is None:
+                fence_char = marker
+                collect = fence.group(2).lower() in {"bash", "sh", "shell"}
+                current = []
+            elif marker == fence_char:
+                if collect:
+                    blocks.append("\n".join(current))
+                fence_char = None
+                collect = False
+                current = []
+            continue
+        if fence_char is not None and collect:
+            current.append(line)
+    return blocks
+
+
 def shell_without_comments(source: str) -> str:
     """Strip shell comments outside quotes while retaining command strings."""
     output: list[str] = []
@@ -431,8 +458,17 @@ for index, (english_block, bengali_block) in enumerate(zip(english_manual, benga
     check(shell_without_comments(english_block) == shell_without_comments(bengali_block),
           f"English/Bengali manual shell example {index} differs")
 
+english_cli = tagged_shell_blocks(ROOT / "docs/CLI.md")
+bengali_cli = tagged_shell_blocks(ROOT / "bn/docs/CLI.md")
+check(len(english_cli) == len(bengali_cli) > 0,
+      "English/Bengali CLI shell example counts differ")
+for index, (english_block, bengali_block) in enumerate(zip(english_cli, bengali_cli), 1):
+    check(shell_without_comments(english_block) == shell_without_comments(bengali_block),
+          f"English/Bengali CLI shell example {index} differs")
+
 bengali_manual_text = read(ROOT / "bn/docs/MANUAL.md")
 bengali_manual_text = re.sub(r"^---\n.*?\n---\n", "", bengali_manual_text, count=1, flags=re.S)
+bengali_manual_text = re.sub(r"`[^`]*`", " ", bengali_manual_text, flags=re.S)
 manual_in_fence = False
 manual_latin: set[str] = set()
 for line in bengali_manual_text.splitlines():
@@ -441,13 +477,33 @@ for line in bengali_manual_text.splitlines():
         continue
     if manual_in_fence:
         continue
-    line = re.sub(r"`[^`]*`|!?\[[^\]]*\]\([^)]*\)|https?://\S+|<[^>]*>", " ", line)
+    line = re.sub(r"!?\[[^\]]*\]\([^)]*\)|https?://\S+|<[^>]*>", " ", line)
     manual_latin.update(
         word for word in re.findall(r"\b[A-Za-z][A-Za-z0-9+.#:/_-]*\b", line)
         if word.lower() not in {"ternux", "copyright", "c", "sobuj", "miah", "apache-2.0"}
     )
 check(not manual_latin,
       f"bn/docs/MANUAL.md: Latin prose remains outside code/identifiers: {sorted(manual_latin)}")
+
+bengali_cli_text = read(ROOT / "bn/docs/CLI.md")
+bengali_cli_text = re.sub(r"^---\n.*?\n---\n", "", bengali_cli_text, count=1, flags=re.S)
+bengali_cli_text = re.sub(r"`[^`]*`", " ", bengali_cli_text, flags=re.S)
+cli_in_fence = False
+cli_latin: set[str] = set()
+for line in bengali_cli_text.splitlines():
+    if re.match(r"^\s*(`{3,}|~{3,})", line):
+        cli_in_fence = not cli_in_fence
+        continue
+    if cli_in_fence:
+        continue
+    line = re.sub(r"!?\[[^\]]*\]\([^)]*\)|https?://\S+|<[^>]*>", " ", line)
+    cli_latin.update(
+        word for word in re.findall(r"\b[A-Za-z][A-Za-z0-9+.#:/_-]*\b", line)
+        if word.lower() not in {"ternux", "copyright", "c", "sobuj", "miah", "apache-2.0"}
+        and not re.fullmatch(r"v\d+(?:\.\d+)*", word.lower())
+    )
+check(not cli_latin,
+      f"bn/docs/CLI.md: Latin prose remains outside code/identifiers: {sorted(cli_latin)}")
 
 profile_match = re.search(r'^TERNUX_DISTRO_KNOWN="([^"]+)"', read(ROOT / "lib/core.sh"), re.M)
 known_profiles = profile_match.group(1).split() if profile_match else []
