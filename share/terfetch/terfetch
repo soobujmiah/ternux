@@ -144,7 +144,7 @@ if [ "$host_termux" -eq 1 ] || { [ -n "$distro" ] && [ "$distro" != linux ]; }; 
 fi
 
 json_escape() {
-  sed -e 's/\\/\\\\/g' -e 's/"/\\"/g' -e ':a;N;$!ba;s/\n/\\n/g'
+  sed -e 's/\\/\\\\/g' -e 's/"/\\"/g' -e ':a;N;$!ba;s/\n/\n/g'
 }
 
 if [ "${1:-}" = '--json' ]; then
@@ -179,55 +179,445 @@ else
   c1=''; c2=''; c3=''; c0=''
 fi
 
-print_pair() {
-  printf '  %s%-24s%s  %s%-12s%s %s\n' "$c1" "$1" "$c0" "$c3" "$2" "$c0" "$3"
+# The bundled distribution ASCII artwork is adapted from Fastfetch.
+# Fastfetch MIT license:
+# Copyright (c) 2021-2023 Linus Dierheimer
+# Copyright (c) 2022-2026 Carter Li
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+# The script embeds these distro marks, so Fastfetch is not a runtime dependency.
+logo_lines=()
+set_logo() {
+  case "$1" in
+    adelie) logo_lines=(
+      '                  ,-^-___'
+      '                /\\\///'
+      'refined.       /\\\\//'
+      'reliable.     /\\\///'
+      'ready.       /\\/////\'
+      '        __///\\\\/////\'
+      '     _//////\\\\\\\////'
+      '   ///////\\\\\\\\\\//'
+      '          //////\\\\\/'
+      '          /////\\\\\/'
+      '          /////\\\\/'
+      '         /\\///\\\/'
+      '         /\\\/\\/'
+      '         /\\\\//'
+      '        //////'
+      '      /// \\\\\'
+    ) ;;
+    alpine) logo_lines=(
+      '       .hddddddddddddddddddddddh.'
+      '      :dddddddddddddddddddddddddd:'
+      '     /dddddddddddddddddddddddddddd/'
+      '    +dddddddddddddddddddddddddddddd+'
+      '  `sdddddddddddddddddddddddddddddddds`'
+      ' `ydddddddddddd++hdddddddddddddddddddy`'
+      '.hddddddddddd+`  `+ddddh:-sdddddddddddh.'
+      'hdddddddddd+`      `+y:    .sddddddddddh'
+      'ddddddddh+`   `//`   `.`     -sddddddddd'
+      'ddddddh+`   `/hddh/`   `:s-    -sddddddd'
+      'ddddh+`   `/+/dddddh/`   `+s-    -sddddd'
+      'ddd+`   `/o` :dddddddh/`   `oy-    .yddd'
+      'hdddyo+ohddyosdddddddddho+oydddy++ohdddh'
+      '.hddddddddddddddddddddddddddddddddddddh.'
+      ' `yddddddddddddddddddddddddddddddddddy`'
+      '  `sdddddddddddddddddddddddddddddddds`'
+      '    +dddddddddddddddddddddddddddddd+'
+      '     /dddddddddddddddddddddddddddd/'
+      '      :dddddddddddddddddddddddddd:'
+      '       .hddddddddddddddddddddddh.'
+    ) ;;
+    archlinux) logo_lines=(
+      '                  -`'
+      '                 .o+`'
+      '                `ooo/'
+      '               `+oooo:'
+      '              `+oooooo:'
+      '              -+oooooo+:'
+      '            `/:-:++oooo+:'
+      '           `/++++/+++++++:'
+      '          `/++++++++++++++:'
+      '         `/+++ooooooooooooo/`'
+      '        ./ooosssso++osssssso+`'
+      '       .oossssso-````/ossssss+`'
+      '      -osssssso.      :ssssssso.'
+      '     :osssssss/        osssso+++.'
+      '    /ossssssss/        +ssssooo/-'
+      '  `/ossssso+/:-        -:/+osssso+-'
+      ' `+sso+:-`                 `.-/+oso:'
+      '`++:.                           `-/+/'
+      '.`                                 `/'
+    ) ;;
+    artix) logo_lines=(
+      '                   '\'''
+      '                  '\''o'\'''
+      '                 '\''ooo'\'''
+      '                '\''ooxoo'\'''
+      '               '\''ooxxxoo'\'''
+      '              '\''oookkxxoo'\'''
+      '             '\''oiioxkkxxoo'\'''
+      '            '\'':;:iiiioxxxoo'\'''
+      '               `'\''.;::ioxxoo'\'''
+      '          '\''-.      `'\'':;jiooo'\'''
+      '         '\''oooio-..     `'\''i:io'\'''
+      '        '\''ooooxxxxoio:,.   `'\''-;'\'''
+      '       '\''ooooxxxxxkkxoooIi:-.  `'\'''
+      '      '\''ooooxxxxxkkkkxoiiiiiji'\'''
+      '     '\''ooooxxxxxkxxoiiii:'\''`     .i'\'''
+      '    '\''ooooxxxxxoi:::'\''`       .;ioxo'\'''
+      '   '\''ooooxooi::'\''`         .:iiixkxxo'\'''
+      '  '\''ooooi:'\''`                `'\'''\'';ioxxo'\'''
+      ' '\''i:'\''`                          '\'''\'':io'\'''
+      ''\''`                                   `'\'''
+    ) ;;
+    chimera) logo_lines=(
+      'ddddddddddddddc  ,cc:'
+      'ddddddddddddddc  ,cc:'
+      'ddddddddddddddd  ,cc:'
+      'ddddddddddddl:'\''  ,cc:'
+      'dddddddddl'\''    ..;cc:'
+      'dddddddo.   ,:cccccc:'
+      'ddddddl   ,ccc:'\'''\'''\'''\'''\'''
+      'dddddo.  ;ccc.          ............'
+      '        .ccc.           cccccccccccc'
+      '......  .ccc.          .ccc'\'''\'''\'''\'''\'''\'''\'''\'''\'''
+      'OOOOOk.  ;ccc.        .ccc;   ......'
+      'OOOOOOd   '\''ccc:,....,:ccc'\''   coooooo'
+      'OOOOOOOx.   '\'':cccccccc:'\''   .looooooo'
+      'OOOOOOOOOd,     `'\'''\'''\''`     .coooooooo'
+      'OOOOOOOOOOOOdc,.    ..,coooooooooooo'
+      'OOOOOOOOOOOOOOOO'\''  .oooooooooooooooo'
+      'OOOOOOOOOOOOOOOO'\''  .oooooooooooooooo'
+      'OOOOOOOOOOOOOOOO'\''  .oooooooooooooooo'
+    ) ;;
+    debian) logo_lines=(
+      '        _,met$$$$$gg.'
+      '     ,g$$$$$$$$$$$$$$$P.'
+      '   ,g$$P""       """Y$$.".'
+      '  ,$$P'\''              `$$$.'
+      ''\'',$$P       ,ggs.     `$$b:'
+      '`d$$'\''     ,"'\''   .    $$$'
+      ' $$P      d     ,    $$P'
+      ' $$:      $   -    ,d$$'\'''
+      ' $$;      Y._   _,d'\'''
+      ' Y$$.    `.`"Y$$$$P"'\'''
+      ' `$$b      "-.__'
+      '  `Y$$b'
+      '   `Y$$.'
+      '     `$$b.'
+      '       `Y$$b.'
+      '         `"Y$b._'
+      '             `""""'
+    ) ;;
+    deepin) logo_lines=(
+      '             ............'
+      '         .'\'';;;;;.       .,;,.'
+      '      .,;;;;;;;.       '\'';;;;;;;.'
+      '    .;::::::::'\''     .,::;;,'\'''\'''\'''\'''\'',.'
+      '   ,'\''.::::::::    .;;'\''.          '\'';'
+      '  ;'\''  '\''cccccc,   ,'\'' :: '\''..        .:'
+      ' ,,    :ccccc.  ;: .c, '\'''\'' :.       ,;'
+      '.l.     cllll'\'' ., .lc  :; .l'\''       l.'
+      '.c       :lllc  ;cl:  .l'\'' .ll.      :'\'''
+      '.l        '\''looc. .   ,o:  '\''oo'\''      c,'
+      '.o.         .:ool::coc'\''  .ooo'\''      o.'
+      ' ::            .....   .;dddo      ;c'
+      '  l:...            .'\'';lddddo.     ,o'
+      '   lxxxxxdoolllodxxxxxxxxxc      :l'
+      '    ,dxxxxxxxxxxxxxxxxxxl.     '\''o,'
+      '      ,dkkkkkkkkkkkkko;.    .;o;'
+      '        .;okkkkkdl;.    .,cl:.'
+      '            .,:cccccccc:,.'
+    ) ;;
+    fedora) logo_lines=(
+      '             .'\'',;::::;,'\''.'
+      '         .'\'';:cccccccccccc:;,.'
+      '      .;cccccccccccccccccccccc;.'
+      '    .:cccccccccccccccccccccccccc:.'
+      '  .;ccccccccccccc;.:dddl:.;ccccccc;.'
+      ' .:ccccccccccccc;OWMKOOXMWd;ccccccc:.'
+      '.:ccccccccccccc;KMMc;cc;xMMc;ccccccc:.'
+      ',cccccccccccccc;MMM.;cc;;WW:;cccccccc,'
+      ':cccccccccccccc;MMM.;cccccccccccccccc:'
+      ':ccccccc;oxOOOo;MMM000k.;cccccccccccc:'
+      'cccccc;0MMKxdd:;MMMkddc.;cccccccccccc;'
+      'ccccc;XMO'\'';cccc;MMM.;cccccccccccccccc'\'''
+      'ccccc;MMo;ccccc;MMW.;ccccccccccccccc;'
+      'ccccc;0MNc.ccc.xMMd;ccccccccccccccc;'
+      'cccccc;dNMWXXXWM0:;cccccccccccccc:,'
+      'cccccccc;.:odl:.;cccccccccccccc:,.'
+      'ccccccccccccccccccccccccccccc:'\''.'
+      ':ccccccccccccccccccccccc:;,..'
+      ' '\'':cccccccccccccccc::;,.'
+    ) ;;
+    kali) logo_lines=(
+      '..............'
+      '            ..,;:ccc,.'
+      '          ......'\'''\'''\'';lxO.'
+      '.....'\'''\'''\'''\''..........,:ld;'
+      '           .'\'';;;:::;,,.x,'
+      '      ..'\'''\'''\''.            0Xxoc:,.  ...'
+      '  ....                ,ONkc;,;cokOdc'\'',.'
+      ' .                   OMo           '\'':ddo.'
+      '                    dMc               :OO;'
+      '                    0M.                 .:o.'
+      '                    ;Wd'
+      '                     ;XO,'
+      '                       ,d0Odlc;,..'
+      '                           ..'\'',;:cdOOd::,.'
+      '                                    .:d;.'\'':;.'
+      '                                       '\''d,  .'\'''
+      '                                         ;l   ..'
+      '                                          .o'
+      '                                            c'
+      '                                            .'\'''
+      '                                             .'
+    ) ;;
+    manjaro) logo_lines=(
+      '##################  ########'
+      '##################  ########'
+      '##################  ########'
+      '##################  ########'
+      '########            ########'
+      '########  ########  ########'
+      '########  ########  ########'
+      '########  ########  ########'
+      '########  ########  ########'
+      '########  ########  ########'
+      '########  ########  ########'
+      '########  ########  ########'
+      '########  ########  ########'
+      '########  ########  ########'
+    ) ;;
+    opensuse) logo_lines=(
+      '           .;ldkO0000Okdl;.'
+      '       .;d00xl:^'\'''\'''\'''\'''\'''\''^:ok00d;.'
+      '     .d00l'\''                '\''o00d.'
+      '   .d0Kd'\''  Okxol:;,.          :O0d'
+      '  .OKKKK0kOKKKKKKKKKKOxo:,      lKO.'
+      ' ,0KKKKKKKKKKKKKKKK0P^,,,^dx:    ;00,'
+      '.OKKKKKKKKKKKKKKKKk'\''.oOPPb.'\''0k.   cKO.'
+      ':KKKKKKKKKKKKKKKKK: kKx..dd lKd   '\''OK:'
+      'dKKKKKKKKKKKOx0KKKd ^0KKKO'\'' kKKc   dKd'
+      'dKKKKKKKKKKKK;.;oOKx,..^..;kKKK0.  dKd'
+      ':KKKKKKKKKKKK0o;...^cdxxOK0O/^^'\''  .0K:'
+      ' kKKKKKKKKKKKKKKK0x;,,......,;od  lKk'
+      ' '\''0KKKKKKKKKKKKKKKKKKKKK00KKOo^  c00'\'''
+      '  '\''kKKKOxddxkOO00000Okxoc;'\'''\''   .dKk'\'''
+      '    l0Ko.                    .c00l'\'''
+      '     '\''l0Kk:.              .;xK0l'\'''
+      '        '\''lkK0xl:;,,,,;:ldO0kl'\'''
+      '            '\''^:ldxkkkkxdl:^'\'''
+    ) ;;
+    pardus) logo_lines=(
+      ' .smNdy+-    `.:/osyyso+:.`    -+ydmNs.'
+      '/Md- -/ymMdmNNdhso/::/oshdNNmdMmy/. :dM/'
+      'mN.     oMdyy- -y          `-dMo     .Nm'
+      '.mN+`  sMy hN+ -:             yMs  `+Nm.'
+      ' `yMMddMs.dy `+`               sMddMMy`'
+      '   +MMMo  .`  .                 oMMM+'
+      '   `NM/    `````.`    `.`````    +MN`'
+      '   yM+   `.-:yhomy    ymohy:-.`   +My'
+      '   yM:          yo    oy          :My'
+      '   +Ms         .N`    `N.      +h sM+'
+      '   `MN      -   -::::::-   : :o:+`NM`'
+      '    yM/    sh   -dMMMMd-   ho  +y+My'
+      '    .dNhsohMh-//: /mm/ ://-yMyoshNd`'
+      '      `-ommNMm+:/. oo ./:+mMNmmo:`'
+      '     `/o+.-somNh- :yy: -hNmos-.+o/`'
+      '    ./` .s/`s+sMdd+``+ddMs+s`/s. `/.'
+      '        : -y.  -hNmddmNy.  .y- :'
+      '         -+       `..`       +-'
+    ) ;;
+    rocky) logo_lines=(
+      '          __wgliliiligw_,'
+      '       _williiiiiiliilililw,'
+      '     _%iiiiiilililiiiiiiiiiii_'
+      '   .Qliiiililiiiiiiililililiilm.'
+      '  _iiiiiliiiiiililiiiiiiiiiiliil,'
+      ' .lililiiilililiiiilililililiiiii,'
+      '_liiiiiiliiiiiiiliiiiiF{iiiiiilili,'
+      'jliililiiilililiiili@`  ~ililiiiiiL'
+      'iiiliiiiliiiiiiili>`      ~liililii'
+      'liliiiliiilililii`         -9liiiil'
+      'iiiiiliiliiiiii~             "4lili'
+      '4ililiiiiilil~|      -w,       )4lf'
+      '-liiiiililiF'\''       _liig,       )'\'''
+      ' )iiiliii@`       _QIililig,'
+      '  )iiii>`       .Qliliiiililw'
+      '   )<>~       .mliiiiiliiiiiil,'
+      '            _gllilililiililii~'
+      '           giliiiiiiiiiiiiT`'
+      '          -^~lilili@~~'\'''
+    ) ;;
+    ubuntu) logo_lines=(
+      '                             ....'
+      '              .'\'',:clooo:  .:looooo:.'
+      '           .;looooooooc  .oooooooooo'\'''
+      '        .;looooool:,'\'''\''.  :ooooooooooc'
+      '       ;looool;.         '\''oooooooooo,'
+      '      ;clool'\''             .cooooooc.  ,,'
+      '         ...                ......  .:oo,'
+      '  .;clol:,.                        .loooo'\'''
+      ' :ooooooooo,                        '\''ooool'
+      ''\''ooooooooooo.                        loooo.'
+      ''\''ooooooooool                         coooo.'
+      ' ,loooooooc.                        .loooo.'
+      '   .,;;;'\''.                          ;ooooc'
+      '       ...                         ,ooool.'
+      '    .cooooc.              ..'\'',,'\''.  .cooo.'
+      '      ;ooooo:.           ;oooooooc.  :l.'
+      '       .coooooc,..      coooooooooo.'
+      '         .:ooooooolc:. .ooooooooooo'\'''
+      '           .'\'':loooooo;  ,oooooooooc'
+      '               ..'\'';::c'\''  .;loooo:'\'''
+    ) ;;
+    void) logo_lines=(
+      '                __.;=====;.__'
+      '            _.=+==++=++=+=+===;.'
+      '             -=+++=+===+=+=+++++=_'
+      '        .     -=:``     `--==+=++==.'
+      '       _vi,    `            --+=++++:'
+      '      .uvnvi.       _._       -==+==+.'
+      '     .vvnvnI`    .;==|==;.     :|=||=|.'
+      '+QmQQmpvvnv; _yYsyQQWUUQQQm #QmQ#:QQQWUVQm.'
+      ' -QQWQWpvvowZ?.wQQQE==<QWWQ/QWQW.QQWW(: jQWQE'
+      '  -QQQmmU'\''  jQQQ@+=<QWQQ)mQQQ.mQQQC+;jWQQ@'\'''
+      '   -Q8YnI:   QWQQwgQQWV`mWQQ.jQWQQgyyWW@!'
+      '     -1vvnvv.     `~+++`        ++|+++'
+      '      +vnvnnv,                 `-|==='
+      '       +vnvnvns.           .      :=-'
+      '        -Invnvvnsi..___..=sv=.     `'
+      '          +Invnvnvnnnnnnnnvvnn;.'
+      '            ~|Invnvnvvnvvvnnv}+`'
+      '               -~|{*l}*|~'
+    ) ;;
+    android) logo_lines=(
+      '         -o          o-'
+      '          +hydNNNNdyh+'
+      '        +mMMMMMMMMMMMMm+'
+      '      `dMMm:NMMMMMMN:mMMd`'
+      '      hMMMMMMMMMMMMMMMh'
+      '  ..  yyyyyyyyyyyyyyyyyyyy  ..'
+      '.mMMm`MMMMMMMMMMMMMMMMMMMM`mMMm.'
+      ':MMMM-MMMMMMMMMMMMMMMMMMMM-MMMM:'
+      ':MMMM-MMMMMMMMMMMMMMMMMMMM-MMMM:'
+      ':MMMM-MMMMMMMMMMMMMMMMMMMM-MMMM:'
+      ':MMMM-MMMMMMMMMMMMMMMMMMMM-MMMM:'
+      '-MMMM-MMMMMMMMMMMMMMMMMMMM-MMMM-'
+      ' +yy+ MMMMMMMMMMMMMMMMMMMM +yy+'
+      '      mMMMMMMMMMMMMMMMMMMm'
+      '      `/++MMMMh++hMMMM++/`'
+      '          MMMMo  oMMMM'
+      '          MMMMo  oMMMM'
+      '          oNMm-  -mMNs'
+    ) ;;
+    ternux) logo_lines=(
+      '              .-================-.'
+      '          .-==.  T E R N U X  .==-.'
+      '        .==.  .----------------.  .==.'
+      '       /  .==/  .------------.  \==.  \'
+      '      /  /  |  |  TERNux OS  |  |  \  \'
+      '     |  |   |  |   ANDROID   |  |   |  |'
+      '     |  |   |  | WORKSTATION |  |   |  |'
+      '      \  \  |  |  .----------.  |  /  /'
+      '       \  \==\  `----------`  /==/  /'
+      '        `==.  `--------------`  .==`'
+      '           `-================-`'
+      '                [ TNX ]'
+    ) ;;
+    sobuj) logo_lines=(
+      '             .--------------------.'
+      '          .-`                      `-.'
+      '        .`        S O B U J           `.'
+      '       /          M I A H              \'
+      '      |      .----------------.         |'
+      '      |     /      .----.      \        |'
+      '      |    |      /  S M  \      |       |'
+      '      |    |     |   ____   |     |       |'
+      '      |    |     |  / __ \  |     |       |'
+      '      |    |     | | |  | | |     |       |'
+      '      |    |     | | |__| | |     |       |'
+      '      |    |     |  \____/  |     |       |'
+      '      |     \      `----`      /        |'
+      '       \      `--------------`        /'
+      '        `.                          .`'
+      '          `-.____________________.-`'
+      '                 T E R N U X'
+    ) ;;
+    linux) logo_lines=(
+      '        .--.'
+      '       |o_o |'
+      '       |:_/ |'
+      '      //   \\'
+      '     (|     | )'
+      '    /`\_   _/`\'
+      '    \___)=(___/'
+      '       LINUX'
+    ) ;;
+    generic) logo_lines=(
+      '  .----------------.'
+      ' |  Linux guest   |'
+      ' |                |'
+      '  `--------------`'
+    ) ;;
+    *) logo_lines=(
+      '  .----------------.'
+      ' |  Linux guest   |'
+      ' |                |'
+      '  `--------------`'
+    ) ;;
+  esac
 }
 
-# Each native Termux login gets one of ten compact, original text marks. The
-# Sobuj monogram is one design in that set; it is not appended to every logo.
-# A test override makes every design reproducible in CI.
-logo_lines=()
+
+print_pair() {
+  local art="$1" label="$2" value="$3"
+  printf '  %s%-*s%s  %s%-12s%s %s\n' "$c1" "$logo_width" "$art" "$c0" "$c3" "$label" "$c0" "$value"
+}
+
 logo_credit=''
 logo_special=0
+logo_id=linux
 if [ "$host_termux" -eq 1 ]; then
   logo_index="${TERFETCH_LOGO_INDEX:-$((RANDOM % 10))}"
+  if [[ ! "$logo_index" =~ ^[0-9]$ ]]; then logo_index=$((RANDOM % 10)); fi
+  native_logo_ids=(android debian ubuntu kali alpine archlinux fedora ternux void)
+  if [ "$logo_index" -eq 9 ]; then
+    logo_id=sobuj
+    logo_special=1
+    printf '  %sPresented by%s\n' "$c3" "$c0"
+  else
+    logo_id="${native_logo_ids[$logo_index]}"
+    logo_credit='Presented by @soobujmiah'
+  fi
+elif [ -n "$distro" ] && [ "$distro" != linux ] && [ "$distro" != termux ]; then
+  case "$distro" in rockylinux) logo_id=rocky ;; *) logo_id="$distro" ;; esac
   logo_credit='Presented by @soobujmiah'
-  case "$logo_index" in
-    0) logo_lines=('  .------.' ' / .--. /|' ' |(o  o)|' ' |  --  |' ' |ANDROID|' '  `----`') ;;
-    1) logo_lines=('   .---.' '  ( o o )' ' /  \_/  \' '/|  TUX  |\' '  \_____/') ;;
-    2) logo_lines=('  +------+ ' '  | $ _  |' '  |termux|' '  | shell|' '  +------+') ;;
-    3) logo_lines=('   _______' '  / ____ /|' ' / /___ / |' '| | TNX | |' '| |_____|/' ' \_______\') ;;
-    4) logo_lines=('    .--.' '   |o_o |' '   |:_/ |' '  //   \\' ' (|     |)' ' /\_   _/\\') ;;
-    5) logo_lines=('  .----.' ' / .--. \' '| |<>| |' '| |  | |' ' \ `--` /' '  `----`') ;;
-    6) logo_lines=('  .----.' ' / CPU \' '| 8 core|' '| ARM64 |' ' \ GPU /' '  `----`') ;;
-    7) logo_lines=('  ______' ' /_  __/' '  / /   ' ' / /___ ' '/_____/ ' ' TERNux') ;;
-    8) logo_lines=('  .----.' '  |:  :|' '  |:  :|' '  |:  :|' '  |____|' '  Linux') ;;
-    9) logo_lines=('  .------.' '  |  S M |' '  | SOBUJ|' '  |  TNX |' '  `------`')
-       logo_special=1 ;;
-    *) logo_index=0; logo_lines=('  .------.' ' / .--. /|' ' |(o  o)|' ' |  --  |' ' |ANDROID|' '  `----`') ;;
-  esac
-elif [ -n "$distro" ] && [ "$distro" != linux ]; then
-  # PRoot guests always use a stable logo matching the guest distribution.
-  case "$distro" in
-    debian) logo_lines=('   _____' '  /  __ \' ' |  /  \' ' |  \__/|' '  \____/ ') ;;
-    ubuntu) logo_lines=('    _ _' '  (     )' ' (  o o  )' '  (  ^  )' '   `---`') ;;
-    kali) logo_lines=('  |\\  //|' '  | \\//' '  |  ||' '  | //\\' '  |//  \\') ;;
-    alpine) logo_lines=('    /\\' '   /  \\' '  / /\\ \\' ' /_/  \\_\\' '  ALPINE') ;;
-    archlinux) logo_lines=('    /\\' '   /  \\' '  / /\\ \\' ' /_/  \\_\\' '  ARCH') ;;
-    *) logo_lines=('  .----.' ' / LINUX\\' '|  guest |' '|        |' ' `------`') ;;
-  esac
-  logo_credit='Presented by @soobujmiah'
-else
-  logo_lines=('   .--.' '  |o_o |' '  |:_/ |' ' //   \\' '(|     |)' '/\_   _/\\')
 fi
+set_logo "$logo_id"
 
-# The special Sobuj logo has its short credit above the monogram. Other marks
-# keep the creator credit small and below the logo and system details.
-if [ "$logo_special" -eq 1 ]; then
-  printf '  %sPresented by%s\n' "$c3" "$c0"
-fi
-
-# Keep the mark beside the first facts, then continue with clean aligned rows.
+# Align the information beside the complete distro logo and center the footer
+# across the combined logo and information block.
+logo_width=0
+for art in "${logo_lines[@]}"; do
+  [ "${#art}" -le "$logo_width" ] || logo_width="${#art}"
+done
 labels=('System' 'Distro' 'Kernel' 'Uptime' 'Packages' 'CPU' 'GPU' 'Memory' 'Storage' 'Shell' 'Terminal' 'Ternux')
 values=("$system_name" "$distro" "$kernel" "$uptime_value" "$packages" "$cpu_model ($cpu_count cores)" "$gpu_model" "$memory_values" "$storage_values ($storage_free)" "$shell_name" "$terminal_name" "$ternux_version")
 if [ -n "$model" ]; then labels+=(Device); values+=("${manufacturer:+$manufacturer }$model"); fi
@@ -235,24 +625,59 @@ if [ "$android" != 'not detected' ]; then labels+=(Android); values+=("$android"
 if [ -n "$display_size" ]; then labels+=(Display); values+=("$display_size"); fi
 if [ "$desktop_name" != unknown ]; then labels+=(Desktop); values+=("$desktop_name"); fi
 if [ -n "$battery" ]; then labels+=(Battery); values+=("$battery"); fi
-if [ "$host_termux" -eq 1 ]; then
-  labels+=(Commands); values+=('tx guide | tx status' 'tx doctor | tx start <distro>')
-else
-  labels+=(Commands); values+=('ternux info | ternux status' 'ternux doctor | ternux env')
-fi
 
-for ((i=0; i<${#labels[@]}; i++)); do
-  mark=''
-  [ "$i" -ge "${#logo_lines[@]}" ] || mark="${logo_lines[i]}"
-  if [ "${labels[i]}" = Commands ]; then
-    print_pair "$mark" 'Commands' "${values[i]}"
-    print_pair '' '' "${values[i+1]}"
-    ((i+=1))
-    continue
-  fi
-  print_pair "$mark" "${labels[i]}" "${values[i]}"
+row_count="${#labels[@]}"
+[ "${#logo_lines[@]}" -le "$row_count" ] || row_count="${#logo_lines[@]}"
+max_value_width=0
+for value in "${values[@]}"; do
+  [ "${#value}" -le "$max_value_width" ] || max_value_width="${#value}"
 done
-if [ -n "$logo_credit" ] && [ "$logo_special" -eq 0 ]; then
-  printf '  %s%s%s\n' "$c3" "$logo_credit" "$c0"
-fi
+block_width=$((logo_width + 2 + 12 + max_value_width + 4))
+for ((i=0; i<row_count; i++)); do
+  art="${logo_lines[i]:-}"
+  label="${labels[i]:-}"
+  value="${values[i]:-}"
+  if [ -n "$label" ]; then
+    print_pair "$art" "$label" "$value"
+  else
+    printf '  %s%-*s%s\n' "$c1" "$logo_width" "$art" "$c0"
+  fi
+done
 
+center_plain() {
+  local value="$1" color="$2" pad=$(((block_width - ${#1}) / 2))
+  [ "$pad" -ge 0 ] || pad=0
+  printf '%*s%s%s%s\n' "$pad" '' "$color" "$value" "$c0"
+}
+center_commands() {
+  local -a items=("$@")
+  local visible_width=0 pad color
+  for item in "${items[@]}"; do visible_width=$((visible_width + 2 + ${#item})); done
+  visible_width=$((visible_width + (${#items[@]} - 1) * 7))
+  pad=$(((block_width - visible_width) / 2))
+  [ "$pad" -ge 0 ] || pad=0
+  printf '%*s' "$pad" ''
+  for ((item_index=0; item_index<${#items[@]}; item_index++)); do
+    if [ "$item_index" -gt 0 ]; then printf '   %s|%s   ' "$c3" "$c0"; fi
+    color="$c1"
+    (( item_index % 2 == 0 )) || color="$c2"
+    printf '%s$ %s%s' "$color" "${items[item_index]}" "$c0"
+  done
+  printf '\n'
+}
+if [ -n "$logo_credit" ]; then center_plain "$logo_credit" "$c3"; fi
+center_plain 'DAILY COMMANDS' "$c3"
+if [ "$host_termux" -eq 1 ]; then
+  center_commands 'tx guide' 'tx status' 'tx doctor'
+  center_commands 'tx start <distro>' 'tx stop --all'
+else
+  center_commands 'ternux info' 'ternux doctor' 'ternux env'
+  case "$distro" in
+    alpine|adelie|chimera) center_commands 'sudo apk update' 'sudo apk add <pkg>' ;;
+    archlinux|artix|manjaro) center_commands 'sudo pacman -Syu' 'sudo pacman -S <pkg>' ;;
+    fedora|rockylinux) center_commands 'sudo dnf check-update' 'sudo dnf install <pkg>' ;;
+    opensuse) center_commands 'sudo zypper refresh' 'sudo zypper install <pkg>' ;;
+    void) center_commands 'sudo xbps-install -Syu' 'sudo xbps-install <pkg>' ;;
+    *) center_commands 'sudo apt update' 'sudo apt install <pkg>' ;;
+  esac
+fi

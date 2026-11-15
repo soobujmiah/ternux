@@ -453,13 +453,16 @@ ternux state [--json]
 each managed guest. Ternux suppresses Termux's stock login banner with the
 supported `~/.hushlogin` switch; interactive Bash and Zsh shells then show
 Terfetch instead. Alpine's Ash login shell uses its profile hook. The native
-Termux host randomly selects one of ten original ASCII monograms on each login.
-Nine variants show a small `Presented by @soobujmiah` credit below; the special
-Sobuj monogram puts `Presented by` above the mark and has no second credit below.
-PRoot guests always use a stable mark for their installed distro, with a small
-creator credit below. The output also lists useful host `tx` or guest `ternux`
-commands. It reports kernel, uptime, package count, shell, terminal, CPU/GPU
-model, memory and storage, plus device and display details when available. Use
+Termux host randomly selects one of ten large ASCII monograms on each login.
+Nine variants show a centered `Presented by @soobujmiah` credit below the logo
+and system facts; the special Sobuj monogram puts `Presented by` above the mark
+and has no second credit. PRoot guests use a stable official ASCII logo for
+their distro from Terfetch's built-in catalog, including the managed distro
+profiles. Their creator credit is centered below the logo and facts. Daily-use
+host commands or guest and distro package-manager commands appear as a separate
+colorful footer below the credit. Terfetch does not require Fastfetch at runtime.
+It reports kernel, uptime, package count, shell, terminal, CPU/GPU model,
+memory and storage, plus device and display details when available. Use
 `TERFETCH_NO_AUTORUN=1` to hide the automatic summary in one shell.
 Run `terfetch --json` for structured output, or `terfetch --help` for its
 standalone options. The implementation lives in `share/terfetch/` so it can be

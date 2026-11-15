@@ -10,13 +10,17 @@ terfetch --json
 terfetch --version
 ```
 
-The native Termux host chooses one of ten original ASCII monograms at random
-for each login. Nine variants show a small `Presented by @soobujmiah` credit
-below the logo. The special Sobuj monogram instead puts `Presented by` above
-the mark and has no credit below it. Each PRoot guest uses a stable mark for
-its distro and shows a small creator credit below. Host output includes useful
-`tx` commands; guest output includes companion `ternux` commands. The art uses
-emerald and cyan terminal colors and works without special fonts. `--json` is
+The native Termux host randomly selects one of ten large ASCII monograms at
+each login. Nine variants show a centered `Presented by @soobujmiah` credit
+below the logo and system facts. The special Sobuj monogram puts `Presented by`
+above its mark and has no second credit. Every managed PRoot distro uses its
+own stable official ASCII logo from the built-in catalog. The creator credit
+is centered below the guest logo and facts. Daily-use host commands or guest
+and distro-specific package-manager commands appear in a colorful footer below.
+The distro art is adapted from [Fastfetch](https://github.com/fastfetch-cli/fastfetch)
+under its MIT license; the full notice is embedded in the standalone script.
+Terfetch has no Fastfetch runtime dependency. The art uses emerald and cyan
+terminal colors and works without special fonts. `--json` is
 stable machine-readable output for future terminal, TUI, GUI, and web clients.
 The program detects Termux or a managed Linux guest, then reports the OS,
 Android device/release when available, architecture, CPU count, visible memory,

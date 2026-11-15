@@ -9,36 +9,57 @@ bash -n "$TERFETCH"
 [ "$("$TERFETCH" --version)" = 'terfetch 0.1.0' ]
 "$TERFETCH" --help | grep -Fq 'Usage: terfetch [--json|--version|--help]'
 
-# Exercise all ten native designs deterministically. Exactly one contains the
-# Sobuj monogram; the other nine carry the small creator credit below.
-special_count=0
-expected_marks=('ANDROID' 'TUX' 'termux' 'TNX' '|o_o |' '|<>|' 'ARM64' 'TERNux' 'Linux' 'SOBUJ')
+# Native Termux selects one of nine platform/distro logos plus one Sobuj logo.
+declare -A logo_heads=()
 for index in {0..9}; do
   output="$(TERFETCH_TEST_HOST=termux TERFETCH_LOGO_INDEX="$index" NO_COLOR=1 "$TERFETCH")"
-  grep -Fq "${expected_marks[index]}" <<< "$output"
-  grep -Fq 'Commands' <<< "$output"
-  grep -Fq 'tx guide | tx status' <<< "$output"
+  head_line="$(grep -m1 'System' <<< "$output")"
+  [ -n "$head_line" ]
+  [ -z "${logo_heads[$head_line]:-}" ] || { echo "Duplicate native logo for index $index" >&2; exit 1; }
+  logo_heads[$head_line]=1
+  grep -Fq 'DAILY COMMANDS' <<< "$output"
+  grep -Fq '$ tx guide' <<< "$output"
+  grep -Fq '$ tx start <distro>' <<< "$output"
+  ! grep -Eq 'Commands +tx ' <<< "$output"
+  ! grep -Eq '\[(XFCE|ANDR|TMX|TERMUX|SM|LINUX|PROOT|GPU|X11)\]' <<< "$output"
   if [ "$index" -eq 9 ]; then
-    grep -Fq 'Presented by' <<< "$output"
-    grep -Fq 'SOBUJ' <<< "$output"
+    first_line="$(head -n 1 <<< "$output")"
+    [ "$first_line" = '  Presented by' ]
     ! grep -Fq '@soobujmiah' <<< "$output"
-    special_count=$((special_count + 1))
   else
     grep -Fq 'Presented by @soobujmiah' <<< "$output"
-    ! grep -Fq 'SOBUJ' <<< "$output"
   fi
-  ! grep -Eq '\[(XFCE|ANDR|TMX|TERMUX|SM|LINUX|PROOT|GPU|X11)\]' <<< "$output"
+  credit_line="$(grep -n -m1 'Presented by @soobujmiah' <<< "$output" | cut -d: -f1 || true)"
+  commands_line="$(grep -n -m1 'DAILY COMMANDS' <<< "$output" | cut -d: -f1)"
+  if [ -n "$credit_line" ]; then [ "$credit_line" -lt "$commands_line" ]; fi
 done
-[ "$special_count" -eq 1 ]
+[ "${#logo_heads[@]}" -eq 10 ]
 
-# PRoot guests use stable distro art and guest-valid companion commands.
-for distro in debian ubuntu kali alpine archlinux; do
+# Every managed distro has a stable distro-specific mark and usable commands.
+for distro in adelie alpine archlinux artix chimera debian deepin fedora kali manjaro opensuse pardus rockylinux ubuntu void; do
   output="$(TERFETCH_TEST_DISTRO="$distro" NO_COLOR=1 "$TERFETCH")"
   grep -Eq "Distro +$distro$" <<< "$output"
-  grep -Fq 'ternux info | ternux status' <<< "$output"
   grep -Fq 'Presented by @soobujmiah' <<< "$output"
-  ! grep -Fq 'tx guide | tx status' <<< "$output"
-  ! grep -Fq 'SOBUJ' <<< "$output"
+  grep -Fq 'DAILY COMMANDS' <<< "$output"
+  grep -Fq '$ ternux info' <<< "$output"
+  case "$distro" in
+    adelie) logo_mark=',-^-___'; grep -Fq '$ sudo apk update' <<< "$output" ;;
+    alpine) logo_mark='.hdddddddd'; grep -Fq '$ sudo apk update' <<< "$output" ;;
+    chimera) logo_mark='dddddddddddc'; grep -Fq '$ sudo apk update' <<< "$output" ;;
+    archlinux) logo_mark='-+oooooo+:'; grep -Fq '$ sudo pacman -Syu' <<< "$output" ;;
+    artix) logo_mark='ooxxxoo'; grep -Fq '$ sudo pacman -Syu' <<< "$output" ;;
+    manjaro) logo_mark='#######'; grep -Fq '$ sudo pacman -Syu' <<< "$output" ;;
+    debian) logo_mark='_,met$$$$$gg.'; grep -Fq '$ sudo apt update' <<< "$output" ;;
+    deepin) logo_mark=':lllc'; grep -Fq '$ sudo apt update' <<< "$output" ;;
+    fedora) logo_mark=";ccccccccccccccc"; grep -Fq '$ sudo dnf check-update' <<< "$output" ;;
+    kali) logo_mark='..,;:ccc,.'; grep -Fq '$ sudo apt update' <<< "$output" ;;
+    opensuse) logo_mark=';ldkO0000Okdl;.'; grep -Fq '$ sudo zypper refresh' <<< "$output" ;;
+    pardus) logo_mark='.smNdy+-'; grep -Fq '$ sudo apt update' <<< "$output" ;;
+    rockylinux) logo_mark='__wgliliiligw_'; grep -Fq '$ sudo dnf check-update' <<< "$output" ;;
+    ubuntu) logo_mark='clooo:'; grep -Fq '$ sudo apt update' <<< "$output" ;;
+    void) logo_mark='__.;=====;.__'; grep -Fq '$ sudo xbps-install -Syu' <<< "$output" ;;
+  esac
+  grep -Fq -- "$logo_mark" <<< "$output"
 done
 
 "$TERFETCH" --json | python3 -c '
