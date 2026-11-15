@@ -26,6 +26,8 @@ def expect(label: str, actual: tuple[int, int, int, int], expected: tuple[int, i
 
 
 expect("small window centered in work area", fit(300, 400, 0, 24, 800, 576), (250, 112, 300, 400))
+expect("undersized normal window expanded to usable minimum", fit(277, 181, 0, 27, 640, 1359, 4, False, False, 371, 516), (134, 448, 371, 516))
+expect("usable minimum remains bounded by narrow display", fit(120, 80, 0, 24, 320, 576, 4, False, False, 500, 600), (4, 28, 312, 568))
 expect("oversize window scaled and centered", fit(1200, 1000, 0, 24, 800, 576), (4, 28, 792, 568))
 expect("offset display work area", fit(500, 300, 20, 40, 700, 500), (120, 140, 500, 300))
 expect("maximized window fills work area", fit(790, 570, 0, 24, 800, 576, 4, True, True), (4, 28, 792, 568))

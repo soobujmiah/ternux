@@ -163,7 +163,7 @@ extension; the owner explicitly deferred packaging it until later. See the
 [QNN performance handoff](../handoffs/qnn-sd15-performance.md),
 [QNN correctness and review handoff](../handoffs/qnn-sd15-correctness.md), and
 [HTP qualification handoff](../handoffs/llama-htp-qualification.md).
-See the [Local Dream device evidence](https://github.com/soobujmiah/skb/blob/main/devices/redmi-turbo-4-pro/accelerator-access-audit.md).
+See the Local Dream device evidence (private SKB record; not publicly accessible).
 
 On 2026-11-07, a 2-image, 2-step phone batch matched separate single-image
 controls for seeds 20261014 and 20261015. It loaded one UNet and one decoder
@@ -346,8 +346,8 @@ independent QNN model-stage correctness, the known HTP operator failures,
 owner visual review, wider dependency-license review, and public signed APT
 install/upgrade and release publication remain open. The new CI evidence does
 not close those release gates. A live HTTP check at
-`https://soobujmiah.github.io/ternux/apt/dists/stable/InRelease` and
-`https://soobujmiah.github.io/ternux/apt/bootstrap.sh` returned 404; the
+``https://soobujmiah.github.io/ternux/apt/dists/stable/InRelease`` and
+``https://soobujmiah.github.io/ternux/apt/bootstrap.sh`` returned 404; the
 signed publish workflow is main-only and has not been dispatched for release.
 
 ## QNN experiment and next validation
@@ -827,9 +827,9 @@ models or restart the desktop.
 On Xiaomi 25053RT47C (Adreno 825), the installed Debian, Ubuntu, Kali, and
 Alpine guests each enumerated the Turnip device through Vulkan and rendered a
 Zink GLX probe on their assigned X11 displays (:1 through :4). This verifies
-the installed Zink route on these four guests; it does not qualify every app
-or the complete Kali desktop profile. Full desktop qualification remains
-Debian, Ubuntu, and Alpine only.
+the installed Zink route on these four guests; it does not by itself qualify
+every app or a complete desktop profile. The later interactive Kali checks
+below add profile evidence on this device.
 
 VirGL GLX probes rendered on Debian, Ubuntu, and Kali. Alpine could not create
 a DRI screen. The llvmpipe probe stayed alive on Debian and terminated with
@@ -837,3 +837,21 @@ a DRI screen. The llvmpipe probe stayed alive on Debian and terminated with
 after a failed VirGL preflight, so that software fallback is not usable evidence
 for those three guests. Keep this gap open until a working software renderer is
 verified on each profile.
+
+### Kali interactive profile check — 2026-11-15
+
+The existing Kali guest on display `:3` passed `tx verify kali` and
+`tx doctor kali` (26 OK, 0 warnings, 0 failures). Doctor identified Zink Vulkan
+1.4 on Turnip / Adreno 825. Firefox opened Example Domain in a visible
+510×561 window centered within the 640×1386 display. Synthetic Ctrl+Space
+switched IBus from English to Avro and back. A generated 0.5-second tone was
+sent through the PulseAudio route; its OpenSL ES monitor captured 242,536 bytes.
+The managed security tools `nmap`, `sqlmap`, `hydra`, `john`, `gobuster`, and
+`nikto` were present. The live window-fit helper expanded a deliberately tiny
+normal window to 371×516 and centered it in the current work area.
+
+This promotes the existing Kali guest to device-qualified on this Xiaomi
+Adreno 825 installation. It is not a clean Kali installation test, does not
+add Kali to the v2 supported-profile promise, and does not qualify other
+hardware. The VirGL path rendered a GLX probe, but the llvmpipe probe still
+terminated with `SIGILL`; that software fallback remains an open defect.

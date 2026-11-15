@@ -7,7 +7,7 @@ TERFETCH="$ROOT/share/terfetch/terfetch"
 test -x "$TERFETCH"
 bash -n "$TERFETCH"
 [ "$("$TERFETCH" --version)" = 'terfetch 0.1.0' ]
-"$TERFETCH" --help | grep -Fq 'Usage: terfetch [--json|--version|--help]'
+"$TERFETCH" --help | grep -Fq 'Usage: terfetch [--json|--refresh|--version|--help]'
 
 # Native Termux selects Android, Ternux Workstation, all managed distro logos,
 # or Sobuj's special monogram.
@@ -47,6 +47,17 @@ done
 small_output="$(TERFETCH_TEST_HOST=termux TERFETCH_LOGO_INDEX=1 COLUMNS=60 NO_COLOR=1 "$TERFETCH")"
 ! grep -Eq '^  System +Termux$' <<< "$small_output"
 grep -Fq 'System          Termux' <<< "$small_output"
+
+# Portrait and narrow terminal layouts stay within their width and use fewer
+# info rows when the available height is short. Refresh mode clears only when
+# attached to a terminal; its renderer still accepts the current dimensions.
+for width in 36 40 48 60; do
+  portrait="$(TERFETCH_TEST_DISTRO=alpine COLUMNS="$width" LINES=24 NO_COLOR=1 "$TERFETCH")"
+  [ "$(awk -v width="$width" 'length($0) > width { n++ } END { print n + 0 }' <<< "$portrait")" -eq 0 ]
+  [ "$(grep -Ec 'System +|Distro +|Environment +|Kernel +|Uptime +|Packages +|Architecture +|CPU +|GPU +|Memory +|Storage +|Shell +|Terminal +|Ternux +|User +|Android +|Desktop +' <<< "$portrait")" -le 19 ]
+done
+refreshed="$(TERFETCH_TEST_DISTRO=alpine COLUMNS=100 LINES=50 NO_COLOR=1 "$TERFETCH" --refresh)"
+grep -Fq 'Distro          alpine' <<< "$refreshed"
 
 # Every managed distro has a stable distro-specific mark and usable commands.
 for distro in adelie alpine archlinux artix chimera debian deepin fedora kali manjaro opensuse pardus rockylinux ubuntu void; do

@@ -2,7 +2,7 @@
 
 <!-- deterministic-state-bridge: ternux -->
 
-**স্বয়ংক্রিয় repository status:** [`.repo/STATUS.md`](../.repo/STATUS.md)। SKB registry: [`ternux.json`](https://github.com/soobujmiah/skb/blob/main/projects/registry/ternux.json)।
+**স্বয়ংক্রিয় repository status:** [`.repo/STATUS.md`](../.repo/STATUS.md)।
 
 # ternux
 

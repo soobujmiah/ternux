@@ -2034,6 +2034,21 @@ _tnx_install_terfetch_hook() {
 if [[ $- == *i* ]] && [[ -z ${TERFETCH_NO_AUTORUN:-} ]] && command -v terfetch >/dev/null 2>&1; then
   terfetch
 fi
+_ternux_terfetch_last_size="$(stty size 2>/dev/null || true)"
+_ternux_terfetch_resize_check() {
+  local _tnx_size
+  _tnx_size="$(stty size 2>/dev/null || true)"
+  if [[ -n $_tnx_size && $_tnx_size != $_ternux_terfetch_last_size ]]; then
+    _ternux_terfetch_last_size=$_tnx_size
+    [[ -z ${TERFETCH_NO_AUTORUN:-} ]] && command -v terfetch >/dev/null 2>&1 && terfetch --refresh
+  fi
+}
+if [[ -n ${ZSH_VERSION:-} ]]; then
+  typeset -ga precmd_functions
+  (( ${precmd_functions[(Ie)_ternux_terfetch_resize_check]} )) || precmd_functions+=(_ternux_terfetch_resize_check)
+else
+  case ";${PROMPT_COMMAND:-};" in *";_ternux_terfetch_resize_check;"*) ;; *) PROMPT_COMMAND="${PROMPT_COMMAND:+${PROMPT_COMMAND};}_ternux_terfetch_resize_check" ;; esac
+fi
 # TERNUX TERFETCH START END
 TERFETCHEOF
   chmod "$rc_mode" "$rc_tmp" && mv -f -- "$rc_tmp" "$rc_file" || {

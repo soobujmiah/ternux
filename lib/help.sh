@@ -175,7 +175,7 @@ Options:
   --zsh                Use zsh instead of bash (installs powerlevel10k)
   --shell bash|zsh     Choose the Termux shell without being asked
   --no-theme           Skip powerlevel10k when zsh is chosen
-  --distro NAME        One of 15 named guest profiles (Debian/Ubuntu/Alpine device-qualified)
+  --distro NAME        One of 15 named profiles (Debian/Ubuntu/Kali/Alpine qualified on reference device)
   --distros LIST       Install multiple profiles, e.g. debian,ubuntu,kali,alpine
   --with-dev           Install development tools
   --with-llm           Build llama.cpp with Vulkan

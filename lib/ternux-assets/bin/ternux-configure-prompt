@@ -39,6 +39,21 @@ fi
 if [[ \$- == *i* ]] && [[ -z \${TERFETCH_NO_AUTORUN:-} ]] && command -v terfetch >/dev/null 2>&1; then
   terfetch
 fi
+_ternux_terfetch_last_size="\$(stty size 2>/dev/null || true)"
+_ternux_terfetch_resize_check() {
+  local _tnx_size
+  _tnx_size="\$(stty size 2>/dev/null || true)"
+  if [[ -n \$_tnx_size && \$_tnx_size != \$_ternux_terfetch_last_size ]]; then
+    _ternux_terfetch_last_size=\$_tnx_size
+    [[ -z \${TERFETCH_NO_AUTORUN:-} ]] && command -v terfetch >/dev/null 2>&1 && terfetch --refresh
+  fi
+}
+if [[ -n \${ZSH_VERSION:-} ]]; then
+  typeset -ga precmd_functions
+  (( \${precmd_functions[(Ie)_ternux_terfetch_resize_check]} )) || precmd_functions+=(_ternux_terfetch_resize_check)
+else
+  case ";\${PROMPT_COMMAND:-};" in *";_ternux_terfetch_resize_check;"*) ;; *) PROMPT_COMMAND="\${PROMPT_COMMAND:+\${PROMPT_COMMAND};}_ternux_terfetch_resize_check" ;; esac
+fi
 # TERNUX TERFETCH START END
 EOF
   chmod 0644 "$tmp"
@@ -68,6 +83,16 @@ fi
 if [[ -o interactive ]] && [[ -z \${TERFETCH_NO_AUTORUN:-} ]] && (( \$+commands[terfetch] )); then
   terfetch
 fi
+typeset -g _ternux_terfetch_last_size="\$(stty size 2>/dev/null)"
+_ternux_terfetch_resize_check() {
+  local _tnx_size
+  _tnx_size="\$(stty size 2>/dev/null)"
+  if [[ -n \$_tnx_size && \$_tnx_size != \$_ternux_terfetch_last_size ]]; then
+    _ternux_terfetch_last_size=\$_tnx_size
+    [[ -z \${TERFETCH_NO_AUTORUN:-} ]] && (( \$+commands[terfetch] )) && terfetch --refresh
+  fi
+}
+(( \${precmd_functions[(Ie)_ternux_terfetch_resize_check]} )) || precmd_functions+=(_ternux_terfetch_resize_check)
 # TERNUX TERFETCH START END
 EOF
   chmod 0644 "$tmp"
@@ -129,6 +154,9 @@ for item in "$user_home:$(basename "$user_home"):$distro-user" \
   IFS=: read -r home owner role <<< "$item"
   [ -d "$home" ] || continue
   id "$owner" >/dev/null 2>&1 || { printf 'No guest account for shell home %s\n' "$home" >&2; exit 1; }
+  if [ "$distro" = alpine ] && [ "$role" = "$distro-user" ] && [ -x /bin/bash ]; then
+    usermod -s /bin/bash "$owner"
+  fi
   touch "$home/.hushlogin"
   chown "$owner" "$home/.hushlogin"
   if [ "$role" = "$distro-root" ]; then color=31; else color=36; fi

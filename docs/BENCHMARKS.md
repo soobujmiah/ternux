@@ -203,7 +203,7 @@ For context, the device's separate Local Dream NPU route generated a 512×512
 image in 5.7 s at 20 steps. The Ternux runner's 29.76 s median is about 5.2×
 longer under the same device, resolution, and step count. The model and runtime
 differ, so this is a substantial optimization gap, not a controlled A/B result
-or evidence against the QNN DSP execution records. [Local Dream device evidence](https://github.com/soobujmiah/skb/blob/main/devices/redmi-turbo-4-pro/accelerator-access-audit.md).
+or evidence against the QNN DSP execution records. Local Dream device evidence (private SKB record; not publicly accessible).
 In the Ternux run, the per-image median outside the UNet timing was 13.85 s;
 that residual includes CLIP, helper/context startup, VAE decode, and PNG output.
 The runner also makes separate unconditional and conditional UNet graph calls

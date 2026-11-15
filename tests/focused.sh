@@ -48,7 +48,7 @@ if cli_help="$(bash "$ROOT/bin/ternux" --help 2>&1)" \
   && printf '%s\n' "$start_help" | grep -Fq 'tx start [DISTRO ...]' \
   && verify_help="$(bash "$ROOT/bin/ternux" verify --help 2>&1)" \
   && printf '%s\n' "$verify_help" | grep -Fq 'verify [DISTRO] [--json]' \
-  && printf '%s\n' "$install_help" | grep -Fq '15 named guest profiles' \
+  && printf '%s\n' "$install_help" | grep -Fq 'One of 15 named profiles' \
   && printf '%s\n' "$install_help" | grep -Fq 'APT-family guests only' \
   && ! printf '%s\n' "$install_help" | grep -Fq '1 development, 2 llama.cpp'; then
   ok "tx and ternux help expose the complete command tree, aliases and current workload flow"
@@ -460,6 +460,9 @@ if env TERNUX_STATE_DIR="$TMP/state-welcome" HOME="$TMP/home-welcome" \
       grep -Fq "window_ids(root, atoms_by_name[\"_NET_CLIENT_LIST\"])" "$1/lib/ternux-assets/bin/ternux-window-fit-x11" &&
       grep -Fq "screen_width, screen_height = root_dimensions(root)" "$1/lib/ternux-assets/bin/ternux-window-fit-x11" &&
       grep -Fq "if atoms_by_name[\"_NET_WM_STATE_FULLSCREEN\"] in state:" "$1/lib/ternux-assets/bin/ternux-window-fit-x11" &&
+      grep -Fq "minimum_width = max(1, int(area_width * 0.58))" "$1/lib/ternux-assets/bin/ternux-window-fit-x11" &&
+      grep -Fq "_settle_clients[client_id] = time.monotonic() + 0.65" "$1/lib/ternux-assets/bin/ternux-window-fit-x11" &&
+      grep -Fq "select.select([dpy.fileno()]" "$1/lib/ternux-assets/bin/ternux-window-fit-x11" &&
       grep -q "Every fresh profile gets one usable browser" "$1/lib/phases.sh" &&
       sh -n "$1/lib/ternux-welcome.sh" &&
       grep -q "firefox-esr --new-window" "$1/lib/ternux-welcome.sh" &&
@@ -3335,8 +3338,8 @@ if env TERM=dumb NO_COLOR=1 TERNUX_STATE_DIR="$TMP/state-frame" \
     printf "Get: package-one\nSetting up package-one\nERROR: sample failure\n" | tnx_frame_stream
     tnx_frame_close failed
   ' _ "$ROOT" > "$frame_out" &&
-  grep -q "TERNUX  |  Desktop installer" "$frame_out" &&
-  grep -q "Debian + Xfce" "$frame_out" &&
+  grep -q "WORKSTATION" "$frame_out" &&
+  grep -q "INSTALLING  Debian + Xfce" "$frame_out" &&
   grep -q "Get: package-one" "$frame_out" &&
   grep -q "ERROR: sample failure" "$TMP/log-frame/ternux.log"; then
   ok "persistent install frame has a readable line-stream fallback"

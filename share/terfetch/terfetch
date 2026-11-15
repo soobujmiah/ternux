@@ -9,10 +9,11 @@ usage() {
   cat <<'EOF'
 terfetch - Ternux system summary
 
-Usage: terfetch [--json|--version|--help]
+Usage: terfetch [--json|--refresh|--version|--help]
 
 Options:
   --json      Print machine-readable JSON
+  --refresh   Redraw the display after a terminal resize
   --version   Print the Terfetch version
   --help      Show this help
 EOF
@@ -21,7 +22,7 @@ EOF
 case "${1:-}" in
   --version|-V) printf 'terfetch %s\n' "$TERFETCH_VERSION"; exit 0 ;;
   --help|-h) usage; exit 0 ;;
-  ''|--json) ;;
+  ''|--json|--refresh) ;;
   *) usage >&2; exit 2 ;;
 esac
 
@@ -182,6 +183,11 @@ if [ "${1:-}" = '--json' ]; then
   exit 0
 fi
 
+# Prompt hooks call this after a size change so the dashboard stays together.
+if [ "${1:-}" = '--refresh' ] && [ -t 1 ]; then
+  printf '\033[H\033[2J'
+fi
+
 if [ -t 1 ] && [ -z "${NO_COLOR:-}" ]; then
   c1=$'\033[1;38;5;48m'; c2=$'\033[1;38;5;45m'; c3=$'\033[38;5;109m'; c0=$'\033[0m'
 else
@@ -190,6 +196,9 @@ fi
 terminal_columns="$(stty size 2>/dev/null | awk 'NR==1 {print $2}')"
 case "$terminal_columns" in ''|*[!0-9]*) terminal_columns="${COLUMNS:-80}" ;; esac
 case "$terminal_columns" in ''|*[!0-9]*) terminal_columns=80 ;; esac
+terminal_rows="$(stty size 2>/dev/null | awk 'NR==1 {print $1}')"
+case "$terminal_rows" in ''|*[!0-9]*) terminal_rows="${LINES:-24}" ;; esac
+case "$terminal_rows" in ''|*[!0-9]*) terminal_rows=24 ;; esac
 
 # The bundled distribution ASCII artwork is adapted from Fastfetch.
 # Fastfetch MIT license:
@@ -644,6 +653,41 @@ if [ -n "$battery" ]; then labels+=(Battery); values+=("$battery"); fi
 row_count="${#labels[@]}"
 compact_panel=0
 if [ "$terminal_columns" -lt 68 ]; then compact_panel=1; fi
+if [ "$compact_panel" -eq 1 ]; then
+  case "$logo_id" in
+    alpine) logo_lines=('   /\ Alpine') ;;
+    archlinux) logo_lines=('   /\ Arch') ;;
+    debian) logo_lines=('   .--. Debian') ;;
+    ubuntu) logo_lines=('   (o) Ubuntu') ;;
+    kali) logo_lines=('   /\ Kali') ;;
+    fedora) logo_lines=('   (F) Fedora') ;;
+    opensuse) logo_lines=('   (S) openSUSE') ;;
+    manjaro) logo_lines=('   || Manjaro') ;;
+    android) logo_lines=('   [::] Android') ;;
+    workstation) logo_lines=('  Ternux Workstation') ;;
+    sobuj) logo_lines=('   SOBUJ') ;;
+    *) logo_lines=("   ${logo_id}") ;;
+  esac
+fi
+# In a short portrait terminal, keep the dashboard and command footer in view.
+if [ "$compact_panel" -eq 1 ] && [ "$terminal_rows" -lt 36 ]; then
+  max_rows=$((terminal_rows - ${#logo_lines[@]} - 7))
+  [ "$max_rows" -ge 10 ] || max_rows=10
+  if [ "$row_count" -gt "$max_rows" ]; then
+    compact_labels=() compact_values=()
+    for ((i=0; i<row_count; i++)); do
+      case "${labels[i]}" in
+        System|Distro|Environment|Kernel|Uptime|Packages|Architecture|CPU|GPU|Memory|Storage|Shell|Terminal|Ternux|User|Android|Desktop)
+          compact_labels+=("${labels[i]}")
+          compact_values+=("${values[i]}") ;;
+      esac
+      [ "${#compact_labels[@]}" -lt "$max_rows" ] || break
+    done
+    labels=("${compact_labels[@]}")
+    values=("${compact_values[@]}")
+    row_count="${#labels[@]}"
+  fi
+fi
 if [ "${#logo_lines[@]}" -gt "$row_count" ]; then
   logo_lines=("${logo_lines[@]:0:row_count}")
 fi
@@ -663,7 +707,6 @@ block_width=$((logo_width + 2 + 15 + max_value_width + 4))
 [ "$block_width" -le "$terminal_columns" ] || block_width="$terminal_columns"
 if [ "$compact_panel" -eq 1 ]; then
   for art in "${logo_lines[@]}"; do printf '  %s%s%s\n' "$c1" "$art" "$c0"; done
-  printf '\n'
   for ((i=0; i<row_count; i++)); do
     printf '  %s%-15s%s %s\n' "$c3" "${labels[i]}" "$c0" "${values[i]}"
   done
@@ -687,9 +730,18 @@ center_plain() {
 }
 center_commands() {
   local -a items=("$@")
-  local visible_width=0 pad color
+  local visible_width=0 pad color item_width
   for item in "${items[@]}"; do visible_width=$((visible_width + 2 + ${#item})); done
   visible_width=$((visible_width + (${#items[@]} - 1) * 7))
+  if [ "$visible_width" -gt "$block_width" ]; then
+    for item in "${items[@]}"; do
+      item_width=$((2 + ${#item}))
+      pad=$(((block_width - item_width) / 2))
+      [ "$pad" -ge 0 ] || pad=0
+      printf '%*s%s$ %s%s\n' "$pad" '' "$c1" "$item" "$c0"
+    done
+    return
+  fi
   pad=$(((block_width - visible_width) / 2))
   [ "$pad" -ge 0 ] || pad=0
   printf '%*s' "$pad" ''
