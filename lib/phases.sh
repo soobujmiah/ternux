@@ -1760,6 +1760,15 @@ sudo -n rm -f /etc/xdg/autostart/light-locker.desktop 2>/dev/null || true
 exec /usr/local/bin/ternux-session-bus bash -c '
   set -u
   until xdpyinfo -display "$DISPLAY" >/dev/null 2>&1; do sleep 0.1; done
+  if [ "${GALLIUM_DRIVER:-}" = virpipe ]; then
+    renderer_info="$(timeout 5s glxinfo -B 2>&1)" || renderer_info=""
+    if ! printf "%s\n" "$renderer_info" | grep -Eqi "OpenGL renderer string:.*virgl"; then
+      echo "WARNING: VirGL preflight failed; starting the desktop with Mesa software rendering instead."
+      export GALLIUM_DRIVER=llvmpipe LIBGL_ALWAYS_SOFTWARE=1
+    else
+      printf "%s\n" "$renderer_info" | grep -i "OpenGL renderer string:" | head -n 1
+    fi
+  fi
   # --replace targets the selected account session bus; process-wide pkill would
   # disrupt other PRoot desktops sharing the guest process namespace.
   /usr/local/bin/ternux-ibus-session-init || echo "WARNING: IBus session setup failed; Ctrl+Space may not work." >&2
