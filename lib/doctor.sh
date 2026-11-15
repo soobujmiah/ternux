@@ -21,7 +21,7 @@
 # describe exactly the same set of checks. Statuses: ok, warn, fail, info
 # (info is context and never counts as an issue).
 # ---------------------------------------------------------------------------
-TNX_DOCTOR_CATEGORIES="system host guest graphics extensions"
+TNX_DOCTOR_CATEGORIES="system host guest graphics gpu extensions"
 TNX_DOCTOR_EXTENSIONS="llama-vulkan stable-diffusion llama-htp-experimental"
 _TNX_DR_US=$'\x1f'
 declare -a _TNX_DR_ROWS=()
@@ -58,7 +58,16 @@ _tnx_doctor_guest_probe() {
   for one in startxfce4 glxinfo xdpyinfo pactl; do
     if command -v "$one" >/dev/null 2>&1; then _p "guest.cmd.$one" yes; else _p "guest.cmd.$one" no; fi
   done
-  _p guest.dpkg_audit "$(dpkg --audit 2>/dev/null | grep -c . )"
+  if command -v dpkg >/dev/null 2>&1; then
+    _p guest.package_manager dpkg
+    _p guest.package_audit "$(dpkg --audit 2>/dev/null | grep -c . )"
+  elif command -v apk >/dev/null 2>&1; then
+    _p guest.package_manager apk
+    _p guest.package_audit "$(apk audit --system 2>/dev/null | grep -c .)"
+  else
+    _p guest.package_manager unknown
+    _p guest.package_audit unknown
+  fi
   _p guest.disk_free_gb "$(df -Pk "$HOME" 2>/dev/null | awk 'NR==2{print int($4/1024/1024)}')"
   overlay="$(cat /etc/ternux/mesa-overlay 2>/dev/null || true)"
   overlay_libdir="$(cat /etc/ternux/mesa-overlay-libdir 2>/dev/null || true)"
@@ -125,8 +134,10 @@ _tnx_doctor_guest_probe() {
 }
 
 _tnx_dr_collect_guest() {
-  local out line user
-  user="${TERNUX_USER:-ternux}"
+  local distro="${1:-$(tnx_distro)}" out line user
+  unset _TNX_DISTRO
+  export TERNUX_DISTRO="$distro"
+  user="$(tnx_distro_user "$distro")"
   out="$(
     {
       declare -f _tnx_doctor_guest_probe
@@ -194,10 +205,21 @@ _tnx_dr_system() {
 _tnx_dr_host() {
   if tnx_has_cmd proot-distro; then
     _tnx_dr_add ok host proot_distro "proot-distro installed"
-    if tnx_debian_installed; then
-      _tnx_dr_add ok host guest_container "$(tnx_distro) container installed"
+    local selected="${_TNX_DISTRO:-$(tnx_distro)}"
+    if tnx_proot_container_installed "$selected"; then
+      _tnx_dr_add ok host "${selected}_container" "$selected container installed"
     else
-      _tnx_dr_add warn host guest_container_not_installed "$(tnx_distro) container missing" "" "Run: ternux install"
+      _tnx_dr_add info host "${selected}_container_missing" "$selected container not installed"
+    fi
+    local guests="" guest
+    while IFS= read -r guest; do
+      guest="${guest%% *}"
+      [ -n "$guest" ] && tnx_distro_known "$guest" && tnx_proot_container_installed "$guest" && guests+="${guests:+, }$guest"
+    done < <(proot-distro list --quiet 2>/dev/null || true)
+    if [ -n "$guests" ]; then
+      _tnx_dr_add ok host guest_containers "Installed managed guests: $guests"
+    else
+      _tnx_dr_add warn host guest_containers_missing "No managed desktop guest is installed" "" "Install a profile: tx install --distro debian"
     fi
   else
     _tnx_dr_add warn host proot_distro_missing "proot-distro missing" "" "pkg install proot-distro"
@@ -223,9 +245,10 @@ _tnx_dr_host() {
 }
 
 _tnx_dr_guest() {
-  local k v glibc_minor
-  if ! tnx_debian_installed; then
-    _tnx_dr_add info guest guest_absent "Guest checks skipped: $(tnx_distro) container is not installed"
+  local distro="${1:-$(tnx_distro)}" k v glibc_minor idp="" titlep=""
+  if [ "${_TNX_DR_GUEST_COUNT:-1}" -gt 1 ]; then idp="${distro}_"; titlep="$distro: "; fi
+  if ! tnx_proot_container_installed "$distro"; then
+    _tnx_dr_add info guest "${idp}guest_absent" "${titlep}guest checks skipped: not installed"
     return 0
   fi
   if [ "${_TNX_DR_QUICK:-0}" = 1 ]; then
@@ -233,38 +256,46 @@ _tnx_dr_guest() {
     return 0
   fi
   if [ ${#_TNX_DR_GUEST[@]} -eq 0 ]; then
-    _tnx_dr_add info guest guest_probe_unavailable "Could not query the $(tnx_distro) guest" "The probe could not log in; this is not necessarily a fault" "Try: ternux start, then rerun doctor"
+    _tnx_dr_add info guest "${idp}guest_probe_unavailable" "${titlep}could not query the guest" "The probe could not log in; this is not necessarily a fault" "Try: tx doctor $distro"
     return 0
   fi
-  _tnx_dr_add ok guest guest_os "Guest: ${_TNX_DR_GUEST["guest.os"]:-unknown} (${_TNX_DR_GUEST["guest.arch"]:-?})"
+  _tnx_dr_add ok guest "${idp}guest_os" "${titlep}${_TNX_DR_GUEST["guest.os"]:-unknown} (${_TNX_DR_GUEST["guest.arch"]:-?})"
   v="${_TNX_DR_GUEST["guest.glibc"]:-}"
   glibc_minor="${v#2.}"
   if [[ "$v" =~ ^2\.([0-9]+)$ ]]; then
     if [ "${BASH_REMATCH[1]}" -lt 38 ]; then
-      _tnx_dr_add warn guest glibc_old "glibc $v in the guest" "Release extensions need glibc 2.38 or newer" "Use the verified Debian 13 (trixie) guest"
+      _tnx_dr_add warn guest "${idp}glibc_old" "${titlep}glibc $v" "Release extensions need glibc 2.38 or newer" "Use a glibc 2.38+ guest for binary extensions"
     else
-      _tnx_dr_add ok guest glibc "glibc $v (extensions need 2.38+)"
+      _tnx_dr_add ok guest "${idp}glibc" "${titlep}glibc $v (extensions need 2.38+)"
     fi
   else
-    _tnx_dr_add info guest glibc "glibc version unknown"
+    _tnx_dr_add info guest "${idp}glibc" "${titlep}glibc version unknown"
   fi
-  if [ "${_TNX_DR_GUEST["guest.sudo"]:-no}" = yes ]; then _tnx_dr_add ok guest sudo "Passwordless sudo works"
-  else _tnx_dr_add warn guest sudo_missing "Passwordless sudo does not work" "Package installs inside the guest will ask for a password" "Run: ternux repair"; fi
+  if [ "${_TNX_DR_GUEST["guest.sudo"]:-no}" = yes ]; then _tnx_dr_add ok guest "${idp}sudo" "${titlep}passwordless sudo works"
+  else _tnx_dr_add warn guest "${idp}sudo_missing" "${titlep}passwordless sudo does not work" "Package installs inside the guest may require root" "Run: tx repair"; fi
   for k in startxfce4 glxinfo xdpyinfo pactl; do
-    if [ "${_TNX_DR_GUEST["guest.cmd.$k"]:-no}" = yes ]; then _tnx_dr_add ok guest "cmd_$k" "$k present"
-    else _tnx_dr_add warn guest "guest_cmd_${k}_missing" "$k missing in the guest" "" "Run: ternux install --resume"; fi
+    if [ "${_TNX_DR_GUEST["guest.cmd.$k"]:-no}" = yes ]; then _tnx_dr_add ok guest "${idp}cmd_$k" "${titlep}$k present"
+    else _tnx_dr_add warn guest "${idp}guest_cmd_${k}_missing" "${titlep}$k missing" "" "Run: tx install --resume --distro $distro"; fi
   done
-  v="${_TNX_DR_GUEST["guest.dpkg_audit"]:-0}"
-  if [ "$v" -gt 0 ] 2>/dev/null; then
-    _tnx_dr_add warn guest dpkg_broken "dpkg reports unfinished or broken packages" "Interrupted upgrades leave the package database inconsistent" "In Debian run: sudo dpkg --configure -a && sudo apt -f install"
-  else
-    _tnx_dr_add ok guest dpkg "Package database consistent"
-  fi
+  local package_manager="${_TNX_DR_GUEST[guest.package_manager]:-unknown}"
+  v="${_TNX_DR_GUEST[guest.package_audit]:-unknown}"
+  case "$package_manager:$v" in
+    dpkg:unknown|apk:unknown|unknown:*)
+      _tnx_dr_add info guest "${idp}package_audit" "${titlep}package database audit unavailable (${package_manager})" ;;
+    dpkg:0)
+      _tnx_dr_add ok guest "${idp}dpkg" "${titlep}dpkg audit found no unfinished packages" ;;
+    dpkg:*)
+      _tnx_dr_add warn guest "${idp}dpkg_broken" "${titlep}dpkg reports unfinished or broken packages" "Interrupted upgrades leave the package database inconsistent" "In $distro run: sudo dpkg --configure -a && sudo apt -f install" ;;
+    apk:0)
+      _tnx_dr_add ok guest "${idp}apk" "${titlep}apk audit found no package problems" ;;
+    apk:*)
+      _tnx_dr_add warn guest "${idp}apk_audit" "${titlep}apk reports package filesystem differences" "The package database audit found changed or missing files" "Review: apk audit --system" ;;
+  esac
   v="${_TNX_DR_GUEST["guest.disk_free_gb"]:-}"
   if [ -n "$v" ] && [ "$v" -lt 2 ] 2>/dev/null; then
-    _tnx_dr_add warn guest guest_low_disk "Guest home has ~${v} GB free" "" "Free up storage space"
+    _tnx_dr_add warn guest "${idp}guest_low_disk" "${titlep}home has ~${v} GB free" "" "Free up storage space in $distro"
   elif [ -n "$v" ]; then
-    _tnx_dr_add ok guest guest_disk "Guest home has ~${v} GB free"
+    _tnx_dr_add ok guest "${idp}guest_disk" "${titlep}home has ~${v} GB free"
   fi
 }
 
@@ -284,7 +315,7 @@ _tnx_dr_graphics() {
     *) _tnx_dr_add info graphics vulkan_not_detected "Vulkan hardware was not detected" ;;
   esac
   gpu="$(tnx_detect_gpu)"
-  configured_backend="$(tnx_canonical_backend "$(tnx_state_get "backend")")"
+  configured_backend="$(tnx_canonical_backend "$(tnx_distro_state_get "${_TNX_DISTRO:-$(tnx_distro)}" backend 2>/dev/null || tnx_state_get "backend")")"
   backend="$(tnx_detect_backend)"
   _DR_GPU="$gpu"; _DR_BACKEND_RECOMMENDED="$backend"; _DR_BACKEND_CONFIGURED="$configured_backend"; _DR_VULKAN="$vulkan"
   _tnx_dr_add ok graphics gpu "GPU: $gpu"
@@ -311,7 +342,7 @@ _tnx_dr_graphics() {
     esac
   fi
 
-  if tnx_debian_installed; then
+  if tnx_proot_container_installed "${_TNX_DISTRO:-$(tnx_distro)}"; then
     renderer="$(tnx_detect_renderer)"
     if [ -n "$renderer" ] && [ "$renderer" != "unknown" ]; then
       if tnx_renderer_is_software "$renderer"; then
@@ -380,7 +411,7 @@ _tnx_dr_extensions() {
 }
 
 tnx_cmd_doctor() {
-  local strict=0 quick=0 arg c valid _TNX_DISTRO=""
+  local strict=0 quick=0 arg c valid _TNX_DISTRO="" scope="" saw_category=0 distro selected_distro
   _TNX_DR_ROWS=(); _TNX_DR_FILTER=(); _TNX_DR_GUEST=(); _TNX_DR_QUICK=0
   _DR_GPU=""; _DR_BACKEND_RECOMMENDED=""; _DR_BACKEND_CONFIGURED=""; _DR_VULKAN=""; _DR_RENDERER=""
   for arg in "$@"; do
@@ -389,17 +420,35 @@ tnx_cmd_doctor() {
       --quick) quick=1 ;;
       -*) tnx_fail "Unknown doctor option: $arg"; echo "Usage: ternux doctor [CATEGORY...] [--quick] [--strict] [--json]" >&2; return 2 ;;
       *)
+        case "$arg" in
+          gpu) _TNX_DR_FILTER+=(graphics); saw_category=1; continue ;;
+        esac
+        distro="$(tnx_distro_canonical "$arg")"
+        if tnx_distro_known "$distro"; then
+          [ -z "$scope" ] || [ "$scope" = "$distro" ] || { tnx_fail "Choose one guest per doctor run."; return 2; }
+          scope="$distro"
+          continue
+        fi
         valid=0
         for c in $TNX_DOCTOR_CATEGORIES; do [ "$c" = "$arg" ] && valid=1; done
         if [ "$valid" -ne 1 ]; then
-          tnx_fail "Unknown doctor category: $arg (choose from: $TNX_DOCTOR_CATEGORIES)"
+          tnx_fail "Unknown doctor category or guest: $arg (categories: system host guest graphics gpu extensions)"
           return 2
         fi
         _TNX_DR_FILTER+=("$arg")
+        saw_category=1
         ;;
     esac
   done
   _TNX_DR_QUICK="$quick"
+  # A guest name scopes both guest and GPU checks. Bare `doctor NAME` is a
+  # useful per-guest diagnostic; add explicit categories to narrow it further.
+  if [ -n "$scope" ]; then
+    _TNX_DISTRO="$scope"
+    TERNUX_DISTRO="$scope"
+    export TERNUX_DISTRO
+    if [ "$saw_category" -eq 0 ]; then _TNX_DR_FILTER=(guest graphics); fi
+  fi
   # Prefer the active installed guest over an old saved install choice so
   # diagnostics inspect the desktop that is actually running.
   if [ -n "${TERNUX_DISTRO:-}" ]; then
@@ -413,19 +462,52 @@ tnx_cmd_doctor() {
   else
     _TNX_DISTRO="$(tnx_verify_select_distro 2>/dev/null || true)"
   fi
+  selected_distro="${_TNX_DISTRO:-$(tnx_distro)}"
 
   tnx_step "Running diagnostics..."
   tnx_require_termux
 
-  if { _tnx_dr_want guest || _tnx_dr_want graphics || _tnx_dr_want extensions; } &&
-     [ "$quick" -eq 0 ] && tnx_debian_installed; then
-    _tnx_dr_collect_guest || true
+  if _tnx_dr_want guest && [ "$quick" -eq 0 ]; then
+    local -a diagnostic_guests=()
+    if [ -n "$scope" ]; then
+      diagnostic_guests=("$scope")
+    else
+      while IFS= read -r distro; do [ -n "$distro" ] && diagnostic_guests+=("$distro"); done \
+        < <(tnx_distro_installed_managed_list)
+      if [ "${#diagnostic_guests[@]}" -eq 0 ] && tnx_proot_container_installed "$selected_distro"; then
+        diagnostic_guests=("$selected_distro")
+      fi
+    fi
+    _TNX_DR_GUEST_COUNT="${#diagnostic_guests[@]}"
+    if [ "${#diagnostic_guests[@]}" -eq 0 ]; then
+      _tnx_dr_add info guest no_managed_guests "No installed managed guests were found"
+    else
+      for distro in "${diagnostic_guests[@]}"; do
+        _TNX_DR_GUEST=()
+        _tnx_dr_collect_guest "$distro" || true
+        _tnx_dr_guest "$distro"
+      done
+    fi
+    unset _TNX_DISTRO
+    export TERNUX_DISTRO="$selected_distro"
+  elif _tnx_dr_want guest; then
+    _tnx_dr_add info guest guest_skipped "Guest checks skipped (--quick)"
   fi
   _tnx_dr_want system && _tnx_dr_system
   _tnx_dr_want host && _tnx_dr_host
   _tnx_dr_want guest && _tnx_dr_guest
   _tnx_dr_want graphics && _tnx_dr_graphics
-  _tnx_dr_want extensions && _tnx_dr_extensions
+  if _tnx_dr_want extensions; then
+    if [ "$quick" -eq 1 ]; then
+      _tnx_dr_extensions
+    elif tnx_debian_installed; then
+      _TNX_DR_GUEST=()
+      _tnx_dr_collect_guest debian || true
+      _tnx_dr_extensions
+    else
+      _tnx_dr_extensions
+    fi
+  fi
 
   local status="ok" n_ok=0 n_warn=0 n_fail=0 n_info=0
   local -a issues=() actions=()
@@ -593,7 +675,7 @@ tnx_cmd_verify() {
   if tnx_proot_container_installed "$distro"; then
     guest_installed=1
     checks+=("${distro}:installed")
-    if tnx_guest_login --user "${TERNUX_USER:-ternux}" -- bash -c 'command -v startxfce4 >/dev/null && command -v pactl >/dev/null && sudo -n true >/dev/null' 2>/dev/null; then
+    if tnx_guest_login --user "$(tnx_distro_user "$distro")" -- bash -c 'command -v startxfce4 >/dev/null && command -v pactl >/dev/null && sudo -n true >/dev/null' 2>/dev/null; then
       checks+=("${distro}_services:ok")
       [ "${TERNUX_JSON:-0}" != "1" ] && tnx_ok "${distro} desktop services verified"
     else

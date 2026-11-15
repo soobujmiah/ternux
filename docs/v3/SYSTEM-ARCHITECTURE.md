@@ -33,7 +33,7 @@ LAI runtime and model store (separate project/service)
 ```
 
 For v3, native Termux owns display `:0`; guest displays begin at Debian `:1`,
-Ubuntu `:2`, Alpine `:3`, then continue through collision-checked serial
+Ubuntu `:2`, Kali `:3`, Alpine `:4`, then continue through collision-checked serial
 allocations. This is a v3 target. Existing v2 display assignments remain
 unchanged until a staged migration succeeds; see
 [ADR-0005](ADR/0005-native-display-allocation.md).

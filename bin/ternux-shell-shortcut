@@ -8,6 +8,8 @@ case "$command_name" in
   dbr|dbroot) distro=debian; action=root ;;
   ub) distro=ubuntu; action=shell ;;
   ubr|ubroot) distro=ubuntu; action=root ;;
+  kali) distro=kali; action=shell ;;
+  kalir|kaliroot) distro=kali; action=root ;;
   alp) distro=alpine; action=shell ;;
   alpr|alproot) distro=alpine; action=root ;;
   *) printf 'Unknown Ternux guest shell shortcut: %s\n' "$command_name" >&2; exit 2 ;;

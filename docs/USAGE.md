@@ -23,21 +23,26 @@ Ternux enables Termux:X11 `enforceCharBasedInput` before starting the desktop so
 
 ## Daily controls
 
+After installation, new Termux host and managed guest shells show Terfetch.
+Ternux hides Termux's stock welcome text with `~/.hushlogin`; `TERFETCH_NO_AUTORUN=1`
+skips the automatic summary for the current shell. Run `terfetch --json` for
+structured host or guest details.
+
 | Command | What it does |
 |---|---|
-| `x` | Start the desktop through `ternux start` and bring Termux:X11 to the foreground (audio → display → Debian → Xfce4) |
 | `xgo` | List installed guests and select the Ternux desktop to start |
 | `killx` | Open the session picker and stop one or several desktops |
 | `db` / `dbr` / `dbroot` | Debian user / root shell |
 | `ub` / `ubr` / `ubroot` | Ubuntu user / root shell |
 | `alp` / `alpr` / `alproot` | Alpine user / root shell |
 | `tx` | Short alias for the `ternux` CLI |
+| `terfetch` | Show the host or guest system summary; `--json` prints structured data |
 | `sysmon` | Quick CPU/RAM/GPU-node overview |
 | `clean-mesa` | Clear the shader cache (after driver changes) |
 
 **A healthy start/stop routine:**
 
-1. Start with `xgo` (or open Termux:X11 first, then `x`).
+1. Start with `xgo` or run `tx start debian` (or another installed profile).
 2. Close apps normally inside the desktop.
 3. When done: log out of Xfce4 (Applications → Log Out), or run `tx stop` from
    Termux and choose which guest display to close. `tx stop --all` closes both.
@@ -58,6 +63,18 @@ stream and the source returns to idle. An idle desktop does not keep recording.
 Termux:API's `termux-microphone-record` records to a file and cannot act as a
 live PulseAudio input stream, so it is not the desktop's source. Android shows
 its microphone privacy indicator while capture is active. The default Ternux Sound Recorder app captures only after Start, saves AAC/M4A by default, and can export MP3 locally with FFmpeg; files are saved in `~/Music/Ternux`.
+
+Run `tx mic` to check/request Termux:API's separate microphone permission. It
+uses a bounded one-second probe, then stops and removes its private recording.
+If Termux:API is missing, the command briefly opens the built-in OpenSL input
+when the desktop audio source is available; audio is discarded, and Android may
+ask for Termux's microphone permission. Desktop use does not depend on the
+companion app. Run `tx cam` to request Termux:API camera permission with one
+temporary rear-camera photo, which is deleted after capture. Both commands need
+the `termux-api` package; Android's Termux:API app must come from the same
+installation source as Termux. Without it, use Android Camera and open its
+saved photo from the guest file manager. Termux and Termux:API have separate
+Android permissions.
 
 The Xfce **About → System** page reads CPU model names from `/proc/cpuinfo`.
 Android may expose only ARM part IDs there, so the Ternux launcher supplies
@@ -90,12 +107,12 @@ archx                   # Arch Linux user shell; archroot opens root shell
 fed                     # Fedora user shell; fedr opens root shell
 suse                    # openSUSE user shell; suser opens root shell
 vsh                     # Void user shell; vroot opens root shell
-kal                     # Kali user shell; kalr opens root shell
+kali                    # Kali user shell; kalir opens root shell
 tx distro shell NAME    # Profile user shell (image default for generic guests)
 tx distro exec ubuntu -- uname -a # Run a guest command
 tx distro image-install alpine:latest # Install a generic Alpine shell guest
 tx distro uninstall NAME [--yes]   # Remove a registered Ternux guest
-tx install --distros debian,ubuntu,alpine # Install independent desktop guests
+tx install --distros debian,ubuntu,kali,alpine # Install independent desktop guests
 tx distro image-install alpine:latest # Generic Alpine shell guest
 tx start                 # Start the saved guest desktop
 tx start ubuntu          # Start Ubuntu explicitly

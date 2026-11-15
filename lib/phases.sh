@@ -418,13 +418,17 @@ tnx_phase_debian() {
   local user_name="${1:-ternux}" package_family input_engine=ibus-avro
   [ "$(tnx_distro)" != alpine ] || input_engine=m17n:bn:avro-phonetic
   local resource_dir="${BASH_SOURCE[0]%/*}"
-  local welcome_b64 welcome_gui_b64 window_fit_b64 camera_gui_b64 recorder_gui_b64 flashlight_gui_b64 panel_shortcuts_b64 ternux_assets_b64 proot_bwrap_b64 gtk3_user_css_b64 gtk4_user_css_b64 firefox_installer_b64 resource
-  for resource in ternux-welcome.sh ternux-welcome-gui.py ternux-window-fit.lua ternux-camera.py ternux-recorder.py ternux-flashlight.py ternux-panel-shortcuts.sh ternux-assets/bin/ternux-proot-bwrap ternux-assets/bin/ternux-rasterize-icons ternux-assets/bin/ternux-ibus-session-init ternux-assets/bin/ternux-ibus-next-engine ternux-assets/bin/ternux-window-fit-x11 ternux-assets/bin/ternux-session-bus; do
+  local welcome_b64 welcome_gui_b64 window_fit_b64 camera_gui_b64 recorder_gui_b64 flashlight_gui_b64 panel_shortcuts_b64 ternux_assets_b64 proot_bwrap_b64 gtk3_user_css_b64 gtk4_user_css_b64 firefox_installer_b64 terfetch_b64 resource
+  for resource in ternux-welcome.sh ternux-welcome-gui.py ternux-window-fit.lua ternux-camera.py ternux-recorder.py ternux-flashlight.py ternux-panel-shortcuts.sh ternux-assets/bin/ternux-proot-bwrap ternux-assets/bin/ternux-rasterize-icons ternux-assets/bin/ternux-ibus-session-init ternux-assets/bin/ternux-ibus-next-engine ternux-assets/bin/ternux-window-fit-x11 ternux-assets/bin/ternux-session-bus ternux-assets/bin/ternux-configure-prompt; do
     if [ ! -s "$resource_dir/$resource" ] || [ ! -r "$resource_dir/$resource" ]; then
       tnx_fail "Required Ternux desktop resource is missing or unreadable: $resource_dir/$resource"
       return 1
     fi
   done
+  if [ ! -s "$resource_dir/../share/terfetch/terfetch" ] || [ ! -x "$resource_dir/../share/terfetch/terfetch" ]; then
+    tnx_fail "Standalone Terfetch program is missing or not executable: $resource_dir/../share/terfetch/terfetch"
+    return 1
+  fi
   if [ ! -d "$resource_dir/ternux-assets/icons/Ternux" ] || [ ! -d "$resource_dir/ternux-assets/wallpapers" ] || [ ! -d "$resource_dir/ternux-assets/themes/Ternux" ] || [ ! -d "$resource_dir/ternux-assets/input-methods" ] || [ ! -x "$resource_dir/ternux-assets/bin/ternux-install-avro-m17n" ] || [ ! -s "$resource_dir/ternux-assets/bin/ternux-proot-faccessat-arm64.so" ] || [ ! -s "$resource_dir/ternux-assets/bin/ternux-proot-faccessat.c" ]; then
     tnx_fail "Required Ternux desktop branding assets are missing under $resource_dir/ternux-assets"
     return 1
@@ -441,9 +445,17 @@ tnx_phase_debian() {
   gtk3_user_css_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-assets/themes/Ternux/gtk-3.0/gtk-user.css" | tr -d '\n')" || return 1
   gtk4_user_css_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-assets/themes/Ternux/gtk-4.0/gtk-user.css" | tr -d '\n')" || return 1
   firefox_installer_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-install-firefox-esr.sh" | tr -d '\n')" || return 1
+  terfetch_b64="$(set -o pipefail; base64 < "$resource_dir/../share/terfetch/terfetch" | tr -d '\n')" || return 1
 
   if tnx_debian_installed; then
     tnx_warn "Guest '$(tnx_distro)' already installed; reusing it."
+  elif [ "$(tnx_distro)" = kali ]; then
+    # Termux's packaged proot-distro does not ship a Kali alias. Use Kali's
+    # official rolling OCI image and register it under Ternux's stable name.
+    proot-distro install --name kali kalilinux/kali-rolling:latest || {
+      tnx_fail "Official Kali rolling guest install failed. Check the OCI pull and retry with tx install --resume --distro kali."
+      return 1
+    }
   else
     proot-distro install "$(tnx_distro)" || { tnx_fail "Guest '$(tnx_distro)' install failed."; return 1; }
   fi
@@ -475,7 +487,7 @@ tnx_phase_debian() {
     DPKG_FORCE=\"-o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -o APT::Color=1 -o Dpkg::Progress-Fancy=1 -o Acquire::Retries=3\"
     case \"\$FAMILY\" in
       apt)
-        apt update -o APT::Color=1 -o Acquire::Retries=3
+        timeout --signal=TERM --kill-after=10 300 apt update -o APT::Color=1 -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30
         dpkg --configure -a --force-confold --force-confdef || true
         install_proot_bwrap_shim
         if [ '$(tnx_distro)' = ubuntu ]; then
@@ -483,10 +495,10 @@ tnx_phase_debian() {
           printf 'Package: snapd\nPin: version *\nPin-Priority: -1\n' > /etc/apt/preferences.d/ternux-no-snapd
           apt-mark hold snapd >/dev/null 2>&1 || true
         fi
-        apt install -y -o APT::Install-Recommends=false \$DPKG_FORCE sudo nano ca-certificates mousepad galculator evince fonts-noto-core python3-gi python3-xlib gir1.2-gtk-3.0 ibus ibus-avro devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol x11-utils x11-xkb-utils mesa-utils libgl1-mesa-dri libvulkan1 mesa-vulkan-drivers vulkan-tools adwaita-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc ffmpeg ristretto qt5-gtk-platformtheme colord xdg-utils desktop-file-utils util-linux libglib2.0-bin gsettings-desktop-schemas xfconf
-        apt install -y \$DPKG_FORCE --no-install-recommends synaptic
+        timeout --signal=TERM --kill-after=10 900 apt install -y -o APT::Install-Recommends=false \$DPKG_FORCE -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 sudo nano ca-certificates mousepad galculator evince fonts-noto-core python3-gi python3-xlib gir1.2-gtk-3.0 ibus ibus-gtk3 ibus-gtk4 ibus-avro devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol x11-utils x11-xkb-utils mesa-utils libgl1-mesa-dri libvulkan1 mesa-vulkan-drivers vulkan-tools adwaita-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc ffmpeg ristretto qt5-gtk-platformtheme colord xdg-utils desktop-file-utils util-linux libglib2.0-bin gsettings-desktop-schemas xfconf
+        timeout --signal=TERM --kill-after=10 900 apt install -y \$DPKG_FORCE -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 --no-install-recommends synaptic
         if [ '$(tnx_distro)' = ubuntu ]; then apt-mark hold snapd >/dev/null 2>&1 || true; fi
-        apt remove -y \$DPKG_FORCE guvcview >/dev/null 2>&1 || true
+        timeout --signal=TERM --kill-after=10 900 apt remove -y \$DPKG_FORCE -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 guvcview >/dev/null 2>&1 || true
         ;;
       apk)
         pkg_retry apk update
@@ -497,7 +509,7 @@ tnx_phase_debian() {
           # installing libadwaita. Install it without package hooks first.
           pkg_retry apk add --no-scripts appstream
         fi
-        pkg_retry apk add sudo bash shadow musl-utils nano mousepad galculator evince font-noto python3 py3-xlib py3-gobject3 gtk+3.0 glib ibus dbus-x11 pulseaudio pulseaudio-utils pavucontrol mesa mesa-dri-gallium mesa-utils vulkan-loader vulkan-tools desktop-file-utils xdg-utils xdpyinfo setxkbmap util-linux fontconfig gsettings-desktop-schemas xfconf adwaita-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc ffmpeg ristretto qt5-qtbase colord
+        pkg_retry apk add sudo bash shadow musl-utils nano mousepad galculator evince font-noto python3 py3-xlib py3-gobject3 gtk+3.0 glib ibus ibus-gtk3 ibus-gtk4 dbus-x11 pulseaudio pulseaudio-utils pavucontrol mesa mesa-dri-gallium mesa-utils vulkan-loader vulkan-tools desktop-file-utils xdg-utils xdpyinfo setxkbmap util-linux fontconfig gsettings-desktop-schemas xfconf adwaita-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc ffmpeg ristretto qt5-qtbase colord
         if [ "$(tnx_distro)" = alpine ]; then
           pkg_retry apk add vlc-qt m17n-lib m17n-db font-noto-bengali rsvg-convert xrdb
         fi
@@ -607,6 +619,9 @@ VLC_DESKTOP
     install -m 0755 "\$asset_stage/bin/ternux-ibus-next-engine" /usr/local/bin/ternux-ibus-next-engine
     install -m 0755 "\$asset_stage/bin/ternux-session-bus" /usr/local/bin/ternux-session-bus
     install -m 0755 "\$asset_stage/bin/ternux-window-fit-x11" /usr/local/bin/ternux-window-fit-x11
+    install -m 0755 "\$asset_stage/bin/ternux-configure-prompt" /usr/local/bin/ternux-configure-prompt
+    printf '%s' '$terfetch_b64' | base64 -d > /usr/local/bin/terfetch
+    chmod 0755 /usr/local/bin/terfetch
     rm -rf "\$asset_stage"
     gtk-update-icon-cache -f /usr/share/icons/Ternux >/dev/null 2>&1 || true
     for icon_pair in \
@@ -627,23 +642,23 @@ VLC_DESKTOP
       fi
     done
     if [ "\$FAMILY" = apt ]; then
-      apt install -y \$DPKG_FORCE polkitd || apt install -y \$DPKG_FORCE policykit-1 || true
-      apt install -y \$DPKG_FORCE libvulkan1 vulkan-tools || true
-      apt install -y \$DPKG_FORCE zip unzip xarchiver unrar-free || true
-      apt install -y \$DPKG_FORCE 7zip || apt install -y \$DPKG_FORCE p7zip-full || true
+      timeout --signal=TERM --kill-after=10 900 apt install -y \$DPKG_FORCE -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 polkitd || timeout --signal=TERM --kill-after=10 900 apt install -y \$DPKG_FORCE -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 policykit-1 || true
+      timeout --signal=TERM --kill-after=10 900 apt install -y \$DPKG_FORCE -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 libvulkan1 vulkan-tools || true
+      timeout --signal=TERM --kill-after=10 900 apt install -y \$DPKG_FORCE -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 zip unzip xarchiver unrar-free || true
+      timeout --signal=TERM --kill-after=10 900 apt install -y \$DPKG_FORCE -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 7zip || timeout --signal=TERM --kill-after=10 900 apt install -y \$DPKG_FORCE -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 p7zip-full || true
     fi
     # Every fresh profile gets one usable browser. Ubuntu's archive package is
     # a Snap bridge, so use Mozilla ESR there while Snap remains disabled.
     case "\$FAMILY" in
       apt)
         if [ '$(tnx_distro)' = ubuntu ]; then
-          apt install -y \$DPKG_FORCE curl
+          timeout --signal=TERM --kill-after=10 900 apt install -y \$DPKG_FORCE -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 curl
           printf '%s' '$firefox_installer_b64' | base64 -d | bash
         else
           browser_installed=0
           for browser_package in firefox-esr firefox; do
             browser_candidate=\"\$(apt-cache policy \"\$browser_package\" 2>/dev/null | awk '/^[[:space:]]*Candidate:/ {print \$2; exit}')\"
-            if [ -n "\$browser_candidate" ] && [ "\$browser_candidate" != '(none)' ] && apt install -y \$DPKG_FORCE "\$browser_package"; then browser_installed=1; break; fi
+            if [ -n "\$browser_candidate" ] && [ "\$browser_candidate" != '(none)' ] && timeout --signal=TERM --kill-after=10 900 apt install -y \$DPKG_FORCE -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 "\$browser_package"; then browser_installed=1; break; fi
           done
           [ "\$browser_installed" -eq 1 ] || { echo 'No usable Firefox package candidate is available in this APT guest.' >&2; exit 1; }
         fi
@@ -654,6 +669,12 @@ VLC_DESKTOP
       zypper) pkg_retry zypper --non-interactive install -y MozillaFirefox ;;
       xbps) pkg_retry xbps-install -Sy firefox ;;
     esac
+    if [ '$(tnx_distro)' = kali ]; then
+      timeout --signal=TERM --kill-after=10 900 apt install -y --no-install-recommends \$DPKG_FORCE -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 nmap sqlmap hydra john gobuster nikto whois netcat-traditional || {
+        echo 'Kali security-tool setup did not finish; resume with tx install --resume --distro kali.' >&2
+        exit 1
+      }
+    fi
   " || { tnx_fail "Desktop package installation failed."; return 1; }
 
   tnx_guest_login --shared-tmp -- bash -c "
@@ -677,6 +698,7 @@ VLC_DESKTOP
     fi
     rm -f \"\$T\"
     H=\"\$(getent passwd \"\$U\" | cut -d: -f6)\"
+    /usr/local/bin/ternux-configure-prompt '$(tnx_distro)' "\$H" /root
     gtk_theme_install_override() {
       gtk_theme_version=\"\$1\"
       gtk_theme_payload=\"\$2\"
@@ -1123,7 +1145,7 @@ tnx_phase_gpu() {
     (cd "\$notice_dest" && sha256sum -c SHA256SUMS)
     find "\$notice_dest" -type d -exec chmod 0755 {} +
     find "\$notice_dest" -type f -exec chmod 0644 {} +
-    apt install -y -o APT::Color=1 -o Dpkg::Progress-Fancy=1 libvulkan1 || true
+    timeout --signal=TERM --kill-after=10 900 apt install -y -o APT::Color=1 -o Dpkg::Progress-Fancy=1 -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 libvulkan1 || true
     tar -xzf /tmp/mesa-freedreno.tar.gz -C \"\$stage\" --wildcards \
       \"*/usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so\" \
       \"*/usr/share/vulkan/icd.d/freedreno_icd.aarch64.json\"
@@ -1166,6 +1188,9 @@ tnx_phase_gpu() {
 tnx_freedreno_asset_name() {
   local distro="${1:-$(tnx_distro)}" id="${2:-}" version="${3:-}" codename="${4:-}" asset=""
   case "$distro:$id:$codename" in
+    # Kali Rolling reports Debian-compatible glibc 2.43 and passed live
+    # Vulkan/GLX checks with this pinned Debian Testing userspace overlay.
+    kali:kali:kali-rolling) asset='mesa-for-android-container_27.0.0-devel-20261025-r2_debian_testing_arm64.tar.gz' ;;
     debian:debian:trixie) asset='mesa-for-android-container_27.0.0-devel-20261025-r2_debian_trixie_arm64.tar.gz' ;;
     debian:debian:*) [ "$codename" = testing ] && asset='mesa-for-android-container_27.0.0-devel-20261025-r2_debian_testing_arm64.tar.gz' ;;
     ubuntu:ubuntu:noble) asset='mesa-for-android-container_27.0.0-devel-20261025-r2_ubuntu_noble_arm64.tar.gz' ;;
@@ -1309,6 +1334,7 @@ tnx_request_microphone_permission() {
   local recorder="termux-microphone-record"
   local tmpdir="${TMPDIR:-/data/data/com.termux/files/usr/tmp}"
   local probe_dir probe info="" active=0 attempt output_file record_rc=1
+  _TNX_MIC_PERMISSION_RESULT=unavailable
 
   if ! tnx_termux_api_app_installed; then
     tnx_info "Termux:API companion app is not installed; skipping its optional microphone permission probe. Desktop live microphone access uses Termux's built-in audio bridge and requests Termux permission when first used."
@@ -1329,6 +1355,7 @@ tnx_request_microphone_permission() {
     return 0
   fi
   if printf '%s' "$info" | grep -Eq '"isRecording"[[:space:]]*:[[:space:]]*true'; then
+    _TNX_MIC_PERMISSION_RESULT=busy
     tnx_info "Termux:API is already recording; leaving the existing recording untouched."
     return 0
   fi
@@ -1356,8 +1383,10 @@ tnx_request_microphone_permission() {
 
   if [ "$active" -eq 1 ]; then
     if "$recorder" -q >/dev/null 2>&1; then
+      _TNX_MIC_PERMISSION_RESULT=granted
       tnx_ok "Termux:API microphone permission is available; the permission probe was stopped."
     else
+      _TNX_MIC_PERMISSION_RESULT=granted
       tnx_warn "Microphone permission was confirmed, but the temporary API recording did not stop cleanly."
     fi
   else
@@ -1371,12 +1400,15 @@ tnx_request_microphone_permission() {
       active=1
     fi
     if [ "$active" -eq 1 ]; then
+      _TNX_MIC_PERMISSION_RESULT=granted
       tnx_ok "Termux:API microphone permission is available; the permission probe was stopped."
     elif [ "$record_rc" -eq 0 ] && [ -s "$probe" ]; then
+      _TNX_MIC_PERMISSION_RESULT=granted
       # A one-second capture can finish before the first status poll. A non-empty
       # file at this unique path confirms our bounded probe completed.
       tnx_ok "Termux:API microphone permission is available; the bounded probe completed."
     else
+      _TNX_MIC_PERMISSION_RESULT=denied
       tnx_warn "Termux:API microphone permission was not confirmed; installation continues without API microphone access."
     fi
   fi
@@ -1387,8 +1419,9 @@ tnx_request_microphone_permission() {
 }
 
 tnx_request_camera_permission() {
-  local camera="termux-camera-photo" tmpdir="${TMPDIR:-/data/data/com.termux/files/usr/tmp}"
+  local camera="termux-camera-photo" tmpdir="${TMPDIR:-/data/data/com.termux/files/usr/tmp}" explicit="${1:-0}"
   local probe_dir probe capture_rc=1
+  _TNX_CAMERA_PERMISSION_RESULT=unavailable
 
   if ! tnx_termux_api_app_installed; then
     tnx_info "Termux:API companion app is not installed; skipping the camera permission prompt. Use Android Camera and open /sdcard/DCIM/Camera in Thunar, or install Termux:API for Ternux Camera."
@@ -1397,15 +1430,20 @@ tnx_request_camera_permission() {
   # Camera permission can only be requested by Termux:API while opening the
   # camera. Be explicit because Android permission flow captures one photo.
   # Batch installs and redirected stdin never capture without a person's opt-in.
-  if [ "${TERNUX_YES:-0}" = "1" ] || [ ! -t 0 ]; then
+  if [ "$explicit" != 1 ] && { [ "${TERNUX_YES:-0}" = "1" ] || [ ! -t 0 ]; }; then
     tnx_info "Camera permission prompt skipped for unattended install; it will be requested on first camera use."
+    return 0
+  fi
+  if [ "$explicit" = 1 ] && [ ! -t 0 ]; then
+    tnx_warn "Camera permission needs an interactive Termux session so Android's prompt can be handled."
+    _TNX_CAMERA_PERMISSION_RESULT=interactive_required
     return 0
   fi
   if ! tnx_has_cmd "$camera" || ! tnx_has_cmd timeout; then
     tnx_warn "Termux:API camera or timeout is unavailable; camera permission will be requested on first camera use."
     return 0
   fi
-  if ! tnx_confirm "Take one temporary photo to show Android's camera permission prompt? The photo will be deleted immediately." no; then
+  if [ "$explicit" != 1 ] && ! tnx_confirm "Take one temporary photo to show Android's camera permission prompt? The photo will be deleted immediately." no; then
     tnx_info "Camera permission prompt deferred; installation continues."
     return 0
   fi
@@ -1420,8 +1458,10 @@ tnx_request_camera_permission() {
   rm -f -- "$probe" 2>/dev/null || true
   rmdir -- "$probe_dir" 2>/dev/null || true
   if [ "$capture_rc" -eq 0 ]; then
+    _TNX_CAMERA_PERMISSION_RESULT=granted
     tnx_ok "Camera permission is available; the temporary photo was deleted."
   else
+    _TNX_CAMERA_PERMISSION_RESULT=denied
     tnx_warn "Camera permission was not confirmed; installation continues and the prompt can appear on first camera use."
   fi
   return 0
@@ -1715,6 +1755,10 @@ cat > "$TNX_GUEST_SESSION_SCRIPT" <<'TERNUX_GUEST_EOF'
 #!/usr/bin/env bash
 set -u
 export HOME="/home/${TERNUX_GUEST_USER:-ternux}"
+if [ "${GALLIUM_DRIVER:-}" = virpipe ]; then
+  # Keep an inherited Zink/Vulkan selection from shadowing the VirGL route.
+  unset MESA_LOADER_DRIVER_OVERRIDE VK_DRIVER_FILES VK_ICD_FILENAMES LIBGL_DRIVERS_PATH
+fi
 export GTK_IM_MODULE=ibus QT_IM_MODULE=ibus QT_QPA_PLATFORMTHEME=gtk3 XMODIFIERS=@im=ibus
 export GTK_THEME=Ternux
 if [ -r /etc/ternux/mesa-overlay ]; then
@@ -1761,12 +1805,15 @@ exec /usr/local/bin/ternux-session-bus bash -c '
   set -u
   until xdpyinfo -display "$DISPLAY" >/dev/null 2>&1; do sleep 0.1; done
   if [ "${GALLIUM_DRIVER:-}" = virpipe ]; then
-    renderer_info="$(timeout 5s glxinfo -B 2>&1)" || renderer_info=""
-    if ! printf "%s\n" "$renderer_info" | grep -Eqi "OpenGL renderer string:.*virgl"; then
+    # The glxinfo X_GetImage check fails on some Termux:X11 VirGL displays even
+    # when a real GLX app renders correctly. Query the renderer from a short,
+    # actual GLX client instead of treating that diagnostic failure as proof.
+    renderer_info="$(timeout 5s glxgears -info 2>&1 || true)"
+    if ! printf "%s\n" "$renderer_info" | grep -Eqi "GL_RENDERER[[:space:]]*=[[:space:]]*virgl"; then
       echo "WARNING: VirGL preflight failed; starting the desktop with Mesa software rendering instead."
-      export GALLIUM_DRIVER=llvmpipe LIBGL_ALWAYS_SOFTWARE=1
+      export GALLIUM_DRIVER=llvmpipe LIBGL_ALWAYS_SOFTWARE=1 MESA_LOADER_DRIVER_OVERRIDE=llvmpipe
     else
-      printf "%s\n" "$renderer_info" | grep -i "OpenGL renderer string:" | head -n 1
+      printf "%s\n" "$renderer_info" | grep -i "GL_RENDERER[[:space:]]*=" | head -n 1
     fi
   fi
   # --replace targets the selected account session bus; process-wide pkill would
@@ -1900,6 +1947,7 @@ guest_login_isolated $distro --bind "\$VIRGL_SOCKET:/tmp/.virgl_test" --bind "\$
   --env DISPLAY=__TNX_DISPLAY__ --env PULSE_SERVER="tcp:127.0.0.1:\$PULSE_PORT" \\
   --env TERNUX_GUEST_USER=$user_name --env TERNUX_READY_FILE=/tmp/ternux-desktop-ready \\
   --env GALLIUM_DRIVER=virpipe --env MESA_GL_VERSION_OVERRIDE=4.3COMPAT \\
+  --env MESA_GLES_VERSION_OVERRIDE=3.2 --env MESA_NO_ERROR=1 --env LIBGL_DRI3_DISABLE=1 \\
   --env QT_X11_NO_MITSHM=1 --env XDG_RUNTIME_DIR=/home/$user_name/.runtime \\
   --env LANG=$locale --env LC_ALL=$locale \\
   -- /tmp/ternux-desktop-session.sh
@@ -1960,6 +2008,38 @@ P10KEOF
   tnx_ok "zsh theme installed (powerlevel10k)"
 }
 
+_tnx_install_terfetch_hook() {
+  local rc_file="$1" rc_dir rc_mode rc_tmp
+  [ ! -L "$rc_file" ] || { tnx_fail "Refusing symlinked shell configuration: $rc_file"; return 1; }
+  [ -e "$rc_file" ] || : > "$rc_file"
+  [ -f "$rc_file" ] || { tnx_fail "Shell configuration is not a regular file: $rc_file"; return 1; }
+  rc_dir="$(dirname -- "$rc_file")"
+  rc_mode="$(stat -c '%a' "$rc_file" 2>/dev/null || echo 600)"
+  rc_tmp="$(umask 077; mktemp "$rc_dir/.ternux-terfetch.XXXXXX")" || return 1
+  if ! awk '
+    /^# TERNUX TERFETCH START BEGIN$/ { if (skip) exit 2; skip=1; next }
+    /^# TERNUX TERFETCH START END$/ && skip { skip=0; next }
+    !skip { print }
+    END { if (skip) exit 2 }
+  ' "$rc_file" > "$rc_tmp"; then
+    rm -f -- "$rc_tmp"
+    tnx_fail "Existing Terfetch startup block is malformed; preserving $rc_file."
+    return 1
+  fi
+  cat >> "$rc_tmp" <<'TERFETCHEOF'
+
+# TERNUX TERFETCH START BEGIN
+if [[ $- == *i* ]] && [[ -z ${TERFETCH_NO_AUTORUN:-} ]] && command -v terfetch >/dev/null 2>&1; then
+  terfetch
+fi
+# TERNUX TERFETCH START END
+TERFETCHEOF
+  chmod "$rc_mode" "$rc_tmp" && mv -f -- "$rc_tmp" "$rc_file" || {
+    rm -f -- "$rc_tmp"
+    return 1
+  }
+}
+
 tnx_phase_aliases() {
   local user_name="${1:-ternux}" shell_choice="${2:-bash}"
   local distro; distro="$(tnx_distro)"
@@ -1998,7 +2078,6 @@ tnx_phase_aliases() {
 
 # ==== TERNUX ALIASES ====
 alias tx='ternux'
-alias x='ternux start'
 alias killx='ternux stop'
 _ternux_guest_login() {
   [ -z "\${ZSH_VERSION:-}" ] || emulate -L bash
@@ -2051,15 +2130,29 @@ suse() { _ternux_guest_login opensuse --shared-tmp --user "\$(_ternux_guest_user
 suser() { _ternux_guest_login opensuse --shared-tmp "\$@"; }
 vsh() { _ternux_guest_login void --shared-tmp --user "\$(_ternux_guest_user void)" "\$@"; }
 vroot() { _ternux_guest_login void --shared-tmp "\$@"; }
-kal() { _ternux_guest_login kali --shared-tmp --user "\$(_ternux_guest_user kali)" "\$@"; }
-kalr() { _ternux_guest_login kali --shared-tmp "\$@"; }
+kali() { _ternux_guest_login kali --shared-tmp --user "\$(_ternux_guest_user kali)" "\$@"; }
+kalir() { _ternux_guest_login kali --shared-tmp "\$@"; }
+kaliroot() { kalir "\$@"; }
 _ternux_xgo() {
   [ -z "\${ZSH_VERSION:-}" ] || emulate -L bash
-  local -a installed=() selectable=()
-  local distro choice label i=0
+  local -a installed=() selectable=() discovered=()
+  local distro choice label i=0 seen
   while IFS= read -r distro; do
     [ -n "\$distro" ] || continue
+    discovered+=("\$distro")
+  done < <(proot-distro list --quiet 2>/dev/null)
+  # Number known desktop profiles in the same stable order as tx distro list.
+  for distro in ${gui_profiles}; do
+    for seen in "\${discovered[@]}"; do
+      [ "\$seen" = "\$distro" ] && { installed+=("\$distro"); break; }
+    done
+  done
+  # Keep arbitrary OCI guests available after named desktop profiles.
+  for distro in "\${discovered[@]}"; do
+    case " ${gui_profiles} " in *" \$distro "*) continue ;; esac
     installed+=("\$distro")
+  done
+  for distro in "\${installed[@]}"; do
     case " ${gui_profiles} " in
       *" \$distro "*)
         if grep -qx 'status=ready' "\$HOME/.local/share/ternux/distros/\$distro/profile" 2>/dev/null ||
@@ -2067,7 +2160,7 @@ _ternux_xgo() {
           selectable+=("\$distro")
         fi ;;
     esac
-  done < <(proot-distro list --quiet 2>/dev/null)
+  done
   if [ \${#installed[@]} -eq 0 ]; then
     printf 'No Ternux guest is installed. Run: tx install\n' >&2; return 1
   fi
@@ -2099,7 +2192,7 @@ _ternux_xgo() {
     done
   fi
   case " ${gui_profiles} " in
-    *" \$choice "*) ternux start "\$choice" ;;
+    *" \$choice "*) tx start "\$choice" ;;
     *) printf "Guest '%s' is installed, but Ternux has no desktop recipe for it yet. Open a shell with: tx distro shell %s\n" "\$choice" "\$choice" >&2; return 1 ;;
   esac
 }
@@ -2108,7 +2201,10 @@ clean-mesa() { _ternux_guest_login "\$distro" --user "\$user_name" -- bash -c 'r
 sysmon() { echo "--- CPU & Memory ---"; free -h; echo ""; echo "--- GPU / KGSL ---"; ls -l /dev/kgsl-3d0 /dev/dri 2>/dev/null || echo "No GPU nodes."; }
 # ==== END TERNUX ALIASES ====
 ALIASEOF
-  tnx_ok "Aliases installed: tx, x, xgo, killx, distro user/root shells (including dbroot/ubroot/alproot), sysmon"
+  touch "$HOME/.hushlogin"
+  _tnx_install_terfetch_hook "$HOME/.bashrc" || return 1
+  _tnx_install_terfetch_hook "$HOME/.zshrc" || return 1
+  tnx_ok "Aliases installed: tx, xgo, killx, distro user/root shells (including dbroot/ubroot/alproot), sysmon"
 }
 
 # ---------------------------------------------------------------------------
@@ -2233,7 +2329,9 @@ tnx_phase_extras() {
     if ! tnx_guest_login --shared-tmp --user "$user_name" -- bash -s -- "${unique_packages[@]}" <<'TNX_APT_OPTIONAL_INSTALL'
 set -u
 export DEBIAN_FRONTEND=noninteractive
-sudo apt update -o APT::Color=1 || exit 1
+APT_NETWORK="-o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30"
+apt_run() { timeout --signal=TERM --kill-after=10 900 sudo DEBIAN_FRONTEND=noninteractive apt "$@" $APT_NETWORK; }
+timeout --signal=TERM --kill-after=10 300 sudo apt update -o APT::Color=1 $APT_NETWORK || exit 1
 failed=0
 for package in "$@"; do
   candidate="$(apt-cache policy "$package" 2>/dev/null | awk '/^[[:space:]]*Candidate:/ {print $2; exit}')"
@@ -2242,7 +2340,7 @@ for package in "$@"; do
     failed=1
     continue
   fi
-  if ! sudo DEBIAN_FRONTEND=noninteractive apt install -y -o APT::Color=1 -o Dpkg::Progress-Fancy=1 "$package"; then
+  if ! apt_run install -y -o APT::Color=1 -o Dpkg::Progress-Fancy=1 "$package"; then
     printf 'Ternux: optional package %s failed; continuing with the remaining selections.\n' "$package" >&2
     failed=1
   fi
@@ -2334,7 +2432,7 @@ TNX_APT_OPTIONAL_INSTALL
         ;;
       stable-diffusion)
         if ! tnx_guest_login --shared-tmp --user "$user_name" -- bash -lc \
-          'sudo apt update -o APT::Color=1 && sudo DEBIAN_FRONTEND=noninteractive apt install -y -o Dpkg::Progress-Fancy=1 libgomp1 libvulkan1'; then
+          'timeout --signal=TERM --kill-after=10 300 sudo apt update -o APT::Color=1 -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 && timeout --signal=TERM --kill-after=10 900 sudo DEBIAN_FRONTEND=noninteractive apt install -y -o Dpkg::Progress-Fancy=1 -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 libgomp1 libvulkan1'; then
           tnx_warn "Stable Diffusion runtime dependencies could not be installed."; rc=1
         elif [ -f "${_TNX_SRC:-}/lib/extension.sh" ] && ( . "${_TNX_SRC}/lib/extension.sh"; tnx_cmd_extension install "$opt" ); then
           tnx_ok "stable-diffusion release installed and validated"
@@ -2526,8 +2624,8 @@ tnx_phase_cli() {
   local prefix="${PREFIX:-/data/data/com.termux/files/usr}"
   local bin_dir="$prefix/bin" lib_dir="$prefix/lib/ternux"
   local cli_src="" tx_src="" try="" try_tx="" cleanup_dir="" archive="" listing=""
-  local root_name="" source_root="" resource_root="" source_lib_dir="" local_lib="" shortcut_src="" shortcut="" shortcut_tmp=""
-  local source_commit="${TERNUX_SOURCE_COMMIT:-}" source_sha256="${TERNUX_SOURCE_SHA256:-}"
+  local root_name="" source_root="" resource_root="" source_lib_dir="" local_lib="" terfetch_src="" shortcut_src="" shortcut="" shortcut_tmp="" obsolete_shortcut="" obsolete_path=""
+  local source_commit="${TERNUX_SOURCE_COMMIT:-}" source_sha256="${TERNUX_SOURCE_SHA256:-}" terfetch_available=0
 
   # APT owns the packaged CLI files. Keep dpkg's file inventory consistent;
   # package upgrades are handled by the configured APT repository.
@@ -2544,14 +2642,18 @@ tnx_phase_cli() {
           tnx_fail "APT-managed short command is missing or stale. Repair with: pkg reinstall ternux"
           return 1
         fi
-        for shortcut in db dbr dbroot ub ubr ubroot alp alpr alproot; do
+        for shortcut in db dbr dbroot ub ubr ubroot kali kalir kaliroot alp alpr alproot; do
           if [ ! -x "$bin_dir/$shortcut" ] ||
              ! grep -qx '# TERNUX_GUEST_SHELL_SHORTCUT=1' "$bin_dir/$shortcut" 2>/dev/null; then
             tnx_fail "APT-managed guest shell shortcut '$shortcut' is missing or stale. Repair with: pkg reinstall ternux"
             return 1
           fi
         done
-        tnx_ok "APT-managed Ternux CLI and tx command are installed and version-verified: ${TERNUX_VERSION}"
+        if [ ! -x "$bin_dir/terfetch" ] || ! grep -qx '# TERNUX_TERFETCH=1' "$bin_dir/terfetch" 2>/dev/null; then
+          tnx_fail "APT-managed Terfetch command is missing or stale. Upgrade or reinstall the ternux package."
+          return 1
+        fi
+        tnx_ok "APT-managed Ternux CLI, tx, and Terfetch are installed and version-verified: ${TERNUX_VERSION}"
         return 0 ;;
       *)
         tnx_fail "APT-managed CLI version mismatch (${managed_version}). Upgrade or reinstall with: pkg upgrade ternux"
@@ -2653,6 +2755,7 @@ TX_WRAPPER
 
   source_lib_dir="$(dirname "$cli_src")/../lib"
   resource_root="$(cd "$source_lib_dir" 2>/dev/null && pwd -P)"
+  terfetch_src="$(dirname "$source_lib_dir")/share/terfetch/terfetch"
   local source_libs=("$source_lib_dir/"*.sh)
   mkdir -p "$bin_dir" "$lib_dir" || {
     tnx_fail "Could not create the host CLI directories."
@@ -2664,6 +2767,16 @@ TX_WRAPPER
     tnx_fail "CLI source snapshot is incomplete or failed shell syntax validation."
     [ -n "$cleanup_dir" ] && rm -rf "$cleanup_dir"
     return 1
+  fi
+  if [ -e "$terfetch_src" ]; then
+    if [ ! -s "$terfetch_src" ] || [ ! -x "$terfetch_src" ] || ! bash -n "$terfetch_src" 2>/dev/null; then
+      tnx_fail "Standalone Terfetch source is not executable or invalid: $terfetch_src"
+      [ -n "$cleanup_dir" ] && rm -rf "$cleanup_dir"
+      return 1
+    fi
+    terfetch_available=1
+  else
+    tnx_warn "Verified legacy CLI source predates Terfetch; keeping the existing host command unchanged."
   fi
   for local_lib in "${source_libs[@]}"; do
     if ! bash -n "$local_lib" 2>/dev/null; then
@@ -2710,6 +2823,18 @@ TX_WRAPPER
         return 1
       }
   fi
+  if [ "$terfetch_available" = 1 ]; then
+    if [ -e "$bin_dir/terfetch" ] &&
+       { [ ! -f "$bin_dir/terfetch" ] || ! grep -qx '# TERNUX_TERFETCH=1' "$bin_dir/terfetch" 2>/dev/null; }; then
+      tnx_warn "Preserving the existing command at $bin_dir/terfetch; Terfetch was not replaced."
+    else
+      install -m 755 "$terfetch_src" "$bin_dir/terfetch" || {
+        tnx_fail "Could not install standalone Terfetch."
+        [ -n "$cleanup_dir" ] && rm -rf "$cleanup_dir"
+        return 1
+      }
+    fi
+  fi
   if ! install -m 755 "$cli_src" "$bin_dir/ternux" 2>/dev/null; then
     tnx_fail "Could not install the host CLI."
     [ -n "$cleanup_dir" ] && rm -rf "$cleanup_dir"
@@ -2721,7 +2846,7 @@ TX_WRAPPER
     return 1
   fi
   if [ -s "$shortcut_src" ]; then
-    for shortcut in db dbr dbroot ub ubr ubroot alp alpr alproot; do
+    for shortcut in db dbr dbroot ub ubr ubroot kali kalir kaliroot alp alpr alproot; do
       if [ -e "$bin_dir/$shortcut" ] || [ -L "$bin_dir/$shortcut" ]; then
         if [ -L "$bin_dir/$shortcut" ] || [ ! -f "$bin_dir/$shortcut" ] ||
            ! grep -qx '# TERNUX_GUEST_SHELL_SHORTCUT=1' "$bin_dir/$shortcut"; then
@@ -2740,6 +2865,14 @@ TX_WRAPPER
       fi
     done
   fi
+  # Retire the old Kali user alias: `kali` is already short enough and is the
+  # canonical name used everywhere else. Remove only files we own.
+  for obsolete_shortcut in kal kalr kalroot; do
+    obsolete_path="$bin_dir/$obsolete_shortcut"
+    if [ -f "$obsolete_path" ] && grep -qx '# TERNUX_GUEST_SHELL_SHORTCUT=1' "$obsolete_path"; then
+      rm -f -- "$obsolete_path" || { tnx_fail "Could not remove obsolete managed shortcut: $obsolete_path"; return 1; }
+    fi
+  done
   [ -n "$cleanup_dir" ] && rm -rf "$cleanup_dir"
 
   # File existence is not enough: execute the exact installed path so the

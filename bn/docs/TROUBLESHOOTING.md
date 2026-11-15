@@ -90,13 +90,13 @@ battery drain হলে reverse করুন। `ternux doctor` readable setting
 
 <h2 id="black-screen-in-termuxx11">Termux:X11-এ কালো স্ক্রিন</h2>
 
-**লক্ষণ:** `x` কমান্ড চলে, কিন্তু Termux:X11-এ কালো বা খালি উইন্ডো।
+**লক্ষণ:** `tx start` চলে, কিন্তু Termux:X11-এ কালো বা খালি উইন্ডো।
 
 **কারণ (সম্ভাবনার ক্রমে):**
 
 1. Termux:X11 **অ্যাপটি একবারও খোলা হয়নি** — ডিসপ্লে সার্ভিসের অনুমতি
    পেতে Android-এর সেই প্রথম লঞ্চ দরকার।
-2. ক্র্যাশ হওয়া সেশনের **পুরনো সকেট** — `x` সাধারণত পরিষ্কার করে, কিন্তু
+2. ক্র্যাশ হওয়া সেশনের **পুরনো সকেট** — `tx start` সাধারণত পরিষ্কার করে, কিন্তু
    হার্ড-কিল করলে থেকে যেতে পারে।
 3. ডিসপ্লে চালুর পর Xfce4 ক্র্যাশ করেছে।
 
@@ -105,7 +105,7 @@ battery drain হলে reverse করুন। `ternux doctor` readable setting
 ```bash
 killx
 # Termux:X11 অ্যাপটি একবার খুলুন, তারপর:
-x
+tx start
 ```
 
 তবু ব্যর্থ হলে `ternux repair` চালান — এটি ডিসপ্লে প্যাকেজ,
@@ -178,7 +178,7 @@ asset unreachable/incompatible হলে সচেতনভাবে
 
 ```bash
 # ১. অডিও ব্রিজ রিস্টার্ট করুন — লঞ্চার প্রতিটি শুরুতে এটি আবার বানায়:
-killx && x
+killx && tx start
 
 # ২. তবু নীরব? Termux-এ হোস্ট-পাশের ডেমন চেক করুন:
 pulseaudio --start --exit-idle-time=-1
@@ -240,7 +240,7 @@ File পরে regenerate হতে পারে। Public resolver ব্যব
 **সমাধান:**
 
 1. Termux:X11 অ্যাপ খুলুন, এক সেকেন্ড রেখে আবার Termux-এ ফিরুন।
-2. `killx && x`
+2. `killx && tx start`
 3. তবু আটকে? ডিসপ্লে প্যাকেজ রি-ইনস্টল করুন:
    `pkg reinstall termux-x11-nightly -y`
 
@@ -248,7 +248,7 @@ File পরে regenerate হতে পারে। Public resolver ব্যব
 
 <h2 id="proot-distro-says-option--c-is-unrecognized">proot-distro <code>-c</code> option চেনে না</h2>
 
-**লক্ষণ:** `x` চালালে `Error: unrecognized option: '-c'.` ও proot-distro usage।
+**লক্ষণ:** `tx start` চালালে `Error: unrecognized option: '-c'.` ও proot-distro usage।
 
 **কারণ:** proot-distro 5.x container name ও guest command-এর মাঝে `--` চায়;
 পুরনো launcher separator ছাড়া `bash -c` পাঠায়। শুধু visible `-c` patch করবেন
@@ -256,7 +256,7 @@ File পরে regenerate হতে পারে। Public resolver ব্যব
 
 ```bash
 ternux repair   # saved user, locale ও backend দিয়ে launcher regenerate
-x
+tx start
 ```
 
 Launcher phase complete হিসেবে recorded থাকলে `bash install.sh --resume`

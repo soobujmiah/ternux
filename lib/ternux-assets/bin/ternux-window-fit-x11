@@ -23,6 +23,30 @@ Xatom_CARDINAL = None
 _fit_signatures: dict[int, tuple[object, ...]] = {}
 
 
+def fitted_geometry(
+    outer_width: int,
+    outer_height: int,
+    area_x: int,
+    area_y: int,
+    area_width: int,
+    area_height: int,
+    margin: int = 4,
+    maximized_horizontally: bool = False,
+    maximized_vertically: bool = False,
+) -> tuple[int, int, int, int]:
+    """Fit a decorated window in the work area and center it on the screen."""
+    margin = max(0, margin)
+    max_width = max(1, area_width - margin * 2)
+    max_height = max(1, area_height - margin * 2)
+    width = max_width if maximized_horizontally else min(max(1, outer_width), max_width)
+    height = max_height if maximized_vertically else min(max(1, outer_height), max_height)
+    x = area_x + margin if maximized_horizontally else area_x + (area_width - width) // 2
+    y = area_y + margin if maximized_vertically else area_y + (area_height - height) // 2
+    x = min(max(x, area_x + margin), area_x + area_width - margin - width)
+    y = min(max(y, area_y + margin), area_y + area_height - margin - height)
+    return x, y, width, height
+
+
 def atoms(window, atom: int) -> set[int]:
     value = window.get_full_property(atom, X.AnyPropertyType)
     return set(value.value) if value is not None else set()
@@ -31,6 +55,12 @@ def atoms(window, atom: int) -> set[int]:
 def window_ids(window, atom: int) -> list[int]:
     value = window.get_full_property(atom, X.AnyPropertyType)
     return list(value.value) if value is not None else []
+
+
+def root_dimensions(root) -> tuple[int, int]:
+    """Read live root geometry; Xlib's Display.screen() size is cached."""
+    geometry = root.get_geometry()
+    return int(geometry.width), int(geometry.height)
 
 
 def main() -> int:
@@ -61,8 +91,11 @@ def main() -> int:
     }
 
     def work_area() -> tuple[int, int, int, int]:
-        screen = dpy.screen()
-        screen_width, screen_height = screen.width_in_pixels, screen.height_in_pixels
+        # Termux:X11 can resize the root window after this watcher connects.
+        # Display.screen() caches the dimensions from connection time, so use
+        # a fresh root geometry query or an old viewport will keep constraining
+        # every application to the top-left portion of the new screen.
+        screen_width, screen_height = root_dimensions(root)
         desktops = cardinals(root, atoms_by_name["_NET_WORKAREA"])
         current = cardinals(root, atoms_by_name["_NET_CURRENT_DESKTOP"])
         index = current[0] if current else 0
@@ -93,7 +126,7 @@ def main() -> int:
         for client_id in window_ids(root, atoms_by_name["_NET_CLIENT_LIST"]):
             fit(client_id)
 
-    def fit(window_id: int) -> None:
+    def fit(window_id: int, force: bool = False) -> None:
         try:
             # Substructure notifications include XFWM's decoration windows.
             # Only act on EWMH client windows, or the watcher can resize a
@@ -136,21 +169,20 @@ def main() -> int:
                 tuple(sorted(state)), x, y, area_width, area_height,
                 maximized_horizontally, maximized_vertically,
             )
-            if _fit_signatures.get(window_id) == signature:
+            if not force and _fit_signatures.get(window_id) == signature:
                 return
             _fit_signatures[window_id] = signature
-            max_outer_width = max(1, area_width - margin * 2)
-            max_outer_height = max(1, area_height - margin * 2)
-            if maximized_horizontally and x <= outer_x and outer_x + outer_width <= x + area_width:
-                new_outer_width, new_x = outer_width, outer_x
-            else:
-                new_outer_width = min(outer_width, max_outer_width)
-                new_x = min(max(outer_x, x + margin), x + area_width - margin - new_outer_width)
-            if maximized_vertically and y <= outer_y and outer_y + outer_height <= y + area_height:
-                new_outer_height, new_y = outer_height, outer_y
-            else:
-                new_outer_height = min(outer_height, max_outer_height)
-                new_y = min(max(outer_y, y + margin), y + area_height - margin - new_outer_height)
+            new_x, new_y, new_outer_width, new_outer_height = fitted_geometry(
+                outer_width,
+                outer_height,
+                x,
+                y,
+                area_width,
+                area_height,
+                margin,
+                maximized_horizontally,
+                maximized_vertically,
+            )
 
             if (new_x, new_y, new_outer_width, new_outer_height) == (
                 outer_x,
@@ -172,7 +204,8 @@ def main() -> int:
             dpy.flush()
             print(
                 f"Ternux window-fit: constrained 0x{window_id:x} to "
-                f"{new_outer_width}x{new_outer_height}+{new_x}+{new_y}",
+                f"{new_outer_width}x{new_outer_height}+{new_x}+{new_y} "
+                f"in {area_width}x{area_height}+{x}+{y}",
                 file=sys.stderr,
                 flush=True,
             )
@@ -188,8 +221,13 @@ def main() -> int:
         event = dpy.next_event()
         if event.type == X.MapNotify:
             time.sleep(0.2)
-            fit(event.window.id)
+            # XIDs are reused after an app closes. Force a first-fit on every
+            # new map even if a previous window with the same ID had an
+            # identical size and work area.
+            fit(event.window.id, force=True)
             fit_clients()
+        elif event.type == X.DestroyNotify:
+            _fit_signatures.pop(event.window.id, None)
         elif event.type == X.ConfigureNotify and event.window.id == root.id:
             time.sleep(0.2)
             fit_clients()

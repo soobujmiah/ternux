@@ -1,0 +1,126 @@
+#!/usr/bin/env bash
+# TERNUX_TERFETCH=1
+# Terfetch: a small, dependency-light system summary for Android/Termux/Linux.
+set -uo pipefail
+
+TERFETCH_VERSION='0.1.0'
+
+usage() {
+  cat <<'EOF'
+terfetch - Ternux system summary
+
+Usage: terfetch [--json|--version|--help]
+
+Options:
+  --json      Print machine-readable JSON
+  --version   Print the Terfetch version
+  --help      Show this help
+EOF
+}
+
+case "${1:-}" in
+  --version|-V) printf 'terfetch %s\n' "$TERFETCH_VERSION"; exit 0 ;;
+  --help|-h) usage; exit 0 ;;
+  ''|--json) ;;
+  *) usage >&2; exit 2 ;;
+esac
+
+read_prop() {
+  command -v getprop >/dev/null 2>&1 && getprop "$1" 2>/dev/null | head -n 1 || true
+}
+
+host_termux=0
+if [ -n "${PREFIX:-}" ] && [ -x "${PREFIX}/bin/termux-info" ]; then
+  host_termux=1
+elif command -v getprop >/dev/null 2>&1 && command -v pkg >/dev/null 2>&1; then
+  host_termux=1
+fi
+
+distro=''
+if [ -r /etc/ternux-distro ]; then
+  IFS= read -r distro < /etc/ternux-distro || true
+fi
+
+if [ -n "$distro" ] && [ -r /etc/os-release ]; then
+  . /etc/os-release
+  system_name="${PRETTY_NAME:-${NAME:-$distro}}"
+  environment='Ternux guest'
+elif [ "$host_termux" -eq 1 ]; then
+  system_name='Termux'
+  distro='termux'
+  environment='Android host'
+else
+  if [ -r /etc/os-release ]; then
+    . /etc/os-release
+    system_name="${PRETTY_NAME:-${NAME:-Linux}}"
+  else
+    system_name='Linux'
+  fi
+  distro='linux'
+  environment='Linux host'
+fi
+
+model="$(read_prop ro.product.model)"
+manufacturer="$(read_prop ro.product.manufacturer)"
+android_release="$(read_prop ro.build.version.release)"
+architecture="$(uname -m 2>/dev/null || printf unknown)"
+cpu_count="$(getconf _NPROCESSORS_ONLN 2>/dev/null || true)"
+[ -n "$cpu_count" ] || cpu_count="$(grep -c '^processor[[:space:]]*:' /proc/cpuinfo 2>/dev/null || true)"
+[ -n "$cpu_count" ] || cpu_count='?'
+memory_kb="$(awk '/^MemTotal:/ {print $2; exit}' /proc/meminfo 2>/dev/null || true)"
+if [ -n "$memory_kb" ]; then memory="$(awk -v n="$memory_kb" 'BEGIN {printf "%.1f GiB", n/1048576}')"; else memory='unknown'; fi
+storage_kb="$(df -Pk "$HOME" 2>/dev/null | awk 'NR==2 {print $4; exit}')"
+if [ -n "$storage_kb" ]; then storage="$(awk -v n="$storage_kb" 'BEGIN {printf "%.1f GiB free", n/1048576}')"; else storage='unknown'; fi
+
+ternux_version='not detected'
+if command -v ternux >/dev/null 2>&1; then
+  ternux_version="$(ternux --version 2>/dev/null | head -n 1 || printf unknown)"
+fi
+
+android='not detected'
+if [ "$host_termux" -eq 1 ] || { [ -n "$distro" ] && [ "$distro" != linux ]; }; then
+  [ -n "$android_release" ] && android="Android $android_release"
+fi
+
+json_escape() {
+  sed -e 's/\\/\\\\/g' -e 's/"/\\"/g' -e ':a;N;$!ba;s/\n/\\n/g'
+}
+
+if [ "${1:-}" = '--json' ]; then
+  printf '{"name":"%s","environment":"%s","distro":"%s","host":"%s","android":"%s","architecture":"%s","cpu_cores":"%s","memory":"%s","storage":"%s","ternux":"%s"}\n' \
+    "$(printf '%s' 'Ternux' | json_escape)" \
+    "$(printf '%s' "$environment" | json_escape)" \
+    "$(printf '%s' "$system_name" | json_escape)" \
+    "$(printf '%s' "${manufacturer:+$manufacturer }${model:-unknown device}" | json_escape)" \
+    "$(printf '%s' "$android" | json_escape)" \
+    "$(printf '%s' "$architecture" | json_escape)" \
+    "$(printf '%s' "$cpu_count" | json_escape)" \
+    "$(printf '%s' "$memory" | json_escape)" \
+    "$(printf '%s' "$storage" | json_escape)" \
+    "$(printf '%s' "$ternux_version" | json_escape)"
+  exit 0
+fi
+
+if [ -t 1 ] && [ -z "${NO_COLOR:-}" ]; then
+  c1=$'\033[1;38;5;48m'; c2=$'\033[1;38;5;109m'; c3=$'\033[38;5;109m'; c0=$'\033[0m'
+else
+  c1=''; c2=''; c3=''; c0=''
+fi
+
+printf '%s%s%s  %sTernux%s\n' "$c1" '  TTTTTTTT' "$c0" "$c2" "$c0"
+printf '%s%s%s  Linux workstation in your pocket\n' "$c1" '     TT' "$c0"
+printf '%s%s%s\n' "$c1" '     TT' "$c0"
+printf '%s%s%s\n' "$c1" '     TT' "$c0"
+printf '%s%s%s\n' "$c1" '     TT' "$c0"
+printf '%s%s%s\n' "$c1" '     TT' "$c0"
+printf '\n'
+printf '  %sSystem%s         %s\n' "$c3" "$c0" "$system_name"
+printf '  %sEnvironment%s    %s\n' "$c3" "$c0" "$environment"
+if [ -n "$model" ]; then printf '  %sDevice%s         %s %s\n' "$c3" "$c0" "${manufacturer:+$manufacturer}" "$model"; fi
+if [ "$android" != 'not detected' ]; then printf '  %sAndroid%s        %s\n' "$c3" "$c0" "$android"; fi
+printf '  %sArchitecture%s   %s\n' "$c3" "$c0" "$architecture"
+printf '  %sCPU%s            %s cores\n' "$c3" "$c0" "$cpu_count"
+printf '  %sMemory%s         %s\n' "$c3" "$c0" "$memory"
+printf '  %sStorage%s        %s\n' "$c3" "$c0" "$storage"
+printf '  %sTernux%s        %s\n' "$c3" "$c0" "$ternux_version"
+

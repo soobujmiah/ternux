@@ -26,8 +26,9 @@ tnx_signal_process_group() { kill -"$1" -- "-$2" 2>/dev/null; }
 # exit with its process group; this covers device-session repairs launched
 # independently while keeping every other PRoot login untouched.
 tnx_cleanup_window_fit_sessions() {
-  local distro="${1:-}" line pid container type user command
+  local distro="${1:-}" line pid container type user command guest_user
   [ -n "$distro" ] && tnx_has_cmd proot-distro || return 0
+  guest_user="$(tnx_distro_user "$distro")"
   while IFS= read -r line; do
     [[ "$line" =~ ^[[:space:]]*([0-9]+)[[:space:]]+ ]] || continue
     pid="${BASH_REMATCH[1]}"
@@ -35,7 +36,7 @@ tnx_cleanup_window_fit_sessions() {
     type="$(awk '{print $3}' <<< "$line")"
     user="$(awk '{print $4}' <<< "$line")"
     command="$(awk '{for (i=6; i<=NF; i++) printf "%s%s", (i==6 ? "" : " "), $i}' <<< "$line")"
-    [ "$container" = "$distro" ] && [[ "$type" == login* ]] && [ "$user" = ternux ] &&
+    [ "$container" = "$distro" ] && [[ "$type" == login* ]] && [ "$user" = "$guest_user" ] &&
       [[ "$command" == *"/usr/local/bin/ternux-window-fit-x11"* ]] || continue
     proot-distro kill "$pid" >/dev/null 2>&1 || true
   done < <(proot-distro ps 2>/dev/null)
@@ -45,9 +46,9 @@ tnx_cleanup_window_fit_sessions() {
 # have killed/recreated the X11 app, and old PIDs can be reused. Check the
 # actual guest session and shared X11 socket before accepting a start request.
 tnx_x11_functional() {
-  local user="${TERNUX_USER:-}"
-  [ -n "$user" ] || user="$(tnx_distro_state_get "$(tnx_distro)" user 2>/dev/null || tnx_state_get "user" 2>/dev/null || true)"
-  user="${user:-ternux}"
+  local distro user
+  distro="$(tnx_distro)"
+  user="$(tnx_distro_user "$distro")"
   local display="${TERNUX_DISPLAY:-:$(tnx_distro_display)}"
   tnx_guest_login --_tnx-timeout-seconds 5 --shared-x11 --user "$user" -- \
     env DISPLAY="$display" xdpyinfo -display "$display" >/dev/null 2>&1
@@ -152,7 +153,7 @@ _tnx_stop_select() {
       case "${running[$i]}" in
         debian) token=db ;; ubuntu) token=ub ;; alpine) token=alp ;;
         archlinux) token=archx ;; fedora) token=fed ;; opensuse) token=suse ;;
-        void) token=vsh ;; kali) token=kal ;; *) token="${running[$i]}" ;;
+        void) token=vsh ;; kali) token=kali ;; *) token="${running[$i]}" ;;
       esac
       printf '  %d) %-10s (%s)  Display :%s\n' "$((i+1))" "${running[$i]}" "$token" "$(tnx_distro_display "${running[$i]}")"
     done
@@ -217,7 +218,7 @@ tnx_x11_server_running_on_display() {
 tnx_cmd_start_impl() {
   local distro="" launcher_dir launcher_path
   local display_num display tag
-  [ "$#" -le 1 ] || { tnx_fail "Usage: ternux start [DISTRO]"; return 2; }
+  [ "$#" -le 1 ] || { tnx_fail "Usage: tx start [DISTRO ...]"; return 2; }
   if [ "$#" -eq 0 ]; then
     if tnx_proot_container_installed debian; then distro=debian
     else distro="$(tnx_distro)"; fi
@@ -250,7 +251,7 @@ tnx_cmd_start_impl() {
       . "$(dirname "${BASH_SOURCE[0]}")/phases.sh"
     fi
     local launcher_user launcher_locale launcher_backend
-    launcher_user="$(tnx_distro_state_get "$distro" user 2>/dev/null || tnx_state_get "user" || echo "ternux")"
+    launcher_user="$(tnx_distro_user "$distro")"
     launcher_locale="$(tnx_distro_state_get "$distro" locale 2>/dev/null || tnx_state_get "locale" || echo "en_US.UTF-8")"
     launcher_backend="$(tnx_canonical_backend "$(tnx_distro_state_get "$distro" backend 2>/dev/null || tnx_state_get "backend" || echo "auto")")"
     launcher_user="${launcher_user:-ternux}"
@@ -426,7 +427,15 @@ tnx_cmd_start_impl() {
 
 
 tnx_cmd_start() {
-  local migration_lock_fd rc
+  local migration_lock_fd rc distro canonical failed=0 output
+  local -a guests=() results=()
+  if [ "$#" -gt 1 ]; then
+    for distro in "$@"; do
+      canonical="$(tnx_distro_canonical "$distro")"
+      tnx_distro_known "$canonical" || { tnx_fail "Unsupported Ternux desktop profile '$distro'."; return 2; }
+      guests+=("$canonical")
+    done
+  fi
   mkdir -p "$TERNUX_STATE_DIR" || return 1
   exec {migration_lock_fd}<"$TERNUX_STATE_DIR" || return 1
   # The detached desktop inherits this shared lock. Migration cannot race a
@@ -440,7 +449,36 @@ tnx_cmd_start() {
       return 1
     fi
   fi
-  tnx_cmd_start_impl "$@"; rc=$?
+  if [ "${#guests[@]}" -gt 1 ]; then
+    for distro in "${guests[@]}"; do
+      if [ "${TERNUX_JSON:-0}" = 1 ]; then
+        if output="$(TERNUX_JSON=0 tnx_cmd_start_impl "$distro" 2>&1)"; then
+          results+=("$distro:started")
+        else
+          rc=$?
+          failed=1
+          results+=("$distro:failed (exit $rc)")
+        fi
+      else
+        if ! tnx_cmd_start_impl "$distro"; then failed=1; fi
+      fi
+    done
+    if [ "${TERNUX_JSON:-0}" = 1 ]; then
+      [ "$failed" -eq 0 ] && rc=0 || rc=1
+      tnx_json_init
+      tnx_json_add "command" "start"
+      [ "$failed" -eq 0 ] && tnx_json_add "status" "ok" || tnx_json_add "status" "partial_failure"
+      tnx_json_add "timestamp" "$(__tnx_ts)"
+      tnx_json_add "version" "$TERNUX_VERSION"
+      tnx_json_add_array "guests" "${guests[@]}"
+      tnx_json_add_array "results" "${results[@]}"
+      tnx_json_end
+    else
+      rc="$failed"
+    fi
+  else
+    tnx_cmd_start_impl "$@"; rc=$?
+  fi
   exec {migration_lock_fd}>&-
   return "$rc"
 }
@@ -567,7 +605,7 @@ tnx_cmd_restart() {
 # ---------------------------------------------------------------------------
 # tnx_cmd_status (helper — used internally)
 # ---------------------------------------------------------------------------
-tnx_cmd_status() {
+_tnx_cmd_status_one() {
   local distro="${1:-$(cat "$TERNUX_STATE_DIR/session/distro" 2>/dev/null || tnx_distro)}"
   local active_distro=""
   [ "$#" -le 1 ] || { tnx_fail "Usage: ternux status [DISTRO]"; return 2; }
@@ -624,6 +662,8 @@ tnx_cmd_status() {
       "pulseaudio_ready" "$([ $pa_ready -eq 1 ] && echo "yes" || echo "no")" \
       "virgl" "$([ $virgl -eq 1 ] && echo "running" || echo "stopped")" \
       "launcher" "$([ -f "$(tnx_distro_state_dir "$distro")/launcher.sh" ] && echo "present" || echo "missing")" \
+      "display" ":$(tnx_distro_display "$distro")" \
+      "desktop_log" "$(tnx_distro_session_dir "$distro")/desktop.log" \
       "desktop_pid" "${desktop_pid:-none}"
     return 0
   fi
@@ -638,7 +678,50 @@ tnx_cmd_status() {
   printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "Desktop audio route:" "$([ $pa_ready -eq 1 ] && echo "ready" || echo "unavailable")"
   printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "VirGL:" "$([ $virgl -eq 1 ] && echo "running" || echo "stopped")"
   printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "Display:" ":$(tnx_distro_display "$distro")"
+  printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "Desktop log:" "$(tnx_distro_session_dir "$distro")/desktop.log"
   printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "Launcher:" "$([ -f "$(tnx_distro_state_dir "$distro")/launcher.sh" ] && echo "present" || echo "missing")"
   printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "Managed PID:" "${desktop_pid:-none}"
   echo ""
+}
+
+# Bare status is the workspace overview. Keep the one-guest form for callers
+# that need an exact session record, and report every installed named profile
+# when no selector was supplied.
+tnx_cmd_status() {
+  if [ "$#" -gt 1 ]; then tnx_fail "Usage: tx status [DISTRO] [--json]"; return 2; fi
+  if [ "$#" -eq 1 ]; then
+    _tnx_cmd_status_one "$1"
+    return $?
+  fi
+  local name out overall="stopped"
+  local -a names=() rows=()
+  while IFS= read -r name; do [ -n "$name" ] && names+=("$name"); done \
+    < <(tnx_distro_installed_managed_list)
+  if [ "${#names[@]}" -eq 0 ]; then
+    _tnx_cmd_status_one "$(tnx_distro)"
+    return $?
+  fi
+  if [ "${#names[@]}" -eq 1 ]; then
+    _tnx_cmd_status_one "${names[0]}"
+    return $?
+  fi
+  if [ "${TERNUX_JSON:-0}" = 1 ]; then
+    for name in "${names[@]}"; do
+      out="$(TERNUX_JSON=1 _tnx_cmd_status_one "$name")" || return $?
+      rows+=("$out")
+      [[ "$out" == *'"status":"running"'* ]] && overall="running"
+    done
+    tnx_json_init
+    tnx_json_add "command" "status"
+    tnx_json_add "status" "$overall"
+    tnx_json_add "timestamp" "$(__tnx_ts)"
+    tnx_json_add "guest_count" "${#names[@]}"
+    tnx_json_add_raw "guests" "[$(IFS=,; printf '%s' "${rows[*]}")]"
+    tnx_json_end
+    return 0
+  fi
+  tnx_header "Ternux Desktop Status — ${#names[@]} installed guest(s)"
+  for name in "${names[@]}"; do
+    TERNUX_JSON=0 _tnx_cmd_status_one "$name" || true
+  done
 }

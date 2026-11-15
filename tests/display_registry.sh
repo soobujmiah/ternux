@@ -10,7 +10,7 @@ env TERNUX_STATE_DIR="$TMP/state" HOME="$TMP/home" bash -c '
   . "$1/lib/core.sh"
   [ "$TERNUX_NATIVE_DISPLAY" = 0 ] || exit 1
 
-  expected="debian:1 ubuntu:2 alpine:3 archlinux:4 fedora:5 opensuse:6 void:7 kali:8 artix:9 chimera:10 deepin:11 manjaro:12 pardus:13 rockylinux:14 adelie:15"
+  expected="debian:1 ubuntu:2 kali:3 alpine:4 archlinux:5 fedora:6 opensuse:7 void:8 artix:9 chimera:10 deepin:11 manjaro:12 pardus:13 rockylinux:14 adelie:15"
   seen=" "
   for item in $expected; do
     name="${item%:*}"; display="${item#*:}"
@@ -30,7 +30,7 @@ env TERNUX_STATE_DIR="$TMP/state" HOME="$TMP/home" bash -c '
   [ "$(tnx_distro_display alpine)" = 2 ] || exit
   [ "$(tnx_distro_target_display debian)" = 1 ] || exit
   [ "$(tnx_distro_target_display ubuntu)" = 2 ] || exit
-  [ "$(tnx_distro_target_display alpine)" = 3 ] || exit
+  [ "$(tnx_distro_target_display alpine)" = 4 ] || exit
 ' _ "$ROOT"
 
 # Registry updates preserve stable IDs and are atomic, locked, and fail-closed

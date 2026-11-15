@@ -105,9 +105,13 @@ tnx_detect_gpu() {
 }
 
 tnx_vulkan_probe_guest() {
-  local bind_args=()
-  [ -e "${TERNUX_KGSL_DEVICE:-/dev/kgsl-3d0}" ] && bind_args+=(--bind "${TERNUX_KGSL_DEVICE:-/dev/kgsl-3d0}:/dev/kgsl")
-  tnx_guest_login --shared-tmp "${bind_args[@]}" -- bash -c '
+  local bind_args=() display_num="$(tnx_distro_display "$(tnx_distro)")"
+  if [ -e "${TERNUX_KGSL_DEVICE:-/dev/kgsl-3d0}" ]; then
+    bind_args+=(--bind "${TERNUX_KGSL_DEVICE:-/dev/kgsl-3d0}:/dev/kgsl-3d0")
+    bind_args+=(--bind "${TERNUX_KGSL_DEVICE:-/dev/kgsl-3d0}:/dev/kgsl")
+    [ -d /dev/dri ] && bind_args+=(--bind /dev/dri)
+  fi
+  tnx_guest_login --shared-tmp --shared-x11 "${bind_args[@]}" -- env "DISPLAY=:${display_num:-1}" bash -c '
     overlay="$(cat /etc/ternux/mesa-overlay 2>/dev/null || true)"
     overlay_libdir="$(cat /etc/ternux/mesa-overlay-libdir 2>/dev/null || true)"
     case "$overlay" in /usr/local/lib/ternux/*)
@@ -214,7 +218,9 @@ tnx_renderer_is_software() {
 
 tnx_detect_graphics_state() {
   local vulkan_state="${1:-$(tnx_detect_vulkan_state)}" renderer="${2:-$(tnx_detect_renderer)}"
-  if tnx_renderer_is_software "$renderer"; then
+  if printf '%s\n' "$renderer" | grep -Eqi 'not running|display.*stopped'; then
+    echo DISPLAY_STOPPED
+  elif tnx_renderer_is_software "$renderer"; then
     echo SOFTWARE_FALLBACK
   elif [ -z "$renderer" ] || [ "$renderer" = unknown ]; then
     echo "$vulkan_state"
@@ -224,17 +230,20 @@ tnx_detect_graphics_state() {
 }
 
 tnx_detect_backend() {
-  # Backend recommendations depend on both the host GPU and the selected
-  # guest: the pinned Zink/Turnip payload is only qualified for Debian.
+  # Backend recommendations depend on the host GPU and the selected guest;
+  # profile assets are independently pinned and runtime-probed.
   tnx_gpu_backend_auto "$(tnx_distro)"
 }
 
 tnx_detect_renderer() {
-  local display="${DISPLAY:-}" renderer display_num=""
+  local display="${DISPLAY:-}" renderer display_num="" distro backend bind_args=()
   if ! tnx_has_cmd proot-distro; then
     echo "unknown"
     return 0
   fi
+
+  distro="$(tnx_distro)"
+  backend="$(tnx_canonical_backend "$(tnx_distro_state_get "$distro" backend 2>/dev/null || tnx_state_get backend 2>/dev/null || tnx_gpu_backend_auto "$distro")")"
 
   # A doctor command launched from Termux does not inherit the guest desktop's
   # DISPLAY. Probe the live Termux:X11 display when it is running so the result
@@ -248,7 +257,20 @@ tnx_detect_renderer() {
     echo "not running (Termux:X11 stopped)"
     return 0
   fi
-  renderer="$(tnx_guest_login --shared-tmp --shared-x11 -- env "DISPLAY=$display" bash -c '
+  if [ -e "${TERNUX_KGSL_DEVICE:-/dev/kgsl-3d0}" ]; then
+    bind_args+=(--bind "${TERNUX_KGSL_DEVICE:-/dev/kgsl-3d0}:/dev/kgsl-3d0")
+    bind_args+=(--bind "${TERNUX_KGSL_DEVICE:-/dev/kgsl-3d0}:/dev/kgsl")
+    [ -d /dev/dri ] && bind_args+=(--bind /dev/dri)
+  fi
+  local -a renderer_env=("DISPLAY=$display")
+  if [ "$backend" = virgl ]; then
+    renderer_env+=(GALLIUM_DRIVER=virpipe MESA_GL_VERSION_OVERRIDE=4.3COMPAT MESA_GLES_VERSION_OVERRIDE=3.2 MESA_NO_ERROR=1 LIBGL_DRI3_DISABLE=1)
+    local prefix="${PREFIX:-/data/data/com.termux/files/usr}"
+    [ -S "$prefix/tmp/.virgl_test" ] && bind_args+=(--bind "$prefix/tmp/.virgl_test:/tmp/.virgl_test")
+  elif [ "$backend" = zink ]; then
+    renderer_env+=(MESA_LOADER_DRIVER_OVERRIDE=zink TU_DEBUG=noconform MESA_VK_WSI_DEBUG=sw)
+  fi
+  renderer="$(tnx_guest_login --shared-tmp --shared-x11 "${bind_args[@]}" -- env "${renderer_env[@]}" bash -c '
     overlay="$(cat /etc/ternux/mesa-overlay 2>/dev/null || true)"
     overlay_libdir="$(cat /etc/ternux/mesa-overlay-libdir 2>/dev/null || true)"
     case "$overlay" in /usr/local/lib/ternux/*)
@@ -271,9 +293,14 @@ tnx_detect_renderer() {
       ;;
     esac
     renderer=""
-    if [ -n "${DISPLAY:-}" ] && command -v glxinfo >/dev/null 2>&1 &&
+    if [ "${GALLIUM_DRIVER:-}" = virpipe ] && command -v glxgears >/dev/null 2>&1 &&
        command -v timeout >/dev/null 2>&1; then
-      renderer="$(timeout 5s glxinfo 2>/dev/null |
+      renderer="$(timeout 5s glxgears -info 2>&1 |
+        sed -n "s/^GL_RENDERER[[:space:]]*=[[:space:]]*//p" | head -1 || true)"
+    fi
+    if [ -z "$renderer" ] && [ -n "${DISPLAY:-}" ] && command -v glxinfo >/dev/null 2>&1 &&
+       command -v timeout >/dev/null 2>&1; then
+      renderer="$(timeout 5s glxinfo -B 2>/dev/null |
         sed -n "s/^OpenGL renderer string: //p" | head -1 || true)"
     fi
     # Driver/ICD files are installation evidence only. Report a renderer only

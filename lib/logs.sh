@@ -19,7 +19,7 @@ tnx_cmd_logs() {
   case "$subcmd" in
     show|--show)   _tnx_logs_show "${1:-50}" ;;
     tail|--tail)   _tnx_logs_tail ;;
-    desktop|session) _tnx_logs_desktop "${1:-show}" ;;
+    desktop|session) _tnx_logs_desktop "${1:-show}" "${2:-}" ;;
     clear|--clear) _tnx_logs_clear ;;
     list|--list)   _tnx_logs_list ;;
     --help|-h)     tnx_help_logs ;;
@@ -76,16 +76,41 @@ _tnx_logs_list() {
   fi
 
   tnx_header "Log Files"
-  [ -d "$TERNUX_LOG_DIR" ] && ls -lh "$TERNUX_LOG_DIR" 2>/dev/null | awk 'NR>1{printf "  %s %5s %s\n", $1, $5, $9}' || tnx_info "No log files found"
+  local found=0 file
+  if [ -d "$TERNUX_LOG_DIR" ]; then
+    ls -lh "$TERNUX_LOG_DIR" 2>/dev/null | awk 'NR>1{printf "  %s %5s %s\n", $1, $5, $9}'
+    found=1
+  fi
+  while IFS= read -r file; do
+    [ -n "$file" ] || continue
+    printf "  %s  %s bytes  %s\n" "$(date -r "$file" '+%Y-%m-%d %H:%M' 2>/dev/null || echo unknown)" "$(wc -c < "$file" 2>/dev/null || echo 0)" "$file"
+    found=1
+  done < <(find "$TERNUX_STATE_DIR/session" "$TERNUX_STATE_DIR/distros" -type f -name 'desktop.log*' -print 2>/dev/null | sort)
+  [ "$found" -eq 1 ] || tnx_info "No log files found"
   echo ""
 }
 
 _tnx_logs_desktop() {
-  local action="${1:-show}" file="$TERNUX_STATE_DIR/session/desktop.log"
+  local action="${1:-show}" distro="${2:-}" file
+  if [ -z "${2:-}" ] && tnx_distro_known "$(tnx_distro_canonical "$action")"; then
+    distro="$action"
+    action=show
+  fi
+  if [ "$action" != show ] && [ "$action" != tail ]; then
+    tnx_fail "Usage: tx logs desktop [show|tail] [DISTRO]"
+    return 2
+  fi
+  if [ -z "$distro" ]; then
+    distro="$(cat "$TERNUX_STATE_DIR/session/distro" 2>/dev/null || true)"
+    [ -n "$distro" ] || distro="${TERNUX_DISTRO:-$(tnx_distro)}"
+  fi
+  distro="$(tnx_distro_canonical "$distro")"
+  tnx_distro_known "$distro" || { tnx_fail "Unknown managed guest: $distro"; return 2; }
+  file="$(tnx_distro_session_dir "$distro")/desktop.log"
   [ -f "$file" ] || { tnx_info "No desktop log found: $file"; return 0; }
   case "$action" in
     tail) tnx_info "Tailing desktop log: $file (Ctrl+C to stop)"; tail -f "$file" ;;
-    show) tnx_header "Desktop Session Log"; tail -n 100 "$file" ;;
+    show) tnx_header "Desktop Session Log: $distro"; printf "  File: %s\n  Lines: %s\n\n" "$file" "$(wc -l < "$file" 2>/dev/null || echo 0)"; tail -n 100 "$file" ;;
     *) tnx_fail "Usage: ternux logs desktop [show|tail]"; return 1 ;;
   esac
 }

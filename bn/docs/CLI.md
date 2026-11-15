@@ -5,16 +5,19 @@ lang: "bn"
 alt_url: "/docs/CLI.html"
 ---
 
-`ternux` CLI হলো স্থায়ী ব্যবস্থাপনা ইন্টারফেস — ইনস্টল, ডায়াগনস্টিক,
-মেরামত, বেঞ্চমার্ক, ডেস্কটপ লাইফসাইকেল ও সিস্টেম তথ্যের জন্য।
+`tx` হলো ব্যবস্থাপনার প্রধান কমান্ড-লাইন ব্যবস্থা—ইনস্টল, ত্রুটি নির্ণয়,
+মেরামত, কর্মদক্ষতা যাচাই, ডেস্কটপ চালানো এবং সিস্টেমের তথ্য দেখার জন্য। ইনস্টল
+চালু বা পুনরায় শুরু, গেস্ট ব্যবস্থাপনা, লগ দেখা, হালনাগাদ এবং নির্দিষ্ট অংশ
+অপসারণও `tx` দিয়েই করা যায়।
 
-এই reference `$PREFIX/bin/ternux`-এ installed পূর্ণ **Termux host** command-এর।
-Debian/Xfce terminal-এ আলাদা guest-aware `/usr/local/bin/ternux` companion আছে;
-এটি শুধু `status`, `info`, `doctor` (`verify` একই কাজের alias), `env`, `--version`
-ও help দেয়। Nested PRoot না খুলে host lifecycle command প্রত্যাখ্যান করে। নিচের
-host commandগুলো Termux-এ
-চালান। Installer command দুটি execute ও version-check করে; শুধু file presence-কে
-successful CLI installation ধরা হয় না।
+এই নির্দেশিকা `$PREFIX/bin/tx`-এ থাকা **টার্মাক্স হোস্ট** কমান্ডের।
+`$PREFIX/bin/ternux` একই ব্যবস্থা চালানোর আরেকটি নাম। ডেবিয়ান/এক্সএফসিই
+টার্মিনালে আলাদা গেস্ট-সচেতন `/usr/local/bin/ternux` সহায়ক কমান্ড থাকে; এটি
+শুধু `status`, `info`, `doctor` (`verify` একই কাজের বিকল্প নাম), `env`,
+`--version` এবং সাহায্য দেখায়। এটি আরেকটি নেস্টেড প্রুট সেশন না খুলে হোস্টের
+চালানো-বন্ধ করার কমান্ড প্রত্যাখ্যান করে। নিচের হোস্ট কমান্ডগুলো টার্মাক্সে
+চালান। ইনস্টলার দুই কমান্ড চালিয়ে সংস্করণ যাচাই করে; ফাইল থাকলেই সফল ইনস্টল
+ধরা হয় না।
 
 ## ব্যবহার
 
@@ -43,6 +46,24 @@ dispatch/environment failure-এ `command: "error"`, `status: "fatal"` ও
 load হওয়ার আগের failure JSON বানাতে পারে না, তাই সেটি plain stderr।
 
 ## কমান্ডসমূহ
+
+### `tx -h` এবং `tx mic` / `tx cam`
+
+`tx -h`-এ সব হোস্ট কমান্ড, তাদের সমর্থিত উপকমান্ড, সার্বিক বিকল্প, কমান্ডের
+বিকল্প নাম এবং গেস্টের সংক্ষিপ্ত নাম থাকে। `ternux -h` একই তালিকা দেখায়;
+কোনো কমান্ডের বিস্তারিত জানতে `tx COMMAND -h` চালান। `tx guides` সংক্ষিপ্ত
+ব্যবহারবিধি এবং পূর্ণ নির্দেশিকার লিংক দেখায়।
+
+`tx mic` টার্মাক্স:এপিআই-এর মাইক্রোফোন অনুমতি পরীক্ষা বা চায়। এটি এক সেকেন্ডের
+মধ্যে সীমাবদ্ধ একটি অস্থায়ী রেকর্ডিং করে, তারপর রেকর্ডার বন্ধ করে ফাইল মুছে
+দেয়। টার্মাক্স:এপিআই না থাকলে সক্রিয় ওপেনএসএল ইনপুট অল্প সময়ের জন্য চালু
+হতে পারে; ধারণ করা শব্দ সংরক্ষণ করা হয় না। `tx cam` একটি অস্থায়ী পেছনের
+ক্যামেরার ছবি তুলে টার্মাক্স:এপিআই-এর ক্যামেরা অনুমতি চায়, তারপর ছবিটি মুছে
+দেয়। দুই কমান্ডের জন্য `termux-api` প্যাকেজ এবং টার্মাক্স যে উৎস থেকে ইনস্টল
+করা, সেই একই উৎসের টার্মাক্স:এপিআই অ্যান্ড্রয়েড অ্যাপ লাগবে। সহায়ক অ্যাপ না
+থাকলেও টার্মাক্সের ওপেনএসএল সেতু দিয়ে ডেস্কটপের মাইক্রোফোন চলে; ক্যামেরার
+বিকল্প হিসেবে অ্যান্ড্রয়েড ক্যামেরা ব্যবহার করুন। টার্মাক্স এবং
+টার্মাক্স:এপিআই-এর অ্যান্ড্রয়েড অনুমতি আলাদা।
 
 ### `tx manager`
 
@@ -99,14 +120,14 @@ tx control --no-open
 Dashboard ও manager command পরের stable v2-major release-এর জন্য source-এ আছে;
 withdrawn v2.0.0 package-এ নেই।
 
-### `ternux guides`
+### `tx guides`
 
-Termux host অথবা Debian/Xfce guest-এ `ternux guides` চালালে installation,
+Termux host অথবা Debian/Xfce guest-এ `tx guides` চালালে installation,
 workload, ecosystem tool, graphics-persistence এবং daily-use guide-এর link দেখা যায়। এটি
 কিছু
 install করে না।
 
-### `ternux storage`
+### `tx storage`
 
 PRoot-এ Android shared storage default-এ hidden থাকে। `/sdcard`-এর নিচে থাকা
 বিদ্যমান একটি directory grant করলে generic guest command এবং পরের desktop session-এ
@@ -120,112 +141,140 @@ ternux storage grant /sdcard/Llms
 ternux storage revoke /sdcard/Llms
 ```
 
-### `ternux install`
+### `tx install`
 
-সম্পূর্ণ ternux ডেস্কটপ ইনস্টল বা পুনরায় ইনস্টল।
-
-```bash
-ternux install [options]
-```
-
-| অপশন | বিবরণ |
-|-------|--------|
-| `--yes` | ডিফল্ট, কোনো প্রশ্ন নয় |
-| `--user NAME` | Linux guest ইউজারনেম (ডিফল্ট: `ternux`) |
-| `--distro NAME` | ১৫টি named recipe-এর একটি বাছুন; Ternux v2 support শুধু Debian, Ubuntu ও Alpine-এর জন্য। |
-| `--distros LIST` | একাধিক আলাদা guest ধারাবাহিকভাবে install, যেমন `debian,ubuntu,alpine`। |
-| `--locale LANG` | লোকেল (ডিফল্ট: `en_US.UTF-8`) |
-| `--backend auto\|zink\|virgl` | GPU ব্যাকএন্ড (ডিফল্ট: auto) |
-| `--zsh` | bash-এর বদলে zsh ব্যবহার |
-| `--with-dev` | ডেভেলপমেন্ট টুলস ইনস্টল |
-| `--with-llm` | Vulkan-সহ llama.cpp বিল্ড |
-| `--with-network` | নেটওয়ার্ক টুলস ইনস্টল |
-| `--with-media` | মিডিয়া টুলস ইনস্টল |
-| `--with-blender` | Blender ও headless GPU render-এর জন্য Xvfb ইনস্টল |
-| `--all` | সব ঐচ্ছিক ওয়ার্কলোড |
-| `--resume` | completed phase skip এবং interrupted run-এর saved optional workload set restore |
-
-১৫টি named desktop recipe হলো `debian`, `ubuntu`, `alpine`, `archlinux`, `fedora`,
-`opensuse`, `void`, `kali`, `artix`, `chimera`, `deepin`, `manjaro`, `pardus`,
-`rockylinux` ও `adelie`। **v2 support শুধু Debian, Ubuntu ও Alpine-এর জন্য।** একটি
-Adreno 825 device-এ এই তিনটির desktop, Zink/Turnip, audio routing, IBus ও theme
-পরীক্ষা করা হয়েছে; clean Firefox install exact-main CI-তে pass করেছে। Alpine-এ synthetic Ctrl+Space event-এর একটি অমিল এখনও আছে, আর live check সব application qualify করে না। অন্য ১২টি recipe আছে, কিন্তু v2-
-qualified নয়। ইন্টারেক্টিভভাবে একাধিক profile বাছতে checklist ব্যবহার করুন;
-automation-এ `--distros`-এর সঙ্গে comma-separated alias দিন, যেমন
-`tx install --distros debian,ubuntu,alpine`। প্রতিটি guest-এর আলাদা state ও tagged
-Termux:X11 display থাকে। `tx stop` চলমান guest ও display-এর তালিকা দেখিয়ে নম্বর,
-short name বা full name দিয়ে এক বা একাধিক বাছতে দেয়; space বা comma দিয়ে
-আলাদা করুন, `0` দিলে cancel হয়। `tx stop db`, `tx stop ub`, `tx stop alp` শুধু
-সংশ্লিষ্ট distro বন্ধ করে; `tx stop --all` সবগুলো বন্ধ করে। Distro picker optional
-app-এর একই keyboard checklist ব্যবহার করে: Up/Down বা `j`/`k` দিয়ে চলুন, Space
-বা number দিয়ে toggle করুন, Enter-এ confirm করুন, আর `q` দিলে Debian default
-থাকে। একবারেই একাধিক guest বাছা যায়; raw-key input না থাকলে comma-separated
-number list চলে। Install শুরুর আগে guest, backend, user, workload এবং storage
-estimate দেখিয়ে নিশ্চিত করে। Base desktop verify হলেও optional workload ব্যর্থ
-হলে guest ready থাকে, UI warning দেখায় এবং command nonzero ফেরায়; অসমাপ্ত ধাপ
-retry করতে `tx install --resume` চালান।
-
-`tx` হলো `ternux`-এর ছোট alias। `tx distro list` সব installed PRoot guest দেখায় এবং কোনগুলোর Ternux desktop recipe আছে তা চিহ্নিত করে। Ternux profile-এর configured regular user shell খুলতে `tx distro shell NAME` ব্যবহার করুন; generic image image-এর default user রাখে। Root-এর জন্য `dbroot`, `ubroot`, `alproot`-এর মতো root shortcut ব্যবহার করুন। যেকোনো installed guest-এ command চালাতে `tx distro exec NAME -- COMMAND` ব্যবহার করুন। Generic OCI image install: `tx distro image-install alpine:latest`—এটি shell guest। Ternux-managed guest সরাতে `tx distro uninstall NAME [--yes]` ব্যবহার করুন; command unregistered PRoot guest remove করে না এবং guest সরানোর পর OCI registry entry পরিষ্কার করে। Named recipe APT, APK, pacman, DNF, Zypper ও XBPS family-তে আছে। Arbitrary OCI image shell guest হিসেবে চলে, desktop recipe ছাড়া GUI setup হয় না। Optional software workload এখন APT guest-এর জন্য। `xgo` একাধিক guest থাকলে তালিকা দেখিয়ে desktop বাছতে বলে। `db`/`dbr`/`dbroot`, `ub`/`ubr`/`ubroot`, `alp`/`alpr`/`alproot` যথাক্রমে Debian, Ubuntu, Alpine-এর user/root shell shortcut। পুরোনো `dbr`, `ubr`, `alpr` root alias-ও থাকবে। Desktop command: `tx start NAME` (Ubuntu-এর `ub` ও Alpine-এর `alp` short name-ও চলে), `tx stop [NAME|--all]`, `tx restart NAME`, `tx status NAME`। `tx stop` চলমান guest ও display-এর তালিকা দেখিয়ে নম্বর, short name বা full name দিয়ে এক বা একাধিক বাছতে দেয়; space বা comma দিয়ে আলাদা করুন, `0` দিলে cancel হয়। `tx stop db`, `tx stop ub`, `tx stop alp` শুধু ওই guest বন্ধ করে; প্রতিটি stop কেবল ওই guest-এর launcher ও tagged window-তে সীমিত। `tx stop --all` সব বন্ধ করে। `tx distro list` profile recipe availability দেখায়; Debian, Ubuntu ও Alpine reference device-এ v2-qualified; Alpine-এর keyboard-event limitation নথিভুক্ত। অন্য ১২টি profile physical-device unqualified।
-
-Workload flag না দিলে interactive install-এ category-সহ checklist আসে। Up/Down
-বা `j`/`k` দিয়ে চলুন, Space বা item-এর নম্বর দিয়ে একাধিক item বাছুন, Enter-এ
-plan review করুন, আর শুধু base desktop-এর জন্য `q` চাপুন। আলাদা managed extension
-option-এ llama.cpp CPU + Vulkan, Stable Diffusion CPU + Vulkan preview, এবং
-experimental SM8735/V73 HTP আছে। `--with-llm` আলাদা source থেকে llama.cpp build
-করে। GPU route অনুযায়ী পরামর্শ ও RAM/storage সীমা দেখায়। `--yes` checklist না
-দেখিয়ে base profile রাখে।
-
-### `ternux start`
-
-Xfce4 desktop-কে আলাদা detached session-এ চালু করে, তাই shell বন্ধ হলেও desktop চলে। Termux:X11-এর সঙ্গে XFCE session, window manager ও desktop প্রস্তুত হলে Termux:X11 app-টিও সামনে আনে। নতুন profile-এ `:0` native Termux workspace-এর জন্য সংরক্ষিত; Debian `:1`, Ubuntu `:2`, Alpine `:3`, আর অন্য named profile `:4` থেকে serial display পায়। আগে থেকে save করা v2 display ID explicit migration না হওয়া পর্যন্ত অপরিবর্তিত থাকে। target socket বা Termux:X11 server occupied থাকলে start refuse করে; নিশ্চিত না হয়ে কোনো socket মুছে না। আবার চালালে নতুন session না বানিয়ে চলমান desktop-টাই সামনে আনে; supervisor marker না থাকলেও live XFCE session শনাক্ত করে। startup ব্যর্থ হলে error দেখিয়ে `~/.local/share/ternux/session/desktop.log`-এর ঠিকানা দেয়। `ternux status` বা `ternux logs desktop tail` দিয়ে session দেখুন। CLI package update-এর পর প্রতিটি guest-এর launcher আলাদা `~/.local/share/ternux/distros/NAME/launcher.sh`-এ থাকে; `~/x.sh` সর্বশেষ install করা profile-এর compatibility link।
+সম্পূর্ণ টার্নাক্স ডেস্কটপ ইনস্টল বা পুনরায় ইনস্টল করুন।
 
 ```bash
-ternux start              # saved guest profile
-ternux start ubuntu       # Ubuntu explicitly
+tx install [options]
 ```
 
-### `ternux stop`
+| বিকল্প | কাজ |
+|-------|-----|
+| `--yes` | প্রশ্ন না করে পূর্বনির্ধারিত পছন্দ নেয় |
+| `--user NAME` | লিনাক্স গেস্টের ব্যবহারকারীর নাম ঠিক করে; পূর্বনির্ধারিত নাম `ternux` |
+| `--distro NAME` | ১৫টি নামযুক্ত ডেস্কটপ বিন্যাসের একটি বেছে নেয় |
+| `--distros LIST` | কমা দিয়ে আলাদা করে একাধিক গেস্ট ইনস্টল করে |
+| `--locale LANG` | লোকেল ঠিক করে; পূর্বনির্ধারিত `en_US.UTF-8` |
+| `--backend auto\|zink\|virgl` | গ্রাফিক্স ব্যাকএন্ড বেছে নেয় |
+| `--zsh` | `bash`-এর বদলে `zsh` ব্যবহার করে |
+| `--with-dev` | উন্নয়ন সরঞ্জাম যোগ করে |
+| `--with-llm` | ভলকানসহ `llama.cpp` তৈরি করে |
+| `--with-network` | নেটওয়ার্ক সরঞ্জাম যোগ করে |
+| `--with-media` | ছবি ও শব্দের কাজের সরঞ্জাম যোগ করে |
+| `--with-blender` | `Blender` এবং জিপিইউ-ছাড়া রেন্ডারের জন্য `Xvfb` যোগ করে |
+| `--all` | সব ঐচ্ছিক কাজের সরঞ্জাম যোগ করে |
+| `--resume` | শেষ হওয়া ধাপ বাদ দিয়ে থেমে যাওয়া ইনস্টল চালিয়ে যায় |
 
-চলমান guest ও display-এর তালিকা দেখিয়ে নম্বর, short name বা full name দিয়ে একটি বা একাধিক বাছুন। Space বা comma দিয়ে আলাদা করুন; `0` দিলে cancel হয়। `--all` সব Ternux desktop বন্ধ করে। অন্য guest display ও shared PulseAudio চলতে থাকে।
+নামযুক্ত ডেস্কটপ বিন্যাসের স্থায়ী ক্রম: `debian`/`db`, `ubuntu`/`ub`,
+`kali`, `alpine`/`alp`, `archlinux`/`archx`, `fedora`/`fed`,
+`opensuse`/`suse`, `void`/`vsh`, `artix`/`art`, `chimera`/`chim`,
+`deepin`/`deep`, `manjaro`/`manj`, `pardus`/`par`, `rockylinux`/`rock` এবং
+`adelie`/`adel`। কালি ইনস্টলে কালি প্রকল্পের `kalilinux/kali-rolling` OCI
+ছবি ব্যবহার হয়, কারণ টার্মাক্সের `PRoot-Distro` প্যাকেজে কালি নামটি নেই।
+কালির ডেস্কটপে টার্নাক্সের এক্সএফসিই আছে; এটি কালির পূর্ণ ডেস্কটপ ইমেজ নয়।
+ডিফল্টে এনম্যাপ, এসকিউএলম্যাপ, হাইড্রা, জন দ্য রিপার, গোবাস্টার, নিকটো, হুইজ
+ও নেটক্যাট বসে। বড় কালি প্যাকেট-সমষ্টি ডিফল্টে বসে না; সেগুলোতে অ্যান্ড্রয়েডের
+পিআরুটে কাজে না-লাগা কিছু বিশেষ সুবিধা ও ওয়াই-ফাই-নির্ভর সরঞ্জামসহ অনেক প্যাকেট থাকে।
+২০২৬-১১-১৫ তারিখে কালি `:3` প্রদর্শনে জিঙ্ক/টার্নিপ গ্রাফিক্স দেখা গেছে; তবে
+কালির পূর্ণ ডেস্কটপ এখনও যন্ত্রে যাচাইকৃত নয়। যন্ত্রে যাচাই করা হয়েছে ডেবিয়ান,
+উবুন্টু ও অ্যালপাইন। অ্যালপাইনে `Ctrl+Space`-এর কৃত্রিম
+কিবোর্ড সংকেতে অমিল আছে। অন্য বিন্যাসগুলো যন্ত্রে যাচাই করা হয়নি।
+
+ইন্টারঅ্যাকটিভ ইনস্টলে তালিকা থেকে একাধিক গেস্ট বাছুন। স্বয়ংক্রিয় ইনস্টলে
+`--distros`-এর সঙ্গে কমা-আলাদা নাম দিন, যেমন
+`tx install --distros debian,ubuntu,kali,alpine`। প্রতিটি গেস্টের নিজস্ব অবস্থা
+ও চিহ্নিত টার্মাক্স:এক্স১১ প্রদর্শন থাকে। ইনস্টল শুরুর আগে গেস্ট, গ্রাফিক্স
+ব্যাকএন্ড, ব্যবহারকারী, ঐচ্ছিক সরঞ্জাম ও প্রয়োজনীয় জায়গা দেখানো হয়। মূল
+ডেস্কটপ যাচাই হলেও ঐচ্ছিক সরঞ্জাম ব্যর্থ হলে গেস্ট প্রস্তুত থাকে, সতর্কতা
+দেখায় এবং কমান্ড ব্যর্থতার সংকেত দেয়। থেমে যাওয়া ধাপ আবার চালাতে
+`tx install --resume` ব্যবহার করুন।
+
+### গেস্ট ব্যবস্থাপনা
+
+শুধু `tx distro` চালালে গেস্ট ব্যবস্থাপনার সংক্ষিপ্ত পরিচিতি ও সব উপকমান্ড
+দেখায়। `tx distro list` ইনস্টল-ক্রমে টার্নাক্সের সব ডেস্কটপ বিন্যাসের তালিকা,
+সংক্ষিপ্ত নাম, পূর্বনির্ধারিত এক্স১১ প্রদর্শন নম্বর, প্যাকেজ পরিবার, প্রস্তাবিত
+গ্রাফিক্স পথ এবং ইনস্টল/যাচাই অবস্থা দেখায়। সাধারণ ওসিআই গেস্ট ডেস্কটপ
+বিন্যাস পায় না, তাই সেগুলো আলাদা অংশে থাকে।
+
+`tx distro search QUERY` গেস্টের ছবি খোঁজে।
+`tx distro shell NAME` প্রোফাইলে ঠিক করা সাধারণ ব্যবহারকারীর শেল খোলে;
+সাধারণ OCI ছবিতে ছবির পূর্বনির্ধারিত ব্যবহারকারী থাকে। `tx distro root NAME`
+মূল ব্যবহারকারীর শেল খোলে। `tx distro exec NAME -- COMMAND` গেস্টের ভেতরে
+নির্দিষ্ট কমান্ড চালায়। সাধারণ OCI ছবি শুধু শেল-গেস্ট; ডেস্কটপ প্রোফাইলের
+জন্য তালিকাভুক্ত বিন্যাস ব্যবহার করুন। `tx distro search QUERY` ছবি খোঁজে;
+`tx distro image-install IMAGE[:TAG] [NAME]` সাধারণ OCI ছবি ইনস্টল করে;
+`tx distro uninstall NAME [--yes]` নিবন্ধিত গেস্ট সরায়।
+
+ব্যবহারকারীর শেলের সংক্ষিপ্ত নাম: `db`, `ub`, `kali`, `alp`, `archx`,
+`fed`, `suse` ও `vsh`; কালির মূল-ব্যবহারকারী শেলের জন্য `kalir` বা `kaliroot`
+এবং অন্য অতিথির জন্য `dbroot`, `ubroot`, `alproot`, `archroot`, `fedr`,
+`suser` ও `vroot` আছে। সব অতিথি ও
+সংক্ষিপ্ত নামের তালিকা `tx distro list`-এ দেখুন। `xgo` ইনস্টল করা ডেস্কটপ
+গেস্টের তালিকা দেখায় এবং একটি বেছে নিতে দেয়।
+
+### `tx start`
+
+ডেস্কটপ চালু করতে `tx start` ব্যবহার করুন। একাধিক ইনস্টল করা ডেস্কটপ ধারাবাহিকভাবে
+চালাতে পূর্ণ নাম বা সংক্ষিপ্ত নাম দিন:
 
 ```bash
-tx stop                   # চলমান session দেখুন, একটি বা একাধিক বাছুন
-tx stop --all            # সব managed desktop বন্ধ
-tx stop db                # শুধু Debian বন্ধ
-tx stop ub                # শুধু Ubuntu বন্ধ
-tx stop alp               # শুধু Alpine বন্ধ
+tx start debian ubuntu kali alpine
+tx start ub db kali alp
 ```
 
-### `ternux restart`
+একটি গেস্ট ব্যর্থ হলেও পরেরগুলোর চেষ্টা হয়; শেষে প্রতিটি গেস্টের ফল দেখিয়ে
+কোনোটি ব্যর্থ হলে কমান্ড ব্যর্থতার সংকেত দেয়। `--json` দিলে সব গেস্টের ফল
+একটি JSON অবজেক্টে পাওয়া যায়। নতুন বিন্যাসে `:0` স্থানীয় টার্মাক্স কর্মক্ষেত্রের
+জন্য; ডেবিয়ান `:1`, উবুন্টু `:2`, কালি `:3`, অ্যালপাইন `:4` এবং পরের
+নামযুক্ত বিন্যাসগুলো `:5` থেকে প্রদর্শন পায়। আগে সংরক্ষিত v2 প্রদর্শন নম্বর
+স্পষ্ট স্থানান্তর না হওয়া পর্যন্ত বদলায় না। স্থানান্তরের আগে
+`tx manager displays` দিয়ে অবস্থা দেখুন। লক্ষ্য সকেট বা টার্মাক্স:এক্স১১
+সার্ভার ব্যস্ত থাকলে ডেস্কটপ চালু হবে না। চালু সেশন আবার আনতে একই কমান্ড দিন।
+সমস্যা হলে `tx status` এবং `tx logs desktop show` চালান।
 
-ডেস্কটপ পুনরায় চালু করে (stop + ১ সেকেন্ড + start)।
+### `tx stop`
+
+`tx stop` চালু ডেস্কটপগুলোর তালিকা দেখিয়ে এক বা একাধিকটি বাছতে দেয়। নাম অথবা
+তালিকার নম্বর দিন; একাধিক পছন্দ ফাঁক বা কমা দিয়ে আলাদা করুন, আর `0` দিলে
+বাতিল হয়। নির্দিষ্ট গেস্ট বন্ধ করতে `tx stop db`, `tx stop ub`, `tx stop kali`
+বা `tx stop alp` চালান। `tx stop --all` সব ডেস্কটপ বন্ধ করে।
+
+### `tx restart`
+
+নির্দিষ্ট ডেস্কটপ বন্ধ করে আবার চালায়। যেমন:
 
 ```bash
-ternux restart
+tx restart debian
 ```
 
-### `ternux doctor`
+### `tx doctor`
 
-category আনুসরে সাজানো diagnostic চালান। প্রতি check-এর ফল `ok`, `warn`, `fail` বা `info` হিসেবে সমাধানের hint-শহ দেখানো হয়; `info` কেবল প্রসংগ, এখানে কখনো issue গণ্য হয় না।
+বিভাগ অনুযায়ী রোগ-নির্ণয় চালান। প্রতিটি পরীক্ষার ফল `ok`, `warn`, `fail` বা `info` হিসেবে সমাধানের নির্দেশসহ দেখানো হয়। কোনো অতিথির নাম না দিলে হোস্ট, ব্যবস্থা, ইনস্টল করা সব পরিচালিত অতিথি, গ্রাফিক্স এবং ডেবিয়ানের এক্সটেনশন পরীক্ষা হয়। পূর্ণ বা সংক্ষিপ্ত অতিথির নাম দিলে সেই অতিথি ও তার গ্রাফিক্স পরীক্ষা হয়। শুধু গ্রাফিক্স পরীক্ষার জন্য `gpu` দিন।
 
-| Category | Check |
+| বিভাগ | পরীক্ষা |
 |---|---|
-| `system` | architecture, storage, memory, battery তাপমাত্রা, state directory |
-| `host` | proot-distro, Debian container, Termux:X11, PulseAudio, curl, Android child-process setting |
-| `guest` | Debian glibc, passwordless sudo, desktop command, dpkg অবস্থা, ফাঁকা জায়গা |
-| `graphics` | Vulkan, GPU, backend, KGSL node, Turnip layout, renderer, launcher, VirGL |
-| `extensions` | install করা extension: package, version, runtime library ও launcher file |
+| `system` | স্থাপত্য, সংরক্ষণ-জায়গা, স্মৃতি, ব্যাটারির তাপমাত্রা, অবস্থা-ডিরেক্টরি |
+| `host` | প্রুট-ডিস্ট্রো, ইনস্টল করা অতিথি, টার্মাক্স:এক্স১১, পালসঅডিও, কার্ল, অ্যান্ড্রয়েডের শিশু-প্রক্রিয়া সেটিং |
+| `guest` | প্রতিটি অতিথির ব্যবস্থা, স্থাপত্য, গ্লিবসি যেখানে আছে, সুডো, ডেস্কটপ নির্দেশনা, প্যাকেজ-তথ্য ও ফাঁকা জায়গা |
+| `graphics` / `gpu` | ভলকান, জিপিইউ, অতিথিভিত্তিক ব্যাকএন্ড, কেজিএসএল নোড, টার্নিপ বিন্যাস, রেন্ডারার, লঞ্চার, ভারজিএল |
+| `extensions` | ডেবিয়ানের এক্সটেনশন: প্যাকেজ, সংস্করণ, চলতি লাইব্রেরি ও লঞ্চার ফাইল |
 
-`guest`, `graphics` (Turnip layout) ও `extensions` check-গুলি Debian guest-এর ভিতরে চলা একটি read-only probe থেকে আসে। guest নাগালে না পাওয়া গেলে সেটি `info` হিসেবে জানানো হয়, ত্রুটি হিসেবে না।
+অতিথির পরীক্ষা প্রতিটি অতিথির ভেতরে শুধু-পড়া অনুসন্ধান চালায়। কোনো অতিথিতে ঢোকা না গেলে সেটি ত্রুটি না দেখিয়ে `info` হিসেবে জানায়।
 
 ```bash
-ternux doctor [CATEGORY...] [--quick] [--strict] [--json]
+tx doctor [CATEGORY|DISTRO ...] [--quick] [--strict] [--json]
+tx doc gpu
+tx doctor kali
+tx doctor db gpu
 ```
 
-| Option | প্রভাব |
+| বিকল্প | কাজ |
 |---|---|
-| `CATEGORY` | কেবল নামকরা category চালান, যেমন `ternux doctor extensions` |
-| `--quick` | Debian guest probe বাদ দেয় |
+| `CATEGORY` | এক বা একাধিক বিভাগ চালান, যেমন `tx doctor extensions`; `gpu` শুধু গ্রাফিক্স পরীক্ষা চালায় |
+| `DISTRO` | পূর্ণ বা সংক্ষিপ্ত নামে একটি অতিথি বাছুন, যেমন `kali`, `db` বা `ub` |
+| `--quick` | অতিথিতে প্রবেশ করে চালানো পরীক্ষা বাদ দেয় |
 | `--strict` | warning থাকলে `1` ও check ব্যর্থ হলে `2` exit করে; default exit status `0`-ই থাকে |
 | `--json` | machine-readable output |
 
@@ -250,7 +299,7 @@ ternux doctor [CATEGORY...] [--quick] [--strict] [--json]
 }
 ```
 
-### `ternux repair`
+### `tx repair`
 
 ছয় ধাপে common issue inspect/repair করে:
 
@@ -270,7 +319,7 @@ restart করে renderer আবার verify করুন।
 ternux repair
 ```
 
-### `ternux verify`
+### `tx verify`
 
 বর্তমানে active guest-এর installation যাচাই করে; চাইলে full distro name বা
 short command দিয়ে নির্দিষ্ট guest বেছে নিন। Active guest না থাকলে saved
@@ -285,7 +334,7 @@ tx verify ub --json
 tx verify alp --json
 ```
 
-### `ternux benchmark`
+### `tx benchmark`
 
 Active desktop-এ Debian container-এর ভেতর glmark2/vkmark health benchmark এবং
 renderer inspection চালায়। Renderer classification `llvmpipe`, Zink/Turnip,
@@ -296,7 +345,7 @@ route প্রমাণ করে না। এটি archived evidence run-এ
 ternux benchmark [--json]
 ```
 
-### `ternux profile`
+### `tx profile`
 
 ডিভাইস প্রোফাইলিং ও ব্যবস্থাপনা।
 
@@ -312,7 +361,7 @@ ternux profile <subcommand> [name]
 | `list` | সব প্রোফাইল তালিকা |
 | `compare [a] [b]` | দুটি প্রোফাইল তুলনা |
 
-### `ternux backend`
+### `tx backend`
 
 GPU ব্যাকএন্ড ব্যবস্থাপনা।
 
@@ -326,7 +375,7 @@ ternux backend <subcommand> [backend]
 | `set auto\|zink\|virgl` | GPU ব্যাকএন্ড পরিবর্তন |
 | `detect` | স্বয়ংক্রিয় ব্যাকএন্ড শনাক্ত |
 
-### `ternux gpu`
+### `tx gpu`
 
 GPU backend ও guest userspace driver দেখুন বা update করুন। `update` Zink route-এ
 Ternux-এর pinned এবং SHA-256-যাচাইকৃত Debian Turnip driver আবার install করে;
@@ -339,54 +388,83 @@ ternux gpu update
 ternux gpu update --json
 ```
 
-`ternux backend update` একই কাজের সমতুল্য command।
+`tx backend update` একই কাজের সমতুল্য command।
 
-### `ternux info`
+### `tx info`
 
-device model, Android version, শনাক্ত GPU, নির্বাচিত backend, চলমান OpenGL
-renderer, Vulkan অবস্থা এবং Termux পড়তে পারলে Android phantom process-killer-এর
-তথ্য দেখায়। `Renderer: not running` মানে Termux:X11 বন্ধ; `unknown` মানে display
-পাওয়া গেছে, কিন্তু guest renderer query নাম দিতে পারেনি। Android-এর কোনো build-এ
-Settings provider-এ Termux-এর প্রবেশাধিকার না থাকলে phantom setting-কে enabled বা
-disabled ধরে না নিয়ে unreadable দেখায়। চলমান desktop lifecycle দেখতে
-`tx status [DISTRO]`; host readiness দেখতে `tx doctor --quick` চালান।
+অ্যান্ড্রয়েড এসডিকে, যন্ত্র ও প্রসেসরের বিবরণ, মোট ও ব্যবহারযোগ্য মেমরি,
+খালি সংরক্ষণ-জায়গা, অ্যান্ড্রয়েড পড়তে দিলে কাজের চাপের গড়, জিপিইউ ও
+ব্যাকএন্ড, চলতি ওপেনজিএল রেন্ডারার, ভলকান অবস্থা এবং ফ্যান্টম প্রসেস বন্ধের
+সেটিং পড়া যাচ্ছে কি না দেখায়। `Renderer: not running` মানে টার্মাক্স:এক্স১১
+বন্ধ; `unknown` মানে প্রদর্শন চালু ছিল, কিন্তু গেস্টের রেন্ডারার অনুসন্ধান নাম
+দিতে পারেনি। কোনো ডেস্কটপ প্রদর্শন চালু না থাকলে গ্রাফিক্স অবস্থা
+`DISPLAY_STOPPED` দেখায়। অ্যান্ড্রয়েডের কোনো সংস্করণে সেটিংস-এ টার্মাক্সের
+প্রবেশাধিকার না থাকলে ফ্যান্টম প্রসেস সেটিং চালু বা বন্ধ অনুমান না করে পড়া
+যাচ্ছে না বলে দেখায়। ডেস্কটপের চলতি অবস্থা দেখতে `tx status [DISTRO]`, আর
+হোস্টের প্রস্তুতি দেখতে `tx doctor --quick` চালান।
 
-GPU শনাক্তকরণে Android graphics property ও পাওয়া kernel interface দেখা হয়।
-KGSL-সহ Adreno device-এ Zink/Turnip route; অন্য শনাক্ত GPU family-তে VirGL route
-নেওয়া হয়, যেখানে Android host graphics stack rendering device সরবরাহ করে।
-নির্বাচিত backend configuration—এটি desktop-এ hardware acceleration চলছে তার
-প্রমাণ নয়। চলমান renderer ও `Graphics state`-ও দেখুন।
+জিপিইউ শনাক্ত করতে অ্যান্ড্রয়েডের গ্রাফিক্স বৈশিষ্ট্য ও কার্নেল ইন্টারফেস দেখা
+হয়। কেজিএসএল-সহ অ্যাড্রেনো হলে কেবল সমর্থিত গেস্ট বিন্যাসে জিঙ্ক/টার্নিপ পথ
+নেওয়া হয়। কালির জন্য এখন ভিরজিএল ব্যবহৃত হয়; তার প্যাকেটভুক্ত জিঙ্ক বিন্যাস
+পরীক্ষায় চালু হয়নি এবং যাচাইকৃত টার্নিপ প্যাকেটও নেই। অন্য জিপিইউ পরিবারেও
+ভিরজিএল ব্যবহৃত হয়; অ্যান্ড্রয়েডের হোস্ট গ্রাফিক্স ব্যবস্থা সেখানে রেন্ডারিং
+যন্ত্র সরবরাহ করে। নির্বাচিত পথটি কেবল বিন্যাস—ডেস্কটপে হার্ডওয়্যার ত্বরণ চলছে
+তার প্রমাণ নয়। চলতি রেন্ডারার ও গ্রাফিক্স অবস্থাও দেখুন।
 
 ```bash
 ternux info [--json]
 ```
 
-### `ternux state`
+### `tx state`
 
-ইনস্টলেশন অবস্থা দেখান।
+ইনস্টলার সম্পন্ন ধাপ, সংরক্ষিত ব্যবহারকারী/গেস্ট/লোকেল, ইনস্টল করা পরিচালিত
+গেস্টের প্রদর্শন নম্বর ও প্রস্তুতির অবস্থা এবং সাম্প্রতিক কর্মদক্ষতা/মেরামতের
+ইতিহাস দেখায়। JSON ফলাফলে `installed_profiles` থাকে।
 
 ```bash
 ternux state [--json]
 ```
 
-### `ternux status`
+### `terfetch`
 
-Desktop lifecycle এবং host service-এর অবস্থা দেখায়। `running` দেখানোর আগে
-guest-এর ভেতর সীমিত সময়ে X11 query সফল হতে হয়; শুধু socket বা process থাকলেই
-desktop usable ধরা হয় না। `pulseaudio` host daemon process আছে কি না জানায়;
-`pulseaudio_ready` Debian app-এর জন্য loopback TCP audio route আলাদাভাবে যাচাই
-করে।
+`terfetch` একটি স্বতন্ত্র সিস্টেম-তথ্য প্রদর্শক; এটি টার্মাক্স হোস্ট ও প্রতিটি
+পরিচালিত গেস্টে বসে। টার্মাক্সের নিজস্ব লগইন ব্যানার বন্ধ করতে সমর্থিত
+`~/.hushlogin` ফাইল ব্যবহার হয়; এরপর নতুন ইন্টারঅ্যাক্টিভ ব্যাশ বা জেডশ শেলে
+তার বদলে টারফেচ দেখায়। গেস্টে চালালে সেই গেস্টের অপারেটিং সিস্টেম ও সম্পদের
+তথ্য দেখায়। একটি শেলে স্বয়ংক্রিয় প্রদর্শন বন্ধ করতে
+`TERFETCH_NO_AUTORUN=1` দিন। কাঠামোবদ্ধ ফলাফলের জন্য `terfetch --json` এবং
+সব বিকল্পের জন্য `terfetch --help` চালান। পরে আলাদা সংগ্রহশালা বানিয়ে এখানকার
+কোড সরানো যাবে; তার জন্য মূল ফাইলগুলো `share/terfetch/`-এ রাখা আছে।
 
 ```bash
-ternux status [--json]
+terfetch
+terfetch --json
 ```
 
-JSON output-এ `lifecycle`, `x11_running`, `pulseaudio`, `pulseaudio_ready`,
-`virgl`, `launcher` এবং `desktop_pid` থাকে।
+### `tx status`
 
-### `ternux logs`
+অতিথির নাম ছাড়া চালালে ইনস্টল করা সব পরিচালিত ডেস্কটপের অবস্থা একসঙ্গে দেখায়;
+পূর্ণ বা সংক্ষিপ্ত নাম দিলে একটি অতিথির অবস্থা দেখায়। `running` দেখানোর আগে
+অতিথির ভেতরে নির্দিষ্ট সময়ের মধ্যে এক্স১১ অনুসন্ধান সফল হতে হয়; শুধু সকেট বা
+প্রসেস থাকলেই ডেস্কটপ ব্যবহারযোগ্য ধরা হয় না। `pulseaudio` হোস্টে শব্দসেবা
+চলছে কি না জানায়; `pulseaudio_ready` ডেবিয়ান অ্যাপের জন্য স্থানীয় টিসিপি
+শব্দপথ আলাদাভাবে যাচাই করে।
 
-লগ ফাইল দেখা ও ব্যবস্থাপনা।
+```bash
+tx status [--json]
+tx status kali --json
+```
+
+একটি অতিথির JSON ফলাফলে `lifecycle`, `x11_running`, `pulseaudio`, `pulseaudio_ready`,
+`virgl`, `launcher`, `display`, `desktop_log` ও `desktop_pid` থাকে। একাধিক
+অতিথির ফলাফলে `guest_count` এবং `guests` তালিকায় প্রত্যেকের আলাদা তথ্য থাকে।
+
+### `tx logs`
+
+ইনস্টলার, হোস্ট এবং প্রতিটি অতিথির ডেস্কটপ লগ দেখা ও ব্যবস্থাপনা। `list`
+লগের পথ ও আকার দেখায়; `desktop show` ও `desktop tail` চলতি অথবা সর্বশেষ
+সংরক্ষিত অতিথির লগ খোলে। নির্দিষ্ট অতিথির লগের জন্য নাম যোগ করুন:
+`tx logs desktop show kali`।
 
 ```bash
 ternux logs <subcommand> [n]
@@ -398,9 +476,9 @@ ternux logs <subcommand> [n]
 | `tail` | রিয়েল-টাইম লগ দেখা |
 | `clear` | লগ ফাইল মুছে ফেলা |
 | `list` | লগ ফাইলের তালিকা |
-| `desktop [show|tail]` | desktop session log পড়ুন বা live follow করুন |
+| `desktop [show|tail]` | ডেস্কটপ সেশনের লগ পড়ুন বা সরাসরি অনুসরণ করুন |
 
-### `ternux extension`
+### `tx extension`
 
 ঐচ্ছিক release-ভিত্তিক Linux ARM64 extension list, install, repair বা remove করে। Host CLI কাজগুলো নির্বাচিত Debian guest-এ পাঠিয়ে দেয়।
 
@@ -419,7 +497,7 @@ automatic CPU/GPU fallback নেই।
 [CPU/Vulkan guide](https://github.com/soobujmiah/ternux/blob/main/bn/guides/llama-vulkan-extension.md)
 ও [Stable Diffusion guide](https://github.com/soobujmiah/ternux/blob/main/bn/guides/stable-diffusion-vulkan-extension.md) এবং [HTP guide](https://github.com/soobujmiah/ternux/blob/main/bn/guides/llama-htp-experimental.md) দেখুন।
 
-### `ternux update`
+### `tx update`
 
 CLI-কে তার install source অনুযায়ী আপডেট করে। APT-managed install APT দিয়ে update/check করে; অন্য install GitHub থেকে self-update করে।
 
@@ -432,7 +510,7 @@ ternux update [check]
 | *(none)* | APT package-managed হলে configured repository থেকে update; অন্যথায় GitHub থেকে latest version download/install |
 | `check` | ইনস্টল না করেই আপডেট চেক; APT-managed install configured package candidate দেখে |
 
-### `ternux uninstall`
+### `tx uninstall`
 
 Scoped component removal। Action না দিলে interactive menu; non-interactive
 shell-এ action অবশ্যই explicit দিন।

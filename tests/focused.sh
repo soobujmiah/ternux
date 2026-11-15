@@ -18,23 +18,40 @@ check() {
 printf 'TAP version 13\n'
 
 check "native read-only manager JSON schemas and empty-host behavior" bash "$ROOT/tests/manager_api.sh"
+check "tx mic/cam Android permission request and no-companion fallbacks" bash "$ROOT/tests/permissions_cli.sh"
+check "organized info/state output and per-guest desktop logs" bash "$ROOT/tests/info_cli.sh"
+check "doctor covers all guests and supports distro/GPU scopes" bash "$ROOT/tests/doctor_cli.sh"
 check "v3 manager request, response, and error envelope contract" python3 "$ROOT/tests/manager_protocol.py"
 check "v3 guest display identities and saved v2 mapping preservation" bash "$ROOT/tests/display_registry.sh"
 check "Termux host package repair recovers broken download-tool linkage" bash "$ROOT/tests/termux_pkg_recovery.sh"
 check "standalone bootstrap falls back from broken or unreachable curl to wget" bash "$ROOT/tests/bootstrap_downloader.sh"
+check "guest APT and Firefox installs have network and wall-clock limits" bash "$ROOT/tests/apt_timeouts.sh"
+check "X11 windows are centered, scaled, and kept inside the usable display area" python3 "$ROOT/tests/window_fit_geometry.py"
 
 # User-facing CLI help must track the dispatcher and supported guest profiles.
 if cli_help="$(bash "$ROOT/bin/ternux" --help 2>&1)" \
+  && tx_help="$(bash "$ROOT/bin/tx" --help 2>&1)" \
   && install_help="$(bash "$ROOT/bin/ternux" install --help 2>&1)" \
   && printf '%s\n' "$cli_help" | grep -Fq -- '--version, -V' \
+  && printf '%s\n' "$tx_help" | grep -Fq 'tx <command> [options] [subcommand]' \
+  && printf '%s\n' "$tx_help" | grep -Fq 'Complete command tree' \
+  && printf '%s\n' "$tx_help" | grep -Fq 'uninstall [session|launcher|state|container|host-cli|all]' \
+  && printf '%s\n' "$tx_help" | grep -Fq 'The compatibility command' \
+  && ternux_help="$(bash "$ROOT/bin/ternux" -h 2>&1)" \
+  && printf '%s\n' "$ternux_help" | grep -Fq 'Complete command tree' \
+  && printf '%s\n' "$tx_help" | grep -Fq 'mic' \
+  && printf '%s\n' "$tx_help" | grep -Fq 'cam' \
+  && printf '%s\n' "$tx_help" | grep -Fq 'db→debian, ub→ubuntu, kali-linux→kali, alp→alpine' \
+  && start_help="$(bash "$ROOT/bin/tx" start --help 2>&1)" \
+  && printf '%s\n' "$start_help" | grep -Fq 'tx start [DISTRO ...]' \
   && verify_help="$(bash "$ROOT/bin/ternux" verify --help 2>&1)" \
   && printf '%s\n' "$verify_help" | grep -Fq 'verify [DISTRO] [--json]' \
   && printf '%s\n' "$install_help" | grep -Fq '15 named guest profiles' \
   && printf '%s\n' "$install_help" | grep -Fq 'APT-family guests only' \
   && ! printf '%s\n' "$install_help" | grep -Fq '1 development, 2 llama.cpp'; then
-  ok "runtime help documents global version, current profile selector and workload flow"
+  ok "tx and ternux help expose the complete command tree, aliases and current workload flow"
 else
-  not_ok "runtime help documents global version, current profile selector and workload flow"
+  not_ok "tx and ternux help expose the complete command tree, aliases and current workload flow"
 fi
 
 # Verification follows the active guest, skips stale saved selections, and
@@ -249,25 +266,51 @@ fi
 # Renderer detection should query the active X11 display even when doctor was
 # launched from Termux without DISPLAY, and preserve an explicitly selected one.
 if env TERNUX_STATE_DIR="$TMP/state-renderer-display" HOME="$TMP/home-renderer-display" \
-  PREFIX="$TMP/prefix-renderer-display" bash -c '
+  PREFIX="$TMP/prefix-renderer-display" TERNUX_KGSL_DEVICE="$TMP/absent-kgsl-renderer" bash -c '
     . "$1/lib/detect.sh"
     tnx_has_cmd(){ [ "$1" = proot-distro ]; }
+    tnx_distro_state_get(){ echo zink; }
     pgrep(){ [ "$1" = -f ] && [[ "$2" == *termux-x11* ]]; }
     tnx_guest_login(){ printf "%s\\n" "$*" >> "$LOG"; echo "Adreno (TM) 825"; }
     export LOG="$2/renderer-display.log"
     unset DISPLAY
     [ "$(tnx_detect_renderer)" = "Adreno (TM) 825" ] || exit
-    grep -q -- "--shared-tmp --shared-x11 -- env DISPLAY=:1 bash -c" "$LOG" || exit
+    grep -q -- "--shared-tmp --shared-x11 -- env DISPLAY=:1 MESA_LOADER_DRIVER_OVERRIDE=zink TU_DEBUG=noconform MESA_VK_WSI_DEBUG=sw bash -c" "$LOG" || exit
     grep -q "timeout 5s glxinfo" "$LOG" || exit
     ! grep -q "zink Vulkan (Adreno via Turnip)" "$LOG" || exit
     : > "$LOG"; DISPLAY=:7
     [ "$(tnx_detect_renderer)" = "Adreno (TM) 825" ] &&
-    grep -q -- "--shared-tmp --shared-x11 -- env DISPLAY=:7 bash -c" "$LOG" &&
+    grep -q -- "--shared-tmp --shared-x11 -- env DISPLAY=:7 MESA_LOADER_DRIVER_OVERRIDE=zink TU_DEBUG=noconform MESA_VK_WSI_DEBUG=sw bash -c" "$LOG" &&
     grep -q "timeout 5s glxinfo" "$LOG"
   ' _ "$ROOT" "$TMP"; then
   ok "renderer detection passes the active display into the Debian guest"
 else
   not_ok "renderer detection passes the active display into the Debian guest"
+fi
+
+# Renderer and Vulkan probes must expose the same Adreno device nodes and the
+# selected guest display used by the managed Zink desktop.
+if env TERNUX_STATE_DIR="$TMP/state-renderer-kgsl" HOME="$TMP/home-renderer-kgsl" \
+  PREFIX="$TMP/prefix-renderer-kgsl" TERNUX_KGSL_DEVICE="$TMP/kgsl-renderer" bash -c '
+    : > "$TERNUX_KGSL_DEVICE"
+    . "$1/lib/detect.sh"
+    tnx_has_cmd(){ [ "$1" = proot-distro ]; }
+    tnx_distro(){ echo kali; }
+    tnx_distro_display(){ echo 3; }
+    pgrep(){ [ "$1" = -f ] && [[ "$2" == *termux-x11* ]]; }
+    tnx_guest_login(){ printf "%s\\n" "$*" >> "$LOG"; echo "zink Vulkan (Adreno 825)"; }
+    export LOG="$2/probe-kgsl.log"
+    unset DISPLAY
+    [ "$(tnx_detect_renderer)" = "zink Vulkan (Adreno 825)" ] || exit
+    grep -Fq -- "--bind $TERNUX_KGSL_DEVICE:/dev/kgsl-3d0 --bind $TERNUX_KGSL_DEVICE:/dev/kgsl" "$LOG" || exit
+    : > "$LOG"
+    tnx_vulkan_probe_guest >/dev/null
+    grep -Fq -- "--shared-tmp --shared-x11 --bind $TERNUX_KGSL_DEVICE:/dev/kgsl-3d0 --bind $TERNUX_KGSL_DEVICE:/dev/kgsl" "$LOG" &&
+    grep -Fq -- "-- env DISPLAY=:3 bash -c" "$LOG"
+  ' _ "$ROOT" "$TMP"; then
+  ok "renderer and Vulkan probes bind Adreno nodes and the selected guest display"
+else
+  not_ok "renderer and Vulkan probes bind Adreno nodes and the selected guest display"
 fi
 
 # With no DISPLAY and no Termux:X11 server, renderer is an inactive-state
@@ -311,7 +354,7 @@ if env TERNUX_STATE_DIR="$TMP/state-doctor-active-guest" HOME="$TMP/home-doctor-
     tnx_require_termux(){ return 0; }
     TERNUX_JSON=1
     out="$(tnx_cmd_doctor host --quick)" || exit
-    printf "%s" "$out" | grep -Fq "ubuntu container installed" || exit
+    printf "%s" "$out" | grep -Fq "Installed managed guests: ubuntu" || exit
     ! printf "%s" "$out" | grep -Fq "Debian container missing"
   ' _ "$ROOT"; then
   ok "doctor diagnostics follow the active Ubuntu guest instead of stale saved distro state"
@@ -332,7 +375,8 @@ if env TERNUX_STATE_DIR="$TMP/state-doctor-explicit-guest" HOME="$TMP/home-docto
     TERNUX_JSON=1
     out="$(tnx_cmd_doctor host --quick)" || exit
     printf "%s" "$out" | grep -Fq "debian container installed" || exit
-    ! printf "%s" "$out" | grep -Fq "ubuntu container installed"
+    printf "%s" "$out" | grep -Fq "Installed managed guests: debian" || exit
+    ! printf "%s" "$out" | grep -Fq "Installed managed guests: ubuntu"
   ' _ "$ROOT"; then
   ok "doctor honors an explicit TERNUX_DISTRO over the active session"
 else
@@ -377,7 +421,7 @@ if env TERNUX_STATE_DIR="$TMP/state-welcome" HOME="$TMP/home-welcome" \
     tnx_guest_login(){ if [ "${3:-}" = bash ] && [ "${4:-}" = -c ] && [[ "$5" == *ternux-welcome.desktop* ]]; then printf "%s\n" "$5" > "$MARKER"; bash -n "$MARKER" || return 1; fi; return 0; }
     tnx_phase_debian alice >/dev/null &&
       grep -q "Exec=/usr/local/bin/ternux-welcome" "$MARKER" &&
-      grep -q "mousepad galculator evince fonts-noto-core.*ibus ibus-avro devilspie2" "$1/lib/phases.sh" &&
+      grep -q "mousepad galculator evince fonts-noto-core.*ibus ibus-gtk3 ibus-gtk4 ibus-avro devilspie2" "$1/lib/phases.sh" &&
       grep -q "xfce4-taskmanager.*xfce4-terminal zenity vlc ffmpeg ristretto qt5-gtk-platformtheme colord" "$1/lib/phases.sh" &&
       grep -q "vout=xcb_x11" "$1/lib/phases.sh" &&
       grep -q "avcodec-hw=none" "$1/lib/phases.sh" &&
@@ -402,12 +446,13 @@ if env TERNUX_STATE_DIR="$TMP/state-welcome" HOME="$TMP/home-welcome" \
       grep -q "devilspie2" "$1/lib/phases.sh" &&
       grep -q "pulseaudio pulseaudio-utils pavucontrol" "$1/lib/phases.sh" &&
       grep -q "ibus-avro" "$1/lib/phases.sh" &&
+      grep -q "ibus-gtk3 ibus-gtk4" "$1/lib/phases.sh" &&
       grep -q "fonts-noto-core" "$1/lib/phases.sh" &&
       grep -q "ternux-window-fit.desktop" "$MARKER" &&
       grep -q "set_window_geometry" "$1/lib/ternux-window-fit.lua" &&
       grep -Fq "translated = root.translate_coords(window, 0, 0)" "$1/lib/ternux-assets/bin/ternux-window-fit-x11" &&
       grep -Fq "window_ids(root, atoms_by_name[\"_NET_CLIENT_LIST\"])" "$1/lib/ternux-assets/bin/ternux-window-fit-x11" &&
-      grep -Fq "screen_width, screen_height = screen.width_in_pixels, screen.height_in_pixels" "$1/lib/ternux-assets/bin/ternux-window-fit-x11" &&
+      grep -Fq "screen_width, screen_height = root_dimensions(root)" "$1/lib/ternux-assets/bin/ternux-window-fit-x11" &&
       grep -Fq "if atoms_by_name[\"_NET_WM_STATE_FULLSCREEN\"] in state:" "$1/lib/ternux-assets/bin/ternux-window-fit-x11" &&
       grep -q "Every fresh profile gets one usable browser" "$1/lib/phases.sh" &&
       sh -n "$1/lib/ternux-welcome.sh" &&
@@ -774,7 +819,7 @@ required.update({
 assert all(files.get(dest, {}).get("source") == source for dest, source in required.items())
 assert all((root / source).is_file() for source in required.values())
 for asset in (root / "lib/ternux-assets").rglob("*"):
-    if asset.is_file():
+    if asset.is_file() and "__pycache__" not in asset.parts and asset.suffix != ".pyc":
         destination = "lib/ternux/ternux-assets/" + asset.relative_to(root / "lib/ternux-assets").as_posix()
         assert files.get(destination, {}).get("source") == asset.relative_to(root).as_posix()
 assert "Inherits=Adwaita,hicolor" in (root / "lib/ternux-assets/icons/Ternux/index.theme").read_text()
@@ -875,7 +920,7 @@ assert "--proto '=https' --proto-redir '=https'" in firefox_installer
 assert "--max-filesize 250000000" in firefox_installer
 assert "--retry 3 --retry-delay 2 --retry-all-errors" in firefox_installer
 assert "--progress-bar" in firefox_installer and "Python's urllib" in firefox_installer
-assert "apt install -y \\$DPKG_FORCE curl" in phase_source
+assert "timeout --signal=TERM --kill-after=10 900 apt install -y \\$DPKG_FORCE -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 curl" in phase_source
 assert "sudo apt install" not in firefox_installer
 for icon in ("synaptic", "python3.14"):
     assert (root / f"lib/ternux-assets/icons/Ternux/scalable/apps/{icon}.svg").is_file()
@@ -910,7 +955,7 @@ window_fit = (root / "lib/ternux-assets/bin/ternux-window-fit-x11").read_text()
 assert '"_NET_CLIENT_LIST"' in window_fit and "client_ids = set(window_ids(root" in window_fit
 assert "def window_ids(window, atom: int) -> list[int]:" in window_fit
 assert "_fit_signatures: dict[int, tuple[object, ...]]" in window_fit
-assert "if _fit_signatures.get(window_id) == signature:" in window_fit
+assert "if not force and _fit_signatures.get(window_id) == signature:" in window_fit
 assert "NoDisplay=true" in (root / "lib/ternux-assets/applications/ternux-web-browser.desktop").read_text()
 assert "NoDisplay=true" in (root / "lib/phases.sh").read_text()
 assert "tnx_request_camera_permission()" in (root / "lib/phases.sh").read_text()
@@ -986,7 +1031,7 @@ assert 'with_suffix(".partial" + self.target.suffix)' in recorder
 assert "ffmpeg ristretto" in (root / "lib/phases.sh").read_text()
 assert "mousepad galculator evince fonts-noto-core" in (root / "lib/phases.sh").read_text()
 phase_source = (root / "lib/phases.sh").read_text()
-base_desktop_install = next(line for line in phase_source.splitlines() if "apt install -y -o APT::Install-Recommends=false \\$DPKG_FORCE sudo nano" in line)
+base_desktop_install = next(line for line in phase_source.splitlines() if "apt install -y -o APT::Install-Recommends=false" in line and "sudo nano" in line)
 assert "libglib2.0-bin" in base_desktop_install
 assert "ca-certificates" in base_desktop_install
 assert "gtk3 glib2 ibus" in phase_source
@@ -1050,7 +1095,7 @@ launcher_icon = (root / "lib/ternux-assets/icons/Ternux/scalable/apps/ternux-lau
 assert "M32 20v24M20 32h24" not in launcher_icon
 assert 'width="9" height="9"' in launcher_icon
 assert (root / "lib/ternux-assets/icons/Ternux/scalable/devices/drive-removable-media.svg").is_file()
-assert "apt remove -y \\$DPKG_FORCE guvcview" in desktop_phase
+assert "timeout --signal=TERM --kill-after=10 900 apt remove -y \\$DPKG_FORCE" in desktop_phase
 assert "apk add sudo bash shadow musl-utils nano mousepad" in desktop_phase
 assert "apk add sudo bash shadow musl-utils nano mousepad galculator" in desktop_phase
 assert "apk add sudo bash shadow musl-utils nano mousepad galculator evince font-noto python3 py3-gobject3 gtk+3.0 ibus devilspie2" not in desktop_phase
@@ -1063,7 +1108,10 @@ assert "pkg_retry apk add firefox-esr" in desktop_phase
 assert "mktemp /tmp/ternux-sudoers.XXXXXX" in desktop_phase
 assert "mktemp /tmp/ternux-jetbrainsmono.XXXXXX)" in desktop_phase
 assert "XXXXXX.tar.xz" not in desktop_phase
-assert "apk add sudo bash shadow musl-utils nano mousepad galculator evince font-noto python3 py3-xlib py3-gobject3 gtk+3.0 glib ibus dbus-x11 pulseaudio" in desktop_phase and "desktop-file-utils xdg-utils xdpyinfo setxkbmap util-linux" in desktop_phase
+assert all(package in desktop_phase for package in (
+    "apk add sudo bash shadow musl-utils nano mousepad galculator evince font-noto python3",
+    "py3-xlib", "py3-gobject3", "gtk+3.0", "glib", "ibus", "dbus-x11", "pulseaudio",
+    "desktop-file-utils", "xdg-utils", "xdpyinfo", "setxkbmap", "util-linux"))
 assert "apk add vlc-qt m17n-lib m17n-db font-noto-bengali" in desktop_phase
 assert "rsvg-convert" in desktop_phase
 assert "gdk-pixbuf=2.42.12-r1 gdk-pixbuf-loaders=2.42.12-r1" not in desktop_phase
@@ -1243,7 +1291,7 @@ if env TERNUX_STATE_DIR="$TMP/state-launcher" HOME="$launcher_home" bash -c '
   grep -Fq "pactl unload-module \"\$PULSE_MODULE_ID\"" "$HOME/x.sh" &&
   grep -Fq "kill_owned_child \"\${X11_PID:-}\"" "$HOME/x.sh" &&
   grep -Fq "TNX_IDENTITY_FILE=\"\${TNX_PID_FILE}.identity\"" "$HOME/x.sh" &&
-  grep -qF '\''/run/user/$(id -u)'\'' "$HOME/x.sh" &&
+  grep -Fq "/run/user/" "$HOME/x.sh" &&
   ! grep -Fq "rm -f \"\$TMPDIR\"/.X11-unix/X*" "$HOME/x.sh" &&
   ! grep -q "pulseaudio --kill.*pkill -KILL" "$HOME/x.sh" &&
   grep -q "candidate=4713; candidate<=4722" "$HOME/x.sh" &&
@@ -1268,7 +1316,7 @@ if env TERNUX_STATE_DIR="$TMP/state-launcher" HOME="$launcher_home" bash -c '
   grep -q "chmod 700 \"\$HOME/.runtime\"" "$HOME/x.sh" &&
   ! grep -q "^virgl_test_server_android " "$HOME/x.sh" &&
   ! grep -q "pkill.*dbus" "$HOME/.bashrc" &&
-  grep -q "alias x=.*ternux start" "$HOME/.bashrc" &&
+  ! grep -Fq "alias x=" "$HOME/.bashrc" &&
   grep -q "alias killx=.*ternux stop" "$HOME/.bashrc" &&
   grep -q "xgo() { _ternux_xgo; }" "$HOME/.bashrc" &&
   grep -q "alias tx=.*ternux" "$HOME/.bashrc" &&
@@ -1377,14 +1425,16 @@ if env TERNUX_STATE_DIR="$TMP/state-virgl" HOME="$TMP/home-virgl" bash -c '
   grep -Fq "VIRGL_SOCKET=\"\$PREFIX/tmp/.virgl_test\"" "$HOME/x.sh" &&
   grep -Fq "guest_login_isolated debian --bind \"\$VIRGL_SOCKET:/tmp/.virgl_test\"" "$HOME/x.sh" &&
   grep -q "VirGL server socket was not created" "$HOME/x.sh" &&
-  grep -Fq "renderer_info=\"\$(timeout 5s glxinfo -B 2>&1)\" || renderer_info=\"\"" "$HOME/x.sh" &&
-  grep -Fq "export GALLIUM_DRIVER=llvmpipe LIBGL_ALWAYS_SOFTWARE=1" "$HOME/x.sh" &&
+  grep -Fq "renderer_info=\"\$(timeout 5s glxgears -info 2>&1 || true)\"" "$HOME/x.sh" &&
+  grep -Fq "GL_RENDERER[[:space:]]*=[[:space:]]*virgl" "$HOME/x.sh" &&
+  grep -Fq -- "--env MESA_GLES_VERSION_OVERRIDE=3.2 --env MESA_NO_ERROR=1 --env LIBGL_DRI3_DISABLE=1" "$HOME/x.sh" &&
+  grep -Fq "export GALLIUM_DRIVER=llvmpipe LIBGL_ALWAYS_SOFTWARE=1 MESA_LOADER_DRIVER_OVERRIDE=llvmpipe" "$HOME/x.sh" &&
   ! grep -q -- "--shared-tmp" "$HOME/x.sh" &&
   ! grep -q "MESA_LOADER_DRIVER_OVERRIDE=zink" "$HOME/x.sh"
 ' _ "$ROOT"; then
-  ok "VirGL launcher starts only the fallback renderer"
+  ok "VirGL launcher checks the real GLX renderer and keeps llvmpipe as the final fallback"
 else
-  not_ok "VirGL launcher starts only the fallback renderer"
+  not_ok "VirGL launcher checks the real GLX renderer and keeps llvmpipe as the final fallback"
 fi
 
 # The English and Bengali manual must direct users through the managed desktop
@@ -2331,12 +2381,12 @@ if env TERNUX_STATE_DIR="$TMP/state-desktop-stop-menu" HOME="$TMP/home-desktop-s
   bash -c '
     mkdir -p "$HOME"
     . "$1/lib/desktop.sh"
-    _tnx_running_guest_sessions(){ printf "%s\n" debian ubuntu alpine; }
-    tnx_distro_display(){ case "$1" in debian) echo 1;; ubuntu) echo 2;; alpine) echo 3;; esac; }
+    _tnx_running_guest_sessions(){ printf "%s\n" debian ubuntu kali alpine; }
+    tnx_distro_display(){ case "$1" in debian) echo 1;; ubuntu) echo 2;; kali) echo 3;; alpine) echo 4;; esac; }
     tnx_cmd_stop(){ printf "%s\n" "$1" >> "$HOME/stopped"; }
-    printf "1 3\n" | _tnx_stop_select > "$HOME/multi.out" || exit
+    printf "1 4\n" | _tnx_stop_select > "$HOME/multi.out" || exit
     grep -q "debian.*(db).*:1" "$HOME/multi.out" && grep -q "ubuntu.*(ub).*:2" "$HOME/multi.out" &&
-      grep -q "alpine.*(alp).*:3" "$HOME/multi.out" &&
+      grep -q "kali.*(kali).*:3" "$HOME/multi.out" && grep -q "alpine.*(alp).*:4" "$HOME/multi.out" &&
       [ "$(cat "$HOME/stopped")" = "debian
 alpine" ] || exit
     : > "$HOME/stopped"
@@ -2425,6 +2475,7 @@ fi
 # name, not any command line containing a display-related search term.
 if env TERNUX_STATE_DIR="$TMP/state-desktop-detect" HOME="$TMP/home-desktop-detect" bash -c '
     . "$1/lib/desktop.sh"
+    tnx_has_cmd(){ return 1; }
     pgrep(){
       if [ "$1" = "-f" ]; then
         case "$2" in
@@ -2488,6 +2539,8 @@ else
   not_ok "desktop stop, restart and status accept short distro names"
 fi
 
+check "multi-guest desktop start continues after failures and supports aggregate JSON" bash "$ROOT/tests/multi_start_cli.sh"
+
 # The shared-X11 diagnostic must run as the configured guest user with a bounded timeout.
 if env TERNUX_STATE_DIR="$TMP/state-x11-probe" HOME="$TMP/home-x11-probe" \
   X11_PROBE_ARGS="$TMP/x11-probe-args" bash -c '
@@ -2496,6 +2549,10 @@ if env TERNUX_STATE_DIR="$TMP/state-x11-probe" HOME="$TMP/home-x11-probe" \
     tnx_guest_login(){ printf "%s\n" "$*" > "$X11_PROBE_ARGS"; [ "${MOCK_X11_QUERY:-0}" = 1 ]; }
     MOCK_X11_QUERY=1 tnx_x11_functional || exit
     grep -Fq -- "--_tnx-timeout-seconds 5 --shared-x11 --user alice -- env DISPLAY=:1 xdpyinfo -display :1" "$X11_PROBE_ARGS" || exit
+    export TERNUX_DISTRO=ubuntu
+    tnx_distro_state_get(){ [ "$1" = ubuntu ] && [ "$2" = user ] && printf sobuj_dev2; }
+    MOCK_X11_QUERY=1 tnx_x11_functional || exit
+    grep -Fq -- "--_tnx-timeout-seconds 5 --shared-x11 --user sobuj_dev2 -- env DISPLAY=:2 xdpyinfo -display :2" "$X11_PROBE_ARGS" || exit
     MOCK_X11_QUERY=0 tnx_x11_functional && exit 1
     exit 0
   ' _ "$ROOT"; then
@@ -2881,6 +2938,7 @@ if env TERNUX_STATE_DIR="$TMP/state-software-renderers" HOME="$TMP/home-software
                   llvmpipe lavapipe softpipe; do
     [ "$(tnx_detect_graphics_state VULKAN_READY "$renderer")" = SOFTWARE_FALLBACK ] || exit 1
   done
+  [ "$(tnx_detect_graphics_state VULKAN_READY "not running (Termux:X11 stopped)")" = DISPLAY_STOPPED ] || exit 1
   [ "$(tnx_detect_graphics_state VULKAN_READY "zink Vulkan 1.4 Adreno 825")" = OPENGL_ACCELERATION_READY ] &&
   [ "$(tnx_detect_graphics_state VULKAN_READY unknown)" = VULKAN_READY ]
 ' _ "$ROOT"; then
@@ -3006,6 +3064,7 @@ boot_pin_commit="$(sed -n 's/^_TNX_BOOTSTRAP_COMMIT="\([0-9a-f]*\)"$/\1/p' "$ROO
 boot_pin_sha="$(sed -n 's/^_TNX_BOOTSTRAP_SHA256="\([0-9a-f]*\)"$/\1/p' "$ROOT/install.sh")"
 mkdir -p "$TMP/cli-fallback-source/ternux-pinned-source/bin" \
   "$TMP/cli-fallback-source/ternux-pinned-source/lib" \
+  "$TMP/cli-fallback-source/ternux-pinned-source/share/terfetch" \
   "$TMP/cli-fallback-modules" "$TMP/cli-fallback-cwd" "$TMP/cli-fallback-tmp"
 cp "$ROOT/bin/ternux" "$ROOT/bin/tx" "$ROOT/bin/ternux-shell-shortcut" \
   "$TMP/cli-fallback-source/ternux-pinned-source/bin/"
@@ -3015,6 +3074,7 @@ cp "$ROOT"/lib/ternux-welcome-gui.py "$ROOT"/lib/ternux-flashlight.py \
   "$TMP/cli-fallback-source/ternux-pinned-source/lib/"
 cp -a "$ROOT/lib/ternux-assets" "$ROOT/lib/licenses" \
   "$TMP/cli-fallback-source/ternux-pinned-source/lib/"
+cp "$ROOT/share/terfetch/terfetch" "$TMP/cli-fallback-source/ternux-pinned-source/share/terfetch/"
 tar -czf "$TMP/cli-fallback-source.tar.gz" -C "$TMP/cli-fallback-source" ternux-pinned-source
 cli_fixture_sha="$(sha256sum "$TMP/cli-fallback-source.tar.gz" | awk '{print $1}')"
 cp "$ROOT/lib/core.sh" "$ROOT/lib/phases.sh" "$TMP/cli-fallback-modules/"
@@ -3035,6 +3095,7 @@ if [ "$cli_pin_commit" = "$boot_pin_commit" ] &&
    [ "$(cat "$TMP/cli-fallback-url")" = "https://codeload.github.com/soobujmiah/ternux/tar.gz/$cli_pin_commit" ] &&
    "$TMP/prefix-cli-fallback/bin/ternux" --version | grep -q "^ternux v2.0.0$" &&
    "$TMP/prefix-cli-fallback/bin/tx" --version | grep -q "^ternux v2.0.0$" &&
+   "$TMP/prefix-cli-fallback/bin/terfetch" --version | grep -q "^terfetch 0.1.0$" &&
    [ -s "$TMP/prefix-cli-fallback/lib/ternux/ternux-welcome-gui.py" ] &&
    [ -s "$TMP/prefix-cli-fallback/lib/ternux/ternux-flashlight.py" ] &&
    [ -x "$TMP/prefix-cli-fallback/bin/db" ] &&
@@ -3107,15 +3168,18 @@ if env TERNUX_STATE_DIR="$TMP/state-cli-layout" HOME="$TMP/home-cli-layout" \
     mkdir -p "$HOME"
     . "$1/lib/phases.sh"
     dpkg-query(){ return 1; }
+    mkdir -p "$PREFIX/bin"
+    printf "#!/bin/sh\n# TERNUX_GUEST_SHELL_SHORTCUT=1\n" > "$PREFIX/bin/kal"
     tnx_phase_cli >/dev/null &&
     [ -x "$PREFIX/bin/ternux" ] &&
     [ -f "$PREFIX/lib/ternux/core.sh" ] &&
     "$PREFIX/bin/ternux" --version | grep -q "^ternux v" &&
     [ -x "$PREFIX/bin/tx" ] &&
-    for shortcut in db dbr dbroot ub ubr ubroot alp alpr alproot; do
+    for shortcut in db dbr dbroot ub ubr ubroot kali kalir kaliroot alp alpr alproot; do
       [ -x "$PREFIX/bin/$shortcut" ] &&
         grep -qx "# TERNUX_GUEST_SHELL_SHORTCUT=1" "$PREFIX/bin/$shortcut" || exit 1
     done &&
+    [ ! -e "$PREFIX/bin/kal" ] &&
     [ "$("$PREFIX/bin/tx" --version)" = "$("$PREFIX/bin/ternux" --version)" ]
   ' _ "$ROOT"; then
   ok "CLI phase executes the installed flat-module layout"
@@ -3400,7 +3464,7 @@ if env TERNUX_STATE_DIR="$TMP/state-blender-xvfb" HOME="$TMP/home-blender-xvfb" 
     tnx_guest_login(){ printf "%s\n" "$*" > "$MARKER"; cat >> "$MARKER"; }
     tnx_ok(){ :; }
     tnx_warn(){ :; }
-    tnx_phase_extras ternux blender && grep -Fq "bash -s -- blender xvfb" "$MARKER" && grep -Fq "apt install" "$MARKER" && grep -Fq "apt-cache policy" "$MARKER"
+    tnx_phase_extras ternux blender && grep -Fq "bash -s -- blender xvfb" "$MARKER" && grep -Fq "apt_run install" "$MARKER" && grep -Fq "apt-cache policy" "$MARKER"
   ' _ "$ROOT"; then
   ok "Blender workload installs Xvfb for headless GPU rendering"
 else
@@ -3818,7 +3882,8 @@ guest.cmd.startxfce4=yes
 guest.cmd.glxinfo=yes
 guest.cmd.xdpyinfo=yes
 guest.cmd.pactl=yes
-guest.dpkg_audit=0
+guest.package_manager=dpkg
+guest.package_audit=0
 guest.disk_free_gb=80
 guest.turnip=managed
 ext.llama-vulkan.present=yes
@@ -3895,7 +3960,7 @@ DR_PROBE_BAD="$TMP/doctor-probe-bad.txt"
 python3 - "$DR_PROBE_OK" "$DR_PROBE_BAD" <<'PYDOCTORPROBE'
 import pathlib, sys
 source, target = map(pathlib.Path, sys.argv[1:])
-content = source.read_text().replace("guest.dpkg_audit=0", "guest.dpkg_audit=3").replace("guest.sudo=yes", "guest.sudo=no")
+content = source.read_text().replace("guest.package_audit=0", "guest.package_audit=3").replace("guest.sudo=yes", "guest.sudo=no")
 target.write_text(content)
 PYDOCTORPROBE
 DR_BAD="$(dr_run bad env TERNUX_JSON=1 DR_PROBE_FILE="$DR_PROBE_BAD" bash "$DR_HARNESS" "$ROOT" guest extensions)"

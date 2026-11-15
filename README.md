@@ -129,7 +129,7 @@ In Termux, start the desktop:
 
 ```bash
 source ~/.bashrc
-x
+tx start
 ```
 
 Switch to the Termux:X11 app to see Xfce. Common commands, all run in Termux:
@@ -144,9 +144,9 @@ tx distro search alpine # search available OCI images
 tx distro uninstall NAME # remove a Ternux-managed guest
 ```
 
-Use `tx stop --all` to close every managed Ternux desktop. With the Termux:X11 nightly app, each Ternux desktop guest gets its own tagged Android window and separate settings; `tx start db`, `tx start ub`, or `tx start alp` brings the selected window forward. Older X11 apps use one shared window and cannot reliably switch among concurrently running guests. Install multiple profiles with `tx install --distros debian,ubuntu,alpine`; each receives the family-matched Ternux base desktop. `xgo` lists every installed guest and asks which desktop to start when there is more than one. Generic images without a Ternux package recipe are shown as shell-only. See [the release-readiness report](docs/V2-RELEASE-READINESS.md) for the exact v2 scope, evidence, and publication status.
+Use `tx stop --all` to close every managed Ternux desktop. With the Termux:X11 nightly app, each Ternux desktop guest gets its own tagged Android window and separate settings; `tx start db`, `tx start ub`, `tx start kali`, or `tx start alp` brings the selected window forward. Older X11 apps use one shared window and cannot reliably switch among concurrently running guests. Install multiple profiles with `tx install --distros debian,ubuntu,kali,alpine`; each receives the family-matched Ternux base desktop. `xgo` lists every installed guest and asks which desktop to start when there is more than one. Generic images without a Ternux package recipe are shown as shell-only. See [the release-readiness report](docs/V2-RELEASE-READINESS.md) for the exact v2 scope, evidence, and publication status.
 
-The `x` shortcut starts the saved desktop; `xgo` opens Termux:X11 and asks which installed desktop guest to start. `tx` is the short CLI command. Use `db`/`dbr`/`dbroot`, `ub`/`ubr`/`ubroot`, `alp`/`alpr`/`alproot`, `archx`/`archroot`, `fed`/`fedr`, `suse`/`suser`, `vsh`/`vroot`, or `kal`/`kalr` for the corresponding user/root shells when those guests are installed. Start Ubuntu or Alpine with `tx start ub` or `tx start alp` (full names also work). Use `tx distro shell NAME` to enter a profile’s configured regular user (generic images keep their image default), or `tx distro exec NAME -- COMMAND` for any installed PRoot guest. Root remains explicit through `dbroot`, `ubroot`, `alproot` and the matching root aliases. Search PRoot-Distro images with `tx distro search QUERY`; install a generic OCI image with `tx distro image-install IMAGE[:TAG] [NAME]`. Generic images provide guest shells. Named distro profiles use the matching package-manager recipe; arbitrary OCI images provide guest shells until a family recipe is added. Android shared storage is mounted at `/sdcard` in every managed guest by default, so
+Use `tx start` to start the saved desktop; `xgo` lists installed guests in catalog order and asks which desktop guest to start. `tx` is the short CLI command. Use `db`/`dbr`/`dbroot`, `ub`/`ubr`/`ubroot`, `alp`/`alpr`/`alproot`, `archx`/`archroot`, `fed`/`fedr`, `suse`/`suser`, `vsh`/`vroot`, or `kali`/`kalir` for the corresponding user/root shells when those guests are installed. Start multiple desktops together, for example `tx start debian ubuntu kali alpine` or `tx start ub db kali alp`. Use `tx distro shell NAME` to enter a profile’s configured regular user (generic images keep their image default), or `tx distro exec NAME -- COMMAND` for any installed PRoot guest. Root remains explicit through `dbroot`, `ubroot`, `alproot` and the matching root aliases. Search PRoot-Distro images with `tx distro search QUERY`; install a generic OCI image with `tx distro image-install IMAGE[:TAG] [NAME]`. Generic images provide guest shells. Named distro profiles use the matching package-manager recipe; arbitrary OCI images provide guest shells until a family recipe is added. Android shared storage is mounted at `/sdcard` in every managed guest by default, so
 models and files are available directly. Termux must have Android storage permission;
 use `termux-setup-storage` once if `/sdcard` is missing.
 
@@ -244,7 +244,7 @@ render route and run scripts or scenes with the documented EEVEE setup. See the
 ## More help
 
 - [Ternux v3 architecture and implementation roadmap](docs/v3/README.md):
-  native manager (native workspace `:0`; Debian/Ubuntu/Alpine `:1`/`:2`/`:3`
+  native manager (native workspace `:0`; Debian/Ubuntu/Kali/Alpine `:1`/`:2`/`:3`/`:4`
   by design), workspaces, compute, AI, Device Bridge, security, and gates.
   The current main source adds `tx control`, a read-only local browser dashboard,
   alongside the four manager CLI commands and foreground Unix-socket service.

@@ -358,7 +358,7 @@ for page in ("docs/QUICK-START.md", "bn/docs/QUICK-START.md"):
           f"{page}: quick start still implies Debian is the only selectable guest")
 for page in ("docs/INSTALLATION.md", "bn/docs/INSTALLATION.md"):
     text = read(ROOT / page)
-    check("--distros debian,ubuntu,alpine" in text,
+    check("--distros debian,ubuntu,kali,alpine" in text,
           f"{page}: missing copyable multi-profile install example")
 profile_match = re.search(r'^TERNUX_DISTRO_KNOWN="([^"]+)"', read(ROOT / "lib/core.sh"), re.M)
 known_profiles = profile_match.group(1).split() if profile_match else []

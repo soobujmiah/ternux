@@ -19,8 +19,8 @@ concurrently without stealing or reusing another workspace's X11 display.
 ## Decision
 
 Reserve display `:0` for the native Termux workspace and Control Center.
-Allocate guest displays in stable order: Debian `:1`, Ubuntu `:2`, Alpine
-`:3`, then subsequent installed distributions receive the next free serial
+Allocate guest displays in stable order: Debian `:1`, Ubuntu `:2`, Kali `:3`,
+Alpine `:4`, then subsequent installed distributions receive the next free serial
 display. A registry records workspace identity, display number, socket owner,
 and lifecycle state. Allocation checks both registry records and live X
 sockets/processes; stale records may be reclaimed only after proving no server

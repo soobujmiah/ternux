@@ -15,7 +15,7 @@ evidence exists.
 ## Identity and commands
 
 Each guest has an immutable internal ID and a unique human-readable name.
-Stable aliases (`db`, `ub`, `alp`, and full names) resolve to one guest; a
+Stable aliases (`db`, `ub`, `kali`, `alp`, and full names) resolve to one guest; a
 shell alias enters the configured unprivileged user and a separate `root`
 alias enters root. `tx start [guest]` starts the selected desktop. With more
 than one eligible guest and no selection, the CLI presents one consistent
@@ -25,8 +25,8 @@ which display happens to be running.
 `tx stop [guest...]` targets selected guests. An interactive no-argument stop
 lists active sessions and supports one or more selections. In v3, display
 `:0` is reserved for the native Termux workspace/Control Center. New guest
-profiles receive stable defaults: Debian `:1`, Ubuntu `:2`, Alpine `:3`, then
-other named profiles in serial order. Startup checks the target X11 socket and
+profiles receive stable defaults: Debian `:1`, Ubuntu `:2`, Kali `:3`, Alpine
+`:4`, then other named profiles in serial order. Startup checks the target X11 socket and
 matching Termux:X11 server, refuses occupied paths, and removes only a socket
 proven stale by its lock PID and process checks. The display number is persisted
 with the guest profile. Existing stored assignments remain authoritative: the

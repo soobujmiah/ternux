@@ -119,7 +119,7 @@ Termux-এ desktop চালু করুন:
 
 ```bash
 source ~/.bashrc
-x
+tx start
 ```
 
 Xfce দেখতে Termux:X11 app-এ যান। সাধারণ command-গুলো Termux-এ চালান:
@@ -132,8 +132,14 @@ tx stop           # চলমান guest desktop বাছাই করে ব�
 tx distro uninstall NAME # Ternux-managed guest সরান
 ```
 
-`x` saved desktop চালায়; একাধিক installed profile থাকলে `xgo` তালিকা দেখায়। আলাদা desktop guest নিজস্ব tagged Termux:X11 window-তে চলতে পারে। একাধিক profile একবারে install করতে `tx install --distros debian,ubuntu,alpine` ব্যবহার করুন। `tx stop` এক বা একাধিক session বাছতে দেয়; `tx stop --all` সব বন্ধ করে। Debian shell-এর জন্য
-Termux-এ `db` চালান। Android storage permission থাকলে shared storage managed guest-এ `/sdcard` হিসেবে default-এ mount হয়। path না থাকলে `termux-setup-storage` চালিয়ে desktop restart করুন।
+`tx start` সংরক্ষিত ডেস্কটপ চালায়; একাধিক ইনস্টল করা প্রোফাইল থাকলে `xgo`
+তালিকা দেখিয়ে বাছতে দেয়। প্রতিটি ডেস্কটপ গেস্ট টার্মাক্স:এক্স১১-এর আলাদা
+চিহ্নিত জানালায় চলতে পারে। একবারে একাধিক প্রোফাইল ইনস্টল করতে
+`tx install --distros debian,ubuntu,kali,alpine` চালান। `tx stop` দিয়ে এক বা
+একাধিক সেশন বেছে বন্ধ করা যায়; `tx stop --all` সব বন্ধ করে। ডেবিয়ান শেল
+খুলতে টার্মাক্সে `db` চালান। অ্যান্ড্রয়েডের স্টোরেজ অনুমতি থাকলে যৌথ স্টোরেজ
+পরিচালিত গেস্টে স্বয়ংক্রিয়ভাবে `/sdcard` নামে যুক্ত হয়। পথটি না থাকলে
+`termux-setup-storage` চালিয়ে ডেস্কটপ আবার শুরু করুন।
 
 ## কী কী পাবেন
 

@@ -332,13 +332,28 @@ message instead of producing a half-broken desktop.
 | 2 | **Base packages** | Installs `x11-repo`, `termux-x11`, `pulseaudio`, `proot-distro`, `virglrenderer-android`, tools; requests storage permission | These are the host-side services the container needs: display, sound, and the container engine |
 | 3 | **Host CLI installation** | Installs `$PREFIX/bin/ternux` plus modules in `$PREFIX/lib/ternux/`, then executes its exact path and checks its version | A file can exist while its libraries are missing; successful execution is the real host-side check |
 | 4 | **Selected guest + Xfce4** | Installs the selected distro rootfs and family-matched desktop packages, creates your user with passwordless sudo, installs `/usr/local/bin/ternux`, and executes the guest companion | Each named profile gets its own desktop recipe and local diagnostics without nesting PRoot |
-| 5 | **GPU route** | Adreno/KGSL selects Zink with the profile-matched Mesa/Freedreno or Turnip payload; without KGSL, or on Adélie, auto selects host VirGL with guest Mesa `virpipe` | Check `glxinfo -B`; the renderer and hardware acceleration depend on the device and Android host stack |
-| 6 | **Audio, locale, fonts** | Configures the loopback-only PulseAudio bridge, OpenSL ES output and on-demand microphone source; runs a private one-second Termux:API microphone probe and offers an opt-in temporary camera permission probe; generates your locale and installs emoji/powerline/Nerd fonts | Guest playback and capture reach Android audio through PulseAudio. Live capture uses Termux's permission and OpenSL ES source; the separate Termux:API probe does not carry a live stream. The camera probe takes one photo only after confirmation and deletes it immediately; `--yes` and non-interactive installs skip it. Fonts avoid tofu boxes in the terminal |
-| 7 | **Launcher** | Writes `~/x.sh` tuned to your GPU route, syntax-checks it | One command (`x`) must reliably start audio → display → desktop in the right order |
-| 8 | **Shortcuts** | Installs `tx`, `x`, `killx`, `db`/`dbroot`, `ub`/`ubroot`, `alp`/`alproot`, `xgo`, `sysmon`, `clean-mesa` | Sets up quick shortcuts so everyday operations need only a single command |
+| 5 | **GPU route** | Adreno/KGSL selects Zink when the guest has a supported Mesa/Freedreno or Turnip recipe; Kali Rolling uses a pinned Debian Testing overlay validated on the live guest. Adélie and devices without KGSL use host VirGL, then llvmpipe if VirGL cannot start | Check `glxinfo -B`; the renderer and hardware acceleration depend on the device and Android host stack |
+| 6 | **Audio, locale, fonts** | Configures the loopback-only PulseAudio bridge, OpenSL ES output and on-demand microphone source; runs a private one-second Termux:API microphone probe and offers an opt-in temporary camera permission probe; generates your locale and installs emoji/powerline/Nerd fonts | Guest playback and capture reach Android audio through PulseAudio. Live capture uses Termux's permission and OpenSL ES source; the separate Termux:API probe does not carry a live stream. The camera probe takes one photo only after confirmation and deletes it immediately; `--yes` and non-interactive installs skip it. Xfce Terminal uses the installed Noto Sans Mono font, and shell prompts use each guest's written distro name so they do not depend on unsupported private-use logo glyphs. |
+| 7 | **Launcher** | Writes the guest desktop launcher tuned to the selected GPU route, then syntax-checks it | `tx start` must reliably start audio → display → desktop in the right order |
+| 8 | **Shortcuts** | Installs `tx`, `killx`, `db`/`dbroot`, `ub`/`ubroot`, `alp`/`alproot`, `xgo`, `sysmon`, `clean-mesa` | Sets up quick shortcuts so everyday operations need only a single command |
 | 9 | **Optional extras** | Dev tools, llama.cpp, network tools, media tools, Blender + Xvfb for headless EEVEE — only what you asked for | Keep the base install lean; each profile has different storage/thermal costs |
 | 10 | **Android safeguard check** | Reads the Android child-process setting when available and prints version-aware guidance | Signal 9 can also come from memory pressure or OEM battery policy; collect evidence before changing a system-wide safeguard |
 | 11 | **Verification** | Confirms every critical binary, file and permission actually landed | Confirms the environment is runnable — `apt` completing without errors does not guarantee the desktop will launch |
+
+Kali uses the official rolling root filesystem with Ternux's Xfce desktop layer;
+it is not the full upstream Kali desktop image. The default profile adds a
+bounded command-line toolkit: Nmap, sqlmap, Hydra, John the Ripper, Gobuster,
+Nikto, Whois, and Netcat. It deliberately does not install Kali's large
+`kali-linux-default`, `kali-linux-headless`, or `kali-tools-top10` bundles by
+default: those include substantial extra packages, including tools whose Wi-Fi
+monitor-mode or privileged capture features are unavailable in ordinary PRoot
+on Android. Add further packages with `sudo apt install PACKAGE` inside Kali.
+
+APT guests have bounded package operations: index refreshes stop after five
+minutes, and each package transaction stops after fifteen minutes. APT network
+requests also have retry and connection time limits. If one expires, the phase
+reports failure and can be resumed with `tx install --resume`; these are
+per-operation bounds, not a promised total install duration.
 
 ---
 
@@ -355,7 +370,7 @@ bash install.sh --zsh               # Termux shell -> zsh, with powerlevel10k
 bash install.sh --shell bash        # choose without being asked
 bash install.sh --no-theme          # zsh without powerlevel10k
 bash install.sh --distro ubuntu      # one named guest profile
-bash install.sh --distros debian,ubuntu,alpine  # install several profiles
+bash install.sh --distros debian,ubuntu,kali,alpine  # install several profiles
 bash install.sh --with-dev          # Git, Node.js, Python, build tools
 bash install.sh --with-llm          # llama.cpp + Vulkan (local AI)
 bash install.sh --with-network      # nmap, tmux (authorised testing only)
@@ -428,9 +443,11 @@ unverified until it is measured on your own device.
 
 | Guest profile / host | Backend | Expectation |
 |---|---|---|
-| Adreno with KGSL, except profiles without a Zink route | `auto` → **zink** | Uses a distro-matched Mesa/Freedreno or Turnip payload where available. Debian, Ubuntu, and Alpine have reference-device evidence; verify the active renderer and workload |
-| No detected KGSL device, or an Adélie guest | `auto` → **virgl** | Shared host VirGL + guest Mesa `virpipe` compatibility route; hardware acceleration depends on Android's host renderer and may fall back to software |
+| Adreno with KGSL and a pinned guest asset | `auto` → **zink** | Debian, Ubuntu, Kali, Alpine, Arch Linux, Fedora, openSUSE, Void and Deepin have pinned Mesa/Turnip assets. Vulkan and Zink GLX were observed on the four currently installed guests; full profile qualification remains narrower |
+| No detected KGSL device, or a profile without a pinned Zink asset | `auto` → **virgl** | Shared host VirGL + guest Mesa `virpipe` compatibility route; if the live VirGL GLX preflight fails, Ternux selects llvmpipe as the software fallback |
 | Any profile where Zink is unavailable | `--backend virgl` | Cross-distro compatibility route; renderer and performance depend on the host graphics stack |
+
+**Live fallback check (2026-11-15, Adreno 825):** VirGL produced a GLX renderer on Debian, Ubuntu, and Kali; Alpine failed to create a DRI screen. The llvmpipe probe stayed alive on Debian, but exited with `SIGILL` on Ubuntu, Kali, and Alpine. The current launcher still attempts llvmpipe after a failed VirGL preflight, so software fallback is not verified on those three guests and may crash there.
 
 Forcing `zink` on a device without `/dev/kgsl-3d0` fails loudly at the GPU phase
 before the launcher is created, rather than producing a silently-software
@@ -518,7 +535,7 @@ ternux logs list     # log files and sizes
 ```text
 1. Open Termux:X11 once and leave it running.
 2. source ~/.bashrc
-3. x                 ← starts the desktop
+3. tx start          ← starts the desktop
 ```
 
 Run a full diagnostic:
