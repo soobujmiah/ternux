@@ -466,6 +466,14 @@ for index, (english_block, bengali_block) in enumerate(zip(english_cli, bengali_
     check(shell_without_comments(english_block) == shell_without_comments(bengali_block),
           f"English/Bengali CLI shell example {index} differs")
 
+english_install = shell_blocks(ROOT / "docs/INSTALLATION.md")
+bengali_install = shell_blocks(ROOT / "bn/docs/INSTALLATION.md")
+check(len(english_install) == len(bengali_install) > 0,
+      "English/Bengali installation shell example counts differ")
+for index, (english_block, bengali_block) in enumerate(zip(english_install, bengali_install), 1):
+    check(shell_without_comments(english_block) == shell_without_comments(bengali_block),
+          f"English/Bengali installation shell example {index} differs")
+
 bengali_manual_text = read(ROOT / "bn/docs/MANUAL.md")
 bengali_manual_text = re.sub(r"^---\n.*?\n---\n", "", bengali_manual_text, count=1, flags=re.S)
 bengali_manual_text = re.sub(r"`[^`]*`", " ", bengali_manual_text, flags=re.S)
@@ -504,6 +512,26 @@ for line in bengali_cli_text.splitlines():
     )
 check(not cli_latin,
       f"bn/docs/CLI.md: Latin prose remains outside code/identifiers: {sorted(cli_latin)}")
+
+bengali_install_text = read(ROOT / "bn/docs/INSTALLATION.md")
+bengali_install_text = re.sub(r"^---\n.*?\n---\n", "", bengali_install_text, count=1, flags=re.S)
+bengali_install_text = re.sub(r"`[^`]*`", " ", bengali_install_text, flags=re.S)
+install_in_fence = False
+install_latin: set[str] = set()
+for line in bengali_install_text.splitlines():
+    if re.match(r"^\s*(`{3,}|~{3,})", line):
+        install_in_fence = not install_in_fence
+        continue
+    if install_in_fence:
+        continue
+    line = re.sub(r"!?\[[^\]]*\]\([^)]*\)|https?://\S+|<[^>]*>", " ", line)
+    install_latin.update(
+        word for word in re.findall(r"\b[A-Za-z][A-Za-z0-9+.#:/_-]*\b", line)
+        if word.lower() not in {"ternux", "copyright", "c", "sobuj", "miah", "apache-2.0"}
+        and not re.fullmatch(r"v?\d+(?:\.\d+)*", word.lower())
+    )
+check(not install_latin,
+      f"bn/docs/INSTALLATION.md: Latin prose remains outside code/identifiers: {sorted(install_latin)}")
 
 profile_match = re.search(r'^TERNUX_DISTRO_KNOWN="([^"]+)"', read(ROOT / "lib/core.sh"), re.M)
 known_profiles = profile_match.group(1).split() if profile_match else []

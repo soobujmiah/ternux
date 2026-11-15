@@ -1,6 +1,6 @@
 ---
 title: "ইনস্টলেশন"
-description: "সম্পূর্ণ ternux ইনস্টলেশন গাইড: প্রয়োজনীয়তা, এক-কমান্ড ইনস্টলার, প্রতিটি ধাপ কী করে ও কেন, সব অপশন, এবং পরিষ্কার অপসারণ।"
+description: "সম্পূর্ণ টার্নাক্স স্থাপন-নির্দেশিকা: পূর্বশর্ত, এক-আদেশ স্থাপনকারী, প্রতিটি ধাপের কাজ ও কারণ, সব বিকল্প এবং পরিষ্কারভাবে অপসারণ।"
 lang: "bn"
 alt_url: "/docs/INSTALLATION.html"
 
@@ -10,7 +10,7 @@ alt_url: "/docs/INSTALLATION.html"
 [দ্রুত শুরু](QUICK-START.html) থেকে।
 
 > **প্রতিটি কমান্ড নিজ হাতে চালাতে চান?** সম্পূর্ণ হাতে-কলমে নির্দেশিকা —
-> প্রতিটি কমান্ড, দুই GPU পথ, পুরো লঞ্চার ফাইল — আছে
+> প্রতিটি কমান্ড, দুই জিপিইউ পথ ও পুরো লঞ্চার ফাইল আছে
 > [ম্যানুয়াল ইনস্টলেশন](MANUAL.html) পাতায়। নিচের এক-কমান্ড ইনস্টলারটি
 > সেই একই পাতাই, স্ক্রিপ্ট আকারে।
 
@@ -18,39 +18,41 @@ alt_url: "/docs/INSTALLATION.html"
 
 <h2 id="requirements">প্রয়োজনীয়তা</h2>
 
-| | প্রস্তাবিত বেসলাইন | কেন জরুরি |
+| | প্রস্তাবিত ভিত্তিমান | কেন জরুরি |
 |---|---|---|
-| **Android** | ১০ বা নতুন | পুরনো বিল্ডে Termux/X11-এর দরকারি API নেই |
-| **CPU** | `aarch64` (৬৪-বিট ARM) | PRoot নেটিভ বাইনারি চালায়; ৩২-বিট ARM আপস্ট্রিমে অসমর্থিত |
-| **স্টোরেজ** | Installed footprint: বেস ~৪–৪.৬ GB; `--all`-সহ ~১০.৫–১২.৬ GB | Download, package cache, build tree, model ও project-এর জন্য অতিরিক্ত ফাঁকা জায়গা দিয়ে শুরু করুন |
-| **RAM** | ন্যূনতম ৪ GB, ৬–৮ GB ভালো | ডেস্কটপ আর Android একই মেমরি ভাগ করে; কম RAM = বেশি প্রসেস-কিল |
-| **গ্রাফিক্স** | Adreno হলে Zink/Turnip; অন্য ক্ষেত্রে VirGL candidate | Adreno route-টি মাপা; VirGL compatibility ও গতি device/Android build অনুযায়ী যাচাই করতে হবে |
-| **প্রয়োজনীয় অ্যাপ** | [Termux](https://github.com/termux/termux-app/releases) + [Termux:X11](https://github.com/termux/termux-x11/releases) | দুটো compatible source থেকে ইনস্টল করুন; Ternux চালুর আগে Termux:X11 একবার খুলুন |
-| **X11 performance option** | [Termux:X11 nightly shared-UID debug APK](https://github.com/termux/termux-x11/releases/tag/nightly) (`termux-x11-universal-sharedUid-debug.apk`) | Termux-এর Android UID ভাগ করে; X11 সামনে থাকলে Android যেন Linux workload কম background-throttle করে। শুধু GitHub-signed Termux-এর সঙ্গে চলে। F-Droid/Google Play Termux হলে একই release page-এর `termux-x11-universal-debug.apk` নিন। |
-| **ঐচ্ছিক সহচর অ্যাপ** | [Termux:Boot](https://github.com/termux/termux-boot/releases), [Termux:API](https://github.com/termux/termux-api/releases), [Termux:Styling](https://github.com/termux/termux-styling/releases) | Ternux ইনস্টল বা চালাতে এগুলোর কোনোটিই আবশ্যক নয়। বুটের পরে নির্ধারিত স্ক্রিপ্ট চালানোই Boot-এর কাজ। Termux:API অ্যাপ না থাকলে ইনস্টলার মাইক্রোফোন ও ক্যামেরার অনুমতি পরীক্ষা বাদ দেয়; ডেস্কটপের লাইভ মাইক্রোফোন টার্মাক্সের ওপেন-এস-এল-ই-এস উৎসে চলে এবং প্রথম capture-এ Termux-এর অনুমতি চায়। API ছাড়াই ছবি তুলতে Android Camera ব্যবহার করে Thunar-এ `/sdcard/DCIM/Camera` খুলুন। Ternux Camera ও Sound Recorder চালাতে API লাগে। Styling টার্মিনালের থিম ও ফন্ট দেয়। টার্মাক্স ও সহচর অ্যাপ একই উৎস থেকে নিন |
+| **অ্যান্ড্রয়েড** | ১০ বা নতুন | পুরোনো সংস্করণে টার্মাক্স/এক্স১১-এর দরকারি অ্যাপ্লিকেশন-সংযোগস্থল নেই |
+| **প্রসেসর** | `aarch64` (৬৪-বিট এআরএম) | প্রুটে নেটিভ নির্বাহযোগ্য ফাইল চলে; ৩২-বিট এআরএম আপস্ট্রিমে সমর্থিত নয় |
+| **সংরক্ষণ-জায়গা** | স্থাপনের পর: মূল ব্যবস্থায় ~৪–৪.৬ জিবি; `--all`-সহ ~১০.৫–১২.৬ জিবি | নামানো ফাইল, প্যাকেজ ক্যাশে, নির্মাণের ফাইল, মডেল ও প্রকল্পের জন্য বাড়তি জায়গা রাখুন |
+| **র‍্যাম** | ন্যূনতম ৪ জিবি, ৬–৮ জিবি ভালো | ডেস্কটপ ও অ্যান্ড্রয়েড একই মেমরি ভাগ করে; কম র‍্যামে অ্যাপ বেশি বন্ধ হয় |
+| **গ্রাফিক্স** | অ্যাড্রেনো হলে জিঙ্ক/টার্নিপ; অন্যথায় ভিরজিএল সম্ভাব্য পথ | অ্যাড্রেনো পথের মাপজোখ আছে; ভিরজিএলের সামঞ্জস্য ও গতি যন্ত্র/অ্যান্ড্রয়েড সংস্করণভেদে যাচাই করতে হবে |
+| **আবশ্যক অ্যাপ** | [টার্মাক্স](https://github.com/termux/termux-app/releases) + [টার্মাক্স:এক্স১১](https://github.com/termux/termux-x11/releases) | একই উৎসে প্রকাশিত সামঞ্জস্যপূর্ণ সংস্করণ নিন; টার্নাক্স চালুর আগে টার্মাক্স:এক্স১১ একবার খুলুন |
+| **এক্স১১-র গতি বাড়ানোর বিকল্প** | [টার্মাক্স:এক্স১১ রাতের পরীক্ষামূলক যৌথ-ইউআইডি ডিবাগ এপিকে](https://github.com/termux/termux-x11/releases/tag/nightly) (`termux-x11-universal-sharedUid-debug.apk`) | টার্মাক্সের অ্যান্ড্রয়েড ব্যবহারকারী-পরিচয় ভাগ করে; এক্স১১ সামনে থাকলে অ্যান্ড্রয়েডের পেছনে চলা লিনাক্স কাজ কম থামানোর সম্ভাবনা বাড়ায়। শুধু গিটহাবে স্বাক্ষরিত টার্মাক্সে চলে। এফ-ড্রয়েড/গুগল প্লে সংস্করণে একই প্রকাশনা-পাতার `termux-x11-universal-debug.apk` নিন। |
+| **ঐচ্ছিক সহচর অ্যাপ** | [টার্মাক্স:বুট](https://github.com/termux/termux-boot/releases), [টার্মাক্স:এপিআই](https://github.com/termux/termux-api/releases), [টার্মাক্স:স্টাইলিং](https://github.com/termux/termux-styling/releases) | টার্নাক্স বসাতে বা চালাতে এগুলোর কোনোটিই আবশ্যক নয়। চালু হওয়ার পরে নির্ধারিত স্ক্রিপ্ট চালায় বুট অ্যাপ। টার্মাক্স:এপিআই অ্যাপ না থাকলে ইনস্টলার মাইক্রোফোন ও ক্যামেরার অনুমতি পরীক্ষা করে না; ডেস্কটপের সরাসরি মাইক্রোফোন টার্মাক্সের ওপেন-এসএল-ইএস উৎসে চলে এবং প্রথমবার ধারণের সময় টার্মাক্স অনুমতি চায়। এপিআই ছাড়াও অ্যান্ড্রয়েড ক্যামেরা দিয়ে ছবি তুলুন; থুনারে `/sdcard/DCIM/Camera` খুলুন। টার্নাক্স ক্যামেরা ও শব্দ-রেকর্ডার চালাতে এপিআই লাগে। স্টাইলিং টার্মিনালের রং-নকশা ও ফন্ট দেয়। টার্মাক্স ও সহচর অ্যাপ একই উৎস থেকে নিন |
 
 শুরু করার আগে ডিভাইস পরীক্ষা করুন (শুধু পড়ে, কিছুই বদলায় না):
 
 ```bash
 uname -m                              # আশা: aarch64
-getprop ro.product.manufacturer       # যেমন Qualcomm
+getprop ro.product.manufacturer       # যেমন: কোয়ালকম
 getprop ro.product.model
-getprop ro.build.version.release      # যেমন 14
-df -h "$HOME"                         # ফাঁকা জায়গা
-ls -l /dev/kgsl-3d0 2>&1              # Debian + Adreno/KGSL হলে → Zink/Turnip পথ
+getprop ro.build.version.release      # যেমন: ১৪
+df -h "$HOME"                         # ফাঁকা সংরক্ষণ-জায়গা
+ls -l /dev/kgsl-3d0 2>&1              # ডেবিয়ান ও অ্যাড্রেনো/কেজিএসএল হলে জিঙ্ক/টার্নিপ পথ
 ```
 
-`/dev/kgsl-3d0` থাকলে `auto` Zink-কে অগ্রাধিকার দেয়। Debian Trixie-তে
-Ternux-এর validated Turnip payload লাগে; Ubuntu, Alpine, Arch, Fedora,
-openSUSE ও Void-এ প্রতিটি distro-র নিজস্ব Mesa/Freedreno package ব্যবহৃত হয়।
-অন্য profile-এ family package থাকলে সেটি নেওয়া হয়; Adélie আপাতত VirGL বেছে
-নেয়। `glxinfo -B` দিয়ে renderer যাচাই করুন; `llvmpipe` হলো CPU rendering।
+`/dev/kgsl-3d0` থাকলে `auto` জিঙ্ককে অগ্রাধিকার দেয়। ডেবিয়ান ট্রিক্সিতে
+টার্নাক্সের যাচাইকৃত টার্নিপ ফাইল লাগে; উবুন্টু, আল্পাইন, আর্চ, ফেডোরা,
+ওপেনসুসে ও ভয়েডে প্রতিটি ডিস্ট্রোর নিজস্ব মেসা/ফ্রিড্রেনো প্যাকেজ লাগে। অন্য
+বিন্যাসে পরিবারের উপযোগী প্যাকেজ থাকলে সেটি ব্যবহৃত হয়; অ্যাডেলি আপাতত
+ভিরজিএল বেছে নেয়। `glxinfo -B` দিয়ে রেন্ডারার দেখুন; `llvmpipe` প্রসেসরে
+রেন্ডার করে।
 
-উপরের storage সংখ্যা আনুমানিক **installed footprint**, temporary headroom-এর
-minimum নয়। Package version ও filesystem accounting বদলায়। Clean run-এর জন্য
-installer base-এ প্রায় **৬ GB free** এবং `--all`-এ **১৪ GB free** target করে,
-যাতে download, cache, extraction ও build-এর জায়গা থাকে; finished installation
-যথাক্রমে প্রায় **৪–৪.৫ GB** ও **১০.৫–১২.৫ GB**।
+ওপরের সংরক্ষণ-জায়গার সংখ্যা স্থাপনের পরের আনুমানিক পরিমাণ, সাময়িক কাজের জন্য
+সর্বনিম্ন ফাঁকা জায়গা নয়। প্যাকেজের সংস্করণ ও ফাইলব্যবস্থার হিসাব বদলাতে পারে।
+পরিষ্কার ইনস্টল চালাতে স্থাপনকারী মূল ব্যবস্থার জন্য প্রায় **৬ জিবি** এবং
+`--all`-এর জন্য **১৪ জিবি** ফাঁকা জায়গা রাখে; নামানো, ক্যাশে রাখা, খোলা ও
+নির্মাণের ফাইলগুলোর জন্য এই বাড়তি জায়গা লাগে। শেষ ইনস্টলেশন যথাক্রমে প্রায়
+**৪–৪.৫ জিবি** ও **১০.৫–১২.৫ জিবি** নেয়।
 
 ---
 
@@ -60,107 +62,126 @@ installer base-এ প্রায় **৬ GB free** এবং `--all`-এ **�
 pkg update -y && pkg upgrade -y && pkg install -y curl && bash -o pipefail -c 'curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'
 ```
 
-এটি HTTPS-এ ইনস্টলার নামিয়ে চালায়। সাথে terminal থাকলে script pipe হলেও installer `/dev/tty` দিয়ে prompt এবং optional workload chooser দেখায়। Controlling terminal না থাকলে base profile install হয়। Prompt ছাড়া base install চাইলে `--yes` দিন। এই রিপোজিটরির সেই একই স্ক্রিপ্ট — লুকানো কিছু নেই, compiled কিছু নেই।
+এটি এইচটিটিপিএস দিয়ে স্থাপনকারী নামিয়ে চালায়। নিয়ন্ত্রণ-টার্মিনাল থাকলে
+স্ক্রিপ্টটি পাইপে চললেও `/dev/tty` দিয়ে প্রশ্ন ও ঐচ্ছিক কাজ বাছার তালিকা দেখায়।
+নিয়ন্ত্রণ-টার্মিনাল না থাকলে মূল বিন্যাস বসে। কোনো প্রশ্ন ছাড়া মূল বিন্যাস
+বসাতে `--yes` দিন। এই সংগ্রহশালার একই স্ক্রিপ্ট চালানো হয়; এর মধ্যে লুকানো
+বা আগেভাগে কম্পাইল করা কিছু নেই।
 
-ইনস্টলার একটিমাত্র স্থায়ী স্ক্রিন আঁকে — device panel, step progress, live log
-window ও অতিবাহিত সময় — এবং শেষ status পর্যন্ত সেটিই রাখে। Package output
-spinner-এর আড়ালে না রেখে যেমন আসে তেমন দেখানো হয়, আর terminal যা-ই আঁকতে পারুক,
-প্রতিটি লাইন লগ ফাইলে লেখা হয়। রেন্ডারার mode ও সেগুলো বদলানোর উপায়
+ইনস্টলার একটি স্থায়ী পর্দায় যন্ত্রের সারাংশ, ধাপের অগ্রগতি, চলতি লগ ও
+অতিবাহিত সময় দেখায় এবং শেষ অবস্থা পর্যন্ত সেটি ধরে রাখে। প্যাকেজের আউটপুট
+ঘূর্ণির আড়ালে না রেখে যেমন আসে তেমনই দেখায়; টার্মিনাল যেভাবেই আঁকুক, প্রতিটি
+লাইন লগ ফাইলে লেখা হয়। পর্দা আঁকার ধরন ও তা বদলানোর উপায়
 [ইনস্টলার স্ক্রিন](#the-installer-screen)-এ আছে।
 
-Standalone loader bounded retry-সহ একটি immutable source snapshot নামিয়ে
-extract বা source করার আগে pinned SHA-256 যাচাই করে। Host CLI fallback-ও একই
-commit ও digest ব্যবহার করে; byte বদলালে extraction-এর আগেই reject করে। যাচাই করা
-একই snapshot bootstrap library, Termux host CLI ও Debian guest companion-এ reuse
-হয়; আলাদা করে প্রতিটি module request করতে হয় না। Package setup বর্তমান apt
-source-ই রাখে এবং frame-এর ভেতর `termux-change-repo` খোলে না; source unreachable
-হলে নিজে mirror বেছে `--resume` দিয়ে আবার চালান।
+স্বতন্ত্র প্রারম্ভিক লোডার কয়েকবার সীমিতভাবে চেষ্টা করে অপরিবর্তনীয় উৎসের
+একটি কপি নামায় এবং খোলা বা চালানোর আগে নির্দিষ্ট এসএইচএ-২৫৬ মিলিয়ে দেখে।
+হোস্ট কমান্ডের বিকল্প পথেও একই কমিট ও সারাংশ ব্যবহার হয়; একটি বাইট বদলালেও
+খোলার আগেই প্রত্যাখ্যান করে। যাচাইকৃত একই কপি প্রারম্ভিক গ্রন্থাগার, টার্মাক্স
+হোস্ট কমান্ড ও ডেবিয়ান গেস্ট সহায়কে পুনর্ব্যবহার হয়; প্রতিটি অংশ আলাদা করে
+নামাতে হয় না। প্যাকেজ স্থাপনে বর্তমান এপিটি উৎসই থাকে এবং পর্দার ভেতর
+`termux-change-repo` খোলে না। উৎসে যোগাযোগ না হলে নিজে আয়না বেছে
+`--resume` দিয়ে আবার চালান।
 
-**আপগ্রেডের পর curl ভেঙে গেছে?** (`CANNOT LINK … SSL_set_quic_tls_transport_params`)
-আংশিক আপগ্রেডে curl ও OpenSSL-এর সামঞ্জস্য নষ্ট হতে পারে। সরাসরি wget ব্যবহার
+**হালনাগাদের পর `curl` ভেঙেছে?** (`CANNOT LINK … SSL_set_quic_tls_transport_params`)
+আংশিক হালনাগাদে `curl` ও `OpenSSL`-এর সামঞ্জস্য নষ্ট হতে পারে। সরাসরি `wget` ব্যবহার
 করুন—ইনস্টলার একই থাকবে:
 
 ```bash
 pkg update -y && pkg upgrade -y && pkg install -y wget && bash -o pipefail -c 'wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'
 ```
 
-এই command-গুলো Termux package update ও upgrade শেষ করে তারপর downloader
-install করে। `pipefail` থাকায় download ব্যর্থ হলে খালি Bash run-কে সফল বলা
-হবে না। Partial upgrade-এ `pkg` বা curl চালু না হলে `apt update && apt
-full-upgrade -y` দিয়ে Termux repair করে আবার চেষ্টা করুন। Stable signed APT
-repository বন্ধ, তাই `pkg install ternux` এখন পাওয়া যাচ্ছে না; RC channel শুধু
-candidate test-এর জন্য এবং hosted availability এখন যাচাই করা যায়নি.
+এই কমান্ডগুলো আগে টার্মাক্সের প্যাকেজ হালনাগাদ করে, তারপর নামানোর সরঞ্জাম বসায়।
+`pipefail` থাকায় ফাইল নামানো ব্যর্থ হলে ফাঁকা ব্যাশ চালানোকে সফল ধরা হয় না।
+আংশিক হালনাগাদের পরে `pkg` বা `curl` না চললে `apt update && apt
+full-upgrade -y` দিয়ে টার্মাক্স মেরামত করে আবার চেষ্টা করুন। স্থিতিশীল
+স্বাক্ষরিত এপিটি ভান্ডার বন্ধ, তাই `pkg install ternux` এখন পাওয়া যায় না;
+আরসি চ্যানেল শুধু পরীক্ষার জন্য, এর প্রকাশনা-সার্ভারের অবস্থা এখন যাচাই করা হয়নি।
 
-### Optional workload checklist
+### ঐচ্ছিক কাজের বাছাই-তালিকা
 
-Workload flag ছাড়া interactive install-এ detected GPU route অনুযায়ী পরামর্শ দিয়ে category-সহ keyboard checklist দেখায়। Up/Down বা `j`/`k` দিয়ে চলুন; Space বা item-এর নম্বর দিয়ে একাধিক নির্বাচন toggle করুন; Enter-এ plan review করুন, আর `q` চাপলে base desktop থাকবে। `--yes` checklist বাদ দিয়ে base profile রাখে; `--with-*` flag নির্দিষ্ট workload এবং `--all` সব workload বেছে নেয়। Detected Adreno/Zink route-এ Blender পরামর্শ পেতে পারে—এটি উপযোগিতার পরামর্শ, সব device-এ GPU rendering সমর্থনের নিশ্চয়তা নয়।
+কাজের বিকল্প না দিলে ইন্টারঅ্যাকটিভ ইনস্টলে শনাক্ত গ্রাফিক্স-পথ অনুযায়ী
+পরামর্শসহ শ্রেণিবদ্ধ কিবোর্ড-তালিকা দেখায়। ওপর/নিচের তীর বা `j`/`k` দিয়ে
+চলুন; স্পেস বা পছন্দের নম্বর দিয়ে একাধিক কাজ বাছুন; এন্টার চাপলে পরিকল্পনা
+পর্যালোচনা করুন, আর `q` চাপলে মূল ডেস্কটপই থাকবে। `--yes` তালিকা এড়িয়ে মূল
+বিন্যাস বেছে নেয়; `--with-*` নির্দিষ্ট কাজ এবং `--all` সব কাজ বেছে নেয়।
+অ্যাড্রেনো/জিঙ্ক পথ শনাক্ত হলে ব্লেন্ডার পরামর্শ আসতে পারে—এটি উপযোগিতার
+পরামর্শ, সব যন্ত্রে জিপিইউ দিয়ে ছবি তৈরির নিশ্চয়তা নয়।
 
-### পদ্ধতি ২ — সব executable অংশ পড়ুন, তারপর চালান
+### পদ্ধতি ২ — সব নির্বাহযোগ্য অংশ পড়ুন, তারপর চালান
 
-শুধু standalone `install.sh` পড়া পূর্ণ review নয়—চালু হলে সেটি সম্পূর্ণ repository
-snapshot নামিয়ে source করে। তাই entry point ও source-করা library-গুলো একসঙ্গে
-clone করে দেখুন:
+শুধু স্বতন্ত্র `install.sh` পড়লেই সম্পূর্ণ পর্যালোচনা হয় না—চালালে এটি
+সংগ্রহশালার পুরো কপি নামিয়ে চালায়। তাই প্রবেশ-স্ক্রিপ্ট ও সেটি যে গ্রন্থাগার
+চালায় সেগুলো একসঙ্গে নামিয়ে দেখুন:
 
 ```bash
 apt update && apt full-upgrade -y && apt install git -y
 git clone https://github.com/soobujmiah/ternux.git
 cd ternux
-git log -1 --oneline                 # exact commit লিখে রাখুন
+git log -1 --oneline                 # নির্দিষ্ট কমিট লিখে রাখুন
 (set -e; for f in install.sh uninstall.sh bin/ternux bin/ternux-guest lib/*.sh; do bash -n "$f"; done)
 less install.sh lib/core.sh lib/phases.sh lib/detect.sh lib/ui.sh
 # less-এ :n দিলে পরের file, q দিলে review শেষ হবে।
 bash install.sh
 ```
 
-Reproducible review-এর জন্য `git fetch --tags` চালিয়ে release tag checkout করুন
-এবং inspection-এর আগে `git status --short` ফাঁকা আছে কি না দেখুন। Installed result
-একই হওয়ার কথা; local review route একবার confirmation চাইতে পারে। Review-এর পর
-prompt না চাইলে সচেতনভাবে `--yes` দিন। ইনস্টল মাঝপথে থামলে একই one-command installer
-আবার চালালেই saved guest ও পছন্দ থেকে auto-resume হবে। চাইলে `bash install.sh --resume`
-দিয়ে আলাদাভাবেও resume করা যায়। Shared host setup phase একবার record হয়; desktop
-phase প্রতিটি guest-এর state directory-তে আলাদা থাকে। তাই resume-এ শুধু সেই guest-এর
-সফল phase বাদ যায়—Debian-এর শেষ phase Ubuntu বা Alpine-এর অসমাপ্ত setup ঢেকে দিতে
-পারে না। পুরোনো install-এ guest phase ledger না থাকলে aggregate marker বিশ্বাস না করে
-guest phase নিরাপদে আবার চালায়। Saved optional workload-ও ফিরে আসে।
+পুনরুৎপাদনযোগ্য পর্যালোচনার জন্য `git fetch --tags` চালিয়ে প্রকাশনা-চিহ্ন
+নির্বাচন করুন এবং দেখার আগে `git status --short` ফাঁকা কি না যাচাই করুন। একই
+স্থাপন-ফল পাওয়ার কথা; স্থানীয় পর্যালোচনার পথে একবার সম্মতি চাইতে পারে। পরে
+আর প্রশ্ন না চাইলে বুঝে `--yes` দিন। স্থাপন মাঝপথে থামলে একই এক-আদেশ
+স্থাপনকারী আবার চালিয়ে সংরক্ষিত গেস্ট ও পছন্দ থেকে নিজে চালিয়ে যাবে। চাইলে
+`bash install.sh --resume` দিয়েও চালিয়ে নিতে পারেন। হোস্ট বিন্যাসের ধাপ একবার
+নথিভুক্ত হয়; ডেস্কটপের ধাপ প্রতিটি গেস্টের আলাদা অবস্থা-ডিরেক্টরিতে থাকে।
+তাই আবার চালালে শুধু সেই গেস্টের সফল ধাপ বাদ যায়—ডেবিয়ানের শেষ ধাপ উবুন্টু
+বা আল্পাইনের অসমাপ্ত স্থাপনকে ঢেকে দিতে পারে না। পুরোনো ইনস্টলে গেস্ট-ধাপের
+হিসাব না থাকলে সামগ্রিক চিহ্ন বিশ্বাস না করে নিরাপদে গেস্টের ধাপ আবার চালায়।
+ঐচ্ছিক কাজের সংরক্ষিত পছন্দও ফিরে আসে।
 
 ### পদ্ধতি ৩ — সম্পূর্ণ ম্যানুয়াল, কমান্ডে কমান্ডে
 
 সম্পূর্ণ নিয়ন্ত্রণ চাইলে — বা ইনস্টলার নিজেই ডিবাগ করতে হলে —
 [ম্যানুয়াল ইনস্টলেশন](MANUAL.html) পাতায় প্রতিটি কমান্ড খোলাসা করে আছে:
-বেস প্যাকেজ, কন্টেইনার, দুই পথের GPU ড্রাইভার, সম্পূর্ণ `~/x.sh` লঞ্চার
+মূল প্যাকেজ, কন্টেইনার, দুই পথের জিপিইউ চালক, সম্পূর্ণ `~/x.sh` লঞ্চার
 ফাইল ও যাচাইকরণ। পদ্ধতি ১ ও ২ আপনার জন্য সেই একই ধাপগুলোই চালায়।
 
 ---
 
-## সঠিক project release বেছে নিন
+## সঠিক প্রকল্প-প্রকাশনা বেছে নিন
 
-Ternux environment বসাতে [দ্রুত শুরু](QUICK-START.html) অথবা এই পূর্ণ
-[ইনস্টলেশন নির্দেশিকা](INSTALLATION.html) অনুসরণ করুন; প্রতিটি command হাতে
-চালানোর বিকল্প হলো [ম্যানুয়াল ইনস্টলেশন](MANUAL.html)। Ternux-এর মূল release
-ইতিহাস আছে [Ternux Releases page](https://github.com/soobujmiah/ternux/releases)-এ।
+টার্নাক্সের পরিবেশ বসাতে [দ্রুত শুরু](QUICK-START.html) অথবা এই পূর্ণ
+[ইনস্টলেশন নির্দেশিকা](INSTALLATION.html) অনুসরণ করুন; প্রতিটি কমান্ড হাতে
+চালানোর জন্য [ম্যানুয়াল ইনস্টলেশন](MANUAL.html) দেখুন। টার্নাক্সের মূল
+প্রকাশনার ইতিহাস [প্রকাশনা পাতায়](https://github.com/soobujmiah/ternux/releases)
+আছে।
 
-পরীক্ষামূলক llama.cpp HTP release হলো ঐচ্ছিক Linux ARM64 artifact—Ternux
-installer বা Debian root filesystem নয়। আগে Ternux setup করুন। Artifact চালাতে
-আলাদা Android Binder/FastRPC broker-ও দরকার; archive-এ সেটি নেই। Default/HMX
-ও flash-attention path-এ ভুল উত্তর এসেছে। Flash attention বন্ধ রেখে HVX-only
-matmul-এ tested device-এ bounded known-answer ও long recall-key check pass
-করেছে। Explicit HVX flash attention-এ এখনও সাতটি reproduce করা numerical error
-আছে; তাই HTP experimental, supported নয়। Installer-এ HTP বেছে নিলে Ternux official Debian Trixie Backports-এর `main`
-ও `contrib` component যোগ করে চারটি runtime package install করে; system dependency
-হওয়ায় এগুলো HTP archive-এ bundle করা নেই। [বর্তমান release gate](ACCELERATOR-RELEASE-PLAN.html)
-ও [repository-only বিস্তারিত evidence](https://github.com/soobujmiah/ternux/blob/main/bn/guides/device-benchmark-evidence.md#experimental-llamacpp-hexagon-htp-artifact-for-sm8735)
+পরীক্ষামূলক `llama.cpp` এইচটিপি প্রকাশনা ঐচ্ছিক লিনাক্স এআরএম৬৪ উপাদান—এটি
+টার্নাক্স স্থাপনকারী বা ডেবিয়ানের মূল ফাইলব্যবস্থা নয়। আগে টার্নাক্স বসান।
+উপাদানটি চালাতে আলাদা অ্যান্ড্রয়েড বাইন্ডার/ফাস্টআরপিসি মধ্যস্থতাকারী লাগে;
+সংরক্ষণাগারে সেটি নেই। পূর্বনির্ধারিত/এইচএমএক্স ও ফ্ল্যাশ-অ্যাটেনশন পথে ভুল
+উত্তর পাওয়া গেছে। ফ্ল্যাশ-অ্যাটেনশন বন্ধ রেখে শুধু এইচভিএক্স ম্যাটমাল ব্যবহার
+করে পরীক্ষিত যন্ত্রে নির্ধারিত সঠিক-উত্তর ও দীর্ঘ স্মৃতি-পরীক্ষা পাস করেছে।
+স্পষ্টভাবে এইচভিএক্স ফ্ল্যাশ-অ্যাটেনশন চালালে এখনো সাতটি পুনরুৎপাদনযোগ্য
+গণনাগত ভুল আছে; তাই এইচটিপি পরীক্ষামূলক, সমর্থিত নয়। স্থাপনকালে এইচটিপি
+বাছলে টার্নাক্স ডেবিয়ান ট্রিক্সি ব্যাকপোর্টের `main` ও `contrib` অংশ যোগ করে
+চারটি চলতি প্যাকেজ বসায়; ব্যবস্থার নির্ভরতা হওয়ায় এগুলো এইচটিপি সংরক্ষণাগারে
+রাখা নেই। [বর্তমান প্রকাশনা-গেট](ACCELERATOR-RELEASE-PLAN.html) ও
+[সংগ্রহশালায় থাকা বিস্তারিত প্রমাণ](https://github.com/soobujmiah/ternux/blob/main/bn/guides/device-benchmark-evidence.md#experimental-llamacpp-hexagon-htp-artifact-for-sm8735)
 দেখুন।
 
-ইনস্টলের শেষ পর্দায় `ternux guides` দেখানো হয়। ইনস্টলের পর Termux অথবা Debian/Xfce terminal-এ `ternux guides` চালালে environment, manual setup, ecosystem tool installation এবং daily-use guide-এর সরাসরি link দেখা যায়। কমান্ডটি কিছু install করে না।
+ইনস্টলের শেষ পর্দায় `ternux guides` দেখানো হয়। ইনস্টলের পর টার্মাক্স অথবা
+ডেবিয়ান/এক্সএফসিই টার্মিনালে `ternux guides` চালালে পরিবেশ, হাতে বিন্যাস,
+সহায়ক সরঞ্জাম স্থাপন এবং দৈনন্দিন ব্যবহারের নির্দেশিকার লিংক দেখা যায়।
+কমান্ডটি কিছু ইনস্টল করে না।
 
-ADT-এর Android SDK tools-এর version, build record ও মূল download তাদের নিজস্ব
-repo-তে থাকে। [ADT Releases](https://github.com/soobujmiah/adt/releases) থেকে
-নিন এবং Debian-এর ভেতরে [ADT setup guide](https://github.com/soobujmiah/adt#quick-start)
-অনুসরণ করুন। Ternux ADT release file নকল করে না। একই Termux + PRoot Debian
-ভিত্তিতে দুটো পাশাপাশি থাকতে পারে, তবে একসাথে desktop workflow-টি এখনও
-পরীক্ষামূলক; দেখুন [ADT-এর Ternux সম্পর্কিত নোট](https://github.com/soobujmiah/adt/blob/main/docs/TERNUX_RELATIONSHIP.md)।
+এডিটির অ্যান্ড্রয়েড এসডিকে সরঞ্জামের সংস্করণ, নির্মাণ-নথি ও মূল ডাউনলোড তাদের
+নিজস্ব সংগ্রহশালায় থাকে। [এডিটি প্রকাশনা](https://github.com/soobujmiah/adt/releases)
+থেকে নিন এবং ডেবিয়ানের ভেতরে [এডিটি বিন্যাস-নির্দেশিকা](https://github.com/soobujmiah/adt#quick-start)
+অনুসরণ করুন। টার্নাক্স এডিটির প্রকাশিত ফাইলের নকল করে না। একই টার্মাক্স ও
+প্রুট-ডেবিয়ান ভিত্তিতে দুটো পাশাপাশি থাকতে পারে, তবে যৌথ ডেস্কটপ ব্যবহার এখনো
+পরীক্ষামূলক; [এডিটির টার্নাক্স-সংক্রান্ত নোট](https://github.com/soobujmiah/adt/blob/main/docs/TERNUX_RELATIONSHIP.md)
+দেখুন।
 
-Debian-এ download tool না থাকলে আগে বসান:
+ডেবিয়ানে ফাইল নামানোর সরঞ্জাম না থাকলে আগে বসান:
 
 ```bash
 sudo apt update && sudo apt install -y ca-certificates curl tar gzip
@@ -168,13 +189,13 @@ sudo apt update && sudo apt install -y ca-certificates curl tar gzip
 
 <span id="install-adt-tools-inside-the-ternux-debian-guest"></span>
 
-### Ternux Debian guest-এ ADT tools বসান
+### টার্নাক্স ডেবিয়ান গেস্টে এডিটি সরঞ্জাম বসান
 
-Ternux interactive installer থেকে ADT component বেছে install করা যায়। এতে
-versioned SDK component-এর আগে ADT command-line tools বসে, তাই `sdkmanager`
-আগেই থাকে। হাতে setup করতে Termux host থেকে `db` চালিয়ে Debian-এ ঢুকুন
-(অথবা Xfce terminal খুলুন), তারপর সাধারণ Debian user হিসেবে ADT-এর installer
-চালান:
+টার্নাক্সের ইন্টারঅ্যাকটিভ স্থাপনকারী থেকে এডিটি অংশ বেছে বসানো যায়। এতে
+সংস্করণযুক্ত এসডিকে অংশের আগে এডিটির কমান্ড-লাইন সরঞ্জাম বসে, তাই `sdkmanager`
+আগেই থাকে। হাতে বিন্যাস করতে টার্মাক্স হোস্টে `db` চালিয়ে ডেবিয়ানে ঢুকুন
+(অথবা এক্সএফসিই টার্মিনাল খুলুন), তারপর সাধারণ ডেবিয়ান ব্যবহারকারী হিসেবে
+এডিটির স্থাপনকারী চালান:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/soobujmiah/adt/main/install.sh | bash
@@ -183,8 +204,8 @@ cd ~/adt
 ./setup.sh doctor
 ```
 
-শুধু নির্দিষ্ট version বসাতে Ternux-এ asset কপি না করে ADT-এর release-aware
-command ব্যবহার করুন:
+শুধু নির্দিষ্ট সংস্করণ বসাতে টার্নাক্সে ফাইল কপি না করে এডিটির প্রকাশনা-সচেতন
+কমান্ড ব্যবহার করুন:
 
 ```bash
 ./setup.sh list-versions
@@ -194,77 +215,84 @@ BUILD_TOOLS_VERSION=37.0.0
 ./setup.sh doctor
 ```
 
-সমর্থিত version ও asset checksum-এর canonical source ADT repository। দেখুন
-[ADT command guide](https://github.com/soobujmiah/adt/blob/main/COMMANDS.md)।
+সমর্থিত সংস্করণ ও ফাইলের চেকসামের মূল উৎস এডিটি সংগ্রহশালা।
+[এডিটি কমান্ড নির্দেশিকা](https://github.com/soobujmiah/adt/blob/main/COMMANDS.md)
+দেখুন।
 
-### ঐচ্ছিক CPU + Vulkan llama.cpp extension
+### ঐচ্ছিক প্রসেসর + ভলকান `llama.cpp` সম্প্রসারণ
 
-সহজ install ও চালানোর ধাপ [দ্রুত শুরু](QUICK-START.html)-এ আছে।
-Release details এবং automatic ও manual—দুই install পদ্ধতির জন্য
-[repository extension guide](https://github.com/soobujmiah/ternux/blob/main/bn/guides/llama-vulkan-extension.md) দেখুন।
-Package-টি prerelease; ADT আগের মতো ADT-র release-aware command দিয়ে install ও
-update হবে।
-
----
-
-### ঐচ্ছিক Stable Diffusion CPU + Vulkan extension
-
-`ternux extension install stable-diffusion` Debian ARM64-e pinned `sd-cli`
-runtime install kore. Shared storage-er model use korte age `ternux storage
-grant /sdcard/Llms` চালান; guest-e sudhu granted folder mount hoy. Vulkan-er
-jonno Debian Vulkan ICD cholte hobe. Target device-e image quality o performance
-qualify na howa porjonto eta preview. Install, model path, verify o remove-er
-jonno [Stable Diffusion guide](https://github.com/soobujmiah/ternux/blob/main/bn/guides/stable-diffusion-vulkan-extension.md) dekhun.
+সহজে বসানো ও চালানোর ধাপ [দ্রুত শুরু](QUICK-START.html)-এ আছে। প্রকাশনার
+বিস্তারিত এবং স্বয়ংক্রিয় ও হাতে—দুই পদ্ধতির জন্য
+[সংগ্রহশালার সম্প্রসারণ-নির্দেশিকা](https://github.com/soobujmiah/ternux/blob/main/bn/guides/llama-vulkan-extension.md)
+দেখুন। প্যাকেজটি প্রাক-প্রকাশনা; এডিটি আগের মতো তার প্রকাশনা-সচেতন কমান্ড
+দিয়ে বসবে ও হালনাগাদ হবে।
 
 ---
 
-### পরীক্ষামূলক llama.cpp HTP extension
+### ঐচ্ছিক স্টেবল ডিফিউশন প্রসেসর + ভলকান সম্প্রসারণ
 
-Termux host থেকে `ternux extension install llama-htp-experimental` চালিয়ে
-পরীক্ষামূলক HTP package install করুন। এটি শুধু SM8735/V73 experiment-এর জন্য;
-Ternux-এর supported feature নয়। Runtime dependency, command, ভুল output-দেওয়া
-configuration, cancellation status ও removal-এর জন্য
-[repository HTP guide](https://github.com/soobujmiah/ternux/blob/main/bn/guides/llama-htp-experimental.md)
-দেখুন। FastRPC device permission বদলাবেন না, model weight copy-ও করবেন না।
+`ternux extension install stable-diffusion` ডেবিয়ান এআরএম৬৪-তে নির্দিষ্ট
+`sd-cli` চলতি অংশ বসায়। ভাগ করা সংরক্ষণে থাকা মডেল ব্যবহার করতে আগে
+`ternux storage grant /sdcard/Llms` দিন; গেস্টে শুধু অনুমতিপ্রাপ্ত ডিরেক্টরিই
+যুক্ত হয়। ভলকানের জন্য ডেবিয়ানের ভলকান আইসিডি চলতে হবে। লক্ষ্য যন্ত্রে ছবির
+মান ও গতি যাচাই না হওয়া পর্যন্ত এটি পরীক্ষামূলক। স্থাপন, মডেলের পথ, যাচাই ও
+অপসারণের জন্য [স্টেবল ডিফিউশন নির্দেশিকা](https://github.com/soobujmiah/ternux/blob/main/bn/guides/stable-diffusion-vulkan-extension.md)
+দেখুন।
 
 ---
 
-## ternux CLI — host control ও guest diagnostics
+### পরীক্ষামূলক `llama.cpp` এইচটিপি সম্প্রসারণ
 
-ইনস্টলের পর দুই terminal environment-এই `ternux` পাওয়া যায়, তবে entry point
-দুটির দায়িত্ব ইচ্ছাকৃতভাবে আলাদা:
+টার্মাক্স হোস্টে `ternux extension install llama-htp-experimental` চালিয়ে
+পরীক্ষামূলক এইচটিপি প্যাকেজ বসান। এটি শুধু এসএম৮৭৩৫/ভি৭৩ পরীক্ষার জন্য; টার্নাক্সের
+সমর্থিত সুবিধা নয়। চলতি নির্ভরতা, কমান্ড, ভুল ফল দেওয়া বিন্যাস, বাতিলের
+অবস্থা ও অপসারণের জন্য
+[সংগ্রহশালার এইচটিপি নির্দেশিকা](https://github.com/soobujmiah/ternux/blob/main/bn/guides/llama-htp-experimental.md)
+দেখুন। ফাস্টআরপিসি যন্ত্র-অনুমতি বদলাবেন না, মডেলের ওজনও কপি করবেন না।
 
-| Environment | Installed entry point | ভূমিকা |
+---
+
+## টার্নাক্স কমান্ড-লাইন — হোস্ট নিয়ন্ত্রণ ও গেস্ট পরীক্ষা
+
+ইনস্টলের পর দুই টার্মিনাল পরিবেশেই `ternux` পাওয়া যায়, তবে প্রবেশ-কমান্ড
+দুটির কাজ আলাদা:
+
+| পরিবেশ | ইনস্টল করা প্রবেশ-কমান্ড | ভূমিকা |
 |---|---|---|
-| **Termux host** | `$PREFIX/bin/ternux`; module `$PREFIX/lib/ternux/`-এ | পূর্ণ diagnostics, repair, desktop lifecycle, profile, backend, update ও uninstall |
-| **Debian/Xfce guest** | `/usr/local/bin/ternux` | আরেকটি PRoot না খুলে guest-local `status`, `info`, `doctor` ও `env` |
+| **টার্মাক্স হোস্ট** | `$PREFIX/bin/ternux`; অংশগুলো `$PREFIX/lib/ternux/`-এ | পূর্ণ পরীক্ষা, মেরামত, ডেস্কটপ চালানো-বন্ধ, বিন্যাস, ব্যাকএন্ড, হালনাগাদ ও অপসারণ |
+| **ডেবিয়ান/এক্সএফসিই গেস্ট** | `/usr/local/bin/ternux` | আরেকটি প্রুট না খুলে গেস্টের `status`, `info`, `doctor` ও `env` |
 
-পূর্ণ control plane **Termux host terminal**-এ ব্যবহার করুন:
+সম্পূর্ণ নিয়ন্ত্রণব্যবস্থা **টার্মাক্স হোস্ট টার্মিনালে** ব্যবহার করুন:
 
 ```bash
 command -v ternux       # $PREFIX/bin/ternux
 ternux --version        # ternux vX.Y.Z
-ternux doctor           # সিস্টেম ডায়াগনস্টিক
-ternux doctor --json    # machine-readable output
-tx start                # saved desktop চালু
-tx start ubuntu        # আলাদা X11 window-তে Ubuntu চালু
-tx stop                # একটি বা একাধিক চলমান desktop বাছুন
-tx stop --all          # সব Ternux desktop বন্ধ
-tx restart ubuntu     # Ubuntu restart
+ternux doctor           # ব্যবস্থার পরীক্ষা
+ternux doctor --json    # যন্ত্রে পড়ার উপযোগী ফল
+tx start                # সংরক্ষিত ডেস্কটপ চালু
+tx start ubuntu         # আলাদা এক্স১১ জানালায় উবুন্টু চালু
+tx start ub             # একই গেস্ট সংক্ষিপ্ত নামে চালু
+tx start alp            # আল্পাইন চালু
+tx stop                 # চলতি ডেস্কটপ বেছে বন্ধ
+tx stop db              # শুধু ডেবিয়ান বন্ধ
+tx stop ub              # শুধু উবুন্টু বন্ধ
+tx stop alp             # শুধু আল্পাইন বন্ধ
+tx stop --all           # সব টার্নাক্স ডেস্কটপ বন্ধ
+tx restart ubuntu       # উবুন্টু আবার চালু
 ternux repair           # সাধারণ সমস্যা সমাধান
 ternux verify           # ইনস্টলেশন যাচাই
-ternux benchmark        # GPU বেঞ্চমার্ক
-ternux profile          # ডিভাইস প্রোফাইল
-ternux backend          # GPU ব্যাকএন্ড ব্যবস্থাপনা
-ternux info             # সিস্টেম তথ্য
-ternux info --json      # machine-readable তথ্য
+ternux benchmark        # জিপিইউ মাপজোখ
+ternux profile          # যন্ত্রের বিন্যাস
+ternux backend          # জিপিইউ ব্যাকএন্ড পরিচালনা
+ternux info             # ব্যবস্থার তথ্য
+ternux info --json      # যন্ত্রে পড়ার উপযোগী তথ্য
 ternux logs             # লগ দেখা
 ternux state            # ইনস্টলেশন অবস্থা
-ternux update           # CLI আপডেট
-ternux uninstall        # কম্পোনেন্ট অপসারণ
+ternux update           # কমান্ড-ব্যবস্থা হালনাগাদ
+ternux uninstall        # নির্দিষ্ট অংশ অপসারণ
 ```
 
-**Debian-এর Xfce terminal** থেকে guest-local inspection চালান:
+**ডেবিয়ানের এক্সএফসিই টার্মিনালে** গেস্টের ভেতরের পরীক্ষা চালান:
 
 ```bash
 command -v ternux       # /usr/local/bin/ternux
@@ -275,13 +303,14 @@ ternux doctor
 ternux env
 ```
 
-Guest companion `start`, `stop`, `repair`, `update`, `uninstall`-এর মতো host-only
-lifecycle command-এ usage error দিয়ে Termux-এ চালাতে বলে; এতে accidental nested
-PRoot session হয় না। Installer exact installed host ও guest command execute করে
-version response যাচাই করে—শুধু executable file থাকা success নয়।
+গেস্ট সহায়ক `start`, `stop`, `repair`, `update`, `uninstall`-এর মতো শুধু-হোস্টের
+কাজে ভুল-ব্যবহার বার্তা দিয়ে টার্মাক্সে চালাতে বলে; এতে অনিচ্ছাকৃত আরেকটি প্রুট
+সেশন তৈরি হয় না। স্থাপনকারী হোস্ট ও গেস্টের ইনস্টল করা কমান্ড চালিয়ে সংস্করণ
+উত্তর যাচাই করে—শুধু নির্বাহযোগ্য ফাইল থাকাকে সফল ধরা হয় না।
 
-Host dispatcher global flag শনাক্ত করে, কিন্তু সব command JSON schema দেয় না।
-Structured output শুধু [CLI reference](CLI.html)-এ নথিভুক্ত command-এ ব্যবহার করুন।
+হোস্ট ডিসপ্যাচার বৈশ্বিক বিকল্প চিনতে পারে, কিন্তু সব কমান্ড জেসন ছক দেয় না।
+কাঠামোবদ্ধ ফলের জন্য শুধু [কমান্ড-লাইন নির্দেশিকায়](CLI.html) নথিভুক্ত
+কমান্ডে বিকল্পটি ব্যবহার করুন।
 
 ---
 
@@ -293,16 +322,16 @@ Structured output শুধু [CLI reference](CLI.html)-এ নথিভুক�
 
 | # | ধাপ | কী করে | কেন |
 |---|---|---|---|
-| ১ | **প্রিফ্লাইট** | Termux, আর্কিটেকচার, Android ভার্সন, স্টোরেজ, নেটওয়ার্ক পরীক্ষা | এখানে ব্যর্থ হলে ডাউনলোডও নষ্ট হয় না; পরের সব ধাপ এই তথ্যের ওপর নির্ভর করে |
-| ২ | **বেস প্যাকেজ** | `x11-repo`, `termux-x11-nightly`, `pulseaudio`, `proot-distro`, `virglrenderer-android`, টুলস ইনস্টল; স্টোরেজ অনুমতি | কন্টেইনারের দরকারি হোস্ট-সাইড সার্ভিস: ডিসপ্লে, শব্দ ও কন্টেইনার ইঞ্জিন |
-| ৩ | **Host CLI ইনস্টলেশন** | `$PREFIX/bin/ternux` ও `$PREFIX/lib/ternux/`-এর module install করে, তারপর exact path execute করে version যাচাই | Library missing থাকলেও file থাকতে পারে; সফল execution-ই আসল host-side check |
-| ৪ | **নির্বাচিত guest + Xfce4** | নির্বাচিত distro rootfs ও family-matched desktop package বসায়; passwordless sudo-সহ user, `/usr/local/bin/ternux` ও guest companion তৈরি করে | প্রতিটি named profile-এ আলাদা desktop recipe ও nested PRoot ছাড়া local diagnostics থাকে |
-| ৫ | **GPU route** | Adreno/KGSL-এ সমর্থিত গেস্টে Zink ও Mesa/Freedreno বা Turnip payload; Kali Rolling-এ সরাসরি যাচাই করা Debian Testing overlay; Adélie ও KGSL-বিহীন যন্ত্রে VirGL, সেটি ব্যর্থ হলে llvmpipe সফটওয়্যার fallback | `glxinfo -B` দিয়ে চলতি রেন্ডারার দেখুন; যন্ত্র ও Android host অনুযায়ী হার্ডওয়্যার ত্বরণ ভিন্ন হতে পারে |
-| ৬ | **অডিও, লোকেল, ফন্ট** | শুধু লোকাল লুপব্যাক পালসঅডিও সংযোগ, ওপেন-এস-এল-ই-এস আউটপুট ও চাহিদামতো মাইক্রোফোন চালু করে; টার্মাক্স:এপিআই দিয়ে ব্যক্তিগত এক-সেকেন্ডের মাইক্রোফোন পরীক্ষা এবং সম্মতি-সাপেক্ষ অস্থায়ী ক্যামেরা অনুমতির পরীক্ষা চালায়; লোকেল ও ইমোজি/পাওয়ারলাইন/নের্ড ফন্ট যোগ করে | গেস্টের শব্দ ও রেকর্ডিং পালসঅডিও দিয়ে অ্যান্ড্রয়েডে যায়। লাইভ মাইক্রোফোন টার্মাক্সের অনুমতি ও ওপেন-এস-এল-ই-এস উৎস ব্যবহার করে; টার্মাক্স:এপিআই পরীক্ষা লাইভ শব্দ পাঠায় না। ক্যামেরা পরীক্ষা চালালে সম্মতির পর একটি ছবি তোলে এবং সঙ্গে সঙ্গে মুছে দেয়; `--yes` ও স্বয়ংক্রিয় ইনস্টলে পরীক্ষা চলে না। এক্সএফসিই টার্মিনালে আগে থেকে থাকা নটো স্যান্স মোনো ফন্ট থাকে; শেল-চিহ্নে প্রতিটি গেস্টের নাম লেখা হয়, তাই অসমর্থিত ব্যক্তিগত-ব্যবহার চিহ্নের ওপর নির্ভর করতে হয় না। |
-| ৭ | **লঞ্চার** | GPU পথ অনুযায়ী GPU পথ অনুযায়ী guest desktop launcher লেখা ও সিনট্যাক্স-চেক | `tx start`-এ অডিও → ডিসপ্লে → ডেস্কটপ নির্ভরযোগ্য ক্রমে শুরু হতেই হবে |
+| ১ | **প্রাথমিক যাচাই** | টার্মাক্স, স্থাপত্য, অ্যান্ড্রয়েড সংস্করণ, সংরক্ষণ-জায়গা ও নেটওয়ার্ক পরীক্ষা | এখানে ব্যর্থ হলে কিছু নামাতে হয় না; পরের ধাপগুলো এই তথ্যের ওপর নির্ভর করে |
+| ২ | **মূল প্যাকেজ** | `x11-repo`, `termux-x11-nightly`, `pulseaudio`, `proot-distro`, `virglrenderer-android` ও সরঞ্জাম বসায়; সংরক্ষণ-অনুমতি চায় | কন্টেইনারের জন্য পর্দা, শব্দ ও কন্টেইনার-ইঞ্জিনের হোস্ট পরিষেবা লাগে |
+| ৩ | **হোস্ট কমান্ড স্থাপন** | `$PREFIX/bin/ternux` ও `$PREFIX/lib/ternux/`-এর অংশ বসিয়ে নির্দিষ্ট পথ থেকে চালিয়ে সংস্করণ যাচাই | গ্রন্থাগার না থাকলেও ফাইল থাকতে পারে; চালিয়ে দেখা হোস্ট-পক্ষের আসল পরীক্ষা |
+| ৪ | **নির্বাচিত গেস্ট ও এক্সএফসিই৪** | নির্বাচিত ডিস্ট্রোর মূল ফাইলব্যবস্থা ও উপযোগী ডেস্কটপ প্যাকেজ বসায়; পাসওয়ার্ড ছাড়া সুডো-সহ ব্যবহারকারী, `/usr/local/bin/ternux` ও গেস্ট-সহায়ক তৈরি | প্রতিটি নামযুক্ত বিন্যাসে আলাদা ডেস্কটপের রেসিপি ও আরেকটি প্রুট না খুলে গেস্টের ভেতর পরীক্ষা থাকে |
+| ৫ | **জিপিইউ পথ** | কেজিএসএল-সহ অ্যাড্রেনোতে সমর্থিত গেস্টের জন্য জিঙ্ক ও মেসা/ফ্রিড্রেনো বা টার্নিপ; কালির রোলিং সংস্করণে সরাসরি যাচাই করা ডেবিয়ান টেস্টিং স্তর; অ্যাডেলি ও কেজিএসএলবিহীন যন্ত্রে ভিরজিএল, সেটি ব্যর্থ হলে ললভিএমপাইপ সফটওয়্যার বিকল্প | `glxinfo -B` দিয়ে চলতি রেন্ডারার দেখুন; যন্ত্র ও অ্যান্ড্রয়েড হোস্টভেদে হার্ডওয়্যার ত্বরণ বদলায় |
+| ৬ | **শব্দ, ভাষা-পরিবেশ ও ফন্ট** | শুধু স্থানীয় শব্দ-ফেরত পালসঅডিও সংযোগ, ওপেন-এসএল-ইএস আউটপুট ও চাহিদামতো মাইক্রোফোন চালু করে; টার্মাক্স:এপিআই দিয়ে এক সেকেন্ডের ব্যক্তিগত মাইক্রোফোন পরীক্ষা ও সম্মতিসাপেক্ষ অস্থায়ী ক্যামেরা-অনুমতি পরীক্ষা চালায়; ভাষা-পরিবেশ ও ইমোজি/পাওয়ারলাইন/নের্ড ফন্ট যোগ করে | গেস্টের শব্দ ও ধারণ করা অডিও পালসঅডিও দিয়ে অ্যান্ড্রয়েডে যায়। সরাসরি মাইক্রোফোন টার্মাক্সের অনুমতি ও ওপেন-এসএল-ইএস উৎস ব্যবহার করে; টার্মাক্স:এপিআই পরীক্ষা সরাসরি শব্দ পাঠায় না। ক্যামেরা পরীক্ষা চালালে সম্মতির পর একটি ছবি তোলে ও সঙ্গে সঙ্গে মুছে দেয়; `--yes` ও অদেখাশোনা ইনস্টলে পরীক্ষা চলে না। এক্সএফসিই টার্মিনালে নটো স্যান্স মোনো ফন্ট থাকে; শেল-চিহ্নে প্রতিটি গেস্টের নাম থাকে, তাই অসমর্থিত ব্যক্তিগত-ব্যবহার চিহ্ন লাগে না। |
+| ৭ | **লঞ্চার** | জিপিইউ পথ মেনে গেস্ট ডেস্কটপ চালুর ফাইল লেখে ও বাক্যগঠন যাচাই করে | `tx start`-এ শব্দ → পর্দা → ডেস্কটপ নির্ভরযোগ্য ক্রমে চালু হতে হবে |
 | ৮ | **শর্টকাট** | `tx`, `killx`, `db`/`dbroot`, `ub`/`ubroot`, `alp`/`alproot`, `xgo`, `sysmon`, `clean-mesa` | প্রতিদিনের কাজের জন্য সহজ ও সরাসরি শর্টকাট তৈরি করে |
-| ৯ | **ঐচ্ছিক এক্সট্রা** | ডেভ টুলস, llama.cpp, নেটওয়ার্ক টুলস, মিডিয়া টুলস, headless EEVEE-র জন্য Blender + Xvfb — শুধু যা চেয়েছেন | বেস ইনস্টল হালকা থাকুক; প্রতিটি প্রোফাইলের স্টোরেজ/তাপের খরচ আলাদা |
-| ১০ | **Android safeguard check** | readable child-process setting পরীক্ষা ও version-aware guidance | signal 9 memory pressure বা OEM battery policy-ও হতে পারে; system-wide safeguard বদলানোর আগে evidence নিন |
+| ৯ | **ঐচ্ছিক সরঞ্জাম** | উন্নয়ন, `llama.cpp`, নেটওয়ার্ক ও গণমাধ্যমের সরঞ্জাম; পর্দাহীন ইভি নেক্সটের জন্য ব্লেন্ডার ও এক্সভিএফবি—শুধু নির্বাচিতগুলো | মূল ইনস্টল হালকা থাকে; প্রতিটি বিন্যাসের সংরক্ষণ ও তাপের খরচ আলাদা |
+| ১০ | **অ্যান্ড্রয়েড সুরক্ষা যাচাই** | শিশু-প্রক্রিয়া নিয়ন্ত্রণের পাঠযোগ্য অবস্থা পরীক্ষা ও সংস্করণ-উপযোগী নির্দেশনা | সংকেত ৯ মেমরি-চাপ বা যন্ত্রনির্মাতার ব্যাটারি নীতির কারণেও আসতে পারে; পুরো ব্যবস্থার সুরক্ষা বদলানোর আগে প্রমাণ নিন |
 | ১১ | **যাচাইকরণ** | প্রতিটি গুরুত্বপূর্ণ বাইনারি, ফাইল ও অনুমতি সত্যিই আছে কিনা নিশ্চিত করা | পরিবেশটি চালু হওয়ার উপযোগী কিনা নিশ্চিত করে — `apt` শেষ হলেই ডেস্কটপ চালু হবে এমন নিশ্চয়তা থাকে না |
 
 কালিতে কালি প্রকল্পের নিজস্ব রোলিং রুট-ফাইলব্যবস্থার ওপর টার্নাক্সের এক্সএফসিই
@@ -322,108 +351,115 @@ Structured output শুধু [CLI reference](CLI.html)-এ নথিভুক�
 
 ---
 
-## ইনস্টলার অপশন
+## ইনস্টলারের বিকল্প
 
 ```bash
 bash install.sh                     # ইন্টারঅ্যাক্টিভ — বড় ধাপের আগে প্রশ্ন করে
 bash install.sh --yes               # সব ডিফল্ট মেনে নেয়, প্রশ্ন নেই
-bash install.sh --user soobuj       # Debian ইউজারনাম (ডিফল্ট: ternux)
+bash install.sh --user soobuj       # ডেবিয়ান ব্যবহারকারীর নাম (পূর্বনির্ধারিত: ternux)
 bash install.sh --locale bn_BD.UTF-8
-bash install.sh --backend zink      # Zink/Turnip বাধ্যতামূলক (শুধু Adreno)
-bash install.sh --backend virgl     # VirGL সামঞ্জস্য পথ বাধ্যতামূলক
-bash install.sh --zsh               # Termux শেল -> zsh, powerlevel10k সহ
+bash install.sh --backend zink      # শুধু অ্যাড্রেনোতে জিঙ্ক/টার্নিপ বাধ্যতামূলক
+bash install.sh --backend virgl     # ভিরজিএল সামঞ্জস্য-পথ বাধ্যতামূলক
+bash install.sh --zsh               # টার্মাক্স শেলে zsh ও powerlevel10k
 bash install.sh --shell bash        # প্রশ্ন ছাড়াই বেছে নিন
 bash install.sh --no-theme          # powerlevel10k ছাড়া zsh
-bash install.sh --distro ubuntu      # একটি named guest profile
-bash install.sh --distros debian,ubuntu,kali,alpine  # একাধিক profile install
-bash install.sh --with-dev          # Git, Node.js, Python, বিল্ড টুলস
-bash install.sh --with-llm          # llama.cpp + Vulkan (লোকাল AI)
+bash install.sh --distro ubuntu      # একটি নামযুক্ত গেস্ট বিন্যাস
+bash install.sh --distros debian,ubuntu,kali,alpine  # একাধিক বিন্যাস বসান
+bash install.sh --with-dev          # Git, Node.js, Python ও নির্মাণ-সরঞ্জাম
+bash install.sh --with-llm          # llama.cpp ও Vulkan (স্থানীয় কৃত্রিম বুদ্ধিমত্তা)
 bash install.sh --with-network      # nmap, tmux (শুধু অনুমোদিত পরীক্ষা)
 bash install.sh --with-media        # ffmpeg, GIMP, Audacity, ImageMagick
-bash install.sh --with-blender      # headless EEVEE render-এর জন্য Blender + Xvfb
-bash install.sh --all               # সব ঐচ্ছিক প্রোফাইল
+bash install.sh --with-blender      # পর্দাহীন EEVEE রেন্ডারে Blender ও Xvfb
+bash install.sh --all               # সব ঐচ্ছিক কাজ
 bash install.sh --resume            # বিঘ্নের পর আবার চালু
-bash install.sh --version | --help
+bash install.sh --version
+bash install.sh --help
 ```
 
-[ওয়ার্কলোড](WORKLOADS.html) পৃষ্ঠায় আছে প্রতিটি `--with-*` flag ঠিক কী বসায়, এবং
-প্রত্যেকটির manual সমতুল্য — installer চালাতে দেওয়ার আগে কাজে লাগে, আর ব্যর্থ একটি
-workload হাতে শেষ করার পথও এটিই।
+[কাজের ধরন](WORKLOADS.html) পাতায় আছে প্রতিটি `--with-*` বিকল্পে ঠিক কী বসে, এবং
+প্রত্যেকটির হাতে চালানোর সমতুল্যও আছে—স্থাপনকারী চালানোর আগে কাজে লাগে, আর ব্যর্থ একটি
+কাজ হাতে শেষ করার পথও আছে।
 
-প্রতিষ্ঠিত Adreno workstation-এ `--with-blender` headless EEVEE Next render-এর
-জন্য Xvfb-ও install করে; GPU offload চলে Zink/Turnip দিয়ে। দরকারি display
-variable ও পরীক্ষিত command [Blender usage guide](USAGE.html)-এ আছে।
+পরীক্ষিত অ্যাড্রেনো কর্মযন্ত্রে `--with-blender` পর্দাহীন ইভি নেক্সট রেন্ডারের
+জন্য এক্সভিএফবি-ও বসায়; জিপিইউতে কাজ পাঠায় জিঙ্ক/টার্নিপ দিয়ে। দরকারি প্রদর্শন
+চলক ও পরীক্ষিত কমান্ড [ব্লেন্ডার ব্যবহারের নির্দেশিকায়](USAGE.html) আছে।
 
-ইনস্টলের পর `ternux` CLI ব্যবহার করুন ডায়াগনস্টিক ও ব্যবস্থাপনার জন্য:
+ইনস্টলের পর পরীক্ষা ও ব্যবস্থাপনার জন্য `ternux` কমান্ড-লাইন ব্যবহার করুন:
 
 ```bash
-ternux doctor           # ডায়াগনস্টিক (bash install.sh --doctor এর বদলে)
-ternux repair           # ডায়াগনস্টিক ও মেরামত (--doctor --fix এর বদলে)
-ternux state            # কী হয়েছে, কী বাকি (--status এর বদলে)
-ternux uninstall        # অপসারণ (--uninstall এর বদলে)
-ternux update           # CLI আপডেট
+ternux doctor           # পরীক্ষা (bash install.sh --doctor-এর বদলে)
+ternux repair           # পরীক্ষা ও মেরামত (--doctor --fix-এর বদলে)
+ternux state            # কী হয়েছে, কী বাকি (--status-এর বদলে)
+ternux uninstall        # অপসারণ (--uninstall-এর বদলে)
+ternux update           # কমান্ড-ব্যবস্থা হালনাগাদ
 ```
 
-### Guest distribution বাছাই
+### গেস্ট ডিস্ট্রো বাছাই
 
-ternux যা বসায় সব একটি PRoot-Distro guest-এর ভেতরে থাকে। `--distro` একটি profile
-বেছে নেয়; একাধিক স্বাধীন guest বসাতে `--distros` ব্যবহার করা যায়। প্রতিটি guest-এর
-পছন্দ আলাদাভাবে লেখা হয়, তাই `--resume` ও `ternux repair` সঠিক profile-এই কাজ করে।
+টার্নাক্স যা বসায়, সবই একটি প্রুট-ডিস্ট্রো গেস্টের ভেতরে থাকে। `--distro` একটি
+বিন্যাস বেছে নেয়; একাধিক স্বতন্ত্র গেস্ট বসাতে `--distros` ব্যবহার করুন। প্রতিটি
+গেস্টের পছন্দ আলাদাভাবে লেখা হয়, তাই `--resume` ও `ternux repair` সঠিক বিন্যাসেই
+কাজ করে।
 
-| Package manager | নামযুক্ত desktop profile |
+| প্যাকেজ ব্যবস্থাপক | নামযুক্ত ডেস্কটপ বিন্যাস |
 |---|---|
-| APT | Debian, Ubuntu, Kali, Deepin, Pardus |
-| APK | Alpine, Adelie, Chimera |
-| pacman | Arch Linux, Artix, Manjaro |
-| DNF | Fedora, Rocky Linux |
-| Zypper | openSUSE |
-| XBPS | Void |
+| `APT` | ডেবিয়ান, উবুন্টু, কালি, ডিপিন, পার্ডাস |
+| `APK` | আল্পাইন, অ্যাডেলি, কাইমেরা |
+| `pacman` | আর্চ লিনাক্স, আর্টিক্স, মানজারো |
+| `DNF` | ফেডোরা, রকি লিনাক্স |
+| `Zypper` | ওপেনসুসে |
+| `XBPS` | ভয়েড |
 
-Debian recommended default। Debian, Ubuntu ও Alpine হলো v2-supported desktop
-profile। Release qualification-এ clean guest lifecycle check ও একটি Adreno 825
-phone-এর device evidence আছে; অন্য Android device-এ একই ফলের নিশ্চয়তা নয়।
-অন্য ১২টি named profile-এর family-matched recipe আছে, তবে v2 desktop support-এর
-জন্য qualified নয়। যেকোনো PRoot-Distro OCI image shell guest হিসেবে বসানো যায়;
-তার জন্য Ternux desktop recipe নেই। ঐচ্ছিক software workload-এর জন্য বর্তমানে
-APT guest দরকার।
+ডেবিয়ান পূর্বনির্ধারিত সুপারিশ। ডেবিয়ান, উবুন্টু ও আল্পাইন হলো দ্বিতীয় সংস্করণে সমর্থিত
+ডেস্কটপ বিন্যাস। প্রকাশনা-যোগ্যতা যাচাইয়ে পরিষ্কার গেস্ট চালানো-বন্ধ ও একটি
+অ্যাড্রেনো ৮২৫ ফোনের প্রমাণ আছে; অন্য অ্যান্ড্রয়েড যন্ত্রে একই ফলের নিশ্চয়তা
+নেই। বাকি ১২টি নামযুক্ত বিন্যাসে সংশ্লিষ্ট প্যাকেজ-পরিবারের রেসিপি আছে, তবে
+দ্বিতীয় সংস্করণের ডেস্কটপ সমর্থনের জন্য সেগুলো যোগ্য নয়। যেকোনো প্রুট-ডিস্ট্রো ওসিআই ছবি
+শেল-গেস্ট হিসেবে বসানো যায়; তার জন্য টার্নাক্স ডেস্কটপের বিন্যাস নেই। ঐচ্ছিক
+সফটওয়্যার কাজের জন্য বর্তমানে এপিটি-ভিত্তিক গেস্ট লাগে।
 
-`--distro` বা `--distros` না দিলে interactive profile picker optional workload-এর
-একই checklist ব্যবহার করে: Up/Down বা `j`/`k` দিয়ে চলুন, Space বা profile number
-দিয়ে নির্বাচন toggle করুন, Enter-এ নিশ্চিত করুন, আর `q` দিলে বর্তমান default থাকে।
-একবারে একাধিক guest বাছা যায়। সীমিত terminal-এ comma-separated number/name prompt
-দেখায়। ইনস্টলের আগে dashboard নির্বাচিত profile ও configuration নিশ্চিত করতে দেখায়।
-Prompt পাঁচ মিনিট অপেক্ষা করে; উত্তর না এলে দেখানো default নেয়। Unattended run-এ
-সঙ্গে সঙ্গে default নেওয়া হয়।
+`--distro` বা `--distros` না দিলে ইন্টারঅ্যাকটিভ বিন্যাস-বাছাই তালিকা ঐচ্ছিক
+কাজের একই কিবোর্ড-তালিকা ব্যবহার করে: ওপর/নিচের তীর বা `j`/`k` দিয়ে চলুন,
+স্পেস বা বিন্যাসের নম্বর দিয়ে বাছাই বদলান, এন্টার দিয়ে নিশ্চিত করুন, আর `q`
+চাপলে পূর্বনির্ধারিত বিন্যাস থাকবে। একসঙ্গে একাধিক গেস্ট বাছা যায়। ছোট
+টার্মিনালে কমা-আলাদা নম্বর বা নাম লিখে বাছতে বলে। ইনস্টলের আগে ফলকে নির্বাচিত
+বিন্যাস ও পছন্দ নিশ্চিত করতে দেখায়। প্রশ্নের উত্তর দিতে পাঁচ মিনিট অপেক্ষা
+করে; উত্তর না এলে দেখানো পূর্বনির্ধারিত পছন্দ নেয়। অদেখাশোনা চালনায় সঙ্গে
+সঙ্গে পূর্বনির্ধারিত পছন্দ নেয়।
 
-ডিভাইস-প্রমাণ নেই এমন profile বাছলে warning আসে। নিজের ডিভাইসে মেপে না দেখা পর্যন্ত
-ফলাফলকে যাচাই-না-করা হিসেবে ধরুন।
+যে বিন্যাসের জন্য যন্ত্রে পরীক্ষার প্রমাণ নেই, সেটি বাছলে সতর্কতা দেখায়। নিজের
+যন্ত্রে মেপে না দেখা পর্যন্ত ফলকে যাচাই-না-করা হিসেবে ধরুন।
 
-### GPU ব্যাকএন্ড বাছাই
+### জিপিইউ ব্যাকএন্ড বাছাই
 
-| অতিথি-প্রোফাইল / হোস্ট | ব্যাকএন্ড | প্রত্যাশা |
+| গেস্ট-বিন্যাস / হোস্ট | ব্যাকএন্ড | প্রত্যাশিত ফল |
 |---|---|---|
-| কেজিএসএল-সহ অ্যাড্রেনো ও অতিথির জন্য পিন-করা সম্পদ | `auto` → **zink** | ডেবিয়ান, উবুন্টু, কালি, অ্যালপাইন, আর্চ লিনাক্স, ফেডোরা, ওপেনসুস, ভয়েড ও ডিপিনে পিন-করা মেসা/টার্নিপ সম্পদ আছে। বর্তমানে ইনস্টল চার অতিথিতে ভলকান ও জিঙ্ক জিএলএক্স দেখা গেছে; পূর্ণ প্রোফাইল যাচাইয়ের পরিধি এর চেয়ে ছোট |
-| কেজিএসএল যন্ত্র নেই, অথবা প্রোফাইলে পিন-করা জিঙ্ক সম্পদ নেই | `auto` → **virgl** | হোস্ট ভারজিএল ও অতিথির মেসা `virpipe` পথ; সরাসরি জিএলএক্স যাচাইয়ে ভারজিএল না চললে এলএলভিএমপাইপ শেষ সফটওয়্যার পথ হয় |
+| কেজিএসএল-সহ অ্যাড্রেনো ও গেস্টের জন্য নির্দিষ্ট সম্পদ | `auto` → `zink` | ডেবিয়ান, উবুন্টু, কালি, আল্পাইন, আর্চ লিনাক্স, ফেডোরা, ওপেনসুসে, ভয়েড ও ডিপিনে নির্দিষ্ট মেসা/টার্নিপ সম্পদ আছে। বর্তমানে ইনস্টল চার অতিথিতে ভলকান ও জিঙ্ক জিএলএক্স দেখা গেছে; পূর্ণ বিন্যাস যাচাই এর চেয়ে সীমিত |
+| কেজিএসএল যন্ত্র নেই, অথবা বিন্যাসে নির্দিষ্ট জিঙ্ক সম্পদ নেই | `auto` → `virgl` | হোস্ট ভিরজিএল ও গেস্টের মেসার `virpipe` পথ; সরাসরি জিএলএক্স যাচাইয়ে ভিরজিএল না চললে ললভিএমপাইপ শেষ সফটওয়্যার পথ হয় |
 | যেকোনো প্রোফাইলে জিঙ্ক অনুপলভ্য | `--backend virgl` | বিভিন্ন বিতরণে চলার সামঞ্জস্য-পথ; রেন্ডারার ও গতি হোস্টের গ্রাফিক্স ব্যবস্থার উপর নির্ভর করে |
 
-**২০২৬-১১-১৫-এর সরাসরি ফল, অ্যাড্রেনো ৮২৫:** ডেবিয়ান, উবুন্টু ও কালিতে ভারজিএল থেকে জিএলএক্স রেন্ডারার পাওয়া গেছে; অ্যালপাইনে ডিআরআই পর্দা তৈরি হয়নি। ডেবিয়ানে এলএলভিএমপাইপ পরীক্ষা চলেছে, কিন্তু উবুন্টু, কালি ও অ্যালপাইনে `SIGILL` ত্রুটিতে বন্ধ হয়েছে। বর্তমান লঞ্চার ভারজিএল পরীক্ষা ব্যর্থ হলে এলএলভিএমপাইপ চালায়; ওই তিন অতিথিতে সফটওয়্যার পথ যাচাই হয়নি এবং প্রোগ্রাম বন্ধ হয়ে যেতে পারে।
+**২০২৬-১১-১৫-এর সরাসরি ফল, অ্যাড্রেনো ৮২৫:** ডেবিয়ান, উবুন্টু ও কালিতে
+ভারজিএল থেকে জিএলএক্স রেন্ডারার পাওয়া গেছে; আল্পাইনে ডিআরআই পর্দা তৈরি হয়নি।
+ডেবিয়ানে এলএলভিএমপাইপ পরীক্ষা চলেছে, কিন্তু উবুন্টু, কালি ও আল্পাইনে `SIGILL`
+ত্রুটিতে বন্ধ হয়েছে। বর্তমান লঞ্চার ভারজিএল পরীক্ষা ব্যর্থ হলে এলএলভিএমপাইপ
+চালায়; ওই তিন অতিথিতে সফটওয়্যার পথ যাচাই হয়নি এবং প্রোগ্রাম বন্ধ হয়ে যেতে পারে।
 
-`/dev/kgsl-3d0`-বিহীন ডিভাইসে `zink` জোর করলে জিপিইউ ধাপে লঞ্চার তৈরির
-আগেই স্পষ্টভাবে ব্যর্থ হয়—নিঃশব্দে সফটওয়্যার ডেস্কটপ বানায় না। এই ব্যর্থতা
+`/dev/kgsl-3d0`-বিহীন যন্ত্রে `zink` জোর করলে জিপিইউ ধাপে লঞ্চার তৈরির
+আগেই স্পষ্টভাবে ব্যর্থ হয়—নীরবে সফটওয়্যার ডেস্কটপ তৈরি করে না। এই ব্যর্থতা
 ইচ্ছাকৃত।
 
-জিঙ্ক পথে পুরো ওপেনজিএল যে ভিত্তির উপর দাঁড়ায় সেটি হলো ভলকান চালক, এবং নতুন
-অ্যাড্রেনো যন্ত্রাংশে সেটি ডেবিয়ানের দেওয়া চালকের চেয়ে নতুন হতেই হয়। প্রথম
-`apt upgrade`-এর আগে পড়ুন [গ্রাফিক্স স্থায়িত্ব](GRAPHICS-PERSISTENCE.html): সেখানে আছে
-ওই চালক কোথায় রাখলে প্যাকেজ হালনাগাদ তা সরাতে পারবে না, এবং আপনার চালক ইতিমধ্যেই
-ঝুঁকিতে আছে কি না তা কীভাবে বুঝবেন।
+জিঙ্ক পথে ওপেনজিএলের ভিত্তি হলো ভলকান চালক; নতুন অ্যাড্রেনো যন্ত্রাংশে এটি
+ডেবিয়ানের চালকের চেয়ে নতুন হতে হয়। প্রথম `apt upgrade`-এর আগে
+[গ্রাফিক্স স্থায়িত্ব](GRAPHICS-PERSISTENCE.html) পড়ুন: চালক কোথায় রাখলে
+প্যাকেজ হালনাগাদে সেটি মুছে যাবে না এবং চালক ইতিমধ্যে ঝুঁকিতে আছে কি না, সেখানে
+তা বোঝানো হয়েছে।
 
 ---
 
 <h2 id="the-installer-screen">ইনস্টলার স্ক্রিন</h2>
 
-পুরো ইনস্টলের জন্য একটিই স্ক্রিন। Log window-তে চলমান ফেজের live tail থাকে; পুরো
-স্ট্রিম সবসময় লগ ফাইলে যোগ হয়।
+সম্পূর্ণ ইনস্টলে একটি পর্দাই থাকে। লগ-জানালায় চলতি ধাপের হালনাগাদ দেখা যায়;
+পুরো ধারাটি সবসময় লগ ফাইলে যোগ হয়।
 
 ```text
 +=========================================================+
@@ -446,37 +482,37 @@ Prompt পাঁচ মিনিট অপেক্ষা করে; উত্�
 
 | অংশ | যা দেখায় |
 |---|---|
-| Device panel | মডেল, Android রিলিজ ও SDK, GPU, নির্বাচিত backend, Vulkan, RAM, খালি জায়গা, architecture |
-| Step bar | ফেজ নম্বর, মোট ফেজ, এবং চলমান ফেজের নাম |
-| Log window | চলমান ফেজের live tail, গুরুত্ব অনুযায়ী রঙ করা |
-| Footer | অতিবাহিত সময় ও একটি স্পিনার, যা ফেজ চুপচাপ থাকলেও চলতে থাকে |
+| যন্ত্রের সারাংশ | মডেল, অ্যান্ড্রয়েড সংস্করণ ও এসডিকে, জিপিইউ, নির্বাচিত ব্যাকএন্ড, ভলকান, র‍্যাম, খালি জায়গা ও স্থাপত্য |
+| ধাপের রেখা | ধাপ নম্বর, মোট ধাপ এবং চলতি ধাপের নাম |
+| লগ-জানালা | চলতি ধাপের হালনাগাদ, গুরুত্ব অনুযায়ী রঙ করা |
+| নিচের সারি | কেটে যাওয়া সময় ও ঘূর্ণি-চিহ্ন, ধাপে কাজ না চললেও যা ঘোরে |
 
-<h3 id="renderer-modes">রেন্ডারার mode</h3>
+<h3 id="renderer-modes">পর্দা আঁকার ধরন</h3>
 
-| Mode | কখন বেছে নেওয়া হয় | আচরণ |
+| ধরন | কখন বেছে নেওয়া হয় | আচরণ |
 |---|---|---|
-| `dashboard` | রঙসহ ইন্টারেক্টিভ terminal, অন্তত ৩৯ ব্যবহারযোগ্য কলাম ও ১৩ সারি | উপরের স্থায়ী স্ক্রিন |
-| `plain` | বাকি সব: pipe, TTY ছাড়া `curl \| bash`, `TERM=dumb`, `NO_COLOR`, খুব ছোট উইন্ডো | ক্রম অনুযায়ী ফ্রেম করা লাইন, cursor control নেই |
-| `off` | `--ui off`, `--quiet` বা `--json` | ফ্রেম ছাড়া সরাসরি কমান্ড আউটপুট |
+| `dashboard` | রঙিন ইন্টারঅ্যাকটিভ টার্মিনাল; অন্তত ৩৯টি ব্যবহারযোগ্য স্তম্ভ ও ১৩টি সারি | ওপরের স্থায়ী পর্দা |
+| `plain` | অন্য সব: পাইপ, টিটিওয়ালা নয় এমন `curl \| bash`, `TERM=dumb`, `NO_COLOR`, খুব ছোট জানালা | ক্রমানুসারে চৌখুপিতে বাঁধানো লাইন; কার্সর-নিয়ন্ত্রণ নেই |
+| `off` | `--ui off`, `--quiet` বা `--json` | চৌখুপি ছাড়া সরাসরি কমান্ড-আউটপুট |
 
-নির্বাচন স্বয়ংক্রিয়; অন্য ফল চাইলে নিজে ঠিক করে দিন:
+ধরনটি নিজে বেছে নেওয়া হয়; অন্য ফল চাইলে স্পষ্ট করে দিন:
 
 ```bash
-bash install.sh --plain          # স্ক্রলিং লগ, ফুল-স্ক্রিন ড্যাশবোর্ড নয়
-bash install.sh --no-anim        # ড্যাশবোর্ড, কিন্তু স্পিনার বা রঙ বদল ছাড়া
-TERNUX_UI=off bash install.sh    # সরাসরি আউটপুট, যেমন transcript রাখতে
+bash install.sh --plain          # একের পর এক লগ; পূর্ণপর্দার ফলক নয়
+bash install.sh --no-anim        # ফলক থাকবে, ঘূর্ণি বা রঙ বদলাবে না
+TERNUX_UI=off bash install.sh    # সরাসরি আউটপুট, যেমন নথি রাখতে
 ```
 
 <h3 id="reading-the-log-window">লগ উইন্ডো পড়া</h3>
 
-- apt, dpkg, proot-distro ও curl-এর carriage-return প্রগ্রেস একটি সারিতেই হালনাগাদ
-  হয়, উইন্ডো ভাসিয়ে নিয়ে যায় না।
+- `apt`, `dpkg`, `proot-distro` ও `curl`-এর গাড়ি-ফেরত অগ্রগতি একই সারিতে হালনাগাদ
+  হয়; জানালা নিচে ঠেলে দেয় না।
 - কোনো ফেজ পড়ার চেয়ে দ্রুত লিখলে নতুন লাইনগুলো রাখা হয় আর বাকিগুলোর সংখ্যা
-  `... +201 more lines` হিসেবে জানানো হয়। Error, warning ও phase চিহ্ন কখনো
+  `... +201 more lines` হিসেবে জানানো হয়। ত্রুটি, সতর্কতা ও ধাপের চিহ্ন কখনো
   সংক্ষেপ করা হয় না।
-- ফন্টের মাপ বদলালে, ডিভাইস ঘোরালে বা অন-স্ক্রিন কীবোর্ড খুললে ফ্রেম একবার নতুন
-  মাপে বসে এবং দৃশ্যমান লগ আবার আঁকা হয়।
-- `Ctrl-C` terminal ফিরিয়ে দেয় এবং রেকর্ড করা state রেখে যায়, তাই
+- ফন্টের মাপ বদলালে, যন্ত্র ঘোরালে বা পর্দার কিবোর্ড খুললে ফলক নতুন মাপ নেয়
+  এবং দেখা যাওয়া লগ আবার আঁকে।
+- `Ctrl-C` টার্মিনালে ফেরায় এবং নথিভুক্ত অবস্থা রেখে যায়, তাই
   `bash install.sh --resume` শেষ সম্পন্ন ফেজ থেকে চলতে থাকে।
 
 কী রেকর্ড হবে তা রেন্ডারার ঠিক করে না:
@@ -511,7 +547,7 @@ glxinfo | grep "renderer string"
 vulkaninfo --summary | grep -i driverName     # Adreno: আশা "Turnip"
 ```
 
-বড় মডেল বা পরীক্ষামূলক প্যাকেজ যোগের আগে চালু অবস্থার ব্যাকআপ নিন:
+বড় মডেল বা পরীক্ষামূলক প্যাকেজ যোগের আগে চলতি অবস্থার অনুলিপি রাখুন:
 
 ```bash
 proot-distro backup debian --output ~/debian-backup.tar.gz
@@ -519,34 +555,34 @@ proot-distro backup debian --output ~/debian-backup.tar.gz
 
 ---
 
-## আপডেট
+## হালনাগাদ
 
-- **ternux CLI:** `ternux update` সর্বশেষ প্রকাশিত stable release tag ব্যবহার করে। নির্দিষ্ট Git commit resolve ও fetch করে, সম্পূর্ণ staged module tree যাচাই করে, তারপর recovery journal-সহ CLI ও module switch করে। আগের ভার্সন backup-এ থাকে; verification ব্যর্থ হলে সেটি restore হয়। নতুন development build-কে পুরোনো stable tag-এ downgrade করে না।
-- **Interrupted installer run:** একই reviewed script আবার download করে
-  `--resume` দিন; সফলভাবে recorded phase বাদ যাবে। তবে বর্তমান installer-এর
-  source identity আলাদা হলে host CLI phase আবার চলবে। guest-এর PRoot container
-  এখনও ইনস্টল থাকলেই তার phase বাদ যাবে; মুছে ফেলা guest-এর পুরনো ledger-কে
-  completed install ধরা হবে না। অন্য completed desktop বা managed-artifact phase
-  এটি repair করে না—প্রকাশিত CLI update-এর জন্য `ternux update`, managed artifact-এর
-  জন্য `ternux repair` ব্যবহার করুন। গুরুত্বপূর্ণ data আগে backup নিন।
-- **Debian প্যাকেজ:** ডেস্কটপে `sudo apt update && sudo apt upgrade`।
-  Zink পথে Mesa প্যাকেজ ইচ্ছাকৃতভাবে হোল্ড করা (`apt-mark hold`) — আপগ্রেডে
-  নিঃশব্দে সফটওয়্যার রেন্ডারিংয়ে ফিরে যাওয়া ঠেকাতে। ইচ্ছা করে আনহোল্ড করুন:
+- **টার্নাক্স কমান্ড-লাইন:** `ternux update` সর্বশেষ প্রকাশিত স্থিতিশীল সংস্করণ-চিহ্ন ব্যবহার করে। নির্দিষ্ট গিট কমিট নামিয়ে সম্পূর্ণ প্রস্তুত মডিউল-গাছ যাচাই করে; এরপর পুনরুদ্ধার-নথিসহ কমান্ড ও মডিউল বদলায়। আগের সংস্করণ অনুলিপিতে থাকে; যাচাই ব্যর্থ হলে সেটি ফেরত আসে। নতুন উন্নয়ন-সংস্করণকে পুরোনো স্থিতিশীল সংস্করণে নামায় না।
+- **থেমে যাওয়া স্থাপন:** একই পর্যালোচিত স্ক্রিপ্ট আবার নামিয়ে `--resume`
+  দিন; সফলভাবে নথিভুক্ত ধাপ বাদ যাবে। তবে বর্তমান স্থাপনকারীর উৎস-পরিচয়
+  আলাদা হলে হোস্ট কমান্ডের ধাপ আবার চলবে। গেস্টের প্রুট কন্টেইনার এখনো
+  ইনস্টল থাকলেই তার ধাপ বাদ যাবে; মুছে ফেলা গেস্টের পুরোনো হিসাবকে সম্পূর্ণ
+  স্থাপন ধরা হবে না। অন্য সম্পন্ন ডেস্কটপ বা পরিচালিত উপাদানের ধাপ এটি মেরামত
+  করে না—প্রকাশিত কমান্ড হালনাগাদে `ternux update`, পরিচালিত উপাদান মেরামতে
+  `ternux repair` দিন। আগে জরুরি তথ্যের অনুলিপি রাখুন।
+- **ডেবিয়ান প্যাকেজ:** ডেস্কটপে `sudo apt update && sudo apt upgrade` দিন।
+  জিঙ্ক পথে মেসা প্যাকেজ ইচ্ছাকৃতভাবে আটকে রাখা হয় (`apt-mark hold`)—হালনাগাদে
+  যেন নীরবে সফটওয়্যার রেন্ডারিংয়ে ফিরে না যায়। ইচ্ছা করে আটকে রাখা তুলুন:
   `sudo apt-mark unhold mesa-vulkan-drivers libgl1-mesa-dri libglx-mesa0 libgbm1 libegl-mesa0`।
 
 ---
 
 ## আনইনস্টল
 
-একটি guest মুছতে Ternux-managed command ব্যবহার করুন, যাতে থামানো session,
-install phase, profile state এবং workspace record একসঙ্গে পরিষ্কার হয়:
+একটি গেস্ট মুছতে টার্নাক্স-পরিচালিত কমান্ড ব্যবহার করুন, যাতে থামানো সেশন,
+ইনস্টল-ধাপ, বিন্যাসের অবস্থা ও কর্মক্ষেত্রের নথি একসঙ্গে পরিষ্কার হয়:
 
 ```bash
 ternux distro uninstall ubuntu --yes
 ```
 
-পরে `ternux install --distro ubuntu` দিয়ে নতুন করে ইনস্টল করুন। `--resume`
-শুধু তখন দিন, যখন guest-এর PRoot container এখনও আছে।
+পরে `ternux install --distro ubuntu` দিয়ে নতুন করে বসান। `--resume` শুধু
+তখনই দিন, যখন গেস্টের প্রুট কন্টেইনার এখনো আছে।
 
 ```bash
 ternux uninstall                    # প্রস্তাবিত — ইন্টারঅ্যাক্টিভ অপসারণ
@@ -556,14 +592,16 @@ curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/uninstall.sh
 bash install.sh --uninstall
 ```
 
-`all` Ternux desktop বন্ধ করে, launcher ও shell alias, state, log এবং খালি capture
-cache সরায়; নির্বাচিত Debian guest এবং Ternux host CLI/update backup মুছে দেয়।
-Termux নিজে, shared Termux package, অন্য PRoot guest, Termux storage-এর বাইরের
-Android file এবং non-empty capture folder রেখে দেয়। Shared-storage access revoke,
-repository/mirror choice restore বা Termux `default.pa`-এর loopback PulseAudio line
-ফেরতও দেয় না—সেটিংগুলো Ternux-এর আগেও থাকতে পারে। সাধারণ install শুধু নির্বাচিত
-একটি guest তৈরি করে (default `debian`); `ternux-clean-apt`-এর মতো test alias তৈরি
-করে না। Termux app data clear করা আলাদা operation; তাতেই বাকি Termux environment
+`all` টার্নাক্স ডেস্কটপ বন্ধ করে, লঞ্চার ও শেল-উপনাম, অবস্থা, লগ এবং খালি ধারণ
+ক্যাশে সরায়; নির্বাচিত ডেবিয়ান গেস্ট ও টার্নাক্স হোস্ট কমান্ড/হালনাগাদের
+অনুলিপিও মোছে। টার্মাক্স নিজে, ভাগ করা টার্মাক্স প্যাকেজ, অন্য প্রুট গেস্ট,
+টার্মাক্সের সংরক্ষণস্থানের বাইরের অ্যান্ড্রয়েড ফাইল এবং খালি নয় এমন ধারণ
+ডিরেক্টরি থেকে যায়। ভাগ করা সংরক্ষণস্থানের অনুমতি তোলে না, ভান্ডার/আয়নার
+পছন্দ ফেরায় না, টার্মাক্সের `default.pa`-তে থাকা স্থানীয় পালসঅডিও সংযোগও
+মোছে না—এই বিন্যাসগুলো টার্নাক্সের আগেও থাকতে পারে। সাধারণ ইনস্টল শুধু
+নির্বাচিত একটি গেস্ট তৈরি করে (পূর্বনির্ধারিত `debian`); `ternux-clean-apt`-এর
+মতো পরীক্ষার উপনাম বানায় না। টার্মাক্স অ্যাপের তথ্য মুছে ফেলা আলাদা কাজ;
+তাতেই বাকি টার্মাক্স পরিবেশ
 মুছে যায়।
 
 ---
