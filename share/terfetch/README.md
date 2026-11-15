@@ -15,9 +15,10 @@ The native Termux host randomly selects Android, Ternux Workstation, one of all
 a centered `Presented by @soobujmiah` credit below the logo and system facts.
 The special Sobuj mark puts `Presented by` above a large SOBUJ monogram and has no second
 credit. The Workstation mark depicts a compact desk and display. Narrow terminals
-switch to a stacked layout so logos cannot overlap system details. Every managed
-PRoot distro uses its own stable official ASCII logo from the built-in catalog. The creator credit
-is centered below the guest logo and facts. Daily-use host commands or guest
+keep the logo and information side by side; fields that do not fit are hidden
+until the terminal is widened or Terfetch is run again. Every managed PRoot
+distro uses its own stable official ASCII logo from the built-in catalog. The
+creator credit is centered below the guest logo and facts. Daily-use host commands or guest
 and distro-specific package-manager commands appear in a colorful footer below.
 Logo rows never continue below the information panel, and long values are
 shortened to fit the terminal width.
@@ -37,11 +38,12 @@ omitted or reported as unknown; Terfetch does not guess graphics acceleration
 state.
 
 The Ternux installer places the same program in the Termux host and each managed
-guest. Interactive Bash and Zsh startup hooks display it once per new shell;
+guest. Interactive Bash and Zsh startup hooks display it once per terminal
+session; restarting a shell on that same terminal will not print it again.
 Alpine's Ash login shell uses its profile hook. Set `TERFETCH_NO_AUTORUN=1` to
-suppress automatic display in a shell, or invoke `terfetch` directly at any
-time. The installer syncs the same standalone program to the Termux host and
-each managed guest.
+suppress automatic display in a shell. Running `terfetch` manually always
+prints the summary, including after the startup display. The installer syncs
+the same standalone program to the Termux host and each managed guest.
 
 The source is `terfetch`. Future extraction into a dedicated repository should
 preserve its command-line interface and JSON keys, while keeping integrations

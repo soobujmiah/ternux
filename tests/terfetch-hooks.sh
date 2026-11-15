@@ -25,6 +25,7 @@ generated_template = block(configurator, configurator.index('write_bash_prompt')
 generated_zsh_template = block(configurator, configurator.index('write_zsh_prompt')).replace(r'\$', '$')
 assert generated_template == canonical, 'guest Bash hook template differs from the host hook'
 assert generated_zsh_template == canonical, 'guest Zsh hook template differs from the host hook'
+assert not any(marker in configurator for marker in ('┌──(', '└─')), 'guest prompts must remain renderable in default Termux:X11 fonts'
 assert '_TERNUX_TERFETCH_AUTORUN_DONE' in configurator, 'Alpine profile must share the autorun guard'
 assert '_ternux_terfetch_resize_check' not in canonical, 'Terfetch must not rerun automatically after a command or resize'
 PY
@@ -37,33 +38,39 @@ run_shell_check() {
     LOG="$log" HOOK="$HOOK" bash --noprofile --norc -ic '
       SIZE="24 80"
       stty() { printf "%s\n" "$SIZE"; }
-      terfetch() { printf "%s\n" "$*" >> "$LOG"; }
+      terfetch() { printf "%s\n" "${TERFETCH_STARTUP_ONCE:-0}" >> "$LOG.startup"; printf "%s\n" "$*" >> "$LOG"; }
       source "$HOOK"
       source "$HOOK"
       [ "$(wc -l < "$LOG")" -eq 1 ]
+      [ "$(cat "$LOG.startup")" = 1 ]
       SIZE="30 100"
       [ -z "${PROMPT_COMMAND:-}" ] || [[ "$PROMPT_COMMAND" != *"_ternux_terfetch_resize_check"* ]]
       [ "$(wc -l < "$LOG")" -eq 1 ]
       terfetch
       [ "$(wc -l < "$LOG")" -eq 2 ]
+      [ "$(sed -n '2p' "$LOG.startup")" = 0 ]
       terfetch
       [ "$(wc -l < "$LOG")" -eq 3 ]
+      [ "$(sed -n '3p' "$LOG.startup")" = 0 ]
     '
   else
     LOG="$log" HOOK="$HOOK" zsh -fic '
       SIZE="24 80"
       stty() { print -r -- "$SIZE"; }
-      terfetch() { print -r -- "$*" >> "$LOG"; }
+      terfetch() { print -r -- "${TERFETCH_STARTUP_ONCE:-0}" >> "$LOG.startup"; print -r -- "$*" >> "$LOG"; }
       source "$HOOK"
       source "$HOOK"
       [[ $(wc -l < "$LOG") -eq 1 ]]
+      [[ $(cat "$LOG.startup") == 1 ]]
       SIZE="30 100"
       [[ ${#precmd_functions[@]} -eq 0 ]]
       [[ $(wc -l < "$LOG") -eq 1 ]]
       terfetch
       [[ $(wc -l < "$LOG") -eq 2 ]]
+      [[ $(sed -n '2p' "$LOG.startup") == 0 ]]
       terfetch
       [[ $(wc -l < "$LOG") -eq 3 ]]
+      [[ $(sed -n '3p' "$LOG.startup") == 0 ]]
     '
   fi
 }

@@ -31,7 +31,7 @@ write_bash_prompt() {
 
 # TERNUX DISTRO PROMPT BEGIN
 if [[ \$- == *i* ]]; then
-  PS1='\[\e[1;${color}m\]┌──(${owner}@${icon})-[\w]\n└─\$\[\e[0m\] '
+  PS1='\[\e[1;${color}m\]${owner}@${icon}:\w\\$\[\e[0m\] '
 fi
 # TERNUX DISTRO PROMPT END
 
@@ -40,7 +40,7 @@ fi
 if [[ -z \${_TERNUX_TERFETCH_HOOK_LOADED:-} ]]; then
   _TERNUX_TERFETCH_HOOK_LOADED=1
   if [[ \$- == *i* ]] && [[ -z \${TERFETCH_NO_AUTORUN:-} ]] && [[ \${_TERNUX_TERFETCH_AUTORUN_DONE:-0} != 1 ]] && command -v terfetch >/dev/null 2>&1; then
-    terfetch
+    TERFETCH_STARTUP_ONCE=1 terfetch
     _TERNUX_TERFETCH_AUTORUN_DONE=1
   fi
 fi
@@ -65,7 +65,7 @@ write_zsh_prompt() {
 
 # TERNUX DISTRO PROMPT BEGIN
 if [[ -o interactive ]]; then
-  PROMPT='%F{${color}}┌──(%n@${icon})-[%~]%f\n%F{${color}}└─%#%f '
+  PROMPT='%F{${color}}%n@${icon}:%~%#%f '
 fi
 # TERNUX DISTRO PROMPT END
 
@@ -74,7 +74,7 @@ fi
 if [[ -z \${_TERNUX_TERFETCH_HOOK_LOADED:-} ]]; then
   _TERNUX_TERFETCH_HOOK_LOADED=1
   if [[ \$- == *i* ]] && [[ -z \${TERFETCH_NO_AUTORUN:-} ]] && [[ \${_TERNUX_TERFETCH_AUTORUN_DONE:-0} != 1 ]] && command -v terfetch >/dev/null 2>&1; then
-    terfetch
+    TERFETCH_STARTUP_ONCE=1 terfetch
     _TERNUX_TERFETCH_AUTORUN_DONE=1
   fi
 fi
@@ -101,10 +101,10 @@ write_alpine_profile() {
 
 # TERNUX DISTRO PROMPT BEGIN
 if [ -t 0 ]; then
-  PS1="\$(printf '\\033[1;${color}m')${owner}@${icon} \\w\\$ \$(printf '\\033[0m')"
+  PS1="\$(printf '\\033[1;${color}m')${owner}@${icon}:\\w\\$\$(printf '\\033[0m') "
 fi
 if [ -t 0 ] && [ -z "\${TERFETCH_NO_AUTORUN:-}" ] && [ "\${_TERNUX_TERFETCH_AUTORUN_DONE:-0}" != 1 ] && command -v terfetch >/dev/null 2>&1; then
-  terfetch
+  TERFETCH_STARTUP_ONCE=1 terfetch
   _TERNUX_TERFETCH_AUTORUN_DONE=1
 fi
 # TERNUX DISTRO PROMPT END
