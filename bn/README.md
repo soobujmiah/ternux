@@ -2,7 +2,7 @@
 
 <!-- deterministic-state-bridge: ternux -->
 
-**স্বয়ংক্রিয় সংগ্রহশালা-অবস্থা:** [`.repo/STATUS.md`](../.repo/STATUS.md)। SKB তালিকা: [`ternux.json`](https://github.com/soobujmiah/skb/blob/main/projects/registry/ternux.json)।
+**স্বয়ংক্রিয় সংগ্রহশালা-অবস্থা:** [`.repo/STATUS.md`](../.repo/STATUS.md)। এসকেবি তালিকা: [`ternux.json`](https://github.com/soobujmiah/skb/blob/main/projects/registry/ternux.json)।
 
 # ternux
 
@@ -42,7 +42,7 @@
 যায়। টার্মাক্সকে সংরক্ষণ-অনুমতি দিলে গেস্ট থেকে অ্যান্ড্রয়েডের ভাগ করা ফাইল
 ও মডেল সরাসরি ব্যবহার করা যায়।
 
-**v2-তে ডেবিয়ান, উবুন্টু ও আল্পাইন—এই তিনটি ডেস্কটপ প্রোফাইল সমর্থিত।**
+**দ্বিতীয় সংস্করণে ডেবিয়ান, উবুন্টু ও আল্পাইন—এই তিনটি ডেস্কটপ বিন্যাস সমর্থিত।**
 যন্ত্রের প্রমাণ রেডমি টার্বো ৪ প্রো / অ্যান্ড্রয়েড ১৬ / অ্যাড্রেনো ৮২৫ থেকে;
 কোন পরীক্ষা হয়েছে তা [সুবিধা-তালিকা](../docs/audit/FEATURE-MATRIX.md) ও
 [বর্তমান নিরীক্ষায়](../docs/audit/CURRENT-STATE.md) দেখুন। ডেবিয়ান

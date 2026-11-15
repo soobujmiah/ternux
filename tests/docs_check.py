@@ -474,6 +474,14 @@ for index, (english_block, bengali_block) in enumerate(zip(english_install, beng
     check(shell_without_comments(english_block) == shell_without_comments(bengali_block),
           f"English/Bengali installation shell example {index} differs")
 
+english_quickstart = shell_blocks(ROOT / "docs/QUICK-START.md")
+bengali_quickstart = shell_blocks(ROOT / "bn/docs/QUICK-START.md")
+check(len(english_quickstart) == len(bengali_quickstart) > 0,
+      "English/Bengali quick-start shell example counts differ")
+for index, (english_block, bengali_block) in enumerate(zip(english_quickstart, bengali_quickstart), 1):
+    check(shell_without_comments(english_block) == shell_without_comments(bengali_block),
+          f"English/Bengali quick-start shell example {index} differs")
+
 bengali_manual_text = read(ROOT / "bn/docs/MANUAL.md")
 bengali_manual_text = re.sub(r"^---\n.*?\n---\n", "", bengali_manual_text, count=1, flags=re.S)
 bengali_manual_text = re.sub(r"`[^`]*`", " ", bengali_manual_text, flags=re.S)
@@ -488,7 +496,7 @@ for line in bengali_manual_text.splitlines():
     line = re.sub(r"!?\[[^\]]*\]\([^)]*\)|https?://\S+|<[^>]*>", " ", line)
     manual_latin.update(
         word for word in re.findall(r"\b[A-Za-z][A-Za-z0-9+.#:/_-]*\b", line)
-        if word.lower() not in {"ternux", "copyright", "c", "sobuj", "miah", "apache-2.0"}
+        if word.lower() not in {"ternux", "copyright", "c", "sobuj", "miah", "soobujmiah", "apache-2.0"}
     )
 check(not manual_latin,
       f"bn/docs/MANUAL.md: Latin prose remains outside code/identifiers: {sorted(manual_latin)}")
@@ -532,6 +540,27 @@ for line in bengali_install_text.splitlines():
     )
 check(not install_latin,
       f"bn/docs/INSTALLATION.md: Latin prose remains outside code/identifiers: {sorted(install_latin)}")
+
+bengali_quickstart_text = read(ROOT / "bn/docs/QUICK-START.md")
+bengali_quickstart_text = re.sub(r"^---\n.*?\n---\n", "", bengali_quickstart_text, count=1, flags=re.S)
+bengali_quickstart_text = re.sub(r"`[^`]*`", " ", bengali_quickstart_text, flags=re.S)
+bengali_quickstart_text = re.sub(r"\]\([^)]*\)", "]", bengali_quickstart_text, flags=re.S)
+quickstart_in_fence = False
+quickstart_latin: set[str] = set()
+for line in bengali_quickstart_text.splitlines():
+    if re.match(r"^\s*(`{3,}|~{3,})", line):
+        quickstart_in_fence = not quickstart_in_fence
+        continue
+    if quickstart_in_fence:
+        continue
+    line = re.sub(r"!?\[[^\]]*\]\([^)]*\)|https?://\S+|<[^>]*>", " ", line)
+    quickstart_latin.update(
+        word for word in re.findall(r"\b[A-Za-z][A-Za-z0-9+.#:/_-]*\b", line)
+        if word.lower() not in {"ternux", "copyright", "c", "sobuj", "miah", "soobujmiah", "apache-2.0"}
+        and not re.fullmatch(r"v?\d+(?:\.\d+)*", word.lower())
+    )
+check(not quickstart_latin,
+      f"bn/docs/QUICK-START.md: Latin prose remains outside code/identifiers: {sorted(quickstart_latin)}")
 
 profile_match = re.search(r'^TERNUX_DISTRO_KNOWN="([^"]+)"', read(ROOT / "lib/core.sh"), re.M)
 known_profiles = profile_match.group(1).split() if profile_match else []
