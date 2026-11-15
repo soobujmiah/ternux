@@ -1,70 +1,83 @@
 ---
 title: "দ্রুত শুরু"
-description: "একটি Android ফোন থেকে ternux desktop, প্রথম launch ও renderer verification পর্যন্ত সংক্ষিপ্ত পথ।"
+description: "অ্যান্ড্রয়েড ফোনে টার্নাক্স ডেস্কটপ বসানো, প্রথমবার চালু করা এবং গ্রাফিক্স রেন্ডারার যাচাইয়ের সংক্ষিপ্ত নির্দেশিকা।"
 lang: "bn"
 alt_url: "/docs/QUICK-START.html"
 
 ---
 
-চার ধাপে Android app থেকে installed desktop ও renderer check। সময় device,
-mirror এবং network অনুযায়ী বদলাবে।
+চার ধাপে অ্যান্ড্রয়েড অ্যাপ থেকে বসানো ডেস্কটপ ও গ্রাফিক্স রেন্ডারার যাচাই করুন।
+ডাউনলোডের সময় যন্ত্র, প্যাকেজ-সার্ভার ও নেটওয়ার্কের ওপর নির্ভর করবে।
 
 ---
 
-## ধাপ ১ — দুটি অ্যাপ ইনস্টল করুন
+## ধাপ ১ — দুটি অ্যাপ বসান
 
-1. **Termux** — হোস্ট টার্মিনাল।
-   [GitHub releases](https://github.com/termux/termux-app/releases) থেকে APK
-   নামান বা [F-Droid](https://f-droid.org/en/packages/com.termux/) দিয়ে
-   ইনস্টল করুন।
-   *এই গাইড মূল F-Droid/GitHub release line ব্যবহার করে। Google Play line
-   আলাদা পরীক্ষামূলক Android 11+ branch; Termux ও plugin একই source থেকে রাখুন।*
-2. **Termux:X11** — ডেস্কটপ দেখানো অ্যাপটি।
+1. **টার্মাক্স** — হোস্ট টার্মিনাল অ্যাপ।
+   [GitHub releases](https://github.com/termux/termux-app/releases) থেকে এপিকে
+   নামান, অথবা [এফ-ড্রয়েড](https://f-droid.org/en/packages/com.termux/) থেকে
+   বসান। এই নির্দেশিকায় মূল এফ-ড্রয়েড/গিটহাব সংস্করণ-ধারা ধরা হয়েছে।
+   গুগল প্লে সংস্করণটি আলাদা পরীক্ষামূলক ধারা; টার্মাক্স ও এর প্লাগইন একই
+   উৎস থেকে বসাবেন।
+2. **টার্মাক্স:এক্স১১** — ডেস্কটপ দেখানোর অ্যাপ।
    [GitHub releases](https://github.com/termux/termux-x11/releases) থেকে
-   নামান। **একবার** খুলুন যাতে Android এটি নিবন্ধন করে, তারপর রেখে দিন।
+   নামান। অ্যান্ড্রয়েডে নিবন্ধিত করার জন্য অ্যাপটি **একবার** খুলুন, তারপর বন্ধ করুন।
 
-## ধাপ ২ — একটি কমান্ড চালান
+## ধাপ ২ — ইনস্টলার চালান
 
-Termux খুলে পেস্ট করুন:
+টার্মাক্স খুলে এই কমান্ডটি চালান:
 
 ```bash
 pkg update -y && pkg upgrade -y && pkg install -y curl && bash -o pipefail -c 'curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'
 ```
 
-আপগ্রেডের পর curl ভেঙে গেছে? wget দিয়েও একই কাজ:
+হালনাগাদের পর `curl` না চললে `wget` দিয়ে একই ইনস্টলার চালান:
 
 ```bash
 pkg update -y && pkg upgrade -y && pkg install -y wget && bash -o pipefail -c 'wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'
 ```
 
-আংশিক upgrade-এ `pkg` বা curl চালু না হলে `apt update && apt full-upgrade -y`
-চালিয়ে Termux repair করে আবার চেষ্টা করুন। Stable signed APT repository বন্ধ,
-তাই `pkg install ternux` এখন পাওয়া যাচ্ছে না; RC package channel শুধু candidate
-test-এর জন্য এবং hosted availability এখন যাচাই করা যায়নি।
+আংশিক হালনাগাদের পর `pkg` বা `curl` না চললে `apt update && apt full-upgrade -y`
+চালিয়ে টার্মাক্স মেরামত করে আবার চেষ্টা করুন। স্বাক্ষরিত স্থিতিশীল এপিটি
+ভান্ডার প্রত্যাহার করা হয়েছে, তাই `pkg install ternux` এখন পাওয়া যায় না।
+আরসি প্যাকেজ-চ্যানেলটি শুধু প্রার্থী সংস্করণ পরীক্ষার জন্য; সেটি হোস্ট করা আছে
+কিনা বর্তমানে যাচাই করা হয়নি।
 
-Interactive terminal-এ প্রথমে checklist থেকে এক বা একাধিক named guest profile বাছুন: Up/Down বা `j`/`k` দিয়ে চলুন, Space বা profile number দিয়ে selection toggle করুন, তারপর Enter চাপুন। Debian সুপারিশ করা default। **Ternux v2 শুধু Debian, Ubuntu ও Alpine support করে।** একটি Adreno 825 device-এ এই তিনটির desktop, graphics, audio routing, IBus setup ও theme evidence আছে; clean Firefox install exact-main CI-তে pass করেছে। Alpine-এর synthetic Ctrl+Space event-এ অমিল আছে এবং এই evidence সব app qualify করে না। অন্য ১২টি recipe আছে, কিন্তু v2-supported নয়। পরের checklist-এ optional workload বাছুন; base desktop-এর জন্য Enter বা `0` চাপুন, অথবা দেখানো number দিন। Non-interactive run-এ `--yes` Debian base profile রাখে। [সব guest profile ও package-family recipe](INSTALLATION.html#guest-distribution-বাছাই) দেখুন।
+ইন্টারঅ্যাক্টিভ টার্মিনালে প্রথমে তালিকা থেকে এক বা একাধিক গেস্ট প্রোফাইল বাছুন।
+উপরে/নিচে তীরচিহ্ন অথবা `j`/`k` দিয়ে চলুন; স্পেসবার বা প্রোফাইল নম্বর দিয়ে
+নির্বাচন বদলে এন্টার চাপুন। ডেবিয়ান সুপারিশকৃত প্রাথমিক পছন্দ। **টার্নাক্স v2-তে
+ডেবিয়ান, উবুন্টু ও আল্পাইন সমর্থিত ডেস্কটপ প্রোফাইল।** একটি অ্যাড্রেনো ৮২৫
+যন্ত্রে এই তিনটির ডেস্কটপ, গ্রাফিক্স, অডিও সংযোগ, আইবাস ও থিম যাচাই করা হয়েছে;
+পরিষ্কার ফায়ারফক্স ইনস্টলেশন মূল শাখার সিআই পরীক্ষায় উত্তীর্ণ। আল্পাইনে
+কন্ট্রোল+স্পেসের কৃত্রিম কী-ঘটনায় অমিল দেখা গেছে; এই প্রমাণ দিয়ে সব অ্যাপের
+যোগ্যতা নিশ্চিত হয় না। বাকি ১২টি রেসিপি তালিকায় থাকলেও v2-তে সমর্থিত নয়।
+পরের তালিকায় ঐচ্ছিক কাজ বাছুন। মূল ডেস্কটপের জন্য এন্টার বা `0` চাপুন, অথবা
+দেখানো নম্বর দিন। অনির্দেশিত চালনায় `--yes` ডেবিয়ানের মূল প্রোফাইল বেছে নেয়।
+[সব গেস্ট প্রোফাইল ও প্যাকেজ-পরিবারের রেসিপি](INSTALLATION.html#guest-distribution-বাছাই) দেখুন।
 
 ইনস্টলার:
 
-1. ডিভাইস পরীক্ষা করে (আর্কিটেকচার, Android ভার্সন, স্টোরেজ, নেটওয়ার্ক);
-2. Termux প্যাকেজ ইনস্টল করে (X11, PulseAudio, PRoot);
-3. নির্বাচিত guest profile + Xfce4 তার PRoot কন্টেইনারে ইনস্টল করে (ডিফল্ট Debian);
-4. guest profile অনুযায়ী graphics route বেছে নেয়
-   (**Debian Trixie + Adreno/KGSL → Zink/Turnip** · অন্য সব named profile → **VirGL**);
-5. অডিও, ফন্ট ও লোকেল কনফিগার করে;
-6. লঞ্চার ও শেল শর্টকাট লিখে দেয়;
-7. সবকিছু ঠিকমতো বসেছে কিনা যাচাই করে।
+1. যন্ত্রের আর্কিটেকচার, অ্যান্ড্রয়েড সংস্করণ, খালি জায়গা ও নেটওয়ার্ক পরীক্ষা করে;
+2. টার্মাক্সে এক্স১১, পালসঅডিও ও পিআররুট প্যাকেজ বসায়;
+3. নির্বাচিত গেস্ট ও এক্সএফসিই ৪ তার নিজস্ব পিআররুট কন্টেইনারে বসায়;
+4. গেস্ট ও যন্ত্র অনুযায়ী গ্রাফিক্স পথ বেছে নেয়—অ্যাড্রেনো/কেজিএসএল-এ
+   প্যাকেজ-সমর্থন থাকলে জিঙ্ক; ডেবিয়ানে যাচাইকৃত টার্নিপ পথ; সামঞ্জস্যের জন্য
+   হোস্ট ভিরজিএল, আর সেটি ব্যর্থ হলে সফটওয়্যার রেন্ডারার;
+5. শব্দ, ফন্ট ও ভাষা-অঞ্চল সাজায়;
+6. লঞ্চার, `tx` কমান্ড-লাইন সরঞ্জাম ও শেল শর্টকাট বসায়;
+7. ইনস্টলেশন যাচাই করে।
 
-Installed size base-এ প্রায় **৪–৪.৫ GB**, আর `--all`-এ **১০.৫–১২.৫ GB**; download ও
-cache-এর জন্য অতিরিক্ত temporary space রাখুন। একটিমাত্র স্থায়ী স্ক্রিন শেষ status
-পর্যন্ত device panel, step progress ও live log window দেখায়; যে terminal সেটি
-চালাতে পারে না, সেখানে plain framed log আসে। দুটিতেই পুরো আউটপুট রেকর্ড হয় —
+মূল ইনস্টলেশনে প্রায় **৪–৪.৬ GB**, আর `--all`-এ **১০.৫–১২.৫ GB** জায়গা লাগে;
+ডাউনলোড ও ক্যাশের জন্য অতিরিক্ত সাময়িক জায়গা রাখুন। একটি স্থির পর্দায় শেষ
+অবস্থা পর্যন্ত যন্ত্রের তথ্য, ধাপের অগ্রগতি ও চলমান লগ দেখা যায়। টার্মিনালটি
+এই পর্দা চালাতে না পারলে সীমানাযুক্ত সাধারণ লগ দেখায়। দুই ক্ষেত্রেই সম্পূর্ণ
+আউটপুট সংরক্ষিত হয় —
 দেখুন [ইনস্টলার স্ক্রিন](INSTALLATION.html#the-installer-screen)।
 
-নন-ইন্টারঅ্যাক্টিভ মোডে এটি নিজেই নথিভুক্ত default ব্যবহার করে; local clone
-থেকে একই default স্পষ্টভাবে নিতে `--yes` যোগ করুন। চালানোর আগে সব code দেখতে
-চাইলে repository clone করুন—শুধু bootstrap পড়া যথেষ্ট নয়, কারণ standalone
-route runtime-এ library module download করে।
+অনির্দেশিত চালনায় ইনস্টলার নথিভুক্ত প্রাথমিক পছন্দ ব্যবহার করে। স্থানীয়
+ক্লোন থেকে একই পছন্দ স্পষ্টভাবে নিতে `--yes` যোগ করুন। চালানোর আগে সম্পূর্ণ
+কোড পর্যালোচনা করতে সংগ্রহশালাটি ক্লোন করুন; শুধু প্রাথমিক ইনস্টল ফাইল পড়লে
+হবে না, কারণ সরাসরি ইনস্টল-পথে চলার সময় লাইব্রেরি মডিউল নামানো হয়।
 
 ```bash
 apt update && apt full-upgrade -y && apt install git -y
@@ -86,13 +99,12 @@ source ~/.bashrc
 tx start
 ```
 
-`tx start` ধারাবাহিকভাবে চালু করে: অডিও ব্রিজ → ডিসপ্লে (`Termux:X11`) →
-নির্বাচিত guest → **Xfce4**। Termux:X11 অ্যাপে যান — আপনার ডেস্কটপ সেখানেই।
+`tx start` ধারাবাহিকভাবে অডিও সংযোগ, পর্দা (`Termux:X11`), নির্বাচিত গেস্ট
+এবং **এক্সএফসিই ৪** চালু করে। ডেস্কটপ দেখতে টার্মাক্স:এক্স১১ অ্যাপে যান।
 
-## ধাপ ৪ — renderer যাচাই করুন
+## ধাপ ৪ — রেন্ডারার যাচাই করুন
 
-ডেস্কটপের ভেতরে একটি টার্মিনাল খুলুন (রাইট-ক্লিক → *Open Terminal Here*)
-এবং চালান:
+ডেস্কটপে টার্মিনাল খুলুন (ডান-ক্লিক → *এখানে টার্মিনাল খুলুন*) এবং চালান:
 
 ```bash
 glxinfo | grep "renderer string"
@@ -100,96 +112,154 @@ glxinfo | grep "renderer string"
 
 | যা দেখবেন | অর্থ |
 |---|---|
-| `zink Vulkan (Adreno (TM) … (MESA_TURNIP))` | ✅ হার্ডওয়্যার GPU পথ (Adreno) |
-| `virgl` / `virpipe` | ⚠️ VirGL সামঞ্জস্য পথ; host acceleration আলাদাভাবে যাচাই করুন |
-| `llvmpipe` | ❌ সফটওয়্যার রেন্ডারিং — ঠিক করুন, মেনে নেবেন না |
+| `zink Vulkan (Adreno (TM) … (MESA_TURNIP))` | ✅ হার্ডওয়্যার গ্রাফিক্স-পথ (অ্যাড্রেনো) |
+| `virgl` / `virpipe` | ⚠️ ভিরজিএল সামঞ্জস্য-পথ; হোস্টের ত্বরণ আলাদাভাবে যাচাই করুন |
+| `llvmpipe` | ❌ সফটওয়্যার রেন্ডারিং; বেঞ্চমার্কের আগে কারণ খুঁজুন |
 
-`llvmpipe` দেখলে ডেস্কটপ চলবেই, কিন্তু গ্রাফিক্স শুধুই সফটওয়্যার।
+`llvmpipe` দেখালে ডেস্কটপ চলবে, তবে গ্রাফিক্স গণনা হবে শুধু প্রসেসরে।
 দেখুন [সমস্যা সমাধান → llvmpipe](TROUBLESHOOTING.html#renderer-says-llvmpipe)।
 
 ---
 
 ## এখন আপনার যা আছে
 
-### পুরনো শেল শর্টকাট
+### শেল শর্টকাট
 
 ```text
-tx start ডেস্কটপ চালু          killx  নির্বাচিত desktop session বন্ধ
-tx       ternux CLI-র সংক্ষিপ্ত কমান্ড      xgo    installed GUI বাছুন
-db/dbr/dbroot Debian user/root shell  ub/ubr/ubroot Ubuntu user/root shell
-alp/alpr/alproot Alpine user/root shell
-sysmon   ডিভাইসের সারসংক্ষেপ   clean-mesa  শেডার ক্যাশ পরিষ্কার
+tx start  ডেস্কটপ চালু          killx  চলমান ডেস্কটপ বন্ধ
+tx        টার্নাক্সের সংক্ষিপ্ত কমান্ড       xgo    চালু ডেস্কটপ বাছাই
+db/dbr/dbroot  ডেবিয়ানের সাধারণ/মূল ব্যবহারকারী শেল
+ub/ubr/ubroot  উবুন্টুর সাধারণ/মূল ব্যবহারকারী শেল
+kali/kalir/kaliroot  কালির সাধারণ/মূল ব্যবহারকারী শেল
+alp/alpr/alproot  আল্পাইনের সাধারণ/মূল ব্যবহারকারী শেল
+sysmon  যন্ত্রের সম্পদের সারাংশ   clean-mesa  মেসার শেডার ক্যাশ পরিষ্কার
 ```
 
-### প্রথম GUI চালু, browser ও video
+### প্রথম ডেস্কটপ চালু, ব্রাউজার ও ভিডিও
 
-Fresh install-এর পর প্রতিটি fresh install-এ base desktop-এই Firefox থাকবে; প্রথম GUI session-এ এটি দিয়ে Ternux project page খুলবে। project/developer link, guest command ও host benchmark-সহ welcome guide প্রতি guest user-এর জন্য একবারই দেখায়; পরের boot-এ website redirect হয় না। Ubuntu-তে Mozilla-র official ESR build বসে, কারণ Ubuntu archive-এর Firefox Snap চায় এবং Ternux PRoot-এ Snap বন্ধ রাখে।
+নতুন ইনস্টলেশনের মূল ডেস্কটপে ফায়ারফক্স ইএসআর থাকে; প্রথম ডেস্কটপ চালুর সময়
+এটি টার্নাক্স প্রকল্পের পৃষ্ঠা খোলে। প্রকল্প ও নির্মাতার সংযোগ, গেস্ট কমান্ড
+এবং হোস্ট বেঞ্চমার্ক কমান্ডসহ স্বাগতম নির্দেশিকা প্রতিটি গেস্ট ব্যবহারকারীর
+জন্য একবার দেখায়। পরেরবার ডেস্কটপ চালু হলে ওয়েবসাইটে পাঠায় না। ডেবিয়ান
+পরিবারের গেস্টে নিজস্ব ফায়ারফক্স ইএসআর প্যাকেজ থাকে। উবুন্টুতে মজিলার
+আনুষ্ঠানিক লিনাক্স সংস্করণ বসে, কারণ উবুন্টুর ফায়ারফক্স প্যাকেজে স্ন্যাপ লাগে;
+টার্নাক্স পিআররুটে স্ন্যাপ নিষ্ক্রিয় রাখে।
 
-নটো বাংলা ফন্ট ও আভ্রো ধ্বনিভিত্তিক কিবোর্ড ডেবিয়ান ও উবুন্টুতে আগে থেকেই থাকে; আল্পাইনে থাকে আভ্রো-সামঞ্জস্যপূর্ণ মটুন ইঞ্জিন। আইবাসের **পরের ইনপুট পদ্ধতি** শর্টকাট **কন্ট্রোল+স্পেস** দিয়ে ইংরেজি ও বাংলা লেখার পদ্ধতি বদলানো যায়। আল্পাইনের জন্য আলাদা আইবাস-আভ্রো প্যাকেজ না থাকায় চেকসাম-যাচাইকৃত উৎস থেকে মটুন ইঞ্জিন বসে; অতিরিক্ত প্যানেল বোতাম লাগে না। এক্স-ইলেভেন উইন্ডো-ফিট ব্যবস্থা বড় উইন্ডোকে পর্দার ব্যবহারযোগ্য জায়গার মাপে ছোট করে এবং নতুন উইন্ডোকে মাঝখানে রাখে। ফায়ারফক্স ব্রাউজার, ভিএলসি, পালসঅডিও ভলিউম নিয়ন্ত্রণ, এক্সএফসিই কাজের তালিকা, মাউসপ্যাড, ক্যালকুলেটর, এভিন্স পিডিএফ পাঠক, টার্নাক্স ক্যামেরা, টার্নাক্স শব্দ-রেকর্ডার, রিস্ট্রেটো ছবি-দর্শক ও **সিন্যাপটিক প্যাকেজ ব্যবস্থাপক** মূল ডেস্কটপে থাকে। অ্যাপ্লিকেশন তালিকা থেকে সিন্যাপটিক খুলে ডেবিয়ান প্যাকেজ খোঁজা, বসানো, হালনাগাদ বা সরানো যায়। পিডিএফ ডিফল্টভাবে এভিন্সে খোলে; ঐচ্ছিক লিব্রেঅফিস ড্র দিয়ে পিডিএফ পাতা সম্পাদনা ও অন্য ধরনে রপ্তানি করা যায়। কোনো ডাক-অ্যাপ ডিফল্টভাবে বসে না; দরকার হলে ঐচ্ছিক কাজের তালিকা থেকে ইভল্যুশন মেইল বেছে নিন। এতে জনপ্রিয় সেবার জন্য ওঅথ এবং হাতে আইএমএপি/পিওপি সংযোগের ব্যবস্থা আছে; ওঅথে ফায়ারফক্স ইএসআর অথবা টার্নাক্সের মাধ্যমে অ্যান্ড্রয়েডের ডিফল্ট ব্রাউজার খোলে। ডেবিয়ান, উবুন্টু ও আল্পাইনের এক্সএফসিই নিচের প্যানেলে একই আটটি চালু করার বোতাম থাকে: টার্মিনাল, ফাইল ব্যবস্থাপক, ওয়েব ব্রাউজার, অ্যাপ্লিকেশন খোঁজার সরঞ্জাম, ভিএলসি, ক্যামেরা, ছবি ও শব্দ-রেকর্ডার। ক্যামেরা, ছবি ও শব্দ-রেকর্ডারের ডেস্কটপ শর্টকাটও থাকে; টার্নাক্স ফ্ল্যাশলাইটের শর্টকাট অ্যান্ড্রয়েডের টর্চ চালু বা বন্ধ করে। সিস্টেমজুড়ে টার্নাক্সের গ্রাফাইট-এমেরাল্ড জিটিকে ২/৩/৪ নকশা, কিউটি ৫ অ্যাপের জিটিকে প্ল্যাটফর্ম নকশা, এক্সএফডব্লিউএম
-window frame, GTK app-এর নিজস্ব titlebar button-এর Ternux styling, Xfce panel ও Ternux icon theme default। Base app, folder, Thunar action, category ও panel-এর জন্য original Ternux icon থাকে।
-Uncommon বা পরে install করা app-এর neutral fallback হিসেবে Adwaita ব্যবহৃত হয়;
-Papirus inheritance নেই। Xfce Desktop settings থেকে বেছে নেওয়ার জন্য ১৫টি portrait-first Ternux wallpaper থাকে; landscape করলেও aspect ratio ঠিক থাকে;
-05 Quantum Grid default। Ternux Camera Termux:API দিয়ে Android-এর front/rear camera থেকে photo তোলে এবং capture-এর পর EXIF orientation ঠিক রেখে app-এ preview দেখায়; নিচের capture control-গুলো ছোট ও গোছানো থাকে। Termux:API app-কে Camera permission দিতে হবে। ছবি Debian PRoot-এর `~/Pictures/Ternux`-এ থাকে। Termux:API-তে সাময়িকভাবে capture তৈরি করে যাচাইয়ের পর PRoot-এ কপি করা হয়; Android Gallery-তে scan করা হয় না। Ristretto ছবিগুলো খোলে। Termux:API still photo দেয়, continuous camera stream দেয় না; তাই capture-এর আগে live feed দেখানো হয় না। Sound Recorder-এ Start চাপার আগে mic চালু হয় না; প্রথমবার Android permission চাইতে পারে। AAC/M4A (default) অথবা MP3 বেছে নিয়ে Stop and save চাপুন; MP3 Debian-এর FFmpeg দিয়ে local-এ encode হয়। Recording `~/Music/Ternux`-এ সেভ হয়। ছোট X11 screen-এ welcome guide scrollable layout ও Cairo renderer ব্যবহার করে।
-PRoot-এ VAAPI/VDPAU না থাকায় VLC-তে X11 `xcb_x11` output ও software decoding
-default; ছোট screen-এ compact player view ব্যবহার করে। এতে অনুপস্থিত host decoder বেছে নিয়ে video blank হওয়া এড়ায়।
+নটো বাংলা ফন্ট ও আভ্রো ধ্বনিভিত্তিক লেখার পদ্ধতি আগে থেকে বসানো থাকে। আইবাসের
+**পরের ইনপুট পদ্ধতি** শর্টকাট **কন্ট্রোল+স্পেস** দিয়ে ইংরেজি ও বাংলা লেখার
+পদ্ধতি বদলানো যায়। টার্নাক্স আইবাসের ইঞ্জিন-ক্রম ও প্রিলোড তালিকা মিলিয়ে
+রাখে এবং আইবাস ইনপুট-প্রসঙ্গবিহীন অ্যাপের জন্য এক্সএফসিই বিকল্পও যোগ করে।
+আল্পাইনে চেকসাম-নির্দিষ্ট উৎস থেকে আভ্রো-সামঞ্জস্যপূর্ণ মটুন ইঞ্জিন বসে, কারণ
+সেখানে আইবাস-আভ্রো প্যাকেজ নেই।
 
-### ternux CLI — ব্যবস্থাপনা ইন্টারফেস
+এক্স১১ উইন্ডো-ফিট ব্যবস্থা অতিরিক্ত বড় উইন্ডোকে ব্যবহারযোগ্য পর্দার মাপে আনে
+এবং নতুন উইন্ডো মাঝখানে খোলে। মূল ডেস্কটপে ফায়ারফক্স, ভিএলসি, পালসঅডিও
+শব্দ-নিয়ন্ত্রণ, এক্সএফসিই কাজের তালিকা, মাউসপ্যাড, গ্যালকুলেটর, এভিন্স পিডিএফ
+পাঠক, টার্নাক্স ক্যামেরা, টার্নাক্স শব্দ-রেকর্ডার, রিস্ট্রেটো ছবি-দর্শক ও
+**সিন্যাপটিক প্যাকেজ ব্যবস্থাপক** থাকে। অ্যাপ্লিকেশন তালিকা থেকে সিন্যাপটিক
+খুলে ডেবিয়ান প্যাকেজ খোঁজা, বসানো, হালনাগাদ বা সরানো যায়। পিডিএফ এভিন্সে
+খোলে; ঐচ্ছিক লিব্রেঅফিস ড্র দিয়ে পিডিএফ পাতা সম্পাদনা ও অন্য ধরনে রপ্তানি
+করা যায়। ডাক-অ্যাপ পূর্বনির্বাচিত নয়; দরকার হলে ঐচ্ছিক কাজের তালিকা থেকে
+ইভল্যুশন মেইল বেছে নিন। এতে পরিচিত সেবার জন্য ওঅথ এবং হাতে আইএমএপি/পিওপি
+সংযোগ আছে। ওঅথের সময় ফায়ারফক্স ইএসআর অথবা টার্নাক্সের মাধ্যমে অ্যান্ড্রয়েডের
+পূর্বনির্বাচিত ব্রাউজার খোলে। ডেবিয়ান, উবুন্টু ও আল্পাইনের এক্সএফসিই নিচের
+প্যানেলে একই আটটি চালু করার বোতাম থাকে: টার্মিনাল, ফাইল ব্যবস্থাপক, ওয়েব
+ব্রাউজার, অ্যাপ্লিকেশন খোঁজার সরঞ্জাম, ভিএলসি, ক্যামেরা, ছবি ও শব্দ-রেকর্ডার।
+ক্যামেরা, ছবি ও শব্দ-রেকর্ডারের ডেস্কটপ শর্টকাটও থাকে; টার্নাক্স ফ্ল্যাশলাইটের
+শর্টকাট অ্যান্ড্রয়েডের টর্চ চালু বা বন্ধ করে।
 
-ইনস্টলের পর `ternux` কমান্ড আপনার স্থায়ী নিয়ন্ত্রণ কেন্দ্র। নিচের পূর্ণ command
-**Termux**-এ (`$PREFIX/bin/ternux`) চালান:
+টার্নাক্সের গ্রাফাইট-সবুজ জিটিকে ২/৩/৪ নকশা অ্যাপ, মেনু ও এক্সএফসিই প্যানেলে
+প্রযোজ্য। কিউটি ৫ অ্যাপ জিটিকে প্ল্যাটফর্ম-নকশা ব্যবহার করে; টার্নাক্সের
+এক্সএফডব্লিউএম জানালার সীমানা ও শিরোনাম-ফলক সাজায়। মূল অ্যাপ, ফোল্ডার,
+থুনারের কাজ, বিভাগ ও প্যানেলের জন্য টার্নাক্স আইকন আছে। অপরিচিত বা পরে
+বসানো অ্যাপের বিকল্প আইকন হিসেবে আদ্বৈত ব্যবহৃত হয়; পাপিরাস থেকে আইকন নেওয়া
+হয় না। এক্সএফসিই ডেস্কটপের সেটিংস থেকে ১৫টি টার্নাক্স পটভূমিচিত্র বেছে
+নেওয়া যায়। আড়াআড়ি পর্দাতেও অনুপাত ঠিক থাকে; ০৫ কোয়ান্টাম গ্রিড প্রাথমিক
+পছন্দ।
+
+টার্নাক্স ক্যামেরা টার্মাক্স:এপিআই দিয়ে অ্যান্ড্রয়েডের সামনের ও পেছনের
+ক্যামেরা থেকে ছবি তোলে। অ্যান্ড্রয়েড চাইলে টার্মাক্স:এপিআই অ্যাপকে ক্যামেরার
+অনুমতি দিন। ছবি তোলার অনুমতি না থাকলেও ক্যামেরার তালিকা দেখা যেতে পারে;
+অনুমতি-সংক্রান্ত ত্রুটি এলে সেটিংস → অ্যাপ → টার্মাক্স:এপিআই → অনুমতি →
+ক্যামেরা থেকে অনুমতি দিয়ে আবার চেষ্টা করুন। ক্যামেরার ফ্ল্যাশ থাকলে
+ফ্ল্যাশলাইট টর্চ চালায়। এটি একটানা আলো, ছবির ফ্ল্যাশ নয়; ছবি তোলার আগে
+টার্নাক্স এটি বন্ধ করে, কারণ টার্মাক্স:এপিআই-এর স্থিরচিত্র কমান্ডে ফ্ল্যাশ
+বিকল্প নেই। ছবির ঘূর্ণন-তথ্য ঠিক করে অ্যাপের ভেতর পূর্বরূপ দেখানো হয় এবং
+ছবি ডেবিয়ানের `~/Pictures/Ternux`-এ রাখা হয়। তোলার সময় ছবি টার্মাক্সের
+ব্যক্তিগত হোমে সাময়িকভাবে তৈরি হয়, পরে পিআররুটে কপি হয়; অ্যান্ড্রয়েডের
+ছবির গ্যালারি স্ক্যান করা হয় না। রিস্ট্রেটো দিয়ে ছবি খোলা যায়। টার্মাক্স:এপিআই
+শুধু স্থিরচিত্র তোলে, সরাসরি চলমান ভিডিও দেখায় না। শব্দ-রেকর্ডারে রেকর্ড
+চালু করলে মাইক্রোফোনের অনুমতি চাওয়া হয়; এপিআই না থাকলে প্রথম ব্যবহারে
+অনুমতি চাইবে। এএসি/এম৪এ (প্রাথমিক) অথবা এমপিথ্রি বেছে নিয়ে থামান ও
+সংরক্ষণ করুন; ফাইল ডেবিয়ানের `~/Music/Ternux`-এ থাকে। এমপিথ্রি রপ্তানিতে
+স্থানীয় এফএফএমপিইজি ব্যবহৃত হয়।
+
+প্রথমবারের নির্দেশিকা পর্দার মাপ অনুযায়ী সাজে এবং নির্ভরযোগ্য সফটওয়্যার
+রেন্ডারার ব্যবহার করে। পিআররুটে ভিএএপিআই/ভিডিপিএইউ নেই বলে ভিএলসি-তে এক্স১১
+`xcb_x11` আউটপুট ও সফটওয়্যার ডিকোডিং প্রাথমিকভাবে চালু থাকে। ছোট পর্দায়
+সংক্ষিপ্ত প্লেয়ার দেখা যায়; এতে অনুপস্থিত হোস্ট ডিকোডার বেছে নিয়ে ভিডিও
+কালো হয়ে যাওয়া এড়ানো হয়।
+
+### টার্নাক্স কমান্ড-লাইন — ব্যবস্থাপনা
+
+ইনস্টলের পর `ternux` কমান্ড থেকে টার্নাক্স পরিচালনা করুন। নিচের কমান্ডগুলো
+**টার্মাক্সে** (`$PREFIX/bin/ternux`) চালান:
 
 ```bash
-ternux doctor           # সিস্টেম ডায়াগনস্টিক
-ternux doctor --json    # machine-readable output
+ternux doctor           # সিস্টেম পরীক্ষা
+ternux doctor --json    # যন্ত্রে প্রক্রিয়াযোগ্য ফল
 ternux start            # ডেস্কটপ চালু
-tx stop                 # চলমান desktop দেখুন, একটি বা একাধিক বাছুন
-tx stop db              # শুধু Debian বন্ধ
-tx stop ub              # শুধু Ubuntu বন্ধ
-tx stop alp             # শুধু Alpine বন্ধ
-tx stop --all          # সব Ternux desktop বন্ধ
-ternux repair           # সাধারণ সমস্যা সমাধান
+tx stop                 # চলমান ডেস্কটপের তালিকা দেখুন ও বাছুন
+tx stop db              # শুধু ডেবিয়ান বন্ধ
+tx stop ub              # শুধু উবুন্টু বন্ধ
+tx stop alp             # শুধু আল্পাইন বন্ধ
+tx stop --all           # সব টার্নাক্স ডেস্কটপ বন্ধ
+ternux repair           # পরিচিত সমস্যা মেরামত
 ternux verify           # ইনস্টলেশন যাচাই
-ternux benchmark        # GPU বেঞ্চমার্ক
-ternux backend set virgl  # GPU ব্যাকএন্ড পরিবর্তন
-ternux info             # সিস্টেম তথ্য
-ternux state            # ইনস্টলেশন অবস্থা
-ternux logs             # লগ ফাইল দেখা
-ternux update           # আপডেট
-ternux uninstall        # কম্পোনেন্ট অপসারণ
+ternux benchmark        # গ্রাফিক্স বেঞ্চমার্ক
+ternux info             # সিস্টেমের তথ্য
+ternux update           # নিজস্ব হালনাগাদ
+ternux uninstall        # উপাদান সরানো
 ```
 
-Debian/Xfce terminal-এ `/usr/local/bin/ternux` guest-local `status`, `info`,
-`doctor` ও `env` দেয়। Nested PRoot ঠেকাতে host lifecycle command প্রত্যাখ্যান
-করে; `start`, `stop`, `repair` বা `update`-এর জন্য Termux-এ ফিরে যান।
+ডেবিয়ান/এক্সএফসিই টার্মিনালে `/usr/local/bin/ternux` গেস্টের `status`, `info`,
+`doctor` ও `env` দেখায়। ভেতরে আরেকটি পিআররুট চালানো ঠেকাতে এটি হোস্টের চালু/বন্ধের
+কমান্ড প্রত্যাখ্যান করে। `start`, `stop`, `repair` বা `update` চালাতে টার্মাক্সে
+ফিরে যান।
 
-ডিসপ্যাচার global flag শনাক্ত করে; JSON output শুধু নথিভুক্ত command-এ নিশ্চিত।
-সম্পূর্ণ রেফারেন্স: [CLI রেফারেন্স](CLI.html)।
+কমান্ড-প্রেরক কিছু সর্বজনীন বিকল্প চেনে; জেসন ফল শুধু যেসব কমান্ডে নথিভুক্ত,
+সেগুলোতেই ব্যবহার করুন। সম্পূর্ণ তালিকা: [কমান্ড-লাইন নির্দেশিকা](CLI.html)।
 
-- কন্টেইনারে একটি পূর্ণাঙ্গ **Debian ডেস্কটপ** — এমুলেটেড নয়, ইনস্টলড।
-- নির্বাচিত **OpenGL route** যাচাইয়ের tool; tested Adreno evidence Zink/Turnip দেখায়।
-- ফোনের স্পিকার/হেডফোনে **শব্দ** ব্রিজড।
-- ঐচ্ছিক **শেয়ার্ড স্টোরেজ**: `ternux storage grant /sdcard/Folder` দিয়ে
-  একটি Android folder অনুমতি দিন; default-এ user file guest-এ প্রকাশ হয় না।
+- পিআররুট কন্টেইনারে সম্পূর্ণ **ডেবিয়ান ডেস্কটপ**, ফোনের এআরএম৬৪ প্রসেসরে চলে।
+- ওপেনজিএল অ্যাপের জন্য নির্বাচিত **জিঙ্ক/টার্নিপ বা ভিরজিএল গ্রাফিক্স-পথ**;
+  ত্বরণ ধরে না নিয়ে রেন্ডারার যাচাই করুন।
+- ফোনের স্পিকার বা হেডফোনে **শব্দ** পৌঁছায়।
+- চাইলে `ternux storage grant /sdcard/Folder` দিয়ে অ্যান্ড্রয়েডের একটি ফোল্ডার
+  গেস্টে যুক্ত করুন। প্রাথমিকভাবে ব্যবহারকারীর ফাইল গেস্টে দেখানো হয় না।
 
-## Android 12+? একটি জরুরি নোট
+## অ্যান্ড্রয়েড ১২ বা পরের সংস্করণ: জরুরি নোট
 
-Android 12+ child-process policy PRoot process বন্ধ করতে পারে; memory pressure
-ও OEM battery policy-তেও একই লক্ষণ হয়। ইনস্টলার readable setting ও
-version-aware guidance দেখায়; safeguard বদলানোর আগে trade-off পড়ুন। বিস্তারিত:
+অ্যান্ড্রয়েড ১২ বা পরের সংস্করণে শিশু-প্রক্রিয়া নীতি পিআররুটের কাজ থামাতে
+পারে; কম মেমোরি বা নির্মাতার ব্যাটারি-নীতি থেকেও একই লক্ষণ হতে পারে। ইনস্টলার
+পড়া যায় এমন সেটিং ও সংস্করণ-উপযোগী নির্দেশিকা দেখায়। সুরক্ষা-ব্যবস্থা বদলানোর
+আগে এর প্রভাব বুঝে নিন। বিস্তারিত:
 [সমস্যা সমাধান](TROUBLESHOOTING.html#the-desktop-dies-silently)।
 
-## ঐচ্ছিক: লোকাল CPU + Vulkan language model
+## ঐচ্ছিক: প্রসেসর ও ভলকান দিয়ে স্থানীয় ভাষা-মডেল
 
-প্রকাশিত ARM64 llama.cpp extension-টি prerelease। **Termux**-এ install করুন:
+প্রকাশিত এআরএম৬৪ `llama.cpp` সম্প্রসারণটি প্রাক্‌প্রকাশনা সংস্করণ।
+**টার্মাক্সে** বসান:
 
 ```bash
 ternux extension install llama-vulkan
 ```
 
-Debian guest-এ glibc 2.38 বা নতুন এবং OpenSSL 3 (`libssl3` বা `libssl3t64`),
-`libgomp1`, `libvulkan1` লাগবে; installer download-এর আগে এগুলো যাচাই করে।
+ডেবিয়ান গেস্টে `glibc` ২.৩৮ বা নতুন, `OpenSSL 3` (`libssl3` অথবা
+`libssl3t64`), `libgomp1` ও `libvulkan1` লাগবে। নামানোর আগে ইনস্টলার এগুলো
+যাচাই করে।
 
-এরপর `db` দিয়ে Debian-এ যান, extension চালু করুন এবং CPU বা Vulkan বেছে নিন:
+এরপর `db` দিয়ে ডেবিয়ানে যান, সম্প্রসারণটি চালু করুন এবং প্রসেসর অথবা ভলকান
+বেছে নিন:
 
 ```bash
 source "$HOME/.local/opt/ternux-extensions/llama-vulkan/env.sh"
@@ -198,65 +268,69 @@ llama-cli -m /path/to/model.gguf -ngl 0 -p 'What is 2 + 2?' -n 8
 llama-cli -m /path/to/model.gguf -dev Vulkan0 -ngl 99 -p 'What is 2 + 2?' -n 8
 ```
 
-আপনার GGUF model আগের জায়গাতেই রাখুন। Vulkan-এর জন্য system Vulkan driver
-কাজ করতে হবে। হাতে install, checksum ও archive যাচাই, backend-এর বিস্তারিত এবং
-সমস্যা সমাধানের জন্য [repository extension guide](https://github.com/soobujmiah/ternux/blob/main/bn/guides/llama-vulkan-extension.md) দেখুন।
+আপনার জিজিইউএফ মডেল আগের জায়গাতেই রাখুন। ভলকান ব্যবহারে সিস্টেমের ভলকান
+চালকটি সচল থাকতে হবে। হাতে বসানোর পদ্ধতি, চেকসাম ও আর্কাইভ যাচাই, ব্যাকএন্ড
+এবং সমস্যা সমাধানের জন্য [সম্প্রসারণ নির্দেশিকা](https://github.com/soobujmiah/ternux/blob/main/bn/guides/llama-vulkan-extension.md) দেখুন।
 
 
-## ঐচ্ছিক: Stable Diffusion CPU + Vulkan image generation
+## ঐচ্ছিক: প্রসেসর ও ভলকান দিয়ে ছবি তৈরি
 
-Termux theke pinned image-generation runtime install korun:
+টার্মাক্স থেকে নির্দিষ্ট সংস্করণের ছবি-তৈরির পরিবেশ বসান:
 
 ```bash
 ternux extension install stable-diffusion
 ```
 
-Termux theke model folder grant korun, tarpor notun guest shell ba desktop restart korun:
+টার্মাক্স থেকে মডেলের ফোল্ডার ব্যবহারের অনুমতি দিন। এরপর নতুন গেস্ট শেল খুলুন
+অথবা ডেস্কটপ আবার চালু করুন:
 
 ```bash
 ternux storage grant /sdcard/Llms
 ```
 
-Ebar Debian-e CPU ba Adreno Vulkan model use korun:
+এরপর ডেবিয়ানে মডেলটি প্রসেসর অথবা অ্যাড্রেনো ভলকান দিয়ে চালান:
 
 ```bash
 source "$HOME/.local/opt/ternux-extensions/stable-diffusion/env.sh"
 MODEL=/sdcard/Llms/ternux-v2-validation/stable-diffusion-v1-5-pruned-emaonly-Q8_0.gguf
 
-# CPU low-resolution test, slow hote pare
+# প্রসেসরে কম রেজোলিউশনের পরীক্ষা; কয়েক মিনিট লাগতে পারে
 sd-cli --backend cpu --model "$MODEL" --prompt "a small red robot in a garden, clean illustration" \
   --threads 4 --output /tmp/ternux-sd-cpu.png --width 256 --height 256 --steps 20 --seed 42
 
-# Adreno GPU: 512x512-e VAE tiling dorkar
+# অ্যাড্রেনো গ্রাফিক্সে ৫১২×৫১২ মাপের জন্য ভিএই টাইলিং দরকার
 sd-cli --backend vulkan0 --model "$MODEL" --prompt "a small red robot in a garden, clean illustration" \
   --threads 4 --output /tmp/ternux-sd-vulkan.png --width 512 --height 512 --steps 10 --seed 42 \
   --vae-tiling --vae-tile-size 256x256
 ```
 
-Adreno 825-e VAE tiling chara 512x512 Vulkan device-lost hoyechilo. Tiled
-Extracted candidate tiled 512x512/10-step image 101.9s-e save korechilo. Public
-prerelease-er por Ternux-managed install eki `/sdcard/Llms` model diye coherent
-image 92.91s-e baniyeche. CPU output unqualified, support claim noy; [device
-handoff](../../handoffs/stable-diffusion-cpu-vulkan-qualification-2026-11-07.md) dekhun.
-Extension model ba GPU driver bundle kore na; [extension guide](https://github.com/soobujmiah/ternux/blob/main/bn/guides/stable-diffusion-vulkan-extension.md)-e limits ache.
+অ্যাড্রেনো ৮২৫-এ ভিএই টাইলিং ছাড়া ৫১২×৫১২ ভলকান চালনায় যন্ত্র-সংযোগ বিচ্ছিন্ন
+হয়েছিল। টাইলিং-সহ পরীক্ষামূলক সংস্করণ ১০ ধাপে ৫১২×৫১২ ছবি ১০১.৯ সেকেন্ডে
+সংরক্ষণ করেছিল। প্রকাশ্য প্রাক্‌প্রকাশনা সংস্করণের পর টার্নাক্স-পরিচালিত
+ইনস্টলেশন একই `/sdcard/Llms` মডেল দিয়ে ৯২.৯১ সেকেন্ডে সঙ্গতিপূর্ণ ছবি তৈরি
+করেছিল। প্রসেসর-পথ যাচাইকৃত নয়, তাই সমর্থনের দাবি করা হচ্ছে না; [যন্ত্রের
+পরীক্ষা-নথি](../../handoffs/stable-diffusion-cpu-vulkan-qualification-2026-11-07.md) দেখুন।
+সম্প্রসারণে মডেল বা গ্রাফিক্স-চালক থাকে না; সীমাবদ্ধতার জন্য [সম্প্রসারণ
+নির্দেশিকা](https://github.com/soobujmiah/ternux/blob/main/bn/guides/stable-diffusion-vulkan-extension.md) দেখুন।
 
-### SM8735-এ পরীক্ষামূলক Hexagon HTP
+### এসএম৮৭৩৫-এ পরীক্ষামূলক হেক্সাগন এইচটিপি
 
-Ternux-এ Redmi Turbo 4 Pro / SM8735-এর জন্য আলাদা experimental HTP extension
-আছে; এটি supported release feature নয়। Termux থেকে
-`ternux extension install llama-htp-experimental` চালান। Debian guest-এ
-`libgbinder1`, `libglibutil1`, `libfastrpc1` ও `libfastrpc-dev` লাগবে। Installer-এ
-HTP বেছে নিলে Ternux Debian Trixie Backports থেকে এগুলো বসায়।
-Known-answer-safe setting, বর্তমান failure ও device qualification-এর অবস্থা
-[repository HTP guide](https://github.com/soobujmiah/ternux/blob/main/bn/guides/llama-htp-experimental.md)-এ আছে。
+রেডমি টার্বো ৪ প্রো/এসএম৮৭৩৫-এর জন্য টার্নাক্সে আলাদা পরীক্ষামূলক এইচটিপি
+সম্প্রসারণ আছে; এটি সমর্থিত প্রকাশনা-সুবিধা নয়। টার্মাক্স থেকে
+`ternux extension install llama-htp-experimental` চালান। ডেবিয়ান গেস্টে
+`libgbinder1`, `libglibutil1`, `libfastrpc1` ও `libfastrpc-dev` লাগে। ইনস্টলারে
+এইচটিপি বাছলে টার্নাক্স ডেবিয়ান ট্রিক্সি ব্যাকপোর্টস থেকে প্যাকেজগুলো বসায়।
+সঠিক উত্তর-দেওয়া যাচাইকৃত বিন্যাস, বর্তমান ব্যর্থতা ও যন্ত্র-যোগ্যতার তথ্য
+[এইচটিপি নির্দেশিকায়](https://github.com/soobujmiah/ternux/blob/main/bn/guides/llama-htp-experimental.md) আছে।
 
-## এরপর
+## এরপর কী পড়বেন
 
-- [ম্যানুয়াল ইনস্টলেশন](MANUAL.html) — প্রতিটি কমান্ড হাতে-কলমে, দুই GPU পথ
-- [ইনস্টলেশন](INSTALLATION.html) — প্রতিটি ধাপের ব্যাখ্যা, সব অপশন, আনইনস্টল
-- [ব্যবহার](USAGE.html) — Blender, লোকাল AI, ডেভেলপমেন্ট, ব্যাকআপ
-- [সাধারণ প্রশ্ন](FAQ.html) — নিরাপত্তা, স্টোরেজ, ব্যাটারি, গেমিং
+- [হাতে ইনস্টলেশন](MANUAL.html) — প্রতিটি কমান্ড ও দুই গ্রাফিক্স-পথ
+- [ইনস্টলেশন নির্দেশিকা](INSTALLATION.html) — ধাপ, বিকল্প ও অপসারণ
+- [ব্যবহার নির্দেশিকা](USAGE.html) — ব্লেন্ডার, স্থানীয় কৃত্রিম বুদ্ধিমত্তা,
+  উন্নয়ন ও ব্যাকআপ
+- [সাধারণ জিজ্ঞাসা](FAQ.html) — নিরাপত্তা, সংরক্ষণ-জায়গা, ব্যাটারি ও খেলা
 
 ---
 
-*ternux — Copyright (c) 2026 Sobuj Miah ([@soobujmiah](https://github.com/soobujmiah)) · Apache-2.0*
+*টার্নাক্স — স্বত্বাধিকার © ২০২৬ সবুজ মিয়া ([@soobujmiah](https://github.com/soobujmiah)) · অ্যাপাচি-২.০*

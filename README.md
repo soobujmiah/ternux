@@ -221,8 +221,8 @@ machine-readable JSON.
 
 ```bash
 ternux info             # device and system summary
-ternux logs desktop tail # recent desktop log
-ternux gpu status        # graphics driver status
+ternux logs desktop show # recent desktop log
+ternux gpu show          # graphics route and renderer status
 ternux --help            # command list
 ```
 

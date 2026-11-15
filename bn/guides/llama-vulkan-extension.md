@@ -1,7 +1,7 @@
 # llama.cpp CPU + Vulkan extension (ARM64)
 
 এই repository guide-এ Ternux-এর automatic installer এবং checksum-যাচাইসহ
-manual install—দুই পদ্ধতি আছে। Website-এর [সহজ guide](https://soobujmiah.github.io/ternux/bn/docs/QUICK-START.html#ঐচ্ছিক-লোকাল-cpu--vulkan-language-model)-এ শুধু দ্রুত setup রাখা হয়েছে; বিস্তারিত এখানে।
+manual install—দুই পদ্ধতি আছে। Website-এর [সহজ guide](https://soobujmiah.github.io/ternux/bn/docs/QUICK-START.html#ঐচ্ছিক-প্রসেসর-ও-ভলকান-দিয়ে-স্থানীয়-ভাষা-মডেল)-এ শুধু দ্রুত setup রাখা হয়েছে; বিস্তারিত এখানে।
 
 ## পরিধি ও প্রয়োজন
 
