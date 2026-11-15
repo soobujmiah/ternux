@@ -56,6 +56,8 @@ examples. `ternux -h` prints the same reference; use `tx COMMAND -h` for
 command-specific details. The built-in `tx guides` gives a formatted quick-start
 path, guest user/root shell shortcuts, and links to the longer guides.
 
+`xgo` opens the installed guest desktop picker; `killx` stops selected desktop sessions; `sysmon` summarizes CPU, memory and GPU information. The guest-only `clean-mesa` shortcut clears the current guest’s Mesa shader cache. There is no one-letter `x` command.
+
 For example, Debian accepts `db` for a user shell and `dbr` or `dbroot` for a
 root shell; Ubuntu accepts `ub`/`ubr`/`ubroot`, Kali accepts
 `kali`/`kalir`/`kaliroot`, and Alpine accepts `alp`/`alpr`/`alproot`.

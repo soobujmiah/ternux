@@ -66,7 +66,9 @@ ${TNX_CW}Command aliases:${TNX_C0}
   ${TNX_CD}Guest shells${TNX_C0}  db/dbr/dbroot · ub/ubr/ubroot · kali/kalir/kaliroot · alp/alpr/alproot
   ${TNX_CD}Other shells${TNX_C0}  archx/archroot · fed/fedr · suse/suser · vsh/vroot
   Full catalog and install state: tx distro list
-  Standalone terminal summary: terfetch [--json|--version|--help]
+  Ternux host tools  xgo (choose desktops) · killx (stop desktop sessions) · sysmon (CPU/memory/GPU)
+  Guest utility      clean-mesa (clear the selected guest Mesa shader cache)
+  Standalone summary terfetch [--json|--version|--help]
 
 ${TNX_CW}Global options:${TNX_C0}
   ${TNX_CC}--help, -h${TNX_C0}    Show help for any command
