@@ -24,9 +24,11 @@ Ternux enables Termux:X11 `enforceCharBasedInput` before starting the desktop so
 ## Daily controls
 
 After installation, new Termux host and managed guest shells show Terfetch.
-Ternux hides Termux's stock welcome text with `~/.hushlogin`; `TERFETCH_NO_AUTORUN=1`
-skips the automatic summary for the current shell. Run `terfetch --json` for
-structured host or guest details.
+Its ten Android/Linux/distro marks shuffle at each login; the summary also
+shows kernel, uptime, packages, shell, terminal, CPU/GPU, memory, and storage.
+Ternux hides Termux's stock welcome text with `~/.hushlogin`;
+`TERFETCH_NO_AUTORUN=1` skips the automatic summary for the current shell. Run
+`terfetch --json` for structured host or guest details.
 
 | Command | What it does |
 |---|---|

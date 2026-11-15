@@ -348,6 +348,7 @@ if env TERNUX_STATE_DIR="$TMP/state-doctor-active-guest" HOME="$TMP/home-doctor-
     printf "distro=archlinux\\n" > "$TERNUX_STATE_DIR/state"
     printf "ubuntu\\n" > "$TERNUX_STATE_DIR/session/distro"
     . "$1/lib/doctor.sh"
+    proot-distro(){ printf "ubuntu\\n"; }
     tnx_proot_container_installed(){ [ "$1" = ubuntu ]; }
     tnx_distro_installed_managed_list(){ printf "ubuntu\\n"; }
     tnx_has_cmd(){ return 0; }
@@ -369,6 +370,7 @@ if env TERNUX_STATE_DIR="$TMP/state-doctor-explicit-guest" HOME="$TMP/home-docto
     mkdir -p "$TERNUX_STATE_DIR/session"
     printf "ubuntu\\n" > "$TERNUX_STATE_DIR/session/distro"
     . "$1/lib/doctor.sh"
+    proot-distro(){ printf "debian\\n"; }
     tnx_proot_container_installed(){ [ "$1" = debian ]; }
     tnx_distro_installed_managed_list(){ printf "debian\\n"; }
     tnx_has_cmd(){ return 0; }

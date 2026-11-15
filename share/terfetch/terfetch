@@ -63,23 +63,69 @@ fi
 model="$(read_prop ro.product.model)"
 manufacturer="$(read_prop ro.product.manufacturer)"
 android_release="$(read_prop ro.build.version.release)"
+android_sdk="$(read_prop ro.build.version.sdk)"
 architecture="$(uname -m 2>/dev/null || printf unknown)"
+kernel="$(uname -r 2>/dev/null || printf unknown)"
+cpu_model="$(read_prop ro.soc.model)"
+[ -n "$cpu_model" ] || cpu_model="$(awk -F ': *' '/^(model name|Hardware|Processor)[[:space:]]*:/ {print $2; exit}' /proc/cpuinfo 2>/dev/null || true)"
+[ -n "$cpu_model" ] || cpu_model="$architecture"
+gpu_model="$(cat /sys/class/kgsl/kgsl-3d0/gpu_model 2>/dev/null | head -n 1)"
+[ -n "$gpu_model" ] || gpu_model="$(read_prop ro.hardware.egl)"
+[ -n "$gpu_model" ] || gpu_model='unknown'
 cpu_count="$(getconf _NPROCESSORS_ONLN 2>/dev/null || true)"
 [ -n "$cpu_count" ] || cpu_count="$(grep -c '^processor[[:space:]]*:' /proc/cpuinfo 2>/dev/null || true)"
 [ -n "$cpu_count" ] || cpu_count='?'
-memory_kb="$(awk '/^MemTotal:/ {print $2; exit}' /proc/meminfo 2>/dev/null || true)"
-if [ -n "$memory_kb" ]; then memory="$(awk -v n="$memory_kb" 'BEGIN {printf "%.1f GiB", n/1048576}')"; else memory='unknown'; fi
-storage_kb="$(df -Pk "$HOME" 2>/dev/null | awk 'NR==2 {print $4; exit}')"
-if [ -n "$storage_kb" ]; then storage="$(awk -v n="$storage_kb" 'BEGIN {printf "%.1f GiB free", n/1048576}')"; else storage='unknown'; fi
+memory_values="$(awk '/^MemTotal:/ {t=$2} /^MemAvailable:/ {a=$2} END {if (t>0) printf "%.1f GiB / %.1f GiB", (t-a)/1048576, t/1048576}' /proc/meminfo 2>/dev/null || true)"
+[ -n "$memory_values" ] || memory_values='unknown'
+storage_values="$(df -Pk "$HOME" 2>/dev/null | awk 'NR==2 {printf "%.1f / %.1f GiB", ($3/1048576), ($2/1048576)}')"
+[ -n "$storage_values" ] || storage_values='unknown'
+storage_free="$(df -Pk "$HOME" 2>/dev/null | awk 'NR==2 {printf "%.1f GiB free", $4/1048576}')"
+[ -n "$storage_free" ] || storage_free='unknown'
+
+uptime_value="$(uptime -p 2>/dev/null || true)"
+if [ -z "$uptime_value" ]; then
+  uptime_value="$(awk '{if ($1>0) {s=int($1); d=int(s/86400); h=int((s%86400)/3600); m=int((s%3600)/60); if (d) printf "up %d days, %d hours, %d mins", d,h,m; else if (h) printf "up %d hours, %d mins",h,m; else printf "up %d mins",m}}' /proc/uptime 2>/dev/null || true)"
+fi
+[ -n "$uptime_value" ] || uptime_value='unknown'
+
+package_manager=unknown
+package_count='unknown'
+if command -v dpkg-query >/dev/null 2>&1; then
+  package_manager=dpkg
+  package_count="$(dpkg-query -W -f='${binary:Package}\n' 2>/dev/null | wc -l | tr -d ' ')"
+elif command -v apk >/dev/null 2>&1; then
+  package_manager=apk
+  package_count="$(apk info 2>/dev/null | wc -l | tr -d ' ')"
+fi
+packages="$package_count ($package_manager)"
+
+shell_name="${SHELL##*/}"
+[ -n "$shell_name" ] || shell_name="$(ps -p "$$" -o comm= 2>/dev/null | tr -d ' ')"
+if [ -n "${BASH_VERSION:-}" ]; then shell_name="bash $BASH_VERSION"; fi
+if [ -n "${ZSH_VERSION:-}" ]; then shell_name="zsh $ZSH_VERSION"; fi
+terminal_name="${TERM_PROGRAM:-${TERM:-unknown}}"
+terminal_size="$(stty size 2>/dev/null | awk 'NR==1 {printf "%sx%s", $2, $1}')"
+[ -n "$terminal_size" ] || terminal_size='unknown'
+display_size=''
+if [ -n "${DISPLAY:-}" ] && command -v xdpyinfo >/dev/null 2>&1; then
+  display_size="$(xdpyinfo 2>/dev/null | awk '/dimensions:/ {print $2; exit}')"
+fi
+desktop_name="${XDG_CURRENT_DESKTOP:-${DESKTOP_SESSION:-}}"
+[ -n "$desktop_name" ] || { [ "$host_termux" -eq 1 ] && desktop_name='Android'; }
+[ -n "$desktop_name" ] || desktop_name='unknown'
+battery="$(cat /sys/class/power_supply/battery/capacity 2>/dev/null | head -n 1)"
+[ -n "$battery" ] && battery="${battery}%" || battery=''
 
 ternux_version='not detected'
 if command -v ternux >/dev/null 2>&1; then
-  ternux_version="$(ternux --version 2>/dev/null | head -n 1 || printf unknown)"
+  version_output="$(ternux --version 2>/dev/null || true)"
+  ternux_version="${version_output%%$'\n'*}"
+  [ -n "$ternux_version" ] || ternux_version=unknown
 fi
 
 android='not detected'
 if [ "$host_termux" -eq 1 ] || { [ -n "$distro" ] && [ "$distro" != linux ]; }; then
-  [ -n "$android_release" ] && android="Android $android_release"
+  [ -n "$android_release" ] && android="Android $android_release${android_sdk:+ (SDK $android_sdk)}"
 fi
 
 json_escape() {
@@ -87,7 +133,7 @@ json_escape() {
 }
 
 if [ "${1:-}" = '--json' ]; then
-  printf '{"name":"%s","environment":"%s","distro":"%s","host":"%s","android":"%s","architecture":"%s","cpu_cores":"%s","memory":"%s","storage":"%s","ternux":"%s"}\n' \
+  printf '{"name":"%s","environment":"%s","distro":"%s","host":"%s","android":"%s","architecture":"%s","cpu_cores":"%s","memory":"%s","storage":"%s","ternux":"%s","kernel":"%s","uptime":"%s","packages":"%s","shell":"%s","terminal":"%s","terminal_size":"%s","display_size":"%s","cpu":"%s","gpu":"%s","desktop":"%s","battery":"%s"}\n' \
     "$(printf '%s' 'Ternux' | json_escape)" \
     "$(printf '%s' "$environment" | json_escape)" \
     "$(printf '%s' "$system_name" | json_escape)" \
@@ -95,32 +141,71 @@ if [ "${1:-}" = '--json' ]; then
     "$(printf '%s' "$android" | json_escape)" \
     "$(printf '%s' "$architecture" | json_escape)" \
     "$(printf '%s' "$cpu_count" | json_escape)" \
-    "$(printf '%s' "$memory" | json_escape)" \
-    "$(printf '%s' "$storage" | json_escape)" \
-    "$(printf '%s' "$ternux_version" | json_escape)"
+    "$(printf '%s' "$memory_values" | json_escape)" \
+    "$(printf '%s' "$storage_free" | json_escape)" \
+    "$(printf '%s' "$ternux_version" | json_escape)" \
+    "$(printf '%s' "$kernel" | json_escape)" \
+    "$(printf '%s' "$uptime_value" | json_escape)" \
+    "$(printf '%s' "$packages" | json_escape)" \
+    "$(printf '%s' "$shell_name" | json_escape)" \
+    "$(printf '%s' "$terminal_name" | json_escape)" \
+    "$(printf '%s' "$terminal_size" | json_escape)" \
+    "$(printf '%s' "$display_size" | json_escape)" \
+    "$(printf '%s' "$cpu_model" | json_escape)" \
+    "$(printf '%s' "$gpu_model" | json_escape)" \
+    "$(printf '%s' "$desktop_name" | json_escape)" \
+    "$(printf '%s' "$battery" | json_escape)"
   exit 0
 fi
 
 if [ -t 1 ] && [ -z "${NO_COLOR:-}" ]; then
-  c1=$'\033[1;38;5;48m'; c2=$'\033[1;38;5;109m'; c3=$'\033[38;5;109m'; c0=$'\033[0m'
+  c1=$'\033[1;38;5;48m'; c2=$'\033[1;38;5;45m'; c3=$'\033[38;5;109m'; c0=$'\033[0m'
 else
   c1=''; c2=''; c3=''; c0=''
 fi
 
-printf '%s%s%s  %sTernux%s\n' "$c1" '  TTTTTTTT' "$c0" "$c2" "$c0"
-printf '%s%s%s  Linux workstation in your pocket\n' "$c1" '     TT' "$c0"
-printf '%s%s%s\n' "$c1" '     TT' "$c0"
-printf '%s%s%s\n' "$c1" '     TT' "$c0"
-printf '%s%s%s\n' "$c1" '     TT' "$c0"
-printf '%s%s%s\n' "$c1" '     TT' "$c0"
+case "$distro" in
+  debian) distro_badge=DEB ;; ubuntu) distro_badge=UBU ;; kali) distro_badge=KALI ;;
+  alpine) distro_badge=ALP ;; archlinux) distro_badge=ARCH ;; fedora) distro_badge=FED ;;
+  opensuse) distro_badge=SUSE ;; void) distro_badge=VOID ;; termux) distro_badge=TMX ;;
+  *) distro_badge="$(printf '%s' "$distro" | tr '[:lower:]' '[:upper:]' | cut -c1-4)" ;;
+esac
+
+# Keep the platform marks visible while changing their order on every login.
+marks=(TNX ANDR LINUX "$distro_badge" X11 XFCE PROOT GPU TERMUX SM)
+for ((i=${#marks[@]}-1; i>0; i--)); do
+  j=$((RANDOM % (i + 1)))
+  tmp="${marks[i]}"; marks[i]="${marks[j]}"; marks[j]="$tmp"
+done
+
+print_pair() {
+  printf '  %s%-24s%s  %s%-12s%s %s\n' "$c1" "$1" "$c0" "$c3" "$2" "$c0" "$3"
+}
+print_pair '       .--------------.' 'System' "$system_name"
+print_pair '      / >_ TERNUX    /|' 'Distro' "$distro"
+print_pair '     +--------------+ |' 'Kernel' "$kernel"
+print_pair '     | ANDROID/LINUX | |' 'Uptime' "$uptime_value"
+print_pair "     |   <$distro_badge>       |/" 'Packages' "$packages"
+print_pair '     +--------------+' 'CPU' "$cpu_model ($cpu_count cores)"
+[ -n "$model" ] && print_pair '' 'Device' "${manufacturer:+$manufacturer }$model"
+[ "$android" = 'not detected' ] || print_pair '' 'Android' "$android"
+print_pair '' 'Shell' "$shell_name"
+print_pair '' 'Terminal' "$terminal_name"
+[ "$display_size" = '' ] || print_pair '' 'Display' "$display_size"
+[ "$desktop_name" = unknown ] || print_pair '' 'Desktop' "$desktop_name"
+ [ "$gpu_model" = unknown ] || print_pair '' 'GPU' "$gpu_model"
+print_pair '' 'Memory' "$memory_values"
+print_pair '' 'Storage' "$storage_values ($storage_free)"
+[ "$terminal_size" = unknown ] || print_pair '' 'Terminal size' "$terminal_size"
+[ -z "$battery" ] || print_pair '' 'Battery' "$battery"
+print_pair '' 'Ternux' "$ternux_version"
+printf '  %sPresented by%s %s[SM]%s\n' "$c3" "$c0" "$c1" "$c0"
+printf '  '
+for ((i=0; i<${#marks[@]}; i++)); do
+  badge_color="$c2"
+  (( i % 2 == 0 )) && badge_color="$c1"
+  printf '%s[%s]%s ' "$badge_color" "${marks[i]}" "$c0"
+  [ "$i" -ne 4 ] || printf '\n  '
+done
 printf '\n'
-printf '  %sSystem%s         %s\n' "$c3" "$c0" "$system_name"
-printf '  %sEnvironment%s    %s\n' "$c3" "$c0" "$environment"
-if [ -n "$model" ]; then printf '  %sDevice%s         %s %s\n' "$c3" "$c0" "${manufacturer:+$manufacturer}" "$model"; fi
-if [ "$android" != 'not detected' ]; then printf '  %sAndroid%s        %s\n' "$c3" "$c0" "$android"; fi
-printf '  %sArchitecture%s   %s\n' "$c3" "$c0" "$architecture"
-printf '  %sCPU%s            %s cores\n' "$c3" "$c0" "$cpu_count"
-printf '  %sMemory%s         %s\n' "$c3" "$c0" "$memory"
-printf '  %sStorage%s        %s\n' "$c3" "$c0" "$storage"
-printf '  %sTernux%s        %s\n' "$c3" "$c0" "$ternux_version"
 
