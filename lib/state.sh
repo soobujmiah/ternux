@@ -23,8 +23,8 @@ tnx_cmd_state() {
 _tnx_state_show() {
   [ "${TERNUX_QUIET:-0}" = "1" ] && return 0
   tnx_header "Installation State"
-  printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "State dir:" "$TERNUX_STATE_DIR"
-  printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "Version:" "$TERNUX_VERSION"
+  tnx_print_field 'State dir:' "$TERNUX_STATE_DIR"
+  tnx_print_field 'Version:' "$TERNUX_VERSION"
   echo ""
 
   if [ -f "$TERNUX_STATE_DIR/phases" ]; then
@@ -41,9 +41,9 @@ _tnx_state_show() {
     while IFS='=' read -r key val; do
       case "$key" in
         backend)
-          printf "  ${TNX_CD}%-20s${TNX_C0} %s\n" "$key:" "$(tnx_canonical_backend "$val")" ;;
+          tnx_print_field "$key:" "$(tnx_canonical_backend "$val")" "$TNX_CD" ;;
         renderer|version|updated_at)
-          printf "  ${TNX_CD}%-20s${TNX_C0} %s\n" "$key:" "$val" ;;
+          tnx_print_field "$key:" "$val" "$TNX_CD" ;;
       esac
     done < "$TERNUX_STATE_DIR/state"
     echo ""
@@ -57,7 +57,7 @@ _tnx_state_show() {
       [ -n "$distro" ] || continue
       profile_state="$(tnx_distro_state_get "$distro" status 2>/dev/null || true)"
       [ -n "$profile_state" ] || profile_state="installed; setup state not recorded"
-      printf "  ${TNX_CD}%-12s${TNX_C0} display :%-2s  %s\n" "$distro" "$(tnx_distro_display "$distro")" "$profile_state"
+      tnx_print_field "$distro" "display :$(tnx_distro_display "$distro") · $profile_state" "$TNX_CD"
     done <<< "$installed"
     echo ""
   fi

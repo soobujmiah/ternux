@@ -10,6 +10,7 @@ mkdir -p "$HOME" "$TERNUX_STATE_DIR" "$PREFIX"
 . "$ROOT/lib/desktop.sh"
 . "$ROOT/lib/distro.sh"
 
+[ -x "$ROOT/bin/ternux" ]
 [ "$(tnx_distro_state_dir debian)" = "$TERNUX_STATE_DIR/distros/debian" ]
 ! tnx_distro_state_dir '../escape' >/dev/null 2>&1
 tnx_distro_state_set debian backend zink
@@ -215,8 +216,9 @@ tnx_cmd_distro search 'debian bookworm'
 if tnx_cmd_distro search >/dev/null 2>&1; then exit 1; fi
 if tnx_cmd_distro search one two >/dev/null 2>&1; then exit 1; fi
 tnx_cmd_distro list > "$TMP/distro-list"
-grep -q 'alpine.*installed · setup needed' "$TMP/distro-list"
-grep -q 'debian.*installed · setup needed' "$TMP/distro-list"
+grep -q 'alpine.*short=alp' "$TMP/distro-list"
+grep -q 'debian.*short=db' "$TMP/distro-list"
+grep -q 'installed · setup needed' "$TMP/distro-list"
 grep -q 'kali.*kali.*:3' "$TMP/distro-list"
 grep -q 'alpine.*alp.*:4' "$TMP/distro-list"
 tnx_cmd_distro > "$TMP/distro-overview"
@@ -240,7 +242,8 @@ mkdir -p "$HOME/.local/share/ternux/distros/ubuntu"
 printf 'status=ready\n' > "$HOME/.local/share/ternux/distros/ubuntu/profile"
 TERNUX_DISTRO=ubuntu tnx_phase_aliases alice bash >/dev/null
 bash -n "$HOME/.bashrc"
-grep -q "alias tx='ternux'" "$HOME/.bashrc"
+! grep -q "^alias tx=" "$HOME/.bashrc"
+grep -q "alias killx='tx stop'" "$HOME/.bashrc"
 grep -q 'db() { _ternux_guest_login debian --shared-tmp --user' "$HOME/.bashrc"
 grep -q 'dbroot() { _ternux_guest_login debian --shared-tmp' "$HOME/.bashrc"
 grep -q 'dbr() { dbroot "\$@"; }' "$HOME/.bashrc"
@@ -258,6 +261,17 @@ grep -q 'kali() { _ternux_guest_login kali --shared-tmp --user' "$HOME/.bashrc"
 grep -q 'kalir() { _ternux_guest_login kali --shared-tmp' "$HOME/.bashrc"
 grep -q 'kaliroot() { kalir "\$@"; }' "$HOME/.bashrc"
 ! grep -q '^kal() {' "$HOME/.bashrc"
+
+# The tx executable must resolve in an interactive Bash shell; do not mask it
+# with an alias to a non-executable or missing `ternux` path.
+mkdir -p "$PREFIX/bin"
+cat > "$PREFIX/bin/tx" <<'TX_TEST'
+#!/usr/bin/env bash
+printf 'tx-wrapper-ok:%s\n' "$*"
+TX_TEST
+chmod 0755 "$PREFIX/bin/tx"
+interactive_tx="$(PATH="$PREFIX/bin:$PATH" HOME="$HOME" bash --noprofile --rcfile "$HOME/.bashrc" -ic 'tx --version' 2>/dev/null)"
+grep -Fq 'tx-wrapper-ok:--version' <<< "$interactive_tx"
 if command -v script >/dev/null 2>&1; then
   printf 'jj \r' | script -qec "stty rows 30 cols 80; TERM=xterm-256color bash -c 'source '$ROOT'/lib/phases.sh; tnx_prompt_distro debian 20'" /dev/null > "$TMP/distro-multi-prompt"
   grep -q 'SPACE/number toggle' "$TMP/distro-multi-prompt"

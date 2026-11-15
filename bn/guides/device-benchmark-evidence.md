@@ -699,7 +699,7 @@ bridge দিয়ে Android QNN ব্যবহার করে। GPU-লে
 5.7 s-এ তৈরি হয়েছে। Ternux-এর 29.758 s median একই resolution ও step count-এ
 প্রায় 5.2× বেশি। এটি তদন্ত করার মতো বড় performance gap; model ও runtime আলাদা,
 তাই এটি নিয়ন্ত্রিত A/B comparison নয় এবং Ternux runner-এর QNN DSP execution
-log-কে খণ্ডন করে না। [Local Dream device evidence](https://github.com/soobujmiah/skb/blob/main/devices/redmi-turbo-4-pro/accelerator-access-audit.md)।
+log-কে খণ্ডন করে না। ড্রিম ডিভাইসের ব্যক্তিগত SKB প্রমাণ (সর্বসাধারণের জন্য উন্মুক্ত নয়)।
 প্রতি image-এ `runner_seconds - unet_20step_seconds` residual-এর median
 13.848 s। এতে CLIP, helper ও QNN context startup, decoder execution এবং PNG লেখা
 আছে; এটি শুধু startup time নয়। Code অনুযায়ী প্রতি denoising step-এ UNet helper-এ

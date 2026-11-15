@@ -197,7 +197,7 @@ _tnx_switch_mirror() {
 # if the current mirror yields 404 or missing package archives.
 _tnx_install_core_packages() {
   local apt_force="$1"
-  local pkgs="pulseaudio proot-distro virglrenderer-android util-linux zsh git curl wget nano tar termux-api"
+  local pkgs="pulseaudio proot-distro virglrenderer-android util-linux zsh git curl wget nano tar termux-api vulkan-tools"
 
   tnx_termux_pkg install -y $apt_force $pkgs && return 0
 
@@ -2034,6 +2034,21 @@ _tnx_install_terfetch_hook() {
 if [[ $- == *i* ]] && [[ -z ${TERFETCH_NO_AUTORUN:-} ]] && command -v terfetch >/dev/null 2>&1; then
   terfetch
 fi
+_ternux_terfetch_last_size="$(stty size 2>/dev/null || true)"
+_ternux_terfetch_resize_check() {
+  local _tnx_size
+  _tnx_size="$(stty size 2>/dev/null || true)"
+  if [[ -n $_tnx_size && $_tnx_size != $_ternux_terfetch_last_size ]]; then
+    _ternux_terfetch_last_size=$_tnx_size
+    [[ -z ${TERFETCH_NO_AUTORUN:-} ]] && command -v terfetch >/dev/null 2>&1 && terfetch --refresh
+  fi
+}
+if [[ -n ${ZSH_VERSION:-} ]]; then
+  typeset -ga precmd_functions
+  (( ${precmd_functions[(Ie)_ternux_terfetch_resize_check]} )) || precmd_functions+=(_ternux_terfetch_resize_check)
+else
+  case ";${PROMPT_COMMAND:-};" in *";_ternux_terfetch_resize_check;"*) ;; *) PROMPT_COMMAND="${PROMPT_COMMAND:+${PROMPT_COMMAND};}_ternux_terfetch_resize_check" ;; esac
+fi
 # TERNUX TERFETCH START END
 TERFETCHEOF
   chmod "$rc_mode" "$rc_tmp" && mv -f -- "$rc_tmp" "$rc_file" || {
@@ -2079,8 +2094,7 @@ tnx_phase_aliases() {
   cat >> "$RC_FILE" << ALIASEOF
 
 # ==== TERNUX ALIASES ====
-alias tx='ternux'
-alias killx='ternux stop'
+alias killx='tx stop'
 _ternux_guest_login() {
   [ -z "\${ZSH_VERSION:-}" ] || emulate -L bash
   local distro="\$1"; shift
@@ -2206,7 +2220,7 @@ ALIASEOF
   touch "$HOME/.hushlogin"
   _tnx_install_terfetch_hook "$HOME/.bashrc" || return 1
   _tnx_install_terfetch_hook "$HOME/.zshrc" || return 1
-  tnx_ok "Aliases installed: tx, xgo, killx, distro user/root shells (including dbroot/ubroot/alproot), sysmon"
+  tnx_ok "Commands configured: tx, xgo, killx, distro user/root shells (including dbroot/ubroot/alproot), sysmon"
 }
 
 # ---------------------------------------------------------------------------

@@ -3,10 +3,13 @@
 
 from __future__ import annotations
 
+import select
+import re
+import subprocess
 import sys
 import time
 
-from Xlib import X, display, protocol
+from Xlib import X, XK, display, protocol
 from Xlib.error import BadWindow, XError
 
 
@@ -21,6 +24,10 @@ Xatom_CARDINAL = None
 # decorations, state, or work area actually changes. Position is deliberately
 # excluded so our own move cannot trigger another correction.
 _fit_signatures: dict[int, tuple[object, ...]] = {}
+_known_clients: set[int] = set()
+_settle_clients: dict[int, float] = {}
+_zoom_preferences: dict[int, str] = {}
+_pending_font_writes: dict[int, tuple[str, float]] = {}
 
 
 def fitted_geometry(
@@ -33,13 +40,17 @@ def fitted_geometry(
     margin: int = 4,
     maximized_horizontally: bool = False,
     maximized_vertically: bool = False,
+    minimum_width: int = 1,
+    minimum_height: int = 1,
 ) -> tuple[int, int, int, int]:
     """Fit a decorated window in the work area and center it on the screen."""
     margin = max(0, margin)
     max_width = max(1, area_width - margin * 2)
     max_height = max(1, area_height - margin * 2)
-    width = max_width if maximized_horizontally else min(max(1, outer_width), max_width)
-    height = max_height if maximized_vertically else min(max(1, outer_height), max_height)
+    minimum_width = min(max_width, max(1, minimum_width))
+    minimum_height = min(max_height, max(1, minimum_height))
+    width = max_width if maximized_horizontally else min(max(minimum_width, outer_width), max_width)
+    height = max_height if maximized_vertically else min(max(minimum_height, outer_height), max_height)
     x = area_x + margin if maximized_horizontally else area_x + (area_width - width) // 2
     y = area_y + margin if maximized_vertically else area_y + (area_height - height) // 2
     x = min(max(x, area_x + margin), area_x + area_width - margin - width)
@@ -61,6 +72,19 @@ def root_dimensions(root) -> tuple[int, int]:
     """Read live root geometry; Xlib's Display.screen() size is cached."""
     geometry = root.get_geometry()
     return int(geometry.width), int(geometry.height)
+
+
+def zoomed_font_name(font_name: str, direction: int) -> str | None:
+    """Return a persistent Xfce font preference one Ctrl-zoom step away."""
+    match = re.fullmatch(r"(.*\S)\s+([0-9]+(?:\.[0-9]+)?)", font_name.strip())
+    if match is None or direction not in (-1, 1):
+        return None
+    family, size_text = match.groups()
+    size = float(size_text)
+    next_size = min(32.0, max(6.0, size * (1.2 ** direction)))
+    if abs(next_size - size) < 0.001:
+        return None
+    return f"{family} {next_size:.2f}".rstrip("0").rstrip(".")
 
 
 def main() -> int:
@@ -87,8 +111,59 @@ def main() -> int:
             "_NET_WM_STATE_MAXIMIZED_VERT",
             "_NET_FRAME_EXTENTS",
             "_NET_MOVERESIZE_WINDOW",
+            "_NET_ACTIVE_WINDOW",
         )
     }
+    zoom_key_steps: dict[int, int] = {}
+    for key_name, direction in (
+        ("minus", -1), ("KP_Subtract", -1), ("underscore", -1),
+        ("plus", 1), ("equal", 1), ("KP_Add", 1), ("KP_Equal", 1),
+    ):
+        keycode = dpy.keysym_to_keycode(XK.string_to_keysym(key_name))
+        if keycode:
+            zoom_key_steps[keycode] = direction
+    failed_zoom_grabs = []
+    for keycode in zoom_key_steps:
+        try:
+            root.grab_key(keycode, X.AnyModifier, False, X.GrabModeAsync, X.GrabModeAsync)
+        except XError:
+            failed_zoom_grabs.append(keycode)
+    for keycode in failed_zoom_grabs:
+        zoom_key_steps.pop(keycode, None)
+    dpy.sync()
+
+    def set_terminal_font(font_name: str) -> bool:
+        try:
+            subprocess.run(
+                ["xfconf-query", "-c", "xfce4-terminal", "-p", "/font-name", "-s", font_name],
+                check=True, capture_output=True, text=True, timeout=2,
+            )
+            return True
+        except (OSError, subprocess.SubprocessError):
+            return False
+
+    def save_terminal_zoom(direction: int) -> tuple[int, str] | None:
+        active = window_ids(root, atoms_by_name["_NET_ACTIVE_WINDOW"])
+        if not active:
+            return None
+        try:
+            window = dpy.create_resource_object("window", active[0])
+            classes = tuple((value or "").lower() for value in (window.get_wm_class() or ()))
+            if "xfce4-terminal" not in classes:
+                return None
+            current = subprocess.run(
+                ["xfconf-query", "-c", "xfce4-terminal", "-p", "/font-name"],
+                check=True, capture_output=True, text=True, timeout=2,
+            ).stdout.strip()
+            updated = zoomed_font_name(current, direction)
+            if updated is None:
+                return None
+            if not set_terminal_font(updated):
+                return None
+            print(f"Ternux terminal zoom: saved {updated}", file=sys.stderr, flush=True)
+            return active[0], updated
+        except (BadWindow, XError, OSError, subprocess.SubprocessError):
+            return None
 
     def work_area() -> tuple[int, int, int, int]:
         # Termux:X11 can resize the root window after this watcher connects.
@@ -123,8 +198,22 @@ def main() -> int:
         # the event is for a frame, fit() correctly rejects it; the root's
         # _NET_CLIENT_LIST update is the reliable signal that a new managed
         # application window is ready to inspect.
-        for client_id in window_ids(root, atoms_by_name["_NET_CLIENT_LIST"]):
-            fit(client_id)
+        clients = set(window_ids(root, atoms_by_name["_NET_CLIENT_LIST"]))
+        for client_id in clients:
+            if client_id not in _known_clients:
+                _known_clients.add(client_id)
+                # Some clients and window managers publish final size hints
+                # after the first map. Fit immediately, then retry once after
+                # the WM has completed placement so its late move cannot leave
+                # the window at the top-left corner.
+                fit(client_id, force=True)
+                _settle_clients[client_id] = time.monotonic() + 0.65
+            else:
+                fit(client_id)
+        for client_id in _known_clients - clients:
+            _known_clients.discard(client_id)
+            _settle_clients.pop(client_id, None)
+            _fit_signatures.pop(client_id, None)
 
     def fit(window_id: int, force: bool = False) -> None:
         try:
@@ -164,10 +253,13 @@ def main() -> int:
             outer_y = translated.y - top
             outer_width = geometry.width + left + right
             outer_height = geometry.height + top + bottom
+            is_normal = atoms_by_name["_NET_WM_WINDOW_TYPE_NORMAL"] in type_atoms
+            minimum_width = max(1, int(area_width * 0.58)) if is_normal else 1
+            minimum_height = max(1, int(area_height * 0.38)) if is_normal else 1
             signature = (
                 geometry.width, geometry.height, left, right, top, bottom,
                 tuple(sorted(state)), x, y, area_width, area_height,
-                maximized_horizontally, maximized_vertically,
+                maximized_horizontally, maximized_vertically, minimum_width, minimum_height,
             )
             if not force and _fit_signatures.get(window_id) == signature:
                 return
@@ -182,6 +274,8 @@ def main() -> int:
                 margin,
                 maximized_horizontally,
                 maximized_vertically,
+                minimum_width,
+                minimum_height,
             )
 
             if (new_x, new_y, new_outer_width, new_outer_height) == (
@@ -216,28 +310,72 @@ def main() -> int:
     dpy.sync()
     time.sleep(0.4)
     fit_clients()
-
+    next_scan = time.monotonic() + 0.5
     while True:
+        now = time.monotonic()
+        if now >= next_scan:
+            # A few PRoot/X11 client paths miss the initial map notification.
+            # Reconcile the EWMH list periodically so every new app window is
+            # still discovered and fitted without forcing existing windows.
+            fit_clients()
+            next_scan = now + 0.5
+        for window_id, (font_name, write_at) in list(_pending_font_writes.items()):
+            if now >= write_at:
+                set_terminal_font(font_name)
+                _pending_font_writes.pop(window_id, None)
+        for client_id, settle_at in list(_settle_clients.items()):
+            if now >= settle_at:
+                _settle_clients.pop(client_id, None)
+                fit(client_id, force=True)
+        deadlines = [next_scan, *(_settle_clients.values()), *(item[1] for item in _pending_font_writes.values())]
+        timeout = max(0.0, min(0.2, min(deadlines) - time.monotonic()))
+        readable, _, _ = select.select([dpy.fileno()], [], [], timeout)
+        if not readable:
+            continue
         event = dpy.next_event()
-        if event.type == X.MapNotify:
-            time.sleep(0.2)
-            # XIDs are reused after an app closes. Force a first-fit on every
-            # new map even if a previous window with the same ID had an
-            # identical size and work area.
-            fit(event.window.id, force=True)
+        if event.type == X.KeyPress and event.detail in zoom_key_steps:
+            modifiers = int(event.state)
+            has_control = bool(modifiers & X.ControlMask)
+            has_alt_or_super = bool(modifiers & (X.Mod1Mask | X.Mod4Mask))
+            saved_zoom = save_terminal_zoom(zoom_key_steps[event.detail]) if has_control and not has_alt_or_super else None
+            if saved_zoom is not None:
+                window_id, font_name = saved_zoom
+                _zoom_preferences[window_id] = font_name
+                _pending_font_writes[window_id] = (font_name, time.monotonic() + 2.0)
+            else:
+                # This is not a Ternux-terminal zoom action; let the focused
+                # application receive its original shortcut unchanged.
+                dpy.allow_events(X.ReplayKeyboard, event.time)
+                dpy.flush()
+        elif event.type == X.MapNotify:
+            # Defer the final correction until XFWM has applied its placement
+            # and decoration hints. fit_clients also discovers clients if
+            # this MapNotify belongs to a decoration window instead.
             fit_clients()
         elif event.type == X.DestroyNotify:
+            saved_font = _zoom_preferences.pop(event.window.id, None)
+            if saved_font is not None:
+                # XFCE Terminal may write its cached preference as the last
+                # window exits. Re-apply the zoom after that save completes.
+                _pending_font_writes[event.window.id] = (saved_font, time.monotonic() + 2.0)
+                print(f"Ternux terminal zoom: reapplying {saved_font} after window close", file=sys.stderr, flush=True)
+            _known_clients.discard(event.window.id)
+            _settle_clients.pop(event.window.id, None)
             _fit_signatures.pop(event.window.id, None)
-        elif event.type == X.ConfigureNotify and event.window.id == root.id:
-            time.sleep(0.2)
-            fit_clients()
+        elif event.type == X.ConfigureNotify:
+            if event.window.id == root.id:
+                fit_clients()
+            elif event.window.id in _known_clients:
+                # Geometry edits and font zooms change dimensions. Refit the
+                # window, but position-only moves keep the same signature and
+                # remain under the user's control.
+                fit(event.window.id)
         elif event.type == X.PropertyNotify and event.window.id == root.id:
             if event.atom in (
                 atoms_by_name["_NET_CLIENT_LIST"],
                 atoms_by_name["_NET_WORKAREA"],
                 atoms_by_name["_NET_CURRENT_DESKTOP"],
             ):
-                time.sleep(0.15)
                 fit_clients()
 
 

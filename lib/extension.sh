@@ -37,6 +37,9 @@ tnx_cmd_extension() {
       esac
     fi
     {
+      # The extension module is streamed to the guest as a standalone script,
+      # so include the shared terminal formatter it uses for list output.
+      cat "$module_dir/core.sh" || exit 1
       cat "$module" || exit 1
       cat "$module_dir/workload-registry.sh" || exit 1
       printf '\n_tnx_extension_guest_dispatch "$@"\n'
@@ -78,17 +81,18 @@ _tnx_extension_list() {
     backends="$(tnx_workload_get "$workload" backends)"
     status="$(tnx_workload_get "$workload" support_status)"
     availability="$(tnx_workload_get "$workload" availability)"
-    printf '  %-28s %s (%s; %s)\n' "$workload" "$label" "$backends" "$status"
+    tnx_print_two_col "$workload" "$label · $backends · $status" "$TNX_CC"
     if [ "$availability" = blocked ]; then
       note="$(tnx_workload_get "$workload" availability_note)"
-      printf '    Unavailable: %s\n' "$note"
+      tnx_print_two_col 'Unavailable:' "$note" "$TNX_CY"
     fi
   done
-  printf '\nInstall with: ternux extension install NAME\n'
-  printf 'Repair an existing managed install: ternux extension repair NAME\n'
-  printf 'Remove one managed extension: ternux extension remove NAME\n'
-  printf 'Removal preserves model weights and other files outside the extension directory.\n'
-  printf 'ADT releases are managed by ADT; see ternux guides.\n'
+  printf '\n'
+  tnx_print_two_col 'Install' 'tx extension install NAME'
+  tnx_print_two_col 'Repair' 'tx extension repair NAME'
+  tnx_print_two_col 'Remove' 'tx extension remove NAME'
+  tnx_print_two_col 'Removal scope' 'Preserves model weights and files outside the managed extension directory'
+  tnx_print_two_col 'ADT' 'Releases are managed by ADT; see tx guides'
 }
 
 _tnx_extension_fail() { printf '[FAIL] %s\n' "$*" >&2; }

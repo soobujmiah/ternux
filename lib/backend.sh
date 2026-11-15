@@ -92,10 +92,10 @@ _tnx_backend_show() {
   fi
 
   tnx_header "GPU Backend"
-  printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "Detected GPU:" "$gpu"
-  printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "Configured:" "${current_backend:-not set}"
-  printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "Renderer:" "${renderer:-unknown}"
-  printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "Vulkan:" "$(tnx_detect_vulkan)"
+  tnx_print_field 'Detected GPU:' "$gpu"
+  tnx_print_field 'Configured:' "${current_backend:-not set}"
+  tnx_print_field 'Renderer:' "${renderer:-unknown}"
+  tnx_print_field 'Vulkan:' "$(tnx_detect_vulkan)"
   echo ""
   printf "  Preference: native distro Mesa Zink/Freedreno on Adreno, then VirGL, then software rendering\n"
   echo ""

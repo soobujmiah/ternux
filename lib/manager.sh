@@ -233,11 +233,12 @@ _tnx_manager_action() {
         tnx_json_end
       else
         tnx_header "Native Manager"
-        printf '  CLI: available (direct mode)\n  Guest manager: %s\n  Installed guests: %s\n  Running desktops:' \
-          "$([ "$guest_manager" = true ] && echo available || echo unavailable)" "$count"
         local -a running=()
         while IFS= read -r name; do [[ "$name" =~ ^[a-zA-Z0-9][a-zA-Z0-9._-]*$ ]] && running+=("$name"); done < <(_tnx_running_guest_sessions)
-        if [ "${#running[@]}" -eq 0 ]; then printf ' none\n'; else printf ' %s\n' "${running[*]}"; fi
+        tnx_print_field 'CLI:' 'available (direct mode)'
+        tnx_print_field 'Guest manager:' "$([ "$guest_manager" = true ] && echo available || echo unavailable)"
+        tnx_print_field 'Installed guests:' "$count"
+        tnx_print_field 'Running desktops:' "${running[*]:-none}"
       fi
       ;;
     guests)
@@ -279,9 +280,8 @@ _tnx_manager_action() {
         if [ "${#TNX_MANAGER_GUESTS[@]}" -eq 0 ]; then printf '  No PRoot guests installed.\n'
         else
           for name in "${TNX_MANAGER_GUESTS[@]}"; do
-            printf '  %-20s ' "$name"
-            if tnx_distro_known "$name"; then printf 'desktop profile, display :%s\n' "$(tnx_distro_display "$name")"
-            else printf 'shell guest\n'; fi
+            if tnx_distro_known "$name"; then tnx_print_two_col "$name" "desktop profile · display :$(tnx_distro_display "$name")" "$TNX_CC"
+            else tnx_print_two_col "$name" 'shell guest' "$TNX_CC"; fi
           done
         fi
       fi
@@ -310,9 +310,8 @@ _tnx_manager_action() {
         tnx_manager_displays_json
       else
         tnx_header "Workspace Displays"
-        printf '  Native Termux workspace: :%s (reserved; %s)\n' "$TERNUX_NATIVE_DISPLAY" \
-          "$(if tnx_x11_server_running_on_display "$TERNUX_NATIVE_DISPLAY" || [[ -e "${TMPDIR:-/data/data/com.termux/files/usr/tmp}/.X11-unix/X$TERNUX_NATIVE_DISPLAY" ]]; then printf occupied; else printf available; fi)"
-        printf '  %-12s %-9s %-9s %-10s %-18s\n' Guest Current Target State
+        tnx_print_field 'Native workspace:' ":$TERNUX_NATIVE_DISPLAY reserved · $(if tnx_x11_server_running_on_display "$TERNUX_NATIVE_DISPLAY" || [[ -e "${TMPDIR:-/data/data/com.termux/files/usr/tmp}/.X11-unix/X$TERNUX_NATIVE_DISPLAY" ]]; then printf occupied; else printf available; fi)"
+        printf '\n'
         for name in "${TNX_MANAGER_GUESTS[@]}"; do
           tnx_distro_known "$name" || continue
           local current target status
@@ -321,7 +320,7 @@ _tnx_manager_action() {
           status=ready
           if [ "$current" != unset ] && [ "$current" != "$target" ]; then status=migration-required; fi
           if { tnx_x11_server_running_on_display "$target" || [[ -e "${TMPDIR:-/data/data/com.termux/files/usr/tmp}/.X11-unix/X$target" || -e "${TMPDIR:-/data/data/com.termux/files/usr/tmp}/.X$target-lock" ]]; } && [ "$current" != "$target" ]; then status=target-occupied; fi
-          printf '  %-12s :%-8s :%-8s %-18s\n' "$name" "$current" "$target" "$status"
+          tnx_print_two_col "$name" "current=:$current · target=:$target · $status" "$TNX_CC"
         done
       fi
       ;;
@@ -370,7 +369,7 @@ tnx_manager_capabilities() {
     tnx_json_end
   else
     tnx_header "Native Manager Operations"
-    for operation in "${ids[@]}"; do printf '  %-24s %s\n' "$operation" "${TNX_MANAGER_OPERATION_DESCRIPTION[$operation]}"; done
+    for operation in "${ids[@]}"; do tnx_print_two_col "$operation" "${TNX_MANAGER_OPERATION_DESCRIPTION[$operation]}" "$TNX_CC"; done
   fi
 }
 

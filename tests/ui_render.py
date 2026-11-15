@@ -421,12 +421,12 @@ def analyse(tap: Tap, screen: Screen, log: str, raw: str, label: str, expect_cle
     tap.check(cols is not None, f"{label}: frame has a top rule", screen.text())
     visible = screen.text()
     branded_frame = any(
-        "Ternux installer" in snapshot and "Debian + Xfce" in snapshot
+        "TERNux" in snapshot and "INSTALLING  Debian + Xfce" in snapshot
         for _elapsed, snapshot, _html in screen.snapshots
     )
     tap.check(
         branded_frame,
-        f"{label}: compact header names the installer and selected guest",
+        f"{label}: redesigned header names Ternux and the selected guest",
         visible,
     )
     tap.check(
@@ -524,10 +524,10 @@ def main() -> int:
     screen2, log2, raw2 = run(args.lib, 24, 80)
     analyse(tap, screen2, log2, raw2, "phone 80x24", expect_clears=3)
     compact_device = any(
-        "Ternux installer" in snapshot and "Debian" in snapshot and "Device" in snapshot and "Graphics" in snapshot
+        "TERNux" in snapshot and "INSTALLING  Debian" in snapshot and "Device" in snapshot and "Graphics" in snapshot
         for _elapsed, snapshot, _html in screen2.snapshots
     )
-    tap.check(compact_device, "phone 80x24: guest header and device details are visible", screen2.text())
+    tap.check(compact_device, "phone 80x24: branded guest header and device details are visible", screen2.text())
 
     # 3. Compact portrait still shows hardware and backend status.
     screen3, log3, raw3 = run(args.lib, 18, 41)

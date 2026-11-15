@@ -197,7 +197,7 @@ measurement, এই workload GPU-তে চলেছে তার প্রম�
 ২০ step-এ 5.7 s-এ তৈরি হয়েছে। Ternux runner-এর 29.76 s median একই device,
 resolution ও step count-এ প্রায় 5.2× বেশি। Model ও runtime আলাদা, তাই এটি বড়
 optimization gap—নিয়ন্ত্রিত A/B comparison নয় এবং QNN DSP execution record-এর
-বিরোধী প্রমাণও নয়। [Local Dream device evidence](https://github.com/soobujmiah/skb/blob/main/devices/redmi-turbo-4-pro/accelerator-access-audit.md)।
+বিরোধী প্রমাণও নয়। ড্রিম ডিভাইসের ব্যক্তিগত SKB প্রমাণ (সর্বসাধারণের জন্য উন্মুক্ত নয়)।
 Ternux run-এ UNet timing-এর বাইরের per-image median 13.85 s; এতে CLIP, helper ও
 context startup, VAE decode এবং PNG output অন্তর্ভুক্ত। Runner প্রতি step-এ
 আলাদা unconditional ও conditional UNet graph call করে (২০ step-এ ৪০টি call),

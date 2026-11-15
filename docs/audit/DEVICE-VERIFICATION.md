@@ -235,6 +235,32 @@ The checkout-source result does not imply that the released `.deb` contains the
 new CLI, that a manager service runs, or that a Control Center exists. No
 socket/service was started.
 
+## 2026-11-15 Kali reference-device desktop qualification
+
+**Device:** Xiaomi 25053RT47C / Android 16 / SM8735 / Adreno 825.
+**Profile:** existing managed Kali Rolling guest, user `ternux`, display `:3`.
+This qualifies the currently installed Kali desktop on this device; it is not a
+fresh-install or cross-device support claim.
+
+| Check | Result |
+|---|---|
+| Managed session | `tx status kali` reported READY on `:3`, with Termux:X11 and PulseAudio route ready. |
+| Host verification | `tx verify kali` passed, including the Kali launcher, desktop services, and isolated Turnip overlay. |
+| Guest diagnostics | `tx doctor kali` reported 26 OK, 0 warnings, 0 failures. |
+| Graphics | Doctor enumerated Adreno 825 and Turnip; configured backend was Zink and renderer was `zink Vulkan 1.4 (Adreno (TM) 825 (MESA_TURNIP))`. |
+| Browser and viewport | Firefox opened `https://example.com`; its live title was “Example Domain — Mozilla Firefox”. The X11 window frame was 510×561 at +65+426 on a 640×1386 display. |
+| Bengali input | Noto Sans Bengali was installed; IBus offered `ibus-avro`. Synthetic Ctrl+Space switched `xkb:us::eng` → `ibus-avro` → `xkb:us::eng`. This is X11 synthetic input, not physical Android keyboard qualification. |
+| Audio route | `paplay` played a generated 0.5-second tone to the guest PulseAudio route; `OpenSL_ES_sink.monitor` captured 242,536 bytes of PCM. This verifies digital routing, not that the sound was physically audible. |
+| Security tools | `nmap`, `sqlmap`, `hydra`, `john`, `gobuster`, and `nikto` executables were present. |
+| Window fit | The live window-fit helper fitted a deliberately tiny normal window to a centered 371×516 outer frame within the 640×1386 display. |
+
+These checks promote Kali to reference-device-qualified in the local distro
+catalog. The v2 release support promise remains Debian, Ubuntu, and Alpine:
+Kali has not passed the clean-container browser CI/profile installation matrix
+used for that support statement, and this run does not cover a fresh Kali
+install, all desktop applications, Android physical keyboard input, or another
+GPU/device family.
+
 At 10:49 UTC, live commands `tx status db|ub|alp --json` reported lifecycle
 `READY`, the expected display, X11 running, and PulseAudio running/route-ready.
 `tx verify db|ub|alp --json` returned `passed` and included each guest's
@@ -385,6 +411,36 @@ current change set. `python3 tests/docs_check.py` passed 5,773 assertions, 559
 internal links, and 23 bilingual page pairs. `node --check` and `git diff --check` passed. Android
 `DISPLAY` was unset and no browser binary or `xdotool` was installed, so the
 browser's rendered UI and physical confirmation dialog were not exercised.
+
+## Terfetch guest startup and resize behavior — 2026-11-15
+
+The native Termux host and each installed guest (Debian, Ubuntu, Kali, Alpine)
+were started as interactive Bash sessions under a PTY. All printed the
+Ternux-managed Terfetch summary and distro identity. Alpine's managed `sbj`
+account had been using `/bin/sh`, which skipped its interactive Bash startup
+file; the prompt configurator now selects `/bin/bash` for that managed Alpine
+user and regenerates the Ternux prompt/Terfetch configuration.
+
+The host PTY was first rendered at 115×77 and then 40×24. A later correction
+keeps the logo and information side by side at every width: the logo uses about
+one-third of the terminal, and each complete fact occupies one row in the
+remaining space. Facts that do not fit are hidden, then return after widening
+the terminal and reaching the next prompt refresh; values are not wrapped or
+shortened. The updated script was installed on the native host and Debian,
+Ubuntu, Kali, and Alpine. Live shell output at 36 and 60 columns stayed within
+the requested width; a field hidden at 36 columns appeared at 60. Automated
+checks also cover 40, 48, 100, and 160 columns. This verifies shell output, not
+screenshots from every XFCE terminal.
+
+The live Debian XFCE Terminal was also opened on display `:1`. Synthetic
+Ctrl+plus changed its persistent Xfconf font preference from `Noto Sans Mono
+10` to `Noto Sans Mono 12`, resized the terminal window, and Ctrl+minus restored
+the preference to size 10. A second temporary XFCE Terminal was then opened and
+reported the saved size 12, confirming that the setting carries into a later
+terminal launch. The temporary windows were closed and the original Debian font
+size was restored. The shared helper handles these shortcuts only while an
+XFCE Terminal window is active; the live keypress and next-launch checks were
+directly exercised on Debian.
 
 ## Post-migration Control Center cycle — 2026-11-14 12:56 UTC
 
