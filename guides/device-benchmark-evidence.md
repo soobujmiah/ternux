@@ -275,9 +275,11 @@ This MPFB2 run used Blender's saved user preferences so the extension could
 load. `--factory-startup` disables extensions and the `blender-gpu` MCP server
 uses that flag, so MPFB2 scripts must use a separate Blender process. For
 headless work, the tested display paths were `DISPLAY=:0` or Xvfb `:9` with
-`GALLIUM_DRIVER=zink`; recheck the active display before reuse. Further
-extension setup, rigging, fitting, licensing and device-environment notes are
-maintained in private owner records and are not part of this public repository.
+`GALLIUM_DRIVER=zink`; recheck the active display before reuse. The extension's
+API setup, helper-group rigging caveat, fitting sequence, licensing, and
+reproduction notes are in the SKB
+[MPFB2 workflow](https://github.com/soobujmiah/skb/blob/main/engineering/ANIMATION_PRODUCTION_PIPELINE.md#mpfb2-human-character-workflow)
+and [device environment record](https://github.com/soobujmiah/skb/blob/main/devices/redmi-turbo-4-pro/current-termux-environment.md#blender-mpfb2-human-generation).
 
 ## Observed: Blender 4.3.2
 
@@ -439,6 +441,7 @@ measure CPU, GPU, and NPU paths independently. Device speed, heat, and output
 quality remain unverified.
 
 Workflow and source pin: [llama-htp-artifact.yml](../.github/workflows/llama-htp-artifact.yml).
+Device test details: [SKB investigation](https://github.com/soobujmiah/skb/blob/main/devices/redmi-turbo-4-pro/evidence/debian-proot-npu-investigation-2026-10-13.md); exact archive retest log: `gh-artifact-device-test.log` in the local probe scratch directory.
 
 ---
 
@@ -776,9 +779,8 @@ The same device has a separate Local Dream NPU observation: 512×512 at 20 steps
 completed in 5.7 s. Ternux's 29.758 s median is about 5.2× longer at the same
 resolution and step count. This is a substantial performance gap to investigate;
 the models and runtimes differ, so it is not a controlled A/B comparison and
-does not contradict the Ternux runner's QNN DSP execution logs. The supporting
-Local Dream observation is recorded in private owner evidence and is not
-available in this public repository.
+does not contradict the Ternux runner's QNN DSP execution logs. See the [Local
+Dream device evidence](https://github.com/soobujmiah/skb/blob/main/devices/redmi-turbo-4-pro/accelerator-access-audit.md).
 
 Per image, the median `runner_seconds - unet_20step_seconds` residual is
 13.848 s. This includes CLIP, helper and QNN context startup, decoder execution,
