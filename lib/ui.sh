@@ -493,7 +493,7 @@ _tnx_frame_box_row() {
 }
 
 _tnx_frame_paint_header() {
-  _tnx_frame_center_line "$_TNX_LY_TITLE" "TERNux  |  WORKSTATION" "$TNX_CG"
+  _tnx_frame_center_line "$_TNX_LY_TITLE" "TERNUX  |  WORKSTATION" "$TNX_CG"
   if (( _TNX_LY_TITLE2 > 0 )); then
     _tnx_frame_center_line "$_TNX_LY_TITLE2" "INSTALLING  ${_TNX_FRAME_GUEST:-Linux desktop}" "$TNX_CC"
     _tnx_frame_center_line "$_TNX_LY_TITLE3" "v${TERNUX_VERSION}  |  ${_TNX_FRAME_PROFILE^^}  |  ${_TNX_FRAME_BACKEND^^}" "$TNX_CY"
@@ -829,7 +829,7 @@ tnx_frame_open() {
     cols="$(_tnx_plain_cols)"
     inner=$(( cols - 4 ))
     printf '%s+%s+%s\n' "$TNX_CM" "$_TNX_RULE" "$TNX_C0"
-    _tnx_clipv "$inner" 'TERNux  |  WORKSTATION'
+    _tnx_clipv "$inner" 'TERNUX  |  WORKSTATION'
     printf '%s|%s %s%s%s\n' "$TNX_CM" "$TNX_CG" "$TNX_CW" "$_TNX_CLIP" "$TNX_C0"
     _tnx_clipv "$inner" "INSTALLING  $guest"
     printf '%s|%s %s%s%s\n' "$TNX_CM" "$TNX_CC" "$TNX_CW" "$_TNX_CLIP" "$TNX_C0"

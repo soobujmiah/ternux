@@ -421,7 +421,7 @@ def analyse(tap: Tap, screen: Screen, log: str, raw: str, label: str, expect_cle
     tap.check(cols is not None, f"{label}: frame has a top rule", screen.text())
     visible = screen.text()
     branded_frame = any(
-        "TERNux" in snapshot and "INSTALLING  Debian + Xfce" in snapshot
+        "TERNUX" in snapshot and "INSTALLING  Debian + Xfce" in snapshot
         for _elapsed, snapshot, _html in screen.snapshots
     )
     tap.check(
@@ -524,7 +524,7 @@ def main() -> int:
     screen2, log2, raw2 = run(args.lib, 24, 80)
     analyse(tap, screen2, log2, raw2, "phone 80x24", expect_clears=3)
     compact_device = any(
-        "TERNux" in snapshot and "INSTALLING  Debian" in snapshot and "Device" in snapshot and "Graphics" in snapshot
+        "TERNUX" in snapshot and "INSTALLING  Debian" in snapshot and "Device" in snapshot and "Graphics" in snapshot
         for _elapsed, snapshot, _html in screen2.snapshots
     )
     tap.check(compact_device, "phone 80x24: branded guest header and device details are visible", screen2.text())

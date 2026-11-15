@@ -3840,7 +3840,7 @@ tnx_phase_title() {
   case "$1" in
     preflight)   echo "Preflight checks" ;;
     packages)    echo "Base packages (X11, PulseAudio, PRoot)" ;;
-    cli)         echo "Installing ternux CLI" ;;
+    cli)         echo "Ternux command line tools" ;;
     debian)
       case "${2:-$(tnx_distro)}" in
         debian) echo "Debian + Xfce" ;;
