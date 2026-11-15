@@ -140,6 +140,7 @@ the full commands below in **Termux** (`$PREFIX/bin/ternux`):
 
 ```bash
 ternux doctor           # system diagnostics
+ternux doctor --json    # machine-readable diagnostics
 ternux start            # start the desktop
 tx stop                 # list running desktops and choose one or more
 tx stop db              # stop Debian only

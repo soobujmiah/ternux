@@ -1,29 +1,36 @@
 ---
 title: "ব্যবহার"
-description: "ternux-এর দৈনন্দিন ব্যবহার: লঞ্চ নিয়ন্ত্রণ, স্টোরেজ বিন্যাস, বাস্তব ওয়ার্কলোড (Blender, লোকাল AI, ডেভেলপমেন্ট, সিকিউরিটি ল্যাব) ও ব্যাকআপ।"
+description: "টার্নাক্সের দৈনন্দিন ব্যবহার: ডেস্কটপ চালনা, সংরক্ষণ-বিন্যাস, বাস্তব কাজ (ব্লেন্ডার, স্থানীয় কৃত্রিম বুদ্ধিমত্তা, উন্নয়ন, সাইবার-নিরাপত্তা পরীক্ষাগার) ও অনুলিপি।"
 lang: "bn"
 alt_url: "/docs/USAGE.html"
 
 ---
 
-পকেটে Linux ডেস্কটপ নিয়ে দৈনন্দিন জীবনযাপনের সবকিছু।
+পকেটে থাকা লিনাক্স ডেস্কটপের দৈনন্দিন ব্যবহারের নির্দেশিকা।
 
 ---
 
 ## ব্যাকগ্রাউন্ড ডেস্কটপ সেশন
 
-`tx` হলো `ternux` সিএলআই চালানোর সংক্ষিপ্ত কমান্ড। একাধিক গেস্ট থাকলে `xgo` ইনস্টল করা গেস্টগুলোর তালিকা দেখিয়ে গ্রাফিক্যাল ডেস্কটপ বেছে নিতে বলে। `db`/`dbroot`, `ub`/`ubroot`, `alp`/`alproot`, `archx`/`archroot`, `fed`/`fedr`, `suse`/`suser`, `vsh`/`vroot`, `kali`/`kalir` হলো সাধারণ ব্যবহারকারী বা রুট শেল খোলার শর্টকাট। অন্য গেস্টে `tx distro shell NAME` ব্যবহার করুন; টার্নাক্স প্রোফাইলে এটি নির্ধারিত সাধারণ ব্যবহারকারীর শেল খোলে, আর সাধারণ ছবিতে ছবিটির নির্ধারিত ব্যবহারকারী ব্যবহার করে। রুট শেলের জন্য `dbroot`, `ubroot`, `alproot` অথবা সংশ্লিষ্ট রুট শর্টকাট ব্যবহার করুন।
+`tx` হলো `ternux` কমান্ড চালানোর সংক্ষিপ্ত রূপ। একাধিক গেস্টের ডেস্কটপ একসঙ্গে চালাতে `tx start debian ubuntu`-এর মতো নাম দিন। `db`/`dbroot`, `ub`/`ubroot`, `alp`/`alproot`, `archx`/`archroot`, `fed`/`fedr`, `suse`/`suser`, `vsh`/`vroot`, `kali`/`kalir` হলো সাধারণ ব্যবহারকারী বা রুট শেল খোলার সংক্ষিপ্ত কমান্ড। অন্য গেস্টে `tx distro shell NAME` ব্যবহার করুন; টার্নাক্স বিন্যাসে এটি নির্ধারিত সাধারণ ব্যবহারকারীর শেল খোলে, আর সাধারণ ছবিতে ছবিটির নির্ধারিত ব্যবহারকারী ব্যবহার করে। রুট শেলের জন্য `dbroot`, `ubroot`, `alproot` অথবা সংশ্লিষ্ট রুট সংক্ষিপ্ত কমান্ড ব্যবহার করুন।
 
-`tx start` desktop-কে managed background session হিসেবে চালু করে এবং নিজের X11
-window ready হলে prompt-এ ফিরে আসে। প্রতিটি configured guest আলাদা tagged display ব্যবহার করে, তাই একাধিক profile পাশাপাশি
-চলতে পারে। Startup output `~/.local/share/ternux/session/desktop.log`-এ থাকে;
-1 MiB হলে আগের log rotate হয়। `tx status`, `tx stop` বা `tx logs desktop tail`
-দিয়ে session দেখুন, বেছে বন্ধ করুন বা log পড়ুন। `tx stop` চলমান guest/display দেখিয়ে space বা comma-separated নাম/নম্বর নিতে পারে; `0` দিলে cancel হয়। `tx stop db`, `tx stop ub` ও `tx stop alp` নির্দিষ্ট guest বন্ধ করে; `tx stop --all` সব বন্ধ করে। Android memory pressure-এ background process বন্ধ
-করতে পারে; এমন হলে Termux:X11 আবার খুলুন।
+`tx start` ডেস্কটপকে পরিচালিত পেছনের সেশন হিসেবে চালু করে; নিজস্ব এক্স১১
+জানালা প্রস্তুত হলে কমান্ড-প্রম্পটে ফেরে। প্রতিটি বিন্যাস আলাদা চিহ্নিত
+প্রদর্শন ব্যবহার করে, তাই একাধিক গেস্ট পাশাপাশি চলতে পারে। চালুর বার্তা
+`~/.local/share/ternux/session/desktop.log`-এ থাকে; লগ ১ মেগাবাইট হলে আগের
+ফাইল ঘুরিয়ে রাখা হয়। `tx status`, `tx stop` বা `tx logs desktop tail` দিয়ে
+সেশন দেখুন, বেছে বন্ধ করুন বা লগ পড়ুন। `tx stop` চালু গেস্ট/প্রদর্শনের তালিকা
+দেখিয়ে ফাঁক বা কমা দিয়ে আলাদা নাম/নম্বর নিতে পারে; `0` দিলে বাতিল হয়।
+`tx stop db`, `tx stop ub` ও `tx stop alp` নির্দিষ্ট গেস্ট বন্ধ করে;
+`tx stop --all` সব বন্ধ করে। অ্যান্ড্রয়েডের মেমরি-চাপ পেছনের প্রক্রিয়া বন্ধ
+করতে পারে; এমন হলে টার্মাক্স:এক্স১১ আবার খুলুন।
 
-### Termux:X11-এ কিবোর্ড ইনপুট
+### টার্মাক্স:এক্স১১-এ কিবোর্ড ইনপুট
 
-Android soft keyboard থেকে terminal ও অন্য X11 app-এ text পাঠাতে Ternux desktop শুরুর আগে Termux:X11-এর `enforceCharBasedInput` চালু করে। এই setting প্রয়োগ করতে `tx restart` চালান। Upgrade-এর পরও input না এলে একবার `ternux restart` দিন, যাতে নতুন setting-সহ X11 server শুরু হয়।
+অ্যান্ড্রয়েডের নরম কিবোর্ড থেকে টার্মিনাল ও অন্য এক্স১১ অ্যাপে লেখা পাঠাতে
+টার্নাক্স ডেস্কটপ শুরুর আগে টার্মাক্স:এক্স১১-এর `enforceCharBasedInput` চালু
+করে। এই বিন্যাস কার্যকর করতে `tx restart` দিন। হালনাগাদের পরও লেখা না এলে
+একবার `ternux restart` দিন, যাতে নতুন বিন্যাসসহ এক্স১১ সার্ভার চালু হয়।
 
 ## দৈনিক নিয়ন্ত্রণ
 
@@ -37,45 +44,48 @@ Android soft keyboard থেকে terminal ও অন্য X11 app-এ text �
 
 | কমান্ড | কী করে |
 |---|---|
-| `xgo` | Installed guest দেখিয়ে Ternux desktop বাছতে দেয় |
-| `killx` | চলমান desktop থেকে একটি বা একাধিক বেছে বন্ধ |
-| `db` / `dbr` / `dbroot` | Debian user / root shell |
-| `ub` / `ubr` / `ubroot` | Ubuntu user / root shell |
-| `kali` / `kalir` / `kaliroot` | Kali user / root shell |
-| `alp` / `alpr` / `alproot` | Alpine user / root shell |
+| `tx start debian ubuntu` | একসঙ্গে একাধিক গেস্টের ডেস্কটপ চালায় |
+| `tx stop debian` / `tx stop --all` | একটি বা সব ডেস্কটপ বন্ধ করে |
+| `db` / `dbr` / `dbroot` | ডেবিয়ানের সাধারণ বা রুট শেল |
+| `ub` / `ubr` / `ubroot` | উবুন্টুর সাধারণ বা রুট শেল |
+| `kali` / `kalir` / `kaliroot` | কালির সাধারণ বা রুট শেল |
+| `alp` / `alpr` / `alproot` | আল্পাইনের সাধারণ বা রুট শেল |
 | `tx` | `ternux` সিএলআই চালানোর সংক্ষিপ্ত কমান্ড |
 | `terfetch` | হোস্ট বা গেস্টের সিস্টেম-তথ্য দেখায়; `--json` কাঠামোবদ্ধ ফল দেয় |
-| `sysmon` | CPU/RAM/GPU-নোডের দ্রুত চিত্র |
+| `sysmon` | প্রসেসর/মেমরি/জিপিইউ-নোডের দ্রুত চিত্র |
 | `clean-mesa` | শেডার ক্যাশ পরিষ্কার (ড্রাইভার বদলের পর) |
 
 **স্বাস্থ্যকর শুরু-শেষ রুটিন:**
 
-1. `xgo` দিয়ে guest বাছুন অথবা `tx start debian` (বা অন্য installed profile) চালান।
+1. `tx start debian` (বা অন্য ইনস্টল করা গেস্টের নাম) চালান।
 2. ডেস্কটপে অ্যাপগুলো স্বাভাবিকভাবে বন্ধ করুন।
-3. শেষে: Xfce4 থেকে লগ আউট করুন (Applications → Log Out), বা Termux পাশ
-   থেকে `killx` চালান। এতে সকেট পরিষ্কার হয়, পরের শুরু নিখুঁত হয়।
+3. শেষে এক্সএফসিই৪ থেকে বের হন (অ্যাপ্লিকেশন → লগ আউট), অথবা টার্মাক্স থেকে
+   `tx stop --all` চালান। এতে সকেট পরিষ্কার হয় এবং পরেরবার শুরু নির্ভরযোগ্য হয়।
 
-*কেন এত কসরত?* পড়ে থাকা X11 সকেট বা জম্বি PulseAudio প্রসেস পরের সেশনকে
-মৃত সার্ভিসের ওপর "শুরু" করিয়ে দেয় — ডেস্কটপ আসে, কিন্তু অডিও বা ডিসপ্লে
-অদ্ভুত আচরণ করে। সেশন পরিষ্কারভাবে বন্ধ রাখলে ব্যাটারি বাঁচে এবং পরের start নির্ভরযোগ্য হয়।
+*কেন এত ধাপ?* পড়ে থাকা এক্স১১ সকেট বা আটকে থাকা পালসঅডিও প্রক্রিয়া পরের
+সেশনকে মৃত পরিষেবার ওপর চালু করায়—ডেস্কটপ আসে, কিন্তু শব্দ বা পর্দা ঠিকমতো
+কাজ করে না। সেশন পরিষ্কারভাবে বন্ধ রাখলে ব্যাটারি বাঁচে এবং পরের চালু নির্ভরযোগ্য হয়।
 
-### Android microphone input
+### অ্যান্ড্রয়েড মাইক্রোফোন
 
-Desktop-এ PulseAudio-এর OpenSL ES source দিয়ে Android mic guest app-এ পাওয়া
-যায়। Guest app প্রথম capture চাইলে Android Termux-এর microphone permission
-চাইতে পারে; দরকার হলে **Settings → Apps → Termux → Permissions → Microphone**
-অনুমতি দিন। Idle অবস্থায় কোনো recording শুরু হয় না; guest app capture চাইলে
-source ব্যবহৃত হয়। Volume Control খোলা থাকলে live input meter দেখানোর জন্য
-সেটিও source পড়ে; app বন্ধ করলে stream ছেড়ে দেয় এবং source আবার idle হয়। Idle
-desktop mic record করতে থাকে না। Termux:API-এর `termux-microphone-record` কেবল
-file-এ record করে, live PulseAudio input stream দেয় না—তাই desktop-এর mic source
-সেটি নয়। Capture চলার সময় Android-এর microphone privacy indicator দেখা যায়। Default Ternux Sound Recorder Start চাপার পরই capture করে; AAC/M4A default, চাইলে Debian-এর FFmpeg দিয়ে local MP3 export করে। File `~/Music/Ternux`-এ থাকে।
+ডেস্কটপে পালসঅডিওর ওপেন-এসএল-ইএস উৎস দিয়ে অ্যান্ড্রয়েডের মাইক্রোফোন গেস্ট
+অ্যাপে পাওয়া যায়। গেস্ট অ্যাপ প্রথমবার শব্দ ধারণ চাইলে অ্যান্ড্রয়েডে
+টার্মাক্সের মাইক্রোফোন অনুমতি চাইতে পারে; দরকার হলে **সেটিংস → অ্যাপ → টার্মাক্স
+→ অনুমতি → মাইক্রোফোন** চালু করুন। নিষ্ক্রিয় অবস্থায় কোনো ধারণ শুরু হয় না;
+গেস্ট অ্যাপ চাইলে উৎসটি ব্যবহৃত হয়। শব্দ-নিয়ন্ত্রণ খোলা থাকলে চলতি শব্দমাত্রা
+দেখাতে সেটিও উৎস পড়ে; অ্যাপ বন্ধ করলে ধারাটি ছেড়ে দেয় এবং উৎস নিষ্ক্রিয় হয়।
+ডেস্কটপ নিষ্ক্রিয় অবস্থায় মাইক্রোফোন ধরে রাখে না। টার্মাক্স:এপিআই-এর
+`termux-microphone-record` শুধু ফাইলে শব্দ ধরে, সরাসরি পালসঅডিও ধারায় দেয়
+না—তাই সেটি ডেস্কটপের মাইক্রোফোন উৎস নয়। ধারণ চলার সময় অ্যান্ড্রয়েডের
+মাইক্রোফোন গোপনীয়তা-চিহ্ন দেখা যায়। টার্নাক্সের শব্দ-রেকর্ডার চালু করার পরই
+ধারণ শুরু করে; পূর্বনির্ধারিত ফাইল এএসি/এম৪এ, চাইলে ডেবিয়ানের এফএফএমপেগ দিয়ে
+স্থানীয় এমপি৩ করা যায়। ফাইল `~/Music/Ternux`-এ থাকে।
 
-Install-এর সময় Android Termux:API app-এর microphone permission চাওয়ার জন্য
-একবার private temporary file-এ সর্বোচ্চ এক সেকেন্ডের probe চলে; শেষে probe থেমে
-file মুছে যায়। এটি Termux:API app-এর permission—Termux app-এর OpenSL ES source
-permission আলাদা। Desktop-এর live input এখনও on-demand OpenSL ES source-ই ব্যবহার
-করে; Termux:API command live PulseAudio stream দেয় না।
+ইনস্টলের সময় টার্মাক্স:এপিআই অ্যাপের মাইক্রোফোন অনুমতি চাওয়ার জন্য একবার
+ব্যক্তিগত অস্থায়ী ফাইলে সর্বোচ্চ এক সেকেন্ডের পরীক্ষা চলে; শেষে পরীক্ষা থেমে
+ফাইল মুছে যায়। এটি টার্মাক্স:এপিআই অ্যাপের অনুমতি—টার্মাক্স অ্যাপের ওপেন-
+এসএল-ইএস উৎসের অনুমতি আলাদা। ডেস্কটপের সরাসরি শব্দ ধারণ এখনো চাহিদামতো
+ওপেন-এসএল-ইএস উৎসই ব্যবহার করে; টার্মাক্স:এপিআই কমান্ড সরাসরি পালসঅডিও ধারা দেয় না।
 
 টার্মাক্স:এপিআই-এর আলাদা মাইক্রোফোন অনুমতি পরীক্ষা বা চাইতে `tx mic` চালান। এটি
 সর্বোচ্চ এক সেকেন্ডের অস্থায়ী পরীক্ষা-রেকর্ডিং চালিয়ে রেকর্ডার বন্ধ করে এবং
@@ -89,61 +99,89 @@ permission আলাদা। Desktop-এর live input এখনও on-demand O
 অ্যান্ড্রয়েড ক্যামেরা ব্যবহার করে গেস্টের ফাইল ব্যবস্থাপক থেকে তোলা ছবি খুলুন।
 টার্মাক্স এবং টার্মাক্স:এপিআই-এর অ্যান্ড্রয়েড অনুমতি আলাদা।
 
-Xfce-এর **About → System** page CPU model name পড়ে `/proc/cpuinfo` থেকে।
-Android সেখানে শুধু ARM part ID দিলে Ternux launcher live `lscpu` থেকে চেনা
-model name যোগ করে এবং Android SoC identifier দেখায়। অচেনা model অনুমান না করে
-unavailable হিসেবে দেখানো হয়।
+এক্সএফসিইর **পরিচিতি → ব্যবস্থা** পাতায় প্রসেসরের নাম `/proc/cpuinfo` থেকে
+নেয়। অ্যান্ড্রয়েড শুধু এআরএম অংশ-পরিচয় দিলে টার্নাক্স লঞ্চার চলতি `lscpu`
+থেকে পরিচিত প্রসেসরের নাম যোগ করে এবং অ্যান্ড্রয়েডের এসওসি পরিচয় দেখায়।
+অচেনা প্রসেসরের নাম অনুমান না করে অনুপলভ্য দেখায়।
 
-### অডিও ও VLC কন্ট্রোল
+### অডিও ও ভিএলসি নিয়ন্ত্রণ
 
-Fresh install-এ Xfce জুড়ে Ternux-এর graphite-emerald GTK 2/3/4 ও Xfwm theme এবং Qt 5 GTK platform theme, neutral Adwaita fallback-সহ branded app, folder, Thunar action, category ও panel icon, Ternux panel এবং wallpaper default apply হয়। Firefox ESR, Blender, GIMP, Krita, Inkscape, Audacity, Geany ও LibreOffice-এর মতো optional GUI app-এর branded icon alias আছে; base Evince PDF reader-এরও নিজস্ব icon আছে। Common Thunar action-গুলো নিজস্ব icon context-এ থাকে। পনেরোটি portrait-first wallpaper landscape-এ aspect ratio ঠিক রাখে। অন্য toolkit ব্যবহার করা app নিজস্ব styling রাখতে পারে। PulseAudio Volume Control Debian-এর packaged application entry ও একই desktop session ব্যবহার করে। Termux:X11 session-এ Xfwm compositing বন্ধ থাকে, কারণ এটি চালু থাকলে পুরো desktop black হতে পারে। VLC ডিফল্টে full interface চালায়, তাই playback control দেখা যায়। Android shared storage managed guest-এ default-এ `/sdcard` হিসেবে mount হয়; model সরাসরি ওই path থেকে ব্যবহার করা যায়। path না থাকলে Termux-এ `termux-setup-storage` চালান।
+পরিষ্কার ইনস্টলে এক্সএফসিই জুড়ে টার্নাক্সের গ্রাফাইট-এমেরাল্ড জিটিকে ২/৩/৪
+ও এক্সএফডব্লিউএম নকশা, কিউটি ৫ জিটিকে প্ল্যাটফর্ম নকশা, নিরপেক্ষ অ্যাডওয়াইটা
+বিকল্পসহ নিজস্ব অ্যাপ/ফোল্ডার/থুনার কাজ/বিভাগ/প্যানেল আইকন, টার্নাক্স প্যানেল
+ও পটভূমিচিত্র প্রয়োগ হয়। ফায়ারফক্স ইএসআর, ব্লেন্ডার, জিম্প, ক্রিটা,
+ইনস্কেপ, অডাসিটি, জিনি ও লিব্রেঅফিসের মতো ঐচ্ছিক গ্রাফিক্যাল অ্যাপের নিজস্ব
+আইকন-নাম আছে; মূল পিডিএফ পাঠক ইভিন্সেরও নিজস্ব আইকন আছে।
+থুনারের সাধারণ কাজগুলোতে নিজস্ব আইকন থাকে। পনেরোটি লম্বাটে পর্দার উপযোগী
+পটভূমিচিত্র আড়াআড়ি পর্দাতেও অনুপাত ঠিক রাখে। অন্য সরঞ্জাম-সমষ্টির অ্যাপ
+নিজস্ব নকশা রাখতে পারে। পালসঅডিও শব্দ-নিয়ন্ত্রণ ডেবিয়ানের প্যাকেজভুক্ত
+অ্যাপ-তালিকা ও একই ডেস্কটপ সেশন ব্যবহার করে। টার্মাক্স:এক্স১১ সেশনে
+এক্সএফডব্লিউএমের স্বচ্ছতা-প্রভাব বন্ধ থাকে, কারণ চালু থাকলে পুরো ডেস্কটপ কালো
+হতে পারে। ভিএলসি পূর্ণ নিয়ন্ত্রণ-জানালায় চলে, তাই চালানোর নিয়ন্ত্রণ দেখা যায়।
+অ্যান্ড্রয়েডের ভাগ করা সংরক্ষণ-জায়গা পরিচালিত গেস্টে পূর্বনির্ধারিতভাবে
+`/sdcard`-এ যুক্ত হয়; মডেল সরাসরি ওই পথ থেকে ব্যবহার করা যায়। পথটি না থাকলে
+টার্মাক্সে `termux-setup-storage` চালান।
 
-## XFCE Task Manager-এর performance
+## এক্সএফসিই কাজ-ব্যবস্থাপকের গতি
 
-কম resource-এর Android device-এ process scan কমাতে Task Manager শুরুতে বর্তমান user-এর process list, flat view এবং এক সেকেন্ডের refresh interval ব্যবহার করে। System বা অন্য user-এর process দেখতে **Show all processes** চালু করুন। এই default একবারই apply হয়; পরের preference overwrite করে না।
+কম সম্পদের অ্যান্ড্রয়েড যন্ত্রে প্রক্রিয়া-অনুসন্ধান কমাতে কাজ-ব্যবস্থাপক শুরুতে
+বর্তমান ব্যবহারকারীর প্রক্রিয়া-তালিকা, সমতল দৃশ্য ও এক সেকেন্ডের হালনাগাদ-ব্যবধান
+ব্যবহার করে। ব্যবস্থা বা অন্য ব্যবহারকারীর প্রক্রিয়া দেখতে **সব প্রক্রিয়া
+দেখান** চালু করুন। এই পূর্বনির্ধারিত পছন্দ একবারই প্রয়োগ হয়; পরে আপনার পছন্দ
+বদলায় না।
 
 ---
 
-## ternux CLI — স্থায়ী ইন্টারফেস
+## টার্নাক্স কমান্ড-লাইন — স্থায়ী প্রবেশপথ
 
-ternux ইনস্টল হলে `ternux` কমান্ডই আপনার একমাত্র প্রবেশপথ — ইনস্টল,
-ডায়াগনস্টিক, মেরামত, বেঞ্চমার্ক ও দৈনিক ডেস্কটপ ব্যবস্থাপনার জন্য।
+টার্নাক্স ইনস্টল হলে `ternux` হলো ইনস্টল, পরীক্ষা, মেরামত, মাপজোখ ও দৈনন্দিন
+ডেস্কটপ ব্যবস্থাপনার প্রধান কমান্ড।
 
 ```bash
-tx distro list         # সব installed guest ও desktop recipe status
-tx distro search alpine # OCI image খুঁজুন
-tx distro uninstall NAME [--yes]   # Ternux-managed guest সরান
-ternux install --distros debian,ubuntu  # দুটো আলাদা guest install
-tx start                 # saved guest চালু
-tx start ubuntu         # Ubuntu চালু
-tx start ub              # একই Ubuntu profile-এর ছোট নাম
-tx start alp             # Alpine চালু
-tx stop ubuntu           # Ubuntu বন্ধ
-tx restart               # ডেস্কটপ পুনরায় চালু
+ternux install          # পূর্ণ ইনস্টল (install.sh চালায়)
+tx distro list         # ইনস্টল করা সব গেস্ট ও ডেস্কটপ বিন্যাসের অবস্থা
+tx distro search alpine # ওসিআই ছবি খুঁজুন
+ub                      # উবুন্টুর সাধারণ ব্যবহারকারীর শেল; ubroot রুট শেল খোলে
+alp                     # আল্পাইনের সাধারণ ব্যবহারকারীর শেল; alproot রুট শেল খোলে
+archx                   # আর্চ লিনাক্সের সাধারণ ব্যবহারকারীর শেল; archroot রুট শেল খোলে
+fed                     # ফেডোরার সাধারণ ব্যবহারকারীর শেল; fedr রুট শেল খোলে
+suse                    # ওপেনসুসের সাধারণ ব্যবহারকারীর শেল; suser রুট শেল খোলে
+vsh                     # ভয়েডের সাধারণ ব্যবহারকারীর শেল; vroot রুট শেল খোলে
+kali                    # কালির সাধারণ ব্যবহারকারীর শেল; kalir রুট শেল খোলে
+tx distro shell NAME    # বিন্যাসের ব্যবহারকারী শেল (সাধারণ ছবিতে ছবির পূর্বনির্ধারিত ব্যবহারকারী)
+tx distro exec ubuntu -- uname -a # গেস্টে কমান্ড চালায়
+tx distro image-install alpine:latest # সাধারণ আল্পাইন গেস্ট বসায়
+tx distro uninstall NAME [--yes]   # টার্নাক্স-পরিচালিত গেস্ট সরান
+tx install --distros debian,ubuntu,kali,alpine # আলাদা ডেস্কটপ গেস্ট বসান
+tx distro image-install alpine:latest # সাধারণ আল্পাইন গেস্ট
+tx start                 # সংরক্ষিত গেস্ট চালু
+tx start ubuntu         # উবুন্টু চালু
+tx start ub              # উবুন্টু বিন্যাসের সংক্ষিপ্ত নাম
+tx start alp             # আল্পাইন চালু
+tx stop ubuntu           # উবুন্টু বন্ধ
+ternux restart          # ডেস্কটপ সেশন পুনরায় চালু
 ternux doctor           # সিস্টেম ডায়াগনস্টিক
-ternux doctor --json    # machine-readable diagnostic
-ternux repair           # সাধারণ সমস্যা সমাধান
-ternux verify           # ইনস্টলেশন যাচাই
-ternux benchmark        # সংক্ষিপ্ত installation health/renderer check
-ternux profile          # ডিভাইস প্রোফাইল
-ternux profile save     # বর্তমান কনফিগ সেভ
-ternux backend          # GPU ব্যাকএন্ড দেখা/বদলানো
-ternux backend set virgl    # VirGL-এ স্যুইচ
-ternux gpu update           # যাচাইকৃত Debian Turnip driver refresh
-ternux update           # সর্বশেষ stable release tag থেকে CLI আপডেট
-ternux logs             # লগ ফাইল দেখা
-ternux info             # সিস্টেম তথ্য
-ternux info --json      # machine-readable তথ্য
+ternux doctor --json    # যন্ত্রে পড়ার উপযোগী পরীক্ষা
+ternux repair           # সাধারণ সমস্যা স্বয়ংক্রিয়ভাবে ঠিক করে
+ternux verify           # ইনস্টলেশন সম্পূর্ণ কি না যাচাই করে
+ternux benchmark        # জিপিইউ মাপজোখ চালায়
+ternux profile          # যন্ত্রের বিন্যাস দেখায় বা সংরক্ষণ করে
+ternux backend set virgl    # ভিরজিএলে বদল
+ternux gpu update           # যাচাইকৃত ডেবিয়ান টার্নিপ চালক হালনাগাদ
+ternux update           # সর্বশেষ স্থিতিশীল সংস্করণ থেকে কমান্ড হালনাগাদ
+ternux logs             # লগ দেখা ও ব্যবস্থাপনা
+ternux info --json      # যন্ত্রে পড়ার উপযোগী তথ্য
 ternux state            # ইনস্টলেশন অবস্থা
-ternux uninstall        # কম্পোনেন্ট অপসারণ
+ternux uninstall        # নির্দিষ্ট অংশ অপসারণ
 ```
 
-ডিসপ্যাচার global flag শনাক্ত করে, তবে সব command JSON output দেয় না।
-নথিভুক্ত schema-এর জন্য [CLI reference](CLI.html) দেখুন।
+ডিসপ্যাচার বৈশ্বিক বিকল্প চিনতে পারে, তবে সব কমান্ড জেসন ফল দেয় না।
+নথিভুক্ত ছকের জন্য [কমান্ড-লাইন নির্দেশিকা](CLI.html) দেখুন।
 
-### Structured JSON output
+### কাঠামোবদ্ধ জেসন ফল
 
-গুরুত্বপূর্ণ কমান্ডগুলো AI অ্যাসিস্ট্যান্ট ও অটোমেশনের জন্য JSON আউটপুট দেয়:
+গুরুত্বপূর্ণ কমান্ডগুলো কৃত্রিম বুদ্ধিমত্তা সহায়ক ও স্বয়ংক্রিয় কাজের জন্য
+জেসন ফল দেয়:
 
 ```bash
 ternux doctor --json | jq '.issues[]'
@@ -153,102 +191,103 @@ ternux benchmark --json | jq '.glmark2_score, .vkmark_score'
 
 ---
 
-## কোথায় কী থাকে (এবং কেন)
+## কোন ফাইল কোথায় থাকে
 
 ```text
-Termux হোস্ট                         PRoot Debian
+টার্মাক্স হোস্ট                     প্রুট ডেবিয়ান
 ────────────                         ────────────
 ~/x.sh             লঞ্চার            /home/<user>     আপনার হোম
-~/.ternux-state    ইনস্টল স্টেট      /root            রুটের হোম
-~/storage/shared   Android স্টোরেজ   /sdcard          একই storage; guest-এ default mount
+~/.ternux-state    ইনস্টল-অবস্থা     /root            রুটের হোম
+~/storage/shared   অ্যান্ড্রয়েড সংরক্ষণ  /sdcard        একই জায়গা; গেস্টে পূর্বনির্ধারিত সংযোগ
 ```
 
-- **Debian হোম** কন্টেইনারের ভেতরে — `proot-distro backup`-এর সাথে যায়,
-  কন্টেইনার ডিলিট হলে মুছে যায়।
-- **`~/storage/shared`** (Termux) আর **`/sdcard`** (Debian) Android shared
-  storage-কে বোঝায়। Ternux permission থাকলে managed guest-এ `/sdcard` হিসেবে এটি mount করে। mount না থাকলে Termux-এ `termux-setup-storage` চালান।
-- **দামি সোর্স কোড** Git রিমোটেও রাখুন। ফোন হারানো সহজ, কন্টেইনার ডিলিট
-  করা সহজ — GitHub নয়।
+- **ডেবিয়ান হোম** কন্টেইনারের ভেতরে থাকে—`proot-distro backup`-এর সঙ্গে
+  অন্তর্ভুক্ত হয়, কন্টেইনার মুছলে হারিয়ে যায়।
+- **`~/storage/shared`** (টার্মাক্স) ও **`/sdcard`** (ডেবিয়ান) একই অ্যান্ড্রয়েড
+  ভাগ করা সংরক্ষণস্থল। টার্নাক্সের অনুমতি থাকলে পরিচালিত গেস্টে `/sdcard` হিসেবে
+  যুক্ত হয়। না থাকলে টার্মাক্সে `termux-setup-storage` চালান।
+- **গুরুত্বপূর্ণ উৎস-কোড** গিটের দূরবর্তী ভান্ডারেও রাখুন। ফোন বা কন্টেইনার হারানো
+  সহজ; গিটহাব হারানো সহজ নয়।
 
 ---
 
-## ওয়ার্কলোড
+## কাজের ধরন
 
 ### দৈনন্দিন ডেস্কটপ
 
-ব্রাউজার, ফাইল ম্যানেজার, টার্মিনাল, এডিটর, আর্কাইভ, অফিস ডক — ডিফল্ট
-Xfce4-তে সবই আছে। আরও চাইলে `sudo apt install <pkg>`।
+ব্রাউজার, ফাইল ব্যবস্থাপক, টার্মিনাল, সম্পাদনা-সরঞ্জাম, সংরক্ষণাগার ও অফিস
+নথি—পূর্বনির্ধারিত এক্সএফসিই৪-তে আছে। আরও চাইলে `sudo apt install <pkg>`।
 
-*টিপস:* Xfce4 → Settings → Appearance-এ ডার্ক থিম আর প্যানেল অটো-হাইড করুন —
-ফোনের স্ক্রিন ছোট, আর (AMOLED-এ) ডার্ক থিম ব্যাটারি বাঁচায়।
+*পরামর্শ:* এক্সএফসিই৪ → বিন্যাস → চেহারায় গাঢ় নকশা বেছে প্যানেল আড়াল করুন—
+ফোনের পর্দা ছোট, আর অ্যামোলেড পর্দায় গাঢ় রং ব্যাটারি বাঁচায়।
 
-<h3 id="lightweight-blender">Blender viewport কাজ</h3>
+<h3 id="lightweight-blender">ব্লেন্ডার দৃশ্যপট কাজ</h3>
 
-`bash install.sh --with-blender` দিয়ে install, desktop start, তারপর Debian
-terminal-এ:
+`bash install.sh --with-blender` দিয়ে বসিয়ে ডেস্কটপ চালু করুন, তারপর ডেবিয়ান
+টার্মিনালে:
 
 ```bash
 blender
 ```
 
-Captured Blender 4.3.2 system report renderer হিসেবে
-`zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP))` দেখেছে। এটি X11 **OpenGL
-viewport route**-এর evidence; Cycles GPU result নয়। একই report-এ device type
-`SOFTWARE` এবং কোনো Cycles GPU device ছিল না। Scene modest রাখুন, ঘনঘন save
-করুন, archived glmark2 score থেকে render speed অনুমান করবেন না।
+ধারণ করা ব্লেন্ডার ৪.৩.২ ব্যবস্থার প্রতিবেদনে রেন্ডারার হিসেবে
+`zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP))` দেখা গেছে। এটি এক্স১১
+**ওপেনজিএল দৃশ্যপট-পথের** প্রমাণ; সাইকেলসের জিপিইউ ফল নয়। একই প্রতিবেদনে
+যন্ত্রের ধরন `SOFTWARE` ছিল এবং সাইকেলসের কোনো জিপিইউ যন্ত্র ছিল না। দৃশ্য
+ছোট রাখুন, ঘনঘন সংরক্ষণ করুন, সংরক্ষিত `glmark2` ফল থেকে রেন্ডারের গতি অনুমান
+করবেন না।
 
-নিজের baseline record করুন:
+নিজের প্রাথমিক মাপ নথিভুক্ত করুন:
 
 ```bash
 glxinfo -B | tee ~/blender-gl-baseline.txt
 blender --version | tee ~/blender-version.txt
 ```
 
-### Adreno GPU-তে Blender render
+### অ্যাড্রেনো জিপিইউতে ব্লেন্ডার রেন্ডার
 
-প্রতিষ্ঠিত Termux/PRoot Redmi workstation-এ default render path হলো
-**Zink/Turnip দিয়ে GPU offload-সহ EEVEE Next**। এই device-এ Cycles GPU
-প্রমাণিত নয়। `--with-blender` Xvfb-ও install করে। Headless render-এ X11 GL
-context দরকার: virtual display চালু করে Blender-এ দুইটি environment variable
-দিন:
+পরীক্ষিত টার্মাক্স/প্রুট রেডমি ওয়ার্কস্টেশনে পূর্বনির্ধারিত রেন্ডার-পথ হলো
+**জিঙ্ক/টার্নিপ দিয়ে জিপিইউ ব্যবহারসহ ইভি নেক্সট**। এই যন্ত্রে সাইকেলসের জিপিইউ
+যাচাই করা হয়নি। `--with-blender` এক্সভিএফবিও বসায়। পর্দা ছাড়া রেন্ডারে
+এক্স১১ জিএল প্রসঙ্গ দরকার: কাল্পনিক প্রদর্শন চালু করে ব্লেন্ডারকে দুটি
+পরিবেশ-বিকল্প দিন:
 
 ```bash
 Xvfb :9 -screen 0 1280x720x24 &
 DISPLAY=:9 GALLIUM_DRIVER=zink blender -b --factory-startup --python render.py
 ```
 
-`DISPLAY` বা `GALLIUM_DRIVER=zink` বাদ দেবেন না: মাপা setup-এ এই path ছাড়া
-GPU render হয়নি। দীর্ঘ run-এর আগে `glxinfo -B`-তে Zink / Adreno / Turnip
-renderer যাচাই করুন। সম্পূর্ণ reproducible workflow ও সীমা [cartoon pipeline
-guide-এ](https://github.com/soobujmiah/ternux/blob/main/experiments/cartoon-pipeline/README.md)
-আছে।
-Agent দিয়ে local MCP-তে render চালানোর জন্য [Blender GPU MCP guide](BLENDER-MCP.html) দেখুন।
+`DISPLAY` বা `GALLIUM_DRIVER=zink` বাদ দেবেন না: মাপা বিন্যাসে এই পথ ছাড়া
+জিপিইউ রেন্ডার হয়নি। দীর্ঘ কাজের আগে `glxinfo -B`-তে জিঙ্ক/অ্যাড্রেনো/টার্নিপ
+রেন্ডারার যাচাই করুন। পুনরুৎপাদনযোগ্য কাজের ধাপ ও সীমা [কার্টুন পাইপলাইন
+নির্দেশিকায়](https://github.com/soobujmiah/ternux/blob/main/experiments/cartoon-pipeline/README.md)
+আছে। স্থানীয় এমসিপি দিয়ে এজেন্টের রেন্ডারের জন্য [ব্লেন্ডার জিপিইউ এমসিপি নির্দেশিকা](BLENDER-MCP.html) দেখুন।
 
-<h3 id="local-ai-with-vulkan">Vulkan-সহ llama.cpp</h3>
+<h3 id="local-ai-with-vulkan">ভলকান-সহ লামা.সিপিপি</h3>
 
-`--with-llm` Debian-এর ভেতরে llama.cpp Vulkan backend build করে। ব্যবহার করার
-অধিকার আছে এমন GGUF model দিন, তারপর binary/device ও performance আলাদা করুন:
+`--with-llm` ডেবিয়ানের ভেতরে লামা.সিপিপির ভলকান ব্যাকএন্ড তৈরি করে। ব্যবহারের
+অধিকার আছে এমন জিজিইউএফ মডেল দিন, তারপর প্রোগ্রাম/যন্ত্র-সক্ষমতা ও গতি আলাদা করে যাচাই করুন:
 
 ```bash
 db
 cd ~/llama.cpp
 ./build/bin/llama-cli --list-devices
 ./build/bin/llama-cli -m /path/to/model.gguf -ngl 99 \
-  -p "Zink দুই বাক্যে ব্যাখ্যা করুন।" -n 128
+  -p "Explain Zink in two sentences." -n 128
 ./build/bin/llama-bench -m /path/to/model.gguf -ngl 99
 ```
 
-Submitted note সফল Vulkan build/use report করে, reproducible token-rate table
-নয়। `--list-devices` capability evidence; `llama-bench` performance evidence।
-Exact model/quantisation, context, GPU layer, commit, prompt/prefill ও generation
-rate, memory এবং temperature সংরক্ষণ করুন। কোনো model size সব ৬–৮ GB ফোনে
-চলার guarantee নেই—Android, desktop, model weight, KV cache ও Vulkan allocation
-একই RAM ভাগ করে।
+জমা দেওয়া নথিতে ভলকান দিয়ে তৈরি ও ব্যবহারের সফলতার কথা আছে, পুনরুৎপাদনযোগ্য
+টোকেন-গতির তালিকা নেই। `--list-devices` সক্ষমতার প্রমাণ; `llama-bench` গতির
+প্রমাণ। নির্দিষ্ট মডেল/পরিমাণ-নির্ধারণ, প্রসঙ্গ, জিপিইউ স্তর, সংস্করণ-চিহ্ন,
+ইনপুট প্রস্তুতি ও উৎপাদন-গতি, মেমরি এবং তাপমাত্রা লিখে রাখুন। কোনো মডেলের
+আকারই সব ৬–৮ জিবি ফোনে চলার নিশ্চয়তা দেয় না—অ্যান্ড্রয়েড, ডেস্কটপ,
+মডেলের ওজন, কেভি ক্যাশ ও ভলকান বরাদ্দ একই র‍্যাম ভাগ করে।
 
-### Vulkan-সহ stable-diffusion.cpp
+### ভলকান-সহ স্টেবল ডিফিউশন.সিপিপি
 
-এটি installer profile নয়, manual developer workload। Submitted note শুধু
-Vulkan-enabled build সম্পন্ন হওয়া report করে:
+এটি ইনস্টলারের বিন্যাস নয়, হাতে করা উন্নয়নমূলক কাজ। জমা দেওয়া নথিতে শুধু
+ভলকান-সক্ষম নির্মাণ শেষ হওয়ার কথা বলা হয়েছে:
 
 ```bash
 db
@@ -263,69 +302,71 @@ cmake --build build --config Release -j2
 ./build/bin/sd-cli --help
 ```
 
-Successful build image generation বা speed প্রমাণ করে না। Defensible result-এর
-জন্য exact model/commit, resolution, step, sampler, seed, command, elapsed time,
-peak memory, temperature ও output image record করুন। Low resolution ও এক image
-দিয়ে শুরু করুন; অস্বস্তিকর তাপ বা Android process reclaim হলে থামুন।
+সফল নির্মাণ ছবি তৈরি বা গতি প্রমাণ করে না। যাচাইযোগ্য ফলের জন্য নির্দিষ্ট
+মডেল/সংস্করণ-চিহ্ন, রেজল্যুশন, ধাপ, নমুনাকারী, বীজ, কমান্ড, সময়, সর্বোচ্চ
+মেমরি, তাপমাত্রা ও তৈরি ছবি সংরক্ষণ করুন। কম রেজল্যুশন ও একটি ছবি দিয়ে শুরু
+করুন; অস্বস্তিকর তাপ বা অ্যান্ড্রয়েড প্রক্রিয়া বন্ধ করলে কাজ থামান।
 
 <h3 id="development">ডেভেলপমেন্ট</h3>
 
-`--with-dev` Git, Node.js, Python (`venv` সহ) ও বিল্ড টুলস ইনস্টল করে।
+`--with-dev` গিট, নোড.জেএস, পাইথন (`venv` সহ) ও নির্মাণ-সরঞ্জাম বসায়।
 কন্টেইনারে টার্মিনাল-ভিত্তিক কোডিং অ্যাসিস্ট্যান্ট চলে; অ্যাকাউন্ট ও
-লাইসেন্স শর্ত আপনার আর প্রোভাইডারের মধ্যে।
+লাইসেন্সের শর্ত আপনার ও সেবাদাতার মধ্যে।
 
-*টিপস:* কন্টেইনারে (`db`) `git` চালান, তবে যেখান থেকে সুবিধা সেখানে পুশ
-করুন। Termux permission থাকলে guest-এ Android shared storage `/sdcard` হিসেবে দেখা যায়।
+*পরামর্শ:* কন্টেইনারে (`db`) `git` চালান, তবে সুবিধামতো জায়গা থেকে দূরবর্তী
+ভান্ডারে পাঠান। টার্মাক্সের অনুমতি থাকলে গেস্টে অ্যান্ড্রয়েডের ভাগ করা
+সংরক্ষণস্থল `/sdcard` হিসেবে দেখা যায়।
 
 <h3 id="authorised-security-lab">অনুমোদিত সিকিউরিটি ল্যাব</h3>
 
-`--with-network` nmap ও tmux যোগ করে। **শুধু নিজের মালিকানাধীন বা লিখিত
-অনুমতিপ্রাপ্ত সিস্টেম, অ্যাপ ও নেটওয়ার্কে ব্যবহার করুন।**
+`--with-network` এনম্যাপ ও টিমাক্স যোগ করে। **শুধু নিজের মালিকানাধীন বা লিখিত
+অনুমতিপ্রাপ্ত ব্যবস্থা, অ্যাপ ও নেটওয়ার্কে ব্যবহার করুন।**
 
-*সীমা জানুন:* PRoot Debian ইউজারস্পেস দেয়, সীমাহীন ওয়্যারলেস নয়।
-মনিটর মোড, প্যাকেট ইনজেকশন ও র USB অ্যাক্সেস Android-এর কার্নেল নিয়মের
-আড়ালেই থাকে — নকশা অনুযায়ী।
+*সীমা জানুন:* প্রুট ডেবিয়ান ব্যবহারকারী-পরিসর দেয়, সীমাহীন তারবিহীন সুবিধা
+নয়। নজরদারি মোড, প্যাকেট প্রবেশ করানো ও সরাসরি ইউএসবি ব্যবহার অ্যান্ড্রয়েডের
+কার্নেল-নিয়মের আড়ালেই থাকে—নকশা অনুযায়ী।
 
 ---
 
 <h2 id="backups">ব্যাকআপ</h2>
 
 ```bash
-# Termux-এ — পুরো কন্টেইনারের স্ন্যাপশট:
+# টার্মাক্সে — পুরো কন্টেইনারের প্রতিলিপি:
 proot-distro backup debian --output ~/debian-backup.tar.gz
 
-# রিস্টোর:
+# ফিরিয়ে আনা:
 proot-distro restore debian ~/debian-backup.tar.gz
 
-# Android-পাশের ফাইলও আলাদা রাখুন — এগুলো কন্টেইনার ব্যাকআপে থাকে না:
+# অ্যান্ড্রয়েডের ফাইল আলাদা রাখুন — এগুলো কন্টেইনারের অনুলিপিতে থাকে না:
 tar -czf ~/storage-backup.tar.gz -C ~/storage/shared .
 ```
 
-*কখন ব্যাকআপ করবেন:* যাচাইকৃত ইনস্টলের পরপরই (আপনার পরিচিত-ভালো বেসলাইন),
-বড় পরীক্ষার আগে, আর `apt dist-upgrade`-এর আগে।
+*কখন অনুলিপি রাখবেন:* যাচাইকৃত ইনস্টলের পরপরই (পরিচিত-ভালো ভিত্তি), বড়
+পরীক্ষার আগে, আর `apt dist-upgrade`-এর আগে।
 
 ---
 
 ## পাওয়ার, তাপ ও দীর্ঘায়ু
 
-- Sustained compute-এর সঙ্গে fast charging দুইটি heat source যোগ করে। Charged
-  battery দিয়ে শুরু করুন; দ্রুত গরম হলে charger খুলুন, heat-trapping case
-  সরান, brightness কমান এবং খোলা বাতাসে ঠান্ডা হতে দিন। freezer/ice বা
-  condensation-prone cooling ব্যবহার করবেন না।
-- Bounded work বেছে নিন: `cmake --build build -j2`, একবারে এক image, modest
-  Blender scene এবং benchmark repetition-এর মাঝে বিরতি। বেশি thread সময়
-  কমাতে পারে, কিন্তু peak heat ও memory pressure বাড়ায়।
-- Termux:API app/package থাকলে `termux-battery-status` battery-temperature field
-  দেখাতে পারে; এটি SoC junction temperature নয়, শুধু একটি sensor। Android
-  thermal warning, sudden clock/FPS drop, charging pause, instability বা ধরতে
-  অস্বস্তিকর case—যেকোনোটি হলে workload থামিয়ে ঠান্ডা করুন।
-- Android 12+-এ killed build মানেই phantom policy নয়। Memory pressure ও OEM
-  battery restriction আগে দেখুন, তারপর [evidence-led troubleshooting](TROUBLESHOOTING.html#the-desktop-dies-silently)।
-- Launcher desktop চলাকালে wake-lock ধরে ও exit-এ ছাড়ে। Idle হলে session শেষ
-  করুন; wake-lock sleep আটকায় এবং battery খরচ করে।
-- দীর্ঘ render/generation, বড় build এবং বিশেষত mining ফোনের খারাপ workload।
-  Archived result sustained performance বা universally safe runtime প্রমাণ করে না।
+- দীর্ঘ সময় প্রসেসর চালানো আর দ্রুত চার্জ একসঙ্গে তাপ বাড়ায়। চার্জ থাকা
+  ব্যাটারি দিয়ে শুরু করুন; দ্রুত গরম হলে চার্জার খুলুন, তাপ আটকে রাখা খোলস
+  সরান, পর্দার উজ্জ্বলতা কমান এবং খোলা বাতাসে ঠান্ডা হতে দিন। বরফ বা ঘনীভবন
+  ঘটাতে পারে এমন শীতলকরণ ব্যবহার করবেন না।
+- সীমাবদ্ধ কাজ বেছে নিন: `cmake --build build -j2`, একবারে একটি ছবি, মাঝারি
+  ব্লেন্ডার দৃশ্য এবং বেঞ্চমার্কের প্রতিবারের মাঝে বিরতি। বেশি থ্রেড সময়
+  কমাতে পারে, তবে সর্বোচ্চ তাপ ও মেমরির চাপ বাড়ায়।
+- টার্মাক্স:এপিআই অ্যাপ/প্যাকেজ থাকলে `termux-battery-status` ব্যাটারির
+  তাপমাত্রা দেখাতে পারে; এটি এসওসি জংশন তাপমাত্রা নয়, শুধু একটি সেন্সরের
+  মাপ। অ্যান্ড্রয়েডের তাপ-সতর্কতা, হঠাৎ ঘড়ির গতি/চিত্র-হার কমা, চার্জ থামা,
+  অস্থিতিশীলতা বা ছুঁতে অস্বস্তিকর খোলস—যেকোনোটি হলে কাজ থামিয়ে ঠান্ডা করুন।
+- অ্যান্ড্রয়েড ১২ বা পরের সংস্করণে নির্মাণ-প্রক্রিয়া বন্ধ হলেই তা ফ্যান্টম
+  নীতি বোঝায় না। আগে মেমরির চাপ ও নির্মাতার ব্যাটারি-সীমা দেখুন, তারপর
+  [প্রমাণভিত্তিক সমস্যা-সমাধান](TROUBLESHOOTING.html#the-desktop-dies-silently) পড়ুন।
+- ডেস্কটপ চলাকালে লঞ্চার জেগে-থাকার তালা ধরে, বন্ধ হলে ছেড়ে দেয়। নিষ্ক্রিয়
+  হলে সেশন শেষ করুন; তালা ঘুম ঠেকায় এবং ব্যাটারি খরচ করে।
+- দীর্ঘ রেন্ডার/তৈরি, বড় নির্মাণ—বিশেষ করে খনন—ফোনের জন্য খারাপ কাজ।
+  সংরক্ষিত ফল দীর্ঘস্থায়ী গতি বা সর্বত্র নিরাপদ সময় প্রমাণ করে না।
 
 ---
 
-*ternux — Copyright (c) 2026 Sobuj Miah ([@soobujmiah](https://github.com/soobujmiah)) · Apache-2.0*
+*টার্নাক্স — স্বত্ব © ২০২৬ সোবুজ মিয়া ([@soobujmiah](https://github.com/soobujmiah)) · অ্যাপাচি-২.০*

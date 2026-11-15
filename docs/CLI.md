@@ -148,7 +148,7 @@ ternux storage revoke /sdcard/Llms
 Install or reinstall the full ternux desktop environment.
 
 ```bash
-ternux install [options]
+tx install [options]
 ```
 
 | Option | Description |
@@ -232,8 +232,8 @@ services remain available.
 Restart the desktop session (stop + 1 second delay + start).
 
 ```bash
-ternux restart
-ternux restart ubuntu
+tx restart
+tx restart ubuntu
 ```
 
 ### `tx doctor`

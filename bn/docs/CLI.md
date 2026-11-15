@@ -1,6 +1,6 @@
 ---
 title: "CLI রেফারেন্স"
-description: "ternux কমান্ড-লাইন ইন্টারফেসের রেফারেন্স — command, subcommand, global flag ও নথিভুক্ত JSON output।"
+description: "টার্নাক্সের কমান্ড-লাইন ইন্টারফেসের নির্দেশিকা—কমান্ড, উপকমান্ড, বৈশ্বিক বিকল্প ও নথিভুক্ত জেসন আউটপুট।"
 lang: "bn"
 alt_url: "/docs/CLI.html"
 ---
@@ -22,7 +22,7 @@ alt_url: "/docs/CLI.html"
 ## ব্যবহার
 
 ```bash
-ternux <command> [options] [subcommand]
+tx <command> [options] [subcommand]
 ```
 
 ## গ্লোবাল ফ্ল্যাগ
@@ -30,33 +30,34 @@ ternux <command> [options] [subcommand]
 | ফ্ল্যাগ | বিবরণ |
 |---------|--------|
 | `--help`, `-h` | যেকোনো কমান্ডের জন্য সাহায্য |
-| `--json` | structured output অনুরোধ; নিচে JSON-সহ নথিভুক্ত command-ই schema নিশ্চিত করে |
+| `--json` | যন্ত্রে পড়ার উপযোগী তথ্য চায়; নিচে জেসন-সহ দেখানো কমান্ডেই নির্দিষ্ট ছক নিশ্চিত |
 | `--verbose` | বিস্তারিত আউটপুট |
 | `--quiet` | অ-গুরুত্বপূর্ণ বার্তা বন্ধ |
 | `--version`, `-V` | ভার্সন তথ্য |
 
-Dispatcher command load করার আগে global flag চিনে, তাই command-এর আগে বা পরে
-দেওয়া যায়। কিন্তু সব command JSON schema দেয় না। `install`, live `logs tail`
-বা `uninstall`-এ `--json` দিয়ে structured output আশা করবেন না; নিচে JSON
-উদাহরণ আছে এমন command-এই ব্যবহার করুন। ওই path-গুলোর stdout একটি parseable
-JSON object, এবং backend value canonical `zink` বা `virgl`; পুরোনো
-`zink-turnip` শুধু compatibility input/state হিসেবে accepted। Shared
-dispatch/environment failure-এ `command: "error"`, `status: "fatal"` ও
-`message` থাকে; unknown command-এ `requested_command`-ও থাকে। `lib/core.sh`
-load হওয়ার আগের failure JSON বানাতে পারে না, তাই সেটি plain stderr।
+ডিসপ্যাচার কমান্ড চালুর আগে বৈশ্বিক বিকল্প চিনে, তাই কমান্ডের আগে বা পরে
+দেওয়া যায়। তবে সব কমান্ড জেসন ছক দেয় না। `install`, সরাসরি চলা `logs tail`
+বা `uninstall`-এ `--json` দিয়ে কাঠামোবদ্ধ তথ্য আশা করবেন না; এই পাতায় জেসন
+উদাহরণ দেওয়া কমান্ডেই বিকল্পটি ব্যবহার করুন। যেসব পথে জেসন দেওয়া আছে, সেগুলোর
+মানক আউটপুটে পড়ার উপযোগী একটি জেসন বস্তু থাকে এবং ব্যাকএন্ডের গ্রহণযোগ্য নাম
+`zink` বা `virgl`; পুরোনো `zink-turnip` শুধু সামঞ্জস্যের জন্য ইনপুট বা সংরক্ষিত
+অবস্থা হিসেবে গৃহীত হয়। সাধারণ কমান্ড-চালনা বা পরিবেশে ত্রুটির ফল
+`command: "error"`, `status: "fatal"` ও `message`-এ থাকে; অচেনা কমান্ডে
+`requested_command`-ও থাকে। `lib/core.sh` চালুর আগেই ত্রুটি হলে জেসন তৈরি করা
+সম্ভব নয়, তাই বার্তাটি সাধারণ ত্রুটি-প্রবাহে যায়।
 
 ## কমান্ডসমূহ
 
 ### `tx -h` এবং `tx mic` / `tx cam`
 
-`tx -h`-এ মাঝখানে সাজানো টার্নাক্সের নাম, “Workstation In Your Pocket”
-পরিচিতি, সংস্করণ, রঙে চিহ্নিত কমান্ড তালিকা, গুচ্ছ করা বিকল্প নাম, সার্বিক
+`tx -h`-এ মাঝখানে সাজানো টার্নাক্সের নাম, “`Workstation In Your Pocket`”
+পরিচিতিবাক্য, সংস্করণ, রঙে চিহ্নিত কমান্ড-তালিকা, গুচ্ছ করা বিকল্প নাম, সার্বিক
 বিকল্প এবং উদাহরণ থাকে। `ternux -h` একই তালিকা দেখায়; কোনো কমান্ডের বিস্তারিত
-জানতে `tx COMMAND -h` চালান। `tx guides` সাজানো দ্রুত-শুরু নির্দেশনা, গেস্টে
+জানতে `tx COMMAND -h` চালান। `tx guides` সাজানো দ্রুত-শুরুর নির্দেশনা, গেস্টে
 সাধারণ ব্যবহারকারী ও প্রশাসক হিসেবে ঢোকার সংক্ষিপ্ত কমান্ড এবং পূর্ণ নির্দেশিকার
 লিংক দেখায়।
 
-`xgo` ইনস্টল করা গেস্টের ডেস্কটপ বাছাইয়ের তালিকা খোলে; `killx` বেছে নেওয়া ডেস্কটপ বন্ধ করে; `sysmon` প্রসেসর, মেমরি ও গ্রাফিক্সের তথ্য দেখায়। শুধু গেস্টে থাকা `clean-mesa` বর্তমান গেস্টের Mesa shader cache মুছে। এক অক্ষরের `x` কমান্ড নেই।
+`xgo` ইনস্টল করা গেস্টের ডেস্কটপ বাছাইয়ের তালিকা খোলে; `killx` বেছে নেওয়া ডেস্কটপ বন্ধ করে; `sysmon` প্রসেসর, মেমরি ও গ্রাফিক্সের তথ্য দেখায়। শুধু গেস্টে থাকা `clean-mesa` বর্তমান গেস্টের মেসা শেডার ক্যাশে মুছে। এক অক্ষরের `x` কমান্ড নেই।
 
 যেমন, ডেবিয়ানে সাধারণ ব্যবহারকারীর শেলের জন্য `db` এবং প্রশাসক শেলের জন্য
 `dbr` বা `dbroot` চলে। উবুন্টুতে `ub`/`ubr`/`ubroot`, কালিতে
@@ -75,19 +76,21 @@ load হওয়ার আগের failure JSON বানাতে পার�
 
 ### `tx manager`
 
-কোনো service বা guest চালু না করেই Native Termux manager-এর read-only snapshot
-দেখুন। এই command-গুলো installed PRoot guest, পরিচিত desktop profile এবং বর্তমান/
-পরিকল্পিত display assignment দেখায়। `displays` socket/lock/server occupancy জানায়
-এবং v2 display migration দরকার কি না দেখায়; কোনো assignment বদলায় বা চলমান
-session সরায় না। Schema-গুলো `docs/v3/schemas/manager-*.schema.json`-এ আছে।
-Local Unix-socket API দরকার হলে `tx manager serve` চালান; এটি Ctrl-C না দেওয়া পর্যন্ত
-foreground-এ চলে, private socket ব্যবহার করে এবং TCP listener খোলে না। এই command-এর
-জন্য Python 3 optional।
+কোনো পরিষেবা বা গেস্ট চালু না করেই নেটিভ টার্মাক্স ব্যবস্থাপকের শুধু-পাঠ্য
+সারাংশ দেখুন। এই কমান্ডগুলো ইনস্টল করা প্রুট গেস্ট, পরিচিত ডেস্কটপ বিন্যাস এবং
+বর্তমান ও পরিকল্পিত প্রদর্শন নম্বর দেখায়। `displays` সকেট, লক ও সার্ভারের
+ব্যবহার জানায় এবং v2 প্রদর্শন স্থানান্তর দরকার কি না দেখায়; এটি কোনো নম্বর
+বদলায় না, চলমান সেশনও সরায় না। ছকগুলো
+`docs/v3/schemas/manager-*.schema.json`-এ আছে। স্থানীয় ইউনিক্স-সকেট
+অ্যাপ্লিকেশন-সংযোগস্থল চালাতে `tx manager serve` দিন। এটি `Ctrl-C` না দেওয়া
+পর্যন্ত সামনের কাজ হিসেবে চলে, ব্যক্তিগত সকেট ব্যবহার করে এবং টিসিপি সংযোগ
+খোলে না। এর জন্য পাইথন ৩ ঐচ্ছিক।
 
-**কোন সংস্করণে আছে:** read-only manager command ও socket service বর্তমান source-এ
-আছে; withdrawn v2.0.0 APT package-এ নেই। JSON compatibility-র জন্য
-`schema_version` ও `command` দেখুন। Display JSON schema `1.3.0`; কোনো running guest-এর
-সাথে মিল পাওয়া assignment OS-level socket ownership-এর প্রমাণ নয়।
+**কোন সংস্করণে আছে:** শুধু-পাঠ্য ব্যবস্থাপক কমান্ড ও সকেট পরিষেবা বর্তমান
+উৎসে আছে; প্রত্যাহার করা v2.0.0 এপিটি প্যাকেজে নেই। জেসন সামঞ্জস্যের জন্য
+`schema_version` ও `command` দেখুন। প্রদর্শন-সংক্রান্ত জেসন ছক `1.3.0`। কোনো
+চলমান গেস্টের সঙ্গে মিলে যাওয়া নম্বর অপারেটিং-সিস্টেম স্তরে সকেটটির মালিকানা
+প্রমাণ করে না।
 
 ```bash
 tx manager status [--json]
@@ -98,50 +101,54 @@ tx manager migrate --apply sha256:PLAN_ID
 tx manager migrate --recover
 ```
 
-`tx manager displays --json`-এ guest-পিছু read-only migration preview থাকে। এতে
-`initialize`, `keep` বা `move` plan এবং active session, target conflict অথবা
-invalid registry blocker দেখা যায়। Preview read-only এবং এতে state-bound `plan_id` থাকে। শুধু বর্তমান snapshot থেকে
-ready plan দেখে `tx manager migrate --apply sha256:PLAN_ID` চালিয়ে apply করা যায়।
-পুরোনো plan, active session, occupied target, malformed বা mismatch registry, এবং
-STOPPED নয় এমন lifecycle থাকলে apply প্রত্যাখ্যান করে। লেখার আগে profile ও registry
-backup journal-এ থাকে; write ব্যর্থ হলে দুটোই rollback হয়। মাঝপথে process বন্ধ হলে
-আগে `tx manager migrate --recover` চালাতে হবে; তার আগে guest start আটকে থাকে।
-Migration নিজে desktop stop বা restart করে না।
+`tx manager displays --json` প্রতি গেস্টের জন্য শুধু-পাঠ্য স্থানান্তর-পরিকল্পনা
+দেখায়। এতে `initialize`, `keep` বা `move` পরিকল্পনা, সক্রিয় সেশন, গন্তব্যের
+দ্বন্দ্ব এবং ভুল নিবন্ধনের বাধা দেখা যায়। পরিকল্পনাটি বর্তমান অবস্থার সঙ্গে বাঁধা
+`plan_id`-সহ আসে। বর্তমান সারাংশে প্রস্তুত পরিকল্পনা দেখালেই
+`tx manager migrate --apply sha256:PLAN_ID` দিয়ে তা প্রয়োগ করা যায়। পুরোনো
+পরিকল্পনা, সক্রিয় সেশন, দখল করা গন্তব্য, বিকৃত বা অমিল নিবন্ধন, কিংবা
+`STOPPED` নয় এমন অবস্থা থাকলে প্রয়োগ আটকে যায়। পরিবর্তনের আগে বিন্যাস ও
+নিবন্ধনের অনুলিপি লেনদেন-নথিতে রাখা হয়; লেখা ব্যর্থ হলে দুটোই আগের অবস্থায়
+ফেরানো হয়। মাঝপথে প্রক্রিয়া বন্ধ হলে গেস্ট চালুর আগে
+`tx manager migrate --recover` দিন। স্থানান্তর নিজে ডেস্কটপ বন্ধ বা আবার চালু
+করে না।
 
 ### `tx control`
 
-এই device-এর browser-এ mobile-first Control Center খুলুন। এতে manager-এর স্বাস্থ্য,
-installed guest, active desktop, display conflict, migration preview এবং copy করার host
-command দেখায়। Installed Ternux desktop guest-এর জন্য state-bound plan ও browser-এ
-স্পষ্ট confirmation নিয়ে start বা stop request করা যায়; প্রতিটি request-এর অগ্রগতি local
-job record-এ থাকে। Generic OCI image install/uninstall এখানে নেই। Loopback-only server
-এক ঘণ্টার in-memory bearer token, action-এর জন্য same-origin ও CSRF check, এবং নির্দিষ্ট
-CLI argument ব্যবহার করে। Termux-এ Ctrl-C দিলে server বন্ধ হয়; অসমাপ্ত job পরেরবার
-চালু হলে status মিলিয়ে দেখার জন্য চিহ্নিত হয়। Python 3 optional: `pkg install python`।
-Browser না খুলে local link দেখাতে `--no-open` ব্যবহার করুন।
+এই যন্ত্রের ব্রাউজারে মোবাইল-উপযোগী নিয়ন্ত্রণকেন্দ্র খুলুন। এতে ব্যবস্থাপকের
+সুস্থতা, ইনস্টল করা গেস্ট, চালু ডেস্কটপ, প্রদর্শন-দ্বন্দ্ব, স্থানান্তর-পরিকল্পনা
+এবং কপি করার হোস্ট কমান্ড দেখা যায়। ইনস্টল করা টার্নাক্স ডেস্কটপ গেস্টের জন্য
+অবস্থার সঙ্গে বাঁধা পরিকল্পনা ও ব্রাউজারে স্পষ্ট সম্মতি নিয়ে চালু বা বন্ধ করার
+অনুরোধ পাঠানো যায়; প্রতিটি অনুরোধের অগ্রগতি স্থানীয় কাজের নথিতে থাকে। সাধারণ
+ওসিআই ছবি এখানে বসানো বা সরানো যায় না। শুধু এই যন্ত্রে শোনা যায় এমন সার্ভারটি
+এক ঘণ্টার অস্থায়ী গোপন পরিচয়-টোকেন, একই উৎস যাচাই, সিএসআরএফ পরীক্ষা এবং
+নির্দিষ্ট কমান্ড-যুক্তি ব্যবহার করে। টার্মাক্সে `Ctrl-C` দিলে সার্ভার বন্ধ হয়;
+অসমাপ্ত কাজ পরেরবার চালু হলে অবস্থা যাচাইয়ের জন্য চিহ্নিত থাকে। পাইথন ৩
+ঐচ্ছিক: `pkg install python`। ব্রাউজার না খুলে স্থানীয় ঠিকানা দেখতে
+`--no-open` দিন।
 
 ```bash
 tx control
 tx control --no-open
 ```
 
-Dashboard ও manager command পরের stable v2-major release-এর জন্য source-এ আছে;
-withdrawn v2.0.0 package-এ নেই।
+নিয়ন্ত্রণ-ফলক ও ব্যবস্থাপক কমান্ড পরবর্তী স্থিতিশীল v2 মূল-সংস্করণের জন্য
+বর্তমান উৎসে আছে; প্রত্যাহার করা v2.0.0 প্যাকেজে নেই।
 
 ### `tx guides`
 
-Termux host অথবা Debian/Xfce guest-এ `tx guides` চালালে installation,
-workload, ecosystem tool, graphics-persistence এবং daily-use guide-এর link দেখা যায়। এটি
-কিছু
-install করে না।
+টার্মাক্স হোস্ট অথবা ডেবিয়ান/এক্সএফসিই গেস্টে `tx guides` চালালে ইনস্টলেশন,
+কাজের সরঞ্জাম, সহায়ক সফটওয়্যার, গ্রাফিক্স-সংরক্ষণ এবং দৈনন্দিন ব্যবহারের
+নির্দেশিকার লিংক দেখা যায়। এটি কোনো কিছু ইনস্টল করে না।
 
 ### `tx storage`
 
-PRoot-এ Android shared storage default-এ hidden থাকে। `/sdcard`-এর নিচে থাকা
-বিদ্যমান একটি directory grant করলে generic guest command এবং পরের desktop session-এ
-শুধু ওই directory mount হয়। পুরো storage root grant করা যায় না। দরকার হলে grant
-করার সময়ই Android storage permission চাওয়া হয়। Revoke করলে grant মুছে যায়;
-চলমান desktop session বন্ধ হওয়া পর্যন্ত আগের mount থাকবে।
+প্রুটে অ্যান্ড্রয়েডের ভাগ করা সংরক্ষণ-জায়গা শুরুতে আড়াল থাকে। `/sdcard`-এর
+ভেতরের আগে থেকে থাকা একটি ডিরেক্টরির অনুমতি দিলে সাধারণ গেস্ট কমান্ড ও পরের
+ডেস্কটপ সেশনে শুধু সেই ডিরেক্টরিটি যুক্ত হয়। সংরক্ষণ-জায়গার মূল ডিরেক্টরির
+অনুমতি দেওয়া যায় না। দরকার হলে অনুমতি দেওয়ার সময়ই অ্যান্ড্রয়েডের
+সংরক্ষণ-অনুমতি চাওয়া হয়। অনুমতি তুলে নিলে নিবন্ধন মুছে যায়; চলমান ডেস্কটপ
+বন্ধ না হওয়া পর্যন্ত আগের সংযোগটি থাকবে।
 
 ```bash
 ternux storage list
@@ -178,7 +185,7 @@ tx install [options]
 `kali`, `alpine`/`alp`, `archlinux`/`archx`, `fedora`/`fed`,
 `opensuse`/`suse`, `void`/`vsh`, `artix`/`art`, `chimera`/`chim`,
 `deepin`/`deep`, `manjaro`/`manj`, `pardus`/`par`, `rockylinux`/`rock` এবং
-`adelie`/`adel`। কালি ইনস্টলে কালি প্রকল্পের `kalilinux/kali-rolling` OCI
+`adelie`/`adel`। কালি ইনস্টলে কালি প্রকল্পের `kalilinux/kali-rolling` ওসিআই
 ছবি ব্যবহার হয়, কারণ টার্মাক্সের `PRoot-Distro` প্যাকেজে কালি নামটি নেই।
 কালির ডেস্কটপে টার্নাক্সের এক্সএফসিই আছে; এটি কালির পূর্ণ ডেস্কটপ ইমেজ নয়।
 ডিফল্টে এনম্যাপ, এসকিউএলম্যাপ, হাইড্রা, জন দ্য রিপার, গোবাস্টার, নিকটো, হুইজ
@@ -188,7 +195,7 @@ tx install [options]
 verify kali` পাস, `tx doctor kali`-তে ২৬টি ঠিক ও কোনো সতর্কতা/ব্যর্থতা নেই,
 জিঙ্ক/টার্নিপ, ফায়ারফক্স, অ্যাভ্রো ইনপুট, পালসঅডিও পথ এবং উইন্ডো-ফিট পরীক্ষা
 পাস করেছে। এতে এই শাওমি অ্যাড্রেনো ৮২৫ যন্ত্রে বিদ্যমান কালি অতিথি যাচাইকৃত হয়েছে;
-পরিষ্কার ইনস্টল বা অন্য যন্ত্র যাচাই হয়নি। v2-এর সমর্থিত বিন্যাস এখনো ডেবিয়ান,
+পরিষ্কার ইনস্টল বা অন্য যন্ত্র যাচাই হয়নি। সমর্থিত ডেস্কটপ বিন্যাস এখনো ডেবিয়ান,
 উবুন্টু ও অ্যালপাইন। ব্যবহারকারীর প্রতিবেদন অনুযায়ী, ইনস্টল করা সব ডিস্ট্রোতে
 প্রকৃত কিবোর্ড দিয়ে ভাষা বদলানো যায়। ২০২৬-১১-১৬ তারিখে আল্পাইনের
 এক্সএফসিই টার্মিনালেও কৃত্রিম `Ctrl+Space` সংকেতে অ্যাভ্রো চালু হয়েছে। অন্য
@@ -203,7 +210,7 @@ verify kali` পাস, `tx doctor kali`-তে ২৬টি ঠিক ও ক�
 দেখায় এবং কমান্ড ব্যর্থতার সংকেত দেয়। থেমে যাওয়া ধাপ আবার চালাতে
 `tx install --resume` ব্যবহার করুন।
 
-### গেস্ট ব্যবস্থাপনা
+### `tx distro`
 
 শুধু `tx distro` চালালে গেস্ট ব্যবস্থাপনার সংক্ষিপ্ত পরিচিতি ও সব উপকমান্ড
 দেখায়। `tx distro list` ইনস্টল-ক্রমে টার্নাক্সের সব ডেস্কটপ বিন্যাসের তালিকা,
@@ -213,11 +220,11 @@ verify kali` পাস, `tx doctor kali`-তে ২৬টি ঠিক ও ক�
 
 `tx distro search QUERY` গেস্টের ছবি খোঁজে।
 `tx distro shell NAME` প্রোফাইলে ঠিক করা সাধারণ ব্যবহারকারীর শেল খোলে;
-সাধারণ OCI ছবিতে ছবির পূর্বনির্ধারিত ব্যবহারকারী থাকে। `tx distro root NAME`
+সাধারণ ওসিআই ছবিতে ছবির পূর্বনির্ধারিত ব্যবহারকারী থাকে। `tx distro root NAME`
 মূল ব্যবহারকারীর শেল খোলে। `tx distro exec NAME -- COMMAND` গেস্টের ভেতরে
-নির্দিষ্ট কমান্ড চালায়। সাধারণ OCI ছবি শুধু শেল-গেস্ট; ডেস্কটপ প্রোফাইলের
+নির্দিষ্ট কমান্ড চালায়। সাধারণ ওসিআই ছবি শুধু শেল-গেস্ট; ডেস্কটপ প্রোফাইলের
 জন্য তালিকাভুক্ত বিন্যাস ব্যবহার করুন। `tx distro search QUERY` ছবি খোঁজে;
-`tx distro image-install IMAGE[:TAG] [NAME]` সাধারণ OCI ছবি ইনস্টল করে;
+`tx distro image-install IMAGE[:TAG] [NAME]` সাধারণ ওসিআই ছবি ইনস্টল করে;
 `tx distro uninstall NAME [--yes]` নিবন্ধিত গেস্ট সরায়।
 
 ব্যবহারকারীর শেলের সংক্ষিপ্ত নাম: `db`, `ub`, `kali`, `alp`, `archx`,
@@ -233,13 +240,15 @@ verify kali` পাস, `tx doctor kali`-তে ২৬টি ঠিক ও ক�
 চালাতে পূর্ণ নাম বা সংক্ষিপ্ত নাম দিন:
 
 ```bash
+tx start
+tx start ubuntu
 tx start debian ubuntu kali alpine
 tx start ub db kali alp
 ```
 
 একটি গেস্ট ব্যর্থ হলেও পরেরগুলোর চেষ্টা হয়; শেষে প্রতিটি গেস্টের ফল দেখিয়ে
 কোনোটি ব্যর্থ হলে কমান্ড ব্যর্থতার সংকেত দেয়। `--json` দিলে সব গেস্টের ফল
-একটি JSON অবজেক্টে পাওয়া যায়। নতুন বিন্যাসে `:0` স্থানীয় টার্মাক্স কর্মক্ষেত্রের
+একটি জেসন বস্তুতে পাওয়া যায়। নতুন বিন্যাসে `:0` স্থানীয় টার্মাক্স কর্মক্ষেত্রের
 জন্য; ডেবিয়ান `:1`, উবুন্টু `:2`, কালি `:3`, অ্যালপাইন `:4` এবং পরের
 নামযুক্ত বিন্যাসগুলো `:5` থেকে প্রদর্শন পায়। আগে সংরক্ষিত v2 প্রদর্শন নম্বর
 স্পষ্ট স্থানান্তর না হওয়া পর্যন্ত বদলায় না। স্থানান্তরের আগে
@@ -254,17 +263,29 @@ tx start ub db kali alp
 বাতিল হয়। নির্দিষ্ট গেস্ট বন্ধ করতে `tx stop db`, `tx stop ub`, `tx stop kali`
 বা `tx stop alp` চালান। `tx stop --all` সব ডেস্কটপ বন্ধ করে।
 
+```bash
+tx stop
+tx stop --all
+tx stop db
+tx stop ub
+tx stop alp
+```
 ### `tx restart`
 
 নির্দিষ্ট ডেস্কটপ বন্ধ করে আবার চালায়। যেমন:
 
 ```bash
-tx restart debian
+tx restart
+tx restart ubuntu
 ```
 
 ### `tx doctor`
 
-বিভাগ অনুযায়ী রোগ-নির্ণয় চালান। প্রতিটি পরীক্ষার ফল `ok`, `warn`, `fail` বা `info` হিসেবে সমাধানের নির্দেশসহ দেখানো হয়। কোনো অতিথির নাম না দিলে হোস্ট, ব্যবস্থা, ইনস্টল করা সব পরিচালিত অতিথি, গ্রাফিক্স এবং ডেবিয়ানের এক্সটেনশন পরীক্ষা হয়। পূর্ণ বা সংক্ষিপ্ত অতিথির নাম দিলে সেই অতিথি ও তার গ্রাফিক্স পরীক্ষা হয়। শুধু গ্রাফিক্স পরীক্ষার জন্য `gpu` দিন।
+বিভাগ ধরে রোগ-নির্ণয় চালান। প্রতিটি পরীক্ষায় `ok`, `warn`, `fail` বা `info`
+ফল এবং সমস্যা মেটানোর নির্দেশ দেখা যায়। অতিথির নাম না দিলে হোস্ট, ব্যবস্থা,
+ইনস্টল করা সব পরিচালিত অতিথি, গ্রাফিক্স এবং ডেবিয়ানের এক্সটেনশন পরীক্ষা হয়।
+পূর্ণ বা সংক্ষিপ্ত অতিথির নাম দিলে সেই অতিথি ও তার গ্রাফিক্স পরীক্ষা হয়। শুধু
+গ্রাফিক্স পরীক্ষার জন্য `gpu` দিন।
 
 | বিভাগ | পরীক্ষা |
 |---|---|
@@ -288,10 +309,11 @@ tx doctor db gpu
 | `CATEGORY` | এক বা একাধিক বিভাগ চালান, যেমন `tx doctor extensions`; `gpu` শুধু গ্রাফিক্স পরীক্ষা চালায় |
 | `DISTRO` | পূর্ণ বা সংক্ষিপ্ত নামে একটি অতিথি বাছুন, যেমন `kali`, `db` বা `ub` |
 | `--quick` | অতিথিতে প্রবেশ করে চালানো পরীক্ষা বাদ দেয় |
-| `--strict` | warning থাকলে `1` ও check ব্যর্থ হলে `2` exit করে; default exit status `0`-ই থাকে |
-| `--json` | machine-readable output |
+| `--strict` | সতর্কতা থাকলে `1`, পরীক্ষা ব্যর্থ হলে `2` ফেরায়; সাধারণ অবস্থায় ফেরত-সংকেত `0` থাকে |
+| `--json` | যন্ত্রে পড়ার উপযোগী তথ্য দেয় |
 
-**JSON output-এর উদাহরণ** (সংক্ষেপিত; `schema_version` 2 মূল `issues` ও `recommended_actions` array রাখে এবং `summary` ও `checks` যোগ করে):
+**জেসন আউটপুটের উদাহরণ** (সংক্ষেপিত; `schema_version` 2 মূল `issues` ও
+`recommended_actions` তালিকা রেখে `summary` ও `checks` যোগ করে):
 ```json
 {
   "command": "doctor",
@@ -314,19 +336,19 @@ tx doctor db gpu
 
 ### `tx repair`
 
-ছয় ধাপে common issue inspect/repair করে:
+ছয় ধাপে সাধারণ সমস্যা পরীক্ষা ও মেরামত করে:
 
-1. broken curl/OpenSSL host toolchain;
-2. missing `termux-x11-nightly`;
-3. configured backend apply, stored SHA-256 অনুযায়ী missing/changed Turnip
-   target reinstall, এবং launcher backend alignment;
-4. missing বা syntax-broken launcher regeneration;
-5. populated Mesa shader cache clear;
-6. missing PulseAudio TCP bridge add।
+1. কার্ল/ওপেনএসএসএল হোস্ট-সরঞ্জামের ত্রুটি;
+2. `termux-x11-nightly` না থাকা;
+3. নির্ধারিত গ্রাফিক্স-পথ চালু করা, সংরক্ষিত এসএইচএ-২৫৬ মিলিয়ে অনুপস্থিত বা
+   বদলে যাওয়া টার্নিপ ফাইল আবার বসানো এবং লঞ্চারের গ্রাফিক্স-পথ মেলানো;
+4. অনুপস্থিত বা বাক্যগঠন-ভাঙা লঞ্চার নতুন করে তৈরি;
+5. মেসার জমে থাকা শেডার ক্যাশে পরিষ্কার;
+6. পালসঅডিও টিসিপি সেতু না থাকলে যোগ করা।
 
-Healthy check repair count-এ যোগ হয় না। যেকোনো step fail হলে অন্য step চলতে
-পারে, কিন্তু শেষ status non-zero হয়। Backend/launcher repair-এর পর desktop
-restart করে renderer আবার verify করুন।
+সুস্থ পরীক্ষাকে মেরামতের সংখ্যায় ধরা হয় না। কোনো ধাপ ব্যর্থ হলেও বাকি ধাপ
+চলতে পারে, তবে শেষে কমান্ড ব্যর্থতার সংকেত দেয়। গ্রাফিক্স-পথ বা লঞ্চার
+মেরামতের পর ডেস্কটপ আবার চালিয়ে রেন্ডারার যাচাই করুন।
 
 ```bash
 ternux repair
@@ -334,11 +356,12 @@ ternux repair
 
 ### `tx verify`
 
-বর্তমানে active guest-এর installation যাচাই করে; চাইলে full distro name বা
-short command দিয়ে নির্দিষ্ট guest বেছে নিন। Active guest না থাকলে saved
-installed profile, তারপর Debian, তারপর অন্য installed Ternux profile নেওয়া হয়।
-এটি host binary, launcher, guest service ও GPU driver যাচাই করে। Human এবং
-`--json`—দুই mode-এই ব্যর্থ verification nonzero exit status দেয়।
+বর্তমানে সক্রিয় অতিথির ইনস্টলেশন যাচাই করে; চাইলে পূর্ণ ডিস্ট্রোর নাম বা
+সংক্ষিপ্ত নাম দিয়ে নির্দিষ্ট অতিথি বাছুন। সক্রিয় অতিথি না থাকলে আগে সংরক্ষিত
+ইনস্টল করা বিন্যাস, তারপর ডেবিয়ান, এরপর অন্য ইনস্টল করা টার্নাক্স বিন্যাস বেছে
+নেয়। এটি হোস্টের নির্বাহযোগ্য ফাইল, লঞ্চার, গেস্ট পরিষেবা ও জিপিইউ চালক
+যাচাই করে। পর্দায় দেখানো ও `--json`—দুই ক্ষেত্রেই যাচাই ব্যর্থ হলে কমান্ড
+ব্যর্থতার সংকেত দেয়।
 
 ```bash
 ternux verify [DISTRO] [--json]
@@ -349,10 +372,11 @@ tx verify alp --json
 
 ### `tx benchmark`
 
-Active desktop-এ Debian container-এর ভেতর glmark2/vkmark health benchmark এবং
-renderer inspection চালায়। Renderer classification `llvmpipe`, Zink/Turnip,
-plain Zink, বা VirGL/virpipe route আলাদা করে; শুধু VirGL নাম hardware-backed
-route প্রমাণ করে না। এটি archived evidence run-এর identical protocol নয়।
+চালু ডেস্কটপে ডেবিয়ান কন্টেইনারের ভেতর `glmark2`/`vkmark`-এর স্বাস্থ্য
+মাপজোখ ও রেন্ডারার পরীক্ষা চালায়। রেন্ডারার-শ্রেণিবিন্যাস ললভিএমপাইপ,
+জিঙ্ক/টার্নিপ, সাধারণ জিঙ্ক অথবা ভিরজিএল/ভিরপাইপ পথ আলাদা করে; শুধু ভিরজিএল
+নাম দেখা হার্ডওয়্যার-ত্বরণযুক্ত পথের প্রমাণ নয়। এটি সংরক্ষিত প্রমাণ-পরীক্ষার
+সঙ্গে অভিন্ন পদ্ধতি নয়।
 
 ```bash
 ternux benchmark [--json]
@@ -360,7 +384,7 @@ ternux benchmark [--json]
 
 ### `tx profile`
 
-ডিভাইস প্রোফাইলিং ও ব্যবস্থাপনা।
+যন্ত্রের বিন্যাস তৈরি ও পরিচালনা করে।
 
 ```bash
 ternux profile <subcommand> [name]
@@ -376,7 +400,7 @@ ternux profile <subcommand> [name]
 
 ### `tx backend`
 
-GPU ব্যাকএন্ড ব্যবস্থাপনা।
+জিপিইউ ব্যাকএন্ড পরিচালনা করে।
 
 ```bash
 ternux backend <subcommand> [backend]
@@ -385,15 +409,16 @@ ternux backend <subcommand> [backend]
 | সাবকমান্ড | বিবরণ |
 |-----------|--------|
 | `show` | বর্তমান ব্যাকএন্ড দেখান |
-| `set auto\|zink\|virgl` | GPU ব্যাকএন্ড পরিবর্তন |
+| `set auto\|zink\|virgl` | জিপিইউ ব্যাকএন্ড পরিবর্তন |
 | `detect` | স্বয়ংক্রিয় ব্যাকএন্ড শনাক্ত |
 
 ### `tx gpu`
 
-GPU backend ও guest userspace driver দেখুন বা update করুন। `update` Zink route-এ
-Ternux-এর pinned এবং SHA-256-যাচাইকৃত Debian Turnip driver আবার install করে;
-তারপর desktop restart করতে হবে। এটি Android-এর vendor/kernel driver update করে না।
-VirGL route-এ guest Turnip driver ব্যবহৃত হয় না।
+জিপিইউ ব্যাকএন্ড ও গেস্টের ব্যবহারকারী-পরিসরের চালক দেখুন বা হালনাগাদ করুন।
+`update` জিঙ্ক পথে টার্নাক্সের নির্দিষ্ট ও এসএইচএ-২৫৬ দিয়ে যাচাইকৃত ডেবিয়ান
+টার্নিপ চালক আবার বসায়; এরপর ডেস্কটপ আবার চালাতে হবে। এটি অ্যান্ড্রয়েডের
+প্রস্তুতকারক বা কার্নেল চালক হালনাগাদ করে না। ভিরজিএল পথে গেস্টের টার্নিপ
+চালক লাগে না।
 
 ```bash
 ternux gpu show
@@ -401,7 +426,7 @@ ternux gpu update
 ternux gpu update --json
 ```
 
-`tx backend update` একই কাজের সমতুল্য command।
+`tx backend update` একই কাজের সমতুল্য কমান্ড।
 
 ### `tx info`
 
@@ -432,7 +457,7 @@ ternux info [--json]
 
 ইনস্টলার সম্পন্ন ধাপ, সংরক্ষিত ব্যবহারকারী/গেস্ট/লোকেল, ইনস্টল করা পরিচালিত
 গেস্টের প্রদর্শন নম্বর ও প্রস্তুতির অবস্থা এবং সাম্প্রতিক কর্মদক্ষতা/মেরামতের
-ইতিহাস দেখায়। JSON ফলাফলে `installed_profiles` থাকে।
+ইতিহাস দেখায়। জেসন ফলাফলে `installed_profiles` থাকে।
 
 ```bash
 ternux state [--json]
@@ -483,15 +508,15 @@ tx status [--json]
 tx status kali --json
 ```
 
-একটি অতিথির JSON ফলাফলে `lifecycle`, `x11_running`, `pulseaudio`, `pulseaudio_ready`,
+একটি অতিথির জেসন ফলাফলে `lifecycle`, `x11_running`, `pulseaudio`, `pulseaudio_ready`,
 `virgl`, `launcher`, `display`, `desktop_log` ও `desktop_pid` থাকে। একাধিক
 অতিথির ফলাফলে `guest_count` এবং `guests` তালিকায় প্রত্যেকের আলাদা তথ্য থাকে।
 
 ### `tx logs`
 
-ইনস্টলার, হোস্ট এবং প্রতিটি অতিথির ডেস্কটপ লগ দেখা ও ব্যবস্থাপনা। `list`
-লগের পথ ও আকার দেখায়; `desktop show` ও `desktop tail` চলতি অথবা সর্বশেষ
-সংরক্ষিত অতিথির লগ খোলে। নির্দিষ্ট অতিথির লগের জন্য নাম যোগ করুন:
+ইনস্টলার, হোস্ট এবং প্রতিটি অতিথির ডেস্কটপের লগ দেখুন ও পরিচালনা করুন। `list`
+লগের পথ ও আকার দেখায়; `desktop show` ও `desktop tail` চলতি বা সর্বশেষ
+সংরক্ষিত অতিথির লগ খোলে। নির্দিষ্ট অতিথির লগ দেখতে নাম যোগ করুন:
 `tx logs desktop show kali`।
 
 ```bash
@@ -500,15 +525,16 @@ ternux logs <subcommand> [n]
 
 | সাবকমান্ড | বিবরণ |
 |-----------|--------|
-| `show [n]` | শেষ n লাইন দেখান (ডিফল্ট: ৫০) |
-| `tail` | রিয়েল-টাইম লগ দেখা |
-| `clear` | লগ ফাইল মুছে ফেলা |
-| `list` | লগ ফাইলের তালিকা |
-| `desktop [show|tail]` | ডেস্কটপ সেশনের লগ পড়ুন বা সরাসরি অনুসরণ করুন |
+| `show [n]` | শেষ nটি লাইন দেখায় (পূর্বনির্ধারিত: ৫০) |
+| `tail` | চলতি লগ সরাসরি দেখায় |
+| `clear` | লগ ফাইল মুছে দেয় |
+| `list` | লগ ফাইলের তালিকা দেখায় |
+| `desktop [show|tail]` | ডেস্কটপ সেশনের লগ দেখায় বা সরাসরি অনুসরণ করে |
 
 ### `tx extension`
 
-ঐচ্ছিক release-ভিত্তিক Linux ARM64 extension list, install, repair বা remove করে। Host CLI কাজগুলো নির্বাচিত Debian guest-এ পাঠিয়ে দেয়।
+ঐচ্ছিক প্রকাশনা-ভিত্তিক লিনাক্স এআরএম৬৪ সম্প্রসারণের তালিকা, ইনস্টল, মেরামত
+বা অপসারণ করে। হোস্ট কমান্ড নির্বাচিত ডেবিয়ান গেস্টে কাজটি পাঠায়।
 
 ```bash
 ternux extension list
@@ -519,15 +545,22 @@ ternux extension repair stable-diffusion
 ternux extension remove stable-diffusion
 ```
 
-`llama-vulkan` হলো CPU + Vulkan prerelease। `stable-diffusion` pinned `sd-cli` preview install করে; Adreno Vulkan generation device-এ সীমিতভাবে test হয়েছে, CPU image quality unqualified। Model weights user-এর কাছেই থাকে। Repair checksum verify করে recognized install atomicভাবে replace করে; ব্যর্থ হলে আগের install restore করে। Remove শুধু recognized extension directory delete করে, model weights অক্ষত রাখে। `llama-htp-experimental` হলো
-সীমিত experimental SM8735/V73 route; এটি supported release feature নয় এবং
-automatic CPU/GPU fallback নেই।
-[CPU/Vulkan guide](https://github.com/soobujmiah/ternux/blob/main/bn/guides/llama-vulkan-extension.md)
+`llama-vulkan` হলো প্রসেসর ও ভলকান ব্যবহার করা পরীক্ষামূলক-পূর্ব সংস্করণ।
+`stable-diffusion` নির্দিষ্ট `sd-cli` পরীক্ষামূলক সংস্করণ বসায়; অ্যাড্রেনো
+ভলকান-চালিত যন্ত্রে সীমিত পরীক্ষা হয়েছে, প্রসেসরে তৈরি ছবির মান যাচাইকৃত নয়।
+মডেলের ওজন ব্যবহারকারীকে আলাদাভাবে দিতে হয়। মেরামতের সময় চেকসাম মিলিয়ে
+পরিচিত ইনস্টলেশন এক ধাপে বদলানো হয়; ব্যর্থ হলে আগের ইনস্টলেশন ফেরানো হয়।
+অপসারণে শুধু পরিচিত সম্প্রসারণ ডিরেক্টরি মোছা হয়, মডেলের ওজন থাকে।
+`llama-htp-experimental` সীমিত পরীক্ষামূলক এসএম৮৭৩৫/ভি৭৩ পথে চলে; এটি
+সমর্থিত প্রকাশনা-সুবিধা নয় এবং স্বয়ংক্রিয় প্রসেসর/জিপিইউ বিকল্প নেই।
+[প্রসেসর/ভলকান নির্দেশিকা](https://github.com/soobujmiah/ternux/blob/main/bn/guides/llama-vulkan-extension.md)
 ও [Stable Diffusion guide](https://github.com/soobujmiah/ternux/blob/main/bn/guides/stable-diffusion-vulkan-extension.md) এবং [HTP guide](https://github.com/soobujmiah/ternux/blob/main/bn/guides/llama-htp-experimental.md) দেখুন।
 
 ### `tx update`
 
-CLI-কে তার install source অনুযায়ী আপডেট করে। APT-managed install APT দিয়ে update/check করে; অন্য install GitHub থেকে self-update করে।
+ইনস্টলেশনের উৎস অনুযায়ী কমান্ড-ব্যবস্থাটি হালনাগাদ করে। এপিটি দিয়ে বসানো
+হলে এপিটি দিয়ে হালনাগাদ বা পরীক্ষা হয়; অন্য উৎসের ইনস্টলেশন গিটহাব থেকে
+নিজে হালনাগাদ হয়।
 
 ```bash
 ternux update [check]
@@ -535,33 +568,33 @@ ternux update [check]
 
 | সাবকমান্ড | বিবরণ |
 |-----------|--------|
-| *(none)* | APT package-managed হলে configured repository থেকে update; অন্যথায় GitHub থেকে latest version download/install |
-| `check` | ইনস্টল না করেই আপডেট চেক; APT-managed install configured package candidate দেখে |
+| *(কিছু নয়)* | এপিটি প্যাকেজ দিয়ে বসানো হলে নির্ধারিত ভান্ডার থেকে হালনাগাদ; অন্যথায় গিটহাব থেকে নতুন সংস্করণ নামিয়ে বসায় |
+| `check` | কিছু না বসিয়ে হালনাগাদ পরীক্ষা; এপিটি ইনস্টলেশনে ভান্ডারের প্রস্তাবিত প্যাকেজ দেখে |
 
 ### `tx uninstall`
 
-Scoped component removal। Action না দিলে interactive menu; non-interactive
-shell-এ action অবশ্যই explicit দিন।
+নির্দিষ্ট অংশ সরায়। কাজের নাম না দিলে বাছাইয়ের তালিকা দেখায়; তালিকাহীন
+শেলে চালালে কাজটি স্পষ্ট করে দিতে হবে।
 
 ```bash
-ternux uninstall [session|launcher|state|container|all] [--yes]
+ternux uninstall [session|launcher|state|container|host-cli|all] [--yes]
 ```
 
-- `session` / `1` — desktop service stop ও stale socket cleanup
-- `launcher` / `2` — `~/x.sh` এবং delimited shell-alias block remove
-- `state` / `3` — ternux state/log remove; Debian অক্ষত
-- `container` / `4` — Debian ও তার ভেতরের সব data delete
-- `all` / `5` — উপরের চারটি action
-- `0` — cancel
+- `session` / `1` — ডেস্কটপ পরিষেবা বন্ধ ও পুরোনো সকেট পরিষ্কার
+- `launcher` / `2` — `~/x.sh` ও চিহ্নিত শেল-উপনামের অংশ সরায়
+- `state` / `3` — টার্নাক্সের অবস্থা ও লগ সরায়; ডেবিয়ান অক্ষত থাকে
+- `container` / `4` — ডেবিয়ান ও তার সব তথ্য মুছে দেয়
+- `all` / `5` — ওপরের চারটি কাজ করে
+- `0` — বাতিল
 
-`all` Termux package বা ternux CLI/library uninstall, storage access revoke,
-mirror reset বা Termux PulseAudio configuration revert করে না। Container deletion
-confirmation চায়। Automation-এ irreversible data loss ইচ্ছাকৃতভাবে accept
-করলেই শুধু `--yes` দিন।
+`all` টার্মাক্স প্যাকেজ বা টার্নাক্স কমান্ড/লাইব্রেরি সরায় না, সংরক্ষণ-অনুমতি
+তুলে নেয় না, প্যাকেজ-ভান্ডার বদলায় না, টার্মাক্সের পালসঅডিও বিন্যাসও ফেরায়
+না। কন্টেইনার মুছতে সম্মতি লাগে। স্বয়ংক্রিয় ব্যবহারে স্থায়ী তথ্য-ক্ষতি
+ইচ্ছাকৃতভাবে মেনে নিলেই শুধু `--yes` দিন।
 
 ## শেল কমপ্লিশন
 
-Bash কমপ্লিশন উপলব্ধ `share/ternux-completion.bash`-এ:
+ব্যাশ কমান্ড-সম্পূর্ণ করার নিয়ম `share/ternux-completion.bash`-এ আছে:
 
 ```bash
 source share/ternux-completion.bash
@@ -569,19 +602,20 @@ source share/ternux-completion.bash
 
 <h2 id="environment-variables">এনভায়রনমেন্ট ভেরিয়েবল</h2>
 
-নিচের প্রতিটি ভেরিয়েবল শুরুতেই পড়া হয়; কমান্ড-লাইন ফ্ল্যাগ সবসময় অগ্রাধিকার পায়।
+নিচের প্রতিটি পরিবেশ-চলক শুরুতেই পড়া হয়; কমান্ড-লাইনের বিকল্প সবসময়
+অগ্রাধিকার পায়।
 
 | ভেরিয়েবল | কোথায় কাজ করে | কাজ |
 |---|---|---|
-| `TERNUX_UI` | `install` | রেন্ডারার নির্বাচন: `auto`, `dashboard`, `plain`, `off` |
-| `TERNUX_NO_ANIM` | `install` | `1` দিলে স্পিনার ও রঙ বদল থেমে যায় |
-| `TERNUX_YES` | `install` | `1` দিলে নথিভুক্ত default প্রশ্ন ছাড়াই নেওয়া হয় |
-| `TERNUX_QUIET` | সব | সাধারণ তথ্যমূলক বার্তা বন্ধ করে |
-| `TERNUX_JSON` | নথিভুক্ত কমান্ড | structured output চায় |
-| `TERNUX_VERBOSE` | সব | যেসব কমান্ডে আছে সেখানে debug বার্তা চালু করে |
-| `TERNUX_USER` | সব | CLI যে Debian অ্যাকাউন্ট ধরে কাজ করে; সাধারণত saved state থেকে আসে |
-| `TERNUX_STATE_DIR` | সব | ফেজ state ও সংরক্ষিত পছন্দ (ডিফল্ট `~/.local/share/ternux`) |
-| `TERNUX_LOG_DIR` | সব | লগ ডিরেক্টরি (ডিফল্ট `$TMPDIR/ternux`) |
+| `TERNUX_UI` | `install` | পর্দা-রেন্ডারার বেছে নেয়: `auto`, `dashboard`, `plain`, `off` |
+| `TERNUX_NO_ANIM` | `install` | `1` দিলে ঘূর্ণি ও রঙের পরিবর্তন থামে |
+| `TERNUX_YES` | `install` | `1` দিলে নথিভুক্ত পূর্বনির্ধারিত পছন্দ প্রশ্ন ছাড়াই নেয় |
+| `TERNUX_QUIET` | সব | সাধারণ তথ্যবার্তা বন্ধ করে |
+| `TERNUX_JSON` | নথিভুক্ত কমান্ড | যন্ত্রে পড়ার উপযোগী তথ্য চায় |
+| `TERNUX_VERBOSE` | সব | সমর্থিত কমান্ডে ত্রুটি-অনুসন্ধানের বার্তা চালু করে |
+| `TERNUX_USER` | সব | কমান্ড যে ডেবিয়ান হিসাব ব্যবহার করে; সাধারণত সংরক্ষিত অবস্থা থেকে আসে |
+| `TERNUX_STATE_DIR` | সব | ধাপের অবস্থা ও পছন্দ (পূর্বনির্ধারিত `~/.local/share/ternux`) |
+| `TERNUX_LOG_DIR` | সব | লগ ডিরেক্টরি (পূর্বনির্ধারিত `$TMPDIR/ternux`) |
 
 পূর্ণ বিবরণ: [কনফিগারেশন → ইনস্টলার আউটপুট](CONFIGURATION.html#installer-output)।
 
