@@ -140,4 +140,3 @@ done
 
 printf '%s\n' "$distro" > /etc/ternux-distro
 chmod 0644 /etc/ternux-distro
-
