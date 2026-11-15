@@ -115,7 +115,7 @@ glxinfo | grep "renderer string"
 
 ```text
 tx start ডেস্কটপ চালু          killx  নির্বাচিত desktop session বন্ধ
-tx       ternux-এর ছোট alias      xgo    installed GUI বাছুন
+tx       ternux CLI-র সংক্ষিপ্ত কমান্ড      xgo    installed GUI বাছুন
 db/dbr/dbroot Debian user/root shell  ub/ubr/ubroot Ubuntu user/root shell
 alp/alpr/alproot Alpine user/root shell
 sysmon   ডিভাইসের সারসংক্ষেপ   clean-mesa  শেডার ক্যাশ পরিষ্কার

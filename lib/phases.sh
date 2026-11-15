@@ -197,7 +197,7 @@ _tnx_switch_mirror() {
 # if the current mirror yields 404 or missing package archives.
 _tnx_install_core_packages() {
   local apt_force="$1"
-  local pkgs="pulseaudio proot-distro virglrenderer-android util-linux zsh git curl wget nano tar termux-api"
+  local pkgs="pulseaudio proot-distro virglrenderer-android util-linux zsh git curl wget nano tar termux-api vulkan-tools"
 
   tnx_termux_pkg install -y $apt_force $pkgs && return 0
 
@@ -2094,8 +2094,7 @@ tnx_phase_aliases() {
   cat >> "$RC_FILE" << ALIASEOF
 
 # ==== TERNUX ALIASES ====
-alias tx='ternux'
-alias killx='ternux stop'
+alias killx='tx stop'
 _ternux_guest_login() {
   [ -z "\${ZSH_VERSION:-}" ] || emulate -L bash
   local distro="\$1"; shift
@@ -2221,7 +2220,7 @@ ALIASEOF
   touch "$HOME/.hushlogin"
   _tnx_install_terfetch_hook "$HOME/.bashrc" || return 1
   _tnx_install_terfetch_hook "$HOME/.zshrc" || return 1
-  tnx_ok "Aliases installed: tx, xgo, killx, distro user/root shells (including dbroot/ubroot/alproot), sysmon"
+  tnx_ok "Commands configured: tx, xgo, killx, distro user/root shells (including dbroot/ubroot/alproot), sysmon"
 }
 
 # ---------------------------------------------------------------------------

@@ -46,6 +46,72 @@ tnx_distro() {
   printf '%s' "$_TNX_DISTRO"
 }
 
+# Terminal-aware information rows. Keep the left key/command in a fixed
+# column and wrap its description/value only inside the right column.
+tnx_terminal_width() {
+  local width=""
+  if [ -t 1 ] && command -v tput >/dev/null 2>&1; then
+    width="$(tput cols 2>/dev/null || true)"
+  fi
+  [[ "$width" =~ ^[0-9]+$ ]] || width="${COLUMNS:-}"
+  if ! [[ "$width" =~ ^[0-9]+$ ]] || (( width < 32 )); then
+    width="$(tput cols 2>/dev/null || true)"
+  fi
+  [[ "$width" =~ ^[0-9]+$ ]] || width=80
+  (( width < 32 )) && width=32
+  (( width > 180 )) && width=180
+  printf '%s' "$width"
+}
+
+tnx_print_two_col() {
+  local left="${1:-}" right="${2:-}" left_color="${3:-${TNX_CC:-}}"
+  local width left_width right_width indent first=1 part
+  width="$(tnx_terminal_width)"
+  left_width=24
+  (( width < 60 )) && left_width=16
+  (( width < 40 )) && left_width=10
+  (( left_width < 8 )) && left_width=8
+  if (( ${#left} > left_width )); then
+    printf '  %s%s%s\n' "$left_color" "$left" "${TNX_C0:-}"
+    (( ${#right} == 0 )) && return 0
+    indent=2
+    right_width=$(( width - indent - 2 ))
+    while IFS= read -r part || [ -n "$part" ]; do printf '%*s%s\n' "$indent" '' "$part"; done \
+      < <(printf '%s\n' "$right" | fold -s -w "$right_width")
+    return 0
+  fi
+  right_width=$(( width - left_width - 7 ))
+  indent=$(( left_width + 5 ))
+
+  if [ -z "$right" ]; then
+    printf '  %s%-*s%s\n' "$left_color" "$left_width" "$left" "${TNX_C0:-}"
+    return 0
+  fi
+
+  while IFS= read -r part || [ -n "$part" ]; do
+    if (( first )); then
+      printf '  %s%-*s%s │ ' "$left_color" "$left_width" "$left" "${TNX_C0:-}"
+      first=0
+    else
+      printf '%*s│ ' "$((indent - 2))" ''
+    fi
+    printf '%s\n' "$part"
+  done < <(printf '%s\n' "$right" | fold -s -w "$right_width")
+}
+
+tnx_print_centered() {
+  local text="${1:-}" color="${2:-${TNX_CG:-}}" width part pad
+  width="$(tnx_terminal_width)"
+  while IFS= read -r part || [ -n "$part" ]; do
+    pad=$(( (width - ${#part}) / 2 )); (( pad < 0 )) && pad=0
+    printf '%*s%s%s%s\n' "$pad" '' "$color" "$part" "${TNX_C0:-}"
+  done < <(printf '%s\n' "$text" | fold -s -w "$width")
+}
+
+tnx_print_field() {
+  tnx_print_two_col "${1:-}" "${2:-}" "${3:-${TNX_CW:-}}"
+}
+
 # True when the resolved guest is one ternux has verified on a device.
 tnx_distro_verified() {
   case " $TERNUX_DISTRO_VERIFIED " in

@@ -32,19 +32,22 @@ _tnx_distro_overview() {
   fi
   for name in "${installed_guests[@]}"; do tnx_distro_known "$name" && ready=$((ready + 1)); done
   tnx_header "Ternux Distro Management"
-  printf '  Managed desktop profiles: %s\n  Installed named profiles: %s\n\n' "$count" "$ready"
-  printf '  tx distro list                         Show all managed profiles and install state\n'
-  printf '  tx distro search QUERY                 Search available PRoot images\n'
-  printf '  tx distro install NAME                 Install a managed desktop profile\n'
-  printf '  tx distro uninstall NAME [--yes]       Remove a managed guest\n'
-  printf '  tx distro image-install IMAGE [NAME]   Add a shell-only OCI guest\n'
-  printf '  tx distro shell|root NAME [-- COMMAND] Open a guest shell or run a command\n'
-  printf '  tx distro exec NAME -- COMMAND         Run one command in a guest\n\n'
-  printf '  Desktop lifecycle: tx start NAME... | tx stop NAME | tx restart NAME\n'
-  printf '  Default display order: Debian :1, Ubuntu :2, Kali :3, Alpine :4, then :5–:15.\n'
-  printf '  GPU route is selected per device; software rendering is reported by tx info.\n'
-  printf '  Catalog: %s\n' "$(printf '%s\n' "$TERNUX_DISTRO_KNOWN" | tr ' ' ',')"
-  printf '  Details: tx distro list | tx -h | tx guides\n'
+  tnx_print_field 'Managed profiles:' "$count"
+  tnx_print_field 'Installed profiles:' "$ready"
+  printf '\n'
+  tnx_print_two_col 'tx distro list' 'Show all managed profiles and install state' "$TNX_CC"
+  tnx_print_two_col 'tx distro search QUERY' 'Search available PRoot images' "$TNX_CC"
+  tnx_print_two_col 'tx distro install NAME' 'Install a managed desktop profile' "$TNX_CC"
+  tnx_print_two_col 'tx distro uninstall NAME [--yes]' 'Remove a managed guest' "$TNX_CC"
+  tnx_print_two_col 'tx distro image-install IMAGE [NAME]' 'Add a shell-only OCI guest' "$TNX_CC"
+  tnx_print_two_col 'tx distro shell|root NAME [-- COMMAND]' 'Open a guest shell or run a command' "$TNX_CC"
+  tnx_print_two_col 'tx distro exec NAME -- COMMAND' 'Run one command in a guest' "$TNX_CC"
+  printf '\n'
+  tnx_print_two_col 'Desktop lifecycle' 'tx start NAME... · tx stop NAME · tx restart NAME'
+  tnx_print_two_col 'Display order' 'Debian :1 · Ubuntu :2 · Kali :3 · Alpine :4 · then :5–:15'
+  tnx_print_two_col 'GPU route' 'Selected per device; software rendering is reported by tx info'
+  tnx_print_field 'Catalog:' "$(printf '%s\n' "$TERNUX_DISTRO_KNOWN" | tr ' ' ',')"
+  tnx_print_field 'Details:' 'tx distro list · tx -h · tx guides'
 }
 
 _tnx_distro_catalog() {
@@ -55,8 +58,6 @@ _tnx_distro_catalog() {
     while IFS= read -r name; do [ -n "$name" ] && installed_guests+=("$name"); done < <(proot-distro list --quiet 2>/dev/null || true)
   fi
   tnx_header "Managed Distro Catalog"
-  printf '  %-13s %-6s %-4s %-7s %-7s %s\n' "PROFILE" "SHORT" "X11" "PACKAGE" "GPU" "INSTALL STATE"
-  printf '  %-13s %-6s %-4s %-7s %-7s %s\n' '-------------' '------' '----' '-------' '-------' '---------------------'
   for name in $TERNUX_DISTRO_KNOWN; do
     profile_count=$((profile_count + 1))
     short="$(_tnx_distro_short_name "$name")"
@@ -71,12 +72,13 @@ _tnx_distro_catalog() {
       fi
     done
     tnx_distro_verified "$name" && state="$state · qualified"
-    printf '  %-13s %-6s :%-3s %-7s %-7s %s\n' "$name" "$short" "$(tnx_distro_target_display "$name")" "${family^^}" "$backend" "$state"
+    tnx_print_two_col "$name" "short=$short · display=:$(tnx_distro_target_display "$name") · ${family^^} · GPU=$backend · $state" "$TNX_CC"
   done
-  printf '\n  Profiles: %s · installed: %s · device-qualified: %s\n' "$profile_count" "$installed_count" "${TERNUX_DISTRO_VERIFIED// /, }"
-  printf '  Install: tx install --distro NAME | tx install --distros debian,ubuntu,kali,alpine\n'
-  printf '  Short names work with tx start, tx stop, tx distro shell, and related commands.\n'
-  printf '  Generic OCI guests are listed separately below; they do not get a desktop recipe.\n'
+  printf '\n'
+  tnx_print_field 'Profiles:' "$profile_count total · $installed_count installed · device-qualified: ${TERNUX_DISTRO_VERIFIED// /, }"
+  tnx_print_two_col 'Install' 'tx install --distro NAME · tx install --distros debian,ubuntu,kali,alpine'
+  tnx_print_two_col 'Short names' 'Work with tx start, tx stop, tx distro shell and related commands'
+  tnx_print_two_col 'OCI guests' 'Listed separately below; they do not get a desktop recipe'
   local generic_count=0
   for name in "${installed_guests[@]}"; do tnx_distro_known "$name" || generic_count=$((generic_count + 1)); done
   if [ "$generic_count" -gt 0 ]; then
@@ -92,7 +94,7 @@ _tnx_distro_list_row() {
       if [ "$name" = alpine ]; then marker='Ternux v2-qualified; Ctrl+Space event caveat'; else marker='Ternux v2-qualified; device evidence recorded'; fi
     else marker='Ternux desktop ready; not device verified'; fi
   else marker='Ternux recipe available; run tx install --distro NAME'; fi
-  printf '  %-24s %s\n' "$name" "$marker"
+  tnx_print_two_col "$name" "$marker" "$TNX_CC"
 }
 
 tnx_cmd_distro() {

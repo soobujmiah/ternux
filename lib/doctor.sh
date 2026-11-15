@@ -495,7 +495,6 @@ tnx_cmd_doctor() {
   fi
   _tnx_dr_want system && _tnx_dr_system
   _tnx_dr_want host && _tnx_dr_host
-  _tnx_dr_want guest && _tnx_dr_guest
   _tnx_dr_want graphics && _tnx_dr_graphics
   if _tnx_dr_want extensions; then
     if [ "$quick" -eq 1 ]; then
@@ -570,23 +569,24 @@ tnx_cmd_doctor() {
       info) tnx_info "$title" ;;
     esac
     if [ "$st" = warn ] || [ "$st" = fail ] || [ "$st" = info ]; then
-      [ -n "$detail" ] && [ "${TERNUX_QUIET:-0}" != "1" ] && printf "         ${TNX_CD}%s${TNX_C0}\n" "$detail"
-      [ -n "$fix" ] && [ "${TERNUX_QUIET:-0}" != "1" ] && printf "         → ${TNX_CD}%s${TNX_C0}\n" "$fix"
+      [ -n "$detail" ] && [ "${TERNUX_QUIET:-0}" != "1" ] && tnx_print_field 'Detail:' "$detail" "$TNX_CD"
+      [ -n "$fix" ] && [ "${TERNUX_QUIET:-0}" != "1" ] && tnx_print_field 'Action:' "$fix" "$TNX_CD"
     fi
   done
   echo ""
 
   tnx_header "Diagnostic Summary"
-  printf "  ${TNX_CY}Status:${TNX_C0} ${TNX_CW}%s${TNX_C0}   ok %d · warn %d · fail %d · info %d\n" "$status" "$n_ok" "$n_warn" "$n_fail" "$n_info"
+  tnx_print_field 'Status:' "$status · ok $n_ok · warn $n_warn · fail $n_fail · info $n_info" "$TNX_CY"
   if [ ${#issues[@]} -eq 0 ]; then
     printf "  ${TNX_CG}✓ All checks passed${TNX_C0}\n"
     tnx_info "Your installation looks healthy."
   else
-    printf "  ${TNX_CY}Issues:${TNX_C0} ${#issues[@]}\n\n"
+    tnx_print_field 'Issues:' "${#issues[@]}" "$TNX_CY"
+    printf '\n'
     local i
     for ((i=0; i<${#issues[@]}; i++)); do
-      printf "  ${TNX_CR}✗${TNX_C0} ${TNX_CW}%s${TNX_C0}\n" "${issues[$i]}"
-      [ -n "${actions[$i]}" ] && printf "    → ${TNX_CD}%s${TNX_C0}\n" "${actions[$i]}"
+      tnx_print_field 'Issue:' "${issues[$i]}" "$TNX_CR"
+      [ -n "${actions[$i]}" ] && tnx_print_field 'Action:' "${actions[$i]}" "$TNX_CD"
     done
   fi
   echo ""

@@ -12,7 +12,7 @@ alt_url: "/docs/USAGE.html"
 
 ## ব্যাকগ্রাউন্ড ডেস্কটপ সেশন
 
-`tx` হলো `ternux`-এর ছোট alias। একাধিক guest থাকলে `xgo` installed guest-গুলোর তালিকা দেখিয়ে GUI বাছতে বলে। `db`/`dbroot`, `ub`/`ubroot`, `alp`/`alproot`, `archx`/`archroot`, `fed`/`fedr`, `suse`/`suser`, `vsh`/`vroot`, `kali`/`kalir` user/root shell shortcut। অন্য guest-এ `tx distro shell NAME` ব্যবহার করুন; Ternux profile-এ এটি configured regular user shell খোলে, generic image-এর ক্ষেত্রে image-এর default user ব্যবহার করে। Root shell চাইলে `dbroot`, `ubroot`, `alproot` বা সংশ্লিষ্ট root shortcut ব্যবহার করুন।
+`tx` হলো `ternux` সিএলআই চালানোর সংক্ষিপ্ত কমান্ড। একাধিক গেস্ট থাকলে `xgo` ইনস্টল করা গেস্টগুলোর তালিকা দেখিয়ে গ্রাফিক্যাল ডেস্কটপ বেছে নিতে বলে। `db`/`dbroot`, `ub`/`ubroot`, `alp`/`alproot`, `archx`/`archroot`, `fed`/`fedr`, `suse`/`suser`, `vsh`/`vroot`, `kali`/`kalir` হলো সাধারণ ব্যবহারকারী বা রুট শেল খোলার শর্টকাট। অন্য গেস্টে `tx distro shell NAME` ব্যবহার করুন; টার্নাক্স প্রোফাইলে এটি নির্ধারিত সাধারণ ব্যবহারকারীর শেল খোলে, আর সাধারণ ছবিতে ছবিটির নির্ধারিত ব্যবহারকারী ব্যবহার করে। রুট শেলের জন্য `dbroot`, `ubroot`, `alproot` অথবা সংশ্লিষ্ট রুট শর্টকাট ব্যবহার করুন।
 
 `tx start` desktop-কে managed background session হিসেবে চালু করে এবং নিজের X11
 window ready হলে prompt-এ ফিরে আসে। প্রতিটি configured guest আলাদা tagged display ব্যবহার করে, তাই একাধিক profile পাশাপাশি
@@ -43,7 +43,7 @@ Android soft keyboard থেকে terminal ও অন্য X11 app-এ text �
 | `ub` / `ubr` / `ubroot` | Ubuntu user / root shell |
 | `kali` / `kalir` / `kaliroot` | Kali user / root shell |
 | `alp` / `alpr` / `alproot` | Alpine user / root shell |
-| `tx` | `ternux` CLI-র ছোট alias |
+| `tx` | `ternux` সিএলআই চালানোর সংক্ষিপ্ত কমান্ড |
 | `terfetch` | হোস্ট বা গেস্টের সিস্টেম-তথ্য দেখায়; `--json` কাঠামোবদ্ধ ফল দেয় |
 | `sysmon` | CPU/RAM/GPU-নোডের দ্রুত চিত্র |
 | `clean-mesa` | শেডার ক্যাশ পরিষ্কার (ড্রাইভার বদলের পর) |

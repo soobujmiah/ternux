@@ -72,17 +72,17 @@ _tnx_profile_show() {
   }
 
   tnx_header "Device Profile"
-  printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "Android:" "$android_ver"
-  printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "Architecture:" "$arch"
-  printf "  ${TNX_CW}%-20s${TNX_C0} %s %s\n" "Model:" "$manuf" "$model"
-  printf "  ${TNX_CW}%-20s${TNX_C0} %s GB\n" "RAM:" "$ram"
-  printf "  ${TNX_CW}%-20s${TNX_C0} %s GB free\n" "Storage:" "$storage"
-  printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "Termux:" "$termux_ver"
-  printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "GPU:" "$gpu"
-  printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "Vulkan:" "$vulkan"
-  printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "Vulkan state:" "$vulkan_state"
-  printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "Backend:" "$backend"
-  printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "Phantom:" "$phantom"
+  tnx_print_field 'Android:' "$android_ver"
+  tnx_print_field 'Architecture:' "$arch"
+  tnx_print_field 'Model:' "$manuf $model"
+  tnx_print_field 'RAM:' "$ram GB"
+  tnx_print_field 'Storage:' "$storage GB free"
+  tnx_print_field 'Termux:' "$termux_ver"
+  tnx_print_field 'GPU:' "$gpu"
+  tnx_print_field 'Vulkan:' "$vulkan"
+  tnx_print_field 'Vulkan state:' "$vulkan_state"
+  tnx_print_field 'Backend:' "$backend"
+  tnx_print_field 'Phantom:' "$phantom"
   echo ""
 }
 
@@ -128,7 +128,7 @@ _tnx_profile_load() {
   tnx_header "Profile: $name"
   cat "$f" | while IFS='=' read -r key val; do
     case "$key" in \#*) continue ;; esac
-    printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "$key:" "$val"
+    tnx_print_field "$key:" "$val"
   done
   echo ""
 }

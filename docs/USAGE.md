@@ -37,7 +37,7 @@ Ternux hides Termux's stock welcome text with `~/.hushlogin`;
 | `db` / `dbr` / `dbroot` | Debian user / root shell |
 | `ub` / `ubr` / `ubroot` | Ubuntu user / root shell |
 | `alp` / `alpr` / `alproot` | Alpine user / root shell |
-| `tx` | Short alias for the `ternux` CLI |
+| `tx` | Short executable command for the `ternux` CLI |
 | `terfetch` | Show the host or guest system summary; `--json` prints structured data |
 | `sysmon` | Quick CPU/RAM/GPU-node overview |
 | `clean-mesa` | Clear the shader cache (after driver changes) |

@@ -135,7 +135,7 @@ tx start
 Switch to the Termux:X11 app to see Xfce. Common commands, all run in Termux:
 
 ```bash
-tx status         # short alias for the Ternux CLI
+tx status         # short command for the Ternux CLI
 ternux verify     # verify the active guest; use verify db/ub/alp to choose
 ternux doctor     # diagnose common problems
 tx stop           # choose one/many running guest desktops

@@ -669,18 +669,18 @@ _tnx_cmd_status_one() {
   fi
 
   tnx_header "Desktop Status"
-  printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "Guest:" "$distro"
-  printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "Lifecycle:" "$lifecycle"
+  tnx_print_field 'Guest:' "$distro"
+  tnx_print_field 'Lifecycle:' "$lifecycle"
   printf "  ${TNX_CW}%-20s${TNX_C0} " "Overall:"
   [ "$overall" = "running" ] && printf "${TNX_CG}%s${TNX_C0}\n" "$overall" || printf "${TNX_CD}%s${TNX_C0}\n" "$overall"
-  printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "Termux:X11:" "$([ $x11 -eq 1 ] && echo "running" || echo "stopped")"
-  printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "PulseAudio:" "$([ $pa -eq 1 ] && echo "running" || echo "stopped")"
-  printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "Desktop audio route:" "$([ $pa_ready -eq 1 ] && echo "ready" || echo "unavailable")"
-  printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "VirGL:" "$([ $virgl -eq 1 ] && echo "running" || echo "stopped")"
-  printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "Display:" ":$(tnx_distro_display "$distro")"
-  printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "Desktop log:" "$(tnx_distro_session_dir "$distro")/desktop.log"
-  printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "Launcher:" "$([ -f "$(tnx_distro_state_dir "$distro")/launcher.sh" ] && echo "present" || echo "missing")"
-  printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "Managed PID:" "${desktop_pid:-none}"
+  tnx_print_field 'Termux:X11:' "$([ $x11 -eq 1 ] && echo running || echo stopped)"
+  tnx_print_field 'PulseAudio:' "$([ $pa -eq 1 ] && echo running || echo stopped)"
+  tnx_print_field 'Desktop audio route:' "$([ $pa_ready -eq 1 ] && echo ready || echo unavailable)"
+  tnx_print_field 'VirGL:' "$([ $virgl -eq 1 ] && echo running || echo stopped)"
+  tnx_print_field 'Display:' ":$(tnx_distro_display "$distro")"
+  tnx_print_field 'Desktop log:' "$(tnx_distro_session_dir "$distro")/desktop.log"
+  tnx_print_field 'Launcher:' "$([ -f "$(tnx_distro_state_dir "$distro")/launcher.sh" ] && echo present || echo missing)"
+  tnx_print_field 'Managed PID:' "${desktop_pid:-none}"
   echo ""
 }
 

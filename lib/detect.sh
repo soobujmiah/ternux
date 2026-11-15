@@ -105,13 +105,15 @@ tnx_detect_gpu() {
 }
 
 tnx_vulkan_probe_guest() {
-  local bind_args=() display_num="$(tnx_distro_display "$(tnx_distro)")"
+  local bind_args=()
   if [ -e "${TERNUX_KGSL_DEVICE:-/dev/kgsl-3d0}" ]; then
     bind_args+=(--bind "${TERNUX_KGSL_DEVICE:-/dev/kgsl-3d0}:/dev/kgsl-3d0")
     bind_args+=(--bind "${TERNUX_KGSL_DEVICE:-/dev/kgsl-3d0}:/dev/kgsl")
     [ -d /dev/dri ] && bind_args+=(--bind /dev/dri)
   fi
-  tnx_guest_login --shared-tmp --shared-x11 "${bind_args[@]}" -- env "DISPLAY=:${display_num:-1}" bash -c '
+  # Device enumeration does not require an X server. Keep DISPLAY empty so
+  # vulkaninfo skips surface probing when Termux:X11 is stopped.
+  tnx_guest_login "${bind_args[@]}" -- env DISPLAY= XDG_RUNTIME_DIR= bash -c '
     overlay="$(cat /etc/ternux/mesa-overlay 2>/dev/null || true)"
     overlay_libdir="$(cat /etc/ternux/mesa-overlay-libdir 2>/dev/null || true)"
     case "$overlay" in /usr/local/lib/ternux/*)
@@ -133,7 +135,17 @@ tnx_vulkan_probe_guest() {
       ;;
     esac
     loader=no; icd=no; enum_rc=127; report=""
-    ldconfig -p 2>/dev/null | grep -q libvulkan && loader=yes
+    if ldconfig -p 2>/dev/null | grep -q libvulkan; then
+      loader=yes
+    else
+      # Alpine uses musl and does not provide ldconfig. Detect the loader by
+      # its library files there, while retaining ldconfig for glibc guests.
+      for candidate in /lib*/libvulkan.so* /usr/lib*/libvulkan.so* \
+        /usr/local/lib*/libvulkan.so* /usr/lib/*/libvulkan.so* \
+        /usr/local/lib/*/libvulkan.so*; do
+        if [ -e "$candidate" ]; then loader=yes; break; fi
+      done
+    fi
     for d in /etc/vulkan/icd.d /usr/share/vulkan/icd.d /usr/local/share/vulkan/icd.d /usr/local/lib/aarch64-linux-gnu/vulkan/icd.d; do
       if [ -d "$d" ] && find "$d" -maxdepth 1 -type f -name "*.json" -print -quit 2>/dev/null | grep -q .; then icd=yes; break; fi
     done
@@ -386,16 +398,16 @@ tnx_profile() {
 
   # Human-readable output
   tnx_header "Device Profile"
-  printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "Android version:" "$android_ver"
-  printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "Architecture:" "$arch"
-  printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "Model:" "$model"
-  printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "Manufacturer:" "$manufacturer"
-  printf "  ${TNX_CW}%-20s${TNX_C0} %s GB\n" "RAM:" "$ram"
-  printf "  ${TNX_CW}%-20s${TNX_C0} %s GB free\n" "Storage:" "$storage"
-  printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "Termux version:" "$termux_ver"
-  printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "GPU:" "$gpu"
-  printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "Vulkan:" "$vulkan"
-  printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "GPU backend:" "$backend"
-  printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "Phantom killer:" "$phantom"
+  tnx_print_field 'Android version:' "$android_ver"
+  tnx_print_field 'Architecture:' "$arch"
+  tnx_print_field 'Model:' "$model"
+  tnx_print_field 'Manufacturer:' "$manufacturer"
+  tnx_print_field 'RAM:' "$ram GB"
+  tnx_print_field 'Storage:' "$storage GB free"
+  tnx_print_field 'Termux version:' "$termux_ver"
+  tnx_print_field 'GPU:' "$gpu"
+  tnx_print_field 'Vulkan:' "$vulkan"
+  tnx_print_field 'GPU backend:' "$backend"
+  tnx_print_field 'Phantom killer:' "$phantom"
   echo ""
 }

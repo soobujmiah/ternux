@@ -26,9 +26,9 @@ tnx_cmd_benchmark() {
 
   if [ "${TERNUX_JSON:-0}" != "1" ]; then
     tnx_header "Configuration"
-    printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "GPU:" "$(tnx_detect_gpu)"
-    printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "Backend:" "$backend"
-    printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "Vulkan:" "$(tnx_detect_vulkan)"
+    tnx_print_field 'GPU:' "$(tnx_detect_gpu)"
+    tnx_print_field 'Backend:' "$backend"
+    tnx_print_field 'Vulkan:' "$(tnx_detect_vulkan)"
     echo ""
     tnx_info "Benchmarks run inside the Debian container (desktop must be active)."
     echo ""
@@ -94,10 +94,10 @@ tnx_cmd_benchmark() {
   fi
 
   tnx_header "Benchmark Summary"
-  printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "glmark2:" "${glmark2_score:-N/A}"
-  printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "vkmark:" "${vkmark_score:-N/A}"
-  printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "Renderer:" "${renderer:-unknown}"
-  printf "  ${TNX_CW}%-20s${TNX_C0} %s\n" "GPU:" "$(tnx_detect_gpu)"
+  tnx_print_field 'glmark2:' "${glmark2_score:-N/A}"
+  tnx_print_field 'vkmark:' "${vkmark_score:-N/A}"
+  tnx_print_field 'Renderer:' "${renderer:-unknown}"
+  tnx_print_field 'GPU:' "$(tnx_detect_gpu)"
   echo ""
 }
 

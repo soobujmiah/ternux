@@ -33,7 +33,7 @@ if cli_help="$(bash "$ROOT/bin/ternux" --help 2>&1)" \
   && tx_help="$(bash "$ROOT/bin/tx" --help 2>&1)" \
   && install_help="$(bash "$ROOT/bin/ternux" install --help 2>&1)" \
   && printf '%s\n' "$cli_help" | grep -Fq -- '--version, -V' \
-  && printf '%s\n' "$tx_help" | grep -Fq 'tx <command> [options] [subcommand]' \
+  && printf '%s\n' "$tx_help" | grep -Fq '<command> [options] [subcommand]' \
   && printf '%s\n' "$tx_help" | grep -Fq 'Complete command tree:' \
   && printf '%s\n' "$tx_help" | grep -Fq 'Workstation In Your Pocket' \
   && printf '%s\n' "$tx_help" | grep -Fq 'kali/kalir/kaliroot' \
@@ -44,6 +44,9 @@ if cli_help="$(bash "$ROOT/bin/ternux" --help 2>&1)" \
   && printf '%s\n' "$tx_help" | grep -Fq 'mic' \
   && printf '%s\n' "$tx_help" | grep -Fq 'cam' \
   && printf '%s\n' "$tx_help" | grep -Fq 'db → debian' \
+  && printf '%s\n' "$tx_help" | grep -Fq '│' \
+  && narrow_help="$(COLUMNS=44 bash "$ROOT/bin/ternux" --help 2>&1)" \
+  && NARROW_HELP="$narrow_help" python3 -c 'import os,re; lines=[re.sub(r"\x1b\[[0-9;]*[A-Za-z]", "", x) for x in os.environ["NARROW_HELP"].splitlines()]; assert all(len(x) <= 44 for x in lines); positions={x.index("│") for x in lines if "│" in x}; assert positions == {19}, positions; assert any("start" in x and "│" in x for x in lines) and any("stop" in x and "│" in x for x in lines) and any("--all | --with-*]" in x for x in lines)' \
   && start_help="$(bash "$ROOT/bin/tx" start --help 2>&1)" \
   && printf '%s\n' "$start_help" | grep -Fq 'tx start [DISTRO ...]' \
   && verify_help="$(bash "$ROOT/bin/ternux" verify --help 2>&1)" \
@@ -290,8 +293,7 @@ else
   not_ok "renderer detection passes the active display into the Debian guest"
 fi
 
-# Renderer and Vulkan probes must expose the same Adreno device nodes and the
-# selected guest display used by the managed Zink desktop.
+# Renderer probes need the active display; Vulkan device enumeration does not.
 if env TERNUX_STATE_DIR="$TMP/state-renderer-kgsl" HOME="$TMP/home-renderer-kgsl" \
   PREFIX="$TMP/prefix-renderer-kgsl" TERNUX_KGSL_DEVICE="$TMP/kgsl-renderer" bash -c '
     : > "$TERNUX_KGSL_DEVICE"
@@ -307,12 +309,24 @@ if env TERNUX_STATE_DIR="$TMP/state-renderer-kgsl" HOME="$TMP/home-renderer-kgsl
     grep -Fq -- "--bind $TERNUX_KGSL_DEVICE:/dev/kgsl-3d0 --bind $TERNUX_KGSL_DEVICE:/dev/kgsl" "$LOG" || exit
     : > "$LOG"
     tnx_vulkan_probe_guest >/dev/null
-    grep -Fq -- "--shared-tmp --shared-x11 --bind $TERNUX_KGSL_DEVICE:/dev/kgsl-3d0 --bind $TERNUX_KGSL_DEVICE:/dev/kgsl" "$LOG" &&
-    grep -Fq -- "-- env DISPLAY=:3 bash -c" "$LOG"
+    grep -Fq -- "--bind $TERNUX_KGSL_DEVICE:/dev/kgsl-3d0 --bind $TERNUX_KGSL_DEVICE:/dev/kgsl" "$LOG" &&
+    grep -Fq -- "-- env DISPLAY= XDG_RUNTIME_DIR= bash -c" "$LOG" &&
+    ! grep -Fq -- "--shared-x11" "$LOG"
   ' _ "$ROOT" "$TMP"; then
-  ok "renderer and Vulkan probes bind Adreno nodes and the selected guest display"
+  ok "renderer uses the active display while Vulkan probing binds Adreno nodes without requiring X11"
 else
-  not_ok "renderer and Vulkan probes bind Adreno nodes and the selected guest display"
+  not_ok "renderer uses the active display while Vulkan probing binds Adreno nodes without requiring X11"
+fi
+
+# Host doctor needs vulkaninfo even when no graphics app bundle is selected.
+if bash -c '
+  . "$1/lib/phases.sh"
+  tnx_termux_pkg(){ printf "%s\n" "$*"; }
+  _tnx_install_core_packages "" | grep -Eq "(^|[[:space:]])vulkan-tools($|[[:space:]])"
+' _ "$ROOT"; then
+  ok "native Vulkan diagnostics are included in the default Termux package set"
+else
+  not_ok "native Vulkan diagnostics are included in the default Termux package set"
 fi
 
 # With no DISPLAY and no Termux:X11 server, renderer is an inactive-state
@@ -1328,9 +1342,10 @@ if env TERNUX_STATE_DIR="$TMP/state-launcher" HOME="$launcher_home" bash -c '
   ! grep -q "^virgl_test_server_android " "$HOME/x.sh" &&
   ! grep -q "pkill.*dbus" "$HOME/.bashrc" &&
   ! grep -Fq "alias x=" "$HOME/.bashrc" &&
-  grep -q "alias killx=.*ternux stop" "$HOME/.bashrc" &&
   grep -q "xgo() { _ternux_xgo; }" "$HOME/.bashrc" &&
-  grep -q "alias tx=.*ternux" "$HOME/.bashrc" &&
+  ! grep -q "^alias tx=" "$HOME/.bashrc" &&
+  grep -Fq "alias killx=" "$HOME/.bashrc" &&
+  grep -Fq "tx stop" "$HOME/.bashrc" &&
   grep -q "db() { _ternux_guest_login debian --shared-tmp --user" "$HOME/.bashrc" &&
   grep -q "ub() { _ternux_guest_login ubuntu --shared-tmp --user" "$HOME/.bashrc" &&
   grep -q "alp() { _ternux_guest_login alpine --shared-tmp --user" "$HOME/.bashrc" &&
@@ -3543,13 +3558,25 @@ if env HOME="$TMP/ext-host-home" PATH="$EXT_HOST_BIN:$PATH" \
     tnx_state_set user sbj
     tnx_state_set distro debian
     tnx_cmd_extension list
-  ' _ "$ROOT" | grep -q 'llama-vulkan.*llama.cpp CPU + Vulkan' &&
+  ' _ "$ROOT" | grep -q 'llama-vulkan' &&
+  env HOME="$TMP/ext-host-home-check" PATH="$EXT_HOST_BIN:$PATH" \
+    TERNUX_STATE_DIR="$TMP/ext-host-state-check" bash -c '
+      . "$1/lib/core.sh"; . "$1/lib/extension.sh"
+      tnx_state_set user sbj; tnx_state_set distro debian
+      tnx_cmd_extension list
+    ' _ "$ROOT" | grep -q 'llama.cpp CPU + Vulkan' &&
   env HOME="$TMP/ext-host-home-htp" PATH="$EXT_HOST_BIN:$PATH" \
     TERNUX_STATE_DIR="$TMP/ext-host-state-htp" bash -c '
       . "$1/lib/core.sh"; . "$1/lib/extension.sh"
       tnx_state_set user sbj; tnx_state_set distro debian
       tnx_cmd_extension list
-    ' _ "$ROOT" | grep -q 'llama-htp-experimental.*experimental'; then
+    ' _ "$ROOT" | grep -q 'llama-htp-experimental' &&
+  env HOME="$TMP/ext-host-home-htp-check" PATH="$EXT_HOST_BIN:$PATH" \
+    TERNUX_STATE_DIR="$TMP/ext-host-state-htp-check" bash -c '
+      . "$1/lib/core.sh"; . "$1/lib/extension.sh"
+      tnx_state_set user sbj; tnx_state_set distro debian
+      tnx_cmd_extension list
+    ' _ "$ROOT" | grep -q 'experimental'; then
   ok "host extension command delegates its menu into the selected guest"
 else
   not_ok "host extension command delegates its menu into the selected guest"
@@ -3933,6 +3960,18 @@ assert x["backend"] == "virgl"
 PY
 then ok "doctor v2 JSON has the checks schema, consistent summary and extension health"
 else not_ok "doctor v2 JSON has the checks schema, consistent summary and extension health"; fi
+
+DR_SCOPED="$(dr_run scoped env TERNUX_JSON=1 DR_PROBE_FILE="$DR_PROBE_OK" bash "$DR_HARNESS" "$ROOT" db)"
+if python3 - "$DR_SCOPED" <<'PY'
+import json, sys
+checks = json.loads(sys.argv[1])["checks"]
+ids = [item["id"] for item in checks]
+assert ids.count("guest_os") == 1, ids
+assert ids.count("sudo") == 1, ids
+assert ids.count("vulkan") == 1, ids
+PY
+then ok "scoped doctor reports guest checks only once"
+else not_ok "scoped doctor reports guest checks only once"; fi
 
 DR_EXT="$(dr_run ext env TERNUX_JSON=1 DR_PROBE_FILE="$DR_PROBE_OK" bash "$DR_HARNESS" "$ROOT" extensions)"
 if python3 - "$DR_EXT" <<'PY'
