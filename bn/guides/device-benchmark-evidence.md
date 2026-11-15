@@ -266,11 +266,9 @@ Extension load করার জন্য এই run-এ Blender-এর saved use
 হয়েছে। `--factory-startup` extension বন্ধ করে, আর `blender-gpu` MCP server এই
 flag ব্যবহার করে; তাই MPFB2 script-এর জন্য আলাদা Blender process দরকার।
 Headless run-এ `DISPLAY=:0` অথবা `GALLIUM_DRIVER=zink`-সহ Xvfb `:9` পরীক্ষা করা
-হয়েছে; আবার ব্যবহারের আগে active display যাচাই করুন। MPFB2 API setup,
-helper-group rigging caveat, fitting sequence, licence ও reproduction notes
-SKB-এর [MPFB2 workflow](https://github.com/soobujmiah/skb/blob/main/engineering/ANIMATION_PRODUCTION_PIPELINE.md#mpfb2-human-character-workflow)
-এবং [device environment record](https://github.com/soobujmiah/skb/blob/main/devices/redmi-turbo-4-pro/current-termux-environment.md#blender-mpfb2-human-generation)-এ
-আছে।
+হয়েছে; আবার ব্যবহারের আগে সচল ডিসপ্লে যাচাই করুন। এক্সটেনশন স্থাপন, রিগিং,
+ফিটিং, লাইসেন্স ও যন্ত্র-পরিবেশের অতিরিক্ত নোট মালিকের ব্যক্তিগত নথিতে আছে;
+সেগুলো এই উন্মুক্ত সংগ্রহস্থলে প্রকাশিত নয়।
 
 ## Observed: Blender 4.3.2
 
@@ -426,7 +424,6 @@ output quality এখনও unverified।
 Probe source ও binary scratch artifact; llama.cpp release-এ নেই।
 
 Workflow ও source pin: [llama-htp-artifact.yml](../../.github/workflows/llama-htp-artifact.yml)।
-Device test detail: [SKB investigation](https://github.com/soobujmiah/skb/blob/main/devices/redmi-turbo-4-pro/evidence/debian-proot-npu-investigation-2026-10-13.md)। Exact archive-er retest log local probe scratch-er `gh-artifact-device-test.log`।
 
 ---
 

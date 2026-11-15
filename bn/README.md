@@ -2,7 +2,7 @@
 
 <!-- deterministic-state-bridge: ternux -->
 
-**স্বয়ংক্রিয় সংগ্রহশালা-অবস্থা:** [`.repo/STATUS.md`](../.repo/STATUS.md)। SKB তালিকা: [`ternux.json`](https://github.com/soobujmiah/skb/blob/main/projects/registry/ternux.json)।
+**স্বয়ংক্রিয় সংগ্রহশালা-অবস্থা:** [`.repo/STATUS.md`](../.repo/STATUS.md)।
 
 # ternux
 
