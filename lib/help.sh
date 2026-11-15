@@ -207,10 +207,10 @@ HELP
 tnx_help_distro() {
   printf '%sUsage:%s tx distro [list|search|install|uninstall|image-install|shell|root|exec]\n\n' "$TNX_CW" "$TNX_C0"
   printf '%sGuest shell shortcuts:%s\n' "$TNX_CW" "$TNX_C0"
-  printf '  %s%-20s%s %s\n' "$TNX_CC" 'db / dbr / dbroot' "$TNX_C0" 'Debian user / root shell'
-  printf '  %s%-20s%s %s\n' "$TNX_CC" 'ub / ubr / ubroot' "$TNX_C0" 'Ubuntu user / root shell'
-  printf '  %s%-20s%s %s\n' "$TNX_CC" 'kali / kalir / kaliroot' "$TNX_C0" 'Kali user / root shell'
-  printf '  %s%-20s%s %s\n' "$TNX_CC" 'alp / alpr / alproot' "$TNX_C0" 'Alpine user / root shell'
+  printf '  %s%-24s%s %s\n' "$TNX_CC" 'db / dbr / dbroot' "$TNX_C0" 'Debian user / root shell'
+  printf '  %s%-24s%s %s\n' "$TNX_CC" 'ub / ubr / ubroot' "$TNX_C0" 'Ubuntu user / root shell'
+  printf '  %s%-24s%s %s\n' "$TNX_CC" 'kali / kalir / kaliroot' "$TNX_C0" 'Kali user / root shell'
+  printf '  %s%-24s%s %s\n' "$TNX_CC" 'alp / alpr / alproot' "$TNX_C0" 'Alpine user / root shell'
   printf '\nFull managed catalog, short names, display IDs and install state: tx distro list\n'
 }
 tnx_help_start()     { echo "Usage: tx start [DISTRO ...]"; echo "Start Debian by default when installed; otherwise start the saved distro. Pass one or more full or short guest names to start desktops in sequence."; echo "Catalog order and short names: debian/db, ubuntu/ub, kali, alpine/alp, archlinux/archx, fedora/fed, opensuse/suse, void/vsh, artix/art, chimera/chim, deepin/deep, manjaro/manj, pardus/par, rockylinux/rock, adelie/adel."; echo "Example: tx start db ub kali alp"; }
