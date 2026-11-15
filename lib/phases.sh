@@ -2031,23 +2031,36 @@ _tnx_install_terfetch_hook() {
   cat >> "$rc_tmp" <<'TERFETCHEOF'
 
 # TERNUX TERFETCH START BEGIN
-if [[ $- == *i* ]] && [[ -z ${TERFETCH_NO_AUTORUN:-} ]] && command -v terfetch >/dev/null 2>&1; then
-  terfetch
-fi
-_ternux_terfetch_last_size="$(stty size 2>/dev/null || true)"
-_ternux_terfetch_resize_check() {
-  local _tnx_size
-  _tnx_size="$(stty size 2>/dev/null || true)"
-  if [[ -n $_tnx_size && $_tnx_size != $_ternux_terfetch_last_size ]]; then
-    _ternux_terfetch_last_size=$_tnx_size
-    [[ -z ${TERFETCH_NO_AUTORUN:-} ]] && command -v terfetch >/dev/null 2>&1 && terfetch --refresh
+# Shell startup files can be sourced more than once by terminal integrations.
+if [[ -z ${_TERNUX_TERFETCH_HOOK_LOADED:-} ]]; then
+  _TERNUX_TERFETCH_HOOK_LOADED=1
+  if [[ $- == *i* ]] && [[ -z ${TERFETCH_NO_AUTORUN:-} ]] && [[ ${_TERNUX_TERFETCH_AUTORUN_DONE:-0} != 1 ]] && command -v terfetch >/dev/null 2>&1; then
+    terfetch
+    _TERNUX_TERFETCH_AUTORUN_DONE=1
   fi
-}
-if [[ -n ${ZSH_VERSION:-} ]]; then
-  typeset -ga precmd_functions
-  (( ${precmd_functions[(Ie)_ternux_terfetch_resize_check]} )) || precmd_functions+=(_ternux_terfetch_resize_check)
-else
-  case ";${PROMPT_COMMAND:-};" in *";_ternux_terfetch_resize_check;"*) ;; *) PROMPT_COMMAND="${PROMPT_COMMAND:+${PROMPT_COMMAND};}_ternux_terfetch_resize_check" ;; esac
+  _ternux_terfetch_last_size="$(stty size 2>/dev/null || true)"
+  _ternux_terfetch_prompt_initialized=0
+  [[ -n $_ternux_terfetch_last_size ]] && _ternux_terfetch_prompt_initialized=1
+  _ternux_terfetch_resize_check() {
+    local _tnx_size
+    _tnx_size="$(stty size 2>/dev/null || true)"
+    # If startup could not read the size, learn the first valid baseline quietly.
+    if [[ ${_ternux_terfetch_prompt_initialized:-0} != 1 || -z $_ternux_terfetch_last_size ]]; then
+      _ternux_terfetch_last_size=$_tnx_size
+      _ternux_terfetch_prompt_initialized=1
+      return
+    fi
+    if [[ -n $_tnx_size && $_tnx_size != $_ternux_terfetch_last_size ]]; then
+      _ternux_terfetch_last_size=$_tnx_size
+      [[ -z ${TERFETCH_NO_AUTORUN:-} ]] && command -v terfetch >/dev/null 2>&1 && terfetch --refresh
+    fi
+  }
+  if [[ -n ${ZSH_VERSION:-} ]]; then
+    typeset -ga precmd_functions
+    (( ${precmd_functions[(Ie)_ternux_terfetch_resize_check]} )) || precmd_functions+=(_ternux_terfetch_resize_check)
+  else
+    case ";${PROMPT_COMMAND:-};" in *";_ternux_terfetch_resize_check;"*) ;; *) PROMPT_COMMAND="${PROMPT_COMMAND:+${PROMPT_COMMAND};}_ternux_terfetch_resize_check" ;; esac
+  fi
 fi
 # TERNUX TERFETCH START END
 TERFETCHEOF

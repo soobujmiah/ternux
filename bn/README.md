@@ -2,11 +2,11 @@
 
 <!-- deterministic-state-bridge: ternux -->
 
-**স্বয়ংক্রিয় repository status:** [`.repo/STATUS.md`](../.repo/STATUS.md)। SKB registry: [`ternux.json`](https://github.com/soobujmiah/skb/blob/main/projects/registry/ternux.json)।
+**স্বয়ংক্রিয় সংগ্রহশালা-অবস্থা:** [`.repo/STATUS.md`](../.repo/STATUS.md)। SKB তালিকা: [`ternux.json`](https://github.com/soobujmiah/skb/blob/main/projects/registry/ternux.json)।
 
 # ternux
 
-### ARM64 Android ফোনে Linux desktop — root লাগে না
+### এআরএম৬৪ অ্যান্ড্রয়েড ফোনে লিনাক্স ডেস্কটপ — রুট লাগে না
 
 [![সংস্করণ](https://img.shields.io/badge/version-2.0.0-00e5a0?style=flat-square)](https://github.com/soobujmiah/ternux/tree/v2.0.0)
 [![Termux APT v2 প্রত্যাহৃত](https://img.shields.io/badge/Termux%20APT-v2%20withdrawn-gray?style=flat-square)](../docs/TERMUX-APT.md)
@@ -24,235 +24,253 @@
 [![NPU](https://img.shields.io/badge/NPU-shudhu%20experimental-f59e0b?style=flat-square)](../docs/ACCELERATOR-RELEASE-PLAN.md)
 [![লাইসেন্স](https://img.shields.io/badge/license-Apache--2.0-22c55e?style=flat-square)](../LICENSE)
 
-[ওয়েবসাইট](https://soobujmiah.github.io/ternux/) · [দ্রুত শুরু](../docs/QUICK-START.md) · [সব ডকুমেন্টেশন](../docs/README.md) · [CLI নির্দেশিকা](../docs/CLI.md) · [Benchmark](../docs/BENCHMARKS.md) · [v2 release ও বর্তমান audit](../docs/release/V2-RELEASE-REPORT.md) · [English](../README.md) · [Source](https://github.com/soobujmiah/ternux)
+[ওয়েবসাইট](https://soobujmiah.github.io/ternux/) · [দ্রুত শুরু](../docs/QUICK-START.md) · [সব নথি](../docs/README.md) · [কমান্ড-লাইন নির্দেশিকা](../docs/CLI.md) · [পরীক্ষার মাপজোখ](../docs/BENCHMARKS.md) · [v2 প্রকাশনা ও নিরীক্ষা](../docs/release/V2-RELEASE-REPORT.md) · [ইংরেজি](../README.md) · [উৎস](https://github.com/soobujmiah/ternux)
 
 </div>
 
 ## Ternux সম্পর্কে
 
-Ternux ARM64 Android ফোনে root ছাড়াই Linux desktop চালায়; Android-ই host
-থাকে। Termux-এর মধ্যে PRoot guest চলে, Termux:X11-এ Xfce desktop দেখা যায়,
-আর PulseAudio guest-এর sound Android-এ route করে। একটি CLI দিয়ে guest,
-desktop session, graphics, diagnostics ও optional workload পরিচালনা করা যায়।
+টার্নাক্স এআরএম৬৪ অ্যান্ড্রয়েড ফোনে রুট ছাড়াই লিনাক্স ডেস্কটপ চালায়; অ্যান্ড্রয়েডই
+হোস্ট থাকে। টার্মাক্সের ভেতরে পিআররুট গেস্ট চলে, টার্মাক্স:এক্স১১-তে এক্সএফসিই
+ডেস্কটপ দেখা যায় এবং পালসঅডিও গেস্টের শব্দ অ্যান্ড্রয়েডে পাঠায়। একটি
+কমান্ড-লাইন সরঞ্জাম দিয়ে গেস্ট, ডেস্কটপ অধিবেশন, গ্রাফিক্স, সমস্যা-নিরীক্ষা
+ও ঐচ্ছিক কাজ পরিচালনা করা যায়।
 
-দৈনন্দিন browsing, document, media, photo ও audio recording-এর app-সহ Ternux-এর
-নিজস্ব theme এবং phone-sized window ব্যবস্থা থাকে। Developer tools ও local
-CPU/Vulkan AI workload দরকার হলে optional হিসেবে install করা যায়। Termux-কে
-storage permission দিলে guest থেকে Android shared storage-এর file ও model
-সরাসরি ব্যবহার করা যায়।
+দৈনন্দিন ওয়েব দেখা, নথি সম্পাদনা, গান-ভিডিও চালানো, ছবি তোলা ও শব্দ ধারণের
+অ্যাপসহ টার্নাক্সে নিজস্ব রং-নকশা এবং ফোনের মাপের জানালা থাকে। নির্মাণ-সরঞ্জাম
+ও প্রসেসর/ভলকান-চালিত স্থানীয় কৃত্রিম বুদ্ধিমত্তার কাজ চাইলে আলাদাভাবে বসানো
+যায়। টার্মাক্সকে সংরক্ষণ-অনুমতি দিলে গেস্ট থেকে অ্যান্ড্রয়েডের ভাগ করা ফাইল
+ও মডেল সরাসরি ব্যবহার করা যায়।
 
-**v2-তে Debian, Ubuntu ও Alpine—এই তিনটি desktop profile supported।** Device
-evidence Redmi Turbo 4 Pro / Android 16 / Adreno 825-এর; ঠিক কোন পরীক্ষা হয়েছে
-তা feature matrix ও current audit-এ দেখুন।
-Debian recommended default। আরও ১২টি named distro recipe চেষ্টা করা যায়, তবে
-v2 desktop support হিসেবে সেগুলো qualified নয়। Ternux desktop recipe না থাকলে
-arbitrary OCI image shell guest হিসেবে চলে।
+**v2-তে ডেবিয়ান, উবুন্টু ও আল্পাইন—এই তিনটি ডেস্কটপ প্রোফাইল সমর্থিত।**
+যন্ত্রের প্রমাণ রেডমি টার্বো ৪ প্রো / অ্যান্ড্রয়েড ১৬ / অ্যাড্রেনো ৮২৫ থেকে;
+কোন পরীক্ষা হয়েছে তা [সুবিধা-তালিকা](../docs/audit/FEATURE-MATRIX.md) ও
+[বর্তমান নিরীক্ষায়](../docs/audit/CURRENT-STATE.md) দেখুন। ডেবিয়ান
+সুপারিশকৃত প্রাথমিক পছন্দ। আরও ১২টি নামযুক্ত ডিস্ট্রো রেসিপি চেষ্টা করা যায়,
+তবে v2 ডেস্কটপ সমর্থন হিসেবে সেগুলো যাচাইকৃত নয়। টার্নাক্স ডেস্কটপ রেসিপি
+না থাকা ওসিআই ছবিও শুধু শেল গেস্ট হিসেবে চালানো যায়।
 
-### Graphics ও guest support
+### গ্রাফিক্স ও গেস্ট সমর্থন
 
-১৫টি named recipe-তেই distro-specific Mesa GL package আছে। Adreno/KGSL-এ distro সমর্থন করলে Zink/Freedreno-কে
-অগ্রাধিকার দেয়; Debian Trixie-তে validated Turnip payload-ও আছে। VirGL হলো
-compatibility route। কোন renderer চলছে তা guest-এর `glxinfo -B` দিয়ে দেখুন।
+১৫টি নামযুক্ত রেসিপিতেই ডিস্ট্রো-নির্দিষ্ট মেসা জিএল প্যাকেজ আছে। অ্যাড্রেনো/
+কেজিএসএল থাকলে এবং ডিস্ট্রো সমর্থন করলে জিঙ্ক/ফ্রিড্রিনো অগ্রাধিকার পায়;
+ডেবিয়ান ট্রিক্সিতে যাচাইকৃত টার্নিপ প্যাকেজও আছে। ভিরজিএল সামঞ্জস্য-পথ।
+গেস্টের `glxinfo -B` দিয়ে চলমান রেন্ডারার দেখুন।
 
 ### কোথা থেকে শুরু করবেন
 
 - **প্রথমবার?** [দ্রুত শুরু করুন](../docs/QUICK-START.md)।
-- **Guest support বুঝতে?** [v2 support matrix](../docs/audit/FEATURE-MATRIX.md)।
-- **মাপজোখ দেখতে?** [Benchmark ও সীমাবদ্ধতা](../docs/BENCHMARKS.md)।
-- **Command খুঁজছেন?** [CLI reference](../docs/CLI.md)।
+- **গেস্ট সমর্থন জানতে?** [v2 সুবিধা-তালিকা](../docs/audit/FEATURE-MATRIX.md)।
+- **মাপজোখ দেখতে?** [পরীক্ষার ফল ও সীমাবদ্ধতা](../docs/BENCHMARKS.md)।
+- **কমান্ড খুঁজছেন?** [কমান্ড-লাইন নির্দেশিকা](../docs/CLI.md)।
 
-![Ternux workstation-এর স্তর এবং CPU, GPU ও পরীক্ষামূলক NPU অবস্থা](../docs/assets/ternux-overview.svg)
+![টার্নাক্স কর্মযন্ত্রের স্তর এবং প্রসেসর, গ্রাফিক্স ও পরীক্ষামূলক এনপিইউ-এর অবস্থা](../docs/assets/ternux-overview.svg)
 
-## ইনস্টল
+## ইনস্টলেশন
 
-১. [F-Droid থেকে Termux](https://f-droid.org/packages/com.termux/) অথবা
-[GitHub release](https://github.com/termux/termux-app/releases) নিন, সঙ্গে
-[Termux:X11](https://github.com/termux/termux-x11/releases) ইনস্টল করুন।
-একাধিক GUI আলাদা Android window-তে দেখাতে nightly build নিন। Termux সামনে
-বা পেছনে থাকলে Android যেন Linux workload কম throttle করে, সে জন্য GitHub-এর
-Termux ব্যবহারকারীরা upstream
+১. [এফ-ড্রয়েড থেকে টার্মাক্স](https://f-droid.org/packages/com.termux/) অথবা
+[গিটহাবের প্রকাশনা](https://github.com/termux/termux-app/releases) নিন, সঙ্গে
+[টার্মাক্স:এক্স১১](https://github.com/termux/termux-x11/releases) বসান।
+একাধিক গ্রাফিক্যাল ডেস্কটপ আলাদা অ্যান্ড্রয়েড জানালায় দেখতে পরীক্ষামূলক
+নাইটলি সংস্করণ নিন। টার্মাক্স সামনে বা পেছনে থাকলে অ্যান্ড্রয়েড যেন লিনাক্সের
+কাজ কম ধীর করে, সে জন্য গিটহাব সংস্করণের টার্মাক্স ব্যবহারকারীরা নির্মাতার
 [shared-UID debug APK](https://github.com/termux/termux-x11/releases/tag/nightly)
-(`termux-x11-universal-sharedUid-debug.apk`) নিতে পারেন; এটি Termux-এর
-shared Android UID-তে চলে। এটি শুধু GitHub-signed Termux-এর সঙ্গে কাজ করে।
-F-Droid বা Google Play Termux হলে একই release page-এর সাধারণ
+(`termux-x11-universal-sharedUid-debug.apk`) নিতে পারেন; এটি টার্মাক্সের
+অ্যান্ড্রয়েড পরিচয় ভাগ করে চলে এবং শুধু গিটহাব-স্বাক্ষরিত টার্মাক্সের সঙ্গেই
+কাজ করে। এফ-ড্রয়েড বা গুগল প্লে টার্মাক্স হলে একই প্রকাশনা-পাতার সাধারণ
 [`termux-x11-universal-debug.apk`](https://github.com/termux/termux-x11/releases/tag/nightly)
-ব্যবহার করুন। Termux:X11 একবার খুলুন। অতিরিক্ত companion app হিসেবে
-[Termux:Boot-এর F-Droid](https://f-droid.org/packages/com.termux.boot/) অথবা
-[GitHub](https://github.com/termux/termux-boot/releases) version reboot-এর পর
-নির্ধারিত script চালায়; [Termux:API-এর F-Droid](https://f-droid.org/packages/com.termux.api/)
-অথবা [GitHub](https://github.com/termux/termux-api/releases) Android utility দেয়
-(সঙ্গে Termux-এ `pkg install termux-api` চালাতে হবে); আর
-[Termux:Styling-এর F-Droid](https://f-droid.org/packages/com.termux.styling/)
-অথবা [GitHub](https://github.com/termux/termux-styling/releases) terminal theme
-ও font যোগ করে। Desktop app-এর live mic on-demand Termux OpenSL ES
-source দিয়ে চলে; API recorder file তৈরি করে। Termux ও add-on একই source থেকে নিন।
-২. চলমান ও সুস্থ Termux-এ এই command দিয়ে update, downloader install এবং Ternux
-চালান:
+ব্যবহার করুন। টার্মাক্স:এক্স১১ একবার খুলুন। অতিরিক্ত সহচর অ্যাপ হিসেবে
+[টার্মাক্স:বুটের এফ-ড্রয়েড সংস্করণ](https://f-droid.org/packages/com.termux.boot/) অথবা
+[গিটহাব সংস্করণ](https://github.com/termux/termux-boot/releases) যন্ত্র পুনরায়
+চালুর পর নির্ধারিত কাজ চালায়; [টার্মাক্স:এপিআই-এর এফ-ড্রয়েড সংস্করণ](https://f-droid.org/packages/com.termux.api/)
+অথবা [গিটহাব সংস্করণ](https://github.com/termux/termux-api/releases) অ্যান্ড্রয়েডের
+সরঞ্জাম দেয় (টার্মাক্সে `pkg install termux-api`-ও চালাতে হবে); আর
+[টার্মাক্স:স্টাইলিংয়ের এফ-ড্রয়েড সংস্করণ](https://f-droid.org/packages/com.termux.styling/)
+অথবা [গিটহাব সংস্করণ](https://github.com/termux/termux-styling/releases)
+টার্মিনালের রং-নকশা ও হরফ যোগ করে। ডেস্কটপ অ্যাপের সরাসরি মাইক্রোফোন-শব্দ
+চাহিদামতো টার্মাক্সের ওপেনএসএল ইএস পথ দিয়ে আসে; এপিআই রেকর্ডার ফাইল তৈরি
+করে। টার্মাক্স ও সহচর অ্যাপগুলো একই উৎস থেকে নিন।
+২. সচল টার্মাক্সে নিচের কমান্ড চালিয়ে প্যাকেজ হালনাগাদ, নামানোর সরঞ্জাম
+ইনস্টল ও টার্নাক্স চালু করুন:
 
 ```bash
 pkg update -y && pkg upgrade -y && pkg install -y curl && bash -o pipefail -c 'curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'
 ```
 
-curl ব্যবহার করতে না পারলে wget নিন:
+`curl` না থাকলে `wget` ব্যবহার করুন:
 
 ```bash
 pkg update -y && pkg upgrade -y && pkg install -y wget && bash -o pipefail -c 'wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'
 ```
 
-আংশিক upgrade-এ `pkg` বা curl চালু না হলে `apt update && apt full-upgrade -y`
-চালিয়ে Termux repair করুন, তারপর আবার চেষ্টা করুন।
+আংশিক হালনাগাদের পর `pkg` বা `curl` না চললে `apt update && apt full-upgrade -y`
+চালিয়ে টার্মাক্স মেরামত করুন, তারপর আবার চেষ্টা করুন।
 
-Ternux v2.0.0 GitHub release ও stable APT distribution 2026-11-14-এ
-withdraw করা হয়েছে। Provenance-এর জন্য `v2.0.0` source tag রাখা হয়েছে।
-উপরের source installer ব্যবহার করুন। Stable signed APT repository প্রত্যাহার
-করা হয়েছে; `pkg install ternux` এখন পাওয়া যাচ্ছে না। RC bootstrap ও key পাওয়া গেলেও signed index HTTP 404 দেয়, তাই ওই channel-ও
-install করা যায় না। Architecture ও acceptance
-gate সম্পূর্ণ হলে পরের stable release v2 major-এই থাকবে; আগে v3 নামে পরিকল্পিত full platform scope-ও তাতে থাকবে। [APT channel status](../docs/TERMUX-APT.md)
-ও [v2 release record](../docs/V2-RELEASE-READINESS.md) দেখুন।
+টার্নাক্স v2.0.0 গিটহাব প্রকাশনা ও স্থিতিশীল এপিটি বিতরণ ২০২৬-১১-১৪ তারিখে
+প্রত্যাহার করা হয়েছে। উৎসের পরিচয় যাচাইয়ের জন্য `v2.0.0` ট্যাগ রাখা হয়েছে।
+উপরের উৎস-ইনস্টলার ব্যবহার করুন। স্বাক্ষরিত স্থিতিশীল এপিটি ভান্ডার প্রত্যাহার
+হওয়ায় `pkg install ternux` পাওয়া যায় না। আরসি প্রাথমিক ইনস্টলার ও কী
+থাকলেও স্বাক্ষরিত সূচি এইচটিটিপি ৪০৪ দেয়; তাই সেই চ্যানেল দিয়েও বসানো যায়
+না। স্থাপত্য ও গ্রহণযোগ্যতার শর্ত পূরণ হলে পরের স্থিতিশীল প্রকাশনা v2 মূল
+সংস্করণেই থাকবে এবং আগে v3 নামে পরিকল্পিত সম্পূর্ণ প্ল্যাটফর্মের পরিধি নেবে।
+[এপিটি চ্যানেলের অবস্থা](../docs/TERMUX-APT.md) ও
+[v2 প্রকাশনা-নথি](../docs/V2-RELEASE-READINESS.md) দেখুন।
 
-বেস ইনস্টলে প্রায় ৪–৪.৫ GB storage লাগে। Download ও package cache-এর জন্য আরও
-কিছু খালি জায়গা রাখুন।
+মূল ইনস্টলেশনে প্রায় ৪–৪.৬ জিবি জায়গা লাগে। ডাউনলোড ও প্যাকেজ ক্যাশের জন্য
+আরও কিছু খালি জায়গা রাখুন।
 
-## চালান ও ব্যবহার
+## চালু ও ব্যবহার
 
-Termux-এ desktop চালু করুন:
+টার্মাক্সে ডেস্কটপ চালু করুন:
 
 ```bash
 source ~/.bashrc
 tx start
 ```
 
-Xfce দেখতে Termux:X11 app-এ যান। সাধারণ command-গুলো Termux-এ চালান:
+এক্সএফসিই দেখতে টার্মাক্স:এক্স১১ অ্যাপে যান। নিচের কমান্ডগুলো টার্মাক্সে চলে:
 
 ```bash
-ternux status     # session ও install-এর অবস্থা
-ternux verify     # active guest যাচাই; db/ub/alp দিয়ে guest বেছে নিন
-ternux doctor     # সাধারণ সমস্যা খোঁজা
-tx stop           # চলমান guest desktop বাছাই করে বন্ধ
-tx distro uninstall NAME # Ternux-managed guest সরান
+tx status                  # সেশন ও ইনস্টলেশনের অবস্থা
+tx verify                  # সক্রিয় গেস্ট যাচাই
+tx verify db               # নির্দিষ্ট গেস্ট যাচাই
+tx doctor                  # পরিচিত সমস্যা পরীক্ষা
+tx stop                    # চলমান ডেস্কটপ বেছে বন্ধ
+tx distro list             # ইনস্টল করা সব গেস্ট দেখুন
+tx distro search alpine   # পিআররুট-ডিস্ট্রো ছবি খুঁজুন
+tx distro uninstall NAME  # পরিচালিত গেস্ট সরান
 ```
 
-`tx start` সংরক্ষিত ডেস্কটপ চালায়; একাধিক ইনস্টল করা প্রোফাইল থাকলে `xgo`
-তালিকা দেখিয়ে বাছতে দেয়। প্রতিটি ডেস্কটপ গেস্ট টার্মাক্স:এক্স১১-এর আলাদা
-চিহ্নিত জানালায় চলতে পারে। একবারে একাধিক প্রোফাইল ইনস্টল করতে
-`tx install --distros debian,ubuntu,kali,alpine` চালান। `tx stop` দিয়ে এক বা
-একাধিক সেশন বেছে বন্ধ করা যায়; `tx stop --all` সব বন্ধ করে। ডেবিয়ান শেল
-খুলতে টার্মাক্সে `db` চালান। অ্যান্ড্রয়েডের স্টোরেজ অনুমতি থাকলে যৌথ স্টোরেজ
-পরিচালিত গেস্টে স্বয়ংক্রিয়ভাবে `/sdcard` নামে যুক্ত হয়। পথটি না থাকলে
-`termux-setup-storage` চালিয়ে ডেস্কটপ আবার শুরু করুন।
+`tx start` সংরক্ষিত ডেস্কটপ চালায়। একাধিক গেস্ট একসঙ্গে চালাতে
+`tx start debian ubuntu kali alpine` লিখুন; সংক্ষিপ্ত নামও চলে, যেমন
+`tx start ub db kali alp`। একাধিক প্রোফাইল বসাতে
+`tx install --distros debian,ubuntu,kali,alpine` চালান। `tx stop` থেকে
+এক বা একাধিক চলমান সেশন বেছে নিন; `tx stop --all` সব ডেস্কটপ বন্ধ করে।
+গেস্টের সাধারণ শেল খুলতে `db`, `ub`, `kali` বা `alp` চালান; মূল ব্যবহারকারীর
+শেলের জন্য যথাক্রমে `dbroot`, `ubroot`, `kaliroot` বা `alproot` চালান।
+অ্যান্ড্রয়েডের সংরক্ষণ-অনুমতি থাকলে পরিচালিত গেস্টে `/sdcard` স্বয়ংক্রিয়ভাবে
+যুক্ত হয়। পথটি না থাকলে `termux-setup-storage` চালিয়ে গেস্ট আবার শুরু করুন।
 
 ## কী কী পাবেন
 
-**বেস desktop:** user-space PRoot container-এ Debian 13 (Trixie), Xfce4,
-Termux:X11 display integration এবং PulseAudio audio routing। বেস setup-এ
-Bangla-capable Noto font ও Debian/Ubuntu-তে Avro phonetic input (Ctrl+Space) থাকে। Alpine-এ একই Avro phonetic input IBus m17n engine দিয়ে দেওয়া হয়। VLC, PulseAudio
-Volume Control, Xfce Task Manager, Mousepad, Galculator, Evince PDF reader,
-Ternux Camera, Ternux Sound Recorder, Ristretto image viewer এবং নিজস্ব
-Ternux theme/icon-সহ Synaptic Package Manager থাকে। Synaptic দিয়ে Debian
-package খুঁজে install, upgrade ও remove করা যায়। Evince default PDF reader;
-PDF page edit ও অন্য format-এ export করতে optional LibreOffice Draw নিন।
-Celestia optional astronomy app। Fresh install-এ mail client install বা default
-করা হয় না; Evolution Mail optional, common provider-এ OAuth এবং অন্য server-এ
-manual IMAP/POP সমর্থন করে। OAuth-এর জন্য base desktop-এ থাকা Firefox ESR ব্যবহার হয়; সেটি চালু না হলে Ternux bridge Android-এর default browser খোলে।
+**মূল ডেস্কটপ:** ডেবিয়ান ১৩ (ট্রিক্সি) প্রাথমিক পছন্দ; অন্য নামযুক্ত গেস্টে
+সেই ডিস্ট্রোর উপযোগী রেসিপি চলে। ব্যবহারকারী-পরিসরের পিআররুট কন্টেইনারে
+এক্সএফসিই ৪, টার্মাক্স:এক্স১১ পর্দা এবং পালসঅডিও শব্দ-সংযোগ থাকে। নটো বাংলা
+ফন্ট ও লেখার পদ্ধতি দেওয়া হয়; ডেবিয়ান ও উবুন্টুতে আভ্রো ধ্বনিভিত্তিক
+ইনপুট, আল্পাইনে আইবাস মটুন ইঞ্জিন থাকে। কন্ট্রোল+স্পেসে ইংরেজি ও বাংলা
+বদলানো যায়। এক্স১১ জানালা-ব্যবস্থা বড় জানালাকে ব্যবহারযোগ্য পর্দায় আনে
+এবং নতুন জানালা মাঝখানে রাখে। ভিএলসি, পালসঅডিও শব্দ-নিয়ন্ত্রণ, এক্সএফসিই
+কাজের তালিকা, মাউসপ্যাড, গ্যালকুলেটর, এভিন্স পিডিএফ পাঠক, টার্নাক্স ক্যামেরা,
+টার্নাক্স শব্দ-রেকর্ডার, রিস্ট্রেটো ছবি-দর্শক ও সিন্যাপটিক প্যাকেজ ব্যবস্থাপক
+থাকে। সিন্যাপটিক দিয়ে ডেবিয়ান পরিবারের প্যাকেজ খোঁজা, বসানো, হালনাগাদ ও
+সরানো যায়। এভিন্স প্রাথমিক পিডিএফ পাঠক; লিব্রেঅফিস ড্র ঐচ্ছিক, পিডিএফ
+পাতা সম্পাদনা ও অন্য ধরনে রপ্তানির জন্য। সেলেস্টিয়া ঐচ্ছিক জ্যোতির্বিজ্ঞান
+অ্যাপ। ডাক-অ্যাপ প্রাথমিকভাবে বসে না; ইভল্যুশন মেইল ঐচ্ছিক, এতে ওঅথ অথবা
+হাতে আইএমএপি/পিওপি সংযোগ ব্যবহার করা যায়।
 
-Graphite-and-emerald GTK theme, custom window border/titlebar এবং ১৫টি আলাদা
-portrait-first wallpaper desktop branding-এর অংশ; landscape-এ wallpaper-এর
-অনুপাত ঠিক থাকে। App, folder, Thunar action, category ও panel-এর original
-Ternux icon আছে; Firefox ESR, Blender, GIMP, Krita, Inkscape, Audacity, Geany,
-Evolution Mail ও LibreOffice-এর মতো optional app-ও branded icon পায়। পরে যোগ
-করা uncommon app-এ neutral Adwaita fallback থাকে। Papirus theme inherit করে না।
+গ্রাফাইট-সবুজ জিটিকে নকশা, জানালার সীমানা ও শিরোনাম-ফলক এবং ১৫টি
+পটভূমিচিত্র ডেস্কটপের পরিচিতির অংশ; পর্দা আড়াআড়ি হলেও ছবির অনুপাত ঠিক
+থাকে। অ্যাপ, ফোল্ডার, থুনারের কাজ, বিভাগ ও প্যানেলের জন্য টার্নাক্সের নিজস্ব
+আইকন আছে। ফায়ারফক্স ইএসআর, ব্লেন্ডার, গিম্প, ক্রিটা, ইনস্কেপ, অডাসিটি,
+জিয়ানি, ইভল্যুশন মেইল ও লিব্রেঅফিসের আইকনও টার্নাক্স-নকশার। পরে বসানো
+অপরিচিত অ্যাপের নিরপেক্ষ বিকল্প আইকন আদ্বৈত; পাপিরাসের আইকন-থিম উত্তরাধিকার
+হয় না।
 
-Xfce panel-এ Camera, Photos ও Sound Recorder-এর one-click shortcut থাকে।
-Ternux Camera Android front/rear camera দেখায়; Termux:API app ও matching
-`termux-api` package লাগবে। প্রথম capture-এ Android Camera permission চায়।
-তোলা ছবি EXIF orientation ঠিক রেখে app-এ preview হয় এবং active guest-এর
-`~/Pictures/Ternux`-এ save হয়; Android Gallery-তে পাঠানো হয় না। এটি still-photo
-capture; live camera stream এখনো দেয় না। প্রথম GUI চালু হলে project website
-একবার খোলে; fresh install-এ Firefox ESR default-এ থাকে। Ubuntu-তে Mozilla-র official ESR build বসে, কারণ Ubuntu archive-এর Firefox Snap চায় এবং Ternux PRoot-এ Snap বন্ধ রাখে। Sound Recorder-এ
-Start চাপলেই microphone চালু হয়; AAC/M4A default, MP3-ও বেছে নেওয়া যায়
-(guest-এর FFmpeg দিয়ে encode হয়)। Recording active guest-এর
-`~/Music/Ternux`-এ থাকে।
-**Graphics:** প্রতিটি named desktop profile-এ distro-র Mesa GL driver ও GPU
-route ইনস্টল হয়। Adreno/KGSL থাকলে auto প্রতিটি distro-র Mesa/Freedreno
-package থেকে Zink বেছে নেয়; Debian Trixie-তে পরীক্ষিত direct Zink + Turnip
-চলে, VirGL compatibility route। Hardware acceleration guest package, device ও
-Android build-এর উপর নির্ভর করে। `ternux verify` এবং guest-এর `glxinfo -B` দিয়ে renderer দেখুন;
-desktop খুললেই hardware acceleration প্রমাণ হয় না। `ternux gpu` ও
-`ternux backend` route দেখায় ও পরিচালনা করে। বিস্তারিত
-[graphics persistence](../docs/GRAPHICS-PERSISTENCE.md)।
+এক্সএফসিই প্যানেলে ক্যামেরা, ছবি ও শব্দ-রেকর্ডারের শর্টকাট থাকে। টার্নাক্স
+ক্যামেরা অ্যান্ড্রয়েডের সামনের ও পেছনের ক্যামেরা দেখায়; ছবি তুলতে
+টার্মাক্স:এপিআই অ্যাপ ও `termux-api` প্যাকেজ লাগে। অনুমতি চাইলে অ্যান্ড্রয়েডে
+ক্যামেরা-অনুমতি দিন; সহচর অ্যাপ না থাকলে এটি বসানোর নির্দেশনা দেখায়, অনুমতি
+চাওয়ার চেষ্টা করে না। ছবি ঘূর্ণন-তথ্য ঠিক করে অ্যাপে দেখায় এবং সক্রিয়
+গেস্টের `~/Pictures/Ternux`-এ রাখে; অ্যান্ড্রয়েডের গ্যালারিতে পাঠায় না। এটি
+স্থিরচিত্র তোলে, সরাসরি ভিডিও-ধারা দেয় না। প্রথম ডেস্কটপ চালু হলে প্রকল্পের
+ওয়েবসাইট একবার খোলে; নতুন গেস্টে ফায়ারফক্স ইএসআর থাকে। উবুন্টুতে মজিলার
+আনুষ্ঠানিক সংস্করণ ব্যবহৃত হয়, কারণ উবুন্টুর ফায়ারফক্সে স্ন্যাপ লাগে, যা
+টার্নাক্স পিআররুটে বন্ধ রাখে। শব্দ-রেকর্ডারে শুরু চাপলে মাইক্রোফোন চালু হয়;
+এএসি/এম৪এ প্রাথমিক, এমপিথ্রিও বেছে নেওয়া যায় এবং গেস্টের এফএফএমপিইজি দিয়ে
+রূপান্তর হয়। রেকর্ডিং সক্রিয় গেস্টের `~/Music/Ternux`-এ থাকে।
 
-**ঐচ্ছিক software:** installer-এর numbered তালিকা থেকে package বা workload বেছে নিতে
-পারবেন। Developer toolchain ও editor, Android SDK/NDK ও Firefox,
-local AI runtime, network utility, media/graphics app, office tool এবং Blender
-পছন্দ করা যায়। শুধু দরকারি জিনিস নিলে base install ছোট থাকে। `--all` profile
-install-এর পর প্রায় ১০.৫–১২.৫ GB নেয় এবং setup চলাকালে প্রায় ১৪ GB খালি জায়গা
-লক্ষ্য রাখে। [Workload guide](../docs/WORKLOADS.md) দেখুন।
+**গ্রাফিক্স:** প্রতিটি নামযুক্ত ডেস্কটপ প্রোফাইলে ডিস্ট্রোর মেসা জিএল চালক ও
+গ্রাফিক্স-পথ বসে। অ্যাড্রেনো/কেজিএসএল থাকলে ডিস্ট্রো-সমর্থিত মেসা/ফ্রিড্রিনো
+প্যাকেজ থেকে জিঙ্ক বেছে নেওয়া হয়; ডেবিয়ান ট্রিক্সিতে যাচাইকৃত সরাসরি জিঙ্ক
+ও টার্নিপ পথ আছে; ভিরজিএল সামঞ্জস্য-পথ। হার্ডওয়্যার ত্বরণ গেস্টের প্যাকেজ,
+যন্ত্র ও অ্যান্ড্রয়েড সংস্করণের ওপর নির্ভর করে। `ternux verify` ও গেস্টের
+`glxinfo -B` দিয়ে রেন্ডারার দেখুন; ডেস্কটপ চালু হওয়া একাই ত্বরণের প্রমাণ
+নয়। `ternux gpu` ও `ternux backend` গ্রাফিক্স-পথ দেখায় ও বদলায়। বিস্তারিত
+[গ্রাফিক্স স্থায়িত্ব](../docs/GRAPHICS-PERSISTENCE.md) দেখুন।
 
-**Local AI ও GPU tool:** ঐচ্ছিক llama.cpp CPU + Vulkan extension আলাদা করে
-`ternux extension install llama-vulkan` দিয়ে install হয়। Hexagon HTP extension
-আলাদা, device-specific এবং experimental; কোনো extension-এ model file থাকে না।
-Blender ও headless EEVEE tool-ও optional। Model setup ও কম RAM-এ context
-সীমিত রাখার জন্য [llama.cpp extension guide](../guides/llama-vulkan-extension.md),
-আর support/qualification সীমার জন্য [release plan](../docs/ACCELERATOR-RELEASE-PLAN.md) দেখুন।
+**ঐচ্ছিক সফটওয়্যার:** ইনস্টলারের নম্বরযুক্ত তালিকা থেকে প্যাকেজ বা কাজ বাছুন।
+নির্মাণ-সরঞ্জাম ও সম্পাদনা-অ্যাপ, অ্যান্ড্রয়েড এসডিকে/এনডিকে, স্থানীয়
+কৃত্রিম বুদ্ধিমত্তা, নেটওয়ার্ক সরঞ্জাম, ছবি-ভিডিও অ্যাপ, দাপ্তরিক সরঞ্জাম ও
+ব্লেন্ডার নেওয়া যায়। দরকারি জিনিসই নিলে প্রাথমিক ইনস্টল ছোট থাকে। `--all`
+নিলে বসানোর পরে প্রায় ১০.৫–১২.৫ জিবি লাগে; সেটআপের সময় প্রায় ১৪ জিবি খালি
+জায়গা রাখুন। [কাজের নির্দেশিকা](../docs/WORKLOADS.md) দেখুন।
+
+**স্থানীয় কৃত্রিম বুদ্ধিমত্তা ও গ্রাফিক্স-সরঞ্জাম:** প্রসেসর ও ভলকানের জন্য
+`llama.cpp` সম্প্রসারণ `ternux extension install llama-vulkan` দিয়ে আলাদা
+করে বসে। হেক্সাগন এইচটিপি সম্প্রসারণ আলাদা, নির্দিষ্ট যন্ত্রের জন্য এবং
+পরীক্ষামূলক; কোনো সম্প্রসারণে মডেল ফাইল থাকে না। ব্লেন্ডার ও পর্দাবিহীন
+ইইভিইই রেন্ডার-সরঞ্জামও ঐচ্ছিক। মডেল বসানো ও কম মেমোরিতে প্রসঙ্গ সীমিত
+রাখার জন্য [`llama.cpp` নির্দেশিকা](../guides/llama-vulkan-extension.md),
+সমর্থন ও যোগ্যতার সীমার জন্য [প্রকাশনা পরিকল্পনা](../docs/ACCELERATOR-RELEASE-PLAN.md) দেখুন।
 
 ## পরিচালনা ও সমস্যা সমাধান
 
-CLI দিয়ে managed background desktop start/stop/restart, session/device/install
-state দেখা, diagnostics ও safe repair, installation verify, graphics backend
-দেখা বা update, GPU benchmark ও device profile নেওয়া, log দেখা, Ternux update,
-extension manage এবং নির্বাচিত component uninstall করতে পারবেন। Command-গুলোর
-help আছে; নির্দিষ্ট command-গুলো machine-readable JSON-ও দেয়।
+কমান্ড-লাইন থেকে পেছনে চলা ডেস্কটপ চালু, বন্ধ ও পুনরায় চালু করুন; অধিবেশন,
+যন্ত্র ও ইনস্টলেশনের অবস্থা দেখুন; সমস্যা নিরীক্ষা ও নিরাপদ মেরামত করুন;
+ইনস্টলেশন যাচাই, গ্রাফিক্স-পথ দেখা বা হালনাগাদ, গ্রাফিক্স বেঞ্চমার্ক ও
+যন্ত্র-প্রোফাইল নেওয়া, লগ দেখা, টার্নাক্স হালনাগাদ, সম্প্রসারণ পরিচালনা এবং
+নির্বাচিত উপাদান সরাতে পারবেন। প্রতিটি কমান্ডের সহায়িকা আছে; নথিভুক্ত কিছু
+কমান্ড যন্ত্রে প্রক্রিয়াযোগ্য জেসন ফলও দেয়।
 
 ```bash
-ternux info             # device ও system summary
-ternux logs desktop tail # desktop log-এর শেষ অংশ
-ternux gpu status        # graphics driver-এর অবস্থা
-ternux --help            # command list
+ternux info              # যন্ত্র ও সিস্টেমের সারাংশ
+ternux logs desktop show # ডেস্কটপ লগের শেষ অংশ
+ternux gpu show          # গ্রাফিক্স-পথ ও রেন্ডারারের অবস্থা
+ternux --help            # কমান্ডের তালিকা
 ```
 
-বিস্তারিত behavior-এর জন্য [CLI reference](../docs/CLI.md), [দৈনন্দিন ব্যবহার](../docs/USAGE.md)
-এবং [সমস্যা সমাধান](../docs/TROUBLESHOOTING.md) দেখুন। Android memory pressure
-বা vendor battery policy দীর্ঘ PRoot session বন্ধ করে দিতে পারে; সব device policy
-Ternux নিয়ন্ত্রণ করতে পারে না।
+সুনির্দিষ্ট আচরণের জন্য [কমান্ড-লাইন নির্দেশিকা](../docs/CLI.md),
+[দৈনন্দিন ব্যবহার](../docs/USAGE.md) এবং [সমস্যা সমাধান](../docs/TROUBLESHOOTING.md)
+দেখুন। অ্যান্ড্রয়েডে মেমোরির চাপ বা নির্মাতার ব্যাটারি-নীতি দীর্ঘ পিআররুট
+অধিবেশন বন্ধ করতে পারে; যন্ত্রের সব নীতি টার্নাক্স বদলাতে পারে না।
 
-## একই device-এ Android development
+## একই যন্ত্রে অ্যান্ড্রয়েড উন্নয়ন
 
-Ternux Debian guest-এর ভেতরে ADT install করে Android app build, sign ও device-এ
-validate করতে পারবেন। Shared Termux + PRoot host-এ ADT build-to-device workflow
-verified; Ternux Xfce session থেকে চালানো এখনো formally tested নয়।
-[ADT installation steps](docs/INSTALLATION.md)
-এবং [ADT + Ternux relationship](https://github.com/soobujmiah/adt/blob/main/docs/TERNUX_RELATIONSHIP.md) দেখুন।
+টার্নাক্স ডেবিয়ান গেস্টে এডিটি বসিয়ে অ্যান্ড্রয়েড অ্যাপ তৈরি, স্বাক্ষর ও
+যন্ত্রে যাচাই করা যায়। ভাগ করা টার্মাক্স ও পিআররুট হোস্টে এডিটি দিয়ে
+তৈরি-থেকে-যন্ত্রে পাঠানোর কাজ যাচাই করা হয়েছে; টার্নাক্স এক্সএফসিই অধিবেশন
+থেকে চালানো আনুষ্ঠানিকভাবে যাচাই হয়নি। [এডিটি বসানোর ধাপ](docs/INSTALLATION.md)
+ও [এডিটি-টার্নাক্স সম্পর্ক](https://github.com/soobujmiah/adt/blob/main/docs/TERNUX_RELATIONSHIP.md) দেখুন।
 
-Blender render-এর জন্য coding agent-কে local GPU MCP দিয়ে route পরীক্ষা ও
-script/scene render করানো যায়। [MCP guide](../tools/blender-gpu-mcp/README.md)
-এবং [render evidence](../experiments/cartoon-pipeline/README.md) দেখুন।
+ব্লেন্ডার রেন্ডারের জন্য প্রোগ্রামিং সহকারীকে স্থানীয় গ্রাফিক্স এমসিপি দিয়ে
+রেন্ডার-পথ যাচাই এবং দৃশ্য বা নির্দেশনা রেন্ডার করানো যায়। [এমসিপি নির্দেশিকা](../tools/blender-gpu-mcp/README.md)
+ও [রেন্ডার পরীক্ষার নথি](../experiments/cartoon-pipeline/README.md) দেখুন।
 
 ## আরও সহায়তা
 
-- [বিস্তারিত ডকুমেন্টেশন](../docs/README.md): install option, হাতে setup,
-  দৈনন্দিন ব্যবহার, configuration, troubleshooting, architecture ও CLI।
-- [v3 architecture ও roadmap](../docs/v3/README.md): manager, workspace,
-  compute, AI, Device Bridge, security ও gate। Current `main` source-এ তিনটি
-  read-only manager CLI command ও `tx control`-এর local browser dashboard আছে,
-  কিন্তু withdrawn v2.0.0 package-এ নেই।
-- [দ্রুত শুরু](../docs/QUICK-START.md): প্রথম install, launch ও renderer check।
-- [Benchmark](../docs/BENCHMARKS.md): মাপা device ফলাফল ও তার সীমা।
+- [বিস্তারিত নথি](../docs/README.md): ইনস্টল-বিকল্প, হাতে বসানো,
+  দৈনন্দিন ব্যবহার, বিন্যাস, সমস্যা সমাধান, স্থাপত্য ও কমান্ড-লাইন।
+- [v3 স্থাপত্য ও নির্মাণ-পরিকল্পনা](../docs/v3/README.md): ব্যবস্থাপক,
+  কর্মক্ষেত্র, গণনা, কৃত্রিম বুদ্ধিমত্তা, যন্ত্র-সংযোগ, নিরাপত্তা ও শর্ত।
+  বর্তমান `main` উৎসে শুধু-পাঠযোগ্য ব্যবস্থাপক কমান্ড ও `tx control`-এর
+  স্থানীয় ব্রাউজার-ফলক আছে; প্রত্যাহৃত v2.0.0 প্যাকেজে এগুলো নেই।
+- [দ্রুত শুরু](../docs/QUICK-START.md): প্রথম ইনস্টল, চালু ও রেন্ডারার যাচাই।
+- [পরীক্ষার মাপজোখ](../docs/BENCHMARKS.md): যন্ত্রে মাপা ফল ও সীমা।
 - [পরিবর্তনলগ](../CHANGELOG.md)
 
-Interactive install-এ প্রথম checklist থেকে Space/number দিয়ে এক বা একাধিক guest
-profile বেছে Enter চাপুন; পরের category-ভিত্তিক checklist-এ optional software
-বাছুন; Space বা item-এর
-নম্বর দিয়ে একাধিক নির্বাচন toggle করুন, Enter-এ plan review করুন, `q` দিলে
-শুধু base desktop থাকে। `--yes` prompt বাদ দিয়ে Debian base profile install করে।
-Ternux v2.0.0 GitHub release ও stable APT distribution 2026-11-14-এ withdraw
-হয়েছে; source tag ও package checksum historical [release report](../docs/V2-RELEASE-REPORT.md)-এ আছে।
-পরের stable target v2 major-এই থাকবে; আগে v3 নামে পরিকল্পিত পুরো platform scope
-এতে অন্তর্ভুক্ত। Current main source-এ চারটি read-only `tx manager` command,
-foreground Unix-socket API-এর জন্য `tx manager serve`, এবং read-only local browser
-dashboard-এর জন্য `tx control` আছে। Dashboard চালাতে Python 3 লাগবে; প্রয়োজনে
-`pkg install python` চালান। Guest mutation, background supervisor ও পূর্ণ
-Control Center এখনো অসম্পূর্ণ। Withdrawn v2.0.0 package-এ এসব source change নেই।
-[APT channel status](../docs/TERMUX-APT.md) দেখুন।
-HTP/HMX, QNN এবং
-বিস্তৃত accelerator qualification experimental বা follow-up কাজ; [accelerator
-plan](../docs/ACCELERATOR-RELEASE-PLAN.md)-এ বর্তমান সীমা আছে।
+ইন্টারঅ্যাক্টিভ ইনস্টলে প্রথম তালিকা থেকে স্পেসবার/নম্বর দিয়ে এক বা একাধিক
+গেস্ট বেছে এন্টার চাপুন। পরের বিভাগভিত্তিক তালিকা থেকে ঐচ্ছিক সফটওয়্যার বাছুন;
+স্পেসবার বা নম্বর দিয়ে নির্বাচন বদলান, এন্টারে পরিকল্পনা দেখুন। `q` চাপলে
+শুধু মূল ডেস্কটপ থাকে। `--yes` প্রশ্ন বাদ দিয়ে ডেবিয়ানের মূল প্রোফাইল বসায়।
+টার্নাক্স v2.0.0 গিটহাব প্রকাশনা ও স্থিতিশীল এপিটি বিতরণ ২০২৬-১১-১৪ তারিখে
+প্রত্যাহার হয়েছে; উৎসের ট্যাগ ও প্যাকেজ চেকসাম পুরোনো
+[প্রকাশনা-প্রতিবেদনে](../docs/V2-RELEASE-REPORT.md) আছে। পরের স্থিতিশীল
+প্রকাশনাও v2 মূল সংস্করণে থাকবে, তবে আগে v3 নামে পরিকল্পিত পুরো প্ল্যাটফর্ম
+পরিধি নেবে। বর্তমান মূল উৎসে চারটি শুধু-পাঠযোগ্য `tx manager` কমান্ড,
+সামনের সারিতে চলা ইউনিক্স-সকেট সেবার জন্য `tx manager serve` এবং শুধু-পাঠযোগ্য
+স্থানীয় ব্রাউজার ফলকের জন্য `tx control` আছে। ফলক চালাতে পাইথন ৩ লাগে;
+প্রয়োজনে `pkg install python` চালান। গেস্ট বদলানো, পেছনে তত্ত্বাবধায়ক চালানো
+ও পূর্ণ নিয়ন্ত্রণকেন্দ্র এখনো অসম্পূর্ণ। প্রত্যাহৃত v2.0.0 প্যাকেজে এই
+উৎস-পরিবর্তনগুলো নেই। [এপিটি চ্যানেলের অবস্থা](../docs/TERMUX-APT.md) দেখুন।
+এইচটিপি/এইচএমএক্স, কিউএনএন ও বিস্তৃত ত্বরণ-যোগ্যতা পরীক্ষামূলক বা পরবর্তী
+কাজ; [ত্বরণ পরিকল্পনায়](../docs/ACCELERATOR-RELEASE-PLAN.md) বর্তমান সীমা আছে।
