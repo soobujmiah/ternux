@@ -468,8 +468,11 @@ credit. PRoot guests use a stable official ASCII logo for
 their distro from Terfetch's built-in catalog, including the managed distro
 profiles. Their creator credit is centered below the logo and facts. Daily-use
 host commands or guest and distro package-manager commands appear as a separate
-colorful footer below the credit. Logo rows never continue below the information
-panel, and long values are shortened to fit the terminal width. Terfetch does
+colorful footer below the credit. The logo and facts stay side by side: the logo
+uses about one-third of the terminal width and facts use the rest. Each fact
+stays on one row. Terfetch hides a fact when its complete label and value do not
+fit, then shows it again after a wider resize and the next prompt refresh. Values
+are never wrapped or shortened. Terfetch does
 not require Fastfetch at runtime. It reports environment, architecture, user,
 locale, init, privilege level, package manager and count, kernel, uptime, shell,
 terminal, CPU/GPU model, memory and storage, plus device and display details

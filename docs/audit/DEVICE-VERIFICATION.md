@@ -421,14 +421,16 @@ account had been using `/bin/sh`, which skipped its interactive Bash startup
 file; the prompt configurator now selects `/bin/bash` for that managed Alpine
 user and regenerates the Ternux prompt/Terfetch configuration.
 
-The host PTY was rendered at 115×77 and then 40×24. The wider layout centers the
-full monogram in roughly one-third of the width and gives the remaining space to
-the information panel. The narrow layout stacks the complete monogram above
-every information row and wraps long values instead of shortening or omitting
-them. Resizing is picked up at the next prompt; refresh keeps prior output in
-scrollback so a tall dashboard does not clear its logo or information. Automated
-layout checks also cover 36, 40, 48, and 60 columns. This verifies PTY output,
-not screenshots from every XFCE terminal.
+The host PTY was first rendered at 115×77 and then 40×24. A later correction
+keeps the logo and information side by side at every width: the logo uses about
+one-third of the terminal, and each complete fact occupies one row in the
+remaining space. Facts that do not fit are hidden, then return after widening
+the terminal and reaching the next prompt refresh; values are not wrapped or
+shortened. The updated script was installed on the native host and Debian,
+Ubuntu, Kali, and Alpine. Live shell output at 36 and 60 columns stayed within
+the requested width; a field hidden at 36 columns appeared at 60. Automated
+checks also cover 40, 48, 100, and 160 columns. This verifies shell output, not
+screenshots from every XFCE terminal.
 
 The live Debian XFCE Terminal was also opened on display `:1`. Synthetic
 Ctrl+plus changed its persistent Xfconf font preference from `Noto Sans Mono

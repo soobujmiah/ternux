@@ -648,79 +648,90 @@ if [ -n "$display_size" ]; then labels+=(Display); values+=("$display_size"); fi
 if [ "$desktop_name" != unknown ]; then labels+=(Desktop); values+=("$desktop_name"); fi
 if [ -n "$battery" ]; then labels+=(Battery); values+=("$battery"); fi
 
-row_count="${#labels[@]}"
 logo_area_width=$((terminal_columns / 3))
-[ "$logo_area_width" -ge "$logo_width" ] || logo_area_width="$logo_width"
-compact_panel=0
-if [ $((logo_area_width + 28)) -gt "$terminal_columns" ]; then compact_panel=1; fi
-if [ "$compact_panel" -eq 1 ]; then
-  value_width=$((terminal_columns - 20))
-  [ "$value_width" -ge 8 ] || value_width=8
-  logo_area_width="$terminal_columns"
-  [ "$logo_area_width" -ge "$logo_width" ] || logo_area_width="$logo_width"
-  info_indent=18
-  block_width="$terminal_columns"
-else
-  value_width=$((terminal_columns - logo_area_width - 22))
-  [ "$value_width" -ge 8 ] || value_width=8
-  info_indent=$((logo_area_width + 20))
-  block_width="$terminal_columns"
+if [ "$logo_area_width" -lt 6 ]; then logo_area_width=6; fi
+logo_target_width=$((logo_area_width - 2))
+[ "$logo_target_width" -ge 3 ] || logo_target_width=3
+
+# Fit every complete mark into the left third of the live terminal width.
+# Resample both axes together so narrow terminal fonts never let the logo
+# collide with the information column.
+if [ "$logo_width" -gt "$logo_target_width" ]; then
+  original_logo_lines=("${logo_lines[@]}")
+  original_logo_width="$logo_width"
+  original_logo_height="${#original_logo_lines[@]}"
+  scaled_logo_height=$(((original_logo_height * logo_target_width + original_logo_width / 2) / original_logo_width))
+  [ "$scaled_logo_height" -ge 3 ] || scaled_logo_height=3
+  logo_lines=()
+  for ((row=0; row<scaled_logo_height; row++)); do
+    source_row=$((row * original_logo_height / scaled_logo_height))
+    source_line="${original_logo_lines[source_row]}"
+    scaled_line=''
+    for ((column=0; column<logo_target_width; column++)); do
+      source_column=$((column * original_logo_width / logo_target_width))
+      glyph="${source_line:source_column:1}"
+      scaled_line+="${glyph:- }"
+    done
+    logo_lines+=("$scaled_line")
+  done
+  logo_width="$logo_target_width"
 fi
-if [ "$compact_panel" -eq 1 ]; then
-  if [ "$logo_presented" -eq 1 ]; then
-    pad=$(((logo_area_width - 11) / 2))
-    [ "$pad" -ge 0 ] || pad=0
-    printf '%*s%sPresented by%s\n' "$pad" '' "$c3" "$c0"
+
+info_start=$((logo_area_width + 3))
+info_width=$((terminal_columns - info_start))
+label_width=$((info_width / 2))
+[ "$label_width" -le 15 ] || label_width=15
+[ "$label_width" -ge 1 ] || label_width=1
+value_width=$((info_width - label_width - 1))
+[ "$value_width" -ge 0 ] || value_width=0
+# Keep each fact on one physical row. If its complete value cannot fit beside
+# the fixed-width label, omit that fact for this render; the resize hook runs
+# Terfetch again when the terminal gains columns.
+visible_labels=()
+visible_values=()
+for ((field=0; field<${#labels[@]}; field++)); do
+  if [ "${#values[field]}" -le "$value_width" ]; then
+    visible_labels+=("${labels[field]}")
+    visible_values+=("${values[field]}")
   fi
-  logo_pad=$(((logo_area_width - logo_width) / 2))
-  [ "$logo_pad" -ge 0 ] || logo_pad=0
-  for art in "${logo_lines[@]}"; do
-    printf '%*s%s%s%s\n' "$logo_pad" '' "$c1" "$art" "$c0"
-  done
-  for ((i=0; i<row_count; i++)); do
-    printf '  %s%-15s%s ' "$c3" "${labels[i]}" "$c0"
-    first_value_line=1
-    while IFS= read -r value_line; do
-      if [ "$first_value_line" -eq 1 ]; then
-        printf '%s\n' "$value_line"
-        first_value_line=0
-      else
-        printf '%*s%s\n' "$info_indent" '' "$value_line"
-      fi
-    done < <(fold -sw "$value_width" <<< "${values[i]}")
-  done
-else
-  logo_pad=$(((logo_area_width - logo_width) / 2))
-  [ "$logo_pad" -ge 0 ] || logo_pad=0
-  logo_tail=$((logo_area_width - logo_pad - logo_width))
-  [ "$logo_tail" -ge 0 ] || logo_tail=0
-  if [ "$logo_presented" -eq 1 ]; then
-    pad=$(((logo_area_width - 11) / 2))
-    [ "$pad" -ge 0 ] || pad=0
-    printf '  %*s%sPresented by%s\n' "$pad" '' "$c3" "$c0"
+done
+labels=("${visible_labels[@]}")
+values=("${visible_values[@]}")
+row_count="${#labels[@]}"
+block_width="$terminal_columns"
+render_rows="$row_count"
+[ "$render_rows" -ge "${#logo_lines[@]}" ] || render_rows="${#logo_lines[@]}"
+logo_start=$(((render_rows - ${#logo_lines[@]}) / 2))
+[ "$logo_start" -ge 0 ] || logo_start=0
+logo_pad=$(((logo_area_width - logo_width) / 2))
+[ "$logo_pad" -ge 0 ] || logo_pad=0
+logo_tail=$((logo_area_width - logo_pad - logo_width))
+[ "$logo_tail" -ge 0 ] || logo_tail=0
+
+for ((i=0; i<render_rows; i++)); do
+  art=''
+  art_color="$c1"
+  logo_row=$((i - logo_start))
+  if [ "$logo_presented" -eq 1 ] && [ "$i" -eq $((logo_start - 1)) ] && [ "$logo_area_width" -ge 14 ]; then
+    art='Presented by'
+    art_color="$c3"
+  elif [ "$logo_row" -ge 0 ] && [ "$logo_row" -lt "${#logo_lines[@]}" ]; then
+    art="${logo_lines[logo_row]}"
   fi
-  for ((i=0; i<row_count; i++)); do
-    art="${logo_lines[i]:-}"
-    label="${labels[i]:-}"
-    value="${values[i]:-}"
-    if [ -n "$label" ]; then
-      printf '  %*s%s%-*s%s%*s  %s%-15s%s ' \
-        "$logo_pad" '' "$c1" "$logo_width" "$art" "$c0" "$logo_tail" '' "$c3" "$label" "$c0"
-      first_value_line=1
-      while IFS= read -r value_line; do
-        if [ "$first_value_line" -eq 1 ]; then
-          printf '%s\n' "$value_line"
-          first_value_line=0
-        else
-          printf '%*s%s\n' "$info_indent" '' "$value_line"
-        fi
-      done < <(fold -sw "$value_width" <<< "$value")
-    else
-      printf '  %*s%s%-*s%s%*s\n' \
-        "$logo_pad" '' "$c1" "$logo_width" "$art" "$c0" "$logo_tail" ''
-    fi
-  done
-fi
+  art_width="$logo_width"
+  art_pad=$(((logo_area_width - art_width) / 2))
+  [ "$art_pad" -ge 0 ] || art_pad=0
+  art_tail=$((logo_area_width - art_pad - art_width))
+  [ "$art_tail" -ge 0 ] || art_tail=0
+  if [ "$i" -lt "$row_count" ]; then
+    printf '  %*s%s%-*s%s%*s %s%-*s%s %s\n' \
+      "$art_pad" '' "$art_color" "$art_width" "$art" "$c0" "$art_tail" '' \
+      "$c3" "$label_width" "${labels[i]}" "$c0" "${values[i]}"
+  else
+    printf '  %*s%s%-*s%s%*s\n' \
+      "$art_pad" '' "$art_color" "$art_width" "$art" "$c0" "$art_tail" ''
+  fi
+done
 
 center_plain() {
   local value="$1" color="$2" pad=$(((block_width - ${#1}) / 2))

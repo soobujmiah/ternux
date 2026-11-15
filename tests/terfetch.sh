@@ -13,19 +13,19 @@ bash -n "$TERFETCH"
 # or Sobuj's special monogram.
 declare -A logo_heads=()
 for index in {0..17}; do
-  output="$(TERFETCH_TEST_HOST=termux TERFETCH_LOGO_INDEX="$index" NO_COLOR=1 "$TERFETCH")"
-  head_line="$(grep -m1 'System' <<< "$output")"
-  [ -n "$head_line" ]
-  [ -z "${logo_heads[$head_line]:-}" ] || { echo "Duplicate native logo for index $index" >&2; exit 1; }
-  logo_heads[$head_line]=1
+  output="$(TERFETCH_TEST_HOST=termux TERFETCH_LOGO_INDEX="$index" COLUMNS=160 NO_COLOR=1 "$TERFETCH")"
+  logo_signature="$output"
+  [ -n "$logo_signature" ]
+  [ -z "${logo_heads[$logo_signature]:-}" ] || { echo "Duplicate native logo for index $index" >&2; exit 1; }
+  logo_heads[$logo_signature]=1
   grep -Fq 'DAILY COMMANDS' <<< "$output"
   grep -Fq '$ tx guide' <<< "$output"
   grep -Fq '$ tx start <distro>' <<< "$output"
   ! grep -Eq 'Commands +tx ' <<< "$output"
   ! grep -Eq '\[(XFCE|ANDR|TMX|TERMUX|SM|LINUX|PROOT|GPU|X11)\]' <<< "$output"
-  [ "$(awk 'length($0) > 80 { count++ } END { print count + 0 }' <<< "$output")" -eq 0 ]
+  [ "$(awk 'length($0) > 160 { count++ } END { print count + 0 }' <<< "$output")" -eq 0 ]
   if [ "$index" -eq 17 ]; then
-    grep -q 'Presented by$' <<< "$output"
+    grep -q 'Presented by' <<< "$output"
     ! grep -Fq '@soobujmiah' <<< "$output"
     grep -Fq 'SSSS  OOO  BBB  U   U JJJ' <<< "$output"
     ! grep -Eq 'M I A H|M     M' <<< "$output"
@@ -38,33 +38,30 @@ for index in {0..17}; do
   panel_end="$commands_line"
   [ -z "$credit_line" ] || panel_end="$credit_line"
   panel_rows="$(sed -n "2,${panel_end}p" <<< "$output" | grep -Ec 'System +|Distro +|Environment +|Kernel +|Uptime +|Packages +|Package manager +|Architecture +|CPU +|CPU cores +|GPU +|Memory +|Storage +|Shell +|Terminal +|Terminal size +|Ternux +|User +|Locale +|Init +|Privilege +|Device +|Android +|Display +|Desktop +|Battery +')"
-  [ "$panel_rows" -ge 21 ]
+  [ "$panel_rows" -ge 20 ]
 done
 [ "${#logo_heads[@]}" -eq 18 ]
-# Terminal font zoom can reduce the available columns. Keep the complete
-# monogram and all information; narrow layouts stack them and wrap long values.
+# Logo and facts stay side by side at every width. A fact is shown only when
+# its complete label and value fit on the same row; widening after font zoom
+# restores facts on the next prompt render.
 small_output="$(TERFETCH_TEST_HOST=termux TERFETCH_LOGO_INDEX=1 COLUMNS=60 NO_COLOR=1 "$TERFETCH")"
-! grep -Eq '^  System +Termux$' <<< "$small_output"
-grep -Fq 'System          Termux' <<< "$small_output"
-grep -Fq 'T E R N U X' <<< "$small_output"
-grep -Fq 'WORKLAB DESK' <<< "$small_output"
-
-# Portrait and narrow terminal layouts retain the complete monogram and all
-# info rows even when the terminal must scroll to show the full dashboard.
-for width in 36 40 48 60; do
-  portrait="$(TERFETCH_TEST_DISTRO=alpine COLUMNS="$width" LINES=24 NO_COLOR=1 "$TERFETCH")"
-  grep -Fq '.hdddddddd' <<< "$portrait"
-  for field in System Distro Environment Kernel Uptime Packages 'Package manager' Architecture CPU 'CPU cores' GPU Memory Storage Shell Terminal 'Terminal size' Ternux User Locale Init Privilege; do
-    grep -Eq "^  ${field}[[:space:]]" <<< "$portrait"
-  done
-  ! grep -Eq '\.\.\.' <<< "$portrait"
+grep -Eq 'System +Termux$' <<< "$small_output"
+grep -Fq 'DAILY COMMANDS' <<< "$small_output"
+wide_output="$(TERFETCH_TEST_DISTRO=alpine COLUMNS=160 LINES=50 NO_COLOR=1 "$TERFETCH")"
+for width in 36 40 48 60 100 160; do
+  output="$(TERFETCH_TEST_DISTRO=alpine COLUMNS="$width" LINES=24 NO_COLOR=1 "$TERFETCH")"
+  grep -Eq 'Distro +alpine$' <<< "$output"
+  [ "$(awk -v width="$width" 'length($0) > width { count++ } END { print count + 0 }' <<< "$output")" -eq 0 ]
+  grep -Fq 'DAILY COMMANDS' <<< "$output"
 done
+[ "$(grep -Ec 'System +alpine|Distro +alpine|Environment +|Kernel +|Uptime +|Packages +' <<< "$small_output")" -lt "$(grep -Ec 'System +alpine|Distro +alpine|Environment +|Kernel +|Uptime +|Packages +' <<< "$wide_output")" ]
+! grep -Eq '\.\.\.' <<< "$small_output"
 refreshed="$(TERFETCH_TEST_DISTRO=alpine COLUMNS=100 LINES=50 NO_COLOR=1 "$TERFETCH" --refresh)"
 grep -Fq 'Distro          alpine' <<< "$refreshed"
 
 # Every managed distro has a stable distro-specific mark and usable commands.
 for distro in adelie alpine archlinux artix chimera debian deepin fedora kali manjaro opensuse pardus rockylinux ubuntu void; do
-  output="$(TERFETCH_TEST_DISTRO="$distro" NO_COLOR=1 "$TERFETCH")"
+  output="$(TERFETCH_TEST_DISTRO="$distro" COLUMNS=160 NO_COLOR=1 "$TERFETCH")"
   grep -Eq "Distro +$distro$" <<< "$output"
   grep -Fq 'Presented by @soobujmiah' <<< "$output"
   grep -Fq 'DAILY COMMANDS' <<< "$output"
@@ -88,8 +85,8 @@ for distro in adelie alpine archlinux artix chimera debian deepin fedora kali ma
   esac
   grep -Fq -- "$logo_mark" <<< "$output"
   panel_rows="$(grep -Ec 'System +|Distro +|Environment +|Kernel +|Uptime +|Packages +|Package manager +|Architecture +|CPU +|CPU cores +|GPU +|Memory +|Storage +|Shell +|Terminal +|Terminal size +|Ternux +|User +|Locale +|Init +|Privilege +|Device +|Android +|Display +|Desktop +|Battery +' <<< "$output")"
-  [ "$panel_rows" -ge 21 ]
-  [ "$(awk 'length($0) > 80 { count++ } END { print count + 0 }' <<< "$output")" -eq 0 ]
+  [ "$panel_rows" -ge 20 ]
+  [ "$(awk 'length($0) > 160 { count++ } END { print count + 0 }' <<< "$output")" -eq 0 ]
 done
 
 "$TERFETCH" --json | python3 -c '
