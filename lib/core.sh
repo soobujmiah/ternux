@@ -418,6 +418,15 @@ tnx_guest_login() {
   fi
 }
 
+# Send setup scripts over stdin rather than as a `sh -c` argument. Desktop
+# asset bundles can exceed Linux's per-argument size limit even though the
+# overall argv/environment is otherwise small.
+tnx_guest_run_script() {
+  local script="${1:-}"
+  shift || true
+  tnx_guest_login "$@" -- sh -s < <(printf '%s\n' "$script")
+}
+
 # Store host package ownership beside Termux's package metadata, not in user
 # installation state: `uninstall state` must not discard cleanup evidence.
 tnx_termux_package_ledger() {

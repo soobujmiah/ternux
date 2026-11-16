@@ -19,6 +19,7 @@ alt_url: "/docs/TROUBLESHOOTING.html"
 | ডেবিয়ানে ইন্টারনেট নেই | প্রুটে ডিএনএস আসেনি | [কন্টেইনারে নেটওয়ার্ক নেই](#no-network-in-the-container) |
 | `Waiting for Termux-X11 display socket…` থেমে থাকে | Display :0 আসেনি | [ডিসপ্লে আসছে না](#display-never-appears) |
 | `Error: unrecognized option: '-c'` | নতুন প্রুট-ডিস্ট্রোর সঙ্গে পুরনো লঞ্চার | [প্রুট-ডিস্ট্রো `-c` চেনে না](#proot-distro-says-option--c-is-unrecognized) |
+| `proot-distro: Argument list too long` | ডেস্কটপ asset payload Linux-এর প্রতি-argument সীমা ছাড়িয়েছে | [প্রুট-ডিস্ট্রো argument list বেশি বড়](#proot-distro-argument-list-is-too-long) |
 | কিছু প্যাকেজে `apt` ব্যর্থ | ডেবিয়ানের নন-ফ্রি উপাদান চালু নেই | [এপিটি ব্যর্থতা](#apt-failures) |
 | `ternux install --resume` মুছে ফেলা গেস্ট এড়িয়ে যায় | পুরনো ইনস্টলের বাসি গেস্ট-ধাপের তথ্য | [গেস্ট মুছে ফেলার পর পুনরায় শুরু](#resume-after-removing-a-guest) |
 | `pkg upgrade`-এ `openssl.cnf` এরর, তারপর **প্রতিটি** ইনস্টল ব্যর্থ | বন্ধ stdin-এ dpkg conffile প্রম্পট | [openssl.cnf conffile ক্যাসকেড](#opensslcnf-conffile-cascade) |
@@ -26,6 +27,20 @@ alt_url: "/docs/TROUBLESHOOTING.html"
 | `curl: CANNOT LINK … SSL_set_quic_tls_transport_params` | আংশিক আপগ্রেড — curl/libngtcp2 openssl-এর চেয়ে নতুন | [আপগ্রেডের পর curl লিংক হতে পারে না](#curl-cannot-link-after-an-upgrade) |
 | আগে সব ঠিক ছিল, হালনাগাদের পর ভেঙেছে | মেসা প্যাকেজ বদলে গেছে | [হালনাগাদের পর জিপিইউ পথ হারিয়েছে](#after-an-upgrade-the-gpu-path-is-gone) |
 | ইনস্টলার ড্যাশবোর্ড ঝিকমিক করে, লগ লাইন ফ্রেমের উপরে উঠে যায় | বর্তমান রেন্ডারারের চেয়ে পুরনো ইনস্টলার, বা যে টার্মিনালের মাপ পড়া যায় না | [ইনস্টলার স্ক্রিন ঝিকমিক করে বা ফ্রেম ভেঙে যায়](#the-installer-screen-flickers-or-the-frame-is-broken) |
+
+---
+
+<h2 id="proot-distro-argument-list-is-too-long">প্রুট-ডিস্ট্রো argument list বেশি বড়</h2>
+
+**লক্ষণ:** গেস্ট তৈরি হওয়ার পর Debian + Xfce ধাপ
+`proot-distro: Argument list too long` বার্তা দিয়ে থেমে যায়।
+
+**কারণ:** পুরনো installer compressed desktop asset bundle-টি একটিমাত্র
+`sh -c` argument হিসেবে পাঠাত; সেটি Linux-এর প্রতি-argument সীমা পেরিয়ে যেত।
+
+**সমাধান:** README-তে থাকা এক-কমান্ড installer আবার চালান। বর্তমান installer
+setup script-টি stdin দিয়ে গেস্টে পাঠায় এবং ব্যর্থ ধাপ থেকে অসম্পূর্ণ guest
+নিজে থেকেই চালায়। Debian uninstall বা remove করবেন না।
 
 ---
 
@@ -308,6 +323,10 @@ pkg update -y && pkg upgrade -y && pkg install -y curl wget && bash -c 's=$(mkte
 ```bash
 apt install --reinstall curl libcurl openssl openssl-tool
 ```
+
+টার্মাক্সের setup শেষ হলেও ডেবিয়ান desktop ধাপে কাজ থেমে গেলে উপরের source
+installer command আবার চালান। এতে বর্তমান code নামবে এবং ব্যর্থ ধাপ থেকে
+অসম্পূর্ণ guest-এর কাজ চলবে; ডেবিয়ান guest মুছবেন না।
 
 `ternux repair` curl অনুপস্থিত বা চালু না হলে Termux `apt-get` wrapper দিয়ে
 index রিফ্রেশ ও full upgrade চালায়, তারপর curl আবার যাচাই করে। Standalone

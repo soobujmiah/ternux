@@ -29,6 +29,9 @@ pkg update -y && pkg upgrade -y && pkg install -y curl wget && bash -c 's=$(mkte
 ```
 
 The command falls back to wget if curl cannot start or download the installer.
+If a required phase stops, rerun the same command to download the current
+installer and resume the incomplete guest from that phase. Do not remove the
+guest before retrying.
 
 If a partial upgrade left `pkg` or curl unable to start, run
 `apt update && apt full-upgrade -y` to repair Termux, then retry. The stable

@@ -240,7 +240,9 @@ const installCommand = `pkg update -y && pkg upgrade -y && pkg install -y curl w
           <p class="install-note">
             এই command Termux package upgrade শেষ করে দুইটি downloader install
             করে। curl ব্যর্থ হলে wget দিয়ে installer আবার নামায়, আর download
-            সফল হলেই ফাইলটি চালায়। Partial upgrade-এ <code>pkg</code> বা curl
+            সফল হলেই ফাইলটি চালায়। আবশ্যিক কোনো ধাপে থেমে গেলে বর্তমান installer
+            নামিয়ে ব্যর্থ ধাপ থেকে চালাতে এই command আবার চালান। Partial
+            upgrade-এ <code>pkg</code> বা curl
             চালু না হলে উপরের apt-first command দিয়ে repair করুন। Stable APT
             channel বন্ধ, তাই <code>pkg install ternux</code> এখন পাওয়া যাচ্ছে
             না;{" "}

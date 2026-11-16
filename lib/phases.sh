@@ -465,7 +465,7 @@ tnx_phase_debian() {
   package_family="$TNX_DP_FAMILY"
   # Minimal Alpine images provide POSIX sh but not Bash. This first package
   # bootstrap installs Bash itself, so it must run through sh.
-  tnx_guest_login --shared-tmp -- sh -c "
+  local guest_setup_script="
     set -e
     FAMILY='$package_family'
     BWRAP_SHIM_B64='$proot_bwrap_b64'
@@ -676,7 +676,11 @@ VLC_DESKTOP
         exit 1
       }
     fi
-  " || { tnx_fail "Desktop package installation failed."; return 1; }
+  "
+  tnx_guest_run_script "$guest_setup_script" --shared-tmp || {
+    tnx_fail "Desktop package installation failed."
+    return 1
+  }
 
   tnx_guest_login --shared-tmp -- bash -c "
     set -e

@@ -98,6 +98,10 @@
 pkg update -y && pkg upgrade -y && pkg install -y curl wget && bash -c 's=$(mktemp) && (curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh -o "$s" || wget -qO "$s" https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh) && bash "$s"; r=$?; rm -f "$s"; exit "$r"'
 ```
 
+কোনো আবশ্যিক ধাপে ইনস্টলেশন থেমে গেলে একই কমান্ড আবার চালান। এতে বর্তমান
+ইনস্টলার নামবে এবং ব্যর্থ ধাপ থেকে অসম্পূর্ণ গেস্টের কাজ নিজে থেকেই চলবে;
+আগে গেস্টটি মুছবেন না।
+
 আংশিক হালনাগাদের পর `pkg` বা `curl` না চললে `apt update && apt full-upgrade -y`
 চালিয়ে টার্মাক্স মেরামত করুন, তারপর আবার চেষ্টা করুন।
 স্থিতিশীল প্যাকেজ ভান্ডার প্রত্যাহার হওয়ায় এখন উৎস ইনস্টলারই সমর্থিত বসানোর পথ।

@@ -238,7 +238,9 @@ const installCommand = `pkg update -y && pkg upgrade -y && pkg install -y curl w
             The command finishes the Termux package upgrade, installs both
             downloaders, and retries the script download with wget if curl
             fails. It runs the saved script only after a successful download. If
-            a partial upgrade broke <code>pkg</code> or curl, repair it with the
+            an installation stops at a required phase, rerun this command to
+            download the current installer and resume from that phase. If a
+            partial upgrade broke <code>pkg</code> or curl, repair it with the
             apt-first command above. The stable APT channel is withdrawn, so{" "}
             <code>pkg install ternux</code> is currently unavailable;
             <a href="/ternux/docs/TERMUX-APT.html">

@@ -99,6 +99,10 @@ renderer depends on the device and Android graphics stack, so check it with
 pkg update -y && pkg upgrade -y && pkg install -y curl wget && bash -c 's=$(mktemp) && (curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh -o "$s" || wget -qO "$s" https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh) && bash "$s"; r=$?; rm -f "$s"; exit "$r"'
 ```
 
+If an installation stops at a required phase, run the same command again. It
+downloads the current installer and automatically resumes the incomplete guest
+from the failed phase; do not remove the guest first.
+
 If a partial upgrade left `pkg` or curl unable to start, finish the repair with
 `apt update && apt full-upgrade -y`, then retry the `pkg` command. The standalone
 source installer is the supported install route while the stable package channel
