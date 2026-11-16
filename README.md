@@ -103,13 +103,16 @@ If an installation stops at a required phase, run the same command again. It
 downloads the current installer and automatically resumes the incomplete guest
 from the failed phase; do not remove the guest first.
 
-For Debian guests, Ternux measures the response speed of reachable official
-archive mirrors and uses the fastest one for the main package archive. If the
-mirror fails during `apt update` or the large desktop package install, Ternux
-switches back to `deb.debian.org` and retries. Debian security updates stay on
-their official security archive. Installation logs remain in Termux's Ternux
-temporary log directory for troubleshooting; temporary staged assets are
-removed when setup exits, including after errors.
+Before native Termux package updates, Ternux measures reachable official
+Termux mirrors and selects the fastest one. For Debian guests, Ternux measures
+reachable official Debian archive mirrors and uses the fastest one for the
+main package archive. If either selected mirror fails, Ternux switches to a
+working official mirror and retries. Debian security updates stay on their
+official security archive. Ubuntu, Kali, Alpine, and other managed guests keep
+their own official redirector, CDN, or mirrorlist, so Ternux never applies a
+Debian mirror URL to a different package manager. Installation logs remain in
+Termux's Ternux temporary log directory for troubleshooting; temporary staged
+assets are removed when setup exits, including after errors.
 
 If a partial upgrade left `pkg` or curl unable to start, finish the repair with
 `apt update && apt full-upgrade -y`, then retry the `pkg` command. The standalone

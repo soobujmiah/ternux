@@ -585,18 +585,21 @@ else
   not_ok "Termux package tools ignore a caller-supplied LD_LIBRARY_PATH"
 fi
 
-# Package setup keeps the current mirror and suppresses pkg's all-mirror sweep;
-# it must not open the full-screen termux-change-repo dialog inside the frame.
+# Package setup benchmarks known mirrors without opening the interactive
+# termux-change-repo dialog inside the frame.
 if env TERNUX_STATE_DIR="$TMP/state-repos" HOME="$TMP/home-repos" \
   PREFIX="$TMP/prefix-repos" MARKER="$TMP/change-repo-called" STORAGE_MARKER="$TMP/storage-permission-called" bash -c '
     . "$1/lib/phases.sh"
+    mkdir -p "$PREFIX/etc/apt"
+    printf "%s\n" "deb https://packages.termux.dev/apt/termux-main stable main" > "$PREFIX/etc/apt/sources.list"
+    curl(){ case "$*" in *grimler.se*) printf "200 2000\n" ;; *packages.termux.dev*) printf "200 1000\n" ;; *) printf "404 0\n" ;; esac; }
     termux-change-repo(){ : > "$MARKER"; return 1; }
     termux-setup-storage(){ : > "$STORAGE_MARKER"; }
     proot-distro(){ :; }; termux-x11(){ :; }; pulseaudio(){ :; }; setsid(){ :; }
     tnx_spin_run(){ [ "${TERMUX_PKG_NO_MIRROR_SELECT:-}" = 1 ]; }
-    tnx_phase_packages virgl >/dev/null && [ ! -e "$MARKER" ] && [ ! -e "$STORAGE_MARKER" ]
+    tnx_phase_packages virgl >/dev/null && grep -Fq "deb https://grimler.se/termux/termux-main stable main" "$PREFIX/etc/apt/sources.list" && [ ! -e "$MARKER" ] && [ ! -e "$STORAGE_MARKER" ]
   ' _ "$ROOT"; then
-  ok "package phase avoids repository dialogs, mirror sweeps and automatic storage permission"
+  ok "package phase selects the fastest measured Termux mirror without dialogs or automatic storage permission"
 else
   not_ok "package phase avoids repository dialogs, mirror sweeps and automatic storage permission"
 fi
@@ -1126,7 +1129,7 @@ assert "Exec=thunar /sdcard" in sdcard_desktop.read_text()
 assert "Icon=drive-removable-media" in sdcard_desktop.read_text()
 sdcard_asset_install = r'install -m 0644 "\$asset_stage/applications/ternux-sdcard.desktop" /usr/share/applications/ternux-sdcard.desktop'
 assert sdcard_asset_install in desktop_phase
-assert desktop_phase.index(sdcard_asset_install) < desktop_phase.index(r'rm -rf "\$asset_stage"')
+assert desktop_phase.index(sdcard_asset_install) < desktop_phase.rindex(r'rm -rf "\$asset_stage"')
 user_setup_phase = desktop_phase[desktop_phase.index("U='${user_name}'"):]
 assert r'"\$asset_stage/applications/ternux-sdcard.desktop"' not in user_setup_phase
 assert r'cp /usr/share/applications/ternux-sdcard.desktop "\$H/Desktop/SD-Card.desktop"' in user_setup_phase

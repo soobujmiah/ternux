@@ -169,28 +169,40 @@ tnx_phase_preflight() {
   return 0
 }
 
-# Switch to an active, reliable fallback mirror if the user's current mirror
-# returns 404 or fails during package download.
-_tnx_switch_mirror() {
+# Benchmark known Termux mirrors without opening termux-change-repo. A short
+# Packages.gz transfer gives a useful throughput sample without downloading
+# the whole index; an optional excluded URL is used after a mirror failure.
+_tnx_select_fastest_mirror() {
   local sfile="${PREFIX:-/data/data/com.termux/files/usr}/etc/apt/sources.list"
-  [ -f "$sfile" ] || return 1
-
+  [ -f "$sfile" ] && command -v curl >/dev/null 2>&1 || return 1
+  local arch current mirror result code speed best_url="" best_speed=0 exclude="${1:-}"
+  arch="$(dpkg --print-architecture 2>/dev/null || echo aarch64)"
+  current="$(awk '$1 == "deb" && $3 == "stable" && $4 == "main" {print $2; exit}' "$sfile")"
   local mirrors=(
     "https://packages.termux.dev/apt/termux-main"
     "https://grimler.se/termux/termux-main"
     "https://mirror.karneval.cz/pub/linux/termux/termux-main"
   )
-
-  local current
-  current="$(grep -E '^deb[[:space:]]+https?://' "$sfile" 2>/dev/null | awk '{print $2}' || true)"
-
-  for m in "${mirrors[@]}"; do
-    if [ "$current" != "$m" ]; then
-      sed -i -E "s|^(deb[[:space:]]+)https?://[^[:space:]]+|\1$m|g" "$sfile"
-      return 0
-    fi
+  [ -z "$current" ] || mirrors+=("$current")
+  for mirror in "${mirrors[@]}"; do
+    [ "$mirror" != "$exclude" ] || continue
+    result="$(curl -LsS --connect-timeout 3 --max-time 5 -o /dev/null -w '%{http_code} %{speed_download}' "$mirror/dists/stable/main/binary-$arch/Packages.gz" 2>/dev/null || true)"
+    read -r code speed <<< "$result"
+    [[ "$code" == 200 && "$speed" =~ ^[0-9]+$ ]] || continue
+    if (( speed > best_speed )); then best_speed="$speed"; best_url="$mirror"; fi
   done
-  return 1
+  [ -n "$best_url" ] || return 1
+  [ "$best_url" != "$current" ] || { tnx_info "Fastest Termux mirror remains $current (${best_speed} B/s)."; return 0; }
+  sed -i -E "s#^(deb[[:space:]]+)https?://[^[:space:]]+/(apt/|termux/)termux-main([[:space:]])#\\1${best_url}\\3#" "$sfile" || return 1
+  tnx_info "Selected fastest Termux mirror: $best_url (${best_speed} B/s)."
+}
+
+# Select a different fastest mirror after the current Termux mirror fails.
+_tnx_switch_mirror() {
+  local sfile="${PREFIX:-/data/data/com.termux/files/usr}/etc/apt/sources.list" current
+  [ -f "$sfile" ] || return 1
+  current="$(awk '$1 == "deb" && $3 == "stable" && $4 == "main" {print $2; exit}' "$sfile")"
+  _tnx_select_fastest_mirror "$current"
 }
 
 # Helper to install core Termux tools with automatic mirror fallback
@@ -260,33 +272,39 @@ tnx_phase_packages() {
   local APT_FORCE="-o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -o APT::Color=1 -o Dpkg::Progress-Fancy=1"
   local TERMUX_PKG_NO_MIRROR_SELECT=1
 
-  # Never launch termux-change-repo inside the persistent frame: it owns the
-  # full terminal, clears the screen, and an "all mirrors" choice can trigger a
-  # large availability sweep. Keep the user's current apt source for this phase;
-  # if it is unreachable, the normal failure tells them to change it and resume.
+  # Keep the interactive repository dialog disabled; benchmark known sources
+  # directly and select the fastest reachable Termux mirror instead.
   export TERMUX_PKG_NO_MIRROR_SELECT=1
-  tnx_info "Using the currently configured Termux repository (automatic mirror sweep disabled)."
+  _tnx_select_fastest_mirror || tnx_warn "Could not measure Termux mirrors; keeping the configured source."
 
   # Android shared storage permission is requested only when the user runs
   # `ternux storage grant DIRECTORY`; setup itself does not expose user files.
 
   if ! tnx_spin_run "Refresh Termux repositories" tnx_termux_pkg update -y $APT_FORCE; then
-    tnx_warn "pkg update failed; pkg depends on curl, so repairing the complete Termux package set through apt-get."
-    if _tnx_repair_termux_package_stack "$APT_FORCE"; then
-      package_stack_repaired=1
+    if _tnx_switch_mirror && tnx_spin_run "Retry with the next fastest Termux mirror" tnx_termux_pkg update -y $APT_FORCE; then
+      tnx_ok "Termux package metadata refreshed after switching mirrors."
     else
-      rc=1
+      tnx_warn "pkg update failed; pkg depends on curl, so repairing the complete Termux package set through apt-get."
+      if _tnx_repair_termux_package_stack "$APT_FORCE"; then
+        package_stack_repaired=1
+      else
+        rc=1
+      fi
     fi
   fi
   if [ "$rc" -eq 0 ] && [ "$package_stack_repaired" -eq 0 ] &&
      ! tnx_spin_run "Upgrade installed Termux packages" tnx_termux_pkg upgrade -y $APT_FORCE; then
-    tnx_warn "pkg upgrade failed; repairing the complete Termux package set with apt-get full-upgrade."
-    if ! tnx_spin_run "Repair Termux packages with full-upgrade" tnx_termux_apt_get full-upgrade -y $APT_FORCE; then
-      tnx_warn "apt-get full-upgrade failed; repairing interrupted dpkg configuration and retrying once."
-      tnx_spin_run "Repair interrupted dpkg configuration" dpkg --configure -a --force-confold --force-confdef || true
-      tnx_spin_run "Retry Termux full-upgrade" tnx_termux_apt_get full-upgrade -y $APT_FORCE || rc=1
+    if _tnx_switch_mirror && tnx_spin_run "Retry upgrade with the next fastest Termux mirror" tnx_termux_pkg upgrade -y $APT_FORCE; then
+      tnx_ok "Termux packages upgraded after switching mirrors."
+    else
+      tnx_warn "pkg upgrade failed; repairing the complete Termux package set with apt-get full-upgrade."
+      if ! tnx_spin_run "Repair Termux packages with full-upgrade" tnx_termux_apt_get full-upgrade -y $APT_FORCE; then
+        tnx_warn "apt-get full-upgrade failed; repairing interrupted dpkg configuration and retrying once."
+        tnx_spin_run "Repair interrupted dpkg configuration" dpkg --configure -a --force-confold --force-confdef || true
+        tnx_spin_run "Retry Termux full-upgrade" tnx_termux_apt_get full-upgrade -y $APT_FORCE || rc=1
+      fi
+      package_stack_repaired=1
     fi
-    package_stack_repaired=1
   fi
   if [ "$rc" -eq 0 ] && ! tnx_spin_run "Verify Termux curl after package upgrade" _tnx_host_curl_smoke; then
     tnx_warn "curl became unusable during package upgrade; repairing Termux before any further pkg command."
@@ -515,13 +533,24 @@ tnx_phase_debian() {
     if [ \"\$FAMILY\" = apt ] && [ '$(tnx_distro)' = debian ]; then
       set_debian_mirror \"\$APT_MIRROR\"
     fi
+      timeout() {
+        local has_apt=0 is_update=0 arg
+        for arg in "\$@"; do
+          if [ "\$arg" = apt ]; then has_apt=1; fi
+          if [ "\$arg" = update ]; then is_update=1; fi
+        done
+        if [ "\$has_apt" -ne 1 ] || [ "\$FAMILY" != apt ] || [ '$(tnx_distro)' != debian ]; then command timeout "\$@"; return; fi
+        command timeout "\$@" && return 0
+        echo 'Selected Debian mirror failed; switching to deb.debian.org and retrying the APT operation.'
+        set_debian_mirror http://deb.debian.org/debian
+        if [ "\$is_update" -ne 1 ]; then
+          command timeout --signal=TERM --kill-after=10 300 apt update -o APT::Color=1 -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 || return 1
+        fi
+        command timeout "\$@"
+      }
     case \"\$FAMILY\" in
       apt)
-        if ! timeout --signal=TERM --kill-after=10 300 apt update -o APT::Color=1 -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30; then
-          echo 'Selected Debian mirror failed; switching to deb.debian.org and retrying apt update.'
-          set_debian_mirror http://deb.debian.org/debian
-          timeout --signal=TERM --kill-after=10 300 apt update -o APT::Color=1 -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30
-        fi
+        timeout --signal=TERM --kill-after=10 300 apt update -o APT::Color=1 -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30
         dpkg --configure -a --force-confold --force-confdef || true
         install_proot_bwrap_shim
         if [ '$(tnx_distro)' = ubuntu ]; then
@@ -529,11 +558,7 @@ tnx_phase_debian() {
           printf 'Package: snapd\nPin: version *\nPin-Priority: -1\n' > /etc/apt/preferences.d/ternux-no-snapd
           apt-mark hold snapd >/dev/null 2>&1 || true
         fi
-        if ! timeout --signal=TERM --kill-after=10 3600 apt install -y -o APT::Install-Recommends=false \$DPKG_FORCE -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 sudo nano ca-certificates mousepad galculator evince fonts-noto-core python3-gi python3-xlib gir1.2-gtk-3.0 ibus ibus-gtk3 ibus-gtk4 ibus-avro devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol x11-utils x11-xkb-utils mesa-utils libgl1-mesa-dri libvulkan1 mesa-vulkan-drivers vulkan-tools adwaita-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc ffmpeg ristretto qt5-gtk-platformtheme colord xdg-utils desktop-file-utils util-linux libglib2.0-bin gsettings-desktop-schemas xfconf; then
-          echo 'Selected Debian mirror failed during desktop install; switching to deb.debian.org and retrying.'
-          set_debian_mirror http://deb.debian.org/debian
-          timeout --signal=TERM --kill-after=10 3600 apt install -y -o APT::Install-Recommends=false \$DPKG_FORCE -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 sudo nano ca-certificates mousepad galculator evince fonts-noto-core python3-gi python3-xlib gir1.2-gtk-3.0 ibus ibus-gtk3 ibus-gtk4 ibus-avro devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol x11-utils x11-xkb-utils mesa-utils libgl1-mesa-dri libvulkan1 mesa-vulkan-drivers vulkan-tools adwaita-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc ffmpeg ristretto qt5-gtk-platformtheme colord xdg-utils desktop-file-utils util-linux libglib2.0-bin gsettings-desktop-schemas xfconf
-        fi
+        timeout --signal=TERM --kill-after=10 3600 apt install -y -o APT::Install-Recommends=false \$DPKG_FORCE -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 sudo nano ca-certificates mousepad galculator evince fonts-noto-core python3-gi python3-xlib gir1.2-gtk-3.0 ibus ibus-gtk3 ibus-gtk4 ibus-avro devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol x11-utils x11-xkb-utils mesa-utils libgl1-mesa-dri libvulkan1 mesa-vulkan-drivers vulkan-tools adwaita-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc ffmpeg ristretto qt5-gtk-platformtheme colord xdg-utils desktop-file-utils util-linux libglib2.0-bin gsettings-desktop-schemas xfconf
         timeout --signal=TERM --kill-after=10 900 apt install -y \$DPKG_FORCE -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 --no-install-recommends synaptic
         if [ '$(tnx_distro)' = ubuntu ]; then apt-mark hold snapd >/dev/null 2>&1 || true; fi
         timeout --signal=TERM --kill-after=10 900 apt remove -y \$DPKG_FORCE -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 guvcview >/dev/null 2>&1 || true
