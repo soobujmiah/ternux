@@ -612,14 +612,14 @@ ternux uninstall [session|launcher|state|container|host-cli|all] [--yes]
 
 ## পাসওয়ার্ড ও ইন্টারঅ্যাক্টিভ শেল চালু
 
-ইনস্টলার গেস্টের `sudo` পাসওয়ার্ড এবং সবার জন্য আলাদা একটি shared startup
-password চায়। `sudo` পাসওয়ার্ড নির্বাচিত গেস্ট ব্যবহারকারীর অ্যাকাউন্টে সেট
-হয়। Startup password native Termux এবং managed guest-এর interactive Bash,
-Zsh ও Alpine shell-এ যাচাই হয়। এটি বদলাতে `tx password startup`; গেস্টের
-`sudo` password বদলাতে `tx password sudo` অথবা গেস্টের ভেতরে `passwd` চালান।
-Startup password-এর salted digest `~/.config/ternux/startup-password`-এ থাকে।
-এটি shell-এর convenience gate; PRoot root shortcut বা অন্য shell দিয়ে এড়ানো
-যায়, তাই Termux app owner-এর কাছ থেকে ফাইল সুরক্ষিত করে না।
+ইনস্টলার গেস্টের `sudo` পাসওয়ার্ড এবং সবার জন্য আলাদা শেল-চালুর পাসওয়ার্ড
+চায়। `sudo` পাসওয়ার্ড নির্বাচিত গেস্ট ব্যবহারকারীর অ্যাকাউন্টে সেট হয়। শেল-
+চালুর পাসওয়ার্ড নেটিভ টার্মাক্স এবং পরিচালিত গেস্টের ইন্টারঅ্যাক্টিভ `Bash`,
+`Zsh` ও `Alpine` শেলে যাচাই হয়। এটি বদলাতে `tx password startup`; গেস্টের
+`sudo` পাসওয়ার্ড বদলাতে `tx password sudo` অথবা গেস্টের ভেতরে `passwd` চালান।
+শেল-চালুর পাসওয়ার্ডের লবণযুক্ত সারাংশ `~/.config/ternux/startup-password`-এ
+থাকে। এটি কেবল সুবিধার যাচাই; `PRoot`-এর রুট শর্টকাট বা অন্য শেল দিয়ে এড়ানো
+যায়, তাই টার্মাক্স অ্যাপ-মালিকের কাছ থেকে গেস্টের ফাইল সুরক্ষিত করে না।
 
 ## শেল কমপ্লিশন
 
