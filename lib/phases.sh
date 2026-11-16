@@ -433,10 +433,22 @@ tnx_install_guest_cli() {
 # ---------------------------------------------------------------------------
 # Phase 4 — selected guest + Xfce4 + user
 # ---------------------------------------------------------------------------
+tnx_find_terfetch() {
+  local module_dir="${1:-${BASH_SOURCE[0]%/*}}" candidate
+  for candidate in "$module_dir/../share/terfetch/terfetch" "$module_dir/../../share/terfetch/terfetch" "$module_dir/../../bin/terfetch"; do
+    [ -s "$candidate" ] && [ -x "$candidate" ] && { printf '%s\n' "$candidate"; return 0; }
+  done
+  return 1
+}
+
 tnx_phase_debian() {
   local user_name="${1:-ternux}" package_family input_engine=ibus-avro apt_mirror="http://deb.debian.org/debian"
   [ "$(tnx_distro)" != alpine ] || input_engine=m17n:bn:avro-phonetic
-  local resource_dir="${BASH_SOURCE[0]%/*}"
+  local resource_dir="${BASH_SOURCE[0]%/*}" terfetch_path=""
+  terfetch_path="$(tnx_find_terfetch "$resource_dir")" || {
+    tnx_fail "Standalone Terfetch program is missing or not executable beside $resource_dir."
+    return 1
+  }
   local welcome_b64 welcome_gui_b64 window_fit_b64 camera_gui_b64 recorder_gui_b64 flashlight_gui_b64 panel_shortcuts_b64 ternux_assets_b64 proot_bwrap_b64 gtk3_user_css_b64 gtk4_user_css_b64 firefox_installer_b64 terfetch_b64 resource
   for resource in ternux-welcome.sh ternux-welcome-gui.py ternux-window-fit.lua ternux-camera.py ternux-recorder.py ternux-flashlight.py ternux-panel-shortcuts.sh ternux-assets/bin/ternux-proot-bwrap ternux-assets/bin/ternux-rasterize-icons ternux-assets/bin/ternux-ibus-session-init ternux-assets/bin/ternux-ibus-next-engine ternux-assets/bin/ternux-window-fit-x11 ternux-assets/bin/ternux-session-bus ternux-assets/bin/ternux-configure-prompt; do
     if [ ! -s "$resource_dir/$resource" ] || [ ! -r "$resource_dir/$resource" ]; then
@@ -444,10 +456,6 @@ tnx_phase_debian() {
       return 1
     fi
   done
-  if [ ! -s "$resource_dir/../share/terfetch/terfetch" ] || [ ! -x "$resource_dir/../share/terfetch/terfetch" ]; then
-    tnx_fail "Standalone Terfetch program is missing or not executable: $resource_dir/../share/terfetch/terfetch"
-    return 1
-  fi
   if [ ! -d "$resource_dir/ternux-assets/icons/Ternux" ] || [ ! -d "$resource_dir/ternux-assets/wallpapers" ] || [ ! -d "$resource_dir/ternux-assets/themes/Ternux" ] || [ ! -d "$resource_dir/ternux-assets/input-methods" ] || [ ! -x "$resource_dir/ternux-assets/bin/ternux-install-avro-m17n" ] || [ ! -s "$resource_dir/ternux-assets/bin/ternux-proot-faccessat-arm64.so" ] || [ ! -s "$resource_dir/ternux-assets/bin/ternux-proot-faccessat.c" ]; then
     tnx_fail "Required Ternux desktop branding assets are missing under $resource_dir/ternux-assets"
     return 1
@@ -464,7 +472,7 @@ tnx_phase_debian() {
   gtk3_user_css_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-assets/themes/Ternux/gtk-3.0/gtk-user.css" | tr -d '\n')" || return 1
   gtk4_user_css_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-assets/themes/Ternux/gtk-4.0/gtk-user.css" | tr -d '\n')" || return 1
   firefox_installer_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-install-firefox-esr.sh" | tr -d '\n')" || return 1
-  terfetch_b64="$(set -o pipefail; base64 < "$resource_dir/../share/terfetch/terfetch" | tr -d '\n')" || return 1
+  terfetch_b64="$(set -o pipefail; base64 < "$terfetch_path" | tr -d '\n')" || return 1
 
   if tnx_debian_installed; then
     tnx_warn "Guest '$(tnx_distro)' already installed; reusing it."

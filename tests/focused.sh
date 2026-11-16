@@ -1285,6 +1285,18 @@ else
   ok "Debian phase fails closed when a packaged resource is missing"
 fi
 
+# Standalone source keeps share/terfetch beside lib; the Termux package maps
+# the same executable to PREFIX/bin/terfetch beside PREFIX/lib/ternux.
+installed_layout="$TMP/installed-layout"
+mkdir -p "$installed_layout/usr/lib/ternux" "$installed_layout/usr/bin"
+printf '#!/bin/sh\nexit 0\n' > "$installed_layout/usr/bin/terfetch"
+chmod 0755 "$installed_layout/usr/bin/terfetch"
+if bash -c '. "$1/lib/phases.sh"; candidate="$(tnx_find_terfetch "$2/usr/lib/ternux")"; [ -x "$candidate" ]' _ "$ROOT" "$installed_layout"; then
+  ok "Debian phase resolves Terfetch in the installed Termux prefix layout"
+else
+  not_ok "Debian phase resolves Terfetch in the installed Termux prefix layout"
+fi
+
 if sh -n "$ROOT/lib/ternux-panel-shortcuts.sh" && grep -q 'panel-shortcuts-v7' "$ROOT/lib/ternux-panel-shortcuts.sh"; then
   ok "Ternux removes the keyboard button and keeps media panel shortcuts"
 else
