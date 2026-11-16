@@ -91,12 +91,11 @@ renderer depends on the device and Android graphics stack, so check it with
    adds terminal themes and fonts. Ternux desktop apps capture live microphone audio
    on demand through Termux's OpenSL ES source; the API's recorder is file-based.
    Install Termux and its add-ons from the same source.
-2. On a healthy, current Termux install, use `pkg` to update packages, install
-   both downloaders, and run the source installer. If curl cannot start or
-   fetch the script, the command retries with wget:
+2. Run the source installer directly. It tries curl first, falls back to wget,
+   and removes the downloaded installer script after it exits:
 
 ```bash
-pkg update -y && pkg upgrade -y && pkg install -y curl wget && bash -c 's=$(mktemp) && (curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh -o "$s" || wget -qO "$s" https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh) && bash "$s"; r=$?; rm -f "$s"; exit "$r"'
+bash -c 's=$(mktemp) && (curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh -o "$s" || wget -qO "$s" https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh) && bash "$s"; r=$?; rm -f "$s"; exit "$r"'
 ```
 
 If an installation stops at a required phase, run the same command again. It
@@ -104,20 +103,17 @@ downloads the current installer and automatically resumes the incomplete guest
 from the failed phase; do not remove the guest first.
 
 Before native Termux package updates, Ternux measures reachable official
-Termux mirrors and selects the fastest one. For Debian guests, Ternux measures
-reachable official Debian archive mirrors and uses the fastest one for the
-main package archive. If either selected mirror fails, Ternux switches to a
-working official mirror and retries. Debian security updates stay on their
-official security archive. Ubuntu, Kali, Alpine, and other managed guests keep
-their own official redirector, CDN, or mirrorlist, so Ternux never applies a
-Debian mirror URL to a different package manager. Installation logs remain in
-Termux's Ternux temporary log directory for troubleshooting; temporary staged
-assets are removed when setup exits, including after errors.
+Termux mirrors and selects the fastest one. Debian guest setup measures
+reachable Debian archive mirrors and keeps security updates on the official
+security archive. Other guest package managers use their configured upstream
+repositories. Installation logs remain in Termux's Ternux temporary log
+directory for troubleshooting; temporary staged assets are removed when setup
+exits, including after errors.
 
-If a partial upgrade left `pkg` or curl unable to start, finish the repair with
-`apt update && apt full-upgrade -y`, then retry the `pkg` command. The standalone
-source installer is the supported install route while the stable package channel
-is withdrawn.
+If a partial upgrade left `pkg` or curl unable to start, run the installer
+command again. Its host package repair runs through `apt-get` before it retries
+`pkg`. The standalone source installer is the supported install route while the
+stable package channel is withdrawn.
 
 The Ternux v2.0.0 GitHub release and stable APT distribution were withdrawn
 on 2026-11-14. The `v2.0.0` source tag remains available for provenance. Use
