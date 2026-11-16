@@ -18,15 +18,16 @@ Usage: tx uninstall [session|launcher|state|container|host-cli|all] [--yes]
        ternux uninstall [session|launcher|state|container|host-cli|all] [--yes]
 
   session    Stop the Ternux-owned desktop session and remove its state markers
-  launcher   Remove ~/x.sh and ternux shell aliases
+  launcher   Remove ~/x.sh, marked shell aliases, and Terfetch startup hooks
   state      Remove Ternux state, logs and stopped manager socket state
   container  Delete the selected registered Ternux guest
   host-cli   Remove the APT-managed or source-installed Termux CLI
-  all        Remove Ternux-managed guests, desktop, state, caches and host CLI
+  all        Remove registered Ternux guests, desktop, state, caches and host CLI
 
 Numeric aliases 1..6 select the same actions in that order.
 Termux itself, shared Termux packages, Android shared storage and unregistered
-PRoot guests are kept. Container and all require confirmation unless --yes.
+PRoot guests are kept. Launcher cleanup removes only Ternux-marked shell blocks.
+Container and all require confirmation unless --yes.
 EOF
 }
 
@@ -48,8 +49,21 @@ _tnx_uninstall_stop() {
 }
 
 _tnx_uninstall_launcher() {
-  rm -f "$HOME/x.sh"
-  local rc_file tmp_file starts ends rc=0
+  local rc_file tmp_file alias_starts alias_ends fetch_starts fetch_ends rc=0 launcher target managed=0
+  launcher="$(tnx_distro_state_dir "$(tnx_distro)")/launcher.sh"
+  if [ -L "$HOME/x.sh" ]; then
+    target="$(readlink -f "$HOME/x.sh" 2>/dev/null || true)"
+    [ -n "$target" ] && [ "$target" = "$(readlink -f "$launcher" 2>/dev/null || true)" ] &&
+      [ -f "$target" ] && grep -qxF '# TERNUX_DESKTOP_LAUNCHER=21' "$target" && managed=1
+  elif [ -f "$HOME/x.sh" ] && grep -qxF '# TERNUX_DESKTOP_LAUNCHER=21' "$HOME/x.sh"; then
+    # Legacy installers copied the managed launcher instead of linking it.
+    managed=1
+  fi
+  if [ "$managed" -eq 1 ]; then
+    rm -f "$HOME/x.sh" || { tnx_fail "Could not remove the managed launcher link"; rc=1; }
+  elif [ -e "$HOME/x.sh" ] || [ -L "$HOME/x.sh" ]; then
+    tnx_warn "Kept unrecognized user file at ~/x.sh"
+  fi
   for rc_file in "$HOME/.bashrc" "$HOME/.zshrc"; do
     if [ -L "$rc_file" ] || { [ -e "$rc_file" ] && [ ! -f "$rc_file" ]; }; then
       tnx_fail "Refusing to replace symlink or non-regular startup file: $rc_file"
@@ -57,34 +71,56 @@ _tnx_uninstall_launcher() {
       continue
     fi
     [ -f "$rc_file" ] || continue
-    starts="$(grep -cxF '# ==== TERNUX ALIASES ====' "$rc_file" 2>/dev/null || true)"
-    ends="$(grep -cxF '# ==== END TERNUX ALIASES ====' "$rc_file" 2>/dev/null || true)"
-    if [ "$starts" != "$ends" ] || [ "$starts" -gt 1 ] 2>/dev/null; then
-      tnx_fail "Refusing to rewrite malformed alias markers in $rc_file"
+    alias_starts="$(grep -cxF '# ==== TERNUX ALIASES ====' "$rc_file" 2>/dev/null || true)"
+    alias_ends="$(grep -cxF '# ==== END TERNUX ALIASES ====' "$rc_file" 2>/dev/null || true)"
+    fetch_starts="$(grep -cxF '# TERNUX TERFETCH START BEGIN' "$rc_file" 2>/dev/null || true)"
+    fetch_ends="$(grep -cxF '# TERNUX TERFETCH START END' "$rc_file" 2>/dev/null || true)"
+    if [ "$alias_starts" != "$alias_ends" ] || [ "$alias_starts" -gt 1 ] 2>/dev/null ||
+       [ "$fetch_starts" != "$fetch_ends" ] || [ "$fetch_starts" -gt 1 ] 2>/dev/null; then
+      tnx_fail "Refusing to rewrite malformed Ternux shell markers in $rc_file"
       rc=1
       continue
     fi
-    [ "$starts" -gt 0 ] 2>/dev/null || continue
-    if ! awk '
-      /^# ==== TERNUX ALIASES ====$/ {
-        if (inside || seen_start) bad=1
-        inside=1; seen_start=1; next
+    [ "$alias_starts" -gt 0 ] 2>/dev/null || [ "$fetch_starts" -gt 0 ] 2>/dev/null || continue
+    if ! awk \
+      -v alias_start='# ==== TERNUX ALIASES ====' \
+      -v alias_end='# ==== END TERNUX ALIASES ====' \
+      -v fetch_start='# TERNUX TERFETCH START BEGIN' \
+      -v fetch_end='# TERNUX TERFETCH START END' '
+      $0 == alias_start {
+        if (inside || seen_alias) bad=1
+        inside="alias"; seen_alias=1; next
       }
-      /^# ==== END TERNUX ALIASES ====$/ {
-        if (!inside || seen_end) bad=1
-        inside=0; seen_end=1; next
+      $0 == alias_end {
+        if (inside != "alias" || seen_alias_end) bad=1
+        inside=""; seen_alias_end=1; next
       }
-      END { exit(bad || inside || !seen_start || !seen_end) }
+      $0 == fetch_start {
+        if (inside || seen_fetch) bad=1
+        inside="fetch"; seen_fetch=1; next
+      }
+      $0 == fetch_end {
+        if (inside != "fetch" || seen_fetch_end) bad=1
+        inside=""; seen_fetch_end=1; next
+      }
+      END {
+        if (inside || seen_alias != seen_alias_end || seen_fetch != seen_fetch_end) bad=1
+        exit bad
+      }
     ' "$rc_file" >/dev/null; then
-      tnx_fail "Refusing to rewrite malformed alias marker order in $rc_file"
+      tnx_fail "Refusing to rewrite malformed Ternux shell marker order in $rc_file"
       rc=1
       continue
     fi
 
     tmp_file="$(mktemp "${rc_file}.ternux-uninstall.XXXXXX")" || { rc=1; continue; }
-    if awk '
-      /^# ==== TERNUX ALIASES ====$/ { skip=1; next }
-      /^# ==== END TERNUX ALIASES ====$/ { skip=0; next }
+    if awk \
+      -v alias_start='# ==== TERNUX ALIASES ====' \
+      -v alias_end='# ==== END TERNUX ALIASES ====' \
+      -v fetch_start='# TERNUX TERFETCH START BEGIN' \
+      -v fetch_end='# TERNUX TERFETCH START END' '
+      $0 == alias_start || $0 == fetch_start { skip=1; next }
+      $0 == alias_end || $0 == fetch_end { skip=0; next }
       !skip { print }
     ' "$rc_file" > "$tmp_file" &&
        { chmod --reference="$rc_file" "$tmp_file" 2>/dev/null || true; } &&
@@ -96,7 +132,7 @@ _tnx_uninstall_launcher() {
       rc=1
     fi
   done
-  [ "$rc" -eq 0 ] && tnx_ok "Launcher and ternux alias blocks removed"
+  [ "$rc" -eq 0 ] && tnx_ok "Launcher, alias blocks, and Terfetch startup hooks removed"
   return "$rc"
 }
 

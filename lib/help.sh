@@ -349,6 +349,8 @@ HELP
 tnx_help_update()    { echo "Usage: tx update [check]"; echo "check — inspect the latest stable release without installing. APT installs use pkg upgrade; other installs fetch the exact stable tag commit, stage and verify all CLI modules, and preserve the previous version for rollback."; }
 tnx_help_uninstall() {
   echo "Usage: tx uninstall [session|launcher|state|container|host-cli|all] [--yes]"
+  echo "launcher removes ~/x.sh, marked shell aliases, and Terfetch startup hooks."
+  echo "all removes registered Ternux guests and owned state; shared Termux packages and unregistered guests are kept."
   echo "Interactive by default; destructive container removal requires confirmation."
 }
 
