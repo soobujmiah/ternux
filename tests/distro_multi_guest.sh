@@ -92,6 +92,9 @@ if tnx_install --distros debian,debian >/dev/null 2>&1; then exit 1; fi
 tnx_prompt_shell() { printf 'shell:%s\n' "$1" >> "$TMP/precollect-order"; printf 'zsh\n'; }
 tnx_prompt_username() { printf 'user:%s\n' "$3" >> "$TMP/precollect-order"; printf 'user-%s\n' "$3"; }
 tnx_prompt_workloads() { printf 'workload:%s\n' "$1" >> "$TMP/precollect-order"; printf '\n'; }
+tnx_prompt_root_password() { TERNUX_ROOT_PASSWORD=test-root; }
+tnx_prompt_user_password() { TERNUX_USER_PASSWORD=test-sudo; }
+tnx_prompt_startup_password() { TERNUX_STARTUP_PASSWORD=test-startup; }
 tnx_summary_box() { printf 'summary\n' >> "$TMP/precollect-order"; }
 tnx_confirm() { printf 'confirm\n' >> "$TMP/precollect-order"; return 0; }
 tnx_install_single() { printf 'install:%s\n' "$*" >> "$TMP/precollect-order"; }
@@ -126,7 +129,7 @@ if (
   tnx_install_phase_done cli && exit 1
   tnx_state_set cli_source_identity "$(tnx_cli_source_identity)"
   tnx_proot_container_installed(){ return 0; }
-  for phase in debian root_password gpu audio_fonts launcher aliases extras phantom verify; do
+  for phase in debian root_password user_password startup_password gpu audio_fonts launcher aliases extras phantom verify; do
     tnx_state_mark "phase_$phase"
     tnx_distro_phase_mark debian "$phase"
   done
@@ -208,6 +211,7 @@ tnx_cmd_distro shell ubuntu
 [ "$(cat "$TMP/login-calls")" = 'ubuntu|--user ubuntu-user' ]
 tnx_cmd_distro exec debian -- printf '%s' ok
 [ "$(tail -n 1 "$TMP/login-calls")" = 'debian|-- printf %s ok' ]
+: > "$TMP/proot-calls"
 tnx_cmd_distro image-install alpine:latest alpine
 [ "$(cat "$TMP/proot-calls")" = 'install --name alpine alpine:latest' ]
 tnx_cmd_distro shell alpine
