@@ -1755,6 +1755,7 @@ guest_login_isolated() {
   local distro="${1:?missing PRoot distribution}"; shift
   local prefix="${PREFIX:-/data/data/com.termux/files/usr}"
   local host_home="${TERMUX_HOST_HOME:-/data/data/com.termux/files/home}"
+  local startup_hash="$host_home/.config/ternux/startup-password"
   local -a login_args=(--isolated --shared-x11)
   local -a android_env=() env_args=()
   local key pair bind_path
@@ -1768,6 +1769,15 @@ guest_login_isolated() {
   # desktop. The Termux app must already have Android storage permission.
   storage_root="$(realpath -e /sdcard 2>/dev/null || true)"
   if [ -n "$storage_root" ] && [ -d "$storage_root" ]; then login_args+=(--bind "$storage_root:/sdcard"); fi
+  # Interactive terminals launched inside the desktop read the guest shell
+  # startup hook too. Expose only the salted verifier, never Termux HOME.
+  if [ -e "$startup_hash" ]; then
+    [ ! -L "$startup_hash" ] && [ -f "$startup_hash" ] && [ -r "$startup_hash" ] || {
+      echo "Unsafe or unreadable Ternux startup password file; refusing guest login." >&2
+      return 1
+    }
+    login_args+=(--bind "$startup_hash:/run/ternux/startup-password")
+  fi
   if [ -e "$storage_allowlist" ]; then
     [ ! -L "$storage_allowlist" ] && [ -f "$storage_allowlist" ] || { echo "Unsafe Ternux storage allowlist; refusing storage mounts." >&2; return 1; }
     [ -n "$storage_root" ] && [ -d "$storage_root" ] || { echo "Granted Android storage is unavailable." >&2; return 1; }
@@ -2254,7 +2264,7 @@ _ternux_guest_login() {
   [ -z "\${ZSH_VERSION:-}" ] || emulate -L bash
   local distro="\$1"; shift
   local -a login_args=(--isolated)
-  local allowlist="\$HOME/.local/share/ternux/storage-allowlist" root host guest resolved expected extra
+  local allowlist="\$HOME/.local/share/ternux/storage-allowlist" startup_hash="\$HOME/.config/ternux/startup-password" root host guest resolved expected extra
   while [ "\$#" -gt 0 ]; do
     case "\$1" in
       --shared-tmp|--shared-x11) login_args+=("\$1"); shift ;;
@@ -2264,6 +2274,15 @@ _ternux_guest_login() {
       *) break ;;
     esac
   done
+  # Shell functions override the installed db/ubuntu/etc. launchers, so they
+  # must apply the same isolated verifier bind as tnx_guest_login().
+  if [ -e "\$startup_hash" ]; then
+    [ ! -L "\$startup_hash" ] && [ -f "\$startup_hash" ] && [ -r "\$startup_hash" ] || {
+      printf 'Unsafe or unreadable Ternux startup password file; refusing guest login.\n' >&2
+      return 1
+    }
+    login_args+=(--bind "\$startup_hash:/run/ternux/startup-password")
+  fi
   if [ -e "\$allowlist" ]; then
     [ ! -L "\$allowlist" ] && [ -f "\$allowlist" ] || return 1
     root="\$(realpath -e /sdcard 2>/dev/null)" || return 1
