@@ -3,6 +3,8 @@ import SiteLayout from "../layouts/SiteLayout.astro";
 import WorkstationDiagram from "../components/WorkstationDiagram.astro";
 import ComputeBench from "../components/ComputeBench.astro";
 import RenderBench from "../components/RenderBench.astro";
+
+const installCommand = `pkg update -y && pkg upgrade -y && pkg install -y curl wget && bash -c 's=$(mktemp) && (curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh -o "$s" || wget -qO "$s" https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh) && bash "$s"; r=$?; rm -f "$s"; exit "$r"'`;
 ---
 
 <SiteLayout
@@ -226,41 +228,21 @@ import RenderBench from "../components/RenderBench.astro";
             </p>
           </div>
           <div class="command">
-            <small>SAFE BOOTSTRAP · CURL</small>
+            <small>SAFE BOOTSTRAP · CURL WITH WGET FALLBACK</small>
             <button
               type="button"
               data-copy
-              data-copy-value="pkg update -y && pkg upgrade -y && pkg install -y curl && bash -o pipefail -c 'curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'"
+              data-copy-value={installCommand}
             >
               COPY
             </button>
-            <code>
-              pkg update -y && pkg upgrade -y && pkg install -y curl && bash -o
-              pipefail -c 'curl -fsSL
-              https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh
-              | bash'
-            </code>
-          </div>
-          <div class="command">
-            <small>SAFE BOOTSTRAP · WGET</small>
-            <button
-              type="button"
-              data-copy
-              data-copy-value="pkg update -y && pkg upgrade -y && pkg install -y wget && bash -o pipefail -c 'wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'"
-            >
-              COPY
-            </button>
-            <code>
-              pkg update -y && pkg upgrade -y && pkg install -y wget && bash -o
-              pipefail -c 'wget -qO-
-              https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh
-              | bash'
-            </code>
+            <code>{installCommand}</code>
           </div>
           <p class="install-note">
-            These commands finish the Termux package upgrade before installing a
-            downloader, then enable <code>pipefail</code> so a failed download
-            cannot appear successful. If a partial upgrade broke{" "}
+            The command finishes the Termux package upgrade, installs both
+            downloaders, and retries the script download with wget if curl fails.
+            It runs the saved script only after a successful download. If a
+            partial upgrade broke{" "}
             <code>pkg</code> or curl, repair it with the apt-first command
             above. The stable APT channel is withdrawn, so{" "}
             <code>pkg install ternux</code> is currently unavailable;

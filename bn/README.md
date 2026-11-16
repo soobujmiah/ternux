@@ -90,17 +90,12 @@
 টার্মিনালের রং-নকশা ও হরফ যোগ করে। ডেস্কটপ অ্যাপের সরাসরি মাইক্রোফোন-শব্দ
 চাহিদামতো টার্মাক্সের ওপেনএসএল ইএস পথ দিয়ে আসে; এপিআই রেকর্ডার ফাইল তৈরি
 করে। টার্মাক্স ও সহচর অ্যাপগুলো একই উৎস থেকে নিন।
-২. সচল টার্মাক্সে নিচের কমান্ড চালিয়ে প্যাকেজ হালনাগাদ, নামানোর সরঞ্জাম
-ইনস্টল ও টার্নাক্স চালু করুন:
+২. সচল টার্মাক্সে নিচের কমান্ড চালিয়ে প্যাকেজ হালনাগাদ, দুইটি নামানোর
+সরঞ্জাম ইনস্টল ও টার্নাক্স চালু করুন। `curl` চালু না হলে বা ফাইল নামাতে না
+পারলে কমান্ডটি `wget` দিয়ে আবার চেষ্টা করে:
 
 ```bash
-pkg update -y && pkg upgrade -y && pkg install -y curl && bash -o pipefail -c 'curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'
-```
-
-`curl` না থাকলে `wget` ব্যবহার করুন:
-
-```bash
-pkg update -y && pkg upgrade -y && pkg install -y wget && bash -o pipefail -c 'wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'
+pkg update -y && pkg upgrade -y && pkg install -y curl wget && bash -c 's=$(mktemp) && (curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh -o "$s" || wget -qO "$s" https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh) && bash "$s"; r=$?; rm -f "$s"; exit "$r"'
 ```
 
 আংশিক হালনাগাদের পর `pkg` বা `curl` না চললে `apt update && apt full-upgrade -y`
