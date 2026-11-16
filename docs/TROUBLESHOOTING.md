@@ -329,8 +329,8 @@ does not export.
 # Option A: finish the complete Termux package upgrade:
 apt update && apt full-upgrade -y
 
-# Option B: if wget still starts, fetch the installer with it:
-apt update && apt full-upgrade -y && apt install wget -y && bash -o pipefail -c 'wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'
+# Option B: download and run the latest installer with curl/wget fallback:
+pkg update -y && pkg upgrade -y && pkg install -y curl wget && bash -c 's=$(mktemp) && (curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh -o "$s" || wget -qO "$s" https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh) && bash "$s"; r=$?; rm -f "$s"; exit "$r"'
 ```
 
 `pkg update` refreshes package indexes; it does not finish an interrupted

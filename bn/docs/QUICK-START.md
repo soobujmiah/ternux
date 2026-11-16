@@ -28,14 +28,11 @@ alt_url: "/docs/QUICK-START.html"
 টার্মাক্স খুলে এই কমান্ডটি চালান:
 
 ```bash
-pkg update -y && pkg upgrade -y && pkg install -y curl && bash -o pipefail -c 'curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'
+pkg update -y && pkg upgrade -y && pkg install -y curl wget && bash -c 's=$(mktemp) && (curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh -o "$s" || wget -qO "$s" https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh) && bash "$s"; r=$?; rm -f "$s"; exit "$r"'
 ```
 
-হালনাগাদের পর `curl` না চললে `wget` দিয়ে একই ইনস্টলার চালান:
-
-```bash
-pkg update -y && pkg upgrade -y && pkg install -y wget && bash -o pipefail -c 'wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'
-```
+`curl` চালু না হলে বা ইনস্টলার নামাতে না পারলে কমান্ডটি `wget` দিয়ে আবার
+চেষ্টা করে।
 
 আংশিক হালনাগাদের পর `pkg` বা `curl` না চললে `apt update && apt full-upgrade -y`
 চালিয়ে টার্মাক্স মেরামত করে আবার চেষ্টা করুন। স্বাক্ষরিত স্থিতিশীল এপিটি

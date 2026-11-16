@@ -62,6 +62,11 @@ jobs:
       - name: Verify pinned optional installer execution
         run: bash tests/pinned_optional_installers.sh
 
+      - name: Verify standalone bootstrap fallback and source freshness
+        run: |
+          bash tests/remote_install_bootstrap.sh
+          bash tests/bootstrap_source_sync.sh
+
       - name: Run focused regressions
         run: bash tests/focused.sh
 
