@@ -4286,7 +4286,9 @@ assert d["ICD"]["library_path"].startswith("/usr/local/"), d
 # rather than any helper of ours. Generate them and read what came out.
 if env HOME="$TMP/home-launchgen" TERNUX_STATE_DIR="$TMP/state-launchgen" \
   PREFIX="$TMP/prefix-launchgen" bash -c '
-    mkdir -p "$HOME" "$TERNUX_STATE_DIR" "$PREFIX/bin"
+    mkdir -p "$HOME/.config/ternux" "$TERNUX_STATE_DIR" "$PREFIX/bin"
+    printf '%s\n' '0123456789abcdef0123456789abcdef 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef' > "$HOME/.config/ternux/startup-password"
+    chmod 0600 "$HOME/.config/ternux/startup-password"
     . "$1/lib/core.sh"; . "$1/lib/ui.sh"; . "$1/lib/state.sh"
     . "$1/lib/phases.sh"
     tnx_ok(){ :; }; tnx_warn(){ :; }; tnx_info(){ :; }; tnx_fail(){ :; }
