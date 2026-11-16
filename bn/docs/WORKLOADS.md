@@ -1,72 +1,93 @@
 ---
-title: "ওয়ার্কলোড — প্রতিটি অপশন কী বসায়, স্বয়ংক্রিয়ভাবে বা নিজের হাতে"
-description: "অপ্ট-ইন ওয়ার্কলোডগুলো, প্রতিটিতে ঠিক কোন package বসে, এক-কমান্ড পথ ও তার manual সমতুল্য, এবং resume ও failure কীভাবে সামলানো হয়।"
+title: "ওয়ার্কলোড — প্রতিটি বিকল্প কী বসায়, স্বয়ংক্রিয়ভাবে বা হাতে"
+description: "ঐচ্ছিক ওয়ার্কলোড, প্রতিটিতে বসানো প্যাকেজ, এক-কমান্ড ও হাতে-চালানো পদ্ধতি এবং পুনরায় শুরু বা ব্যর্থতা সামলানোর নিয়ম।"
 lang: "bn"
 alt_url: "/docs/WORKLOADS.html"
 ---
 
-একটি ternux install মানে একটি desktop, আর তার সঙ্গে আপনি যা যা চান। এই পৃষ্ঠার
-কোনো কিছুই না চাইলে বসে না, আর প্রতিটি অপশন একটি *workload*: নাম দেওয়া একটি
-package সেট, যা guest-এ বসে এবং state-এ লিপিবদ্ধ হয় — যাতে `--resume` ও
-`ternux repair` জানে কী কী ছিল।
+একটি টার্নাক্স ইনস্টলে একটি ডেস্কটপ থাকে, সঙ্গে আপনার বেছে নেওয়া অতিরিক্ত কাজ।
+এই পৃষ্ঠার কিছুই স্বয়ংক্রিয়ভাবে বসে না; প্রতিটি বিকল্প একটি *ওয়ার্কলোড*—নাম
+দেওয়া প্যাকেজ-সমষ্টি, যা গেস্টে বসে এবং অবস্থায় নথিভুক্ত হয়। ফলে `--resume` ও
+`ternux repair` আগে কী ছিল তা জানতে পারে।
 
-নিচের workload group দুইভাবে বসানো যায়, আর দুটোই সমান বৈধ। এক-কমান্ড পথ হলো
-installer-এর flag। Manual পথ হলো একই command নিজে guest-এর ভেতরে চালানো — যাতে
-চালানোর আগে পড়তে পারেন, এবং ব্যর্থ install গোড়া থেকে শুরু না করে হাতে শেষ করতে
-পারেন। Interactive catalog-এ managed extension release-ও আলাদা item হিসেবে আছে;
-সেগুলো checksum-যাচাইকৃত extension manager ব্যবহার করে, `--with-*` group flag নয়।
+নিচের ওয়ার্কলোডের দল দুইভাবে বসানো যায়। এক-কমান্ড পথে ইনস্টলারের পতাকা ব্যবহার
+হয়। হাতে-চালানো পথে একই কমান্ড গেস্টের ভেতরে চালান; আগে পড়ে নিতে পারবেন এবং
+ব্যর্থ ইনস্টল শুরু থেকে না করে হাতে শেষ করতে পারবেন। ইন্টার‌্যাক্টিভ তালিকায়
+পরিচালিত সম্প্রসারণের প্রকাশনাও আলাদা বিকল্প। এগুলো চেকসাম-যাচাইকৃত সম্প্রসারণ
+ব্যবস্থাপক ব্যবহার করে; `--with-*` দলের পতাকা নয়।
 
-Interactive install-এ একসঙ্গে সর্বোচ্চ ১২টি item দেখায়; terminal resize হলে,
-Android keyboard খোলাসহ, menu নিজে থেকে নতুন মাপে সাজে। item-গুলো
-ছোট category tag-এ গোছানো; অপ্রয়োজনীয় বর্ণনা নেই। Arrow key অথবা `j`/`k` দিয়ে চলুন,
-Space বা item-এর number দিয়ে নির্বাচন বদলান, তারপর Enter-এ plan দেখুন। শুধু base desktop চাইলে `q` চাপুন। Plan
-দেখার পর Enter চাপলে install শুরু হবে; বাতিল করতে `n` লিখুন। Firefox চাইলে অন্য
-desktop tool ছাড়াই, বা পুরো Android toolchain ছাড়াই ADT-এর ADB বেছে নিতে পারবেন।
-Debian package বসানোর আগে `apt update` হয়, তাই configured Debian repository-তে
-যে সর্বশেষ version পাওয়া যায় সেটিই বসে। ADT component তার registry-র সর্বশেষ
-verified release ব্যবহার করে; llama.cpp CPU + Vulkan, Stable Diffusion CPU +
-Vulkan, ও experimental HTP Ternux-এর checksum-যাচাইকৃত extension manager-এ
-prerelease হিসেবে বসে। Catalog-এ এগুলো আলাদা item। Stable Diffusion preview; CPU
-image quality qualify হয়নি, আর HTP কেবল SM8735/V73-তে experimental, supported নয়।
-Model weight user-এর নিজের। `--with-llm` এখনও llama.cpp source থেকে build করে; এটি
-managed CPU + Vulkan extension থেকে আলাদা। `--yes` ও non-interactive run-এ flag না
-থাকলে শুধু base profile বসে।
+ইন্টার‌্যাক্টিভ ইনস্টলে একসঙ্গে সর্বোচ্চ ১২টি বিকল্প দেখায়। টার্মিনালের আকার
+বদলালে—অ্যান্ড্রয়েড কিবোর্ড খোলাসহ—তালিকা নিজে থেকেই নতুন মাপে সাজে। বিকল্পগুলো
+ছোট শ্রেণি-চিহ্নে গোছানো; অপ্রয়োজনীয় বর্ণনা নেই। তীরচিহ্ন অথবা `j`/`k` দিয়ে
+চলুন, স্পেস বা বিকল্পের নম্বর দিয়ে নির্বাচন বদলান, তারপর এন্টার চেপে পরিকল্পনা
+দেখুন। শুধু মূল ডেস্কটপ চাইলে `q` চাপুন। পরিকল্পনা দেখে এন্টার চাপলে ইনস্টল শুরু
+হবে; বাতিল করতে `n` লিখুন। ফায়ারফক্স চাইলে অন্য ডেস্কটপ সরঞ্জাম ছাড়াই, অথবা
+পুরো অ্যান্ড্রয়েড সরঞ্জাম-সমষ্টি ছাড়াই, এডিটির এডিবি বেছে নিতে পারবেন।
+ডেবিয়ান প্যাকেজ বসানোর আগে `apt update` চলে, তাই বিন্যস্ত ডেবিয়ান সংগ্রহস্থলে
+পাওয়া সর্বশেষ সংস্করণটি বসে। এডিটি উপাংশ তার তালিকার সর্বশেষ যাচাইকৃত প্রকাশনা
+ব্যবহার করে। লামা.সিপিইউ, সিপিইউ+ভলকান স্থিতিশীল ডিফিউশন এবং পরীক্ষামূলক এইচটিপি
+টার্নাক্সের চেকসাম-যাচাইকৃত সম্প্রসারণ ব্যবস্থাপক দিয়ে প্রাক্‌প্রকাশনা হিসেবে
+বসে। তালিকায় এগুলো আলাদা বিকল্প। স্থিতিশীল ডিফিউশন এখনো পূর্বরূপ; সিপিইউ ছবির
+গুণমান যাচাই হয়নি, আর এইচটিপি শুধু এসএম৮৭৩৫/ভি৭৩-তে পরীক্ষামূলক—সমর্থিত নয়।
+মডেলের ওজন ব্যবহারকারীকে নিজে দিতে হবে। `--with-llm` এখনো লামা.সিপিইউর উৎস থেকে
+নির্মাণ করে; এটি পরিচালিত সিপিইউ+ভলকান সম্প্রসারণ থেকে আলাদা। `--yes` বা
+অ-ইন্টার‌্যাক্টিভ চালনায় কোনো পতাকা না থাকলে শুধু মূল বিন্যাস বসে।
 
-প্রতিটি fresh guest-এর base desktop-এ Firefox থাকে। Debian-family profile native Firefox ESR package নেয়; Ubuntu-তে Snap বন্ধ থাকায় Mozilla-র official Firefox ESR build বসে, কারণ Ubuntu-র `firefox` package Snap bridge। Alpine, Arch, Fedora, openSUSE ও Void-এর native Firefox package ব্যবহৃত হয়। কোনো profile-এ browser package candidate না থাকলে browser ছাড়াই setup complete না করে সরাসরি error দেখায়। Base desktop-এ Debian package browse, install, upgrade ও remove করার Ternux-branded Synaptic Package Manager থাকে। এটি APT package metadata ব্যবহার করে এবং system polkit daemon লাগে না। Scientific calculator Galculator ও lightweight default PDF reader Evince-ও থাকে। PDF page edit ও অন্য format-এ export করতে optional LibreOffice Draw নেওয়া যায়। Fresh install-এ কোনো mail client install বা default করা হয় না। Optional workload থেকে Evolution Mail নিতে পারবেন; common provider-এ OAuth login ব্যবহার করে, আর অন্য mail host-এর জন্য manual IMAP/POP setup দেয়। OAuth-এ default Firefox ESR খোলে; সেটি চালু না হলে Ternux browser bridge দিয়ে Android-এর default browser-এ খোলে। LibreOffice Writer, Calc ও Draw optional catalog-এ আলাদা item হিসেবে আছে। এ ছাড়া Go, PHP, SQLite, ripgrep, jq, htop, tree, Micro ও Thonny-ও পাওয়া যায়। Celestia জ্যোতির্বিজ্ঞানের simulator-ও optional item; default desktop-এ এটি বসে না। Chooser [Celestia project-এর Debian install নির্দেশনা](https://github.com/CelestiaProject/Celestia/blob/master/INSTALL.md#basic-installation-instructions) অনুসরণ করে Debian 13 OBS feed ব্যবহার করে (বর্তমানে 1.7 development snapshot)। Install-এর আগে feed key fingerprint, signed package index এবং প্রতিটি ARM64 package checksum যাচাই করে; কাজ শেষে temporary APT source সরিয়ে দেয়।
+প্রতিটি নতুন গেস্টের মূল ডেস্কটপে ফায়ারফক্স থাকে। ডেবিয়ান-ভিত্তিক বিন্যাসে
+নেটিভ ফায়ারফক্স ইএসআর প্যাকেজ বসে। উবুন্টুতে স্ন্যাপ বন্ধ থাকায় মজিলার সরকারি
+ফায়ারফক্স ইএসআর নির্মাণ বসে; উবুন্টুর `firefox` প্যাকেজটি স্ন্যাপ-সেতু। আল্পাইন,
+আর্চ, ফেডোরা, ওপেনসুসে ও ভয়েডের নেটিভ ফায়ারফক্স প্যাকেজ ব্যবহৃত হয়। কোনো
+বিন্যাসে ব্রাউজারের প্যাকেজ না থাকলে ব্রাউজার ছাড়া সেটআপ শেষ না করে সরাসরি
+ত্রুটি দেখায়। মূল ডেস্কটপে ডেবিয়ান প্যাকেজ খোঁজা, বসানো, হালনাগাদ ও সরানোর
+জন্য টার্নাক্স-চিহ্নিত সিন্যাপটিক প্যাকেজ ব্যবস্থাপক থাকে। এটি এপিটি প্যাকেজের
+তথ্য ব্যবহার করে; সিস্টেম পোলকিট সেবা লাগে না। বৈজ্ঞানিক ক্যালকুলেটর
+গ্যালকুলেটর ও হালকা পিডিএফ পাঠক ইভিন্সও থাকে। পিডিএফ পৃষ্ঠা সম্পাদনা ও অন্য
+ধরনে রপ্তানির জন্য ঐচ্ছিক লিব্রেঅফিস ড্র ব্যবহার করা যায়। নতুন ইনস্টলে কোনো
+মেইল ক্লায়েন্ট বসে না বা প্রাথমিক হিসেবে বেছে নেওয়া হয় না। ঐচ্ছিক ওয়ার্কলোডে
+ইভোলিউশন মেইল আছে; প্রচলিত সেবাদাতায় ওঅথ লগইন চলে, অন্য মেইল সেবায় হাতে
+আইএমএপি/পিওপি বিন্যাস করা যায়। ওঅথ লগইনে প্রাথমিক ফায়ারফক্স ইএসআর খোলে; সেটি
+না চললে টার্নাক্স ব্রাউজার-সেতু দিয়ে অ্যান্ড্রয়েডের প্রাথমিক ব্রাউজার খোলে।
+লিব্রেঅফিস রাইটার, ক্যালক ও ড্র তালিকায় আলাদা বিকল্প। এ ছাড়া গো, পিএইচপি,
+এসকিউলাইট, রিপগ্রেপ, জেকিউ, এইচটপ, ট্রি, মাইক্রো ও থনিও পাওয়া যায়। জ্যোতির্বিজ্ঞানের
+সিমুলেটর সেলেস্টিয়াও ঐচ্ছিক; মূল ডেস্কটপে বসে না। বাছাইকারী
+[সেলেস্টিয়া প্রকল্পের ডেবিয়ান ইনস্টল নির্দেশনা](https://github.com/CelestiaProject/Celestia/blob/master/INSTALL.md#basic-installation-instructions)
+অনুসরণ করে ডেবিয়ান ১৩ ওবিএস ফিড ব্যবহার করে; বর্তমানে ১.৭ উন্নয়ন-প্রতিচ্ছবি।
+ইনস্টলের আগে ফিডের চাবির আঙুলের ছাপ, স্বাক্ষরিত প্যাকেজ-তালিকা এবং প্রতিটি
+এআরএম৬৪ প্যাকেজের চেকসাম যাচাই করে; শেষে অস্থায়ী এপিটি উৎস সরিয়ে দেয়।
 
-Install শুরুর আগে Ternux নির্বাচিত optional software অনুযায়ী আনুমানিক storage
-estimate দেখায়; এতে download ও setup-এর অস্থায়ী জায়গাও ধরা হয়। Terminal যথেষ্ট
-বড় হলে install dashboard-এ Linux guest-এর live CPU utilization-ও দেখা যায়। এটি
-স্বল্প সময়ের sample থেকে হিসাব করা আনুমানিক মান; কোন process কত CPU নিচ্ছে তা নয়।
-এই মান পড়া না গেলে dashboard core সংখ্যা ও load average দেখায়।
+ইনস্টল শুরুর আগে টার্নাক্স বেছে নেওয়া ঐচ্ছিক সফটওয়্যার অনুযায়ী আনুমানিক
+ধারণস্থানের হিসাব দেখায়; নামানো ও প্রস্তুতির অস্থায়ী জায়গাও এতে ধরা হয়।
+টার্মিনাল যথেষ্ট বড় হলে ইনস্টল ফলকে লিনাক্স গেস্টের তাৎক্ষণিক সিপিইউ ব্যবহারও
+দেখায়। এটি অল্প সময়ের নমুনা থেকে হিসাব করা আনুমানিক মান, কোন প্রক্রিয়া কত
+সিপিইউ নিচ্ছে তার হিসাব নয়। মান পড়া না গেলে ফলকে কোরের সংখ্যা ও গড় চাপ দেখায়।
 
 <h2 id="the-workloads">ওয়ার্কলোডগুলো</h2>
 
-| Workload | Flag | কী বসায় |
+| ওয়ার্কলোড | পতাকা | কী বসায় |
 |---|---|---|
-| ডেভেলপমেন্ট | `--with-dev` | git, curl, wget, Node.js, npm, pip ও venv সহ Python 3, build-essential, ca-certificates |
-| লোকাল AI | `--with-llm` | Vulkan ও shader toolchain, তারপর `GGML_VULKAN=ON` দিয়ে llama.cpp **source থেকে build** |
-| নেটওয়ার্ক | `--with-network` | nmap, tmux |
-| মিডিয়া | `--with-media` | ffmpeg, GIMP, Audacity, ImageMagick |
-| Blender | `--with-blender` | headless EEVEE render-এর জন্য Blender ও Xvfb (Blender প্রায় ৯৫ MB, `--no-install-recommends` সহ) |
+| উন্নয়ন | `--with-dev` | `git`, `curl`, `wget`, `nodejs`, `npm`, `pip`, `venv`, `python3`, `build-essential`, `ca-certificates` |
+| স্থানীয় কৃত্রিম বুদ্ধিমত্তা | `--with-llm` | ভলকান ও শেডার সরঞ্জাম-সমষ্টি, তারপর `GGML_VULKAN=ON` দিয়ে `llama.cpp` **উৎস থেকে নির্মাণ** |
+| নেটওয়ার্ক | `--with-network` | `nmap`, `tmux` |
+| গণমাধ্যম | `--with-media` | `ffmpeg`, `gimp`, `audacity`, `imagemagick` |
+| ব্লেন্ডার | `--with-blender` | পর্দাহীন ইভি-ইই রেন্ডারের জন্য ব্লেন্ডার ও `xvfb` (ব্লেন্ডার প্রায় ৯৫ এমবি, `--no-install-recommends`-সহ) |
 | সবকিছু | `--all` | পাঁচটিই |
 
-Interactive menu-তে Godot, Blender, Neovim, GitHub CLI, Claude Code,
-Codex, Hermes, OpenClaw এবং ADT-এর Android component-ও আলাদা item। ADT Platform
-Tools-এর মধ্যে `adb` ও `fastboot` আছে। Ternux এগুলো ADT-র `setup.sh` দিয়ে বসায়;
-Debian-এর আলাদা `android-tools-adb` package ব্যবহার করে না।
+ইন্টার‌্যাক্টিভ তালিকায় গডো, ব্লেন্ডার, নিওভিম, গিটহাব সিএলআই, ক্লড কোড,
+কোডেক্স, হারমিস, ওপেনক্ল ও এডিটির অ্যান্ড্রয়েড উপাংশ আলাদা বিকল্প। এডিটি
+প্ল্যাটফর্ম সরঞ্জামে `adb` ও `fastboot` আছে। টার্নাক্স এগুলো এডিটির `setup.sh`
+দিয়ে বসায়; ডেবিয়ানের আলাদা `android-tools-adb` প্যাকেজ ব্যবহার করে না।
 
-PRoot-Distro-র জন্য একক universal extension store নেই। Termux:API,
-Termux:Widget, Termux:Boot ও Termux:Styling-এর মতো Android companion app আলাদা APK;
-এগুলো Termux-এর সঙ্গে Android-এ install করতে হয়, Debian guest-এর software menu
-থেকে নয়। [Termux-এর official app ও add-on project](https://github.com/termux/termux-app)
-এবং [Termux:X11-এর official project](https://github.com/termux/termux-x11) দেখুন।
+প্রুট-ডিস্ট্রোর জন্য একটিমাত্র সর্বজনীন সম্প্রসারণের দোকান নেই। টার্মাক্স:এপিআই,
+টার্মাক্স:উইজেট, টার্মাক্স:বুট ও টার্মাক্স:স্টাইলিংয়ের মতো অ্যান্ড্রয়েড সহায়ক
+অ্যাপ আলাদা এপিকে; এগুলো ডেবিয়ান গেস্টের সফটওয়্যার তালিকা থেকে নয়, অ্যান্ড্রয়েডে
+টার্মাক্সের পাশাপাশি বসাতে হয়। [টার্মাক্সের সরকারি অ্যাপ ও সংযোজন প্রকল্প](https://github.com/termux/termux-app)
+এবং [টার্মাক্স:এক্স১১-এর সরকারি প্রকল্প](https://github.com/termux/termux-x11) দেখুন।
 
-প্রথম XFCE session-এ default Firefox ESR দিয়ে Ternux-এর ওয়েবসাইট একবার খুলবে।
+প্রথম এক্সএফসিই অধিবেশনে প্রাথমিক ফায়ারফক্স ইএসআর দিয়ে টার্নাক্সের ওয়েবসাইট একবার খুলবে।
 
-বেস desktop — Xfce4, terminal, VLC, archive tool, Mesa utility, Vulkan tool —
-সবসময় বসে; এতে প্রায় ৪–৪.৫ GB storage লাগে। VLC catalog-এ আলাদা করে বেছে নেওয়া যায়,
-তবে base desktop-এ আগে থেকেই থাকায় দ্বিতীয় কপি বসে না।
+মূল ডেস্কটপে এক্সএফসিই৪, টার্মিনাল, ভিএলসি, আর্কাইভ সরঞ্জাম, মেসা ও ভলকান
+উপযোগিতা সবসময় বসে; এতে প্রায় ৪–৪.৫ জিবি ধারণস্থান লাগে। ভিএলসি তালিকা থেকে
+আলাদা করে বেছে নেওয়া যায়, তবে মূল ডেস্কটপে আগে থেকেই থাকায় দ্বিতীয় কপি বসে না।
 
 <h2 id="automatic">স্বয়ংক্রিয়</h2>
 
@@ -75,17 +96,18 @@ bash install.sh --with-dev --with-llm --with-blender
 bash install.sh --all
 ```
 
-Flag একসঙ্গে দেওয়া যায়, আর সেটটি লিপিবদ্ধ হয়। পরে `bash install.sh --resume`
-একই সেট ফিরিয়ে আনে, command line-এ আবার লিখতে হয় না; আর `ternux repair` যা
-লিপিবদ্ধ ছিল তাই মেরামত করে, অনুমান করে না।
+একাধিক পতাকা একসঙ্গে দেওয়া যায় এবং নির্বাচনটি নথিভুক্ত হয়। পরে
+`bash install.sh --resume` একই প্যাকেজ-সমষ্টি ফিরিয়ে আনে; কমান্ড লাইনে আবার
+লিখতে হয় না। `ternux repair` নথিভুক্ত নির্বাচনই মেরামত করে, অনুমান করে না।
 
 <h2 id="manual">নিজের হাতে</h2>
 
-এগুলো guest-এর ভেতরে Debian user হিসেবে চালান — Xfce terminal থেকে, অথবা Termux
-থেকে `proot-distro login debian --user <আপনি>`। ঠিক এই কাজের জন্যই ternux `db`
-alias বসায়। প্রতিটি block installer যা চালায় তাই, তাই ফলাফল দুইভাবেই এক।
+এগুলো গেস্টের ভেতরে ডেবিয়ান ব্যবহারকারী হিসেবে চালান—এক্সএফসিই টার্মিনাল থেকে
+অথবা টার্মাক্সে `proot-distro login debian --user <আপনি>` চালিয়ে। এ কাজের জন্যই
+টার্নাক্স `db` সংক্ষিপ্ত নাম বসায়। প্রতিটি অংশ ইনস্টলার যে কমান্ড চালায় সেটিই
+চালায়, তাই দুই পদ্ধতির ফল একই।
 
-প্রথমে, প্রতি session-এ একবার:
+প্রথমে, প্রতি অধিবেশনে একবার:
 
 ```bash
 sudo apt update
@@ -105,16 +127,18 @@ sudo apt install -y git curl wget nodejs npm python3 python3-pip python3-venv \
 sudo apt install -y nmap tmux
 ```
 
-কেবল অনুমোদিত পরীক্ষার জন্য। নিজের নয় এমন network-এ nmap চালাতে ternux আপনাকে
-বলছে না।
+শুধু অনুমোদিত পরীক্ষায় ব্যবহার করুন। নিজের নয় এমন নেটওয়ার্কে `nmap` চালাতে
+টার্নাক্স বলছে না।
 
-**Developer utility**
+**উন্নয়ন-সরঞ্জাম**
 
 ```bash
 sudo apt install -y neovim gh
 ```
 
-Firefox ESR সব fresh guest-এ default install হবে। Debian-family native package ব্যবহার করে; Ubuntu-তে Mozilla-র official ARM64 ESR build বসে, কারণ Ubuntu archive-এর Firefox Snap shim।
+ফায়ারফক্স ইএসআর প্রতিটি নতুন গেস্টে প্রাথমিকভাবে বসে। ডেবিয়ান-ভিত্তিক
+গেস্টগুলো নেটিভ প্যাকেজ ব্যবহার করে; উবুন্টুতে মজিলার সরকারি এআরএম৬৪ ইএসআর
+নির্মাণ বসে, কারণ উবুন্টু সংগ্রহশালার ফায়ারফক্স আসলে স্ন্যাপ-সংযোগকারী।
 
 **মিডিয়া**
 
@@ -122,23 +146,23 @@ Firefox ESR সব fresh guest-এ default install হবে। Debian-family na
 sudo apt install -y ffmpeg gimp audacity imagemagick
 ```
 
-**Blender**
+**ব্লেন্ডার**
 
 ```bash
 sudo apt install -y --no-install-recommends blender xvfb
 ```
 
-`--no-install-recommends` প্রায় ২৩ MB speech-synthesis package বাদ দেয়, যা
-Blender-এর লাগে না। Xvfb পরীক্ষিত headless Zink/Turnip route-এর virtual X11
-context দেয়। Render করার আগে পড়ুন
-[গ্রাফিক্স স্থায়িত্ব](GRAPHICS-PERSISTENCE.html): নতুন Adreno hardware-এ GPU পথ
-Debian-এর চেয়ে নতুন একটি Mesa driver-এর উপর নির্ভর করে, আর একটি package update
-সেটি সরিয়ে দিতে পারে।
+`--no-install-recommends` প্রায় ২৩ এমবি বাক্‌সংশ্লেষণ প্যাকেজ বাদ দেয়, যা
+ব্লেন্ডারের লাগে না। এক্সভিএফবি পরীক্ষিত পর্দাহীন জিঙ্ক/টার্নিপ পথের জন্য ভার্চুয়াল
+এক্স১১ প্রসঙ্গ দেয়। রেন্ডারের আগে
+[গ্রাফিক্সের স্থায়িত্ব](GRAPHICS-PERSISTENCE.html) পড়ুন: নতুন অ্যাড্রেনো যন্ত্রে
+জিপিইউ পথ ডেবিয়ানের চেয়ে নতুন মেসা ড্রাইভারের ওপর নির্ভর করে, আর প্যাকেজ
+হালনাগাদ সেটি সরিয়ে দিতে পারে।
 
-**লোকাল AI (llama.cpp)**
+**স্থানীয় কৃত্রিম বুদ্ধিমত্তা (`llama.cpp`)**
 
-এটি compile করে। লম্বা build আর সত্যিকারের তাপ আশা করুন; চার্জে রেখে করুন, আর
-ফোন এটি দ্রুত শেষ করবে এমন আশা করবেন না।
+এটি কম্পাইল হয়। দীর্ঘ নির্মাণে ফোন গরম হবে; চার্জে রেখে চালান, আর ফোন দ্রুত
+শেষ করবে এমন আশা করবেন না।
 
 ```bash
 sudo apt install -y build-essential cmake git pkg-config libvulkan-dev \
@@ -153,36 +177,36 @@ cmake -S . -B build -DGGML_VULKAN=ON -DGGML_HEXAGON=OFF \
 cmake --build build --config Release -j"$(nproc)"
 ```
 
-`--with-llm` এখনো source-build workload। এটি প্রকাশিত CPU + Vulkan prerelease-এর
-extension install থেকে আলাদা। সংক্ষিপ্ত setup-এর জন্য
-[দ্রুত শুরু](QUICK-START.html) দেখুন; automatic ও manual release install-এর জন্য
-[repository extension guide](https://github.com/soobujmiah/ternux/blob/main/bn/guides/llama-vulkan-extension.md) ব্যবহার করুন।
-এই prerelease পরের stable Ternux release-কে qualified করে না; খোলা gate-এর জন্য
-[accelerator release plan](ACCELERATOR-RELEASE-PLAN.html) দেখুন।
+`--with-llm` এখনো উৎস থেকে নির্মাণের ওয়ার্কলোড। এটি প্রকাশিত সিপিইউ+ভলকান
+প্রাক্‌প্রকাশনার সম্প্রসারণ বসানো থেকে আলাদা। সংক্ষিপ্ত বিন্যাসের জন্য
+[দ্রুত শুরু](QUICK-START.html) দেখুন; স্বয়ংক্রিয় ও হাতে-চালানো প্রকাশনা
+বসানোর জন্য [লামা-ভলকান সম্প্রসারণ নির্দেশিকা](https://github.com/soobujmiah/ternux/blob/main/bn/guides/llama-vulkan-extension.md)
+ব্যবহার করুন। এই প্রাক্‌প্রকাশনা পরের স্থিতিশীল টার্নাক্স প্রকাশনাকে যোগ্য করে না;
+খোলা শর্তের জন্য [ত্বরণকারী প্রকাশনা পরিকল্পনা](ACCELERATOR-RELEASE-PLAN.html) দেখুন।
 
-Model file কোনো workload বসায় না। যেখানে আছে সেখানেই রাখুন এবং llama.cpp-কে সেই
-path দেখান; ternux model weight কপিও করে না, ব্যবস্থাপনাও করে না।
+কোনো ওয়ার্কলোড মডেল ফাইল বসায় না। ফাইলটি যেখানে আছে সেখানেই রাখুন এবং
+`llama.cpp`-কে সেই পথ জানান; টার্নাক্স মডেলের ওজন নকল বা পরিচালনা করে না।
 
-<h2 id="backend-selection-applies-to-workloads-too">Backend নির্বাচন workload-এও প্রযোজ্য</h2>
+<h2 id="backend-selection-applies-to-workloads-too">ওয়ার্কলোডেও গ্রাফিক্স-পথ নির্বাচন প্রযোজ্য</h2>
 
-GPU স্পর্শ করে এমন workload — Blender, এবং llama.cpp-র Vulkan build — install যে
-graphics route বেছেছে তার উপরেই চলে। Workload-কে দোষ দেওয়ার আগে সেটি দেখুন:
+জিপিইউ ব্যবহার করা ওয়ার্কলোড—ব্লেন্ডার ও `llama.cpp`-র ভলকান নির্মাণ—ইনস্টল
+যে গ্রাফিক্স-পথ বেছে নিয়েছে সেটিতেই চলে। ওয়ার্কলোডকে দোষ দেওয়ার আগে পথটি দেখুন:
 
 ```bash
 ternux info            # নির্বাচিত backend, GPU, Vulkan
 glxinfo -B             # desktop terminal-এ: আসলে যে renderer চলছে
 ```
 
-ওই renderer string-এ `llvmpipe` মানে software rendering, আর কিছু ডিভাইসে software
-rendering শুধু ধীর চলে না — crash করে। Route-গুলোর জন্য দেখুন
-[কনফিগারেশন](CONFIGURATION.html), আর লক্ষণভিত্তিক diagnosis-এর জন্য
+রেন্ডারারের লেখায় `llvmpipe` মানে সফটওয়্যার রেন্ডারিং; কিছু যন্ত্রে এটি শুধু
+ধীর নয়, ভেঙেও পড়ে। পথগুলোর বিবরণের জন্য দেখুন
+[কনফিগারেশন](CONFIGURATION.html), আর লক্ষণভিত্তিক রোগনির্ণয়ের জন্য
 [সমস্যা সমাধান](TROUBLESHOOTING.html)।
 
 <h2 id="when-a-workload-fails">কোনো workload ব্যর্থ হলে</h2>
 
-একটি workload-এর ব্যর্থতা পুরো install ব্যর্থ করে না। Phase ব্যর্থতাটি লিপিবদ্ধ
-করে, বাকি install চলতে থাকে, আর desktop তবুও ওঠে। এটি ইচ্ছাকৃত: Audacity না বসার
-দামে একটি চালু workstation হারানো উচিত নয়।
+একটি ওয়ার্কলোডের ব্যর্থতায় পুরো ইনস্টল ব্যর্থ হয় না। ধাপটি ব্যর্থতা নথিভুক্ত
+করে, বাকি ইনস্টল চলে এবং ডেস্কটপও চালু হয়। এটি ইচ্ছাকৃত: অডাসিটি না বসার কারণে
+চালু কর্মযন্ত্র হারানো উচিত নয়।
 
 ```bash
 ternux logs show                    # আসলে কী ব্যর্থ হলো
@@ -190,35 +214,36 @@ bash install.sh --resume            # লিপিবদ্ধ সেটটি �
 ternux repair                       # লিপিবদ্ধ install মেরামত
 ```
 
-একটি workload বারবার ব্যর্থ হলে বাকিগুলো স্বয়ংক্রিয়ভাবে বসান আর ওইটি উপরের block
-থেকে হাতে করুন — manual পথ এই কারণেই আছে।
+কোনো ওয়ার্কলোড বারবার ব্যর্থ হলে বাকিগুলো স্বয়ংক্রিয়ভাবে বসান এবং ওইটি উপরের
+অংশ থেকে হাতে চালান—হাতে-চালানোর পথটি এ কারণেই আছে।
 
-<h2 id="driving-blender-from-an-ai-agent">AI agent থেকে Blender চালানো</h2>
+<h2 id="driving-blender-from-an-ai-agent">কৃত্রিম-বুদ্ধিমত্তা এজেন্ট থেকে ব্লেন্ডার চালানো</h2>
 
-`tools/blender-gpu-mcp/` একটি ছোট MCP server — কেবল Python standard library, আলাদা
-কিছু বসাতে হয় না — যা পরীক্ষিত headless পথটিকে তিনটি tool হিসেবে দেয়: `gpu_check`,
-`render_script` ও `render_blend`। এটি দরকার, কারণ পথটি সহজেই হারিয়ে যায়: `DISPLAY`
-বাদ পড়লে Blender `EGL_BAD_MATCH` দিয়ে থামে, আর `GALLIUM_DRIVER=zink` বাদ পড়লে Mesa
-`llvmpipe` বেছে নেয়, যা এই hardware-এ `Illegal instruction` দিয়ে মরে। দুটো ব্যর্থতাই
-শূন্য frame লেখে, আর কোনোটিই scene-এর দোষ নয়।
+`tools/blender-gpu-mcp/` একটি ছোট এমসিপি সার্ভার—শুধু পাইথনের মানক লাইব্রেরি
+ব্যবহার করে, আলাদা কিছু বসাতে হয় না। এটি পরীক্ষিত পর্দাহীন পথকে তিনটি সরঞ্জাম
+হিসেবে দেয়: `gpu_check`, `render_script` ও `render_blend`। পথটির পরিবেশ সহজে
+হারিয়ে যেতে পারে: `DISPLAY` বাদ পড়লে ব্লেন্ডার `EGL_BAD_MATCH` দিয়ে থামে;
+`GALLIUM_DRIVER=zink` বাদ পড়লে মেসা `llvmpipe` বেছে নেয়, যা এই যন্ত্রে
+`Illegal instruction` ত্রুটি দিয়ে বন্ধ হয়। দুই ক্ষেত্রেই কোনো ফ্রেম তৈরি হয় না;
+এটি দৃশ্যের ত্রুটি নয়।
 
-Wrapper-টি দীর্ঘ সময় চালু থাকা Blender-এ addon না বসিয়ে এই পৃষ্ঠার command-টিই ধরে
-রাখে, `--factory-startup` সহ: agent যে renderer-এ পৌঁছায় সেটি
-[প্রমাণ ও বেঞ্চমার্ক](BENCHMARKS.html)-এ মাপা renderer-ই। Display বন্ধ থাকলেই এটি Xvfb
-চালু করে, path অবশ্যই absolute চায়, আর কোনো directory ঘেঁটে দেখে না।
+এই মোড়কটি দীর্ঘ সময় চালু থাকা ব্লেন্ডারে সংযোজন না বসিয়ে `--factory-startup`-সহ
+এই পাতার কমান্ডটিই ধরে রাখে। এজেন্ট যে রেন্ডারার ব্যবহার করে সেটিই
+[প্রমাণ ও কর্মদক্ষতা পরীক্ষা](BENCHMARKS.html)-তে মাপা রেন্ডারার। ডিসপ্লে বন্ধ থাকলে
+এটি এক্সভিএফবি চালু করে, পূর্ণ পথ চায় এবং কোনো ফোল্ডার ঘেঁটে ফাইল খোঁজে না।
 
 ```bash
 claude mcp add --scope user blender-gpu -- python3 ~/ternux/tools/blender-gpu-mcp/server.py
 ```
 
-**মাপা হয়েছে** ২০২৬-১০-১৪, Redmi Turbo 4 Pro-তে: `gpu_check` ফিরিয়ে দিয়েছে
-`zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP))`, আর একটি ৩২০×১৮০ EEVEE Next frame
-২.৪৯ সেকেন্ডে render হয়েছে। Tool-এর তালিকা ও সীমার জন্য দেখুন
+**মাপা হয়েছে** ২০২৬-১০-১৪, রেডমি টার্বো ৪ প্রোতে: `gpu_check` ফিরিয়েছে
+`zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP))`; একটি ৩২০×১৮০ ইভি-ইই নেক্সট
+ফ্রেম ২.৪৯ সেকেন্ডে রেন্ডার হয়েছে। সরঞ্জাম-তালিকা ও সীমার জন্য দেখুন
 `tools/blender-gpu-mcp/README.md`।
 
 <h2 id="status">অবস্থা</h2>
 
-এই পৃষ্ঠার package সেটগুলো installer থেকেই পড়া, তাই এই সংস্করণের জন্য সেগুলো
-সঠিক। যা এখানে **দাবি করা হচ্ছে না**: প্রতিটি workload ডিভাইসে qualify করা হয়েছে।
-Sustained run, repeat run ও thermal আচরণ একটি pending release gate, আর আসলে কী
-মাপা হয়েছে তা কেবল [প্রমাণ ও বেঞ্চমার্ক](BENCHMARKS.html)-ই বলে।
+এই পাতার প্যাকেজ-সমষ্টি ইনস্টলারের উৎস থেকে নেওয়া, তাই সংস্করণটির জন্য সঠিক।
+এখানে **দাবি করা হচ্ছে না** যে প্রতিটি ওয়ার্কলোড যন্ত্রে যোগ্যতা পেয়েছে। দীর্ঘক্ষণ
+চালনা, পুনরাবৃত্ত চালনা ও তাপীয় আচরণ এখনো বাকি প্রকাশনা-শর্ত; বাস্তবে কী মাপা
+হয়েছে তা শুধু [প্রমাণ ও কর্মদক্ষতা পরীক্ষা](BENCHMARKS.html)-তে বলা আছে।
