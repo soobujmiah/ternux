@@ -2091,6 +2091,39 @@ else
   not_ok "Termux uninstall removes only newly installed packages recorded by Ternux"
 fi
 
+if env PREFIX="$TMP/prefix-owned-proot" HOME="$TMP/home-owned-proot" MOCK_PACKAGES="$TMP/mock-proot-packages" bash -c '
+  mkdir -p "$HOME" "$PREFIX/var/lib/ternux"
+  printf "%s\n" proot-distro virglrenderer-android > "$MOCK_PACKAGES"
+  dpkg-query() {
+    local package="${!#}"
+    grep -qxF "$package" "$MOCK_PACKAGES" && { printf "installed\n"; return 0; }
+    return 1
+  }
+  proot-distro() { printf "unregistered-guest\n"; }
+  pkg() {
+    [ "$1" = uninstall ] || return 2
+    shift
+    local package tmp
+    for package in "$@"; do
+      case "$package" in -*) continue ;; esac
+      tmp="${MOCK_PACKAGES}.tmp"
+      grep -vxF "$package" "$MOCK_PACKAGES" > "$tmp" || true
+      mv "$tmp" "$MOCK_PACKAGES"
+    done
+  }
+  . "$1/lib/uninstall.sh"
+  ledger="$(tnx_termux_package_ledger)"
+  printf "%s\n" proot-distro virglrenderer-android > "$ledger"
+  set +e; _tnx_uninstall_termux_packages; rc=$?; set -e
+  [ "$rc" -ne 0 ] &&
+  [ "$(cat "$ledger")" = proot-distro ] &&
+  grep -qxF proot-distro "$MOCK_PACKAGES" && ! grep -qxF virglrenderer-android "$MOCK_PACKAGES"
+' _ "$ROOT"; then
+  ok "uninstall keeps proot-distro for unregistered guests and retains its ledger entry"
+else
+  not_ok "uninstall keeps proot-distro for unregistered guests and retains its ledger entry"
+fi
+
 if env TERNUX_STATE_DIR="$TMP/state-uninstall-alias" HOME="$TMP/home-uninstall-alias" bash -c '
   mkdir -p "$HOME" "$TERNUX_STATE_DIR"
   . "$1/lib/uninstall.sh"
