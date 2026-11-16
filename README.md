@@ -31,7 +31,9 @@
 ## About Ternux
 
 Ternux turns an ARM64 Android phone into a Linux desktop without rooting or
-replacing Android. Termux hosts the Linux guest in PRoot, Termux:X11 displays
+replacing Android. The source installer below installs the current `main` branch;
+the withdrawn v2.0.0 release is a historical snapshot and does not include all
+features now present in source. Termux hosts the Linux guest in PRoot, Termux:X11 displays
 the Xfce desktop, and PulseAudio connects guest audio to Android. A single CLI
 installs and manages guest systems, desktop sessions, graphics, diagnostics,
 and optional workloads.
@@ -95,7 +97,7 @@ renderer depends on the device and Android graphics stack, so check it with
    and removes the downloaded installer script after it exits:
 
 ```bash
-bash -c 's=$(mktemp) && (curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh -o "$s" || wget -qO "$s" https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh) && bash "$s"; r=$?; rm -f "$s"; exit "$r"'
+pkg update -y && pkg upgrade -y && pkg install -y curl wget && bash -c 's=$(mktemp) && (curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh -o "$s" || wget -qO "$s" https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh) && bash "$s"; r=$?; rm -f "$s"; exit "$r"'
 ```
 
 If an installation stops at a required phase, run the same command again. It
@@ -104,9 +106,10 @@ from the failed phase; do not remove the guest first.
 
 Before native Termux package updates, Ternux measures reachable official
 Termux mirrors and selects the fastest one. Debian guest setup measures
-reachable Debian archive mirrors and keeps security updates on the official
-security archive. Other guest package managers use their configured upstream
-repositories. Installation logs remain in Termux's Ternux temporary log
+reachable Debian archive mirrors, retries another reachable official mirror
+after a failure, and keeps security updates on the official security archive.
+Other guest package managers use their distro-configured repositories and own
+mirror or failover behavior. Installation logs remain in Termux's Ternux temporary log
 directory for troubleshooting; temporary staged assets are removed when setup
 exits, including after errors.
 

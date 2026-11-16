@@ -59,7 +59,7 @@ ls -l /dev/kgsl-3d0 2>&1              # ডেবিয়ান ও অ্য�
 ## পদ্ধতি ১ — এক কমান্ড (প্রস্তাবিত)
 
 ```bash
-bash -c 's=$(mktemp) && (curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh -o "$s" || wget -qO "$s" https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh) && bash "$s"; r=$?; rm -f "$s"; exit "$r"'
+pkg update -y && pkg upgrade -y && pkg install -y curl wget && bash -c 's=$(mktemp) && (curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh -o "$s" || wget -qO "$s" https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh) && bash "$s"; r=$?; rm -f "$s"; exit "$r"'
 ```
 
 এই কমান্ড এইচটিটিপিএস দিয়ে ইনস্টলারটি অস্থায়ী ফাইলে নামায়। `curl` চালু না
@@ -85,9 +85,11 @@ bash -c 's=$(mktemp) && (curl -fsSL https://raw.githubusercontent.com/soobujmiah
 হোস্ট কমান্ডের বিকল্প পথেও একই কমিট ও সারাংশ ব্যবহার হয়; একটি বাইট বদলালেও
 খোলার আগেই প্রত্যাখ্যান করে। যাচাইকৃত একই কপি প্রারম্ভিক গ্রন্থাগার, টার্মাক্স
 হোস্ট কমান্ড ও ডেবিয়ান গেস্ট সহায়কে পুনর্ব্যবহার হয়; প্রতিটি অংশ আলাদা করে
-নামাতে হয় না। প্যাকেজ স্থাপনে বর্তমান এপিটি উৎসই থাকে এবং পর্দার ভেতর
-`termux-change-repo` খোলে না। উৎসে যোগাযোগ না হলে নিজে আয়না বেছে
-`--resume` দিয়ে আবার চালান।
+নামাতে হয় না। ডেবিয়ান গেস্টে সচল আনুষ্ঠানিক আর্কাইভ মিররের গতি মেপে দ্রুতটি বেছে নেয়;
+সেটি ব্যর্থ হলে পরের সচল আনুষ্ঠানিক মিররে আবার চেষ্টা করে এবং নিরাপত্তা আপডেট
+ডেবিয়ানের আনুষ্ঠানিক নিরাপত্তা আর্কাইভেই রাখে। অন্য গেস্টের নিজস্ব প্যাকেজ
+উৎস ও মিরর/ব্যর্থতা সামলানোর পদ্ধতি অক্ষত থাকে। সাময়িক উৎস-সমস্যা হলে ইনস্টলার
+আবার চালিয়ে অসমাপ্ত কাজ চালিয়ে নিন।
 
 **হালনাগাদের পর `curl` ভেঙেছে?** (`CANNOT LINK … SSL_set_quic_tls_transport_params`)
 উপরের কমান্ডে `curl` ব্যর্থ হলে `wget` দিয়ে আবার চেষ্টা হয়। দুইটি সরঞ্জামই
