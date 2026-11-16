@@ -2055,15 +2055,36 @@ if env TERNUX_STATE_DIR="$TMP/state-uninstall-alias" HOME="$TMP/home-uninstall-a
   . "$1/lib/uninstall.sh"
   cat > "$HOME/.bashrc" <<"EOF"
 before
+# TERNUX TERFETCH START BEGIN
+if [[ -z ${_TERNUX_TERFETCH_HOOK_LOADED:-} ]]; then
+  TERFETCH_STARTUP_ONCE=1 terfetch
+fi
+# TERNUX TERFETCH START END
+middle
 # ==== TERNUX ALIASES ====
 alias x="~/x.sh"
 # ==== END TERNUX ALIASES ====
 after
 EOF
-  chmod 640 "$HOME/.bashrc"; : > "$HOME/x.sh"
+  cat > "$HOME/.zshrc" <<"EOF"
+before-zsh
+# TERNUX TERFETCH START BEGIN
+TERFETCH_STARTUP_ONCE=1 terfetch
+# TERNUX TERFETCH START END
+after-zsh
+EOF
+  chmod 640 "$HOME/.bashrc"
+  mkdir -p "$TERNUX_STATE_DIR/distros/debian"
+  printf "%s\n" "# TERNUX_DESKTOP_LAUNCHER=21" > "$TERNUX_STATE_DIR/distros/debian/launcher.sh"
+  ln -s "$TERNUX_STATE_DIR/distros/debian/launcher.sh" "$HOME/x.sh"
   tnx_cmd_uninstall launcher >/dev/null &&
   [ ! -e "$HOME/x.sh" ] && [ "$(stat -c %a "$HOME/.bashrc")" = 640 ] &&
-  [ "$(cat "$HOME/.bashrc")" = $'\''before\nafter'\'' ] || exit
+  [ "$(cat "$HOME/.bashrc")" = $'\''before\nmiddle\nafter'\'' ] &&
+  [ "$(cat "$HOME/.zshrc")" = $'\''before-zsh\nafter-zsh'\'' ] || exit
+
+  printf "%s\n" "#!/bin/sh" "echo user-owned" > "$HOME/x.sh"
+  tnx_cmd_uninstall launcher >/dev/null 2>&1 &&
+  [ -f "$HOME/x.sh" ] && grep -q user-owned "$HOME/x.sh" || exit
 
   printf "%s\n%s\n%s\n" "# ==== END TERNUX ALIASES ====" keep "# ==== TERNUX ALIASES ====" > "$HOME/.zshrc"
   printf "%s\n" managed-elsewhere > "$HOME/bashrc-target"
@@ -2076,9 +2097,9 @@ EOF
   [ "$(sha256sum "$HOME/bashrc-target")" = "$before_target" ] &&
   ! compgen -G "$HOME/.zshrc.ternux-uninstall.*" >/dev/null
 ' _ "$ROOT"; then
-  ok "scoped alias uninstall is atomic and preserves malformed files"
+  ok "scoped launcher uninstall removes owned links and shell hooks, preserving user files"
 else
-  not_ok "scoped alias uninstall is atomic and preserves malformed files"
+  not_ok "scoped launcher uninstall removes owned links and shell hooks, preserving user files"
 fi
 
 # The published standalone route must fetch and syntax-check the same scoped
