@@ -56,12 +56,12 @@
       "source": "bin/ternux-shell-shortcut",
       "perm": "755"
     },
-    "bin/ternux": {
-      "source": "bin/ternux",
-      "perm": "755"
-    },
     "bin/terfetch": {
       "source": "share/terfetch/terfetch",
+      "perm": "755"
+    },
+    "bin/ternux": {
+      "source": "bin/ternux",
       "perm": "755"
     },
     "bin/tx": {
@@ -79,6 +79,10 @@
     "bin/ubroot": {
       "source": "bin/ternux-shell-shortcut",
       "perm": "755"
+    },
+    "lib/ternux/auth.sh": {
+      "source": "lib/auth.sh",
+      "perm": "644"
     },
     "lib/ternux/backend.sh": {
       "source": "lib/backend.sh",
@@ -191,6 +195,10 @@
     "lib/ternux/managerd.py": {
       "source": "lib/managerd.py",
       "perm": "755"
+    },
+    "lib/ternux/password.sh": {
+      "source": "lib/password.sh",
+      "perm": "644"
     },
     "lib/ternux/permissions.sh": {
       "source": "lib/permissions.sh",

@@ -121,6 +121,25 @@ else
   not_ok "single-command install auto-resumes saved incomplete guests without overriding a different explicit guest"
 fi
 
+# Isolated guest shells bind only the shared startup verifier, never Termux HOME.
+if env TERNUX_STATE_DIR="$TMP/state-startup-bind" HOME="$TMP/home-startup-bind" \
+  PREFIX="$TMP/prefix-startup-bind" LOG="$TMP/startup-bind-args" bash -c '
+    mkdir -p "$HOME/.config/ternux"
+    printf "salt digest\\n" > "$HOME/.config/ternux/startup-password"
+    . "$1/lib/core.sh"
+    tnx_distro(){ echo debian; }
+    proot-distro(){ printf "%s\\n" "$@" > "$LOG"; }
+    tnx_guest_login --user sbj -- bash -ic true || exit
+    grep -Fqx -- "$HOME/.config/ternux/startup-password:/run/ternux/startup-password" "$LOG" || exit
+    [ "$(grep -Fc -- "$HOME" "$LOG")" -eq 1 ] || exit 1
+    ! grep -qx -- "--shared-home" "$LOG" || exit 1
+    exit 0
+  ' _ "$ROOT"; then
+  ok "isolated managed shells receive only the shared startup verifier bind"
+else
+  not_ok "isolated managed shells receive only the shared startup verifier bind"
+fi
+
 # Guest commands bind Android shared storage at /sdcard while keeping Termux
 # HOME isolated and honoring caller-requested temporary storage.
 if env TERNUX_STATE_DIR="$TMP/state-guest-isolation" HOME="$TMP/home-guest-isolation" \
@@ -1531,7 +1550,7 @@ else
 fi
 
 # Required failure must stop dependants and only successful phases are marked.
-if env TERNUX_STATE_DIR="$TMP/state-required" HOME="$TMP/home-required" bash -c '
+if env TERNUX_STATE_DIR="$TMP/state-required" HOME="$TMP/home-required" TERNUX_USER_PASSWORD=test-sudo TERNUX_STARTUP_PASSWORD=test-startup bash -c '
   . "$1/lib/phases.sh"
   order="$2/order-required"
   tnx_require_termux(){ :; }; tnx_confirm(){ :; }
@@ -1555,13 +1574,13 @@ else
 fi
 
 # Optional failure is retained as final nonzero status but verification runs.
-if env TERNUX_STATE_DIR="$TMP/state-optional" HOME="$TMP/home-optional" bash -c '
+if env TERNUX_STATE_DIR="$TMP/state-optional" HOME="$TMP/home-optional" TERNUX_USER_PASSWORD=test-sudo TERNUX_STARTUP_PASSWORD=test-startup bash -c '
   . "$1/lib/phases.sh"
   order="$2/order-optional"
   tnx_require_termux(){ :; }; tnx_confirm(){ :; }
   tnx_banner(){ :; }; tnx_phase_header(){ :; }; tnx_celebrate(){ :; }
   tnx_summary_box(){ :; }; tnx_next_steps(){ :; }; tnx_log_error(){ :; }
-  for name in preflight packages cli debian root_password gpu audio_fonts launcher aliases phantom verify; do
+  for name in preflight packages cli debian root_password user_password startup_password gpu audio_fonts launcher aliases phantom verify; do
     eval "tnx_phase_${name}(){ echo ${name} >> \"\$order\"; }"
   done
   tnx_phase_extras(){ echo extras >> "$order"; return 9; }
@@ -1914,11 +1933,12 @@ if env TERNUX_STATE_DIR="$TMP/state-repair-aggregate" HOME="$TMP/home-repair-agg
   _tnx_repair_launcher(){ echo launcher >> "$marker"; }
   _tnx_repair_mesa_cache(){ echo cache >> "$marker"; }
   _tnx_repair_pulseaudio(){ echo audio >> "$marker"; }
+  _tnx_repair_sudo(){ echo sudo >> "$marker"; }
   TERNUX_JSON=1
   set +e
   out="$(tnx_cmd_repair)"; rc=$?
   set -e
-  [ "$rc" -eq 1 ] && [ "$(wc -l < "$marker")" -eq 6 ] &&
+  [ "$rc" -eq 1 ] && [ "$(wc -l < "$marker")" -eq 7 ] &&
   python3 -c '\''import json,sys; x=json.loads(sys.argv[1]); assert x["status"] == "partial"'\'' "$out"
 ' _ "$ROOT" "$TMP"; then
   ok "repair aggregates step failures and keeps running"
@@ -3595,7 +3615,8 @@ fi
 # A bare resume restores the interrupted run's optional workload set instead of
 # silently reducing a full installation to the base profile.
 if env TERNUX_STATE_DIR="$TMP/state-resume-profile" HOME="$TMP/home-resume-profile" \
-  PREFIX="$TMP/prefix-resume-profile" TERNUX_QUIET=1 bash -c '
+  PREFIX="$TMP/prefix-resume-profile" TERNUX_QUIET=1 \
+  TERNUX_USER_PASSWORD=test-sudo TERNUX_STARTUP_PASSWORD=test-startup bash -c '
     mkdir -p "$HOME"
     . "$1/lib/phases.sh"
     tnx_state_set user alice
@@ -4264,9 +4285,11 @@ if env HOME="$TMP/home-launchgen" TERNUX_STATE_DIR="$TMP/state-launchgen" \
     tnx_phase_launcher ternux zink en_US.UTF-8 >/dev/null 2>&1
     : > "$HOME/.bashrc"
     RC_FILE="$HOME/.bashrc" tnx_phase_aliases ternux bash >/dev/null 2>&1 || true
-    grep -q "guest_login_isolated debian" "$HOME/x.sh" &&
-    grep -q "proot-distro login" "$HOME/x.sh" &&
-    ! grep -q "tnx_guest_login" "$HOME/x.sh" &&
+    launcher="$TERNUX_STATE_DIR/distros/ternux/launcher.sh"
+    grep -q "guest_login_isolated debian" "$launcher" &&
+    grep -q "proot-distro login" "$launcher" &&
+    ! grep -q "tnx_guest_login" "$launcher" &&
+    [ ! -e "$HOME/x.sh" ] &&
     ! grep -rq "tnx_guest_login" "$HOME/.bashrc"
   ' _ "$ROOT"; then
   ok "generated launcher and aliases call proot-distro directly"

@@ -610,6 +610,17 @@ ternux uninstall [session|launcher|state|container|host-cli|all] [--yes]
 `state` বা `host-cli` আলাদাভাবে চালালে এই মালিকানা-তালিকা রেখে দেয়, যাতে পরে
 `all` চালিয়ে টার্নাক্সের বসানো প্যাকেজগুলোও সরানো যায়।
 
+## পাসওয়ার্ড ও ইন্টারঅ্যাক্টিভ শেল চালু
+
+ইনস্টলার গেস্টের `sudo` পাসওয়ার্ড এবং সবার জন্য আলাদা একটি shared startup
+password চায়। `sudo` পাসওয়ার্ড নির্বাচিত গেস্ট ব্যবহারকারীর অ্যাকাউন্টে সেট
+হয়। Startup password native Termux এবং managed guest-এর interactive Bash,
+Zsh ও Alpine shell-এ যাচাই হয়। এটি বদলাতে `tx password startup`; গেস্টের
+`sudo` password বদলাতে `tx password sudo` অথবা গেস্টের ভেতরে `passwd` চালান।
+Startup password-এর salted digest `~/.config/ternux/startup-password`-এ থাকে।
+এটি shell-এর convenience gate; PRoot root shortcut বা অন্য shell দিয়ে এড়ানো
+যায়, তাই Termux app owner-এর কাছ থেকে ফাইল সুরক্ষিত করে না।
+
 ## শেল কমপ্লিশন
 
 ব্যাশ কমান্ড-সম্পূর্ণ করার নিয়ম `share/ternux-completion.bash`-এ আছে:

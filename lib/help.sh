@@ -276,7 +276,7 @@ Categories (default: host, system, all installed guests and graphics):
   system       architecture, storage, memory, battery temperature, state directory
   host         proot-distro, Debian container, Termux:X11, PulseAudio, curl,
                Android child-process monitoring
-  guest        Debian glibc, passwordless sudo, desktop commands, dpkg state, disk
+  guest        Debian glibc, password-required sudo, desktop commands, dpkg state, disk
   graphics     Vulkan, GPU, backend, KGSL node, Turnip layout, renderer, launcher
   gpu          alias for graphics; checks the GPU route and renderer
   extensions   health of installed extensions (llama-vulkan, stable-diffusion, llama-htp-experimental)

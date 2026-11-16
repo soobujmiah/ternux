@@ -32,35 +32,40 @@ tnx_cmd_repair() {
 
   # Each helper reports success even when its component is already healthy.
   # The changed flag keeps the summary from calling a health check a repair.
-  tnx_header "1/6  curl/OpenSSL"
+  tnx_header "1/7  curl/OpenSSL"
   _TNX_REPAIR_CHANGED=0
   _tnx_repair_curl || rc=1
   [ "$_TNX_REPAIR_CHANGED" = "1" ] && repairs_done+=("curl_fixed")
 
-  tnx_header "2/6  Termux:X11"
+  tnx_header "2/7  Termux:X11"
   _TNX_REPAIR_CHANGED=0
   _tnx_repair_x11 || rc=1
   [ "$_TNX_REPAIR_CHANGED" = "1" ] && repairs_done+=("x11_fixed")
 
-  tnx_header "3/6  GPU backend"
+  tnx_header "3/7  GPU backend"
   _TNX_REPAIR_CHANGED=0
   _tnx_repair_backend || rc=1
   [ "$_TNX_REPAIR_CHANGED" = "1" ] && repairs_done+=("backend_applied")
 
-  tnx_header "4/6  Launcher"
+  tnx_header "4/7  Launcher"
   _TNX_REPAIR_CHANGED=0
   _tnx_repair_launcher || rc=1
   [ "$_TNX_REPAIR_CHANGED" = "1" ] && repairs_done+=("launcher_regenerated")
 
-  tnx_header "5/6  Mesa cache"
+  tnx_header "5/7  Mesa cache"
   _TNX_REPAIR_CHANGED=0
   _tnx_repair_mesa_cache || rc=1
   [ "$_TNX_REPAIR_CHANGED" = "1" ] && repairs_done+=("cache_cleared")
 
-  tnx_header "6/6  PulseAudio"
+  tnx_header "6/7  PulseAudio"
   _TNX_REPAIR_CHANGED=0
   _tnx_repair_pulseaudio || rc=1
   [ "$_TNX_REPAIR_CHANGED" = "1" ] && repairs_done+=("pulseaudio_fixed")
+
+  tnx_header "7/7  Password-required sudo"
+  _TNX_REPAIR_CHANGED=0
+  _tnx_repair_sudo || rc=1
+  [ "$_TNX_REPAIR_CHANGED" = "1" ] && repairs_done+=("sudo_policy_repaired")
 
   [ "${TERNUX_JSON:-0}" != "1" ] && echo ""
 
@@ -147,7 +152,7 @@ _tnx_repair_x11() {
 }
 
 _tnx_repair_backend() {
-  local backend user_name locale launcher_ok=0 driver_ok=0
+  local backend user_name locale launcher_ok=0 driver_ok=0 launcher
   backend="$(tnx_state_get "backend")"
   [ -z "$backend" ] && backend="$(tnx_detect_backend)"
   [ "$backend" = "zink-turnip" ] && backend="zink"
@@ -193,12 +198,13 @@ _tnx_repair_backend() {
   locale="$(tnx_state_get "locale")"
   user_name="${user_name:-ternux}"
   locale="${locale:-en_US.UTF-8}"
+  launcher="$(tnx_distro_state_dir "$(tnx_distro)")/launcher.sh"
 
-  if [ -f "$HOME/x.sh" ] && bash -n "$HOME/x.sh" 2>/dev/null && \
-     grep -q -- "--user $user_name" "$HOME/x.sh"; then
+  if [ -f "$launcher" ] && bash -n "$launcher" 2>/dev/null && \
+     grep -q -- "--user $user_name" "$launcher"; then
     case "$backend" in
-      zink) grep -q "MESA_LOADER_DRIVER_OVERRIDE=zink" "$HOME/x.sh" && launcher_ok=1 ;;
-      virgl) grep -q "GALLIUM_DRIVER=virpipe" "$HOME/x.sh" && launcher_ok=1 ;;
+      zink) grep -q "MESA_LOADER_DRIVER_OVERRIDE=zink" "$launcher" && launcher_ok=1 ;;
+      virgl) grep -q "GALLIUM_DRIVER=virpipe" "$launcher" && launcher_ok=1 ;;
     esac
   fi
 
@@ -214,14 +220,14 @@ _tnx_repair_backend() {
 }
 
 _tnx_repair_launcher() {
-  [ -x "$HOME/x.sh" ] && bash -n "$HOME/x.sh" 2>/dev/null &&
-    grep -q '^# TERNUX_DESKTOP_LAUNCHER=21$' "$HOME/x.sh" &&
-    grep -q '^PULSE_PORT=""$' "$HOME/x.sh" && { tnx_ok "Launcher OK"; return 0; }
-
-  local backend user_name locale
+  local backend user_name locale launcher
   backend="$(tnx_state_get "backend")"
   user_name="$(tnx_state_get "user")"
   locale="$(tnx_state_get "locale")"
+  launcher="$(tnx_distro_state_dir "$(tnx_distro)")/launcher.sh"
+  [ -x "$launcher" ] && bash -n "$launcher" 2>/dev/null &&
+    grep -q '^# TERNUX_DESKTOP_LAUNCHER=21$' "$launcher" &&
+    grep -q '^PULSE_PORT=""$' "$launcher" && { tnx_ok "Launcher OK: $launcher"; return 0; }
   backend="${backend:-$(tnx_detect_backend)}"
   [ "$backend" = "zink-turnip" ] && backend="zink"
   user_name="${user_name:-ternux}"
@@ -231,6 +237,59 @@ _tnx_repair_launcher() {
   tnx_phase_launcher "$user_name" "$backend" "$locale" || return 1
   _TNX_REPAIR_CHANGED=1
   return 0
+}
+
+_tnx_repair_sudo() {
+  local distro user_name result
+  distro="$(tnx_distro)"
+  user_name="$(tnx_distro_user "$distro")"
+  tnx_proot_container_installed "$distro" || { tnx_info "No installed managed guest; sudo repair skipped."; return 0; }
+  result="$(tnx_guest_login --user root -- sh -s -- "$user_name" 2>&1 <<'TNX_SUDO_REPAIR'
+set -eu
+user="$1"
+shadow_hash="$(awk -F: -v name="$user" '$1 == name { print $2; exit }' /etc/shadow)"
+case "$shadow_hash" in
+  ""|"!"|"!!"|"*"|\!*) echo PASSWORD_MISSING; exit 3 ;;
+esac
+rule="$user ALL=(ALL:ALL) ALL"
+file=/etc/sudoers.d/ternux
+changed=0
+install -d -m 0750 /etc/sudoers.d
+if [ -f /etc/sudoers.d/README ] && [ ! -L /etc/sudoers.d/README ]; then
+  readme_mode="$(stat -c %a /etc/sudoers.d/README)"
+  readme_owner="$(stat -c %u /etc/sudoers.d/README)"
+  if [ "$readme_mode" != 440 ] || [ "$readme_owner" != 0 ]; then
+    chown root:root /etc/sudoers.d/README
+    chmod 0440 /etc/sudoers.d/README
+    changed=1
+  fi
+fi
+if [ -r "$file" ] && grep -Fqx -- "$rule" "$file" && ! grep -Fq 'NOPASSWD:' "$file"; then
+  if [ "$changed" -eq 1 ]; then echo SUDO_POLICY_REPAIRED; else echo SUDO_POLICY_OK; fi
+  exit 0
+fi
+tmp="$(mktemp /etc/sudoers.d/.ternux.XXXXXX)"
+trap 'rm -f "$tmp"' EXIT
+printf '%s\n' "$rule" > "$tmp"
+chmod 0440 "$tmp"
+chown root:root "$tmp"
+visudo -cf "$tmp" >/dev/null
+mv -f "$tmp" "$file"
+visudo -c >/dev/null
+echo SUDO_POLICY_REPAIRED
+TNX_SUDO_REPAIR
+)" || {
+    case "$result" in
+      *PASSWORD_MISSING*) tnx_fail "Guest user '$user_name' has no usable password. Set it with: tx password sudo" ;;
+      *) tnx_fail "Could not inspect or repair password-required sudo for '$user_name': $result" ;;
+    esac
+    return 1
+  }
+  case "$result" in
+    *SUDO_POLICY_REPAIRED*) tnx_ok "Password-required sudo policy repaired for '$user_name'."; _TNX_REPAIR_CHANGED=1 ;;
+    *SUDO_POLICY_OK*) tnx_ok "Password-required sudo is configured for '$user_name'." ;;
+    *) tnx_fail "Sudo repair returned an unexpected response."; return 1 ;;
+  esac
 }
 
 _tnx_repair_mesa_cache() {

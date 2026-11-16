@@ -389,7 +389,7 @@ tnx_storage_guest_args() {
 # mount is available at /sdcard when Termux already has Android permission;
 # additional subdirectory grants remain scoped to explicit user selections.
 tnx_guest_login() {
-  local timeout_seconds=""
+  local timeout_seconds="" startup_hash="${HOME}/.config/ternux/startup-password"
   local -a login_args=(--isolated)
   while [ "$#" -gt 0 ]; do
     case "$1" in
@@ -409,6 +409,11 @@ tnx_guest_login() {
     esac
   done
   tnx_storage_guest_args login_args || return $?
+  # Isolated managed logins do not bind Termux HOME. Expose only the salted
+  # startup verifier needed by interactive guest shell hooks, never all of HOME.
+  if [ -f "$startup_hash" ] && [ ! -L "$startup_hash" ]; then
+    login_args+=(--bind "$startup_hash:/run/ternux/startup-password")
+  fi
   if [ -n "$timeout_seconds" ]; then
     tnx_has_cmd timeout || return 127
     timeout --signal=TERM --kill-after=1 "$timeout_seconds" \

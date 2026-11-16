@@ -19,7 +19,7 @@ ternux — Debian/Xfce guest companion
 
 Usage:
   ternux status       check the live display, sound bridge and renderer
-  ternux doctor       verify Debian desktop commands and passwordless sudo
+  ternux doctor       verify Debian desktop commands and password-required sudo
   ternux verify       alias for doctor
   ternux info         show guest/session information
   ternux env          show the guest display, audio and session variables
@@ -82,10 +82,10 @@ _guest_verify() {
       rc=1
     fi
   done
-  if sudo -n true >/dev/null 2>&1; then
-    printf '  [ OK ] passwordless sudo\n'
+  if [ -r /etc/sudoers.d/ternux ] && grep -Fqx "$(id -un) ALL=(ALL:ALL) ALL" /etc/sudoers.d/ternux; then
+    printf '  [ OK ] password-required sudo is configured\n'
   else
-    printf '  [FAIL] passwordless sudo\n'
+    printf '  [FAIL] password-required sudo is not configured\n'
     rc=1
   fi
   return "$rc"

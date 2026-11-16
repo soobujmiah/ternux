@@ -19,7 +19,7 @@ reopen Termux:X11 if Android has reclaimed the session.
 
 ### Keyboard input in Termux:X11
 
-Ternux enables Termux:X11 `enforceCharBasedInput` before starting the desktop so Android soft keyboards can send committed text to terminal and other X11 apps. The setting is also applied when `~/x.sh` is started directly. If input still fails after an upgrade, run `ternux restart` once so the running X11 server is recreated with the setting.
+Ternux enables Termux:X11 `enforceCharBasedInput` before starting the desktop so Android soft keyboards can send committed text to terminal and other X11 apps. The setting is applied through the managed desktop launcher. If input still fails after an upgrade, run `ternux restart` once so the running X11 server is recreated with the setting.
 
 ## Daily controls
 
@@ -170,8 +170,8 @@ See [CLI reference](CLI.html) for the implemented command and JSON fields.
 ```text
 Termux host                          PRoot Debian
 ────────────                         ────────────
-~/x.sh             launcher          /home/<user>     your home
-~/.local/share/ternux/ state          /root            root's home
+~/.local/share/ternux/distros/NAME/launcher.sh  launcher     /home/<user>  your home
+~/.local/share/ternux/ state                   state        /root         root's home
 ~/storage/shared   Android storage   /sdcard          same files; guest access is opt-in
 ```
 

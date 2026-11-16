@@ -67,10 +67,12 @@ detect the optional failure.
 
 ---
 
-## The launcher — `~/x.sh`
+## Per-guest desktop launchers
 
-Generated for your GPU route and syntax-checked at install time. Edit it
-freely; a reinstall regenerates it (your edits are replaced).
+Each guest gets a generated launcher at
+`~/.local/share/ternux/distros/NAME/launcher.sh`, configured for its GPU route
+and syntax-checked at install time. Edit it freely; reinstalling that guest
+regenerates the launcher and replaces your edits.
 
 ### Zink (Adreno) environment
 

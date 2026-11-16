@@ -162,9 +162,10 @@ proot-distro login debian
 ```bash
 USER_NAME=ternux
 
-# ব্যবহারকারী না থাকলে তৈরি করুন (ডেস্কটপ অ্যাকাউন্টে প্রবেশের পাসওয়ার্ড লাগে না)।
+# ব্যবহারকারী না থাকলে তৈরি করুন।
 id -u "$USER_NAME" >/dev/null 2>&1 \
   || adduser --disabled-password --gecos "" "$USER_NAME"
+passwd "$USER_NAME"
 
 # গ্রাফিক্স ও শব্দের দল।
 usermod -aG sudo "$USER_NAME"
@@ -172,11 +173,11 @@ usermod -aG video "$USER_NAME"
 usermod -aG render "$USER_NAME"
 usermod -aG audio "$USER_NAME"
 
-# যাচাইকৃত অতিরিক্ত ফাইলে পাসওয়ার্ডবিহীন সুডো। /etc/sudoers-এ সরাসরি জুড়বেন
+# যাচাইকৃত অতিরিক্ত ফাইলে পাসওয়ার্ড-চাওয়া সুডো। /etc/sudoers-এ সরাসরি জুড়বেন
 # না: একটি বানানভুলে এই হিসাব-নামের সুডো নষ্ট হতে পারে। PRoot Distro দিয়ে
 # গেস্টের রুট মেরামতি শেল খোলা যায়; সেটি অ্যান্ড্রয়েডের রুট নয়।
 TMP_SUDOERS="$(mktemp)"
-printf '%s ALL=(ALL) NOPASSWD: ALL\n' "$USER_NAME" > "$TMP_SUDOERS"
+printf '%s ALL=(ALL:ALL) ALL\n' "$USER_NAME" > "$TMP_SUDOERS"
 visudo -cf "$TMP_SUDOERS" \
   && install -m 0440 -o root -g root "$TMP_SUDOERS" /etc/sudoers.d/ternux
 rm -f "$TMP_SUDOERS"
@@ -188,7 +189,7 @@ exit
 ছাড়াই আটকে যেতে পারে:
 
 ```bash
-proot-distro login debian --user ternux -- sudo -n true
+proot-distro login debian --user ternux -- sudo -v
 ```
 
 ---
@@ -326,9 +327,9 @@ exit
 
 ## ধাপ ৮ — পরিচালিত ডেস্কটপ চালু করুন
 
-ইনস্টলার `~/x.sh` তৈরি ও রক্ষণাবেক্ষণ করে। প্রস্তুতি যাচাই ও পুরোনো
-লঞ্চার নিরাপদে নবায়নের জন্য টার্নাক্সের অধিবেশন-ব্যবস্থাপক দিয়ে ডেস্কটপ
-চালু করুন:
+প্রতি গেস্টের লঞ্চার `~/.local/share/ternux/distros/NAME/launcher.sh`-এ
+থাকে। প্রস্তুতি যাচাই ও পুরোনো লঞ্চার নিরাপদে নবায়নের জন্য টার্নাক্সের
+অধিবেশন-ব্যবস্থাপক দিয়ে ডেস্কটপ চালু করুন:
 
 ```bash
 ternux start
@@ -338,9 +339,9 @@ ternux start
 সংরক্ষণ-অনুমতি থাকলে পরিচালিত গেস্টে ভাগ করা সংরক্ষণস্থান পূর্বনির্ধারিতভাবে
 `/sdcard`-এ যুক্ত হয়। পথটি না থাকলে টার্মাক্সে `termux-setup-storage`
 চালিয়ে ডেস্কটপ আবার চালু করুন। পুরোনো
-`proot-distro login --shared-tmp` লঞ্চার উদাহরণ `~/x.sh`-এ কপি করবেন না—
+`proot-distro login --shared-tmp` লঞ্চার উদাহরণ পরিচালিত লঞ্চারে কপি করবেন না—
 সেগুলো পিআররুট-ডিস্ট্রোর বিস্তৃত হোস্ট পথ যুক্ত করে। `ternux start` লঞ্চার
-না পেলে `ternux install` দিয়ে টার্নাক্স ইনস্টলার আবার চালান।
+না পেলে `tx repair` চালান বা ইনস্টল অসম্পূর্ণ থাকলে `ternux install --resume` দিন।
 
 ---
 
@@ -397,12 +398,12 @@ settings get global settings_enable_monitor_phantom_procs
 ```bash
 # টার্মাক্স পাশে
 command -v termux-x11 proot-distro pulseaudio virgl_test_server_android
-[ -x ~/x.sh ] && echo "launcher executable"
+[ -x ~/.local/share/ternux/distros/debian/launcher.sh ] && echo "launcher executable"
 
 # ডেবিয়ান পাশে
 proot-distro login debian --user ternux -- bash -c '
   command -v startxfce4 && command -v glxinfo && command -v pactl &&
-  sudo -n true && echo "Debian core OK"'
+  sudo -v && echo "Debian core OK"'
 ```
 
 ডেস্কটপ চালু হলে (`tx start` চালিয়ে) ডেস্কটপ টার্মিনাল থেকে জিপিইউ

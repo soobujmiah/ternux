@@ -204,7 +204,7 @@ ternux benchmark --json | jq '.glmark2_score, .vkmark_score'
 ```text
 টার্মাক্স হোস্ট                     প্রুট ডেবিয়ান
 ────────────                         ────────────
-~/x.sh             লঞ্চার            /home/<user>     আপনার হোম
+~/.local/share/ternux/distros/NAME/launcher.sh  লঞ্চার  /home/<user>  আপনার হোম
 ~/.ternux-state    ইনস্টল-অবস্থা     /root            রুটের হোম
 ~/storage/shared   অ্যান্ড্রয়েড সংরক্ষণ  /sdcard        একই জায়গা; গেস্টে পূর্বনির্ধারিত সংযোগ
 ```

@@ -358,12 +358,14 @@ case "${ACTION}" in
     ;;
   status)
     echo "Installation status:"
-    for pkg in packages cli debian root_password gpu audio_fonts launcher aliases extras phantom verify; do
+    for pkg in packages cli debian root_password user_password startup_password gpu audio_fonts launcher aliases extras phantom verify; do
       if tnx_state_done "phase_$pkg"; then printf "  done    %s\n" "$pkg"
       else printf "  pending %s\n" "$pkg"; fi
     done
     echo ""
-    [ -x "$HOME/x.sh" ] && echo "  Launcher: $HOME/x.sh" || echo "  Launcher: not created"
+    status_distro="$(tnx_distro)"
+    status_launcher="$(tnx_distro_state_dir "$status_distro")/launcher.sh"
+    [ -x "$status_launcher" ] && echo "  Launcher: $status_launcher" || echo "  Launcher: not created"
     ;;
   uninstall)
     # Delegate to CLI if installed, otherwise use the standalone uninstaller
