@@ -673,6 +673,40 @@ if [ "$logo_area_width" -lt 6 ]; then logo_area_width=6; fi
 logo_target_width=$((logo_area_width - 2))
 [ "$logo_target_width" -ge 3 ] || logo_target_width=3
 
+# Detailed ASCII marks become unreadable when resampled into a phone-width
+# terminal. Keep the left column visible with a compact distro monogram at
+# those widths; retain the full logo whenever it can fit naturally.
+if [ "$logo_target_width" -lt 11 ] && [ "$logo_width" -gt "$logo_target_width" ]; then
+  case "$logo_id" in
+    android) compact_logo='[AND]' ;;
+    workstation) compact_logo='[TNX]' ;;
+    adelie) compact_logo='[ADE]' ;;
+    alpine) compact_logo='[ALP]' ;;
+    archlinux) compact_logo='[ARC]' ;;
+    artix) compact_logo='[ART]' ;;
+    chimera) compact_logo='[CHI]' ;;
+    debian) compact_logo='[DEB]' ;;
+    deepin) compact_logo='[DEE]' ;;
+    fedora) compact_logo='[FED]' ;;
+    kali) compact_logo='[KALI]' ;;
+    manjaro) compact_logo='[MAN]' ;;
+    opensuse) compact_logo='[SUS]' ;;
+    pardus) compact_logo='[PAR]' ;;
+    rockylinux|rocky) compact_logo='[ROC]' ;;
+    ubuntu) compact_logo='[UBU]' ;;
+    void) compact_logo='[VOID]' ;;
+    sobuj) compact_logo='[SOBUJ]' ;;
+    *) compact_logo='[LNX]' ;;
+  esac
+  if [ "${#compact_logo}" -le "$logo_target_width" ]; then
+    logo_lines=("$compact_logo")
+  else
+    compact_initial="${compact_logo:1:1}"
+    logo_lines=("$compact_initial")
+  fi
+  logo_width="${#logo_lines[0]}"
+fi
+
 # Fit every complete mark into the left third of the live terminal width.
 # Resample both axes together so narrow terminal fonts never let the logo
 # collide with the information column.
@@ -710,7 +744,8 @@ value_width=$((info_width - label_width - 1))
 visible_labels=()
 visible_values=()
 for ((field=0; field<${#labels[@]}; field++)); do
-  if [ "${#values[field]}" -le "$value_width" ]; then
+  if [ "${#labels[field]}" -le "$label_width" ] &&
+    [ "${#values[field]}" -le "$value_width" ]; then
     visible_labels+=("${labels[field]}")
     visible_values+=("${values[field]}")
   fi

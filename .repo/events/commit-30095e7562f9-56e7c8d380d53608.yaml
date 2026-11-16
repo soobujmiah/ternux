@@ -1,0 +1,7 @@
+event_id: commit-30095e7562f9-56e7c8d380d53608
+repository: soobujmiah/ternux
+commit: 30095e7562f90cf6493f33ae04b2ed6f3c6d383b
+kind: commit
+occurred_at: '2026-11-16T07:21:30Z'
+status: completed
+summary: Translate Bengali usage docs into Bengali script (#275)

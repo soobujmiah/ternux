@@ -57,9 +57,21 @@ for profile in "${profiles[@]}"; do
         echo "Firefox executable missing for $TNX_BROWSER_PROFILE" >&2
         exit 1
       }
-      desktop-file-validate /usr/local/share/applications/firefox-esr.desktop 2>/dev/null ||
-        desktop-file-validate /usr/share/applications/firefox-esr.desktop 2>/dev/null ||
-        desktop-file-validate /usr/share/applications/firefox.desktop
+      desktop_entry=
+      for candidate in \
+        /usr/local/share/applications/firefox-esr.desktop \
+        /usr/share/applications/firefox-esr.desktop \
+        /usr/share/applications/firefox.desktop; do
+        if [ -f "$candidate" ]; then
+          desktop_entry="$candidate"
+          break
+        fi
+      done
+      if [ -n "$desktop_entry" ]; then
+        desktop-file-validate "$desktop_entry"
+      else
+        echo "No desktop entry shipped by $TNX_BROWSER_PROFILE Firefox package; validating executable startup instead."
+      fi
       su -s /bin/sh browser -c "sh /firefox_xvfb_probe.sh \"$browser\""
     '
 done
