@@ -1,62 +1,61 @@
 ---
-title: "Blender GPU MCP"
-description: "সংযুক্ত coding-agent client থেকে Ternux-এর local Blender GPU MCP ব্যবহার করুন।"
+title: "ব্লেন্ডার জিপিইউ এমসিপি"
+description: "সংযুক্ত কোডিং-এজেন্ট ক্লায়েন্ট থেকে টার্নাক্সের স্থানীয় ব্লেন্ডার জিপিইউ এমসিপি ব্যবহার।"
 lang: "bn"
 alt_url: "/docs/BLENDER-MCP.html"
 ---
 
-Ternux-এ standard-library-only একটি local MCP server আছে। সংযুক্ত agent-কে
-প্রতিষ্ঠিত headless Blender GPU route চালানোর জন্য এটি তিনটি tool দেয়। এটি
-মাপা EEVEE workflow-এর একই
-`DISPLAY=:9 GALLIUM_DRIVER=zink blender -b --factory-startup` path ব্যবহার করে;
-Blender-এর ভেতরে plugin যোগ করে না, render baseline-ও বদলায় না।
+টার্নাক্সে শুধু মানক লাইব্রেরি-নির্ভর একটি স্থানীয় এমসিপি সার্ভার আছে।
+সংযুক্ত এজেন্টকে প্রতিষ্ঠিত পর্দাহীন ব্লেন্ডার জিপিইউ কাজের পথ চালানোর জন্য এটি
+তিনটি সরঞ্জাম দেয়। এটি ব্লেন্ডারের ভেতরে প্লাগইন যোগ করে না, মাপা ইভি-ইই
+কাজের ধারা বা রেন্ডার-ভিত্তিমাপও বদলায় না।
 
-## Agent-এর কাছে tool দেখা যাচ্ছে কি না দেখুন
+## এজেন্টের কাছে সরঞ্জাম দেখা যাচ্ছে কি না দেখুন
 
-MCP access নির্দিষ্ট client session-এর জন্য। নিচের command বর্তমান user-এর
-**Claude Code**-এ server register করে:
+এমসিপি-র সুযোগ নির্দিষ্ট ক্লায়েন্ট অধিবেশনের জন্য। নিচের কমান্ডটি বর্তমান
+ব্যবহারকারীর ক্লড কোডে সার্ভার নিবন্ধন করে:
 
 ```bash
 claude mcp add --scope user blender-gpu -- python3 ~/ternux/tools/blender-gpu-mcp/server.py
 ```
 
-যে environment-এ Claude Code এবং Ternux checkout আছে, সেখানে command-টি একবার
-চালান। তারপর Claude Code session-এ `/mcp` লিখুন বা নতুন session শুরু করুন;
-`blender-gpu`-তে `gpu_check`, `render_script` এবং `render_blend`—তিনটি tool
-দেখাচ্ছে কি না নিশ্চিত করুন।
+ক্লড কোড ও টার্নাক্সের উৎস-ফোল্ডার আছে এমন পরিবেশে কমান্ডটি একবার চালান। তারপর
+ক্লড কোড অধিবেশনে `/mcp` লিখুন অথবা নতুন অধিবেশন শুরু করুন। `blender-gpu`-তে
+`gpu_check`, `render_script` এবং `render_blend`—তিনটি সরঞ্জাম দেখা যাচ্ছে কি না
+নিশ্চিত করুন।
 
-অন্য coding-agent client-কে এই local stdio server-এর সঙ্গে আলাদাভাবে MCP
-connect করতে হবে। Claude Code-এ register করলেই সব agent tool-গুলো পায় না।
-Render বলতে বলার আগে বর্তমান session-এ tool-নামগুলো আছে কি না agent যাচাই করবে।
-না থাকলে আগে MCP client connect/configure করতে হবে; tool call না করে call করেছে
-বলে agent দাবি করবে না।
+অন্য কোডিং-এজেন্ট ক্লায়েন্টকে এই স্থানীয় স্ট্যান্ডার্ড-ইনপুট/আউটপুট সার্ভারের
+সঙ্গে আলাদাভাবে এমসিপি সংযোগ করতে হবে। ক্লড কোডে নিবন্ধন করলেই সব এজেন্ট
+সরঞ্জামগুলো পায় না। রেন্ডার করতে বলার আগে বর্তমান অধিবেশনে সরঞ্জামগুলোর নাম
+আছে কি না এজেন্টকে যাচাই করতে হবে। না থাকলে সরঞ্জাম চালানোর দাবি না করে আগে
+এমসিপি ক্লায়েন্ট সংযোগ ও বিন্যস্ত করতে হবে।
 
-## কোন tool কখন ব্যবহার করবেন
+## কোন সরঞ্জাম কখন ব্যবহার করবেন
 
-| Tool | কাজ | মূল input |
+| সরঞ্জাম | কাজ | মূল উপাত্ত |
 |---|---|---|
-| `gpu_check` | Display ও Zink/Turnip renderer প্রস্তুত কি না দেখে। Zero-frame render হলে আগে এটি চালান। | ঐচ্ছিক display; default `:9`। |
-| `render_script` | Blender Python script চালায়; চাইলে আগে `.blend` খোলে। | Absolute script path; ঐচ্ছিক absolute `.blend`, script argument, display ও timeout। |
-| `render_blend` | `.blend` থেকে একটি frame, frame range বা পুরো scene render করে। | Absolute `.blend` path ও absolute output prefix; ঐচ্ছিক frame সীমা, display ও timeout। |
+| `gpu_check` | ডিসপ্লে ও জিঙ্ক/টার্নিপ রেন্ডারার প্রস্তুত কি না দেখে। শূন্য-ফ্রেম রেন্ডার হলে আগে এটি চালান। | ঐচ্ছিক ডিসপ্লে; প্রাথমিক মান `:9`। |
+| `render_script` | ব্লেন্ডারের পাইথন স্ক্রিপ্ট চালায়; চাইলে আগে `.blend` দৃশ্য খোলে। | পূর্ণ স্ক্রিপ্ট-পথ; ঐচ্ছিক পূর্ণ `.blend` পথ, স্ক্রিপ্টের উপাত্ত, ডিসপ্লে ও সময়সীমা। |
+| `render_blend` | `.blend` দৃশ্য থেকে একটি ফ্রেম, ফ্রেম-পরিসর বা পুরো দৃশ্য রেন্ডার করে। | পূর্ণ `.blend` পথ ও পূর্ণ ফল-ফাইলের উপসর্গ; ঐচ্ছিক ফ্রেম-সীমা, ডিসপ্লে ও সময়সীমা। |
 
-সংযুক্ত agent-কে সাধারণ ভাষায় বলতে পারেন:
+সংযুক্ত এজেন্টকে সাধারণ ভাষায় বলতে পারেন:
 
-- “Render-এর আগে Blender GPU route check করো।” → `gpu_check`
+- “রেন্ডারের আগে ব্লেন্ডার জিপিইউ কাজের পথ পরীক্ষা করো।” → `gpu_check`
 - “`/absolute/project/render.py`-কে
-  `/absolute/project/test.png`-এ render করো।” → `render_script`; output path-টি
-  script argument হিসেবে `--`-এর পরে দিন।
-- “`/absolute/project/scene.blend` থেকে frame 1–120
-  `/absolute/project/frames/frame_`-এ render করো।” → `frame_start: 1` ও
+  `/absolute/project/test.png`-এ রেন্ডার করো।” → `render_script`; ফল-ফাইলের পথটি
+  স্ক্রিপ্টের উপাত্ত হিসেবে `--`-এর পরে দিন।
+- “`/absolute/project/scene.blend` থেকে ১–১২০ নম্বর ফ্রেম
+  `/absolute/project/frames/frame_`-এ রেন্ডার করো।” → `frame_start: 1` ও
   `frame_end: 120` দিয়ে `render_blend`।
 
-সাথে থাকা smoke scene-টি `render_script` দিয়ে চালাতে absolute path দিন:
+সঙ্গে থাকা পরীক্ষামূলক দৃশ্যটি `render_script` দিয়ে চালাতে পূর্ণ পথ দিন:
 
 ```text
 script:      /absolute/path/ternux/tools/blender-gpu-mcp/examples/smoke_render.py
 script_args: ["/absolute/path/to/output/frame.png"]
 ```
 
-একই render-এর সরাসরি terminal command:
+একই রেন্ডারের সরাসরি টার্মিনাল কমান্ড:
 
 ```bash
 DISPLAY=:9 GALLIUM_DRIVER=zink blender -b --factory-startup \
@@ -64,30 +63,31 @@ DISPLAY=:9 GALLIUM_DRIVER=zink blender -b --factory-startup \
   -- /absolute/path/to/output/frame.png
 ```
 
-`:9` display আগে থেকে চালু না থাকলে server নিজে Xvfb চালায়। Absolute path
-লাগে; directory ঘেঁটে file খোঁজে না, কিছু delete-ও করে না। Tool response-এ
-লেখা frame, render time, output path ও failure diagnosis থাকে।
+`:9` ডিসপ্লে আগে থেকে চালু না থাকলে সার্ভার নিজে এক্স-ভার্চুয়াল-ফ্রেমবাফার
+চালায়। পূর্ণ পথ দিতে হয়; এটি ফোল্ডার ঘেঁটে ফাইল খোঁজে না এবং কিছু মুছেও দেয়
+না। সরঞ্জামের ফলে লেখা ফ্রেম, রেন্ডার-সময়, ফল-ফাইলের পথ ও ব্যর্থতার কারণ থাকে।
 
-## Zero-frame ফলাফল বুঝুন
+## শূন্য-ফ্রেম ফল বুঝুন
 
-আগে `gpu_check` চালিয়ে তার diagnosis দেখুন:
+আগে `gpu_check` চালিয়ে তার রোগনির্ণয় দেখুন:
 
-- **`EGL_BAD_MATCH`**: Blender ব্যবহারযোগ্য X display/GL context পায়নি।
-  Headless route-এ `:9`-এ Xvfb দরকার।
-- **`llvmpipe` সহ `Illegal instruction` / `SIGILL`**: Mesa software renderer
-  বেছে নিয়েছে। সঠিক Adreno run-এ Zink-এর ওপর Turnip দেখা উচিত; retry করার
-  আগে `gpu_check`-এর renderer দেখুন।
+- **`EGL_BAD_MATCH`**: ব্লেন্ডার ব্যবহারযোগ্য এক্স ডিসপ্লে বা জিএল প্রসঙ্গ পায়নি।
+  পর্দাহীন কাজের পথে `:9`-এ এক্স-ভার্চুয়াল-ফ্রেমবাফার দরকার।
+- **`llvmpipe`-সহ `Illegal instruction` / `SIGILL`**: মেসা সফটওয়্যার রেন্ডারার
+  বেছে নিয়েছে। সঠিক অ্যাড্রেনো কাজে জিঙ্কের ওপর টার্নিপ দেখা উচিত; আবার চেষ্টা
+  করার আগে `gpu_check`-এর রেন্ডারার দেখুন।
 
-এগুলো display/renderer setup-এর সমস্যা নির্দেশ করে; scene-এ ত্রুটি আছে তা
-প্রমাণ করে না। প্রতিষ্ঠিত Redmi workstation-এ Cycles বা software rendering-এ
-পাল্টাবেন না।
+এগুলো ডিসপ্লে বা রেন্ডারার বিন্যাসের সমস্যা বোঝায়; দৃশ্যে ত্রুটি আছে তা প্রমাণ
+করে না। প্রতিষ্ঠিত রেডমি কর্মযন্ত্রে সাইকেলস বা সফটওয়্যার রেন্ডারিং বেছে নেবেন
+না।
 
-## Evidence
+## প্রমাণ
 
-2026-10-14-এ প্রতিষ্ঠিত Redmi Turbo 4 Pro setup Zink over Adreno 825 / Mesa
-Turnip দেখিয়েছে। 320×180 EEVEE Next smoke frame Blender-এর হিসাবে 2.49 সেকেন্ড
-এবং process start ও shader compile-সহ মোট wall time 6.92 সেকেন্ড নিয়েছে। এটি
-ঐ তারিখের মাপা ফলের pointer—নতুন benchmark নয়, অন্য device-এর নিশ্চয়তাও নয়।
-[MCP implementation ও verification](https://github.com/soobujmiah/ternux/blob/main/tools/blender-gpu-mcp/README.md)
-এবং [render workflow](https://github.com/soobujmiah/ternux/blob/main/experiments/cartoon-pipeline/README.md)
+২০২৬-১০-১৪ তারিখে প্রতিষ্ঠিত রেডমি টার্বো ৪ প্রো বিন্যাসে অ্যাড্রেনো ৮২৫-এর
+ওপর জিঙ্ক ও মেসা টার্নিপ দেখা গেছে। ৩২০×১৮০ আকারের ইভি-ইই নেক্সট পরীক্ষামূলক
+ফ্রেম ব্লেন্ডারের হিসাবে ২.৪৯ সেকেন্ড এবং প্রক্রিয়া শুরু ও শেডার কম্পাইলসহ মোট
+৬.৯২ সেকেন্ড নিয়েছে। এটি ওই তারিখের মাপা ফলের সূত্র; নতুন মাপজোখ নয়, অন্য
+যন্ত্রের নিশ্চয়তাও নয়।
+[এমসিপি বাস্তবায়ন ও যাচাই](https://github.com/soobujmiah/ternux/blob/main/tools/blender-gpu-mcp/README.md)
+এবং [রেন্ডার কাজের ধারা](https://github.com/soobujmiah/ternux/blob/main/experiments/cartoon-pipeline/README.md)
 দেখুন।

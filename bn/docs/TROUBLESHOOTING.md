@@ -1,50 +1,50 @@
 ---
 title: "সমস্যা সমাধান"
-description: "ternux failure-এর evidence-led diagnosis ও নিরাপদ repair path — rendering, session, audio, network ও clean reinstall।"
+description: "টার্নাক্সের ব্যর্থতা প্রমাণের ভিত্তিতে শনাক্ত করা ও নিরাপদে মেরামত—রেন্ডারিং, অধিবেশন, অডিও, নেটওয়ার্ক ও পরিষ্কার পুনঃইনস্টল।"
 lang: "bn"
 alt_url: "/docs/TROUBLESHOOTING.html"
 
 ---
 
-টেবিলটি সাধারণ symptom-কে সম্ভাব্য cause ও check-এর সঙ্গে মিলিয়েছে। একই
-symptom-এর একাধিক কারণ হতে পারে, তাই repair-এর আগে নাম দেওয়া evidence নিন।
+টেবিলটি সাধারণ লক্ষণকে সম্ভাব্য কারণ ও যাচাইয়ের সঙ্গে মিলিয়েছে। একই
+লক্ষণের একাধিক কারণ হতে পারে, তাই মেরামতের আগে প্রমাণ সংগ্রহ করুন।
 
 | লক্ষণ | সম্ভাব্য কারণ | সমাধান |
 |---|---|---|
-| ডেস্কটপ নিঃশব্দে মরে যায়, বা `[Process completed (signal 9)]` | Android process policy, memory pressure, বা OEM battery management | [ডেস্কটপ নিঃশব্দে মরে যায়](#the-desktop-dies-silently) |
-| Termux:X11-এ কালো/খালি উইন্ডো | X11 অ্যাপ খোলা হয়নি, বা পুরনো সকেট | [Termux:X11-এ কালো স্ক্রিন](#black-screen-in-termuxx11) |
-| `renderer string: llvmpipe` | সফটওয়্যার ফলব্যাক — GPU পথ সক্রিয় নয় | [রেন্ডারার llvmpipe বলে](#renderer-says-llvmpipe) |
-| XFCE শুরুতে `lost connection to rendering server` | VirGL socket guest-এ নেই, বা Debian Mesa-র VirGL preflight ব্যর্থ | [XFCE শুরুর সময় VirGL ব্যর্থ](#virgl-fails-during-xfce-startup) |
-| ডেস্কটপে শব্দ নেই | PulseAudio ব্রিজ চলছে না | [অডিও নেই](#no-audio) |
-| Debian-এ ইন্টারনেট নেই | PRoot-এ DNS আসেনি | [কন্টেইনারে নেটওয়ার্ক নেই](#no-network-in-the-container) |
+| ডেস্কটপ নিঃশব্দে মরে যায়, বা `[Process completed (signal 9)]` | অ্যান্ড্রয়েডের প্রক্রিয়া-নীতি, মেমরির চাপ বা নির্মাতার ব্যাটারি-ব্যবস্থাপনা | [ডেস্কটপ নিঃশব্দে মরে যায়](#the-desktop-dies-silently) |
+| টার্মাক্স:এক্স১১-এ কালো/খালি জানালা | এক্স১১ অ্যাপ খোলা হয়নি বা পুরনো সকেট রয়ে গেছে | [টার্মাক্স:এক্স১১-এ কালো স্ক্রিন](#black-screen-in-termuxx11) |
+| `renderer string: llvmpipe` | সফটওয়্যার বিকল্প-পথ—জিপিইউ সক্রিয় নয় | [রেন্ডারার llvmpipe বলে](#renderer-says-llvmpipe) |
+| এক্সএফসিই শুরুর সময় `lost connection to rendering server` | ভিরজিএল সকেট গেস্টে নেই বা ডেবিয়ান মেসার ভিরজিএল প্রাথমিক যাচাই ব্যর্থ | [এক্সএফসিই শুরুর সময় ভিরজিএল ব্যর্থ](#virgl-fails-during-xfce-startup) |
+| ডেস্কটপে শব্দ নেই | পালসঅডিও সেতু চলছে না | [অডিও নেই](#no-audio) |
+| ডেবিয়ানে ইন্টারনেট নেই | প্রুটে ডিএনএস আসেনি | [কন্টেইনারে নেটওয়ার্ক নেই](#no-network-in-the-container) |
 | `Waiting for Termux-X11 display socket…` থেমে থাকে | Display :0 আসেনি | [ডিসপ্লে আসছে না](#display-never-appears) |
-| `Error: unrecognized option: '-c'` | নতুন proot-distro-এর সঙ্গে পুরনো launcher | [proot-distro -c চেনে না](#proot-distro-says-option--c-is-unrecognized) |
-| কিছু প্যাকেজে `apt` ব্যর্থ | Debian non-free চালু নেই | [apt ব্যর্থতা](#apt-failures) |
-| `ternux install --resume` মুছে ফেলা guest skip করে | পুরনো install-এর stale guest phase metadata | [guest মুছে ফেলার পর resume](#resume-after-removing-a-guest) |
+| `Error: unrecognized option: '-c'` | নতুন প্রুট-ডিস্ট্রোর সঙ্গে পুরনো লঞ্চার | [প্রুট-ডিস্ট্রো `-c` চেনে না](#proot-distro-says-option--c-is-unrecognized) |
+| কিছু প্যাকেজে `apt` ব্যর্থ | ডেবিয়ানের নন-ফ্রি উপাদান চালু নেই | [এপিটি ব্যর্থতা](#apt-failures) |
+| `ternux install --resume` মুছে ফেলা গেস্ট এড়িয়ে যায় | পুরনো ইনস্টলের বাসি গেস্ট-ধাপের তথ্য | [গেস্ট মুছে ফেলার পর পুনরায় শুরু](#resume-after-removing-a-guest) |
 | `pkg upgrade`-এ `openssl.cnf` এরর, তারপর **প্রতিটি** ইনস্টল ব্যর্থ | বন্ধ stdin-এ dpkg conffile প্রম্পট | [openssl.cnf conffile ক্যাসকেড](#opensslcnf-conffile-cascade) |
 | ইনস্টল কমান্ড পেস্ট করলে `No command $ found` | কপি করা টেক্সটে ডিসপ্লে-শুধু `$` প্রম্পট ঢুকে গেছে | [পেস্ট করা কমান্ড $ দিয়ে শুরু](#pasted-command-starts-with) |
 | `curl: CANNOT LINK … SSL_set_quic_tls_transport_params` | আংশিক আপগ্রেড — curl/libngtcp2 openssl-এর চেয়ে নতুন | [আপগ্রেডের পর curl লিংক হতে পারে না](#curl-cannot-link-after-an-upgrade) |
-| আগে সব ঠিক ছিল, আপগ্রেডের পর ভেঙে গেছে | Mesa প্যাকেজ বদলে গেছে | [আপগ্রেডের পর GPU পথ হারিয়ে গেছে](#after-an-upgrade-the-gpu-path-is-gone) |
+| আগে সব ঠিক ছিল, হালনাগাদের পর ভেঙেছে | মেসা প্যাকেজ বদলে গেছে | [হালনাগাদের পর জিপিইউ পথ হারিয়েছে](#after-an-upgrade-the-gpu-path-is-gone) |
 | ইনস্টলার ড্যাশবোর্ড ঝিকমিক করে, লগ লাইন ফ্রেমের উপরে উঠে যায় | বর্তমান রেন্ডারারের চেয়ে পুরনো ইনস্টলার, বা যে টার্মিনালের মাপ পড়া যায় না | [ইনস্টলার স্ক্রিন ঝিকমিক করে বা ফ্রেম ভেঙে যায়](#the-installer-screen-flickers-or-the-frame-is-broken) |
 
 ---
 
-<h2 id="resume-after-removing-a-guest">guest মুছে ফেলার পর resume</h2>
+<h2 id="resume-after-removing-a-guest">গেস্ট মুছে ফেলার পর পুনরায় শুরু</h2>
 
-**লক্ষণ:** guest মুছে ফেলার পর installer resume পুরনো phase skip করে, বা
-নির্বাচিত distro-র PRoot container আর নেই।
+**লক্ষণ:** গেস্ট মুছে ফেলার পর ইনস্টলার পুনরায় শুরু হলে পুরনো ধাপ এড়িয়ে যায়,
+অথবা বেছে নেওয়া ডিস্ট্রোর প্রুট কন্টেইনার আর নেই।
 
-**সমাধান:** Ternux-এর managed command দিয়ে stale registration মুছে, নতুন install
-শুরু করুন। এতে আগের phase ও workspace record-ও পরিষ্কার হবে:
+**সমাধান:** টার্নাক্সের পরিচালিত কমান্ড দিয়ে বাসি নিবন্ধন মুছে নতুন ইনস্টল
+শুরু করুন। এতে আগের ধাপ ও কর্মক্ষেত্রের নথিও পরিষ্কার হবে:
 
 ```bash
 ternux distro uninstall ubuntu --yes
 ternux install --distro ubuntu
 ```
 
-Ternux recorded guest phase skip করার আগে PRoot container আছে কিনা যাচাই করে।
-`proot-distro remove` দিয়ে managed guest মুছবেন না; এতে Ternux profile ও session
-state পরিষ্কার হয় না।
+টার্নাক্স নথিভুক্ত গেস্টের ধাপ এড়ানোর আগে প্রুট কন্টেইনার আছে কি না যাচাই করে।
+`proot-distro remove` দিয়ে পরিচালিত গেস্ট মুছবেন না; এতে টার্নাক্সের বিন্যাস ও
+অধিবেশনের অবস্থা পরিষ্কার হয় না।
 
 ---
 
