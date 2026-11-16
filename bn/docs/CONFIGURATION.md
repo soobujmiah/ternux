@@ -144,7 +144,7 @@ MESA_GLES_VERSION_OVERRIDE=3.2
 
 - `fonts-noto-color-emoji` — ইমোজি
 - `fonts-symbola`, `fonts-font-awesome`, `fonts-powerline` — চিহ্নের সমর্থন
-- **JetBrainsMono Nerd Font** — টার্মিনালের আইকন-চিহ্ন; একবার নামিয়ে
+- **জেটব্রেইনস মোনো নার্ড ফন্ট** — টার্মিনালের আইকন-চিহ্ন; একবার নামিয়ে
   `~/.local/share/fonts`-এ যায় (সেন্টিনেল ফাইল পুনরায় ডাউনলোড ঠেকায়)
 
 যেকোনো সময় আরও হরফ যোগ করুন: `~/.local/share/fonts`-এ ফাইল রেখে

@@ -1,53 +1,53 @@
 ---
-title: "Ternux Termux APT channel-এর বর্তমান অবস্থা"
-description: "Withdrawn Ternux v2 stable channel ও opt-in RC repository-এর বর্তমান অবস্থা।"
+title: "টার্নাক্স টার্মাক্স এপিটি সংগ্রহস্থলের বর্তমান অবস্থা"
+description: "প্রত্যাহার করা টার্নাক্স ভি২ স্থিতিশীল সংগ্রহস্থল ও ঐচ্ছিক আরসি সংগ্রহস্থলের বর্তমান অবস্থা।"
 lang: "bn"
 alt_url: "/docs/TERMUX-APT.html"
 ---
 
 
-Ternux v2.0.0 GitHub release ও signed stable APT distribution 2026-11-14-এ
-withdraw হয়েছে। Public `/apt` bootstrap, key, index ও package path এখন HTTP 404
-দেয়। Provenance-এর জন্য `v2.0.0` Git tag রাখা হয়েছে; নিচের package ও checksum
-তথ্য historical record। আগে থেকে install করা package অক্ষত আছে, তবে stable APT
-থেকে Ternux update আর পাওয়া যায় না।
+টার্নাক্স ভি২.০.০-এর গিটহাব প্রকাশনা ও স্বাক্ষরিত স্থিতিশীল এপিটি বিতরণ
+২০২৬-১১-১৪ তারিখে প্রত্যাহার করা হয়েছে। প্রকাশ্য `/apt` বুটস্ট্র্যাপ, কী, সূচি ও
+প্যাকেজের ঠিকানাগুলো এখন এইচটিটিপি ৪০৪ ফেরায়। উৎস-প্রমাণের জন্য `v2.0.0` গিট
+ট্যাগ রাখা হয়েছে; নিচের প্যাকেজ ও চেকসাম কেবল পুরোনো নথি। আগে থেকে বসানো
+প্যাকেজ অক্ষত আছে, তবে স্থিতিশীল এপিটি থেকে টার্নাক্সের হালনাগাদ আর পাওয়া যায় না।
 
-এখন source installer-ই সমর্থিত install পথ; [main installation
-guide](../README.md) দেখুন। 2026-11-15 তারিখে stable APT bootstrap/key/index
-HTTP 404 দিয়েছে। RC bootstrap ও signing key HTTP 200 দিলেও signed index HTTP 404
-দেয়। RC signing key HTTP 200 দেয়, কিন্তু signed index HTTP 404। তাই hosted stable বা
-RC repository থেকে `pkg install ternux` এখন install
-হবে না। Signed repository প্রকাশিত হলে তবেই RC channel opt-in candidate test-এর
-জন্য ব্যবহার করা যাবে। পরের stable release v2 major-এই থাকবে; বিস্তারিত [project
-roadmap](/bn/docs/project/PROJECT-ROADMAP.html)।
+এখন উৎস ইনস্টলারই সমর্থিত বসানোর পথ; [প্রধান বসানোর
+নির্দেশিকা](../README.md) দেখুন। ২০২৬-১১-১৬ তারিখে স্থিতিশীল এপিটির
+বুটস্ট্র্যাপ, কী ও সূচি আবার পরীক্ষা করে এইচটিটিপি ৪০৪ পাওয়া গেছে। আরসি
+বুটস্ট্র্যাপ ও স্বাক্ষর-চাবি এইচটিটিপি ২০০ দিলেও স্বাক্ষরিত সূচি এইচটিটিপি ৪০৪
+দেয়। তাই প্রকাশিত স্থিতিশীল বা আরসি সংগ্রহস্থল থেকে `pkg install ternux` এখন
+কাজ করবে না। স্বাক্ষরিত সংগ্রহস্থল প্রকাশিত হলেই আরসি-কে ঐচ্ছিক পরীক্ষামূলক
+প্রকাশনা হিসেবে চালু করা যাবে। পরের স্থিতিশীল প্রকাশনাও ভি২ ধারার হবে; বিস্তারিত
+[প্রকল্পের রূপরেখা](/bn/docs/project/PROJECT-ROADMAP.html)।
 
-## Trust fingerprint
+## আস্থার ছাপ
 
-Project Pages host থেকে key নেওয়ার আগে নিচের পূর্ণ OpenPGP primary-key
-fingerprint-এর সঙ্গে GitHub source page-এর fingerprint মিলিয়ে নিন। GitHub
-repository এবং Pages-এ থাকা APT repository আলাদা endpoint।
+প্রকল্পের পেজ-হোস্ট থেকে কী নেওয়ার আগে নিচের পূর্ণ ওপেনপিজিপি প্রধান-চাবির
+আস্থার ছাপ গিটহাবের উৎস-পৃষ্ঠার ছাপের সঙ্গে মিলিয়ে নিন। গিটহাব সংগ্রহস্থল ও
+পেজে থাকা এপিটি সংগ্রহস্থল আলাদা ঠিকানায় চলে।
 
 ```text
 E552 7F4D 5B83 037F F77B 65AE 5E89 4BBB 8116 8B1D
 ```
 
-এটি RSA 4096 signing key; তৈরি 2026-11-06, মেয়াদ শেষ 2031-11-05। Protected
-private key GitHub Actions-এর `apt-release` environment-এ আছে; repository-তে
-শুধু public key প্রকাশ হবে।
+এটি আরএসএ ৪০৯৬ স্বাক্ষর-চাবি; তৈরি ২০২৬-১১-০৬, মেয়াদ শেষ ২০৩১-১১-০৫।
+সুরক্ষিত ব্যক্তিগত চাবি গিটহাব অ্যাকশনের `apt-release` পরিবেশে রাখা আছে;
+সংগ্রহস্থলে শুধু প্রকাশ্য চাবি দেওয়া হবে।
 
-## Historical stable package তথ্য
+## পুরোনো স্থিতিশীল প্যাকেজের তথ্য
 
-Withdraw হওয়া stable repository-তে `ternux_2.0.0_all.deb` ছিল; SHA-256
-`4ef03210c71e3d5671671e9a49fc83f6aebf7cdb5e5a28cb32db61d49e85c89f`। এগুলো
-audit-এর জন্য রাখা, বর্তমান download route নয়।
+প্রত্যাহার করা স্থিতিশীল সংগ্রহস্থলে `ternux_2.0.0_all.deb` ছিল; এসএইচএ-২৫৬
+`4ef03210c71e3d5671671e9a49fc83f6aebf7cdb5e5a28cb32db61d49e85c89f`। নিরীক্ষার
+জন্য এগুলো রাখা হয়েছে; বর্তমানে নামানোর ঠিকানা হিসেবে ব্যবহার করা যাবে না।
 
-## RC channel
+## আরসি সংগ্রহস্থল
 
-নিচের RC setup নির্দেশগুলো পুরোনো। 2026-11-15 তারিখে hosted bootstrap ও index
-যাচাই করে HTTP 404 পাওয়া গেছে, তাই এগুলো দিয়ে এখন কার্যকর package source যোগ
-হবে না। Stable বা RC—কোনো hosted source থেকেই `pkg install ternux` এখন install
-করবে না। Candidate channel আবার প্রকাশিত হলে এই নির্দেশ ফেরানোর আগে bootstrap
-URL ও signed index যাচাই করতে হবে।
+আরসি বসানোর নিচের নির্দেশগুলো পুরোনো। ২০২৬-১১-১৬ তারিখে প্রকাশিত বুটস্ট্র্যাপ
+ও সূচি পরীক্ষা করে এইচটিটিপি ৪০৪ পাওয়া গেছে; তাই এগুলো দিয়ে কার্যকর প্যাকেজ
+উৎস যোগ হবে না। স্থিতিশীল বা আরসি—কোনো প্রকাশিত উৎস থেকেই `pkg install ternux`
+এখন প্যাকেজ বসাবে না। পরীক্ষামূলক সংগ্রহস্থল আবার প্রকাশিত হলে নির্দেশ ফেরানোর
+আগে বুটস্ট্র্যাপের ঠিকানা ও স্বাক্ষরিত সূচি যাচাই করতে হবে।
 
-আপাতত project-এর `main` branch-এর source installer ব্যবহার করুন। Website deploy-এ
-শুধু প্রকাশিত এবং signature ও checksum যাচাই করা APT channel রাখা হয়।
+আপাতত প্রকল্পের `main` শাখার উৎস ইনস্টলার ব্যবহার করুন। ওয়েবসাইট প্রকাশের সময়
+শুধু চালু এবং স্বাক্ষর ও চেকসাম-যাচাইকৃত এপিটি সংগ্রহস্থল রাখা হয়।

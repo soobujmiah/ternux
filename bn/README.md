@@ -2,7 +2,7 @@
 
 <!-- deterministic-state-bridge: ternux -->
 
-**স্বয়ংক্রিয় সংগ্রহশালা-অবস্থা:** [`.repo/STATUS.md`](../.repo/STATUS.md)। এসকেবি তালিকা: [`ternux.json`](https://github.com/soobujmiah/skb/blob/main/projects/registry/ternux.json)।
+**স্বয়ংক্রিয় সংগ্রহশালা-অবস্থা:** [`.repo/STATUS.md`](../.repo/STATUS.md)—`tools/repo_knowledge` দিয়ে তৈরি।
 
 # ternux
 
@@ -105,6 +105,7 @@ pkg update -y && pkg upgrade -y && pkg install -y wget && bash -o pipefail -c 'w
 
 আংশিক হালনাগাদের পর `pkg` বা `curl` না চললে `apt update && apt full-upgrade -y`
 চালিয়ে টার্মাক্স মেরামত করুন, তারপর আবার চেষ্টা করুন।
+স্থিতিশীল প্যাকেজ ভান্ডার প্রত্যাহার হওয়ায় এখন উৎস ইনস্টলারই সমর্থিত বসানোর পথ।
 
 টার্নাক্স v2.0.0 গিটহাব প্রকাশনা ও স্থিতিশীল এপিটি বিতরণ ২০২৬-১১-১৪ তারিখে
 প্রত্যাহার করা হয়েছে। উৎসের পরিচয় যাচাইয়ের জন্য `v2.0.0` ট্যাগ রাখা হয়েছে।
