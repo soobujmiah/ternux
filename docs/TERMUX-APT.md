@@ -13,11 +13,11 @@ package and checksum data below are historical. Existing installations are
 unaffected, but stable APT no longer offers Ternux updates.
 
 The source installer is the supported install route; see the [main
-installation guide](../README.md). As checked on 2026-11-15, the stable APT
-bootstrap/key/index return HTTP 404. The RC bootstrap and key return HTTP 200,
-but its signed index returns HTTP 404. Therefore `pkg install
-ternux` is currently unavailable from either hosted repository. The RC channel
-is reserved for opt-in candidate testing once its signed repository is published.
+installation guide](../README.md). Rechecked on 2026-11-16, the stable APT
+bootstrap/key/index and the RC signed index return HTTP 404. The RC bootstrap
+and signing key return HTTP 200, but neither hosted repository can currently
+install `ternux` with `pkg install`. The RC channel remains reserved for
+opt-in candidate testing after its signed repository is published.
 The next stable release remains in the v2 major. The complete platform
 architecture formerly planned for v3 is required before a new 2.x stable
 release; see the [project roadmap](project/PROJECT-ROADMAP.html).

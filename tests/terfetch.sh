@@ -51,12 +51,15 @@ small_output="$(TERFETCH_TEST_HOST=termux TERFETCH_LOGO_INDEX=1 COLUMNS=60 NO_CO
 grep -Eq 'System +Termux$' <<< "$small_output"
 grep -Fq 'DAILY COMMANDS' <<< "$small_output"
 wide_output="$(TERFETCH_TEST_DISTRO=alpine COLUMNS=160 LINES=50 NO_COLOR=1 "$TERFETCH")"
-for width in 36 40 48 60 100 160; do
+for width in 24 27 32 36 40 48 60 100 160; do
   output="$(TERFETCH_TEST_DISTRO=alpine COLUMNS="$width" LINES=24 NO_COLOR=1 "$TERFETCH")"
   grep -Eq 'Distro +alpine$' <<< "$output"
   [ "$(awk -v width="$width" 'length($0) > width { count++ } END { print count + 0 }' <<< "$output")" -eq 0 ]
   grep -Fq 'DAILY COMMANDS' <<< "$output"
 done
+narrow_output="$(TERFETCH_TEST_DISTRO=alpine COLUMNS=24 LINES=24 NO_COLOR=1 "$TERFETCH")"
+grep -Fq '[ALP]' <<< "$narrow_output"
+! grep -Fq 'hdddd' <<< "$narrow_output"
 [ "$(grep -Ec 'System +alpine|Distro +alpine|Environment +|Kernel +|Uptime +|Packages +' <<< "$small_output")" -lt "$(grep -Ec 'System +alpine|Distro +alpine|Environment +|Kernel +|Uptime +|Packages +' <<< "$wide_output")" ]
 ! grep -Eq '\.\.\.' <<< "$small_output"
 short_height_output="$(TERFETCH_TEST_DISTRO=debian COLUMNS=80 LINES=12 NO_COLOR=1 "$TERFETCH")"

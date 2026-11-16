@@ -1,80 +1,102 @@
 ---
-title: "Ternux v2.0.0 release report"
-description: "Ternux v2.0.0 release, package hash, supported guest ও device qualification-এর রেকর্ড।"
+title: "টার্নাক্স ২.০.০ প্রকাশনা প্রতিবেদন"
+description: "টার্নাক্স ২.০.০ প্রকাশনা, প্যাকেজের হ্যাশ, সমর্থিত গেস্ট ও যন্ত্রে যোগ্যতা যাচাইয়ের নথি।"
 lang: "bn"
 alt_url: "/docs/V2-RELEASE-REPORT.html"
 ---
 
-**বর্তমান distribution অবস্থা (2026-11-14):** v2.0.0 GitHub release সরানো
-হয়েছে, provenance-এর জন্য tag রাখা হয়েছে, এবং Pages run
-[43532161200](https://github.com/soobujmiah/ternux/actions/runs/43532161200)-এ
-stable APT channel withdrawn হয়েছে। Stable `/apt` path HTTP 404; signed RC path
-opt-in candidate test-এর জন্য HTTP 200 দেয়। এই নথি initial publication-এর
-historical record; এখানকার install command দিয়ে stable package আর install হয় না।
+**বর্তমান বিতরণ-অবস্থা (২০২৬-১১-১৪):** টার্নাক্স ২.০.০ গিটহাব প্রকাশনা
+সরানো হয়েছে, উৎস যাচাইয়ের জন্য সংস্করণ-চিহ্ন রাখা হয়েছে এবং
+[৪৩৫৩২১৬১২০০](https://github.com/soobujmiah/ternux/actions/runs/43532161200)
+কর্মপ্রবাহে স্থিতিশীল এপিটি চ্যানেল প্রত্যাহার করা হয়েছে। স্থিতিশীল `/apt`
+ঠিকানা এইচটিটিপি ৪০৪ দেয়; স্বাক্ষরিত আরসি ঠিকানা ঐচ্ছিক প্রার্থী পরীক্ষার জন্য
+এইচটিটিপি ২০০ দেয়। এই নথি প্রাথমিক প্রকাশনার ঐতিহাসিক বিবরণ; এখানকার ইনস্টল
+কমান্ড দিয়ে স্থিতিশীল প্যাকেজ আর বসানো যায় না।
 
-**অবস্থা:** 2026-11-13 05:31 UTC-তে প্রকাশিত
-**GitHub release:** [v2.0.0](https://github.com/soobujmiah/ternux/tree/v2.0.0)
-**Release tag target:** `9106b04fc8627ae98b1d63c9912a28c8a4677441`
-**সমর্থিত desktop guest:** Debian, Ubuntu, Alpine
+**অবস্থা:** ২০২৬-১১-১৩, ০৫:৩১ ইউটিসিতে প্রকাশিত
+**গিটহাব প্রকাশনা:** [টার্নাক্স ২.০.০](https://github.com/soobujmiah/ternux/tree/v2.0.0)
+**প্রকাশনা-চিহ্নের লক্ষ্য:** `9106b04fc8627ae98b1d63c9912a28c8a4677441`
+**সমর্থিত ডেস্কটপ গেস্ট:** ডেবিয়ান, উবুন্টু, আল্পাইন
 
-Ternux 2.0.0 হলো Termux-এর stable desktop release। এতে host CLI-এর জন্য
-signed stable APT distribution এবং Debian, Ubuntu ও Alpine desktop profile-এর
-সমর্থন ও qualification রয়েছে। Attached Termux package host CLI install করে;
-নির্বাচিত guest desktop provision করতে `tx install` চালান।
+টার্নাক্স ২.০.০ হলো টার্মাক্সের স্থিতিশীল ডেস্কটপ প্রকাশনা। এতে হোস্ট কমান্ড-লাইন
+সরঞ্জামের জন্য স্বাক্ষরিত স্থিতিশীল এপিটি বিতরণ এবং ডেবিয়ান, উবুন্টু ও আল্পাইন
+ডেস্কটপ বিন্যাসের সমর্থন ও যোগ্যতা-যাচাই রয়েছে। সংযুক্ত টার্মাক্স প্যাকেজটি
+হোস্ট কমান্ড-লাইন সরঞ্জাম বসায়; বেছে নেওয়া গেস্ট ডেস্কটপ প্রস্তুত করতে
+`tx install` চালান।
 
-## Release asset ও install
+## প্রকাশনা-সম্পদ ও ইনস্টলেশন
 
-GitHub release-এ signed APT repository-তে থাকা একই stable package যুক্ত আছে:
+গিটহাব প্রকাশনায় স্বাক্ষরিত এপিটি সংগ্রহস্থলে থাকা একই স্থিতিশীল প্যাকেজ যোগ
+করা হয়েছে:
 
-- `ternux_2.0.0_all.deb` — SHA-256
+- `ternux_2.0.0_all.deb` — এসএইচএ-২৫৬
   `4ef03210c71e3d5671671e9a49fc83f6aebf7cdb5e5a28cb32db61d49e85c89f`
-- `SHA256SUMS` — package checksum manifest।
+- `SHA256SUMS` — প্যাকেজের চেকসাম তালিকা।
 
-নিচের signed repository ও package install পথ 2026-11-14-এ প্রত্যাহার করা হয়েছে। এই অংশে v2-এর পুরোনো install পদ্ধতি নথিভুক্ত; bootstrap URL এখন HTTP 404 দেয়। `pkg install ternux` বর্তমানে পাওয়া যাচ্ছে না। [বর্তমান install guide](INSTALLATION.md)-এর source installer ব্যবহার করুন।
+নিচের স্বাক্ষরিত সংগ্রহস্থল ও প্যাকেজ বসানোর পথ ২০২৬-১১-১৪ তারিখে প্রত্যাহার করা
+হয়েছে। এই অংশে দ্বিতীয় সংস্করণের পুরোনো বসানোর পদ্ধতি নথিভুক্ত; চালু-ঠিকানা এখন এইচটিটিপি
+৪০৪ দেয়। বর্তমানে `pkg install ternux` পাওয়া যায় না।
+[বর্তমান ইনস্টল নির্দেশিকা](INSTALLATION.md)-র উৎস ইনস্টলার ব্যবহার করুন।
 
-## Release যাচাই
+## প্রকাশনা যাচাই
 
-- `v2.0.0` tag validated main commit
-  `9106b04fc8627ae98b1d63c9912a28c8a4677441`-এ সরাসরি নির্দেশ করে।
-- Exact-main Validate run [`43372097795`](https://github.com/soobujmiah/ternux/actions/runs/43372097795), package artifact run
-  [`43372097797`](https://github.com/soobujmiah/ternux/actions/runs/43372097797), এবং repository contract run
-  [`43372097798`](https://github.com/soobujmiah/ternux/actions/runs/43372097798) release commit-এ pass করেছে।
-- Stable APT publish run [`43362569559`](https://github.com/soobujmiah/ternux/actions/runs/43362569559) version 2.0.0 package প্রকাশ করেছে। Signed `InRelease` primary key fingerprint `E5527F4D5B83037FF77B65AE5E894BBB81168B1D` দিয়ে valid। `Packages.xz` SHA-256 `3bbab20f0119b3c038e14c9a49714e499325b0c7036a899c3304e67b3b39e137`।
-- Stable repository প্রকাশের পরে routine website deploy [`43371001392`](https://github.com/soobujmiah/ternux/actions/runs/43371001392) stable ও RC—দুই signed APT tree এবং indexed package record যাচাই ও preserve করে website deploy করেছে।
-- Native Termux প্রকাশিত package নামিয়েছে; hash signed APT index ও release checksum-এর সঙ্গে মিলেছে। Clean `pkg uninstall`/`pkg install`, `dpkg --verify ternux`, `ternux verify`, এবং Debian/Ubuntu/Alpine guest-specific verification pass করেছে।
+- `v2.0.0` সংস্করণ-চিহ্নটি যাচাইকৃত মূল কমিট
+  `9106b04fc8627ae98b1d63c9912a28c8a4677441`-কেই নির্দেশ করে।
+- মূল শাখার যাচাই কর্মপ্রবাহ
+  [`43372097795`](https://github.com/soobujmiah/ternux/actions/runs/43372097795),
+  প্যাকেজ-সম্পদের কর্মপ্রবাহ
+  [`43372097797`](https://github.com/soobujmiah/ternux/actions/runs/43372097797)
+  এবং সংগ্রহস্থল-চুক্তি কর্মপ্রবাহ
+  [`43372097798`](https://github.com/soobujmiah/ternux/actions/runs/43372097798)
+  প্রকাশনা-কমিটে পাস করেছে।
+- স্থিতিশীল এপিটি প্রকাশনা কর্মপ্রবাহ
+  [`43362569559`](https://github.com/soobujmiah/ternux/actions/runs/43362569559)
+  সংস্করণ ২.০.০-এর প্যাকেজ প্রকাশ করেছে। স্বাক্ষরিত `InRelease`-এর প্রধান
+  চাবির আঙুলের ছাপ `E5527F4D5B83037FF77B65AE5E894BBB81168B1D` দিয়ে যাচাই
+  হয়েছে। `Packages.xz`-এর এসএইচএ-২৫৬
+  `3bbab20f0119b3c038e14c9a49714e499325b0c7036a899c3304e67b3b39e137`।
+- স্থিতিশীল সংগ্রহস্থল প্রকাশের পর নিয়মিত ওয়েবসাইট প্রকাশনা
+  [`43371001392`](https://github.com/soobujmiah/ternux/actions/runs/43371001392)
+  স্থিতিশীল ও আরসি—দুই স্বাক্ষরিত এপিটি গাছ এবং সূচিবদ্ধ প্যাকেজ-নথি যাচাই ও
+  অক্ষত রেখে ওয়েবসাইট প্রকাশ করেছে।
+- নেটিভ টার্মাক্স প্রকাশিত প্যাকেজ নামিয়েছে; হ্যাশ স্বাক্ষরিত এপিটি সূচি ও
+  প্রকাশনা-চেকসামের সঙ্গে মিলেছে। পরিষ্কার `pkg uninstall`/`pkg install`,
+  `dpkg --verify ternux`, `ternux verify` এবং ডেবিয়ান/উবুন্টু/আল্পাইনের
+  গেস্ট-নির্দিষ্ট যাচাই পাস করেছে।
 
 ## সমর্থিত পরিধি
 
-v2 desktop support কেবল ARM64 Android/Termux-এ Debian, Ubuntu ও Alpine-এর
-জন্য। Xiaomi Redmi Turbo 4 Pro, Android 16, SM8735 / Adreno 825-এ device
-qualification হয়েছে। CI clean guest lifecycle, Firefox window, release gate,
-installer behavior ও documentation build যাচাই করে। Device record-এ তিনটি
-চলমান display session, GPU ও audio route, theme, titlebar, viewport fit এবং
-input configuration-এর তথ্য আছে।
+দ্বিতীয় সংস্করণের ডেস্কটপ শুধু এআরএম৬৪ অ্যান্ড্রয়েড/টার্মাক্সে ডেবিয়ান, উবুন্টু ও আল্পাইনের
+জন্য সমর্থিত। শাওমি রেডমি টার্বো ৪ প্রো, অ্যান্ড্রয়েড ১৬, এসএম৮৭৩৫/অ্যাড্রেনো
+৮২৫ যন্ত্রে যোগ্যতা যাচাই হয়েছে। ধারাবাহিক সংহতকরণ পরীক্ষা পরিষ্কার গেস্টের
+জীবনচক্র, ফায়ারফক্স জানালা, প্রকাশনা-দ্বার, ইনস্টলার আচরণ ও নথি নির্মাণ যাচাই
+করে। যন্ত্র-নথিতে তিনটি চলমান ডিসপ্লে অধিবেশন, জিপিইউ ও অডিও পথ, রং-নকশা,
+শিরোনাম-বার, দৃশ্যসীমায় জানালা মানানো এবং ইনপুট বিন্যাসের তথ্য আছে।
 
-অন্য named PRoot recipe v2-qualified নয়। HTP/HMX ও QNN image generation এখনো
-experimental বা research-only। এই এক device-এর ফল অন্য Android বা GPU family
-qualify করে না।
+অন্য নামযুক্ত প্রুট রেসিপি দ্বিতীয় সংস্করণের জন্য যোগ্য নয়। এইচটিপি/এইচএমএক্স ও কিউএনএন ছবি তৈরি
+এখনো পরীক্ষামূলক বা গবেষণা-পর্যায়ে। একটি যন্ত্রের ফল অন্য অ্যান্ড্রয়েড বা
+জিপিইউ পরিবারের যোগ্যতা প্রমাণ করে না।
 
-## Input ও UI-এর qualification সীমা
+## ইনপুট ও দৃশ্যপটের যোগ্যতা-সীমা
 
-Live Debian `:0`, Ubuntu `:1`, এবং Alpine `:2` session তাদের আগের managed PID-তে
-READY ছিল। Runtime query-তে তিন guest-এ Ternux GTK, icon, XFWM theme, `|HMC`
-titlebar এবং Ctrl+Space helper binding নিশ্চিত হয়েছে। IBus helper সরাসরি
-চালালে তিন guest-এই engine বদলেছে।
+সেই সময়ে নেটিভ ডেবিয়ান `:0`, উবুন্টু `:1` এবং আল্পাইন `:2` অধিবেশন তাদের
+আগের পরিচালিত প্রক্রিয়া-পরিচয়ে প্রস্তুত ছিল। চলমান বিন্যাস যাচাইয়ে তিন
+গেস্টেই টার্নাক্স জিটিকে, আইকন, এক্সএফডব্লিউএম রং-নকশা, `|HMC` শিরোনাম-বার
+এবং `Ctrl+Space` সহায়ক সংযোগ নিশ্চিত হয়েছিল। আইবাস সহায়ক সরাসরি চালালে তিন
+গেস্টেই ভাষা-ইঞ্জিন বদলেছিল।
 
-Alpine-এর keyboard-event probe-এ ভিন্ন ফল এসেছে: আগের focused GTK/XTest probe
-engine বদলেছিল, কিন্তু পরের host-generated Ctrl+Space event এবং temporary GTK
-entry probe বদলায়নি। পরের probe-তে Debian ও Ubuntu engine বদলেছে। Config-এ
-Ctrl+Space এখনো আছে; Android-এর physical keyboard event delivery certified
-নয়। এই সীমাবদ্ধতাকে সফল input test হিসেবে দেখানো হয়নি। GTK/XFCE ও পরীক্ষা করা
-Firefox window যাচাই করা হয়েছে; ভবিষ্যতের যেকোনো toolkit বা third-party app-এর
-সার্বজনীন theme/behavior guarantee নেই।
+আল্পাইনের কিবোর্ড-ঘটনা পরীক্ষায় ভিন্ন ফল এসেছিল: আগের সক্রিয় জিটিকে/এক্সটেস্ট
+পরীক্ষায় ইঞ্জিন বদলেছিল, কিন্তু পরের হোস্ট-সৃষ্ট `Ctrl+Space` ঘটনা এবং
+অস্থায়ী জিটিকে লেখার ঘর বদলায়নি। পরের পরীক্ষায় ডেবিয়ান ও উবুন্টুর ইঞ্জিন
+বদলেছিল। বিন্যাসে `Ctrl+Space` আছে; তখন অ্যান্ড্রয়েডের প্রকৃত কিবোর্ড-ঘটনা
+পৌঁছানো সনদপ্রাপ্ত ছিল না। এই সীমাকে সফল ইনপুট পরীক্ষা বলা হয়নি। জিটিকে/
+এক্সএফসিই এবং পরীক্ষিত ফায়ারফক্স জানালা যাচাই করা হয়েছিল; ভবিষ্যতের সব
+উইজেট-সরঞ্জাম বা বাইরের অ্যাপের জন্য রং-নকশা ও আচরণের সার্বজনীন নিশ্চয়তা নেই।
 
 ## প্রমাণ ও নথি
 
-- [v2 readiness ও acceptance record](V2-RELEASE-READINESS.md)
-- [Live device verification](../../docs/audit/DEVICE-VERIFICATION.md)
-- [Feature ও qualification matrix](../../docs/audit/FEATURE-MATRIX.md)
-- [Repository, APT ও package state](../../docs/audit/REPOSITORY-STATE.md)
-- [Machine-readable release gates](https://github.com/soobujmiah/ternux/blob/main/docs/release-gates.json)
+- [দ্বিতীয় সংস্করণের প্রস্তুতি ও গ্রহণযোগ্যতার নথি](V2-RELEASE-READINESS.md)
+- [যন্ত্রে সরাসরি যাচাই](../../docs/audit/DEVICE-VERIFICATION.md)
+- [সুবিধা ও যোগ্যতা-তালিকা](../../docs/audit/FEATURE-MATRIX.md)
+- [সংগ্রহস্থল, এপিটি ও প্যাকেজের অবস্থা](../../docs/audit/REPOSITORY-STATE.md)
+- [যন্ত্রে পড়ার উপযোগী প্রকাশনা-দ্বার](https://github.com/soobujmiah/ternux/blob/main/docs/release-gates.json)
