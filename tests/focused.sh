@@ -1052,8 +1052,11 @@ assert 'TERNUX_YES' in camera_permission and '[ ! -t 0 ]' in camera_permission
 assert 'ternux-camera-permission.XXXXXX' in camera_permission and 'rm -f -- "$probe"' in camera_permission
 assert '"$camera" -c 0 "$probe"' in camera_permission and 'tnx_confirm' in camera_permission
 audio_phase = (root / "lib/phases.sh").read_text().split("tnx_phase_audio_fonts() {", 1)[1].split("# Phase 7", 1)[0]
-assert "timeout --signal=TERM --kill-after=10 300 sudo apt update" in audio_phase
-assert "timeout --signal=TERM --kill-after=10 600 sudo DEBIAN_FRONTEND=noninteractive apt install" in audio_phase
+assert 'tnx_guest_login --_tnx-timeout-seconds 1200 --shared-tmp --user root' in audio_phase
+assert "timeout --signal=TERM --kill-after=10 300 apt update" in audio_phase
+assert "timeout --signal=TERM --kill-after=10 600 env DEBIAN_FRONTEND=noninteractive apt install" in audio_phase
+assert "timeout --signal=TERM --kill-after=5 90 locale-gen" in audio_phase
+assert not re.search(r"(^|\s)sudo(\s|$)", audio_phase)
 assert "Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20" in audio_phase
 xfwm_generator = (root / "tools/generate_ternux_xfwm.py").read_text()
 assert 'xpm_name = Path(name).with_suffix(".xpm")' in xfwm_generator

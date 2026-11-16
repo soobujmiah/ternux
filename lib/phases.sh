@@ -1614,7 +1614,13 @@ tnx_phase_audio_fonts() {
   _tnx_configure_pulse_bridge "$PA_CONF" || return 1
   [ "$_TNX_PULSE_CHANGED" = "1" ] && tnx_ok "PulseAudio TCP bridge bound to loopback."
 
-  tnx_guest_login --_tnx-timeout-seconds 1200 --shared-tmp --user "$user_name" -- bash -c "
+  # Package managers and locale generation need guest root. Running these as
+  # the regular user made sudo prompt repeatedly during unattended phase work
+  # (APT refresh, package install, locale.gen update, locale-gen). Use the
+  # managed PRoot root login for privileged setup; keep user dotfiles/fonts in
+  # a separate user login below so ownership stays correct and sudo remains
+  # password-protected for normal use.
+  if ! tnx_guest_login --_tnx-timeout-seconds 1200 --shared-tmp --user root -- bash -c "
     set -e
     FAMILY='${family}'
     echo \"Installing locale and system fonts...\"
@@ -1623,36 +1629,43 @@ tnx_phase_audio_fonts() {
         DPKG_FORCE=\"-o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef\"
         APT_NETWORK=\"-o Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20\"
         echo \"Refreshing APT indexes (5 minute limit)...\"
-        timeout --signal=TERM --kill-after=10 300 sudo apt update \$APT_NETWORK || {
+        timeout --signal=TERM --kill-after=10 300 apt update \$APT_NETWORK || {
           echo \"APT index refresh failed or exceeded 5 minutes; rerun install to resume this phase.\" >&2
           exit 1
         }
         echo \"Installing locale and system fonts (10 minute limit)...\"
-        timeout --signal=TERM --kill-after=10 600 sudo DEBIAN_FRONTEND=noninteractive apt install -y \$DPKG_FORCE \$APT_NETWORK locales wget fonts-symbola fonts-noto-color-emoji fonts-font-awesome fonts-powerline || {
+        timeout --signal=TERM --kill-after=10 600 env DEBIAN_FRONTEND=noninteractive apt install -y \$DPKG_FORCE \$APT_NETWORK locales wget fonts-symbola fonts-noto-color-emoji fonts-font-awesome fonts-powerline || {
           echo \"Locale/font package installation failed or exceeded 10 minutes; rerun install to resume this phase.\" >&2
           exit 1
         }
-        grep -qxF \"${locale} UTF-8\" /etc/locale.gen 2>/dev/null || echo \"${locale} UTF-8\" | sudo tee -a /etc/locale.gen >/dev/null
-        if ! timeout --signal=TERM --kill-after=5 90 sudo locale-gen \"${locale}\"; then
+        grep -qxF \"${locale} UTF-8\" /etc/locale.gen 2>/dev/null || echo \"${locale} UTF-8\" >> /etc/locale.gen
+        if ! timeout --signal=TERM --kill-after=5 90 locale-gen \"${locale}\"; then
           echo \"Locale generation failed or exceeded 90 seconds; continuing with the system fallback locale.\" >&2
         fi
         ;;
       apk)
-        sudo apk add musl-locales musl-locales-lang wget font-noto font-noto-emoji font-awesome
+        apk add musl-locales musl-locales-lang wget font-noto font-noto-emoji font-awesome
         ;;
       pacman)
-        sudo pacman -S --noconfirm --needed glibc wget noto-fonts noto-fonts-emoji ttf-font-awesome
+        pacman -S --noconfirm --needed glibc wget noto-fonts noto-fonts-emoji ttf-font-awesome
         ;;
       dnf)
-        sudo dnf install -y glibc-langpack-en wget google-noto-sans-fonts google-noto-emoji-fonts fontawesome-fonts
+        dnf install -y glibc-langpack-en wget google-noto-sans-fonts google-noto-emoji-fonts fontawesome-fonts
         ;;
       zypper)
-        sudo zypper --non-interactive install -y glibc-locale wget google-noto-sans-fonts google-noto-emoji-fonts fontawesome-fonts
+        zypper --non-interactive install -y glibc-locale wget google-noto-sans-fonts google-noto-emoji-fonts fontawesome-fonts
         ;;
       xbps)
-        sudo xbps-install -Sy glibc-locales wget noto-fonts-ttf font-awesome
+        xbps-install -Sy glibc-locales wget noto-fonts-ttf font-awesome
         ;;
     esac
+  "; then
+    tnx_fail "Locale/font package setup failed."
+    return 1
+  fi
+
+  tnx_guest_login --_tnx-timeout-seconds 1200 --shared-tmp --user "$user_name" -- bash -c "
+    set -e
     grep -q \"export LANG='${locale}'\" ~/.bashrc 2>/dev/null || echo \"export LANG='${locale}'\" >> ~/.bashrc
     grep -q \"export LC_ALL='${locale}'\" ~/.bashrc 2>/dev/null || echo \"export LC_ALL='${locale}'\" >> ~/.bashrc
     # The launcher exports the live loopback PulseAudio endpoint for desktop apps.
@@ -1670,7 +1683,7 @@ tnx_phase_audio_fonts() {
       fi
       rm -f \"\$font_archive\"
     fi
-  " || { tnx_fail "Locale/font setup failed."; return 1; }
+  " || { tnx_fail "Locale/font user configuration failed."; return 1; }
   tnx_ok "Locale '$locale', PulseAudio client and fonts configured."
 }
 
