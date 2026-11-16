@@ -476,9 +476,10 @@ are never wrapped or shortened. Terfetch does
 not require Fastfetch at runtime. It reports environment, architecture, user,
 locale, init, privilege level, package manager and count, kernel, uptime, shell,
 terminal, CPU/GPU model, memory and storage, plus device and display details
-when available. Use
-`TERFETCH_NO_AUTORUN=1` to hide the automatic summary in one shell.
-Run `terfetch --json` for structured output, or `terfetch --help` for its
+when available. A terminal shell shows it once at startup; the exported guard
+prevents child interactive shells and terminal integrations from showing it
+again. Use `TERFETCH_NO_AUTORUN=1` to hide the automatic summary in one shell.
+Run `terfetch` whenever you want to display it again, or `terfetch --json` for structured output, or `terfetch --help` for its
 standalone options. The implementation lives in `share/terfetch/` so it can be
 extracted into its own repository later.
 

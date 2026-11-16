@@ -468,4 +468,4 @@ db -c 'glxinfo | grep "renderer string"; vulkaninfo --summary | grep -i driverNa
 
 ---
 
-*ternux — Copyright (c) 2026 Sobuj Miah ([@soobujmiah](https://github.com/soobujmiah)) · Apache-2.0*
+*টার্নাক্স — সর্বস্বত্ব (c) ২০২৬ সবুজ মিয়া ([@soobujmiah](https://github.com/soobujmiah)) · অ্যাপাচি-২.০*

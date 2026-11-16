@@ -38,11 +38,12 @@ omitted or reported as unknown; Terfetch does not guess graphics acceleration
 state.
 
 The Ternux installer places the same program in the Termux host and each managed
-guest. Interactive Bash and Zsh startup hooks display it once per terminal
-session; restarting a shell on that same terminal will not print it again.
-Alpine's Ash login shell uses its profile hook. Set `TERFETCH_NO_AUTORUN=1` to
-suppress automatic display in a shell. Running `terfetch` manually always
-prints the summary, including after the startup display. The installer syncs
+guest. Interactive Bash and Zsh startup hooks display it once when a terminal
+shell starts, then export a guard so child shells and terminal integrations do
+not display it again. Alpine's Ash login shell uses its profile hook. Set
+`TERFETCH_NO_AUTORUN=1` to suppress automatic display in a shell. Running
+`terfetch` manually always prints the summary, including after the startup
+display. The installer syncs
 the same standalone program to the Termux host and each managed guest.
 
 The source is `terfetch`. Future extraction into a dedicated repository should

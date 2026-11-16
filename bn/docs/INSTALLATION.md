@@ -93,8 +93,8 @@ pkg update -y && pkg upgrade -y && pkg install -y wget && bash -o pipefail -c 'w
 
 এই কমান্ডগুলো আগে টার্মাক্সের প্যাকেজ হালনাগাদ করে, তারপর নামানোর সরঞ্জাম বসায়।
 `pipefail` থাকায় ফাইল নামানো ব্যর্থ হলে ফাঁকা ব্যাশ চালানোকে সফল ধরা হয় না।
-আংশিক হালনাগাদের পরে `pkg` বা `curl` না চললে `apt update && apt
-full-upgrade -y` দিয়ে টার্মাক্স মেরামত করে আবার চেষ্টা করুন। স্থিতিশীল
+আংশিক হালনাগাদের পরে `pkg` বা `curl` না চললে
+`apt update && apt full-upgrade -y` দিয়ে টার্মাক্স মেরামত করে আবার চেষ্টা করুন। স্থিতিশীল
 স্বাক্ষরিত এপিটি ভান্ডার বন্ধ, তাই `pkg install ternux` এখন পাওয়া যায় না;
 আরসি চ্যানেল শুধু পরীক্ষার জন্য, এর প্রকাশনা-সার্ভারের অবস্থা এখন যাচাই করা হয়নি।
 
@@ -614,4 +614,4 @@ bash install.sh --uninstall
 
 ---
 
-*ternux — Copyright (c) 2026 Sobuj Miah ([@soobujmiah](https://github.com/soobujmiah)) · Apache-2.0*
+*টার্নাক্স — সর্বস্বত্ব (c) ২০২৬ সবুজ মিয়া ([@soobujmiah](https://github.com/soobujmiah)) · অ্যাপাচি-২.০*

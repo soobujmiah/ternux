@@ -27,6 +27,8 @@ assert generated_template == canonical, 'guest Bash hook template differs from t
 assert generated_zsh_template == canonical, 'guest Zsh hook template differs from the host hook'
 assert not any(marker in configurator for marker in ('┌──(', '└─')), 'guest prompts must remain renderable in default Termux:X11 fonts'
 assert '_TERNUX_TERFETCH_AUTORUN_DONE' in configurator, 'Alpine profile must share the autorun guard'
+assert canonical.count('export _TERNUX_TERFETCH_AUTORUN_DONE') == 1, 'host guard must be inherited by child shells'
+assert configurator.count('export _TERNUX_TERFETCH_AUTORUN_DONE') == 3, 'guest Bash, Zsh, and Alpine guards must be inherited by child shells'
 assert '_ternux_terfetch_resize_check' not in canonical, 'Terfetch must not rerun automatically after a command or resize'
 PY
 
@@ -43,6 +45,9 @@ run_shell_check() {
       source "$HOOK"
       [ "$(wc -l < "$LOG")" -eq 1 ]
       [ "$(cat "$LOG.startup")" = 1 ]
+      export -f terfetch
+      bash --noprofile --norc -ic "source \"\$HOOK\"" >/dev/null 2>&1
+      [ "$(wc -l < "$LOG")" -eq 1 ]
       SIZE="30 100"
       [ -z "${PROMPT_COMMAND:-}" ] || [[ "$PROMPT_COMMAND" != *"_ternux_terfetch_resize_check"* ]]
       [ "$(wc -l < "$LOG")" -eq 1 ]
@@ -62,6 +67,8 @@ run_shell_check() {
       source "$HOOK"
       [[ $(wc -l < "$LOG") -eq 1 ]]
       [[ $(cat "$LOG.startup") == 1 ]]
+      [[ ${_TERNUX_TERFETCH_AUTORUN_DONE:-0} == 1 ]]
+      [[ ${parameters[_TERNUX_TERFETCH_AUTORUN_DONE]} == *export* ]]
       SIZE="30 100"
       [[ ${#precmd_functions[@]} -eq 0 ]]
       [[ $(wc -l < "$LOG") -eq 1 ]]

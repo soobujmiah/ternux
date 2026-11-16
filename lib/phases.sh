@@ -2038,6 +2038,7 @@ if [[ -z ${_TERNUX_TERFETCH_HOOK_LOADED:-} ]]; then
   if [[ $- == *i* ]] && [[ -z ${TERFETCH_NO_AUTORUN:-} ]] && [[ ${_TERNUX_TERFETCH_AUTORUN_DONE:-0} != 1 ]] && command -v terfetch >/dev/null 2>&1; then
     TERFETCH_STARTUP_ONCE=1 terfetch
     _TERNUX_TERFETCH_AUTORUN_DONE=1
+    export _TERNUX_TERFETCH_AUTORUN_DONE
   fi
 fi
 # TERNUX TERFETCH START END

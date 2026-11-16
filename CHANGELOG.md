@@ -14,6 +14,7 @@ Notable changes to ternux. Dates are ISO 8601.
 
 ### Terfetch
 
+- Export the one-time startup guard so nested interactive shells and terminal integrations do not repeat the automatic Terfetch display; the explicit `terfetch` command still redraws it on demand.
 - Native Termux now randomly selects Android, a compact Ternux Worklab mark, all 15 managed distro logos, or a large SOBUJ monogram. Guest logos remain fixed to each distro. Terfetch switches to a stacked layout in narrow terminals so logos stay clear of system details. Added environment, architecture, package-manager, locale, init, privilege and user details; values fit terminal width. The CLI help now centers the Ternux name, Workstation In Your Pocket tagline, description and version, and groups its color-coded command tree, aliases, options and examples. The quick guide and system information use matching section colors and aligned fields; distro help lists user/root shell shortcuts. Locale generation and font-cache refresh now have hard deadlines, so a slow post-APT font step cannot leave setup waiting indefinitely.
 
 ### Control Center

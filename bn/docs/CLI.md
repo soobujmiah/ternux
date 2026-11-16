@@ -483,8 +483,9 @@ ternux state [--json]
 ফাস্টফেচ লাগে না। পরিবেশ, স্থাপত্য, ব্যবহারকারী, ভাষা-পরিবেশ, সূচনাপ্রক্রিয়া,
 অধিকার-স্তর, প্যাকেজ-ব্যবস্থাপক ও প্যাকেজের সংখ্যা, কার্নেল, চালুর সময়, শেল,
 টার্মিনাল, প্রসেসর ও গ্রাফিক্স প্রসেসর, মেমরি,
-সংরক্ষণস্থান এবং পাওয়া গেলে যন্ত্র ও পর্দার মাপও দেখায়। একটি শেলে স্বয়ংক্রিয়
-প্রদর্শন বন্ধ করতে
+সংরক্ষণস্থান এবং পাওয়া গেলে যন্ত্র ও পর্দার মাপও দেখায়। নতুন শেল প্রারম্ভে
+একবার এটি দেখায়; শিশু ইন্টারঅ্যাক্টিভ শেলগুলো পুনরায় দেখানো ঠেকানোর নিয়ন্ত্রণ
+পায়। আবার দেখতে `terfetch` চালান। স্বয়ংক্রিয় প্রদর্শন বন্ধ করতে
 `TERFETCH_NO_AUTORUN=1` দিন। কাঠামোবদ্ধ ফলাফলের জন্য `terfetch --json` এবং
 সব বিকল্পের জন্য `terfetch --help` চালান। পরে আলাদা সংগ্রহশালা বানিয়ে এখানকার
 কোড সরানো যাবে; তার জন্য মূল ফাইলগুলো `share/terfetch/`-এ রাখা আছে।
@@ -553,8 +554,9 @@ ternux extension remove stable-diffusion
 অপসারণে শুধু পরিচিত সম্প্রসারণ ডিরেক্টরি মোছা হয়, মডেলের ওজন থাকে।
 `llama-htp-experimental` সীমিত পরীক্ষামূলক এসএম৮৭৩৫/ভি৭৩ পথে চলে; এটি
 সমর্থিত প্রকাশনা-সুবিধা নয় এবং স্বয়ংক্রিয় প্রসেসর/জিপিইউ বিকল্প নেই।
-[প্রসেসর/ভলকান নির্দেশিকা](https://github.com/soobujmiah/ternux/blob/main/bn/guides/llama-vulkan-extension.md)
-ও [Stable Diffusion guide](https://github.com/soobujmiah/ternux/blob/main/bn/guides/stable-diffusion-vulkan-extension.md) এবং [HTP guide](https://github.com/soobujmiah/ternux/blob/main/bn/guides/llama-htp-experimental.md) দেখুন।
+[প্রসেসর/ভলকান নির্দেশিকা](https://github.com/soobujmiah/ternux/blob/main/bn/guides/llama-vulkan-extension.md),
+[স্টেবল ডিফিউশন নির্দেশিকা](https://github.com/soobujmiah/ternux/blob/main/bn/guides/stable-diffusion-vulkan-extension.md)
+এবং [এইচটিপি নির্দেশিকা](https://github.com/soobujmiah/ternux/blob/main/bn/guides/llama-htp-experimental.md) দেখুন।
 
 ### `tx update`
 
@@ -656,4 +658,4 @@ lib/ui.sh           ← ইনস্টলার রেন্ডারার: da
 
 ---
 
-*ternux — সর্বস্বত্ব (c) ২০২৬ Sobuj Miah ([@soobujmiah](https://github.com/soobujmiah)) · Apache-2.0 লাইসেন্স*
+*টার্নাক্স — সর্বস্বত্ব (c) ২০২৬ সবুজ মিয়া ([@soobujmiah](https://github.com/soobujmiah)) · অ্যাপাচি-২.০ লাইসেন্স*
