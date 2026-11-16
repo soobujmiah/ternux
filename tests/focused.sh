@@ -624,7 +624,7 @@ fi
 # Package setup benchmarks known mirrors without opening the interactive
 # termux-change-repo dialog inside the frame.
 if env TERNUX_STATE_DIR="$TMP/state-repos" HOME="$TMP/home-repos" \
-  PREFIX="$TMP/prefix-repos" MARKER="$TMP/change-repo-called" STORAGE_MARKER="$TMP/storage-permission-called" bash -c '
+  PREFIX="$TMP/prefix-repos" TMPDIR="$TMP/prefix-repos/tmp" MARKER="$TMP/change-repo-called" STORAGE_MARKER="$TMP/storage-permission-called" bash -c '
     . "$1/lib/phases.sh"
     mkdir -p "$PREFIX/etc/apt" "$PREFIX/etc/termux/mirrors/asia"
     printf "%s\n" "deb https://packages.termux.dev/apt/termux-main stable main" > "$PREFIX/etc/apt/sources.list"
@@ -1712,13 +1712,13 @@ fi
 for hash_case in matching changed; do
   if env TERNUX_STATE_DIR="$TMP/state-hash-$hash_case" \
     HOME="$TMP/home-hash-$hash_case" bash -c '
-      mkdir -p "$HOME" "$TERNUX_STATE_DIR"
-      cat > "$HOME/x.sh" <<"EOF"
+      mkdir -p "$HOME" "$TERNUX_STATE_DIR/distros/debian"
+      cat > "$TERNUX_STATE_DIR/distros/debian/launcher.sh" <<"EOF"
 #!/usr/bin/env bash
 # --user alice
 export MESA_LOADER_DRIVER_OVERRIDE=zink
 EOF
-      chmod +x "$HOME/x.sh"
+      chmod +x "$TERNUX_STATE_DIR/distros/debian/launcher.sh"
       . "$1/lib/repair.sh"
       hash_case="$2"
       scratch="$3"
