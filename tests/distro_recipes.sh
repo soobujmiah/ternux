@@ -21,6 +21,10 @@ tnx_guest_login() {
       script_num=$((script_num + 1))
       printf '%s\n' "${@: -1}" > "$TMP/guest-${distro}-${script_num}.sh"
       break
+    elif [ "$arg" = -s ]; then
+      script_num=$((script_num + 1))
+      cat > "$TMP/guest-${distro}-${script_num}.sh"
+      break
     fi
   done
   return 0

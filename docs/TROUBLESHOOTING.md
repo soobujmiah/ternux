@@ -18,6 +18,7 @@ more than one cause, so collect the named evidence before applying a repair.
 | No internet inside Debian | DNS not inherited over PRoot | [No network in the container](#no-network-in-the-container) |
 | `Waiting for Termux-X11 display socket…` forever | Display :0 never appeared | [Display never appears](#display-never-appears) |
 | `Error: unrecognized option: '-c'` when starting | Old launcher against newer proot-distro | [proot-distro says option -c is unrecognized](#proot-distro-says-option--c-is-unrecognized) |
+| `proot-distro: Argument list too long` during Debian setup | The desktop asset payload exceeded Linux's per-argument limit | [proot-distro argument list is too long](#proot-distro-argument-list-is-too-long) |
 | `apt` install fails on some packages | package/repository mismatch for the Debian release | [apt failures](#apt-failures) |
 | `ternux install --resume` skips a guest that was removed | stale per-guest phase metadata from an older install | [Resume after removing a guest](#resume-after-removing-a-guest) |
 | `pkg upgrade` errors on `openssl.cnf`, then **every** install fails | dpkg conffile prompt with closed stdin | [openssl.cnf conffile cascade](#opensslcnf-conffile-cascade) |
@@ -25,6 +26,20 @@ more than one cause, so collect the named evidence before applying a repair.
 | `curl: CANNOT LINK … SSL_set_quic_tls_transport_params` | partial upgrade — curl/libngtcp2 newer than openssl | [curl cannot link after an upgrade](#curl-cannot-link-after-an-upgrade) |
 | Everything was fine, now it's broken after an upgrade | Mesa packages got replaced | [After an upgrade the GPU path is gone](#after-an-upgrade-the-gpu-path-is-gone) |
 | Installer dashboard flickers, log lines overlap the frame | An installer older than the current renderer, or a terminal whose size cannot be measured | [The installer screen flickers or the frame is broken](#the-installer-screen-flickers-or-the-frame-is-broken) |
+
+---
+
+## proot-distro argument list is too long
+
+**Symptom:** the Debian + Xfce phase stops with
+`proot-distro: Argument list too long` after the guest has been created.
+
+**Cause:** older installer code passed the compressed desktop asset bundle as
+one `sh -c` argument, exceeding Linux's per-argument size limit.
+
+**Fix:** rerun the one-command installer from the README. The current installer
+streams that setup script into the guest over stdin and automatically resumes
+the incomplete guest from the failed phase. Do not uninstall or remove Debian.
 
 ---
 
@@ -341,6 +356,10 @@ upgrade, reinstall the linked packages from the refreshed index:
 ```bash
 apt install --reinstall curl libcurl openssl openssl-tool
 ```
+
+If Termux setup succeeded but Debian desktop setup stopped, rerun the source
+installer command above. It downloads current code and resumes the incomplete
+guest from the failed phase; do not remove the Debian guest.
 
 `ternux repair` uses the Termux `apt-get` wrapper to refresh indexes and run a
 full upgrade when curl is missing or cannot start, then verifies curl again.

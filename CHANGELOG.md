@@ -15,6 +15,7 @@ Notable changes to ternux. Dates are ISO 8601.
 ### Installer
 
 - The one-command installer now retries the script download with wget when curl cannot start or fetch it. The standalone bootstrap and CLI fallback share a checksum-verified source snapshot kept in sync with current installer and CLI code; regression tests verify the fallback and snapshot freshness.
+- Large desktop setup scripts now stream into the guest over stdin instead of exceeding Linux's per-argument limit. Installation guidance explains how rerunning the current one-command installer resumes an interrupted guest.
 
 ### Terfetch
 

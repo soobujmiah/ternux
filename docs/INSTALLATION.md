@@ -68,6 +68,9 @@ optional-workload chooser. If no controlling terminal is available, it installs
 the base profile. Add `--yes` for an explicitly
 unattended base install. Read the output: a required-phase failure stops its dependants, while
 an optional/advisory failure is reported and leaves a nonzero final status.
+If a required phase stops, rerun the same one-command installer. It downloads
+the current code and automatically resumes the incomplete guest from the failed
+phase; do not remove the guest first.
 
 The installer draws one persistent screen — device panel, step progress, live
 log window, elapsed time — and keeps it until the final status. Package output

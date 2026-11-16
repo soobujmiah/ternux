@@ -132,6 +132,27 @@ else
   not_ok "guest login exposes Android shared storage at /sdcard without sharing Termux HOME"
 fi
 
+# Desktop setup embeds a compressed asset bundle larger than Linux's per-arg
+# limit. Keep the script on stdin and leave only small login flags in argv.
+if env TERNUX_STATE_DIR="$TMP/state-guest-script-stream" HOME="$TMP/home-guest-script-stream" \
+  LOGIN_ARGS="$TMP/guest-script-args" LOGIN_INPUT="$TMP/guest-script-input" \
+  LOGIN_EXPECTED="$TMP/guest-script-expected" bash -c '
+    . "$1/lib/core.sh"
+    tnx_guest_login() { printf "%s\n" "$@" > "$LOGIN_ARGS"; cat > "$LOGIN_INPUT"; }
+    payload="$(printf "%262144s" "" | tr " " x)"
+    printf "%s\n" "$payload" > "$LOGIN_EXPECTED"
+    tnx_guest_run_script "$payload" --shared-tmp || exit
+    cmp -s "$LOGIN_EXPECTED" "$LOGIN_INPUT" || exit
+    grep -qx -- "--shared-tmp" "$LOGIN_ARGS" || exit
+    grep -qx -- "sh" "$LOGIN_ARGS" || exit
+    grep -qx -- "-s" "$LOGIN_ARGS" || exit
+    [ "$(wc -l < "$LOGIN_ARGS")" -eq 4 ]
+  ' _ "$ROOT"; then
+  ok "large guest setup scripts stream over stdin instead of exceeding argv limits"
+else
+  not_ok "large guest setup scripts stream over stdin instead of exceeding argv limits"
+fi
+
 # The default shared-storage bind is present alongside a validated optional
 # subdirectory grant; tampered entries outside the root fail closed.
 if env TERNUX_STATE_DIR="$TMP/state-storage-grant" HOME="$TMP/home-storage-grant" \
@@ -1128,7 +1149,7 @@ assert "apk add sudo bash shadow musl-utils nano mousepad galculator evince font
 assert "if python3 -c 'import Xlib' >/dev/null 2>&1; then" in desktop_phase
 assert "window_fit_exec=/usr/local/bin/ternux-window-fit-x11" in desktop_phase
 assert "python3-xlib" in desktop_phase and "py3-xlib" in desktop_phase
-assert "tnx_guest_login --shared-tmp -- sh -c" in desktop_phase
+assert 'tnx_guest_run_script "$guest_setup_script" --shared-tmp' in desktop_phase
 assert "pkg_retry()" in desktop_phase and "Acquire::Retries=3" in desktop_phase
 assert "pkg_retry apk add firefox-esr" in desktop_phase
 assert "mktemp /tmp/ternux-sudoers.XXXXXX" in desktop_phase

@@ -15,6 +15,7 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 ### ইনস্টলার
 
 - এক-কমান্ড ইনস্টলারে `curl` চালু না হলে বা ফাইল নামাতে ব্যর্থ হলে `wget` দিয়ে আবার চেষ্টা হয়। Standalone bootstrap ও CLI fallback একই checksum-verified source snapshot ব্যবহার করে; regression test downloader fallback এবং snapshot-এর বর্তমান code-এর সঙ্গে মিল যাচাই করে।
+- বড় desktop setup script এখন Linux-এর per-argument সীমা অতিক্রম না করে stdin দিয়ে গেস্টে যায়। ইনস্টলেশন থেমে গেলে বর্তমান এক-কমান্ড installer আবার চালিয়ে অসম্পূর্ণ গেস্ট চালু করার নির্দেশনাও যোগ হয়েছে।
 
 ### টারফেচ
 
