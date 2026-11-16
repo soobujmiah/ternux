@@ -297,7 +297,8 @@ tnx_phase_packages() {
     return 1
   fi
   tnx_spin_run "Enable X11 and TUR repositories" tnx_termux_pkg install -y $APT_FORCE x11-repo tur-repo || rc=1
-  tnx_spin_run "Install the Termux:X11 client" bash -c "LD_LIBRARY_PATH= pkg install -y $APT_FORCE termux-x11-nightly || LD_LIBRARY_PATH= pkg install -y $APT_FORCE termux-x11" || rc=1
+  tnx_spin_run "Install the Termux:X11 nightly client" tnx_termux_pkg install -y $APT_FORCE termux-x11-nightly ||
+    tnx_spin_run "Install the Termux:X11 stable client" tnx_termux_pkg install -y $APT_FORCE termux-x11 || rc=1
   tnx_spin_run "Install PulseAudio, PRoot, VirGL and core tools" _tnx_install_core_packages "$APT_FORCE" || rc=1
   if ! tnx_spin_run "Verify Termux download tools" _tnx_host_download_tools_smoke; then
     tnx_warn "A Termux download tool still fails to start; running apt-get full-upgrade to repair library versions."

@@ -267,6 +267,58 @@ _tnx_uninstall_state() {
   return "$rc"
 }
 
+_tnx_uninstall_termux_packages() {
+  local prefix="${PREFIX:-/data/data/com.termux/files/usr}"
+  local ledger_dir="$prefix/var/lib/ternux" ledger package guests="" tmp
+  local -a owned=() remove=() keep=()
+  ledger="$(tnx_termux_package_ledger)"
+  [ -e "$ledger" ] || [ -L "$ledger" ] || return 0
+  [ ! -L "$prefix/var" ] && [ ! -L "$prefix/var/lib" ] &&
+    [ ! -L "$ledger_dir" ] && [ ! -L "$ledger" ] && [ -f "$ledger" ] || {
+    tnx_fail "Refusing unsafe Termux package ownership ledger: $ledger"
+    return 1
+  }
+  while IFS= read -r package || [ -n "$package" ]; do
+    [[ "$package" =~ ^[a-z0-9][a-z0-9+.-]*$ ]] || {
+      tnx_fail "Malformed package name in Ternux ownership ledger; preserving it."
+      return 1
+    }
+    owned+=("$package")
+  done < "$ledger"
+  [ "${#owned[@]}" -gt 0 ] || { rm -f -- "$ledger"; return $?; }
+
+  for package in "${owned[@]}"; do
+    if [ "$package" = proot-distro ] && tnx_has_cmd proot-distro; then
+      guests="$(proot-distro list -q 2>/dev/null)" || {
+        tnx_warn "Could not verify remaining PRoot guests; keeping proot-distro installed."
+        keep+=("$package"); continue
+      }
+      if [ -n "$guests" ]; then
+        tnx_warn "Keeping proot-distro because unregistered PRoot guests remain."
+        keep+=("$package"); continue
+      fi
+    fi
+    [ "$(dpkg-query -W -f='${db:Status-Status}' "$package" 2>/dev/null || true)" = installed ] && remove+=("$package")
+  done
+
+  if [ "${#remove[@]}" -gt 0 ]; then
+    tnx_termux_pkg uninstall -y "${remove[@]}" || {
+      tnx_fail "Could not remove Ternux-owned Termux packages; preserving the ownership ledger."
+      return 1
+    }
+  fi
+  if [ "${#keep[@]}" -gt 0 ]; then
+    tmp="$(mktemp "$ledger_dir/.owned-packages.XXXXXX")" || return 1
+    printf '%s\n' "${keep[@]}" > "$tmp" && chmod 600 "$tmp" && mv -f -- "$tmp" "$ledger" || {
+      rm -f -- "$tmp"
+      return 1
+    }
+    return 1
+  fi
+  rm -f -- "$ledger" || return 1
+  rmdir "$ledger_dir" 2>/dev/null || true
+}
+
 _tnx_uninstall_host_cli() {
   local prefix="${PREFIX:-/data/data/com.termux/files/usr}"
   local bin="$prefix/bin/ternux" tx="$prefix/bin/tx" lib="$prefix/lib/ternux"
@@ -564,6 +616,8 @@ EOF
       _tnx_uninstall_stop || rc=1
       _tnx_uninstall_launcher || rc=1
       if _tnx_uninstall_all_managed_guests; then
+        _tnx_uninstall_termux_packages || rc=1
+        [ "$rc" -eq 0 ] || { tnx_fail "Some Ternux-owned Termux packages remain; preserving Ternux state and CLI."; return 1; }
         _tnx_uninstall_stale_asset_stages || rc=1
         _tnx_uninstall_state || rc=1
         _tnx_uninstall_host_cli || rc=1

@@ -2050,6 +2050,47 @@ fi
 
 # Alias removal uses a same-directory replacement, preserves file mode, and
 # refuses malformed marker order or symlink targets without truncation.
+if env TERNUX_STATE_DIR="$TMP/state-owned-packages" PREFIX="$TMP/prefix-owned-packages" HOME="$TMP/home-owned-packages" MOCK_PACKAGES="$TMP/mock-packages" bash -c '
+  mkdir -p "$HOME" "$TERNUX_STATE_DIR"
+  : > "$MOCK_PACKAGES"
+  printf "%s\n" preexisting > "$MOCK_PACKAGES"
+  dpkg-query() {
+    local package="${!#}"
+    grep -qxF "$package" "$MOCK_PACKAGES" && { printf "installed\n"; return 0; }
+    return 1
+  }
+  pkg() {
+    case "$1" in
+      install) printf "%s\n" newly-installed >> "$MOCK_PACKAGES" ;;
+      uninstall)
+        shift
+        local package tmp
+        for package in "$@"; do
+          case "$package" in -*) continue ;; esac
+          tmp="${MOCK_PACKAGES}.tmp"
+          grep -vxF "$package" "$MOCK_PACKAGES" > "$tmp" || true
+          mv "$tmp" "$MOCK_PACKAGES"
+        done
+        ;;
+      *) return 2 ;;
+    esac
+  }
+  . "$1/lib/core.sh"
+  tnx_termux_pkg install -y -o APT::Color=1 preexisting newly-installed || exit
+  ledger="$PREFIX/var/lib/ternux/owned-packages"
+  [ "$(cat "$ledger")" = newly-installed ] || exit
+  . "$1/lib/uninstall.sh"
+  _tnx_uninstall_state >/dev/null || exit
+  [ -f "$ledger" ] || exit
+  _tnx_uninstall_termux_packages || exit
+  [ ! -e "$ledger" ] &&
+  grep -qxF preexisting "$MOCK_PACKAGES" && ! grep -qxF newly-installed "$MOCK_PACKAGES"
+' _ "$ROOT"; then
+  ok "Termux uninstall removes only newly installed packages recorded by Ternux"
+else
+  not_ok "Termux uninstall removes only newly installed packages recorded by Ternux"
+fi
+
 if env TERNUX_STATE_DIR="$TMP/state-uninstall-alias" HOME="$TMP/home-uninstall-alias" bash -c '
   mkdir -p "$HOME" "$TERNUX_STATE_DIR"
   . "$1/lib/uninstall.sh"
