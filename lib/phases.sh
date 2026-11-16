@@ -2248,8 +2248,6 @@ tnx_phase_aliases() {
 
   [ -e "$RC_FILE" ] || touch "$RC_FILE"
   RC_FILE="$(realpath -e -- "$RC_FILE" 2>/dev/null)" || { tnx_fail "Cannot resolve shell configuration path."; return 1; }
-  _tnx_install_native_startup_auth "$HOME/.bashrc" "$distro" "$user_name" || return 1
-  _tnx_install_native_startup_auth "$HOME/.zshrc" "$distro" "$user_name" || return 1
   if grep -q '^# ==== TERNUX ALIASES ====$' "$RC_FILE" 2>/dev/null; then
     local aliases_tmp aliases_mode
     aliases_mode="$(stat -c '%a' "$RC_FILE" 2>/dev/null || echo 600)"
@@ -2407,6 +2405,10 @@ ALIASEOF
   touch "$HOME/.hushlogin"
   _tnx_install_terfetch_hook "$HOME/.bashrc" || return 1
   _tnx_install_terfetch_hook "$HOME/.zshrc" || return 1
+  # Put native authentication after the automatic Terfetch banner so the
+  # device summary is visible first and the startup prompt follows it.
+  _tnx_install_native_startup_auth "$HOME/.bashrc" "$distro" "$user_name" || return 1
+  _tnx_install_native_startup_auth "$HOME/.zshrc" "$distro" "$user_name" || return 1
   tnx_ok "Commands configured: tx, xgo, killx, distro user/root shells (including dbroot/ubroot/alproot), sysmon"
 }
 
@@ -3844,17 +3846,17 @@ tnx_install_single() {
 
   if ! tnx_install_phase_done root_password "$distro_choice"; then
     TERNUX_ROOT_PASSWORD=""
-    tnx_prompt_root_password 300 || { tnx_fail "Interactive terminal required to set the guest root password."; return 2; }
-  fi
-  if ! tnx_install_phase_done user_password "$distro_choice"; then
-    if [ -z "${TERNUX_USER_PASSWORD:-}" ]; then
-      tnx_prompt_user_password 300 || { tnx_fail "Interactive terminal required to set the guest sudo password."; return 2; }
-    fi
   fi
   if ! tnx_install_phase_done startup_password "$distro_choice"; then
     if [ -z "${TERNUX_STARTUP_PASSWORD:-}" ]; then
       tnx_prompt_startup_password 300 || { tnx_fail "Interactive terminal required to set the shared startup password."; return 2; }
     fi
+  fi
+  if ! tnx_install_phase_done user_password "$distro_choice" && [ -z "${TERNUX_USER_PASSWORD:-}" ]; then
+    tnx_prompt_user_password 300 || { tnx_fail "Interactive terminal required to set the guest sudo password."; return 2; }
+  fi
+  if ! tnx_install_phase_done root_password "$distro_choice"; then
+    tnx_prompt_root_password 300 || { tnx_fail "Interactive terminal required to set the guest root password."; return 2; }
   fi
 
   [[ "$user_name" =~ ^[a-z_][a-z0-9_-]{0,31}$ ]] || {
@@ -4272,12 +4274,12 @@ tnx_install() {
   done
 
   if [ "$wants_yes" -eq 0 ]; then
-    TERNUX_ROOT_PASSWORD=""
-    tnx_prompt_root_password 300 || { tnx_fail "Interactive terminal required to set the guest root password."; return 2; }
-    TERNUX_USER_PASSWORD=""
-    tnx_prompt_user_password 300 || { tnx_fail "Interactive terminal required to set the guest sudo password."; return 2; }
     TERNUX_STARTUP_PASSWORD=""
     tnx_prompt_startup_password 300 || { tnx_fail "Interactive terminal required to set the shared startup password."; return 2; }
+    TERNUX_USER_PASSWORD=""
+    tnx_prompt_user_password 300 || { tnx_fail "Interactive terminal required to set the guest sudo password."; return 2; }
+    TERNUX_ROOT_PASSWORD=""
+    tnx_prompt_root_password 300 || { tnx_fail "Interactive terminal required to set the guest root password."; return 2; }
     batch_summary=("Termux shell" "$batch_shell")
     for forwarded_index in "${!normalized[@]}"; do
       if [ "${batch_workloads[forwarded_index]}" = none ]; then

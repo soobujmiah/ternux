@@ -1064,6 +1064,12 @@ assert 'state_button("maximize", state, inactive=inactive, toggled=True)' in xfw
 assert "image-style --create -t int -s 4" in (root / "lib/phases.sh").read_text()
 phases = (root / "lib/phases.sh").read_text()
 desktop_lifecycle = (root / "lib/desktop.sh").read_text()
+alias_phase = phases.split("tnx_phase_aliases() {", 1)[1].split("# Phase 10", 1)[0]
+assert alias_phase.index('_tnx_install_terfetch_hook "$HOME/.bashrc"') < alias_phase.index('_tnx_install_native_startup_auth "$HOME/.bashrc"')
+single_install = phases.split("tnx_install_single() {", 1)[1].split("tnx_install() {", 1)[0]
+assert single_install.index('tnx_prompt_startup_password 300') < single_install.index('tnx_prompt_user_password 300')
+multi_install = phases.split("tnx_install() {", 1)[1].split("tnx_cmd_install()", 1)[0]
+assert multi_install.index('tnx_prompt_startup_password 300') < multi_install.index('tnx_prompt_user_password 300')
 assert "tnx_cleanup_window_fit_sessions \"$distro\"" in desktop_lifecycle
 assert "ternux-window-fit-x11" in desktop_lifecycle and "proot-distro kill \"$pid\"" in desktop_lifecycle
 assert phases.count("taskmanager-performance-v1") == 1
