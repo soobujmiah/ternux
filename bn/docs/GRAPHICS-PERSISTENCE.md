@@ -1,109 +1,109 @@
 ---
-title: "আপডেটের পরেও GPU driver ধরে রাখা"
-description: "নতুন Adreno ডিভাইসে কেন নতুন Turnip দরকার, package update কীভাবে তা মুছে দিতে পারে, এবং যে apt-নিরাপদ layout তা আটকায়।"
+title: "হালনাগাদের পরেও জিপিইউ ড্রাইভার ধরে রাখা"
+description: "নতুন অ্যাড্রেনো যন্ত্রে কেন নতুন টার্নিপ দরকার, প্যাকেজ হালনাগাদ কীভাবে তা মুছতে পারে এবং এপিটি-নিরাপদ বিন্যাসে কীভাবে তা ঠেকানো যায়।"
 lang: "bn"
 alt_url: "/docs/GRAPHICS-PERSISTENCE.html"
 ---
 
-নতুন Adreno hardware-এ Debian-এর দেওয়া Vulkan driver GPU-কে একেবারেই শনাক্ত
-করতে না-ও পারে। তখন ternux-এর Zink route-এর নিচে কোনো Vulkan device থাকে না যার
-উপর OpenGL দাঁড়াবে — অর্থাৎ নতুন Turnip কোনো performance tweak নয়, GPU ব্যবহারযোগ্য
-থাকার কারণই সেটি। এই পৃষ্ঠা দেখায় কীভাবে সেটি এমনভাবে বসাবেন যাতে সাধারণ একটি
-package update তা কেড়ে নিতে না পারে — কারণ driver ফিরে গেলে সেটা চোখে পড়া কঠিন:
-desktop চালু হতেই থাকে, শুধু ধীর হয়ে যায় বা accelerate হয় না।
+নতুন অ্যাড্রেনো হার্ডওয়্যারে ডেবিয়ানের ভলকান ড্রাইভার জিপিইউ শনাক্ত করতে নাও
+পারে। তখন টার্নাক্সের জিঙ্ক পথে ব্যবহারের মতো ভলকান যন্ত্র থাকে না, যার ওপর
+ওপেনজিএল চলবে—অর্থাৎ নতুন টার্নিপ কর্মদক্ষতার সামান্য উন্নতি নয়, জিপিইউ
+ব্যবহারযোগ্য রাখার শর্ত। এই পাতায় দেখানো হয়েছে কীভাবে এটি এমনভাবে বসাবেন,
+যাতে সাধারণ প্যাকেজ হালনাগাদ মুছে না দেয়। ড্রাইভার সরে গেলে তা বোঝা কঠিন:
+ডেস্কটপ চালু থাকে, শুধু ধীর হয় বা ত্বরণ পায় না।
 
-> **ডিভাইস প্রমাণ, ২০২৬-১১-০৭, Redmi Turbo 4 Pro (Adreno 825):** Debian trixie-এর
-> `mesa-vulkan-drivers 25.0.7-2+deb13u1`-এ `vulkaninfo` **কোনো Adreno device
-> পায়নি** — শুধু `llvmpipe`, `PHYSICAL_DEVICE_TYPE_CPU` হিসেবে। Ternux-এর staged
-> upstream Mesa 27.0.0 archive-এ Vulkan এবং Zink GLX দুটোতেই Adreno 825 দেখা যায়।
-> একই model/settings-এ তিন-run median ছিল staged 27.0 driver-এ 27.2 tok/s এবং
-> installed 26.3 driver-এ 26.6 tok/s। এটি এক device-এর short test, sustained
-> performance claim নয়; বিস্তারিত [প্রমাণ ও বেঞ্চমার্ক](BENCHMARKS.html)-এ।
+> **যন্ত্রের প্রমাণ, ২০২৬-১১-০৭, রেডমি টার্বো ৪ প্রো (অ্যাড্রেনো ৮২৫):** ডেবিয়ান
+> ট্রিক্সির `mesa-vulkan-drivers 25.0.7-2+deb13u1`-এ `vulkaninfo` **কোনো অ্যাড্রেনো
+> যন্ত্র পায়নি**—শুধু `llvmpipe`, `PHYSICAL_DEVICE_TYPE_CPU` ধরনে। টার্নাক্সে
+> প্রস্তুত করা মেসা ২৭.০.০ আর্কাইভে ভলকান ও জিঙ্ক জিএলএক্স—দুই পথেই অ্যাড্রেনো
+> ৮২৫ দেখা যায়। একই মডেল/বিন্যাসে তিন চালনার মধ্যম ফল ছিল প্রস্তুত ২৭.০ ড্রাইভারে
+> ২৭.২ টোকেন/সেকেন্ড এবং আগে বসানো ২৬.৩ ড্রাইভারে ২৬.৬ টোকেন/সেকেন্ড। এটি একটি
+> যন্ত্রে স্বল্প পরীক্ষা, দীর্ঘস্থায়ী গতির দাবি নয়; বিস্তারিত
+> [প্রমাণ ও কর্মদক্ষতা পরীক্ষা](BENCHMARKS.html)-তে।
 
-## Ternux কীভাবে graphics readiness জানায়
+## টার্নাক্স কীভাবে গ্রাফিক্স প্রস্তুতি জানায়
 
-`ternux info` এবং `ternux profile` Vulkan device readiness ও OpenGL rendering
-আলাদা করে দেখায়। KGSL node, Vulkan loader বা ICD manifest দেখা গেলেই hardware
-acceleration বলা হয় না। Ternux Debian guest-এর ভেতর প্রযোজ্য KGSL device bind
-করে `vulkaninfo --summary` চালায়, তারপর physical device-এর ধরন ও driver যাচাই
-করে। `vulkan_state`-এর মান `NOT_DETECTED`, `HARDWARE_AVAILABLE`,
+`ternux info` ও `ternux profile` ভলকান যন্ত্রের প্রস্তুতি এবং ওপেনজিএল রেন্ডারিং
+আলাদা করে দেখায়। কেজিএসএল নোড, ভলকান লোডার বা আইসিডি তালিকা দেখা গেলেই হার্ডওয়্যার
+ত্বরণ প্রমাণ হয় না। টার্নাক্স ডেবিয়ান গেস্টে প্রযোজ্য কেজিএসএল যন্ত্র যুক্ত করে
+`vulkaninfo --summary` চালায়, তারপর ভৌত যন্ত্রের ধরন ও ড্রাইভার যাচাই করে।
+`vulkan_state`-এর মান `NOT_DETECTED`, `HARDWARE_AVAILABLE`,
 `LOADER_MISSING`, `DRIVER_MISSING`, `ICD_MISSING`,
 `DEVICE_ENUMERATION_FAILED`, `VULKAN_READY` অথবা `SOFTWARE_FALLBACK` হতে পারে।
 `graphics_state`-এ `OPENGL_ACCELERATION_READY` কেবল তখনই আসে, যখন `glxinfo`
-চলমান non-software renderer শনাক্ত করে।
+চলমান হার্ডওয়্যার-রেন্ডারার শনাক্ত করে।
 
-সংযুক্ত Redmi Turbo 4 Pro-তে Termux host-এর Vulkan probe
-`VK_ERROR_INCOMPATIBLE_DRIVER` দিয়ে ব্যর্থ হয়েছে; Debian guest-এর probe Turnip
-দিয়ে Adreno 825 এবং আলাদা llvmpipe device enumerate করেছে। তাই source CLI
-`vulkan_state=VULKAN_READY` দেখিয়েছে এবং live X11 probe
-`zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP))` শনাক্ত করেছে। এগুলো এই
-ডিভাইসের বর্তমান observation; অন্য ডিভাইসের জন্য দাবি নয়।
+সংযুক্ত রেডমি টার্বো ৪ প্রোতে টার্মাক্স হোস্টের ভলকান পরীক্ষা
+`VK_ERROR_INCOMPATIBLE_DRIVER` দিয়ে ব্যর্থ হয়েছে; ডেবিয়ান গেস্টের পরীক্ষায়
+টার্নিপ দিয়ে অ্যাড্রেনো ৮২৫ এবং আলাদা এলএলভিএমপাইপ যন্ত্র তালিকাভুক্ত হয়েছে।
+তাই উৎসের সিএলআই `vulkan_state=VULKAN_READY` দেখিয়েছে এবং সক্রিয় এক্স১১ পরীক্ষায়
+`zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP))` শনাক্ত হয়েছে। এগুলো এই যন্ত্রের
+বর্তমান পর্যবেক্ষণ; অন্য যন্ত্রের জন্য দাবি নয়।
 
-## তিনটি layout: Debian, distro overlay, এবং package-এ লেখা driver
+## তিনটি বিন্যাস: ডেবিয়ান টার্নিপ, ডিস্ট্রো ওভারলে ও প্যাকেজ-নিয়ন্ত্রিত ড্রাইভার
 
-| | Debian Turnip layout | Distro bundle overlay | Fragile layout |
-|---|---|---|
-| Driver | `/usr/local/lib/aarch64-linux-gnu/libvulkan_freedreno.so` | `/usr/local/lib/ternux/<Mesa bundle>/lib/aarch64-linux-gnu/libvulkan_freedreno.so` | `/usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so` |
-| ICD manifest | `/usr/local/share/vulkan/icd.d/ternux_freedreno_icd.json` | `<overlay>/share/vulkan/icd.d/ternux_freedreno_icd.json` | `/usr/share/vulkan/icd.d/freedreno_icd.aarch64.json` |
-| distro package-এর মালিকানায়? | না — `/usr/local` dpkg-এর আওতার বাইরে | না — versioned bundle `/usr/local/lib/ternux`-এ থাকে | হ্যাঁ — path-টি `mesa-vulkan-drivers`-এর |
-| runtime selection | Loader search path | Ternux desktop matching Mesa-এর জন্য `LD_LIBRARY_PATH`, `LIBGL_DRIVERS_PATH`, `VK_DRIVER_FILES` সেট করে | distro default |
-| `apt upgrade`-এর পরে | অপরিবর্তিত | অপরিবর্তিত; distro Mesa file-এ হাত দেয় না | distro সংস্করণ দিয়ে প্রতিস্থাপিত |
-| `dpkg -V mesa-vulkan-drivers` | চুপ | চুপ | driver-এর জন্য `??5??????` জানায় |
+| | ডেবিয়ান টার্নিপ বিন্যাস | ডিস্ট্রো-সমষ্টির ওভারলে | ভঙ্গুর বিন্যাস |
+|---|---|---|---|
+| ড্রাইভার | `/usr/local/lib/aarch64-linux-gnu/libvulkan_freedreno.so` | `/usr/local/lib/ternux/<Mesa bundle>/lib/aarch64-linux-gnu/libvulkan_freedreno.so` | `/usr/lib/aarch64-linux-gnu/libvulkan_freedreno.so` |
+| আইসিডি তালিকা | `/usr/local/share/vulkan/icd.d/ternux_freedreno_icd.json` | `<overlay>/share/vulkan/icd.d/ternux_freedreno_icd.json` | `/usr/share/vulkan/icd.d/freedreno_icd.aarch64.json` |
+| ডিস্ট্রো প্যাকেজের মালিকানায়? | না — `/usr/local` ডিপিকেজির আওতার বাইরে | না — সংস্করণযুক্ত সমষ্টি `/usr/local/lib/ternux`-এ থাকে | হ্যাঁ — পথটি `mesa-vulkan-drivers`-এর |
+| চালনার সময় নির্বাচন | লোডারের খোঁজার পথ | টার্নাক্স ডেস্কটপ মেলানো মেসার জন্য `LD_LIBRARY_PATH`, `LIBGL_DRIVERS_PATH`, `VK_DRIVER_FILES` বসায় | ডিস্ট্রোর প্রাথমিক মান |
+| `apt upgrade`-এর পরে | অপরিবর্তিত | অপরিবর্তিত; ডিস্ট্রোর মেসা ফাইলে হাত দেয় না | ডিস্ট্রো সংস্করণ দিয়ে প্রতিস্থাপিত |
+| `dpkg -V mesa-vulkan-drivers` | নীরব | নীরব | ড্রাইভারের জন্য `??5??????` জানায় |
 
-Fragile layout ততক্ষণ কাজ করে যতক্ষণ `mesa-vulkan-drivers` স্পর্শ করে এমন প্রথম
-package operation না ঘটে — একটি upgrade, একটি security update, কিংবা
-`apt install --reinstall`। dpkg তখন নিজের file ফিরিয়ে দেয়, যেটা তার কাজই, আর নতুন
-driver চলে যায়।
+ভঙ্গুর বিন্যাসটি চলে যতক্ষণ না `mesa-vulkan-drivers`-কে ছোঁয়া প্রথম প্যাকেজের
+কাজটি হয়—হালনাগাদ, নিরাপত্তা-হালনাগাদ অথবা `apt install --reinstall`। তখন ডিপিকেজি
+নিজস্ব ফাইল ফিরিয়ে দেয়—এটাই তার কাজ—আর নতুন ড্রাইভার সরে যায়।
 
-Vulkan loader `/usr/share/vulkan/icd.d`-এর পাশাপাশি `/usr/local/share/vulkan/icd.d`-ও
-খোঁজে, তাই Debian layout-এ environment variable লাগে না। Ubuntu ও অন্য যে
-profile-এ full distro-matched Mesa bundle লাগে, সেগুলো versioned
-`/usr/local/lib/ternux` overlay-তে থাকে। Ternux desktop matching Mesa library,
-GL driver directory ও একটিমাত্র Vulkan ICD বেছে নেয়। Archive কখনো `/`-এ extract
-হয় না, package-owned driver বদলায় না, system-wide loader config-ও বদলায় না।
+ভলকান লোডার `/usr/share/vulkan/icd.d`-এর পাশাপাশি
+`/usr/local/share/vulkan/icd.d`-ও খোঁজে, তাই ডেবিয়ান বিন্যাসে পরিবেশ-চলক লাগে না।
+উবুন্টু ও অন্য যেসব বিন্যাসে ডিস্ট্রোর সঙ্গে মেলা পূর্ণ মেসা-সমষ্টি লাগে, সেগুলো
+সংস্করণযুক্ত `/usr/local/lib/ternux` ওভারলেতে থাকে। টার্নাক্স ডেস্কটপের সঙ্গে মেলা
+মেসা লাইব্রেরি, জিএল ড্রাইভার ফোল্ডার ও একটি ভলকান আইসিডি বেছে নেয়। আর্কাইভ কখনো
+`/`-এ খোলা হয় না, প্যাকেজ-নিয়ন্ত্রিত ড্রাইভার বদলায় না, সিস্টেমজুড়ে লোডারের
+বিন্যাসও বদলায় না।
 
-> **Ubuntu 26.04 live verification, 2026-11-12:** যোগ্য Redmi Turbo 4 Pro-তে
-> Ubuntu Turnip asset Ternux overlay-তে install করা হয়েছে। এরপর Ubuntu-র
-> `mesa-vulkan-drivers` package পুনরায় install করে `dpkg -V mesa-vulkan-drivers`
-> চালালে কোনো পার্থক্য দেখায়নি; কোনো Mesa package hold-ও ছিল না। Overlay-এর
-> ICD বেছে `vulkaninfo --summary` একটিমাত্র Adreno 825 integrated GPU দেখিয়েছে,
-> আর `glxinfo -B` direct rendering ও
+> **উবুন্টু ২৬.০৪ সরাসরি যাচাই, ২০২৬-১১-১২:** যোগ্য রেডমি টার্বো ৪ প্রোতে
+> উবুন্টুর টার্নিপ উপাদান টার্নাক্স ওভারলেতে বসানো হয়েছে। এরপর উবুন্টুর
+> `mesa-vulkan-drivers` প্যাকেজ পুনরায় বসিয়ে `dpkg -V mesa-vulkan-drivers`
+> চালালে কোনো পার্থক্য দেখায়নি; মেসা প্যাকেজ আটকে রাখতেও হয়নি। ওভারলের
+> আইসিডি বেছে `vulkaninfo --summary` একটি অ্যাড্রেনো ৮২৫ সমন্বিত জিপিইউ দেখিয়েছে,
+> আর `glxinfo -B` সরাসরি রেন্ডারিং ও
 > `zink Vulkan 1.4(Adreno (TM) 825 (MESA_TURNIP))` দেখিয়েছে।
-> `ternux doctor --json` overlay-কে managed এবং renderer-কে accelerated বলেছে।
-> এটি একটি device-এর observation; অন্য Ubuntu release আলাদাভাবে পরীক্ষা করা বাকি।
+> `ternux doctor --json` ওভারলেকে পরিচালিত এবং রেন্ডারারকে ত্বরিত বলেছে। এটি
+> একটি যন্ত্রের পর্যবেক্ষণ; উবুন্টুর অন্য প্রকাশনা আলাদাভাবে পরীক্ষা করা বাকি।
 
-> **Alpine 3.24 live verification, 2026-11-12:** pinned archive-এ Debian-family
-> `/usr/lib/aarch64-linux-gnu`-এর বদলে `/usr/lib` path আছে। এখন installer
-> archive-এর আসল library directory `/etc/ternux/mesa-overlay-libdir`-এ লিখে
-> validate করে; overlay isolated থাকে এবং শুধু Ternux session-এ select হয়।
-> Fresh managed install complete হয়েছে, `tx doctor --json` Adreno 825 Vulkan
-> device enumerate করেছে, আর Alpine desktop `:2` live অবস্থায় Mesa Turnip-এর
-> ওপর Zink দেখিয়েছে। এই পরীক্ষা শুধু এই device/profile-এর জন্য; সব Alpine
-> version-এর qualification নয়।
+> **আল্পাইন ৩.২৪ সরাসরি যাচাই, ২০২৬-১১-১২:** পিন করা আর্কাইভে ডেবিয়ান-ভিত্তিক
+> `/usr/lib/aarch64-linux-gnu`-এর বদলে `/usr/lib` পথ আছে। এখন ইনস্টলার আর্কাইভের
+> আসল লাইব্রেরি ফোল্ডার `/etc/ternux/mesa-overlay-libdir`-এ লিখে যাচাই করে;
+> ওভারলে আলাদা থাকে এবং শুধু টার্নাক্স অধিবেশনে বেছে নেওয়া হয়। নতুন পরিচালিত
+> ইনস্টল সম্পন্ন হয়েছে, `tx doctor --json` অ্যাড্রেনো ৮২৫ ভলকান যন্ত্র
+> তালিকাভুক্ত করেছে, আর আল্পাইন ডেস্কটপ `:2`-এ মেসা টার্নিপের ওপর জিঙ্ক দেখিয়েছে।
+> এই পরীক্ষা শুধু এই যন্ত্র/বিন্যাসের জন্য; আল্পাইনের সব সংস্করণের যোগ্যতা নয়।
 
-## আপনার কোন layout তা যাচাই করুন
+## আপনার কোন বিন্যাস তা যাচাই করুন
 
 ```bash
 ternux verify
 ```
 
-`turnip:present` মানে managed layout। `turnip:fragile` মানে driver একটি dpkg-মালিকানার
-path-এ আছে এবং ফিরিয়ে দেওয়া হবে। `turnip:missing` মানে কোনোটিই পাওয়া যায়নি।
+`turnip:present` মানে পরিচালিত বিন্যাস। `turnip:fragile` মানে ড্রাইভার ডিপিকেজির
+মালিকানাধীন পথে আছে এবং হালনাগাদে প্রতিস্থাপিত হবে। `turnip:missing` মানে কোনোটিই নেই।
 
-Debian guest-এর ভেতর সরাসরিও নিশ্চিত করা যায়:
+ডেবিয়ান গেস্টের ভেতর সরাসরিও যাচাই করা যায়:
 
 ```bash
 vulkaninfo --summary | grep -E "deviceName|deviceType|driverInfo"
 dpkg -V mesa-vulkan-drivers
 ```
 
-Debian-এর package সংস্করণের চেয়ে নতুন `driverInfo` সহ একটি `Adreno` entry, এবং চুপ
-থাকা `dpkg -V` — এটাই সুস্থ অবস্থা।
+ডেবিয়ান প্যাকেজের সংস্করণের চেয়ে নতুন `driverInfo`-সহ একটি `Adreno` নথি এবং
+নীরব `dpkg -V`—এটাই সুস্থ অবস্থা।
 
-## চালু install-কে managed layout-এ সরানো
+## চলমান ইনস্টলকে পরিচালিত বিন্যাসে সরানো
 
-নিচেরগুলো Debian guest-এর ভেতরে চালান। আগে backup নিন: custom driver-টির হয়তো
-এটাই একমাত্র কপি, আর ডিভাইসের ভেতরে কিছুই সেটি আবার build করতে পারবে না।
+নিচের কমান্ডগুলো ডেবিয়ান গেস্টের ভেতরে চালান। আগে নকল রাখুন: নিজস্ব ড্রাইভারের
+এটাই হয়তো একমাত্র কপি, আর যন্ত্রের ভেতরে সেটি আবার নির্মাণের উপায় নাও থাকতে পারে।
 
 ```bash
 # ১. driver ও তার manifest backup করুন, checksum সহ
@@ -139,49 +139,50 @@ sudo dpkg-divert --add --rename \
 sudo apt-get install -y --reinstall mesa-vulkan-drivers
 ```
 
-ধাপ ২-এর `api_version` এখানে ছাপা মানটি নয়, আপনার নিজের manifest-এর মান বসান —
-সেটি আপনার build করা driver-কেই বর্ণনা করে।
+ধাপ ২-এ নিজের তৈরি ড্রাইভারের তালিকা থেকে `api_version`-এর মান বসান; এখানে
+দেখানো মানটি অন্ধভাবে নেবেন না।
 
-তারপর যাচাই করুন ধাপ ৫-এর reinstall-এর পরেও GPU টিকে আছে কি না:
+তারপর যাচাই করুন, ধাপ ৫-এ পুনরায় বসানোর পরেও জিপিইউ আছে কি না:
 
 ```bash
 vulkaninfo --summary | grep -E "deviceName|driverInfo"
 dpkg -V mesa-vulkan-drivers
 ```
 
-নিজের driver সংস্করণ সহ ঠিক একটি `Adreno` entry, আর `dpkg -V`-এর কোনো output না —
-মানে migration সফল। Diversion dpkg-এর database-এ লেখা থাকে, তাই upgrade-এর পরেও
-থাকে; `dpkg-divert --list | grep freedreno` দেখায়, আর `dpkg-divert --remove` ফিরিয়ে
-নেয়।
+নিজের ড্রাইভার-সংস্করণসহ ঠিক একটি `Adreno` নথি এবং `dpkg -V`-এর কোনো ফল না থাকা
+মানে স্থানান্তর সফল। ডাইভারশন ডিপিকেজির তথ্যভান্ডারে লেখা থাকে, তাই হালনাগাদের
+পরেও থাকে। `dpkg-divert --list | grep freedreno` দিয়ে দেখুন, আর
+`dpkg-divert --remove` দিয়ে ফিরিয়ে নিন।
 
-## GPU কেন দুইবার দেখা যেতে পারে
+## জিপিইউ কেন দুইবার দেখা যেতে পারে
 
-একই library-তে point করা দুটি ICD manifest থাকলে loader একই GPU দুইবার জানায়,
-একই `deviceUUID` নিয়ে। এটি ক্ষতিকর নয়, বিভ্রান্তিকর — উপরের ধাপ ৪ এর সমাধান। আমরা
-যে crash পরীক্ষা করেছি তার কারণ এই duplicate ছিল না: `VK_DRIVER_FILES` একটি
-manifest-এ pin করেও ব্যর্থ Vulkan-backend পরীক্ষার ফল বদলায়নি।
+একই লাইব্রেরির দিকে নির্দেশ করা দুটি আইসিডি তালিকা থাকলে লোডার একই জিপিইউকে একই
+`deviceUUID`-সহ দুবার দেখায়। এতে ক্ষতি হয় না, তবে বিভ্রান্তি তৈরি করে—ওপরের ধাপ
+৪ সেটি সমাধান করে। আমাদের পরীক্ষিত ভেঙে পড়ার কারণ নকল তালিকা ছিল না:
+`VK_DRIVER_FILES` দিয়ে একটি তালিকা পিন করলেও ব্যর্থ ভলকান-পথ পরীক্ষার ফল বদলায়নি।
 
-## কোনো update আগেই driver ফিরিয়ে দিয়ে থাকলে
+## কোনো হালনাগাদে ড্রাইভার আগেই ফিরিয়ে গেলে
 
-লক্ষণ হলো desktop চালু হচ্ছে কিন্তু GPU-র কাজ ধীর বা অনুপলব্ধ, এবং `vulkaninfo`-তে
-Adreno আর নেই। Backup থেকে driver restore করুন, তারপর উপরের migration অনুসরণ করুন
-যাতে আবার না ঘটে। Backup না থাকলে driver আবার build করতে হবে; ternux এখনো কোনো
-প্রকাশিত Turnip artifact দেয় না, যা release gate হিসেবে
-[accelerator release plan](ACCELERATOR-RELEASE-PLAN.html)-এ লিপিবদ্ধ আছে।
+লক্ষণ হলো ডেস্কটপ চালু হয়, কিন্তু জিপিইউর কাজ ধীর বা অনুপলব্ধ থাকে এবং
+`vulkaninfo`-তে অ্যাড্রেনো দেখা যায় না। নকল থেকে ড্রাইভার ফিরিয়ে আনুন, তারপর
+আবার না ঘটার জন্য ওপরের স্থানান্তর-পদ্ধতি অনুসরণ করুন। নকল না থাকলে ড্রাইভার
+আবার তৈরি করতে হবে। টার্নাক্স এখনো প্রকাশিত টার্নিপ উপাদান দেয় না; এটি
+[ত্বরণকারী প্রকাশনা পরিকল্পনায়](ACCELERATOR-RELEASE-PLAN.html) খোলা প্রকাশনা-শর্ত
+হিসেবে নথিভুক্ত।
 
-Software rasterisation প্রতিটি ডিভাইসে ব্যবহারযোগ্য fallback নয়: পরীক্ষিত ডিভাইসে
-জোর করে সেটি চালালে (`LIBGL_ALWAYS_SOFTWARE=1`) ধীর render নয়, সঙ্গে সঙ্গে `SIGILL`
-হয়েছে। "software-এ fallback হয়ে যাবে" কথাটি নিজের hardware-এ মাপার আগ পর্যন্ত
-unverified ধরুন।
+সফটওয়্যার রাস্টারায়ন সব যন্ত্রে ব্যবহারযোগ্য বিকল্প নয়: পরীক্ষিত যন্ত্রে জোর করে
+চালালে (`LIBGL_ALWAYS_SOFTWARE=1`) ধীর রেন্ডার নয়, সঙ্গে সঙ্গে `SIGILL` হয়েছে।
+নিজের হার্ডওয়্যারে মাপার আগে “সফটওয়্যারে বিকল্প পথ চলবে”—এ দাবিকে যাচাই-না-হওয়া
+ধরে নিন।
 
 ## সীমা
 
-- উপরের প্রমাণ একটি ডিভাইস ও একটি configuration থেকে। ভিন্ন Adreno প্রজন্ম Debian-এর
-  নিজের Mesa-তেই পূর্ণ সমর্থিত হতে পারে, তখন এর কিছুই প্রযোজ্য নয়।
-- চলমান একটি Xfce session মাঝপথে driver ফিরে গেলে টেকে কি না তা পরীক্ষা করা হয়নি;
-  করতে গেলে একটি জীবন্ত desktop ইচ্ছাকৃতভাবে ভাঙতে হতো।
-- ternux Mesa build বা বিতরণ করে না। এই ধাপগুলো আপনার দেওয়া driver কোথায় রাখতে হবে
-  তা বলে, কীভাবে বানাতে হবে তা নয়।
+- ওপরের প্রমাণ একটি যন্ত্র ও একটি বিন্যাসের। অ্যাড্রেনোর অন্য প্রজন্ম ডেবিয়ানের
+  নিজস্ব মেসায় পুরোপুরি সমর্থিত হতে পারে; সেক্ষেত্রে এর কিছু প্রযোজ্য নয়।
+- চলমান এক্সএফসিই অধিবেশনে মাঝপথে ড্রাইভার ফিরলে ডেস্কটপ সচল থাকে কি না পরীক্ষা করা
+  হয়নি; তা করতে হলে সচল ডেস্কটপ ইচ্ছা করে ভেঙে দিতে হতো।
+- টার্নাক্স মেসা তৈরি বা বিতরণ করে না। এই ধাপগুলো আপনার দেওয়া ড্রাইভার কোথায়
+  রাখতে হবে তা বলে, কীভাবে তৈরি করতে হবে তা নয়।
 
-লক্ষণভিত্তিক diagnosis-এর জন্য দেখুন [সমস্যা সমাধান](TROUBLESHOOTING.html), আর
-graphics route বাছাইয়ের জন্য [কনফিগারেশন](CONFIGURATION.html)।
+লক্ষণভিত্তিক রোগনির্ণয়ের জন্য [সমস্যা সমাধান](TROUBLESHOOTING.html) এবং
+গ্রাফিক্স-পথ বাছাইয়ের জন্য [কনফিগারেশন](CONFIGURATION.html) দেখুন।

@@ -1,76 +1,77 @@
 ---
-title: "কনট্রিবিউটিং"
-description: "ternux-এ code, documentation, English/Bengali translation, reproducible bug report অথবা সতর্কভাবে classified device evidence দিন।"
+title: "অবদান নির্দেশিকা"
+description: "টার্নাক্সে কোড, নথি, অনুবাদ, পুনরুৎপাদনযোগ্য ত্রুটি-প্রতিবেদন ও যাচাইকৃত যন্ত্রের ফল যোগ করার নিয়ম।"
 lang: "bn"
 alt_url: "/CONTRIBUTING.html"
 ---
 
-ternux উন্নত করার জন্য ধন্যবাদ। Code, test, documentation, English/Bengali
-translation, reproducible bug report ও device evidence—সবই কার্যকর contribution।
-সম্পর্কহীন অনেক পরিবর্তন একসাথে দেওয়ার চেয়ে ছোট, focused change review করা সহজ।
+টার্নাক্স উন্নত করতে অবদানের জন্য ধন্যবাদ। কোড, পরীক্ষা, নথি, অনুবাদ,
+পুনরুৎপাদনযোগ্য ত্রুটি-প্রতিবেদন ও যন্ত্রের প্রমাণ—সবই কাজে লাগে। সম্পর্কহীন
+অনেক পরিবর্তনের চেয়ে ছোট ও সুসংহত পরিবর্তন পর্যালোচনা করা সহজ।
 
 ## শুরু করার আগে
 
-- [Contributor Covenant](https://github.com/soobujmiah/ternux/blob/main/CODE_OF_CONDUCT.md) অনুসরণ করুন।
-- একই কাজ আবার শুরু করার আগে [open issue](https://github.com/soobujmiah/ternux/issues)
-  ও pull request খুঁজুন।
-- সন্দেহজনক vulnerability-এর জন্য
-  [security policy](https://github.com/soobujmiah/ternux/security/policy) ব্যবহার করুন।
-  Issue-তে exploit detail প্রকাশ করবেন না।
-- Installer boundary বা graphics behavior বদলানোর আগে
+- [অবদানকারীর আচরণবিধি](https://github.com/soobujmiah/ternux/blob/main/CODE_OF_CONDUCT.md) মেনে চলুন।
+- একই কাজ শুরু করার আগে [খোলা সমস্যা](https://github.com/soobujmiah/ternux/issues)
+  ও পুল-রিকোয়েস্ট খুঁজুন।
+- সন্দেহজনক দুর্বলতার জন্য
+  [নিরাপত্তা নীতি](https://github.com/soobujmiah/ternux/security/policy) ব্যবহার করুন;
+  সমস্যার পাতায় দুর্বলতা কাজে লাগানোর বিবরণ দেবেন না।
+- ইনস্টলারের সীমানা বা গ্রাফিক্সের আচরণ বদলানোর আগে
   [ডকুমেন্টেশন পরিচিতি](https://soobujmiah.github.io/ternux/bn/docs/) এবং
   [আর্কিটেকচার](https://soobujmiah.github.io/ternux/bn/docs/ARCHITECTURE.html) পড়ুন।
 
 ## অবদানের পথ
 
-### Reproducible bug report করুন
+### পুনরুৎপাদনযোগ্য ত্রুটি জানান
 
-[Bug report template](https://github.com/soobujmiah/ternux/issues/new/choose) ব্যবহার
+[ত্রুটি-প্রতিবেদনের ছক](https://github.com/soobujmiah/ternux/issues/new/choose) ব্যবহার
 করুন। অন্তর্ভুক্ত করুন:
 
-1. ফোন model, Android version, architecture ও Termux source;
-2. ternux version বা exact commit;
-3. নির্বাচিত profile ও public backend (`zink` বা `virgl`);
-4. চালানো command ও সম্পূর্ণ প্রাসঙ্গিক output;
-5. private path বা token মুছে `ternux doctor` output;
-6. problem trigger করা সবচেয়ে ছোট repeatable sequence।
+1. ফোনের মডেল, অ্যান্ড্রয়েড সংস্করণ, স্থাপত্য ও টার্মাক্সের উৎস;
+2. টার্নাক্স সংস্করণ অথবা নির্দিষ্ট কমিট;
+3. নির্বাচিত বিন্যাস ও প্রকাশ্য গ্রাফিক্স-পথ (`zink` অথবা `virgl`);
+4. চালানো কমান্ড ও প্রাসঙ্গিক সম্পূর্ণ ফল;
+5. ব্যক্তিগত পথ ও টোকেন সরিয়ে `ternux doctor`-এর ফল;
+6. সমস্যাটি ঘটানোর সবচেয়ে ছোট পুনরাবৃত্তিযোগ্য ধাপ।
 
 আগে [সমস্যা সমাধান](https://soobujmiah.github.io/ternux/bn/docs/TROUBLESHOOTING.html)
-দেখুন। Screenshot text output-কে সহায়তা করতে পারে, কিন্তু প্রতিস্থাপন করা উচিত নয়।
+দেখুন। পর্দার ছবি পাঠ্য ফল বুঝতে সাহায্য করে, তবে পাঠ্য ফলের বদলি নয়।
 
-### Device evidence দিন
+### যন্ত্রের প্রমাণ দিন
 
-Device report template ব্যবহার করে প্রতিটি result সঠিকভাবে classify করুন:
+যন্ত্র-প্রতিবেদনের ছক ব্যবহার করে প্রতিটি ফলের ধরন সঠিকভাবে জানান:
 
-- **Measured** — score, FPS, time, memory বা tokens/s-এর মতো captured numeric output।
-- **Observed** — application-reported renderer-এর মতো সরাসরি non-numeric output।
-- **Reported build** — build সম্পন্ন হয়েছে, কিন্তু runtime performance প্রতিষ্ঠিত নয়।
-- **Untested** — কোনো affirmative result পাওয়া যায়নি।
+- **মাপা হয়েছে** — স্কোর, প্রতি সেকেন্ডে দৃশ্য, সময়, মেমরি বা প্রতি সেকেন্ডে টোকেনের মতো সংরক্ষিত সংখ্যাগত ফল।
+- **পর্যবেক্ষণ করা হয়েছে** — অ্যাপ দেখানো রেন্ডারার-নামের মতো সরাসরি দেখা অ-সংখ্যাগত ফল।
+- **নির্মাণের প্রতিবেদন** — নির্মাণ শেষ হয়েছে, তবে চালনার ফল বা গতি প্রতিষ্ঠিত নয়।
+- **পরীক্ষা হয়নি** — ইতিবাচক ফল পাওয়া যায়নি।
 
-Benchmark submission-এ command, commit/version, renderer ও backend, resolution বা
-model, thermal/power condition, সব repetition এবং raw output record করুন। শুধু সেরা
-run দেবেন না। [Evidence protocol](https://soobujmiah.github.io/ternux/bn/docs/BENCHMARKS.html)
+কর্মদক্ষতা পরীক্ষার জমায় কমান্ড, কমিট/সংস্করণ, রেন্ডারার ও গ্রাফিক্স-পথ,
+রেজোলিউশন বা মডেল, তাপমাত্রা/বিদ্যুৎ-শর্ত, সব পুনরাবৃত্তি এবং কাঁচা ফল লিখুন।
+শুধু সেরা চালনার ফল দেবেন না।
+[প্রমাণ সংগ্রহের নিয়ম](https://soobujmiah.github.io/ternux/bn/docs/BENCHMARKS.html)
 অনুসরণ করুন।
 
-### Code বা test দিন
+### কোড বা পরীক্ষা দিন
 
-`install.sh`, `bin/ternux` বা `lib/*.sh`-এর পরিবর্তন যেন:
+`install.sh`, `bin/ternux` বা `lib/*.sh` বদলালে নিশ্চিত করুন যে পরিবর্তনটি:
 
-- idempotent হওয়ার কথা যে phase-এর, সেখানে আবার চালানো নিরাপদ থাকে;
-- expansion quote করে এবং untrusted input evaluate না করে;
-- explicit backend name ও state-file compatibility ধরে রাখে;
-- human-readable ও documented JSON output সত্য রাখে;
-- প্রতিটি corrected failure mode-এর focused regression যোগ করে;
-- Android system partition বা সম্পর্কহীন Termux state না বদলায়।
+- যে ধাপে বারবার চালানো নিরাপদ হওয়ার কথা, সেখানে নিরাপদ থাকে;
+- প্রসারণের সময় উদ্ধৃতি ব্যবহার করে এবং অবিশ্বস্ত উপাত্ত চালায় না;
+- নির্দিষ্ট গ্রাফিক্স-পথের নাম ও সংরক্ষিত অবস্থার ফাইলের সামঞ্জস্য রাখে;
+- মানুষের পড়ার উপযোগী ও নথিভুক্ত জেসন ফল সত্য রাখে;
+- প্রতিটি সংশোধিত ব্যর্থতার জন্য লক্ষ্যভিত্তিক পুনরাবৃত্তি-পরীক্ষা যোগ করে;
+- অ্যান্ড্রয়েডের সিস্টেম বিভাজন বা সম্পর্কহীন টার্মাক্স অবস্থা বদলায় না।
 
-### Documentation বা translation উন্নত করুন
+### নথি বা অনুবাদ উন্নত করুন
 
-English ও বাংলা navigation এবং core technical coverage একই। User behavior বদলানো
-কোনো change দুই ভাষার path reconcile না করা পর্যন্ত অসম্পূর্ণ। Translation-এ command,
-backend name, evidence value, warning severity ও technical meaning অপরিবর্তিত রাখুন;
-English sentence order নকল করার দরকার নেই।
+ইংরেজি ও বাংলা নেভিগেশন এবং মূল কারিগরি বিষয়বস্তু একই রাখুন। ব্যবহারকারীর
+আচরণ বদলালে দুই ভাষার নথি সামঞ্জস্য না করা পর্যন্ত পরিবর্তন অসম্পূর্ণ। অনুবাদে
+কমান্ড, গ্রাফিক্স-পথের নাম, প্রমাণের মান, সতর্কতার মাত্রা ও কারিগরি অর্থ অপরিবর্তিত
+রাখুন; ইংরেজি বাক্যের ক্রম অনুকরণ করতে হবে না।
 
-## Development workflow
+## উন্নয়নের ধাপ
 
 ```bash
 git clone https://github.com/soobujmiah/ternux.git
@@ -80,57 +81,59 @@ git checkout -b fix/short-description
 
 তারপর:
 
-1. একটি coherent change করুন;
-2. focused test যোগ বা update করুন;
-3. behavior বদলালে English ও বাংলা documentation update করুন;
-4. documentation page বা label বদলালে `src/data/navigation.ts` update করুন;
-5. নিচের validation command চালান;
-6. generated file, secret ও সম্পর্কহীন edit-এর জন্য `git diff` দেখুন;
-7. repository template ব্যবহার করে pull request খুলুন।
+1. একটি সুসংহত পরিবর্তন করুন;
+2. লক্ষ্যভিত্তিক পরীক্ষা যোগ বা হালনাগাদ করুন;
+3. আচরণ বদলালে ইংরেজি ও বাংলা নথি হালনাগাদ করুন;
+4. নথির পৃষ্ঠা বা নাম বদলালে `src/data/navigation.ts` হালনাগাদ করুন;
+5. নিচের যাচাই-কমান্ড চালান;
+6. তৈরি ফাইল, গোপন তথ্য ও সম্পর্কহীন পরিবর্তনের জন্য `git diff` দেখুন;
+7. সংগ্রহশালার ছক মেনে পুল-রিকোয়েস্ট খুলুন।
 
-Imperative form-এ পরিষ্কার commit subject লিখুন, যেমন
-`Harden archive member validation`। Conventional prefix ব্যবহার করা যায়, কিন্তু
-নির্দিষ্ট prefix scheme-এর চেয়ে স্পষ্টতা গুরুত্বপূর্ণ।
+কাজ বোঝায় এমন নির্দেশমূলক কমিট-বার্তা লিখুন, যেমন
+`আর্কাইভ সদস্য যাচাই কঠোর করো`। প্রচলিত পূর্বপদ ব্যবহার করা যায়; তবে নির্দিষ্ট
+রীতি মানার চেয়ে বার্তার স্পষ্টতা বেশি জরুরি।
 
-## Engineering standard
+## প্রকৌশল নীতি
 
-- **Shell:** সচেতনভাবে Bash, function-এর ভেতরে `local` variable, quoted expansion,
-  explicit failure handling এবং backtick command substitution নয়।
-- **Input:** ব্যবহারের আগে path, archive member, identifier, flag ও external data
-  validate করুন।
-- **State:** সম্ভব হলে atomically লিখুন এবং documented state-এর সঙ্গে repair/update
-  path compatible রাখুন।
-- **JSON:** stdout-এ valid JSON দিন; JSON stream-এর বাইরে progress, warning ও
-  diagnostic রাখুন।
-- **Cleanup:** শুধু owned ও documented target uninstall করুন। Broad package set,
-  repository, user project বা সম্পর্কহীন configuration মুছবেন না।
-- **Claims:** successful build-কে runtime বা performance claim বানাবেন না।
-- **Dependencies:** নতুন dependency-এর কারণ দেখান এবং existing Termux/Debian tool
+- **শেল:** সচেতনভাবে ব্যাশ, ফাংশনের ভেতরে `local` চলক, উদ্ধৃত প্রসারণ, স্পষ্ট
+  ব্যর্থতা-ব্যবস্থাপনা ও ব্যাকটিক দিয়ে কমান্ড প্রতিস্থাপন নয়।
+- **উপাত্ত:** ব্যবহারের আগে পথ, আর্কাইভের সদস্য, শনাক্তকারী, বিকল্প ও বাইরের উপাত্ত
+  যাচাই করুন।
+- **অবস্থা:** সম্ভব হলে এক ধাপে লিখুন এবং নথিভুক্ত অবস্থার সঙ্গে মেরামত/হালনাগাদ
+  পদ্ধতির সামঞ্জস্য রাখুন।
+- **জেসন:** মান্য জেসন শুধু মানক ফলধারায় দিন; অগ্রগতি, সতর্কতা ও রোগনির্ণয় জেসনের
+  বাইরের ফলধারায় রাখুন।
+- **পরিষ্কার:** শুধু নিজস্ব ও নথিভুক্ত লক্ষ্য আনইনস্টল করুন। একসঙ্গে অনেক প্যাকেজ,
+  সংগ্রহস্থল, ব্যবহারকারীর প্রকল্প বা সম্পর্কহীন বিন্যাস মুছবেন না।
+- **দাবি:** সফল নির্মাণকে চালনা-সমর্থন বা কর্মদক্ষতার দাবি হিসেবে দেখাবেন না।
+- **নির্ভরতা:** নতুন নির্ভরতার কারণ লিখুন; আগে থেকে থাকা টার্মাক্স/ডেবিয়ান সরঞ্জাম
   অগ্রাধিকার দিন।
 
-## Documentation standard
+## নথি লেখার নীতি
 
-Website Astro দিয়ে build হয়। Navigation `src/data/navigation.ts`-এ; English ও
-বাংলা list একই order-এ এবং matching destination-সহ রাখুন। Content source `docs/`,
-`bn/docs/`, এবং root changelog/contribution pair-এ। Homepage `src/pages/index.astro`
-ও `src/pages/bn/index.astro`। Repository-only technical guide `guides/` ও `bn/guides/`-এ
-থাকবে; site build-এ রাখবেন না, প্রাসঙ্গিক web guide থেকে link করুন।
+ওয়েবসাইট অ্যাস্ট্রো দিয়ে তৈরি হয়। নেভিগেশন `src/data/navigation.ts`-এ থাকে;
+ইংরেজি ও বাংলা তালিকার ক্রম ও গন্তব্য মিলিয়ে রাখুন। বিষয়বস্তুর উৎস `docs/`,
+`bn/docs/` এবং মূল পরিবর্তনলগ/অবদান-নথির জোড়া। মূল পৃষ্ঠা
+`src/pages/index.astro` ও `src/pages/bn/index.astro`। শুধু সংগ্রহশালার কারিগরি
+নির্দেশিকা `guides/` ও `bn/guides/`-এ থাকবে; সাইট নির্মাণে যোগ করবেন না, প্রাসঙ্গিক
+ওয়েব নির্দেশিকা থেকে সংযোগ দিন।
 
-User-facing behavior বদলালে:
+ব্যবহারকারীর দৃশ্যমান আচরণ বদলালে:
 
-1. প্রাসঙ্গিক English guide update করুন;
-2. তার বাংলা counterpart update করুন;
-3. CLI example ও structured-output note update করুন;
-4. `alt_url` front matter reciprocal রাখুন;
-5. destination বদলালে navigation, landing link, README map ও sitemap update করুন;
-6. অন্য page থেকে referenced explicit heading বা fragment ধরে রাখুন।
+1. প্রাসঙ্গিক ইংরেজি নির্দেশিকা হালনাগাদ করুন;
+2. তার বাংলা সমতুল্য হালনাগাদ করুন;
+3. কমান্ড-উদাহরণ ও সাজানো ফলের ব্যাখ্যা হালনাগাদ করুন;
+4. `alt_url` শিরোনাম-তথ্য দুই দিকে পরস্পরের ঠিকানা দেখায় নিশ্চিত করুন;
+5. গন্তব্য বদলালে নেভিগেশন, মূল পৃষ্ঠার সংযোগ, পাঠ্য-নথির মানচিত্র ও সাইটম্যাপ হালনাগাদ করুন;
+6. অন্য পৃষ্ঠায় ব্যবহৃত শিরোনাম ও অংশ-চিহ্ন অক্ষত রাখুন।
 
-Workload/tool card অবশ্যই upstream project repository-তে link করবে। Performance
-ভাষায় measured, observed, reported-build ও untested boundary ধরে রাখতে হবে।
+কাজ বা সরঞ্জামের কার্ড অবশ্যই মূল প্রকল্পের সংগ্রহশালায় সংযুক্ত হবে।
+কর্মদক্ষতার ভাষায় মাপা, পর্যবেক্ষিত, নির্মাণ-প্রতিবেদিত ও পরীক্ষা-না-হওয়া ফলের
+সীমানা বজায় রাখুন।
 
-## Validation
+## যাচাই
 
-Repository root থেকে চালান:
+সংগ্রহশালার মূল ফোল্ডার থেকে চালান:
 
 ```bash
 bash tests/focused.sh
@@ -148,15 +151,16 @@ node --check scripts/finalize-site.mjs
 git diff --check
 ```
 
-`bats` `PATH`-এ না থাকলে আগে [bats-core](https://github.com/bats-core/bats-core)
-ইনস্টল করুন। Site change-এর জন্য keyboard navigation, narrow screen, reduced motion
-ও print output হাতে inspect করুন; deterministic link, front matter, language parity
-ও content-integrity check `tests/docs_check.py` করে।
+`bats` `PATH`-এ না থাকলে আগে
+[ব্যাটস-কোর](https://github.com/bats-core/bats-core) বসান। ওয়েবসাইট বদলালে
+কিবোর্ড নেভিগেশন, সরু পর্দা, কম নড়াচড়া এবং মুদ্রণ-দৃশ্য হাতে পরীক্ষা করুন;
+নির্ধারিত সংযোগ, শিরোনাম-তথ্য, ভাষার সামঞ্জস্য ও বিষয়বস্তুর অখণ্ডতা
+`tests/docs_check.py` যাচাই করে।
 
-নিজের real environment-এ destructive uninstall scenario চালাবেন না। Isolated test
-home/container বা existing mocked regression ব্যবহার করুন।
+নিজের আসল পরিবেশে ধ্বংসাত্মক আনইনস্টল পরীক্ষা চালাবেন না। আলাদা পরীক্ষার
+ব্যবহারকারী/ধারক অথবা আগে থেকে থাকা অনুকৃত পুনরাবৃত্তি-পরীক্ষা ব্যবহার করুন।
 
-## Repository map
+## সংগ্রহশালার মানচিত্র
 
 ```text
 bin/ternux             public CLI entry point
@@ -173,10 +177,11 @@ share/templates/        schema ও managed template
 .github/                issue, pull-request, ownership ও automation policy
 ```
 
-## Review, আচরণ ও license
+## পর্যালোচনা, আচরণ ও লাইসেন্স
 
-Merge করার আগে maintainer ছোট scope, raw evidence, regression বা language parity
-চাইতে পারেন। Review comment change নিয়ে—contributor নিয়ে নয়। অংশগ্রহণ করে আপনি
-[আচরণবিধি](https://github.com/soobujmiah/ternux/blob/main/CODE_OF_CONDUCT.md)
-মানতে সম্মত হন। Contribution repository-এর
-[Apache License 2.0](https://github.com/soobujmiah/ternux/blob/main/LICENSE)-এর অধীনে গৃহীত হয়।
+একীভূত করার আগে রক্ষণাবেক্ষণকারী ছোট কাজের পরিধি, কাঁচা প্রমাণ, পুনরাবৃত্তি-পরীক্ষা
+বা ভাষার সামঞ্জস্য চাইতে পারেন। পর্যালোচনার মন্তব্য পরিবর্তন নিয়ে, অবদানকারীকে
+নিয়ে নয়। অংশ নিলে [আচরণবিধি](https://github.com/soobujmiah/ternux/blob/main/CODE_OF_CONDUCT.md)
+মেনে চলতে সম্মত হন। অবদান সংগ্রহশালার
+[অ্যাপাচি লাইসেন্স ২.০](https://github.com/soobujmiah/ternux/blob/main/LICENSE)-এর
+অধীনে গৃহীত হয়।
