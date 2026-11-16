@@ -710,7 +710,8 @@ value_width=$((info_width - label_width - 1))
 visible_labels=()
 visible_values=()
 for ((field=0; field<${#labels[@]}; field++)); do
-  if [ "${#values[field]}" -le "$value_width" ]; then
+  if [ "${#labels[field]}" -le "$label_width" ] &&
+    [ "${#values[field]}" -le "$value_width" ]; then
     visible_labels+=("${labels[field]}")
     visible_values+=("${values[field]}")
   fi
