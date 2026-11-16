@@ -21,10 +21,11 @@ grep -Fq 'xbps) xbps-install -S' "$PHASES"
 grep -Fq 'trap cleanup_staged_assets EXIT' "$PHASES"
 
 audio_phase="$(sed -n '/tnx_phase_audio_fonts() {/,/^}/p' "$PHASES")"
+audio_phase_code="$(sed '/^[[:space:]]*#/d' <<<"$audio_phase")"
 grep -Fq 'tnx_guest_login --_tnx-timeout-seconds 1200 --shared-tmp --user root' <<<"$audio_phase"
 grep -Fq 'timeout --signal=TERM --kill-after=10 300 apt update' <<<"$audio_phase"
 grep -Fq 'timeout --signal=TERM --kill-after=5 90 locale-gen' <<<"$audio_phase"
-! grep -Eq '(^|[[:space:]])sudo([[:space:]]|$)' <<<"$audio_phase"
+! grep -Eq '(^|[[:space:]])sudo([[:space:]]|$)' <<<"$audio_phase_code"
 grep -Fq 'timeout --signal=TERM --kill-after=5 60 fc-cache -f' "$PHASES"
 grep -Fq 'tnx_guest_login --_tnx-timeout-seconds 1200 --shared-tmp --user "$user_name"' "$PHASES"
 
