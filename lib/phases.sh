@@ -416,7 +416,7 @@ tnx_install_guest_cli() {
 # Phase 4 — selected guest + Xfce4 + user
 # ---------------------------------------------------------------------------
 tnx_phase_debian() {
-  local user_name="${1:-ternux}" package_family input_engine=ibus-avro
+  local user_name="${1:-ternux}" package_family input_engine=ibus-avro apt_mirror="http://deb.debian.org/debian"
   [ "$(tnx_distro)" != alpine ] || input_engine=m17n:bn:avro-phonetic
   local resource_dir="${BASH_SOURCE[0]%/*}"
   local welcome_b64 welcome_gui_b64 window_fit_b64 camera_gui_b64 recorder_gui_b64 flashlight_gui_b64 panel_shortcuts_b64 ternux_assets_b64 proot_bwrap_b64 gtk3_user_css_b64 gtk4_user_css_b64 firefox_installer_b64 terfetch_b64 resource
@@ -463,11 +463,31 @@ tnx_phase_debian() {
 
   tnx_distro_profile "$(tnx_distro)" || { tnx_fail "No package recipe for guest '$(tnx_distro)'."; return 2; }
   package_family="$TNX_DP_FAMILY"
+  # Measure reachable official Debian archive mirrors from this device. Keep
+  # security updates on deb.debian.org because BD mirrors lack that archive.
+  if [ "$(tnx_distro)" = debian ] && command -v curl >/dev/null 2>&1; then
+    local mirror probe rates mirror_speed probe_speed best_speed=0
+    for mirror in http://deb.debian.org/debian http://mirror.limda.net/debian http://mirror.xeonbd.com/debian; do
+      rates=""
+      for probe in trixie trixie-updates; do
+        probe_speed="$(curl -fLsS --connect-timeout 3 --max-time 8 -o /dev/null -w '%{speed_download}' "$mirror/dists/$probe/InRelease" 2>/dev/null)" || { rates=""; break; }
+        rates="${rates:+$rates+}$probe_speed"
+      done
+      [ -n "$rates" ] || continue
+      mirror_speed="$(awk -F+ '{printf "%.0f", ($1 + $2) / 2}' <<< "$rates")"
+      if awk -v candidate="$mirror_speed" -v best="$best_speed" 'BEGIN { exit !(candidate > best) }'; then
+        best_speed="$mirror_speed"
+        apt_mirror="$mirror"
+      fi
+    done
+    tnx_info "Using fastest reachable Debian archive mirror: $apt_mirror (probe ${best_speed} B/s; security updates remain on deb.debian.org)."
+  fi
   # Minimal Alpine images provide POSIX sh but not Bash. This first package
   # bootstrap installs Bash itself, so it must run through sh.
   local guest_setup_script="
     set -e
     FAMILY='$package_family'
+    APT_MIRROR='$apt_mirror'
     BWRAP_SHIM_B64='$proot_bwrap_b64'
     export DEBIAN_FRONTEND=noninteractive
     install_proot_bwrap_shim() {
@@ -486,9 +506,22 @@ tnx_phase_debian() {
       done
     }
     DPKG_FORCE=\"-o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -o APT::Color=1 -o Dpkg::Progress-Fancy=1 -o Acquire::Retries=3\"
+    set_debian_mirror() {
+      for source in /etc/apt/sources.list /etc/apt/sources.list.d/*.sources /etc/apt/sources.list.d/*.list; do
+        [ -f \"\$source\" ] || continue
+        sed -i \"s#https\\?://deb.debian.org/debian\\([[:space:]]\\|\\$\\)#\\$1\\1#g; s#http://mirror.limda.net/debian\\([[:space:]]\\|\\$\\)#\\$1\\1#g; s#http://mirror.xeonbd.com/debian\\([[:space:]]\\|\\$\\)#\\$1\\1#g\" \"\$source\"
+      done
+    }
+    if [ \"\$FAMILY\" = apt ] && [ '$(tnx_distro)' = debian ]; then
+      set_debian_mirror \"\$APT_MIRROR\"
+    fi
     case \"\$FAMILY\" in
       apt)
-        timeout --signal=TERM --kill-after=10 300 apt update -o APT::Color=1 -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30
+        if ! timeout --signal=TERM --kill-after=10 300 apt update -o APT::Color=1 -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30; then
+          echo 'Selected Debian mirror failed; switching to deb.debian.org and retrying apt update.'
+          set_debian_mirror http://deb.debian.org/debian
+          timeout --signal=TERM --kill-after=10 300 apt update -o APT::Color=1 -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30
+        fi
         dpkg --configure -a --force-confold --force-confdef || true
         install_proot_bwrap_shim
         if [ '$(tnx_distro)' = ubuntu ]; then
@@ -496,7 +529,11 @@ tnx_phase_debian() {
           printf 'Package: snapd\nPin: version *\nPin-Priority: -1\n' > /etc/apt/preferences.d/ternux-no-snapd
           apt-mark hold snapd >/dev/null 2>&1 || true
         fi
-        timeout --signal=TERM --kill-after=10 3600 apt install -y -o APT::Install-Recommends=false \$DPKG_FORCE -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 sudo nano ca-certificates mousepad galculator evince fonts-noto-core python3-gi python3-xlib gir1.2-gtk-3.0 ibus ibus-gtk3 ibus-gtk4 ibus-avro devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol x11-utils x11-xkb-utils mesa-utils libgl1-mesa-dri libvulkan1 mesa-vulkan-drivers vulkan-tools adwaita-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc ffmpeg ristretto qt5-gtk-platformtheme colord xdg-utils desktop-file-utils util-linux libglib2.0-bin gsettings-desktop-schemas xfconf
+        if ! timeout --signal=TERM --kill-after=10 3600 apt install -y -o APT::Install-Recommends=false \$DPKG_FORCE -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 sudo nano ca-certificates mousepad galculator evince fonts-noto-core python3-gi python3-xlib gir1.2-gtk-3.0 ibus ibus-gtk3 ibus-gtk4 ibus-avro devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol x11-utils x11-xkb-utils mesa-utils libgl1-mesa-dri libvulkan1 mesa-vulkan-drivers vulkan-tools adwaita-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc ffmpeg ristretto qt5-gtk-platformtheme colord xdg-utils desktop-file-utils util-linux libglib2.0-bin gsettings-desktop-schemas xfconf; then
+          echo 'Selected Debian mirror failed during desktop install; switching to deb.debian.org and retrying.'
+          set_debian_mirror http://deb.debian.org/debian
+          timeout --signal=TERM --kill-after=10 3600 apt install -y -o APT::Install-Recommends=false \$DPKG_FORCE -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 sudo nano ca-certificates mousepad galculator evince fonts-noto-core python3-gi python3-xlib gir1.2-gtk-3.0 ibus ibus-gtk3 ibus-gtk4 ibus-avro devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol x11-utils x11-xkb-utils mesa-utils libgl1-mesa-dri libvulkan1 mesa-vulkan-drivers vulkan-tools adwaita-icon-theme xfce4 xfce4-taskmanager xfce4-terminal zenity vlc ffmpeg ristretto qt5-gtk-platformtheme colord xdg-utils desktop-file-utils util-linux libglib2.0-bin gsettings-desktop-schemas xfconf
+        fi
         timeout --signal=TERM --kill-after=10 900 apt install -y \$DPKG_FORCE -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 --no-install-recommends synaptic
         if [ '$(tnx_distro)' = ubuntu ]; then apt-mark hold snapd >/dev/null 2>&1 || true; fi
         timeout --signal=TERM --kill-after=10 900 apt remove -y \$DPKG_FORCE -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 guvcview >/dev/null 2>&1 || true
@@ -539,6 +576,9 @@ tnx_phase_debian() {
     esac
     rm -f /usr/local/share/applications/guvcview.desktop
     asset_stage=\$(mktemp -d /tmp/ternux-assets.XXXXXX)
+    icon_stage=""
+    cleanup_staged_assets() { [ -z "\$asset_stage" ] || rm -rf "\$asset_stage"; [ -z "\$icon_stage" ] || rm -rf "\$icon_stage"; }
+    trap cleanup_staged_assets EXIT
     printf '%s' '$ternux_assets_b64' | base64 -d | tar -xz -C "\$asset_stage"
     find "\$asset_stage" -type d -exec chmod 0755 {} +
     find "\$asset_stage" -type f -exec chmod 0644 {} +
