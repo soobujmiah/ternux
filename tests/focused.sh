@@ -626,8 +626,9 @@ fi
 if env TERNUX_STATE_DIR="$TMP/state-repos" HOME="$TMP/home-repos" \
   PREFIX="$TMP/prefix-repos" MARKER="$TMP/change-repo-called" STORAGE_MARKER="$TMP/storage-permission-called" bash -c '
     . "$1/lib/phases.sh"
-    mkdir -p "$PREFIX/etc/apt"
+    mkdir -p "$PREFIX/etc/apt" "$PREFIX/etc/termux/mirrors/asia"
     printf "%s\n" "deb https://packages.termux.dev/apt/termux-main stable main" > "$PREFIX/etc/apt/sources.list"
+    printf 'MAIN="https://grimler.se/termux/termux-main"\n' > "$PREFIX/etc/termux/mirrors/asia/grimler"
     curl(){ case "$*" in *grimler.se*) printf "200 2000\n" ;; *packages.termux.dev*) printf "200 1000\n" ;; *) printf "404 0\n" ;; esac; }
     termux-change-repo(){ : > "$MARKER"; return 1; }
     termux-setup-storage(){ : > "$STORAGE_MARKER"; }
@@ -1138,7 +1139,7 @@ assert "trusted=yes" in celestia_installer and "celestia-obs" not in celestia_in
 assert (root / "lib/ternux-assets/icons/Ternux/scalable/apps/celestia.svg").is_file()
 assert "--no-install-recommends synaptic" in (root / "lib/phases.sh").read_text()
 app_center = (root / "lib/ternux-assets/bin/ternux-app-center").read_text()
-assert 'exec sudo env DISPLAY="$display" GTK_THEME=Ternux /usr/sbin/synaptic "$@"' in app_center
+assert "exec xfce4-terminal --disable-server --command" in app_center and "sudo -v && exec sudo env DISPLAY=" in app_center
 assert "Name=Synaptic Package Manager" in (root / "lib/ternux-assets/applications/synaptic.desktop").read_text()
 assert "Exec=/usr/local/bin/ternux-app-center" in (root / "lib/ternux-assets/applications/synaptic.desktop").read_text()
 assert "Categories=System;" in (root / "lib/ternux-assets/applications/synaptic.desktop").read_text()
@@ -1345,28 +1346,28 @@ if env TERNUX_STATE_DIR="$TMP/state-launcher" HOME="$launcher_home" bash -c '
   . "$1/lib/phases.sh"
   tnx_phase_launcher alice zink en_US.UTF-8 >/dev/null
   tnx_phase_aliases alice bash >/dev/null
-  bash -n "$HOME/x.sh" &&
-  awk "/cat > .*TERNUX_GUEST_EOF/ {guest=1; next} guest && /^TERNUX_GUEST_EOF$/ {exit} guest {print}" "$HOME/x.sh" > "$HOME/guest-session.sh" &&
+  bash -n "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  awk "/cat > .*TERNUX_GUEST_EOF/ {guest=1; next} guest && /^TERNUX_GUEST_EOF$/ {exit} guest {print}" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" > "$HOME/guest-session.sh" &&
   bash -n "$HOME/guest-session.sh" &&
-  grep -q "^# TERNUX_DESKTOP_LAUNCHER=21$" "$HOME/x.sh" &&
-  grep -q -- "--env MESA_LOADER_DRIVER_OVERRIDE=zink" "$HOME/x.sh" &&
-  ! grep -q -- "--env GALLIUM_DRIVER=zink" "$HOME/x.sh" &&
-  grep -q -- "--user alice" "$HOME/x.sh" &&
-  grep -q -- "--env DISPLAY=:1" "$HOME/x.sh" &&
-  ! grep -q "pkill -9" "$HOME/x.sh" &&
-  grep -Fq "termux-x11 \"\$TNX_DISPLAY\" -tag \"\$TNX_TAG\" -legacy-drawing -ac" "$HOME/x.sh" &&
-  ! grep -q "stop_legacy_ternuxx_audio" "$HOME/x.sh" &&
-  grep -q "IconThemeName --create -t string -s Ternux" "$HOME/x.sh" &&
-  grep -q "ThemeName --create -t string -s Ternux" "$HOME/x.sh" &&
-  grep -q "defaults_marker=\"\$HOME/.config/ternux/desktop-defaults-v1\"" "$HOME/x.sh" &&
-  grep -Fq "monitorbuiltin/workspace0/last-image" "$HOME/x.sh" &&
-  grep -Fq "monitorbuiltin-wallpaper-v1" "$HOME/x.sh" &&
-  grep -q "install -d -m 0755" "$HOME/x.sh" &&
-  grep -q "/usr/local/bin/ternux-session-bus bash -c" "$HOME/x.sh" &&
-  ! grep -q "dbus-launch --exit-with-session" "$HOME/x.sh" &&
-  grep -Fq "session_pid=\$!" "$HOME/x.sh" &&
-  grep -Fq "wait \"\$session_pid\"" "$HOME/x.sh" &&
-  grep -Fq "[ \"\$tries\" -ge 100 ]" "$HOME/x.sh" &&
+  grep -q "^# TERNUX_DESKTOP_LAUNCHER=21$" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  grep -q -- "--env MESA_LOADER_DRIVER_OVERRIDE=zink" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  ! grep -q -- "--env GALLIUM_DRIVER=zink" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  grep -q -- "--user alice" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  grep -q -- "--env DISPLAY=:1" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  ! grep -q "pkill -9" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  grep -Fq "termux-x11 \"\$TNX_DISPLAY\" -tag \"\$TNX_TAG\" -legacy-drawing -ac" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  ! grep -q "stop_legacy_ternuxx_audio" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  grep -q "IconThemeName --create -t string -s Ternux" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  grep -q "ThemeName --create -t string -s Ternux" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  grep -q "defaults_marker=\"\$HOME/.config/ternux/desktop-defaults-v1\"" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  grep -Fq "monitorbuiltin/workspace0/last-image" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  grep -Fq "monitorbuiltin-wallpaper-v1" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  grep -q "install -d -m 0755" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  grep -q "/usr/local/bin/ternux-session-bus bash -c" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  ! grep -q "dbus-launch --exit-with-session" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  grep -Fq "session_pid=\$!" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  grep -Fq "wait \"\$session_pid\"" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  grep -Fq "[ \"\$tries\" -ge 100 ]" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
   grep -q "adwaita-icon-theme xfce4 xfce4-taskmanager" "$1/lib/phases.sh" &&
   grep -q "Inherits=Adwaita,hicolor" "$1/packaging/termux/icons/Ternux/index.theme" &&
   test -s "$1/packaging/termux/icons/Ternux/scalable/places/folder.svg" &&
@@ -1375,45 +1376,45 @@ if env TERNUX_STATE_DIR="$TMP/state-launcher" HOME="$launcher_home" bash -c '
   grep -q "#39e68c" "$1/packaging/termux/icons/Ternux/scalable/places/folder.svg" &&
   ! grep -q "adwaita-gtk-theme" "$1/lib/phases.sh" &&
   ! grep -q "pm-utils" "$1/lib/phases.sh" &&
-  grep -q "GTK_IM_MODULE=ibus QT_IM_MODULE=ibus QT_QPA_PLATFORMTHEME=gtk3 XMODIFIERS=@im=ibus" "$HOME/x.sh" &&
-  grep -Fq "/usr/local/bin/ternux-ibus-session-init" "$HOME/x.sh" &&
-  ! grep -Fq "pkill -TERM -x ibus-daemon" "$HOME/x.sh" &&
-  grep -Fq "export IBUS_ADDRESS" "$HOME/x.sh" &&
-  ! grep -q -- "--env IBUS_ADDRESS=" "$HOME/x.sh" &&
+  grep -q "GTK_IM_MODULE=ibus QT_IM_MODULE=ibus QT_QPA_PLATFORMTHEME=gtk3 XMODIFIERS=@im=ibus" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  grep -Fq "/usr/local/bin/ternux-ibus-session-init" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  ! grep -Fq "pkill -TERM -x ibus-daemon" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  grep -Fq "export IBUS_ADDRESS" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  ! grep -q -- "--env IBUS_ADDRESS=" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
   grep -q "image-style --create -t int -s 4" "$1/lib/phases.sh" &&
   grep -Fq "monitor0/workspace0/last-image" "$1/lib/phases.sh" &&
   grep -Fq "monitor1/workspace0/last-image" "$1/lib/phases.sh" &&
   grep -q "pgrep -x xfdesktop" "$1/lib/phases.sh" &&
   grep -q "xfdesktop --reload" "$1/lib/phases.sh" &&
-  grep -q -- "--env LC_ALL=en_US.UTF-8" "$HOME/x.sh" &&
-  grep -q "^trap cleanup EXIT$" "$HOME/x.sh" &&
-  grep -Fq "pactl unload-module \"\$PULSE_MODULE_ID\"" "$HOME/x.sh" &&
-  grep -Fq "kill_owned_child \"\${X11_PID:-}\"" "$HOME/x.sh" &&
-  grep -Fq "TNX_IDENTITY_FILE=\"\${TNX_PID_FILE}.identity\"" "$HOME/x.sh" &&
-  grep -Fq "/run/user/" "$HOME/x.sh" &&
-  ! grep -Fq "rm -f \"\$TMPDIR\"/.X11-unix/X*" "$HOME/x.sh" &&
-  ! grep -q "pulseaudio --kill.*pkill -KILL" "$HOME/x.sh" &&
-  grep -q "candidate=4713; candidate<=4722" "$HOME/x.sh" &&
-  grep -q "lscpu -p=CPU,MODELNAME" "$HOME/x.sh" &&
-  grep -Fq -- "--bind \"\$TNX_CPUINFO_FILE:/proc/cpuinfo\"" "$HOME/x.sh" &&
-  grep -Fq "model name\\t: " "$HOME/x.sh" &&
-  grep -q "PULSE_MODULE_ID=.*pactl load-module module-native-protocol-tcp" "$HOME/x.sh" &&
-  grep -Fq "TNX_PID_FILE=\"\${TNX_PID_FILE:-\$HOME/.local/share/ternux/session/desktop.pid}\"" "$HOME/x.sh" &&
-  grep -Fq "guest_login_isolated debian" "$HOME/x.sh" &&
-  grep -Fq "local -a login_args=(--isolated --shared-x11)" "$HOME/x.sh" &&
-  grep -Fq "storage-allowlist" "$HOME/x.sh" &&
-  ! grep -Fq "login_args+=(--bind /sdcard:/sdcard)" "$HOME/x.sh" &&
-  grep -Fq "/linkerconfig/ld.config.txt" "$HOME/x.sh" &&
-  grep -Fq "ternux-camera" "$HOME/x.sh" &&
-  grep -Fq "ternux-recorder" "$HOME/x.sh" &&
-  ! grep -Fq -- "--shared-home" "$HOME/x.sh" &&
-  ! grep -Fq -- "--shared-tmp" "$HOME/x.sh" &&
-  grep -Fq "cat \"\$TNX_PID_FILE\"" "$HOME/x.sh" &&
-  grep -q -- "--env PULSE_SERVER=\"tcp:127.0.0.1:\$PULSE_PORT\"" "$HOME/x.sh" &&
-  ! grep -q "PULSE_SERVER=tcp:127.0.0.1:4713" "$HOME/x.sh" &&
-  ! grep -q "pkill.*dbus" "$HOME/x.sh" &&
-  grep -q "chmod 700 \"\$HOME/.runtime\"" "$HOME/x.sh" &&
-  ! grep -q "^virgl_test_server_android " "$HOME/x.sh" &&
+  grep -q -- "--env LC_ALL=en_US.UTF-8" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  grep -q "^trap cleanup EXIT$" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  grep -Fq "pactl unload-module \"\$PULSE_MODULE_ID\"" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  grep -Fq "kill_owned_child \"\${X11_PID:-}\"" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  grep -Fq "TNX_IDENTITY_FILE=\"\${TNX_PID_FILE}.identity\"" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  grep -Fq "/run/user/" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  ! grep -Fq "rm -f \"\$TMPDIR\"/.X11-unix/X*" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  ! grep -q "pulseaudio --kill.*pkill -KILL" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  grep -q "candidate=4713; candidate<=4722" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  grep -q "lscpu -p=CPU,MODELNAME" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  grep -Fq -- "--bind \"\$TNX_CPUINFO_FILE:/proc/cpuinfo\"" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  grep -Fq "model name\\t: " "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  grep -q "PULSE_MODULE_ID=.*pactl load-module module-native-protocol-tcp" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  grep -Fq "TNX_PID_FILE=\"\${TNX_PID_FILE:-\$HOME/.local/share/ternux/session/desktop.pid}\"" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  grep -Fq "guest_login_isolated debian" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  grep -Fq "local -a login_args=(--isolated --shared-x11)" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  grep -Fq "storage-allowlist" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  ! grep -Fq "login_args+=(--bind /sdcard:/sdcard)" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  grep -Fq "/linkerconfig/ld.config.txt" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  grep -Fq "ternux-camera" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  grep -Fq "ternux-recorder" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  ! grep -Fq -- "--shared-home" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  ! grep -Fq -- "--shared-tmp" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  grep -Fq "cat \"\$TNX_PID_FILE\"" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  grep -q -- "--env PULSE_SERVER=\"tcp:127.0.0.1:\$PULSE_PORT\"" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  ! grep -q "PULSE_SERVER=tcp:127.0.0.1:4713" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  ! grep -q "pkill.*dbus" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  grep -q "chmod 700 \"\$HOME/.runtime\"" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  ! grep -q "^virgl_test_server_android " "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
   ! grep -q "pkill.*dbus" "$HOME/.bashrc" &&
   ! grep -Fq "alias x=" "$HOME/.bashrc" &&
   grep -q "xgo() { _ternux_xgo; }" "$HOME/.bashrc" &&
@@ -1478,7 +1479,7 @@ if env TERNUX_STATE_DIR="$TMP/state-pulse-port" HOME="$TMP/home-pulse-port" bash
   mkdir -p "$HOME"
   . "$1/lib/phases.sh"
   tnx_phase_launcher ternux zink en_US.UTF-8 >/dev/null
-  sed -n "/^PULSE_PORT=.*/,/^# Display/{ /^# Display/d; p; }" "$HOME/x.sh" > "$2/audio-bridge.sh"
+  sed -n "/^PULSE_PORT=.*/,/^# Display/{ /^# Display/d; p; }" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" > "$2/audio-bridge.sh"
   pactl(){
     case "$*" in
       *port=4713*) return 1 ;;
@@ -1499,14 +1500,14 @@ if env TERNUX_STATE_DIR="$TMP/state-repair-launcher" HOME="$TMP/home-repair-laun
   . "$1/lib/repair.sh"
   tnx_state_get(){ case "$1" in backend) echo zink;; user) echo ternux;; locale) echo en_US.UTF-8;; esac; }
   tnx_ok(){ :; }; tnx_warn(){ :; }; tnx_state_set(){ :; }
-  cat > "$HOME/x.sh" <<"OLD"
+  cat > "$TERNUX_STATE_DIR/distros/debian/launcher.sh" <<"OLD"
 #!/bin/bash
 exit 0
 OLD
-  chmod +x "$HOME/x.sh"
+  chmod +x "$TERNUX_STATE_DIR/distros/debian/launcher.sh"
   _TNX_REPAIR_CHANGED=0
   _tnx_repair_launcher || exit
-  [ "$_TNX_REPAIR_CHANGED" = 1 ] && grep -q '^PULSE_PORT=""$' "$HOME/x.sh" || exit
+  [ "$_TNX_REPAIR_CHANGED" = 1 ] && grep -q '^PULSE_PORT=""$' "$TERNUX_STATE_DIR/distros/debian/launcher.sh" || exit
   _TNX_REPAIR_CHANGED=0
   _tnx_repair_launcher || exit
   [ "$_TNX_REPAIR_CHANGED" = 0 ]
@@ -1520,17 +1521,17 @@ if env TERNUX_STATE_DIR="$TMP/state-virgl" HOME="$TMP/home-virgl" bash -c '
   mkdir -p "$HOME"
   . "$1/lib/phases.sh"
   tnx_phase_launcher bob virgl bn_BD.UTF-8 >/dev/null
-  bash -n "$HOME/x.sh" &&
-  grep -q "^virgl_test_server_android " "$HOME/x.sh" &&
-  grep -Fq "VIRGL_SOCKET=\"\$PREFIX/tmp/.virgl_test\"" "$HOME/x.sh" &&
-  grep -Fq "guest_login_isolated debian --bind \"\$VIRGL_SOCKET:/tmp/.virgl_test\"" "$HOME/x.sh" &&
-  grep -q "VirGL server socket was not created" "$HOME/x.sh" &&
-  grep -Fq "renderer_info=\"\$(timeout 5s glxgears -info 2>&1 || true)\"" "$HOME/x.sh" &&
-  grep -Fq "GL_RENDERER[[:space:]]*=[[:space:]]*virgl" "$HOME/x.sh" &&
-  grep -Fq -- "--env MESA_GLES_VERSION_OVERRIDE=3.2 --env MESA_NO_ERROR=1 --env LIBGL_DRI3_DISABLE=1" "$HOME/x.sh" &&
-  grep -Fq "export GALLIUM_DRIVER=llvmpipe LIBGL_ALWAYS_SOFTWARE=1 MESA_LOADER_DRIVER_OVERRIDE=llvmpipe" "$HOME/x.sh" &&
-  ! grep -q -- "--shared-tmp" "$HOME/x.sh" &&
-  ! grep -q "MESA_LOADER_DRIVER_OVERRIDE=zink" "$HOME/x.sh"
+  bash -n "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  grep -q "^virgl_test_server_android " "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  grep -Fq "VIRGL_SOCKET=\"\$PREFIX/tmp/.virgl_test\"" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  grep -Fq "guest_login_isolated debian --bind \"\$VIRGL_SOCKET:/tmp/.virgl_test\"" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  grep -q "VirGL server socket was not created" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  grep -Fq "renderer_info=\"\$(timeout 5s glxgears -info 2>&1 || true)\"" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  grep -Fq "GL_RENDERER[[:space:]]*=[[:space:]]*virgl" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  grep -Fq -- "--env MESA_GLES_VERSION_OVERRIDE=3.2 --env MESA_NO_ERROR=1 --env LIBGL_DRI3_DISABLE=1" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  grep -Fq "export GALLIUM_DRIVER=llvmpipe LIBGL_ALWAYS_SOFTWARE=1 MESA_LOADER_DRIVER_OVERRIDE=llvmpipe" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  ! grep -q -- "--shared-tmp" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  ! grep -q "MESA_LOADER_DRIVER_OVERRIDE=zink" "$TERNUX_STATE_DIR/distros/debian/launcher.sh"
 ' _ "$ROOT"; then
   ok "VirGL launcher checks the real GLX renderer and keeps llvmpipe as the final fallback"
 else
@@ -1723,6 +1724,11 @@ EOF
       scratch="$3"
       _tnx_repair_kgsl_available(){ :; }
       tnx_has_cmd(){ [ "$1" = proot-distro ]; }
+      _probe=0
+      tnx_guest_login(){
+        _probe=$((_probe + 1))
+        [ "$_probe" = 1 ] && printf "expected-driver\n" || printf "expected-icd\n"
+      }
       tnx_state_get(){
         case "$1" in
           backend) echo zink ;;
@@ -4285,7 +4291,7 @@ if env HOME="$TMP/home-launchgen" TERNUX_STATE_DIR="$TMP/state-launchgen" \
     tnx_phase_launcher ternux zink en_US.UTF-8 >/dev/null 2>&1
     : > "$HOME/.bashrc"
     RC_FILE="$HOME/.bashrc" tnx_phase_aliases ternux bash >/dev/null 2>&1 || true
-    launcher="$TERNUX_STATE_DIR/distros/ternux/launcher.sh"
+    launcher="$TERNUX_STATE_DIR/distros/debian/launcher.sh"
     grep -q "guest_login_isolated debian" "$launcher" &&
     grep -q "proot-distro login" "$launcher" &&
     ! grep -q "tnx_guest_login" "$launcher" &&
