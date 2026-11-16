@@ -576,12 +576,16 @@ Options menu:
 - 0 — cancel
 
 `all` removes Ternux launcher and shell startup blocks, registered Ternux guest
-containers, Ternux state, owned caches, the host CLI, and its update backups. It
-preserves Termux itself, shared Termux packages, unregistered PRoot guests and
-non-empty capture folders. It does not revoke storage access, reset mirrors, or
-revert the Termux PulseAudio configuration. Container deletion requires
-confirmation. `--yes` is intended only for a caller that deliberately accepts
-irreversible data loss.
+containers, Termux packages recorded as newly installed by Ternux, Ternux state,
+owned caches, the host CLI, and its update backups. It preserves Termux itself,
+packages that were already installed before Ternux, unregistered PRoot guests
+and non-empty capture folders. Existing installations without a package
+ownership ledger keep their Termux packages because their ownership cannot be
+proved. It does not revoke storage access, reset mirrors, or revert the Termux
+PulseAudio configuration. Container deletion requires confirmation. `--yes` is
+intended only for a caller that deliberately accepts irreversible data loss.
+The separate `state` and `host-cli` actions retain the ownership ledger so a
+later `all` run can still remove packages Ternux installed.
 
 ## Shell completion
 

@@ -418,9 +418,86 @@ tnx_guest_login() {
   fi
 }
 
+# Store host package ownership beside Termux's package metadata, not in user
+# installation state: `uninstall state` must not discard cleanup evidence.
+tnx_termux_package_ledger() {
+  printf '%s/var/lib/ternux/owned-packages' "${PREFIX:-/data/data/com.termux/files/usr}"
+}
+
+# Record only explicitly requested Termux packages that were absent before a
+# Ternux package transaction. This gives `uninstall all` reliable ownership
+# evidence without guessing from the current host package inventory.
+_tnx_record_termux_package_ownership() {
+  local -a packages=("$@") newly=()
+  local package status prefix="${PREFIX:-/data/data/com.termux/files/usr}"
+  local ledger_dir="$prefix/var/lib/ternux" ledger tmp
+  ledger="$(tnx_termux_package_ledger)"
+  for package in "${packages[@]}"; do
+    [[ "$package" =~ ^[a-z0-9][a-z0-9+.-]*$ ]] || continue
+    status="$(dpkg-query -W -f='${db:Status-Status}' "$package" 2>/dev/null || true)"
+    [ "$status" = installed ] && newly+=("$package")
+  done
+  [ "${#newly[@]}" -gt 0 ] || return 0
+  mkdir -p -m 700 -- "$ledger_dir" || return 1
+  [ ! -L "$prefix/var" ] && [ ! -L "$prefix/var/lib" ] &&
+    [ ! -L "$ledger_dir" ] && [ ! -L "$ledger" ] || return 1
+  if [ -e "$ledger" ] && { [ ! -f "$ledger" ] || [ -L "$ledger" ]; }; then return 1; fi
+  if [ -f "$ledger" ]; then
+    while IFS= read -r package || [ -n "$package" ]; do
+      [[ "$package" =~ ^[a-z0-9][a-z0-9+.-]*$ ]] || return 1
+    done < "$ledger"
+  fi
+  tmp="$(mktemp "$ledger_dir/.owned-packages.XXXXXX")" || return 1
+  { [ ! -f "$ledger" ] || cat "$ledger"; printf '%s\n' "${newly[@]}"; } |
+    awk 'NF && !seen[$0]++' > "$tmp" || { rm -f -- "$tmp"; return 1; }
+  chmod 600 "$tmp" && mv -f -- "$tmp" "$ledger" || { rm -f -- "$tmp"; return 1; }
+}
+
 # Avoid a host toolchain override shadowing Termux libraries in APT.
-tnx_termux_pkg() { LD_LIBRARY_PATH= pkg "$@"; }
-tnx_termux_apt_get() { LD_LIBRARY_PATH= apt-get "$@"; }
+_tnx_termux_install_tracked() {
+  local manager="$1" arg skip=0 rc
+  local -a requested=() absent=()
+  shift
+  for arg in "$@"; do
+    if [ "$skip" -eq 1 ]; then skip=0; continue; fi
+    case "$arg" in
+      -o|--option|-t|--root) skip=1 ;;
+      -*) ;;
+      *) [[ "$arg" =~ ^[a-z0-9][a-z0-9+.-]*$ ]] && requested+=("$arg") ;;
+    esac
+  done
+  for arg in "${requested[@]}"; do
+    [ "$(dpkg-query -W -f='${db:Status-Status}' "$arg" 2>/dev/null || true)" = installed ] || absent+=("$arg")
+  done
+  LD_LIBRARY_PATH= "$manager" install "$@"; rc=$?
+  if [ "${#absent[@]}" -gt 0 ]; then
+    _tnx_record_termux_package_ownership "${absent[@]}" || {
+      tnx_warn "Could not save Termux package ownership for uninstall tracking."
+      [ "$rc" -ne 0 ] || rc=1
+    }
+  fi
+  return "$rc"
+}
+
+tnx_termux_pkg() {
+  local command="${1:-}"
+  shift || true
+  if [ "$command" = install ]; then
+    _tnx_termux_install_tracked pkg "$@"
+  else
+    LD_LIBRARY_PATH= pkg "$command" "$@"
+  fi
+}
+
+tnx_termux_apt_get() {
+  local command="${1:-}"
+  shift || true
+  if [ "$command" = install ]; then
+    _tnx_termux_install_tracked apt-get "$@"
+  else
+    LD_LIBRARY_PATH= apt-get "$command" "$@"
+  fi
+}
 tnx_termux_apt_cache() { LD_LIBRARY_PATH= apt-cache "$@"; }
 
 # ---------------------------------------------------------------------------
