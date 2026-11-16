@@ -1727,7 +1727,8 @@ EOF
       tnx_guest_login(){
         case "$*" in
           *ternux_freedreno_icd.json*) printf "expected-icd\n" ;;
-          *libvulkan_freedreno.so*) printf "expected-driver\n" ;;
+          *libvulkan_freedreno.so*)
+            [ "$hash_case" = matching ] && printf "expected-driver\n" || printf "changed-driver\n" ;;
           *) return 1 ;;
         esac
       }
