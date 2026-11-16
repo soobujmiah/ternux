@@ -49,12 +49,18 @@ _tnx_dr_jesc() {
 # Runs inside the selected PRoot guest (serialised with `declare -f`). It only reads
 # state and prints `key=value` lines; it never installs or changes anything.
 _tnx_doctor_guest_probe() {
-  local one root="$HOME/.local/opt/ternux-extensions" e name manifest artifact out libs binary overlay overlay_libdir
+  local one root="$HOME/.local/opt/ternux-extensions" e name manifest artifact out libs binary overlay overlay_libdir sudo_rule sudo_configured sudo_file
   _p() { printf '%s=%s\n' "$1" "$(printf '%s' "$2" | tr '\n\r' '  ')"; }
   _p guest.arch "$(uname -m 2>/dev/null)"
   _p guest.glibc "$(getconf GNU_LIBC_VERSION 2>/dev/null | awk '{print $2}')"
   _p guest.os "$( (. /etc/os-release 2>/dev/null && printf '%s' "${PRETTY_NAME:-unknown}") )"
-  if sudo -n true >/dev/null 2>&1; then _p guest.sudo yes; else _p guest.sudo no; fi
+  sudo_rule="$(id -un) ALL=(ALL:ALL) ALL"
+  sudo_configured=0
+  for sudo_file in /etc/sudoers /etc/sudoers.d/*; do
+    [ -f "$sudo_file" ] || continue
+    grep -Fqx -- "$sudo_rule" "$sudo_file" && sudo_configured=1
+  done
+  [ "$sudo_configured" -eq 1 ] && _p guest.sudo yes || _p guest.sudo no
   for one in startxfce4 glxinfo xdpyinfo pactl; do
     if command -v "$one" >/dev/null 2>&1; then _p "guest.cmd.$one" yes; else _p "guest.cmd.$one" no; fi
   done
@@ -271,8 +277,8 @@ _tnx_dr_guest() {
   else
     _tnx_dr_add info guest "${idp}glibc" "${titlep}glibc version unknown"
   fi
-  if [ "${_TNX_DR_GUEST["guest.sudo"]:-no}" = yes ]; then _tnx_dr_add ok guest "${idp}sudo" "${titlep}passwordless sudo works"
-  else _tnx_dr_add warn guest "${idp}sudo_missing" "${titlep}passwordless sudo does not work" "Package installs inside the guest may require root" "Run: tx repair"; fi
+  if [ "${_TNX_DR_GUEST["guest.sudo"]:-no}" = yes ]; then _tnx_dr_add ok guest "${idp}sudo" "${titlep}password-required sudo is configured"
+  else _tnx_dr_add warn guest "${idp}sudo_missing" "${titlep}password-required sudo is not configured" "Package installs inside the guest may require root" "Run: tx install --resume"; fi
   for k in startxfce4 glxinfo xdpyinfo pactl; do
     if [ "${_TNX_DR_GUEST["guest.cmd.$k"]:-no}" = yes ]; then _tnx_dr_add ok guest "${idp}cmd_$k" "${titlep}$k present"
     else _tnx_dr_add warn guest "${idp}guest_cmd_${k}_missing" "${titlep}$k missing" "" "Run: tx install --resume --distro $distro"; fi
@@ -300,7 +306,7 @@ _tnx_dr_guest() {
 }
 
 _tnx_dr_graphics() {
-  local vulkan vulkan_state gpu backend configured_backend renderer="" current_backend kgsl
+  local vulkan vulkan_state gpu backend configured_backend renderer="" current_backend kgsl distro launcher_path
   vulkan_state="$(tnx_detect_vulkan_state)"
   vulkan="$(tnx_vulkan_legacy_status "$vulkan_state")"
   case "$vulkan_state" in
@@ -355,8 +361,10 @@ _tnx_dr_graphics() {
   fi
   _DR_RENDERER="$renderer"
 
-  if [ -f "$HOME/x.sh" ]; then _tnx_dr_add ok graphics launcher "Launcher exists"
-  else _tnx_dr_add warn graphics launcher_missing "Launcher missing" "" "Run: ternux install"; fi
+  distro="$(tnx_distro)"
+  launcher_path="$(tnx_distro_state_dir "$distro")/launcher.sh"
+  if [ -x "$launcher_path" ]; then _tnx_dr_add ok graphics launcher "Launcher exists for $distro"
+  else _tnx_dr_add warn graphics launcher_missing "Launcher missing for $distro" "" "Run: tx repair"; fi
 
   current_backend="$configured_backend"
   if [ "$current_backend" = virgl ] || [ -z "$current_backend" ]; then
@@ -664,7 +672,7 @@ tnx_cmd_verify() {
   TERNUX_DISTRO="$distro"
   _TNX_DISTRO="$distro"
   launcher="$(tnx_distro_state_dir "$distro")/launcher.sh"
-  if [ -x "$launcher" ] || { [ "$distro" = debian ] && [ -x "$HOME/x.sh" ]; }; then
+  if [ -x "$launcher" ]; then
     checks+=("launcher:present")
     [ "${TERNUX_JSON:-0}" != "1" ] && tnx_ok "${distro} launcher executable"
   else
@@ -675,12 +683,12 @@ tnx_cmd_verify() {
   if tnx_proot_container_installed "$distro"; then
     guest_installed=1
     checks+=("${distro}:installed")
-    if tnx_guest_login --user "$(tnx_distro_user "$distro")" -- bash -c 'command -v startxfce4 >/dev/null && command -v pactl >/dev/null && sudo -n true >/dev/null' 2>/dev/null; then
+    if tnx_guest_login --user "$(tnx_distro_user "$distro")" -- bash -c 'command -v startxfce4 >/dev/null && command -v pactl >/dev/null && grep -Fqx "$(id -un) ALL=(ALL:ALL) ALL" /etc/sudoers.d/ternux' 2>/dev/null; then
       checks+=("${distro}_services:ok")
       [ "${TERNUX_JSON:-0}" != "1" ] && tnx_ok "${distro} desktop services verified"
     else
       checks+=("${distro}_services:failed"); rc=1
-      [ "${TERNUX_JSON:-0}" != "1" ] && tnx_fail "${distro} desktop services or passwordless sudo are incomplete"
+      [ "${TERNUX_JSON:-0}" != "1" ] && tnx_fail "${distro} desktop services or password-required sudo configuration are incomplete"
     fi
   else
     checks+=("${distro}:not_installed"); rc=1

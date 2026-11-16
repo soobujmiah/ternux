@@ -125,6 +125,18 @@ The design choices that matter:
 The usual rules still apply: don't run untrusted binaries as root inside the
 container, and never paste credentials into issues or logs.
 
+### Why does `su` ask me for a password?
+
+`su` inside a guest asks for that guest's root password. An interactive Ternux
+install can set an optional guest root password. It separately asks for a sudo
+password and a shared startup password. The startup password is checked by
+interactive native Termux shells and managed guest shells; change it with
+`tx password startup`. Change the selected guest user's sudo password with
+`tx password sudo` or `passwd` inside that guest. Interactive root shells also
+run the startup prompt. The startup check is a convenience gate: the Termux app
+owner can bypass shell startup files and access guest files. On the native
+Termux host, `su` means Android root and requires a rooted device.
+
 ## How do I make everything bilingual?
 
 Core guides exist in English and Bangla; the full benchmark evidence archive is currently in English.

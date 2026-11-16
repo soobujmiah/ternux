@@ -39,8 +39,8 @@ set -u
 _TNX_SRC="$(cd "$(dirname "$0")" && pwd 2>/dev/null || echo "$PWD")"
 # Pin the exact source snapshot and its hosted codeload bytes. Keep this aligned
 # with lib/core.sh; refresh both after reviewing the archive and verifying its digest.
-_TNX_BOOTSTRAP_COMMIT="d8cd7c164fd404e5c8ed9da921270d2963cc8310"
-_TNX_BOOTSTRAP_SHA256="146ad427602ab7f9c9347898b747f9b9b31c4e167b42cd39640cdab9921b9d53"
+_TNX_BOOTSTRAP_COMMIT="dccfcd339a38a2aa68b4c810786b0ccf9845935c"
+_TNX_BOOTSTRAP_SHA256="c38c823b382f823296a91e5a319d1985fc9a8b2a262bea0fd57bfc2e5260eb31"
 
 _tnx_load_local() {
   [ -f "$_TNX_SRC/lib/core.sh" ] && [ -f "$_TNX_SRC/lib/phases.sh" ] && [ -f "$_TNX_SRC/lib/ui.sh" ] || return 1
@@ -358,12 +358,14 @@ case "${ACTION}" in
     ;;
   status)
     echo "Installation status:"
-    for pkg in packages cli debian gpu audio_fonts launcher aliases extras phantom verify; do
+    for pkg in packages cli debian root_password user_password startup_password gpu audio_fonts launcher aliases extras phantom verify; do
       if tnx_state_done "phase_$pkg"; then printf "  done    %s\n" "$pkg"
       else printf "  pending %s\n" "$pkg"; fi
     done
     echo ""
-    [ -x "$HOME/x.sh" ] && echo "  Launcher: $HOME/x.sh" || echo "  Launcher: not created"
+    status_distro="$(tnx_distro)"
+    status_launcher="$(tnx_distro_state_dir "$status_distro")/launcher.sh"
+    [ -x "$status_launcher" ] && echo "  Launcher: $status_launcher" || echo "  Launcher: not created"
     ;;
   uninstall)
     # Delegate to CLI if installed, otherwise use the standalone uninstaller

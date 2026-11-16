@@ -19,7 +19,7 @@ reopen Termux:X11 if Android has reclaimed the session.
 
 ### Keyboard input in Termux:X11
 
-Ternux enables Termux:X11 `enforceCharBasedInput` before starting the desktop so Android soft keyboards can send committed text to terminal and other X11 apps. The setting is also applied when `~/x.sh` is started directly. If input still fails after an upgrade, run `ternux restart` once so the running X11 server is recreated with the setting.
+Ternux enables Termux:X11 `enforceCharBasedInput` before starting the desktop so Android soft keyboards can send committed text to terminal and other X11 apps. The setting is applied through the managed desktop launcher. If input still fails after an upgrade, run `ternux restart` once so the running X11 server is recreated with the setting.
 
 ## Daily controls
 
@@ -43,6 +43,14 @@ automatic summary for the current shell. Run `terfetch` to display it again or
 | `terfetch` | Show the host or guest system summary; `--json` prints structured data |
 | `sysmon` | Quick CPU/RAM/GPU-node overview |
 | `clean-mesa` | Clear the shader cache (after driver changes) |
+
+The installer can set an optional password for the **guest root account**. This
+is useful for `su -` inside a guest. Press Enter to leave it unset. The password
+is not stored by Ternux on the Termux host; the guest stores its password hash.
+Because PRoot does not isolate the guest from the Termux app owner, root
+shortcuts such as `dbroot` continue to enter as root without asking. `su -` in
+the native Termux host instead refers to Android root and is unavailable on an
+unrooted device.
 
 **A healthy start/stop routine:**
 
@@ -162,8 +170,8 @@ See [CLI reference](CLI.html) for the implemented command and JSON fields.
 ```text
 Termux host                          PRoot Debian
 ────────────                         ────────────
-~/x.sh             launcher          /home/<user>     your home
-~/.local/share/ternux/ state          /root            root's home
+~/.local/share/ternux/distros/NAME/launcher.sh  launcher     /home/<user>  your home
+~/.local/share/ternux/ state                   state        /root         root's home
 ~/storage/shared   Android storage   /sdcard          same files; guest access is opt-in
 ```
 

@@ -60,7 +60,7 @@ _TNX_FRAME_ROWS=24          # drawing height of the frame (<= terminal rows)
 _TNX_TERM_COLS=0            # last raw measurement, used for resize detection
 _TNX_TERM_ROWS=0
 _TNX_SIZE_OK=0              # 1 when the terminal size could really be measured
-_TNX_FRAME_TOTAL=11
+_TNX_FRAME_TOTAL=12
 _TNX_FRAME_CUR=0
 _TNX_FRAME_TITLE="Preparing installation"
 _TNX_FRAME_BACKEND="auto"
@@ -1188,7 +1188,7 @@ tnx_spin_run() {
 # ── Phase checklist --------------------------------------------------------
 tnx_phase_checklist() {
   [ "${TERNUX_QUIET:-0}" = "1" ] && return 0
-  local phases=("$@") short=("pre" "pkg" "cli" "deb" "gpu" "aud" "lnc" "als" "ext" "phm" "ver")
+  local phases=("$@") short=("pre" "pkg" "cli" "deb" "pwd" "gpu" "aud" "lnc" "als" "ext" "phm" "ver")
   local i mark out="" distro="$(tnx_distro)"
   for i in "${!phases[@]}"; do
     if tnx_install_phase_done "${phases[$i]}" "$distro" 2>/dev/null; then mark="${TNX_CG}x${TNX_C0}"

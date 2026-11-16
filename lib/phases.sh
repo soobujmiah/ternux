@@ -169,28 +169,51 @@ tnx_phase_preflight() {
   return 0
 }
 
-# Benchmark known Termux mirrors without opening termux-change-repo. A short
+# Benchmark the installed Termux Asia mirror catalogue without opening
+# termux-change-repo. A short
 # Packages.gz transfer gives a useful throughput sample without downloading
 # the whole index; an optional excluded URL is used after a mirror failure.
 _tnx_select_fastest_mirror() {
   local sfile="${PREFIX:-/data/data/com.termux/files/usr}/etc/apt/sources.list"
   [ -f "$sfile" ] && command -v curl >/dev/null 2>&1 || return 1
-  local arch current mirror result code speed best_url="" best_speed=0 exclude="${1:-}"
+  local arch current mirror result code speed best_url="" best_speed=0 exclude="${1:-}" mirror_file mirror_root probe_dir idx=0
+  local -a probe_pids=()
   arch="$(dpkg --print-architecture 2>/dev/null || echo aarch64)"
   current="$(awk '$1 == "deb" && $3 == "stable" && $4 == "main" {print $2; exit}' "$sfile")"
-  local mirrors=(
-    "https://packages.termux.dev/apt/termux-main"
-    "https://grimler.se/termux/termux-main"
-    "https://mirror.karneval.cz/pub/linux/termux/termux-main"
-  )
+  local -a mirrors=()
+  mirror_root="${PREFIX:-/data/data/com.termux/files/usr}/etc/termux/mirrors"
+  if [ -d "$mirror_root" ]; then
+    while IFS= read -r mirror_file; do
+      mirror="$(sed -nE 's/^MAIN="([^"]+)"$/\1/p' "$mirror_file" | head -n 1)"
+      [[ "$mirror" =~ ^https?://[^[:space:]]+/termux-main$ ]] || continue
+      mirrors+=("$mirror")
+    done < <(find "$mirror_root/asia" "$mirror_root/default" -type f -not -name '*~' -print 2>/dev/null)
+  fi
   [ -z "$current" ] || mirrors+=("$current")
+  [ ${#mirrors[@]} -gt 0 ] || return 1
+  probe_dir="$(mktemp -d "${TMPDIR:-/tmp}/ternux-mirror-probe.XXXXXX")" || return 1
   for mirror in "${mirrors[@]}"; do
     [ "$mirror" != "$exclude" ] || continue
-    result="$(curl -LsS --connect-timeout 3 --max-time 5 -o /dev/null -w '%{http_code} %{speed_download}' "$mirror/dists/stable/main/binary-$arch/Packages.gz" 2>/dev/null || true)"
+    (curl -LsS --connect-timeout 3 --max-time 5 -o /dev/null -w '%{http_code} %{speed_download}' \
+      "$mirror/dists/stable/main/binary-$arch/Packages.gz" 2>/dev/null || true) > "$probe_dir/$idx" &
+    probe_pids+=("$!")
+    if [ ${#probe_pids[@]} -ge 6 ]; then
+      for pid in "${probe_pids[@]}"; do wait "$pid" 2>/dev/null || true; done
+      probe_pids=()
+    fi
+    idx=$((idx + 1))
+  done
+  for pid in "${probe_pids[@]}"; do wait "$pid" 2>/dev/null || true; done
+  idx=0
+  for mirror in "${mirrors[@]}"; do
+    [ "$mirror" != "$exclude" ] || continue
+    result="$(cat "$probe_dir/$idx" 2>/dev/null || true)"
+    idx=$((idx + 1))
     read -r code speed <<< "$result"
     [[ "$code" == 200 && "$speed" =~ ^[0-9]+$ ]] || continue
     if (( speed > best_speed )); then best_speed="$speed"; best_url="$mirror"; fi
   done
+  rm -rf "$probe_dir"
   [ -n "$best_url" ] || return 1
   [ "$best_url" != "$current" ] || { tnx_info "Fastest Termux mirror remains $current (${best_speed} B/s)."; return 0; }
   sed -i -E "s#^(deb[[:space:]]+)https?://[^[:space:]]+/(apt/|termux/)termux-main([[:space:]])#\\1${best_url}\\3#" "$sfile" || return 1
@@ -292,6 +315,7 @@ tnx_phase_packages() {
       fi
     fi
   fi
+
   if [ "$rc" -eq 0 ] && [ "$package_stack_repaired" -eq 0 ] &&
      ! tnx_spin_run "Upgrade installed Termux packages" tnx_termux_pkg upgrade -y $APT_FORCE; then
     if _tnx_switch_mirror && tnx_spin_run "Retry upgrade with the next fastest Termux mirror" tnx_termux_pkg upgrade -y $APT_FORCE; then
@@ -442,7 +466,7 @@ tnx_find_terfetch() {
 }
 
 tnx_phase_debian() {
-  local user_name="${1:-ternux}" package_family input_engine=ibus-avro apt_mirror="http://deb.debian.org/debian"
+  local user_name="${1:-ternux}" package_family input_engine=ibus-avro
   [ "$(tnx_distro)" != alpine ] || input_engine=m17n:bn:avro-phonetic
   local resource_dir="${BASH_SOURCE[0]%/*}" terfetch_path=""
   terfetch_path="$(tnx_find_terfetch "$resource_dir")" || {
@@ -489,31 +513,12 @@ tnx_phase_debian() {
 
   tnx_distro_profile "$(tnx_distro)" || { tnx_fail "No package recipe for guest '$(tnx_distro)'."; return 2; }
   package_family="$TNX_DP_FAMILY"
-  # Measure reachable official Debian archive mirrors from this device. Keep
-  # security updates on deb.debian.org because BD mirrors lack that archive.
-  if [ "$(tnx_distro)" = debian ] && command -v curl >/dev/null 2>&1; then
-    local mirror probe rates mirror_speed probe_speed best_speed=0
-    for mirror in http://deb.debian.org/debian http://mirror.limda.net/debian http://mirror.xeonbd.com/debian; do
-      rates=""
-      for probe in trixie trixie-updates; do
-        probe_speed="$(curl -fLsS --connect-timeout 3 --max-time 8 -o /dev/null -w '%{speed_download}' "$mirror/dists/$probe/InRelease" 2>/dev/null)" || { rates=""; break; }
-        rates="${rates:+$rates+}$probe_speed"
-      done
-      [ -n "$rates" ] || continue
-      mirror_speed="$(awk -F+ '{printf "%.0f", ($1 + $2) / 2}' <<< "$rates")"
-      if awk -v candidate="$mirror_speed" -v best="$best_speed" 'BEGIN { exit !(candidate > best) }'; then
-        best_speed="$mirror_speed"
-        apt_mirror="$mirror"
-      fi
-    done
-    tnx_info "Using fastest reachable Debian archive mirror: $apt_mirror (probe ${best_speed} B/s; security updates remain on deb.debian.org)."
-  fi
+  tnx_info "Using the selected distro's own repository resolver for $package_family packages; automatic mirror failover stays enabled."
   # Minimal Alpine images provide POSIX sh but not Bash. This first package
   # bootstrap installs Bash itself, so it must run through sh.
   local guest_setup_script="
     set -e
     FAMILY='$package_family'
-    APT_MIRROR='$apt_mirror'
     BWRAP_SHIM_B64='$proot_bwrap_b64'
     export DEBIAN_FRONTEND=noninteractive
     install_proot_bwrap_shim() {
@@ -522,64 +527,37 @@ tnx_phase_debian() {
       chmod 0755 /usr/local/bin/.ternux-bwrap.new
       mv -f /usr/local/bin/.ternux-bwrap.new /usr/local/bin/bwrap
     }
+    refresh_repo_metadata() {
+      case "\$FAMILY" in
+        apt) apt-get update -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 ;;
+        apk) apk update ;;
+        pacman) pacman -Syy --noconfirm ;;
+        dnf) dnf makecache --refresh ;;
+        zypper) zypper --non-interactive refresh ;;
+        xbps) xbps-install -S ;;
+        *) return 1 ;;
+      esac
+    }
     pkg_retry() {
       attempt=1
       while ! "\$@"; do
         if [ "\$attempt" -ge 3 ]; then return 1; fi
-        echo \"[WARN] Package command failed; retrying (\$((attempt + 1))/3): \$*\" >&2
+        echo \"[WARN] Package command failed; refreshing configured repository metadata and retrying (\$((attempt + 1))/3): \$*\" >&2
+        refresh_repo_metadata || true
         sleep "\$attempt"
         attempt=\$((attempt + 1))
       done
     }
     DPKG_FORCE=\"-o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -o APT::Color=1 -o Dpkg::Progress-Fancy=1 -o Acquire::Retries=3\"
-    set_debian_mirror() {
-      local target="\$1" source temp
-      for source in /etc/apt/sources.list.d/*.sources; do
-        [ -f "\$source" ] || continue
-        temp="\${source}.ternux-tmp"
-        if ! awk -v target=\"\$target\" 'BEGIN { RS=\"\"; ORS=\"\\n\\n\" }
-          {
-            count = split(\$0, lines, \"\\n\")
-            security = 0
-            for (i = 1; i <= count; i++) if (lines[i] ~ /^Suites:/ && lines[i] ~ /security/) security = 1
-            if (!security) for (i = 1; i <= count; i++) if (lines[i] ~ /^URIs:/) lines[i] = \"URIs: \" target
-            record = lines[1]
-            for (i = 2; i <= count; i++) record = record \"\\n\" lines[i]
-            print record
-          }' \"\$source\" > \"\$temp\"; then
-          rm -f \"\$temp\"
-          return 1
-        fi
-        cat "\$temp" > "\$source" || { rm -f "\$temp"; return 1; }
-        rm -f "\$temp"
-      done
-      for source in /etc/apt/sources.list /etc/apt/sources.list.d/*.list; do
-        [ -f "\$source" ] || continue
-        temp="\${source}.ternux-tmp"
-        if ! awk -v target="\$target" '
-          /^([[:space:]]*deb(-src)?[[:space:]]+)/ && \$2 ~ /^https?:\\/\\/(deb\\.debian\\.org\\/debian|mirror\\.limda\\.net\\/debian|mirror\\.xeonbd\\.com\\/debian)([[:space:]]|$)/ && \$3 !~ /security/ { \$2 = target }
-          { print }
-        ' "\$source" > "\$temp"; then
-          rm -f "\$temp"
-          return 1
-        fi
-        cat "\$temp" > "\$source" || { rm -f "\$temp"; return 1; }
-        rm -f "\$temp"
-      done
-    }
-    if [ "\$FAMILY" = apt ] && [ '$(tnx_distro)' = debian ]; then
-      set_debian_mirror "\$APT_MIRROR"
-    fi
       timeout() {
         local has_apt=0 is_update=0 arg
         for arg in "\$@"; do
           if [ "\$arg" = apt ]; then has_apt=1; fi
           if [ "\$arg" = update ]; then is_update=1; fi
         done
-        if [ "\$has_apt" -ne 1 ] || [ "\$FAMILY" != apt ] || [ '$(tnx_distro)' != debian ]; then command timeout "\$@"; return; fi
+        if [ "\$has_apt" -ne 1 ] || [ "\$FAMILY" != apt ]; then command timeout "\$@"; return; fi
         command timeout "\$@" && return 0
-        echo 'Selected Debian mirror failed; switching to deb.debian.org and retrying the APT operation.'
-        set_debian_mirror http://deb.debian.org/debian
+        echo 'APT operation failed; refreshing the distro-configured repositories before retrying.'
         if [ "\$is_update" -ne 1 ]; then
           command timeout --signal=TERM --kill-after=10 300 apt update -o APT::Color=1 -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 || return 1
         fi
@@ -616,23 +594,23 @@ tnx_phase_debian() {
         if [ "$(tnx_distro)" = chimera ]; then pkg_retry apk add mesa-vulkan; elif [ "$(tnx_distro)" = alpine ]; then pkg_retry apk add mesa-vulkan-freedreno; fi
         ;;
       pacman)
-        pacman -Syu --noconfirm --needed
+        pkg_retry pacman -Syu --noconfirm --needed
         install_proot_bwrap_shim
-        pacman -S --noconfirm --needed sudo bash nano mousepad galculator evince noto-fonts python-gobject gtk3 glib2 ibus devilspie2 xorg-xhost xorg-setxkbmap pulseaudio pavucontrol mesa mesa-utils vulkan-icd-loader vulkan-freedreno vulkan-tools xorg-xdpyinfo xdg-utils desktop-file-utils util-linux fontconfig gsettings-desktop-schemas xfconf adwaita-icon-theme xfce4 xfce4-goodies xfce4-terminal zenity vlc ffmpeg ristretto qt5ct colord
+        pkg_retry pacman -S --noconfirm --needed sudo bash nano mousepad galculator evince noto-fonts python-gobject gtk3 glib2 ibus devilspie2 xorg-xhost xorg-setxkbmap pulseaudio pavucontrol mesa mesa-utils vulkan-icd-loader vulkan-freedreno vulkan-tools xorg-xdpyinfo xdg-utils desktop-file-utils util-linux fontconfig gsettings-desktop-schemas xfconf adwaita-icon-theme xfce4 xfce4-goodies xfce4-terminal zenity vlc ffmpeg ristretto qt5ct colord
         ;;
       dnf)
         install_proot_bwrap_shim
-        dnf install -y sudo bash nano mousepad galculator evince google-noto-sans-fonts python3-gobject gtk3 glib2 ibus devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol mesa-dri-drivers mesa-vulkan-drivers vulkan-loader vulkan-tools glx-utils xorg-x11-utils setxkbmap xdg-utils desktop-file-utils util-linux fontconfig gsettings-desktop-schemas xfconf adwaita-icon-theme xfce4-panel xfce4-session xfce4-settings xfce4-terminal xfce4-taskmanager zenity vlc ffmpeg ristretto qt5-qtbase colord
+        pkg_retry dnf install -y sudo bash nano mousepad galculator evince google-noto-sans-fonts python3-gobject gtk3 glib2 ibus devilspie2 dbus-x11 pulseaudio pulseaudio-utils pavucontrol mesa-dri-drivers mesa-vulkan-drivers vulkan-loader vulkan-tools glx-utils xorg-x11-utils setxkbmap xdg-utils desktop-file-utils util-linux fontconfig gsettings-desktop-schemas xfconf adwaita-icon-theme xfce4-panel xfce4-session xfce4-settings xfce4-terminal xfce4-taskmanager zenity vlc ffmpeg ristretto qt5-qtbase colord
         ;;
       zypper)
-        zypper --non-interactive refresh
+        pkg_retry zypper --non-interactive refresh
         install_proot_bwrap_shim
-        zypper --non-interactive install -y sudo bash nano mousepad galculator evince google-noto-sans-fonts python3-gobject gtk3 glib2-tools ibus dbus-1-x11 pulseaudio pulseaudio-utils pavucontrol Mesa-dri Mesa-demo-x libvulkan1 libvulkan_freedreno vulkan-tools xorg-x11-utils setxkbmap xdg-utils desktop-file-utils util-linux fontconfig gsettings-desktop-schemas xfconf adwaita-icon-theme xfce4-panel xfce4-session xfce4-settings xfce4-terminal xfce4-taskmanager zenity vlc ffmpeg ristretto libqt5-qtbase colord
+        pkg_retry zypper --non-interactive install -y sudo bash nano mousepad galculator evince google-noto-sans-fonts python3-gobject gtk3 glib2-tools ibus dbus-1-x11 pulseaudio pulseaudio-utils pavucontrol Mesa-dri Mesa-demo-x libvulkan1 libvulkan_freedreno vulkan-tools xorg-x11-utils setxkbmap xdg-utils desktop-file-utils util-linux fontconfig gsettings-desktop-schemas xfconf adwaita-icon-theme xfce4-panel xfce4-session xfce4-settings xfce4-terminal xfce4-taskmanager zenity vlc ffmpeg ristretto libqt5-qtbase colord
         ;;
       xbps)
-        xbps-install -Suy
+        pkg_retry xbps-install -Suy
         install_proot_bwrap_shim
-        xbps-install -Sy sudo bash nano mousepad galculator evince noto-fonts-ttf python3-gobject gtk+3 glib ibus dbus pulseaudio pulseaudio-utils pavucontrol mesa-dri mesa-demos vulkan-loader mesa-vulkan-freedreno vulkan-tools setxkbmap xdg-utils desktop-file-utils util-linux fontconfig gsettings-desktop-schemas xfconf adwaita-icon-theme xfce4 xfce4-terminal xfce4-taskmanager zenity vlc ffmpeg ristretto qt5-base colord
+        pkg_retry xbps-install -Sy sudo bash nano mousepad galculator evince noto-fonts-ttf python3-gobject gtk+3 glib ibus dbus pulseaudio pulseaudio-utils pavucontrol mesa-dri mesa-demos vulkan-loader mesa-vulkan-freedreno vulkan-tools setxkbmap xdg-utils desktop-file-utils util-linux fontconfig gsettings-desktop-schemas xfconf adwaita-icon-theme xfce4 xfce4-terminal xfce4-taskmanager zenity vlc ffmpeg ristretto qt5-base colord
         ;;
       *) echo \"Unsupported package manager family: \$FAMILY\" >&2; exit 2 ;;
     esac
@@ -796,11 +774,11 @@ VLC_DESKTOP
     install -d -m 0750 /etc/sudoers.d
     F=/etc/sudoers.d/ternux; T=\"\$(mktemp /tmp/ternux-sudoers.XXXXXX)\"
     if grep -Eq '^[[:space:]]*[@#]includedir[[:space:]]+/etc/sudoers[.]d([[:space:]]|$)' /etc/sudoers; then
-      printf '%s ALL=(ALL) NOPASSWD: ALL\n' \"\$U\" > \"\$T\"
+      printf '%s ALL=(ALL:ALL) ALL\n' \"\$U\" > \"\$T\"
       if visudo -cf \"\$T\" >/dev/null 2>&1; then install -m 0440 -o root -g root \"\$T\" \"\$F\"; else rm -f \"\$T\"; exit 1; fi
     else
       cat /etc/sudoers > \"\$T\"
-      printf '\n%s ALL=(ALL) NOPASSWD: ALL\n' \"\$U\" >> \"\$T\"
+      printf '\n%s ALL=(ALL:ALL) ALL\n' \"\$U\" >> \"\$T\"
       if visudo -cf \"\$T\" >/dev/null 2>&1; then install -m 0440 -o root -g root \"\$T\" /etc/sudoers; else rm -f \"\$T\"; exit 1; fi
     fi
     rm -f \"\$T\"
@@ -1042,18 +1020,69 @@ DESKTOP
     sh -n /usr/local/bin/ternux-welcome
   " || { tnx_fail "User setup failed."; return 1; }
 
-  if tnx_guest_login --shared-tmp --user "$user_name" -- sudo -n true >/dev/null 2>&1; then
-    tnx_ok "Guest '$(tnx_distro)' + Xfce4 + user '$user_name' ready (passwordless sudo)."
+  if tnx_guest_login --user root -- grep -Fqx "$user_name ALL=(ALL:ALL) ALL" /etc/sudoers.d/ternux 2>/dev/null; then
+    tnx_ok "Guest '$(tnx_distro)' + Xfce4 + user '$user_name' ready (password-required sudo)."
   else
-    tnx_fail "Passwordless sudo not working for '$user_name'."
+    tnx_fail "Password-required sudo rule missing for '$user_name'."
     return 1
   fi
 
   tnx_install_guest_cli "$user_name" || return $?
 }
 
+# Phase 5 — optional guest root password.
+# Apply the optional password chosen by the installer to the guest root account.
+# Keep the secret in shell memory and feed it to chpasswd over stdin: it must
+# never appear in argv, environment, persistent Ternux state, or logs.
+tnx_phase_root_password() {
+  local password="${TERNUX_ROOT_PASSWORD:-}"
+  export -n TERNUX_ROOT_PASSWORD 2>/dev/null || true
+  [ -n "$password" ] || { tnx_info "Guest root password left unchanged (optional)."; return 0; }
+  if ! (builtin printf 'root:%s\n' "$password" | tnx_guest_login --user root -- chpasswd); then
+    tnx_fail "Could not set the guest root password for '$(tnx_distro)'. Retry with tx install --resume and enter it again."
+    return 1
+  fi
+  tnx_ok "Guest root password configured for '$(tnx_distro)'."
+}
+
+# Set the unprivileged account password used by password-authenticated sudo.
+tnx_phase_user_password() {
+  local password="${TERNUX_USER_PASSWORD:-}" user_name="${1:-ternux}"
+  export -n TERNUX_USER_PASSWORD 2>/dev/null || true
+  [ -n "$password" ] || { tnx_fail "A guest sudo password is required. Re-run tx install and enter one."; return 1; }
+  if ! tnx_guest_login --user root -- bash -c 'set -eu; user="$1"; tmp="$(mktemp /tmp/ternux-sudoers.XXXXXX)"; trap "rm -f \"$tmp\"" EXIT; printf "%s ALL=(ALL:ALL) ALL\\n" "$user" > "$tmp"; chmod 0440 "$tmp"; chown root:root "$tmp"; visudo -cf "$tmp" >/dev/null; install -o root -g root -m 0440 "$tmp" /etc/sudoers.d/ternux' _ "$user_name"; then
+    tnx_fail "Could not configure password-required sudo for '$user_name'."
+    return 1
+  fi
+  if ! (builtin printf '%s:%s\n' "$user_name" "$password" | tnx_guest_login --user root -- chpasswd); then
+    tnx_fail "Could not set the sudo password for '$user_name'. Retry with tx install --resume and enter it again."
+    return 1
+  fi
+  tnx_ok "Password authentication configured for sudo user '$user_name'."
+}
+
+# Persist only a salted digest for the interactive startup prompt. The same
+# host-private file is visible from Termux and every PRoot guest.
+tnx_phase_startup_password() {
+  local password="${TERNUX_STARTUP_PASSWORD:-}" config="$HOME/.config/ternux" file tmp salt digest
+  export -n TERNUX_STARTUP_PASSWORD 2>/dev/null || true
+  [ -n "$password" ] || { tnx_fail "A startup password is required."; return 1; }
+  command -v sha256sum >/dev/null 2>&1 || { tnx_fail "sha256sum is required to configure the startup password."; return 1; }
+  mkdir -p -m 0700 "$config" || return 1
+  [ ! -L "$config" ] || { tnx_fail "Refusing symlinked startup password directory."; return 1; }
+  file="$config/startup-password"
+  [ ! -L "$file" ] || { tnx_fail "Refusing symlinked startup password file."; return 1; }
+  salt="$(od -An -N16 -tx1 /dev/urandom 2>/dev/null | tr -d ' \n')"
+  [[ "$salt" =~ ^[0-9a-f]{32}$ ]] || { tnx_fail "Could not generate startup password salt."; return 1; }
+  digest="$(builtin printf '%s:%s' "$salt" "$password" | sha256sum | awk '{print $1}')"
+  [[ "$digest" =~ ^[0-9a-f]{64}$ ]] || { tnx_fail "Could not hash startup password."; return 1; }
+  tmp="$(umask 077; mktemp "$config/.startup-password.XXXXXX")" || return 1
+  printf '%s %s\n' "$salt" "$digest" > "$tmp" && chmod 0600 "$tmp" && mv -f "$tmp" "$file" || { rm -f "$tmp"; return 1; }
+  tnx_ok "Shared startup password configured for native Termux and managed guest shells."
+}
+
 # ---------------------------------------------------------------------------
-# Phase 5 — GPU driver (Zink/Turnip or VirGL)
+# Phase 7 — GPU driver (Zink/Turnip or VirGL)
 # ---------------------------------------------------------------------------
 tnx_validate_turnip_archive() {
   local tarball="$1"
@@ -1367,7 +1396,7 @@ tnx_validate_arch_mesa_archive() {
 }
 
 # ---------------------------------------------------------------------------
-# Phase 6 — audio, locale, fonts
+# Phase 7 — audio, locale, fonts
 # ---------------------------------------------------------------------------
 _TNX_PULSE_CHANGED=0
 _tnx_configure_pulse_bridge() {
@@ -1646,7 +1675,7 @@ tnx_phase_audio_fonts() {
 }
 
 # ---------------------------------------------------------------------------
-# Phase 7 — desktop launcher ~/x.sh
+# Phase 8 — per-guest desktop launcher
 # ---------------------------------------------------------------------------
 tnx_phase_launcher() {
   local user_name="${1:-ternux}" backend="${2:-auto}" locale="${3:-en_US.UTF-8}"
@@ -2068,8 +2097,11 @@ EOF
   sed -i "s|__TNX_DISPLAY__|$display|g; s|__TNX_TAG__|$tag|g; s|__TNX_SESSION_PID__|$session_pid_rel|g" "$LAUNCHER" || return 1
   chmod +x "$LAUNCHER"
   if bash -n "$LAUNCHER" 2>/dev/null; then
-    local link_tmp="$HOME/.x.sh.ternux-tmp.$$"
-    ln -s "$LAUNCHER" "$link_tmp" && mv -f "$link_tmp" "$HOME/x.sh" || { rm -f "$link_tmp"; return 1; }
+    if [ -L "$HOME/x.sh" ] && [ "$(readlink -f "$HOME/x.sh" 2>/dev/null || true)" = "$LAUNCHER" ]; then
+      rm -f "$HOME/x.sh" || return 1
+    elif [ -f "$HOME/x.sh" ] && grep -qxF '# TERNUX_DESKTOP_LAUNCHER=21' "$HOME/x.sh"; then
+      rm -f "$HOME/x.sh" || return 1
+    fi
     tnx_ok "Launcher written for $distro: $LAUNCHER"
     tnx_state_set "backend" "$backend"
     tnx_distro_state_set "$distro" backend "$backend"
@@ -2080,7 +2112,7 @@ EOF
 }
 
 # ---------------------------------------------------------------------------
-# Phase 8 — shell aliases
+# Phase 9 — shell aliases
 # ---------------------------------------------------------------------------
 # Powerlevel10k for the Termux host shell. The configuration wizard is disabled
 # so an unattended install never stops at a prompt — `p10k configure` runs it
@@ -2155,6 +2187,29 @@ TERFETCHEOF
   }
 }
 
+_tnx_install_native_startup_auth() {
+  local rc="$1" distro="$2" user_name="$3" tmp mode
+  [ -e "$rc" ] || : > "$rc"
+  [ ! -L "$rc" ] && [ -f "$rc" ] || { tnx_fail "Unsafe native shell config: $rc"; return 1; }
+  mode="$(stat -c '%a' "$rc" 2>/dev/null || echo 600)"
+  tmp="$(umask 077; mktemp "${rc}.ternux-auth.XXXXXX")" || return 1
+  awk '
+    /^# TERNUX NATIVE STARTUP AUTH BEGIN$/ { skip=1; next }
+    /^# TERNUX NATIVE STARTUP AUTH END$/ { skip=0; next }
+    !skip { print }
+    END { if (skip) exit 2 }
+  ' "$rc" > "$tmp" || { rm -f "$tmp"; return 1; }
+  cat >> "$tmp" <<'EOF'
+
+# TERNUX NATIVE STARTUP AUTH BEGIN
+if [[ $- == *i* ]] && command -v tx >/dev/null 2>&1; then
+  tx auth startup || { printf '\nTernux startup authentication failed.\n' >&2; exit 1; }
+fi
+# TERNUX NATIVE STARTUP AUTH END
+EOF
+  chmod "$mode" "$tmp" && mv -f "$tmp" "$rc" || { rm -f "$tmp"; return 1; }
+}
+
 tnx_phase_aliases() {
   local user_name="${1:-ternux}" shell_choice="${2:-bash}"
   local distro; distro="$(tnx_distro)"
@@ -2170,6 +2225,8 @@ tnx_phase_aliases() {
 
   [ -e "$RC_FILE" ] || touch "$RC_FILE"
   RC_FILE="$(realpath -e -- "$RC_FILE" 2>/dev/null)" || { tnx_fail "Cannot resolve shell configuration path."; return 1; }
+  _tnx_install_native_startup_auth "$HOME/.bashrc" "$distro" "$user_name" || return 1
+  _tnx_install_native_startup_auth "$HOME/.zshrc" "$distro" "$user_name" || return 1
   if grep -q '^# ==== TERNUX ALIASES ====$' "$RC_FILE" 2>/dev/null; then
     local aliases_tmp aliases_mode
     aliases_mode="$(stat -c '%a' "$RC_FILE" 2>/dev/null || echo 600)"
@@ -2322,7 +2379,7 @@ ALIASEOF
 }
 
 # ---------------------------------------------------------------------------
-# Phase 9 — optional workloads
+# Phase 10 — optional workloads
 # ---------------------------------------------------------------------------
 # Optional third-party installer scripts are pinned by content digest and
 # product version. Fail closed when an upstream URL changes until Ternux
@@ -2634,7 +2691,7 @@ TNX_APT_OPTIONAL_INSTALL
 }
 
 # ---------------------------------------------------------------------------
-# Phase 10 — phantom process killer advisory
+# Phase 11 — phantom process killer advisory
 # ---------------------------------------------------------------------------
 tnx_phase_phantom() {
   local sdk state
@@ -2667,10 +2724,11 @@ tnx_phase_phantom() {
 }
 
 # ---------------------------------------------------------------------------
-# Phase 11 — verification
+# Phase 12 — verification
 # ---------------------------------------------------------------------------
 tnx_phase_verify() {
   local user_name="${1:-ternux}" backend="${2:-auto}"
+  local launcher_path="$(tnx_distro_state_dir "$(tnx_distro)")/launcher.sh"
   local rc=0
   [ "$backend" = auto ] && backend="$(tnx_gpu_backend_auto "$(tnx_distro)")"
 
@@ -2678,7 +2736,7 @@ tnx_phase_verify() {
   tnx_has_cmd proot-distro && tnx_ok "proot-distro found" || { tnx_fail "proot-distro missing"; rc=1; }
   tnx_has_cmd pulseaudio  && tnx_ok "pulseaudio found"  || { tnx_fail "pulseaudio missing"; rc=1; }
   tnx_has_cmd setsid && tnx_ok "setsid found for detached desktop service" || { tnx_fail "setsid missing; install util-linux"; rc=1; }
-  [ -x "$HOME/x.sh" ] && tnx_ok "Launcher executable" || { tnx_fail "Launcher missing"; rc=1; }
+  [ -x "$launcher_path" ] && tnx_ok "Launcher executable: $launcher_path" || { tnx_fail "Launcher missing"; rc=1; }
 
   local host_cli="${PREFIX:-/data/data/com.termux/files/usr}/bin/ternux"
   local host_version="" guest_version=""
@@ -2697,7 +2755,7 @@ tnx_phase_verify() {
     *) tnx_fail "Guest/Xfce terminal companion is missing, cannot execute, or returned an unexpected version"; rc=1 ;;
   esac
 
-  if tnx_guest_login --user "$user_name" -- bash -c 'command -v startxfce4 && command -v glxinfo && command -v pactl && sudo -n true' >/dev/null 2>&1; then
+  if tnx_guest_login --user "$user_name" -- bash -c 'command -v startxfce4 && command -v glxinfo && command -v pactl && grep -Fqx "$(id -un) ALL=(ALL:ALL) ALL" /etc/sudoers.d/ternux' >/dev/null 2>&1; then
     tnx_ok "Guest desktop core OK"
   else tnx_fail "Guest desktop core failed"; rc=1; fi
 
@@ -3034,6 +3092,9 @@ _tnx_execute_install_phase() {
     packages)    tnx_phase_packages "$backend" ;;
     cli)         tnx_phase_cli ;;
     debian)      tnx_phase_debian "$user_name" ;;
+    root_password) tnx_phase_root_password ;;
+    user_password) tnx_phase_user_password "$user_name" ;;
+    startup_password) tnx_phase_startup_password ;;
     gpu)         tnx_phase_gpu "$backend" ;;
     audio_fonts) tnx_phase_audio_fonts "$user_name" "$locale" ;;
     launcher)    tnx_phase_launcher "$user_name" "$backend" "$locale" ;;
@@ -3331,6 +3392,104 @@ tnx_prompt_username() {
   printf '%s\n' "$chosen"
 }
 
+# Collect an optional guest root password without echoing it or persisting it.
+# Empty input leaves root password authentication unchanged.
+tnx_prompt_root_password() {
+  local timeout="${1:-300}" tty_fd="" first="" second="" start_time=$SECONDS remaining
+  if { exec 3<>/dev/tty; } 2>/dev/null; then tty_fd=3
+  elif [ -t 0 ]; then tty_fd=0
+  else return 0
+  fi
+  while :; do
+    remaining=$((timeout - (SECONDS - start_time)))
+    if [ "$remaining" -le 0 ]; then
+      printf '\n%s\n' '[INFO] Password prompt timed out; continuing without a guest root password.' >&2
+      break
+    fi
+    printf 'Optional guest root password (Enter to skip): ' >&2
+    IFS= read -r -s -t "$remaining" -u "$tty_fd" first || { printf '\n%s\n' '[INFO] Password prompt timed out; continuing without a guest root password.' >&2; break; }
+    printf '\n' >&2
+    [ -n "$first" ] || break
+    remaining=$((timeout - (SECONDS - start_time)))
+    if [ "$remaining" -le 0 ]; then first=""; break; fi
+    printf 'Confirm guest root password: ' >&2
+    IFS= read -r -s -t "$remaining" -u "$tty_fd" second || { printf '\n%s\n' '[WARN] Password confirmation timed out; continuing without a guest root password.' >&2; first=""; break; }
+    printf '\n' >&2
+    if [ "$first" = "$second" ]; then
+      export -n TERNUX_ROOT_PASSWORD 2>/dev/null || true
+      TERNUX_ROOT_PASSWORD="$first"
+      break
+    fi
+    printf '%s\n' '[WARN] Passwords did not match; try again or press Enter to skip.' >&2
+    first=""; second=""
+  done
+  unset first second
+  [ "$tty_fd" = 3 ] && exec 3>&-
+  return 0
+}
+
+tnx_prompt_startup_password() {
+  local timeout="${1:-300}" tty_fd="" first="" second="" start_time=$SECONDS remaining
+  if { exec 3<>/dev/tty; } 2>/dev/null; then tty_fd=3
+  elif [ -t 0 ]; then tty_fd=0
+  else return 1
+  fi
+  while :; do
+    remaining=$((timeout - (SECONDS - start_time)))
+    [ "$remaining" -gt 0 ] || { printf '\n%s\n' '[ERROR] Startup password prompt timed out.' >&2; break; }
+    printf 'Ternux startup password (shared by native and managed guest shells): ' >&2
+    IFS= read -r -s -t "$remaining" -u "$tty_fd" first || { printf '\n%s\n' '[ERROR] Startup password prompt timed out.' >&2; break; }
+    printf '\n' >&2
+    [ -n "$first" ] || { printf '%s\n' '[WARN] A password is required.' >&2; continue; }
+    remaining=$((timeout - (SECONDS - start_time)))
+    [ "$remaining" -gt 0 ] || { first=""; break; }
+    printf 'Confirm startup password: ' >&2
+    IFS= read -r -s -t "$remaining" -u "$tty_fd" second || { printf '\n%s\n' '[ERROR] Startup password confirmation timed out.' >&2; first=""; break; }
+    printf '\n' >&2
+    if [ "$first" = "$second" ]; then
+      export -n TERNUX_STARTUP_PASSWORD 2>/dev/null || true
+      TERNUX_STARTUP_PASSWORD="$first"
+      break
+    fi
+    printf '%s\n' '[WARN] Passwords did not match; try again.' >&2
+    first=""; second=""
+  done
+  unset first second
+  [ "$tty_fd" = 3 ] && exec 3>&-
+  [ -n "${TERNUX_STARTUP_PASSWORD:-}" ]
+}
+
+tnx_prompt_user_password() {
+  local timeout="${1:-300}" tty_fd="" first="" second="" start_time=$SECONDS remaining
+  if { exec 3<>/dev/tty; } 2>/dev/null; then tty_fd=3
+  elif [ -t 0 ]; then tty_fd=0
+  else return 1
+  fi
+  while :; do
+    remaining=$((timeout - (SECONDS - start_time)))
+    [ "$remaining" -gt 0 ] || { printf '\n%s\n' '[ERROR] Sudo password prompt timed out.' >&2; break; }
+    printf 'Guest sudo password (for the selected user): ' >&2
+    IFS= read -r -s -t "$remaining" -u "$tty_fd" first || { printf '\n%s\n' '[ERROR] Sudo password prompt timed out.' >&2; break; }
+    printf '\n' >&2
+    [ -n "$first" ] || { printf '%s\n' '[WARN] A password is required.' >&2; continue; }
+    remaining=$((timeout - (SECONDS - start_time)))
+    [ "$remaining" -gt 0 ] || { first=""; break; }
+    printf 'Confirm guest sudo password: ' >&2
+    IFS= read -r -s -t "$remaining" -u "$tty_fd" second || { printf '\n%s\n' '[ERROR] Sudo password confirmation timed out.' >&2; first=""; break; }
+    printf '\n' >&2
+    if [ "$first" = "$second" ]; then
+      export -n TERNUX_USER_PASSWORD 2>/dev/null || true
+      TERNUX_USER_PASSWORD="$first"
+      break
+    fi
+    printf '%s\n' '[WARN] Passwords did not match; try again.' >&2
+    first=""; second=""
+  done
+  unset first second
+  [ "$tty_fd" = 3 ] && exec 3>&-
+  [ -n "${TERNUX_USER_PASSWORD:-}" ]
+}
+
 # Item catalogue for the interactive optional-software checklist. Keep this
 # list aligned with the case labels in tnx_phase_extras.
 TNX_OPTIONAL_ITEMS=(git python node build rust java golang php ripgrep jq gh sqlite3 htop tree geany neovim micro thonny godot adt-build-tools adt-platform-tools adt-ndk adt-cmake adt-cmdline adt-platform llama-vulkan stable-diffusion llama-htp-experimental nmap tmux ffmpeg vlc mpv audacity gimp krita inkscape imagemagick libreoffice-writer libreoffice-calc libreoffice-draw evolution blender celestia claude codex openai-cli hermes openclaw)
@@ -3533,6 +3692,7 @@ tnx_install_auto_resume_distro() {
 }
 
 tnx_install_single() {
+  export -n TERNUX_ROOT_PASSWORD 2>/dev/null || true
   local user_name="ternux" locale="en_US.UTF-8" backend="auto" shell_choice="bash"
   local distro_choice="debian" distro_explicit=0
   local extras=() yes=0 resume=0 full=0 profile="base"
@@ -3650,6 +3810,21 @@ tnx_install_single() {
     fi
   fi
 
+  if ! tnx_install_phase_done root_password "$distro_choice"; then
+    TERNUX_ROOT_PASSWORD=""
+    tnx_prompt_root_password 300 || { tnx_fail "Interactive terminal required to set the guest root password."; return 2; }
+  fi
+  if ! tnx_install_phase_done user_password "$distro_choice"; then
+    if [ -z "${TERNUX_USER_PASSWORD:-}" ]; then
+      tnx_prompt_user_password 300 || { tnx_fail "Interactive terminal required to set the guest sudo password."; return 2; }
+    fi
+  fi
+  if ! tnx_install_phase_done startup_password "$distro_choice"; then
+    if [ -z "${TERNUX_STARTUP_PASSWORD:-}" ]; then
+      tnx_prompt_startup_password 300 || { tnx_fail "Interactive terminal required to set the shared startup password."; return 2; }
+    fi
+  fi
+
   [[ "$user_name" =~ ^[a-z_][a-z0-9_-]{0,31}$ ]] || {
     tnx_fail "--user must start with a-z or _, use only a-z, 0-9, _ or -, and be at most 32 characters."
     return 2
@@ -3672,6 +3847,7 @@ tnx_install_single() {
     "Guest '$distro_choice' has no device-verified result on record; treat this install as unverified."
 
   [ "$yes" -eq 1 ] && export TERNUX_YES=1
+  [ "$yes" -eq 0 ] || TERNUX_ROOT_PASSWORD=""
   tnx_require_termux
 
   # phases.sh loads ui.sh when available; retain the fallback for separately
@@ -3754,8 +3930,8 @@ tnx_install_single() {
     return 0
   fi
 
-  local phases="preflight packages cli debian gpu audio_fonts launcher aliases extras phantom verify"
-  local total=11 rc=0 current=0 phase_rc=0 required_failed=0 failed_phase="" failed_current=0 phase="" title=""
+  local phases="preflight packages cli debian root_password user_password startup_password gpu audio_fonts launcher aliases extras phantom verify"
+  local total=14 rc=0 current=0 phase_rc=0 required_failed=0 failed_phase="" failed_current=0 phase="" title=""
   local -a warning_phases=()
 
   local guest_label
@@ -3931,6 +4107,7 @@ tnx_install_single() {
       tnx_info "Fix the reported error, then run 'ternux install --resume' or 'ternux doctor'."
     fi
   fi
+  [ "$batch_confirmed" -eq 1 ] || unset TERNUX_ROOT_PASSWORD TERNUX_USER_PASSWORD TERNUX_STARTUP_PASSWORD
   return "$rc"
 }
 
@@ -3947,9 +4124,12 @@ tnx_phase_title() {
         *) echo "${2:-$(tnx_distro)} + Xfce" ;;
       esac
       ;;
+    root_password) echo "Guest root password" ;;
+    user_password) echo "Guest sudo password" ;;
+    startup_password) echo "Shared shell startup password" ;;
     gpu)         echo "GPU driver setup" ;;
     audio_fonts) echo "Audio, locale, fonts" ;;
-    launcher)    echo "Desktop launcher (~/x.sh)" ;;
+    launcher)    echo "Per-guest desktop launcher" ;;
     aliases)     echo "Shell shortcuts" ;;
     extras)      echo "Optional workloads" ;;
     phantom)     echo "Android background-process check" ;;
@@ -3963,6 +4143,7 @@ tnx_phase_title() {
 # Each pass runs the same base profile and writes a distro-specific launcher;
 # the single Termux:X11 display still runs one guest desktop at a time.
 tnx_install() {
+  export -n TERNUX_ROOT_PASSWORD 2>/dev/null || true
   local requested="" arg distro seen=" " has_distro=0 wants_yes=0 wants_resume=0
   local -a forwarded=() choices=() normalized=()
   while [ "$#" -gt 0 ]; do
@@ -4059,6 +4240,12 @@ tnx_install() {
   done
 
   if [ "$wants_yes" -eq 0 ]; then
+    TERNUX_ROOT_PASSWORD=""
+    tnx_prompt_root_password 300 || { tnx_fail "Interactive terminal required to set the guest root password."; return 2; }
+    TERNUX_USER_PASSWORD=""
+    tnx_prompt_user_password 300 || { tnx_fail "Interactive terminal required to set the guest sudo password."; return 2; }
+    TERNUX_STARTUP_PASSWORD=""
+    tnx_prompt_startup_password 300 || { tnx_fail "Interactive terminal required to set the shared startup password."; return 2; }
     batch_summary=("Termux shell" "$batch_shell")
     for forwarded_index in "${!normalized[@]}"; do
       if [ "${batch_workloads[forwarded_index]}" = none ]; then
@@ -4072,6 +4259,10 @@ tnx_install() {
       tnx_info "Installation cancelled; no guest installation was started."
       return 0
     fi
+  else
+    TERNUX_ROOT_PASSWORD=""
+    TERNUX_USER_PASSWORD=""
+    TERNUX_STARTUP_PASSWORD=""
   fi
 
   for forwarded_index in "${!normalized[@]}"; do
@@ -4091,6 +4282,7 @@ tnx_install() {
     tnx_header "Multi-guest installation complete"
     tnx_next_steps "${finish_steps[@]}"
   fi
+  unset TERNUX_ROOT_PASSWORD
 }
 
 tnx_cmd_install() { tnx_install "$@"; }

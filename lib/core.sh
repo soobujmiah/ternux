@@ -14,9 +14,9 @@ TERNUX_DESC="Linux desktop for Android with Zink and VirGL graphics routes"
 TERNUX_REPO="https://github.com/soobujmiah/ternux"
 # Immutable source snapshot shared by the standalone bootstrap and CLI fallback.
 # Keep these values aligned with install.sh; refresh only from a reviewed archive.
-TERNUX_SOURCE_COMMIT="d8cd7c164fd404e5c8ed9da921270d2963cc8310"
-TERNUX_SOURCE_SHA256="146ad427602ab7f9c9347898b747f9b9b31c4e167b42cd39640cdab9921b9d53"
-TERNUX_GUEST_CLI_SHA256="305f3b0642b4fd948fb022fec08a8c569b18909a34eedd80ac0e6f8ab0cbbe67"
+TERNUX_SOURCE_COMMIT="dccfcd339a38a2aa68b4c810786b0ccf9845935c"
+TERNUX_SOURCE_SHA256="c38c823b382f823296a91e5a319d1985fc9a8b2a262bea0fd57bfc2e5260eb31"
+TERNUX_GUEST_CLI_SHA256="a4392f93adab23706a0d1103c0db74f9f150a53224d249f89ec623e3243aa14a"
 TERNUX_STATE_DIR="${TERNUX_STATE_DIR:-$HOME/.local/share/ternux}"
 TERNUX_LOG_DIR="${TERNUX_LOG_DIR:-${TMPDIR:-/data/data/com.termux/files/usr/tmp}/ternux}"
 TERNUX_LOG_FILE="$TERNUX_LOG_DIR/ternux.log"
@@ -389,7 +389,7 @@ tnx_storage_guest_args() {
 # mount is available at /sdcard when Termux already has Android permission;
 # additional subdirectory grants remain scoped to explicit user selections.
 tnx_guest_login() {
-  local timeout_seconds=""
+  local timeout_seconds="" startup_hash="${HOME}/.config/ternux/startup-password"
   local -a login_args=(--isolated)
   while [ "$#" -gt 0 ]; do
     case "$1" in
@@ -409,6 +409,11 @@ tnx_guest_login() {
     esac
   done
   tnx_storage_guest_args login_args || return $?
+  # Isolated managed logins do not bind Termux HOME. Expose only the salted
+  # startup verifier needed by interactive guest shell hooks, never all of HOME.
+  if [ -f "$startup_hash" ] && [ ! -L "$startup_hash" ]; then
+    login_args+=(--bind "$startup_hash:/run/ternux/startup-password")
+  fi
   if [ -n "$timeout_seconds" ]; then
     tnx_has_cmd timeout || return 127
     timeout --signal=TERM --kill-after=1 "$timeout_seconds" \

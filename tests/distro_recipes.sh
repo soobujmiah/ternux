@@ -31,6 +31,11 @@ tnx_guest_login() {
 }
 
 profiles="debian ubuntu kali alpine archlinux fedora opensuse void artix chimera deepin manjaro pardus rockylinux adelie"
+auth_helper="$ROOT/lib/ternux-assets/bin/ternux-configure-prompt"
+grep -Fq '# TERNUX STARTUP AUTH BEGIN' "$auth_helper" || { echo 'Shared guest startup authentication hook missing.' >&2; exit 1; }
+grep -Fq '_tnx_auth_file=/run/ternux/startup-password' "$auth_helper" || { echo 'Guest startup verifier bind path missing.' >&2; exit 1; }
+grep -Fq 'read -r -s _tnx_auth_entered </dev/tty' "$auth_helper" || { echo 'TTY password input is not portable across guest shells.' >&2; exit 1; }
+! grep -Fq 'read -r -s -u 3' "$auth_helper" || { echo 'Guest startup hook still uses Bash-only fd input.' >&2; exit 1; }
 for distro in $profiles; do
   unset _TNX_DISTRO
   export TERNUX_DISTRO="$distro"

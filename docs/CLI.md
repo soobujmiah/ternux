@@ -171,6 +171,19 @@ tx install [options]
 | `--plain` | Shorthand for `--ui plain`: plain scrolling output instead of the dashboard |
 | `--no-anim` | Freeze the spinner and colour cycling |
 
+An interactive install separately asks for the selected guest user's **sudo**
+password and a shared **startup** password. The guest sudo password is stored
+as a normal `/etc/shadow` hash and sudo requires it. The startup password is
+checked when an interactive native Termux or managed guest Bash/Zsh shell opens;
+managed Alpine `ash` shells use the same check. Change them with `tx password sudo`
+and `tx password startup`. Only a salted digest of the startup password is
+stored in the mode-0600 Termux config file. An optional guest **root** password
+can also be set for `su -`.
+
+The startup check is a convenience gate, not a security boundary. The Termux app
+owner can access guest files and can bypass shell startup files, including by
+entering PRoot root mode or starting a non-interactive command.
+
 The 15 named recipes follow this stable order: Debian (`debian`/`db`), Ubuntu (`ubuntu`/`ub`), Kali (`kali`), Alpine (`alpine`/`alp`), Arch Linux (`archlinux`/`archx`), Fedora (`fedora`/`fed`), openSUSE (`opensuse`/`suse`), Void (`void`/`vsh`), Artix (`artix`/`art`), Chimera (`chimera`/`chim`), Deepin (`deepin`/`deep`), Manjaro (`manjaro`/`manj`), Pardus (`pardus`/`par`), Rocky Linux (`rockylinux`/`rock`), and Adelie (`adelie`/`adel`). Kali uses the official `kalilinux/kali-rolling` OCI image because Termux's packaged PRoot-Distro does not include a Kali alias. The image is a weekly rolling snapshot; Ternux installs a curated command-line security set by default, while larger Kali metapackages remain an explicit user choice. **The v2 support promise remains Debian, Ubuntu, and Alpine.** On 2026-11-15, the existing Kali guest passed current reference-device checks for startup, doctor/verify, Zink/Turnip rendering, Firefox, Avro switching, PulseAudio loopback, security-tool presence, and window fitting; see the [device verification record](audit/DEVICE-VERIFICATION.md#2026-11-15-kali-reference-device-desktop-qualification). This qualifies that installed guest on the documented Adreno 825 device, but does not replace clean-install/browser CI or qualify other devices. Debian, Ubuntu, and Alpine have the full v2 support matrix. The owner reports physical keyboard input switching in all installed distros; a focused live Alpine Xfce Terminal check on 2026-11-16 also switched Avro with synthetic Ctrl+Space. The live checks do not qualify every application. Use the checklist for interactive multi-select; for automation, pass comma-separated aliases to `--distros`. Each desktop profile gets independent state and a tagged Termux:X11 display. Separate Android windows require the [Termux:X11 nightly app](https://github.com/termux/termux-x11/releases/tag/nightly); older apps fall back to one shared window and cannot reliably switch between concurrently running guests. `xgo` lists installed guests and identifies shell-only images. The distro picker uses the same keyboard checklist as optional apps: Up/Down or `j`/`k` moves, Space or a number toggles, Enter confirms, and `q` keeps the current default profile. Multiple guests are selected in one pass; a numbered comma list is available when raw-key input is unavailable. Before changes, the installer shows the chosen guest, backend, user, workloads, and storage estimate for confirmation. If an optional workload fails after the base desktop verifies, the guest remains marked ready, the UI reports a warning, and `tx install --resume` retries the unfinished phase while the command returns nonzero.
 
 ### `tx distro`
@@ -194,7 +207,7 @@ keeps the base profile.
 
 ### `tx start`
 
-Start the Xfce4 desktop session in its own detached session so it survives the launching shell closing. The command returns only after Termux:X11 and the XFCE session, window manager, and desktop are ready, then brings the Termux:X11 app to the foreground. New profile defaults reserve `:0` for the future native Termux workspace, then assign Debian `:1`, Ubuntu `:2`, Kali `:3`, Alpine `:4`, and the remaining named profiles `:5` through `:15`. Existing profiles keep their saved display IDs until an explicit migration; use `tx manager displays` and its state-bound migration before starting a newly added profile if an old assignment overlaps. Startup refuses an occupied socket or matching Termux:X11 server and never removes an unproven socket. Re-running it focuses the existing desktop instead of starting a duplicate, including when its supervisor marker is missing but the live XFCE session remains. If startup fails, it returns an error and points to `~/.local/share/ternux/session/desktop.log`. Use `tx status` or `tx logs desktop tail` to inspect the session. Each guest has its own launcher under `~/.local/share/ternux/distros/NAME/launcher.sh`; `~/x.sh` remains a compatibility link for the most recently installed profile. After a CLI update, the selected launcher is refreshed when needed. The launcher:
+Start the Xfce4 desktop session in its own detached session so it survives the launching shell closing. The command returns only after Termux:X11 and the XFCE session, window manager, and desktop are ready, then brings the Termux:X11 app to the foreground. New profile defaults reserve `:0` for the future native Termux workspace, then assign Debian `:1`, Ubuntu `:2`, Kali `:3`, Alpine `:4`, and the remaining named profiles `:5` through `:15`. Existing profiles keep their saved display IDs until an explicit migration; use `tx manager displays` and its state-bound migration before starting a newly added profile if an old assignment overlaps. Startup refuses an occupied socket or matching Termux:X11 server and never removes an unproven socket. Re-running it focuses the existing desktop instead of starting a duplicate, including when its supervisor marker is missing but the live XFCE session remains. If startup fails, it returns an error and points to `~/.local/share/ternux/session/desktop.log`. Use `tx status` or `tx logs desktop tail` to inspect the session. Each guest has its own launcher under `~/.local/share/ternux/distros/NAME/launcher.sh`; legacy `~/x.sh` launchers are migrated on use and then removed. After a CLI update, the selected launcher is refreshed when needed. The launcher:
 1. Cleans up any previous session
 2. Starts PulseAudio with TCP bridge
 3. Launches Termux:X11 display
@@ -587,6 +600,18 @@ PulseAudio configuration. Container deletion requires confirmation. `--yes` is
 intended only for a caller that deliberately accepts irreversible data loss.
 The separate `state` and `host-cli` actions retain the ownership ledger so a
 later `all` run can still remove packages Ternux installed.
+
+## Passwords and interactive shell startup
+
+The installer asks for separate guest sudo and shared startup passwords. The
+guest sudo password belongs to the selected guest account and is required by
+`sudo`. The shared startup password is checked by interactive native Termux
+shells and every managed guest's configured Bash, Zsh, or Alpine shell profile.
+Change it with `tx password startup`; change the selected guest user's sudo
+password with `tx password sudo` or `passwd` inside that guest. The startup
+password is stored as a salted digest in `~/.config/ternux/startup-password`.
+This shell prompt is a convenience gate: PRoot root entry and alternate shells
+can bypass it, and it does not protect private files from the Termux app owner.
 
 ## Shell completion
 

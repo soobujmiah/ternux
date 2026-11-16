@@ -238,6 +238,7 @@ tnx_cmd_start_impl() {
   if [ "$distro" = debian ] && [ ! -f "$launcher_path" ] &&
      [ -f "$HOME/x.sh" ] && grep -q '^# TERNUX_DESKTOP_LAUNCHER=21$' "$HOME/x.sh"; then
     mkdir -p "$launcher_dir" && cp -p "$HOME/x.sh" "$launcher_path" || return 1
+    rm -f "$HOME/x.sh"
   fi
   if [ "${TERNUX_JSON:-0}" != "1" ]; then
     tnx_step "Starting ternux desktop..."
@@ -262,6 +263,7 @@ tnx_cmd_start_impl() {
     if [ ! -f "$launcher_path" ] && [ "$distro" = debian ] &&
        [ -f "$HOME/x.sh" ] && grep -q '^# TERNUX_DESKTOP_LAUNCHER=21$' "$HOME/x.sh"; then
       mkdir -p "$launcher_dir" && cp -p "$HOME/x.sh" "$launcher_path" || return 1
+      rm -f "$HOME/x.sh"
     fi
   fi
   chmod +x "$launcher_path" 2>/dev/null || true

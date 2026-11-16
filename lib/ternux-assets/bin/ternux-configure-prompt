@@ -22,8 +22,9 @@ write_bash_prompt() {
   tmp="$(mktemp "$home/.ternux-bashrc.XXXXXX")"
   if [ -f "$rc" ]; then
     awk '
-      /^# TERNUX (DISTRO PROMPT|TERFETCH START) BEGIN$/ { skip=1; next }
-      /^# TERNUX (DISTRO PROMPT|TERFETCH START) END$/ { skip=0; next }
+      /^\\n$/ { next }
+      /^# TERNUX (DISTRO PROMPT|TERFETCH START|STARTUP AUTH) BEGIN$/ { skip=1; next }
+      /^# TERNUX (DISTRO PROMPT|TERFETCH START|STARTUP AUTH) END$/ { skip=0; next }
       !skip { print }
     ' "$rc" > "$tmp"
   fi
@@ -34,6 +35,22 @@ if [[ \$- == *i* ]]; then
   PS1='\[\e[1;${color}m\]${owner}@${icon}:\w\\$\[\e[0m\] '
 fi
 # TERNUX DISTRO PROMPT END
+
+# TERNUX STARTUP AUTH BEGIN
+if [[ \$- == *i* ]]; then
+  [ -r /dev/tty ] || { printf 'Ternux needs a terminal for startup authentication.\\n' >&2; exit 1; }
+  _tnx_auth_file=/run/ternux/startup-password
+  if [ ! -r "\$_tnx_auth_file" ]; then printf '\\nTernux startup password is not configured.\\n' >&2; exit 1; fi
+  IFS=' ' read -r _tnx_auth_salt _tnx_auth_expected < "\$_tnx_auth_file"
+  printf 'Ternux startup password: ' >&2
+  IFS= read -r -s _tnx_auth_entered </dev/tty || { printf '\\n' >&2; exit 1; }
+  printf '\\n' >&2
+  _tnx_auth_actual="\$(printf '%s:%s' "\$_tnx_auth_salt" "\$_tnx_auth_entered" | sha256sum | awk '{print \$1}')"
+  unset _tnx_auth_entered
+  if [ "\$_tnx_auth_actual" != "\$_tnx_auth_expected" ]; then printf 'Incorrect Ternux startup password.\\n' >&2; exit 1; fi
+  unset _tnx_auth_file _tnx_auth_salt _tnx_auth_expected _tnx_auth_actual
+fi
+# TERNUX STARTUP AUTH END
 
 # TERNUX TERFETCH START BEGIN
 # Shell startup files can be sourced more than once by terminal integrations.
@@ -54,12 +71,14 @@ EOF
 
 write_zsh_prompt() {
   local home="$1" owner="$2" color="$3" rc="$1/.zshrc" tmp
-  [ -f "$rc" ] || return 0
+  [ -d "$home" ] || return 0
   [ ! -L "$rc" ] || { printf 'Refusing symlinked shell config: %s\n' "$rc" >&2; return 1; }
+  [ -e "$rc" ] || : > "$rc"
   tmp="$(mktemp "$home/.ternux-zshrc.XXXXXX")"
   awk '
-    /^# TERNUX (DISTRO PROMPT|TERFETCH START) BEGIN$/ { skip=1; next }
-    /^# TERNUX (DISTRO PROMPT|TERFETCH START) END$/ { skip=0; next }
+    /^\\n$/ { next }
+    /^# TERNUX (DISTRO PROMPT|TERFETCH START|STARTUP AUTH) BEGIN$/ { skip=1; next }
+    /^# TERNUX (DISTRO PROMPT|TERFETCH START|STARTUP AUTH) END$/ { skip=0; next }
     !skip { print }
   ' "$rc" > "$tmp"
   cat >> "$tmp" <<EOF
@@ -69,6 +88,22 @@ if [[ -o interactive ]]; then
   PROMPT='%F{${color}}%n@${icon}:%~%#%f '
 fi
 # TERNUX DISTRO PROMPT END
+
+# TERNUX STARTUP AUTH BEGIN
+if [[ -o interactive ]]; then
+  [[ -r /dev/tty ]] || { print -u2 'Ternux needs a terminal for startup authentication.'; exit 1; }
+  _tnx_auth_file=/run/ternux/startup-password
+  if [[ ! -r \$_tnx_auth_file ]]; then print -u2 'Ternux startup password is not configured.'; exit 1; fi
+  IFS=' ' read -r _tnx_auth_salt _tnx_auth_expected < \$_tnx_auth_file
+  printf 'Ternux startup password: ' >&2
+  IFS= read -rs _tnx_auth_entered </dev/tty || { printf '\\n' >&2; exit 1; }
+  printf '\\n' >&2
+  _tnx_auth_actual="\$(printf '%s:%s' \$_tnx_auth_salt \$_tnx_auth_entered | sha256sum | awk '{print \$1}')"
+  unset _tnx_auth_entered
+  if [[ \$_tnx_auth_actual != \$_tnx_auth_expected ]]; then print -u2 'Incorrect Ternux startup password.'; exit 1; fi
+  unset _tnx_auth_file _tnx_auth_salt _tnx_auth_expected _tnx_auth_actual
+fi
+# TERNUX STARTUP AUTH END
 
 # TERNUX TERFETCH START BEGIN
 # Shell startup files can be sourced more than once by terminal integrations.
@@ -94,17 +129,32 @@ write_alpine_profile() {
   tmp="$(mktemp "$home/.ternux-profile.XXXXXX")"
   if [ -f "$rc" ]; then
     awk '
-      /^# TERNUX DISTRO PROMPT BEGIN$/ { skip=1; next }
-      /^# TERNUX DISTRO PROMPT END$/ { skip=0; next }
+      /^\\n$/ { next }
+      /^# TERNUX (DISTRO PROMPT|STARTUP AUTH) BEGIN$/ { skip=1; next }
+      /^# TERNUX (DISTRO PROMPT|STARTUP AUTH) END$/ { skip=0; next }
       !skip { print }
     ' "$rc" > "$tmp"
   fi
   cat >> "$tmp" <<EOF
 
 # TERNUX DISTRO PROMPT BEGIN
-if [ -t 0 ]; then
+if [ -t 0 ] || [ -r /dev/tty ]; then
   PS1="\$(printf '\\033[1;${color}m')${owner}@${icon}:\\w\\$\$(printf '\\033[0m') "
 fi
+# TERNUX STARTUP AUTH BEGIN
+if [ -t 0 ] || [ -r /dev/tty ]; then
+  _tnx_auth_file=/run/ternux/startup-password
+  [ -r "\$_tnx_auth_file" ] || { echo 'Ternux startup password is not configured.' >&2; exit 1; }
+  read -r _tnx_auth_salt _tnx_auth_expected < "\$_tnx_auth_file"
+  printf 'Ternux startup password: ' >&2
+  IFS= read -r -s _tnx_auth_entered </dev/tty || { echo >&2; exit 1; }
+  echo >&2
+  _tnx_auth_actual="\$(printf '%s:%s' "\$_tnx_auth_salt" "\$_tnx_auth_entered" | sha256sum | awk '{print \$1}')"
+  unset _tnx_auth_entered
+  [ "\$_tnx_auth_actual" = "\$_tnx_auth_expected" ] || { echo 'Incorrect Ternux startup password.' >&2; exit 1; }
+  unset _tnx_auth_file _tnx_auth_salt _tnx_auth_expected _tnx_auth_actual
+fi
+# TERNUX STARTUP AUTH END
 if [ -t 0 ] && [ -z "\${TERFETCH_NO_AUTORUN:-}" ] && [ "\${_TERNUX_TERFETCH_AUTORUN_DONE:-0}" != 1 ] && command -v terfetch >/dev/null 2>&1; then
   TERFETCH_STARTUP_ONCE=1 terfetch
   _TERNUX_TERFETCH_AUTORUN_DONE=1

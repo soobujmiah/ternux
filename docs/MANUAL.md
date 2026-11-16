@@ -132,9 +132,10 @@ proot-distro login debian
 ```bash
 USER_NAME=ternux
 
-# Create the user if absent (the desktop account needs no login password).
+# Create the user if absent.
 id -u "$USER_NAME" >/dev/null 2>&1 \
   || adduser --disabled-password --gecos "" "$USER_NAME"
+passwd "$USER_NAME"
 
 # Graphics and audio groups.
 usermod -aG sudo "$USER_NAME"
@@ -142,11 +143,11 @@ usermod -aG video "$USER_NAME"
 usermod -aG render "$USER_NAME"
 usermod -aG audio "$USER_NAME"
 
-# Passwordless sudo via a VALIDATED drop-in file. Never append straight to
-# /etc/sudoers: one typo can break sudo for this account. PRoot Distro can
+# Password-required sudo via a VALIDATED drop-in file. Never append straight
+# to /etc/sudoers: one typo can break sudo for this account. PRoot Distro can
 # still open a guest-root recovery shell; that is not Android root.
 TMP_SUDOERS="$(mktemp)"
-printf '%s ALL=(ALL) NOPASSWD: ALL\n' "$USER_NAME" > "$TMP_SUDOERS"
+printf '%s ALL=(ALL:ALL) ALL\n' "$USER_NAME" > "$TMP_SUDOERS"
 visudo -cf "$TMP_SUDOERS" \
   && install -m 0440 -o root -g root "$TMP_SUDOERS" /etc/sudoers.d/ternux
 rm -f "$TMP_SUDOERS"
@@ -157,7 +158,7 @@ exit
 Verify it works (this is the failure that silently hangs the launcher later):
 
 ```bash
-proot-distro login debian --user ternux -- sudo -n true
+proot-distro login debian --user ternux -- sudo -v
 ```
 
 ---
@@ -302,7 +303,8 @@ exit
 
 <h2 id="create-launcher">Step 8 — Start the managed desktop</h2>
 
-The installer creates and maintains `~/x.sh`. Start the desktop through the
+The installer creates one launcher per guest under
+`~/.local/share/ternux/distros/NAME/launcher.sh`. Start the desktop through the
 Ternux lifecycle manager so it can validate readiness and refresh an older
 launcher safely:
 
@@ -314,8 +316,8 @@ Use `tx start` to run the same managed desktop startup flow. Managed guests expo
 storage at `/sdcard` by default when Termux has storage permission. Run
 `termux-setup-storage` once if the path is missing, then restart the guest. Files
 remain on Android shared storage and are not copied into the container. Do not copy older `proot-distro login
---shared-tmp` launcher examples into `~/x.sh`; those use PRoot-Distro's broader
-host mounts. If `ternux start` says the launcher is missing, resume the Ternux
+--shared-tmp` launcher examples into a managed launcher; those use PRoot-Distro's broader
+host mounts. If `ternux start` says the launcher is missing, run `tx repair` or resume the Ternux
 installer with `ternux install`.
 
 ---
@@ -373,12 +375,12 @@ drain or instability.
 ```bash
 # Termux side
 command -v termux-x11 proot-distro pulseaudio virgl_test_server_android
-[ -x ~/x.sh ] && echo "launcher executable"
+[ -x ~/.local/share/ternux/distros/debian/launcher.sh ] && echo "launcher executable"
 
 # Debian side
 proot-distro login debian --user ternux -- bash -c '
   command -v startxfce4 && command -v glxinfo && command -v pactl &&
-  sudo -n true && echo "Debian core OK"'
+  sudo -v && echo "Debian core OK"'
 ```
 
 With the desktop running (after `tx start`), prove the GPU from a desktop terminal:
