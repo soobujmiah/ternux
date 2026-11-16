@@ -14,8 +14,8 @@ TERNUX_DESC="Linux desktop for Android with Zink and VirGL graphics routes"
 TERNUX_REPO="https://github.com/soobujmiah/ternux"
 # Immutable source snapshot shared by the standalone bootstrap and CLI fallback.
 # Keep these values aligned with install.sh; refresh only from a reviewed archive.
-TERNUX_SOURCE_COMMIT="79f6cdde280914ddab1c7097491f19ac1cbe5f85"
-TERNUX_SOURCE_SHA256="ad5d9966d4d8b5328612eb22ec9e4f9a895215741fdd1b5053e41c191b7850a4"
+TERNUX_SOURCE_COMMIT="721b68dc60447c7db43e31769cc24edbfd43fbc8"
+TERNUX_SOURCE_SHA256="f608bd2c46c0f1a2a874d1843ba07beb474addc6b8270017df2e4760c3d31844"
 TERNUX_GUEST_CLI_SHA256="305f3b0642b4fd948fb022fec08a8c569b18909a34eedd80ac0e6f8ab0cbbe67"
 TERNUX_STATE_DIR="${TERNUX_STATE_DIR:-$HOME/.local/share/ternux}"
 TERNUX_LOG_DIR="${TERNUX_LOG_DIR:-${TMPDIR:-/data/data/com.termux/files/usr/tmp}/ternux}"
@@ -398,7 +398,7 @@ tnx_guest_login() {
         shift
         ;;
       --_tnx-timeout-seconds)
-        [ "$#" -ge 2 ] && [[ "$2" =~ ^[1-9][0-9]{0,2}$ ]] || {
+        [ "$#" -ge 2 ] && [[ "$2" =~ ^[1-9][0-9]{0,3}$ ]] && [ "$2" -le 3600 ] || {
           echo "Invalid internal PRoot timeout." >&2
           return 2
         }
