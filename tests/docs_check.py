@@ -180,7 +180,9 @@ class IdParser(HTMLParser):
         self.tags[tag] = self.tags.get(tag, 0) + 1
         if values.get("id"):
             self.ids.append(values["id"] or "")
-        if tag == "a" and not (values.get("href") or "").strip():
+        # Markdown heading anchors use <a id="..."> without a destination;
+        # only reject an explicitly present but empty href attribute.
+        if tag == "a" and "href" in values and not (values.get("href") or "").strip():
             self.empty_links += 1
         if tag == "img" and "alt" not in values:
             self.images_without_alt += 1

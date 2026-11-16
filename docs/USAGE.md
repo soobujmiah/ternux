@@ -27,7 +27,9 @@ After installation, new Termux host and managed guest shells show Terfetch.
 Its ten Android/Linux/distro marks shuffle at each login; the summary also
 shows kernel, uptime, packages, shell, terminal, CPU/GPU, memory, and storage.
 Ternux hides Termux's stock welcome text with `~/.hushlogin`;
-`TERFETCH_NO_AUTORUN=1` skips the automatic summary for the current shell. Run
+Terfetch appears once at terminal-shell startup, and child interactive shells
+inherit a guard against repeating it. `TERFETCH_NO_AUTORUN=1` skips the
+automatic summary for the current shell. Run `terfetch` to display it again or
 `terfetch --json` for structured host or guest details.
 
 | Command | What it does |

@@ -243,7 +243,8 @@ chmod 0755 "$FAKEBIN/proot-distro"
 env PREFIX="$MIGRATION_PREFIX" HOME="$MIGRATION_HOME" TMPDIR="$MIGRATION_TMP" \
   PATH="$FAKEBIN:$PATH" TERNUX_REPO_URL="$MIGRATION_ORIGIN" \
   "$MIGRATION_PREFIX/bin/ternux" update || fail 'v1.4.0 to v2 source migration'
-"$MIGRATION_PREFIX/bin/ternux" --version | grep -q '^ternux v2.0.0$' ||
+env PREFIX="$MIGRATION_PREFIX" HOME="$MIGRATION_HOME" \
+  "$MIGRATION_PREFIX/bin/ternux" --version | grep -q '^ternux v2.0.0$' ||
   fail 'v1.4.0 migration did not activate the v2 CLI'
 grep -q '^TERNUX_VERSION="2.0.0"$' "$MIGRATION_PREFIX/lib/ternux/core.sh" ||
   fail 'v1.4.0 migration did not install matching v2 modules'
