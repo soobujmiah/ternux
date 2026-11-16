@@ -1,38 +1,47 @@
 ---
-title: "Ternux v3 architecture"
-description: "Ternux v3-er Native Termux manager, guest workspace, compute, AI, ebong Android Device Bridge-er design index."
+title: "টার্নাক্সের তৃতীয় সংস্করণের নকশা"
+description: "টার্নাক্সের তৃতীয় সংস্করণ হিসেবে পরিকল্পিত ব্যবস্থাপনা, স্বতন্ত্র লিনাক্স কর্মপরিসর, গণনা-সরঞ্জাম ও অ্যান্ড্রয়েড যন্ত্র-সংযোগের নকশা ও বাস্তবায়নের অবস্থা।"
 lang: "bn"
 alt_url: "/docs/V3-ARCHITECTURE.html"
 ---
 
-## Ternux platform architecture
+## ব্যবস্থার নকশার পরিচয়
 
-এই architecture-টি আগে Ternux v3 নামে পরিকল্পনা করা হয়েছিল। 2026-11-14-এ owner
-নির্দেশ দিয়েছেন, এর সম্পূর্ণ planned scope পরের v2-major stable release-এ থাকবে;
-আলাদা v3 stable release হবে না। **অবস্থা: design আছে, implementation আংশিক।**
-এর scope-এ native Termux manager/Control Center, আলাদা Linux workspace, compute
-ও AI workload, Android Device Bridge, security, API, UX এবং acceptance gate আছে।
+এই নকশাটি প্রথমে টার্নাক্সের তৃতীয় সংস্করণের পরিকল্পনা হিসেবে সাজানো হয়েছিল।
+২০২৬-১১-১৪ তারিখে মালিক নির্দেশ দিয়েছেন, এর সম্পূর্ণ পরিকল্পিত পরিধি পরের
+দ্বিতীয়-প্রধান-সংস্করণের স্থিতিশীল প্রকাশনায় থাকবে; আলাদা তৃতীয়-সংস্করণের
+স্থিতিশীল প্রকাশনা হবে না। এতে Termux-এ চলা নিজস্ব ব্যবস্থাপক, স্বতন্ত্র লিনাক্স
+কর্মপরিসর, ঐচ্ছিক গণনা ও কৃত্রিম-বুদ্ধিমত্তার কাজ, অনুমতিনির্ভর অ্যান্ড্রয়েড
+যন্ত্র-সংযোগ এবং স্থানীয় নিয়ন্ত্রণকেন্দ্রের নকশা রয়েছে। **নকশা করা মানেই
+বাস্তবায়ন করা বা যন্ত্রে যাচাই করা নয়।**
 
-## English technical specification
+## পণ্যের সীমানা
 
-Canonical technical specification English-e rakha hoyeche, jate interface,
-security boundary ও acceptance terms এক থাকে। [Architecture index](/docs/V3-ARCHITECTURE.html)
-দেখুন। কোনো item `DESIGNED` হলেই সেটি code-এ implemented বা device-এ verified
-প্রমাণ হয় না।
+- ব্যবস্থাপক, কমান্ড-লাইন, নিয়ন্ত্রণকেন্দ্র, যন্ত্র-সংযোগ ও কাজের তালিকা Termux-এ
+  চলবে; কোনো PRoot গেস্টের ভেতরে নয়।
+- Debian, Ubuntu ও Alpine-এর দ্বিতীয়-সংস্করণের আচরণ সামঞ্জস্যের ভিত্তি থাকবে।
+- LAI আলাদা থাকবে; নথিভুক্ত এপিআই দিয়ে শুধু সংযোগ হবে, LAI-এর মডেল স্বয়ংক্রিয়ভাবে
+  সরানো বা মুছে ফেলা হবে না।
+- ক্যামেরা, মাইক্রোফোন, স্টোরেজ, গ্রাফিক্স ও এনপিইউ-র কাজ ঐচ্ছিক, অনুমতিনির্ভর
+  এবং আলাদাভাবে যোগ্যতা যাচাই করা হবে।
+- ব্যবহারকারীর ফাইল, গেস্টের ফাইল, কাজের সরঞ্জামের ফাইল ও মডেলের মালিকানা
+  স্পষ্ট থাকবে। আনইনস্টল করলে কোনো তথ্য নীরবে মুছে ফেলা হবে না।
 
-## Product boundary
+## প্রযুক্তিগত বিবরণ
 
-- Manager ebong Control Center Termux host-e cholbe; guest-er bhitore noy.
-- Debian, Ubuntu, Alpine-er existing v2 behavior compatibility baseline.
-- CPU/GPU/NPU, AI, camera/microphone sob optional ebong evidence-gated.
-- LAI alada thakbe; Ternux tar model store automatically copy/delete korbe na.
-- `/sdcard` explicit grant-e guest theke use kora jabe; uninstall media delete
-  korbe na.
+- [সম্পূর্ণ নকশার সূচি](/docs/v3/README.html)
+- [বাস্তবায়নের পরিকল্পনা](/docs/project/PROJECT-ROADMAP.html)
+- [বর্তমান বাস্তবায়নের অবস্থা](/docs/project/IMPLEMENTATION-STATUS.html)
+- [প্রকাশনার অবস্থা](/docs/project/RELEASE-STATUS.html)
+- [যন্ত্রে যাচাই](/docs/project/DEVICE-VERIFICATION.html)
+- [নকশাগত সিদ্ধান্ত](/docs/project/ARCHITECTURE-DECISIONS.html)
+- [বকেয়া কাজ ও পরিচিত সীমা](/docs/project/TECHNICAL-DEBT.html)
+- [পরবর্তী কাজ](/docs/project/NEXT-ACTIONS.html)
 
-## Status page
+## নকশাগত সিদ্ধান্ত
 
-- [Implementation status](/docs/project/IMPLEMENTATION-STATUS.html)
-- [Release status](/docs/project/RELEASE-STATUS.html)
-- [Device verification](/docs/project/DEVICE-VERIFICATION.html)
-- [Next actions](/docs/project/NEXT-ACTIONS.html)
-- [Project roadmap](/bn/docs/project/PROJECT-ROADMAP.html)
+নকশার নথিতে নিজস্ব ব্যবস্থাপক, গেস্ট ও তথ্যের স্পষ্ট মালিকানা এবং একটি
+সংযোগ-স্তরের মাধ্যমে LAI-এর সঙ্গে কাজ করার সিদ্ধান্ত রয়েছে। কারণ ও ফল জানতে
+[নকশাগত সিদ্ধান্তের সূচি](/docs/v3/ADR/README.html) দেখুন। প্রত্যাহৃত টার্নাক্স
+২.০.০-এর প্রমাণ [দ্বিতীয় সংস্করণের প্রকাশনা প্রতিবেদনে](V2-RELEASE-REPORT.html)
+রয়েছে।

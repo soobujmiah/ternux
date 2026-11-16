@@ -1,49 +1,49 @@
-# ternux documentation source
+# টার্নাক্স নথির উৎস
 
-এই directory-তে published documentation-এর বাংলা source আছে। English mirror হলো
-[`docs/`](../../docs/README.md); user-facing behavior, navigation order, warning,
-command ও evidence boundary aligned রাখতে হবে।
+এই ডিরেক্টরিতে প্রকাশিত নথির বাংলা উৎস রয়েছে। ইংরেজি সমান্তরাল নথি হলো
+[`docs/`](../../docs/README.md); ব্যবহারকারীর জন্য দৃশ্যমান আচরণ, নেভিগেশনের ক্রম,
+সতর্কতা, কমান্ড ও প্রমাণের সীমা দুই ভাষায় একই রাখতে হবে।
 
-**Published hub:** <https://soobujmiah.github.io/ternux/bn/docs/>
+**প্রকাশিত নথি কেন্দ্র:** <https://soobujmiah.github.io/ternux/bn/docs/>
 
-## Information architecture
+## নথির বিন্যাস
 
-| Section | Page |
+| বিভাগ | পৃষ্ঠা |
 |---|---|
 | শুরু করুন | `index.md`, `QUICK-START.md`, `INSTALLATION.md`, `MANUAL.md` |
-| Release অবস্থা ও roadmap | [`release/V2-RELEASE-REPORT.md`](release/V2-RELEASE-REPORT.md) (বর্তমান release/device reconciliation), [`V2-RELEASE-REPORT.md`](V2-RELEASE-REPORT.md) (প্রকাশের সময়কার snapshot), [`V2-RELEASE-READINESS.md`](V2-RELEASE-READINESS.md), [`V3-PROPOSALS.md`](V3-PROPOSALS.md), এবং `ACCELERATOR-RELEASE-PLAN.md` |
-| Repository-only audit evidence | [`audit/`](../../docs/audit/CURRENT-STATE.md)-এ তারিখসহ device, repository ও feature qualification বিস্তারিত আছে; এটি public website claim নয় |
-| Platform architecture ও বর্তমান roadmap | আগে v3-এর জন্য পরিকল্পিত সম্পূর্ণ architecture এখন পরের v2-major release-এর scope; English/Bengali [project roadmap](project/PROJECT-ROADMAP.md) ও [next actions](project/NEXT-ACTIONS.md)-এ implementation ও qualification-এর অবস্থা দেখুন। |
-| Package বিতরণ | [`TERMUX-APT.md`](TERMUX-APT.md) (repository trust ও install); [`../packaging/termux/README.md`](../packaging/termux/README.md) (build ও publish) |
-| Repository deep guide | [`../guides/device-benchmark-evidence.md`](../guides/device-benchmark-evidence.md), [`../guides/llama-vulkan-extension.md`](../guides/llama-vulkan-extension.md), matching English pages under `../guides/` (শুধু source repository-তে; website-এ প্রকাশিত নয়) |
+| প্রকাশনা ও পরিকল্পনার অবস্থা | [`release/V2-RELEASE-REPORT.md`](release/V2-RELEASE-REPORT.md) (বর্তমান প্রকাশনা ও যন্ত্রের ফলের সমন্বিত হিসাব), [`V2-RELEASE-REPORT.md`](V2-RELEASE-REPORT.md) (প্রকাশের সময়কার স্থিরচিত্র), [`V2-RELEASE-READINESS.md`](V2-RELEASE-READINESS.md), [`V3-PROPOSALS.md`](V3-PROPOSALS.md), এবং `ACCELERATOR-RELEASE-PLAN.md` |
+| শুধু সংগ্রহশালায় থাকা নিরীক্ষার প্রমাণ | [`audit/`](../../docs/audit/CURRENT-STATE.md)-এ তারিখসহ যন্ত্র, সংগ্রহশালা ও বৈশিষ্ট্যের যোগ্যতা যাচাইয়ের বিস্তারিত আছে; এগুলো প্রকাশিত ওয়েবসাইটের দাবি নয়। |
+| প্ল্যাটফর্মের নকশা ও বর্তমান পরিকল্পনা | আগে তৃতীয় প্রধান সংস্করণের জন্য পরিকল্পিত পূর্ণ নকশা এখন পরের দ্বিতীয়-প্রধান-সংস্করণে অন্তর্ভুক্ত। ইংরেজি ও বাংলা [প্রকল্পের পরিকল্পনা](project/PROJECT-ROADMAP.md) এবং [পরবর্তী কাজ](project/NEXT-ACTIONS.md)-এ বাস্তবায়ন ও যোগ্যতা যাচাইয়ের অবস্থা দেখুন। |
+| প্যাকেজ বিতরণ | [`TERMUX-APT.md`](TERMUX-APT.md) (প্যাকেজ-সংগ্রহস্থলের বিশ্বাসযোগ্যতা ও ইনস্টল); [`../packaging/termux/README.md`](../packaging/termux/README.md) (তৈরি ও প্রকাশ) |
+| সংগ্রহশালার বিস্তারিত নির্দেশিকা | [`../guides/device-benchmark-evidence.md`](../guides/device-benchmark-evidence.md), [`../guides/llama-vulkan-extension.md`](../guides/llama-vulkan-extension.md), এবং `../../guides/`-এর সংশ্লিষ্ট ইংরেজি পৃষ্ঠা (শুধু উৎস সংগ্রহশালায়; ওয়েবসাইটে প্রকাশিত নয়) |
 | পরিচালনা | `USAGE.md`, `WORKLOADS.md`, `BLENDER-MCP.md`, `CONFIGURATION.md`, `GRAPHICS-PERSISTENCE.md`, `TROUBLESHOOTING.md` |
-| বুঝে নিন | `ARCHITECTURE.md`, `BENCHMARKS.md`, `FAQ.md` |
-| রেফারেন্স | `CLI.md`, root `CHANGELOG.md`, root `CONTRIBUTING.md` |
+| ধারণা ও ব্যাখ্যা | `ARCHITECTURE.md`, `BENCHMARKS.md`, `FAQ.md` |
+| তথ্যসূত্র | `CLI.md`, মূল `CHANGELOG.md`, মূল `CONTRIBUTING.md` |
 
-`QUICK-START.md` website-এ llama.cpp extension-এর সংক্ষিপ্ত পথ দেয়। Paired
-repository guide-এ release যাচাই ও automatic/manual install-এর বিস্তারিত আছে,
-তাই website-এ deep procedure পুনরাবৃত্তি হয় না। `index.md` হলো task-based
-published hub। `src/pages/`-এর Astro route-গুলো source page-গুলোকে আগের `.html`
-URL-এ প্রকাশ করে; `src/data/navigation.ts` shared navigation model। English ও
-বাংলা page, section order ও navigation structurally paired রাখতে হবে।
+`QUICK-START.md` ওয়েবসাইটে `llama.cpp` এক্সটেনশনের সংক্ষিপ্ত পথ দেখায়। এর
+সমান্তরাল সংগ্রহশালা-নির্দেশিকায় প্রকাশনা যাচাই এবং স্বয়ংক্রিয় বা হাতে ইনস্টলের
+বিস্তারিত আছে; তাই ওয়েবসাইটে দীর্ঘ প্রক্রিয়াটি আবার লেখা হয় না। `index.md` হলো
+কাজভিত্তিক প্রকাশিত নথি-কেন্দ্র। `src/pages/`-এর অ্যাস্ট্রো রুটগুলো উৎস-পৃষ্ঠাকে
+আগের `.html` ঠিকানায় প্রকাশ করে; `src/data/navigation.ts`-এ যৌথ নেভিগেশন কাঠামো
+রয়েছে। ইংরেজি ও বাংলা পৃষ্ঠার বিষয়, বিভাগের ক্রম এবং নেভিগেশন একইভাবে সাজান।
 
-## Authoring contract
+## নথি লেখার নিয়ম
 
-1. প্রতিটি paired page-এ reciprocal `alt_url` front matter ব্যবহার করুন।
-2. Front-matter title body-level `#` heading হিসেবে আবার লিখবেন না; site shell single page `<h1>` render করে।
-3. Translation-এ command, identifier, numeric evidence ও warning severity ধরে রাখুন।
-4. Result-কে **measured**, **observed**, **reported build** অথবা **untested** classify করুন।
-5. Successful build বা renderer detection থেকে performance infer করবেন না।
-6. Existing heading fragment স্থির রাখুন, নইলে প্রতিটি inbound link update করুন।
-7. Workload/tool card upstream repository-তে link করুন।
-8. প্রযোজ্য হলে landing page, README map, navigation data ও sitemap দুই ভাষায় update করুন।
-9. [`CONTRIBUTING.md`](../CONTRIBUTING.md)-এ থাকা validation চালান।
-10. Published benchmark page সংক্ষিপ্ত রাখুন; full device procedure, audit detail,
-    raw-log location ও dated experiment history repository-only guide বা experiment
-    record-এ রাখুন। সেখানকার canonical detail link করুন, website page-এ কপি করবেন না।
+1. প্রতিটি সমান্তরাল পৃষ্ঠায় পরস্পরের ঠিকানা-সহ `alt_url` ফ্রন্টম্যাটার দিন।
+2. ফ্রন্টম্যাটারের শিরোনাম পৃষ্ঠার ভেতরে `#` শিরোনাম হিসেবে আবার লিখবেন না; ওয়েবসাইটের খোলস নিজেই একটিমাত্র `<h1>` দেখায়।
+3. অনুবাদে কমান্ড, শনাক্তকারী, সংখ্যাসূচক প্রমাণ ও সতর্কতার গুরুত্ব অপরিবর্তিত রাখুন।
+4. ফলাফলকে **পরিমাপ করা**, **পর্যবেক্ষণ করা**, **তৈরি হওয়ার প্রতিবেদন** অথবা **পরীক্ষা করা হয়নি**—এইভাবে চিহ্নিত করুন।
+5. শুধু সফলভাবে তৈরি হওয়া বা রেন্ডারার শনাক্ত হওয়া থেকে গতি বা কর্মদক্ষতার সিদ্ধান্ত টানবেন না।
+6. বিদ্যমান শিরোনামের সংযোগ-খণ্ড স্থির রাখুন; বদলালে সেটিতে আসা প্রতিটি সংযোগও হালনাগাদ করুন।
+7. কাজের ধরন বা সরঞ্জামের কার্ডকে মূল প্রকল্পের সংগ্রহশালায় সংযুক্ত করুন।
+8. প্রয়োজন হলে দুই ভাষার সূচনাপৃষ্ঠা, রিডমি-তালিকা, নেভিগেশন-তথ্য ও সাইটম্যাপ একসঙ্গে হালনাগাদ করুন।
+9. [`CONTRIBUTING.md`](../CONTRIBUTING.md)-এ উল্লেখিত যাচাই চালান।
+10. প্রকাশিত কর্মদক্ষতা-পরীক্ষার পৃষ্ঠা সংক্ষিপ্ত রাখুন। যন্ত্রে পরীক্ষার সম্পূর্ণ পদ্ধতি,
+    নিরীক্ষার বিবরণ, কাঁচা লগের অবস্থান ও তারিখসহ পরীক্ষার ইতিহাস সংগ্রহশালার
+    নির্দেশিকা বা পরীক্ষার নথিতে রাখুন; ওয়েবসাইটে কপি না করে মূল নথিতে সংযোগ দিন।
 
-Shared page shell `src/layouts/SiteLayout.astro`; style `src/styles/site.css`,
-আর content loading ও route-safe link rewrite `src/lib/content.ts`-এ। Astro build-এর
-`dist/` output `.github/workflows/deploy.yml` দিয়ে deploy হয়; production deploy
-শুধু explicit workflow dispatch-এর পর চলে। Runtime হালকা রাখুন এবং reduced-motion
-preference মানুন।
+যৌথ পৃষ্ঠা-খোলস `src/layouts/SiteLayout.astro`-এ, নকশার ধরন `src/styles/site.css`-এ,
+আর বিষয় লোড ও রুট-নিরাপদ সংযোগ রূপান্তর `src/lib/content.ts`-এ রয়েছে। অ্যাস্ট্রো
+তৈরি করা `dist/` ফল `.github/workflows/deploy.yml` দিয়ে প্রকাশিত হয়; নির্দিষ্ট
+কর্মপ্রবাহ হাতে চালু না করা পর্যন্ত মূল ওয়েবসাইটে প্রকাশ হয় না। চালনার ভার কম
+রাখুন এবং কম অ্যানিমেশনের পছন্দকে সম্মান করুন।
