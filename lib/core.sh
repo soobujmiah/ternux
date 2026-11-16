@@ -398,7 +398,7 @@ tnx_guest_login() {
         shift
         ;;
       --_tnx-timeout-seconds)
-        [ "$#" -ge 2 ] && [[ "$2" =~ ^[1-9][0-9]{0,2}$ ]] || {
+        [ "$#" -ge 2 ] && [[ "$2" =~ ^[1-9][0-9]{0,3}$ ]] && [ "$2" -le 3600 ] || {
           echo "Invalid internal PRoot timeout." >&2
           return 2
         }

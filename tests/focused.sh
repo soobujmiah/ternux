@@ -117,7 +117,7 @@ if env TERNUX_STATE_DIR="$TMP/state-guest-isolation" HOME="$TMP/home-guest-isola
     mkdir -p "$SDCARD_FIXTURE" || exit
     realpath(){ if [ "$*" = "-e /sdcard" ]; then printf "%s\\n" "$SDCARD_FIXTURE"; else command realpath "$@"; fi; }
     tnx_distro(){ echo debian; }
-    proot-distro(){ printf "%s\n" "$@" > "$LOG"; }
+    proot-distro(){ printf "%s\n" "$@" >> "$LOG"; }
     tnx_guest_login --shared-tmp --user ternux -- bash -c true || exit
     grep -qx -- "--isolated" "$LOG" || exit
     grep -qx -- "--shared-tmp" "$LOG" || exit
@@ -165,7 +165,7 @@ if env TERNUX_STATE_DIR="$TMP/state-storage-grant" HOME="$TMP/home-storage-grant
       else command realpath "$@"; fi
     }
     tnx_distro(){ echo debian; }
-    proot-distro(){ printf "%s\n" "$@" > "$LOG"; }
+    proot-distro(){ printf "%s\n" "$@" >> "$LOG"; }
     tnx_guest_login --user alice -- true || exit
     grep -Fqx -- "$FIXTURE:/sdcard" "$LOG" || exit
     grep -Fqx -- "$FIXTURE/Models:/sdcard/Models" "$LOG" || exit
@@ -199,15 +199,17 @@ fi
 if env TERNUX_STATE_DIR="$TMP/state-guest-x11" HOME="$TMP/home-guest-x11" \
   PREFIX="$TMP/prefix-guest-x11" LOG="$TMP/guest-x11-args" bash -c '
     . "$1/lib/core.sh"
+    : > "$LOG"
     tnx_distro(){ echo debian; }
     timeout(){
       [ "$1" = --signal=TERM ] || return 77; shift
       [ "$1" = --kill-after=1 ] || return 77; shift
-      [ "$1" = 5 ] || return 77; shift
+      case "$1" in 5|1200) shift ;; *) return 77 ;; esac
       "$@"
     }
-    proot-distro(){ printf "%s\n" "$@" > "$LOG"; }
+    proot-distro(){ printf "%s\n" "$@" >> "$LOG"; }
     tnx_guest_login --_tnx-timeout-seconds 5 --shared-x11 --user alice -- env DISPLAY=:0 xdpyinfo -display :0 || exit
+    tnx_guest_login --_tnx-timeout-seconds 1200 --user alice -- true || exit
     grep -qx -- "--isolated" "$LOG" || exit
     grep -qx -- "--shared-x11" "$LOG" || exit
     grep -qx -- "--user" "$LOG" || exit
