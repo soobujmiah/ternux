@@ -15,7 +15,7 @@ TERNUX_REPO="https://github.com/soobujmiah/ternux"
 # Immutable source snapshot shared by the standalone bootstrap and CLI fallback.
 # Keep these values aligned with install.sh; refresh only from a reviewed archive.
 TERNUX_SOURCE_COMMIT="53c1b71ff832385ea173e6d0869930c3b4f78beb"
-TERNUX_SOURCE_SHA256="be6964ec18be6019d08becddbbc18e762a3362e8fea90bec30ab3db82777b4aa"
+TERNUX_SOURCE_SHA256="7fd39841b3c898e51094e7676349eedbd71e9e8e2405dcb937810e1dd5d8d154"
 TERNUX_GUEST_CLI_SHA256="305f3b0642b4fd948fb022fec08a8c569b18909a34eedd80ac0e6f8ab0cbbe67"
 TERNUX_STATE_DIR="${TERNUX_STATE_DIR:-$HOME/.local/share/ternux}"
 TERNUX_LOG_DIR="${TERNUX_LOG_DIR:-${TMPDIR:-/data/data/com.termux/files/usr/tmp}/ternux}"
