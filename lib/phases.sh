@@ -525,13 +525,37 @@ tnx_phase_debian() {
     }
     DPKG_FORCE=\"-o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -o APT::Color=1 -o Dpkg::Progress-Fancy=1 -o Acquire::Retries=3\"
     set_debian_mirror() {
-      for source in /etc/apt/sources.list /etc/apt/sources.list.d/*.sources /etc/apt/sources.list.d/*.list; do
-        [ -f \"\$source\" ] || continue
-        sed -i \"s#https\\?://deb.debian.org/debian\\([[:space:]]\\|\\$\\)#\\$1\\1#g; s#http://mirror.limda.net/debian\\([[:space:]]\\|\\$\\)#\\$1\\1#g; s#http://mirror.xeonbd.com/debian\\([[:space:]]\\|\\$\\)#\\$1\\1#g\" \"\$source\"
+      local target="\$1" source temp
+      for source in /etc/apt/sources.list.d/*.sources; do
+        [ -f "\$source" ] || continue
+        temp="\${source}.ternux-tmp"
+        if ! awk -v target=\"\$target\" 'BEGIN { RS=\"\"; ORS=\"\\n\\n\" }
+          {
+            if (\$0 !~ /Suites:[^\n]*security/) sub(/^URIs:[[:space:]]*/, \"URIs: \" target)
+            print
+          }' "\$source" > "\$temp"; then
+          rm -f "\$temp"
+          return 1
+        fi
+        cat "\$temp" > "\$source" || { rm -f "\$temp"; return 1; }
+        rm -f "\$temp"
+      done
+      for source in /etc/apt/sources.list /etc/apt/sources.list.d/*.list; do
+        [ -f "\$source" ] || continue
+        temp="\${source}.ternux-tmp"
+        if ! awk -v target="\$target" '
+          /^([[:space:]]*deb(-src)?[[:space:]]+)/ && \$2 ~ /^https?:\\/\\/(deb\\.debian\\.org\\/debian|mirror\\.limda\\.net\\/debian|mirror\\.xeonbd\\.com\\/debian)([[:space:]]|$)/ && \$3 !~ /security/ { \$2 = target }
+          { print }
+        ' "\$source" > "\$temp"; then
+          rm -f "\$temp"
+          return 1
+        fi
+        cat "\$temp" > "\$source" || { rm -f "\$temp"; return 1; }
+        rm -f "\$temp"
       done
     }
-    if [ \"\$FAMILY\" = apt ] && [ '$(tnx_distro)' = debian ]; then
-      set_debian_mirror \"\$APT_MIRROR\"
+    if [ "\$FAMILY" = apt ] && [ '$(tnx_distro)' = debian ]; then
+      set_debian_mirror "\$APT_MIRROR"
     fi
       timeout() {
         local has_apt=0 is_update=0 arg
