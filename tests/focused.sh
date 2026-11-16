@@ -88,6 +88,21 @@ check "core loads persisted Debian user" env -u TERNUX_USER \
   TERNUX_STATE_DIR="$state" HOME="$TMP/home-user" bash -c \
   '. "$1/lib/core.sh"; test "$TERNUX_USER" = alice' _ "$ROOT"
 
+# The optional root secret travels only through guest stdin and never appears
+# in phase output or the Termux-side state.
+password_out="$(PASS_CAPTURE="$TMP/root-password-input" TERNUX_STATE_DIR="$TMP/state-password" HOME="$TMP/home-password" bash -c '
+  . "$1/lib/core.sh"; . "$1/lib/phases.sh"
+  tnx_distro(){ printf fixture; }
+  tnx_guest_login(){ [ "$1" = --user ] && [ "$2" = root ] && [ "$3" = -- ] && [ "$4" = chpasswd ] || return 90; cat > "$PASS_CAPTURE"; }
+  TERNUX_ROOT_PASSWORD=test-only-placeholder tnx_phase_root_password
+' _ "$ROOT" 2>&1)"
+if [ "$(cat "$TMP/root-password-input" 2>/dev/null)" = 'root:test-only-placeholder' ] &&
+   ! printf '%s' "$password_out" | grep -q 'test-only-placeholder'; then
+  ok "optional root password is sent to chpasswd over stdin and stays out of output"
+else
+  not_ok "optional root password is sent to chpasswd over stdin and stays out of output"
+fi
+
 # A normal one-command reinstall resumes an interrupted saved guest, while a
 # newly selected different guest remains an independent install.
 if TERNUX_STATE_DIR="$TMP/state-auto-resume" HOME="$TMP/home-auto-resume" bash -c '
@@ -1546,7 +1561,7 @@ if env TERNUX_STATE_DIR="$TMP/state-optional" HOME="$TMP/home-optional" bash -c 
   tnx_require_termux(){ :; }; tnx_confirm(){ :; }
   tnx_banner(){ :; }; tnx_phase_header(){ :; }; tnx_celebrate(){ :; }
   tnx_summary_box(){ :; }; tnx_next_steps(){ :; }; tnx_log_error(){ :; }
-  for name in preflight packages cli debian gpu audio_fonts launcher aliases phantom verify; do
+  for name in preflight packages cli debian root_password gpu audio_fonts launcher aliases phantom verify; do
     eval "tnx_phase_${name}(){ echo ${name} >> \"\$order\"; }"
   done
   tnx_phase_extras(){ echo extras >> "$order"; return 9; }
@@ -3508,7 +3523,7 @@ failed_frame_out="$(env NO_COLOR=1 TERNUX_STATE_DIR="$TMP/state-frame-failed" \
     _TNX_FRAME_MODE=dashboard
     _TNX_FRAME_ACTIVE=1
     _TNX_FRAME_CUR=4
-    _TNX_FRAME_TOTAL=11
+    _TNX_FRAME_TOTAL=12
     _TNX_FRAME_ROWS=24
     _TNX_FRAME_TITLE="Debian container + Xfce4"
     _tnx_frame_draw_dashboard(){
@@ -3517,8 +3532,8 @@ failed_frame_out="$(env NO_COLOR=1 TERNUX_STATE_DIR="$TMP/state-frame-failed" \
     tnx_frame_restore_terminal(){ :; }
     tnx_frame_close failed 4 "Debian container + Xfce4"
   ' _ "$ROOT")"
-if printf '%s\n' "$failed_frame_out" | grep -q '^FAILED|4|11|Failed: Debian container + Xfce4$' &&
-   ! printf '%s\n' "$failed_frame_out" | grep -q '^FAILED|11|11|'; then
+if printf '%s\n' "$failed_frame_out" | grep -q '^FAILED|4|12|Failed: Debian container + Xfce4$' &&
+   ! printf '%s\n' "$failed_frame_out" | grep -q '^FAILED|12|12|'; then
   ok "failed dashboard retains the actual failed phase index"
 else
   not_ok "failed dashboard retains the actual failed phase index"
@@ -3528,13 +3543,13 @@ warning_frame_out="$(env NO_COLOR=1 TERNUX_STATE_DIR="$TMP/state-frame-warning" 
     mkdir -p "$HOME"
     . "$1/lib/ui.sh"
     _TNX_FRAME_MODE=dashboard; _TNX_FRAME_ACTIVE=1
-    _TNX_FRAME_CUR=9; _TNX_FRAME_TOTAL=11; _TNX_FRAME_ROWS=24
+    _TNX_FRAME_CUR=9; _TNX_FRAME_TOTAL=12; _TNX_FRAME_ROWS=24
     _TNX_FRAME_TITLE="Optional setup needs attention"
     _tnx_frame_draw_dashboard(){ printf "%s|%s|%s|%s\n" "$1" "$_TNX_FRAME_CUR" "$_TNX_FRAME_TOTAL" "$_TNX_FRAME_TITLE"; }
     tnx_frame_restore_terminal(){ :; }
     tnx_frame_close warning 9 "Optional setup needs attention"
   ' _ "$ROOT")"
-if printf '%s\n' "$warning_frame_out" | grep -q '^WARNING|11|11|Ready with optional setup warnings$' &&
+if printf '%s\n' "$warning_frame_out" | grep -q '^WARNING|12|12|Ready with optional setup warnings$' &&
    printf '%s\n' "$warning_frame_out" | grep -q 'Base desktop ready; optional setup needs attention'; then
   ok "warning dashboard distinguishes ready base desktop from failed required install"
 else

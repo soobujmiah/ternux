@@ -358,7 +358,7 @@ case "${ACTION}" in
     ;;
   status)
     echo "Installation status:"
-    for pkg in packages cli debian gpu audio_fonts launcher aliases extras phantom verify; do
+    for pkg in packages cli debian root_password gpu audio_fonts launcher aliases extras phantom verify; do
       if tnx_state_done "phase_$pkg"; then printf "  done    %s\n" "$pkg"
       else printf "  pending %s\n" "$pkg"; fi
     done

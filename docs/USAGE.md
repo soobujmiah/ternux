@@ -44,6 +44,14 @@ automatic summary for the current shell. Run `terfetch` to display it again or
 | `sysmon` | Quick CPU/RAM/GPU-node overview |
 | `clean-mesa` | Clear the shader cache (after driver changes) |
 
+The installer can set an optional password for the **guest root account**. This
+is useful for `su -` inside a guest. Press Enter to leave it unset. The password
+is not stored by Ternux on the Termux host; the guest stores its password hash.
+Because PRoot does not isolate the guest from the Termux app owner, root
+shortcuts such as `dbroot` continue to enter as root without asking. `su -` in
+the native Termux host instead refers to Android root and is unavailable on an
+unrooted device.
+
 **A healthy start/stop routine:**
 
 1. Start with `xgo` or run `tx start debian` (or another installed profile).

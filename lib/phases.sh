@@ -292,6 +292,7 @@ tnx_phase_packages() {
       fi
     fi
   fi
+
   if [ "$rc" -eq 0 ] && [ "$package_stack_repaired" -eq 0 ] &&
      ! tnx_spin_run "Upgrade installed Termux packages" tnx_termux_pkg upgrade -y $APT_FORCE; then
     if _tnx_switch_mirror && tnx_spin_run "Retry upgrade with the next fastest Termux mirror" tnx_termux_pkg upgrade -y $APT_FORCE; then
@@ -1052,8 +1053,26 @@ DESKTOP
   tnx_install_guest_cli "$user_name" || return $?
 }
 
+# Phase 5 — optional guest root password.
+# Apply the optional password chosen by the installer to the guest root account.
+# Keep the secret in shell memory and feed it to chpasswd over stdin: it must
+# never appear in argv, environment, persistent Ternux state, or logs.
+tnx_phase_root_password() {
+  local password="${TERNUX_ROOT_PASSWORD:-}"
+  export -n TERNUX_ROOT_PASSWORD 2>/dev/null || true
+  [ -n "$password" ] || {
+    tnx_info "No guest root password selected; the image's root account password remains unchanged."
+    return 0
+  }
+  if ! (builtin printf 'root:%s\n' "$password" | tnx_guest_login --user root -- chpasswd); then
+    tnx_fail "Could not set the guest root password for '$(tnx_distro)'. Retry with tx install --resume and enter it again."
+    return 1
+  fi
+  tnx_ok "Guest root password configured for '$(tnx_distro)'."
+}
+
 # ---------------------------------------------------------------------------
-# Phase 5 — GPU driver (Zink/Turnip or VirGL)
+# Phase 6 — GPU driver (Zink/Turnip or VirGL)
 # ---------------------------------------------------------------------------
 tnx_validate_turnip_archive() {
   local tarball="$1"
@@ -1367,7 +1386,7 @@ tnx_validate_arch_mesa_archive() {
 }
 
 # ---------------------------------------------------------------------------
-# Phase 6 — audio, locale, fonts
+# Phase 7 — audio, locale, fonts
 # ---------------------------------------------------------------------------
 _TNX_PULSE_CHANGED=0
 _tnx_configure_pulse_bridge() {
@@ -1646,7 +1665,7 @@ tnx_phase_audio_fonts() {
 }
 
 # ---------------------------------------------------------------------------
-# Phase 7 — desktop launcher ~/x.sh
+# Phase 8 — desktop launcher ~/x.sh
 # ---------------------------------------------------------------------------
 tnx_phase_launcher() {
   local user_name="${1:-ternux}" backend="${2:-auto}" locale="${3:-en_US.UTF-8}"
@@ -2080,7 +2099,7 @@ EOF
 }
 
 # ---------------------------------------------------------------------------
-# Phase 8 — shell aliases
+# Phase 9 — shell aliases
 # ---------------------------------------------------------------------------
 # Powerlevel10k for the Termux host shell. The configuration wizard is disabled
 # so an unattended install never stops at a prompt — `p10k configure` runs it
@@ -2322,7 +2341,7 @@ ALIASEOF
 }
 
 # ---------------------------------------------------------------------------
-# Phase 9 — optional workloads
+# Phase 10 — optional workloads
 # ---------------------------------------------------------------------------
 # Optional third-party installer scripts are pinned by content digest and
 # product version. Fail closed when an upstream URL changes until Ternux
@@ -2634,7 +2653,7 @@ TNX_APT_OPTIONAL_INSTALL
 }
 
 # ---------------------------------------------------------------------------
-# Phase 10 — phantom process killer advisory
+# Phase 11 — phantom process killer advisory
 # ---------------------------------------------------------------------------
 tnx_phase_phantom() {
   local sdk state
@@ -2667,7 +2686,7 @@ tnx_phase_phantom() {
 }
 
 # ---------------------------------------------------------------------------
-# Phase 11 — verification
+# Phase 12 — verification
 # ---------------------------------------------------------------------------
 tnx_phase_verify() {
   local user_name="${1:-ternux}" backend="${2:-auto}"
@@ -3034,6 +3053,7 @@ _tnx_execute_install_phase() {
     packages)    tnx_phase_packages "$backend" ;;
     cli)         tnx_phase_cli ;;
     debian)      tnx_phase_debian "$user_name" ;;
+    root_password) tnx_phase_root_password ;;
     gpu)         tnx_phase_gpu "$backend" ;;
     audio_fonts) tnx_phase_audio_fonts "$user_name" "$locale" ;;
     launcher)    tnx_phase_launcher "$user_name" "$backend" "$locale" ;;
@@ -3331,6 +3351,42 @@ tnx_prompt_username() {
   printf '%s\n' "$chosen"
 }
 
+# Collect an optional guest root password without echoing it or persisting it.
+# Empty input explicitly leaves root password authentication disabled.
+tnx_prompt_root_password() {
+  local timeout="${1:-300}" tty_fd="" first="" second="" start_time=$SECONDS remaining
+  if { exec 3<>/dev/tty; } 2>/dev/null; then tty_fd=3
+  elif [ -t 0 ]; then tty_fd=0
+  else return 0
+  fi
+  while :; do
+    remaining=$((timeout - (SECONDS - start_time)))
+    if [ "$remaining" -le 0 ]; then
+      printf '\n%s\n' '[INFO] Password prompt timed out; continuing without a guest root password.' >&2
+      break
+    fi
+    printf 'Optional guest root password (Enter to skip): ' >&2
+    IFS= read -r -s -t "$remaining" -u "$tty_fd" first || { printf '\n%s\n' '[INFO] Password prompt timed out; continuing without a guest root password.' >&2; break; }
+    printf '\n' >&2
+    [ -n "$first" ] || break
+    remaining=$((timeout - (SECONDS - start_time)))
+    if [ "$remaining" -le 0 ]; then first=""; break; fi
+    printf 'Confirm guest root password: ' >&2
+    IFS= read -r -s -t "$remaining" -u "$tty_fd" second || { printf '\n%s\n' '[WARN] Password confirmation timed out; continuing without a guest root password.' >&2; first=""; break; }
+    printf '\n' >&2
+    if [ "$first" = "$second" ]; then
+      export -n TERNUX_ROOT_PASSWORD 2>/dev/null || true
+      TERNUX_ROOT_PASSWORD="$first"
+      break
+    fi
+    printf '%s\n' '[WARN] Passwords did not match; try again or press Enter to skip.' >&2
+    first=""; second=""
+  done
+  unset first second
+  [ "$tty_fd" = 3 ] && exec 3>&-
+  return 0
+}
+
 # Item catalogue for the interactive optional-software checklist. Keep this
 # list aligned with the case labels in tnx_phase_extras.
 TNX_OPTIONAL_ITEMS=(git python node build rust java golang php ripgrep jq gh sqlite3 htop tree geany neovim micro thonny godot adt-build-tools adt-platform-tools adt-ndk adt-cmake adt-cmdline adt-platform llama-vulkan stable-diffusion llama-htp-experimental nmap tmux ffmpeg vlc mpv audacity gimp krita inkscape imagemagick libreoffice-writer libreoffice-calc libreoffice-draw evolution blender celestia claude codex openai-cli hermes openclaw)
@@ -3533,6 +3589,7 @@ tnx_install_auto_resume_distro() {
 }
 
 tnx_install_single() {
+  export -n TERNUX_ROOT_PASSWORD 2>/dev/null || true
   local user_name="ternux" locale="en_US.UTF-8" backend="auto" shell_choice="bash"
   local distro_choice="debian" distro_explicit=0
   local extras=() yes=0 resume=0 full=0 profile="base"
@@ -3647,7 +3704,16 @@ tnx_install_single() {
       if [ "$distro_explicit" -eq 0 ]; then
         distro_choice="$(tnx_prompt_distro "$distro_choice" 300)"
       fi
+      if [ "$batch_confirmed" -eq 0 ] && ! tnx_install_phase_done root_password "$distro_choice"; then
+        TERNUX_ROOT_PASSWORD=""
+        tnx_prompt_root_password 300
+      fi
     fi
+  fi
+
+  if [ "$yes" -eq 0 ] && [ "$resume" -eq 1 ] && ! tnx_install_phase_done root_password "$distro_choice"; then
+    TERNUX_ROOT_PASSWORD=""
+    tnx_prompt_root_password 300
   fi
 
   [[ "$user_name" =~ ^[a-z_][a-z0-9_-]{0,31}$ ]] || {
@@ -3672,6 +3738,7 @@ tnx_install_single() {
     "Guest '$distro_choice' has no device-verified result on record; treat this install as unverified."
 
   [ "$yes" -eq 1 ] && export TERNUX_YES=1
+  [ "$yes" -eq 0 ] || TERNUX_ROOT_PASSWORD=""
   tnx_require_termux
 
   # phases.sh loads ui.sh when available; retain the fallback for separately
@@ -3754,8 +3821,8 @@ tnx_install_single() {
     return 0
   fi
 
-  local phases="preflight packages cli debian gpu audio_fonts launcher aliases extras phantom verify"
-  local total=11 rc=0 current=0 phase_rc=0 required_failed=0 failed_phase="" failed_current=0 phase="" title=""
+  local phases="preflight packages cli debian root_password gpu audio_fonts launcher aliases extras phantom verify"
+  local total=12 rc=0 current=0 phase_rc=0 required_failed=0 failed_phase="" failed_current=0 phase="" title=""
   local -a warning_phases=()
 
   local guest_label
@@ -3931,6 +3998,7 @@ tnx_install_single() {
       tnx_info "Fix the reported error, then run 'ternux install --resume' or 'ternux doctor'."
     fi
   fi
+  [ "$batch_confirmed" -eq 1 ] || unset TERNUX_ROOT_PASSWORD
   return "$rc"
 }
 
@@ -3947,6 +4015,7 @@ tnx_phase_title() {
         *) echo "${2:-$(tnx_distro)} + Xfce" ;;
       esac
       ;;
+    root_password) echo "Guest root password" ;;
     gpu)         echo "GPU driver setup" ;;
     audio_fonts) echo "Audio, locale, fonts" ;;
     launcher)    echo "Desktop launcher (~/x.sh)" ;;
@@ -3963,6 +4032,7 @@ tnx_phase_title() {
 # Each pass runs the same base profile and writes a distro-specific launcher;
 # the single Termux:X11 display still runs one guest desktop at a time.
 tnx_install() {
+  export -n TERNUX_ROOT_PASSWORD 2>/dev/null || true
   local requested="" arg distro seen=" " has_distro=0 wants_yes=0 wants_resume=0
   local -a forwarded=() choices=() normalized=()
   while [ "$#" -gt 0 ]; do
@@ -4059,6 +4129,8 @@ tnx_install() {
   done
 
   if [ "$wants_yes" -eq 0 ]; then
+    TERNUX_ROOT_PASSWORD=""
+    tnx_prompt_root_password 300
     batch_summary=("Termux shell" "$batch_shell")
     for forwarded_index in "${!normalized[@]}"; do
       if [ "${batch_workloads[forwarded_index]}" = none ]; then
@@ -4072,6 +4144,8 @@ tnx_install() {
       tnx_info "Installation cancelled; no guest installation was started."
       return 0
     fi
+  else
+    TERNUX_ROOT_PASSWORD=""
   fi
 
   for forwarded_index in "${!normalized[@]}"; do
@@ -4091,6 +4165,7 @@ tnx_install() {
     tnx_header "Multi-guest installation complete"
     tnx_next_steps "${finish_steps[@]}"
   fi
+  unset TERNUX_ROOT_PASSWORD
 }
 
 tnx_cmd_install() { tnx_install "$@"; }

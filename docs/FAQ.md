@@ -125,6 +125,16 @@ The design choices that matter:
 The usual rules still apply: don't run untrusted binaries as root inside the
 container, and never paste credentials into issues or logs.
 
+### Why does `su` ask me for a password?
+
+`su` inside a guest asks for that guest's root password. New interactive
+installations now offer an optional root-password prompt; pressing Enter skips
+it. `--yes` and non-interactive installs leave the root password unset. You can
+use the guest's `dbroot`, `ubroot`, `alproot` or matching root shortcut instead.
+PRoot is not a security boundary, so these shortcuts do not require the guest
+root password and the password does not protect files from the Termux app owner.
+On the native Termux host, `su` means Android root and requires a rooted device.
+
 ## How do I make everything bilingual?
 
 Core guides exist in English and Bangla; the full benchmark evidence archive is currently in English.

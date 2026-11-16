@@ -125,7 +125,7 @@ if (
   tnx_install_phase_done cli && exit 1
   tnx_state_set cli_source_identity "$(tnx_cli_source_identity)"
   tnx_proot_container_installed(){ return 0; }
-  for phase in debian gpu audio_fonts launcher aliases extras phantom verify; do
+  for phase in debian root_password gpu audio_fonts launcher aliases extras phantom verify; do
     tnx_state_mark "phase_$phase"
     tnx_distro_phase_mark debian "$phase"
   done
@@ -133,11 +133,11 @@ if (
   tnx_require_termux(){ :; }; tnx_confirm(){ :; }; tnx_banner(){ :; }
   tnx_phase_header(){ :; }; tnx_celebrate(){ :; }; tnx_summary_box(){ :; }
   tnx_next_steps(){ :; }; tnx_log_error(){ :; }
-  for phase in preflight packages cli debian gpu audio_fonts launcher aliases extras phantom verify; do
+  for phase in preflight packages cli debian root_password gpu audio_fonts launcher aliases extras phantom verify; do
     eval "tnx_phase_${phase}(){ printf '%s\\n' '${phase}' >> '$order'; }"
   done
   tnx_install --distro ubuntu --resume --yes >/dev/null 2>&1 || exit 1
-  [ "$(tr '\n' ' ' < "$order")" = 'debian gpu audio_fonts launcher aliases phantom verify ' ] || exit 1
+  [ "$(tr '\n' ' ' < "$order")" = 'debian root_password gpu audio_fonts launcher aliases phantom verify ' ] || exit 1
   [ "$(tnx_distro_state_get ubuntu status)" = ready ] || exit 1
   tnx_state_done phase_debian && tnx_distro_phase_done debian debian && tnx_distro_phase_done ubuntu debian
 ); then

@@ -33,6 +33,12 @@ If a required phase stops, rerun the same command to download the current
 installer and resume the incomplete guest from that phase. Do not remove the
 guest before retrying.
 
+During an interactive install, you may set an optional guest root password
+(entered twice without echo); press Enter to skip. This supports `su -` inside
+the guest. It does not secure guest files from the Termux app owner because
+PRoot and the `dbroot` shortcut can still enter the guest as root. `--yes`
+skips the password prompt.
+
 If a partial upgrade left `pkg` or curl unable to start, run
 `apt update && apt full-upgrade -y` to repair Termux, then retry. The stable
 signed APT repository was withdrawn, so `pkg install ternux` is currently
@@ -50,7 +56,9 @@ The installer:
    (**Adreno/KGSL → native distro Zink/Freedreno where packaged** · Debian uses validated Turnip · VirGL compatibility route);
 5. configures audio, fonts and locale;
 6. installs the `tx` CLI and shell shortcuts;
-7. verifies everything landed.
+7. optionally sets the guest root password for `su -` (Enter skips; `--yes`
+   skips this prompt);
+8. verifies everything landed.
 
 Expect about **4–4.6 GB installed** for base or **10.5–12.5 GB** with `--all`; keep
 additional temporary space for downloads and caches. One persistent screen shows
