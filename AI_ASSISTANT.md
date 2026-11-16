@@ -8,7 +8,7 @@ and knowledge-return baseline. This file defines only Ternux-specific rules.
 
 ## Sources of truth
 
-- Installer behavior and supported commands: source code and `COMMANDS.md`.
+- Installer behavior and supported commands: source code and [`docs/CLI.md`](docs/CLI.md).
 - User entry points: root `README.md` and the English/Bengali website home pages.
 - Detailed usage and reproducibility: `docs/`, `guides/`, and `experiments/`.
 - Release gates and current accelerator qualification: `docs/ACCELERATOR-RELEASE-PLAN.md`.

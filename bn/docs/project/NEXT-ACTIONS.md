@@ -1,47 +1,55 @@
 ---
-title: "Ternux-এর পরবর্তী কাজ"
-description: "পরের v2-major platform release-এর dependency অনুযায়ী engineering ও evidence কাজ।"
+title: "টার্নাক্সের পরবর্তী কাজ"
+description: "পরের দ্বিতীয়-প্রধান-সংস্করণের জন্য ক্রমানুসারে সাজানো প্রকৌশল, বাস্তবায়ন ও প্রমাণ-সংগ্রহের কাজ।"
 lang: "bn"
 alt_url: "/docs/project/NEXT-ACTIONS.html"
 ---
 
 ## পরবর্তী কাজ
 
-**শেষ পর্যালোচনা:** 2026-11-14। Stable channel withdrawn থাকবে; এই তালিকা পরের
-v2-major release-এর অসম্পূর্ণ implementation ও qualification কাজ দেখায়।
+**শেষ পর্যালোচনা:** ২০২৬-১১-১৪। এই তালিকায় পরের দ্বিতীয়-প্রধান-সংস্করণের
+অসম্পূর্ণ বাস্তবায়ন ও প্রমাণ-সংগ্রহের কাজ রয়েছে। স্থিতিশীল প্রকাশনা-চ্যানেল
+প্রত্যাহৃত থাকবে।
 
-1. আংশিক native Control Center এগিয়ে নেওয়া: working source-এ authenticated,
-   confirmation-bound desktop start/stop ও durable job record আছে। Device browser-এ
-   যাচাই, log, diagnostics, graphics/audio/storage/workload panel, accessible mobile
-   layout ও কম resource-ব্যবহারের idle profile সম্পূর্ণ করা বাকি। Python বা browser
-   না থাকলেও CLI চলবে।
-2. Manager service-এর optional supervision যোগ করা—startup, health, stop ও crash
-   recovery-সহ। Service update-এ guest session restart করা যাবে না।
-3. Typed, idempotent lifecycle job-এ durable progress ও interruption recovery
-   আছে; cancellation, retained-job policy এবং service বন্ধ থাকলে CLI recovery
-   সম্পূর্ণ করতে হবে। Per-guest state ও unrelated PRoot guest অক্ষত রাখতে হবে।
-4. Workspace acceptance matrix শেষ করা: Debian, Ubuntu ও Alpine-এ clean install,
-   update, resume, restart, stop ও uninstall। Multi-guest install-এর আগে shared
-   shell, প্রতিটি username ও workload সংগ্রহের বর্তমান precollection contract
-   বজায় রাখতে হবে।
-5. Acceptance criteria অনুযায়ী Compute, AI, Device Bridge ও extension-এর কাজ
-   চালিয়ে যাওয়া; correctness, permission, failure, rollback ও device evidence
-   আলাদা রাখতে হবে।
-6. Package metadata, CLI help, English/Bengali docs, website, security review,
-   exact-commit CI এবং clean reference-device install audit করে align করা। Exact
-   2.x release candidate-এর সব বাধ্যতামূলক gate pass না হওয়া পর্যন্ত stable
-   channel withdrawn থাকবে।
+1. আংশিক নিজস্ব নিয়ন্ত্রণকেন্দ্র এগিয়ে নিন। কার্যকর উৎসে পরিচয় যাচাই,
+   নিশ্চিতকরণ-নির্ভর ডেস্কটপ চালু বা বন্ধ এবং স্থায়ী কাজের নথি আছে। যন্ত্রের
+   ব্রাউজারে যাচাই, লগ, রোগনির্ণয়, গ্রাফিক্স/অডিও/স্টোরেজ/কাজের প্যানেল,
+   ব্যবহার-সহজ মুঠোফোন বিন্যাস এবং কম সম্পদে চলার উপযোগী নিষ্ক্রিয় অবস্থা
+   সম্পূর্ণ করা বাকি। পাইথন বা ব্রাউজার না থাকলেও কমান্ড-লাইন সচল থাকতে হবে।
+2. ঐচ্ছিক ব্যবস্থাপক-সেবার তত্ত্বাবধান যোগ করুন—চালু হওয়া, সুস্থতার অবস্থা,
+   বন্ধ করা ও বিপর্যয় থেকে পুনরুদ্ধারসহ। সেবা হালনাগাদে কোনো গেস্ট সেশন
+   আবার চালু করা যাবে না।
+3. ধরন-নির্দিষ্ট, বারবার নিরাপদে চালানো যায় এমন জীবনচক্রের কাজ শক্ত করুন।
+   স্থায়ী অগ্রগতি, নিরাপদে বাতিল করা, পুরোনো কাজ রাখার নীতি এবং সেবা বন্ধ
+   থাকলে কমান্ড-লাইন থেকে পুনরুদ্ধার সম্পূর্ণ করুন। বর্তমান চালু/বন্ধ অংশে
+   কাজের আগে নথি রাখা হয় এবং মাঝপথে থেমে গেলে মিলিয়ে নেওয়ার চিহ্ন থাকে;
+   বাতিল করার সুবিধা নেই। প্রতি-গেস্টের অবস্থা ও অসংশ্লিষ্ট PRoot গেস্ট অক্ষত
+   রাখুন।
+4. কর্মপরিসরের গ্রহণযোগ্যতা-তালিকা সম্পূর্ণ করুন: Debian, Ubuntu ও Alpine-এ
+   পরিষ্কার ইনস্টল, হালনাগাদ, মাঝপথ থেকে চালানো, পুনরায় চালু, বন্ধ ও
+   আনইনস্টল। একাধিক গেস্ট বসানোর আগে যৌথ শেল এবং প্রতিটি ব্যবহারকারীর নাম ও
+   কাজের সমষ্টি সংগ্রহ করার বর্তমান পূর্বতথ্য-সংগ্রহ নিয়ম বজায় রাখুন।
+5. গ্রহণযোগ্যতার শর্ত অনুসারে গণনা, কৃত্রিম বুদ্ধিমত্তা, যন্ত্র-সংযোগ ও
+   সম্প্রসারণের কাজ চালিয়ে যান। সঠিকতা, অনুমতি, ব্যর্থতা, আগের অবস্থায়
+   ফেরানো এবং যন্ত্রের প্রমাণ আলাদা করে নথিবদ্ধ করুন।
+6. প্যাকেজের তথ্য, কমান্ড-লাইন সহায়তা, ইংরেজি ও বাংলা নথি, ওয়েবসাইট,
+   নিরাপত্তা পর্যালোচনা, নির্দিষ্ট কমিটের ধারাবাহিক সংহতকরণ পরীক্ষা এবং
+   পরিষ্কার রেফারেন্স-যন্ত্রে ইনস্টল পর্যালোচনা করে মিলিয়ে নিন। নির্দিষ্ট
+   ২.x প্রকাশ-প্রার্থী সব বাধ্যতামূলক শর্ত পূরণ না করা পর্যন্ত স্থিতিশীল
+   চ্যানেল প্রত্যাহৃত রাখুন।
 
-## সম্পন্ন source slice: display migration
+## সম্পন্ন উৎস-অংশ: পর্দা নম্বর স্থানান্তর
 
-Native display registry ও explicit migration executor source-এ implement করা
-হয়েছে। Plan exclusive lock-এ revalidate হয়; active guest, অন্য managed session-এর
-shared lock বা unsafe target থাকলে থামে। Journal rollback ও `--recover` সমর্থন করে।
-2026-11-14-এ সব guest থামিয়ে reference device-এ migration হয়; Debian launcher
-`:1`-এ refresh করে Debian, Ubuntu, Alpine-কে `:1/:2/:3`-এ READY করা হয়। পূর্ণ
-clean install/update/resume/restart/stop/uninstall matrix বাকি। Owner classification
-best-effort, OS-level socket ownership-এর প্রমাণ নয়.
+নিজস্ব পর্দা-তালিকা ও স্পষ্ট স্থানান্তর-চালক উৎসে বাস্তবায়িত। অবস্থা-নির্ভর
+পরিকল্পনা একক তালাবদ্ধ অবস্থায় আবার যাচাই হয়; সক্রিয় গেস্ট, অন্য কোনো
+পরিচালিত সেশনের যৌথ তালা অথবা অনিরাপদ লক্ষ্য থাকলে কাজ থামে। কাজের নথি
+আগের ফাইল ফিরিয়ে দেওয়া এবং `--recover` সমর্থন করে। ২০২৬-১১-১৪ তারিখে
+সব গেস্ট বন্ধ রেখে রেফারেন্স যন্ত্রে স্থানান্তর করা হয়েছিল; Debian-এর চালক
+`:1`-এর জন্য নতুন করে তৈরি হয়, তারপর Debian, Ubuntu ও Alpine `:1/:2/:3`-এ
+সচল-অবস্থায় ফেরে। পরিষ্কার ইনস্টল, হালনাগাদ, পুনরারম্ভ, বন্ধ ও আনইনস্টলের
+বৃহত্তর যাচাই-তালিকা এখনো বাকি। মালিক-শ্রেণিবিন্যাস সম্ভাব্য হিসাবমাত্র,
+অপারেটিং সিস্টেমের স্তরে সকেটের মালিকানার প্রমাণ নয়।
 
-Read-only Unix-socket service ও desktop action-সহ browser dashboard-এর বর্তমান
-working-source slice source feature; withdrawn 2.0.0 package-এ নেই। এই roadmap implementation record, release বা publication
-অনুমোদন নয়।
+শুধু-পঠন ইউনিক্স-সকেট সেবা এবং ডেস্কটপ চালনা-সুবিধাসহ ব্রাউজার নিয়ন্ত্রণকেন্দ্র
+বর্তমান কার্যকর শাখার উৎস-সুবিধা; প্রত্যাহৃত ২.০.০ প্যাকেজে নেই। এই পরিকল্পনা
+বাস্তবায়নের নথি, প্রকাশনা বা ওয়েবসাইটে প্রকাশের অনুমোদন নয়।
