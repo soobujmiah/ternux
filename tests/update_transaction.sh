@@ -119,7 +119,10 @@ env PREFIX="$PREFIX" TERNUX_STATE_DIR="$STATE" HOME="$TMP/home-success" TMPDIR="
   PATH="$FAKEBIN:$PATH" TERNUX_TEST_RELEASE_TAG=v2.0.1 TERNUX_REPO_URL="$ORIGIN" \
   TERNUX_UPDATE_RELEASE_API=https://release.invalid/latest \
   bash "$ROOT/bin/ternux" update || fail 'installing pinned release v2.0.1'
-"$PREFIX/bin/ternux" --version | grep -q '^ternux v2.0.1$' || fail 'new CLI version was not installed'
+installed_version_output="$(env PREFIX="$PREFIX" HOME="$TMP/home-success" \
+  "$PREFIX/bin/ternux" --version 2>&1)" || fail "updated CLI could not run: $installed_version_output"
+printf '%s\n' "$installed_version_output" | grep -q '^ternux v2.0.1$' ||
+  fail "new CLI version was not installed: $installed_version_output"
 grep -q '^TERNUX_VERSION="2.0.1"$' "$PREFIX/lib/ternux/core.sh" || fail 'new library tree was not installed'
 backup_marker="$(find "$PREFIX/lib/ternux-update-backups" -path '*/lib/old.marker' -print -quit)"
 [ -n "$backup_marker" ] && grep -q old-version-marker "$backup_marker" || fail 'previous library tree was not retained'
@@ -143,7 +146,8 @@ if env PREFIX="$PREFIX" TERNUX_STATE_DIR="$TMP/state-rollback" HOME="$TMP/home-r
   bash "$ROOT/bin/ternux" update >/dev/null 2>&1; then
   fail 'the intentionally bad installed candidate was accepted'
 fi
-"$PREFIX/bin/ternux" --version | grep -q '^ternux v2.0.0$' || fail 'rollback did not restore the old dispatcher'
+env PREFIX="$PREFIX" HOME="$TMP/home-rollback" \
+  "$PREFIX/bin/ternux" --version | grep -q '^ternux v2.0.0$' || fail 'rollback did not restore the old dispatcher'
 grep -q rollback-marker "$PREFIX/lib/ternux/old.marker" || fail 'rollback did not restore old modules'
 [ ! -e "$PREFIX/lib/.ternux-update-journal" ] || fail 'rollback left an update journal'
 [ ! -e "$PREFIX/lib/.ternux-update-lock" ] || fail 'rollback left an update lock'
@@ -160,7 +164,10 @@ cp "$ROOT/bin/ternux" "$PREFIX/bin/ternux"
 chmod 0755 "$PREFIX/bin/ternux"
 printf 'candidate-marker\n' > "$PREFIX/lib/ternux/candidate.marker"
 printf '999999999 1 %s 1 1\n' "$backup_id" > "$PREFIX/lib/.ternux-update-journal"
-env PREFIX="$PREFIX" "$PREFIX/bin/ternux" --version | grep -q '^ternux v2.0.0$' || fail 'dead-owner recovery did not restore the CLI'
+recovered_version_output="$(env PREFIX="$PREFIX" HOME="$TMP/home-recovery" \
+  "$PREFIX/bin/ternux" --version 2>&1)" || fail "recovered CLI could not run: $recovered_version_output"
+printf '%s\n' "$recovered_version_output" | grep -q '^ternux v2.0.0$' ||
+  fail "dead-owner recovery did not restore the CLI: $recovered_version_output"
 [ -f "$PREFIX/lib/ternux/core.sh" ] || fail 'dead-owner recovery did not restore modules'
 [ ! -e "$PREFIX/lib/ternux/candidate.marker" ] || fail 'dead-owner recovery left candidate modules active'
 [ ! -e "$PREFIX/lib/.ternux-update-journal" ] || fail 'dead-owner recovery left a journal'
