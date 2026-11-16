@@ -34,6 +34,11 @@ jobs:
           npm ci
           npm run build
 
+      - name: Temporary Prettier preview
+        run: |
+          npx prettier --plugin prettier-plugin-astro --write src/pages/index.astro src/pages/bn/index.astro
+          git diff --color=never -- src/pages/index.astro src/pages/bn/index.astro
+
       - name: Install Bats
         timeout-minutes: 5
         run: |
