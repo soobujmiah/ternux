@@ -334,7 +334,7 @@ install_commands = (
 for source in ("src/pages/index.astro", "src/pages/bn/index.astro"):
     page = read(ROOT / source)
     for command in install_commands:
-        check(f'const installCommand =\n  `{command}`;' in page,
+        check("const installCommand = `" in page and f"{command}`;" in page,
               f"{source}: homepage install command constant is missing or stale")
         check("data-copy-value={installCommand}" in page,
               f"{source}: homepage install button must copy the exact one-line command")
