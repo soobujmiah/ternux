@@ -4296,14 +4296,16 @@ if env HOME="$TMP/home-launchgen" TERNUX_STATE_DIR="$TMP/state-launchgen" \
     RC_FILE="$HOME/.bashrc" tnx_phase_aliases ternux bash >/dev/null 2>&1 || true
     launcher="$TERNUX_STATE_DIR/distros/debian/launcher.sh"
     grep -q "guest_login_isolated debian" "$launcher" &&
+    grep -q 'startup-password:/run/ternux/startup-password' "$launcher" &&
     grep -q "proot-distro login" "$launcher" &&
     ! grep -q "tnx_guest_login" "$launcher" &&
     [ ! -e "$HOME/x.sh" ] &&
-    ! grep -rq "tnx_guest_login" "$HOME/.bashrc"
+    ! grep -rq "tnx_guest_login" "$HOME/.bashrc" &&
+    grep -q 'startup-password:/run/ternux/startup-password' "$HOME/.bashrc"
   ' _ "$ROOT"; then
-  ok "generated launcher and aliases call proot-distro directly"
+  ok "generated launcher and aliases bind the startup verifier on direct PRoot logins"
 else
-  not_ok "generated launcher and aliases call proot-distro directly"
+  not_ok "generated launcher and aliases bind the startup verifier on direct PRoot logins"
 fi
 
 # Choosing zsh must bring a theme with it, the theme must stay optional, and a
