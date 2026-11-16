@@ -1079,6 +1079,7 @@ assert "ffmpeg ristretto" in (root / "lib/phases.sh").read_text()
 assert "mousepad galculator evince fonts-noto-core" in (root / "lib/phases.sh").read_text()
 phase_source = (root / "lib/phases.sh").read_text()
 base_desktop_install = next(line for line in phase_source.splitlines() if "apt install -y -o APT::Install-Recommends=false" in line and "sudo nano" in line)
+assert "timeout --signal=TERM --kill-after=10 3600 apt install -y" in base_desktop_install
 assert "libglib2.0-bin" in base_desktop_install
 assert "ca-certificates" in base_desktop_install
 assert "gtk3 glib2 ibus" in phase_source
