@@ -626,7 +626,7 @@ fi
 if env TERNUX_STATE_DIR="$TMP/state-repos" HOME="$TMP/home-repos" \
   PREFIX="$TMP/prefix-repos" TMPDIR="$TMP/prefix-repos/tmp" MARKER="$TMP/change-repo-called" STORAGE_MARKER="$TMP/storage-permission-called" bash -c '
     . "$1/lib/phases.sh"
-    mkdir -p "$PREFIX/etc/apt" "$PREFIX/etc/termux/mirrors/asia"
+    mkdir -p "$PREFIX/etc/apt" "$PREFIX/etc/termux/mirrors/asia" "$TMPDIR"
     printf "%s\n" "deb https://packages.termux.dev/apt/termux-main stable main" > "$PREFIX/etc/apt/sources.list"
     printf 'MAIN="https://grimler.se/termux/termux-main"\n' > "$PREFIX/etc/termux/mirrors/asia/grimler"
     curl(){ case "$*" in *grimler.se*) printf "200 2000\n" ;; *packages.termux.dev*) printf "200 1000\n" ;; *) printf "404 0\n" ;; esac; }
