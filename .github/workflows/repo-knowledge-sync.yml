@@ -102,7 +102,7 @@ jobs:
         continue-on-error: true
         run: python3 tests/ui_render.py
 
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
