@@ -792,7 +792,16 @@ tnx_confirm() {
   [ -t 0 ] || { tnx_info "$1 -> y (non-interactive)"; return 0; }
   local a default="${2:-no}" prompt="[y/N]"
   [ "$default" = "yes" ] && prompt="[Y/n]"
-  read -r -p "${TNX_CC}?${TNX_C0} $1 $prompt: " a || return 1
+  # Installer phases stream child stdout/stderr through a line-oriented
+  # renderer. `read -p` writes an unterminated prompt to stderr, so that
+  # renderer can buffer it forever while the user waits for a prompt they
+  # cannot see. Write and read prompts through the controlling terminal.
+  if [ -r /dev/tty ] && [ -w /dev/tty ]; then
+    printf '%s?%s %s %s: ' "$TNX_CC" "$TNX_C0" "$1" "$prompt" > /dev/tty
+    IFS= read -r a < /dev/tty || return 1
+  else
+    read -r -p "${TNX_CC}?${TNX_C0} $1 $prompt: " a || return 1
+  fi
   if [ "$default" = "yes" ] && [ -z "$a" ]; then return 0; fi
   case "$a" in [Yy]|[Yy][Ee][Ss]) return 0 ;; *) return 1 ;; esac
 }

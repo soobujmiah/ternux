@@ -13,6 +13,7 @@ grep -Fq 'timeout --signal=TERM --kill-after=10 900 apt install -y \$DPKG_FORCE 
 
 grep -Fq 'timeout --signal=TERM --kill-after=5 90 sudo locale-gen' "$PHASES"
 grep -Fq 'timeout --signal=TERM --kill-after=5 60 fc-cache -f' "$PHASES"
+grep -Fq 'tnx_guest_login --_tnx-timeout-seconds 1200 --shared-tmp --user "$user_name"' "$PHASES"
 ! sed -n '/tnx_phase_audio_fonts() {/,/^}/p' "$PHASES" | grep -Fq 'sudo locale-gen'
 
 echo 'base and optional guest setup steps have bounded network and wall-clock limits'

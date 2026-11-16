@@ -1478,7 +1478,7 @@ tnx_phase_audio_fonts() {
   _tnx_configure_pulse_bridge "$PA_CONF" || return 1
   [ "$_TNX_PULSE_CHANGED" = "1" ] && tnx_ok "PulseAudio TCP bridge bound to loopback."
 
-  tnx_guest_login --shared-tmp --user "$user_name" -- bash -c "
+  tnx_guest_login --_tnx-timeout-seconds 1200 --shared-tmp --user "$user_name" -- bash -c "
     set -e
     FAMILY='${family}'
     echo \"Installing locale and system fonts...\"
