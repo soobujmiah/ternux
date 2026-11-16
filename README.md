@@ -92,16 +92,11 @@ renderer depends on the device and Android graphics stack, so check it with
    on demand through Termux's OpenSL ES source; the API's recorder is file-based.
    Install Termux and its add-ons from the same source.
 2. On a healthy, current Termux install, use `pkg` to update packages, install
-   a downloader, and run the source installer:
+   both downloaders, and run the source installer. If curl cannot start or
+   fetch the script, the command retries with wget:
 
 ```bash
-pkg update -y && pkg upgrade -y && pkg install -y curl && bash -o pipefail -c 'curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'
-```
-
-If curl is unavailable, use wget instead:
-
-```bash
-pkg update -y && pkg upgrade -y && pkg install -y wget && bash -o pipefail -c 'wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'
+pkg update -y && pkg upgrade -y && pkg install -y curl wget && bash -c 's=$(mktemp) && (curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh -o "$s" || wget -qO "$s" https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh) && bash "$s"; r=$?; rm -f "$s"; exit "$r"'
 ```
 
 If a partial upgrade left `pkg` or curl unable to start, finish the repair with

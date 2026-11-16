@@ -3,6 +3,8 @@ import SiteLayout from "../../layouts/SiteLayout.astro";
 import WorkstationDiagram from "../../components/WorkstationDiagram.astro";
 import ComputeBench from "../../components/ComputeBench.astro";
 import RenderBench from "../../components/RenderBench.astro";
+
+const installCommand = `pkg update -y && pkg upgrade -y && pkg install -y curl wget && bash -c 's=$(mktemp) && (curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh -o "$s" || wget -qO "$s" https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh) && bash "$s"; r=$?; rm -f "$s"; exit "$r"'`;
 ---
 
 <SiteLayout
@@ -229,43 +231,19 @@ import RenderBench from "../../components/RenderBench.astro";
             </p>
           </div>
           <div class="command">
-            <small>নিরাপদ bootstrap · curl</small>
-            <button
-              type="button"
-              data-copy
-              data-copy-value="pkg update -y && pkg upgrade -y && pkg install -y curl && bash -o pipefail -c 'curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'"
-            >
+            <small>নিরাপদ bootstrap · curl ব্যর্থ হলে wget</small>
+            <button type="button" data-copy data-copy-value={installCommand}>
               কপি
             </button>
-            <code>
-              pkg update -y && pkg upgrade -y && pkg install -y curl && bash -o
-              pipefail -c 'curl -fsSL
-              https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh
-              | bash'
-            </code>
-          </div>
-          <div class="command">
-            <small>নিরাপদ bootstrap · wget</small>
-            <button
-              type="button"
-              data-copy
-              data-copy-value="pkg update -y && pkg upgrade -y && pkg install -y wget && bash -o pipefail -c 'wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'"
-            >
-              কপি
-            </button>
-            <code>
-              pkg update -y && pkg upgrade -y && pkg install -y wget && bash -o
-              pipefail -c 'wget -qO-
-              https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh
-              | bash'
-            </code>
+            <code>{installCommand}</code>
           </div>
           <p class="install-note">
-            এই command-গুলো Termux package upgrade শেষ করে downloader install
-            করে এবং <code>pipefail</code> চালু রাখে—তাই download ব্যর্থ হলে সফল
-            দেখাবে না। Partial upgrade-এ <code>pkg</code> বা curl চালু না হলে
-            উপরের apt-first command দিয়ে repair করুন। Stable APT channel বন্ধ,
-            তাই <code>pkg install ternux</code> এখন পাওয়া যাচ্ছে না;{" "}
+            এই command Termux package upgrade শেষ করে দুইটি downloader install
+            করে। curl ব্যর্থ হলে wget দিয়ে installer আবার নামায়, আর download
+            সফল হলেই ফাইলটি চালায়। Partial upgrade-এ <code>pkg</code> বা curl
+            চালু না হলে উপরের apt-first command দিয়ে repair করুন। Stable APT
+            channel বন্ধ, তাই <code>pkg install ternux</code> এখন পাওয়া যাচ্ছে
+            না;{" "}
             <a href="/ternux/bn/docs/TERMUX-APT.html">
               বর্তমান channel status দেখুন ↗
             </a>

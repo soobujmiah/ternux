@@ -59,11 +59,14 @@ ls -l /dev/kgsl-3d0 2>&1              # ডেবিয়ান ও অ্য�
 ## পদ্ধতি ১ — এক কমান্ড (প্রস্তাবিত)
 
 ```bash
-pkg update -y && pkg upgrade -y && pkg install -y curl && bash -o pipefail -c 'curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'
+pkg update -y && pkg upgrade -y && pkg install -y curl wget && bash -c 's=$(mktemp) && (curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh -o "$s" || wget -qO "$s" https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh) && bash "$s"; r=$?; rm -f "$s"; exit "$r"'
 ```
 
-এটি এইচটিটিপিএস দিয়ে স্থাপনকারী নামিয়ে চালায়। নিয়ন্ত্রণ-টার্মিনাল থাকলে
-স্ক্রিপ্টটি পাইপে চললেও `/dev/tty` দিয়ে প্রশ্ন ও ঐচ্ছিক কাজ বাছার তালিকা দেখায়।
+এই কমান্ড এইচটিটিপিএস দিয়ে ইনস্টলারটি অস্থায়ী ফাইলে নামায়। `curl` চালু না
+হলে বা নামাতে না পারলে `wget` দিয়ে আবার চেষ্টা করে। ইনস্টলার শেষ হলে অস্থায়ী
+ফাইল মুছে যায়। ব্যবহারের আগে ইনস্টলার অপরিবর্তনীয় উৎস-বান্ডিলের `SHA-256`
+যাচাই করে। নিয়ন্ত্রণ-টার্মিনাল থাকলে `/dev/tty` দিয়ে প্রশ্ন ও ঐচ্ছিক কাজ
+বাছার তালিকা দেখায়।
 নিয়ন্ত্রণ-টার্মিনাল না থাকলে মূল বিন্যাস বসে। কোনো প্রশ্ন ছাড়া মূল বিন্যাস
 বসাতে `--yes` দিন। এই সংগ্রহশালার একই স্ক্রিপ্ট চালানো হয়; এর মধ্যে লুকানো
 বা আগেভাগে কম্পাইল করা কিছু নেই।
@@ -84,16 +87,14 @@ pkg update -y && pkg upgrade -y && pkg install -y curl && bash -o pipefail -c 'c
 `--resume` দিয়ে আবার চালান।
 
 **হালনাগাদের পর `curl` ভেঙেছে?** (`CANNOT LINK … SSL_set_quic_tls_transport_params`)
-আংশিক হালনাগাদে `curl` ও `OpenSSL`-এর সামঞ্জস্য নষ্ট হতে পারে। সরাসরি `wget` ব্যবহার
-করুন—ইনস্টলার একই থাকবে:
+উপরের কমান্ডে `curl` ব্যর্থ হলে `wget` দিয়ে আবার চেষ্টা হয়। দুইটি সরঞ্জামই
+চালু না হলে টার্মাক্সের সম্পূর্ণ প্যাকেজ হালনাগাদ শেষ করুন:
 
 ```bash
-pkg update -y && pkg upgrade -y && pkg install -y wget && bash -o pipefail -c 'wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'
+apt update && apt full-upgrade -y
 ```
 
-এই কমান্ডগুলো আগে টার্মাক্সের প্যাকেজ হালনাগাদ করে, তারপর নামানোর সরঞ্জাম বসায়।
-`pipefail` থাকায় ফাইল নামানো ব্যর্থ হলে ফাঁকা ব্যাশ চালানোকে সফল ধরা হয় না।
-আংশিক হালনাগাদের পরে `pkg` বা `curl` না চললে
+আংশিক হালনাগাদের পরে `pkg` বা দুইটি নামানোর সরঞ্জাম না চললে
 `apt update && apt full-upgrade -y` দিয়ে টার্মাক্স মেরামত করে আবার চেষ্টা করুন। স্থিতিশীল
 স্বাক্ষরিত এপিটি ভান্ডার বন্ধ, তাই `pkg install ternux` এখন পাওয়া যায় না;
 আরসি চ্যানেল শুধু পরীক্ষার জন্য, এর প্রকাশনা-সার্ভারের অবস্থা এখন যাচাই করা হয়নি।

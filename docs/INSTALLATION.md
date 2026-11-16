@@ -56,13 +56,16 @@ the finished installation itself is approximately **4–4.6 GB** or **10.5–12.
 ## Method 1 — One command (recommended)
 
 ```bash
-pkg update -y && pkg upgrade -y && pkg install -y curl && bash -o pipefail -c 'curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'
+pkg update -y && pkg upgrade -y && pkg install -y curl wget && bash -c 's=$(mktemp) && (curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh -o "$s" || wget -qO "$s" https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh) && bash "$s"; r=$?; rm -f "$s"; exit "$r"'
 ```
 
-This downloads the installer over HTTPS and runs it. With an attached terminal,
-the installer reads prompts through `/dev/tty`, including the optional-workload
-chooser, even though the script itself is piped. If no controlling terminal is
-available, it installs the base profile. Add `--yes` for an explicitly
+The command downloads the installer over HTTPS to a temporary file and runs it.
+If curl cannot start or fetch the script, wget retries the download. The
+temporary file is removed after the installer exits. The installer verifies
+the SHA-256 of its immutable source bundle before using the bundled code. With
+an attached terminal, it reads prompts through `/dev/tty`, including the
+optional-workload chooser. If no controlling terminal is available, it installs
+the base profile. Add `--yes` for an explicitly
 unattended base install. Read the output: a required-phase failure stops its dependants, while
 an optional/advisory failure is reported and leaves a nonzero final status.
 
@@ -84,20 +87,19 @@ setup keeps the current apt source and never opens `termux-change-repo` inside
 the frame; if that source is unreachable, select a mirror manually and re-run
 with `--resume`.
 
-**curl broken after an upgrade?** Try wget directly; the installer can fetch
-its source with either working downloader. If neither can run, complete the
+**curl broken after an upgrade?** The command above already retries the
+installer download with wget. If both downloaders cannot run, complete the
 Termux package upgrade first. A partial upgrade can leave curl and OpenSSL out
 of sync, and starting with `pkg update` may repeat the failure:
 
 ```bash
-pkg update -y && pkg upgrade -y && pkg install -y wget && bash -o pipefail -c 'wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'
+apt update && apt full-upgrade -y
 ```
 
-The commands update Termux, complete the rolling-release package upgrade, then
-install the selected downloader. `pipefail` ensures a failed download cannot
-look like a successful empty Bash run. If a partial upgrade left `pkg` or curl
-unable to start, run `apt update && apt full-upgrade -y` to repair Termux, then
-retry. `pkg install ternux` is currently unavailable: the stable signed APT
+This completes the rolling-release Termux package upgrade. If a partial upgrade
+left `pkg` or both downloaders unable to start, run `apt update && apt
+full-upgrade -y` to repair Termux, then retry. `pkg install ternux` is
+currently unavailable: the stable signed APT
 repository was withdrawn. The RC channel is only for candidate testing and its
 hosted availability is not currently verified.
 

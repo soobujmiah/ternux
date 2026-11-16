@@ -296,8 +296,8 @@ replacement mechanism নয়।
 # পথ ক: Termux-এর সম্পূর্ণ package upgrade শেষ করুন:
 apt update && apt full-upgrade -y
 
-# পথ খ: wget চালু থাকলে সেটি দিয়ে installer নামান:
-apt update && apt full-upgrade -y && apt install wget -y && bash -o pipefail -c 'wget -qO- https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash'
+# পথ খ: curl/wget বিকল্পসহ installer নামিয়ে চালান:
+pkg update -y && pkg upgrade -y && pkg install -y curl wget && bash -c 's=$(mktemp) && (curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh -o "$s" || wget -qO "$s" https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh) && bash "$s"; r=$?; rm -f "$s"; exit "$r"'
 ```
 
 `pkg update` শুধু package index রিফ্রেশ করে; আটকে থাকা package upgrade শেষ করে
