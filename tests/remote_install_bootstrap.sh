@@ -31,7 +31,7 @@ done
 exit 2
 MOCK
 chmod +x "$TMP/bin/pkg" "$TMP/bin/curl" "$TMP/bin/wget"
-command="$(sed -n '/^pkg update -y .*raw\.githubusercontent\.com\/soobujmiah\/ternux\/main\/install\.sh/p' "$ROOT/README.md" | head -n 1)"
+command="$(sed -n '/^bash -c .*raw\.githubusercontent\.com\/soobujmiah\/ternux\/main\/install\.sh/p' "$ROOT/README.md" | head -n 1)"
 [[ -n "$command" ]] || { echo 'FAIL: documented installer command not found' >&2; exit 1; }
 
 PATH="$TMP/bin:$PATH" CURL_MODE=fail WGET_MODE=healthy bash -c "$command"
