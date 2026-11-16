@@ -56,7 +56,7 @@ the finished installation itself is approximately **4–4.6 GB** or **10.5–12.
 ## Method 1 — One command (recommended)
 
 ```bash
-bash -c 's=$(mktemp) && (curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh -o "$s" || wget -qO "$s" https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh) && bash "$s"; r=$?; rm -f "$s"; exit "$r"'
+pkg update -y && pkg upgrade -y && pkg install -y curl wget && bash -c 's=$(mktemp) && (curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh -o "$s" || wget -qO "$s" https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh) && bash "$s"; r=$?; rm -f "$s"; exit "$r"'
 ```
 
 The command downloads the installer over HTTPS to a temporary file and runs it.
@@ -85,10 +85,12 @@ host CLI fallback uses that same commit and digest and rejects changed bytes
 before extraction. The validated snapshot is reused for the bootstrap libraries,
 the Termux host CLI and the Debian guest companion in the normal installer path.
 If the guest companion is requested without that local snapshot, its fallback
-fetches the file from the same immutable commit and verifies its own SHA-256. Package
-setup keeps the current apt source and never opens `termux-change-repo` inside
-the frame; if that source is unreachable, select a mirror manually and re-run
-with `--resume`.
+fetches the file from the same immutable commit and verifies its own SHA-256. Debian
+guest setup measures reachable official archive mirrors, retries another reachable
+mirror after a failure, and keeps security updates on Debian’s official security
+archive. Other guest package managers keep their distro-configured repositories
+and use their own mirror or failover behavior. Re-run the installer to resume
+after a transient repository failure.
 
 **curl broken after an upgrade?** The command above already retries the
 installer download with wget. If both downloaders cannot run, complete the
