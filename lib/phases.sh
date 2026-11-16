@@ -531,10 +531,15 @@ tnx_phase_debian() {
         temp="\${source}.ternux-tmp"
         if ! awk -v target=\"\$target\" 'BEGIN { RS=\"\"; ORS=\"\\n\\n\" }
           {
-            if (\$0 !~ /Suites:[^\n]*security/) sub(/^URIs:[[:space:]]*/, \"URIs: \" target)
-            print
-          }' "\$source" > "\$temp"; then
-          rm -f "\$temp"
+            count = split(\$0, lines, \"\\n\")
+            security = 0
+            for (i = 1; i <= count; i++) if (lines[i] ~ /^Suites:/ && lines[i] ~ /security/) security = 1
+            if (!security) for (i = 1; i <= count; i++) if (lines[i] ~ /^URIs:/) lines[i] = \"URIs: \" target
+            record = lines[1]
+            for (i = 2; i <= count; i++) record = record \"\\n\" lines[i]
+            print record
+          }' \"\$source\" > \"\$temp\"; then
+          rm -f \"\$temp\"
           return 1
         fi
         cat "\$temp" > "\$source" || { rm -f "\$temp"; return 1; }
