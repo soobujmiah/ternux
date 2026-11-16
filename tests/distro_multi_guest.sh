@@ -4,6 +4,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 export HOME="$TMP/home" TERNUX_STATE_DIR="$TMP/state" PREFIX="$TMP/prefix" NO_COLOR=1 TERM=dumb
+export TERNUX_USER_PASSWORD=test-sudo TERNUX_STARTUP_PASSWORD=test-startup
 mkdir -p "$HOME" "$TERNUX_STATE_DIR" "$PREFIX"
 . "$ROOT/lib/core.sh"
 . "$ROOT/lib/phases.sh"
