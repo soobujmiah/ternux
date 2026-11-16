@@ -553,8 +553,9 @@ ternux extension remove stable-diffusion
 অপসারণে শুধু পরিচিত সম্প্রসারণ ডিরেক্টরি মোছা হয়, মডেলের ওজন থাকে।
 `llama-htp-experimental` সীমিত পরীক্ষামূলক এসএম৮৭৩৫/ভি৭৩ পথে চলে; এটি
 সমর্থিত প্রকাশনা-সুবিধা নয় এবং স্বয়ংক্রিয় প্রসেসর/জিপিইউ বিকল্প নেই।
-[প্রসেসর/ভলকান নির্দেশিকা](https://github.com/soobujmiah/ternux/blob/main/bn/guides/llama-vulkan-extension.md)
-ও [Stable Diffusion guide](https://github.com/soobujmiah/ternux/blob/main/bn/guides/stable-diffusion-vulkan-extension.md) এবং [HTP guide](https://github.com/soobujmiah/ternux/blob/main/bn/guides/llama-htp-experimental.md) দেখুন।
+[প্রসেসর/ভলকান নির্দেশিকা](https://github.com/soobujmiah/ternux/blob/main/bn/guides/llama-vulkan-extension.md),
+[স্টেবল ডিফিউশন নির্দেশিকা](https://github.com/soobujmiah/ternux/blob/main/bn/guides/stable-diffusion-vulkan-extension.md)
+এবং [এইচটিপি নির্দেশিকা](https://github.com/soobujmiah/ternux/blob/main/bn/guides/llama-htp-experimental.md) দেখুন।
 
 ### `tx update`
 
@@ -656,4 +657,4 @@ lib/ui.sh           ← ইনস্টলার রেন্ডারার: da
 
 ---
 
-*ternux — সর্বস্বত্ব (c) ২০২৬ Sobuj Miah ([@soobujmiah](https://github.com/soobujmiah)) · Apache-2.0 লাইসেন্স*
+*টার্নাক্স — সর্বস্বত্ব (c) ২০২৬ সবুজ মিয়া ([@soobujmiah](https://github.com/soobujmiah)) · অ্যাপাচি-২.০ লাইসেন্স*
