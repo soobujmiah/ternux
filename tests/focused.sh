@@ -4286,7 +4286,9 @@ assert d["ICD"]["library_path"].startswith("/usr/local/"), d
 # rather than any helper of ours. Generate them and read what came out.
 if env HOME="$TMP/home-launchgen" TERNUX_STATE_DIR="$TMP/state-launchgen" \
   PREFIX="$TMP/prefix-launchgen" bash -c '
-    mkdir -p "$HOME" "$TERNUX_STATE_DIR" "$PREFIX/bin"
+    mkdir -p "$HOME/.config/ternux" "$TERNUX_STATE_DIR" "$PREFIX/bin"
+    printf '%s\n' '0123456789abcdef0123456789abcdef 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef' > "$HOME/.config/ternux/startup-password"
+    chmod 0600 "$HOME/.config/ternux/startup-password"
     . "$1/lib/core.sh"; . "$1/lib/ui.sh"; . "$1/lib/state.sh"
     . "$1/lib/phases.sh"
     tnx_ok(){ :; }; tnx_warn(){ :; }; tnx_info(){ :; }; tnx_fail(){ :; }
@@ -4296,14 +4298,16 @@ if env HOME="$TMP/home-launchgen" TERNUX_STATE_DIR="$TMP/state-launchgen" \
     RC_FILE="$HOME/.bashrc" tnx_phase_aliases ternux bash >/dev/null 2>&1 || true
     launcher="$TERNUX_STATE_DIR/distros/debian/launcher.sh"
     grep -q "guest_login_isolated debian" "$launcher" &&
+    grep -q 'startup-password:/run/ternux/startup-password' "$launcher" &&
     grep -q "proot-distro login" "$launcher" &&
     ! grep -q "tnx_guest_login" "$launcher" &&
     [ ! -e "$HOME/x.sh" ] &&
-    ! grep -rq "tnx_guest_login" "$HOME/.bashrc"
+    ! grep -rq "tnx_guest_login" "$HOME/.bashrc" &&
+    grep -q 'startup-password:/run/ternux/startup-password' "$HOME/.bashrc"
   ' _ "$ROOT"; then
-  ok "generated launcher and aliases call proot-distro directly"
+  ok "generated launcher and aliases bind the startup verifier on direct PRoot logins"
 else
-  not_ok "generated launcher and aliases call proot-distro directly"
+  not_ok "generated launcher and aliases bind the startup verifier on direct PRoot logins"
 fi
 
 # Choosing zsh must bring a theme with it, the theme must stay optional, and a
