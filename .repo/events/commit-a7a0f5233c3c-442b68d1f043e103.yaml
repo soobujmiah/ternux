@@ -1,0 +1,7 @@
+event_id: commit-a7a0f5233c3c-442b68d1f043e103
+repository: soobujmiah/ternux
+commit: a7a0f5233c3c46853df3cbadf3bb79ce3181eb4e
+kind: commit
+occurred_at: '2026-11-16T06:50:40Z'
+status: completed
+summary: translate Bengali release and tooling docs (#274)
