@@ -57,6 +57,9 @@ for width in 24 27 32 36 40 48 60 100 160; do
   [ "$(awk -v width="$width" 'length($0) > width { count++ } END { print count + 0 }' <<< "$output")" -eq 0 ]
   grep -Fq 'DAILY COMMANDS' <<< "$output"
 done
+narrow_output="$(TERFETCH_TEST_DISTRO=alpine COLUMNS=24 LINES=24 NO_COLOR=1 "$TERFETCH")"
+grep -Fq '[ALP]' <<< "$narrow_output"
+! grep -Fq 'hdddd' <<< "$narrow_output"
 [ "$(grep -Ec 'System +alpine|Distro +alpine|Environment +|Kernel +|Uptime +|Packages +' <<< "$small_output")" -lt "$(grep -Ec 'System +alpine|Distro +alpine|Environment +|Kernel +|Uptime +|Packages +' <<< "$wide_output")" ]
 ! grep -Eq '\.\.\.' <<< "$small_output"
 short_height_output="$(TERFETCH_TEST_DISTRO=debian COLUMNS=80 LINES=12 NO_COLOR=1 "$TERFETCH")"
