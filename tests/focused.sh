@@ -1051,9 +1051,13 @@ camera_permission = (root / "lib/phases.sh").read_text().split("tnx_request_came
 assert 'TERNUX_YES' in camera_permission and '[ ! -t 0 ]' in camera_permission
 assert 'ternux-camera-permission.XXXXXX' in camera_permission and 'rm -f -- "$probe"' in camera_permission
 assert '"$camera" -c 0 "$probe"' in camera_permission and 'tnx_confirm' in camera_permission
-audio_phase = (root / "lib/phases.sh").read_text().split("tnx_phase_audio_fonts() {", 1)[1].split("# Phase 7", 1)[0]
-assert "timeout --signal=TERM --kill-after=10 300 sudo apt update" in audio_phase
-assert "timeout --signal=TERM --kill-after=10 600 sudo DEBIAN_FRONTEND=noninteractive apt install" in audio_phase
+audio_phase = (root / "lib/phases.sh").read_text().split("tnx_phase_audio_fonts() {", 1)[1].split("\n# ---------------------------------------------------------------------------\n# Phase 8", 1)[0]
+audio_phase_code = "\n".join(line for line in audio_phase.splitlines() if not line.lstrip().startswith("#"))
+assert 'tnx_guest_login --_tnx-timeout-seconds 1200 --shared-tmp --user root' in audio_phase
+assert "timeout --signal=TERM --kill-after=10 300 apt update" in audio_phase
+assert "timeout --signal=TERM --kill-after=10 600 env DEBIAN_FRONTEND=noninteractive apt install" in audio_phase
+assert "timeout --signal=TERM --kill-after=5 90 locale-gen" in audio_phase
+assert not re.search(r"(^|\s)sudo(\s|$)", audio_phase_code)
 assert "Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20" in audio_phase
 xfwm_generator = (root / "tools/generate_ternux_xfwm.py").read_text()
 assert 'xpm_name = Path(name).with_suffix(".xpm")' in xfwm_generator
@@ -1061,6 +1065,12 @@ assert 'state_button("maximize", state, inactive=inactive, toggled=True)' in xfw
 assert "image-style --create -t int -s 4" in (root / "lib/phases.sh").read_text()
 phases = (root / "lib/phases.sh").read_text()
 desktop_lifecycle = (root / "lib/desktop.sh").read_text()
+alias_phase = phases.split("tnx_phase_aliases() {", 1)[1].split("# Phase 10", 1)[0]
+assert alias_phase.index('_tnx_install_terfetch_hook "$HOME/.bashrc"') < alias_phase.index('_tnx_install_native_startup_auth "$HOME/.bashrc"')
+single_install = phases.split("tnx_install_single() {", 1)[1].split("tnx_install() {", 1)[0]
+assert single_install.index('tnx_prompt_startup_password 300') < single_install.index('tnx_prompt_user_password 300')
+multi_install = phases.split("tnx_install() {", 1)[1].split("tnx_cmd_install()", 1)[0]
+assert multi_install.index('tnx_prompt_startup_password 300') < multi_install.index('tnx_prompt_user_password 300')
 assert "tnx_cleanup_window_fit_sessions \"$distro\"" in desktop_lifecycle
 assert "ternux-window-fit-x11" in desktop_lifecycle and "proot-distro kill \"$pid\"" in desktop_lifecycle
 assert phases.count("taskmanager-performance-v1") == 1

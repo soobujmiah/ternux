@@ -42,8 +42,17 @@ for distro in $profiles; do
   script_num=0
   tnx_phase_debian ternux >/dev/null
   tnx_phase_audio_fonts ternux en_US.UTF-8 >/dev/null
-  [ "$script_num" -eq 3 ] || { echo "Expected three guest scripts for $distro, found $script_num" >&2; exit 1; }
+  [ "$script_num" -eq 4 ] || { echo "Expected four guest scripts for $distro, found $script_num" >&2; exit 1; }
   for generated in "$TMP/guest-${distro}-"*.sh; do bash -n "$generated"; done
+  grep -Fq 'Installing locale and system fonts' "$TMP/guest-${distro}-3.sh" || {
+    echo "Privileged locale setup missing from $distro recipe" >&2; exit 1;
+  }
+  ! grep -Eq '(^|[[:space:]])sudo([[:space:]]|$)' "$TMP/guest-${distro}-3.sh" || {
+    echo "Locale setup for $distro still prompts for sudo" >&2; exit 1;
+  }
+  grep -Fq 'export LANG=' "$TMP/guest-${distro}-4.sh" || {
+    echo "Per-user locale setup missing from $distro recipe" >&2; exit 1;
+  }
   grep -q 'ternux-configure-prompt' "$TMP/guest-${distro}-"*.sh || {
     echo "Distro-specific prompt setup missing from $distro recipe" >&2; exit 1;
   }
