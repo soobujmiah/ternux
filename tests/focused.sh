@@ -1163,7 +1163,7 @@ assert 'asset_stage/applications/ternux-app-center.desktop' not in phase_source
 assert 'asset_stage/applications/synaptic.desktop' in phase_source
 assert phase_source.index('install -d -m 0755 /usr/local/share/applications') < phase_source.index('asset_stage/applications/synaptic.desktop')
 assert "locales wget fonts-symbola" in phase_source
-assert "ternux --version' 2>/dev/null)" in phase_source
+assert 'tnx_guest_login --user "$user_name" -- /usr/local/bin/ternux --version' in phase_source
 assert "NoDisplay=true" not in (root / "lib/ternux-assets/applications/synaptic.desktop").read_text()
 assert (root / "lib/ternux-assets/icons/Ternux/scalable/apps/ternux-app-center.svg").is_file()
 assert (root / "packaging/termux/icons/Ternux/scalable/apps/ternux-app-center.svg").read_bytes() == (root / "lib/ternux-assets/icons/Ternux/scalable/apps/ternux-app-center.svg").read_bytes()
