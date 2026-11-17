@@ -7,7 +7,8 @@ trap 'rm -rf "$TMP"' EXIT
 mkdir -p "$TMP/bin"
 
 cat > "$TMP/payload.sh" <<'PAYLOAD'
-printf '%s\n' "$@" > "$CAPTURE"
+printf 'CODEX_NON_INTERACTIVE=%s\n' "${CODEX_NON_INTERACTIVE:-unset}" > "$CAPTURE"
+printf '%s\n' "$@" >> "$CAPTURE"
 PAYLOAD
 cat > "$TMP/bin/curl" <<'CURL'
 #!/usr/bin/env bash
@@ -42,11 +43,14 @@ tnx_guest_login() {
 
 # Static pins are refreshed only with a reviewed upstream release and matching
 # hosted-installer digest; direct shell pipelines are forbidden.
-grep -Fq 'abf338605dae6dd28d101673ac6aed7995c955745db46d47676bc591a7957209' "$ROOT/lib/phases.sh"
+grep -Fq 'c73dad4dcf7c9ecadb98578e28cc763d23d7be3fa1b513545319038795493214' "$ROOT/lib/phases.sh"
 grep -Fq '5b46a876404005229ee62fc2615ddeb1c3f510a434ced47dbbed06b93849c704' "$ROOT/lib/phases.sh"
-grep -Fq -- '--commit 3b421578588243f920886e6fe79a6faa87ea026e --non-interactive' "$ROOT/lib/phases.sh"
+grep -Fq '5a8eea5c3716b555fd8e539db7e5b0e7470bcee5693191b4758a0de373624a70' "$ROOT/lib/phases.sh"
+grep -Fq 'tnx_ok "Hermes Agent latest stable release installed' "$ROOT/lib/phases.sh"
 grep -Fq -- '--version v2026.11.2 --no-onboard --verify' "$ROOT/lib/phases.sh"
-if rg -n 'curl[^\n]*\|[^\n]*bash' "$ROOT/lib/phases.sh"; then
+grep -Fq -- '--release latest' "$ROOT/lib/phases.sh"
+grep -Fq 'CODEX_NON_INTERACTIVE=1 sh "$installer"' "$ROOT/lib/phases.sh"
+if grep -nE 'curl[^|]*\|[[:space:]]*(bash|sh)' "$ROOT/lib/phases.sh"; then
   echo 'directly executing a remote shell pipeline is forbidden' >&2
   exit 1
 fi
@@ -54,10 +58,18 @@ fi
 valid_sha256="$(sha256sum "$PAYLOAD" | awk '{print $1}')"
 tnx_run_pinned_optional_installer alice https://hermes-agent.nousresearch.com/install.sh \
   "$valid_sha256" --commit abcdef1234567890 --non-interactive
-printf '%s\n' --commit abcdef1234567890 --non-interactive > "$TMP/expected"
+printf '%s\n' CODEX_NON_INTERACTIVE=unset --commit abcdef1234567890 --non-interactive > "$TMP/expected"
 cmp -s "$CAPTURE" "$TMP/expected"
 [[ -z "$(find "$TMP" -maxdepth 1 -name 'ternux-optional-installer.*' -print -quit)" ]]
 printf 'ok - pinned installer is verified, receives fixed arguments, and cleans its staging file\n'
+
+rm -f "$CAPTURE"
+tnx_run_pinned_optional_installer alice https://chatgpt.com/codex/install.sh \
+  "$valid_sha256" --release latest
+printf '%s\n' CODEX_NON_INTERACTIVE=1 --release latest > "$TMP/expected"
+cmp -s "$CAPTURE" "$TMP/expected"
+[[ -z "$(find "$TMP" -maxdepth 1 -name 'ternux-optional-installer.*' -print -quit)" ]]
+printf 'ok - Codex installer runs non-interactively with a fixed release and cleans its staging file\n'
 
 rm -f "$CAPTURE"
 if tnx_run_pinned_optional_installer alice https://hermes-agent.nousresearch.com/install.sh \
@@ -74,4 +86,4 @@ if tnx_run_pinned_optional_installer alice https://attacker.invalid/install.sh "
   exit 1
 fi
 [[ ! -e "$CAPTURE" ]]
-printf 'ok - installer URLs outside the two first-party hosts are rejected\n'
+printf 'ok - installer URLs outside the approved upstream sources are rejected\n'

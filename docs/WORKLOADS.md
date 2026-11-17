@@ -62,9 +62,13 @@ The interactive menu also offers individual tools such as Godot, Blender,
 Neovim, GitHub CLI, Claude Code, Codex, Hermes, OpenClaw, and ADT
 Android components. ADT Platform Tools provides `adb` and `fastboot`; Ternux
 installs these by invoking ADT's own `setup.sh`, never Debian's separate
-`android-tools-adb` package. Ternux refreshes Debian's package index before
-installing selected APT software; the package version is the newest candidate
-in that device's configured Debian repository.
+`android-tools-adb` package. Codex uses the official standalone installer,
+verified by SHA-256, and tracks the latest Codex release. Its install step does
+not launch the CLI or install Node.js/npm. Start it from the guest terminal with
+`codex`. Hermes uses the verified official installer for the latest stable
+release without launching its setup flow; run `hermes setup` when ready. Ternux
+refreshes Debian's package index before installing selected APT software; the
+package version is the newest candidate in that device's configured repository.
 
 PRoot-Distro does not define a universal extension store. Android-side Termux
 companion apps such as Termux:API, Termux:Widget, Termux:Boot and Termux:Styling

@@ -1696,6 +1696,10 @@ tnx_phase_audio_fonts() {
       rm -f \"\$font_archive\"
     fi
   " || { tnx_fail "Locale/font user configuration failed."; return 1; }
+  _tnx_configure_guest_codex_installer_default "$user_name" || {
+    tnx_fail "Could not set the Codex installer default in guest shell configuration."
+    return 1
+  }
   tnx_ok "Locale '$locale', PulseAudio client and fonts configured."
 }
 
@@ -2245,6 +2249,32 @@ EOF
   chmod "$mode" "$tmp" && mv -f "$tmp" "$rc" || { rm -f "$tmp"; return 1; }
 }
 
+_tnx_configure_guest_codex_installer_default() {
+  local user_name="${1:-ternux}"
+  tnx_guest_login --shared-tmp --user "$user_name" -- bash -lc '
+    set -euo pipefail
+    for rc_file in "$HOME/.profile" "$HOME/.bashrc" "$HOME/.zshenv" "$HOME/.zshrc"; do
+      [ ! -L "$rc_file" ] || continue
+      [ -e "$rc_file" ] || : > "$rc_file"
+      [ -f "$rc_file" ] || continue
+      if grep -Fq "# TERNUX CODEX INSTALLER DEFAULT BEGIN" "$rc_file"; then
+        grep -Fq "export CODEX_NON_INTERACTIVE=\"\${CODEX_NON_INTERACTIVE:-1}\"" "$rc_file" \
+          && grep -Fq "# TERNUX CODEX INSTALLER DEFAULT END" "$rc_file" || {
+            echo "Existing Codex installer environment block is incomplete in $rc_file." >&2
+            exit 1
+          }
+        continue
+      fi
+      cat >> "$rc_file" <<CODEXEOF
+
+# TERNUX CODEX INSTALLER DEFAULT BEGIN
+export CODEX_NON_INTERACTIVE="\${CODEX_NON_INTERACTIVE:-1}"
+# TERNUX CODEX INSTALLER DEFAULT END
+CODEXEOF
+    done
+  '
+}
+
 _tnx_install_native_terfetch_hooks() {
   _tnx_install_terfetch_hook "$HOME/.bashrc" || return 1
   _tnx_install_terfetch_hook "$HOME/.zshrc" || return 1
@@ -2434,16 +2464,16 @@ ALIASEOF
 # ---------------------------------------------------------------------------
 # Phase 10 — optional workloads
 # ---------------------------------------------------------------------------
-# Optional third-party installer scripts are pinned by content digest and
-# product version. Fail closed when an upstream URL changes until Ternux
-# reviews and updates the pin.
+# Optional third-party installer scripts are pinned by content digest.
+# Fail closed when an upstream URL changes until Ternux reviews and updates
+# the pin. Codex tracks the latest release and is installed non-interactively.
 tnx_run_pinned_optional_installer() {
   local user_name="${1:?missing Debian user}" url="${2:?missing installer URL}"
   local sha256="${3:?missing installer SHA-256}"
   shift 3
   [[ "$sha256" =~ ^[0-9a-f]{64}$ ]] || { tnx_warn "Optional installer has no valid pinned SHA-256."; return 2; }
   case "$url" in
-    https://hermes-agent.nousresearch.com/install.sh|https://openclaw.ai/install.sh) ;;
+    https://hermes-agent.nousresearch.com/install.sh|https://openclaw.ai/install.sh|https://chatgpt.com/codex/install.sh) ;;
     *) tnx_warn "Refusing an unapproved optional installer source: $url"; return 2 ;;
   esac
 
@@ -2459,7 +2489,11 @@ tnx_run_pinned_optional_installer() {
       exit 1
     fi
     bash -n "$installer"
-    bash "$installer" "$@"
+    if [ "$url" = https://chatgpt.com/codex/install.sh ]; then
+      CODEX_NON_INTERACTIVE=1 sh "$installer" "$@"
+    else
+      bash "$installer" "$@"
+    fi
   ' _ "$url" "$sha256" "$@"
 }
 
@@ -2484,7 +2518,8 @@ tnx_phase_extras() {
       media) apt_packages+=(ffmpeg gimp audacity imagemagick) ;;
       git) apt_packages+=(git curl wget ca-certificates) ;;
       python) apt_packages+=(python3 python3-venv python3-pip) ;;
-      node|claude|codex) apt_packages+=(nodejs npm); node_selected=1 ;;
+      node|claude) apt_packages+=(nodejs npm); node_selected=1 ;;
+      codex) apt_packages+=(curl ca-certificates) ;;
       build) apt_packages+=(build-essential cmake ninja-build pkg-config) ;;
       rust) apt_packages+=(rustc cargo) ;;
       java) apt_packages+=(default-jdk-headless) ;;
@@ -2683,8 +2718,11 @@ TNX_APT_OPTIONAL_INSTALL
         else tnx_warn "Claude Code install failed while provisioning its Node.js 22+ runtime; no credentials were requested or stored."; rc=1; fi
         ;;
       codex)
-        if tnx_guest_login --shared-tmp --user "$user_name" -- bash -lc 'npm install -g @openai/codex@latest'; then
-          tnx_ok "OpenAI Codex CLI installed; run codex to sign in when ready"
+        if tnx_run_pinned_optional_installer "$user_name" \
+          https://chatgpt.com/codex/install.sh \
+          5a8eea5c3716b555fd8e539db7e5b0e7470bcee5693191b4758a0de373624a70 \
+          --release latest; then
+          tnx_ok "OpenAI Codex CLI installed; run codex from the guest terminal when ready"
         else tnx_warn "OpenAI Codex CLI installation failed."; rc=1; fi
         ;;
       openai-cli)
@@ -2696,9 +2734,9 @@ TNX_APT_OPTIONAL_INSTALL
       hermes)
         if tnx_run_pinned_optional_installer "$user_name" \
           https://hermes-agent.nousresearch.com/install.sh \
-          abf338605dae6dd28d101673ac6aed7995c955745db46d47676bc591a7957209 \
-          --commit 3b421578588243f920886e6fe79a6faa87ea026e --non-interactive; then
-          tnx_ok "Hermes Agent v0.23.1 installed from its pinned upstream commit; run hermes setup when ready"
+          c73dad4dcf7c9ecadb98578e28cc763d23d7be3fa1b513545319038795493214 \
+          --non-interactive; then
+          tnx_ok "Hermes Agent latest stable release installed; run hermes setup when ready"
         else tnx_warn "Hermes Agent installer failed verification or installation; see the network error and retry after updating Ternux."; rc=1; fi
         ;;
       evolution)
