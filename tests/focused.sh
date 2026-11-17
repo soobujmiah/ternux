@@ -26,6 +26,7 @@ check "v3 guest display identities and saved v2 mapping preservation" bash "$ROO
 check "Termux host package repair recovers broken download-tool linkage" bash "$ROOT/tests/termux_pkg_recovery.sh"
 check "standalone bootstrap falls back from broken or unreachable curl to wget" bash "$ROOT/tests/bootstrap_downloader.sh"
 check "guest APT and Firefox installs have network and wall-clock limits" bash "$ROOT/tests/apt_timeouts.sh"
+check "managed guest shells default Codex installer to non-interactive mode" bash "$ROOT/tests/codex_installer_env.sh"
 check "interactive prompts stay visible while installer output is streamed" python3 "$ROOT/tests/confirm_prompt.py"
 check "X11 windows are centered, scaled, and kept inside the usable display area" python3 "$ROOT/tests/window_fit_geometry.py"
 
