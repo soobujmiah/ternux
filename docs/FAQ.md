@@ -127,12 +127,13 @@ container, and never paste credentials into issues or logs.
 
 ### Why does `su` ask me for a password?
 
-`su` inside a guest asks for that guest's root password. An interactive Ternux
-install can set an optional guest root password. It separately asks for a sudo
-password and a shared startup password. The startup password is checked by
+`su` inside a guest asks for that guest's root password. Ternux sets it to the
+same password used by the guest's sudo user, so installation asks only once per
+guest. A shared startup password is collected separately. It is checked by
 interactive native Termux shells and managed guest shells; change it with
-`tx password startup`. Change the selected guest user's sudo password with
-`tx password sudo` or `passwd` inside that guest. Interactive root shells also
+`tx password startup`. Change the selected guest's sudo and root passwords
+together with `tx password sudo`; `passwd` inside that guest changes only the
+user's password. Interactive root shells also
 run the startup prompt. The startup check is a convenience gate: the Termux app
 owner can bypass shell startup files and access guest files. On the native
 Termux host, `su` means Android root and requires a rooted device.

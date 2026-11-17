@@ -866,6 +866,7 @@ TERMINAL
     runuser -u \"\$U\" -- env HOME=\"\$H\" dbus-run-session -- sh -c 'gsettings writable org.freedesktop.ibus.general.hotkey trigger >/dev/null 2>&1 && gsettings set org.freedesktop.ibus.general.hotkey trigger "[]" || true'
     runuser -u \"\$U\" -- env HOME=\"\$H\" dbus-run-session -- gsettings set org.freedesktop.ibus.general.hotkey next-engine \"['Control+space']\"
     runuser -u \"\$U\" -- env HOME=\"\$H\" dbus-run-session -- gsettings set org.freedesktop.ibus.general.hotkey next-engine-in-menu \"[]\"
+    runuser -u \"\$U\" -- env HOME=\"\$H\" dbus-run-session -- xfconf-query -c xfce4-keyboard-shortcuts -p '/commands/custom/<Primary>space' --create -t string -s /usr/local/bin/ternux-ibus-next-engine
     runuser -u \"\$U\" -- env HOME=\"\$H\" dbus-run-session -- gsettings set org.gnome.desktop.interface gtk-theme Ternux
     install -d -o \"\$U\" -g \"\$U\" -m 0755 \"\$H/.config/autostart\"
     install -d -o root -g root -m 0755 /usr/local/bin
@@ -1029,19 +1030,18 @@ DESKTOP
   tnx_install_guest_cli "$user_name" || return $?
 }
 
-# Phase 5 — optional guest root password.
-# Apply the optional password chosen by the installer to the guest root account.
-# Keep the secret in shell memory and feed it to chpasswd over stdin: it must
-# never appear in argv, environment, persistent Ternux state, or logs.
+# Phase 5 — guest root password.
+# Reuse the selected guest user's sudo password so each guest has one password
+# chosen before installation, shared by its sudo user and root account.
 tnx_phase_root_password() {
-  local password="${TERNUX_ROOT_PASSWORD:-}"
-  export -n TERNUX_ROOT_PASSWORD 2>/dev/null || true
-  [ -n "$password" ] || { tnx_info "Guest root password left unchanged (optional)."; return 0; }
+  local password="${TERNUX_USER_PASSWORD:-}"
+  export -n TERNUX_USER_PASSWORD 2>/dev/null || true
+  [ -n "$password" ] || { tnx_fail "A guest sudo password is required to configure the guest root password."; return 1; }
   if ! (builtin printf 'root:%s\n' "$password" | tnx_guest_login --user root -- chpasswd); then
-    tnx_fail "Could not set the guest root password for '$(tnx_distro)'. Retry with tx install --resume and enter it again."
+    tnx_fail "Could not set the guest root password for '$(tnx_distro)' from its sudo password. Retry with tx install --resume and enter the sudo password again."
     return 1
   fi
-  tnx_ok "Guest root password configured for '$(tnx_distro)'."
+  tnx_ok "Guest root password set to the selected sudo password for '$(tnx_distro)'."
 }
 
 # Set the unprivileged account password used by password-authenticated sudo.
@@ -3446,42 +3446,6 @@ tnx_prompt_username() {
   printf '%s\n' "$chosen"
 }
 
-# Collect an optional guest root password without echoing it or persisting it.
-# Empty input leaves root password authentication unchanged.
-tnx_prompt_root_password() {
-  local timeout="${1:-300}" tty_fd="" first="" second="" start_time=$SECONDS remaining
-  if { exec 3<>/dev/tty; } 2>/dev/null; then tty_fd=3
-  elif [ -t 0 ]; then tty_fd=0
-  else return 0
-  fi
-  while :; do
-    remaining=$((timeout - (SECONDS - start_time)))
-    if [ "$remaining" -le 0 ]; then
-      printf '\n%s\n' '[INFO] Password prompt timed out; continuing without a guest root password.' >&2
-      break
-    fi
-    printf 'Optional guest root password (Enter to skip): ' >&2
-    IFS= read -r -s -t "$remaining" -u "$tty_fd" first || { printf '\n%s\n' '[INFO] Password prompt timed out; continuing without a guest root password.' >&2; break; }
-    printf '\n' >&2
-    [ -n "$first" ] || break
-    remaining=$((timeout - (SECONDS - start_time)))
-    if [ "$remaining" -le 0 ]; then first=""; break; fi
-    printf 'Confirm guest root password: ' >&2
-    IFS= read -r -s -t "$remaining" -u "$tty_fd" second || { printf '\n%s\n' '[WARN] Password confirmation timed out; continuing without a guest root password.' >&2; first=""; break; }
-    printf '\n' >&2
-    if [ "$first" = "$second" ]; then
-      export -n TERNUX_ROOT_PASSWORD 2>/dev/null || true
-      TERNUX_ROOT_PASSWORD="$first"
-      break
-    fi
-    printf '%s\n' '[WARN] Passwords did not match; try again or press Enter to skip.' >&2
-    first=""; second=""
-  done
-  unset first second
-  [ "$tty_fd" = 3 ] && exec 3>&-
-  return 0
-}
-
 tnx_prompt_startup_password() {
   local timeout="${1:-300}" tty_fd="" first="" second="" start_time=$SECONDS remaining
   if { exec 3<>/dev/tty; } 2>/dev/null; then tty_fd=3
@@ -3514,7 +3478,7 @@ tnx_prompt_startup_password() {
 }
 
 tnx_prompt_user_password() {
-  local timeout="${1:-300}" tty_fd="" first="" second="" start_time=$SECONDS remaining
+  local timeout="${1:-300}" guest="${2:-}" tty_fd="" first="" second="" start_time=$SECONDS remaining
   if { exec 3<>/dev/tty; } 2>/dev/null; then tty_fd=3
   elif [ -t 0 ]; then tty_fd=0
   else return 1
@@ -3522,13 +3486,21 @@ tnx_prompt_user_password() {
   while :; do
     remaining=$((timeout - (SECONDS - start_time)))
     [ "$remaining" -gt 0 ] || { printf '\n%s\n' '[ERROR] Sudo password prompt timed out.' >&2; break; }
-    printf 'Guest sudo password (for the selected user): ' >&2
+    if [ -n "$guest" ]; then
+      printf 'Guest sudo password for %s (also used for guest root): ' "$guest" >&2
+    else
+      printf 'Guest sudo password (also used for guest root): ' >&2
+    fi
     IFS= read -r -s -t "$remaining" -u "$tty_fd" first || { printf '\n%s\n' '[ERROR] Sudo password prompt timed out.' >&2; break; }
     printf '\n' >&2
     [ -n "$first" ] || { printf '%s\n' '[WARN] A password is required.' >&2; continue; }
     remaining=$((timeout - (SECONDS - start_time)))
     [ "$remaining" -gt 0 ] || { first=""; break; }
-    printf 'Confirm guest sudo password: ' >&2
+    if [ -n "$guest" ]; then
+      printf 'Confirm %s sudo/root password: ' "$guest" >&2
+    else
+      printf 'Confirm guest sudo/root password: ' >&2
+    fi
     IFS= read -r -s -t "$remaining" -u "$tty_fd" second || { printf '\n%s\n' '[ERROR] Sudo password confirmation timed out.' >&2; first=""; break; }
     printf '\n' >&2
     if [ "$first" = "$second" ]; then
@@ -3747,6 +3719,8 @@ tnx_install_auto_resume_distro() {
 
 tnx_install_single() {
   export -n TERNUX_ROOT_PASSWORD 2>/dev/null || true
+  export -n TERNUX_USER_PASSWORD 2>/dev/null || true
+  unset TERNUX_ROOT_PASSWORD
   local user_name="ternux" locale="en_US.UTF-8" backend="auto" shell_choice="bash"
   local distro_choice="debian" distro_explicit=0
   local extras=() yes=0 resume=0 full=0 profile="base"
@@ -3864,19 +3838,13 @@ tnx_install_single() {
     fi
   fi
 
-  if ! tnx_install_phase_done root_password "$distro_choice"; then
-    TERNUX_ROOT_PASSWORD=""
-  fi
   if ! tnx_install_phase_done startup_password "$distro_choice"; then
     if [ -z "${TERNUX_STARTUP_PASSWORD:-}" ]; then
       tnx_prompt_startup_password 300 || { tnx_fail "Interactive terminal required to set the shared startup password."; return 2; }
     fi
   fi
-  if ! tnx_install_phase_done user_password "$distro_choice" && [ -z "${TERNUX_USER_PASSWORD:-}" ]; then
-    tnx_prompt_user_password 300 || { tnx_fail "Interactive terminal required to set the guest sudo password."; return 2; }
-  fi
-  if ! tnx_install_phase_done root_password "$distro_choice"; then
-    tnx_prompt_root_password 300 || { tnx_fail "Interactive terminal required to set the guest root password."; return 2; }
+  if { ! tnx_install_phase_done user_password "$distro_choice" || ! tnx_install_phase_done root_password "$distro_choice"; } && [ -z "${TERNUX_USER_PASSWORD:-}" ]; then
+    tnx_prompt_user_password 300 "$distro_choice" || { tnx_fail "Interactive terminal required to set the guest sudo/root password."; return 2; }
   fi
 
   [[ "$user_name" =~ ^[a-z_][a-z0-9_-]{0,31}$ ]] || {
@@ -3901,7 +3869,7 @@ tnx_install_single() {
     "Guest '$distro_choice' has no device-verified result on record; treat this install as unverified."
 
   [ "$yes" -eq 1 ] && export TERNUX_YES=1
-  [ "$yes" -eq 0 ] || TERNUX_ROOT_PASSWORD=""
+  [ "$yes" -eq 0 ] || unset TERNUX_ROOT_PASSWORD
   tnx_require_termux
 
   # phases.sh loads ui.sh when available; retain the fallback for separately
@@ -4178,7 +4146,7 @@ tnx_phase_title() {
         *) echo "${2:-$(tnx_distro)} + Xfce" ;;
       esac
       ;;
-    root_password) echo "Guest root password" ;;
+    root_password) echo "Guest root password (same as sudo)" ;;
     user_password) echo "Guest sudo password" ;;
     startup_password) echo "Shared shell startup password" ;;
     gpu)         echo "GPU driver setup" ;;
@@ -4198,6 +4166,8 @@ tnx_phase_title() {
 # the single Termux:X11 display still runs one guest desktop at a time.
 tnx_install() {
   export -n TERNUX_ROOT_PASSWORD 2>/dev/null || true
+  export -n TERNUX_USER_PASSWORD 2>/dev/null || true
+  unset TERNUX_ROOT_PASSWORD
   local requested="" arg distro seen=" " has_distro=0 wants_yes=0 wants_resume=0
   local -a forwarded=() choices=() normalized=()
   while [ "$#" -gt 0 ]; do
@@ -4242,7 +4212,7 @@ tnx_install() {
   # guest transaction. A selected incomplete profile keeps its saved account.
   local requested_user="" requested_shell="" requested_backend="auto" batch_shell="bash" saved_user="" status="" workload_csv=""
   local forwarded_index=0 forwarded_arg="" workload_flags=0
-  local -a batch_users=() batch_workloads=() batch_summary=() batch_args=()
+  local -a batch_users=() batch_workloads=() batch_passwords=() batch_summary=() batch_args=()
   for ((forwarded_index=0; forwarded_index<${#forwarded[@]}; forwarded_index++)); do
     forwarded_arg="${forwarded[forwarded_index]}"
     case "$forwarded_arg" in
@@ -4296,10 +4266,12 @@ tnx_install() {
   if [ "$wants_yes" -eq 0 ]; then
     TERNUX_STARTUP_PASSWORD=""
     tnx_prompt_startup_password 300 || { tnx_fail "Interactive terminal required to set the shared startup password."; return 2; }
-    TERNUX_USER_PASSWORD=""
-    tnx_prompt_user_password 300 || { tnx_fail "Interactive terminal required to set the guest sudo password."; return 2; }
-    TERNUX_ROOT_PASSWORD=""
-    tnx_prompt_root_password 300 || { tnx_fail "Interactive terminal required to set the guest root password."; return 2; }
+    for distro in "${normalized[@]}"; do
+      TERNUX_USER_PASSWORD=""
+      tnx_prompt_user_password 300 "$distro" || { tnx_fail "Interactive terminal required to set the $distro sudo/root password."; return 2; }
+      batch_passwords+=("$TERNUX_USER_PASSWORD")
+      unset TERNUX_USER_PASSWORD
+    done
     batch_summary=("Termux shell" "$batch_shell")
     for forwarded_index in "${!normalized[@]}"; do
       if [ "${batch_workloads[forwarded_index]}" = none ]; then
@@ -4314,17 +4286,21 @@ tnx_install() {
       return 0
     fi
   else
-    TERNUX_ROOT_PASSWORD=""
-    TERNUX_USER_PASSWORD=""
+    [ -n "${TERNUX_USER_PASSWORD:-}" ] || { tnx_fail "Set TERNUX_USER_PASSWORD before using --yes; it will be used for each selected guest's sudo and root accounts."; return 2; }
+    for distro in "${normalized[@]}"; do batch_passwords+=("$TERNUX_USER_PASSWORD"); done
     TERNUX_STARTUP_PASSWORD=""
   fi
 
   for forwarded_index in "${!normalized[@]}"; do
     distro="${normalized[forwarded_index]}"
     tnx_step "Installing $distro profile"
+    TERNUX_USER_PASSWORD="${batch_passwords[forwarded_index]}"
     batch_args=("${forwarded[@]}" --distro "$distro" --user "${batch_users[forwarded_index]}" --shell "$batch_shell" --batch-confirmed)
     if [ "$workload_flags" -eq 0 ]; then batch_args+=(--workloads "${batch_workloads[forwarded_index]}"); fi
-    tnx_install_single "${batch_args[@]}" || return $?
+    local install_rc=0
+    tnx_install_single "${batch_args[@]}" || install_rc=$?
+    unset TERNUX_USER_PASSWORD 'batch_passwords[forwarded_index]'
+    if [ "$install_rc" -ne 0 ]; then unset batch_passwords; return "$install_rc"; fi
   done
 
   if [ "${TERNUX_JSON:-0}" != 1 ]; then
@@ -4336,7 +4312,7 @@ tnx_install() {
     tnx_header "Multi-guest installation complete"
     tnx_next_steps "${finish_steps[@]}"
   fi
-  unset TERNUX_ROOT_PASSWORD
+  unset TERNUX_ROOT_PASSWORD TERNUX_USER_PASSWORD batch_passwords
 }
 
 tnx_cmd_install() { tnx_install "$@"; }

@@ -33,11 +33,20 @@ tnx_cmd_password() {
       tnx_ok "Startup password changed for native Termux and all managed guest shells."
       ;;
     sudo)
-      local distro user
+      local distro user password
       distro="$(tnx_state_get distro 2>/dev/null || true)"
       user="$(tnx_state_get user 2>/dev/null || true)"
       [ -n "$distro" ] && [ -n "$user" ] || { tnx_fail "No installed Ternux guest was found."; return 1; }
-      proot-distro login "$distro" --user "$user" -- passwd
+      _tnx_password_read_new "New guest sudo/root password" || return 1
+      password="$TNX_NEW_PASSWORD"
+      unset TNX_NEW_PASSWORD
+      if ! (builtin printf '%s:%s\nroot:%s\n' "$user" "$password" "$password" | tnx_guest_login --user root -- chpasswd); then
+        unset password
+        tnx_fail "Could not change the sudo/root password for '$distro'."
+        return 1
+      fi
+      unset password
+      tnx_ok "Guest sudo and root passwords changed for '$distro'."
       ;;
     *)
       printf 'Usage: tx password startup | sudo\n' >&2

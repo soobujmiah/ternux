@@ -33,12 +33,13 @@ If a required phase stops, rerun the same command to download the current
 installer and resume the incomplete guest from that phase. Do not remove the
 guest before retrying.
 
-During an interactive install, Ternux asks separately for a guest sudo password
-and a shared shell startup password. The sudo password is set on the selected
-guest user and sudo requires it. The startup password is checked when opening
-native Termux and managed guest shells; change it with `tx password startup`.
-An optional guest root password can also be set for `su -`. Interactive root
-shells receive the startup prompt too. The startup check is a convenience gate;
+During an interactive install, Ternux asks for a shared shell startup password
+and one sudo/root password for each selected guest. Each guest's password is
+set on both its sudo user and root account; `su -` uses that same password.
+Multiple selected guests each get their own password prompt. The startup
+password is checked when opening native Termux and managed guest shells; change
+it with `tx password startup`. Interactive root shells receive the startup
+prompt too. The startup check is a convenience gate;
 the Termux app owner can bypass it and access guest files.
 
 If a partial upgrade left `pkg` or curl unable to start, run
@@ -58,9 +59,8 @@ The installer:
    (**Adreno/KGSL → native distro Zink/Freedreno where packaged** · Debian uses validated Turnip · VirGL compatibility route);
 5. configures audio, fonts and locale;
 6. installs the `tx` CLI and shell shortcuts;
-7. asks separately for the guest sudo password and shared shell startup password;
-8. optionally sets the guest root password for `su -`;
-9. verifies everything landed.
+7. asks for the shared shell startup password and each selected guest's sudo/root password;
+8. verifies everything landed.
 
 Expect about **4–4.6 GB installed** for base or **10.5–12.5 GB** with `--all`; keep
 additional temporary space for downloads and caches. One persistent screen shows

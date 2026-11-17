@@ -88,19 +88,19 @@ check "core loads persisted Debian user" env -u TERNUX_USER \
   TERNUX_STATE_DIR="$state" HOME="$TMP/home-user" bash -c \
   '. "$1/lib/core.sh"; test "$TERNUX_USER" = alice' _ "$ROOT"
 
-# The optional root secret travels only through guest stdin and never appears
-# in phase output or the Termux-side state.
+# The selected guest sudo secret also sets root, travels only through guest
+# stdin, and never appears in phase output or the Termux-side state.
 password_out="$(PASS_CAPTURE="$TMP/root-password-input" TERNUX_STATE_DIR="$TMP/state-password" HOME="$TMP/home-password" bash -c '
   . "$1/lib/core.sh"; . "$1/lib/phases.sh"
   tnx_distro(){ printf fixture; }
   tnx_guest_login(){ [ "$1" = --user ] && [ "$2" = root ] && [ "$3" = -- ] && [ "$4" = chpasswd ] || return 90; cat > "$PASS_CAPTURE"; }
-  TERNUX_ROOT_PASSWORD=test-only-placeholder tnx_phase_root_password
+  TERNUX_USER_PASSWORD=test-only-placeholder tnx_phase_root_password
 ' _ "$ROOT" 2>&1)"
 if [ "$(cat "$TMP/root-password-input" 2>/dev/null)" = 'root:test-only-placeholder' ] &&
    ! printf '%s' "$password_out" | grep -q 'test-only-placeholder'; then
-  ok "optional root password is sent to chpasswd over stdin and stays out of output"
+  ok "guest sudo password is reused for root via chpasswd stdin and stays out of output"
 else
-  not_ok "optional root password is sent to chpasswd over stdin and stays out of output"
+  not_ok "guest sudo password is reused for root via chpasswd stdin and stays out of output"
 fi
 
 # A normal one-command reinstall resumes an interrupted saved guest, while a
@@ -1072,9 +1072,13 @@ assert '_tnx_install_native_shell_hooks || return 1' in alias_phase
 cli_phase = phases.split("tnx_phase_cli() {", 1)[1].split("# Run one phase through", 1)[0]
 assert cli_phase.count('_tnx_install_native_terfetch_hooks || return 1') == 2
 single_install = phases.split("tnx_install_single() {", 1)[1].split("tnx_install() {", 1)[0]
-assert single_install.index('tnx_prompt_startup_password 300') < single_install.index('tnx_prompt_user_password 300')
+assert single_install.index('tnx_prompt_startup_password 300') < single_install.index('tnx_prompt_user_password 300 "$distro_choice"')
+assert 'tnx_prompt_root_password' not in single_install
 multi_install = phases.split("tnx_install() {", 1)[1].split("tnx_cmd_install()", 1)[0]
 assert multi_install.index('tnx_prompt_startup_password 300') < multi_install.index('tnx_prompt_user_password 300')
+assert 'batch_passwords+=("$TERNUX_USER_PASSWORD")' in multi_install
+assert 'TERNUX_USER_PASSWORD="${batch_passwords[forwarded_index]}"' in multi_install
+assert 'tnx_prompt_root_password' not in multi_install
 assert "tnx_cleanup_window_fit_sessions \"$distro\"" in desktop_lifecycle
 assert "ternux-window-fit-x11" in desktop_lifecycle and "proot-distro kill \"$pid\"" in desktop_lifecycle
 assert phases.count("taskmanager-performance-v1") == 1
@@ -1268,6 +1272,7 @@ ibus_init = (root / "lib/ternux-assets/bin/ternux-ibus-session-init").read_text(
 assert "gsettings set org.freedesktop.ibus.general.hotkey trigger '[]'" in ibus_init
 assert "gsettings set org.freedesktop.ibus.general engines-order" in ibus_init
 assert 'next-engine "[\'Control+space\']"' in ibus_init
+assert "xfconf-query -c xfce4-keyboard-shortcuts -p '/commands/custom/<Primary>space' --create -t string -s /usr/local/bin/ternux-ibus-next-engine" in phase_source
 next_engine = (root / "lib/ternux-assets/bin/ternux-ibus-next-engine").read_text()
 assert "gsettings get org.freedesktop.ibus.general engines-order" in next_engine
 assert 'ibus engine "$next" >/dev/null 2>&1 || true' in next_engine

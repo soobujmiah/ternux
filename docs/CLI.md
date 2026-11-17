@@ -171,14 +171,16 @@ tx install [options]
 | `--plain` | Shorthand for `--ui plain`: plain scrolling output instead of the dashboard |
 | `--no-anim` | Freeze the spinner and colour cycling |
 
-An interactive install separately asks for the selected guest user's **sudo**
-password and a shared **startup** password. The guest sudo password is stored
-as a normal `/etc/shadow` hash and sudo requires it. The startup password is
+An interactive install asks for a shared **startup** password and a **sudo/root**
+password for each selected guest before installation begins. Each guest's one
+sudo/root password is applied to both its selected user and its root account;
+`sudo` still requires authentication. The sudo password is stored as a normal
+`/etc/shadow` hash. The startup password is
 checked when an interactive native Termux or managed guest Bash/Zsh shell opens;
 managed Alpine `ash` shells use the same check. Change them with `tx password sudo`
 and `tx password startup`. Only a salted digest of the startup password is
-stored in the mode-0600 Termux config file. An optional guest **root** password
-can also be set for `su -`.
+stored in the mode-0600 Termux config file. `su -` uses the same password as
+that guest user's sudo account.
 
 The startup check is a convenience gate, not a security boundary. The Termux app
 owner can access guest files and can bypass shell startup files, including by
@@ -603,12 +605,14 @@ later `all` run can still remove packages Ternux installed.
 
 ## Passwords and interactive shell startup
 
-The installer asks for separate guest sudo and shared startup passwords. The
-guest sudo password belongs to the selected guest account and is required by
-`sudo`. The shared startup password is checked by interactive native Termux
+The installer asks for one shared startup password and a separate sudo/root
+password for each selected guest. Each guest password is applied to its sudo
+user and root account; `sudo` requires authentication and `su -` uses that same
+guest password. The shared startup password is checked by interactive native Termux
 shells and every managed guest's configured Bash, Zsh, or Alpine shell profile.
-Change it with `tx password startup`; change the selected guest user's sudo
-password with `tx password sudo` or `passwd` inside that guest. The startup
+Change it with `tx password startup`; change the selected guest's sudo/root
+password together with `tx password sudo`. `passwd` inside the guest changes
+only that user's account password. The startup
 password is stored as a salted digest in `~/.config/ternux/startup-password`.
 This shell prompt is a convenience gate: PRoot root entry and alternate shells
 can bypass it, and it does not protect private files from the Termux app owner.

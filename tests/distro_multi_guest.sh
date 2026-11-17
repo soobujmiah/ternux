@@ -23,6 +23,31 @@ tnx_distro_state_set ubuntu user sobuj_dev2
 [ "$(tnx_distro_user ubuntu)" = sobuj_dev2 ]
 [ "$(tnx_distro_user debian)" = ternux ]
 [ "$(tnx_distro_state_get debian backend)" != "$(tnx_distro_state_get ubuntu backend)" ]
+
+(
+  export TERNUX_STATE_DIR="$TMP/root-password-resume-state"
+  mkdir -p "$TERNUX_STATE_DIR"
+  tnx_proot_container_installed() { return 0; }
+  tnx_distro_phase_mark debian root_password
+  ! tnx_install_phase_done root_password debian
+  tnx_distro_phase_mark debian user_password
+  tnx_install_phase_done root_password debian
+)
+
+# Changing the selected guest password keeps the root account in sync without
+# placing the secret in argv, the environment, or command output.
+(
+  . "$ROOT/lib/password.sh"
+  tnx_state_get() { case "$1" in distro) printf debian ;; user) printf sbj ;; esac; }
+  _tnx_password_read_new() { TNX_NEW_PASSWORD=password-change-secret; }
+  tnx_guest_login() { [ "$1" = --user ] && [ "$2" = root ] && [ "$3" = -- ] && [ "$4" = chpasswd ] || return 90; cat > "$TMP/password-change-input"; }
+  result="$(tnx_cmd_password sudo 2>&1)"
+  [ "$(cat "$TMP/password-change-input")" = "sbj:password-change-secret
+root:password-change-secret" ]
+  ! printf '%s' "$result" | grep -q password-change-secret
+)
+echo 'PASS: a pending sudo-password phase forces root password synchronization on resume'
+
 # On Adreno, prefer Zink only for profiles with pinned compatible Mesa assets;
 # the remaining profiles use the VirGL/virpipe route.
 TERNUX_KGSL_DEVICE="$TMP/kgsl-present"
@@ -92,21 +117,21 @@ if tnx_install --distros debian,debian >/dev/null 2>&1; then exit 1; fi
 tnx_prompt_shell() { printf 'shell:%s\n' "$1" >> "$TMP/precollect-order"; printf 'zsh\n'; }
 tnx_prompt_username() { printf 'user:%s\n' "$3" >> "$TMP/precollect-order"; printf 'user-%s\n' "$3"; }
 tnx_prompt_workloads() { printf 'workload:%s\n' "$1" >> "$TMP/precollect-order"; printf '\n'; }
-tnx_prompt_root_password() { TERNUX_ROOT_PASSWORD=test-root; }
-tnx_prompt_user_password() { TERNUX_USER_PASSWORD=test-sudo; }
+tnx_prompt_user_password() { printf 'sudo:%s\n' "$2" >> "$TMP/precollect-order"; TERNUX_USER_PASSWORD="test-sudo-$2"; }
 tnx_prompt_startup_password() { TERNUX_STARTUP_PASSWORD=test-startup; }
 tnx_summary_box() { printf 'summary\n' >> "$TMP/precollect-order"; }
 tnx_confirm() { printf 'confirm\n' >> "$TMP/precollect-order"; return 0; }
-tnx_install_single() { printf 'install:%s\n' "$*" >> "$TMP/precollect-order"; }
+tnx_install_single() { printf 'install:%s:%s\n' "$TERNUX_USER_PASSWORD" "$*" >> "$TMP/precollect-order"; }
 tnx_header() { :; }
 tnx_next_steps() { printf 'next:%s\n' "$@" >> "$TMP/precollect-order"; }
 tnx_install --distros debian,ubuntu,alpine >/dev/null
-expected_precollect=(shell:bash user:debian workload:auto user:ubuntu workload:auto user:alpine summary confirm)
+expected_precollect=(shell:bash user:debian workload:auto user:ubuntu workload:auto user:alpine sudo:debian sudo:ubuntu sudo:alpine summary confirm)
 for i in "${!expected_precollect[@]}"; do
   [ "$(sed -n "$((i + 1))p" "$TMP/precollect-order")" = "${expected_precollect[i]}" ]
 done
-grep -q '^install:--distro ubuntu --user user-ubuntu --shell zsh --batch-confirmed --workloads none$' "$TMP/precollect-order"
-grep -q '^install:--distro alpine --user user-alpine --shell zsh --batch-confirmed --workloads none$' "$TMP/precollect-order"
+grep -q '^install:test-sudo-debian:--distro debian --user user-debian --shell zsh --batch-confirmed --workloads none$' "$TMP/precollect-order"
+grep -q '^install:test-sudo-ubuntu:--distro ubuntu --user user-ubuntu --shell zsh --batch-confirmed --workloads none$' "$TMP/precollect-order"
+grep -q '^install:test-sudo-alpine:--distro alpine --user user-alpine --shell zsh --batch-confirmed --workloads none$' "$TMP/precollect-order"
 grep -q '^next:Start debian desktop: ternux start debian$' "$TMP/precollect-order"
 grep -q '^next:Open ubuntu shell: ternux distro shell ubuntu$' "$TMP/precollect-order"
 grep -q '^next:Open alpine shell: ternux distro shell alpine$' "$TMP/precollect-order"
@@ -140,7 +165,7 @@ if (
   for phase in preflight packages cli debian root_password gpu audio_fonts launcher aliases extras phantom verify; do
     eval "tnx_phase_${phase}(){ printf '%s\\n' '${phase}' >> '$order'; }"
   done
-  tnx_install --distro ubuntu --resume --yes >/dev/null 2>&1 || exit 1
+  TERNUX_USER_PASSWORD=test-sudo tnx_install --distro ubuntu --resume --yes >/dev/null 2>&1 || exit 1
   [ "$(tr '\n' ' ' < "$order")" = 'debian root_password gpu audio_fonts launcher aliases phantom verify ' ] || exit 1
   [ "$(tnx_distro_state_get ubuntu status)" = ready ] || exit 1
   tnx_state_done phase_debian && tnx_distro_phase_done debian debian && tnx_distro_phase_done ubuntu debian

@@ -14,8 +14,8 @@ TERNUX_DESC="Linux desktop for Android with Zink and VirGL graphics routes"
 TERNUX_REPO="https://github.com/soobujmiah/ternux"
 # Immutable source snapshot shared by the standalone bootstrap and CLI fallback.
 # Keep these values aligned with install.sh; refresh only from a reviewed archive.
-TERNUX_SOURCE_COMMIT="5610e222fb29668c38d05cb71611c9afa01459d9"
-TERNUX_SOURCE_SHA256="be66b49b6de8f361f449e7ce78fc4d528c958564c738129bd320dc8f24ade99d"
+TERNUX_SOURCE_COMMIT="4a200c44f6035daa959fa078e730f13ef9661d9b"
+TERNUX_SOURCE_SHA256="1246a124733020a3d8952eca3682850a60b3154344b64ad06cb474379a09d827"
 TERNUX_GUEST_CLI_SHA256="a4392f93adab23706a0d1103c0db74f9f150a53224d249f89ec623e3243aa14a"
 TERNUX_STATE_DIR="${TERNUX_STATE_DIR:-$HOME/.local/share/ternux}"
 TERNUX_LOG_DIR="${TERNUX_LOG_DIR:-${TMPDIR:-/data/data/com.termux/files/usr/tmp}/ternux}"
@@ -836,6 +836,9 @@ tnx_install_phase_done() {
       # release. Never let that stale ledger make --resume report success
       # without an actual PRoot container to configure and verify.
       tnx_proot_container_installed "$distro" || return 1
+      # Guest root now shares the selected user's sudo password. If the sudo
+      # phase still needs to run, reapply root from that same in-memory secret.
+      if [ "$phase" = root_password ] && ! tnx_distro_phase_done "$distro" user_password; then return 1; fi
       tnx_distro_phase_done "$distro" "$phase"
       ;;
   esac
