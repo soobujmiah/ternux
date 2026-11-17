@@ -836,6 +836,9 @@ tnx_install_phase_done() {
       # release. Never let that stale ledger make --resume report success
       # without an actual PRoot container to configure and verify.
       tnx_proot_container_installed "$distro" || return 1
+      # Guest root now shares the selected user's sudo password. If the sudo
+      # phase still needs to run, reapply root from that same in-memory secret.
+      if [ "$phase" = root_password ] && ! tnx_distro_phase_done "$distro" user_password; then return 1; fi
       tnx_distro_phase_done "$distro" "$phase"
       ;;
   esac
