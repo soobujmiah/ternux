@@ -138,11 +138,14 @@ write_alpine_profile() {
   cat >> "$tmp" <<EOF
 
 # TERNUX DISTRO PROMPT BEGIN
-if [ -t 0 ] || [ -r /dev/tty ]; then
+case "\$-" in
+*i*)
   PS1="\$(printf '\\033[1;${color}m')${owner}@${icon}:\\w\\$\$(printf '\\033[0m') "
-fi
+  ;;
+esac
 # TERNUX STARTUP AUTH BEGIN
-if [ -t 0 ] || [ -r /dev/tty ]; then
+case "\$-" in
+*i*)
   _tnx_auth_file=/run/ternux/startup-password
   [ -r "\$_tnx_auth_file" ] || { echo 'Ternux startup password is not configured.' >&2; exit 1; }
   read -r _tnx_auth_salt _tnx_auth_expected < "\$_tnx_auth_file"
@@ -153,7 +156,8 @@ if [ -t 0 ] || [ -r /dev/tty ]; then
   unset _tnx_auth_entered
   [ "\$_tnx_auth_actual" = "\$_tnx_auth_expected" ] || { echo 'Incorrect Ternux startup password.' >&2; exit 1; }
   unset _tnx_auth_file _tnx_auth_salt _tnx_auth_expected _tnx_auth_actual
-fi
+  ;;
+esac
 # TERNUX STARTUP AUTH END
 if [ -t 0 ] && [ -z "\${TERFETCH_NO_AUTORUN:-}" ] && [ "\${_TERNUX_TERFETCH_AUTORUN_DONE:-0}" != 1 ] && command -v terfetch >/dev/null 2>&1; then
   TERFETCH_STARTUP_ONCE=1 terfetch

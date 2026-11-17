@@ -437,8 +437,7 @@ tnx_install_guest_cli() {
   [ "$cleanup" -eq 1 ] && rm -f "$guest_src"
 
   local guest_version=""
-  guest_version="$(tnx_guest_login --user "$user_name" -- bash -lc \
-    'command -v ternux >/dev/null && ternux --version' 2>/dev/null)" || {
+  guest_version="$(tnx_guest_login --user "$user_name" -- /usr/local/bin/ternux --version 2>/dev/null)" || {
     tnx_fail "Guest companion was written but could not execute for '$user_name': ${guest_version:-unknown error}"
     return 1
   }
@@ -2802,8 +2801,7 @@ tnx_phase_verify() {
     *) tnx_fail "Termux host CLI is missing, cannot load its libraries, or returned an unexpected version"; rc=1 ;;
   esac
 
-  guest_version="$(tnx_guest_login --user "$user_name" -- bash -lc \
-    'command -v ternux >/dev/null && ternux --version' 2>/dev/null)" || true
+  guest_version="$(tnx_guest_login --user "$user_name" -- /usr/local/bin/ternux --version 2>/dev/null)" || true
   case "$guest_version" in
     "ternux guest v${TERNUX_VERSION}"|"ternux guest v${TERNUX_VERSION}"$'\n'*) tnx_ok "Guest/Xfce terminal companion is in PATH and version-verified" ;;
     *) tnx_fail "Guest/Xfce terminal companion is missing, cannot execute, or returned an unexpected version"; rc=1 ;;

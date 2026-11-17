@@ -504,7 +504,7 @@ _tnx_update_run() {
     ' < "$source_dir/bin/ternux-guest"; then
       guest_ok=0
     else
-      guest_version="$(tnx_guest_login --user "$guest_user" -- bash -lc 'command -v ternux >/dev/null && ternux --version' 2>&1)" || guest_ok=0
+      guest_version="$(tnx_guest_login --user "$guest_user" -- /usr/local/bin/ternux --version 2>&1)" || guest_ok=0
       case "$guest_version" in
         "ternux guest v${source_version}"|"ternux guest v${source_version}"$'\n'*) ;;
         *) guest_ok=0 ;;

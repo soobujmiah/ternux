@@ -36,6 +36,21 @@ grep -Fq '# TERNUX STARTUP AUTH BEGIN' "$auth_helper" || { echo 'Shared guest st
 grep -Fq '_tnx_auth_file=/run/ternux/startup-password' "$auth_helper" || { echo 'Guest startup verifier bind path missing.' >&2; exit 1; }
 grep -Fq 'read -r -s _tnx_auth_entered </dev/tty' "$auth_helper" || { echo 'TTY password input is not portable across guest shells.' >&2; exit 1; }
 ! grep -Fq 'read -r -s -u 3' "$auth_helper" || { echo 'Guest startup hook still uses Bash-only fd input.' >&2; exit 1; }
+grep -Fq 'case "\$-" in' "$auth_helper" || { echo 'Alpine profile auth must be gated on an interactive shell.' >&2; exit 1; }
+grep -Fq 'tnx_guest_login --user "$user_name" -- /usr/local/bin/ternux --version' "$ROOT/lib/phases.sh" || {
+  echo 'Guest companion verification must not start a profile-reading login shell.' >&2; exit 1;
+}
+alpine_home="$TMP/alpine-home"
+mkdir -p "$alpine_home"
+awk '/^write_alpine_profile\(\)/,/^}/' "$auth_helper" > "$TMP/alpine-profile-function.sh"
+. "$TMP/alpine-profile-function.sh"
+icon=alpine
+write_alpine_profile "$alpine_home" "$(id -un)" 36
+if ! alpine_login_output="$(HOME="$alpine_home" bash -lc 'printf ALPINE_NONINTERACTIVE_LOGIN_OK' 2>&1)" ||
+   [[ "$alpine_login_output" != *ALPINE_NONINTERACTIVE_LOGIN_OK* ]]; then
+  printf 'Noninteractive Alpine login unexpectedly ran the startup auth hook: %s\n' "$alpine_login_output" >&2
+  exit 1
+fi
 for distro in $profiles; do
   unset _TNX_DISTRO
   export TERNUX_DISTRO="$distro"
