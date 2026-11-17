@@ -1054,8 +1054,10 @@ assert '"$camera" -c 0 "$probe"' in camera_permission and 'tnx_confirm' in camer
 audio_phase = (root / "lib/phases.sh").read_text().split("tnx_phase_audio_fonts() {", 1)[1].split("\n# ---------------------------------------------------------------------------\n# Phase 8", 1)[0]
 audio_phase_code = "\n".join(line for line in audio_phase.splitlines() if not line.lstrip().startswith("#"))
 assert 'tnx_guest_login --_tnx-timeout-seconds 1200 --shared-tmp --user root' in audio_phase
-assert "timeout --signal=TERM --kill-after=10 300 apt update" in audio_phase
-assert "timeout --signal=TERM --kill-after=10 600 env DEBIAN_FRONTEND=noninteractive apt install" in audio_phase
+assert "timeout --signal=TERM --kill-after=10 300 apt-get update" in audio_phase
+assert "timeout --signal=TERM --kill-after=10 180 env DEBIAN_FRONTEND=noninteractive apt-get install" in audio_phase
+assert "dpkg-query -W -f='\\${db:Status-Status}'" in audio_phase
+assert "dpkg --audit" in audio_phase
 assert "timeout --signal=TERM --kill-after=5 90 locale-gen" in audio_phase
 assert not re.search(r"(^|\s)sudo(\s|$)", audio_phase_code)
 assert "Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20" in audio_phase
@@ -1066,7 +1068,9 @@ assert "image-style --create -t int -s 4" in (root / "lib/phases.sh").read_text(
 phases = (root / "lib/phases.sh").read_text()
 desktop_lifecycle = (root / "lib/desktop.sh").read_text()
 alias_phase = phases.split("tnx_phase_aliases() {", 1)[1].split("# Phase 10", 1)[0]
-assert alias_phase.index('_tnx_install_terfetch_hook "$HOME/.bashrc"') < alias_phase.index('_tnx_install_native_startup_auth "$HOME/.bashrc"')
+assert '_tnx_install_native_shell_hooks || return 1' in alias_phase
+cli_phase = phases.split("tnx_phase_cli() {", 1)[1].split("# Run one phase through", 1)[0]
+assert cli_phase.count('_tnx_install_native_terfetch_hooks || return 1') == 2
 single_install = phases.split("tnx_install_single() {", 1)[1].split("tnx_install() {", 1)[0]
 assert single_install.index('tnx_prompt_startup_password 300') < single_install.index('tnx_prompt_user_password 300')
 multi_install = phases.split("tnx_install() {", 1)[1].split("tnx_cmd_install()", 1)[0]
@@ -3244,7 +3248,7 @@ if env HOME="$TMP/home-standalone-bundle" PREFIX="$TMP/prefix-standalone-bundle"
   bash "$TMP/standalone-bundle/install.sh" --status >/dev/null &&
   [ "$(cat "$TMP/bundle-count")" -eq 2 ] &&
   [ "$(sort -u "$TMP/bundle-urls" | wc -l)" -eq 1 ] &&
-  grep -q "^https://codeload.github.com/soobujmiah/ternux/tar.gz/$fixture_commit$" "$TMP/bundle-urls" &&
+  grep -q "^https://codeload.github.com/soobujmiah/ternux/tar.gz/${fixture_commit:0:7}$" "$TMP/bundle-urls" &&
   ! compgen -G "$TMP/remote-bundle-tmp/ternux-bootstrap.*" >/dev/null; then
   ok "standalone bootstrap retries and reuses one source bundle"
 else
@@ -3308,7 +3312,7 @@ if [ "$cli_pin_commit" = "$boot_pin_commit" ] &&
        tnx_download(){ printf "%s\n" "$1" > "$CLI_URL"; cp "$CLI_ARCHIVE" "$2"; }
        tnx_phase_cli
      ' _ "$TMP/cli-fallback-modules" >/dev/null &&
-   [ "$(cat "$TMP/cli-fallback-url")" = "https://codeload.github.com/soobujmiah/ternux/tar.gz/$cli_pin_commit" ] &&
+   [ "$(cat "$TMP/cli-fallback-url")" = "https://codeload.github.com/soobujmiah/ternux/tar.gz/${cli_pin_commit:0:7}" ] &&
    "$TMP/prefix-cli-fallback/bin/ternux" --version | grep -q "^ternux v2.0.0$" &&
    "$TMP/prefix-cli-fallback/bin/tx" --version | grep -q "^ternux v2.0.0$" &&
    "$TMP/prefix-cli-fallback/bin/terfetch" --version | grep -q "^terfetch 0.1.0$" &&

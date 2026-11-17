@@ -1629,15 +1629,28 @@ tnx_phase_audio_fonts() {
         DPKG_FORCE=\"-o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef\"
         APT_NETWORK=\"-o Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20\"
         echo \"Refreshing APT indexes (5 minute limit)...\"
-        timeout --signal=TERM --kill-after=10 300 apt update \$APT_NETWORK || {
+        timeout --signal=TERM --kill-after=10 300 apt-get update \$APT_NETWORK || {
           echo \"APT index refresh failed or exceeded 5 minutes; rerun install to resume this phase.\" >&2
           exit 1
         }
-        echo \"Installing locale and system fonts (10 minute limit)...\"
-        timeout --signal=TERM --kill-after=10 600 env DEBIAN_FRONTEND=noninteractive apt install -y \$DPKG_FORCE \$APT_NETWORK locales wget fonts-symbola fonts-noto-color-emoji fonts-font-awesome fonts-powerline || {
-          echo \"Locale/font package installation failed or exceeded 10 minutes; rerun install to resume this phase.\" >&2
-          exit 1
-        }
+        echo \"Installing locale and system fonts (3 minute limit)...\"
+        APT_RC=0
+        timeout --signal=TERM --kill-after=10 180 env DEBIAN_FRONTEND=noninteractive apt-get install -y \$DPKG_FORCE \$APT_NETWORK locales wget fonts-symbola fonts-noto-color-emoji fonts-font-awesome fonts-powerline || APT_RC=\$?
+        if [ \"\$APT_RC\" -ne 0 ]; then
+          PACKAGES_OK=1
+          for package in locales wget fonts-symbola fonts-noto-color-emoji fonts-font-awesome fonts-powerline; do
+            package_status=\"\$(dpkg-query -W -f='\${db:Status-Status}' \"\$package\" 2>/dev/null || true)\"
+            [ \"\$package_status\" = installed ] || PACKAGES_OK=0
+          done
+          dpkg_audit=\"\$(dpkg --audit 2>&1 || true)\"
+          if [ \"\$PACKAGES_OK\" = 1 ] && [ -z \"\$dpkg_audit\" ]; then
+            echo \"APT did not return before its limit, but locale/font packages are installed and dpkg is clean; continuing.\"
+          else
+            echo \"Locale/font package installation failed or exceeded 3 minutes and package state is incomplete; rerun install to resume this phase.\" >&2
+            [ -n \"\$dpkg_audit\" ] && printf '%s\\n' \"\$dpkg_audit\" >&2
+            exit \"\$APT_RC\"
+          fi
+        fi
         grep -qxF \"${locale} UTF-8\" /etc/locale.gen 2>/dev/null || echo \"${locale} UTF-8\" >> /etc/locale.gen
         if ! timeout --signal=TERM --kill-after=5 90 locale-gen \"${locale}\"; then
           echo \"Locale generation failed or exceeded 90 seconds; continuing with the system fallback locale.\" >&2
@@ -2233,6 +2246,18 @@ EOF
   chmod "$mode" "$tmp" && mv -f "$tmp" "$rc" || { rm -f "$tmp"; return 1; }
 }
 
+_tnx_install_native_terfetch_hooks() {
+  _tnx_install_terfetch_hook "$HOME/.bashrc" || return 1
+  _tnx_install_terfetch_hook "$HOME/.zshrc" || return 1
+}
+
+_tnx_install_native_shell_hooks() {
+  # Show the host device summary before the startup password prompt.
+  _tnx_install_native_terfetch_hooks || return 1
+  _tnx_install_native_startup_auth "$HOME/.bashrc" "" "" || return 1
+  _tnx_install_native_startup_auth "$HOME/.zshrc" "" "" || return 1
+}
+
 tnx_phase_aliases() {
   local user_name="${1:-ternux}" shell_choice="${2:-bash}"
   local distro; distro="$(tnx_distro)"
@@ -2403,12 +2428,7 @@ sysmon() { echo "--- CPU & Memory ---"; free -h; echo ""; echo "--- GPU / KGSL -
 # ==== END TERNUX ALIASES ====
 ALIASEOF
   touch "$HOME/.hushlogin"
-  _tnx_install_terfetch_hook "$HOME/.bashrc" || return 1
-  _tnx_install_terfetch_hook "$HOME/.zshrc" || return 1
-  # Put native authentication after the automatic Terfetch banner so the
-  # device summary is visible first and the startup prompt follows it.
-  _tnx_install_native_startup_auth "$HOME/.bashrc" "$distro" "$user_name" || return 1
-  _tnx_install_native_startup_auth "$HOME/.zshrc" "$distro" "$user_name" || return 1
+  _tnx_install_native_shell_hooks || return 1
   tnx_ok "Commands configured: tx, xgo, killx, distro user/root shells (including dbroot/ubroot/alproot), sysmon"
 }
 
@@ -2859,6 +2879,7 @@ tnx_phase_cli() {
           tnx_fail "APT-managed Terfetch command is missing or stale. Upgrade or reinstall the ternux package."
           return 1
         fi
+        _tnx_install_native_terfetch_hooks || return 1
         tnx_ok "APT-managed Ternux CLI, tx, and Terfetch are installed and version-verified: ${TERNUX_VERSION}"
         return 0 ;;
       *)
@@ -2905,7 +2926,7 @@ tnx_phase_cli() {
     }
     tnx_info "Downloading pinned ternux CLI source bundle ($source_commit)..."
     if ! tnx_download \
-      "https://codeload.github.com/soobujmiah/ternux/tar.gz/$source_commit" \
+      "https://codeload.github.com/soobujmiah/ternux/tar.gz/${source_commit:0:7}" \
       "$archive"; then
       tnx_fail "CLI source bundle download failed after retries."
       rm -rf "$cleanup_dir"
@@ -3110,6 +3131,7 @@ TX_WRAPPER
     tnx_fail "Installed tx command returned an unexpected version response: $tx_version"
     return 1
   }
+  _tnx_install_native_terfetch_hooks || return 1
   tnx_ok "Termux host CLI loaded its installed libraries: $bin_dir/ternux"
   tnx_state_set "cli_installed" "yes"
   return 0
