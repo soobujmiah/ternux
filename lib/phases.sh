@@ -2926,7 +2926,7 @@ tnx_phase_cli() {
     }
     tnx_info "Downloading pinned ternux CLI source bundle ($source_commit)..."
     if ! tnx_download \
-      "https://codeload.github.com/soobujmiah/ternux/tar.gz/$source_commit" \
+      "https://codeload.github.com/soobujmiah/ternux/tar.gz/${source_commit:0:7}" \
       "$archive"; then
       tnx_fail "CLI source bundle download failed after retries."
       rm -rf "$cleanup_dir"

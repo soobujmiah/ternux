@@ -85,7 +85,7 @@ _tnx_download_archive() {
 }
 
 _tnx_load_remote() {
-  local url="https://codeload.github.com/soobujmiah/ternux/tar.gz/$_TNX_BOOTSTRAP_COMMIT"
+  local url="https://codeload.github.com/soobujmiah/ternux/tar.gz/${_TNX_BOOTSTRAP_COMMIT:0:7}"
   local tmpdir="${TMPDIR:-/tmp}/ternux-bootstrap.$$" archive="" listing=""
   local root_name="" root="" lib=""
 

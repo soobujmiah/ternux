@@ -3248,7 +3248,7 @@ if env HOME="$TMP/home-standalone-bundle" PREFIX="$TMP/prefix-standalone-bundle"
   bash "$TMP/standalone-bundle/install.sh" --status >/dev/null &&
   [ "$(cat "$TMP/bundle-count")" -eq 2 ] &&
   [ "$(sort -u "$TMP/bundle-urls" | wc -l)" -eq 1 ] &&
-  grep -q "^https://codeload.github.com/soobujmiah/ternux/tar.gz/$fixture_commit$" "$TMP/bundle-urls" &&
+  grep -q "^https://codeload.github.com/soobujmiah/ternux/tar.gz/${fixture_commit:0:7}$" "$TMP/bundle-urls" &&
   ! compgen -G "$TMP/remote-bundle-tmp/ternux-bootstrap.*" >/dev/null; then
   ok "standalone bootstrap retries and reuses one source bundle"
 else
@@ -3312,7 +3312,7 @@ if [ "$cli_pin_commit" = "$boot_pin_commit" ] &&
        tnx_download(){ printf "%s\n" "$1" > "$CLI_URL"; cp "$CLI_ARCHIVE" "$2"; }
        tnx_phase_cli
      ' _ "$TMP/cli-fallback-modules" >/dev/null &&
-   [ "$(cat "$TMP/cli-fallback-url")" = "https://codeload.github.com/soobujmiah/ternux/tar.gz/$cli_pin_commit" ] &&
+   [ "$(cat "$TMP/cli-fallback-url")" = "https://codeload.github.com/soobujmiah/ternux/tar.gz/${cli_pin_commit:0:7}" ] &&
    "$TMP/prefix-cli-fallback/bin/ternux" --version | grep -q "^ternux v2.0.0$" &&
    "$TMP/prefix-cli-fallback/bin/tx" --version | grep -q "^ternux v2.0.0$" &&
    "$TMP/prefix-cli-fallback/bin/terfetch" --version | grep -q "^terfetch 0.1.0$" &&
