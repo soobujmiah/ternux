@@ -12,6 +12,7 @@ alt_url: "/docs/TROUBLESHOOTING.html"
 | লক্ষণ | সম্ভাব্য কারণ | সমাধান |
 |---|---|---|
 | ডেস্কটপ নিঃশব্দে মরে যায়, বা `[Process completed (signal 9)]` | অ্যান্ড্রয়েডের প্রক্রিয়া-নীতি, মেমরির চাপ বা নির্মাতার ব্যাটারি-ব্যবস্থাপনা | [ডেস্কটপ নিঃশব্দে মরে যায়](#the-desktop-dies-silently) |
+| Termux:X11 সামনে আনলে Xfce/X11 ধীর বা অচল হয় | X11 companion অ্যাপ সামনে থাকলে Android Termux-কে কম CPU সময় দিতে পারে | [X11 ধীর বা অচল হয়](#x11-slows-down-or-stalls) |
 | টার্মাক্স:এক্স১১-এ কালো/খালি জানালা | এক্স১১ অ্যাপ খোলা হয়নি বা পুরনো সকেট রয়ে গেছে | [টার্মাক্স:এক্স১১-এ কালো স্ক্রিন](#black-screen-in-termuxx11) |
 | `renderer string: llvmpipe` | সফটওয়্যার বিকল্প-পথ—জিপিইউ সক্রিয় নয় | [রেন্ডারার llvmpipe বলে](#renderer-says-llvmpipe) |
 | এক্সএফসিই শুরুর সময় `lost connection to rendering server` | ভিরজিএল সকেট গেস্টে নেই বা ডেবিয়ান মেসার ভিরজিএল প্রাথমিক যাচাই ব্যর্থ | [এক্সএফসিই শুরুর সময় ভিরজিএল ব্যর্থ](#virgl-fails-during-xfce-startup) |
@@ -100,6 +101,36 @@ restriction দেখালে আপনার Android release-এ থাকা 
 control expose করে শুধু সেটিই বদলান, reboot করুন, instability বা অস্বাভাবিক
 battery drain হলে reverse করুন। `ternux doctor` readable setting report করে;
 সব OEM process killer আলাদা করতে পারে না।
+
+---
+
+<h2 id="x11-slows-down-or-stalls">X11 ধীর বা অচল হয়</h2>
+
+**লক্ষণ:** Termux:X11 সামনে আনার পর ডেস্কটপ ধীর হয়ে যায় বা response বন্ধ
+করে—বিশেষত Termux background-এ থাকলে।
+
+**সম্ভাব্য কারণ:** অন্য অ্যাপ screen-এ থাকলে Android Termux-কে কম CPU সময় দিতে
+পারে। [Termux:X11 প্রকল্প এই scheduling আচরণ নথিভুক্ত করেছে](https://github.com/termux/termux-x11#avoiding-slowdowns)
+এবং একই UID-তে চালানো APK variant দিয়েছে। সেটি শুধু GitHub-signed Termux-এর
+সঙ্গে কাজ করে; F-Droid বা Play Store-এর Termux-এর ওপর সেটি ইনস্টল করবেন না।
+
+**যাচাই ও করণীয়:**
+
+1. Termux ও Termux:X11—দুটির battery use **Unrestricted** করুন। Xiaomi-তে
+   এই control থাকলে Termux-এর background activity/autostart-ও অনুমতি দিন।
+2. দীর্ঘ session-এ device জেগে রাখুন। Termux:Boot startup script চালাতে পারে,
+   আর `termux-wake-lock` sleep আটকাতে পারে; কিন্তু Boot চলমান X11/GPU hang ঠিক
+   করে না বা আলাদা অ্যাপের মধ্যে Android CPU scheduling বদলায় না।
+   [Termux:Boot-এর নির্দেশনা দেখুন](https://github.com/termux/termux-boot#how-to-use)।
+3. সমস্যার সময় `tx status --json`, `tx info --json`, এবং
+   `tx logs desktop show debian` সংগ্রহ করুন। X11 কালো বা server-টি সাড়া না
+   দিলে `tx restart debian` managed session পুনরায় চালু করবে এবং খোলা window
+   বন্ধ হবে।
+
+Renderer hardware-accelerated এবং X11 server সাড়া দিলেও desktop freeze হলে
+[Termux:X11 upstream debug নির্দেশনা](https://github.com/termux/termux-x11#logs)
+অনুযায়ী log সংগ্রহ করুন। অল্প সময়ের সফল পরীক্ষা intermittent Android
+scheduling বা GPU-driver stall-কে বাদ দেয় না।
 
 ---
 

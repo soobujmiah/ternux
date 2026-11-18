@@ -23,7 +23,7 @@ matrix currently covers Debian, Ubuntu, and Alpine. See the
 
 ## Local v2.0.1 candidate checks — 2026-11-18
 
-- `python3 tests/window_fit_geometry.py`: 10 geometry/state cases passed.
+- `python3 tests/window_fit_geometry.py`: 12 geometry/state cases passed.
 - `bash tests/focused.sh`: 211 passed, 0 failed.
 - `bash tests/update_transaction.sh`: passed the pinned update, 2.0.0→2.0.1
   upgrade, 1.4.0→2.0.1 migration fixture, rollback, interrupted-update
@@ -32,11 +32,9 @@ matrix currently covers Debian, Ubuntu, and Alpine. See the
 - `python3 tests/docs_check.py`: 6,518 assertions, 616 internal links, and 24
   bilingual page pairs passed. `npm run format:check` passed after formatting
   both modified landing pages.
-- Live Debian/XFCE X11 check on display `:1` (640×1386): a temporary
-  `xmessage` client was moved; its outer top-left remained `(144, 284)` before,
-  after, and two seconds after resizing from 510×360 to 430×320. The temporary
-  window was closed; the desktop remained READY. The host reports the
-  PulseAudio process running but not ready.
+- An earlier live X11 check used `xdotool windowsize`, so it did not exercise a
+  pointer resize and was insufficient evidence for the reported behavior. The
+  corrected live pointer test is recorded below.
 - `npm audit --json` found nine high-severity dependency paths, all through
   Picomatch versions 4.0.7 and 2.3.2 in the website build tree. GitHub Advisory
   Database lists CVE-2026-112366 as affecting Picomatch through 4.0.7 with no
@@ -46,10 +44,53 @@ matrix currently covers Debian, Ubuntu, and Alpine. See the
   safe fix is available; the upstream issue remains unresolved. This is a
   documented CI/build-chain risk, not evidence of a v2 runtime exploit.
 
+## Live resize correction and X11 stall investigation — 2026-11-18
+
+The earlier live check above used programmatic `xdotool windowsize` and did not
+exercise the pointer resize path. It was insufficient evidence for the user's
+reported resize bug. The repeated live test found that the window fitter
+reapplied its launch-time minimum size during resize events and used
+`StaticGravity` with frame coordinates, which could fight XFWM and shift a
+decorated window by its title-bar extent.
+
+The local fix now limits minimum-size policy to initial placement, keeps the
+user's chosen size and position during interactive resizing, and sends frame
+coordinates with EWMH `NorthWestGravity`. On the live Debian/XFCE session, a
+temporary window was moved to client position `(74, 244)` and pointer-resized
+from `280x240` to `340x300`, then `380x340`. Its position remained `(74, 244)`
+after each drag and after a one-second settle. No resize-time correction was
+logged. The candidate helper was installed through `tx distro root debian`,
+Python syntax-checked in Debian, and the desktop was restarted through
+`tx restart debian`.
+
+The X11 stall itself was not reproduced during this check. The device is
+Android 16 on Xiaomi model `25053RT47C`, with F-Droid Termux `0.119.0-beta.3`,
+Adreno 825, and Zink/Turnip. Termux:X11 stayed alive; 80 X11 request round trips
+measured 1.41 ms minimum, 1.84 ms median, 2.93 ms p95, and 4.81 ms maximum.
+At sampling, Termux:X11 used about 228 MiB RSS and the host reported roughly
+4.1 GiB available RAM. These short measurements cannot rule out an intermittent
+Android scheduling or GPU-driver stall. The upstream
+[Termux:X11 documentation](https://github.com/termux/termux-x11#avoiding-slowdowns)
+states that Android may give Termux less CPU time while the separate X11 app is
+foregrounded. Its shared-UID workaround requires GitHub-signed Termux and is
+not compatible with this F-Droid install.
+
+Termux:Boot is installed. It can start a script after reboot and can invoke
+`termux-wake-lock` to prevent device sleep; it does not correct an already
+running X11/GPU hang or the separate-app scheduling behavior. Battery
+unrestricted settings for Termux and Termux:X11 are documented in
+[Troubleshooting](TROUBLESHOOTING.md#x11-slows-down-or-stalls).
+
+At the final status sample, Ternux and X11 reported READY/running, but the
+PulseAudio bridge had transitioned back to `pulseaudio_ready=no` after briefly
+reporting ready on restart. This is separate from the resize test and remains
+an observed runtime issue to investigate; `tx verify debian` still passed its
+desktop and GPU checks. The desktop was left running with Termux:X11 open.
+
 The standalone and CLI fallback now share an immutable local source snapshot at
-`ab5ed326a6812d98ccc62265d647b5bd08fe3bbd`. Its deterministic source archive
+`f7d2a43d97df2bec90cf0a481926e6f57234cbd9`. Its deterministic source archive
 SHA-256 is
-`ccc3163b654dc84cbc786d0a7c3a1c5f69835ee2c423d0bf7e6ebf434d0254ba`, and
+`2924d17dce9a3971c5765b115c81f13c80f2914a3072c6fd627b012201b123b2`, and
 `TERNUX_SOURCE_ARCHIVE_OVERRIDE=<archive> bash tests/bootstrap_source_sync.sh`
 passed against that archive. A known published commit established that this
 local `git archive | gzip -n` format reproduces GitHub's short-SHA codeload

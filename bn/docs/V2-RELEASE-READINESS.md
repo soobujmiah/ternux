@@ -19,7 +19,7 @@ v2.0.0 acceptance তথ্য historical snapshot; এটি v2.0.1 release rea
 
 ## Local v2.0.1 candidate checks — 2026-11-18
 
-- `python3 tests/window_fit_geometry.py`: geometry/state-এর ১০টি check pass।
+- `python3 tests/window_fit_geometry.py`: geometry/state-এর ১২টি check pass।
 - `bash tests/focused.sh`: ২১১ pass, ০ fail।
 - `bash tests/update_transaction.sh`: pinned update, 2.0.0→2.0.1 upgrade,
   1.4.0→2.0.1 migration fixture, rollback, interrupted-update recovery,
@@ -28,10 +28,9 @@ v2.0.0 acceptance তথ্য historical snapshot; এটি v2.0.1 release rea
 - `python3 tests/docs_check.py`: ৬,৫১৮ assertion, ৬১৬ internal link ও ২৪টি
   bilingual page pair pass। দুই homepage Prettier দিয়ে format করার পর
   `npm run format:check`-ও pass।
-- Debian/XFCE live X11 check, display `:1` (640×1386): অস্থায়ী `xmessage`
-  window সরানোর পর resize-এর আগে, পরে এবং দুই সেকেন্ড পর outer top-left
-  `(144, 284)` ছিল; size 510×360 থেকে 430×320 হয়েছে। Test window বন্ধ; desktop
-  READY আছে। PulseAudio process চললেও readiness false দেখিয়েছে।
+- Debian/XFCE live X11 check, display `:1` (640×1386): আগের
+  `xdotool windowsize`-ভিত্তিক পরীক্ষাটি pointer দিয়ে window resize করেনি,
+  তাই resize আচরণের যথেষ্ট প্রমাণ ছিল না। পরের অংশে নতুন live pointer test আছে।
 - `npm audit --json` website build tree-তে Picomatch 4.0.7 ও 2.3.2-এর মাধ্যমে
   ৯টি high-severity dependency path দেখায়। GitHub Advisory Database
   CVE-2026-112366-এ Picomatch 4.0.7 পর্যন্ত affected এবং patched version নেই
@@ -40,9 +39,47 @@ v2.0.0 acceptance তথ্য historical snapshot; এটি v2.0.1 release rea
   downgrade বা override করা হয়নি; upstream issue অমীমাংসিত। এটি CI/build-chain
   risk, v2 runtime exploit-এর প্রমাণ নয়।
 
-Standalone ও CLI fallback এখন `ab5ed326a6812d98ccc62265d647b5bd08fe3bbd`
+## Live resize correction and X11 stall investigation — 2026-11-18
+
+আগের live test `xdotool windowsize` ব্যবহার করেছিল; pointer দিয়ে resize
+করেনি। তাই সেটি resize bug-এর যথেষ্ট প্রমাণ ছিল না। পুনরায় live test-এ দেখা
+গেছে, window fitter resize event-এর সময় launch-time minimum size আবার চাপিয়ে
+দিচ্ছিল এবং frame coordinate-এর সঙ্গে `StaticGravity` ব্যবহার করছিল। এতে XFWM-এর
+সঙ্গে conflict এবং titlebar-এর উচ্চতার সমান position shift হতে পারত।
+
+Local fix-এ minimum size শুধু প্রথম placement-এ প্রয়োগ হয়; interactive resize-এ
+user-এর size ও position বজায় থাকে। Frame coordinate-এর জন্য EWMH
+`NorthWestGravity` ব্যবহার হয়। Live Debian/XFCE session-এ অস্থায়ী window-কে
+client position `(74, 244)`-এ সরিয়ে pointer দিয়ে `280x240` থেকে `340x300`,
+তারপর `380x340` করা হয়েছে। প্রতিটি drag-এর পর এবং এক সেকেন্ড অপেক্ষার পরও
+position `(74, 244)` ছিল। Resize-এর সময় helper কোনো correction log করেনি।
+Candidate helper `tx distro root debian` দিয়ে install, Debian-এ Python syntax
+check এবং `tx restart debian` দিয়ে desktop restart করা হয়েছে।
+
+এই পরীক্ষায় X11 stall reproduce হয়নি। Device: Android 16, Xiaomi `25053RT47C`,
+F-Droid Termux `0.119.0-beta.3`, Adreno 825, Zink/Turnip। Termux:X11 চলছিল; ৮০টি
+X11 request round-trip-এ min 1.41 ms, median 1.84 ms, p95 2.93 ms, max 4.81 ms
+পাওয়া গেছে। Sampling-এর সময় Termux:X11-এর RSS প্রায় 228 MiB এবং host-এ প্রায়
+4.1 GiB RAM available ছিল। ছোট এই sample intermittent Android scheduling বা
+GPU-driver stall-কে বাদ দেয় না। Upstream
+[Termux:X11 documentation](https://github.com/termux/termux-x11#avoiding-slowdowns)
+বলেছে, আলাদা X11 app foreground-এ থাকলে Android Termux-কে কম CPU time দিতে পারে।
+এর shared-UID workaround GitHub-signed Termux চায়; এই F-Droid install-এর সঙ্গে
+compatible নয়।
+
+Termux:Boot install করা আছে। এটি boot-এ script চালাতে এবং `termux-wake-lock`
+দিয়ে device sleep আটকাতে পারে; কিন্তু চলমান X11/GPU hang বা আলাদা app-এর CPU
+scheduling ঠিক করে না। Termux ও Termux:X11-এর battery **Unrestricted** করার
+নির্দেশনা [Troubleshooting](TROUBLESHOOTING.md#x11-slows-down-or-stalls)-এ আছে।
+
+শেষ status sample-এ Ternux ও X11 READY/running ছিল, তবে restart-এর পর কিছুক্ষণ
+ready থাকার পরে PulseAudio bridge আবার `pulseaudio_ready=no` হয়েছে। এটি resize
+test থেকে আলাদা এবং এখনো তদন্তের বিষয়; `tx verify debian` desktop ও GPU check
+pass করেছে। Desktop Termux:X11 খোলা রেখে চালু রাখা হয়েছে।
+
+Standalone ও CLI fallback এখন `f7d2a43d97df2bec90cf0a481926e6f57234cbd9`
 immutable local source snapshot-এ pin করা। Deterministic source archive-এর
-SHA-256 `ccc3163b654dc84cbc786d0a7c3a1c5f69835ee2c423d0bf7e6ebf434d0254ba`;
+SHA-256 `2924d17dce9a3971c5765b115c81f13c80f2914a3072c6fd627b012201b123b2`;
 `TERNUX_SOURCE_ARCHIVE_OVERRIDE=<archive> bash tests/bootstrap_source_sync.sh`
 এই archive দিয়ে pass করেছে। আগে প্রকাশিত commit দিয়ে প্রমাণ হয়েছে যে local
 `git archive | gzip -n` format GitHub-এর short-SHA codeload archive digest-এর
