@@ -12,6 +12,14 @@ Stable `/apt` paths return HTTP 404; signed RC paths remain HTTP 200 for
 opt-in candidate tests. This report preserves release-time evidence; use the
 current [APT channel guide](../TERMUX-APT.md) for installation status.
 
+**Owner scope correction (2026-11-18):** the 2026-11-14 decision moving former
+v3 scope into the next v2 release was revoked. Version 2 is frozen to the
+existing implementation, and new architecture/capabilities remain v3 work.
+The owner confirms Debian, Ubuntu, Kali Linux, and Alpine as the v2 verified
+desktop baseline; evidence depth differs by distro. `v2.0.1` is the unused
+local candidate version, not a published release. This report below remains
+the historical v2.0.0 record and must not be read as v2.0.1 evidence.
+
 **Release:** published 2026-11-13 05:31 UTC
 **Tag target:** `9106b04fc8627ae98b1d63c9912a28c8a4677441`
 **Current-state audit snapshot:** 2026-11-13 11:04 UTC

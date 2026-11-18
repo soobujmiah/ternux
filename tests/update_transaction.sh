@@ -5,6 +5,18 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 
+BASELINE_VERSION="$(git -C "$ROOT" show HEAD:lib/core.sh | sed -n 's/^TERNUX_VERSION="\([^"]*\)"$/\1/p')"
+TARGET_VERSION="$(sed -n 's/^TERNUX_VERSION="\([^"]*\)"$/\1/p' "$ROOT/lib/core.sh")"
+NEXT_VERSION="$(python3 - "$TARGET_VERSION" <<'PYVERSION'
+import sys
+parts = [int(value) for value in sys.argv[1].split('.')]
+if len(parts) != 3:
+    raise SystemExit('release target must be a three-part SemVer')
+parts[2] += 1
+print('.'.join(str(value) for value in parts))
+PYVERSION
+)"
+
 fail() { printf 'update transaction test failed: %s\n' "$1" >&2; exit 1; }
 
 # Unit-check stable SemVer ordering and malformed input handling.
@@ -78,8 +90,8 @@ PYFAIL
   git -C "$WORK" push -q origin "refs/tags/v$version"
 }
 
-make_release 2.0.1
-make_release 2.0.2 1
+make_release "$TARGET_VERSION"
+make_release "$NEXT_VERSION" 1
 cat > "$FAKEBIN/dpkg-query" <<'EOF_DPKG'
 #!/bin/sh
 exit 1
@@ -114,21 +126,22 @@ mkdir -p "$PREFIX/bin" "$PREFIX/lib/ternux" "$TMPDIR"
 cp "$ROOT/bin/ternux" "$PREFIX/bin/ternux"
 chmod 0755 "$PREFIX/bin/ternux"
 cp -R "$ROOT/lib/." "$PREFIX/lib/ternux/"
+sed -i 's/^TERNUX_VERSION="[^"]*"$/TERNUX_VERSION="2.0.0"/' "$PREFIX/lib/ternux/core.sh"
 printf 'old-version-marker\n' > "$PREFIX/lib/ternux/old.marker"
 env PREFIX="$PREFIX" TERNUX_STATE_DIR="$STATE" HOME="$TMP/home-success" TMPDIR="$TMPDIR" \
-  PATH="$FAKEBIN:$PATH" TERNUX_TEST_RELEASE_TAG=v2.0.1 TERNUX_REPO_URL="$ORIGIN" \
+  PATH="$FAKEBIN:$PATH" TERNUX_TEST_RELEASE_TAG="v$TARGET_VERSION" TERNUX_REPO_URL="$ORIGIN" \
   TERNUX_UPDATE_RELEASE_API=https://release.invalid/latest \
-  bash "$ROOT/bin/ternux" update || fail 'installing pinned release v2.0.1'
+  "$PREFIX/bin/ternux" update || fail "installing pinned release v$TARGET_VERSION"
 installed_version_output="$(env PREFIX="$PREFIX" HOME="$TMP/home-success" \
   "$PREFIX/bin/ternux" --version 2>&1)" || fail "updated CLI could not run: $installed_version_output"
-printf '%s\n' "$installed_version_output" | grep -q '^ternux v2.0.1$' ||
+printf '%s\n' "$installed_version_output" | grep -q "^ternux v$TARGET_VERSION\$" ||
   fail "new CLI version was not installed: $installed_version_output"
-grep -q '^TERNUX_VERSION="2.0.1"$' "$PREFIX/lib/ternux/core.sh" || fail 'new library tree was not installed'
+grep -q "^TERNUX_VERSION=\"$TARGET_VERSION\"\$" "$PREFIX/lib/ternux/core.sh" || fail 'new library tree was not installed'
 backup_marker="$(find "$PREFIX/lib/ternux-update-backups" -path '*/lib/old.marker' -print -quit)"
 [ -n "$backup_marker" ] && grep -q old-version-marker "$backup_marker" || fail 'previous library tree was not retained'
 [ ! -e "$PREFIX/lib/.ternux-update-journal" ] || fail 'success left an update journal'
 [ ! -e "$PREFIX/lib/.ternux-update-lock" ] || fail 'success left an update lock'
-grep -q '^version=2.0.1$' "$STATE/state" || fail 'state version was not committed after verification'
+grep -q "^version=$TARGET_VERSION\$" "$STATE/state" || fail 'state version was not committed after verification'
 
 # Failure path: the staged binary passes its preflight but reports a wrong
 # version after switch. The updater must restore the old files and clear journal.
@@ -138,16 +151,17 @@ mkdir -p "$PREFIX/bin" "$PREFIX/lib/ternux" "$TMPDIR"
 cp "$ROOT/bin/ternux" "$PREFIX/bin/ternux"
 chmod 0755 "$PREFIX/bin/ternux"
 cp -R "$ROOT/lib/." "$PREFIX/lib/ternux/"
+sed -i 's/^TERNUX_VERSION="[^"]*"$/TERNUX_VERSION="2.0.0"/' "$PREFIX/lib/ternux/core.sh"
 printf 'rollback-marker\n' > "$PREFIX/lib/ternux/old.marker"
 if env PREFIX="$PREFIX" TERNUX_STATE_DIR="$TMP/state-rollback" HOME="$TMP/home-rollback" \
-  TMPDIR="$TMPDIR" PATH="$FAKEBIN:$PATH" TERNUX_TEST_RELEASE_TAG=v2.0.2 \
+  TMPDIR="$TMPDIR" PATH="$FAKEBIN:$PATH" TERNUX_TEST_RELEASE_TAG="v$NEXT_VERSION" \
   TERNUX_TEST_FAIL_INSTALLED=1 TERNUX_REPO_URL="$ORIGIN" \
   TERNUX_UPDATE_RELEASE_API=https://release.invalid/latest \
-  bash "$ROOT/bin/ternux" update >/dev/null 2>&1; then
+  "$PREFIX/bin/ternux" update >/dev/null 2>&1; then
   fail 'the intentionally bad installed candidate was accepted'
 fi
 env PREFIX="$PREFIX" HOME="$TMP/home-rollback" \
-  "$PREFIX/bin/ternux" --version | grep -q '^ternux v2.0.0$' || fail 'rollback did not restore the old dispatcher'
+  "$PREFIX/bin/ternux" --version | grep -q "^ternux v$BASELINE_VERSION\$" || fail 'rollback did not restore the old dispatcher'
 grep -q rollback-marker "$PREFIX/lib/ternux/old.marker" || fail 'rollback did not restore old modules'
 [ ! -e "$PREFIX/lib/.ternux-update-journal" ] || fail 'rollback left an update journal'
 [ ! -e "$PREFIX/lib/.ternux-update-lock" ] || fail 'rollback left an update lock'
@@ -160,13 +174,14 @@ backup="$PREFIX/lib/ternux-update-backups/$backup_id"
 mkdir -p "$PREFIX/bin" "$PREFIX/lib/ternux" "$backup/bin" "$backup/lib"
 cp "$ROOT/bin/ternux" "$backup/bin/ternux"
 cp -R "$ROOT/lib/." "$backup/lib/"
+sed -i 's/^TERNUX_VERSION="[^"]*"$/TERNUX_VERSION="2.0.0"/' "$backup/lib/core.sh"
 cp "$ROOT/bin/ternux" "$PREFIX/bin/ternux"
 chmod 0755 "$PREFIX/bin/ternux"
 printf 'candidate-marker\n' > "$PREFIX/lib/ternux/candidate.marker"
 printf '999999999 1 %s 1 1\n' "$backup_id" > "$PREFIX/lib/.ternux-update-journal"
 recovered_version_output="$(env PREFIX="$PREFIX" HOME="$TMP/home-recovery" \
   "$PREFIX/bin/ternux" --version 2>&1)" || fail "recovered CLI could not run: $recovered_version_output"
-printf '%s\n' "$recovered_version_output" | grep -q '^ternux v2.0.0$' ||
+printf '%s\n' "$recovered_version_output" | grep -q "^ternux v$BASELINE_VERSION\$" ||
   fail "dead-owner recovery did not restore the CLI: $recovered_version_output"
 [ -f "$PREFIX/lib/ternux/core.sh" ] || fail 'dead-owner recovery did not restore modules'
 [ ! -e "$PREFIX/lib/ternux/candidate.marker" ] || fail 'dead-owner recovery left candidate modules active'
@@ -251,9 +266,9 @@ env PREFIX="$MIGRATION_PREFIX" HOME="$MIGRATION_HOME" TMPDIR="$MIGRATION_TMP" \
   PATH="$FAKEBIN:$PATH" TERNUX_REPO_URL="$MIGRATION_ORIGIN" \
   "$MIGRATION_PREFIX/bin/ternux" update || fail 'v1.4.0 to v2 source migration'
 env PREFIX="$MIGRATION_PREFIX" HOME="$MIGRATION_HOME" \
-  "$MIGRATION_PREFIX/bin/ternux" --version | grep -q '^ternux v2.0.0$' ||
+  "$MIGRATION_PREFIX/bin/ternux" --version | grep -q "^ternux v$BASELINE_VERSION\$" ||
   fail 'v1.4.0 migration did not activate the v2 CLI'
-grep -q '^TERNUX_VERSION="2.0.0"$' "$MIGRATION_PREFIX/lib/ternux/core.sh" ||
+grep -q "^TERNUX_VERSION=\"$BASELINE_VERSION\"\$" "$MIGRATION_PREFIX/lib/ternux/core.sh" ||
   fail 'v1.4.0 migration did not install matching v2 modules'
 
 printf 'updater transaction tests passed: version, stable no-downgrade, pinned fetch, staging, commit, rollback, crash recovery, concurrency, symlink safety, v1.4.0-to-v2 source migration\n'

@@ -6,15 +6,15 @@ lang: "en"
 
 ## Implementation roadmap
 
-**Status: DESIGNED. Owner direction (2026-11-14): every phase in this former
-v3 roadmap is required before the next v2-major stable release; there will be
-no separate v3 stable release.** Sequence is dependency-driven. A phase closes only when
+**Status: DESIGNED, future v3 work. The 2026-11-14 decision moving this roadmap
+into the next v2-major release was revoked on 2026-11-18.** Begin implementation
+only after v2.0.1 is published and verified. Sequence is dependency-driven. A phase closes only when
 its acceptance evidence is recorded; schedule estimates are intentionally
 omitted until the baseline and device capacity are measured.
 
 | Phase | Scope | Exit gate |
 |---|---|---|
-| 0. Baseline | v2 release, repository, device state, known limitations | Exact release facts, evidence links, recovery/support boundary reviewed; a v1.4.0-to-v2 rollback demonstration is not required |
+| 0. Baseline | Published v2.0.1 release, repository, device state, known limitations | Exact release facts and version-specific installation pages verified; evidence links and recovery/support boundary reviewed |
 | 1. Contracts | Component ownership, state model, API, security, ADR process | API schemas and threat review accepted; no unresolved ownership conflicts |
 | 2. Native core | Guest registry, manager service, structured jobs, CLI parity | Service optional; CLI works offline; lifecycle is per-guest and idempotent |
 | 3. Control Center | Local UI, status, start/stop, logs, diagnostics | Loopback/socket security tests, accessibility, low-resource idle profile |

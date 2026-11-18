@@ -5,13 +5,12 @@ lang: "en"
 alt_url: "/bn/docs/V3-PROPOSALS.html"
 ---
 
-This page preserves the early post-v2 proposal backlog. The owner has since
-moved the required platform direction into the next v2-major release, documented in the
-[v3 architecture overview](V3-ARCHITECTURE.html) and its
-[implementation roadmap](v3/IMPLEMENTATION-ROADMAP.html). Those documents are
-design, not proof of implementation or release qualification. The candidate
-items below remain historical context and do not override the canonical v3
-scope or acceptance criteria.
+This page preserves the early post-v2 proposal backlog. On 2026-11-14, the
+owner temporarily directed former v3 platform scope into v2; that decision was
+revoked on 2026-11-18. These proposals remain future v3 work and are not v2
+release gates. The [v3 architecture overview](V3-ARCHITECTURE.html) and
+[implementation roadmap](v3/IMPLEMENTATION-ROADMAP.html) describe the current
+future scope; design does not prove implementation or release qualification.
 
 ## Candidate proposals
 
@@ -20,9 +19,9 @@ scope or acceptance criteria.
 Make the normal Termux package flow (`pkg install ternux`) available through a
 trusted package index or another signed distribution channel, with key
 rotation, reproducible metadata, upgrade and rollback behavior, and a clear
-repository health page. The v2 public APT endpoint and clean package lifecycle
-remain v2 release gates; this proposal is about long-term distribution
-resilience after those gates close.
+repository health page. Stable APT was withdrawn from v2 and is not a v2.0.1
+release gate. Any future distribution prototype requires a separate v3
+feasibility study and owner approval.
 
 ### 2. Broader distro qualification
 
@@ -58,8 +57,9 @@ full-featured XFCE option.
 
 ## Proposal status
 
-These five entries are historical proposals, not the canonical scope for the
-next v2-major release. Required platform work is tracked in the [project roadmap](project/PROJECT-ROADMAP.html) and [acceptance criteria](v3/ACCEPTANCE-CRITERIA.html). Current implementation and limitations are documented in the
+These five entries are historical proposals, not v2 release requirements.
+Future v3 work is tracked in the [project roadmap](project/PROJECT-ROADMAP.html)
+and [acceptance criteria](v3/ACCEPTANCE-CRITERIA.html). Current implementation and limitations are documented in the
 [v2 release-readiness report](V2-RELEASE-READINESS.md),
 [installation guide](INSTALLATION.md), and
 [accelerator release plan](ACCELERATOR-RELEASE-PLAN.md).

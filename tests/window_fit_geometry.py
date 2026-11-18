@@ -33,6 +33,16 @@ expect("usable minimum remains bounded by narrow display", fit(120, 80, 0, 24, 3
 expect("oversize window scaled and centered", fit(1200, 1000, 0, 24, 800, 576), (4, 28, 792, 568))
 expect("offset display work area", fit(500, 300, 20, 40, 700, 500), (120, 140, 500, 300))
 expect("maximized window fills work area", fit(790, 570, 0, 24, 800, 576, 4, True, True), (4, 28, 792, 568))
+expect(
+    "resize keeps a user-moved window in place",
+    fit(420, 320, 0, 24, 800, 576, preserve_position=True, current_x=37, current_y=81),
+    (37, 81, 420, 320),
+)
+expect(
+    "resized window position clamps only when it would leave the work area",
+    fit(600, 500, 0, 24, 800, 576, preserve_position=True, current_x=500, current_y=300),
+    (196, 96, 600, 500),
+)
 
 
 class MutableRoot:

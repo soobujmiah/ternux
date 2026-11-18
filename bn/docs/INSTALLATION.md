@@ -470,7 +470,7 @@ ternux update           # কমান্ড-ব্যবস্থা হাল�
 
 ```text
 +=========================================================+
-|           ternux v2.0.0 - ONE-CLICK INSTALLER           |
+|           ternux v2.0.1 - ONE-CLICK INSTALLER           |
 | by Sobuj Miah  -  base ~4-4.6 GB  -  complete ~10.5-12.5 GB   |
 +=========================================================+
 | Device    Redmi Turbo 4 Pro - Android 15 (SDK 35)       |

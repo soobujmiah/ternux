@@ -1,48 +1,52 @@
 ---
 title: "Ternux release status"
-description: "Historical v2 release facts, support boundary, and current package/site state."
+description: "Withdrawn v2.0.0 history and local v2.0.1 candidate status."
 lang: "en"
+alt_url: "/bn/docs/project/RELEASE-STATUS.html"
 ---
 
-## Release status
+## Current status — 2026-11-18
 
-**Release history checked:** 2026-11-14. The release facts below are historical; the current target is described in the project roadmap.
+- **Latest published numbered release:** v1.4.0. Its GitHub release is
+  published, and the tag points to
+  `3e6c07e2afcb5f1e65ecd57af19b0382a948835a`. The release has no attached
+  binary assets; its exact source-archive install guide is now prepared locally
+  and verified against the tagged archive. The public release page has not been
+  edited.
+- **v2.0.0:** source tag remains at
+  `9106b04fc8627ae98b1d63c9912a28c8a4677441`; its GitHub Release object was
+  removed on 2026-11-14 and stable APT was withdrawn. Do not move or reuse the
+  tag or represent either distribution as active.
+- **v2.0.1:** unused version candidate based on current `main`. The working
+  tree is being reviewed locally; there is no published tag, release commit,
+  package artifact, checksum, or release page for it yet.
+- **Stable APT:** withdrawn and not a v2.0.1 install method. APT return is a
+  separate future v3 feasibility decision.
+- **v2 verified desktop baseline:** Debian, Ubuntu, Kali Linux, and Alpine as
+  confirmed by the owner. The feature matrix records the per-profile evidence
+  and narrower clean-container CI coverage.
 
-## Ternux v2.0.0
+## Historical v2.0.0 release
 
-- **Historical state:** released on 2026-11-13; distribution withdrawn on 2026-11-14.
-- **Source:** tag `v2.0.0`; release commit `9106b04fc8627ae98b1d63c9912a28c8a4677441`.
-- **Termux package:** signed stable APT publication is recorded in the
-  [current v2 report](../release/V2-RELEASE-REPORT.md),
-  [release-time report](../V2-RELEASE-REPORT.md), and gate inventory.
-- **Support boundary:** Debian, Ubuntu, and Alpine desktop profiles, with
-  device qualification limited to the reference Xiaomi Redmi Turbo 4 Pro
-  (Android 16, SM8735 / Adreno 825) and explicitly recorded tests.
-- **Current source/site:** `main` has advanced beyond the release tag. The
-  current homepage deployment completed in
-  [Pages run 43428844492](https://github.com/soobujmiah/ternux/actions/runs/43428844492).
-  It reflects curl, wget, signed APT setup, Termux companion links, and the v2/v3
-  status snapshot, including the planned v3 native display allocation. This
-  does not change the installed v2.0.0 package.
-- **Post-release source maintenance:** doctor diagnostics now follow the active
-  guest and recover the Ubuntu Mesa-overlay path when optional marker metadata
-  is missing. Merged in main commit `b26010d`; the installed package remains
-  v2.0.0, so the correction is source-side until a separately versioned update.
-- **Native manager CLI:** the four read-only JSON commands are present in
-  current repository source and passed source-side invocation; they are not in
-  the released 2.0.0 `.deb`. The installed `tx manager` command is unavailable.
-- **Experimental:** HTP/HMX and QNN artifacts are not stable release claims.
+Ternux v2.0.0 was published on 2026-11-13 and withdrawn on 2026-11-14. The
+immutable tag and release-time artifacts remain documented in the
+[v2.0.0 release report](../release/V2-RELEASE-REPORT.md) and
+[release-time report](../V2-RELEASE-REPORT.md). The withdrawn release's Debian,
+Ubuntu, and Alpine scope must not be confused with the owner's current four-
+distribution v2 baseline for the next release.
 
-The source `origin/main` later advanced after release for documentation and
-repository-state maintenance. The device's installed stable APT package
-observed in this audit is still `2.0.0`; do not imply that later main changes
-are installed on the device.
+## Version 2 release policy
 
-## Next release
+Keep v2 frozen to current implementation. Do not add distro support, new
+architecture, APT, or other new capabilities. A v2.0.1 release requires an
+approved exact commit, green exact-commit checks, release artifact integrity,
+version-specific install instructions, and honest known limitations. The
+release is not complete until the actual GitHub Release page and both version-
+specific pages have been verified.
 
-The owner directs the next stable release to remain in the v2 major and to
-include the complete platform scope formerly planned for v3. No new 2.x version
-number is assigned yet. The next release requires an explicit version, exact
-source commit, package/artifact digests, CI run, upgrade/recovery evidence, and
-synchronized README/site/release notes. There will be no separate v3 stable
-release.
+## Version 3 separation
+
+The future v3 architecture and candidate distribution plan are described in
+[`docs/v3/`](../v3/README.md). Start v3 work only after v2.0.1 has been
+published and verified. Current source may contain partial manager or Control
+Center code; that does not make the complete v3 architecture available.

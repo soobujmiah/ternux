@@ -5,9 +5,10 @@ lang: "bn"
 alt_url: "/docs/V3-PROPOSALS.html"
 ---
 
-এই পাতাটি v2-পরবর্তী প্রাথমিক proposal-এর ইতিহাস ধরে রেখেছে। Owner-এর নির্দেশে
-আগে v3-এর জন্য পরিকল্পিত required platform scope এখন পরের v2-major release-এ
-অন্তর্ভুক্ত। বিস্তারিত [project roadmap](/bn/docs/project/PROJECT-ROADMAP.html),
+এই পাতাটি v2-পরবর্তী প্রাথমিক proposal-এর ইতিহাস ধরে রেখেছে। 2026-11-14-এ আগে
+v3-এর জন্য পরিকল্পিত scope-কে v2-তে আনার সিদ্ধান্ত 2026-11-18-এ owner প্রত্যাহার
+করেছেন; v2 এখনকার implementation-এ frozen। এই proposal-গুলো ভবিষ্যৎ v3 কাজ,
+v2 release gate নয়। বিস্তারিত [project roadmap](/bn/docs/project/PROJECT-ROADMAP.html),
 [architecture overview](V3-ARCHITECTURE.html) ও
 [implementation roadmap](../../docs/v3/IMPLEMENTATION-ROADMAP.html)-এ আছে।
 নিচের proposal-গুলো ঐতিহাসিক প্রেক্ষাপট; canonical release scope নয়।
@@ -18,9 +19,10 @@ alt_url: "/docs/V3-PROPOSALS.html"
 
 বিশ্বস্ত package index বা অন্য signed distribution channel-এ সাধারণ Termux
 পদ্ধতি (`pkg install ternux`) চালু করা; সঙ্গে key rotation, reproducible
-metadata, upgrade/rollback এবং repository health page রাখা। v2-এর public APT
-endpoint ও clean package lifecycle এখনো v2 release gate—এই প্রস্তাব সেগুলো
-পাস করার পরের দীর্ঘমেয়াদি distribution resilience নিয়ে।
+metadata, upgrade/rollback এবং repository health page রাখা। v2-এর stable APT
+endpoint প্রত্যাহৃত, এবং v2.0.1-এর release gate নয়। এই proposal ভবিষ্যৎ v3
+distribution resilience নিয়ে; feasibility ও owner approval ছাড়া এটিকে
+implementation বা release commitment ধরা যাবে না।
 
 ### ২. আরও distro-র qualification
 
@@ -53,7 +55,8 @@ RAM/CPU ব্যবহার মাপতে হবে, পাশাপাশ�
 
 ## প্রস্তাবনার অবস্থা
 
-নিচের পাঁচটি বিষয় ঐতিহাসিক proposal, পরের v2-major release-এর canonical scope নয়।
+নিচের পাঁচটি বিষয় ঐতিহাসিক proposal, বর্তমান v2 release-এর scope নয়; ভবিষ্যৎ
+v3 planning-এ বিবেচিত হতে পারে।
 Required platform কাজ [project roadmap](/bn/docs/project/PROJECT-ROADMAP.html) ও
 [acceptance criteria](../../docs/v3/ACCEPTANCE-CRITERIA.md)-তে tracked. Current
 implementation ও সীমাবদ্ধতা [v2 release-readiness report](V2-RELEASE-READINESS.md),

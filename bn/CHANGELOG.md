@@ -12,6 +12,10 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 
 ## [Unreleased]
 
+### ডেস্কটপ নির্ভরযোগ্যতা
+
+- স্থানীয় v2.0.1 candidate-এ window resize করলে ব্যবহারকারীর সরানো অবস্থান বজায় থাকে; কেবল X11 work area-এর বাইরে চলে যাওয়ার ঝুঁকি থাকলে window সরানো হয়। Geometry regression test যোগ হয়েছে এবং Debian/XFCE-এর live session-এ আচরণটি যাচাই হয়েছে।
+
 ### ইনস্টলার
 
 - এক-কমান্ড ইনস্টলারে `curl` চালু না হলে বা ফাইল নামাতে ব্যর্থ হলে `wget` দিয়ে আবার চেষ্টা হয়। Standalone bootstrap ও CLI fallback একই checksum-verified source snapshot ব্যবহার করে; regression test downloader fallback এবং snapshot-এর বর্তমান code-এর সঙ্গে মিল যাচাই করে।

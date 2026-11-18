@@ -1,39 +1,56 @@
 ---
 title: "Ternux implementation status"
-description: "পরের v2-major release-এর বর্তমান source, CI ও device evidence।"
+description: "বাস্তব implementation, release অবস্থা ও প্রমাণের সীমা।"
 lang: "bn"
 alt_url: "/docs/project/IMPLEMENTATION-STATUS.html"
 ---
 
-## Implementation status
+## বাস্তবায়নের অবস্থা
 
-**Repository baseline:** 2026-11-14. এই status current source, exact CI এবং
-device evidence আলাদা করে; historical v2.0.0 package-এর আচরণ এতে অন্তর্ভুক্ত নয়।
+**Repository snapshot:** 2026-11-18। v2 বর্তমান implementation-এ frozen। v2.0.1
+স্থানীয়, unpublished candidate; পূর্ণ v3 কাজ ভবিষ্যতের জন্য। Source বা design
+থাকলেই release/device verification হয়েছে—এমন দাবি করা হয় না।
 
-| Area | অবস্থা | Evidence / বাকি gate |
+| ক্ষেত্র | অবস্থা | প্রমাণ ও পরবর্তী সীমা |
 |---|---|---|
-| v2.0.0 distribution | WITHDRAWN | Git tag provenance-এর জন্য রাখা; GitHub Release সরানো ও stable APT বন্ধ। [Release status](/docs/project/RELEASE-STATUS.html) দেখুন। |
-| Debian / Ubuntu / Alpine desktop | Recipe implement করা; তিন guest-ই reference device-এ running | Device qualification নির্দিষ্ট Redmi Turbo 4 Pro/SM8735/Adreno 825-এ সীমিত। Physical keyboard ও অন্য hardware এখনো unqualified। |
-| Installer onboarding ও UI | বর্তমান source-এ IMPLEMENTED | Multi-guest install আগে shell, username ও workload choice সংগ্রহ করে; শেষে প্রতিটি guest-এর start ও shell command দেখায়। 80x24 screen-এ বড় ASCII wordmark ও compact device/graphics panel। Local UI renderer 56/56; focused suite 190/190। |
-| Native Control Center | PARTIAL | Current working source-এ random loopback port, expiring bearer token, action-এর same-origin/CSRF check, state-bound confirmation এবং durable start/stop job record আছে। Backend test-এ idempotency, restart reconciliation ও display guard আছে। Working branch-এর authenticated API দিয়ে live Ubuntu ও Alpine stop/start pass করেছে; পরে তিন guest-ই running দেখা গেছে। Rendered browser interaction এখনো verify হয়নি। Debian display migration করে source-managed CLI restart pass হয়েছে; পুরো browser workflow যাচাই বাকি। Native Android client, supervisor, cancellation, diagnostics ও graphics/audio/storage/workload panel বাকি। |
-| Native manager ও migration | Source-এ IMPLEMENTED; একবার live migration/restart verify | State-bound plan, exclusive lock, active-session/shared-lock blocker, rollback journal ও recovery আছে। 2026-11-14-এ সব guest থামিয়ে reference device-এ Debian `:1`-এ migrate করে তিন guest-ই `:1/:2/:3`-এ READY restart হয়েছে। Full clean lifecycle matrix বাকি। |
-| Workspace profile engine | PARTIAL; 15 profile recipe | Multi-guest precollection আছে; প্রতিটি advertised guest-এর clean install/update/resume/restart/stop/uninstall evidence সম্পূর্ণ করতে হবে। |
-| Compute ও AI | DESIGNED / আলাদা optional artifact | Platform-wide runtime correctness বা accelerator support দাবি করা হয় না। |
-| Camera/microphone Device Bridge | NOT_IMPLEMENTED | Permission-aware broker ও failure-path evidence বাকি। |
-| Termux package downloader | বর্তমান source-এ fallback fix | Package bootstrap curl চালু কি না পরীক্ষা করে; curl ভাঙা বা download fail হলে wget চেষ্টা করে। Partial Termux upgrade ঠিক করতে apt update && apt full-upgrade নির্দেশনা আছে। |
+| v2 release | v2.0.0 withdrawn; v2.0.1 local candidate | পুরোনো tag provenance-এর জন্য আছে; GitHub Release ও stable APT নেই। Candidate tag/artifact/checksum প্রকাশিত নয়। [release status](RELEASE-STATUS.md) |
+| Debian, Ubuntu, Kali, Alpine | Owner-confirmed v2 baseline | Clean guest/browser CI evidence Debian, Ubuntu ও Alpine-এ; Kali-র installed reference-device evidence আছে, clean-container install/Firefox CI নেই। [feature matrix](../../../docs/audit/FEATURE-MATRIX.md) |
+| Window viewport helper | বর্তমান source-এ user position ধরে রাখার fix; local candidate test | Live Debian/XFCE-তে `xdotool` দিয়ে move/resize test pass; resize-এর পর position থাকে। Installed guest helper/package replace করা হয়নি; অন্য distro/device পরীক্ষা হয়নি। [device record](../../../docs/audit/DEVICE-VERIFICATION.md) |
+| Installer ও CLI | বর্তমান source-এ multi-distro setup, lifecycle, recovery ও uninstall path | Host test আছে; clean-install, resume ও distro qualification evidence আলাদা করে ধরতে হবে। v1.4.0 এবং v2.0.1 guide আলাদা। |
+| Desktop, graphics ও audio | বিদ্যমান Xfce/Termux:X11, Zink/VirGL এবং PulseAudio integration | Reference-device evidence নির্দিষ্ট device/software-এর জন্য; অন্য GPU বা Android build-এ extrapolate নয়। |
+| Bengali input ও camera/microphone | বিদ্যমান app ও Termux API integration | Physical keyboard delivery এবং সব capture path আলাদা পরীক্ষা; v3 Device Bridge এখনো design work। |
+| AI workloads | Ternux-এর নিজস্ব optional llama.cpp/Stable Diffusion paths | HTP/HMX ও QNN experimental/research-only; model/runtime-সহ production AI support দাবি নয়। |
+| Native Manager | Current source-এ read-only CLI ও foreground Unix-socket service | Service স্বয়ংক্রিয়ভাবে supervise হয় না; installed v2.0.0 package-এ এই source feature নেই। |
+| Control Center | Source-এ partial local browser dashboard ও confirmation-bound start/stop | Device-browser validation, supervisor, cancellation, full panels ও native APK অসম্পূর্ণ; পূর্ণ v3 capability নয়। |
+| Display migration | Current source-এ guarded planner/executor ও journaled recovery | সীমিত reference-device run; OS-level socket ownership-এর পূর্ণ নিশ্চয়তা নয়। |
+| Stable APT | Withdrawn | v2.0.1-এর জন্য ফিরিয়ে আনা হবে না; v3 feasibility study ও owner approval লাগবে। |
+| Distro framework | Source-এ একাধিক profile recipe আছে | চারটি owner-confirmed distro-র বাইরে v2 support claim নয়। |
 
-Focused migration, multi-distro lifecycle, browser, package bootstrap, UI render ও
-documentation tests current source-এ pass করেছে। Installer/UI change PR #235 এবং
-generated-state PR #236 main-এ merge হয়েছে; exact-main Validate, package ও
-repository-contract checks pass করেছে। Stable channel withdrawn-ই থাকবে।
+## Local candidate test status
 
-## সীমাবদ্ধতা
+`python3 tests/window_fit_geometry.py`-এর 10টি case pass করেছে। Live Debian/XFCE
+window move/resize reproduction ও local candidate verification-এর বিবরণ
+[device verification](../../../docs/audit/DEVICE-VERIFICATION.md)-এ আছে। Full
+`tests/focused.sh` candidate rerun-এর ফল release status-এ যুক্ত হবে; পুরোনো
+211/211 run-কে candidate verification হিসেবে ব্যবহার করা যাবে না।
 
-- Physical Android Ctrl+Space delivery-এর evidence conflicting; configuration
-  বা helper call একা physical keyboard behavior প্রমাণ করে না।
-- Desktop qualification কেবল নথিভুক্ত device ও তিন guest-এর জন্য; অন্য device
-  বা distro-তে দাবি প্রযোজ্য নয়।
-- Current source ও withdrawn 2.0.0 package আলাদা artifact। Source feature
-  package-এ থাকা বোঝায় না।
-- Service foreground-এ চলে; background supervisor এখনো নেই। বিস্তারিত [next
-  actions](/bn/docs/project/NEXT-ACTIONS.html)-এ আছে।
+Candidate source হলো local working tree; installed stable v2.0.0 package-এর সঙ্গে
+এটি এক artifact নয়। Local Node executable dynamic-linker error-এ শুরু হয় না,
+এবং Docker নেই; তাই Astro build ও clean-container browser matrix এখানে run করা
+যায়নি। Exact-commit CI ও package/site build approval-এর পর repository sync-এ
+চালাতে হবে।
+
+## সক্রিয় সীমাবদ্ধতা
+
+- Device evidence একটি Redmi Turbo 4 Pro / Android 16 / Adreno 825 reference
+  device-এ সীমিত; অন্য hardware-এর claim নয়।
+- Physical Ctrl+Space delivery config/helper invocation থেকে প্রমাণিত নয়।
+- Window-fit fix local source candidate-এ; release package-এ নেই।
+- v2.0.0 withdrawn package এবং বর্তমান source আলাদা; নতুন source behavior কেবল
+  exact v2.0.1 release commit pass ও publish হলে release claim হবে।
+- Manager supervisor, Control Center পূর্ণতা, Device Bridge, platform-wide
+  compute/AI lifecycle ও extension SDK ভবিষ্যৎ v3 কাজ।
+
+বিস্তারিত: [পরবর্তী কাজ](NEXT-ACTIONS.md), [release status](RELEASE-STATUS.md),
+[known limitations](/docs/project/KNOWN-LIMITATIONS.html), [device evidence](../../../docs/audit/DEVICE-VERIFICATION.md) ও
+[feature matrix](../../../docs/audit/FEATURE-MATRIX.md)।

@@ -7,8 +7,9 @@ command -v docker >/dev/null 2>&1 || {
   exit 2
 }
 
-# v2's supported clean desktop profiles are deliberately limited to these
-# three. Other named recipes remain available but are not v2-qualified.
+# The clean-container Firefox CI subset covers these three profiles. Kali is
+# part of the owner-confirmed v2 verified baseline through separate
+# reference-device evidence; it has not passed this clean-container matrix.
 profiles=(
   'debian|debian:trixie'
   'ubuntu|ubuntu:24.04'

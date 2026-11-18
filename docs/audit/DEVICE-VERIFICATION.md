@@ -8,6 +8,45 @@ This record separates physical-device observation from source tests and CI.
 It does not claim qualification on other GPUs, Android builds, or Termux:X11
 versions.
 
+## 2026-11-18 local release-candidate audit — read-only
+
+**Device:** native Termux on Android 16, ARM64 / Adreno 825.
+**Repository source before local candidate edits:** `6c398b439385bb8c5791a29fa87c9c8cf9ecc808`.
+
+| Check | Result |
+|---|---|
+| Installed profiles | `proot-distro list --quiet` returned Debian only. No guest was installed, removed, or changed. |
+| Host verification | Repository `bash bin/ternux verify --json` returned `passed` for Termux:X11, PRoot-Distro, PulseAudio, launcher, Debian services, and Turnip presence. |
+| Desktop state | `bash bin/tx status --json` reported `stopped`, lifecycle `FAILED`, X11 `no`, PulseAudio route `no`, Debian display `:1`. No desktop was started or stopped. |
+| Source regression suite | `bash tests/focused.sh` passed 211/211 on the Termux ARM64 host. Test fixtures used temporary directories. |
+| Release tooling limits | Docker is not installed. The Termux `node` executable fails at startup with a dynamic-linker symbol error. Astro build, clean-container browser matrix, and package-artifact build were not locally run. |
+
+This is not clean-install qualification for Debian or any other distro. The
+owner-confirmed four-distro v2 baseline remains bounded by the historical
+evidence below; in particular, Kali's clean-install/browser CI matrix has not
+been run. This audit did not exercise camera, microphone, AI workloads, physical
+keyboard input, graphics rendering, or a live desktop.
+
+## 2026-11-18 window-fit regression follow-up — local candidate
+
+At the owner's request, Debian's existing desktop was started after the
+read-only audit above. The active `:1` X11 session reached `READY`. `xdotool`
+and its `libxdo3` dependency were installed in the Debian guest for this check;
+no guest data or packages were removed.
+
+An XFCE terminal was moved and resized with `xdotool`. With the installed
+watcher, move alone stayed in place, while resizing recentered the window. The
+local candidate watcher was then run against that same live X11 session. After
+moving the test window to `X=138,Y=218`, resizing it from `497x363` to
+`425x314` retained `X=138,Y=218` after both the resize and a two-second settle.
+The geometry unit test also verifies that an off-work-area position is clamped
+only as needed. The test window was closed; the requested Debian desktop was
+left open.
+
+This verifies the local source candidate on one Debian/XFCE session. The
+installed guest package was not replaced, and the local candidate has not been
+published or synchronized. It is not evidence for other desktops or devices.
+
 ## 2026-11-14 main-source managed restart and GUI soak
 
 **Repository code head:** `1128ba6843e5283fe356e151255cc7d9fbfa67dc`.
@@ -482,3 +521,23 @@ Alpine `:3` all READY/running with no target conflicts. This closes the earlier
 12:11 note that Debian actions were guarded pending migration; it exercises the
 API/action path, not a rendered browser click or Android confirmation dialog.
 The Control Center was stopped cleanly after the check.
+
+## Window move and resize retention — 2026-11-18
+
+The owner asked to start the Debian GUI and authorized direct X11 inspection
+with `xdotool`. The managed Debian desktop was READY on display `:1`, at
+640×1386. The candidate source helper was running from the local checkout; no
+installed guest package or release artifact was replaced.
+
+A temporary `xmessage` window was moved to the work area and inspected using
+`xwininfo` (outer frame geometry). Before resizing, its top-left was `(144,
+284)` and size was 510×360. After resizing to 430×320, and again two seconds
+later, its top-left remained `(144, 284)`. The temporary window was closed.
+`bash bin/tx status --json` then reported `READY`, X11 running on `:1`, and the
+same desktop PID. The PulseAudio process was running but its readiness flag was
+false during this session.
+
+This is one live Debian/XFCE observation on this device. It does not qualify
+other window managers, guests, display modes, or an installed/published v2.0.1
+package. Automated geometry checks cover normal-size preservation and edge
+clamping; the full focused suite passed 211/211 in the local candidate.

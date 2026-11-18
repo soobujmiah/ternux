@@ -5,6 +5,48 @@ lang: "bn"
 alt_url: "/docs/V2-RELEASE-READINESS.html"
 ---
 
+## বর্তমান v2.0.1 candidate status — 2026-11-18
+
+v2.0.0 প্রত্যাহারের পরবর্তী unused version candidate হলো v2.0.1; এটি এখনো local,
+unpublished। 2026-11-14-এ v3 architecture scope-কে v2-তে আনার সিদ্ধান্ত 2026-11-18-এ
+প্রত্যাহার করা হয়েছে। v2 বর্তমান implementation-এ frozen থাকবে; নতুন distro,
+architecture, Control Center capability বা APT যোগ হবে না। বর্তমান owner-confirmed
+desktop baseline Debian, Ubuntu, Kali Linux ও Alpine; তাদের evidence-এর গভীরতা
+সমান নয়। বর্তমান [project roadmap](project/PROJECT-ROADMAP.md),
+[release status](project/RELEASE-STATUS.md), [feature matrix](../../docs/audit/FEATURE-MATRIX.md)
+ও [device record](../../docs/audit/DEVICE-VERIFICATION.md) দেখুন। নিচের 2026-11-16-এর
+v2.0.0 acceptance তথ্য historical snapshot; এটি v2.0.1 release readiness নয়।
+
+## Local v2.0.1 candidate checks — 2026-11-18
+
+- `python3 tests/window_fit_geometry.py`: geometry/state-এর ১০টি check pass।
+- `bash tests/focused.sh`: ২১১ pass, ০ fail।
+- `bash tests/update_transaction.sh`: pinned update, 2.0.0→2.0.1 upgrade,
+  1.4.0→2.0.0 migration fixture, rollback, interrupted-update recovery,
+  concurrency ও symlink safety pass।
+- Astro build: ৯০টি static page তৈরি; finalizer ৫৬টি HTML route পেয়েছে।
+- `python3 tests/docs_check.py`: ৬,৫১৮ assertion, ৬১৬ internal link ও ২৪টি
+  bilingual page pair pass। দুই homepage Prettier দিয়ে format করার পর
+  `npm run format:check`-ও pass।
+- Debian/XFCE live X11 check, display `:1` (640×1386): অস্থায়ী `xmessage`
+  window সরানোর পর resize-এর আগে, পরে এবং দুই সেকেন্ড পর outer top-left
+  `(144, 284)` ছিল; size 510×360 থেকে 430×320 হয়েছে। Test window বন্ধ; desktop
+  READY আছে। PulseAudio process চললেও readiness false দেখিয়েছে।
+- `npm audit --json` website build tree-তে Picomatch 4.0.7 ও 2.3.2-এর মাধ্যমে
+  ৯টি high-severity dependency path দেখায়। GitHub Advisory Database
+  CVE-2026-112366-এ Picomatch 4.0.7 পর্যন্ত affected এবং patched version নেই
+  বলেছে; installed Ternux CLI-তে Node dependency নেই। তাই ঝুঁকিটি website
+  build toolchain-এ, guest runtime-এ নয়। যাচাইকৃত নিরাপদ fix না থাকায় dependency
+  downgrade বা override করা হয়নি; upstream issue অমীমাংসিত। এটি CI/build-chain
+  risk, v2 runtime exploit-এর প্রমাণ নয়।
+
+এগুলো local candidate result; exact-commit GitHub CI বা release qualification
+নয়। Owner review-এর আগে immutable local candidate source commit-এর সঙ্গে source
+snapshot pin ঠিক করা বাকি। কোনো repository release object, tag বা artifact তৈরি
+হয়নি।
+
+## Historical v2.0.0 qualification snapshot
+
 **অবস্থা: Public distribution থেকে withdrawn**
 **Audit তারিখ:** 2026-11-16
 **লক্ষ্য:** Ternux 2.0.0
@@ -91,7 +133,7 @@ qualification নয়।
 2. Repository workflow `.repo/` state PR #190-এ তৈরি করেছে; check pass করে merge হয়েছে, কোনো generated file হাতে edit হয়নি।
 3. Stable APT signature/index/package, native package lifecycle, guest-specific verification ও website redeploy-তে signed repository preservation pass করেছে।
 4. `v2.0.0` tag validated main `9106b04fc8627ae98b1d63c9912a28c8a4677441`-এ প্রকাশিত।
-5. চূড়ান্ত প্রমাণ [v2.0.0 release report](V2-RELEASE-REPORT.md)-এ আছে। ২০২৬-১১-১৪ তারিখে owner-এর direction অনুযায়ী former v3 platform scope পরের v2-major stable release-এর জন্য বাধ্যতামূলক; আলাদা v3 stable release হবে না। বর্তমান পরিকল্পনা [project roadmap](project/PROJECT-ROADMAP.md)-এ আছে।
+5. চূড়ান্ত ঐতিহাসিক প্রমাণ [v2.0.0 release report](V2-RELEASE-REPORT.md)-এ আছে। ২০২৬-১১-১৪-এ former v3 scope-কে পরের v2-major release-এ আনার direction ২০২৬-১১-১৮-এ owner প্রত্যাহার করেছেন। বর্তমান পরিকল্পনা [project roadmap](project/PROJECT-ROADMAP.md)-এ আছে।
 ## বিস্তারিত audit
 
 - [বর্তমান state ও সিদ্ধান্ত](../../docs/audit/CURRENT-STATE.md)
@@ -101,7 +143,7 @@ qualification নয়।
 - [Machine-readable gate](https://github.com/soobujmiah/ternux/blob/main/docs/release-gates.json)
 
 `v2.0.0` source tag provenance-এর জন্য রাখা হয়েছে; GitHub release ও signed
-stable APT channel withdrawn। পরের stable release v2 major-এ থাকবে। আগে v3 নামে
-পরিকল্পিত সম্পূর্ণ platform architecture ও acceptance gate শেষ হলে নতুন 2.x release
-হবে; আলাদা v3 stable release হবে না। Historical প্রমাণ [release report](V2-RELEASE-REPORT.md)-এ আছে; বর্তমান scope
-[project roadmap](project/PROJECT-ROADMAP.md)-এ লেখা আছে।
+stable APT channel withdrawn। 2026-11-14-এ former v3 scope-কে পরের 2.x release-এ
+আনার direction 2026-11-18-এ owner প্রত্যাহার করেছেন। ওই requirement আর প্রযোজ্য
+নয়; v3 আলাদা future scope। Historical প্রমাণ [release report](V2-RELEASE-REPORT.md)-এ
+আছে; বর্তমান scope [project roadmap](project/PROJECT-ROADMAP.md)-এ।

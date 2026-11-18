@@ -9,7 +9,7 @@ const installCommand = `pkg update -y && pkg upgrade -y && pkg install -y curl w
 
 <SiteLayout
   title="পকেটেই লিনাক্স ওয়ার্কস্টেশন"
-  description="Ternux হলো root ছাড়া ARM64 Android Linux workspace। withdrawn v2.0.0-এর পর Debian, Ubuntu, Alpine এবং সম্পূর্ণ platform architecture যোগ করে পরের stable v2-major release প্রস্তুত হচ্ছে।"
+  description="Ternux হলো root ছাড়া ARM64 Android Linux workstation। Debian, Ubuntu, Kali Linux ও Alpine v2-এর যাচাইকৃত desktop baseline; v2.0.1 এখনো স্থানীয় release candidate।"
   lang="bn"
   canonical="/bn/"
   altUrl="/"
@@ -32,11 +32,11 @@ const installCommand = `pkg update -y && pkg upgrade -y && pkg install -y curl w
             </span>
           </h1>
           <p>
-            Android ফোনে root ছাড়া Linux desktop চালান। v2-তে Debian, Ubuntu ও
-            Alpine—এই তিনটি desktop profile supported; Debian recommended
-            default। আরও ১২টি named distro recipe আছে, তবে সেগুলো v2-তে
-            qualified নয়। Device evidence এক Redmi Turbo 4 Pro থেকে; exact
-            coverage release report-এ আছে।
+            Android ফোনে root ছাড়া Linux desktop চালান। v2-তে Debian, Ubuntu,
+            Kali Linux ও Alpine—এই চারটি desktop profile যাচাইকৃত; Debian
+            recommended default। আরও ১২টি named distro recipe আছে, তবে সেগুলো v2
+            verified baseline-এ নেই। Device evidence এক Redmi Turbo 4 Pro থেকে;
+            exact coverage release report-এ আছে।
           </p>
           <div class="hero-actions">
             <a class="button primary" href="#install">
@@ -61,7 +61,7 @@ const installCommand = `pkg update -y && pkg upgrade -y && pkg install -y curl w
             টার্মাক্স <b>কমান্ড পরিবেশ</b>
           </span>
           <span>
-            PRoot guest <b>Debian · Ubuntu · Alpine</b>
+            PRoot guest <b>Debian · Ubuntu · Kali · Alpine</b>
           </span>
           <span>
             Termux:X11 <b>display · audio</b>
@@ -76,8 +76,8 @@ const installCommand = `pkg update -y && pkg upgrade -y && pkg install -y curl w
             <span class="eyebrow">০১ / v2-তে সমর্থিত desktop guest</span>
             <h2>নিজের Linux guest বেছে নিন।</h2>
             <p>
-              এই তিনটি profile v2 desktop support-এর অন্তর্ভুক্ত। Debian হলো
-              default; বাকি ১২টি recipe আছে, তবে qualified নয়।
+              এই চারটি profile v2 verified baseline। Debian হলো default; বাকি
+              ১২টি recipe আছে, তবে verified নয়।
             </p>
           </div>
           <div class="profile-grid">
@@ -90,6 +90,11 @@ const installCommand = `pkg update -y && pkg upgrade -y && pkg install -y curl w
               <small>SUPPORTED GUEST</small>
               <strong>Ubuntu</strong>
               <span>XFCE · APT · snap-safe</span>
+            </article>
+            <article class="profile-card">
+              <small>SUPPORTED GUEST</small>
+              <strong>Kali Linux</strong>
+              <span>XFCE · APT · security tools</span>
             </article>
             <article class="profile-card">
               <small>SUPPORTED GUEST</small>
@@ -144,7 +149,10 @@ const installCommand = `pkg update -y && pkg upgrade -y && pkg install -y curl w
           <article class="arch-stage" data-index="০৫ / জিপিইউ">
             <span class="arch-pulse"></span>
             <h3>জিঙ্ক · টার্নিপ</h3>
-            <p>অ্যাড্রেনো ৮২৫-এ Debian, Ubuntu ও Alpine যাচাই</p>
+            <p>
+              অ্যাড্রেনো ৮২৫-এ চারটি installed profile পরীক্ষা; প্রমাণ
+              device-সীমিত
+            </p>
           </article>
           <article class="arch-stage" data-index="০৬ / প্রস্তুত">
             <span class="arch-pulse"></span>
@@ -257,20 +265,19 @@ const installCommand = `pkg update -y && pkg upgrade -y && pkg install -y curl w
         <div class="device-panel profile-panel status-panel">
           <div class="device-copy">
             <span class="eyebrow">প্রকল্পের অবস্থা · ১৪ নভেম্বর ২০২৬</span>
-            <h2>v2.0.0 withdrawn। পরের v2 platform release তৈরি হচ্ছে।</h2>
+            <h2>v2.0.0 withdrawn। v2.0.1 স্থানীয় release candidate।</h2>
             <p>
               v2.0.0 GitHub release ও stable APT distribution 2026-11-14-এ
               withdrawn হয়েছে; provenance-এর জন্য source tag রাখা হয়েছে।
-              Debian, Ubuntu ও Alpine—এই তিনটি supported guest profile। Current
-              main source-এ read-only manager CLI command-এর চারটি operation,
-              foreground Unix-socket service এবং loopback-only `tx control`
-              browser dashboard আছে; working source-এ confirmation-সহ desktop
-              start/stop ও durable local job record যোগ হয়েছে। Withdrawn v2.0.0
-              package-এ এগুলো নেই। Dashboard-এর জন্য optional Python 3 লাগে।
-              পরের stable release v2 major-এই থাকবে। আগে v3 নামে পরিকল্পিত
-              সম্পূর্ণ manager ও Control Center, workspace, compute, AI, Device
-              Bridge ও extension-এর scope এবং সব acceptance gate সম্পন্ন হলে
-              তবেই প্রকাশ হবে।
+              Debian, Ubuntu, Kali Linux ও Alpine—চারটি v2 verified desktop
+              profile; প্রতিটির evidence depth এক নয়। Current main source-এ
+              চারটি read-only manager CLI command, foreground Unix-socket
+              service এবং confirmation-সহ desktop start/stop ও local job
+              record-সহ `tx control` preview আছে (ঐচ্ছিক Python 3 লাগে)। v2.0.1
+              candidate current main ধরে, কিন্তু এখনো প্রকাশিত নয়। পূর্ণ
+              service supervision, dashboard-এর বাকি অংশ এবং নতুন v3
+              architecture ভবিষ্যৎ কাজ। সঠিক release commit-এর সব check শেষ ও
+              owner approval না হওয়া পর্যন্ত stable v2.0.1 নেই।
             </p>
           </div>
           <div class="profile-grid">
@@ -279,12 +286,12 @@ const installCommand = `pkg update -y && pkg upgrade -y && pkg install -y curl w
               href="/ternux/bn/docs/V2-RELEASE-READINESS.html"
             >
               <small>V2 DISTRIBUTION STATUS</small>
-              <strong>Withdrawn</strong>
+              <strong>v2.0.1 candidate</strong>
               <span>Release record দেখুন ↗</span>
             </a>
             <a class="profile-card" href="/ternux/bn/docs/V3-ARCHITECTURE.html">
               <small>PROJECT ROADMAP</small>
-              <strong>পরের v2 release</strong>
+              <strong>v3 ভবিষ্যৎ পরিধি</strong>
               <span>বর্তমান অবস্থা ও পরবর্তী কাজ ↗</span>
             </a>
             <a class="profile-card" href="https://github.com/soobujmiah/ternux">
@@ -327,10 +334,10 @@ const installCommand = `pkg update -y && pkg upgrade -y && pkg install -y curl w
               টার্নাক্সে লিনাক্স চলে। এডিটি দিয়ে অ্যান্ড্রয়েড অ্যাপ তৈরি হয়।
             </h2>
             <p>
-              Ternux v2-তে Debian, Ubuntu ও Alpine desktop guest supported;
-              Debian recommended default। আরও ১২টি named distro recipe আছে, তবে
-              v2-তে qualified নয়। Ubuntu-র snap-safe setup আছে। ADT ওই guest-এ
-              Android SDK build-tools, platform-tools, signing, ADB,
+              Ternux v2-তে Debian, Ubuntu, Kali Linux ও Alpine desktop guest
+              verified; Debian recommended default। আরও ১২টি named distro recipe
+              আছে, তবে v2-তে qualified নয়। Ubuntu-র snap-safe setup আছে। ADT ওই
+              guest-এ Android SDK build-tools, platform-tools, signing, ADB,
               Flutter/Dart ও native build tools যোগ করে। ADT workflow-এর
               বিস্তারিত আলাদা guide-এ আছে.
             </p>

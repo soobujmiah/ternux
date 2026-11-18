@@ -15,14 +15,15 @@ basic-usage path, then link here for details.
 | Section | Pages |
 |---|---|
 | Start here | `index.md`, `QUICK-START.md`, `INSTALLATION.md`, `MANUAL.md` |
-| Release status and roadmap | [`release/V2-RELEASE-REPORT.md`](release/V2-RELEASE-REPORT.md) (current release/device reconciliation), [`V2-RELEASE-REPORT.md`](V2-RELEASE-REPORT.md) (release-time snapshot), [`V2-RELEASE-READINESS.md`](V2-RELEASE-READINESS.md), [`V3-PROPOSALS.md`](V3-PROPOSALS.md), and `ACCELERATOR-RELEASE-PLAN.md` |
-| Platform architecture and living project status | [`V3-ARCHITECTURE.md`](V3-ARCHITECTURE.md) and [`v3/`](v3/README.md) retain the architecture formerly planned for v3, now required for the next v2-major release; the English/Bengali [project roadmap](project/PROJECT-ROADMAP.md) tracks delivery. |
+| Release status and roadmap | [`release/README.md`](release/README.md) indexes the exact-version installation guides; [`release/V2-RELEASE-REPORT.md`](release/V2-RELEASE-REPORT.md) preserves v2.0.0 history and current scope; [`V2-RELEASE-READINESS.md`](V2-RELEASE-READINESS.md) tracks the unpublished v2.0.1 candidate. |
+| Platform architecture and living project status | [`v3/`](v3/README.md) contains future architecture plans, not v2 release gates; the English/Bengali [project roadmap](project/PROJECT-ROADMAP.md) tracks the frozen v2 candidate and v3 sequencing. |
 | Repository-only audit evidence | [`audit/`](audit/CURRENT-STATE.md) holds dated device, repository, and feature qualification detail; it is not a public website claim |
 | Package distribution | [`TERMUX-APT.md`](TERMUX-APT.md) (repository trust and install); [`../packaging/termux/README.md`](../packaging/termux/README.md) (build and publish) |
 | Repository deep guides | [`../guides/device-benchmark-evidence.md`](../guides/device-benchmark-evidence.md), [`../guides/llama-vulkan-extension.md`](../guides/llama-vulkan-extension.md), [`../guides/stable-diffusion-vulkan-extension.md`](../guides/stable-diffusion-vulkan-extension.md), [`../guides/llama-htp-experimental.md`](../guides/llama-htp-experimental.md), matching `../bn/guides/` pages (source repository only; not rendered on the website) |
 | Operate | `USAGE.md`, `WORKLOADS.md`, `BLENDER-MCP.md`, `CONFIGURATION.md`, `GRAPHICS-PERSISTENCE.md`, `TROUBLESHOOTING.md` |
 | Understand | `ARCHITECTURE.md`, `BENCHMARKS.md`, `FAQ.md` |
 | Reference | `CLI.md`, root `CHANGELOG.md`, root `CONTRIBUTING.md` |
+| Document scope | [`DOCUMENT-SCOPE.md`](DOCUMENT-SCOPE.md) classifies current, historical, future, shared, deprecated, and review-needed material. |
 
 `index.md` provides the documentation hub. Astro routes in `src/pages/` render
 these sources at the established `.html` URLs; `src/data/navigation.ts` is the

@@ -1,11 +1,59 @@
 ---
-title: "Ternux v2.0.0 release readiness"
-description: "Current acceptance gates and device evidence for the three supported Ternux v2 guest profiles."
+title: "Ternux v2 release readiness"
+description: "Local v2.0.1 candidate status, v2.0.0 withdrawal history, and four-distro evidence boundaries."
 lang: "en"
 alt_url: "/bn/docs/V2-RELEASE-READINESS.html"
 ---
 
-**Status: WITHDRAWN from public distribution**
+## Current status — 2026-11-18
+
+The v2.0.0 source tag is retained, but its GitHub Release object was removed
+and stable APT withdrawn on 2026-11-14. The owner revoked the 2026-11-14 scope
+change that moved former v3 features into v2: v2 is frozen to the existing
+implementation, and new architecture/capabilities remain v3 work.
+
+The next unused candidate is **v2.0.1**. It is being prepared locally from
+current `main` and is **not published**. There is no approved release commit,
+tag, generated artifact, checksum, or GitHub Release page for this candidate.
+The stable APT channel remains withdrawn and is not a v2 release requirement.
+The owner-confirmed v2 verified desktop baseline is Debian, Ubuntu, Kali Linux,
+and Alpine; evidence depth differs by distro. The clean-container Firefox CI
+matrix currently covers Debian, Ubuntu, and Alpine. See the
+[feature matrix](audit/FEATURE-MATRIX.md) and [device evidence](audit/DEVICE-VERIFICATION.md).
+
+## Local v2.0.1 candidate checks — 2026-11-18
+
+- `python3 tests/window_fit_geometry.py`: 10 geometry/state cases passed.
+- `bash tests/focused.sh`: 211 passed, 0 failed.
+- `bash tests/update_transaction.sh`: passed the pinned update, 2.0.0→2.0.1
+  upgrade, 1.4.0→2.0.0 migration fixture, rollback, interrupted-update
+  recovery, concurrency, and symlink-safety checks.
+- Astro build: 90 static pages built; finalizer reported 56 HTML routes.
+- `python3 tests/docs_check.py`: 6,518 assertions, 616 internal links, and 24
+  bilingual page pairs passed. `npm run format:check` passed after formatting
+  both modified landing pages.
+- Live Debian/XFCE X11 check on display `:1` (640×1386): a temporary
+  `xmessage` client was moved; its outer top-left remained `(144, 284)` before,
+  after, and two seconds after resizing from 510×360 to 430×320. The temporary
+  window was closed; the desktop remained READY. The host reports the
+  PulseAudio process running but not ready.
+- `npm audit --json` found nine high-severity dependency paths, all through
+  Picomatch versions 4.0.7 and 2.3.2 in the website build tree. GitHub Advisory
+  Database lists CVE-2026-112366 as affecting Picomatch through 4.0.7 with no
+  patched version; the installed Ternux CLI has no Node dependency. The
+  vulnerable code is therefore in the website build toolchain, not the guest
+  runtime. No dependency downgrade or override was applied because no verified
+  safe fix is available; the upstream issue remains unresolved. This is a
+  documented CI/build-chain risk, not evidence of a v2 runtime exploit.
+
+These are local candidate results, not exact-commit GitHub CI or release
+qualification. The source snapshot pin still needs to be finalized against an
+immutable local candidate source commit before this candidate is ready for
+owner review. No repository release object, tag, or artifact was created.
+
+## Historical v2.0.0 qualification snapshot
+
+**Status:** withdrawn from public distribution
 **Audit date:** 2026-11-16
 **Target:** Ternux 2.0.0
 **v2 GitHub release:** withdrawn 2026-11-14; [tag retained for provenance](https://github.com/soobujmiah/ternux/tree/v2.0.0). Stable APT paths return HTTP 404 after withdrawal run [43532161200](https://github.com/soobujmiah/ternux/actions/runs/43532161200); signed RC remains available.
@@ -97,7 +145,7 @@ Qualification does not extend to other GPUs or devices.
 2. Repository workflow generated `.repo/` state in PR #190; its checks passed and it was merged without manual edits.
 3. Stable APT signature/index/package, native package lifecycle, per-guest verification, and post-publication website preservation passed.
 4. Tag `v2.0.0` was published on validated main `9106b04fc8627ae98b1d63c9912a28c8a4677441`.
-5. The final publication and qualification record is the [v2.0.0 release report](V2-RELEASE-REPORT.md). On 2026-11-14 the owner moved the full former v3 platform plan into the next v2-major release; see the [current project roadmap](project/PROJECT-ROADMAP.md).
+5. The final v2.0.0 publication and qualification record is the [historical release report](V2-RELEASE-REPORT.md). The 2026-11-14 decision to move former v3 scope into the next v2 release was revoked on 2026-11-18; see the [current project roadmap](project/PROJECT-ROADMAP.md).
 ## Detailed audit records
 
 - [Current state and decisions](audit/CURRENT-STATE.md)
@@ -108,7 +156,6 @@ Qualification does not extend to other GPUs or devices.
 
 The `v2.0.0` source tag is retained for provenance. Its GitHub release was
 removed and its signed stable APT paths were withdrawn on 2026-11-14; only the
-opt-in RC channel remains public. The original recommendation was superseded on
-2026-11-14: the former v3 platform scope is now required for the next v2-major
-stable release, with no separate v3 stable release. See the current
+opt-in RC channel remains public. The 2026-11-14 scope change was revoked on
+2026-11-18: the former v3 platform scope remains future v3 work. See the current
 [project roadmap](project/PROJECT-ROADMAP.md).
