@@ -138,6 +138,25 @@ test does not rule out an intermittent Android scheduler or GPU-driver stall.
 
 ---
 
+## Ctrl+plus/minus does not zoom window content
+
+**Symptom:** pressing Ctrl+- or Ctrl+plus does not change text size in the
+focused terminal or another X11 application.
+
+**Cause:** Ternux watches these keys to keep the XFCE Terminal font preference
+persistent. An asynchronous X11 keyboard grab can consume the shortcut before
+the focused application receives it. This is corrected in the current v2.0.1
+candidate; older installed helpers need the matching release update and desktop
+restart.
+
+**Fix:** update Ternux, then restart the managed desktop with `tx restart
+debian` (replace `debian` with the active guest). In XFCE Terminal, use Ctrl+-
+to zoom out and Ctrl+Shift+= to zoom in; the plus sign shares the `=` key on
+many keyboards. Other applications receive the shortcut and apply their own
+zoom behavior if they support it. App-specific key bindings can differ.
+
+---
+
 ## Black screen in Termux:X11
 
 **Symptom:** `tx start` runs, but Termux:X11 shows a black or empty window.

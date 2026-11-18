@@ -11,14 +11,22 @@ source = root / "lib/ternux-assets/bin/ternux-window-fit-x11"
 tree = ast.parse(source.read_text())
 functions = [
     node for node in tree.body
-    if isinstance(node, ast.FunctionDef) and node.name in {"fitted_geometry", "root_dimensions", "zoomed_font_name", "moveresize_flags"}
+    if isinstance(node, ast.FunctionDef)
+    and node.name in {
+        "fitted_geometry", "root_dimensions", "zoomed_font_name",
+        "replay_zoom_key", "moveresize_flags",
+    }
 ]
 module = ast.Module(body=functions, type_ignores=[])
-namespace: dict[str, object] = {"re": re}
+namespace: dict[str, object] = {
+    "re": re,
+    "X": type("X", (), {"ReplayKeyboard": 10}),
+}
 exec(compile(module, str(source), "exec"), namespace)
 fit = namespace["fitted_geometry"]
 dimensions = namespace["root_dimensions"]
 zoom_font = namespace["zoomed_font_name"]
+replay_key = namespace["replay_zoom_key"]
 move_resize_flags = namespace["moveresize_flags"]
 
 
@@ -69,5 +77,48 @@ assert zoom_font("Noto Sans Mono 12", -1) == "Noto Sans Mono 10"
 assert zoom_font("Noto Sans Mono 10", -1) == "Noto Sans Mono 8.33"
 assert zoom_font("not-a-sized-font", 1) is None
 print("ok - terminal zoom updates a persistent Xfce font size")
+
+
+class ReplayProbe:
+    def __init__(self) -> None:
+        self.calls: list[tuple[object, ...]] = []
+
+    def allow_events(self, *args: object) -> None:
+        self.calls.append(("allow_events", *args))
+
+    def flush(self) -> None:
+        self.calls.append(("flush",))
+
+
+probe = ReplayProbe()
+event = type("Event", (), {"time": 42})()
+replay_key(probe, event)
+assert probe.calls == [("allow_events", 10, 42), ("flush",)]
+main = next(
+    node for node in tree.body
+    if isinstance(node, ast.FunctionDef) and node.name == "main"
+)
+hotkey = next(
+    node for node in ast.walk(main)
+    if isinstance(node, ast.If)
+    and "event.type == X.KeyPress" in ast.unparse(node.test)
+    and "event.detail in zoom_key_steps" in ast.unparse(node.test)
+)
+assert any(
+    isinstance(node, ast.Expr)
+    and isinstance(node.value, ast.Call)
+    and ast.unparse(node.value.func) == "replay_zoom_key"
+    for node in hotkey.body
+), "the key replay must run for terminal and non-terminal zoom shortcuts"
+grab = next(
+    node for node in ast.walk(main)
+    if isinstance(node, ast.Call)
+    and isinstance(node.func, ast.Attribute)
+    and node.func.attr == "grab_key"
+)
+assert ast.unparse(grab.args[4]) == "X.GrabModeSync", (
+    "ReplayKeyboard requires a synchronous keyboard grab"
+)
+print("ok - intercepted zoom shortcuts replay to the focused application")
 assert move_resize_flags(1) == (1 | (0xF << 8) | (1 << 12))
 print("ok - EWMH move/resize requests use frame-based NorthWestGravity")
