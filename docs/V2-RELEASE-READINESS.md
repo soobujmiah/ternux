@@ -135,6 +135,13 @@ reproduced; the earlier short response-time measurements remain insufficient to
 rule it out. This correction is local and is not yet part of main or a
 published v2 artifact.
 
+The standalone installer and CLI fallback now pin this corrected source to
+commit `e5757547644d5d4354cf0c497d53e2aac81b2f55`, with locally generated
+short-SHA codeload archive SHA-256
+`0d685ad73cec319dff9b556c2f8fef087f270eac56da980b2a77e0e3a85398da`.
+`tests/bootstrap_source_sync.sh` passes using that exact local archive. The
+GitHub codeload digest check will run after this snapshot is pushed.
+
 ## Historical v2.0.0 qualification snapshot
 
 **Status:** withdrawn from public distribution

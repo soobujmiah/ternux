@@ -123,6 +123,12 @@ Termux Node Android C++ runtime symbol mismatch-এর কারণে চাল
 তৈরি হয়নি; আগের স্বল্প সময়ের response measurement এটি বাদ দেওয়ার জন্য
 যথেষ্ট নয়। এই fix এখনো local এবং main বা প্রকাশিত v2 artifact-এ নেই।
 
+Standalone installer ও CLI fallback এখন এই সংশোধিত source-কে
+`e5757547644d5d4354cf0c497d53e2aac81b2f55` commit-এ pin করে; local archive-এর
+SHA-256 `0d685ad73cec319dff9b556c2f8fef087f270eac56da980b2a77e0e3a85398da`।
+`tests/bootstrap_source_sync.sh` ওই exact local archive দিয়ে pass করেছে। এই
+snapshot push হওয়ার পর GitHub codeload digest যাচাই করা হবে।
+
 ## Historical v2.0.0 qualification snapshot
 
 **অবস্থা: Public distribution থেকে withdrawn**
