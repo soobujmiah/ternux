@@ -99,13 +99,13 @@ passive key grab keyboard-এর asynchronous mode ব্যবহার কর�
 Terminal সক্রিয় থাকলে helper font preference save করার পর পরিচিত zoom shortcut
 consume করত, তাই খোলা terminal-এর content-ও resize হত না।
 
-Local fix-এ synchronous keyboard grab ব্যবহার করে Xfce Terminal preference
-record করার পর প্রতিটি intercepted zoom key replay করা হয়। Live Debian session-এর
-`xev` window Ctrl+Shift+= কে `plus` এবং Ctrl+- কে `minus` হিসেবে পেয়েছে। Terminal
-screenshot compare-এ zoom-in-এর পর 11.8% pixel difference এবং zoom-out-এর পর
-baseline-এর সঙ্গে exact pixel match পাওয়া গেছে। চলমান Debian guest-এর helper
-local file-এর সঙ্গে মেলে; SHA-256
-`80121b944b8d980119ee59e97d3f3278d4c8fd3328a244a242246e2ece1aeb55`।
+Local fix-এ synchronous keyboard grab-এর পর `xfconf-query` preference I/O-র
+আগেই প্রতিটি intercepted key replay হয়। তাই settings service ধীর হলেও X11
+keyboard আটকে থাকে না। Live Debian session-এর `xev` window Ctrl+Shift+= কে
+`plus` এবং Ctrl+- কে `minus` হিসেবে পেয়েছে। Terminal screenshot compare-এ
+zoom-in-এর পর 13.55% pixel difference এবং zoom-out-এর পর baseline-এর সঙ্গে exact
+pixel match পাওয়া গেছে। চলমান Debian guest-এর helper local file-এর সঙ্গে মেলে;
+SHA-256 `db70293cf69ce8e6b8f7a459a95cfb79b8e0d128cbbd429038a4c7d453809c4d`।
 `tx restart debian` দিয়ে Debian restart হয়েছে। X11 session READY, তবে
 PulseAudio readiness আবার `no` দেখাচ্ছে; এটি আলাদা অমীমাংসিত সমস্যা।
 

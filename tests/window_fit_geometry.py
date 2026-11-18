@@ -92,8 +92,17 @@ class ReplayProbe:
 
 probe = ReplayProbe()
 event = type("Event", (), {"time": 42})()
-replay_key(probe, event)
-assert probe.calls == [("allow_events", 10, 42), ("flush",)]
+def persist_zoom() -> str:
+    probe.calls.append(("persist_zoom",))
+    return "saved"
+
+
+assert replay_key(probe, event, persist_zoom) == "saved"
+assert probe.calls == [
+    ("allow_events", 10, 42),
+    ("flush",),
+    ("persist_zoom",),
+]
 main = next(
     node for node in tree.body
     if isinstance(node, ast.FunctionDef) and node.name == "main"
@@ -105,11 +114,15 @@ hotkey = next(
     and "event.detail in zoom_key_steps" in ast.unparse(node.test)
 )
 assert any(
-    isinstance(node, ast.Expr)
+    isinstance(node, ast.Assign)
+    and any(
+        isinstance(target, ast.Name) and target.id == "saved_zoom"
+        for target in node.targets
+    )
     and isinstance(node.value, ast.Call)
     and ast.unparse(node.value.func) == "replay_zoom_key"
     for node in hotkey.body
-), "the key replay must run for terminal and non-terminal zoom shortcuts"
+), "the hotkey handler must replay before persisting terminal preferences"
 grab = next(
     node for node in ast.walk(main)
     if isinstance(node, ast.Call)
@@ -119,6 +132,6 @@ grab = next(
 assert ast.unparse(grab.args[4]) == "X.GrabModeSync", (
     "ReplayKeyboard requires a synchronous keyboard grab"
 )
-print("ok - intercepted zoom shortcuts replay to the focused application")
+print("ok - intercepted zoom shortcuts replay before preference I/O")
 assert move_resize_flags(1) == (1 | (0xF << 8) | (1 << 12))
 print("ok - EWMH move/resize requests use frame-based NorthWestGravity")

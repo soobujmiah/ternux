@@ -112,12 +112,13 @@ recognized zoom shortcut after saving the font preference, preventing the
 terminal from resizing its current content.
 
 The local correction uses a synchronous keyboard grab and replays every
-intercepted zoom key after recording the Xfce Terminal font preference. The
-focused Debian live session received Ctrl+Shift+= as `plus` and Ctrl+- as
-`minus` in an `xev` window. A Terminal screenshot comparison measured 11.8%
-pixel difference after zoom-in and an exact pixel match after zoom-out. The
+intercepted key immediately, before any `xfconf-query` preference I/O. Thus a
+slow settings service cannot hold the X11 keyboard frozen. The focused Debian
+live session received Ctrl+Shift+= as `plus` and Ctrl+- as `minus` in an `xev`
+window. A Terminal screenshot comparison measured 13.55% pixel difference after
+zoom-in and an exact pixel match after zoom-out. The
 helper installed in the running Debian guest matches the local file at SHA-256
-`80121b944b8d980119ee59e97d3f3278d4c8fd3328a244a242246e2ece1aeb55`; Debian
+`db70293cf69ce8e6b8f7a459a95cfb79b8e0d128cbbd429038a4c7d453809c4d`; Debian
 was restarted through `tx restart debian`. The X11 session reports READY, but
 PulseAudio readiness again reports `no` and remains a separate issue.
 

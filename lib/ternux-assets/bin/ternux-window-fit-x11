@@ -99,10 +99,13 @@ def zoomed_font_name(font_name: str, direction: int) -> str | None:
     return f"{family} {next_size:.2f}".rstrip("0").rstrip(".")
 
 
-def replay_zoom_key(dpy, event) -> None:
-    """Let the focused X11 client process a key first grabbed by the watcher."""
+def replay_zoom_key(dpy, event, persist_zoom=None):
+    """Replay a grabbed key before doing possibly slow zoom preference I/O."""
     dpy.allow_events(X.ReplayKeyboard, event.time)
     dpy.flush()
+    if persist_zoom is not None:
+        return persist_zoom()
+    return None
 
 
 def moveresize_flags(north_west_gravity: int) -> int:
@@ -367,16 +370,17 @@ def main() -> int:
             modifiers = int(event.state)
             has_control = bool(modifiers & X.ControlMask)
             has_alt_or_super = bool(modifiers & (X.Mod1Mask | X.Mod4Mask))
-            saved_zoom = save_terminal_zoom(zoom_key_steps[event.detail]) if has_control and not has_alt_or_super else None
+            zoom_direction = zoom_key_steps[event.detail] if has_control and not has_alt_or_super else None
+            persist_zoom = (
+                (lambda: save_terminal_zoom(zoom_direction))
+                if zoom_direction is not None
+                else None
+            )
+            saved_zoom = replay_zoom_key(dpy, event, persist_zoom)
             if saved_zoom is not None:
                 window_id, font_name = saved_zoom
                 _zoom_preferences[window_id] = font_name
                 _pending_font_writes[window_id] = (font_name, time.monotonic() + 2.0)
-            # The passive root grab sees the key before the focused client.
-            # Persisting the Xfce preference alone does not apply zoom to the
-            # already-open terminal, so replay the original event in every
-            # case and let the focused application perform its native action.
-            replay_zoom_key(dpy, event)
         elif event.type == X.MapNotify:
             # Defer the final correction until XFWM has applied its placement
             # and decoration hints. fit_clients also discovers clients if
