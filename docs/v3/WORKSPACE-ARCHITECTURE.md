@@ -8,9 +8,10 @@ lang: "en"
 
 **Status: DESIGNED.** A workspace is one registered PRoot-Distro guest plus
 its Ternux profile, user mapping, packages, display assignment, mounts,
-desktop state, and logs. Debian, Ubuntu, and Alpine remain the v2-qualified
-profiles; other distributions are experimental until their own acceptance
-evidence exists.
+desktop state, and logs. The owner-confirmed v2 baseline is Debian, Ubuntu,
+Kali Linux, and Alpine, with different evidence depth per distro; see the
+current [feature matrix](../audit/FEATURE-MATRIX.md). Other distributions
+remain experimental until their own acceptance evidence exists.
 
 ## Identity and commands
 
