@@ -46,10 +46,20 @@ matrix currently covers Debian, Ubuntu, and Alpine. See the
   safe fix is available; the upstream issue remains unresolved. This is a
   documented CI/build-chain risk, not evidence of a v2 runtime exploit.
 
+The standalone and CLI fallback now share an immutable local source snapshot at
+`ab5ed326a6812d98ccc62265d647b5bd08fe3bbd`. Its deterministic source archive
+SHA-256 is
+`ccc3163b654dc84cbc786d0a7c3a1c5f69835ee2c423d0bf7e6ebf434d0254ba`, and
+`TERNUX_SOURCE_ARCHIVE_OVERRIDE=<archive> bash tests/bootstrap_source_sync.sh`
+passed against that archive. A known published commit established that this
+local `git archive | gzip -n` format reproduces GitHub's short-SHA codeload
+archive digest. Since the new snapshot is not on GitHub yet, its live codeload
+URL cannot be checked until repository synchronization; the exact-commit CI
+check remains required after approval.
+
 These are local candidate results, not exact-commit GitHub CI or release
-qualification. The source snapshot pin still needs to be finalized against an
-immutable local candidate source commit before this candidate is ready for
-owner review. No repository release object, tag, or artifact was created.
+qualification. No repository release object, tag, release asset, or GitHub
+change was created.
 
 ## Historical v2.0.0 qualification snapshot
 

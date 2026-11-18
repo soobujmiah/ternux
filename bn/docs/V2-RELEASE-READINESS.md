@@ -40,10 +40,19 @@ v2.0.0 acceptance তথ্য historical snapshot; এটি v2.0.1 release rea
   downgrade বা override করা হয়নি; upstream issue অমীমাংসিত। এটি CI/build-chain
   risk, v2 runtime exploit-এর প্রমাণ নয়।
 
+Standalone ও CLI fallback এখন `ab5ed326a6812d98ccc62265d647b5bd08fe3bbd`
+immutable local source snapshot-এ pin করা। Deterministic source archive-এর
+SHA-256 `ccc3163b654dc84cbc786d0a7c3a1c5f69835ee2c423d0bf7e6ebf434d0254ba`;
+`TERNUX_SOURCE_ARCHIVE_OVERRIDE=<archive> bash tests/bootstrap_source_sync.sh`
+এই archive দিয়ে pass করেছে। আগে প্রকাশিত commit দিয়ে প্রমাণ হয়েছে যে local
+`git archive | gzip -n` format GitHub-এর short-SHA codeload archive digest-এর
+সঙ্গে মেলে। নতুন snapshot এখনো GitHub-এ নেই, তাই repository synchronization না
+হওয়া পর্যন্ত এর live codeload URL যাচাই করা যাবে না; approval-এর পর
+exact-commit CI check আবশ্যক।
+
 এগুলো local candidate result; exact-commit GitHub CI বা release qualification
-নয়। Owner review-এর আগে immutable local candidate source commit-এর সঙ্গে source
-snapshot pin ঠিক করা বাকি। কোনো repository release object, tag বা artifact তৈরি
-হয়নি।
+নয়। কোনো repository release object, tag, release asset বা GitHub পরিবর্তন
+করা হয়নি।
 
 ## Historical v2.0.0 qualification snapshot
 

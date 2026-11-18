@@ -40,6 +40,10 @@ root_name="$(tar -tzf "$archive" | sed -n '1{s#/.*##;p;}')"
 mkdir -p "$TMP/current" "$TMP/pinned"
 cp -a "$ROOT/install.sh" "$ROOT/bin" "$ROOT/lib" "$TMP/current/"
 cp -a "$TMP/$root_name/install.sh" "$TMP/$root_name/bin" "$TMP/$root_name/lib" "$TMP/pinned/"
+# Tests or direct Python runs may leave bytecode caches in the checkout; git
+# archives correctly omit these ignored runtime files, so exclude them from the
+# source-to-source comparison as well.
+find "$TMP/current/lib" "$TMP/pinned/lib" -type d -name __pycache__ -prune -exec rm -rf -- {} +
 
 # The snapshot is the preceding immutable commit because a commit cannot embed
 # its own SHA-256. Normalize only the four pin values; installed code must match.
