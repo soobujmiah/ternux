@@ -127,7 +127,8 @@ Standalone installer ও CLI fallback এখন এই সংশোধিত sou
 `e5757547644d5d4354cf0c497d53e2aac81b2f55` commit-এ pin করে; local archive-এর
 SHA-256 `0d685ad73cec319dff9b556c2f8fef087f270eac56da980b2a77e0e3a85398da`।
 `tests/bootstrap_source_sync.sh` ওই exact local archive দিয়ে pass করেছে। এই
-snapshot push হওয়ার পর GitHub codeload digest যাচাই করা হবে।
+snapshot-এর installer-ব্যবহৃত short-SHA GitHub codeload URL একই SHA-256 ও
+প্রত্যাশিত `ternux-e575754/` archive root দিয়েছে।
 
 ## Historical v2.0.0 qualification snapshot
 
