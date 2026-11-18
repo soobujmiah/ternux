@@ -15,6 +15,7 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 ### ডেস্কটপ নির্ভরযোগ্যতা
 
 - স্থানীয় v2.0.1 candidate-এ window resize করলে ব্যবহারকারীর সরানো অবস্থান বজায় থাকে; কেবল X11 work area-এর বাইরে চলে যাওয়ার ঝুঁকি থাকলে window সরানো হয়। Geometry regression test যোগ হয়েছে এবং Debian/XFCE-এর live session-এ আচরণটি যাচাই হয়েছে।
+- Ctrl zoom shortcut সঙ্গে সঙ্গে focused X11 application-এ পৌঁছায়; XFCE Terminal preference I/O-র আগেই Ternux key replay করে। Synchronous passive keyboard grab নিরাপদে event replay করতে দেয়; live Debian session-এ Ctrl+Shift+= ও Ctrl+- যাচাই এবং zoom-in/zoom-out-এর visual তুলনা হয়েছে।
 
 ### ইনস্টলার
 

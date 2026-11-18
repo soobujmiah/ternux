@@ -91,6 +91,54 @@ exact-commit CI check আবশ্যক।
 নয়। কোনো repository release object, tag, release asset বা GitHub পরিবর্তন
 করা হয়নি।
 
+## Ctrl zoom shortcut সংশোধন — 2026-11-18
+
+Ctrl zoom কাজ না করার live report পুনরায় তৈরি করা হয়েছে। X11 helper-এর
+passive key grab keyboard-এর asynchronous mode ব্যবহার করছিল, পরে
+`ReplayKeyboard` ডাকত; ফলে ধরা পড়া key focused application-এ পৌঁছাত না। XFCE
+Terminal সক্রিয় থাকলে helper font preference save করার পর পরিচিত zoom shortcut
+consume করত, তাই খোলা terminal-এর content-ও resize হত না।
+
+Local fix-এ synchronous keyboard grab-এর পর `xfconf-query` preference I/O-র
+আগেই প্রতিটি intercepted key replay হয়। তাই settings service ধীর হলেও X11
+keyboard আটকে থাকে না। Live Debian session-এর `xev` window Ctrl+Shift+= কে
+`plus` এবং Ctrl+- কে `minus` হিসেবে পেয়েছে। Terminal screenshot compare-এ
+zoom-in-এর পর 13.55% pixel difference এবং zoom-out-এর পর baseline-এর সঙ্গে exact
+pixel match পাওয়া গেছে। চলমান Debian guest-এর helper local file-এর সঙ্গে মেলে;
+SHA-256 `db70293cf69ce8e6b8f7a459a95cfb79b8e0d128cbbd429038a4c7d453809c4d`।
+`tx restart debian` দিয়ে Debian restart হয়েছে। X11 session READY, তবে
+PulseAudio readiness আবার `no` দেখাচ্ছে; এটি আলাদা অমীমাংসিত সমস্যা।
+
+Geometry ও shortcut-এর pure regression suite-এর ১৩টি case এবং full focused
+suite-এর **211/211** pass করেছে। `python3 tests/docs_check.py`-এ 6,518টি
+assertion, 620টি internal link ও 24টি bilingual page pair pass করেছে।
+`tx verify debian` desktop-service ও Turnip check pass করেছে। এই follow-up-এর
+exact-commit CI বাকি; এর আগে merge হওয়া main commit
+`f7963c6b7bcacf43cabf30a1da3d5bdbf1ebf490`-এ Validate,
+Repository State Contract, Termux APT package artifact ও Repo Knowledge Sync
+pass করেছে। Local
+Termux Node Android C++ runtime symbol mismatch-এর কারণে চালু হয়নি, তাই তার
+`npm run format:check` চলেনি; আগের exact-main CI formatter check pass করেছে এবং
+এই follow-up-এ website source file বদলায়নি। Intermittent X11 stall পুনরায়
+তৈরি হয়নি; আগের স্বল্প সময়ের response measurement এটি বাদ দেওয়ার জন্য
+যথেষ্ট নয়। এই fix এখনো local এবং main বা প্রকাশিত v2 artifact-এ নেই।
+
+Standalone installer ও CLI fallback এখন এই সংশোধিত source-কে
+`555ce1374957cf35b7a7afa17bbb720b4529d64a` commit-এ pin করে; short-SHA source
+archive-এর SHA-256
+`b52347389d70314e2b9118528bab3a19cb982b839d3f4627b2d0a66a5493ce83`।
+`tests/bootstrap_source_sync.sh` ওই exact archive দিয়ে pass করেছে। Snapshot push
+করার পর installer-এর short-SHA GitHub codeload URL একই SHA-256 এবং প্রত্যাশিত
+`ternux-555ce13/` archive root দিয়েছে।
+
+Reversible live comparison-এ helper pause রেখে আলাদা Xmessage window খোলা,
+সরানো ও 360x220 মাপে resize করা হয়েছে। Helper চলা এবং pause—দুই অবস্থায়
+`xdotool` একই সরানো অবস্থান (78,138) ও resize geometry (360x220) দেখিয়েছে;
+এই synthetic test-এ move করার পর recenter হওয়ার অভিযোগ পুনরায় দেখা যায়নি।
+শেষে helper resume করে চলমান নিশ্চিত করা হয়েছে। Touch-চালিত বা device-specific
+XFWM/X11 সমস্যা এই ফল দিয়ে বাদ যায় না। পুরো helper সরালে launch-time fit/clamp
+ও Ctrl zoom shortcut-ও হারাবে, তাই helper delete করার পক্ষে এই test প্রমাণ দেয় না।
+
 ## Historical v2.0.0 qualification snapshot
 
 **অবস্থা: Public distribution থেকে withdrawn**

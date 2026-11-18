@@ -134,6 +134,24 @@ scheduling বা GPU-driver stall-কে বাদ দেয় না।
 
 ---
 
+<h2 id="ctrlplusminus-does-not-zoom-window-content">Ctrl+plus/minus-এ window-এর content zoom হয় না</h2>
+
+**লক্ষণ:** Ctrl+- বা Ctrl+plus চাপলেও focused terminal বা অন্য X11
+application-এর লেখার আকার বদলায় না।
+
+**কারণ:** XFCE Terminal-এর font preference ধরে রাখতে Ternux এই key-গুলো দেখে।
+Asynchronous X11 keyboard grab shortcut-টি focused application-এ পৌঁছানোর আগে
+consume করতে পারে। বর্তমান v2.0.1 candidate-এ এটি ঠিক করা হয়েছে; পুরনো installed
+helper-এর জন্য সংশ্লিষ্ট release update ও desktop restart দরকার।
+
+**সমাধান:** Ternux update করে managed desktop `tx restart debian` দিয়ে restart
+করুন (সক্রিয় guest অনুযায়ী `debian` বদলান)। XFCE Terminal-এ zoom out করতে
+Ctrl+- এবং zoom in করতে Ctrl+Shift+= চাপুন; অনেক keyboard-এ plus চিহ্ন `=` key-এর
+সঙ্গেই থাকে। অন্য application shortcut পেলে নিজস্ব zoom আচরণ করবে, যদি সেটি
+সেই shortcut সমর্থন করে। Application অনুযায়ী key binding আলাদা হতে পারে।
+
+---
+
 <h2 id="black-screen-in-termuxx11">Termux:X11-এ কালো স্ক্রিন</h2>
 
 **লক্ষণ:** `tx start` চলে, কিন্তু Termux:X11-এ কালো বা খালি উইন্ডো।

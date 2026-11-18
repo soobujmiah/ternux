@@ -99,6 +99,15 @@ def zoomed_font_name(font_name: str, direction: int) -> str | None:
     return f"{family} {next_size:.2f}".rstrip("0").rstrip(".")
 
 
+def replay_zoom_key(dpy, event, persist_zoom=None):
+    """Replay a grabbed key before doing possibly slow zoom preference I/O."""
+    dpy.allow_events(X.ReplayKeyboard, event.time)
+    dpy.flush()
+    if persist_zoom is not None:
+        return persist_zoom()
+    return None
+
+
 def moveresize_flags(north_west_gravity: int) -> int:
     """Build an EWMH request for frame position and client size."""
     return north_west_gravity | (0xF << 8) | (1 << 12)
@@ -142,7 +151,9 @@ def main() -> int:
     failed_zoom_grabs = []
     for keycode in zoom_key_steps:
         try:
-            root.grab_key(keycode, X.AnyModifier, False, X.GrabModeAsync, X.GrabModeAsync)
+            # Freeze the keyboard for this passive grab so ReplayKeyboard can
+            # thaw it and re-deliver the intercepted event to the focused app.
+            root.grab_key(keycode, X.AnyModifier, False, X.GrabModeAsync, X.GrabModeSync)
         except XError:
             failed_zoom_grabs.append(keycode)
     for keycode in failed_zoom_grabs:
@@ -359,16 +370,17 @@ def main() -> int:
             modifiers = int(event.state)
             has_control = bool(modifiers & X.ControlMask)
             has_alt_or_super = bool(modifiers & (X.Mod1Mask | X.Mod4Mask))
-            saved_zoom = save_terminal_zoom(zoom_key_steps[event.detail]) if has_control and not has_alt_or_super else None
+            zoom_direction = zoom_key_steps[event.detail] if has_control and not has_alt_or_super else None
+            persist_zoom = (
+                (lambda: save_terminal_zoom(zoom_direction))
+                if zoom_direction is not None
+                else None
+            )
+            saved_zoom = replay_zoom_key(dpy, event, persist_zoom)
             if saved_zoom is not None:
                 window_id, font_name = saved_zoom
                 _zoom_preferences[window_id] = font_name
                 _pending_font_writes[window_id] = (font_name, time.monotonic() + 2.0)
-            else:
-                # This is not a Ternux-terminal zoom action; let the focused
-                # application receive its original shortcut unchanged.
-                dpy.allow_events(X.ReplayKeyboard, event.time)
-                dpy.flush()
         elif event.type == X.MapNotify:
             # Defer the final correction until XFWM has applied its placement
             # and decoration hints. fit_clients also discovers clients if

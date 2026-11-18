@@ -102,6 +102,57 @@ These are local candidate results, not exact-commit GitHub CI or release
 qualification. No repository release object, tag, release asset, or GitHub
 change was created.
 
+## Ctrl zoom shortcut correction — 2026-11-18
+
+The live report that Ctrl zoom did not work was reproduced. The X11 helper had
+installed passive key grabs with an asynchronous keyboard mode, then called
+`ReplayKeyboard`; the intercepted key was consequently not delivered to the
+focused application. For an active XFCE Terminal, the helper also consumed a
+recognized zoom shortcut after saving the font preference, preventing the
+terminal from resizing its current content.
+
+The local correction uses a synchronous keyboard grab and replays every
+intercepted key immediately, before any `xfconf-query` preference I/O. Thus a
+slow settings service cannot hold the X11 keyboard frozen. The focused Debian
+live session received Ctrl+Shift+= as `plus` and Ctrl+- as `minus` in an `xev`
+window. A Terminal screenshot comparison measured 13.55% pixel difference after
+zoom-in and an exact pixel match after zoom-out. The
+helper installed in the running Debian guest matches the local file at SHA-256
+`db70293cf69ce8e6b8f7a459a95cfb79b8e0d128cbbd429038a4c7d453809c4d`; Debian
+was restarted through `tx restart debian`. The X11 session reports READY, but
+PulseAudio readiness again reports `no` and remains a separate issue.
+
+The pure geometry and shortcut regression suite passes 13 cases, and the full
+focused suite passes **211/211**. `python3 tests/docs_check.py` passes 6,518
+assertions, 620 internal links, and 24 bilingual page pairs. `tx verify debian`
+passes desktop-service and Turnip checks. Exact-commit CI for this follow-up is
+pending; the preceding merged main commit `f7963c6b7bcacf43cabf30a1da3d5bdbf1ebf490`
+passed Validate, Repository State Contract, Termux APT package artifact, and
+Repo Knowledge Sync. The local Termux Node executable could not start because
+of an Android C++ runtime symbol mismatch, so its `npm run format:check` did
+not run; the preceding exact-main CI formatter check passed and this follow-up
+does not modify website source files. The intermittent X11 stall has not been
+reproduced; the earlier short response-time measurements remain insufficient to
+rule it out. This correction is local and is not yet part of main or a
+published v2 artifact.
+
+The standalone installer and CLI fallback now pin this corrected source to
+commit `555ce1374957cf35b7a7afa17bbb720b4529d64a`, with short-SHA source
+archive SHA-256
+`b52347389d70314e2b9118528bab3a19cb982b839d3f4627b2d0a66a5493ce83`.
+`tests/bootstrap_source_sync.sh` passes using that exact archive. After pushing
+the snapshot, the installer's short-SHA GitHub codeload URL returned the same
+SHA-256 and the expected `ternux-555ce13/` archive root.
+
+A reversible live comparison paused the helper while opening and moving a
+separate Xmessage window and resizing it to 360x220. With the helper running
+and paused, `xdotool` reported the same moved position (78,138) and resized
+geometry (360x220); the reported recenter-after-move symptom was not reproduced
+in this synthetic test. The helper was resumed and confirmed running. This
+does not rule out a touch-driven or device-specific XFWM/X11 issue. Removing the
+whole helper would also remove launch-time fit/clamp behavior and the Ctrl zoom
+shortcut, so the test does not support deleting it as a fix.
+
 ## Historical v2.0.0 qualification snapshot
 
 **Status:** withdrawn from public distribution
