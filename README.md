@@ -8,13 +8,13 @@
 
 ### A Linux desktop for ARM64 Android — no root required
 
-[![Version](https://img.shields.io/badge/version-2.0.0-00e5a0?style=flat-square)](https://github.com/soobujmiah/ternux/tree/v2.0.0)
+[![Version](https://img.shields.io/badge/version-2.0.1%20candidate-ffc857?style=flat-square)](docs/release/pages/v2.0.1-INSTALLATION.md)
 [![Termux APT v2 withdrawn](https://img.shields.io/badge/Termux%20APT-v2%20withdrawn-gray?style=flat-square)](docs/TERMUX-APT.md)
-[![Debian · Ubuntu · Alpine](https://img.shields.io/badge/v2%20desktop-Debian%20%7C%20Ubuntu%20%7C%20Alpine-77e3ad?style=flat-square)](docs/audit/FEATURE-MATRIX.md)
+[![Debian · Ubuntu · Kali · Alpine](https://img.shields.io/badge/v2%20verified-Debian%20%7C%20Ubuntu%20%7C%20Kali%20%7C%20Alpine-77e3ad?style=flat-square)](docs/audit/FEATURE-MATRIX.md)
 [![v3 roadmap](https://img.shields.io/badge/v3-roadmap%20published-38bdf8?style=flat-square)](docs/v3/README.md)
 [![Android ARM64](https://img.shields.io/badge/Android-ARM64-38bdf8?style=flat-square)](docs/INSTALLATION.md)
 [![No root](https://img.shields.io/badge/root-not%20required-22c55e?style=flat-square)](docs/FAQ.md)
-[![Desktop guests](https://img.shields.io/badge/v2%20desktop-guests%203-77e3ad?style=flat-square)](docs/audit/FEATURE-MATRIX.md)
+[![Desktop guests](https://img.shields.io/badge/v2%20desktop-guests%204-77e3ad?style=flat-square)](docs/audit/FEATURE-MATRIX.md)
 [![Adreno evidence](https://img.shields.io/badge/GPU-Adreno%20825%20measured-8bf5a6?style=flat-square)](docs/BENCHMARKS.md)
 [![Distro recipes](https://img.shields.io/badge/distro%20recipes-15-b9ff72?style=flat-square)](docs/INSTALLATION.md#choosing-a-guest-distribution)
 [![Desktop](https://img.shields.io/badge/desktop-Xfce%20%2B%20Termux%3AX11-55c2ff?style=flat-square)](docs/QUICK-START.md)
@@ -44,9 +44,10 @@ handling. Developer tools and local CPU/Vulkan AI workloads are available as
 optional installs. Guest files and model weights can be read from Android
 shared storage when Termux storage access is enabled.
 
-**Debian, Ubuntu and Alpine are the three v2-supported desktop profiles.** The
-physical-device evidence represents the Redmi Turbo 4 Pro / Android 16 / Adreno
-825; see the feature matrix and current audit for the exact tested scope.
+**Debian, Ubuntu, Kali Linux and Alpine are the four v2 verified desktop
+profiles.** The reference-device evidence represents the Redmi Turbo 4 Pro /
+Android 16 / Adreno 825; evidence depth differs by distro and feature. See the
+feature matrix for the exact tested scope and limits.
 Debian is the recommended default. Twelve additional named distro recipes are
 available to try, but are not qualified for the v2 desktop support promise;
 arbitrary OCI images are shell guests until a Ternux desktop recipe is added.
@@ -119,12 +120,13 @@ command again. Its host package repair runs through `apt-get` before it retries
 stable package channel is withdrawn.
 
 The Ternux v2.0.0 GitHub release and stable APT distribution were withdrawn
-on 2026-11-14. The `v2.0.0` source tag remains available for provenance. Use
+on 2026-11-14. The `v2.0.0` source tag remains available for provenance. A
+local v2.0.1 release candidate is being prepared; it is not published yet. Use
 the source installer above; the signed `/apt-rc` channel remains for opt-in
-candidate testing and is not a production install source. The next stable release
-remains in the v2 major. The planned v3 platform architecture and acceptance
-gates are now required for the next 2.x release; no stable release will be
-published until they pass.
+candidate testing and is not a production install source. Version 2 is frozen
+to the existing implementation; new architecture and capabilities belong to v3.
+No stable v2.0.1 release is available until the candidate passes its release
+checks and is published.
 See the [APT channel status](docs/TERMUX-APT.md) and [v2 release record](docs/V2-RELEASE-READINESS.md).
 
 The base install needs about 4–4.6 GB of storage. Keep extra temporary space for
@@ -251,14 +253,12 @@ render route and run scripts or scenes with the documented EEVEE setup. See the
 ## More help
 
 - [Ternux v3 architecture and implementation roadmap](docs/v3/README.md):
-  native manager (native workspace `:0`; Debian/Ubuntu/Kali/Alpine `:1`/`:2`/`:3`/`:4`
-  by design), workspaces, compute, AI, Device Bridge, security, and gates.
-  The current main source adds `tx control`, a read-only local browser dashboard,
-  alongside the four manager CLI commands and foreground Unix-socket service.
-  Run `pkg install python` once if needed, then `tx control`; the screen stays
-  on loopback and stops with Ctrl-C. These source changes are not in withdrawn
-  v2.0.0. Mutations, service supervision, and the remaining v2-major platform
-  scope are still release gates.
+  future native manager, workspace, compute, AI, Device Bridge, security, and
+  distribution plans. Current main includes a partial manager CLI, a foreground
+  Unix-socket service, and a local Control Center preview with desktop
+  start/stop actions; these are not a complete v3 platform. Run `tx control` to
+  try the preview locally. v2.0.0 is the withdrawn historical package; v2.0.1
+  remains an unpublished candidate based on current main.
 - [Current project status](docs/project/PROJECT-ROADMAP.md): implementation,
   release, device evidence, technical debt, and next actions.
 - [Deep documentation index](docs/README.md): install paths, setup, daily use,
@@ -275,14 +275,11 @@ toggle multiple choices, Enter reviews the plan, and `q` keeps the base desktop.
 `--with-*` flags or `--all` select additional workloads. The v2.0.0 GitHub
 release and stable APT distribution were withdrawn on 2026-11-14; its source tag
 and package checksums remain in the historical [release report](docs/V2-RELEASE-REPORT.md).
-The next stable release remains in the v2 major. The full Control Center and platform scope
-formerly planned for v3 are required for the next 2.x release; see the
-[architecture dossier](docs/V3-ARCHITECTURE.md) and [current roadmap](docs/project/PROJECT-ROADMAP.md).
-Current main source has four read-only `tx manager` commands, `tx manager serve`
-for a foreground-only local Unix-socket API, and `tx control` for a read-only
-loopback browser dashboard (Python 3 optional). Guest mutations, the service
-supervisor, and the full Control Center remain incomplete. None of these source
-changes is in withdrawn v2.0.0. See the [APT channel status](docs/TERMUX-APT.md).
+The v2.0.1 candidate is an unpublished snapshot of current main. Its release
+guide remains marked candidate until a verified tag and archive exist. The
+partial manager and Control Center preview are not claims of a complete service
+or v3 platform. See [v2 release readiness](docs/V2-RELEASE-READINESS.md), the
+[v3 roadmap](docs/v3/README.md), and [APT channel status](docs/TERMUX-APT.md).
 HTP/HMX,
 QNN and wider accelerator qualification remain experimental or follow-up work;
 see the [accelerator plan](docs/ACCELERATOR-RELEASE-PLAN.md).

@@ -9,7 +9,7 @@ const installCommand = `pkg update -y && pkg upgrade -y && pkg install -y curl w
 
 <SiteLayout
   title="Linux, beyond the desktop"
-  description="Ternux is a no-root ARM64 Android Linux workspace. The withdrawn v2.0.0 release is being rebuilt with Debian, Ubuntu, Alpine, and the complete planned platform architecture before the next stable v2-major release."
+  description="Ternux is a no-root ARM64 Android Linux workstation. Debian, Ubuntu, Kali Linux, and Alpine form the verified v2 desktop baseline; v2.0.1 is an unpublished release candidate."
   canonical="/"
   altUrl="/bn/"
 >
@@ -31,12 +31,12 @@ const installCommand = `pkg update -y && pkg upgrade -y && pkg install -y curl w
             </span>
           </h1>
           <p>
-            Run a Linux desktop on Android without root. Debian, Ubuntu, and
-            Alpine are the three supported v2 desktop profiles, with Debian as
-            the recommended default. Twelve more named distro recipes are
-            available, but are not qualified for v2 support. Device evidence is
-            from one Redmi Turbo 4 Pro; the release report lists its exact
-            coverage.
+            Run a Linux desktop on Android without root. Debian, Ubuntu, Kali
+            Linux, and Alpine are the four verified v2 desktop profiles, with
+            Debian as the recommended default. Twelve more named distro recipes
+            are available, but are not in the v2 verified baseline. Device
+            evidence is from one Redmi Turbo 4 Pro and differs by feature; the
+            release report lists its exact coverage.
           </p>
           <div class="hero-actions">
             <a class="button primary" href="#install">
@@ -61,7 +61,7 @@ const installCommand = `pkg update -y && pkg upgrade -y && pkg install -y curl w
             TERMUX <b>SHELL</b>
           </span>
           <span>
-            PRoot <b>DEBIAN · UBUNTU · ALPINE</b>
+            PRoot <b>DEBIAN · UBUNTU · KALI · ALPINE</b>
           </span>
           <span>
             TERMUX:X11 <b>DISPLAY · AUDIO</b>
@@ -76,8 +76,8 @@ const installCommand = `pkg update -y && pkg upgrade -y && pkg install -y curl w
             <span class="eyebrow">01 / V2 SUPPORTED DESKTOP GUESTS</span>
             <h2>Choose your Linux guest.</h2>
             <p>
-              These three profiles are covered by v2 desktop support. Debian is
-              the default; twelve more recipes are available but not qualified.
+              These four profiles form the v2 verified baseline. Debian is the
+              default; twelve more recipes are available but not qualified.
             </p>
           </div>
           <div class="profile-grid">
@@ -90,6 +90,11 @@ const installCommand = `pkg update -y && pkg upgrade -y && pkg install -y curl w
               <small>SUPPORTED GUEST</small>
               <strong>Ubuntu</strong>
               <span>Xfce · APT · snap-safe</span>
+            </article>
+            <article class="profile-card">
+              <small>SUPPORTED GUEST</small>
+              <strong>Kali Linux</strong>
+              <span>Xfce · APT · security tools</span>
             </article>
             <article class="profile-card">
               <small>SUPPORTED GUEST</small>
@@ -144,8 +149,8 @@ const installCommand = `pkg update -y && pkg upgrade -y && pkg install -y curl w
             <span class="arch-pulse"></span>
             <h3>VirGL · Zink</h3>
             <p>
-              Native distro Mesa · Debian, Ubuntu, and Alpine tested on Adreno
-              825
+              Native distro Mesa · four installed profiles checked on Adreno
+              825; qualification is device-bounded
             </p>
           </article>
           <article class="arch-stage" data-index="06 / READY">
@@ -256,25 +261,20 @@ const installCommand = `pkg update -y && pkg upgrade -y && pkg install -y curl w
         <div class="device-panel profile-panel status-panel">
           <div class="device-copy">
             <span class="eyebrow">PROJECT STATUS · 14 NOV 2026</span>
-            <h2>
-              v2.0.0 withdrawn. The next v2 platform release is in progress.
-            </h2>
+            <h2>v2.0.0 withdrawn. v2.0.1 is a local release candidate.</h2>
             <p>
               The v2.0.0 GitHub release and stable APT distribution were
               withdrawn on 2026-11-14; the source tag is retained for
-              provenance. Debian, Ubuntu and Alpine remain the three supported
-              guest profiles. Current source also includes four read-only
-              manager CLI commands, a foreground Unix-socket service, and `tx
-              control`, a loopback browser dashboard with confirmed desktop
-              start/stop actions and durable local job records (optional Python
-              3). These are not in the withdrawn v2.0.0 package. The next stable
-              release remains in the v2 major and includes the full platform
-              architecture formerly planned for v3: a complete manager and
-              Control Center, workspace, compute, AI, Device Bridge and
-              extensions. The Control Center remains a partial source
-              implementation; device-browser action validation, service
-              supervision, diagnostics and full platform panels remain open.
-              Each acceptance gate must pass before publication.
+              provenance. Debian, Ubuntu, Kali Linux and Alpine form the four
+              verified v2 desktop profiles; evidence depth differs by profile.
+              Current main includes four read-only manager CLI commands, a
+              foreground Unix-socket service, and `tx control`, a loopback
+              dashboard with confirmed desktop start/stop actions and durable
+              local job records (optional Python 3). The local v2.0.1 candidate
+              includes current main source but is not published. Full service
+              supervision, broader dashboard coverage and the new v3 platform
+              architecture remain future work. No stable release is available
+              until the exact candidate passes release checks and is approved.
             </p>
           </div>
           <div class="profile-grid">
@@ -283,7 +283,7 @@ const installCommand = `pkg update -y && pkg upgrade -y && pkg install -y curl w
               href="/ternux/docs/V2-RELEASE-READINESS.html"
             >
               <small>V2 DISTRIBUTION STATUS</small>
-              <strong>Withdrawn</strong>
+              <strong>v2.0.1 candidate</strong>
               <span>Read the release record ↗</span>
             </a>
             <a
@@ -291,7 +291,7 @@ const installCommand = `pkg update -y && pkg upgrade -y && pkg install -y curl w
               href="/ternux/docs/project/PROJECT-ROADMAP.html"
             >
               <small>PROJECT ROADMAP</small>
-              <strong>Next v2 release</strong>
+              <strong>v3 future scope</strong>
               <span>Current status & next steps ↗</span>
             </a>
             <a class="profile-card" href="https://github.com/soobujmiah/ternux">
@@ -332,13 +332,13 @@ const installCommand = `pkg update -y && pkg upgrade -y && pkg install -y curl w
             <span class="eyebrow">04 / ANDROID DEVELOPMENT</span>
             <h2>Ternux runs Linux. ADT develops Android.</h2>
             <p>
-              Ternux v2 supports Debian, Ubuntu and Alpine desktop guests;
-              Debian is the recommended default. Twelve more named distro
-              recipes are available but not v2-qualified. Ubuntu has its own
-              snap-safe setup. ADT adds Android SDK build-tools, platform-tools,
-              signing, ADB, Flutter/Dart and native build tools inside the
-              guest. ADT's Android development workflow is documented
-              separately.
+              Ternux v2 verifies Debian, Ubuntu, Kali Linux and Alpine desktop
+              guests; Debian is the recommended default. Twelve more named
+              distro recipes are available but not in the v2 verified baseline.
+              Ubuntu has its own snap-safe setup. ADT adds Android SDK
+              build-tools, platform-tools, signing, ADB, Flutter/Dart and native
+              build tools inside the guest. ADT's Android development workflow
+              is documented separately.
             </p>
             <div class="ecosystem-tags" aria-label="ADT toolchain">
               <span>ANDROID SDK</span>

@@ -1,17 +1,18 @@
 ---
 title: "Ternux v3 architecture"
-description: "The platform architecture dossier whose full scope is required for the next v2-major stable release."
+description: "Future platform architecture and implementation plans for Ternux v3."
 lang: "en"
 ---
 
 ## Ternux v3 architecture baseline
 
-**Architecture status: ACCEPTED DESIGN; implementation is partial.** These
-documents retain the platform architecture originally planned for v3. On
-2026-11-14, the owner moved that full scope into the next v2-major stable
-release; this is a required v2 release contract now. The read-only manager
-CLI and foreground Unix-socket service exist in source; the Control Center UI
-and other phases remain incomplete.
+**Status: future design; implementation is partial.** On 2026-11-18, the owner
+revoked the 2026-11-14 decision that moved the former v3 scope into the next v2
+release. Version 2 is frozen to the existing implementation; new capabilities
+and architecture remain v3 work. Begin v3 implementation only after v2.0.1 is
+published and its release page and guide are verified. Current source has
+partial manager and Control Center slices; the full v3 platform is not
+implemented.
 Current implementation and release evidence are tracked in the [project
 status](../project/IMPLEMENTATION-STATUS.md) and [v2 release record](../V2-RELEASE-REPORT.md).
 
@@ -47,9 +48,9 @@ by implication.
 - The manager and Control Center run natively in Termux, outside every PRoot
   guest. The basic manager works when no guest exists and never depends on a
   guest daemon for its own lifecycle.
-- Guests remain isolated workspaces selected by name. Existing Debian,
-  Ubuntu, and Alpine profiles remain supported while new profiles require
-  explicit evidence.
+- Guests remain isolated workspaces selected by name. The owner-confirmed v2
+  verified baseline is Debian, Ubuntu, Kali Linux, and Alpine; future profiles
+  require their own qualification matrix.
 - The Linux workspace remains useful offline and with low resources. AI,
   camera, microphone, GPU, and NPU components are optional workloads with
   visible resource and permission costs.

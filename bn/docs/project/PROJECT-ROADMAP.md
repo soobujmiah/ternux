@@ -1,59 +1,75 @@
 ---
 title: "Ternux project roadmap"
-description: "পরের v2-major platform release-এর বর্তমান roadmap।"
+description: "স্থানীয় v2.0.1 release candidate এবং ভবিষ্যৎ v3-এর আলাদা roadmap।"
 lang: "bn"
 alt_url: "/docs/project/PROJECT-ROADMAP.html"
 ---
 
-## Ternux project roadmap
+## বর্তমান দিকনির্দেশ
 
-**শেষ পর্যালোচনা:** 2026-11-14। **অবস্থা:** owner-নির্দেশিত সক্রিয় release plan।
+**পর্যালোচনা:** 2026-11-18। Version 2 হলো বর্তমান implementation; v2.0.1 পরবর্তী
+প্রস্তাবিত release। 2026-11-14-এর সিদ্ধান্ত—আগের v3 platform scope-কে v2-তে
+তোলার প্রস্তাব—2026-11-18-এ owner প্রত্যাহার করেছেন। v2-তে নতুন capability,
+distro support, architecture, desktop environment বা APT channel যোগ হবে না।
 
-## Release status
+## Release অবস্থা
 
-- Ternux v2.0.0 2026-11-14-এ withdrawn হয়েছে। GitHub Release object নেই
-  এবং public stable APT index HTTP 404 দেয়। Provenance-এর জন্য `v2.0.0` source
-  tag রাখা হয়েছে; এই tag আবার ব্যবহার করা যাবে না।
-- পরের stable release v2 major-এই থাকবে। আগে v3 নামে পরিকল্পিত platform
-  architecture ও acceptance gate এখন পরের 2.x release-এর বাধ্যতামূলক scope;
-  আলাদা v3 stable release হবে না।
-- Implementation ও exact-release gate শেষ না হওয়া পর্যন্ত stable APT channel
-  withdrawn থাকবে। `/apt-rc` কেবল candidate testing-এর জন্য।
-- Supported desktop guest হলো Debian, Ubuntu ও Alpine। Dated evidence-কে বর্তমান
-  state ধরা যাবে না; 2026-11-14-এর live inventory-তে Debian, Ubuntu ও Alpine—তিনটিই READY ছিল।
+- **v1.4.0:** সর্বশেষ প্রকাশিত version। Tag `3e6c07e2afcb5f1e65ecd57af19b0382a948835a`;
+  historical source archive থেকে install guide স্থানীয়ভাবে যাচাই হয়েছে। Public
+  release page এখনো বদলানো হয়নি।
+- **v2.0.0:** 2026-11-14-এ GitHub Release ও stable APT channel প্রত্যাহার হয়েছে;
+  source tag provenance-এর জন্য রাখা আছে, পুনর্ব্যবহার করা যাবে না।
+- **v2.0.1:** পরবর্তী version candidate; tag, release commit, artifact, checksum বা
+  release page এখনো নেই। Local source ও documentation যাচাই চলছে।
+- Stable APT v2.0.1-এর install পদ্ধতি নয়। APT কেবল v3-তে আলাদা feasibility
+  study ও owner approval-এর পরে বিবেচ্য।
+- Owner-confirmed v2 desktop baseline: Debian, Ubuntu, Kali Linux ও Alpine।
+  Evidence-এর গভীরতা সমান নয়; [feature matrix](../../../docs/audit/FEATURE-MATRIX.md)
+  এবং [device record](../../../docs/audit/DEVICE-VERIFICATION.md) দেখুন।
 
-## বাধ্যতামূলক platform scope
+## Version 2 freeze ও release gate
 
-[Architecture dossier](/docs/v3/README.html)-এ detailed specification আছে। Dependency অনুযায়ী কাজ এগোবে, এবং প্রতিটি অংশ পরের v2-major stable release-এর gate:
+v2 বর্তমান implementation-কে সংরক্ষণ করবে; নতুন distro, Manager architecture,
+Device Bridge, Control Center capability, extension framework, API, AI/compute
+architecture, desktop environment বা APT reintroduction এই release-এর scope নয়।
 
-1. **Native manager ও migration:** host-owned registry, structured job, CLI parity, optional supervised service, নিরাপদ display/session ownership, এবং working guest অক্ষত রেখে staged migration।
-2. **Control Center:** সুরক্ষিত local status, start/stop, log, diagnostics, accessibility ও low-resource আচরণ; GUI না থাকলেও CLI ব্যবহারযোগ্য থাকবে।
-3. **Workspace:** কোনো guest install শুরুর আগে নির্বাচিত সব guest-এর username ও shell সংগ্রহ; তারপর Debian, Ubuntu ও Alpine আলাদাভাবে install/update/recover/remove, user data ও unrelated guest অক্ষত রেখে।
-4. **Compute ও AI:** capability registry, backend/workload ownership, CPU/GPU correctness, failure recovery, resource policy এবং documented interface দিয়ে LAI integration।
-5. **Android Device Bridge:** camera, microphone ও scoped storage-এর permission-aware operation; deny/cancel/failure path-সহ।
-6. **Extension:** যাচাইকৃত manifest, scoped permission, integrity/provenance check, rollback, repair ও নিরাপদ uninstall।
-7. **Release integration:** package metadata, CLI help, bilingual docs/site, security review, exact-commit CI, clean device install এবং তিন guest-এর lifecycle evidence।
+v2.0.1 প্রকাশের আগে নির্দিষ্ট release commit, version metadata, install guide,
+source archive, checksum, artifact provenance, regression checks, exact-commit CI
+ও release notes একে অন্যের সঙ্গে মিলতে হবে। Owner-এর অনুমতি ছাড়া GitHub-এ tag,
+commit, publish, merge හෝ repository sync করা যাবে না.
 
-প্রতিটি phase reproducible acceptance evidence পেলে তবেই complete। Source implementation, build, installer completion বা এক device check দিয়ে পুরো platform qualified হয় না।
+## Local evidence ও সীমা
 
-## বর্তমান implementation evidence
+Debian guest-এ owner-এর অনুরোধে desktop চালু করে window-fit regression দেখা হয়েছে।
+স্থানীয় candidate helper window resize-এর পর user-moved position রেখেছে; live
+session `:1` খোলা আছে। `xdotool` Debian guest-এ test-এর জন্য install করা হয়েছে।
+এটি একটি Debian/XFCE session-এর evidence; অন্য distro বা published package-এর নয়।
+পুরোনো audit-এ desktop stopped দেখানো হয়েছিল—পরবর্তী পরিবর্তনটি
+[device verification record](../../../docs/audit/DEVICE-VERIFICATION.md)-এ আলাদাভাবে আছে।
 
-বর্তমান source-এ native manager operation, foreground Unix-socket service,
-confirmation-সহ desktop start/stop-যুক্ত loopback dashboard এবং journaled display
-migration আছে। 2026-11-14-এ সব guest থামিয়ে reference device-এ migration করা হয়:
-Debian `:1`-এ যায়, তারপর Debian, Ubuntu ও Alpine `:1/:2/:3`-এ READY হয়। অন্য
-managed guest shared lifecycle lock ধরে রাখলে migration এখন planner-এ block হয়।
-এটি এক device-এ একটি migration/restart-এর evidence; পূর্ণ clean install/update/
-recovery/uninstall matrix নয়। Control Center backend-এ Ubuntu ও Alpine live
-stop/start, এবং migration-এর পর Debian-এর live CLI restart evidence আছে; browser
-rendered interaction এখনো যাচাই হয়নি। পূর্ণ Control Center, service supervision
-ও workspace gate বাকি। বিস্তারিত
-[implementation status](/bn/docs/project/IMPLEMENTATION-STATUS.html),
-[current-state audit](https://github.com/soobujmiah/ternux/blob/main/docs/audit/CURRENT-STATE.md)
-এবং [device verification](https://github.com/soobujmiah/ternux/blob/main/docs/audit/DEVICE-VERIFICATION.md)-এ আছে।
+Termux ARM64 focused suite-এর আগের run 211/211 pass করেছিল। Candidate version
+পরিবর্তনের পরের ফল, source fallback pin-এর সীমা, Docker-এর অনুপস্থিতি ও Node
+runtime error একই audit record-এ আলাদা করে নথিবদ্ধ হবে। এগুলো clean-install বা
+চার distro-র পূর্ণ qualification প্রমাণ করে না।
 
-## পরবর্তী কাজ
+## v2 প্রকাশের পরে Version 3
 
-Dependency-ordered implementation list [next actions](/bn/docs/project/NEXT-ACTIONS.html)-এ
-আছে। সব বাধ্যতামূলক gate exact 2.x release candidate-এ pass না হওয়া পর্যন্ত
-stable channel withdrawn থাকবে।
+v2.0.1 প্রকাশ ও তার version-specific install guide যাচাই হওয়ার পরেই v3 কাজ শুরু হবে।
+
+- `docs/v3/`-এ product scope, architecture, acceptance criteria, ADR, testing,
+  security, এবং measurable milestone একত্রে রাখুন। v3 design-কে v2 feature claim
+  হিসেবে দেখাবেন না।
+- Arch Linux, Fedora Linux, Void Linux, openSUSE Tumbleweed, CentOS Stream ও
+  Gentoo candidate হিসেবে যাচাই করুন। প্রথম চারটিকে অগ্রাধিকার; প্রথম v3 release-এ
+  আটটি fully qualified distro লক্ষ্য, দশটি stretch goal।
+- APT hosting, ARM64 builds, signing, metadata, update/recovery, rollback, mirror,
+  maintenance ও supply-chain ঝুঁকি নিয়ে গবেষণা করুন। সিদ্ধান্ত ও owner approval
+  না হওয়া পর্যন্ত Planned রাখুন।
+- Local implementation ও verification-এর পরে নির্দিষ্ট পরিবর্তন, evidence ও
+  সীমা owner-কে দেখিয়ে approval নিন; তারপর repository synchronization করুন।
+
+বর্তমান Manager CLI, foreground read-only Unix-socket service, partial local
+Control Center, display migration ও multi-distro lifecycle implementation-এর
+অংশ; সম্পূর্ণ v3 platform নয়। বিস্তারিত [implementation status](IMPLEMENTATION-STATUS.md),
+[next actions](NEXT-ACTIONS.md), [release status](RELEASE-STATUS.md) ও
+[historical v2 report](../../../docs/release/V2-RELEASE-REPORT.md)-এ।

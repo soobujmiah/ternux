@@ -5,6 +5,94 @@ lang: "bn"
 alt_url: "/docs/V2-RELEASE-READINESS.html"
 ---
 
+## বর্তমান v2.0.1 candidate status — 2026-11-18
+
+v2.0.0 প্রত্যাহারের পরবর্তী unused version candidate হলো v2.0.1; এটি এখনো local,
+unpublished। 2026-11-14-এ v3 architecture scope-কে v2-তে আনার সিদ্ধান্ত 2026-11-18-এ
+প্রত্যাহার করা হয়েছে। v2 বর্তমান implementation-এ frozen থাকবে; নতুন distro,
+architecture, Control Center capability বা APT যোগ হবে না। বর্তমান owner-confirmed
+desktop baseline Debian, Ubuntu, Kali Linux ও Alpine; তাদের evidence-এর গভীরতা
+সমান নয়। বর্তমান [project roadmap](project/PROJECT-ROADMAP.md),
+[release status](project/RELEASE-STATUS.md), [feature matrix](../../docs/audit/FEATURE-MATRIX.md)
+ও [device record](../../docs/audit/DEVICE-VERIFICATION.md) দেখুন। নিচের 2026-11-16-এর
+v2.0.0 acceptance তথ্য historical snapshot; এটি v2.0.1 release readiness নয়।
+
+## Local v2.0.1 candidate checks — 2026-11-18
+
+- `python3 tests/window_fit_geometry.py`: geometry/state-এর ১২টি check pass।
+- `bash tests/focused.sh`: ২১১ pass, ০ fail।
+- `bash tests/update_transaction.sh`: pinned update, 2.0.0→2.0.1 upgrade,
+  1.4.0→2.0.1 migration fixture, rollback, interrupted-update recovery,
+  concurrency ও symlink safety pass।
+- Astro build: ৯০টি static page তৈরি; finalizer ৫৬টি HTML route পেয়েছে।
+- `python3 tests/docs_check.py`: ৬,৫১৮ assertion, ৬১৬ internal link ও ২৪টি
+  bilingual page pair pass। দুই homepage Prettier দিয়ে format করার পর
+  `npm run format:check`-ও pass।
+- Debian/XFCE live X11 check, display `:1` (640×1386): আগের
+  `xdotool windowsize`-ভিত্তিক পরীক্ষাটি pointer দিয়ে window resize করেনি,
+  তাই resize আচরণের যথেষ্ট প্রমাণ ছিল না। পরের অংশে নতুন live pointer test আছে।
+- `npm audit --json` website build tree-তে Picomatch 4.0.7 ও 2.3.2-এর মাধ্যমে
+  ৯টি high-severity dependency path দেখায়। GitHub Advisory Database
+  CVE-2026-112366-এ Picomatch 4.0.7 পর্যন্ত affected এবং patched version নেই
+  বলেছে; installed Ternux CLI-তে Node dependency নেই। তাই ঝুঁকিটি website
+  build toolchain-এ, guest runtime-এ নয়। যাচাইকৃত নিরাপদ fix না থাকায় dependency
+  downgrade বা override করা হয়নি; upstream issue অমীমাংসিত। এটি CI/build-chain
+  risk, v2 runtime exploit-এর প্রমাণ নয়।
+
+## Live resize correction and X11 stall investigation — 2026-11-18
+
+আগের live test `xdotool windowsize` ব্যবহার করেছিল; pointer দিয়ে resize
+করেনি। তাই সেটি resize bug-এর যথেষ্ট প্রমাণ ছিল না। পুনরায় live test-এ দেখা
+গেছে, window fitter resize event-এর সময় launch-time minimum size আবার চাপিয়ে
+দিচ্ছিল এবং frame coordinate-এর সঙ্গে `StaticGravity` ব্যবহার করছিল। এতে XFWM-এর
+সঙ্গে conflict এবং titlebar-এর উচ্চতার সমান position shift হতে পারত।
+
+Local fix-এ minimum size শুধু প্রথম placement-এ প্রয়োগ হয়; interactive resize-এ
+user-এর size ও position বজায় থাকে। Frame coordinate-এর জন্য EWMH
+`NorthWestGravity` ব্যবহার হয়। Live Debian/XFCE session-এ অস্থায়ী window-কে
+client position `(74, 244)`-এ সরিয়ে pointer দিয়ে `280x240` থেকে `340x300`,
+তারপর `380x340` করা হয়েছে। প্রতিটি drag-এর পর এবং এক সেকেন্ড অপেক্ষার পরও
+position `(74, 244)` ছিল। Resize-এর সময় helper কোনো correction log করেনি।
+Candidate helper `tx distro root debian` দিয়ে install, Debian-এ Python syntax
+check এবং `tx restart debian` দিয়ে desktop restart করা হয়েছে।
+
+এই পরীক্ষায় X11 stall reproduce হয়নি। Device: Android 16, Xiaomi `25053RT47C`,
+F-Droid Termux `0.119.0-beta.3`, Adreno 825, Zink/Turnip। Termux:X11 চলছিল; ৮০টি
+X11 request round-trip-এ min 1.41 ms, median 1.84 ms, p95 2.93 ms, max 4.81 ms
+পাওয়া গেছে। Sampling-এর সময় Termux:X11-এর RSS প্রায় 228 MiB এবং host-এ প্রায়
+4.1 GiB RAM available ছিল। ছোট এই sample intermittent Android scheduling বা
+GPU-driver stall-কে বাদ দেয় না। Upstream
+[Termux:X11 documentation](https://github.com/termux/termux-x11#avoiding-slowdowns)
+বলেছে, আলাদা X11 app foreground-এ থাকলে Android Termux-কে কম CPU time দিতে পারে।
+এর shared-UID workaround GitHub-signed Termux চায়; এই F-Droid install-এর সঙ্গে
+compatible নয়।
+
+Termux:Boot install করা আছে। এটি boot-এ script চালাতে এবং `termux-wake-lock`
+দিয়ে device sleep আটকাতে পারে; কিন্তু চলমান X11/GPU hang বা আলাদা app-এর CPU
+scheduling ঠিক করে না। Termux ও Termux:X11-এর battery **Unrestricted** করার
+নির্দেশনা [Troubleshooting](TROUBLESHOOTING.md#x11-slows-down-or-stalls)-এ আছে।
+
+শেষ status sample-এ Ternux ও X11 READY/running ছিল, তবে restart-এর পর কিছুক্ষণ
+ready থাকার পরে PulseAudio bridge আবার `pulseaudio_ready=no` হয়েছে। এটি resize
+test থেকে আলাদা এবং এখনো তদন্তের বিষয়; `tx verify debian` desktop ও GPU check
+pass করেছে। Desktop Termux:X11 খোলা রেখে চালু রাখা হয়েছে।
+
+Standalone ও CLI fallback এখন `f7d2a43d97df2bec90cf0a481926e6f57234cbd9`
+immutable local source snapshot-এ pin করা। Deterministic source archive-এর
+SHA-256 `2924d17dce9a3971c5765b115c81f13c80f2914a3072c6fd627b012201b123b2`;
+`TERNUX_SOURCE_ARCHIVE_OVERRIDE=<archive> bash tests/bootstrap_source_sync.sh`
+এই archive দিয়ে pass করেছে। আগে প্রকাশিত commit দিয়ে প্রমাণ হয়েছে যে local
+`git archive | gzip -n` format GitHub-এর short-SHA codeload archive digest-এর
+সঙ্গে মেলে। নতুন snapshot এখনো GitHub-এ নেই, তাই repository synchronization না
+হওয়া পর্যন্ত এর live codeload URL যাচাই করা যাবে না; approval-এর পর
+exact-commit CI check আবশ্যক।
+
+এগুলো local candidate result; exact-commit GitHub CI বা release qualification
+নয়। কোনো repository release object, tag, release asset বা GitHub পরিবর্তন
+করা হয়নি।
+
+## Historical v2.0.0 qualification snapshot
+
 **অবস্থা: Public distribution থেকে withdrawn**
 **Audit তারিখ:** 2026-11-16
 **লক্ষ্য:** Ternux 2.0.0
@@ -91,7 +179,7 @@ qualification নয়।
 2. Repository workflow `.repo/` state PR #190-এ তৈরি করেছে; check pass করে merge হয়েছে, কোনো generated file হাতে edit হয়নি।
 3. Stable APT signature/index/package, native package lifecycle, guest-specific verification ও website redeploy-তে signed repository preservation pass করেছে।
 4. `v2.0.0` tag validated main `9106b04fc8627ae98b1d63c9912a28c8a4677441`-এ প্রকাশিত।
-5. চূড়ান্ত প্রমাণ [v2.0.0 release report](V2-RELEASE-REPORT.md)-এ আছে। ২০২৬-১১-১৪ তারিখে owner-এর direction অনুযায়ী former v3 platform scope পরের v2-major stable release-এর জন্য বাধ্যতামূলক; আলাদা v3 stable release হবে না। বর্তমান পরিকল্পনা [project roadmap](project/PROJECT-ROADMAP.md)-এ আছে।
+5. চূড়ান্ত ঐতিহাসিক প্রমাণ [v2.0.0 release report](V2-RELEASE-REPORT.md)-এ আছে। ২০২৬-১১-১৪-এ former v3 scope-কে পরের v2-major release-এ আনার direction ২০২৬-১১-১৮-এ owner প্রত্যাহার করেছেন। বর্তমান পরিকল্পনা [project roadmap](project/PROJECT-ROADMAP.md)-এ আছে।
 ## বিস্তারিত audit
 
 - [বর্তমান state ও সিদ্ধান্ত](../../docs/audit/CURRENT-STATE.md)
@@ -101,7 +189,7 @@ qualification নয়।
 - [Machine-readable gate](https://github.com/soobujmiah/ternux/blob/main/docs/release-gates.json)
 
 `v2.0.0` source tag provenance-এর জন্য রাখা হয়েছে; GitHub release ও signed
-stable APT channel withdrawn। পরের stable release v2 major-এ থাকবে। আগে v3 নামে
-পরিকল্পিত সম্পূর্ণ platform architecture ও acceptance gate শেষ হলে নতুন 2.x release
-হবে; আলাদা v3 stable release হবে না। Historical প্রমাণ [release report](V2-RELEASE-REPORT.md)-এ আছে; বর্তমান scope
-[project roadmap](project/PROJECT-ROADMAP.md)-এ লেখা আছে।
+stable APT channel withdrawn। 2026-11-14-এ former v3 scope-কে পরের 2.x release-এ
+আনার direction 2026-11-18-এ owner প্রত্যাহার করেছেন। ওই requirement আর প্রযোজ্য
+নয়; v3 আলাদা future scope। Historical প্রমাণ [release report](V2-RELEASE-REPORT.md)-এ
+আছে; বর্তমান scope [project roadmap](project/PROJECT-ROADMAP.md)-এ।

@@ -39,8 +39,8 @@ set -u
 _TNX_SRC="$(cd "$(dirname "$0")" && pwd 2>/dev/null || echo "$PWD")"
 # Pin the exact source snapshot and its hosted codeload bytes. Keep this aligned
 # with lib/core.sh; refresh both after reviewing the archive and verifying its digest.
-_TNX_BOOTSTRAP_COMMIT="292554b9c5268580b4b02df34d485e7b17375642"
-_TNX_BOOTSTRAP_SHA256="4ac2236e2082c5d1b1b10a16f345f7c4821955250bed41540e81af15744dec82"
+_TNX_BOOTSTRAP_COMMIT="f7d2a43d97df2bec90cf0a481926e6f57234cbd9"
+_TNX_BOOTSTRAP_SHA256="2924d17dce9a3971c5765b115c81f13c80f2914a3072c6fd627b012201b123b2"
 
 _tnx_load_local() {
   [ -f "$_TNX_SRC/lib/core.sh" ] && [ -f "$_TNX_SRC/lib/phases.sh" ] && [ -f "$_TNX_SRC/lib/ui.sh" ] || return 1
@@ -287,7 +287,7 @@ while [ $# -gt 0 ]; do
     --resume) ACTION="resume" ;;
     --status) ACTION="status" ;;
     --uninstall) ACTION="uninstall" ;;
-    --version) echo "ternux installer v${TERNUX_VERSION:-2.0.0} — https://github.com/soobujmiah/ternux"; exit 0 ;;
+    --version) echo "ternux installer v${TERNUX_VERSION:-2.0.1} — https://github.com/soobujmiah/ternux"; exit 0 ;;
     -h|--help) tnx_installer_usage; exit 0 ;;
     *) echo "[FAIL] Unknown option: $1" >&2; exit 2 ;;
   esac

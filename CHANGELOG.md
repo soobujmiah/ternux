@@ -12,6 +12,10 @@ Notable changes to ternux. Dates are ISO 8601.
 
 ## [Unreleased]
 
+### Desktop reliability
+
+- The local v2.0.1 candidate preserves a user's window position after resizing; the window is moved only when needed to keep it inside the X11 work area. Added geometry regression coverage and verified the behavior in a live Debian/XFCE session.
+
 ### Installer
 
 - The one-command installer now retries the script download with wget when curl cannot start or fetch it. The standalone bootstrap and CLI fallback share a checksum-verified source snapshot kept in sync with current installer and CLI code; regression tests verify the fallback and snapshot freshness.

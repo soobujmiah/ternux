@@ -11,14 +11,15 @@
 | বিভাগ | পৃষ্ঠা |
 |---|---|
 | শুরু করুন | `index.md`, `QUICK-START.md`, `INSTALLATION.md`, `MANUAL.md` |
-| প্রকাশনা ও পরিকল্পনার অবস্থা | [`release/V2-RELEASE-REPORT.md`](release/V2-RELEASE-REPORT.md) (বর্তমান প্রকাশনা ও যন্ত্রের ফলের সমন্বিত হিসাব), [`V2-RELEASE-REPORT.md`](V2-RELEASE-REPORT.md) (প্রকাশের সময়কার স্থিরচিত্র), [`V2-RELEASE-READINESS.md`](V2-RELEASE-READINESS.md), [`V3-PROPOSALS.md`](V3-PROPOSALS.md), এবং `ACCELERATOR-RELEASE-PLAN.md` |
+| প্রকাশনা ও পরিকল্পনার অবস্থা | [`release/README.md`](release/README.md)-এ সংস্করণভিত্তিক install guide; [`release/V2-RELEASE-REPORT.md`](release/V2-RELEASE-REPORT.md)-এ v2.0.0 ইতিহাস ও বর্তমান scope; [`V2-RELEASE-READINESS.md`](V2-RELEASE-READINESS.md)-এ অপ্রকাশিত v2.0.1 candidate-এর অবস্থা |
 | শুধু সংগ্রহশালায় থাকা নিরীক্ষার প্রমাণ | [`audit/`](../../docs/audit/CURRENT-STATE.md)-এ তারিখসহ যন্ত্র, সংগ্রহশালা ও বৈশিষ্ট্যের যোগ্যতা যাচাইয়ের বিস্তারিত আছে; এগুলো প্রকাশিত ওয়েবসাইটের দাবি নয়। |
-| প্ল্যাটফর্মের নকশা ও বর্তমান পরিকল্পনা | আগে তৃতীয় প্রধান সংস্করণের জন্য পরিকল্পিত পূর্ণ নকশা এখন পরের দ্বিতীয়-প্রধান-সংস্করণে অন্তর্ভুক্ত। ইংরেজি ও বাংলা [প্রকল্পের পরিকল্পনা](project/PROJECT-ROADMAP.md) এবং [পরবর্তী কাজ](project/NEXT-ACTIONS.md)-এ বাস্তবায়ন ও যোগ্যতা যাচাইয়ের অবস্থা দেখুন। |
+| প্ল্যাটফর্মের নকশা ও বর্তমান পরিকল্পনা | [`v3/`](../../docs/v3/README.md)-তে ভবিষ্যৎ স্থাপত্য; এগুলো v2 release gate নয়। ইংরেজি ও বাংলা [প্রকল্পের পরিকল্পনা](project/PROJECT-ROADMAP.md)-তে v2 candidate ও v3-এর ক্রম দেখুন। |
 | প্যাকেজ বিতরণ | [`TERMUX-APT.md`](TERMUX-APT.md) (প্যাকেজ-সংগ্রহস্থলের বিশ্বাসযোগ্যতা ও ইনস্টল); [`../packaging/termux/README.md`](../packaging/termux/README.md) (তৈরি ও প্রকাশ) |
 | সংগ্রহশালার বিস্তারিত নির্দেশিকা | [`../guides/device-benchmark-evidence.md`](../guides/device-benchmark-evidence.md), [`../guides/llama-vulkan-extension.md`](../guides/llama-vulkan-extension.md), এবং `../../guides/`-এর সংশ্লিষ্ট ইংরেজি পৃষ্ঠা (শুধু উৎস সংগ্রহশালায়; ওয়েবসাইটে প্রকাশিত নয়) |
 | পরিচালনা | `USAGE.md`, `WORKLOADS.md`, `BLENDER-MCP.md`, `CONFIGURATION.md`, `GRAPHICS-PERSISTENCE.md`, `TROUBLESHOOTING.md` |
 | ধারণা ও ব্যাখ্যা | `ARCHITECTURE.md`, `BENCHMARKS.md`, `FAQ.md` |
 | তথ্যসূত্র | `CLI.md`, মূল `CHANGELOG.md`, মূল `CONTRIBUTING.md` |
+| নথির scope | [`DOCUMENT-SCOPE.md`](../../docs/DOCUMENT-SCOPE.md)-এ বর্তমান, ঐতিহাসিক, ভবিষ্যৎ, shared, deprecated ও review-needed শ্রেণি আছে। |
 
 `QUICK-START.md` ওয়েবসাইটে `llama.cpp` এক্সটেনশনের সংক্ষিপ্ত পথ দেখায়। এর
 সমান্তরাল সংগ্রহশালা-নির্দেশিকায় প্রকাশনা যাচাই এবং স্বয়ংক্রিয় বা হাতে ইনস্টলের

@@ -6,7 +6,7 @@ lang: "en"
 
 ## Known limitations
 
-**Last reviewed:** 2026-11-14.
+**Last reviewed:** 2026-11-18.
 
 - v2 device qualification is for one named Android/Adreno device. It does not
   establish equivalent behavior on other SoCs, GPUs, Android versions, or
@@ -15,8 +15,11 @@ lang: "en"
   automated/configuration audit; prior synthetic results disagree for Alpine.
 - Ternux's GTK and XFWM theme does not guarantee a third-party app's
   client-side decorations, Qt theme, custom drawing, or icon-name coverage.
-- An X11 app window can be observed and constrained by the window-fit helper;
-  the helper cannot correct a window that draws its own oversized content.
+- The local v2.0.1 candidate keeps a moved window in place when its size changes
+  and clamps it only when it would leave the work area. This was verified with
+  one live Debian/XFCE session and a geometry regression test; other window
+  managers, devices, and published packages are not covered. The helper cannot
+  correct a window that draws its own oversized content.
 - PRoot provides a userland compatibility environment, not kernel container
   isolation or root privileges.
 - Termux:API still-photo capability does not by itself provide continuous

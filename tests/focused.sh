@@ -3286,6 +3286,7 @@ fi
 # first-run bootstrap and reject byte-changed archives before installation.
 cli_pin_commit="$(sed -n 's/^TERNUX_SOURCE_COMMIT="\([0-9a-f]*\)"$/\1/p' "$ROOT/lib/core.sh")"
 cli_pin_sha="$(sed -n 's/^TERNUX_SOURCE_SHA256="\([0-9a-f]*\)"$/\1/p' "$ROOT/lib/core.sh")"
+cli_pin_version="$(sed -n 's/^TERNUX_VERSION="\([^"]*\)"$/\1/p' "$ROOT/lib/core.sh")"
 boot_pin_commit="$(sed -n 's/^_TNX_BOOTSTRAP_COMMIT="\([0-9a-f]*\)"$/\1/p' "$ROOT/install.sh")"
 boot_pin_sha="$(sed -n 's/^_TNX_BOOTSTRAP_SHA256="\([0-9a-f]*\)"$/\1/p' "$ROOT/install.sh")"
 mkdir -p "$TMP/cli-fallback-source/ternux-pinned-source/bin" \
@@ -3319,8 +3320,8 @@ if [ "$cli_pin_commit" = "$boot_pin_commit" ] &&
        tnx_phase_cli
      ' _ "$TMP/cli-fallback-modules" >/dev/null &&
    [ "$(cat "$TMP/cli-fallback-url")" = "https://codeload.github.com/soobujmiah/ternux/tar.gz/${cli_pin_commit:0:7}" ] &&
-   "$TMP/prefix-cli-fallback/bin/ternux" --version | grep -q "^ternux v2.0.0$" &&
-   "$TMP/prefix-cli-fallback/bin/tx" --version | grep -q "^ternux v2.0.0$" &&
+   "$TMP/prefix-cli-fallback/bin/ternux" --version | grep -q "^ternux v${cli_pin_version}$" &&
+   "$TMP/prefix-cli-fallback/bin/tx" --version | grep -q "^ternux v${cli_pin_version}$" &&
    "$TMP/prefix-cli-fallback/bin/terfetch" --version | grep -q "^terfetch 0.1.0$" &&
    [ -s "$TMP/prefix-cli-fallback/lib/ternux/ternux-welcome-gui.py" ] &&
    [ -s "$TMP/prefix-cli-fallback/lib/ternux/ternux-flashlight.py" ] &&
@@ -3358,7 +3359,7 @@ if env HOME="$TMP/home-cli-legacy" PREFIX="$TMP/prefix-cli-legacy" \
     tnx_download(){ cp "$CLI_ARCHIVE" "$2"; }
     tnx_phase_cli
   ' _ "$TMP/cli-fallback-modules" >/dev/null &&
-  "$TMP/prefix-cli-legacy/bin/tx" --version | grep -q "^ternux v2.0.0$"; then
+  "$TMP/prefix-cli-legacy/bin/tx" --version | grep -q "^ternux v${cli_pin_version}$"; then
   ok "CLI source fallback synthesizes tx for a verified legacy snapshot"
 else
   not_ok "CLI source fallback synthesizes tx for a verified legacy snapshot"

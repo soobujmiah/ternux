@@ -35,7 +35,7 @@ export const nav = {
       label: "Reference",
       items: [
         ["CLI reference", "/docs/CLI.html"],
-        ["v2 release & current audit", "/docs/release/V2-RELEASE-REPORT.html"],
+        ["Release guides & audit", "/docs/release/README.html"],
         ["Changelog", "/CHANGELOG.html"],
         ["Contributing", "/CONTRIBUTING.html"],
       ],
@@ -77,7 +77,7 @@ export const nav = {
       label: "রেফারেন্স",
       items: [
         ["সিএলআই রেফারেন্স", "/bn/docs/CLI.html"],
-        ["v2 release ও audit", "/bn/docs/release/V2-RELEASE-REPORT.html"],
+        ["Release guide ও audit", "/bn/docs/release/README.html"],
         ["পরিবর্তনলগ", "/bn/CHANGELOG.html"],
         ["কনট্রিবিউটিং", "/bn/CONTRIBUTING.html"],
       ],

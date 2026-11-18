@@ -8,9 +8,9 @@ alt_url: "/bn/docs/V3-ARCHITECTURE.html"
 ## V3 architecture overview
 
 This architecture was originally organized as the Ternux v3 plan. On
-2026-11-14, the owner directed that its full planned scope be included in the
-next v2-major stable release; there will be no separate v3 stable release. It
-describes a native Termux manager for independent Linux workspaces, optional
+2026-11-14, the owner temporarily directed its full planned scope into v2; that
+decision was revoked on 2026-11-18. The design remains future v3 work and is not
+a v2 release gate. It describes a native Termux manager for independent Linux workspaces, optional
 compute and AI workloads, a permission-aware Android Device Bridge, and a
 local Control Center. **Designed does not mean implemented or device-verified.**
 
@@ -18,7 +18,8 @@ local Control Center. **Designed does not mean implemented or device-verified.**
 
 - Manager, CLI, Control Center, Device Bridge, and workload registry run in
   Termux, outside every PRoot guest.
-- Debian, Ubuntu, and Alpine v2 behavior remains the compatibility baseline.
+- The owner-confirmed v2 baseline is Debian, Ubuntu, Kali Linux, and Alpine;
+  future v3 profile expansion requires separate qualification.
 - LAI remains separate; Ternux integrates only through a documented API and
   does not automatically move or delete LAI's models.
 - Camera, microphone, storage, GPU, and NPU operations are optional,

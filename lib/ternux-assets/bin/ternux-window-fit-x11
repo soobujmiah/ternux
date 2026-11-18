@@ -42,17 +42,29 @@ def fitted_geometry(
     maximized_vertically: bool = False,
     minimum_width: int = 1,
     minimum_height: int = 1,
+    preserve_position: bool = False,
+    current_x: int = 0,
+    current_y: int = 0,
 ) -> tuple[int, int, int, int]:
-    """Fit a decorated window in the work area and center it on the screen."""
+    """Fit a decorated window; center new windows and retain user placement."""
     margin = max(0, margin)
     max_width = max(1, area_width - margin * 2)
     max_height = max(1, area_height - margin * 2)
     minimum_width = min(max_width, max(1, minimum_width))
     minimum_height = min(max_height, max(1, minimum_height))
-    width = max_width if maximized_horizontally else min(max(minimum_width, outer_width), max_width)
-    height = max_height if maximized_vertically else min(max(minimum_height, outer_height), max_height)
-    x = area_x + margin if maximized_horizontally else area_x + (area_width - width) // 2
-    y = area_y + margin if maximized_vertically else area_y + (area_height - height) // 2
+    # Minimum sizing is only a launch-time policy. During interactive resize,
+    # enforce the display boundary but never snap the user's chosen size back
+    # to the launch minimum; doing so fights XFWM on every ConfigureNotify.
+    min_width = 1 if preserve_position else minimum_width
+    min_height = 1 if preserve_position else minimum_height
+    width = max_width if maximized_horizontally else min(max(min_width, outer_width), max_width)
+    height = max_height if maximized_vertically else min(max(min_height, outer_height), max_height)
+    x = area_x + margin if maximized_horizontally else (
+        current_x if preserve_position else area_x + (area_width - width) // 2
+    )
+    y = area_y + margin if maximized_vertically else (
+        current_y if preserve_position else area_y + (area_height - height) // 2
+    )
     x = min(max(x, area_x + margin), area_x + area_width - margin - width)
     y = min(max(y, area_y + margin), area_y + area_height - margin - height)
     return x, y, width, height
@@ -85,6 +97,11 @@ def zoomed_font_name(font_name: str, direction: int) -> str | None:
     if abs(next_size - size) < 0.001:
         return None
     return f"{family} {next_size:.2f}".rstrip("0").rstrip(".")
+
+
+def moveresize_flags(north_west_gravity: int) -> int:
+    """Build an EWMH request for frame position and client size."""
+    return north_west_gravity | (0xF << 8) | (1 << 12)
 
 
 def main() -> int:
@@ -276,6 +293,9 @@ def main() -> int:
                 maximized_vertically,
                 minimum_width,
                 minimum_height,
+                preserve_position=not force,
+                current_x=outer_x,
+                current_y=outer_y,
             )
 
             if (new_x, new_y, new_outer_width, new_outer_height) == (
@@ -286,9 +306,11 @@ def main() -> int:
             ):
                 return
 
-            # StaticGravity uses frame coordinates, so the target includes
-            # decorations without relying on a hard-coded title-bar height.
-            flags = 10 | (0xF << 8) | (1 << 12)
+            # NorthWestGravity positions the frame's top-left corner. The
+            # coordinates above are outer-frame coordinates; StaticGravity
+            # instead anchors the client origin and shifts decorated windows
+            # by their title-bar extents during a resize.
+            flags = moveresize_flags(X.NorthWestGravity)
             event = protocol.event.ClientMessage(
                 window=window,
                 client_type=atoms_by_name["_NET_MOVERESIZE_WINDOW"],

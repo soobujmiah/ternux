@@ -697,7 +697,9 @@ try:
     namespace = {"s": "http://www.sitemaps.org/schemas/sitemap/0.9", "x": "http://www.w3.org/1999/xhtml"}
     entries = sitemap.findall("s:url", namespace)
     source_only = {ROOT / "docs/SEO.md", ROOT / "docs/index.md"}
-    expected_urls = 2 + 2 * sum(english not in source_only for english, _ in pairs)
+    # Includes the English and Bengali docs index routes emitted from the
+    # generated docs.html / bn/docs.html pages.
+    expected_urls = 4 + 2 * sum(english not in source_only for english, _ in pairs)
     # Public nested release pages are indexable; v3/project pages stay noindex.
     release_pages = [
         page

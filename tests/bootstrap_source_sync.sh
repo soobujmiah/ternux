@@ -15,9 +15,17 @@ cli_sha="$(sed -n 's/^TERNUX_SOURCE_SHA256="\([0-9a-f]*\)"$/\1/p' "$ROOT/lib/cor
 }
 
 archive="$TMP/source.tar.gz"
-curl -fsSL --retry 2 --connect-timeout 15 \
-  "https://codeload.github.com/soobujmiah/ternux/tar.gz/${bootstrap_commit:0:7}" \
-  -o "$archive"
+if [[ -n "${TERNUX_SOURCE_ARCHIVE_OVERRIDE:-}" ]]; then
+  [[ -f "$TERNUX_SOURCE_ARCHIVE_OVERRIDE" ]] || {
+    echo "FAIL: TERNUX_SOURCE_ARCHIVE_OVERRIDE is not a file" >&2
+    exit 1
+  }
+  cp "$TERNUX_SOURCE_ARCHIVE_OVERRIDE" "$archive"
+else
+  curl -fsSL --retry 2 --connect-timeout 15 \
+    "https://codeload.github.com/soobujmiah/ternux/tar.gz/${bootstrap_commit:0:7}" \
+    -o "$archive"
+fi
 printf '%s  %s\n' "$bootstrap_sha" "$archive" | sha256sum --check --status || {
   echo "FAIL: pinned source archive does not match its SHA-256" >&2
   exit 1
@@ -32,6 +40,10 @@ root_name="$(tar -tzf "$archive" | sed -n '1{s#/.*##;p;}')"
 mkdir -p "$TMP/current" "$TMP/pinned"
 cp -a "$ROOT/install.sh" "$ROOT/bin" "$ROOT/lib" "$TMP/current/"
 cp -a "$TMP/$root_name/install.sh" "$TMP/$root_name/bin" "$TMP/$root_name/lib" "$TMP/pinned/"
+# Tests or direct Python runs may leave bytecode caches in the checkout; git
+# archives correctly omit these ignored runtime files, so exclude them from the
+# source-to-source comparison as well.
+find "$TMP/current/lib" "$TMP/pinned/lib" -type d -name __pycache__ -prune -exec rm -rf -- {} +
 
 # The snapshot is the preceding immutable commit because a commit cannot embed
 # its own SHA-256. Normalize only the four pin values; installed code must match.

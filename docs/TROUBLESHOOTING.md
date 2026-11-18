@@ -11,6 +11,7 @@ more than one cause, so collect the named evidence before applying a repair.
 | Symptom | Likely cause | Fix |
 |---|---|---|
 | Desktop dies silently, or `[Process completed (signal 9)]` | Android process policy, memory pressure, or OEM battery management | [The desktop dies silently](#the-desktop-dies-silently) |
+| Xfce/X11 becomes slow or stops responding after opening Termux:X11 | Android may deprioritize Termux while its X11 companion app is in front | [X11 slows down or stalls](#x11-slows-down-or-stalls) |
 | Black/empty Termux:X11 window | X11 app not opened, or stale socket | [Black screen in Termux:X11](#black-screen-in-termuxx11) |
 | `renderer string: llvmpipe` | Software fallback — GPU route not active | [Renderer says llvmpipe](#renderer-says-llvmpipe) |
 | `lost connection to rendering server` while starting XFCE | VirGL socket is unavailable to the isolated guest, or its Mesa VirGL preflight fails | [VirGL fails during XFCE startup](#virgl-fails-during-xfce-startup) |
@@ -101,6 +102,39 @@ system-wide protection against runaway background work. Record the original
 setting, change only what your OS exposes, reboot, and reverse the change if it
 causes instability or abnormal battery drain. `ternux doctor` reports the
 settings it can read, but it cannot distinguish every OEM process killer.
+
+---
+
+## X11 slows down or stalls
+
+**Symptom:** the desktop becomes sluggish or stops responding after Termux:X11
+is brought to the foreground, especially while Termux itself is in the
+background.
+
+**Likely cause:** Android can give Termux less CPU time when another app is on
+screen. The [Termux:X11 project documents this scheduling effect](https://github.com/termux/termux-x11#avoiding-slowdowns)
+and provides a shared-UID APK variant to avoid it. That variant only works with
+the GitHub-signed Termux app; do not install it over an F-Droid or Play Store
+Termux installation.
+
+**Checks and mitigations:**
+
+1. Set battery use for both Termux and Termux:X11 to **Unrestricted**. On
+   Xiaomi devices, also allow Termux background activity/autostart if those
+   controls are available.
+2. Keep the device awake during long sessions. Termux:Boot can run a startup
+   script and `termux-wake-lock` can prevent sleep, but Boot does not fix a
+   live X11/GPU hang or change Android's CPU scheduling between separate apps.
+   See the [Termux:Boot instructions](https://github.com/termux/termux-boot#how-to-use).
+3. Capture `tx status --json`, `tx info --json`, and `tx logs desktop show debian`
+   while the issue is present. If the X11 activity is black or its server is
+   unresponsive, `tx restart debian` restarts the managed session and closes
+   its current windows.
+
+If the renderer remains hardware accelerated and the X11 server responds while
+the desktop still freezes, collect a Termux:X11 debug log using the [upstream
+debug instructions](https://github.com/termux/termux-x11#logs). A short healthy
+test does not rule out an intermittent Android scheduler or GPU-driver stall.
 
 ---
 

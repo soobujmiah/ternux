@@ -1,52 +1,60 @@
 ---
 title: "Ternux next actions"
-description: "Ordered engineering work for the next v2-major platform release."
+description: "Ordered local v2.0.1 candidate gates followed by future v3 planning."
 lang: "en"
 alt_url: "/bn/docs/project/NEXT-ACTIONS.html"
 ---
 
-## Next actions
+## Version 2.0.1 candidate gates
 
-**Last reviewed:** 2026-11-14. This list tracks open implementation and evidence
-work for the next v2-major release. The stable channel remains withdrawn.
+**Last reviewed:** 2026-11-18. The candidate is local and unpublished. Keep v2
+frozen to current functionality and do not reopen stable APT.
 
-1. Extend the partial native Control Center: authenticated, confirmation-bound
-   desktop start/stop and durable job records are implemented in working source;
-   complete device-browser validation, logs, diagnostics,
-   graphics/audio/storage/workload panels, accessible mobile layouts, and a
-   useful low-resource idle profile. CLI operation must remain available
-   without Python or the browser.
-2. Add optional manager-service supervision with startup, health, stop, and crash
-   recovery. Service updates must not restart guest sessions.
-3. Harden typed, idempotent lifecycle jobs with durable progress, safe
-   cancellation, retained-job policy, and CLI recovery when the service is
-   stopped. The current start/stop slice journals before execution and marks
-   interrupted work for reconciliation; cancellation is not available. Preserve per-guest state and unrelated PRoot guests.
-4. Finish the Workspace acceptance matrix: clean install, update, resume,
-   restart, stop, and uninstall for Debian, Ubuntu, and Alpine. Multi-guest
-   onboarding now gathers the shared shell and every username/workload before
-   the first guest transaction; preserve that precollection contract.
-5. Continue Compute, AI, Device Bridge, and extension work under their
-   acceptance criteria, with correctness, permission, failure, rollback, and
-   device evidence kept separate.
-6. Audit and align package metadata, CLI help, English/Bengali docs, website,
-   security review, exact-commit CI, and clean reference-device installation.
-   Keep the stable channel withdrawn until every required gate passes on the
-   exact 2.x release candidate.
+1. Reconcile the v2.0.0 withdrawal record with the latest owner scope decision;
+   preserve the old release tag and historical gate evidence.
+2. Complete exact-version v1.4.0 and v2.0.1 install guides. Keep v2's guide
+   marked candidate until its exact tag, source commit, archive digest, and
+   release page are verified.
+3. Align current `main` release status, feature maturity, four-distro baseline,
+   limitations, English/Bengali docs, README, and site entry points. Keep the
+   source-only / incomplete manager slice described at its actual maturity.
+4. Run local source tests and bounded device checks. The owner requested the
+   Debian desktop be started for a window-fit regression check; that existing
+   guest was retained, `xdotool` was installed for testing, and the desktop is
+   left open. Record this action separately from the earlier read-only audit.
+5. Resolve local build limitations: Node cannot start in this Termux runtime,
+   Docker is absent, and no four-distro clean-install matrix can run locally.
+   Obtain exact-commit CI and package/site build evidence after approval and
+   repository synchronization.
+6. Generate release artifacts only from the final approved commit; verify
+   provenance, source archive contents, version, checksums, release notes, and
+   install command. Do not configure the withdrawn APT source.
+7. Publish only after approval of the concrete reviewed candidate, then inspect
+   the actual v2.0.1 release page and v1.4.0 page and verify both exact-version
+   instructions against their tagged archives.
 
-## Completed source slice: display migration
+## After v2 publication: version 3
 
-The native display registry and explicit migration executor are implemented in
-source. The state-bound plan revalidates under an exclusive lock; active guests,
-another managed session holding the shared lock, and unsafe targets block
-execution. The journal supports rollback and `--recover`. On 2026-11-14 the
-reference-device migration was applied with all guests stopped; Debian's
-launcher was regenerated for `:1`, then Debian, Ubuntu, and Alpine restarted
-READY on `:1/:2/:3`. The broader clean install/update/resume/restart/stop/uninstall
-matrix remains open. Owner classification remains best-effort, not proof of
-OS-level socket ownership.
+Only after the stable v2.0.1 release and its installation page are verified:
 
-The read-only Unix-socket service and browser dashboard, including the current
-working-branch desktop action slice, are source features, not part of the
-withdrawn 2.0.0 package. This roadmap records implementation work;
-it does not approve a release or publication.
+- Consolidate future product scope, architecture, acceptance criteria, ADRs,
+  testing strategy, security plan, and measurable milestone roadmap in `docs/v3/`.
+- Evaluate Arch Linux, Fedora Linux, Void Linux, openSUSE Tumbleweed, CentOS
+  Stream, and Gentoo. Prioritize the first four; target eight fully qualified
+  distributions and treat ten as a stretch goal.
+- Research APT hosting, builds, signing, versioning, upgrade/recovery, rollback,
+  mirrors, maintenance, and supply-chain risks. Keep it Planned unless the
+  feasibility study supports a prototype and the owner approves it.
+- Keep local implementation and verification first; report exact changes,
+  evidence, and limitations for owner approval before repository updates.
+
+## Preserved implementation and history
+
+The current source already includes a native manager CLI, a foreground
+read-only Unix-socket service, a partial local Control Center with confirmed
+desktop start/stop, display migration, and multi-distro lifecycle code. These
+are current source facts; completeness varies by component and device evidence.
+The v2.0.0 release history, device runs, and prior roadmap remain in the dated
+[release report](../release/V2-RELEASE-REPORT.md),
+[device audit](../audit/DEVICE-VERIFICATION.md), and
+[repository snapshot](../audit/REPOSITORY-STATE.md).

@@ -5,12 +5,30 @@ v2.0.0 on the documented Redmi Turbo 4 Pro reference device unless a row says
 otherwise. “Installed”, “detected”, “initialized”, “executed correctly”, and
 “measured” are separate evidence levels.
 
-**Current distribution decision (2026-11-14):** v2.0.0 GitHub release removed;
-its Git tag retained. Stable APT withdrawn in Pages run `43532161200` (stable
-paths HTTP 404, opt-in signed RC HTTP 200). Do not republish the withdrawn
-v2.0.0 release. The next stable release remains in the v2 major and requires
-the complete platform scope formerly planned for v3. This is a direction update,
-not a claim that those capabilities are implemented or qualified.
+## Current owner scope correction — 2026-11-18
+
+The owner revoked the 2026-11-14 decision that moved the former v3 platform
+scope into the next v2 release. Version 2 is frozen to the current
+implementation; new architecture and capabilities remain v3 work. The proposed
+next release is v2.0.1 because that version is unused in local and remote tag
+history. It is a local candidate only, not a published release.
+
+The owner confirms the v2 verified desktop baseline as **Debian, Ubuntu, Kali
+Linux, and Alpine Linux**. Evidence depth differs: the clean-container Firefox
+CI matrix covers Debian, Ubuntu, and Alpine; Kali has a detailed installed
+reference-device desktop check but no clean Kali install in that CI matrix.
+Kali evidence is limited to the existing Redmi Turbo 4 Pro guest and the
+specific checks recorded in [device verification](DEVICE-VERIFICATION.md).
+This baseline does not qualify other Android devices, GPUs, every application,
+or every workload. The historical rows below are retained as dated evidence
+and are not silently rewritten.
+
+**Historical distribution decision (2026-11-14; superseded 2026-11-18):**
+v2.0.0 GitHub release removed; its tag retained. Stable APT withdrawn in Pages
+run `43532161200` (stable paths HTTP 404, opt-in signed RC HTTP 200). The
+2026-11-14 direction that required former v3 scope for the next v2 release was
+revoked by the owner on 2026-11-18. It is preserved here as history and is not a
+current release requirement.
 
 The 12:20 UTC read-only diagnostic recheck confirmed all three live guests
 remain READY. Debian and Alpine probes used their session displays and reported
@@ -30,6 +48,16 @@ synthetic xdotool terminal input. The complete live evidence is in
 adds `tx control`, a read-only loopback browser snapshot; its local security and
 CLI integration tests pass. This does not add it to the withdrawn v2.0.0
 package, and it does not qualify physical Android keyboard input.
+
+## Local v2.0.1 window-fit correction — 2026-11-18
+
+The local candidate now retains a user's moved window position when resizing;
+it clamps the position only when needed to keep the resized window inside the
+work area. The behavior was reproduced with the installed watcher and verified
+with the local source watcher in one live Debian/XFCE `:1` session using
+`xdotool`. The installed helper was not replaced, and this source change is not
+published. See [device verification](DEVICE-VERIFICATION.md) for the geometry
+values and test boundary.
 
 ## Implemented and verified
 
@@ -83,9 +111,9 @@ package, and it does not qualify physical Android keyboard input.
 
 | Capability | Disposition |
 |---|---|
-| Twelve additional named PRoot distro recipes | Still unqualified; the next v2-major release must apply its acceptance gates to every profile it advertises, with no qualification deferred to a later major |
-| Other Android SoCs, GPUs, and Android versions | No compatibility claim follows from this device snapshot; any device advertised by the next stable release needs its own evidence |
-| Broader sustained thermal/resource qualification | Former v3 Compute scope remains part of the next v2-major acceptance work; use measured per-device workloads and make no synthetic thermal promises |
+| Additional named PRoot distro recipes | Not part of frozen v2. Arch, Fedora, Void, openSUSE Tumbleweed, CentOS Stream, and Gentoo are v3 feasibility candidates; each needs its own qualification before a support claim |
+| Other Android SoCs, GPUs, and Android versions | No compatibility claim follows from this device snapshot; state device-specific boundaries for each future release |
+| Broader sustained thermal/resource qualification | Future v3 compute and performance work; use measured per-device workloads and make no synthetic thermal promises |
 | Full third-party toolkit/theme coverage | Add targeted toolkit probes as real compatibility needs arise; no blanket promise |
 
 ## Unsupported

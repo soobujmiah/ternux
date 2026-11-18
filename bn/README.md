@@ -8,13 +8,13 @@
 
 ### এআরএম৬৪ অ্যান্ড্রয়েড ফোনে লিনাক্স ডেস্কটপ — রুট লাগে না
 
-[![সংস্করণ](https://img.shields.io/badge/version-2.0.0-00e5a0?style=flat-square)](https://github.com/soobujmiah/ternux/tree/v2.0.0)
+[![সংস্করণ](https://img.shields.io/badge/version-2.0.1%20candidate-ffc857?style=flat-square)](../docs/release/pages/v2.0.1-INSTALLATION.md)
 [![Termux APT v2 প্রত্যাহৃত](https://img.shields.io/badge/Termux%20APT-v2%20withdrawn-gray?style=flat-square)](../docs/TERMUX-APT.md)
-[![Debian · Ubuntu · Alpine](https://img.shields.io/badge/v2%20desktop-Debian%20%7C%20Ubuntu%20%7C%20Alpine-77e3ad?style=flat-square)](../docs/audit/FEATURE-MATRIX.md)
+[![Debian · Ubuntu · Kali · Alpine](https://img.shields.io/badge/v2%20verified-Debian%20%7C%20Ubuntu%20%7C%20Kali%20%7C%20Alpine-77e3ad?style=flat-square)](../docs/audit/FEATURE-MATRIX.md)
 [![v3 roadmap](https://img.shields.io/badge/v3-roadmap%20published-38bdf8?style=flat-square)](../docs/v3/README.md)
 [![Android ARM64](https://img.shields.io/badge/Android-ARM64-38bdf8?style=flat-square)](../docs/INSTALLATION.md)
 [![Root](https://img.shields.io/badge/root-lage%20na-22c55e?style=flat-square)](../docs/FAQ.md)
-[![v2 desktop guest](https://img.shields.io/badge/v2%20desktop-3%20guest-77e3ad?style=flat-square)](../docs/audit/FEATURE-MATRIX.md)
+[![v2 desktop guest](https://img.shields.io/badge/v2%20desktop-4%20guest-77e3ad?style=flat-square)](../docs/audit/FEATURE-MATRIX.md)
 [![Adreno evidence](https://img.shields.io/badge/GPU-Adreno%20825%20measured-8bf5a6?style=flat-square)](../docs/BENCHMARKS.md)
 [![Distro recipe](https://img.shields.io/badge/distro%20recipe-15-b9ff72?style=flat-square)](../docs/INSTALLATION.md#choosing-a-guest-distribution)
 [![Desktop](https://img.shields.io/badge/desktop-Xfce%20%2B%20Termux%3AX11-55c2ff?style=flat-square)](../docs/QUICK-START.md)
@@ -43,7 +43,7 @@
 যায়। টার্মাক্সকে সংরক্ষণ-অনুমতি দিলে গেস্ট থেকে অ্যান্ড্রয়েডের ভাগ করা ফাইল
 ও মডেল সরাসরি ব্যবহার করা যায়।
 
-**দ্বিতীয় সংস্করণে ডেবিয়ান, উবুন্টু ও আল্পাইন—এই তিনটি ডেস্কটপ বিন্যাস সমর্থিত।**
+**দ্বিতীয় সংস্করণে ডেবিয়ান, উবুন্টু, কালি লিনাক্স ও আল্পাইন—চারটি ডেস্কটপ বিন্যাস যাচাইকৃত।**
 যন্ত্রের প্রমাণ রেডমি টার্বো ৪ প্রো / অ্যান্ড্রয়েড ১৬ / অ্যাড্রেনো ৮২৫ থেকে;
 কোন পরীক্ষা হয়েছে তা [সুবিধা-তালিকা](../docs/audit/FEATURE-MATRIX.md) ও
 [বর্তমান নিরীক্ষায়](../docs/audit/CURRENT-STATE.md) দেখুন। ডেবিয়ান
@@ -119,11 +119,11 @@ pkg update -y && pkg upgrade -y && pkg install -y curl wget && bash -c 's=$(mkte
 
 টার্নাক্স v2.0.0 গিটহাব প্রকাশনা ও স্থিতিশীল এপিটি বিতরণ ২০২৬-১১-১৪ তারিখে
 প্রত্যাহার করা হয়েছে। উৎসের পরিচয় যাচাইয়ের জন্য `v2.0.0` ট্যাগ রাখা হয়েছে।
+স্থানীয়ভাবে v2.0.1 প্রকাশ-প্রার্থী তৈরি হচ্ছে; এটি এখনো প্রকাশিত নয়।
 উপরের উৎস-ইনস্টলার ব্যবহার করুন। স্বাক্ষরিত স্থিতিশীল এপিটি ভান্ডার প্রত্যাহার
-হওয়ায় `pkg install ternux` পাওয়া যায় না। আরসি প্রাথমিক ইনস্টলার ও কী
-থাকলেও স্বাক্ষরিত সূচি এইচটিটিপি ৪০৪ দেয়; তাই সেই চ্যানেল দিয়েও বসানো যায়
-না। স্থাপত্য ও গ্রহণযোগ্যতার শর্ত পূরণ হলে পরের স্থিতিশীল প্রকাশনা v2 মূল
-সংস্করণেই থাকবে এবং আগে v3 নামে পরিকল্পিত সম্পূর্ণ প্ল্যাটফর্মের পরিধি নেবে।
+হওয়ায় `pkg install ternux` পাওয়া যায় না। আরসি চ্যানেল উৎপাদন ইনস্টলের পথ
+নয়। v2-এ বিদ্যমান বাস্তবায়ন স্থির থাকবে; নতুন স্থাপত্য ও সুবিধা v3-এর জন্য।
+v2.0.1 প্রকাশ-প্রার্থী যাচাই ও প্রকাশ না হওয়া পর্যন্ত স্থিতিশীল v2.0.1 নেই।
 [এপিটি চ্যানেলের অবস্থা](../docs/TERMUX-APT.md) ও
 [v2 প্রকাশনা-নথি](../docs/V2-RELEASE-READINESS.md) দেখুন।
 
@@ -261,10 +261,10 @@ ternux --help            # কমান্ডের তালিকা
 
 - [বিস্তারিত নথি](../docs/README.md): ইনস্টল-বিকল্প, হাতে বসানো,
   দৈনন্দিন ব্যবহার, বিন্যাস, সমস্যা সমাধান, স্থাপত্য ও কমান্ড-লাইন।
-- [v3 স্থাপত্য ও নির্মাণ-পরিকল্পনা](../docs/v3/README.md): ব্যবস্থাপক,
-  কর্মক্ষেত্র, গণনা, কৃত্রিম বুদ্ধিমত্তা, যন্ত্র-সংযোগ, নিরাপত্তা ও শর্ত।
-  বর্তমান `main` উৎসে শুধু-পাঠযোগ্য ব্যবস্থাপক কমান্ড ও `tx control`-এর
-  স্থানীয় ব্রাউজার-ফলক আছে; প্রত্যাহৃত v2.0.0 প্যাকেজে এগুলো নেই।
+- [v3 স্থাপত্য ও নির্মাণ-পরিকল্পনা](../docs/v3/README.md): ভবিষ্যৎ ব্যবস্থাপক,
+  কর্মক্ষেত্র, গণনা, কৃত্রিম বুদ্ধিমত্তা, যন্ত্র-সংযোগ, নিরাপত্তা ও ডিস্ট্রো পরিকল্পনা।
+  বর্তমান `main`-এ আংশিক ব্যবস্থাপক কমান্ড, সামনের সারির ইউনিক্স-সকেট সেবা ও
+  ডেস্কটপ চালু/বন্ধের Control Center preview আছে; পূর্ণ v3 প্ল্যাটফর্ম এখনো নয়।
 - [দ্রুত শুরু](../docs/QUICK-START.md): প্রথম ইনস্টল, চালু ও রেন্ডারার যাচাই।
 - [পরীক্ষার মাপজোখ](../docs/BENCHMARKS.md): যন্ত্রে মাপা ফল ও সীমা।
 - [পরিবর্তনলগ](../CHANGELOG.md)
@@ -275,13 +275,9 @@ ternux --help            # কমান্ডের তালিকা
 শুধু মূল ডেস্কটপ থাকে। `--yes` প্রশ্ন বাদ দিয়ে ডেবিয়ানের মূল প্রোফাইল বসায়।
 টার্নাক্স v2.0.0 গিটহাব প্রকাশনা ও স্থিতিশীল এপিটি বিতরণ ২০২৬-১১-১৪ তারিখে
 প্রত্যাহার হয়েছে; উৎসের ট্যাগ ও প্যাকেজ চেকসাম পুরোনো
-[প্রকাশনা-প্রতিবেদনে](../docs/V2-RELEASE-REPORT.md) আছে। পরের স্থিতিশীল
-প্রকাশনাও v2 মূল সংস্করণে থাকবে, তবে আগে v3 নামে পরিকল্পিত পুরো প্ল্যাটফর্ম
-পরিধি নেবে। বর্তমান মূল উৎসে চারটি শুধু-পাঠযোগ্য `tx manager` কমান্ড,
-সামনের সারিতে চলা ইউনিক্স-সকেট সেবার জন্য `tx manager serve` এবং শুধু-পাঠযোগ্য
-স্থানীয় ব্রাউজার ফলকের জন্য `tx control` আছে। ফলক চালাতে পাইথন ৩ লাগে;
-প্রয়োজনে `pkg install python` চালান। গেস্ট বদলানো, পেছনে তত্ত্বাবধায়ক চালানো
-ও পূর্ণ নিয়ন্ত্রণকেন্দ্র এখনো অসম্পূর্ণ। প্রত্যাহৃত v2.0.0 প্যাকেজে এই
-উৎস-পরিবর্তনগুলো নেই। [এপিটি চ্যানেলের অবস্থা](../docs/TERMUX-APT.md) দেখুন।
+[প্রকাশনা-প্রতিবেদনে](../docs/V2-RELEASE-REPORT.md) আছে। v2.0.1 এখনো স্থানীয়
+প্রকাশ-প্রার্থী। এই প্রার্থী বর্তমান `main`-এর আংশিক ব্যবস্থাপক CLI, ইউনিক্স-
+সকেট সেবা ও Control Center preview ধরে রাখে; এগুলোকে সম্পূর্ণ v3 হিসেবে দেখানো
+হয় না। ভবিষ্যৎ নতুন স্থাপত্য v3-তে থাকবে। [এপিটি চ্যানেলের অবস্থা](../docs/TERMUX-APT.md) দেখুন।
 এইচটিপি/এইচএমএক্স, কিউএনএন ও বিস্তৃত ত্বরণ-যোগ্যতা পরীক্ষামূলক বা পরবর্তী
 কাজ; [ত্বরণ পরিকল্পনায়](../docs/ACCELERATOR-RELEASE-PLAN.md) বর্তমান সীমা আছে।
