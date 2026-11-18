@@ -1,0 +1,7 @@
+event_id: commit-4f96802576fa-43858c3f29f5c6f3
+repository: soobujmiah/ternux
+commit: 4f96802576fab1f1806e4ea0db052de6719a4b47
+kind: commit
+occurred_at: '2026-11-18T14:49:47Z'
+status: completed
+summary: 'Merge pull request #297 from soobujmiah/fix/terminal-zoom-shortcut-replay'
