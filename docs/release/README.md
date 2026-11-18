@@ -11,9 +11,11 @@ the current `main` branch or a later installer for a historical release.
 - [Ternux v1.4.0 — historical installation guide](pages/v1.4.0-INSTALLATION.md)
   — source tag `v1.4.0`, commit
   `3e6c07e2afcb5f1e65ecd57af19b0382a948835a`.
-- [Ternux v2.0.1 — local candidate guide](pages/v2.0.1-INSTALLATION.md) — not
+- [Ternux v2.0.1 — unpublished candidate guide](pages/v2.0.1-INSTALLATION.md) — not
   published. Do not use its install command until the tag, commit, archive
   digest, and release page are verified.
+- [v2 release audit reconciliation](V2-RELEASE-RECONCILIATION.md) — current
+  pre-publication evidence, scope decisions, known limits, and remaining gates.
 - [Release guide template](templates/RELEASE-INSTALLATION-TEMPLATE.md) — use
   for future releases and complete every provenance and recovery field.
 

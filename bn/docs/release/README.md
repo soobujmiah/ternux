@@ -12,9 +12,11 @@ alt_url: "/docs/release/README.html"
 - [Ternux v1.4.0 — ঐতিহাসিক install guide](pages/v1.4.0-INSTALLATION.md):
   source tag `v1.4.0`, commit
   `3e6c07e2afcb5f1e65ecd57af19b0382a948835a`।
-- [Ternux v2.0.1 — স্থানীয় candidate guide](pages/v2.0.1-INSTALLATION.md):
+- [Ternux v2.0.1 — অপ্রকাশিত candidate guide](pages/v2.0.1-INSTALLATION.md):
   এখনো প্রকাশিত নয়। Tag, commit, archive digest ও release page যাচাইয়ের আগে
   এর install command ব্যবহার করবেন না।
+- [v2 release audit reconciliation](V2-RELEASE-RECONCILIATION.md): প্রকাশের
+  আগের প্রমাণ, scope সিদ্ধান্ত, সীমাবদ্ধতা ও বাকি gate-এর বর্তমান প্রতিবেদন।
 - [Release guide template](../../../docs/release/templates/RELEASE-INSTALLATION-TEMPLATE.md):
   ভবিষ্যৎ release-এর জন্য ব্যবহার করুন এবং provenance ও recovery-এর সব তথ্য পূরণ করুন।
 

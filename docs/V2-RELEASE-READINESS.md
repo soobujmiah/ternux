@@ -12,9 +12,11 @@ and stable APT withdrawn on 2026-11-14. The owner revoked the 2026-11-14 scope
 change that moved former v3 features into v2: v2 is frozen to the existing
 implementation, and new architecture/capabilities remain v3 work.
 
-The next unused candidate is **v2.0.1**. It is being prepared locally from
-current `main` and is **not published**. There is no approved release commit,
-tag, generated artifact, checksum, or GitHub Release page for this candidate.
+The next unused candidate is **v2.0.1**. Its reviewed source changes are merged
+to `main` at `1f8ffabaab7fe982f5bfc91759b14b921e6ebd8f`, but it is **not
+published**. No v2.0.1 tag, release archive, checksum manifest, or GitHub
+Release page exists yet. See the [release audit reconciliation](release/V2-RELEASE-RECONCILIATION.md)
+for the evidence and remaining gates.
 The stable APT channel remains withdrawn and is not a v2 release requirement.
 The owner-confirmed v2 verified desktop baseline is Debian, Ubuntu, Kali Linux,
 and Alpine; evidence depth differs by distro. The clean-container Firefox CI
@@ -23,13 +25,13 @@ matrix currently covers Debian, Ubuntu, and Alpine. See the
 
 ## Local v2.0.1 candidate checks — 2026-11-18
 
-- `python3 tests/window_fit_geometry.py`: 12 geometry/state cases passed.
+- `python3 tests/window_fit_geometry.py`: 13 geometry/state cases passed.
 - `bash tests/focused.sh`: 211 passed, 0 failed.
 - `bash tests/update_transaction.sh`: passed the pinned update, 2.0.0→2.0.1
   upgrade, 1.4.0→2.0.1 migration fixture, rollback, interrupted-update
   recovery, concurrency, and symlink-safety checks.
 - Astro build: 90 static pages built; finalizer reported 56 HTML routes.
-- `python3 tests/docs_check.py`: 6,518 assertions, 616 internal links, and 24
+- `python3 tests/docs_check.py`: 6,518 assertions, 621 internal links, and 24
   bilingual page pairs passed. `npm run format:check` passed after formatting
   both modified landing pages.
 - An earlier live X11 check used `xdotool windowsize`, so it did not exercise a

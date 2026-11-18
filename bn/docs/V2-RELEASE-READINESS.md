@@ -7,25 +7,28 @@ alt_url: "/docs/V2-RELEASE-READINESS.html"
 
 ## বর্তমান v2.0.1 candidate status — 2026-11-18
 
-v2.0.0 প্রত্যাহারের পরবর্তী unused version candidate হলো v2.0.1; এটি এখনো local,
-unpublished। 2026-11-14-এ v3 architecture scope-কে v2-তে আনার সিদ্ধান্ত 2026-11-18-এ
+v2.0.0 প্রত্যাহারের পরবর্তী unused version candidate v2.0.1। পর্যালোচিত source
+change `1f8ffabaab7fe982f5bfc91759b14b921e6ebd8f`-এ `main`-এ merge হয়েছে, তবে এটি
+প্রকাশিত নয়। এখনো v2.0.1 tag, release archive, checksum manifest বা GitHub Release
+page নেই। 2026-11-14-এ v3 architecture scope-কে v2-তে আনার সিদ্ধান্ত 2026-11-18-এ
 প্রত্যাহার করা হয়েছে। v2 বর্তমান implementation-এ frozen থাকবে; নতুন distro,
 architecture, Control Center capability বা APT যোগ হবে না। বর্তমান owner-confirmed
 desktop baseline Debian, Ubuntu, Kali Linux ও Alpine; তাদের evidence-এর গভীরতা
-সমান নয়। বর্তমান [project roadmap](project/PROJECT-ROADMAP.md),
-[release status](project/RELEASE-STATUS.md), [feature matrix](../../docs/audit/FEATURE-MATRIX.md)
-ও [device record](../../docs/audit/DEVICE-VERIFICATION.md) দেখুন। নিচের 2026-11-16-এর
-v2.0.0 acceptance তথ্য historical snapshot; এটি v2.0.1 release readiness নয়।
+সমান নয়। [release audit reconciliation](release/V2-RELEASE-RECONCILIATION.md),
+[project roadmap](project/PROJECT-ROADMAP.md), [release status](project/RELEASE-STATUS.md),
+[feature matrix](../../docs/audit/FEATURE-MATRIX.md) ও [device record](../../docs/audit/DEVICE-VERIFICATION.md)
+দেখুন। নিচের 2026-11-16-এর v2.0.0 acceptance তথ্য historical snapshot; এটি
+v2.0.1 release readiness নয়।
 
 ## Local v2.0.1 candidate checks — 2026-11-18
 
-- `python3 tests/window_fit_geometry.py`: geometry/state-এর ১২টি check pass।
+- `python3 tests/window_fit_geometry.py`: geometry/state-এর ১৩টি check pass।
 - `bash tests/focused.sh`: ২১১ pass, ০ fail।
 - `bash tests/update_transaction.sh`: pinned update, 2.0.0→2.0.1 upgrade,
   1.4.0→2.0.1 migration fixture, rollback, interrupted-update recovery,
   concurrency ও symlink safety pass।
 - Astro build: ৯০টি static page তৈরি; finalizer ৫৬টি HTML route পেয়েছে।
-- `python3 tests/docs_check.py`: ৬,৫১৮ assertion, ৬১৬ internal link ও ২৪টি
+- `python3 tests/docs_check.py`: ৬,৫১৮ assertion, ৬২১ internal link ও ২৪টি
   bilingual page pair pass। দুই homepage Prettier দিয়ে format করার পর
   `npm run format:check`-ও pass।
 - Debian/XFCE live X11 check, display `:1` (640×1386): আগের
