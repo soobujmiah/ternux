@@ -124,11 +124,20 @@ Termux Node Android C++ runtime symbol mismatch-এর কারণে চাল
 যথেষ্ট নয়। এই fix এখনো local এবং main বা প্রকাশিত v2 artifact-এ নেই।
 
 Standalone installer ও CLI fallback এখন এই সংশোধিত source-কে
-`e5757547644d5d4354cf0c497d53e2aac81b2f55` commit-এ pin করে; local archive-এর
-SHA-256 `0d685ad73cec319dff9b556c2f8fef087f270eac56da980b2a77e0e3a85398da`।
-`tests/bootstrap_source_sync.sh` ওই exact local archive দিয়ে pass করেছে। এই
-snapshot-এর installer-ব্যবহৃত short-SHA GitHub codeload URL একই SHA-256 ও
-প্রত্যাশিত `ternux-e575754/` archive root দিয়েছে।
+`555ce1374957cf35b7a7afa17bbb720b4529d64a` commit-এ pin করে; short-SHA source
+archive-এর SHA-256
+`b52347389d70314e2b9118528bab3a19cb982b839d3f4627b2d0a66a5493ce83`।
+`tests/bootstrap_source_sync.sh` ওই exact archive দিয়ে pass করেছে। Snapshot push
+করার পর installer-এর short-SHA GitHub codeload URL একই SHA-256 এবং প্রত্যাশিত
+`ternux-555ce13/` archive root দিয়েছে।
+
+Reversible live comparison-এ helper pause রেখে আলাদা Xmessage window খোলা,
+সরানো ও 360x220 মাপে resize করা হয়েছে। Helper চলা এবং pause—দুই অবস্থায়
+`xdotool` একই সরানো অবস্থান (78,138) ও resize geometry (360x220) দেখিয়েছে;
+এই synthetic test-এ move করার পর recenter হওয়ার অভিযোগ পুনরায় দেখা যায়নি।
+শেষে helper resume করে চলমান নিশ্চিত করা হয়েছে। Touch-চালিত বা device-specific
+XFWM/X11 সমস্যা এই ফল দিয়ে বাদ যায় না। পুরো helper সরালে launch-time fit/clamp
+ও Ctrl zoom shortcut-ও হারাবে, তাই helper delete করার পক্ষে এই test প্রমাণ দেয় না।
 
 ## Historical v2.0.0 qualification snapshot
 
