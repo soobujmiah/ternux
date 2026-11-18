@@ -22,7 +22,7 @@ v2.0.0 acceptance তথ্য historical snapshot; এটি v2.0.1 release rea
 - `python3 tests/window_fit_geometry.py`: geometry/state-এর ১০টি check pass।
 - `bash tests/focused.sh`: ২১১ pass, ০ fail।
 - `bash tests/update_transaction.sh`: pinned update, 2.0.0→2.0.1 upgrade,
-  1.4.0→2.0.0 migration fixture, rollback, interrupted-update recovery,
+  1.4.0→2.0.1 migration fixture, rollback, interrupted-update recovery,
   concurrency ও symlink safety pass।
 - Astro build: ৯০টি static page তৈরি; finalizer ৫৬টি HTML route পেয়েছে।
 - `python3 tests/docs_check.py`: ৬,৫১৮ assertion, ৬১৬ internal link ও ২৪টি

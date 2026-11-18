@@ -5,8 +5,33 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 
-BASELINE_VERSION="$(git -C "$ROOT" show HEAD:lib/core.sh | sed -n 's/^TERNUX_VERSION="\([^"]*\)"$/\1/p')"
 TARGET_VERSION="$(sed -n 's/^TERNUX_VERSION="\([^"]*\)"$/\1/p' "$ROOT/lib/core.sh")"
+BASELINE_VERSION="$(python3 - "$ROOT" "$TARGET_VERSION" <<'PYBASELINE'
+import re
+import subprocess
+import sys
+
+root, target_text = sys.argv[1:]
+target = tuple(int(part) for part in target_text.split("."))
+tags = subprocess.check_output(["git", "-C", root, "tag", "--list"], text=True).splitlines()
+candidates = []
+for tag in tags:
+    match = re.fullmatch(r"v([0-9]+\.[0-9]+\.[0-9]+)", tag)
+    if not match:
+        continue
+    version = match.group(1)
+    parts = tuple(int(part) for part in version.split("."))
+    if parts < target:
+        candidates.append((parts, version))
+if not candidates:
+    # GitHub Actions checks out a shallow PR merge ref without release tags.
+    # Keep the known v2.0.0 rollback fixture explicit in that environment.
+    print("2.0.0")
+else:
+    print(max(candidates)[1])
+PYBASELINE
+)"
+MIGRATION_VERSION="$(git -C "$ROOT" show HEAD:lib/core.sh | sed -n 's/^TERNUX_VERSION="\([^"]*\)"$/\1/p')"
 NEXT_VERSION="$(python3 - "$TARGET_VERSION" <<'PYVERSION'
 import sys
 parts = [int(value) for value in sys.argv[1].split('.')]
@@ -126,7 +151,7 @@ mkdir -p "$PREFIX/bin" "$PREFIX/lib/ternux" "$TMPDIR"
 cp "$ROOT/bin/ternux" "$PREFIX/bin/ternux"
 chmod 0755 "$PREFIX/bin/ternux"
 cp -R "$ROOT/lib/." "$PREFIX/lib/ternux/"
-sed -i 's/^TERNUX_VERSION="[^"]*"$/TERNUX_VERSION="2.0.0"/' "$PREFIX/lib/ternux/core.sh"
+sed -i "s/^TERNUX_VERSION=\"[^\"]*\"$/TERNUX_VERSION=\"$BASELINE_VERSION\"/" "$PREFIX/lib/ternux/core.sh"
 printf 'old-version-marker\n' > "$PREFIX/lib/ternux/old.marker"
 env PREFIX="$PREFIX" TERNUX_STATE_DIR="$STATE" HOME="$TMP/home-success" TMPDIR="$TMPDIR" \
   PATH="$FAKEBIN:$PATH" TERNUX_TEST_RELEASE_TAG="v$TARGET_VERSION" TERNUX_REPO_URL="$ORIGIN" \
@@ -151,7 +176,7 @@ mkdir -p "$PREFIX/bin" "$PREFIX/lib/ternux" "$TMPDIR"
 cp "$ROOT/bin/ternux" "$PREFIX/bin/ternux"
 chmod 0755 "$PREFIX/bin/ternux"
 cp -R "$ROOT/lib/." "$PREFIX/lib/ternux/"
-sed -i 's/^TERNUX_VERSION="[^"]*"$/TERNUX_VERSION="2.0.0"/' "$PREFIX/lib/ternux/core.sh"
+sed -i "s/^TERNUX_VERSION=\"[^\"]*\"$/TERNUX_VERSION=\"$BASELINE_VERSION\"/" "$PREFIX/lib/ternux/core.sh"
 printf 'rollback-marker\n' > "$PREFIX/lib/ternux/old.marker"
 if env PREFIX="$PREFIX" TERNUX_STATE_DIR="$TMP/state-rollback" HOME="$TMP/home-rollback" \
   TMPDIR="$TMPDIR" PATH="$FAKEBIN:$PATH" TERNUX_TEST_RELEASE_TAG="v$NEXT_VERSION" \
@@ -266,9 +291,9 @@ env PREFIX="$MIGRATION_PREFIX" HOME="$MIGRATION_HOME" TMPDIR="$MIGRATION_TMP" \
   PATH="$FAKEBIN:$PATH" TERNUX_REPO_URL="$MIGRATION_ORIGIN" \
   "$MIGRATION_PREFIX/bin/ternux" update || fail 'v1.4.0 to v2 source migration'
 env PREFIX="$MIGRATION_PREFIX" HOME="$MIGRATION_HOME" \
-  "$MIGRATION_PREFIX/bin/ternux" --version | grep -q "^ternux v$BASELINE_VERSION\$" ||
+  "$MIGRATION_PREFIX/bin/ternux" --version | grep -q "^ternux v$MIGRATION_VERSION\$" ||
   fail 'v1.4.0 migration did not activate the v2 CLI'
-grep -q "^TERNUX_VERSION=\"$BASELINE_VERSION\"\$" "$MIGRATION_PREFIX/lib/ternux/core.sh" ||
+grep -q "^TERNUX_VERSION=\"$MIGRATION_VERSION\"\$" "$MIGRATION_PREFIX/lib/ternux/core.sh" ||
   fail 'v1.4.0 migration did not install matching v2 modules'
 
 printf 'updater transaction tests passed: version, stable no-downgrade, pinned fetch, staging, commit, rollback, crash recovery, concurrency, symlink safety, v1.4.0-to-v2 source migration\n'

@@ -26,7 +26,7 @@ matrix currently covers Debian, Ubuntu, and Alpine. See the
 - `python3 tests/window_fit_geometry.py`: 10 geometry/state cases passed.
 - `bash tests/focused.sh`: 211 passed, 0 failed.
 - `bash tests/update_transaction.sh`: passed the pinned update, 2.0.0→2.0.1
-  upgrade, 1.4.0→2.0.0 migration fixture, rollback, interrupted-update
+  upgrade, 1.4.0→2.0.1 migration fixture, rollback, interrupted-update
   recovery, concurrency, and symlink-safety checks.
 - Astro build: 90 static pages built; finalizer reported 56 HTML routes.
 - `python3 tests/docs_check.py`: 6,518 assertions, 616 internal links, and 24
