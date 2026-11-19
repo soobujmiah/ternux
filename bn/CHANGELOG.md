@@ -10,7 +10,7 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 
 ---
 
-## [Unreleased]
+## [Unreleased — v2.0.1 candidate]
 
 ### Android নির্ণয়
 
