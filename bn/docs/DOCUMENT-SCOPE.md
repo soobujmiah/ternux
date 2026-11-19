@@ -203,6 +203,17 @@ technical reference, ঐতিহাসিক প্রমাণ ও research no
 | `tools/blender-gpu-mcp/README.md` | SHARED_REFERENCE | Shared / no translation required |
 | `tools/llama-htp/README.md` | SHARED_REFERENCE | Shared / no translation required |
 | `tools/repo_knowledge/README.md` | SHARED_REFERENCE | Shared / no translation required |
+| `src/data/navigation.ts` | V2_CURRENT | Navigation has EN/BN labels |
+| `src/pages/CHANGELOG.astro` | V2_CURRENT | `src/pages/bn/CHANGELOG.astro` |
+| `src/pages/CONTRIBUTING.astro` | V2_CURRENT | `src/pages/bn/CONTRIBUTING.astro` |
+| `src/pages/bn/CHANGELOG.astro` | V2_CURRENT | `src/pages/CHANGELOG.astro` |
+| `src/pages/bn/CONTRIBUTING.astro` | V2_CURRENT | `src/pages/CONTRIBUTING.astro` |
+| `src/pages/bn/docs/[...slug].astro` | V2_CURRENT | `src/pages/docs/[...slug].astro` |
+| `src/pages/bn/docs/index.astro` | V2_CURRENT | `src/pages/docs/index.astro` |
+| `src/pages/bn/index.astro` | V2_CURRENT | `src/pages/index.astro` |
+| `src/pages/docs/[...slug].astro` | V2_CURRENT | `src/pages/bn/docs/[...slug].astro` |
+| `src/pages/docs/index.astro` | V2_CURRENT | `src/pages/bn/docs/index.astro` |
+| `src/pages/index.astro` | V2_CURRENT | `src/pages/bn/index.astro` |
 ## পর্যালোচনার বাকি বিষয়
 
 - `experiments/` ও `handoffs/`-এর research নথিগুলো Ternux documentation set-এর অংশ কি না নিশ্চিত করতে হবে; কোনো বহিরাগত প্রকল্প বদলানো হয়নি।
