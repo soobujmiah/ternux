@@ -235,3 +235,40 @@ was changed for this website redesign and audit.
    and native package-manager menus.
 6. Review the new website in a real phone and desktop browser before dispatching
    the production Pages deployment; site deployment remains explicit/manual.
+
+## Final-main follow-up — 2026-11-20
+
+The inventory and checks above describe the audit baseline at `2046d10a`. The
+following follow-up records later merged work and must be used for current
+repository state; it does not rewrite the audit-time counts or claim a new
+physical-device qualification.
+
+- Final checked-out `main` is `255d1380efe03026894a52af4a2d314faab4df28`.
+  Website/audit PR [#304](https://github.com/soobujmiah/ternux/pull/304), v3
+  roadmap and bilingual-doc PR
+  [#307](https://github.com/soobujmiah/ternux/pull/307), and generated-state
+  PR [#308](https://github.com/soobujmiah/ternux/pull/308) are merged.
+- The English and Bengali scope inventories now each enumerate 174 Markdown
+  files plus all 11 Astro route/navigation entries. The 25 v3 technical and
+  ADR pages have Bengali counterparts. Inventory parity does not prove every
+  translation has received an independent semantic review.
+- PR #307 added dependency-gated V3.0–V3.3 milestones and a planned,
+  Ternux-owned Extension SDK design. These are v3 plans, not v2 capabilities.
+  The APT feasibility recommendation remains to keep stable APT out of the
+  v3.0 critical path while retaining the source installer.
+- Exact-main Validate [run `44627829795`](https://github.com/soobujmiah/ternux/actions/runs/44627829795),
+  unsigned package artifact [run `44627829822`](https://github.com/soobujmiah/ternux/actions/runs/44627829822),
+  and repository-state contract [run `44627830225`](https://github.com/soobujmiah/ternux/actions/runs/44627830225)
+  passed on the checked main SHA. The Validate suite includes lifecycle,
+  manager/Control Center, distro/browser, QNN/APT, Bats, and documentation
+  checks. It is CI evidence, not a substitute for device/browser qualification.
+- A subsequent local `tests/docs_check.py` run passed 8,744 assertions, 720
+  internal links, and 25 bilingual page pairs. A local Astro build produced
+  124 page outputs and finalized 60 HTML routes.
+- Production Pages still served `2046d10a9191f41b52ca52f5cae74f418ad7f140`
+  at the latest HTTP check (last-modified 2026-11-19 18:40:39 GMT). The source
+  redesign has not been published; `.github/workflows/deploy.yml` requires a
+  manual `workflow_dispatch`. A real phone/desktop visual review also remains
+  unperformed.
+- The independent ChatGPT audit remains unavailable in the authorized
+  attachment set. Its findings were not fabricated or inferred.
