@@ -8,7 +8,7 @@
 
 ### এআরএম৬৪ অ্যান্ড্রয়েড ফোনে লিনাক্স ডেস্কটপ — রুট লাগে না
 
-[![সংস্করণ](https://img.shields.io/badge/version-2.0.1%20candidate-ffc857?style=flat-square)](../docs/release/pages/v2.0.1-INSTALLATION.md)
+[![সংস্করণ](https://img.shields.io/badge/version-2.0.1-22c55e?style=flat-square)](../docs/release/pages/v2.0.1-INSTALLATION.md)
 [![Termux APT v2 প্রত্যাহৃত](https://img.shields.io/badge/Termux%20APT-v2%20withdrawn-gray?style=flat-square)](../docs/TERMUX-APT.md)
 [![Debian · Ubuntu · Kali · Alpine](https://img.shields.io/badge/v2%20verified-Debian%20%7C%20Ubuntu%20%7C%20Kali%20%7C%20Alpine-77e3ad?style=flat-square)](../docs/audit/FEATURE-MATRIX.md)
 [![v3 roadmap](https://img.shields.io/badge/v3-roadmap%20published-38bdf8?style=flat-square)](../docs/v3/README.md)
@@ -282,9 +282,9 @@ ternux --help            # কমান্ডের তালিকা
 শুধু মূল ডেস্কটপ থাকে। `--yes` প্রশ্ন বাদ দিয়ে ডেবিয়ানের মূল প্রোফাইল বসায়।
 টার্নাক্স v2.0.0 গিটহাব প্রকাশনা ও স্থিতিশীল এপিটি বিতরণ ২০২৬-১১-১৪ তারিখে
 প্রত্যাহার হয়েছে; উৎসের ট্যাগ ও প্যাকেজ চেকসাম পুরোনো
-[প্রকাশনা-প্রতিবেদনে](../docs/V2-RELEASE-REPORT.md) আছে। v2.0.1 এখনো স্থানীয়
-প্রকাশ-প্রার্থী। এই প্রার্থী বর্তমান `main`-এর আংশিক ব্যবস্থাপক CLI, ইউনিক্স-
-সকেট সেবা ও Control Center preview ধরে রাখে; এগুলোকে সম্পূর্ণ v3 হিসেবে দেখানো
-হয় না। ভবিষ্যৎ নতুন স্থাপত্য v3-তে থাকবে। [এপিটি চ্যানেলের অবস্থা](../docs/TERMUX-APT.md) দেখুন।
+[প্রকাশনা-প্রতিবেদনে](../docs/V2-RELEASE-REPORT.md) আছে। v2.0.1 exact source tag, archive ও checksum-সহ প্রকাশিত হয়েছে। ইনস্টলের আগে
+[নির্দিষ্ট সংস্করণের নির্দেশিকা](../docs/release/pages/v2.0.1-INSTALLATION.md)
+দেখুন এবং checksum যাচাই করুন। এই সংস্করণে আংশিক manager CLI, Unix socket
+service ও Control Center preview আছে; এগুলো সম্পূর্ণ v3 নয়। নতুন স্থাপত্য v3-তে থাকবে। [এপিটি চ্যানেলের অবস্থা](../docs/TERMUX-APT.md) দেখুন।
 এইচটিপি/এইচএমএক্স, কিউএনএন ও বিস্তৃত ত্বরণ-যোগ্যতা পরীক্ষামূলক বা পরবর্তী
 কাজ; [ত্বরণ পরিকল্পনায়](../docs/ACCELERATOR-RELEASE-PLAN.md) বর্তমান সীমা আছে।
