@@ -36,6 +36,7 @@ status](../project/IMPLEMENTATION-STATUS.md) and [v2 release record](../V2-RELEA
 16. [Distribution expansion and qualification](DISTRIBUTION-ROADMAP.md)
 17. [Security roadmap](SECURITY-ROADMAP.md)
 18. [Testing strategy](TESTING-STRATEGY.md)
+19. [Extension SDK](EXTENSION-SDK.md)
 
 ## Status vocabulary
 

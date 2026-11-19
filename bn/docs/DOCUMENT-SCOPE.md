@@ -5,7 +5,7 @@ lang: "bn"
 alt_url: "/docs/DOCUMENT-SCOPE.html"
 ---
 
-**পর্যালোচনা:** 2026-11-18। এই তালিকায় প্রতিটি Markdown নথি, `src/pages/`-এর প্রতিটি
+**পর্যালোচনা:** 2026-11-20। এই তালিকায় প্রতিটি Markdown নথি, `src/pages/`-এর প্রতিটি
 Astro route এবং shared navigation source-এর শ্রেণি রয়েছে। এতে repository নির্দেশনা,
 technical reference, ঐতিহাসিক প্রমাণ ও research note রাখা হয়েছে, যাতে অনুবাদ ও
 মালিকানার ঘাটতি চিহ্নিত থাকে।
@@ -17,10 +17,11 @@ technical reference, ঐতিহাসিক প্রমাণ ও research no
 | `V3_FUTURE` | ভবিষ্যৎ v3 design, proposal, architecture বা acceptance কাজ; v2-এর প্রতিশ্রুতি নয়। |
 | `SHARED_REFERENCE` | Governance, পুনর্ব্যবহারযোগ্য নির্দেশনা, একাধিক সংস্করণের status বা technical reference। |
 | `DEPRECATED` | পুরোনো বা প্রতিস্থাপিত content, শুধু ইতিহাসের জন্য রাখা। |
+| `REPOSITORY_AUDIT` | তারিখ-নির্দিষ্ট পূর্ণ repository audit, finding ও evidence boundary-সহ। |
 | `NEEDS_REVIEW` | মালিকানা, পরিধি বা অনুবাদের অবস্থা নিয়ে স্পষ্ট সিদ্ধান্ত বাকি। |
 
 সমতুল্য-নথির কলামটি counterpart আছে কি না দেখায়; দুই ভাষার লেখা একই আছে—এর প্রমাণ নয়।
-`Missing ... mirror` সারিগুলো পর্যালোচনাযোগ্য অনুবাদ-ঘাটতি। তারিখযুক্ত audit snapshot-কে
+`Missing ... mirror` সারিগুলো পর্যালোচনাযোগ্য অনুবাদ-ঘাটতি। v3-এর সব technical ও ADR নথির বাংলা counterpart যোগ হয়েছে; ইংরেজি source বদলালে semantic parity পুনরায় যাচাই করতে হবে। তারিখযুক্ত audit snapshot-কে
 বর্তমান main-এর সঙ্গে মেলাতে নীরবে বদলানো হয়নি। তৈরি করা `.repo/STATUS.md`-কে
 `NEEDS_REVIEW` বলা হয়েছে; নির্ধারিত synchronization workflow দিয়েই সেটি হালনাগাদ হবে।
 
@@ -47,6 +48,7 @@ technical reference, ঐতিহাসিক প্রমাণ ও research no
 | `bn/CONTRIBUTING.md` | SHARED_REFERENCE | `CONTRIBUTING.md` |
 | `bn/README.md` | V2_CURRENT | `README.md` |
 | `bn/docs/ACCELERATOR-RELEASE-PLAN.md` | V2_CURRENT | `docs/ACCELERATOR-RELEASE-PLAN.md` |
+| `bn/docs/ANDROID-PHANTOM-PROCESS.md` | V2_CURRENT | `docs/ANDROID-PHANTOM-PROCESS.md` |
 | `bn/docs/ARCHITECTURE.md` | V2_CURRENT | `docs/ARCHITECTURE.md` |
 | `bn/docs/BENCHMARKS.md` | V2_CURRENT | `docs/BENCHMARKS.md` |
 | `bn/docs/BLENDER-MCP.md` | V2_CURRENT | `docs/BLENDER-MCP.md` |
@@ -74,16 +76,43 @@ technical reference, ঐতিহাসিক প্রমাণ ও research no
 | `bn/docs/project/PROJECT-ROADMAP.md` | SHARED_REFERENCE | `docs/project/PROJECT-ROADMAP.md` |
 | `bn/docs/project/RELEASE-STATUS.md` | SHARED_REFERENCE | `docs/project/RELEASE-STATUS.md` |
 | `bn/docs/release/README.md` | SHARED_REFERENCE | `docs/release/README.md` |
+| `bn/docs/release/V2-RELEASE-RECONCILIATION.md` | SHARED_REFERENCE | `docs/release/V2-RELEASE-RECONCILIATION.md` |
 | `bn/docs/release/V2-RELEASE-REPORT.md` | V2_HISTORICAL | `docs/release/V2-RELEASE-REPORT.md` |
 | `bn/docs/release/pages/v1.4.0-INSTALLATION.md` | V2_HISTORICAL | `docs/release/pages/v1.4.0-INSTALLATION.md` |
 | `bn/docs/release/pages/v2.0.1-INSTALLATION.md` | V2_CURRENT | `docs/release/pages/v2.0.1-INSTALLATION.md` |
 | `bn/docs/release/templates/RELEASE-INSTALLATION-TEMPLATE.md` | SHARED_REFERENCE | `docs/release/templates/RELEASE-INSTALLATION-TEMPLATE.md` |
+| `bn/docs/v3/ACCEPTANCE-CRITERIA.md` | V3_ACTIVE | `docs/v3/ACCEPTANCE-CRITERIA.md` |
+| `bn/docs/v3/ADR/0001-native-manager.md` | V3_FUTURE | `docs/v3/ADR/0001-native-manager.md` |
+| `bn/docs/v3/ADR/0002-guest-data-ownership.md` | V3_FUTURE | `docs/v3/ADR/0002-guest-data-ownership.md` |
+| `bn/docs/v3/ADR/0003-lai-adapter.md` | DEPRECATED | `docs/v3/ADR/0003-lai-adapter.md` |
+| `bn/docs/v3/ADR/0004-shared-manager-contract.md` | V3_FUTURE | `docs/v3/ADR/0004-shared-manager-contract.md` |
+| `bn/docs/v3/ADR/0005-native-display-allocation.md` | V3_FUTURE | `docs/v3/ADR/0005-native-display-allocation.md` |
+| `bn/docs/v3/ADR/README.md` | V3_FUTURE | `docs/v3/ADR/README.md` |
+| `bn/docs/v3/AI-RUNTIME-ARCHITECTURE.md` | V3_FUTURE | `docs/v3/AI-RUNTIME-ARCHITECTURE.md` |
+| `bn/docs/v3/API-DESIGN.md` | V3_FUTURE | `docs/v3/API-DESIGN.md` |
+| `bn/docs/v3/APT-DISTRIBUTION-FEASIBILITY.md` | V3_ACTIVE | `docs/v3/APT-DISTRIBUTION-FEASIBILITY.md` |
+| `bn/docs/v3/COMPONENT-ARCHITECTURE.md` | V3_FUTURE | `docs/v3/COMPONENT-ARCHITECTURE.md` |
+| `bn/docs/v3/COMPUTE-ENGINE.md` | V3_FUTURE | `docs/v3/COMPUTE-ENGINE.md` |
+| `bn/docs/v3/CONTROL-CENTER-ARCHITECTURE.md` | V3_FUTURE | `docs/v3/CONTROL-CENTER-ARCHITECTURE.md` |
+| `bn/docs/v3/DEVICE-BRIDGE-ARCHITECTURE.md` | V3_FUTURE | `docs/v3/DEVICE-BRIDGE-ARCHITECTURE.md` |
+| `bn/docs/v3/DISTRIBUTION-ROADMAP.md` | V3_ACTIVE | `docs/v3/DISTRIBUTION-ROADMAP.md` |
+| `bn/docs/v3/EXTENSION-SDK.md` | V3_FUTURE | `docs/v3/EXTENSION-SDK.md` |
+| `bn/docs/v3/IMPLEMENTATION-ROADMAP.md` | V3_ACTIVE | `docs/v3/IMPLEMENTATION-ROADMAP.md` |
+| `bn/docs/v3/PRODUCT-VISION.md` | V3_FUTURE | `docs/v3/PRODUCT-VISION.md` |
+| `bn/docs/v3/README.md` | V3_ACTIVE | `docs/v3/README.md` |
+| `bn/docs/v3/SECURITY-MODEL.md` | V3_FUTURE | `docs/v3/SECURITY-MODEL.md` |
+| `bn/docs/v3/SECURITY-ROADMAP.md` | V3_ACTIVE | `docs/v3/SECURITY-ROADMAP.md` |
+| `bn/docs/v3/SYSTEM-ARCHITECTURE.md` | V3_FUTURE | `docs/v3/SYSTEM-ARCHITECTURE.md` |
+| `bn/docs/v3/TESTING-STRATEGY.md` | V3_ACTIVE | `docs/v3/TESTING-STRATEGY.md` |
+| `bn/docs/v3/UX-AND-DESIGN-SYSTEM.md` | V3_FUTURE | `docs/v3/UX-AND-DESIGN-SYSTEM.md` |
+| `bn/docs/v3/WORKSPACE-ARCHITECTURE.md` | V3_FUTURE | `docs/v3/WORKSPACE-ARCHITECTURE.md` |
 | `bn/guides/device-benchmark-evidence.md` | SHARED_REFERENCE | `guides/device-benchmark-evidence.md` |
 | `bn/guides/llama-htp-experimental.md` | SHARED_REFERENCE | `guides/llama-htp-experimental.md` |
 | `bn/guides/llama-vulkan-extension.md` | SHARED_REFERENCE | `guides/llama-vulkan-extension.md` |
 | `bn/guides/stable-diffusion-vulkan-extension.md` | SHARED_REFERENCE | `guides/stable-diffusion-vulkan-extension.md` |
 | `bn/packaging/termux/README.md` | SHARED_REFERENCE | `packaging/termux/README.md` |
 | `docs/ACCELERATOR-RELEASE-PLAN.md` | V2_CURRENT | `bn/docs/ACCELERATOR-RELEASE-PLAN.md` |
+| `docs/ANDROID-PHANTOM-PROCESS.md` | V2_CURRENT | `bn/docs/ANDROID-PHANTOM-PROCESS.md` |
 | `docs/ARCHITECTURE.md` | V2_CURRENT | `bn/docs/ARCHITECTURE.md` |
 | `docs/BENCHMARKS.md` | V2_CURRENT | `bn/docs/BENCHMARKS.md` |
 | `docs/BLENDER-MCP.md` | V2_CURRENT | `bn/docs/BLENDER-MCP.md` |
@@ -108,6 +137,7 @@ technical reference, ঐতিহাসিক প্রমাণ ও research no
 | `docs/audit/CURRENT-STATE.md` | V2_HISTORICAL | Missing BN mirror |
 | `docs/audit/DEVICE-VERIFICATION.md` | SHARED_REFERENCE | Missing BN mirror |
 | `docs/audit/FEATURE-MATRIX.md` | SHARED_REFERENCE | Missing BN mirror |
+| `docs/audit/REPOSITORY-FULL-AUDIT-2026-11-20.md` | REPOSITORY_AUDIT | Missing BN mirror |
 | `docs/audit/REPOSITORY-STATE.md` | V2_HISTORICAL | Missing BN mirror |
 | `docs/index.md` | V2_CURRENT | `bn/docs/index.md` |
 | `docs/project/ARCHITECTURE-DECISIONS.md` | SHARED_REFERENCE | Missing BN mirror |
@@ -119,30 +149,36 @@ technical reference, ঐতিহাসিক প্রমাণ ও research no
 | `docs/project/RELEASE-STATUS.md` | SHARED_REFERENCE | `bn/docs/project/RELEASE-STATUS.md` |
 | `docs/project/TECHNICAL-DEBT.md` | SHARED_REFERENCE | Missing BN mirror |
 | `docs/release/README.md` | SHARED_REFERENCE | `bn/docs/release/README.md` |
+| `docs/release/V2-RELEASE-RECONCILIATION.md` | SHARED_REFERENCE | `bn/docs/release/V2-RELEASE-RECONCILIATION.md` |
 | `docs/release/V2-RELEASE-REPORT.md` | V2_HISTORICAL | `bn/docs/release/V2-RELEASE-REPORT.md` |
 | `docs/release/pages/v1.4.0-INSTALLATION.md` | V2_HISTORICAL | `bn/docs/release/pages/v1.4.0-INSTALLATION.md` |
 | `docs/release/pages/v2.0.1-INSTALLATION.md` | V2_CURRENT | `bn/docs/release/pages/v2.0.1-INSTALLATION.md` |
 | `docs/release/templates/RELEASE-INSTALLATION-TEMPLATE.md` | SHARED_REFERENCE | `bn/docs/release/templates/RELEASE-INSTALLATION-TEMPLATE.md` |
-| `docs/v3/ACCEPTANCE-CRITERIA.md` | V3_FUTURE | Missing BN mirror |
-| `docs/v3/ADR/0001-native-manager.md` | V3_FUTURE | Missing BN mirror |
-| `docs/v3/ADR/0002-guest-data-ownership.md` | V3_FUTURE | Missing BN mirror |
-| `docs/v3/ADR/0003-lai-adapter.md` | V3_FUTURE | Missing BN mirror |
-| `docs/v3/ADR/0004-shared-manager-contract.md` | V3_FUTURE | Missing BN mirror |
-| `docs/v3/ADR/0005-native-display-allocation.md` | V3_FUTURE | Missing BN mirror |
-| `docs/v3/ADR/README.md` | V3_FUTURE | Missing BN mirror |
-| `docs/v3/AI-RUNTIME-ARCHITECTURE.md` | V3_FUTURE | Missing BN mirror |
-| `docs/v3/API-DESIGN.md` | V3_FUTURE | Missing BN mirror |
-| `docs/v3/COMPONENT-ARCHITECTURE.md` | V3_FUTURE | Missing BN mirror |
-| `docs/v3/COMPUTE-ENGINE.md` | V3_FUTURE | Missing BN mirror |
-| `docs/v3/CONTROL-CENTER-ARCHITECTURE.md` | V3_FUTURE | Missing BN mirror |
-| `docs/v3/DEVICE-BRIDGE-ARCHITECTURE.md` | V3_FUTURE | Missing BN mirror |
-| `docs/v3/IMPLEMENTATION-ROADMAP.md` | V3_FUTURE | Missing BN mirror |
-| `docs/v3/PRODUCT-VISION.md` | V3_FUTURE | Missing BN mirror |
-| `docs/v3/README.md` | V3_FUTURE | Missing BN mirror |
-| `docs/v3/SECURITY-MODEL.md` | V3_FUTURE | Missing BN mirror |
-| `docs/v3/SYSTEM-ARCHITECTURE.md` | V3_FUTURE | Missing BN mirror |
-| `docs/v3/UX-AND-DESIGN-SYSTEM.md` | V3_FUTURE | Missing BN mirror |
-| `docs/v3/WORKSPACE-ARCHITECTURE.md` | V3_FUTURE | Missing BN mirror |
+| `docs/v3/ACCEPTANCE-CRITERIA.md` | V3_ACTIVE | `bn/docs/v3/ACCEPTANCE-CRITERIA.md` |
+| `docs/v3/ADR/0001-native-manager.md` | V3_FUTURE | `bn/docs/v3/ADR/0001-native-manager.md` |
+| `docs/v3/ADR/0002-guest-data-ownership.md` | V3_FUTURE | `bn/docs/v3/ADR/0002-guest-data-ownership.md` |
+| `docs/v3/ADR/0003-lai-adapter.md` | DEPRECATED | `bn/docs/v3/ADR/0003-lai-adapter.md` |
+| `docs/v3/ADR/0004-shared-manager-contract.md` | V3_FUTURE | `bn/docs/v3/ADR/0004-shared-manager-contract.md` |
+| `docs/v3/ADR/0005-native-display-allocation.md` | V3_FUTURE | `bn/docs/v3/ADR/0005-native-display-allocation.md` |
+| `docs/v3/ADR/README.md` | V3_FUTURE | `bn/docs/v3/ADR/README.md` |
+| `docs/v3/AI-RUNTIME-ARCHITECTURE.md` | V3_FUTURE | `bn/docs/v3/AI-RUNTIME-ARCHITECTURE.md` |
+| `docs/v3/API-DESIGN.md` | V3_FUTURE | `bn/docs/v3/API-DESIGN.md` |
+| `docs/v3/APT-DISTRIBUTION-FEASIBILITY.md` | V3_ACTIVE | `bn/docs/v3/APT-DISTRIBUTION-FEASIBILITY.md` |
+| `docs/v3/COMPONENT-ARCHITECTURE.md` | V3_FUTURE | `bn/docs/v3/COMPONENT-ARCHITECTURE.md` |
+| `docs/v3/COMPUTE-ENGINE.md` | V3_FUTURE | `bn/docs/v3/COMPUTE-ENGINE.md` |
+| `docs/v3/CONTROL-CENTER-ARCHITECTURE.md` | V3_FUTURE | `bn/docs/v3/CONTROL-CENTER-ARCHITECTURE.md` |
+| `docs/v3/DEVICE-BRIDGE-ARCHITECTURE.md` | V3_FUTURE | `bn/docs/v3/DEVICE-BRIDGE-ARCHITECTURE.md` |
+| `docs/v3/DISTRIBUTION-ROADMAP.md` | V3_ACTIVE | `bn/docs/v3/DISTRIBUTION-ROADMAP.md` |
+| `docs/v3/EXTENSION-SDK.md` | V3_FUTURE | `bn/docs/v3/EXTENSION-SDK.md` |
+| `docs/v3/IMPLEMENTATION-ROADMAP.md` | V3_ACTIVE | `bn/docs/v3/IMPLEMENTATION-ROADMAP.md` |
+| `docs/v3/PRODUCT-VISION.md` | V3_FUTURE | `bn/docs/v3/PRODUCT-VISION.md` |
+| `docs/v3/README.md` | V3_ACTIVE | `bn/docs/v3/README.md` |
+| `docs/v3/SECURITY-MODEL.md` | V3_FUTURE | `bn/docs/v3/SECURITY-MODEL.md` |
+| `docs/v3/SECURITY-ROADMAP.md` | V3_ACTIVE | `bn/docs/v3/SECURITY-ROADMAP.md` |
+| `docs/v3/SYSTEM-ARCHITECTURE.md` | V3_FUTURE | `bn/docs/v3/SYSTEM-ARCHITECTURE.md` |
+| `docs/v3/TESTING-STRATEGY.md` | V3_ACTIVE | `bn/docs/v3/TESTING-STRATEGY.md` |
+| `docs/v3/UX-AND-DESIGN-SYSTEM.md` | V3_FUTURE | `bn/docs/v3/UX-AND-DESIGN-SYSTEM.md` |
+| `docs/v3/WORKSPACE-ARCHITECTURE.md` | V3_FUTURE | `bn/docs/v3/WORKSPACE-ARCHITECTURE.md` |
 | `engineering/MASTER-GOAL.md` | NEEDS_REVIEW | Shared / no translation required |
 | `engineering/OWNER-AMENDMENTS.md` | SHARED_REFERENCE | Shared / no translation required |
 | `engineering/WEBSITE-DESIGN.md` | SHARED_REFERENCE | Shared / no translation required |
@@ -163,6 +199,10 @@ technical reference, ঐতিহাসিক প্রমাণ ও research no
 | `packaging/termux/README.md` | SHARED_REFERENCE | Shared / no translation required |
 | `share/templates/json-schema.md` | SHARED_REFERENCE | Shared / no translation required |
 | `share/terfetch/README.md` | SHARED_REFERENCE | Shared / no translation required |
+| `tests/fixtures/ternux-v1.4.0/README.md` | SHARED_REFERENCE | Shared / no translation required |
+| `tools/blender-gpu-mcp/README.md` | SHARED_REFERENCE | Shared / no translation required |
+| `tools/llama-htp/README.md` | SHARED_REFERENCE | Shared / no translation required |
+| `tools/repo_knowledge/README.md` | SHARED_REFERENCE | Shared / no translation required |
 | `src/data/navigation.ts` | V2_CURRENT | Navigation has EN/BN labels |
 | `src/pages/CHANGELOG.astro` | V2_CURRENT | `src/pages/bn/CHANGELOG.astro` |
 | `src/pages/CONTRIBUTING.astro` | V2_CURRENT | `src/pages/bn/CONTRIBUTING.astro` |
@@ -174,14 +214,9 @@ technical reference, ঐতিহাসিক প্রমাণ ও research no
 | `src/pages/docs/[...slug].astro` | V2_CURRENT | `src/pages/bn/docs/[...slug].astro` |
 | `src/pages/docs/index.astro` | V2_CURRENT | `src/pages/bn/docs/index.astro` |
 | `src/pages/index.astro` | V2_CURRENT | `src/pages/bn/index.astro` |
-| `tests/fixtures/ternux-v1.4.0/README.md` | SHARED_REFERENCE | Shared / no translation required |
-| `tools/blender-gpu-mcp/README.md` | SHARED_REFERENCE | Shared / no translation required |
-| `tools/llama-htp/README.md` | SHARED_REFERENCE | Shared / no translation required |
-| `tools/repo_knowledge/README.md` | SHARED_REFERENCE | Shared / no translation required |
-
 ## পর্যালোচনার বাকি বিষয়
 
 - `experiments/` ও `handoffs/`-এর research নথিগুলো Ternux documentation set-এর অংশ কি না নিশ্চিত করতে হবে; কোনো বহিরাগত প্রকল্প বদলানো হয়নি।
-- `docs/v3/`-এর পূর্ণ বাংলা অনুবাদ নেই; `bn/docs/V3-ARCHITECTURE.md` এবং `bn/docs/V3-PROPOSALS.md` পুরোনো সারাংশ, bilingual audit-এ এদের scope মিলিয়ে দেখার কথা চিহ্নিত।
+- `docs/v3/`-এর technical ও ADR নথির বাংলা counterpart যোগ হয়েছে। অনুবাদগুলো source পরিবর্তনের সঙ্গে semantic parity review চাই; `bn/docs/V3-ARCHITECTURE.md` সংক্ষিপ্ত entry point এবং `bn/docs/V3-PROPOSALS.md` প্রাথমিক proposal history।
 - `docs/audit/DEVICE-VERIFICATION.md`-এ window-fit-এর বর্তমান live follow-up আছে; এর বাংলা counterpart ঐতিহাসিক, তাই বর্তমান দাবি হিসেবে ব্যবহারের আগে পর্যালোচনা দরকার।
 - `.repo/STATUS.md` অপরিবর্তিত আছে; repository state নির্ধারণ করে তার owning workflow, হাতে সম্পাদনা নয়।

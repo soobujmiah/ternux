@@ -18,11 +18,13 @@ notes so missing translations and ownership questions remain visible.
 | `V3_ACTIVE` | Active v3 foundation planning or implementation; not automatically a shipped capability. |
 | `SHARED_REFERENCE` | Governance, reusable guidance, cross-version status, or technical reference. |
 | `DEPRECATED` | Superseded content retained only for historical context. |
+| `REPOSITORY_AUDIT` | Dated full-repository audit snapshot with findings and evidence boundaries. |
 | `NEEDS_REVIEW` | Ownership, scope, or translation status needs an explicit decision. |
 
 The mirror column identifies an existing counterpart, not proof that the two
 texts are synchronized. Rows marked `Missing ... mirror` are parity gaps for
-review. Dated audit snapshots remain historical and are not silently rewritten
+review. All v3 technical and ADR pages now have Bengali counterparts; these
+translations still need parity review as English sources evolve. Dated audit snapshots remain historical and are not silently rewritten
 to match current main. Generated `.repo/STATUS.md` is marked `NEEDS_REVIEW`;
 refresh it only through its supported synchronization workflow.
 
@@ -82,6 +84,31 @@ refresh it only through its supported synchronization workflow.
 | `bn/docs/release/pages/v1.4.0-INSTALLATION.md` | V2_HISTORICAL | `docs/release/pages/v1.4.0-INSTALLATION.md` |
 | `bn/docs/release/pages/v2.0.1-INSTALLATION.md` | V2_CURRENT | `docs/release/pages/v2.0.1-INSTALLATION.md` |
 | `bn/docs/release/templates/RELEASE-INSTALLATION-TEMPLATE.md` | SHARED_REFERENCE | `docs/release/templates/RELEASE-INSTALLATION-TEMPLATE.md` |
+| `bn/docs/v3/ACCEPTANCE-CRITERIA.md` | V3_ACTIVE | `docs/v3/ACCEPTANCE-CRITERIA.md` |
+| `bn/docs/v3/ADR/0001-native-manager.md` | V3_FUTURE | `docs/v3/ADR/0001-native-manager.md` |
+| `bn/docs/v3/ADR/0002-guest-data-ownership.md` | V3_FUTURE | `docs/v3/ADR/0002-guest-data-ownership.md` |
+| `bn/docs/v3/ADR/0003-lai-adapter.md` | DEPRECATED | `docs/v3/ADR/0003-lai-adapter.md` |
+| `bn/docs/v3/ADR/0004-shared-manager-contract.md` | V3_FUTURE | `docs/v3/ADR/0004-shared-manager-contract.md` |
+| `bn/docs/v3/ADR/0005-native-display-allocation.md` | V3_FUTURE | `docs/v3/ADR/0005-native-display-allocation.md` |
+| `bn/docs/v3/ADR/README.md` | V3_FUTURE | `docs/v3/ADR/README.md` |
+| `bn/docs/v3/AI-RUNTIME-ARCHITECTURE.md` | V3_FUTURE | `docs/v3/AI-RUNTIME-ARCHITECTURE.md` |
+| `bn/docs/v3/API-DESIGN.md` | V3_FUTURE | `docs/v3/API-DESIGN.md` |
+| `bn/docs/v3/APT-DISTRIBUTION-FEASIBILITY.md` | V3_ACTIVE | `docs/v3/APT-DISTRIBUTION-FEASIBILITY.md` |
+| `bn/docs/v3/COMPONENT-ARCHITECTURE.md` | V3_FUTURE | `docs/v3/COMPONENT-ARCHITECTURE.md` |
+| `bn/docs/v3/COMPUTE-ENGINE.md` | V3_FUTURE | `docs/v3/COMPUTE-ENGINE.md` |
+| `bn/docs/v3/CONTROL-CENTER-ARCHITECTURE.md` | V3_FUTURE | `docs/v3/CONTROL-CENTER-ARCHITECTURE.md` |
+| `bn/docs/v3/DEVICE-BRIDGE-ARCHITECTURE.md` | V3_FUTURE | `docs/v3/DEVICE-BRIDGE-ARCHITECTURE.md` |
+| `bn/docs/v3/DISTRIBUTION-ROADMAP.md` | V3_ACTIVE | `docs/v3/DISTRIBUTION-ROADMAP.md` |
+| `bn/docs/v3/EXTENSION-SDK.md` | V3_FUTURE | `docs/v3/EXTENSION-SDK.md` |
+| `bn/docs/v3/IMPLEMENTATION-ROADMAP.md` | V3_ACTIVE | `docs/v3/IMPLEMENTATION-ROADMAP.md` |
+| `bn/docs/v3/PRODUCT-VISION.md` | V3_FUTURE | `docs/v3/PRODUCT-VISION.md` |
+| `bn/docs/v3/README.md` | V3_ACTIVE | `docs/v3/README.md` |
+| `bn/docs/v3/SECURITY-MODEL.md` | V3_FUTURE | `docs/v3/SECURITY-MODEL.md` |
+| `bn/docs/v3/SECURITY-ROADMAP.md` | V3_ACTIVE | `docs/v3/SECURITY-ROADMAP.md` |
+| `bn/docs/v3/SYSTEM-ARCHITECTURE.md` | V3_FUTURE | `docs/v3/SYSTEM-ARCHITECTURE.md` |
+| `bn/docs/v3/TESTING-STRATEGY.md` | V3_ACTIVE | `docs/v3/TESTING-STRATEGY.md` |
+| `bn/docs/v3/UX-AND-DESIGN-SYSTEM.md` | V3_FUTURE | `docs/v3/UX-AND-DESIGN-SYSTEM.md` |
+| `bn/docs/v3/WORKSPACE-ARCHITECTURE.md` | V3_FUTURE | `docs/v3/WORKSPACE-ARCHITECTURE.md` |
 | `bn/guides/device-benchmark-evidence.md` | SHARED_REFERENCE | `guides/device-benchmark-evidence.md` |
 | `bn/guides/llama-htp-experimental.md` | SHARED_REFERENCE | `guides/llama-htp-experimental.md` |
 | `bn/guides/llama-vulkan-extension.md` | SHARED_REFERENCE | `guides/llama-vulkan-extension.md` |
@@ -113,8 +140,8 @@ refresh it only through its supported synchronization workflow.
 | `docs/audit/CURRENT-STATE.md` | V2_HISTORICAL | Missing BN mirror |
 | `docs/audit/DEVICE-VERIFICATION.md` | SHARED_REFERENCE | Missing BN mirror |
 | `docs/audit/FEATURE-MATRIX.md` | SHARED_REFERENCE | Missing BN mirror |
-| `docs/audit/REPOSITORY-STATE.md` | V2_HISTORICAL | Missing BN mirror |
 | `docs/audit/REPOSITORY-FULL-AUDIT-2026-11-20.md` | REPOSITORY_AUDIT | Missing BN mirror |
+| `docs/audit/REPOSITORY-STATE.md` | V2_HISTORICAL | Missing BN mirror |
 | `docs/index.md` | V2_CURRENT | `bn/docs/index.md` |
 | `docs/project/ARCHITECTURE-DECISIONS.md` | SHARED_REFERENCE | Missing BN mirror |
 | `docs/project/DEVICE-VERIFICATION.md` | V2_HISTORICAL | Missing BN mirror |
@@ -130,30 +157,31 @@ refresh it only through its supported synchronization workflow.
 | `docs/release/pages/v1.4.0-INSTALLATION.md` | V2_HISTORICAL | `bn/docs/release/pages/v1.4.0-INSTALLATION.md` |
 | `docs/release/pages/v2.0.1-INSTALLATION.md` | V2_CURRENT | `bn/docs/release/pages/v2.0.1-INSTALLATION.md` |
 | `docs/release/templates/RELEASE-INSTALLATION-TEMPLATE.md` | SHARED_REFERENCE | `bn/docs/release/templates/RELEASE-INSTALLATION-TEMPLATE.md` |
-| `docs/v3/ACCEPTANCE-CRITERIA.md` | V3_ACTIVE | Missing BN mirror |
-| `docs/v3/ADR/0001-native-manager.md` | V3_FUTURE | Missing BN mirror |
-| `docs/v3/ADR/0002-guest-data-ownership.md` | V3_FUTURE | Missing BN mirror |
-| `docs/v3/ADR/0003-lai-adapter.md` | V3_FUTURE | Missing BN mirror |
-| `docs/v3/ADR/0004-shared-manager-contract.md` | V3_FUTURE | Missing BN mirror |
-| `docs/v3/ADR/0005-native-display-allocation.md` | V3_FUTURE | Missing BN mirror |
-| `docs/v3/ADR/README.md` | V3_FUTURE | Missing BN mirror |
-| `docs/v3/AI-RUNTIME-ARCHITECTURE.md` | V3_FUTURE | Missing BN mirror |
-| `docs/v3/API-DESIGN.md` | V3_FUTURE | Missing BN mirror |
-| `docs/v3/COMPONENT-ARCHITECTURE.md` | V3_FUTURE | Missing BN mirror |
-| `docs/v3/COMPUTE-ENGINE.md` | V3_FUTURE | Missing BN mirror |
-| `docs/v3/CONTROL-CENTER-ARCHITECTURE.md` | V3_FUTURE | Missing BN mirror |
-| `docs/v3/DEVICE-BRIDGE-ARCHITECTURE.md` | V3_FUTURE | Missing BN mirror |
-| `docs/v3/IMPLEMENTATION-ROADMAP.md` | V3_ACTIVE | Missing BN mirror |
-| `docs/v3/PRODUCT-VISION.md` | V3_FUTURE | Missing BN mirror |
-| `docs/v3/README.md` | V3_ACTIVE | Missing BN mirror |
-| `docs/v3/SECURITY-MODEL.md` | V3_FUTURE | Missing BN mirror |
-| `docs/v3/SYSTEM-ARCHITECTURE.md` | V3_FUTURE | Missing BN mirror |
-| `docs/v3/UX-AND-DESIGN-SYSTEM.md` | V3_FUTURE | Missing BN mirror |
-| `docs/v3/WORKSPACE-ARCHITECTURE.md` | V3_FUTURE | Missing BN mirror |
-| `docs/v3/APT-DISTRIBUTION-FEASIBILITY.md` | V3_ACTIVE | Missing BN mirror |
-| `docs/v3/DISTRIBUTION-ROADMAP.md` | V3_ACTIVE | Missing BN mirror |
-| `docs/v3/SECURITY-ROADMAP.md` | V3_ACTIVE | Missing BN mirror |
-| `docs/v3/TESTING-STRATEGY.md` | V3_ACTIVE | Missing BN mirror |
+| `docs/v3/ACCEPTANCE-CRITERIA.md` | V3_ACTIVE | `bn/docs/v3/ACCEPTANCE-CRITERIA.md` |
+| `docs/v3/ADR/0001-native-manager.md` | V3_FUTURE | `bn/docs/v3/ADR/0001-native-manager.md` |
+| `docs/v3/ADR/0002-guest-data-ownership.md` | V3_FUTURE | `bn/docs/v3/ADR/0002-guest-data-ownership.md` |
+| `docs/v3/ADR/0003-lai-adapter.md` | DEPRECATED | `bn/docs/v3/ADR/0003-lai-adapter.md` |
+| `docs/v3/ADR/0004-shared-manager-contract.md` | V3_FUTURE | `bn/docs/v3/ADR/0004-shared-manager-contract.md` |
+| `docs/v3/ADR/0005-native-display-allocation.md` | V3_FUTURE | `bn/docs/v3/ADR/0005-native-display-allocation.md` |
+| `docs/v3/ADR/README.md` | V3_FUTURE | `bn/docs/v3/ADR/README.md` |
+| `docs/v3/AI-RUNTIME-ARCHITECTURE.md` | V3_FUTURE | `bn/docs/v3/AI-RUNTIME-ARCHITECTURE.md` |
+| `docs/v3/API-DESIGN.md` | V3_FUTURE | `bn/docs/v3/API-DESIGN.md` |
+| `docs/v3/APT-DISTRIBUTION-FEASIBILITY.md` | V3_ACTIVE | `bn/docs/v3/APT-DISTRIBUTION-FEASIBILITY.md` |
+| `docs/v3/COMPONENT-ARCHITECTURE.md` | V3_FUTURE | `bn/docs/v3/COMPONENT-ARCHITECTURE.md` |
+| `docs/v3/COMPUTE-ENGINE.md` | V3_FUTURE | `bn/docs/v3/COMPUTE-ENGINE.md` |
+| `docs/v3/CONTROL-CENTER-ARCHITECTURE.md` | V3_FUTURE | `bn/docs/v3/CONTROL-CENTER-ARCHITECTURE.md` |
+| `docs/v3/DEVICE-BRIDGE-ARCHITECTURE.md` | V3_FUTURE | `bn/docs/v3/DEVICE-BRIDGE-ARCHITECTURE.md` |
+| `docs/v3/DISTRIBUTION-ROADMAP.md` | V3_ACTIVE | `bn/docs/v3/DISTRIBUTION-ROADMAP.md` |
+| `docs/v3/EXTENSION-SDK.md` | V3_FUTURE | `bn/docs/v3/EXTENSION-SDK.md` |
+| `docs/v3/IMPLEMENTATION-ROADMAP.md` | V3_ACTIVE | `bn/docs/v3/IMPLEMENTATION-ROADMAP.md` |
+| `docs/v3/PRODUCT-VISION.md` | V3_FUTURE | `bn/docs/v3/PRODUCT-VISION.md` |
+| `docs/v3/README.md` | V3_ACTIVE | `bn/docs/v3/README.md` |
+| `docs/v3/SECURITY-MODEL.md` | V3_FUTURE | `bn/docs/v3/SECURITY-MODEL.md` |
+| `docs/v3/SECURITY-ROADMAP.md` | V3_ACTIVE | `bn/docs/v3/SECURITY-ROADMAP.md` |
+| `docs/v3/SYSTEM-ARCHITECTURE.md` | V3_FUTURE | `bn/docs/v3/SYSTEM-ARCHITECTURE.md` |
+| `docs/v3/TESTING-STRATEGY.md` | V3_ACTIVE | `bn/docs/v3/TESTING-STRATEGY.md` |
+| `docs/v3/UX-AND-DESIGN-SYSTEM.md` | V3_FUTURE | `bn/docs/v3/UX-AND-DESIGN-SYSTEM.md` |
+| `docs/v3/WORKSPACE-ARCHITECTURE.md` | V3_FUTURE | `bn/docs/v3/WORKSPACE-ARCHITECTURE.md` |
 | `engineering/MASTER-GOAL.md` | NEEDS_REVIEW | Shared / no translation required |
 | `engineering/OWNER-AMENDMENTS.md` | SHARED_REFERENCE | Shared / no translation required |
 | `engineering/WEBSITE-DESIGN.md` | SHARED_REFERENCE | Shared / no translation required |
@@ -174,6 +202,10 @@ refresh it only through its supported synchronization workflow.
 | `packaging/termux/README.md` | SHARED_REFERENCE | Shared / no translation required |
 | `share/templates/json-schema.md` | SHARED_REFERENCE | Shared / no translation required |
 | `share/terfetch/README.md` | SHARED_REFERENCE | Shared / no translation required |
+| `tests/fixtures/ternux-v1.4.0/README.md` | SHARED_REFERENCE | Shared / no translation required |
+| `tools/blender-gpu-mcp/README.md` | SHARED_REFERENCE | Shared / no translation required |
+| `tools/llama-htp/README.md` | SHARED_REFERENCE | Shared / no translation required |
+| `tools/repo_knowledge/README.md` | SHARED_REFERENCE | Shared / no translation required |
 | `src/data/navigation.ts` | V2_CURRENT | Navigation has EN/BN labels |
 | `src/pages/CHANGELOG.astro` | V2_CURRENT | `src/pages/bn/CHANGELOG.astro` |
 | `src/pages/CONTRIBUTING.astro` | V2_CURRENT | `src/pages/bn/CONTRIBUTING.astro` |
@@ -185,14 +217,9 @@ refresh it only through its supported synchronization workflow.
 | `src/pages/docs/[...slug].astro` | V2_CURRENT | `src/pages/bn/docs/[...slug].astro` |
 | `src/pages/docs/index.astro` | V2_CURRENT | `src/pages/bn/docs/index.astro` |
 | `src/pages/index.astro` | V2_CURRENT | `src/pages/bn/index.astro` |
-| `tests/fixtures/ternux-v1.4.0/README.md` | SHARED_REFERENCE | Shared / no translation required |
-| `tools/blender-gpu-mcp/README.md` | SHARED_REFERENCE | Shared / no translation required |
-| `tools/llama-htp/README.md` | SHARED_REFERENCE | Shared / no translation required |
-| `tools/repo_knowledge/README.md` | SHARED_REFERENCE | Shared / no translation required |
-
 ## Review gaps
 
 - Research directories under `experiments/` and `handoffs/` need confirmation that their content belongs in the Ternux documentation set; no external projects were modified.
-- `docs/v3/` has no full Bengali mirror; `bn/docs/V3-ARCHITECTURE.md` provides a Bengali summary of the active foundation and design boundary, while `bn/docs/V3-PROPOSALS.md` preserves the early proposal history. Detailed v3 technical pages remain English-only and are an explicit parity gap for staged follow-up.
+- `docs/v3/` now has Bengali counterparts for all technical and ADR Markdown pages. The translations have not yet received an independent semantic parity review; retain that review as follow-up when source changes occur.
 - `docs/audit/DEVICE-VERIFICATION.md` contains the current live window-fit follow-up; its Bengali counterpart is historical and needs review before being used as a current claim.
 - The generated `.repo/STATUS.md` remains unchanged because its owning workflow, not hand edits, defines the repository state.

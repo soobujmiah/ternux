@@ -17,3 +17,6 @@ instead of rewriting history.
 - [ADR-0003: Rejected external-product adapter proposal](0003-lai-adapter.md)
 - [ADR-0004: Shared typed manager contract](0004-shared-manager-contract.md)
 - [ADR-0005: Native-first display allocation](0005-native-display-allocation.md)
+
+The extension capability and permission contract is documented separately in
+the [v3 Extension SDK](../EXTENSION-SDK.md); it is planned and not implemented.

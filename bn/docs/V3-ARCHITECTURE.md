@@ -44,6 +44,9 @@ critical path-এ APT না রাখা এবং যাচাইকৃত sou
 
 ## প্রযুক্তিগত বিবরণ
 
+সব v3 technical ও ADR নথির বাংলা সূচি [এখানে](v3/README.html)। এই পাতাটি
+সংক্ষিপ্ত architecture entry point হিসেবে রাখা হয়েছে।
+
 - [সম্পূর্ণ নকশার সূচি](/docs/v3/README.html)
 - [বাস্তবায়নের পরিকল্পনা](/docs/project/PROJECT-ROADMAP.html)
 - [বর্তমান বাস্তবায়নের অবস্থা](/docs/project/IMPLEMENTATION-STATUS.html)
