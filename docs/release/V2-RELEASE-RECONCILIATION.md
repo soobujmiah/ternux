@@ -45,7 +45,7 @@ The owner-confirmed v2 desktop baseline is **Debian, Ubuntu, Kali Linux, and Alp
 
 | Area | Current evidence and maturity | Boundary / remaining check |
 |---|---|---|
-| Installer and bootstrap | Standalone and CLI fallback use one immutable source commit (`555ce1374957cf35b7a7afa17bbb720b4529d64a`) and matching codeload SHA-256 `b52347389d70314e2b9118528bab3a19cb982b839d3f4627b2d0a66a5493ce83`; local archive, hosted short-SHA codeload bytes, and bootstrap sync test match | Final v2.0.1 release archive and checksum manifest still need generation and verification |
+| Installer and bootstrap | Standalone and CLI fallback use one immutable source commit (`024fd260ac11e5b93786c5ecfcb7e5b045fc7b3e`) and matching codeload SHA-256 `0fe66a54a0071f1539c638b25756f644e348ffc17d85e74f038601d34668392a`; local archive, hosted full-commit codeload bytes, and bootstrap sync test match | Final v2.0.1 release archive and checksum manifest still need generation and verification |
 | CLI, PRoot lifecycle, uninstall/update/recovery | Exact-main CI and focused tests pass; updater rollback/recovery and data-preservation cases are covered in the suite | CI fixtures do not prove every real-device failure mode; preserve guest data and existing public commands |
 | Xfce and Termux:X11 | Existing Xfce/X11 integration is retained. Live Debian confirmed the Ctrl zoom event reaches the focused application; zoom-in changed the screenshot by 13.55%, and zoom-out returned to an exact pixel match | Intermittent X11 stalls were not reproduced; a short round-trip sample cannot rule them out |
 | Window placement and resizing | The corrected helper preserves pointer-resized size/position in the live Debian test. A separate reversible helper-on/helper-paused Xmessage comparison produced the same move and resize geometry in both states | The reported move-to-center symptom was not reproduced by that synthetic comparison. Removing the entire helper would also remove launch-time fit/clamp and Ctrl zoom. Touch-driven/device-specific behavior remains open |
@@ -80,7 +80,7 @@ No confirmed critical security vulnerability was established by the available so
 - Local window-fit suite: **13 cases passed**; Python syntax check passed.
 - Local `bash tests/focused.sh`: **211 passed, 0 failed**.
 - Local documentation checker after current factual corrections: **6,518 assertions, 621 internal links, 24 bilingual page pairs passed**.
-- `tests/bootstrap_source_sync.sh`: passed against the pinned archive. Local archive and actual GitHub short-SHA codeload archive both hash to `b5234738…3ce83` and have root `ternux-555ce13/`.
+- `tests/bootstrap_source_sync.sh`: passed against the pinned archive. Local archive and actual GitHub short-SHA codeload archive both hash to `b5234738…3ce83` and have root `ternux-024fd260ac11e5b93786c5ecfcb7e5b045fc7b3e/`.
 - PR #297 head `d792c254c51fcedc29925e6d6ba2c1a6cf3eafab`: Validate, unsigned package-artifact, repo-contract, test, and sync checks passed. The automated review's keyboard-freeze finding was fixed by replaying before preference I/O, then its conversation was resolved.
 - Exact-main Validate, package-artifact, and Repo Knowledge Sync passed on merge commit `4f968025…`; the generated-state PR passed the same required checks and merged as `1f8ffab…`.
 - Local `npm run format:check` could not launch because the Termux Node executable has an Android C++ runtime symbol mismatch. Exact-main website build/format validation passed in GitHub Actions; no Astro source changed in this release PR.
@@ -154,3 +154,9 @@ executable memory page and `aapt2` needs unavailable glibc symbols. The Alpine
 selector offers Blender only and preflight-rejects ADT. See the readiness report
 for exact evidence. This means the owner's all-baseline-distro ADT request is
 not fully met; v2 is not releasable with that claim.
+
+## Bootstrap snapshot parity correction — 2026-11-19
+
+- PR #298's first exact-commit Validate run exposed that the immutable installer/CLI source snapshot had not advanced with the current implementation. `tests/bootstrap_source_sync.sh` failed because the pinned archive omitted the current package-manager launcher, IPv4/IPv6 APT retry, optional-workload resume, and startup-password forwarding changes.
+- Downloaded the codeload archive for the exact preceding candidate commit `024fd260ac11e5b93786c5ecfcb7e5b045fc7b3e`; its root is `ternux-024fd260ac11e5b93786c5ecfcb7e5b045fc7b3e/` and SHA-256 is `0fe66a54a0071f1539c638b25756f644e348ffc17d85e74f038601d34668392a`.
+- The standalone installer and CLI fallback now share this full-commit URL and digest. Local `tests/bootstrap_source_sync.sh`, `bash -n install.sh lib/core.sh`, and `git diff --check` pass. The next PR commit must rerun complete CI; publication remains blocked until all exact-commit checks pass.

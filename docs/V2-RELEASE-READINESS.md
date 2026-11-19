@@ -139,12 +139,12 @@ rule it out. This correction is local and is not yet part of main or a
 published v2 artifact.
 
 The standalone installer and CLI fallback now pin this corrected source to
-commit `555ce1374957cf35b7a7afa17bbb720b4529d64a`, with short-SHA source
+commit `024fd260ac11e5b93786c5ecfcb7e5b045fc7b3e`, with full-commit source
 archive SHA-256
-`b52347389d70314e2b9118528bab3a19cb982b839d3f4627b2d0a66a5493ce83`.
+`0fe66a54a0071f1539c638b25756f644e348ffc17d85e74f038601d34668392a`.
 `tests/bootstrap_source_sync.sh` passes using that exact archive. After pushing
 the snapshot, the installer's short-SHA GitHub codeload URL returned the same
-SHA-256 and the expected `ternux-555ce13/` archive root.
+SHA-256 and the expected `ternux-024fd260ac11e5b93786c5ecfcb7e5b045fc7b3e/` archive root.
 
 A reversible live comparison paused the helper while opening and moving a
 separate Xmessage window and resizing it to 360x220. With the helper running
