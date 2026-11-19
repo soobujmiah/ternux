@@ -26,6 +26,8 @@ check "v3 guest display identities and saved v2 mapping preservation" bash "$ROO
 check "Termux host package repair recovers broken download-tool linkage" bash "$ROOT/tests/termux_pkg_recovery.sh"
 check "standalone bootstrap falls back from broken or unreachable curl to wget" bash "$ROOT/tests/bootstrap_downloader.sh"
 check "guest APT and Firefox installs have network and wall-clock limits" bash "$ROOT/tests/apt_timeouts.sh"
+check "six package-manager menus dispatch all operations to native tools" python3 "$ROOT/tests/package_manager_dispatch.py"
+check "APT IPv6 default-route detection reads the destination prefix field" python3 "$ROOT/tests/ipv6_route_detection.py"
 check "managed guest shells default Codex installer to non-interactive mode" bash "$ROOT/tests/codex_installer_env.sh"
 check "interactive prompts stay visible while installer output is streamed" python3 "$ROOT/tests/confirm_prompt.py"
 check "X11 windows are centered, scaled, and kept inside the usable display area" python3 "$ROOT/tests/window_fit_geometry.py"
@@ -1147,6 +1149,7 @@ assert "gtk3 glib2-tools ibus" in phase_source
 assert "gtk+3 glib ibus" in phase_source
 assert "thunderbird" not in base_desktop_install and "evolution" not in base_desktop_install
 assert "evolution) apt_packages+=(evolution gnome-online-accounts-gtk)" in phase_source
+assert 'godot)\n        if [ "$(tnx_distro)" = ubuntu ]; then apt_packages+=(godot3)' in phase_source
 assert "evolution" in phase_source.split("TNX_OPTIONAL_ITEMS=(", 1)[1].split(")", 1)[0]
 assert "celestia) celestia_selected=1; apt_packages+=(python3 gnupg ca-certificates) ;;" in phase_source
 assert "celestia" in phase_source.split("TNX_OPTIONAL_ITEMS=(", 1)[1].split(")", 1)[0]
@@ -1158,23 +1161,33 @@ assert "Packages.gz" in celestia_installer and "SHA256" in celestia_installer
 assert "trusted=yes" in celestia_installer and "celestia-obs" not in celestia_installer
 assert (root / "lib/ternux-assets/icons/Ternux/scalable/apps/celestia.svg").is_file()
 assert "--no-install-recommends synaptic" in (root / "lib/phases.sh").read_text()
-app_center = (root / "lib/ternux-assets/bin/ternux-app-center").read_text()
-assert "exec xfce4-terminal --disable-server --command" in app_center and "sudo -v && exec sudo env DISPLAY=" in app_center
-assert "Name=Synaptic Package Manager" in (root / "lib/ternux-assets/applications/synaptic.desktop").read_text()
-assert "Exec=/usr/local/bin/ternux-app-center" in (root / "lib/ternux-assets/applications/synaptic.desktop").read_text()
-assert "Categories=System;" in (root / "lib/ternux-assets/applications/synaptic.desktop").read_text()
-assert not (root / "lib/ternux-assets/applications/ternux-app-center.desktop").exists()
+package_manager = (root / "lib/ternux-assets/bin/ternux-package-manager").read_text()
+assert "exec xfce4-terminal --disable-server --execute /bin/sh -lc" in package_manager
+assert 'command -v synaptic' in package_manager and 'PATH="/usr/local/bin:/usr/local/sbin:/usr/sbin:/usr/bin:/sbin:/bin"' in package_manager
+assert 'GTK_THEME=Ternux "$(command -v synaptic)"' in package_manager
+for family, command in (("apk", "apk add"), ("pacman", "pacman -S"), ("dnf", "dnf install"), ("zypper", "zypper install"), ("xbps", "xbps-install")):
+    assert family in package_manager and command in package_manager
+package_manager_desktop = (root / "lib/ternux-assets/applications/ternux-package-manager.desktop").read_text()
+assert "Name=Synaptic Package Manager" in package_manager_desktop
+assert "Exec=/usr/local/bin/ternux-package-manager" in package_manager_desktop
+assert "Icon=system-software-install" in package_manager_desktop
+assert "Categories=System;" in package_manager_desktop
 phase_source = (root / "lib/phases.sh").read_text()
-assert 'asset_stage/applications/ternux-app-center.desktop' not in phase_source
-assert 'asset_stage/applications/synaptic.desktop' in phase_source
-assert phase_source.index('install -d -m 0755 /usr/local/share/applications') < phase_source.index('asset_stage/applications/synaptic.desktop')
+assert 'asset_stage/applications/ternux-package-manager.desktop' in phase_source
+assert 'asset_stage/bin/ternux-package-manager' in phase_source
+for desktop_name in ("ternux-synaptic.desktop", "apk.desktop", "pacman.desktop", "dnf.desktop", "zypper.desktop", "xbps.desktop"):
+    assert f"package_manager_desktop={desktop_name}" in phase_source
+assert "package_manager_icon=synaptic" in phase_source
+assert "package_manager_icon=system-software-install" in phase_source
+assert "Name=Ternux Package Manager" not in package_manager_desktop
+assert "sed '/^NoDisplay=/d' /usr/share/applications/synaptic.desktop" in phase_source and "printf '\\nNoDisplay=true\\n'" in phase_source
+assert phase_source.index('install -d -m 0755 /usr/local/share/applications') < phase_source.index('asset_stage/applications/ternux-package-manager.desktop')
 assert "locales wget fonts-symbola" in phase_source
 assert 'tnx_guest_login --user "$user_name" -- /usr/local/bin/ternux --version' in phase_source
-assert "NoDisplay=true" not in (root / "lib/ternux-assets/applications/synaptic.desktop").read_text()
 assert (root / "lib/ternux-assets/icons/Ternux/scalable/apps/ternux-app-center.svg").is_file()
 assert (root / "packaging/termux/icons/Ternux/scalable/apps/ternux-app-center.svg").read_bytes() == (root / "lib/ternux-assets/icons/Ternux/scalable/apps/ternux-app-center.svg").read_bytes()
 manifest = json.loads((root / "packaging/termux/manifest.json").read_text())
-for asset in ("bin/ternux-app-center", "applications/synaptic.desktop", "icons/Ternux/scalable/apps/ternux-app-center.svg"):
+for asset in ("bin/ternux-package-manager", "applications/ternux-package-manager.desktop", "icons/Ternux/scalable/apps/ternux-app-center.svg"):
     assert "lib/ternux/ternux-assets/" + asset in manifest["data_files"]
 assert (root / "lib/ternux-assets/icons/Ternux/scalable/apps/galculator.svg").is_file()
 desktop_phase = (root / "lib/phases.sh").read_text()
@@ -1211,6 +1224,10 @@ assert "if python3 -c 'import Xlib' >/dev/null 2>&1; then" in desktop_phase
 assert "window_fit_exec=/usr/local/bin/ternux-window-fit-x11" in desktop_phase
 assert "python3-xlib" in desktop_phase and "py3-xlib" in desktop_phase
 assert 'tnx_guest_run_script "$guest_setup_script" --shared-tmp' in desktop_phase
+bootstrap = desktop_phase.split('local guest_setup_script="', 1)[1].split('\n  "', 1)[0]
+assert r'\$1 == \"00000000000000000000000000000000\" && \$2 == \"00\"' in bootstrap
+assert r'\$APT_ADDRESS_OPTION ;;' in bootstrap
+assert 'Acquire::ForceIPv4=true' in bootstrap and 'Acquire::ForceIPv6=true' in bootstrap
 assert "pkg_retry()" in desktop_phase and "Acquire::Retries=3" in desktop_phase
 assert "pkg_retry apk add firefox-esr" in desktop_phase
 assert "mktemp /tmp/ternux-sudoers.XXXXXX" in desktop_phase
@@ -1593,6 +1610,24 @@ if env TERNUX_STATE_DIR="$TMP/state-required" HOME="$TMP/home-required" TERNUX_U
   ok "required phase failure stops dependants and is not marked complete"
 else
   not_ok "required phase failure stops dependants and is not marked complete"
+fi
+
+if bash -c '
+  . "$1/lib/core.sh"
+  export TERNUX_STATE_DIR="$2/state-resume-workloads"
+  mkdir -p "$TERNUX_STATE_DIR"
+  tnx_proot_container_installed(){ [ "$1" = debian ]; }
+  TERNUX_SELECTED_EXTRAS=""
+  tnx_install_phase_mark extras debian || exit 1
+  tnx_install_phase_done extras debian || exit 1
+  TERNUX_SELECTED_EXTRAS="blender,adt-build-tools"
+  if tnx_install_phase_done extras debian; then exit 1; fi
+  tnx_install_phase_mark extras debian || exit 1
+  tnx_install_phase_done extras debian
+' _ "$ROOT" "$TMP"; then
+  ok "resume reruns optional workloads when the selected set changed"
+else
+  not_ok "resume reruns optional workloads when the selected set changed"
 fi
 
 # Optional failure is retained as final nonzero status but verification runs.
@@ -3725,6 +3760,34 @@ check "optional llama workload pins a safe llama.cpp revision" bash -c '
   ! grep -Fq "rm -rf ~/llama.cpp" "$1/lib/phases.sh"
 ' _ "$ROOT"
 
+if env TEST_LAUNCHER_DIR="$TMP/doctor-auto-backend" bash -c '
+  . "$1/lib/doctor.sh"
+  _TNX_DISTRO=debian
+  tnx_detect_vulkan_state(){ echo PROBE_UNAVAILABLE; }
+  tnx_vulkan_legacy_status(){ echo missing; }
+  tnx_detect_gpu(){ echo Adreno; }
+  tnx_distro_state_get(){ echo auto; }
+  tnx_state_get(){ return 1; }
+  tnx_canonical_backend(){ echo "$1"; }
+  tnx_detect_backend(){ echo zink; }
+  tnx_gpu_backend_auto(){ echo zink; }
+  tnx_distro(){ echo debian; }
+  tnx_proot_container_installed(){ return 1; }
+  tnx_distro_state_dir(){ echo "$TEST_LAUNCHER_DIR"; }
+  tnx_has_cmd(){ return 1; }
+  mkdir -p "$TEST_LAUNCHER_DIR"
+  : > "$TEST_LAUNCHER_DIR/launcher.sh"
+  chmod +x "$TEST_LAUNCHER_DIR/launcher.sh"
+  _tnx_dr_graphics
+  for row in "${_TNX_DR_ROWS[@]}"; do
+    case "$row" in warn*backend_mismatch*) exit 1 ;; esac
+  done
+' _ "$ROOT"; then
+  ok "doctor resolves auto backend before comparing it with the recommendation"
+else
+  not_ok "doctor resolves auto backend before comparing it with the recommendation"
+fi
+
 if env TERNUX_STATE_DIR="$TMP/state-optional-apt-root" \
   OPTIONAL_APT_MARKER="$TMP/optional-apt-root-command" bash -c '
     . "$1/lib/phases.sh"
@@ -3734,7 +3797,9 @@ if env TERNUX_STATE_DIR="$TMP/state-optional-apt-root" \
     tnx_phase_extras ternux jq &&
       grep -Fq -- "--user root -- bash -s -- jq" "$OPTIONAL_APT_MARKER" &&
       grep -Fq "apt update" "$OPTIONAL_APT_MARKER" &&
-      grep -Fq "apt_run install" "$OPTIONAL_APT_MARKER" &&
+      grep -Fq "apt_with_fallback install" "$OPTIONAL_APT_MARKER" &&
+      grep -Fq 'Acquire::ForceIPv4=true' "$OPTIONAL_APT_MARKER" &&
+      grep -Fq 'Acquire::ForceIPv6=true' "$OPTIONAL_APT_MARKER" &&
       ! grep -Fq "sudo apt" "$OPTIONAL_APT_MARKER"
   ' _ "$ROOT"; then
   ok "optional APT workloads run as guest root without blocking on sudo stdin"
@@ -3757,7 +3822,12 @@ if env TERNUX_STATE_DIR="$TMP/state-optional-adt-blender" \
       grep -Fq "python3-requests" "$ADT_BLENDER_MARKER" &&
       grep -Fq "unzip" "$ADT_BLENDER_MARKER" &&
       grep -Fq "apt update" "$ADT_BLENDER_MARKER" &&
-      grep -Fq "apt_run install" "$ADT_BLENDER_MARKER" || exit 1
+      grep -Fq "apt_with_fallback install" "$ADT_BLENDER_MARKER" &&
+      grep -Fq 'Acquire::ForceIPv4=true' "$ADT_BLENDER_MARKER" &&
+      grep -Fq 'Acquire::ForceIPv6=true' "$ADT_BLENDER_MARKER" || exit 1
+    grep -Fq "Ternux ADT SDK environment" "$ADT_BLENDER_MARKER" &&
+      grep -Fq 'ANDROID_HOME' "$ADT_BLENDER_MARKER" &&
+      grep -Fq 'cmdline-tools/latest/bin' "$ADT_BLENDER_MARKER" || exit 1
     cmdline_line="$(grep -nF "__CALL__ last=adt-cmdline " "$ADT_BLENDER_MARKER" | head -n1 | cut -d: -f1)"
     build_line="$(grep -nF "__CALL__ last=adt-build-tools " "$ADT_BLENDER_MARKER" | head -n1 | cut -d: -f1)"
     [ -n "$cmdline_line" ] && [ -n "$build_line" ] && [ "$cmdline_line" -lt "$build_line" ]
@@ -3773,7 +3843,7 @@ if env TERNUX_STATE_DIR="$TMP/state-blender-xvfb" HOME="$TMP/home-blender-xvfb" 
     tnx_guest_login(){ printf "%s\n" "$*" > "$MARKER"; cat >> "$MARKER"; }
     tnx_ok(){ :; }
     tnx_warn(){ :; }
-    tnx_phase_extras ternux blender && grep -Fq "bash -s -- blender xvfb" "$MARKER" && grep -Fq "apt_run install" "$MARKER" && grep -Fq "apt-cache policy" "$MARKER"
+    tnx_phase_extras ternux blender && grep -Fq "bash -s -- blender xvfb" "$MARKER" && grep -Fq "apt_with_fallback install" "$MARKER" && grep -Fq "apt-cache policy" "$MARKER"
   ' _ "$ROOT"; then
   ok "Blender workload installs Xvfb for headless GPU rendering"
 else

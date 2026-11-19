@@ -12,7 +12,7 @@ grep -Fq 'timeout --signal=TERM --kill-after=10 3600 apt install -y -o APT::Inst
 grep -Fq 'Acquire::http::Timeout=30 -o Acquire::https::Timeout=30' "$PHASES"
 grep -Fq 'timeout --signal=TERM --kill-after=10 900 apt install -y \$DPKG_FORCE -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 "\$browser_package"' "$PHASES"
 grep -Fq -- "-w '%{http_code} %{speed_download}'" "$PHASES"
-grep -Fq 'APT operation failed; refreshing the distro-configured repositories before retrying.' "$PHASES"
+grep -Fq 'APT operation failed; retrying with the alternate IP family.' "$PHASES"
 grep -Fq 'command timeout --signal=TERM --kill-after=10 300 apt update' "$PHASES"
 grep -Fq 'refresh_repo_metadata()' "$PHASES"
 grep -Fq 'pacman) pacman -Syy --noconfirm' "$PHASES"

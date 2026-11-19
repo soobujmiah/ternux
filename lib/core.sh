@@ -839,7 +839,13 @@ tnx_install_phase_done() {
       # Guest root now shares the selected user's sudo password. If the sudo
       # phase still needs to run, reapply root from that same in-memory secret.
       if [ "$phase" = root_password ] && ! tnx_distro_phase_done "$distro" user_password; then return 1; fi
-      tnx_distro_phase_done "$distro" "$phase"
+      tnx_distro_phase_done "$distro" "$phase" || return 1
+      if [ "$phase" = extras ]; then
+        local requested_extras="${TERNUX_SELECTED_EXTRAS:-}"
+        local installed_extras="$(tnx_distro_state_get "$distro" installed_extras 2>/dev/null || true)"
+        [ "$requested_extras" = "$installed_extras" ] || return 1
+      fi
+      return 0
       ;;
   esac
 }
@@ -854,7 +860,12 @@ tnx_install_phase_mark() {
       identity="$(tnx_cli_source_identity)" || return 1
       tnx_state_set cli_source_identity "$identity"
       ;;
-    *) tnx_distro_phase_mark "$distro" "$phase" ;;
+    *)
+      if [ "$phase" = extras ]; then
+        tnx_distro_state_set "$distro" installed_extras "${TERNUX_SELECTED_EXTRAS:-}" || return 1
+      fi
+      tnx_distro_phase_mark "$distro" "$phase"
+      ;;
   esac
 }
 

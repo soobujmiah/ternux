@@ -1,0 +1,15 @@
+[Desktop Entry]
+Type=Application
+Name=Synaptic Package Manager
+Name[bn]=Synaptic Package Manager
+GenericName=Package Manager
+GenericName[bn]=প্যাকেজ ম্যানেজার
+Comment=Install and manage software with this distro's package tools
+Comment[bn]=এই ডিস্ট্রোর package tool দিয়ে software install ও manage করুন
+Exec=/usr/local/bin/ternux-package-manager
+TryExec=/usr/local/bin/ternux-package-manager
+Icon=system-software-install
+Terminal=false
+StartupNotify=true
+Categories=System;
+Keywords=software;packages;apt;apk;pacman;dnf;zypper;xbps;

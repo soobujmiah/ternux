@@ -374,9 +374,9 @@ teardown() {
 @test "state: works with custom TERNUX_STATE_DIR" {
   local custom_dir="$(mktemp -d)"
   export TERNUX_STATE_DIR="$custom_dir"
-  run bash "$TNX_CLI" state
+  run bash "$TNX_CLI" state --json
   [ "$status" -eq 0 ]
-  echo "$output" | grep -q "$custom_dir"
+  echo "$output" | python3 -c 'import json,sys; assert json.load(sys.stdin)["state_dir"] == sys.argv[1]' "$custom_dir"
   rm -rf "$custom_dir"
 }
 

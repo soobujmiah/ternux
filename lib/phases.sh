@@ -520,6 +520,14 @@ tnx_phase_debian() {
     FAMILY='$package_family'
     BWRAP_SHIM_B64='$proot_bwrap_b64'
     export DEBIAN_FRONTEND=noninteractive
+    APT_ADDRESS_OPTION=\"\"
+    if [ ! -s /proc/net/if_inet6 ] || ! awk '
+      \$1 == \"00000000000000000000000000000000\" && \$2 == \"00\" { found=1 }
+      END { exit !found }
+    ' /proc/net/ipv6_route 2>/dev/null; then
+      APT_ADDRESS_OPTION=\"-o Acquire::ForceIPv4=true\"
+      echo \"[INFO] No IPv6 default route in this guest; using IPv4 for APT.\"
+    fi
     install_proot_bwrap_shim() {
       install -d -m 0755 /usr/local/bin
       printf '%s' "\$BWRAP_SHIM_B64" | base64 -d > /usr/local/bin/.ternux-bwrap.new
@@ -528,7 +536,7 @@ tnx_phase_debian() {
     }
     refresh_repo_metadata() {
       case "\$FAMILY" in
-        apt) apt-get update -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 ;;
+        apt) apt-get update -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 \$APT_ADDRESS_OPTION ;;
         apk) apk update ;;
         pacman) pacman -Syy --noconfirm ;;
         dnf) dnf makecache --refresh ;;
@@ -549,22 +557,24 @@ tnx_phase_debian() {
     }
     DPKG_FORCE=\"-o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -o APT::Color=1 -o Dpkg::Progress-Fancy=1 -o Acquire::Retries=3\"
       timeout() {
-        local has_apt=0 is_update=0 arg
+        local has_apt=0 is_update=0 arg retry_option=\"-o Acquire::ForceIPv4=true\"
         for arg in "\$@"; do
           if [ "\$arg" = apt ]; then has_apt=1; fi
           if [ "\$arg" = update ]; then is_update=1; fi
         done
         if [ "\$has_apt" -ne 1 ] || [ "\$FAMILY" != apt ]; then command timeout "\$@"; return; fi
-        command timeout "\$@" && return 0
-        echo 'APT operation failed; refreshing the distro-configured repositories before retrying.'
+        case \"\$APT_ADDRESS_OPTION\" in *ForceIPv4*) retry_option=\"-o Acquire::ForceIPv6=true\" ;; esac
+        command timeout "\$@" \$APT_ADDRESS_OPTION && return 0
+        echo 'APT operation failed; retrying with the alternate IP family.'
         if [ "\$is_update" -ne 1 ]; then
-          command timeout --signal=TERM --kill-after=10 300 apt update -o APT::Color=1 -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 || return 1
+          command timeout --signal=TERM --kill-after=10 300 apt update -o APT::Color=1 -o Acquire::Retries=1 -o Acquire::http::Timeout=15 -o Acquire::https::Timeout=15 \$retry_option || return 1
         fi
-        command timeout "\$@"
+        if command timeout \"\$@\" \$retry_option; then APT_ADDRESS_OPTION=\"\$retry_option\"; return 0; fi
+        return 1
       }
     case \"\$FAMILY\" in
       apt)
-        timeout --signal=TERM --kill-after=10 300 apt update -o APT::Color=1 -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30
+        timeout --signal=TERM --kill-after=10 300 apt update -o APT::Color=1 -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 \$APT_ADDRESS_OPTION
         dpkg --configure -a --force-confold --force-confdef || true
         install_proot_bwrap_shim
         if [ '$(tnx_distro)' = ubuntu ]; then
@@ -647,11 +657,9 @@ tnx_phase_debian() {
     fi
     cp -a "\$asset_stage/themes/Ternux/." /usr/share/themes/Ternux/
     install -m 0755 "\$asset_stage/bin/ternux-open-url" /usr/local/bin/ternux-open-url
-    if [ "\$FAMILY" = apt ]; then
-      install -m 0755 "\$asset_stage/bin/ternux-app-center" /usr/local/bin/ternux-app-center
-    else
-      rm -f /usr/local/bin/ternux-app-center
-    fi
+    install -m 0755 "\$asset_stage/bin/ternux-package-manager" /usr/local/bin/ternux-package-manager
+    rm -f /usr/local/bin/ternux-app-center
+    printf '%s\n' "\$FAMILY" > /etc/ternux-package-manager
     install -m 0755 "\$asset_stage/bin/evolution" /usr/local/bin/evolution
     install -m 0755 "\$asset_stage/bin/ternux-install-celestia" /usr/local/bin/ternux-install-celestia
     install -d -m 0755 /usr/local/share/applications
@@ -659,10 +667,26 @@ tnx_phase_debian() {
       sed 's#^Exec=evolution#Exec=/usr/local/bin/evolution#' /usr/share/applications/org.gnome.Evolution.desktop > /usr/local/share/applications/org.gnome.Evolution.desktop
       chmod 0644 /usr/local/share/applications/org.gnome.Evolution.desktop
     fi
-    if [ "\$FAMILY" = apt ]; then
-      install -m 0644 "\$asset_stage/applications/synaptic.desktop" /usr/local/share/applications/synaptic.desktop
-    else
-      rm -f /usr/local/share/applications/ternux-app-center.desktop /usr/local/share/applications/synaptic.desktop
+    case "\$FAMILY" in
+      apt) package_manager_name='Synaptic Package Manager'; package_manager_desktop=ternux-synaptic.desktop; package_manager_icon=synaptic ;;
+      apk) package_manager_name='APK'; package_manager_desktop=apk.desktop; package_manager_icon=system-software-install ;;
+      pacman) package_manager_name='Pacman'; package_manager_desktop=pacman.desktop; package_manager_icon=system-software-install ;;
+      dnf) package_manager_name='DNF'; package_manager_desktop=dnf.desktop; package_manager_icon=system-software-install ;;
+      zypper) package_manager_name='Zypper'; package_manager_desktop=zypper.desktop; package_manager_icon=system-software-install ;;
+      xbps) package_manager_name='XBPS'; package_manager_desktop=xbps.desktop; package_manager_icon=system-software-install ;;
+    esac
+    awk -v name="\$package_manager_name" -v icon="\$package_manager_icon" '
+      /^Name=/ { print "Name=" name; next }
+      substr(\$0, 1, 8) == "Name[bn]" { print "Name[bn]=" name; next }
+      /^Icon=/ { print "Icon=" icon; next }
+      { print }
+    ' "\$asset_stage/applications/ternux-package-manager.desktop" > "/usr/local/share/applications/\$package_manager_desktop"
+    chmod 0644 "/usr/local/share/applications/\$package_manager_desktop"
+    rm -f /usr/local/share/applications/ternux-package-manager.desktop /usr/local/share/applications/ternux-app-center.desktop
+    if [ "\$FAMILY" != apt ]; then rm -f /usr/local/share/applications/synaptic.desktop; fi
+    if [ "\$FAMILY" = apt ] && [ -f /usr/share/applications/synaptic.desktop ]; then
+      { sed '/^NoDisplay=/d' /usr/share/applications/synaptic.desktop; printf '\nNoDisplay=true\n'; } > /usr/local/share/applications/synaptic.desktop
+      chmod 0644 /usr/local/share/applications/synaptic.desktop
     fi
     install -m 0644 "\$asset_stage/applications/ternux-sdcard.desktop" /usr/share/applications/ternux-sdcard.desktop
     install -m 0644 "\$asset_stage/applications/ternux-flashlight.desktop" /usr/share/applications/ternux-flashlight.desktop
@@ -2551,7 +2575,10 @@ tnx_phase_extras() {
       jq) apt_packages+=(jq) ;;
       htop) apt_packages+=(htop) ;;
       tree) apt_packages+=(tree) ;;
-      godot) apt_packages+=(godot) ;;
+      godot)
+        if [ "$(tnx_distro)" = ubuntu ]; then apt_packages+=(godot3)
+        else apt_packages+=(godot); fi
+        ;;
       geany) apt_packages+=(geany) ;;
       neovim) apt_packages+=(neovim) ;;
       micro) apt_packages+=(micro) ;;
@@ -2645,8 +2672,28 @@ TNX_APK_OPTIONAL_INSTALL
 set -u
 export DEBIAN_FRONTEND=noninteractive
 APT_NETWORK="-o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30"
-apt_run() { timeout --signal=TERM --kill-after=10 900 apt "$@" $APT_NETWORK; }
-timeout --signal=TERM --kill-after=10 300 apt update -o APT::Color=1 $APT_NETWORK || exit 1
+APT_ADDRESS_OPTION=""
+if [ ! -s /proc/net/if_inet6 ] || ! awk '
+  $1 == "00000000000000000000000000000000" && $2 == "00" { found=1 }
+  END { exit !found }
+' /proc/net/ipv6_route 2>/dev/null; then
+  APT_ADDRESS_OPTION="-o Acquire::ForceIPv4=true"
+  echo "Ternux: no IPv6 default route; using IPv4 for APT."
+fi
+apt_with_fallback() {
+  local retry_option="-o Acquire::ForceIPv4=true" arg is_update=0
+  for arg in "$@"; do [ "$arg" = update ] && is_update=1; done
+  case "$APT_ADDRESS_OPTION" in *ForceIPv4*) retry_option="-o Acquire::ForceIPv6=true" ;; esac
+  if timeout --signal=TERM --kill-after=10 900 apt "$@" $APT_NETWORK $APT_ADDRESS_OPTION; then return 0; fi
+  echo "Ternux: APT failed; retrying with the alternate IP family."
+  if [ "$is_update" -ne 1 ]; then
+    timeout --signal=TERM --kill-after=10 300 apt update $APT_NETWORK $retry_option || return 1
+  fi
+  timeout --signal=TERM --kill-after=10 900 apt "$@" $APT_NETWORK $retry_option || return 1
+  APT_ADDRESS_OPTION="$retry_option"
+}
+apt_run() { apt_with_fallback install -y -o APT::Color=1 -o Dpkg::Progress-Fancy=1 "$@"; }
+apt_with_fallback update -o APT::Color=1 || exit 1
 failed=0
 for package in "$@"; do
   candidate="$(apt-cache policy "$package" 2>/dev/null | awk '/^[[:space:]]*Candidate:/ {print $2; exit}')"
@@ -2655,7 +2702,7 @@ for package in "$@"; do
     failed=1
     continue
   fi
-  if ! apt_run install -y -o APT::Color=1 -o Dpkg::Progress-Fancy=1 "$package"; then
+  if ! apt_run "$package"; then
     printf 'Ternux: optional package %s failed; continuing with the remaining selections.\n' "$package" >&2
     failed=1
   fi
@@ -2822,6 +2869,24 @@ TNX_APT_OPTIONAL_INSTALL
       *) tnx_warn "Unknown optional software choice '$opt'; skipping it."; rc=1 ;;
     esac
   done
+
+  if [ "$adt_selected" -eq 1 ]; then
+    if tnx_guest_login --user "$user_name" -- bash -lc '
+      set -e
+      marker="# Ternux ADT SDK environment"
+      for profile in "$HOME/.profile" "$HOME/.bashrc" "$HOME/.zshrc"; do
+        [ -e "$profile" ] || : > "$profile"
+        if ! grep -qF "$marker" "$profile"; then
+          printf "\n# Ternux ADT SDK environment\nexport ANDROID_HOME=\"\${ANDROID_HOME:-\$HOME/android-sdk}\"\nexport ANDROID_SDK_ROOT=\"\${ANDROID_SDK_ROOT:-\$ANDROID_HOME}\"\nexport PATH=\"\$ANDROID_HOME/platform-tools:\$ANDROID_HOME/cmdline-tools/latest/bin:\$PATH\"\nfor _ternux_build_tools in \"\$ANDROID_HOME\"/build-tools/*; do\n  [ -d \"\$_ternux_build_tools\" ] && PATH=\"\$_ternux_build_tools:\$PATH\"\ndone\nunset _ternux_build_tools\n" >> "$profile"
+        fi
+      done
+    '; then
+      tnx_ok "ADT SDK environment configured for future guest shells"
+    else
+      tnx_warn "ADT SDK tools were installed, but guest shell PATH setup failed."
+      rc=1
+    fi
+  fi
 
   # The legacy llama workload compiles from the pinned upstream revision.
   if [[ " $* " == *" llm "* ]]; then
@@ -4440,8 +4505,8 @@ tnx_install() {
     fi
   else
     [ -n "${TERNUX_USER_PASSWORD:-}" ] || { tnx_fail "Set TERNUX_USER_PASSWORD before using --yes; it will be used for each selected guest's sudo and root accounts."; return 2; }
+    [ -n "${TERNUX_STARTUP_PASSWORD:-}" ] || { tnx_fail "Set TERNUX_STARTUP_PASSWORD before using --yes; it will be shared by the selected guests."; return 2; }
     for distro in "${normalized[@]}"; do batch_passwords+=("$TERNUX_USER_PASSWORD"); done
-    TERNUX_STARTUP_PASSWORD=""
   fi
 
   for forwarded_index in "${!normalized[@]}"; do
