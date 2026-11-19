@@ -93,7 +93,10 @@ renderer depends on the device and Android graphics stack, so check it with
    F-Droid](https://f-droid.org/packages/com.termux.styling/) or [GitHub](https://github.com/termux/termux-styling/releases)
    adds terminal themes and fonts. Ternux desktop apps capture live microphone audio
    on demand through Termux's OpenSL ES source; the API's recorder is file-based.
-   Install Termux and its add-ons from the same source.
+   Install Termux and its add-ons from the same source. For an optional Android
+   on-screen keyboard suited to terminal shortcuts and symbols, install
+   [Unexpected Keyboard from GitHub](https://github.com/Julow/Unexpected-Keyboard/releases)
+   or [Google Play](https://play.google.com/store/apps/details?id=juloo.keyboard2).
 2. Run the source installer directly. It tries curl first, falls back to wget,
    and removes the downloaded installer script after it exits:
 
