@@ -10,7 +10,7 @@ Notable changes to ternux. Dates are ISO 8601.
 
 ---
 
-## [Unreleased — v2.0.1 candidate]
+## [2.0.1] — 2026-11-19
 
 ### Android diagnostics
 
@@ -18,7 +18,7 @@ Notable changes to ternux. Dates are ISO 8601.
 
 ### Desktop reliability
 
-- The local v2.0.1 candidate preserves a user's window position after resizing; the window is moved only when needed to keep it inside the X11 work area. Added geometry regression coverage and verified the behavior in a live Debian/XFCE session.
+- The v2.0.1 release preserves a user's window position after resizing; the window is moved only when needed to keep it inside the X11 work area. Added geometry regression coverage and verified the behavior in a live Debian/XFCE session.
 - Ctrl zoom shortcuts now reach the focused X11 application immediately; Ternux replays the key before XFCE Terminal preference I/O. A synchronous passive keyboard grab allows the event to be replayed safely; Ctrl+Shift+= and Ctrl+- were verified in a live Debian session, including a visual zoom-in/zoom-out comparison.
 
 ### Installer

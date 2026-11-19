@@ -8,7 +8,7 @@
 
 ### A Linux desktop for ARM64 Android — no root required
 
-[![Version](https://img.shields.io/badge/version-2.0.1%20candidate-ffc857?style=flat-square)](docs/release/pages/v2.0.1-INSTALLATION.md)
+[![Version](https://img.shields.io/badge/version-2.0.1-22c55e?style=flat-square)](docs/release/pages/v2.0.1-INSTALLATION.md)
 [![Termux APT v2 withdrawn](https://img.shields.io/badge/Termux%20APT-v2%20withdrawn-gray?style=flat-square)](docs/TERMUX-APT.md)
 [![Debian · Ubuntu · Kali · Alpine](https://img.shields.io/badge/v2%20verified-Debian%20%7C%20Ubuntu%20%7C%20Kali%20%7C%20Alpine-77e3ad?style=flat-square)](docs/audit/FEATURE-MATRIX.md)
 [![v3 roadmap](https://img.shields.io/badge/v3-roadmap%20published-38bdf8?style=flat-square)](docs/v3/README.md)
@@ -124,12 +124,12 @@ stable package channel is withdrawn.
 
 The Ternux v2.0.0 GitHub release and stable APT distribution were withdrawn
 on 2026-11-14. The `v2.0.0` source tag remains available for provenance. A
-local v2.0.1 release candidate is being prepared; it is not published yet. Use
-the source installer above; the signed `/apt-rc` channel remains for opt-in
-candidate testing and is not a production install source. Version 2 is frozen
-to the existing implementation; new architecture and capabilities belong to v3.
-No stable v2.0.1 release is available until the candidate passes its release
-checks and is published.
+Ternux v2.0.1 is published from the verified source tag and archive. Use the
+version-specific [v2.0.1 installation guide](docs/release/pages/v2.0.1-INSTALLATION.md)
+and verify its checksum before installation. The signed `/apt-rc` channel remains
+for opt-in candidate testing and is not a production install source. Version 2
+is frozen to the existing implementation; new architecture and capabilities
+belong to v3.
 See the [APT channel status](docs/TERMUX-APT.md) and [v2 release record](docs/V2-RELEASE-READINESS.md).
 
 The base install needs about 4–4.6 GB of storage. Keep extra temporary space for
@@ -261,7 +261,7 @@ render route and run scripts or scenes with the documented EEVEE setup. See the
   Unix-socket service, and a local Control Center preview with desktop
   start/stop actions; these are not a complete v3 platform. Run `tx control` to
   try the preview locally. v2.0.0 is the withdrawn historical package; v2.0.1
-  remains an unpublished candidate based on current main.
+  is published; see the exact-version installation guide.
 - [Current project status](docs/project/PROJECT-ROADMAP.md): implementation,
   release, device evidence, technical debt, and next actions.
 - [Deep documentation index](docs/README.md): install paths, setup, daily use,
@@ -278,8 +278,8 @@ toggle multiple choices, Enter reviews the plan, and `q` keeps the base desktop.
 `--with-*` flags or `--all` select additional workloads. The v2.0.0 GitHub
 release and stable APT distribution were withdrawn on 2026-11-14; its source tag
 and package checksums remain in the historical [release report](docs/V2-RELEASE-REPORT.md).
-The v2.0.1 candidate is an unpublished snapshot of current main. Its release
-guide remains marked candidate until a verified tag and archive exist. The
+The v2.0.1 source release is published with a verified tag, archive, and checksum.
+Use its exact-version installation guide. The
 partial manager and Control Center preview are not claims of a complete service
 or v3 platform. See [v2 release readiness](docs/V2-RELEASE-READINESS.md), the
 [v3 roadmap](docs/v3/README.md), and [APT channel status](docs/TERMUX-APT.md).

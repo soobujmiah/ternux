@@ -1,21 +1,21 @@
 ---
 title: "Ternux release status"
-description: "Withdrawn v2.0.0 history and unpublished v2.0.1 candidate."
+description: "Published v2.0.1 status and withdrawn v2.0.0 history."
 lang: "bn"
 alt_url: "/docs/project/RELEASE-STATUS.html"
 ---
 
-## বর্তমান অবস্থা — 2026-11-18
+## বর্তমান অবস্থা — 2026-11-20
 
-- **সর্বশেষ প্রকাশিত version:** v1.4.0। Tag `3e6c07e2afcb5f1e65ecd57af19b0382a948835a`;
-  release-এ binary asset নেই। ঐতিহাসিক source archive-এর install guide public
-  release page-এ যুক্ত এবং tag archive দিয়ে যাচাই হয়েছে।
+- **সর্বশেষ প্রকাশিত version:** v2.0.1। Annotated tag `v2.0.1` source commit
+  `5be29360c9ca7e4516366711ec09f7a9b4d56940`-এ resolve হয়। GitHub release-এ
+  `ternux-v2.0.1-source.tar.gz` ও `SHA256SUMS` আছে; download করা checksum এবং
+  exact-version install guide যাচাই হয়েছে।
+- **v1.4.0:** ঐতিহাসিক প্রকাশিত version; tag `3e6c07e2afcb5f1e65ecd57af19b0382a948835a`।
 - **v2.0.0:** source tag `9106b04fc8627ae98b1d63c9912a28c8a4677441` provenance-এর জন্য
   রাখা আছে। GitHub Release object 2026-11-14-এ সরানো হয়েছে, stable APT-ও প্রত্যাহৃত;
   tag সরানো/পুনর্ব্যবহার করা যাবে না.
-- **v2.0.1:** অব্যবহৃত candidate; পর্যালোচিত source বর্তমান `main` commit
-  `1f8ffabaab7fe982f5bfc91759b14b921e6ebd8f`-এ আছে। এখনো published tag, release
-  archive, checksum manifest বা GitHub release page নেই।
+- **v2.0.1:** source release প্রকাশিত; exact tag, archive ও checksum যাচাই হয়েছে।
 - **Stable APT:** withdrawn; v2.0.1 install method নয়। APT feasibility আলাদা v3 কাজ।
 - **Owner-confirmed v2 desktop baseline:** Debian, Ubuntu, Kali Linux ও Alpine।
   Kali-র clean-container install/browser CI এই matrix-এ নেই; evidence সীমা

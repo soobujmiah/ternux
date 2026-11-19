@@ -1,13 +1,13 @@
 ---
 title: "Ternux project roadmap"
-description: "Version 2 release candidate status and the separate future v3 direction."
+description: "Published v2.0.1 status and the separate future v3 direction."
 lang: "en"
 alt_url: "/bn/docs/project/PROJECT-ROADMAP.html"
 ---
 
 ## Current direction
 
-**Reviewed:** 2026-11-19. Version 2 represents the existing implementation on
+**Reviewed:** 2026-11-20. Version 2 represents the existing implementation on
 `main`. The owner revoked the decision to move the former v3 platform scope
 into v2. Version 2 is frozen: no new distribution support, manager architecture,
 Device Bridge, Control Center capability, extension framework, API, AI/compute
@@ -18,13 +18,12 @@ release.
 
 - `v2.0.0` was withdrawn on 2026-11-14. Its source tag remains for provenance;
   its GitHub Release object is absent and stable APT endpoints return 404.
-- `v2.0.1` is the proposed next version. The tag is unused in local and remote
-  tag history. A local documentation/source candidate is being prepared from
-  current `main`; it is not published and has no release commit or artifact
-  checksum yet.
-- `v1.4.0` remains the latest published stable release. Its live GitHub release
-  page links the dedicated exact-version installation guide, which was checked
-  against the immutable v1.4.0 tag. It has no attached binary assets.
+- `v2.0.1` is published at tag `v2.0.1`, resolving to commit
+  `5be29360c9ca7e4516366711ec09f7a9b4d56940`. The GitHub release includes a
+  source archive and `SHA256SUMS`; the downloaded archive digest and exact
+  installation guide were verified.
+- `v1.4.0` is a historical published release. Its dedicated guide remains
+  linked from its release page and its tag remains immutable.
 - The stable APT channel remains withdrawn. Version 2 uses the verified
   version-specific source installation route. APT feasibility is a separate
   v3 research item, not a v2 release gate.
@@ -34,12 +33,10 @@ release.
 
 ## Version 2 release freeze and exit criteria
 
-The candidate may be published only after its exact source commit is fixed and
-verified, version metadata and release guide match that commit, the existing
-focused suite and exact-commit CI pass, artifact provenance and checksums are
-recorded, and release notes document limits honestly. Release page publication
-and the v1.4.0 historical guide must be checked against the actual source
-archive. This page does not mark any unpublished gate complete.
+Future releases require a fixed exact source commit, matching version metadata
+and guide, passing focused tests and exact-commit CI, verified artifacts and
+checksums, and honest limitation notes. The v2.0.1 release satisfies these
+gates; see the release status page for its tag, digest, and checks.
 
 Known verification boundaries:
 

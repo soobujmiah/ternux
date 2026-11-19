@@ -141,8 +141,8 @@ focused terminal or another X11 application.
 
 **Cause:** Ternux watches these keys to keep the XFCE Terminal font preference
 persistent. An asynchronous X11 keyboard grab can consume the shortcut before
-the focused application receives it. This is corrected in the current v2.0.1
-candidate; older installed helpers need the matching release update and desktop
+the focused application receives it. This is corrected in the v2.0.1
+release; older installed helpers need the matching release update and desktop
 restart.
 
 **Fix:** update Ternux, then restart the managed desktop with `tx restart

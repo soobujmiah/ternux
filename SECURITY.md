@@ -4,8 +4,8 @@
 
 | Version | Support status |
 | ------- | -------------- |
-| 2.x | Active development; v2.0.1 is a local release candidate and has not been published |
-| 1.x | Current published stable line (v1.4.0) |
+| 2.x | Current source release: v2.0.1; stable APT is withdrawn |
+| 1.x | Historical release line (v1.4.0) |
 | < 1.0 | Pre-release; unsupported |
 
 ## Reporting a vulnerability

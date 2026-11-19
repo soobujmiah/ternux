@@ -20,7 +20,7 @@ install `ternux` with `pkg install`. The RC channel remains reserved for
 opt-in candidate testing after its signed repository is published.
 The owner revoked the 2026-11-14 decision that required former v3 platform
 scope before another v2 release. Version 2 remains frozen to the existing
-implementation; v2.0.1 is the unpublished candidate described in the
+implementation; v2.0.1 is the published source release described in the
 [project roadmap](project/PROJECT-ROADMAP.html). APT remains withdrawn and is
 not a v2 release requirement. Any APT return is a separate v3 feasibility
 decision after v2 publication and owner approval.

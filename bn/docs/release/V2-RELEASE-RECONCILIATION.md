@@ -5,13 +5,13 @@ lang: "bn"
 alt_url: "/docs/release/V2-RELEASE-RECONCILIATION.html"
 ---
 
-**পর্যালোচনার তারিখ:** ২০২৬-১১-১৯
+**পর্যালোচনার তারিখ:** ২০২৬-১১-২০
 
-**Repository baseline:** `main` at `1f8ffabaab7fe982f5bfc91759b14b921e6ebd8f`
+**Release source:** annotated tag `v2.0.1` at commit `5be29360c9ca7e4516366711ec09f7a9b4d56940`
 
-**অবস্থা:** v2.0.1 source candidate `main`-এ merge হয়েছে; প্রকাশ ও release artifact যাচাই বাকি।
+**অবস্থা:** v2.0.1 প্রকাশিত ও যাচাই করা হয়েছে; stable APT withdrawn।
 
-বর্তমান source, GitHub history, exact-main CI, device record এবং মালিকের সর্বশেষ সিদ্ধান্তের সঙ্গে আগের audit ও project record মিলিয়ে এই প্রতিবেদন তৈরি। এটি প্রকাশের আগের reconciliation; v2.0.1 প্রকাশিত হয়েছে—এমন দাবি নয়।
+বর্তমান source, GitHub history, exact-main CI, device record এবং মালিকের সর্বশেষ সিদ্ধান্তের সঙ্গে আগের audit ও project record মিলিয়ে এই প্রতিবেদন তৈরি। এই প্রতিবেদনের publication verification অংশে প্রকাশিত tag, archive ও checksum-এর প্রমাণ আছে; তারিখ-চিহ্নিত আগের অংশগুলো তাদের সময়ের snapshot।
 
 সংস্করণভিত্তিক install guide-এর জন্য [release guide index](README.md) দেখুন।
 
@@ -70,8 +70,8 @@ PR #297-এর release follow-up `4f96802576fab1f1806e4ea0db052de6719a4b47` comm
 ## Documentation, release page ও README
 
 - v1.4.0 release page এখন immutable `v1.4.0` archive নামায়, নথিভুক্ত SHA-256 যাচাই করে এবং archived installer `1.4.0` দেখায়—এমন guide-এ link দেয়। Tag `3e6c07e2…` দিয়ে guide পরীক্ষা হয়েছে; release-এ binary asset নেই।
-- v2.0.1 guide নির্দিষ্ট সংস্করণের; প্রকাশের সময় exact tag/source asset/checksum manifest ব্যবহার করবে, `main` নয়। প্রকাশ না হওয়া পর্যন্ত GitHub release page যাচাই করা যাবে না।
-- README-র card-wise design অক্ষত এবং latest main, মালিক-নিশ্চিত চার distro, experimental feature-এর সীমা ও unpublished v2.0.1 অবস্থা দেখায়। Website card বর্তমান repository থেকে build হয়; পুরোনো release snapshot নয়।
+- v2.0.1 guide নির্দিষ্ট সংস্করণের exact tag/source asset/checksum ব্যবহার করে, `main` নয়; GitHub release page ও downloaded assets যাচাই হয়েছে।
+- README-র card-wise design অক্ষত এবং latest main, মালিক-নিশ্চিত চার distro, experimental feature-এর সীমা ও published v2.0.1 অবস্থা দেখায়। Website card বর্তমান repository থেকে build হয়; পুরোনো release snapshot নয়।
 - English ও Bengali v2 install/readiness/troubleshooting পেজ জোড়া আছে। বর্তমান CLI page-এ চার-distro baseline ও আলাদা evidence depth লেখা; v3 workspace document একই feature matrix দেখায়।
 - ঐতিহাসিক v2.0.0 report ও তারিখ-চিহ্নিত audit নিজ নিজ সময়ের সত্য ধরে রেখেছে; সেখানে লেখা পুরোনো তিন-distro release scope নতুন v2.0.1 baseline নয়।
 
@@ -154,3 +154,12 @@ compatible নয়: Java executable memory page map করতে পারে 
 প্রয়োজনীয় glibc symbol নেই। Alpine selector শুধু Blender দেখায়, ADT আগেই reject
 করে। বিস্তারিত evidence readiness report-এ আছে। অর্থাৎ সব baseline distro-তে
 ADT চালানোর owner request পুরোপুরি পূরণ হয়নি; এই দাবি দিয়ে v2 release-ready নয়।
+
+
+## প্রকাশনা যাচাই — 2026-11-19
+
+- Annotated `v2.0.1` tag source commit `5be29360c9ca7e4516366711ec09f7a9b4d56940`-এ resolve হয়।
+- Exact-commit Validate, repository-state contract এবং Termux APT artifact check প্রকাশের আগে pass করেছে।
+- GitHub Release: https://github.com/soobujmiah/ternux/releases/tag/v2.0.1
+- `ternux-v2.0.1-source.tar.gz` ও `SHA256SUMS` download করে যাচাই হয়েছে। Archive SHA-256: `276cf6ffa8cdd3586a358dcf5d2e0f87292d7d7fd29098045a0922259fc7ff7a`।
+- Stable APT withdrawn; v2.0.1-এ source archive-ই প্রকাশিত হয়েছে।

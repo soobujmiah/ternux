@@ -1,29 +1,30 @@
 ---
 title: "Ternux v2 release readiness"
-description: "Local v2.0.1 candidate status, v2.0.0 withdrawal history, and four-distro evidence boundaries."
+description: "Published v2.0.1 release record, v2.0.0 withdrawal history, and four-distro evidence boundaries."
 lang: "en"
 alt_url: "/bn/docs/V2-RELEASE-READINESS.html"
 ---
 
-## Current status — 2026-11-18
+## Current status — 2026-11-20
 
 The v2.0.0 source tag is retained, but its GitHub Release object was removed
 and stable APT withdrawn on 2026-11-14. The owner revoked the 2026-11-14 scope
 change that moved former v3 features into v2: v2 is frozen to the existing
 implementation, and new architecture/capabilities remain v3 work.
 
-The next unused candidate is **v2.0.1**. Its reviewed source changes are merged
-to `main` at `1f8ffabaab7fe982f5bfc91759b14b921e6ebd8f`, but it is **not
-published**. No v2.0.1 tag, release archive, checksum manifest, or GitHub
-Release page exists yet. See the [release audit reconciliation](release/V2-RELEASE-RECONCILIATION.md)
-for the evidence and remaining gates.
+**v2.0.1 is published** from annotated tag `v2.0.1`, which resolves to source
+commit `5be29360c9ca7e4516366711ec09f7a9b4d56940`. The GitHub Release provides
+`ternux-v2.0.1-source.tar.gz` and `SHA256SUMS`; the downloaded archive matched
+SHA-256 `276cf6ffa8cdd3586a358dcf5d2e0f87292d7d7fd29098045a0922259fc7ff7a`.
+See the [exact-version installation guide](release/pages/v2.0.1-INSTALLATION.md)
+and [release audit reconciliation](release/V2-RELEASE-RECONCILIATION.md).
 The stable APT channel remains withdrawn and is not a v2 release requirement.
 The owner-confirmed v2 verified desktop baseline is Debian, Ubuntu, Kali Linux,
 and Alpine; evidence depth differs by distro. The clean-container Firefox CI
 matrix currently covers Debian, Ubuntu, and Alpine. See the
 [feature matrix](audit/FEATURE-MATRIX.md) and [device evidence](audit/DEVICE-VERIFICATION.md).
 
-## Local v2.0.1 candidate checks — 2026-11-18
+## Pre-publication local evidence snapshot — 2026-11-18
 
 - `python3 tests/window_fit_geometry.py`: 13 geometry/state cases passed.
 - `bash tests/focused.sh`: 211 passed, 0 failed.
@@ -100,9 +101,9 @@ archive digest. Since the new snapshot is not on GitHub yet, its live codeload
 URL cannot be checked until repository synchronization; the exact-commit CI
 check remains required after approval.
 
-These are local candidate results, not exact-commit GitHub CI or release
-qualification. No repository release object, tag, release asset, or GitHub
-change was created.
+This section records the local state on 2026-11-18 before publication. It is
+historical evidence; the exact published commit and post-publication checks are
+recorded in the release reconciliation above and below.
 
 ## Ctrl zoom shortcut correction — 2026-11-18
 
@@ -358,3 +359,11 @@ opt-in RC channel remains public. The 2026-11-14 scope change was revoked on
   passes Blender, while ADT is technically incompatible with the current
   musl/PRoot runtime. This remains an owner-visible v2 qualification limitation,
   not a successful all-distro ADT result.
+
+
+## Publication verification — 2026-11-19
+
+- Annotated tag `v2.0.1` resolves to `5be29360c9ca7e4516366711ec09f7a9b4d56940`.
+- Exact-commit Validate, repository-state contract, and Termux APT artifact checks passed before publication.
+- Published archive `ternux-v2.0.1-source.tar.gz` SHA-256: `276cf6ffa8cdd3586a358dcf5d2e0f87292d7d7fd29098045a0922259fc7ff7a`; the downloaded manifest matched.
+- The GitHub Release publishes the source archive and checksum manifest only. Stable APT remains withdrawn.

@@ -136,7 +136,7 @@ application-এর লেখার আকার বদলায় না।
 
 **কারণ:** XFCE Terminal-এর font preference ধরে রাখতে Ternux এই key-গুলো দেখে।
 Asynchronous X11 keyboard grab shortcut-টি focused application-এ পৌঁছানোর আগে
-consume করতে পারে। বর্তমান v2.0.1 candidate-এ এটি ঠিক করা হয়েছে; পুরনো installed
+consume করতে পারে। v2.0.1 release-এ এটি ঠিক করা হয়েছে; পুরনো installed
 helper-এর জন্য সংশ্লিষ্ট release update ও desktop restart দরকার।
 
 **সমাধান:** Ternux update করে managed desktop `tx restart debian` দিয়ে restart

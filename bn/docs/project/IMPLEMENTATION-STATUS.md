@@ -8,14 +8,14 @@ alt_url: "/docs/project/IMPLEMENTATION-STATUS.html"
 ## বাস্তবায়নের অবস্থা
 
 **Repository snapshot:** 2026-11-19। v2 বর্তমান implementation-এ frozen। v2.0.1
-স্থানীয়, unpublished candidate; পূর্ণ v3 কাজ ভবিষ্যতের জন্য। Source বা design
+প্রকাশিত source release; পূর্ণ v3 কাজ ভবিষ্যতের জন্য। Source বা design
 থাকলেই release/device verification হয়েছে—এমন দাবি করা হয় না।
 
 | ক্ষেত্র | অবস্থা | প্রমাণ ও পরবর্তী সীমা |
 |---|---|---|
-| v2 release | v2.0.0 withdrawn; v2.0.1 local candidate | পুরোনো tag provenance-এর জন্য আছে; GitHub Release ও stable APT নেই। Candidate tag/artifact/checksum প্রকাশিত নয়। [release status](RELEASE-STATUS.md) |
+| v2 release | v2.0.0 withdrawn; v2.0.1 published source release | পুরোনো tag provenance-এর জন্য আছে; GitHub Release ও stable APT নেই। Source tag, archive ও checksum যাচাই হয়েছে। [release status](RELEASE-STATUS.md) |
 | Debian, Ubuntu, Kali, Alpine | Owner-confirmed v2 baseline | Clean guest/browser CI evidence Debian, Ubuntu ও Alpine-এ; Kali-র installed reference-device evidence আছে, clean-container install/Firefox CI নেই। [feature matrix](../../../docs/audit/FEATURE-MATRIX.md) |
-| Window viewport helper | বর্তমান source-এ user position ধরে রাখার fix; local candidate test | Live Debian/XFCE-তে `xdotool` দিয়ে move/resize test pass; resize-এর পর position থাকে। Debian, Ubuntu, Kali ও Alpine—চার guest-এ helper hash local source-এর সঙ্গে মেলে; interactive move/resize শুধু Debian/XFCE-তে পরীক্ষা হয়েছে। অন্য তিন guest-এর interactive qualification নয়। [device record](../../../docs/audit/DEVICE-VERIFICATION.md) |
+| Window viewport helper | বর্তমান source-এ user position ধরে রাখার fix; published v2.0.1-এর live test | Live Debian/XFCE-তে `xdotool` দিয়ে move/resize test pass; resize-এর পর position থাকে। Debian, Ubuntu, Kali ও Alpine—চার guest-এ helper hash local source-এর সঙ্গে মেলে; interactive move/resize শুধু Debian/XFCE-তে পরীক্ষা হয়েছে। অন্য তিন guest-এর interactive qualification নয়। [device record](../../../docs/audit/DEVICE-VERIFICATION.md) |
 | Installer ও CLI | বর্তমান source-এ multi-distro setup, lifecycle, recovery ও uninstall path | Host test আছে; clean-install, resume ও distro qualification evidence আলাদা করে ধরতে হবে। v1.4.0 এবং v2.0.1 guide আলাদা। |
 | Desktop, graphics ও audio | বিদ্যমান Xfce/Termux:X11, Zink/VirGL এবং PulseAudio integration | Fresh Ubuntu, Kali ও Alpine desktop-এ PulseAudio route ও 2-second playback pass; owner প্রতিটিতে শব্দ শোনা নিশ্চিত করেছেন। Existing Debian VLC audio-ও owner-confirmed। এই device/session-এর বাইরে বা capture/recovery behavior প্রমাণ করে না। |
 | Bengali input ও camera/microphone | বিদ্যমান app ও Termux API integration | Companion APK ও client package installed নিশ্চিত; local detector fix `cmd` ব্যর্থ হলে `pm path` চেষ্টা করে। Camera capture এবং microphone permission/status পরীক্ষা হয়নি; v3 Device Bridge এখনো design work। |

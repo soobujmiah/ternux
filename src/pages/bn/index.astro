@@ -9,7 +9,7 @@ const installCommand = `pkg update -y && pkg upgrade -y && pkg install -y curl w
 
 <SiteLayout
   title="পকেটেই লিনাক্স ওয়ার্কস্টেশন"
-  description="Ternux হলো root ছাড়া ARM64 Android Linux workstation। Debian, Ubuntu, Kali Linux ও Alpine v2-এর যাচাইকৃত desktop baseline; v2.0.1 এখনো স্থানীয় release candidate।"
+  description="Ternux হলো root ছাড়া ARM64 Android Linux workstation। Debian, Ubuntu, Kali Linux ও Alpine v2-এর যাচাইকৃত desktop baseline; v2.0.1 source release প্রকাশিত।"
   lang="bn"
   canonical="/bn/"
   altUrl="/"
@@ -264,8 +264,8 @@ const installCommand = `pkg update -y && pkg upgrade -y && pkg install -y curl w
       <div class="container">
         <div class="device-panel profile-panel status-panel">
           <div class="device-copy">
-            <span class="eyebrow">প্রকল্পের অবস্থা · ১৪ নভেম্বর ২০২৬</span>
-            <h2>v2.0.0 withdrawn। v2.0.1 স্থানীয় release candidate।</h2>
+            <span class="eyebrow">প্রকল্পের অবস্থা · ২০ নভেম্বর ২০২৬</span>
+            <h2>v2.0.0 withdrawn। v2.0.1 source release প্রকাশিত।</h2>
             <p>
               v2.0.0 GitHub release ও stable APT distribution 2026-11-14-এ
               withdrawn হয়েছে; provenance-এর জন্য source tag রাখা হয়েছে।
@@ -274,10 +274,12 @@ const installCommand = `pkg update -y && pkg upgrade -y && pkg install -y curl w
               চারটি read-only manager CLI command, foreground Unix-socket
               service এবং confirmation-সহ desktop start/stop ও local job
               record-সহ `tx control` preview আছে (ঐচ্ছিক Python 3 লাগে)। v2.0.1
-              candidate current main ধরে, কিন্তু এখনো প্রকাশিত নয়। পূর্ণ
-              service supervision, dashboard-এর বাকি অংশ এবং নতুন v3
-              architecture ভবিষ্যৎ কাজ। সঠিক release commit-এর সব check শেষ ও
-              owner approval না হওয়া পর্যন্ত stable v2.0.1 নেই।
+              source archive verified tag থেকে প্রকাশিত; নির্দিষ্ট সংস্করণের
+              <a href="/ternux/bn/docs/release/pages/v2.0.1-INSTALLATION.html">
+                installation guide
+              </a>{" "}
+              দেখুন। পূর্ণ service supervision, dashboard-এর বাকি অংশ ও নতুন v3
+              architecture ভবিষ্যৎ কাজ। Stable APT withdrawn-ই আছে.
             </p>
           </div>
           <div class="profile-grid">
@@ -286,7 +288,7 @@ const installCommand = `pkg update -y && pkg upgrade -y && pkg install -y curl w
               href="/ternux/bn/docs/V2-RELEASE-READINESS.html"
             >
               <small>V2 DISTRIBUTION STATUS</small>
-              <strong>v2.0.1 candidate</strong>
+              <strong>v2.0.1 প্রকাশিত</strong>
               <span>Release record দেখুন ↗</span>
             </a>
             <a class="profile-card" href="/ternux/bn/docs/V3-ARCHITECTURE.html">

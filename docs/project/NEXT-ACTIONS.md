@@ -1,41 +1,30 @@
 ---
 title: "Ternux next actions"
-description: "Ordered local v2.0.1 candidate gates followed by future v3 planning."
+description: "Completed v2.0.1 release gates and future v3 planning."
 lang: "en"
 alt_url: "/bn/docs/project/NEXT-ACTIONS.html"
 ---
 
-## Version 2.0.1 candidate gates
+## v2.0.1 release — completed
 
-**Last reviewed:** 2026-11-18. The candidate is local and unpublished. Keep v2
-frozen to current functionality and do not reopen stable APT.
+**Last reviewed:** 2026-11-20. v2.0.1 is published from the tested exact commit.
+Keep v2 frozen to current functionality; stable APT remains withdrawn.
 
-1. Reconcile the v2.0.0 withdrawal record with the latest owner scope decision;
-   preserve the old release tag and historical gate evidence.
-2. Complete exact-version v1.4.0 and v2.0.1 install guides. Keep v2's guide
-   marked candidate until its exact tag, source commit, archive digest, and
-   release page are verified.
-3. Align current `main` release status, feature maturity, four-distro baseline,
-   limitations, English/Bengali docs, README, and site entry points. Keep the
-   source-only / incomplete manager slice described at its actual maturity.
-4. Run local source tests and bounded device checks. The owner requested the
-   Debian desktop be started for a window-fit regression check; that existing
-   guest was retained, `xdotool` was installed for testing, and the desktop is
-   left open. Record this action separately from the earlier read-only audit.
-5. Resolve local build limitations: Node cannot start in this Termux runtime,
-   Docker is absent, and no four-distro clean-install matrix can run locally.
-   Obtain exact-commit CI and package/site build evidence after approval and
-   repository synchronization.
-6. Generate release artifacts only from the final approved commit; verify
-   provenance, source archive contents, version, checksums, release notes, and
-   install command. Do not configure the withdrawn APT source.
-7. Publish only after approval of the concrete reviewed candidate, then inspect
-   the actual v2.0.1 release page and v1.4.0 page and verify both exact-version
-   instructions against their tagged archives.
+- v2.0.0 withdrawal history and the current owner scope are reconciled; historical
+  tag and evidence are preserved.
+- Exact-version v1.4.0 and v2.0.1 installation guides are maintained separately.
+- Bilingual README, changelog, release index, status, and reconciliation records
+  describe the published v2.0.1 source archive and four-distro baseline.
+- Local implementation/device evidence and exact-commit hosted checks are recorded.
+- Source archive and `SHA256SUMS` were generated from commit
+  `5be29360c9ca7e4516366711ec09f7a9b4d56940`, downloaded, and checksum-verified.
+- GitHub Release `v2.0.1` is published. Stable APT remains withdrawn; no v2 APT
+  repository was published.
 
-## After v2 publication: version 3
+## Next: version 3
 
-Only after the stable v2.0.1 release and its installation page are verified:
+The v2.0.1 source release and installation page are verified. Proceed with the
+separately scoped v3 planning below:
 
 - Consolidate future product scope, architecture, acceptance criteria, ADRs,
   testing strategy, security plan, and measurable milestone roadmap in `docs/v3/`.

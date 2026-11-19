@@ -15,7 +15,7 @@ basic-usage path, then link here for details.
 | Section | Pages |
 |---|---|
 | Start here | `index.md`, `QUICK-START.md`, `INSTALLATION.md`, `MANUAL.md` |
-| Release status and roadmap | [`release/README.md`](release/README.md) indexes the exact-version installation guides; [`release/V2-RELEASE-REPORT.md`](release/V2-RELEASE-REPORT.md) preserves v2.0.0 history and current scope; [`V2-RELEASE-READINESS.md`](V2-RELEASE-READINESS.md) tracks the unpublished v2.0.1 candidate. |
+| Release status and roadmap | [`release/README.md`](release/README.md) indexes the exact-version installation guides; [`release/V2-RELEASE-REPORT.md`](release/V2-RELEASE-REPORT.md) preserves v2.0.0 history and current scope; [`V2-RELEASE-READINESS.md`](V2-RELEASE-READINESS.md) tracks the published v2.0.1 release and its qualification boundaries. |
 | Platform architecture and living project status | [`v3/`](v3/README.md) contains future architecture plans, not v2 release gates; the English/Bengali [project roadmap](project/PROJECT-ROADMAP.md) tracks the frozen v2 candidate and v3 sequencing. |
 | Repository-only audit evidence | [`audit/`](audit/CURRENT-STATE.md) holds dated device, repository, and feature qualification detail; it is not a public website claim |
 | Package distribution | [`TERMUX-APT.md`](TERMUX-APT.md) (repository trust and install); [`../packaging/termux/README.md`](../packaging/termux/README.md) (build and publish) |

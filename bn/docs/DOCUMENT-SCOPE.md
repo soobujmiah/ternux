@@ -12,7 +12,7 @@ technical reference, ঐতিহাসিক প্রমাণ ও research no
 
 | শ্রেণি | অর্থ |
 |---|---|
-| `V2_CURRENT` | বর্তমান v2 implementation বা স্থানীয় v2.0.1 candidate; candidate মানেই প্রকাশিত নয়। |
+| `V2_CURRENT` | বর্তমান v2 implementation ও প্রকাশিত v2.0.1 release। |
 | `V2_HISTORICAL` | পুরোনো release বা তারিখযুক্ত অবস্থার সংরক্ষিত record। |
 | `V3_FUTURE` | ভবিষ্যৎ v3 design, proposal, architecture বা acceptance কাজ; v2-এর প্রতিশ্রুতি নয়। |
 | `SHARED_REFERENCE` | Governance, পুনর্ব্যবহারযোগ্য নির্দেশনা, একাধিক সংস্করণের status বা technical reference। |
