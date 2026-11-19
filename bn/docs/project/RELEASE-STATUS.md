@@ -38,6 +38,6 @@ record লাগবে। Public GitHub Release Page যাচাই না হ�
 
 ## Version 3 আলাদা রাখা
 
-Future v3 architecture ও distro roadmap `docs/v3/README.md`-এ। v2.0.1 প্রকাশ ও
-install guide যাচাই হওয়ার পরেই v3 implementation শুরু হবে। বর্তমান source-এ partial
-Manager বা Control Center code থাকলেও সম্পূর্ণ v3 platform তৈরি হয়েছে—এমন নয়।
+সক্রিয় v3 foundation কাজ ও distro roadmap `docs/v3/README.md`-এ। v2.0.1
+প্রকাশনার gate সম্পূর্ণ; v2 frozen থাকবে। বর্তমান source-এ partial Manager বা
+Control Center code থাকলেও সম্পূর্ণ v3 platform তৈরি হয়েছে—এমন নয়।

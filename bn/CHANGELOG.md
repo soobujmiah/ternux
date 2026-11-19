@@ -10,6 +10,12 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 
 ---
 
+## [Unreleased] — Version 3 foundation
+
+- যাচাইকৃত v2.0.1 প্রকাশের পর v3 উন্নয়ন সক্রিয় হিসেবে চিহ্নিত হয়েছে। APT feasibility recommendation, আট-distro qualification matrix, security roadmap এবং স্তরভিত্তিক test strategy যোগ হয়েছে; অসম্পূর্ণ v3 capability-কে প্রকাশিত বলে দেখানো হয়নি।
+- সম্পন্ন v2 release gate এবং বর্তমান v3 boundary অনুযায়ী English/Bengali project status ও document-scope inventory মিলিয়ে নেওয়া হয়েছে।
+- Stale update-lock recovery-তে exit status সঠিকভাবে ফেরত দেওয়ার bug fix এবং journal-সহ/ছাড়া stale lock-এর regression test যোগ হয়েছে। Production shell source-এর জন্য ShellCheck error-level CI baseline যোগ হয়েছে।
+
 ## [2.0.1] — ২০২৬-১১-১৯
 
 ### Android নির্ণয়

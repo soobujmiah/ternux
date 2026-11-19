@@ -145,11 +145,13 @@ _tnx_update_acquire_lock() {
         tnx_fail "A previous update needs recovery; the saved backup was preserved."
         return 1
       }
-      return _tnx_update_acquire_lock "$prefix" "$owner_pid" "$owner_start"
+      _tnx_update_acquire_lock "$prefix" "$owner_pid" "$owner_start"
+      return $?
     fi
     rm -f "$lock/owner" || return 1
     rmdir "$lock" 2>/dev/null || return 1
-    return _tnx_update_acquire_lock "$prefix" "$owner_pid" "$owner_start"
+    _tnx_update_acquire_lock "$prefix" "$owner_pid" "$owner_start"
+    return $?
   fi
   tnx_warn "An update lock exists without valid owner metadata; preserve it for inspection: $lock"
   return 1

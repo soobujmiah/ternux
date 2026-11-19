@@ -5,7 +5,7 @@ lang: "en"
 alt_url: "/bn/docs/DOCUMENT-SCOPE.html"
 ---
 
-**Reviewed:** 2026-11-18. This index classifies every Markdown document and every
+**Reviewed:** 2026-11-20. This index classifies every Markdown document and every
 Astro route under `src/pages/`, plus the shared navigation source. It includes
 repository guidance, technical references, historical evidence, and research
 notes so missing translations and ownership questions remain visible.
@@ -15,6 +15,7 @@ notes so missing translations and ownership questions remain visible.
 | `V2_CURRENT` | Describes the current v2 implementation and published v2.0.1 release. |
 | `V2_HISTORICAL` | Preserved record of an older release or dated state. |
 | `V3_FUTURE` | Future v3 design, proposal, architecture, or acceptance work; not a v2 promise. |
+| `V3_ACTIVE` | Active v3 foundation planning or implementation; not automatically a shipped capability. |
 | `SHARED_REFERENCE` | Governance, reusable guidance, cross-version status, or technical reference. |
 | `DEPRECATED` | Superseded content retained only for historical context. |
 | `NEEDS_REVIEW` | Ownership, scope, or translation status needs an explicit decision. |
@@ -48,6 +49,7 @@ refresh it only through its supported synchronization workflow.
 | `bn/CONTRIBUTING.md` | SHARED_REFERENCE | `CONTRIBUTING.md` |
 | `bn/README.md` | V2_CURRENT | `README.md` |
 | `bn/docs/ACCELERATOR-RELEASE-PLAN.md` | V2_CURRENT | `docs/ACCELERATOR-RELEASE-PLAN.md` |
+| `bn/docs/ANDROID-PHANTOM-PROCESS.md` | V2_CURRENT | `docs/ANDROID-PHANTOM-PROCESS.md` |
 | `bn/docs/ARCHITECTURE.md` | V2_CURRENT | `docs/ARCHITECTURE.md` |
 | `bn/docs/BENCHMARKS.md` | V2_CURRENT | `docs/BENCHMARKS.md` |
 | `bn/docs/BLENDER-MCP.md` | V2_CURRENT | `docs/BLENDER-MCP.md` |
@@ -66,7 +68,7 @@ refresh it only through its supported synchronization workflow.
 | `bn/docs/USAGE.md` | V2_CURRENT | `docs/USAGE.md` |
 | `bn/docs/V2-RELEASE-READINESS.md` | SHARED_REFERENCE | `docs/V2-RELEASE-READINESS.md` |
 | `bn/docs/V2-RELEASE-REPORT.md` | V2_HISTORICAL | `docs/V2-RELEASE-REPORT.md` |
-| `bn/docs/V3-ARCHITECTURE.md` | V3_FUTURE | `docs/V3-ARCHITECTURE.md` |
+| `bn/docs/V3-ARCHITECTURE.md` | V3_ACTIVE | `docs/V3-ARCHITECTURE.md` |
 | `bn/docs/V3-PROPOSALS.md` | V3_FUTURE | `docs/V3-PROPOSALS.md` |
 | `bn/docs/WORKLOADS.md` | V2_CURRENT | `docs/WORKLOADS.md` |
 | `bn/docs/index.md` | V2_CURRENT | `docs/index.md` |
@@ -75,6 +77,7 @@ refresh it only through its supported synchronization workflow.
 | `bn/docs/project/PROJECT-ROADMAP.md` | SHARED_REFERENCE | `docs/project/PROJECT-ROADMAP.md` |
 | `bn/docs/project/RELEASE-STATUS.md` | SHARED_REFERENCE | `docs/project/RELEASE-STATUS.md` |
 | `bn/docs/release/README.md` | SHARED_REFERENCE | `docs/release/README.md` |
+| `bn/docs/release/V2-RELEASE-RECONCILIATION.md` | SHARED_REFERENCE | `docs/release/V2-RELEASE-RECONCILIATION.md` |
 | `bn/docs/release/V2-RELEASE-REPORT.md` | V2_HISTORICAL | `docs/release/V2-RELEASE-REPORT.md` |
 | `bn/docs/release/pages/v1.4.0-INSTALLATION.md` | V2_HISTORICAL | `docs/release/pages/v1.4.0-INSTALLATION.md` |
 | `bn/docs/release/pages/v2.0.1-INSTALLATION.md` | V2_CURRENT | `docs/release/pages/v2.0.1-INSTALLATION.md` |
@@ -85,6 +88,7 @@ refresh it only through its supported synchronization workflow.
 | `bn/guides/stable-diffusion-vulkan-extension.md` | SHARED_REFERENCE | `guides/stable-diffusion-vulkan-extension.md` |
 | `bn/packaging/termux/README.md` | SHARED_REFERENCE | `packaging/termux/README.md` |
 | `docs/ACCELERATOR-RELEASE-PLAN.md` | V2_CURRENT | `bn/docs/ACCELERATOR-RELEASE-PLAN.md` |
+| `docs/ANDROID-PHANTOM-PROCESS.md` | V2_CURRENT | `bn/docs/ANDROID-PHANTOM-PROCESS.md` |
 | `docs/ARCHITECTURE.md` | V2_CURRENT | `bn/docs/ARCHITECTURE.md` |
 | `docs/BENCHMARKS.md` | V2_CURRENT | `bn/docs/BENCHMARKS.md` |
 | `docs/BLENDER-MCP.md` | V2_CURRENT | `bn/docs/BLENDER-MCP.md` |
@@ -103,13 +107,14 @@ refresh it only through its supported synchronization workflow.
 | `docs/USAGE.md` | V2_CURRENT | `bn/docs/USAGE.md` |
 | `docs/V2-RELEASE-READINESS.md` | SHARED_REFERENCE | `bn/docs/V2-RELEASE-READINESS.md` |
 | `docs/V2-RELEASE-REPORT.md` | V2_HISTORICAL | `bn/docs/V2-RELEASE-REPORT.md` |
-| `docs/V3-ARCHITECTURE.md` | V3_FUTURE | `bn/docs/V3-ARCHITECTURE.md` |
+| `docs/V3-ARCHITECTURE.md` | V3_ACTIVE | `bn/docs/V3-ARCHITECTURE.md` |
 | `docs/V3-PROPOSALS.md` | V3_FUTURE | `bn/docs/V3-PROPOSALS.md` |
 | `docs/WORKLOADS.md` | V2_CURRENT | `bn/docs/WORKLOADS.md` |
 | `docs/audit/CURRENT-STATE.md` | V2_HISTORICAL | Missing BN mirror |
 | `docs/audit/DEVICE-VERIFICATION.md` | SHARED_REFERENCE | Missing BN mirror |
 | `docs/audit/FEATURE-MATRIX.md` | SHARED_REFERENCE | Missing BN mirror |
 | `docs/audit/REPOSITORY-STATE.md` | V2_HISTORICAL | Missing BN mirror |
+| `docs/audit/REPOSITORY-FULL-AUDIT-2026-11-20.md` | REPOSITORY_AUDIT | Missing BN mirror |
 | `docs/index.md` | V2_CURRENT | `bn/docs/index.md` |
 | `docs/project/ARCHITECTURE-DECISIONS.md` | SHARED_REFERENCE | Missing BN mirror |
 | `docs/project/DEVICE-VERIFICATION.md` | V2_HISTORICAL | Missing BN mirror |
@@ -120,11 +125,12 @@ refresh it only through its supported synchronization workflow.
 | `docs/project/RELEASE-STATUS.md` | SHARED_REFERENCE | `bn/docs/project/RELEASE-STATUS.md` |
 | `docs/project/TECHNICAL-DEBT.md` | SHARED_REFERENCE | Missing BN mirror |
 | `docs/release/README.md` | SHARED_REFERENCE | `bn/docs/release/README.md` |
+| `docs/release/V2-RELEASE-RECONCILIATION.md` | SHARED_REFERENCE | `bn/docs/release/V2-RELEASE-RECONCILIATION.md` |
 | `docs/release/V2-RELEASE-REPORT.md` | V2_HISTORICAL | `bn/docs/release/V2-RELEASE-REPORT.md` |
 | `docs/release/pages/v1.4.0-INSTALLATION.md` | V2_HISTORICAL | `bn/docs/release/pages/v1.4.0-INSTALLATION.md` |
 | `docs/release/pages/v2.0.1-INSTALLATION.md` | V2_CURRENT | `bn/docs/release/pages/v2.0.1-INSTALLATION.md` |
 | `docs/release/templates/RELEASE-INSTALLATION-TEMPLATE.md` | SHARED_REFERENCE | `bn/docs/release/templates/RELEASE-INSTALLATION-TEMPLATE.md` |
-| `docs/v3/ACCEPTANCE-CRITERIA.md` | V3_FUTURE | Missing BN mirror |
+| `docs/v3/ACCEPTANCE-CRITERIA.md` | V3_ACTIVE | Missing BN mirror |
 | `docs/v3/ADR/0001-native-manager.md` | V3_FUTURE | Missing BN mirror |
 | `docs/v3/ADR/0002-guest-data-ownership.md` | V3_FUTURE | Missing BN mirror |
 | `docs/v3/ADR/0003-lai-adapter.md` | V3_FUTURE | Missing BN mirror |
@@ -137,13 +143,17 @@ refresh it only through its supported synchronization workflow.
 | `docs/v3/COMPUTE-ENGINE.md` | V3_FUTURE | Missing BN mirror |
 | `docs/v3/CONTROL-CENTER-ARCHITECTURE.md` | V3_FUTURE | Missing BN mirror |
 | `docs/v3/DEVICE-BRIDGE-ARCHITECTURE.md` | V3_FUTURE | Missing BN mirror |
-| `docs/v3/IMPLEMENTATION-ROADMAP.md` | V3_FUTURE | Missing BN mirror |
+| `docs/v3/IMPLEMENTATION-ROADMAP.md` | V3_ACTIVE | Missing BN mirror |
 | `docs/v3/PRODUCT-VISION.md` | V3_FUTURE | Missing BN mirror |
-| `docs/v3/README.md` | V3_FUTURE | Missing BN mirror |
+| `docs/v3/README.md` | V3_ACTIVE | Missing BN mirror |
 | `docs/v3/SECURITY-MODEL.md` | V3_FUTURE | Missing BN mirror |
 | `docs/v3/SYSTEM-ARCHITECTURE.md` | V3_FUTURE | Missing BN mirror |
 | `docs/v3/UX-AND-DESIGN-SYSTEM.md` | V3_FUTURE | Missing BN mirror |
 | `docs/v3/WORKSPACE-ARCHITECTURE.md` | V3_FUTURE | Missing BN mirror |
+| `docs/v3/APT-DISTRIBUTION-FEASIBILITY.md` | V3_ACTIVE | Missing BN mirror |
+| `docs/v3/DISTRIBUTION-ROADMAP.md` | V3_ACTIVE | Missing BN mirror |
+| `docs/v3/SECURITY-ROADMAP.md` | V3_ACTIVE | Missing BN mirror |
+| `docs/v3/TESTING-STRATEGY.md` | V3_ACTIVE | Missing BN mirror |
 | `engineering/MASTER-GOAL.md` | NEEDS_REVIEW | Shared / no translation required |
 | `engineering/OWNER-AMENDMENTS.md` | SHARED_REFERENCE | Shared / no translation required |
 | `engineering/WEBSITE-DESIGN.md` | SHARED_REFERENCE | Shared / no translation required |
@@ -183,6 +193,6 @@ refresh it only through its supported synchronization workflow.
 ## Review gaps
 
 - Research directories under `experiments/` and `handoffs/` need confirmation that their content belongs in the Ternux documentation set; no external projects were modified.
-- `docs/v3/` has no full Bengali mirror; the existing `bn/docs/V3-ARCHITECTURE.md` and `bn/docs/V3-PROPOSALS.md` are legacy summaries and are explicitly marked for scope reconciliation in the bilingual audit.
+- `docs/v3/` has no full Bengali mirror; `bn/docs/V3-ARCHITECTURE.md` provides a Bengali summary of the active foundation and design boundary, while `bn/docs/V3-PROPOSALS.md` preserves the early proposal history. Detailed v3 technical pages remain English-only and are an explicit parity gap for staged follow-up.
 - `docs/audit/DEVICE-VERIFICATION.md` contains the current live window-fit follow-up; its Bengali counterpart is historical and needs review before being used as a current claim.
 - The generated `.repo/STATUS.md` remains unchanged because its owning workflow, not hand edits, defines the repository state.

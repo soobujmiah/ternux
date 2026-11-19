@@ -6,12 +6,11 @@ lang: "en"
 
 ## Acceptance criteria
 
-**Status: DESIGNED, future v3 criteria.** The 2026-11-14 decision moving these
-criteria into the next v2 major was revoked on 2026-11-18. These are gates for
-future v3 capabilities, not blockers for the frozen v2.0.1 release candidate.
-Evidence is attached to an exact commit and environment. `PASS` requires the
-stated behavior; screenshots or logs without reproducible setup are
-supporting, not sufficient, evidence.
+**Status: DESIGNED, active v3 gates.** These criteria govern future v3
+capabilities; v2.0.1 is already published and remains frozen. Evidence is
+attached to an exact commit and environment. `PASS` requires the stated
+behavior; screenshots or logs without reproducible setup are supporting, not
+sufficient, evidence.
 
 ## Native manager and Control Center
 

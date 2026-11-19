@@ -23,7 +23,12 @@ scope before another v2 release. Version 2 remains frozen to the existing
 implementation; v2.0.1 is the published source release described in the
 [project roadmap](project/PROJECT-ROADMAP.html). APT remains withdrawn and is
 not a v2 release requirement. Any APT return is a separate v3 feasibility
-decision after v2 publication and owner approval.
+decision. The initial assessment and recommendation are in [the v3 APT
+feasibility report](v3/APT-DISTRIBUTION-FEASIBILITY.md): keep APT out of the
+v3.0 critical path and retain the version-specific source installer unless a
+later prototype demonstrates clear user benefit and passes its security,
+recovery, and operational gates. No APT installation method is currently
+available or supported.
 
 ## Trust fingerprint
 

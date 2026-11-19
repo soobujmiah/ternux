@@ -6,13 +6,13 @@ lang: "en"
 
 ## Ternux v3 architecture baseline
 
-**Status: future design; implementation is partial.** On 2026-11-18, the owner
-revoked the 2026-11-14 decision that moved the former v3 scope into the next v2
-release. Version 2 is frozen to the existing implementation; new capabilities
-and architecture remain v3 work. Begin v3 implementation only after v2.0.1 is
-published and its release page and guide are verified. Current source has
-partial manager and Control Center slices; the full v3 platform is not
-implemented.
+**Status: v3 development active; implementation is partial.** Version 2 is
+frozen to its published implementation. The v2.0.1 release, release page, and
+version-specific guide have been published and verified, so the former release
+gate is complete. Current source has partial manager and Control Center slices;
+the full v3 platform is not implemented. The current v3 foundation work is
+documentation, security baselining, and acceptance contracts; no new capability
+is considered shipped until its own tests and release evidence pass.
 Current implementation and release evidence are tracked in the [project
 status](../project/IMPLEMENTATION-STATUS.md) and [v2 release record](../V2-RELEASE-REPORT.md).
 
@@ -32,6 +32,10 @@ status](../project/IMPLEMENTATION-STATUS.md) and [v2 release record](../V2-RELEA
 12. [Implementation roadmap](IMPLEMENTATION-ROADMAP.md)
 13. [Acceptance criteria](ACCEPTANCE-CRITERIA.md)
 14. [Architecture Decision Records](ADR/README.md)
+15. [APT distribution feasibility](APT-DISTRIBUTION-FEASIBILITY.md)
+16. [Distribution expansion and qualification](DISTRIBUTION-ROADMAP.md)
+17. [Security roadmap](SECURITY-ROADMAP.md)
+18. [Testing strategy](TESTING-STRATEGY.md)
 
 ## Status vocabulary
 

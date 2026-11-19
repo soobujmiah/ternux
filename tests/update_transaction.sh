@@ -57,6 +57,45 @@ if ! env TERNUX_STATE_DIR="$TMP/state-version" HOME="$TMP/home-version" bash -c 
   fail 'SemVer comparison'
 fi
 
+# A dead updater's lock must be removed and recursively reacquired. When a
+# recovery journal exists, recover it before reacquiring the lock. These cases
+# guard the status propagation of the recursive helper calls.
+LOCK_PREFIX="$TMP/prefix-stale-lock"
+mkdir -p "$LOCK_PREFIX/lib/.ternux-update-lock"
+printf '999999998 1\n' > "$LOCK_PREFIX/lib/.ternux-update-lock/owner"
+if ! env PREFIX="$LOCK_PREFIX" HOME="$TMP/home-stale-lock" \
+  TERNUX_STATE_DIR="$TMP/state-stale-lock" TMPDIR="$TMP/tmp-stale-lock" bash -c '
+  . "$1/lib/core.sh"
+  . "$1/lib/update.sh"
+  _tnx_update_acquire_lock "$PREFIX" "$$" 1
+' _ "$ROOT"; then
+  fail 'dead-owner lock cleanup and reacquisition'
+fi
+[ -f "$LOCK_PREFIX/lib/.ternux-update-lock/owner" ] || fail 'stale lock was not reacquired'
+rm -f "$LOCK_PREFIX/lib/.ternux-update-lock/owner"
+rmdir "$LOCK_PREFIX/lib/.ternux-update-lock"
+
+LOCK_PREFIX="$TMP/prefix-stale-lock-journal"
+mkdir -p "$LOCK_PREFIX/bin" "$LOCK_PREFIX/lib/.ternux-update-lock"
+printf '999999997 1\n' > "$LOCK_PREFIX/lib/.ternux-update-lock/owner"
+printf 'fixture journal\n' > "$LOCK_PREFIX/lib/.ternux-update-journal"
+cat > "$LOCK_PREFIX/bin/ternux" <<'EOF_RECOVER'
+#!/usr/bin/env bash
+[[ "${1:-}" == --__ternux-recover-update ]] || exit 90
+rm -f "$PREFIX/lib/.ternux-update-journal"
+EOF_RECOVER
+chmod 0755 "$LOCK_PREFIX/bin/ternux"
+if ! env PREFIX="$LOCK_PREFIX" HOME="$TMP/home-stale-lock-journal" \
+  TERNUX_STATE_DIR="$TMP/state-stale-lock-journal" TMPDIR="$TMP/tmp-stale-lock-journal" bash -c '
+  . "$1/lib/core.sh"
+  . "$1/lib/update.sh"
+  _tnx_update_acquire_lock "$PREFIX" "$$" 1
+' _ "$ROOT"; then
+  fail 'stale journal recovery followed by lock reacquisition'
+fi
+[ ! -e "$LOCK_PREFIX/lib/.ternux-update-journal" ] || fail 'stale update journal was not recovered'
+[ -f "$LOCK_PREFIX/lib/.ternux-update-lock/owner" ] || fail 'lock was not reacquired after journal recovery'
+
 FIXTURE="$TMP/fixture"
 ORIGIN="$FIXTURE/origin.git"
 WORK="$FIXTURE/work"

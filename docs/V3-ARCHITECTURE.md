@@ -9,8 +9,10 @@ alt_url: "/bn/docs/V3-ARCHITECTURE.html"
 
 This architecture was originally organized as the Ternux v3 plan. On
 2026-11-14, the owner temporarily directed its full planned scope into v2; that
-decision was revoked on 2026-11-18. The design remains future v3 work and is not
-a v2 release gate. It describes a native Termux manager for independent Linux workspaces, optional
+decision was revoked on 2026-11-18. The v2.0.1 release gate is now complete.
+V3 foundation work is active; architecture and capabilities described here are
+still design or partial implementation, not a v2 feature or release claim. It
+describes a native Termux manager for independent Linux workspaces, optional
 compute and AI workloads, a permission-aware Android Device Bridge, and a
 local Control Center. **Designed does not mean implemented or device-verified.**
 
@@ -27,6 +29,18 @@ local Control Center. **Designed does not mean implemented or device-verified.**
   permission-aware, and separately qualified.
 - User files, guest files, workload artifacts, and models have explicit
   ownership. Uninstall does not silently erase data.
+
+## Current v3 foundation work
+
+The v2 release gate is complete. Current foundation artifacts define the
+[implementation phases](v3/IMPLEMENTATION-ROADMAP.html),
+[APT distribution recommendation](v3/APT-DISTRIBUTION-FEASIBILITY.html),
+[distribution qualification matrix](v3/DISTRIBUTION-ROADMAP.html),
+[security work order](v3/SECURITY-ROADMAP.html), and
+[testing strategy](v3/TESTING-STRATEGY.html). The APT recommendation is to
+keep it outside the v3.0 critical path and continue using the verified source
+installer. Candidate distros and all architecture capabilities remain
+unqualified until their stated gates pass.
 
 ## Technical specifications
 

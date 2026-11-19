@@ -2,8 +2,9 @@
 set -u
 
 family=unknown
-if [ -r /etc/ternux-package-manager ]; then
-  IFS= read -r family < /etc/ternux-package-manager || family=unknown
+manager_file=${TERNUX_PACKAGE_MANAGER_FILE:-/etc/ternux-package-manager}
+if [ -r "$manager_file" ]; then
+  IFS= read -r family < "$manager_file" || family=unknown
   case "$family" in apt|apk|pacman|dnf|zypper|xbps) ;; *) family=unknown ;; esac
 fi
 if [ "$family" = unknown ]; then

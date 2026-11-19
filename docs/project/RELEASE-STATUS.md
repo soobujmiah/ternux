@@ -18,8 +18,9 @@ alt_url: "/bn/docs/project/RELEASE-STATUS.html"
 - **v1.4.0:** historical published release with tag
   `3e6c07e2afcb5f1e65ecd57af19b0382a948835a`; its source installation guide
   remains available.
-- **Stable APT:** withdrawn and not a v2.0.1 install method. APT return is a
-  separate future v3 feasibility decision.
+- **Stable APT:** withdrawn and not a v2.0.1 install method. The initial v3
+  feasibility recommendation is to keep APT out of v3.0's critical path; see
+  the [assessment](../v3/APT-DISTRIBUTION-FEASIBILITY.md).
 - **v2 verified desktop baseline:** Debian, Ubuntu, Kali Linux, and Alpine as
   confirmed by the owner. The feature matrix records the per-profile evidence
   and narrower clean-container CI coverage.
@@ -42,7 +43,7 @@ known limitations, and verification of the actual GitHub Release page.
 
 ## Version 3 separation
 
-The future v3 architecture and candidate distribution plan are described in
-[`docs/v3/`](../v3/README.md). Start v3 work only after v2.0.1 has been
-published and verified. Current source may contain partial manager or Control
-Center code; that does not make the complete v3 architecture available.
+The active v3 foundation work and candidate distribution plan are described in
+[`docs/v3/`](../v3/README.md). The v2.0.1 publication gate is complete. Current
+source contains partial manager and Control Center implementations; that does
+not make the complete v3 architecture available.

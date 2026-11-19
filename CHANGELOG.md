@@ -10,6 +10,12 @@ Notable changes to ternux. Dates are ISO 8601.
 
 ---
 
+## [Unreleased] — Version 3 foundation
+
+- Mark v3 development active after verified v2.0.1 publication. Add APT feasibility recommendation, eight-distro qualification matrix, security roadmap, and layered test strategy; no unfinished v3 capability is presented as shipped.
+- Reconcile English/Bengali project status and the document-scope inventory with the completed v2 release gate and current v3 boundary.
+- Fix stale update-lock recovery status propagation and add regression coverage for stale locks with and without recovery journals. Add a ShellCheck error-level CI baseline for production shell sources.
+
 ## [2.0.1] — 2026-11-19
 
 ### Android diagnostics

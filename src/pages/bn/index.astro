@@ -19,31 +19,29 @@ const installCommand = `pkg update -y && pkg upgrade -y && pkg install -y curl w
       <div class="container hero-grid">
         <div class="hero-copy">
           <span class="eyebrow">অ্যান্ড্রয়েড × লিনাক্স · এআরএম৬৪</span>
-          <h1 aria-label="লিনাক্স ওয়ার্কস্টেশন আপনার পকেটে, সবুজ মিয়া">
+          <h1 aria-label="root ছাড়া Android-এ Linux desktop">
             <span class="matrix-title" data-matrix-title aria-hidden="true">
               <span class="matrix-title-text">লিনাক্স</span>
             </span>
             <br />
             <em class="hero-tagline" aria-hidden="true">
-              ওয়ার্কস্টেশন আপনার পকেটে
+              Android-এ desktop
             </em>
-            <span class="hero-signature" aria-label="সবুজ মিয়া">
-              সবুজ মিয়া
-            </span>
+            <span class="hero-signature">root ছাড়া · ARM64</span>
           </h1>
           <p>
             Android ফোনে root ছাড়া Linux desktop চালান। v2-তে Debian, Ubuntu,
             Kali Linux ও Alpine—এই চারটি desktop profile যাচাইকৃত; Debian
-            recommended default। আরও ১২টি named distro recipe আছে, তবে সেগুলো v2
+            recommended default। আরও ১১টি named distro recipe আছে, তবে সেগুলো v2
             verified baseline-এ নেই। Device evidence এক Redmi Turbo 4 Pro থেকে;
             exact coverage release report-এ আছে।
           </p>
           <div class="hero-actions">
             <a class="button primary" href="#install">
-              install পদ্ধতি বেছে নিন <span>↓</span>
+              Ternux install করুন <span>↓</span>
             </a>
             <a class="button" href="/ternux/bn/docs/ARCHITECTURE.html">
-              স্তরবিন্যাস দেখুন <span>→</span>
+              কীভাবে কাজ করে <span>→</span>
             </a>
           </div>
           <div class="hero-label">
@@ -77,7 +75,7 @@ const installCommand = `pkg update -y && pkg upgrade -y && pkg install -y curl w
             <h2>নিজের Linux guest বেছে নিন।</h2>
             <p>
               এই চারটি profile v2 verified baseline। Debian হলো default; বাকি
-              ১২টি recipe আছে, তবে verified নয়।
+              ১১টি recipe আছে, তবে verified নয়।
             </p>
           </div>
           <div class="profile-grid">
@@ -138,7 +136,7 @@ const installCommand = `pkg update -y && pkg upgrade -y && pkg install -y curl w
           </article>
           <article class="arch-stage" data-index="০৩ / লিনাক্স">
             <span class="arch-pulse"></span>
-            <h3>প্রুট · ১৫টি guest profile</h3>
+            <h3>প্রুট · ১৫টি named profile</h3>
             <p>আলাদা অতিথি পরিবেশ · এক্সএফসিই</p>
           </article>
           <article class="arch-stage" data-index="০৪ / স্ক্রিন">
@@ -337,7 +335,7 @@ const installCommand = `pkg update -y && pkg upgrade -y && pkg install -y curl w
             </h2>
             <p>
               Ternux v2-তে Debian, Ubuntu, Kali Linux ও Alpine desktop guest
-              verified; Debian recommended default। আরও ১২টি named distro recipe
+              verified; Debian recommended default। আরও ১১টি named distro recipe
               আছে, তবে v2-তে qualified নয়। Ubuntu-র snap-safe setup আছে। ADT ওই
               guest-এ Android SDK build-tools, platform-tools, signing, ADB,
               Flutter/Dart ও native build tools যোগ করে। ADT workflow-এর

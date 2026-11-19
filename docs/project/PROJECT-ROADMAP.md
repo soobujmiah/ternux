@@ -1,6 +1,6 @@
 ---
 title: "Ternux project roadmap"
-description: "Published v2.0.1 status and the separate future v3 direction."
+description: "Published v2.0.1 status and the active v3 foundation direction."
 lang: "en"
 alt_url: "/bn/docs/project/PROJECT-ROADMAP.html"
 ---
@@ -38,28 +38,22 @@ and guide, passing focused tests and exact-commit CI, verified artifacts and
 checksums, and honest limitation notes. The v2.0.1 release satisfies these
 gates; see the release status page for its tag, digest, and checks.
 
-Known verification boundaries:
+The v2 qualification boundaries and exact release test evidence are preserved
+in the [v2 release reconciliation](../release/V2-RELEASE-RECONCILIATION.md)
+and [feature matrix](../audit/FEATURE-MATRIX.md). They describe the v2.0.1
+release snapshot, not a new full-device run on every later source commit. For
+this v3 documentation slice, the Termux-host Node binary still has a dynamic
+linker error; the installed Debian guest Node runtime built the website
+successfully (98 pages, 60 finalized HTML routes). The documentation checker
+passed 7,333 assertions, 672 internal links, and 25 bilingual page pairs.
+No new device qualification is claimed by these documentation checks.
 
-- Local `tests/focused.sh` passes 212/212 on the Termux ARM64 host as of
-  2026-11-19. The immutable bootstrap source-sync test remains open because the
-  pinned archive predates the local source correction.
-- The owner requested the Debian desktop be started for a live window-fit
-  regression check. The local helper preserved a moved window through resize;
-  the desktop remains open. This does not qualify a release package.
-- Kali has reference-device desktop evidence. The clean-container Firefox CI
-  script currently covers Debian, Ubuntu, and Alpine only.
-- Physical live tests of microphone capture, camera capture, optional AI
-  artifacts, and every workload were not rerun for this candidate.
-- The local Node executable cannot start in this Termux runtime due to a
-  dynamic linker error, and Docker is unavailable. Therefore the Astro build,
-  container browser matrix, package artifact build, and full CI workflow need
-  hosted verification after the approved changes are synchronized.
+## Version 3 — active development
 
-## Version 3 — future scope
-
-Start v3 engineering only after v2.0.1 is published and its release page and
-installation guide are verified. Keep architecture and implementation in
-`docs/v3/`; do not treat planned features as current capabilities.
+The v2.0.1 release, its release page, and its version-specific installation
+guide are published and verified. The release gate is complete and v2 remains
+frozen. V3 foundation work is active in `docs/v3/`; design, a roadmap, or a
+source file alone does not make a capability current or release-qualified.
 
 The v3 distribution candidates are Arch Linux, Fedora Linux, Void Linux,
 openSUSE Tumbleweed, CentOS Stream, and Gentoo, in addition to the four v2
@@ -75,10 +69,12 @@ and repository-state freshness. These are future plans, not v2 blockers. The
 v3 roadmap defines dependencies and measurable acceptance gates; delivery dates
 are not promised.
 
-APT return requires an independent feasibility study covering hosting, ARM64
-package builds, signing, metadata, upgrades, rollback, recovery, mirrors,
-maintenance, and supply-chain risks. Keep it **Planned** until the study and
-owner decision support an implementation.
+APT return has an initial feasibility assessment in
+[`docs/v3/APT-DISTRIBUTION-FEASIBILITY.md`](../v3/APT-DISTRIBUTION-FEASIBILITY.md).
+Its current recommendation is to keep APT out of the v3.0 critical path and
+retain the verified source installer. Any prototype requires its own research,
+security, operational, and explicit release gates. APT remains withdrawn and
+is not a current installation method.
 
 ## Evidence and history
 
