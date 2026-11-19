@@ -20,7 +20,7 @@ alt_url: "/docs/TERMUX-APT.html"
 কাজ করবে না। স্বাক্ষরিত সংগ্রহস্থল প্রকাশিত হলেই আরসি-কে ঐচ্ছিক পরীক্ষামূলক
 প্রকাশনা হিসেবে চালু করা যাবে। ২০২৬-১১-১৪-এর আগের সিদ্ধান্ত—পরবর্তী v2 release-এর
 আগে পুরো v3 platform scope লাগবে—owner প্রত্যাহার করেছেন। Version 2 বর্তমান
-implementation-এ frozen; v2.0.1 হলো অপ্রকাশিত candidate, বিস্তারিত
+implementation-এ frozen; v2.0.1 হলো প্রকাশিত source release, বিস্তারিত
 [প্রকল্পের রূপরেখায়](/bn/docs/project/PROJECT-ROADMAP.html)। APT এখনও withdrawn
 এবং v2 release requirement নয়। v2 প্রকাশের পরে ও owner approval নিয়ে APT
 ফেরানো v3-এর আলাদা feasibility সিদ্ধান্ত।

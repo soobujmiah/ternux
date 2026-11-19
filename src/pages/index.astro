@@ -9,7 +9,7 @@ const installCommand = `pkg update -y && pkg upgrade -y && pkg install -y curl w
 
 <SiteLayout
   title="Linux, beyond the desktop"
-  description="Ternux is a no-root ARM64 Android Linux workstation. Debian, Ubuntu, Kali Linux, and Alpine form the verified v2 desktop baseline; v2.0.1 is an unpublished release candidate."
+  description="Ternux is a no-root ARM64 Android Linux workstation. Debian, Ubuntu, Kali Linux, and Alpine form the verified v2 desktop baseline; v2.0.1 is the published source release."
   canonical="/"
   altUrl="/bn/"
 >
@@ -260,8 +260,8 @@ const installCommand = `pkg update -y && pkg upgrade -y && pkg install -y curl w
       <div class="container">
         <div class="device-panel profile-panel status-panel">
           <div class="device-copy">
-            <span class="eyebrow">PROJECT STATUS · 14 NOV 2026</span>
-            <h2>v2.0.0 withdrawn. v2.0.1 is a local release candidate.</h2>
+            <span class="eyebrow">PROJECT STATUS · 20 NOV 2026</span>
+            <h2>v2.0.0 withdrawn. v2.0.1 source release published.</h2>
             <p>
               The v2.0.0 GitHub release and stable APT distribution were
               withdrawn on 2026-11-14; the source tag is retained for
@@ -270,11 +270,14 @@ const installCommand = `pkg update -y && pkg upgrade -y && pkg install -y curl w
               Current main includes four read-only manager CLI commands, a
               foreground Unix-socket service, and `tx control`, a loopback
               dashboard with confirmed desktop start/stop actions and durable
-              local job records (optional Python 3). The local v2.0.1 candidate
-              includes current main source but is not published. Full service
-              supervision, broader dashboard coverage and the new v3 platform
-              architecture remain future work. No stable release is available
-              until the exact candidate passes release checks and is approved.
+              local job records (optional Python 3). The v2.0.1 source archive
+              is published from the verified tag; see the
+              <a href="/ternux/docs/release/pages/v2.0.1-INSTALLATION.html">
+                exact-version installation guide
+              </a>
+              . Full service supervision, broader dashboard coverage and the new
+              v3 platform architecture remain future work. Stable APT remains
+              withdrawn.
             </p>
           </div>
           <div class="profile-grid">
@@ -283,7 +286,7 @@ const installCommand = `pkg update -y && pkg upgrade -y && pkg install -y curl w
               href="/ternux/docs/V2-RELEASE-READINESS.html"
             >
               <small>V2 DISTRIBUTION STATUS</small>
-              <strong>v2.0.1 candidate</strong>
+              <strong>v2.0.1 published</strong>
               <span>Read the release record ↗</span>
             </a>
             <a

@@ -1,34 +1,25 @@
 ---
 title: "Ternux-এর পরবর্তী কাজ"
-description: "স্থানীয় v2.0.1 candidate gate, তারপর ভবিষ্যৎ v3 কাজ।"
+description: "সম্পন্ন v2.0.1 release gate এবং ভবিষ্যৎ v3 কাজ।"
 lang: "bn"
 alt_url: "/docs/project/NEXT-ACTIONS.html"
 ---
 
-## v2.0.1 candidate gate
+## v2.0.1 release — সম্পন্ন
 
-**পর্যালোচনা:** 2026-11-18। Candidate স্থানীয়, এখনো প্রকাশিত নয়। v2 scope frozen
-থাকবে; stable APT পুনরায় চালু হবে না।
+**পর্যালোচনা:** 2026-11-20। v2.0.1 পরীক্ষিত exact commit থেকে প্রকাশিত। v2 scope
+frozen থাকবে; stable APT withdrawn-ই থাকবে।
 
-1. v2.0.0 withdrawal history, বর্তমান owner scope, audit record ও feature maturity
-   মিলিয়ে দেখুন; historical tag/evidence অপরিবর্তিত রাখুন।
-2. v1.4.0 এবং v2.0.1-এর আলাদা install guide সম্পূর্ণ করুন। v2 guide tag, exact
-   source commit, archive SHA-256 ও public release page যাচাই না হওয়া পর্যন্ত
-   candidate হিসেবেই চিহ্নিত থাকবে।
-3. English/Bengali project status, README, website, distro baseline ও limitation
-   এক করুন। Partial Manager/Control Center-কে সম্পূর্ণ হিসেবে দেখাবেন না।
-4. স্থানীয় source regression test ও সীমিত device verification চালান। Owner-এর
-   অনুরোধে বিদ্যমান Debian guest রেখে GUI চালু করে window-fit test করা হয়েছে;
-   `xdotool` Debian-এ install হয়েছে এবং desktop খোলা আছে। এই কাজ আগের read-only
-   audit থেকে পৃথকভাবে রেকর্ড করুন।
-5. Build সীমা নথিবদ্ধ রাখুন: Docker নেই, native Node dynamic-linker error-এ শুরু হয়
-   না, এবং এখানে চার-distro clean-install matrix চালানো যায় না। অনুমোদনের পর
-   repository sync-এ exact-commit CI, website build ও package evidence নিন।
-6. শুধু final approved commit থেকে release artifact তৈরি করুন; provenance, archive
-   contents, version, checksum, notes ও exact install command যাচাই করুন। Withdrawn
-   APT source configuration ফিরিয়ে আনবেন না।
-7. Concrete local result-এ owner approval পাওয়ার আগে প্রকাশ করবেন না। অনুমোদিত
-   sync-এর পর actual v2.0.1 ও v1.4.0 release page এবং সংশ্লিষ্ট tag archive যাচাই করুন।
+- v2.0.0 withdrawal history ও বর্তমান owner scope মিলিয়ে দেখা হয়েছে; historical
+  tag ও evidence রাখা হয়েছে।
+- v1.4.0 ও v2.0.1-এর আলাদা exact-version installation guide আছে।
+- Bilingual README, changelog, release index, status ও reconciliation report-এ
+  প্রকাশিত v2.0.1 source archive এবং চার-distro baseline আছে।
+- Local implementation/device evidence এবং exact-commit hosted check নথিভুক্ত।
+- Commit `5be29360c9ca7e4516366711ec09f7a9b4d56940` থেকে source archive ও
+  `SHA256SUMS` তৈরি, download ও checksum-verify করা হয়েছে।
+- GitHub Release `v2.0.1` প্রকাশিত। Stable APT withdrawn; v2 APT repository
+  প্রকাশ করা হয়নি।
 
 ## v2 প্রকাশের পরে Version 3
 

@@ -12,7 +12,7 @@ notes so missing translations and ownership questions remain visible.
 
 | Classification | Meaning |
 |---|---|
-| `V2_CURRENT` | Describes current v2 implementation or the local v2.0.1 candidate; candidate content is not a publication claim. |
+| `V2_CURRENT` | Describes the current v2 implementation and published v2.0.1 release. |
 | `V2_HISTORICAL` | Preserved record of an older release or dated state. |
 | `V3_FUTURE` | Future v3 design, proposal, architecture, or acceptance work; not a v2 promise. |
 | `SHARED_REFERENCE` | Governance, reusable guidance, cross-version status, or technical reference. |

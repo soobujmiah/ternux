@@ -8,16 +8,16 @@ alt_url: "/bn/docs/project/IMPLEMENTATION-STATUS.html"
 ## Implementation status
 
 **Repository baseline:** 2026-11-19; owner scope reset: 2026-11-18. Version 2 is
-frozen to current implementation. v2.0.1 is an unpublished local candidate;
+frozen to current implementation. v2.0.1 is the published source release;
 complete v3 architecture stays future work. This page reports repository and
 device state and does not upgrade a design status into an implementation claim.
 
 | Area | State | Evidence / next gate |
 |---|---|---|
-| Ternux v2 release | v2.0.0 WITHDRAWN; v2.0.1 LOCAL CANDIDATE | v2.0.0 tag retained for provenance; GitHub Release object removed and stable APT withdrawn. Candidate v2.0.1 is not published; see [release status](RELEASE-STATUS.md) |
+| Ternux v2 release | v2.0.0 WITHDRAWN; v2.0.1 PUBLISHED SOURCE RELEASE | v2.0.0 tag retained for provenance; GitHub Release object removed and stable APT withdrawn. The v2.0.1 source archive and checksum are verified; see [release status](RELEASE-STATUS.md) |
 | Debian / Ubuntu / Kali / Alpine desktop profiles | Owner-confirmed v2 verified baseline; evidence depth differs | Debian, Ubuntu and Alpine clean guest/browser CI evidence; Kali installed reference-device desktop evidence. Kali clean-container install and Firefox CI are not in the current matrix. See [device verification](../audit/DEVICE-VERIFICATION.md) and [feature matrix](../audit/FEATURE-MATRIX.md) |
 | Ternux GTK/icon/XFWM defaults | IMPLEMENTED and observed active in all three live guests | Runtime XFConf queries returned Ternux/Ternux/Ternux and `|HMC`; broad third-party CSD coverage is not claimed |
-| Window viewport helper | Position-retention helper source and deployed helper hashes match in Debian, Ubuntu, Kali, and Alpine; local candidate only | Interactive move/resize was directly tested on Debian/XFCE. Hash equality confirms identical helper bytes in all four guests, not interactive resize qualification in the other three. See [device audit](../audit/DEVICE-VERIFICATION.md) |
+| Window viewport helper | Position-retention helper source and deployed helper hashes match in Debian, Ubuntu, Kali, and Alpine; released in v2.0.1 | Interactive move/resize was directly tested on Debian/XFCE. Hash equality confirms identical helper bytes in all four guests, not interactive resize qualification in the other three. See [device audit](../audit/DEVICE-VERIFICATION.md) |
 | IBus engine switch command | IMPLEMENTED | Direct helper cycles each guest's configured engine and restores original; physical Ctrl+Space delivery remains separately qualified |
 | Installer onboarding and terminal UI | IMPLEMENTED in current main source | Multi-guest setup precollects shared shell, usernames, and workload choices before installation; each guest has an explicit final start/shell command. Historical renderer suite: 56/56; current local focused suite: 212/212. Package bootstrap tests cover broken-curl wget fallback. PR #235 and generated-state PR #236 merged; exact-main Validate, package, and repository-contract checks passed for those recorded revisions. |
 | Native Control Center preview | PARTIAL in current source; included in the proposed v2.0.1 source baseline | `tx control` uses loopback access, confirmation-bound desktop start/stop and durable job records. Backend integration checks cover typed requests, idempotency, stale-plan rejection and restart reconciliation. Device-browser actions, service supervisor, cancellation, native APK, logs, diagnostics and full panels are incomplete. This is a preview, not a complete v3 Control Center |
@@ -33,7 +33,7 @@ resume reset, managed uninstall cleanup, Alpine AppStream PRoot-hook fixes, and
 journaled display migration are covered by focused tests and exact-main CI from
 their recorded dates. Candidate test results and release-build status are
 recorded in [device verification](../audit/DEVICE-VERIFICATION.md). The current
-installed package remains v2.0.0; the proposed v2.0.1 candidate has not been
+installed package remains v2.0.0; the v2.0.1 source release has
 built or published.
 
 ## Local v2.0.1 candidate follow-up — 2026-11-19
@@ -57,7 +57,7 @@ and [device record](../audit/DEVICE-VERIFICATION.md).
   Turbo 4 Pro / Android 16 / Adreno 825 device. Do not generalize to other
   devices, GPUs, or unlisted guest recipes.
 - The withdrawn v2.0.0 package and current `main` source are different
-  artifacts. Source changes belong to the proposed v2.0.1 candidate only after
+  artifacts. Source changes belong to the v2.0.1 source release after
   its final commit passes verification and is published.
 - The manager socket service runs only when explicitly started from source and
   has no background supervisor. `tx control` is a separate browser dashboard

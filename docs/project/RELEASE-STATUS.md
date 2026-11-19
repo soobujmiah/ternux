@@ -5,7 +5,7 @@ lang: "en"
 alt_url: "/bn/docs/project/RELEASE-STATUS.html"
 ---
 
-## Current status — 2026-11-19
+## Current status — 2026-11-20
 
 - **Latest published numbered release:** v2.0.1. Its annotated tag targets
   `5be29360c9ca7e4516366711ec09f7a9b4d56940`. The GitHub release publishes

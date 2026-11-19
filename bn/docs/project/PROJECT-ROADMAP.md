@@ -1,14 +1,14 @@
 ---
 title: "Ternux project roadmap"
-description: "স্থানীয় v2.0.1 release candidate এবং ভবিষ্যৎ v3-এর আলাদা roadmap।"
+description: "প্রকাশিত v2.0.1 অবস্থা এবং ভবিষ্যৎ v3-এর আলাদা roadmap।"
 lang: "bn"
 alt_url: "/docs/project/PROJECT-ROADMAP.html"
 ---
 
 ## বর্তমান দিকনির্দেশ
 
-**পর্যালোচনা:** 2026-11-19। Version 2 হলো বর্তমান implementation; v2.0.1 পরবর্তী
-প্রস্তাবিত release। 2026-11-14-এর সিদ্ধান্ত—আগের v3 platform scope-কে v2-তে
+**পর্যালোচনা:** 2026-11-20। Version 2 হলো বর্তমান implementation; v2.0.1 source
+release প্রকাশিত হয়েছে। 2026-11-14-এর সিদ্ধান্ত—আগের v3 platform scope-কে v2-তে
 তোলার প্রস্তাব—2026-11-18-এ owner প্রত্যাহার করেছেন। v2-তে নতুন capability,
 distro support, architecture, desktop environment বা APT channel যোগ হবে না।
 
@@ -19,8 +19,7 @@ distro support, architecture, desktop environment বা APT channel যোগ �
   page dedicated exact-version guide-এ link করে; কোনো binary asset নেই।
 - **v2.0.0:** 2026-11-14-এ GitHub Release ও stable APT channel প্রত্যাহার হয়েছে;
   source tag provenance-এর জন্য রাখা আছে, পুনর্ব্যবহার করা যাবে না।
-- **v2.0.1:** পরবর্তী version candidate; tag, release commit, artifact, checksum বা
-  release page এখনো নেই। Local source ও documentation যাচাই চলছে।
+- **v2.0.1:** published source release; stable APT withdrawn-ই আছে।
 - Stable APT v2.0.1-এর install পদ্ধতি নয়। APT কেবল v3-তে আলাদা feasibility
   study ও owner approval-এর পরে বিবেচ্য।
 - Owner-confirmed v2 desktop baseline: Debian, Ubuntu, Kali Linux ও Alpine।

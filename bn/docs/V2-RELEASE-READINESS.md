@@ -5,22 +5,22 @@ lang: "bn"
 alt_url: "/docs/V2-RELEASE-READINESS.html"
 ---
 
-## বর্তমান v2.0.1 candidate status — 2026-11-18
+## বর্তমান প্রকাশিত v2.0.1 status — 2026-11-20
 
-v2.0.0 প্রত্যাহারের পরবর্তী unused version candidate v2.0.1। পর্যালোচিত source
-change `1f8ffabaab7fe982f5bfc91759b14b921e6ebd8f`-এ `main`-এ merge হয়েছে, তবে এটি
-প্রকাশিত নয়। এখনো v2.0.1 tag, release archive, checksum manifest বা GitHub Release
-page নেই। 2026-11-14-এ v3 architecture scope-কে v2-তে আনার সিদ্ধান্ত 2026-11-18-এ
-প্রত্যাহার করা হয়েছে। v2 বর্তমান implementation-এ frozen থাকবে; নতুন distro,
-architecture, Control Center capability বা APT যোগ হবে না। বর্তমান owner-confirmed
-desktop baseline Debian, Ubuntu, Kali Linux ও Alpine; তাদের evidence-এর গভীরতা
-সমান নয়। [release audit reconciliation](release/V2-RELEASE-RECONCILIATION.md),
+**v2.0.1 প্রকাশিত হয়েছে** annotated `v2.0.1` tag থেকে, যা source commit
+`5be29360c9ca7e4516366711ec09f7a9b4d56940`-এ resolve হয়। GitHub Release-এ
+`ternux-v2.0.1-source.tar.gz` ও `SHA256SUMS` আছে; download করা archive-এর SHA-256
+`276cf6ffa8cdd3586a358dcf5d2e0f87292d7d7fd29098045a0922259fc7ff7a` মিলে গেছে।
+2026-11-14-এ v3 architecture scope-কে v2-তে আনার সিদ্ধান্ত 2026-11-18-এ
+প্রত্যাহার করা হয়েছে। v2 বর্তমান implementation-এ frozen; নতুন distro, architecture,
+Control Center capability বা APT যোগ হয়নি। বর্তমান owner-confirmed desktop
+baseline Debian, Ubuntu, Kali Linux ও Alpine; evidence-এর গভীরতা সমান নয়। [release audit reconciliation](release/V2-RELEASE-RECONCILIATION.md),
 [project roadmap](project/PROJECT-ROADMAP.md), [release status](project/RELEASE-STATUS.md),
 [feature matrix](../../docs/audit/FEATURE-MATRIX.md) ও [device record](../../docs/audit/DEVICE-VERIFICATION.md)
 দেখুন। নিচের 2026-11-16-এর v2.0.0 acceptance তথ্য historical snapshot; এটি
 v2.0.1 release readiness নয়।
 
-## Local v2.0.1 candidate checks — 2026-11-18
+## প্রকাশের আগের local evidence snapshot — 2026-11-18
 
 - `python3 tests/window_fit_geometry.py`: geometry/state-এর ১৩টি check pass।
 - `bash tests/focused.sh`: ২১১ pass, ০ fail।
@@ -90,9 +90,9 @@ SHA-256 `2924d17dce9a3971c5765b115c81f13c80f2914a3072c6fd627b012201b123b2`;
 হওয়া পর্যন্ত এর live codeload URL যাচাই করা যাবে না; approval-এর পর
 exact-commit CI check আবশ্যক।
 
-এগুলো local candidate result; exact-commit GitHub CI বা release qualification
-নয়। কোনো repository release object, tag, release asset বা GitHub পরিবর্তন
-করা হয়নি।
+এই অংশটি 2026-11-18-এর local অবস্থা ধরে, publication-এর আগের historical
+evidence। Published commit ও পরবর্তী verification-এর ফল উপরের reconciliation
+report-এ আছে।
 
 ## Ctrl zoom shortcut সংশোধন — 2026-11-18
 
@@ -331,3 +331,11 @@ stable APT channel withdrawn। 2026-11-14-এ former v3 scope-কে পরে�
   পূরণ: তিন APT guest pass; Alpine-এ Blender pass হলেও বর্তমান musl/PRoot runtime-এ
   ADT technically incompatible। এটি owner-visible v2 qualification limitation;
   সব distro-তে ADT pass—এমন দাবি নয়।
+
+
+## প্রকাশনা যাচাই — 2026-11-19
+
+- Annotated `v2.0.1` tag `5be29360c9ca7e4516366711ec09f7a9b4d56940` commit-এ resolve হয়।
+- প্রকাশের আগে exact-commit Validate, repository-state contract ও Termux APT artifact check pass করেছে।
+- প্রকাশিত `ternux-v2.0.1-source.tar.gz`-এর SHA-256 `276cf6ffa8cdd3586a358dcf5d2e0f87292d7d7fd29098045a0922259fc7ff7a`; download করা manifest মিলে গেছে।
+- GitHub Release-এ শুধু source archive ও checksum manifest আছে। Stable APT withdrawn-ই আছে।
