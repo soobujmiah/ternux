@@ -263,3 +263,98 @@ removed and its signed stable APT paths were withdrawn on 2026-11-14; only the
 opt-in RC channel remains public. The 2026-11-14 scope change was revoked on
 2026-11-18: the former v3 platform scope remains future v3 work. See the current
 [project roadmap](project/PROJECT-ROADMAP.md).
+
+## Candidate follow-up — 2026-11-19
+
+- The live v1.4.0 release page now links its dedicated guide; the guide's
+  installer/version commands were checked against the immutable tag and its
+  codeload archive. v2.0.1 still has no tag, Release page, archive, or checksum.
+- Fresh Ubuntu Resolute, Kali rolling, and Alpine v3.24 installs reached READY;
+  each played an owner-confirmed two-second audio test tone through the shared
+  PulseAudio route. The installed Termux:API companion and client package were
+  confirmed. A local detector fallback fixes the prior false-negative report;
+  mic/camera permission and capture remain untested.
+- `bash tests/focused.sh`: 212/212. `python3 tests/docs_check.py`: 6,638
+  assertions, 632 internal links, 24 bilingual pairs. Bash syntax and
+  `git diff --check` pass. `tests/bootstrap_source_sync.sh` fails against the
+  old pinned snapshot because the local bootstrap URL/digest correction is not
+  in that immutable source; refresh only after exact source approval.
+- Current PR #298 has a failing shell/documentation job due to trailing spaces
+  on four reconciliation header lines; those lines are trimmed in the local
+  working tree. Hosted checks must rerun after an approved repository update.
+- The LAI-adapter ADR is now rejected history, not planned integration. Current
+  Ternux v3 design confines AI workloads and integrations to Ternux-owned scope.
+
+## Final local pre-release verification — 2026-11-19
+
+- After the authorized `tx uninstall all --yes`, Debian, Ubuntu, Kali, and
+  Alpine were installed from the local checkout on the reference Termux device.
+  Ubuntu was removed and reinstalled once more for a clean first-run optional
+  workload check: `jq` was selected in the initial interactive menu, appeared
+  in the confirmation plan, and installed as `jq 1.8.1-4ubuntu2` during that
+  same install run. No resume or later manual package install was used for this
+  final pass.
+- The first Ubuntu attempt exposed an optional APT phase that ran through the
+  regular guest user's `sudo` while consuming a setup script on stdin; it could
+  loop on a sudo password prompt. The local fix runs optional APT work as the
+  guest root PRoot login. The first-run clean Ubuntu retest completed all
+  installer phases, and `jq --version` returned `jq-1.8.1`.
+- `tx verify` passed for all four guests. `tx doctor --json` reported 54 OK,
+  zero warnings, zero failures, and no issues. All four XFCE sessions reached
+  READY concurrently; bounded `xdpyinfo` round trips succeeded on displays
+  `:1` through `:4`. A stale `:4` lock whose PID had been reused by IBus was
+  reproduced; cleanup now checks the recorded PID's command line and clears an
+  orphan lock only when no matching Termux:X11 server owns that display.
+- `bash tests/focused.sh`: 215 passed, 0 failed. The optional-workload PTY
+  regression also verifies selecting `jq` from the initial menu by navigation
+  and number entry; the live clean-install run verifies that the selected
+  workload reaches the same install run's optional phase. `bash -n` and
+  `git diff --check` passed. `python3 tests/docs_check.py` passed 6,768
+  assertions, 642 internal links, and 25 bilingual page pairs;
+  `env -u LD_LIBRARY_PATH npm run format:check` passed. The live Debian Xfce
+  Terminal move/resize test
+  retained its valid user position after resizing and a five-second wait;
+  Ctrl-minus changed the terminal font from 10 to 8.33 and Ctrl-plus restored
+  10.
+- A Firefox window on a 312-pixel-wide X11 root remained 510 pixels wide because
+  the client/window manager rejected the helper's smaller size request. This
+  is a live limitation for applications whose minimum size exceeds a narrow
+  portrait display; it is not evidence of the tested terminal being recentered.
+- Low-volume test playback commands ran through each guest's PulseAudio route,
+  and all four routes report ready. Owner confirmation that the tones were
+  physically audible is pending. The installer still printed a Termux:API
+  companion detection warning even though host `cmd package path`, `pm path`,
+  and `pm list packages` subsequently confirmed `com.termux.api`; investigate
+  this discrepancy before claiming the optional camera/microphone permission
+  probes passed. Those permission/capture paths were not tested here.
+
+### Optional workload live qualification — 2026-11-19
+
+- The initial interactive selector was exercised with the exact Blender +
+  Ternux ADT Build Tools pair. The PTY regression found and fixes numeric-list
+  whitespace being misread as a Space toggle; the pair now reaches the phase as
+  exactly `blender,adt-build-tools`. The phase preinstalls the ADT JDK, curl,
+  git, and unzip requirements as guest root before running ADT command-line setup.
+- On Debian, Ubuntu Resolute, and Kali rolling, the local phase installed
+  Blender + Xvfb and the integrated ADT command-line tools/build-tools from the companion `soobujmiah/adt` repository. Live GUI smoke checks opened and closed Blender on the active Xfce display in
+  all four guests. Debian, Ubuntu, and Kali also passed Java,
+  `sdkmanager --version`, and ADT `aapt2 version`; Blender background startup
+  under `xvfb-run` passed on all four. Kali’s Blender 5.2 asset add-on initially
+  lacked `cattrs` and `requests`; the recipe now installs `python3-cattr` and
+  `python3-requests`, and the clean GUI smoke no longer logs those import errors.
+- Alpine v3.24 supports the Blender workload through APK. The recipe installs
+  Blender, Xvfb, `xvfb-run`, and NumPy; a live Blender background smoke test
+  under `xvfb-run` passed. Alpine's musl JDK fails in PRoot with “Failed to
+  mark memory page as executable”; the ADT build-tools `aapt2` requires glibc
+  symbols absent from Alpine. Testing `gcompat` did not resolve the missing
+  symbols. Therefore the Alpine selector and installer now offer Blender only
+  and reject ADT before making guest changes. The earlier compatibility probe
+  did install ADT files and Java packages into Alpine; they remain in that guest
+  for transparency and were not removed.
+- `bash tests/focused.sh`: 219 passed, 0 failed after the final Alpine selector,
+  APK recipe, ADT preflight guard, and Blender Python-module dependency edits.
+- The explicit owner request for smooth Blender + ADT installation on every
+  baseline distro is only partially met: all three APT guests pass; Alpine
+  passes Blender, while ADT is technically incompatible with the current
+  musl/PRoot runtime. This remains an owner-visible v2 qualification limitation,
+  not a successful all-distro ADT result.

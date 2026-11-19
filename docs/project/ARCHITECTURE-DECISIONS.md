@@ -13,7 +13,7 @@ v2.0.1 release candidate:
 
 - Native Termux manager and optional Control Center: [ADR-0001](../v3/ADR/0001-native-manager.md)
 - Explicit guest and data ownership: [ADR-0002](../v3/ADR/0002-guest-data-ownership.md)
-- LAI integration through a versioned adapter: [ADR-0003](../v3/ADR/0003-lai-adapter.md)
+- No unrelated product integration: [ADR-0003](../v3/ADR/0003-lai-adapter.md), superseded by the owner's scope directive.
 - Shared typed manager contract: [ADR-0004](../v3/ADR/0004-shared-manager-contract.md)
 - Native-first display allocation: [ADR-0005](../v3/ADR/0005-native-display-allocation.md)
 

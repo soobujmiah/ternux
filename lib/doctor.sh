@@ -699,6 +699,9 @@ tnx_cmd_verify() {
   # use either Debian's apt-safe Turnip copy, an isolated exact-match Mesa
   # overlay, or the guest's native package stack.
   backend="$(tnx_canonical_backend "$(tnx_distro_state_get "$distro" backend 2>/dev/null || tnx_state_get "backend")")"
+  if [ "$backend" = "auto" ]; then
+    backend="$(tnx_gpu_backend_auto "$distro")"
+  fi
   if [ "$backend" = "zink" ]; then
     local turnip_layout="missing" asset_kind=""
     asset_kind="$(tnx_state_get "freedreno_asset_kind" 2>/dev/null || true)"

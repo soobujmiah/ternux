@@ -40,7 +40,7 @@ _TNX_SRC="$(cd "$(dirname "$0")" && pwd 2>/dev/null || echo "$PWD")"
 # Pin the exact source snapshot and its hosted codeload bytes. Keep this aligned
 # with lib/core.sh; refresh both after reviewing the archive and verifying its digest.
 _TNX_BOOTSTRAP_COMMIT="555ce1374957cf35b7a7afa17bbb720b4529d64a"
-_TNX_BOOTSTRAP_SHA256="b52347389d70314e2b9118528bab3a19cb982b839d3f4627b2d0a66a5493ce83"
+_TNX_BOOTSTRAP_SHA256="060dbfa8489bc581ffa996d20b585616e628e227c6cc88d20a4429aa6fd4f3b5"
 
 _tnx_load_local() {
   [ -f "$_TNX_SRC/lib/core.sh" ] && [ -f "$_TNX_SRC/lib/phases.sh" ] && [ -f "$_TNX_SRC/lib/ui.sh" ] || return 1
@@ -85,7 +85,7 @@ _tnx_download_archive() {
 }
 
 _tnx_load_remote() {
-  local url="https://codeload.github.com/soobujmiah/ternux/tar.gz/${_TNX_BOOTSTRAP_COMMIT:0:7}"
+  local url="https://codeload.github.com/soobujmiah/ternux/tar.gz/${_TNX_BOOTSTRAP_COMMIT}"
   local tmpdir="${TMPDIR:-/tmp}/ternux-bootstrap.$$" archive="" listing=""
   local root_name="" root="" lib=""
 

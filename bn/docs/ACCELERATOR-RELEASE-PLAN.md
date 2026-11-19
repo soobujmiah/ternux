@@ -332,8 +332,9 @@ stage-tensor correctness প্রমাণ করে না।
 [Repository-only device evidence](https://github.com/soobujmiah/ternux/blob/main/bn/guides/device-benchmark-evidence.md)-এ
 HTP failure matrix ও conditional HVX result আছে। Experimental HTP package-এর
 install ও সীমা [repository HTP guide](https://github.com/soobujmiah/ternux/blob/main/bn/guides/llama-htp-experimental.md)-এ
-আছে। LAI-এর evidence তার নিজস্ব Android research note-এ থাকবে; এই plan LAI
-runtime বা device gate বদলায় না।
+আছে। Cross-project finding এখানে অন্তর্ভুক্ত নয়। এখানে বর্ণিত benchmark ও
+workload Ternux-owned অথবা ব্যবহারকারীর দেওয়া artifact-নির্ভর; কোনো unrelated
+product বা repository dependency যোগ করা হয় না।
 
 ### PR #97-এর exact current-head artifact audit — ২০২৬-১১-০৯
 

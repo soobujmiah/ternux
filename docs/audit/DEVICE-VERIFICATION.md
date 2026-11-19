@@ -541,3 +541,45 @@ This is one live Debian/XFCE observation on this device. It does not qualify
 other window managers, guests, display modes, or an installed/published v2.0.1
 package. Automated geometry checks cover normal-size preservation and edge
 clamping; the full focused suite passed 211/211 in the local candidate.
+
+## Fresh managed-distro audio and Termux:API detector correction — 2026-11-19
+
+**Device:** Xiaomi 25053RT47C / Redmi Turbo 4 Pro, Android 16, ARM64, Adreno 825.
+**Source:** local v2.0.1 candidate working tree; no repository sync or publication.
+
+Fresh Ubuntu Resolute, Kali rolling, and Alpine v3.24 managed guest installs
+completed. Ubuntu and Kali desktop sessions were stopped after checks; Alpine
+remained READY on display `:4` at the latest status check. Existing Debian was
+retained. Each new desktop resolved the guest PulseAudio server at
+`tcp:127.0.0.1:4714` with `OpenSL_ES_sink`; `paplay` returned 0 for a 2-second
+test tone, and the owner confirmed hearing it in Ubuntu, Kali, and Alpine.
+Existing Debian VLC playback was separately owner-confirmed. This is playback
+evidence for these sessions on this Termux host, not clean Android/Termux
+reinstall qualification, capture qualification, or proof of recovery after
+Android kills PulseAudio.
+
+The earlier installer message that Termux:API was absent was a false negative.
+`pm path com.termux.api` and `cmd package path com.termux.api` returned the
+installed APK; Termux dpkg state reports `termux-api` installed. The detector
+now falls back from Android `cmd` to Termux `pm`. Its regression fixture forces
+`cmd` failure and `pm` success. The live installed `phases.sh` hash matches the
+local source, and the installed detector returns success. This verifies app
+detection only: no camera capture or microphone permission prompt/status was
+tested.
+
+The full focused suite passed 212/212; Bash syntax, `git diff --check`, and the
+documentation checker passed (6,638 assertions, 629 internal links, 24 bilingual
+pairs). The bootstrap source-sync regression remains blocked by the immutable
+old pinned snapshot, which does not contain the local full-commit URL correction;
+its failure is recorded as an open source-pin gate, not a pass. Earlier device
+sections remain dated evidence and should be interpreted within their stated
+scope.
+
+### Four-guest host status recheck — 2026-11-19
+
+Read-only `tx status --json` reported Debian `:1`, Ubuntu `:2`, Kali `:3`, and
+Alpine `:4` all `READY`, with X11 running and PulseAudio route-ready. Separate
+`tx verify` runs for each of the four returned success, including guest desktop
+services and managed Turnip presence. No guest lifecycle or audio service was
+changed for this check. This is a point-in-time health check; it does not
+reproduce or rule out intermittent X11 stalls.

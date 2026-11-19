@@ -7,7 +7,7 @@ alt_url: "/bn/docs/project/PROJECT-ROADMAP.html"
 
 ## Current direction
 
-**Reviewed:** 2026-11-18. Version 2 represents the existing implementation on
+**Reviewed:** 2026-11-19. Version 2 represents the existing implementation on
 `main`. The owner revoked the decision to move the former v3 platform scope
 into v2. Version 2 is frozen: no new distribution support, manager architecture,
 Device Bridge, Control Center capability, extension framework, API, AI/compute
@@ -22,6 +22,9 @@ release.
   tag history. A local documentation/source candidate is being prepared from
   current `main`; it is not published and has no release commit or artifact
   checksum yet.
+- `v1.4.0` remains the latest published stable release. Its live GitHub release
+  page links the dedicated exact-version installation guide, which was checked
+  against the immutable v1.4.0 tag. It has no attached binary assets.
 - The stable APT channel remains withdrawn. Version 2 uses the verified
   version-specific source installation route. APT feasibility is a separate
   v3 research item, not a v2 release gate.
@@ -40,9 +43,9 @@ archive. This page does not mark any unpublished gate complete.
 
 Known verification boundaries:
 
-- Local `tests/focused.sh` passed 211/211 on the Termux ARM64 host on
-  2026-11-18 before the candidate version update. The later candidate run is
-  recorded in the device audit and must be used for current pass/fail status.
+- Local `tests/focused.sh` passes 212/212 on the Termux ARM64 host as of
+  2026-11-19. The immutable bootstrap source-sync test remains open because the
+  pinned archive predates the local source correction.
 - The owner requested the Debian desktop be started for a live window-fit
   regression check. The local helper preserved a moved window through resize;
   the desktop remains open. This does not qualify a release package.

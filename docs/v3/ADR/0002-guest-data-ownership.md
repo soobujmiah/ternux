@@ -13,7 +13,7 @@ lang: "en"
 ## Context
 
 Uninstall and repair must not erase data that the manager did not create or
-that belongs to a separate workload, LAI, or Android user directory.
+that belongs to a separately selected workload or Android user directory.
 
 ## Decision
 

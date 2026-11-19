@@ -12,6 +12,10 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 
 ## [Unreleased]
 
+### Android নির্ণয়
+
+- Native Termux ADB, Shizuku `rish` ও computer ADB দিয়ে phantom-process control ব্যবহারের দ্বিভাষিক নির্দেশিকা যোগ হয়েছে। এতে shell পরিচয়, DeviceConfig sync-এর প্রভাব, যাচাই, rollback এবং বর্তমান Android 16 device observation আছে।
+
 ### ডেস্কটপ নির্ভরযোগ্যতা
 
 - স্থানীয় v2.0.1 candidate-এ window resize করলে ব্যবহারকারীর সরানো অবস্থান বজায় থাকে; কেবল X11 work area-এর বাইরে চলে যাওয়ার ঝুঁকি থাকলে window সরানো হয়। Geometry regression test যোগ হয়েছে এবং Debian/XFCE-এর live session-এ আচরণটি যাচাই হয়েছে।
@@ -19,6 +23,8 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 
 ### ইনস্টলার
 
+- Interactive numeric multi-selection ঠিক করা হয়েছে, যাতে `Blender` + Ternux-এর `ADT Build Tools` একসঙ্গে যায় এবং পাশের workload ভুল করে toggle না হয়। Guest root হিসেবে ADT prerequisite আগে install হয়। `xvfb-run`, NumPy ও `py3-requests`-সহ `Alpine` APK Blender support যোগ হয়েছে; APT guest-এ Blender-এর bundled asset add-on-এর জন্য `python3-cattr` ও `python3-requests` যোগ হয়; musl/PRoot runtime integrated glibc ADT tool চালাতে পারে না, তাই সেখানে selector ADT reject করে। `Debian`, `Ubuntu` ও `Kali`-তে live Blender/ADT check pass; Alpine Blender pass।
+- codeload URL-এ এখন সম্পূর্ণ immutable commit SHA ব্যবহৃত হয়, যাতে archive root ও যাচাই করা SHA-256 pinned source snapshot-এর সঙ্গে মেলে। Android-এর `cmd package path` query installed companion নিশ্চিত করতে না পারলে Termux:API detector এখন Termux `pm path` fallback করে; regression test false-negative পরিস্থিতি যাচাই করে।
 - এক-কমান্ড ইনস্টলারে `curl` চালু না হলে বা ফাইল নামাতে ব্যর্থ হলে `wget` দিয়ে আবার চেষ্টা হয়। Standalone bootstrap ও CLI fallback একই checksum-verified source snapshot ব্যবহার করে; regression test downloader fallback এবং snapshot-এর বর্তমান code-এর সঙ্গে মিল যাচাই করে।
 - বড় desktop setup script এখন Linux-এর per-argument সীমা অতিক্রম না করে stdin দিয়ে গেস্টে যায়। ইনস্টলেশন থেমে গেলে বর্তমান এক-কমান্ড installer আবার চালিয়ে অসম্পূর্ণ গেস্ট চালু করার নির্দেশনাও যোগ হয়েছে।
 

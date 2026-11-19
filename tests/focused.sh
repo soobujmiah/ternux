@@ -54,7 +54,8 @@ if cli_help="$(bash "$ROOT/bin/ternux" --help 2>&1)" \
   && verify_help="$(bash "$ROOT/bin/ternux" verify --help 2>&1)" \
   && printf '%s\n' "$verify_help" | grep -Fq 'verify [DISTRO] [--json]' \
   && printf '%s\n' "$install_help" | grep -Fq 'One of 15 named profiles' \
-  && printf '%s\n' "$install_help" | grep -Fq 'APT-family guests only' \
+  && printf '%s\n' "$install_help" | grep -Fq 'Alpine currently' \
+  && printf '%s\n' "$install_help" | grep -Fq 'Android SDK build tools require the APT-family glibc runtime' \
   && ! printf '%s\n' "$install_help" | grep -Fq '1 development, 2 llama.cpp'; then
   ok "tx and ternux help expose the complete command tree, aliases and current workload flow"
 else
@@ -2389,6 +2390,27 @@ else
   not_ok "verification failures return nonzero structured results"
 fi
 
+# Termux:API detection falls back to Termux's pm wrapper when Android's cmd
+# query fails. Do not report the companion missing when the fallback finds it.
+api_detect_tmp="$TMP/termux-api-detection"
+mkdir -p "$api_detect_tmp/bin"
+cat > "$api_detect_tmp/bin/cmd" <<'CMD'
+#!/bin/sh
+exit 1
+CMD
+cat > "$api_detect_tmp/bin/pm" <<'PM'
+#!/bin/sh
+[ "$1" = path ] && [ "$2" = com.termux.api ] || exit 2
+printf '%s\n' 'package:/data/app/com.termux.api/base.apk'
+PM
+chmod 0755 "$api_detect_tmp/bin/cmd" "$api_detect_tmp/bin/pm"
+if env PATH="$api_detect_tmp/bin:$PATH" ROOT="$ROOT" bash -c \
+  '. "$ROOT/lib/phases.sh"; tnx_termux_api_app_installed'; then
+  ok "Termux:API detection falls back to pm when cmd cannot confirm the installed app"
+else
+  not_ok "Termux:API detection falls back to pm when cmd cannot confirm the installed app"
+fi
+
 # A microphone permission probe is private, bounded and stops only its own
 # Termux:API recording. It must never interrupt an already-running recording.
 if env TERNUX_STATE_DIR="$TMP/state-mic-permission" HOME="$TMP/home-mic-permission" \
@@ -2427,7 +2449,7 @@ if env TERNUX_STATE_DIR="$TMP/state-mic-permission" HOME="$TMP/home-mic-permissi
       esac
     }
     tnx_request_microphone_permission || exit
-    grep -q "companion app is not installed; skipping" "$log" && ! grep -Eq "^-i$|^-f " "$log" || exit
+    grep -q "companion app could not be detected; skipping" "$log" && ! grep -Eq "^-i$|^-f " "$log" || exit
     : > "$log"; api_present=1
     tnx_request_microphone_permission || exit
     [ "$mode" = idle ] &&
@@ -2467,7 +2489,7 @@ if env PATH="$camera_tmp/bin:$PATH" script -qec \
   [ "$(cat "$CAMERA_CAPTURE_MARKER")" = capture ] &&
   env ROOT="$ROOT" TMPDIR="$camera_tmp/private" PATH="$camera_tmp/bin:$PATH" bash -c \
     '. "$ROOT/lib/phases.sh"; tnx_termux_api_app_installed(){ return 1; }; tnx_request_camera_permission' 2>&1 |
-      grep -q "companion app is not installed; skipping the camera permission prompt" &&
+      grep -q "companion app could not be detected; skipping the camera permission prompt" &&
   [ "$(wc -l < "$CAMERA_CAPTURE_MARKER")" -eq 1 ] &&
   ! find "$camera_tmp/private" \( -type f -o -name 'ternux-camera-permission.*' \) -print -quit | grep -q . &&
   env TERNUX_YES=1 TMPDIR="$camera_tmp/private" PATH="$camera_tmp/bin:$PATH" \
@@ -2831,6 +2853,23 @@ if env TERNUX_STATE_DIR="$TMP/state-stale-display-with-peer" HOME="$TMP/home-sta
   ok "stale guest display is cleaned without disturbing another live X11 display"
 else
   not_ok "stale guest display is cleaned without disturbing another live X11 display"
+fi
+
+# Android can leave the X lock behind after its socket disappears. Remove only
+# a numeric lock whose PID now belongs to an unrelated process when no
+# matching Termux:X11 process remains.
+if env TERNUX_STATE_DIR="$TMP/state-stale-display-lock-only" HOME="$TMP/home-stale-display-lock-only" \
+  TMPDIR="$TMP/x11-stale-display-lock-only" bash -c '
+    mkdir -p "$TMPDIR/.X11-unix"
+    printf "%s\\n" "$$" > "$TMPDIR/.X4-lock"
+    . "$1/lib/desktop.sh"
+    pgrep(){ return 1; }
+    tnx_remove_stale_x11_socket 4 || exit
+    [ ! -e "$TMPDIR/.X11-unix/X4" ] && [ ! -e "$TMPDIR/.X4-lock" ]
+  ' _ "$ROOT"; then
+  ok "orphaned X11 lock is cleaned when its stale PID was reused by another process"
+else
+  not_ok "orphaned X11 lock is cleaned when its stale PID was reused by another process"
 fi
 
 # JSON start must not create a second desktop when an existing X11 server fails
@@ -3254,7 +3293,7 @@ if env HOME="$TMP/home-standalone-bundle" PREFIX="$TMP/prefix-standalone-bundle"
   bash "$TMP/standalone-bundle/install.sh" --status >/dev/null &&
   [ "$(cat "$TMP/bundle-count")" -eq 2 ] &&
   [ "$(sort -u "$TMP/bundle-urls" | wc -l)" -eq 1 ] &&
-  grep -q "^https://codeload.github.com/soobujmiah/ternux/tar.gz/${fixture_commit:0:7}$" "$TMP/bundle-urls" &&
+  grep -q "^https://codeload.github.com/soobujmiah/ternux/tar.gz/${fixture_commit}$" "$TMP/bundle-urls" &&
   ! compgen -G "$TMP/remote-bundle-tmp/ternux-bootstrap.*" >/dev/null; then
   ok "standalone bootstrap retries and reuses one source bundle"
 else
@@ -3319,7 +3358,7 @@ if [ "$cli_pin_commit" = "$boot_pin_commit" ] &&
        tnx_download(){ printf "%s\n" "$1" > "$CLI_URL"; cp "$CLI_ARCHIVE" "$2"; }
        tnx_phase_cli
      ' _ "$TMP/cli-fallback-modules" >/dev/null &&
-   [ "$(cat "$TMP/cli-fallback-url")" = "https://codeload.github.com/soobujmiah/ternux/tar.gz/${cli_pin_commit:0:7}" ] &&
+   [ "$(cat "$TMP/cli-fallback-url")" = "https://codeload.github.com/soobujmiah/ternux/tar.gz/${cli_pin_commit}" ] &&
    "$TMP/prefix-cli-fallback/bin/ternux" --version | grep -q "^ternux v${cli_pin_version}$" &&
    "$TMP/prefix-cli-fallback/bin/tx" --version | grep -q "^ternux v${cli_pin_version}$" &&
    "$TMP/prefix-cli-fallback/bin/terfetch" --version | grep -q "^terfetch 0.1.0$" &&
@@ -3685,6 +3724,48 @@ check "optional llama workload pins a safe llama.cpp revision" bash -c '
   grep -Fq "Refusing to modify existing non-pinned source" "$1/lib/phases.sh" &&
   ! grep -Fq "rm -rf ~/llama.cpp" "$1/lib/phases.sh"
 ' _ "$ROOT"
+
+if env TERNUX_STATE_DIR="$TMP/state-optional-apt-root" \
+  OPTIONAL_APT_MARKER="$TMP/optional-apt-root-command" bash -c '
+    . "$1/lib/phases.sh"
+    tnx_guest_login(){ printf "CALL\n%s\n" "$*" > "$OPTIONAL_APT_MARKER"; cat >> "$OPTIONAL_APT_MARKER"; }
+    tnx_ok(){ :; }
+    tnx_warn(){ :; }
+    tnx_phase_extras ternux jq &&
+      grep -Fq -- "--user root -- bash -s -- jq" "$OPTIONAL_APT_MARKER" &&
+      grep -Fq "apt update" "$OPTIONAL_APT_MARKER" &&
+      grep -Fq "apt_run install" "$OPTIONAL_APT_MARKER" &&
+      ! grep -Fq "sudo apt" "$OPTIONAL_APT_MARKER"
+  ' _ "$ROOT"; then
+  ok "optional APT workloads run as guest root without blocking on sudo stdin"
+else
+  not_ok "optional APT workloads run as guest root without blocking on sudo stdin"
+fi
+
+if env TERNUX_STATE_DIR="$TMP/state-optional-adt-blender" \
+  ADT_BLENDER_MARKER="$TMP/optional-adt-blender-calls" bash -c '
+    . "$1/lib/phases.sh"
+    export TERNUX_DISTRO=debian
+    tnx_guest_login(){ printf "__CALL__ last=%s args=%s\n" "${!#}" "$*" >> "$ADT_BLENDER_MARKER"; cat >> "$ADT_BLENDER_MARKER"; }
+    tnx_ok(){ :; }
+    tnx_warn(){ printf "%s\n" "$*" >&2; }
+    tnx_phase_extras ternux blender adt-build-tools || exit 1
+    grep -Fq "blender" "$ADT_BLENDER_MARKER" &&
+      grep -Fq "xvfb" "$ADT_BLENDER_MARKER" &&
+      grep -Fq "default-jdk-headless" "$ADT_BLENDER_MARKER" &&
+      grep -Fq "python3-cattr" "$ADT_BLENDER_MARKER" &&
+      grep -Fq "python3-requests" "$ADT_BLENDER_MARKER" &&
+      grep -Fq "unzip" "$ADT_BLENDER_MARKER" &&
+      grep -Fq "apt update" "$ADT_BLENDER_MARKER" &&
+      grep -Fq "apt_run install" "$ADT_BLENDER_MARKER" || exit 1
+    cmdline_line="$(grep -nF "__CALL__ last=adt-cmdline " "$ADT_BLENDER_MARKER" | head -n1 | cut -d: -f1)"
+    build_line="$(grep -nF "__CALL__ last=adt-build-tools " "$ADT_BLENDER_MARKER" | head -n1 | cut -d: -f1)"
+    [ -n "$cmdline_line" ] && [ -n "$build_line" ] && [ "$cmdline_line" -lt "$build_line" ]
+  ' _ "$ROOT"; then
+  ok "Blender and Ternux ADT selections preinstall ADT prerequisites and run command-line setup first"
+else
+  not_ok "Blender and Ternux ADT selections preinstall ADT prerequisites and run command-line setup first"
+fi
 
 if env TERNUX_STATE_DIR="$TMP/state-blender-xvfb" HOME="$TMP/home-blender-xvfb" \
   MARKER="$TMP/blender-xvfb-command" bash -c '
@@ -4403,7 +4484,7 @@ check "generated distro desktop and locale scripts parse for all named profiles"
 check "PRoot Glycin shim preserves the loader fd and delegates unrelated bwrap calls" bash "$ROOT/tests/proot_bwrap.sh"
 check "Debian, Ubuntu and Alpine shell command files dispatch user/root shortcuts" bash "$ROOT/tests/guest_shell_shortcuts.sh"
 check "distro shell/root commands preserve identity and explicit command boundaries" bash "$ROOT/tests/distro_shell_commands.sh"
-check "APT-only optional workloads reject a non-APT guest before guest changes" bash -c '
+check "APT-only optional workloads reject Alpine before guest changes" bash -c '
   . "$1/lib/phases.sh"
   export TERNUX_DISTRO=alpine
   tnx_guest_login() { echo guest-login-should-not-run >&2; return 99; }
@@ -4411,6 +4492,22 @@ check "APT-only optional workloads reject a non-APT guest before guest changes" 
   [ "$rc" -eq 2 ] || exit 1
   exit 0
 ' _ "$ROOT"
+APK_MARKER="$TMP/alpine-apk-optional"
+export APK_MARKER
+check "Alpine installs Blender through APK and rejects incompatible ADT before guest changes" bash -c '
+  . "$1/lib/phases.sh"
+  export TERNUX_DISTRO=alpine
+  tnx_guest_login() { printf "CALL:%s\n" "$*" >> "$APK_MARKER"; cat >> "$APK_MARKER"; }
+  tnx_ok() { :; }
+  tnx_warn() { printf "%s\n" "$*" >&2; }
+  tnx_phase_extras ternux blender || exit 1
+  grep -Fq -- "--user root" "$APK_MARKER" && grep -Fq "apk update" "$APK_MARKER" &&
+    grep -Fq "apk add --no-cache" "$APK_MARKER" && grep -Fq "blender xvfb xvfb-run py3-numpy py3-requests" "$APK_MARKER" || exit 1
+  before="$(wc -l < "$APK_MARKER")"
+  rc=0; tnx_phase_extras ternux adt-build-tools >/dev/null 2>&1 || rc=$?
+  [ "$rc" -eq 2 ] && [ "$(wc -l < "$APK_MARKER")" = "$before" ]
+' _ "$ROOT"
+unset APK_MARKER
 check "Alpine installs AppStream without its unsupported PRoot cache hook" bash -c '
   grep -Fq "pkg_retry apk add --no-scripts appstream" "$1/lib/phases.sh"
 ' _ "$ROOT"
@@ -4487,6 +4584,12 @@ check "prior release artifacts are reused only when successful, unexpired, and s
 check "artifact workflows retain builds and avoid documentation-only rebuilds" \
   python3 "$ROOT/tests/release_artifact_workflow_contract.py"
 
+check "interactive workload selector returns the selected jq ID" \
+  python3 "$ROOT/tests/workload_menu_pty.py" "$ROOT" jq
+check "interactive workload selector returns Blender and Ternux ADT build tools together" \
+  python3 "$ROOT/tests/workload_menu_pty.py" "$ROOT" blender,adt-build-tools
+check "Alpine workload selector exposes its verified Blender recipe only" \
+  python3 "$ROOT/tests/workload_menu_pty.py" "$ROOT" blender alpine
 check "interactive workload selector returns the selected Stable Diffusion ID" \
   python3 "$ROOT/tests/workload_menu_pty.py" "$ROOT"
 check "interactive workload selector returns the selected llama.cpp Vulkan ID" \

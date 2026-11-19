@@ -12,6 +12,10 @@ Notable changes to ternux. Dates are ISO 8601.
 
 ## [Unreleased]
 
+### Android diagnostics
+
+- Add bilingual phantom-process guidance for native Termux ADB, Shizuku `rish`, and computer ADB, including shell identity checks, DeviceConfig sync scope, verification, rollback, and the current Android 16 device observation.
+
 ### Desktop reliability
 
 - The local v2.0.1 candidate preserves a user's window position after resizing; the window is moved only when needed to keep it inside the X11 work area. Added geometry regression coverage and verified the behavior in a live Debian/XFCE session.
@@ -19,6 +23,8 @@ Notable changes to ternux. Dates are ISO 8601.
 
 ### Installer
 
+- Fix interactive numeric multi-selection so Blender + Ternux ADT Build Tools are passed together without toggling a neighboring workload. Preinstall ADT prerequisites in the guest-root package phase. Add Alpine APK support for Blender with Xvfb, `xvfb-run`, NumPy, and `python3-requests`; include `python3-cattr` and `python3-requests` for the APT Blender package; Alpine's musl/PRoot runtime cannot execute the integrated glibc ADT tools, so the selector rejects ADT there. Live Blender/ADT checks pass on Debian, Ubuntu, and Kali; Alpine Blender passes.
+- Use the full immutable commit SHA in codeload URLs so the requested archive root and verified SHA-256 match the pinned source snapshot. Termux:API detection now falls back to Termux `pm path` if Android's `cmd package path` query cannot confirm the installed companion; a regression test covers the false-negative case.
 - The one-command installer now retries the script download with wget when curl cannot start or fetch it. The standalone bootstrap and CLI fallback share a checksum-verified source snapshot kept in sync with current installer and CLI code; regression tests verify the fallback and snapshot freshness.
 - Large desktop setup scripts now stream into the guest over stdin instead of exceeding Linux's per-argument limit. Installation guidance explains how rerunning the current one-command installer resumes an interrupted guest.
 

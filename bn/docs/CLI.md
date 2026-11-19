@@ -177,7 +177,8 @@ tx install [options]
 | `--with-llm` | ভলকানসহ `llama.cpp` তৈরি করে |
 | `--with-network` | নেটওয়ার্ক সরঞ্জাম যোগ করে |
 | `--with-media` | ছবি ও শব্দের কাজের সরঞ্জাম যোগ করে |
-| `--with-blender` | `Blender` এবং জিপিইউ-ছাড়া রেন্ডারের জন্য `Xvfb` যোগ করে |
+| `--with-blender` | `Blender`, `Xvfb` এবং `Python module for bundled asset add-ons` যোগ করে; `Alpine`-এ `xvfb-run`, `NumPy` ও `py3-requests` যোগ হয় |
+| `--with-adt-build-tools` | `APT` গেস্টে `Ternux ADT Android build tools` ইনস্টল করে |
 | `--all` | সব ঐচ্ছিক কাজের সরঞ্জাম যোগ করে |
 | `--resume` | শেষ হওয়া ধাপ বাদ দিয়ে থেমে যাওয়া ইনস্টল চালিয়ে যায় |
 

@@ -5,8 +5,10 @@ lang: "en"
 alt_url: "/bn/docs/release/V2-RELEASE-RECONCILIATION.html"
 ---
 
-**Audit date:** 2026-11-18  
-**Repository baseline:** `main` at `1f8ffabaab7fe982f5bfc91759b14b921e6ebd8f`  
+**Audit date:** 2026-11-19
+
+**Repository baseline:** `main` at `1f8ffabaab7fe982f5bfc91759b14b921e6ebd8f`
+
 **Status:** v2.0.1 source candidate merged; publication and release-artifact verification are still pending.
 
 This report resolves conflicting audit and project records against the current source, GitHub history, exact-main CI, device records, and the owner's current product decision. It is a pre-publication reconciliation, not a claim that v2.0.1 has been released.
@@ -48,7 +50,7 @@ The owner-confirmed v2 desktop baseline is **Debian, Ubuntu, Kali Linux, and Alp
 | Xfce and Termux:X11 | Existing Xfce/X11 integration is retained. Live Debian confirmed the Ctrl zoom event reaches the focused application; zoom-in changed the screenshot by 13.55%, and zoom-out returned to an exact pixel match | Intermittent X11 stalls were not reproduced; a short round-trip sample cannot rule them out |
 | Window placement and resizing | The corrected helper preserves pointer-resized size/position in the live Debian test. A separate reversible helper-on/helper-paused Xmessage comparison produced the same move and resize geometry in both states | The reported move-to-center symptom was not reproduced by that synthetic comparison. Removing the entire helper would also remove launch-time fit/clamp and Ctrl zoom. Touch-driven/device-specific behavior remains open |
 | Graphics | Device records cover Debian, Ubuntu, Kali, and Alpine on Xiaomi `25053RT47C`, Android 16, Adreno 825, Zink/Turnip; current Debian `tx verify` passed | Evidence is device/profile-specific and does not qualify other SoCs, GPUs, Android builds, or workload performance |
-| Audio | Audio routes and loopback have historical per-distro/device checks; the current Debian status reports PulseAudio running but `pulseaudio_ready=no` after restart | Recheck the live route and determine whether this is transient before claiming current live audio readiness; it is a known reliability limitation |
+| Audio | On 2026-11-18 a controlled Debian stop/start cleared two pre-existing PulseAudio daemons; a single Ternux daemon (`--exit-idle-time=-1`) then served the configured 4713 port and the launch-selected 4714 port. The guest receives the selected port. After 30 seconds idle, host status still reported `pulseaudio_ready=yes`; the owner confirmed hearing the subsequent VLC test. Historical device records also show concurrent Debian/Ubuntu/Alpine audio routes and a Kali `paplay` loopback capture. | The fresh start was on the existing Debian installation, not a clean Android installation. Ubuntu/Kali/Alpine are not installed on this current device, so they have not been retested after this incident. Recovery if Android kills PulseAudio while XFCE remains running is also unverified |
 | Bengali input | Owner reports physical-keyboard switching in installed distros; device records include focused Avro checks | Does not establish every app/widget or every keyboard |
 | Camera and microphone | Termux:API-backed integration and lifecycle paths exist; tests cover permission and failure handling | This audit did not capture a new photo or microphone recording in the current session |
 | AI and optional workloads | llama.cpp CPU/Vulkan and Stable Diffusion CPU/Vulkan are optional/preview paths; HTP/HMX and QNN remain experimental/research-only | Do not market experiments as stable base features; workload/model/device qualification stays narrow |
@@ -85,14 +87,70 @@ No confirmed critical security vulnerability was established by the available so
 
 ## Remaining v2 release gates
 
-1. Recheck live Debian audio route readiness and document the result/limit.
-2. Generate the source archive from the final release commit, verify its root/version and SHA-256 manifest, and inspect its contents.
-3. Publish v2.0.1 with the exact release commit and version-specific guide; do not publish a stable APT channel.
-4. Verify the published v2 page, exact tag, assets, checksums, install commands, and v1.4.0 page link from GitHub.
-5. Update release status and this reconciliation with the final release SHA and evidence; verify generated `.repo/` state after any source merge.
+1. Generate the source archive from the final release commit, verify its root/version and SHA-256 manifest, and inspect its contents.
+2. Publish v2.0.1 with the exact release commit and version-specific guide; do not publish a stable APT channel.
+3. Verify the published v2 page, exact tag, assets, checksums, install commands, and v1.4.0 page link from GitHub.
+4. Update release status and this reconciliation with the final release SHA and evidence; verify generated `.repo/` state after any source merge.
 
 ## Version 3 boundary
 
 No new v3 implementation or APT feasibility work is included in this v2 release change. Start that work only after v2.0.1 is published and verified. The initial eight-distribution target can be the four v2 baseline distros plus Arch Linux, Fedora, Void Linux, and openSUSE Tumbleweed; each new profile must pass its own qualification matrix. Ten is a stretch goal, not a promise. APT return requires a separate v3 feasibility study and owner decision.
 
 Other v3 topics retained for later planning include installer/module boundaries, test architecture, Manager and Control Center completion, service supervision, device/display management, Ternux-native workload and compute lifecycle, extension/API design, security/supply-chain hardening, and repository-state/documentation governance.
+
+## Local follow-up — fresh guest audio and bootstrap archive identity (2026-11-19)
+
+- Fresh local installs of Ubuntu Resolute, Kali rolling, and Alpine v3.24 completed on the Android 16 reference device. All three desktops reached Ternux `READY`; each guest used Xfce4 and the shared Ternux PulseAudio route.
+- In each guest, `pactl info` resolved `tcp:127.0.0.1:4714` and `OpenSL_ES_sink`. `paplay` returned exit code 0 for a two-second test tone, and the owner independently confirmed hearing the tone in all three desktops. Ubuntu, Kali, and Alpine audio playback is therefore device-verified for this session.
+- The multi-guest install refreshed Termux package indexes/upgrades. No host PulseAudio configuration was changed and no host PulseAudio daemon restart was performed during this fresh-install/audio sequence. At the end of the sequence all three guest reports showed `pulseaudio_ready=yes`.
+- A live Ubuntu bootstrap failure exposed the reason a pinned source archive did not verify: the codeload URL used a seven-character commit prefix, which changes the archive root directory and SHA-256 from the full-commit URL. The standalone bootstrap and CLI fallback now use the full immutable commit SHA and the observed full-URL digest `060dbfa8489bc581ffa996d20b585616e628e227c6cc88d20a4429aa6fd4f3b5`.
+- This source change remains local. The existing pinned commit does not contain the changed URL/tests, so `tests/bootstrap_source_sync.sh` reports the expected parity difference until the owner approves repository synchronization and the source pin is advanced to a committed snapshot. Focused suite: 211 passed. Shell syntax and `git diff --check`: passed.
+- After the fresh installs, the local CLI phase was explicitly run against the live host. The previous host CLI/modules were backed up under `~/.cache/ternux-v2-local-live-backup-2026-11-19/`; the installed `core.sh` and `phases.sh` hashes now exactly match the local source, both `ternux` and `tx` report v2.0.1, and `tx verify alpine` passes.
+- Live `tx verify` passed for Debian, Ubuntu, Kali, and Alpine after deployment. `tests/docs_check.py` passed 6,638 assertions, 629 internal links, and 24 bilingual page pairs. Focused suite remains 211/211 passing. The source-sync test was rerun and fails only because the old pinned archive still contains the abbreviated URLs; retain this as an open approval-gated pin refresh, not a passing gate.
+- Installation caveat: Kali's requested Xfce profile installed 606 base desktop packages plus its profile-selected applications; Alpine installed 547 base packages and additional locale/Avro/GPU/browser packages. The storage check afterward reported about 60 GiB free. The installer incorrectly reported Termux:API as undetected; a later host check confirmed the companion app and `termux-api` package are installed. No camera capture or microphone permission request was performed during these installs. Android child-process setting could not be read.
+- These installs establish fresh guest setup on the existing Termux host, not a clean Android or Termux reinstall. PulseAudio recovery after Android kills it while a desktop remains open is still unverified. Intermittent X11 stalls were not reproduced or eliminated by this audio/install check.
+
+### Termux:API detection correction (2026-11-19)
+
+- The installation log's claim that the Termux:API companion was unavailable was incorrect. Android package lookup (`pm path com.termux.api` and `cmd package path com.termux.api`) and Termux package state confirm the companion app and `termux-api` client package are installed on the reference device.
+- Root cause: the installer only queried Android's `cmd package path`; a failed query was treated as proof of absence. Local `tnx_termux_api_app_installed` now tries that query and falls back to Termux's `pm path`, and reports “could not be detected” rather than claiming the app is absent.
+- `bash -n lib/phases.sh tests/focused.sh` passed. The focused regression test stubs a failing `cmd` query and a successful `pm` query. Full `bash tests/focused.sh` passed 212/212. The live installed `phases.sh` SHA-256 matches the local source, and the installed detector confirms Termux:API on this device.
+- Earlier skipped camera/microphone probes were installer behavior caused by the false negative, not evidence the companion app was missing. Camera capture and microphone permission status remain untested in this follow-up.
+
+### Local scope-audit and final test update (2026-11-19)
+
+- The earlier v3 ADR proposing an LAI adapter contradicted the owner's Ternux-only boundary. ADR-0003 now remains as a rejected historical proposal with its identifier preserved; the v3 architecture, roadmap, AI runtime and component maps now cover Ternux-owned workloads and no unrelated product integration. English and Bengali scope summaries were aligned.
+- The current device/feature matrix now records the fresh three-distro audio playback, the Termux:API detector correction, and the limited window-helper evidence. Interactive window movement/resizing remains directly tested only in Debian, even though hashes match in all four guests.
+- Final local checks: `bash tests/focused.sh` 212/212; `python3 tests/docs_check.py` 6,638 assertions, 632 internal links, 24 bilingual pairs; `bash -n` and `git diff --check` pass.
+- `bash tests/bootstrap_source_sync.sh` was rerun and fails because the old immutable pinned snapshot still has abbreviated codeload refs and no current source changes. This must be advanced to an exact committed snapshot after approval; the failure is an open gate.
+- Read-only GitHub check: PR #298 remains open and its current remote commit has one failing shell/documentation job. The failure is `git show --check` finding trailing whitespace on four pre-existing header lines in the reconciliation documents. Those lines are trimmed in this local working tree; the remote PR check will only rerun after an approved repository update.
+- v1.4.0's live release page is published and links its dedicated v1.4.0 guide. The tag remains `3e6c07e2afcb5f1e65ecd57af19b0382a948835a`, with no attached binary assets; its version/commands were checked against that tag. v2.0.1 still has no tag, release page or assets.
+
+- Latest read-only host status: Debian `:1`, Ubuntu `:2`, Kali `:3`, and Alpine
+  `:4` all report `READY`, X11 running, and PulseAudio route-ready. Individual
+  `tx verify` passes for all four. No guest lifecycle or audio service was
+  changed for this status check; it does not rule out intermittent X11 stalls.
+
+### Initial optional-workload selector regression (2026-11-19)
+
+- Added `jq` to the real PTY menu test and aggregate focused suite. The test
+  confirms the initial interactive selector returns `jq` using both keyboard
+  navigation and numeric entry. The existing package-phase regression verifies
+  selected APT workloads execute as guest root without a sudo/stdin prompt.
+- `python3 tests/workload_menu_pty.py . jq` passed, and the full focused suite
+  passed 215/215. The live clean Ubuntu install selected `jq` in the initial
+  menu and installed it in that same run. This directly covers the reported
+  install path for `jq`; other selections still need app-specific live checks.
+
+## Optional Blender/ADT qualification — 2026-11-19
+
+The numeric multi-selection delimiter and missing ADT prerequisites were fixed
+locally. The exact Blender + companion `soobujmiah/adt` Build Tools live workload passed package
+installation and Blender/Java/sdkmanager/aapt2 smoke checks on Debian, Ubuntu,
+and Kali. Alpine now has a Blender APK recipe, including `xvfb-run` and NumPy;
+its Blender background and active-Xfce GUI smoke tests passed. Kali's Blender 5.2 asset add-on needed `python3-cattr` and `python3-requests`; the workload now installs both. The integrated ADT binaries are not
+currently compatible with Alpine's musl/PRoot runtime: Java cannot map an
+executable memory page and `aapt2` needs unavailable glibc symbols. The Alpine
+selector offers Blender only and preflight-rejects ADT. See the readiness report
+for exact evidence. This means the owner's all-baseline-distro ADT request is
+not fully met; v2 is not releasable with that claim.

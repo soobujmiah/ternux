@@ -7,7 +7,7 @@ alt_url: "/docs/project/PROJECT-ROADMAP.html"
 
 ## বর্তমান দিকনির্দেশ
 
-**পর্যালোচনা:** 2026-11-18। Version 2 হলো বর্তমান implementation; v2.0.1 পরবর্তী
+**পর্যালোচনা:** 2026-11-19। Version 2 হলো বর্তমান implementation; v2.0.1 পরবর্তী
 প্রস্তাবিত release। 2026-11-14-এর সিদ্ধান্ত—আগের v3 platform scope-কে v2-তে
 তোলার প্রস্তাব—2026-11-18-এ owner প্রত্যাহার করেছেন। v2-তে নতুন capability,
 distro support, architecture, desktop environment বা APT channel যোগ হবে না।
@@ -15,8 +15,8 @@ distro support, architecture, desktop environment বা APT channel যোগ �
 ## Release অবস্থা
 
 - **v1.4.0:** সর্বশেষ প্রকাশিত version। Tag `3e6c07e2afcb5f1e65ecd57af19b0382a948835a`;
-  historical source archive থেকে install guide স্থানীয়ভাবে যাচাই হয়েছে। Public
-  release page এখনো বদলানো হয়নি।
+  historical source archive থেকে install guide যাচাই হয়েছে। Live GitHub release
+  page dedicated exact-version guide-এ link করে; কোনো binary asset নেই।
 - **v2.0.0:** 2026-11-14-এ GitHub Release ও stable APT channel প্রত্যাহার হয়েছে;
   source tag provenance-এর জন্য রাখা আছে, পুনর্ব্যবহার করা যাবে না।
 - **v2.0.1:** পরবর্তী version candidate; tag, release commit, artifact, checksum বা
@@ -47,10 +47,11 @@ session `:1` খোলা আছে। `xdotool` Debian guest-এ test-এর �
 পুরোনো audit-এ desktop stopped দেখানো হয়েছিল—পরবর্তী পরিবর্তনটি
 [device verification record](../../../docs/audit/DEVICE-VERIFICATION.md)-এ আলাদাভাবে আছে।
 
-Termux ARM64 focused suite-এর আগের run 211/211 pass করেছিল। Candidate version
-পরিবর্তনের পরের ফল, source fallback pin-এর সীমা, Docker-এর অনুপস্থিতি ও Node
-runtime error একই audit record-এ আলাদা করে নথিবদ্ধ হবে। এগুলো clean-install বা
-চার distro-র পূর্ণ qualification প্রমাণ করে না।
+Termux ARM64 local focused suite 212/212 pass করেছে। Immutable bootstrap
+source-sync check পুরোনো pinned snapshot-এ local source correction না থাকায়
+open। Docker নেই এবং local Node runtime linker error-এ fail করে; তাই clean
+browser matrix ও website/package build এখানে চালানো যায়নি। এগুলো clean-install
+বা চার distro-র পূর্ণ qualification প্রমাণ করে না।
 
 ## v2 প্রকাশের পরে Version 3
 

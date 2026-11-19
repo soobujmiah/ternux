@@ -20,7 +20,7 @@ omitted until the baseline and device capacity are measured.
 | 3. Control Center | Local UI, status, start/stop, logs, diagnostics | Loopback/socket security tests, accessibility, low-resource idle profile |
 | 4. Workspace | Multi-distro profile/recipe engine, selection flows, theme package | Clean install/remove/update matrix for Debian, Ubuntu, Alpine; other profiles gated individually |
 | 5. Compute | Capability registry, backend packs, resource policy | Per-device route probes, correctness, fallback, artifact/license and rollback gates |
-| 6. AI | LAI adapter, model discovery, workload registry, job reporting | Model provenance, representative task correctness, memory/thermal and performance evidence |
+| 6. AI | Ternux-owned workload registry, runtime integrations, model discovery, job reporting | Artifact provenance, representative task correctness, memory/thermal and performance evidence; no unrelated product dependency |
 | 7. Device Bridge | On-demand camera/mic/storage brokers | Permission, denial, cancellation, file integrity, privacy and per-device checks |
 | 8. Extensions | Manifest, permission grants, install/update/remove | Malicious manifest, path, signature/hash, rollback, and uninstall fixtures |
 | 9. Release | Docs/site, upgrade, stable package, support matrix | All blocking gates green on exact release commit and evidence archived |
