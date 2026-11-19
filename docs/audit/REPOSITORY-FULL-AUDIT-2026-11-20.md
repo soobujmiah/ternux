@@ -209,7 +209,7 @@ Pages deployment.
 | YAML / JSON / SVG structure | Pass — 849 / 28 / 355 files |
 | NPM dependency audit | Pass — 0 known advisories in the current lockfile snapshot |
 | `tests/firefox_package_matrix.sh` | Not run — Docker is unavailable in local Termux/PRoot |
-| `tests/bootstrap_source_sync.sh` | Fails while the updater change is uncommitted and still compares to the old immutable archive; repinning and exact-commit CI remain required |
+| `tests/bootstrap_source_sync.sh` | Pass — standalone installer and CLI pin commit `9069eb3d233f94f1cce9ba2f25bc0de88efda601`, archive SHA-256 `9535d8971f39c0722db969a82515755c9d9a22849e43a3b5c9be480a088b3e7c` |
 | `tests/live_source_parity.py` | Reports 13 installed-source/path mismatches across 1,648 paths; installed device state is unchanged |
 
 The `dist/` build output and test fixtures were generated locally and are not
@@ -228,8 +228,8 @@ was changed for this website redesign and audit.
    recovery and cover tampering/traversal/no-network cases.
 3. Migrate the startup verifier to a portable versioned KDF without resetting
    existing passwords; preserve the stated Android/PRoot threat boundary.
-4. After the source commit and immutable source pin are synchronized, rerun the
-   full exact-commit CI, including the Docker-backed Firefox distro matrix.
+4. Rerun exact-commit CI after repository synchronization, including the
+   Docker-backed Firefox distro matrix.
 5. Schedule a later managed live reconciliation for the installed source drift
    and legacy Debian/Ubuntu app-center wrapper, then verify by read-only parity
    and native package-manager menus.

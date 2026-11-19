@@ -45,7 +45,7 @@ v2.0.1-এর device qualification ও test evidence-কে
 সেগুলো release snapshot; পরবর্তী প্রতিটি source commit-এ নতুন পূর্ণ device run
 বোঝায় না। এই v3 documentation slice-এ Termux-এর Node binary linker error দেয়;
 স্থাপিত Debian guest-এর Node runtime দিয়ে 98 page build ও 60 HTML route
-finalize হয়েছে। Documentation checker 7,330 assertion, 669 internal link এবং
+finalize হয়েছে। Documentation checker 7,333 assertion, 672 internal link এবং
 25 bilingual page pair pass করেছে। এ থেকে নতুন device qualification দাবি করা
 হচ্ছে না.
 

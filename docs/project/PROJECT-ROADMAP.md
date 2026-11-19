@@ -45,7 +45,7 @@ release snapshot, not a new full-device run on every later source commit. For
 this v3 documentation slice, the Termux-host Node binary still has a dynamic
 linker error; the installed Debian guest Node runtime built the website
 successfully (98 pages, 60 finalized HTML routes). The documentation checker
-passed 7,330 assertions, 669 internal links, and 25 bilingual page pairs.
+passed 7,333 assertions, 672 internal links, and 25 bilingual page pairs.
 No new device qualification is claimed by these documentation checks.
 
 ## Version 3 — active development
