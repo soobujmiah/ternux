@@ -425,11 +425,11 @@ profile.
 | Zypper | openSUSE |
 | XBPS | Void |
 
-Debian is the recommended default. Debian, Ubuntu, and Alpine are the three
-v2-supported desktop profiles. The release qualification includes clean guest
+Debian is the recommended default. Debian, Ubuntu, Kali Linux, and Alpine are
+the four v2-supported desktop profiles. The release qualification includes clean guest
 lifecycle checks and device evidence from one Adreno 825 phone; it does not
 promise identical results on other Android devices or qualify the remaining
-named profiles. The other twelve named profiles have family-matched recipes
+named profiles. The other eleven named profiles have family-matched recipes
 but are outside the v2 desktop support claim. Arbitrary PRoot-Distro OCI
 images can be installed as shell guests; they do not receive an automatic
 Ternux desktop recipe. Optional software workloads currently require an APT

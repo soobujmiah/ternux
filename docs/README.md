@@ -16,8 +16,8 @@ basic-usage path, then link here for details.
 |---|---|
 | Start here | `index.md`, `QUICK-START.md`, `INSTALLATION.md`, `MANUAL.md` |
 | Release status and roadmap | [`release/README.md`](release/README.md) indexes the exact-version installation guides; [`release/V2-RELEASE-REPORT.md`](release/V2-RELEASE-REPORT.md) preserves v2.0.0 history and current scope; [`V2-RELEASE-READINESS.md`](V2-RELEASE-READINESS.md) tracks the published v2.0.1 release and its qualification boundaries. |
-| Platform architecture and living project status | [`v3/`](v3/README.md) contains future architecture plans, not v2 release gates; the English/Bengali [project roadmap](project/PROJECT-ROADMAP.md) tracks the frozen v2 candidate and v3 sequencing. |
-| Repository-only audit evidence | [`audit/`](audit/CURRENT-STATE.md) holds dated device, repository, and feature qualification detail; it is not a public website claim |
+| Platform architecture and living project status | [`v3/`](v3/README.md) contains active v3 foundation work and future capability plans, not v2 feature claims; the English/Bengali [project roadmap](project/PROJECT-ROADMAP.md) tracks the frozen v2 release and v3 sequencing. |
+| Repository-only audit evidence | [`audit/REPOSITORY-FULL-AUDIT-2026-11-20.md`](audit/REPOSITORY-FULL-AUDIT-2026-11-20.md) is the current full source/test audit; [`audit/CURRENT-STATE.md`](audit/CURRENT-STATE.md) remains the dated 2026-11-13 snapshot. Neither is a blanket device qualification claim. |
 | Package distribution | [`TERMUX-APT.md`](TERMUX-APT.md) (repository trust and install); [`../packaging/termux/README.md`](../packaging/termux/README.md) (build and publish) |
 | Repository deep guides | [`../guides/device-benchmark-evidence.md`](../guides/device-benchmark-evidence.md), [`../guides/llama-vulkan-extension.md`](../guides/llama-vulkan-extension.md), [`../guides/stable-diffusion-vulkan-extension.md`](../guides/stable-diffusion-vulkan-extension.md), [`../guides/llama-htp-experimental.md`](../guides/llama-htp-experimental.md), matching `../bn/guides/` pages (source repository only; not rendered on the website) |
 | Operate | `USAGE.md`, `WORKLOADS.md`, `BLENDER-MCP.md`, `CONFIGURATION.md`, `GRAPHICS-PERSISTENCE.md`, [`ANDROID-PHANTOM-PROCESS.md`](ANDROID-PHANTOM-PROCESS.md), `TROUBLESHOOTING.md` |
@@ -54,8 +54,10 @@ runs validate and report state but do not commit generated updates. CI cannot
 infer human-authored explanations, decisions, limitations or reproduction
 steps: update those canonical docs in the same change that alters the behavior.
 
-The shared page shell is `src/layouts/SiteLayout.astro`; shared styles live in
-`src/styles/site.css`, while content loading and route-safe link rewriting live in
+The shared page shell is `src/layouts/SiteLayout.astro`; documentation pages use
+`src/components/DocumentationLayout.astro`. `src/styles/site.css` preserves the
+ordered style layers under `src/styles/`, and `site-refresh.css` holds the active
+visual system. Content loading and route-safe link rewriting live in
 `src/lib/content.ts`. Astro builds the static site into `dist/` for deployment by
 `.github/workflows/deploy.yml`; production deployment runs only after an explicit
 workflow dispatch. Keep the runtime light and respect reduced-motion preferences.

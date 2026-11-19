@@ -42,7 +42,13 @@ with tempfile.TemporaryDirectory(prefix="ternux-pm-dispatch-") as temp:
             executable.chmod(0o755)
 
         environment = os.environ.copy()
-        environment.update(PATH=f"{bindir}:/system/bin", PM_LOG=str(log))
+        manager_file = temp_root / f"{family}.manager"
+        manager_file.write_text(f"{family}\n")
+        environment.update(
+            PATH=f"{bindir}:/system/bin",
+            PM_LOG=str(log),
+            TERNUX_PACKAGE_MANAGER_FILE=str(manager_file),
+        )
         result = subprocess.run(
             [str(launcher), "--terminal"],
             input=inputs,

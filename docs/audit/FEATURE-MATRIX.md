@@ -5,7 +5,18 @@ v2.0.0 on the documented Redmi Turbo 4 Pro reference device unless a row says
 otherwise. “Installed”, “detected”, “initialized”, “executed correctly”, and
 “measured” are separate evidence levels.
 
-## Current owner scope correction — 2026-11-18
+## Current repository audit update — 2026-11-20
+
+The current source, website, release, automated checks, and local verification
+were re-audited on 2026-11-20. v2.0.1 is the published source release; the
+stable Termux APT channel remains withdrawn, and `pkg install ternux` is not
+available. The current v3 and website scope, findings, command results, and
+environment limits are recorded in the
+[2026-11-20 repository audit](REPOSITORY-FULL-AUDIT-2026-11-20.md). The older
+tables below remain dated snapshots and must not be read as today's installed
+or release state.
+
+## Historical owner scope correction — 2026-11-18
 
 The owner revoked the 2026-11-14 decision that moved the former v3 platform
 scope into the next v2 release. Version 2 is frozen to the current

@@ -6,19 +6,20 @@ lang: "en"
 
 ## Implementation roadmap
 
-**Status: DESIGNED, future v3 work. The 2026-11-14 decision moving this roadmap
-into the next v2-major release was revoked on 2026-11-18.** Begin implementation
-only after v2.0.1 is published and verified. Sequence is dependency-driven. A phase closes only when
-its acceptance evidence is recorded; schedule estimates are intentionally
-omitted until the baseline and device capacity are measured.
+**Status: IMPLEMENTING, active v3 work.** The v2.0.1 release and its exact
+installation guide are published and verified. V2 remains frozen. Phase 0 is
+complete; Phase 1 contracts and security foundations are active. Sequence is
+dependency-driven. A phase closes only when its acceptance evidence is
+recorded; schedule estimates are intentionally omitted until the baseline and
+device capacity are measured.
 
 | Phase | Scope | Exit gate |
 |---|---|---|
-| 0. Baseline | Published v2.0.1 release, repository, device state, known limitations | Exact release facts and version-specific installation pages verified; evidence links and recovery/support boundary reviewed |
-| 1. Contracts | Component ownership, state model, API, security, ADR process | API schemas and threat review accepted; no unresolved ownership conflicts |
+| 0. Baseline | Published v2.0.1 release, repository, device state, known limitations | **Complete:** exact release facts and version-specific pages verified; evidence links, recovery/support boundary, and owner scope reconciled |
+| 1. Contracts | Component ownership, state model, API, security, ADR process, distribution qualification, test plan, APT feasibility | API schemas and threat review accepted; no unresolved ownership conflicts; qualification and release gates are measurable |
 | 2. Native core | Guest registry, manager service, structured jobs, CLI parity | Service optional; CLI works offline; lifecycle is per-guest and idempotent |
 | 3. Control Center | Local UI, status, start/stop, logs, diagnostics | Loopback/socket security tests, accessibility, low-resource idle profile |
-| 4. Workspace | Multi-distro profile/recipe engine, selection flows, theme package | Clean install/remove/update matrix for Debian, Ubuntu, Alpine; other profiles gated individually |
+| 4. Workspace | Multi-distro profile/recipe engine, selection flows, theme package | Clean install/remove/update matrix for Debian, Ubuntu, Kali, Alpine; each new profile is gated individually |
 | 5. Compute | Capability registry, backend packs, resource policy | Per-device route probes, correctness, fallback, artifact/license and rollback gates |
 | 6. AI | Ternux-owned workload registry, runtime integrations, model discovery, job reporting | Artifact provenance, representative task correctness, memory/thermal and performance evidence; no unrelated product dependency |
 | 7. Device Bridge | On-demand camera/mic/storage brokers | Permission, denial, cancellation, file integrity, privacy and per-device checks |

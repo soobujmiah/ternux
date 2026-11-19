@@ -9,16 +9,16 @@ This documentation is organized around decisions and tasks rather than the
 installer's source tree. If this is your first visit, choose a route below. If
 something is already broken, go directly to [Troubleshooting](TROUBLESHOOTING.html).
 
-> **Release status:** Ternux v2.0.0 was withdrawn and its stable APT channel
-> removed. The next stable release remains in the v2 major and must meet the
-> complete platform acceptance scope formerly planned for v3. See the
-> [current release status](project/RELEASE-STATUS.html).
+> **Release status:** v2.0.1 is the published source release. The v2.0.0
+> release and stable Termux APT channel were withdrawn; `pkg install ternux` is
+> unavailable. v3 is active design and implementation work, not a released
+> package. See the [current release status](project/RELEASE-STATUS.html).
 
 ## Guest support at a glance
 
-| Withdrawn v2.0.0 desktop record | More distro recipes                            | Default profile |
-| ------------------------------- | ---------------------------------------------- | --------------- |
-| Debian, Ubuntu, Alpine          | 12 additional named profiles; not qualified   | Debian          |
+| Verified v2 desktop baseline       | Other named recipes                      | Default profile |
+| ---------------------------------- | ---------------------------------------- | --------------- |
+| Debian, Ubuntu, Kali Linux, Alpine | 11 additional profiles; not qualified   | Debian          |
 
 Every named recipe has a family-specific desktop setup. Generic OCI images are shell guests unless Ternux has a desktop recipe for them. See [installation and guest selection](INSTALLATION.html#choosing-a-guest-distribution) and the [repository v2 support matrix](https://github.com/soobujmiah/ternux/blob/main/docs/audit/FEATURE-MATRIX.md).
 
@@ -34,7 +34,7 @@ Every named recipe has a family-specific desktop setup. Generic OCI images are s
   <a class="doc-card" href="QUICK-START.html"><span class="doc-card__icon">01</span><strong>Quick start</strong><span>The shortest path to a launched and verified workspace.</span></a>
   <a class="doc-card" href="INSTALLATION.html"><span class="doc-card__icon">02</span><strong>Installation</strong><span>Requirements, review-first route, phases, flags, updates, and removal.</span></a>
   <a class="doc-card" href="MANUAL.html"><span class="doc-card__icon">03</span><strong>Manual installation</strong><span>An auditable command-by-command setup with complete launcher behavior.</span></a>
-  <a class="doc-card" href="TERMUX-APT.html"><span class="doc-card__icon">APT</span><strong>Signed Termux package</strong><span>Verify the release key and install the CLI with pkg.</span></a>
+  <a class="doc-card" href="TERMUX-APT.html"><span class="doc-card__icon">APT</span><strong>Termux package channel</strong><span>Current signed-channel status and why `pkg install ternux` is unavailable.</span></a>
   <a class="doc-card" href="FAQ.html"><span class="doc-card__icon">?</span><strong>Before you install</strong><span>Root, compatibility, storage, battery, privacy, and project limits.</span></a>
 </div>
 
@@ -59,7 +59,7 @@ For CPU + Vulkan AI tools, see the optional [Stable Diffusion image-generation g
   <a class="doc-card" href="V3-ARCHITECTURE.html"><span class="doc-card__icon">v3</span><strong>V3 architecture</strong><span>Read the Native Control Center, workspace, compute, AI, Device Bridge, security, and acceptance design.</span></a>
   <a class="doc-card" href="project/PROJECT-ROADMAP.html"><span class="doc-card__icon">→</span><strong>Project status</strong><span>See current implementation, release state, device evidence, debt, limits, and next actions.</span></a>
   <a class="doc-card" href="release/V2-RELEASE-REPORT.html"><span class="doc-card__icon">v2</span><strong>Release and current audit</strong><span>Separate the original release from the current package, source, website, and device snapshot.</span></a>
-  <a class="doc-card" href="V2-RELEASE-READINESS.html"><span class="doc-card__icon">v2</span><strong>v2 release readiness</strong><span>See the three supported guest profiles, current release gates, and dated device evidence.</span></a>
+  <a class="doc-card" href="V2-RELEASE-READINESS.html"><span class="doc-card__icon">v2</span><strong>v2 release readiness record</strong><span>Read the dated release gates and device evidence snapshot.</span></a>
   <a class="doc-card" href="ACCELERATOR-RELEASE-PLAN.html"><span class="doc-card__icon">NPU</span><strong>Accelerator release plan</strong><span>Current CPU, GPU, HTP, and QNN release gates and deferred work.</span></a>
   <a class="doc-card" href="BENCHMARKS.html"><span class="doc-card__icon">∿</span><strong>Evidence &amp; benchmarks</strong><span>Inspect all captured scene values, caveats, boundaries, and reproduction steps.</span></a>
   <a class="doc-card" href="FAQ.html"><span class="doc-card__icon">?</span><strong>FAQ</strong><span>Direct answers about what ternux supports, protects, and deliberately does not do.</span></a>

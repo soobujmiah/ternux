@@ -40,7 +40,7 @@ jobs:
           set -u
           for attempt in 1 2 3; do
             if sudo apt-get update -o Acquire::Retries=3 &&
-               sudo apt-get install --yes --no-install-recommends bats python3-numpy curl gnupg xz-utils; then
+               sudo apt-get install --yes --no-install-recommends bats shellcheck python3-numpy curl gnupg xz-utils; then
               exit 0
             fi
             echo "apt attempt ${attempt} failed; retrying..."
@@ -54,6 +54,14 @@ jobs:
           set -euo pipefail
           for file in install.sh uninstall.sh bin/ternux bin/ternux-guest lib/*.sh packaging/termux/*.sh; do
             bash -n "$file"
+          done
+
+      - name: Run ShellCheck error-level baseline
+        shell: bash
+        run: |
+          set -euo pipefail
+          for file in install.sh uninstall.sh bin/ternux bin/ternux-guest lib/*.sh packaging/termux/*.sh; do
+            shellcheck --shell=bash --severity=error "$file"
           done
 
       - name: Verify workload manifest and generated registry

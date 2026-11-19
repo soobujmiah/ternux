@@ -238,12 +238,11 @@ if len(nav_sections) == 2:
     en_part, bn_part = nav_sections
     en_groups = re.findall(r"^\s+label:", en_part, re.M)
     bn_groups = re.findall(r"^\s+label:", bn_part, re.M)
-    en_urls = re.findall(r'\[\s*"[^"]+"\s*,\s*"([^"]+)"\s*\]', en_part)
-    bn_urls = re.findall(r'\[\s*"[^"]+"\s*,\s*"([^"]+)"\s*\]', bn_part)
-    check(len(en_groups) == len(bn_groups) == 4, "documentation navigation must have four mirrored groups")
-    check(len(en_urls) == len(bn_urls) == 20, "documentation navigation must have 20 destinations per language")
+    en_urls = re.findall(r'\[\s*"[^"]+"\s*,\s*"([^"]+)"\s*,?\s*\]', en_part)
+    bn_urls = re.findall(r'\[\s*"[^"]+"\s*,\s*"([^"]+)"\s*,?\s*\]', bn_part)
+    check(len(en_groups) == len(bn_groups) == 5, "documentation navigation must have five mirrored groups")
+    check(len(en_urls) == len(bn_urls) == 22, "documentation navigation must have 22 destinations per language")
     expected_bn = ["/bn" + url for url in en_urls]
-    expected_bn[expected_bn.index("/bn/docs/project/PROJECT-ROADMAP.html")] = "/bn/docs/V3-ARCHITECTURE.html"
     check(expected_bn == bn_urls, "English/Bengali navigation destinations are not structural mirrors")
 
 # Nested v3/project/release pages are public routes. Validate the source and built route
@@ -324,8 +323,38 @@ for rel in ("dist/index.html", "dist/bn/index.html"):
     text = read(ROOT / rel)
     ids = re.findall(r'<section[^>]*\bid="([^"]+)"', text)
     check(ids == LANDING_SECTIONS, f"{rel}: landing section order changed ({ids})")
-check(re.search(r"@media\s*\(prefers-reduced-motion:\s*reduce\)", read(ROOT / "src/styles/site.css")) is not None,
-      "site.css: reduced-motion support missing")
+for rel, active_target in (
+    ("dist/docs/index.html", '/ternux/docs/'),
+    ("dist/docs/QUICK-START.html", '/ternux/docs/QUICK-START.html'),
+    ("dist/bn/docs/index.html", '/ternux/bn/docs/'),
+    ("dist/bn/docs/QUICK-START.html", '/ternux/bn/docs/QUICK-START.html'),
+):
+    page = read(ROOT / rel)
+    check('class="article-shell docs-shell"' in page, f"{rel}: shared documentation layout missing")
+    check('data-doc-search' in page and 'type="search"' in page, f"{rel}: searchable documentation navigation missing")
+    check('data-doc-empty' in page and 'data-toc' in page, f"{rel}: empty/search or table-of-contents region missing")
+    check('class="article-pagination"' in page, f"{rel}: documentation next steps missing")
+    check(f'href="{active_target}" aria-current="page"' in page, f"{rel}: current navigation destination is not marked")
+search_script = read(ROOT / "src/components/DocumentationLayout.astro")
+for token in (
+    'addEventListener("input"',
+    'toLocaleLowerCase()',
+    'event.key !== "/"',
+    'search?.closest("details")',
+    'search?.focus()',
+):
+    check(token in search_script, f"DocumentationLayout.astro: documentation search behavior missing {token}")
+for source, required in (
+    ("docs/index.md", ("Debian, Ubuntu, Kali Linux, Alpine", "11 additional profiles", "`pkg install ternux` is")),
+    ("bn/docs/index.md", ("ডেবিয়ান, উবুন্টু, কালি লিনাক্স, আল্পাইন", "আরও ১১টি", "`pkg install ternux`")),
+    ("src/pages/index.astro", ("Eleven more named distro recipes", "15 named profiles", "pkg install ternux")),
+    ("src/pages/bn/index.astro", ("আরও ১১টি named distro recipe", "১৫টি named profile", "pkg install ternux")),
+):
+    page = read(ROOT / source)
+    for phrase in required:
+        check(phrase in page, f"{source}: current support/release status missing {phrase}")
+check(re.search(r"@media\s*\(prefers-reduced-motion:\s*reduce\)", read(ROOT / "src/styles/site-refresh.css")) is not None,
+      "site-refresh.css: reduced-motion support missing")
 check("data-copy" in read(ROOT / "src/layouts/SiteLayout.astro"), "site shell: command copy control missing")
 install_commands = (
     'bash -c \'s=$(mktemp) && (curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh -o "$s" || wget -qO "$s" https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh) && bash "$s"; r=$?; rm -f "$s"; exit "$r"\'',
@@ -605,7 +634,7 @@ check('--distros LIST' in installer_source,
       "install.sh: help omits multi-profile selection")
 check('    --distros)' in installer_source and 'INSTALL_ARGS+=(--distros "$DISTROS_CHOICE")' in installer_source,
       "install.sh: --distros is not forwarded to the multi-profile installer")
-check(".js-reveal [data-reveal]" in read(ROOT / "src/styles/site.css"), "site.css: no-JavaScript reveal fallback missing")
+check(".js-reveal [data-reveal]" in read(ROOT / "src/styles/foundation.css"), "foundation.css: no-JavaScript reveal fallback missing")
 check('document.body.classList.add("js-reveal")' in read(ROOT / "src/layouts/SiteLayout.astro"), "site shell: reveal enhancement marker missing")
 for rel in ("dist/docs/ACCELERATOR-RELEASE-PLAN.html", "dist/bn/docs/ACCELERATOR-RELEASE-PLAN.html", "dist/docs/GRAPHICS-PERSISTENCE.html"):
     check('<div class="table-scroll"><table>' in read(ROOT / rel), f"{rel}: wide tables need a scroll container")

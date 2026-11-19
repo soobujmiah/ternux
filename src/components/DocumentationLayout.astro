@@ -1,0 +1,174 @@
+---
+import SiteLayout from "../layouts/SiteLayout.astro";
+import { baseUrl } from "../lib/content";
+import { nav } from "../data/navigation";
+
+const { page, lang = page.lang, canonical, noIndex = false } = Astro.props;
+const isBengali = lang === "bn";
+const groups = nav[isBengali ? "bn" : "en"];
+const indexPath = baseUrl(isBengali ? "/bn/docs/" : "/docs/");
+const homePath = baseUrl(isBengali ? "/bn/" : "/");
+const currentPath = baseUrl(canonical);
+---
+
+<SiteLayout
+  title={page.title}
+  description={page.description}
+  lang={lang}
+  canonical={canonical}
+  altUrl={page.alt_url}
+  article
+  noIndex={noIndex}
+>
+  <div class="article-shell docs-shell">
+    <aside class="sidebar docs-sidebar">
+      <details open>
+        <summary>
+          {isBengali ? "ডকুমেন্টেশন নেভিগেশন" : "DOCUMENTATION"}
+          <span class="sidebar-toggle" aria-hidden="true">
+            +
+          </span>
+        </summary>
+        <label class="docs-search">
+          <span class="sr-only">
+            {isBengali ? "নথি খুঁজুন" : "Search documentation"}
+          </span>
+          <span aria-hidden="true">⌕</span>
+          <input
+            type="search"
+            data-doc-search
+            placeholder={isBengali ? "নথি খুঁজুন…" : "Find a guide…"}
+            autocomplete="off"
+          />
+          <kbd>/</kbd>
+        </label>
+        <nav
+          class="docs-nav"
+          aria-label={isBengali ? "নথির সূচি" : "Documentation index"}
+        >
+          {groups.map((group) => (
+            <section data-doc-group>
+              <h2>{group.label}</h2>
+              <ul>
+                {group.items.map(([label, href]) => {
+                  const target = baseUrl(href);
+                  const active =
+                    target === currentPath ||
+                    (href.endsWith("/") &&
+                      currentPath === `${target}index.html`);
+                  return (
+                    <li data-doc-item>
+                      <a
+                        href={target}
+                        aria-current={active ? "page" : undefined}
+                      >
+                        {label}
+                      </a>
+                    </li>
+                  );
+                })}
+              </ul>
+            </section>
+          ))}
+          <p class="docs-search-empty" data-doc-empty hidden>
+            {isBengali ? "কোনো নথি মেলেনি।" : "No matching guides."}
+          </p>
+        </nav>
+      </details>
+    </aside>
+
+    <main class="article docs-article" id="main">
+      <div class="crumb">
+        <a href={homePath}>{isBengali ? "হোম" : "Home"}</a>
+        <span aria-hidden="true">/</span>
+        <a href={indexPath}>{isBengali ? "নথি" : "Docs"}</a>
+        <span aria-hidden="true">/</span>
+        <span aria-current="page">{page.title}</span>
+      </div>
+      <div class="article-heading">
+        <span class="eyebrow">
+          {isBengali ? "TERNux · নথি" : "TERNUX · DOCUMENTATION"}
+        </span>
+        <h1>{page.title}</h1>
+        <p class="description">{page.description}</p>
+      </div>
+      <article set:html={page.html} />
+      <nav
+        class="article-pagination"
+        aria-label={isBengali ? "নথি সহায়তা" : "Documentation help"}
+      >
+        <a href={indexPath}>
+          <span>{isBengali ? "নথির সূচি" : "Browse all documentation"}</span>
+          <strong>
+            {isBengali ? "সব গাইড দেখুন" : "Return to the guide index"} →
+          </strong>
+        </a>
+        <a href="https://github.com/soobujmiah/ternux/issues/new/choose">
+          <span>
+            {isBengali
+              ? "সংশোধন বা নতুন প্রমাণ"
+              : "Corrections or new device evidence"}
+          </span>
+          <strong>
+            {isBengali ? "GitHub-এ জানান" : "Open a GitHub issue"} ↗
+          </strong>
+        </a>
+      </nav>
+    </main>
+
+    <aside class="toc docs-toc">
+      <b>{isBengali ? "এই পৃষ্ঠায়" : "ON THIS PAGE"}</b>
+      <nav
+        data-toc
+        aria-label={isBengali ? "এই পৃষ্ঠার শিরোনাম" : "Page headings"}
+      ></nav>
+    </aside>
+  </div>
+
+  <script>
+    const toc = document.querySelector("[data-toc]");
+    document.querySelectorAll(".article h2,.article h3").forEach((heading) => {
+      if (!heading.id || !toc) return;
+      const link = document.createElement("a");
+      link.href = `#${heading.id}`;
+      link.textContent = heading.textContent || "";
+      toc.append(link);
+    });
+
+    const search =
+      document.querySelector<HTMLInputElement>("[data-doc-search]");
+    const rows = [...document.querySelectorAll<HTMLElement>("[data-doc-item]")];
+    const groups = [
+      ...document.querySelectorAll<HTMLElement>("[data-doc-group]"),
+    ];
+    const empty = document.querySelector<HTMLElement>("[data-doc-empty]");
+    const filterGuides = () => {
+      const query = search?.value.trim().toLocaleLowerCase() || "";
+      let visible = 0;
+      rows.forEach((row) => {
+        const matches =
+          row.textContent?.toLocaleLowerCase().includes(query) ?? false;
+        row.hidden = !matches;
+        if (matches) visible += 1;
+      });
+      groups.forEach((group) => {
+        group.hidden = !group.querySelector("[data-doc-item]:not([hidden])");
+      });
+      if (empty) empty.hidden = visible !== 0;
+    };
+    search?.addEventListener("input", filterGuides);
+    document.addEventListener("keydown", (event) => {
+      if (event.key !== "/" || event.ctrlKey || event.metaKey || event.altKey)
+        return;
+      const target = event.target;
+      if (
+        target instanceof HTMLElement &&
+        target.matches("input,textarea,[contenteditable=true]")
+      )
+        return;
+      event.preventDefault();
+      search?.closest("details")?.setAttribute("open", "");
+      search?.focus();
+    });
+  </script>
+</SiteLayout>
