@@ -10,7 +10,7 @@ Notable changes to ternux. Dates are ISO 8601.
 
 ---
 
-## [2.0.1] - 2026-11-19
+## [Unreleased — v2.0.1 candidate]
 
 ### Android diagnostics
 
