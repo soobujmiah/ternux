@@ -26,6 +26,24 @@ device capacity are measured.
 | 8. Extensions | Manifest, permission grants, install/update/remove | Malicious manifest, path, signature/hash, rollback, and uninstall fixtures |
 | 9. Release | Docs/site, upgrade, stable package, support matrix | All blocking gates green on exact release commit and evidence archived |
 
+## Version milestones
+
+These are acceptance-bounded release milestones, not date promises. A milestone
+does not promote a feature or distribution automatically; promotion requires
+its own evidence and support decision. Work may overlap only after its named
+contracts and dependencies are accepted.
+
+| Milestone | Objective and implementation scope | Dependencies | Acceptance gate | Explicitly out of scope |
+|---|---|---|---|---|
+| **V3.0 — Foundation** | Accept component ownership, manager/API/state contracts, installer modularization boundaries, test layers, security threat model and remediation order, distribution qualification process, and the separate APT feasibility decision. Preserve the v2.0.1 behavior and four-profile baseline while building v3 foundations. | Published v2.0.1 baseline; phase 1 contracts; owner review for material architecture decisions. | Contracts and ADRs agree; every v3 subsystem has an owner and test gate; high-risk recovery, credential, dependency, and action-pinning findings have accepted implementation plans; APT is either deferred or has a gated prototype plan; v2 regression suite remains green. | Stable APT publication, claiming new distros, replacing existing credentials, broad installer rewrite, or declaring the v3 platform complete. |
+| **V3.1 — Platform Expansion** | Deliver the optional native manager service, guest lifecycle and state model, supervision/recovery, display allocation, and the first Control Center workflows. Evaluate and qualify candidate guest profiles one at a time. | V3.0 contracts, native-manager security review, installer and guest ownership tests. | CLI remains usable with the service stopped; manager works with zero guests; socket/API negatives pass; install/start/stop/restart/recovery/uninstall preserve unrelated guests and user data; each advertised candidate passes its complete distro matrix. | Treating a recipe as supported, requiring a guest daemon for host management, systemd/kernel-container claims, or launching all candidate distros at once. |
+| **V3.2 — Compute and Workloads** | Add the capability registry, backend/resource policy, Ternux-owned AI/workload lifecycle, on-demand Device Bridge brokers, and a permissioned Extension SDK prototype. | Stable manager contracts; V3.1 lifecycle and job model; artifact and permission schemas. | Correctness is separate from detection/performance; workload and extension artifacts verify provenance, architecture, license, and digest; permission grant/deny/revoke and cancellation paths pass; device integrations are qualified on named hardware; rollback and data-preservation fixtures pass. | Unbounded host access, background camera/microphone use, treating app labels as accelerator execution, or integrating unrelated products/repositories. |
+| **V3.3 — Ecosystem Maturity** | Complete developer APIs, automation, extension lifecycle and documentation, broader device qualification, security remediation, and the release/support process. Target eight fully qualified distributions; ten remains a stretch goal. Reconsider APT only if its independent feasibility gates pass. | V3.1/V3.2 accepted contracts and implementations; security and distribution evidence; explicit owner decision for any stable APT channel. | Exact-commit CI, release artifact provenance, upgrade/rollback/uninstall, support ownership, bilingual docs, and reference-device evidence pass; each supported distribution meets the full qualification matrix. APT is supported only if every gate in the feasibility study is satisfied. | Fixed delivery dates, promising ten distributions, lowering qualification thresholds, or publishing an unqualified extension/backend/package channel. |
+
+The detailed phases below provide subsystem-level sequencing; this milestone
+map groups them into release-sized outcomes. The active milestone is V3.0
+foundation work. V3.1–V3.3 remain planned and their gates are not yet complete.
+
 ## Change discipline
 
 Each vertical slice updates source, focused tests, CLI help, README/site entry
