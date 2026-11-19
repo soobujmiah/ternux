@@ -80,27 +80,22 @@ Termux foreground-এ রাখুন, অতিরিক্ত build parallelis
 পরে retry করুন। এরপরও termination হলে এবং diagnostics child-process
 restriction দেখালে আপনার Android release-এ থাকা control বিবেচনা করুন:
 
-- **Android 14+ (PC লাগে না):** Developer options-এ exposed থাকলে
-  **Disable child process restrictions** চালু করে reboot।
-- **Android 12L/13 (PC বা root):**
-  ```bash
-  adb shell settings put global settings_enable_monitor_phantom_procs false
-  ```
+- **Android 14+ (PC লাগে না):** About phone → *Build number* ৭ বার চাপুন →
+  Developer options-এ **Disable child process restrictions** থাকলে চালু করুন;
+  Android reboot চাইলে reboot দিন।
+- **ADB shell বা Shizuku:** native Termux ADB, Shizuku `rish`, computer-এর USB/
+  wireless ADB, সংস্করণভেদ, যাচাই ও rollback-এর জন্য
+  [Android phantom-process নিয়ন্ত্রণ নির্দেশিকা](ANDROID-PHANTOM-PROCESS.md)
+  দেখুন। Shizuku `rish` সরাসরি system command চালায়; এটি ADB transport তৈরি করে না।
 - **Rooted:**
   ```bash
   su -c "settings put global settings_enable_monitor_phantom_procs false"
   ```
-- **Android 12 exactly**-এ প্রয়োজন হতে পারে:
-  ```bash
-  adb shell "/system/bin/device_config set_sync_disabled_for_tests persistent"
-  adb shell "/system/bin/device_config put activity_manager max_phantom_processes 2147483647"
-  ```
-
 এই advanced control OEM block/rename করতে পারে এবং runaway background work-এর
-বিরুদ্ধে system-wide protection বদলায়। original value লিখে রাখুন, OS যে
-control expose করে শুধু সেটিই বদলান, reboot করুন, instability বা অস্বাভাবিক
-battery drain হলে reverse করুন। `ternux doctor` readable setting report করে;
-সব OEM process killer আলাদা করতে পারে না।
+বিরুদ্ধে system-wide protection বদলায়। Persistent DeviceConfig sync mode অন্য
+DeviceConfig setting-ও প্রভাবিত করে; আগের mode লিখে রেখে restore করুন।
+নির্দেশিকার read-before-write, verification ও rollback ধাপ অনুসরণ করুন।
+`ternux doctor` readable setting report করে; সব OEM process killer আলাদা করতে পারে না।
 
 ---
 

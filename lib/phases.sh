@@ -520,6 +520,14 @@ tnx_phase_debian() {
     FAMILY='$package_family'
     BWRAP_SHIM_B64='$proot_bwrap_b64'
     export DEBIAN_FRONTEND=noninteractive
+    APT_ADDRESS_OPTION=\"\"
+    if [ ! -s /proc/net/if_inet6 ] || ! awk '
+      \$1 == \"00000000000000000000000000000000\" && \$2 == \"00\" { found=1 }
+      END { exit !found }
+    ' /proc/net/ipv6_route 2>/dev/null; then
+      APT_ADDRESS_OPTION=\"-o Acquire::ForceIPv4=true\"
+      echo \"[INFO] No IPv6 default route in this guest; using IPv4 for APT.\"
+    fi
     install_proot_bwrap_shim() {
       install -d -m 0755 /usr/local/bin
       printf '%s' "\$BWRAP_SHIM_B64" | base64 -d > /usr/local/bin/.ternux-bwrap.new
@@ -528,7 +536,7 @@ tnx_phase_debian() {
     }
     refresh_repo_metadata() {
       case "\$FAMILY" in
-        apt) apt-get update -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 ;;
+        apt) apt-get update -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 \$APT_ADDRESS_OPTION ;;
         apk) apk update ;;
         pacman) pacman -Syy --noconfirm ;;
         dnf) dnf makecache --refresh ;;
@@ -549,22 +557,24 @@ tnx_phase_debian() {
     }
     DPKG_FORCE=\"-o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -o APT::Color=1 -o Dpkg::Progress-Fancy=1 -o Acquire::Retries=3\"
       timeout() {
-        local has_apt=0 is_update=0 arg
+        local has_apt=0 is_update=0 arg retry_option=\"-o Acquire::ForceIPv4=true\"
         for arg in "\$@"; do
           if [ "\$arg" = apt ]; then has_apt=1; fi
           if [ "\$arg" = update ]; then is_update=1; fi
         done
         if [ "\$has_apt" -ne 1 ] || [ "\$FAMILY" != apt ]; then command timeout "\$@"; return; fi
-        command timeout "\$@" && return 0
-        echo 'APT operation failed; refreshing the distro-configured repositories before retrying.'
+        case \"\$APT_ADDRESS_OPTION\" in *ForceIPv4*) retry_option=\"-o Acquire::ForceIPv6=true\" ;; esac
+        command timeout "\$@" \$APT_ADDRESS_OPTION && return 0
+        echo 'APT operation failed; retrying with the alternate IP family.'
         if [ "\$is_update" -ne 1 ]; then
-          command timeout --signal=TERM --kill-after=10 300 apt update -o APT::Color=1 -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 || return 1
+          command timeout --signal=TERM --kill-after=10 300 apt update -o APT::Color=1 -o Acquire::Retries=1 -o Acquire::http::Timeout=15 -o Acquire::https::Timeout=15 \$retry_option || return 1
         fi
-        command timeout "\$@"
+        if command timeout \"\$@\" \$retry_option; then APT_ADDRESS_OPTION=\"\$retry_option\"; return 0; fi
+        return 1
       }
     case \"\$FAMILY\" in
       apt)
-        timeout --signal=TERM --kill-after=10 300 apt update -o APT::Color=1 -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30
+        timeout --signal=TERM --kill-after=10 300 apt update -o APT::Color=1 -o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 \$APT_ADDRESS_OPTION
         dpkg --configure -a --force-confold --force-confdef || true
         install_proot_bwrap_shim
         if [ '$(tnx_distro)' = ubuntu ]; then
@@ -647,11 +657,9 @@ tnx_phase_debian() {
     fi
     cp -a "\$asset_stage/themes/Ternux/." /usr/share/themes/Ternux/
     install -m 0755 "\$asset_stage/bin/ternux-open-url" /usr/local/bin/ternux-open-url
-    if [ "\$FAMILY" = apt ]; then
-      install -m 0755 "\$asset_stage/bin/ternux-app-center" /usr/local/bin/ternux-app-center
-    else
-      rm -f /usr/local/bin/ternux-app-center
-    fi
+    install -m 0755 "\$asset_stage/bin/ternux-package-manager" /usr/local/bin/ternux-package-manager
+    rm -f /usr/local/bin/ternux-app-center
+    printf '%s\n' "\$FAMILY" > /etc/ternux-package-manager
     install -m 0755 "\$asset_stage/bin/evolution" /usr/local/bin/evolution
     install -m 0755 "\$asset_stage/bin/ternux-install-celestia" /usr/local/bin/ternux-install-celestia
     install -d -m 0755 /usr/local/share/applications
@@ -659,10 +667,26 @@ tnx_phase_debian() {
       sed 's#^Exec=evolution#Exec=/usr/local/bin/evolution#' /usr/share/applications/org.gnome.Evolution.desktop > /usr/local/share/applications/org.gnome.Evolution.desktop
       chmod 0644 /usr/local/share/applications/org.gnome.Evolution.desktop
     fi
-    if [ "\$FAMILY" = apt ]; then
-      install -m 0644 "\$asset_stage/applications/synaptic.desktop" /usr/local/share/applications/synaptic.desktop
-    else
-      rm -f /usr/local/share/applications/ternux-app-center.desktop /usr/local/share/applications/synaptic.desktop
+    case "\$FAMILY" in
+      apt) package_manager_name='Synaptic Package Manager'; package_manager_desktop=ternux-synaptic.desktop; package_manager_icon=synaptic ;;
+      apk) package_manager_name='APK'; package_manager_desktop=apk.desktop; package_manager_icon=system-software-install ;;
+      pacman) package_manager_name='Pacman'; package_manager_desktop=pacman.desktop; package_manager_icon=system-software-install ;;
+      dnf) package_manager_name='DNF'; package_manager_desktop=dnf.desktop; package_manager_icon=system-software-install ;;
+      zypper) package_manager_name='Zypper'; package_manager_desktop=zypper.desktop; package_manager_icon=system-software-install ;;
+      xbps) package_manager_name='XBPS'; package_manager_desktop=xbps.desktop; package_manager_icon=system-software-install ;;
+    esac
+    awk -v name="\$package_manager_name" -v icon="\$package_manager_icon" '
+      /^Name=/ { print "Name=" name; next }
+      substr(\$0, 1, 8) == "Name[bn]" { print "Name[bn]=" name; next }
+      /^Icon=/ { print "Icon=" icon; next }
+      { print }
+    ' "\$asset_stage/applications/ternux-package-manager.desktop" > "/usr/local/share/applications/\$package_manager_desktop"
+    chmod 0644 "/usr/local/share/applications/\$package_manager_desktop"
+    rm -f /usr/local/share/applications/ternux-package-manager.desktop /usr/local/share/applications/ternux-app-center.desktop
+    if [ "\$FAMILY" != apt ]; then rm -f /usr/local/share/applications/synaptic.desktop; fi
+    if [ "\$FAMILY" = apt ] && [ -f /usr/share/applications/synaptic.desktop ]; then
+      { sed '/^NoDisplay=/d' /usr/share/applications/synaptic.desktop; printf '\nNoDisplay=true\n'; } > /usr/local/share/applications/synaptic.desktop
+      chmod 0644 /usr/local/share/applications/synaptic.desktop
     fi
     install -m 0644 "\$asset_stage/applications/ternux-sdcard.desktop" /usr/share/applications/ternux-sdcard.desktop
     install -m 0644 "\$asset_stage/applications/ternux-flashlight.desktop" /usr/share/applications/ternux-flashlight.desktop
@@ -1459,10 +1483,23 @@ _tnx_configure_pulse_bridge() {
 }
 
 tnx_termux_api_app_installed() {
-  local android_cmd
+  local android_cmd pm_cmd app_path
   android_cmd="$(command -v cmd 2>/dev/null || true)"
-  [ -n "$android_cmd" ] && tnx_has_cmd timeout || return 1
-  timeout 3 "$android_cmd" package path com.termux.api 2>/dev/null | grep -q '^package:'
+  pm_cmd="$(command -v pm 2>/dev/null || true)"
+  tnx_has_cmd timeout || return 1
+
+  # Android's `cmd package path` may be unavailable or fail transiently while
+  # package services are busy. Termux also provides `pm path`; try it before
+  # concluding that the companion app cannot be detected.
+  if [ -n "$android_cmd" ]; then
+    app_path="$(timeout 3 "$android_cmd" package path com.termux.api 2>/dev/null || true)"
+    [[ "$app_path" == package:* ]] && return 0
+  fi
+  if [ -n "$pm_cmd" ]; then
+    app_path="$(timeout 3 "$pm_cmd" path com.termux.api 2>/dev/null || true)"
+    [[ "$app_path" == package:* ]] && return 0
+  fi
+  return 1
 }
 
 tnx_request_microphone_permission() {
@@ -1472,7 +1509,7 @@ tnx_request_microphone_permission() {
   _TNX_MIC_PERMISSION_RESULT=unavailable
 
   if ! tnx_termux_api_app_installed; then
-    tnx_info "Termux:API companion app is not installed; skipping its optional microphone permission probe. Desktop live microphone access uses Termux's built-in audio bridge and requests Termux permission when first used."
+    tnx_info "Termux:API companion app could not be detected; skipping its optional microphone permission probe. Verify the companion app and Termux API package if microphone capture is needed. Desktop audio remains available through the PulseAudio bridge."
     return 0
   fi
   if ! tnx_has_cmd "$recorder"; then
@@ -1559,7 +1596,7 @@ tnx_request_camera_permission() {
   _TNX_CAMERA_PERMISSION_RESULT=unavailable
 
   if ! tnx_termux_api_app_installed; then
-    tnx_info "Termux:API companion app is not installed; skipping the camera permission prompt. Use Android Camera and open /sdcard/DCIM/Camera in Thunar, or install Termux:API for Ternux Camera."
+    tnx_info "Termux:API companion app could not be detected; skipping the camera permission prompt. Verify the companion app and Termux API package before using Ternux Camera."
     return 0
   fi
   # Camera permission can only be requested by Termux:API while opening the
@@ -2500,13 +2537,21 @@ tnx_run_pinned_optional_installer() {
 tnx_phase_extras() {
   local user_name="${1:-ternux}"; shift
   local rc=0 opt selected node_selected=0 go_version="" cores jobs htp_selected=0 adt_selected=0 celestia_selected=0
-  local -a apt_packages=() unique_packages=() install_opts=()
+  local -a apt_packages=() apk_packages=() unique_packages=() install_opts=()
   local APT="sudo apt update -o APT::Color=1 && sudo DEBIAN_FRONTEND=noninteractive apt install -y -o APT::Color=1 -o Dpkg::Progress-Fancy=1"
 
   tnx_distro_profile || { tnx_warn "No package recipe for guest '$(tnx_distro)'."; return 2; }
   if [ "$TNX_DP_FAMILY" != apt ] && [ "$#" -gt 0 ]; then
-    tnx_warn "Optional workload recipes currently require an APT guest; '$TNX_DP_FAMILY' desktop base remains usable."
-    return 2
+    if [ "$TNX_DP_FAMILY" != apk ]; then
+      tnx_warn "Optional workload recipes currently support APT guests and the Blender/ADT set on APK guests; '$TNX_DP_FAMILY' desktop base remains usable."
+      return 2
+    fi
+    for opt in "$@"; do
+      case "$opt" in
+        blender) ;;
+        *) tnx_warn "Optional workload '$opt' currently needs an APT guest; Alpine supports Blender only."; return 2 ;;
+      esac
+    done
   fi
 
   # Resolve individual software choices and install apt packages in one pass.
@@ -2530,7 +2575,10 @@ tnx_phase_extras() {
       jq) apt_packages+=(jq) ;;
       htop) apt_packages+=(htop) ;;
       tree) apt_packages+=(tree) ;;
-      godot) apt_packages+=(godot) ;;
+      godot)
+        if [ "$(tnx_distro)" = ubuntu ]; then apt_packages+=(godot3)
+        else apt_packages+=(godot); fi
+        ;;
       geany) apt_packages+=(geany) ;;
       neovim) apt_packages+=(neovim) ;;
       micro) apt_packages+=(micro) ;;
@@ -2538,8 +2586,16 @@ tnx_phase_extras() {
       gh) apt_packages+=(gh) ;;
       evolution) apt_packages+=(evolution gnome-online-accounts-gtk) ;;
       celestia) celestia_selected=1; apt_packages+=(python3 gnupg ca-certificates) ;;
-      adt-build-tools|adt-platform-tools|adt-ndk|adt-cmake) apt_packages+=(git curl ca-certificates) ;;
-      adt-cmdline|adt-platform) apt_packages+=(git curl ca-certificates default-jdk-headless unzip) ;;
+      # Every selected ADT component also runs the command-line-tools setup
+      # first. Preinstall its Java/unzip requirements here as guest root so
+      # ADT's own sudo fallback cannot prompt or stall in the install phase.
+      adt-build-tools|adt-platform-tools|adt-ndk|adt-cmake|adt-cmdline|adt-platform)
+        if [ "$TNX_DP_FAMILY" = apk ]; then
+          apk_packages+=(git curl ca-certificates openjdk21-jdk unzip)
+        else
+          apt_packages+=(git curl ca-certificates default-jdk-headless unzip)
+        fi
+        ;;
       llama-htp-experimental|htp-runtime)
         htp_selected=1
         apt_packages+=(libgbinder1 libglibutil1 libfastrpc1 libfastrpc-dev)
@@ -2557,12 +2613,21 @@ tnx_phase_extras() {
       libreoffice-writer) apt_packages+=(libreoffice-writer) ;;
       libreoffice-calc) apt_packages+=(libreoffice-calc) ;;
       libreoffice-draw) apt_packages+=(libreoffice-draw) ;;
-      blender) apt_packages+=(blender xvfb) ;;
+      blender)
+        if [ "$TNX_DP_FAMILY" = apk ]; then apk_packages+=(blender xvfb xvfb-run py3-numpy py3-requests)
+        else apt_packages+=(blender xvfb python3-cattr python3-requests); fi
+        ;;
     esac
   done
   for opt in "${apt_packages[@]}"; do
     case " ${unique_packages[*]} " in *" $opt "*) ;; *) unique_packages+=("$opt") ;; esac
   done
+  if [ "$TNX_DP_FAMILY" = apk ]; then
+    unique_packages=()
+    for opt in "${apk_packages[@]}"; do
+      case " ${unique_packages[*]} " in *" $opt "*) ;; *) unique_packages+=("$opt") ;; esac
+    done
+  fi
   if [ "$htp_selected" -eq 1 ]; then
     if [ "$(tnx_distro)" != debian ]; then
       tnx_warn "The experimental HTP extension dependency setup currently supports the Debian guest only."
@@ -2581,16 +2646,54 @@ tnx_phase_extras() {
       rc=1
     fi
   fi
-  if [ ${#unique_packages[@]} -gt 0 ]; then
+  if [ ${#unique_packages[@]} -gt 0 ] && [ "$TNX_DP_FAMILY" = apk ]; then
+    if ! tnx_guest_login --shared-tmp --user root -- sh -s -- "${unique_packages[@]}" <<'TNX_APK_OPTIONAL_INSTALL'
+set -u
+apk update || exit 1
+failed=0
+for package in "$@"; do
+  if ! apk add --no-cache "$package"; then
+    printf 'Ternux: optional APK package %s failed; continuing with the remaining selections.\n' "$package" >&2
+    failed=1
+  fi
+done
+exit "$failed"
+TNX_APK_OPTIONAL_INSTALL
+    then tnx_warn "One or more selected APK workloads failed; other selected packages were still attempted."; rc=1; fi
+  elif [ ${#unique_packages[@]} -gt 0 ] && [ "$TNX_DP_FAMILY" = apt ]; then
     # Resolve package availability first, then install each selected package in
     # its own transaction. A distro-specific missing package must not prevent
     # unrelated selected tools from being installed.
-    if ! tnx_guest_login --shared-tmp --user "$user_name" -- bash -s -- "${unique_packages[@]}" <<'TNX_APT_OPTIONAL_INSTALL'
+    # Package-manager operations run as guest root through the isolated
+    # PRoot login. Sending a script on stdin leaves no reliable stdin channel
+    # for sudo's password prompt, so invoking sudo here can hang/retry forever
+    # during a fresh optional-workload install.
+    if ! tnx_guest_login --shared-tmp --user root -- bash -s -- "${unique_packages[@]}" <<'TNX_APT_OPTIONAL_INSTALL'
 set -u
 export DEBIAN_FRONTEND=noninteractive
 APT_NETWORK="-o Acquire::Retries=2 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30"
-apt_run() { timeout --signal=TERM --kill-after=10 900 sudo DEBIAN_FRONTEND=noninteractive apt "$@" $APT_NETWORK; }
-timeout --signal=TERM --kill-after=10 300 sudo apt update -o APT::Color=1 $APT_NETWORK || exit 1
+APT_ADDRESS_OPTION=""
+if [ ! -s /proc/net/if_inet6 ] || ! awk '
+  $1 == "00000000000000000000000000000000" && $2 == "00" { found=1 }
+  END { exit !found }
+' /proc/net/ipv6_route 2>/dev/null; then
+  APT_ADDRESS_OPTION="-o Acquire::ForceIPv4=true"
+  echo "Ternux: no IPv6 default route; using IPv4 for APT."
+fi
+apt_with_fallback() {
+  local retry_option="-o Acquire::ForceIPv4=true" arg is_update=0
+  for arg in "$@"; do [ "$arg" = update ] && is_update=1; done
+  case "$APT_ADDRESS_OPTION" in *ForceIPv4*) retry_option="-o Acquire::ForceIPv6=true" ;; esac
+  if timeout --signal=TERM --kill-after=10 900 apt "$@" $APT_NETWORK $APT_ADDRESS_OPTION; then return 0; fi
+  echo "Ternux: APT failed; retrying with the alternate IP family."
+  if [ "$is_update" -ne 1 ]; then
+    timeout --signal=TERM --kill-after=10 300 apt update $APT_NETWORK $retry_option || return 1
+  fi
+  timeout --signal=TERM --kill-after=10 900 apt "$@" $APT_NETWORK $retry_option || return 1
+  APT_ADDRESS_OPTION="$retry_option"
+}
+apt_run() { apt_with_fallback install -y -o APT::Color=1 -o Dpkg::Progress-Fancy=1 "$@"; }
+apt_with_fallback update -o APT::Color=1 || exit 1
 failed=0
 for package in "$@"; do
   candidate="$(apt-cache policy "$package" 2>/dev/null | awk '/^[[:space:]]*Candidate:/ {print $2; exit}')"
@@ -2599,7 +2702,7 @@ for package in "$@"; do
     failed=1
     continue
   fi
-  if ! apt_run install -y -o APT::Color=1 -o Dpkg::Progress-Fancy=1 "$package"; then
+  if ! apt_run "$package"; then
     printf 'Ternux: optional package %s failed; continuing with the remaining selections.\n' "$package" >&2
     failed=1
   fi
@@ -2766,6 +2869,24 @@ TNX_APT_OPTIONAL_INSTALL
       *) tnx_warn "Unknown optional software choice '$opt'; skipping it."; rc=1 ;;
     esac
   done
+
+  if [ "$adt_selected" -eq 1 ]; then
+    if tnx_guest_login --user "$user_name" -- bash -lc '
+      set -e
+      marker="# Ternux ADT SDK environment"
+      for profile in "$HOME/.profile" "$HOME/.bashrc" "$HOME/.zshrc"; do
+        [ -e "$profile" ] || : > "$profile"
+        if ! grep -qF "$marker" "$profile"; then
+          printf "\n# Ternux ADT SDK environment\nexport ANDROID_HOME=\"\${ANDROID_HOME:-\$HOME/android-sdk}\"\nexport ANDROID_SDK_ROOT=\"\${ANDROID_SDK_ROOT:-\$ANDROID_HOME}\"\nexport PATH=\"\$ANDROID_HOME/platform-tools:\$ANDROID_HOME/cmdline-tools/latest/bin:\$PATH\"\nfor _ternux_build_tools in \"\$ANDROID_HOME\"/build-tools/*; do\n  [ -d \"\$_ternux_build_tools\" ] && PATH=\"\$_ternux_build_tools:\$PATH\"\ndone\nunset _ternux_build_tools\n" >> "$profile"
+        fi
+      done
+    '; then
+      tnx_ok "ADT SDK environment configured for future guest shells"
+    else
+      tnx_warn "ADT SDK tools were installed, but guest shell PATH setup failed."
+      rc=1
+    fi
+  fi
 
   # The legacy llama workload compiles from the pinned upstream revision.
   if [[ " $* " == *" llm "* ]]; then
@@ -2962,7 +3083,7 @@ tnx_phase_cli() {
     }
     tnx_info "Downloading pinned ternux CLI source bundle ($source_commit)..."
     if ! tnx_download \
-      "https://codeload.github.com/soobujmiah/ternux/tar.gz/${source_commit:0:7}" \
+      "https://codeload.github.com/soobujmiah/ternux/tar.gz/${source_commit}" \
       "$archive"; then
       tnx_fail "CLI source bundle download failed after retries."
       rm -rf "$cleanup_dir"
@@ -3334,6 +3455,16 @@ tnx_prompt_distro() {
             next=""
             if IFS= read -r -s -n 1 -t 0.18 -u 3 next; then
               if [[ "$next" =~ ^[0-9]$ ]]; then number+="$next"
+              elif [[ "$next" == ' ' || "$next" == $'\t' ]]; then
+                # Number-list separators are delimiters, not the checklist's
+                # Space-to-toggle key. Consume repeated whitespace and replay
+                # only the next non-separator key (often the next item number).
+                while IFS= read -r -s -n 1 -t 0.18 -u 3 next; do
+                  [[ "$next" == ' ' || "$next" == $'\t' ]] && continue
+                  pending_key="$next"
+                  break
+                done
+                break
               else pending_key="${next:-$'\r'}"; break
               fi
             else break
@@ -3663,10 +3794,21 @@ _tnx_checklist_toggle() {
 # Enter. When no controlling TTY exists, retain a simple number-list fallback.
 tnx_prompt_workloads() {
   local backend="${1:-virgl}" tty_fd="" input="" cursor=0 key seq idx number next pending_key=""
+  local result=""
+  local -a original_items=() original_groups=() original_labels=()
   _TNX_SELECTED_ITEMS=()
   if { exec 3<>/dev/tty; } 2>/dev/null; then tty_fd=3
   elif [ -t 0 ]; then tty_fd=0
   else printf '\n'; return 0; fi
+
+  if [ "${TNX_DP_FAMILY:-}" = apk ]; then
+    original_items=("${TNX_OPTIONAL_ITEMS[@]}")
+    original_groups=("${TNX_OPTIONAL_GROUPS[@]}")
+    original_labels=("${TNX_OPTIONAL_LABELS[@]}")
+    TNX_OPTIONAL_ITEMS=(blender)
+    TNX_OPTIONAL_GROUPS=(3D)
+    TNX_OPTIONAL_LABELS=("Blender")
+  fi
 
   if [ "$tty_fd" = 3 ] && [ -t 3 ]; then
   local old_stty menu_size read_status size
@@ -3704,6 +3846,16 @@ tnx_prompt_workloads() {
             next=""
             if IFS= read -r -s -n 1 -t 0.18 -u 3 next; then
               if [[ "$next" =~ ^[0-9]$ ]]; then number+="$next"
+              elif [[ "$next" == ' ' || "$next" == $'\t' ]]; then
+                # Number-list separators are delimiters, not the checklist's
+                # Space-to-toggle key. Consume repeated whitespace and replay
+                # only the next non-separator key (often the next item number).
+                while IFS= read -r -s -n 1 -t 0.18 -u 3 next; do
+                  [[ "$next" == ' ' || "$next" == $'\t' ]] && continue
+                  pending_key="$next"
+                  break
+                done
+                break
               else pending_key="${next:-$'\r'}"; break
               fi
             else break
@@ -3737,8 +3889,12 @@ tnx_prompt_workloads() {
     done
   fi
   [ "$tty_fd" = 3 ] && exec 3>&-
-  local result=""
   for key in "${_TNX_SELECTED_ITEMS[@]}"; do result+="${result:+,}$key"; done
+  if [ ${#original_items[@]} -gt 0 ]; then
+    TNX_OPTIONAL_ITEMS=("${original_items[@]}")
+    TNX_OPTIONAL_GROUPS=("${original_groups[@]}")
+    TNX_OPTIONAL_LABELS=("${original_labels[@]}")
+  fi
   printf '%s\n' "$result"
 }
 
@@ -3793,6 +3949,12 @@ tnx_install_single() {
       --with-network) extras+=("network") ;;
       --with-media) extras+=("media") ;;
       --with-blender) extras+=("blender") ;;
+      --with-adt-build-tools) extras+=("adt-build-tools") ;;
+      --with-adt-platform-tools) extras+=("adt-platform-tools") ;;
+      --with-adt-ndk) extras+=("adt-ndk") ;;
+      --with-adt-cmake) extras+=("adt-cmake") ;;
+      --with-adt-cmdline) extras+=("adt-cmdline") ;;
+      --with-adt-platform) extras+=("adt-platform") ;;
       --all) extras+=("dev" "llm" "network" "media" "blender"); full=1 ;;
       --resume) resume=1 ;;
       --ui)
@@ -3897,8 +4059,17 @@ tnx_install_single() {
     return 2
   }
   if [ "$TNX_DP_FAMILY" != apt ] && [ "${#extras[@]}" -gt 0 ]; then
-    tnx_fail "Optional software workloads currently require an APT guest; '$distro_choice' supports the family-matched base desktop only."
-    return 2
+    if [ "$TNX_DP_FAMILY" != apk ]; then
+      tnx_fail "Optional workloads currently support APT guests and Blender on APK guests; '$distro_choice' supports the base desktop only."
+      return 2
+    fi
+    local requested_workload
+    for requested_workload in "${extras[@]}"; do
+      case "$requested_workload" in
+        blender) ;;
+        *) tnx_fail "Alpine currently supports Blender optional workload only; '$requested_workload' needs an APT guest."; return 2 ;;
+      esac
+    done
   fi
   # tnx_distro caches its answer, so clear it before changing the environment.
   unset _TNX_DISTRO
@@ -3918,7 +4089,7 @@ tnx_install_single() {
 
 
   if [ "$resume" -eq 0 ] && [ "$yes" -eq 0 ] && [ "$workloads_explicit" -eq 0 ] && [ "${#extras[@]}" -eq 0 ]; then
-    if [ "$TNX_DP_FAMILY" = apt ]; then
+    if [ "$TNX_DP_FAMILY" = apt ] || [ "$TNX_DP_FAMILY" = apk ]; then
       local workload_selection=""
       workload_selection="$(tnx_prompt_workloads "$backend")"
       if [ -n "$workload_selection" ]; then
@@ -3926,7 +4097,7 @@ tnx_install_single() {
         [ "$workload_selection" = "dev,llm,network,media,blender" ] && full=1
       fi
     else
-      tnx_info "Optional workload installer is currently available for APT-family guests only."
+      tnx_info "Optional workload installer currently supports APT guests and Blender on Alpine."
     fi
   fi
 
@@ -4243,7 +4414,16 @@ tnx_install() {
   if [ "$has_optional" -eq 1 ]; then
     for distro in "${normalized[@]}"; do
       tnx_distro_profile "$distro"
-      [ "$TNX_DP_FAMILY" = apt ] || { tnx_fail "Optional workloads currently require an APT-family guest; '$distro' supports the base desktop profile."; return 2; }
+      if [ "$TNX_DP_FAMILY" != apt ]; then
+        [ "$TNX_DP_FAMILY" = apk ] || { tnx_fail "Optional workloads currently support APT guests and Blender on Alpine; '$distro' supports the base desktop profile."; return 2; }
+        for forwarded_arg in "${forwarded[@]}"; do
+          case "$forwarded_arg" in
+            --with-blender) ;;
+            --all) tnx_fail "--all is not available for Alpine; select Blender explicitly."; return 2 ;;
+            --with-*) tnx_fail "$forwarded_arg is not currently supported on Alpine; select Blender."; return 2 ;;
+          esac
+        done
+      fi
     done
   fi
   # Collect the shared Termux shell and every guest username before the first
@@ -4292,7 +4472,7 @@ tnx_install() {
     elif [ "$status" = incomplete ] || [ "$status" = installing ]; then
       saved_user="$(tnx_state_get install_extras 2>/dev/null || true)"
       batch_workloads+=("${saved_user:-none}")
-    elif [ "$wants_yes" -eq 1 ] || [ "$TNX_DP_FAMILY" != apt ]; then
+    elif [ "$wants_yes" -eq 1 ] || { [ "$TNX_DP_FAMILY" != apt ] && [ "$TNX_DP_FAMILY" != apk ]; }; then
       batch_workloads+=(none)
     else
       tnx_info "Choose optional workloads for $distro before installation starts."
@@ -4325,8 +4505,8 @@ tnx_install() {
     fi
   else
     [ -n "${TERNUX_USER_PASSWORD:-}" ] || { tnx_fail "Set TERNUX_USER_PASSWORD before using --yes; it will be used for each selected guest's sudo and root accounts."; return 2; }
+    [ -n "${TERNUX_STARTUP_PASSWORD:-}" ] || { tnx_fail "Set TERNUX_STARTUP_PASSWORD before using --yes; it will be shared by the selected guests."; return 2; }
     for distro in "${normalized[@]}"; do batch_passwords+=("$TERNUX_USER_PASSWORD"); done
-    TERNUX_STARTUP_PASSWORD=""
   fi
 
   for forwarded_index in "${!normalized[@]}"; do

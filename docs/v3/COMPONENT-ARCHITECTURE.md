@@ -19,7 +19,7 @@ areas unusable.
 | Workspace adapter | Host plus guest | Guest profile, shell, desktop, scoped mounts | Distro package manager | Host CLI installation |
 | Compute service | Host metadata + guest runtime | Capability and backend selection | Mesa/Turnip/runtime packs | Claims based on device-name heuristics |
 | Workload manager | Termux host | Pack manifest, download, verify, install, remove | Artifact store, compute service | User model store unless selected |
-| AI adapter | Host client + AI runtime | LAI discovery and job submission | Versioned LAI API | Forking LAI or duplicating its registry |
+| AI workload runtime | Termux host + selected guest/runtime | Ternux-owned workloads, model metadata, and job lifecycle | Ternux workload manifests and verified artifacts | Unrelated product APIs, private stores, or services |
 | Device Bridge | Termux host | Permission-aware API calls and file handoff | Termux:API | Persistent capture without an active request |
 | Diagnostics | Termux host | Structured checks and safe repair plans | Component health APIs | Unscoped cleanup or automatic guest deletion |
 
@@ -37,7 +37,7 @@ CLI ───────┐
 Control UI ┘        ├──────── Compute service ── runtime adapters
                     ├──────── Workload manager ── verified artifacts
                     ├──────── Device Bridge ───── Termux:API
-                    └──────── AI adapter ─────── LAI API
+                    └──────── AI workload runtime ── verified Ternux artifacts
 ```
 
 ## Cross-component contracts

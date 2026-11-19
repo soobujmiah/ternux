@@ -1,6 +1,6 @@
 ---
 title: "Ternux release status"
-description: "Withdrawn v2.0.0 history and local v2.0.1 candidate status."
+description: "Withdrawn v2.0.0 history and unpublished v2.0.1 candidate status."
 lang: "en"
 alt_url: "/bn/docs/project/RELEASE-STATUS.html"
 ---
@@ -10,16 +10,15 @@ alt_url: "/bn/docs/project/RELEASE-STATUS.html"
 - **Latest published numbered release:** v1.4.0. Its GitHub release is
   published, and the tag points to
   `3e6c07e2afcb5f1e65ecd57af19b0382a948835a`. The release has no attached
-  binary assets; its exact source-archive install guide is now prepared locally
-  and verified against the tagged archive. The public release page has not been
-  edited.
+  binary assets; its exact source-archive install guide is linked from the
+  public release page and was verified against the tagged archive.
 - **v2.0.0:** source tag remains at
   `9106b04fc8627ae98b1d63c9912a28c8a4677441`; its GitHub Release object was
   removed on 2026-11-14 and stable APT was withdrawn. Do not move or reuse the
   tag or represent either distribution as active.
-- **v2.0.1:** unused version candidate based on current `main`. The working
-  tree is being reviewed locally; there is no published tag, release commit,
-  package artifact, checksum, or release page for it yet.
+- **v2.0.1:** unused version candidate with reviewed source on current `main`
+  at `1f8ffabaab7fe982f5bfc91759b14b921e6ebd8f`. There is no published tag,
+  release archive, checksum manifest, or GitHub release page for it yet.
 - **Stable APT:** withdrawn and not a v2.0.1 install method. APT return is a
   separate future v3 feasibility decision.
 - **v2 verified desktop baseline:** Debian, Ubuntu, Kali Linux, and Alpine as

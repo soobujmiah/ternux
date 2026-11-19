@@ -82,26 +82,22 @@ restrictions, use the control available on your Android release:
 
 - **Android 14+ (no PC needed):**
   Settings → About phone → tap *Build number* 7× → Developer options →
-  enable **"Disable child process restrictions"** → reboot.
-- **Android 12L/13 (needs a PC or root):**
-  ```bash
-  adb shell settings put global settings_enable_monitor_phantom_procs false
-  ```
+  enable **"Disable child process restrictions"** if the OS exposes it, then
+  follow any reboot prompt.
+- **ADB shell or Shizuku:** use the [Android phantom-process controls guide](ANDROID-PHANTOM-PROCESS.md)
+  for native Termux ADB, Shizuku `rish`, computer USB/wireless ADB, exact
+  version caveats, verification, and rollback. Shizuku's `rish` shell runs the
+  system command directly; it does not create an ADB transport.
 - **Rooted:**
   ```bash
   su -c "settings put global settings_enable_monitor_phantom_procs false"
   ```
-- **Android 12 exactly** also needs:
-  ```bash
-  adb shell "/system/bin/device_config set_sync_disabled_for_tests persistent"
-  adb shell "/system/bin/device_config put activity_manager max_phantom_processes 2147483647"
-  ```
-
 These controls are advanced, may be renamed/blocked by an OEM, and change a
-system-wide protection against runaway background work. Record the original
-setting, change only what your OS exposes, reboot, and reverse the change if it
-causes instability or abnormal battery drain. `ternux doctor` reports the
-settings it can read, but it cannot distinguish every OEM process killer.
+system-wide protection against runaway background work. Persistent DeviceConfig
+sync mode also affects unrelated DeviceConfig settings; record and restore the
+previous mode. Follow the guide's read-before-write, verification, and rollback
+steps. `ternux doctor` reports the settings it can read, but it cannot
+distinguish every OEM process killer.
 
 ---
 

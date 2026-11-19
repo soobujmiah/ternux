@@ -12,9 +12,11 @@ and stable APT withdrawn on 2026-11-14. The owner revoked the 2026-11-14 scope
 change that moved former v3 features into v2: v2 is frozen to the existing
 implementation, and new architecture/capabilities remain v3 work.
 
-The next unused candidate is **v2.0.1**. It is being prepared locally from
-current `main` and is **not published**. There is no approved release commit,
-tag, generated artifact, checksum, or GitHub Release page for this candidate.
+The next unused candidate is **v2.0.1**. Its reviewed source changes are merged
+to `main` at `1f8ffabaab7fe982f5bfc91759b14b921e6ebd8f`, but it is **not
+published**. No v2.0.1 tag, release archive, checksum manifest, or GitHub
+Release page exists yet. See the [release audit reconciliation](release/V2-RELEASE-RECONCILIATION.md)
+for the evidence and remaining gates.
 The stable APT channel remains withdrawn and is not a v2 release requirement.
 The owner-confirmed v2 verified desktop baseline is Debian, Ubuntu, Kali Linux,
 and Alpine; evidence depth differs by distro. The clean-container Firefox CI
@@ -23,13 +25,13 @@ matrix currently covers Debian, Ubuntu, and Alpine. See the
 
 ## Local v2.0.1 candidate checks — 2026-11-18
 
-- `python3 tests/window_fit_geometry.py`: 12 geometry/state cases passed.
+- `python3 tests/window_fit_geometry.py`: 13 geometry/state cases passed.
 - `bash tests/focused.sh`: 211 passed, 0 failed.
 - `bash tests/update_transaction.sh`: passed the pinned update, 2.0.0→2.0.1
   upgrade, 1.4.0→2.0.1 migration fixture, rollback, interrupted-update
   recovery, concurrency, and symlink-safety checks.
 - Astro build: 90 static pages built; finalizer reported 56 HTML routes.
-- `python3 tests/docs_check.py`: 6,518 assertions, 616 internal links, and 24
+- `python3 tests/docs_check.py`: 6,518 assertions, 621 internal links, and 24
   bilingual page pairs passed. `npm run format:check` passed after formatting
   both modified landing pages.
 - An earlier live X11 check used `xdotool windowsize`, so it did not exercise a
@@ -137,12 +139,12 @@ rule it out. This correction is local and is not yet part of main or a
 published v2 artifact.
 
 The standalone installer and CLI fallback now pin this corrected source to
-commit `555ce1374957cf35b7a7afa17bbb720b4529d64a`, with short-SHA source
+commit `024fd260ac11e5b93786c5ecfcb7e5b045fc7b3e`, with full-commit source
 archive SHA-256
-`b52347389d70314e2b9118528bab3a19cb982b839d3f4627b2d0a66a5493ce83`.
+`0fe66a54a0071f1539c638b25756f644e348ffc17d85e74f038601d34668392a`.
 `tests/bootstrap_source_sync.sh` passes using that exact archive. After pushing
 the snapshot, the installer's short-SHA GitHub codeload URL returned the same
-SHA-256 and the expected `ternux-555ce13/` archive root.
+SHA-256 and the expected `ternux-024fd260ac11e5b93786c5ecfcb7e5b045fc7b3e/` archive root.
 
 A reversible live comparison paused the helper while opening and moving a
 separate Xmessage window and resizing it to 360x220. With the helper running
@@ -261,3 +263,98 @@ removed and its signed stable APT paths were withdrawn on 2026-11-14; only the
 opt-in RC channel remains public. The 2026-11-14 scope change was revoked on
 2026-11-18: the former v3 platform scope remains future v3 work. See the current
 [project roadmap](project/PROJECT-ROADMAP.md).
+
+## Candidate follow-up — 2026-11-19
+
+- The live v1.4.0 release page now links its dedicated guide; the guide's
+  installer/version commands were checked against the immutable tag and its
+  codeload archive. v2.0.1 still has no tag, Release page, archive, or checksum.
+- Fresh Ubuntu Resolute, Kali rolling, and Alpine v3.24 installs reached READY;
+  each played an owner-confirmed two-second audio test tone through the shared
+  PulseAudio route. The installed Termux:API companion and client package were
+  confirmed. A local detector fallback fixes the prior false-negative report;
+  mic/camera permission and capture remain untested.
+- `bash tests/focused.sh`: 212/212. `python3 tests/docs_check.py`: 6,638
+  assertions, 632 internal links, 24 bilingual pairs. Bash syntax and
+  `git diff --check` pass. `tests/bootstrap_source_sync.sh` fails against the
+  old pinned snapshot because the local bootstrap URL/digest correction is not
+  in that immutable source; refresh only after exact source approval.
+- Current PR #298 has a failing shell/documentation job due to trailing spaces
+  on four reconciliation header lines; those lines are trimmed in the local
+  working tree. Hosted checks must rerun after an approved repository update.
+- The LAI-adapter ADR is now rejected history, not planned integration. Current
+  Ternux v3 design confines AI workloads and integrations to Ternux-owned scope.
+
+## Final local pre-release verification — 2026-11-19
+
+- After the authorized `tx uninstall all --yes`, Debian, Ubuntu, Kali, and
+  Alpine were installed from the local checkout on the reference Termux device.
+  Ubuntu was removed and reinstalled once more for a clean first-run optional
+  workload check: `jq` was selected in the initial interactive menu, appeared
+  in the confirmation plan, and installed as `jq 1.8.1-4ubuntu2` during that
+  same install run. No resume or later manual package install was used for this
+  final pass.
+- The first Ubuntu attempt exposed an optional APT phase that ran through the
+  regular guest user's `sudo` while consuming a setup script on stdin; it could
+  loop on a sudo password prompt. The local fix runs optional APT work as the
+  guest root PRoot login. The first-run clean Ubuntu retest completed all
+  installer phases, and `jq --version` returned `jq-1.8.1`.
+- `tx verify` passed for all four guests. `tx doctor --json` reported 54 OK,
+  zero warnings, zero failures, and no issues. All four XFCE sessions reached
+  READY concurrently; bounded `xdpyinfo` round trips succeeded on displays
+  `:1` through `:4`. A stale `:4` lock whose PID had been reused by IBus was
+  reproduced; cleanup now checks the recorded PID's command line and clears an
+  orphan lock only when no matching Termux:X11 server owns that display.
+- `bash tests/focused.sh`: 215 passed, 0 failed. The optional-workload PTY
+  regression also verifies selecting `jq` from the initial menu by navigation
+  and number entry; the live clean-install run verifies that the selected
+  workload reaches the same install run's optional phase. `bash -n` and
+  `git diff --check` passed. `python3 tests/docs_check.py` passed 6,768
+  assertions, 642 internal links, and 25 bilingual page pairs;
+  `env -u LD_LIBRARY_PATH npm run format:check` passed. The live Debian Xfce
+  Terminal move/resize test
+  retained its valid user position after resizing and a five-second wait;
+  Ctrl-minus changed the terminal font from 10 to 8.33 and Ctrl-plus restored
+  10.
+- A Firefox window on a 312-pixel-wide X11 root remained 510 pixels wide because
+  the client/window manager rejected the helper's smaller size request. This
+  is a live limitation for applications whose minimum size exceeds a narrow
+  portrait display; it is not evidence of the tested terminal being recentered.
+- Low-volume test playback commands ran through each guest's PulseAudio route,
+  and all four routes report ready. Owner confirmation that the tones were
+  physically audible is pending. The installer still printed a Termux:API
+  companion detection warning even though host `cmd package path`, `pm path`,
+  and `pm list packages` subsequently confirmed `com.termux.api`; investigate
+  this discrepancy before claiming the optional camera/microphone permission
+  probes passed. Those permission/capture paths were not tested here.
+
+### Optional workload live qualification — 2026-11-19
+
+- The initial interactive selector was exercised with the exact Blender +
+  Ternux ADT Build Tools pair. The PTY regression found and fixes numeric-list
+  whitespace being misread as a Space toggle; the pair now reaches the phase as
+  exactly `blender,adt-build-tools`. The phase preinstalls the ADT JDK, curl,
+  git, and unzip requirements as guest root before running ADT command-line setup.
+- On Debian, Ubuntu Resolute, and Kali rolling, the local phase installed
+  Blender + Xvfb and the integrated ADT command-line tools/build-tools from the companion `soobujmiah/adt` repository. Live GUI smoke checks opened and closed Blender on the active Xfce display in
+  all four guests. Debian, Ubuntu, and Kali also passed Java,
+  `sdkmanager --version`, and ADT `aapt2 version`; Blender background startup
+  under `xvfb-run` passed on all four. Kali’s Blender 5.2 asset add-on initially
+  lacked `cattrs` and `requests`; the recipe now installs `python3-cattr` and
+  `python3-requests`, and the clean GUI smoke no longer logs those import errors.
+- Alpine v3.24 supports the Blender workload through APK. The recipe installs
+  Blender, Xvfb, `xvfb-run`, and NumPy; a live Blender background smoke test
+  under `xvfb-run` passed. Alpine's musl JDK fails in PRoot with “Failed to
+  mark memory page as executable”; the ADT build-tools `aapt2` requires glibc
+  symbols absent from Alpine. Testing `gcompat` did not resolve the missing
+  symbols. Therefore the Alpine selector and installer now offer Blender only
+  and reject ADT before making guest changes. The earlier compatibility probe
+  did install ADT files and Java packages into Alpine; they remain in that guest
+  for transparency and were not removed.
+- `bash tests/focused.sh`: 219 passed, 0 failed after the final Alpine selector,
+  APK recipe, ADT preflight guard, and Blender Python-module dependency edits.
+- The explicit owner request for smooth Blender + ADT installation on every
+  baseline distro is only partially met: all three APT guests pass; Alpine
+  passes Blender, while ADT is technically incompatible with the current
+  musl/PRoot runtime. This remains an owner-visible v2 qualification limitation,
+  not a successful all-distro ADT result.

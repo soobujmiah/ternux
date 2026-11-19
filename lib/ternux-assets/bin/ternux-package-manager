@@ -1,0 +1,116 @@
+#!/bin/sh
+set -u
+
+family=unknown
+if [ -r /etc/ternux-package-manager ]; then
+  IFS= read -r family < /etc/ternux-package-manager || family=unknown
+  case "$family" in apt|apk|pacman|dnf|zypper|xbps) ;; *) family=unknown ;; esac
+fi
+if [ "$family" = unknown ]; then
+  for candidate in apt apk pacman dnf zypper xbps; do
+    case "$candidate" in
+      apt) command -v apt-get >/dev/null 2>&1 && { family=apt; break; } ;;
+      apk|pacman|dnf|zypper) command -v "$candidate" >/dev/null 2>&1 && { family=$candidate; break; } ;;
+      xbps) command -v xbps-install >/dev/null 2>&1 && { family=xbps; break; } ;;
+    esac
+  done
+fi
+
+if [ "${1:-}" != --terminal ]; then
+  if [ "$family" = apt ] && command -v synaptic >/dev/null 2>&1; then
+    exec xfce4-terminal --disable-server --execute /bin/sh -lc \
+      'if sudo -v; then sudo env PATH="/usr/local/bin:/usr/local/sbin:/usr/sbin:/usr/bin:/sbin:/bin" DISPLAY="${DISPLAY:-:0}" GTK_THEME=Ternux "$(command -v synaptic)"; status=$?; else status=$?; fi
+       if [ "$status" -ne 0 ]; then printf "Synaptic could not start (exit %s). Check the sudo password and guest desktop logs.\\n" "$status"; read -r -p "Press Enter to close this terminal... " _; fi
+       exit "$status"'
+  fi
+  exec xfce4-terminal --disable-server --execute /usr/local/bin/ternux-package-manager --terminal
+fi
+
+if ! command -v "$family" >/dev/null 2>&1 && [ "$family" != xbps ]; then
+  printf 'Ternux could not identify a supported package manager in this guest.\n'
+  read -r -p 'Press Enter to close this terminal... ' _
+  exit 2
+fi
+if ! command -v sudo >/dev/null 2>&1; then
+  printf 'sudo is required for the Ternux package manager.\n'
+  read -r -p 'Press Enter to close this terminal... ' _
+  exit 2
+fi
+
+case "$family" in
+  apt) manager_label='APT' ;;
+  apk) manager_label='APK' ;;
+  pacman) manager_label='Pacman' ;;
+  dnf) manager_label='DNF' ;;
+  zypper) manager_label='Zypper' ;;
+  xbps) manager_label='XBPS' ;;
+  *) manager_label='Unknown' ;;
+esac
+
+run_pm() {
+  case "$family:$1" in
+    apt:update) sudo apt update ;;
+    apt:upgrade) sudo apt upgrade ;;
+    apt:search) apt-cache search "$2" ;;
+    apt:install) sudo apt install -y -- "$2" ;;
+    apt:remove) sudo apt remove -y -- "$2" ;;
+    apt:list) dpkg-query -W -f='${binary:Package}\n' ;;
+    apk:update) sudo apk update ;;
+    apk:upgrade) sudo apk upgrade ;;
+    apk:search) apk search -v "$2" ;;
+    apk:install) sudo apk add -- "$2" ;;
+    apk:remove) sudo apk del -- "$2" ;;
+    apk:list) apk info ;;
+    pacman:update) sudo pacman -Syy ;;
+    pacman:upgrade) sudo pacman -Syu ;;
+    pacman:search) pacman -Ss "$2" ;;
+    pacman:install) sudo pacman -S "$2" ;;
+    pacman:remove) sudo pacman -R "$2" ;;
+    pacman:list) pacman -Q ;;
+    dnf:update) sudo dnf makecache --refresh ;;
+    dnf:upgrade) sudo dnf upgrade ;;
+    dnf:search) dnf search "$2" ;;
+    dnf:install) sudo dnf install "$2" ;;
+    dnf:remove) sudo dnf remove "$2" ;;
+    dnf:list) dnf list --installed ;;
+    zypper:update) sudo zypper --non-interactive refresh ;;
+    zypper:upgrade) sudo zypper update ;;
+    zypper:search) zypper search "$2" ;;
+    zypper:install) sudo zypper install "$2" ;;
+    zypper:remove) sudo zypper remove "$2" ;;
+    zypper:list) zypper packages --installed-only ;;
+    xbps:update) sudo xbps-install -S ;;
+    xbps:upgrade) sudo xbps-install -Su ;;
+    xbps:search) xbps-query -Rs "$2" ;;
+    xbps:install) sudo xbps-install "$2" ;;
+    xbps:remove) sudo xbps-remove "$2" ;;
+    xbps:list) xbps-query -l ;;
+    *) return 2 ;;
+  esac
+}
+
+while :; do
+  printf '\n%s package manager\n' "$manager_label"
+  printf '1) Refresh repositories\n2) Upgrade installed packages\n3) Search\n4) Install package\n5) Remove package\n6) List installed packages\n0) Exit\n'
+  printf 'Choose: '
+  IFS= read -r choice || exit 0
+  case "$choice" in
+    0) exit 0 ;;
+    1) action=update; value= ;;
+    2) action=upgrade; value= ;;
+    3|4|5)
+      case "$choice" in 3) action=search ;; 4) action=install ;; 5) action=remove ;; esac
+      printf 'Package name or search term: '
+      IFS= read -r value || exit 0
+      if [ -z "$value" ]; then printf 'A value is required.\n'; continue; fi
+      case "$action" in
+        install|remove)
+          case "$value" in *[!a-zA-Z0-9+_.:@/-]*|--*) printf 'Use one package name containing only letters, digits, + _ . : @ / or -.\n'; continue ;; esac
+          ;;
+      esac
+      ;;
+    6) action=list; value= ;;
+    *) printf 'Choose one of the listed numbers.\n'; continue ;;
+  esac
+  run_pm "$action" "$value" || printf '\nPackage operation failed (exit %s). Review the output above.\n' "$?"
+done

@@ -23,7 +23,7 @@ if [[ -n "${TERNUX_SOURCE_ARCHIVE_OVERRIDE:-}" ]]; then
   cp "$TERNUX_SOURCE_ARCHIVE_OVERRIDE" "$archive"
 else
   curl -fsSL --retry 2 --connect-timeout 15 \
-    "https://codeload.github.com/soobujmiah/ternux/tar.gz/${bootstrap_commit:0:7}" \
+    "https://codeload.github.com/soobujmiah/ternux/tar.gz/${bootstrap_commit}" \
     -o "$archive"
 fi
 printf '%s  %s\n' "$bootstrap_sha" "$archive" | sha256sum --check --status || {

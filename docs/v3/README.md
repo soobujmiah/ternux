@@ -40,8 +40,9 @@ boundary and acceptance criteria are documented. `IMPLEMENTING` means code is
 under active change. `IMPLEMENTED` means code exists but its acceptance checks
 are not complete. `VERIFIED` means the stated checks passed in the stated
 environment. `RELEASED` means the capability shipped in a named release.
-Status applies to a specific component and version, never to the whole project
-by implication.
+`REJECTED` means the owner declined a proposal; retain its ADR identifier for
+history, but do not treat it as planned work. Status applies to a specific
+component and version, never to the whole project by implication.
 
 ## Non-negotiable architecture
 
@@ -57,7 +58,8 @@ by implication.
 - Android access is brokered through Termux APIs or explicit scoped mounts.
   A guest never receives broader host access merely because an extension asks
   for it.
-- LAI remains a separate AI application/runtime. Ternux integrates with LAI's
-  published interface; it does not fork or silently duplicate its model store.
+- Ternux's existing AI tools and workloads remain Ternux-owned. LAI and every
+  unrelated product/repository remain outside Ternux scope; no integration or
+  dependency is planned without a new explicit owner decision.
 - Every performance, accelerator, device, or distro claim names its tested
   device, software version, workload, and evidence level.

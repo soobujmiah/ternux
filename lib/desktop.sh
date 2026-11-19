@@ -188,20 +188,39 @@ _tnx_stop_select() {
 # server died. Unknown/unowned sockets and any live server are left untouched.
 tnx_remove_stale_x11_socket() {
   local display_num="${1:-}" tmpdir="${TMPDIR:-/data/data/com.termux/files/usr/tmp}"
-  local socket lock server_pid
+  local socket lock server_pid owner_command
   [[ "$display_num" =~ ^[0-9]{1,2}$ ]] || return 1
   socket="$tmpdir/.X11-unix/X$display_num"
   lock="$tmpdir/.X$display_num-lock"
-  [ -S "$socket" ] && [ ! -L "$socket" ] && [ -f "$lock" ] && [ ! -L "$lock" ] || return 1
+  local socket_present=0
+  if [ -S "$socket" ] && [ ! -L "$socket" ]; then
+    socket_present=1
+  elif [ -e "$socket" ] || [ -L "$socket" ]; then
+    return 1
+  fi
+  [ "$socket_present" -eq 1 ] || { [ ! -e "$socket" ] && [ ! -L "$socket" ]; } || return 1
+  [ -f "$lock" ] && [ ! -L "$lock" ] || return 1
   IFS= read -r server_pid < "$lock" || return 1
   server_pid="${server_pid//[[:space:]]/}"
   [[ "$server_pid" =~ ^[0-9]+$ ]] || return 1
-  kill -0 "$server_pid" 2>/dev/null && return 1
+  if kill -0 "$server_pid" 2>/dev/null; then
+    # Android may reuse the stale PID for an unrelated process after the X11
+    # server exits. A live PID alone is not proof that this display is owned.
+    [ -r "/proc/$server_pid/cmdline" ] || return 1
+    owner_command="$(tr '\0' ' ' < "/proc/$server_pid/cmdline" 2>/dev/null || true)"
+    case "$owner_command" in
+      *termux-x11*com.termux.x11*":$display_num"*) return 1 ;;
+    esac
+  fi
   # Other Ternux guests may have their own live X server. Only preserve the
   # socket when its matching display server is alive; a global process check
   # makes one stale display block every later distro in a multi-GUI setup.
   pgrep -f "^termux-x11 com\\.termux\\.x11 :${display_num}([[:space:]]|$)" >/dev/null 2>&1 && return 1
-  rm -f -- "$socket" "$lock"
+  if [ "$socket_present" -eq 1 ]; then
+    rm -f -- "$socket" "$lock"
+  else
+    rm -f -- "$lock"
+  fi
 }
 
 # A server process can own a display before its socket is visible, so socket
@@ -323,7 +342,7 @@ tnx_cmd_start_impl() {
   local display_socket="$display_tmp/.X11-unix/X$display_num"
   local display_lock="$display_tmp/.X$display_num-lock"
   if [[ -e "$display_socket" || -L "$display_socket" || -e "$display_lock" || -L "$display_lock" ]] || tnx_x11_server_running_on_display "$display_num"; then
-    if [ -S "$display_socket" ] && tnx_remove_stale_x11_socket "$display_num"; then
+    if { [ -S "$display_socket" ] || [ -f "$display_lock" ]; } && tnx_remove_stale_x11_socket "$display_num"; then
       tnx_info "Removed the stale socket and lock for unused display $display."
     else
     if [ "${TERNUX_JSON:-0}" = "1" ]; then

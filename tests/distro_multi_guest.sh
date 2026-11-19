@@ -105,9 +105,16 @@ proot-distro() {
   esac
 }
 tnx_install --distros debian,ubuntu --yes
-[ "$(wc -l < "$TMP/install-calls")" -eq 2 ]
-grep -q -- '^--yes --distro debian --user ternux --shell bash --batch-confirmed --workloads none$' "$TMP/install-calls"
-grep -q -- '^--yes --distro ubuntu --user ternux --shell bash --batch-confirmed --workloads none$' "$TMP/install-calls"
+[ "$(wc -l < "$TMP/install-calls")" -eq 2 ] || { echo "FAIL: install call count"; exit 1; }
+grep -q -- '^--yes --distro debian --user ternux --shell bash --batch-confirmed --workloads none$' "$TMP/install-calls" || { echo "FAIL: Debian batch arguments"; cat "$TMP/install-calls"; exit 1; }
+grep -q -- '^--yes --distro ubuntu --user ternux --shell bash --batch-confirmed --workloads none$' "$TMP/install-calls" || { echo "FAIL: Ubuntu batch arguments"; cat "$TMP/install-calls"; exit 1; }
+tnx_install_single() { printf '%s|%s\n' "${TERNUX_STARTUP_PASSWORD:-}" "$*" >> "$TMP/startup-password-forwarding"; }
+TERNUX_USER_PASSWORD=test-sudo
+tnx_install --distros debian,ubuntu --yes >/dev/null
+[ "$(wc -l < "$TMP/startup-password-forwarding")" -eq 2 ] || { echo "FAIL: startup forward count"; cat "$TMP/startup-password-forwarding"; exit 1; }
+grep -q '^test-startup|--yes --distro debian ' "$TMP/startup-password-forwarding" || { echo "FAIL: Debian startup forwarding"; cat "$TMP/startup-password-forwarding"; exit 1; }
+grep -q '^test-startup|--yes --distro ubuntu ' "$TMP/startup-password-forwarding" || { echo "FAIL: Ubuntu startup forwarding"; cat "$TMP/startup-password-forwarding"; exit 1; }
+if TERNUX_STARTUP_PASSWORD= tnx_install --distros debian,ubuntu --yes >/dev/null 2>&1; then exit 1; fi
 if tnx_install --distros debian,arch >/dev/null 2>&1; then exit 1; fi
 if tnx_install --distros debian,debian >/dev/null 2>&1; then exit 1; fi
 
@@ -125,7 +132,7 @@ tnx_install_single() { printf 'install:%s:%s\n' "$TERNUX_USER_PASSWORD" "$*" >> 
 tnx_header() { :; }
 tnx_next_steps() { printf 'next:%s\n' "$@" >> "$TMP/precollect-order"; }
 tnx_install --distros debian,ubuntu,alpine >/dev/null
-expected_precollect=(shell:bash user:debian workload:auto user:ubuntu workload:auto user:alpine sudo:debian sudo:ubuntu sudo:alpine summary confirm)
+expected_precollect=(shell:bash user:debian workload:auto user:ubuntu workload:auto user:alpine workload:auto sudo:debian sudo:ubuntu sudo:alpine summary confirm)
 for i in "${!expected_precollect[@]}"; do
   [ "$(sed -n "$((i + 1))p" "$TMP/precollect-order")" = "${expected_precollect[i]}" ]
 done

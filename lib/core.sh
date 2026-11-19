@@ -14,8 +14,8 @@ TERNUX_DESC="Linux desktop for Android with Zink and VirGL graphics routes"
 TERNUX_REPO="https://github.com/soobujmiah/ternux"
 # Immutable source snapshot shared by the standalone bootstrap and CLI fallback.
 # Keep these values aligned with install.sh; refresh only from a reviewed archive.
-TERNUX_SOURCE_COMMIT="555ce1374957cf35b7a7afa17bbb720b4529d64a"
-TERNUX_SOURCE_SHA256="b52347389d70314e2b9118528bab3a19cb982b839d3f4627b2d0a66a5493ce83"
+TERNUX_SOURCE_COMMIT="024fd260ac11e5b93786c5ecfcb7e5b045fc7b3e"
+TERNUX_SOURCE_SHA256="0fe66a54a0071f1539c638b25756f644e348ffc17d85e74f038601d34668392a"
 TERNUX_GUEST_CLI_SHA256="11f3e202eaae2046cfe11b61edc13d754566ca428faeb2b25a088352792aaaf5"
 TERNUX_STATE_DIR="${TERNUX_STATE_DIR:-$HOME/.local/share/ternux}"
 TERNUX_LOG_DIR="${TERNUX_LOG_DIR:-${TMPDIR:-/data/data/com.termux/files/usr/tmp}/ternux}"
@@ -839,7 +839,13 @@ tnx_install_phase_done() {
       # Guest root now shares the selected user's sudo password. If the sudo
       # phase still needs to run, reapply root from that same in-memory secret.
       if [ "$phase" = root_password ] && ! tnx_distro_phase_done "$distro" user_password; then return 1; fi
-      tnx_distro_phase_done "$distro" "$phase"
+      tnx_distro_phase_done "$distro" "$phase" || return 1
+      if [ "$phase" = extras ]; then
+        local requested_extras="${TERNUX_SELECTED_EXTRAS:-}"
+        local installed_extras="$(tnx_distro_state_get "$distro" installed_extras 2>/dev/null || true)"
+        [ "$requested_extras" = "$installed_extras" ] || return 1
+      fi
+      return 0
       ;;
   esac
 }
@@ -854,7 +860,12 @@ tnx_install_phase_mark() {
       identity="$(tnx_cli_source_identity)" || return 1
       tnx_state_set cli_source_identity "$identity"
       ;;
-    *) tnx_distro_phase_mark "$distro" "$phase" ;;
+    *)
+      if [ "$phase" = extras ]; then
+        tnx_distro_state_set "$distro" installed_extras "${TERNUX_SELECTED_EXTRAS:-}" || return 1
+      fi
+      tnx_distro_phase_mark "$distro" "$phase"
+      ;;
   esac
 }
 

@@ -1,31 +1,29 @@
 ---
-title: "ADR-0003: Integrate with LAI through a versioned adapter"
-description: "Keep LAI separate and integrate only through a documented runtime interface."
+title: "ADR-0003: Rejected external-product adapter proposal"
+description: "Historical proposal rejected by the owner; unrelated products remain outside Ternux scope."
 lang: "en"
 ---
 
-## ADR-0003: Integrate with LAI through a versioned adapter
+## ADR-0003: Rejected external-product adapter proposal
 
-- **Status:** Accepted for v3 design; implementation pending.
+- **Status:** Rejected and superseded by the owner's 2026-11-19 scope directive; no implementation.
 - **Date:** 2026-11-13.
 - **Decision owners:** Ternux project owner.
 
 ## Context
 
-Ternux should expose optional AI workloads without duplicating LAI's model
-registry, runtime selection, or accelerator implementation. Private or
-unstable app internals are not a reliable integration contract.
+An earlier proposal considered integrating an unrelated AI product. The owner
+has since directed that LAI and all unrelated repositories/products remain
+outside Ternux scope.
 
 ## Decision
 
-Ternux will use a versioned, documented LAI API/intent/IPC adapter. Discovery
-of model files is read-only. Ternux never moves or removes LAI-owned models
-automatically. If no supported LAI interface is available, Ternux reports the
-integration unavailable and may offer a separately scoped compatible runtime
-pack only after an explicit product decision.
+Ternux will not integrate with LAI or depend on its APIs, services, private app
+data, or model store. Ternux may continue to develop and maintain its own
+AI tools, workloads, inference utilities, and integrations within the Ternux
+repository. Any future scope change requires an explicit owner decision.
 
 ## Consequences
 
-The adapter needs capability negotiation, job/result correlation, permission
-handling, and compatibility tests. LAI remains independently installable and
-maintainable.
+This historical proposal creates no implementation requirements or dependency.
+The identifier is retained so existing ADR links and records remain stable.

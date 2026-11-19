@@ -204,7 +204,8 @@ Up/Down or j/k moves, Space or a number toggles, Enter confirms; multiple
 profiles can be selected in one pass. Debian is the recommended default; Debian,
 Ubuntu, and Alpine have device qualification, with a documented Alpine keyboard
 input limitation. The remaining profiles are not device-qualified. Arbitrary OCI images are
-shell-only. Optional workload selection follows for APT-family guests only.
+shell-only. Optional workloads are available on APT-family guests; Alpine currently
+supports Blender, while Android SDK build tools require the APT-family glibc runtime.
 Workload checklist: Space or an item's number toggles; Enter reviews the plan;
 q keeps the base desktop only. Use --yes for non-interactive defaults.
 Run 'bash install.sh' for a fresh setup or 'ternux install' from the host CLI.

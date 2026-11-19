@@ -28,8 +28,8 @@ Linux guest (Debian / Ubuntu / Alpine / qualified profiles)
   ├─ user session, XFCE, applications, guest packages
   ├─ optional workload client (CPU/GPU/NPU runtime)
   └─ guest-local config and files
-       │ optional, explicit LAI API integration
-LAI runtime and model store (separate project/service)
+       │
+No dependency on unrelated projects or external product runtimes
 ```
 
 For v3, native Termux owns display `:0`; guest displays begin at Debian `:1`,
@@ -85,7 +85,7 @@ atomic switch; it never rewrites a running guest's active binary in place.
 
 The native manager owns `$PREFIX/var/lib/ternux` system records and
 `$HOME/.local/share/ternux` user records according to their documented role.
-Each guest owns its rootfs and guest home. Models belong to a named workload or
-LAI store and are never removed by a guest uninstall unless the user selects
-that exact data removal. See the [Workspace](WORKSPACE-ARCHITECTURE.md),
+Each guest owns its rootfs and guest home. Ternux workload artifacts have
+explicit Ternux ownership and are never removed by a guest uninstall unless the
+user selects that exact data removal. See the [Workspace](WORKSPACE-ARCHITECTURE.md),
 [Security](SECURITY-MODEL.md), and [ADR-0001](ADR/0001-native-manager.md).

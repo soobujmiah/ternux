@@ -168,7 +168,7 @@ uses a checksum-pinned IBus m17n Avro phonetic engine because its stable APK
 repositories do not package that engine. Ctrl+Space cycles English and Bangla; Ternux syncs IBus's engine order with the preload list and adds an XFCE fallback for apps without an IBus input context. A shared X11 window-fit service keeps new windows inside each guest's phone-sized work area. No extra keyboard button is added to the panel. The base desktop includes VLC,
 PulseAudio Volume Control, Xfce Task Manager, Mousepad, Galculator, Evince PDF
 reader, Ternux Camera, Ternux Sound Recorder,
-Ristretto image viewer, and Firefox browser. Debian-family APT guests also include Synaptic Package Manager, which uses Ternux branding and manages guest packages. App availability follows each distro family; optional workloads currently target APT guests. Evince is
+Ristretto image viewer, and Firefox browser. Package-manager launchers keep their native names: Synaptic Package Manager (APT), APK, Pacman, DNF, Zypper, and XBPS. Non-APT entries open a menu backed by that distro's own package tools. App availability follows each distro family. Most optional workloads require an APT guest; Alpine currently supports Blender only. Evince is
 the default PDF reader; LibreOffice Draw is optional for editing PDF pages and exporting documents to other formats.
 Celestia is available as an optional astronomy simulator and is not installed by default. No mail client is installed or set as default. Evolution is available as an optional
 mail client; common providers can use OAuth, and other hosts support manual IMAP/POP

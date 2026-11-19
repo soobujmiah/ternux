@@ -18,9 +18,12 @@ bootstrap/key/index and the RC signed index return HTTP 404. The RC bootstrap
 and signing key return HTTP 200, but neither hosted repository can currently
 install `ternux` with `pkg install`. The RC channel remains reserved for
 opt-in candidate testing after its signed repository is published.
-The next stable release remains in the v2 major. The complete platform
-architecture formerly planned for v3 is required before a new 2.x stable
-release; see the [project roadmap](project/PROJECT-ROADMAP.html).
+The owner revoked the 2026-11-14 decision that required former v3 platform
+scope before another v2 release. Version 2 remains frozen to the existing
+implementation; v2.0.1 is the unpublished candidate described in the
+[project roadmap](project/PROJECT-ROADMAP.html). APT remains withdrawn and is
+not a v2 release requirement. Any APT return is a separate v3 feasibility
+decision after v2 publication and owner approval.
 
 ## Trust fingerprint
 

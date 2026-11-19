@@ -1,15 +1,15 @@
 ---
 title: "Ternux v3 AI runtime architecture"
-description: "Optional CPU, GPU, and NPU AI workloads integrated with LAI without duplicating its model store."
+description: "Optional Ternux-owned CPU, GPU, and NPU workloads with explicit artifact and model ownership."
 lang: "en"
 ---
 
 ## AI runtime architecture
 
-**Status: DESIGNED.** AI is an optional workload area. The base Ternux install
-does not download models or keep an inference service resident. LAI remains a
-separate project and runtime; Ternux discovers and calls its supported
-interface instead of implementing a competing model library.
+**Status: DESIGNED.** AI is an optional Ternux workload area. The base Ternux
+install does not download models or keep an inference service resident. Ternux
+owns its runtime integrations and workload lifecycle. Unrelated products and
+their APIs, private app data, and model stores are outside Ternux scope.
 
 ## Workload manifest
 
@@ -22,11 +22,11 @@ proof of accelerator compatibility.
 
 ## Model discovery and ownership
 
-Discovery may read user-authorized locations such as `/sdcard/Llms` and
-`/sdcard/LAI/models`; it is read-only and reports path, size, format, and
-possible runtime compatibility. It never moves or deletes discovered models
-automatically. Copy/import is a separate user action with free-space and hash
-checks. LAI's own model store remains LAI-owned.
+Discovery may read user-authorized generic model locations such as
+`/sdcard/Llms`; it is read-only and reports path, size, format, and possible
+runtime compatibility. It never assumes ownership of another product's private
+store. Copy/import into a Ternux workload is a separate user action with
+free-space and hash checks.
 
 ## Job lifecycle
 

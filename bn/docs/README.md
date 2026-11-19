@@ -16,7 +16,7 @@
 | প্ল্যাটফর্মের নকশা ও বর্তমান পরিকল্পনা | [`v3/`](../../docs/v3/README.md)-তে ভবিষ্যৎ স্থাপত্য; এগুলো v2 release gate নয়। ইংরেজি ও বাংলা [প্রকল্পের পরিকল্পনা](project/PROJECT-ROADMAP.md)-তে v2 candidate ও v3-এর ক্রম দেখুন। |
 | প্যাকেজ বিতরণ | [`TERMUX-APT.md`](TERMUX-APT.md) (প্যাকেজ-সংগ্রহস্থলের বিশ্বাসযোগ্যতা ও ইনস্টল); [`../packaging/termux/README.md`](../packaging/termux/README.md) (তৈরি ও প্রকাশ) |
 | সংগ্রহশালার বিস্তারিত নির্দেশিকা | [`../guides/device-benchmark-evidence.md`](../guides/device-benchmark-evidence.md), [`../guides/llama-vulkan-extension.md`](../guides/llama-vulkan-extension.md), এবং `../../guides/`-এর সংশ্লিষ্ট ইংরেজি পৃষ্ঠা (শুধু উৎস সংগ্রহশালায়; ওয়েবসাইটে প্রকাশিত নয়) |
-| পরিচালনা | `USAGE.md`, `WORKLOADS.md`, `BLENDER-MCP.md`, `CONFIGURATION.md`, `GRAPHICS-PERSISTENCE.md`, `TROUBLESHOOTING.md` |
+| পরিচালনা | `USAGE.md`, `WORKLOADS.md`, `BLENDER-MCP.md`, `CONFIGURATION.md`, `GRAPHICS-PERSISTENCE.md`, [`ANDROID-PHANTOM-PROCESS.md`](ANDROID-PHANTOM-PROCESS.md), `TROUBLESHOOTING.md` |
 | ধারণা ও ব্যাখ্যা | `ARCHITECTURE.md`, `BENCHMARKS.md`, `FAQ.md` |
 | তথ্যসূত্র | `CLI.md`, মূল `CHANGELOG.md`, মূল `CONTRIBUTING.md` |
 | নথির scope | [`DOCUMENT-SCOPE.md`](../../docs/DOCUMENT-SCOPE.md)-এ বর্তমান, ঐতিহাসিক, ভবিষ্যৎ, shared, deprecated ও review-needed শ্রেণি আছে। |

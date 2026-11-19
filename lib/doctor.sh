@@ -328,8 +328,12 @@ _tnx_dr_graphics() {
   _tnx_dr_add ok graphics backend_recommended "Recommended backend: $backend"
   if [ -n "$configured_backend" ]; then
     _tnx_dr_add ok graphics backend_configured "Configured: $configured_backend"
-    if [ "$configured_backend" != "$backend" ]; then
-      _tnx_dr_add warn graphics backend_mismatch "Configured backend ($configured_backend) differs from the recommended one ($backend)" "" "If unintended: ternux backend set auto && ternux repair"
+    current_backend="$configured_backend"
+    if [ "$configured_backend" = auto ]; then
+      current_backend="$(tnx_gpu_backend_auto "${_TNX_DISTRO:-$(tnx_distro)}")"
+    fi
+    if [ "$current_backend" != "$backend" ]; then
+      _tnx_dr_add warn graphics backend_mismatch "Configured backend ($configured_backend${current_backend:+ → $current_backend}) differs from the recommended one ($backend)" "" "If unintended: ternux backend set auto && ternux repair"
     fi
   else
     _tnx_dr_add warn graphics backend_not_configured "GPU backend is not configured" "" "Run: ternux backend set auto && ternux repair"
@@ -699,6 +703,9 @@ tnx_cmd_verify() {
   # use either Debian's apt-safe Turnip copy, an isolated exact-match Mesa
   # overlay, or the guest's native package stack.
   backend="$(tnx_canonical_backend "$(tnx_distro_state_get "$distro" backend 2>/dev/null || tnx_state_get "backend")")"
+  if [ "$backend" = "auto" ]; then
+    backend="$(tnx_gpu_backend_auto "$distro")"
+  fi
   if [ "$backend" = "zink" ]; then
     local turnip_layout="missing" asset_kind=""
     asset_kind="$(tnx_state_get "freedreno_asset_kind" 2>/dev/null || true)"

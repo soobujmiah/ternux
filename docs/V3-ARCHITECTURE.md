@@ -20,8 +20,9 @@ local Control Center. **Designed does not mean implemented or device-verified.**
   Termux, outside every PRoot guest.
 - The owner-confirmed v2 baseline is Debian, Ubuntu, Kali Linux, and Alpine;
   future v3 profile expansion requires separate qualification.
-- LAI remains separate; Ternux integrates only through a documented API and
-  does not automatically move or delete LAI's models.
+- Ternux's existing AI tools and workloads remain Ternux-owned. LAI and every
+  unrelated product/repository remain outside Ternux scope; no integration or
+  dependency is planned without a new explicit owner decision.
 - Camera, microphone, storage, GPU, and NPU operations are optional,
   permission-aware, and separately qualified.
 - User files, guest files, workload artifacts, and models have explicit
@@ -41,7 +42,7 @@ local Control Center. **Designed does not mean implemented or device-verified.**
 ## Design decisions
 
 The architecture design records a native manager, explicit guest/data
-ownership, and LAI integration through an adapter. See the [ADR index]
+ownership, and a rejected external-product adapter proposal. See the [ADR index]
 (v3/ADR/README.html) for rationale and consequences. The evidence for the
 withdrawn v2.0.0 release remains in the [v2 release report]
 (V2-RELEASE-REPORT.html).

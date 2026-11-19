@@ -7,25 +7,28 @@ alt_url: "/docs/V2-RELEASE-READINESS.html"
 
 ## বর্তমান v2.0.1 candidate status — 2026-11-18
 
-v2.0.0 প্রত্যাহারের পরবর্তী unused version candidate হলো v2.0.1; এটি এখনো local,
-unpublished। 2026-11-14-এ v3 architecture scope-কে v2-তে আনার সিদ্ধান্ত 2026-11-18-এ
+v2.0.0 প্রত্যাহারের পরবর্তী unused version candidate v2.0.1। পর্যালোচিত source
+change `1f8ffabaab7fe982f5bfc91759b14b921e6ebd8f`-এ `main`-এ merge হয়েছে, তবে এটি
+প্রকাশিত নয়। এখনো v2.0.1 tag, release archive, checksum manifest বা GitHub Release
+page নেই। 2026-11-14-এ v3 architecture scope-কে v2-তে আনার সিদ্ধান্ত 2026-11-18-এ
 প্রত্যাহার করা হয়েছে। v2 বর্তমান implementation-এ frozen থাকবে; নতুন distro,
 architecture, Control Center capability বা APT যোগ হবে না। বর্তমান owner-confirmed
 desktop baseline Debian, Ubuntu, Kali Linux ও Alpine; তাদের evidence-এর গভীরতা
-সমান নয়। বর্তমান [project roadmap](project/PROJECT-ROADMAP.md),
-[release status](project/RELEASE-STATUS.md), [feature matrix](../../docs/audit/FEATURE-MATRIX.md)
-ও [device record](../../docs/audit/DEVICE-VERIFICATION.md) দেখুন। নিচের 2026-11-16-এর
-v2.0.0 acceptance তথ্য historical snapshot; এটি v2.0.1 release readiness নয়।
+সমান নয়। [release audit reconciliation](release/V2-RELEASE-RECONCILIATION.md),
+[project roadmap](project/PROJECT-ROADMAP.md), [release status](project/RELEASE-STATUS.md),
+[feature matrix](../../docs/audit/FEATURE-MATRIX.md) ও [device record](../../docs/audit/DEVICE-VERIFICATION.md)
+দেখুন। নিচের 2026-11-16-এর v2.0.0 acceptance তথ্য historical snapshot; এটি
+v2.0.1 release readiness নয়।
 
 ## Local v2.0.1 candidate checks — 2026-11-18
 
-- `python3 tests/window_fit_geometry.py`: geometry/state-এর ১২টি check pass।
+- `python3 tests/window_fit_geometry.py`: geometry/state-এর ১৩টি check pass।
 - `bash tests/focused.sh`: ২১১ pass, ০ fail।
 - `bash tests/update_transaction.sh`: pinned update, 2.0.0→2.0.1 upgrade,
   1.4.0→2.0.1 migration fixture, rollback, interrupted-update recovery,
   concurrency ও symlink safety pass।
 - Astro build: ৯০টি static page তৈরি; finalizer ৫৬টি HTML route পেয়েছে।
-- `python3 tests/docs_check.py`: ৬,৫১৮ assertion, ৬১৬ internal link ও ২৪টি
+- `python3 tests/docs_check.py`: ৬,৫১৮ assertion, ৬২১ internal link ও ২৪টি
   bilingual page pair pass। দুই homepage Prettier দিয়ে format করার পর
   `npm run format:check`-ও pass।
 - Debian/XFCE live X11 check, display `:1` (640×1386): আগের
@@ -241,3 +244,90 @@ stable APT channel withdrawn। 2026-11-14-এ former v3 scope-কে পরে�
 আনার direction 2026-11-18-এ owner প্রত্যাহার করেছেন। ওই requirement আর প্রযোজ্য
 নয়; v3 আলাদা future scope। Historical প্রমাণ [release report](V2-RELEASE-REPORT.md)-এ
 আছে; বর্তমান scope [project roadmap](project/PROJECT-ROADMAP.md)-এ।
+
+## Candidate follow-up — ২০২৬-১১-১৯
+
+- Live v1.4.0 release page dedicated guide-এ link করে; tag ও codeload archive
+  অনুযায়ী guide-এর installer/version command যাচাই হয়েছে। v2.0.1-এর tag,
+  Release page, archive বা checksum এখনও নেই।
+- Fresh Ubuntu Resolute, Kali rolling ও Alpine v3.24 install `READY` হয়েছে;
+  shared PulseAudio route দিয়ে প্রতিটিতে owner-confirmed দুই-সেকেন্ড test tone
+  শোনা গেছে। Termux:API companion ও client package installed নিশ্চিত। Local
+  detector fallback আগের false negative ঠিক করে; mic/camera permission ও capture
+  পরীক্ষা হয়নি।
+- `bash tests/focused.sh`: 212/212। `python3 tests/docs_check.py`: 6,638
+  assertion, 632 internal link, 24 bilingual pair। Bash syntax ও
+  `git diff --check` pass। `tests/bootstrap_source_sync.sh` পুরোনো pinned
+  snapshot-এ local URL/digest correction না থাকায় fail; exact source approval-এর
+  পরেই pin refresh হবে।
+- PR #298-এর বর্তমান shell/documentation job reconciliation header-এর চারটি
+  trailing space-এ fail করেছে; local working tree-তে whitespace সরানো হয়েছে।
+  Approved repository update-এর পরে hosted check আবার চালাতে হবে।
+- LAI adapter ADR এখন rejected history, planned integration নয়। Ternux v3 AI
+  design Ternux-owned scope-এর মধ্যে সীমিত।
+
+## Final local pre-release verification — ২০২৬-১১-১৯
+
+- অনুমোদিত `tx uninstall all --yes`-এর পর reference Termux device-এ local
+  checkout থেকে Debian, Ubuntu, Kali ও Alpine install হয়েছে। Initial optional
+  workload যাচাইয়ের জন্য Ubuntu guest আরও একবার clean করে শুরু থেকে install
+  করেছি: প্রথম interactive menu-তেই `jq` select ও confirmation plan-এ দেখা গেছে;
+  একই run-এর optional phase-এ `jq 1.8.1-4ubuntu2` install হয়েছে। এই final pass-এ
+  resume বা পরে manual package install ব্যবহার হয়নি।
+- Ubuntu-র প্রথম চেষ্টায় optional APT phase regular guest user-এর `sudo` দিয়ে
+  stdin থেকে setup script পড়ছিল; এতে sudo password prompt loop হতে পারত। Local
+  fix optional APT কাজ guest root PRoot login-এ চালায়। Clean first-run retest-এ
+  সব install phase complete হয়েছে, `jq --version` দিয়েছে `jq-1.8.1`।
+- চার distro-র `tx verify` pass। `tx doctor --json`-এ ৫৪টি OK, warning/failure
+  শূন্য, issue নেই। চারটি XFCE session একসঙ্গে READY হয়েছে; `:1`–`:4` display-তে
+  সীমিত সময়ের `xdpyinfo` round-trip pass। পুরনো `:4` lock-এর PID পরে IBus process
+  reuse করার ঘটনা reproduce হয়েছে; cleanup এখন PID command line যাচাই করে এবং
+  ওই display-র matching Termux:X11 server না থাকলেই orphan lock সরায়।
+- `bash tests/focused.sh`: ২১৫ pass, ০ fail। Optional-workload PTY regression-এ
+  initial menu থেকে navigation ও number entry দিয়ে `jq` নির্বাচন পরীক্ষা হয়;
+  live clean-install run-এ নির্বাচিত workload একই install run-এর optional phase-এ
+  পৌঁছেছে। `bash -n` এবং `git diff --check` pass।
+  `python3 tests/docs_check.py`-এ ৬,৭৬৮ assertion, ৬৪২ internal link ও
+  ২৫ bilingual pair pass; `env -u LD_LIBRARY_PATH npm run format:check`-ও pass।
+  Live Debian Xfce Terminal move/resize-এ valid user position resize-এর পর
+  ও ৫ সেকেন্ড অপেক্ষার পর একই ছিল; Ctrl-minus font 10 থেকে 8.33 করেছে, Ctrl-plus
+  আবার 10 করেছে।
+- ৩১২-pixel চওড়া X11 root-এ Firefox ৫১০ pixel চওড়াই থেকেছে, কারণ client/window
+  manager helper-এর ছোট size request প্রত্যাখ্যান করেছে। Portrait display-তে
+  minimum size screen-এর চেয়ে বড় এমন app-এর জন্য এটি live limitation; tested
+  terminal recenter হয়েছে—এমন প্রমাণ নয়।
+- চার guest-এর PulseAudio route দিয়ে low-volume tone playback command চালানো
+  হয়েছে এবং চার route-ই ready। Tone শারীরিকভাবে শোনা গেছে কি না owner confirmation
+  অপেক্ষমাণ। Installer এখনও Termux:API companion detect হয়নি বলে warning দিয়েছে,
+  যদিও host-এর `cmd package path`, `pm path`, `pm list packages` পরে
+  `com.termux.api` নিশ্চিত করেছে। Optional camera/microphone permission probe
+  pass দাবি করার আগে এই অমিল তদন্ত করতে হবে; এই run-এ permission/capture পরীক্ষা
+  হয়নি।
+
+### ঐচ্ছিক workload-এর live qualification — ২০২৬-১১-১৯
+
+- Blender + Ternux ADT Build Tools—এই exact জোড়া interactive selector-এ
+  চালানো হয়েছে। PTY regression-এ numeric list-এর space-কে Space-toggle হিসেবে
+  ভুল বোঝার bug ধরা ও ঠিক করা হয়েছে; এখন জোড়াটি ঠিক
+  `blender,adt-build-tools` হিসেবে phase-এ যায়। ADT command-line setup-এর আগে
+  guest root হিসেবে JDK, curl, git ও unzip prerequisite install হয়।
+- Debian, Ubuntu Resolute ও Kali rolling-এ local phase Blender + Xvfb এবং
+  Ternux-এর ADT command-line/build-tools install করেছে। চার guest-এর active Xfce display-তে Blender GUI open ও close smoke test pass।
+  Debian, Ubuntu ও Kali-তে Java, `sdkmanager --version`, ADT `aapt2 version` এবং
+  চারটিতেই `xvfb-run`-এর অধীনে Blender background smoke test pass। Kali Blender
+  5.2 asset add-on-এ প্রথমে `cattrs` ও `requests` missing ছিল; recipe এখন
+  `python3-cattr` ও `python3-requests` install করে, clean GUI smoke-এ ওই import
+  error আর দেখা যায়নি।
+- Alpine v3.24-এ APK দিয়ে Blender workload চলে। Recipe Blender, Xvfb,
+  `xvfb-run` ও NumPy install করে; `xvfb-run`-এর অধীনে Blender background ও Xfce GUI smoke test pass; Alpine-এ `py3-requests`-ও যোগ হয়। Alpine-এর musl JDK PRoot-এ “Failed to mark memory page as
+  executable” দিয়ে ব্যর্থ হয়; ADT build-tools-এর `aapt2` Alpine-এ অনুপস্থিত
+  glibc symbol চায়। `gcompat` পরীক্ষা করেও missing symbol ঠিক হয়নি। তাই Alpine
+  selector/installer-এ এখন শুধু Blender দেখায় এবং ADT guest পরিবর্তনের আগেই
+  reject করে। আগের compatibility probe-এ Alpine-এ ADT file ও Java package
+  install হয়েছিল; স্বচ্ছতার জন্য guest-এ রেখে দেওয়া হয়েছে, মুছে ফেলা হয়নি।
+- শেষ Alpine selector, APK recipe, ADT preflight guard ও Blender Python-module
+  dependency edit-সহ `bash tests/focused.sh`: 219 pass, 0 fail।
+- সব baseline distro-তে Blender + ADT smooth install-এর owner request আংশিক
+  পূরণ: তিন APT guest pass; Alpine-এ Blender pass হলেও বর্তমান musl/PRoot runtime-এ
+  ADT technically incompatible। এটি owner-visible v2 qualification limitation;
+  সব distro-তে ADT pass—এমন দাবি নয়।

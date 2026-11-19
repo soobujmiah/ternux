@@ -35,7 +35,7 @@ devices.
 |---|---|---|
 | Workspace | Named distro shells/desktops and file access | Per-guest identity and lifecycle |
 | Compute | Detect, select, and inspect CPU/GPU routes | Capability evidence; safe fallback |
-| AI | Install/run compatible workloads and models | LAI integration; provenance and resource limits |
+| AI | Install and run Ternux-owned optional workloads | Ternux owns runtime integration, artifact provenance, and resource limits; no unrelated product dependency |
 | Device Bridge | On-demand Android camera, mic, and storage access | Termux API broker; scoped permission |
 | Native Control Center | One dashboard/API for status, actions, and logs | Termux host process, independent of PRoot |
 

@@ -365,8 +365,9 @@ The published [benchmark summary](BENCHMARKS.html) links to the repository-only
 which preserves the HTP failure matrix and later conditional HVX result.
 The experimental HTP package install and operating limits are in the separate
 [repository HTP guide](https://github.com/soobujmiah/ternux/blob/main/guides/llama-htp-experimental.md).
-Existing LAI findings are recorded in LAI's native Android research
-note for later work; this plan does not alter LAI's runtime or device gates.
+Cross-project findings are excluded. Every benchmark and workload described
+here uses a Ternux-owned or explicitly user-provided artifact; this plan adds
+no dependency on an unrelated product or repository.
 
 ### PR #97 exact current-head artifact audit — 2026-11-09
 

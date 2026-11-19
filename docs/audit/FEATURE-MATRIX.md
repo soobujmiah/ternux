@@ -75,12 +75,12 @@ values and test boundary.
 | Capability | Evidence | Remaining limit |
 |---|---|---|
 | Adreno graphics stack | Current `tx verify` and per-guest `tx doctor` report Turnip present and Zink Vulkan 1.4 rendering in all four installed guests; Debian, Ubuntu, Kali, and Alpine were checked on the Xiaomi 25053RT47C / Adreno 825 reference device | This qualifies the installed profiles on this device; it does not qualify another Android or GPU family or establish workload performance |
-| Audio integration | Current per-guest status reports PulseAudio running and route-ready | No playback/capture workload was run in this read-only audit; route status is not proof every GUI mixer or app renders correctly |
+| Audio integration | Fresh Ubuntu, Kali, and Alpine desktop routes resolved `tcp:127.0.0.1:4714`; 2-second `paplay` test tones exited 0 and the owner confirmed audibility. Existing Debian VLC playback was also owner-confirmed. | These named playback sessions only; capture, other apps/devices, process-kill recovery, and clean Termux reinstall are not verified. |
 | IBus Bengali/English switching | On 2026-11-16, the owner confirmed physical-keyboard switching in all installed distros; a focused live Alpine terminal check also switched English → Avro Bengali → English through the IBus session | Physical input evidence is owner-reported; the independent check exercised synthetic X11 input on the Xiaomi reference device |
 | Theme, window fit, and application UI | Earlier live evidence covers GTK/XFCE, titlebar, oversized-window fitting, and tested Firefox controls | Not every toolkit, custom titlebar, menu icon, or future third-party app is covered; not visually rechecked in this snapshot |
 | Shared phone-display window handling | On 2026-11-15, Debian, Ubuntu, Kali, and Alpine live helpers constrained undersized normal windows to a centered 371×516 minimum outer frame on 640×1386 displays; XFCE Terminal Ctrl+plus/minus changed and persisted its font preference on Debian | Current installed guests and tested window types; zoom persistence was exercised in a live Debian X11 terminal |
 | Terfetch host and guest startup | On 2026-11-16, native Termux and Debian, Ubuntu, Kali, and Alpine were refreshed from the repository source and passed live source parity; desktop output was screenshot-checked on all four guests, including compact Kali/Alpine monograms on phone-width terminals. Automated checks cover side-by-side logo/facts, single-line fields, and 24–160 columns | Resizing is picked up at the next prompt and refresh preserves scrollback; narrow logo labels are compact monograms rather than full artwork |
-| Android camera still capture and microphone recording apps | Host Termux:API-backed app implementations and permission/lifecycle code exist | This audit did not capture a photo or record audio; no continuous camera stream or guest webcam device is established |
+| Android camera still capture and microphone recording apps | Termux:API companion APK and `termux-api` package are installed; a local detector fix falls back from Android `cmd` to Termux `pm` | Detector verified; this audit did not capture a photo or test microphone permission/status. No continuous camera stream or guest webcam device is established |
 | Native manager read-only JSON CLI | `main` has status, guest, capability, and display payloads; display reporting was source-device invoked | The installed v2.0.0 package returns `Unknown command: manager`; source evidence does not promote the released package |
 | v3 workspace display allocation | `main` defaults target native `:0`, Debian `:1`, Ubuntu `:2`, Alpine `:3`; collision guards and read-only current/target report implemented and tested | Live v2 mapping remains `:0/:1/:2`; migration is required and intentionally not performed |
 | Native Unix-socket manager service | Explicit foreground, read-only service implemented in current source; device and integration-tested | Not in released v2.0.0 package; no supervisor; the source dashboard is separate from this socket service |
@@ -95,7 +95,7 @@ values and test boundary.
 | Manager-service authorization and service-owned HTTP adapter | Unix peer-UID authorization exists; the separate browser adapter has a one-hour session key, Host/Origin checks, and action-specific CSRF protection. Service-owned HTTP adapter and authenticated service sessions remain unimplemented |
 | Guest lifecycle mutations through the broader manager API | Limited browser start/stop slice exists in working source; general service/API mutation contracts remain incomplete |
 | Unified v3 Compute, AI, Device Bridge, and Workspace orchestration | Architecture exists; no v3 orchestrator or broker implementation |
-| Model registry, metadata/checksum lifecycle, local inference server management | Architecture and LAI boundary specified; no unified v3 model manager/service |
+| Model registry, metadata/checksum lifecycle, local inference server management | Future Ternux-owned architecture only; no unified v3 model manager/service. Unrelated product integration is out of scope. |
 | Workspace templates, snapshot/recovery UI, and extension SDK | Roadmap/design only; no v3 implementation |
 
 ## Experimental
@@ -132,3 +132,26 @@ values and test boundary.
 - [Repository state](REPOSITORY-STATE.md)
 - [v2 machine gate inventory](../release-gates.json)
 - [v3 implementation status](../project/IMPLEMENTATION-STATUS.md)
+
+## Current local candidate evidence update — 2026-11-19
+
+The historical matrix above remains a dated snapshot. The following evidence
+updates that snapshot for the local v2.0.1 candidate on the same Redmi Turbo 4
+Pro / Android 16 / Adreno 825 device; it does not describe a published release.
+
+| Capability | New evidence | Boundary |
+|---|---|---|
+| Fresh managed desktop install | Ubuntu Resolute, Kali rolling, and Alpine v3.24 were installed from the local candidate and reached Ternux `READY`; existing Debian was retained. | Existing Termux host only; not clean Android/Termux reinstall. Kali clean-container/browser CI remains absent. |
+| Audio playback | Each fresh Ubuntu, Kali, and Alpine desktop resolved `tcp:127.0.0.1:4714` / `OpenSL_ES_sink`; `paplay` test tone exited 0 and the owner confirmed audibility. Existing Debian VLC playback was owner-confirmed separately. | Tested playback sessions only; capture, Android process-kill recovery, other devices, and all applications are not qualified. |
+| Termux:API discovery | `cmd package path` and `pm path` returned the installed companion APK; `termux-api` package state is installed. The local candidate falls back to `pm` if `cmd` cannot confirm it; the live installed module hash matches this source. | Detection verified; camera capture and microphone permission request/status not tested. |
+| Window-fit helper | Local source hash equals deployed helper hash in Debian, Ubuntu, Kali, and Alpine. | Interactive move/resize retention was directly tested only on Debian/XFCE. Hash equality is not behavioral qualification of the other guests. |
+| Focused regression suite | `bash tests/focused.sh`: 212 passed, 0 failed. | `tests/bootstrap_source_sync.sh` still fails against the old immutable pin because it lacks the uncommitted local source correction; do not count it as passing. |
+
+The local release reconciliation records the exact audio and bootstrap evidence.
+No GitHub repository write, release tag, artifact publication, or remote release
+change was performed during this update.
+
+At the latest 2026-11-19 read-only status recheck, all four guests were READY
+with X11 running and PulseAudio route-ready; individual `tx verify` passed for
+Debian, Ubuntu, Kali, and Alpine. This point-in-time status does not rule out
+intermittent X11 stalls or qualify all application behavior.
