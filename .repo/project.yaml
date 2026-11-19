@@ -1,13 +1,13 @@
 schema_version: 1
 project_id: ternux
 repository: soobujmiah/ternux
-generated_at: '2026-11-19T18:23:22Z'
+generated_at: '2026-11-19T21:04:38Z'
 generated_by: tools/repo_knowledge collect
-version: v2.0.1-3-gdd9428e
+version: v2.0.1-9-gb78d23e
 head:
-  commit: dd9428eddbc267dc1aafdea3b57b769ebe247498
+  commit: b78d23e5f6987b742aee12b15893f582eb61c358
   branch: main
-  committed_at: '2026-11-19T18:19:02Z'
+  committed_at: '2026-11-19T21:00:03Z'
 phases:
   source: not_configured
   completed: []
@@ -15,34 +15,34 @@ phases:
   next: null
 build:
   status: passed
-  run_id: '44586517407'
-  commit: dd9428eddbc267dc1aafdea3b57b769ebe247498
+  run_id: '44614312884'
+  commit: b78d23e5f6987b742aee12b15893f582eb61c358
   run_attempt: '1'
-  at: '2026-11-19T18:23:22Z'
+  at: '2026-11-19T21:04:38Z'
   timestamp_source: observed
   workflow_name: Repo Knowledge Sync
   event_type: push
   actor: soobujmiah
-  run_url: https://github.com/soobujmiah/ternux/actions/runs/44586517407
+  run_url: https://github.com/soobujmiah/ternux/actions/runs/44614312884
 test:
   status: passed
-  run_id: '44586517407'
-  commit: dd9428eddbc267dc1aafdea3b57b769ebe247498
+  run_id: '44614312884'
+  commit: b78d23e5f6987b742aee12b15893f582eb61c358
   run_attempt: '1'
-  at: '2026-11-19T18:23:22Z'
+  at: '2026-11-19T21:04:38Z'
   timestamp_source: observed
   workflow_name: Repo Knowledge Sync
   event_type: push
   actor: soobujmiah
-  run_url: https://github.com/soobujmiah/ternux/actions/runs/44586517407
+  run_url: https://github.com/soobujmiah/ternux/actions/runs/44614312884
   summary: focused regressions + manager socket + Control Center + Bats + UI + site
     build + docs + JavaScript syntax + whitespace + repo knowledge tests (ci.yml)
 last_successful_build:
-  commit: dd9428eddbc267dc1aafdea3b57b769ebe247498
-  at: '2026-11-19T18:23:22Z'
-  run_id: '44586517407'
+  commit: b78d23e5f6987b742aee12b15893f582eb61c358
+  at: '2026-11-19T21:04:38Z'
+  run_id: '44614312884'
 last_failed_build: null
 sync:
   status: ok
-  last_synced_at: '2026-11-19T18:23:22Z'
+  last_synced_at: '2026-11-19T21:04:38Z'
   source: ci
