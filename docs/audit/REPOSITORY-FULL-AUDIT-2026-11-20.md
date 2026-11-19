@@ -1,9 +1,9 @@
 # Ternux repository and website audit — 2026-11-20
 
-**Audit date:** 2026-11-20 (Asia/Dhaka)  
-**Repository:** `soobujmiah/ternux`  
-**Remote `main` at audit start:** `2046d10a9191f41b52ca52f5cae74f418ad7f140`  
-**Published source release:** `v2.0.1`  
+**Audit date:** 2026-11-20 (Asia/Dhaka)
+**Repository:** `soobujmiah/ternux`
+**Remote `main` at audit start:** `2046d10a9191f41b52ca52f5cae74f418ad7f140`
+**Published source release:** `v2.0.1`
 **Scope:** full tracked-repository inventory, production code and workflow checks,
 website structure and redesign, documentation consistency, automated tests,
 plus a read-only check of the locally installed Ternux source parity.
@@ -235,4 +235,3 @@ was changed for this website redesign and audit.
    and native package-manager menus.
 6. Review the new website in a real phone and desktop browser before dispatching
    the production Pages deployment; site deployment remains explicit/manual.
-
