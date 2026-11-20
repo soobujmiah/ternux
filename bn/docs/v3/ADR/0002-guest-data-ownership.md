@@ -7,7 +7,7 @@ alt_url: "/docs/v3/ADR/0002-guest-data-ownership.html"
 
 ## ADR-0002: Guest ও data ownership স্পষ্ট করা
 
-- **অবস্থা:** v3 design-এ গৃহীত; implementation বাকি।
+- **অবস্থা:** v3 design-এ গৃহীত; owner-scoped cleanup-এর foundation আছে, তবে পূর্ণ owner-ID registry ও legacy reconciliation path এখনও বাকি।
 - **তারিখ:** 2026-11-13।
 - **সিদ্ধান্তের মালিক:** Ternux project owner।
 

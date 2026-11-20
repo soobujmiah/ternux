@@ -32,9 +32,10 @@ The stale-distro doctor selection, Ubuntu Mesa-overlay detection, guest-state
 resume reset, managed uninstall cleanup, Alpine AppStream PRoot-hook fixes, and
 journaled display migration are covered by focused tests and exact-main CI from
 their recorded dates. Candidate test results and release-build status are
-recorded in [device verification](../audit/DEVICE-VERIFICATION.md). The current
-installed package remains v2.0.0; the v2.0.1 source release has
-built or published.
+recorded in [device verification](../audit/DEVICE-VERIFICATION.md). At the
+2026-11-19 snapshot, the installed package was v2.0.0; the v2.0.1 source
+release was a separate artifact. The current audit environment reports v2.0.1
+installed, as recorded in the dated [V3 environment baseline](../audit/V3-ENVIRONMENT-BASELINE-2026-11-20.md).
 
 ## Local v2.0.1 candidate follow-up — 2026-11-19
 

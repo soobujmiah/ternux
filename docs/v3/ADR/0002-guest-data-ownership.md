@@ -6,7 +6,7 @@ lang: "en"
 
 ## ADR-0002: Explicit guest and data ownership
 
-- **Status:** Accepted for v3 design; implementation pending.
+- **Status:** Accepted for v3 design; owner-scoped cleanup foundations exist, while the complete owner-ID registry and legacy reconciliation path remain pending.
 - **Date:** 2026-11-13.
 - **Decision owners:** Ternux project owner.
 

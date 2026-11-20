@@ -665,7 +665,7 @@ job = workflow.split("  withdraw_v2:", 1)[1].split("  deploy:", 1)[0]
 assert "preserve-pages-apt.sh dist rc" in job
 assert "test ! -e dist/apt" in job and "test ! -L dist/apt" in job
 assert "dist/apt-rc/dists/stable/InRelease" in job
-assert "uses: actions/upload-pages-artifact@v5" in job
+assert "uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5" in job
 assert "needs.withdraw_v2.result == 'success'" in workflow
 PYAPTGUARD
 then
@@ -2106,6 +2106,31 @@ if env PREFIX="$TMP/prefix-uninstall-multi" TERNUX_STATE_DIR="$TMP/state-uninsta
   ok "full uninstall delegates shared session cleanup to PRoot-Distro and targets registered guests only"
 else
   not_ok "full uninstall delegates shared session cleanup to PRoot-Distro and targets registered guests only"
+fi
+
+# Full removal must stop before touching any additional scope if a managed
+# desktop cannot be stopped. Preserve guests, launchers, state, and host CLI so
+# the owner can retry after resolving the live-session failure.
+if env PREFIX="$TMP/prefix-uninstall-stop-failure" TERNUX_STATE_DIR="$TMP/state-uninstall-stop-failure" HOME="$TMP/home-uninstall-stop-failure" bash -c '
+  mkdir -p "$HOME" "$TERNUX_STATE_DIR"
+  printf "preserve-me\n" > "$TERNUX_STATE_DIR/state"
+  log="$HOME/uninstall.log"
+  . "$1/lib/core.sh"
+  . "$1/lib/uninstall.sh"
+  tnx_cmd_stop(){ printf "stop-failed\n" >> "$log"; return 1; }
+  _tnx_uninstall_confirm(){ return 0; }
+  _tnx_uninstall_launcher(){ printf "launcher\n" >> "$log"; return 0; }
+  _tnx_uninstall_all_managed_guests(){ printf "guests\n" >> "$log"; return 0; }
+  _tnx_uninstall_termux_packages(){ printf "packages\n" >> "$log"; return 0; }
+  _tnx_uninstall_state(){ printf "state\n" >> "$log"; return 0; }
+  _tnx_uninstall_host_cli(){ printf "host-cli\n" >> "$log"; return 0; }
+  tnx_cmd_uninstall all >/dev/null 2>&1 && exit 1
+  [ "$(cat "$log")" = stop-failed ] &&
+  [ "$(cat "$TERNUX_STATE_DIR/state")" = preserve-me ]
+' _ "$ROOT"; then
+  ok "full uninstall aborts before cleanup when a desktop cannot stop"
+else
+  not_ok "full uninstall aborts before cleanup when a desktop cannot stop"
 fi
 
 # State removal deletes only Ternux runtime logs/state and empty app staging
@@ -4036,6 +4061,23 @@ target.write_text(json.dumps(data,indent=2)+'\n')
 PYWORKLOAD
 python3 "$ROOT/tools/generate_workload_registry.py" --manifest "$TMP/workloads-test.json" --schema "$ROOT/packaging/workloads.schema.json" --output "$EXT_TEST_LIB/workload-registry.sh" >/dev/null
 export TERNUX_LIB_DIR="$EXT_TEST_LIB"
+extension_list="$(TERNUX_LIB_DIR="$EXT_TEST_LIB" bash "$ROOT/bin/ternux" extension list 2>&1)"
+if python3 - "$ROOT/packaging/workloads.json" "$extension_list" <<'PYSTATUS'
+import json, sys
+from pathlib import Path
+manifest=json.loads(Path(sys.argv[1]).read_text())
+workload=next(row for row in manifest['workloads'] if row['id']=='stable-diffusion')
+lines=sys.argv[2].splitlines()
+index=next(i for i,line in enumerate(lines) if 'stable-diffusion' in line)
+label='\n'.join(lines[index:index+3])
+assert workload['support_status']=='experimental' and workload['availability']=='available'
+assert 'experimental' in label and 'supported' not in label
+PYSTATUS
+then
+  ok "Stable Diffusion maturity label matches its documented preview status"
+else
+  not_ok "Stable Diffusion maturity label matches its documented preview status"
+fi
 if env HOME="$TMP/ext-home-sd" EXT_GLIBC_VERSION=2.39 EXT_CURL_LOG="$TMP/ext-sd-downloads" \
   EXT_FIXTURE="$EXT_FIXTURE" PATH="$EXT_BIN:$PATH" \
   TERNUX_STATE_DIR="$TMP/ext-state-sd" bash "$ROOT/bin/ternux" extension install stable-diffusion >/dev/null 2>&1 &&
@@ -4183,6 +4225,76 @@ if env HOME="$TMP/ext-home-htp" EXT_GLIBC_VERSION=2.38 EXT_CURL_LOG="$TMP/ext-ht
 else
   not_ok "experimental HTP extension verifies and installs the brokered package"
 fi
+
+# Exercise the archive path and link checks with archives whose pinned hashes
+# are internally consistent. A checksum match alone must not authorize unsafe
+# member paths or symlink targets.
+cp "$EXT_TEST_LIB/workload-registry.sh" "$TMP/workload-registry-good.sh"
+cp "$TMP/workloads-test.json" "$TMP/workloads-test-good.json"
+for EXT_ATTACK in traversal symlink; do
+  python3 - "$EXT_FIXTURE/$SD_EXT_TAG.tar.gz" "$SD_EXT_TAG" "$EXT_ATTACK" <<'PYEXTARCHIVE'
+import io, pathlib, sys, tarfile
+archive, tag, attack = sys.argv[1:]
+with tarfile.open(archive, "w:gz") as out:
+    if attack == "traversal":
+        info = tarfile.TarInfo(f"{tag}/../../outside-marker")
+        payload = b"must not escape staging\n"
+        info.size = len(payload)
+        out.addfile(info, io.BytesIO(payload))
+    elif attack == "symlink":
+        info = tarfile.TarInfo(f"{tag}/escape-link")
+        info.type = tarfile.SYMTYPE
+        info.linkname = "../../outside-marker"
+        out.addfile(info)
+    else:
+        raise SystemExit("unknown archive attack fixture")
+PYEXTARCHIVE
+  (cd "$EXT_FIXTURE" && sha256sum "$SD_EXT_TAG.tar.gz" > "$SD_EXT_TAG.tar.gz.sha256")
+  python3 - "$TMP/workloads-test.json" "$EXT_FIXTURE" "$SD_EXT_TAG" <<'PYEXTDIGEST'
+import hashlib, json, pathlib, sys
+manifest, fixture, tag = map(pathlib.Path, sys.argv[1:])
+data = json.loads(manifest.read_text())
+archive = fixture / f"{tag}.tar.gz"
+sidecar = fixture / f"{tag}.tar.gz.sha256"
+for workload in data["workloads"]:
+    if workload["id"] == "stable-diffusion":
+        workload["checksums"]["archive_sha256"] = hashlib.sha256(archive.read_bytes()).hexdigest()
+        workload["checksums"]["sidecar_sha256"] = hashlib.sha256(sidecar.read_bytes()).hexdigest()
+manifest.write_text(json.dumps(data, indent=2) + "\n")
+PYEXTDIGEST
+  python3 "$ROOT/tools/generate_workload_registry.py" --manifest "$TMP/workloads-test.json" --schema "$ROOT/packaging/workloads.schema.json" --output "$EXT_TEST_LIB/workload-registry.sh" >/dev/null
+  if ! env HOME="$TMP/ext-home-unsafe-$EXT_ATTACK" EXT_GLIBC_VERSION=2.39 \
+    EXT_CURL_LOG="$TMP/ext-unsafe-$EXT_ATTACK-downloads" EXT_FIXTURE="$EXT_FIXTURE" \
+    PATH="$EXT_BIN:$PATH" TERNUX_STATE_DIR="$TMP/ext-state-unsafe-$EXT_ATTACK" \
+    bash "$ROOT/bin/ternux" extension install stable-diffusion >/dev/null 2>&1 &&
+    [ ! -e "$TMP/ext-home-unsafe-$EXT_ATTACK/.local/opt/ternux-extensions/stable-diffusion" ] &&
+    [ ! -e "$TMP/ext-home-unsafe-$EXT_ATTACK/.local/opt/ternux-extensions/.stable-diffusion.install."* ]; then
+    ok "extension installer rejects correctly hashed $EXT_ATTACK archive before install"
+  else
+    not_ok "extension installer rejects correctly hashed $EXT_ATTACK archive before install"
+  fi
+done
+# The tar verbose listing can place spaces in a symlink target. Ensure the
+# structured parser sees the complete C-quoted target instead of only $NF.
+python3 - "$TMP/space-target-link.tar.gz" <<'PYSYMLINKSPACE'
+import pathlib, sys, tarfile
+with tarfile.open(sys.argv[1], "w:gz") as archive:
+    link = tarfile.TarInfo("ternux-space-link/escape")
+    link.type = tarfile.SYMTYPE
+    link.linkname = "/tmp/outside target"
+    archive.addfile(link)
+PYSYMLINKSPACE
+if ! env TERNUX_STATE_DIR="$TMP/ext-state-space-link" HOME="$TMP/ext-home-space-link" \
+  bash -c '. "$1/lib/core.sh"; . "$1/lib/extension.sh"; _tnx_extension_archive_links_safe "$2" "$3"' \
+  _ "$ROOT" "$TMP/space-target-link.tar.gz" "$TMP/space-target-link.list"; then
+  ok "extension archive validator rejects an absolute symlink target containing spaces"
+else
+  not_ok "extension archive validator rejects an absolute symlink target containing spaces"
+fi
+
+cp "$TMP/workload-registry-good.sh" "$EXT_TEST_LIB/workload-registry.sh"
+cp "$TMP/workloads-test-good.json" "$TMP/workloads-test.json"
+
 printf '%064d  %s.tar.gz\n' 0 "$EXT_TAG" > "$EXT_FIXTURE/$EXT_TAG.tar.gz.sha256"
 if ! env HOME="$TMP/ext-home-bad" EXT_GLIBC_VERSION=2.38 EXT_CURL_LOG="$TMP/ext-bad-downloads" \
   EXT_FIXTURE="$EXT_FIXTURE" PATH="$EXT_BIN:$PATH" \

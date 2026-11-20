@@ -36,8 +36,8 @@ for filename, (workflow, artifact, publisher) in workflows.items():
     assert "  refresh_artifact:" in text, filename
     assert "needs: verify_source" in text, filename
     assert "Re-upload the exact inspected artifact with extended retention" in text, filename
-    assert "actions/download-artifact@v8" in text, filename
-    assert "actions/upload-artifact@v7" in text, filename
+    assert "actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8" in text, filename
+    assert "actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7" in text, filename
     assert "  " + publisher + ":" in text, filename
 
 package_artifact = (ROOT / ".github/workflows/termux-apt-package.yml").read_text(encoding="utf-8")
@@ -48,7 +48,7 @@ deploy = (ROOT / ".github/workflows/deploy.yml").read_text(encoding="utf-8")
 deploy_triggers = deploy.split("permissions:", 1)[0]
 assert "workflow_dispatch:" in deploy_triggers
 assert "push:" not in deploy_triggers, "production Pages deployment must not run on source pushes"
-assert "uses: actions/deploy-pages@v5" in deploy
+assert "uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5" in deploy
 
 hmx = (ROOT / ".github/workflows/llama-htp-hmx-probe.yml").read_text(encoding="utf-8")
 assert "pull_request:" not in hmx
@@ -56,8 +56,8 @@ assert "source_run_id:" in hmx
 assert "if: github.event_name != 'workflow_dispatch' || inputs.source_run_id == ''" in hmx
 assert "tools/verify_release_artifact_run.sh \"$SOURCE_RUN_ID\"" in hmx
 assert "run-id: ${{ inputs.source_run_id }}" in hmx
-assert "actions/download-artifact@v8" in hmx
-assert "actions/upload-artifact@v7" in hmx
+assert "actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8" in hmx
+assert "actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7" in hmx
 assert "retention-days: 90" in hmx
 
 print("release artifact workflow contract passed: prior-run reuse, provenance, 90-day retention, manual-only heavy builds and production Pages deploy with reuse")

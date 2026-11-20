@@ -610,10 +610,14 @@ EOF
         return 1
       fi
       # The outer confirmation covers the destructive container step. Keep
-      # attempting independent scopes, but do not hide a partial failure.
-      TERNUX_YES=1
+      # the destructive cleanup behind a successful stop. Otherwise guest
+      # processes may still be using the rootfs that `proot-distro remove`
+      # would delete.
       local rc=0
-      _tnx_uninstall_stop || rc=1
+      _tnx_uninstall_stop || {
+        tnx_fail "Could not safely stop all managed desktops; no Ternux components or guests were removed. Retry after resolving the session failure."
+        return 1
+      }
       _tnx_uninstall_launcher || rc=1
       if _tnx_uninstall_all_managed_guests; then
         _tnx_uninstall_termux_packages || rc=1

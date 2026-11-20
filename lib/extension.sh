@@ -98,6 +98,28 @@ _tnx_extension_list() {
 _tnx_extension_fail() { printf '[FAIL] %s\n' "$*" >&2; }
 _tnx_extension_ok() { printf '[ OK ] %s\n' "$*"; }
 
+_tnx_extension_archive_links_safe() {
+  local archive="${1:?missing archive}" details="${2:?missing listing path}"
+  tar --quoting-style=c -tvzf "$archive" > "$details" 2>/dev/null || return 1
+  awk '
+    substr($1, 1, 1) == "h" { bad=1 }
+    substr($1, 1, 1) == "l" {
+      # GNU tar C-quotes path and target. Require exactly one unquoted
+      # separator so a filename/target containing " -> " cannot confuse parsing.
+      count=split($0, parts, " -> ")
+      if (count != 2) { bad=1; next }
+      target=parts[2]
+      if (length(target) < 2 || substr(target, 1, 1) != "\"" ||
+          substr(target, length(target), 1) != "\"") { bad=1; next }
+      target=substr(target, 2, length(target)-2)
+      # Escaped targets are rejected rather than interpreted ambiguously.
+      if (target ~ /\\/ || target ~ /^\// || target ~ /(^|\/)\.\.(\/|$)/) bad=1
+    }
+    END { if (bad) exit 1 }
+  ' "$details"
+}
+
+
 _tnx_extension_find_ldconfig() {
   local found candidate
   found="$(command -v ldconfig 2>/dev/null || true)"
@@ -264,14 +286,7 @@ _tnx_extension_install() {
     esac
   done < "$tmp/contents.txt"
 
-  if ! tar -tvzf "$tmp/$asset" > "$tmp/details.txt" || ! awk '
-    substr($1, 1, 1) == "h" { bad=1 }
-    substr($1, 1, 1) == "l" {
-      target=$NF
-      if (target ~ /^\// || target ~ /(^|\/)\.\.(\/|$)/) bad=1
-    }
-    END { if (bad) exit 1 }
-  ' "$tmp/details.txt"; then
+  if ! _tnx_extension_archive_links_safe "$tmp/$asset" "$tmp/details.txt"; then
     rm -rf "$tmp"
     _tnx_extension_fail "Unsafe link in extension archive."
     return 1

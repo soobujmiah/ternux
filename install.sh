@@ -12,7 +12,7 @@
 #  https://github.com/soobujmiah/ternux
 #
 #  Usage
-#    curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
+#    curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/5be29360c9ca7e4516366711ec09f7a9b4d56940/install.sh | bash
 #    bash install.sh [options]
 #
 #  Options
@@ -39,8 +39,8 @@ set -u
 _TNX_SRC="$(cd "$(dirname "$0")" && pwd 2>/dev/null || echo "$PWD")"
 # Pin the exact source snapshot and its hosted codeload bytes. Keep this aligned
 # with lib/core.sh; refresh both after reviewing the archive and verifying its digest.
-_TNX_BOOTSTRAP_COMMIT="9069eb3d233f94f1cce9ba2f25bc0de88efda601"
-_TNX_BOOTSTRAP_SHA256="9535d8971f39c0722db969a82515755c9d9a22849e43a3b5c9be480a088b3e7c"
+_TNX_BOOTSTRAP_COMMIT="844ae8f33df8bceffd1e5a65d542c56ad005fbad"
+_TNX_BOOTSTRAP_SHA256="83a461afc3d3678896a84e627d4776e0525eac8a14ac292653c2a6204f1084ee"
 
 _tnx_load_local() {
   [ -f "$_TNX_SRC/lib/core.sh" ] && [ -f "$_TNX_SRC/lib/phases.sh" ] && [ -f "$_TNX_SRC/lib/ui.sh" ] || return 1
@@ -184,7 +184,7 @@ require_termux() { tnx_require_termux; }
 tnx_installer_usage() {
   cat <<'USAGE'
 Usage
-  curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
+  curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/5be29360c9ca7e4516366711ec09f7a9b4d56940/install.sh | bash
   bash install.sh [options]
 
 Options

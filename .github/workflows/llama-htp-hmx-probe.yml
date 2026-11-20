@@ -23,10 +23,10 @@ jobs:
     timeout-minutes: 120
     steps:
       - name: Check out Ternux release metadata
-        uses: actions/checkout@v5
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
 
       - name: Check out pinned llama.cpp source
-        uses: actions/checkout@v5
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           repository: karusrus/llama.cpp
           ref: 08c83734f9c5c3b497e98b96f1a380f5a6084468
@@ -189,7 +189,7 @@ jobs:
           sed -n '1,40p' archive-contents.txt
 
       - name: Upload build artifact for review
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: ternux-llama-htp-sm8735-integer-hmx-v73-candidate
           path: |
@@ -210,7 +210,7 @@ jobs:
       contents: read
     steps:
       - name: Check out release source for provenance checks
-        uses: actions/checkout@v5
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           fetch-depth: 0
 
@@ -233,7 +233,7 @@ jobs:
       contents: read
     steps:
       - name: Download the verified candidate without rebuilding
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           name: ternux-llama-htp-sm8735-integer-hmx-v73-candidate
           github-token: ${{ github.token }}
@@ -242,7 +242,7 @@ jobs:
           path: candidate
 
       - name: Re-upload the exact candidate with extended retention
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: ternux-llama-htp-sm8735-integer-hmx-v73-candidate
           path: |

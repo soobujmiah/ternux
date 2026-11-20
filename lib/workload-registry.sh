@@ -79,7 +79,7 @@ TNX_WORKLOAD['stable-diffusion|verification_commands']='bin/sd-cli --help
 ternux doctor extensions --json
 Run a fixed-seed tiled Vulkan image and inspect the output.'
 TNX_WORKLOAD['stable-diffusion|cleanup_behavior']='ternux extension remove removes only the recognized managed extension directory; model weights and files outside it are preserved.'
-TNX_WORKLOAD['stable-diffusion|support_status']=supported
+TNX_WORKLOAD['stable-diffusion|support_status']=experimental
 TNX_WORKLOAD['stable-diffusion|availability']=available
 TNX_WORKLOAD['stable-diffusion|availability_note']=''
 TNX_WORKLOAD['stable-diffusion|minimum_glibc']=2.39

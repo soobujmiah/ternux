@@ -15,8 +15,8 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v5
-      - uses: android-actions/setup-android@v4
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4
         with:
           packages: ''
       - name: Install pinned Android NDK
@@ -47,7 +47,7 @@ jobs:
             fi
           done
           (cd dist && sha256sum bin/* archive_input.py README.md > SHA256SUMS)
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: ternux-qnn-native-probe-android-arm64
           path: dist/
