@@ -272,3 +272,50 @@ physical-device qualification.
   unperformed.
 - The independent ChatGPT audit remains unavailable in the authorized
   attachment set. Its findings were not fabricated or inferred.
+
+## Owner-authorized live Pages deployment follow-up — 2026-11-20
+
+The owner confirmed that authorization exists to continue the goal and directed
+completion according to its scope. This follow-up records the current source,
+workflow, and public-site state; the inventory and test counts above remain tied
+to their stated audit baselines.
+
+- Local checkout and `origin/main` were clean and equal at
+  `cc7683ed49a5f259e26024f583f3c6407175d76c`. Exact-head Validate run
+  [`44633851420`](https://github.com/soobujmiah/ternux/actions/runs/44633851420),
+  package-artifact run
+  [`44633851505`](https://github.com/soobujmiah/ternux/actions/runs/44633851505),
+  and Repository State Contract run
+  [`44633851392`](https://github.com/soobujmiah/ternux/actions/runs/44633851392)
+  all passed.
+- The owner-authorized Pages deployment
+  [run `44669285260`](https://github.com/soobujmiah/ternux/actions/runs/44669285260)
+  completed successfully on that exact SHA. Both `npm ci` and `npm run build`
+  passed; the deployment build's signed-APT preservation step passed for the
+  stable and RC paths.
+- Public English `/ternux/` and Bengali `/ternux/bn/` pages both returned HTTP
+  200 after deployment, with `Last-Modified: Fri, 20 Nov 2026 03:40:54 GMT`.
+  The English page now exposes the redesigned “Linux desktop on Android,
+  without root” hero; the Bengali page exposes its corresponding translated
+  hero. Both report the published v2.0.1 source release.
+- The RC APT `InRelease`, bootstrap, and `Packages.xz` endpoints returned HTTP
+  200. Its `InRelease` signature verified successfully against the downloaded
+  archive key, primary fingerprint
+  `E5527F4D5B83037FF77B65AE5E894BBB81168B1D`. The stable APT `InRelease` and
+  bootstrap endpoints returned HTTP 404, consistent with the documented
+  withdrawn stable channel; `pkg install ternux` remains unavailable from a
+  stable channel.
+- The deployment did not run device installation, modify a managed guest, or
+  publish the withdrawn stable APT channel. It deployed website content only
+  while preserving the existing signed RC repository.
+- The SD-card copy `Ternux_Repo_Full_Audit_2026-11-20.md` was updated from this
+  report. The separate
+  `/sdcard/Ternux_Full_Audit_2026-11-18.md`
+  remains the earlier full audit and live v2 evidence supplement. Neither file
+  contains the independent ChatGPT audit requested in the master directive;
+  the available `/sdcard` Ternux audit files and the `Agents Dump` PDF were
+  checked, but that separate report was not found. No findings are attributed
+  to an unseen report.
+- This is public-route and signed-metadata verification plus the repository's
+  passing build/CI evidence. It is not a new Android-device visual/browser
+  qualification or a new physical-device v2 clean-install test.
