@@ -18,10 +18,10 @@ class RepoKnowledgeWorkflowContractTests(unittest.TestCase):
             parsed["jobs"]["publish_state"]["permissions"],
             {"actions": "write", "contents": "write", "pull-requests": "write"},
         )
-        self.assertIn("uses: actions/upload-artifact@v7", workflow)
+        self.assertIn("uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7", workflow)
         self.assertIn("include-hidden-files: true", workflow)
-        self.assertIn("uses: actions/download-artifact@v8", workflow)
-        self.assertIn("uses: peter-evans/create-pull-request@v8", workflow)
+        self.assertIn("uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8", workflow)
+        self.assertIn("uses: peter-evans/create-pull-request@3ffccacd46053766916f087ce41d627c0b8cf2d1 # v8", workflow)
         self.assertIn("add-paths: .repo/", workflow)
         self.assertIn("pull-requests: write", workflow)
         self.assertIn("actions: write", workflow)
