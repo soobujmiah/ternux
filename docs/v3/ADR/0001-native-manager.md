@@ -6,7 +6,7 @@ lang: "en"
 
 ## ADR-0001: Native Termux manager and Control Center
 
-- **Status:** Accepted for v3 design; implementation pending.
+- **Status:** Accepted for v3 design; partial native CLI, manager, and Control Center foundations exist; the complete manager/Device Bridge architecture remains in progress.
 - **Date:** 2026-11-13.
 - **Decision owners:** Ternux project owner.
 

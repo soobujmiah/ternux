@@ -7,7 +7,7 @@ alt_url: "/docs/v3/ADR/0001-native-manager.html"
 
 ## ADR-0001: Native Termux manager ও Control Center
 
-- **অবস্থা:** v3 নকশার জন্য গৃহীত; implementation বাকি।
+- **অবস্থা:** v3 নকশার জন্য গৃহীত; native CLI, manager ও Control Center-এর আংশিক foundation আছে; পূর্ণ manager/Device Bridge architecture এখনও অসম্পূর্ণ।
 - **তারিখ:** 2026-11-13।
 - **সিদ্ধান্তের মালিক:** Ternux project owner।
 

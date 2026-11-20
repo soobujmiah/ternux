@@ -357,7 +357,7 @@ check(re.search(r"@media\s*\(prefers-reduced-motion:\s*reduce\)", read(ROOT / "s
       "site-refresh.css: reduced-motion support missing")
 check("data-copy" in read(ROOT / "src/layouts/SiteLayout.astro"), "site shell: command copy control missing")
 install_commands = (
-    'bash -c \'s=$(mktemp) && (curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh -o "$s" || wget -qO "$s" https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh) && bash "$s"; r=$?; rm -f "$s"; exit "$r"\'',
+    'bash -c \'s=$(mktemp) && (curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/5be29360c9ca7e4516366711ec09f7a9b4d56940/install.sh -o "$s" || wget -qO "$s" https://raw.githubusercontent.com/soobujmiah/ternux/5be29360c9ca7e4516366711ec09f7a9b4d56940/install.sh) && bash "$s"; r=$?; rm -f "$s"; exit "$r"\'',
 )
 
 for source in ("src/pages/index.astro", "src/pages/bn/index.astro"):

@@ -12,7 +12,7 @@
 #  https://github.com/soobujmiah/ternux
 #
 #  Usage
-#    curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
+#    curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/5be29360c9ca7e4516366711ec09f7a9b4d56940/install.sh | bash
 #    bash install.sh [options]
 #
 #  Options
@@ -184,7 +184,7 @@ require_termux() { tnx_require_termux; }
 tnx_installer_usage() {
   cat <<'USAGE'
 Usage
-  curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/main/install.sh | bash
+  curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/5be29360c9ca7e4516366711ec09f7a9b4d56940/install.sh | bash
   bash install.sh [options]
 
 Options

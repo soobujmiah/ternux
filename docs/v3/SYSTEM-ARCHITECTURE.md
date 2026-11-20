@@ -24,7 +24,7 @@ Termux host ($PREFIX)
   ├─ workload/artifact registry and resource policy
   └─ per-guest state, logs, caches, and lifecycle supervisors
        │ explicit bind mounts, PRoot process boundary
-Linux guest (Debian / Ubuntu / Alpine / qualified profiles)
+Linux guest (Debian / Ubuntu / Kali / Alpine / qualified profiles)
   ├─ user session, XFCE, applications, guest packages
   ├─ optional workload client (CPU/GPU/NPU runtime)
   └─ guest-local config and files

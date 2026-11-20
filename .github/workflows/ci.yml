@@ -21,13 +21,19 @@ jobs:
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+
+      - name: Enforce immutable GitHub Action pins
+        run: python3 tests/workflow_action_pin_policy.py
 
       - name: Set up website build runtime
-        uses: actions/setup-node@v7
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: 22
           cache: npm
+
+      - name: Verify npm lock source and integrity metadata
+        run: python3 tests/npm_lock_integrity.py
 
       - name: Build Astro website
         run: |

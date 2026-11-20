@@ -143,7 +143,7 @@
         "Run a fixed-seed tiled Vulkan image and inspect the output."
       ],
       "cleanup_behavior": "ternux extension remove removes only the recognized managed extension directory; model weights and files outside it are preserved.",
-      "support_status": "supported",
+      "support_status": "experimental",
       "availability": "available",
       "availability_note": "",
       "installer": {

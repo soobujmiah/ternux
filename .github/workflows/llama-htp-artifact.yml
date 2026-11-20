@@ -28,10 +28,10 @@ jobs:
     timeout-minutes: 120
     steps:
       - name: Check out Ternux release metadata
-        uses: actions/checkout@v5
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
 
       - name: Check out pinned llama.cpp source
-        uses: actions/checkout@v5
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           repository: ggml-org/llama.cpp
           ref: af50f2f248b475d9760f8e67503d01c0f194f5f4
@@ -183,7 +183,7 @@ jobs:
           sed -n '1,40p' archive-contents.txt
 
       - name: Upload build artifact for review
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: ternux-llama-htp-sm8735-b11582
           path: |
@@ -205,7 +205,7 @@ jobs:
       source_sha: ${{ steps.provenance.outputs.source_sha }}
     steps:
       - name: Check out release source for provenance checks
-        uses: actions/checkout@v5
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           fetch-depth: 0
 
@@ -227,7 +227,7 @@ jobs:
       contents: read
     steps:
       - name: Download the verified HTP artifact without rebuilding
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           name: ternux-llama-htp-sm8735-b11582
           github-token: ${{ github.token }}
@@ -237,7 +237,7 @@ jobs:
       - name: Verify archive checksum
         run: (cd candidate && sha256sum --check ternux-llama-htp-sm8735-b11582.tar.gz.sha256)
       - name: Re-upload the exact inspected artifact with extended retention
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: ternux-llama-htp-sm8735-b11582
           path: |
@@ -261,12 +261,12 @@ jobs:
       SOURCE_ARTIFACT_SHA: ${{ needs.verify_source.outputs.source_sha || github.sha }}
     steps:
       - name: Check out release source for provenance checks
-        uses: actions/checkout@v5
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           fetch-depth: 0
 
       - name: Download the exact build artifact
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           name: ternux-llama-htp-sm8735-b11582
           github-token: ${{ github.token }}
