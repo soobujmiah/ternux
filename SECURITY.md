@@ -2,11 +2,11 @@
 
 ## Supported versions
 
-| Version | Support status |
-| ------- | -------------- |
-| 2.x | Current source release: v2.0.1; stable APT is withdrawn |
-| 1.x | Historical release line (v1.4.0) |
-| < 1.0 | Pre-release; unsupported |
+| Release line | Support status |
+| ------------ | -------------- |
+| Current source | Published source archive; stable APT is unavailable |
+| Historical | The v1.4.0 release record remains available |
+| Pre-release | Unsupported |
 
 ## Reporting a vulnerability
 

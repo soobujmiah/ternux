@@ -10,13 +10,13 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 
 ---
 
-## [Unreleased] — Version 3 foundation
+## [Unreleased] — Next Version foundation
 
-- যাচাইকৃত v2.0.1 প্রকাশের পর v3 উন্নয়ন সক্রিয় হিসেবে চিহ্নিত হয়েছে। APT feasibility recommendation, আট-distro qualification matrix, security roadmap এবং স্তরভিত্তিক test strategy যোগ হয়েছে; অসম্পূর্ণ v3 capability-কে প্রকাশিত বলে দেখানো হয়নি।
-- সম্পন্ন v2 release gate এবং বর্তমান v3 boundary অনুযায়ী English/Bengali project status ও document-scope inventory মিলিয়ে নেওয়া হয়েছে।
+- যাচাইকৃত source release প্রকাশের পর পরবর্তী সংস্করণের উন্নয়ন সক্রিয় হয়েছে। APT feasibility recommendation, আট-distro qualification matrix, security roadmap এবং স্তরভিত্তিক test strategy যোগ হয়েছে; অসম্পূর্ণ সুবিধাকে প্রকাশিত বলে দেখানো হয়নি।
+- সম্পন্ন release gate এবং বর্তমান পরবর্তী-সংস্করণের সীমা অনুযায়ী English/Bengali project status ও document-scope inventory মিলিয়ে নেওয়া হয়েছে।
 - Stale update-lock recovery-তে exit status সঠিকভাবে ফেরত দেওয়ার bug fix এবং journal-সহ/ছাড়া stale lock-এর regression test যোগ হয়েছে। Production shell source-এর জন্য ShellCheck error-level CI baseline যোগ হয়েছে।
 
-## [2.0.1] — ২০২৬-১১-১৯
+## [Historical source tag] — ২০২৬-১১-১৯
 
 ### Android নির্ণয়
 
@@ -24,7 +24,7 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 
 ### ডেস্কটপ নির্ভরযোগ্যতা
 
-- v2.0.1 সংস্করণে window resize করলে ব্যবহারকারীর সরানো অবস্থান বজায় থাকে; কেবল X11 work area-এর বাইরে চলে যাওয়ার ঝুঁকি থাকলে window সরানো হয়। Geometry regression test যোগ হয়েছে এবং Debian/XFCE-এর live session-এ আচরণটি যাচাই হয়েছে।
+- প্রকাশিত source release-এ window resize করলে ব্যবহারকারীর সরানো অবস্থান বজায় থাকে; কেবল X11 work area-এর বাইরে চলে যাওয়ার ঝুঁকি থাকলে window সরানো হয়। Geometry regression test যোগ হয়েছে এবং Debian/XFCE-এর live session-এ আচরণটি যাচাই হয়েছে।
 - Ctrl zoom shortcut সঙ্গে সঙ্গে focused X11 application-এ পৌঁছায়; XFCE Terminal preference I/O-র আগেই Ternux key replay করে। Synchronous passive keyboard grab নিরাপদে event replay করতে দেয়; live Debian session-এ Ctrl+Shift+= ও Ctrl+- যাচাই এবং zoom-in/zoom-out-এর visual তুলনা হয়েছে।
 
 ### ইনস্টলার
@@ -45,13 +45,13 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 
 ### Control Center
 
-- Installed Ternux desktop guest-এর জন্য loopback-only, confirmation-bound start/stop action যোগ হয়েছে। এতে idempotent durable job record, restart reconciliation, terminal job-এর ৩০ দিনের retention এবং display migration safety guard আছে। আংশিক implementation শুধু source-এ; withdrawn v2.0.0 package-এ নেই। Device browser-এ rendered UI এখনো verify হয়নি।
+- Installed Ternux desktop guest-এর জন্য loopback-only, confirmation-bound start/stop action যোগ হয়েছে। এতে idempotent durable job record, restart reconciliation, terminal job-এর ৩০ দিনের retention এবং display migration safety guard আছে। আংশিক implementation শুধু source-এ; প্রত্যাহার করা আগের package-এ নেই। Device browser-এ rendered UI এখনো verify হয়নি।
 
-## [2.0.0] - 2026-11-13
+## [প্রত্যাহৃত source-tag release] - 2026-11-13
 
 ### Guest profile ও installer
 
-- APT, APK, pacman, DNF, Zypper ও XBPS family-তে named guest profile, আলাদা launcher/settings, ধারাবাহিক multi-guest install এবং নাম-নির্দিষ্ট `start/stop/restart DISTRO` যোগ হয়েছে। Installer profile picker এখন optional workload-এর একই keyboard checklist ব্যবহার করে (arrow বা `j`/`k`, Space/number toggle, Enter confirm) এবং device evidence জানায়। Standalone bootstrap-এ repeatable multi-guest install-এর জন্য `--distros LIST` যোগ হয়েছে এবং help-এ তা দেখায়। দুই homepage-এর copy button-এ exact এক-লাইন installer command কপি হয়। এই release-এ Debian, Ubuntu ও Alpine-ই reference device-এ qualified desktop profile। Ubuntu snapd-safe Mozilla ESR route ও নিজস্ব distro-matched graphics stack ব্যবহার করে; অন্য recipe v2 support promise-এর বাইরে।
+- APT, APK, pacman, DNF, Zypper ও XBPS family-তে named guest profile, আলাদা launcher/settings, ধারাবাহিক multi-guest install এবং নাম-নির্দিষ্ট `start/stop/restart DISTRO` যোগ হয়েছে। Installer profile picker এখন optional workload-এর একই keyboard checklist ব্যবহার করে (arrow বা `j`/`k`, Space/number toggle, Enter confirm) এবং device evidence জানায়। Standalone bootstrap-এ repeatable multi-guest install-এর জন্য `--distros LIST` যোগ হয়েছে এবং help-এ তা দেখায়। দুই homepage-এর copy button-এ exact এক-লাইন installer command কপি হয়। এই release-এ Debian, Ubuntu ও Alpine-ই reference device-এ qualified desktop profile। Ubuntu snapd-safe Mozilla ESR route ও নিজস্ব distro-matched graphics stack ব্যবহার করে; অন্য recipe তৎকালীন support promise-এর বাইরে।
 
 ### Release operation
 
@@ -80,19 +80,19 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 
 ### Desktop reliability
 
-- GTK 4 theme-এর ভুল built-in stylesheet resource path ঠিক হয়েছে। Debian Trixie GTK 4-এ আগের Adwaita resource ছিল না, তাই theme parser error হতো; এখন GTK-এর bundled dark stylesheet import হয়। Live pavucontrol launch-এ আর ওই parser error আসেনি এবং OpenSL ES Output controls দেখা গেছে। Release audit-এ Xfce menu entry দিয়ে চালালে readable Playback ও OpenSL input controls নিশ্চিত হয়েছে; repeated launch behavior v2 qualification claim-এর অংশ নয়।
+- GTK 4 theme-এর ভুল built-in stylesheet resource path ঠিক হয়েছে। Debian Trixie GTK 4-এ আগের Adwaita resource ছিল না, তাই theme parser error হতো; এখন GTK-এর bundled dark stylesheet import হয়। Live pavucontrol launch-এ আর ওই parser error আসেনি এবং OpenSL ES Output controls দেখা গেছে। Release audit-এ Xfce menu entry দিয়ে চালালে readable Playback ও OpenSL input controls নিশ্চিত হয়েছে; repeated launch behavior আগের release qualification claim-এর অংশ নয়।
 - Xfce desktop entry দিয়ে চালানো PulseAudio Volume Control connected phone-এ verify: একই dark theme-এ Playback controls ও OpenSL input readable; app বন্ধ করলে microphone source idle হয়।
 - `GALLIUM_DRIVER=zink` সব desktop app-এ export না করে GPU workload-এ সীমিত করায় PulseAudio Volume Control-এর intermittent black window ঠিক হয়েছে; accelerated desktop Zink `MESA_LOADER_DRIVER_OVERRIDE=zink` দিয়ে selected থাকে।
 
 
 ### Performance
 
-- Termux package-এ exact Mesa source-tag-এর license overview ও সব license text যোগ হয়েছে; `ternux gpu update` এখন hash যাচাই করে pinned Turnip driver-এর পাশে notice install করে। Live Debian update-এ notice verification pass করেছে। সম্পূর্ণ binary-to-source mapping ও transitive-license review follow-up কাজ; এগুলো v2 release gate ছিল না।
+- Termux package-এ exact Mesa source-tag-এর license overview ও সব license text যোগ হয়েছে; `ternux gpu update` এখন hash যাচাই করে pinned Turnip driver-এর পাশে notice install করে। Live Debian update-এ notice verification pass করেছে। সম্পূর্ণ binary-to-source mapping ও transitive-license review follow-up কাজ; এগুলো তৎকালীন release gate ছিল না।
 
 - Checksum-verified staged archive দিয়ে Mesa 27.0.0 Turnip pin update; Adreno 825-এ Vulkan enumeration ও Zink GLX pass করেছে। ছোট interleaved model test-এ staged driver-এর median 27.2 tok/s, আগের driver-এ 26.6 tok/s।
 - Bundled JetBrainsMono Nerd Font v3.5.1 pin করা হয়েছে; extract-এর আগে SHA-256 যাচাই হয় এবং 100+ MB ZIP-এর বদলে 7.3 MB xz archive ব্যবহৃত হয়।
 
-- Zink desktop launcher থেকে Turnip-এর forced `sysmem` debug mode বাদ, যাতে driver workload অনুযায়ী system-memory বা tile-memory rendering বেছে নিতে পারে। আলাদা cool-device performance comparison v2 release evidence-এর অংশ ছিল না।
+- Zink desktop launcher থেকে Turnip-এর forced `sysmem` debug mode বাদ, যাতে driver workload অনুযায়ী system-memory বা tile-memory rendering বেছে নিতে পারে। আলাদা cool-device performance comparison তৎকালীন release evidence-এর অংশ ছিল না।
 
 ### ডেস্কটপ welcome ও media
 
@@ -110,7 +110,7 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 - Installer-এর বড় duplicate wordmark ও patterned frame বাদ দিয়ে compact mobile header এবং পরিষ্কার separator করা হয়েছে; portrait screen-এ log-এর জায়গা বাড়ানো হয়েছে, routine APT chatter full log-এ রাখা হয়েছে এবং renderer assertion যোগ হয়েছে।
 - Termux:X11-এর black screen-এর জন্য documented legacy drawing mode চালু হয়েছে; managed XFCE launcher session bus ready হলে shared Ternux GTK ও icon theme apply করে।
 - PulseAudio bridge port collision ঠিক করা হয়েছে: desktop launcher এখন 4713–4722 loopback port চেষ্টা করে, পাওয়া port Debian-এ পাঠায়; ভুল listener-এ নীরবে যুক্ত হয় না।
-- Termux `ternux` package manifest ও পুনরুৎপাদনযোগ্য local APT repository builder যোগ হয়েছে। এটি package পরিচয় ও SHA-256 মেলায়, নির্দিষ্ট primary-key fingerprint দিয়ে sign যাচাই করে, শুধু public key export করে, symlink করা artifact root ও stale package প্রত্যাখ্যান করে এবং unsigned rebuild-এ পুরোনো signature সরায়। CI unsigned review artifact বানায়; manual release workflow কেবল source version 2.0.0 হলে v2 publish করতে পারে। `pkg install ternux` host CLI install করে; desktop setup আলাদা করে `ternux install` চালালে শুরু হয়।
+- Termux `ternux` package manifest ও পুনরুৎপাদনযোগ্য local APT repository builder যোগ হয়েছে। এটি package পরিচয় ও SHA-256 মেলায়, নির্দিষ্ট primary-key fingerprint দিয়ে sign যাচাই করে, শুধু public key export করে, symlink করা artifact root ও stale package প্রত্যাখ্যান করে এবং unsigned rebuild-এ পুরোনো signature সরায়। CI unsigned review artifact বানায়; manual release workflow package metadata ও source version মিলে গেলেই প্রকাশ করে। `pkg install ternux` host CLI install করে; desktop setup আলাদা করে `ternux install` চালালে শুরু হয়।
 - Package-manager call এখন এমন wrapper দিয়ে চলে যা inherited `LD_LIBRARY_PATH` খালি করে। ফলে বাইরের CLI bundle-এর C++ library Termux APT-কে আর ভাঙতে পারে না।
 - Installer এখন private unique temporary file-এ সীমিত microphone permission probe চালায়, শুধু নিজের path-এর recording বন্ধ করে এবং চলমান user recording অক্ষত রাখে। Termux:API এখনও file-এ record করে; live desktop input আলাদা on-demand PulseAudio OpenSL source ব্যবহার করে।
 - ternux doctor এখন চালু Termux:X11 display-কে Debian guest-এ পাঠায়, ফলে Xfce-এর বাইরে command চালালেই renderer unknown হওয়ার সমস্যা ঠিক হয়।
@@ -181,7 +181,7 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
   prerelease হিসেবে প্রকাশিত; command নির্বাচিত Debian guest-এ install করে এবং
   model file ছোঁয় না। Installed build SM8735-এ CPU ও Adreno Vulkan known-answer
   check pass করেছে।
-- Debian, Ubuntu ও Alpine reference device-এ v2 desktop profile হিসেবে qualify করেছে;
+- Debian, Ubuntu ও Alpine reference device-এ আগের release desktop profile হিসেবে qualify করেছে;
   এই ফল ওই device ও নথিভুক্ত test-এর মধ্যেই সীমিত।
 - Turnip source download upstream release `mesa-26.3.0-devel-20260824`-এ pin করা;
   release manifest-এর SHA-256 না মিললে archive প্রত্যাখ্যান হয়। বিস্তৃত clean-device
@@ -262,7 +262,7 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 
 ### Named guest profile ও পরিবারভিত্তিক setup
 
-- `--distro NAME` দিয়ে named PRoot profile বেছে নেওয়া যায়। Debian, Ubuntu ও Alpine v2-qualified desktop guest; অন্য recipe v2 support promise-এর অংশ নয়।
+- `--distro NAME` দিয়ে named PRoot profile বেছে নেওয়া যায়। Debian, Ubuntu ও Alpine তখন qualified desktop guest; অন্য recipe তৎকালীন support promise-এর অংশ নয়।
 - Package manager ও graphics setup guest family অনুযায়ী চলে। Ubuntu snapd-safe browser route এবং নিজস্ব distro-matched Mesa/Freedreno stack ব্যবহার করে।
 - Debian, Ubuntu ও Alpine আলাদা `:0`, `:1`, `:2` display, user/root shell shortcut এবং guest-specific `start`, `stop`, `restart`, `verify` command ব্যবহার করে।
 - Generic OCI image-এ Ternux desktop recipe না থাকলে shell guest হিসেবেই থাকে।
@@ -288,7 +288,7 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
   ব্যবহৃত হয়, `proot-distro login debian`-এর ৩৫টি কপির বদলে। তাই একটি distribution
   যোগ করা মানে তার profile লেখা, প্রতিটি call site আবার ঘেঁটে দেখা নয়। নির্ধারণের ক্রম:
   `TERNUX_DISTRO`, তারপর লিপিবদ্ধ state, তারপর `debian`।
-- `TERNUX_DISTRO_VERIFIED` Debian, Ubuntu ও Alpine-কে v2-এর তিনটি device-qualified
+- `TERNUX_DISTRO_VERIFIED` Debian, Ubuntu ও Alpine-কে আগের release-এর তিনটি device-qualified
   profile হিসেবে রাখে। Alpine-এর synthetic Ctrl+Space event-এর অমিল release report-এ
   স্পষ্ট আছে; এটিকে সফল input test বলা হয়নি।
 - Launcher ও shell alias standalone file, ternux-এর library কখনো source করে না, তাই

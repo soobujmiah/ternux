@@ -7,7 +7,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-SCHEMAS = ROOT / "docs/v3/schemas"
+SCHEMAS = ROOT / "docs/next/schemas"
 passed = 0
 failed = 0
 

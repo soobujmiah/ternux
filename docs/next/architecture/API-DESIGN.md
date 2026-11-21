@@ -1,0 +1,161 @@
+---
+title: "Ternux Next Version API design"
+description: "Versioned local manager API, event stream, job model, and error contract."
+lang: "en"
+---
+
+## API design
+
+**Status: IMPLEMENTED (read-only CLI and explicit Unix-socket transport).**
+`tx manager status`, `tx manager guests`, `tx manager displays`, and
+`tx manager capabilities` expose versioned JSON snapshots. The display snapshot
+distinguishes a guest's saved current display from its Next Version target, records live
+socket/lock/server occupancy, reports the uniquely matched active guest's
+saved display assignment where possible, and labels unresolved ownership
+explicitly. This is not OS-level socket-owner proof. Display payload schema is
+1.3.0. It includes a read-only per-guest migration preview (`initialize`,
+`keep`, or `move`) and blockers for active sessions, occupied targets,
+malformed registry files, or disagreement between a profile and its registry. The preview always reports that execution is unavailable and
+never changes guest state. A lock-protected registry persists workspace ID,
+saved/target display, last lifecycle, and update time. The snapshot exposes its saved display and
+last recorded lifecycle. Socket ownership remains a runtime observation, never
+a persisted claim. Other manager payloads remain 1.0.0. The command never
+changes or starts a session. These commands run directly in native Termux and do not need
+an installed guest. The browser's loopback adapter exposes the read-only snapshot plus a limited
+desktop start/stop action and durable job-status endpoints. The broader
+service-backed HTTP API, event stream, cancellation, and workload/device
+mutation endpoints remain designed contracts. The independent shared-core decision is recorded
+in [ADR-0004](ADR/0004-shared-manager-contract.md).
+
+Run `tx manager serve` to start the optional foreground socket service. It
+accepts one newline-terminated JSON request per connection, enforces the v1
+request envelope, bounds requests and responses, checks Linux peer credentials,
+and delegates only the four existing read-only operations to the CLI core.
+The private socket directory is mode `0700`, the socket and startup lock are
+`0600`, and the service exits on Ctrl-C. An advisory lock prevents concurrent
+service starts from removing a socket during startup. Python 3 is optional
+and needed only when the service is explicitly started (`pkg install python`).
+The Unix-socket service does not auto-start or expose a TCP/HTTP listener. The
+separate `tx control` process binds a temporary HTTP listener on `127.0.0.1`
+only while the dashboard is open; it serves snapshots and typed desktop
+lifecycle routes, and stops on Ctrl-C.
+Direct CLI JSON snapshots keep their existing command-specific schemas.
+JSON consumers should key compatibility off `schema_version` and `command`;
+service responses echo `request_id` for correlation. The browser snapshot
+wrapper is defined by `schemas/control-center-snapshot-v1.schema.json` and served
+at `GET /api/v1/snapshot`. The limited action API is described below; PUT and
+DELETE are not supported.
+
+## Transport
+
+Use a Unix-domain socket for manager requests, with one bounded JSON request
+and response per connection. Long-running jobs use newline-delimited JSON
+events. The request envelope carries the exact schema version, a UUIDv4
+`request_id`, a catalogued operation name, and operation-typed arguments. The
+v1 schema exposes only the four implemented read-only operations and empty
+argument objects. Unknown operations, unknown envelope fields, and
+operation-inappropriate arguments fail closed. A future v1 minor may add
+response fields; incompatible request changes require a new major version.
+
+The current `tx control` web client uses a temporary HTTP listener bound only
+to `127.0.0.1`, rather than exposing the Unix socket or listening on LAN. Its
+lifecycle routes are limited to installed Ternux desktop profiles and fixed
+start/stop operations. A future service-owned HTTP adapter must retain the same
+boundary.
+Protocol version is negotiated with `GET /v1/meta` or the equivalent socket
+method. Unix socket parent directories are private to the Termux UID (mode
+`0700`) and the socket is mode `0600`; clients cannot nominate a socket path.
+Web mutations additionally require a short-lived session token, same-origin
+checks, and CSRF protection. The service remains stopped until the user
+explicitly runs `tx manager serve`.
+
+## Current Control Center lifecycle routes
+
+The current source browser adapter exposes these routes independently of the
+Unix-socket service:
+
+- `POST /api/v1/guest-plans` with exactly `{"operation":"start|stop","guest":"NAME"}` returns a state-bound plan and short-lived confirmation token.
+- `POST /api/v1/guest-actions` with exactly `{"plan_id":"sha256:…","confirmation":"…","idempotency_key":"…"}` validates unchanged state, journals a job, and queues only the fixed `ternux start NAME` or `ternux stop NAME` argv.
+- `GET /api/v1/jobs/{uuid}` returns the bounded public job fields. A server restart marks queued/running records `INTERRUPTED` and requires a status check before retry.
+
+All action requests require the current bearer token, exact local Origin, and
+`X-Ternux-CSRF` token; JSON content type, body size, and duplicate JSON keys are
+validated. Plans fail closed when the guest needs a display migration. Start execution
+remains delegated to the manager CLI, which may remove a proven stale display
+socket and refuses an unsafe live conflict. The
+idempotency key is scoped to the local Termux UID and retained in the private
+job record for the 30-day terminal-job retention period. Old terminal records
+are pruned; active jobs are retained. A private process lock prevents concurrent
+Control Center instances from incorrectly reconciling one another's running
+jobs. Jobs are not cancelable in this slice. These routes are source-only
+and are not included in the withdrawn historical package.
+
+## Resource shapes
+
+```json
+{"id":"guest-opaque-id","name":"debian","distro":"debian","state":"RUNNING","display":1}
+{"id":"job-opaque-id","kind":"guest.start","state":"RUNNING","phase":"desktop-ready","progress":0.8,"cancelable":false}
+{"code":"GUEST_NOT_FOUND","message":"Guest 'name' is not installed.","retry":"install-or-select-another","request_id":"opaque-id"}
+```
+
+Names are validated labels, not filesystem paths. IDs are generated by the
+manager. Timestamps use UTC ISO 8601. Progress is nullable if the operation
+cannot provide a truthful fraction. Logs are returned by bounded reference,
+not arbitrary path.
+
+## Initial resource families
+
+- `GET /v1/status`, `GET /v1/guests`, `GET /v1/guests/{id}`
+- `POST /v1/guests/{id}/start`, `POST /v1/guests/{id}/stop`
+- `GET /v1/jobs/{id}`, `GET /v1/jobs/{id}/events`, `POST /v1/jobs/{id}/cancel`
+- `GET /v1/compute/capabilities`, `GET /v1/workloads`, `POST /v1/workloads/{id}/install`
+- `GET /v1/device/grants`, `POST /v1/device/grants`, `DELETE /v1/device/grants/{id}`
+- `GET /v1/diagnostics`, `POST /v1/diagnostics/repair-plan`
+
+Every future mutation includes an idempotency key scoped to the authenticated
+client and operation. The service stores a digest of the canonical request:
+replaying the same key and body returns the existing job/result, while reusing
+the key with a different body returns `IDEMPOTENCY_CONFLICT`. Mutation
+execution itself must be desired-state/idempotent and journaled before side
+effects. Delete methods only remove the identified Ternux-owned record; guest
+or model data removal has a separate explicit endpoint and confirmation token
+bound to the exact preview plan.
+
+Before adding mutations, the core must own a typed operation allowlist, input
+validation, authorization, execution, and result recording. Client menus and
+capability listings must be derived from implemented operations, not maintain
+their own parallel list. Filesystem operations accept opaque resource IDs or
+relative paths rooted beneath an explicit Ternux-owned directory; they resolve
+the root and reject traversal, symlink substitution, and paths outside that
+root. A mutation must preview the exact immutable plan, require confirmation
+bound to that plan, and record recoverable progress. Direct CLI status and
+recovery must remain usable when the optional service or graphical clients are
+stopped. No operation may accept arbitrary shell text, caller-provided
+environment maps, or unrestricted filesystem paths.
+
+## Request and error schemas
+
+- [Request envelope v1 JSON schema](https://github.com/soobujmiah/ternux/blob/main/docs/next/architecture/schemas/manager-request-v1.schema.json) defines the
+  supported read-only operation calls.
+- [Workspace display snapshot v1 schema](https://github.com/soobujmiah/ternux/blob/main/docs/next/architecture/schemas/manager-displays-v1.schema.json)
+  defines current assignments, planned targets, socket/lock/server occupancy, and
+  migration flags without enabling workspace mutations.
+- [Response envelope v1 JSON schema](https://github.com/soobujmiah/ternux/blob/main/docs/next/architecture/schemas/manager-response-v1.schema.json) correlates
+  each reply to its request and contains exactly one result or error.
+- [Error object v1 JSON schema](https://github.com/soobujmiah/ternux/blob/main/docs/next/architecture/schemas/manager-error-v1.schema.json) provides stable
+  machine codes, localized-client-ready messages, and retry guidance.
+
+`tests/manager_protocol.py` checks schema fixtures; `tests/manager_service.py`
+exercises the real Unix socket, including malformed input, oversized requests,
+concurrent clients, graceful shutdown, stale-socket recovery, and safe
+duplicate-service refusal. The limited desktop lifecycle HTTP routes are covered by `tests/control_center.py`;
+no general service-backed HTTP adapter, job event stream, cancellation, workload
+mutation, or native Android client is claimed.
+
+## Errors and compatibility
+
+Error codes are stable machine identifiers. Messages are localized at the
+client. HTTP status (or socket result class), error code, retryability, and
+request ID are always included. API compatibility tests cover the current
+client, previous minor client, malformed input, path traversal, duplicate
+requests, service restart, and client disconnection.

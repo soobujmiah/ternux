@@ -11,9 +11,9 @@
 | বিভাগ | পৃষ্ঠা |
 |---|---|
 | শুরু করুন | `index.md`, `QUICK-START.md`, `INSTALLATION.md`, `MANUAL.md` |
-| প্রকাশনা ও পরিকল্পনার অবস্থা | [`release/README.md`](release/README.md)-এ সংস্করণভিত্তিক install guide; [`release/V2-RELEASE-REPORT.md`](release/V2-RELEASE-REPORT.md)-এ v2.0.0 ইতিহাস ও বর্তমান scope; [`V2-RELEASE-READINESS.md`](V2-RELEASE-READINESS.md)-এ প্রকাশিত v2.0.1 release ও qualification সীমা |
+| ঐতিহাসিক release ও পরিকল্পনা | [`release/README.md`](release/README.md)-এ সংরক্ষিত install guide-এর সূচি; [`release/V2-RELEASE-REPORT.md`](release/V2-RELEASE-REPORT.md) ও [`V2-RELEASE-READINESS.md`](V2-RELEASE-READINESS.md)-এ তারিখযুক্ত release evidence। [পরবর্তী সংস্করণের সূচি](next/README.md)-তে ভবিষ্যৎ পরিকল্পনা; [প্রকল্পের roadmap](project/PROJECT-ROADMAP.md)-এ বর্তমান কাজ। |
 | শুধু সংগ্রহশালায় থাকা নিরীক্ষার প্রমাণ | [`audit/`](../../docs/audit/REPOSITORY-FULL-AUDIT-2026-11-20.md)-এ বর্তমান উৎস, পরীক্ষা ও সীমার পূর্ণ নিরীক্ষা আছে; `CURRENT-STATE.md` হলো ২০২৬-১১-১৩-এর পুরোনো snapshot। এগুলো প্রকাশিত ওয়েবসাইটের device qualification দাবি নয়। |
-| প্ল্যাটফর্মের নকশা ও বর্তমান পরিকল্পনা | [`v3/`](../../docs/v3/README.md)-তে ভবিষ্যৎ স্থাপত্য; এগুলো v2 release gate নয়। ইংরেজি ও বাংলা [প্রকল্পের পরিকল্পনা](project/PROJECT-ROADMAP.md)-তে v2 candidate ও v3-এর ক্রম দেখুন। |
+| প্ল্যাটফর্মের নকশা ও বর্তমান পরিকল্পনা | [`NEXT-ARCHITECTURE.md`](NEXT-ARCHITECTURE.md) ও [`NEXT-PROPOSALS.md`](NEXT-PROPOSALS.md)-এ ভবিষ্যৎ কাজের ধারণা, বর্তমান সমর্থনের দাবি নয়। [প্রকল্পের roadmap](project/PROJECT-ROADMAP.md)-এ বর্তমান implementation ও evidence দেখুন। |
 | প্যাকেজ বিতরণ | [`TERMUX-APT.md`](TERMUX-APT.md) (প্যাকেজ-সংগ্রহস্থলের বিশ্বাসযোগ্যতা ও ইনস্টল); [`../packaging/termux/README.md`](../packaging/termux/README.md) (তৈরি ও প্রকাশ) |
 | সংগ্রহশালার বিস্তারিত নির্দেশিকা | [`../guides/device-benchmark-evidence.md`](../guides/device-benchmark-evidence.md), [`../guides/llama-vulkan-extension.md`](../guides/llama-vulkan-extension.md), এবং `../../guides/`-এর সংশ্লিষ্ট ইংরেজি পৃষ্ঠা (শুধু উৎস সংগ্রহশালায়; ওয়েবসাইটে প্রকাশিত নয়) |
 | পরিচালনা | `USAGE.md`, `WORKLOADS.md`, `BLENDER-MCP.md`, `CONFIGURATION.md`, `GRAPHICS-PERSISTENCE.md`, [`ANDROID-PHANTOM-PROCESS.md`](ANDROID-PHANTOM-PROCESS.md), `TROUBLESHOOTING.md` |

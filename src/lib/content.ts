@@ -23,7 +23,7 @@ function rewriteHtml(html: string, route: string) {
           /^(docs|bn\/docs)\/(?!README|SEO\.md|ACCELERATOR-RELEASE-PLAN\.md)[^/]+\.md$/.test(
             relative,
           ) ||
-          /^(docs|bn\/docs)\/(v3|project|release)\/.+\.md$/.test(relative) ||
+          /^(docs|bn\/docs)\/(next|project|release)\/.+\.md$/.test(relative) ||
           /^(CHANGELOG|CONTRIBUTING|bn\/CHANGELOG|bn\/CONTRIBUTING)\.md$/.test(
             relative,
           );
@@ -85,7 +85,7 @@ export function allPages(lang: "en" | "bn") {
       .relative(dir, current)
       .split(path.sep)
       .join("/");
-    const inPublishedTree = ["v3", "project", "release"].some(
+    const inPublishedTree = ["next", "project", "release"].some(
       (section) =>
         currentRelative === section ||
         currentRelative.startsWith(`${section}/`),
@@ -95,7 +95,7 @@ export function allPages(lang: "en" | "bn") {
       if (
         entry.isDirectory() &&
         (current === dir
-          ? ["v3", "project", "release"].includes(entry.name)
+          ? ["next", "project", "release"].includes(entry.name)
           : inPublishedTree)
       ) {
         visit(absolute);

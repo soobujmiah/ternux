@@ -8,13 +8,9 @@
 
 ### এআরএম৬৪ অ্যান্ড্রয়েড ফোনে লিনাক্স ডেস্কটপ — রুট লাগে না
 
-[![সংস্করণ](https://img.shields.io/badge/version-2.0.1-22c55e?style=flat-square)](../docs/release/pages/v2.0.1-INSTALLATION.md)
-[![Termux APT v2 প্রত্যাহৃত](https://img.shields.io/badge/Termux%20APT-v2%20withdrawn-gray?style=flat-square)](../docs/TERMUX-APT.md)
-[![Debian · Ubuntu · Kali · Alpine](https://img.shields.io/badge/v2%20verified-Debian%20%7C%20Ubuntu%20%7C%20Kali%20%7C%20Alpine-77e3ad?style=flat-square)](../docs/audit/FEATURE-MATRIX.md)
-[![v3 roadmap](https://img.shields.io/badge/v3-roadmap%20published-38bdf8?style=flat-square)](../docs/v3/README.md)
+[![Debian · Ubuntu · Kali · Alpine](https://img.shields.io/badge/desktop%20setups-Debian%20%7C%20Ubuntu%20%7C%20Kali%20%7C%20Alpine-77e3ad?style=flat-square)](../docs/INSTALLATION.md#choosing-a-guest-distribution)
 [![Android ARM64](https://img.shields.io/badge/Android-ARM64-38bdf8?style=flat-square)](../docs/INSTALLATION.md)
 [![Root](https://img.shields.io/badge/root-lage%20na-22c55e?style=flat-square)](../docs/FAQ.md)
-[![v2 desktop guest](https://img.shields.io/badge/v2%20desktop-4%20guest-77e3ad?style=flat-square)](../docs/audit/FEATURE-MATRIX.md)
 [![Adreno evidence](https://img.shields.io/badge/GPU-Adreno%20825%20measured-8bf5a6?style=flat-square)](../docs/BENCHMARKS.md)
 [![Distro recipe](https://img.shields.io/badge/distro%20recipe-15-b9ff72?style=flat-square)](../docs/INSTALLATION.md#choosing-a-guest-distribution)
 [![Desktop](https://img.shields.io/badge/desktop-Xfce%20%2B%20Termux%3AX11-55c2ff?style=flat-square)](../docs/QUICK-START.md)
@@ -24,18 +20,17 @@
 [![NPU](https://img.shields.io/badge/NPU-shudhu%20experimental-f59e0b?style=flat-square)](../docs/ACCELERATOR-RELEASE-PLAN.md)
 [![লাইসেন্স](https://img.shields.io/badge/license-Apache--2.0-22c55e?style=flat-square)](../LICENSE)
 
-[ওয়েবসাইট](https://soobujmiah.github.io/ternux/) · [দ্রুত শুরু](../docs/QUICK-START.md) · [সব নথি](../docs/README.md) · [কমান্ড-লাইন নির্দেশিকা](../docs/CLI.md) · [পরীক্ষার মাপজোখ](../docs/BENCHMARKS.md) · [v2 প্রকাশনা ও নিরীক্ষা](../docs/release/V2-RELEASE-REPORT.md) · [ইংরেজি](../README.md) · [উৎস](https://github.com/soobujmiah/ternux)
+[ওয়েবসাইট](https://soobujmiah.github.io/ternux/) · [দ্রুত শুরু](../docs/QUICK-START.md) · [সব নথি](../docs/README.md) · [কমান্ড-লাইন নির্দেশিকা](../docs/CLI.md) · [পরীক্ষার মাপজোখ](../docs/BENCHMARKS.md) · [ইংরেজি](../README.md) · [উৎস](https://github.com/soobujmiah/ternux)
 
 </div>
 
 ## Ternux সম্পর্কে
 
 টার্নাক্স এআরএম৬৪ অ্যান্ড্রয়েড ফোনে রুট ছাড়াই লিনাক্স ডেস্কটপ চালায়; অ্যান্ড্রয়েডই
-হোস্ট থাকে। নিচের উৎস-ইনস্টলার বর্তমান `main` শাখা বসায়; প্রত্যাহার করা v2.0.0
-প্রকাশনা পুরোনো স্ন্যাপশট, তাই তাতে উৎসের সব বর্তমান সুবিধা নেই। টার্মাক্সের ভেতরে পিআররুট গেস্ট চলে, টার্মাক্স:এক্স১১-তে এক্সএফসিই
-ডেস্কটপ দেখা যায় এবং পালসঅডিও গেস্টের শব্দ অ্যান্ড্রয়েডে পাঠায়। একটি
-কমান্ড-লাইন সরঞ্জাম দিয়ে গেস্ট, ডেস্কটপ অধিবেশন, গ্রাফিক্স, সমস্যা-নিরীক্ষা
-ও ঐচ্ছিক কাজ পরিচালনা করা যায়।
+হোস্ট থাকে। উৎস-ইনস্টলার নির্দিষ্ট source snapshot ব্যবহার করে। Termux-এর ভেতরে
+PRoot guest চলে, Termux:X11-এ Xfce desktop দেখা যায় এবং PulseAudio গেস্টের শব্দ
+অ্যান্ড্রয়েডে পাঠায়। একটি command-line tool দিয়ে guest, desktop session,
+graphics, diagnostics ও ঐচ্ছিক workload পরিচালনা করা যায়।
 
 দৈনন্দিন ওয়েব দেখা, নথি সম্পাদনা, গান-ভিডিও চালানো, ছবি তোলা ও শব্দ ধারণের
 অ্যাপসহ টার্নাক্সে নিজস্ব রং-নকশা এবং ফোনের মাপের জানালা থাকে। নির্মাণ-সরঞ্জাম
@@ -43,13 +38,12 @@
 যায়। টার্মাক্সকে সংরক্ষণ-অনুমতি দিলে গেস্ট থেকে অ্যান্ড্রয়েডের ভাগ করা ফাইল
 ও মডেল সরাসরি ব্যবহার করা যায়।
 
-**দ্বিতীয় সংস্করণে ডেবিয়ান, উবুন্টু, কালি লিনাক্স ও আল্পাইন—চারটি ডেস্কটপ বিন্যাস যাচাইকৃত।**
-যন্ত্রের প্রমাণ রেডমি টার্বো ৪ প্রো / অ্যান্ড্রয়েড ১৬ / অ্যাড্রেনো ৮২৫ থেকে;
-কোন পরীক্ষা হয়েছে তা [সুবিধা-তালিকা](../docs/audit/FEATURE-MATRIX.md) ও
-[বর্তমান পূর্ণ নিরীক্ষায়](../docs/audit/REPOSITORY-FULL-AUDIT-2026-11-20.md) দেখুন। ডেবিয়ান
-সুপারিশকৃত প্রাথমিক পছন্দ। আরও ১১টি নামযুক্ত ডিস্ট্রো রেসিপি চেষ্টা করা যায়,
-তবে v2 ডেস্কটপ সমর্থন হিসেবে সেগুলো যাচাইকৃত নয়। টার্নাক্স ডেস্কটপ রেসিপি
-না থাকা ওসিআই ছবিও শুধু শেল গেস্ট হিসেবে চালানো যায়।
+**বর্তমানে আমরা Debian, Ubuntu, Kali Linux এবং Alpine-এর চারটি desktop setup রক্ষণাবেক্ষণ করি।**
+যন্ত্রের অধিকাংশ পরীক্ষা Redmi Turbo 4 Pro / Android 16 / Adreno 825-এ হয়েছে;
+প্রতিটি distro ও feature-এর প্রমাণের গভীরতা আলাদা। নির্দিষ্ট পরীক্ষার সীমা
+[সুবিধা-তালিকায়](../docs/audit/FEATURE-MATRIX.md) দেখুন। Debian প্রস্তাবিত
+প্রাথমিক পছন্দ। আরও ১১টি নামযুক্ত distro recipe চেষ্টা করা যায়, তবে একই
+পরীক্ষার প্রমাণ নেই। Ternux desktop recipe নেই এমন OCI image কেবল shell guest।
 
 ### গ্রাফিক্স ও গেস্ট সমর্থন
 
@@ -61,7 +55,7 @@
 ### কোথা থেকে শুরু করবেন
 
 - **প্রথমবার?** [দ্রুত শুরু করুন](../docs/QUICK-START.md)।
-- **গেস্ট সমর্থন জানতে?** [v2 সুবিধা-তালিকা](../docs/audit/FEATURE-MATRIX.md)।
+- **গেস্ট setup-এর পরীক্ষা জানতে?** [সুবিধা-তালিকা](../docs/audit/FEATURE-MATRIX.md)।
 - **মাপজোখ দেখতে?** [পরীক্ষার ফল ও সীমাবদ্ধতা](../docs/BENCHMARKS.md)।
 - **কমান্ড খুঁজছেন?** [কমান্ড-লাইন নির্দেশিকা](../docs/CLI.md)।
 
@@ -99,7 +93,7 @@
 পারলে কমান্ডটি `wget` দিয়ে আবার চেষ্টা করে:
 
 ```bash
-pkg update -y && pkg upgrade -y && pkg install -y curl wget && bash -c 's=$(mktemp) && (curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/369d1ca4c84db15473564046d1991aa2b7f6a35a/install.sh -o "$s" || wget -qO "$s" https://raw.githubusercontent.com/soobujmiah/ternux/369d1ca4c84db15473564046d1991aa2b7f6a35a/install.sh) && bash "$s"; r=$?; rm -f "$s"; exit "$r"'
+pkg update -y && pkg upgrade -y && pkg install -y curl wget && bash -c 's=$(mktemp) && (curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/310a71c0eefe1901209804f87066ab29a5d4a21a/install.sh -o "$s" || wget -qO "$s" https://raw.githubusercontent.com/soobujmiah/ternux/310a71c0eefe1901209804f87066ab29a5d4a21a/install.sh) && bash "$s"; r=$?; rm -f "$s"; exit "$r"'
 ```
 
 কোনো আবশ্যিক ধাপে ইনস্টলেশন থেমে গেলে একই কমান্ড আবার চালান। এতে বর্তমান
@@ -120,14 +114,10 @@ pkg update -y && pkg upgrade -y && pkg install -y curl wget && bash -c 's=$(mkte
 চালিয়ে টার্মাক্স মেরামত করুন, তারপর আবার চেষ্টা করুন।
 স্থিতিশীল প্যাকেজ ভান্ডার প্রত্যাহার হওয়ায় এখন উৎস ইনস্টলারই সমর্থিত বসানোর পথ।
 
-টার্নাক্স v2.0.0 গিটহাব প্রকাশনা ও স্থিতিশীল এপিটি বিতরণ ২০২৬-১১-১৪ তারিখে
-প্রত্যাহার করা হয়েছে; পরিচয় যাচাইয়ের জন্য `v2.0.0` ট্যাগ রাখা হয়েছে। v2.0.1
-যাচাইকৃত source tag, archive ও checksum-সহ প্রকাশিত source release। উপরের
-source installer-ই সমর্থিত ইনস্টল পথ। স্থিতিশীল এপিটি ভান্ডার প্রত্যাহৃত, তাই
-`pkg install ternux` পাওয়া যায় না; RC channel কেবল candidate testing-এর জন্য,
-production install নয়। v2-এর বিদ্যমান বাস্তবায়ন স্থির; নতুন স্থাপত্য ও সুবিধা
-v3-তে পরিকল্পিত। [APT channel status](../docs/TERMUX-APT.md) ও
-[v2 release record](../docs/V2-RELEASE-READINESS.md) দেখুন।
+Termux package repository বর্তমানে অপ্রাপ্য, তাই `pkg install ternux` ইনস্টলের
+পথ নয়। উপরের pinned source installer ব্যবহার করুন। বিস্তারিত [package channel-এর
+অবস্থা](../docs/TERMUX-APT.md)-তে দেখুন। [পরবর্তী সংস্করণের পরিকল্পনা](../docs/next/README.md)
+ভবিষ্যতের ধারণা; প্রকাশিত সুবিধার দাবি নয়।
 
 মূল ইনস্টলেশনে প্রায় ৪–৪.৬ জিবি জায়গা লাগে। ডাউনলোড ও প্যাকেজ ক্যাশের জন্য
 আরও কিছু খালি জায়গা রাখুন।
@@ -267,10 +257,10 @@ ternux --help            # কমান্ডের তালিকা
 
 - [বিস্তারিত নথি](../docs/README.md): ইনস্টল-বিকল্প, হাতে বসানো,
   দৈনন্দিন ব্যবহার, বিন্যাস, সমস্যা সমাধান, স্থাপত্য ও কমান্ড-লাইন।
-- [v3 স্থাপত্য ও নির্মাণ-পরিকল্পনা](../docs/v3/README.md): ভবিষ্যৎ ব্যবস্থাপক,
+- [পরবর্তী সংস্করণের পরিকল্পনা](../docs/next/README.md): সম্ভাব্য ব্যবস্থাপক,
   কর্মক্ষেত্র, গণনা, কৃত্রিম বুদ্ধিমত্তা, যন্ত্র-সংযোগ, নিরাপত্তা ও ডিস্ট্রো পরিকল্পনা।
-  বর্তমান `main`-এ আংশিক ব্যবস্থাপক কমান্ড, সামনের সারির ইউনিক্স-সকেট সেবা ও
-  ডেস্কটপ চালু/বন্ধের Control Center preview আছে; পূর্ণ v3 প্ল্যাটফর্ম এখনো নয়।
+  কিছু manager ও Control Center অংশ উৎসে আছে, তবে আংশিক preview। `tx control`
+  চালিয়ে স্থানীয় preview দেখা যায়।
 - [দ্রুত শুরু](../docs/QUICK-START.md): প্রথম ইনস্টল, চালু ও রেন্ডারার যাচাই।
 - [পরীক্ষার মাপজোখ](../docs/BENCHMARKS.md): যন্ত্রে মাপা ফল ও সীমা।
 - [পরিবর্তনলগ](../CHANGELOG.md)
@@ -279,11 +269,9 @@ ternux --help            # কমান্ডের তালিকা
 গেস্ট বেছে এন্টার চাপুন। পরের বিভাগভিত্তিক তালিকা থেকে ঐচ্ছিক সফটওয়্যার বাছুন;
 স্পেসবার বা নম্বর দিয়ে নির্বাচন বদলান, এন্টারে পরিকল্পনা দেখুন। `q` চাপলে
 শুধু মূল ডেস্কটপ থাকে। `--yes` প্রশ্ন বাদ দিয়ে ডেবিয়ানের মূল প্রোফাইল বসায়।
-টার্নাক্স v2.0.0 গিটহাব প্রকাশনা ও স্থিতিশীল এপিটি বিতরণ ২০২৬-১১-১৪ তারিখে
-প্রত্যাহার হয়েছে; উৎসের ট্যাগ ও প্যাকেজ চেকসাম পুরোনো
-[প্রকাশনা-প্রতিবেদনে](../docs/V2-RELEASE-REPORT.md) আছে। v2.0.1 exact source tag, archive ও checksum-সহ প্রকাশিত হয়েছে। ইনস্টলের আগে
-[নির্দিষ্ট সংস্করণের নির্দেশিকা](../docs/release/pages/v2.0.1-INSTALLATION.md)
-দেখুন এবং checksum যাচাই করুন। এই সংস্করণে আংশিক manager CLI, Unix socket
-service ও Control Center preview আছে; এগুলো সম্পূর্ণ v3 নয়। নতুন স্থাপত্য v3-তে থাকবে। [এপিটি চ্যানেলের অবস্থা](../docs/TERMUX-APT.md) দেখুন।
+Manager ও Control Center এখনো আংশিক preview; ভবিষ্যৎ পরিকল্পনাকে প্রকাশিত
+সুবিধা মনে করা যাবে না। [প্রকল্পের পরিকল্পনা](../docs/project/PROJECT-ROADMAP.md),
+[পরবর্তী সংস্করণের পরিকল্পনা](../docs/next/README.md) এবং
+[package channel-এর অবস্থা](../docs/TERMUX-APT.md) দেখুন।
 এইচটিপি/এইচএমএক্স, কিউএনএন ও বিস্তৃত ত্বরণ-যোগ্যতা পরীক্ষামূলক বা পরবর্তী
 কাজ; [ত্বরণ পরিকল্পনায়](../docs/ACCELERATOR-RELEASE-PLAN.md) বর্তমান সীমা আছে।

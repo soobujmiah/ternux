@@ -27,6 +27,7 @@ check "v3 guest display identities and saved v2 mapping preservation" bash "$ROO
 check "Termux host package repair recovers broken download-tool linkage" bash "$ROOT/tests/termux_pkg_recovery.sh"
 check "standalone bootstrap falls back from broken or unreachable curl to wget" bash "$ROOT/tests/bootstrap_downloader.sh"
 check "guest APT and Firefox installs have network and wall-clock limits" bash "$ROOT/tests/apt_timeouts.sh"
+check "locale/font phase recovers interrupted dpkg configuration automatically" bash "$ROOT/tests/audio_fonts_recovery.sh"
 check "six package-manager menus dispatch all operations to native tools" python3 "$ROOT/tests/package_manager_dispatch.py"
 check "APT IPv6 default-route detection reads the destination prefix field" python3 "$ROOT/tests/ipv6_route_detection.py"
 check "managed guest shells default Codex installer to non-interactive mode" bash "$ROOT/tests/codex_installer_env.sh"
@@ -1058,11 +1059,14 @@ assert 'ternux-camera-permission.XXXXXX' in camera_permission and 'rm -f -- "$pr
 assert '"$camera" -c 0 "$probe"' in camera_permission and 'tnx_confirm' in camera_permission
 audio_phase = (root / "lib/phases.sh").read_text().split("tnx_phase_audio_fonts() {", 1)[1].split("\n# ---------------------------------------------------------------------------\n# Phase 8", 1)[0]
 audio_phase_code = "\n".join(line for line in audio_phase.splitlines() if not line.lstrip().startswith("#"))
-assert 'tnx_guest_login --_tnx-timeout-seconds 1200 --shared-tmp --user root' in audio_phase
+assert 'tnx_guest_login --_tnx-timeout-seconds 3600 --shared-tmp --user root' in audio_phase
 assert "timeout --signal=TERM --kill-after=10 300 apt-get update" in audio_phase
-assert "timeout --signal=TERM --kill-after=10 180 env DEBIAN_FRONTEND=noninteractive apt-get install" in audio_phase
+assert "timeout --signal=TERM --kill-after=10 900 env DEBIAN_FRONTEND=noninteractive apt-get install" in audio_phase
 assert "dpkg-query -W -f='\\${db:Status-Status}'" in audio_phase
 assert "dpkg --audit" in audio_phase
+assert "dpkg --force-confold --force-confdef --configure -a" in audio_phase
+assert "timeout --signal=TERM --kill-after=10 600 env DEBIAN_FRONTEND=noninteractive apt-get -f install" in audio_phase
+assert "package configuration was recovered and all locale/font packages are installed; continuing." in audio_phase
 assert "timeout --signal=TERM --kill-after=5 90 locale-gen" in audio_phase
 assert not re.search(r"(^|\s)sudo(\s|$)", audio_phase_code)
 assert "Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20" in audio_phase

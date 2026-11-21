@@ -1,0 +1,64 @@
+{
+  "type": "object",
+  "required": [
+    "schema_version",
+    "command",
+    "status",
+    "timestamp",
+    "count",
+    "guests"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "command": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "count": {
+      "type": "integer"
+    },
+    "guests": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "state"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "state": {
+            "type": "string"
+          },
+          "desktop_profile": {
+            "type": "boolean"
+          },
+          "display": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "qualification": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}

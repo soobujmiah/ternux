@@ -78,7 +78,7 @@ The read-only commands report installed PRoot guests, known desktop profiles,
 and current/planned display assignments. `displays` reports socket/lock/server
 occupancy and flags when a v2 display migration is needed. It never edits an
 assignment or moves a live session. The schemas are documented under
-`docs/v3/schemas/manager-*.schema.json`. For a local Unix-socket API, run
+`docs/next/architecture/schemas/manager-*.schema.json`. For a local Unix-socket API, run
 `tx manager serve`; it stays in the foreground until Ctrl-C, uses a private
 socket and exposes no TCP listener. Python 3 is optional for this command.
 

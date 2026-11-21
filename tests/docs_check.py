@@ -245,21 +245,21 @@ if len(nav_sections) == 2:
     expected_bn = ["/bn" + url for url in en_urls]
     check(expected_bn == bn_urls, "English/Bengali navigation destinations are not structural mirrors")
 
-# Nested v3/project/release pages are public routes. Validate the source and built route
-# instead of silently publishing files that the site's former flat route could
+# Nested Next Version/project/release pages are public routes. Validate the source
+# and built route instead of silently publishing files that a flat route could
 # not serve.
 nested_pages = [
-    *sorted((ROOT / "docs/v3").rglob("*.md")),
+    *sorted((ROOT / "docs/next/architecture").rglob("*.md")),
     *sorted((ROOT / "docs/project").rglob("*.md")),
     *sorted((ROOT / "docs/release").rglob("*.md")),
 ]
-bn_v3_overview = ROOT / "bn/docs/V3-ARCHITECTURE.md"
-check(bn_v3_overview.exists(), "missing Bengali v3 architecture overview")
+bn_next_overview = ROOT / "bn/docs/V3-ARCHITECTURE.md"
+check(bn_next_overview.exists(), "missing Bengali Next Version architecture overview")
 for source in nested_pages:
     route = ROOT / "dist" / source.relative_to(ROOT).with_suffix(".html")
     check(route.is_file(), f"missing built nested documentation route: {route.relative_to(ROOT)}")
 bn_route = ROOT / "dist/bn/docs/V3-ARCHITECTURE.html"
-check(bn_route.is_file(), "missing built Bengali v3 architecture route")
+check(bn_route.is_file(), "missing built Bengali Next Version architecture route")
 
 # Internal links and fragments.
 links_checked = 0
@@ -414,8 +414,19 @@ check("Kali Linux" in read(ROOT / "docs/QUICK-START.md") and "Eleven additional 
       "English quick start must identify the current four-profile baseline and eleven unqualified recipes")
 check("কালি লিনাক্স" in read(ROOT / "bn/docs/QUICK-START.md") and "আরও ১১টি নামযুক্ত" in read(ROOT / "bn/docs/QUICK-START.md"),
       "Bengali quick start must identify the current four-profile baseline and eleven unqualified recipes")
-check("v2.0.1\nযাচাইকৃত source tag" in read(ROOT / "bn/README.md"),
-      "Bengali README must report the published v2.0.1 source release")
+check("[পরবর্তী সংস্করণের পরিকল্পনা](../docs/next/README.md)" in read(ROOT / "bn/README.md"),
+      "Bengali README must direct future-work readers to the Next Version index")
+for source in ("README.md", "bn/README.md", "CHANGELOG.md", "bn/CHANGELOG.md"):
+    text = read(ROOT / source)
+    # Dependency versions such as the Nerd Font's v3.5.1 remain factual; the
+    # removed labels are the project's major-version names in prose and headers.
+    product_labels = re.findall(r"\bv[23](?:\.\d+)*\b", text, re.I)
+    product_labels = [label for label in product_labels if label.lower() != "v3.5.1"]
+    check(not product_labels,
+          f"{source}: project version labels must use release history or Next Version wording")
+check((ROOT / "docs/next/README.md").is_file() and
+      (ROOT / "bn/docs/next/README.md").is_file(),
+      "English and Bengali Next Version indexes must exist")
 for page in ("docs/INSTALLATION.md", "bn/docs/INSTALLATION.md"):
     text = read(ROOT / page)
     check("--distros debian,ubuntu,kali,alpine" in text,
@@ -757,13 +768,15 @@ try:
     # Includes the English and Bengali docs index routes emitted from the
     # generated docs.html / bn/docs.html pages.
     expected_urls = 4 + 2 * sum(english not in source_only for english, _ in pairs)
-    # Public nested release pages are indexable; v3/project pages stay noindex.
+    # Public nested release and next-version planning pages are indexable;
+    # project and legacy architecture trees stay noindex.
     release_pages = [
         page
         for page in (ROOT / "docs/release").rglob("*.md")
         if page.name not in {"README.md", "SEO.md"}
     ]
-    expected_urls += 2 * len(release_pages)
+    next_pages = list((ROOT / "docs/next").rglob("*.md"))
+    expected_urls += 2 * (len(release_pages) + len(next_pages))
     check(len(entries) == expected_urls, f"dist/sitemap.xml: expected {expected_urls} bilingual URLs")
     for entry in entries:
         check(len(entry.findall("x:link", namespace)) == 3, "dist/sitemap.xml: every URL needs en, bn, and x-default alternates")
@@ -771,7 +784,7 @@ except (ET.ParseError, OSError) as exc:
     errors.append(f"dist/sitemap.xml: parse failed: {exc}")
 
 # Markdown fence balance and rendered-ID uniqueness catch common documentation regressions.
-for schema in sorted((ROOT / "docs/v3/schemas").glob("*.schema.json")):
+for schema in sorted((ROOT / "docs/next/architecture/schemas").glob("*.schema.json")):
     public_schema = ROOT / "public/schemas" / schema.name
     built_schema = ROOT / "dist/schemas" / schema.name
     check(public_schema.is_file() and public_schema.read_bytes() == schema.read_bytes(),

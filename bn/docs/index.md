@@ -9,21 +9,21 @@ alt_url: "/docs/"
 সাজানো। প্রথমবার এলে নিচের পথগুলোর একটি বেছে নিন। আগে থেকে কোনো সমস্যা থাকলে
 সরাসরি [সমস্যা সমাধান](TROUBLESHOOTING.html)-এ যান।
 
-> **প্রকাশনার অবস্থা:** v2.0.1 হলো প্রকাশিত source release। v2.0.0 release
-> এবং stable Termux APT channel প্রত্যাহার করা হয়েছে; বর্তমানে
-> `pkg install ternux` পাওয়া যায় না। v3 এখন নকশা ও বাস্তবায়নের পর্যায়ে,
-> প্রকাশিত package নয়। [বর্তমান প্রকাশনার অবস্থা](project/RELEASE-STATUS.html) দেখুন।
+> **বিতরণের অবস্থা:** Termux package repository অপ্রাপ্য, তাই `pkg install ternux`
+> ইনস্টলের পথ নয়। [পরবর্তী সংস্করণের পরিকল্পনা](next/README.html) প্রস্তাবের
+> তালিকা, প্রকাশিত সুবিধার দাবি নয়। [বর্তমান প্রকল্পের অবস্থা](project/RELEASE-STATUS.html) দেখুন।
 
 ## গেস্ট ব্যবস্থার সংক্ষিপ্ত পরিচয়
 
-| v2-তে যাচাইকৃত ডেস্কটপ | অন্য নামযুক্ত বিন্যাস | পূর্বনির্ধারিত বিন্যাস |
+| রক্ষণাবেক্ষণ করা desktop setup | অন্য নামযুক্ত বিন্যাস | পূর্বনির্ধারিত বিন্যাস |
 |---|---|---|
-| ডেবিয়ান, উবুন্টু, কালি লিনাক্স, আল্পাইন | আরও ১১টি; যোগ্যতা যাচাই হয়নি | ডেবিয়ান |
+| ডেবিয়ান, উবুন্টু, কালি লিনাক্স, আল্পাইন | আরও ১১টি; প্রমাণের পরিধি ভিন্ন | ডেবিয়ান |
 
-প্রতিটি নামযুক্ত বিন্যাসে সংশ্লিষ্ট প্যাকেজ পরিবারের জন্য আলাদা ডেস্কটপ
-প্রস্তুতি রয়েছে। টার্নাক্সে ডেস্কটপ বিন্যাস না থাকলে সাধারণ ওসিআই ছবি কেবল
-টার্মিনাল-গেস্ট হিসেবে চলে। [ইনস্টল ও গেস্ট বাছাই](INSTALLATION.html)
-এবং [সংগ্রহশালার দ্বিতীয় সংস্করণের সমর্থন-তালিকা](https://github.com/soobujmiah/ternux/blob/main/docs/audit/FEATURE-MATRIX.md) দেখুন।
+প্রতিটি নামযুক্ত বিন্যাসে সংশ্লিষ্ট package family-এর জন্য আলাদা desktop
+প্রস্তুতি রয়েছে। Ternux desktop recipe নেই এমন সাধারণ OCI image কেবল
+shell guest। [ইনস্টল ও guest বাছাই](INSTALLATION.html) এবং
+[সমর্থন-তালিকা](https://github.com/soobujmiah/ternux/blob/main/docs/audit/FEATURE-MATRIX.md)-তে
+যাচাইকৃত পরিধি ও প্রমাণের সীমা দেখুন।
 
 ## ইনস্টলের পথ বেছে নিন
 
@@ -62,10 +62,10 @@ alt_url: "/docs/"
 
 <div class="doc-grid">
   <a class="doc-card" href="ARCHITECTURE.html"><span class="doc-card__icon">→</span><strong>ব্যবস্থার নকশা</strong><span>পর্দা, অডিও, ফাইলব্যবস্থা, প্রক্রিয়া, জিঙ্ক/টার্নিপ ও ভিরজিএলের পথ অনুসরণ করুন।</span></a>
-  <a class="doc-card" href="V3-ARCHITECTURE.html"><span class="doc-card__icon">৩</span><strong>তৃতীয় সংস্করণের নকশা</strong><span>নিজস্ব নিয়ন্ত্রণকেন্দ্র, কর্মপরিসর, গণনা, কৃত্রিম বুদ্ধিমত্তা, যন্ত্র-সংযোগ, নিরাপত্তা ও গ্রহণযোগ্যতার নকশা পড়ুন।</span></a>
+  <a class="doc-card" href="next/README.html"><span class="doc-card__icon">→</span><strong>পরবর্তী সংস্করণের পরিকল্পনা</strong><span>ভবিষ্যৎ স্থাপত্য, প্রস্তাব ও প্রমাণের শর্ত পড়ুন; এগুলো প্রকাশিত সুবিধা নয়।</span></a>
   <a class="doc-card" href="project/PROJECT-ROADMAP.html"><span class="doc-card__icon">→</span><strong>প্রকল্পের অবস্থা</strong><span>বর্তমান বাস্তবায়ন, প্রকাশনা, যন্ত্রের প্রমাণ, বকেয়া কাজ, সীমা ও পরবর্তী পদক্ষেপ দেখুন।</span></a>
-  <a class="doc-card" href="release/V2-RELEASE-REPORT.html"><span class="doc-card__icon">২</span><strong>প্রকাশনা ও বর্তমান নিরীক্ষা</strong><span>মূল প্রকাশনা এবং বর্তমান প্যাকেজ, উৎস, ওয়েবসাইট ও যন্ত্রের চিত্র আলাদা করে দেখুন।</span></a>
-  <a class="doc-card" href="V2-RELEASE-READINESS.html"><span class="doc-card__icon">২</span><strong>দ্বিতীয় সংস্করণের প্রস্তুতি</strong><span>চারটি v2 ডেস্কটপ প্রোফাইল, ভিন্ন পরীক্ষার গভীরতা, বর্তমান প্রকাশনা-শর্ত ও তারিখযুক্ত যন্ত্র-প্রমাণ দেখুন।</span></a>
+  <a class="doc-card" href="release/V2-RELEASE-REPORT.html"><span class="doc-card__icon">R</span><strong>ঐতিহাসিক release record</strong><span>তারিখযুক্ত source, package, website ও device evidence বর্তমান বিতরণ-অবস্থা থেকে আলাদা করে পড়ুন।</span></a>
+  <a class="doc-card" href="V2-RELEASE-READINESS.html"><span class="doc-card__icon">R</span><strong>সংরক্ষিত qualification record</strong><span>তারিখযুক্ত release gate ও device evidence-কে ঐতিহাসিক snapshot হিসেবে পড়ুন।</span></a>
   <a class="doc-card" href="ACCELERATOR-RELEASE-PLAN.html"><span class="doc-card__icon">এনপিইউ</span><strong>ত্বরণ-সরঞ্জাম প্রকাশনা পরিকল্পনা</strong><span>প্রসেসর, গ্রাফিক্স, এইচটিপি ও কিউএনএন-এর বর্তমান শর্ত ও স্থগিত কাজ।</span></a>
   <a class="doc-card" href="BENCHMARKS.html"><span class="doc-card__icon">∿</span><strong>প্রমাণ ও কর্মদক্ষতা পরীক্ষা</strong><span>সংরক্ষিত দৃশ্যমান মান, সতর্কতা, সীমা ও পুনরাবৃত্তির ধাপ দেখুন।</span></a>
   <a class="doc-card" href="FAQ.html"><span class="doc-card__icon">?</span><strong>সাধারণ প্রশ্ন</strong><span>টার্নাক্স কী সমর্থন করে, কী সুরক্ষিত রাখে এবং ইচ্ছাকৃতভাবে কী করে না—তার সরাসরি উত্তর।</span></a>
