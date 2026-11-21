@@ -1,13 +1,13 @@
 schema_version: 1
 project_id: ternux
 repository: soobujmiah/ternux
-generated_at: '2026-11-20T03:55:20Z'
+generated_at: '2026-11-21T18:45:41Z'
 generated_by: tools/repo_knowledge collect
-version: v2.0.1-23-g3bfb0fb
+version: v2.0.1-33-g87ca1f9
 head:
-  commit: 3bfb0fbdd9fedb8ccc2aa9d37ff125ec55be27d1
+  commit: 87ca1f93ebb408215e2f59f40aa7a31d96c7458d
   branch: main
-  committed_at: '2026-11-20T03:51:59Z'
+  committed_at: '2026-11-21T18:43:00Z'
 phases:
   source: not_configured
   completed: []
@@ -15,34 +15,34 @@ phases:
   next: null
 build:
   status: passed
-  run_id: '44670578772'
-  commit: 3bfb0fbdd9fedb8ccc2aa9d37ff125ec55be27d1
+  run_id: '44937031801'
+  commit: 87ca1f93ebb408215e2f59f40aa7a31d96c7458d
   run_attempt: '1'
-  at: '2026-11-20T03:55:20Z'
+  at: '2026-11-21T18:45:41Z'
   timestamp_source: observed
   workflow_name: Repo Knowledge Sync
   event_type: push
   actor: soobujmiah
-  run_url: https://github.com/soobujmiah/ternux/actions/runs/44670578772
+  run_url: https://github.com/soobujmiah/ternux/actions/runs/44937031801
 test:
   status: passed
-  run_id: '44670578772'
-  commit: 3bfb0fbdd9fedb8ccc2aa9d37ff125ec55be27d1
+  run_id: '44937031801'
+  commit: 87ca1f93ebb408215e2f59f40aa7a31d96c7458d
   run_attempt: '1'
-  at: '2026-11-20T03:55:20Z'
+  at: '2026-11-21T18:45:41Z'
   timestamp_source: observed
   workflow_name: Repo Knowledge Sync
   event_type: push
   actor: soobujmiah
-  run_url: https://github.com/soobujmiah/ternux/actions/runs/44670578772
+  run_url: https://github.com/soobujmiah/ternux/actions/runs/44937031801
   summary: focused regressions + manager socket + Control Center + Bats + UI + site
     build + docs + JavaScript syntax + whitespace + repo knowledge tests (ci.yml)
 last_successful_build:
-  commit: 3bfb0fbdd9fedb8ccc2aa9d37ff125ec55be27d1
-  at: '2026-11-20T03:55:20Z'
-  run_id: '44670578772'
+  commit: 87ca1f93ebb408215e2f59f40aa7a31d96c7458d
+  at: '2026-11-21T18:45:41Z'
+  run_id: '44937031801'
 last_failed_build: null
 sync:
   status: ok
-  last_synced_at: '2026-11-20T03:55:20Z'
+  last_synced_at: '2026-11-21T18:45:41Z'
   source: ci
