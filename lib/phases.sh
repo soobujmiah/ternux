@@ -675,13 +675,13 @@ tnx_phase_debian() {
       zypper) package_manager_name='Zypper'; package_manager_desktop=zypper.desktop; package_manager_icon=system-software-install ;;
       xbps) package_manager_name='XBPS'; package_manager_desktop=xbps.desktop; package_manager_icon=system-software-install ;;
     esac
-    awk -v name="\$package_manager_name" -v icon="\$package_manager_icon" '
-      /^Name=/ { print "Name=" name; next }
-      substr(\$0, 1, 8) == "Name[bn]" { print "Name[bn]=" name; next }
-      /^Icon=/ { print "Icon=" icon; next }
+    awk -v name=\"\$package_manager_name\" -v icon=\"\$package_manager_icon\" '
+      /^Name=/ { print \"Name=\" name; next }
+      substr(\$0, 1, 8) == \"Name[bn]\" { print \"Name[bn]=\" name; next }
+      /^Icon=/ { print \"Icon=\" icon; next }
       { print }
-    ' "\$asset_stage/applications/ternux-package-manager.desktop" > "/usr/local/share/applications/\$package_manager_desktop"
-    chmod 0644 "/usr/local/share/applications/\$package_manager_desktop"
+    ' \"\$asset_stage/applications/ternux-package-manager.desktop\" > \"/usr/local/share/applications/\$package_manager_desktop\"
+    chmod 0644 \"/usr/local/share/applications/\$package_manager_desktop\"
     rm -f /usr/local/share/applications/ternux-package-manager.desktop /usr/local/share/applications/ternux-app-center.desktop
     if [ "\$FAMILY" != apt ]; then rm -f /usr/local/share/applications/synaptic.desktop; fi
     if [ "\$FAMILY" = apt ] && [ -f /usr/share/applications/synaptic.desktop ]; then

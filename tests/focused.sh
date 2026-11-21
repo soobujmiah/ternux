@@ -17,6 +17,7 @@ check() {
 
 printf 'TAP version 13\n'
 
+check "generated Debian setup writes package-manager desktop entries with spaced names" bash "$ROOT/tests/package_manager_desktop_entry.sh"
 check "native read-only manager JSON schemas and empty-host behavior" bash "$ROOT/tests/manager_api.sh"
 check "tx mic/cam Android permission request and no-companion fallbacks" bash "$ROOT/tests/permissions_cli.sh"
 check "organized info/state output and per-guest desktop logs" bash "$ROOT/tests/info_cli.sh"

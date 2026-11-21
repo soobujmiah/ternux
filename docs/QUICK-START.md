@@ -25,7 +25,7 @@ Four steps from Android apps to an installed desktop and renderer check. Downloa
 Open Termux and paste:
 
 ```bash
-pkg update -y && pkg upgrade -y && pkg install -y curl wget && bash -c 's=$(mktemp) && (curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/5be29360c9ca7e4516366711ec09f7a9b4d56940/install.sh -o "$s" || wget -qO "$s" https://raw.githubusercontent.com/soobujmiah/ternux/5be29360c9ca7e4516366711ec09f7a9b4d56940/install.sh) && bash "$s"; r=$?; rm -f "$s"; exit "$r"'
+pkg update -y && pkg upgrade -y && pkg install -y curl wget && bash -c 's=$(mktemp) && (curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/369d1ca4c84db15473564046d1991aa2b7f6a35a/install.sh -o "$s" || wget -qO "$s" https://raw.githubusercontent.com/soobujmiah/ternux/369d1ca4c84db15473564046d1991aa2b7f6a35a/install.sh) && bash "$s"; r=$?; rm -f "$s"; exit "$r"'
 ```
 
 The command falls back to wget if curl cannot start or download the installer.
@@ -48,7 +48,7 @@ signed APT repository was withdrawn, so `pkg install ternux` is currently
 unavailable; the RC package channel is only for candidate testing and its
 hosted availability is not currently verified.
 
-With a controlling terminal, first choose one or more named guest profiles in the checklist: move with Up/Down or `j`/`k`, press Space or a profile number to toggle a selection, then Enter to continue. Debian is the recommended default. **Ternux v2 supports Debian, Ubuntu, and Alpine only.** Those three have desktop, graphics, audio routing, IBus setup and theme evidence on one Adreno 825 device; clean Firefox installation passed exact-main CI. The owner reports physical keyboard input switching in all installed distros; a focused live Alpine Xfce Terminal check on 2026-11-16 also switched Avro with synthetic Ctrl+Space. The other 12 recipes remain available but are not v2-supported. See the device record for evidence scope. The next checklist selects optional workloads; press Enter or `0` for the base desktop, or choose the displayed numbers. In a non-interactive run, `--yes` keeps the Debian base profile. See [all guest profiles and package-family recipes](INSTALLATION.html#choosing-a-guest-distribution).
+With a controlling terminal, first choose one or more named guest profiles in the checklist: move with Up/Down or `j`/`k`, press Space or a profile number to toggle a selection, then Enter to continue. Debian is the recommended default. **The owner-confirmed v2 desktop baseline is Debian, Ubuntu, Kali Linux, and Alpine.** Clean Firefox guest CI covers Debian, Ubuntu, and Alpine; Kali has narrower installed-device evidence and is not in that clean-browser matrix. Evidence depth is not identical across these four profiles, and results are device-specific. Eleven additional named recipes remain available but are outside the v2 desktop support promise. See the device record for evidence scope. The next checklist selects optional workloads; press Enter or `0` for the base desktop, or choose the displayed numbers. In a non-interactive run, `--yes` keeps the Debian base profile. See [all guest profiles and package-family recipes](INSTALLATION.html#choosing-a-guest-distribution).
 
 The installer:
 

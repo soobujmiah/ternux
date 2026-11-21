@@ -14,8 +14,8 @@ TERNUX_DESC="Linux desktop for Android with Zink and VirGL graphics routes"
 TERNUX_REPO="https://github.com/soobujmiah/ternux"
 # Immutable source snapshot shared by the standalone bootstrap and CLI fallback.
 # Keep these values aligned with install.sh; refresh only from a reviewed archive.
-TERNUX_SOURCE_COMMIT="844ae8f33df8bceffd1e5a65d542c56ad005fbad"
-TERNUX_SOURCE_SHA256="83a461afc3d3678896a84e627d4776e0525eac8a14ac292653c2a6204f1084ee"
+TERNUX_SOURCE_COMMIT="4b04f92f3f2c743247d0435f77f06dc133e89d6e"
+TERNUX_SOURCE_SHA256="3a596ba675ae600f6cc33f5aee65e3e69f9f0e41d700df689cef2bc3bd9d672c"
 TERNUX_GUEST_CLI_SHA256="11f3e202eaae2046cfe11b61edc13d754566ca428faeb2b25a088352792aaaf5"
 TERNUX_STATE_DIR="${TERNUX_STATE_DIR:-$HOME/.local/share/ternux}"
 TERNUX_LOG_DIR="${TERNUX_LOG_DIR:-${TMPDIR:-/data/data/com.termux/files/usr/tmp}/ternux}"
@@ -206,9 +206,9 @@ tnx_workspace_registry_validate() {
   awk -F '\t' '
     NR == 1 { if ($0 != "ternux-workspace-registry-v1") exit 1; next }
     NF != 6 || $1 !~ /^[A-Za-z0-9][A-Za-z0-9._-]*$/ || $1 != $2 ||
-      $3 !~ /^[0-9]{1,2}$/ || $4 !~ /^[1-9][0-9]?$/ ||
+      $3 !~ /^[0-9][0-9]?$/ || $4 !~ /^[1-9][0-9]?$/ ||
       $5 !~ /^(STOPPED|STARTING|READY|STOPPING|FAILED|RECOVERING)$/ ||
-      $6 !~ /^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$/ ||
+      $6 !~ /^[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]T[0-9][0-9]:[0-9][0-9]:[0-9][0-9]Z$/ ||
       seen[$1]++ { exit 1 }
     END { if (NR == 0) exit 1 }
   ' "$file"

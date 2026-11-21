@@ -22,6 +22,7 @@ alt_url: "/docs/TROUBLESHOOTING.html"
 | `Error: unrecognized option: '-c'` | নতুন প্রুট-ডিস্ট্রোর সঙ্গে পুরনো লঞ্চার | [প্রুট-ডিস্ট্রো `-c` চেনে না](#proot-distro-says-option--c-is-unrecognized) |
 | `proot-distro: Argument list too long` | ডেস্কটপ asset payload Linux-এর প্রতি-argument সীমা ছাড়িয়েছে | [প্রুট-ডিস্ট্রো argument list বেশি বড়](#proot-distro-argument-list-is-too-long) |
 | কিছু প্যাকেজে `apt` ব্যর্থ | ডেবিয়ানের নন-ফ্রি উপাদান চালু নেই | [এপিটি ব্যর্থতা](#apt-failures) |
+| Debian + Xfce ধাপে `awk: cannot open "Manager"` | Synaptic-এর ফাঁকাসহ নাম desktop-entry script-এ quote ছাড়া গেছে | [ডেস্কটপ package entry ব্যর্থ](#desktop-package-manager-entry-fails) |
 | `ternux install --resume` মুছে ফেলা গেস্ট এড়িয়ে যায় | পুরনো ইনস্টলের বাসি গেস্ট-ধাপের তথ্য | [গেস্ট মুছে ফেলার পর পুনরায় শুরু](#resume-after-removing-a-guest) |
 | `pkg upgrade`-এ `openssl.cnf` এরর, তারপর **প্রতিটি** ইনস্টল ব্যর্থ | বন্ধ stdin-এ dpkg conffile প্রম্পট | [openssl.cnf conffile ক্যাসকেড](#opensslcnf-conffile-cascade) |
 | ইনস্টল কমান্ড পেস্ট করলে `No command $ found` | কপি করা টেক্সটে ডিসপ্লে-শুধু `$` প্রম্পট ঢুকে গেছে | [পেস্ট করা কমান্ড $ দিয়ে শুরু](#pasted-command-starts-with) |
@@ -356,7 +357,7 @@ replacement mechanism নয়।
 apt update && apt full-upgrade -y
 
 # পথ খ: curl/wget বিকল্পসহ installer নামিয়ে চালান:
-pkg update -y && pkg upgrade -y && pkg install -y curl wget && bash -c 's=$(mktemp) && (curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/5be29360c9ca7e4516366711ec09f7a9b4d56940/install.sh -o "$s" || wget -qO "$s" https://raw.githubusercontent.com/soobujmiah/ternux/5be29360c9ca7e4516366711ec09f7a9b4d56940/install.sh) && bash "$s"; r=$?; rm -f "$s"; exit "$r"'
+pkg update -y && pkg upgrade -y && pkg install -y curl wget && bash -c 's=$(mktemp) && (curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/369d1ca4c84db15473564046d1991aa2b7f6a35a/install.sh -o "$s" || wget -qO "$s" https://raw.githubusercontent.com/soobujmiah/ternux/369d1ca4c84db15473564046d1991aa2b7f6a35a/install.sh) && bash "$s"; r=$?; rm -f "$s"; exit "$r"'
 ```
 
 `pkg update` শুধু package index রিফ্রেশ করে; আটকে থাকা package upgrade শেষ করে
@@ -433,6 +434,41 @@ sudo apt install -y unrar-free 7zip polkitd
 কোনো app বিশেষভাবে non-free software চাইলে exact Debian release-এর repository
 guidance দেখে `/etc/apt/sources.list*` review করুন। obsolete package name resolve
 করতে পুরো source blind replace করবেন না।
+
+---
+
+<h2 id="desktop-package-manager-entry-fails">Debian + Xfce ধাপে desktop package entry ব্যর্থ</h2>
+
+**লক্ষণ:** Synaptic ও তার নির্ভরশীল package বসে যায়, তারপর আবশ্যিক Debian + Xfce
+ধাপটি এই বার্তায় ব্যর্থ হয়:
+
+```text
+awk: cannot open "Manager" (No such file or directory)
+[FAIL] Desktop package installation failed.
+```
+
+**কারণ:** তৈরি করা guest setup script-এ Synaptic desktop entry বদলানোর সময়
+`Synaptic Package Manager` নামটি quote ছাড়া `awk`-তে গেছে। Shell নামটিকে
+আলাদা argument-এ ভাগ করে, ফলে desktop user তৈরি ও setup শেষ হওয়ার আগেই ধাপটি থামে।
+
+**সমাধান:** README-র বর্তমান নির্দিষ্ট commit-এ pinned one-command installer
+আবার চালান। অসম্পূর্ণ Debian ধাপটি আবার চলবে এবং আগে বসানো package পুনর্ব্যবহার
+করবে; guest মুছবেন না বা নতুন করে শুরু করবেন না। বর্তমান host CLI ইতিমধ্যে বসানো
+থাকলে এটিও ধাপটি পুনরায় চালায়:
+
+```bash
+ternux install --resume
+```
+
+ধাপ শেষ হলে guest যাচাই করে চালু করুন:
+
+```bash
+ternux verify db
+tx start db
+```
+
+আবার একই error এলে `ternux logs show`-এর প্রাসঙ্গিক অংশ এবং ঠিক কোন installer
+phase-এ থেমেছে তা দিন। Password বা private token পাঠাবেন না।
 
 ---
 

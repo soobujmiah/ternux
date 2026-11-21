@@ -356,9 +356,31 @@ for source, required in (
 check(re.search(r"@media\s*\(prefers-reduced-motion:\s*reduce\)", read(ROOT / "src/styles/site-refresh.css")) is not None,
       "site-refresh.css: reduced-motion support missing")
 check("data-copy" in read(ROOT / "src/layouts/SiteLayout.astro"), "site shell: command copy control missing")
-install_commands = (
-    'bash -c \'s=$(mktemp) && (curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/5be29360c9ca7e4516366711ec09f7a9b4d56940/install.sh -o "$s" || wget -qO "$s" https://raw.githubusercontent.com/soobujmiah/ternux/5be29360c9ca7e4516366711ec09f7a9b4d56940/install.sh) && bash "$s"; r=$?; rm -f "$s"; exit "$r"\'',
+readme_install_lines = [
+    line.strip()
+    for line in read(ROOT / "README.md").splitlines()
+    if line.startswith("pkg update -y && pkg upgrade -y && pkg install -y curl wget && bash -c '")
+]
+check(len(readme_install_lines) == 1, "README.md: expected one canonical pinned installer command")
+install_command = readme_install_lines[0] if readme_install_lines else ""
+bootstrap_commits = re.findall(
+    r"https://raw\.githubusercontent\.com/soobujmiah/ternux/([0-9a-f]{40})/install\.sh",
+    install_command,
 )
+check(len(bootstrap_commits) == 2 and len(set(bootstrap_commits)) == 1,
+      "README.md: installer and wget fallback must use one immutable 40-character commit")
+install_commands = (install_command,)
+for source in (
+    "bn/README.md",
+    "docs/INSTALLATION.md",
+    "bn/docs/INSTALLATION.md",
+    "docs/QUICK-START.md",
+    "bn/docs/QUICK-START.md",
+    "docs/TROUBLESHOOTING.md",
+    "bn/docs/TROUBLESHOOTING.md",
+):
+    check(install_command in read(ROOT / source),
+          f"{source}: current one-command installer does not match README.md")
 
 for source in ("src/pages/index.astro", "src/pages/bn/index.astro"):
     page = read(ROOT / source)
@@ -388,6 +410,12 @@ for page in ("docs/QUICK-START.md", "bn/docs/QUICK-START.md"):
     text = read(ROOT / page)
     check("Debian + Xfce4" not in text,
           f"{page}: quick start still implies Debian is the only selectable guest")
+check("Kali Linux" in read(ROOT / "docs/QUICK-START.md") and "Eleven additional named recipes" in read(ROOT / "docs/QUICK-START.md"),
+      "English quick start must identify the current four-profile baseline and eleven unqualified recipes")
+check("কালি লিনাক্স" in read(ROOT / "bn/docs/QUICK-START.md") and "আরও ১১টি নামযুক্ত" in read(ROOT / "bn/docs/QUICK-START.md"),
+      "Bengali quick start must identify the current four-profile baseline and eleven unqualified recipes")
+check("v2.0.1\nযাচাইকৃত source tag" in read(ROOT / "bn/README.md"),
+      "Bengali README must report the published v2.0.1 source release")
 for page in ("docs/INSTALLATION.md", "bn/docs/INSTALLATION.md"):
     text = read(ROOT / page)
     check("--distros debian,ubuntu,kali,alpine" in text,

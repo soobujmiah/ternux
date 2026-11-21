@@ -31,8 +31,10 @@ done
 exit 2
 MOCK
 chmod +x "$TMP/bin/pkg" "$TMP/bin/curl" "$TMP/bin/wget"
-command="$(sed -n '/raw\.githubusercontent\.com\/soobujmiah\/ternux\/5be29360c9ca7e4516366711ec09f7a9b4d56940\/install\.sh/p' "$ROOT/README.md" | head -n 1)"
+command="$(grep -F 'raw.githubusercontent.com/soobujmiah/ternux/' "$ROOT/README.md" | grep '^pkg update -y && pkg upgrade -y && pkg install -y curl wget && bash -c ' | head -n 1)"
 [[ -n "$command" ]] || { echo 'FAIL: documented installer command not found' >&2; exit 1; }
+commit_count="$(grep -oE 'raw.githubusercontent.com/soobujmiah/ternux/[0-9a-f]{40}/install.sh' <<< "$command" | wc -l | tr -d ' ')"
+[[ "$commit_count" == 2 ]] || { echo 'FAIL: documented installer command must use one full immutable commit for both downloaders' >&2; exit 1; }
 
 PATH="$TMP/bin:$PATH" CURL_MODE=fail WGET_MODE=healthy bash -c "$command"
 [[ -f "$TMP/ran" ]] || { echo 'FAIL: wget fallback did not run the downloaded installer' >&2; exit 1; }

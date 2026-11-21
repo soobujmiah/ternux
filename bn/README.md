@@ -99,7 +99,7 @@
 পারলে কমান্ডটি `wget` দিয়ে আবার চেষ্টা করে:
 
 ```bash
-pkg update -y && pkg upgrade -y && pkg install -y curl wget && bash -c 's=$(mktemp) && (curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/5be29360c9ca7e4516366711ec09f7a9b4d56940/install.sh -o "$s" || wget -qO "$s" https://raw.githubusercontent.com/soobujmiah/ternux/5be29360c9ca7e4516366711ec09f7a9b4d56940/install.sh) && bash "$s"; r=$?; rm -f "$s"; exit "$r"'
+pkg update -y && pkg upgrade -y && pkg install -y curl wget && bash -c 's=$(mktemp) && (curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/369d1ca4c84db15473564046d1991aa2b7f6a35a/install.sh -o "$s" || wget -qO "$s" https://raw.githubusercontent.com/soobujmiah/ternux/369d1ca4c84db15473564046d1991aa2b7f6a35a/install.sh) && bash "$s"; r=$?; rm -f "$s"; exit "$r"'
 ```
 
 কোনো আবশ্যিক ধাপে ইনস্টলেশন থেমে গেলে একই কমান্ড আবার চালান। এতে বর্তমান
@@ -121,14 +121,13 @@ pkg update -y && pkg upgrade -y && pkg install -y curl wget && bash -c 's=$(mkte
 স্থিতিশীল প্যাকেজ ভান্ডার প্রত্যাহার হওয়ায় এখন উৎস ইনস্টলারই সমর্থিত বসানোর পথ।
 
 টার্নাক্স v2.0.0 গিটহাব প্রকাশনা ও স্থিতিশীল এপিটি বিতরণ ২০২৬-১১-১৪ তারিখে
-প্রত্যাহার করা হয়েছে। উৎসের পরিচয় যাচাইয়ের জন্য `v2.0.0` ট্যাগ রাখা হয়েছে।
-স্থানীয়ভাবে v2.0.1 প্রকাশ-প্রার্থী তৈরি হচ্ছে; এটি এখনো প্রকাশিত নয়।
-উপরের উৎস-ইনস্টলার ব্যবহার করুন। স্বাক্ষরিত স্থিতিশীল এপিটি ভান্ডার প্রত্যাহার
-হওয়ায় `pkg install ternux` পাওয়া যায় না। আরসি চ্যানেল উৎপাদন ইনস্টলের পথ
-নয়। v2-এ বিদ্যমান বাস্তবায়ন স্থির থাকবে; নতুন স্থাপত্য ও সুবিধা v3-এর জন্য।
-v2.0.1 প্রকাশ-প্রার্থী যাচাই ও প্রকাশ না হওয়া পর্যন্ত স্থিতিশীল v2.0.1 নেই।
-[এপিটি চ্যানেলের অবস্থা](../docs/TERMUX-APT.md) ও
-[v2 প্রকাশনা-নথি](../docs/V2-RELEASE-READINESS.md) দেখুন।
+প্রত্যাহার করা হয়েছে; পরিচয় যাচাইয়ের জন্য `v2.0.0` ট্যাগ রাখা হয়েছে। v2.0.1
+যাচাইকৃত source tag, archive ও checksum-সহ প্রকাশিত source release। উপরের
+source installer-ই সমর্থিত ইনস্টল পথ। স্থিতিশীল এপিটি ভান্ডার প্রত্যাহৃত, তাই
+`pkg install ternux` পাওয়া যায় না; RC channel কেবল candidate testing-এর জন্য,
+production install নয়। v2-এর বিদ্যমান বাস্তবায়ন স্থির; নতুন স্থাপত্য ও সুবিধা
+v3-তে পরিকল্পিত। [APT channel status](../docs/TERMUX-APT.md) ও
+[v2 release record](../docs/V2-RELEASE-READINESS.md) দেখুন।
 
 মূল ইনস্টলেশনে প্রায় ৪–৪.৬ জিবি জায়গা লাগে। ডাউনলোড ও প্যাকেজ ক্যাশের জন্য
 আরও কিছু খালি জায়গা রাখুন।
