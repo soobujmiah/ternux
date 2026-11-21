@@ -25,7 +25,7 @@ Four steps from Android apps to an installed desktop and renderer check. Downloa
 Open Termux and paste:
 
 ```bash
-pkg update -y && pkg upgrade -y && pkg install -y curl wget && bash -c 's=$(mktemp) && (curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/5be29360c9ca7e4516366711ec09f7a9b4d56940/install.sh -o "$s" || wget -qO "$s" https://raw.githubusercontent.com/soobujmiah/ternux/5be29360c9ca7e4516366711ec09f7a9b4d56940/install.sh) && bash "$s"; r=$?; rm -f "$s"; exit "$r"'
+pkg update -y && pkg upgrade -y && pkg install -y curl wget && bash -c 's=$(mktemp) && (curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/4b04f92f3f2c743247d0435f77f06dc133e89d6e/install.sh -o "$s" || wget -qO "$s" https://raw.githubusercontent.com/soobujmiah/ternux/4b04f92f3f2c743247d0435f77f06dc133e89d6e/install.sh) && bash "$s"; r=$?; rm -f "$s"; exit "$r"'
 ```
 
 The command falls back to wget if curl cannot start or download the installer.
