@@ -193,7 +193,7 @@ class ControlCenterTest(unittest.TestCase):
             with urllib.request.urlopen(request, timeout=5) as response:
                 snapshot = json.loads(response.read())
             self.assertTrue(snapshot["read_only"])
-            schema = json.loads((ROOT / "docs/next/schemas/control-center-snapshot-v1.schema.json").read_text())
+            schema = json.loads((ROOT / "docs/next/architecture/schemas/control-center-snapshot-v1.schema.json").read_text())
             self.assertEqual(snapshot["schema_version"], schema["properties"]["schema_version"]["const"])
             self.assertEqual(set(snapshot["snapshot"]), set(schema["properties"]["snapshot"]["required"]))
             self.assertEqual(snapshot["snapshot"]["guests"]["guests"][0]["name"], "debian")
