@@ -74,31 +74,31 @@ Count by first path component:
 | `dist/bn/docs/release/pages/v1.4.0-INSTALLATION.html` | generated website build output | 23958 | `5238e9ae1e9f18da1b8b179a273f6f637861a037878e261c94bc38774d825f53` |
 | `dist/bn/docs/release/pages/v2.0.1-INSTALLATION.html` | generated website build output | 23322 | `25b38c93becd71e25922f07895974304f28efd17a27c621aab03b0ffa07d7f48` |
 | `dist/bn/docs/release/templates/RELEASE-INSTALLATION-TEMPLATE.html` | generated website build output | 20961 | `fa3ae807ee849e039b4e84477ed555b05b74a4b06bf35b59612371312c0251e7` |
-| `dist/bn/docs/v3/ACCEPTANCE-CRITERIA.html` | generated website build output | 21845 | `85d95c38d63f06f2092762e9eb425a8ffa927ef3d76f50a8846c0b074c919154` |
-| `dist/bn/docs/v3/ADR/0001-native-manager.html` | generated website build output | 18757 | `83cf27e3dc0ce87dd66109364283e9c44fa64cdbff240695cb478cb70a529b4c` |
-| `dist/bn/docs/v3/ADR/0002-guest-data-ownership.html` | generated website build output | 18542 | `153e812f793809dc0edf304a9d8a4ecd681599b4e0a3643e243d29e04887ead9` |
-| `dist/bn/docs/v3/ADR/0003-lai-adapter.html` | generated website build output | 18805 | `980e0df891ecef266d9b58c3222ae8782023424dbf7899ac03a26d1414d36814` |
-| `dist/bn/docs/v3/ADR/0004-shared-manager-contract.html` | generated website build output | 21118 | `887b8532ccef4f0a568d4311b349696f21edf4145ec34b0c5227e3116c1d05e5` |
-| `dist/bn/docs/v3/ADR/0005-native-display-allocation.html` | generated website build output | 21350 | `46f19ee708b36cce87029e1a6f9544192f5de2d3f24dfa37a40f565dda906939` |
-| `dist/bn/docs/v3/ADR/README.html` | generated website build output | 17876 | `c5c3d83be180f7e950ade4543e6c54bf894d5f263bd8d3fe21a2f70ae334fe32` |
-| `dist/bn/docs/v3/AI-RUNTIME-ARCHITECTURE.html` | generated website build output | 19623 | `563713ba5fc927443ac2d98aa75fa3ca0a69f9ccc8004401221bd1bfce5e3e2a` |
-| `dist/bn/docs/v3/API-DESIGN.html` | generated website build output | 29397 | `5020de6979e22f545dc30ef6d1835c124c465fc8474fc9ce588422e0ee3f08a0` |
-| `dist/bn/docs/v3/APT-DISTRIBUTION-FEASIBILITY.html` | generated website build output | 25945 | `40e1691a690c9723d833631c62abe6f3c61238e0485dbd2666c68bffdfe69450` |
-| `dist/bn/docs/v3/COMPONENT-ARCHITECTURE.html` | generated website build output | 21915 | `da2401bd3fd6aab96adff2af13309abb7efdb34ebef537ba135c2bcae62d1504` |
-| `dist/bn/docs/v3/COMPUTE-ENGINE.html` | generated website build output | 20406 | `45f0b45ae3fc8249a3a98765263307419a79554912aa10adfb611e7b08bf028c` |
-| `dist/bn/docs/v3/CONTROL-CENTER-ARCHITECTURE.html` | generated website build output | 22392 | `8d9b7016e5cb48031d95040100c69694046e401fa93d91e783ae4b2d1033fac8` |
-| `dist/bn/docs/v3/DEVICE-BRIDGE-ARCHITECTURE.html` | generated website build output | 20213 | `d8e919ceca87dc61d74c1929377b2f09665ae5f4c20e8458c00f1e8242d46e54` |
-| `dist/bn/docs/v3/DISTRIBUTION-ROADMAP.html` | generated website build output | 23653 | `15f675fa875079efb3e7b6af637ac8d3085163793ccfc7230d9283cf93da55f2` |
-| `dist/bn/docs/v3/EXTENSION-SDK.html` | generated website build output | 22581 | `459830122394dcaa3b91c1f01b757f9d6150fe36003715d6562421ddf0320c7a` |
-| `dist/bn/docs/v3/IMPLEMENTATION-ROADMAP.html` | generated website build output | 25625 | `d6c0d375daa75b9f39a18bd1761306d86f7a510190f8c6da42446f24f24574f5` |
-| `dist/bn/docs/v3/PRODUCT-VISION.html` | generated website build output | 23066 | `097f9081446a96721c2bace635af62f138a4403cc2f83bdbf1d958a9e78fa0af` |
-| `dist/bn/docs/v3/README.html` | generated website build output | 21616 | `5e72ef5abf87687a1c8d1f41edfd26090f4c1d5b73adcabfe143097d16197b9f` |
-| `dist/bn/docs/v3/SECURITY-MODEL.html` | generated website build output | 19977 | `36787f64c7f2e7375d4a9bbdc81ae0a79ba798b466c2653f1a9586d0609351d8` |
-| `dist/bn/docs/v3/SECURITY-ROADMAP.html` | generated website build output | 24155 | `334dba488c1919a8b2708cb2439cf0d2019ed7a99f22cf436c22edb85ee1f945` |
-| `dist/bn/docs/v3/SYSTEM-ARCHITECTURE.html` | generated website build output | 22643 | `a5e9acd6640f97c79cd26060e0a9e29ffa74d97dc7d7f22bf3a1fe7f84dd914a` |
-| `dist/bn/docs/v3/TESTING-STRATEGY.html` | generated website build output | 24187 | `8f25402b87c6429381c89df985059d3a3ac0da715363352ab08aeb72b11d552a` |
-| `dist/bn/docs/v3/UX-AND-DESIGN-SYSTEM.html` | generated website build output | 20459 | `d80f064e0572dd107108c350a7678ee42b2a5fb3f682c600273cdcf276934ca4` |
-| `dist/bn/docs/v3/WORKSPACE-ARCHITECTURE.html` | generated website build output | 21791 | `8b834f72a7544288a9e8e3739fd279c40613cdd5ed9c9dd51bc807b8df13dd8c` |
+| `dist/bn/docs/next/architecture/ACCEPTANCE-CRITERIA.html` | generated website build output | 21845 | `85d95c38d63f06f2092762e9eb425a8ffa927ef3d76f50a8846c0b074c919154` |
+| `dist/bn/docs/next/architecture/ADR/0001-native-manager.html` | generated website build output | 18757 | `83cf27e3dc0ce87dd66109364283e9c44fa64cdbff240695cb478cb70a529b4c` |
+| `dist/bn/docs/next/architecture/ADR/0002-guest-data-ownership.html` | generated website build output | 18542 | `153e812f793809dc0edf304a9d8a4ecd681599b4e0a3643e243d29e04887ead9` |
+| `dist/bn/docs/next/architecture/ADR/0003-lai-adapter.html` | generated website build output | 18805 | `980e0df891ecef266d9b58c3222ae8782023424dbf7899ac03a26d1414d36814` |
+| `dist/bn/docs/next/architecture/ADR/0004-shared-manager-contract.html` | generated website build output | 21118 | `887b8532ccef4f0a568d4311b349696f21edf4145ec34b0c5227e3116c1d05e5` |
+| `dist/bn/docs/next/architecture/ADR/0005-native-display-allocation.html` | generated website build output | 21350 | `46f19ee708b36cce87029e1a6f9544192f5de2d3f24dfa37a40f565dda906939` |
+| `dist/bn/docs/next/architecture/ADR/README.html` | generated website build output | 17876 | `c5c3d83be180f7e950ade4543e6c54bf894d5f263bd8d3fe21a2f70ae334fe32` |
+| `dist/bn/docs/next/architecture/AI-RUNTIME-ARCHITECTURE.html` | generated website build output | 19623 | `563713ba5fc927443ac2d98aa75fa3ca0a69f9ccc8004401221bd1bfce5e3e2a` |
+| `dist/bn/docs/next/architecture/API-DESIGN.html` | generated website build output | 29397 | `5020de6979e22f545dc30ef6d1835c124c465fc8474fc9ce588422e0ee3f08a0` |
+| `dist/bn/docs/next/architecture/APT-DISTRIBUTION-FEASIBILITY.html` | generated website build output | 25945 | `40e1691a690c9723d833631c62abe6f3c61238e0485dbd2666c68bffdfe69450` |
+| `dist/bn/docs/next/architecture/COMPONENT-ARCHITECTURE.html` | generated website build output | 21915 | `da2401bd3fd6aab96adff2af13309abb7efdb34ebef537ba135c2bcae62d1504` |
+| `dist/bn/docs/next/architecture/COMPUTE-ENGINE.html` | generated website build output | 20406 | `45f0b45ae3fc8249a3a98765263307419a79554912aa10adfb611e7b08bf028c` |
+| `dist/bn/docs/next/architecture/CONTROL-CENTER-ARCHITECTURE.html` | generated website build output | 22392 | `8d9b7016e5cb48031d95040100c69694046e401fa93d91e783ae4b2d1033fac8` |
+| `dist/bn/docs/next/architecture/DEVICE-BRIDGE-ARCHITECTURE.html` | generated website build output | 20213 | `d8e919ceca87dc61d74c1929377b2f09665ae5f4c20e8458c00f1e8242d46e54` |
+| `dist/bn/docs/next/architecture/DISTRIBUTION-ROADMAP.html` | generated website build output | 23653 | `15f675fa875079efb3e7b6af637ac8d3085163793ccfc7230d9283cf93da55f2` |
+| `dist/bn/docs/next/architecture/EXTENSION-SDK.html` | generated website build output | 22581 | `459830122394dcaa3b91c1f01b757f9d6150fe36003715d6562421ddf0320c7a` |
+| `dist/bn/docs/next/architecture/IMPLEMENTATION-ROADMAP.html` | generated website build output | 25625 | `d6c0d375daa75b9f39a18bd1761306d86f7a510190f8c6da42446f24f24574f5` |
+| `dist/bn/docs/next/architecture/PRODUCT-VISION.html` | generated website build output | 23066 | `097f9081446a96721c2bace635af62f138a4403cc2f83bdbf1d958a9e78fa0af` |
+| `dist/bn/docs/next/architecture/README.html` | generated website build output | 21616 | `5e72ef5abf87687a1c8d1f41edfd26090f4c1d5b73adcabfe143097d16197b9f` |
+| `dist/bn/docs/next/architecture/SECURITY-MODEL.html` | generated website build output | 19977 | `36787f64c7f2e7375d4a9bbdc81ae0a79ba798b466c2653f1a9586d0609351d8` |
+| `dist/bn/docs/next/architecture/SECURITY-ROADMAP.html` | generated website build output | 24155 | `334dba488c1919a8b2708cb2439cf0d2019ed7a99f22cf436c22edb85ee1f945` |
+| `dist/bn/docs/next/architecture/SYSTEM-ARCHITECTURE.html` | generated website build output | 22643 | `a5e9acd6640f97c79cd26060e0a9e29ffa74d97dc7d7f22bf3a1fe7f84dd914a` |
+| `dist/bn/docs/next/architecture/TESTING-STRATEGY.html` | generated website build output | 24187 | `8f25402b87c6429381c89df985059d3a3ac0da715363352ab08aeb72b11d552a` |
+| `dist/bn/docs/next/architecture/UX-AND-DESIGN-SYSTEM.html` | generated website build output | 20459 | `d80f064e0572dd107108c350a7678ee42b2a5fb3f682c600273cdcf276934ca4` |
+| `dist/bn/docs/next/architecture/WORKSPACE-ARCHITECTURE.html` | generated website build output | 21791 | `8b834f72a7544288a9e8e3739fd279c40613cdd5ed9c9dd51bc807b8df13dd8c` |
 | `dist/bn/index.html` | generated website build output | 46323 | `8663323b0a735afd9d3ce140fefc832a4c96e2b905ac79487a85d425b11047a9` |
 | `dist/docs/ACCELERATOR-RELEASE-PLAN.html` | generated website build output | 140360 | `315c01877f443f1d87d4a2b10964c8bfb46f029f24142264f26f87e19b0e4ad9` |
 | `dist/docs/ANDROID-PHANTOM-PROCESS.html` | generated website build output | 21763 | `169ce68607b920d8026b47c1e7ba9b353cc11cd79f99af8089a3a1228fd5928d` |
@@ -136,31 +136,31 @@ Count by first path component:
 | `dist/docs/release/pages/v1.4.0-INSTALLATION.html` | generated website build output | 19350 | `924119ab4e5a85fb3594f3f6589be7ec961ca927dfac77575c914db9460178bd` |
 | `dist/docs/release/pages/v2.0.1-INSTALLATION.html` | generated website build output | 18104 | `478fe0cbab56ba7bff4ef07bab16c9befb736483f0cffc986c56b2a9deab0024` |
 | `dist/docs/release/templates/RELEASE-INSTALLATION-TEMPLATE.html` | generated website build output | 15683 | `86204f8127fb4bc74ce71a352105e5bf4ddc8acda9ee44c63cd0d22a3411ddd9` |
-| `dist/docs/v3/ACCEPTANCE-CRITERIA.html` | generated website build output | 17112 | `88b7325b18316134085228efe1522bbd72a1f474d033f9d2402d5fdd09bae9ad` |
-| `dist/docs/v3/ADR/0001-native-manager.html` | generated website build output | 14360 | `ef04b5cac0b7e09cf841ea9de95033ba83659718d6b64ec6bda476ec86092968` |
-| `dist/docs/v3/ADR/0002-guest-data-ownership.html` | generated website build output | 14220 | `2064fe6855a2792a9d660843d276dfb81e597e76b944b076074f4281c1228ff6` |
-| `dist/docs/v3/ADR/0003-lai-adapter.html` | generated website build output | 14105 | `1e50c7d248aa922d17a8487b5584c5dd6af721821a3a4d471355cd5f47573b26` |
-| `dist/docs/v3/ADR/0004-shared-manager-contract.html` | generated website build output | 16701 | `88baa74b0047b826c96cd4996cbf2d94b5eee61a713ab960d8a1430bfa530967` |
-| `dist/docs/v3/ADR/0005-native-display-allocation.html` | generated website build output | 16774 | `0776bca5c9d46d6a33f20f83f1e89d4acf8df4d40ea3ee36004d1abf83af5581` |
-| `dist/docs/v3/ADR/README.html` | generated website build output | 13723 | `1f33275e941627ea232db225e7172e4956fdf6d827d2f465514a4de0528cdcfc` |
-| `dist/docs/v3/AI-RUNTIME-ARCHITECTURE.html` | generated website build output | 15252 | `3787f1a845846f1829057bc285b7bea20c75bc7c016234da30a5f3b9728adea1` |
-| `dist/docs/v3/API-DESIGN.html` | generated website build output | 24123 | `cc0d7c37428b6ef95e93201da004085e7474af701b6d585d863cff49e5eee533` |
-| `dist/docs/v3/APT-DISTRIBUTION-FEASIBILITY.html` | generated website build output | 20917 | `97b839643a3435ebc58b5095f25f7e90edbe465ecb6c1e556c6d51a2fe15e747` |
-| `dist/docs/v3/COMPONENT-ARCHITECTURE.html` | generated website build output | 17096 | `38fada0c8e8534325d23c456d2cc35c17943588af690cbc8786ae818abbfa7f1` |
-| `dist/docs/v3/COMPUTE-ENGINE.html` | generated website build output | 15426 | `f854704e5dd553423003cc3ebb6078e7bd8b91ee4ceaefe0c8c18fee5c18f24d` |
-| `dist/docs/v3/CONTROL-CENTER-ARCHITECTURE.html` | generated website build output | 17519 | `2f13fa3470eb72d7692af7803ba1464d436cc0b1e621f2c609f70dee3da15f80` |
-| `dist/docs/v3/DEVICE-BRIDGE-ARCHITECTURE.html` | generated website build output | 15445 | `2291fef3343ec046d96d582d40185d4a7d9820e69ffac35617a82b3e0731fd59` |
-| `dist/docs/v3/DISTRIBUTION-ROADMAP.html` | generated website build output | 19621 | `7466d9a2bd72340e113bfa862021e0e6157df3cc1b9507ad6117a7cdbabac805` |
-| `dist/docs/v3/EXTENSION-SDK.html` | generated website build output | 17891 | `b35b3bf256efb394bb62320e68f2093c7bff555418daae205f05da66712f5e2f` |
-| `dist/docs/v3/IMPLEMENTATION-ROADMAP.html` | generated website build output | 20575 | `cc07e00b8a1e1539afd44d2631d491be9d5979d936b0c4752a1c360fa73ff8dc` |
-| `dist/docs/v3/PRODUCT-VISION.html` | generated website build output | 16505 | `e4982914a3da9214f54be07ded7322fe98cfb7863643e625b19113c68160fdcf` |
-| `dist/docs/v3/README.html` | generated website build output | 16671 | `74c272b8468fc9d9b80dad86df11d059133a7e81c624cf084cfc9ca43be53547` |
-| `dist/docs/v3/SECURITY-MODEL.html` | generated website build output | 15540 | `570a8b354a0155328ec6bc0cf48b2c64f7180847bb7ec3b6f7710f6b903761a6` |
-| `dist/docs/v3/SECURITY-ROADMAP.html` | generated website build output | 19971 | `07427cb6d16064b9f880eb99c3bb88912fbdda5b75260150bc050d597ff53aa7` |
-| `dist/docs/v3/SYSTEM-ARCHITECTURE.html` | generated website build output | 17598 | `06b1d67bc02ea344cf5948afc11da31994967f4b47a9b66dce8e3f5670082a97` |
-| `dist/docs/v3/TESTING-STRATEGY.html` | generated website build output | 19406 | `51cf493259d8e08c199786b4d7e726c41fbbecf404ca261f51c038e92b1f869e` |
-| `dist/docs/v3/UX-AND-DESIGN-SYSTEM.html` | generated website build output | 15417 | `8e8a032f2423976c7789f05390b5f648526f460dffa6f0a61ec6abb515f896a4` |
-| `dist/docs/v3/WORKSPACE-ARCHITECTURE.html` | generated website build output | 16981 | `46a8e03ee827f298b66c36e1b34f517aea3b53673c39dcebbcc02c935fed232c` |
+| `dist/docs/next/architecture/ACCEPTANCE-CRITERIA.html` | generated website build output | 17112 | `88b7325b18316134085228efe1522bbd72a1f474d033f9d2402d5fdd09bae9ad` |
+| `dist/docs/next/architecture/ADR/0001-native-manager.html` | generated website build output | 14360 | `ef04b5cac0b7e09cf841ea9de95033ba83659718d6b64ec6bda476ec86092968` |
+| `dist/docs/next/architecture/ADR/0002-guest-data-ownership.html` | generated website build output | 14220 | `2064fe6855a2792a9d660843d276dfb81e597e76b944b076074f4281c1228ff6` |
+| `dist/docs/next/architecture/ADR/0003-lai-adapter.html` | generated website build output | 14105 | `1e50c7d248aa922d17a8487b5584c5dd6af721821a3a4d471355cd5f47573b26` |
+| `dist/docs/next/architecture/ADR/0004-shared-manager-contract.html` | generated website build output | 16701 | `88baa74b0047b826c96cd4996cbf2d94b5eee61a713ab960d8a1430bfa530967` |
+| `dist/docs/next/architecture/ADR/0005-native-display-allocation.html` | generated website build output | 16774 | `0776bca5c9d46d6a33f20f83f1e89d4acf8df4d40ea3ee36004d1abf83af5581` |
+| `dist/docs/next/architecture/ADR/README.html` | generated website build output | 13723 | `1f33275e941627ea232db225e7172e4956fdf6d827d2f465514a4de0528cdcfc` |
+| `dist/docs/next/architecture/AI-RUNTIME-ARCHITECTURE.html` | generated website build output | 15252 | `3787f1a845846f1829057bc285b7bea20c75bc7c016234da30a5f3b9728adea1` |
+| `dist/docs/next/architecture/API-DESIGN.html` | generated website build output | 24123 | `cc0d7c37428b6ef95e93201da004085e7474af701b6d585d863cff49e5eee533` |
+| `dist/docs/next/architecture/APT-DISTRIBUTION-FEASIBILITY.html` | generated website build output | 20917 | `97b839643a3435ebc58b5095f25f7e90edbe465ecb6c1e556c6d51a2fe15e747` |
+| `dist/docs/next/architecture/COMPONENT-ARCHITECTURE.html` | generated website build output | 17096 | `38fada0c8e8534325d23c456d2cc35c17943588af690cbc8786ae818abbfa7f1` |
+| `dist/docs/next/architecture/COMPUTE-ENGINE.html` | generated website build output | 15426 | `f854704e5dd553423003cc3ebb6078e7bd8b91ee4ceaefe0c8c18fee5c18f24d` |
+| `dist/docs/next/architecture/CONTROL-CENTER-ARCHITECTURE.html` | generated website build output | 17519 | `2f13fa3470eb72d7692af7803ba1464d436cc0b1e621f2c609f70dee3da15f80` |
+| `dist/docs/next/architecture/DEVICE-BRIDGE-ARCHITECTURE.html` | generated website build output | 15445 | `2291fef3343ec046d96d582d40185d4a7d9820e69ffac35617a82b3e0731fd59` |
+| `dist/docs/next/architecture/DISTRIBUTION-ROADMAP.html` | generated website build output | 19621 | `7466d9a2bd72340e113bfa862021e0e6157df3cc1b9507ad6117a7cdbabac805` |
+| `dist/docs/next/architecture/EXTENSION-SDK.html` | generated website build output | 17891 | `b35b3bf256efb394bb62320e68f2093c7bff555418daae205f05da66712f5e2f` |
+| `dist/docs/next/architecture/IMPLEMENTATION-ROADMAP.html` | generated website build output | 20575 | `cc07e00b8a1e1539afd44d2631d491be9d5979d936b0c4752a1c360fa73ff8dc` |
+| `dist/docs/next/architecture/PRODUCT-VISION.html` | generated website build output | 16505 | `e4982914a3da9214f54be07ded7322fe98cfb7863643e625b19113c68160fdcf` |
+| `dist/docs/next/architecture/README.html` | generated website build output | 16671 | `74c272b8468fc9d9b80dad86df11d059133a7e81c624cf084cfc9ca43be53547` |
+| `dist/docs/next/architecture/SECURITY-MODEL.html` | generated website build output | 15540 | `570a8b354a0155328ec6bc0cf48b2c64f7180847bb7ec3b6f7710f6b903761a6` |
+| `dist/docs/next/architecture/SECURITY-ROADMAP.html` | generated website build output | 19971 | `07427cb6d16064b9f880eb99c3bb88912fbdda5b75260150bc050d597ff53aa7` |
+| `dist/docs/next/architecture/SYSTEM-ARCHITECTURE.html` | generated website build output | 17598 | `06b1d67bc02ea344cf5948afc11da31994967f4b47a9b66dce8e3f5670082a97` |
+| `dist/docs/next/architecture/TESTING-STRATEGY.html` | generated website build output | 19406 | `51cf493259d8e08c199786b4d7e726c41fbbecf404ca261f51c038e92b1f869e` |
+| `dist/docs/next/architecture/UX-AND-DESIGN-SYSTEM.html` | generated website build output | 15417 | `8e8a032f2423976c7789f05390b5f648526f460dffa6f0a61ec6abb515f896a4` |
+| `dist/docs/next/architecture/WORKSPACE-ARCHITECTURE.html` | generated website build output | 16981 | `46a8e03ee827f298b66c36e1b34f517aea3b53673c39dcebbcc02c935fed232c` |
 | `dist/index.html` | generated website build output | 34968 | `eee3a1a5838ed4dc51897f088d4981eea98de799c940019b386ba311d96c34d1` |
 | `dist/robots.txt` | generated website build output | 80 | `86d795adab11aecd8c18c0382a5c0e379d6a9764ae575eb8bcd4fc090f9171e1` |
 | `dist/schemas/control-center-snapshot-v1.schema.json` | generated website build output | 1697 | `ebf02956a4309b200c0213842c07c09f203eb53911cd059394c99dfe36d2af88` |
@@ -9022,89 +9022,89 @@ Count by first path component:
 | `node_modules/zod/src/index.ts` | installed third-party dependency; license/provenance review pending | 422 | `32e7efd49a94a765f6d10a1a0a3c02c50c246def17c80c6f0225f85525d98505` |
 | `node_modules/zod/src/locales/index.ts` | installed third-party dependency; license/provenance review pending | 40 | `0b98ccbe349eb9774d8c96fa381335cef127140996f91a4eea47b7742b55f51d` |
 | `node_modules/zod/src/mini/index.ts` | installed third-party dependency; license/provenance review pending | 99 | `92f42fea7c90ec3f2f623a923d8798d2a316cb4ff93d6399084065b9214365de` |
-| `node_modules/zod/src/v3/ZodError.ts` | installed third-party dependency; license/provenance review pending | 9530 | `3e8d3124e975396d9b3567dad69d27b1899b4db0d0cb14e06bfff87f2f497706` |
-| `node_modules/zod/src/v3/benchmarks/datetime.ts` | installed third-party dependency; license/provenance review pending | 1908 | `0d1a81e5608b286c1843aaecb20bd7d1f62b6674a610a51dc7d1043bed05963d` |
-| `node_modules/zod/src/v3/benchmarks/discriminatedUnion.ts` | installed third-party dependency; license/provenance review pending | 1593 | `33e4f792dbfdc735a72f92fcc117d3dbaea8e7ff3937d523bef3df44814805d3` |
-| `node_modules/zod/src/v3/benchmarks/index.ts` | installed third-party dependency; license/provenance review pending | 1582 | `27f4322ad98e28575d5849a7612c6acea55cd5be8a1571d1885a656e8a9d5620` |
-| `node_modules/zod/src/v3/benchmarks/ipv4.ts` | installed third-party dependency; license/provenance review pending | 1818 | `3ef475926d7e95a5880cd9d7bd780f98642189010046bb9748e27e50360da333` |
-| `node_modules/zod/src/v3/benchmarks/object.ts` | installed third-party dependency; license/provenance review pending | 1623 | `ea0f6d4b3e2c6f47bf1739a53473997da4aaacc1e5f59e57f00cfb6b7f59a4e5` |
-| `node_modules/zod/src/v3/benchmarks/primitives.ts` | installed third-party dependency; license/provenance review pending | 3489 | `706d51c7048aff5108dd71b33b5c66d354a6856be0a48b23bc32e55d284c31d0` |
-| `node_modules/zod/src/v3/benchmarks/realworld.ts` | installed third-party dependency; license/provenance review pending | 1157 | `9bcc944a5e875ca191ca10542c113dde3c754e45a196400726f251b045e14215` |
-| `node_modules/zod/src/v3/benchmarks/string.ts` | installed third-party dependency; license/provenance review pending | 1257 | `ed17ef186249dc4f1da01a2d5e0bd3c87da6d0d2dcad89e8afa05e0920d98536` |
-| `node_modules/zod/src/v3/benchmarks/union.ts` | installed third-party dependency; license/provenance review pending | 1525 | `9eec8e3e58cb4d3dd76be11874187f71a99c27e06c639de0cc9d8d928687fe0a` |
-| `node_modules/zod/src/v3/errors.ts` | installed third-party dependency; license/provenance review pending | 305 | `cb8debd524102d5a38dbaadd72b220f68349dbac51ac9663569c1807f64b3772` |
-| `node_modules/zod/src/v3/external.ts` | installed third-party dependency; license/provenance review pending | 205 | `5d26d2e47e2352def36f89a3e8bf8581da22b7f857e07ef3114cd52cf4813445` |
-| `node_modules/zod/src/v3/helpers/enumUtil.ts` | installed third-party dependency; license/provenance review pending | 604 | `dffcb43b363e6804128c415c128c32dbbda302049cfce7662b2f0e17eeae044e` |
-| `node_modules/zod/src/v3/helpers/errorUtil.ts` | installed third-party dependency; license/provenance review pending | 476 | `8ce327ed4155d40dc14745da798336fc8dea05dccdcd15b36629c9ee3116ffe3` |
-| `node_modules/zod/src/v3/helpers/parseUtil.ts` | installed third-party dependency; license/provenance review pending | 5279 | `cb94690c02dce392b98ca364de0d4b24f42db715fbb1759a08bcfb7fa6674645` |
-| `node_modules/zod/src/v3/helpers/partialUtil.ts` | installed third-party dependency; license/provenance review pending | 1019 | `68848db44869461bc20373abdcd002e32cb3759e2d5801ba3d9894d2c23db0b1` |
-| `node_modules/zod/src/v3/helpers/typeAliases.ts` | installed third-party dependency; license/provenance review pending | 135 | `d3cfde44f8089768ebb08098c96d01ca260b88bccf238d55eee93f1c620ff5a5` |
-| `node_modules/zod/src/v3/helpers/util.ts` | installed third-party dependency; license/provenance review pending | 6206 | `df1b9ea5a29a591f273555e240142431617e686aa6a97f172193770c26841a52` |
-| `node_modules/zod/src/v3/index.ts` | installed third-party dependency; license/provenance review pending | 99 | `3db2efd285e7328d8014b54a7fce3f4861ebcdc655df40517092ed0050983617` |
-| `node_modules/zod/src/v3/locales/en.ts` | installed third-party dependency; license/provenance review pending | 5134 | `f729055c5f4acb839084e5c66c80bdecca02a78df6b048224e56e634322cb223` |
-| `node_modules/zod/src/v3/standard-schema.ts` | installed third-party dependency; license/provenance review pending | 2678 | `e14e38f67bfc8d76e208366f639b73b3292f2bd46c97a44f43535c2389927ece` |
-| `node_modules/zod/src/v3/tests/Mocker.ts` | installed third-party dependency; license/provenance review pending | 1341 | `b7732bb15ed6ab38f61dd4a15f088af109b0a99eccb50cdd9f542a17bb935f5e` |
-| `node_modules/zod/src/v3/tests/all-errors.test.ts` | installed third-party dependency; license/provenance review pending | 4717 | `ac1e032526bd4dcb874880df7c28f7a1b60b1b850f68da95df28ead0317527e8` |
-| `node_modules/zod/src/v3/tests/anyunknown.test.ts` | installed third-party dependency; license/provenance review pending | 673 | `fac8ebb9d3007f7ef1ea320eed85b22b3248fde6bb1fe645a1a513b69442c014` |
-| `node_modules/zod/src/v3/tests/array.test.ts` | installed third-party dependency; license/provenance review pending | 1939 | `e7d3813182c59e511d350bebbd2a25b349868cc73d057b23b1d85a4d927b3711` |
-| `node_modules/zod/src/v3/tests/async-parsing.test.ts` | installed third-party dependency; license/provenance review pending | 12639 | `45f829362cc917d9505e244ea0d9a06d71a1953747dc31e57780388e82ad5afa` |
-| `node_modules/zod/src/v3/tests/async-refinements.test.ts` | installed third-party dependency; license/provenance review pending | 1603 | `cfd6752223678338c949f1716deeff8c18807f31343d6a4544f494d10e5acf60` |
-| `node_modules/zod/src/v3/tests/base.test.ts` | installed third-party dependency; license/provenance review pending | 782 | `989d8ff33e43dbeb3d08d8f659a3269d22fb573a86d48c72da58ab84e484e532` |
-| `node_modules/zod/src/v3/tests/bigint.test.ts` | installed third-party dependency; license/provenance review pending | 1977 | `799b38ffff2d2a977493846e127d6f76e5cdb346d8886a2d2c76616253170f45` |
-| `node_modules/zod/src/v3/tests/branded.test.ts` | installed third-party dependency; license/provenance review pending | 1734 | `d0d7213caa6b727fe72a4bd99631984c4038ecbe8f67001840b447ca4b2085b0` |
-| `node_modules/zod/src/v3/tests/catch.test.ts` | installed third-party dependency; license/provenance review pending | 6550 | `e4b1727836b5cdca66337af180a756fab2b712f61d49d17326a90c0a54080be5` |
-| `node_modules/zod/src/v3/tests/coerce.test.ts` | installed third-party dependency; license/provenance review pending | 6650 | `30dec33039db38b3c2baecbee09c74afc1d9adc68a6229a35628a1bac4539db9` |
-| `node_modules/zod/src/v3/tests/complex.test.ts` | installed third-party dependency; license/provenance review pending | 2497 | `d3d971894c68f8b357b86232f8d9336622f86abb38f8b718f4064427a9021d82` |
-| `node_modules/zod/src/v3/tests/custom.test.ts` | installed third-party dependency; license/provenance review pending | 950 | `6837c23478b39dc6304a98bbbba4a1df9b973d40f6243f0939bfbc339d96b01d` |
-| `node_modules/zod/src/v3/tests/date.test.ts` | installed third-party dependency; license/provenance review pending | 983 | `7d352eab070ae8f4fcbc61674f6b238159699ec4b96754ec1aac0cac74091c34` |
-| `node_modules/zod/src/v3/tests/deepmasking.test.ts` | installed third-party dependency; license/provenance review pending | 5215 | `8b6cef1cdb8eb422ebb50b24e4f88742f13eaf0abf83b08a3980f2406a4b6ac6` |
-| `node_modules/zod/src/v3/tests/default.test.ts` | installed third-party dependency; license/provenance review pending | 3527 | `92067a119b984ab2750a1eba8e1a5573276aeaed95056e9e283f4a3bb54e5d5e` |
-| `node_modules/zod/src/v3/tests/description.test.ts` | installed third-party dependency; license/provenance review pending | 1323 | `f1b75327fd817bb63c3b2e3be0ff9aff7511e2a391713756d8cb26cbfd3d5aa5` |
-| `node_modules/zod/src/v3/tests/discriminated-unions.test.ts` | installed third-party dependency; license/provenance review pending | 8537 | `5bd00d9f7eeac9dd60faa03af58b5a915040f54b93ff77c4eab0d4a18f8b9e9c` |
-| `node_modules/zod/src/v3/tests/enum.test.ts` | installed third-party dependency; license/provenance review pending | 2737 | `3fcf9f740cd53f52431abda4c61a3732dde44c3a9f1033159e9c0c92fcebd09a` |
-| `node_modules/zod/src/v3/tests/error.test.ts` | installed third-party dependency; license/provenance review pending | 18262 | `85b1b59f81856fb530f6d40460f89c1a08df5c15ad6f52e0077768174cc1fe98` |
-| `node_modules/zod/src/v3/tests/firstparty.test.ts` | installed third-party dependency; license/provenance review pending | 2391 | `9906d7da8e62f7b9b7e5cd9553bea0872ad8a0b259214034108cec8a624cfc1d` |
-| `node_modules/zod/src/v3/tests/firstpartyschematypes.test.ts` | installed third-party dependency; license/provenance review pending | 788 | `9be5a0881151df777293172088b2039ed7e1e6f4a98a7557cdd0211f108c9b96` |
-| `node_modules/zod/src/v3/tests/function.test.ts` | installed third-party dependency; license/provenance review pending | 6734 | `86530ee38e4aaec27b5bc28f525139019d7f872cbddcccf38c031d6202728eb5` |
-| `node_modules/zod/src/v3/tests/generics.test.ts` | installed third-party dependency; license/provenance review pending | 1523 | `d1a4c54239acff333f76231084c48133257fefe14f504d0cab055979b5a9e723` |
-| `node_modules/zod/src/v3/tests/instanceof.test.ts` | installed third-party dependency; license/provenance review pending | 1154 | `b11897351fcf312dee317408b7aa27929ba37538c468588429f4f4ae3c5fa4ce` |
-| `node_modules/zod/src/v3/tests/intersection.test.ts` | installed third-party dependency; license/provenance review pending | 3777 | `127e438ca422efb068196319f5d5b6386c90d25592de352ae63c5866906977cc` |
-| `node_modules/zod/src/v3/tests/language-server.source.ts` | installed third-party dependency; license/provenance review pending | 1275 | `aeb84d6fb14e6511a3509a0545770d869986f397ee02da640730d4ff97c6be4a` |
-| `node_modules/zod/src/v3/tests/language-server.test.ts` | installed third-party dependency; license/provenance review pending | 8315 | `f4119e34886d39f665ab083d91bb4b08faae20f6b11d69bbf99d797389cfb2bc` |
-| `node_modules/zod/src/v3/tests/literal.test.ts` | installed third-party dependency; license/provenance review pending | 1063 | `a22faed6c08e04c75d6bb0180d5e1fafc4645b15445a479f338016ee4855c362` |
-| `node_modules/zod/src/v3/tests/map.test.ts` | installed third-party dependency; license/provenance review pending | 3545 | `bb52432835e9fa70a94f444fc9e7c2d8e6ac5eb905cc3b8ae54846e52fa57360` |
-| `node_modules/zod/src/v3/tests/masking.test.ts` | installed third-party dependency; license/provenance review pending | 85 | `557f4bc4d8f4ab29afd87f07cf70fa4de60d765fc86fbc5eb4b788f34dd825a2` |
-| `node_modules/zod/src/v3/tests/mocker.test.ts` | installed third-party dependency; license/provenance review pending | 389 | `46f64d2995e29c5838189ed10cd1b185b44c33dbc21418364a80ac19f285362b` |
-| `node_modules/zod/src/v3/tests/nan.test.ts` | installed third-party dependency; license/provenance review pending | 708 | `6a8dd316585ebc82ea125b63700d981485111b91421a69f2acecf0fc1df1a223` |
-| `node_modules/zod/src/v3/tests/nativeEnum.test.ts` | installed third-party dependency; license/provenance review pending | 2344 | `6f64363193a447f71a8aa5440461bdb5451c6c4433fb4fca785ef4798d5b52fb` |
-| `node_modules/zod/src/v3/tests/nullable.test.ts` | installed third-party dependency; license/provenance review pending | 1172 | `c51336535632e1404455bca333ccafc143191600047251a3e3e13f551693c516` |
-| `node_modules/zod/src/v3/tests/number.test.ts` | installed third-party dependency; license/provenance review pending | 6373 | `d56a65ec9bc03482c2b23eecb97c5213b564b5aaafeaf205d2a1f54a2c91e1d8` |
-| `node_modules/zod/src/v3/tests/object-augmentation.test.ts` | installed third-party dependency; license/provenance review pending | 569 | `69777e89506b2d8157c98e176dde94a7c664db7228485c52a18154ac4b794382` |
-| `node_modules/zod/src/v3/tests/object-in-es5-env.test.ts` | installed third-party dependency; license/provenance review pending | 778 | `687d2c52ddaaca24ab3d3e301cba042a7560888570af23b50a0597d3012d500c` |
-| `node_modules/zod/src/v3/tests/object.test.ts` | installed third-party dependency; license/provenance review pending | 11829 | `4d60993f67cdc60e600bb6ecc0cb59e6b6dd479479165fb20bf56c2c14b6534b` |
-| `node_modules/zod/src/v3/tests/optional.test.ts` | installed third-party dependency; license/provenance review pending | 1222 | `0edb7a6478e931bf256f3d71d1367d2b8199b4082101dba97cc306e4dc3c92c9` |
-| `node_modules/zod/src/v3/tests/parseUtil.test.ts` | installed third-party dependency; license/provenance review pending | 869 | `822a6d836b05ab38eadf26592420eba6be694dc7c1d654388efbb601af00c288` |
-| `node_modules/zod/src/v3/tests/parser.test.ts` | installed third-party dependency; license/provenance review pending | 1125 | `7c8b720c921618f6c89eb08eae80ba45602fa04dafe9c7b9b861512954d70f9b` |
-| `node_modules/zod/src/v3/tests/partials.test.ts` | installed third-party dependency; license/provenance review pending | 7044 | `edffc60d54ac33d1404f04653a70fd7c491a4a526bb9544c390b177defb2464a` |
-| `node_modules/zod/src/v3/tests/pickomit.test.ts` | installed third-party dependency; license/provenance review pending | 3622 | `cd05293952b5fb0ca26eeb9ba6cd69a26f58fa5c62eb35f9ce1eb1ac9e00ccd6` |
-| `node_modules/zod/src/v3/tests/pipeline.test.ts` | installed third-party dependency; license/provenance review pending | 823 | `b285aac721b744da8c5a0a093c9ed57244643e1e333df576922e67bfaa9e16ab` |
-| `node_modules/zod/src/v3/tests/preprocess.test.ts` | installed third-party dependency; license/provenance review pending | 4530 | `7433e95a0504f7a250b7beaac30a5e8f500c315d99b3badb978a0b28ed7a61dd` |
-| `node_modules/zod/src/v3/tests/primitive.test.ts` | installed third-party dependency; license/provenance review pending | 12215 | `d0214e93de931a8e6b89b3cb89df1cbf7299d6be00abcdde71ffdcb811953dea` |
-| `node_modules/zod/src/v3/tests/promise.test.ts` | installed third-party dependency; license/provenance review pending | 2490 | `c03c19525c56cea7808d982bd23ba89b5a48db13934e8d4824e13ee0a249d19b` |
-| `node_modules/zod/src/v3/tests/readonly.test.ts` | installed third-party dependency; license/provenance review pending | 4560 | `3b9f69a7a08a2d2e085d0ae0c385906bdc9cf0d79065a84c0c67dafba0f6c3db` |
-| `node_modules/zod/src/v3/tests/record.test.ts` | installed third-party dependency; license/provenance review pending | 3735 | `ebefc7ad59b2246787408efe7aaf2f7beec0b5c90c70e79990dcbf241c2d6c95` |
-| `node_modules/zod/src/v3/tests/recursive.test.ts` | installed third-party dependency; license/provenance review pending | 3946 | `9ccc037ef698ceeb4e6986e02aaee71ff318c4dc0f875b9253bff6ba14db9137` |
-| `node_modules/zod/src/v3/tests/refine.test.ts` | installed third-party dependency; license/provenance review pending | 8172 | `2f3a329952b6f0109028a142225d719b05307a18f7395297711f725b599933f8` |
-| `node_modules/zod/src/v3/tests/safeparse.test.ts` | installed third-party dependency; license/provenance review pending | 628 | `5aa7597109dea6647d0ab022a4aab694c44acfeae53386ea6366b806fbd3e872` |
-| `node_modules/zod/src/v3/tests/set.test.ts` | installed third-party dependency; license/provenance review pending | 4788 | `eeadd9dabd30b857c5de8526503cb1e5c8b6aa45a99c4708958ca1f822bb3da2` |
-| `node_modules/zod/src/v3/tests/standard-schema.test.ts` | installed third-party dependency; license/provenance review pending | 2587 | `f74076e43f44c887b3bf7d26d5ec686b8070359e63fe373e6c45b6c7708c025c` |
-| `node_modules/zod/src/v3/tests/string.test.ts` | installed third-party dependency; license/provenance review pending | 65967 | `70dd4d5052952443065227d19f51f536b2ea30d51e8bc25624582789a2fe0fc3` |
-| `node_modules/zod/src/v3/tests/transformer.test.ts` | installed third-party dependency; license/provenance review pending | 5687 | `e3da81596e0077326f442153a741c9ba25669b8b5eb025a8ea7fc1eb0106faf7` |
-| `node_modules/zod/src/v3/tests/tuple.test.ts` | installed third-party dependency; license/provenance review pending | 2691 | `e8a48c8791387c94076c7eee8c9b7e18712a45356c7167f7c43bedd54544614f` |
-| `node_modules/zod/src/v3/tests/unions.test.ts` | installed third-party dependency; license/provenance review pending | 1540 | `0c32f20d663b30438bb8ff834b7f066722160720a25a90e6513a66b9baa4604d` |
-| `node_modules/zod/src/v3/tests/validations.test.ts` | installed third-party dependency; license/provenance review pending | 3826 | `10ae103a7c7d9e5ce8bdacf9ef30bc44a52cdadf64fe365f492d27dcb432b482` |
-| `node_modules/zod/src/v3/tests/void.test.ts` | installed third-party dependency; license/provenance review pending | 349 | `6bdad3b7ba624eb3bd03c0bfea611de46c10aba62d03df9bd2ba49bafedc15cb` |
-| `node_modules/zod/src/v3/types.ts` | installed third-party dependency; license/provenance review pending | 160442 | `73b9529564a34fc028a5a62c17e09148747b737039b78b124e84254cb886411a` |
+| `node_modules/zod/src/next/architecture/ZodError.ts` | installed third-party dependency; license/provenance review pending | 9530 | `3e8d3124e975396d9b3567dad69d27b1899b4db0d0cb14e06bfff87f2f497706` |
+| `node_modules/zod/src/next/architecture/benchmarks/datetime.ts` | installed third-party dependency; license/provenance review pending | 1908 | `0d1a81e5608b286c1843aaecb20bd7d1f62b6674a610a51dc7d1043bed05963d` |
+| `node_modules/zod/src/next/architecture/benchmarks/discriminatedUnion.ts` | installed third-party dependency; license/provenance review pending | 1593 | `33e4f792dbfdc735a72f92fcc117d3dbaea8e7ff3937d523bef3df44814805d3` |
+| `node_modules/zod/src/next/architecture/benchmarks/index.ts` | installed third-party dependency; license/provenance review pending | 1582 | `27f4322ad98e28575d5849a7612c6acea55cd5be8a1571d1885a656e8a9d5620` |
+| `node_modules/zod/src/next/architecture/benchmarks/ipv4.ts` | installed third-party dependency; license/provenance review pending | 1818 | `3ef475926d7e95a5880cd9d7bd780f98642189010046bb9748e27e50360da333` |
+| `node_modules/zod/src/next/architecture/benchmarks/object.ts` | installed third-party dependency; license/provenance review pending | 1623 | `ea0f6d4b3e2c6f47bf1739a53473997da4aaacc1e5f59e57f00cfb6b7f59a4e5` |
+| `node_modules/zod/src/next/architecture/benchmarks/primitives.ts` | installed third-party dependency; license/provenance review pending | 3489 | `706d51c7048aff5108dd71b33b5c66d354a6856be0a48b23bc32e55d284c31d0` |
+| `node_modules/zod/src/next/architecture/benchmarks/realworld.ts` | installed third-party dependency; license/provenance review pending | 1157 | `9bcc944a5e875ca191ca10542c113dde3c754e45a196400726f251b045e14215` |
+| `node_modules/zod/src/next/architecture/benchmarks/string.ts` | installed third-party dependency; license/provenance review pending | 1257 | `ed17ef186249dc4f1da01a2d5e0bd3c87da6d0d2dcad89e8afa05e0920d98536` |
+| `node_modules/zod/src/next/architecture/benchmarks/union.ts` | installed third-party dependency; license/provenance review pending | 1525 | `9eec8e3e58cb4d3dd76be11874187f71a99c27e06c639de0cc9d8d928687fe0a` |
+| `node_modules/zod/src/next/architecture/errors.ts` | installed third-party dependency; license/provenance review pending | 305 | `cb8debd524102d5a38dbaadd72b220f68349dbac51ac9663569c1807f64b3772` |
+| `node_modules/zod/src/next/architecture/external.ts` | installed third-party dependency; license/provenance review pending | 205 | `5d26d2e47e2352def36f89a3e8bf8581da22b7f857e07ef3114cd52cf4813445` |
+| `node_modules/zod/src/next/architecture/helpers/enumUtil.ts` | installed third-party dependency; license/provenance review pending | 604 | `dffcb43b363e6804128c415c128c32dbbda302049cfce7662b2f0e17eeae044e` |
+| `node_modules/zod/src/next/architecture/helpers/errorUtil.ts` | installed third-party dependency; license/provenance review pending | 476 | `8ce327ed4155d40dc14745da798336fc8dea05dccdcd15b36629c9ee3116ffe3` |
+| `node_modules/zod/src/next/architecture/helpers/parseUtil.ts` | installed third-party dependency; license/provenance review pending | 5279 | `cb94690c02dce392b98ca364de0d4b24f42db715fbb1759a08bcfb7fa6674645` |
+| `node_modules/zod/src/next/architecture/helpers/partialUtil.ts` | installed third-party dependency; license/provenance review pending | 1019 | `68848db44869461bc20373abdcd002e32cb3759e2d5801ba3d9894d2c23db0b1` |
+| `node_modules/zod/src/next/architecture/helpers/typeAliases.ts` | installed third-party dependency; license/provenance review pending | 135 | `d3cfde44f8089768ebb08098c96d01ca260b88bccf238d55eee93f1c620ff5a5` |
+| `node_modules/zod/src/next/architecture/helpers/util.ts` | installed third-party dependency; license/provenance review pending | 6206 | `df1b9ea5a29a591f273555e240142431617e686aa6a97f172193770c26841a52` |
+| `node_modules/zod/src/next/architecture/index.ts` | installed third-party dependency; license/provenance review pending | 99 | `3db2efd285e7328d8014b54a7fce3f4861ebcdc655df40517092ed0050983617` |
+| `node_modules/zod/src/next/architecture/locales/en.ts` | installed third-party dependency; license/provenance review pending | 5134 | `f729055c5f4acb839084e5c66c80bdecca02a78df6b048224e56e634322cb223` |
+| `node_modules/zod/src/next/architecture/standard-schema.ts` | installed third-party dependency; license/provenance review pending | 2678 | `e14e38f67bfc8d76e208366f639b73b3292f2bd46c97a44f43535c2389927ece` |
+| `node_modules/zod/src/next/architecture/tests/Mocker.ts` | installed third-party dependency; license/provenance review pending | 1341 | `b7732bb15ed6ab38f61dd4a15f088af109b0a99eccb50cdd9f542a17bb935f5e` |
+| `node_modules/zod/src/next/architecture/tests/all-errors.test.ts` | installed third-party dependency; license/provenance review pending | 4717 | `ac1e032526bd4dcb874880df7c28f7a1b60b1b850f68da95df28ead0317527e8` |
+| `node_modules/zod/src/next/architecture/tests/anyunknown.test.ts` | installed third-party dependency; license/provenance review pending | 673 | `fac8ebb9d3007f7ef1ea320eed85b22b3248fde6bb1fe645a1a513b69442c014` |
+| `node_modules/zod/src/next/architecture/tests/array.test.ts` | installed third-party dependency; license/provenance review pending | 1939 | `e7d3813182c59e511d350bebbd2a25b349868cc73d057b23b1d85a4d927b3711` |
+| `node_modules/zod/src/next/architecture/tests/async-parsing.test.ts` | installed third-party dependency; license/provenance review pending | 12639 | `45f829362cc917d9505e244ea0d9a06d71a1953747dc31e57780388e82ad5afa` |
+| `node_modules/zod/src/next/architecture/tests/async-refinements.test.ts` | installed third-party dependency; license/provenance review pending | 1603 | `cfd6752223678338c949f1716deeff8c18807f31343d6a4544f494d10e5acf60` |
+| `node_modules/zod/src/next/architecture/tests/base.test.ts` | installed third-party dependency; license/provenance review pending | 782 | `989d8ff33e43dbeb3d08d8f659a3269d22fb573a86d48c72da58ab84e484e532` |
+| `node_modules/zod/src/next/architecture/tests/bigint.test.ts` | installed third-party dependency; license/provenance review pending | 1977 | `799b38ffff2d2a977493846e127d6f76e5cdb346d8886a2d2c76616253170f45` |
+| `node_modules/zod/src/next/architecture/tests/branded.test.ts` | installed third-party dependency; license/provenance review pending | 1734 | `d0d7213caa6b727fe72a4bd99631984c4038ecbe8f67001840b447ca4b2085b0` |
+| `node_modules/zod/src/next/architecture/tests/catch.test.ts` | installed third-party dependency; license/provenance review pending | 6550 | `e4b1727836b5cdca66337af180a756fab2b712f61d49d17326a90c0a54080be5` |
+| `node_modules/zod/src/next/architecture/tests/coerce.test.ts` | installed third-party dependency; license/provenance review pending | 6650 | `30dec33039db38b3c2baecbee09c74afc1d9adc68a6229a35628a1bac4539db9` |
+| `node_modules/zod/src/next/architecture/tests/complex.test.ts` | installed third-party dependency; license/provenance review pending | 2497 | `d3d971894c68f8b357b86232f8d9336622f86abb38f8b718f4064427a9021d82` |
+| `node_modules/zod/src/next/architecture/tests/custom.test.ts` | installed third-party dependency; license/provenance review pending | 950 | `6837c23478b39dc6304a98bbbba4a1df9b973d40f6243f0939bfbc339d96b01d` |
+| `node_modules/zod/src/next/architecture/tests/date.test.ts` | installed third-party dependency; license/provenance review pending | 983 | `7d352eab070ae8f4fcbc61674f6b238159699ec4b96754ec1aac0cac74091c34` |
+| `node_modules/zod/src/next/architecture/tests/deepmasking.test.ts` | installed third-party dependency; license/provenance review pending | 5215 | `8b6cef1cdb8eb422ebb50b24e4f88742f13eaf0abf83b08a3980f2406a4b6ac6` |
+| `node_modules/zod/src/next/architecture/tests/default.test.ts` | installed third-party dependency; license/provenance review pending | 3527 | `92067a119b984ab2750a1eba8e1a5573276aeaed95056e9e283f4a3bb54e5d5e` |
+| `node_modules/zod/src/next/architecture/tests/description.test.ts` | installed third-party dependency; license/provenance review pending | 1323 | `f1b75327fd817bb63c3b2e3be0ff9aff7511e2a391713756d8cb26cbfd3d5aa5` |
+| `node_modules/zod/src/next/architecture/tests/discriminated-unions.test.ts` | installed third-party dependency; license/provenance review pending | 8537 | `5bd00d9f7eeac9dd60faa03af58b5a915040f54b93ff77c4eab0d4a18f8b9e9c` |
+| `node_modules/zod/src/next/architecture/tests/enum.test.ts` | installed third-party dependency; license/provenance review pending | 2737 | `3fcf9f740cd53f52431abda4c61a3732dde44c3a9f1033159e9c0c92fcebd09a` |
+| `node_modules/zod/src/next/architecture/tests/error.test.ts` | installed third-party dependency; license/provenance review pending | 18262 | `85b1b59f81856fb530f6d40460f89c1a08df5c15ad6f52e0077768174cc1fe98` |
+| `node_modules/zod/src/next/architecture/tests/firstparty.test.ts` | installed third-party dependency; license/provenance review pending | 2391 | `9906d7da8e62f7b9b7e5cd9553bea0872ad8a0b259214034108cec8a624cfc1d` |
+| `node_modules/zod/src/next/architecture/tests/firstpartyschematypes.test.ts` | installed third-party dependency; license/provenance review pending | 788 | `9be5a0881151df777293172088b2039ed7e1e6f4a98a7557cdd0211f108c9b96` |
+| `node_modules/zod/src/next/architecture/tests/function.test.ts` | installed third-party dependency; license/provenance review pending | 6734 | `86530ee38e4aaec27b5bc28f525139019d7f872cbddcccf38c031d6202728eb5` |
+| `node_modules/zod/src/next/architecture/tests/generics.test.ts` | installed third-party dependency; license/provenance review pending | 1523 | `d1a4c54239acff333f76231084c48133257fefe14f504d0cab055979b5a9e723` |
+| `node_modules/zod/src/next/architecture/tests/instanceof.test.ts` | installed third-party dependency; license/provenance review pending | 1154 | `b11897351fcf312dee317408b7aa27929ba37538c468588429f4f4ae3c5fa4ce` |
+| `node_modules/zod/src/next/architecture/tests/intersection.test.ts` | installed third-party dependency; license/provenance review pending | 3777 | `127e438ca422efb068196319f5d5b6386c90d25592de352ae63c5866906977cc` |
+| `node_modules/zod/src/next/architecture/tests/language-server.source.ts` | installed third-party dependency; license/provenance review pending | 1275 | `aeb84d6fb14e6511a3509a0545770d869986f397ee02da640730d4ff97c6be4a` |
+| `node_modules/zod/src/next/architecture/tests/language-server.test.ts` | installed third-party dependency; license/provenance review pending | 8315 | `f4119e34886d39f665ab083d91bb4b08faae20f6b11d69bbf99d797389cfb2bc` |
+| `node_modules/zod/src/next/architecture/tests/literal.test.ts` | installed third-party dependency; license/provenance review pending | 1063 | `a22faed6c08e04c75d6bb0180d5e1fafc4645b15445a479f338016ee4855c362` |
+| `node_modules/zod/src/next/architecture/tests/map.test.ts` | installed third-party dependency; license/provenance review pending | 3545 | `bb52432835e9fa70a94f444fc9e7c2d8e6ac5eb905cc3b8ae54846e52fa57360` |
+| `node_modules/zod/src/next/architecture/tests/masking.test.ts` | installed third-party dependency; license/provenance review pending | 85 | `557f4bc4d8f4ab29afd87f07cf70fa4de60d765fc86fbc5eb4b788f34dd825a2` |
+| `node_modules/zod/src/next/architecture/tests/mocker.test.ts` | installed third-party dependency; license/provenance review pending | 389 | `46f64d2995e29c5838189ed10cd1b185b44c33dbc21418364a80ac19f285362b` |
+| `node_modules/zod/src/next/architecture/tests/nan.test.ts` | installed third-party dependency; license/provenance review pending | 708 | `6a8dd316585ebc82ea125b63700d981485111b91421a69f2acecf0fc1df1a223` |
+| `node_modules/zod/src/next/architecture/tests/nativeEnum.test.ts` | installed third-party dependency; license/provenance review pending | 2344 | `6f64363193a447f71a8aa5440461bdb5451c6c4433fb4fca785ef4798d5b52fb` |
+| `node_modules/zod/src/next/architecture/tests/nullable.test.ts` | installed third-party dependency; license/provenance review pending | 1172 | `c51336535632e1404455bca333ccafc143191600047251a3e3e13f551693c516` |
+| `node_modules/zod/src/next/architecture/tests/number.test.ts` | installed third-party dependency; license/provenance review pending | 6373 | `d56a65ec9bc03482c2b23eecb97c5213b564b5aaafeaf205d2a1f54a2c91e1d8` |
+| `node_modules/zod/src/next/architecture/tests/object-augmentation.test.ts` | installed third-party dependency; license/provenance review pending | 569 | `69777e89506b2d8157c98e176dde94a7c664db7228485c52a18154ac4b794382` |
+| `node_modules/zod/src/next/architecture/tests/object-in-es5-env.test.ts` | installed third-party dependency; license/provenance review pending | 778 | `687d2c52ddaaca24ab3d3e301cba042a7560888570af23b50a0597d3012d500c` |
+| `node_modules/zod/src/next/architecture/tests/object.test.ts` | installed third-party dependency; license/provenance review pending | 11829 | `4d60993f67cdc60e600bb6ecc0cb59e6b6dd479479165fb20bf56c2c14b6534b` |
+| `node_modules/zod/src/next/architecture/tests/optional.test.ts` | installed third-party dependency; license/provenance review pending | 1222 | `0edb7a6478e931bf256f3d71d1367d2b8199b4082101dba97cc306e4dc3c92c9` |
+| `node_modules/zod/src/next/architecture/tests/parseUtil.test.ts` | installed third-party dependency; license/provenance review pending | 869 | `822a6d836b05ab38eadf26592420eba6be694dc7c1d654388efbb601af00c288` |
+| `node_modules/zod/src/next/architecture/tests/parser.test.ts` | installed third-party dependency; license/provenance review pending | 1125 | `7c8b720c921618f6c89eb08eae80ba45602fa04dafe9c7b9b861512954d70f9b` |
+| `node_modules/zod/src/next/architecture/tests/partials.test.ts` | installed third-party dependency; license/provenance review pending | 7044 | `edffc60d54ac33d1404f04653a70fd7c491a4a526bb9544c390b177defb2464a` |
+| `node_modules/zod/src/next/architecture/tests/pickomit.test.ts` | installed third-party dependency; license/provenance review pending | 3622 | `cd05293952b5fb0ca26eeb9ba6cd69a26f58fa5c62eb35f9ce1eb1ac9e00ccd6` |
+| `node_modules/zod/src/next/architecture/tests/pipeline.test.ts` | installed third-party dependency; license/provenance review pending | 823 | `b285aac721b744da8c5a0a093c9ed57244643e1e333df576922e67bfaa9e16ab` |
+| `node_modules/zod/src/next/architecture/tests/preprocess.test.ts` | installed third-party dependency; license/provenance review pending | 4530 | `7433e95a0504f7a250b7beaac30a5e8f500c315d99b3badb978a0b28ed7a61dd` |
+| `node_modules/zod/src/next/architecture/tests/primitive.test.ts` | installed third-party dependency; license/provenance review pending | 12215 | `d0214e93de931a8e6b89b3cb89df1cbf7299d6be00abcdde71ffdcb811953dea` |
+| `node_modules/zod/src/next/architecture/tests/promise.test.ts` | installed third-party dependency; license/provenance review pending | 2490 | `c03c19525c56cea7808d982bd23ba89b5a48db13934e8d4824e13ee0a249d19b` |
+| `node_modules/zod/src/next/architecture/tests/readonly.test.ts` | installed third-party dependency; license/provenance review pending | 4560 | `3b9f69a7a08a2d2e085d0ae0c385906bdc9cf0d79065a84c0c67dafba0f6c3db` |
+| `node_modules/zod/src/next/architecture/tests/record.test.ts` | installed third-party dependency; license/provenance review pending | 3735 | `ebefc7ad59b2246787408efe7aaf2f7beec0b5c90c70e79990dcbf241c2d6c95` |
+| `node_modules/zod/src/next/architecture/tests/recursive.test.ts` | installed third-party dependency; license/provenance review pending | 3946 | `9ccc037ef698ceeb4e6986e02aaee71ff318c4dc0f875b9253bff6ba14db9137` |
+| `node_modules/zod/src/next/architecture/tests/refine.test.ts` | installed third-party dependency; license/provenance review pending | 8172 | `2f3a329952b6f0109028a142225d719b05307a18f7395297711f725b599933f8` |
+| `node_modules/zod/src/next/architecture/tests/safeparse.test.ts` | installed third-party dependency; license/provenance review pending | 628 | `5aa7597109dea6647d0ab022a4aab694c44acfeae53386ea6366b806fbd3e872` |
+| `node_modules/zod/src/next/architecture/tests/set.test.ts` | installed third-party dependency; license/provenance review pending | 4788 | `eeadd9dabd30b857c5de8526503cb1e5c8b6aa45a99c4708958ca1f822bb3da2` |
+| `node_modules/zod/src/next/architecture/tests/standard-schema.test.ts` | installed third-party dependency; license/provenance review pending | 2587 | `f74076e43f44c887b3bf7d26d5ec686b8070359e63fe373e6c45b6c7708c025c` |
+| `node_modules/zod/src/next/architecture/tests/string.test.ts` | installed third-party dependency; license/provenance review pending | 65967 | `70dd4d5052952443065227d19f51f536b2ea30d51e8bc25624582789a2fe0fc3` |
+| `node_modules/zod/src/next/architecture/tests/transformer.test.ts` | installed third-party dependency; license/provenance review pending | 5687 | `e3da81596e0077326f442153a741c9ba25669b8b5eb025a8ea7fc1eb0106faf7` |
+| `node_modules/zod/src/next/architecture/tests/tuple.test.ts` | installed third-party dependency; license/provenance review pending | 2691 | `e8a48c8791387c94076c7eee8c9b7e18712a45356c7167f7c43bedd54544614f` |
+| `node_modules/zod/src/next/architecture/tests/unions.test.ts` | installed third-party dependency; license/provenance review pending | 1540 | `0c32f20d663b30438bb8ff834b7f066722160720a25a90e6513a66b9baa4604d` |
+| `node_modules/zod/src/next/architecture/tests/validations.test.ts` | installed third-party dependency; license/provenance review pending | 3826 | `10ae103a7c7d9e5ce8bdacf9ef30bc44a52cdadf64fe365f492d27dcb432b482` |
+| `node_modules/zod/src/next/architecture/tests/void.test.ts` | installed third-party dependency; license/provenance review pending | 349 | `6bdad3b7ba624eb3bd03c0bfea611de46c10aba62d03df9bd2ba49bafedc15cb` |
+| `node_modules/zod/src/next/architecture/types.ts` | installed third-party dependency; license/provenance review pending | 160442 | `73b9529564a34fc028a5a62c17e09148747b737039b78b124e84254cb886411a` |
 | `node_modules/zod/src/v4-mini/index.ts` | installed third-party dependency; license/provenance review pending | 99 | `92f42fea7c90ec3f2f623a923d8798d2a316cb4ff93d6399084065b9214365de` |
 | `node_modules/zod/src/v4/classic/checks.ts` | installed third-party dependency; license/provenance review pending | 790 | `d99a964f8b97cc8c551ac5486a1b5f4193fccb9c0201260813ca5ef2d84e83a7` |
 | `node_modules/zod/src/v4/classic/coerce.ts` | installed third-party dependency; license/provenance review pending | 1503 | `9cf6429965d7d55dc4e50999af50cbad5b57b5f3372bba13038133aba62ba600` |
@@ -9350,59 +9350,59 @@ Count by first path component:
 | `node_modules/zod/src/v4/mini/tests/recursive-types.test.ts` | installed third-party dependency; license/provenance review pending | 8031 | `0835f6c8d4b76f0a0692963896abb22c5aa4cff944cab2f9f9d009fbe0d804ce` |
 | `node_modules/zod/src/v4/mini/tests/standard-schema.test.ts` | installed third-party dependency; license/provenance review pending | 1395 | `7354f57b6f3fbfaca4ea117220c101a095a7cf8ac529650e756befbce8817ae5` |
 | `node_modules/zod/src/v4/mini/tests/string.test.ts` | installed third-party dependency; license/provenance review pending | 15077 | `f4ebdab74387516508d0ce96a56979fe06af7e2425dccc13d34c0a229ba3a050` |
-| `node_modules/zod/v3/ZodError.cjs` | installed third-party dependency; license/provenance review pending | 5916 | `6a03b4f87c6c5ec86a0e2822fdb3dc7aaa890334a2802b93d8c7eb56efd9987b` |
-| `node_modules/zod/v3/ZodError.d.cts` | installed third-party dependency; license/provenance review pending | 6415 | `d5aefcc5d3381ee4fc8b31672dc34ee8c587c95f17666c43e7b74eda31fb8af2` |
-| `node_modules/zod/v3/ZodError.d.ts` | installed third-party dependency; license/provenance review pending | 6412 | `be907b47489d161c5760109434078ac51645513af35c62d146b7673b0c5ec144` |
-| `node_modules/zod/v3/ZodError.js` | installed third-party dependency; license/provenance review pending | 5061 | `33501c7133427477cc5307d8b0c9149329d8488099194e8a3729b44763abc2d4` |
-| `node_modules/zod/v3/errors.cjs` | installed third-party dependency; license/provenance review pending | 1207 | `e22989a517c8a0ee9e0946df403ca0d1fe898125dc4e0e747bbc79dd5d17faec` |
-| `node_modules/zod/v3/errors.d.cts` | installed third-party dependency; license/provenance review pending | 240 | `e3498cf5e428e6c6b9e97bd88736f26d6cf147dedbfa5a8ad3ed8e05e059af8a` |
-| `node_modules/zod/v3/errors.d.ts` | installed third-party dependency; license/provenance review pending | 238 | `8e71e53b02c152a38af6aec45e288cc65bede077b92b9b43b3cb54a37978bb33` |
-| `node_modules/zod/v3/errors.js` | installed third-party dependency; license/provenance review pending | 243 | `d40831f478288d76e82bbbcc3b7e95c8513b6e76471f2d49a37c979bc57d492d` |
-| `node_modules/zod/v3/external.cjs` | installed third-party dependency; license/provenance review pending | 1704 | `b543e566b3c5dfe3ce130b15514bbc62236d476edec3e7ee84bf995977db9b95` |
-| `node_modules/zod/v3/external.d.cts` | installed third-party dependency; license/provenance review pending | 211 | `a9ebb67d6bbead6044b43714b50dcb77b8f7541ffe803046fdec1714c1eba206` |
-| `node_modules/zod/v3/external.d.ts` | installed third-party dependency; license/provenance review pending | 205 | `5d26d2e47e2352def36f89a3e8bf8581da22b7f857e07ef3114cd52cf4813445` |
-| `node_modules/zod/v3/external.js` | installed third-party dependency; license/provenance review pending | 205 | `5d26d2e47e2352def36f89a3e8bf8581da22b7f857e07ef3114cd52cf4813445` |
-| `node_modules/zod/v3/helpers/enumUtil.cjs` | installed third-party dependency; license/provenance review pending | 705 | `e684c514403d03c1259d6d51a82b795db361189c837a9d95ccb0ecef3aa9043c` |
-| `node_modules/zod/v3/helpers/enumUtil.d.cts` | installed third-party dependency; license/provenance review pending | 609 | `f672c876c1a04a223cf2023b3d91e8a52bb1544c576b81bf64a8fec82be9969c` |
-| `node_modules/zod/v3/helpers/enumUtil.d.ts` | installed third-party dependency; license/provenance review pending | 609 | `f672c876c1a04a223cf2023b3d91e8a52bb1544c576b81bf64a8fec82be9969c` |
-| `node_modules/zod/v3/helpers/enumUtil.js` | installed third-party dependency; license/provenance review pending | 11 | `8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881` |
-| `node_modules/zod/v3/helpers/errorUtil.cjs` | installed third-party dependency; license/provenance review pending | 1114 | `a3d592306e060b03c134f7ae8774a6bd27e53391e584b658dc36de464e6322e2` |
-| `node_modules/zod/v3/helpers/errorUtil.d.cts` | installed third-party dependency; license/provenance review pending | 276 | `e4b03ddcf8563b1c0aee782a185286ed85a255ce8a30df8453aade2188bbc904` |
-| `node_modules/zod/v3/helpers/errorUtil.d.ts` | installed third-party dependency; license/provenance review pending | 276 | `e4b03ddcf8563b1c0aee782a185286ed85a255ce8a30df8453aade2188bbc904` |
-| `node_modules/zod/v3/helpers/errorUtil.js` | installed third-party dependency; license/provenance review pending | 368 | `1b08878f171ff69b9ff14cff1d6636da00b02271d75bf591235ffe0c39fb51fe` |
-| `node_modules/zod/v3/helpers/parseUtil.cjs` | installed third-party dependency; license/provenance review pending | 4900 | `53dfcdf771a06985cc4186aa3dd51552d13be3e90c59aa38414b93875f908e26` |
-| `node_modules/zod/v3/helpers/parseUtil.d.cts` | installed third-party dependency; license/provenance review pending | 2757 | `dba3f34531fd9b1b6e072928b6f885aa4d28dd6789cbd0e93563d43f4b62da53` |
-| `node_modules/zod/v3/helpers/parseUtil.d.ts` | installed third-party dependency; license/provenance review pending | 2755 | `754a9396b14ca3a4241591afb4edc644b293ccc8a3397f49be4dfd520c08acb3` |
-| `node_modules/zod/v3/helpers/parseUtil.js` | installed third-party dependency; license/provenance review pending | 3601 | `b57484013bb360bac2e334d58fcd5f6cbfa63ffcc7d8ff3dbbb3380ca659b956` |
-| `node_modules/zod/v3/helpers/partialUtil.cjs` | installed third-party dependency; license/provenance review pending | 705 | `e684c514403d03c1259d6d51a82b795db361189c837a9d95ccb0ecef3aa9043c` |
-| `node_modules/zod/v3/helpers/partialUtil.d.cts` | installed third-party dependency; license/provenance review pending | 828 | `2329d90062487e1eaca87b5e06abcbbeeecf80a82f65f949fd332cfcf824b87b` |
-| `node_modules/zod/v3/helpers/partialUtil.d.ts` | installed third-party dependency; license/provenance review pending | 827 | `de2316e90fc6d379d83002f04ad9698bc1e5285b4d52779778f454dd12ce9f44` |
-| `node_modules/zod/v3/helpers/partialUtil.js` | installed third-party dependency; license/provenance review pending | 11 | `8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881` |
-| `node_modules/zod/v3/helpers/typeAliases.cjs` | installed third-party dependency; license/provenance review pending | 705 | `e684c514403d03c1259d6d51a82b795db361189c837a9d95ccb0ecef3aa9043c` |
-| `node_modules/zod/v3/helpers/typeAliases.d.cts` | installed third-party dependency; license/provenance review pending | 135 | `d3cfde44f8089768ebb08098c96d01ca260b88bccf238d55eee93f1c620ff5a5` |
-| `node_modules/zod/v3/helpers/typeAliases.d.ts` | installed third-party dependency; license/provenance review pending | 135 | `d3cfde44f8089768ebb08098c96d01ca260b88bccf238d55eee93f1c620ff5a5` |
-| `node_modules/zod/v3/helpers/typeAliases.js` | installed third-party dependency; license/provenance review pending | 11 | `8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881` |
-| `node_modules/zod/v3/helpers/util.cjs` | installed third-party dependency; license/provenance review pending | 5029 | `22aac941f042e9bb36874b4c7ee80181ad5522557fb646cc1cf386e981e3438e` |
-| `node_modules/zod/v3/helpers/util.d.cts` | installed third-party dependency; license/provenance review pending | 3387 | `293eadad9dead44c6fd1db6de552663c33f215c55a1bfa2802a1bceed88ff0ec` |
-| `node_modules/zod/v3/helpers/util.d.ts` | installed third-party dependency; license/provenance review pending | 3387 | `293eadad9dead44c6fd1db6de552663c33f215c55a1bfa2802a1bceed88ff0ec` |
-| `node_modules/zod/v3/helpers/util.js` | installed third-party dependency; license/provenance review pending | 4055 | `906ef685e5853d496e293ee8f8a2bb8b1ed2d078a1bcdfedb2dfd61d75b6330c` |
-| `node_modules/zod/v3/index.cjs` | installed third-party dependency; license/provenance review pending | 2092 | `80849f43fee80f567614da950ab7b1393bae87197a95c0298c55cb2fec765000` |
-| `node_modules/zod/v3/index.d.cts` | installed third-party dependency; license/provenance review pending | 101 | `833e92c058d033cde3f29a6c7603f517001d1ddd8020bc94d2067a3bc69b2a8e` |
-| `node_modules/zod/v3/index.d.ts` | installed third-party dependency; license/provenance review pending | 99 | `3db2efd285e7328d8014b54a7fce3f4861ebcdc655df40517092ed0050983617` |
-| `node_modules/zod/v3/index.js` | installed third-party dependency; license/provenance review pending | 99 | `3db2efd285e7328d8014b54a7fce3f4861ebcdc655df40517092ed0050983617` |
-| `node_modules/zod/v3/locales/en.cjs` | installed third-party dependency; license/provenance review pending | 6005 | `5fe55414e39de7fff8ec19983adc1421c238b679f8aa6b9d3311c7f9f12a21f3` |
-| `node_modules/zod/v3/locales/en.d.cts` | installed third-party dependency; license/provenance review pending | 108 | `fec412ded391a7239ef58f455278154b62939370309c1fed322293d98c8796a6` |
-| `node_modules/zod/v3/locales/en.d.ts` | installed third-party dependency; license/provenance review pending | 113 | `c25ce98cca43a3bfa885862044be0d59557be4ecd06989b2001a83dcf69620fd` |
-| `node_modules/zod/v3/locales/en.js` | installed third-party dependency; license/provenance review pending | 5602 | `51a6dcc5d4bd52a64da127c012c6c963395c1d9a343ad75d4a8eca662fc8b205` |
-| `node_modules/zod/v3/package.json` | installed third-party dependency; license/provenance review pending | 127 | `3e3125b5a537a24c3632c1c5c09640ce7bcb3935901b127ad8ae3c37a27f133f` |
-| `node_modules/zod/v3/standard-schema.cjs` | installed third-party dependency; license/provenance review pending | 705 | `e684c514403d03c1259d6d51a82b795db361189c837a9d95ccb0ecef3aa9043c` |
-| `node_modules/zod/v3/standard-schema.d.cts` | installed third-party dependency; license/provenance review pending | 2843 | `25b3f581e12ede11e5739f57a86e8668fbc0124f6649506def306cad2c59d262` |
-| `node_modules/zod/v3/standard-schema.d.ts` | installed third-party dependency; license/provenance review pending | 2843 | `25b3f581e12ede11e5739f57a86e8668fbc0124f6649506def306cad2c59d262` |
-| `node_modules/zod/v3/standard-schema.js` | installed third-party dependency; license/provenance review pending | 11 | `8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881` |
-| `node_modules/zod/v3/types.cjs` | installed third-party dependency; license/provenance review pending | 140924 | `7a2f06d88e280bdd198c60e0d292ed7f1e3993e877be4415de07e6abc7746dd1` |
-| `node_modules/zod/v3/types.d.cts` | installed third-party dependency; license/provenance review pending | 52035 | `93c3e73824ad57f98fd23b39335dbdae2db0bd98199b0dc0b9ccc60bf3c5134a` |
-| `node_modules/zod/v3/types.d.ts` | installed third-party dependency; license/provenance review pending | 52027 | `7941f67bd576a61bb48f46cf55c5eb0292c8ee3eb2db621815eb1d02b1aa09fb` |
-| `node_modules/zod/v3/types.js` | installed third-party dependency; license/provenance review pending | 131408 | `d7214e1dacf9e6e70c9ca80247717b4be13b240510428fef132b7da3260d1a32` |
+| `node_modules/zod/next/architecture/ZodError.cjs` | installed third-party dependency; license/provenance review pending | 5916 | `6a03b4f87c6c5ec86a0e2822fdb3dc7aaa890334a2802b93d8c7eb56efd9987b` |
+| `node_modules/zod/next/architecture/ZodError.d.cts` | installed third-party dependency; license/provenance review pending | 6415 | `d5aefcc5d3381ee4fc8b31672dc34ee8c587c95f17666c43e7b74eda31fb8af2` |
+| `node_modules/zod/next/architecture/ZodError.d.ts` | installed third-party dependency; license/provenance review pending | 6412 | `be907b47489d161c5760109434078ac51645513af35c62d146b7673b0c5ec144` |
+| `node_modules/zod/next/architecture/ZodError.js` | installed third-party dependency; license/provenance review pending | 5061 | `33501c7133427477cc5307d8b0c9149329d8488099194e8a3729b44763abc2d4` |
+| `node_modules/zod/next/architecture/errors.cjs` | installed third-party dependency; license/provenance review pending | 1207 | `e22989a517c8a0ee9e0946df403ca0d1fe898125dc4e0e747bbc79dd5d17faec` |
+| `node_modules/zod/next/architecture/errors.d.cts` | installed third-party dependency; license/provenance review pending | 240 | `e3498cf5e428e6c6b9e97bd88736f26d6cf147dedbfa5a8ad3ed8e05e059af8a` |
+| `node_modules/zod/next/architecture/errors.d.ts` | installed third-party dependency; license/provenance review pending | 238 | `8e71e53b02c152a38af6aec45e288cc65bede077b92b9b43b3cb54a37978bb33` |
+| `node_modules/zod/next/architecture/errors.js` | installed third-party dependency; license/provenance review pending | 243 | `d40831f478288d76e82bbbcc3b7e95c8513b6e76471f2d49a37c979bc57d492d` |
+| `node_modules/zod/next/architecture/external.cjs` | installed third-party dependency; license/provenance review pending | 1704 | `b543e566b3c5dfe3ce130b15514bbc62236d476edec3e7ee84bf995977db9b95` |
+| `node_modules/zod/next/architecture/external.d.cts` | installed third-party dependency; license/provenance review pending | 211 | `a9ebb67d6bbead6044b43714b50dcb77b8f7541ffe803046fdec1714c1eba206` |
+| `node_modules/zod/next/architecture/external.d.ts` | installed third-party dependency; license/provenance review pending | 205 | `5d26d2e47e2352def36f89a3e8bf8581da22b7f857e07ef3114cd52cf4813445` |
+| `node_modules/zod/next/architecture/external.js` | installed third-party dependency; license/provenance review pending | 205 | `5d26d2e47e2352def36f89a3e8bf8581da22b7f857e07ef3114cd52cf4813445` |
+| `node_modules/zod/next/architecture/helpers/enumUtil.cjs` | installed third-party dependency; license/provenance review pending | 705 | `e684c514403d03c1259d6d51a82b795db361189c837a9d95ccb0ecef3aa9043c` |
+| `node_modules/zod/next/architecture/helpers/enumUtil.d.cts` | installed third-party dependency; license/provenance review pending | 609 | `f672c876c1a04a223cf2023b3d91e8a52bb1544c576b81bf64a8fec82be9969c` |
+| `node_modules/zod/next/architecture/helpers/enumUtil.d.ts` | installed third-party dependency; license/provenance review pending | 609 | `f672c876c1a04a223cf2023b3d91e8a52bb1544c576b81bf64a8fec82be9969c` |
+| `node_modules/zod/next/architecture/helpers/enumUtil.js` | installed third-party dependency; license/provenance review pending | 11 | `8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881` |
+| `node_modules/zod/next/architecture/helpers/errorUtil.cjs` | installed third-party dependency; license/provenance review pending | 1114 | `a3d592306e060b03c134f7ae8774a6bd27e53391e584b658dc36de464e6322e2` |
+| `node_modules/zod/next/architecture/helpers/errorUtil.d.cts` | installed third-party dependency; license/provenance review pending | 276 | `e4b03ddcf8563b1c0aee782a185286ed85a255ce8a30df8453aade2188bbc904` |
+| `node_modules/zod/next/architecture/helpers/errorUtil.d.ts` | installed third-party dependency; license/provenance review pending | 276 | `e4b03ddcf8563b1c0aee782a185286ed85a255ce8a30df8453aade2188bbc904` |
+| `node_modules/zod/next/architecture/helpers/errorUtil.js` | installed third-party dependency; license/provenance review pending | 368 | `1b08878f171ff69b9ff14cff1d6636da00b02271d75bf591235ffe0c39fb51fe` |
+| `node_modules/zod/next/architecture/helpers/parseUtil.cjs` | installed third-party dependency; license/provenance review pending | 4900 | `53dfcdf771a06985cc4186aa3dd51552d13be3e90c59aa38414b93875f908e26` |
+| `node_modules/zod/next/architecture/helpers/parseUtil.d.cts` | installed third-party dependency; license/provenance review pending | 2757 | `dba3f34531fd9b1b6e072928b6f885aa4d28dd6789cbd0e93563d43f4b62da53` |
+| `node_modules/zod/next/architecture/helpers/parseUtil.d.ts` | installed third-party dependency; license/provenance review pending | 2755 | `754a9396b14ca3a4241591afb4edc644b293ccc8a3397f49be4dfd520c08acb3` |
+| `node_modules/zod/next/architecture/helpers/parseUtil.js` | installed third-party dependency; license/provenance review pending | 3601 | `b57484013bb360bac2e334d58fcd5f6cbfa63ffcc7d8ff3dbbb3380ca659b956` |
+| `node_modules/zod/next/architecture/helpers/partialUtil.cjs` | installed third-party dependency; license/provenance review pending | 705 | `e684c514403d03c1259d6d51a82b795db361189c837a9d95ccb0ecef3aa9043c` |
+| `node_modules/zod/next/architecture/helpers/partialUtil.d.cts` | installed third-party dependency; license/provenance review pending | 828 | `2329d90062487e1eaca87b5e06abcbbeeecf80a82f65f949fd332cfcf824b87b` |
+| `node_modules/zod/next/architecture/helpers/partialUtil.d.ts` | installed third-party dependency; license/provenance review pending | 827 | `de2316e90fc6d379d83002f04ad9698bc1e5285b4d52779778f454dd12ce9f44` |
+| `node_modules/zod/next/architecture/helpers/partialUtil.js` | installed third-party dependency; license/provenance review pending | 11 | `8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881` |
+| `node_modules/zod/next/architecture/helpers/typeAliases.cjs` | installed third-party dependency; license/provenance review pending | 705 | `e684c514403d03c1259d6d51a82b795db361189c837a9d95ccb0ecef3aa9043c` |
+| `node_modules/zod/next/architecture/helpers/typeAliases.d.cts` | installed third-party dependency; license/provenance review pending | 135 | `d3cfde44f8089768ebb08098c96d01ca260b88bccf238d55eee93f1c620ff5a5` |
+| `node_modules/zod/next/architecture/helpers/typeAliases.d.ts` | installed third-party dependency; license/provenance review pending | 135 | `d3cfde44f8089768ebb08098c96d01ca260b88bccf238d55eee93f1c620ff5a5` |
+| `node_modules/zod/next/architecture/helpers/typeAliases.js` | installed third-party dependency; license/provenance review pending | 11 | `8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881` |
+| `node_modules/zod/next/architecture/helpers/util.cjs` | installed third-party dependency; license/provenance review pending | 5029 | `22aac941f042e9bb36874b4c7ee80181ad5522557fb646cc1cf386e981e3438e` |
+| `node_modules/zod/next/architecture/helpers/util.d.cts` | installed third-party dependency; license/provenance review pending | 3387 | `293eadad9dead44c6fd1db6de552663c33f215c55a1bfa2802a1bceed88ff0ec` |
+| `node_modules/zod/next/architecture/helpers/util.d.ts` | installed third-party dependency; license/provenance review pending | 3387 | `293eadad9dead44c6fd1db6de552663c33f215c55a1bfa2802a1bceed88ff0ec` |
+| `node_modules/zod/next/architecture/helpers/util.js` | installed third-party dependency; license/provenance review pending | 4055 | `906ef685e5853d496e293ee8f8a2bb8b1ed2d078a1bcdfedb2dfd61d75b6330c` |
+| `node_modules/zod/next/architecture/index.cjs` | installed third-party dependency; license/provenance review pending | 2092 | `80849f43fee80f567614da950ab7b1393bae87197a95c0298c55cb2fec765000` |
+| `node_modules/zod/next/architecture/index.d.cts` | installed third-party dependency; license/provenance review pending | 101 | `833e92c058d033cde3f29a6c7603f517001d1ddd8020bc94d2067a3bc69b2a8e` |
+| `node_modules/zod/next/architecture/index.d.ts` | installed third-party dependency; license/provenance review pending | 99 | `3db2efd285e7328d8014b54a7fce3f4861ebcdc655df40517092ed0050983617` |
+| `node_modules/zod/next/architecture/index.js` | installed third-party dependency; license/provenance review pending | 99 | `3db2efd285e7328d8014b54a7fce3f4861ebcdc655df40517092ed0050983617` |
+| `node_modules/zod/next/architecture/locales/en.cjs` | installed third-party dependency; license/provenance review pending | 6005 | `5fe55414e39de7fff8ec19983adc1421c238b679f8aa6b9d3311c7f9f12a21f3` |
+| `node_modules/zod/next/architecture/locales/en.d.cts` | installed third-party dependency; license/provenance review pending | 108 | `fec412ded391a7239ef58f455278154b62939370309c1fed322293d98c8796a6` |
+| `node_modules/zod/next/architecture/locales/en.d.ts` | installed third-party dependency; license/provenance review pending | 113 | `c25ce98cca43a3bfa885862044be0d59557be4ecd06989b2001a83dcf69620fd` |
+| `node_modules/zod/next/architecture/locales/en.js` | installed third-party dependency; license/provenance review pending | 5602 | `51a6dcc5d4bd52a64da127c012c6c963395c1d9a343ad75d4a8eca662fc8b205` |
+| `node_modules/zod/next/architecture/package.json` | installed third-party dependency; license/provenance review pending | 127 | `3e3125b5a537a24c3632c1c5c09640ce7bcb3935901b127ad8ae3c37a27f133f` |
+| `node_modules/zod/next/architecture/standard-schema.cjs` | installed third-party dependency; license/provenance review pending | 705 | `e684c514403d03c1259d6d51a82b795db361189c837a9d95ccb0ecef3aa9043c` |
+| `node_modules/zod/next/architecture/standard-schema.d.cts` | installed third-party dependency; license/provenance review pending | 2843 | `25b3f581e12ede11e5739f57a86e8668fbc0124f6649506def306cad2c59d262` |
+| `node_modules/zod/next/architecture/standard-schema.d.ts` | installed third-party dependency; license/provenance review pending | 2843 | `25b3f581e12ede11e5739f57a86e8668fbc0124f6649506def306cad2c59d262` |
+| `node_modules/zod/next/architecture/standard-schema.js` | installed third-party dependency; license/provenance review pending | 11 | `8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881` |
+| `node_modules/zod/next/architecture/types.cjs` | installed third-party dependency; license/provenance review pending | 140924 | `7a2f06d88e280bdd198c60e0d292ed7f1e3993e877be4415de07e6abc7746dd1` |
+| `node_modules/zod/next/architecture/types.d.cts` | installed third-party dependency; license/provenance review pending | 52035 | `93c3e73824ad57f98fd23b39335dbdae2db0bd98199b0dc0b9ccc60bf3c5134a` |
+| `node_modules/zod/next/architecture/types.d.ts` | installed third-party dependency; license/provenance review pending | 52027 | `7941f67bd576a61bb48f46cf55c5eb0292c8ee3eb2db621815eb1d02b1aa09fb` |
+| `node_modules/zod/next/architecture/types.js` | installed third-party dependency; license/provenance review pending | 131408 | `d7214e1dacf9e6e70c9ca80247717b4be13b240510428fef132b7da3260d1a32` |
 | `node_modules/zod/v4-mini/index.cjs` | installed third-party dependency; license/provenance review pending | 2089 | `7c8d8f6e8b841a620bb49de3d58bd1e97d0e8aacfa1f051747d7ae47b893e857` |
 | `node_modules/zod/v4-mini/index.d.cts` | installed third-party dependency; license/provenance review pending | 101 | `067a4a6299bfb7102f10533628b365f3c30c3b6c31ace63aa986ffab057990c1` |
 | `node_modules/zod/v4-mini/index.d.ts` | installed third-party dependency; license/provenance review pending | 99 | `92f42fea7c90ec3f2f623a923d8798d2a316cb4ff93d6399084065b9214365de` |

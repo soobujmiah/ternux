@@ -1,51 +1,26 @@
 ---
-title: "Ternux release status"
-description: "Published v2.0.1 status and withdrawn v2.0.0 history."
+title: "Ternux release and package status"
+description: "Current release records and the unavailable package channel."
 lang: "en"
 alt_url: "/bn/docs/project/RELEASE-STATUS.html"
 ---
 
-## Current status — 2026-11-20
+## Current status
 
-- **Latest published numbered release:** v2.0.1. Its annotated tag targets
-  `5be29360c9ca7e4516366711ec09f7a9b4d56940`. The GitHub release publishes
-  `ternux-v2.0.1-source.tar.gz` and `SHA256SUMS`; the downloaded archive
-  checksum and exact-version installation guide were verified.
-- **v2.0.0:** source tag remains at
-  `9106b04fc8627ae98b1d63c9912a28c8a4677441`; its GitHub Release object was
-  removed on 2026-11-14 and stable APT was withdrawn. Do not move or reuse the
-  tag or represent either distribution as active.
-- **v1.4.0:** historical published release with tag
-  `3e6c07e2afcb5f1e65ecd57af19b0382a948835a`; its source installation guide
-  remains available.
-- **Stable APT:** withdrawn and not a v2.0.1 install method. The initial v3
-  feasibility recommendation is to keep APT out of v3.0's critical path; see
-  the [assessment](../v3/APT-DISTRIBUTION-FEASIBILITY.md).
-- **v2 verified desktop baseline:** Debian, Ubuntu, Kali Linux, and Alpine as
-  confirmed by the owner. The feature matrix records the per-profile evidence
-  and narrower clean-container CI coverage.
+- **Latest GitHub Release:** v1.4.0. Keep its release artifacts and
+  documentation unchanged.
+- **Later source provenance:** a later source tag remains in Git history for
+  provenance. Its GitHub Release entry was removed; do not present it as an
+  available GitHub Release.
+- **APT/package channel:** unavailable. `pkg install ternux` is not a working
+  installation route. See [package-channel status](../TERMUX-APT.md).
+- **Maintained desktop setups:** Debian, Ubuntu, Kali Linux, and Alpine. The
+  setup recipes and device-verification evidence are distinct; consult the
+  [feature matrix](../audit/FEATURE-MATRIX.md) and
+  [device verification record](../audit/DEVICE-VERIFICATION.md).
+- **Current install guidance:** use the pinned source installation route in the
+  [installation guide](../INSTALLATION.md).
 
-## Historical v2.0.0 release
-
-Ternux v2.0.0 was published on 2026-11-13 and withdrawn on 2026-11-14. The
-immutable tag and release-time artifacts remain documented in the
-[v2.0.0 release report](../release/V2-RELEASE-REPORT.md) and
-[release-time report](../V2-RELEASE-REPORT.md). The withdrawn release's Debian,
-Ubuntu, and Alpine scope must not be confused with the published v2.0.1
-four-distribution baseline. Evidence depth differs by
-profile; Kali has narrower installed-device evidence and is outside the clean
-Firefox guest CI matrix.
-
-## Version 2 release policy
-
-Keep v2 frozen to current implementation. Do not add distro support, new
-architecture, APT, or other new capabilities. Future releases require an approved exact commit, green exact-commit checks,
-release artifact integrity, version-specific install instructions, honest
-known limitations, and verification of the actual GitHub Release page.
-
-## Version 3 separation
-
-The active v3 foundation work and candidate distribution plan are described in
-[`docs/v3/`](../v3/README.md). The v2.0.1 publication gate is complete. Current
-source contains partial manager and Control Center implementations; that does
-not make the complete v3 architecture available.
+The historical release reports retain dated evidence and provenance. They are
+not current installation or package availability instructions: [release
+archive](../release/README.md).

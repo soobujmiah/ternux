@@ -1,0 +1,33 @@
+{
+  "type": "object",
+  "required": [
+    "schema_version",
+    "request_id",
+    "operation",
+    "arguments"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "request_id": {
+      "type": "string",
+      "pattern": "^[0-9a-fA-F-]{36}$"
+    },
+    "operation": {
+      "enum": [
+        "manager.status",
+        "manager.guests",
+        "manager.capabilities",
+        "manager.displays"
+      ]
+    },
+    "arguments": {
+      "type": "object",
+      "required": [],
+      "properties": {},
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

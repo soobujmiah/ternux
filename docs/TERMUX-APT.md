@@ -1,16 +1,16 @@
 ---
 title: "Ternux Termux APT channel status"
-description: "Current status of the withdrawn Ternux v2 stable channel and opt-in RC repository."
+description: "Current status of Ternux package distribution and the opt-in RC repository."
 lang: "en"
 alt_url: "/bn/docs/TERMUX-APT.html"
 ---
 
 
-The Ternux v2.0.0 GitHub release and signed stable APT distribution were
-withdrawn on 2026-11-14. The public `/apt` bootstrap, key, index, and package
-paths now return HTTP 404. The `v2.0.0` Git tag is retained for provenance; its
-package and checksum data below are historical. Existing installations are
-unaffected, but stable APT no longer offers Ternux updates.
+The GitHub Release entry for the historical source tag and the signed stable
+APT distribution were withdrawn on 2026-11-14. The source tag remains for
+provenance. The public `/apt` bootstrap, key, index, and package paths now return
+HTTP 404. Existing installations are unaffected, but stable APT no longer offers
+Ternux updates.
 
 The source installer is the supported install route; see the [main
 installation guide](../README.md). Rechecked on 2026-11-16, the stable APT
@@ -18,17 +18,14 @@ bootstrap/key/index and the RC signed index return HTTP 404. The RC bootstrap
 and signing key return HTTP 200, but neither hosted repository can currently
 install `ternux` with `pkg install`. The RC channel remains reserved for
 opt-in candidate testing after its signed repository is published.
-The owner revoked the 2026-11-14 decision that required former v3 platform
-scope before another v2 release. Version 2 remains frozen to the existing
-implementation; v2.0.1 is the published source release described in the
-[project roadmap](project/PROJECT-ROADMAP.html). APT remains withdrawn and is
-not a v2 release requirement. Any APT return is a separate v3 feasibility
-decision. The initial assessment and recommendation are in [the v3 APT
-feasibility report](v3/APT-DISTRIBUTION-FEASIBILITY.md): keep APT out of the
-v3.0 critical path and retain the version-specific source installer unless a
-later prototype demonstrates clear user benefit and passes its security,
-recovery, and operational gates. No APT installation method is currently
-available or supported.
+The owner revoked the 2026-11-14 decision that tied package distribution to
+future platform scope. Current source status and release evidence are summarized
+in the [project roadmap](project/PROJECT-ROADMAP.html). Any return of APT
+requires a separate feasibility decision. See the [Next Version package
+distribution assessment](next/APT-DISTRIBUTION-FEASIBILITY.html); keep the
+pinned source installer unless a later prototype demonstrates clear user
+benefit and passes security, recovery, and operational gates. No APT
+installation method is currently available or supported.
 
 ## Trust fingerprint
 

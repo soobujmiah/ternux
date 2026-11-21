@@ -1,0 +1,53 @@
+{
+  "type": "object",
+  "required": [
+    "schema_version",
+    "command",
+    "status",
+    "timestamp",
+    "count",
+    "operations"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "command": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "count": {
+      "type": "integer"
+    },
+    "operations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "access",
+          "argument_count"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "access": {
+            "const": "read-only"
+          },
+          "argument_count": {
+            "const": 0
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}

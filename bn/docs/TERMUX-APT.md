@@ -1,29 +1,28 @@
 ---
 title: "টার্নাক্স টার্মাক্স এপিটি সংগ্রহস্থলের বর্তমান অবস্থা"
-description: "প্রত্যাহার করা টার্নাক্স ভি২ স্থিতিশীল সংগ্রহস্থল ও ঐচ্ছিক আরসি সংগ্রহস্থলের বর্তমান অবস্থা।"
+description: "টার্নাক্স package বিতরণ ও ঐচ্ছিক RC সংগ্রহস্থলের বর্তমান অবস্থা।"
 lang: "bn"
 alt_url: "/docs/TERMUX-APT.html"
 ---
 
 
-টার্নাক্স ভি২.০.০-এর গিটহাব প্রকাশনা ও স্বাক্ষরিত স্থিতিশীল এপিটি বিতরণ
-২০২৬-১১-১৪ তারিখে প্রত্যাহার করা হয়েছে। প্রকাশ্য `/apt` বুটস্ট্র্যাপ, কী, সূচি ও
-প্যাকেজের ঠিকানাগুলো এখন এইচটিটিপি ৪০৪ ফেরায়। উৎস-প্রমাণের জন্য `v2.0.0` গিট
-ট্যাগ রাখা হয়েছে; নিচের প্যাকেজ ও চেকসাম কেবল পুরোনো নথি। আগে থেকে বসানো
-প্যাকেজ অক্ষত আছে, তবে স্থিতিশীল এপিটি থেকে টার্নাক্সের হালনাগাদ আর পাওয়া যায় না।
+২০২৬-১১-১৪ তারিখে historical source tag-এর GitHub Release entry ও স্বাক্ষরিত
+stable APT বিতরণ প্রত্যাহার করা হয়েছে। উৎস-প্রমাণের জন্য source tag রাখা হয়েছে।
+প্রকাশ্য `/apt` bootstrap, key, index ও package path এখন HTTP 404 ফেরায়। আগে
+থেকে ইনস্টল করা package অক্ষত, তবে stable APT থেকে Ternux update পাওয়া যায় না।
 
-এখন উৎস ইনস্টলারই সমর্থিত বসানোর পথ; [প্রধান বসানোর
-নির্দেশিকা](../README.md) দেখুন। ২০২৬-১১-১৬ তারিখে স্থিতিশীল এপিটির
-বুটস্ট্র্যাপ, কী ও সূচি আবার পরীক্ষা করে এইচটিটিপি ৪০৪ পাওয়া গেছে। আরসি
-বুটস্ট্র্যাপ ও স্বাক্ষর-চাবি এইচটিটিপি ২০০ দিলেও স্বাক্ষরিত সূচি এইচটিটিপি ৪০৪
-দেয়। তাই প্রকাশিত স্থিতিশীল বা আরসি সংগ্রহস্থল থেকে `pkg install ternux` এখন
-কাজ করবে না। স্বাক্ষরিত সংগ্রহস্থল প্রকাশিত হলেই আরসি-কে ঐচ্ছিক পরীক্ষামূলক
-প্রকাশনা হিসেবে চালু করা যাবে। ২০২৬-১১-১৪-এর আগের সিদ্ধান্ত—পরবর্তী v2 release-এর
-আগে পুরো v3 platform scope লাগবে—owner প্রত্যাহার করেছেন। Version 2 বর্তমান
-implementation-এ frozen; v2.0.1 হলো প্রকাশিত source release, বিস্তারিত
-[প্রকল্পের রূপরেখায়](/bn/docs/project/PROJECT-ROADMAP.html)। APT এখনও withdrawn
-এবং v2 release requirement নয়। v2 প্রকাশের পরে ও owner approval নিয়ে APT
-ফেরানো v3-এর আলাদা feasibility সিদ্ধান্ত।
+এখন pinned source installer-ই সমর্থিত install পথ; [প্রধান নির্দেশিকা](../README.md)
+দেখুন। ২০২৬-১১-১৬ তারিখে stable APT bootstrap/key/index এবং RC signed index আবার
+পরীক্ষা করে HTTP 404 পাওয়া গেছে। RC bootstrap ও signing key HTTP 200 দিলেও hosted
+repository থেকে `pkg install ternux` করা যায় না। Signed repository প্রকাশিত হলে
+RC-কে optional candidate testing-এর জন্য ব্যবহার করা যাবে। ২০২৬-১১-১৪-এর আগের
+সিদ্ধান্ত—package distribution-কে ভবিষ্যৎ platform scope-এর সঙ্গে বেঁধে রাখা—owner
+প্রত্যাহার করেছেন। বর্তমান source status ও release evidence
+[প্রকল্পের পরিকল্পনায়](project/PROJECT-ROADMAP.html) আছে। APT ফেরানোর আগে
+আলাদা feasibility সিদ্ধান্ত দরকার। [পরবর্তী সংস্করণের package distribution
+assessment](next/APT-DISTRIBUTION-FEASIBILITY.html) দেখুন। নিরাপত্তা, recovery ও
+operations gate পাস না হওয়া পর্যন্ত source installer-ই ব্যবহার করুন। বর্তমানে
+কোনো APT install method উপলভ্য বা সমর্থিত নয়।
 
 ## আস্থার ছাপ
 

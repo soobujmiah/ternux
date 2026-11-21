@@ -30,10 +30,10 @@ import datetime,json,re,sys
 text=open(sys.argv[1]).read(); guests,rest=text.split('\n---DISPLAYS---\n')
 display_part,rest=rest.split('\n---STATUS---\n'); status_part,capabilities=rest.split('\n---CAPS---\n')
 g=json.loads(guests); d=json.loads(display_part); s=json.loads(status_part); c=json.loads(capabilities); root=sys.argv[2]
-status_schema=json.load(open(root+'/docs/v3/schemas/manager-status-v1.schema.json'))
-guests_schema=json.load(open(root+'/docs/v3/schemas/manager-guests-v1.schema.json'))
-capabilities_schema=json.load(open(root+'/docs/v3/schemas/manager-capabilities-v1.schema.json'))
-displays_schema=json.load(open(root+'/docs/v3/schemas/manager-displays-v1.schema.json'))
+status_schema=json.load(open(root+'/docs/next/schemas/manager-status-v1.schema.json'))
+guests_schema=json.load(open(root+'/docs/next/schemas/manager-guests-v1.schema.json'))
+capabilities_schema=json.load(open(root+'/docs/next/schemas/manager-capabilities-v1.schema.json'))
+displays_schema=json.load(open(root+'/docs/next/schemas/manager-displays-v1.schema.json'))
 def validate(value,schema,document):
     if '$ref' in schema:
         return validate(value,document['$defs'][schema['$ref'].split('/')[-1]],document)

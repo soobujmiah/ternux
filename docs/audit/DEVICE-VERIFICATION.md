@@ -418,7 +418,7 @@ At 15:52 UTC, installed `tx status db|ub|alp --json` still reported v2.0.0,
 READY, X11 running and PulseAudio route-ready for the same guest PIDs
 18218/14129/26946. No desktop or Android service was restarted. The website
 deployment for main commit `7b7ea43` succeeded in run `43456239621`; the
-homepage and `/docs/v3/API-DESIGN.html` returned HTTP 200 and included the
+homepage and `/docs/next/architecture/API-DESIGN.html` returned HTTP 200 and included the
 updated manager/display status and schema link.
 
 

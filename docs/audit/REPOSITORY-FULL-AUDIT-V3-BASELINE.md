@@ -49,7 +49,7 @@ Live production inspection found a release-relevant bilingual mismatch. Both `/t
 
 ## Initial documentation findings
 
-1. `docs/v3/SYSTEM-ARCHITECTURE.md` guest-layer diagram omitted Kali although architecture, workspace, and roadmap prose name the four-profile baseline. Corrected in English and Bengali during this audit.
+1. `docs/next/architecture/SYSTEM-ARCHITECTURE.md` guest-layer diagram omitted Kali although architecture, workspace, and roadmap prose name the four-profile baseline. Corrected in English and Bengali during this audit.
 2. `docs/project/IMPLEMENTATION-STATUS.md` reported the installed package as v2.0.0 without a date/scope boundary; the current native Ternux command reports v2.0.1. Clarified the historical observation and linked the dated environment baseline.
 3. The Control Center/manager, Device Bridge, Compute/AI orchestration, and general-purpose Extension SDK are partial or planned. Current docs largely label these states accurately; specific source-to-documentation claims still need full matrix review.
 4. The deployed Bengali homepage is stale relative to the English homepage and current `main`; source has already been corrected, but Pages has not been redeployed from the current main SHA.

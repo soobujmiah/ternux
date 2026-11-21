@@ -1,0 +1,151 @@
+{
+  "type": "object",
+  "required": [
+    "schema_version",
+    "command",
+    "status",
+    "timestamp",
+    "native_display",
+    "native_socket_present",
+    "native_lock_present",
+    "native_server_running",
+    "native_occupied",
+    "count",
+    "migration_preview",
+    "guests"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string"
+    },
+    "command": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "native_display": {
+      "type": "integer"
+    },
+    "native_socket_present": {
+      "type": "boolean"
+    },
+    "native_lock_present": {
+      "type": "boolean"
+    },
+    "native_server_running": {
+      "type": "boolean"
+    },
+    "native_occupied": {
+      "type": "boolean"
+    },
+    "count": {
+      "type": "integer"
+    },
+    "migration_preview": {
+      "type": "object",
+      "required": [
+        "status",
+        "executor_implemented",
+        "ready_to_execute",
+        "plan_id"
+      ],
+      "properties": {
+        "status": {
+          "type": "string"
+        },
+        "executor_implemented": {
+          "type": "boolean"
+        },
+        "ready_to_execute": {
+          "type": "boolean"
+        },
+        "plan_id": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        }
+      },
+      "additionalProperties": true
+    },
+    "guests": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "current_display",
+          "target_display",
+          "registry_display",
+          "registry_lifecycle",
+          "running",
+          "migration_required"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "current_display": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "target_display": {
+            "type": "integer"
+          },
+          "registry_display": {
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "registry_lifecycle": {
+            "type": "string"
+          },
+          "running": {
+            "type": "boolean"
+          },
+          "target_socket_present": {
+            "type": "boolean"
+          },
+          "target_lock_present": {
+            "type": "boolean"
+          },
+          "target_server_running": {
+            "type": "boolean"
+          },
+          "target_conflict": {
+            "type": "boolean"
+          },
+          "migration_required": {
+            "type": "boolean"
+          },
+          "target_owner": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "target_owner_kind": {
+            "type": "string"
+          },
+          "migration_action": {
+            "type": "string"
+          },
+          "migration_blockers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}

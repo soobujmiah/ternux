@@ -8,13 +8,9 @@
 
 ### A Linux desktop for ARM64 Android — no root required
 
-[![Version](https://img.shields.io/badge/version-2.0.1-22c55e?style=flat-square)](docs/release/pages/v2.0.1-INSTALLATION.md)
-[![Termux APT v2 withdrawn](https://img.shields.io/badge/Termux%20APT-v2%20withdrawn-gray?style=flat-square)](docs/TERMUX-APT.md)
-[![Debian · Ubuntu · Kali · Alpine](https://img.shields.io/badge/v2%20verified-Debian%20%7C%20Ubuntu%20%7C%20Kali%20%7C%20Alpine-77e3ad?style=flat-square)](docs/audit/FEATURE-MATRIX.md)
-[![v3 roadmap](https://img.shields.io/badge/v3-roadmap%20published-38bdf8?style=flat-square)](docs/v3/README.md)
+[![Debian · Ubuntu · Kali · Alpine](https://img.shields.io/badge/desktop%20setups-Debian%20%7C%20Ubuntu%20%7C%20Kali%20%7C%20Alpine-77e3ad?style=flat-square)](docs/INSTALLATION.md#choosing-a-guest-distribution)
 [![Android ARM64](https://img.shields.io/badge/Android-ARM64-38bdf8?style=flat-square)](docs/INSTALLATION.md)
 [![No root](https://img.shields.io/badge/root-not%20required-22c55e?style=flat-square)](docs/FAQ.md)
-[![Desktop guests](https://img.shields.io/badge/v2%20desktop-guests%204-77e3ad?style=flat-square)](docs/audit/FEATURE-MATRIX.md)
 [![Adreno evidence](https://img.shields.io/badge/GPU-Adreno%20825%20measured-8bf5a6?style=flat-square)](docs/BENCHMARKS.md)
 [![Distro recipes](https://img.shields.io/badge/distro%20recipes-15-b9ff72?style=flat-square)](docs/INSTALLATION.md#choosing-a-guest-distribution)
 [![Desktop](https://img.shields.io/badge/desktop-Xfce%20%2B%20Termux%3AX11-55c2ff?style=flat-square)](docs/QUICK-START.md)
@@ -24,19 +20,17 @@
 [![NPU](https://img.shields.io/badge/NPU-experimental%20only-f59e0b?style=flat-square)](docs/ACCELERATOR-RELEASE-PLAN.md)
 [![License](https://img.shields.io/badge/license-Apache--2.0-22c55e?style=flat-square)](LICENSE)
 
-[Website](https://soobujmiah.github.io/ternux/) · [Quick start](docs/QUICK-START.md) · [All documentation](docs/README.md) · [CLI guide](docs/CLI.md) · [Benchmarks](docs/BENCHMARKS.md) · [v2 release and current audit](docs/release/V2-RELEASE-REPORT.md) · [বাংলা](bn/README.md) · [Source](https://github.com/soobujmiah/ternux)
+[Website](https://soobujmiah.github.io/ternux/) · [Quick start](docs/QUICK-START.md) · [All documentation](docs/README.md) · [CLI guide](docs/CLI.md) · [Benchmarks](docs/BENCHMARKS.md) · [বাংলা](bn/README.md) · [Source](https://github.com/soobujmiah/ternux)
 
 </div>
 
 ## About Ternux
 
 Ternux turns an ARM64 Android phone into a Linux desktop without rooting or
-replacing Android. The source installer below installs the current `main` branch;
-the withdrawn v2.0.0 release is a historical snapshot and does not include all
-features now present in source. Termux hosts the Linux guest in PRoot, Termux:X11 displays
-the Xfce desktop, and PulseAudio connects guest audio to Android. A single CLI
-installs and manages guest systems, desktop sessions, graphics, diagnostics,
-and optional workloads.
+replacing Android. The source installer below uses a pinned source snapshot.
+Termux hosts the Linux guest in PRoot, Termux:X11 displays the Xfce desktop, and
+PulseAudio connects guest audio to Android. A single CLI installs and manages
+guest systems, desktop sessions, graphics, diagnostics, and optional workloads.
 
 The desktop comes with everyday tools for browsing, documents, media, photos,
 and audio recording, alongside Ternux's branded theme and phone-sized window
@@ -44,13 +38,13 @@ handling. Developer tools and local CPU/Vulkan AI workloads are available as
 optional installs. Guest files and model weights can be read from Android
 shared storage when Termux storage access is enabled.
 
-**Debian, Ubuntu, Kali Linux and Alpine are the four v2 verified desktop
-profiles.** The reference-device evidence represents the Redmi Turbo 4 Pro /
-Android 16 / Adreno 825; evidence depth differs by distro and feature. See the
-feature matrix for the exact tested scope and limits.
-Debian is the recommended default. Twelve additional named distro recipes are
-available to try, but are not qualified for the v2 desktop support promise;
-arbitrary OCI images are shell guests until a Ternux desktop recipe is added.
+**The four desktop setups I currently maintain are Debian, Ubuntu, Kali Linux,
+and Alpine.** Most device checks were run on a Redmi Turbo 4 Pro with Android 16
+and Adreno 825; evidence depth differs by distro and feature. See the feature
+matrix for tested scope and limits. Debian is the recommended default. Twelve
+additional named distro recipes are available to try but are not covered by the
+same evidence. Arbitrary OCI images are shell guests until a Ternux desktop
+recipe is added.
 
 ### Graphics and guest support
 
@@ -63,7 +57,7 @@ renderer depends on the device and Android graphics stack, so check it with
 ### Start here
 
 - **New to Ternux?** Follow the [quick start](docs/QUICK-START.md).
-- **Want to understand the supported guests?** Read the [v2 support matrix](docs/audit/FEATURE-MATRIX.md).
+- **Want to understand the tested guest setups?** Read the [support matrix](docs/audit/FEATURE-MATRIX.md).
 - **Want measurements?** Read [benchmarks and their limits](docs/BENCHMARKS.md).
 - **Need a command?** Open the [CLI reference](docs/CLI.md).
 
@@ -101,7 +95,7 @@ renderer depends on the device and Android graphics stack, so check it with
    and removes the downloaded installer script after it exits:
 
 ```bash
-pkg update -y && pkg upgrade -y && pkg install -y curl wget && bash -c 's=$(mktemp) && (curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/369d1ca4c84db15473564046d1991aa2b7f6a35a/install.sh -o "$s" || wget -qO "$s" https://raw.githubusercontent.com/soobujmiah/ternux/369d1ca4c84db15473564046d1991aa2b7f6a35a/install.sh) && bash "$s"; r=$?; rm -f "$s"; exit "$r"'
+pkg update -y && pkg upgrade -y && pkg install -y curl wget && bash -c 's=$(mktemp) && (curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/27d85ada58ee2a1b9efd4bf79c65ac8429e0c1bf/install.sh -o "$s" || wget -qO "$s" https://raw.githubusercontent.com/soobujmiah/ternux/27d85ada58ee2a1b9efd4bf79c65ac8429e0c1bf/install.sh) && bash "$s"; r=$?; rm -f "$s"; exit "$r"'
 ```
 
 If an installation stops at a required phase, run the same command again. It
@@ -122,15 +116,10 @@ command again. Its host package repair runs through `apt-get` before it retries
 `pkg`. The standalone source installer is the supported install route while the
 stable package channel is withdrawn.
 
-The Ternux v2.0.0 GitHub release and stable APT distribution were withdrawn
-on 2026-11-14. The `v2.0.0` source tag remains available for provenance. A
-Ternux v2.0.1 is published from the verified source tag and archive. Use the
-version-specific [v2.0.1 installation guide](docs/release/pages/v2.0.1-INSTALLATION.md)
-and verify its checksum before installation. The signed `/apt-rc` channel remains
-for opt-in candidate testing and is not a production install source. Version 2
-is frozen to the existing implementation; new architecture and capabilities
-belong to v3.
-See the [APT channel status](docs/TERMUX-APT.md) and [v2 release record](docs/V2-RELEASE-READINESS.md).
+The Termux package repository is currently unavailable, so `pkg install ternux`
+is not an installation route. Use the pinned source installer above; see the
+[package-channel status](docs/TERMUX-APT.md) for details. The [plans for the next
+version](docs/next/README.md) describe future ideas, not released features.
 
 The base install needs about 4–4.6 GB of storage. Keep extra temporary space for
 downloads and package caches.
@@ -156,7 +145,7 @@ tx distro search alpine # search available OCI images
 tx distro uninstall NAME # remove a Ternux-managed guest
 ```
 
-Use `tx stop --all` to close every managed Ternux desktop. With the Termux:X11 nightly app, each Ternux desktop guest gets its own tagged Android window and separate settings; `tx start db`, `tx start ub`, `tx start kali`, or `tx start alp` brings the selected window forward. Older X11 apps use one shared window and cannot reliably switch among concurrently running guests. Install multiple profiles with `tx install --distros debian,ubuntu,kali,alpine`; each receives the family-matched Ternux base desktop. `xgo` lists every installed guest and asks which desktop to start when there is more than one. Generic images without a Ternux package recipe are shown as shell-only. See [the release-readiness report](docs/V2-RELEASE-READINESS.md) for the exact v2 scope, evidence, and publication status.
+Use `tx stop --all` to close every managed Ternux desktop. With the Termux:X11 nightly app, each Ternux desktop guest gets its own tagged Android window and separate settings; `tx start db`, `tx start ub`, `tx start kali`, or `tx start alp` brings the selected window forward. Older X11 apps use one shared window and cannot reliably switch among concurrently running guests. Install multiple profiles with `tx install --distros debian,ubuntu,kali,alpine`; each receives the family-matched Ternux base desktop. `xgo` lists every installed guest and asks which desktop to start when there is more than one. Generic images without a Ternux package recipe are shown as shell-only. See the [support matrix](docs/audit/FEATURE-MATRIX.md) for tested scope and evidence limits.
 
 Use `tx start` to start the saved desktop; `xgo` lists installed guests in catalog order and asks which desktop guest to start. `tx` is the short CLI command. Use `db`/`dbr`/`dbroot`, `ub`/`ubr`/`ubroot`, `alp`/`alpr`/`alproot`, `archx`/`archroot`, `fed`/`fedr`, `suse`/`suser`, `vsh`/`vroot`, or `kali`/`kalir` for the corresponding user/root shells when those guests are installed. Start multiple desktops together, for example `tx start debian ubuntu kali alpine` or `tx start ub db kali alp`. Use `tx distro shell NAME` to enter a profile’s configured regular user (generic images keep their image default), or `tx distro exec NAME -- COMMAND` for any installed PRoot guest. Root remains explicit through `dbroot`, `ubroot`, `alproot` and the matching root aliases. Search PRoot-Distro images with `tx distro search QUERY`; install a generic OCI image with `tx distro image-install IMAGE[:TAG] [NAME]`. Generic images provide guest shells. Named distro profiles use the matching package-manager recipe; arbitrary OCI images provide guest shells until a family recipe is added. Android shared storage is mounted at `/sdcard` in every managed guest by default, so
 models and files are available directly. Termux must have Android storage permission;
@@ -255,13 +244,10 @@ render route and run scripts or scenes with the documented EEVEE setup. See the
 
 ## More help
 
-- [Ternux v3 architecture and implementation roadmap](docs/v3/README.md):
-  future native manager, workspace, compute, AI, Device Bridge, security, and
-  distribution plans. Current main includes a partial manager CLI, a foreground
-  Unix-socket service, and a local Control Center preview with desktop
-  start/stop actions; these are not a complete v3 platform. Run `tx control` to
-  try the preview locally. v2.0.0 is the withdrawn historical package; v2.0.1
-  is published; see the exact-version installation guide.
+- [Plans for the next version](docs/next/README.md): possible manager,
+  workspace, compute, AI, device-integration, security, and distribution work.
+  Some manager and Control Center pieces exist in source but remain partial.
+  Run `tx control` to try the local preview.
 - [Current project status](docs/project/PROJECT-ROADMAP.md): implementation,
   release, device evidence, technical debt, and next actions.
 - [Deep documentation index](docs/README.md): install paths, setup, daily use,
@@ -275,14 +261,10 @@ one or more guest profiles (Space/number toggles, Enter confirms), then a
 categorized keyboard checklist for optional software; Space or item numbers
 toggle multiple choices, Enter reviews the plan, and `q` keeps the base desktop.
 `--yes` skips prompts and installs the Debian base profile, while explicit
-`--with-*` flags or `--all` select additional workloads. The v2.0.0 GitHub
-release and stable APT distribution were withdrawn on 2026-11-14; its source tag
-and package checksums remain in the historical [release report](docs/V2-RELEASE-REPORT.md).
-The v2.0.1 source release is published with a verified tag, archive, and checksum.
-Use its exact-version installation guide. The
-partial manager and Control Center preview are not claims of a complete service
-or v3 platform. See [v2 release readiness](docs/V2-RELEASE-READINESS.md), the
-[v3 roadmap](docs/v3/README.md), and [APT channel status](docs/TERMUX-APT.md).
+`--with-*` flags or `--all` select additional workloads. The manager and Control
+Center remain partial previews; the plans for the next version are not claims
+about shipped features. See the [project roadmap](docs/project/PROJECT-ROADMAP.md),
+[next-version plans](docs/next/README.md), and [package-channel status](docs/TERMUX-APT.md).
 HTP/HMX,
 QNN and wider accelerator qualification remain experimental or follow-up work;
 see the [accelerator plan](docs/ACCELERATOR-RELEASE-PLAN.md).

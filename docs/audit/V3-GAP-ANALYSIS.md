@@ -2,7 +2,7 @@
 
 **Baseline:** source `f04b7261ef9ba2dba2c38fd987f760e80583f2d2`; published source release v2.0.1.\
 **Status:** initial priority order; Phase 1 audit closure and owner review of architecture deltas are still required before major V3 implementation.\
-**Source plan:** [`../v3/IMPLEMENTATION-ROADMAP.md`](../v3/IMPLEMENTATION-ROADMAP.md), [`../v3/SECURITY-ROADMAP.md`](../v3/SECURITY-ROADMAP.md), ADRs, and [`../project/PROJECT-ROADMAP.md`](../project/PROJECT-ROADMAP.md). Existing milestone gates remain authoritative where the requested V3 master goal does not add a stricter requirement.
+**Source plan:** [`../next/architecture/IMPLEMENTATION-ROADMAP.md`](../next/architecture/IMPLEMENTATION-ROADMAP.md), [`../next/architecture/SECURITY-ROADMAP.md`](../next/architecture/SECURITY-ROADMAP.md), ADRs, and [`../project/PROJECT-ROADMAP.md`](../project/PROJECT-ROADMAP.md). Existing milestone gates remain authoritative where the requested V3 master goal does not add a stricter requirement.
 
 ## Current baseline
 

@@ -1,0 +1,52 @@
+{
+  "type": "object",
+  "required": [
+    "schema_version",
+    "command",
+    "status",
+    "timestamp",
+    "version",
+    "runtime",
+    "management_mode",
+    "guest_manager_available",
+    "installed_guest_count",
+    "running_desktops"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "command": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "version": {
+      "type": "string"
+    },
+    "runtime": {
+      "type": "string"
+    },
+    "management_mode": {
+      "type": "string"
+    },
+    "guest_manager_available": {
+      "type": "boolean"
+    },
+    "installed_guest_count": {
+      "type": "integer"
+    },
+    "running_desktops": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "additionalProperties": true
+}

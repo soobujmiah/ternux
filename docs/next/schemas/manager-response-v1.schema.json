@@ -1,0 +1,67 @@
+{
+  "oneOf": [
+    {
+      "type": "object",
+      "required": [
+        "schema_version",
+        "request_id",
+        "status",
+        "result"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "1.0.0"
+        },
+        "request_id": {
+          "type": "string",
+          "pattern": "^[0-9a-fA-F-]{36}$"
+        },
+        "status": {
+          "const": "ok"
+        },
+        "result": {
+          "oneOf": [
+            {
+              "$ref": "manager-status-v1.schema.json"
+            },
+            {
+              "$ref": "manager-guests-v1.schema.json"
+            },
+            {
+              "$ref": "manager-capabilities-v1.schema.json"
+            },
+            {
+              "$ref": "manager-displays-v1.schema.json"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "required": [
+        "schema_version",
+        "request_id",
+        "status",
+        "error"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "1.0.0"
+        },
+        "request_id": {
+          "type": "string",
+          "pattern": "^[0-9a-fA-F-]{36}$"
+        },
+        "status": {
+          "const": "error"
+        },
+        "error": {
+          "$ref": "manager-error-v1.schema.json"
+        }
+      },
+      "additionalProperties": false
+    }
+  ]
+}
