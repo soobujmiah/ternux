@@ -26,8 +26,9 @@ alt_url: "/docs/project/RELEASE-STATUS.html"
 Ternux v2.0.0 2026-11-13-এ প্রকাশিত হয়েছিল এবং 2026-11-14-এ প্রত্যাহার করা হয়।
 Tag এবং release-time artifact তথ্য
 [release report](../../../docs/release/V2-RELEASE-REPORT.md)-এ অপরিবর্তিতভাবে আছে। ওই
-প্রকাশনার Debian, Ubuntu, Alpine scope বর্তমান পরবর্তী v2 release-এর owner-confirmed
-চার distro baseline-এর সঙ্গে গুলিয়ে ফেলবেন না।
+প্রত্যাহৃত প্রকাশনার Debian, Ubuntu, Alpine scope-কে প্রকাশিত v2.0.1-এর চার-distro
+ভিত্তির সঙ্গে গুলিয়ে ফেলবেন না। Profile-ভেদে evidence-এর গভীরতা আলাদা; Kali-র
+প্রমাণ ইনস্টল করা যন্ত্রে সীমিত এবং সেটি clean Firefox guest CI-তে নেই।
 
 ## Version 2 release policy
 

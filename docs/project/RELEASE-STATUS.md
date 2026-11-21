@@ -31,8 +31,10 @@ Ternux v2.0.0 was published on 2026-11-13 and withdrawn on 2026-11-14. The
 immutable tag and release-time artifacts remain documented in the
 [v2.0.0 release report](../release/V2-RELEASE-REPORT.md) and
 [release-time report](../V2-RELEASE-REPORT.md). The withdrawn release's Debian,
-Ubuntu, and Alpine scope must not be confused with the owner's current four-
-distribution v2 baseline for the next release.
+Ubuntu, and Alpine scope must not be confused with the published v2.0.1
+four-distribution baseline. Evidence depth differs by
+profile; Kali has narrower installed-device evidence and is outside the clean
+Firefox guest CI matrix.
 
 ## Version 2 release policy
 

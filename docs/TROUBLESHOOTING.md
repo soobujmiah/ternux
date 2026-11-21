@@ -21,6 +21,7 @@ more than one cause, so collect the named evidence before applying a repair.
 | `Error: unrecognized option: '-c'` when starting | Old launcher against newer proot-distro | [proot-distro says option -c is unrecognized](#proot-distro-says-option--c-is-unrecognized) |
 | `proot-distro: Argument list too long` during Debian setup | The desktop asset payload exceeded Linux's per-argument limit | [proot-distro argument list is too long](#proot-distro-argument-list-is-too-long) |
 | `apt` install fails on some packages | package/repository mismatch for the Debian release | [apt failures](#apt-failures) |
+| `awk: cannot open "Manager"` during the Debian + Xfce phase | package-manager desktop-entry command lost quoting around the spaced Synaptic name | [Desktop package entry fails](#desktop-package-manager-entry-fails) |
 | `ternux install --resume` skips a guest that was removed | stale per-guest phase metadata from an older install | [Resume after removing a guest](#resume-after-removing-a-guest) |
 | `pkg upgrade` errors on `openssl.cnf`, then **every** install fails | dpkg conffile prompt with closed stdin | [openssl.cnf conffile cascade](#opensslcnf-conffile-cascade) |
 | `No command $ found` after pasting the install command | copied text included the display-only `$` prompt | [Pasted command starts with $](#pasted-command-starts-with) |
@@ -478,6 +479,42 @@ If a separate application specifically requires non-free software, review the
 guest's files under `/etc/apt/sources.list*` and Debian's repository guidance
 for that exact release before changing components. Do not replace sources just
 to make an obsolete package name resolve.
+
+---
+
+<h2 id="desktop-package-manager-entry-fails">Desktop package entry fails during the Debian + Xfce phase</h2>
+
+**Symptom:** Synaptic and its dependencies install successfully, then the
+required Debian + Xfce phase fails with:
+
+```text
+awk: cannot open "Manager" (No such file or directory)
+[FAIL] Desktop package installation failed.
+```
+
+**Cause:** the generated guest setup script rewrote the Synaptic desktop entry
+with an unquoted `Synaptic Package Manager` value. The shell split the name into
+separate `awk` arguments, so the phase stopped before registering the desktop
+user and completing setup.
+
+**Fix:** run the current pinned one-command installer in the README again. It
+will rerun the incomplete Debian phase and reuse packages already installed;
+do not remove the guest or start from a clean install. If the updated installer
+has already installed the current host CLI, this also resumes the phase:
+
+```bash
+ternux install --resume
+```
+
+When the phase completes, check the guest and start it:
+
+```bash
+ternux verify db
+tx start db
+```
+
+If the same error remains, capture `ternux logs show` and the exact installer
+phase. Do not paste passwords or private tokens.
 
 ---
 
