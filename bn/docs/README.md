@@ -11,6 +11,7 @@
 | বিভাগ | পৃষ্ঠা |
 |---|---|
 | শুরু করুন | `index.md`, `QUICK-START.md`, `INSTALLATION.md`, `MANUAL.md` |
+| প্রকল্পের গল্প | [`ORIGIN.md`](ORIGIN.md) — মোবাইল-অনলি কম্পিউটিং যাত্রা এবং Ternux ও ADT প্রকল্পের বাংলা বিবরণ |
 | ঐতিহাসিক release ও পরিকল্পনা | [`release/README.md`](release/README.md)-এ সংরক্ষিত install guide-এর সূচি; [`release/V2-RELEASE-REPORT.md`](release/V2-RELEASE-REPORT.md) ও [`V2-RELEASE-READINESS.md`](V2-RELEASE-READINESS.md)-এ তারিখযুক্ত release evidence। [পরবর্তী সংস্করণের সূচি](next/README.md)-তে ভবিষ্যৎ পরিকল্পনা; [প্রকল্পের roadmap](project/PROJECT-ROADMAP.md)-এ বর্তমান কাজ। |
 | শুধু সংগ্রহশালায় থাকা নিরীক্ষার প্রমাণ | [`audit/`](../../docs/audit/REPOSITORY-FULL-AUDIT-2026-11-20.md)-এ বর্তমান উৎস, পরীক্ষা ও সীমার পূর্ণ নিরীক্ষা আছে; `CURRENT-STATE.md` হলো ২০২৬-১১-১৩-এর পুরোনো snapshot। এগুলো প্রকাশিত ওয়েবসাইটের device qualification দাবি নয়। |
 | প্ল্যাটফর্মের নকশা ও বর্তমান পরিকল্পনা | [`NEXT-ARCHITECTURE.md`](NEXT-ARCHITECTURE.md) ও [`NEXT-PROPOSALS.md`](NEXT-PROPOSALS.md)-এ ভবিষ্যৎ কাজের ধারণা, বর্তমান সমর্থনের দাবি নয়। [প্রকল্পের roadmap](project/PROJECT-ROADMAP.md)-এ বর্তমান implementation ও evidence দেখুন। |
