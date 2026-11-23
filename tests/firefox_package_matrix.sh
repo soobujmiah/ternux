@@ -28,13 +28,13 @@ for profile in "${profiles[@]}"; do
     "$image" sh -ec '
       case "$TNX_BROWSER_PROFILE" in
         debian)
-          apt-get update
-          DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+          apt-get -o Acquire::Retries=3 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 update
+          DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=3 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 install -y --no-install-recommends \
             dbus dbus-x11 desktop-file-utils firefox-esr openbox passwd xdotool xvfb
           ;;
         ubuntu)
-          apt-get update
-          DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+          apt-get -o Acquire::Retries=3 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 update
+          DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=3 -o Acquire::http::Timeout=30 -o Acquire::https::Timeout=30 install -y --no-install-recommends \
             ca-certificates curl dbus dbus-x11 desktop-file-utils libasound2t64 \
             libdbus-glib-1-2 libgbm1 libgtk-3-0t64 libnss3 libpango-1.0-0 \
             libx11-xcb1 libxcomposite1 libxdamage1 libxfixes3 libxrandr2 \
