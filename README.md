@@ -20,7 +20,7 @@
 [![NPU](https://img.shields.io/badge/NPU-experimental%20only-f59e0b?style=flat-square)](docs/ACCELERATOR-RELEASE-PLAN.md)
 [![License](https://img.shields.io/badge/license-Apache--2.0-22c55e?style=flat-square)](LICENSE)
 
-[Website](https://soobujmiah.github.io/ternux/) · [Quick start](docs/QUICK-START.md) · [All documentation](docs/README.md) · [CLI guide](docs/CLI.md) · [Benchmarks](docs/BENCHMARKS.md) · [বাংলা](bn/README.md) · [Source](https://github.com/soobujmiah/ternux)
+[Website](https://soobujmiah.github.io/ternux/) · [Origin story](ORIGIN.md) · [Quick start](docs/QUICK-START.md) · [All documentation](docs/README.md) · [CLI guide](docs/CLI.md) · [Benchmarks](docs/BENCHMARKS.md) · [বাংলা](bn/README.md) · [Source](https://github.com/soobujmiah/ternux)
 
 </div>
 
