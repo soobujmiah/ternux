@@ -15,6 +15,7 @@ basic-usage path, then link here for details.
 | Section | Pages |
 |---|---|
 | Start here | `index.md`, `QUICK-START.md`, `INSTALLATION.md`, `MANUAL.md` |
+| Project story | [`ORIGIN.md`](ORIGIN.md) — English account of the mobile-only computing journey and the Ternux/ADT projects |
 | Release history and roadmap | [`release/README.md`](release/README.md) indexes archived installation guides; [`release/V2-RELEASE-REPORT.md`](release/V2-RELEASE-REPORT.md) and [`V2-RELEASE-READINESS.md`](V2-RELEASE-READINESS.md) preserve dated release evidence. The [Next Version index](next/README.md) contains future planning; the [project roadmap](project/PROJECT-ROADMAP.md) tracks current work. |
 | Platform architecture and living project status | [`NEXT-ARCHITECTURE.md`](NEXT-ARCHITECTURE.md) and [`NEXT-PROPOSALS.md`](NEXT-PROPOSALS.md) describe possible future work, not current support. The English/Bengali [project roadmap](project/PROJECT-ROADMAP.md) describes current implementation and evidence. |
 | Repository-only audit evidence | [`audit/REPOSITORY-FULL-AUDIT-2026-11-20.md`](audit/REPOSITORY-FULL-AUDIT-2026-11-20.md) is the current full source/test audit; [`audit/CURRENT-STATE.md`](audit/CURRENT-STATE.md) remains the dated 2026-11-13 snapshot. Neither is a blanket device qualification claim. |
