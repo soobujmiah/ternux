@@ -1,4 +1,9 @@
-# Ternux — The Story Behind My Mobile Computing Journey
+---
+title: "The Story Behind My Mobile Computing Journey"
+description: "The personal journey behind Ternux and ADT: mobile-only professional work, learning, research, and ARM64 computing."
+lang: "en"
+alt_url: "/bn/docs/ORIGIN.html"
+---
 
 *A personal account of a Mobile-Only Workflow, continuous learning, research, and building an independent computing environment.*
 
