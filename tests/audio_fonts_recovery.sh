@@ -6,7 +6,9 @@ trap 'rm -rf "$TMP"' EXIT
 mkdir -p "$TMP/bin" "$TMP/home" "$TMP/prefix"
 export HOME="$TMP/home" PREFIX="$TMP/prefix" TERNUX_STATE_DIR="$TMP/state" TERNUX_LOG_DIR="$TMP/log"
 
-# Capture the real generated root setup script while avoiding any device access.
+# Exercise the real guest-login timeout validation as well as the generated
+# root setup script, while replacing only the device-facing commands.
+. "$ROOT/lib/core.sh"
 . "$ROOT/lib/phases.sh"
 tnx_distro() { printf '%s\n' debian; }
 tnx_distro_profile() { TNX_DP_FAMILY=apt; }
@@ -15,7 +17,14 @@ tnx_request_camera_permission() { return 0; }
 _tnx_configure_pulse_bridge() { _TNX_PULSE_CHANGED=0; return 0; }
 _tnx_configure_guest_codex_installer_default() { return 0; }
 script_index=0
-tnx_guest_login() {
+timeout() {
+  [[ "$1" == --signal=TERM && "$2" == --kill-after=1 ]] || return 90
+  shift 2
+  printf '%s\n' "$1" >> "$TMP/guest-timeouts"
+  shift
+  "$@"
+}
+proot-distro() {
   script_index=$((script_index + 1))
   if [[ " $* " == *" bash -c "* ]]; then
     printf '%s\n' "${@: -1}" > "$TMP/guest-${script_index}.sh"
@@ -24,6 +33,11 @@ tnx_guest_login() {
 }
 tnx_phase_audio_fonts ternux en_US.UTF-8 >/dev/null
 [[ -s "$TMP/guest-1.sh" ]] || { echo 'FAIL: generated guest root script was not captured' >&2; exit 1; }
+grep -qx 4800 "$TMP/guest-timeouts" || { echo 'FAIL: guest login rejected the audio recovery timeout' >&2; exit 1; }
+if tnx_guest_login --_tnx-timeout-seconds 4801 -- true >/dev/null 2>&1; then
+  echo 'FAIL: guest login accepted a timeout above its maximum' >&2
+  exit 1
+fi
 bash -n "$TMP/guest-1.sh"
 
 cat > "$TMP/bin/timeout" <<'MOCK'

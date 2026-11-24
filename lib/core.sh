@@ -398,7 +398,9 @@ tnx_guest_login() {
         shift
         ;;
       --_tnx-timeout-seconds)
-        [ "$#" -ge 2 ] && [[ "$2" =~ ^[1-9][0-9]{0,3}$ ]] && [ "$2" -le 3600 ] || {
+        # The locale/font phase budgets up to 4800 seconds for installation,
+        # dpkg recovery, and a bounded retry on slow PRoot devices.
+        [ "$#" -ge 2 ] && [[ "$2" =~ ^[1-9][0-9]{0,3}$ ]] && [ "$2" -le 4800 ] || {
           echo "Invalid internal PRoot timeout." >&2
           return 2
         }
