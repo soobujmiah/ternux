@@ -32,11 +32,12 @@ const installCommand = `pkg update -y && pkg upgrade -y && pkg install -y curl w
           <p>
             Android ফোনকে রুট ছাড়াই ARM64 Linux workstation ও on-device
             computing lab হিসেবে ব্যবহার করুন। Ternux-এ Debian, Ubuntu, Kali
-            Linux ও Alpine ডেস্কটপ, Android app development, Adreno GPU-তে
-            Blender rendering এবং CPU/Vulkan-ভিত্তিক local AI ও LLM inference
-            পরীক্ষা করা যায়। Stable Diffusion image generation preview
-            পর্যায়ে; Hexagon HTP ও QNN পরীক্ষামূলক। ফলাফল নির্দিষ্ট যন্ত্রের
-            পরীক্ষার ওপর নির্ভরশীল—সব ফোনে একই কর্মক্ষমতার নিশ্চয়তা নয়।
+            Linux ও Alpine ডেস্কটপ এবং Android app development করা যায়।
+            Adreno GPU-তে Blender rendering ও CPU/Vulkan-ভিত্তিক local AI
+            এবং LLM inference-ও পরীক্ষা করা যায়। Stable Diffusion image
+            generation preview পর্যায়ে; Hexagon HTP ও QNN পরীক্ষামূলক।
+            ফলাফল নির্দিষ্ট যন্ত্রের পরীক্ষার ওপর নির্ভরশীল—সব ফোনে একই
+            কর্মক্ষমতার নিশ্চয়তা নয়।
           </p>
           <div class="hero-actions">
             <a class="button primary" href="#install">
@@ -232,11 +233,20 @@ const installCommand = `pkg update -y && pkg upgrade -y && pkg install -y curl w
             </a>
             <p>
               v2.0.0 GitHub রিলিজ ও স্থিতিশীল APT বিতরণ ২০২৬-১১-১৪ তারিখে
-              প্রত্যাহার করা হয়েছে; উৎস ট্যাগটি প্রমাণ ও ইতিহাসের জন্য রাখা
-              হয়েছে। নিচের উৎস-ইনস্টলার ব্যবহার করুন; <code>/apt-rc</code>
-              কেবল ইচ্ছাকৃত পরীক্ষামূলক সংস্করণ যাচাইয়ের জন্য। Termux:API
-              ব্যবহার করতে Termux-এর ভিতরে একই সংস্করণের
-              <code>termux-api</code> প্যাকেজও লাগবে।
+              প্রত্যাহার করা হয়েছে; ইতিহাস যাচাইয়ের জন্য উৎস ট্যাগটি রাখা
+              হয়েছে। Debian, Ubuntu, Kali Linux ও Alpine—এই চারটি ডেস্কটপ
+              পরিবেশ v2-তে সমর্থিত। আরও ১১টি নামযুক্ত ডিস্ট্রো রেসিপি
+              নথিভুক্ত, তবে যাচাইকৃত নয়; মোট ১৫টি প্রোফাইল। প্রতিটির
+              যাচাইয়ের মাত্রা আলাদা। বর্তমান মূল উৎসে কেবল-পাঠযোগ্য চারটি
+              ব্যবস্থাপক সিএলআই কমান্ড ও সামনে চলা ইউনিক্স সকেট পরিষেবা আছে।
+              নিশ্চিতকরণসহ ডেস্কটপ চালু-বন্ধ করার `tx control` পূর্বরূপও
+              রয়েছে; এর জন্য ঐচ্ছিক পাইথন ৩ লাগে। v2.0.1 যাচাইকৃত ট্যাগ
+              থেকে সোর্স আর্কাইভ হিসেবে প্রকাশিত। নির্দিষ্ট সংস্করণের{" "}
+              <a href="/ternux/bn/docs/release/pages/v2.0.1-INSTALLATION.html">
+                ইনস্টলেশন নির্দেশিকা
+              </a>{" "}
+              দেখুন। পূর্ণ পরিষেবা-তদারকি, ড্যাশবোর্ডের বাকি অংশ এবং নতুন v3
+              কাঠামো ভবিষ্যৎ কাজ; স্থিতিশীল APT এখনো বন্ধ।
             </p>
           </div>
           <div class="command">
@@ -343,12 +353,13 @@ const installCommand = `pkg update -y && pkg upgrade -y && pkg install -y curl w
               টার্নাক্সে লিনাক্স চলে। এডিটি দিয়ে অ্যান্ড্রয়েড অ্যাপ তৈরি হয়।
             </h2>
             <p>
-              Ternux v2-তে Debian, Ubuntu, Kali Linux ও Alpine ডেস্কটপ পরিবেশ
-              সমর্থিত; Debian প্রস্তাবিত ডিফল্ট। আরও ১১টি নামযুক্ত ডিস্ট্রো
-              রেসিপি নথিভুক্ত আছে, তবে সেগুলো যাচাইকৃত নয়। Ubuntu-র জন্য
-              snap-সহনীয় বিন্যাসও আছে। ADT ওই পরিবেশে Android SDK নির্মাণ-সরঞ্জাম, platform-tools,
-              অ্যাপ-স্বাক্ষর, ADB, Flutter/Dart এবং স্থানীয় নির্মাণ-সরঞ্জাম যোগ
-              করে। ADT ব্যবহারের নির্দেশিকা আলাদা পাতায় রয়েছে।
+              Ternux v2-তে Debian, Ubuntu, Kali Linux ও Alpine ডেস্কটপ
+              পরিবেশ সমর্থিত; Debian প্রস্তাবিত ডিফল্ট। আরও ১১টি নামযুক্ত
+              ডিস্ট্রো রেসিপি নথিভুক্ত আছে, তবে সেগুলো যাচাইকৃত নয়।
+              Ubuntu-র জন্য snap-সহনীয় বিন্যাসও আছে। ADT ওই পরিবেশে
+              Android SDK নির্মাণ-সরঞ্জাম, platform-tools, অ্যাপ-স্বাক্ষর,
+              ADB, Flutter/Dart এবং স্থানীয় নির্মাণ-সরঞ্জাম যোগ করে।
+              ADT ব্যবহারের নির্দেশিকা আলাদা পাতায় রয়েছে।
             </p>
             <div class="ecosystem-tags" aria-label="এডিটি নির্মাণ-সরঞ্জাম">
               <span>Android SDK</span>
