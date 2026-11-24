@@ -395,7 +395,7 @@ does not export.
 apt update && apt full-upgrade -y
 
 # Option B: download and run the latest installer with curl/wget fallback:
-pkg update -y && pkg upgrade -y && pkg install -y curl wget && bash -c 's=$(mktemp) && (curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/27d85ada58ee2a1b9efd4bf79c65ac8429e0c1bf/install.sh -o "$s" || wget -qO "$s" https://raw.githubusercontent.com/soobujmiah/ternux/27d85ada58ee2a1b9efd4bf79c65ac8429e0c1bf/install.sh) && bash "$s"; r=$?; rm -f "$s"; exit "$r"'
+pkg update -y && pkg upgrade -y && pkg install -y curl wget && bash -c 's=$(mktemp) && (curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/d2f68fbe9884b85995ace59cc0e2b6f10e4c959f/install.sh -o "$s" || wget -qO "$s" https://raw.githubusercontent.com/soobujmiah/ternux/d2f68fbe9884b85995ace59cc0e2b6f10e4c959f/install.sh) && bash "$s"; r=$?; rm -f "$s"; exit "$r"'
 ```
 
 `pkg update` refreshes package indexes; it does not finish an interrupted
