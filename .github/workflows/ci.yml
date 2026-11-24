@@ -80,6 +80,7 @@ jobs:
         run: |
           bash tests/remote_install_bootstrap.sh
           bash tests/bootstrap_source_sync.sh
+          bash tests/documented_install_pin.sh
 
       - name: Run focused regressions
         run: bash tests/focused.sh

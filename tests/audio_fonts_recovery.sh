@@ -43,6 +43,18 @@ cat > "$TMP/bin/apt-get" <<'MOCK'
 set -e
 if [[ "${1:-}" == update ]]; then exit 0; fi
 if [[ "${1:-}" == install ]]; then
+  if [[ "${FIXTURE_RETRY_MISSING:-0}" == 1 ]]; then
+    if [[ -e "$FIXTURE_FIRST_INSTALL" ]]; then
+      [[ ! -e "$FIXTURE_DPKG_PENDING" && -e "$FIXTURE_APT_REPAIR" ]] || exit 1
+      : > "$FIXTURE_RETRY_DONE"
+      exit 0
+    fi
+    : > "$FIXTURE_FIRST_INSTALL"
+  fi
+  if [[ "${FIXTURE_APT_INSTALL_RC:-124}" == 0 ]]; then
+    [[ ! -e "$FIXTURE_DPKG_PENDING" ]] || { echo "APT ran before dpkg repair" >&2; exit 1; }
+    exit 0
+  fi
   : > "$FIXTURE_DPKG_PENDING"
   exit 124
 fi
@@ -66,6 +78,7 @@ for arg in "$@"; do
 done
 for arg in "$@"; do
   if [[ "$arg" == --configure ]]; then
+    [[ "${FIXTURE_CONFIGURE_FAIL:-0}" != 1 ]] || exit 1
     : > "$FIXTURE_DPKG_CONFIGURED"
     rm -f "$FIXTURE_DPKG_PENDING"
     exit 0
@@ -76,7 +89,11 @@ exit 92
 MOCK
 cat > "$TMP/bin/dpkg-query" <<'MOCK'
 #!/usr/bin/env bash
-printf '%s\n' installed
+if [[ "${FIXTURE_RETRY_MISSING:-0}" == 1 && ! -e "$FIXTURE_RETRY_DONE" ]]; then
+  printf '%s\n' 'not-installed'
+else
+  printf '%s\n' installed
+fi
 MOCK
 cat > "$TMP/bin/locale-gen" <<'MOCK'
 #!/usr/bin/env bash
@@ -104,3 +121,43 @@ grep -Fq 'package configuration was recovered and all locale/font packages are i
   exit 1
 }
 echo 'PASS: interrupted locale/font APT setup repairs dpkg and continues when packages are complete'
+
+# Scenario 2: dpkg was already interrupted before this phase started (left by
+# an earlier phase). The installer must repair it before APT runs, without a
+# manual `dpkg --configure -a` inside the guest.
+rm -f "$FIXTURE_DPKG_PENDING" "$FIXTURE_DPKG_CONFIGURED" "$FIXTURE_APT_REPAIR"
+: > "$FIXTURE_DPKG_PENDING"
+FIXTURE_APT_INSTALL_RC=0 PATH="$TMP/bin:$PATH" bash "$TMP/guest-1.sh" > "$TMP/output-prerepair.log" 2>&1 || {
+  cat "$TMP/output-prerepair.log" >&2
+  echo 'FAIL: pre-existing interrupted dpkg was not repaired before APT install' >&2
+  exit 1
+}
+grep -Fq 'Interrupted dpkg configuration found; automatically completing it before installing locale/font packages' "$TMP/output-prerepair.log"
+[[ -e "$FIXTURE_DPKG_CONFIGURED" && ! -e "$FIXTURE_DPKG_PENDING" ]] || {
+  echo 'FAIL: pre-repair did not run dpkg --configure -a before APT install' >&2
+  exit 1
+}
+echo 'PASS: pre-existing interrupted dpkg is repaired before APT install without a manual guest step'
+
+# Scenario 3: recovery completes, but the first failed transaction never
+# installed all requested packages. Retry installation after dependency repair.
+rm -f "$FIXTURE_DPKG_PENDING" "$FIXTURE_DPKG_CONFIGURED" "$FIXTURE_APT_REPAIR"
+export FIXTURE_FIRST_INSTALL="$TMP/first-install" FIXTURE_RETRY_DONE="$TMP/retry-done"
+FIXTURE_RETRY_MISSING=1 PATH="$TMP/bin:$PATH" bash "$TMP/guest-1.sh" > "$TMP/output-retry.log" 2>&1 || {
+  cat "$TMP/output-retry.log" >&2
+  echo 'FAIL: missing packages were not retried after dpkg recovery' >&2
+  exit 1
+}
+grep -Fq 'Retrying missing locale/font packages after dpkg recovery' "$TMP/output-retry.log"
+[[ -e "$FIXTURE_RETRY_DONE" && ! -e "$FIXTURE_DPKG_PENDING" ]] || exit 1
+echo 'PASS: missing locale/font packages are retried after recovery'
+
+# An actual dpkg configuration failure must stop the phase, not hide errors.
+rm -f "$FIXTURE_DPKG_CONFIGURED" "$FIXTURE_APT_REPAIR"
+: > "$FIXTURE_DPKG_PENDING"
+if FIXTURE_CONFIGURE_FAIL=1 PATH="$TMP/bin:$PATH" bash "$TMP/guest-1.sh" > "$TMP/output-failure.log" 2>&1; then
+  echo 'FAIL: unrecoverable dpkg configuration was ignored' >&2
+  exit 1
+fi
+grep -Fq 'dpkg could not configure the interrupted packages' "$TMP/output-failure.log"
+echo 'PASS: unrecoverable dpkg errors stop the phase'

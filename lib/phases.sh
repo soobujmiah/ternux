@@ -1658,7 +1658,7 @@ tnx_phase_audio_fonts() {
   # password-protected for normal use.
   # libc/locale package configuration can be slow on an ARM64 PRoot guest.
   # Leave enough room for bounded APT work plus automatic dpkg recovery below.
-  if ! tnx_guest_login --_tnx-timeout-seconds 3600 --shared-tmp --user root -- bash -c "
+  if ! tnx_guest_login --_tnx-timeout-seconds 4800 --shared-tmp --user root -- bash -c "
     set -e
     FAMILY='${family}'
     echo \"Installing locale and system fonts...\"
@@ -1671,10 +1671,24 @@ tnx_phase_audio_fonts() {
           echo \"APT index refresh failed or exceeded 5 minutes; rerun install to resume this phase.\" >&2
           exit 1
         }
+        # An earlier phase can leave dpkg interrupted (for example, a timed-out
+        # APT transaction). apt-get then refuses to run until dpkg is
+        # configured, which previously forced a manual dpkg --configure -a
+        # inside the guest. Repair any such state here automatically instead.
+        dpkg_audit=\"\$(dpkg --audit 2>&1 || true)\"
+        if [ -n \"\$dpkg_audit\" ]; then
+          echo \"Interrupted dpkg configuration found; automatically completing it before installing locale/font packages...\" >&2
+          if ! timeout --signal=TERM --kill-after=10 600 env DEBIAN_FRONTEND=noninteractive dpkg --force-confold --force-confdef --configure -a; then
+            echo \"dpkg could not configure the interrupted packages; rerun install to resume after correcting the package error.\" >&2
+            dpkg --audit >&2 || true
+            exit 1
+          fi
+        fi
         echo \"Installing locale and system fonts (15 minute limit)...\"
         APT_RC=0
         timeout --signal=TERM --kill-after=10 900 env DEBIAN_FRONTEND=noninteractive apt-get install -y \$DPKG_FORCE \$APT_NETWORK locales wget fonts-symbola fonts-noto-color-emoji fonts-font-awesome fonts-powerline || APT_RC=\$?
         if [ \"\$APT_RC\" -ne 0 ]; then
+          REPAIRED=0
           dpkg_audit=\"\$(dpkg --audit 2>&1 || true)\"
           if [ -n \"\$dpkg_audit\" ]; then
             echo \"APT left packages unpacked; automatically completing dpkg configuration before checking this phase.\" >&2
@@ -1689,12 +1703,23 @@ tnx_phase_audio_fonts() {
               exit \"\$APT_RC\"
             fi
             dpkg_audit=\"\$(dpkg --audit 2>&1 || true)\"
+            REPAIRED=1
           fi
           PACKAGES_OK=1
           for package in locales wget fonts-symbola fonts-noto-color-emoji fonts-font-awesome fonts-powerline; do
             package_status=\"\$(dpkg-query -W -f='\${db:Status-Status}' \"\$package\" 2>/dev/null || true)\"
             [ \"\$package_status\" = installed ] || PACKAGES_OK=0
           done
+          if [ \"\$REPAIRED\" = 1 ] && [ \"\$PACKAGES_OK\" = 0 ] && [ -z \"\$dpkg_audit\" ]; then
+            echo \"Retrying missing locale/font packages after dpkg recovery (15 minute limit)...\"
+            timeout --signal=TERM --kill-after=10 900 env DEBIAN_FRONTEND=noninteractive apt-get install -y \$DPKG_FORCE \$APT_NETWORK locales wget fonts-symbola fonts-noto-color-emoji fonts-font-awesome fonts-powerline || true
+            dpkg_audit=\"\$(dpkg --audit 2>&1 || true)\"
+            PACKAGES_OK=1
+            for package in locales wget fonts-symbola fonts-noto-color-emoji fonts-font-awesome fonts-powerline; do
+              package_status=\"\$(dpkg-query -W -f='\${db:Status-Status}' \"\$package\" 2>/dev/null || true)\"
+              [ \"\$package_status\" = installed ] || PACKAGES_OK=0
+            done
+          fi
           if [ \"\$PACKAGES_OK\" = 1 ] && [ -z \"\$dpkg_audit\" ]; then
             echo \"APT returned an error or timed out, but package configuration was recovered and all locale/font packages are installed; continuing.\"
           else

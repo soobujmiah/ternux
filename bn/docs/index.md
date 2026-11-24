@@ -61,6 +61,7 @@ shell guest। [ইনস্টল ও guest বাছাই](INSTALLATION.html)
 ## ব্যবস্থা বুঝুন
 
 <div class="doc-grid">
+  <a class="doc-card" href="ORIGIN.html"><span class="doc-card__icon">✦</span><strong>শুরুর গল্প</strong><span>মোবাইলকেন্দ্রিক কাজ থেকে Ternux ও ADT তৈরির যাত্রা জানুন।</span></a>
   <a class="doc-card" href="ARCHITECTURE.html"><span class="doc-card__icon">→</span><strong>ব্যবস্থার নকশা</strong><span>পর্দা, অডিও, ফাইলব্যবস্থা, প্রক্রিয়া, জিঙ্ক/টার্নিপ ও ভিরজিএলের পথ অনুসরণ করুন।</span></a>
   <a class="doc-card" href="next/README.html"><span class="doc-card__icon">→</span><strong>পরবর্তী সংস্করণের পরিকল্পনা</strong><span>ভবিষ্যৎ স্থাপত্য, প্রস্তাব ও প্রমাণের শর্ত পড়ুন; এগুলো প্রকাশিত সুবিধা নয়।</span></a>
   <a class="doc-card" href="project/PROJECT-ROADMAP.html"><span class="doc-card__icon">→</span><strong>প্রকল্পের অবস্থা</strong><span>বর্তমান বাস্তবায়ন, প্রকাশনা, যন্ত্রের প্রমাণ, বকেয়া কাজ, সীমা ও পরবর্তী পদক্ষেপ দেখুন।</span></a>

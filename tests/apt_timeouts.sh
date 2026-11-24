@@ -22,7 +22,7 @@ grep -Fq 'trap cleanup_staged_assets EXIT' "$PHASES"
 
 audio_phase="$(sed -n '/tnx_phase_audio_fonts() {/,/^}/p' "$PHASES")"
 audio_phase_code="$(sed '/^[[:space:]]*#/d' <<<"$audio_phase")"
-grep -Fq 'tnx_guest_login --_tnx-timeout-seconds 3600 --shared-tmp --user root' <<<"$audio_phase"
+grep -Fq 'tnx_guest_login --_tnx-timeout-seconds 4800 --shared-tmp --user root' <<<"$audio_phase"
 grep -Fq 'timeout --signal=TERM --kill-after=10 300 apt-get update' <<<"$audio_phase"
 grep -Fq 'timeout --signal=TERM --kill-after=10 900 env DEBIAN_FRONTEND=noninteractive apt-get install' <<<"$audio_phase"
 grep -Fq 'dpkg-query -W -f='\''\${db:Status-Status}'\''' <<<"$audio_phase"
