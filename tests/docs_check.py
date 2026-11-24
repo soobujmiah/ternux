@@ -241,9 +241,15 @@ if len(nav_sections) == 2:
     en_urls = re.findall(r'\[\s*"[^"]+"\s*,\s*"([^"]+)"\s*,?\s*\]', en_part)
     bn_urls = re.findall(r'\[\s*"[^"]+"\s*,\s*"([^"]+)"\s*,?\s*\]', bn_part)
     check(len(en_groups) == len(bn_groups) == 5, "documentation navigation must have five mirrored groups")
-    check(len(en_urls) == len(bn_urls) == 22, "documentation navigation must have 22 destinations per language")
+    check(len(en_urls) == len(bn_urls) == 23, "documentation navigation must have 23 destinations per language")
     expected_bn = ["/bn" + url for url in en_urls]
     check(expected_bn == bn_urls, "English/Bengali navigation destinations are not structural mirrors")
+    check("/docs/ORIGIN.html" in en_urls, "English origin story must be in site navigation")
+
+for prefix in ("", "bn/"):
+    check((ROOT / f"{prefix}docs/ORIGIN.md").exists(), f"{prefix}docs/ORIGIN.md: origin story is missing")
+    check('href="ORIGIN.html"' in read(ROOT / f"{prefix}docs/index.md"), f"{prefix}docs/index.md: origin story card is missing")
+    check((ROOT / f"dist/{prefix}docs/ORIGIN.html").exists(), f"dist/{prefix}docs/ORIGIN.html: origin story route was not built")
 
 # Nested Next Version/project/release pages are public routes. Validate the source
 # and built route instead of silently publishing files that a flat route could

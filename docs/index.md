@@ -55,6 +55,7 @@ For CPU + Vulkan AI tools, see the optional [Stable Diffusion image-generation g
 ## Understand the system
 
 <div class="doc-grid">
+  <a class="doc-card" href="ORIGIN.html"><span class="doc-card__icon">✦</span><strong>Origin story</strong><span>Discover the mobile-only journey behind Ternux and ADT.</span></a>
   <a class="doc-card" href="ARCHITECTURE.html"><span class="doc-card__icon">→</span><strong>Architecture</strong><span>Follow display, audio, filesystem, process, Zink/Turnip, and VirGL paths.</span></a>
   <a class="doc-card" href="next/README.html"><span class="doc-card__icon">→</span><strong>Plans for the Next Version</strong><span>Explore future architecture, proposals, and evidence requirements without mistaking them for shipped features.</span></a>
   <a class="doc-card" href="project/PROJECT-ROADMAP.html"><span class="doc-card__icon">→</span><strong>Project status</strong><span>See current implementation, release state, device evidence, debt, limits, and next actions.</span></a>

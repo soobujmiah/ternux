@@ -20,7 +20,7 @@
 [![NPU](https://img.shields.io/badge/NPU-shudhu%20experimental-f59e0b?style=flat-square)](../docs/ACCELERATOR-RELEASE-PLAN.md)
 [![লাইসেন্স](https://img.shields.io/badge/license-Apache--2.0-22c55e?style=flat-square)](../LICENSE)
 
-[ওয়েবসাইট](https://soobujmiah.github.io/ternux/) · [উৎপত্তির গল্প](docs/ORIGIN.md) · [দ্রুত শুরু](../docs/QUICK-START.md) · [সব নথি](../docs/README.md) · [কমান্ড-লাইন নির্দেশিকা](../docs/CLI.md) · [পরীক্ষার মাপজোখ](../docs/BENCHMARKS.md) · [ইংরেজি](../README.md) · [উৎস](https://github.com/soobujmiah/ternux)
+[ওয়েবসাইট](https://soobujmiah.github.io/ternux/) · [উৎপত্তির গল্প](docs/ORIGIN.md) · [English Origin Story](../docs/ORIGIN.md) · [দ্রুত শুরু](../docs/QUICK-START.md) · [সব নথি](../docs/README.md) · [কমান্ড-লাইন নির্দেশিকা](../docs/CLI.md) · [পরীক্ষার মাপজোখ](../docs/BENCHMARKS.md) · [ইংরেজি](../README.md) · [উৎস](https://github.com/soobujmiah/ternux)
 
 </div>
 
@@ -93,7 +93,7 @@ graphics, diagnostics ও ঐচ্ছিক workload পরিচালনা �
 পারলে কমান্ডটি `wget` দিয়ে আবার চেষ্টা করে:
 
 ```bash
-pkg update -y && pkg upgrade -y && pkg install -y curl wget && bash -c 's=$(mktemp) && (curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/27d85ada58ee2a1b9efd4bf79c65ac8429e0c1bf/install.sh -o "$s" || wget -qO "$s" https://raw.githubusercontent.com/soobujmiah/ternux/27d85ada58ee2a1b9efd4bf79c65ac8429e0c1bf/install.sh) && bash "$s"; r=$?; rm -f "$s"; exit "$r"'
+pkg update -y && pkg upgrade -y && pkg install -y curl wget && bash -c 's=$(mktemp) && (curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/c2a008cc4e6dc038fdf324f5128e2205e8a1583a/install.sh -o "$s" || wget -qO "$s" https://raw.githubusercontent.com/soobujmiah/ternux/c2a008cc4e6dc038fdf324f5128e2205e8a1583a/install.sh) && bash "$s"; r=$?; rm -f "$s"; exit "$r"'
 ```
 
 কোনো আবশ্যিক ধাপে ইনস্টলেশন থেমে গেলে একই কমান্ড আবার চালান। এতে বর্তমান

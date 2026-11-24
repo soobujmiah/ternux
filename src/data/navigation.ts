@@ -39,6 +39,7 @@ export const nav = {
     {
       label: "PROJECT & REFERENCE",
       items: [
+        ["Origin story", "/docs/ORIGIN.html"],
         ["CLI reference", "/docs/CLI.html"],
         ["Project status", "/docs/project/PROJECT-ROADMAP.html"],
         ["Release status", "/docs/project/RELEASE-STATUS.html"],
@@ -91,6 +92,7 @@ export const nav = {
     {
       label: "প্রকল্প ও রেফারেন্স",
       items: [
+        ["শুরুর গল্প", "/bn/docs/ORIGIN.html"],
         ["সিএলআই রেফারেন্স", "/bn/docs/CLI.html"],
         ["প্রকল্পের অবস্থা", "/bn/docs/project/PROJECT-ROADMAP.html"],
         ["প্রকাশনার অবস্থা", "/bn/docs/project/RELEASE-STATUS.html"],
