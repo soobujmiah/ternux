@@ -9,8 +9,8 @@ const bn = lang === "bn";
   role="img"
   aria-label={
     bn
-      ? "অ্যান্ড্রয়েড, টার্মাক্স, ডেবিয়ান-উবুন্টু-অ্যালপাইন PRoot guest, Xfce ও Termux:X11-সহ টার্নাক্স ওয়ার্কস্টেশনের চিত্র"
-      : "Ternux workstation diagram: Android, Termux, a selectable Debian, Ubuntu or Alpine PRoot guest, Xfce and Termux:X11"
+      ? "অ্যান্ড্রয়েড, Termux, Debian/Ubuntu/Kali Linux/Alpine-এর PRoot অতিথি পরিবেশ, Xfce ও Termux:X11-সহ Ternux ওয়ার্কস্টেশনের চিত্র"
+      : "Ternux workstation diagram: Android, Termux, a selectable Debian, Ubuntu, Kali Linux or Alpine PRoot guest, Xfce and Termux:X11"
   }
 >
   <div class="orbit orbit-one" aria-hidden="true"></div>
@@ -56,24 +56,21 @@ const bn = lang === "bn";
         </div>
         <div class="screen-brand">
           <span>&gt;_</span> {bn ? "টার্নাক্স" : "TERNUX"}{" "}
-          <i>{bn ? "Linux ওয়ার্কস্টেশন" : "LINUX WORKSTATION"}</i>
+          <i>{bn ? "লিনাক্স ওয়ার্কস্টেশন" : "LINUX WORKSTATION"}</i>
         </div>
         <div class="terminal-window">
           <div class="terminal-title">
             <i></i>
             <i></i>
             <i></i>
-            <span>{bn ? "guest — zsh" : "guest — zsh"}</span>
+            <span>{bn ? "অতিথি · zsh" : "GUEST · zsh"}</span>
           </div>
           <code>
-            <span>{bn ? "সবুজ@রেডমি" : "sbj@redmi"}</span>:~${" "}
-            {bn ? "ফাস্টফেচ" : "fastfetch"}
+            <span>{bn ? "সবুজ@রেডমি" : "sbj@redmi"}</span>:~$ fastfetch
           </code>
           <div class="terminal-rule"></div>
           <div class="terminal-info">
-            <b>
-              {bn ? "Debian · Ubuntu · Alpine" : "Debian · Ubuntu · Alpine"}
-            </b>
+            <b>Debian · Ubuntu · Kali Linux · Alpine</b>
             <small>{bn ? "প্রুট · এআরএম৬৪" : "PRoot · aarch64"}</small>
           </div>
           <div class="terminal-info">
@@ -81,10 +78,8 @@ const bn = lang === "bn";
             <small>{bn ? "টার্মাক্স:এক্স১১" : "Termux:X11"}</small>
           </div>
           <div class="terminal-info">
-            <b>{bn ? "Ternux guest" : "Ternux guest"}</b>
-            <small>
-              {bn ? "Debian · Ubuntu · Alpine" : "Debian · Ubuntu · Alpine"}
-            </small>
+            <b>{bn ? "Ternux অতিথি পরিবেশ" : "Ternux guest"}</b>
+            <small>Debian · Ubuntu · Kali Linux · Alpine</small>
           </div>
           <div class="terminal-prompt">
             <span>●</span> {bn ? "ব্যবস্থা প্রস্তুত" : "system ready"}

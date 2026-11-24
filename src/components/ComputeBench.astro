@@ -251,7 +251,7 @@ const bn = lang === "bn";
     <section
       class="matched-bench"
       aria-label={
-        bn ? "ছোট মডেলের matched benchmark" : "Matched small-model benchmark"
+        bn ? "ছোট মডেলের মেলানো বেঞ্চমার্ক" : "Matched small-model benchmark"
       }
     >
       <header>
@@ -263,7 +263,7 @@ const bn = lang === "bn";
           </span>
           <h4>
             {bn
-              ? "তিনবারের তুলনায় median generation"
+              ? "তিনবারের ফলের মধ্যক উৎপাদন"
               : "Median generation · three runs each"}
           </h4>
         </div>
@@ -274,34 +274,34 @@ const bn = lang === "bn";
       </header>
       <div class="matched-bench-values">
         <article class="cpu-row">
-          <small>{bn ? "চার-thread CPU" : "4-thread CPU"}</small>
+          <small>{bn ? "চার-থ্রেড সিপিইউ" : "4-thread CPU"}</small>
           <strong>
-            8.0 <em>tok/s</em>
+            8.0 <em>{bn ? "টোকেন/সে." : "tok/s"}</em>
           </strong>
         </article>
         <article class="gpu-row">
           <small>{bn ? "অ্যাড্রেনো ভলকান" : "Adreno Vulkan"}</small>
           <strong>
-            24.8 <em>tok/s</em>
+            24.8 <em>{bn ? "টোকেন/সে." : "tok/s"}</em>
           </strong>
         </article>
         <article class="htp-row">
           <small>{bn ? "হেক্সাগন HTP" : "Hexagon HTP"}</small>
           <strong>
-            46.2 <em>tok/s</em>
+            46.2 <em>{bn ? "টোকেন/সে." : "tok/s"}</em>
           </strong>
         </article>
       </div>
       <p>
         {bn
-          ? "ফাইলের নামে 0.5B থাকলেও llama.cpp metadata-তে Qwen2 1B ও 630.17M parameter দেখা যায়। একই prompt, settings ও 64-token output রেখে CPU → Vulkan → HTP ক্রমে তিনবার মাপা হয়েছে। এটি এক device-এর স্বল্পমেয়াদি ফল; model quality বা দীর্ঘস্থায়ী performance প্রমাণ করে না।"
+          ? "ফাইলের নামে 0.5B থাকলেও llama.cpp-এর মেটাডেটায় Qwen2 1B ও 630.17M প্যারামিটার দেখা যায়। একই প্রশ্ন, বিন্যাস ও ৬৪ টোকেনের ফল রেখে সিপিইউ → ভলকান → এইচটিপি ক্রমে তিনবার মাপা হয়েছে। এটি একটি যন্ত্রের স্বল্পমেয়াদি ফল; মডেলের গুণমান বা দীর্ঘস্থায়ী গতি প্রমাণ করে না।"
           : "GGUF filename says 0.5B; llama.cpp metadata identifies Qwen2 1B with 630.17M parameters. Same prompt/settings and 64-token output; three interleaved CPU → Vulkan → HTP runs. Short single-device throughput only; quality and sustained speed are unqualified."}
       </p>
     </section>
     <section
       class="matched-bench"
       aria-label={
-        bn ? "১.৫বি মডেলের matched benchmark" : "Matched 1.5B-model benchmark"
+        bn ? "১.৫বি মডেলের মেলানো বেঞ্চমার্ক" : "Matched 1.5B-model benchmark"
       }
     >
       <header>
@@ -311,7 +311,7 @@ const bn = lang === "bn";
           </span>
           <h4>
             {bn
-              ? "তিনবারের তুলনায় median generation"
+              ? "তিনবারের ফলের মধ্যক উৎপাদন"
               : "Median generation · three runs each"}
           </h4>
         </div>
@@ -322,27 +322,27 @@ const bn = lang === "bn";
       </header>
       <div class="matched-bench-values">
         <article class="cpu-row">
-          <small>{bn ? "চার-thread CPU" : "4-thread CPU"}</small>
+          <small>{bn ? "চার-থ্রেড সিপিইউ" : "4-thread CPU"}</small>
           <strong>
-            7.6 <em>tok/s</em>
+            7.6 <em>{bn ? "টোকেন/সে." : "tok/s"}</em>
           </strong>
         </article>
         <article class="gpu-row">
           <small>{bn ? "অ্যাড্রেনো ভলকান" : "Adreno Vulkan"}</small>
           <strong>
-            18.2 <em>tok/s</em>
+            18.2 <em>{bn ? "টোকেন/সে." : "tok/s"}</em>
           </strong>
         </article>
         <article class="htp-row">
           <small>{bn ? "হেক্সাগন HTP" : "Hexagon HTP"}</small>
           <strong>
-            18.9 <em>tok/s</em>
+            18.9 <em>{bn ? "টোকেন/সে." : "tok/s"}</em>
           </strong>
         </article>
       </div>
       <p>
         {bn
-          ? "একই Qwen2.5 1.5B Q4_K_M model, prompt ও settings, চার thread এবং প্রতিবার 64-token output রেখে CPU → Vulkan → HTP ক্রমে তিনটি round চালানো হয়। নয়টি run-এই উত্তর 4 এসেছে। Median generation: CPU 7.6, Vulkan 18.2, HTP 18.9 tok/s। HTP build আলাদা। এক device-এর এই স্বল্পমেয়াদি পরীক্ষায় HTP Vulkan-এর সামান্য এগিয়ে ছিল; এটি sustained speed বা সাধারণ guarantee নয়।"
+          ? "একই Qwen2.5 1.5B Q4_K_M মডেল, প্রশ্ন ও বিন্যাস, চারটি থ্রেড এবং প্রতিবার ৬৪ টোকেনের ফল রেখে সিপিইউ → ভলকান → এইচটিপি ক্রমে তিন দফা পরীক্ষা করা হয়েছে। নয়টি পরীক্ষাতেই উত্তর ৪ এসেছে। মধ্যক উৎপাদনের গতি: সিপিইউ ৭.৬, ভলকান ১৮.২, এইচটিপি ১৮.৯ টোকেন/সেকেন্ড। এইচটিপির নির্মাণ আলাদা। একটি যন্ত্রে করা এই স্বল্পমেয়াদি পরীক্ষায় এইচটিপি, ভলকানের চেয়ে সামান্য এগিয়েছিল; এটি দীর্ঘস্থায়ী গতি বা সাধারণ নিশ্চয়তা নয়।"
           : "Same Qwen2.5 1.5B Q4_K_M model, prompt/settings and four threads; three interleaved runs, with known-answer 4 on each route. HTP was slightly ahead of Vulkan in this short single-device test; no sustained or general performance claim."}
       </p>
     </section>
@@ -356,7 +356,7 @@ const bn = lang === "bn";
         <div>
           <span class="eyebrow">
             {bn
-              ? "QNN · স্টেবল ডিফিউশন ১.৫ · এইচটিপি"
+              ? "কিউএনএন · স্টেবল ডিফিউশন ১.৫ · এইচটিপি"
               : "QNN · STABLE DIFFUSION 1.5 · HTP"}
           </span>
           <h4>
@@ -373,16 +373,16 @@ const bn = lang === "bn";
       <div class="matched-bench-values">
         <article class="qnn-single">
           <small>
-            {bn ? "আলাদা একক রান · ২ ছবি" : "Separate singles · 2 images"}
+            {bn ? "আলাদা পরীক্ষা · ২টি ছবি" : "Separate singles · 2 images"}
           </small>
           <strong>
-            59.20 <em>s</em>
+            59.20 <em>{bn ? "সে." : "s"}</em>
           </strong>
         </article>
         <article class="qnn-batch">
-          <small>{bn ? "এক ব্যাচ · ২ ছবি" : "One batch · 2 images"}</small>
+          <small>{bn ? "এক ব্যাচ · ২টি ছবি" : "One batch · 2 images"}</small>
           <strong>
-            46.90 <em>s</em>
+            46.90 <em>{bn ? "সে." : "s"}</em>
           </strong>
         </article>
         <article class="qnn-per-image">
@@ -390,13 +390,13 @@ const bn = lang === "bn";
             {bn ? "ব্যাচে গড় · প্রতি ছবি" : "Batch average · per image"}
           </small>
           <strong>
-            23.45 <em>s</em>
+            23.45 <em>{bn ? "সে." : "s"}</em>
           </strong>
         </article>
       </div>
       <p>
         {bn
-          ? "SM8735-এ QNN SD1.5, ৫১২×৫১২ রেজোলিউশন ও ২০ ধাপ। তিনটি ছোট তুলনামূলক জোড়ায় ব্যাচে মোট সময় ২০.৮% কম ছিল; নমুনা দৈবচয়িত বা বড় ছিল না। একই seed-এ তৈরি ছবিগুলোর hash মিলে গেছে; তবে CLIP/UNet/VAE পর্যায়ের tensor ফল স্বাধীনভাবে যাচাই হয়নি। ৩–৫ সেকেন্ডের লক্ষ্য পূরণ হয়নি; এই ফল উৎপাদন-ব্যবহারের গতির নিশ্চয়তা নয়."
+          ? "SM8735-এ QNN SD1.5, ৫১২×৫১২ রেজোলিউশন ও ২০ ধাপে পরীক্ষা করা হয়েছে। তিনটি ছোট তুলনামূলক জোড়ায় ব্যাচে মোট সময় ২০.৮% কম ছিল; নমুনা দৈবভাবে নেওয়া বা বড় ছিল না। একই বীজমান দিয়ে তৈরি ছবির হ্যাশ মিলে গেছে; তবে CLIP/UNet/VAE ধাপের টেনসর ফল স্বাধীনভাবে যাচাই হয়নি। ৩–৫ সেকেন্ডের লক্ষ্য পূরণ হয়নি; এই ফল বাস্তব ব্যবহারের গতির নিশ্চয়তা দেয় না।"
           : "QNN SD1.5, 512×512 at 20 steps on SM8735. Across three small paired runs, batching lowered total time by 20.8%; the sample was neither randomized nor large. Same-seed image hashes matched, but independent CLIP/UNet/VAE tensor correctness is unverified. The 3–5 second target remains unmet; this is not a production performance claim."}
       </p>
     </section>

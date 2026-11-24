@@ -52,6 +52,7 @@ const installCommand = `pkg update -y && pkg upgrade -y && pkg install -y curl w
           class="hero-system-route"
           aria-label="Ternux system route: Android, Termux, a PRoot guest, Termux:X11"
         >
+          <span class="route-heading">SYSTEM ROUTE / READY</span>
           <span>
             ANDROID <b>HOST</b>
           </span>
@@ -231,6 +232,7 @@ const installCommand = `pkg update -y && pkg upgrade -y && pkg install -y curl w
             </p>
           </div>
           <div class="command">
+            <span class="command-kicker">TERMUX · ONE-COMMAND INSTALL</span>
             <small>SAFE BOOTSTRAP · CURL WITH WGET FALLBACK</small>
             <button type="button" data-copy data-copy-value={installCommand}>
               COPY
@@ -407,6 +409,67 @@ const installCommand = `pkg update -y && pkg upgrade -y && pkg install -y curl w
         <a class="home-section-link" href="/ternux/docs/BENCHMARKS.html">
           OPEN COMPLETE BENCHMARK LOG →
         </a>
+      </div>
+    </section>
+    <section
+      class="section evidence-section"
+      id="tests-and-evidence"
+      data-reveal
+    >
+      <div class="container">
+        <header class="section-head">
+          <span class="eyebrow">07 / TESTS · REPORTS · CAPABILITY</span>
+          <div>
+            <h2>See what is tested. Read what is measured.</h2>
+            <p>
+              Ternux publishes the boundaries as clearly as the results.
+              Automated repository checks, device measurements and supported
+              guest profiles answer different questions; none should be mistaken
+              for universal device certification.
+            </p>
+          </div>
+        </header>
+        <div class="evidence-grid">
+          <a
+            class="evidence-card"
+            href="https://github.com/soobujmiah/ternux/actions/workflows/ci.yml"
+          >
+            <small>ENGINEERING / AUTOMATED CHECKS</small>
+            <strong>Test suites & CI</strong>
+            <span>
+              Shell and Python behavior, manager contracts, lifecycle checks,
+              documentation links and static website structure are exercised in
+              repository automation. A CI result is not a device-wide promise.
+            </span>
+            <i>VIEW CI WORKFLOW ↗</i>
+          </a>
+          <a class="evidence-card" href="/ternux/docs/BENCHMARKS.html">
+            <small>DEVICE / PRESERVED MEASUREMENTS</small>
+            <strong>Benchmarks & methods</strong>
+            <span>
+              Read the recorded graphics, compute and render results alongside
+              device details, commands, evidence labels and known limits.
+            </span>
+            <i>READ BENCHMARK REPORT ↗</i>
+          </a>
+          <article class="evidence-card">
+            <small>SUPPORT / QUALIFICATION SCOPE</small>
+            <strong>Capabilities & audit</strong>
+            <span>
+              Four v2 desktop profiles are supported; eleven additional named
+              recipes are not in that verified baseline. Review the support
+              boundaries and audit record before choosing a path.
+            </span>
+            <div class="evidence-card-links">
+              <a href="https://github.com/soobujmiah/ternux/blob/main/docs/audit/FEATURE-MATRIX.md">
+                FEATURE MATRIX ↗
+              </a>
+              <a href="https://github.com/soobujmiah/ternux/blob/main/docs/audit/REPOSITORY-FULL-AUDIT-2026-11-20.md">
+                FULL REPOSITORY AUDIT · 20 NOV 2026 ↗
+              </a>
+            </div>
+          </article>
+        </div>
       </div>
     </section>
   </main>

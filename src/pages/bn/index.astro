@@ -8,8 +8,8 @@ const installCommand = `pkg update -y && pkg upgrade -y && pkg install -y curl w
 ---
 
 <SiteLayout
-  title="পকেটেই লিনাক্স ওয়ার্কস্টেশন"
-  description="Ternux হলো root ছাড়া ARM64 Android Linux workstation। Debian, Ubuntu, Kali Linux ও Alpine v2-এর যাচাইকৃত desktop baseline; v2.0.1 source release প্রকাশিত।"
+  title="অ্যান্ড্রয়েডে পকেট-আকারের লিনাক্স ওয়ার্কস্টেশন"
+  description="Ternux হলো রুট ছাড়াই এআরএম৬৪ অ্যান্ড্রয়েডে চালানো লিনাক্স ওয়ার্কস্টেশন। v2-এর যাচাইকৃত ডেস্কটপ পরিবেশ হলো Debian, Ubuntu, Kali Linux ও Alpine; v2.0.1 সোর্স রিলিজ প্রকাশিত।"
   lang="bn"
   canonical="/bn/"
   altUrl="/"
@@ -19,50 +19,52 @@ const installCommand = `pkg update -y && pkg upgrade -y && pkg install -y curl w
       <div class="container hero-grid">
         <div class="hero-copy">
           <span class="eyebrow">অ্যান্ড্রয়েড × লিনাক্স · এআরএম৬৪</span>
-          <h1 aria-label="root ছাড়া Android-এ Linux desktop">
+          <h1 aria-label="রুট ছাড়া অ্যান্ড্রয়েডে লিনাক্স ডেস্কটপ">
             <span class="matrix-title" data-matrix-title aria-hidden="true">
               <span class="matrix-title-text">লিনাক্স</span>
             </span>
             <br />
             <em class="hero-tagline" aria-hidden="true">
-              Android-এ desktop
+              অ্যান্ড্রয়েডেই ডেস্কটপ
             </em>
-            <span class="hero-signature">root ছাড়া · ARM64</span>
+            <span class="hero-signature">রুট ছাড়া · এআরএম৬৪</span>
           </h1>
           <p>
-            Android ফোনে root ছাড়া Linux desktop চালান। v2-তে Debian, Ubuntu,
-            Kali Linux ও Alpine—এই চারটি desktop profile যাচাইকৃত; Debian
-            recommended default। আরও ১১টি named distro recipe আছে, তবে সেগুলো v2
-            verified baseline-এ নেই। Device evidence এক Redmi Turbo 4 Pro থেকে;
-            exact coverage release report-এ আছে।
+            অ্যান্ড্রয়েড ফোনে রুট ছাড়াই লিনাক্স ডেস্কটপ চালান। v2-তে Debian,
+            Ubuntu, Kali Linux ও Alpine—এই চারটি ডেস্কটপ পরিবেশ যাচাইকৃত; Debian
+            প্রস্তাবিত ডিফল্ট। আরও ১১টি নামযুক্ত ডিস্ট্রো রেসিপি আছে, তবে সেগুলো
+            v2-এর যাচাইকৃত পরিধিতে পড়ে না। যন্ত্রের প্রমাণ একটি Redmi Turbo 4
+            Pro থেকে সংগৃহীত; কোন বিষয় কতটা যাচাই হয়েছে, তা প্রকাশিত
+            প্রতিবেদনে দেখা যাবে।
           </p>
           <div class="hero-actions">
             <a class="button primary" href="#install">
-              Ternux install করুন <span>↓</span>
+              Ternux ইনস্টল করুন <span>↓</span>
             </a>
             <a class="button" href="/ternux/bn/docs/ARCHITECTURE.html">
-              কীভাবে কাজ করে <span>→</span>
+              কাজের ধরন জানুন <span>→</span>
             </a>
           </div>
           <div class="hero-label">
-            রুট লাগবে না　/　ওপেন সোর্স　/　প্রমাণভিত্তিক
+            রুটের দরকার নেই　/　উন্মুক্ত উৎস　/　প্রমাণভিত্তিক
           </div>
         </div>
         <div
           class="hero-system-route"
-          aria-label="টার্নাক্সের ব্যবস্থাপথ: অ্যান্ড্রয়েড, টার্মাক্স, PRoot guest, Termux:X11"
+          aria-label="টার্নাক্সের ব্যবস্থাপথ: অ্যান্ড্রয়েড, Termux, PRoot অতিথি পরিবেশ, Termux:X11"
         >
+          <span class="route-heading">ব্যবস্থাপথ / প্রস্তুত</span>
           <span>
             অ্যান্ড্রয়েড <b>মূল যন্ত্র</b>
           </span>
           <span>
-            টার্মাক্স <b>কমান্ড পরিবেশ</b>
+            Termux <b>কমান্ডের পরিবেশ</b>
           </span>
           <span>
-            PRoot guest <b>Debian · Ubuntu · Kali · Alpine</b>
+            PRoot <b>Debian · Ubuntu · Kali · Alpine</b>
           </span>
           <span>
-            Termux:X11 <b>display · audio</b>
+            Termux:X11 <b>পর্দা · অডিও</b>
           </span>
         </div>
       </div>
@@ -71,33 +73,33 @@ const installCommand = `pkg update -y && pkg upgrade -y && pkg install -y curl w
       <div class="container">
         <div class="device-panel profile-panel">
           <div class="device-copy">
-            <span class="eyebrow">০১ / v2-তে সমর্থিত desktop guest</span>
-            <h2>নিজের Linux guest বেছে নিন।</h2>
+            <span class="eyebrow">০১ / v2-তে সমর্থিত ডেস্কটপ পরিবেশ</span>
+            <h2>পছন্দের লিনাক্স পরিবেশ বেছে নিন।</h2>
             <p>
-              এই চারটি profile v2 verified baseline। Debian হলো default; বাকি
-              ১১টি recipe আছে, তবে verified নয়।
+              এই চারটি পরিবেশ v2-তে যাচাইকৃত। Debian প্রস্তাবিত; বাকি ১১টি
+              রেসিপি ব্যবহারযোগ্য হলেও যাচাইকৃত পরিধিতে নেই।
             </p>
           </div>
           <div class="profile-grid">
             <article class="profile-card is-recommended">
-              <small>RECOMMENDED DEFAULT</small>
+              <small>প্রস্তাবিত ডিফল্ট</small>
               <strong>Debian</strong>
-              <span>XFCE · APT · Avro</span>
+              <span>এক্সএফসিই · APT · Avro</span>
             </article>
             <article class="profile-card">
-              <small>SUPPORTED GUEST</small>
+              <small>সমর্থিত পরিবেশ</small>
               <strong>Ubuntu</strong>
-              <span>XFCE · APT · snap-safe</span>
+              <span>এক্সএফসিই · APT · snap-সহনীয়</span>
             </article>
             <article class="profile-card">
-              <small>SUPPORTED GUEST</small>
+              <small>সমর্থিত পরিবেশ</small>
               <strong>Kali Linux</strong>
-              <span>XFCE · APT · security tools</span>
+              <span>এক্সএফসিই · APT · নিরাপত্তা সরঞ্জাম</span>
             </article>
             <article class="profile-card">
-              <small>SUPPORTED GUEST</small>
+              <small>সমর্থিত পরিবেশ</small>
               <strong>Alpine</strong>
-              <span>XFCE · APK · Avro m17n</span>
+              <span>এক্সএফসিই · APK · Avro m17n</span>
             </article>
           </div>
         </div>
@@ -109,14 +111,13 @@ const installCommand = `pkg update -y && pkg upgrade -y && pkg install -y curl w
           <span class="eyebrow">০২ / ব্যবস্থার মানচিত্র</span>
           <div>
             <h2>
-              একটি ডিভাইস।
+              একটি যন্ত্র।
               <br />
               স্তরে সাজানো ওয়ার্কস্টেশন।
             </h2>
             <p>
-              প্রতিটি অংশের কাজ নির্দিষ্ট। টার্নাক্স মূল যন্ত্র, লিনাক্সের
-              পরিবেশ, স্ক্রিন ও গ্রাফিক্সের পথকে একটি যাচাইযোগ্য ব্যবস্থায়
-              সাজায়।
+              প্রতিটি অংশের কাজ নির্দিষ্ট। Ternux মূল যন্ত্র, লিনাক্সের পরিবেশ,
+              পর্দা ও গ্রাফিক্সের পথকে একটি যাচাইযোগ্য ব্যবস্থায় সাজায়।
             </p>
           </div>
         </header>
@@ -136,25 +137,25 @@ const installCommand = `pkg update -y && pkg upgrade -y && pkg install -y curl w
           </article>
           <article class="arch-stage" data-index="০৩ / লিনাক্স">
             <span class="arch-pulse"></span>
-            <h3>প্রুট · ১৫টি named profile</h3>
+            <h3>PRoot · ১৫টি প্রোফাইল</h3>
             <p>আলাদা অতিথি পরিবেশ · এক্সএফসিই</p>
           </article>
-          <article class="arch-stage" data-index="০৪ / স্ক্রিন">
+          <article class="arch-stage" data-index="০৪ / পর্দা">
             <span class="arch-pulse"></span>
-            <h3>টার্মাক্স:এক্স১১</h3>
-            <p>অ্যান্ড্রয়েড X server · আলাদা guest window</p>
+            <h3>Termux:X11</h3>
+            <p>অ্যান্ড্রয়েড এক্স সার্ভার · আলাদা অতিথি-জানালা</p>
           </article>
           <article class="arch-stage" data-index="০৫ / জিপিইউ">
             <span class="arch-pulse"></span>
-            <h3>জিঙ্ক · টার্নিপ</h3>
+            <h3>Zink · Turnip</h3>
             <p>
-              অ্যাড্রেনো ৮২৫-এ চারটি installed profile পরীক্ষা; প্রমাণ
-              device-সীমিত
+              Adreno 825-এ ইনস্টল করা চারটি প্রোফাইল পরীক্ষা; প্রমাণ নির্দিষ্ট
+              যন্ত্রে সীমাবদ্ধ
             </p>
           </article>
           <article class="arch-stage" data-index="০৬ / প্রস্তুত">
             <span class="arch-pulse"></span>
-            <h3>টার্নাক্স</h3>
+            <h3>Ternux</h3>
             <p>এক ফোনেই সম্পূর্ণ ওয়ার্কস্টেশন</p>
           </article>
         </div>
@@ -170,20 +171,20 @@ const installCommand = `pkg update -y && pkg upgrade -y && pkg install -y curl w
             <span class="eyebrow">০৩ / প্রথমবার চালু</span>
             <h2>লিনাক্স ওয়ার্কস্টেশন চালু করুন।</h2>
             <p>
-              একই signing source থেকে Termux ও Termux:X11 install করুন, তারপর
-              নিচের copyable installation path বেছে নিন। প্রয়োজনীয় add-on-এর
-              download link-ও এখানে আছে। X11 desktop সামনে থাকলে Android-এর
-              background throttling কমাতে{" "}
+              Termux ও Termux:X11 একই উৎস থেকে ইনস্টল করুন, যাতে দুই অ্যাপের
+              স্বাক্ষর মেলে। Termux:X11 একবার খুলে নিন। এরপর সহজ পদ্ধতিতে নিচের
+              একটিমাত্র কমান্ড কপি করে Termux-এ চালান। প্রতিটি ধাপ নিজে করতে
+              চাইলে আলাদা ধাপভিত্তিক নির্দেশিকা বেছে নিন। GitHub থেকে নেওয়া
+              Termux-এর ক্ষেত্রে সামনে চালু থাকা X11-এর জন্য{" "}
               <a href="https://github.com/termux/termux-x11/releases/tag/nightly">
-                Termux:X11 shared-UID debug APK
+                Termux:X11 ভাগ-করা UID পরীক্ষামূলক APK
               </a>
-              ব্যবহার করা যায়; এটি GitHub-signed Termux চায়। F-Droid ও Google
-              Play-এর Termux হলে একই release page-এর সাধারণ universal debug APK
-              নিন।
+              নেওয়া যায়; F-Droid বা Google Play-এর Termux হলে একই পাতার সাধারণ
+              সর্বজনীন পরীক্ষামূলক APK ব্যবহার করুন।
             </p>
             <p
               class="install-links"
-              aria-label="Termux ও companion app download"
+              aria-label="Termux ও সহায়ক অ্যাপ নামানোর লিংক"
             >
               <a href="https://f-droid.org/packages/com.termux/">
                 Termux · F-Droid ↗
@@ -210,48 +211,52 @@ const installCommand = `pkg update -y && pkg upgrade -y && pkg install -y curl w
                 Termux:Styling · F-Droid ↗
               </a>
               <a href="https://github.com/termux/termux-x11/releases/tag/nightly">
-                Termux:X11 APKs ↗
+                Termux:X11 · APK ↗
               </a>
             </p>
             <a
               class="home-section-link"
               href="/ternux/bn/docs/INSTALLATION.html"
             >
-              স্থাপনের নির্দেশিকা ↗
+              ইনস্টলেশনের নির্দেশিকা ↗
             </a>
             <a class="home-section-link" href="/ternux/bn/docs/MANUAL.html">
-              হাতে install-এর ধাপ দেখুন ↗
+              হাতে-কলমে ধাপে ধাপে ইনস্টল ↗
             </a>
             <a
               class="home-section-link"
               href="/ternux/bn/docs/QUICK-START.html"
             >
-              দ্রুত শুরু ↗
+              দ্রুত শুরু করুন ↗
             </a>
             <p>
-              Ternux v2.0.0 GitHub release ও stable APT distribution
-              2026-11-14-এ withdrawn হয়েছে; provenance-এর জন্য source tag রাখা
-              হয়েছে। নিচের source installer ব্যবহার করুন; <code>/apt-rc</code>
-              শুধু opt-in candidate test-এর জন্য। Termux:API-এর জন্য Termux-এর
-              ভিতরে matching <code>termux-api</code> package-ও লাগবে।
+              v2.0.0 GitHub রিলিজ ও স্থিতিশীল APT বিতরণ ২০২৬-১১-১৪ তারিখে
+              প্রত্যাহার করা হয়েছে; উৎস ট্যাগটি প্রমাণ ও ইতিহাসের জন্য রাখা
+              হয়েছে। নিচের উৎস-ইনস্টলার ব্যবহার করুন; <code>/apt-rc</code>
+              কেবল ইচ্ছাকৃত পরীক্ষামূলক সংস্করণ যাচাইয়ের জন্য। Termux:API
+              ব্যবহার করতে Termux-এর ভিতরে একই সংস্করণের
+              <code>termux-api</code> প্যাকেজও লাগবে।
             </p>
           </div>
           <div class="command">
-            <small>নিরাপদ bootstrap · curl ব্যর্থ হলে wget</small>
+            <span class="command-kicker">TERMUX · এক কমান্ডে ইনস্টল</span>
+            <small>নিরাপদ প্রাথমিক স্থাপন · curl না চললে wget</small>
             <button type="button" data-copy data-copy-value={installCommand}>
               কপি
             </button>
             <code>{installCommand}</code>
           </div>
           <p class="install-note">
-            এই command Termux package upgrade শেষ করে দুইটি downloader install
-            করে। curl ব্যর্থ হলে wget দিয়ে installer আবার নামায়, আর download
-            সফল হলেই ফাইলটি চালায়। Partial upgrade-এ <code>pkg</code> বা curl
-            চালু না হলে উপরের apt-first command দিয়ে repair করুন। Stable APT
-            channel বন্ধ, তাই <code>pkg install ternux</code> এখন পাওয়া যাচ্ছে
-            না;{" "}
+            কমান্ডটি Termux-এর প্যাকেজ তালিকা হালনাগাদ করে, প্যাকেজ উন্নীত করে,
+            এরপর <code>curl</code> ও <code>wget</code> বসায়। প্রথম ডাউনলোডার
+            ব্যর্থ হলে দ্বিতীয়টি দিয়ে ইনস্টলার নামায়; সফলভাবে নামার পরেই
+            চালায়। স্থাপন মাঝপথে থামলে কমান্ডটি আবার চালালে ইনস্টলেশন অসম্পূর্ণ
+            ধাপ থেকে চলতে পারে। <code>pkg</code> বা <code>curl</code>
+            চালুই না হলে আগে সমস্যার সমাধানের নির্দেশিকা পড়ুন। স্থিতিশীল APT
+            চ্যানেল বন্ধ, তাই <code>pkg install ternux</code> এখন পাওয়া যায়
+            না;
             <a href="/ternux/bn/docs/TERMUX-APT.html">
-              বর্তমান channel status দেখুন ↗
+              বর্তমান চ্যানেলের অবস্থা দেখুন ↗
             </a>
             ।
           </p>
@@ -263,21 +268,22 @@ const installCommand = `pkg update -y && pkg upgrade -y && pkg install -y curl w
         <div class="device-panel profile-panel status-panel">
           <div class="device-copy">
             <span class="eyebrow">প্রকল্পের অবস্থা · ২০ নভেম্বর ২০২৬</span>
-            <h2>v2.0.0 withdrawn। v2.0.1 source release প্রকাশিত।</h2>
+            <h2>v2.0.0 প্রত্যাহৃত। v2.0.1-এর সোর্স রিলিজ প্রকাশিত।</h2>
             <p>
-              v2.0.0 GitHub release ও stable APT distribution 2026-11-14-এ
-              withdrawn হয়েছে; provenance-এর জন্য source tag রাখা হয়েছে।
-              Debian, Ubuntu, Kali Linux ও Alpine—চারটি v2 verified desktop
-              profile; প্রতিটির evidence depth এক নয়। Current main source-এ
-              চারটি read-only manager CLI command, foreground Unix-socket
-              service এবং confirmation-সহ desktop start/stop ও local job
-              record-সহ `tx control` preview আছে (ঐচ্ছিক Python 3 লাগে)। v2.0.1
-              source archive verified tag থেকে প্রকাশিত; নির্দিষ্ট সংস্করণের
+              v2.0.0 GitHub রিলিজ ও স্থিতিশীল APT বিতরণ ২০২৬-১১-১৪ তারিখে
+              প্রত্যাহার করা হয়েছে; ইতিহাস যাচাইয়ের জন্য উৎস ট্যাগটি রাখা
+              হয়েছে। Debian, Ubuntu, Kali Linux ও Alpine—এই চারটি ডেস্কটপ
+              পরিবেশ v2-তে সমর্থিত; প্রতিটির যাচাইয়ের মাত্রা আলাদা। বর্তমান মূল
+              উৎসে কেবল-পাঠযোগ্য চারটি ব্যবস্থাপক সিএলআই কমান্ড, সামনে চলা
+              ইউনিক্স সকেট পরিষেবা এবং নিশ্চিতকরণসহ ডেস্কটপ চালু-বন্ধ করার `tx
+              control` পূর্বরূপ আছে; এর জন্য ঐচ্ছিক পাইথন ৩ লাগে। v2.0.1
+              যাচাইকৃত ট্যাগ থেকে সোর্স আর্কাইভ হিসেবে প্রকাশিত। নির্দিষ্ট
+              সংস্করণের{" "}
               <a href="/ternux/bn/docs/release/pages/v2.0.1-INSTALLATION.html">
-                installation guide
+                ইনস্টলেশন নির্দেশিকা
               </a>{" "}
-              দেখুন। পূর্ণ service supervision, dashboard-এর বাকি অংশ ও নতুন v3
-              architecture ভবিষ্যৎ কাজ। Stable APT withdrawn-ই আছে.
+              দেখুন। পূর্ণ পরিষেবা-তদারকি, ড্যাশবোর্ডের বাকি অংশ এবং নতুন v3
+              কাঠামো ভবিষ্যৎ কাজ; স্থিতিশীল APT এখনো বন্ধ।
             </p>
           </div>
           <div class="profile-grid">
@@ -285,27 +291,27 @@ const installCommand = `pkg update -y && pkg upgrade -y && pkg install -y curl w
               class="profile-card"
               href="/ternux/bn/docs/V2-RELEASE-READINESS.html"
             >
-              <small>V2 DISTRIBUTION STATUS</small>
+              <small>v2 বিতরণের অবস্থা</small>
               <strong>v2.0.1 প্রকাশিত</strong>
-              <span>Release record দেখুন ↗</span>
+              <span>প্রকাশনার নথি দেখুন ↗</span>
             </a>
             <a class="profile-card" href="/ternux/bn/docs/V3-ARCHITECTURE.html">
-              <small>PROJECT ROADMAP</small>
-              <strong>v3 ভবিষ্যৎ পরিধি</strong>
-              <span>বর্তমান অবস্থা ও পরবর্তী কাজ ↗</span>
+              <small>প্রকল্পের কর্মপরিকল্পনা</small>
+              <strong>v3-এর ভবিষ্যৎ কাজ</strong>
+              <span>বর্তমান অবস্থা ও পরবর্তী ধাপ ↗</span>
             </a>
             <a class="profile-card" href="https://github.com/soobujmiah/ternux">
-              <small>REPOSITORY</small>
+              <small>উৎসভান্ডার</small>
               <strong>main</strong>
-              <span>Source, issue ও পরিবর্তন ↗</span>
+              <span>উৎস, সমস্যা ও পরিবর্তন ↗</span>
             </a>
             <a
               class="profile-card"
               href="/ternux/bn/docs/release/V2-RELEASE-REPORT.html"
             >
-              <small>WITHDRAWAL RECORD</small>
-              <strong>১৪ Nov</strong>
-              <span>Channel status ও historical evidence ↗</span>
+              <small>প্রত্যাহারের নথি</small>
+              <strong>১৪ নভেম্বর</strong>
+              <span>চ্যানেলের অবস্থা ও পুরোনো প্রমাণ ↗</span>
             </a>
           </div>
         </div>
@@ -334,22 +340,22 @@ const installCommand = `pkg update -y && pkg upgrade -y && pkg install -y curl w
               টার্নাক্সে লিনাক্স চলে। এডিটি দিয়ে অ্যান্ড্রয়েড অ্যাপ তৈরি হয়।
             </h2>
             <p>
-              Ternux v2-তে Debian, Ubuntu, Kali Linux ও Alpine desktop guest
-              verified; Debian recommended default। আরও ১১টি named distro recipe
-              আছে, তবে v2-তে qualified নয়। Ubuntu-র snap-safe setup আছে। ADT ওই
-              guest-এ Android SDK build-tools, platform-tools, signing, ADB,
-              Flutter/Dart ও native build tools যোগ করে। ADT workflow-এর
-              বিস্তারিত আলাদা guide-এ আছে.
+              Ternux v2-তে Debian, Ubuntu, Kali Linux ও Alpine ডেস্কটপ পরিবেশ
+              সমর্থিত; Debian প্রস্তাবিত ডিফল্ট। আরও ১১টি ডিস্ট্রো রেসিপি আছে,
+              তবে সেগুলো যাচাইকৃত নয়। Ubuntu-র জন্য snap-সহনীয় বিন্যাসও আছে।
+              ADT ওই পরিবেশে Android SDK নির্মাণ-সরঞ্জাম, platform-tools,
+              অ্যাপ-স্বাক্ষর, ADB, Flutter/Dart এবং স্থানীয় নির্মাণ-সরঞ্জাম যোগ
+              করে। ADT ব্যবহারের নির্দেশিকা আলাদা পাতায় রয়েছে।
             </p>
             <div class="ecosystem-tags" aria-label="এডিটি নির্মাণ-সরঞ্জাম">
-              <span>অ্যান্ড্রয়েড এসডিকে</span>
-              <span>এডিবি</span>
-              <span>এনডিকে</span>
-              <span>ফ্লাটার · ডার্ট</span>
-              <span>সিমেক · নিনজা</span>
+              <span>Android SDK</span>
+              <span>ADB</span>
+              <span>NDK</span>
+              <span>Flutter · Dart</span>
+              <span>CMake · Ninja</span>
             </div>
             <a class="button" href="https://github.com/soobujmiah/adt">
-              এডিটি সরঞ্জাম খুলুন ↗
+              ADT-এর সরঞ্জাম দেখুন ↗
             </a>
           </div>
         </div>
@@ -362,9 +368,9 @@ const installCommand = `pkg update -y && pkg upgrade -y && pkg install -y curl w
           <div>
             <h2>একই মডেল। গণনার তিনটি পথ।</h2>
             <p>
-              একই Android reference device-এ মাপা CPU ও Adreno Vulkan ফল দেখুন;
-              Hexagon HTP আলাদা experimental result। এগুলো অন্য device-এর
-              performance guarantee নয়।
+              একই অ্যান্ড্রয়েড পরীক্ষাযন্ত্রে মাপা সিপিইউ ও Adreno Vulkan-এর ফল
+              দেখুন; Hexagon HTP-এর ফল আলাদা, পরীক্ষামূলক। অন্য যন্ত্রে একই গতি
+              পাওয়ার নিশ্চয়তা এই মাপজোখ দেয় না।
             </p>
           </div>
         </header>
@@ -407,6 +413,67 @@ const installCommand = `pkg update -y && pkg upgrade -y && pkg install -y curl w
         <a class="home-section-link" href="/ternux/bn/docs/BENCHMARKS.html">
           সম্পূর্ণ মাপজোখের নথি →
         </a>
+      </div>
+    </section>
+    <section
+      class="section evidence-section"
+      id="tests-and-evidence"
+      data-reveal
+    >
+      <div class="container">
+        <header class="section-head">
+          <span class="eyebrow">০৭ / পরীক্ষা · প্রতিবেদন · সামর্থ্য</span>
+          <div>
+            <h2>কী পরীক্ষা হয়েছে, কী মাপা হয়েছে—জেনে নিন।</h2>
+            <p>
+              Ternux ফলাফলের পাশাপাশি তার সীমাও স্পষ্ট করে। স্বয়ংক্রিয় প্রকল্প
+              পরীক্ষা, যন্ত্রে মাপা ফল আর সমর্থিত অতিথি পরিবেশ—প্রতিটি আলাদা
+              প্রশ্নের উত্তর দেয়; কোনোটি সব যন্ত্রের সর্বজনীন নিশ্চয়তা নয়।
+            </p>
+          </div>
+        </header>
+        <div class="evidence-grid">
+          <a
+            class="evidence-card"
+            href="https://github.com/soobujmiah/ternux/actions/workflows/ci.yml"
+          >
+            <small>প্রকৌশল / স্বয়ংক্রিয় পরীক্ষা</small>
+            <strong>স্বয়ংক্রিয় পরীক্ষা</strong>
+            <span>
+              শেল ও Python-এর আচরণ, ব্যবস্থাপক-সংক্রান্ত চুক্তি, অতিথি পরিবেশের
+              জীবনচক্র, নথির সংযোগ এবং স্থির ওয়েবসাইটের গঠন—প্রকল্পের
+              স্বয়ংক্রিয় পরীক্ষায় যাচাই করা হয়। সব পরীক্ষা সফল হলেও সব
+              যন্ত্রে কাজের নিশ্চয়তা মেলে না।
+            </span>
+            <i>পরীক্ষার কাজের ধাপ দেখুন ↗</i>
+          </a>
+          <a class="evidence-card" href="/ternux/bn/docs/BENCHMARKS.html">
+            <small>যন্ত্র / সংরক্ষিত মাপজোখ</small>
+            <strong>বেঞ্চমার্ক ও পদ্ধতি</strong>
+            <span>
+              গ্রাফিক্স, গণনা ও রেন্ডারের নথিভুক্ত ফলের সঙ্গে যন্ত্রের বিবরণ,
+              ব্যবহৃত কমান্ড, প্রমাণের ধরন এবং পরিচিত সীমা পড়ুন।
+            </span>
+            <i>বেঞ্চমার্ক প্রতিবেদন পড়ুন ↗</i>
+          </a>
+          <article class="evidence-card">
+            <small>সমর্থন / যাচাইয়ের পরিধি</small>
+            <strong>সামর্থ্য ও নিরীক্ষা</strong>
+            <span>
+              v2-তে চারটি ডেস্কটপ পরিবেশ সমর্থিত; আরও এগারোটি নামযুক্ত ডিস্ট্রো
+              রেসিপি যাচাইকৃত পরিধিতে নেই। কাজ বেছে নেওয়ার আগে সমর্থনের সীমা ও
+              নিরীক্ষার নথি পড়ুন।
+            </span>
+            <div class="evidence-card-links">
+              <a href="https://github.com/soobujmiah/ternux/blob/main/docs/audit/FEATURE-MATRIX.md">
+                সামর্থ্যের তালিকা ↗
+              </a>
+              <a href="https://github.com/soobujmiah/ternux/blob/main/docs/audit/REPOSITORY-FULL-AUDIT-2026-11-20.md">
+                সম্পূর্ণ প্রকল্প নিরীক্ষা · ২০ নভেম্বর ২০২৬ ↗
+              </a>
+            </div>
+          </article>
+        </div>
       </div>
     </section>
   </main>

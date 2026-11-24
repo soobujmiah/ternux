@@ -1,6 +1,7 @@
 ---
 import "../styles/site.css";
 import "../styles/site-refresh.css";
+import "../styles/site-redesign.css";
 import { baseUrl } from "../lib/content";
 const {
   title,
@@ -294,22 +295,23 @@ const matrixFallback = (lang === "bn" ? "টার্নাক্স" : "TERNUX"
         if (!copied) throw new Error("Clipboard copy unavailable");
       };
       const isBangla = document.documentElement.lang === "bn";
-      const wireCopy = (button, code, label) => {
+      const wireCopy = (button, code, label, subject = "code") => {
         if (!code) return;
+        const subjectBn = subject === "command" ? "কমান্ড" : "কোড";
         button.addEventListener("click", async () => {
           try {
             await copyText(button.dataset.copyValue || code.textContent || "");
             button.textContent = isBangla ? "কপি হয়েছে" : "COPIED";
             button.setAttribute(
               "aria-label",
-              isBangla ? "কমান্ড কপি হয়েছে" : "Copied to clipboard",
+              isBangla ? `${subjectBn} কপি হয়েছে` : "Copied to clipboard",
             );
           } catch {
             button.textContent = isBangla ? "কপি হয়নি" : "COPY FAILED";
             button.setAttribute(
               "aria-label",
               isBangla
-                ? "কপি হয়নি; নির্দেশনা নির্বাচন করে কপি করুন"
+                ? `${subjectBn} কপি হয়নি; নির্দেশনা নির্বাচন করে কপি করুন`
                 : "Copy failed; select the code manually",
             );
           }
@@ -317,7 +319,7 @@ const matrixFallback = (lang === "bn" ? "টার্নাক্স" : "TERNUX"
             button.textContent = label;
             button.setAttribute(
               "aria-label",
-              isBangla ? "কমান্ড কপি করুন" : "Copy code to clipboard",
+              isBangla ? `${subjectBn} কপি করুন` : "Copy code to clipboard",
             );
           }, 1800);
         });
@@ -328,7 +330,8 @@ const matrixFallback = (lang === "bn" ? "টার্নাক্স" : "TERNUX"
           wireCopy(
             button,
             button.closest(".command")?.querySelector("code"),
-            button.textContent?.trim() || "COPY",
+            button.textContent?.trim() || (isBangla ? "কপি" : "COPY"),
+            "command",
           ),
         );
       document.querySelectorAll(".article pre").forEach((pre) => {
@@ -337,10 +340,14 @@ const matrixFallback = (lang === "bn" ? "টার্নাক্স" : "TERNUX"
         const button = document.createElement("button");
         button.className = "copy-code";
         button.type = "button";
-        button.textContent = "COPY";
-        button.setAttribute("aria-label", "Copy code to clipboard");
+        const label = isBangla ? "কপি" : "COPY";
+        button.textContent = label;
+        button.setAttribute(
+          "aria-label",
+          isBangla ? "কোড কপি করুন" : "Copy code to clipboard",
+        );
         pre.append(button);
-        wireCopy(button, code, "COPY");
+        wireCopy(button, code, label);
       });
 
       document.querySelectorAll("[data-compute-panel]").forEach((group) => {
