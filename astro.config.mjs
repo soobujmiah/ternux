@@ -6,4 +6,5 @@ export default defineConfig({
   output: "static",
   build: { format: "file" },
   trailingSlash: "always",
+  server: { allowedHosts: [".e2b.app"] },
 });

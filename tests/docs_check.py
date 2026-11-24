@@ -324,6 +324,7 @@ for path in site_pages:
 LANDING_SECTIONS = [
     "supported-guests", "system-map", "install", "project-status", "android-development",
     "local-inference", "engine-cpu", "engine-gpu", "engine-htp", "benchmarks",
+    "tests-and-evidence",
 ]
 for rel in ("dist/index.html", "dist/bn/index.html"):
     text = read(ROOT / rel)
@@ -354,7 +355,7 @@ for source, required in (
     ("docs/index.md", ("Debian, Ubuntu, Kali Linux, Alpine", "11 additional profiles", "`pkg install ternux` is")),
     ("bn/docs/index.md", ("ডেবিয়ান, উবুন্টু, কালি লিনাক্স, আল্পাইন", "আরও ১১টি", "`pkg install ternux`")),
     ("src/pages/index.astro", ("Eleven more named distro recipes", "15 named profiles", "pkg install ternux")),
-    ("src/pages/bn/index.astro", ("আরও ১১টি named distro recipe", "১৫টি named profile", "pkg install ternux")),
+    ("src/pages/bn/index.astro", ("আরও ১১টি নামযুক্ত ডিস্ট্রো রেসিপি", "১৫টি প্রোফাইল", "pkg install ternux")),
 ):
     page = read(ROOT / source)
     for phrase in required:
@@ -362,6 +363,13 @@ for source, required in (
 check(re.search(r"@media\s*\(prefers-reduced-motion:\s*reduce\)", read(ROOT / "src/styles/site-refresh.css")) is not None,
       "site-refresh.css: reduced-motion support missing")
 check("data-copy" in read(ROOT / "src/layouts/SiteLayout.astro"), "site shell: command copy control missing")
+for source, required in (
+    ("src/pages/index.astro", ("SYSTEM ROUTE / READY", "ONE-COMMAND INSTALL", "FULL REPOSITORY AUDIT")),
+    ("src/pages/bn/index.astro", ("ব্যবস্থাপথ / প্রস্তুত", "এক কমান্ডে ইনস্টল", "সম্পূর্ণ প্রকল্প নিরীক্ষা")),
+):
+    page = read(ROOT / source)
+    for phrase in required:
+        check(phrase in page, f"{source}: missing localized landing content {phrase}")
 readme_install_lines = [
     line.strip()
     for line in read(ROOT / "README.md").splitlines()
@@ -410,7 +418,7 @@ for source in ("src/pages/index.astro", "src/pages/bn/index.astro"):
               f"{source}: missing direct installation resource {expected}")
 check("four read-only manager CLI commands" in re.sub(r"\s+", " ", read(ROOT / "src/pages/index.astro")),
       "English homepage status must distinguish current source from released package")
-check("read-only manager CLI command" in re.sub(r"\s+", " ", read(ROOT / "src/pages/bn/index.astro")),
+check("কেবল-পাঠযোগ্য চারটি ব্যবস্থাপক সিএলআই কমান্ড" in re.sub(r"\s+", " ", read(ROOT / "src/pages/bn/index.astro")),
       "Bengali homepage status must distinguish current source from released package")
 for page in ("docs/QUICK-START.md", "bn/docs/QUICK-START.md"):
     text = read(ROOT / page)
