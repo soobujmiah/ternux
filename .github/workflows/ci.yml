@@ -125,6 +125,11 @@ jobs:
           node --check scripts/finalize-site.mjs
           node --check lib/control-center/app.js
 
+      - name: Temporary Prettier diagnostic
+        run: |
+          npx prettier --plugin prettier-plugin-astro --write src/pages/index.astro src/pages/bn/index.astro
+          git diff -- src/pages/index.astro src/pages/bn/index.astro
+
       - name: Check website source formatting
         run: npm run format:check
 
