@@ -1059,7 +1059,7 @@ assert 'ternux-camera-permission.XXXXXX' in camera_permission and 'rm -f -- "$pr
 assert '"$camera" -c 0 "$probe"' in camera_permission and 'tnx_confirm' in camera_permission
 audio_phase = (root / "lib/phases.sh").read_text().split("tnx_phase_audio_fonts() {", 1)[1].split("\n# ---------------------------------------------------------------------------\n# Phase 8", 1)[0]
 audio_phase_code = "\n".join(line for line in audio_phase.splitlines() if not line.lstrip().startswith("#"))
-assert 'tnx_guest_login --_tnx-timeout-seconds 3600 --shared-tmp --user root' in audio_phase
+assert 'tnx_guest_login --_tnx-timeout-seconds 4800 --shared-tmp --user root' in audio_phase
 assert "timeout --signal=TERM --kill-after=10 300 apt-get update" in audio_phase
 assert "timeout --signal=TERM --kill-after=10 900 env DEBIAN_FRONTEND=noninteractive apt-get install" in audio_phase
 assert "dpkg-query -W -f='\\${db:Status-Status}'" in audio_phase
