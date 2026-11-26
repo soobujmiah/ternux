@@ -1401,6 +1401,7 @@ if env TERNUX_STATE_DIR="$TMP/state-launcher" HOME="$launcher_home" bash -c '
   ! grep -q "stop_legacy_ternuxx_audio" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
   grep -q "IconThemeName --create -t string -s Ternux" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
   grep -q "/Net/ThemeName --create -t string -s Green" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  grep -q "xfwm4 -p /general/theme --create -t string -s Green" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
   grep -q "defaults_marker=\"\$HOME/.config/ternux/desktop-defaults-v1\"" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
   grep -Fq "monitorbuiltin/workspace0/last-image" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
   grep -Fq "monitorbuiltin-wallpaper-v1" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&

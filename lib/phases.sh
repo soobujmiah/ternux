@@ -2093,7 +2093,7 @@ exec /usr/local/bin/ternux-session-bus bash -c '
   if [ ! -e "$defaults_marker" ]; then
     xfconf-query -c xsettings -p /Net/ThemeName --create -t string -s Green
     xfconf-query -c xsettings -p /Net/IconThemeName --create -t string -s Ternux
-    xfconf-query -c xfwm4 -p /general/theme --create -t string -s Ternux
+    xfconf-query -c xfwm4 -p /general/theme --create -t string -s Green
     xfconf-query -c xsettings -p /Gtk/CursorThemeName --create -t string -s Adwaita
     xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/image-path --create -t string -s /usr/share/backgrounds/ternux/05-quantum-grid.svg
     xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitor0/last-image --create -t string -s /usr/share/backgrounds/ternux/05-quantum-grid.svg
