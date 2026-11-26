@@ -59,7 +59,7 @@ ls -l /dev/kgsl-3d0 2>&1              # ডেবিয়ান ও অ্য�
 ## পদ্ধতি ১ — এক কমান্ড (প্রস্তাবিত)
 
 ```bash
-pkg update -y && pkg upgrade -y && pkg install -y curl wget && bash -c 's=$(mktemp) && (curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/8d840b4944129b7a24f4e3693b52ee3714941b8c/install.sh -o "$s" || wget -qO "$s" https://raw.githubusercontent.com/soobujmiah/ternux/8d840b4944129b7a24f4e3693b52ee3714941b8c/install.sh) && bash "$s"; r=$?; rm -f "$s"; exit "$r"'
+pkg update -y && pkg upgrade -y && pkg install -y curl wget && bash -c 's=$(mktemp) && (curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/fc28dbff0c190e3991565556eb4ee6be09963401/install.sh -o "$s" || wget -qO "$s" https://raw.githubusercontent.com/soobujmiah/ternux/fc28dbff0c190e3991565556eb4ee6be09963401/install.sh) && bash "$s"; r=$?; rm -f "$s"; exit "$r"'
 ```
 
 এই কমান্ড এইচটিটিপিএস দিয়ে ইনস্টলারটি অস্থায়ী ফাইলে নামায়। `curl` চালু না
