@@ -2148,6 +2148,10 @@
       "source": "lib/ternux-window-fit.lua",
       "perm": "644"
     },
+    "lib/ternux/theme.sh": {
+      "source": "lib/theme.sh",
+      "perm": "644"
+    },
     "lib/ternux/ui.sh": {
       "source": "lib/ui.sh",
       "perm": "644"
