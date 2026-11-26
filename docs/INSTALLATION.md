@@ -56,7 +56,7 @@ the finished installation itself is approximately **4–4.6 GB** or **10.5–12.
 ## Method 1 — One command (recommended)
 
 ```bash
-pkg update -y && pkg upgrade -y && pkg install -y curl wget && bash -c 's=$(mktemp) && (curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/8d840b4944129b7a24f4e3693b52ee3714941b8c/install.sh -o "$s" || wget -qO "$s" https://raw.githubusercontent.com/soobujmiah/ternux/8d840b4944129b7a24f4e3693b52ee3714941b8c/install.sh) && bash "$s"; r=$?; rm -f "$s"; exit "$r"'
+pkg update -y && pkg upgrade -y && pkg install -y curl wget && bash -c 's=$(mktemp) && (curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/4b8a5eeb2481c60930e212aef60cfc020d890487/install.sh -o "$s" || wget -qO "$s" https://raw.githubusercontent.com/soobujmiah/ternux/4b8a5eeb2481c60930e212aef60cfc020d890487/install.sh) && bash "$s"; r=$?; rm -f "$s"; exit "$r"'
 ```
 
 The command downloads the installer over HTTPS to a temporary file and runs it.

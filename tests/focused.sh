@@ -513,7 +513,7 @@ if env TERNUX_STATE_DIR="$TMP/state-welcome" HOME="$TMP/home-welcome" \
       grep -q "qt-video-autoresize=0" "$1/lib/phases.sh" &&
       grep -q "qt-system-tray=0" "$1/lib/phases.sh" &&
       grep -q "rm -f /usr/local/bin/ternux-volume-control /usr/local/bin/pavucontrol" "$1/lib/phases.sh" &&
-      grep -q "export GTK_THEME=Ternux" "$1/lib/phases.sh" && ! grep -q "GDK_BACKEND=\\|GTK_MODULES" "$1/lib/phases.sh" &&
+      grep -q "export GTK_THEME=Green" "$1/lib/phases.sh" && ! grep -q "GDK_BACKEND=\\|GTK_MODULES" "$1/lib/phases.sh" &&
       grep -q "/usr/local/bin/ternux-session-bus bash -c" "$1/lib/phases.sh" &&
       grep -q "ternux-ibus-session-init" "$1/lib/phases.sh" &&
       grep -Fq "org.freedesktop.ibus.general.hotkey triggers" "$1/lib/phases.sh" &&
@@ -524,7 +524,7 @@ if env TERNUX_STATE_DIR="$TMP/state-welcome" HOME="$TMP/home-welcome" \
       grep -Fq "/commands/custom/<Primary>space" "$1/lib/phases.sh" &&
       grep -Fq "ternux-ibus-next-engine" "$1/lib/phases.sh" &&
       grep -Fq "x11-xkb-utils" "$1/lib/phases.sh" && grep -Fq "setxkbmap" "$1/lib/phases.sh" && grep -Fq "xorg-setxkbmap" "$1/lib/phases.sh" &&
-      grep -Fq "headerbar button.titlebutton" "$1/lib/ternux-assets/themes/Ternux/gtk-3.0/gtk.css" && grep -Fq "headerbar button.titlebutton" "$1/lib/ternux-assets/themes/Ternux/gtk-4.0/gtk.css" &&
+      grep -Fq "headerbar button.titlebutton" "$1/lib/ternux-assets/themes/Green/gtk-3.0/gtk.css" && grep -Fq "headerbar button.titlebutton" "$1/lib/ternux-assets/themes/Green/gtk-4.0/gtk.css" &&
       grep -q "pm-is-supported" "$1/lib/phases.sh" &&
       grep -q "pavucontrol" "$1/lib/phases.sh" &&
       grep -q "devilspie2" "$1/lib/phases.sh" &&
@@ -870,7 +870,7 @@ import pathlib, sys
 source = pathlib.Path(sys.argv[1]).read_text()
 assert "rm -f /usr/local/bin/ternux-volume-control /usr/local/bin/pavucontrol" in source
 assert "Exec=/usr/local/bin/ternux-volume-control" not in source
-assert "export GTK_THEME=Ternux" in source and "GDK_BACKEND=" not in source
+assert "export GTK_THEME=Green" in source and "GDK_BACKEND=" not in source
 assert "gtk_theme_install_override 3.0" in source and "gtk_theme_install_override 4.0" in source
 assert "TERNUX MANAGED GTK OVERRIDE BEGIN" in source
 assert "gtk-user.css" in source
@@ -891,7 +891,6 @@ required = {
     "lib/ternux/ternux-welcome.sh": "lib/ternux-welcome.sh",
     "lib/ternux/ternux-welcome-gui.py": "lib/ternux-welcome-gui.py",
     "lib/ternux/ternux-window-fit.lua": "lib/ternux-window-fit.lua",
-    "lib/ternux/ternux-wallpaper.svg": "lib/ternux-wallpaper.svg",
     "lib/ternux/ternux-camera.py": "lib/ternux-camera.py",
     "lib/ternux/ternux-recorder.py": "lib/ternux-recorder.py",
     "lib/ternux/ternux-flashlight.py": "lib/ternux-flashlight.py",
@@ -1041,7 +1040,7 @@ for icon_dir in ("apps", "actions", "categories", "places", "devices", "status",
         assert not any(frame in svg for frame in shared_frames), icon_file
         if icon_dir in ("apps", "categories"):
             assert "<ellipse" not in svg, icon_file
-xfwm_config = (root / "lib/ternux-assets/themes/Ternux/xfwm4/themerc").read_text()
+xfwm_config = (root / "lib/ternux-assets/themes/Green/xfwm4/themerc").read_text()
 assert "button_offset=2" in xfwm_config and "button_spacing=1" in xfwm_config
 assert "frame_border_top=4" in xfwm_config
 window_fit = (root / "lib/ternux-assets/bin/ternux-window-fit-x11").read_text()
@@ -1094,24 +1093,24 @@ assert phases.count("taskmanager-performance-v1") == 1
 assert phases.count("/interface/show-all-processes --create -t bool -s false") == 1
 assert phases.count("/interface/process-tree --create -t bool -s false") == 1
 assert phases.count("/interface/refresh-rate --create -t int -s 1000") == 1
-assert (root / "lib/ternux-assets/themes/Ternux/gtk-4.0/gtk.css").is_file()
-gtk4_theme = (root / "lib/ternux-assets/themes/Ternux/gtk-4.0/gtk.css").read_text()
+assert (root / "lib/ternux-assets/themes/Green/gtk-4.0/gtk.css").is_file()
+gtk4_theme = (root / "lib/ternux-assets/themes/Green/gtk-4.0/gtk.css").read_text()
 assert 'resource:///org/gtk/libgtk/theme/Default/gtk-dark.css' in gtk4_theme
 assert 'resource:///org/gtk/libgtk/theme/Adwaita/gtk.css' not in gtk4_theme
 assert (root / "lib/ternux-assets/icons/Ternux/scalable/apps/org.xfce.ristretto.svg").is_file()
-gtk3_theme = (root / "lib/ternux-assets/themes/Ternux/gtk-3.0/gtk.css").read_text()
+gtk3_theme = (root / "lib/ternux-assets/themes/Green/gtk-3.0/gtk.css").read_text()
 assert "button:checked" in gtk3_theme and "button:active" in gtk3_theme
 assert ".rubberband" in gtk3_theme and "rgba(57, 230, 140, 0.24)" in gtk3_theme
 assert "XfdesktopIconView.view.rubberband" in gtk3_theme
-assert "XfdesktopIconView.view.rubberband" in (root / "lib/ternux-assets/themes/Ternux/gtk-3.0/gtk-user.css").read_text()
+assert "XfdesktopIconView.view.rubberband" in (root / "lib/ternux-assets/themes/Green/gtk-3.0/gtk-user.css").read_text()
 for version in ("3.0", "4.0"):
-    user_css = (root / f"lib/ternux-assets/themes/Ternux/gtk-{version}/gtk-user.css").read_text()
+    user_css = (root / f"lib/ternux-assets/themes/Green/gtk-{version}/gtk-user.css").read_text()
     assert ".rubberband" in user_css and "rgba(57, 230, 140, 0.24)" in user_css
 assert "border-radius: 3px" in gtk3_theme and "box-shadow: none" in gtk3_theme
 for icon in ("ternux-recorder", "ternux-avro", "ternux-python", "ternux-keyboard",
              "ternux-launcher", "org.xfce.webbrowser"):
     assert (root / f"lib/ternux-assets/icons/Ternux/scalable/apps/{icon}.svg").is_file()
-xfwm = root / "lib/ternux-assets/themes/Ternux/xfwm4"
+xfwm = root / "lib/ternux-assets/themes/Green/xfwm4"
 assert (xfwm / "themerc").is_file()
 png_assets = list(xfwm.glob("*.png"))
 assert all(not asset.is_symlink() for asset in png_assets)
@@ -1169,7 +1168,7 @@ assert "--no-install-recommends synaptic" in (root / "lib/phases.sh").read_text(
 package_manager = (root / "lib/ternux-assets/bin/ternux-package-manager").read_text()
 assert "exec xfce4-terminal --disable-server --execute /bin/sh -lc" in package_manager
 assert 'command -v synaptic' in package_manager and 'PATH="/usr/local/bin:/usr/local/sbin:/usr/sbin:/usr/bin:/sbin:/bin"' in package_manager
-assert 'GTK_THEME=Ternux "$(command -v synaptic)"' in package_manager
+assert 'GTK_THEME=Green "$(command -v synaptic)"' in package_manager
 for family, command in (("apk", "apk add"), ("pacman", "pacman -S"), ("dnf", "dnf install"), ("zypper", "zypper install"), ("xbps", "xbps-install")):
     assert family in package_manager and command in package_manager
 package_manager_desktop = (root / "lib/ternux-assets/applications/ternux-package-manager.desktop").read_text()
@@ -1401,7 +1400,8 @@ if env TERNUX_STATE_DIR="$TMP/state-launcher" HOME="$launcher_home" bash -c '
   grep -Fq "termux-x11 \"\$TNX_DISPLAY\" -tag \"\$TNX_TAG\" -legacy-drawing -ac" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
   ! grep -q "stop_legacy_ternuxx_audio" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
   grep -q "IconThemeName --create -t string -s Ternux" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
-  grep -q "ThemeName --create -t string -s Ternux" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  grep -q "/Net/ThemeName --create -t string -s Green" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  grep -q "xfwm4 -p /general/theme --create -t string -s Green" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
   grep -q "defaults_marker=\"\$HOME/.config/ternux/desktop-defaults-v1\"" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
   grep -Fq "monitorbuiltin/workspace0/last-image" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
   grep -Fq "monitorbuiltin-wallpaper-v1" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
@@ -2207,7 +2207,7 @@ fi
 
 # Full uninstall removes only recognizable interrupted Ternux asset stages.
 if env HOME="$TMP/home-uninstall-assets" PREFIX="$TMP/prefix-uninstall-assets" TMPDIR="$TMP/tmp-uninstall-assets" bash -c '
-  mkdir -p "$HOME" "$TMPDIR/ternux-assets.fixture/icons/Ternux" "$TMPDIR/ternux-assets.fixture/themes/Ternux" "$TMPDIR/ternux-assets.fixture/wallpapers" "$TMPDIR/ternux-assets-user"
+  mkdir -p "$HOME" "$TMPDIR/ternux-assets.fixture/icons/Ternux" "$TMPDIR/ternux-assets.fixture/themes/Green" "$TMPDIR/ternux-assets.fixture/wallpapers" "$TMPDIR/ternux-assets-user"
   . "$1/lib/uninstall.sh"
   _tnx_uninstall_stale_asset_stages >/dev/null &&
   [ ! -e "$TMPDIR/ternux-assets.fixture" ] && [ -d "$TMPDIR/ternux-assets-user" ]
@@ -3436,7 +3436,7 @@ if [ "$cli_pin_commit" = "$boot_pin_commit" ] &&
    [ -x "$TMP/prefix-cli-fallback/bin/alp" ] &&
    [ -x "$TMP/prefix-cli-fallback/bin/alproot" ] &&
    [ -s "$TMP/prefix-cli-fallback/lib/ternux/licenses/mesa-27.0.0-devel-20261025/SHA256SUMS" ] &&
-   [ -d "$TMP/prefix-cli-fallback/lib/ternux/ternux-assets/themes/Ternux" ]; then
+   [ -d "$TMP/prefix-cli-fallback/lib/ternux/ternux-assets/themes/Green" ]; then
   ok "CLI source fallback verifies one pinned archive and installs its guest resources"
 else
   not_ok "CLI source fallback verifies one pinned archive and installs its guest resources"

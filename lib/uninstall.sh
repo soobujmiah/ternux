@@ -142,7 +142,7 @@ _tnx_uninstall_stale_asset_stages() {
   [ -d "$temp_root" ] && [ ! -L "$temp_root" ] || return 0
   for stage in "$temp_root"/ternux-assets.*; do
     [ -d "$stage" ] && [ ! -L "$stage" ] || continue
-    [ -d "$stage/icons/Ternux" ] && [ -d "$stage/themes/Ternux" ] && [ -d "$stage/wallpapers" ] || continue
+    [ -d "$stage/icons/Ternux" ] && [ -d "$stage/themes/Green" ] && [ -d "$stage/wallpapers" ] || continue
     rm -rf -- "$stage" || return 1
     removed=$((removed + 1))
   done
