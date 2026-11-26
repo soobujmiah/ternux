@@ -469,6 +469,45 @@ _tnx_record_termux_package_ownership() {
   chmod 600 "$tmp" && mv -f -- "$tmp" "$ledger" || { rm -f -- "$tmp"; return 1; }
 }
 
+# ---------------------------------------------------------------------------
+# Progress event bus (data layer only; V3-PLAN.md Group 1)
+#
+# A thin, deliberately boring abstraction between install plumbing (this
+# file's apt wrapper, later lib/phases.sh call sites) and whichever renderer
+# is listening. The only consumer today is the install log — a later
+# workstream (Installer Dashboard) extends this same call surface with a
+# real renderer without changing any caller, exactly as the plan asks: no
+# visible UI change goes with this commit.
+# ---------------------------------------------------------------------------
+tnx_progress_emit() {
+  local event="$1"; shift
+  tnx_log_info "progress $event $*" 2>/dev/null || true
+}
+
+# Overridable in tests to simulate a non-apt host without PATH tricks.
+_tnx_apt_available() { command -v apt-get >/dev/null 2>&1; }
+
+# Reads APT's machine-readable `-o APT::Status-Fd=N` protocol from stdin —
+# lines shaped `pmstatus:<pkg>:<percent>:<message>` or `dlstatus:...`
+# (verified against a real `apt-get install -o APT::Status-Fd=N` run) — and
+# re-emits each as a progress event. Best-effort: a line that doesn't match
+# is skipped rather than failing the install it's reporting on.
+_tnx_progress_consume_apt_status_fd() {
+  local label="$1" line kind rest pkg percent message
+  while IFS= read -r line; do
+    kind="${line%%:*}"
+    case "$kind" in
+      pmstatus|dlstatus) ;;
+      *) continue ;;
+    esac
+    rest="${line#*:}"
+    pkg="${rest%%:*}"; rest="${rest#*:}"
+    percent="${rest%%:*}"; message="${rest#*:}"
+    [[ "$percent" =~ ^[0-9]+(\.[0-9]+)?$ ]] || continue
+    tnx_progress_emit "$kind" "label=$label" "package=$pkg" "percent=${percent%%.*}" "message=$message"
+  done
+}
+
 # Avoid a host toolchain override shadowing Termux libraries in APT.
 _tnx_termux_install_tracked() {
   local manager="$1" arg skip=0 rc
@@ -485,7 +524,16 @@ _tnx_termux_install_tracked() {
   for arg in "${requested[@]}"; do
     [ "$(dpkg-query -W -f='${db:Status-Status}' "$arg" 2>/dev/null || true)" = installed ] || absent+=("$arg")
   done
-  LD_LIBRARY_PATH= "$manager" install "$@"; rc=$?
+  # APT::Status-Fd is an apt/apt-get option; Termux's `pkg` wrapper forwards
+  # unrecognized args straight through to `apt install`, so this applies to
+  # both managers — but only when the host is actually apt-based (the
+  # option would be meaningless, possibly rejected, on a non-apt backend).
+  if _tnx_apt_available; then
+    LD_LIBRARY_PATH= "$manager" install -o APT::Status-Fd=3 "$@" \
+      3> >(_tnx_progress_consume_apt_status_fd "$manager install"); rc=$?
+  else
+    LD_LIBRARY_PATH= "$manager" install "$@"; rc=$?
+  fi
   if [ "${#absent[@]}" -gt 0 ]; then
     _tnx_record_termux_package_ownership "${absent[@]}" || {
       tnx_warn "Could not save Termux package ownership for uninstall tracking."
