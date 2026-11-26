@@ -1,0 +1,275 @@
+{
+  "schema": "ternux.wallpapers/v1",
+  "wallpapers": [
+    {
+      "id": "01-infinite-computing",
+      "concept": "Infinite Computing",
+      "description": "Nested diminishing frames converging toward a vanishing point, evoking recursive, boundless computation.",
+      "resolution": "1920x1080",
+      "colorways": {
+        "green": {
+          "source_path": "lib/ternux-assets/wallpapers-v3/01-infinite-computing/green-source.png",
+          "asset_path": "lib/ternux-assets/wallpapers-v3/01-infinite-computing/green.webp",
+          "preview_path": "lib/ternux-assets/wallpapers-v3/01-infinite-computing/green-preview.webp"
+        },
+        "crimson": {
+          "source_path": "lib/ternux-assets/wallpapers-v3/01-infinite-computing/crimson-source.png",
+          "asset_path": "lib/ternux-assets/wallpapers-v3/01-infinite-computing/crimson.webp",
+          "preview_path": "lib/ternux-assets/wallpapers-v3/01-infinite-computing/crimson-preview.webp"
+        }
+      }
+    },
+    {
+      "id": "02-neural-intelligence",
+      "concept": "Neural Intelligence",
+      "description": "A dense web of nodes and weighted connections, modeling a neural network's distributed thought.",
+      "resolution": "1920x1080",
+      "colorways": {
+        "green": {
+          "source_path": "lib/ternux-assets/wallpapers-v3/02-neural-intelligence/green-source.png",
+          "asset_path": "lib/ternux-assets/wallpapers-v3/02-neural-intelligence/green.webp",
+          "preview_path": "lib/ternux-assets/wallpapers-v3/02-neural-intelligence/green-preview.webp"
+        },
+        "crimson": {
+          "source_path": "lib/ternux-assets/wallpapers-v3/02-neural-intelligence/crimson-source.png",
+          "asset_path": "lib/ternux-assets/wallpapers-v3/02-neural-intelligence/crimson.webp",
+          "preview_path": "lib/ternux-assets/wallpapers-v3/02-neural-intelligence/crimson-preview.webp"
+        }
+      }
+    },
+    {
+      "id": "03-flow-of-information",
+      "concept": "Flow of Information",
+      "description": "Streaming horizontal lines of varying weight and length, representing continuous data in motion.",
+      "resolution": "1920x1080",
+      "colorways": {
+        "green": {
+          "source_path": "lib/ternux-assets/wallpapers-v3/03-flow-of-information/green-source.png",
+          "asset_path": "lib/ternux-assets/wallpapers-v3/03-flow-of-information/green.webp",
+          "preview_path": "lib/ternux-assets/wallpapers-v3/03-flow-of-information/green-preview.webp"
+        },
+        "crimson": {
+          "source_path": "lib/ternux-assets/wallpapers-v3/03-flow-of-information/crimson-source.png",
+          "asset_path": "lib/ternux-assets/wallpapers-v3/03-flow-of-information/crimson.webp",
+          "preview_path": "lib/ternux-assets/wallpapers-v3/03-flow-of-information/crimson-preview.webp"
+        }
+      }
+    },
+    {
+      "id": "04-cosmic-perspective",
+      "concept": "Cosmic Perspective",
+      "description": "A distant glowing body set against a quiet starfield, framed by faint orbital rings.",
+      "resolution": "1920x1080",
+      "colorways": {
+        "green": {
+          "source_path": "lib/ternux-assets/wallpapers-v3/04-cosmic-perspective/green-source.png",
+          "asset_path": "lib/ternux-assets/wallpapers-v3/04-cosmic-perspective/green.webp",
+          "preview_path": "lib/ternux-assets/wallpapers-v3/04-cosmic-perspective/green-preview.webp"
+        },
+        "crimson": {
+          "source_path": "lib/ternux-assets/wallpapers-v3/04-cosmic-perspective/crimson-source.png",
+          "asset_path": "lib/ternux-assets/wallpapers-v3/04-cosmic-perspective/crimson.webp",
+          "preview_path": "lib/ternux-assets/wallpapers-v3/04-cosmic-perspective/crimson-preview.webp"
+        }
+      }
+    },
+    {
+      "id": "05-living-circuits",
+      "concept": "Living Circuits",
+      "description": "Branching circuit traces that grow like roots, blurring the line between organic and engineered.",
+      "resolution": "1920x1080",
+      "colorways": {
+        "green": {
+          "source_path": "lib/ternux-assets/wallpapers-v3/05-living-circuits/green-source.png",
+          "asset_path": "lib/ternux-assets/wallpapers-v3/05-living-circuits/green.webp",
+          "preview_path": "lib/ternux-assets/wallpapers-v3/05-living-circuits/green-preview.webp"
+        },
+        "crimson": {
+          "source_path": "lib/ternux-assets/wallpapers-v3/05-living-circuits/crimson-source.png",
+          "asset_path": "lib/ternux-assets/wallpapers-v3/05-living-circuits/crimson.webp",
+          "preview_path": "lib/ternux-assets/wallpapers-v3/05-living-circuits/crimson-preview.webp"
+        }
+      }
+    },
+    {
+      "id": "06-mathematical-order",
+      "concept": "Mathematical Order",
+      "description": "A disciplined grid of repeating geometric forms, quietly asserting structure and proportion.",
+      "resolution": "1920x1080",
+      "colorways": {
+        "green": {
+          "source_path": "lib/ternux-assets/wallpapers-v3/06-mathematical-order/green-source.png",
+          "asset_path": "lib/ternux-assets/wallpapers-v3/06-mathematical-order/green.webp",
+          "preview_path": "lib/ternux-assets/wallpapers-v3/06-mathematical-order/green-preview.webp"
+        },
+        "crimson": {
+          "source_path": "lib/ternux-assets/wallpapers-v3/06-mathematical-order/crimson-source.png",
+          "asset_path": "lib/ternux-assets/wallpapers-v3/06-mathematical-order/crimson.webp",
+          "preview_path": "lib/ternux-assets/wallpapers-v3/06-mathematical-order/crimson-preview.webp"
+        }
+      }
+    },
+    {
+      "id": "07-architecture-of-thought",
+      "concept": "The Architecture of Thought",
+      "description": "A skyline of abstract structures beneath floating geometric fragments, like ideas taking shape.",
+      "resolution": "1920x1080",
+      "colorways": {
+        "green": {
+          "source_path": "lib/ternux-assets/wallpapers-v3/07-architecture-of-thought/green-source.png",
+          "asset_path": "lib/ternux-assets/wallpapers-v3/07-architecture-of-thought/green.webp",
+          "preview_path": "lib/ternux-assets/wallpapers-v3/07-architecture-of-thought/green-preview.webp"
+        },
+        "crimson": {
+          "source_path": "lib/ternux-assets/wallpapers-v3/07-architecture-of-thought/crimson-source.png",
+          "asset_path": "lib/ternux-assets/wallpapers-v3/07-architecture-of-thought/crimson.webp",
+          "preview_path": "lib/ternux-assets/wallpapers-v3/07-architecture-of-thought/crimson-preview.webp"
+        }
+      }
+    },
+    {
+      "id": "08-digital-nature",
+      "concept": "Digital Nature",
+      "description": "Circuit-like branches growing upward in place of trees, nature rendered in the language of technology.",
+      "resolution": "1920x1080",
+      "colorways": {
+        "green": {
+          "source_path": "lib/ternux-assets/wallpapers-v3/08-digital-nature/green-source.png",
+          "asset_path": "lib/ternux-assets/wallpapers-v3/08-digital-nature/green.webp",
+          "preview_path": "lib/ternux-assets/wallpapers-v3/08-digital-nature/green-preview.webp"
+        },
+        "crimson": {
+          "source_path": "lib/ternux-assets/wallpapers-v3/08-digital-nature/crimson-source.png",
+          "asset_path": "lib/ternux-assets/wallpapers-v3/08-digital-nature/crimson.webp",
+          "preview_path": "lib/ternux-assets/wallpapers-v3/08-digital-nature/crimson-preview.webp"
+        }
+      }
+    },
+    {
+      "id": "09-mapping-the-unknown",
+      "concept": "Mapping the Unknown",
+      "description": "Topographic contour rings and scattered waypoints, charting territory not yet understood.",
+      "resolution": "1920x1080",
+      "colorways": {
+        "green": {
+          "source_path": "lib/ternux-assets/wallpapers-v3/09-mapping-the-unknown/green-source.png",
+          "asset_path": "lib/ternux-assets/wallpapers-v3/09-mapping-the-unknown/green.webp",
+          "preview_path": "lib/ternux-assets/wallpapers-v3/09-mapping-the-unknown/green-preview.webp"
+        },
+        "crimson": {
+          "source_path": "lib/ternux-assets/wallpapers-v3/09-mapping-the-unknown/crimson-source.png",
+          "asset_path": "lib/ternux-assets/wallpapers-v3/09-mapping-the-unknown/crimson.webp",
+          "preview_path": "lib/ternux-assets/wallpapers-v3/09-mapping-the-unknown/crimson-preview.webp"
+        }
+      }
+    },
+    {
+      "id": "10-refraction-of-reality",
+      "concept": "Refraction of Reality",
+      "description": "A prism splitting a single path into divergent colored bands of light.",
+      "resolution": "1920x1080",
+      "colorways": {
+        "green": {
+          "source_path": "lib/ternux-assets/wallpapers-v3/10-refraction-of-reality/green-source.png",
+          "asset_path": "lib/ternux-assets/wallpapers-v3/10-refraction-of-reality/green.webp",
+          "preview_path": "lib/ternux-assets/wallpapers-v3/10-refraction-of-reality/green-preview.webp"
+        },
+        "crimson": {
+          "source_path": "lib/ternux-assets/wallpapers-v3/10-refraction-of-reality/crimson-source.png",
+          "asset_path": "lib/ternux-assets/wallpapers-v3/10-refraction-of-reality/crimson.webp",
+          "preview_path": "lib/ternux-assets/wallpapers-v3/10-refraction-of-reality/crimson-preview.webp"
+        }
+      }
+    },
+    {
+      "id": "11-time-and-computation",
+      "concept": "Time and Computation",
+      "description": "A clock face ringed with binary digits, pairing the measure of time with the language of machines.",
+      "resolution": "1920x1080",
+      "colorways": {
+        "green": {
+          "source_path": "lib/ternux-assets/wallpapers-v3/11-time-and-computation/green-source.png",
+          "asset_path": "lib/ternux-assets/wallpapers-v3/11-time-and-computation/green.webp",
+          "preview_path": "lib/ternux-assets/wallpapers-v3/11-time-and-computation/green-preview.webp"
+        },
+        "crimson": {
+          "source_path": "lib/ternux-assets/wallpapers-v3/11-time-and-computation/crimson-source.png",
+          "asset_path": "lib/ternux-assets/wallpapers-v3/11-time-and-computation/crimson.webp",
+          "preview_path": "lib/ternux-assets/wallpapers-v3/11-time-and-computation/crimson-preview.webp"
+        }
+      }
+    },
+    {
+      "id": "12-connected-world",
+      "concept": "Connected World",
+      "description": "A globe traced with latitude lines and reaching connection arcs, mapping a networked planet.",
+      "resolution": "1920x1080",
+      "colorways": {
+        "green": {
+          "source_path": "lib/ternux-assets/wallpapers-v3/12-connected-world/green-source.png",
+          "asset_path": "lib/ternux-assets/wallpapers-v3/12-connected-world/green.webp",
+          "preview_path": "lib/ternux-assets/wallpapers-v3/12-connected-world/green-preview.webp"
+        },
+        "crimson": {
+          "source_path": "lib/ternux-assets/wallpapers-v3/12-connected-world/crimson-source.png",
+          "asset_path": "lib/ternux-assets/wallpapers-v3/12-connected-world/crimson.webp",
+          "preview_path": "lib/ternux-assets/wallpapers-v3/12-connected-world/crimson-preview.webp"
+        }
+      }
+    },
+    {
+      "id": "13-the-pursuit-of-knowledge",
+      "concept": "The Pursuit of Knowledge",
+      "description": "An open book releasing a rising column of light and particles, knowledge in quiet ascent.",
+      "resolution": "1920x1080",
+      "colorways": {
+        "green": {
+          "source_path": "lib/ternux-assets/wallpapers-v3/13-the-pursuit-of-knowledge/green-source.png",
+          "asset_path": "lib/ternux-assets/wallpapers-v3/13-the-pursuit-of-knowledge/green.webp",
+          "preview_path": "lib/ternux-assets/wallpapers-v3/13-the-pursuit-of-knowledge/green-preview.webp"
+        },
+        "crimson": {
+          "source_path": "lib/ternux-assets/wallpapers-v3/13-the-pursuit-of-knowledge/crimson-source.png",
+          "asset_path": "lib/ternux-assets/wallpapers-v3/13-the-pursuit-of-knowledge/crimson.webp",
+          "preview_path": "lib/ternux-assets/wallpapers-v3/13-the-pursuit-of-knowledge/crimson-preview.webp"
+        }
+      }
+    },
+    {
+      "id": "14-workstation-in-your-pocket",
+      "concept": "Workstation in Your Pocket",
+      "description": "A handheld device rendered as a glowing, structured screen \u2014 the literal tagline, illustrated.",
+      "resolution": "1920x1080",
+      "colorways": {
+        "green": {
+          "source_path": "lib/ternux-assets/wallpapers-v3/14-workstation-in-your-pocket/green-source.png",
+          "asset_path": "lib/ternux-assets/wallpapers-v3/14-workstation-in-your-pocket/green.webp",
+          "preview_path": "lib/ternux-assets/wallpapers-v3/14-workstation-in-your-pocket/green-preview.webp"
+        },
+        "crimson": {
+          "source_path": "lib/ternux-assets/wallpapers-v3/14-workstation-in-your-pocket/crimson-source.png",
+          "asset_path": "lib/ternux-assets/wallpapers-v3/14-workstation-in-your-pocket/crimson.webp",
+          "preview_path": "lib/ternux-assets/wallpapers-v3/14-workstation-in-your-pocket/crimson-preview.webp"
+        }
+      }
+    },
+    {
+      "id": "15-beyond-the-horizon",
+      "concept": "Beyond the Horizon",
+      "description": "A glowing horizon line layered with soft silhouettes, suggesting what lies just past the edge.",
+      "resolution": "1920x1080",
+      "colorways": {
+        "green": {
+          "source_path": "lib/ternux-assets/wallpapers-v3/15-beyond-the-horizon/green-source.png",
+          "asset_path": "lib/ternux-assets/wallpapers-v3/15-beyond-the-horizon/green.webp",
+          "preview_path": "lib/ternux-assets/wallpapers-v3/15-beyond-the-horizon/green-preview.webp"
+        },
+        "crimson": {
+          "source_path": "lib/ternux-assets/wallpapers-v3/15-beyond-the-horizon/crimson-source.png",
+          "asset_path": "lib/ternux-assets/wallpapers-v3/15-beyond-the-horizon/crimson.webp",
+          "preview_path": "lib/ternux-assets/wallpapers-v3/15-beyond-the-horizon/crimson-preview.webp"
+        }
+      }
+    }
+  ]
+}
