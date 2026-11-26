@@ -39,8 +39,8 @@ set -u
 _TNX_SRC="$(cd "$(dirname "$0")" && pwd 2>/dev/null || echo "$PWD")"
 # Pin the exact source snapshot and its hosted codeload bytes. Keep this aligned
 # with lib/core.sh; refresh both after reviewing the archive and verifying its digest.
-_TNX_BOOTSTRAP_COMMIT="056da6d5c1121c1a447e95d023717d7b6588a04c"
-_TNX_BOOTSTRAP_SHA256="ff4f61df9a3d0a05c3b54804baa033ecb8d2ee595d8e7e07615755abe5b9aae6"
+_TNX_BOOTSTRAP_COMMIT="047275df2012fac9b85cb8a084e0e2634fd06c97"
+_TNX_BOOTSTRAP_SHA256="2ac1034adf681fc3b079596b8f22029906cef6b1d5a9dc99e3527e8a3e055d2d"
 
 _tnx_load_local() {
   [ -f "$_TNX_SRC/lib/core.sh" ] && [ -f "$_TNX_SRC/lib/phases.sh" ] && [ -f "$_TNX_SRC/lib/ui.sh" ] || return 1
