@@ -3086,6 +3086,39 @@ tnx_phase_cli() {
     esac
   fi
 
+  # No standalone bootstrap snapshot is available (e.g. this phase is
+  # re-entered via the already-installed host CLI, such as `ternux install
+  # --resume` after an earlier phase in this same run failed). In that case
+  # TERNUX_SOURCE_COMMIT/TERNUX_SOURCE_SHA256 come from whichever core.sh is
+  # currently on disk, and by design each refreshed core.sh pins to the
+  # commit *before* itself for bootstrap purposes. Blindly re-downloading and
+  # overwriting lib/*.sh from that value here would walk the installed CLI
+  # backward through history on every repair, one commit at a time, with no
+  # fixed point and no relationship to the commit the operator actually
+  # installed. If a CLI is already present and version-verified, trust it
+  # and skip the network re-fetch entirely; only fall through to the pinned
+  # download below when there is truly no CLI installed yet. Verify both
+  # `ternux` and `tx` (not just `ternux`) before short-circuiting: an earlier
+  # interrupted attempt can install `ternux` successfully and then fail on
+  # `tx`, a shortcut, or terfetch (see the copy sequence below); checking
+  # `ternux --version` alone would mark this phase complete while leaving
+  # those artifacts missing. This mirrors the same two-command check this
+  # function already performs at the end of a normal install.
+  if [ -z "${_TNX_SRC:-}" ] && [ -x "$bin_dir/ternux" ] && [ -x "$bin_dir/tx" ]; then
+    local existing_version="" existing_tx_version=""
+    if existing_version="$("$bin_dir/ternux" --version 2>&1)" &&
+       existing_tx_version="$("$bin_dir/tx" --version 2>&1)" &&
+       [ "$existing_tx_version" = "$existing_version" ]; then
+      case "$existing_version" in
+        "ternux v${TERNUX_VERSION}"|"ternux v${TERNUX_VERSION}"$'\n'*)
+          tnx_ok "Ternux CLI is already installed and version-verified: ${TERNUX_VERSION}"
+          tnx_state_set "cli_installed" "yes"
+          return 0
+          ;;
+      esac
+    fi
+  fi
+
   if [ -n "${_TNX_SRC:-}" ] && [ -f "$_TNX_SRC/bin/ternux" ]; then
     cli_src="$_TNX_SRC/bin/ternux"
   else
