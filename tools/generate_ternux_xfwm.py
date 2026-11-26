@@ -1,21 +1,71 @@
 #!/usr/bin/env python3
-"""Generate original, touch-friendly Ternux Xfwm frame assets."""
+"""Generate original, touch-friendly Ternux Xfwm frame assets.
+
+Parametrized by theme name + palette so the same generator produces
+every Ternux xfwm4 theme (Green, Crimson, ...) from one source of
+truth instead of hand-editing duplicated per-theme copies. The
+close-button "danger red" stays fixed across themes (standard
+destructive-action convention) rather than following the accent
+color, even when the accent itself is reddish (Crimson).
+"""
+import sys
 from pathlib import Path
 from PIL import Image, ImageDraw
 
-OUT = Path(__file__).resolve().parents[1] / "lib/ternux-assets/themes/Green/xfwm4"
-ACTIVE = (23, 34, 30, 255)
-INACTIVE = (16, 24, 22, 255)
-EDGE = (52, 72, 62, 255)
-GREEN = (57, 230, 140, 255)
-PALE = (228, 243, 235, 255)
-MUTED = (164, 184, 173, 255)
+REPO_ROOT = Path(__file__).resolve().parents[1]
+
+THEMES = {
+    "Green": dict(
+        active=(23, 34, 30, 255),
+        inactive=(16, 24, 22, 255),
+        edge=(52, 72, 62, 255),
+        accent=(57, 230, 140, 255),
+        pale=(228, 243, 235, 255),
+        muted=(164, 184, 173, 255),
+        accent_prelight_fg=(7, 32, 21, 255),
+        accent_prelight_outline=(135, 255, 193, 255),
+        accent_pressed=(8, 120, 76, 255),
+        inactive_fill=(27, 42, 35, 210),
+        active_fill=(35, 60, 47, 250),
+    ),
+    "Crimson": dict(
+        # Decided palette (V3-PLAN.md): accent #e2425c, accent-dim #c23350,
+        # bg #190f12, surface #241419 — same structure as Green, crimson hue.
+        active=(36, 20, 25, 255),      # #241419 surface
+        inactive=(25, 15, 18, 255),    # #190f12 bg
+        edge=(74, 42, 48, 255),
+        accent=(226, 66, 92, 255),      # #e2425c
+        pale=(247, 232, 235, 255),
+        muted=(191, 160, 166, 255),
+        accent_prelight_fg=(40, 10, 16, 255),
+        accent_prelight_outline=(247, 160, 175, 255),
+        accent_pressed=(194, 51, 80, 255),  # #c23350 accent-dim
+        inactive_fill=(42, 24, 28, 210),
+        active_fill=(58, 33, 39, 250),
+    ),
+}
+# Destructive-action red, intentionally fixed across every theme.
+DANGER_IDLE_BG = (101, 38, 42, 255)
+DANGER_IDLE_FG = (255, 226, 226, 255)
+DANGER_IDLE_OUTLINE = (255, 111, 115, 255)
+DANGER_PRELIGHT_BG = (220, 56, 66, 255)
+DANGER_PRELIGHT_FG = (255, 255, 255, 255)
+DANGER_PRELIGHT_OUTLINE = (255, 180, 181, 255)
+DANGER_PRESSED_BG = (150, 35, 43, 255)
+DANGER_PRESSED_OUTLINE = (255, 111, 115, 255)
 
 
-def save(name, size, draw_fn):
+def generate(theme_name):
+    palette = THEMES[theme_name]
+    out = REPO_ROOT / "lib/ternux-assets/themes" / theme_name / "xfwm4"
+    out.mkdir(parents=True, exist_ok=True)
+    _generate_into(out, palette)
+
+
+def save(out, name, size, draw_fn):
     image = Image.new("RGBA", size, (0, 0, 0, 0))
     draw_fn(ImageDraw.Draw(image), size)
-    image.save(OUT / name, optimize=True)
+    image.save(out / name, optimize=True)
 
     # Xfwm's theme engine takes component geometry from the XPM and then
     # composites the same-named PNG over it. Keep a transparent XPM base for
@@ -33,32 +83,33 @@ def save(name, size, draw_fn):
     ]
     lines.extend(f'"{row}"' + ("," if index + 1 < height else "") for index, row in enumerate(rows))
     lines.append("};")
-    (OUT / xpm_name).write_text("\n".join(lines) + "\n", encoding="ascii")
+    (out / xpm_name).write_text("\n".join(lines) + "\n", encoding="ascii")
 
 
-def state_button(kind, state, inactive=False, toggled=False):
-    color = MUTED if inactive else PALE
-    outline = EDGE
-    bg = (27, 42, 35, 210) if inactive else (35, 60, 47, 250)
+def state_button(out, palette, kind, state, inactive=False, toggled=False):
+    edge_c = palette["edge"]
+    color = palette["muted"] if inactive else palette["pale"]
+    outline = edge_c
+    bg = palette["inactive_fill"] if inactive else palette["active_fill"]
     if not inactive and kind == "close":
-        color = (255, 226, 226, 255)
-        bg = (101, 38, 42, 255)
-        outline = (255, 111, 115, 255)
+        color = DANGER_IDLE_FG
+        bg = DANGER_IDLE_BG
+        outline = DANGER_IDLE_OUTLINE
     if state == "prelight":
-        bg = (57, 230, 140, 255)
-        color = (7, 32, 21, 255)
-        outline = (135, 255, 193, 255)
+        bg = palette["accent"]
+        color = palette["accent_prelight_fg"]
+        outline = palette["accent_prelight_outline"]
         if kind == "close":
-            bg = (220, 56, 66, 255)
-            color = (255, 255, 255, 255)
-            outline = (255, 180, 181, 255)
+            bg = DANGER_PRELIGHT_BG
+            color = DANGER_PRELIGHT_FG
+            outline = DANGER_PRELIGHT_OUTLINE
     elif state == "pressed":
-        bg = (8, 120, 76, 255)
-        color = PALE
-        outline = GREEN
+        bg = palette["accent_pressed"]
+        color = palette["pale"]
+        outline = palette["accent"]
         if kind == "close":
-            bg = (150, 35, 43, 255)
-            outline = (255, 111, 115, 255)
+            bg = DANGER_PRESSED_BG
+            outline = DANGER_PRESSED_OUTLINE
 
     def draw(d, size):
         w, h = size
@@ -89,39 +140,48 @@ def state_button(kind, state, inactive=False, toggled=False):
             d.ellipse((cx-6, cy-6, cx+6, cy+6), outline=color, width=stroke)
 
     suffix = "-toggled" if toggled else ""
-    save(f"{kind}{suffix}-{state}.png", (24, 24), draw)
+    save(out, f"{kind}{suffix}-{state}.png", (24, 24), draw)
 
 
-def edge(name, color, vertical=True, corner=False):
+def edge(out, palette, name, color, vertical=True, corner=False):
+    edge_c = palette["edge"]
     if corner:
         def draw(d, size):
             w, h = size
             d.rectangle((0, 0, w-1, h-1), fill=color)
-            d.line((0, h-1, w-1, h-1), fill=EDGE, width=1)
-            d.line((w-1, 0, w-1, h-1), fill=EDGE, width=1)
-        save(name, (4, 4), draw)
+            d.line((0, h-1, w-1, h-1), fill=edge_c, width=1)
+            d.line((w-1, 0, w-1, h-1), fill=edge_c, width=1)
+        save(out, name, (4, 4), draw)
     elif vertical:
-        save(name, (2, 4), lambda d, s: (d.rectangle((0,0,1,3), fill=color), d.line((1,0,1,3), fill=EDGE)))
+        save(out, name, (2, 4), lambda d, s: (d.rectangle((0,0,1,3), fill=color), d.line((1,0,1,3), fill=edge_c)))
     else:
-        save(name, (4, 2), lambda d, s: (d.rectangle((0,0,3,1), fill=color), d.line((0,1,3,1), fill=EDGE)))
+        save(out, name, (4, 2), lambda d, s: (d.rectangle((0,0,3,1), fill=color), d.line((0,1,3,1), fill=edge_c)))
 
-OUT.mkdir(parents=True, exist_ok=True)
-for state, color in (("active", ACTIVE), ("inactive", INACTIVE)):
-    edge(f"top-{state}.png", color, vertical=True)
-    edge(f"bottom-{state}.png", color, vertical=True)
-    edge(f"left-{state}.png", color, vertical=False)
-    edge(f"right-{state}.png", color, vertical=False)
-    for corner_name in ("top-left", "top-right", "bottom-left", "bottom-right"):
-        edge(f"{corner_name}-{state}.png", color, corner=True)
-    for i in range(1, 6):
-        save(f"title-{i}-{state}.png", (2, 24), lambda d, s, c=color: d.rectangle((0,0,1,23), fill=c))
 
-for kind in ("close", "hide", "maximize", "menu", "shade", "stick"):
-    state_button(kind, "active")
-    state_button(kind, "inactive", True)
-    state_button(kind, "prelight")
-    state_button(kind, "pressed")
+def _generate_into(out, palette):
+    for state, color in (("active", palette["active"]), ("inactive", palette["inactive"])):
+        edge(out, palette, f"top-{state}.png", color, vertical=True)
+        edge(out, palette, f"bottom-{state}.png", color, vertical=True)
+        edge(out, palette, f"left-{state}.png", color, vertical=False)
+        edge(out, palette, f"right-{state}.png", color, vertical=False)
+        for corner_name in ("top-left", "top-right", "bottom-left", "bottom-right"):
+            edge(out, palette, f"{corner_name}-{state}.png", color, corner=True)
+        for i in range(1, 6):
+            save(out, f"title-{i}-{state}.png", (2, 24), lambda d, s, c=color: d.rectangle((0,0,1,23), fill=c))
 
-# Give maximized windows an explicit restore affordance and all standard states.
-for state, inactive in (("active", False), ("inactive", True), ("prelight", False), ("pressed", False)):
-    state_button("maximize", state, inactive=inactive, toggled=True)
+    for kind in ("close", "hide", "maximize", "menu", "shade", "stick"):
+        state_button(out, palette, kind, "active")
+        state_button(out, palette, kind, "inactive", True)
+        state_button(out, palette, kind, "prelight")
+        state_button(out, palette, kind, "pressed")
+
+    # Give maximized windows an explicit restore affordance and all standard states.
+    for state, inactive in (("active", False), ("inactive", True), ("prelight", False), ("pressed", False)):
+        state_button(out, palette, "maximize", state, inactive=inactive, toggled=True)
+
+
+if __name__ == "__main__":
+    names = sys.argv[1:] or list(THEMES)
+    for theme_name in names:
+        generate(theme_name)
+        print(f"generated {theme_name}")

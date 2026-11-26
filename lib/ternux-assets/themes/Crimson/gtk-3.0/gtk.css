@@ -1,0 +1,99 @@
+@import url("resource:///org/gtk/libgtk/theme/Adwaita/gtk-contained-dark.css");
+/* Ternux: graphite surfaces, crimson actions, high-contrast text. */
+/* Semantic GTK colors keep dialogs and third-party GTK applications aligned. */
+@define-color theme_bg_color #190f12;
+@define-color theme_fg_color #f7e8eb;
+@define-color theme_base_color #140c0e;
+@define-color theme_text_color #f7e8eb;
+@define-color theme_selected_bg_color #c23350;
+@define-color theme_selected_fg_color #ffffff;
+@define-color borders #4a2a30;
+@define-color wm_title #f7e8eb;
+@define-color wm_unfocused_title #bfa0a6;
+@define-color wm_bg #241419;
+@define-color wm_unfocused_bg #190f12;
+
+@define-color ternux_bg #190f12;
+@define-color ternux_surface #241419;
+@define-color ternux_surface2 #2d1a1f;
+@define-color ternux_fg #f7e8eb;
+@define-color ternux_muted #bfa0a6;
+@define-color ternux_crimson #e2425c;
+@define-color ternux_crimson_dark #c23350;
+@define-color ternux_border #4a2a30;
+* { -gtk-secondary-caret-color: @ternux_crimson; color: @ternux_fg; }
+window, .background, dialog, .view, .sidebar, .sidebar row,
+viewport, scrolledwindow, scrolledwindow viewport, notebook, notebook > stack,
+notebook > stack > box, paned, paned > box, list, list row, row { background-color: @ternux_bg; color: @ternux_fg; }
+notebook > header { background-color: @ternux_surface; color: @ternux_fg; }
+notebook > header > tabs > tab { color: @ternux_muted; }
+notebook > header > tabs > tab:checked { color: @ternux_crimson; border-color: @ternux_crimson; }
+scale trough, progressbar trough, levelbar trough { background-color: @ternux_surface2; }
+scale highlight, progressbar progress, levelbar block.filled { background-color: @ternux_crimson; }
+headerbar, .titlebar, .toolbar, .primary-toolbar { background-image: none; background-color: @ternux_surface; color: @ternux_fg; border-color: @ternux_border; }
+menubar, menu, .context-menu, popover, tooltip, notebook > header,
+notebook > header > tabs, notebook > header > tabs > tab,
+statusbar, statusbar > box { background-image: none; background-color: @ternux_surface; color: @ternux_fg; }
+notebook > header > tabs > tab:hover { background-color: @ternux_surface2; }
+button, button.image-button, button.flat, togglebutton, combobox,
+combobox button, combobox arrow, combobox entry, spinbutton,
+spinbutton button, scale, scale contents, frame > border,
+scrolledwindow > undershoot.top, scrolledwindow > undershoot.bottom {
+  background-image: none;
+  border-color: @ternux_border;
+}
+button, button.image-button, togglebutton, combobox, combobox button,
+combobox entry, spinbutton, spinbutton button { background-color: @ternux_surface2; color: @ternux_fg; }
+button:disabled, togglebutton:disabled { background-color: @ternux_surface; color: @ternux_muted; }
+button.flat { background-color: transparent; }
+button, combobox, entry, spinbutton, scrollbar trough, frame, paned > separator { border-color: @ternux_border; }
+button { background-image: none; background-color: @ternux_surface2; color: @ternux_fg; }
+button:hover, row:hover, treeview.view:hover { background-color: #3a2228; }
+button:checked, button:active, selection, *:selected { background-color: @ternux_crimson_dark; color: #ffffff; }
+/* Keep drag-selection overlays readable while showing the items underneath. */
+.rubberband { background-color: rgba(226, 66, 92, 0.24); border: 1px solid rgba(226, 66, 92, 0.9); }
+XfdesktopIconView.view.rubberband { background-color: rgba(226, 66, 92, 0.24); border: 1px solid rgba(226, 66, 92, 0.9); }
+entry, textview text, view, treeview.view { background-color: #140c0e; color: @ternux_fg; caret-color: @ternux_crimson; }
+*:disabled { color: @ternux_muted; }
+progressbar progress, scale highlight, switch:checked, levelbar block.filled { background-color: @ternux_crimson; }
+check, radio { -gtk-icon-palette: success @ternux_crimson; }
+
+/* Client-side titlebar controls need styling in GTK apps that draw their own
+ * frame, including browsers and apps started outside the XFCE menu. */
+headerbar button.titlebutton,
+.titlebar button.titlebutton {
+  min-width: 24px;
+  min-height: 24px;
+  padding: 4px;
+  color: @ternux_fg;
+  background-image: none;
+  background-color: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  box-shadow: none;
+}
+headerbar button.titlebutton:hover,
+.titlebar button.titlebutton:hover { color: @ternux_crimson; background-color: @ternux_surface2; }
+headerbar button.titlebutton.close:hover,
+.titlebar button.titlebutton.close:hover { color: #ffffff; background-color: #b42336; }
+headerbar button.titlebutton:backdrop,
+.titlebar button.titlebutton:backdrop { color: @ternux_muted; }
+headerbar button.titlebutton.close image,
+.titlebar button.titlebutton.close image {
+  -gtk-icon-source: -gtk-icontheme('window-close-symbolic');
+  min-width: 16px;
+  min-height: 16px;
+  opacity: 1;
+  color: @ternux_fg;
+}
+headerbar button.titlebutton.close image:hover,
+.titlebar button.titlebutton.close image:hover { color: #ffffff; }
+
+/* Xfce panel and window shell */
+#XfcePanelWindow, .xfce4-panel, .xfce4-panel.background { background-image: none; background-color: #190f12; color: #f7e8eb; border-color: #4a2a30; }
+#XfcePanelWindow button, .xfce4-panel button { background-image: none; background-color: transparent; color: #f7e8eb; border-color: transparent; border-radius: 3px; box-shadow: none; }
+#XfcePanelWindow button:hover, .xfce4-panel button:hover { background-image: none; background-color: #2d1a1f; color: #e2425c; border-color: transparent; box-shadow: none; }
+#XfcePanelWindow button:checked, #XfcePanelWindow button:active,
+.xfce4-panel button:checked, .xfce4-panel button:active { background-image: none; background-color: #2d1a1f; color: #e2425c; border-color: transparent; box-shadow: none; }
+#XfcePanelWindow button:backdrop, .xfce4-panel button:backdrop { background-image: none; box-shadow: none; }
+#XfcePanelWindow menu, .xfce4-panel menu { background-color: #241419; color: #f7e8eb; }
