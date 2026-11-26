@@ -109,8 +109,8 @@ def source_path(path: str) -> Path | None:
         return ROOT / "lib/ternux-assets/wallpapers" / p.name
     if path.startswith("/usr/share/icons/Ternux/"):
         return ROOT / "lib/ternux-assets/icons/Ternux" / Path(path.removeprefix("/usr/share/icons/Ternux/"))
-    if path.startswith("/usr/share/themes/Ternux/"):
-        return ROOT / "lib/ternux-assets/themes/Ternux" / Path(path.removeprefix("/usr/share/themes/Ternux/"))
+    if path.startswith("/usr/share/themes/Green/"):
+        return ROOT / "lib/ternux-assets/themes/Green" / Path(path.removeprefix("/usr/share/themes/Green/"))
     if path.startswith("/usr/share/applications/ternux-"):
         return ROOT / "lib/ternux-assets/applications" / p.name
     aliases = {
@@ -139,7 +139,7 @@ for f in /usr/local/bin/ternux* /usr/local/bin/terfetch /usr/local/bin/evolution
  esac
  [ ! -f "$f" ] || sha256sum "$f"
 done
-for d in /usr/share/icons/Ternux /usr/share/themes/Ternux; do
+for d in /usr/share/icons/Ternux /usr/share/themes/Green; do
  [ ! -d "$d" ] || find "$d" -type f ! -name icon-theme.cache ! -name '*.png' -exec sha256sum {} +
 done
 '''

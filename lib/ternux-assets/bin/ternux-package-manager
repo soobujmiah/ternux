@@ -20,7 +20,7 @@ fi
 if [ "${1:-}" != --terminal ]; then
   if [ "$family" = apt ] && command -v synaptic >/dev/null 2>&1; then
     exec xfce4-terminal --disable-server --execute /bin/sh -lc \
-      'if sudo -v; then sudo env PATH="/usr/local/bin:/usr/local/sbin:/usr/sbin:/usr/bin:/sbin:/bin" DISPLAY="${DISPLAY:-:0}" GTK_THEME=Ternux "$(command -v synaptic)"; status=$?; else status=$?; fi
+      'if sudo -v; then sudo env PATH="/usr/local/bin:/usr/local/sbin:/usr/sbin:/usr/bin:/sbin:/bin" DISPLAY="${DISPLAY:-:0}" GTK_THEME=Green "$(command -v synaptic)"; status=$?; else status=$?; fi
        if [ "$status" -ne 0 ]; then printf "Synaptic could not start (exit %s). Check the sudo password and guest desktop logs.\\n" "$status"; read -r -p "Press Enter to close this terminal... " _; fi
        exit "$status"'
   fi

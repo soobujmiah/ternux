@@ -479,7 +479,7 @@ tnx_phase_debian() {
       return 1
     fi
   done
-  if [ ! -d "$resource_dir/ternux-assets/icons/Ternux" ] || [ ! -d "$resource_dir/ternux-assets/wallpapers" ] || [ ! -d "$resource_dir/ternux-assets/themes/Ternux" ] || [ ! -d "$resource_dir/ternux-assets/input-methods" ] || [ ! -x "$resource_dir/ternux-assets/bin/ternux-install-avro-m17n" ] || [ ! -s "$resource_dir/ternux-assets/bin/ternux-proot-faccessat-arm64.so" ] || [ ! -s "$resource_dir/ternux-assets/bin/ternux-proot-faccessat.c" ]; then
+  if [ ! -d "$resource_dir/ternux-assets/icons/Ternux" ] || [ ! -d "$resource_dir/ternux-assets/wallpapers" ] || [ ! -d "$resource_dir/ternux-assets/themes/Green" ] || [ ! -d "$resource_dir/ternux-assets/input-methods" ] || [ ! -x "$resource_dir/ternux-assets/bin/ternux-install-avro-m17n" ] || [ ! -s "$resource_dir/ternux-assets/bin/ternux-proot-faccessat-arm64.so" ] || [ ! -s "$resource_dir/ternux-assets/bin/ternux-proot-faccessat.c" ]; then
     tnx_fail "Required Ternux desktop branding assets are missing under $resource_dir/ternux-assets"
     return 1
   fi
@@ -492,8 +492,8 @@ tnx_phase_debian() {
   panel_shortcuts_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-panel-shortcuts.sh" | tr -d '\n')" || return 1
   ternux_assets_b64="$(set -o pipefail; tar -czf - -C "$resource_dir/ternux-assets" icons wallpapers themes applications bin input-methods | base64 | tr -d '\n')" || return 1
   proot_bwrap_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-assets/bin/ternux-proot-bwrap" | tr -d '\n')" || return 1
-  gtk3_user_css_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-assets/themes/Ternux/gtk-3.0/gtk-user.css" | tr -d '\n')" || return 1
-  gtk4_user_css_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-assets/themes/Ternux/gtk-4.0/gtk-user.css" | tr -d '\n')" || return 1
+  gtk3_user_css_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-assets/themes/Green/gtk-3.0/gtk-user.css" | tr -d '\n')" || return 1
+  gtk4_user_css_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-assets/themes/Green/gtk-4.0/gtk-user.css" | tr -d '\n')" || return 1
   firefox_installer_b64="$(set -o pipefail; base64 < "$resource_dir/ternux-install-firefox-esr.sh" | tr -d '\n')" || return 1
   terfetch_b64="$(set -o pipefail; base64 < "$terfetch_path" | tr -d '\n')" || return 1
 
@@ -631,7 +631,7 @@ tnx_phase_debian() {
     printf '%s' '$ternux_assets_b64' | base64 -d | tar -xz -C "\$asset_stage"
     find "\$asset_stage" -type d -exec chmod 0755 {} +
     find "\$asset_stage" -type f -exec chmod 0644 {} +
-    install -d -m 0755 /usr/share/icons /usr/share/themes/Ternux /usr/share/backgrounds/ternux
+    install -d -m 0755 /usr/share/icons /usr/share/themes/Green /usr/share/backgrounds/ternux
     # Replace the managed theme as one staged tree. Overlay copies leave old
     # icon aliases behind when an asset moves between contexts or is retired.
     icon_stage=\$(mktemp -d /usr/share/icons/.Ternux-stage.XXXXXX)
@@ -655,7 +655,7 @@ tnx_phase_debian() {
       [ ! -e "\$icon_backup" ] || mv -T "\$icon_backup" /usr/share/icons/Ternux
       exit 1
     fi
-    cp -a "\$asset_stage/themes/Ternux/." /usr/share/themes/Ternux/
+    cp -a "\$asset_stage/themes/Green/." /usr/share/themes/Green/
     install -m 0755 "\$asset_stage/bin/ternux-open-url" /usr/local/bin/ternux-open-url
     install -m 0755 "\$asset_stage/bin/ternux-package-manager" /usr/local/bin/ternux-package-manager
     rm -f /usr/local/bin/ternux-app-center
@@ -2015,7 +2015,7 @@ if [ "${GALLIUM_DRIVER:-}" = virpipe ]; then
   unset MESA_LOADER_DRIVER_OVERRIDE VK_DRIVER_FILES VK_ICD_FILENAMES LIBGL_DRIVERS_PATH
 fi
 export GTK_IM_MODULE=ibus QT_IM_MODULE=ibus QT_QPA_PLATFORMTHEME=gtk3 XMODIFIERS=@im=ibus
-export GTK_THEME=Ternux
+export GTK_THEME=Green
 if [ -r /etc/ternux/mesa-overlay ]; then
   read -r ternux_mesa_overlay < /etc/ternux/mesa-overlay || ternux_mesa_overlay=
   case "$ternux_mesa_overlay" in
@@ -2091,7 +2091,7 @@ exec /usr/local/bin/ternux-session-bus bash -c '
   [ "$shortcut_ready" -eq 1 ] || echo "WARNING: Could not register the global Ctrl+Space IBus switch shortcut." >&2
   defaults_marker="$HOME/.config/ternux/desktop-defaults-v1"
   if [ ! -e "$defaults_marker" ]; then
-    xfconf-query -c xsettings -p /Net/ThemeName --create -t string -s Ternux
+    xfconf-query -c xsettings -p /Net/ThemeName --create -t string -s Green
     xfconf-query -c xsettings -p /Net/IconThemeName --create -t string -s Ternux
     xfconf-query -c xfwm4 -p /general/theme --create -t string -s Ternux
     xfconf-query -c xsettings -p /Gtk/CursorThemeName --create -t string -s Adwaita

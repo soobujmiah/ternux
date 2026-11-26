@@ -3,7 +3,7 @@
 from pathlib import Path
 from PIL import Image, ImageDraw
 
-OUT = Path(__file__).resolve().parents[1] / "lib/ternux-assets/themes/Ternux/xfwm4"
+OUT = Path(__file__).resolve().parents[1] / "lib/ternux-assets/themes/Green/xfwm4"
 ACTIVE = (23, 34, 30, 255)
 INACTIVE = (16, 24, 22, 255)
 EDGE = (52, 72, 62, 255)
