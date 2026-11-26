@@ -25,24 +25,28 @@ intended soft/translucent look.
 import json
 import math
 import random
+import sys
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFilter
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from ternux_palette import PALETTES as _BRAND_PALETTES, hex_to_rgb  # noqa: E402
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 OUT_ROOT = REPO_ROOT / "lib/ternux-assets/wallpapers-v3"
 SIZE = (1920, 1080)
 PREVIEW_SIZE = (480, 270)
 
+# Shared brand tokens (tools/ternux_palette.py) renamed to this module's
+# existing field names (bg2 = surface, accent_dim = accent_dark) so the 15
+# wallpaper concepts below don't need to change.
 PALETTES = {
-    "green": dict(
-        bg=(16, 24, 22), bg2=(23, 34, 30), accent=(57, 230, 140),
-        accent_dim=(8, 120, 76), fg=(228, 243, 235), muted=(164, 184, 173),
-    ),
-    "crimson": dict(
-        bg=(25, 15, 18), bg2=(36, 20, 25), accent=(226, 66, 92),
-        accent_dim=(194, 51, 80), fg=(247, 232, 235), muted=(191, 160, 166),
-    ),
+    colorway: dict(
+        bg=hex_to_rgb(p["bg"]), bg2=hex_to_rgb(p["surface"]), accent=hex_to_rgb(p["accent"]),
+        accent_dim=hex_to_rgb(p["accent_dark"]), fg=hex_to_rgb(p["fg"]), muted=hex_to_rgb(p["muted"]),
+    )
+    for colorway, p in _BRAND_PALETTES.items()
 }
 
 
