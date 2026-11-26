@@ -2,7 +2,7 @@
 title: "Android phantom-process নিয়ন্ত্রণ"
 description: "PRoot কাজের জন্য ঐচ্ছিক Android host control; Termux ADB, Shizuku rish, computer ADB, যাচাই ও rollback।"
 lang: "bn"
-alt_url: "/bn/docs/ANDROID-PHANTOM-PROCESS.html"
+alt_url: "/docs/ANDROID-PHANTOM-PROCESS.html"
 ---
 
 Android-এর phantom-process নীতি Ternux/PRoot কাজ বন্ধ করছে—এমন প্রমাণ থাকলে

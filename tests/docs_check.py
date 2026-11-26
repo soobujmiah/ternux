@@ -199,12 +199,19 @@ for path in text_files:
     text = read(path)
     check("\ufffd" not in text, f"{path.relative_to(ROOT)}: contains Unicode replacement character")
 
-# Paired published pages and reciprocal language metadata.
+# Paired published pages and reciprocal language metadata. Discover pairs
+# recursively (not just top-level docs/*.md) so nested bilingual trees such
+# as docs/next/**/*.md are covered too; a top-level docs/README.md has no
+# front matter at all (it's a plain repo-navigation note, not a published
+# page) so filter by "has alt_url", not by filename, to decide what counts
+# as a checkable page.
 pairs: list[tuple[Path, Path]] = []
-for english in sorted((ROOT / "docs").glob("*.md")):
-    if english.name == "README.md":
+for english in sorted((ROOT / "docs").rglob("*.md")):
+    if not front_matter(english).get("alt_url"):
         continue
-    pairs.append((english, ROOT / "bn/docs" / english.name))
+    bengali = ROOT / "bn" / english.relative_to(ROOT)
+    if bengali.exists():
+        pairs.append((english, bengali))
 pairs.extend(((ROOT / "CONTRIBUTING.md", ROOT / "bn/CONTRIBUTING.md"), (ROOT / "CHANGELOG.md", ROOT / "bn/CHANGELOG.md")))
 
 for english, bengali in pairs:
@@ -218,6 +225,31 @@ for english, bengali in pairs:
         check(bool(bn_meta.get(field)), f"{bengali.relative_to(ROOT)}: missing {field} front matter")
     check(en_meta.get("lang") == "en", f"{english.relative_to(ROOT)}: lang must be en")
     check(bn_meta.get("lang") == "bn", f"{bengali.relative_to(ROOT)}: lang must be bn")
+    # alt_url must actually point at the cross-language sibling, not just be
+    # present: an English doc's alt_url must target its /bn/... counterpart,
+    # and a Bengali doc's alt_url must target the English page with no /bn/
+    # prefix. A self-referential or same-language alt_url is a real bug
+    # (found in bn/docs/ANDROID-PHANTOM-PROCESS.md: it pointed at itself).
+    def web_path(path: Path) -> str:
+        # Directory index pages route to a trailing-slash directory URL
+        # (e.g. docs/index.md -> /docs/), not an index.html suffix.
+        rel = str(path.relative_to(ROOT))
+        if path.name == "index.md":
+            return "/" + rel.rsplit("index.md", 1)[0]
+        return "/" + rel.rsplit(".", 1)[0] + ".html"
+
+    expected_en_alt_url = web_path(bengali)
+    expected_bn_alt_url = web_path(english)
+    check(
+        en_meta.get("alt_url") == expected_en_alt_url,
+        f"{english.relative_to(ROOT)}: alt_url {en_meta.get('alt_url')!r} "
+        f"must point to its Bengali sibling ({expected_en_alt_url!r})",
+    )
+    check(
+        bn_meta.get("alt_url") == expected_bn_alt_url,
+        f"{bengali.relative_to(ROOT)}: alt_url {bn_meta.get('alt_url')!r} "
+        f"must point to its English sibling ({expected_bn_alt_url!r}), not back into bn/",
+    )
     en_heading_levels = document_heading_levels(english)
     bn_heading_levels = document_heading_levels(bengali)
     check(
@@ -779,9 +811,21 @@ try:
     namespace = {"s": "http://www.sitemaps.org/schemas/sitemap/0.9", "x": "http://www.w3.org/1999/xhtml"}
     entries = sitemap.findall("s:url", namespace)
     source_only = {ROOT / "docs/SEO.md", ROOT / "docs/index.md"}
+    # docs/release/** and docs/next/** are counted separately below via a
+    # dedicated rglob; docs/project/** is intentionally noindex (not in the
+    # sitemap at all). Exclude both from the main sum now that `pairs` also
+    # covers nested trees (for the alt_url-correctness check above), so
+    # expanding `pairs` doesn't change the sitemap URL count.
+    nested_published = {ROOT / "docs/release", ROOT / "docs/next", ROOT / "docs/project"}
+
+    def _is_nested_published(path: Path) -> bool:
+        return any(root in path.parents for root in nested_published)
+
     # Includes the English and Bengali docs index routes emitted from the
     # generated docs.html / bn/docs.html pages.
-    expected_urls = 4 + 2 * sum(english not in source_only for english, _ in pairs)
+    expected_urls = 4 + 2 * sum(
+        english not in source_only and not _is_nested_published(english) for english, _ in pairs
+    )
     # Public nested release and next-version planning pages are indexable;
     # project and legacy architecture trees stay noindex.
     release_pages = [

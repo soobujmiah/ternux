@@ -155,6 +155,22 @@ compatible নয়: Java executable memory page map করতে পারে 
 করে। বিস্তারিত evidence readiness report-এ আছে। অর্থাৎ সব baseline distro-তে
 ADT চালানোর owner request পুরোপুরি পূরণ হয়নি; এই দাবি দিয়ে v2 release-ready নয়।
 
+## Bootstrap snapshot parity correction — ২০২৬-১১-১৯
+
+- PR #298-এর প্রথম exact-commit Validate run ধরে ফেলে যে immutable
+  installer/CLI source snapshot বর্তমান implementation-এর সাথে এগোয়নি।
+  `tests/bootstrap_source_sync.sh` fail করেছিল কারণ pinned archive-এ বর্তমান
+  package-manager launcher, IPv4/IPv6 APT retry, optional-workload resume,
+  ও startup-password forwarding change গুলো ছিল না।
+- আগের exact commit `024fd260ac11e5b93786c5ecfcb7e5b045fc7b3e`-এর codeload
+  archive download করা হয়েছে; এর root হলো
+  `ternux-024fd260ac11e5b93786c5ecfcb7e5b045fc7b3e/` এবং SHA-256 হলো
+  `0fe66a54a0071f1539c638b25756f644e348ffc17d85e74f038601d34668392a`।
+- Standalone installer ও CLI fallback এখন এই একই full-commit URL ও digest
+  share করে। Local `tests/bootstrap_source_sync.sh`, `bash -n install.sh
+  lib/core.sh`, ও `git diff --check` pass করে। পরের PR commit-এ অবশ্যই
+  complete CI পুনরায় চালাতে হবে; সব exact-commit check pass না হওয়া পর্যন্ত
+  publication block থাকবে।
 
 ## প্রকাশনা যাচাই — 2026-11-19
 
