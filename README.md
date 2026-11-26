@@ -95,7 +95,7 @@ renderer depends on the device and Android graphics stack, so check it with
    and removes the downloaded installer script after it exits:
 
 ```bash
-pkg update -y && pkg upgrade -y && pkg install -y curl wget && bash -c 's=$(mktemp) && (curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/4cbcf5244a961e0b8452f77e015a40309fff81ac/install.sh -o "$s" || wget -qO "$s" https://raw.githubusercontent.com/soobujmiah/ternux/4cbcf5244a961e0b8452f77e015a40309fff81ac/install.sh) && bash "$s"; r=$?; rm -f "$s"; exit "$r"'
+pkg update -y && pkg upgrade -y && pkg install -y curl wget && bash -c 's=$(mktemp) && (curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/dcead5f1c514ca94a428a3866dd2d8cb8ae94779/install.sh -o "$s" || wget -qO "$s" https://raw.githubusercontent.com/soobujmiah/ternux/dcead5f1c514ca94a428a3866dd2d8cb8ae94779/install.sh) && bash "$s"; r=$?; rm -f "$s"; exit "$r"'
 ```
 
 If an installation stops at a required phase, run the same command again. It

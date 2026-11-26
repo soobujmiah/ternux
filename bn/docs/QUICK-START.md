@@ -28,7 +28,7 @@ alt_url: "/docs/QUICK-START.html"
 টার্মাক্স খুলে এই কমান্ডটি চালান:
 
 ```bash
-pkg update -y && pkg upgrade -y && pkg install -y curl wget && bash -c 's=$(mktemp) && (curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/4cbcf5244a961e0b8452f77e015a40309fff81ac/install.sh -o "$s" || wget -qO "$s" https://raw.githubusercontent.com/soobujmiah/ternux/4cbcf5244a961e0b8452f77e015a40309fff81ac/install.sh) && bash "$s"; r=$?; rm -f "$s"; exit "$r"'
+pkg update -y && pkg upgrade -y && pkg install -y curl wget && bash -c 's=$(mktemp) && (curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/dcead5f1c514ca94a428a3866dd2d8cb8ae94779/install.sh -o "$s" || wget -qO "$s" https://raw.githubusercontent.com/soobujmiah/ternux/dcead5f1c514ca94a428a3866dd2d8cb8ae94779/install.sh) && bash "$s"; r=$?; rm -f "$s"; exit "$r"'
 ```
 
 `curl` চালু না হলে বা ইনস্টলার নামাতে না পারলে কমান্ডটি `wget` দিয়ে আবার
