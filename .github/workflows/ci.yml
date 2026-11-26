@@ -120,6 +120,9 @@ jobs:
       - name: Validate documentation and bilingual site structure
         run: python3 tests/docs_check.py
 
+      - name: Check theme files match the shared color token table
+        run: python3 tests/palette_consistency.py
+
       - name: Check JavaScript syntax
         run: |
           node --check scripts/finalize-site.mjs

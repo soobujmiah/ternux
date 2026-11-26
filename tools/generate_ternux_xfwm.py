@@ -12,38 +12,43 @@ import sys
 from pathlib import Path
 from PIL import Image, ImageDraw
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from ternux_palette import PALETTES, hex_to_rgba  # noqa: E402
+
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
-THEMES = {
+# Button-prelight/pressed fill and outline shades are rendering-specific
+# derivatives (dark/light tints of the accent, semi-transparent fills) with
+# no standalone meaning outside this xfwm4 button artwork, so they stay
+# local here rather than in the shared tools/ternux_palette.py token table.
+_XFWM_DERIVED = {
     "Green": dict(
-        active=(23, 34, 30, 255),
-        inactive=(16, 24, 22, 255),
-        edge=(52, 72, 62, 255),
-        accent=(57, 230, 140, 255),
-        pale=(228, 243, 235, 255),
-        muted=(164, 184, 173, 255),
         accent_prelight_fg=(7, 32, 21, 255),
         accent_prelight_outline=(135, 255, 193, 255),
-        accent_pressed=(8, 120, 76, 255),
         inactive_fill=(27, 42, 35, 210),
         active_fill=(35, 60, 47, 250),
     ),
     "Crimson": dict(
-        # Decided palette (V3-PLAN.md): accent #e2425c, accent-dim #c23350,
-        # bg #190f12, surface #241419 — same structure as Green, crimson hue.
-        active=(36, 20, 25, 255),      # #241419 surface
-        inactive=(25, 15, 18, 255),    # #190f12 bg
-        edge=(74, 42, 48, 255),
-        accent=(226, 66, 92, 255),      # #e2425c
-        pale=(247, 232, 235, 255),
-        muted=(191, 160, 166, 255),
         accent_prelight_fg=(40, 10, 16, 255),
         accent_prelight_outline=(247, 160, 175, 255),
-        accent_pressed=(194, 51, 80, 255),  # #c23350 accent-dim
         inactive_fill=(42, 24, 28, 210),
         active_fill=(58, 33, 39, 250),
     ),
 }
+
+THEMES = {}
+for _name, _key in (("Green", "green"), ("Crimson", "crimson")):
+    _p = PALETTES[_key]
+    THEMES[_name] = dict(
+        active=hex_to_rgba(_p["surface"]),
+        inactive=hex_to_rgba(_p["bg"]),
+        edge=hex_to_rgba(_p["border"]),
+        accent=hex_to_rgba(_p["accent"]),
+        pale=hex_to_rgba(_p["fg"]),
+        muted=hex_to_rgba(_p["muted"]),
+        accent_pressed=hex_to_rgba(_p["accent_dark"]),
+        **_XFWM_DERIVED[_name],
+    )
 # Destructive-action red, intentionally fixed across every theme.
 DANGER_IDLE_BG = (101, 38, 42, 255)
 DANGER_IDLE_FG = (255, 226, 226, 255)
