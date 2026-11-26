@@ -357,7 +357,7 @@ replacement mechanism নয়।
 apt update && apt full-upgrade -y
 
 # পথ খ: curl/wget বিকল্পসহ installer নামিয়ে চালান:
-pkg update -y && pkg upgrade -y && pkg install -y curl wget && bash -c 's=$(mktemp) && (curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/4b8a5eeb2481c60930e212aef60cfc020d890487/install.sh -o "$s" || wget -qO "$s" https://raw.githubusercontent.com/soobujmiah/ternux/4b8a5eeb2481c60930e212aef60cfc020d890487/install.sh) && bash "$s"; r=$?; rm -f "$s"; exit "$r"'
+pkg update -y && pkg upgrade -y && pkg install -y curl wget && bash -c 's=$(mktemp) && (curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/14c6d0f6c9bfcd383f32a7b56ac322356fcb7316/install.sh -o "$s" || wget -qO "$s" https://raw.githubusercontent.com/soobujmiah/ternux/14c6d0f6c9bfcd383f32a7b56ac322356fcb7316/install.sh) && bash "$s"; r=$?; rm -f "$s"; exit "$r"'
 ```
 
 `pkg update` শুধু package index রিফ্রেশ করে; আটকে থাকা package upgrade শেষ করে
