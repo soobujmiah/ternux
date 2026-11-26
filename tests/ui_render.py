@@ -254,6 +254,11 @@ feed_phase_one() {
   echo "pulseaudio is already the newest version (17.0-5)."
   echo "Hit:1 https://packages.termux.dev/apt/termux-main stable InRelease"
   echo "Get:2 https://packages.termux.dev/apt/termux-x11 x11 InRelease [8,000 B]"
+  # Simulate the snapshot lib/core.sh's tnx_progress_emit writes while an
+  # apt install's status-fd reports a package's progress, to exercise the
+  # dashboard's subtask row without needing a real apt-get.
+  printf 'curl\n73\nInstalling curl\n' > "$TERNUX_LOG_DIR/progress.subtask"
+  sleep 0.3
   # Carriage-return download progress: one row, updated in place.
   for p in 4 11 19 28 37 46 55 63 72 81 90 97; do
     printf '\rProgress: [%3d%%] downloading base packages...' "$p"
@@ -416,7 +421,7 @@ def frame_columns(screen: Screen):
 
 
 def analyse(tap: Tap, screen: Screen, log: str, raw: str, label: str, expect_clears: int,
-            expect_width: int | None = None) -> None:
+            expect_width: int | None = None, has_task_row: bool = True) -> None:
     cols = frame_columns(screen)
     tap.check(cols is not None, f"{label}: frame has a top rule", screen.text())
     visible = screen.text()
@@ -491,6 +496,27 @@ def analyse(tap: Tap, screen: Screen, log: str, raw: str, label: str, expect_cle
         f"{label}: carriage-return progress never floods the window",
         f"{progress_rows} rows still show the progress line",
     )
+    # Narrow/short terminals fold the phase title into the single progress
+    # row (no dedicated task row, same budget constraint as before this
+    # change) and never show subtask text — expected, not a regression.
+    if has_task_row:
+        subtask_seen = any(
+            "curl" in snapshot and "73%" in snapshot
+            for _elapsed, snapshot, _html in screen.snapshots
+        )
+        tap.check(
+            subtask_seen,
+            f"{label}: a live apt subtask (package + percent) appears in the dashboard",
+            visible,
+        )
+    subtask_lingers = any(
+        "Debian container + Xfce4" in snapshot and "curl" in snapshot
+        for _elapsed, snapshot, _html in screen.snapshots
+    )
+    tap.check(
+        not subtask_lingers,
+        f"{label}: the finished phase's subtask never bleeds into the next phase's row",
+    )
 
 
 def main() -> int:
@@ -531,13 +557,13 @@ def main() -> int:
 
     # 3. Compact portrait still shows hardware and backend status.
     screen3, log3, raw3 = run(args.lib, 18, 41)
-    analyse(tap, screen3, log3, raw3, "compact phone 41x18", expect_clears=3)
+    analyse(tap, screen3, log3, raw3, "compact phone 41x18", expect_clears=3, has_task_row=False)
     compact_visible = any("Device" in snapshot and "Graphics" in snapshot for _elapsed, snapshot, _html in screen3.snapshots)
     tap.check(compact_visible, "compact phone 41x18: device and graphics remain visible", screen3.text())
 
     # 4. Small landscape terminal that still fits a dashboard.
     screen4, log4, _ = run(args.lib, 16, 92)
-    analyse(tap, screen4, log4, "", "landscape 92x16", expect_clears=3)
+    analyse(tap, screen4, log4, "", "landscape 92x16", expect_clears=3, has_task_row=False)
 
     # 5. Live resize in the middle of a phase.
     screen5, log5, _ = run(args.lib, 30, 64, resize_to=(22, 46))

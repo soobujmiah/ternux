@@ -72,6 +72,14 @@ _TNX_ANIM=1
 [ "${TERNUX_NO_ANIM:-0}" = "1" ] && _TNX_ANIM=0
 _TNX_NEED_NL=0
 
+# Subtask progress (package name + percent), fed by lib/core.sh's
+# tnx_progress_emit via a small snapshot file rather than direct terminal
+# writes — see that function's comment for why. Cleared at every phase
+# boundary so a stale package from the previous phase never lingers.
+_TNX_SUBTASK_PACKAGE=""
+_TNX_SUBTASK_PERCENT=""
+_TNX_SUBTASK_RAW=""
+
 # Layout row indices (computed from the current terminal size).
 _TNX_LY_TITLE=2; _TNX_LY_TITLE2=3; _TNX_LY_TITLE3=4; _TNX_LY_TITLE4=0; _TNX_LY_TITLE5=0; _TNX_LY_IDENT=0; _TNX_LY_VER=5; _TNX_LY_BY=0; _TNX_LY_DIV1=6; _TNX_LY_DEV0=7; _TNX_LY_DEV_ON=1; _TNX_LY_DEV_COMPACT=0
 _TNX_LY_PROG=13; _TNX_LY_BAR=14; _TNX_LY_TASK=15; _TNX_LY_DIV2=16; _TNX_LY_LOGTOP=17
@@ -584,6 +592,12 @@ _tnx_frame_paint_progress() {
     _tnx_frame_center_line "$row" "STEPS ${cnt}" "$sc"
     printf '\0337\033[%d;%dH|%s%s%s%s|\033[K\0338' \
       "$_TNX_LY_BAR" "$_TNX_FRAME_X" "$sc" "$bar" "$TNX_C0" "$TNX_C0"
+    # A live subtask (the package apt is currently touching, with its own
+    # percent) is more useful than the static phase title while it lasts;
+    # tnx_frame_phase clears it the moment the next phase starts.
+    if [ -n "${_TNX_SUBTASK_PACKAGE:-}" ]; then
+      title="${title} - ${_TNX_SUBTASK_PACKAGE} ${_TNX_SUBTASK_PERCENT:-0}%"
+    fi
     _tnx_clipv $(( inner - 1 )) "$title"
     _tnx_pad $(( inner - _TNX_CLIPW - 1 ))
     printf -v content '%s%s%s%s ' "$TNX_CG" "$_TNX_CLIP" "$TNX_C0" "$_TNX_SP"
@@ -847,6 +861,11 @@ tnx_frame_phase() {
   export _TNX_FRAME_CUR _TNX_FRAME_TOTAL _TNX_FRAME_TITLE
   tnx_log_info "Phase $cur/$total: $title"
 
+  # A new phase starts with no subtask of its own yet; never show a
+  # package name left over from the phase that just finished.
+  _TNX_SUBTASK_PACKAGE=""; _TNX_SUBTASK_PERCENT=""; _TNX_SUBTASK_RAW=""
+  [ -n "${TERNUX_LOG_DIR:-}" ] && rm -f "${TERNUX_LOG_DIR}/progress.subtask" 2>/dev/null
+
   # A dashboard can return after zooming back out or closing the keyboard.
   # Plain mode is append-only, so retry at phase boundaries before printing.
   if [ "${_TNX_FRAME_MODE:-off}" = "plain" ] && [ "${_TNX_TTY:-0}" = "1" ]; then
@@ -982,6 +1001,29 @@ _tnx_stream_transient() {
   _TNX_TRANSIENT=1
 }
 
+# Subtask progress (the current package name + percent inside a phase)
+# comes from lib/core.sh's tnx_progress_emit, which can run from a
+# background subshell (the apt status-fd reader) and therefore must never
+# paint the terminal itself — it only leaves a snapshot file. Reading that
+# file here, from the idle tick of this process's own single-writer
+# stream loop, is what keeps painting single-threaded.
+_tnx_frame_subtask_poll() {
+  [ "$_TNX_MODE_DASH" = "1" ] || return 0
+  [ -n "${TERNUX_LOG_DIR:-}" ] || return 0
+  local file="$TERNUX_LOG_DIR/progress.subtask" raw
+  [ -f "$file" ] || return 0
+  # mtime has only one-second resolution, so multiple apt status-fd
+  # updates landing in the same wall-clock second would otherwise look
+  # identical; compare the (tiny) content itself instead.
+  raw="$(cat "$file" 2>/dev/null)" || return 0
+  [ "$raw" != "$_TNX_SUBTASK_RAW" ] || return 0
+  _TNX_SUBTASK_RAW="$raw"
+  local package="" percent=""
+  { IFS= read -r package; IFS= read -r percent; } <<< "$raw"
+  _TNX_SUBTASK_PACKAGE="$package"; _TNX_SUBTASK_PERCENT="$percent"
+  _tnx_frame_paint_progress
+}
+
 _tnx_stream_idle() {
   # Animate at most every _TNX_ANIM_MS, poll for a resize at most every
   # _TNX_RESIZE_MS (a SIGWINCH short-circuits the poll).
@@ -1010,6 +1052,7 @@ _tnx_stream_idle() {
       _tnx_frame_paint_device
     fi
   fi
+  _tnx_frame_subtask_poll
   if (( _TNX_NOW - _TNX_WIN_T0 >= 1000 )); then
     _tnx_flush_skipped
     _TNX_WIN_T0=$_TNX_NOW

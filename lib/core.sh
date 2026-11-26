@@ -14,8 +14,8 @@ TERNUX_DESC="Linux desktop for Android with Zink and VirGL graphics routes"
 TERNUX_REPO="https://github.com/soobujmiah/ternux"
 # Immutable source snapshot shared by the standalone bootstrap and CLI fallback.
 # Keep these values aligned with install.sh; refresh only from a reviewed archive.
-TERNUX_SOURCE_COMMIT="cdede1bf1d31c463556295e397b1b4f981247b81"
-TERNUX_SOURCE_SHA256="7e070b8a79fe81cfa5cfd042b27890e2d23baae09c6679c22cb90d04bba75c60"
+TERNUX_SOURCE_COMMIT="f6663ea3cbb4425d95a666a4ed9462a69496b7cc"
+TERNUX_SOURCE_SHA256="a08ffca16995dd765974e9c1bd3e4fe4ec7c7ce0196583a456fb6069f29f9f37"
 TERNUX_GUEST_CLI_SHA256="11f3e202eaae2046cfe11b61edc13d754566ca428faeb2b25a088352792aaaf5"
 TERNUX_STATE_DIR="${TERNUX_STATE_DIR:-$HOME/.local/share/ternux}"
 TERNUX_LOG_DIR="${TERNUX_LOG_DIR:-${TMPDIR:-/data/data/com.termux/files/usr/tmp}/ternux}"
@@ -470,18 +470,43 @@ _tnx_record_termux_package_ownership() {
 }
 
 # ---------------------------------------------------------------------------
-# Progress event bus (data layer only; V3-PLAN.md Group 1)
+# Progress event bus (V3-PLAN.md Group 1/3)
 #
 # A thin, deliberately boring abstraction between install plumbing (this
 # file's apt wrapper, later lib/phases.sh call sites) and whichever renderer
-# is listening. The only consumer today is the install log — a later
-# workstream (Installer Dashboard) extends this same call surface with a
-# real renderer without changing any caller, exactly as the plan asks: no
-# visible UI change goes with this commit.
+# is listening. Every event is logged; events carrying package/percent
+# fields also update a small snapshot file (lib/ui.sh's single-writer
+# stream loop polls it on its own idle tick and repaints — this function
+# itself must never touch the terminal, since it can run from a
+# background subshell, e.g. the apt status-fd reader below, and the
+# dashboard's single-writer invariant would break if two processes wrote
+# escape sequences at once).
 # ---------------------------------------------------------------------------
 tnx_progress_emit() {
   local event="$1"; shift
   tnx_log_info "progress $event $*" 2>/dev/null || true
+  _tnx_progress_write_subtask_snapshot "$@"
+}
+
+_tnx_progress_write_subtask_snapshot() {
+  [ -n "${TERNUX_LOG_DIR:-}" ] || return 0
+  local kv package="" percent="" message=""
+  for kv in "$@"; do
+    case "$kv" in
+      package=*) package="${kv#package=}" ;;
+      percent=*) percent="${kv#percent=}" ;;
+      message=*) message="${kv#message=}" ;;
+    esac
+  done
+  [ -n "$package" ] || return 0
+  mkdir -p "$TERNUX_LOG_DIR" 2>/dev/null || return 0
+  local tmp
+  tmp="$(mktemp "$TERNUX_LOG_DIR/.progress-subtask.XXXXXX" 2>/dev/null)" || return 0
+  if printf '%s\n%s\n%s\n' "$package" "$percent" "$message" > "$tmp" 2>/dev/null; then
+    mv -f "$tmp" "$TERNUX_LOG_DIR/progress.subtask" 2>/dev/null || rm -f "$tmp"
+  else
+    rm -f "$tmp"
+  fi
 }
 
 # Overridable in tests to simulate a non-apt host without PATH tricks.
