@@ -14,8 +14,8 @@ TERNUX_DESC="Linux desktop for Android with Zink and VirGL graphics routes"
 TERNUX_REPO="https://github.com/soobujmiah/ternux"
 # Immutable source snapshot shared by the standalone bootstrap and CLI fallback.
 # Keep these values aligned with install.sh; refresh only from a reviewed archive.
-TERNUX_SOURCE_COMMIT="b55e2856485bfc5c22e297b940930102aa8a3ea9"
-TERNUX_SOURCE_SHA256="e973e6ee1c87944a110fbd48e65f01d2dac3f92d5be3fb831f3caa4e59795fe8"
+TERNUX_SOURCE_COMMIT="fdebfa6020847dc222dbaf35e44f00f9f3f27bf5"
+TERNUX_SOURCE_SHA256="93a4d072c4c8ea90dfa22107a7c7869a516663462c444fea2b919f8385dc490b"
 TERNUX_GUEST_CLI_SHA256="11f3e202eaae2046cfe11b61edc13d754566ca428faeb2b25a088352792aaaf5"
 TERNUX_STATE_DIR="${TERNUX_STATE_DIR:-$HOME/.local/share/ternux}"
 TERNUX_LOG_DIR="${TERNUX_LOG_DIR:-${TMPDIR:-/data/data/com.termux/files/usr/tmp}/ternux}"
@@ -469,6 +469,45 @@ _tnx_record_termux_package_ownership() {
   chmod 600 "$tmp" && mv -f -- "$tmp" "$ledger" || { rm -f -- "$tmp"; return 1; }
 }
 
+# ---------------------------------------------------------------------------
+# Progress event bus (data layer only; V3-PLAN.md Group 1)
+#
+# A thin, deliberately boring abstraction between install plumbing (this
+# file's apt wrapper, later lib/phases.sh call sites) and whichever renderer
+# is listening. The only consumer today is the install log — a later
+# workstream (Installer Dashboard) extends this same call surface with a
+# real renderer without changing any caller, exactly as the plan asks: no
+# visible UI change goes with this commit.
+# ---------------------------------------------------------------------------
+tnx_progress_emit() {
+  local event="$1"; shift
+  tnx_log_info "progress $event $*" 2>/dev/null || true
+}
+
+# Overridable in tests to simulate a non-apt host without PATH tricks.
+_tnx_apt_available() { command -v apt-get >/dev/null 2>&1; }
+
+# Reads APT's machine-readable `-o APT::Status-Fd=N` protocol from stdin —
+# lines shaped `pmstatus:<pkg>:<percent>:<message>` or `dlstatus:...`
+# (verified against a real `apt-get install -o APT::Status-Fd=N` run) — and
+# re-emits each as a progress event. Best-effort: a line that doesn't match
+# is skipped rather than failing the install it's reporting on.
+_tnx_progress_consume_apt_status_fd() {
+  local label="$1" line kind rest pkg percent message
+  while IFS= read -r line; do
+    kind="${line%%:*}"
+    case "$kind" in
+      pmstatus|dlstatus) ;;
+      *) continue ;;
+    esac
+    rest="${line#*:}"
+    pkg="${rest%%:*}"; rest="${rest#*:}"
+    percent="${rest%%:*}"; message="${rest#*:}"
+    [[ "$percent" =~ ^[0-9]+(\.[0-9]+)?$ ]] || continue
+    tnx_progress_emit "$kind" "label=$label" "package=$pkg" "percent=${percent%%.*}" "message=$message"
+  done
+}
+
 # Avoid a host toolchain override shadowing Termux libraries in APT.
 _tnx_termux_install_tracked() {
   local manager="$1" arg skip=0 rc
@@ -485,7 +524,16 @@ _tnx_termux_install_tracked() {
   for arg in "${requested[@]}"; do
     [ "$(dpkg-query -W -f='${db:Status-Status}' "$arg" 2>/dev/null || true)" = installed ] || absent+=("$arg")
   done
-  LD_LIBRARY_PATH= "$manager" install "$@"; rc=$?
+  # APT::Status-Fd is an apt/apt-get option; Termux's `pkg` wrapper forwards
+  # unrecognized args straight through to `apt install`, so this applies to
+  # both managers — but only when the host is actually apt-based (the
+  # option would be meaningless, possibly rejected, on a non-apt backend).
+  if _tnx_apt_available; then
+    LD_LIBRARY_PATH= "$manager" install -o APT::Status-Fd=3 "$@" \
+      3> >(_tnx_progress_consume_apt_status_fd "$manager install"); rc=$?
+  else
+    LD_LIBRARY_PATH= "$manager" install "$@"; rc=$?
+  fi
   if [ "${#absent[@]}" -gt 0 ]; then
     _tnx_record_termux_package_ownership "${absent[@]}" || {
       tnx_warn "Could not save Termux package ownership for uninstall tracking."

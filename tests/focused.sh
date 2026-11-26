@@ -618,7 +618,7 @@ fi
 if env LD_LIBRARY_PATH="$TMP/foreign-libraries" TERNUX_STATE_DIR="$TMP/state-pkg-env" \
   HOME="$TMP/home-pkg-env" bash -c '
     . "$1/lib/core.sh"
-    pkg(){ [ "${LD_LIBRARY_PATH-unset}" = "" ] && [ "$*" = "install ternux" ]; }
+    pkg(){ [ "${LD_LIBRARY_PATH-unset}" = "" ] && case "$*" in "install ternux"|"install -o APT::Status-Fd=3 ternux") true;; *) false;; esac; }
     apt-cache(){ [ "${LD_LIBRARY_PATH-unset}" = "" ] && [ "$*" = "policy ternux" ]; }
     tnx_termux_pkg install ternux && tnx_termux_apt_cache policy ternux
   ' _ "$ROOT"; then
@@ -1840,7 +1840,7 @@ if env TERNUX_STATE_DIR="$TMP/state-backend" HOME="$TMP/home-backend" bash -c '
       *) return 1 ;;
     esac
   }
-  pkg(){ [ "$*" = "install -y virglrenderer-android" ] && : > "$scratch/virgl-installed"; }
+  pkg(){ case "$*" in "install -y virglrenderer-android"|"install -o APT::Status-Fd=3 -y virglrenderer-android") : > "$scratch/virgl-installed";; esac; }
   tnx_phase_launcher(){ printf "%s|%s|%s\n" "$1" "$2" "$3" > "$scratch/launcher-args"; }
   _TNX_REPAIR_CHANGED=0
   _tnx_repair_backend >/dev/null &&
@@ -2258,6 +2258,62 @@ if env TERNUX_STATE_DIR="$TMP/state-owned-packages" PREFIX="$TMP/prefix-owned-pa
   ok "Termux uninstall removes only newly installed packages recorded by Ternux"
 else
   not_ok "Termux uninstall removes only newly installed packages recorded by Ternux"
+fi
+
+# Progress-event bus (V3-PLAN.md Group 1, data layer): the apt install
+# wrapper opens APT::Status-Fd and re-emits each pmstatus/dlstatus line as a
+# progress event without touching the command's own stdout or exit code.
+# apt-get itself is stubbed, so this runs the same on a non-apt CI runner.
+if env TERNUX_LOG_DIR="$TMP/log-progress-bus" HOME="$TMP/home-progress-bus" bash -c '
+  mkdir -p "$HOME" "$TERNUX_LOG_DIR"
+  apt-get() {
+    case "$1" in
+      install)
+        printf "Setting up testpkg ...\n"
+        if { : >&3; } 2>/dev/null; then
+          printf "pmstatus:testpkg:0:Preparing testpkg\n" >&3
+          printf "pmstatus:testpkg:50:Installing testpkg\n" >&3
+          printf "pmstatus:testpkg:100:Installed testpkg\n" >&3
+          printf "this-is-not-a-status-line\n" >&3
+        fi
+        return 0
+        ;;
+      *) return 2 ;;
+    esac
+  }
+  . "$1/lib/core.sh"
+  out="$(tnx_termux_apt_get install -y testpkg)" || exit
+  log="$TERNUX_LOG_DIR/ternux.log"
+  [ "$out" = "Setting up testpkg ..." ] || { echo "stdout mismatch: $out" >&2; exit 1; }
+  [ "$(grep -c "progress pmstatus" "$log")" = 3 ] || { echo "expected 3 progress lines" >&2; exit 1; }
+  grep -qF "package=testpkg percent=0 message=Preparing testpkg" "$log" || exit 1
+  grep -qF "package=testpkg percent=50 message=Installing testpkg" "$log" || exit 1
+  grep -qF "package=testpkg percent=100 message=Installed testpkg" "$log" || exit 1
+  ! grep -qF "this-is-not-a-status-line" "$log" || exit 1
+' _ "$ROOT"; then
+  ok "apt install wrapper emits structured progress events without altering stdout or exit status"
+else
+  not_ok "apt install wrapper emits structured progress events without altering stdout or exit status"
+fi
+
+# A non-apt host must behave exactly as before this change: no -o
+# APT::Status-Fd is added, nothing new is required of the package manager.
+if env TERNUX_LOG_DIR="$TMP/log-progress-noapt" HOME="$TMP/home-progress-noapt" bash -c '
+  mkdir -p "$HOME" "$TERNUX_LOG_DIR"
+  pkg() {
+    case "$1" in
+      install) printf "installed via pkg (no apt on this host)\n"; return 0 ;;
+      *) return 2 ;;
+    esac
+  }
+  . "$1/lib/core.sh"
+  _tnx_apt_available() { return 1; }
+  out="$(tnx_termux_pkg install -y testpkg)" || exit
+  [ "$out" = "installed via pkg (no apt on this host)" ]
+' _ "$ROOT"; then
+  ok "install wrapper falls back to unmodified behavior when no apt-get is present"
+else
+  not_ok "install wrapper falls back to unmodified behavior when no apt-get is present"
 fi
 
 if env PREFIX="$TMP/prefix-owned-proot" HOME="$TMP/home-owned-proot" MOCK_PACKAGES="$TMP/mock-proot-packages" bash -c '
