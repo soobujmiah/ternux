@@ -78,7 +78,7 @@ _TNX_NEED_NL=0
 # boundary so a stale package from the previous phase never lingers.
 _TNX_SUBTASK_PACKAGE=""
 _TNX_SUBTASK_PERCENT=""
-_TNX_SUBTASK_MTIME=""
+_TNX_SUBTASK_RAW=""
 
 # Layout row indices (computed from the current terminal size).
 _TNX_LY_TITLE=2; _TNX_LY_TITLE2=3; _TNX_LY_TITLE3=4; _TNX_LY_TITLE4=0; _TNX_LY_TITLE5=0; _TNX_LY_IDENT=0; _TNX_LY_VER=5; _TNX_LY_BY=0; _TNX_LY_DIV1=6; _TNX_LY_DEV0=7; _TNX_LY_DEV_ON=1; _TNX_LY_DEV_COMPACT=0
@@ -863,7 +863,7 @@ tnx_frame_phase() {
 
   # A new phase starts with no subtask of its own yet; never show a
   # package name left over from the phase that just finished.
-  _TNX_SUBTASK_PACKAGE=""; _TNX_SUBTASK_PERCENT=""; _TNX_SUBTASK_MTIME=""
+  _TNX_SUBTASK_PACKAGE=""; _TNX_SUBTASK_PERCENT=""; _TNX_SUBTASK_RAW=""
   [ -n "${TERNUX_LOG_DIR:-}" ] && rm -f "${TERNUX_LOG_DIR}/progress.subtask" 2>/dev/null
 
   # A dashboard can return after zooming back out or closing the keyboard.
@@ -1010,13 +1010,16 @@ _tnx_stream_transient() {
 _tnx_frame_subtask_poll() {
   [ "$_TNX_MODE_DASH" = "1" ] || return 0
   [ -n "${TERNUX_LOG_DIR:-}" ] || return 0
-  local file="$TERNUX_LOG_DIR/progress.subtask" mtime
+  local file="$TERNUX_LOG_DIR/progress.subtask" raw
   [ -f "$file" ] || return 0
-  mtime="$(stat -c %Y "$file" 2>/dev/null || true)"
-  [ -n "$mtime" ] && [ "$mtime" != "$_TNX_SUBTASK_MTIME" ] || return 0
-  _TNX_SUBTASK_MTIME="$mtime"
+  # mtime has only one-second resolution, so multiple apt status-fd
+  # updates landing in the same wall-clock second would otherwise look
+  # identical; compare the (tiny) content itself instead.
+  raw="$(cat "$file" 2>/dev/null)" || return 0
+  [ "$raw" != "$_TNX_SUBTASK_RAW" ] || return 0
+  _TNX_SUBTASK_RAW="$raw"
   local package="" percent=""
-  { IFS= read -r package; IFS= read -r percent; } < "$file" 2>/dev/null
+  { IFS= read -r package; IFS= read -r percent; } <<< "$raw"
   _TNX_SUBTASK_PACKAGE="$package"; _TNX_SUBTASK_PERCENT="$percent"
   _tnx_frame_paint_progress
 }
