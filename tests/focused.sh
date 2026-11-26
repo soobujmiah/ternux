@@ -1071,7 +1071,7 @@ assert not re.search(r"(^|\s)sudo(\s|$)", audio_phase_code)
 assert "Acquire::Retries=1 -o Acquire::http::Timeout=20 -o Acquire::https::Timeout=20" in audio_phase
 xfwm_generator = (root / "tools/generate_ternux_xfwm.py").read_text()
 assert 'xpm_name = Path(name).with_suffix(".xpm")' in xfwm_generator
-assert 'state_button("maximize", state, inactive=inactive, toggled=True)' in xfwm_generator
+assert 'state_button(out, palette, "maximize", state, inactive=inactive, toggled=True)' in xfwm_generator
 assert "image-style --create -t int -s 4" in (root / "lib/phases.sh").read_text()
 phases = (root / "lib/phases.sh").read_text()
 desktop_lifecycle = (root / "lib/desktop.sh").read_text()

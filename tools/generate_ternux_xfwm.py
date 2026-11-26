@@ -86,7 +86,7 @@ def save(out, name, size, draw_fn):
     (out / xpm_name).write_text("\n".join(lines) + "\n", encoding="ascii")
 
 
-def _state_button(out, palette, kind, state, inactive=False, toggled=False):
+def state_button(out, palette, kind, state, inactive=False, toggled=False):
     edge_c = palette["edge"]
     color = palette["muted"] if inactive else palette["pale"]
     outline = edge_c
@@ -143,7 +143,7 @@ def _state_button(out, palette, kind, state, inactive=False, toggled=False):
     save(out, f"{kind}{suffix}-{state}.png", (24, 24), draw)
 
 
-def _edge(out, palette, name, color, vertical=True, corner=False):
+def edge(out, palette, name, color, vertical=True, corner=False):
     edge_c = palette["edge"]
     if corner:
         def draw(d, size):
@@ -160,24 +160,24 @@ def _edge(out, palette, name, color, vertical=True, corner=False):
 
 def _generate_into(out, palette):
     for state, color in (("active", palette["active"]), ("inactive", palette["inactive"])):
-        _edge(out, palette, f"top-{state}.png", color, vertical=True)
-        _edge(out, palette, f"bottom-{state}.png", color, vertical=True)
-        _edge(out, palette, f"left-{state}.png", color, vertical=False)
-        _edge(out, palette, f"right-{state}.png", color, vertical=False)
+        edge(out, palette, f"top-{state}.png", color, vertical=True)
+        edge(out, palette, f"bottom-{state}.png", color, vertical=True)
+        edge(out, palette, f"left-{state}.png", color, vertical=False)
+        edge(out, palette, f"right-{state}.png", color, vertical=False)
         for corner_name in ("top-left", "top-right", "bottom-left", "bottom-right"):
-            _edge(out, palette, f"{corner_name}-{state}.png", color, corner=True)
+            edge(out, palette, f"{corner_name}-{state}.png", color, corner=True)
         for i in range(1, 6):
             save(out, f"title-{i}-{state}.png", (2, 24), lambda d, s, c=color: d.rectangle((0,0,1,23), fill=c))
 
     for kind in ("close", "hide", "maximize", "menu", "shade", "stick"):
-        _state_button(out, palette, kind, "active")
-        _state_button(out, palette, kind, "inactive", True)
-        _state_button(out, palette, kind, "prelight")
-        _state_button(out, palette, kind, "pressed")
+        state_button(out, palette, kind, "active")
+        state_button(out, palette, kind, "inactive", True)
+        state_button(out, palette, kind, "prelight")
+        state_button(out, palette, kind, "pressed")
 
     # Give maximized windows an explicit restore affordance and all standard states.
     for state, inactive in (("active", False), ("inactive", True), ("prelight", False), ("pressed", False)):
-        _state_button(out, palette, "maximize", state, inactive=inactive, toggled=True)
+        state_button(out, palette, "maximize", state, inactive=inactive, toggled=True)
 
 
 if __name__ == "__main__":
