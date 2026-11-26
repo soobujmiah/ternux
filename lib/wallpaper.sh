@@ -56,6 +56,10 @@ _tnx_wallpaper_active_theme() {
   local distro="$1" user="" theme=""
   user="$(tnx_distro_user "$distro" 2>/dev/null || true)"
   [ -n "$user" ] || user=ternux
+  # tnx_guest_login resolves its target guest from tnx_distro(), not from a
+  # parameter, so the active distro must be pinned here — otherwise a
+  # non-default DISTRO argument would silently read/change the wrong guest.
+  unset _TNX_DISTRO; export TERNUX_DISTRO="$distro"
   theme="$(tnx_guest_login --_tnx-timeout-seconds 5 --user "$user" -- \
     xfconf-query -c xsettings -p /Net/ThemeName 2>/dev/null)" || theme=""
   [ -n "$theme" ] || theme="$(tnx_state_get wallpaper_theme 2>/dev/null || true)"
@@ -173,19 +177,35 @@ PY
   local user; user="$(tnx_distro_user "$distro" 2>/dev/null || true)"
   [ -n "$user" ] || user=ternux
 
+  # tnx_guest_login resolves its target guest from tnx_distro(), not from a
+  # parameter, so the active distro must be pinned here too (same reason as
+  # in _tnx_wallpaper_active_theme) — otherwise an explicit DISTRO argument
+  # would silently apply to whatever guest tnx_distro() currently resolves
+  # to instead of the one actually requested.
+  unset _TNX_DISTRO; export TERNUX_DISTRO="$distro"
   if ! tnx_guest_login --_tnx-timeout-seconds 20 --user "$user" -- bash -c "
     set -e
     path='$guest_path'
     [ -r \"\$path\" ] || { echo \"Wallpaper asset missing in guest: \$path\" >&2; exit 1; }
+    applied=0
     for monitor in monitor0 monitor1 monitorbuiltin; do
       style=4
       [ \"\$monitor\" = monitorbuiltin ] && style=5
-      xfconf-query -c xfce4-desktop -p \"/backdrop/screen0/\$monitor/image-path\" --create -t string -s \"\$path\" >/dev/null 2>&1 || true
-      xfconf-query -c xfce4-desktop -p \"/backdrop/screen0/\$monitor/last-image\" --create -t string -s \"\$path\" >/dev/null 2>&1 || true
-      xfconf-query -c xfce4-desktop -p \"/backdrop/screen0/\$monitor/workspace0/last-image\" --create -t string -s \"\$path\" >/dev/null 2>&1 || true
-      xfconf-query -c xfce4-desktop -p \"/backdrop/screen0/\$monitor/image-style\" --create -t int -s \"\$style\" >/dev/null 2>&1 || true
-      xfconf-query -c xfce4-desktop -p \"/backdrop/screen0/\$monitor/image-show\" --create -t bool -s true >/dev/null 2>&1 || true
+      # Not every device exposes every monitor property path (monitor1 in
+      # particular may not exist on a single-display setup), so a given
+      # monitor is allowed to fail outright; but xfconf itself refusing
+      # every single write (the guest's xsettings bus unreachable, no
+      # desktop session running, etc.) must fail the whole command instead
+      # of silently reporting success with nothing actually applied.
+      if xfconf-query -c xfce4-desktop -p \"/backdrop/screen0/\$monitor/image-path\" --create -t string -s \"\$path\" >/dev/null 2>&1; then
+        applied=1
+        xfconf-query -c xfce4-desktop -p \"/backdrop/screen0/\$monitor/last-image\" --create -t string -s \"\$path\" >/dev/null 2>&1 || true
+        xfconf-query -c xfce4-desktop -p \"/backdrop/screen0/\$monitor/workspace0/last-image\" --create -t string -s \"\$path\" >/dev/null 2>&1 || true
+        xfconf-query -c xfce4-desktop -p \"/backdrop/screen0/\$monitor/image-style\" --create -t int -s \"\$style\" >/dev/null 2>&1 || true
+        xfconf-query -c xfce4-desktop -p \"/backdrop/screen0/\$monitor/image-show\" --create -t bool -s true >/dev/null 2>&1 || true
+      fi
     done
+    [ \"\$applied\" -eq 1 ] || { echo 'Could not write any xfce4-desktop wallpaper property; is the desktop session running?' >&2; exit 1; }
     xfdesktop --reload >/dev/null 2>&1 || true
   "; then
     tnx_fail "Could not apply wallpaper '$id'. Is the $distro desktop session running? Try: ternux start $distro"
