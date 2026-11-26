@@ -93,7 +93,7 @@ graphics, diagnostics ও ঐচ্ছিক workload পরিচালনা �
 পারলে কমান্ডটি `wget` দিয়ে আবার চেষ্টা করে:
 
 ```bash
-pkg update -y && pkg upgrade -y && pkg install -y curl wget && bash -c 's=$(mktemp) && (curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/9c870b2c21c67b745d0e635a147f711e11f2ac78/install.sh -o "$s" || wget -qO "$s" https://raw.githubusercontent.com/soobujmiah/ternux/9c870b2c21c67b745d0e635a147f711e11f2ac78/install.sh) && bash "$s"; r=$?; rm -f "$s"; exit "$r"'
+pkg update -y && pkg upgrade -y && pkg install -y curl wget && bash -c 's=$(mktemp) && (curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/79e8ccad85c48124cc536ce128d70924c58e6420/install.sh -o "$s" || wget -qO "$s" https://raw.githubusercontent.com/soobujmiah/ternux/79e8ccad85c48124cc536ce128d70924c58e6420/install.sh) && bash "$s"; r=$?; rm -f "$s"; exit "$r"'
 ```
 
 কোনো আবশ্যিক ধাপে ইনস্টলেশন থেমে গেলে একই কমান্ড আবার চালান। এতে বর্তমান
