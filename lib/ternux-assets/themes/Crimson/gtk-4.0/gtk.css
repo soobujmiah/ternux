@@ -1,0 +1,45 @@
+@import url("resource:///org/gtk/libgtk/theme/Default/gtk-dark.css");
+/* Ternux GTK 4 palette: match the GTK 2/3 theme and Xfwm shell. */
+:root {
+  --window-bg-color: #190f12;
+  --window-fg-color: #f7e8eb;
+  --view-bg-color: #140c0e;
+  --view-fg-color: #f7e8eb;
+  --headerbar-bg-color: #241419;
+  --headerbar-fg-color: #f7e8eb;
+  --card-bg-color: #241419;
+  --card-fg-color: #f7e8eb;
+  --popover-bg-color: #241419;
+  --popover-fg-color: #f7e8eb;
+  --accent-bg-color: #c23350;
+  --accent-fg-color: #ffffff;
+  --accent-color: #e2425c;
+  --theme_bg_color: #190f12;
+  --theme_fg_color: #f7e8eb;
+  --theme_base_color: #140c0e;
+  --theme_text_color: #f7e8eb;
+  --theme_selected_bg_color: #c23350;
+  --theme_selected_fg_color: #ffffff;
+}
+* { color: #f7e8eb; }
+window, .background, dialog, .view, viewport, scrolledwindow, notebook,
+notebook > stack, paned, list, list row, row { background-color: #190f12; color: #f7e8eb; }
+headerbar, .titlebar { background-color: #241419; color: #f7e8eb; }
+button, entry, .card, popover, menu { border-color: #4a2a30; }
+button:checked, button:active, *:selected { background-color: #c23350; color: #ffffff; }
+scale trough, progressbar trough, levelbar trough { background-color: #2d1a1f; }
+scale highlight, progressbar progress, levelbar block.filled { background-color: #e2425c; }
+
+/* Keep client-side window controls visible and branded in GTK 4 apps. */
+headerbar button.titlebutton,
+.titlebar button.titlebutton {
+  min-width: 24px; min-height: 24px; padding: 4px;
+  color: #f7e8eb; background: transparent; border: 1px solid transparent;
+  border-radius: 4px; box-shadow: none;
+}
+headerbar button.titlebutton:hover, .titlebar button.titlebutton:hover {
+  color: #e2425c; background: #2d1a1f;
+}
+headerbar button.titlebutton.close:hover, .titlebar button.titlebutton.close:hover {
+  color: #ffffff; background: #b42336;
+}

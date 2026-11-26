@@ -1,0 +1,15 @@
+# Ternux crimson window frame colors
+active_text_color=#f7e8eb
+inactive_text_color=#bfa0a6
+active_color=#241419
+inactive_color=#190f12
+active_shadow_color=#e2425c
+inactive_shadow_color=#4a2a30
+button_layout=|HMC
+button_offset=2
+button_spacing=1
+full_width_title=true
+frame_border_top=4
+title_horizontal_offset=2
+title_vertical_offset_active=1
+title_vertical_offset_inactive=1
