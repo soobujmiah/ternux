@@ -57,6 +57,7 @@ tnx_help() {
   tnx_print_two_col state '[--json]'
   tnx_help_tree_row backend '[show|set|detect|update]'
   tnx_help_tree_row gpu '[show|update]'
+  tnx_help_tree_row wallpaper '[list|current|set NAME|refresh] [DISTRO]'
   tnx_print_two_col mic 'Request Android microphone permission'
   tnx_print_two_col cam 'Request Android camera permission'
   tnx_print_two_col update '[run|check]'
@@ -326,6 +327,22 @@ Subcommands:
   detect           Auto-detect the correct backend
   update           Refresh the validated Debian Turnip driver (Zink only)
 
+Supports --json for machine-readable output.
+HELP
+}
+
+tnx_help_wallpaper() {
+  cat << HELP
+Usage: tx wallpaper <subcommand> [DISTRO]
+
+Subcommands:
+  list              Show the wallpaper gallery (id, concept, description, colorways)
+  current [DISTRO]  Show the currently selected wallpaper and active theme/colorway
+  set <id> [DISTRO] Apply a wallpaper, picking the colorway that matches the active theme
+  refresh [DISTRO]  Re-apply the current selection's colorway for the active theme
+
+Selection is manual only — nothing is applied automatically, and your own
+custom wallpaper (if any) is never overwritten unless you run 'set'.
 Supports --json for machine-readable output.
 HELP
 }
