@@ -2171,6 +2171,370 @@
     "share/doc/ternux/copyright": {
       "source": "LICENSE",
       "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/01-infinite-computing/crimson-preview.webp": {
+      "source": "lib/ternux-assets/wallpapers-v3/01-infinite-computing/crimson-preview.webp",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/01-infinite-computing/crimson-source.png": {
+      "source": "lib/ternux-assets/wallpapers-v3/01-infinite-computing/crimson-source.png",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/01-infinite-computing/crimson.webp": {
+      "source": "lib/ternux-assets/wallpapers-v3/01-infinite-computing/crimson.webp",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/01-infinite-computing/green-preview.webp": {
+      "source": "lib/ternux-assets/wallpapers-v3/01-infinite-computing/green-preview.webp",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/01-infinite-computing/green-source.png": {
+      "source": "lib/ternux-assets/wallpapers-v3/01-infinite-computing/green-source.png",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/01-infinite-computing/green.webp": {
+      "source": "lib/ternux-assets/wallpapers-v3/01-infinite-computing/green.webp",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/02-neural-intelligence/crimson-preview.webp": {
+      "source": "lib/ternux-assets/wallpapers-v3/02-neural-intelligence/crimson-preview.webp",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/02-neural-intelligence/crimson-source.png": {
+      "source": "lib/ternux-assets/wallpapers-v3/02-neural-intelligence/crimson-source.png",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/02-neural-intelligence/crimson.webp": {
+      "source": "lib/ternux-assets/wallpapers-v3/02-neural-intelligence/crimson.webp",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/02-neural-intelligence/green-preview.webp": {
+      "source": "lib/ternux-assets/wallpapers-v3/02-neural-intelligence/green-preview.webp",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/02-neural-intelligence/green-source.png": {
+      "source": "lib/ternux-assets/wallpapers-v3/02-neural-intelligence/green-source.png",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/02-neural-intelligence/green.webp": {
+      "source": "lib/ternux-assets/wallpapers-v3/02-neural-intelligence/green.webp",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/03-flow-of-information/crimson-preview.webp": {
+      "source": "lib/ternux-assets/wallpapers-v3/03-flow-of-information/crimson-preview.webp",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/03-flow-of-information/crimson-source.png": {
+      "source": "lib/ternux-assets/wallpapers-v3/03-flow-of-information/crimson-source.png",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/03-flow-of-information/crimson.webp": {
+      "source": "lib/ternux-assets/wallpapers-v3/03-flow-of-information/crimson.webp",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/03-flow-of-information/green-preview.webp": {
+      "source": "lib/ternux-assets/wallpapers-v3/03-flow-of-information/green-preview.webp",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/03-flow-of-information/green-source.png": {
+      "source": "lib/ternux-assets/wallpapers-v3/03-flow-of-information/green-source.png",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/03-flow-of-information/green.webp": {
+      "source": "lib/ternux-assets/wallpapers-v3/03-flow-of-information/green.webp",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/04-cosmic-perspective/crimson-preview.webp": {
+      "source": "lib/ternux-assets/wallpapers-v3/04-cosmic-perspective/crimson-preview.webp",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/04-cosmic-perspective/crimson-source.png": {
+      "source": "lib/ternux-assets/wallpapers-v3/04-cosmic-perspective/crimson-source.png",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/04-cosmic-perspective/crimson.webp": {
+      "source": "lib/ternux-assets/wallpapers-v3/04-cosmic-perspective/crimson.webp",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/04-cosmic-perspective/green-preview.webp": {
+      "source": "lib/ternux-assets/wallpapers-v3/04-cosmic-perspective/green-preview.webp",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/04-cosmic-perspective/green-source.png": {
+      "source": "lib/ternux-assets/wallpapers-v3/04-cosmic-perspective/green-source.png",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/04-cosmic-perspective/green.webp": {
+      "source": "lib/ternux-assets/wallpapers-v3/04-cosmic-perspective/green.webp",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/05-living-circuits/crimson-preview.webp": {
+      "source": "lib/ternux-assets/wallpapers-v3/05-living-circuits/crimson-preview.webp",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/05-living-circuits/crimson-source.png": {
+      "source": "lib/ternux-assets/wallpapers-v3/05-living-circuits/crimson-source.png",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/05-living-circuits/crimson.webp": {
+      "source": "lib/ternux-assets/wallpapers-v3/05-living-circuits/crimson.webp",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/05-living-circuits/green-preview.webp": {
+      "source": "lib/ternux-assets/wallpapers-v3/05-living-circuits/green-preview.webp",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/05-living-circuits/green-source.png": {
+      "source": "lib/ternux-assets/wallpapers-v3/05-living-circuits/green-source.png",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/05-living-circuits/green.webp": {
+      "source": "lib/ternux-assets/wallpapers-v3/05-living-circuits/green.webp",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/06-mathematical-order/crimson-preview.webp": {
+      "source": "lib/ternux-assets/wallpapers-v3/06-mathematical-order/crimson-preview.webp",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/06-mathematical-order/crimson-source.png": {
+      "source": "lib/ternux-assets/wallpapers-v3/06-mathematical-order/crimson-source.png",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/06-mathematical-order/crimson.webp": {
+      "source": "lib/ternux-assets/wallpapers-v3/06-mathematical-order/crimson.webp",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/06-mathematical-order/green-preview.webp": {
+      "source": "lib/ternux-assets/wallpapers-v3/06-mathematical-order/green-preview.webp",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/06-mathematical-order/green-source.png": {
+      "source": "lib/ternux-assets/wallpapers-v3/06-mathematical-order/green-source.png",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/06-mathematical-order/green.webp": {
+      "source": "lib/ternux-assets/wallpapers-v3/06-mathematical-order/green.webp",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/07-architecture-of-thought/crimson-preview.webp": {
+      "source": "lib/ternux-assets/wallpapers-v3/07-architecture-of-thought/crimson-preview.webp",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/07-architecture-of-thought/crimson-source.png": {
+      "source": "lib/ternux-assets/wallpapers-v3/07-architecture-of-thought/crimson-source.png",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/07-architecture-of-thought/crimson.webp": {
+      "source": "lib/ternux-assets/wallpapers-v3/07-architecture-of-thought/crimson.webp",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/07-architecture-of-thought/green-preview.webp": {
+      "source": "lib/ternux-assets/wallpapers-v3/07-architecture-of-thought/green-preview.webp",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/07-architecture-of-thought/green-source.png": {
+      "source": "lib/ternux-assets/wallpapers-v3/07-architecture-of-thought/green-source.png",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/07-architecture-of-thought/green.webp": {
+      "source": "lib/ternux-assets/wallpapers-v3/07-architecture-of-thought/green.webp",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/08-digital-nature/crimson-preview.webp": {
+      "source": "lib/ternux-assets/wallpapers-v3/08-digital-nature/crimson-preview.webp",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/08-digital-nature/crimson-source.png": {
+      "source": "lib/ternux-assets/wallpapers-v3/08-digital-nature/crimson-source.png",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/08-digital-nature/crimson.webp": {
+      "source": "lib/ternux-assets/wallpapers-v3/08-digital-nature/crimson.webp",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/08-digital-nature/green-preview.webp": {
+      "source": "lib/ternux-assets/wallpapers-v3/08-digital-nature/green-preview.webp",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/08-digital-nature/green-source.png": {
+      "source": "lib/ternux-assets/wallpapers-v3/08-digital-nature/green-source.png",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/08-digital-nature/green.webp": {
+      "source": "lib/ternux-assets/wallpapers-v3/08-digital-nature/green.webp",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/09-mapping-the-unknown/crimson-preview.webp": {
+      "source": "lib/ternux-assets/wallpapers-v3/09-mapping-the-unknown/crimson-preview.webp",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/09-mapping-the-unknown/crimson-source.png": {
+      "source": "lib/ternux-assets/wallpapers-v3/09-mapping-the-unknown/crimson-source.png",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/09-mapping-the-unknown/crimson.webp": {
+      "source": "lib/ternux-assets/wallpapers-v3/09-mapping-the-unknown/crimson.webp",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/09-mapping-the-unknown/green-preview.webp": {
+      "source": "lib/ternux-assets/wallpapers-v3/09-mapping-the-unknown/green-preview.webp",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/09-mapping-the-unknown/green-source.png": {
+      "source": "lib/ternux-assets/wallpapers-v3/09-mapping-the-unknown/green-source.png",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/09-mapping-the-unknown/green.webp": {
+      "source": "lib/ternux-assets/wallpapers-v3/09-mapping-the-unknown/green.webp",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/10-refraction-of-reality/crimson-preview.webp": {
+      "source": "lib/ternux-assets/wallpapers-v3/10-refraction-of-reality/crimson-preview.webp",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/10-refraction-of-reality/crimson-source.png": {
+      "source": "lib/ternux-assets/wallpapers-v3/10-refraction-of-reality/crimson-source.png",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/10-refraction-of-reality/crimson.webp": {
+      "source": "lib/ternux-assets/wallpapers-v3/10-refraction-of-reality/crimson.webp",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/10-refraction-of-reality/green-preview.webp": {
+      "source": "lib/ternux-assets/wallpapers-v3/10-refraction-of-reality/green-preview.webp",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/10-refraction-of-reality/green-source.png": {
+      "source": "lib/ternux-assets/wallpapers-v3/10-refraction-of-reality/green-source.png",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/10-refraction-of-reality/green.webp": {
+      "source": "lib/ternux-assets/wallpapers-v3/10-refraction-of-reality/green.webp",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/11-time-and-computation/crimson-preview.webp": {
+      "source": "lib/ternux-assets/wallpapers-v3/11-time-and-computation/crimson-preview.webp",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/11-time-and-computation/crimson-source.png": {
+      "source": "lib/ternux-assets/wallpapers-v3/11-time-and-computation/crimson-source.png",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/11-time-and-computation/crimson.webp": {
+      "source": "lib/ternux-assets/wallpapers-v3/11-time-and-computation/crimson.webp",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/11-time-and-computation/green-preview.webp": {
+      "source": "lib/ternux-assets/wallpapers-v3/11-time-and-computation/green-preview.webp",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/11-time-and-computation/green-source.png": {
+      "source": "lib/ternux-assets/wallpapers-v3/11-time-and-computation/green-source.png",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/11-time-and-computation/green.webp": {
+      "source": "lib/ternux-assets/wallpapers-v3/11-time-and-computation/green.webp",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/12-connected-world/crimson-preview.webp": {
+      "source": "lib/ternux-assets/wallpapers-v3/12-connected-world/crimson-preview.webp",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/12-connected-world/crimson-source.png": {
+      "source": "lib/ternux-assets/wallpapers-v3/12-connected-world/crimson-source.png",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/12-connected-world/crimson.webp": {
+      "source": "lib/ternux-assets/wallpapers-v3/12-connected-world/crimson.webp",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/12-connected-world/green-preview.webp": {
+      "source": "lib/ternux-assets/wallpapers-v3/12-connected-world/green-preview.webp",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/12-connected-world/green-source.png": {
+      "source": "lib/ternux-assets/wallpapers-v3/12-connected-world/green-source.png",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/12-connected-world/green.webp": {
+      "source": "lib/ternux-assets/wallpapers-v3/12-connected-world/green.webp",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/13-the-pursuit-of-knowledge/crimson-preview.webp": {
+      "source": "lib/ternux-assets/wallpapers-v3/13-the-pursuit-of-knowledge/crimson-preview.webp",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/13-the-pursuit-of-knowledge/crimson-source.png": {
+      "source": "lib/ternux-assets/wallpapers-v3/13-the-pursuit-of-knowledge/crimson-source.png",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/13-the-pursuit-of-knowledge/crimson.webp": {
+      "source": "lib/ternux-assets/wallpapers-v3/13-the-pursuit-of-knowledge/crimson.webp",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/13-the-pursuit-of-knowledge/green-preview.webp": {
+      "source": "lib/ternux-assets/wallpapers-v3/13-the-pursuit-of-knowledge/green-preview.webp",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/13-the-pursuit-of-knowledge/green-source.png": {
+      "source": "lib/ternux-assets/wallpapers-v3/13-the-pursuit-of-knowledge/green-source.png",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/13-the-pursuit-of-knowledge/green.webp": {
+      "source": "lib/ternux-assets/wallpapers-v3/13-the-pursuit-of-knowledge/green.webp",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/14-workstation-in-your-pocket/crimson-preview.webp": {
+      "source": "lib/ternux-assets/wallpapers-v3/14-workstation-in-your-pocket/crimson-preview.webp",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/14-workstation-in-your-pocket/crimson-source.png": {
+      "source": "lib/ternux-assets/wallpapers-v3/14-workstation-in-your-pocket/crimson-source.png",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/14-workstation-in-your-pocket/crimson.webp": {
+      "source": "lib/ternux-assets/wallpapers-v3/14-workstation-in-your-pocket/crimson.webp",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/14-workstation-in-your-pocket/green-preview.webp": {
+      "source": "lib/ternux-assets/wallpapers-v3/14-workstation-in-your-pocket/green-preview.webp",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/14-workstation-in-your-pocket/green-source.png": {
+      "source": "lib/ternux-assets/wallpapers-v3/14-workstation-in-your-pocket/green-source.png",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/14-workstation-in-your-pocket/green.webp": {
+      "source": "lib/ternux-assets/wallpapers-v3/14-workstation-in-your-pocket/green.webp",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/15-beyond-the-horizon/crimson-preview.webp": {
+      "source": "lib/ternux-assets/wallpapers-v3/15-beyond-the-horizon/crimson-preview.webp",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/15-beyond-the-horizon/crimson-source.png": {
+      "source": "lib/ternux-assets/wallpapers-v3/15-beyond-the-horizon/crimson-source.png",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/15-beyond-the-horizon/crimson.webp": {
+      "source": "lib/ternux-assets/wallpapers-v3/15-beyond-the-horizon/crimson.webp",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/15-beyond-the-horizon/green-preview.webp": {
+      "source": "lib/ternux-assets/wallpapers-v3/15-beyond-the-horizon/green-preview.webp",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/15-beyond-the-horizon/green-source.png": {
+      "source": "lib/ternux-assets/wallpapers-v3/15-beyond-the-horizon/green-source.png",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/15-beyond-the-horizon/green.webp": {
+      "source": "lib/ternux-assets/wallpapers-v3/15-beyond-the-horizon/green.webp",
+      "perm": "644"
+    },
+    "lib/ternux/ternux-assets/wallpapers-v3/manifest.json": {
+      "source": "lib/ternux-assets/wallpapers-v3/manifest.json",
+      "perm": "644"
     }
   }
 }
