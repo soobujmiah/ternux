@@ -58,6 +58,7 @@ tnx_help() {
   tnx_help_tree_row backend '[show|set|detect|update]'
   tnx_help_tree_row gpu '[show|update]'
   tnx_help_tree_row wallpaper '[list|current|set NAME|refresh] [DISTRO]'
+  tnx_help_tree_row theme '[show|list|set Green|Crimson] [DISTRO]'
   tnx_print_two_col mic 'Request Android microphone permission'
   tnx_print_two_col cam 'Request Android camera permission'
   tnx_print_two_col update '[run|check]'
@@ -336,13 +337,30 @@ tnx_help_wallpaper() {
 Usage: tx wallpaper <subcommand> [DISTRO]
 
 Subcommands:
-  list              Show the wallpaper gallery (id, concept, description, colorways)
+  list [DISTRO]     Show the wallpaper gallery (id, concept, description, colorways)
   current [DISTRO]  Show the currently selected wallpaper and active theme/colorway
   set <id> [DISTRO] Apply a wallpaper, picking the colorway that matches the active theme
   refresh [DISTRO]  Re-apply the current selection's colorway for the active theme
 
 Selection is manual only — nothing is applied automatically, and your own
 custom wallpaper (if any) is never overwritten unless you run 'set'.
+Supports --json for machine-readable output.
+HELP
+}
+
+tnx_help_theme() {
+  cat << HELP
+Usage: tx theme <subcommand> [DISTRO]
+
+Subcommands:
+  show [DISTRO]            Show the active theme
+  list [DISTRO]            List available themes, marking the active one
+  set <Green|Crimson> [DISTRO]  Switch themes live and follow the active wallpaper's colorway
+
+System theme and window decorations switch live. Already-open GTK apps
+keep their previous accent styling until reopened (a GTK limitation,
+not something a restart-free switch can avoid); the icon theme is
+intentionally unaffected by this command.
 Supports --json for machine-readable output.
 HELP
 }

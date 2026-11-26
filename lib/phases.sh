@@ -479,7 +479,7 @@ tnx_phase_debian() {
       return 1
     fi
   done
-  if [ ! -d "$resource_dir/ternux-assets/icons/Ternux" ] || [ ! -d "$resource_dir/ternux-assets/wallpapers" ] || [ ! -d "$resource_dir/ternux-assets/wallpapers-v3" ] || [ ! -d "$resource_dir/ternux-assets/themes/Green" ] || [ ! -d "$resource_dir/ternux-assets/input-methods" ] || [ ! -x "$resource_dir/ternux-assets/bin/ternux-install-avro-m17n" ] || [ ! -s "$resource_dir/ternux-assets/bin/ternux-proot-faccessat-arm64.so" ] || [ ! -s "$resource_dir/ternux-assets/bin/ternux-proot-faccessat.c" ]; then
+  if [ ! -d "$resource_dir/ternux-assets/icons/Ternux" ] || [ ! -d "$resource_dir/ternux-assets/wallpapers" ] || [ ! -d "$resource_dir/ternux-assets/wallpapers-v3" ] || [ ! -d "$resource_dir/ternux-assets/themes/Green" ] || [ ! -d "$resource_dir/ternux-assets/themes/Crimson" ] || [ ! -d "$resource_dir/ternux-assets/input-methods" ] || [ ! -x "$resource_dir/ternux-assets/bin/ternux-install-avro-m17n" ] || [ ! -s "$resource_dir/ternux-assets/bin/ternux-proot-faccessat-arm64.so" ] || [ ! -s "$resource_dir/ternux-assets/bin/ternux-proot-faccessat.c" ]; then
     tnx_fail "Required Ternux desktop branding assets are missing under $resource_dir/ternux-assets"
     return 1
   fi
@@ -631,7 +631,7 @@ tnx_phase_debian() {
     printf '%s' '$ternux_assets_b64' | base64 -d | tar -xz -C "\$asset_stage"
     find "\$asset_stage" -type d -exec chmod 0755 {} +
     find "\$asset_stage" -type f -exec chmod 0644 {} +
-    install -d -m 0755 /usr/share/icons /usr/share/themes/Green /usr/share/backgrounds/ternux /usr/share/backgrounds/ternux-v3
+    install -d -m 0755 /usr/share/icons /usr/share/themes/Green /usr/share/themes/Crimson /usr/share/backgrounds/ternux /usr/share/backgrounds/ternux-v3
     # Replace the managed theme as one staged tree. Overlay copies leave old
     # icon aliases behind when an asset moves between contexts or is retired.
     icon_stage=\$(mktemp -d /usr/share/icons/.Ternux-stage.XXXXXX)
@@ -656,6 +656,7 @@ tnx_phase_debian() {
       exit 1
     fi
     cp -a "\$asset_stage/themes/Green/." /usr/share/themes/Green/
+    cp -a "\$asset_stage/themes/Crimson/." /usr/share/themes/Crimson/
     install -m 0755 "\$asset_stage/bin/ternux-open-url" /usr/local/bin/ternux-open-url
     install -m 0755 "\$asset_stage/bin/ternux-package-manager" /usr/local/bin/ternux-package-manager
     rm -f /usr/local/bin/ternux-app-center

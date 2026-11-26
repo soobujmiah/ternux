@@ -113,6 +113,8 @@ def source_path(path: str) -> Path | None:
         return ROOT / "lib/ternux-assets/icons/Ternux" / Path(path.removeprefix("/usr/share/icons/Ternux/"))
     if path.startswith("/usr/share/themes/Green/"):
         return ROOT / "lib/ternux-assets/themes/Green" / Path(path.removeprefix("/usr/share/themes/Green/"))
+    if path.startswith("/usr/share/themes/Crimson/"):
+        return ROOT / "lib/ternux-assets/themes/Crimson" / Path(path.removeprefix("/usr/share/themes/Crimson/"))
     if path.startswith("/usr/share/applications/ternux-"):
         return ROOT / "lib/ternux-assets/applications" / p.name
     aliases = {
