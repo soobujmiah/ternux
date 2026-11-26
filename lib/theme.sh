@@ -72,7 +72,7 @@ _tnx_theme_active() {
   unset _TNX_DISTRO; export TERNUX_DISTRO="$distro"
   theme="$(tnx_guest_login --_tnx-timeout-seconds 5 --user "$user" -- \
     xfconf-query -c xsettings -p /Net/ThemeName 2>/dev/null)" || theme=""
-  [ -n "$theme" ] || theme="$(tnx_state_get theme_name 2>/dev/null || true)"
+  [ -n "$theme" ] || theme="$(tnx_distro_state_get "$distro" theme_name 2>/dev/null || true)"
   [ -n "$theme" ] || theme="Green"
   _tnx_theme_canonical "$theme" 2>/dev/null || printf 'Green\n'
 }
@@ -165,7 +165,7 @@ _tnx_theme_set() {
     return 1
   fi
 
-  tnx_state_set "theme_name" "$name"
+  tnx_distro_state_set "$distro" "theme_name" "$name"
   # Follow the active wallpaper selection's colorway to the new theme; a
   # no-op if the user never selected one through `ternux wallpaper set`.
   _tnx_wallpaper_refresh "$distro" >/dev/null 2>&1 || true

@@ -23,7 +23,7 @@ tnx_cmd_wallpaper() {
   local subcmd="${1:-list}"
   shift 2>/dev/null || true
   case "$subcmd" in
-    list|--list|gallery) _tnx_wallpaper_list ;;
+    list|--list|gallery) _tnx_wallpaper_list "${1:-}" ;;
     current|--current)   _tnx_wallpaper_current "${1:-}" ;;
     set|--set)            _tnx_wallpaper_set "${1:-}" "${2:-}" ;;
     refresh|--refresh)    _tnx_wallpaper_refresh "${1:-}" ;;
@@ -62,7 +62,7 @@ _tnx_wallpaper_active_theme() {
   unset _TNX_DISTRO; export TERNUX_DISTRO="$distro"
   theme="$(tnx_guest_login --_tnx-timeout-seconds 5 --user "$user" -- \
     xfconf-query -c xsettings -p /Net/ThemeName 2>/dev/null)" || theme=""
-  [ -n "$theme" ] || theme="$(tnx_state_get wallpaper_theme 2>/dev/null || true)"
+  [ -n "$theme" ] || theme="$(tnx_distro_state_get "$distro" wallpaper_theme 2>/dev/null || true)"
   [ -n "$theme" ] || theme="Green"
   printf '%s\n' "$theme"
 }
@@ -75,8 +75,9 @@ _tnx_wallpaper_colorway_for_theme() {
 }
 
 _tnx_wallpaper_list() {
+  local distro; distro="$(_tnx_wallpaper_target_distro "$1")" || return $?
   local assets_dir; assets_dir="$(_tnx_wallpaper_assets_dir)" || return 1
-  local current_id; current_id="$(tnx_state_get wallpaper_id 2>/dev/null || true)"
+  local current_id; current_id="$(tnx_distro_state_get "$distro" wallpaper_id 2>/dev/null || true)"
 
   if [ "${TERNUX_JSON:-0}" = "1" ]; then
     python3 - "$assets_dir/manifest.json" "$current_id" <<'PY'
@@ -111,7 +112,7 @@ PY
 _tnx_wallpaper_current() {
   local distro; distro="$(_tnx_wallpaper_target_distro "$1")" || return $?
   local current_id theme colorway
-  current_id="$(tnx_state_get wallpaper_id 2>/dev/null || true)"
+  current_id="$(tnx_distro_state_get "$distro" wallpaper_id 2>/dev/null || true)"
   theme="$(_tnx_wallpaper_active_theme "$distro")"
   colorway="$(_tnx_wallpaper_colorway_for_theme "$theme")"
 
@@ -133,7 +134,7 @@ _tnx_wallpaper_current() {
 # alone — this never guesses at what a user wants).
 _tnx_wallpaper_refresh() {
   local distro; distro="$(_tnx_wallpaper_target_distro "$1")" || return $?
-  local current_id; current_id="$(tnx_state_get wallpaper_id 2>/dev/null || true)"
+  local current_id; current_id="$(tnx_distro_state_get "$distro" wallpaper_id 2>/dev/null || true)"
   if [ -z "$current_id" ]; then
     tnx_info "No Ternux-managed wallpaper selection to refresh. Run: ternux wallpaper set <id>"
     [ "${TERNUX_JSON:-0}" = "1" ] && tnx_json_object "wallpaper" "unchanged" "reason" "no_selection"
@@ -213,8 +214,8 @@ PY
     return 1
   fi
 
-  tnx_state_set "wallpaper_id" "$id"
-  tnx_state_set "wallpaper_theme" "$theme"
+  tnx_distro_state_set "$distro" "wallpaper_id" "$id"
+  tnx_distro_state_set "$distro" "wallpaper_theme" "$theme"
   tnx_ok "Wallpaper set: $id ($colorway)"
   [ "${TERNUX_JSON:-0}" = "1" ] && tnx_json_object "wallpaper" "updated" "wallpaper_id" "$id" "theme" "$theme" "colorway" "$colorway"
   return 0

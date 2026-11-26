@@ -337,7 +337,7 @@ tnx_help_wallpaper() {
 Usage: tx wallpaper <subcommand> [DISTRO]
 
 Subcommands:
-  list              Show the wallpaper gallery (id, concept, description, colorways)
+  list [DISTRO]     Show the wallpaper gallery (id, concept, description, colorways)
   current [DISTRO]  Show the currently selected wallpaper and active theme/colorway
   set <id> [DISTRO] Apply a wallpaper, picking the colorway that matches the active theme
   refresh [DISTRO]  Re-apply the current selection's colorway for the active theme
