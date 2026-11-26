@@ -107,6 +107,8 @@ def source_path(path: str) -> Path | None:
     parts = p.parts
     if parts[:5] == ("/", "usr", "share", "backgrounds", "ternux"):
         return ROOT / "lib/ternux-assets/wallpapers" / p.name
+    if parts[:5] == ("/", "usr", "share", "backgrounds", "ternux-v3"):
+        return ROOT / "lib/ternux-assets/wallpapers-v3" / Path(*p.parts[5:])
     if path.startswith("/usr/share/icons/Ternux/"):
         return ROOT / "lib/ternux-assets/icons/Ternux" / Path(path.removeprefix("/usr/share/icons/Ternux/"))
     if path.startswith("/usr/share/themes/Green/"):

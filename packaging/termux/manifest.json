@@ -2160,6 +2160,10 @@
       "source": "lib/update.sh",
       "perm": "644"
     },
+    "lib/ternux/wallpaper.sh": {
+      "source": "lib/wallpaper.sh",
+      "perm": "644"
+    },
     "lib/ternux/workload-registry.sh": {
       "source": "lib/workload-registry.sh",
       "perm": "644"
