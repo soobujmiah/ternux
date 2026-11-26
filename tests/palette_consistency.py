@@ -97,6 +97,40 @@ def check_terminalrc():
         check(f"lib/phases.sh terminalrc {name}", actual, expected)
 
 
+def check_welcome_gui():
+    # The guest-side Welcome Center can't import tools/ternux_palette.py (it
+    # ships as a standalone guest asset, not host build tooling), so it
+    # keeps its own small PALETTES dict — check it stays a subset of the
+    # canonical values rather than drifting.
+    source = (REPO_ROOT / "lib/ternux-welcome-gui.py").read_text()
+    import ast
+    tree = ast.parse(source)
+    assign = None
+    for node in tree.body:
+        if isinstance(node, ast.Assign) and any(
+            isinstance(t, ast.Name) and t.id == "PALETTES" for t in node.targets
+        ):
+            assign = node
+            break
+    if assign is None:
+        errors.append("lib/ternux-welcome-gui.py: no PALETTES dict found")
+        return
+    # Written as {"green": dict(bg=..., ...), "crimson": dict(...)} — each
+    # value is a dict(**kwargs) call, not a literal, so literal_eval can't
+    # parse it directly; pull the keyword values out by hand instead.
+    guest_palettes = {
+        key.value: {kw.arg: kw.value.value for kw in call.keywords}
+        for key, call in zip(assign.value.keys, assign.value.values)
+    }
+    for colorway, guest_values in guest_palettes.items():
+        canonical = PALETTES.get(colorway)
+        if canonical is None:
+            errors.append(f"lib/ternux-welcome-gui.py: unknown colorway {colorway}")
+            continue
+        for token, value in guest_values.items():
+            check(f"lib/ternux-welcome-gui.py {colorway} {token}", value, canonical.get(token, ""))
+
+
 def main():
     for colorway, theme_dir in THEME_DIRS.items():
         p = PALETTES[colorway]
@@ -104,6 +138,7 @@ def main():
         check_gtk4(theme_dir, p)
         check_themerc(theme_dir, p)
     check_terminalrc()
+    check_welcome_gui()
 
     if errors:
         for error in errors:
