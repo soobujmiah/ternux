@@ -14,8 +14,8 @@ TERNUX_DESC="Linux desktop for Android with Zink and VirGL graphics routes"
 TERNUX_REPO="https://github.com/soobujmiah/ternux"
 # Immutable source snapshot shared by the standalone bootstrap and CLI fallback.
 # Keep these values aligned with install.sh; refresh only from a reviewed archive.
-TERNUX_SOURCE_COMMIT="2ff472bddb53f74fc8e7357ff161f19f590b63ab"
-TERNUX_SOURCE_SHA256="681d942cfc681bf57db5efbd7412e087f251389c7c23113e4dd8756f515495e2"
+TERNUX_SOURCE_COMMIT="c1490589f158798b53eaa6101564a6847562280e"
+TERNUX_SOURCE_SHA256="dbdfcf30bdc57d85f410a63d2ab7784f7232cee8344b69fd2b5e5fb049bec10a"
 TERNUX_GUEST_CLI_SHA256="11f3e202eaae2046cfe11b61edc13d754566ca428faeb2b25a088352792aaaf5"
 TERNUX_STATE_DIR="${TERNUX_STATE_DIR:-$HOME/.local/share/ternux}"
 TERNUX_LOG_DIR="${TERNUX_LOG_DIR:-${TMPDIR:-/data/data/com.termux/files/usr/tmp}/ternux}"
