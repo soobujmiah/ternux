@@ -218,6 +218,31 @@ for english, bengali in pairs:
         check(bool(bn_meta.get(field)), f"{bengali.relative_to(ROOT)}: missing {field} front matter")
     check(en_meta.get("lang") == "en", f"{english.relative_to(ROOT)}: lang must be en")
     check(bn_meta.get("lang") == "bn", f"{bengali.relative_to(ROOT)}: lang must be bn")
+    # alt_url must actually point at the cross-language sibling, not just be
+    # present: an English doc's alt_url must target its /bn/... counterpart,
+    # and a Bengali doc's alt_url must target the English page with no /bn/
+    # prefix. A self-referential or same-language alt_url is a real bug
+    # (found in bn/docs/ANDROID-PHANTOM-PROCESS.md: it pointed at itself).
+    def web_path(path: Path) -> str:
+        # Directory index pages route to a trailing-slash directory URL
+        # (e.g. docs/index.md -> /docs/), not an index.html suffix.
+        rel = str(path.relative_to(ROOT))
+        if path.name == "index.md":
+            return "/" + rel.rsplit("index.md", 1)[0]
+        return "/" + rel.rsplit(".", 1)[0] + ".html"
+
+    expected_en_alt_url = web_path(bengali)
+    expected_bn_alt_url = web_path(english)
+    check(
+        en_meta.get("alt_url") == expected_en_alt_url,
+        f"{english.relative_to(ROOT)}: alt_url {en_meta.get('alt_url')!r} "
+        f"must point to its Bengali sibling ({expected_en_alt_url!r})",
+    )
+    check(
+        bn_meta.get("alt_url") == expected_bn_alt_url,
+        f"{bengali.relative_to(ROOT)}: alt_url {bn_meta.get('alt_url')!r} "
+        f"must point to its English sibling ({expected_bn_alt_url!r}), not back into bn/",
+    )
     en_heading_levels = document_heading_levels(english)
     bn_heading_levels = document_heading_levels(bengali)
     check(
