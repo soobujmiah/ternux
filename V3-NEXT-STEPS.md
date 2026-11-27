@@ -6,8 +6,9 @@ Delete this file once all items below are merged and their facts (if still
 worth keeping) have been folded into `docs/project/` canonical docs, per
 `AI_ASSISTANT.md`'s "keep one canonical record" rule.
 
-Workstreams **01–08 and 12 of the original 18 are done and merged to
-main** (PRs #326–335). Before touching any area below, check whether
+Workstreams **02–08 and 12 of the original 18 are done and merged to
+main** (PRs #326–335) — note that excludes 01, listed as item 7 below,
+not yet started. Before touching any area below, check whether
 it already exists — grep the codebase and `git log --oneline -30`
 first; `CHANGELOG.md` and recent merge commits are the fastest way to
 confirm current state. What's left:
@@ -98,9 +99,12 @@ Incremental implementation"), these stages are still fully pending:
      `git checkout -- package-lock.json` if it shows up, it's not a
      real change.
 5. `gh pr create`.
-6. Poll `gh pr checks <N>` — use
-   `gh event listen --resource <pr-url> --event com.github.pull_request.check_suite.status.changed.v1`
-   to wait efficiently instead of tight polling.
+6. Poll `gh pr checks <N>`. If your `gh` has the (preview, not
+   guaranteed available) `gh event listen` command — check with
+   `gh event --help` first — it can wait for a state change instead of
+   tight-polling: `gh event listen --resource <pr-url> --event
+   com.github.pull_request.check_suite.status.changed.v1`. Otherwise
+   `gh pr checks <N> --watch`, or plain repeated polling, work fine.
 7. If CI fails, get the real failure with
    `gh run view <run> --job <job> --log-failed`, fix it, redo the pin
    dance if `lib/` changed again, repeat from step 5.
