@@ -194,7 +194,14 @@ _tnx_logs_view() {
     fi
     _tnx_logs_view_draw "$body_rows"
 
-    if IFS= read -r -s -n 1 -t 0.5 -u 3 key; then
+    IFS= read -r -s -n 1 -t 0.5 -u 3 key
+    read_status=$?
+    # `if cond; then ...; fi` with no else is 0 whenever cond is false,
+    # regardless of cond's own exit status — the read's actual status
+    # must be captured right here, not inferred from the if construct,
+    # or every idle poll (any read that times out) would be
+    # indistinguishable from true EOF/signal and kill the viewer.
+    if (( read_status == 0 )); then
       case "$key" in
         j) follow=0; (( offset + 1 <= total - 1 )) && offset=$(( offset + 1 )) ;;
         k) follow=0; (( offset > 0 )) && offset=$(( offset - 1 )) ;;
@@ -218,7 +225,6 @@ _tnx_logs_view() {
       esac
       continue
     fi
-    read_status=$?
     if (( read_status <= 128 )); then break; fi
 
     size="$(stty size <&3 2>/dev/null || true)"
@@ -260,10 +266,15 @@ _tnx_logs_view_draw() {
   start=$offset; end=$(( offset + body_rows )); (( end > total )) && end=$total
   for (( i = start; i < end; i++ )); do
     ln="${lines[$i]}"
+    # Wide characters (CJK, emoji) occupy two terminal cells but count as
+    # one character to a bash substring, so clipping by character count
+    # can overshoot the measured column width; _tnx_clipv (lib/ui.sh)
+    # already clips by display-cell width for exactly this reason.
+    _tnx_clipv "$_TNX_TERM_COLS" "$ln"
     if [ -n "$search" ] && [[ "$ln" == *"$search"* ]]; then
-      printf '%s%s%s\n' "$TNX_CY" "${ln:0:_TNX_TERM_COLS}" "$TNX_C0" >&2
+      printf '%s%s%s\n' "$TNX_CY" "$_TNX_CLIP" "$TNX_C0" >&2
     else
-      printf '%s\n' "${ln:0:_TNX_TERM_COLS}" >&2
+      printf '%s\n' "$_TNX_CLIP" >&2
     fi
   done
   local follow_label="LIVE"
@@ -327,7 +338,10 @@ _tnx_logs_view_export() {
   dest="$(_tnx_logs_view_read_line "Export to [$default_dest]: ")"
   [ -n "$dest" ] || dest="$default_dest"
   mkdir -p "$(dirname "$dest")" 2>/dev/null || true
-  if [ -n "$search" ] && (( ${#matches[@]} > 0 )); then
+  if [ -n "$search" ]; then
+    # An active search with zero matches must export nothing, not
+    # silently fall back to the whole buffer — the status line already
+    # told the user "0 match(es)".
     for i in "${matches[@]}"; do printf '%s\n' "${lines[$i]}"; done > "$dest" 2>/dev/null
   else
     printf '%s\n' "${lines[@]}" > "$dest" 2>/dev/null

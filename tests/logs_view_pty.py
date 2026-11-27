@@ -15,6 +15,7 @@ import shlex
 import subprocess
 import sys
 import tempfile
+import time
 from pathlib import Path
 
 root = Path(sys.argv[1]).resolve()
@@ -25,6 +26,7 @@ if script is None:
 tmp = Path(tempfile.mkdtemp(prefix="ternux-logview-"))
 log_file = tmp / "sample.log"
 export_file = tmp / "export.txt"
+empty_export_file = tmp / "empty-export.txt"
 lines = [f"line-{i:03d}" for i in range(100)]
 lines[50] = "MAGIC-NEEDLE-12345"
 log_file.write_text("\n".join(lines) + "\n")
@@ -44,6 +46,8 @@ keys = (
     b"j" * 3          # scroll down 3 lines from the initial live/bottom view (also pauses)
     + b"g"             # jump to top
     + b"j" * 3         # scroll down 3 more lines from the top
+    + b"/" + b"NO-SUCH-PATTERN\r"  # a search with zero matches
+    + b"e" + str(empty_export_file).encode() + b"\r"  # must export nothing, not the whole log
     + b"/" + b"MAGIC-NEEDLE\r"  # search
     + b"e" + str(export_file).encode() + b"\r"  # export the (single) match
     + b"q"
@@ -82,6 +86,33 @@ if not export_file.exists():
 exported = export_file.read_text()
 if exported.strip() != "MAGIC-NEEDLE-12345":
     raise SystemExit(f"export wrote unexpected content: {exported!r}")
+if not empty_export_file.exists():
+    raise SystemExit(f"a zero-match search export did not create a file at all: {output[-500:]!r}")
+if empty_export_file.read_text().strip() != "":
+    raise SystemExit(
+        f"a zero-match search exported the whole log instead of nothing: "
+        f"{empty_export_file.read_text()[:200]!r}"
+    )
+
+# The viewer must stay alive through an idle key-read timeout (0.5s) during
+# real interactive use — a prior bug made every timeout indistinguishable
+# from EOF/a signal, silently killing the viewer after ~0.5s of no input.
+idle_proc = subprocess.Popen(
+    [script, "-qec", command, "/dev/null"],
+    stdin=subprocess.PIPE,
+    stdout=subprocess.PIPE,
+    stderr=subprocess.PIPE,
+    env={**os.environ, "TERM": "dumb"},
+)
+time.sleep(2)  # four times the 0.5s read timeout
+if idle_proc.poll() is not None:
+    idle_proc.kill()
+    raise SystemExit("the viewer exited on its own after ~2s of idle time (no keys pressed)")
+idle_proc.stdin.write(b"q")
+idle_proc.stdin.close()
+idle_out, idle_err = idle_proc.communicate(timeout=10)
+if idle_proc.returncode != 0:
+    raise SystemExit(f"viewer exited {idle_proc.returncode} after idling then 'q': {(idle_out + idle_err)[-300:]!r}")
 
 shutil.rmtree(tmp, ignore_errors=True)
-print("Advanced Log Viewer PTY test passed: live/paused state, scroll, search, and export-matches-only all work")
+print("Advanced Log Viewer PTY test passed: live/paused state, scroll, search, export-matches-only, and idle survival all work")
