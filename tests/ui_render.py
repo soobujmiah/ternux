@@ -607,9 +607,12 @@ def main() -> int:
 
     # 8. Orientation change: a full portrait<->landscape swap, not just a
     #    magnitude change — exercises the same code path real rotation does.
+    #    The initial 34-column geometry is narrower than the compact-layout
+    #    threshold (see "compact phone 41x18" above), so no task row is
+    #    expected until after the resize to 58 columns.
     screen8, log8, _ = run(args.lib, 58, 34, resize_schedule=[(1.4, 34, 58)])
     analyse(tap, screen8, log8, "", "orientation change 34x58 -> 58x34",
-            expect_clears=8, expect_width=57)
+            expect_clears=8, expect_width=57, has_task_row=False)
 
     if args.html:
         mid = min(screen.snapshots, key=lambda s: abs(s[0] - 1.1), default=None)
