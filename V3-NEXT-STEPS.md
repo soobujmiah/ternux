@@ -6,19 +6,22 @@ Delete this file once all items below are merged and their facts (if still
 worth keeping) have been folded into `docs/project/` canonical docs, per
 `AI_ASSISTANT.md`'s "keep one canonical record" rule.
 
-Workstreams **02–08 and 12 of the original 18 are done and merged to
-main** (PRs #326–335) — note that excludes 01, listed as item 7 below,
-not yet started. Before touching any area below, check whether
+Workstreams **02–09 and 12 of the original 18 are done and merged to
+main** (PRs #326–335, #337) — note that excludes 01, listed as item 7
+below, not yet started. Before touching any area below, check whether
 it already exists — grep the codebase and `git log --oneline -30`
 first; `CHANGELOG.md` and recent merge commits are the fastest way to
 confirm current state. What's left:
 
-1. **09. Adaptive Terminal UI** — per the V3 plan this is a *hardening*
-   pass on `lib/ui.sh`, not a rewrite: SIGWINCH/resize handling and
-   kernel-measured geometry already work. Test real-device scenarios
-   (keyboard open/close, rapid resize, orientation change) and fix only
-   what that testing actually finds — don't guess at problems that may
-   not exist.
+1. ~~**09. Adaptive Terminal UI**~~ — **done, PR #337.** Extended
+   `tests/ui_render.py`'s PTY harness with a resize schedule and added
+   keyboard open/close, rapid-resize, and orientation-change scenarios,
+   plus checks that a resize is honored *before* `tnx_frame_close`'s own
+   re-measure (a real Codex finding — the original checks only saw the
+   close-time redraw). All scenarios pass against `lib/ui.sh` unchanged;
+   testing found no real resize-handling defects (it also turned up a
+   periodic resize poll independent of SIGWINCH, which is why nothing
+   broke even with the signal trap disabled in a throwaway check).
 2. **10. Desktop and Window Management** — Window Fit
    (`lib/ternux-window-fit.lua`) is narrow/isolated/already works per
    the original audit; testing pass only unless real defects surface.
