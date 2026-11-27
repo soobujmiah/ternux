@@ -8,6 +8,12 @@ and knowledge-return baseline. This file defines only Ternux-specific rules.
 
 ## Sources of truth
 
+- **V3 redesign in progress: read [`V3-NEXT-STEPS.md`](V3-NEXT-STEPS.md)
+  first** if asked to continue V3 work — it lists exactly what's left,
+  what's already merged, and the PR workflow this repo expects
+  (pin-refresh dance, PTY testing, Codex review handling). Delete it
+  once V3 ships and fold anything still worth keeping into the
+  canonical docs below.
 - Installer behavior and supported commands: source code and [`docs/CLI.md`](docs/CLI.md).
 - User entry points: root `README.md` and the English/Bengali website home pages.
 - Detailed usage and reproducibility: `docs/`, `guides/`, and `experiments/`.
