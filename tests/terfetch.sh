@@ -12,10 +12,13 @@ bash -n "$TERFETCH"
 [ "$("$TERFETCH" --version)" = 'terfetch 0.1.0' ]
 "$TERFETCH" --help | grep -Fq 'Usage: terfetch [--json|--refresh|--version|--help]'
 
-# Native Termux selects Android, Ternux Workstation, all managed distro logos,
-# or Sobuj's special monogram.
+# Native Termux selects Android, the redesigned Ternux Workstation mark, one
+# of eight tech/science marks, or Sobuj's special monogram. Native rotation
+# no longer includes the managed distro logos (PRoot guests still show their
+# own, checked separately below) -- curated from 17 to 10 (plus Sobuj) per
+# V3-NEXT-STEPS.md item 5.
 declare -A logo_heads=()
-for index in {0..17}; do
+for index in {0..10}; do
   output="$(TERFETCH_TEST_HOST=termux TERFETCH_LOGO_INDEX="$index" COLUMNS=160 NO_COLOR=1 "$TERFETCH")"
   logo_signature="$output"
   [ -n "$logo_signature" ]
@@ -27,7 +30,7 @@ for index in {0..17}; do
   ! grep -Eq 'Commands +tx ' <<< "$output"
   ! grep -Eq '\[(XFCE|ANDR|TMX|TERMUX|SM|LINUX|PROOT|GPU|X11)\]' <<< "$output"
   [ "$(awk 'length($0) > 160 { count++ } END { print count + 0 }' <<< "$output")" -eq 0 ]
-  if [ "$index" -eq 17 ]; then
+  if [ "$index" -eq 10 ]; then
     grep -q 'Presented by' <<< "$output"
     ! grep -Fq '@soobujmiah' <<< "$output"
     grep -Fq 'SSSS  OOO  BBB  U   U JJJ' <<< "$output"
@@ -43,7 +46,33 @@ for index in {0..17}; do
   panel_rows="$(sed -n "2,${panel_end}p" <<< "$output" | grep -Ec 'System +|Distro +|Environment +|Kernel +|Uptime +|Packages +|Package manager +|Architecture +|CPU +|CPU cores +|GPU +|Memory +|Storage +|Shell +|Terminal +|Terminal size +|Ternux +|User +|Locale +|Init +|Privilege +|Device +|Android +|Display +|Desktop +|Battery +')"
   [ "$panel_rows" -ge 20 ]
 done
-[ "${#logo_heads[@]}" -eq 18 ]
+[ "${#logo_heads[@]}" -eq 11 ]
+# The redesigned Workstation mark and all eight new tech/science marks exist
+# and render something distinctive, not the generic Linux-guest placeholder.
+for id_mark in 'workstation:>_' 'atom:hhhh' 'circuit:CPU' 'dna:O======' 'rocket:TN' 'satellite:#=#=#' 'telescope:ggggg' 'radar:((**))' 'flask:bbbbb'; do
+  id="${id_mark%%:*}"
+  mark="${id_mark#*:}"
+  found=0
+  for index in {0..10}; do
+    output="$(TERFETCH_TEST_HOST=termux TERFETCH_LOGO_INDEX="$index" COLUMNS=160 NO_COLOR=1 "$TERFETCH")"
+    if grep -Fq -- "$mark" <<< "$output"; then found=1; break; fi
+  done
+  [ "$found" -eq 1 ] || { echo "No native logo index rendered the $id mark" >&2; exit 1; }
+done
+# Ultra-narrow terminals (narrower than any compact bracket tag) switch to a
+# dedicated 3-line layout: the bracket tag is never truncated to one letter
+# (the "protected monogram region"), and the usual DAILY COMMANDS footer is
+# replaced by exactly one command line.
+protected_output="$(TERFETCH_TEST_DISTRO=kali COLUMNS=22 LINES=24 NO_COLOR=1 "$TERFETCH")"
+[ "$(wc -l <<< "$protected_output")" -eq 3 ]
+grep -Fq '[KALI]' <<< "$protected_output"
+! grep -Fq 'DAILY COMMANDS' <<< "$protected_output"
+grep -Fq '$ ternux info' <<< "$protected_output"
+[ "$(awk 'length($0) > 22 { count++ } END { print count + 0 }' <<< "$protected_output")" -eq 0 ]
+protected_native="$(TERFETCH_TEST_HOST=termux TERFETCH_LOGO_INDEX=9 COLUMNS=22 LINES=24 NO_COLOR=1 "$TERFETCH")"
+[ "$(wc -l <<< "$protected_native")" -eq 3 ]
+grep -Fq '[FLSK]' <<< "$protected_native"
+grep -Fq '$ tx status' <<< "$protected_native"
 # Logo and facts stay side by side at every width. A fact is shown only when
 # its complete label and value fit on the same row; widening after font zoom
 # restores facts on the next prompt render.

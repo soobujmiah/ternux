@@ -15,6 +15,7 @@ Notable changes to ternux. Dates are ISO 8601.
 - Mark development for the next version as active following publication of the verified source release. Add APT feasibility recommendations, an eight-distro qualification matrix, a security roadmap, and a layered test strategy; no unfinished next-version capability is presented as shipped.
 - Reconcile English/Bengali project status and the document-scope inventory with the completed release gate and current next-version boundary.
 - Fix stale update-lock recovery status propagation and add regression coverage for stale locks with and without recovery journals. Add a ShellCheck error-level CI baseline for production shell sources.
+- Redesign the native Terfetch Workstation mark and replace its managed-distro-logo rotation with eight new tech/science marks (atom, circuit, DNA, rocket, satellite, telescope, radar, flask); PRoot guests are unaffected and keep showing their own distro logo. Add a 3-line stacked layout with a protected monogram region for terminals too narrow even for the compact bracket tag.
 
 ## [Historical source tag] — 2026-11-19
 

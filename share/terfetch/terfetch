@@ -487,7 +487,7 @@ set_logo() {
       '        : -y.  -hNmddmNy.  .y- :'
       '         -+       `..`       +-'
     ) ;;
-    rocky) logo_lines=(
+    rockylinux|rocky) logo_lines=(
       '          __wgliliiligw_,'
       '       _williiiiiiliilililw,'
       '     _%iiiiiilililiiiiiiiiiii_'
@@ -587,19 +587,143 @@ set_logo() {
       '                 L I N U X'
     ) ;;
     workstation) logo_lines=(
-      '       .--------------------.'
-      '      /  T E R N U X       /|'
-      '     /--------------------/ |'
-      '    |  +----------------+ | |'
-      '    |  |                | | |'
-      '    |  |   WORKSTATION  | | |'
-      '    |  |                | | |'
-      '    |  +----------------+ |/'
-      '    +--------------------+/'
-      '        ________________'
-      '       /_______________/|'
-      '      |_______________|/'
-      '        WORKLAB DESK'
+      '    .-----------------------.   '
+      '   /  .-------------------.  \ '
+      '  |   |                   |   |'
+      '  |   |        >_         |   |'
+      '  |   |                   |   |'
+      '  |   `-------------------`   |'
+      '   \_________________________/ '
+      '          |____________|       '
+      '        /________________\     '
+    ) ;;
+    atom) logo_lines=(
+      '            .ohhhho.'
+      '         .ohhhhhhhhhho.'
+      '       :hhhh       hhhh:'
+      '     :hhhh           hhhh:'
+      ' ..  hhh               hhh  ..'
+      'ohho hh                 hh ohho'
+      'hhhhohh                 hhohhhh'
+      'hhhhhh        ##          hhhhhh'
+      'hhhhhh       ####         hhhhhh'
+      'hhhhhh        ##          hhhhhh'
+      'hhhhohh                 hhohhhh'
+      'ohho hh                 hh ohho'
+      ' ..  hhh               hhh  ..'
+      '     :hhhh           hhhh:'
+      '       :hhhh       hhhh:'
+      '         `ohhhhhhhhhho`'
+      '            `ohhhho`'
+    ) ;;
+    circuit) logo_lines=(
+      '      .-+--+--+--+--+--+-.'
+      '      |                   |'
+      '   +--+    .-----------.   +--'
+      '      |    |  .-----.  |   |'
+      '   +--+    |  | CPU |  |   +--'
+      '      |    |  `-----`  |   |'
+      '   +--+    `-----------`   +--'
+      '      |                   |'
+      '      `-+--+--+--+--+--+-`'
+    ) ;;
+    dna) logo_lines=(
+      '    O==========o'
+      '     \        /'
+      '      o======O'
+      '     /        \'
+      '    O==========o'
+      '     \        /'
+      '      o======O'
+      '     /        \'
+      '    O==========o'
+      '     \        /'
+      '      o======O'
+      '     /        \'
+      '    O==========o'
+    ) ;;
+    rocket) logo_lines=(
+      '             /\'
+      '            /##\'
+      '           /####\'
+      '          /######\'
+      '         /########\'
+      '        d##########b'
+      '        M##########M'
+      '        M####TN####M'
+      '        M##########M'
+      '      ,ddM##########Mbb,'
+      '     /   M##########M   \'
+      '    |    M##########M    |'
+      '     \   M##########M   /'
+      '      \\ M##########M //'
+      '       \\M##########M//'
+      '        \MM########MM/'
+      '         `MM######MM`'
+      '          #M######M#'
+      '           ########'
+      '          ##      ##'
+      '         #          #'
+    ) ;;
+    satellite) logo_lines=(
+      '#=#=#=#=#          #=#=#=#=#'
+      '#=#=#=#=#\        /#=#=#=#=#'
+      '#=#=#=#=# \ggggggg/ #=#=#=#=#'
+      '#=#=#=#=# dgggggggb #=#=#=#=#'
+      '          gggg##gggg'
+      '          gggg##gggg'
+      '          `gggggggg`'
+      '             ||'
+      '            /||\'
+      '           .    .'
+    ) ;;
+    telescope) logo_lines=(
+      '                        *   *'
+      '                    *'
+      '       ,ggggggggggggb,'
+      '     ,ggggggggggggggggb,'
+      '    dgggg    **     ggggb'
+      '    `ggggggggggggggggggg`'
+      '      `ggggggggggggggg`'
+      '         \\\'
+      '          \\\\\'
+      '           \\\\\'
+      '            \\\\\'
+      '         ,ggg+ggg,'
+      '        dgggg|ggggb'
+      '        `gggg|gggg`'
+      '         `ggg+ggg`'
+    ) ;;
+    radar) logo_lines=(
+      '      ,ggggggggggggggggggb,'
+      '    ,ggggggggggggggggggggggb,'
+      '   dgggg::::::::::::::::::gggb'
+      '  dggg::::::::((**))::::::gggb'
+      '  gggg::::::::::::::::::::gggg'
+      '  `ggg,,,,,,,,,,,,,,,,,,,,ggg`'
+      '    `gggggggggggggggggggggg`'
+      '       `ggggggggggggggggg`'
+      '              ||'
+      '             d||b'
+      '            d |  | b'
+      '           ^---++---^'
+    ) ;;
+    flask) logo_lines=(
+      '        ,ggg,'
+      '        dgggb'
+      '        dgggb'
+      '        dgggb'
+      '       ,dgggb,'
+      '      ,ddgggbb,'
+      '     ,dddgggbbb,'
+      '   ,ddddd---bbbbb,'
+      '  ddddd:: o :: bbbbb'
+      '  ggggg: o  o :ggggg'
+      '  ggggg:: o :: ggggg'
+      '  `bbbbb-----ddddd`'
+      '    `bbbbbgggddddd`'
+      '      `bbbgggdd`'
+      '        `ggg`'
     ) ;;
     sobuj) logo_lines=(
       'SSSS  OOO  BBB  U   U JJJ'
@@ -628,7 +752,7 @@ logo_credit=''
 logo_presented=0
 logo_id=linux
 if [ "$host_termux" -eq 1 ]; then
-  native_logo_ids=(android workstation adelie alpine archlinux artix chimera debian deepin fedora kali manjaro opensuse pardus rockylinux ubuntu void sobuj)
+  native_logo_ids=(android workstation atom circuit dna rocket satellite telescope radar flask sobuj)
   logo_count="${#native_logo_ids[@]}"
   logo_index="${TERFETCH_LOGO_INDEX:-$((RANDOM % logo_count))}"
   if [[ ! "$logo_index" =~ ^[0-9]+$ ]] || [ "$logo_index" -ge "$logo_count" ]; then
@@ -695,12 +819,26 @@ if [ "$logo_target_width" -lt 11 ] && [ "$logo_width" -gt "$logo_target_width" ]
     rockylinux|rocky) compact_logo='[ROC]' ;;
     ubuntu) compact_logo='[UBU]' ;;
     void) compact_logo='[VOID]' ;;
+    atom) compact_logo='[ATOM]' ;;
+    circuit) compact_logo='[CIRC]' ;;
+    dna) compact_logo='[DNA]' ;;
+    rocket) compact_logo='[RKT]' ;;
+    satellite) compact_logo='[SAT]' ;;
+    telescope) compact_logo='[TEL]' ;;
+    radar) compact_logo='[RDR]' ;;
+    flask) compact_logo='[FLSK]' ;;
     sobuj) compact_logo='[SOBUJ]' ;;
     *) compact_logo='[LNX]' ;;
   esac
   if [ "${#compact_logo}" -le "$logo_target_width" ]; then
     logo_lines=("$compact_logo")
   else
+    # The side-by-side column is too narrow even for the bracket tag: it
+    # would otherwise collapse to one unreadable letter. Switch to the
+    # 3-line stacked layout below instead, which keeps the full tag intact
+    # in a "protected" region row-truncation and field-filtering cannot
+    # erode -- see protected_monogram.
+    protected_monogram="$compact_logo"
     compact_initial="${compact_logo:1:1}"
     logo_lines=("$compact_initial")
   fi
@@ -741,6 +879,7 @@ value_width=$((info_width - label_width - 1))
 # Keep each fact on one physical row. If its complete value cannot fit beside
 # the fixed-width label, omit that fact for this render; the resize hook runs
 # Terfetch again when the terminal gains columns.
+all_values=("${values[@]}")
 visible_labels=()
 visible_values=()
 for ((field=0; field<${#labels[@]}; field++)); do
@@ -793,30 +932,67 @@ logo_pad=$(((logo_area_width - logo_width) / 2))
 logo_tail=$((logo_area_width - logo_pad - logo_width))
 [ "$logo_tail" -ge 0 ] || logo_tail=0
 
-for ((i=0; i<render_rows; i++)); do
-  art=''
-  art_color="$c1"
-  logo_row=$((i - logo_start))
-  if [ "$logo_presented" -eq 1 ] && [ "$i" -eq $((logo_start - 1)) ] && [ "$logo_area_width" -ge 14 ]; then
-    art='Presented by'
-    art_color="$c3"
-  elif [ "$logo_row" -ge 0 ] && [ "$logo_row" -lt "${#logo_lines[@]}" ]; then
-    art="${logo_lines[logo_row]}"
-  fi
-  art_width="$logo_width"
-  art_pad=$(((logo_area_width - art_width) / 2))
-  [ "$art_pad" -ge 0 ] || art_pad=0
-  art_tail=$((logo_area_width - art_pad - art_width))
-  [ "$art_tail" -ge 0 ] || art_tail=0
-  if [ "$i" -lt "$row_count" ]; then
-    printf '  %*s%s%-*s%s%*s %s%-*s%s %s\n' \
-      "$art_pad" '' "$art_color" "$art_width" "$art" "$c0" "$art_tail" '' \
-      "$c3" "$label_width" "${labels[i]}" "$c0" "${values[i]}"
+if [ -n "${protected_monogram:-}" ]; then
+  # Ultra-narrow terminals cannot show the side-by-side table at all: the
+  # column-based field-filtering above already degrades to one lonely fact
+  # beside a single illegible letter. Stack a dedicated 3-line summary
+  # instead -- the bracket tag is never truncated (the "protected
+  # monogram region"), the second line greedily packs as many values as
+  # fit with no label column eating width, and the third is one command.
+  mono_visible=$((2 + ${#protected_monogram} + 1 + ${#system_name}))
+  if [ "$mono_visible" -le "$terminal_columns" ]; then
+    printf '  %s%s%s %s%s%s\n' "$c1" "$protected_monogram" "$c0" "$c3" "$system_name" "$c0"
   else
-    printf '  %*s%s%-*s%s%*s\n' \
-      "$art_pad" '' "$art_color" "$art_width" "$art" "$c0" "$art_tail" ''
+    printf '  %s%s%s\n' "$c1" "$protected_monogram" "$c0"
   fi
-done
+  fact_line='  '
+  fact_line_visible=2
+  for ((field=1; field<${#all_values[@]}; field++)); do
+    value="${all_values[field]}"
+    [ -n "$value" ] || continue
+    candidate_visible=$((fact_line_visible + ${#value} + 2))
+    if [ "$candidate_visible" -gt "$terminal_columns" ]; then
+      [ "$fact_line_visible" -gt 2 ] && continue || break
+    fi
+    if [ "$fact_line_visible" -gt 2 ]; then fact_line+='  '; fi
+    fact_line+="$value"
+    fact_line_visible="$candidate_visible"
+  done
+  printf '%s\n' "$fact_line"
+  if [ "$host_termux" -eq 1 ]; then
+    cmd_text='$ tx status'
+  else
+    cmd_text='$ ternux info'
+  fi
+  if [ "$((2 + ${#cmd_text}))" -le "$terminal_columns" ]; then
+    printf '  %s%s%s\n' "$c2" "$cmd_text" "$c0"
+  fi
+else
+  for ((i=0; i<render_rows; i++)); do
+    art=''
+    art_color="$c1"
+    logo_row=$((i - logo_start))
+    if [ "$logo_presented" -eq 1 ] && [ "$i" -eq $((logo_start - 1)) ] && [ "$logo_area_width" -ge 14 ]; then
+      art='Presented by'
+      art_color="$c3"
+    elif [ "$logo_row" -ge 0 ] && [ "$logo_row" -lt "${#logo_lines[@]}" ]; then
+      art="${logo_lines[logo_row]}"
+    fi
+    art_width="$logo_width"
+    art_pad=$(((logo_area_width - art_width) / 2))
+    [ "$art_pad" -ge 0 ] || art_pad=0
+    art_tail=$((logo_area_width - art_pad - art_width))
+    [ "$art_tail" -ge 0 ] || art_tail=0
+    if [ "$i" -lt "$row_count" ]; then
+      printf '  %*s%s%-*s%s%*s %s%-*s%s %s\n' \
+        "$art_pad" '' "$art_color" "$art_width" "$art" "$c0" "$art_tail" '' \
+        "$c3" "$label_width" "${labels[i]}" "$c0" "${values[i]}"
+    else
+      printf '  %*s%s%-*s%s%*s\n' \
+        "$art_pad" '' "$art_color" "$art_width" "$art" "$c0" "$art_tail" ''
+    fi
+  done
+fi
 
 center_plain() {
   local value="$1" color="$2" pad=$(((block_width - ${#1}) / 2))
@@ -848,7 +1024,7 @@ center_commands() {
   done
   printf '\n'
 }
-if [ "$compact_mode" -eq 0 ]; then
+if [ "$compact_mode" -eq 0 ] && [ -z "${protected_monogram:-}" ]; then
   if [ -n "$logo_credit" ]; then center_plain "$logo_credit" "$c3"; fi
   center_plain 'DAILY COMMANDS' "$c3"
   if [ "$host_termux" -eq 1 ]; then
