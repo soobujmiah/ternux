@@ -114,6 +114,9 @@ jobs:
       - name: Run Bats smoke suite
         run: bats tests/smoke.bats
 
+      - name: Exercise the standalone Terfetch system summary
+        run: bash tests/terfetch.sh
+
       - name: Render the installer UI in a pseudo terminal
         run: python3 tests/ui_render.py
 

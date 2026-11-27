@@ -10,18 +10,26 @@ terfetch --json
 terfetch --version
 ```
 
-The native Termux host randomly selects Android, Ternux Workstation, one of all
-15 managed distro logos, or Sobuj's monogram at each login. Other variants show
-a centered `Presented by @soobujmiah` credit below the logo and system facts.
-The special Sobuj mark puts `Presented by` above a large SOBUJ monogram and has no second
-credit. The Workstation mark depicts a compact desk and display. Narrow terminals
-keep the logo and information side by side; fields that do not fit are hidden
-until the terminal is widened or Terfetch is run again. Every managed PRoot
-distro uses its own stable official ASCII logo from the built-in catalog. The
-creator credit is centered below the guest logo and facts. Daily-use host commands or guest
-and distro-specific package-manager commands appear in a colorful footer below.
-Logo rows never continue below the information panel, and long values are
-shortened to fit the terminal width.
+The native Termux host randomly selects Android, the redesigned Ternux
+Workstation mark, one of eight tech/science marks (atom, circuit, DNA,
+rocket, satellite, telescope, radar, flask), or Sobuj's monogram at each
+login -- native rotation no longer shows the managed distro logos. Other
+variants show a centered `Presented by @soobujmiah` credit below the logo
+and system facts. The special Sobuj mark puts `Presented by` above a large
+SOBUJ monogram and has no second credit. The Workstation mark depicts a
+pocket terminal device with a blinking cursor. Narrow terminals keep the
+logo and information side by side; fields that do not fit are hidden until
+the terminal is widened or Terfetch is run again. A terminal too narrow even
+for the logo's compact bracket tag switches to a 3-line stacked summary
+instead: the bracket tag is always shown in full (the "protected monogram
+region" -- it is never truncated to one letter), followed by one line of
+packed facts and one command line. Every managed PRoot distro still uses its
+own stable official ASCII logo from the built-in catalog, unaffected by the
+native rotation above. The creator credit is centered below the guest logo
+and facts. Daily-use host commands or guest and distro-specific
+package-manager commands appear in a colorful footer below. Logo rows never
+continue below the information panel, and long values are shortened to fit
+the terminal width.
 The distro art is adapted from [Fastfetch](https://github.com/fastfetch-cli/fastfetch)
 under its MIT license; the full notice is embedded in the standalone script.
 Terfetch has no Fastfetch runtime dependency. The art uses emerald and cyan

@@ -476,19 +476,25 @@ ternux state [--json]
 each managed guest. Ternux suppresses Termux's stock login banner with the
 supported `~/.hushlogin` switch; interactive Bash and Zsh shells then show
 Terfetch instead. Alpine's Ash login shell uses its profile hook. The native
-Termux host randomly selects from Android, Ternux Workstation, all 15 managed
-distro logos, and Sobuj's monogram on each login. Other variants show a
+Termux host randomly selects from Android, the redesigned Ternux Workstation
+mark, eight tech/science marks (atom, circuit, DNA, rocket, satellite,
+telescope, radar, flask), and Sobuj's monogram on each login — native
+rotation no longer shows the managed distro logos. Other variants show a
 centered `Presented by @soobujmiah` credit below the logo and system facts;
 the special Sobuj monogram puts `Presented by` above the mark and has no second
-credit. PRoot guests use a stable official ASCII logo for
-their distro from Terfetch's built-in catalog, including the managed distro
-profiles. Their creator credit is centered below the logo and facts. Daily-use
-host commands or guest and distro package-manager commands appear as a separate
-colorful footer below the credit. The logo and facts stay side by side: the logo
-uses about one-third of the terminal width and facts use the rest. Each fact
-stays on one row. Terfetch hides a fact when its complete label and value do not
-fit, then shows it again after a wider resize and the next prompt refresh. Values
-are never wrapped or shortened. Terfetch does
+credit. PRoot guests still use a stable official ASCII logo for their own
+distro from Terfetch's built-in catalog, including the managed distro
+profiles, unaffected by the native rotation above. Their creator credit is
+centered below the logo and facts. Daily-use host commands or guest and
+distro package-manager commands appear as a separate colorful footer below
+the credit. The logo and facts stay side by side: the logo uses about
+one-third of the terminal width and facts use the rest. Each fact stays on
+one row. Terfetch hides a fact when its complete label and value do not fit,
+then shows it again after a wider resize and the next prompt refresh. On a
+terminal too narrow even for the logo's compact bracket tag, Terfetch
+switches to a 3-line stacked summary instead: the bracket tag is always
+shown in full (never truncated to one letter), followed by one line of
+packed facts and one command. Values are never wrapped or shortened. Terfetch does
 not require Fastfetch at runtime. It reports environment, architecture, user,
 locale, init, privilege level, package manager and count, kernel, uptime, shell,
 terminal, CPU/GPU model, memory and storage, plus device and display details

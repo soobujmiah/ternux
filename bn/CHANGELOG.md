@@ -15,6 +15,7 @@ ternux-এর উল্লেখযোগ্য পরিবর্তনগু�
 - যাচাইকৃত source release প্রকাশের পর পরবর্তী সংস্করণের উন্নয়ন সক্রিয় হয়েছে। APT feasibility recommendation, আট-distro qualification matrix, security roadmap এবং স্তরভিত্তিক test strategy যোগ হয়েছে; অসম্পূর্ণ সুবিধাকে প্রকাশিত বলে দেখানো হয়নি।
 - সম্পন্ন release gate এবং বর্তমান পরবর্তী-সংস্করণের সীমা অনুযায়ী English/Bengali project status ও document-scope inventory মিলিয়ে নেওয়া হয়েছে।
 - Stale update-lock recovery-তে exit status সঠিকভাবে ফেরত দেওয়ার bug fix এবং journal-সহ/ছাড়া stale lock-এর regression test যোগ হয়েছে। Production shell source-এর জন্য ShellCheck error-level CI baseline যোগ হয়েছে।
+- নেটিভ Terfetch-এর Workstation প্রতীক নতুন করে সাজানো হয়েছে এবং তার পরিচালিত-ডিস্ট্রো-লোগো ঘূর্ণনের বদলে আটটি নতুন প্রযুক্তি/বিজ্ঞান-বিষয়ক প্রতীক (atom, circuit, DNA, rocket, satellite, telescope, radar, flask) যোগ হয়েছে; প্রুট গেস্টে কোনো প্রভাব নেই, তারা এখনও নিজের ডিস্ট্রো-লোগো দেখায়। অতি সরু টার্মিনালে (যেখানে ছোট ব্র্যাকেট-ট্যাগও ধরে না) একটি সুরক্ষিত মনোগ্রাম-অঞ্চলসহ তিন-লাইনের সংক্ষিপ্ত সাজ যোগ হয়েছে।
 
 ## [Historical source tag] — ২০২৬-১১-১৯
 
