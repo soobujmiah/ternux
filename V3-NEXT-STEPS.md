@@ -6,9 +6,9 @@ Delete this file once all items below are merged and their facts (if still
 worth keeping) have been folded into `docs/project/` canonical docs, per
 `AI_ASSISTANT.md`'s "keep one canonical record" rule.
 
-Workstreams **02–09 and 12 of the original 18 are done and merged to
-main** (PRs #326–335, #337) — note that excludes 01, listed as item 7
-below, not yet started. Before touching any area below, check whether
+Workstreams **02–10 and 12 of the original 18 are done and merged to
+main** (PRs #326–335, #337, #339) — note that excludes 01, listed as
+item 7 below, not yet started. Before touching any area below, check whether
 it already exists — grep the codebase and `git log --oneline -30`
 first; `CHANGELOG.md` and recent merge commits are the fastest way to
 confirm current state. What's left:
@@ -22,10 +22,15 @@ confirm current state. What's left:
    testing found no real resize-handling defects (it also turned up a
    periodic resize poll independent of SIGWINCH, which is why nothing
    broke even with the signal trap disabled in a throwaway check).
-2. **10. Desktop and Window Management** — Window Fit
-   (`lib/ternux-window-fit.lua`) is narrow/isolated/already works per
-   the original audit; testing pass only unless real defects surface.
-   Low priority.
+2. ~~**10. Desktop and Window Management**~~ — **done, PR #339.** Added
+   `tests/window_fit_lua_geometry.lua`: stubs devilspie2's injected
+   globals and reloads `lib/ternux-window-fit.lua` fresh per scenario
+   (centering, oversized-window clamping, idempotence, dialog/normal/
+   other window types, narrow screens, a degenerate tiny-height edge
+   case). All 7 cases pass against the script unchanged — confirms the
+   "already works" assessment. A real Codex finding caught that the new
+   test's `lua5.4` dependency was missing from a second workflow
+   (`repo-knowledge-sync.yml`) that also runs `tests/focused.sh`; fixed.
 3. **11. Startup and Performance** — fix the first-boot flicker
    (theme/wallpaper applied *after* XFCE starts, in `lib/phases.sh`'s
    guest-setup sequence) by moving theme asset prep earlier; add real
