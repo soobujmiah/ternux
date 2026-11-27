@@ -53,7 +53,12 @@ result = subprocess.run(
     input=keys,
     capture_output=True,
     timeout=30,
-    env={**os.environ},
+    # TERM=dumb under a real pty is routine in CI (observed on GitHub
+    # Actions) and must not be mistaken for "no usable terminal" —
+    # pin it here so this regression stays caught regardless of
+    # whatever TERM the machine actually running the test happens to
+    # have.
+    env={**os.environ, "TERM": "dumb"},
 )
 output = result.stdout + result.stderr
 

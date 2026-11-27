@@ -153,7 +153,12 @@ _tnx_logs_view() {
     _tnx_logs_view_fallback "$file"
     return 0
   fi
-  if [ "${TERM:-}" = dumb ] || ! [ -t 3 ]; then
+  # Deliberately not checking $TERM here: it reflects the environment's
+  # declared terminal capabilities, not whether fd 3 is a real tty that
+  # can be put in raw mode — lib/phases.sh's distro/workload pickers
+  # already rely on -t alone for the same reason, and TERM=dumb is
+  # routinely set even under a real pty (observed on CI).
+  if ! [ -t 3 ]; then
     exec 3<&-
     _tnx_logs_view_fallback "$file"
     return 0
