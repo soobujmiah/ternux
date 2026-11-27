@@ -4844,6 +4844,25 @@ check "interactive workload selector returns the selected Evolution Mail ID" \
 check "interactive workload selector returns the selected Celestia ID" \
   python3 "$ROOT/tests/workload_menu_pty.py" "$ROOT" celestia
 
+check "Advanced Log Viewer supports live/paused state, scroll, search, and export" \
+  python3 "$ROOT/tests/logs_view_pty.py" "$ROOT"
+
+# Piped/non-interactive output must fall back to a plain dump of the
+# requested FILE, not silently show the default CLI log instead.
+if env TERNUX_LOG_DIR="$TMP/log-view-fallback" bash -c '
+    . "$1/lib/core.sh"
+    . "$1/lib/logs.sh"
+    mkdir -p "$TERNUX_LOG_DIR"
+    other="$TERNUX_LOG_DIR/other.log"
+    printf "custom-file-content\n" > "$other"
+    out="$(tnx_cmd_logs view "$other" < /dev/null)"
+    [[ "$out" == *"$other"* ]] && [[ "$out" == *custom-file-content* ]]
+  ' _ "$ROOT" < /dev/null; then
+  ok "logs view falls back to a plain dump of the requested file, not the default log"
+else
+  not_ok "logs view falls back to a plain dump of the requested file, not the default log"
+fi
+
 printf '1..%d\n' "$((pass + fail))"
 printf '# pass %d\n# fail %d\n' "$pass" "$fail"
 [ "$fail" -eq 0 ]
