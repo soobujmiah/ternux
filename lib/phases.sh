@@ -2060,7 +2060,9 @@ sudo -n dbus-uuidgen --ensure >/dev/null 2>&1 || true
 sudo -n rm -f /etc/xdg/autostart/light-locker.desktop 2>/dev/null || true
 exec /usr/local/bin/ternux-session-bus bash -c '
   set -u
+  SECONDS=0
   until xdpyinfo -display "$DISPLAY" >/dev/null 2>&1; do sleep 0.1; done
+  echo "[TIMING] X11 ready after ${SECONDS}s"
   if [ "${GALLIUM_DRIVER:-}" = virpipe ]; then
     # The glxinfo X_GetImage check fails on some Termux:X11 VirGL displays even
     # when a real GLX app renders correctly. Query the renderer from a short,
@@ -2076,23 +2078,13 @@ exec /usr/local/bin/ternux-session-bus bash -c '
   # --replace targets the selected account session bus; process-wide pkill would
   # disrupt other PRoot desktops sharing the guest process namespace.
   /usr/local/bin/ternux-ibus-session-init || echo "WARNING: IBus session setup failed; Ctrl+Space may not work." >&2
-  startxfce4 &
-  session_pid=$!
-  tries=0
-  until { xfconf-query -c xsettings -l >/dev/null 2>&1 && pgrep -x xfdesktop >/dev/null 2>&1 && pgrep -x xfwm4 >/dev/null 2>&1; } || [ "$tries" -ge 100 ] || ! kill -0 "$session_pid" 2>/dev/null; do tries=$((tries + 1)); sleep 0.2; done
-  if ! kill -0 "$session_pid" 2>/dev/null || ! pgrep -x xfdesktop >/dev/null 2>&1 || ! pgrep -x xfwm4 >/dev/null 2>&1; then echo "ERROR: XFCE session, window manager, or desktop did not become ready."; exit 1; fi
-  shortcut_path="/commands/custom/<Primary>space"
-  shortcut_ready=0
-  shortcut_attempt=0
-  while [ "$shortcut_attempt" -lt 10 ]; do
-    xfconf-query -c xfce4-keyboard-shortcuts -p "$shortcut_path" --create -t string -s /usr/local/bin/ternux-ibus-next-engine >/dev/null 2>&1 || true
-    if [ "$(xfconf-query -c xfce4-keyboard-shortcuts -p "$shortcut_path" 2>/dev/null || true)" = /usr/local/bin/ternux-ibus-next-engine ]; then shortcut_ready=1; break; fi
-    shortcut_attempt=$((shortcut_attempt + 1))
-    sleep 0.2
-  done
-  [ "$shortcut_ready" -eq 1 ] || echo "WARNING: Could not register the global Ctrl+Space IBus switch shortcut." >&2
   defaults_marker="$HOME/.config/ternux/desktop-defaults-v1"
   if [ ! -e "$defaults_marker" ]; then
+    # Seed xfconfd with the theme/icon/cursor/wallpaper settings *before*
+    # starting XFCE, not after: xfconf-query only needs the D-Bus session
+    # this script already has, not a running xfwm4/xfdesktop. Applying these
+    # once the desktop was already visible is what caused the first-boot
+    # flicker from the stock XFCE look to the Ternux one.
     xfconf-query -c xsettings -p /Net/ThemeName --create -t string -s Green
     xfconf-query -c xsettings -p /Net/IconThemeName --create -t string -s Ternux
     xfconf-query -c xfwm4 -p /general/theme --create -t string -s Green
@@ -2112,12 +2104,43 @@ exec /usr/local/bin/ternux-session-bus bash -c '
     xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitorbuiltin/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/05-quantum-grid.svg
     xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitorbuiltin/workspace0/image-style --create -t int -s 5
     xfconf-query -c xfwm4 -p /general/button_layout --create -t string -s "|HMC"
-    for panel_id in $(xfconf-query -c xfce4-panel -l 2>/dev/null | sed -n "s#^/panels/\(panel-[0-9][0-9]*\)/.*#\1#p" | sort -u); do xfconf-query -c xfce4-panel -p "/panels/$panel_id/background-style" --create -t int -s 0 >/dev/null 2>&1 || true; done
     xfconf-query -c xfwm4 -p /general/use_compositing -s false >/dev/null 2>&1 || true
-    xfdesktop --reload >/dev/null 2>&1 || true
+  fi
+  startxfce4 &
+  session_pid=$!
+  tries=0
+  xfwm4_timed=0
+  panel_timed=0
+  xfdesktop_timed=0
+  until { xfconf-query -c xsettings -l >/dev/null 2>&1 && pgrep -x xfdesktop >/dev/null 2>&1 && pgrep -x xfwm4 >/dev/null 2>&1; } || [ "$tries" -ge 100 ] || ! kill -0 "$session_pid" 2>/dev/null; do
+    if [ "$xfwm4_timed" -eq 0 ] && pgrep -x xfwm4 >/dev/null 2>&1; then echo "[TIMING] xfwm4 ready after ${SECONDS}s"; xfwm4_timed=1; fi
+    if [ "$panel_timed" -eq 0 ] && pgrep -x xfce4-panel >/dev/null 2>&1; then echo "[TIMING] panel ready after ${SECONDS}s"; panel_timed=1; fi
+    if [ "$xfdesktop_timed" -eq 0 ] && pgrep -x xfdesktop >/dev/null 2>&1; then echo "[TIMING] desktop ready after ${SECONDS}s"; xfdesktop_timed=1; fi
+    tries=$((tries + 1))
+    sleep 0.2
+  done
+  [ "$xfwm4_timed" -eq 1 ] || { ! pgrep -x xfwm4 >/dev/null 2>&1 || echo "[TIMING] xfwm4 ready after ${SECONDS}s"; }
+  [ "$panel_timed" -eq 1 ] || { ! pgrep -x xfce4-panel >/dev/null 2>&1 || echo "[TIMING] panel ready after ${SECONDS}s"; }
+  [ "$xfdesktop_timed" -eq 1 ] || { ! pgrep -x xfdesktop >/dev/null 2>&1 || echo "[TIMING] desktop ready after ${SECONDS}s"; }
+  if ! kill -0 "$session_pid" 2>/dev/null || ! pgrep -x xfdesktop >/dev/null 2>&1 || ! pgrep -x xfwm4 >/dev/null 2>&1; then echo "ERROR: XFCE session, window manager, or desktop did not become ready."; exit 1; fi
+  shortcut_path="/commands/custom/<Primary>space"
+  shortcut_ready=0
+  shortcut_attempt=0
+  while [ "$shortcut_attempt" -lt 10 ]; do
+    xfconf-query -c xfce4-keyboard-shortcuts -p "$shortcut_path" --create -t string -s /usr/local/bin/ternux-ibus-next-engine >/dev/null 2>&1 || true
+    if [ "$(xfconf-query -c xfce4-keyboard-shortcuts -p "$shortcut_path" 2>/dev/null || true)" = /usr/local/bin/ternux-ibus-next-engine ]; then shortcut_ready=1; break; fi
+    shortcut_attempt=$((shortcut_attempt + 1))
+    sleep 0.2
+  done
+  [ "$shortcut_ready" -eq 1 ] || echo "WARNING: Could not register the global Ctrl+Space IBus switch shortcut." >&2
+  if [ ! -e "$defaults_marker" ]; then
+    # The panel channel only exists once xfce4-panel has created its own
+    # panel objects, so this one piece cannot be pre-seeded like the rest.
+    for panel_id in $(xfconf-query -c xfce4-panel -l 2>/dev/null | sed -n "s#^/panels/\(panel-[0-9][0-9]*\)/.*#\1#p" | sort -u); do xfconf-query -c xfce4-panel -p "/panels/$panel_id/background-style" --create -t int -s 0 >/dev/null 2>&1 || true; done
     install -d -m 0755 "$HOME/.config/ternux"
     : > "$defaults_marker"
   fi
+  echo "[TIMING] desktop session fully ready after ${SECONDS}s"
   wallpaper_migration_marker="$HOME/.config/ternux/monitorbuiltin-wallpaper-v1"
   if [ ! -e "$wallpaper_migration_marker" ]; then
     current_wallpaper=$(xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitorbuiltin/workspace0/last-image 2>/dev/null || true)

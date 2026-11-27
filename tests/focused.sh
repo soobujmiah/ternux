@@ -1430,6 +1430,13 @@ if env TERNUX_STATE_DIR="$TMP/state-launcher" HOME="$launcher_home" bash -c '
   grep -Fq "monitor1/workspace0/last-image" "$1/lib/phases.sh" &&
   grep -q "pgrep -x xfdesktop" "$1/lib/phases.sh" &&
   grep -q "xfdesktop --reload" "$1/lib/phases.sh" &&
+  test "$(grep -n -m1 "/Net/ThemeName --create -t string -s Green" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" | cut -d: -f1)" -lt "$(grep -n -m1 "^  startxfce4 &\$" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" | cut -d: -f1)" &&
+  test "$(grep -n -m1 "monitorbuiltin/workspace0/last-image --create -t string -s /usr/share/backgrounds/ternux/05-quantum-grid.svg" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" | cut -d: -f1)" -lt "$(grep -n -m1 "^  startxfce4 &\$" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" | cut -d: -f1)" &&
+  grep -Fq "[TIMING] X11 ready after" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  grep -Fq "[TIMING] xfwm4 ready after" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  grep -Fq "[TIMING] panel ready after" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  grep -Fq "[TIMING] desktop ready after" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
+  grep -Fq "[TIMING] desktop session fully ready after" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
   grep -q -- "--env LC_ALL=en_US.UTF-8" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
   grep -q "^trap cleanup EXIT$" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
   grep -Fq "pactl unload-module \"\$PULSE_MODULE_ID\"" "$TERNUX_STATE_DIR/distros/debian/launcher.sh" &&
