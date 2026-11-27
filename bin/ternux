@@ -118,7 +118,7 @@ _tnx_update_recover_interrupted() {
   rm -f "$journal" || return 70
   rm -f "$prefix/lib/.ternux-update-lock/owner" 2>/dev/null || true
   rmdir "$prefix/lib/.ternux-update-lock" 2>/dev/null || true
-  echo "[WARN] Recovered the previous Ternux version after an interrupted update." >&2
+  echo "[WARN]  Recovered the previous Ternux version after an interrupted update." >&2
 }
 
 _TNX_PREFIX="${PREFIX:-/data/data/com.termux/files/usr}"

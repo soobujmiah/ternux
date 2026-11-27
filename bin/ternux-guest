@@ -76,16 +76,16 @@ _guest_verify() {
   printf 'Verifying Debian guest tools...\n'
   for command_name in startxfce4 glxinfo xdpyinfo pactl; do
     if command -v "$command_name" >/dev/null 2>&1; then
-      printf '  [ OK ] %s\n' "$command_name"
+      printf '  [ OK ]  %s\n' "$command_name"
     else
-      printf '  [FAIL] %s is missing\n' "$command_name"
+      printf '  [FAIL]  %s is missing\n' "$command_name"
       rc=1
     fi
   done
   if [ -r /etc/sudoers.d/ternux ] && grep -Fqx "$(id -un) ALL=(ALL:ALL) ALL" /etc/sudoers.d/ternux; then
-    printf '  [ OK ] password-required sudo is configured\n'
+    printf '  [ OK ]  password-required sudo is configured\n'
   else
-    printf '  [FAIL] password-required sudo is not configured\n'
+    printf '  [FAIL]  password-required sudo is not configured\n'
     rc=1
   fi
   return "$rc"

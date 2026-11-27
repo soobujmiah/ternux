@@ -64,11 +64,11 @@ _tnx_download_archive() {
   for tool in curl wget; do
     command -v "$tool" >/dev/null 2>&1 || continue
     if ! "$tool" --version >/dev/null 2>&1; then
-      echo "[WARN] $tool is installed but cannot start; trying another downloader." >&2
+      echo "[WARN]  $tool is installed but cannot start; trying another downloader." >&2
       continue
     fi
 
-    echo "[INFO] Downloading the pinned source bundle with $tool..."
+    echo "[INFO]  Downloading the pinned source bundle with $tool..."
     case "$tool" in
       curl)
         curl -fL --retry 2 --retry-delay 2 --connect-timeout 15 --max-time 180 \
@@ -79,7 +79,7 @@ _tnx_download_archive() {
         ;;
     esac
     rm -f "$archive"
-    echo "[WARN] $tool could not download the source bundle; trying another downloader." >&2
+    echo "[WARN]  $tool could not download the source bundle; trying another downloader." >&2
   done
   return 1
 }
@@ -158,7 +158,7 @@ _tnx_load_remote() {
 }
 
 if ! _tnx_load_local; then
-  echo "[INFO] Loading ternux libraries from GitHub..."
+  echo "[INFO]  Loading ternux libraries from GitHub..."
   _tnx_load_remote || exit 1
 fi
 # _TNX_SRC kept for action dispatch below
@@ -229,7 +229,7 @@ while [ $# -gt 0 ]; do
     --user|--locale)
       opt="$1"
       if [ $# -lt 2 ] || [ -z "$2" ] || [[ "$2" == --* ]]; then
-        echo "[FAIL] $opt needs a value" >&2
+        echo "[FAIL]  $opt needs a value" >&2
         exit 2
       fi
       if [ "$opt" = "--user" ]; then
@@ -241,12 +241,12 @@ while [ $# -gt 0 ]; do
       ;;
     --backend)
       if [ $# -lt 2 ] || [ -z "$2" ] || [[ "$2" == --* ]]; then
-        echo "[FAIL] --backend needs a value" >&2
+        echo "[FAIL]  --backend needs a value" >&2
         exit 2
       fi
       case "$2" in
         auto|zink|virgl) BACKEND="$2"; BACKEND_SET=1; shift ;;
-        *) echo "[FAIL] --backend must be auto, zink or virgl" >&2; exit 2 ;;
+        *) echo "[FAIL]  --backend must be auto, zink or virgl" >&2; exit 2 ;;
       esac
       ;;
     --zsh) SHELL_CHOICE="zsh"; SHELL_SET=1 ;;
@@ -254,13 +254,13 @@ while [ $# -gt 0 ]; do
     --no-theme) export TERNUX_THEME=none; NO_THEME=1 ;;
     --distro)
       if [ $# -lt 2 ] || [ -z "$2" ] || [[ "$2" == --* ]]; then
-        echo "[FAIL] --distro needs a profile name" >&2
+        echo "[FAIL]  --distro needs a profile name" >&2
         exit 2
       fi
       DISTRO_CHOICE="$2"; DISTRO_SET=1; shift ;;
     --distros)
       if [ $# -lt 2 ] || [ -z "$2" ] || [[ "$2" == --* ]]; then
-        echo "[FAIL] --distros needs a comma-separated profile list" >&2
+        echo "[FAIL]  --distros needs a comma-separated profile list" >&2
         exit 2
       fi
       DISTROS_CHOICE="$2"; DISTROS_SET=1; shift ;;
@@ -274,12 +274,12 @@ while [ $# -gt 0 ]; do
     --fix) FIX="yes" ;;
     --ui)
       if [ $# -lt 2 ] || [ -z "$2" ] || [[ "$2" == --* ]]; then
-        echo "[FAIL] --ui needs a value" >&2
+        echo "[FAIL]  --ui needs a value" >&2
         exit 2
       fi
       case "$2" in
         auto|dashboard|plain|off) export TERNUX_UI="$2"; shift ;;
-        *) echo "[FAIL] --ui must be auto, dashboard, plain or off" >&2; exit 2 ;;
+        *) echo "[FAIL]  --ui must be auto, dashboard, plain or off" >&2; exit 2 ;;
       esac
       ;;
     --plain) export TERNUX_UI=plain ;;
@@ -289,17 +289,17 @@ while [ $# -gt 0 ]; do
     --uninstall) ACTION="uninstall" ;;
     --version) echo "ternux installer v${TERNUX_VERSION:-2.0.1} — https://github.com/soobujmiah/ternux"; exit 0 ;;
     -h|--help) tnx_installer_usage; exit 0 ;;
-    *) echo "[FAIL] Unknown option: $1" >&2; exit 2 ;;
+    *) echo "[FAIL]  Unknown option: $1" >&2; exit 2 ;;
   esac
   shift
 done
 
 if [[ ! "$USER_NAME" =~ ^[a-z_][a-z0-9_-]{0,31}$ ]]; then
-  echo "[FAIL] --user must start with a-z or _, use only a-z, 0-9, _ or -, and be at most 32 characters."
+  echo "[FAIL]  --user must start with a-z or _, use only a-z, 0-9, _ or -, and be at most 32 characters."
   exit 1
 fi
 if [[ ! "$LOCALE" =~ ^[A-Za-z0-9_.@-]+$ ]]; then
-  echo "[FAIL] --locale contains unsupported characters."
+  echo "[FAIL]  --locale contains unsupported characters."
   exit 1
 fi
 
@@ -397,7 +397,7 @@ case "${ACTION}" in
     [ "$SHELL_CHOICE" = "zsh" ] && INSTALL_ARGS+=(--zsh)
     [ "$NO_THEME" = "1" ] && INSTALL_ARGS+=(--no-theme)
     if [ "$DISTRO_SET" = "1" ] && [ "$DISTROS_SET" = "1" ]; then
-      echo "[FAIL] Use either --distro or --distros, not both." >&2
+      echo "[FAIL]  Use either --distro or --distros, not both." >&2
       exit 2
     fi
     [ "$DISTRO_SET" = "1" ] && INSTALL_ARGS+=(--distro "$DISTRO_CHOICE")

@@ -95,8 +95,8 @@ _tnx_extension_list() {
   tnx_print_two_col 'ADT' 'Releases are managed by ADT; see tx guides'
 }
 
-_tnx_extension_fail() { printf '[FAIL] %s\n' "$*" >&2; }
-_tnx_extension_ok() { printf '[ OK ] %s\n' "$*"; }
+_tnx_extension_fail() { printf '%s[FAIL]%s  %s\n' "$TNX_CR" "$TNX_C0" "$*" >&2; }
+_tnx_extension_ok() { printf '%s[ OK ]%s  %s\n' "$TNX_CG" "$TNX_C0" "$*"; }
 
 _tnx_extension_archive_links_safe() {
   local archive="${1:?missing archive}" details="${2:?missing listing path}"
@@ -340,7 +340,7 @@ _tnx_extension_install() {
       return 1
     fi
     if ! rm -rf "$backup"; then
-      printf '[WARN] New installation is active; stale repair backup remains at %s\n' "$backup" >&2
+      printf '%s[WARN]%s  New installation is active; stale repair backup remains at %s\n' "$TNX_CY" "$TNX_C0" "$backup" >&2
     fi
   elif ! mv -T "$tmp/$top" "$dest"; then
     rm -rf "$tmp"

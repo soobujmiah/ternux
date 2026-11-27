@@ -526,7 +526,7 @@ tnx_phase_debian() {
       END { exit !found }
     ' /proc/net/ipv6_route 2>/dev/null; then
       APT_ADDRESS_OPTION=\"-o Acquire::ForceIPv4=true\"
-      echo \"[INFO] No IPv6 default route in this guest; using IPv4 for APT.\"
+      echo \"[INFO]  No IPv6 default route in this guest; using IPv4 for APT.\"
     fi
     install_proot_bwrap_shim() {
       install -d -m 0755 /usr/local/bin
@@ -549,7 +549,7 @@ tnx_phase_debian() {
       attempt=1
       while ! "\$@"; do
         if [ "\$attempt" -ge 3 ]; then return 1; fi
-        echo \"[WARN] Package command failed; refreshing configured repository metadata and retrying (\$((attempt + 1))/3): \$*\" >&2
+        echo \"[WARN]  Package command failed; refreshing configured repository metadata and retrying (\$((attempt + 1))/3): \$*\" >&2
         refresh_repo_metadata || true
         sleep "\$attempt"
         attempt=\$((attempt + 1))
@@ -3604,7 +3604,7 @@ tnx_prompt_distro() {
         seen+="$item "; picked+=("$item")
       done
       if [ "$bad" -eq 0 ] && [ "${#picked[@]}" -gt 0 ]; then _TNX_SELECTED_DISTROS=("${picked[@]}"); break; fi
-      printf '%s[WARN]%s Select listed numbers or names; duplicate entries are not allowed.\n' "$TNX_CY" "$TNX_C0" >&2
+      printf '%s[WARN]%s  Select listed numbers or names; duplicate entries are not allowed.\n' "$TNX_CY" "$TNX_C0" >&2
     done
     [ "$tty_fd" = 3 ] && exec 3>&-
   fi
@@ -3634,7 +3634,7 @@ tnx_prompt_shell() {
 
   printf "${TNX_CC}?${TNX_C0} Termux shell — bash or zsh? [default: %s] (${timeout}s): " "$default_shell" >&2
   if ! IFS= read -r -t "$timeout" -u "$tty_fd" input; then
-    printf "\n${TNX_CY}[INFO]${TNX_C0} Shell prompt timed out; using '%s'.\n" "$default_shell" >&2
+    printf "\n${TNX_CY}[INFO]${TNX_C0}  Shell prompt timed out; using '%s'.\n" "$default_shell" >&2
     printf '%s\n' "$default_shell"
     return 0
   fi
@@ -3643,7 +3643,7 @@ tnx_prompt_shell() {
   case "$input" in
     bash|zsh) printf '%s\n' "$input" ;;
     "")       printf '%s\n' "$default_shell" ;;
-    *)        printf "${TNX_CY}[INFO]${TNX_C0} '%s' is not bash or zsh; using '%s'.\n" "$input" "$default_shell" >&2
+    *)        printf "${TNX_CY}[INFO]${TNX_C0}  '%s' is not bash or zsh; using '%s'.\n" "$input" "$default_shell" >&2
               printf '%s\n' "$default_shell" ;;
   esac
 }
@@ -3677,7 +3677,7 @@ tnx_prompt_username() {
     elapsed=$(( now - start_time ))
     remaining=$(( timeout - elapsed ))
     if [ "$remaining" -le 0 ]; then
-      printf "\n${TNX_CY}[INFO]${TNX_C0} Username prompt timed out (${timeout}s); using default '%s'.\n" "$default_user" >&2
+      printf "\n${TNX_CY}[INFO]${TNX_C0}  Username prompt timed out (${timeout}s); using default '%s'.\n" "$default_user" >&2
       chosen="$default_user"
       break
     fi
@@ -3690,7 +3690,7 @@ tnx_prompt_username() {
 
     local input=""
     if ! IFS= read -r -t "$remaining" -u "$tty_fd" input; then
-      printf "\n${TNX_CY}[INFO]${TNX_C0} Username prompt timed out (${timeout}s); using default '%s'.\n" "$default_user" >&2
+      printf "\n${TNX_CY}[INFO]${TNX_C0}  Username prompt timed out (${timeout}s); using default '%s'.\n" "$default_user" >&2
       chosen="$default_user"
       break
     fi
@@ -3706,7 +3706,7 @@ tnx_prompt_username() {
       break
     fi
 
-    printf "${TNX_CR}[WARN]${TNX_C0} Invalid username '%s'. Username must start with a-z or _, contain only a-z, 0-9, _, - and be at most 32 characters.\n" "$input" >&2
+    printf "${TNX_CR}[WARN]${TNX_C0}  Invalid username '%s'. Username must start with a-z or _, contain only a-z, 0-9, _, - and be at most 32 characters.\n" "$input" >&2
   done
 
   [ "$tty_fd" = "3" ] && exec 3>&-
@@ -3726,7 +3726,7 @@ tnx_prompt_startup_password() {
     printf 'Ternux startup password (shared by native and managed guest shells): ' >&2
     IFS= read -r -s -t "$remaining" -u "$tty_fd" first || { printf '\n%s\n' '[ERROR] Startup password prompt timed out.' >&2; break; }
     printf '\n' >&2
-    [ -n "$first" ] || { printf '%s\n' '[WARN] A password is required.' >&2; continue; }
+    [ -n "$first" ] || { printf '%s[WARN]%s  A password is required.\n' "$TNX_CY" "$TNX_C0" >&2; continue; }
     remaining=$((timeout - (SECONDS - start_time)))
     [ "$remaining" -gt 0 ] || { first=""; break; }
     printf 'Confirm startup password: ' >&2
@@ -3737,7 +3737,7 @@ tnx_prompt_startup_password() {
       TERNUX_STARTUP_PASSWORD="$first"
       break
     fi
-    printf '%s\n' '[WARN] Passwords did not match; try again.' >&2
+    printf '%s[WARN]%s  Passwords did not match; try again.\n' "$TNX_CY" "$TNX_C0" >&2
     first=""; second=""
   done
   unset first second
@@ -3761,7 +3761,7 @@ tnx_prompt_user_password() {
     fi
     IFS= read -r -s -t "$remaining" -u "$tty_fd" first || { printf '\n%s\n' '[ERROR] Sudo password prompt timed out.' >&2; break; }
     printf '\n' >&2
-    [ -n "$first" ] || { printf '%s\n' '[WARN] A password is required.' >&2; continue; }
+    [ -n "$first" ] || { printf '%s[WARN]%s  A password is required.\n' "$TNX_CY" "$TNX_C0" >&2; continue; }
     remaining=$((timeout - (SECONDS - start_time)))
     [ "$remaining" -gt 0 ] || { first=""; break; }
     if [ -n "$guest" ]; then
@@ -3776,7 +3776,7 @@ tnx_prompt_user_password() {
       TERNUX_USER_PASSWORD="$first"
       break
     fi
-    printf '%s\n' '[WARN] Passwords did not match; try again.' >&2
+    printf '%s[WARN]%s  Passwords did not match; try again.\n' "$TNX_CY" "$TNX_C0" >&2
     first=""; second=""
   done
   unset first second
@@ -3984,7 +3984,7 @@ tnx_prompt_workloads() {
         [[ -z "$input" ]] && _TNX_SELECTED_ITEMS=()
         break
       fi
-      printf '%s[WARN]%s Enter valid item numbers, e.g. 1 3 14.\n' "$TNX_CY" "$TNX_C0" >&2
+      printf '%s[WARN]%s  Enter valid item numbers, e.g. 1 3 14.\n' "$TNX_CY" "$TNX_C0" >&2
     done
   fi
   [ "$tty_fd" = 3 ] && exec 3>&-
@@ -4310,7 +4310,7 @@ tnx_install_single() {
 
     if [ "$resume" -eq 1 ] && tnx_install_phase_done "$phase" "$distro_choice"; then
       if [ "${_TNX_FRAME_ACTIVE:-0}" = "1" ]; then
-        printf '[SKIP] %s already completed\n' "$title" | tnx_frame_stream
+        printf '[SKIP]  %s already completed\n' "$title" | tnx_frame_stream
       else
         tnx_info "Skipping $phase (done)"
       fi
@@ -4337,7 +4337,7 @@ tnx_install_single() {
       rc="$phase_rc"
       warning_phases+=("$phase")
       if [ "${_TNX_FRAME_ACTIVE:-0}" = "1" ]; then
-        printf '[WARN] Optional/advisory phase %s had issues; continuing to verification.\n' "$phase" | tnx_frame_stream
+        printf '[WARN]  Optional/advisory phase %s had issues; continuing to verification.\n' "$phase" | tnx_frame_stream
       else
         tnx_warn "Optional/advisory phase '$phase' had issues; continuing to verification."
       fi
@@ -4349,7 +4349,7 @@ tnx_install_single() {
     failed_phase="$phase"
     failed_current="$current"
     if [ "${_TNX_FRAME_ACTIVE:-0}" = "1" ]; then
-      printf '[FAIL] Required phase %s failed; stopping before dependent phases.\n' "$phase" | tnx_frame_stream
+      printf '[FAIL]  Required phase %s failed; stopping before dependent phases.\n' "$phase" | tnx_frame_stream
     else
       tnx_fail "Required phase '$phase' failed; stopping before dependent phases."
     fi

@@ -4871,6 +4871,23 @@ else
   not_ok "logs view falls back to a plain dump of the requested file, not the default log"
 fi
 
+# Status-tag prefixes (OK/WARN/FAIL/INFO/TASK/DONE/SKIP) must line up in one
+# column regardless of which helper emits them, so mixed output (e.g. a
+# package-repair run combining tnx_warn and tnx_spin_run) never misaligns.
+if out="$(bash -c '
+    . "$1/lib/core.sh"
+    . "$1/lib/ui.sh" 2>/dev/null
+    NO_COLOR=1 tnx_ok "a"
+    NO_COLOR=1 tnx_warn "b"
+    NO_COLOR=1 tnx_spin_run "c" true
+  ' _ "$ROOT" 2>&1)"; then
+  message_columns="$(printf '%s\n' "$out" | awk '{ for (i = 1; i <= length($0); i++) { if (substr($0, i, 1) ~ /[a-z]/) { print i; break } } }' | sort -u | wc -l)"
+  check "status-tag prefixes from tnx_ok/tnx_warn and tnx_spin_run align to the same column" \
+    [ "$message_columns" -eq 1 ]
+else
+  not_ok "status-tag prefixes from tnx_ok/tnx_warn and tnx_spin_run align to the same column"
+fi
+
 printf '1..%d\n' "$((pass + fail))"
 printf '# pass %d\n# fail %d\n' "$pass" "$fail"
 [ "$fail" -eq 0 ]
