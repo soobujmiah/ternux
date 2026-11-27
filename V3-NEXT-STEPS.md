@@ -6,9 +6,9 @@ Delete this file once all items below are merged and their facts (if still
 worth keeping) have been folded into `docs/project/` canonical docs, per
 `AI_ASSISTANT.md`'s "keep one canonical record" rule.
 
-Workstreams **02–12 of the original 18 are done and merged to main**
-(PRs #326–335, #337, #339, #341) — note that excludes 01, listed as
-item 7 below, not yet started. Before touching any area below, check whether
+Workstreams **02–13 of the original 18 are done and merged to main**
+(PRs #326–335, #337, #339, #341, #343) — note that excludes 01, listed
+as item 7 below, not yet started. Before touching any area below, check whether
 it already exists — grep the codebase and `git log --oneline -30`
 first; `CHANGELOG.md` and recent merge commits are the fastest way to
 confirm current state. What's left:
@@ -46,12 +46,13 @@ confirm current state. What's left:
    one in the new `lib/phases.sh` comment, one in my own new
    `tests/focused.sh` assertions — both found via direct `bash -n`
    reproduction before any PR was opened, not by CI.
-4. **13. Everyday Commands and Setup Guides** — `ternux guides` (in
-   `bin/ternux`) has solid quick-start content but hasn't been
-   revisited since the V3 rename/wallpaper/theme/log-viewer work — it's
-   missing the new `ternux wallpaper`/`ternux theme`/`ternux logs view`
-   commands. Every command listed must be copy-pasted from real
-   `--help` output, not reconstructed from memory.
+4. ~~**13. Everyday Commands and Setup Guides**~~ — **done, PR #343.**
+   Added `tx logs view` (the advanced live viewer) alongside the
+   existing `tx logs desktop tail` mention in step 4, and a new step 8
+   for `tx wallpaper list`/`set <id>` and `tx theme list`/
+   `set Green|Crimson`. Every subcommand/flag was copy-pasted from the
+   commands' own `--help` output. Pin-refresh dance done (`bin/`
+   changed).
 5. **14/15/16. Fetch identity + monograms + 3-line layout** — all three
    touch `share/terfetch/terfetch`. **Critical constraint**: Native and
    PRoot distro Fetch share `set_logo()` and the compact-logo case
