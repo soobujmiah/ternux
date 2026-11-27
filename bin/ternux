@@ -194,11 +194,12 @@ _tnx_dispatch() {
       printf '  %s1.%s Install a desktop: %stx install --distro debian%s (or ubuntu, kali, alpine).\n' "$TNX_CC" "$TNX_C0" "$TNX_CC" "$TNX_C0"
       printf '  %s2.%s Start one or more desktops: %stx start db ub kali alp%s.\n' "$TNX_CC" "$TNX_C0" "$TNX_CC" "$TNX_C0"
       printf '  %s3.%s Check sessions: %stx status%s · Diagnose: %stx doctor%s · Repair: %stx repair%s.\n' "$TNX_CC" "$TNX_C0" "$TNX_CC" "$TNX_C0" "$TNX_CC" "$TNX_C0" "$TNX_CC" "$TNX_C0"
-      printf '  %s4.%s Resume setup: %stx install --resume%s · Logs: %stx logs desktop tail%s.\n' "$TNX_CC" "$TNX_C0" "$TNX_CC" "$TNX_C0" "$TNX_CC" "$TNX_C0"
+      printf '  %s4.%s Resume setup: %stx install --resume%s · Logs: %stx logs desktop tail%s · Live viewer: %stx logs view%s.\n' "$TNX_CC" "$TNX_C0" "$TNX_CC" "$TNX_C0" "$TNX_CC" "$TNX_C0" "$TNX_CC" "$TNX_C0"
       printf '  %s5.%s Open a guest: %stx distro shell debian%s; user/root shortcuts are listed below.\n' "$TNX_CC" "$TNX_C0" "$TNX_CC" "$TNX_C0"
       printf '     %sDebian%s db/dbr/dbroot   %sUbuntu%s ub/ubr/ubroot   %sKali%s kali/kalir/kaliroot   %sAlpine%s alp/alpr/alproot\n' "$TNX_CC" "$TNX_C0" "$TNX_CC" "$TNX_C0" "$TNX_CC" "$TNX_C0" "$TNX_CC" "$TNX_C0"
       printf '  %s6.%s Android permissions: %stx mic%s or %stx cam%s; Termux:API is optional.\n' "$TNX_CC" "$TNX_C0" "$TNX_CC" "$TNX_C0" "$TNX_CC" "$TNX_C0"
       printf '  %s7.%s List guest profiles: %stx distro list%s · Read system details: %stx info%s.\n' "$TNX_CC" "$TNX_C0" "$TNX_CC" "$TNX_C0" "$TNX_CC" "$TNX_C0"
+      printf '  %s8.%s Customize the look: %stx wallpaper list%s/%sset <id>%s · %stx theme list%s/%sset Green|Crimson%s.\n' "$TNX_CC" "$TNX_C0" "$TNX_CC" "$TNX_C0" "$TNX_CC" "$TNX_C0" "$TNX_CC" "$TNX_C0" "$TNX_CC" "$TNX_C0"
       printf '\n%sREFERENCE GUIDES%s\n' "$TNX_CW" "$TNX_C0"
       printf '  %s%-25s%s %s\n' "$TNX_CC" 'Installation' "$TNX_C0" 'https://soobujmiah.github.io/ternux/docs/INSTALLATION.html'
       printf '  %s%-25s%s %s\n' "$TNX_CC" 'Manual setup' "$TNX_C0" 'https://soobujmiah.github.io/ternux/docs/MANUAL.html'
