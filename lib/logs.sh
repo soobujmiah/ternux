@@ -142,13 +142,18 @@ _tnx_logs_view() {
   local file="${1:-$TERNUX_LOG_FILE}"
   [ -f "$file" ] || { tnx_fail "No log file found: $file"; return 1; }
 
-  local tty_fd=""
-  if { exec 3<>/dev/tty; } 2>/dev/null; then tty_fd=3
+  # /dev/tty is not always available to the controlling process (observed
+  # on CI containers) even when stdin itself is a real terminal — mirror
+  # lib/phases.sh's tnx_prompt_distro, which tries /dev/tty first and
+  # falls back to stdin, rather than assuming /dev/tty always works.
+  # Everything below keeps assuming fd 3 uniformly either way.
+  if { exec 3<>/dev/tty; } 2>/dev/null; then :
+  elif [ -t 0 ]; then exec 3<&0
   else
     _tnx_logs_view_fallback "$file"
     return 0
   fi
-  if [ "${TERM:-}" = dumb ] || ! [ -t "$tty_fd" ]; then
+  if [ "${TERM:-}" = dumb ] || ! [ -t 3 ]; then
     exec 3<&-
     _tnx_logs_view_fallback "$file"
     return 0
