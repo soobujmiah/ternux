@@ -29,7 +29,7 @@ jobs:
     timeout-minutes: 90
     steps:
       - name: Check out Ternux metadata
-        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Install Vulkan build dependencies
         run: |
@@ -40,7 +40,7 @@ jobs:
             libssl-dev libgomp1 libvulkan1
 
       - name: Check out pinned llama.cpp source
-        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: ggml-org/llama.cpp
           ref: af50f2f248b475d9760f8e67503d01c0f194f5f4
@@ -235,7 +235,7 @@ jobs:
       source_sha: ${{ steps.provenance.outputs.source_sha }}
     steps:
       - name: Check out release source for provenance checks
-        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
 
@@ -288,7 +288,7 @@ jobs:
       SOURCE_ARTIFACT_SHA: ${{ needs.verify_source.outputs.source_sha || github.sha }}
     steps:
       - name: Check out release source for provenance checks
-        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
 

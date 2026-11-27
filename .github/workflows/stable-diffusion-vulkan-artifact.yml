@@ -29,7 +29,7 @@ jobs:
     timeout-minutes: 120
     steps:
       - name: Check out Ternux metadata
-        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Install build and runtime dependencies
         run: |
@@ -40,7 +40,7 @@ jobs:
             python3 binutils file
 
       - name: Check out pinned stable-diffusion.cpp source
-        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: leejet/stable-diffusion.cpp
           ref: 5a1ba5d895bec4e07deab80d6d791721cd59d9c2
@@ -186,7 +186,7 @@ jobs:
       source_sha: ${{ steps.provenance.outputs.source_sha }}
     steps:
       - name: Check out release source for provenance checks
-        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
 
@@ -241,7 +241,7 @@ jobs:
       SOURCE_ARTIFACT_SHA: ${{ needs.verify_source.outputs.source_sha || github.sha }}
     steps:
       - name: Check out release source for provenance checks
-        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
 

@@ -23,10 +23,10 @@ jobs:
     timeout-minutes: 120
     steps:
       - name: Check out Ternux release metadata
-        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Check out pinned llama.cpp source
-        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: karusrus/llama.cpp
           ref: 08c83734f9c5c3b497e98b96f1a380f5a6084468
@@ -210,7 +210,7 @@ jobs:
       contents: read
     steps:
       - name: Check out release source for provenance checks
-        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
 
