@@ -417,6 +417,52 @@ class Tap:
         return 1 if self.bad else 0
 
 
+def pre_close_snapshot(screen: Screen, after_time: float) -> str | None:
+    """Last rendered snapshot at/after `after_time`, before `tnx_frame_close`
+    runs its own independent re-measure-and-redraw (marked by "Stopped at
+    phase", text only tnx_frame_close prints). Used to assert that a resize
+    was actually honored live, mid-stream — not merely papered over by the
+    close-time redraw, which would fit correctly even if live SIGWINCH
+    handling were broken.
+    """
+    chosen = None
+    for t, text, _html in screen.snapshots:
+        if "Stopped at phase" in text:
+            break
+        if t >= after_time:
+            chosen = text
+    return chosen
+
+
+def assert_live_refit(tap: Tap, screen: Screen, label: str, after_time: float, expect_width: int) -> None:
+    snap = pre_close_snapshot(screen, after_time)
+    tap.check(snap is not None, f"{label}: a pre-close snapshot exists after the resize", "")
+    if snap is None:
+        return
+    lines = snap.split("\n")
+    rule_rows = [i for i, ln in enumerate(lines)
+                 if ln.strip().startswith("+") and ln.strip().endswith("+") and len(ln.strip()) > 8]
+    tap.check(bool(rule_rows), f"{label}: pre-close snapshot has a frame rule", snap)
+    if not rule_rows:
+        return
+    widths = {len(lines[i]) for i in rule_rows}
+    tap.check(
+        widths == {expect_width},
+        f"{label}: the live stream refits to width {expect_width} before close, not just at close",
+        f"widths {sorted(widths)} in:\n{snap}",
+    )
+    left = len(lines[rule_rows[0]]) - len(lines[rule_rows[0]].lstrip())
+    right = left + len(lines[rule_rows[0]].strip()) - 1
+    bad = []
+    for i in range(rule_rows[0], rule_rows[-1] + 1):
+        ln = lines[i]
+        if not ln:
+            continue
+        if right >= len(ln) or ln[left] not in "+|" or ln[right] not in "+|":
+            bad.append(f"row {i}: border broken {ln!r}")
+    tap.check(not bad, f"{label}: pre-close snapshot keeps its borders intact", "\n".join(bad))
+
+
 def frame_columns(screen: Screen):
     """Return (left, right) border columns of the drawn frame, or None.
 
@@ -580,6 +626,7 @@ def main() -> int:
     # 5. Live resize in the middle of a phase.
     screen5, log5, _ = run(args.lib, 30, 64, resize_to=(22, 46))
     analyse(tap, screen5, log5, "", "resize 64x30 -> 46x22", expect_clears=5, expect_width=45)
+    assert_live_refit(tap, screen5, "resize 64x30 -> 46x22", after_time=1.9, expect_width=45)
 
     if args.dump:
         print("--- final screen after resize (46x22) ---")
@@ -594,6 +641,8 @@ def main() -> int:
     )
     analyse(tap, screen6, log6, "", "keyboard open/close 58x34 -> 58x20 -> 58x34",
             expect_clears=8, expect_width=57)
+    assert_live_refit(tap, screen6, "keyboard open/close (keyboard open, 20 rows)", after_time=1.6, expect_width=57)
+    assert_live_refit(tap, screen6, "keyboard open/close (keyboard closed again, 34 rows)", after_time=2.8, expect_width=57)
 
     # 7. Rapid resize: several SIGWINCHes fire well inside one poll interval
     #    (_TNX_RESIZE_MS=1200ms), as happens while a user drags a split-screen
@@ -604,6 +653,7 @@ def main() -> int:
     )
     analyse(tap, screen7, log7, "", "rapid resize (4 SIGWINCH in 300ms)",
             expect_clears=10, expect_width=29)
+    assert_live_refit(tap, screen7, "rapid resize (4 SIGWINCH in 300ms)", after_time=1.7, expect_width=29)
 
     # 8. Orientation change: a full portrait<->landscape swap, not just a
     #    magnitude change — exercises the same code path real rotation does.
@@ -613,6 +663,7 @@ def main() -> int:
     screen8, log8, _ = run(args.lib, 58, 34, resize_schedule=[(1.4, 34, 58)])
     analyse(tap, screen8, log8, "", "orientation change 34x58 -> 58x34",
             expect_clears=8, expect_width=57, has_task_row=False)
+    assert_live_refit(tap, screen8, "orientation change 34x58 -> 58x34", after_time=1.8, expect_width=57)
 
     if args.html:
         mid = min(screen.snapshots, key=lambda s: abs(s[0] - 1.1), default=None)
