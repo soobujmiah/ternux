@@ -642,7 +642,7 @@ def main() -> int:
     analyse(tap, screen6, log6, "", "keyboard open/close 58x34 -> 58x20 -> 58x34",
             expect_clears=8, expect_width=57)
     assert_live_refit(tap, screen6, "keyboard open/close (keyboard open, 20 rows)", after_time=1.6, expect_width=57)
-    assert_live_refit(tap, screen6, "keyboard open/close (keyboard closed again, 34 rows)", after_time=2.8, expect_width=57)
+    assert_live_refit(tap, screen6, "keyboard open/close (keyboard closed again, 34 rows)", after_time=2.4, expect_width=57)
 
     # 7. Rapid resize: several SIGWINCHes fire well inside one poll interval
     #    (_TNX_RESIZE_MS=1200ms), as happens while a user drags a split-screen
