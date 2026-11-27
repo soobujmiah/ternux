@@ -47,7 +47,7 @@ tnx_help() {
   tnx_print_two_col stop '[DISTRO ...|--all]'
   tnx_print_two_col restart '[DISTRO]'
   tnx_print_two_col status '[DISTRO]'
-  tnx_help_tree_row logs '[show|tail|clear|list|desktop [show|tail]|session [show|tail]]'
+  tnx_help_tree_row logs '[show|tail|view [FILE]|clear|list|desktop [show|tail]|session [show|tail]]'
   tnx_help_tree_row doctor '[CATEGORY|DISTRO ...|--quick|--strict]'
   tnx_print_two_col repair 'Apply safe repairs for detected host or guest problems'
   tnx_print_two_col verify '[DISTRO]'
@@ -375,10 +375,22 @@ Usage: tx logs <subcommand>
 Subcommands:
   show [n]     Show last n log lines (default: 50)
   tail         Follow log output in real time
+  view [FILE]  Advanced live log viewer (default: the CLI/install log)
   clear        Clear the CLI/install log file
   list         List available log files
   desktop [show|tail] [DISTRO]  Read/follow one guest's desktop log
   session [show|tail] [DISTRO]  Alias for desktop logs
+
+view opens an interactive, live-following pager (falls back to a plain
+'show' dump when there is no interactive terminal to drive it from):
+  j/k, up/down   scroll one line
+  space, b       page down / page up
+  g, G           jump to the top / bottom
+  /              search; n/N jump to the next/previous match
+  e              export (the current search's matches, or the whole
+                 loaded buffer if no search is active) to a file
+  f              resume live-follow (any scroll/search pauses it)
+  q              quit
 HELP
 }
 
