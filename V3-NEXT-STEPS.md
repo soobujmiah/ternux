@@ -6,8 +6,8 @@ Delete this file once all items below are merged and their facts (if still
 worth keeping) have been folded into `docs/project/` canonical docs, per
 `AI_ASSISTANT.md`'s "keep one canonical record" rule.
 
-Workstreams **02–10 and 12 of the original 18 are done and merged to
-main** (PRs #326–335, #337, #339) — note that excludes 01, listed as
+Workstreams **02–12 of the original 18 are done and merged to main**
+(PRs #326–335, #337, #339, #341) — note that excludes 01, listed as
 item 7 below, not yet started. Before touching any area below, check whether
 it already exists — grep the codebase and `git log --oneline -30`
 first; `CHANGELOG.md` and recent merge commits are the fastest way to
@@ -31,11 +31,21 @@ confirm current state. What's left:
    "already works" assessment. A real Codex finding caught that the new
    test's `lua5.4` dependency was missing from a second workflow
    (`repo-knowledge-sync.yml`) that also runs `tests/focused.sh`; fixed.
-3. **11. Startup and Performance** — fix the first-boot flicker
-   (theme/wallpaper applied *after* XFCE starts, in `lib/phases.sh`'s
-   guest-setup sequence) by moving theme asset prep earlier; add real
-   timing instrumentation (none exists yet) around X11-ready /
-   XFWM4-ready / panel-ready / desktop-ready boundaries.
+3. ~~**11. Startup and Performance**~~ — **done, PR #341.** Moved the
+   theme/icon/cursor/wallpaper `xfconf-query` calls in `lib/phases.sh`'s
+   guest-setup sequence to run *before* `startxfce4 &` instead of after
+   (xfconf-query only needs the D-Bus session already held, not a
+   running xfwm4/xfdesktop) — fixes the first-boot flicker from stock
+   XFCE to the Ternux look. The one piece that genuinely needs a live
+   XFCE (the panel background-style loop, which enumerates xfce4-panel's
+   own panel objects) stays post-ready. Added `SECONDS`-based timing
+   instrumentation at the X11-ready/xfwm4-ready/panel-ready/desktop-ready
+   boundaries without touching the existing timeout/failure logic. Full
+   pin-refresh dance done (lib/ changed). Caught two real "apostrophe
+   breaks the outer single-quoted `bash -c '...'`" bugs along the way —
+   one in the new `lib/phases.sh` comment, one in my own new
+   `tests/focused.sh` assertions — both found via direct `bash -n`
+   reproduction before any PR was opened, not by CI.
 4. **13. Everyday Commands and Setup Guides** — `ternux guides` (in
    `bin/ternux`) has solid quick-start content but hasn't been
    revisited since the V3 rename/wallpaper/theme/log-viewer work — it's
