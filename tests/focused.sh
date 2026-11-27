@@ -33,6 +33,7 @@ check "APT IPv6 default-route detection reads the destination prefix field" pyth
 check "managed guest shells default Codex installer to non-interactive mode" bash "$ROOT/tests/codex_installer_env.sh"
 check "interactive prompts stay visible while installer output is streamed" python3 "$ROOT/tests/confirm_prompt.py"
 check "X11 windows are centered, scaled, and kept inside the usable display area" python3 "$ROOT/tests/window_fit_geometry.py"
+check "devilspie2 window-fit fallback centers and clamps windows the same way" lua5.4 "$ROOT/tests/window_fit_lua_geometry.lua"
 
 # User-facing CLI help must track the dispatcher and supported guest profiles.
 if cli_help="$(bash "$ROOT/bin/ternux" --help 2>&1)" \
