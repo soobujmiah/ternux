@@ -31,7 +31,7 @@ jobs:
     environment: apt-release
     steps:
       - name: Check out Ternux
-        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
@@ -45,7 +45,7 @@ jobs:
           }
 
       - name: Check out pinned Termux package builder
-        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: termux/termux-create-package
           ref: a7e20f92cfc9664a6ab6232bc826e86da73a8524
@@ -53,7 +53,7 @@ jobs:
           persist-credentials: false
 
       - name: Check out pinned Termux APT repository builder
-        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: termux/termux-apt-repo
           ref: f2bf088281248e8817b913cc778750796ea5dc19
@@ -153,7 +153,7 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: Check out Ternux
-        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
