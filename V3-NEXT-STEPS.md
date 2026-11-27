@@ -6,9 +6,9 @@ Delete this file once all items below are merged and their facts (if still
 worth keeping) have been folded into `docs/project/` canonical docs, per
 `AI_ASSISTANT.md`'s "keep one canonical record" rule.
 
-Workstreams **02–13 of the original 18 are done and merged to main**
-(PRs #326–335, #337, #339, #341, #343) — note that excludes 01, listed
-as item 7 below, not yet started. Before touching any area below, check whether
+Workstreams **02–16 of the original 18 are done and merged to main**
+(PRs #326–335, #337, #339, #341, #343, #345) — note that excludes 01,
+listed as item 7 below, not yet started. Before touching any area below, check whether
 it already exists — grep the codebase and `git log --oneline -30`
 first; `CHANGELOG.md` and recent merge commits are the fastest way to
 confirm current state. What's left:
@@ -53,16 +53,22 @@ confirm current state. What's left:
    `set Green|Crimson`. Every subcommand/flag was copy-pasted from the
    commands' own `--help` output. Pin-refresh dance done (`bin/`
    changed).
-5. **14/15/16. Fetch identity + monograms + 3-line layout** — all three
-   touch `share/terfetch/terfetch`. **Critical constraint**: Native and
-   PRoot distro Fetch share `set_logo()` and the compact-logo case
-   table. Curate Native's 17→10 list by editing *only*
-   `native_logo_ids` (check the current line number, it moves); never
-   delete a case from `set_logo()`/the compact-logo table, since PRoot
-   distro selection depends on those same cases. The 3-line layout +
-   "protected monogram region" is new rendering logic around the
-   existing field-filtering/row-truncation code — test against both
-   Native and PRoot paths together, they aren't separable here.
+5. ~~**14/15/16. Fetch identity + monograms + 3-line layout**~~ —
+   **done, PR #345.** Curated `native_logo_ids` from 17 to 10 (plus
+   Sobuj): kept Android, redesigned the Workstation mark, dropped all
+   managed distro logos from native rotation, added eight new
+   tech/science marks (atom, circuit, DNA, rocket, satellite,
+   telescope, radar, flask) with dense filled art matching Android's
+   style — PRoot guests unaffected, every existing `set_logo()`/
+   `compact_logo` case only had entries added, none deleted. Added the
+   3-line "protected monogram region" layout for terminals too narrow
+   even for the compact bracket tag. Found and fixed a real pre-existing
+   bug: native rotation's `rockylinux` entry never matched `set_logo()`'s
+   `rocky` case, silently falling back to the generic placeholder.
+   `tests/terfetch.sh` existed with real assertions but was never
+   actually wired into CI — fixed that too. Design was iterated live
+   with the user (direct terminal rendering, then an ASCII mockup) before
+   writing the final version.
 6. **17. CLI design system** — the Group-1 color-token table
    (`tools/ternux_palette.py`) and the dashboard/log-viewer work are
    done; whatever broader scope this workstream still implies (e.g.
