@@ -108,9 +108,11 @@ time.sleep(2)  # four times the 0.5s read timeout
 if idle_proc.poll() is not None:
     idle_proc.kill()
     raise SystemExit("the viewer exited on its own after ~2s of idle time (no keys pressed)")
-idle_proc.stdin.write(b"q")
-idle_proc.stdin.close()
-idle_out, idle_err = idle_proc.communicate(timeout=10)
+# communicate(input=...) writes and closes stdin itself in one coordinated
+# step; manually closing stdin first and calling communicate() afterward
+# raced with Python's own internal stdin handling on at least one CI
+# Python version (3.12), raising "ValueError: flush of closed file".
+idle_out, idle_err = idle_proc.communicate(input=b"q", timeout=10)
 if idle_proc.returncode != 0:
     raise SystemExit(f"viewer exited {idle_proc.returncode} after idling then 'q': {(idle_out + idle_err)[-300:]!r}")
 
