@@ -4,7 +4,7 @@
 
 **স্বয়ংক্রিয় সংগ্রহশালা-অবস্থা:** [`.repo/STATUS.md`](../.repo/STATUS.md)—`tools/repo_knowledge` দিয়ে তৈরি।
 
-# ternux
+# ![Ternux](../docs/assets/ternux-wordmark.png)
 
 ### এআরএম৬৪ অ্যান্ড্রয়েড ফোনে লিনাক্স ডেস্কটপ — রুট লাগে না
 
@@ -93,7 +93,7 @@ graphics, diagnostics ও ঐচ্ছিক workload পরিচালনা �
 পারলে কমান্ডটি `wget` দিয়ে আবার চেষ্টা করে:
 
 ```bash
-pkg update -y && pkg upgrade -y && pkg install -y curl wget && bash -c 's=$(mktemp) && (curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/8a436478c7d18c53536e88026e1543e400741214/install.sh -o "$s" || wget -qO "$s" https://raw.githubusercontent.com/soobujmiah/ternux/8a436478c7d18c53536e88026e1543e400741214/install.sh) && bash "$s"; r=$?; rm -f "$s"; exit "$r"'
+pkg update -y && pkg upgrade -y && pkg install -y curl wget && bash -c 's=$(mktemp) && (curl -fsSL https://raw.githubusercontent.com/soobujmiah/ternux/f578a0049b9f542a6cf2dd6a002583fea4124ecf/install.sh -o "$s" || wget -qO "$s" https://raw.githubusercontent.com/soobujmiah/ternux/f578a0049b9f542a6cf2dd6a002583fea4124ecf/install.sh) && bash "$s"; r=$?; rm -f "$s"; exit "$r"'
 ```
 
 কোনো আবশ্যিক ধাপে ইনস্টলেশন থেমে গেলে একই কমান্ড আবার চালান। এতে বর্তমান

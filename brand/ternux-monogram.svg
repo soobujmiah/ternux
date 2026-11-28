@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 232" width="220" height="232" role="img" aria-label="Ternux monogram">
+  <title>Ternux monogram</title>
+  <defs>
+    <filter id="tnx-spray" x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.018 0.03" numOctaves="2" seed="7" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="7" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <filter id="tnx-spray-fine" x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.05 0.08" numOctaves="2" seed="3" result="noise"/>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3.5" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+  <g filter="url(#tnx-spray)">
+    <path d="M40,46 L182,40 L186,78 L138,82 L146,196 L84,202 L80,88 L36,90 Z"
+          fill="#0c0a08" stroke="#0c0a08" stroke-width="14" stroke-linejoin="round"/>
+    <path d="M40,46 L182,40 L186,78 L138,82 L146,196 L84,202 L80,88 L36,90 Z"
+          fill="#39e68c" stroke="#08784c" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M46,52 L120,48 L122,66 L50,70 Z" fill="#f3efe2" opacity="0.55"/>
+  </g>
+  <g filter="url(#tnx-spray-fine)">
+    <path d="M92,196 C90,208 86,218 80,226 C88,224 95,216 96,204 Z" fill="#39e68c" stroke="#08784c" stroke-width="2"/>
+    <path d="M150,170 C154,180 154,190 148,198 C154,194 159,186 157,176 Z" fill="#39e68c" stroke="#08784c" stroke-width="2"/>
+  </g>
+</svg>

@@ -1343,6 +1343,18 @@ tnx_celebrate() {
     printf '\n  %s== %sB A S E   D E S K T O P   R E A D Y%s ==%s\n' "$TNX_CY" "$TNX_CW" "$TNX_CY" "$TNX_C0"
     printf '  %sRequired install phases passed; selected optional setup needs attention.%s\n' "$TNX_CD" "$TNX_C0"
   else
+    printf '\n%s' "$TNX_CG"
+    printf '   ,gggggggggggggggg,\n'
+    printf '  dddddddddddddddddddb\n'
+    printf '  `dddd            dddd`\n'
+    printf '        dddddddd\n'
+    printf '        dddddddd\n'
+    printf '        dddddddd\n'
+    printf '        dddddddd\n'
+    printf '        dddddddd\n'
+    printf '         `gggg`\n'
+    printf '          `gg`\n'
+    printf '%s' "$TNX_C0"
     printf '\n  %s== %sI N S T A L L   C O M P L E T E%s ==%s\n' "$TNX_CG" "$TNX_CW" "$TNX_CG" "$TNX_C0"
     printf '  %sRequired install phases and final verification completed.%s\n' "$TNX_CD" "$TNX_C0"
   fi

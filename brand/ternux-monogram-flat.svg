@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 220" width="220" height="220" role="img" aria-label="Ternux monogram">
+  <title>Ternux monogram</title>
+  <path d="M40,46 L182,40 L186,78 L138,82 L146,196 L84,202 L80,88 L36,90 Z"
+        fill="#39e68c" stroke="#0c0a08" stroke-width="12" stroke-linejoin="round"/>
+  <path d="M46,52 L120,48 L122,66 L50,70 Z" fill="#f3efe2" opacity="0.5"/>
+</svg>
