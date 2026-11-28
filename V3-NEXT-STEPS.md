@@ -6,9 +6,10 @@ Delete this file once all items below are merged and their facts (if still
 worth keeping) have been folded into `docs/project/` canonical docs, per
 `AI_ASSISTANT.md`'s "keep one canonical record" rule.
 
-Workstreams **02–17 of the original 18 are done and merged to main**
-(PRs #326–335, #337, #339, #341, #343, #345, #347) — note that excludes
-01, listed as item 7 below, not yet started. Before touching any area below, check whether
+Workstreams **01–17 of the original 18 are done and merged to main**
+(PRs #326–335, #337, #339, #341, #343, #345, #347, #349) — only
+workstream 18 (item 8 below, integration/regression testing) remains.
+Before touching any area below, check whether
 it already exists — grep the codebase and `git log --oneline -30`
 first; `CHANGELOG.md` and recent merge commits are the fastest way to
 confirm current state. What's left:
@@ -95,9 +96,31 @@ confirm current state. What's left:
    not just the usual `TERNUX_SOURCE_COMMIT`/`SHA256` bootstrap pair —
    whenever the pinned file's *content* changes, not just when doing
    the standard pin-refresh dance.
-7. **01. Brand identity and graffiti logo** — mostly asset creation
-   (logo files, optional terminal animation). Not started; no design
-   decisions locked beyond the existing Green/Crimson theme palette.
+7. ~~**01. Brand identity and graffiti logo**~~ — **done, PR #349.**
+   Picked a literal street-art/graffiti style after user review of three
+   candidate directions (bubble-block, wildstyle tag, spray-can badge),
+   confirmed at favicon scale (16/32px) before committing to a direction.
+   Built a bubble-letter "T" monogram and full "TERNUX" wordmark with an
+   SVG `feTurbulence`/`feDisplacementMap` spray-stencil edge and drip
+   accents; wired the monogram into the website favicon set (replacing a
+   generic placeholder icon), the wordmark into the README/bn README
+   header, and a hand-authored ASCII rendering into `lib/ui.sh`'s
+   `tnx_celebrate()` success banner. Left the existing
+   `assets/img/og-card.png` untouched (a different, already-good asset
+   for a different purpose — showing the product, not the brand mark).
+
+   **Lessons from this PR's review cycle**: Codex caught two genuinely
+   real findings in generated content that easy local verification
+   missed — (1) replacing a README's `# ternux` H1 with a bare image
+   instead of wrapping the image *inside* the H1 silently drops the
+   document's only level-1 heading (breaks screen-reader navigation);
+   (2) an SVG's `viewBox` clipped a decorative path (a drip) that
+   extended past its bottom edge, only visible on close visual
+   inspection, not from the SVG source alone. CI also caught two routine
+   but real issues: Prettier formatting on new multi-attribute Astro
+   `<link>` tags, and trailing whitespace left by a Python
+   string-interpolation script that generated one of the SVGs. None of
+   the four were flakiness — each was reproduced and fixed directly.
 8. **18. Integration and regression testing** — run the full
    `tests/focused.sh` + Bats suite + `tests/docs_check.py` +
    `tests/ui_render.py` after whichever of the above lands, not saved
