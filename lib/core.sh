@@ -16,7 +16,7 @@ TERNUX_REPO="https://github.com/soobujmiah/ternux"
 # Keep these values aligned with install.sh; refresh only from a reviewed archive.
 TERNUX_SOURCE_COMMIT="0138d1993b11bd5b3aff8285d3991be55d069a13"
 TERNUX_SOURCE_SHA256="c6556d07040c7c061f12382526ab1833b3eab773e4766a1179a3824132caef7e"
-TERNUX_GUEST_CLI_SHA256="11f3e202eaae2046cfe11b61edc13d754566ca428faeb2b25a088352792aaaf5"
+TERNUX_GUEST_CLI_SHA256="e26523a03167b4bfe526d420a5710b5c18879d7cb8b1e223cb619d3094b276d6"
 TERNUX_STATE_DIR="${TERNUX_STATE_DIR:-$HOME/.local/share/ternux}"
 TERNUX_LOG_DIR="${TERNUX_LOG_DIR:-${TMPDIR:-/data/data/com.termux/files/usr/tmp}/ternux}"
 TERNUX_LOG_FILE="$TERNUX_LOG_DIR/ternux.log"
