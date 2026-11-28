@@ -6,9 +6,9 @@ Delete this file once all items below are merged and their facts (if still
 worth keeping) have been folded into `docs/project/` canonical docs, per
 `AI_ASSISTANT.md`'s "keep one canonical record" rule.
 
-Workstreams **02–16 of the original 18 are done and merged to main**
-(PRs #326–335, #337, #339, #341, #343, #345) — note that excludes 01,
-listed as item 7 below, not yet started. Before touching any area below, check whether
+Workstreams **02–17 of the original 18 are done and merged to main**
+(PRs #326–335, #337, #339, #341, #343, #345, #347) — note that excludes
+01, listed as item 7 below, not yet started. Before touching any area below, check whether
 it already exists — grep the codebase and `git log --oneline -30`
 first; `CHANGELOG.md` and recent merge commits are the fastest way to
 confirm current state. What's left:
@@ -69,12 +69,32 @@ confirm current state. What's left:
    actually wired into CI — fixed that too. Design was iterated live
    with the user (direct terminal rendering, then an ASCII mockup) before
    writing the final version.
-6. **17. CLI design system** — the Group-1 color-token table
-   (`tools/ternux_palette.py`) and the dashboard/log-viewer work are
-   done; whatever broader scope this workstream still implies (e.g.
-   consistent spacing/iconography conventions across all CLI output)
-   is not yet scoped out in detail — ask the user if the original V3
-   directive text is unclear rather than inventing scope.
+6. ~~**17. CLI design system**~~ — **done, PR #347.** The color-token
+   table and dashboard/log-viewer work were already done; auditing
+   actual rendered output found a real, visible inconsistency:
+   `tnx_ok`/`tnx_warn`/`tnx_fail`/`tnx_info` use a 2-space gap after the
+   bracket tag, while `tnx_spin_run`'s `[TASK]`/`[DONE]`/`[FAIL]` and
+   several other inline status lines across `lib/extension.sh`,
+   `lib/phases.sh`, `bin/ternux`, `bin/ternux-guest`, and `install.sh`
+   used only 1 space — visibly misaligning mixed output (e.g. during
+   Termux package repair). Fixed every occurrence found by an
+   exhaustive grep sweep; added a regression test.
+
+   **Lesson for future PRs touching any pinned-content file**: editing
+   `bin/ternux-guest`'s text changed its bytes and therefore its
+   SHA-256, but `TERNUX_GUEST_CLI_SHA256` in `lib/core.sh` — the pin
+   `tnx_install_guest_cli` verifies the downloaded companion against —
+   was not updated to match. This produced a **100% deterministic**
+   test failure (`tests/focused.sh`'s "guest CLI fallback downloads the
+   immutable pinned file and verifies its digest") that was misdiagnosed
+   as CI flakiness for 5 consecutive reruns before being properly
+   debugged: reproduced the test's exact mock scenario locally, traced
+   it to the SHA mismatch via direct output inspection. Any file with a
+   pinned hash elsewhere in the codebase (`TERNUX_SOURCE_SHA256`,
+   `TERNUX_GUEST_CLI_SHA256`, and similar) needs its pin re-verified —
+   not just the usual `TERNUX_SOURCE_COMMIT`/`SHA256` bootstrap pair —
+   whenever the pinned file's *content* changes, not just when doing
+   the standard pin-refresh dance.
 7. **01. Brand identity and graffiti logo** — mostly asset creation
    (logo files, optional terminal animation). Not started; no design
    decisions locked beyond the existing Green/Crimson theme palette.
