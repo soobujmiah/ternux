@@ -4,7 +4,7 @@
 
 **স্বয়ংক্রিয় সংগ্রহশালা-অবস্থা:** [`.repo/STATUS.md`](../.repo/STATUS.md)—`tools/repo_knowledge` দিয়ে তৈরি।
 
-![Ternux](../docs/assets/ternux-wordmark.png)
+# ![Ternux](../docs/assets/ternux-wordmark.png)
 
 ### এআরএম৬৪ অ্যান্ড্রয়েড ফোনে লিনাক্স ডেস্কটপ — রুট লাগে না
 
