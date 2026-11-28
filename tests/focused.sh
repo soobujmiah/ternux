@@ -4888,6 +4888,15 @@ else
   not_ok "status-tag prefixes from tnx_ok/tnx_warn and tnx_spin_run align to the same column"
 fi
 
+# The successful-install celebration shows the brand monogram once; the
+# warning (partial-success) path stays lean and must not show it.
+celebrate_success="$(NO_COLOR=1 bash -c '. "$1/lib/core.sh"; . "$1/lib/ui.sh"; tnx_celebrate' _ "$ROOT" 2>&1)"
+celebrate_warning="$(NO_COLOR=1 bash -c '. "$1/lib/core.sh"; . "$1/lib/ui.sh"; tnx_celebrate warning' _ "$ROOT" 2>&1)"
+check "install-complete celebration shows the brand monogram" \
+  bash -c '[[ "$1" == *"gggggggggg"* ]] && [[ "$1" == *"INSTALL COMPLETE"* || "$1" == *"I N S T A L L"* ]]' _ "$celebrate_success"
+check "partial-success celebration omits the brand monogram" \
+  bash -c '[[ "$1" != *"gggggggggg"* ]]' _ "$celebrate_warning"
+
 printf '1..%d\n' "$((pass + fail))"
 printf '# pass %d\n# fail %d\n' "$pass" "$fail"
 [ "$fail" -eq 0 ]
