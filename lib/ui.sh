@@ -1218,12 +1218,12 @@ tnx_phase_header() {
 tnx_spin_run() {
   local label="$1"; shift
   local rc=0
-  printf '%s[TASK]%s %s%s%s\n' "$TNX_CM" "$TNX_C0" "$TNX_CC" "$label" "$TNX_C0"
+  printf '%s[TASK]%s  %s%s%s\n' "$TNX_CM" "$TNX_C0" "$TNX_CC" "$label" "$TNX_C0"
   "$@" 2>&1; rc=$?
   if [ "$rc" -eq 0 ]; then
-    printf '%s[DONE]%s %s\n' "$TNX_CG" "$TNX_C0" "$label"
+    printf '%s[DONE]%s  %s\n' "$TNX_CG" "$TNX_C0" "$label"
   else
-    printf '%s[FAIL]%s %s (status %s)\n' "$TNX_CR" "$TNX_C0" "$label" "$rc"
+    printf '%s[FAIL]%s  %s (status %s)\n' "$TNX_CR" "$TNX_C0" "$label" "$rc"
   fi
   return "$rc"
 }
